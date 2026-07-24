@@ -234,6 +234,53 @@ func (AiMessageStatus) EnumDescriptor() ([]byte, []int) {
 	return file_common_v1_enum_proto_rawDescGZIP(), []int{3}
 }
 
+// 支付通知资源类型
+type ResourceType int32
+
+const (
+	ResourceType_TRANSACTION ResourceType = 0 // 支付
+	ResourceType_REFUND      ResourceType = 1 // 退款
+)
+
+// Enum value maps for ResourceType.
+var (
+	ResourceType_name = map[int32]string{
+		0: "TRANSACTION",
+		1: "REFUND",
+	}
+	ResourceType_value = map[string]int32{
+		"TRANSACTION": 0,
+		"REFUND":      1,
+	}
+)
+
+func (x ResourceType) Enum() *ResourceType {
+	p := new(ResourceType)
+	*p = x
+	return p
+}
+
+func (x ResourceType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ResourceType) Descriptor() protoreflect.EnumDescriptor {
+	return file_common_v1_enum_proto_enumTypes[4].Descriptor()
+}
+
+func (ResourceType) Type() protoreflect.EnumType {
+	return &file_common_v1_enum_proto_enumTypes[4]
+}
+
+func (x ResourceType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ResourceType.Descriptor instead.
+func (ResourceType) EnumDescriptor() ([]byte, []int) {
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{4}
+}
+
 // 终端类型
 type Terminal int32
 
@@ -268,11 +315,11 @@ func (x Terminal) String() string {
 }
 
 func (Terminal) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[4].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[5].Descriptor()
 }
 
 func (Terminal) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[4]
+	return &file_common_v1_enum_proto_enumTypes[5]
 }
 
 func (x Terminal) Number() protoreflect.EnumNumber {
@@ -281,7 +328,7 @@ func (x Terminal) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Terminal.Descriptor instead.
 func (Terminal) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{4}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{5}
 }
 
 var File_common_v1_enum_proto protoreflect.FileDescriptor
@@ -310,7 +357,11 @@ const file_common_v1_enum_proto_rawDesc = "" +
 	"\fUNKNOWN_AAMS\x10\x00\x12\x13\n" +
 	"\x0fGENERATING_AAMS\x10\x01\x12\x10\n" +
 	"\fSUCCESS_AAMS\x10\x02\x12\x0f\n" +
-	"\vFAILED_AAMS\x10\x03*J\n" +
+	"\vFAILED_AAMS\x10\x03*+\n" +
+	"\fResourceType\x12\x0f\n" +
+	"\vTRANSACTION\x10\x00\x12\n" +
+	"\n" +
+	"\x06REFUND\x10\x01*J\n" +
 	"\bTerminal\x12\x18\n" +
 	"\x14TERMINAL_UNSPECIFIED\x10\x00\x12\x10\n" +
 	"\fTERMINAL_APP\x10\x01\x12\x12\n" +
@@ -330,13 +381,14 @@ func file_common_v1_enum_proto_rawDescGZIP() []byte {
 	return file_common_v1_enum_proto_rawDescData
 }
 
-var file_common_v1_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
+var file_common_v1_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
 var file_common_v1_enum_proto_goTypes = []any{
 	(Status)(0),              // 0: common.v1.Status
 	(BaseConfigSite)(0),      // 1: common.v1.BaseConfigSite
 	(PasswordCryptoScene)(0), // 2: common.v1.PasswordCryptoScene
 	(AiMessageStatus)(0),     // 3: common.v1.AiMessageStatus
-	(Terminal)(0),            // 4: common.v1.Terminal
+	(ResourceType)(0),        // 4: common.v1.ResourceType
+	(Terminal)(0),            // 5: common.v1.Terminal
 }
 var file_common_v1_enum_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -356,7 +408,7 @@ func file_common_v1_enum_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_v1_enum_proto_rawDesc), len(file_common_v1_enum_proto_rawDesc)),
-			NumEnums:      5,
+			NumEnums:      6,
 			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   0,

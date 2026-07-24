@@ -8,6 +8,7 @@ package main
 
 import (
 	"github.com/go-kratos/kratos/v3"
+	kratosadmin "github.com/liujitcn/kratos-admin/backend"
 	"github.com/liujitcn/kratos-admin/backend/pkg/agent/eino/model"
 	"github.com/liujitcn/kratos-admin/backend/pkg/biz"
 	"github.com/liujitcn/kratos-admin/backend/pkg/config"
@@ -303,7 +304,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		BaseArea: appBaseAreaService,
 		BaseDict: appBaseDictService,
 	}
-	modules, err := newModules(services, adminServices, appServices)
+	additionalModules := _wireAdditionalModulesValue
+	modules, err := kratosadmin.NewModules(services, adminServices, appServices, additionalModules)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -338,7 +340,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	kratosApp := newApp(context, cronServer, grpcServer, httpServer)
+	kratosApp := kratosadmin.NewApp(context, cronServer, grpcServer, httpServer)
 	return kratosApp, func() {
 		cleanup4()
 		cleanup3()
@@ -348,5 +350,6 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 }
 
 var (
-	_wireValue = []gorm.ClientOption(nil)
+	_wireValue                  = []gorm.ClientOption(nil)
+	_wireAdditionalModulesValue = kratosadmin.AdditionalModules(nil)
 )

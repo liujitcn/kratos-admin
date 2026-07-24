@@ -5,14 +5,9 @@ import (
 
 	systemConfig "github.com/liujitcn/kratos-admin/backend/pkg/config"
 	_const "github.com/liujitcn/kratos-admin/backend/pkg/const"
-	"github.com/liujitcn/kratos-admin/backend/pkg/job"
 
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 
-	"github.com/go-kratos/kratos/v3"
-	kratosTransport "github.com/go-kratos/kratos/v3/transport"
-	"github.com/go-kratos/kratos/v3/transport/grpc"
-	"github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/liujitcn/kratos-kit/bootstrap"
 
 	//_ "github.com/liujitcn/kratos-kit/database/gorm/driver/bigquery"
@@ -52,26 +47,6 @@ var (
 	AppID   = "admin"
 	version = "1.0.0"
 )
-
-// newApp 组装应用实例并挂载定时任务、GRPC 与 HTTP 服务。
-func newApp(
-	ctx *bootstrap.Context,
-	cron *job.CronServer,
-	gs *grpc.Server,
-	hs *http.Server,
-) *kratos.App {
-	servers := make([]kratosTransport.Server, 0, 3)
-	if cron != nil {
-		servers = append(servers, cron)
-	}
-	if gs != nil {
-		servers = append(servers, gs)
-	}
-	if hs != nil {
-		servers = append(servers, hs)
-	}
-	return bootstrap.NewApp(ctx, servers...)
-}
 
 // main 作为服务启动入口，负责执行应用启动并在失败时中止进程。
 func main() {

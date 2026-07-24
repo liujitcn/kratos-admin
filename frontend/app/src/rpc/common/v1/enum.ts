@@ -52,6 +52,14 @@ export enum AiMessageStatus {
   FAILED_AAMS = 3,
 }
 
+/** 支付通知资源类型 */
+export enum ResourceType {
+  /** TRANSACTION - 支付 */
+  TRANSACTION = 0,
+  /** REFUND - 退款 */
+  REFUND = 1,
+}
+
 /** 终端类型 */
 export enum Terminal {
   /** TERMINAL_UNSPECIFIED - 未知终端 */
