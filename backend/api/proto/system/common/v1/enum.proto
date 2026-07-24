@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package system.common.v1;
+
+// 系统配置类型
+enum BaseConfigType {
+  UNKNOWN_BCT = 0;
+  TEXT = 1; // 文本
+  IMAGE = 2; // 图片
+  RICH_TEXT = 3; // 富文本
+  DICT = 4; // 字典
+}
+
+// 定时任务日志状态
+enum BaseJobLogStatus {
+  UNKNOWN_BJLS = 0;
+  SUCCESS = 1; // 成功
+  FAIL = 2; // 失败
+}
+
+// 菜单类型
+enum BaseMenuType {
+  UNKNOWN_MT = 0;
+  FOLDER = 1; // 目录
+  MENU = 2; // 菜单
+  BUTTON = 3; // 按钮
+  EXT_LINK = 4; // 外部链接
+}
+
+// 角色数据范围
+enum BaseRoleDataScope {
+  UNKNOWN_RDS = 0;
+  ALL = 1; // 全部数据
+  DEPT_AND_CHILDREN = 2; // 部门及子部门数据
+  SELF_DEPT = 3; // 本部门数据
+  SELF_USER = 4; // 本人数据
+}
+
+// 用户性别
+enum BaseUserGender {
+  UNKNOWN_BUG = 0;
+  SECRET = 1; // 保密
+  BOY = 2; // 男
+  GIRL = 3; // 禁用
+}
+
+// 代码生成表状态
+enum CodeGenTableStatus {
+  UNKNOWN_CGTS = 0; // 未指定
+  DRAFT_CGTS = 1; // 草稿
+  GENERATED_CGTS = 2; // 已生成
+  DISABLED_CGTS = 3; // 停用
+}

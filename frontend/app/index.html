@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/public/app-icon.png" />
+    <script>
+      var coverSupport =
+        'CSS' in window &&
+        typeof CSS.supports === 'function' &&
+        (CSS.supports('top: env(a)') || CSS.supports('top: constant(a)'))
+      document.write(
+        '<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0' +
+          (coverSupport ? ', viewport-fit=cover' : '') +
+          '" />',
+      )
+    </script>
+    <title>通用应用</title>
+    <!--preload-links-->
+    <!--app-context-->
+  </head>
+
+  <body>
+    <div id="app">
+      <!--app-html-->
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+    <script>
+      // 本地开发环境不加载外部统计脚本，避免页面点击测试产生第三方网络错误。
+      if (!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname)) {
+        var _hmt = _hmt || []
+        ;(function () {
+          var hm = document.createElement('script')
+          hm.src = 'https://hm.baidu.com/hm.js?47837f06b6f8cf08ba80165ca9a80711'
+          var s = document.getElementsByTagName('script')[0]
+          s.parentNode.insertBefore(hm, s)
+        })()
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,166 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// Admin代码生成字段服务
+service CodeGenColumnService {
+  // 查询代码生成字段配置
+  rpc ListCodeGenColumn(ListCodeGenColumnRequest) returns (ListCodeGenColumnResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/code-gen/table/{table_id}/column"
+    };
+  }
+
+  // 查询数据库表字段列表
+  rpc ListCodeGenDatabaseColumn(ListCodeGenDatabaseColumnRequest) returns (ListCodeGenDatabaseColumnResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/code-gen/database/table/{table_name}/column"
+    };
+  }
+
+  // 保存代码生成字段配置
+  rpc SaveCodeGenColumn(SaveCodeGenColumnRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/code-gen/table/{table_id}/column"
+      body: "*"
+    };
+  }
+}
+
+// 代码生成字段配置查询条件
+message ListCodeGenColumnRequest {
+  int64 table_id = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID"}, (buf.validate.field).cel = {id: "list_code_gen_column.table_id.required" message: "代码生成表配置ID不能为空" expression: "this > 0"}]; // 代码生成表配置ID
+}
+
+// 代码生成字段配置查询响应
+message ListCodeGenColumnResponse {
+  repeated CodeGenColumn code_gen_columns = 1 [(gnostic.openapi.v3.property) = {description: "代码生成字段配置列表"}]; // 代码生成字段配置列表
+}
+
+// 数据库表字段列表查询条件
+message ListCodeGenDatabaseColumnRequest {
+  string table_name = 1 [(gnostic.openapi.v3.property) = {description: "数据库表名"}, (buf.validate.field).cel = {id: "list_code_gen_database_column.table_name.required" message: "数据库表名不能为空" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "list_code_gen_database_column.table_name.pattern" message: "数据库表名格式不正确" expression: "this.matches('^[a-z][a-z0-9_]*$')"}]; // 数据库表名
+}
+
+// 数据库表字段列表响应
+message ListCodeGenDatabaseColumnResponse {
+  repeated CodeGenDatabaseColumn columns = 1 [(gnostic.openapi.v3.property) = {description: "数据库字段列表"}]; // 数据库字段列表
+}
+
+// 代码生成字段配置保存条件
+message SaveCodeGenColumnRequest {
+  int64 table_id = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID"}, (buf.validate.field).cel = {id: "save_code_gen_column.table_id.required" message: "代码生成表配置ID不能为空" expression: "this > 0"}]; // 代码生成表配置ID
+
+  repeated CodeGenColumn code_gen_columns = 2 [(gnostic.openapi.v3.property) = {description: "代码生成字段配置列表"}]; // 代码生成字段配置列表
+}
+
+// 数据库字段元数据
+message CodeGenDatabaseColumn {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "数据库字段名"}]; // 数据库字段名
+
+  string comment = 2 [(gnostic.openapi.v3.property) = {description: "数据库字段注释"}]; // 数据库字段注释
+
+  string db_type = 3 [(gnostic.openapi.v3.property) = {description: "数据库字段类型"}]; // 数据库字段类型
+
+  string column_type = 4 [(gnostic.openapi.v3.property) = {description: "数据库完整字段类型"}]; // 数据库完整字段类型
+
+  bool is_primary = 5 [(gnostic.openapi.v3.property) = {description: "是否主键"}]; // 是否主键
+
+  bool is_nullable = 6 [(gnostic.openapi.v3.property) = {description: "是否允许为空"}]; // 是否允许为空
+}
+
+// 代码生成字段配置
+message CodeGenColumn {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}]; // 主键ID
+
+  int64 table_id = 2 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID"}]; // 代码生成表配置ID
+
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "数据库字段名"}]; // 数据库字段名
+
+  string comment = 4 [(gnostic.openapi.v3.property) = {description: "数据库字段注释"}]; // 数据库字段注释
+
+  string db_type = 5 [(gnostic.openapi.v3.property) = {description: "数据库字段类型"}]; // 数据库字段类型
+
+  int32 db_length = 6 [(gnostic.openapi.v3.property) = {description: "数据库字段长度"}]; // 数据库字段长度
+
+  int32 db_scale = 7 [(gnostic.openapi.v3.property) = {description: "数据库字段小数位"}]; // 数据库字段小数位
+
+  bool is_primary = 8 [(gnostic.openapi.v3.property) = {description: "是否主键"}]; // 是否主键
+
+  bool is_auto_increment = 9 [(gnostic.openapi.v3.property) = {description: "是否自增"}]; // 是否自增
+
+  bool is_nullable = 10 [(gnostic.openapi.v3.property) = {description: "是否允许为空"}]; // 是否允许为空
+
+  string go_type = 11 [(gnostic.openapi.v3.property) = {description: "Go字段类型"}]; // Go字段类型
+
+  string proto_type = 12 [(gnostic.openapi.v3.property) = {description: "Proto字段类型"}]; // Proto字段类型
+
+  string ts_type = 13 [(gnostic.openapi.v3.property) = {description: "TypeScript字段类型"}]; // TypeScript字段类型
+
+  CodeGenColumnQueryConfig query_config = 14 [(gnostic.openapi.v3.property) = {description: "查询条件配置"}]; // 查询条件配置
+
+  CodeGenColumnListConfig list_config = 15 [(gnostic.openapi.v3.property) = {description: "列表展示配置"}]; // 列表展示配置
+
+  CodeGenColumnFormConfig form_config = 16 [(gnostic.openapi.v3.property) = {description: "表单录入配置"}]; // 表单录入配置
+
+  int32 sort = 17 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
+}
+
+// 代码生成字段查询条件配置
+message CodeGenColumnQueryConfig {
+  bool enabled = 1 [(gnostic.openapi.v3.property) = {description: "是否启用查询"}]; // 是否启用查询
+
+  string operator = 2 [(gnostic.openapi.v3.property) = {description: "查询操作符"}]; // 查询操作符
+
+  string component = 3 [(gnostic.openapi.v3.property) = {description: "查询组件"}]; // 查询组件
+
+  CodeGenColumnOptionConfig option = 4 [(gnostic.openapi.v3.property) = {description: "查询选项配置"}]; // 查询选项配置
+}
+
+// 代码生成字段列表展示配置
+message CodeGenColumnListConfig {
+  bool enabled = 1 [(gnostic.openapi.v3.property) = {description: "是否在列表展示"}]; // 是否在列表展示
+
+  string component = 2 [(gnostic.openapi.v3.property) = {description: "列表展示组件"}]; // 列表展示组件
+
+  CodeGenColumnOptionConfig option = 3 [(gnostic.openapi.v3.property) = {description: "列表选项配置"}]; // 列表选项配置
+}
+
+// 代码生成字段表单录入配置
+message CodeGenColumnFormConfig {
+  bool enabled = 1 [(gnostic.openapi.v3.property) = {description: "是否在表单展示"}]; // 是否在表单展示
+
+  string component = 2 [(gnostic.openapi.v3.property) = {description: "表单录入组件"}]; // 表单录入组件
+
+  bool required = 3 [(gnostic.openapi.v3.property) = {description: "是否必填"}]; // 是否必填
+
+  CodeGenColumnOptionConfig option = 4 [(gnostic.openapi.v3.property) = {description: "表单选项配置"}]; // 表单选项配置
+
+  bool multiple = 5 [(gnostic.openapi.v3.property) = {description: "树形选择是否多选"}]; // 树形选择是否多选
+}
+
+// 代码生成字段选项配置
+message CodeGenColumnOptionConfig {
+  string kind = 1 [(gnostic.openapi.v3.property) = {description: "选项展示类型"}]; // 选项展示类型
+
+  string source_type = 2 [(gnostic.openapi.v3.property) = {description: "选项数据源类型"}]; // 选项数据源类型
+
+  string source_value = 3 [(gnostic.openapi.v3.property) = {description: "选项数据源值"}]; // 选项数据源值
+
+  string label_field = 4 [(gnostic.openapi.v3.property) = {description: "选项显示字段"}]; // 选项显示字段
+
+  string value_field = 5 [(gnostic.openapi.v3.property) = {description: "选项取值字段"}]; // 选项取值字段
+
+  string parent_field = 6 [(gnostic.openapi.v3.property) = {description: "树形选项父级字段"}]; // 树形选项父级字段
+
+  string active_value = 7 [(gnostic.openapi.v3.property) = {description: "开关开启值"}]; // 开关开启值
+
+  string inactive_value = 8 [(gnostic.openapi.v3.property) = {description: "开关关闭值"}]; // 开关关闭值
+
+  bool lazy = 9 [(gnostic.openapi.v3.property) = {description: "树形选项是否懒加载"}]; // 树形选项是否懒加载
+}

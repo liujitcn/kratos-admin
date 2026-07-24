@@ -1,0 +1,161 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "common/v1/common.proto";
+import "common/v1/enum.proto";
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// Admin部门服务
+service BaseDeptService {
+  // 查询部门树形选择
+  rpc OptionBaseDept(OptionBaseDeptRequest) returns (.common.v1.TreeOptionResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/dept/option"
+    };
+  }
+
+  // 查询部门树形列表
+  rpc TreeBaseDept(TreeBaseDeptRequest) returns (TreeBaseDeptResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/dept/tree"
+    };
+  }
+
+  // 查询部门
+  rpc GetBaseDept(GetBaseDeptRequest) returns (BaseDeptForm) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/dept/{id}"
+    };
+  }
+
+  // 创建部门
+  rpc CreateBaseDept(CreateBaseDeptRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/base/dept"
+      body: "base_dept"
+    };
+  }
+
+  // 更新部门
+  rpc UpdateBaseDept(UpdateBaseDeptRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/dept/{base_dept.id}"
+      body: "base_dept"
+    };
+  }
+
+  // 删除部门
+  rpc DeleteBaseDept(DeleteBaseDeptRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/admin/base/dept/{id}"
+    };
+  }
+
+  // 设置状态
+  rpc SetBaseDeptStatus(SetBaseDeptStatusRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/dept/{id}/status"
+      body: "*"
+    };
+  }
+}
+
+// 部门选项查询条件
+message OptionBaseDeptRequest {
+  optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+
+  optional int64 parent_id = 2 [(gnostic.openapi.v3.property) = {description: "父级部门ID"}]; // 父级部门ID
+
+  optional bool lazy = 3 [(gnostic.openapi.v3.property) = {description: "是否懒加载"}]; // 是否懒加载
+
+}
+
+// 部门树查询条件
+message TreeBaseDeptRequest {
+  optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+
+  optional int64 parent_id = 2 [(gnostic.openapi.v3.property) = {description: "父级部门ID"}]; // 父级部门ID
+
+  optional bool lazy = 3 [(gnostic.openapi.v3.property) = {description: "是否懒加载"}]; // 是否懒加载
+
+}
+
+// 部门树响应
+message TreeBaseDeptResponse {
+  repeated BaseDept base_depts = 1 [(gnostic.openapi.v3.property) = {description: "部门树"}]; // 部门树
+}
+
+// 查询部门请求参数
+message GetBaseDeptRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "部门ID"}, (buf.validate.field).cel = {id: "get_base_dept.id.required" message: "部门ID不能为空" expression: "this > 0"}]; // 部门ID
+}
+
+// 部门表单
+message BaseDeptForm {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "部门ID"}]; // 部门ID
+
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}, (buf.validate.field).cel = {id: "base_dept.tenant_id.required" message: "所属租户不能为空" expression: "this > 0"}]; // 租户ID
+
+  optional int64 parent_id = 3 [(gnostic.openapi.v3.property) = {description: "父级部门ID"}, (buf.validate.field).cel = {id: "base_dept.parent_id.non_negative" message: "上级部门不能小于 0" expression: "this >= 0"}]; // 父级部门ID
+
+  string name = 4 [(gnostic.openapi.v3.property) = {description: "部门名称"}, (buf.validate.field).cel = {id: "base_dept.name.required" message: "部门名称不能为空" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "base_dept.name.max_len" message: "部门名称不能超过 255 个字符" expression: "this.size() <= 255"}]; // 部门名称
+
+  int32 sort = 5 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).cel = {id: "base_dept.sort.required" message: "排序必须大于 0" expression: "this > 0"}]; // 排序
+
+  .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+
+  string remark = 101 [(gnostic.openapi.v3.property) = {description: "备注"}, (buf.validate.field).cel = {id: "base_dept.remark.max_len" message: "备注不能超过 500 个字符" expression: "this.size() <= 500"}]; // 备注
+}
+
+// 创建部门请求参数
+message CreateBaseDeptRequest {
+  BaseDeptForm base_dept = 1 [(gnostic.openapi.v3.property) = {description: "部门表单"}, (buf.validate.field).required = true]; // 部门表单
+}
+
+// 更新部门请求参数
+message UpdateBaseDeptRequest {
+  option (buf.validate.message).cel = {id: "update_base_dept.id.required" message: "部门ID不能为空" expression: "this.base_dept.id > 0"};
+
+  BaseDeptForm base_dept = 1 [(gnostic.openapi.v3.property) = {description: "部门表单"}, (buf.validate.field).required = true]; // 部门表单
+}
+
+// 删除部门请求参数
+message DeleteBaseDeptRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "部门ID列表"}, (buf.validate.field).cel = {id: "delete_base_dept.id.required" message: "部门ID列表不能为空" expression: "this.size() > 0"}]; // 部门ID列表
+}
+
+// 设置部门状态请求参数
+message SetBaseDeptStatusRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "部门ID"}, (buf.validate.field).cel = {id: "set_base_dept_status.id.required" message: "部门ID不能为空" expression: "this > 0"}]; // 部门ID
+
+  int32 status = 2 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+}
+
+// 部门
+message BaseDept {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "部门ID"}]; // 部门ID
+
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}, (buf.validate.field).cel = {id: "base_dept.tenant_id.required" message: "所属租户不能为空" expression: "this > 0"}]; // 租户ID
+
+  int64 parent_id = 3 [(gnostic.openapi.v3.property) = {description: "父级部门ID"}]; // 父级部门ID
+
+  string name = 4 [(gnostic.openapi.v3.property) = {description: "部门名称"}, (buf.validate.field).cel = {id: "base_dept.name.length" message: "部门名称不能为空且不超过 255 个字符" expression: "this.size() > 0 && this.size() <= 255"}]; // 部门名称
+
+  int32 sort = 5 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).cel = {id: "base_dept.sort.required" message: "排序必须大于 0" expression: "this > 0"}]; // 排序
+
+  .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+
+  string remark = 101 [(gnostic.openapi.v3.property) = {description: "备注"}]; // 备注
+
+  string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+
+  string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+
+  repeated BaseDept children = 300 [(gnostic.openapi.v3.property) = {description: "子部门"}]; // 子部门
+
+  bool has_children = 301 [(gnostic.openapi.v3.property) = {description: "是否存在子节点"}]; // 是否存在子节点
+}

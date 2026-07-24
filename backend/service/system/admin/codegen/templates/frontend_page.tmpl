@@ -1,0 +1,30 @@
+<!-- [[.BusinessName]] -->
+<template>
+  <div class="table-box">
+    <ProTable
+      ref="proTable"
+[[if .HasTenantOption]]      :key="isDefaultTenant ? 'default-tenant' : 'normal-tenant'"[[end]]
+      row-key="id"
+      :columns="columns"
+      :header-actions="headerActions"
+      :request-api="request[[.Entity]]Table"
+    />
+
+    <FormDialog
+      v-model="dialog.visible"
+      ref="formDialogRef"
+      :title="dialog.title"
+      width="640px"
+      :model="formData"
+      :fields="formFields"
+      :rules="rules"
+      label-width="100px"
+      @confirm="handleSubmit"
+      @close="handleCloseDialog"
+    >
+__CODEGEN_PASSWORD_STRENGTH_SLOT__
+    </FormDialog>
+  </div>
+</template>
+
+[[.Script]]

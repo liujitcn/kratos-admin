@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// Admin代码生成Proto接口配置服务
+service CodeGenProtoService {
+  // 查询代码生成Proto接口配置
+  rpc ListCodeGenProto(ListCodeGenProtoRequest) returns (ListCodeGenProtoResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/code-gen/table/{table_id}/proto"
+    };
+  }
+
+  // 保存代码生成Proto接口配置
+  rpc SaveCodeGenProto(SaveCodeGenProtoRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/code-gen/table/{table_id}/proto"
+      body: "*"
+    };
+  }
+}
+
+// 代码生成Proto接口配置查询条件
+message ListCodeGenProtoRequest {
+  int64 table_id = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID"}, (buf.validate.field).cel = {id: "list_code_gen_proto.table_id.required" message: "代码生成表配置ID不能为空" expression: "this > 0"}]; // 代码生成表配置ID
+}
+
+// 代码生成Proto接口配置查询响应
+message ListCodeGenProtoResponse {
+  repeated CodeGenProtoCheck code_gen_protos = 1 [(gnostic.openapi.v3.property) = {description: "代码生成Proto接口检查列表"}]; // 代码生成Proto接口检查列表
+}
+
+// 代码生成Proto接口配置保存条件
+message SaveCodeGenProtoRequest {
+  int64 table_id = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID"}, (buf.validate.field).cel = {id: "save_code_gen_proto.table_id.required" message: "代码生成表配置ID不能为空" expression: "this > 0"}]; // 代码生成表配置ID
+
+  repeated CodeGenProto code_gen_protos = 2 [(gnostic.openapi.v3.property) = {description: "代码生成Proto接口配置列表"}]; // 代码生成Proto接口配置列表
+}
+
+// 代码生成Proto接口配置
+message CodeGenProto {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}]; // 主键ID
+
+  int64 table_id = 2 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID"}]; // 代码生成表配置ID
+
+  string trigger_type = 3 [(gnostic.openapi.v3.property) = {description: "触发来源"}]; // 触发来源
+
+  string api_kind = 4 [(gnostic.openapi.v3.property) = {description: "接口类型"}]; // 接口类型
+
+  bool generate_when_missing = 5 [(gnostic.openapi.v3.property) = {description: "缺失时是否生成"}]; // 缺失时是否生成
+
+  CodeGenProtoConfig config = 6 [(gnostic.openapi.v3.property) = {description: "接口类型配置"}]; // 接口类型配置
+
+  int32 sort = 7 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
+}
+
+// 代码生成Proto接口检查项
+message CodeGenProtoCheck {
+  int64 table_id = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID"}]; // 代码生成表配置ID
+
+  string trigger_type = 2 [(gnostic.openapi.v3.property) = {description: "触发来源"}]; // 触发来源
+
+  string api_kind = 3 [(gnostic.openapi.v3.property) = {description: "接口类型"}]; // 接口类型
+
+  string target_entity_name = 4 [(gnostic.openapi.v3.property) = {description: "目标实体名"}]; // 目标实体名
+
+  string method_name = 5 [(gnostic.openapi.v3.property) = {description: "方法名"}]; // 方法名
+
+  string proto_file_path = 6 [(gnostic.openapi.v3.property) = {description: "Proto文件路径"}]; // Proto文件路径
+
+  bool exists = 7 [(gnostic.openapi.v3.property) = {description: "接口是否已存在"}]; // 接口是否已存在
+
+  bool generate_when_missing = 8 [(gnostic.openapi.v3.property) = {description: "缺失时是否生成"}]; // 缺失时是否生成
+
+  CodeGenProtoConfig config = 9 [(gnostic.openapi.v3.property) = {description: "接口类型配置"}]; // 接口类型配置
+
+  string message = 10 [(gnostic.openapi.v3.property) = {description: "检查说明"}]; // 检查说明
+
+  int32 sort = 11 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
+
+  string method_comment = 12 [(gnostic.openapi.v3.property) = {description: "方法中文描述"}]; // 方法中文描述
+
+  string service_name = 13 [(gnostic.openapi.v3.property) = {description: "服务名"}]; // 服务名
+
+  string service_comment = 14 [(gnostic.openapi.v3.property) = {description: "服务描述"}]; // 服务描述
+}
+
+// 代码生成Proto接口类型配置
+message CodeGenProtoConfig {
+  string parent_column = 1 [(gnostic.openapi.v3.property) = {description: "树接口父节点字段"}]; // 树接口父节点字段
+
+  string label_column = 2 [(gnostic.openapi.v3.property) = {description: "选项显示字段"}]; // 选项显示字段
+
+  string value_column = 3 [(gnostic.openapi.v3.property) = {description: "选项值字段"}]; // 选项值字段
+
+  string status_column = 4 [(gnostic.openapi.v3.property) = {description: "状态字段"}]; // 状态字段
+
+  bool lazy = 5 [(gnostic.openapi.v3.property) = {description: "树形Option接口是否懒加载"}]; // 树形Option接口是否懒加载
+}

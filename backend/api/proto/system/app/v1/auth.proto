@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package system.app.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// App用户认证服务
+service AuthService {
+  // 获取已经登录的用户的数据
+  rpc GetUserProfile(GetUserProfileRequest) returns (UserProfileForm) {
+    option (google.api.http) = {
+      get: "/api/v1/app/auth/profile"
+    };
+  }
+
+  // 修改个人中心用户信息
+  rpc UpdateUserProfile(UpdateUserProfileRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/app/auth/profile"
+      body: "user_profile"
+    };
+  }
+
+  // 手机号授权
+  rpc BindUserPhone(BindUserPhoneRequest) returns (BindUserPhoneResponse) {
+    option (google.api.http) = {
+      put: "/api/v1/app/auth/phone"
+      body: "*"
+    };
+  }
+}
+
+// 获取用户资料请求参数
+message GetUserProfileRequest {}
+
+// 用户资料表单
+message UserProfileForm {
+  string user_name = 1 [(gnostic.openapi.v3.property) = {description: "用户账号"}]; // 用户账号
+
+  string nick_name = 2 [(gnostic.openapi.v3.property) = {description: "用户昵称"}]; // 用户昵称
+
+  int32 gender = 3 [(gnostic.openapi.v3.property) = {description: "性别"}]; // 性别
+
+  string phone = 4 [(gnostic.openapi.v3.property) = {description: "手机号"}]; // 手机号
+
+  string avatar = 5 [(gnostic.openapi.v3.property) = {description: "头像"}]; // 头像
+}
+
+// 更新用户资料请求参数
+message UpdateUserProfileRequest {
+  UserProfileForm user_profile = 1 [(gnostic.openapi.v3.property) = {description: "用户资料"}]; // 用户资料
+}
+
+// 手机号授权请求参数
+message BindUserPhoneRequest {
+  string code = 1 [(gnostic.openapi.v3.property) = {description: "授权信息"}]; // 授权信息
+}
+
+// 手机号授权响应
+message BindUserPhoneResponse {
+  string phone = 1 [(gnostic.openapi.v3.property) = {description: "手机号"}]; // 手机号
+}

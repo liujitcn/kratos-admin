@@ -1,0 +1,26 @@
+# 静态检查配置：机械化执行“禁止手写 SQL”约束（见 AGENTS.md 数据库查询节）
+run:
+  timeout: 5m
+
+linters:
+  disable-all: true
+  enable:
+    - forbidigo
+
+linters-settings:
+  forbidigo:
+    analyze-types: true
+    forbid:
+      - p: '.*\.Raw$'
+        msg: 禁止手写 SQL，优先使用 gorm/gen 类型化查询
+      - p: 'gorm\.Expr$'
+        msg: 禁止手写 SQL 表达式，优先使用 gorm/gen 字段表达式
+      - p: '.*\.NewUnsafeFieldRaw$'
+        msg: 禁止 unsafe 原生字段表达式
+      - p: '.*\.UnderlyingDB$'
+        msg: 禁止绕过 gorm/gen 直接操作底层 DB；确有必要时加 //nolint:forbidigo 并说明原因
+
+issues:
+  exclude-dirs:
+    - api/gen
+    - pkg/gen

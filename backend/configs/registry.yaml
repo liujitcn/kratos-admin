@@ -1,0 +1,22 @@
+registry:
+  type: ""
+
+  consul:
+    address: "localhost:8500"
+    scheme: "http"
+    heartbeat: false
+    health_check: false
+    health_check_interval: 5
+
+  etcd:
+    endpoints:
+      - 127.0.0.1:2379
+    name_space: /Service
+    max_retry: 5
+    ttl: 10s
+
+  zookeeper:
+    endpoints:
+      - "localhost:8500"
+    timeout: 10s
+

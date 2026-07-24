@@ -1,0 +1,216 @@
+syntax = "proto3";
+
+package base.v1;
+
+import "base/v1/ai_tool.proto";
+import "common/v1/enum.proto";
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+// Base AI 助手会话服务
+service AiSessionService {
+  // 查询 AI 助手消息列表
+  rpc ListAiMessage(ListAiMessageRequest) returns (ListAiMessageResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/base/ai/session/{session_id}/message"
+    };
+  }
+
+  // 查询 AI 助手会话列表
+  rpc ListAiSession(ListAiSessionRequest) returns (ListAiSessionResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/base/ai/session"
+    };
+  }
+
+  // 创建 AI 助手会话
+  rpc CreateAiSession(CreateAiSessionRequest) returns (CreateAiSessionResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/ai/session"
+      body: "*"
+    };
+  }
+
+  // 从指定消息创建 AI 助手分支会话
+  rpc CreateAiSessionBranch(CreateAiSessionBranchRequest) returns (CreateAiSessionBranchResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/ai/session/{source_session_id}/branch"
+      body: "*"
+    };
+  }
+
+  // 更新 AI 助手会话
+  rpc UpdateAiSession(UpdateAiSessionRequest) returns (UpdateAiSessionResponse) {
+    option (google.api.http) = {
+      put: "/api/v1/base/ai/session/{id}"
+      body: "*"
+    };
+  }
+
+  // 删除 AI 助手会话
+  rpc DeleteAiSession(DeleteAiSessionRequest) returns (DeleteAiSessionResponse) {
+    option (google.api.http) = {
+      delete: "/api/v1/base/ai/session/{id}"
+    };
+  }
+}
+
+// AI 助手消息列表查询条件
+message ListAiMessageRequest {
+  string session_id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}, (buf.validate.field).cel = {id: "list_ai_message.session_id.positive" message: "会话编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 会话ID
+}
+
+// AI 助手消息列表响应
+message ListAiMessageResponse {
+  repeated AiMessage messages = 1 [(gnostic.openapi.v3.property) = {description: "消息列表"}]; // 消息列表
+}
+
+// AI 助手会话列表查询条件
+message ListAiSessionRequest {
+  .common.v1.Terminal terminal = 1 [(gnostic.openapi.v3.property) = {description: "终端类型：枚举【Terminal】"}]; // 终端类型：枚举【Terminal】
+}
+
+// AI 助手会话列表响应
+message ListAiSessionResponse {
+  repeated AiSession sessions = 1 [(gnostic.openapi.v3.property) = {description: "会话列表"}]; // 会话列表
+}
+
+// AI 助手会话创建请求
+message CreateAiSessionRequest {
+  string title = 1 [(gnostic.openapi.v3.property) = {description: "会话标题"}]; // 会话标题
+
+  .common.v1.Terminal terminal = 2 [(gnostic.openapi.v3.property) = {description: "终端类型：枚举【Terminal】"}]; // 终端类型：枚举【Terminal】
+}
+
+// AI 助手会话创建响应
+message CreateAiSessionResponse {
+  AiSession session = 1 [(gnostic.openapi.v3.property) = {description: "会话信息"}]; // 会话信息
+}
+
+// AI 助手分支会话创建请求
+message CreateAiSessionBranchRequest {
+  string source_session_id = 1 [(gnostic.openapi.v3.property) = {description: "来源会话ID"}, (buf.validate.field).cel = {id: "create_ai_session_branch.source_session_id.positive" message: "会话编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 来源会话ID
+
+  string anchor_message_id = 2 [(gnostic.openapi.v3.property) = {description: "分支锚点消息ID"}, (buf.validate.field).cel = {id: "create_ai_session_branch.anchor_message_id.positive" message: "分支锚点消息编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 分支锚点消息ID
+
+  string title = 3 [(gnostic.openapi.v3.property) = {description: "分支会话标题"}, (buf.validate.field).cel = {id: "create_ai_session_branch.title.required" message: "会话标题不能为空" expression: "this.size() > 0"}]; // 分支会话标题
+
+  .common.v1.Terminal terminal = 4 [(gnostic.openapi.v3.property) = {description: "终端类型：枚举【Terminal】"}]; // 终端类型：枚举【Terminal】
+}
+
+// AI 助手分支会话创建响应
+message CreateAiSessionBranchResponse {
+  AiSession session = 1 [(gnostic.openapi.v3.property) = {description: "新会话信息"}]; // 新会话信息
+
+  repeated AiMessage messages = 2 [(gnostic.openapi.v3.property) = {description: "新会话消息列表"}]; // 新会话消息列表
+}
+
+// AI 助手会话更新请求
+message UpdateAiSessionRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}, (buf.validate.field).cel = {id: "update_ai_session.id.positive" message: "会话编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 会话ID
+
+  string title = 2 [(gnostic.openapi.v3.property) = {description: "会话标题"}, (buf.validate.field).cel = {id: "update_ai_session.title.required" message: "会话标题不能为空" expression: "this.size() > 0"}]; // 会话标题
+}
+
+// AI 助手会话更新响应
+message UpdateAiSessionResponse {
+  AiSession session = 1 [(gnostic.openapi.v3.property) = {description: "会话信息"}]; // 会话信息
+}
+
+// AI 助手会话删除请求
+message DeleteAiSessionRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}, (buf.validate.field).cel = {id: "delete_ai_session.id.positive" message: "会话编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 会话ID
+}
+
+// AI 助手会话删除响应
+message DeleteAiSessionResponse {}
+
+// AI 助手会话
+message AiSession {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}]; // 会话ID
+
+  string title = 2 [(gnostic.openapi.v3.property) = {description: "会话标题"}]; // 会话标题
+
+  string summary = 3 [(gnostic.openapi.v3.property) = {description: "会话摘要"}]; // 会话摘要
+
+  google.protobuf.Timestamp updated_at = 5 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+
+  .common.v1.Terminal terminal = 6 [(gnostic.openapi.v3.property) = {description: "终端类型：枚举【Terminal】"}]; // 终端类型：枚举【Terminal】
+}
+
+// AI 助手消息
+message AiMessage {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "消息ID"}]; // 消息ID
+
+  AiInputContent input_content = 2 [(gnostic.openapi.v3.property) = {description: "输入内容"}]; // 输入内容
+
+  AiOutputContent output_content = 3 [(gnostic.openapi.v3.property) = {description: "输出内容"}]; // 输出内容
+
+  repeated AiAttachment attachments = 4 [(gnostic.openapi.v3.property) = {description: "附件列表"}]; // 附件列表
+
+  google.protobuf.Timestamp created_at = 5 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+
+  .common.v1.AiMessageStatus status = 6 [(gnostic.openapi.v3.property) = {description: "消息生成状态：枚举【AiMessageStatus】"}]; // 消息生成状态：枚举【AiMessageStatus】
+
+  AiToken token = 7 [(gnostic.openapi.v3.property) = {description: "Token 统计"}]; // Token 统计
+
+  repeated AiToolCall tools = 8 [(gnostic.openapi.v3.property) = {description: "本次消息使用的工具调用记录"}]; // 本次消息使用的工具调用记录
+
+  int32 first_token_ms = 9 [(gnostic.openapi.v3.property) = {description: "首 Token 耗时毫秒"}]; // 首 Token 耗时毫秒
+
+  int32 duration_ms = 10 [(gnostic.openapi.v3.property) = {description: "总耗时毫秒"}]; // 总耗时毫秒
+}
+
+// AI 助手输入内容
+message AiInputContent {
+  string kind = 1 [(gnostic.openapi.v3.property) = {description: "内容类型"}]; // 内容类型
+
+  string content = 2 [(gnostic.openapi.v3.property) = {description: "内容正文"}]; // 内容正文
+}
+
+// AI 助手输出内容
+message AiOutputContent {
+  string kind = 1 [(gnostic.openapi.v3.property) = {description: "内容类型"}]; // 内容类型
+
+  string content = 2 [(gnostic.openapi.v3.property) = {description: "内容正文"}]; // 内容正文
+
+  string reply_source = 3 [(gnostic.openapi.v3.property) = {description: "回复来源：llm/fallback"}]; // 回复来源：llm/fallback
+
+  string model = 4 [(gnostic.openapi.v3.property) = {description: "回复使用的模型名称"}]; // 回复使用的模型名称
+
+  bool fallback = 5 [(gnostic.openapi.v3.property) = {description: "是否为降级回复"}]; // 是否为降级回复
+
+  string fallback_reason = 6 [(gnostic.openapi.v3.property) = {description: "降级原因"}]; // 降级原因
+
+  string flow = 7 [(gnostic.openapi.v3.property) = {description: "流程标识"}]; // 流程标识
+
+  string step = 8 [(gnostic.openapi.v3.property) = {description: "流程步骤"}]; // 流程步骤
+
+  string blocks_json = 9 [(gnostic.openapi.v3.property) = {description: "移动端结构化内容JSON"}]; // 移动端结构化内容JSON
+}
+
+// AI 助手 Token 统计
+message AiToken {
+  int32 input = 1 [(gnostic.openapi.v3.property) = {description: "输入 Token 数"}]; // 输入 Token 数
+
+  int32 output = 2 [(gnostic.openapi.v3.property) = {description: "输出 Token 数"}]; // 输出 Token 数
+
+  int32 cache = 3 [(gnostic.openapi.v3.property) = {description: "缓存 Token 数"}]; // 缓存 Token 数
+
+  int32 total = 4 [(gnostic.openapi.v3.property) = {description: "总 Token 数"}]; // 总 Token 数
+}
+
+// AI 助手附件
+message AiAttachment {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "附件ID"}]; // 附件ID
+
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "附件名称"}]; // 附件名称
+
+  int64 size = 3 [(gnostic.openapi.v3.property) = {description: "附件大小"}]; // 附件大小
+
+  string url = 4 [(gnostic.openapi.v3.property) = {description: "附件地址"}]; // 附件地址
+
+  string mime_type = 5 [(gnostic.openapi.v3.property) = {description: "附件 MIME 类型"}]; // 附件 MIME 类型
+}

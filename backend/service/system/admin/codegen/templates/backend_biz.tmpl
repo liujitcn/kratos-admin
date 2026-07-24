@@ -1,0 +1,39 @@
+package biz
+
+import (
+	"context"
+	"fmt"
+
+[[.APIImport]]
+[[.CommonImport]]
+[[.JSONImport]]
+[[.ErrorImport]]
+	"github.com/liujitcn/kratos-admin/backend/pkg/biz"
+	"github.com/liujitcn/kratos-admin/backend/pkg/gen/data"
+	"github.com/liujitcn/kratos-admin/backend/pkg/gen/models"
+
+	"github.com/liujitcn/go-utils/mapper"
+	_string "github.com/liujitcn/go-utils/string"
+	_time "github.com/liujitcn/go-utils/time"
+	"github.com/liujitcn/gorm-kit/repository"
+)
+
+// [[.Entity]]Case [[.BusinessName]]业务实例。
+type [[.Entity]]Case struct {
+	*biz.BaseCase
+	*data.[[.Repository]]
+	formMapper *mapper.CopierMapper[ [[.FormType]], [[.ModelType]] ]
+	mapper     *mapper.CopierMapper[ [[.DTOType]], [[.ModelType]] ]
+}
+
+// New[[.Entity]]Case 创建[[.BusinessName]]业务实例。
+func New[[.Entity]]Case(baseCase *biz.BaseCase, [[.EntityVar]]Repo *data.[[.Repository]]) *[[.Entity]]Case {
+	return &[[.Entity]]Case{
+		BaseCase:          baseCase,
+		[[.Repository]]: [[.EntityVar]]Repo,
+		formMapper:        mapper.NewCopierMapper[ [[.FormType]], [[.ModelType]] ](),
+		mapper:            mapper.NewCopierMapper[ [[.DTOType]], [[.ModelType]] ](),
+	}
+}
+
+[[.Methods]]

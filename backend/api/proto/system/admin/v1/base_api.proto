@@ -1,0 +1,217 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "buf/validate/validate.proto";
+import "common/v1/enum.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// AdminAPI服务
+service BaseApiService {
+  // 查询菜单分配API选项列表
+  rpc OptionBaseApi(OptionBaseApiRequest) returns (OptionBaseApiResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/api/option"};
+  }
+
+  // 分页查询API列表
+  rpc PageBaseApi(PageBaseApiRequest) returns (PageBaseApiResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/api"};
+  }
+
+  // 查询API详情
+  rpc GetBaseApi(GetBaseApiRequest) returns (BaseApi) {
+    option (google.api.http) = {get: "/api/v1/admin/base/api/{id}"};
+  }
+
+  // 查询API文档
+  rpc GetBaseApiDoc(GetBaseApiDocRequest) returns (BaseApiDoc) {
+    option (google.api.http) = {get: "/api/v1/admin/base/api/{id}/doc"};
+  }
+
+  // 更新API配置
+  rpc UpdateBaseApi(UpdateBaseApiRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/api/{id}"
+      body: "*"
+    };
+  }
+
+  // 设置API Agent工具状态
+  rpc SetBaseApiAgentStatus(SetBaseApiAgentStatusRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/api/{id}/agent-status"
+      body: "*"
+    };
+  }
+
+  // 设置API MCP工具状态
+  rpc SetBaseApiMcpStatus(SetBaseApiMcpStatusRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/api/{id}/mcp-status"
+      body: "*"
+    };
+  }
+}
+
+// API选项查询条件
+message OptionBaseApiRequest {}
+
+// API选项响应
+message OptionBaseApiResponse {
+  repeated BaseApi base_apis = 1 [(gnostic.openapi.v3.property) = {description: "API列表"}]; // API列表
+}
+
+// API分页查询条件
+message PageBaseApiRequest {
+  optional string tool_name = 1 [(gnostic.openapi.v3.property) = {description: "工具名"}]; // 工具名
+
+  optional string tool_prompt = 2 [(gnostic.openapi.v3.property) = {description: "Agent/MCP工具提示词搜索关键字"}]; // Agent/MCP工具提示词搜索关键字
+
+  optional string service_name = 3 [(gnostic.openapi.v3.property) = {description: "服务名"}]; // 服务名
+
+  optional string service_desc = 4 [(gnostic.openapi.v3.property) = {description: "服务描述"}]; // 服务描述
+
+  optional string desc = 5 [(gnostic.openapi.v3.property) = {description: "描述"}]; // 描述
+
+  optional string operation = 6 [(gnostic.openapi.v3.property) = {description: "操作方法"}]; // 操作方法
+
+  optional string method = 7 [(gnostic.openapi.v3.property) = {description: "请求方式"}]; // 请求方式
+
+  optional string path = 8 [(gnostic.openapi.v3.property) = {description: "请求地址"}]; // 请求地址
+
+  optional .common.v1.Status mcp_status = 9 [(gnostic.openapi.v3.property) = {description: "MCP工具状态：枚举【Status】"}]; // MCP工具状态：枚举【Status】
+
+  optional .common.v1.Status agent_status = 10 [(gnostic.openapi.v3.property) = {description: "Agent工具状态：枚举【Status】"}]; // Agent工具状态：枚举【Status】
+
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "页码"}]; // 页码
+
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页数量"}]; // 每页数量
+}
+
+// API分页查询响应
+message PageBaseApiResponse {
+  repeated BaseApi base_apis = 1 [(gnostic.openapi.v3.property) = {description: "API列表"}]; // API列表
+
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// API详情查询条件
+message GetBaseApiRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "API ID"}]; // API ID
+}
+
+// API
+message BaseApi {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "API ID"}]; // API ID
+
+  string tool_name = 2 [(gnostic.openapi.v3.property) = {description: "工具名"}]; // 工具名
+
+  repeated string tool_prompts = 3 [(gnostic.openapi.v3.property) = {description: "Agent/MCP工具提示词，作为工具描述覆盖、候选命中和目录展示依据"}]; // Agent/MCP工具提示词
+
+  string service_name = 4 [(gnostic.openapi.v3.property) = {description: "服务名"}]; // 服务名
+
+  string service_desc = 5 [(gnostic.openapi.v3.property) = {description: "服务描述"}]; // 服务描述
+
+  string desc = 6 [(gnostic.openapi.v3.property) = {description: "描述"}]; // 描述
+
+  string operation = 7 [(gnostic.openapi.v3.property) = {description: "操作方法"}]; // 操作方法
+
+  string method = 8 [(gnostic.openapi.v3.property) = {description: "请求方式"}]; // 请求方法
+
+  string path = 9 [(gnostic.openapi.v3.property) = {description: "请求地址"}]; // 请求地址
+
+  .common.v1.Status mcp_status = 10 [(gnostic.openapi.v3.property) = {description: "MCP工具状态：枚举【Status】"}]; // MCP工具状态：枚举【Status】
+
+  .common.v1.Status agent_status = 11 [(gnostic.openapi.v3.property) = {description: "Agent工具状态：枚举【Status】"}]; // Agent工具状态：枚举【Status】
+}
+
+// API文档查询条件
+message GetBaseApiDocRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "API ID"}]; // API ID
+}
+
+// API文档
+message BaseApiDoc {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "API ID"}]; // API ID
+
+  string summary = 2 [(gnostic.openapi.v3.property) = {description: "摘要"}]; // 摘要
+
+  string description = 3 [(gnostic.openapi.v3.property) = {description: "描述"}]; // 描述
+
+  repeated BaseApiDocSchema parameters = 4 [(gnostic.openapi.v3.property) = {description: "请求参数"}]; // 请求参数
+
+  BaseApiDocSchema request_body = 5 [(gnostic.openapi.v3.property) = {description: "请求体"}]; // 请求体
+
+  repeated BaseApiDocResponse responses = 6 [(gnostic.openapi.v3.property) = {description: "返回值"}]; // 返回值
+}
+
+// API更新条件
+message UpdateBaseApiRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "API ID"}]; // API ID
+
+  repeated string tool_prompts = 2 [(gnostic.openapi.v3.property) = {description: "Agent/MCP工具提示词，作为工具描述覆盖、候选命中和目录展示依据"}]; // Agent/MCP工具提示词
+
+  .common.v1.Status mcp_status = 3 [
+    (gnostic.openapi.v3.property) = {description: "MCP工具状态：枚举【Status】"},
+    (buf.validate.field).enum = {defined_only: true}
+  ]; // MCP工具状态：枚举【Status】
+
+  .common.v1.Status agent_status = 4 [
+    (gnostic.openapi.v3.property) = {description: "Agent工具状态：枚举【Status】"},
+    (buf.validate.field).enum = {defined_only: true}
+  ]; // Agent工具状态：枚举【Status】
+}
+
+// API Agent工具状态设置条件
+message SetBaseApiAgentStatusRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "API ID"}]; // API ID
+
+  .common.v1.Status agent_status = 2 [
+    (gnostic.openapi.v3.property) = {description: "Agent工具状态：枚举【Status】"},
+    (buf.validate.field).enum = {defined_only: true}
+  ]; // Agent工具状态：枚举【Status】
+}
+
+// API MCP工具状态设置条件
+message SetBaseApiMcpStatusRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "API ID"}]; // API ID
+
+  .common.v1.Status mcp_status = 2 [
+    (gnostic.openapi.v3.property) = {description: "MCP工具状态：枚举【Status】"},
+    (buf.validate.field).enum = {defined_only: true}
+  ]; // MCP工具状态：枚举【Status】
+}
+
+// API文档Schema
+message BaseApiDocSchema {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "字段名"}]; // 字段名
+
+  string path = 2 [(gnostic.openapi.v3.property) = {description: "字段路径"}]; // 字段路径
+
+  string in = 3 [(gnostic.openapi.v3.property) = {description: "参数位置"}]; // 参数位置
+
+  string type = 4 [(gnostic.openapi.v3.property) = {description: "字段类型"}]; // 字段类型
+
+  string format = 5 [(gnostic.openapi.v3.property) = {description: "字段格式"}]; // 字段格式
+
+  bool required = 6 [(gnostic.openapi.v3.property) = {description: "是否必填"}]; // 是否必填
+
+  string description = 7 [(gnostic.openapi.v3.property) = {description: "字段描述"}]; // 字段描述
+
+  string ref = 8 [(gnostic.openapi.v3.property) = {description: "引用类型"}]; // 引用类型
+
+  repeated string enum = 9 [(gnostic.openapi.v3.property) = {description: "枚举值"}]; // 枚举值
+
+  repeated BaseApiDocSchema children = 10 [(gnostic.openapi.v3.property) = {description: "子字段"}]; // 子字段
+}
+
+// API文档响应
+message BaseApiDocResponse {
+  string status = 1 [(gnostic.openapi.v3.property) = {description: "状态码"}]; // 状态码
+
+  string description = 2 [(gnostic.openapi.v3.property) = {description: "响应描述"}]; // 响应描述
+
+  BaseApiDocSchema body = 3 [(gnostic.openapi.v3.property) = {description: "响应体"}]; // 响应体
+}

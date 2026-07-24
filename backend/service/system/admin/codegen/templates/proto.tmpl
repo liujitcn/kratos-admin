@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package [[.PackageName]];
+
+import "common/v1/common.proto";
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// Admin[[.TableComment]]服务
+service [[.Entity]]Service {
+[[.RPCs]]}
+
+[[.Messages]]

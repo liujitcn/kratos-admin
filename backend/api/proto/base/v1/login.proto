@@ -1,0 +1,153 @@
+syntax = "proto3";
+
+package base.v1;
+
+import "common/v1/enum.proto";
+import "common/v1/types.proto";
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// Base登录公共服务
+service LoginService {
+  // 验证码
+  rpc Captcha(CaptchaRequest) returns (CaptchaResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/base/captcha"
+    };
+  }
+
+  // 验证码预校验
+  rpc VerifyCaptcha(VerifyCaptchaRequest) returns (VerifyCaptchaResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/captcha/verify"
+      body: "*"
+    };
+  }
+
+  // 获取密码临时公钥
+  rpc PasswordPublicKey(PasswordPublicKeyRequest) returns (PasswordPublicKeyResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/base/password-public-key"
+    };
+  }
+
+  // 登出
+  rpc Logout(LogoutRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/base/session"
+    };
+  }
+
+  // 刷新认证令牌
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/token"
+      body: "*"
+    };
+  }
+
+  // 登录
+  rpc Login(LoginRequest) returns (LoginResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/session"
+      body: "*"
+    };
+  }
+}
+
+// 验证码获取条件
+message CaptchaRequest {
+  string type = 1 [(gnostic.openapi.v3.property) = {description: "验证码类型，random 表示随机选择当前支持的验证码类型"}]; // 验证码类型，random 表示随机选择当前支持的验证码类型
+}
+
+// 密码临时公钥获取条件
+message PasswordPublicKeyRequest {
+  .common.v1.PasswordCryptoScene scene = 1 [(gnostic.openapi.v3.property) = {description: "使用场景"}]; // 使用场景
+}
+
+// 登出请求条件
+message LogoutRequest {}
+
+// 验证码响应
+message CaptchaResponse {
+  string captcha_id = 1 [(gnostic.openapi.v3.property) = {description: "验证码ID"}]; // 验证码ID。
+
+  string captcha_base64 = 2 [(gnostic.openapi.v3.property) = {description: "验证码base64"}]; // 验证码base64
+
+  string type = 3 [(gnostic.openapi.v3.property) = {description: "本次验证码实际类型"}]; // 本次验证码实际类型
+}
+
+// 验证码预校验请求
+message VerifyCaptchaRequest {
+  string captcha_id = 1 [(gnostic.openapi.v3.property) = {description: "验证码ID"}, (buf.validate.field).cel = {id: "verify_captcha.captcha_id.required" message: "验证码不能为空" expression: "this.size() > 0"}]; // 验证码ID
+
+  string captcha_code = 2 [(gnostic.openapi.v3.property) = {description: "验证码答案"}, (buf.validate.field).cel = {id: "verify_captcha.captcha_code.required" message: "验证码不能为空" expression: "this.size() > 0"}]; // 验证码答案
+}
+
+// 验证码预校验响应
+message VerifyCaptchaResponse {
+  string captcha_token = 1 [(gnostic.openapi.v3.property) = {description: "验证码通过令牌"}]; // 验证码通过令牌
+
+  int64 expires_in = 2 [(gnostic.openapi.v3.property) = {description: "有效时间，单位秒"}]; // 有效时间，单位秒
+}
+
+// 密码临时公钥响应
+message PasswordPublicKeyResponse {
+  string key_id = 1 [(gnostic.openapi.v3.property) = {description: "临时密钥ID"}]; // 临时密钥ID
+
+  string public_key = 2 [(gnostic.openapi.v3.property) = {description: "临时公钥"}]; // 临时公钥
+
+  string algorithm = 3 [(gnostic.openapi.v3.property) = {description: "加密算法"}]; // 加密算法
+
+  string nonce = 4 [(gnostic.openapi.v3.property) = {description: "随机值"}]; // 随机值
+
+  int64 expires_in = 5 [(gnostic.openapi.v3.property) = {description: "有效时间，单位秒"}]; // 有效时间，单位秒
+}
+
+// 刷新令牌请求参数
+message RefreshTokenRequest {
+  string refresh_token = 1 [(gnostic.openapi.v3.property) = {description: "更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。"}, (buf.validate.field).cel = {id: "refresh_token.required" message: "刷新令牌不能为空" expression: "this.size() > 0"}]; // 更新令牌，用来获取下一次的访问令牌，必选项。
+}
+
+// 刷新令牌响应
+message RefreshTokenResponse {
+  string access_token = 1 [(gnostic.openapi.v3.property) = {description: "访问令牌，必选项。授权服务器颁发的访问令牌字符串。"}]; // 访问令牌，必选项。
+
+  string refresh_token = 2 [(gnostic.openapi.v3.property) = {description: "更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。"}]; // 更新令牌，用来获取下一次的访问令牌，可选项。
+
+  string token_type = 3 [(gnostic.openapi.v3.property) = {
+    description: "令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。"
+    default: {string: "Bearer"}
+  }]; // 令牌类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型。
+
+  int64 expires_in = 4 [(gnostic.openapi.v3.property) = {description: "令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。"}]; // 令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。
+}
+
+// 登录请求参数
+message LoginRequest {
+  string tenant_code = 1 [(gnostic.openapi.v3.property) = {description: "租户编码"}]; // 租户编码
+
+  string user_name = 2 [(gnostic.openapi.v3.property) = {description: "用户名"}, (buf.validate.field).cel = {id: "login.user_name.required" message: "用户名不能为空" expression: "this.size() > 0"}]; // 用户名，必选项。
+
+  .common.v1.PasswordCrypto password = 3 [(gnostic.openapi.v3.property) = {description: "用户密码"}, (buf.validate.field).required = true]; // 用户的密码，必选项。
+
+  string captcha_code = 4 [(gnostic.openapi.v3.property) = {description: "验证码"}, (buf.validate.field).cel = {id: "login.captcha_code.required" message: "验证码不能为空" expression: "this.size() > 0"}]; // 验证码
+
+  string captcha_id = 5 [(gnostic.openapi.v3.property) = {description: "验证码Id"}, (buf.validate.field).cel = {id: "login.captcha_id.required" message: "验证码不能为空" expression: "this.size() > 0"}]; // 验证码Id
+}
+
+// 登录响应
+message LoginResponse {
+  string access_token = 1 [(gnostic.openapi.v3.property) = {description: "访问令牌，必选项。授权服务器颁发的访问令牌字符串。"}]; // 访问令牌，必选项。
+
+  string refresh_token = 2 [(gnostic.openapi.v3.property) = {description: "更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。"}]; // 更新令牌，用来获取下一次的访问令牌，可选项。
+
+  string token_type = 3 [(gnostic.openapi.v3.property) = {
+    description: "令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。"
+    default: {string: "Bearer"}
+  }]; // 令牌类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型。
+
+  int64 expires_in = 4 [(gnostic.openapi.v3.property) = {description: "令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。"}]; // 令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。
+}

@@ -1,0 +1,126 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "common/v1/common.proto";
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// Admin行政区域服务
+service BaseAreaService {
+  // 查询行政区域树形选择
+  rpc OptionBaseArea(OptionBaseAreaRequest) returns (.common.v1.TreeOptionResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/area/option"
+    };
+  }
+
+  // 查询行政区域树形列表
+  rpc TreeBaseArea(TreeBaseAreaRequest) returns (TreeBaseAreaResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/area/tree"
+    };
+  }
+
+  // 查询行政区域详情
+  rpc GetBaseArea(GetBaseAreaRequest) returns (BaseAreaForm) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/area/{id}"
+    };
+  }
+
+  // 创建行政区域
+  rpc CreateBaseArea(CreateBaseAreaRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/base/area"
+      body: "base_area"
+    };
+  }
+
+  // 更新行政区域
+  rpc UpdateBaseArea(UpdateBaseAreaRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/area/{id}"
+      body: "base_area"
+    };
+  }
+
+  // 删除行政区域
+  rpc DeleteBaseArea(DeleteBaseAreaRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/admin/base/area/{ids}"
+    };
+  }
+
+}
+
+// 行政区域树形选择查询条件
+message OptionBaseAreaRequest {
+  optional int64 parent_id = 1 [(gnostic.openapi.v3.property) = {description: "父节点ID"}]; // 父节点ID
+
+  optional bool lazy = 2 [(gnostic.openapi.v3.property) = {description: "是否懒加载"}]; // 是否懒加载
+}
+
+
+// 行政区域树形列表查询条件
+message TreeBaseAreaRequest {
+  optional string name = 1 [(gnostic.openapi.v3.property) = {description: "区域名称"}]; // 区域名称
+
+  optional int64 parent_id = 2 [(gnostic.openapi.v3.property) = {description: "父级区域ID"}]; // 父级区域ID
+
+  optional bool lazy = 3 [(gnostic.openapi.v3.property) = {description: "是否懒加载"}]; // 是否懒加载
+
+}
+
+// 行政区域树形列表响应
+message TreeBaseAreaResponse {
+  repeated BaseArea base_areas = 1 [(gnostic.openapi.v3.property) = {description: "行政区域树形列表"}]; // 行政区域树形列表
+}
+
+// 行政区域
+message BaseArea {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "区域ID"}]; // 区域ID
+
+  int64 parent_id = 2 [(gnostic.openapi.v3.property) = {description: "父级区域"}]; // 父级区域
+
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "区域名称"}]; // 区域名称
+
+  bool has_children = 4 [(gnostic.openapi.v3.property) = {description: "是否存在子节点"}]; // 是否存在子节点
+
+  repeated BaseArea children = 101 [(gnostic.openapi.v3.property) = {description: "子区域"}]; // 子区域
+
+}
+
+// 行政区域详情查询条件
+message GetBaseAreaRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "行政区域ID"}]; // 行政区域ID
+}
+
+// 行政区域表单
+message BaseAreaForm {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "区域ID"}]; // 区域ID
+
+  int64 parent_id = 2 [(gnostic.openapi.v3.property) = {description: "父级区域"}]; // 父级区域
+
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "区域名称"}, (buf.validate.field).cel = {id: "field.name.length" message: "区域名称不能为空且不超过 50 个字符" expression: "this.size() > 0 && this.size() <= 50"}]; // 区域名称
+
+}
+
+// 行政区域创建条件
+message CreateBaseAreaRequest {
+  BaseAreaForm base_area = 1 [(gnostic.openapi.v3.property) = {description: "行政区域表单"}, (buf.validate.field).required = true]; // 行政区域表单
+}
+
+// 行政区域更新条件
+message UpdateBaseAreaRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "行政区域ID"}]; // 行政区域ID
+
+  BaseAreaForm base_area = 2 [(gnostic.openapi.v3.property) = {description: "行政区域表单"}, (buf.validate.field).required = true]; // 行政区域表单
+}
+
+// 行政区域删除条件
+message DeleteBaseAreaRequest {
+  string ids = 1 [(gnostic.openapi.v3.property) = {description: "行政区域ID列表，多个用逗号分隔"}]; // 行政区域ID列表，多个用逗号分隔
+}

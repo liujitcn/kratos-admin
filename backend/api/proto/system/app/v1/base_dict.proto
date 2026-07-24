@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package system.app.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// App字典服务
+service BaseDictService {
+  // 查询字典
+  rpc GetBaseDict(GetBaseDictRequest) returns (BaseDictForm) {
+    option (google.api.http) = {
+      get: "/api/v1/app/base/dict/{code}"
+    };
+  }
+}
+
+// 查询字典请求参数
+message GetBaseDictRequest {
+  string code = 1 [(gnostic.openapi.v3.property) = {description: "字典编号"}]; // 字典编号
+}
+
+// 字典表单
+message BaseDictForm {
+  // 字典项
+  message DictItem {
+    string value = 1 [(gnostic.openapi.v3.property) = {description: "字典项值"}]; // 字典值
+
+    string label = 2 [(gnostic.openapi.v3.property) = {description: "字典项标签"}]; // 字典项标签
+  }
+
+  string code = 1 [(gnostic.openapi.v3.property) = {description: "字典编号"}]; // 字典编号
+
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "字典名称"}]; // 字典名称
+
+  repeated DictItem items = 3 [(gnostic.openapi.v3.property) = {description: "字典属性"}]; // 字典属性
+}

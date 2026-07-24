@@ -1,0 +1,32 @@
+logger:
+  type: zap # Options: std, file, fluent, zap, logrus, aliyun, tencent
+
+  fluent:
+    endpoint: "tcp://localhost:24224"
+
+  zap:
+    level: "debug"
+    filepath: "./data/logs"
+    max_size: 1
+    max_age: 30
+    max_backups: 5
+    enable_console: true
+
+  logrus:
+    level: "debug"
+    formatter: "text"
+    timestamp_format: "2006-01-02 15:04:05"
+    disable_colors: false
+    disable_timestamp: false
+
+  aliyun:
+    endpoint: ""
+    project: ""
+    access_key: "<access_key>"
+    access_secret: "<access_secret>"
+
+  tencent:
+    endpoint: ""
+    topic_id:
+    access_key: "<access_key>"
+    access_secret: "<access_secret>"

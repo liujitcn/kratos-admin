@@ -1,0 +1,176 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// Admin代码生成服务
+service CodeGenService {
+  // 查询代码生成任务进度
+  rpc GetCodeGenTask(GetCodeGenTaskRequest) returns (CodeGenTask) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/code-gen/task/{task_id}"
+    };
+  }
+
+  // 预览代码生成文件
+  rpc PreviewCodeGen(PreviewCodeGenRequest) returns (PreviewCodeGenResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/code-gen/table/{table_id}/preview"
+      body: "*"
+    };
+  }
+
+  // 启动代码生成任务
+  rpc StartCodeGenTask(StartCodeGenTaskRequest) returns (StartCodeGenTaskResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/code-gen/task"
+      body: "*"
+    };
+  }
+
+  // 还原代码生成结果
+  rpc RestoreCodeGen(RestoreCodeGenRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/code-gen/restore"
+      body: "*"
+    };
+  }
+}
+
+// 查询代码生成任务条件
+message GetCodeGenTaskRequest {
+  string task_id = 1 [(gnostic.openapi.v3.property) = {description: "生成任务ID"}, (buf.validate.field).cel = {id: "get_code_gen_task.task_id.required" message: "生成任务ID不能为空" expression: "this.size() > 0"}]; // 生成任务ID
+}
+
+// 代码生成任务进度
+message CodeGenTask {
+  string task_id = 1 [(gnostic.openapi.v3.property) = {description: "生成任务ID"}]; // 生成任务ID
+
+  CodeGenTaskStatus status = 2 [(gnostic.openapi.v3.property) = {description: "任务状态"}]; // 任务状态
+
+  int32 total_steps = 3 [(gnostic.openapi.v3.property) = {description: "步骤总数"}]; // 步骤总数
+
+  int32 completed_steps = 4 [(gnostic.openapi.v3.property) = {description: "已完成步骤数"}]; // 已完成步骤数
+
+  string current_table_name = 5 [(gnostic.openapi.v3.property) = {description: "当前生成表名"}]; // 当前生成表名
+
+  string message = 6 [(gnostic.openapi.v3.property) = {description: "任务结果说明"}]; // 任务结果说明
+
+  repeated CodeGenTaskTable tables = 7 [(gnostic.openapi.v3.property) = {description: "生成对象进度列表"}]; // 生成对象进度列表
+
+  string created_at = 8 [(gnostic.openapi.v3.property) = {description: "任务创建时间"}]; // 任务创建时间
+
+  string finished_at = 9 [(gnostic.openapi.v3.property) = {description: "任务完成时间"}]; // 任务完成时间
+}
+
+// 预览代码生成条件
+message PreviewCodeGenRequest {
+  int64 table_id = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID"}, (buf.validate.field).cel = {id: "preview_code_gen.table_id.required" message: "代码生成表配置ID不能为空" expression: "this > 0"}]; // 代码生成表配置ID
+
+  CodeGenOutputPaths output_paths = 2 [(gnostic.openapi.v3.property) = {description: "本次生成输出路径"}]; // 本次生成输出路径
+}
+
+// 预览代码生成响应
+message PreviewCodeGenResponse {
+  repeated CodeGenPreviewFile files = 1 [(gnostic.openapi.v3.property) = {description: "预览文件列表"}]; // 预览文件列表
+
+  CodeGenOutputPaths output_paths = 2 [(gnostic.openapi.v3.property) = {description: "本次生效输出路径"}]; // 本次生效输出路径
+}
+
+// 代码生成任务状态
+enum CodeGenTaskStatus {
+  CODE_GEN_TASK_STATUS_UNSPECIFIED = 0; // 未指定
+  CODE_GEN_TASK_STATUS_PENDING = 1; // 等待执行
+  CODE_GEN_TASK_STATUS_RUNNING = 2; // 正在执行
+  CODE_GEN_TASK_STATUS_SUCCEEDED = 3; // 执行成功
+  CODE_GEN_TASK_STATUS_FAILED = 4; // 执行失败
+}
+
+// 代码生成步骤状态
+enum CodeGenTaskStepStatus {
+  CODE_GEN_TASK_STEP_STATUS_UNSPECIFIED = 0; // 未指定
+  CODE_GEN_TASK_STEP_STATUS_PENDING = 1; // 等待执行
+  CODE_GEN_TASK_STEP_STATUS_RUNNING = 2; // 正在执行
+  CODE_GEN_TASK_STEP_STATUS_SUCCEEDED = 3; // 执行成功
+  CODE_GEN_TASK_STEP_STATUS_FAILED = 4; // 执行失败
+  CODE_GEN_TASK_STEP_STATUS_SKIPPED = 5; // 无需处理
+}
+
+// 启动代码生成任务条件
+message StartCodeGenTaskRequest {
+  repeated int64 table_ids = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID列表"}, (buf.validate.field).repeated = {min_items: 1, unique: true}, (buf.validate.field).cel = {id: "start_code_gen_task.table_ids.positive" message: "代码生成表配置ID必须大于 0" expression: "this.all(item, item > 0)"}]; // 代码生成表配置ID列表
+}
+
+// 启动代码生成任务响应
+message StartCodeGenTaskResponse {
+  string task_id = 1 [(gnostic.openapi.v3.property) = {description: "生成任务ID"}]; // 生成任务ID
+}
+
+// 还原代码生成结果条件
+message RestoreCodeGenRequest {
+  repeated int64 table_ids = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID列表"}, (buf.validate.field).repeated = {min_items: 1, unique: true}, (buf.validate.field).cel = {id: "restore_code_gen.table_ids.positive" message: "代码生成表配置ID必须大于 0" expression: "this.all(item, item > 0)"}]; // 代码生成表配置ID列表
+}
+
+// 代码生成任务步骤
+message CodeGenTaskStep {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "步骤ID"}]; // 步骤ID
+
+  string label = 2 [(gnostic.openapi.v3.property) = {description: "步骤名称"}]; // 步骤名称
+
+  string kind = 3 [(gnostic.openapi.v3.property) = {description: "步骤类型"}]; // 步骤类型
+
+  string path = 4 [(gnostic.openapi.v3.property) = {description: "文件路径"}]; // 文件路径
+
+  CodeGenTaskStepStatus status = 5 [(gnostic.openapi.v3.property) = {description: "步骤状态"}]; // 步骤状态
+
+  string message = 6 [(gnostic.openapi.v3.property) = {description: "步骤结果说明"}]; // 步骤结果说明
+
+  string output = 7 [(gnostic.openapi.v3.property) = {description: "命令输出"}]; // 命令输出
+}
+
+// 单个生成对象任务进度
+message CodeGenTaskTable {
+  int64 table_id = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID"}]; // 代码生成表配置ID
+
+  string table_name = 2 [(gnostic.openapi.v3.property) = {description: "业务表名"}]; // 业务表名
+
+  CodeGenTaskStatus status = 3 [(gnostic.openapi.v3.property) = {description: "生成对象任务状态"}]; // 生成对象任务状态
+
+  int32 total_steps = 4 [(gnostic.openapi.v3.property) = {description: "步骤总数"}]; // 步骤总数
+
+  int32 completed_steps = 5 [(gnostic.openapi.v3.property) = {description: "已完成步骤数"}]; // 已完成步骤数
+
+  string message = 6 [(gnostic.openapi.v3.property) = {description: "生成对象结果说明"}]; // 生成对象结果说明
+
+  repeated CodeGenTaskStep steps = 7 [(gnostic.openapi.v3.property) = {description: "生成步骤列表"}]; // 生成步骤列表
+}
+
+// 代码生成预览文件
+message CodeGenPreviewFile {
+  string path = 1 [(gnostic.openapi.v3.property) = {description: "文件路径"}]; // 文件路径
+
+  string action = 2 [(gnostic.openapi.v3.property) = {description: "处理动作"}]; // 处理动作
+
+  string content = 3 [(gnostic.openapi.v3.property) = {description: "文件内容"}]; // 文件内容
+
+  bool exists = 4 [(gnostic.openapi.v3.property) = {description: "文件是否已存在"}]; // 文件是否已存在
+
+  string message = 5 [(gnostic.openapi.v3.property) = {description: "处理说明"}]; // 处理说明
+}
+
+// 代码生成临时输出路径
+message CodeGenOutputPaths {
+  string proto_file_path = 1 [(gnostic.openapi.v3.property) = {description: "Proto文件路径"}]; // Proto文件路径
+
+  string backend_biz_file_path = 2 [(gnostic.openapi.v3.property) = {description: "后端Biz文件路径"}]; // 后端Biz文件路径
+
+  string backend_service_file_path = 3 [(gnostic.openapi.v3.property) = {description: "后端Service文件路径"}]; // 后端Service文件路径
+
+  string frontend_api_file_path = 4 [(gnostic.openapi.v3.property) = {description: "前端API文件路径"}]; // 前端API文件路径
+
+  string frontend_page_file_path = 5 [(gnostic.openapi.v3.property) = {description: "前端页面文件路径"}]; // 前端页面文件路径
+}

@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package base.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/wrappers.proto";
+
+// Base文件服务
+service FileService {
+  // 多个文件上传
+  rpc MultiUploadFile(MultiUploadFileRequest) returns (MultiUploadFileResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/file/multi"
+      body: "*"
+    };
+  }
+  // 单个文件上传
+  rpc UploadFile(UploadFileRequest) returns (FileInfo) {
+    option (google.api.http) = {
+      post: "/api/v1/base/file"
+      body: "*"
+    };
+  }
+  // 下载文件
+  rpc DownloadFile(DownloadFileRequest) returns (google.protobuf.BytesValue) {
+    option (google.api.http) = {
+      get: "/api/v1/base/file"
+    };
+  }
+}
+
+// 批量上传文件请求参数
+message MultiUploadFileRequest {
+  repeated UploadFileInfo files = 1 [(gnostic.openapi.v3.property) = {description: "上传文件信息"}, (buf.validate.field).repeated = {min_items: 1}]; // 文件名
+}
+
+// 批量上传文件响应
+message MultiUploadFileResponse {
+  repeated FileInfo files = 1 [(gnostic.openapi.v3.property) = {description: "文件上传结果"}]; // 文件上传结果
+}
+
+// 单文件上传请求参数
+message UploadFileRequest {
+  UploadFileInfo file = 1 [(gnostic.openapi.v3.property) = {description: "上传文件信息"}, (buf.validate.field).required = true]; // 上传文件信息
+}
+
+// 上传文件信息
+message UploadFileInfo {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "文件名"}]; // 文件名
+  string extname = 2 [(gnostic.openapi.v3.property) = {description: "文件扩展名"}]; // 文件扩展名
+  string path = 3 [(gnostic.openapi.v3.property) = {description: "文件路径"}]; // 文件路径
+
+  bytes content = 4 [(gnostic.openapi.v3.property) = {description: " 二进制内容将通过 base64 编码传输"}]; //  二进制内容将通过 base64 编码传输
+}
+
+// 下载文件请求参数
+message DownloadFileRequest {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "文件名"}]; // 文件名
+  string path = 2 [(gnostic.openapi.v3.property) = {description: "文件路径"}, (buf.validate.field).cel = {id: "download_file.path.required" message: "文件路径不能为空" expression: "this.size() > 0"}]; // 文件路径
+}
+
+// File信息
+message FileInfo {
+  string url = 1 [(gnostic.openapi.v3.property) = {description: "文件路径"}]; // 文件路径
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "文件名"}]; // 文件名
+  string extname = 3 [(gnostic.openapi.v3.property) = {description: "文件扩展名"}]; // 文件扩展名
+}

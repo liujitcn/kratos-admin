@@ -1,0 +1,165 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "common/v1/common.proto";
+import "common/v1/enum.proto";
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// Admin租户管理服务
+service BaseTenantService {
+  // 查询租户下拉选择
+  rpc OptionBaseTenant(OptionBaseTenantRequest) returns (.common.v1.SelectOptionResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/tenant/option"
+    };
+  }
+
+  // 查询租户分页列表
+  rpc PageBaseTenant(PageBaseTenantRequest) returns (PageBaseTenantResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/tenant"
+    };
+  }
+
+  // 查询租户
+  rpc GetBaseTenant(GetBaseTenantRequest) returns (BaseTenantForm) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/tenant/{id}"
+    };
+  }
+
+  // 创建租户
+  rpc CreateBaseTenant(CreateBaseTenantRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/base/tenant"
+      body: "base_tenant"
+    };
+  }
+
+  // 更新租户
+  rpc UpdateBaseTenant(UpdateBaseTenantRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/tenant/{base_tenant.id}"
+      body: "base_tenant"
+    };
+  }
+
+  // 删除租户
+  rpc DeleteBaseTenant(DeleteBaseTenantRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/admin/base/tenant/{id}"
+    };
+  }
+
+  // 设置状态
+  rpc SetBaseTenantStatus(SetBaseTenantStatusRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/tenant/{id}/status"
+      body: "*"
+    };
+  }
+}
+
+// 租户选项查询条件
+message OptionBaseTenantRequest {
+  string keyword = 1 [(gnostic.openapi.v3.property) = {description: "关键字"}]; // 关键字
+}
+
+// 租户分页查询条件
+message PageBaseTenantRequest {
+  string code = 2 [(gnostic.openapi.v3.property) = {description: "租户编号"}]; // 租户编号
+
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "租户名称"}]; // 租户名称
+
+  optional .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {
+    description: "当前页码"
+    default: {number: 1}
+  }]; // 当前页码
+
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {
+    description: "每一页的行数"
+    default: {number: 10}
+  }]; // 每一页的行数
+}
+
+// 租户分页响应
+message PageBaseTenantResponse {
+  repeated BaseTenant base_tenants = 1 [(gnostic.openapi.v3.property) = {description: "分页数据"}]; // 分页数据
+
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 查询租户请求参数
+message GetBaseTenantRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}, (buf.validate.field).cel = {id: "get_base_tenant.id.required" message: "租户ID不能为空" expression: "this > 0"}]; // 租户ID
+}
+
+// 创建租户请求参数
+message CreateBaseTenantRequest {
+  BaseTenantForm base_tenant = 1 [(gnostic.openapi.v3.property) = {description: "租户表单"}, (buf.validate.field).required = true]; // 租户表单
+}
+
+// 更新租户请求参数
+message UpdateBaseTenantRequest {
+  option (buf.validate.message).cel = {id: "update_base_tenant.id.required" message: "租户ID不能为空" expression: "this.base_tenant.id > 0"};
+
+  BaseTenantForm base_tenant = 1 [(gnostic.openapi.v3.property) = {description: "租户表单"}, (buf.validate.field).required = true]; // 租户表单
+}
+
+// 删除租户请求参数
+message DeleteBaseTenantRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID列表"}, (buf.validate.field).cel = {id: "delete_base_tenant.id.required" message: "租户ID列表不能为空" expression: "this.size() > 0"}]; // 租户ID列表
+}
+
+// 设置租户状态请求参数
+message SetBaseTenantStatusRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}, (buf.validate.field).cel = {id: "set_base_tenant_status.id.required" message: "租户ID不能为空" expression: "this > 0"}]; // 租户ID
+
+  int32 status = 2 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+}
+
+// 租户
+message BaseTenant {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+
+  string code = 2 [(gnostic.openapi.v3.property) = {description: "租户编号"}, (buf.validate.field).cel = {id: "base_tenant.code.length" message: "租户编号不能为空且不超过 50 个字符" expression: "this.size() > 0 && this.size() <= 50"}]; // 租户编号
+
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "租户名称"}, (buf.validate.field).cel = {id: "base_tenant.name.length" message: "租户名称不能为空且不超过 100 个字符" expression: "this.size() > 0 && this.size() <= 100"}]; // 租户名称
+
+  string contact_name = 4 [(gnostic.openapi.v3.property) = {description: "联系人"}, (buf.validate.field).cel = {id: "base_tenant.contact_name.max_len" message: "联系人不能超过 50 个字符" expression: "this.size() <= 50"}]; // 联系人
+
+  string contact_phone = 5 [(gnostic.openapi.v3.property) = {description: "联系电话"}, (buf.validate.field).cel = {id: "base_tenant.contact_phone.max_len" message: "联系电话不能超过 20 个字符" expression: "this.size() <= 20"}]; // 联系电话
+
+  .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+
+  string remark = 101 [(gnostic.openapi.v3.property) = {description: "备注"}]; // 备注
+
+  string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+
+  string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+
+  bool is_protected = 300 [(gnostic.openapi.v3.property) = {description: "是否禁止通过租户管理操作"}]; // 是否禁止通过租户管理操作
+}
+
+// 租户表单
+message BaseTenantForm {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+
+  string code = 2 [(gnostic.openapi.v3.property) = {description: "租户编号"}]; // 租户编号
+
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "租户名称"}, (buf.validate.field).cel = {id: "base_tenant.name.required" message: "请输入租户名称" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "base_tenant.name.max_len" message: "租户名称不能超过 100 个字符" expression: "this.size() <= 100"}]; // 租户名称
+
+  string contact_name = 4 [(gnostic.openapi.v3.property) = {description: "联系人"}, (buf.validate.field).cel = {id: "base_tenant.contact_name.max_len" message: "联系人不能超过 50 个字符" expression: "this.size() <= 50"}]; // 联系人
+
+  string contact_phone = 5 [(gnostic.openapi.v3.property) = {description: "联系电话"}, (buf.validate.field).cel = {id: "base_tenant.contact_phone.max_len" message: "联系电话不能超过 20 个字符" expression: "this.size() <= 20"}, (buf.validate.field).cel = {id: "base_tenant.contact_phone.format" message: "请输入正确的联系电话" expression: "this.size() == 0 || this.matches('^1[3-9]\\\\d{9}$')"}]; // 联系电话
+
+  optional .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+
+  string remark = 101 [(gnostic.openapi.v3.property) = {description: "备注"}, (buf.validate.field).cel = {id: "base_tenant.remark.max_len" message: "备注不能超过 500 个字符" expression: "this.size() <= 500"}]; // 备注
+}

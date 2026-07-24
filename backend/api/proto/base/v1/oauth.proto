@@ -1,0 +1,219 @@
+syntax = "proto3";
+
+package base.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// Base三方登录公共服务
+service OauthService {
+  // 查询个人中心三方账号绑定列表
+  rpc ListOauthBinding(ListOauthBindingRequest) returns (ListOauthBindingResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/base/oauth/binding"
+    };
+  }
+
+  // 查询三方登录方式
+  rpc ListOauthProvider(ListOauthProviderRequest) returns (ListOauthProviderResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/base/oauth/provider"
+    };
+  }
+
+  // 创建三方登录授权地址
+  rpc CreateOauthAuthorization(CreateOauthAuthorizationRequest) returns (CreateOauthAuthorizationResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/oauth/authorization"
+      body: "*"
+    };
+  }
+
+  // 创建个人中心三方账号绑定授权地址
+  rpc CreateOauthBindingAuthorization(CreateOauthBindingAuthorizationRequest) returns (CreateOauthBindingAuthorizationResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/oauth/binding/authorization"
+      body: "*"
+    };
+  }
+
+  // 创建三方登录会话
+  rpc CreateOauthSession(CreateOauthSessionRequest) returns (CreateOauthSessionResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/oauth/session"
+      body: "*"
+    };
+  }
+
+  // 处理三方登录回调
+  rpc HandleOauthCallback(HandleOauthCallbackRequest) returns (HandleOauthCallbackResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/base/oauth/{provider}/callback"
+    };
+  }
+
+  // 兑换三方登录票据
+  rpc ExchangeOauthTicket(ExchangeOauthTicketRequest) returns (ExchangeOauthTicketResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/oauth/ticket"
+      body: "*"
+    };
+  }
+
+  // 处理个人中心三方账号绑定回调
+  rpc HandleOauthBindingCallback(HandleOauthBindingCallbackRequest) returns (HandleOauthBindingCallbackResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/base/oauth/{provider}/binding/callback"
+    };
+  }
+
+  // 解绑个人中心三方账号
+  rpc UnbindOauthAccount(UnbindOauthAccountRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/base/oauth/binding/{provider}"
+    };
+  }
+}
+
+// 个人中心三方账号绑定列表查询条件
+message ListOauthBindingRequest {}
+
+// 个人中心三方账号绑定列表响应
+message ListOauthBindingResponse {
+  repeated OauthBinding bindings = 1 [(gnostic.openapi.v3.property) = {description: "三方账号绑定列表"}]; // 三方账号绑定列表
+}
+
+// 三方登录方式查询条件
+message ListOauthProviderRequest {}
+
+// 三方登录方式查询结果
+message ListOauthProviderResponse {
+  repeated OauthProvider providers = 1 [(gnostic.openapi.v3.property) = {description: "三方登录方式列表"}]; // 三方登录方式列表
+}
+
+// 三方登录授权地址创建条件
+message CreateOauthAuthorizationRequest {
+  string provider = 1 [(gnostic.openapi.v3.property) = {description: "登录方式标识"}, (buf.validate.field).cel = {id: "create_oauth_authorization.provider.required" message: "登录方式标识不能为空" expression: "this.size() > 0"}]; // 登录方式标识
+
+  string redirect_url = 2 [(gnostic.openapi.v3.property) = {description: "三方登录完成后的前端接收地址"}, (buf.validate.field).cel = {id: "create_oauth_authorization.redirect_url.required" message: "登录页地址不能为空" expression: "this.size() > 0"}]; // 三方登录完成后的前端接收地址
+}
+
+// 三方登录授权地址创建结果
+message CreateOauthAuthorizationResponse {
+  string authorization_url = 1 [(gnostic.openapi.v3.property) = {description: "三方授权地址"}]; // 三方授权地址
+}
+
+// 个人中心三方账号绑定授权地址创建条件
+message CreateOauthBindingAuthorizationRequest {
+  string provider = 1 [(gnostic.openapi.v3.property) = {description: "登录方式标识"}, (buf.validate.field).cel = {id: "create_oauth_binding_authorization.provider.required" message: "登录方式标识不能为空" expression: "this.size() > 0"}]; // 登录方式标识
+
+  string redirect_url = 2 [(gnostic.openapi.v3.property) = {description: "绑定完成后回跳地址"}, (buf.validate.field).cel = {id: "create_oauth_binding_authorization.redirect_url.required" message: "绑定完成后回跳地址不能为空" expression: "this.size() > 0"}]; // 绑定完成后回跳地址
+}
+
+// 个人中心三方账号绑定授权地址创建响应
+message CreateOauthBindingAuthorizationResponse {
+  string authorization_url = 1 [(gnostic.openapi.v3.property) = {description: "三方授权地址"}]; // 三方授权地址
+}
+
+// 三方登录会话创建请求
+message CreateOauthSessionRequest {
+  string provider = 1 [(gnostic.openapi.v3.property) = {description: "登录方式标识"}, (buf.validate.field).cel = {id: "create_oauth_session.provider.required" message: "登录方式标识不能为空" expression: "this.size() > 0"}]; // 登录方式标识
+
+  string code = 2 [(gnostic.openapi.v3.property) = {description: "三方授权码"}, (buf.validate.field).cel = {id: "create_oauth_session.code.required" message: "三方授权码不能为空" expression: "this.size() > 0"}]; // 三方授权码
+}
+
+// 三方登录会话创建响应
+message CreateOauthSessionResponse {
+  string access_token = 1 [(gnostic.openapi.v3.property) = {description: "访问令牌，必选项。授权服务器颁发的访问令牌字符串。"}]; // 访问令牌，必选项。
+
+  string refresh_token = 2 [(gnostic.openapi.v3.property) = {description: "更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。"}]; // 更新令牌，用来获取下一次的访问令牌，可选项。
+
+  string token_type = 3 [(gnostic.openapi.v3.property) = {
+    description: "令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。"
+    default: {string: "Bearer"}
+  }]; // 令牌类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型。
+
+  int64 expires_in = 4 [(gnostic.openapi.v3.property) = {description: "令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。"}]; // 令牌有效时间，单位为秒。
+}
+
+// 三方登录回调请求
+message HandleOauthCallbackRequest {
+  option (buf.validate.message).cel = {
+    id: "handle_oauth_callback.code.required_on_success"
+    message: "三方授权码不能为空"
+    expression: "this.error.size() > 0 || this.code.size() > 0"
+  };
+
+  string provider = 1 [(gnostic.openapi.v3.property) = {description: "登录方式标识"}, (buf.validate.field).cel = {id: "handle_oauth_callback.provider.required" message: "登录方式标识不能为空" expression: "this.size() > 0"}]; // 登录方式标识
+
+  string code = 2 [(gnostic.openapi.v3.property) = {description: "三方授权码"}]; // 三方授权码
+
+  string state = 3 [(gnostic.openapi.v3.property) = {description: "授权状态码"}, (buf.validate.field).cel = {id: "handle_oauth_callback.state.required" message: "授权状态码不能为空" expression: "this.size() > 0"}]; // 授权状态码
+
+  string error = 4 [(gnostic.openapi.v3.property) = {description: "三方错误码"}]; // 三方错误码
+
+  string error_description = 5 [(gnostic.openapi.v3.property) = {description: "三方错误描述"}]; // 三方错误描述
+}
+
+// 三方登录回调结果
+message HandleOauthCallbackResponse {}
+
+// 三方登录票据兑换请求
+message ExchangeOauthTicketRequest {
+  string ticket = 1 [(gnostic.openapi.v3.property) = {description: "三方登录票据"}, (buf.validate.field).cel = {id: "exchange_oauth_ticket.ticket.required" message: "三方登录票据不能为空" expression: "this.size() > 0"}]; // 三方登录票据
+}
+
+// 三方登录票据兑换结果
+message ExchangeOauthTicketResponse {
+  string access_token = 1 [(gnostic.openapi.v3.property) = {description: "访问令牌，必选项。授权服务器颁发的访问令牌字符串。"}]; // 访问令牌，必选项。
+
+  string refresh_token = 2 [(gnostic.openapi.v3.property) = {description: "更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。"}]; // 更新令牌，用来获取下一次的访问令牌，可选项。
+
+  string token_type = 3 [(gnostic.openapi.v3.property) = {
+    description: "令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。"
+    default: {string: "Bearer"}
+  }]; // 令牌类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型。
+
+  int64 expires_in = 4 [(gnostic.openapi.v3.property) = {description: "令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。"}]; // 令牌有效时间，单位为秒。
+}
+
+// 个人中心三方账号绑定回调请求
+message HandleOauthBindingCallbackRequest {
+  option (buf.validate.message).cel = {
+    id: "handle_oauth_binding_callback.code.required_on_success"
+    message: "三方授权码不能为空"
+    expression: "this.error.size() > 0 || this.code.size() > 0"
+  };
+
+  string provider = 1 [(gnostic.openapi.v3.property) = {description: "登录方式标识"}, (buf.validate.field).cel = {id: "handle_oauth_binding_callback.provider.required" message: "登录方式标识不能为空" expression: "this.size() > 0"}]; // 登录方式标识
+
+  string code = 2 [(gnostic.openapi.v3.property) = {description: "三方授权码"}]; // 三方授权码
+
+  string state = 3 [(gnostic.openapi.v3.property) = {description: "授权状态码"}, (buf.validate.field).cel = {id: "handle_oauth_binding_callback.state.required" message: "授权状态码不能为空" expression: "this.size() > 0"}]; // 授权状态码
+
+  string error = 4 [(gnostic.openapi.v3.property) = {description: "三方错误码"}]; // 三方错误码
+
+  string error_description = 5 [(gnostic.openapi.v3.property) = {description: "三方错误描述"}]; // 三方错误描述
+}
+
+// 个人中心三方账号绑定回调响应
+message HandleOauthBindingCallbackResponse {}
+
+// 个人中心三方账号解绑条件
+message UnbindOauthAccountRequest {
+  string provider = 1 [(gnostic.openapi.v3.property) = {description: "登录方式标识"}, (buf.validate.field).cel = {id: "unbind_oauth_account.provider.required" message: "登录方式标识不能为空" expression: "this.size() > 0"}]; // 登录方式标识
+}
+
+// 三方登录方式信息
+message OauthProvider {
+  string provider = 1 [(gnostic.openapi.v3.property) = {description: "登录方式标识"}]; // 登录方式标识
+}
+
+// 个人中心三方账号绑定信息
+message OauthBinding {
+  string provider = 1 [(gnostic.openapi.v3.property) = {description: "登录方式标识"}]; // 登录方式标识
+
+  bool bound = 4 [(gnostic.openapi.v3.property) = {description: "是否已绑定"}]; // 是否已绑定
+}

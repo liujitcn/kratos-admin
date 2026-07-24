@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package base.v1;
+
+import "common/v1/enum.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// Base AI 助手工具服务
+service AiToolService {
+  // 查询 AI 助手快捷入口列表
+  rpc ListAiShortcut(ListAiShortcutRequest) returns (ListAiShortcutResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/base/ai/shortcut"
+    };
+  }
+}
+
+// AI 助手快捷入口列表查询条件
+message ListAiShortcutRequest {
+  .common.v1.Terminal terminal = 1 [(gnostic.openapi.v3.property) = {description: "终端类型：枚举【Terminal】"}]; // 终端类型：枚举【Terminal】
+}
+
+// AI 助手快捷入口列表响应
+message ListAiShortcutResponse {
+  repeated AiShortcut shortcuts = 1 [(gnostic.openapi.v3.property) = {description: "快捷入口列表"}]; // 快捷入口列表
+}
+
+// AI 助手快捷入口
+message AiShortcut {
+  string key = 1 [(gnostic.openapi.v3.property) = {description: "快捷入口标识"}]; // 快捷入口标识
+
+  string title = 2 [(gnostic.openapi.v3.property) = {description: "展示标题"}]; // 展示标题
+
+  string prompt = 3 [(gnostic.openapi.v3.property) = {description: "发送给助手的提示词"}]; // 发送给助手的提示词
+
+  AiShortcutAction action = 4 [(gnostic.openapi.v3.property) = {description: "快捷入口动作"}]; // 快捷入口动作
+
+  repeated string required_tools = 5 [(gnostic.openapi.v3.property) = {description: "依赖工具列表"}]; // 依赖工具列表
+
+  int32 sort = 6 [(gnostic.openapi.v3.property) = {description: "排序值"}]; // 排序值
+
+  string group = 7 [(gnostic.openapi.v3.property) = {description: "分组名称"}]; // 分组名称
+}
+
+// AI 助手快捷入口动作
+message AiShortcutAction {
+  string flow = 1 [(gnostic.openapi.v3.property) = {description: "流程标识"}]; // 流程标识
+
+  string step = 2 [(gnostic.openapi.v3.property) = {description: "流程步骤"}]; // 流程步骤
+
+  string type = 3 [(gnostic.openapi.v3.property) = {description: "动作类型"}]; // 动作类型
+
+  string payload_json = 4 [(gnostic.openapi.v3.property) = {description: "动作负载JSON"}]; // 动作负载JSON
+}
+
+// AI 助手工具调用记录
+message AiToolCall {
+  string type = 1 [(gnostic.openapi.v3.property) = {description: "工具类型：function/server"}]; // 工具类型：function/server
+
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "工具名称"}]; // 工具名称
+
+  string title = 3 [(gnostic.openapi.v3.property) = {description: "工具展示名称"}]; // 工具展示名称
+
+  string status = 4 [(gnostic.openapi.v3.property) = {description: "工具调用状态"}]; // 工具调用状态
+
+  string input = 5 [(gnostic.openapi.v3.property) = {description: "工具原始入参JSON"}]; // 工具原始入参JSON
+
+  string output = 6 [(gnostic.openapi.v3.property) = {description: "工具原始出参JSON"}]; // 工具原始出参JSON
+}

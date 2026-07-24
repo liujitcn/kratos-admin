@@ -1,0 +1,32 @@
+version: v2
+
+modules:
+  - path: proto
+    lint:
+      use:
+        - STANDARD
+      except:
+        - ENUM_VALUE_PREFIX
+        - ENUM_ZERO_VALUE_SUFFIX
+        - RPC_REQUEST_RESPONSE_UNIQUE
+        - RPC_RESPONSE_STANDARD_NAME
+    breaking:
+      use:
+        - FILE
+deps:
+  - 'buf.build/googleapis/googleapis'
+  - 'buf.build/kratos/apis'
+  - 'buf.build/gnostic/gnostic'
+  - 'buf.build/envoyproxy/protoc-gen-validate'
+  - 'buf.build/bufbuild/protovalidate'
+  - 'buf.build/menta2k-org/redact'
+
+breaking:
+  use:
+    - FILE
+  except:
+    - RPC_REQUEST_RESPONSE_UNIQUE
+
+lint:
+  use:
+    - DEFAULT

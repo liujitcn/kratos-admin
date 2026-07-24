@@ -1,0 +1,91 @@
+package config
+
+import (
+	"github.com/liujitcn/kratos-admin/backend/pkg/errorsx"
+
+	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	"github.com/liujitcn/kratos-kit/bootstrap"
+)
+
+// GetAppInfo 获取当前服务的应用信息。
+func GetAppInfo(ctx *bootstrap.Context) *bootstrapConfigv1.AppInfo {
+	return ctx.GetAppInfo()
+}
+
+// ParseAIModel 解析大模型配置。
+func ParseAIModel(ctx *bootstrap.Context) *bootstrapConfigv1.AI_Model {
+	cfg := ctx.GetConfig()
+	// 未配置大模型参数时，返回空配置并由客户端保持关闭状态。
+	if cfg == nil || cfg.GetAi() == nil || cfg.GetAi().GetModel() == nil {
+		return &bootstrapConfigv1.AI_Model{}
+	}
+	return cfg.GetAi().GetModel()
+}
+
+// ParseOSS 解析对象存储配置。
+func ParseOSS(ctx *bootstrap.Context) (*bootstrapConfigv1.Oss, error) {
+	cfg := ctx.GetConfig()
+	// 对象存储配置缺失时，直接返回错误。
+	if cfg == nil || cfg.GetOss() == nil {
+		return nil, errorsx.Internal("对象存储配置缺失")
+	}
+	return cfg.GetOss(), nil
+}
+
+// ParseData 解析数据源配置。
+func ParseData(ctx *bootstrap.Context) (*bootstrapConfigv1.Data, error) {
+	cfg := ctx.GetConfig()
+	// 数据源配置缺失时，直接返回错误。
+	if cfg == nil || cfg.GetData() == nil {
+		return nil, errorsx.Internal("数据源配置缺失")
+	}
+	return cfg.GetData(), nil
+}
+
+// ParseDatabase 解析数据库配置。
+func ParseDatabase(cfg *bootstrapConfigv1.Data) *bootstrapConfigv1.Data_Database {
+	return cfg.GetDatabase()
+}
+
+// ParseQueue 解析队列配置。
+func ParseQueue(cfg *bootstrapConfigv1.Data) *bootstrapConfigv1.Data_Queue {
+	return cfg.GetQueue()
+}
+
+// ParseRedis 解析 Redis 配置。
+func ParseRedis(cfg *bootstrapConfigv1.Data) *bootstrapConfigv1.Data_Redis {
+	return cfg.GetRedis()
+}
+
+// ParsePprof 解析性能分析配置。
+func ParsePprof(ctx *bootstrap.Context) (*bootstrapConfigv1.Pprof, error) {
+	cfg := ctx.GetConfig()
+	// 性能分析配置缺失时，直接返回错误。
+	if cfg == nil || cfg.GetPprof() == nil {
+		return nil, errorsx.Internal("性能分析配置缺失")
+	}
+	return cfg.GetPprof(), nil
+}
+
+// ParseAuthnJWT 解析 JWT 认证配置。
+func ParseAuthnJWT(ctx *bootstrap.Context) *bootstrapConfigv1.Authentication_Jwt {
+	cfg := ctx.GetConfig()
+	// 未配置 JWT 时，回退到项目默认认证参数。
+	if cfg == nil || cfg.GetAuthn() == nil || cfg.GetAuthn().GetJwt() == nil {
+		return &bootstrapConfigv1.Authentication_Jwt{
+			Method: "HS256",
+			Secret: "admin-base",
+		}
+	}
+	return cfg.GetAuthn().GetJwt()
+}
+
+// ParseOAuth 解析 OAuth 配置。
+func ParseOAuth(ctx *bootstrap.Context) *bootstrapConfigv1.OAuth {
+	cfg := ctx.GetConfig()
+	// 未配置 OAuth 时，回退为空配置，避免影响账号密码登录。
+	if cfg == nil || cfg.GetOauth() == nil {
+		return &bootstrapConfigv1.OAuth{}
+	}
+	return cfg.GetOauth()
+}
