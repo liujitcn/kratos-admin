@@ -25,3 +25,4 @@ authn:
       regex:
       path:
       match:
+        - "/base.v1.SseService/SubscribeSse"

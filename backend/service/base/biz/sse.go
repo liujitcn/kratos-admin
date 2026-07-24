@@ -23,6 +23,7 @@ import (
 // SseCase 处理 SSE 公共业务。
 type SseCase struct {
 	authenticator authnEngine.Authenticator
+	userToken     *authData.UserToken
 	sse           *sseServer.Server
 	streams       *transportSSE.Registry
 }
@@ -31,6 +32,7 @@ type SseCase struct {
 func NewSseCase(
 	ctx *bootstrap.Context,
 	authenticator authnEngine.Authenticator,
+	userToken *authData.UserToken,
 	sse *sseServer.Server,
 	streams *transportSSE.Registry,
 	publisher *transportSSE.Publisher,
@@ -38,6 +40,7 @@ func NewSseCase(
 ) (*SseCase, error) {
 	handler := &SseCase{
 		authenticator: authenticator,
+		userToken:     userToken,
 		sse:           sse,
 		streams:       streams,
 	}
@@ -119,6 +122,9 @@ func (h *SseCase) authenticatorFromRequest(r *http.Request) (*authData.UserToken
 	userToken, err = authData.NewUserTokenPayloadWithClaims(authClaims)
 	if err != nil || userToken == nil || userToken.UserId == 0 {
 		return nil, errorsx.Unauthenticated("SSE访问令牌无效").WithCause(err)
+	}
+	if !h.userToken.IsExistAccessToken(userToken.UserId) {
+		return nil, errorsx.Unauthenticated("SSE访问令牌已失效")
 	}
 	return userToken, nil
 }

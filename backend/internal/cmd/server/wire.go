@@ -7,6 +7,7 @@ import (
 	"github.com/go-kratos/kratos/v3"
 	"github.com/google/wire"
 	"github.com/liujitcn/kratos-kit/bootstrap"
+	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 
 	einoModel "github.com/liujitcn/kratos-admin/backend/pkg/agent/eino/model"
 	"github.com/liujitcn/kratos-admin/backend/pkg/biz"
@@ -46,6 +47,7 @@ func initApp(*bootstrap.Context) (*kratos.App, func(), error) {
 		systemadminserver.ProviderSet,
 		systemappserver.ProviderSet,
 		baseserver.NewSSEHandler,
+		wire.Value([]databaseGorm.ClientOption(nil)),
 		newModules,
 		wire.Bind(new(server.TerminalToolSetter), new(*ai.Runtime)),
 		server.ProviderSet,

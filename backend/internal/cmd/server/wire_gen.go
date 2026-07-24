@@ -50,7 +50,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	data_Database := config.ParseDatabase(configv1Data)
-	client, cleanup, err := gorm.NewGormClient(data_Database)
+	v := _wireValue
+	client, cleanup, err := gorm.NewGormClient(data_Database, v...)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -192,7 +193,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	sseRegistry := sse.NewRegistry()
 	publisher := sse.NewPublisher(sseServer)
 	codegenManager := codegen.NewManager()
-	sseCase, err := biz2.NewSseCase(context, authenticator, sseServer, sseRegistry, publisher, codegenManager)
+	sseCase, err := biz2.NewSseCase(context, authenticator, userToken, sseServer, sseRegistry, publisher, codegenManager)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -345,3 +346,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 	}, nil
 }
+
+var (
+	_wireValue = []gorm.ClientOption(nil)
+)
