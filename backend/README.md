@@ -26,18 +26,18 @@ backend
 默认数据库连接：
 
 ```text
-root:112233@tcp(127.0.0.1:3306)/admin_test?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms
+root:112233@tcp(127.0.0.1:3306)/kratos_admin?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms
 ```
 
 初始化数据库：
 
 ```sql
-CREATE DATABASE admin_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE kratos_admin CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
 ```bash
-mysql -uroot -p admin_test < sql/default-data.sql
-mysql -uroot -p admin_test < sql/base_area.sql
+mysql -uroot -p kratos_admin < sql/default-data.sql
+mysql -uroot -p kratos_admin < sql/base_area.sql
 ```
 
 ## 常用命令

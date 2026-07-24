@@ -25,7 +25,7 @@
 
 ## 本地启动
 
-1. 创建 `admin_test` 数据库。
+1. 创建 `kratos_admin` 数据库。
 2. 首次启动后端完成当前模型的自动迁移，然后导入 `sql/default-data.sql` 和 `sql/base_area.sql`。
 3. 启动后端，默认 HTTP 地址为 `http://localhost:7001`。
 4. 启动管理后台，默认地址为 `http://localhost:8848`。

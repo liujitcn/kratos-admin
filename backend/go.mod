@@ -1,4 +1,4 @@
-module github.com/liujitcn/kratos-admin
+module github.com/liujitcn/kratos-admin/backend
 
 go 1.26.0
 
