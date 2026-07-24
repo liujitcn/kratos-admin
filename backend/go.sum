@@ -387,6 +387,7 @@ github.com/liujitcn/go-utils/http v0.0.5 h1:gNvxc2vNLszw2lkeme1fqFtAIRy7j444UHBJ
 github.com/liujitcn/go-utils/http v0.0.5/go.mod h1:0OZD9Mc75BOE3thAPJgICwS9ADUkFq7zsbbVAwrAx3o=
 github.com/liujitcn/gorm-kit v0.0.31 h1:VBYqQKp9MsX4Ya/uaazWZ2rbO4Xtz0i7dl95jgMmhtI=
 github.com/liujitcn/gorm-kit v0.0.31/go.mod h1:PaVfftsXRJp4CU0Hb80YWU/V4/WayzTh6iH9SxeT5SE=
+github.com/liujitcn/gorm-kit v0.0.32/go.mod h1:PaVfftsXRJp4CU0Hb80YWU/V4/WayzTh6iH9SxeT5SE=
 github.com/liujitcn/kratos-kit v0.0.58 h1:YmW2UjYC0MQi1dzT5AUyBtTp21uzOWNLrpQNMFqIVs4=
 github.com/liujitcn/kratos-kit v0.0.58/go.mod h1:8Du/KK9uxTo+9YHQ8BJ9uGD7aLbCQhQ1AGX0loJHIeI=
 github.com/liujitcn/kratos-kit/ai/eino v0.0.5 h1:4HhFrghy44ybJe/rB5HZy1n6TFJ8FJL80ZcYpIRLvOg=

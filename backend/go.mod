@@ -1,4 +1,4 @@
-module github.com/liujitcn/kratos-admin/backend
+module github.com/liujitcn/kratos-admin
 
 go 1.26.0
 
@@ -17,7 +17,7 @@ require (
 	github.com/liujitcn/go-utils/crypto v0.0.11
 	github.com/liujitcn/go-utils/geoip v0.0.4
 	github.com/liujitcn/go-utils/http v0.0.5
-	github.com/liujitcn/gorm-kit v0.0.31
+	github.com/liujitcn/gorm-kit v0.0.32
 	github.com/liujitcn/kratos-kit v0.0.58
 	github.com/liujitcn/kratos-kit/ai/eino v0.0.5
 	github.com/liujitcn/kratos-kit/api v0.0.22

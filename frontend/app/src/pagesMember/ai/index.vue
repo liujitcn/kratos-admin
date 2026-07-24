@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, nextTick, onBeforeUnmount, ref } from 'vue'
-import { defAiMessageService } from '@/api/base/ai_message'
+import { defAiMessageService, StreamAiMessageByChunkedRequest } from '@/api/base/ai_message'
 import { defAiSessionService } from '@/api/base/ai_session'
+import { defAiToolService } from '@/api/base/ai_tool'
 import type { AiMessage } from '@/rpc/base/v1/ai_session'
 import type { AiAttachment, AiSession } from '@/rpc/base/v1/ai_session'
 import type { AiShortcut, AiToolCall } from '@/rpc/base/v1/ai_tool'
@@ -12,6 +13,12 @@ import { formatSrc } from '@/utils/index'
 import Composer from './components/Composer.vue'
 import SessionDrawer from './components/SessionDrawer.vue'
 import WelcomePanel from './components/WelcomePanel.vue'
+import {
+  type AiStreamEvent,
+  createAiEventStreamTextParser,
+  parseAiEventStreamText,
+  readAiEventStream,
+} from './stream'
 
 type ChatRole = 'user' | 'ai'
 
@@ -37,6 +44,13 @@ type AttachmentUpload = {
   size: number
 }
 
+type StreamTask = {
+  abort: () => void
+  aborted: boolean
+  finished: boolean
+  success?: boolean
+}
+
 const AI_TERMINAL = Terminal.TERMINAL_APP
 const THINKING_MESSAGE_CONTENT = '正在回复'
 const LOCAL_USER_MESSAGE_PREFIX = 'ai-user-local'
@@ -58,6 +72,7 @@ const isRecording = ref(false)
 const starterPromptGroupIndex = ref(0)
 const sessionKeyword = ref('')
 const loadingSessions = ref(false)
+const loadingShortcuts = ref(false)
 const loadingSessionID = ref('')
 const uploadingAttachment = ref(false)
 const sendingSessionMap = ref<Record<string, boolean>>({})
@@ -65,6 +80,8 @@ const chatBottomAnchor = ref('')
 const sessions = ref<AiSession[]>([])
 const messages = ref<Record<string, ChatMessageItem[]>>({})
 const selectedAttachments = ref<AiAttachment[]>([])
+const messageLoadVersionMap = new Map<string, number>()
+const runningStreamTaskMap = new Map<string, StreamTask>()
 
 const starterShortcuts = ref<AiShortcut[]>([
   {
@@ -163,10 +180,12 @@ const isSubmitDisabled = computed(
 )
 
 onLoad(() => {
+  void loadAiShortcuts()
   void ensureSessionsLoaded()
 })
 
 onBeforeUnmount(() => {
+  cancelAllStreamTasks()
   activeSessionID.value = ''
 })
 
@@ -403,11 +422,34 @@ const previewAttachment = (attachment: AiAttachment, attachments: AiAttachment[]
   uni.previewImage({ current, urls: urls.length ? urls : [current] })
 }
 
-async function sendAiPayload(text: string, attachments: AiAttachment[]) {
-  const sessionID = await ensureActiveSession()
-  if (!sessionID) {
+/** 加载当前终端可用的通用 AI 快捷入口。 */
+async function loadAiShortcuts() {
+  if (loadingShortcuts.value) {
     return
   }
+  loadingShortcuts.value = true
+  try {
+    const response = await defAiToolService.ListAiShortcut({
+      terminal: AI_TERMINAL,
+    })
+    const shortcuts = normalizeStarterShortcuts(response.shortcuts).filter((item) => !item.action)
+    if (shortcuts.length) {
+      starterShortcuts.value = shortcuts
+      starterPromptGroupIndex.value = 0
+    }
+  } catch (error) {
+    showError(error, '加载快捷助手失败')
+  } finally {
+    loadingShortcuts.value = false
+  }
+}
+
+async function sendAiPayload(text: string, attachments: AiAttachment[]) {
+  const sessionID = await ensureActiveSession()
+  if (!sessionID || currentSessionSending.value) {
+    return
+  }
+  messageLoadVersionMap.set(sessionID, (messageLoadVersionMap.get(sessionID) ?? 0) + 1)
   setSessionSending(sessionID, true)
 
   const userMessageID = `${LOCAL_USER_MESSAGE_PREFIX}-${Date.now()}`
@@ -423,29 +465,210 @@ async function sendAiPayload(text: string, attachments: AiAttachment[]) {
   )
   messages.value[sessionID] = [...current, userMessage, pendingMessage]
   scrollChatToBottom()
+  await runAiTask(sessionID, text, attachments, pendingMessageID)
+}
 
+async function runAiTask(
+  sessionID: string,
+  text: string,
+  attachments: AiAttachment[],
+  pendingMessageID: string,
+) {
+  let task: StreamTask | undefined
+  const request = {
+    session_id: sessionID,
+    content: text,
+    attachments,
+    action: undefined,
+  }
   try {
-    const response = await defAiMessageService.SendAiMessage({
-      session_id: sessionID,
-      content: text,
-      attachments,
-      action: undefined,
-    })
-    messages.value[sessionID] = normalizeMessageList(response.messages)
-    if (response.session) {
-      upsertSession(normalizeSession(response.session))
-    }
-    scrollChatToBottom()
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : '回复失败，请稍后重试'
-    messages.value[sessionID] = (messages.value[sessionID] ?? []).map((item) =>
-      item.messageID === pendingMessageID
-        ? { ...item, status: AiMessageStatus.FAILED_AAMS, content: errorMessage }
-        : item,
+    let handledByStream = false
+
+    // #ifdef MP-WEIXIN
+    const parser = createAiEventStreamTextParser((event) =>
+      handleAiStreamEvent(sessionID, pendingMessageID, event, task),
     )
+    const chunkedTask = StreamAiMessageByChunkedRequest(request, {
+      onChunk: (chunkText) => parser.push(chunkText),
+    })
+    task = {
+      aborted: false,
+      finished: false,
+      abort() {
+        task!.aborted = true
+        chunkedTask.abort()
+      },
+    }
+    runningStreamTaskMap.set(sessionID, task)
+    handledByStream = true
+    await chunkedTask.promise
+    parser.flush()
+    if (!task.finished && !task.aborted) {
+      throw new Error('AI 助手流式响应未完整返回')
+    }
+    // #endif
+
+    // #ifdef H5
+    if (
+      !handledByStream &&
+      typeof fetch === 'function' &&
+      typeof ReadableStream !== 'undefined' &&
+      typeof AbortController !== 'undefined'
+    ) {
+      const controller = new AbortController()
+      task = {
+        aborted: false,
+        finished: false,
+        abort() {
+          task!.aborted = true
+          controller.abort()
+        },
+      }
+      runningStreamTaskMap.set(sessionID, task)
+      const response = await defAiMessageService.StreamAiMessage(request, {
+        signal: controller.signal,
+      })
+      if (!response.body) {
+        throw new Error('AI 助手流式响应为空')
+      }
+      await readAiEventStream(
+        response.body,
+        (event) => handleAiStreamEvent(sessionID, pendingMessageID, event, task),
+        controller.signal,
+      )
+      if (!task.finished && !task.aborted) {
+        throw new Error('AI 助手流式响应未完整返回')
+      }
+      handledByStream = true
+    }
+    // #endif
+
+    if (!handledByStream) {
+      const response = await defAiMessageService.SendAiMessage(request)
+      const nextMessages = normalizeNonStreamMessages(response)
+      if (!nextMessages.length) {
+        throw new Error('AI 助手响应为空')
+      }
+      messages.value[sessionID] = replacePendingMessages(
+        messages.value[sessionID] ?? [],
+        nextMessages,
+      )
+      if (isSendResponse(response)) {
+        if (response.session) {
+          upsertSession(normalizeSession(response.session))
+        }
+      }
+      scrollChatToBottom()
+    }
+  } catch (error) {
+    if (!task?.aborted) {
+      const errorMessage = error instanceof Error ? error.message : '回复失败，请稍后重试'
+      messages.value[sessionID] = (messages.value[sessionID] ?? []).map((item) =>
+        item.messageID === pendingMessageID
+          ? { ...item, status: AiMessageStatus.FAILED_AAMS, content: errorMessage }
+          : item,
+      )
+      scrollChatToBottom()
+      showError(error, 'AI 助手请求失败')
+    }
   } finally {
+    if (task && runningStreamTaskMap.get(sessionID) === task) {
+      runningStreamTaskMap.delete(sessionID)
+    }
     setSessionSending(sessionID, false)
   }
+}
+
+function handleAiStreamEvent(
+  sessionID: string,
+  pendingMessageID: string,
+  event: AiStreamEvent,
+  task?: StreamTask,
+) {
+  if (event.payload.session_id !== sessionID) {
+    return
+  }
+  if (event.event === 'delta') {
+    if (!event.payload.delta) {
+      return
+    }
+    messages.value[sessionID] = (messages.value[sessionID] ?? []).map((item) => {
+      if (item.messageID !== pendingMessageID || item.role !== 'ai') {
+        return item
+      }
+      const content = item.content === THINKING_MESSAGE_CONTENT ? '' : item.content
+      return {
+        ...item,
+        content: `${content}${event.payload.delta}`,
+        status: AiMessageStatus.GENERATING_AAMS,
+      }
+    })
+    scrollChatToBottom()
+    return
+  }
+
+  if (task) {
+    task.finished = true
+    task.success = event.event === 'finish'
+  }
+  const nextMessages = normalizeMessageList(event.payload.messages)
+  if (nextMessages.length) {
+    messages.value[sessionID] = replacePendingMessages(
+      messages.value[sessionID] ?? [],
+      nextMessages,
+    )
+    if (event.payload.session) {
+      upsertSession(normalizeSession(event.payload.session))
+    }
+  } else if (event.event === 'error') {
+    messages.value[sessionID] = (messages.value[sessionID] ?? []).map((item) =>
+      item.messageID === pendingMessageID
+        ? {
+            ...item,
+            status: AiMessageStatus.FAILED_AAMS,
+            content: '这次回复没有成功返回，你可以直接重试刚才的问题。',
+          }
+        : item,
+    )
+  }
+  scrollChatToBottom()
+}
+
+function normalizeNonStreamMessages(response: unknown) {
+  if (isSendResponse(response)) {
+    return normalizeMessageList(response.messages)
+  }
+  const events = parseAiEventStreamText(response)
+  const finishEvent = [...events].reverse().find((item) => item.event === 'finish')
+  if (finishEvent) {
+    return normalizeMessageList(finishEvent.payload.messages)
+  }
+  const errorEvent = [...events].reverse().find((item) => item.event === 'error')
+  if (errorEvent) {
+    return normalizeMessageList(errorEvent.payload.messages)
+  }
+  return []
+}
+
+function isSendResponse(response: unknown): response is {
+  messages?: AiMessage[]
+  session?: AiSession
+} {
+  return Boolean(response && typeof response === 'object' && 'messages' in response)
+}
+
+function replacePendingMessages(current: ChatMessageItem[], next: ChatMessageItem[]) {
+  const stableMessages = current.filter((item) => !item.localOnly)
+  const messageMap = new Map<string, ChatMessageItem>()
+  for (const item of stableMessages) {
+    messageMap.set(item.key, item)
+  }
+  for (const item of next) {
+    messageMap.set(item.key, item)
+  }
+  return Array.from(messageMap.values()).sort(
+    (left, right) => resolveTimestamp(left.created_at) - resolveTimestamp(right.created_at),
+  )
 }
 
 async function ensureSessionsLoaded() {
@@ -502,12 +725,26 @@ async function loadMessages(sessionID: string) {
   if (!sessionID) {
     return
   }
+  const loadVersion = (messageLoadVersionMap.get(sessionID) ?? 0) + 1
+  messageLoadVersionMap.set(sessionID, loadVersion)
   loadingSessionID.value = sessionID
   try {
     const response = await defAiSessionService.ListAiMessage({ session_id: sessionID })
+    if (
+      loadingSessionID.value !== sessionID ||
+      messageLoadVersionMap.get(sessionID) !== loadVersion
+    ) {
+      return
+    }
     messages.value[sessionID] = normalizeMessageList(response.messages)
     scrollChatToBottom()
   } catch (error) {
+    if (
+      loadingSessionID.value !== sessionID ||
+      messageLoadVersionMap.get(sessionID) !== loadVersion
+    ) {
+      return
+    }
     showError(error, '加载消息失败')
   } finally {
     loadingSessionID.value = ''
@@ -524,6 +761,19 @@ function normalizeSession(session: AiSession): AiSession {
 
 function normalizeSessionList(list?: AiSession[]) {
   return (list || []).filter((item) => item?.id).map(normalizeSession)
+}
+
+function normalizeStarterShortcuts(list?: AiShortcut[] | null) {
+  return [...(list || [])]
+    .filter((item) => Boolean(item?.key && (item.title || item.prompt)))
+    .map((item) => ({
+      ...item,
+      title: item.title || item.prompt,
+      prompt: item.prompt || item.title,
+      required_tools: Array.isArray(item.required_tools) ? item.required_tools : [],
+      sort: Number(item.sort || 0),
+    }))
+    .sort((left, right) => left.sort - right.sort)
 }
 
 function normalizeMessageList(list?: AiMessage[]) {
@@ -602,6 +852,14 @@ function isSessionSending(sessionID: string) {
   return Boolean(sessionID && sendingSessionMap.value[sessionID])
 }
 
+function cancelAllStreamTasks() {
+  runningStreamTaskMap.forEach((task) => {
+    task.finished = true
+    task.abort()
+  })
+  runningStreamTaskMap.clear()
+}
+
 function scrollChatToBottom() {
   void nextTick(() => {
     chatBottomAnchor.value = ''
@@ -663,7 +921,7 @@ function showError(error: unknown, fallback: string) {
       <template v-if="!hasMessages">
         <WelcomePanel
           :greeting-message="aiGreetingMessage"
-          :loading="loadingSessions"
+          :loading="loadingSessions || loadingShortcuts"
           :shortcuts="starterPrompts"
           :can-refresh="canRefreshStarterPrompts"
           @refresh="refreshStarterPrompts"
