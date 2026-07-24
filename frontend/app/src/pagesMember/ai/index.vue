@@ -15,6 +15,7 @@ import SessionDrawer from './components/SessionDrawer.vue'
 import WelcomePanel from './components/WelcomePanel.vue'
 import {
   type AiStreamEvent,
+  type AiStreamPayload,
   createAiEventStreamTextParser,
   parseAiEventStreamText,
   readAiEventStream,
@@ -27,6 +28,7 @@ type ChatMessageItem = AiMessage & {
   messageID: string
   role: ChatRole
   content: string
+  status: AiMessageStatus
   tools: AiToolCall[]
   model: string
   replySource: string
@@ -36,6 +38,7 @@ type ChatMessageItem = AiMessage & {
   firstTokenMs: number
   durationMs: number
   localOnly?: boolean
+  streamKey?: string
 }
 
 type AttachmentUpload = {
@@ -54,6 +57,7 @@ type StreamTask = {
 const AI_TERMINAL = Terminal.TERMINAL_APP
 const THINKING_MESSAGE_CONTENT = '正在回复'
 const LOCAL_USER_MESSAGE_PREFIX = 'ai-user-local'
+const PENDING_MESSAGE_ID = 'pending'
 const MAX_ATTACHMENT_COUNT = 6
 const STARTER_PROMPT_PAGE_SIZE = 4
 
@@ -80,8 +84,9 @@ const chatBottomAnchor = ref('')
 const sessions = ref<AiSession[]>([])
 const messages = ref<Record<string, ChatMessageItem[]>>({})
 const selectedAttachments = ref<AiAttachment[]>([])
-const messageLoadVersionMap = new Map<string, number>()
 const runningStreamTaskMap = new Map<string, StreamTask>()
+const pendingDeltaMap = new Map<string, AiStreamPayload>()
+let pendingDeltaTimer = 0
 
 const starterShortcuts = ref<AiShortcut[]>([
   {
@@ -186,6 +191,7 @@ onLoad(() => {
 
 onBeforeUnmount(() => {
   cancelAllStreamTasks()
+  clearPendingDelta()
   activeSessionID.value = ''
 })
 
@@ -196,11 +202,11 @@ const toggleSessionDrawer = () => {
 const selectSession = (sessionID: string) => {
   activeSessionID.value = sessionID
   showSessionDrawer.value = false
-  if (!messages.value[sessionID]) {
+  if (!messages.value[sessionID]?.length || !isSessionSending(sessionID)) {
     void loadMessages(sessionID)
-  } else {
-    scrollChatToBottom()
+    return
   }
+  scrollChatToBottom()
 }
 
 const createSession = async () => {
@@ -335,14 +341,17 @@ const handleSend = async () => {
   inputText.value = ''
   const attachments = [...selectedAttachments.value]
   selectedAttachments.value = []
-  await sendAiPayload(text, attachments)
+  await sendAiPayload({ text, attachments })
 }
 
 const handleStarterPrompt = async (shortcut: AiShortcut) => {
   if (currentSessionSending.value || loadingSessions.value) {
     return
   }
-  await sendAiPayload(shortcut.prompt || shortcut.title, [])
+  await sendAiPayload({
+    text: shortcut.prompt || shortcut.title,
+    attachments: [],
+  })
 }
 
 const refreshStarterPrompts = () => {
@@ -444,50 +453,40 @@ async function loadAiShortcuts() {
   }
 }
 
-async function sendAiPayload(text: string, attachments: AiAttachment[]) {
+async function sendAiPayload(payload: { text: string; attachments: AiAttachment[] }) {
   const sessionID = await ensureActiveSession()
-  if (!sessionID || currentSessionSending.value) {
-    return
+  if (!sessionID || isSessionSending(sessionID)) {
+    return false
   }
-  messageLoadVersionMap.set(sessionID, (messageLoadVersionMap.get(sessionID) ?? 0) + 1)
-  setSessionSending(sessionID, true)
 
-  const userMessageID = `${LOCAL_USER_MESSAGE_PREFIX}-${Date.now()}`
-  const pendingMessageID = `pending-${Date.now()}`
-  const current = messages.value[sessionID] ?? []
-  const userMessage = createLocalMessage(userMessageID, 'user', text, attachments)
-  const pendingMessage = createLocalMessage(
-    pendingMessageID,
-    'ai',
-    THINKING_MESSAGE_CONTENT,
-    [],
-    AiMessageStatus.GENERATING_AAMS,
-  )
-  messages.value[sessionID] = [...current, userMessage, pendingMessage]
+  const localUserMessage = createLocalUserMessage(payload)
+  const thinkingMessage = createThinkingMessage({ sessionID })
+  messages.value[sessionID] = sortMessages([
+    ...(messages.value[sessionID] ?? []),
+    localUserMessage,
+    thinkingMessage,
+  ])
   scrollChatToBottom()
-  await runAiTask(sessionID, text, attachments, pendingMessageID)
+  setSessionSending(sessionID, true)
+  return runAiTask(sessionID, payload)
 }
 
 async function runAiTask(
   sessionID: string,
-  text: string,
-  attachments: AiAttachment[],
-  pendingMessageID: string,
+  payload: { text: string; attachments: AiAttachment[] },
 ) {
   let task: StreamTask | undefined
   const request = {
     session_id: sessionID,
-    content: text,
-    attachments,
+    content: payload.text,
+    attachments: payload.attachments,
     action: undefined,
   }
   try {
     let handledByStream = false
 
     // #ifdef MP-WEIXIN
-    const parser = createAiEventStreamTextParser((event) =>
-      handleAiStreamEvent(sessionID, pendingMessageID, event, task),
-    )
+    const parser = createAiEventStreamTextParser((event) => handleAiStreamEvent(event, task))
     const chunkedTask = StreamAiMessageByChunkedRequest(request, {
       onChunk: (chunkText) => parser.push(chunkText),
     })
@@ -533,7 +532,7 @@ async function runAiTask(
       }
       await readAiEventStream(
         response.body,
-        (event) => handleAiStreamEvent(sessionID, pendingMessageID, event, task),
+        (event) => handleAiStreamEvent(event, task),
         controller.signal,
       )
       if (!task.finished && !task.aborted) {
@@ -549,28 +548,25 @@ async function runAiTask(
       if (!nextMessages.length) {
         throw new Error('AI 助手响应为空')
       }
+      const success = hasSuccessfulAiMessages(nextMessages)
       messages.value[sessionID] = replacePendingMessages(
         messages.value[sessionID] ?? [],
         nextMessages,
       )
-      if (isSendResponse(response)) {
-        if (response.session) {
-          upsertSession(normalizeSession(response.session))
-        }
+      scrollChatToBottom()
+      if (response.session) {
+        upsertSession(normalizeSession(response.session))
       }
-      scrollChatToBottom()
+      return success
     }
+    return Boolean(task?.success)
   } catch (error) {
-    if (!task?.aborted) {
-      const errorMessage = error instanceof Error ? error.message : '回复失败，请稍后重试'
-      messages.value[sessionID] = (messages.value[sessionID] ?? []).map((item) =>
-        item.messageID === pendingMessageID
-          ? { ...item, status: AiMessageStatus.FAILED_AAMS, content: errorMessage }
-          : item,
-      )
-      scrollChatToBottom()
-      showError(error, 'AI 助手请求失败')
+    if (task?.aborted) {
+      return false
     }
+    messages.value[sessionID] = markThinkingMessageFailed(messages.value[sessionID] ?? [])
+    scrollChatToBottom()
+    showError(error, 'AI 助手请求失败')
   } finally {
     if (task && runningStreamTaskMap.get(sessionID) === task) {
       runningStreamTaskMap.delete(sessionID)
@@ -579,65 +575,141 @@ async function runAiTask(
   }
 }
 
-function handleAiStreamEvent(
-  sessionID: string,
-  pendingMessageID: string,
-  event: AiStreamEvent,
-  task?: StreamTask,
-) {
-  if (event.payload.session_id !== sessionID) {
-    return
-  }
+function handleAiStreamEvent(event: AiStreamEvent, task?: StreamTask) {
   if (event.event === 'delta') {
-    if (!event.payload.delta) {
-      return
-    }
-    messages.value[sessionID] = (messages.value[sessionID] ?? []).map((item) => {
-      if (item.messageID !== pendingMessageID || item.role !== 'ai') {
-        return item
-      }
-      const content = item.content === THINKING_MESSAGE_CONTENT ? '' : item.content
-      return {
-        ...item,
-        content: `${content}${event.payload.delta}`,
-        status: AiMessageStatus.GENERATING_AAMS,
-      }
-    })
-    scrollChatToBottom()
+    handleAiDelta(event.payload)
     return
   }
+  if (event.event === 'finish') {
+    handleAiFinish(event.payload, task)
+    return
+  }
+  handleAiError(event.payload, task)
+}
 
+function handleAiDelta(payload: AiStreamPayload) {
+  if (!payload.delta) {
+    return
+  }
+  queueAiDelta(payload)
+}
+
+function handleAiFinish(payload: AiStreamPayload, task?: StreamTask) {
+  const sessionID = payload.session_id
+  if (!sessionID) {
+    return
+  }
   if (task) {
     task.finished = true
-    task.success = event.event === 'finish'
   }
-  const nextMessages = normalizeMessageList(event.payload.messages)
+  flushAiDelta()
+  const nextMessages = normalizeMessageList(payload.messages)
+  if (task) {
+    task.success = hasSuccessfulAiMessages(nextMessages)
+  }
+  const current = messages.value[sessionID] ?? []
+  const streamKey = payload.message_id ? buildStreamMessageKey(sessionID, payload.message_id) : ''
+  const hasLocalStreamingMessages = current.some(
+    (item) => item.localOnly && item.streamKey === streamKey,
+  )
+  messages.value[sessionID] =
+    nextMessages.length || !hasLocalStreamingMessages
+      ? replacePendingMessages(current, nextMessages, payload)
+      : current
+  scrollChatToBottom()
+  if (payload.session) {
+    upsertSession(normalizeSession(payload.session))
+  }
+}
+
+function handleAiError(payload: AiStreamPayload, task?: StreamTask) {
+  const sessionID = payload.session_id
+  if (!sessionID) {
+    return
+  }
+  if (task) {
+    task.finished = true
+    task.success = false
+  }
+  flushAiDelta()
+  const nextMessages = normalizeMessageList(payload.messages)
   if (nextMessages.length) {
     messages.value[sessionID] = replacePendingMessages(
       messages.value[sessionID] ?? [],
       nextMessages,
+      payload,
     )
-    if (event.payload.session) {
-      upsertSession(normalizeSession(event.payload.session))
-    }
-  } else if (event.event === 'error') {
-    messages.value[sessionID] = (messages.value[sessionID] ?? []).map((item) =>
-      item.messageID === pendingMessageID
-        ? {
-            ...item,
-            status: AiMessageStatus.FAILED_AAMS,
-            content: '这次回复没有成功返回，你可以直接重试刚才的问题。',
-          }
-        : item,
-    )
+    scrollChatToBottom()
+    return
   }
+  messages.value[sessionID] = markStreamingError(
+    ensureStreamingMessage(messages.value[sessionID] ?? [], payload),
+    payload,
+  )
   scrollChatToBottom()
 }
 
-function normalizeNonStreamMessages(response: unknown) {
-  if (isSendResponse(response)) {
-    return normalizeMessageList(response.messages)
+/** 合并同一时刻的流式分片，降低移动端频繁渲染压力。 */
+function queueAiDelta(payload: AiStreamPayload) {
+  const sessionID = payload.session_id
+  const messageID = payload.message_id
+  if (!sessionID || !messageID || !messages.value[sessionID]) {
+    return
   }
+
+  const key = buildStreamMessageKey(sessionID, messageID)
+  const cachedPayload = pendingDeltaMap.get(key)
+  pendingDeltaMap.set(key, {
+    ...payload,
+    delta: `${cachedPayload?.delta ?? ''}${payload.delta ?? ''}`,
+  })
+
+  if (pendingDeltaTimer) {
+    return
+  }
+  pendingDeltaTimer = setTimeout(() => {
+    pendingDeltaTimer = 0
+    flushAiDelta()
+  }, 32) as unknown as number
+}
+
+function flushAiDelta() {
+  if (pendingDeltaTimer) {
+    clearTimeout(pendingDeltaTimer)
+    pendingDeltaTimer = 0
+  }
+  if (!pendingDeltaMap.size) {
+    return
+  }
+  const payloadList = Array.from(pendingDeltaMap.values())
+  pendingDeltaMap.clear()
+  for (const payload of payloadList) {
+    const sessionID = payload.session_id
+    if (!sessionID || !messages.value[sessionID]) {
+      continue
+    }
+    messages.value[sessionID] = appendStreamingDelta(
+      ensureStreamingMessage(messages.value[sessionID] ?? [], payload),
+      payload,
+    )
+    scrollChatToBottom()
+  }
+}
+
+function clearPendingDelta() {
+  if (pendingDeltaTimer) {
+    clearTimeout(pendingDeltaTimer)
+    pendingDeltaTimer = 0
+  }
+  pendingDeltaMap.clear()
+}
+
+function normalizeNonStreamMessages(response: unknown) {
+  const jsonResponse = response as { messages?: AiMessage[] }
+  if (Array.isArray(jsonResponse?.messages)) {
+    return normalizeMessageList(jsonResponse.messages)
+  }
+
   const events = parseAiEventStreamText(response)
   const finishEvent = [...events].reverse().find((item) => item.event === 'finish')
   if (finishEvent) {
@@ -645,30 +717,49 @@ function normalizeNonStreamMessages(response: unknown) {
   }
   const errorEvent = [...events].reverse().find((item) => item.event === 'error')
   if (errorEvent) {
-    return normalizeMessageList(errorEvent.payload.messages)
+    throw new Error('AI 助手请求失败')
   }
   return []
 }
 
-function isSendResponse(response: unknown): response is {
-  messages?: AiMessage[]
-  session?: AiSession
-} {
-  return Boolean(response && typeof response === 'object' && 'messages' in response)
-}
-
-function replacePendingMessages(current: ChatMessageItem[], next: ChatMessageItem[]) {
-  const stableMessages = current.filter((item) => !item.localOnly)
+function replacePendingMessages(
+  current: ChatMessageItem[],
+  nextMessages: ChatMessageItem[],
+  payload?: AiStreamPayload,
+) {
+  const sessionID = payload?.session_id ?? ''
+  const streamKey = payload?.message_id ? buildStreamMessageKey(sessionID, payload.message_id) : ''
+  const pendingStreamKey = sessionID ? buildPendingStreamMessageKey(sessionID) : ''
+  const stableMessages = current.filter((item) => {
+    if (!item.localOnly) {
+      return true
+    }
+    if (payload?.message_id && item.role === 'user') {
+      return !nextMessages.some(
+        (message) => message.role === 'user' && message.messageID === payload.message_id,
+      )
+    }
+    if (!streamKey) {
+      return false
+    }
+    return item.streamKey !== streamKey && item.streamKey !== pendingStreamKey
+  })
   const messageMap = new Map<string, ChatMessageItem>()
   for (const item of stableMessages) {
     messageMap.set(item.key, item)
   }
-  for (const item of next) {
+  for (const item of nextMessages) {
     messageMap.set(item.key, item)
   }
-  return Array.from(messageMap.values()).sort(
-    (left, right) => resolveTimestamp(left.created_at) - resolveTimestamp(right.created_at),
-  )
+  return sortMessages(Array.from(messageMap.values()))
+}
+
+function buildStreamMessageKey(sessionID: string, messageID: string) {
+  return `${sessionID}:${messageID}`
+}
+
+function buildPendingStreamMessageKey(sessionID: string) {
+  return buildStreamMessageKey(sessionID, PENDING_MESSAGE_ID)
 }
 
 async function ensureSessionsLoaded() {
@@ -725,42 +816,44 @@ async function loadMessages(sessionID: string) {
   if (!sessionID) {
     return
   }
-  const loadVersion = (messageLoadVersionMap.get(sessionID) ?? 0) + 1
-  messageLoadVersionMap.set(sessionID, loadVersion)
+
   loadingSessionID.value = sessionID
   try {
     const response = await defAiSessionService.ListAiMessage({ session_id: sessionID })
-    if (
-      loadingSessionID.value !== sessionID ||
-      messageLoadVersionMap.get(sessionID) !== loadVersion
-    ) {
+    if (loadingSessionID.value !== sessionID) {
       return
     }
     messages.value[sessionID] = normalizeMessageList(response.messages)
-    scrollChatToBottom()
+    if (activeSessionID.value === sessionID) {
+      scrollChatToBottom()
+    }
   } catch (error) {
-    if (
-      loadingSessionID.value !== sessionID ||
-      messageLoadVersionMap.get(sessionID) !== loadVersion
-    ) {
-      return
+    if (loadingSessionID.value === sessionID) {
+      messages.value[sessionID] = []
     }
     showError(error, '加载消息失败')
   } finally {
-    loadingSessionID.value = ''
+    if (loadingSessionID.value === sessionID) {
+      loadingSessionID.value = ''
+    }
   }
 }
 
-function normalizeSession(session: AiSession): AiSession {
+function normalizeSession(session?: Partial<AiSession> | null): AiSession {
   return {
-    ...session,
-    title: session.title || '新会话',
-    summary: session.summary || '',
+    id: String(session?.id ?? ''),
+    title: String(session?.title ?? '新会话'),
+    summary: String(session?.summary ?? ''),
+    updated_at: session?.updated_at,
+    terminal: Number(session?.terminal ?? AI_TERMINAL),
   }
 }
 
-function normalizeSessionList(list?: AiSession[]) {
-  return (list || []).filter((item) => item?.id).map(normalizeSession)
+function normalizeSessionList(list?: AiSession[] | null) {
+  if (!Array.isArray(list)) {
+    return []
+  }
+  return list.map((item) => normalizeSession(item)).filter((item) => item.id)
 }
 
 function normalizeStarterShortcuts(list?: AiShortcut[] | null) {
@@ -776,63 +869,212 @@ function normalizeStarterShortcuts(list?: AiShortcut[] | null) {
     .sort((left, right) => left.sort - right.sort)
 }
 
-function normalizeMessageList(list?: AiMessage[]) {
-  const result: ChatMessageItem[] = []
-  for (const message of list || []) {
-    const input = message.input_content?.content || ''
-    if (input) {
-      result.push(createMessageItem(message, 'user', input))
-    }
-    const output = message.output_content
-    if (output?.content || message.status === AiMessageStatus.GENERATING_AAMS) {
-      result.push(createMessageItem(message, 'ai', output?.content || THINKING_MESSAGE_CONTENT))
-    }
+function normalizeMessageList(list?: AiMessage[] | null) {
+  if (!Array.isArray(list)) {
+    return []
   }
-  return result
+
+  return sortMessages(
+    list
+      .filter(Boolean)
+      .flatMap((item) => [mapMessageItem(item, 'user'), mapMessageItem(item, 'ai')]),
+  )
 }
 
-function createMessageItem(message: AiMessage, role: ChatRole, content: string) {
-  const output = message.output_content
+function hasSuccessfulAiMessages(list: ChatMessageItem[]) {
+  return list.some((item) => item.status === AiMessageStatus.SUCCESS_AAMS)
+}
+
+function mapMessageItem(message: AiMessage, role: ChatRole): ChatMessageItem {
+  const inputContent = {
+    kind: message.input_content?.kind || 'text',
+    content: message.input_content?.content ?? '',
+  }
+  const outputContent = {
+    kind: message.output_content?.kind || 'text',
+    content: message.output_content?.content ?? '',
+    reply_source: message.output_content?.reply_source ?? '',
+    model: message.output_content?.model ?? '',
+    fallback: Boolean(message.output_content?.fallback),
+    fallback_reason: message.output_content?.fallback_reason ?? '',
+    flow: message.output_content?.flow ?? '',
+    step: message.output_content?.step ?? '',
+    blocks_json: message.output_content?.blocks_json ?? '',
+  }
+  const status = Number(message.status ?? AiMessageStatus.SUCCESS_AAMS)
   return {
     ...message,
     key: `${message.id}:${role}`,
     messageID: message.id,
     role,
-    content,
-    tools: message.tools || [],
-    model: output?.model || '',
-    replySource: output?.reply_source || '',
-    fallback: Boolean(output?.fallback),
-    fallbackReason: output?.fallback_reason || '',
-    tokenTotal: Number(message.token?.total || 0),
-    firstTokenMs: Number(message.first_token_ms || 0),
-    durationMs: Number(message.duration_ms || 0),
-  } as ChatMessageItem
+    content: role === 'user' ? inputContent.content : outputContent.content,
+    input_content: inputContent,
+    output_content: outputContent,
+    attachments: Array.isArray(message.attachments) ? message.attachments : [],
+    status,
+    token: {
+      input: Number(message.token?.input ?? 0),
+      output: Number(message.token?.output ?? 0),
+      cache: Number(message.token?.cache ?? 0),
+      total: Number(message.token?.total ?? 0),
+    },
+    tools: Array.isArray(message.tools) ? message.tools : [],
+    model: role === 'ai' ? outputContent.model : '',
+    replySource: role === 'ai' ? outputContent.reply_source : '',
+    fallback: role === 'ai' && outputContent.fallback,
+    fallbackReason: role === 'ai' ? outputContent.fallback_reason : '',
+    tokenTotal: Number(message.token?.total ?? 0),
+    firstTokenMs: Number(message.first_token_ms ?? 0),
+    durationMs: Number(message.duration_ms ?? 0),
+  }
 }
 
-function createLocalMessage(
-  messageID: string,
-  role: ChatRole,
-  content: string,
-  attachments: AiAttachment[],
-  status = AiMessageStatus.SUCCESS_AAMS,
-) {
-  const message = {
-    id: messageID,
-    input_content: role === 'user' ? { kind: 'text', content } : undefined,
-    output_content: role === 'ai' ? { kind: 'text', content } : undefined,
-    attachments,
-    created_at: undefined,
-    status,
-    token: undefined,
-    tools: [],
-    first_token_ms: 0,
-    duration_ms: 0,
-  } as AiMessage
-  return {
-    ...createMessageItem(message, role, content),
-    localOnly: true,
+function createLocalUserMessage(payload: { text: string; attachments: AiAttachment[] }) {
+  const now = Date.now()
+  const message = mapMessageItem(
+    {
+      id: `${LOCAL_USER_MESSAGE_PREFIX}-${now}`,
+      input_content: { kind: 'text', content: payload.text },
+      output_content: undefined,
+      attachments: payload.attachments,
+      created_at: {
+        seconds: Math.floor(now / 1000),
+        nanos: (now % 1000) * 1_000_000,
+      },
+      status: AiMessageStatus.GENERATING_AAMS,
+      token: { input: 0, output: 0, cache: 0, total: 0 },
+      tools: [],
+      first_token_ms: 0,
+      duration_ms: 0,
+    },
+    'user',
+  )
+  message.localOnly = true
+  message.status = AiMessageStatus.GENERATING_AAMS
+  return message
+}
+
+function createThinkingMessage(options?: { sessionID?: string; messageID?: string }) {
+  const now = Date.now()
+  const streamKey = options?.sessionID
+    ? buildStreamMessageKey(options.sessionID, options.messageID || PENDING_MESSAGE_ID)
+    : undefined
+  const message = mapMessageItem(
+    {
+      id: streamKey || `ai-thinking-${now}`,
+      input_content: undefined,
+      output_content: {
+        kind: 'text',
+        content: THINKING_MESSAGE_CONTENT,
+        reply_source: '',
+        model: '',
+        fallback: false,
+        fallback_reason: '',
+        flow: '',
+        step: '',
+        blocks_json: '',
+      },
+      attachments: [],
+      created_at: {
+        seconds: Math.floor(now / 1000),
+        nanos: (now % 1000) * 1_000_000,
+      },
+      status: AiMessageStatus.GENERATING_AAMS,
+      token: { input: 0, output: 0, cache: 0, total: 0 },
+      tools: [],
+      first_token_ms: 0,
+      duration_ms: 0,
+    },
+    'ai',
+  )
+  message.localOnly = true
+  message.streamKey = streamKey
+  return message
+}
+
+function ensureStreamingMessage(current: ChatMessageItem[], payload: AiStreamPayload) {
+  const sessionID = payload.session_id
+  const messageID = payload.message_id
+  if (!sessionID || !messageID) {
+    return current
   }
+
+  const streamKey = buildStreamMessageKey(sessionID, messageID)
+  if (current.some((item) => item.streamKey === streamKey)) {
+    return current
+  }
+
+  const pendingStreamKey = buildPendingStreamMessageKey(sessionID)
+  const next = current.map((item) =>
+    item.streamKey === pendingStreamKey
+      ? { ...item, id: messageID, messageID, key: `${messageID}:ai`, streamKey }
+      : item,
+  )
+  if (next.some((item) => item.streamKey === streamKey)) {
+    return next
+  }
+
+  return sortMessages([...next, createThinkingMessage({ sessionID, messageID })])
+}
+
+function appendStreamingDelta(current: ChatMessageItem[], payload: AiStreamPayload) {
+  if (!payload.delta) {
+    return current
+  }
+  const streamKey = buildStreamMessageKey(payload.session_id, payload.message_id)
+  return current.map((item) => {
+    if (item.streamKey !== streamKey || item.role === 'user') {
+      return item
+    }
+    const baseContent = item.content === THINKING_MESSAGE_CONTENT ? '' : item.content
+    return {
+      ...item,
+      content: `${baseContent}${payload.delta}`,
+      status: AiMessageStatus.GENERATING_AAMS,
+    }
+  })
+}
+
+function markThinkingMessageFailed(current: ChatMessageItem[]) {
+  return current.map((item) => {
+    if (!item.localOnly) {
+      return item
+    }
+    return {
+      ...item,
+      status: AiMessageStatus.FAILED_AAMS,
+      content:
+        item.role === 'ai' ? '这次回复没有成功返回，你可以直接重试刚才的问题。' : item.content,
+    }
+  })
+}
+
+function markStreamingError(current: ChatMessageItem[], payload: AiStreamPayload) {
+  const streamKey = buildStreamMessageKey(payload.session_id, payload.message_id)
+  return current.map((item) => {
+    if (!item.localOnly || item.streamKey !== streamKey) {
+      return item
+    }
+    return {
+      ...item,
+      status: AiMessageStatus.FAILED_AAMS,
+      content: '这次回复没有成功返回，你可以直接重试刚才的问题。',
+    }
+  })
+}
+
+function sortMessages(list: ChatMessageItem[]) {
+  return [...list].sort((left, right) => {
+    const leftTime = resolveTimestamp(left.created_at)
+    const rightTime = resolveTimestamp(right.created_at)
+    if (leftTime === rightTime) {
+      if (left.role !== right.role) {
+        return left.role === 'user' ? -1 : 1
+      }
+      return left.messageID.localeCompare(right.messageID, 'zh-Hans-CN', { numeric: true })
+    }
+    return leftTime - rightTime
+  })
 }
 
 function upsertSession(session: AiSession) {
