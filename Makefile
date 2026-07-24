@@ -1,5 +1,5 @@
 # 仓库级 Makefile：git hooks 与跨前后端的模块边界检查
-.PHONY: help init hooks check-boundary
+.PHONY: help init hooks check-boundary tag
 
 # 初始化开发环境（git hooks）
 init: hooks
@@ -13,6 +13,10 @@ hooks:
 # 检查基础模块与其他业务模块未反向依赖业务模块（按 backend/service 目录自动发现）
 check-boundary:
 	@bash scripts/check_module_boundary.sh
+
+# 统一打 tag：默认扫描根目录及子目录的 go.mod；可通过 MODULE=auth 指定起始目录递归扫描（不提交代码）
+tag:
+	@python3 scripts/tag_release.py $(if $(MODULE),--path $(MODULE),)
 
 # 查看所有可用目标及说明
 help:
