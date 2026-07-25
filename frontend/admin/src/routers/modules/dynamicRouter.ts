@@ -7,10 +7,7 @@ import { useAuthStore } from "@/stores/modules/auth";
 import type { RouteItem } from "@/rpc/system/admin/v1/auth";
 import { BaseMenuType } from "@/rpc/system/common/v1/enum";
 import { getRouteMetaFull } from "@/utils";
-
-// 引入 views 文件夹下所有 vue 文件
-const modules = import.meta.glob("@/views/**/*.vue");
-const pendingComponent = modules["/src/views/migration/pending/index.vue"];
+import { getAdminViewRegistry } from "../../modules";
 
 /** 解析后的后端路由项，补齐完整路径和重定向。 */
 type ResolvedRouteItem = {
@@ -82,36 +79,11 @@ function buildResolvedRouteItems(menuList: RouteItem[], parentPath = ""): Resolv
 }
 
 /**
- * 规范化组件路径，移除源码目录和扩展名以匹配任意业务目录。
- */
-function normalizeComponentPath(component?: string) {
-  if (!component) return "";
-
-  let normalizedComponent = component.trim();
-  normalizedComponent = normalizedComponent.replace(/^\/?src\/views\//, "");
-  normalizedComponent = normalizedComponent.replace(/^\/?views\//, "");
-  normalizedComponent = normalizedComponent.replace(/^\//, "");
-  normalizedComponent = normalizedComponent.replace(/\.vue$/, "");
-
-  return normalizedComponent;
-}
-
-/**
  * 解析菜单对应的页面组件。
  */
 function resolveRouteComponent(component?: string) {
-  const normalizedComponent = normalizeComponentPath(component);
-  if (!normalizedComponent || normalizedComponent === "Layout") return null;
-
-  const candidates = [
-    `/src/views/${normalizedComponent}.vue`,
-    `/src/views/${normalizedComponent}/index.vue`,
-    `/src/views/${normalizedComponent.replace(/\/index$/, "")}.vue`,
-    `/src/views/${normalizedComponent.replace(/\/index$/, "")}/index.vue`
-  ];
-
-  const matchedKey = candidates.find(item => modules[item]);
-  return matchedKey ? modules[matchedKey] : pendingComponent;
+  const viewRegistry = getAdminViewRegistry();
+  return viewRegistry.resolve(component) ?? viewRegistry.resolve("migration/pending/index");
 }
 
 /**

@@ -1,27 +1,28 @@
 {
-  "name": "admin",
-  "private": true,
+  "name": "@liujitcn/kratos-admin",
+  "private": false,
   "version": "0.0.1",
   "type": "module",
-  "description": "admin open source management system",
+  "description": "kratos-admin frontend runtime and base modules",
   "author": {
     "name": "Admin",
     "email": "liujitcn@gmail.com",
     "url": "https://github.com/liujitcn"
   },
   "license": "MIT",
-  "homepage": "https://github.com/liujitcn/admin",
+  "homepage": "https://github.com/liujitcn/kratos-admin",
   "repository": {
     "type": "git",
-    "url": "git@github.com:liujitcn/admin.git"
+    "url": "git@github.com:liujitcn/kratos-admin.git"
   },
   "bugs": {
-    "url": "https://github.com/liujitcn/admin/issues"
+    "url": "https://github.com/liujitcn/kratos-admin/issues"
   },
   "scripts": {
     "dev": "vite",
     "serve": "vite",
     "build": "pnpm build:pro",
+    "build:package": "vite build --config vite.package.config.ts",
     "build:dev": "vue-tsc && vite build --mode development",
     "build:test": "vue-tsc && vite build --mode test",
     "build:pro": "vue-tsc && vite build --mode production",
@@ -131,6 +132,24 @@
     "commitizen": {
       "path": "node_modules/cz-git"
     }
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./api/*": "./src/api/*.ts",
+    "./rpc/*": "./src/rpc/*",
+    "./views/*": "./src/views/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "build",
+    "types",
+    "vite.config.ts",
+    "vite.package.config.ts",
+    "tsconfig.json"
+  ],
+  "publishConfig": {
+    "access": "public"
   },
   "pnpm": {
     "overrides": {

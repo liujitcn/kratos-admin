@@ -25,7 +25,17 @@
       @submit="handleSubmit"
       @message-action="handleMessageAction"
       @message-edit="handleEditMessage"
-    />
+    >
+      <template #flow-blocks="{ message, activeFlowMessageId }">
+        <component
+          v-if="aiFlowBlocks && message.blocks?.length"
+          :is="aiFlowBlocks"
+          :message="message"
+          :active-flow-message-id="activeFlowMessageId"
+          @flow-action="handleFlowAction"
+        />
+      </template>
+    </ChatPanel>
   </div>
 </template>
 
@@ -39,7 +49,9 @@ import { defAiSessionService } from "@/api/base/ai_session";
 import { defAiToolService } from "@/api/base/ai_tool";
 import type { AiSession } from "@/rpc/base/v1/ai_session";
 import type { AiShortcut } from "@/rpc/base/v1/ai_tool";
+import type { AiAction } from "@/rpc/base/v1/ai_message";
 import { AiMessageStatus, Terminal } from "@/rpc/common/v1/enum";
+import { getAdminAiExtension } from "../../../../modules";
 import ChatPanel from "./components/ChatPanel.vue";
 import SessionPanel from "./components/SessionPanel.vue";
 import {
@@ -109,6 +121,8 @@ const currentMessages = computed(() => messages.value[activeSessionID.value] ?? 
 
 const currentSessionSending = computed(() => isSessionSending(activeSessionID.value));
 
+const aiFlowBlocks = computed(() => getAdminAiExtension().flowBlocks);
+
 /** 切换会话时同步当前活动会话。 */
 function handleSessionChange(item: AiSession) {
   activeSessionID.value = item.id;
@@ -148,6 +162,17 @@ async function handleCreateSession() {
 /** 提交用户输入并同步消息流。 */
 async function handleSubmit(payload: SubmitPayload) {
   void sendAiPayload(payload);
+}
+
+/** 处理业务模块提供的结构化流程动作。 */
+async function handleFlowAction(action: AiAction, label?: string) {
+  const sessionID = activeSessionID.value;
+  if (!sessionID || isSessionSending(sessionID)) return;
+  await sendAiPayload({
+    text: label || "继续",
+    attachments: [],
+    action
+  });
 }
 
 /** 执行真实发送流程，复用于输入框提交和本地失败重发。 */

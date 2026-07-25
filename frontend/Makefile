@@ -1,5 +1,5 @@
-# Makefile 常用目标：安装依赖、启动前端、构建前端、显示帮助
-.PHONY: help init pnpm-admin pnpm-app run run-admin run-app build build-admin build-app
+# Makefile 常用目标：安装依赖、启动前端、构建前端、发布前端包、显示帮助
+.PHONY: help init pnpm-admin pnpm-app run run-admin run-app build build-admin build-app build-package
 
 # 安装管理后台依赖
 init: pnpm-admin pnpm-app
@@ -34,6 +34,11 @@ build: build-admin
 build-admin:
 	@cd admin && \
 		CI=1 pnpm run build
+
+# 构建可供业务后台组合使用的前端模块包
+build-package:
+	@cd admin && \
+		CI=1 pnpm run build:package
 
 # 构建 app 端 H5 静态资源
 build-app:

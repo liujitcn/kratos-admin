@@ -136,6 +136,7 @@
                 </div>
                 <template v-else-if="item.role !== 'user'">
                   <AiMarkdown :content="item.content" :streaming="item.progressState === 'streaming'" />
+                  <slot name="flow-blocks" :message="item" :active-flow-message-id="activeFlowMessageID" />
                   <el-collapse v-if="item.fallback_reason" class="agent-message-error__detail" accordion>
                     <el-collapse-item title="错误详情" :name="String(item.id)">
                       <pre>{{ item.fallback_reason }}</pre>
@@ -490,6 +491,14 @@ const lastEditableUserMessageKey = computed(() => {
     if (item.role === "user" && !item.localOnly) {
       return resolveMessageEditKey(item);
     }
+  }
+  return "";
+});
+
+const activeFlowMessageID = computed(() => {
+  for (let index = props.messages.length - 1; index >= 0; index--) {
+    const item = props.messages[index];
+    if (item.role !== "user" && item.blocks?.length) return String(item.id ?? "");
   }
   return "";
 });
