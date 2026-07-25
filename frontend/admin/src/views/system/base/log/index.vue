@@ -198,7 +198,7 @@ const columns: ColumnProps[] = [
   {
     prop: "operation",
     label: "操作方法",
-    minWidth: 140,
+    minWidth: 240,
     search: { el: "input" }
   },
   {
@@ -210,7 +210,7 @@ const columns: ColumnProps[] = [
   {
     prop: "request_time",
     label: "操作时间",
-    minWidth: 180,
+    minWidth: 140,
     search: {
       el: "date-picker",
       props: {
@@ -224,12 +224,12 @@ const columns: ColumnProps[] = [
       }
     }
   },
-  { prop: "user_name", label: "操作人", minWidth: 100 },
-  { prop: "client_ip", label: "IP 地址", minWidth: 130 },
-  { prop: "location", label: "地区", minWidth: 120 },
-  { prop: "browser_name", label: "浏览器", minWidth: 120 },
-  { prop: "os_name", label: "终端系统", minWidth: 200 },
-  { prop: "cost_time", label: "执行时间(ms)", minWidth: 130, align: "right" },
+  { prop: "user_name", label: "操作人", minWidth: 80 },
+  { prop: "client_ip", label: "IP 地址", minWidth: 80 },
+  { prop: "location", label: "地区", minWidth: 80 },
+  { prop: "browser_name", label: "浏览器", minWidth: 80 },
+  { prop: "os_name", label: "终端系统", minWidth: 80 },
+  { prop: "cost_time", label: "执行时间(ms)", minWidth: 100, align: "right" },
   {
     prop: "detailAction",
     label: "操作",
