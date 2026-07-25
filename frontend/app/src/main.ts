@@ -9,10 +9,10 @@ export function createApp() {
   return bootstrapKratosApp({
     app: App,
     pinia,
-  }).app
+  })
 }
 
 // #ifdef H5
-const h5App = createApp()
+const { app: h5App } = createApp()
 h5App.mount('#app')
 // #endif
