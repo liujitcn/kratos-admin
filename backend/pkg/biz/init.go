@@ -3,7 +3,6 @@ package biz
 import (
 	"github.com/google/wire"
 	"github.com/liujitcn/kratos-kit/cache"
-	"github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/liujitcn/kratos-kit/oauth"
 	"github.com/liujitcn/kratos-kit/oss"
 	"github.com/liujitcn/kratos-kit/pprof"
@@ -17,7 +16,6 @@ var ProviderSet = wire.NewSet(
 	NewCasbinRuleCase,
 	NewBaseCase,
 	oss.NewOSS,
-	gorm.NewGormClient,
 	queue.NewQueue,
 	cache.NewCache,
 	pprof.NewPprof,

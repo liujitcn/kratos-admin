@@ -32,6 +32,7 @@ export const saveLoginRedirectUrl = (url: string) => {
 
 /** 跳转到登录页，并在跳转前记录当前页面。 */
 export const navigateToLogin = (redirectUrl?: string) => {
+  console.log('[DEBUG-login-click] login', redirectUrl || '')
   if (typeof redirectUrl === 'string' && redirectUrl) {
     saveLoginRedirectUrl(redirectUrl)
   } else {
@@ -39,7 +40,9 @@ export const navigateToLogin = (redirectUrl?: string) => {
   }
   uni.navigateTo({
     url: LOGIN_PAGE,
+    success: () => console.log('[DEBUG-login-click] navigate-success'),
     fail: () => {
+      console.log('[DEBUG-login-click] navigate-fail')
       uni.reLaunch({ url: LOGIN_PAGE })
     },
   })

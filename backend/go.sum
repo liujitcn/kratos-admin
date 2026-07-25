@@ -417,8 +417,8 @@ github.com/liujitcn/kratos-kit/captcha v0.0.18 h1:+dW5oNj8b0EE+UQqinSpqLsNYM5Yyb
 github.com/liujitcn/kratos-kit/captcha v0.0.18/go.mod h1:jmib7eZ95webPgWOLQMy0k6DmymjlkI2nXxAMql3b/w=
 github.com/liujitcn/kratos-kit/config v0.0.20 h1:zOf3GJxD4O9aqbIKJ2BzmgMUpgylJOnT1Gpv40r7yjk=
 github.com/liujitcn/kratos-kit/config v0.0.20/go.mod h1:+Og3VavBv0J9yxeFQ/a7IkIfoTusRKKByaPkSLlv++c=
-github.com/liujitcn/kratos-kit/database/gorm v0.0.31 h1:MIMLIvQrwf7+ceUEsGgpkBFg3/7ce4Y/qI/phWVNvNE=
-github.com/liujitcn/kratos-kit/database/gorm v0.0.31/go.mod h1:/FLzmHWj0Hxy0PzrQIhTHslgGHmdD/Mqn7votZa/Okw=
+github.com/liujitcn/kratos-kit/database/gorm v0.0.33 h1:yHjiXYxAobb8kOhe6LSBzko6GehgihONayn3txXC3WE=
+github.com/liujitcn/kratos-kit/database/gorm v0.0.33/go.mod h1:oVl384601SUdWOYM+G8DjT/Batc8VYsXYbdmHhVCGE4=
 github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.15 h1:ZXuwOMIhdOOCzY+Ab1OdyYRUl4xPQH/K0qJfLQGbTsg=
 github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.15/go.mod h1:GGWGxWX9LOe21vpZ8zlsM2fZ0BSrveIE2oqMMvzXQaI=
 github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.13 h1:Ta4bxekfNJ0L8iagIfxo3HKKOOngVv6Jx0IR0fYjeJo=

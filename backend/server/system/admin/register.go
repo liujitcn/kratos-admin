@@ -32,6 +32,7 @@ type Services struct {
 	CodeGenColumn *systemadmin.CodeGenColumnService
 	CodeGenProto  *systemadmin.CodeGenProtoService
 	CodeGenTable  *systemadmin.CodeGenTableService
+	BaseMigration *systemadmin.BaseMigrationService
 }
 
 var _ host.Module = Services{}
@@ -59,6 +60,7 @@ func (s Services) RegisterGRPC(srv *grpc.Server) {
 	systemadminv1.RegisterCodeGenColumnServiceServer(srv, s.CodeGenColumn)
 	systemadminv1.RegisterCodeGenProtoServiceServer(srv, s.CodeGenProto)
 	systemadminv1.RegisterCodeGenTableServiceServer(srv, s.CodeGenTable)
+	systemadminv1.RegisterBaseMigrationServiceServer(srv, s.BaseMigration)
 }
 
 // RegisterHTTP 注册 system.admin.v1 的 HTTP 服务。
@@ -81,6 +83,7 @@ func (s Services) RegisterHTTP(srv *kratosHTTP.Server) {
 	systemadminv1.RegisterCodeGenColumnServiceHTTPServer(srv, s.CodeGenColumn)
 	systemadminv1.RegisterCodeGenProtoServiceHTTPServer(srv, s.CodeGenProto)
 	systemadminv1.RegisterCodeGenTableServiceHTTPServer(srv, s.CodeGenTable)
+	systemadminv1.RegisterBaseMigrationServiceHTTPServer(srv, s.BaseMigration)
 }
 
 // RegisterMCP 注册 system.admin.v1 的 MCP 工具。
@@ -103,4 +106,5 @@ func (s Services) RegisterMCP(server *mcpserver.Server) {
 	systemadminv1.RegisterCodeGenColumnServiceMCPTools(mcpSrv, s.CodeGenColumn)
 	systemadminv1.RegisterCodeGenProtoServiceMCPTools(mcpSrv, s.CodeGenProto)
 	systemadminv1.RegisterCodeGenTableServiceMCPTools(mcpSrv, s.CodeGenTable)
+	systemadminv1.RegisterBaseMigrationServiceMCPTools(mcpSrv, s.BaseMigration)
 }

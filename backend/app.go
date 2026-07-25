@@ -24,6 +24,7 @@ import (
 	systemapp "github.com/liujitcn/kratos-admin/backend/service/system/app"
 	"github.com/liujitcn/kratos-kit/bootstrap"
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	gormmigration "github.com/liujitcn/kratos-kit/database/gorm/migration"
 )
 
 // Module 表示可挂载到基础应用宿主的业务模块。
@@ -49,6 +50,11 @@ var ProviderSet = wire.NewSet(
 	job.ProviderSet,
 	transportSSE.NewRegistry,
 	transportSSE.NewPublisher,
+	wire.NewSet(
+		gormmigration.NewRegistry,
+		gormmigration.NewRunner,
+		gormmigration.NewReady,
+	),
 	biz.ProviderSet,
 	einoModel.NewResponsesClient,
 	ai.NewRuntime,

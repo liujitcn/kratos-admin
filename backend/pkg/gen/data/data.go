@@ -26,6 +26,7 @@ func init() {
 		new(models.BaseJobLog),
 		new(models.BaseLog),
 		new(models.BaseMenu),
+		new(models.BaseMigration),
 		new(models.BasePost),
 		new(models.BaseRole),
 		new(models.BaseTenant),

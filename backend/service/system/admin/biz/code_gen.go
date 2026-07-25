@@ -24,6 +24,7 @@ import (
 
 	"github.com/liujitcn/go-utils/stringcase"
 	"github.com/liujitcn/gorm-kit/repository"
+	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"gorm.io/gen/field"
 )
 
@@ -118,6 +119,8 @@ type CodeGenCase struct {
 	codeGenColumnCase *CodeGenColumnCase
 	codeGenProtoCase  *CodeGenProtoCase
 	baseMenuCase      *BaseMenuCase
+	baseMigrationCase *BaseMigrationCase
+	databaseClient    *databaseGorm.Client
 	progressManager   *codegen.Manager
 }
 
@@ -130,6 +133,8 @@ func NewCodeGenCase(
 	codeGenColumnCase *CodeGenColumnCase,
 	codeGenProtoCase *CodeGenProtoCase,
 	baseMenuCase *BaseMenuCase,
+	baseMigrationCase *BaseMigrationCase,
+	databaseClient *databaseGorm.Client,
 	progressManager *codegen.Manager,
 ) *CodeGenCase {
 	return &CodeGenCase{
@@ -140,6 +145,8 @@ func NewCodeGenCase(
 		codeGenColumnCase: codeGenColumnCase,
 		codeGenProtoCase:  codeGenProtoCase,
 		baseMenuCase:      baseMenuCase,
+		baseMigrationCase: baseMigrationCase,
+		databaseClient:    databaseClient,
 		progressManager:   progressManager,
 	}
 }
@@ -163,8 +170,20 @@ func (c *CodeGenCase) PreviewCodeGen(ctx context.Context, tableID int64, request
 	if err != nil {
 		return nil, err
 	}
+	var migrationVersion string
+	migrationVersion, err = c.latestMigrationVersion(ctx)
+	if err != nil {
+		return nil, err
+	}
 	var generation *codegen.Generation
-	generation, err = codegen.PrepareGeneration(table, columns, protos, requestedPaths, table.TableComment)
+	generation, err = codegen.PrepareGenerationWithMigrationVersion(
+		table,
+		columns,
+		protos,
+		requestedPaths,
+		table.TableComment,
+		migrationVersion,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -280,6 +299,11 @@ func (c *CodeGenCase) RestoreCodeGen(ctx context.Context, tableIDs []int64) erro
 	}
 	fileTransaction.commit()
 	return nil
+}
+
+// latestMigrationVersion 查询代码生成使用的最近一次成功迁移版本。
+func (c *CodeGenCase) latestMigrationVersion(ctx context.Context) (string, error) {
+	return c.baseMigrationCase.LatestSuccessfulVersion(ctx, c.databaseClient.Name())
 }
 
 // runCodeGenTask 串行执行批量任务并汇总最终状态。
@@ -441,6 +465,12 @@ func (c *CodeGenCase) prepareCodeGenBatch(ctx context.Context, tableIDs []int64)
 	inputs := make([]codegen.BatchGenerationInput, 0, len(tableIDs))
 	columnsByTable := make(map[int64][]*codegen.CodeGenColumn, len(tableIDs))
 	tableIDSet := make(map[int64]struct{}, len(tableIDs))
+	var migrationVersion string
+	var err error
+	migrationVersion, err = c.latestMigrationVersion(ctx)
+	if err != nil {
+		return nil, err
+	}
 	for _, tableID := range tableIDs {
 		if tableID <= 0 {
 			return nil, errorsx.InvalidArgument("代码生成表配置ID不能为空")
@@ -449,7 +479,10 @@ func (c *CodeGenCase) prepareCodeGenBatch(ctx context.Context, tableIDs []int64)
 			return nil, errorsx.InvalidArgument("代码生成表配置ID不能重复")
 		}
 		tableIDSet[tableID] = struct{}{}
-		table, columns, protos, err := c.loadCodeGenContext(ctx, tableID)
+		var table *codegen.Table
+		var columns []*codegen.CodeGenColumn
+		var protos []*codegen.Proto
+		table, columns, protos, err = c.loadCodeGenContext(ctx, tableID)
 		if err != nil {
 			return nil, err
 		}
@@ -461,14 +494,16 @@ func (c *CodeGenCase) prepareCodeGenBatch(ctx context.Context, tableIDs []int64)
 			return nil, errorsx.InvalidArgument("业务表名只能包含小写字母、数字和下划线，且必须以字母开头")
 		}
 		inputs = append(inputs, codegen.BatchGenerationInput{
-			Table:        table,
-			Columns:      columns,
-			Methods:      protos,
-			TableComment: table.TableComment,
+			Table:            table,
+			Columns:          columns,
+			Methods:          protos,
+			TableComment:     table.TableComment,
+			MigrationVersion: migrationVersion,
 		})
 		columnsByTable[tableID] = columns
 	}
-	plan, err := codegen.PrepareBatchGeneration(inputs)
+	var plan *codegen.BatchGeneration
+	plan, err = codegen.PrepareBatchGeneration(inputs)
 	if err != nil {
 		return nil, errorsx.InvalidArgument(codegen.FailureRemark(err)).WithCause(err)
 	}

@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"strings"
 	"time"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
@@ -258,7 +257,7 @@ func (c *AiMessageCase) ToolConfigs(ctx context.Context, terminal string, names 
 	}
 	filteredNames := make([]string, 0, len(names))
 	for _, name := range names {
-		if name == "" || terminal != "" && !strings.HasPrefix(name, terminal+"_") && !strings.HasPrefix(name, "base_") {
+		if !matchToolTerminal(terminal, name) {
 			continue
 		}
 		filteredNames = append(filteredNames, name)

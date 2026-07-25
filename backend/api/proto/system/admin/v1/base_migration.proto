@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// 数据库迁移服务
+service BaseMigrationService {
+  // 分页查询数据库升级历史
+  rpc PageBaseMigration(PageBaseMigrationRequest) returns (PageBaseMigrationResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base-migration"};
+  }
+
+  // 查询数据库迁移记录详情
+  rpc GetBaseMigration(GetBaseMigrationRequest) returns (BaseMigration) {
+    option (google.api.http) = {get: "/api/v1/admin/base-migration/{id}"};
+  }
+}
+
+// 数据库迁移记录分页查询条件
+message PageBaseMigrationRequest {
+  string business = 1 [(gnostic.openapi.v3.property) = {description: "迁移业务"}]; // 迁移业务
+
+  optional string version = 2 [(gnostic.openapi.v3.property) = {description: "迁移版本"}]; // 迁移版本
+
+  optional bool is_success = 3 [(gnostic.openapi.v3.property) = {description: "是否执行成功"}]; // 是否执行成功
+
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {
+    description: "当前页码"
+    default: {number: 1}
+  }]; // 当前页码
+
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {
+    description: "每一页的行数"
+    default: {number: 10}
+  }]; // 每一页的行数
+}
+
+// 数据库迁移记录列表项
+message BaseMigrationListItem {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键"}]; // 主键
+
+  string business = 2 [(gnostic.openapi.v3.property) = {description: "迁移业务"}]; // 迁移业务
+
+  string version = 3 [(gnostic.openapi.v3.property) = {description: "迁移版本"}]; // 迁移版本
+
+  string created_at = 4 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+
+  bool is_success = 5 [(gnostic.openapi.v3.property) = {description: "是否执行成功"}]; // 是否执行成功
+}
+
+// 数据库迁移记录分页响应
+message PageBaseMigrationResponse {
+  repeated BaseMigrationListItem base_migrations = 1 [(gnostic.openapi.v3.property) = {description: "迁移记录列表"}]; // 迁移记录列表
+
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 查询数据库迁移记录详情请求参数
+message GetBaseMigrationRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键"}]; // 主键
+}
+
+// 数据库迁移记录详情
+message BaseMigration {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键"}]; // 主键
+
+  string business = 2 [(gnostic.openapi.v3.property) = {description: "迁移业务"}]; // 迁移业务
+
+  string version = 3 [(gnostic.openapi.v3.property) = {description: "迁移版本"}]; // 迁移版本
+
+  string up_sql = 4 [(gnostic.openapi.v3.property) = {description: "升级脚本"}]; // 升级脚本
+
+  string down_sql = 5 [(gnostic.openapi.v3.property) = {description: "回退脚本"}]; // 回退脚本
+
+  string description = 6 [(gnostic.openapi.v3.property) = {description: "升级描述"}]; // 升级描述
+
+  string created_at = 7 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+
+  bool is_success = 8 [(gnostic.openapi.v3.property) = {description: "是否执行成功"}]; // 是否执行成功
+}

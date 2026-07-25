@@ -1,5 +1,5 @@
 -- 行政区划基础数据。
--- 与 default-data.sql 分离，按需导入；可重复执行且不会清空已有数据。
+-- 与 backend/migration/assets/mysql/v0.0.1/default_data.up.sql 分离，按需导入；可重复执行且不会清空已有数据。
 
 SET NAMES utf8mb4;
 SET @old_foreign_key_checks = @@FOREIGN_KEY_CHECKS;

@@ -1,6 +1,6 @@
 # frontend/admin
 
-管理后台基于 Vue 3、Vite、TypeScript、Element Plus 和 Pinia，负责登录、AI 助手、系统配置、组织权限、日志、接口管理和代码生成。
+管理后台基于 Vue 3、Vite、TypeScript、Element Plus 和 Pinia，负责登录、AI 助手、系统配置、组织权限、日志、接口管理、代码生成和数据库升级历史查询。
 
 ## 目录职责
 
@@ -51,18 +51,20 @@ pnpm build:package
 
 当前管理端包名为 `@liujitcn/kratos-admin`，版本为 `0.0.1`。包入口导出 `bootstrapAdminApp`、`defineAdminModule`、`createAdminViewRegistry` 和 `kratosAdminModule`，供业务后台注册自己的视图模块；基础页面通过模块视图注册表解析后端菜单的 `component` 字段。
 
-`pnpm build:package` 会构建可被业务后台组合的 ESM 模块包。`frontend/admin/src/main.ts` 仍保留默认启动入口，因此 kratos-admin 可以独立运行；业务项目只需在自己的组合入口注册额外模块。
+`pnpm build:package` 会构建可被业务后台组合的 ESM 模块包。`frontend/admin/src/main.ts` 仍保留默认启动入口，因此 kratos-admin 可以独立运行；业务项目在自己的组合入口注册额外模块。
 
-业务后台可在入口注册商城视图和 AI 流程卡片扩展，基础聊天页仍由 kratos-admin 提供：
+业务后台可在入口注册业务视图和 AI 流程卡片扩展，基础聊天页仍由 kratos-admin 提供：
 
 ```ts
-const shopAdminModule = defineAdminModule({
-  name: "shop",
-  views: import.meta.glob("./views/shop/**/*.vue"),
+const orderAdminModule = defineAdminModule({
+  name: "order",
+  views: import.meta.glob("./views/order/**/*.vue"),
   ai: {
     flowBlocks: defineAsyncComponent(() => import("./views/base/ai/chat/components/FlowBlocks.vue"))
   }
 });
 
-void bootstrapAdminApp({ modules: [shopAdminModule] });
+void bootstrapAdminApp({ modules: [orderAdminModule] });
 ```
+
+后端模块、菜单权限和前后端联调步骤见仓库的[服务接入指南](../../docs/服务接入指南.md)。

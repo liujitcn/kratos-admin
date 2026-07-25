@@ -61,12 +61,15 @@ const PENDING_MESSAGE_ID = 'pending'
 const MAX_ATTACHMENT_COUNT = 6
 const STARTER_PROMPT_PAGE_SIZE = 4
 
-const systemInfo = uni.getSystemInfoSync()
-const safeAreaTop = systemInfo.safeAreaInsets?.top || systemInfo.statusBarHeight || 0
-const safeAreaBottom = Math.max(systemInfo.safeAreaInsets?.bottom || 0, 9)
-const windowHeight = systemInfo.windowHeight || systemInfo.screenHeight || 667
+const windowInfo = uni.getWindowInfo()
+let safeAreaTop =
+  windowInfo.safeArea?.top || windowInfo.statusBarHeight || windowInfo.safeAreaInsets?.top || 0
+// #ifdef MP-WEIXIN
+safeAreaTop = safeAreaTop || 44
+// #endif
+const safeAreaBottom = Math.max(windowInfo.safeAreaInsets?.bottom || 0, 9)
+const windowHeight = windowInfo.windowHeight || windowInfo.screenHeight || 667
 const composerBottom = `${safeAreaBottom}px`
-const navHeight = `${safeAreaTop + 44}px`
 const drawerTopPadding = `${safeAreaTop + 12}px`
 
 const showSessionDrawer = ref(false)
@@ -1143,7 +1146,7 @@ function showError(error: unknown, fallback: string) {
 
 <template>
   <view class="ai-page">
-    <view class="ai-navbar" :style="{ height: navHeight, paddingTop: `${safeAreaTop}px` }">
+    <view class="ai-navbar">
       <button class="nav-back-button" hover-class="none" @tap="navigateBack">
         <uni-icons type="left" size="24" color="#111" />
       </button>
@@ -1274,6 +1277,13 @@ page {
   box-sizing: border-box;
   background-color: #fff;
   border-bottom: 1rpx solid #eceef1;
+
+  height: 44px;
+
+  /* #ifdef MP-WEIXIN */
+  height: 88px;
+  padding-top: 44px;
+  /* #endif */
 }
 
 .nav-back-button,

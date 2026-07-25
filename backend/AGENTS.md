@@ -7,7 +7,7 @@
 ## 新增业务流程
 - 完整流程见 [docs/new-feature.md](docs/new-feature.md)，新增业务前必须先读。
 - 核心顺序：需要新表则先按 `configs/data.yaml` 确认连接后把表结构真正建到开发库 → `make gorm-gen` → proto 契约 → `make gen` → service/biz → 前端；不需要新表则从 proto 开始。
-- 表结构变更、菜单权限（`base_menu`）、接口权限（`base_api`）脚本统一写入 `sql/default-data.sql`，与代码同一次改动完成，禁止后补。
+- 表结构变更、菜单权限（`base_menu`）、接口权限（`base_api`）脚本统一新增纯数字版本目录到 `backend/migration/assets/mysql`，目录内使用同一功能名的 `<feature>.up.sql` 和 `<feature>.description.md`，与代码同一次改动完成，禁止后补。
 - `api/gen`、`pkg/gen` 生成产物禁止手改或手工添加文件；生成一律走 `make gen`、`make gorm-gen`、`make wire`。
 
 ## 注释
@@ -39,4 +39,4 @@
 - package 带版本号并与目录对齐（`system.admin.v1`、`shop.app.v1` 等）；Go import 用真实包名别名（`shopadminv1` 等）；TS import 带 `/v1/` 层级。
 - HTTP 路径遵循 RESTful，格式 `/api/v1/{terminal}/{module}/{resource}`；迁移旧接口用 `additional_bindings` 暂留旧路径。
 - 字段与命名细则见 [docs/api.md](docs/api.md)，新增或修改 proto 字段前必须先读
-- proto 的 `google.api.http`、`sql/default-data.sql` 的 `base_api.path`、前端请求地址三处必须一致，禁止只改其中一处。
+- proto 的 `google.api.http`、对应版本目录 `up.sql` 的 `base_api.path`、前端请求地址三处必须一致，禁止只改其中一处。

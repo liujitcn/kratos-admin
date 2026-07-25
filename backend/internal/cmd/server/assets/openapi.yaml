@@ -121,6 +121,59 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.UserInfoForm'
+    /api/v1/admin/base-migration:
+        get:
+            tags:
+                - BaseMigrationService
+            description: 分页查询数据库升级历史
+            operationId: BaseMigrationService_PageBaseMigration
+            parameters:
+                - name: business
+                  in: query
+                  schema:
+                    type: string
+                - name: version
+                  in: query
+                  schema:
+                    type: string
+                - name: is_success
+                  in: query
+                  schema:
+                    type: boolean
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseMigrationResponse'
+    /api/v1/admin/base-migration/{id}:
+        get:
+            tags:
+                - BaseMigrationService
+            description: 查询数据库迁移记录详情
+            operationId: BaseMigrationService_GetBaseMigration
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseMigration'
     /api/v1/admin/base/api:
         get:
             tags:
@@ -4891,6 +4944,53 @@ components:
                     type: string
                     description: 参数value
             description: 菜单参数
+        system.admin.v1.BaseMigration:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 主键
+                business:
+                    type: string
+                    description: 迁移业务
+                version:
+                    type: string
+                    description: 迁移版本
+                up_sql:
+                    type: string
+                    description: 升级脚本
+                down_sql:
+                    type: string
+                    description: 回退脚本
+                description:
+                    type: string
+                    description: 升级描述
+                created_at:
+                    type: string
+                    description: 创建时间
+                is_success:
+                    type: boolean
+                    description: 是否执行成功
+            description: 数据库迁移记录详情
+        system.admin.v1.BaseMigrationListItem:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 主键
+                business:
+                    type: string
+                    description: 迁移业务
+                version:
+                    type: string
+                    description: 迁移版本
+                created_at:
+                    type: string
+                    description: 创建时间
+                is_success:
+                    type: boolean
+                    description: 是否执行成功
+            description: 数据库迁移记录列表项
         system.admin.v1.BasePost:
             type: object
             properties:
@@ -5935,6 +6035,19 @@ components:
                     description: 总数
                     format: int32
             description: 日志分页响应
+        system.admin.v1.PageBaseMigrationResponse:
+            type: object
+            properties:
+                base_migrations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseMigrationListItem'
+                    description: 迁移记录列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 数据库迁移记录分页响应
         system.admin.v1.PageBasePostResponse:
             type: object
             properties:
@@ -6562,6 +6675,8 @@ tags:
       description: Admin日志服务
     - name: BaseMenuService
       description: Admin菜单管理服务
+    - name: BaseMigrationService
+      description: 数据库迁移服务
     - name: BasePostService
       description: Admin岗位管理服务
     - name: BaseRoleService

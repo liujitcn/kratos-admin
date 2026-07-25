@@ -1,5 +1,11 @@
 import { defineConfig, loadEnv, type ConfigEnv, type UserConfig } from 'vite'
 import uni from '@dcloudio/vite-plugin-uni'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { kratosApp } from './src/vite'
+import { kratosAppModule } from './src/modules/kratosApp'
+
+const appRoot = dirname(fileURLToPath(import.meta.url))
 
 /**
  * 合并基础环境与 H5 覆盖环境
@@ -34,6 +40,14 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
 
   return {
     base: appBasePath,
+    resolve: {
+      alias: [
+        {
+          find: '@kratos-app/',
+          replacement: `${resolve(appRoot, 'src')}/`,
+        },
+      ],
+    },
     define: {
       // 兼容 uni-h5 运行时代码对全局 process/global 的访问，避免浏览器环境报错。
       process: JSON.stringify({ env: {} }),
@@ -81,6 +95,6 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       // 开发阶段启用源码映射：https://uniapp.dcloud.net.cn/tutorial/migration-to-vue3.html#需主动开启-sourcemap
       sourcemap: process.env.NODE_ENV === 'development',
     },
-    plugins: [uni()],
+    plugins: [kratosApp({ modules: [kratosAppModule] }), uni()],
   }
 })

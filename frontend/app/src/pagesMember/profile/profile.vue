@@ -11,9 +11,6 @@ import { navigateToLogin } from '@/utils/navigation'
 
 const userStore = useUserStore()
 
-// 获取屏幕边界到安全区域距离
-const { safeAreaInsets } = uni.getSystemInfoSync()
-
 const imgMaxSize = ref(1024 * 1024)
 
 // 获取个人信息，修改个人信息需提供初始值
@@ -188,7 +185,7 @@ const onSubmit = async () => {
 <template>
   <view class="viewport">
     <!-- 导航栏 -->
-    <view class="navbar" :style="{ paddingTop: safeAreaInsets?.top + 'px' }">
+    <view class="navbar">
       <navigator open-type="navigateBack" class="back icon-left" hover-class="none"></navigator>
       <view class="title">个人信息</view>
     </view>
@@ -270,6 +267,10 @@ page {
 // 导航栏
 .navbar {
   position: relative;
+
+  /* #ifdef MP-WEIXIN */
+  padding-top: 44px;
+  /* #endif */
 
   .title {
     height: 40px;

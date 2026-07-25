@@ -18,6 +18,8 @@ type BatchGenerationInput struct {
 	Methods []*Proto
 	// TableComment 是数据库表注释。
 	TableComment string
+	// MigrationVersion 是数据库最近一次成功迁移版本。
+	MigrationVersion string
 }
 
 // BatchFileRef 标识单个表在批次文件中的来源步骤。
@@ -74,7 +76,14 @@ func PrepareBatchGeneration(inputs []BatchGenerationInput) (*BatchGeneration, er
 
 	initialGenerations := make([]*Generation, 0, len(orderedInputs))
 	for _, input := range orderedInputs {
-		generation, err := PrepareGeneration(input.Table, input.Columns, input.Methods, nil, input.TableComment)
+		generation, err := PrepareGenerationWithMigrationVersion(
+			input.Table,
+			input.Columns,
+			input.Methods,
+			nil,
+			input.TableComment,
+			input.MigrationVersion,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -95,8 +104,9 @@ func PrepareBatchGeneration(inputs []BatchGenerationInput) (*BatchGeneration, er
 	filesByPath := make(map[string]*BatchFile)
 	for _, input := range orderedInputs {
 		generation, err := prepareGenerationWithRenderer(input.Table, input.Columns, input.Methods, nil, &renderer{
-			tableComment: input.TableComment,
-			readFile:     overlay.readFile,
+			tableComment:     input.TableComment,
+			migrationVersion: input.MigrationVersion,
+			readFile:         overlay.readFile,
 		})
 		if err != nil {
 			return nil, err
@@ -371,7 +381,7 @@ func normalizeBatchProtoDefinition(content string) string {
 
 // isBatchMergeableFile 判断同一文件是否支持按已有增量补丁规则合并。
 func isBatchMergeableFile(path string) bool {
-	if path == generatedMenuSQLPath {
+	if isGeneratedMenuSQLPath(path) {
 		return true
 	}
 	if strings.HasSuffix(path, ".proto") {

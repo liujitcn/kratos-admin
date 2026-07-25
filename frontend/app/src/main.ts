@@ -1,17 +1,18 @@
-import { createSSRApp } from 'vue'
 import App from './App.vue'
-
-// 导入 pinia 实例
 import pinia from './stores'
+import { bootstrapKratosApp } from './bootstrap'
 
+/**
+ * 创建通用 app 实例。
+ */
 export function createApp() {
-  // 创建 vue 实例
-  const app = createSSRApp(App)
-
-  // 使用 pinia
-  app.use(pinia)
-
-  return {
-    app,
-  }
+  return bootstrapKratosApp({
+    app: App,
+    pinia,
+  }).app
 }
+
+// #ifdef H5
+const h5App = createApp()
+h5App.mount('#app')
+// #endif

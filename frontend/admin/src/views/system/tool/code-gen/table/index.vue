@@ -322,7 +322,7 @@ const formFields = computed<ProFormField[]>(() => [
     label: "生成SQL",
     component: "switch",
     colSpan: 8,
-    labelTooltip: "开启后在满足前端生成与页面接口完整的条件下，同时同步菜单和按钮权限到数据库，并更新 sql/default-data.sql 脚本。",
+    labelTooltip: "开启后在满足前端生成与页面接口完整的条件下，同时同步菜单和按钮权限到数据库，并复用或新增当前未执行的数据库迁移脚本。",
     props: { activeText: "生成", inactiveText: "跳过" }
   },
   {

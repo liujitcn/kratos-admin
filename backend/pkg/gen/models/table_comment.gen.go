@@ -65,6 +65,11 @@ func (*BaseMenu) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*BaseMigration) TableComment() string {
+	return "数据库迁移记录"
+}
+
+// TableComment 返回表注释。
 func (*BasePost) TableComment() string {
 	return "岗位信息"
 }

@@ -20,7 +20,22 @@ func PrepareGeneration(
 	requestedPaths *systemadminv1.CodeGenOutputPaths,
 	tableComment string,
 ) (*Generation, error) {
-	return prepareGenerationWithRenderer(table, columns, methods, requestedPaths, &renderer{tableComment: tableComment})
+	return PrepareGenerationWithMigrationVersion(table, columns, methods, requestedPaths, tableComment, "")
+}
+
+// PrepareGenerationWithMigrationVersion 按数据库迁移版本准备代码生成内容。
+func PrepareGenerationWithMigrationVersion(
+	table *Table,
+	columns []*CodeGenColumn,
+	methods []*Proto,
+	requestedPaths *systemadminv1.CodeGenOutputPaths,
+	tableComment string,
+	migrationVersion string,
+) (*Generation, error) {
+	return prepareGenerationWithRenderer(table, columns, methods, requestedPaths, &renderer{
+		tableComment:     tableComment,
+		migrationVersion: migrationVersion,
+	})
 }
 
 // prepareGenerationWithRenderer 使用指定文件视图准备单次预览或批次内合并结果。

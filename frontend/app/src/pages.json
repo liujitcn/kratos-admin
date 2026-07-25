@@ -97,11 +97,5 @@
         }
       ]
     }
-  ],
-  "preloadRule": {
-    "pages/my/my": {
-      "network": "all",
-      "packages": ["pagesMember"]
-    }
-  }
+  ]
 }

@@ -69,6 +69,10 @@ page {
   min-height: 100vh;
   padding: 44rpx 28rpx 56rpx;
   box-sizing: border-box;
+
+  /* #ifdef MP-WEIXIN */
+  padding-top: calc(44rpx + 44px);
+  /* #endif */
 }
 
 .hero {

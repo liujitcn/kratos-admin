@@ -1,10 +1,14 @@
 package config
 
 import (
+	"context"
+
 	"github.com/liujitcn/kratos-admin/backend/pkg/errorsx"
 
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	"github.com/liujitcn/kratos-kit/bootstrap"
+	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	gormmigration "github.com/liujitcn/kratos-kit/database/gorm/migration"
 )
 
 // GetAppInfo 获取当前服务的应用信息。
@@ -45,6 +49,29 @@ func ParseData(ctx *bootstrap.Context) (*bootstrapConfigv1.Data, error) {
 // ParseDatabase 解析数据库配置。
 func ParseDatabase(cfg *bootstrapConfigv1.Data) *bootstrapConfigv1.Data_Database {
 	return cfg.GetDatabase()
+}
+
+// NewDatabaseClient 创建基础数据库客户端并执行基础模块迁移。
+func NewDatabaseClient(
+	cfg *bootstrapConfigv1.Data_Database,
+	options []databaseGorm.ClientOption,
+	runner *gormmigration.Runner,
+) (*databaseGorm.Client, func(), error) {
+	client, cleanup, err := databaseGorm.NewGormClient(cfg, options...)
+	if err != nil {
+		return nil, nil, err
+	}
+	err = runner.SetClient(client)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	err = runner.Run(context.Background(), "kratos-admin", client)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	return client, cleanup, nil
 }
 
 // ParseQueue 解析队列配置。

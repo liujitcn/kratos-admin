@@ -49,4 +49,6 @@ var ProviderSet = wire.NewSet(
 	NewCodeGenColumnService,
 	NewCodeGenProtoService,
 	NewCodeGenTableService,
+	NewBaseMigrationService,
+	biz.NewBaseMigrationCase,
 )

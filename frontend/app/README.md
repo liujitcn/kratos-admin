@@ -1,6 +1,6 @@
 # frontend/app
 
-`frontend/app` 是基于 `uni-app + Vue 3 + TypeScript + Vite + Pinia + Sass` 的通用应用壳子，保留 H5、微信小程序和 App 等平台脚本。它不绑定具体行业业务，只承载框架、登录态、账户资料、协议页面和基础 AI 会话。
+`frontend/app` 是 `@liujitcn/kratos-app@0.0.1` 的源码包，基于 `uni-app + Vue 3 + TypeScript + Vite + Pinia + Sass` 提供通用应用宿主。它不绑定具体行业业务，只承载框架、登录态、账户资料、协议页面和基础 AI 会话。
 
 ## 目录职责
 
@@ -93,6 +93,15 @@ pnpm build:h5
 - 全局状态放在 `src/stores/modules`，并通过 `src/stores/index.ts` 汇总。
 - 请求封装、鉴权、刷新令牌和错误提示集中在 `src/utils/http.ts`。
 - 令牌读写统一走 `src/utils/auth.ts`。
+
+## 宿主接入
+
+- `bootstrapKratosApp` 创建 uni-app 实例并注册公共模块，业务宿主传入自己的 `App.vue`、Pinia 实例和模块列表。
+- `defineKratosAppModule` / `registerKratosAppModule` 提供业务模块注册边界。
+- `kratosApp()` 是 Vite 页面注册插件，在构建期合并宿主与公共 `pages.json`；宿主同路径页面优先，缺失页面生成临时 wrapper 指向公共页面，构建结束后清理，不复制源码。
+- 包通过 `@liujitcn/kratos-app/api/*`、`@liujitcn/kratos-app/rpc/*`、`@liujitcn/kratos-app/utils/*` 等子路径导出公共能力；`@liujitcn/kratos-app/vite` 仅供构建配置加载页面插件。
+
+后端接口、应用端页面和生成代码的完整接入顺序见仓库的[服务接入指南](../../docs/服务接入指南.md)。
 
 ## 多端兼容
 

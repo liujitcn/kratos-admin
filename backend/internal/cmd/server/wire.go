@@ -7,6 +7,7 @@ import (
 	"github.com/go-kratos/kratos/v3"
 	"github.com/google/wire"
 	kratosadmin "github.com/liujitcn/kratos-admin/backend"
+	"github.com/liujitcn/kratos-admin/backend/migration"
 	"github.com/liujitcn/kratos-kit/bootstrap"
 )
 
@@ -14,6 +15,7 @@ import (
 func initApp(*bootstrap.Context) (*kratos.App, func(), error) {
 	panic(wire.Build(
 		kratosadmin.ProviderSet,
+		migration.NewMigrations,
 		wire.Value(kratosadmin.AdditionalModules(nil)),
 		kratosadmin.NewApp,
 	))

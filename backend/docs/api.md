@@ -35,7 +35,7 @@
 
 HTTP 路径确定后，以下三处必须保持一致，禁止只改其中一处：
 1. proto 中的 `google.api.http` 映射
-2. `sql/default-data.sql` 中的 `base_api.path`
+2. `backend/migration/assets/mysql/<version>/<feature>.up.sql` 中的 `base_api.path`
 3. 前端请求地址（`src/rpc` 生成类型与调用处）
 
-修改或新增 proto 时，同步检查：`api/gen`、后端 service/biz、前端 RPC 类型与调用处、OpenAPI、`sql/default-data.sql` 接口权限数据。
+修改或新增 proto 时，同步检查：`api/gen`、后端 service/biz、前端 RPC 类型与调用处、OpenAPI、对应版本目录中的 `<feature>.up.sql` 接口权限数据。

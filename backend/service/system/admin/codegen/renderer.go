@@ -88,8 +88,9 @@ var (
 
 // renderer 保存单次静态生成所需的非数据库上下文。
 type renderer struct {
-	tableComment string // 数据库表注释，由业务层查询后传入
-	readFile     func(string) ([]byte, error)
+	tableComment     string // 数据库表注释，由业务层查询后传入
+	migrationVersion string // 数据库最近一次成功迁移版本
+	readFile         func(string) ([]byte, error)
 }
 
 // repoFileExists 判断当前渲染上下文中是否存在目标仓库文件。

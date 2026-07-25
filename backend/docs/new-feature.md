@@ -22,10 +22,13 @@
 
 ## 功能脚本同步（与代码同一次改动完成）
 
-新增业务时，除业务代码外必须同步补齐功能脚本，统一写入 `sql/default-data.sql`，不要分散到临时 SQL 文件：
+新增业务时，除业务代码外必须同步新增一个版本目录，例如
+`backend/migration/assets/mysql/vX.Y.Z`，目录内放置同一功能名的
+`order.up.sql` 和 `order.description.md`，不要分散到临时 SQL 文件：
 
-1. `ALTER TABLE` 修改已有表结构。
-2. 初始化菜单权限数据（`base_menu` 表）。
-3. 接口权限数据（`base_api` 表，与 proto 的 HTTP 路径保持一致）。
+1. `<feature>.up.sql` 中使用 `ALTER TABLE` 修改已有表结构。
+2. `<feature>.up.sql` 中初始化菜单权限数据（`base_menu` 表）。
+3. `<feature>.up.sql` 中维护接口权限数据（`base_api` 表，与 proto 的 HTTP 路径保持一致）。
+4. `<feature>.description.md` 用简短中文说明本次升级做了什么，例如“新增订单表及其菜单、接口权限”。
 
 若新增业务同时涉及菜单、接口权限、表结构变更，以上脚本必须在同一次开发中一并完成，禁止拆成"代码已支持，但库表/API/菜单初始化后补"。

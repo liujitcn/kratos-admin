@@ -9,6 +9,7 @@ package main
 import (
 	"github.com/go-kratos/kratos/v3"
 	kratosadmin "github.com/liujitcn/kratos-admin/backend"
+	"github.com/liujitcn/kratos-admin/backend/migration"
 	"github.com/liujitcn/kratos-admin/backend/pkg/agent/eino/model"
 	"github.com/liujitcn/kratos-admin/backend/pkg/biz"
 	"github.com/liujitcn/kratos-admin/backend/pkg/config"
@@ -32,6 +33,7 @@ import (
 	"github.com/liujitcn/kratos-kit/bootstrap"
 	"github.com/liujitcn/kratos-kit/cache"
 	"github.com/liujitcn/kratos-kit/database/gorm"
+	migration2 "github.com/liujitcn/kratos-kit/database/gorm/migration"
 	"github.com/liujitcn/kratos-kit/oauth"
 	"github.com/liujitcn/kratos-kit/oss"
 	"github.com/liujitcn/kratos-kit/pprof"
@@ -52,14 +54,23 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	data_Database := config.ParseDatabase(configv1Data)
 	v := _wireValue
-	client, cleanup, err := gorm.NewGormClient(data_Database, v...)
+	v2 := migration.NewMigrations()
+	registry, err := migration2.NewRegistry(v2)
+	if err != nil {
+		return nil, nil, err
+	}
+	runner, err := migration2.NewRunner(registry)
+	if err != nil {
+		return nil, nil, err
+	}
+	client, cleanup, err := config.NewDatabaseClient(data_Database, v, runner)
 	if err != nil {
 		return nil, nil, err
 	}
 	dataData := data.NewData(client)
 	baseJobRepository := data.NewBaseJobRepository(dataData)
-	registry := job.NewRegistry()
-	cronServer := job.NewCronServer(baseJobRepository, registry)
+	jobRegistry := job.NewRegistry()
+	cronServer := job.NewCronServer(baseJobRepository, jobRegistry)
 	authentication_Jwt := config.ParseAuthnJWT(context)
 	authenticator := middleware.NewAuthenticator(authentication_Jwt)
 	baseUserRepository := data.NewBaseUserRepository(dataData)
@@ -83,6 +94,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	ready := migration2.NewReady(client)
 	configv1Pprof, err := config.ParsePprof(context)
 	if err != nil {
 		cleanup3()
@@ -112,7 +124,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	baseTenantCase := biz.NewBaseTenantCase(transaction, baseRoleRepository, baseTenantRepository)
-	baseCase, cleanup4, err := biz.NewBaseCase(context, cacheCache, queueQueue, client, pprofPprof, casbinRuleCase, baseAPICase, baseTenantCase)
+	baseCase, cleanup4, err := biz.NewBaseCase(context, cacheCache, queueQueue, client, ready, pprofPprof, casbinRuleCase, baseAPICase, baseTenantCase)
 	if err != nil {
 		cleanup3()
 		cleanup2()
@@ -267,11 +279,14 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	codeGenProtoRepository := data.NewCodeGenProtoRepository(dataData)
 	codeGenProtoCase := biz3.NewCodeGenProtoCase(codeGenProtoRepository, transaction, baseAPIRepository, codeGenTableRepository, codeGenColumnCase)
 	codeGenTableCase := biz3.NewCodeGenTableCase(codeGenTableRepository, client, transaction, baseDictRepository, baseDictItemRepository, baseMenuCase, codeGenColumnCase, codeGenProtoCase)
-	codeGenCase := biz3.NewCodeGenCase(baseCase, transaction, bizBaseAPICase, codeGenTableCase, codeGenColumnCase, codeGenProtoCase, baseMenuCase, codegenManager)
+	baseMigrationRepository := data.NewBaseMigrationRepository(dataData)
+	baseMigrationCase := biz3.NewBaseMigrationCase(baseMigrationRepository)
+	codeGenCase := biz3.NewCodeGenCase(baseCase, transaction, bizBaseAPICase, codeGenTableCase, codeGenColumnCase, codeGenProtoCase, baseMenuCase, baseMigrationCase, client, codegenManager)
 	codeGenService := admin.NewCodeGenService(codeGenCase)
 	codeGenColumnService := admin.NewCodeGenColumnService(codeGenColumnCase)
 	codeGenProtoService := admin.NewCodeGenProtoService(codeGenProtoCase)
 	codeGenTableService := admin.NewCodeGenTableService(codeGenTableCase)
+	baseMigrationService := admin.NewBaseMigrationService(baseMigrationCase)
 	adminServices := admin2.Services{
 		Auth:          authService,
 		BaseAPI:       baseApiService,
@@ -290,6 +305,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		CodeGenColumn: codeGenColumnService,
 		CodeGenProto:  codeGenProtoService,
 		CodeGenTable:  codeGenTableService,
+		BaseMigration: baseMigrationService,
 	}
 	baseUserCase2 := biz4.NewBaseUserCase(baseCase, baseUserRepository)
 	bizAuthCase := biz4.NewAuthCase(baseCase, baseUserCase2, manager, userEvents)

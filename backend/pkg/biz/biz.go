@@ -15,6 +15,7 @@ import (
 	"github.com/liujitcn/kratos-kit/bootstrap"
 	"github.com/liujitcn/kratos-kit/cache"
 	"github.com/liujitcn/kratos-kit/database/gorm"
+	gormmigration "github.com/liujitcn/kratos-kit/database/gorm/migration"
 	"github.com/liujitcn/kratos-kit/pprof"
 	"github.com/liujitcn/kratos-kit/queue"
 	queueData "github.com/liujitcn/kratos-kit/queue/data"
@@ -41,6 +42,7 @@ func NewBaseCase(
 	cache cache.Cache,
 	queue queue.Queue,
 	gorm *gorm.Client,
+	_ gormmigration.Ready,
 	pprof pprof.Pprof,
 	casbinRuleCase *CasbinRuleCase,
 	baseAPICase *BaseAPICase,

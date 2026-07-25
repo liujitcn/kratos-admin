@@ -237,9 +237,22 @@ func toolPromptsDescription(value string) string {
 	return strings.Join(values, "\n")
 }
 
-// matchMcpToolPrefix 判断工具名是否匹配当前服务前缀。
+// matchMcpToolPrefix 判断工具名是否匹配当前终端。
 func matchMcpToolPrefix(terminal, toolName string) bool {
-	return toolName != "" && (terminal == "" || strings.HasPrefix(toolName, terminal+"_") || strings.HasPrefix(toolName, "base_"))
+	return matchToolTerminal(terminal, toolName)
+}
+
+// matchToolTerminal 判断生成工具名中的 protobuf 终端段是否匹配当前终端。
+func matchToolTerminal(terminal, toolName string) bool {
+	if toolName == "" {
+		return false
+	}
+	if terminal == "" {
+		return true
+	}
+	return strings.HasPrefix(toolName, "base_") ||
+		strings.HasPrefix(toolName, terminal+"_") ||
+		strings.Contains(toolName, "_"+terminal+"_")
 }
 
 // mcpTerminal 获取当前 MCP 请求的服务筛选关键字。

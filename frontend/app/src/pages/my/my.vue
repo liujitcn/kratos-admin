@@ -3,8 +3,6 @@ import { useUserStore } from '@/stores'
 import { computed } from 'vue'
 import { formatSrc } from '@/utils'
 import { navigateToLogin } from '@/utils/navigation'
-// 获取屏幕边界到安全区域距离
-const { safeAreaInsets } = uni.getSystemInfoSync()
 const AI_PAGE = '/pagesMember/ai/index'
 const SETTINGS_PAGE = '/pagesMember/settings/settings'
 
@@ -15,6 +13,7 @@ const profile = computed(() => userStore.userInfo)
 
 /** 打开移动端 AI 助手静态页，未登录时先进入登录流程。 */
 const navigateToAi = () => {
+  console.log('[DEBUG-login-click] ai')
   if (!userStore.ensureAuthenticated()) {
     navigateToLogin()
     return
@@ -26,6 +25,7 @@ const navigateToAi = () => {
 
 /** 打开设置页，未登录时先进入登录流程。 */
 const navigateToSettings = () => {
+  console.log('[DEBUG-login-click] settings')
   if (!userStore.ensureAuthenticated()) {
     navigateToLogin()
     return
@@ -39,7 +39,7 @@ const navigateToSettings = () => {
 <template>
   <scroll-view enable-back-to-top class="viewport" scroll-y>
     <!-- 个人资料 -->
-    <view class="profile" :style="{ paddingTop: safeAreaInsets!.top + 'px' }">
+    <view class="profile">
       <!-- 情况1：已登录 -->
       <view class="overview" v-if="isLoggedIn && profile">
         <navigator url="/pagesMember/profile/profile" hover-class="none">
@@ -163,6 +163,10 @@ page {
 .profile {
   margin-top: 30rpx;
   position: relative;
+
+  /* #ifdef MP-WEIXIN */
+  padding-top: 44px;
+  /* #endif */
 
   .overview {
     display: flex;
