@@ -14,6 +14,7 @@ import (
 	"sync"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	adminmigration "github.com/liujitcn/kratos-admin/backend/migration"
 	coreBiz "github.com/liujitcn/kratos-admin/backend/pkg/biz"
 	_const "github.com/liujitcn/kratos-admin/backend/pkg/const"
 	"github.com/liujitcn/kratos-admin/backend/pkg/errorsx"
@@ -303,7 +304,7 @@ func (c *CodeGenCase) RestoreCodeGen(ctx context.Context, tableIDs []int64) erro
 
 // latestMigrationVersion 查询代码生成使用的最近一次成功迁移版本。
 func (c *CodeGenCase) latestMigrationVersion(ctx context.Context) (string, error) {
-	return c.baseMigrationCase.LatestSuccessfulVersion(ctx, c.databaseClient.Name())
+	return c.baseMigrationCase.LatestSuccessfulVersion(ctx, adminmigration.ModuleName, c.databaseClient.Name())
 }
 
 // runCodeGenTask 串行执行批量任务并汇总最终状态。
@@ -644,7 +645,17 @@ func (c *CodeGenCase) runCodeGenCommands(ctx context.Context, targets []codeGenC
 	}
 
 	backendDir := codegen.BackendDir()
-	databaseSource := c.GetConfig().GetData().GetDatabase().GetSource()
+	databaseSource := ""
+	dataConfig := c.GetConfig().GetData()
+	if dataConfig != nil {
+		database := dataConfig.GetDatabase()
+		if database == nil {
+			database = dataConfig.GetDatabases()[databaseGorm.DefaultClientName]
+		}
+		if database != nil {
+			databaseSource = database.GetSource()
+		}
+	}
 	states := make(map[int64]*commandState, len(targets))
 	sharedTargets := []string{"api", "openapi", "ts", "wire"}
 	eligibleTargets := make([]codeGenCommandTarget, 0, len(targets))

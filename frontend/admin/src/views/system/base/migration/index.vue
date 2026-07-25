@@ -6,6 +6,12 @@
         <el-form-item label="版本">
           <el-input v-model="filters.version" clearable placeholder="请输入版本号" @keyup.enter="handleSearch" />
         </el-form-item>
+        <el-form-item label="模块">
+          <el-input v-model="filters.module" clearable placeholder="请输入迁移模块" @keyup.enter="handleSearch" />
+        </el-form-item>
+        <el-form-item label="数据源">
+          <el-input v-model="filters.data_source" clearable placeholder="请输入数据源名称" @keyup.enter="handleSearch" />
+        </el-form-item>
         <el-form-item class="migration-filters__actions">
           <el-button type="primary" :icon="Search" native-type="submit">查询</el-button>
           <el-button :icon="Refresh" @click="handleReset">重置</el-button>
@@ -32,7 +38,9 @@
                   {{ history.is_success ? "成功" : "失败" }}
                 </el-tag>
               </div>
-              <div class="migration-list-item__business">{{ history.business || "数据库迁移" }}</div>
+              <div class="migration-list-item__data-source">
+                {{ history.module || "数据库迁移" }} · {{ history.data_source || "default" }}
+              </div>
               <time :datetime="history.created_at">{{ formatDate(history.created_at) }}</time>
             </button>
           </div>
@@ -59,7 +67,9 @@
           <template v-else-if="selectedMigration">
             <header class="detail-header">
               <div class="detail-header__title">
-                <span class="detail-header__business">{{ selectedMigration.business || "数据库迁移" }}</span>
+                <span class="detail-header__data-source">
+                  {{ selectedMigration.module || "数据库迁移" }} · {{ selectedMigration.data_source || "default" }}
+                </span>
                 <div class="detail-header__version">
                   <h2>{{ selectedMigration.version }}</h2>
                   <el-tag :type="selectedMigration.is_success ? 'success' : 'danger'" effect="light">
@@ -185,6 +195,10 @@ defineOptions({
 interface MigrationFilters {
   /** 迁移版本号。 */
   version: string | undefined;
+  /** 迁移模块名称。 */
+  module: string | undefined;
+  /** 数据源名称。 */
+  data_source: string | undefined;
 }
 
 /** 数据库升级历史分页状态。 */
@@ -205,7 +219,9 @@ const selectedMigrationId = ref<number | null>(null);
 const selectedMigration = ref<BaseMigration | null>(null);
 const detailRequestToken = ref(0);
 const filters = reactive<MigrationFilters>({
-  version: undefined
+  version: undefined,
+  module: undefined,
+  data_source: undefined
 });
 const pageable = reactive<MigrationPageable>({
   page_num: 1,
@@ -229,9 +245,10 @@ async function loadMigrationHistory() {
   loading.value = true;
   try {
     const params: PageBaseMigrationRequest = {
-      business: "",
+      data_source: filters.data_source ?? "",
       version: filters.version,
       is_success: undefined,
+      module: filters.module,
       page_num: pageable.page_num,
       page_size: pageable.page_size
     };
@@ -285,6 +302,8 @@ function handleSearch() {
  */
 function handleReset() {
   filters.version = undefined;
+  filters.module = undefined;
+  filters.data_source = undefined;
   handleSearch();
 }
 
@@ -455,7 +474,7 @@ onMounted(() => {
   white-space: nowrap;
 }
 
-.migration-list-item__business {
+.migration-list-item__data-source {
   margin-top: 8px;
   overflow: hidden;
   font-size: 13px;
@@ -512,7 +531,7 @@ onMounted(() => {
   min-width: 0;
 }
 
-.detail-header__business {
+.detail-header__data-source {
   display: block;
   overflow: hidden;
   font-size: 12px;

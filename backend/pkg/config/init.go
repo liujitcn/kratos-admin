@@ -10,7 +10,6 @@ var ProviderSet = wire.NewSet(
 	ParseAIModel,
 	ParseOSS,
 	ParseData,
-	ParseDatabase,
 	NewDatabaseClient,
 	ParseRedis,
 	ParseQueue,

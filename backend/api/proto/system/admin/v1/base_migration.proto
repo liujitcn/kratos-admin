@@ -20,11 +20,13 @@ service BaseMigrationService {
 
 // 数据库迁移记录分页查询条件
 message PageBaseMigrationRequest {
-  string business = 1 [(gnostic.openapi.v3.property) = {description: "迁移业务"}]; // 迁移业务
+  string data_source = 1 [(gnostic.openapi.v3.property) = {description: "数据源"}]; // 数据源
 
   optional string version = 2 [(gnostic.openapi.v3.property) = {description: "迁移版本"}]; // 迁移版本
 
   optional bool is_success = 3 [(gnostic.openapi.v3.property) = {description: "是否执行成功"}]; // 是否执行成功
+
+  optional string module = 4 [(gnostic.openapi.v3.property) = {description: "迁移模块"}]; // 迁移模块
 
   int64 page_num = 101 [(gnostic.openapi.v3.property) = {
     description: "当前页码"
@@ -41,13 +43,15 @@ message PageBaseMigrationRequest {
 message BaseMigrationListItem {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键"}]; // 主键
 
-  string business = 2 [(gnostic.openapi.v3.property) = {description: "迁移业务"}]; // 迁移业务
+  string data_source = 2 [(gnostic.openapi.v3.property) = {description: "数据源"}]; // 数据源
 
   string version = 3 [(gnostic.openapi.v3.property) = {description: "迁移版本"}]; // 迁移版本
 
   string created_at = 4 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
 
   bool is_success = 5 [(gnostic.openapi.v3.property) = {description: "是否执行成功"}]; // 是否执行成功
+
+  string module = 6 [(gnostic.openapi.v3.property) = {description: "迁移模块"}]; // 迁移模块
 }
 
 // 数据库迁移记录分页响应
@@ -66,7 +70,7 @@ message GetBaseMigrationRequest {
 message BaseMigration {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键"}]; // 主键
 
-  string business = 2 [(gnostic.openapi.v3.property) = {description: "迁移业务"}]; // 迁移业务
+  string data_source = 2 [(gnostic.openapi.v3.property) = {description: "数据源"}]; // 数据源
 
   string version = 3 [(gnostic.openapi.v3.property) = {description: "迁移版本"}]; // 迁移版本
 
@@ -79,4 +83,6 @@ message BaseMigration {
   string created_at = 7 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
 
   bool is_success = 8 [(gnostic.openapi.v3.property) = {description: "是否执行成功"}]; // 是否执行成功
+
+  string module = 9 [(gnostic.openapi.v3.property) = {description: "迁移模块"}]; // 迁移模块
 }

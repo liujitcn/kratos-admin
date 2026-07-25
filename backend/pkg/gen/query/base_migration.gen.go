@@ -28,7 +28,8 @@ func newBaseMigration(db *gorm.DB, opts ...gen.DOOption) baseMigration {
 	tableName := _baseMigration.baseMigrationDo.TableName()
 	_baseMigration.ALL = field.NewAsterisk(tableName)
 	_baseMigration.ID = field.NewInt64(tableName, "id")
-	_baseMigration.Business = field.NewString(tableName, "business")
+	_baseMigration.Module = field.NewString(tableName, "module")
+	_baseMigration.DataSource = field.NewString(tableName, "data_source")
 	_baseMigration.Version = field.NewString(tableName, "version")
 	_baseMigration.UpSql = field.NewString(tableName, "up_sql")
 	_baseMigration.DownSql = field.NewString(tableName, "down_sql")
@@ -47,7 +48,8 @@ type baseMigration struct {
 
 	ALL         field.Asterisk
 	ID          field.Int64  // 主键ID
-	Business    field.String // 迁移业务
+	Module      field.String // 迁移模块
+	DataSource  field.String // 数据源
 	Version     field.String // 迁移版本
 	UpSql       field.String // 升级脚本
 	DownSql     field.String // 回退脚本
@@ -71,7 +73,8 @@ func (b baseMigration) As(alias string) *baseMigration {
 func (b *baseMigration) updateTableName(table string) *baseMigration {
 	b.ALL = field.NewAsterisk(table)
 	b.ID = field.NewInt64(table, "id")
-	b.Business = field.NewString(table, "business")
+	b.Module = field.NewString(table, "module")
+	b.DataSource = field.NewString(table, "data_source")
 	b.Version = field.NewString(table, "version")
 	b.UpSql = field.NewString(table, "up_sql")
 	b.DownSql = field.NewString(table, "down_sql")
@@ -106,9 +109,10 @@ func (b *baseMigration) GetFieldByName(fieldName string) (field.OrderExpr, bool)
 }
 
 func (b *baseMigration) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 8)
+	b.fieldMap = make(map[string]field.Expr, 9)
 	b.fieldMap["id"] = b.ID
-	b.fieldMap["business"] = b.Business
+	b.fieldMap["module"] = b.Module
+	b.fieldMap["data_source"] = b.DataSource
 	b.fieldMap["version"] = b.Version
 	b.fieldMap["up_sql"] = b.UpSql
 	b.fieldMap["down_sql"] = b.DownSql

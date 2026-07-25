@@ -92,7 +92,6 @@ func (c *BaseLogCase) GetBaseLog(ctx context.Context, id int64) (*systemadminv1.
 func (c *BaseLogCase) toBaseLog(item *models.BaseLog) *systemadminv1.BaseLog {
 	costTime := time.Duration(item.CostTime) * time.Millisecond
 	baseLog := c.mapper.ToDTO(item)
-	baseLog.RequestTime = _time.TimeToTimeString(item.RequestTime)
 	baseLog.CostTime = costTime.String()
 	return baseLog
 }

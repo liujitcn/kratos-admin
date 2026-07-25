@@ -30,24 +30,49 @@ backend
 root:112233@tcp(127.0.0.1:3306)/kratos_admin?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms
 ```
 
+多数据源配置使用 `data.databases`，名称必须与迁移版本目录下的一级子目录一致：
+
+```yaml
+data:
+  databases:
+    default:
+      driver: mysql
+      source: root:112233@tcp(127.0.0.1:3306)/kratos_admin
+      enable_migrate: true
+    shop:
+      driver: mysql
+      source: root:112233@tcp(127.0.0.1:3306)/shop
+      enable_migrate: true
+```
+
 初始化数据库（仅需创建库，服务启动会由 GORM 自动建表并执行内置迁移）：
 
 ```sql
 CREATE DATABASE kratos_admin CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-迁移资源位于 `migration/assets/mysql`，最外层只放版本目录，例如
-`v0.0.1`。每个版本目录必须包含同一功能名的 `<feature>.up.sql` 和
-`<feature>.description.md`：前者记录本次升级的 SQL，后者记录本次升级内容。
-所有模块统一使用默认数据库的 `base_migration` 保存执行版本，并通过
-`business` 字段区分模块；服务启动时先完成 GORM 建表，再在对应数据源执行基础数据和
-地区数据迁移，不需要手动导入 SQL。迁移记录模型由 admin 启动入口注册到 GORM；默认数据库配置为 `enable_migrate: true` 时
-由 GORM 建表并执行默认库迁移，未配置或为 `false` 时自动建表和迁移脚本都会跳过。
+迁移资源位于 `migration/assets/mysql`，最外层只放版本目录，例如 `v0.0.1`。
+版本目录下的直系文件属于 `default` 数据源；一级子目录名表示目标数据源：
+
+```text
+v0.0.1/
+  default_data.description.md
+  default_data.up.sql
+  shop/
+    shop.description.md
+    shop.up.sql
+```
+
+服务启动时先完成各数据源 GORM Client 初始化，再按目录数据源执行迁移。所有模块统一
+使用默认数据库的 `base_migration` 保存执行版本，`module` 区分迁移模块，`data_source`
+区分目标数据源；同一版本的 `default` 和 `shop` 会产生两条记录。
+迁移记录模型由 admin 启动入口注册到 GORM；默认数据库配置为 `enable_migrate: true`
+时由 GORM 建表并执行迁移，未配置或为 `false` 时自动建表和迁移脚本都会跳过。
 
 接入项目直接使用 `github.com/liujitcn/kratos-kit/database/gorm/migration` 注册
-自己的 contributor。每个 contributor 可声明独立目标数据源和对基础模块的依赖，
-迁移执行器会在统一版本表中按 `business` 区分记录；不依赖 kratos-admin 的项目也可以
-直接复用这套能力。
+自己的 contributor。每个 contributor 可声明对基础模块的依赖；数据源客户端通过
+`data.databases` 的名称注入，迁移执行器会按资源目录自动查找并执行。不依赖
+kratos-admin 的项目也可以直接复用这套能力。
 
 ## 常用命令
 

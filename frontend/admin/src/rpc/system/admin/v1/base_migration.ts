@@ -8,8 +8,8 @@
 
 /** 数据库迁移记录分页查询条件 */
 export interface PageBaseMigrationRequest {
-  /** 迁移业务 */
-  business: string;
+  /** 数据源 */
+  data_source: string;
   /** 迁移版本 */
   version?:
     | string
@@ -17,6 +17,10 @@ export interface PageBaseMigrationRequest {
   /** 是否执行成功 */
   is_success?:
     | boolean
+    | undefined;
+  /** 迁移模块 */
+  module?:
+    | string
     | undefined;
   /** 当前页码 */
   page_num: number;
@@ -28,14 +32,16 @@ export interface PageBaseMigrationRequest {
 export interface BaseMigrationListItem {
   /** 主键 */
   id: number;
-  /** 迁移业务 */
-  business: string;
+  /** 数据源 */
+  data_source: string;
   /** 迁移版本 */
   version: string;
   /** 创建时间 */
   created_at: string;
   /** 是否执行成功 */
   is_success: boolean;
+  /** 迁移模块 */
+  module: string;
 }
 
 /** 数据库迁移记录分页响应 */
@@ -56,8 +62,8 @@ export interface GetBaseMigrationRequest {
 export interface BaseMigration {
   /** 主键 */
   id: number;
-  /** 迁移业务 */
-  business: string;
+  /** 数据源 */
+  data_source: string;
   /** 迁移版本 */
   version: string;
   /** 升级脚本 */
@@ -70,6 +76,8 @@ export interface BaseMigration {
   created_at: string;
   /** 是否执行成功 */
   is_success: boolean;
+  /** 迁移模块 */
+  module: string;
 }
 
 /** 数据库迁移服务 */
