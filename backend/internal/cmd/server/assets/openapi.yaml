@@ -128,7 +128,7 @@ paths:
             description: 分页查询数据库升级历史
             operationId: BaseMigrationService_PageBaseMigration
             parameters:
-                - name: business
+                - name: data_source
                   in: query
                   schema:
                     type: string
@@ -140,6 +140,10 @@ paths:
                   in: query
                   schema:
                     type: boolean
+                - name: module
+                  in: query
+                  schema:
+                    type: string
                 - name: page_num
                   in: query
                   schema:
@@ -4950,9 +4954,9 @@ components:
                 id:
                     type: string
                     description: 主键
-                business:
+                data_source:
                     type: string
-                    description: 迁移业务
+                    description: 数据源
                 version:
                     type: string
                     description: 迁移版本
@@ -4971,6 +4975,9 @@ components:
                 is_success:
                     type: boolean
                     description: 是否执行成功
+                module:
+                    type: string
+                    description: 迁移模块
             description: 数据库迁移记录详情
         system.admin.v1.BaseMigrationListItem:
             type: object
@@ -4978,9 +4985,9 @@ components:
                 id:
                     type: string
                     description: 主键
-                business:
+                data_source:
                     type: string
-                    description: 迁移业务
+                    description: 数据源
                 version:
                     type: string
                     description: 迁移版本
@@ -4990,6 +4997,9 @@ components:
                 is_success:
                     type: boolean
                     description: 是否执行成功
+                module:
+                    type: string
+                    description: 迁移模块
             description: 数据库迁移记录列表项
         system.admin.v1.BasePost:
             type: object

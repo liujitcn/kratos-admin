@@ -2,7 +2,10 @@ package config
 
 import (
 	"context"
+	"fmt"
+	"sort"
 
+	adminmigration "github.com/liujitcn/kratos-admin/backend/migration"
 	"github.com/liujitcn/kratos-admin/backend/pkg/errorsx"
 
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
@@ -46,32 +49,102 @@ func ParseData(ctx *bootstrap.Context) (*bootstrapConfigv1.Data, error) {
 	return cfg.GetData(), nil
 }
 
-// ParseDatabase 解析数据库配置。
+// ParseDatabase 解析默认数据库配置，兼容单库和命名多数据源配置。
 func ParseDatabase(cfg *bootstrapConfigv1.Data) *bootstrapConfigv1.Data_Database {
-	return cfg.GetDatabase()
+	if cfg == nil {
+		return nil
+	}
+	if database := cfg.GetDatabase(); database != nil {
+		return database
+	}
+	return cfg.GetDatabases()[gormmigration.DefaultTarget]
 }
 
-// NewDatabaseClient 创建基础数据库客户端并执行基础模块迁移。
+// NewDatabaseClient 创建全部数据库客户端并执行基础模块迁移。
 func NewDatabaseClient(
-	cfg *bootstrapConfigv1.Data_Database,
+	cfg *bootstrapConfigv1.Data,
 	options []databaseGorm.ClientOption,
 	runner *gormmigration.Runner,
 ) (*databaseGorm.Client, func(), error) {
-	client, cleanup, err := databaseGorm.NewGormClient(cfg, options...)
+	configs, err := parseDatabaseConfigs(cfg)
 	if err != nil {
 		return nil, nil, err
 	}
-	err = runner.SetClient(client)
-	if err != nil {
+	names := make([]string, 0, len(configs))
+	for name := range configs {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	clients := make(map[string]*databaseGorm.Client, len(configs))
+	cleanups := make([]func(), 0, len(configs))
+	cleanup := func() {
+		for index := len(cleanups) - 1; index >= 0; index-- {
+			cleanups[index]()
+		}
+	}
+	for _, name := range names {
+		clientOptions := append([]databaseGorm.ClientOption(nil), options...)
+		clientOptions = append(clientOptions, databaseGorm.WithName(name))
+		if name != gormmigration.DefaultTarget {
+			// 非默认客户端由版本化脚本管理表结构，避免把管理后台模型自动建到业务库。
+			clientOptions = append(clientOptions, databaseGorm.WithMigrateModels())
+		}
+		var client *databaseGorm.Client
+		var clientCleanup func()
+		client, clientCleanup, err = databaseGorm.NewGormClient(configs[name], clientOptions...)
+		if err != nil {
+			if clientCleanup != nil {
+				clientCleanup()
+			}
+			cleanup()
+			return nil, nil, err
+		}
+		cleanups = append(cleanups, clientCleanup)
+		err = runner.SetClient(client)
+		if err != nil {
+			cleanup()
+			return nil, nil, err
+		}
+		clients[name] = client
+	}
+	client, exists := clients[gormmigration.DefaultTarget]
+	if !exists {
 		cleanup()
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("默认数据库客户端未配置")
 	}
-	err = runner.Run(context.Background(), "kratos-admin", client)
+	err = runner.Run(context.Background(), adminmigration.ModuleName)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
 	return client, cleanup, nil
+}
+
+// parseDatabaseConfigs 合并兼容的单库配置和命名多数据源配置。
+func parseDatabaseConfigs(cfg *bootstrapConfigv1.Data) (map[string]*bootstrapConfigv1.Data_Database, error) {
+	if cfg == nil {
+		return nil, errorsx.Internal("数据源配置缺失")
+	}
+	configs := make(map[string]*bootstrapConfigv1.Data_Database, len(cfg.GetDatabases())+1)
+	for name, database := range cfg.GetDatabases() {
+		if name == "" {
+			return nil, errorsx.Internal("数据库名称不能为空")
+		}
+		if database == nil {
+			return nil, errorsx.Internal(fmt.Sprintf("数据库配置不能为空: %s", name))
+		}
+		configs[name] = database
+	}
+	if database := cfg.GetDatabase(); database != nil {
+		if _, exists := configs[gormmigration.DefaultTarget]; exists {
+			return nil, errorsx.Internal("默认数据库配置重复")
+		}
+		configs[gormmigration.DefaultTarget] = database
+	}
+	if len(configs) == 0 {
+		return nil, errorsx.Internal("数据库配置缺失")
+	}
+	return configs, nil
 }
 
 // ParseQueue 解析队列配置。

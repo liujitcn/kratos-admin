@@ -3,39 +3,33 @@ package biz
 import (
 	"context"
 
-	"github.com/liujitcn/go-utils/time"
+	"github.com/liujitcn/go-utils/mapper"
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/pkg/biz"
 	"github.com/liujitcn/kratos-admin/backend/pkg/gen/data"
+	"github.com/liujitcn/kratos-admin/backend/pkg/gen/models"
 
 	"github.com/liujitcn/gorm-kit/repository"
+	gormmigration "github.com/liujitcn/kratos-kit/database/gorm/migration"
+	"gorm.io/gen/field"
 )
 
 // BaseMigrationCase 提供数据库升级历史查询业务。
 type BaseMigrationCase struct {
+	*biz.BaseCase
 	*data.BaseMigrationRepository
+	listMapper *mapper.CopierMapper[systemadminv1.BaseMigrationListItem, models.BaseMigration]
+	mapper *mapper.CopierMapper[systemadminv1.BaseMigration, models.BaseMigration]
 }
 
 // NewBaseMigrationCase 创建数据库升级历史查询业务实例。
-func NewBaseMigrationCase(baseMigrationRepository *data.BaseMigrationRepository) *BaseMigrationCase {
-	return &BaseMigrationCase{BaseMigrationRepository: baseMigrationRepository}
-}
-
-// LatestSuccessfulVersion 查询指定迁移业务最近一次成功执行的版本。
-func (c *BaseMigrationCase) LatestSuccessfulVersion(ctx context.Context, business string) (string, error) {
-	query := c.Query(ctx).BaseMigration
-	opts := make([]repository.QueryOption, 0, 4)
-	opts = append(opts, repository.Where(query.Business.Eq(business)))
-	opts = append(opts, repository.Where(query.IsSuccess.Is(true)))
-	opts = append(opts, repository.Order(query.ID.Desc()))
-	opts = append(opts, repository.Limit(1))
-	histories, err := c.List(ctx, opts...)
-	if err != nil {
-		return "", err
+func NewBaseMigrationCase(baseCase *biz.BaseCase, baseMigrationRepository *data.BaseMigrationRepository) *BaseMigrationCase {
+	return &BaseMigrationCase{
+		BaseCase:                baseCase,
+		BaseMigrationRepository: baseMigrationRepository,
+		listMapper:                  mapper.NewCopierMapper[systemadminv1.BaseMigrationListItem, models.BaseMigration](),
+		mapper:                  mapper.NewCopierMapper[systemadminv1.BaseMigration, models.BaseMigration](),
 	}
-	if len(histories) == 0 {
-		return "", nil
-	}
-	return histories[0].Version, nil
 }
 
 // PageBaseMigration 分页查询数据库升级历史。
@@ -44,9 +38,12 @@ func (c *BaseMigrationCase) PageBaseMigration(
 	req *systemadminv1.PageBaseMigrationRequest,
 ) (*systemadminv1.PageBaseMigrationResponse, error) {
 	query := c.Query(ctx).BaseMigration
-	opts := make([]repository.QueryOption, 0, 4)
-	if req.GetBusiness() != "" {
-		opts = append(opts, repository.Where(query.Business.Eq(req.GetBusiness())))
+	opts := make([]repository.QueryOption, 0, 5)
+	if req.GetDataSource() != "" {
+		opts = append(opts, repository.Where(query.DataSource.Eq(req.GetDataSource())))
+	}
+	if req.Module != nil && req.GetModule() != "" {
+		opts = append(opts, repository.Where(query.Module.Eq(req.GetModule())))
 	}
 	if req.Version != nil {
 		opts = append(opts, repository.Where(query.Version.Like("%"+req.GetVersion()+"%")))
@@ -70,13 +67,7 @@ func (c *BaseMigrationCase) PageBaseMigration(
 		Total:          int32(total),
 	}
 	for _, item := range histories {
-		res.BaseMigrations = append(res.BaseMigrations, &systemadminv1.BaseMigrationListItem{
-			Id:        item.ID,
-			Business:  item.Business,
-			Version:   item.Version,
-			CreatedAt: time.TimeToTimeString(item.CreatedAt),
-			IsSuccess: item.IsSuccess,
-		})
+		res.BaseMigrations = append(res.BaseMigrations, c.listMapper.ToDTO(item))
 	}
 	return res, nil
 }
@@ -87,14 +78,27 @@ func (c *BaseMigrationCase) GetBaseMigration(ctx context.Context, id int64) (*sy
 	if err != nil {
 		return nil, err
 	}
-	return &systemadminv1.BaseMigration{
-		Id:          item.ID,
-		Business:    item.Business,
-		Version:     item.Version,
-		UpSql:       item.UpSql,
-		DownSql:     item.DownSql,
-		Description: item.Description,
-		CreatedAt:   time.TimeToTimeString(item.CreatedAt),
-		IsSuccess:   item.IsSuccess,
-	}, nil
+	return c.mapper.ToDTO(item), nil
+}
+
+// LatestSuccessfulVersion 查询指定模块和数据源最近一次成功执行的版本。
+func (c *BaseMigrationCase) LatestSuccessfulVersion(ctx context.Context, module gormmigration.ModuleName, dataSource string) (string, error) {
+	query := c.Query(ctx).BaseMigration
+	opts := make([]repository.QueryOption, 0, 5)
+	opts = append(opts, repository.Where(field.Or(
+		query.Module.Eq(module.String()),
+		query.Module.Eq(""),
+	)))
+	opts = append(opts, repository.Where(query.DataSource.Eq(dataSource)))
+	opts = append(opts, repository.Where(query.IsSuccess.Is(true)))
+	opts = append(opts, repository.Order(query.ID.Desc()))
+	opts = append(opts, repository.Limit(1))
+	histories, err := c.List(ctx, opts...)
+	if err != nil {
+		return "", err
+	}
+	if len(histories) == 0 {
+		return "", nil
+	}
+	return histories[0].Version, nil
 }

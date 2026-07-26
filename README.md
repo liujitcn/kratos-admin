@@ -32,9 +32,10 @@
 5. 如需启动应用壳子，执行 `make -C frontend run-app`；业务应用通过 `@liujitcn/kratos-app` 注册自己的页面并调用公共启动入口。
 
 数据库迁移由 `backend/migration` 管理。所有模块统一将版本记录保存到默认数据库的
-`base_migration` 表，并通过 `business` 字段区分模块；SQL 仍在各自配置的数据源
-执行。`base_migration` 作为 GORM 注册模型由 admin 服务启动时自动创建；仅当默认数据库配置
-`enable_migrate: true` 时才会建表并执行默认库迁移，未配置或为 `false` 时两者都会跳过。
+`base_migration` 表，使用 `module` 区分迁移模块、`data_source` 区分目标数据源；SQL
+仍在各自配置的数据源执行。`data.database` 兼容单库配置，`data.databases` 可按名称
+创建多个 GORM 客户端。`base_migration` 作为 GORM 注册模型由 admin 服务启动时自动
+创建或更新；仅当默认数据库配置 `enable_migrate: true` 时才会建表并执行迁移。
 服务重启或多实例启动时只会执行未完成的增量版本。
 
 默认后台账号来自 admin 基础迁移（与 `backend/migration/assets/mysql/v0.0.1/default_data.up.sql` 内容一致）：

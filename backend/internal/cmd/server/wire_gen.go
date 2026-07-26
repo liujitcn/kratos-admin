@@ -52,7 +52,6 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	data_Database := config.ParseDatabase(configv1Data)
 	v := _wireValue
 	v2 := migration.NewMigrations()
 	registry, err := migration2.NewRegistry(v2)
@@ -63,7 +62,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	client, cleanup, err := config.NewDatabaseClient(data_Database, v, runner)
+	client, cleanup, err := config.NewDatabaseClient(configv1Data, v, runner)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -280,7 +279,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	codeGenProtoCase := biz3.NewCodeGenProtoCase(codeGenProtoRepository, transaction, baseAPIRepository, codeGenTableRepository, codeGenColumnCase)
 	codeGenTableCase := biz3.NewCodeGenTableCase(codeGenTableRepository, client, transaction, baseDictRepository, baseDictItemRepository, baseMenuCase, codeGenColumnCase, codeGenProtoCase)
 	baseMigrationRepository := data.NewBaseMigrationRepository(dataData)
-	baseMigrationCase := biz3.NewBaseMigrationCase(baseMigrationRepository)
+	baseMigrationCase := biz3.NewBaseMigrationCase(baseCase, baseMigrationRepository)
 	codeGenCase := biz3.NewCodeGenCase(baseCase, transaction, bizBaseAPICase, codeGenTableCase, codeGenColumnCase, codeGenProtoCase, baseMenuCase, baseMigrationCase, client, codegenManager)
 	codeGenService := admin.NewCodeGenService(codeGenCase)
 	codeGenColumnService := admin.NewCodeGenColumnService(codeGenColumnCase)

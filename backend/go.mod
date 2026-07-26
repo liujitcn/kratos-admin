@@ -2,8 +2,6 @@ module github.com/liujitcn/kratos-admin/backend
 
 go 1.26.0
 
-replace github.com/liujitcn/kratos-kit/database/gorm/migration => ../../kratos-kit/database/gorm/migration
-
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260415201107-50325440f8f2.1
 	buf.build/go/protovalidate v1.2.0
@@ -35,7 +33,7 @@ require (
 	github.com/liujitcn/kratos-kit/captcha v0.0.18
 	github.com/liujitcn/kratos-kit/database/gorm v0.0.33
 	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.13
-	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.5
+	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.6
 	github.com/liujitcn/kratos-kit/logger/zap v0.0.13
 	github.com/liujitcn/kratos-kit/oauth v0.0.7
 	github.com/liujitcn/kratos-kit/oss v0.0.13

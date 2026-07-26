@@ -423,6 +423,8 @@ github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.15 h1:ZXuwOMIhdOOCzY+Ab
 github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.15/go.mod h1:GGWGxWX9LOe21vpZ8zlsM2fZ0BSrveIE2oqMMvzXQaI=
 github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.13 h1:Ta4bxekfNJ0L8iagIfxo3HKKOOngVv6Jx0IR0fYjeJo=
 github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.13/go.mod h1:djQGKWt841uBXqKzNWSDEUcGxWbkZIG5MP4o9wM/ubg=
+github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.6 h1:YXE5T6i1bwze1G8WGsB4n4WHphYUl7KH7xL/vxwZI38=
+github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.6/go.mod h1:4MsKFZGzgKv1eVdDUi41Qjx1XpVz4FWSSj/cmlD/vS8=
 github.com/liujitcn/kratos-kit/locker v0.0.12 h1:aZh1sNNfgVRqc6qw5RvNYgaeU3G0Xm9WhAkFEOfBiZE=
 github.com/liujitcn/kratos-kit/locker v0.0.12/go.mod h1:PqGJXvTLatZU7NwnogOiCMBEn8SS+tqP28IS/zeKpzs=
 github.com/liujitcn/kratos-kit/logger v0.0.26 h1:FllKQl3s2x1cmVi1HbWJsjt9n06V6R5RXJOeBFNqZQc=
