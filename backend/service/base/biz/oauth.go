@@ -368,8 +368,10 @@ func (c *OauthCase) findOrCreateWechatMiniUser(ctx context.Context, code string)
 
 // createWechatMiniUser 自动创建微信小程序用户并绑定三方账号。
 func (c *OauthCase) createWechatMiniUser(ctx context.Context, openID string) (*models.BaseUser, error) {
+	userCode := id.NewXID()
 	user := &models.BaseUser{
-		UserName: id.NewXID(),
+		UserName: userCode,
+		UserCode: userCode,
 		RoleID:   5,
 		DeptID:   5,
 		Phone:    "",

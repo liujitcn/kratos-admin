@@ -14,10 +14,6 @@ export interface PageBaseMigrationRequest {
   version?:
     | string
     | undefined;
-  /** 是否执行成功 */
-  is_success?:
-    | boolean
-    | undefined;
   /** 迁移模块 */
   module?:
     | string
@@ -38,8 +34,6 @@ export interface BaseMigrationListItem {
   version: string;
   /** 创建时间 */
   created_at: string;
-  /** 是否执行成功 */
-  is_success: boolean;
   /** 迁移模块 */
   module: string;
 }
@@ -74,8 +68,6 @@ export interface BaseMigration {
   description: string;
   /** 创建时间 */
   created_at: string;
-  /** 是否执行成功 */
-  is_success: boolean;
   /** 迁移模块 */
   module: string;
 }

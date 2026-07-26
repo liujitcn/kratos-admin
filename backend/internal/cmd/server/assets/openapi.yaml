@@ -136,10 +136,6 @@ paths:
                   in: query
                   schema:
                     type: string
-                - name: is_success
-                  in: query
-                  schema:
-                    type: boolean
                 - name: module
                   in: query
                   schema:
@@ -2014,6 +2010,10 @@ paths:
             description: 查询用户分页列表
             operationId: BaseUserService_PageBaseUser
             parameters:
+                - name: user_code
+                  in: query
+                  schema:
+                    type: string
                 - name: user_name
                   in: query
                   schema:
@@ -4972,9 +4972,6 @@ components:
                 created_at:
                     type: string
                     description: 创建时间
-                is_success:
-                    type: boolean
-                    description: 是否执行成功
                 module:
                     type: string
                     description: 迁移模块
@@ -4994,9 +4991,6 @@ components:
                 created_at:
                     type: string
                     description: 创建时间
-                is_success:
-                    type: boolean
-                    description: 是否执行成功
                 module:
                     type: string
                     description: 迁移模块
@@ -5243,6 +5237,9 @@ components:
                 user_name:
                     type: string
                     description: 用户账号
+                user_code:
+                    type: string
+                    description: 用户编号
                 nick_name:
                     type: string
                     description: 用户昵称
@@ -5303,6 +5300,9 @@ components:
                 user_name:
                     type: string
                     description: 用户账号
+                user_code:
+                    type: string
+                    description: 用户编号
                 nick_name:
                     type: string
                     description: 用户昵称

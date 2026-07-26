@@ -25,7 +25,7 @@ type CodeGenProto struct {
 	UpdatedBy           int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新人ID" json:"updated_by"`                                                            // 更新人ID
 	CreatedAt           time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                           // 创建时间
 	UpdatedAt           time.Time             `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                                           // 更新时间
-	DeletedAt           soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;softDelete:milli" json:"deleted_at"`
+	DeletedAt           soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;comment:删除时间;softDelete:milli" json:"deleted_at"`                                   // 删除时间
 }
 
 // TableName CodeGenProto's table name

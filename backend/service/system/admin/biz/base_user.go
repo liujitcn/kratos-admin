@@ -145,6 +145,10 @@ func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *systemadminv1.Page
 	if req.GetUserName() != "" {
 		opts = append(opts, repository.Where(query.UserName.Like("%"+req.GetUserName()+"%")))
 	}
+	// 传入用户编号关键字时，按用户编号模糊匹配。
+	if req.GetUserCode() != "" {
+		opts = append(opts, repository.Where(query.UserCode.Like("%"+req.GetUserCode()+"%")))
+	}
 	// 传入昵称关键字时，按昵称模糊匹配。
 	if req.GetNickName() != "" {
 		opts = append(opts, repository.Where(query.NickName.Like("%"+req.GetNickName()+"%")))
@@ -261,9 +265,9 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *systemadminv1.Ba
 	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		err = c.Create(ctx, baseUser)
 		if err != nil {
-			// 命中用户账号唯一索引冲突时，返回稳定的业务冲突错误。
+			// 命中用户账号或用户编号唯一索引冲突时，返回稳定的业务冲突错误。
 			if errorsx.IsMySQLDuplicateKey(err) {
-				return errorsx.UniqueConflict("同一租户的用户账号重复", "base_user", "", "unique_base_user").WithCause(err)
+				return errorsx.UniqueConflict("同一租户的用户账号或用户编号重复", "base_user", "", "unique_base_user").WithCause(err)
 			}
 			return err
 		}
@@ -290,6 +294,10 @@ func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *systemadminv1.Ba
 	// 用户账号作为稳定登录标识，创建后不允许通过编辑接口修改。
 	if req.GetUserName() != oldBaseUser.UserName {
 		return errorsx.ProtectedResourceConflict("更新用户失败，用户账号不能修改", "base_user")
+	}
+	// 用户编号作为稳定用户标识，创建后不允许通过编辑接口修改。
+	if req.GetUserCode() != oldBaseUser.UserCode {
+		return errorsx.ProtectedResourceConflict("更新用户失败，用户编号不能修改", "base_user")
 	}
 	var newBaseRole *models.BaseRole
 	newBaseRole, err = c.baseRoleCase.FindByID(ctx, req.GetRoleId())
@@ -319,12 +327,13 @@ func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *systemadminv1.Ba
 	baseUser.Password = oldBaseUser.Password
 	baseUser.TenantID = oldBaseUser.TenantID
 	baseUser.UserName = oldBaseUser.UserName
+	baseUser.UserCode = oldBaseUser.UserCode
 	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		err = c.UpdateByID(ctx, baseUser)
 		if err != nil {
-			// 命中用户账号唯一索引冲突时，返回稳定的业务冲突错误。
+			// 命中用户账号或用户编号唯一索引冲突时，返回稳定的业务冲突错误。
 			if errorsx.IsMySQLDuplicateKey(err) {
-				return errorsx.UniqueConflict("同一租户的用户账号重复", "base_user", "", "unique_base_user").WithCause(err)
+				return errorsx.UniqueConflict("同一租户的用户账号或用户编号重复", "base_user", "", "unique_base_user").WithCause(err)
 			}
 			return err
 		}

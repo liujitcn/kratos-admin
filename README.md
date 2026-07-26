@@ -36,7 +36,8 @@
 仍在各自配置的数据源执行。`data.database` 兼容单库配置，`data.databases` 可按名称
 创建多个 GORM 客户端。`base_migration` 作为 GORM 注册模型由 admin 服务启动时自动
 创建或更新；仅当默认数据库配置 `enable_migrate: true` 时才会建表并执行迁移。
-服务重启或多实例启动时只会执行未完成的增量版本。
+版本记录只在全部升级脚本成功后写入；脚本失败会回滚当前版本、输出错误并阻止服务启动，
+修复脚本后重启会重新执行未记录的增量版本。
 
 默认后台账号来自 admin 基础迁移（与 `backend/migration/assets/mysql/v0.0.1/default_data.up.sql` 内容一致）：
 

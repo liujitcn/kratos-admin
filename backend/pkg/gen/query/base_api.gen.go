@@ -61,7 +61,7 @@ type baseAPI struct {
 	Path        field.String // 请求地址
 	McpStatus   field.Int32  // MCP工具状态：枚举【Status】
 	AgentStatus field.Int32  // Agent工具状态：枚举【Status】
-	DeletedAt   field.Field
+	DeletedAt   field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }

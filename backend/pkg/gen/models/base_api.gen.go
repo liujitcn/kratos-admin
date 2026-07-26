@@ -23,7 +23,7 @@ type BaseAPI struct {
 	Path        string                `gorm:"column:path;type:varchar(512);not null;comment:请求地址" json:"path"`                                                                       // 请求地址
 	McpStatus   int32                 `gorm:"column:mcp_status;type:tinyint;not null;index:idx_base_api_mcp_status,priority:1;comment:MCP工具状态：枚举【Status】" json:"mcp_status"`         // MCP工具状态：枚举【Status】
 	AgentStatus int32                 `gorm:"column:agent_status;type:tinyint;not null;index:idx_base_api_agent_status,priority:1;comment:Agent工具状态：枚举【Status】" json:"agent_status"` // Agent工具状态：枚举【Status】
-	DeletedAt   soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;softDelete:milli" json:"deleted_at"`
+	DeletedAt   soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;comment:删除时间;softDelete:milli" json:"deleted_at"`                                       // 删除时间
 }
 
 // TableName BaseAPI's table name

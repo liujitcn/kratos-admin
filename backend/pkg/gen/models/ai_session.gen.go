@@ -21,7 +21,7 @@ type AiSession struct {
 	Summary   string                `gorm:"column:summary;type:varchar(255);not null;comment:会话摘要" json:"summary"`                                                                       // 会话摘要
 	CreatedAt time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                                     // 创建时间
 	UpdatedAt time.Time             `gorm:"column:updated_at;type:datetime;not null;index:idx_ai_session_user_id_terminal_updated_at,priority:3;comment:更新时间" json:"updated_at"`         // 更新时间
-	DeletedAt soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;softDelete:milli" json:"deleted_at"`
+	DeletedAt soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;comment:删除时间;softDelete:milli" json:"deleted_at"`                                             // 删除时间
 }
 
 // TableName AiSession's table name

@@ -61,7 +61,7 @@ type baseTenant struct {
 	UpdatedBy    field.Int64  // 更新者ID
 	CreatedAt    field.Time   // 创建时间
 	UpdatedAt    field.Time   // 更新时间
-	DeletedAt    field.Field
+	DeletedAt    field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }

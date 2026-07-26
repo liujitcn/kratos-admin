@@ -21,6 +21,8 @@ export interface OptionBaseUserRequest {
 
 /** 用户分页查询条件 */
 export interface PageBaseUserRequest {
+  /** 用户编号 */
+  user_code: string;
   /** 用户账号 */
   user_name: string;
   /** 用户昵称 */
@@ -97,6 +99,8 @@ export interface BaseUser {
   tenant_id: number;
   /** 用户账号 */
   user_name: string;
+  /** 用户编号 */
+  user_code: string;
   /** 用户昵称 */
   nick_name: string;
   /** 角色ID */
@@ -131,6 +135,8 @@ export interface BaseUserForm {
   tenant_id: number;
   /** 用户账号 */
   user_name: string;
+  /** 用户编号 */
+  user_code: string;
   /** 用户昵称 */
   nick_name: string;
   /** 角色ID */

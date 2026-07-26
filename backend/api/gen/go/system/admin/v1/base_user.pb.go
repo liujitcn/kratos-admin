@@ -84,6 +84,7 @@ func (x *OptionBaseUserRequest) GetTenantId() int64 {
 // 用户分页查询条件
 type PageBaseUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserCode      string                 `protobuf:"bytes,1,opt,name=user_code,json=userCode,proto3" json:"user_code,omitempty"`                         // 用户编号
 	UserName      string                 `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                         // 用户账号
 	NickName      string                 `protobuf:"bytes,3,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                         // 用户昵称
 	TenantId      *int64                 `protobuf:"varint,4,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                  // 租户ID
@@ -125,6 +126,13 @@ func (x *PageBaseUserRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use PageBaseUserRequest.ProtoReflect.Descriptor instead.
 func (*PageBaseUserRequest) Descriptor() ([]byte, []int) {
 	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *PageBaseUserRequest) GetUserCode() string {
+	if x != nil {
+		return x.UserCode
+	}
+	return ""
 }
 
 func (x *PageBaseUserRequest) GetUserName() string {
@@ -482,6 +490,7 @@ type BaseUser struct {
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                              // 用户ID
 	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                  // 租户ID
 	UserName      string                 `protobuf:"bytes,3,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                   // 用户账号
+	UserCode      string                 `protobuf:"bytes,11,opt,name=user_code,json=userCode,proto3" json:"user_code,omitempty"`                  // 用户编号
 	NickName      string                 `protobuf:"bytes,4,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                   // 用户昵称
 	RoleId        int64                  `protobuf:"varint,5,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`                        // 角色ID
 	DeptId        int64                  `protobuf:"varint,6,opt,name=dept_id,json=deptId,proto3" json:"dept_id,omitempty"`                        // 部门ID
@@ -545,6 +554,13 @@ func (x *BaseUser) GetTenantId() int64 {
 func (x *BaseUser) GetUserName() string {
 	if x != nil {
 		return x.UserName
+	}
+	return ""
+}
+
+func (x *BaseUser) GetUserCode() string {
+	if x != nil {
+		return x.UserCode
 	}
 	return ""
 }
@@ -639,6 +655,7 @@ type BaseUserForm struct {
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                              // 用户ID
 	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                  // 租户ID
 	UserName      string                 `protobuf:"bytes,3,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                   // 用户账号
+	UserCode      string                 `protobuf:"bytes,12,opt,name=user_code,json=userCode,proto3" json:"user_code,omitempty"`                  // 用户编号
 	NickName      string                 `protobuf:"bytes,4,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                   // 用户昵称
 	RoleId        int64                  `protobuf:"varint,5,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`                        // 角色ID
 	DeptId        int64                  `protobuf:"varint,6,opt,name=dept_id,json=deptId,proto3" json:"dept_id,omitempty"`                        // 部门ID
@@ -700,6 +717,13 @@ func (x *BaseUserForm) GetTenantId() int64 {
 func (x *BaseUserForm) GetUserName() string {
 	if x != nil {
 		return x.UserName
+	}
+	return ""
+}
+
+func (x *BaseUserForm) GetUserCode() string {
+	if x != nil {
+		return x.UserCode
 	}
 	return ""
 }
@@ -836,8 +860,9 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\akeyword\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t关键字R\akeyword\x120\n" +
 	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01B\f\n" +
 	"\n" +
-	"_tenant_id\"\xb7\x04\n" +
+	"_tenant_id\"\xe8\x04\n" +
 	"\x13PageBaseUserRequest\x12/\n" +
+	"\tuser_code\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\buserCode\x12/\n" +
 	"\tuser_name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x12/\n" +
 	"\tnick_name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户昵称R\bnickName\x120\n" +
 	"\ttenant_id\x18\x04 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12,\n" +
@@ -872,12 +897,13 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\x18SetBaseUserStatusRequest\x12f\n" +
 	"\x02id\x18\x01 \x01(\x03BV\xbaG\v\x92\x02\b用户ID\xbaHE\xba\x01B\n" +
 	" set_base_user_status.id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x02id\x12$\n" +
-	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xb5\x06\n" +
+	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xe6\x06\n" +
 	"\bBaseUser\x12j\n" +
 	"\x02id\x18\x01 \x01(\x03BZ\xbaG\v\x92\x02\b用户ID\xbaHI\xba\x01F\n" +
 	"$reset_base_user_password.id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x02id\x12+\n" +
 	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12/\n" +
 	"\tuser_name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x12/\n" +
+	"\tuser_code\x18\v \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\buserCode\x12/\n" +
 	"\tnick_name\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户昵称R\bnickName\x12'\n" +
 	"\arole_id\x18\x05 \x01(\x03B\x0e\xbaG\v\x92\x02\b角色IDR\x06roleId\x12'\n" +
 	"\adept_id\x18\x06 \x01(\x03B\x0e\xbaG\v\x92\x02\b部门IDR\x06deptId\x12'\n" +
@@ -892,13 +918,15 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12N\n" +
-	"\fis_protected\x18\xac\x02 \x01(\bB*\xbaG'\x92\x02$是否禁止通过用户管理操作R\visProtected\"\xe8\v\n" +
+	"\fis_protected\x18\xac\x02 \x01(\bB*\xbaG'\x92\x02$是否禁止通过用户管理操作R\visProtected\"\x96\r\n" +
 	"\fBaseUserForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x12s\n" +
 	"\ttenant_id\x18\x02 \x01(\x03BV\xbaG\v\x92\x02\b租户ID\xbaHE\xba\x01B\n" +
 	"\x1cbase_user.tenant_id.required\x12\x18所属租户不能为空\x1a\bthis > 0R\btenantId\x12\xab\x01\n" +
 	"\tuser_name\x18\x03 \x01(\tB\x8d\x01\xbaG\x0f\x92\x02\f用户账号\xbaHx\xba\x01u\n" +
-	"\x1abase_user.user_name.length\x121用户账号不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\buserName\x12\xda\x01\n" +
+	"\x1abase_user.user_name.length\x121用户账号不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\buserName\x12\xab\x01\n" +
+	"\tuser_code\x18\f \x01(\tB\x8d\x01\xbaG\x0f\x92\x02\f用户编号\xbaHx\xba\x01u\n" +
+	"\x1abase_user.user_code.length\x121用户编号不能为空且不超过 30 个字符\x1a$this.size() > 0 && this.size() <= 30R\buserCode\x12\xda\x01\n" +
 	"\tnick_name\x18\x04 \x01(\tB\xbc\x01\xbaG\x0f\x92\x02\f用户昵称\xbaH\xa6\x01\xba\x01I\n" +
 	"\x1cbase_user.nick_name.required\x12\x18用户昵称不能为空\x1a\x0fthis.size() > 0\xba\x01W\n" +
 	"\x1bbase_user.nick_name.max_len\x12%用户昵称不能超过 30 个字符\x1a\x11this.size() <= 30R\bnickName\x12g\n" +

@@ -27,12 +27,11 @@ const (
 // 数据库迁移记录分页查询条件
 type PageBaseMigrationRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	DataSource    string                 `protobuf:"bytes,1,opt,name=data_source,json=dataSource,proto3" json:"data_source,omitempty"`     // 数据源
-	Version       *string                `protobuf:"bytes,2,opt,name=version,proto3,oneof" json:"version,omitempty"`                       // 迁移版本
-	IsSuccess     *bool                  `protobuf:"varint,3,opt,name=is_success,json=isSuccess,proto3,oneof" json:"is_success,omitempty"` // 是否执行成功
-	Module        *string                `protobuf:"bytes,4,opt,name=module,proto3,oneof" json:"module,omitempty"`                         // 迁移模块
-	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`           // 当前页码
-	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`        // 每一页的行数
+	DataSource    string                 `protobuf:"bytes,1,opt,name=data_source,json=dataSource,proto3" json:"data_source,omitempty"` // 数据源
+	Version       *string                `protobuf:"bytes,2,opt,name=version,proto3,oneof" json:"version,omitempty"`                   // 迁移版本
+	Module        *string                `protobuf:"bytes,4,opt,name=module,proto3,oneof" json:"module,omitempty"`                     // 迁移模块
+	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`       // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`    // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -81,13 +80,6 @@ func (x *PageBaseMigrationRequest) GetVersion() string {
 	return ""
 }
 
-func (x *PageBaseMigrationRequest) GetIsSuccess() bool {
-	if x != nil && x.IsSuccess != nil {
-		return *x.IsSuccess
-	}
-	return false
-}
-
 func (x *PageBaseMigrationRequest) GetModule() string {
 	if x != nil && x.Module != nil {
 		return *x.Module
@@ -116,7 +108,6 @@ type BaseMigrationListItem struct {
 	DataSource    string                 `protobuf:"bytes,2,opt,name=data_source,json=dataSource,proto3" json:"data_source,omitempty"` // 数据源
 	Version       string                 `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`                         // 迁移版本
 	CreatedAt     string                 `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`    // 创建时间
-	IsSuccess     bool                   `protobuf:"varint,5,opt,name=is_success,json=isSuccess,proto3" json:"is_success,omitempty"`   // 是否执行成功
 	Module        string                 `protobuf:"bytes,6,opt,name=module,proto3" json:"module,omitempty"`                           // 迁移模块
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -178,13 +169,6 @@ func (x *BaseMigrationListItem) GetCreatedAt() string {
 		return x.CreatedAt
 	}
 	return ""
-}
-
-func (x *BaseMigrationListItem) GetIsSuccess() bool {
-	if x != nil {
-		return x.IsSuccess
-	}
-	return false
 }
 
 func (x *BaseMigrationListItem) GetModule() string {
@@ -302,7 +286,6 @@ type BaseMigration struct {
 	DownSql       string                 `protobuf:"bytes,5,opt,name=down_sql,json=downSql,proto3" json:"down_sql,omitempty"`          // 回退脚本
 	Description   string                 `protobuf:"bytes,6,opt,name=description,proto3" json:"description,omitempty"`                 // 升级描述
 	CreatedAt     string                 `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`    // 创建时间
-	IsSuccess     bool                   `protobuf:"varint,8,opt,name=is_success,json=isSuccess,proto3" json:"is_success,omitempty"`   // 是否执行成功
 	Module        string                 `protobuf:"bytes,9,opt,name=module,proto3" json:"module,omitempty"`                           // 迁移模块
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -387,13 +370,6 @@ func (x *BaseMigration) GetCreatedAt() string {
 	return ""
 }
 
-func (x *BaseMigration) GetIsSuccess() bool {
-	if x != nil {
-		return x.IsSuccess
-	}
-	return false
-}
-
 func (x *BaseMigration) GetModule() string {
 	if x != nil {
 		return x.Module
@@ -405,35 +381,30 @@ var File_system_admin_v1_base_migration_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_migration_proto_rawDesc = "" +
 	"\n" +
-	"$system/admin/v1/base_migration.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\x92\x03\n" +
+	"$system/admin/v1/base_migration.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xcb\x02\n" +
 	"\x18PageBaseMigrationRequest\x120\n" +
 	"\vdata_source\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t数据源R\n" +
 	"dataSource\x121\n" +
-	"\aversion\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f迁移版本H\x00R\aversion\x88\x01\x01\x12<\n" +
-	"\n" +
-	"is_success\x18\x03 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否执行成功H\x01R\tisSuccess\x88\x01\x01\x12/\n" +
-	"\x06module\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f迁移模块H\x02R\x06module\x88\x01\x01\x129\n" +
+	"\aversion\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f迁移版本H\x00R\aversion\x88\x01\x01\x12/\n" +
+	"\x06module\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f迁移模块H\x01R\x06module\x88\x01\x01\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
 	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\n" +
 	"\n" +
-	"\b_versionB\r\n" +
-	"\v_is_successB\t\n" +
-	"\a_module\"\xad\x02\n" +
+	"\b_versionB\t\n" +
+	"\a_moduleJ\x04\b\x03\x10\x04\"\xfa\x01\n" +
 	"\x15BaseMigrationListItem\x12\x1c\n" +
 	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06主键R\x02id\x120\n" +
 	"\vdata_source\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t数据源R\n" +
 	"dataSource\x12,\n" +
 	"\aversion\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f迁移版本R\aversion\x121\n" +
 	"\n" +
-	"created_at\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x127\n" +
-	"\n" +
-	"is_success\x18\x05 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否执行成功R\tisSuccess\x12*\n" +
-	"\x06module\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f迁移模块R\x06module\"\xaa\x01\n" +
+	"created_at\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x12*\n" +
+	"\x06module\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f迁移模块R\x06moduleJ\x04\b\x05\x10\x06\"\xaa\x01\n" +
 	"\x19PageBaseMigrationResponse\x12i\n" +
 	"\x0fbase_migrations\x18\x01 \x03(\v2&.system.admin.v1.BaseMigrationListItemB\x18\xbaG\x15\x92\x02\x12迁移记录列表R\x0ebaseMigrations\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"7\n" +
 	"\x17GetBaseMigrationRequest\x12\x1c\n" +
-	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06主键R\x02id\"\xb5\x03\n" +
+	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06主键R\x02id\"\x82\x03\n" +
 	"\rBaseMigration\x12\x1c\n" +
 	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06主键R\x02id\x120\n" +
 	"\vdata_source\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t数据源R\n" +
@@ -443,10 +414,8 @@ const file_system_admin_v1_base_migration_proto_rawDesc = "" +
 	"\bdown_sql\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f回退脚本R\adownSql\x124\n" +
 	"\vdescription\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f升级描述R\vdescription\x121\n" +
 	"\n" +
-	"created_at\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x127\n" +
-	"\n" +
-	"is_success\x18\b \x01(\bB\x18\xbaG\x15\x92\x02\x12是否执行成功R\tisSuccess\x12*\n" +
-	"\x06module\x18\t \x01(\tB\x12\xbaG\x0f\x92\x02\f迁移模块R\x06module2\xb3\x02\n" +
+	"created_at\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x12*\n" +
+	"\x06module\x18\t \x01(\tB\x12\xbaG\x0f\x92\x02\f迁移模块R\x06moduleJ\x04\b\b\x10\t2\xb3\x02\n" +
 	"\x14BaseMigrationService\x12\x90\x01\n" +
 	"\x11PageBaseMigration\x12).system.admin.v1.PageBaseMigrationRequest\x1a*.system.admin.v1.PageBaseMigrationResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base-migration\x12\x87\x01\n" +
 	"\x10GetBaseMigration\x12(.system.admin.v1.GetBaseMigrationRequest\x1a\x1e.system.admin.v1.BaseMigration\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/admin/base-migration/{id}B\xd4\x01\n" +

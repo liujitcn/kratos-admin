@@ -345,6 +345,7 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 	baseUser := &models.BaseUser{
 		TenantID: baseTenant.ID,
 		UserName: baseTenantAdminUserName,
+		UserCode: baseTenantAdminUserName,
 		NickName: baseTenantAdminNickName,
 		RoleID:   baseRole.ID,
 		DeptID:   baseDept.ID,
@@ -356,9 +357,9 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 	}
 	err = c.baseUserRepo.Create(ctx, baseUser)
 	if err != nil {
-		// 命中用户账号唯一索引冲突时，返回稳定的业务冲突错误。
+		// 命中用户账号或用户编号唯一索引冲突时，返回稳定的业务冲突错误。
 		if errorsx.IsMySQLDuplicateKey(err) {
-			return errorsx.UniqueConflict("同一租户的用户账号重复", "base_user", "", "unique_base_user").WithCause(err)
+			return errorsx.UniqueConflict("同一租户的用户账号或用户编号重复", "base_user", "", "unique_base_user").WithCause(err)
 		}
 		return errorsx.Internal("初始化租户管理员账号失败").WithCause(err)
 	}

@@ -302,9 +302,9 @@ func (c *CodeGenCase) RestoreCodeGen(ctx context.Context, tableIDs []int64) erro
 	return nil
 }
 
-// latestMigrationVersion 查询代码生成使用的最近一次成功迁移版本。
+// latestMigrationVersion 查询代码生成使用的最近一次已记录迁移版本。
 func (c *CodeGenCase) latestMigrationVersion(ctx context.Context) (string, error) {
-	return c.baseMigrationCase.LatestSuccessfulVersion(ctx, adminmigration.ModuleName, c.databaseClient.Name())
+	return c.baseMigrationCase.LatestVersion(ctx, adminmigration.ModuleName, c.databaseClient.Name())
 }
 
 // runCodeGenTask 串行执行批量任务并汇总最终状态。

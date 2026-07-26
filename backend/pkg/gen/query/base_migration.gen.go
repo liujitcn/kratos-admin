@@ -34,7 +34,6 @@ func newBaseMigration(db *gorm.DB, opts ...gen.DOOption) baseMigration {
 	_baseMigration.UpSql = field.NewString(tableName, "up_sql")
 	_baseMigration.DownSql = field.NewString(tableName, "down_sql")
 	_baseMigration.Description = field.NewString(tableName, "description")
-	_baseMigration.IsSuccess = field.NewBool(tableName, "is_success")
 	_baseMigration.CreatedAt = field.NewTime(tableName, "created_at")
 
 	_baseMigration.fillFieldMap()
@@ -54,7 +53,6 @@ type baseMigration struct {
 	UpSql       field.String // 升级脚本
 	DownSql     field.String // 回退脚本
 	Description field.String // 升级描述
-	IsSuccess   field.Bool   // 是否成功
 	CreatedAt   field.Time   // 创建时间
 
 	fieldMap map[string]field.Expr
@@ -79,7 +77,6 @@ func (b *baseMigration) updateTableName(table string) *baseMigration {
 	b.UpSql = field.NewString(table, "up_sql")
 	b.DownSql = field.NewString(table, "down_sql")
 	b.Description = field.NewString(table, "description")
-	b.IsSuccess = field.NewBool(table, "is_success")
 	b.CreatedAt = field.NewTime(table, "created_at")
 
 	b.fillFieldMap()
@@ -109,7 +106,7 @@ func (b *baseMigration) GetFieldByName(fieldName string) (field.OrderExpr, bool)
 }
 
 func (b *baseMigration) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 9)
+	b.fieldMap = make(map[string]field.Expr, 8)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["module"] = b.Module
 	b.fieldMap["data_source"] = b.DataSource
@@ -117,7 +114,6 @@ func (b *baseMigration) fillFieldMap() {
 	b.fieldMap["up_sql"] = b.UpSql
 	b.fieldMap["down_sql"] = b.DownSql
 	b.fieldMap["description"] = b.Description
-	b.fieldMap["is_success"] = b.IsSuccess
 	b.fieldMap["created_at"] = b.CreatedAt
 }
 

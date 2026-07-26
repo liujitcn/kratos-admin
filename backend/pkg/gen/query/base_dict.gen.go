@@ -55,7 +55,7 @@ type baseDict struct {
 	UpdatedBy field.Int64  // 更新人ID
 	CreatedAt field.Time   // 创建时间
 	UpdatedAt field.Time   // 更新时间
-	DeletedAt field.Field
+	DeletedAt field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }

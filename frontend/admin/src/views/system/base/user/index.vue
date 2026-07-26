@@ -86,13 +86,15 @@ import { DEFAULT_TENANT_CODE, requestTenantOptions } from "@/utils/tenant";
 import { useUserStore } from "@/stores/modules/user";
 
 /** 用户表单状态，前端保留明文密码并在提交前加密。 */
-interface BaseUserFormState extends Omit<BaseUserForm, "dept_id" | "post_id" | "pwd" | "tenant_id"> {
+interface BaseUserFormState extends Omit<BaseUserForm, "dept_id" | "post_id" | "pwd" | "role_id" | "tenant_id"> {
   /** 租户ID，默认租户新增时必须由管理员显式选择。 */
   tenant_id?: number;
   /** 部门ID，未选择时保持空白。 */
   dept_id?: number;
   /** 岗位ID，未选择时保持空白。 */
   post_id?: number;
+  /** 角色ID，未选择时保持空白。 */
+  role_id?: number;
   /** 密码明文只保留在前端表单中，提交前转换为密码密文。 */
   pwd: string;
 }
@@ -143,10 +145,12 @@ const formData = reactive<BaseUserFormState>({
   tenant_id: undefined,
   /** 用户账号 */
   user_name: "",
+  /** 用户编号 */
+  user_code: "",
   /** 用户昵称 */
   nick_name: "",
   /** 角色ID */
-  role_id: 0,
+  role_id: undefined,
   /** 部门ID */
   dept_id: undefined,
   /** 岗位ID */
@@ -175,6 +179,10 @@ const rules = reactive({
   user_name: [
     { required: true, message: "用户账号不能为空", trigger: "blur" },
     { max: 50, message: "用户账号不能超过 50 个字符", trigger: "blur" }
+  ],
+  user_code: [
+    { required: true, message: "用户编号不能为空", trigger: "blur" },
+    { max: 30, message: "用户编号不能超过 30 个字符", trigger: "blur" }
   ],
   nick_name: [
     { required: true, message: "用户昵称不能为空", trigger: "blur" },
@@ -260,6 +268,12 @@ const formFields = computed<ProFormField[]>(() => [
     component: "input",
     props: { placeholder: "请输入用户账号", disabled: Boolean(formData.id) }
   },
+  {
+    prop: "user_code",
+    label: "用户编号",
+    component: "input",
+    props: { placeholder: "请输入用户编号", disabled: Boolean(formData.id) }
+  },
   { prop: "nick_name", label: "用户昵称", component: "input", props: { placeholder: "请输入用户昵称" } },
   {
     prop: "role_id",
@@ -330,6 +344,7 @@ const columns = computed<ColumnProps[]>(() => [
       ] satisfies ColumnProps[])
     : []),
   { prop: "user_name", label: "用户账号", minWidth: 140, search: { el: "input" } },
+  { prop: "user_code", label: "用户编号", minWidth: 140, search: { el: "input" } },
   { prop: "nick_name", label: "昵称", minWidth: 100, search: { el: "input" } },
   { prop: "role_id", label: "角色", minWidth: 140, enum: requestRoleOptions },
   { prop: "dept_id", label: "部门", minWidth: 180, showOverflowTooltip: true, enum: requestDeptOptions },
@@ -542,7 +557,7 @@ async function loadTenantOptions() {
  * 切换用户表单租户时，清空角色和部门并重新加载选项。
  */
 async function handleFormTenantChange() {
-  formData.role_id = 0;
+  formData.role_id = undefined;
   formData.dept_id = undefined;
   formData.post_id = undefined;
   await loadFormOptions();
@@ -584,8 +599,9 @@ function resetForm() {
   formData.id = 0;
   formData.tenant_id = undefined;
   formData.user_name = "";
+  formData.user_code = "";
   formData.nick_name = "";
-  formData.role_id = 0;
+  formData.role_id = undefined;
   formData.dept_id = undefined;
   formData.post_id = undefined;
   formData.phone = "";

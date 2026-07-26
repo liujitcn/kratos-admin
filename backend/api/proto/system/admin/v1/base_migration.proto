@@ -24,7 +24,7 @@ message PageBaseMigrationRequest {
 
   optional string version = 2 [(gnostic.openapi.v3.property) = {description: "迁移版本"}]; // 迁移版本
 
-  optional bool is_success = 3 [(gnostic.openapi.v3.property) = {description: "是否执行成功"}]; // 是否执行成功
+  reserved 3;
 
   optional string module = 4 [(gnostic.openapi.v3.property) = {description: "迁移模块"}]; // 迁移模块
 
@@ -49,7 +49,7 @@ message BaseMigrationListItem {
 
   string created_at = 4 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
 
-  bool is_success = 5 [(gnostic.openapi.v3.property) = {description: "是否执行成功"}]; // 是否执行成功
+  reserved 5;
 
   string module = 6 [(gnostic.openapi.v3.property) = {description: "迁移模块"}]; // 迁移模块
 }
@@ -82,7 +82,7 @@ message BaseMigration {
 
   string created_at = 7 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
 
-  bool is_success = 8 [(gnostic.openapi.v3.property) = {description: "是否执行成功"}]; // 是否执行成功
+  reserved 8;
 
   string module = 9 [(gnostic.openapi.v3.property) = {description: "迁移模块"}]; // 迁移模块
 }

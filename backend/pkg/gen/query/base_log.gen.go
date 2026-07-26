@@ -91,7 +91,7 @@ type baseLog struct {
 	ClientName     field.String // 客户端名称
 	OsName         field.String // 操作系统名称
 	OsVersion      field.String // 操作系统版本
-	DeletedAt      field.Field
+	DeletedAt      field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }

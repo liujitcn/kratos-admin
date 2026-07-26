@@ -65,7 +65,7 @@ type aiMessage struct {
 	Status        field.Int32  // 消息生成状态：枚举【AiMessageStatus】
 	CreatedAt     field.Time   // 创建时间
 	UpdatedAt     field.Time   // 更新时间
-	DeletedAt     field.Field
+	DeletedAt     field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }

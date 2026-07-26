@@ -393,8 +393,8 @@ github.com/liujitcn/kratos-kit/ai/eino v0.0.5 h1:4HhFrghy44ybJe/rB5HZy1n6TFJ8FJL
 github.com/liujitcn/kratos-kit/ai/eino v0.0.5/go.mod h1:d6SfoyC2cvNPmAYG9ox4zlXg2X1ngNp02b3oC9mcVBI=
 github.com/liujitcn/kratos-kit/api v0.0.22 h1:/Fx7bWtCnsH8frhtT/Yx+ULTMtuvQWrRMpsLaJh+Lg8=
 github.com/liujitcn/kratos-kit/api v0.0.22/go.mod h1:sz7G4l7CQuW+RiLHp2xvM8v1TyrpWVj4tf0wtrZhaPE=
-github.com/liujitcn/kratos-kit/auth v0.0.20 h1:LxM9a/4pzjFMzxWerh39SNjZLBRQwTRBv4RwA+CTPjo=
-github.com/liujitcn/kratos-kit/auth v0.0.20/go.mod h1:rt+tvZpzNRQCLrR3za0s6Vum/bvN/p3gxUPAa28fICA=
+github.com/liujitcn/kratos-kit/auth v0.0.22 h1:/q9fGHCabKcYPBDM0cuiUYJCujngMpYMWNZQ7KbRMdE=
+github.com/liujitcn/kratos-kit/auth v0.0.22/go.mod h1:rt+tvZpzNRQCLrR3za0s6Vum/bvN/p3gxUPAa28fICA=
 github.com/liujitcn/kratos-kit/auth/authn v0.0.19 h1:oucbtaNBbPTwIRUWYloz7vtIRXFivSXob8cS/UOOKDo=
 github.com/liujitcn/kratos-kit/auth/authn v0.0.19/go.mod h1:pqV2QOpy9TQUQzF1ZSeUvK18gpxqlRI7Y4XZ2toJV08=
 github.com/liujitcn/kratos-kit/auth/authn/engine/jwt v0.0.14 h1:tuLYmrjbP0me9V9uXuZXsF46DmiuTnV3VBjH5CydRsU=
@@ -407,8 +407,8 @@ github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.16 h1:g9epCB9R03ewb
 github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.16/go.mod h1:jW1BBU4guBfSNoskh6RqXJm3fVi00FYwi8i24KXCwiA=
 github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.14 h1:j6ZH583zYOvHB/2ArM3lOkPWhO172rWFgvnZwkQNlJU=
 github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.14/go.mod h1:eSYPrgqEvC2lvlvEHgzpTnqOuQmPV22qv1Ev9VqovNE=
-github.com/liujitcn/kratos-kit/bootstrap v0.0.16 h1:1RHvF8Mh7t+897FJBaN090ntEWB3s6MzF5rrtN3EcXU=
-github.com/liujitcn/kratos-kit/bootstrap v0.0.16/go.mod h1:bR33RQvEuPg/5qzzkmZJk7u80YgTTrlh2KFDUDhgYTM=
+github.com/liujitcn/kratos-kit/bootstrap v0.0.17 h1:5HqnCtoFuAhloMMrhX09KcoMcReM+HOq/7L6FHmUh6A=
+github.com/liujitcn/kratos-kit/bootstrap v0.0.17/go.mod h1:bR33RQvEuPg/5qzzkmZJk7u80YgTTrlh2KFDUDhgYTM=
 github.com/liujitcn/kratos-kit/broker v0.0.7 h1:e9u0q5jKrigSD6tEVg554dE5hGE1/iRpm/uMB38L14Y=
 github.com/liujitcn/kratos-kit/broker v0.0.7/go.mod h1:5eM92n+Exei+HTYuN9jfHarl1BpnNFw1vj0KahmC4SE=
 github.com/liujitcn/kratos-kit/cache v0.0.15 h1:znjrZj7qAeifcXPxGXdrF/c6YqcbKxZI3Hx7yqCy2lg=
@@ -423,8 +423,8 @@ github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.15 h1:ZXuwOMIhdOOCzY+Ab
 github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.15/go.mod h1:GGWGxWX9LOe21vpZ8zlsM2fZ0BSrveIE2oqMMvzXQaI=
 github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.13 h1:Ta4bxekfNJ0L8iagIfxo3HKKOOngVv6Jx0IR0fYjeJo=
 github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.13/go.mod h1:djQGKWt841uBXqKzNWSDEUcGxWbkZIG5MP4o9wM/ubg=
-github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.6 h1:YXE5T6i1bwze1G8WGsB4n4WHphYUl7KH7xL/vxwZI38=
-github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.6/go.mod h1:4MsKFZGzgKv1eVdDUi41Qjx1XpVz4FWSSj/cmlD/vS8=
+github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.7 h1:co+IosIpPp8akQI+CfPqWK8zuaEqowVeuWsEjLNovS0=
+github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.7/go.mod h1:4MsKFZGzgKv1eVdDUi41Qjx1XpVz4FWSSj/cmlD/vS8=
 github.com/liujitcn/kratos-kit/locker v0.0.12 h1:aZh1sNNfgVRqc6qw5RvNYgaeU3G0Xm9WhAkFEOfBiZE=
 github.com/liujitcn/kratos-kit/locker v0.0.12/go.mod h1:PqGJXvTLatZU7NwnogOiCMBEn8SS+tqP28IS/zeKpzs=
 github.com/liujitcn/kratos-kit/logger v0.0.26 h1:FllKQl3s2x1cmVi1HbWJsjt9n06V6R5RXJOeBFNqZQc=

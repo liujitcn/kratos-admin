@@ -14,24 +14,25 @@ const TableNameBaseUser = "base_user"
 
 // BaseUser 用户信息
 type BaseUser struct {
-	ID        int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:用户ID" json:"id"`                                                                           // 用户ID
-	TenantID  int64                 `gorm:"column:tenant_id;type:bigint;not null;uniqueIndex:unique_base_user,priority:1;index:idx_base_user_tenant_id,priority:1;comment:租户ID" json:"tenant_id"` // 租户ID
-	UserName  string                `gorm:"column:user_name;type:varchar(50);not null;uniqueIndex:unique_base_user,priority:2;comment:用户账号" json:"user_name"`                                     // 用户账号
-	NickName  string                `gorm:"column:nick_name;type:varchar(30);comment:用户昵称" json:"nick_name"`                                                                                      // 用户昵称
-	RoleID    int64                 `gorm:"column:role_id;type:bigint;not null;comment:角色ID" json:"role_id"`                                                                                      // 角色ID
-	DeptID    int64                 `gorm:"column:dept_id;type:bigint;not null;comment:部门ID" json:"dept_id"`                                                                                      // 部门ID
-	PostID    int64                 `gorm:"column:post_id;type:bigint;comment:岗位ID" json:"post_id"`                                                                                               // 岗位ID
-	Phone     string                `gorm:"column:phone;type:varchar(20);comment:手机号码" json:"phone"`                                                                                              // 手机号码
-	Password  string                `gorm:"column:password;type:varchar(100);comment:密码" json:"password"`                                                                                         // 密码
-	Gender    int32                 `gorm:"column:gender;type:tinyint;not null;comment:用户性别：枚举【BaseUserGender】" json:"gender"`                                                                    // 用户性别：枚举【BaseUserGender】
-	Avatar    string                `gorm:"column:avatar;type:varchar(1024);comment:头像地址" json:"avatar"`                                                                                          // 头像地址
-	Status    int32                 `gorm:"column:status;type:tinyint;not null;comment:状态：枚举【Status】" json:"status"`                                                                              // 状态：枚举【Status】
-	Remark    string                `gorm:"column:remark;type:varchar(500);comment:备注" json:"remark"`                                                                                             // 备注
-	CreatedBy int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建者ID" json:"created_by"`                                                                               // 创建者ID
-	UpdatedBy int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新者ID" json:"updated_by"`                                                                               // 更新者ID
-	CreatedAt time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                                              // 创建时间
-	UpdatedAt time.Time             `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                                                              // 更新时间
-	DeletedAt soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;uniqueIndex:unique_base_user,priority:3;softDelete:milli" json:"deleted_at"`
+	ID        int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:用户ID" json:"id"`                                                                                                                                         // 用户ID
+	TenantID  int64                 `gorm:"column:tenant_id;type:bigint;not null;uniqueIndex:unique_base_user_ user_code,priority:1;uniqueIndex:unique_base_user_ user_name,priority:1;index:idx_base_user_tenant_id,priority:1;comment:租户ID" json:"tenant_id"` // 租户ID
+	UserName  string                `gorm:"column:user_name;type:varchar(50);not null;uniqueIndex:unique_base_user_ user_name,priority:2;comment:用户账号" json:"user_name"`                                                                                        // 用户账号
+	UserCode  string                `gorm:"column:user_code;type:varchar(30);not null;uniqueIndex:unique_base_user_ user_code,priority:2;comment:用户编号" json:"user_code"`                                                                                        // 用户编号
+	NickName  string                `gorm:"column:nick_name;type:varchar(30);comment:用户昵称" json:"nick_name"`                                                                                                                                                    // 用户昵称
+	RoleID    int64                 `gorm:"column:role_id;type:bigint;not null;comment:角色ID" json:"role_id"`                                                                                                                                                    // 角色ID
+	DeptID    int64                 `gorm:"column:dept_id;type:bigint;not null;comment:部门ID" json:"dept_id"`                                                                                                                                                    // 部门ID
+	PostID    int64                 `gorm:"column:post_id;type:bigint;comment:岗位ID" json:"post_id"`                                                                                                                                                             // 岗位ID
+	Phone     string                `gorm:"column:phone;type:varchar(20);comment:手机号码" json:"phone"`                                                                                                                                                            // 手机号码
+	Password  string                `gorm:"column:password;type:varchar(100);comment:密码" json:"password"`                                                                                                                                                       // 密码
+	Gender    int32                 `gorm:"column:gender;type:tinyint;not null;comment:用户性别：枚举【BaseUserGender】" json:"gender"`                                                                                                                                  // 用户性别：枚举【BaseUserGender】
+	Avatar    string                `gorm:"column:avatar;type:varchar(1024);comment:头像地址" json:"avatar"`                                                                                                                                                        // 头像地址
+	Status    int32                 `gorm:"column:status;type:tinyint;not null;comment:状态：枚举【Status】" json:"status"`                                                                                                                                            // 状态：枚举【Status】
+	Remark    string                `gorm:"column:remark;type:varchar(500);comment:备注" json:"remark"`                                                                                                                                                           // 备注
+	CreatedBy int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建者ID" json:"created_by"`                                                                                                                                             // 创建者ID
+	UpdatedBy int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新者ID" json:"updated_by"`                                                                                                                                             // 更新者ID
+	CreatedAt time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                                                                                                            // 创建时间
+	UpdatedAt time.Time             `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                                                                                                                            // 更新时间
+	DeletedAt soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;uniqueIndex:unique_base_user_ user_code,priority:3;uniqueIndex:unique_base_user_ user_name,priority:3;comment:删除时间;softDelete:milli" json:"deleted_at"`              // 删除时间
 }
 
 // TableName BaseUser's table name

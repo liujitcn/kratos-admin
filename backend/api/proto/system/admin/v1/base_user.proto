@@ -83,6 +83,8 @@ message OptionBaseUserRequest {
 
 // 用户分页查询条件
 message PageBaseUserRequest {
+  string user_code = 1 [(gnostic.openapi.v3.property) = {description: "用户编号"}]; // 用户编号
+
   string user_name = 2 [(gnostic.openapi.v3.property) = {description: "用户账号"}]; // 用户账号
 
   string nick_name = 3 [(gnostic.openapi.v3.property) = {description: "用户昵称"}]; // 用户昵称
@@ -158,6 +160,8 @@ message BaseUser {
 
   string user_name = 3 [(gnostic.openapi.v3.property) = {description: "用户账号"}]; // 用户账号
 
+  string user_code = 11 [(gnostic.openapi.v3.property) = {description: "用户编号"}]; // 用户编号
+
   string nick_name = 4 [(gnostic.openapi.v3.property) = {description: "用户昵称"}]; // 用户昵称
 
   int64 role_id = 5 [(gnostic.openapi.v3.property) = {description: "角色ID"}]; // 角色ID
@@ -190,6 +194,8 @@ message BaseUserForm {
   int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}, (buf.validate.field).cel = {id: "base_user.tenant_id.required" message: "所属租户不能为空" expression: "this > 0"}]; // 租户ID
 
   string user_name = 3 [(gnostic.openapi.v3.property) = {description: "用户账号"}, (buf.validate.field).cel = {id: "base_user.user_name.length" message: "用户账号不能为空且不超过 50 个字符" expression: "this.size() > 0 && this.size() <= 50"}]; // 用户账号
+
+  string user_code = 12 [(gnostic.openapi.v3.property) = {description: "用户编号"}, (buf.validate.field).cel = {id: "base_user.user_code.length" message: "用户编号不能为空且不超过 30 个字符" expression: "this.size() > 0 && this.size() <= 30"}]; // 用户编号
 
   string nick_name = 4 [(gnostic.openapi.v3.property) = {description: "用户昵称"}, (buf.validate.field).cel = {id: "base_user.nick_name.required" message: "用户昵称不能为空" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "base_user.nick_name.max_len" message: "用户昵称不能超过 30 个字符" expression: "this.size() <= 30"}]; // 用户昵称
 

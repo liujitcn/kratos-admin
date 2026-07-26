@@ -21,19 +21,19 @@ require (
 	github.com/liujitcn/kratos-kit v0.0.58
 	github.com/liujitcn/kratos-kit/ai/eino v0.0.5
 	github.com/liujitcn/kratos-kit/api v0.0.22
-	github.com/liujitcn/kratos-kit/auth v0.0.20
+	github.com/liujitcn/kratos-kit/auth v0.0.22
 	github.com/liujitcn/kratos-kit/auth/authn v0.0.19
 	github.com/liujitcn/kratos-kit/auth/authn/engine/jwt v0.0.14
 	github.com/liujitcn/kratos-kit/auth/authn/middleware v0.0.15
 	github.com/liujitcn/kratos-kit/auth/authz v0.0.18
 	github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.16
 	github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.14
-	github.com/liujitcn/kratos-kit/bootstrap v0.0.16
+	github.com/liujitcn/kratos-kit/bootstrap v0.0.17
 	github.com/liujitcn/kratos-kit/cache v0.0.15
 	github.com/liujitcn/kratos-kit/captcha v0.0.18
 	github.com/liujitcn/kratos-kit/database/gorm v0.0.33
 	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.13
-	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.6
+	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.7
 	github.com/liujitcn/kratos-kit/logger/zap v0.0.13
 	github.com/liujitcn/kratos-kit/oauth v0.0.7
 	github.com/liujitcn/kratos-kit/oss v0.0.13

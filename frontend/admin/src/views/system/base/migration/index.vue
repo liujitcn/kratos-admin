@@ -34,9 +34,6 @@
             >
               <div class="migration-list-item__top">
                 <strong>{{ history.version }}</strong>
-                <el-tag :type="history.is_success ? 'success' : 'danger'" effect="light" size="small">
-                  {{ history.is_success ? "成功" : "失败" }}
-                </el-tag>
               </div>
               <div class="migration-list-item__data-source">
                 {{ history.module || "数据库迁移" }} · {{ history.data_source || "default" }}
@@ -72,9 +69,6 @@
                 </span>
                 <div class="detail-header__version">
                   <h2>{{ selectedMigration.version }}</h2>
-                  <el-tag :type="selectedMigration.is_success ? 'success' : 'danger'" effect="light">
-                    {{ selectedMigration.is_success ? "执行成功" : "执行失败" }}
-                  </el-tag>
                 </div>
               </div>
               <div class="detail-header__meta">
@@ -247,7 +241,6 @@ async function loadMigrationHistory() {
     const params: PageBaseMigrationRequest = {
       data_source: filters.data_source ?? "",
       version: filters.version,
-      is_success: undefined,
       module: filters.module,
       page_num: pageable.page_num,
       page_size: pageable.page_size

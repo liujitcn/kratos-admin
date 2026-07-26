@@ -27,7 +27,7 @@ type AiMessage struct {
 	Status        int32                 `gorm:"column:status;type:tinyint;not null;comment:消息生成状态：枚举【AiMessageStatus】" json:"status"`                                                                                           // 消息生成状态：枚举【AiMessageStatus】
 	CreatedAt     time.Time             `gorm:"column:created_at;type:datetime;not null;index:idx_ai_message_session_id_created_at,priority:2;comment:创建时间" json:"created_at"`                                                  // 创建时间
 	UpdatedAt     time.Time             `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                                                                                        // 更新时间
-	DeletedAt     soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;softDelete:milli" json:"deleted_at"`
+	DeletedAt     soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;comment:删除时间;softDelete:milli" json:"deleted_at"`                                                                                // 删除时间
 }
 
 // TableName AiMessage's table name

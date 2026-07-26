@@ -40,7 +40,7 @@ type BaseLog struct {
 	ClientName     string                `gorm:"column:client_name;type:varchar(128);comment:客户端名称" json:"client_name"`                                                  // 客户端名称
 	OsName         string                `gorm:"column:os_name;type:varchar(64);comment:操作系统名称" json:"os_name"`                                                          // 操作系统名称
 	OsVersion      string                `gorm:"column:os_version;type:varchar(64);comment:操作系统版本" json:"os_version"`                                                    // 操作系统版本
-	DeletedAt      soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;softDelete:milli" json:"deleted_at"`
+	DeletedAt      soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;comment:删除时间;softDelete:milli" json:"deleted_at"`                        // 删除时间
 }
 
 // TableName BaseLog's table name

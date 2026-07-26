@@ -313,6 +313,7 @@ func (c *LoginCase) buildAuthInfo(ctx context.Context, user *models.BaseUser) (*
 
 	return &authData.UserTokenPayload{
 		UserId:     user.ID,
+		UserCode:   user.UserCode,
 		UserName:   user.UserName,
 		RoleId:     user.RoleID,
 		RoleCode:   role.Code,
