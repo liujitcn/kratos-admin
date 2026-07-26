@@ -84,7 +84,7 @@
         "appid" : "wx80073bcc341e31fb",
         "setting" : {
             "minified" : true,
-            "urlCheck" : true
+            "urlCheck" : false
         },
         "lazyCodeLoading" : "requiredComponents",
         "usingComponents" : true

@@ -8,7 +8,10 @@ import defaultLogo from '@/static/images/logo_icon.png'
 import { homeTabPage } from '@/utils/navigation'
 import { PASSWORD_CRYPTO_SCENE, encryptPassword } from '@/utils/passwordCrypto'
 
+// go-captcha-uni 仅在 H5 端使用，小程序端不支持 defineAsyncComponent，需按平台裁剪。
+// #ifdef H5
 const GoCaptchaUni = defineAsyncComponent(() => import('go-captcha-uni'))
+// #endif
 
 const userStore = useUserStore()
 const settingStore = useSettingStore()
