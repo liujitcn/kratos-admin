@@ -14,7 +14,7 @@
     <div class="table-box">
       <ProTable
         ref="proTable"
-        :key="`user-table-${isDefaultTenant ? selectedTenantId ?? 0 : 'current'}`"
+        :key="`user-table-${isDefaultTenant ? 'default-tenant' : 'current'}`"
         row-key="id"
         :columns="columns"
         :header-actions="headerActions"
@@ -483,6 +483,7 @@ async function requestBaseUserTable(params: PageBaseUserRequest) {
     selectedTenantId.value = tenantId;
     initParam.dept_id = undefined;
     deptFilterValue.value = "";
+    await proTable.value?.refreshEnums();
   }
   const data = await defBaseUserService.PageBaseUser({
     ...buildPageRequest(params),

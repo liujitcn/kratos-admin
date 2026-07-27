@@ -1,11 +1,26 @@
+<script setup lang="ts">
+import { onLoad } from '@dcloudio/uni-app'
+import { computed } from 'vue'
+import { useSettingStore } from '@/stores'
+import defaultLogo from '@/static/images/logo_icon.png'
+
+const settingStore = useSettingStore()
+const mainTitle = computed(() => settingStore.getData('mainTitle') || '应用框架示例')
+const subTitle = computed(() => settingStore.getData('subTitle') || '保留通用导航与个人中心体验')
+const appLogo = computed(() => settingStore.getData('appLogo') || defaultLogo)
+
+onLoad(() => {
+  void settingStore.loadData().catch(() => undefined)
+})
+</script>
+
 <template>
   <view class="page">
     <view class="hero">
-      <image class="logo" src="@/static/images/logo_icon.png" mode="aspectFit" />
+      <image class="logo" :src="appLogo" mode="aspectFit" />
       <view class="hero-copy">
-        <text class="eyebrow">DEMO APP</text>
-        <text class="title">应用框架示例</text>
-        <text class="subtitle">保留通用导航与个人中心体验</text>
+        <text class="title">{{ mainTitle }}</text>
+        <text class="subtitle">{{ subTitle }}</text>
       </view>
     </view>
 

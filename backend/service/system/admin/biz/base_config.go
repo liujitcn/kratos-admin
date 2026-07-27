@@ -2,9 +2,11 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 
 	_const "github.com/liujitcn/kratos-admin/backend/pkg/const"
 
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/pkg/biz"
 	"github.com/liujitcn/kratos-admin/backend/pkg/errorsx"
@@ -16,9 +18,6 @@ import (
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-kit/sdk"
 )
-
-// BASE_CONFIG_CACHE_PREFIX 表示基础配置缓存键前缀。
-const BASE_CONFIG_CACHE_PREFIX = "config:"
 
 // BaseConfigCase 配置业务实例
 type BaseConfigCase struct {
@@ -36,6 +35,23 @@ func NewBaseConfigCase(baseCase *biz.BaseCase, baseConfigRepo *data.BaseConfigRe
 		formMapper:           mapper.NewCopierMapper[systemadminv1.BaseConfigForm, models.BaseConfig](),
 		mapper:               mapper.NewCopierMapper[systemadminv1.BaseConfig, models.BaseConfig](),
 	}
+}
+
+// RefreshBaseConfig 刷新配置缓存
+func (c *BaseConfigCase) RefreshBaseConfig(ctx context.Context) error {
+	sites := []int32{
+		_const.BASE_CONFIG_SITE_SYSTEM,
+		_const.BASE_CONFIG_SITE_ADMIN,
+		_const.BASE_CONFIG_SITE_APP,
+	}
+	var err error
+	for _, site := range sites {
+		err = c.refreshBaseConfigSite(ctx, site)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // PageBaseConfig 分页查询配置
@@ -99,7 +115,7 @@ func (c *BaseConfigCase) CreateBaseConfig(ctx context.Context, req *systemadminv
 		}
 		return err
 	}
-	err = c.syncBaseConfigCache(entity)
+	err = c.refreshBaseConfigSite(ctx, entity.Site)
 	if err != nil {
 		return err
 	}
@@ -123,17 +139,15 @@ func (c *BaseConfigCase) UpdateBaseConfig(ctx context.Context, req *systemadminv
 		return err
 	}
 
-	// 配置键发生变化时，需要先清理旧缓存键。
-	if oldConfig.Key != entity.Key {
-		err = c.clearBaseConfigCache(oldConfig.Key)
+	err = c.refreshBaseConfigSite(ctx, oldConfig.Site)
+	if err != nil {
+		return err
+	}
+	if oldConfig.Site != entity.Site {
+		err = c.refreshBaseConfigSite(ctx, entity.Site)
 		if err != nil {
 			return err
 		}
-	}
-
-	err = c.syncBaseConfigCache(entity)
-	if err != nil {
-		return err
 	}
 	return nil
 }
@@ -151,8 +165,12 @@ func (c *BaseConfigCase) DeleteBaseConfig(ctx context.Context, id string) error 
 		return err
 	}
 
+	sites := make(map[int32]struct{}, len(list))
 	for _, item := range list {
-		err = c.clearBaseConfigCache(item.Key)
+		sites[item.Site] = struct{}{}
+	}
+	for site := range sites {
+		err = c.refreshBaseConfigSite(ctx, site)
 		if err != nil {
 			return err
 		}
@@ -176,52 +194,35 @@ func (c *BaseConfigCase) SetBaseConfigStatus(ctx context.Context, req *systemadm
 		return err
 	}
 
-	// 启用状态需要同步配置缓存，禁用状态则清理缓存。
-	if baseConfig.Status == _const.STATUS_ENABLE {
-		err = c.syncBaseConfigCache(baseConfig)
-		if err != nil {
-			return err
-		}
-	} else {
-		err = c.clearBaseConfigCache(baseConfig.Key)
-		if err != nil {
-			return err
-		}
+	err = c.refreshBaseConfigSite(ctx, baseConfig.Site)
+	if err != nil {
+		return err
 	}
-
 	return nil
 }
 
-// RefreshBaseConfig 刷新配置缓存
-func (c *BaseConfigCase) RefreshBaseConfig(ctx context.Context) error {
+// refreshBaseConfigSite 查询并缓存指定站点的启用配置。
+func (c *BaseConfigCase) refreshBaseConfigSite(ctx context.Context, site int32) error {
 	query := c.Query(ctx).BaseConfig
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.Site.Eq(_const.BASE_CONFIG_SITE_SYSTEM)))
+	opts := make([]repository.QueryOption, 0, 3)
+	opts = append(opts, repository.Where(query.Site.Eq(site)))
+	opts = append(opts, repository.Where(query.Status.Eq(_const.STATUS_ENABLE)))
+	opts = append(opts, repository.Order(query.ID.Asc()))
 	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return err
 	}
 
+	configs := make([]*basev1.ConfigItem, 0, len(list))
 	for _, item := range list {
-		err = c.syncBaseConfigCache(item)
-		if err != nil {
-			return err
-		}
+		configs = append(configs, &basev1.ConfigItem{
+			Key:   item.Key,
+			Value: item.Value,
+		})
 	}
-	return nil
-}
-
-// syncBaseConfigCache 同步单个配置缓存
-func (c *BaseConfigCase) syncBaseConfigCache(item *models.BaseConfig) error {
-	return sdk.Runtime.GetCache().Set(c.makeBaseConfigCacheKey(item.Key), item.Value, -1)
-}
-
-// clearBaseConfigCache 删除单个配置缓存
-func (c *BaseConfigCase) clearBaseConfigCache(key string) error {
-	return sdk.Runtime.GetCache().Del(c.makeBaseConfigCacheKey(key))
-}
-
-// makeBaseConfigCacheKey 生成配置缓存键
-func (c *BaseConfigCase) makeBaseConfigCacheKey(key string) string {
-	return BASE_CONFIG_CACHE_PREFIX + key
+	payload, err := json.Marshal(configs)
+	if err != nil {
+		return err
+	}
+	return sdk.Runtime.GetCache().Set(_const.BaseConfigCacheKey(site), string(payload), _const.BASE_CONFIG_CACHE_EXPIRE)
 }

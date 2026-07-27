@@ -367,6 +367,16 @@ const syncColumnEnumMap = async (column: ColumnProps) => {
   await setEnumMap(column);
 };
 
+/** 刷新表格列枚举，供外部筛选条件改变后重新加载关联选项。 */
+const refreshEnums = async () => {
+  const nextEnumMap = new Map(enumMap.value);
+  flatColumns.value.forEach(column => {
+    if (column.prop) nextEnumMap.delete(column.prop);
+  });
+  enumMap.value = nextEnumMap;
+  await Promise.all(flatColumns.value.map(column => syncColumnEnumMap(column)));
+};
+
 // 注入 enumMap
 provide("enumMap", enumMap);
 
@@ -562,7 +572,8 @@ defineExpose({
   handleCurrentChange,
   clearSelection,
   getTotal,
-  enumMap
+  enumMap,
+  refreshEnums
 });
 </script>
 

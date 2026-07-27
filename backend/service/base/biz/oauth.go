@@ -45,6 +45,8 @@ type OauthCase struct {
 	oauthManager         *kitOauth.Manager
 	baseThirdAccountCase *BaseThirdAccountCase
 	baseUserCase         *BaseUserCase
+	baseRoleCase         *BaseRoleCase
+	baseDeptCase         *BaseDeptCase
 	loginCase            *LoginCase
 	userEvents           *event.UserEvents
 }
@@ -64,6 +66,8 @@ func NewOauthCase(
 	oauthManager *kitOauth.Manager,
 	baseThirdAccountCase *BaseThirdAccountCase,
 	baseUserCase *BaseUserCase,
+	baseRoleCase *BaseRoleCase,
+	baseDeptCase *BaseDeptCase,
 	loginCase *LoginCase,
 	userEvents *event.UserEvents,
 ) *OauthCase {
@@ -73,6 +77,8 @@ func NewOauthCase(
 		oauthManager:         oauthManager,
 		baseThirdAccountCase: baseThirdAccountCase,
 		baseUserCase:         baseUserCase,
+		baseRoleCase:         baseRoleCase,
+		baseDeptCase:         baseDeptCase,
 		loginCase:            loginCase,
 		userEvents:           userEvents,
 	}
@@ -343,7 +349,6 @@ func (c *OauthCase) findOrCreateWechatMiniUser(ctx context.Context, code string)
 	if err != nil {
 		return nil, errorsx.InvalidArgument("获取微信用户失败").WithCause(err)
 	}
-	// 微信未返回 OpenID 时无法建立本地登录身份。
 	if oauthUser.OpenID == "" {
 		return nil, errorsx.Internal("登录失败")
 	}
@@ -351,7 +356,6 @@ func (c *OauthCase) findOrCreateWechatMiniUser(ctx context.Context, code string)
 	var thirdAccount *models.BaseThirdAccount
 	thirdAccount, err = c.baseThirdAccountCase.FindByProviderIdentifier(ctx, string(kitOauth.WechatMini), oauthUser.OpenID)
 	if err != nil {
-		// 查询异常直接中断，只有未注册用户允许走自动注册流程。
 		if !stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errorsx.Internal("登录失败").WithCause(err)
 		}
@@ -368,20 +372,32 @@ func (c *OauthCase) findOrCreateWechatMiniUser(ctx context.Context, code string)
 
 // createWechatMiniUser 自动创建微信小程序用户并绑定三方账号。
 func (c *OauthCase) createWechatMiniUser(ctx context.Context, openID string) (*models.BaseUser, error) {
+	defaultRole, err := c.baseRoleCase.FindDefaultUser(ctx)
+	if err != nil {
+		return nil, errorsx.Internal("微信登录默认角色配置错误").WithCause(err)
+	}
+	var defaultDept *models.BaseDept
+	defaultDept, err = c.baseDeptCase.FindByID(ctx, _const.BASE_DEPT_ID_APP_USER)
+	if err != nil {
+		return nil, errorsx.Internal("微信登录默认部门配置错误").WithCause(err)
+	}
+	if defaultDept.TenantID != defaultRole.TenantID {
+		return nil, errorsx.Internal("微信登录默认部门配置错误")
+	}
 	userCode := id.NewXID()
 	user := &models.BaseUser{
+		TenantID: defaultRole.TenantID,
 		UserName: userCode,
 		UserCode: userCode,
-		RoleID:   5,
-		DeptID:   5,
+		RoleID:   defaultRole.ID,
+		DeptID:   defaultDept.ID,
 		Phone:    "",
 		Password: "",
-		Gender:   3,
+		Gender:   _const.BASE_USER_GENDER_SECRET,
 		Avatar:   "",
 		Status:   _const.STATUS_ENABLE,
 		Remark:   "自动注册用户",
 	}
-	var err error
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		err = c.baseUserCase.Create(txCtx, user)
 		if err != nil {
@@ -397,24 +413,6 @@ func (c *OauthCase) createWechatMiniUser(ctx context.Context, openID string) (*m
 		return nil, err
 	}
 	return user, nil
-}
-
-// consumeOauthLoginTicket 串行消费三方登录一次性票据，避免同一票据被并发重复兑换。
-func (c *OauthCase) consumeOauthLoginTicket(ticket string) (string, error) {
-	lock := oauthLoginTicketLock(ticket)
-	lock.Lock()
-	defer lock.Unlock()
-
-	cacheKey := oauthLoginTicketKey(ticket)
-	value, err := c.Cache.Get(cacheKey)
-	if err != nil {
-		return "", errorsx.Unauthenticated("三方登录票据已失效").WithCause(err)
-	}
-	err = c.Cache.Del(cacheKey)
-	if err != nil {
-		return "", errorsx.Internal("三方登录票据消费失败").WithCause(err)
-	}
-	return value, nil
 }
 
 // handleOauthBindingCallback 校验三方账号并写入当前用户绑定关系。
@@ -454,7 +452,7 @@ func (c *OauthCase) handleOauthBindingCallback(ctx context.Context, payload *kit
 		}
 		return c.oauthBindingRedirectPayload(payload, providerName, "三方账号已被其他用户绑定")
 	}
-	if err != nil && !stderrors.Is(err, gorm.ErrRecordNotFound) {
+	if !stderrors.Is(err, gorm.ErrRecordNotFound) {
 		return c.oauthBindingRedirectPayload(payload, providerName, "三方账号绑定失败")
 	}
 
@@ -467,7 +465,7 @@ func (c *OauthCase) handleOauthBindingCallback(ctx context.Context, payload *kit
 		}
 		return c.oauthBindingRedirectPayload(payload, providerName, "当前用户已绑定该登录方式")
 	}
-	if err != nil && !stderrors.Is(err, gorm.ErrRecordNotFound) {
+	if !stderrors.Is(err, gorm.ErrRecordNotFound) {
 		return c.oauthBindingRedirectPayload(payload, providerName, "三方账号绑定失败")
 	}
 
@@ -518,6 +516,24 @@ func (c *OauthCase) createOauthLoginTicket(loginRes *basev1.LoginResponse) (stri
 		return "", errorsx.Internal("三方登录票据创建失败").WithCause(err)
 	}
 	return ticket, nil
+}
+
+// consumeOauthLoginTicket 串行消费三方登录一次性票据，避免同一票据被并发重复兑换。
+func (c *OauthCase) consumeOauthLoginTicket(ticket string) (string, error) {
+	lock := oauthLoginTicketLock(ticket)
+	lock.Lock()
+	defer lock.Unlock()
+
+	cacheKey := oauthLoginTicketKey(ticket)
+	value, err := c.Cache.Get(cacheKey)
+	if err != nil {
+		return "", errorsx.Unauthenticated("三方登录票据已失效").WithCause(err)
+	}
+	err = c.Cache.Del(cacheKey)
+	if err != nil {
+		return "", errorsx.Internal("三方登录票据消费失败").WithCause(err)
+	}
+	return value, nil
 }
 
 // oauthRedirectPayload 构造回跳管理端登录页的重定向响应。

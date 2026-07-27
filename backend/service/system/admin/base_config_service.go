@@ -43,6 +43,16 @@ func NewBaseConfigService(
 	return &ss, nil
 }
 
+// RefreshBaseConfigCache 刷新缓存
+func (s *BaseConfigService) RefreshBaseConfigCache(ctx context.Context, req *systemadminv1.RefreshBaseConfigCacheRequest) (*emptypb.Empty, error) {
+	err := s.baseConfigCase.RefreshBaseConfig(ctx)
+	if err != nil {
+		log.Error(fmt.Sprintf("RefreshBaseConfig %v", err))
+		return nil, errorsx.WrapInternal(err, "刷新缓存失败")
+	}
+	return new(emptypb.Empty), nil
+}
+
 // PageBaseConfig 查询系统配置分页列表
 func (s *BaseConfigService) PageBaseConfig(ctx context.Context, req *systemadminv1.PageBaseConfigRequest) (*systemadminv1.PageBaseConfigResponse, error) {
 	page, err := s.baseConfigCase.PageBaseConfig(ctx, req)
@@ -100,16 +110,6 @@ func (s *BaseConfigService) SetBaseConfigStatus(ctx context.Context, req *system
 	if err != nil {
 		log.Error(fmt.Sprintf("SetBaseConfigStatus %v", err))
 		return nil, errorsx.WrapInternal(err, "设置状态失败")
-	}
-	return new(emptypb.Empty), nil
-}
-
-// RefreshBaseConfigCache 刷新缓存
-func (s *BaseConfigService) RefreshBaseConfigCache(ctx context.Context, req *systemadminv1.RefreshBaseConfigCacheRequest) (*emptypb.Empty, error) {
-	err := s.baseConfigCase.RefreshBaseConfig(ctx)
-	if err != nil {
-		log.Error(fmt.Sprintf("RefreshBaseConfig %v", err))
-		return nil, errorsx.WrapInternal(err, "刷新缓存失败")
 	}
 	return new(emptypb.Empty), nil
 }

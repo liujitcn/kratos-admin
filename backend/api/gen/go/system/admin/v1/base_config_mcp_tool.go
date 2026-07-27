@@ -16,12 +16,12 @@ import (
 // RegisterBaseConfigServiceMCPTools 注册Admin系统配置服务的 MCP Tool。
 func RegisterBaseConfigServiceMCPTools(mcpServer *mcp.Server, baseConfigServiceServer BaseConfigServiceServer) {
 	RegisterBaseConfigServicePageBaseConfigMCPTool(mcpServer, baseConfigServiceServer)
+	RegisterBaseConfigServiceRefreshBaseConfigCacheMCPTool(mcpServer, baseConfigServiceServer)
 	RegisterBaseConfigServiceGetBaseConfigMCPTool(mcpServer, baseConfigServiceServer)
 	RegisterBaseConfigServiceCreateBaseConfigMCPTool(mcpServer, baseConfigServiceServer)
 	RegisterBaseConfigServiceUpdateBaseConfigMCPTool(mcpServer, baseConfigServiceServer)
 	RegisterBaseConfigServiceDeleteBaseConfigMCPTool(mcpServer, baseConfigServiceServer)
 	RegisterBaseConfigServiceSetBaseConfigStatusMCPTool(mcpServer, baseConfigServiceServer)
-	RegisterBaseConfigServiceRefreshBaseConfigCacheMCPTool(mcpServer, baseConfigServiceServer)
 }
 
 // RegisterBaseConfigServicePageBaseConfigMCPTool 注册查询系统配置分页列表的 MCP Tool。
@@ -37,6 +37,27 @@ func RegisterBaseConfigServicePageBaseConfigMCPTool(mcpServer *mcp.Server, baseC
 				input = &PageBaseConfigRequest{}
 			}
 			reply, err := baseConfigServiceServer.PageBaseConfig(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterBaseConfigServiceRefreshBaseConfigCacheMCPTool 注册刷新缓存的 MCP Tool。
+func RegisterBaseConfigServiceRefreshBaseConfigCacheMCPTool(mcpServer *mcp.Server, baseConfigServiceServer BaseConfigServiceServer) {
+	mcp.AddTool[*RefreshBaseConfigCacheRequest, *emptypb.Empty](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_base_config_service_refresh_base_config_cache",
+			Description: "刷新缓存",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *RefreshBaseConfigCacheRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
+			if input == nil {
+				input = &RefreshBaseConfigCacheRequest{}
+			}
+			reply, err := baseConfigServiceServer.RefreshBaseConfigCache(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -142,27 +163,6 @@ func RegisterBaseConfigServiceSetBaseConfigStatusMCPTool(mcpServer *mcp.Server, 
 				input = &SetBaseConfigStatusRequest{}
 			}
 			reply, err := baseConfigServiceServer.SetBaseConfigStatus(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterBaseConfigServiceRefreshBaseConfigCacheMCPTool 注册刷新缓存的 MCP Tool。
-func RegisterBaseConfigServiceRefreshBaseConfigCacheMCPTool(mcpServer *mcp.Server, baseConfigServiceServer BaseConfigServiceServer) {
-	mcp.AddTool[*RefreshBaseConfigCacheRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_config_service_refresh_base_config_cache",
-			Description: "刷新缓存",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *RefreshBaseConfigCacheRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &RefreshBaseConfigCacheRequest{}
-			}
-			reply, err := baseConfigServiceServer.RefreshBaseConfigCache(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

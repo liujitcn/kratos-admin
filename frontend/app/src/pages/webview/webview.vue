@@ -19,10 +19,14 @@
     <view v-if="showFallback" class="webview-empty">
       <view class="webview-empty__title">链接无法打开</view>
       <view class="webview-empty__desc">{{ emptyDesc }}</view>
-      <!-- #ifdef H5 -->
-      <button v-if="url" class="webview-empty__button" @tap="openInBrowser">新窗口打开</button>
-      <!-- #endif -->
     </view>
+
+    <!-- #ifdef H5 -->
+    <!-- X-Frame-Options 拒绝嵌入时浏览器仍可能触发 iframe load，始终保留外部打开入口。 -->
+    <button v-if="isH5 && url && isIframeTimedOut" class="webview-open-button" @tap="openInBrowser">
+      新窗口打开
+    </button>
+    <!-- #endif -->
   </view>
 </template>
 
@@ -116,8 +120,11 @@ const handleMessage = (e: any) => {
   color: #888;
 }
 
-.webview-empty__button {
-  margin-top: 36rpx;
+.webview-open-button {
+  position: fixed;
+  right: 24rpx;
+  bottom: 96rpx;
+  z-index: 2;
   width: 240rpx;
   height: 72rpx;
   line-height: 72rpx;

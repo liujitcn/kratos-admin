@@ -24,6 +24,12 @@ func NewBaseConfigServiceAgentTools(baseConfigServiceServer BaseConfigServiceSer
 		return nil, err
 	}
 	ts = append(ts, pageBaseConfigTool)
+	var refreshBaseConfigCacheTool tool.InvokableTool
+	refreshBaseConfigCacheTool, err = NewBaseConfigServiceRefreshBaseConfigCacheAgentTool(baseConfigServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, refreshBaseConfigCacheTool)
 	var getBaseConfigTool tool.InvokableTool
 	getBaseConfigTool, err = NewBaseConfigServiceGetBaseConfigAgentTool(baseConfigServiceServer)
 	if err != nil {
@@ -54,12 +60,6 @@ func NewBaseConfigServiceAgentTools(baseConfigServiceServer BaseConfigServiceSer
 		return nil, err
 	}
 	ts = append(ts, setBaseConfigStatusTool)
-	var refreshBaseConfigCacheTool tool.InvokableTool
-	refreshBaseConfigCacheTool, err = NewBaseConfigServiceRefreshBaseConfigCacheAgentTool(baseConfigServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, refreshBaseConfigCacheTool)
 	return ts, nil
 }
 
@@ -73,6 +73,20 @@ func NewBaseConfigServicePageBaseConfigAgentTool(baseConfigServiceServer BaseCon
 				req = &PageBaseConfigRequest{}
 			}
 			return baseConfigServiceServer.PageBaseConfig(ctx, req)
+		},
+	)
+}
+
+// NewBaseConfigServiceRefreshBaseConfigCacheAgentTool 创建刷新缓存的 Agent Tool。
+func NewBaseConfigServiceRefreshBaseConfigCacheAgentTool(baseConfigServiceServer BaseConfigServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*RefreshBaseConfigCacheRequest, *emptypb.Empty](
+		"system_admin_v1_base_config_service_refresh_base_config_cache",
+		"刷新缓存",
+		func(ctx context.Context, req *RefreshBaseConfigCacheRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &RefreshBaseConfigCacheRequest{}
+			}
+			return baseConfigServiceServer.RefreshBaseConfigCache(ctx, req)
 		},
 	)
 }
@@ -143,20 +157,6 @@ func NewBaseConfigServiceSetBaseConfigStatusAgentTool(baseConfigServiceServer Ba
 				req = &SetBaseConfigStatusRequest{}
 			}
 			return baseConfigServiceServer.SetBaseConfigStatus(ctx, req)
-		},
-	)
-}
-
-// NewBaseConfigServiceRefreshBaseConfigCacheAgentTool 创建刷新缓存的 Agent Tool。
-func NewBaseConfigServiceRefreshBaseConfigCacheAgentTool(baseConfigServiceServer BaseConfigServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*RefreshBaseConfigCacheRequest, *emptypb.Empty](
-		"system_admin_v1_base_config_service_refresh_base_config_cache",
-		"刷新缓存",
-		func(ctx context.Context, req *RefreshBaseConfigCacheRequest) (*emptypb.Empty, error) {
-			if req == nil {
-				req = &RefreshBaseConfigCacheRequest{}
-			}
-			return baseConfigServiceServer.RefreshBaseConfigCache(ctx, req)
 		},
 	)
 }

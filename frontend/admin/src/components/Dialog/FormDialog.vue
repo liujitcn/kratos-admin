@@ -44,7 +44,7 @@
 </template>
 
 <script setup lang="ts" name="FormDialog">
-import { computed, ref, useSlots } from "vue";
+import { computed, nextTick, ref, useSlots, watch } from "vue";
 import type { FormRules } from "element-plus";
 import ProDialog from "@/components/Dialog/ProDialog.vue";
 import ProForm from "@/components/ProForm/index.vue";
@@ -71,7 +71,7 @@ interface FormDialogProps {
   formProps?: Record<string, any>;
 }
 
-withDefaults(defineProps<FormDialogProps>(), {
+const props = withDefaults(defineProps<FormDialogProps>(), {
   title: "",
   width: "500px",
   top: "8vh",
@@ -98,6 +98,15 @@ const emit = defineEmits<{
 
 const slots = useSlots();
 const proFormRef = ref<ProFormInstance>();
+
+/** 弹窗打开后再清理校验状态，兼容异步加载选项后才显示的表单。 */
+watch(
+  () => props.modelValue,
+  value => {
+    if (!value) return;
+    nextTick(() => proFormRef.value?.clearValidate());
+  }
+);
 
 /** 汇总外部透传的插槽名称，统一转发到内部 ProForm。 */
 const slotNames = computed(() => Object.keys(slots).filter(slotName => slotName !== "footer"));

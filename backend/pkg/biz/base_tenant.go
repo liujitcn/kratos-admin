@@ -34,6 +34,14 @@ func NewBaseTenantCase(
 	}
 }
 
+// FindDefault 查询默认租户。
+func (c *BaseTenantCase) FindDefault(ctx context.Context) (*models.BaseTenant, error) {
+	tenantQuery := c.baseTenantRepo.Query(ctx).BaseTenant
+	tenantOpts := make([]repository.QueryOption, 0, 1)
+	tenantOpts = append(tenantOpts, repository.Where(tenantQuery.Code.Eq(databaseGorm.DefaultTenantCode)))
+	return c.baseTenantRepo.Find(ctx, tenantOpts...)
+}
+
 // SyncTenantRoleMenus 将默认租户管理员角色菜单同步到所有普通租户的角色副本。
 //
 // 该方法仅在服务启动时调用，必须位于 OpenAPI 接口同步之后、全量 Casbin 规则重建之前。

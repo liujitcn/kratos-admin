@@ -16,6 +16,12 @@ const GoCaptchaUni = defineAsyncComponent(() => import('go-captcha-uni'))
 const userStore = useUserStore()
 const settingStore = useSettingStore()
 const wechatMiniProvider = 'wechatmini'
+const loginSettingsReady = ref(false)
+let loginSettingsPromise: Promise<boolean> | undefined
+
+const configuredMainTitle = computed(() => settingStore.getData('mainTitle') || '应用框架示例')
+const configuredSubTitle = computed(() => settingStore.getData('subTitle') || '欢迎使用本应用')
+const configuredAppLogo = computed(() => settingStore.getData('appLogo') || defaultLogo)
 
 // 是否同意协议
 const isAgreePrivacy = ref(false)
@@ -43,12 +49,19 @@ const onOpenPrivacyContract = () => {
 }
 
 // #ifdef MP-WEIXIN
+// 微信授权失败时保留请求层提示，避免异步登录异常冒泡到小程序调试器。
 const wxLogin = async () => {
   const isAgreed = await checkedAgreePrivacy()
   if (!isAgreed) {
     return
   }
-  const loginRes = await wx.login()
+  let loginCode = ''
+  try {
+    loginCode = (await wx.login()).code
+  } catch {
+    await uni.showToast({ icon: 'none', title: '微信登录失败，请稍后重试' })
+    return
+  }
   // 显示确认弹窗
   uni.showModal({
     title: '提示',
@@ -56,10 +69,11 @@ const wxLogin = async () => {
     success: (modalRes) => {
       if (modalRes.confirm) {
         userStore
-          .createOauthSession({ provider: wechatMiniProvider, code: loginRes.code })
+          .createOauthSession({ provider: wechatMiniProvider, code: loginCode })
           .then(() => {
             void loginSuccess()
           })
+          .catch(() => undefined)
       }
     },
   })
@@ -109,8 +123,8 @@ type BehaviorCaptchaData = {
   angle?: number
 }
 const behaviorCaptchaTypeSet = new Set(['slide', 'click', 'rotate'])
-const configuredCaptchaType = computed(() => settingStore.getData('captchaType') || 'digit')
-const currentCaptchaType = ref(configuredCaptchaType.value)
+const configuredCaptchaType = computed(() => settingStore.getData('captchaType'))
+const currentCaptchaType = ref('')
 const isBehaviorCaptcha = computed(() => behaviorCaptchaTypeSet.has(currentCaptchaType.value))
 const behaviorCaptchaData = reactive<BehaviorCaptchaData>({
   image: '',
@@ -200,8 +214,14 @@ const behaviorCaptchaTheme = {
 // 获取验证码
 const getCaptcha = async () => {
   const requestedCaptchaType = configuredCaptchaType.value
+  if (!requestedCaptchaType) {
+    throw new Error('登录验证码类型未配置')
+  }
   const data = await defLoginService.Captcha({ type: requestedCaptchaType })
-  currentCaptchaType.value = data.type || requestedCaptchaType
+  if (!data.type) {
+    throw new Error('验证码接口未返回类型')
+  }
+  currentCaptchaType.value = data.type
   if (!isBehaviorCaptcha.value) {
     behaviorDialogVisible.value = false
   }
@@ -213,6 +233,22 @@ const getCaptcha = async () => {
     applyBehaviorCaptchaPayload(data.captcha_base64)
   }
 }
+
+/** 刷新验证码并将接口错误转为页面提示。 */
+const refreshCaptcha = async () => {
+  try {
+    await getCaptcha()
+    return true
+  } catch (error) {
+    behaviorDialogVisible.value = false
+    await uni.showToast({
+      icon: 'none',
+      title: error instanceof Error ? error.message : '验证码加载失败',
+    })
+    return false
+  }
+}
+
 // 页面加载或普通表单刷新验证码，行为验证码延迟到登录弹窗打开时再请求。
 const loadPageCaptcha = async () => {
   if (isBehaviorCaptcha.value) {
@@ -262,6 +298,9 @@ const form = ref<LoginRequest>({
 const passwordValue = ref('')
 // 校验账号密码与协议勾选状态。
 const validateLoginForm = async () => {
+  if (!(await ensureLoginSettings())) {
+    return false
+  }
   if (!form.value.user_name) {
     await uni.showToast({
       icon: 'none',
@@ -307,7 +346,7 @@ const openBehaviorCaptcha = async () => {
   behaviorDialogVisible.value = true
   behaviorLoading.value = true
   try {
-    await getCaptcha()
+    await refreshCaptcha()
   } finally {
     behaviorLoading.value = false
   }
@@ -329,7 +368,7 @@ const verifyBehaviorCaptcha = async (captchaCode: string, reset: () => void) => 
     await loginSuccess()
   } catch {
     reset()
-    await getCaptcha()
+    await refreshCaptcha()
   } finally {
     behaviorLoading.value = false
   }
@@ -358,7 +397,7 @@ const onBehaviorConfirm = (
 }
 // 刷新行为验证码。
 const onBehaviorRefresh = () => {
-  void getCaptcha()
+  void refreshCaptcha()
 }
 // 表单提交
 const onSubmit = async () => {
@@ -375,7 +414,7 @@ const onSubmit = async () => {
     await loginSuccess()
   } catch {
     form.value.captcha_code = ''
-    await loadPageCaptcha()
+    await refreshCaptcha()
   }
 }
 // #endif
@@ -402,6 +441,15 @@ const loginSuccess = async () => {
 
 // 请先阅读并勾选协议
 const checkedAgreePrivacy = async () => {
+  if (!(await ensureLoginSettings())) {
+    return false
+  }
+
+  if (!settingStore.getData('serviceProtocol') || !settingStore.getData('privacyProtocol')) {
+    await uni.showToast({ icon: 'none', title: '服务条款和隐私协议未配置' })
+    return false
+  }
+
   if (isAgreePrivacy.value) {
     return true
   }
@@ -427,15 +475,47 @@ const checkedAgreePrivacy = async () => {
   })
 }
 
-// 获取 code 登录凭证
-onLoad(async () => {
-  // #ifdef H5
-  if (!settingStore.getData('captchaType')) {
-    await settingStore.loadData()
+/** 加载登录所需的移动端配置。 */
+const loadLoginSettings = () => {
+  if (loginSettingsReady.value) {
+    return Promise.resolve(true)
   }
-  currentCaptchaType.value = configuredCaptchaType.value
-  await loadPageCaptcha()
-  // #endif
+  if (loginSettingsPromise) {
+    return loginSettingsPromise
+  }
+
+  loginSettingsPromise = (async () => {
+    try {
+      await settingStore.loadData()
+      // #ifdef H5
+      const captchaType = configuredCaptchaType.value
+      if (!captchaType) {
+        throw new Error('登录验证码类型未配置')
+      }
+      currentCaptchaType.value = captchaType
+      await loadPageCaptcha()
+      // #endif
+      loginSettingsReady.value = true
+      return true
+    } catch (error) {
+      await uni.showToast({
+        icon: 'none',
+        title: error instanceof Error ? error.message : '移动端配置加载失败',
+      })
+      loginSettingsPromise = undefined
+      return false
+    }
+  })()
+
+  return loginSettingsPromise
+}
+
+/** 确保登录前已完成移动端配置加载。 */
+const ensureLoginSettings = () => loadLoginSettings()
+
+// 获取 code 登录凭证
+onLoad(() => {
+  void loadLoginSettings()
 })
 </script>
 
@@ -443,10 +523,11 @@ onLoad(async () => {
   <view class="login-page">
     <view class="login-hero">
       <view class="login-logo-shell">
-        <image :src="settingStore.getData('sysLogo') || defaultLogo" />
+        <image :src="configuredAppLogo" />
       </view>
       <view class="login-hero-copy">
-        <text class="login-title">欢迎登录</text>
+        <text class="login-title">{{ configuredMainTitle }}</text>
+        <text class="login-subtitle">{{ configuredSubTitle }}</text>
       </view>
     </view>
     <view class="login-panel">
@@ -519,9 +600,9 @@ onLoad(async () => {
         <view class="login-agreement" @tap="toggleAgreePrivacy">
           <view class="login-agree-icon" :class="{ checked: isAgreePrivacy }"></view>
           <text class="login-agree-desc">我已阅读并同意</text>
-          <text class="login-agree-link" @tap="onOpenServiceProtocol">《服务条款》</text>
+          <text class="login-agree-link" @tap.stop="onOpenServiceProtocol">《服务条款》</text>
           <text class="login-agree-separator">和</text>
-          <text class="login-agree-link" @tap="onOpenPrivacyContract">《隐私协议》</text>
+          <text class="login-agree-link" @tap.stop="onOpenPrivacyContract">《隐私协议》</text>
         </view>
       </view>
     </view>
@@ -569,6 +650,12 @@ onLoad(async () => {
     font-size: 44rpx;
     font-weight: 600;
     color: #1f2937;
+  }
+
+  .login-subtitle {
+    margin-top: 12rpx;
+    color: #6b7280;
+    font-size: 26rpx;
   }
 }
 

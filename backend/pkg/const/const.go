@@ -1,6 +1,9 @@
 package _const
 
 const (
+	// BASE_DEPT_ID_APP_USER 表示移动端注册用户固定所属部门 ID。
+	BASE_DEPT_ID_APP_USER int64 = 4
+
 	// BASE_ROLE_CODE_SUPER 表示超级管理员角色编码。
 	BASE_ROLE_CODE_SUPER = "super"
 	// BASE_ROLE_CODE_TENANT 表示租户管理员角色编码。

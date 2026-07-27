@@ -158,7 +158,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	fileService := base.NewFileService(fileCase)
 	baseDeptRepository := data.NewBaseDeptRepository(dataData)
 	baseDeptCase := biz2.NewBaseDeptCase(baseDeptRepository)
-	baseRoleCase := biz2.NewBaseRoleCase(baseRoleRepository)
+	baseRoleCase := biz2.NewBaseRoleCase(baseRoleRepository, baseTenantCase)
 	baseDictRepository := data.NewBaseDictRepository(dataData)
 	baseDictItemRepository := data.NewBaseDictItemRepository(dataData)
 	loginCase := biz2.NewLoginCase(baseCase, userToken, baseDeptCase, baseRoleCase, baseUserCase, baseTenantRepository, baseDictRepository, baseDictItemRepository)
@@ -175,7 +175,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	baseThirdAccountRepository := data.NewBaseThirdAccountRepository(dataData)
 	baseThirdAccountCase := biz2.NewBaseThirdAccountCase(baseThirdAccountRepository)
 	userEvents := event.NewUserEvents()
-	oauthCase := biz2.NewOauthCase(baseCase, transaction, manager, baseThirdAccountCase, baseUserCase, loginCase, userEvents)
+	oauthCase := biz2.NewOauthCase(baseCase, transaction, manager, baseThirdAccountCase, baseUserCase, baseRoleCase, baseDeptCase, loginCase, userEvents)
 	oauthService := base.NewOauthService(oauthCase)
 	mcpServer, err := server.NewMCPHandler(context)
 	if err != nil {
