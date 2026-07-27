@@ -1,91 +1,121 @@
 #!/usr/bin/env python3
-"""根据远程更新状态自动创建并推送 tag。"""
+"""统一升级根项目、后端模块和前端 npm 包的版本并推送 tag。"""
 
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import subprocess
 import sys
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[1]
+PACKAGE_FILES = (
+    ROOT / "frontend/admin/package.json",
+    ROOT / "frontend/app/package.json",
+)
 TAG_RE = re.compile(r"^v(\d+)\.(\d+)\.(\d+)$")
 
 
-def run(cmd: list[str], check: bool = True) -> str:
-    result = subprocess.run(cmd, capture_output=True, text=True)
+def run(cmd: list[str], *, cwd: Path = ROOT, check: bool = True) -> str:
+    """执行命令并返回标准输出。"""
+    result = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True)
     if check and result.returncode != 0:
-        raise RuntimeError(f"命令执行失败: {' '.join(cmd)}\n{result.stderr.strip()}")
+        detail = result.stderr.strip() or result.stdout.strip()
+        raise RuntimeError(f"命令执行失败: {' '.join(cmd)}\n{detail}")
     return result.stdout.strip()
 
 
-def run_code(cmd: list[str]) -> int:
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    return result.returncode
+def run_stream(cmd: list[str], *, cwd: Path = ROOT) -> None:
+    """执行命令并直接转发输出。"""
+    result = subprocess.run(cmd, cwd=cwd)
+    if result.returncode != 0:
+        raise RuntimeError(f"命令执行失败: {' '.join(cmd)}")
 
 
-def detect_remote_ref() -> str:
-    remote_head = run(["git", "symbolic-ref", "--quiet", "--short", "refs/remotes/origin/HEAD"], check=False)
+def parse_version(value: str) -> tuple[int, int, int]:
+    """解析 vX.Y.Z 格式的版本。"""
+    raw = value.strip()
+    if raw.startswith("v"):
+        raw = raw[1:]
+    match = TAG_RE.fullmatch(f"v{raw}")
+    if not match:
+        raise RuntimeError(f"非法版本号: {value}，应为 X.Y.Z 或 vX.Y.Z")
+    return tuple(int(part) for part in match.groups())
+
+
+def version_text(version: tuple[int, int, int]) -> str:
+    """格式化 npm 版本号。"""
+    return ".".join(str(part) for part in version)
+
+
+def tag_text(version: tuple[int, int, int]) -> str:
+    """格式化根目录 tag。"""
+    return f"v{version_text(version)}"
+
+
+def detect_remote_branch() -> str:
+    """读取 origin 默认分支名称。"""
+    remote_head = run(
+        ["git", "symbolic-ref", "--quiet", "--short", "refs/remotes/origin/HEAD"],
+        check=False,
+    )
     if remote_head.startswith("origin/"):
-        branch = remote_head.split("/", 1)[1]
-    elif remote_head:
-        branch = remote_head
-    else:
-        # 兼容未设置 origin/HEAD 的仓库。
-        branch = "main"
-    remote_ref = f"origin/{branch}"
-    if run_code(["git", "rev-parse", "--verify", remote_ref]) != 0:
-        # 兜底尝试 master。
-        remote_ref = "origin/master"
-    if run_code(["git", "rev-parse", "--verify", remote_ref]) != 0:
-        raise RuntimeError(f"远程分支不存在: {remote_ref}")
+        return remote_head.split("/", 1)[1]
+    if remote_head:
+        return remote_head
+
+    symref = run(["git", "ls-remote", "--symref", "origin", "HEAD"], check=False)
+    for line in symref.splitlines():
+        if line.startswith("ref: refs/heads/") and line.endswith("\tHEAD"):
+            return line.removeprefix("ref: refs/heads/").removesuffix("\tHEAD")
+    return "main"
+
+
+def fetch_remote(branch: str) -> None:
+    """刷新远程分支和 tag。"""
+    run(["git", "fetch", "origin", branch, "--tags", "--prune"])
+
+
+def ensure_release_branch(branch: str) -> str:
+    """确保当前分支是远程默认分支且已同步。"""
+    current = run(["git", "branch", "--show-current"])
+    if current != branch:
+        raise RuntimeError(f"发布必须在远程默认分支 {branch} 上执行，当前分支为 {current or '<detached>'}")
+
+    remote_ref = f"refs/remotes/origin/{branch}"
+    remote_head = run(["git", "rev-parse", "--verify", remote_ref], check=False)
+    if not remote_head:
+        raise RuntimeError(f"远程分支不存在: origin/{branch}")
+    local_head = run(["git", "rev-parse", "HEAD"])
+    if local_head != remote_head:
+        raise RuntimeError("当前分支未与 origin 同步，请先提交并推送代码后再发布")
     return remote_ref
 
 
-def module_dirs(base_dir: str = ".") -> list[str]:
-    base = Path(base_dir)
-    if not base.exists() or not base.is_dir():
-        raise RuntimeError(f"目录不存在: {base_dir}")
-
-    paths = sorted({p.parent.as_posix() for p in base.rglob("go.mod") if ".git" not in p.parts})
-    return ["." if p == "." else p for p in paths]
-
-
-def prefix_of(module_dir: str) -> str:
-    if module_dir == ".":
-        return ""
-    return f"{module_dir.lstrip('./')}/"
-
-
-def parse_semver(tag: str) -> tuple[int, int, int]:
-    match = TAG_RE.match(tag)
-    if not match:
-        raise ValueError(f"非法语义化版本: {tag}")
-    return int(match.group(1)), int(match.group(2)), int(match.group(3))
-
-
-def latest_tag(prefix: str) -> str | None:
-    tags = run(["git", "tag", "-l", f"{prefix}v[0-9]*.[0-9]*.[0-9]*"]).splitlines()
+def latest_tag(prefix: str) -> tuple[tuple[int, int, int], str] | None:
+    """读取指定前缀下最大的语义化版本 tag。"""
+    tags = run(["git", "tag", "--list", f"{prefix}v*"]).splitlines()
     parsed: list[tuple[tuple[int, int, int], str]] = []
-    for full in tags:
-        if not full:
+    for tag in tags:
+        if not tag.startswith(prefix):
             continue
-        raw = full[len(prefix) :] if prefix else full
-        if not TAG_RE.match(raw):
+        raw = tag[len(prefix) :]
+        if not TAG_RE.fullmatch(raw):
             continue
-        parsed.append((parse_semver(raw), full))
+        parsed.append((parse_version(raw), tag))
     if not parsed:
         return None
-    parsed.sort(key=lambda x: x[0], reverse=True)
-    return parsed[0][1]
+    parsed.sort(key=lambda item: item[0], reverse=True)
+    return parsed[0]
 
 
-def next_tag(latest: str | None, prefix: str) -> str:
-    if not latest:
-        return f"{prefix}v0.0.1"
-    raw = latest[len(prefix) :] if prefix else latest
-    major, minor, patch = parse_semver(raw)
-    # patch 达到 100 时向 minor 进位，minor 达到 100 时继续向 major 进位。
+def next_version(latest: tuple[int, int, int] | None) -> tuple[int, int, int]:
+    """计算下一个 patch 版本。"""
+    if latest is None:
+        return 0, 0, 1
+    major, minor, patch = latest
     patch += 1
     if patch >= 100:
         minor += 1
@@ -93,97 +123,132 @@ def next_tag(latest: str | None, prefix: str) -> str:
     if minor >= 100:
         major += 1
         minor = 0
-    return f"{prefix}v{major}.{minor}.{patch}"
+    return major, minor, patch
 
 
-def has_remote_update(latest: str | None, remote_ref: str, module_dir: str) -> bool:
-    if latest:
-        count = run(["git", "rev-list", "--count", f"{latest}..{remote_ref}", "--", module_dir])
-    else:
-        count = run(["git", "rev-list", "--count", remote_ref, "--", module_dir])
-    return int(count or "0") > 0
+def resolve_version(requested: str | None) -> tuple[int, int, int]:
+    """解析显式版本，未指定时按根目录最新 tag 自动递增。"""
+    if requested:
+        return parse_version(requested)
+
+    root_latest = latest_tag("")
+    backend_latest = latest_tag("backend/")
+    if root_latest and backend_latest and root_latest[0] != backend_latest[0]:
+        raise RuntimeError(
+            f"根目录与 backend 最新 tag 不一致: {root_latest[1]} / {backend_latest[1]}，请显式指定 VERSION 修复版本线"
+        )
+    latest = root_latest[0] if root_latest else backend_latest[0] if backend_latest else None
+    return next_version(latest)
 
 
-def remote_tag_exists(tag: str) -> bool:
-    return run_code(["git", "ls-remote", "--exit-code", "--tags", "origin", f"refs/tags/{tag}"]) == 0
+def tag_exists_locally(tag: str) -> bool:
+    """判断本地 tag 是否存在。"""
+    return bool(run(["git", "rev-parse", "--verify", f"refs/tags/{tag}"], check=False))
 
 
-def local_tag_exists(tag: str) -> bool:
-    return run_code(["git", "rev-parse", "--verify", tag]) == 0
+def tag_exists_remotely(tag: str) -> bool:
+    """判断远程 tag 是否存在。"""
+    return subprocess.run(
+        ["git", "ls-remote", "--exit-code", "--tags", "origin", f"refs/tags/{tag}"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    ).returncode == 0
 
 
-def ensure_local_tag(tag: str, remote_ref: str) -> None:
-    if not local_tag_exists(tag):
-        run(["git", "tag", tag, remote_ref])
+def ensure_tags_available(version: tuple[int, int, int]) -> tuple[str, str]:
+    """确保根目录和 backend 的目标 tag 尚未使用。"""
+    root_tag = tag_text(version)
+    backend_tag = f"backend/{root_tag}"
+    for tag in (root_tag, backend_tag):
+        if tag_exists_locally(tag) or tag_exists_remotely(tag):
+            raise RuntimeError(f"tag 已存在，拒绝覆盖: {tag}")
+    return root_tag, backend_tag
+
+
+def update_package_versions(version: tuple[int, int, int]) -> list[Path]:
+    """将两个前端包统一更新到目标版本。"""
+    target = version_text(version)
+    changed: list[Path] = []
+    for path in PACKAGE_FILES:
+        try:
+            package = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as err:
+            raise RuntimeError(f"无法读取 npm 包配置: {path}: {err}") from err
+        current = package.get("version")
+        if not isinstance(current, str):
+            raise RuntimeError(f"npm 包缺少合法 version: {path}")
+        if parse_version(current) > version:
+            raise RuntimeError(f"npm 包版本 {current} 高于目标版本 {target}: {path}")
+        if current == target:
+            continue
+        package["version"] = target
+        content = json.dumps(package, ensure_ascii=False, indent=2) + "\n"
+        path.write_text(content, encoding="utf-8")
+        changed.append(path)
+    return changed
+
+
+def commit_all_changes(version: tuple[int, int, int]) -> None:
+    """提交版本更新以及工作区中的全部本地改动。"""
+    status = run(["git", "status", "--porcelain"])
+    if not status:
+        return
+    run(["git", "add", "-A"])
+    run(["git", "commit", "-m", f"chore(release): 统一升级 v{version_text(version)}"])
+
+
+def run_frontend_package() -> None:
+    """检查并打包两个前端 npm 包。"""
+    run_stream(["make", "-C", "frontend", "package"])
+
+
+def push_branch(branch: str) -> None:
+    """推送版本提交到默认分支。"""
+    run(["git", "push", "origin", branch])
 
 
 def push_tag(tag: str) -> None:
+    """创建并推送单个 tag。"""
+    run(["git", "tag", tag])
     run(["git", "push", "origin", tag])
+    print(f"已推送 tag: {tag}")
 
 
-def process_module(module_dir: str, remote_ref: str) -> bool:
-    prefix = prefix_of(module_dir)
-    latest = latest_tag(prefix)
-    nxt = next_tag(latest, prefix)
-
-    if not has_remote_update(latest, remote_ref, module_dir):
-        print(f"{module_dir} => 最新 tag: {latest or '<无>'}，远程无更新，跳过。")
-        return False
-
-    if remote_tag_exists(nxt):
-        print(f"{module_dir} => 远程 tag {nxt} 已存在，跳过。")
-        return False
-
-    ensure_local_tag(nxt, remote_ref)
-    push_tag(nxt)
-    print(f"{module_dir} => 已推送远程 tag: {nxt} -> {remote_ref}")
-    return True
-
-
-def normalize_module_dir(module_dir: str) -> str:
-    clean = module_dir.strip().rstrip("/")
-    if clean in {"", "."}:
-        return "."
-    if clean.startswith("/") or ".." in Path(clean).parts:
-        raise RuntimeError(f"非法模块目录: {module_dir}（请使用仓库内相对路径）")
-    return clean
-
-
-def resolve_target_dirs(module_path: str | None) -> list[str]:
-    if not module_path:
-        return module_dirs(".")
-
-    target = normalize_module_dir(module_path)
-    targets = module_dirs(target)
-    if not targets:
-        raise RuntimeError(f"目录及其子目录不存在 go.mod: {target}")
-    return targets
+def run_backend_tests() -> None:
+    """发布前执行后端完整测试。"""
+    run_stream(["go", "test", "./..."], cwd=ROOT / "backend")
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="远程更新触发的 tag 发布脚本")
-    parser.add_argument(
-        "--path",
-        dest="module_path",
-        help="从指定相对目录开始递归检查 go.mod（包含当前目录与子目录）",
-    )
+    parser = argparse.ArgumentParser(description="统一发布根项目、backend tag 和 frontend npm 包")
+    parser.add_argument("--version", help="目标版本，支持 X.Y.Z 或 vX.Y.Z；不指定时自动递增")
+    parser.add_argument("--package", action="store_true", help="推送前检查并打包两个前端 npm 包")
+    parser.add_argument("--dry-run", action="store_true", help="仅检查并打印目标，不修改文件、不提交、不推送")
     args = parser.parse_args()
 
     try:
-        run(["git", "fetch", "origin", "--tags"])
-        remote_ref = detect_remote_ref()
-        print(f"远程分支引用: {remote_ref}")
-        targets = resolve_target_dirs(args.module_path)
+        branch = detect_remote_branch()
+        fetch_remote(branch)
+        ensure_release_branch(branch)
+        version = resolve_version(args.version)
+        root_tag, backend_tag = ensure_tags_available(version)
+        target = version_text(version)
+        print(f"发布版本: {target}")
+        print(f"发布顺序: 全量提交 -> {'frontend package -> ' if args.package else ''}推送分支 -> {root_tag} -> {backend_tag}")
 
-        pushed = False
-        for d in targets:
-            if process_module(d, remote_ref):
-                pushed = True
-        if not pushed:
-            if args.module_path:
-                print(f"{normalize_module_dir(args.module_path)} 及其子目录远程无更新，未推送任何 tag。")
-            else:
-                print("所有模块远程均无更新，未推送任何 tag。")
+        if args.dry_run:
+            print("dry-run：未修改文件、未提交、未推送。")
+            return 0
+
+        changed = update_package_versions(version)
+        run_backend_tests()
+        commit_all_changes(version)
+        if args.package:
+            run_frontend_package()
+        push_branch(branch)
+        push_tag(root_tag)
+        push_tag(backend_tag)
         return 0
     except RuntimeError as err:
         print(str(err), file=sys.stderr)

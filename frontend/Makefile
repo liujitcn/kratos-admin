@@ -14,7 +14,7 @@ ifneq ($(strip $(NPM_OTP)),)
 NPM_PUBLISH_ARGS += --otp "$(NPM_OTP)"
 endif
 
-.PHONY: help init pnpm-admin pnpm-app run run-admin run-app build build-admin build-app build-package package package-admin package-app publish publish-admin publish-app
+.PHONY: help init pnpm-admin pnpm-app run run-admin run-app build build-admin build-app build-package package package-admin package-app publish publish-only publish-admin publish-app
 
 # 安装管理后台依赖
 init: pnpm-admin pnpm-app
@@ -81,12 +81,16 @@ publish-app: package-app
 	@cd app && \
 		CI=1 pnpm publish $(NPM_PUBLISH_ARGS)
 
-# 检查、打包并按顺序发布两个 npm 包
-publish: package
+# 发布已检查并打包的两个 npm 包
+publish-only:
 	@cd admin && \
 		CI=1 pnpm publish $(NPM_PUBLISH_ARGS) && \
 		cd ../app && \
 		CI=1 pnpm publish $(NPM_PUBLISH_ARGS)
+
+# 检查、打包并按顺序发布两个 npm 包
+publish: package
+	@$(MAKE) publish-only
 
 # 构建 app 端 H5 静态资源
 build-app:

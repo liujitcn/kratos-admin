@@ -1,5 +1,12 @@
-# 仓库级 Makefile：git hooks 与跨前后端的模块边界检查
-.PHONY: help init hooks check-boundary tag
+# 仓库级 Makefile：git hooks、跨前后端检查与统一发布
+VERSION ?=
+NPM_REGISTRY ?= https://registry.npmjs.org/
+NPM_ACCESS ?= public
+NPM_TAG ?= latest
+NPM_OTP ?=
+NPM_SKIP_GIT_CHECKS ?= true
+
+.PHONY: help init hooks check-boundary tag release
 
 # 初始化开发环境（git hooks）
 init: hooks
@@ -14,9 +21,21 @@ hooks:
 check-boundary:
 	@bash scripts/check_module_boundary.sh
 
-# 统一打 tag：默认扫描根目录及子目录的 go.mod；可通过 MODULE=auth 指定起始目录递归扫描（不提交代码）
+# 统一升级版本、提交全部本地改动并推送根目录、backend tag；不打包或发布前端 npm 包
 tag:
-	@python3 scripts/tag_release.py $(if $(MODULE),--path $(MODULE),)
+	@python3 scripts/tag_release.py $(if $(strip $(VERSION)),--version "$(VERSION)",)
+
+# 统一升级、提交、打包、推送 tag，并发布两个前端 npm 包
+release:
+	@python3 scripts/tag_release.py \
+		$(if $(strip $(VERSION)),--version "$(VERSION)",) \
+		--package
+	@$(MAKE) -C frontend publish-only \
+		NPM_REGISTRY="$(NPM_REGISTRY)" \
+		NPM_ACCESS="$(NPM_ACCESS)" \
+		NPM_TAG="$(NPM_TAG)" \
+		NPM_OTP="$(NPM_OTP)" \
+		NPM_SKIP_GIT_CHECKS="$(NPM_SKIP_GIT_CHECKS)"
 
 # 查看所有可用目标及说明
 help:

@@ -1,5 +1,5 @@
 # Makefile 常用目标：初始化工具、生成代码、格式化代码、启动服务
-.PHONY: help init plugin cli fmt lint gorm-gen wire api openapi ts ts-app gen run build docker-build
+.PHONY: help init plugin cli fmt lint gorm-gen wire api buf-push openapi ts ts-app gen run build docker-build
 
 IMAGE ?= backend
 TAG ?= latest
@@ -94,6 +94,13 @@ api:
 		PATH="$(GO_BIN_DIR):$$PATH" buf generate
 	@PATH="$(GO_BIN_DIR):$$PATH" find api/gen/go -type f -name '*.go' -exec goimports -w {} +
 	@echo "==> protobuf Go 代码生成完成"
+
+# 发布 protobuf 公共模块到 Buf Schema Registry
+buf-push:
+	@echo "==> 发布 protobuf 公共模块"
+	@cd api && \
+		PATH="$(GO_BIN_DIR):$$PATH" buf push . --exclude-unnamed --label main
+	@echo "==> protobuf 公共模块发布完成"
 
 # 生成 OpenAPI v3 文档
 openapi:

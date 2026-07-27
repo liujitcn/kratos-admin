@@ -123,6 +123,8 @@ export interface BaseConfig {
 
 /** Admin系统配置服务 */
 export interface BaseConfigService {
+  /** 刷新缓存 */
+  RefreshBaseConfigCache(request: RefreshBaseConfigCacheRequest): Promise<Empty>;
   /** 查询系统配置分页列表 */
   PageBaseConfig(request: PageBaseConfigRequest): Promise<PageBaseConfigResponse>;
   /** 查询系统配置 */
@@ -135,6 +137,4 @@ export interface BaseConfigService {
   DeleteBaseConfig(request: DeleteBaseConfigRequest): Promise<Empty>;
   /** 设置状态 */
   SetBaseConfigStatus(request: SetBaseConfigStatusRequest): Promise<Empty>;
-  /** 刷新缓存 */
-  RefreshBaseConfigCache(request: RefreshBaseConfigCacheRequest): Promise<Empty>;
 }

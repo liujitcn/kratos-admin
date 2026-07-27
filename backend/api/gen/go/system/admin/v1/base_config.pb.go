@@ -713,9 +713,9 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt2\xd6\a\n" +
-	"\x11BaseConfigService\x12\x84\x01\n" +
-	"\x0ePageBaseConfig\x12&.system.admin.v1.PageBaseConfigRequest\x1a'.system.admin.v1.PageBaseConfigResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/v1/admin/base/config\x12\x8c\x01\n" +
-	"\x16RefreshBaseConfigCache\x12..system.admin.v1.RefreshBaseConfigCacheRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\x01*\x1a\x1f/api/v1/admin/base/config/cache\x12\x7f\n" +
+	"\x11BaseConfigService\x12\x8c\x01\n" +
+	"\x16RefreshBaseConfigCache\x12..system.admin.v1.RefreshBaseConfigCacheRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\x01*\x1a\x1f/api/v1/admin/base/config/cache\x12\x84\x01\n" +
+	"\x0ePageBaseConfig\x12&.system.admin.v1.PageBaseConfigRequest\x1a'.system.admin.v1.PageBaseConfigResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/v1/admin/base/config\x12\x7f\n" +
 	"\rGetBaseConfig\x12%.system.admin.v1.GetBaseConfigRequest\x1a\x1f.system.admin.v1.BaseConfigForm\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/config/{id}\x12\x84\x01\n" +
 	"\x10CreateBaseConfig\x12(.system.admin.v1.CreateBaseConfigRequest\x1a\x16.google.protobuf.Empty\".\x82\xd3\xe4\x93\x02(:\vbase_config\"\x19/api/v1/admin/base/config\x12\x95\x01\n" +
 	"\x10UpdateBaseConfig\x12(.system.admin.v1.UpdateBaseConfigRequest\x1a\x16.google.protobuf.Empty\"?\x82\xd3\xe4\x93\x029:\vbase_config\x1a*/api/v1/admin/base/config/{base_config.id}\x12|\n" +
@@ -765,15 +765,15 @@ var file_system_admin_v1_base_config_proto_depIdxs = []int32{
 	10, // 9: system.admin.v1.BaseConfig.site:type_name -> common.v1.BaseConfigSite
 	11, // 10: system.admin.v1.BaseConfig.type:type_name -> system.common.v1.BaseConfigType
 	12, // 11: system.admin.v1.BaseConfig.status:type_name -> common.v1.Status
-	0,  // 12: system.admin.v1.BaseConfigService.PageBaseConfig:input_type -> system.admin.v1.PageBaseConfigRequest
-	8,  // 13: system.admin.v1.BaseConfigService.RefreshBaseConfigCache:input_type -> system.admin.v1.RefreshBaseConfigCacheRequest
+	8,  // 12: system.admin.v1.BaseConfigService.RefreshBaseConfigCache:input_type -> system.admin.v1.RefreshBaseConfigCacheRequest
+	0,  // 13: system.admin.v1.BaseConfigService.PageBaseConfig:input_type -> system.admin.v1.PageBaseConfigRequest
 	2,  // 14: system.admin.v1.BaseConfigService.GetBaseConfig:input_type -> system.admin.v1.GetBaseConfigRequest
 	4,  // 15: system.admin.v1.BaseConfigService.CreateBaseConfig:input_type -> system.admin.v1.CreateBaseConfigRequest
 	5,  // 16: system.admin.v1.BaseConfigService.UpdateBaseConfig:input_type -> system.admin.v1.UpdateBaseConfigRequest
 	6,  // 17: system.admin.v1.BaseConfigService.DeleteBaseConfig:input_type -> system.admin.v1.DeleteBaseConfigRequest
 	7,  // 18: system.admin.v1.BaseConfigService.SetBaseConfigStatus:input_type -> system.admin.v1.SetBaseConfigStatusRequest
-	1,  // 19: system.admin.v1.BaseConfigService.PageBaseConfig:output_type -> system.admin.v1.PageBaseConfigResponse
-	13, // 20: system.admin.v1.BaseConfigService.RefreshBaseConfigCache:output_type -> google.protobuf.Empty
+	13, // 19: system.admin.v1.BaseConfigService.RefreshBaseConfigCache:output_type -> google.protobuf.Empty
+	1,  // 20: system.admin.v1.BaseConfigService.PageBaseConfig:output_type -> system.admin.v1.PageBaseConfigResponse
 	3,  // 21: system.admin.v1.BaseConfigService.GetBaseConfig:output_type -> system.admin.v1.BaseConfigForm
 	13, // 22: system.admin.v1.BaseConfigService.CreateBaseConfig:output_type -> google.protobuf.Empty
 	13, // 23: system.admin.v1.BaseConfigService.UpdateBaseConfig:output_type -> google.protobuf.Empty

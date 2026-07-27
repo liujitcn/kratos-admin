@@ -46,32 +46,13 @@ type BaseConfigServiceHTTPServer interface {
 
 func RegisterBaseConfigServiceHTTPServer(s *http.Server, srv BaseConfigServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/base/config", _BaseConfigService_PageBaseConfig0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/config/cache", _BaseConfigService_RefreshBaseConfigCache0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/config", _BaseConfigService_PageBaseConfig0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/config/{id}", _BaseConfigService_GetBaseConfig0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/base/config", _BaseConfigService_CreateBaseConfig0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/config/{base_config.id}", _BaseConfigService_UpdateBaseConfig0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/base/config/{id}", _BaseConfigService_DeleteBaseConfig0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/config/{id}/status", _BaseConfigService_SetBaseConfigStatus0_HTTP_Handler(srv))
-}
-
-func _BaseConfigService_PageBaseConfig0_HTTP_Handler(srv BaseConfigServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in PageBaseConfigRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationBaseConfigServicePageBaseConfig)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageBaseConfig(ctx, req.(*PageBaseConfigRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*PageBaseConfigResponse)
-		return ctx.Result(200, reply)
-	}
 }
 
 func _BaseConfigService_RefreshBaseConfigCache0_HTTP_Handler(srv BaseConfigServiceHTTPServer) func(ctx http.Context) error {
@@ -89,6 +70,25 @@ func _BaseConfigService_RefreshBaseConfigCache0_HTTP_Handler(srv BaseConfigServi
 			return err
 		}
 		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _BaseConfigService_PageBaseConfig0_HTTP_Handler(srv BaseConfigServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PageBaseConfigRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseConfigServicePageBaseConfig)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PageBaseConfig(ctx, req.(*PageBaseConfigRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PageBaseConfigResponse)
 		return ctx.Result(200, reply)
 	}
 }

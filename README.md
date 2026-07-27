@@ -31,11 +31,29 @@
 4. 启动管理后台，默认地址为 `http://localhost:8848`。
 5. 如需启动应用壳子，执行 `make -C frontend run-app`；业务应用通过 `@liujitcn/kratos-app` 注册自己的页面并调用公共启动入口。
 
+## 统一发布
+
+统一发布命令会自动递增（或使用显式 `VERSION`）两个前端包的版本，将工作区全部改动统一提交，
+执行后端测试和两个前端包的检查打包，确认成功后推送分支、根目录 tag、`backend` tag，最后发布 npm 包：
+
+```bash
+make release VERSION=0.0.4 NPM_OTP=123456
+```
+
+发布 `0.0.4` 时会依次推送 `v0.0.4` 和 `backend/v0.0.4`。不指定 `VERSION` 时，脚本会先拉取远程
+tag，再按根目录最新 tag 自动递增 patch 版本。发布要求当前分支是远程默认分支且提交基线已与远程同步；
+工作区中的本地改动会全部纳入版本提交。
+
+只升级版本并推送两个 tag、不发布 npm 包时执行：
+
+```bash
+make tag VERSION=0.0.4
+```
+
 ## npm 包发布
 
-前端 npm 包由 `frontend/Makefile` 统一管理。先在
-`frontend/admin/package.json` 和 `frontend/app/package.json` 更新版本号，并确保已登录目标
-npm registry：
+前端 npm 包由 `frontend/Makefile` 统一管理。完整版本发布请使用上面的 `make release`；
+仅需要发布已准备好的包时，确保已登录目标 npm registry 后执行：
 
 ```bash
 pnpm login

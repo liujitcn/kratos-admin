@@ -2,6 +2,23 @@ version: v2
 
 modules:
   - path: proto
+    excludes:
+      - proto/common
+    lint:
+      use:
+        - STANDARD
+      except:
+        - ENUM_VALUE_PREFIX
+        - ENUM_ZERO_VALUE_SUFFIX
+        - RPC_REQUEST_RESPONSE_UNIQUE
+        - RPC_RESPONSE_STANDARD_NAME
+    breaking:
+      use:
+        - FILE
+  - path: proto
+    name: buf.build/liujitcn/kratos-common
+    includes:
+      - proto/common
     lint:
       use:
         - STANDARD
@@ -14,6 +31,7 @@ modules:
       use:
         - FILE
 deps:
+  - 'buf.build/liujitcn/kratos-common'
   - 'buf.build/googleapis/googleapis'
   - 'buf.build/kratos/apis'
   - 'buf.build/gnostic/gnostic'

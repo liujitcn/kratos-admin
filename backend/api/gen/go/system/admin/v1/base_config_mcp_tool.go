@@ -15,34 +15,13 @@ import (
 
 // RegisterBaseConfigServiceMCPTools 注册Admin系统配置服务的 MCP Tool。
 func RegisterBaseConfigServiceMCPTools(mcpServer *mcp.Server, baseConfigServiceServer BaseConfigServiceServer) {
-	RegisterBaseConfigServicePageBaseConfigMCPTool(mcpServer, baseConfigServiceServer)
 	RegisterBaseConfigServiceRefreshBaseConfigCacheMCPTool(mcpServer, baseConfigServiceServer)
+	RegisterBaseConfigServicePageBaseConfigMCPTool(mcpServer, baseConfigServiceServer)
 	RegisterBaseConfigServiceGetBaseConfigMCPTool(mcpServer, baseConfigServiceServer)
 	RegisterBaseConfigServiceCreateBaseConfigMCPTool(mcpServer, baseConfigServiceServer)
 	RegisterBaseConfigServiceUpdateBaseConfigMCPTool(mcpServer, baseConfigServiceServer)
 	RegisterBaseConfigServiceDeleteBaseConfigMCPTool(mcpServer, baseConfigServiceServer)
 	RegisterBaseConfigServiceSetBaseConfigStatusMCPTool(mcpServer, baseConfigServiceServer)
-}
-
-// RegisterBaseConfigServicePageBaseConfigMCPTool 注册查询系统配置分页列表的 MCP Tool。
-func RegisterBaseConfigServicePageBaseConfigMCPTool(mcpServer *mcp.Server, baseConfigServiceServer BaseConfigServiceServer) {
-	mcp.AddTool[*PageBaseConfigRequest, *PageBaseConfigResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_config_service_page_base_config",
-			Description: "查询系统配置分页列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseConfigRequest) (*mcp.CallToolResult, *PageBaseConfigResponse, error) {
-			if input == nil {
-				input = &PageBaseConfigRequest{}
-			}
-			reply, err := baseConfigServiceServer.PageBaseConfig(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
 }
 
 // RegisterBaseConfigServiceRefreshBaseConfigCacheMCPTool 注册刷新缓存的 MCP Tool。
@@ -58,6 +37,27 @@ func RegisterBaseConfigServiceRefreshBaseConfigCacheMCPTool(mcpServer *mcp.Serve
 				input = &RefreshBaseConfigCacheRequest{}
 			}
 			reply, err := baseConfigServiceServer.RefreshBaseConfigCache(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterBaseConfigServicePageBaseConfigMCPTool 注册查询系统配置分页列表的 MCP Tool。
+func RegisterBaseConfigServicePageBaseConfigMCPTool(mcpServer *mcp.Server, baseConfigServiceServer BaseConfigServiceServer) {
+	mcp.AddTool[*PageBaseConfigRequest, *PageBaseConfigResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_base_config_service_page_base_config",
+			Description: "查询系统配置分页列表",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseConfigRequest) (*mcp.CallToolResult, *PageBaseConfigResponse, error) {
+			if input == nil {
+				input = &PageBaseConfigRequest{}
+			}
+			reply, err := baseConfigServiceServer.PageBaseConfig(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
