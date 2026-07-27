@@ -3,14 +3,14 @@
   <div v-loading="loading" class="table-box migration-page">
     <main class="migration-content">
       <el-form class="migration-filters" :model="filters" inline @submit.prevent="handleSearch">
-        <el-form-item label="版本">
-          <el-input v-model="filters.version" clearable placeholder="请输入版本号" @keyup.enter="handleSearch" />
-        </el-form-item>
         <el-form-item label="模块">
           <el-input v-model="filters.module" clearable placeholder="请输入迁移模块" @keyup.enter="handleSearch" />
         </el-form-item>
         <el-form-item label="数据源">
           <el-input v-model="filters.data_source" clearable placeholder="请输入数据源名称" @keyup.enter="handleSearch" />
+        </el-form-item>
+        <el-form-item label="版本">
+          <el-input v-model="filters.version" clearable placeholder="请输入版本号" @keyup.enter="handleSearch" />
         </el-form-item>
         <el-form-item class="migration-filters__actions">
           <el-button type="primary" :icon="Search" native-type="submit">查询</el-button>
