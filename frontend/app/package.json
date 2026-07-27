@@ -1,6 +1,6 @@
 {
   "name": "@liujitcn/kratos-app",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": false,
   "description": "kratos-admin uni-app host and shared app runtime",
   "scripts": {
@@ -105,6 +105,7 @@
     "@dcloudio/uni-mp-xhs": "3.0.0-5010520260709002",
     "@dcloudio/uni-quickapp-webview": "3.0.0-5010520260709002",
     "@dcloudio/uni-ui": "^1.4.28",
+    "@dcloudio/vite-plugin-uni": "3.0.0-5010520260709002",
     "@types/node": "^18.11.9",
     "@uni-helper/uni-app-types": "1.0.0-alpha.6",
     "@uni-helper/uni-ui-types": "1.0.0-alpha.6",
@@ -114,6 +115,7 @@
     "pinia": "^2.0.27",
     "pinia-plugin-persistedstate": "^3.2.0",
     "sass": "1.77.8",
+    "vite": "5.2.8",
     "vue": "^3.4.21",
     "vue-i18n": "^9.1.9"
   },
@@ -122,7 +124,6 @@
     "@dcloudio/uni-automator": "3.0.0-5010520260709002",
     "@dcloudio/uni-cli-shared": "3.0.0-5010520260709002",
     "@dcloudio/uni-stacktracey": "3.0.0-5010520260709002",
-    "@dcloudio/vite-plugin-uni": "3.0.0-5010520260709002",
     "@rushstack/eslint-patch": "^1.1.4",
     "@vue/eslint-config-prettier": "10.2.0",
     "@vue/eslint-config-typescript": "14.7.0",
@@ -133,7 +134,6 @@
     "prettier": "3.6.2",
     "rollup": "4.14.3",
     "typescript": "5.4.5",
-    "vite": "5.2.8",
     "vue-tsc": "^1.8.8"
   }
 }

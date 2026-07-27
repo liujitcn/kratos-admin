@@ -59,6 +59,9 @@ importers:
       '@dcloudio/uni-ui':
         specifier: ^1.4.28
         version: 1.5.12
+      '@dcloudio/vite-plugin-uni':
+        specifier: 3.0.0-5010520260709002
+        version: 3.0.0-5010520260709002(postcss@8.5.8)(rollup@4.14.3)(vite@5.2.8(@types/node@18.19.130)(sass@1.77.8)(terser@5.46.1))(vue@3.4.21(typescript@5.4.5))
       '@types/node':
         specifier: ^18.11.9
         version: 18.19.130
@@ -86,6 +89,9 @@ importers:
       sass:
         specifier: 1.77.8
         version: 1.77.8
+      vite:
+        specifier: 5.2.8
+        version: 5.2.8(@types/node@18.19.130)(sass@1.77.8)(terser@5.46.1)
       vue:
         specifier: ^3.4.21
         version: 3.4.21(typescript@5.4.5)
@@ -105,9 +111,6 @@ importers:
       '@dcloudio/uni-stacktracey':
         specifier: 3.0.0-5010520260709002
         version: 3.0.0-5010520260709002
-      '@dcloudio/vite-plugin-uni':
-        specifier: 3.0.0-5010520260709002
-        version: 3.0.0-5010520260709002(postcss@8.5.8)(rollup@4.14.3)(vite@5.2.8(@types/node@18.19.130)(sass@1.77.8)(terser@5.46.1))(vue@3.4.21(typescript@5.4.5))
       '@rushstack/eslint-patch':
         specifier: ^1.1.4
         version: 1.16.1
@@ -138,9 +141,6 @@ importers:
       typescript:
         specifier: 5.4.5
         version: 5.4.5
-      vite:
-        specifier: 5.2.8
-        version: 5.2.8(@types/node@18.19.130)(sass@1.77.8)(terser@5.46.1)
       vue-tsc:
         specifier: ^1.8.8
         version: 1.8.27(typescript@5.4.5)

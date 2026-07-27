@@ -49,7 +49,7 @@ pnpm build:package
 
 ## 前端模块包
 
-当前管理端包名为 `@liujitcn/kratos-admin`，版本为 `0.0.1`。包入口导出 `bootstrapAdminApp`、`defineAdminModule`、`createAdminViewRegistry` 和 `kratosAdminModule`，供业务后台注册自己的视图模块；基础页面通过模块视图注册表解析后端菜单的 `component` 字段。
+当前管理端包名为 `@liujitcn/kratos-admin`，版本为 `0.0.3`。包入口导出 `bootstrapAdminApp`、`defineAdminModule`、`createAdminViewRegistry` 和 `kratosAdminModule`，供业务后台注册自己的视图模块；基础页面通过模块视图注册表解析后端菜单的 `component` 字段。
 
 `pnpm build:package` 会构建可被业务后台组合的 ESM 模块包。`frontend/admin/src/main.ts` 仍保留默认启动入口，因此 kratos-admin 可以独立运行；业务项目在自己的组合入口注册额外模块。
 
