@@ -31,6 +31,32 @@
 4. 启动管理后台，默认地址为 `http://localhost:8848`。
 5. 如需启动应用壳子，执行 `make -C frontend run-app`；业务应用通过 `@liujitcn/kratos-app` 注册自己的页面并调用公共启动入口。
 
+## npm 包发布
+
+前端 npm 包由 `frontend/Makefile` 统一管理。先在
+`frontend/admin/package.json` 和 `frontend/app/package.json` 更新版本号，并确保已登录目标
+npm registry：
+
+```bash
+pnpm login
+make -C frontend publish
+```
+
+该命令会先执行类型检查、构建并生成两个包，再依次发布
+`@liujitcn/kratos-admin` 和 `@liujitcn/kratos-app`。生成的 `.tgz` 文件位于各自的
+`dist/npm` 目录。
+
+发布到私有 registry 时通过变量覆盖地址和 tag：
+
+```bash
+make -C frontend publish \
+  NPM_REGISTRY=https://npm.example.com/ \
+  NPM_TAG=beta
+```
+
+`NPM_REGISTRY` 默认是可发布的官方地址 `https://registry.npmjs.org/`；常见的
+`npmmirror.com` 通常是只读下载镜像，不能作为发布地址。
+
 数据库迁移由 `backend/migration` 管理。所有模块统一将版本记录保存到默认数据库的
 `base_migration` 表，使用 `module` 区分迁移模块、`data_source` 区分目标数据源；SQL
 仍在各自配置的数据源执行。`data.database` 兼容单库配置，`data.databases` 可按名称

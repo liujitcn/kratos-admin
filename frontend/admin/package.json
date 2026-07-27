@@ -1,7 +1,7 @@
 {
   "name": "@liujitcn/kratos-admin",
   "private": false,
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "description": "kratos-admin frontend runtime and base modules",
   "author": {
@@ -136,8 +136,15 @@
   "exports": {
     ".": "./src/index.ts",
     "./api/*": "./src/api/*.ts",
-    "./rpc/*": "./src/rpc/*",
-    "./views/*": "./src/views/*",
+    "./rpc/*": "./src/rpc/*.ts",
+    "./components/*/interface": "./src/components/*/interface/index.ts",
+    "./components/ECharts/config": "./src/components/ECharts/config/index.ts",
+    "./routers": "./src/routers/index.ts",
+    "./*.ts": "./src/*.ts",
+    "./*.vue": "./src/*.vue",
+    "./*": "./src/*.ts",
+    "./tsconfig.json": "./tsconfig.json",
+    "./vite.config": "./vite.config.ts",
     "./package.json": "./package.json"
   },
   "files": [

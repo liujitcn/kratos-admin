@@ -1,11 +1,13 @@
 import { createLogger, defineConfig, loadEnv, type ConfigEnv, type Logger, type UserConfig } from "vite";
-import { resolve } from "path";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { wrapperEnv } from "./build/getEnv";
 import { createProxy } from "./build/proxy";
 import { createVitePlugins } from "./build/plugins";
 import pkg from "./package.json";
 import dayjs from "dayjs";
 
+const hostRoot = dirname(fileURLToPath(import.meta.url));
 const { dependencies, devDependencies, name, version } = pkg;
 const __APP_INFO__ = {
   pkg: { dependencies, devDependencies, name, version },
@@ -55,7 +57,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     root,
     resolve: {
       alias: {
-        "@": resolve(__dirname, "./src")
+        "@": resolve(hostRoot, "./src")
       }
     },
     define: {
@@ -79,7 +81,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     },
     plugins: createVitePlugins(viteEnv),
     build: {
-      outDir: resolve(__dirname, "../../backend/data/admin"),
+      outDir: resolve(hostRoot, "../../backend/data/admin"),
       emptyOutDir: true,
       minify: "terser",
       terserOptions: {
