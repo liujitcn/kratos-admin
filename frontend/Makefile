@@ -3,6 +3,16 @@ NPM_REGISTRY ?= https://registry.npmjs.org/
 NPM_ACCESS ?= public
 NPM_TAG ?= latest
 NPM_PACK_DEST ?= dist/npm
+NPM_OTP ?=
+NPM_SKIP_GIT_CHECKS ?= true
+
+NPM_PUBLISH_ARGS := --registry "$(NPM_REGISTRY)" --access "$(NPM_ACCESS)" --tag "$(NPM_TAG)"
+ifeq ($(NPM_SKIP_GIT_CHECKS),true)
+NPM_PUBLISH_ARGS += --no-git-checks
+endif
+ifneq ($(strip $(NPM_OTP)),)
+NPM_PUBLISH_ARGS += --otp "$(NPM_OTP)"
+endif
 
 .PHONY: help init pnpm-admin pnpm-app run run-admin run-app build build-admin build-app build-package package package-admin package-app publish publish-admin publish-app
 
@@ -64,31 +74,19 @@ package: package-admin package-app
 # 发布管理后台 npm 包
 publish-admin: package-admin
 	@cd admin && \
-		CI=1 pnpm publish \
-			--registry "$(NPM_REGISTRY)" \
-			--access "$(NPM_ACCESS)" \
-			--tag "$(NPM_TAG)"
+		CI=1 pnpm publish $(NPM_PUBLISH_ARGS)
 
 # 发布应用端 npm 包
 publish-app: package-app
 	@cd app && \
-		CI=1 pnpm publish \
-			--registry "$(NPM_REGISTRY)" \
-			--access "$(NPM_ACCESS)" \
-			--tag "$(NPM_TAG)"
+		CI=1 pnpm publish $(NPM_PUBLISH_ARGS)
 
 # 检查、打包并按顺序发布两个 npm 包
 publish: package
 	@cd admin && \
-		CI=1 pnpm publish \
-			--registry "$(NPM_REGISTRY)" \
-			--access "$(NPM_ACCESS)" \
-			--tag "$(NPM_TAG)" && \
+		CI=1 pnpm publish $(NPM_PUBLISH_ARGS) && \
 		cd ../app && \
-		CI=1 pnpm publish \
-			--registry "$(NPM_REGISTRY)" \
-			--access "$(NPM_ACCESS)" \
-			--tag "$(NPM_TAG)"
+		CI=1 pnpm publish $(NPM_PUBLISH_ARGS)
 
 # 构建 app 端 H5 静态资源
 build-app:

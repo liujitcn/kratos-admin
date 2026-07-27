@@ -39,12 +39,14 @@ npm registry：
 
 ```bash
 pnpm login
-make -C frontend publish
+NPM_OTP=123456 make -C frontend publish
 ```
 
 该命令会先执行类型检查、构建并生成两个包，再依次发布
 `@liujitcn/kratos-admin` 和 `@liujitcn/kratos-app`。生成的 `.tgz` 文件位于各自的
-`dist/npm` 目录。
+`dist/npm` 目录。`NPM_OTP` 是验证器 App 当前的 6 位一次性验证码，不要提交到代码库。
+默认跳过 pnpm 的工作区干净检查；需要强制工作区无未提交修改时设置
+`NPM_SKIP_GIT_CHECKS=false`。
 
 发布到私有 registry 时通过变量覆盖地址和 tag：
 
