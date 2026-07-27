@@ -1,6 +1,8 @@
 package server
 
 import (
+	"errors"
+	"fmt"
 	"io/fs"
 	stdhttp "net/http"
 	"os"
@@ -91,10 +93,25 @@ func NewHTTPServer(
 
 	// 显式启用 Swagger 时，仅注册供管理后台加载的受保护 OpenAPI 文档接口。
 	if cfg.GetServer().GetHttp().GetEnableSwagger() {
+		documentData := append([][]byte{}, modules.OpenAPIDocuments()...)
+		documentData = append(documentData, assets.OpenAPIData)
+		var openAPIData []byte
+		openAPIData, err = mergeOpenAPIDocuments(documentData...)
+		if err != nil {
+			// 配置阶段失败时，Server 尚未交给应用生命周期管理，需要在此释放。
+			closeErr := srv.Close()
+			if closeErr != nil {
+				return nil, errors.Join(
+					fmt.Errorf("合并 OpenAPI 文档失败: %w", err),
+					fmt.Errorf("关闭 HTTP 服务失败: %w", closeErr),
+				)
+			}
+			return nil, fmt.Errorf("合并 OpenAPI 文档失败: %w", err)
+		}
 		swaggerUI.RegisterOpenAPIServerWithOption(
 			srv,
-			swaggerUI.WithOpenAPIPath("/api/docs/openapi"),
-			swaggerUI.WithMemoryData(assets.OpenAPIData, "yaml"),
+			swaggerUI.WithOpenAPIPath(defaultOpenAPIPath),
+			swaggerUI.WithMemoryData(openAPIData, "yaml"),
 			swaggerUI.WithOpenAPIAuthorizer(newOpenAPIAuthorizer(authenticator, userToken)),
 		)
 	}

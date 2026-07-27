@@ -31,9 +31,9 @@ require (
 	github.com/liujitcn/kratos-kit/bootstrap v0.0.17
 	github.com/liujitcn/kratos-kit/cache v0.0.15
 	github.com/liujitcn/kratos-kit/captcha v0.0.18
-	github.com/liujitcn/kratos-kit/database/gorm v0.0.33
+	github.com/liujitcn/kratos-kit/database/gorm v0.0.35
 	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.13
-	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.7
+	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.8
 	github.com/liujitcn/kratos-kit/logger/zap v0.0.13
 	github.com/liujitcn/kratos-kit/oauth v0.0.7
 	github.com/liujitcn/kratos-kit/oss v0.0.13

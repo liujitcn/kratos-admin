@@ -18,6 +18,38 @@ import {
 const AUTH_SILENT_LOGOUT_EVENT = 'auth:silent-logout'
 let silentLogoutEventHandler: (() => void) | undefined
 
+/** 用户状态扩展生命周期处理器。 */
+export interface UserStoreExtension {
+  /** 登录令牌保存完成后执行。 */
+  onLogin?: () => void | Promise<void>
+  /** 用户主动登出并清理本地状态后执行。 */
+  onLogout?: () => void | Promise<void>
+  /** 令牌失效并静默清理本地状态后执行。 */
+  onSilentLogout?: () => void | Promise<void>
+}
+
+const userStoreExtensions = new Set<UserStoreExtension>()
+
+/** 注册用户 Store 的业务扩展，返回值用于注销本次注册。 */
+export function registerUserStoreExtension(extension: UserStoreExtension) {
+  userStoreExtensions.add(extension)
+  return () => userStoreExtensions.delete(extension)
+}
+
+async function runUserStoreExtensions(event: keyof UserStoreExtension) {
+  for (const extension of userStoreExtensions) {
+    const handler = extension[event]
+    if (!handler) {
+      continue
+    }
+    try {
+      await handler()
+    } catch (error) {
+      console.warn(`user store ${event} extension failed`, error)
+    }
+  }
+}
+
 // 定义 Store
 export const useUserStore = defineStore(
   'user',
@@ -30,12 +62,13 @@ export const useUserStore = defineStore(
       return Boolean(userInfo.value && hasValidToken())
     }
 
-    /** 保存登录接口返回的认证令牌。 */
-    function applyLoginToken(data: LoginResponse | CreateOauthSessionResponse) {
+    /** 保存登录接口返回的认证令牌，并通知已注册的业务扩展。 */
+    async function applyLoginToken(data: LoginResponse | CreateOauthSessionResponse) {
       const { token_type, access_token, refresh_token, expires_in } = data
       setToken(token_type + ' ' + access_token)
       setRefreshToken(refresh_token)
       setTokenExpiresIn(expires_in)
+      await runUserStoreExtensions('onLogin')
     }
 
     /**
@@ -48,8 +81,8 @@ export const useUserStore = defineStore(
       return new Promise<void>((resolve, reject) => {
         defLoginService
           .Login(request)
-          .then((data) => {
-            applyLoginToken(data)
+          .then(async (data) => {
+            await applyLoginToken(data)
             resolve()
           })
           .catch((error) => {
@@ -68,8 +101,8 @@ export const useUserStore = defineStore(
       return new Promise<void>((resolve, reject) => {
         defOauthService
           .CreateOauthSession(request)
-          .then((data) => {
-            applyLoginToken(data)
+          .then(async (data) => {
+            await applyLoginToken(data)
             resolve()
           })
           .catch((error) => {
@@ -146,12 +179,10 @@ export const useUserStore = defineStore(
      *
      * @returns
      */
-    function clearUserData() {
-      return new Promise<void>((resolve) => {
-        clearToken()
-        userInfo.value = undefined
-        resolve()
-      })
+    async function clearUserData() {
+      clearToken()
+      userInfo.value = undefined
+      await runUserStoreExtensions('onLogout')
     }
 
     /** 静默清理登录态，用于 token 失效后降级为游客，不主动跳登录页。 */
@@ -159,6 +190,7 @@ export const useUserStore = defineStore(
       clearToken()
       userInfo.value = undefined
       uni.removeStorageSync('user')
+      void runUserStoreExtensions('onSilentLogout')
     }
 
     /** 确认必须登录的操作是否可继续，不可继续时交给调用方跳登录。 */
@@ -175,6 +207,7 @@ export const useUserStore = defineStore(
     }
     silentLogoutEventHandler = () => {
       userInfo.value = undefined
+      void runUserStoreExtensions('onSilentLogout')
     }
     uni.$on(AUTH_SILENT_LOGOUT_EVENT, silentLogoutEventHandler)
 

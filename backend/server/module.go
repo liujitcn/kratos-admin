@@ -1,6 +1,8 @@
 package server
 
 import (
+	"bytes"
+
 	"github.com/go-kratos/kratos/v3/transport/grpc"
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
 	mcpserver "github.com/liujitcn/kratos-kit/transport/mcp"
@@ -13,6 +15,11 @@ type Module interface {
 	RegisterGRPC(*grpc.Server)
 	RegisterHTTP(*kratosHTTP.Server)
 	RegisterMCP(*mcpserver.Server)
+}
+
+// OpenAPIDocumentProvider 表示可向宿主贡献 OpenAPI 文档的业务模块。
+type OpenAPIDocumentProvider interface {
+	OpenAPIData() []byte
 }
 
 // TaskContributor 表示可向调度运行时贡献具名任务的业务模块。
@@ -44,6 +51,32 @@ func (modules Modules) RegisterHTTP(srv *kratosHTTP.Server) {
 	for _, module := range modules {
 		module.RegisterHTTP(srv)
 	}
+}
+
+// OpenAPIDocuments 收集业务模块提供的 OpenAPI 文档，并按原始内容去重。
+func (modules Modules) OpenAPIDocuments() [][]byte {
+	documents := make([][]byte, 0)
+	for _, module := range modules {
+		provider, ok := module.(OpenAPIDocumentProvider)
+		if !ok {
+			continue
+		}
+		data := provider.OpenAPIData()
+		if len(data) == 0 {
+			continue
+		}
+		seen := false
+		for _, document := range documents {
+			if bytes.Equal(document, data) {
+				seen = true
+				break
+			}
+		}
+		if !seen {
+			documents = append(documents, data)
+		}
+	}
+	return documents
 }
 
 // RegisterMCP 将全部业务模块注册到 MCP 服务。

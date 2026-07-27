@@ -1,5 +1,10 @@
-import { defineConfig, loadEnv, type ConfigEnv, type UserConfig } from 'vite'
-import uni from '@dcloudio/vite-plugin-uni'
+import {
+  defineConfig,
+  loadEnv,
+  createKratosUniPlugin,
+  type ConfigEnv,
+  type UserConfig,
+} from './src/vite'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { kratosApp } from './src/vite'
@@ -95,6 +100,6 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       // 开发阶段启用源码映射：https://uniapp.dcloud.net.cn/tutorial/migration-to-vue3.html#需主动开启-sourcemap
       sourcemap: process.env.NODE_ENV === 'development',
     },
-    plugins: [kratosApp({ modules: [kratosAppModule] }), uni()],
+    plugins: [kratosApp({ modules: [kratosAppModule] }), createKratosUniPlugin()],
   }
 })

@@ -6,7 +6,7 @@
 
 ```text
 frontend/app
-├── public                 # H5 静态资源与应用图标
+├── public                 # H5 静态资源目录
 ├── src
 │   ├── api/base           # 基础接口 service
 │   ├── api/system         # system.app 接口 service
@@ -99,6 +99,7 @@ pnpm build:h5
 - `bootstrapKratosApp` 创建 uni-app 实例并注册公共模块，业务宿主传入自己的 `App.vue`、Pinia 实例和模块列表。
 - `defineKratosAppModule` / `registerKratosAppModule` 提供业务模块注册边界。
 - `kratosApp()` 是 Vite 页面注册插件，在构建期合并宿主与公共 `pages.json`；宿主同路径页面优先，缺失页面生成临时 wrapper 指向公共页面，构建结束后清理，不复制源码。
+- `kratos-app-uni` 是共享包提供的 Uni CLI wrapper，底座依赖、Vite 插件和版本由本包统一管理，商城等业务宿主无需重复声明。
 - 包通过 `@liujitcn/kratos-app/api/*`、`@liujitcn/kratos-app/rpc/*`、`@liujitcn/kratos-app/utils/*` 等子路径导出公共能力；`@liujitcn/kratos-app/vite` 仅供构建配置加载页面插件。
 
 后端接口、应用端页面和生成代码的完整接入顺序见仓库的[服务接入指南](../../docs/服务接入指南.md)。

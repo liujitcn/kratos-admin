@@ -91,7 +91,7 @@ make build     # 构建 Linux 可执行文件
 
 生成代码不得手工修改，接口和表结构变更后使用对应 Makefile 目标重新生成。
 
-管理端构建产物位于 `data/admin`，应用端构建产物位于 `data/app`，后端启动后分别可通过 `http://localhost:7001/admin` 与 `http://localhost:7001/app` 访问。OpenAPI 文档接口为 `/api/docs/openapi`。
+管理端构建产物位于 `data/admin`，应用端构建产物位于 `data/app`，后端启动后分别可通过 `http://localhost:7001/admin` 与 `http://localhost:7001/app` 访问。OpenAPI 文档接口为 `/api/docs/openapi`，启用的业务模块文档会合并在系统内置文档之前。
 
 ## 校验
 

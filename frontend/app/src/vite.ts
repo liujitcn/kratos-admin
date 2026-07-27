@@ -1,10 +1,21 @@
 import { fileURLToPath } from 'node:url'
 import { dirname, isAbsolute, relative, resolve } from 'node:path'
 import { existsSync, mkdirSync, readFileSync, rmSync, unlinkSync, writeFileSync } from 'node:fs'
+import { defineConfig, loadEnv } from 'vite'
+import uni from '@dcloudio/vite-plugin-uni'
 import type { Plugin } from 'vite'
 import type { KratosAppModule } from './modules'
 
+export { defineConfig, loadEnv }
+export type { ConfigEnv, Plugin, UserConfig } from 'vite'
+
 type JsonObject = Record<string, unknown>
+
+type KratosDevServer = {
+  httpServer?: {
+    once(event: string, listener: () => void): unknown
+  }
+}
 
 type PageEntry = JsonObject & {
   path: string
@@ -37,6 +48,13 @@ export interface KratosAppViteOptions {
   packageRoot?: string
   /** 已注册的业务模块，保留给宿主构建配置声明模块边界。 */
   modules?: KratosAppModule[]
+}
+
+/**
+ * 创建由共享包统一管理版本的 uni-app Vite 插件。
+ */
+export function createKratosUniPlugin() {
+  return uni()
 }
 
 /**
@@ -78,7 +96,7 @@ export function kratosApp(options: KratosAppViteOptions = {}): Plugin {
   return {
     name: 'kratos-app-pages',
     enforce: 'pre',
-    resolveId(source, importer) {
+    resolveId(source: string, importer?: string) {
       if (source === '@kratos-app') {
         return resolve(packageSourceRoot, 'index.ts')
       }
@@ -109,7 +127,7 @@ export function kratosApp(options: KratosAppViteOptions = {}): Plugin {
 
       return `${target}${query ? `?${query}` : ''}`
     },
-    transform(code, id) {
+    transform(code: string, id: string) {
       const sourceFile = stripViteQuery(id)
       if (
         !isWithinRoot(packageSourceRoot, sourceFile) ||
@@ -207,7 +225,7 @@ export function kratosApp(options: KratosAppViteOptions = {}): Plugin {
         })
       }
     },
-    configureServer(server) {
+    configureServer(server: KratosDevServer) {
       server.httpServer?.once('close', cleanup)
     },
     closeBundle: cleanup,

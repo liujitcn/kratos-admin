@@ -33,10 +33,10 @@ func (baseContributor) Migrations() []gormmigration.Migration {
 	return []gormmigration.Migration{
 		{
 			FS:   baseMigrationFS,
-			Path: "assets/mysql",
+			Path: "assets",
 		},
 	}
 }
 
-//go:embed assets/mysql/*
+//go:embed assets/*
 var baseMigrationFS embed.FS
