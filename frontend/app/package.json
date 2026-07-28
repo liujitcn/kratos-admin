@@ -1,6 +1,6 @@
 {
   "name": "@liujitcn/kratos-app",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "private": false,
   "description": "kratos-admin uni-app host and shared app runtime",
   "homepage": "https://github.com/liujitcn/kratos-admin",
