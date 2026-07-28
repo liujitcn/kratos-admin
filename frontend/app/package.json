@@ -3,6 +3,14 @@
   "version": "0.0.7",
   "private": false,
   "description": "kratos-admin uni-app host and shared app runtime",
+  "homepage": "https://github.com/liujitcn/kratos-admin",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:liujitcn/kratos-admin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/liujitcn/kratos-admin/issues"
+  },
   "scripts": {
     "dev:app": "uni -p app",
     "dev:app-android": "uni -p app-android",
