@@ -49,6 +49,7 @@ const createBuildLogger = (): Logger => {
 // @see: https://vitejs.dev/config/
 export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
   const root = process.cwd();
+  const isCompositeHost = resolve(root) !== resolve(hostRoot);
   const env = loadEnv(mode, root);
   const viteEnv = wrapperEnv(env);
 
@@ -71,6 +72,21 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         }
       }
     },
+    optimizeDeps: isCompositeHost
+      ? {
+          include: [
+            "dayjs",
+            "dayjs/plugin/customParseFormat",
+            "@liujitcn/kratos-admin > nprogress",
+            "@liujitcn/kratos-admin > qs",
+            "@liujitcn/kratos-admin > swagger-ui-dist/swagger-ui-bundle.js"
+          ],
+          // 组合宿主源码时关闭自动依赖扫描，避免把 @ 开头的源码别名当作第三方包预构建。
+          noDiscovery: true,
+          // kratos-admin 通过 @ 别名直接加载源码，预构建会错误改写其 ESM 命名导入。
+          exclude: ["@liujitcn/kratos-admin"]
+        }
+      : undefined,
     server: {
       host: "0.0.0.0",
       port: viteEnv.VITE_PORT,

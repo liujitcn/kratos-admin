@@ -2,7 +2,6 @@ import { defineStore } from "pinia";
 import { defConfigService } from "@/api/base/config";
 import { BaseConfigSite } from "@/rpc/common/v1/enum";
 import type { LoginCaptchaConfig, SiteConfigState, SiteDisplayConfig } from "@/stores/interface";
-import piniaPersistConfig from "@/stores/helper/persist";
 import defaultLogoUrl from "@/assets/images/logo.svg";
 import defaultBackgroundUrl from "@/assets/images/login_left.png";
 
@@ -116,6 +115,5 @@ export const useConfigStore = defineStore("admin-config", {
       this.setLoginCaptchaConfig(normalizeLoginCaptchaConfig(configMap));
       return this.display;
     }
-  },
-  persist: piniaPersistConfig("admin-config")
+  }
 });
