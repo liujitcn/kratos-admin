@@ -47,41 +47,42 @@ func RegisterFileServiceHTTPServer(s *http.Server, srv FileServiceHTTPServer) {
 	r.GET("/api/v1/base/file", _FileService_DownloadFile0_HTTP_Handler(srv))
 }
 
+// _FileService_MultiUploadFile0_HTTP_Handler 处理 multipart 批量文件上传请求。
 func _FileService_MultiUploadFile0_HTTP_Handler(srv FileServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in basev1.MultiUploadFileRequest
 		http.SetOperation(ctx, OperationFileServiceMultiUploadFile)
-		h := ctx.Middleware(func(requestCtx context.Context, req interface{}) (interface{}, error) {
-			r := ctx.Request()
-			if r.MultipartForm == nil {
-				err := r.ParseMultipartForm(32 << 20)
-				if err != nil {
-					return nil, errorsx.InvalidArgument("上传文件格式错误").WithCause(err)
-				}
+		r := ctx.Request()
+		var err error
+		if r.MultipartForm == nil {
+			err = r.ParseMultipartForm(32 << 20)
+			if err != nil {
+				return errorsx.InvalidArgument("上传文件格式错误").WithCause(err)
 			}
-			request := req.(*basev1.MultiUploadFileRequest)
-			if r.MultipartForm != nil && r.MultipartForm.File != nil {
-				for _, item := range r.MultipartForm.File {
-					if len(item) == 0 {
-						continue
-					}
-					fhs := item[0]
-					formFile, err := fhs.Open()
+		}
+		if r.MultipartForm != nil && r.MultipartForm.File != nil {
+			for _, headers := range r.MultipartForm.File {
+				for _, header := range headers {
+					var formFile multipart.File
+					formFile, err = header.Open()
 					if err != nil {
-						return nil, errorsx.InvalidArgument("上传文件打开失败").WithCause(err)
+						return errorsx.InvalidArgument("上传文件打开失败").WithCause(err)
 					}
-					contentType := fhs.Header.Get("Content-Type")
+					contentType := header.Header.Get("Content-Type")
 					var uploadFileInfo *basev1.UploadFileInfo
-					uploadFileInfo, err = convertUploadFileInfo(formFile, r.FormValue("fileType"), contentType, fhs.Filename)
+					uploadFileInfo, err = convertUploadFileInfo(formFile, r.FormValue("fileType"), contentType, header.Filename)
 					if err != nil {
-						return nil, errorsx.InvalidArgument("上传文件解析失败").WithCause(err)
+						return errorsx.InvalidArgument("上传文件解析失败").WithCause(err)
 					}
-					request.Files = append(request.Files, uploadFileInfo)
+					in.Files = append(in.Files, uploadFileInfo)
 				}
 			}
-			return srv.MultiUploadFile(requestCtx, request)
+		}
+		h := ctx.Middleware(func(requestCtx context.Context, req interface{}) (interface{}, error) {
+			return srv.MultiUploadFile(requestCtx, req.(*basev1.MultiUploadFileRequest))
 		})
-		out, err := h(ctx, &in)
+		var out interface{}
+		out, err = h(ctx, &in)
 		if err != nil {
 			return err
 		}
@@ -90,26 +91,28 @@ func _FileService_MultiUploadFile0_HTTP_Handler(srv FileServiceHTTPServer) func(
 	}
 }
 
+// _FileService_UploadFile0_HTTP_Handler 处理 multipart 单文件上传请求。
 func _FileService_UploadFile0_HTTP_Handler(srv FileServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
+		var in basev1.UploadFileRequest
 		http.SetOperation(ctx, OperationFileServiceUploadFile)
+		r := ctx.Request()
+		formFile, header, err := r.FormFile("file")
+		if err != nil {
+			return errorsx.InvalidArgument("未上传文件").WithCause(err)
+		}
+		contentType := header.Header.Get("Content-Type")
+		var uploadFileInfo *basev1.UploadFileInfo
+		uploadFileInfo, err = convertUploadFileInfo(formFile, r.FormValue("fileType"), contentType, header.Filename)
+		if err != nil {
+			return errorsx.InvalidArgument("上传文件解析失败").WithCause(err)
+		}
+		in.File = uploadFileInfo
 		h := ctx.Middleware(func(requestCtx context.Context, req interface{}) (interface{}, error) {
-			r := ctx.Request()
-			formFile, header, err := r.FormFile("file")
-			if err != nil {
-				return nil, errorsx.InvalidArgument("未上传文件").WithCause(err)
-			}
-			contentType := header.Header.Get("Content-Type")
-			var uploadFileInfo *basev1.UploadFileInfo
-			uploadFileInfo, err = convertUploadFileInfo(formFile, r.FormValue("fileType"), contentType, header.Filename)
-			if err != nil {
-				return nil, errorsx.InvalidArgument("上传文件解析失败").WithCause(err)
-			}
-			request := req.(*basev1.UploadFileRequest)
-			request.File = uploadFileInfo
-			return srv.UploadFile(requestCtx, request)
+			return srv.UploadFile(requestCtx, req.(*basev1.UploadFileRequest))
 		})
-		out, err := h(ctx, new(basev1.UploadFileRequest))
+		var out interface{}
+		out, err = h(ctx, &in)
 		if err != nil {
 			return err
 		}
