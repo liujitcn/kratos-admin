@@ -15,11 +15,20 @@ import NextDevTools from "vite-plugin-vue-devtools";
 import { codeInspectorPlugin } from "code-inspector-plugin";
 
 /**
+ * Vite 插件扩展配置。
+ */
+interface VitePluginOptions {
+  /** 组合构建时需要处理的源码路径。 */
+  sourcePatterns?: RegExp[];
+}
+
+/**
  * 创建 vite 插件
  * @param viteEnv
  */
-export const createVitePlugins = (viteEnv: ViteEnv): (PluginOption | PluginOption[])[] => {
+export const createVitePlugins = (viteEnv: ViteEnv, options: VitePluginOptions = {}): (PluginOption | PluginOption[])[] => {
   const { VITE_GLOB_APP_TITLE, VITE_REPORT, VITE_DEVTOOLS, VITE_PWA, VITE_CODEINSPECTOR } = viteEnv;
+  const sourcePatterns = options.sourcePatterns;
   return [
     vue(),
     // vue 可以使用 jsx/tsx 语法
@@ -27,6 +36,8 @@ export const createVitePlugins = (viteEnv: ViteEnv): (PluginOption | PluginOptio
     // 自动导入 Vue、Element Plus API 与图标，减少页面重复 import
     AutoImport({
       dts: "types/generated/auto-imports.d.ts",
+      include: sourcePatterns,
+      exclude: sourcePatterns ? [/[/\\]\.git[/\\]/] : undefined,
       resolvers: [ElementPlusResolver()],
       imports: [
         "vue",
@@ -91,6 +102,8 @@ export const createVitePlugins = (viteEnv: ViteEnv): (PluginOption | PluginOptio
     Components({
       dts: "types/generated/components.d.ts",
       dirs: [],
+      include: sourcePatterns,
+      exclude: sourcePatterns ? [/[/\\]\.git[/\\]/] : undefined,
       resolvers: [ElementPlusResolver()]
     }),
     // devTools

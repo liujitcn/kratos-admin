@@ -1,3 +1,4 @@
+import { realpathSync } from "node:fs";
 import { createLogger, defineConfig, loadEnv, type ConfigEnv, type Logger, type UserConfig } from "vite";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -46,12 +47,29 @@ const createBuildLogger = (): Logger => {
   };
 };
 
+/**
+ * 将文件系统路径转换为正则表达式字面量。
+ */
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 // @see: https://vitejs.dev/config/
 export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
   const root = process.cwd();
   const isCompositeHost = resolve(root) !== resolve(hostRoot);
   const env = loadEnv(mode, root);
   const viteEnv = wrapperEnv(env);
+  const packageRoot = resolve(root, "node_modules/@liujitcn/kratos-admin");
+  const packageSourceRoots = isCompositeHost ? [packageRoot, realpathSync(packageRoot)] : [];
+  const escapedRoot = escapeRegExp(root);
+  const compositeSourcePatterns = isCompositeHost
+    ? [
+        new RegExp(`${escapedRoot}[\\/\\\\]src[\\/\\\\].*\\.(?:vue|[jt]sx?)(?:\\?.*)?$`),
+        ...[...new Set(packageSourceRoots)].map(
+          sourceRoot =>
+            new RegExp(`${escapeRegExp(sourceRoot)}[\\/\\\\]dist[\\/\\\\]package[\\/\\\\]src[\\/\\\\].*\\.(?:vue|[jt]sx?)(?:\\?.*)?$`)
+        )
+      ]
+    : undefined;
 
   return {
     base: viteEnv.VITE_PUBLIC_PATH,
@@ -97,7 +115,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       // Load proxy configuration from .env.development
       proxy: createProxy(viteEnv.VITE_PROXY)
     },
-    plugins: createVitePlugins(viteEnv),
+    plugins: createVitePlugins(viteEnv, { sourcePatterns: compositeSourcePatterns }),
     build: {
       outDir: resolve(hostRoot, "../../backend/data/admin"),
       emptyOutDir: true,
