@@ -17,6 +17,7 @@
 
 ## 自动导入与类型
 - Element Plus 运行时 API 和图标走 `unplugin-auto-import`，不重复手写 import；类型（`FormRules` 等）保持显式导入。
+- 手写源码使用 `@/*` 引用包内模块；RPC 生成文件保留生成器输出的相对路径。npm 发布产物由 `pnpm build:package` 生成并转换包内别名，禁止手改 `dist/package`。
 - 业务模型类型优先从 `src/rpc` 生成类型引用，不重复定义等价类型；确实缺失时优先回到接口定义侧补齐生成类型。
 - 自动生成文件放 `types/generated`（`auto-imports.d.ts`、`components.d.ts`）；`src/typings` 只放手写声明。调整自动导入配置时同步确认 `build/plugins.ts`、`.oxlintrc.json`、`tsconfig.json`。
 

@@ -57,9 +57,11 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     base: viteEnv.VITE_PUBLIC_PATH,
     root,
     resolve: {
-      alias: {
-        "@": resolve(hostRoot, "./src")
-      }
+      alias: isCompositeHost
+        ? {}
+        : {
+            "@": resolve(hostRoot, "./src")
+          }
     },
     define: {
       __APP_INFO__: JSON.stringify(__APP_INFO__)
@@ -68,7 +70,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     css: {
       preprocessorOptions: {
         scss: {
-          additionalData: `@use "@/styles/var.scss" as *;`
+          additionalData: `@use "${isCompositeHost ? `${name}/styles/var.scss` : "@/styles/var.scss"}" as *;`
         }
       }
     },
@@ -83,7 +85,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
           ],
           // 组合宿主源码时关闭自动依赖扫描，避免把 @ 开头的源码别名当作第三方包预构建。
           noDiscovery: true,
-          // kratos-admin 通过 @ 别名直接加载源码，预构建会错误改写其 ESM 命名导入。
+          // kratos-admin 通过包名加载发布源码，预构建会错误改写其 ESM 命名导入。
           exclude: ["@liujitcn/kratos-admin"]
         }
       : undefined,
