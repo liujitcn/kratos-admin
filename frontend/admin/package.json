@@ -135,27 +135,81 @@
     }
   },
   "exports": {
-    ".": "./dist/package/src/index.ts",
-    "./api/*": "./dist/package/src/api/*.ts",
+    ".": {
+      "types": "./dist/package/declarations/index.d.ts",
+      "default": "./dist/package/src/index.ts"
+    },
+    "./api/*": {
+      "types": "./dist/package/declarations/src/api/*.d.ts",
+      "default": "./dist/package/src/api/*.ts"
+    },
     "./assets/*": "./dist/package/src/assets/*",
-    "./rpc/*": "./dist/package/src/rpc/*.ts",
+    "./rpc/*": {
+      "types": "./dist/package/declarations/src/rpc/*.d.ts",
+      "default": "./dist/package/src/rpc/*.ts"
+    },
     "./styles/*.scss": "./dist/package/src/styles/*.scss",
-    "./styles/*": "./dist/package/src/styles/*.ts",
-    "./config": "./dist/package/src/config/index.ts",
-    "./directives": "./dist/package/src/directives/index.ts",
-    "./hooks/interface": "./dist/package/src/hooks/interface/index.ts",
-    "./stores": "./dist/package/src/stores/index.ts",
-    "./stores/interface": "./dist/package/src/stores/interface/index.ts",
-    "./utils": "./dist/package/src/utils/index.ts",
-    "./utils/is": "./dist/package/src/utils/is/index.ts",
-    "./components/*/interface": "./dist/package/src/components/*/interface/index.ts",
-    "./components/ECharts/config": "./dist/package/src/components/ECharts/config/index.ts",
-    "./routers": "./dist/package/src/routers/index.ts",
-    "./*.ts": "./dist/package/src/*.ts",
-    "./*.vue": "./dist/package/src/*.vue",
-    "./*": "./dist/package/src/*.ts",
+    "./styles/*": {
+      "types": "./dist/package/declarations/src/styles/*.d.ts",
+      "default": "./dist/package/src/styles/*.ts"
+    },
+    "./config": {
+      "types": "./dist/package/declarations/src/config/index.d.ts",
+      "default": "./dist/package/src/config/index.ts"
+    },
+    "./directives": {
+      "types": "./dist/package/declarations/src/directives/index.d.ts",
+      "default": "./dist/package/src/directives/index.ts"
+    },
+    "./hooks/interface": {
+      "types": "./dist/package/declarations/src/hooks/interface/index.d.ts",
+      "default": "./dist/package/src/hooks/interface/index.ts"
+    },
+    "./stores": {
+      "types": "./dist/package/declarations/src/stores/index.d.ts",
+      "default": "./dist/package/src/stores/index.ts"
+    },
+    "./stores/interface": {
+      "types": "./dist/package/declarations/src/stores/interface/index.d.ts",
+      "default": "./dist/package/src/stores/interface/index.ts"
+    },
+    "./utils": {
+      "types": "./dist/package/declarations/src/utils/index.d.ts",
+      "default": "./dist/package/src/utils/index.ts"
+    },
+    "./utils/is": {
+      "types": "./dist/package/declarations/src/utils/is/index.d.ts",
+      "default": "./dist/package/src/utils/is/index.ts"
+    },
+    "./components/*/interface": {
+      "types": "./dist/package/declarations/src/components/*/interface/index.d.ts",
+      "default": "./dist/package/src/components/*/interface/index.ts"
+    },
+    "./components/ECharts/config": {
+      "types": "./dist/package/declarations/src/components/ECharts/config/index.d.ts",
+      "default": "./dist/package/src/components/ECharts/config/index.ts"
+    },
+    "./routers": {
+      "types": "./dist/package/declarations/src/routers/index.d.ts",
+      "default": "./dist/package/src/routers/index.ts"
+    },
+    "./*.ts": {
+      "types": "./dist/package/declarations/src/*.d.ts",
+      "default": "./dist/package/src/*.ts"
+    },
+    "./*.vue": {
+      "types": "./dist/package/declarations/src/*.vue.d.ts",
+      "default": "./dist/package/src/*.vue"
+    },
+    "./*": {
+      "types": "./dist/package/declarations/src/*.d.ts",
+      "default": "./dist/package/src/*.ts"
+    },
     "./tsconfig.json": "./tsconfig.json",
-    "./vite.config": "./vite.config.ts",
+    "./vite.config": {
+      "types": "./dist/package/declarations/vite.config.d.ts",
+      "default": "./vite.config.ts"
+    },
     "./package.json": "./package.json"
   },
   "files": [
