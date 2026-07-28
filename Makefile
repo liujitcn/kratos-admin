@@ -1,9 +1,5 @@
 # 仓库级 Makefile：git hooks、跨前后端检查与统一发布
 VERSION ?=
-NPM_REGISTRY ?= https://registry.npmjs.org/
-NPM_ACCESS ?= public
-NPM_TAG ?= latest
-NPM_SKIP_GIT_CHECKS ?= true
 
 .PHONY: help init hooks check-boundary tag release
 
@@ -24,16 +20,11 @@ check-boundary:
 tag:
 	@python3 scripts/tag_release.py $(if $(strip $(VERSION)),--version "$(VERSION)",)
 
-# 统一升级、提交、打包、推送 tag，并发布两个前端 npm 包
+# 统一升级、提交、打包、推送 tag，并等待 GitHub Actions 发布两个前端 npm 包
 release:
 	@python3 scripts/tag_release.py \
 		$(if $(strip $(VERSION)),--version "$(VERSION)",) \
 		--package
-	@$(MAKE) -C frontend publish-only \
-		NPM_REGISTRY="$(NPM_REGISTRY)" \
-		NPM_ACCESS="$(NPM_ACCESS)" \
-		NPM_TAG="$(NPM_TAG)" \
-		NPM_SKIP_GIT_CHECKS="$(NPM_SKIP_GIT_CHECKS)"
 
 # 查看所有可用目标及说明
 help:

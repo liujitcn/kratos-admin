@@ -6,8 +6,10 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -16,6 +18,7 @@ PACKAGE_FILES = (
     ROOT / "frontend/app/package.json",
 )
 TAG_RE = re.compile(r"^v(\d+)\.(\d+)\.(\d+)$")
+NPM_WORKFLOW = "publish-npm.yml"
 
 
 def run(cmd: list[str], *, cwd: Path = ROOT, check: bool = True) -> str:
@@ -156,14 +159,15 @@ def tag_exists_remotely(tag: str) -> bool:
     ).returncode == 0
 
 
-def ensure_tags_available(version: tuple[int, int, int]) -> tuple[str, str]:
-    """确保根目录和 backend 的目标 tag 尚未使用。"""
+def resolve_release_tags(version: tuple[int, int, int], package: bool) -> tuple[str, ...]:
+    """生成本次发布需要推送的 tag。"""
     root_tag = tag_text(version)
     backend_tag = f"backend/{root_tag}"
-    for tag in (root_tag, backend_tag):
+    tags = (root_tag, backend_tag, f"npm/{root_tag}") if package else (root_tag, backend_tag)
+    for tag in tags:
         if tag_exists_locally(tag) or tag_exists_remotely(tag):
             raise RuntimeError(f"tag 已存在，拒绝覆盖: {tag}")
-    return root_tag, backend_tag
+    return tags
 
 
 def update_package_versions(version: tuple[int, int, int]) -> list[Path]:
@@ -215,6 +219,60 @@ def push_tag(tag: str) -> None:
     print(f"已推送 tag: {tag}")
 
 
+def ensure_github_cli() -> None:
+    """确保本机可通过 GitHub CLI 等待 npm 发布结果。"""
+    if shutil.which("gh") is None:
+        raise RuntimeError("make release 需要 GitHub CLI，请先安装 gh 并执行 gh auth login")
+    result = subprocess.run(
+        ["gh", "auth", "status"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        raise RuntimeError("GitHub CLI 尚未登录，请先执行 gh auth login")
+
+
+def wait_npm_workflow(commit: str) -> None:
+    """等待当前发布提交对应的 npm workflow 完成。"""
+    last_error = ""
+    for _ in range(30):
+        result = subprocess.run(
+            [
+                "gh",
+                "run",
+                "list",
+                "--workflow",
+                NPM_WORKFLOW,
+                "--event",
+                "push",
+                "--limit",
+                "20",
+                "--json",
+                "databaseId,headSha,url",
+            ],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode == 0:
+            try:
+                runs = json.loads(result.stdout)
+            except json.JSONDecodeError as err:
+                last_error = str(err)
+            else:
+                run = next((item for item in runs if item.get("headSha") == commit), None)
+                if run is not None:
+                    print(f"npm 发布任务: {run['url']}")
+                    run_stream(["gh", "run", "watch", str(run["databaseId"]), "--exit-status"])
+                    return
+        else:
+            last_error = result.stderr.strip() or result.stdout.strip()
+        time.sleep(2)
+    detail = f": {last_error}" if last_error else ""
+    raise RuntimeError(f"未找到 npm 发布 workflow，请到 GitHub Actions 检查{detail}")
+
+
 def run_backend_tests() -> None:
     """发布前执行后端完整测试。"""
     run_stream(["go", "test", "./..."], cwd=ROOT / "backend")
@@ -232,23 +290,29 @@ def main() -> int:
         fetch_remote(branch)
         ensure_release_branch(branch)
         version = resolve_version(args.version)
-        root_tag, backend_tag = ensure_tags_available(version)
+        tags = resolve_release_tags(version, args.package)
         target = version_text(version)
         print(f"发布版本: {target}")
-        print(f"发布顺序: 全量提交 -> {'frontend package -> ' if args.package else ''}推送分支 -> {root_tag} -> {backend_tag}")
+        print(f"发布顺序: 全量提交 -> {'frontend package -> ' if args.package else ''}推送分支 -> {' -> '.join(tags)}")
 
         if args.dry_run:
             print("dry-run：未修改文件、未提交、未推送。")
             return 0
 
-        changed = update_package_versions(version)
+        if args.package:
+            ensure_github_cli()
+
+        update_package_versions(version)
         run_backend_tests()
         commit_all_changes(version)
         if args.package:
             run_frontend_package()
         push_branch(branch)
-        push_tag(root_tag)
-        push_tag(backend_tag)
+        commit = run(["git", "rev-parse", "HEAD"])
+        for tag in tags:
+            push_tag(tag)
+        if args.package:
+            wait_npm_workflow(commit)
         return 0
     except RuntimeError as err:
         print(str(err), file=sys.stderr)

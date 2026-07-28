@@ -1,0 +1,53 @@
+name: Publish npm packages
+
+on:
+  push:
+    tags:
+      - "npm/v*"
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: npm-publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+          package-manager-cache: false
+
+      - name: Set up npm and pnpm
+        run: |
+          npm install --global npm@11.18.0
+          corepack enable
+          corepack prepare pnpm@10.33.4 --activate
+
+      - name: Resolve release version
+        run: echo "NPM_EXPECTED_VERSION=${GITHUB_REF_NAME#npm/v}" >> "${GITHUB_ENV}"
+
+      - name: Install dependencies
+        run: make -C frontend init
+
+      - name: Check and package
+        run: make -C frontend package
+
+      - name: Publish packages
+        run: make -C frontend publish-only
+        env:
+          NPM_ACCESS: public
+          NPM_REGISTRY: https://registry.npmjs.org/
+          NPM_SKIP_GIT_CHECKS: "true"
+          NPM_TAG: latest
