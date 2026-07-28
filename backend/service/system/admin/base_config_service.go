@@ -30,17 +30,10 @@ type BaseConfigService struct {
 // NewBaseConfigService 创建Admin系统配置服务
 func NewBaseConfigService(
 	configCase *biz.BaseConfigCase,
-) (*BaseConfigService, error) {
-	var ss = BaseConfigService{
+) *BaseConfigService {
+	return &BaseConfigService{
 		baseConfigCase: configCase,
 	}
-	// 服务启动，刷新缓存
-	_, err := ss.RefreshBaseConfigCache(context.Background(), new(systemadminv1.RefreshBaseConfigCacheRequest))
-	if err != nil {
-		log.Error(fmt.Sprintf("NewBaseConfigService %v", err))
-		return nil, errorsx.WrapInternal(err, "初始化系统配置缓存失败")
-	}
-	return &ss, nil
 }
 
 // RefreshBaseConfigCache 刷新缓存

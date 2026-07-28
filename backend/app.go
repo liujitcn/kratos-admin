@@ -1,6 +1,9 @@
 package kratosadmin
 
 import (
+	"context"
+	"fmt"
+
 	"github.com/go-kratos/kratos/v3"
 	kratosTransport "github.com/go-kratos/kratos/v3/transport"
 	"github.com/go-kratos/kratos/v3/transport/grpc"
@@ -21,6 +24,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/service/base"
 	"github.com/liujitcn/kratos-admin/backend/service/base/agent/ai"
 	systemadmin "github.com/liujitcn/kratos-admin/backend/service/system/admin"
+	systemadminbiz "github.com/liujitcn/kratos-admin/backend/service/system/admin/biz"
 	systemapp "github.com/liujitcn/kratos-admin/backend/service/system/app"
 	"github.com/liujitcn/kratos-kit/bootstrap"
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
@@ -92,10 +96,17 @@ func NewModules(
 // NewApp 创建并挂载基础应用宿主提供的服务。
 func NewApp(
 	ctx *bootstrap.Context,
+	baseConfigCase *systemadminbiz.BaseConfigCase,
 	cron *job.CronServer,
 	grpcServer *grpc.Server,
 	httpServer *http.Server,
-) *kratos.App {
+) (*kratos.App, error) {
+	// 所有服务完成装配后再初始化缓存，初始化失败时不启动定时任务及传输服务。
+	err := baseConfigCase.RefreshBaseConfig(context.Background())
+	if err != nil {
+		return nil, fmt.Errorf("初始化系统配置缓存: %w", err)
+	}
+
 	servers := make([]kratosTransport.Server, 0, 3)
 	if cron != nil {
 		servers = append(servers, cron)
@@ -106,5 +117,5 @@ func NewApp(
 	if httpServer != nil {
 		servers = append(servers, httpServer)
 	}
-	return bootstrap.NewApp(ctx, servers...)
+	return bootstrap.NewApp(ctx, servers...), nil
 }
