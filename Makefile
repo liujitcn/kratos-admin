@@ -1,7 +1,7 @@
 # 仓库级 Makefile：git hooks、跨前后端检查与统一发布
 VERSION ?=
 
-.PHONY: help init hooks check-boundary tag release
+.PHONY: help init hooks check-boundary tag
 
 # 初始化开发环境（git hooks）
 init: hooks
@@ -16,15 +16,9 @@ hooks:
 check-boundary:
 	@bash scripts/check_module_boundary.sh
 
-# 统一升级版本、提交全部本地改动并推送根目录、backend tag；不打包或发布前端 npm 包
+# 统一升级、提交、打包、推送 tag，并等待 GitHub Actions 发布两个前端 npm 包
 tag:
 	@python3 scripts/tag_release.py $(if $(strip $(VERSION)),--version "$(VERSION)",)
-
-# 统一升级、提交、打包、推送 tag，并等待 GitHub Actions 发布两个前端 npm 包
-release:
-	@python3 scripts/tag_release.py \
-		$(if $(strip $(VERSION)),--version "$(VERSION)",) \
-		--package
 
 # 查看所有可用目标及说明
 help:

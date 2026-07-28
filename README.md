@@ -38,7 +38,7 @@
 GitHub Actions，通过 npm Trusted Publishing (OIDC) 发布两个 npm 包；本地命令会等待 workflow 完成：
 
 ```bash
-make release VERSION=0.0.4
+make tag VERSION=0.0.4
 ```
 
 发布 `0.0.4` 时会依次推送 `v0.0.4`、`backend/v0.0.4` 和 `npm/v0.0.4`。不指定 `VERSION` 时，脚本会先拉取远程
@@ -49,15 +49,9 @@ tag，再按根目录最新 tag 自动递增 patch 版本。发布要求当前�
 `liujitcn`，仓库填写 `kratos-admin`，workflow 文件填写 `publish-npm.yml`，允许 `npm publish`。
 workflow 使用短期 OIDC 凭据，不需要保存 npm token，也不会在本地反复提示二次认证。
 
-只升级版本并推送两个 tag、不发布 npm 包时执行：
-
-```bash
-make tag VERSION=0.0.4
-```
-
 ## npm 包发布
 
-前端 npm 包由 `frontend/Makefile` 统一管理。完整版本发布请使用上面的 `make release`；
+前端 npm 包由 `frontend/Makefile` 统一管理。完整版本发布请使用上面的 `make tag`；
 仅需要在本地应急发布已准备好的包时，确保已登录目标 npm registry 后执行：
 
 ```bash
@@ -69,7 +63,7 @@ make -C frontend publish
 `@liujitcn/kratos-admin` 和 `@liujitcn/kratos-app`。生成的 `.tgz` 文件位于各自的
 `dist/npm` 目录。发布前会查询精确版本，registry 中已经存在的版本会自动跳过，因此可以在部分成功后安全重试。
 本地发布使用当前 npm 会话并保留交互等待，默认跳过 pnpm 的工作区干净检查；需要强制工作区无未提交修改时设置
-`NPM_SKIP_GIT_CHECKS=false`。启用 `auth-and-writes` 2FA 的账号仍可能对每个本地发布动作分别认证，日常完整发布应使用 `make release`。
+`NPM_SKIP_GIT_CHECKS=false`。启用 `auth-and-writes` 2FA 的账号仍可能对每个本地发布动作分别认证，日常完整发布应使用 `make tag`。
 
 发布到私有 registry 时通过变量覆盖地址和 tag：
 

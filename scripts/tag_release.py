@@ -159,11 +159,11 @@ def tag_exists_remotely(tag: str) -> bool:
     ).returncode == 0
 
 
-def resolve_release_tags(version: tuple[int, int, int], package: bool) -> tuple[str, ...]:
+def resolve_release_tags(version: tuple[int, int, int]) -> tuple[str, ...]:
     """生成本次发布需要推送的 tag。"""
     root_tag = tag_text(version)
     backend_tag = f"backend/{root_tag}"
-    tags = (root_tag, backend_tag, f"npm/{root_tag}") if package else (root_tag, backend_tag)
+    tags = root_tag, backend_tag, f"npm/{root_tag}"
     for tag in tags:
         if tag_exists_locally(tag) or tag_exists_remotely(tag):
             raise RuntimeError(f"tag 已存在，拒绝覆盖: {tag}")
@@ -222,7 +222,7 @@ def push_tag(tag: str) -> None:
 def ensure_github_cli() -> None:
     """确保本机可通过 GitHub CLI 等待 npm 发布结果。"""
     if shutil.which("gh") is None:
-        raise RuntimeError("make release 需要 GitHub CLI，请先安装 gh 并执行 gh auth login")
+        raise RuntimeError("make tag 需要 GitHub CLI，请先安装 gh 并执行 gh auth login")
     result = subprocess.run(
         ["gh", "auth", "status"],
         cwd=ROOT,
@@ -281,7 +281,6 @@ def run_backend_tests() -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description="统一发布根项目、backend tag 和 frontend npm 包")
     parser.add_argument("--version", help="目标版本，支持 X.Y.Z 或 vX.Y.Z；不指定时自动递增")
-    parser.add_argument("--package", action="store_true", help="推送前检查并打包两个前端 npm 包")
     parser.add_argument("--dry-run", action="store_true", help="仅检查并打印目标，不修改文件、不提交、不推送")
     args = parser.parse_args()
 
@@ -290,29 +289,26 @@ def main() -> int:
         fetch_remote(branch)
         ensure_release_branch(branch)
         version = resolve_version(args.version)
-        tags = resolve_release_tags(version, args.package)
+        tags = resolve_release_tags(version)
         target = version_text(version)
         print(f"发布版本: {target}")
-        print(f"发布顺序: 全量提交 -> {'frontend package -> ' if args.package else ''}推送分支 -> {' -> '.join(tags)}")
+        print(f"发布顺序: 全量提交 -> frontend package -> 推送分支 -> {' -> '.join(tags)}")
 
         if args.dry_run:
             print("dry-run：未修改文件、未提交、未推送。")
             return 0
 
-        if args.package:
-            ensure_github_cli()
+        ensure_github_cli()
 
         update_package_versions(version)
         run_backend_tests()
         commit_all_changes(version)
-        if args.package:
-            run_frontend_package()
+        run_frontend_package()
         push_branch(branch)
         commit = run(["git", "rev-parse", "HEAD"])
         for tag in tags:
             push_tag(tag)
-        if args.package:
-            wait_npm_workflow(commit)
+        wait_npm_workflow(commit)
         return 0
     except RuntimeError as err:
         print(str(err), file=sys.stderr)
