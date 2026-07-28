@@ -44,6 +44,7 @@
     "build:quickapp-webview": "uni build -p quickapp-webview",
     "build:quickapp-webview-huawei": "uni build -p quickapp-webview-huawei",
     "build:quickapp-webview-union": "uni build -p quickapp-webview-union",
+    "test:vite": "node scripts/vite-resolver.test.mjs",
     "tsc": "vue-tsc --noEmit --skipLibCheck",
     "lint": "eslint . --fix",
     "lint-staged": "lint-staged"

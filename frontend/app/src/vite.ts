@@ -3,13 +3,30 @@ import { dirname, isAbsolute, relative, resolve } from 'node:path'
 import { existsSync, mkdirSync, readFileSync, rmSync, unlinkSync, writeFileSync } from 'node:fs'
 import { defineConfig, loadEnv } from 'vite'
 import uni from '@dcloudio/vite-plugin-uni'
-import type { Plugin } from 'vite'
+import type { Plugin, UserConfig } from 'vite'
 import type { KratosAppModule } from './modules'
 
 export { defineConfig, loadEnv }
 export type { ConfigEnv, Plugin, UserConfig } from 'vite'
 
 type JsonObject = Record<string, unknown>
+
+type OptimizeDepsResolveArgs = {
+  path: string
+  importer: string
+}
+
+type OptimizeDepsResolveResult = {
+  path: string
+  suffix?: string
+}
+
+type OptimizeDepsPluginBuild = {
+  onResolve(
+    options: { filter: RegExp },
+    callback: (args: OptimizeDepsResolveArgs) => OptimizeDepsResolveResult | undefined,
+  ): void
+}
 
 type KratosDevServer = {
   httpServer?: {
@@ -66,6 +83,13 @@ export function createKratosUniPlugin() {
 export function kratosApp(options: KratosAppViteOptions = {}): Plugin {
   const packageRoot = options.packageRoot ?? resolve(dirname(fileURLToPath(import.meta.url)), '..')
   const packageSourceRoot = resolve(packageRoot, 'src')
+  const optimizerConfig: UserConfig = {
+    optimizeDeps: {
+      esbuildOptions: {
+        plugins: [createKratosAppOptimizeDepsResolver(packageSourceRoot)],
+      },
+    },
+  }
   const state: {
     pagesFile?: string
     originalPagesJson?: string
@@ -125,7 +149,8 @@ export function kratosApp(options: KratosAppViteOptions = {}): Plugin {
         return
       }
 
-      return `${target}${query ? `?${query}` : ''}`
+      const resolvedTarget = resolvePackageSourceFile(target)
+      return `${resolvedTarget}${query ? `?${query}` : ''}`
     },
     transform(code: string, id: string) {
       const sourceFile = stripViteQuery(id)
@@ -151,7 +176,7 @@ export function kratosApp(options: KratosAppViteOptions = {}): Plugin {
       const packagePagesFile = resolve(packageRoot, 'src/pages.json')
 
       if (!existsSync(pagesFile) || !existsSync(packagePagesFile)) {
-        return
+        return optimizerConfig
       }
 
       const originalPagesJson = readFileSync(pagesFile, 'utf8')
@@ -224,6 +249,7 @@ export function kratosApp(options: KratosAppViteOptions = {}): Plugin {
           process.exit(143)
         })
       }
+      return optimizerConfig
     },
     configureServer(server: KratosDevServer) {
       server.httpServer?.once('close', cleanup)
@@ -343,4 +369,36 @@ function resolvePackageSourceFile(target: string): string {
     resolve(target, 'index.js'),
   ]
   return candidates.find((candidate) => existsSync(candidate)) ?? target
+}
+
+/**
+ * 创建共享包源码的依赖预构建解析器。
+ */
+function createKratosAppOptimizeDepsResolver(packageSourceRoot: string) {
+  return {
+    name: 'kratos-app-optimize-deps-resolver',
+    setup(build: OptimizeDepsPluginBuild) {
+      build.onResolve({ filter: /^@\// }, (args) => {
+        const importerPath = stripViteQuery(args.importer)
+        if (!isWithinRoot(packageSourceRoot, importerPath)) {
+          return
+        }
+
+        const [sourcePath, query = ''] = args.path.split('?', 2)
+        const target = resolve(packageSourceRoot, sourcePath.slice(2))
+        if (!isWithinRoot(packageSourceRoot, target)) {
+          return
+        }
+
+        const resolvedTarget = resolvePackageSourceFile(target)
+        if (query) {
+          return {
+            path: resolvedTarget,
+            suffix: `?${query}`,
+          }
+        }
+        return { path: resolvedTarget }
+      })
+    },
+  }
 }
