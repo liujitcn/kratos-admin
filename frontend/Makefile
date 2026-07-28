@@ -3,15 +3,11 @@ NPM_REGISTRY ?= https://registry.npmjs.org/
 NPM_ACCESS ?= public
 NPM_TAG ?= latest
 NPM_PACK_DEST ?= dist/npm
-NPM_OTP ?=
 NPM_SKIP_GIT_CHECKS ?= true
 
 NPM_PUBLISH_ARGS := --registry "$(NPM_REGISTRY)" --access "$(NPM_ACCESS)" --tag "$(NPM_TAG)"
 ifeq ($(NPM_SKIP_GIT_CHECKS),true)
 NPM_PUBLISH_ARGS += --no-git-checks
-endif
-ifneq ($(strip $(NPM_OTP)),)
-NPM_PUBLISH_ARGS += --otp "$(NPM_OTP)"
 endif
 
 .PHONY: help init pnpm-admin pnpm-app run run-admin run-app build build-admin build-app build-package package package-admin package-app publish publish-only publish-admin publish-app

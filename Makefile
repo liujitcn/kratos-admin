@@ -3,7 +3,6 @@ VERSION ?=
 NPM_REGISTRY ?= https://registry.npmjs.org/
 NPM_ACCESS ?= public
 NPM_TAG ?= latest
-NPM_OTP ?=
 NPM_SKIP_GIT_CHECKS ?= true
 
 .PHONY: help init hooks check-boundary tag release
@@ -34,7 +33,6 @@ release:
 		NPM_REGISTRY="$(NPM_REGISTRY)" \
 		NPM_ACCESS="$(NPM_ACCESS)" \
 		NPM_TAG="$(NPM_TAG)" \
-		NPM_OTP="$(NPM_OTP)" \
 		NPM_SKIP_GIT_CHECKS="$(NPM_SKIP_GIT_CHECKS)"
 
 # 查看所有可用目标及说明
