@@ -43,7 +43,9 @@ make tag VERSION=0.0.4
 
 发布 `0.0.4` 时会依次推送 `v0.0.4`、`backend/v0.0.4` 和 `npm/v0.0.4`。不指定 `VERSION` 时，脚本会先拉取远程
 tag，再按根目录最新 tag 自动递增 patch 版本。发布要求当前分支是远程默认分支且提交基线已与远程同步；
-工作区中的本地改动会全部纳入版本提交。本机需要安装并登录 GitHub CLI (`gh auth login`)。
+工作区中的本地改动会全部纳入版本提交。本机需要安装并登录 GitHub CLI (`gh auth login`)。如果工作区无改动且
+当前提交已经带有最新根版本 tag，再次执行 `make tag` 不会升级版本：脚本会补推缺失的同版本 tag，并在 npm
+workflow 失败时重跑、运行中继续等待、成功时直接结束。
 
 首次使用前，在 npmjs.com 的两个包设置中分别添加同一个 Trusted Publisher：GitHub 用户填写
 `liujitcn`，仓库填写 `kratos-admin`，workflow 文件填写 `publish-npm.yml`，允许 `npm publish`。

@@ -159,15 +159,46 @@ def tag_exists_remotely(tag: str) -> bool:
     ).returncode == 0
 
 
+def tag_commit(tag: str) -> str:
+    """读取 tag 指向的提交。"""
+    return run(["git", "rev-list", "-n", "1", tag], check=False)
+
+
+def release_tags(version: tuple[int, int, int]) -> tuple[str, ...]:
+    """生成统一版本对应的三个发布 tag。"""
+    root_tag = tag_text(version)
+    return root_tag, f"backend/{root_tag}", f"npm/{root_tag}"
+
+
 def resolve_release_tags(version: tuple[int, int, int]) -> tuple[str, ...]:
     """生成本次发布需要推送的 tag。"""
-    root_tag = tag_text(version)
-    backend_tag = f"backend/{root_tag}"
-    tags = root_tag, backend_tag, f"npm/{root_tag}"
+    tags = release_tags(version)
     for tag in tags:
         if tag_exists_locally(tag) or tag_exists_remotely(tag):
             raise RuntimeError(f"tag 已存在，拒绝覆盖: {tag}")
     return tags
+
+
+def release_version_at_head() -> tuple[int, int, int] | None:
+    """工作区无改动且最新根 tag 指向 HEAD 时返回已发布版本。"""
+    if run(["git", "status", "--porcelain"]):
+        return None
+
+    root_latest = latest_tag("")
+    if root_latest is None:
+        return None
+
+    head = run(["git", "rev-parse", "HEAD"])
+    if tag_commit(root_latest[1]) != head:
+        return None
+
+    for prefix in ("backend/", "npm/"):
+        component_latest = latest_tag(prefix)
+        if component_latest and component_latest[0] > root_latest[0]:
+            raise RuntimeError(
+                f"{prefix.rstrip('/')} 最新 tag {component_latest[1]} 高于根目录 {root_latest[1]}，请先修复版本线"
+            )
+    return root_latest[0]
 
 
 def update_package_versions(version: tuple[int, int, int]) -> list[Path]:
@@ -219,6 +250,21 @@ def push_tag(tag: str) -> None:
     print(f"已推送 tag: {tag}")
 
 
+def ensure_release_tags(version: tuple[int, int, int], commit: str) -> None:
+    """复用当前版本 tag，并补推中断时缺失的同版本 tag。"""
+    for tag in release_tags(version):
+        current = tag_commit(tag)
+        if current and current != commit:
+            raise RuntimeError(f"tag {tag} 已指向其他提交，拒绝覆盖")
+        if not current:
+            run(["git", "tag", tag, commit])
+        if tag_exists_remotely(tag):
+            print(f"已存在 tag: {tag}")
+            continue
+        run(["git", "push", "origin", tag])
+        print(f"已补推 tag: {tag}")
+
+
 def ensure_github_cli() -> None:
     """确保本机可通过 GitHub CLI 等待 npm 发布结果。"""
     if shutil.which("gh") is None:
@@ -233,44 +279,73 @@ def ensure_github_cli() -> None:
         raise RuntimeError("GitHub CLI 尚未登录，请先执行 gh auth login")
 
 
+def find_npm_workflow(commit: str) -> tuple[dict[str, object] | None, str]:
+    """查询指定提交最近一次 npm workflow。"""
+    result = subprocess.run(
+        [
+            "gh",
+            "run",
+            "list",
+            "--workflow",
+            NPM_WORKFLOW,
+            "--event",
+            "push",
+            "--limit",
+            "20",
+            "--json",
+            "databaseId,headSha,status,conclusion,url",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        return None, result.stderr.strip() or result.stdout.strip()
+    try:
+        runs = json.loads(result.stdout)
+    except json.JSONDecodeError as err:
+        return None, str(err)
+    workflow = next((item for item in runs if item.get("headSha") == commit), None)
+    return workflow, ""
+
+
+def watch_npm_workflow(workflow: dict[str, object]) -> None:
+    """等待 npm workflow 完成并透传执行结果。"""
+    print(f"npm 发布任务: {workflow['url']}")
+    run_stream(["gh", "run", "watch", str(workflow["databaseId"]), "--exit-status"])
+
+
 def wait_npm_workflow(commit: str) -> None:
     """等待当前发布提交对应的 npm workflow 完成。"""
     last_error = ""
     for _ in range(30):
-        result = subprocess.run(
-            [
-                "gh",
-                "run",
-                "list",
-                "--workflow",
-                NPM_WORKFLOW,
-                "--event",
-                "push",
-                "--limit",
-                "20",
-                "--json",
-                "databaseId,headSha,url",
-            ],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
-        )
-        if result.returncode == 0:
-            try:
-                runs = json.loads(result.stdout)
-            except json.JSONDecodeError as err:
-                last_error = str(err)
-            else:
-                run = next((item for item in runs if item.get("headSha") == commit), None)
-                if run is not None:
-                    print(f"npm 发布任务: {run['url']}")
-                    run_stream(["gh", "run", "watch", str(run["databaseId"]), "--exit-status"])
-                    return
-        else:
-            last_error = result.stderr.strip() or result.stdout.strip()
+        workflow, last_error = find_npm_workflow(commit)
+        if workflow is not None:
+            watch_npm_workflow(workflow)
+            return
         time.sleep(2)
     detail = f": {last_error}" if last_error else ""
     raise RuntimeError(f"未找到 npm 发布 workflow，请到 GitHub Actions 检查{detail}")
+
+
+def resume_npm_workflow(commit: str) -> None:
+    """复用当前版本的 npm workflow，失败时重跑，运行中则继续等待。"""
+    workflow, error = find_npm_workflow(commit)
+    if workflow is None:
+        if error:
+            raise RuntimeError(f"查询 npm 发布 workflow 失败: {error}")
+        wait_npm_workflow(commit)
+        return
+
+    if workflow.get("status") == "completed":
+        if workflow.get("conclusion") == "success":
+            print(f"npm 发布已完成: {workflow['url']}")
+            return
+        print(f"重新运行失败的 npm 发布任务: {workflow['url']}")
+        run(["gh", "run", "rerun", str(workflow["databaseId"])])
+    else:
+        print(f"继续等待 npm 发布任务: {workflow['url']}")
+    watch_npm_workflow(workflow)
 
 
 def run_backend_tests() -> None:
@@ -288,6 +363,22 @@ def main() -> int:
         branch = detect_remote_branch()
         fetch_remote(branch)
         ensure_release_branch(branch)
+        existing_version = release_version_at_head()
+        if existing_version is not None:
+            if args.version and parse_version(args.version) != existing_version:
+                raise RuntimeError(
+                    f"当前提交已发布为 {tag_text(existing_version)}，没有新改动，拒绝创建新版本 {args.version}"
+                )
+            commit = run(["git", "rev-parse", "HEAD"])
+            print(f"当前提交已发布为 {tag_text(existing_version)}，不升级版本。")
+            if args.dry_run:
+                print("dry-run：未补推 tag、未重跑或等待 npm workflow。")
+                return 0
+            ensure_github_cli()
+            ensure_release_tags(existing_version, commit)
+            resume_npm_workflow(commit)
+            return 0
+
         version = resolve_version(args.version)
         tags = resolve_release_tags(version)
         target = version_text(version)
