@@ -7,9 +7,13 @@ import { ref } from 'vue'
 import type { BaseDictForm_DictItem } from '@/rpc/system/app/v1/base_dict'
 import { defBaseDictService } from '@/api/system/base_dict'
 import { formatSrc } from '@/utils'
+import { uploadFile } from '@/utils/file'
 import { navigateToLogin } from '@/utils/navigation'
 
 const userStore = useUserStore()
+
+// 获取屏幕边界到安全区域距离
+const { safeAreaInsets } = uni.getSystemInfoSync()
 
 const imgMaxSize = ref(1024 * 1024)
 
@@ -76,7 +80,7 @@ const onAvatarChange = async () => {
         return
       }
       // 上传
-      await uploadFile(path)
+      await uploadAvatar(path)
     },
   })
   // #endif
@@ -99,41 +103,28 @@ const onAvatarChange = async () => {
         })
         return
       }
-      await uploadFile(tempFilePath)
+      await uploadAvatar(tempFilePath)
     },
   })
   // #endif
 }
 
-// 文件上传-兼容小程序端、H5端、App端
-const uploadFile = async (file: string) => {
+// 上传头像并同步个人资料与用户 Store。
+const uploadAvatar = async (file: string) => {
   if (!userStore.ensureAuthenticated()) {
     navigateToLogin()
     return
   }
 
-  // 文件上传
-  uni.uploadFile({
-    url: '/v1/base/file',
-    name: 'file',
-    filePath: file,
-    formData: {
-      fileType: 'avatar',
-    },
-    success: async (res) => {
-      if (res.statusCode === 200) {
-        const fileInfo = JSON.parse(res.data)
-        // 更新用户头像
-        userInfo.value.avatar = fileInfo.url
-        // 更新用户信息
-        await defAuthService.UpdateUserProfile(userInfo.value)
-        syncUserStoreProfile(userInfo.value)
-        await uni.showToast({ icon: 'success', title: '更新成功' })
-      } else {
-        await uni.showToast({ icon: 'error', title: '上传头像失败' })
-      }
-    },
-  })
+  try {
+    const fileInfo = await uploadFile('avatar', file)
+    userInfo.value.avatar = fileInfo.url
+    await defAuthService.UpdateUserProfile(userInfo.value)
+    syncUserStoreProfile(userInfo.value)
+    await uni.showToast({ icon: 'success', title: '更新成功' })
+  } catch {
+    await uni.showToast({ icon: 'error', title: '上传头像失败' })
+  }
 }
 
 // 修改性别
@@ -185,7 +176,7 @@ const onSubmit = async () => {
 <template>
   <view class="viewport">
     <!-- 导航栏 -->
-    <view class="navbar">
+    <view class="navbar" :style="{ paddingTop: safeAreaInsets?.top + 'px' }">
       <navigator open-type="navigateBack" class="back icon-left" hover-class="none"></navigator>
       <view class="title">个人信息</view>
     </view>
@@ -267,10 +258,6 @@ page {
 // 导航栏
 .navbar {
   position: relative;
-
-  /* #ifdef MP-WEIXIN */
-  padding-top: 44px;
-  /* #endif */
 
   .title {
     height: 40px;

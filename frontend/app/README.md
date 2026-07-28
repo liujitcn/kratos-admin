@@ -89,7 +89,7 @@ pnpm build:h5
 
 - 请求统一通过 `src/api` 下的 service 发起。
 - `src/api/base` 对应基础协议，`src/api/system` 对应系统应用协议。
-- `src/rpc` 是生成产物，由后端 `make ts-app` 生成，不手工维护等价类型。
+- `src/rpc` 是生成产物，由后端 `make ts-app` 通过 `ts-proto` 生成，生成文件保留默认相对导入，不手工维护等价类型；人工源码使用 `@/*` 引用包内模块。
 - 全局状态放在 `src/stores/modules`，并通过 `src/stores/index.ts` 汇总。
 - 请求封装、鉴权、刷新令牌和错误提示集中在 `src/utils/http.ts`。
 - 令牌读写统一走 `src/utils/auth.ts`。

@@ -45,7 +45,7 @@ pnpm build:package
 
 默认开发地址为 `http://localhost:8848`，构建产物输出到 `backend/data/admin`。
 
-接口类型由后端 `make ts` 生成到 `src/rpc`。新增或调整接口时，先修改 `backend/api/proto`，再执行生成命令，不要手写生成文件。
+接口类型由后端 `make ts` 通过 `ts-proto` 生成到 `src/rpc`，生成文件保留默认相对导入。新增或调整接口时，先修改 `backend/api/proto`，再执行生成命令，不要手写生成文件；人工源码使用 `@/*` 引用包内模块。
 
 ## 前端模块包
 
