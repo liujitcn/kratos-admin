@@ -23,6 +23,24 @@ mkdirSync(consumerNodeModules, { recursive: true })
  * 解析依赖的真实包目录，兼容 npm 嵌套依赖和 pnpm 虚拟存储布局。
  */
 const resolveDependencyRoot = (packageName) => {
+  // 纯类型包可能没有可解析的运行时导出，先从 Node 查找路径定位包目录。
+  const packageParts = packageName.split('/')
+  for (const lookupPath of require.resolve.paths(packageName) ?? []) {
+    const packagePath = resolve(lookupPath, ...packageParts)
+    const packageJSONPath = resolve(packagePath, 'package.json')
+    if (!existsSync(packageJSONPath)) {
+      continue
+    }
+    try {
+      const packageMetadata = JSON.parse(readFileSync(packageJSONPath, 'utf8'))
+      if (packageMetadata.name === packageName) {
+        return packagePath
+      }
+    } catch {
+      // 继续尝试其他依赖查找路径。
+    }
+  }
+
   let resolvedPath
   try {
     resolvedPath = require.resolve(`${packageName}/package.json`, { paths: [packageRoot] })

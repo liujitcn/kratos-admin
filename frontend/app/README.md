@@ -1,6 +1,6 @@
 # frontend/app
 
-`frontend/app` 是 `@liujitcn/kratos-app@0.0.1` 的源码包，基于 `uni-app + Vue 3 + TypeScript + Vite + Pinia + Sass` 提供通用应用宿主。它不绑定具体行业业务，只承载框架、登录态、账户资料、协议页面和基础 AI 会话。
+`frontend/app` 是 `@liujitcn/kratos-app` 的源码包，基于 `uni-app + Vue 3 + TypeScript + Vite + Pinia + Sass` 提供通用应用宿主。它不绑定具体行业业务，只承载框架、登录态、账户资料、协议页面和基础 AI 会话。
 
 ## 目录职责
 
