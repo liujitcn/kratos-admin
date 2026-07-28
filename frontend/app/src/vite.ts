@@ -85,6 +85,17 @@ export function kratosApp(options: KratosAppViteOptions = {}): Plugin {
   const packageSourceRoot = resolve(packageRoot, 'src')
   const optimizerConfig: UserConfig = {
     optimizeDeps: {
+      // 共享源码必须由 Vite 运行时解析，不能按裸模块预构建，否则会复制带副作用的 http 拦截器。
+      exclude: [
+        '@kratos-app',
+        '@kratos-app/api',
+        '@kratos-app/pages',
+        '@kratos-app/pagesMember',
+        '@kratos-app/rpc',
+        '@kratos-app/static',
+        '@kratos-app/stores',
+        '@kratos-app/utils',
+      ],
       esbuildOptions: {
         plugins: [createKratosAppOptimizeDepsResolver(packageSourceRoot)],
       },

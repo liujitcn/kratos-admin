@@ -26,6 +26,21 @@ const hostImporter = resolve(packageRoot, '../host/src/main.ts')
 assert.equal(await plugin.resolveId('@/utils/http', hostImporter), undefined)
 
 const pluginConfig = await plugin.config()
+const sharedOptimizeDeps = pluginConfig?.optimizeDeps ?? {}
+const sharedOptimizeDepsExclude = sharedOptimizeDeps.exclude ?? []
+for (const dependency of [
+  '@kratos-app',
+  '@kratos-app/api',
+  '@kratos-app/pages',
+  '@kratos-app/pagesMember',
+  '@kratos-app/rpc',
+  '@kratos-app/static',
+  '@kratos-app/stores',
+  '@kratos-app/utils',
+]) {
+  assert.ok(sharedOptimizeDepsExclude.includes(dependency), `${dependency} 不应进入依赖预构建`)
+}
+
 const optimizePlugin = pluginConfig?.optimizeDeps?.esbuildOptions?.plugins?.find(
   (item) => item.name === 'kratos-app-optimize-deps-resolver',
 )
