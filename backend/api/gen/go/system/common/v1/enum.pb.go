@@ -31,6 +31,7 @@ const (
 	BaseConfigType_IMAGE       BaseConfigType = 2 // 图片
 	BaseConfigType_RICH_TEXT   BaseConfigType = 3 // 富文本
 	BaseConfigType_DICT        BaseConfigType = 4 // 字典
+	BaseConfigType_BOOLEAN     BaseConfigType = 5 // 布尔
 )
 
 // Enum value maps for BaseConfigType.
@@ -41,6 +42,7 @@ var (
 		2: "IMAGE",
 		3: "RICH_TEXT",
 		4: "DICT",
+		5: "BOOLEAN",
 	}
 	BaseConfigType_value = map[string]int32{
 		"UNKNOWN_BCT": 0,
@@ -48,6 +50,7 @@ var (
 		"IMAGE":       2,
 		"RICH_TEXT":   3,
 		"DICT":        4,
+		"BOOLEAN":     5,
 	}
 )
 
@@ -350,13 +353,14 @@ var File_system_common_v1_enum_proto protoreflect.FileDescriptor
 
 const file_system_common_v1_enum_proto_rawDesc = "" +
 	"\n" +
-	"\x1bsystem/common/v1/enum.proto\x12\x10system.common.v1*O\n" +
+	"\x1bsystem/common/v1/enum.proto\x12\x10system.common.v1*\\\n" +
 	"\x0eBaseConfigType\x12\x0f\n" +
 	"\vUNKNOWN_BCT\x10\x00\x12\b\n" +
 	"\x04TEXT\x10\x01\x12\t\n" +
 	"\x05IMAGE\x10\x02\x12\r\n" +
 	"\tRICH_TEXT\x10\x03\x12\b\n" +
-	"\x04DICT\x10\x04*;\n" +
+	"\x04DICT\x10\x04\x12\v\n" +
+	"\aBOOLEAN\x10\x05*;\n" +
 	"\x10BaseJobLogStatus\x12\x10\n" +
 	"\fUNKNOWN_BJLS\x10\x00\x12\v\n" +
 	"\aSUCCESS\x10\x01\x12\b\n" +

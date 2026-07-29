@@ -17,6 +17,8 @@ export enum BaseConfigType {
   RICH_TEXT = 3,
   /** DICT - 字典 */
   DICT = 4,
+  /** BOOLEAN - 布尔 */
+  BOOLEAN = 5,
 }
 
 /** 定时任务日志状态 */

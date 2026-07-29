@@ -34,19 +34,30 @@
         <Dict v-if="dictValueCode" v-model="formData.value" :code="dictValueCode" code-type="string" placeholder="请选择字典配置值" />
         <el-input v-else v-model="formData.value" placeholder="请输入配置值" />
       </template>
+      <template #booleanValue>
+        <el-switch
+          v-model="formData.value"
+          active-value="true"
+          inactive-value="false"
+          active-text="true"
+          inactive-text="false"
+          inline-prompt
+        />
+      </template>
     </FormDialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, h, reactive, ref } from "vue";
 import { useDebounceFn } from "@vueuse/core";
-import { ElMessage, ElMessageBox } from "element-plus";
+import { ElImage, ElMessage, ElMessageBox, ElTag, ElTooltip } from "element-plus";
 import { CirclePlus, Delete, EditPen, RefreshLeft } from "@element-plus/icons-vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
 import FormDialog from "@/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
+import DictLabel from "@/components/Dict/DictLabel.vue";
 import UploadImg from "@/components/Upload/Img.vue";
 import WangEditor from "@/components/WangEditor/index.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
@@ -170,6 +181,13 @@ const formFields = computed<ProFormField[]>(() => [
     slotName: "dictValue",
     visible: model => model.type == BaseConfigType.DICT
   },
+  {
+    prop: "value",
+    label: "配置值",
+    component: "slot",
+    slotName: "booleanValue",
+    visible: model => model.type == BaseConfigType.BOOLEAN
+  },
   { prop: "status", label: "状态", component: "radio-group", options: statusOptions }
 ]);
 
@@ -179,7 +197,13 @@ const columns: ColumnProps[] = [
   { prop: "site", label: "配置位置", minWidth: 120, dictCode: "base_config_site", search: { el: "select" } },
   { prop: "name", label: "配置名称", minWidth: 140, search: { el: "input" } },
   { prop: "type", label: "配置类型", minWidth: 120, dictCode: "base_config_type", search: { el: "select" } },
-  { prop: "key", label: "配置键", minWidth: 160, search: { el: "input" } },
+  {
+    prop: "key",
+    label: "配置键",
+    minWidth: 160,
+    search: { el: "input" },
+    render: scope => renderConfigKeyCell(scope.row as BaseConfig)
+  },
   {
     prop: "status",
     label: "状态",
@@ -224,6 +248,65 @@ const columns: ColumnProps[] = [
     ]
   }
 ];
+
+/**
+ * 将配置键渲染为可悬停查看配置值的单元格。
+ */
+function renderConfigKeyCell(row: BaseConfig) {
+  return h(
+    ElTooltip,
+    {
+      placement: "top-start",
+      effect: "light",
+      showAfter: 200,
+      enterable: true,
+      maxWidth: 420
+    },
+    {
+      default: () => h("span", { class: "config-key-cell" }, row.key),
+      content: () => renderConfigValuePreview(row)
+    }
+  );
+}
+
+/**
+ * 根据配置类型渲染悬停预览内容。
+ */
+function renderConfigValuePreview(row: BaseConfig) {
+  if (row.type === BaseConfigType.IMAGE) {
+    return row.value
+      ? h(ElImage, {
+          src: row.value,
+          previewSrcList: [row.value],
+          previewTeleported: true,
+          fit: "contain",
+          style: { width: "180px", height: "120px", borderRadius: "4px" }
+        })
+      : h("span", { class: "config-value-preview" }, "未配置图片");
+  }
+
+  if (row.type === BaseConfigType.BOOLEAN) {
+    const value = row.value === "true" ? "true" : "false";
+    return h(ElTag, { type: value === "true" ? "success" : "info" }, () => value);
+  }
+
+  if (row.type === BaseConfigType.DICT && BASE_CONFIG_DICT_CODE_MAP[row.key]) {
+    return h(DictLabel, {
+      code: BASE_CONFIG_DICT_CODE_MAP[row.key],
+      modelValue: row.value,
+      class: "config-value-preview"
+    });
+  }
+
+  if (row.type === BaseConfigType.RICH_TEXT) {
+    return row.value
+      ? h("div", { class: "config-rich-text-preview", innerHTML: row.value })
+      : h("span", { class: "config-value-preview" }, "未配置富文本");
+  }
+
+  const value = row.value;
+  return h("span", { class: "config-value-preview" }, value || "未配置");
+}
 
 /** 系统配置顶部按钮配置。 */
 const headerActions: HeaderActionProps[] = [
@@ -307,6 +390,9 @@ function resetForm() {
  * 提交系统配置表单。
  */
 function handleSubmit() {
+  if (formData.type === BaseConfigType.BOOLEAN) {
+    formData.value = formData.value === "true" ? "true" : "false";
+  }
   formDialogRef.value?.validate()?.then(valid => {
     if (!valid) return;
 
@@ -395,3 +481,50 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   );
 }
 </script>
+
+<style scoped lang="scss">
+.config-key-cell {
+  cursor: pointer;
+  border-bottom: 1px dashed var(--el-color-info);
+}
+
+.config-value-preview {
+  display: inline-block;
+  max-width: 380px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.config-rich-text-preview {
+  max-width: 520px;
+  max-height: 360px;
+  overflow: auto;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.config-rich-text-preview :deep(p) {
+  margin: 0 0 8px;
+}
+
+.config-rich-text-preview :deep(h1),
+.config-rich-text-preview :deep(h2),
+.config-rich-text-preview :deep(h3),
+.config-rich-text-preview :deep(h4),
+.config-rich-text-preview :deep(h5),
+.config-rich-text-preview :deep(h6) {
+  margin: 0 0 8px;
+  line-height: 1.35;
+}
+
+.config-rich-text-preview :deep(ul),
+.config-rich-text-preview :deep(ol) {
+  margin: 0 0 8px;
+  padding-left: 24px;
+}
+
+.config-rich-text-preview :deep(img) {
+  max-width: 100%;
+  height: auto;
+}
+</style>

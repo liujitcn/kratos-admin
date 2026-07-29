@@ -9,6 +9,7 @@ enum BaseConfigType {
   IMAGE = 2; // 图片
   RICH_TEXT = 3; // 富文本
   DICT = 4; // 字典
+  BOOLEAN = 5; // 布尔
 }
 
 // 定时任务日志状态

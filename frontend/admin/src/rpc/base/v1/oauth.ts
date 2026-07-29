@@ -75,7 +75,13 @@ export interface BindOauthSessionRequest {
   /** 用户名 */
   user_name: string;
   /** 用户密码 */
-  password: PasswordCrypto | undefined;
+  password:
+    | PasswordCrypto
+    | undefined;
+  /** 验证码 */
+  captcha_code: string;
+  /** 验证码Id */
+  captcha_id: string;
 }
 
 /** 三方登录会话创建响应 */
@@ -88,6 +94,8 @@ export interface CreateOauthSessionResponse {
   token_type: string;
   /** 令牌有效时间，单位为秒。 */
   expires_in: number;
+  /** 是否需要绑定已有账号。 */
+  binding_required: boolean;
 }
 
 /** 三方登录回调请求 */

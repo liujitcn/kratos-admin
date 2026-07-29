@@ -512,6 +512,7 @@ paths:
                         - IMAGE
                         - RICH_TEXT
                         - DICT
+                        - BOOLEAN
                     type: string
                     format: enum
                 - name: key
@@ -3050,6 +3051,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.CreateOauthBindingAuthorizationResponse'
+    /api/v1/base/oauth/binding/session:
+        post:
+            tags:
+                - OauthService
+            description: 绑定已有账号并创建三方登录会话
+            operationId: OauthService_BindOauthSession
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.BindOauthSessionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.CreateOauthSessionResponse'
     /api/v1/base/oauth/binding/{provider}:
         delete:
             tags:
@@ -3572,6 +3592,30 @@ components:
                     type: string
                     description: 工具原始出参JSON
             description: AI 助手工具调用记录
+        base.v1.BindOauthSessionRequest:
+            type: object
+            properties:
+                provider:
+                    type: string
+                    description: 登录方式标识
+                code:
+                    type: string
+                    description: 三方授权码
+                tenant_code:
+                    type: string
+                    description: 租户编码
+                user_name:
+                    type: string
+                    description: 用户名
+                password:
+                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                captcha_code:
+                    type: string
+                    description: 验证码
+                captcha_id:
+                    type: string
+                    description: 验证码Id
+            description: 绑定已有账号的三方登录会话创建条件
         base.v1.CaptchaResponse:
             type: object
             properties:
@@ -3708,6 +3752,9 @@ components:
                 expires_in:
                     type: string
                     description: 令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。
+                binding_required:
+                    type: boolean
+                    description: 是否需要绑定已有账号
             description: 三方登录会话创建响应
         base.v1.DeleteAiMessageResponse:
             type: object
@@ -4343,6 +4390,7 @@ components:
                         - IMAGE
                         - RICH_TEXT
                         - DICT
+                        - BOOLEAN
                     type: string
                     description: 配置类型：枚举【BaseConfigType】
                     format: enum
@@ -4392,8 +4440,9 @@ components:
                         - IMAGE
                         - RICH_TEXT
                         - DICT
+                        - BOOLEAN
                     type: string
-                    description: 配置类型：1、文本，2、图片，3、富文本，4、字典
+                    description: 配置类型：1、文本，2、图片，3、富文本，4、字典，5、布尔
                     format: enum
                 key:
                     type: string

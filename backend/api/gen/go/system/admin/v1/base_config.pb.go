@@ -225,7 +225,7 @@ type BaseConfigForm struct {
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                          // 配置ID
 	Site          v1.BaseConfigSite      `protobuf:"varint,2,opt,name=site,proto3,enum=common.v1.BaseConfigSite" json:"site,omitempty"`        // 位置：枚举【BaseConfigSite】
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                       // 配置名称
-	Type          v11.BaseConfigType     `protobuf:"varint,4,opt,name=type,proto3,enum=system.common.v1.BaseConfigType" json:"type,omitempty"` // 配置类型：1、文本，2、图片，3、富文本，4、字典
+	Type          v11.BaseConfigType     `protobuf:"varint,4,opt,name=type,proto3,enum=system.common.v1.BaseConfigType" json:"type,omitempty"` // 配置类型：1、文本，2、图片，3、富文本，4、字典，5、布尔
 	Key           string                 `protobuf:"bytes,5,opt,name=key,proto3" json:"key,omitempty"`                                         // 配置key
 	Value         string                 `protobuf:"bytes,6,opt,name=value,proto3" json:"value,omitempty"`                                     // 配置value
 	Status        v1.Status              `protobuf:"varint,51,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`           // 状态
@@ -669,15 +669,15 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"y\n" +
 	"\x14GetBaseConfigRequest\x12a\n" +
 	"\x02id\x18\x01 \x01(\x03BQ\xbaG\v\x92\x02\b配置ID\xbaH@\xba\x01=\n" +
-	"\x1bget_base_config.id.required\x12\x14配置ID不能为空\x1a\bthis > 0R\x02id\"\xf6\a\n" +
+	"\x1bget_base_config.id.required\x12\x14配置ID不能为空\x1a\bthis > 0R\x02id\"\x83\b\n" +
 	"\x0eBaseConfigForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12\xa6\x01\n" +
 	"\x04site\x18\x02 \x01(\x0e2\x19.common.v1.BaseConfigSiteBw\xbaG&\x92\x02#位置：枚举【BaseConfigSite】\xbaHK\xba\x01C\n" +
 	"\x19base_config.site.required\x12\x1b请选择系统配置位置\x1a\tthis != 0\x82\x01\x02\x10\x01R\x04site\x12\xce\x01\n" +
 	"\x04name\x18\x03 \x01(\tB\xb9\x01\xbaG\x0f\x92\x02\f配置名称\xbaH\xa3\x01\xba\x01I\n" +
 	"\x19base_config.name.required\x12\x1b请输入系统配置名称\x1a\x0fthis.size() > 0\xba\x01T\n" +
-	"\x18base_config.name.max_len\x12%配置名称不能超过 50 个字符\x1a\x11this.size() <= 50R\x04name\x12\xce\x01\n" +
-	"\x04type\x18\x04 \x01(\x0e2 .system.common.v1.BaseConfigTypeB\x97\x01\xbaGF\x92\x02C配置类型：1、文本，2、图片，3、富文本，4、字典\xbaHK\xba\x01C\n" +
+	"\x18base_config.name.max_len\x12%配置名称不能超过 50 个字符\x1a\x11this.size() <= 50R\x04name\x12\xdb\x01\n" +
+	"\x04type\x18\x04 \x01(\x0e2 .system.common.v1.BaseConfigTypeB\xa4\x01\xbaGS\x92\x02P配置类型：1、文本，2、图片，3、富文本，4、字典，5、布尔\xbaHK\xba\x01C\n" +
 	"\x19base_config.type.required\x12\x1b请选择系统配置类型\x1a\tthis != 0\x82\x01\x02\x10\x01R\x04type\x12\xc4\x01\n" +
 	"\x03key\x18\x05 \x01(\tB\xb1\x01\xbaG\f\x92\x02\t配置key\xbaH\x9e\x01\xba\x01H\n" +
 	"\x18base_config.key.required\x12\x1b请输入系统配置编码\x1a\x0fthis.size() > 0\xba\x01P\n" +

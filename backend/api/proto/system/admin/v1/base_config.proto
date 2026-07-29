@@ -109,7 +109,7 @@ message BaseConfigForm {
 
   string name = 3 [(gnostic.openapi.v3.property) = {description: "配置名称"}, (buf.validate.field).cel = {id: "base_config.name.required" message: "请输入系统配置名称" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "base_config.name.max_len" message: "配置名称不能超过 50 个字符" expression: "this.size() <= 50"}]; // 配置名称
 
-  .system.common.v1.BaseConfigType type = 4 [(gnostic.openapi.v3.property) = {description: "配置类型：1、文本，2、图片，3、富文本，4、字典"}, (buf.validate.field).enum = {defined_only: true}, (buf.validate.field).cel = {id: "base_config.type.required" message: "请选择系统配置类型" expression: "this != 0"}]; // 配置类型：1、文本，2、图片，3、富文本，4、字典
+  .system.common.v1.BaseConfigType type = 4 [(gnostic.openapi.v3.property) = {description: "配置类型：1、文本，2、图片，3、富文本，4、字典，5、布尔"}, (buf.validate.field).enum = {defined_only: true}, (buf.validate.field).cel = {id: "base_config.type.required" message: "请选择系统配置类型" expression: "this != 0"}]; // 配置类型：1、文本，2、图片，3、富文本，4、字典，5、布尔
 
   string key = 5 [(gnostic.openapi.v3.property) = {description: "配置key"}, (buf.validate.field).cel = {id: "base_config.key.required" message: "请输入系统配置编码" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "base_config.key.max_len" message: "配置key不能超过 50 个字符" expression: "this.size() <= 50"}]; // 配置key
 

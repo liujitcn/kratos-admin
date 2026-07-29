@@ -59,7 +59,7 @@ export interface BaseConfigForm {
   site: BaseConfigSite;
   /** 配置名称 */
   name: string;
-  /** 配置类型：1、文本，2、图片，3、富文本，4、字典 */
+  /** 配置类型：1、文本，2、图片，3、富文本，4、字典，5、布尔 */
   type: BaseConfigType;
   /** 配置key */
   key: string;

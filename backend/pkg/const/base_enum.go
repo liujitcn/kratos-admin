@@ -30,6 +30,8 @@ const (
 	BASE_CONFIG_TYPE_RICH_TEXT = int32(systemcommonv1.BaseConfigType_RICH_TEXT)
 	// BASE_CONFIG_TYPE_DICT 表示字典类型配置。
 	BASE_CONFIG_TYPE_DICT = int32(systemcommonv1.BaseConfigType_DICT)
+	// BASE_CONFIG_TYPE_BOOLEAN 表示布尔类型配置。
+	BASE_CONFIG_TYPE_BOOLEAN = int32(systemcommonv1.BaseConfigType_BOOLEAN)
 )
 
 const (
