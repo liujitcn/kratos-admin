@@ -26,6 +26,7 @@ const (
 	OauthService_CreateOauthAuthorization_FullMethodName        = "/base.v1.OauthService/CreateOauthAuthorization"
 	OauthService_CreateOauthBindingAuthorization_FullMethodName = "/base.v1.OauthService/CreateOauthBindingAuthorization"
 	OauthService_CreateOauthSession_FullMethodName              = "/base.v1.OauthService/CreateOauthSession"
+	OauthService_BindOauthSession_FullMethodName                = "/base.v1.OauthService/BindOauthSession"
 	OauthService_HandleOauthCallback_FullMethodName             = "/base.v1.OauthService/HandleOauthCallback"
 	OauthService_ExchangeOauthTicket_FullMethodName             = "/base.v1.OauthService/ExchangeOauthTicket"
 	OauthService_HandleOauthBindingCallback_FullMethodName      = "/base.v1.OauthService/HandleOauthBindingCallback"
@@ -48,6 +49,8 @@ type OauthServiceClient interface {
 	CreateOauthBindingAuthorization(ctx context.Context, in *CreateOauthBindingAuthorizationRequest, opts ...grpc.CallOption) (*CreateOauthBindingAuthorizationResponse, error)
 	// 创建三方登录会话
 	CreateOauthSession(ctx context.Context, in *CreateOauthSessionRequest, opts ...grpc.CallOption) (*CreateOauthSessionResponse, error)
+	// 绑定已有账号并创建三方登录会话
+	BindOauthSession(ctx context.Context, in *BindOauthSessionRequest, opts ...grpc.CallOption) (*CreateOauthSessionResponse, error)
 	// 处理三方登录回调
 	HandleOauthCallback(ctx context.Context, in *HandleOauthCallbackRequest, opts ...grpc.CallOption) (*HandleOauthCallbackResponse, error)
 	// 兑换三方登录票据
@@ -116,6 +119,16 @@ func (c *oauthServiceClient) CreateOauthSession(ctx context.Context, in *CreateO
 	return out, nil
 }
 
+func (c *oauthServiceClient) BindOauthSession(ctx context.Context, in *BindOauthSessionRequest, opts ...grpc.CallOption) (*CreateOauthSessionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateOauthSessionResponse)
+	err := c.cc.Invoke(ctx, OauthService_BindOauthSession_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *oauthServiceClient) HandleOauthCallback(ctx context.Context, in *HandleOauthCallbackRequest, opts ...grpc.CallOption) (*HandleOauthCallbackResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(HandleOauthCallbackResponse)
@@ -172,6 +185,8 @@ type OauthServiceServer interface {
 	CreateOauthBindingAuthorization(context.Context, *CreateOauthBindingAuthorizationRequest) (*CreateOauthBindingAuthorizationResponse, error)
 	// 创建三方登录会话
 	CreateOauthSession(context.Context, *CreateOauthSessionRequest) (*CreateOauthSessionResponse, error)
+	// 绑定已有账号并创建三方登录会话
+	BindOauthSession(context.Context, *BindOauthSessionRequest) (*CreateOauthSessionResponse, error)
 	// 处理三方登录回调
 	HandleOauthCallback(context.Context, *HandleOauthCallbackRequest) (*HandleOauthCallbackResponse, error)
 	// 兑换三方登录票据
@@ -204,6 +219,9 @@ func (UnimplementedOauthServiceServer) CreateOauthBindingAuthorization(context.C
 }
 func (UnimplementedOauthServiceServer) CreateOauthSession(context.Context, *CreateOauthSessionRequest) (*CreateOauthSessionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateOauthSession not implemented")
+}
+func (UnimplementedOauthServiceServer) BindOauthSession(context.Context, *BindOauthSessionRequest) (*CreateOauthSessionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method BindOauthSession not implemented")
 }
 func (UnimplementedOauthServiceServer) HandleOauthCallback(context.Context, *HandleOauthCallbackRequest) (*HandleOauthCallbackResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method HandleOauthCallback not implemented")
@@ -328,6 +346,24 @@ func _OauthService_CreateOauthSession_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OauthService_BindOauthSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BindOauthSessionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OauthServiceServer).BindOauthSession(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OauthService_BindOauthSession_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OauthServiceServer).BindOauthSession(ctx, req.(*BindOauthSessionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _OauthService_HandleOauthCallback_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(HandleOauthCallbackRequest)
 	if err := dec(in); err != nil {
@@ -426,6 +462,10 @@ var OauthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateOauthSession",
 			Handler:    _OauthService_CreateOauthSession_Handler,
+		},
+		{
+			MethodName: "BindOauthSession",
+			Handler:    _OauthService_BindOauthSession_Handler,
 		},
 		{
 			MethodName: "HandleOauthCallback",

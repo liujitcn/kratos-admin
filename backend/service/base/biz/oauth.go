@@ -15,6 +15,7 @@ import (
 	"time"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	commonv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-admin/backend/pkg/biz"
 	_const "github.com/liujitcn/kratos-admin/backend/pkg/const"
 	"github.com/liujitcn/kratos-admin/backend/pkg/errorsx"
@@ -48,6 +49,7 @@ type OauthCase struct {
 	baseRoleCase         *BaseRoleCase
 	baseDeptCase         *BaseDeptCase
 	loginCase            *LoginCase
+	configCase           *ConfigCase
 	userEvents           *event.UserEvents
 }
 
@@ -69,6 +71,7 @@ func NewOauthCase(
 	baseRoleCase *BaseRoleCase,
 	baseDeptCase *BaseDeptCase,
 	loginCase *LoginCase,
+	configCase *ConfigCase,
 	userEvents *event.UserEvents,
 ) *OauthCase {
 	return &OauthCase{
@@ -80,6 +83,7 @@ func NewOauthCase(
 		baseRoleCase:         baseRoleCase,
 		baseDeptCase:         baseDeptCase,
 		loginCase:            loginCase,
+		configCase:           configCase,
 		userEvents:           userEvents,
 	}
 }
@@ -210,7 +214,25 @@ func (c *OauthCase) CreateOauthSession(ctx context.Context, req *basev1.CreateOa
 	if req.GetProvider() != string(kitOauth.WechatMini) {
 		return nil, errorsx.InvalidArgument("登录方式不支持")
 	}
-	user, err := c.findOrCreateWechatMiniUser(ctx, req.GetCode())
+	autoRegister, err := c.oauthAutoRegisterEnabled(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var openID string
+	openID, err = c.getWechatMiniOpenID(ctx, req.GetCode())
+	if err != nil {
+		return nil, err
+	}
+	var user *models.BaseUser
+	user, err = c.findWechatMiniUserByOpenID(ctx, openID)
+	if err != nil {
+		if !autoRegister && kratosErrors.Code(err) == 401 {
+			return &basev1.CreateOauthSessionResponse{BindingRequired: true}, nil
+		}
+		if autoRegister && kratosErrors.Code(err) == 401 {
+			user, err = c.createWechatMiniUser(ctx, openID)
+		}
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -225,6 +247,63 @@ func (c *OauthCase) CreateOauthSession(ctx context.Context, req *basev1.CreateOa
 		RefreshToken: loginRes.GetRefreshToken(),
 		TokenType:    loginRes.GetTokenType(),
 		ExpiresIn:    loginRes.GetExpiresIn(),
+	}, nil
+}
+
+// oauthAutoRegisterEnabled 读取微信未绑定时是否允许自动注册。
+func (c *OauthCase) oauthAutoRegisterEnabled(ctx context.Context) (bool, error) {
+	config, err := c.configCase.GetConfig(ctx, &basev1.GetConfigRequest{Site: commonv1.BaseConfigSite_APP})
+	if err != nil {
+		return false, errorsx.Internal("读取微信登录配置失败").WithCause(err)
+	}
+	for _, item := range config.GetConfigs() {
+		if item.GetKey() == _const.BASE_CONFIG_KEY_OAUTH_AUTO_REGISTER {
+			return strings.EqualFold(item.GetValue(), "true"), nil
+		}
+	}
+	return false, nil
+}
+
+// BindOauthSession 校验已有账号并绑定微信小程序账号后创建登录会话。
+func (c *OauthCase) BindOauthSession(ctx context.Context, req *basev1.BindOauthSessionRequest) (*basev1.CreateOauthSessionResponse, error) {
+	if req.GetProvider() != string(kitOauth.WechatMini) {
+		return nil, errorsx.InvalidArgument("登录方式不支持")
+	}
+	var err error
+	err = c.loginCase.verifyLoginCaptcha(ctx, req.GetCaptchaId(), req.GetCaptchaCode())
+	if err != nil {
+		return nil, err
+	}
+	var openID string
+	openID, err = c.getWechatMiniOpenID(ctx, req.GetCode())
+	if err != nil {
+		return nil, err
+	}
+	_, err = c.baseThirdAccountCase.FindByProviderIdentifier(ctx, string(kitOauth.WechatMini), openID)
+	if err == nil {
+		return nil, errorsx.Conflict("微信账号已绑定")
+	}
+	if !stderrors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, errorsx.Internal("微信登录失败").WithCause(err)
+	}
+
+	user, err := c.loginCase.FindUserByPassword(ctx, req.GetTenantCode(), req.GetUserName(), req.GetPassword())
+	if err != nil {
+		return nil, err
+	}
+	err = c.baseThirdAccountCase.CreateBinding(ctx, user.ID, string(kitOauth.WechatMini), openID)
+	if err != nil {
+		return nil, err
+	}
+	var loginRes *basev1.LoginResponse
+	loginRes, err = c.loginCase.IssueUserToken(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+	c.userEvents.PublishUserChanged(user.ID)
+	return &basev1.CreateOauthSessionResponse{
+		AccessToken: loginRes.GetAccessToken(), RefreshToken: loginRes.GetRefreshToken(),
+		TokenType: loginRes.GetTokenType(), ExpiresIn: loginRes.GetExpiresIn(),
 	}, nil
 }
 
@@ -331,46 +410,26 @@ func (c *OauthCase) UnbindOauthAccount(ctx context.Context, req *basev1.UnbindOa
 	return nil
 }
 
-// findOrCreateWechatMiniUser 按微信小程序授权码查找或自动创建本地用户。
-func (c *OauthCase) findOrCreateWechatMiniUser(ctx context.Context, code string) (*models.BaseUser, error) {
+// findWechatMiniUserByOpenID 按微信小程序唯一标识查找已绑定的本地用户。
+func (c *OauthCase) findWechatMiniUserByOpenID(ctx context.Context, openID string) (*models.BaseUser, error) {
 	var err error
-	var wechatMiniProvider provider.OAuth
-	wechatMiniProvider, err = c.oauthManager.Get(kitOauth.WechatMini)
-	if err != nil {
-		return nil, errorsx.Internal("微信登录配置信息错误").WithCause(err)
-	}
-	var oauthToken *provider.Token
-	oauthToken, err = wechatMiniProvider.GetToken(ctx, code, provider.WithGrantType(provider.GrantTypeAuthorizationCode))
-	if err != nil {
-		return nil, errorsx.InvalidArgument("微信登录凭据无效").WithCause(err)
-	}
-	var oauthUser *provider.User
-	oauthUser, err = wechatMiniProvider.GetUser(ctx, oauthToken)
-	if err != nil {
-		return nil, errorsx.InvalidArgument("获取微信用户失败").WithCause(err)
-	}
-	if oauthUser.OpenID == "" {
-		return nil, errorsx.Internal("登录失败")
-	}
-
 	var thirdAccount *models.BaseThirdAccount
-	thirdAccount, err = c.baseThirdAccountCase.FindByProviderIdentifier(ctx, string(kitOauth.WechatMini), oauthUser.OpenID)
+	thirdAccount, err = c.baseThirdAccountCase.FindByProviderIdentifier(ctx, string(kitOauth.WechatMini), openID)
 	if err != nil {
-		if !stderrors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errorsx.Internal("登录失败").WithCause(err)
+		if stderrors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errorsx.Unauthenticated("微信账号未绑定，请先绑定已有账号")
 		}
-		return c.createWechatMiniUser(ctx, oauthUser.OpenID)
+		return nil, errorsx.Internal("微信登录失败").WithCause(err)
 	}
-
 	var user *models.BaseUser
 	user, err = c.baseUserCase.FindByID(ctx, thirdAccount.UserID)
 	if err != nil {
-		return nil, errorsx.Internal("登录失败").WithCause(err)
+		return nil, errorsx.Internal("微信登录失败").WithCause(err)
 	}
 	return user, nil
 }
 
-// createWechatMiniUser 自动创建微信小程序用户并绑定三方账号。
+// createWechatMiniUser 按默认角色和部门自动创建微信小程序用户。
 func (c *OauthCase) createWechatMiniUser(ctx context.Context, openID string) (*models.BaseUser, error) {
 	defaultRole, err := c.baseRoleCase.FindDefaultUser(ctx)
 	if err != nil {
@@ -391,21 +450,18 @@ func (c *OauthCase) createWechatMiniUser(ctx context.Context, openID string) (*m
 		UserCode: userCode,
 		RoleID:   defaultRole.ID,
 		DeptID:   defaultDept.ID,
-		Phone:    "",
-		Password: "",
 		Gender:   _const.BASE_USER_GENDER_SECRET,
-		Avatar:   "",
 		Status:   _const.STATUS_ENABLE,
 		Remark:   "自动注册用户",
 	}
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		err = c.baseUserCase.Create(txCtx, user)
 		if err != nil {
-			return errorsx.Internal("登录失败").WithCause(err)
+			return errorsx.Internal("微信登录失败").WithCause(err)
 		}
 		err = c.baseThirdAccountCase.CreateBinding(txCtx, user.ID, string(kitOauth.WechatMini), openID)
 		if err != nil {
-			return errorsx.Internal("登录失败").WithCause(err)
+			return errorsx.Internal("微信登录失败").WithCause(err)
 		}
 		return nil
 	})
@@ -413,6 +469,30 @@ func (c *OauthCase) createWechatMiniUser(ctx context.Context, openID string) (*m
 		return nil, err
 	}
 	return user, nil
+}
+
+// getWechatMiniOpenID 使用授权码获取微信小程序唯一标识。
+func (c *OauthCase) getWechatMiniOpenID(ctx context.Context, code string) (string, error) {
+	var err error
+	var wechatMiniProvider provider.OAuth
+	wechatMiniProvider, err = c.oauthManager.Get(kitOauth.WechatMini)
+	if err != nil {
+		return "", errorsx.Internal("微信登录配置信息错误").WithCause(err)
+	}
+	var oauthToken *provider.Token
+	oauthToken, err = wechatMiniProvider.GetToken(ctx, code, provider.WithGrantType(provider.GrantTypeAuthorizationCode))
+	if err != nil {
+		return "", errorsx.InvalidArgument("微信登录凭据无效").WithCause(err)
+	}
+	var oauthUser *provider.User
+	oauthUser, err = wechatMiniProvider.GetUser(ctx, oauthToken)
+	if err != nil {
+		return "", errorsx.InvalidArgument("获取微信用户失败").WithCause(err)
+	}
+	if oauthUser.OpenID == "" {
+		return "", errorsx.Internal("登录失败")
+	}
+	return oauthUser.OpenID, nil
 }
 
 // handleOauthBindingCallback 校验三方账号并写入当前用户绑定关系。

@@ -245,6 +245,38 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 	return c.IssueUserToken(ctx, user)
 }
 
+// FindUserByPassword 按租户、用户名和加密密码查找已有用户，不执行验证码校验。
+func (c *LoginCase) FindUserByPassword(ctx context.Context, tenantCode string, userName string, encryptedPassword *commonv1.PasswordCrypto) (*models.BaseUser, error) {
+	var err error
+	if tenantCode == "" {
+		tenantCode = databaseGorm.DefaultTenantCode
+	}
+	var baseTenant *models.BaseTenant
+	baseTenant, err = c.findTenantByCode(ctx, tenantCode)
+	if err != nil || baseTenant.Status != _const.STATUS_ENABLE {
+		return nil, errorsx.Unauthenticated("用户名或密码错误")
+	}
+
+	userQuery := c.baseUserCase.Query(ctx).BaseUser
+	userOpts := make([]repository.QueryOption, 0, 2)
+	userOpts = append(userOpts, repository.Where(userQuery.TenantID.Eq(baseTenant.ID)))
+	userOpts = append(userOpts, repository.Where(userQuery.UserName.Eq(userName)))
+	var user *models.BaseUser
+	user, err = c.baseUserCase.Find(ctx, userOpts...)
+	if err != nil {
+		return nil, errorsx.Unauthenticated("用户名或密码错误")
+	}
+	var password string
+	password, err = utils.DecryptPassword(encryptedPassword, commonv1.PasswordCryptoScene_LOGIN)
+	if err != nil {
+		return nil, errorsx.Unauthenticated("用户名或密码错误").WithCause(err)
+	}
+	if err = crypto.Verify(password, user.Password); err != nil {
+		return nil, errorsx.Unauthenticated("用户名或密码错误")
+	}
+	return user, nil
+}
+
 // IssueUserToken 校验用户关联状态并签发后台访问令牌。
 func (c *LoginCase) IssueUserToken(ctx context.Context, user *models.BaseUser) (*basev1.LoginResponse, error) {
 	authInfo, err := c.buildAuthInfo(ctx, user)

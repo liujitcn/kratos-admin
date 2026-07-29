@@ -79,6 +79,16 @@ func (s *OauthService) CreateOauthSession(ctx context.Context, req *basev1.Creat
 	return res, nil
 }
 
+// BindOauthSession 绑定已有账号并创建三方登录会话。
+func (s *OauthService) BindOauthSession(ctx context.Context, req *basev1.BindOauthSessionRequest) (*basev1.CreateOauthSessionResponse, error) {
+	res, err := s.oauthCase.BindOauthSession(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("BindOauthSession %v", err))
+		return nil, errorsx.WrapInternal(err, "绑定三方账号失败")
+	}
+	return res, nil
+}
+
 // HandleOauthCallback 处理三方登录回调。
 func (s *OauthService) HandleOauthCallback(ctx context.Context, req *basev1.HandleOauthCallbackRequest) (*basev1.HandleOauthCallbackResponse, error) {
 	res, err := s.oauthCase.HandleOauthCallback(ctx, req)

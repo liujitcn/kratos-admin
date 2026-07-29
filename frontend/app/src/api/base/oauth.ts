@@ -4,6 +4,7 @@ import type {
   CreateOauthAuthorizationResponse,
   CreateOauthBindingAuthorizationRequest,
   CreateOauthBindingAuthorizationResponse,
+  BindOauthSessionRequest,
   CreateOauthSessionRequest,
   CreateOauthSessionResponse,
   ExchangeOauthTicketRequest,
@@ -81,6 +82,17 @@ export class OauthServiceImpl implements OauthService {
   CreateOauthSession(request: CreateOauthSessionRequest): Promise<CreateOauthSessionResponse> {
     return http<CreateOauthSessionResponse>({
       url: `${OAUTH_SESSION_URL}`,
+      method: 'POST',
+      authMode: 'none',
+      data: request,
+      header: { Authorization: 'no-auth' },
+    })
+  }
+
+  /** 绑定已有账号并创建三方登录会话 */
+  BindOauthSession(request: BindOauthSessionRequest): Promise<CreateOauthSessionResponse> {
+    return http<CreateOauthSessionResponse>({
+      url: `${OAUTH_BINDING_URL}/session`,
       method: 'POST',
       authMode: 'none',
       data: request,

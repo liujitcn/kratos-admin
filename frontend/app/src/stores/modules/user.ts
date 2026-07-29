@@ -1,5 +1,9 @@
 import type { UserProfileForm } from '@/rpc/system/app/v1/auth'
-import type { CreateOauthSessionRequest, CreateOauthSessionResponse } from '@/rpc/base/v1/oauth'
+import type {
+  BindOauthSessionRequest,
+  CreateOauthSessionRequest,
+  CreateOauthSessionResponse,
+} from '@/rpc/base/v1/oauth'
 import type { LoginRequest, LoginResponse } from '@/rpc/base/v1/login'
 import { defAuthService } from '@/api/system/auth'
 import { defLoginService } from '@/api/base/login'
@@ -98,9 +102,28 @@ export const useUserStore = defineStore(
      * @returns
      */
     function createOauthSession(request: CreateOauthSessionRequest) {
-      return new Promise<void>((resolve, reject) => {
+      return new Promise<CreateOauthSessionResponse>((resolve, reject) => {
         defOauthService
           .CreateOauthSession(request)
+          .then(async (data) => {
+            if (data.binding_required) {
+              resolve(data)
+              return
+            }
+            await applyLoginToken(data)
+            resolve(data)
+          })
+          .catch((error) => {
+            reject(error)
+          })
+      })
+    }
+
+    /** 绑定已有账号并创建三方登录会话。 */
+    function bindOauthSession(request: BindOauthSessionRequest) {
+      return new Promise<void>((resolve, reject) => {
+        defOauthService
+          .BindOauthSession(request)
           .then(async (data) => {
             await applyLoginToken(data)
             resolve()
@@ -217,6 +240,7 @@ export const useUserStore = defineStore(
       getUserProfile,
       login,
       createOauthSession,
+      bindOauthSession,
       logout,
       clearUserData,
       silentLogout,

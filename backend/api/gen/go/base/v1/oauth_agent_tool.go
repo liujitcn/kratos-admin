@@ -48,6 +48,12 @@ func NewOauthServiceAgentTools(oauthServiceServer OauthServiceServer) ([]tool.In
 		return nil, err
 	}
 	ts = append(ts, createOauthSessionTool)
+	var bindOauthSessionTool tool.InvokableTool
+	bindOauthSessionTool, err = NewOauthServiceBindOauthSessionAgentTool(oauthServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, bindOauthSessionTool)
 	var handleOauthCallbackTool tool.InvokableTool
 	handleOauthCallbackTool, err = NewOauthServiceHandleOauthCallbackAgentTool(oauthServiceServer)
 	if err != nil {
@@ -141,6 +147,20 @@ func NewOauthServiceCreateOauthSessionAgentTool(oauthServiceServer OauthServiceS
 				req = &CreateOauthSessionRequest{}
 			}
 			return oauthServiceServer.CreateOauthSession(ctx, req)
+		},
+	)
+}
+
+// NewOauthServiceBindOauthSessionAgentTool 创建绑定已有账号并创建三方登录会话的 Agent Tool。
+func NewOauthServiceBindOauthSessionAgentTool(oauthServiceServer OauthServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*BindOauthSessionRequest, *CreateOauthSessionResponse](
+		"base_v1_oauth_service_bind_oauth_session",
+		"绑定已有账号并创建三方登录会话",
+		func(ctx context.Context, req *BindOauthSessionRequest) (*CreateOauthSessionResponse, error) {
+			if req == nil {
+				req = &BindOauthSessionRequest{}
+			}
+			return oauthServiceServer.BindOauthSession(ctx, req)
 		},
 	)
 }

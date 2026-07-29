@@ -10,6 +10,10 @@ const (
 	BASE_CONFIG_CACHE_PREFIX = "config:site:"
 	// BASE_CONFIG_CACHE_EXPIRE 表示配置缓存的有效期。
 	BASE_CONFIG_CACHE_EXPIRE = 100 * 365 * 24 * time.Hour
+	// BASE_CONFIG_KEY_OAUTH_AUTO_REGISTER 表示微信未绑定时是否自动注册用户。
+	BASE_CONFIG_KEY_OAUTH_AUTO_REGISTER = "oauthAutoRegister"
+	// BASE_CONFIG_KEY_SHOW_TENANT_CODE 表示登录页是否显示租户编号。
+	BASE_CONFIG_KEY_SHOW_TENANT_CODE = "showTenantCode"
 )
 
 // BaseConfigCacheKey 生成指定站点的配置缓存键。

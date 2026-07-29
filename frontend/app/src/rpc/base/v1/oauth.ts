@@ -5,6 +5,7 @@
 // source: base/v1/oauth.proto
 
 /* eslint-disable */
+import type { PasswordCrypto } from "../../common/v1/types";
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 个人中心三方账号绑定列表查询条件 */
@@ -63,6 +64,26 @@ export interface CreateOauthSessionRequest {
   code: string;
 }
 
+/** 绑定已有账号的三方登录会话创建条件 */
+export interface BindOauthSessionRequest {
+  /** 登录方式标识 */
+  provider: string;
+  /** 三方授权码 */
+  code: string;
+  /** 租户编码 */
+  tenant_code: string;
+  /** 用户名 */
+  user_name: string;
+  /** 用户密码 */
+  password:
+    | PasswordCrypto
+    | undefined;
+  /** 验证码 */
+  captcha_code: string;
+  /** 验证码Id */
+  captcha_id: string;
+}
+
 /** 三方登录会话创建响应 */
 export interface CreateOauthSessionResponse {
   /** 访问令牌，必选项。 */
@@ -73,6 +94,8 @@ export interface CreateOauthSessionResponse {
   token_type: string;
   /** 令牌有效时间，单位为秒。 */
   expires_in: number;
+  /** 是否需要绑定已有账号。 */
+  binding_required: boolean;
 }
 
 /** 三方登录回调请求 */
@@ -163,6 +186,8 @@ export interface OauthService {
   ): Promise<CreateOauthBindingAuthorizationResponse>;
   /** 创建三方登录会话 */
   CreateOauthSession(request: CreateOauthSessionRequest): Promise<CreateOauthSessionResponse>;
+  /** 绑定已有账号并创建三方登录会话 */
+  BindOauthSession(request: BindOauthSessionRequest): Promise<CreateOauthSessionResponse>;
   /** 处理三方登录回调 */
   HandleOauthCallback(request: HandleOauthCallbackRequest): Promise<HandleOauthCallbackResponse>;
   /** 兑换三方登录票据 */

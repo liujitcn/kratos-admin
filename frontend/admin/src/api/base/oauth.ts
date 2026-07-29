@@ -1,5 +1,6 @@
 import service from "@/utils/request";
 import type {
+  BindOauthSessionRequest,
   CreateOauthAuthorizationRequest,
   CreateOauthAuthorizationResponse,
   CreateOauthBindingAuthorizationRequest,
@@ -75,6 +76,16 @@ export class OauthServiceImpl implements OauthService {
   CreateOauthSession(request: CreateOauthSessionRequest): Promise<CreateOauthSessionResponse> {
     return service<CreateOauthSessionRequest, CreateOauthSessionResponse>({
       url: `${OAUTH_SESSION_URL}`,
+      method: "post",
+      data: request,
+      headers: { Authorization: "no-auth" }
+    });
+  }
+
+  /** 绑定已有账号并创建三方登录会话 */
+  BindOauthSession(request: BindOauthSessionRequest): Promise<CreateOauthSessionResponse> {
+    return service<BindOauthSessionRequest, CreateOauthSessionResponse>({
+      url: `${OAUTH_BINDING_URL}/session`,
       method: "post",
       data: request,
       headers: { Authorization: "no-auth" }

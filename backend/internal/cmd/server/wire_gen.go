@@ -182,7 +182,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	baseThirdAccountRepository := data.NewBaseThirdAccountRepository(dataData)
 	baseThirdAccountCase := biz3.NewBaseThirdAccountCase(baseThirdAccountRepository)
 	userEvents := event.NewUserEvents()
-	oauthCase := biz3.NewOauthCase(baseCase, transaction, manager, baseThirdAccountCase, baseUserCase, baseRoleCase, baseDeptCase, loginCase, userEvents)
+	oauthCase := biz3.NewOauthCase(baseCase, transaction, manager, baseThirdAccountCase, baseUserCase, baseRoleCase, baseDeptCase, loginCase, configCase, userEvents)
 	oauthService := base.NewOauthService(oauthCase)
 	mcpServer, err := server.NewMCPHandler(context)
 	if err != nil {

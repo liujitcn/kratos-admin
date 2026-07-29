@@ -6,6 +6,7 @@ import "gnostic/openapi/v3/annotations.proto";
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
+import "common/v1/types.proto";
 
 // Base三方登录公共服务
 service OauthService {
@@ -43,6 +44,14 @@ service OauthService {
   rpc CreateOauthSession(CreateOauthSessionRequest) returns (CreateOauthSessionResponse) {
     option (google.api.http) = {
       post: "/api/v1/base/oauth/session"
+      body: "*"
+    };
+  }
+
+  // 绑定已有账号并创建三方登录会话
+  rpc BindOauthSession(BindOauthSessionRequest) returns (CreateOauthSessionResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/oauth/binding/session"
       body: "*"
     };
   }
@@ -124,6 +133,23 @@ message CreateOauthSessionRequest {
   string code = 2 [(gnostic.openapi.v3.property) = {description: "三方授权码"}, (buf.validate.field).cel = {id: "create_oauth_session.code.required" message: "三方授权码不能为空" expression: "this.size() > 0"}]; // 三方授权码
 }
 
+// 绑定已有账号的三方登录会话创建条件
+message BindOauthSessionRequest {
+  string provider = 1 [(gnostic.openapi.v3.property) = {description: "登录方式标识"}, (buf.validate.field).cel = {id: "bind_oauth_session.provider.required" message: "登录方式标识不能为空" expression: "this.size() > 0"}]; // 登录方式标识
+
+  string code = 2 [(gnostic.openapi.v3.property) = {description: "三方授权码"}, (buf.validate.field).cel = {id: "bind_oauth_session.code.required" message: "三方授权码不能为空" expression: "this.size() > 0"}]; // 三方授权码
+
+  string tenant_code = 3 [(gnostic.openapi.v3.property) = {description: "租户编码"}, (buf.validate.field).cel = {id: "bind_oauth_session.tenant_code.required" message: "租户编码不能为空" expression: "this.size() > 0"}]; // 租户编码
+
+  string user_name = 4 [(gnostic.openapi.v3.property) = {description: "用户名"}, (buf.validate.field).cel = {id: "bind_oauth_session.user_name.required" message: "用户名不能为空" expression: "this.size() > 0"}]; // 用户名
+
+  .common.v1.PasswordCrypto password = 5 [(gnostic.openapi.v3.property) = {description: "用户密码"}, (buf.validate.field).required = true]; // 用户密码
+
+  string captcha_code = 6 [(gnostic.openapi.v3.property) = {description: "验证码"}, (buf.validate.field).cel = {id: "bind_oauth_session.captcha_code.required" message: "验证码不能为空" expression: "this.size() > 0"}]; // 验证码
+
+  string captcha_id = 7 [(gnostic.openapi.v3.property) = {description: "验证码Id"}, (buf.validate.field).cel = {id: "bind_oauth_session.captcha_id.required" message: "验证码Id不能为空" expression: "this.size() > 0"}]; // 验证码Id
+}
+
 // 三方登录会话创建响应
 message CreateOauthSessionResponse {
   string access_token = 1 [(gnostic.openapi.v3.property) = {description: "访问令牌，必选项。授权服务器颁发的访问令牌字符串。"}]; // 访问令牌，必选项。
@@ -136,6 +162,8 @@ message CreateOauthSessionResponse {
   }]; // 令牌类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型。
 
   int64 expires_in = 4 [(gnostic.openapi.v3.property) = {description: "令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。"}]; // 令牌有效时间，单位为秒。
+
+  bool binding_required = 5 [(gnostic.openapi.v3.property) = {description: "是否需要绑定已有账号"}]; // 是否需要绑定已有账号。
 }
 
 // 三方登录回调请求

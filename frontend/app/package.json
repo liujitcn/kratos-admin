@@ -119,6 +119,7 @@
     "@uni-helper/uni-app-types": "1.0.0-alpha.6",
     "@uni-helper/uni-ui-types": "1.0.0-alpha.6",
     "@vue/tsconfig": "^0.7.0",
+    "asmcrypto.js": "^2.3.2",
     "go-captcha-uni": "1.0.6",
     "miniprogram-api-typings": "^4.0.5",
     "pinia": "^2.0.27",
