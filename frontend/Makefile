@@ -48,12 +48,16 @@ build-package:
 	@cd admin && \
 		CI=1 pnpm run build:package
 
-# 检查并生成管理后台 npm 包
+# 检查、测试并生成管理后台 npm 包
 package-admin:
 	@cd admin && \
+		CI=1 pnpm run check:exports && \
+		CI=1 pnpm run test && \
 		CI=1 pnpm run type:check && \
-		CI=1 pnpm run build:package && \
-		CI=1 pnpm pack --pack-destination "$(NPM_PACK_DEST)"
+		CI=1 pnpm run build:package
+	@for package_dir in admin/packages/core admin/packages/modules/system admin/packages/cli; do \
+		(cd "$$package_dir" && CI=1 pnpm pack --pack-destination "$(NPM_PACK_DEST)") || exit 1; \
+	done
 
 # 检查并生成应用端 npm 包
 package-app:
@@ -61,22 +65,22 @@ package-app:
 		CI=1 pnpm run tsc && \
 		CI=1 pnpm pack --pack-destination "$(NPM_PACK_DEST)"
 
-# 检查并生成两个 npm 包
+# 检查并生成全部 npm 包
 package: package-admin package-app
 
 # 发布管理后台 npm 包
 publish-admin: package-admin
-	@$(NPM_PUBLISH_ENV) bash scripts/publish_packages.sh admin
+	@$(NPM_PUBLISH_ENV) bash scripts/publish_packages.sh admin/packages/core admin/packages/modules/system admin/packages/cli
 
 # 发布应用端 npm 包
 publish-app: package-app
 	@$(NPM_PUBLISH_ENV) bash scripts/publish_packages.sh app
 
-# 发布已检查并打包的两个 npm 包
+# 发布已检查并打包的全部 npm 包
 publish-only:
-	@$(NPM_PUBLISH_ENV) bash scripts/publish_packages.sh admin app
+	@$(NPM_PUBLISH_ENV) bash scripts/publish_packages.sh admin/packages/core admin/packages/modules/system admin/packages/cli app
 
-# 检查、打包并按顺序发布两个 npm 包
+# 检查、打包并按顺序发布全部 npm 包
 publish: package
 	@$(MAKE) publish-only
 

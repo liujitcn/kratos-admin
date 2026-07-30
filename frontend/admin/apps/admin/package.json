@@ -1,0 +1,17 @@
+{
+  "name": "@liujitcn/kratos-admin-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --configLoader runner",
+    "build": "vue-tsc --noEmit && vite build --configLoader runner --mode production",
+    "preview": "vite preview --configLoader runner",
+    "type:check": "vue-tsc --noEmit --skipLibCheck"
+  },
+  "dependencies": {
+    "@liujitcn/admin-vite-config": "workspace:*",
+    "@liujitcn/kratos-admin": "workspace:*",
+    "@liujitcn/kratos-admin-system": "workspace:*"
+  }
+}

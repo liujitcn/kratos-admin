@@ -1,11 +1,5 @@
 // @see: https://cz-git.qbenben.com/zh/guide
-const fs = require("fs");
-const path = require("path");
-
-const scopes = fs
-  .readdirSync(path.resolve(__dirname, "src"), { withFileTypes: true })
-  .filter(dirent => dirent.isDirectory())
-  .map(dirent => dirent.name.replace(/s$/, ""));
+const scopes = ["admin", "app", "backend", "build", "cli", "core", "deps", "docs", "migration", "release", "system"];
 
 /** @type {import('cz-git').UserConfig} */
 module.exports = {

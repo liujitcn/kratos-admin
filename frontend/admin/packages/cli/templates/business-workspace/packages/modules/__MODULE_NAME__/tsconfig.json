@@ -1,0 +1,12 @@
+{
+  "extends": "../../../tsconfig.json",
+  "include": [
+    "node_modules/@liujitcn/kratos-admin/types/generated/auto-imports.d.ts",
+    "node_modules/@liujitcn/kratos-admin/types/generated/components.d.ts",
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue"
+  ],
+  "exclude": ["node_modules", "dist", "**/*.js"]
+}

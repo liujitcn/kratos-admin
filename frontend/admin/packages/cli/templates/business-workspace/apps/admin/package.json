@@ -1,0 +1,13 @@
+{
+  "name": "__APP_PACKAGE__",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --configLoader runner",
+    "build": "vue-tsc --noEmit && vite build --configLoader runner --mode production",
+    "preview": "vite preview --configLoader runner",
+    "type:check": "vue-tsc --noEmit --skipLibCheck"
+  },
+  "dependencies": __APP_DEPENDENCIES__
+}

@@ -13,10 +13,31 @@ managed:
     - module: 'buf.build/gnostic/gnostic'
     - module: 'buf.build/gogo/protobuf'
 
+inputs:
+  - directory: .
+    paths:
+      - proto/base/v1/config.proto
+      - proto/base/v1/file.proto
+      - proto/base/v1/login.proto
+      - proto/base/v1/oauth.proto
+      - proto/common/v1/common.proto
+      - proto/common/v1/enum.proto
+      - proto/common/v1/types.proto
+      - proto/system/admin/v1/auth.proto
+      - proto/system/admin/v1/base_dict.proto
+      - proto/system/admin/v1/base_tenant.proto
+      - proto/system/common/v1/enum.proto
+
 plugins:
   #  - remote: buf.build/community/stephenh-ts-proto
   - local: protoc-gen-ts_proto
-    out: ../../frontend/admin/src/rpc
+    out: ../../frontend/admin/packages/core/src/rpc
+    include_imports: true
+    include_wkt: true
+    exclude_types:
+      - buf.validate
+      - gnostic.openapi.v3
+      - google.api
     opt:
       - outputSchema=false # 生成模式 (const, no-file-descriptor, true, false)
       - outputTypeRegistry=false # 生成类型注册表

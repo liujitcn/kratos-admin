@@ -2013,9 +2013,9 @@ func codeGenWorkspacePaths() (map[string]struct{}, error) {
 	rootPath := filepath.Dir(backendPath)
 	roots := []string{
 		filepath.Join(rootPath, "backend"),
-		filepath.Join(rootPath, "frontend/admin/src/api"),
-		filepath.Join(rootPath, "frontend/admin/src/rpc"),
-		filepath.Join(rootPath, "frontend/admin/src/views"),
+		filepath.Join(rootPath, codegen.FrontendAdminModulesRootPath, "system/src/api"),
+		filepath.Join(rootPath, codegen.FrontendAdminModulesRootPath, "system/src/rpc"),
+		filepath.Join(rootPath, codegen.FrontendAdminModulesRootPath, "system/src/views"),
 	}
 	for _, root := range roots {
 		err = filepath.WalkDir(root, func(path string, entry fs.DirEntry, walkErr error) error {

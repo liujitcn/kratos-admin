@@ -1,45 +1,45 @@
 {
+  "extends": "./internal/tsconfig/base.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "useDefineForClassFields": true,
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "types": ["vite/client", "element-plus/global", "node"],
-
-    /* Strict Type-Checking Options */
-    "strict": true /* Enable all strict type-checking options. */,
-    "noImplicitAny": false /* Raise error on expressions and declarations with an implied 'any' type. */,
-    // "strictNullChecks": true,              /* Enable strict null checks. */
-    // "strictFunctionTypes": true,           /* Enable strict checking of function types. */
-    // "strictBindCallApply": true,           /* Enable strict 'bind', 'call', and 'apply' methods on functions. */
-    // "strictPropertyInitialization": true,  /* Enable strict checking of property initialization in classes. */
-    // "noImplicitThis": true,                /* Raise error on 'this' expressions with an implied 'any' type. */
-    // "alwaysStrict": true,                  /* Parse in strict mode and emit "use strict" for each source file. */
-
-    "jsx": "preserve",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "lib": ["ESNext", "DOM"],
-    "skipLibCheck": true,
-    "noEmit": true,
-    // TypeScript 6 仍要求 paths 与 baseUrl 配合使用，先保留过渡配置避免影响现有 @ 别名。
-    "ignoreDeprecations": "6.0",
-    "baseUrl": "./",
+    "baseUrl": ".",
     "paths": {
-      "@": ["src"],
-      "@/*": ["src/*"]
+      "@": ["packages/core/src"],
+      "@/*": ["packages/core/src/*"],
+      "@liujitcn/kratos-admin": ["packages/core/src/index.ts"],
+      "@liujitcn/kratos-admin/api/*": ["packages/core/src/api/*"],
+      "@liujitcn/kratos-admin/assets/*": ["packages/core/src/assets/*"],
+      "@liujitcn/kratos-admin/rpc/*": ["packages/core/src/rpc/*"],
+      "@liujitcn/kratos-admin/styles/*.scss": ["packages/core/src/styles/*.scss"],
+      "@liujitcn/kratos-admin/auth": ["packages/core/src/auth.ts"],
+      "@liujitcn/kratos-admin/components/Dialog/FormDialog.vue": ["packages/core/src/components/Dialog/FormDialog.vue"],
+      "@liujitcn/kratos-admin/components/Dialog/ProDialog.vue": ["packages/core/src/components/Dialog/ProDialog.vue"],
+      "@liujitcn/kratos-admin/components/Dict/DictLabel.vue": ["packages/core/src/components/Dict/DictLabel.vue"],
+      "@liujitcn/kratos-admin/components/PasswordStrength/index.vue": ["packages/core/src/components/PasswordStrength/index.vue"],
+      "@liujitcn/kratos-admin/components/ProForm/index.vue": ["packages/core/src/components/ProForm/index.vue"],
+      "@liujitcn/kratos-admin/components/ProForm/interface": ["packages/core/src/components/ProForm/interface/index.ts"],
+      "@liujitcn/kratos-admin/components/ProTable": ["packages/core/src/components/ProTable.ts"],
+      "@liujitcn/kratos-admin/components/ProTable/interface": ["packages/core/src/components/ProTable/interface/index.ts"],
+      "@liujitcn/kratos-admin/components/SelectIcon/index.vue": ["packages/core/src/components/SelectIcon/index.vue"],
+      "@liujitcn/kratos-admin/components/TreeFilter/index.vue": ["packages/core/src/components/TreeFilter/index.vue"],
+      "@liujitcn/kratos-admin/components/Upload/Img.vue": ["packages/core/src/components/Upload/Img.vue"],
+      "@liujitcn/kratos-admin/components/WangEditor/index.vue": ["packages/core/src/components/WangEditor/index.vue"],
+      "@liujitcn/kratos-admin/config": ["packages/core/src/config/index.ts"],
+      "@liujitcn/kratos-admin/format": ["packages/core/src/format.ts"],
+      "@liujitcn/kratos-admin/navigation": ["packages/core/src/navigation.ts"],
+      "@liujitcn/kratos-admin/package.json": ["packages/core/package.json"],
+      "@liujitcn/kratos-admin/request": ["packages/core/src/request.ts"],
+      "@liujitcn/kratos-admin/security": ["packages/core/src/security.ts"],
+      "@liujitcn/kratos-admin/stores/runtime": ["packages/core/src/stores/runtime.ts"],
+      "@liujitcn/kratos-admin/table": ["packages/core/src/table.ts"],
+      "@liujitcn/kratos-admin/tenant": ["packages/core/src/tenant.ts"],
+      "@liujitcn/kratos-admin/tsconfig.json": ["packages/core/tsconfig.json"],
+      "@liujitcn/kratos-admin/vite.config": ["packages/core/vite.config.ts"],
+      "@liujitcn/kratos-admin-system": ["packages/modules/system/src/index.ts"],
+      "@liujitcn/kratos-admin-system/api/*": ["packages/modules/system/src/api/*"],
+      "@liujitcn/kratos-admin-system/package.json": ["packages/modules/system/package.json"],
+      "@liujitcn/kratos-admin-system/rpc/*": ["packages/modules/system/src/rpc/*"],
+      "@liujitcn/admin-vite-config/admin": ["internal/vite-config/src/admin.ts"]
     }
   },
-  "include": [
-    "types/generated/auto-imports.d.ts",
-    "types/generated/components.d.ts",
-    "src/**/*.ts",
-    "src/**/*.d.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "build/**/*.d.ts",
-    "vite.config.ts"
-  ],
-  "exclude": ["node_modules", "dist", "**/*.js"]
+  "files": []
 }

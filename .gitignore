@@ -66,5 +66,7 @@ service_tmp/
 /gorse/data/
 
 .pnpm-store/
+*.tgz
+.turbo/
 .workbuddy/
 /docs/superpowers/

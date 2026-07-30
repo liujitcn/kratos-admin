@@ -1,0 +1,34 @@
+{
+  "name": "@liujitcn/kratos-admin-cli",
+  "private": false,
+  "version": "0.0.15",
+  "type": "module",
+  "description": "Create pnpm workspace projects for kratos-admin business modules",
+  "license": "MIT",
+  "homepage": "https://github.com/liujitcn/kratos-admin",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:liujitcn/kratos-admin.git"
+  },
+  "bin": {
+    "kratos-admin": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "build:package": "pnpm build",
+    "type:check": "tsc -p tsconfig.json --noEmit",
+    "test": "pnpm build && node --test dist/index.test.js",
+    "prepack": "pnpm test"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "files": [
+    "dist/index.d.ts",
+    "dist/index.js",
+    "templates"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "@liujitcn/kratos-admin-app#build": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "outputs": []
+    },
+    "build:package": {
+      "dependsOn": ["^build:package"],
+      "outputs": ["dist/package/**", "dist/index.js"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "type:check": {
+      "dependsOn": ["^type:check"],
+      "outputs": []
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "name": "__MODULE_PACKAGE__",
+  "private": false,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "__MODULE_PASCAL__ admin business module",
+  "scripts": {
+    "build": "pnpm build:package",
+    "build:package": "node ../../../scripts/build-package.mjs .",
+    "type:check": "vue-tsc --noEmit --skipLibCheck",
+    "prepack": "pnpm build:package"
+  },
+  "devDependencies": {
+    "@liujitcn/kratos-admin": "__CORE_VERSION__"
+  },
+  "peerDependencies": {
+    "@liujitcn/kratos-admin": "__CORE_VERSION__",
+    "vue": "^3.5.35"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/package/declarations/index.d.ts",
+      "default": "./dist/package/src/index.ts"
+    },
+    "./api/*": {
+      "types": "./dist/package/declarations/src/api/*.d.ts",
+      "default": "./dist/package/src/api/*.ts"
+    },
+    "./rpc/*": {
+      "types": "./dist/package/declarations/src/rpc/*.d.ts",
+      "default": "./dist/package/src/rpc/*.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/package"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

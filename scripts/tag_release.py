@@ -14,7 +14,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGE_FILES = (
-    ROOT / "frontend/admin/package.json",
+    ROOT / "frontend/admin/packages/core/package.json",
+    ROOT / "frontend/admin/packages/modules/system/package.json",
+    ROOT / "frontend/admin/packages/cli/package.json",
     ROOT / "frontend/app/package.json",
 )
 TAG_RE = re.compile(r"^v(\d+)\.(\d+)\.(\d+)$")
@@ -202,7 +204,7 @@ def release_version_at_head() -> tuple[int, int, int] | None:
 
 
 def update_package_versions(version: tuple[int, int, int]) -> list[Path]:
-    """将两个前端包统一更新到目标版本。"""
+    """将全部前端 npm 包统一更新到目标版本。"""
     target = version_text(version)
     changed: list[Path] = []
     for path in PACKAGE_FILES:
@@ -234,7 +236,7 @@ def commit_all_changes(version: tuple[int, int, int]) -> None:
 
 
 def run_frontend_package() -> None:
-    """检查并打包两个前端 npm 包。"""
+    """检查并打包全部前端 npm 包。"""
     run_stream(["make", "-C", "frontend", "package"])
 
 

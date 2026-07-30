@@ -41,7 +41,7 @@ jobs:
       - name: Install dependencies
         run: make -C frontend init
 
-      - name: Check and package
+      - name: Check, test and package
         run: make -C frontend package
 
       - name: Publish packages

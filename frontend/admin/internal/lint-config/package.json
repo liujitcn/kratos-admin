@@ -1,0 +1,6 @@
+{
+  "name": "@liujitcn/admin-lint-config",
+  "private": true,
+  "version": "0.0.0",
+  "files": ["oxlint.json"]
+}

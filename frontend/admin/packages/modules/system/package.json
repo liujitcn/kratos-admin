@@ -1,0 +1,61 @@
+{
+  "name": "@liujitcn/kratos-admin-system",
+  "private": false,
+  "version": "0.0.15",
+  "type": "module",
+  "description": "kratos-admin system management module",
+  "license": "MIT",
+  "homepage": "https://github.com/liujitcn/kratos-admin",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:liujitcn/kratos-admin.git"
+  },
+  "scripts": {
+    "build": "pnpm build:package",
+    "build:package": "node ../../../scripts/build-package.mjs .",
+    "type:check": "vue-tsc --noEmit --skipLibCheck",
+    "prepack": "pnpm build:package"
+  },
+  "dependencies": {
+    "@liujitcn/kratos-admin": "workspace:*",
+    "@microsoft/fetch-event-source": "^2.0.1",
+    "@shikijs/core": "^3.23.0",
+    "sortablejs": "^1.15.2",
+    "swagger-ui-dist": "^5.32.9",
+    "vue-element-plus-x": "^2.0.3",
+    "x-markdown-vue": "^0.0.200"
+  },
+  "peerDependencies": {
+    "@element-plus/icons-vue": "^2.3.1",
+    "@vueuse/core": "^14.3.0",
+    "element-plus": "^2.7.6",
+    "vue": "^3.5.35",
+    "vue-router": "^5.0.7"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/package/declarations/index.d.ts",
+      "default": "./dist/package/src/index.ts"
+    },
+    "./api/*": {
+      "types": "./dist/package/declarations/src/api/*.d.ts",
+      "default": "./dist/package/src/api/*.ts"
+    },
+    "./rpc/*": {
+      "types": "./dist/package/declarations/src/rpc/*.d.ts",
+      "default": "./dist/package/src/rpc/*.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/package",
+    "package.json",
+    "tsconfig.json"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

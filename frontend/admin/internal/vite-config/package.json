@@ -1,0 +1,15 @@
+{
+  "name": "@liujitcn/admin-vite-config",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "type:check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@liujitcn/kratos-admin": "workspace:*"
+  },
+  "exports": {
+    "./admin": "./src/admin.ts"
+  }
+}

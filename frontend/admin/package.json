@@ -1,89 +1,23 @@
 {
-  "name": "@liujitcn/kratos-admin",
-  "private": false,
-  "version": "0.0.15",
+  "name": "kratos-admin-workspace",
+  "private": true,
   "type": "module",
-  "description": "kratos-admin frontend runtime and base modules",
-  "author": {
-    "name": "Admin",
-    "email": "liujitcn@gmail.com",
-    "url": "https://github.com/liujitcn"
-  },
-  "license": "MIT",
-  "homepage": "https://github.com/liujitcn/kratos-admin",
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:liujitcn/kratos-admin.git"
-  },
-  "bugs": {
-    "url": "https://github.com/liujitcn/kratos-admin/issues"
-  },
   "scripts": {
-    "dev": "vite",
-    "serve": "vite",
-    "build": "pnpm build:pro",
-    "build:package": "node ./scripts/build-package.mjs",
-    "build:dev": "vue-tsc && vite build --mode development",
-    "build:test": "vue-tsc && vite build --mode test",
-    "build:pro": "vue-tsc && vite build --mode production",
-    "type:check": "vue-tsc --noEmit --skipLibCheck",
-    "preview": "pnpm build:dev && vite preview",
-    "lint:oxlint": "oxlint --fix --vue-plugin --ignore-path .oxlintignore ./src ./build ./scripts vite.config.ts lint-staged.config.cjs",
-    "lint:prettier": "prettier --write \"src/**/*.{js,ts,json,tsx,css,less,scss,vue,html,md}\"",
-    "lint:stylelint": "stylelint --cache --fix \"**/*.{vue,less,postcss,css,scss}\" --cache --cache-location node_modules/.cache/stylelint/",
+    "dev": "turbo run dev --filter=@liujitcn/kratos-admin-app",
+    "build": "turbo run build --filter=@liujitcn/kratos-admin-app",
+    "build:package": "turbo run build:package --filter=@liujitcn/kratos-admin --filter=@liujitcn/kratos-admin-system --filter=@liujitcn/kratos-admin-cli",
+    "check:exports": "node scripts/check-package-exports.mjs",
+    "test": "pnpm --filter @liujitcn/kratos-admin test && pnpm --filter @liujitcn/kratos-admin-cli test",
+    "type:check": "turbo run type:check",
+    "lint:oxlint": "oxlint --fix --vue-plugin --config ./internal/lint-config/oxlint.json --ignore-path .oxlintignore ./apps ./packages ./internal ./scripts",
+    "lint:prettier": "prettier --write \"{apps,packages,internal,scripts}/**/*.{js,mjs,ts,json,tsx,css,less,scss,vue,html,md,yaml}\"",
+    "lint:stylelint": "stylelint --cache --fix \"{apps,packages}/**/*.{vue,less,postcss,css,scss}\" --cache-location node_modules/.cache/stylelint/",
     "lint:lint-staged": "lint-staged",
-    "release": "standard-version",
-    "commit": "git add -A && czg && git push",
-    "prepack": "pnpm build:package"
-  },
-  "dependencies": {
-    "@element-plus/icons-vue": "^2.3.1",
-    "@logicflow/core": "^2.2.1",
-    "@microsoft/fetch-event-source": "^2.0.1",
-    "@shikijs/core": "^3.23.0",
-    "@vueuse/core": "^14.3.0",
-    "@wangeditor/editor": "^5.1.23",
-    "@wangeditor/editor-for-vue": "^5.1.12",
-    "axios": "^1.7.2",
-    "dagre": "^0.8.5",
-    "dayjs": "^1.11.21",
-    "driver.js": "^1.3.1",
-    "echarts": "^5.5.1",
-    "echarts-liquidfill": "^3.1.0",
-    "element-plus": "^2.7.6",
-    "go-captcha-vue": "2.0.6",
-    "hook-fetch": "^2.3.2",
-    "md5": "^2.3.0",
-    "mitt": "^3.0.1",
-    "nprogress": "^0.2.0",
-    "pinia": "^3.0.4",
-    "pinia-plugin-persistedstate": "^4.7.1",
-    "qs": "^6.12.1",
-    "screenfull": "^6.0.2",
-    "sortablejs": "^1.15.2",
-    "swagger-ui-dist": "^5.32.9",
-    "@vitejs/plugin-vue": "^6.0.7",
-    "@vitejs/plugin-vue-jsx": "^5.1.5",
-    "code-inspector-plugin": "^1.5.1",
-    "unplugin-auto-import": "^21.0.0",
-    "unplugin-vue-components": "^32.1.0",
-    "unplugin-vue-setup-extend-plus": "^1.0.1",
-    "vite": "^8.0.14",
-    "vite-plugin-compression": "^0.5.1",
-    "vite-plugin-html": "^3.2.2",
-    "vite-plugin-pwa": "^1.3.0",
-    "vite-plugin-svg-icons": "^2.0.1",
-    "vite-plugin-vue-devtools": "^8.1.2",
-    "vue": "^3.5.35",
-    "vue-element-plus-x": "^2.0.3",
-    "vue-router": "^5.0.7",
-    "vuedraggable": "^4.1.0",
-    "x-markdown-vue": "^0.0.200"
+    "module:create": "pnpm --filter @liujitcn/kratos-admin-cli build && node packages/cli/dist/index.js create"
   },
   "devDependencies": {
     "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^18.4.3",
-    "@types/dagre": "^0.7.54",
     "@types/md5": "^2.3.5",
     "@types/node": "^25.9.1",
     "@types/nprogress": "^0.2.3",
@@ -92,13 +26,11 @@
     "autoprefixer": "^10.4.19",
     "cz-git": "1.13.1",
     "czg": "^1.13.1",
-    "husky": "^9.0.11",
     "lint-staged": "^15.2.5",
     "oxlint": "^1.67.0",
     "postcss": "^8.4.38",
     "postcss-html": "^1.8.1",
     "prettier": "^3.3.2",
-    "rollup-plugin-visualizer": "^7.0.1",
     "sass": "^1.100.0",
     "standard-version": "^9.5.0",
     "stylelint": "^17.12.0",
@@ -109,128 +41,23 @@
     "stylelint-config-standard": "^40.0.0",
     "stylelint-config-standard-scss": "^17.0.0",
     "stylelint-order": "8.1.1",
-    "terser": "^5.48.0",
     "ts-proto": "^2.11.8",
+    "turbo": "^2.5.6",
     "typescript": "6.0.3",
+    "vite": "^8.0.14",
     "vue-tsc": "^3.3.2"
   },
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
   },
-  "browserslist": {
-    "production": [
-      "> 1%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "config": {
-    "commitizen": {
-      "path": "node_modules/cz-git"
-    }
-  },
-  "exports": {
-    ".": {
-      "types": "./dist/package/declarations/index.d.ts",
-      "default": "./dist/package/src/index.ts"
-    },
-    "./api/*": {
-      "types": "./dist/package/declarations/src/api/*.d.ts",
-      "default": "./dist/package/src/api/*.ts"
-    },
-    "./assets/*": "./dist/package/src/assets/*",
-    "./rpc/*": {
-      "types": "./dist/package/declarations/src/rpc/*.d.ts",
-      "default": "./dist/package/src/rpc/*.ts"
-    },
-    "./styles/*.scss": "./dist/package/src/styles/*.scss",
-    "./styles/*": {
-      "types": "./dist/package/declarations/src/styles/*.d.ts",
-      "default": "./dist/package/src/styles/*.ts"
-    },
-    "./config": {
-      "types": "./dist/package/declarations/src/config/index.d.ts",
-      "default": "./dist/package/src/config/index.ts"
-    },
-    "./directives": {
-      "types": "./dist/package/declarations/src/directives/index.d.ts",
-      "default": "./dist/package/src/directives/index.ts"
-    },
-    "./hooks/interface": {
-      "types": "./dist/package/declarations/src/hooks/interface/index.d.ts",
-      "default": "./dist/package/src/hooks/interface/index.ts"
-    },
-    "./stores": {
-      "types": "./dist/package/declarations/src/stores/index.d.ts",
-      "default": "./dist/package/src/stores/index.ts"
-    },
-    "./stores/interface": {
-      "types": "./dist/package/declarations/src/stores/interface/index.d.ts",
-      "default": "./dist/package/src/stores/interface/index.ts"
-    },
-    "./utils": {
-      "types": "./dist/package/declarations/src/utils/index.d.ts",
-      "default": "./dist/package/src/utils/index.ts"
-    },
-    "./utils/is": {
-      "types": "./dist/package/declarations/src/utils/is/index.d.ts",
-      "default": "./dist/package/src/utils/is/index.ts"
-    },
-    "./components/*/interface": {
-      "types": "./dist/package/declarations/src/components/*/interface/index.d.ts",
-      "default": "./dist/package/src/components/*/interface/index.ts"
-    },
-    "./components/ECharts/config": {
-      "types": "./dist/package/declarations/src/components/ECharts/config/index.d.ts",
-      "default": "./dist/package/src/components/ECharts/config/index.ts"
-    },
-    "./routers": {
-      "types": "./dist/package/declarations/src/routers/index.d.ts",
-      "default": "./dist/package/src/routers/index.ts"
-    },
-    "./*.ts": {
-      "types": "./dist/package/declarations/src/*.d.ts",
-      "default": "./dist/package/src/*.ts"
-    },
-    "./*.vue": {
-      "types": "./dist/package/declarations/src/*.vue.d.ts",
-      "default": "./dist/package/src/*.vue"
-    },
-    "./*": {
-      "types": "./dist/package/declarations/src/*.d.ts",
-      "default": "./dist/package/src/*.ts"
-    },
-    "./tsconfig.json": "./tsconfig.json",
-    "./vite.config": {
-      "types": "./dist/package/declarations/vite.config.d.ts",
-      "default": "./vite.config.ts"
-    },
-    "./package.json": "./package.json"
-  },
-  "files": [
-    "dist/package",
-    "build",
-    "types",
-    "vite.config.ts",
-    "tsconfig.json"
-  ],
-  "publishConfig": {
-    "access": "public"
-  },
+  "packageManager": "pnpm@10.33.4",
   "pnpm": {
     "overrides": {
-      "@logicflow/core>uuid": "11.1.1",
       "svg-baker>braces": "3.0.3",
       "svg-baker>micromatch": "4.0.8",
       "svg-baker>postcss": "8.5.15"
     },
     "onlyBuiltDependencies": [
-      "@logicflow/core",
       "@parcel/watcher",
       "es5-ext",
       "esbuild",

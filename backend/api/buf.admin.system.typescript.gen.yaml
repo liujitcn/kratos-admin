@@ -1,0 +1,69 @@
+# 配置 System 管理模块的 TypeScript RPC 生成规则
+version: v2
+
+clean: true
+
+managed:
+  enabled: true
+
+  disable:
+    - module: 'buf.build/googleapis/googleapis'
+    - module: 'buf.build/envoyproxy/protoc-gen-validate'
+    - module: 'buf.build/kratos/apis'
+    - module: 'buf.build/gnostic/gnostic'
+    - module: 'buf.build/gogo/protobuf'
+
+inputs:
+  - directory: .
+    paths:
+      - proto/base/v1/ai_message.proto
+      - proto/base/v1/ai_session.proto
+      - proto/base/v1/ai_tool.proto
+      - proto/base/v1/oauth.proto
+      - proto/base/v1/sse.proto
+      - proto/common/v1/common.proto
+      - proto/common/v1/enum.proto
+      - proto/common/v1/types.proto
+      - proto/system/admin/v1
+      - proto/system/common/v1/enum.proto
+
+plugins:
+  - local: protoc-gen-ts_proto
+    out: ../../frontend/admin/packages/modules/system/src/rpc
+    include_imports: true
+    include_wkt: true
+    exclude_types:
+      - buf.validate
+      - gnostic.openapi.v3
+      - google.api
+    opt:
+      - outputSchema=false
+      - outputTypeRegistry=false
+      - outputTypeAnnotations=false
+      - outputServices=default
+      - outputJsonMethods=false
+      - outputEncodeMethods=false
+      - outputPartialMethods=false
+      - outputClientImpl=false
+      - useExactTypes=true
+      - usePrototypeForDefaults=true
+      - useJsonName=false
+      - snakeToCamel=false
+      - useNullAsOptional=false
+      - useDate=false
+      - useOptionals=none
+      - useMapType=true
+      - useReadonlyTypes=false
+      - nestJs=false
+      - onlyTypes=false
+      - fileSuffix=
+      - enumsAsLiterals=false
+      - comments=true
+      - exportCommonSymbols=false
+      - esModuleInterop=true
+      - oneof=unions
+      - stringEnums=false
+      - useJsonWireFormat=false
+      - unrecognizedEnum=false
+      - outputIndex=false
+      - paths=source_relative
