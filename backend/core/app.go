@@ -170,14 +170,6 @@ func NewApp(ctx *bootstrap.Context, optionValues ...Option) (*kratos.App, func()
 	return bootstrap.NewApp(ctx, servers...), cleanup, nil
 }
 
-// Run 创建引导上下文并启动核心服务宿主。
-func Run(parent context.Context, appInfo *bootstrapConfigv1.AppInfo, optionValues ...Option) error {
-	ctx := bootstrap.NewContext(parent, appInfo)
-	return bootstrap.RunApp(ctx, func(ctx *bootstrap.Context) (*kratos.App, func(), error) {
-		return NewApp(ctx, optionValues...)
-	})
-}
-
 // prepareOpenAPI 收集并校验组合根和模块贡献的 OpenAPI 文档。
 func prepareOpenAPI(opts options) (*openapi.Registry, error) {
 	registry := opts.openAPIRegistry

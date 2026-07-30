@@ -73,23 +73,27 @@ package main
 import (
 	"context"
 
+	"github.com/go-kratos/kratos/v3"
 	"github.com/liujitcn/kratos-admin/backend/core"
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	"github.com/liujitcn/kratos-kit/bootstrap"
 
 	_ "github.com/liujitcn/kratos-kit/logger/zap"
 )
 
 func main() {
 	module := newOrderModule()
-	err := core.Run(
+	bootstrapContext := bootstrap.NewContext(
 		context.Background(),
 		&bootstrapConfigv1.AppInfo{
 			Project: "order",
 			AppId:   "server",
 			Version: "dev",
 		},
-		core.WithModules(module),
 	)
+	err := bootstrap.RunApp(bootstrapContext, func(ctx *bootstrap.Context) (*kratos.App, func(), error) {
+		return core.NewApp(ctx, core.WithModules(module))
+	})
 	if err != nil {
 		panic(err)
 	}
