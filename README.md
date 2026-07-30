@@ -91,4 +91,6 @@ make -C frontend publish \
 - `super / 112233`
 - `admin / 112233`
 
-接口契约位于 `backend/api/proto`，按 `base`、`common`、`system` 分域；后端服务、管理端 API、应用 API 和生成 RPC 类型使用相同分层。后端托管 `backend/data/admin` 与 `backend/data/app` 下的前端构建产物，对应 `/admin` 与 `/app` 路径。
+Backend 自有接口契约位于 `backend/api/proto`，通用 `common/v1` 契约从
+`buf.build/liujitcn/kratos-common` 引入；后端服务、管理端 API、应用 API 和生成 RPC 类型使用相同分层。
+后端托管 `backend/data/admin` 与 `backend/data/app` 下的前端构建产物，对应 `/admin` 与 `/app` 路径。

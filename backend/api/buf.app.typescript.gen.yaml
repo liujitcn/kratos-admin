@@ -3,6 +3,10 @@ version: v2
 
 clean: true
 
+inputs:
+  - directory: proto
+  - module: buf.build/liujitcn/kratos-common:8228a068a8e044e1bf99c4dfc5b7a354
+
 managed:
   enabled: true
 

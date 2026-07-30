@@ -1,0 +1,28 @@
+package admin
+
+import (
+	"context"
+
+[[.APIImport]]
+	commonv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
+[[.BizImport]]
+
+	"github.com/go-kratos/kratos/v3/log"
+	"google.golang.org/grpc"
+)
+
+const _ = grpc.SupportPackageIsVersion7
+
+// [[.Entity]]Service Admin[[.BusinessName]]服务。
+type [[.Entity]]Service struct {
+	[[.APIAlias]].Unimplemented[[.Entity]]ServiceServer
+	[[.EntityVar]]Case *biz.[[.Entity]]Case
+}
+
+// New[[.Entity]]Service 创建Admin[[.BusinessName]]服务。
+func New[[.Entity]]Service([[.EntityVar]]Case *biz.[[.Entity]]Case) *[[.Entity]]Service {
+	return &[[.Entity]]Service{[[.EntityVar]]Case: [[.EntityVar]]Case}
+}
+
+[[.Methods]]

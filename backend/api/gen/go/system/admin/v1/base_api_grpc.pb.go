@@ -28,6 +28,7 @@ const (
 	BaseApiService_UpdateBaseApi_FullMethodName         = "/system.admin.v1.BaseApiService/UpdateBaseApi"
 	BaseApiService_SetBaseApiAgentStatus_FullMethodName = "/system.admin.v1.BaseApiService/SetBaseApiAgentStatus"
 	BaseApiService_SetBaseApiMcpStatus_FullMethodName   = "/system.admin.v1.BaseApiService/SetBaseApiMcpStatus"
+	BaseApiService_OptionOpenApiService_FullMethodName  = "/system.admin.v1.BaseApiService/OptionOpenApiService"
 )
 
 // BaseApiServiceClient is the client API for BaseApiService service.
@@ -50,6 +51,8 @@ type BaseApiServiceClient interface {
 	SetBaseApiAgentStatus(ctx context.Context, in *SetBaseApiAgentStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 设置API MCP工具状态
 	SetBaseApiMcpStatus(ctx context.Context, in *SetBaseApiMcpStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 查询OpenAPI业务服务选项列表
+	OptionOpenApiService(ctx context.Context, in *OptionOpenApiServiceRequest, opts ...grpc.CallOption) (*OptionOpenApiServiceResponse, error)
 }
 
 type baseApiServiceClient struct {
@@ -130,6 +133,16 @@ func (c *baseApiServiceClient) SetBaseApiMcpStatus(ctx context.Context, in *SetB
 	return out, nil
 }
 
+func (c *baseApiServiceClient) OptionOpenApiService(ctx context.Context, in *OptionOpenApiServiceRequest, opts ...grpc.CallOption) (*OptionOpenApiServiceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OptionOpenApiServiceResponse)
+	err := c.cc.Invoke(ctx, BaseApiService_OptionOpenApiService_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BaseApiServiceServer is the server API for BaseApiService service.
 // All implementations must embed UnimplementedBaseApiServiceServer
 // for forward compatibility.
@@ -150,6 +163,8 @@ type BaseApiServiceServer interface {
 	SetBaseApiAgentStatus(context.Context, *SetBaseApiAgentStatusRequest) (*emptypb.Empty, error)
 	// 设置API MCP工具状态
 	SetBaseApiMcpStatus(context.Context, *SetBaseApiMcpStatusRequest) (*emptypb.Empty, error)
+	// 查询OpenAPI业务服务选项列表
+	OptionOpenApiService(context.Context, *OptionOpenApiServiceRequest) (*OptionOpenApiServiceResponse, error)
 	mustEmbedUnimplementedBaseApiServiceServer()
 }
 
@@ -180,6 +195,9 @@ func (UnimplementedBaseApiServiceServer) SetBaseApiAgentStatus(context.Context, 
 }
 func (UnimplementedBaseApiServiceServer) SetBaseApiMcpStatus(context.Context, *SetBaseApiMcpStatusRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetBaseApiMcpStatus not implemented")
+}
+func (UnimplementedBaseApiServiceServer) OptionOpenApiService(context.Context, *OptionOpenApiServiceRequest) (*OptionOpenApiServiceResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method OptionOpenApiService not implemented")
 }
 func (UnimplementedBaseApiServiceServer) mustEmbedUnimplementedBaseApiServiceServer() {}
 func (UnimplementedBaseApiServiceServer) testEmbeddedByValue()                        {}
@@ -328,6 +346,24 @@ func _BaseApiService_SetBaseApiMcpStatus_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BaseApiService_OptionOpenApiService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OptionOpenApiServiceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BaseApiServiceServer).OptionOpenApiService(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BaseApiService_OptionOpenApiService_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BaseApiServiceServer).OptionOpenApiService(ctx, req.(*OptionOpenApiServiceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BaseApiService_ServiceDesc is the grpc.ServiceDesc for BaseApiService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -362,6 +398,10 @@ var BaseApiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetBaseApiMcpStatus",
 			Handler:    _BaseApiService_SetBaseApiMcpStatus_Handler,
+		},
+		{
+			MethodName: "OptionOpenApiService",
+			Handler:    _BaseApiService_OptionOpenApiService_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

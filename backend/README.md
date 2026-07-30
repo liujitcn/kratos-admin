@@ -6,15 +6,68 @@
 
 ```text
 backend
-├── api/proto       # base、common、system 的 proto 契约
-├── api/gen         # 生成的 Go 接口代码
+├── api/proto       # Backend 自有 Proto 契约，common/v1 从 Buf 引入
+├── api/gen         # 对外公开的 Go 协议、gRPC Client 与服务注册代码
+├── cmd/server      # 独立微服务启动入口
 ├── configs         # 运行配置
-├── internal/cmd    # 服务启动入口和 Wire 组合根
+├── core            # 不包含 Proto 的 Kratos 基础运行时 module
+│   └── pkg/errorsx # 稳定的公共业务错误构造能力
+├── internal
+│   ├── agent       # Eino 模型、工具、回调和工作流适配
+│   ├── biz         # Case 与业务规则
+│   ├── config      # 配置解析和数据源初始化
+│   ├── const       # Backend 内部共享常量
+│   ├── data        # GORM 生成代码和队列数据适配
+│   ├── server      # HTTP、gRPC、MCP、中间件和 OpenAPI
+│   └── service     # Proto 服务实现
 ├── migration       # 版本化数据库迁移资源
-├── pkg             # 配置、公共能力、生成模型和中间件
-├── server          # 传输层服务注册
-└── service         # base、system 业务用例与服务
+├── app.go          # 对外模块门面与独立应用入口
+└── wire_gen.go     # Backend 内部依赖装配生成代码
 ```
+
+## 运行形态
+
+Backend 同时支持独立微服务和进程内 Go 模块。两种形态共享 `api/gen/go` 中生成的
+`FooServiceClient` 接口，调用方不得直接导入 `internal` 中的 Case、Repository、Model 或 Query。
+
+独立微服务模式使用标准远程 gRPC 连接：
+
+```go
+conn, err := grpc.NewClient(target)
+if err != nil {
+	return err
+}
+client := systemadminv1.NewBaseUserServiceClient(conn)
+```
+
+同一进程的启动器通过根包创建模块，并把 `ClientConn()` 交给相同的生成客户端：
+
+```go
+module, cleanup, err := kratosadmin.NewModule(ctx)
+if err != nil {
+	return err
+}
+defer cleanup()
+
+client := systemadminv1.NewBaseUserServiceClient(module.ClientConn())
+```
+
+`ClientConn()` 将调用分派给已注册的内部 Service，再进入 Case 和 Repository，不经过网络。
+当前 Backend RPC 均为 unary；进程内连接会对 streaming RPC 返回明确的不支持错误。
+
+其他 Kratos 启动器可直接把模块挂到 Core：
+
+```go
+module, moduleCleanup, err := kratosadmin.NewModule(ctx)
+if err != nil {
+	return err
+}
+app, hostCleanup, err := core.NewApp(ctx, core.WithModules(module))
+```
+
+调用方退出时需要依次执行 `hostCleanup` 和 `moduleCleanup`。独立部署入口使用
+`kratosadmin.NewApp`，内部复用同一套模块装配并额外创建 HTTP、gRPC Server。
+可编译的独立 module 示例位于 `examples/module-host`。
 
 ## 配置与数据库
 
@@ -89,9 +142,15 @@ make run       # 启动服务
 make build     # 构建 Linux 可执行文件
 ```
 
-生成代码不得手工修改，接口和表结构变更后使用对应 Makefile 目标重新生成。
+生成代码不得手工修改。Backend 自有协议以 `backend/api/proto` 为协议源；通用 `common/v1`
+协议从 `buf.build/liujitcn/kratos-common` 引入。`make api`、`make ts` 和 `make ts-app`
+会同时生成 Backend 自有协议与锁定版本的通用协议产物，`make openapi` 通过 Buf 依赖解析通用类型。
 
-管理端构建产物位于 `data/admin`，应用端构建产物位于 `data/app`，后端启动后分别可通过 `http://localhost:7001/admin` 与 `http://localhost:7001/app` 访问。OpenAPI 文档接口为 `/api/docs/openapi`，启用的业务模块文档会合并在系统内置文档之前。
+通用 OpenAPI 注册、SSE 发布、任务注册、队列编解码和进程内调用连接由 `backend/core` 提供；
+Backend 的业务适配器、数据库访问和传输实现全部位于 `internal`。框架 request-id、
+recovery、tracing、metadata 等拦截器由 `kratos-kit/rpc` 按配置统一挂载，Backend 不重复注册。
+
+管理端构建产物位于 `data/admin`，应用端构建产物位于 `data/app`，后端启动后分别可通过 `http://localhost:7001/admin` 与 `http://localhost:7001/app` 访问。Backend 内置协议生成系统 OpenAPI 文档 `/api/docs/openapi/admin`；外部模块按各自声明的 key 暴露为 `/api/docs/openapi/{key}`，管理端 API 文档页面会读取文档选项并按 key 切换。
 
 ## 校验
 

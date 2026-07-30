@@ -10,14 +10,14 @@
    - 先从 `configs` 目录读取当前数据库配置，优先检查 `configs/data.yaml` 中的 `data.database`；若存在本地环境覆盖配置，一并核对实际生效配置，避免建错库。
    - 确认目标库连接信息后，**直接将表结构写入数据库**；禁止仅停留在本地 SQL 草稿或只改演示 SQL。
    - 新表落库后依次执行：
-     1. `make gorm-gen` 更新 `pkg/gen/query` 等数据库访问代码
+     1. `make gorm-gen` 更新 `internal/data/gen/query` 等数据库访问代码
      2. 定义或更新 `api/proto` 下的接口契约
      3. `make gen` 生成 `api/gen` 与前端 `src/rpc` 相关类型
      4. 实现 service/biz 逻辑与前端页面
 
 ## 生成命令约定
 
-- 凡涉及 `proto`、`api/gen`、`pkg/gen`、依赖注入、RPC 桩代码、数据库模型等生成内容，必须用仓库既有命令生成：`make gen`、`make gorm-gen`、`make wire`；禁止手写或复制生成结果，禁止绕过生成流程直接修改产物。
+- 凡涉及 `proto`、`api/gen`、`internal/data/gen`、依赖注入、RPC 桩代码、数据库模型等生成内容，必须用仓库既有命令生成：`make gen`、`make gorm-gen`、`make wire`；禁止手写或复制生成结果，禁止绕过生成流程直接修改产物。
 - 生成前确认目标命令与改动范围匹配；生成后若产物变化，必须一并纳入本次检查，禁止只改源文件不更新生成结果。
 
 ## 功能脚本同步（与代码同一次改动完成）

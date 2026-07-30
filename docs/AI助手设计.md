@@ -36,7 +36,7 @@ AI 公共接口位于 `backend/api/proto/base/v1/ai_tool.proto`、`ai_session.pr
 
 会话与消息分别持久化为 `ai_session`、`ai_message`。每轮消息保存输入、输出、附件、工具调用、Token、首 Token 耗时、总耗时和生成状态。失败消息可重试，成功输出可重新生成，任意锚点消息可创建持久化分支会话。
 
-后端运行时位于 `service/base/agent/ai`，Eino 适配层位于 `pkg/agent/eino`。运行时按终端筛选启用的生成工具，再通过同一进程内服务实例执行；MCP 是否暴露由独立的 `mcp_status` 控制。公开实时信息可使用 Responses 的联网搜索工具，结构化任务使用独立的模型调用链。
+后端运行时位于 `internal/biz/base/ai`，Eino 适配层位于 `internal/agent`。运行时按终端筛选启用的生成工具，再通过同一进程内服务实例执行；MCP 是否暴露由独立的 `mcp_status` 控制。公开实时信息可使用 Responses 的联网搜索工具，结构化任务使用独立的模型调用链。
 
 ## 管理后台设计
 

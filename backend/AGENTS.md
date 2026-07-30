@@ -8,7 +8,7 @@
 - 完整流程见 [docs/new-feature.md](docs/new-feature.md)，新增业务前必须先读。
 - 核心顺序：需要新表则先按 `configs/data.yaml` 确认连接后把表结构真正建到开发库 → `make gorm-gen` → proto 契约 → `make gen` → service/biz → 前端；不需要新表则从 proto 开始。
 - 表结构变更、菜单权限（`base_menu`）、接口权限（`base_api`）脚本统一新增纯数字版本目录到 `backend/migration/assets/mysql`，目录内使用同一功能名的 `<feature>.up.sql` 和 `<feature>.description.md`，与代码同一次改动完成，禁止后补。
-- `api/gen`、`pkg/gen` 生成产物禁止手改或手工添加文件；生成一律走 `make gen`、`make gorm-gen`、`make wire`。
+- `api/gen`、`internal/data/gen` 生成产物禁止手改或手工添加文件；生成一律走 `make gen`、`make gorm-gen`、`make wire`。
 
 ## 注释
 - 人工注释统一中文；每个新增或修改的方法必须补充中文方法注释。
@@ -28,7 +28,7 @@
 
 ## 错误处理
 - 顶层 `reason` 只用 6 类冻结集合：`INVALID_ARGUMENT / UNAUTHENTICATED / PERMISSION_DENIED / RESOURCE_NOT_FOUND / CONFLICT / INTERNAL_ERROR`，未经确认禁止新增。
-- 对外业务错误必须用 `github.com/liujitcn/kratos-admin/backend/pkg/errorsx` 构造，禁止直接返回 `errors.New/fmt.Errorf`；repo 层返原始错误，biz 层负责分类与 `message/metadata/cause`，service 层只 `log.Errorf("方法名 %v", err)` 并以 `errorsx.WrapInternal(err, "xxx失败")` 兜底透传。
+- 对外业务错误必须用 `github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx` 构造，禁止直接返回 `errors.New/fmt.Errorf`；repo 层返原始错误，biz 层负责分类与 `message/metadata/cause`，service 层只 `log.Errorf("方法名 %v", err)` 并以 `errorsx.WrapInternal(err, "xxx失败")` 兜底透传。
 - 场景映射、errorsx 方法、metadata 键等细则见 [docs/errors.md](docs/errors.md)，修改错误处理相关代码前必须先读。
 
 ## 数据库命名

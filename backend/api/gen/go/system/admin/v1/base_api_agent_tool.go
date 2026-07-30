@@ -60,6 +60,12 @@ func NewBaseApiServiceAgentTools(baseApiServiceServer BaseApiServiceServer) ([]t
 		return nil, err
 	}
 	ts = append(ts, setBaseApiMcpStatusTool)
+	var optionOpenApiServiceTool tool.InvokableTool
+	optionOpenApiServiceTool, err = NewBaseApiServiceOptionOpenApiServiceAgentTool(baseApiServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, optionOpenApiServiceTool)
 	return ts, nil
 }
 
@@ -161,6 +167,20 @@ func NewBaseApiServiceSetBaseApiMcpStatusAgentTool(baseApiServiceServer BaseApiS
 				req = &SetBaseApiMcpStatusRequest{}
 			}
 			return baseApiServiceServer.SetBaseApiMcpStatus(ctx, req)
+		},
+	)
+}
+
+// NewBaseApiServiceOptionOpenApiServiceAgentTool 创建查询OpenAPI业务服务选项列表的 Agent Tool。
+func NewBaseApiServiceOptionOpenApiServiceAgentTool(baseApiServiceServer BaseApiServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*OptionOpenApiServiceRequest, *OptionOpenApiServiceResponse](
+		"system_admin_v1_base_api_service_option_open_api_service",
+		"查询OpenAPI业务服务选项列表",
+		func(ctx context.Context, req *OptionOpenApiServiceRequest) (*OptionOpenApiServiceResponse, error) {
+			if req == nil {
+				req = &OptionOpenApiServiceRequest{}
+			}
+			return baseApiServiceServer.OptionOpenApiService(ctx, req)
 		},
 	)
 }

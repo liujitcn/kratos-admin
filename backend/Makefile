@@ -1,5 +1,5 @@
 # Makefile 常用目标：初始化工具、生成代码、格式化代码、启动服务
-.PHONY: help init plugin cli fmt lint gorm-gen wire api buf-push openapi ts ts-app gen run build docker-build
+.PHONY: help init plugin cli fmt lint gorm-gen wire api openapi ts ts-app gen run build docker-build
 
 IMAGE ?= backend
 TAG ?= latest
@@ -76,31 +76,23 @@ lint:
 gorm-gen:
 	@echo "==> 生成 GORM 代码"
 	@test -x "$(GEN_BIN)" || (echo "gen not found. Run make cli first." && exit 1)
-	$(GEN_BIN) -base_path=pkg/gen -source='$(GORM_GEN_SOURCE)' $(if $(strip $(GORM_TABLE)),-table='$(GORM_TABLE)')
+	$(GEN_BIN) -base_path=internal/data/gen -source='$(GORM_GEN_SOURCE)' $(if $(strip $(GORM_TABLE)),-table='$(GORM_TABLE)')
 	@echo "==> GORM 代码生成完成"
 
 # 生成 wire 依赖注入代码
 wire:
 	@echo "==> 生成 wire 依赖注入代码"
-	@cd internal/cmd/server && \
-		PATH="$(GO_BIN_DIR):$$PATH" wire
-	@PATH="$(GO_BIN_DIR):$$PATH" goimports -w internal/cmd/server/wire.go internal/cmd/server/wire_gen.go
+	@PATH="$(GO_BIN_DIR):$$PATH" wire .
+	@PATH="$(GO_BIN_DIR):$$PATH" goimports -w wire.go wire_gen.go
 	@echo "==> wire 依赖注入代码生成完成"
 
-# 生成 protobuf 的 Go 代码
+# 生成 Backend protobuf Go 代码
 api:
 	@echo "==> 生成 protobuf Go 代码"
 	@cd api && \
-		PATH="$(GO_BIN_DIR):$$PATH" buf generate
+		PATH="$(GO_BIN_DIR):$$PATH" buf generate --template buf.gen.yaml
 	@PATH="$(GO_BIN_DIR):$$PATH" find api/gen/go -type f -name '*.go' -exec goimports -w {} +
 	@echo "==> protobuf Go 代码生成完成"
-
-# 发布 protobuf 公共模块到 Buf Schema Registry
-buf-push:
-	@echo "==> 发布 protobuf 公共模块"
-	@cd api && \
-		PATH="$(GO_BIN_DIR):$$PATH" buf push . --exclude-unnamed --label main
-	@echo "==> protobuf 公共模块发布完成"
 
 # 生成 OpenAPI v3 文档
 openapi:
@@ -131,12 +123,12 @@ gen: api openapi ts ts-app gorm-gen wire fmt
 
 # 启动应用
 run: api openapi
-	@go run ./internal/cmd/server --conf ./configs
+	@go run ./cmd/server --conf ./configs
 
 # 构建 Linux 可执行文件，供 Docker 镜像直接打包
 build:
 	@mkdir -p $(dir $(BINARY))
-	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(BINARY) ./internal/cmd/server
+	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(BINARY) ./cmd/server
 
 # 构建后端服务 Docker 镜像
 docker-build: build

@@ -22,6 +22,7 @@ const _ = http.SupportPackageIsVersion3
 const OperationBaseApiServiceGetBaseApi = "/system.admin.v1.BaseApiService/GetBaseApi"
 const OperationBaseApiServiceGetBaseApiDoc = "/system.admin.v1.BaseApiService/GetBaseApiDoc"
 const OperationBaseApiServiceOptionBaseApi = "/system.admin.v1.BaseApiService/OptionBaseApi"
+const OperationBaseApiServiceOptionOpenApiService = "/system.admin.v1.BaseApiService/OptionOpenApiService"
 const OperationBaseApiServicePageBaseApi = "/system.admin.v1.BaseApiService/PageBaseApi"
 const OperationBaseApiServiceSetBaseApiAgentStatus = "/system.admin.v1.BaseApiService/SetBaseApiAgentStatus"
 const OperationBaseApiServiceSetBaseApiMcpStatus = "/system.admin.v1.BaseApiService/SetBaseApiMcpStatus"
@@ -34,6 +35,8 @@ type BaseApiServiceHTTPServer interface {
 	GetBaseApiDoc(context.Context, *GetBaseApiDocRequest) (*BaseApiDoc, error)
 	// OptionBaseApi 查询菜单分配API选项列表
 	OptionBaseApi(context.Context, *OptionBaseApiRequest) (*OptionBaseApiResponse, error)
+	// OptionOpenApiService 查询OpenAPI业务服务选项列表
+	OptionOpenApiService(context.Context, *OptionOpenApiServiceRequest) (*OptionOpenApiServiceResponse, error)
 	// PageBaseApi 分页查询API列表
 	PageBaseApi(context.Context, *PageBaseApiRequest) (*PageBaseApiResponse, error)
 	// SetBaseApiAgentStatus 设置API Agent工具状态
@@ -53,6 +56,7 @@ func RegisterBaseApiServiceHTTPServer(s *http.Server, srv BaseApiServiceHTTPServ
 	r.Handle("PUT", "/api/v1/admin/base/api/{id}", _BaseApiService_UpdateBaseApi0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/api/{id}/agent-status", _BaseApiService_SetBaseApiAgentStatus0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/api/{id}/mcp-status", _BaseApiService_SetBaseApiMcpStatus0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/api/openapi-service/option", _BaseApiService_OptionOpenApiService0_HTTP_Handler(srv))
 }
 
 func _BaseApiService_OptionBaseApi0_HTTP_Handler(srv BaseApiServiceHTTPServer) func(ctx http.Context) error {
@@ -203,6 +207,25 @@ func _BaseApiService_SetBaseApiMcpStatus0_HTTP_Handler(srv BaseApiServiceHTTPSer
 	}
 }
 
+func _BaseApiService_OptionOpenApiService0_HTTP_Handler(srv BaseApiServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in OptionOpenApiServiceRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseApiServiceOptionOpenApiService)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.OptionOpenApiService(ctx, req.(*OptionOpenApiServiceRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*OptionOpenApiServiceResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BaseApiServiceHTTPClient interface {
 	// GetBaseApi 查询API详情
 	GetBaseApi(ctx context.Context, req *GetBaseApiRequest, opts ...http.CallOption) (rsp *BaseApi, err error)
@@ -210,6 +233,8 @@ type BaseApiServiceHTTPClient interface {
 	GetBaseApiDoc(ctx context.Context, req *GetBaseApiDocRequest, opts ...http.CallOption) (rsp *BaseApiDoc, err error)
 	// OptionBaseApi 查询菜单分配API选项列表
 	OptionBaseApi(ctx context.Context, req *OptionBaseApiRequest, opts ...http.CallOption) (rsp *OptionBaseApiResponse, err error)
+	// OptionOpenApiService 查询OpenAPI业务服务选项列表
+	OptionOpenApiService(ctx context.Context, req *OptionOpenApiServiceRequest, opts ...http.CallOption) (rsp *OptionOpenApiServiceResponse, err error)
 	// PageBaseApi 分页查询API列表
 	PageBaseApi(ctx context.Context, req *PageBaseApiRequest, opts ...http.CallOption) (rsp *PageBaseApiResponse, err error)
 	// SetBaseApiAgentStatus 设置API Agent工具状态
@@ -270,6 +295,23 @@ func (c *BaseApiServiceHTTPClientImpl) OptionBaseApi(ctx context.Context, in *Op
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
 		http.Operation(OperationBaseApiServiceOptionBaseApi),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// OptionOpenApiService 查询OpenAPI业务服务选项列表
+func (c *BaseApiServiceHTTPClientImpl) OptionOpenApiService(ctx context.Context, in *OptionOpenApiServiceRequest, opts ...http.CallOption) (*OptionOpenApiServiceResponse, error) {
+	var out OptionOpenApiServiceResponse
+	pattern := "/api/v1/admin/base/api/openapi-service/option"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationBaseApiServiceOptionOpenApiService),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

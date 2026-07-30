@@ -22,6 +22,7 @@ func RegisterBaseApiServiceMCPTools(mcpServer *mcp.Server, baseApiServiceServer 
 	RegisterBaseApiServiceUpdateBaseApiMCPTool(mcpServer, baseApiServiceServer)
 	RegisterBaseApiServiceSetBaseApiAgentStatusMCPTool(mcpServer, baseApiServiceServer)
 	RegisterBaseApiServiceSetBaseApiMcpStatusMCPTool(mcpServer, baseApiServiceServer)
+	RegisterBaseApiServiceOptionOpenApiServiceMCPTool(mcpServer, baseApiServiceServer)
 }
 
 // RegisterBaseApiServiceOptionBaseApiMCPTool 注册查询菜单分配API选项列表的 MCP Tool。
@@ -163,6 +164,27 @@ func RegisterBaseApiServiceSetBaseApiMcpStatusMCPTool(mcpServer *mcp.Server, bas
 				input = &SetBaseApiMcpStatusRequest{}
 			}
 			reply, err := baseApiServiceServer.SetBaseApiMcpStatus(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterBaseApiServiceOptionOpenApiServiceMCPTool 注册查询OpenAPI业务服务选项列表的 MCP Tool。
+func RegisterBaseApiServiceOptionOpenApiServiceMCPTool(mcpServer *mcp.Server, baseApiServiceServer BaseApiServiceServer) {
+	mcp.AddTool[*OptionOpenApiServiceRequest, *OptionOpenApiServiceResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_base_api_service_option_open_api_service",
+			Description: "查询OpenAPI业务服务选项列表",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionOpenApiServiceRequest) (*mcp.CallToolResult, *OptionOpenApiServiceResponse, error) {
+			if input == nil {
+				input = &OptionOpenApiServiceRequest{}
+			}
+			reply, err := baseApiServiceServer.OptionOpenApiService(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

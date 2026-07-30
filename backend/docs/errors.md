@@ -37,7 +37,7 @@
 
 ## errorsx 构造方法
 
-- 对外业务错误禁止直接返回 `errors.New(...)`、`fmt.Errorf(...)`，必须用项目的 `pkg/errorsx` 统一构造。
+- 对外业务错误禁止直接返回 `errors.New(...)`、`fmt.Errorf(...)`，必须用项目的 `core/pkg/errorsx` 统一构造。
 - 唯一约束冲突：`errorsx.UniqueConflict(...)`；识别 MySQL 唯一键冲突用 `errorsx.IsMySQLDuplicateKey(err)`，不要在业务代码重复写错误码判断。
 - 存在子资源不能删除：`errorsx.HasChildrenConflict(...)`。
 - 状态不匹配：`errorsx.StateConflict(...)`。
