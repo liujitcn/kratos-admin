@@ -10,7 +10,8 @@ backend
 │   ├── proto                         # Backend 自有 Proto
 │   ├── gen/go                        # 生成的 Go 协议代码
 │   ├── buf.admin*.typescript.gen.yaml
-│   └── buf.app*.typescript.gen.yaml  # admin/uni-app 各包的 RPC 生成规则
+│   ├── buf.app*.typescript.gen.yaml
+│   └── buf.taro-app*.typescript.gen.yaml # admin/uni-app/Taro 的 RPC 规则
 ├── configs                           # 运行配置
 ├── core                              # 无业务 Proto 的 Kratos 宿主运行时
 ├── internal
@@ -35,7 +36,7 @@ backend
 
 | Proto package | 用途 | 消费端 |
 | --- | --- | --- |
-| `base.v1` | 登录、OAuth、配置、文件、AI、SSE、MCP。 | admin 与 uni-app 共用 |
+| `base.v1` | 登录、OAuth、配置、文件、AI、SSE、MCP。 | admin、uni-app 与 Taro 共用 |
 | `system.admin.v1` | 系统管理、个人中心、代码生成和迁移历史。 | 管理后台 |
 | `system.app.v1` | 应用端资料、地区、字典和移动菜单。 | 应用端 |
 
@@ -116,12 +117,13 @@ migration/assets/
 | `make openapi` | `internal/cmd/server/assets/openapi.yaml`。 |
 | `make ts` | 管理端 core 与 System 包的 TypeScript RPC。 |
 | `make ts-app` | uni-app core 与 system 包的 TypeScript RPC。 |
+| `make ts-taro-app` | Taro React core 与 system 包的 TypeScript RPC。 |
 | `make project-docs` | `internal/projectdocs/assets/catalog.json` 和 `internal/projectdocs/catalog_gen.go`，收集三层范围内的 `README.md` 和 `docs` Markdown。 |
 | `make gorm-gen` | `internal/data/gen`。默认读取 `configs/data_local.yaml`，可用 `GORM_GEN_CONFIG`、`GORM_GEN_DATABASE`、`GORM_TABLE` 覆盖配置、数据源和表。 |
 | `make wire` | `wire_gen.go`。 |
 | `make gen` | 依次执行以上生成和 Go 格式化。 |
 
-所有前端 RPC 的 Buf 模板都归属 `api` 契约目录。`make ts` 分别生成到 `frontend/admin/packages/core/src/rpc` 和 `frontend/admin/packages/modules/system/src/rpc`；`make ts-app` 分别生成到 `frontend/uni-app/packages/core/src/rpc` 和 `frontend/uni-app/packages/modules/system/src/rpc`。生成产物不得手工修改。Proto 改动后至少重新执行 `make api openapi`，再按消费端执行 `make ts` 或 `make ts-app`。
+所有前端 RPC 的 Buf 模板都归属 `api` 契约目录。`make ts` 生成管理端 RPC，`make ts-app` 生成 uni-app RPC，`make ts-taro-app` 生成 React/Taro RPC；每条命令分别输出到对应 workspace 的 core 与 system 包。生成产物不得手工修改。Proto 改动后至少重新执行 `make api openapi`，再按实际消费端运行对应 TypeScript 生成命令。
 
 ## 项目文档
 

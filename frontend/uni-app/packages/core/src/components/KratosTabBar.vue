@@ -47,8 +47,9 @@ const visible = computed(() => Boolean(activeMenu.value && tabBar.value.length))
   bottom: 0;
   left: 0;
   z-index: 999;
+  box-sizing: border-box;
   display: flex;
-  min-height: 100rpx;
+  height: calc(48px + env(safe-area-inset-bottom));
   padding-bottom: env(safe-area-inset-bottom);
   border-top: 1px solid #eee;
   background: #fff;
@@ -59,13 +60,15 @@ const visible = computed(() => Boolean(activeMenu.value && tabBar.value.length))
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  transform: translateY(clamp(1px, env(safe-area-inset-bottom), 7px));
   color: #333;
-  font-size: 24rpx;
+  font-size: 10px;
+  line-height: 12px;
 }
 .kratos-tab-bar__icon {
-  width: 42rpx;
-  height: 42rpx;
-  margin-bottom: 4rpx;
+  width: 28px;
+  height: 28px;
+  margin-bottom: 4px;
 }
 .kratos-tab-bar__text--active {
   color: #27ba9b;

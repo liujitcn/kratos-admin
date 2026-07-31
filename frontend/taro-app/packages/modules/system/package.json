@@ -1,0 +1,32 @@
+{
+  "name": "@liujitcn/kratos-taro-app-system",
+  "description": "Kratos Taro system module with profile, settings, and AI views.",
+  "version": "0.0.1",
+  "type": "module",
+  "files": ["dist", "src", "README.md"],
+  "exports": {
+    ".": "./src/index.ts",
+    "./build": {
+      "types": "./src/build.ts",
+      "import": "./dist/build.mjs",
+      "default": "./dist/build.mjs"
+    },
+    "./views/*": "./src/views/*",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "pnpm run build:entries && pnpm pack --pack-destination ../../../dist/npm",
+    "build:entries": "esbuild src/build.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/build.mjs",
+    "tsc": "tsc --noEmit -p tsconfig.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@liujitcn/kratos-taro-app-core": "workspace:^",
+    "@liujitcn/kratos-taro-app-ui": "workspace:^",
+    "@tarojs/components": "4.2.1",
+    "@tarojs/taro": "4.2.1",
+    "react": "18.3.1"
+  }
+}

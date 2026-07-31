@@ -23,7 +23,11 @@ if [[ "$#" -eq 0 ]]; then
     admin/packages/cli \
     uni-app/packages/core \
     uni-app/packages/modules/system \
-    uni-app/packages/cli
+    uni-app/packages/cli \
+    taro-app/packages/core \
+    taro-app/packages/ui \
+    taro-app/packages/modules/system \
+    taro-app/packages/cli
 fi
 
 for package_dir in "$@"; do

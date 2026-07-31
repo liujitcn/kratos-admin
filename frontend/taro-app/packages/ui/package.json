@@ -1,0 +1,30 @@
+{
+  "name": "@liujitcn/kratos-taro-app-ui",
+  "description": "Shared theme and NutUI adapters for Kratos Taro apps.",
+  "version": "0.0.1",
+  "type": "module",
+  "files": ["src", "README.md"],
+  "exports": {
+    ".": "./src/index.ts",
+    "./icons": "./src/icons.ts",
+    "./styles/*": "./src/styles/*",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "pnpm pack --pack-destination ../../dist/npm",
+    "build:entries": "node -e \"process.exit(0)\"",
+    "tsc": "tsc --noEmit -p tsconfig.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@nutui/icons-react-taro": "3.0.2-cpp.3.beta.9",
+    "@nutui/nutui-react-taro": "3.0.20",
+    "@tarojs/components": "4.2.1",
+    "react": "18.3.1"
+  },
+  "peerDependencies": {
+    "@liujitcn/kratos-taro-app-core": "workspace:^"
+  }
+}

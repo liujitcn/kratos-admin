@@ -1,0 +1,32 @@
+import {
+  registerKratosTaroModules,
+  type KratosTaroModule,
+} from './module'
+import { initializeAppNavigation } from './navigation'
+import {
+  registerUserStoreExtension,
+  startUserStoreEventBridge,
+  useUserStore,
+} from './stores'
+
+/** Taro 应用启动参数。 */
+export interface KratosTaroBootstrapOptions {
+  /** 按覆盖优先级排列的模块。 */
+  modules: KratosTaroModule[]
+}
+
+let bootstrapped = false
+
+/** 注册模块、认证生命周期和导航运行时。 */
+export function bootstrapKratosTaroApp(options: KratosTaroBootstrapOptions): void {
+  registerKratosTaroModules(options.modules)
+  if (bootstrapped) return
+  bootstrapped = true
+  startUserStoreEventBridge()
+  registerUserStoreExtension({
+    onLogin: initializeAppNavigation,
+    onLogout: initializeAppNavigation,
+    onSilentLogout: initializeAppNavigation,
+  })
+  useUserStore.getState().hydrate()
+}

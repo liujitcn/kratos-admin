@@ -1,0 +1,134 @@
+.my-viewport {
+  background-color: #f7f7f8;
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+}
+
+.my-profile {
+  position: relative;
+  margin-top: 30px;
+}
+
+.my-profile--weapp {
+  padding-top: 44PX;
+}
+
+.my-overview {
+  display: flex;
+  height: 120px;
+  padding: 0 36px;
+  color: #fff;
+}
+
+.my-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-color: #eee;
+}
+
+.my-avatar--gray {
+  filter: grayscale(100%);
+}
+
+.my-meta {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 16px 0;
+  margin-left: 20px;
+  line-height: 30px;
+}
+
+.my-nickname {
+  max-width: 180px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  font-size: 30px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.my-extra {
+  display: flex;
+  font-size: 20px;
+}
+
+.my-tips {
+  font-size: 22px;
+}
+
+.my-update {
+  padding: 3px 10px 1px;
+  margin-right: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 30px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.my-settings {
+  position: absolute;
+  right: 40px;
+  bottom: 0;
+  color: #fff;
+  font-size: 30px;
+}
+
+.my-ai-entry {
+  position: relative;
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  margin: 20px 20px 0;
+  padding: 26px 24px;
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(240, 240, 240, 0.6);
+}
+
+.my-ai-entry__icon {
+  flex-shrink: 0;
+  width: 92px;
+  height: 92px;
+  border-radius: 24px;
+  color: #fff;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 92px;
+  text-align: center;
+  background-color: #27ba9b;
+}
+
+.my-ai-entry__content {
+  flex: 1;
+  min-width: 0;
+  margin-left: 18px;
+}
+
+.my-ai-entry__title {
+  color: #1e1e1e;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 40px;
+}
+
+.my-ai-entry__desc {
+  overflow: hidden;
+  margin-top: 8px;
+  color: #747f7c;
+  font-size: 24px;
+  line-height: 32px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.my-ai-entry__action {
+  flex-shrink: 0;
+  margin-left: 16px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  color: #16806d;
+  font-size: 24px;
+  background-color: #e8f8f4;
+}

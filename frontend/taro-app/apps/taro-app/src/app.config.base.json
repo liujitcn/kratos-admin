@@ -1,0 +1,10 @@
+{
+  "pages": ["pages/bootstrap/index"],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#f8f8f8",
+    "navigationBarTitleText": "",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f8f8f8"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    "types": ["node", "@tarojs/taro", "@tarojs/components"]
+  },
+  "include": ["src"]
+}

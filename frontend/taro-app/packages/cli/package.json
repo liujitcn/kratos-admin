@@ -1,0 +1,22 @@
+{
+  "name": "@liujitcn/kratos-taro-app-cli",
+  "description": "CLI for creating modular Kratos Taro React workspaces.",
+  "version": "0.0.1",
+  "type": "module",
+  "bin": {
+    "kratos-taro-app": "./bin/kratos-taro-app.mjs"
+  },
+  "exports": {
+    ".": "./src/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": ["bin", "src", "README.md"],
+  "scripts": {
+    "build": "pnpm pack --pack-destination ../../dist/npm",
+    "build:entries": "node -e \"process.exit(0)\"",
+    "tsc": "node -e \"process.exit(0)\""
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

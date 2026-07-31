@@ -1,0 +1,114 @@
+# frontend/taro-app
+
+`frontend/taro-app` 是独立的 pnpm workspace，以 React 18 和 Taro 4 实现与 `frontend/uni-app` 相同的应用功能和视觉。当前支持 H5 与微信小程序，包含首页、登录、协议、WebView、个人中心、设置、个人资料和 AI 助手，不包含商城、订单、支付或推荐业务。
+
+## Workspace
+
+```text
+frontend/taro-app
+├── apps/taro-app                 # 私有 Taro 宿主，不发布
+├── packages/core                 # 运行时、基础页面和构建 runner
+├── packages/ui                   # NutUI 主题与按需图标适配
+├── packages/modules/system       # 个人中心、设置、资料和 AI
+├── packages/cli                  # 独立 workspace 脚手架
+├── scripts                       # package exports 边界检查
+├── package.json                  # 公共命令和开发依赖
+├── pnpm-workspace.yaml           # workspace 包范围
+└── turbo.json                    # 跨包任务依赖
+```
+
+依赖方向固定为：
+
+```text
+apps/taro-app -> packages/modules/* -> packages/ui -> packages/core
+```
+
+core 不依赖 UI 或业务模块；system 只通过 core 和 UI 的公开 exports 复用能力；宿主只负责组合模块和平台配置。
+
+详细说明：
+
+- [私有宿主](apps/taro-app/README.md)
+- [应用底座](packages/core/README.md)
+- [UI 基础包](packages/ui/README.md)
+- [system 模块](packages/modules/system/README.md)
+- [项目脚手架](packages/cli/README.md)
+
+## 页面装配
+
+`apps/taro-app/src/module-manifest.ts` 是唯一模块清单，声明顺序决定页面、稳定 `viewKey` 和图标的覆盖优先级。模块通过 `defineKratosTaroModule()` 声明运行时能力，通过 `defineKratosTaroBuildModule()` 暴露构建期页面描述。
+
+宿主只提交固定的 `pages/bootstrap` 页面。core runner 在开发或构建开始前完成以下操作：
+
+- 扫描各模块 `src/views/**/*.tsx`，忽略任意层级的 `components`。
+- 生成页面 wrapper 和页面 config，统一挂载自绘 `KratosTabBar`，并为 H5 默认导航页补齐与 uni-app 一致的顶部栏。
+- 按 `pages*` 根目录拆分主包和分包。
+- 合并各模块 `src/static` 到宿主，宿主已有文件优先，模块同名文件后注册优先。
+- 构建退出后恢复原始 `app.config.ts` 并删除临时文件。
+
+异常退出后，下次命令会根据 `.kratos-taro-app-pages-state.json` 自动恢复。一个宿主同一时间只能有一个 H5 或微信小程序进程持有装配事务。
+
+## 开发与构建
+
+```bash
+cd frontend/taro-app
+pnpm install
+pnpm dev:h5
+pnpm dev:mp-weixin
+pnpm build:h5
+pnpm build:mp-weixin
+```
+
+- H5 开发地址默认是 `http://localhost:5002`，`/api` 和 `/events` 代理到 `http://localhost:7001`。
+- H5 生产产物写入 `backend/data/app`，公共路径是 `/app/`。
+- 微信小程序产物写入 `apps/taro-app/dist/build/mp-weixin`。
+- `KRATOS_TARO_API_URL` 配置后端地址；`KRATOS_TARO_API_BASE`、`KRATOS_TARO_STATIC_URL`、`KRATOS_TARO_PUBLIC_PATH` 可分别覆盖 API 前缀、静态资源地址和 H5 公共路径。
+
+设计稿宽度为 750。迁移自 uni-app 的 `rpx` 直接写作 Taro 设计稿 `px`；必须保持物理像素的原 `px` 使用 Taro 不转换写法。
+
+模块内需要固定路径的打包资源统一放在 `src/static`，运行时通过 core 导出的 `resolveBundledAsset('static/...')` 解析公共路径，避免同一图片被复制和源码 import 重复发射。
+
+## RPC 生成
+
+Taro RPC 模板统一位于 `backend/api`：
+
+- `buf.taro-app.typescript.gen.yaml` 生成 core RPC。
+- `buf.taro-app.core.typescript.gen.yaml` 生成 system RPC。
+
+```bash
+pnpm generate:rpc
+# 等价于
+make -C ../../backend ts-taro-app
+```
+
+RPC 是生成产物，不得手工修改。
+
+## CLI
+
+```bash
+pnpm dlx @liujitcn/kratos-taro-app-cli create my-app
+pnpm dlx @liujitcn/kratos-taro-app-cli create shop-app --module shop,order
+pnpm dlx @liujitcn/kratos-taro-app-cli create my-app --with @acme/customer-module
+```
+
+生成项目沿用相同的 React/Taro 技术栈、模块清单、runner 事务协议和 H5/微信构建方式。本地模块独立维护 `pages`、运行时入口与构建期入口，适合后续按业务域加入商城等能力。
+
+## 包与验证
+
+4 个公开包版本必须一致：
+
+- `@liujitcn/kratos-taro-app-core`
+- `@liujitcn/kratos-taro-app-ui`
+- `@liujitcn/kratos-taro-app-system`
+- `@liujitcn/kratos-taro-app-cli`
+
+```bash
+pnpm lint
+pnpm tsc
+pnpm test
+pnpm check:exports
+pnpm build:packages
+pnpm build:h5
+pnpm build:mp-weixin
+```
+
+`check:exports` 验证公开目标、版本一致性和跨包导入边界；`test` 覆盖模块覆盖优先级、导航、runner 事务、CLI 脚手架和 AI SSE；`build:packages` 在 `dist/npm` 生成 4 个 tarball。

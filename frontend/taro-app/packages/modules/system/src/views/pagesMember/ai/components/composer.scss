@@ -1,0 +1,114 @@
+.attach-button,
+.voice-button,
+.send-button {
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+  background: transparent;
+  line-height: normal;
+
+  &::after { border: none; }
+}
+
+.composer {
+  flex-shrink: 0;
+  width: 100%;
+  padding: 14px 24px 18px;
+  overflow: hidden;
+  background-color: transparent;
+  box-sizing: border-box;
+}
+
+.composer-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 124px;
+  padding: 22px 18px;
+  border-radius: 24px;
+  background-color: #fff;
+  box-shadow: 0 12px 34px rgba(15, 23, 42, 0.08);
+  box-sizing: border-box;
+}
+
+.attach-button {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border: 2px solid #d6dae2;
+  border-radius: 50%;
+  background-color: #fff;
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.composer-card {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-height: 72px;
+  padding: 0 12px 0 28px;
+  border: 2px solid #d6dae2;
+  border-radius: 38px;
+  background-color: #fff;
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.composer-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  padding-top: 4px;
+}
+
+.composer-attachment {
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 6px 12px;
+  border-radius: 8px;
+  color: #16806d;
+  font-size: 20px;
+  line-height: 28px;
+  background-color: #e8f8f4;
+}
+
+.composer-input {
+  flex: 1;
+  min-width: 0;
+  min-height: 42px;
+  max-height: 126px;
+  padding: 14px 0;
+  box-sizing: border-box;
+  color: #333;
+  font-size: 29px;
+  line-height: 42px;
+  overflow-y: auto;
+  background-color: transparent;
+}
+
+.composer-placeholder { color: #8d929c; font-size: 29px; }
+
+.voice-button,
+.send-button {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.voice-button { width: 60px; height: 60px; background-color: transparent; }
+.voice-button.active { background-color: #e8f8f4; }
+.send-button { width: 74px; height: 74px; background-color: #f2f2f2; }
+.send-button.is-disabled { background-color: #f2f2f2; }
+.send-button:not(.is-disabled) { background-color: #e7f7f2; }

@@ -1,0 +1,135 @@
+.session-create,
+.session-more {
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+  background: transparent;
+  line-height: normal;
+  &::after { border: none; }
+}
+
+.session-mask {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 560px;
+  z-index: 20;
+  background-color: rgba(0, 0, 0, 0.18);
+}
+
+.session-drawer {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 21;
+  width: 560px;
+  padding: 0 24px 36px;
+  background-color: #fff;
+  box-shadow: none;
+  box-sizing: border-box;
+  transform: translateX(-100%);
+  transition: transform 0.2s ease;
+}
+
+.session-drawer.is-open {
+  box-shadow: 24px 0 60px rgba(0, 0, 0, 0.12);
+  transform: translateX(0);
+}
+
+.session-drawer__head {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 76px;
+  margin-bottom: 18px;
+}
+
+.session-drawer__title { color: #333; font-size: 32px; font-weight: 700; line-height: 40px; }
+
+.session-create {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 112px;
+  height: 52px;
+  border-radius: 8px;
+  color: #27ba9b;
+  font-size: 24px;
+  line-height: 52px;
+  background-color: #e8f8f4;
+}
+
+.session-search {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 64px;
+  padding: 0 18px;
+  margin-bottom: 18px;
+  border-radius: 10px;
+  background-color: #f6f7f9;
+  box-sizing: border-box;
+}
+
+.session-search-input { flex: 1; min-width: 0; color: #333; font-size: 24px; }
+.session-search-placeholder { color: #b8bcc5; }
+.session-list { flex: 1; min-height: 0; }
+
+.session-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 16px 22px 22px;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  background-color: #fff;
+}
+
+.session-item + .session-item { margin-top: 18px; }
+.session-item.is-active { border-color: #c7eee4; background-color: #e8f8f4; }
+.session-content { flex: 1; min-width: 0; }
+.session-row { display: flex; align-items: center; gap: 14px; }
+
+.session-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #333;
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 34px;
+}
+
+.session-time { flex-shrink: 0; color: #a6abb3; font-size: 20px; line-height: 30px; }
+
+.session-summary {
+  margin-top: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #777;
+  font-size: 22px;
+  line-height: 32px;
+}
+
+.session-more {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: transparent;
+}
+
+.session-empty { padding: 60px 0; color: #999; font-size: 24px; text-align: center; }

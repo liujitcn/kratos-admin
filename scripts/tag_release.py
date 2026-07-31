@@ -20,6 +20,10 @@ PACKAGE_FILES = (
     ROOT / "frontend/uni-app/packages/core/package.json",
     ROOT / "frontend/uni-app/packages/modules/system/package.json",
     ROOT / "frontend/uni-app/packages/cli/package.json",
+    ROOT / "frontend/taro-app/packages/core/package.json",
+    ROOT / "frontend/taro-app/packages/ui/package.json",
+    ROOT / "frontend/taro-app/packages/modules/system/package.json",
+    ROOT / "frontend/taro-app/packages/cli/package.json",
 )
 TAG_RE = re.compile(r"^v(\d+)\.(\d+)\.(\d+)$")
 NPM_WORKFLOW = "publish-npm.yml"

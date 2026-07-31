@@ -7,10 +7,10 @@ NPM_SKIP_GIT_CHECKS ?= true
 
 NPM_PUBLISH_ENV := NPM_REGISTRY="$(NPM_REGISTRY)" NPM_ACCESS="$(NPM_ACCESS)" NPM_TAG="$(NPM_TAG)" NPM_SKIP_GIT_CHECKS="$(NPM_SKIP_GIT_CHECKS)"
 
-.PHONY: help init pnpm-admin pnpm-uni-app run run-admin run-uni-app build build-admin build-uni-app build-package package package-admin package-uni-app publish publish-only publish-admin publish-uni-app
+.PHONY: help init pnpm-admin pnpm-uni-app pnpm-taro-app run run-admin run-uni-app run-taro-app build build-admin build-uni-app build-taro-app build-package package package-admin package-uni-app package-taro-app publish publish-only publish-admin publish-uni-app publish-taro-app
 
 # 安装全部前端依赖
-init: pnpm-admin pnpm-uni-app
+init: pnpm-admin pnpm-uni-app pnpm-taro-app
 
 # 安装管理后台依赖
 pnpm-admin:
@@ -20,6 +20,11 @@ pnpm-admin:
 # 安装 uni-app 应用端依赖
 pnpm-uni-app:
 	@cd uni-app && \
+		CI=1 pnpm install
+
+# 安装 Taro React 应用端依赖
+pnpm-taro-app:
+	@cd taro-app && \
 		CI=1 pnpm install
 
 # 启动管理后台开发环境
@@ -33,6 +38,11 @@ run-admin:
 # 启动 uni-app 应用端微信小程序开发环境
 run-uni-app:
 	@cd uni-app && \
+		CI=1 pnpm run dev:mp-weixin
+
+# 启动 Taro React 应用端微信小程序开发环境
+run-taro-app:
+	@cd taro-app && \
 		CI=1 pnpm run dev:mp-weixin
 
 # 构建管理后台产物
@@ -68,8 +78,17 @@ package-uni-app:
 		CI=1 pnpm run check:exports && \
 		CI=1 pnpm run build:packages
 
+# 检查并生成 Taro React 应用端 npm 包
+package-taro-app:
+	@cd taro-app && \
+		CI=1 pnpm run lint && \
+		CI=1 pnpm run tsc && \
+		CI=1 pnpm run test && \
+		CI=1 pnpm run check:exports && \
+		CI=1 pnpm run build:packages
+
 # 检查并生成全部 npm 包
-package: package-admin package-uni-app
+package: package-admin package-uni-app package-taro-app
 
 # 发布管理后台 npm 包
 publish-admin: package-admin
@@ -79,9 +98,13 @@ publish-admin: package-admin
 publish-uni-app: package-uni-app
 	@$(NPM_PUBLISH_ENV) bash scripts/publish_packages.sh uni-app/packages/core uni-app/packages/modules/system uni-app/packages/cli
 
+# 发布 Taro React 应用端 npm 包
+publish-taro-app: package-taro-app
+	@$(NPM_PUBLISH_ENV) bash scripts/publish_packages.sh taro-app/packages/core taro-app/packages/ui taro-app/packages/modules/system taro-app/packages/cli
+
 # 发布已检查并打包的全部 npm 包
 publish-only:
-	@$(NPM_PUBLISH_ENV) bash scripts/publish_packages.sh admin/packages/core admin/packages/modules/system admin/packages/cli uni-app/packages/core uni-app/packages/modules/system uni-app/packages/cli
+	@$(NPM_PUBLISH_ENV) bash scripts/publish_packages.sh admin/packages/core admin/packages/modules/system admin/packages/cli uni-app/packages/core uni-app/packages/modules/system uni-app/packages/cli taro-app/packages/core taro-app/packages/ui taro-app/packages/modules/system taro-app/packages/cli
 
 # 检查、打包并按顺序发布全部 npm 包
 publish: package
@@ -90,6 +113,11 @@ publish: package
 # 构建 uni-app 应用端 H5 静态资源
 build-uni-app:
 	@cd uni-app && \
+		CI=1 pnpm run build:h5
+
+# 构建 Taro React 应用端 H5 静态资源
+build-taro-app:
+	@cd taro-app && \
 		CI=1 pnpm run build:h5
 
 # 显示帮助

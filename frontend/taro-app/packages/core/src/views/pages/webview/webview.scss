@@ -1,0 +1,43 @@
+.webview-container {
+  position: relative;
+  flex: 1;
+  height: 100vh;
+}
+
+.webview-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  text-align: center;
+  background-color: #fff;
+}
+
+.webview-empty__title {
+  font-size: 32px;
+  font-weight: 600;
+  color: #333;
+}
+
+.webview-empty__desc {
+  margin-top: 16px;
+  font-size: 26px;
+  color: #888;
+}
+
+.webview-open-button {
+  position: fixed;
+  right: 24px;
+  bottom: 96px;
+  z-index: 2;
+  width: 240px;
+  height: 72px;
+  line-height: 72px;
+  border-radius: 72px;
+  background-color: #27ba9b;
+  color: #fff;
+  font-size: 26px;
+}

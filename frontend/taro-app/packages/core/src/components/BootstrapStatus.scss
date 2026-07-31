@@ -1,0 +1,28 @@
+.bootstrap-status {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 48px;
+  background: #f8f8f8;
+  box-sizing: border-box;
+}
+
+.bootstrap-status__logo {
+  width: 112px;
+  height: 112px;
+  margin-bottom: 32px;
+}
+
+.bootstrap-status__title {
+  color: #222;
+  font-size: 32px;
+}
+
+.bootstrap-status__detail {
+  margin-top: 16px;
+  color: #777;
+  font-size: 24px;
+  text-align: center;
+}

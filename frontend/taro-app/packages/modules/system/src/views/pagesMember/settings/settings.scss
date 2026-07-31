@@ -1,0 +1,56 @@
+.settings-viewport {
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #f4f4f4;
+}
+
+.settings-list {
+  padding: 0 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  background-color: #fff;
+}
+
+.settings-item {
+  position: relative;
+  padding-left: 10px;
+  border-top: 1px solid #ddd;
+  border-radius: 0;
+  color: #333;
+  font-size: 30px;
+  line-height: 90px;
+  text-align: left;
+  background-color: #fff;
+
+  &:first-child {
+    border: 0;
+  }
+
+  &::after {
+    border: 0;
+  }
+}
+
+.settings-arrow::before {
+  content: '›';
+  position: absolute;
+  top: 50%;
+  right: 5px;
+  color: #ccc;
+  font-size: 36px;
+  transform: translateY(-50%);
+}
+
+.settings-action {
+  margin-top: 40px;
+  color: #333;
+  font-size: 32px;
+  line-height: 90px;
+  text-align: center;
+}
+
+.settings-button {
+  margin-bottom: 20px;
+  border-radius: 10px;
+  background-color: #fff;
+}

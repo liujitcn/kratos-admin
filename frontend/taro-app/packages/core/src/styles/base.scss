@@ -1,0 +1,45 @@
+page,
+body {
+  min-height: 100%;
+  color: #333;
+  font-size: 16PX;
+  line-height: normal;
+  background: #f7f7f8;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', sans-serif;
+}
+
+view,
+scroll-view,
+swiper,
+button,
+input,
+textarea,
+label,
+navigator,
+image {
+  box-sizing: border-box;
+}
+
+button::after {
+  border: 0;
+}
+
+// Taro H5 的默认确认色与 uni-app H5 不同，统一为基线平台色。
+.taro-model__confirm {
+  color: #007aff !important;
+}
+
+// H5 路由页和 ScrollView 同时滚动，隐藏滚动条避免重复占用内容宽度。
+.taro_page,
+.taro-scroll-view__scroll-y {
+  scrollbar-width: none;
+}
+
+.taro_page::-webkit-scrollbar,
+.taro-scroll-view__scroll-y::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}

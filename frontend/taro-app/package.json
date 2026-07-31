@@ -1,0 +1,56 @@
+{
+  "name": "kratos-taro-app-workspace",
+  "description": "Independent pnpm workspace for the Kratos Taro React application.",
+  "private": true,
+  "packageManager": "pnpm@10.13.1",
+  "scripts": {
+    "prepare:modules": "turbo run build:entries --filter=@liujitcn/kratos-taro-app-system",
+    "dev:h5": "turbo run dev:h5 --filter=@liujitcn/kratos-taro-app",
+    "dev:mp-weixin": "turbo run dev:mp-weixin --filter=@liujitcn/kratos-taro-app",
+    "build:h5": "turbo run build:h5 --filter=@liujitcn/kratos-taro-app",
+    "build:mp-weixin": "turbo run build:mp-weixin --filter=@liujitcn/kratos-taro-app",
+    "build:packages": "turbo run build --concurrency=1 --filter=@liujitcn/kratos-taro-app-core --filter=@liujitcn/kratos-taro-app-ui --filter=@liujitcn/kratos-taro-app-system --filter=@liujitcn/kratos-taro-app-cli",
+    "generate:rpc": "make -C ../../backend ts-taro-app",
+    "check:exports": "pnpm run prepare:modules && node scripts/check-package-exports.mjs",
+    "test": "pnpm run prepare:modules && pnpm --filter @liujitcn/kratos-taro-app-core build:entries && node --test packages/core/test/*.test.mjs packages/modules/system/test/*.test.mjs packages/cli/test/*.test.mjs",
+    "lint": "eslint . --fix --ext .js,.mjs,.ts,.tsx",
+    "tsc": "turbo run tsc --filter=@liujitcn/kratos-taro-app"
+  },
+  "devDependencies": {
+    "@babel/core": "7.28.4",
+    "@babel/preset-react": "7.28.5",
+    "@types/node": "20.19.9",
+    "@types/react": "18.3.23",
+    "@types/react-dom": "18.3.7",
+    "babel-preset-taro": "4.2.1",
+    "esbuild": "0.25.8",
+    "eslint": "8.57.1",
+    "eslint-config-taro": "4.2.1",
+    "eslint-plugin-react": "7.37.5",
+    "eslint-plugin-react-hooks": "4.6.2",
+    "less": "4.8.1",
+    "prettier": "3.6.2",
+    "sass": "1.89.2",
+    "@tarojs/plugin-platform-h5": "4.2.1",
+    "@tarojs/plugin-platform-weapp": "4.2.1",
+    "ts-proto": "2.7.7",
+    "tsconfig-paths-webpack-plugin": "4.2.0",
+    "turbo": "2.5.5",
+    "typescript": "5.8.3",
+    "webpack": "5.91.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@swc/core",
+      "@tarojs/binding",
+      "@tarojs/cli",
+      "esbuild"
+    ],
+    "ignoredBuiltDependencies": [
+      "@nutui/nutui-react-taro",
+      "@parcel/watcher",
+      "core-js",
+      "core-js-pure"
+    ]
+  }
+}

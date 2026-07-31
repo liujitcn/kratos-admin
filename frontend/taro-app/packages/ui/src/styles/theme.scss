@@ -1,0 +1,32 @@
+$kratos-primary: #27ba9b;
+$kratos-primary-pressed: #1d9e83;
+$kratos-primary-light: #e9f8f4;
+$kratos-success: #27ba9b;
+$kratos-danger: #cf4444;
+$kratos-text: #333;
+$kratos-muted: #8a8f99;
+$kratos-background: #f7f7f8;
+
+:root,
+page {
+  --kratos-color-primary: #{$kratos-primary};
+  --kratos-color-primary-pressed: #{$kratos-primary-pressed};
+  --kratos-color-primary-light: #{$kratos-primary-light};
+  --kratos-color-danger: #{$kratos-danger};
+  --kratos-color-text: #{$kratos-text};
+  --kratos-color-text-muted: #{$kratos-muted};
+  --kratos-color-background: #{$kratos-background};
+
+  --nutui-color-primary: #{$kratos-primary};
+  --nutui-color-primary-stop-1: #{$kratos-primary};
+  --nutui-color-primary-stop-2: #{$kratos-primary};
+  --nutui-color-primary-pressed: #{$kratos-primary-pressed};
+  --nutui-color-primary-light: #{$kratos-primary-light};
+  --nutui-color-primary-light-pressed: #d7f1ea;
+  --nutui-color-success: #{$kratos-success};
+  --nutui-color-danger: #{$kratos-danger};
+  --nutui-color-background: #{$kratos-background};
+  --nutui-color-title: #{$kratos-text};
+  --nutui-color-text-help: #{$kratos-muted};
+  --nutui-button-border-radius: 6px;
+}

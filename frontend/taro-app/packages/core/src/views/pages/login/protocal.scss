@@ -1,0 +1,84 @@
+.protocol-page {
+  min-height: 100vh;
+  padding: 24px;
+  box-sizing: border-box;
+  background-color: #f5f7f6;
+}
+
+.protocol-card {
+  overflow: hidden;
+  padding: 40px 32px 56px;
+  border: 1px solid #edf1ef;
+  border-radius: 16px;
+  background-color: #fff;
+  box-shadow: 0 8px 24px rgba(33, 54, 48, 0.05);
+}
+
+.protocol-content {
+  display: block;
+  color: #53635d;
+  font-size: 28px;
+  line-height: 1.85;
+  word-break: break-word;
+
+  .protocol-title {
+    margin: 0 0 28px;
+    color: #1f2d29;
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  .protocol-section-title {
+    margin: 38px 0 14px;
+    padding-left: 16px;
+    border-left: 6px solid #27ba9b;
+    color: #263a34;
+    font-size: 31px;
+    font-weight: 600;
+    line-height: 1.45;
+  }
+
+  .protocol-paragraph {
+    margin: 0 0 22px;
+    color: #53635d;
+    font-size: 28px;
+    line-height: 1.85;
+  }
+
+  .protocol-list {
+    margin: 0 0 22px;
+    padding-left: 42px;
+  }
+
+  .protocol-list-item {
+    margin-bottom: 10px;
+    padding-left: 6px;
+    line-height: 1.8;
+  }
+
+  .protocol-emphasis {
+    color: #263a34;
+    font-weight: 600;
+  }
+
+  .protocol-link {
+    color: #16806d;
+    text-decoration: underline;
+  }
+
+  .protocol-image {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 24px auto;
+  }
+
+  .protocol-quote {
+    margin: 24px 0;
+    padding: 18px 22px;
+    border-left: 6px solid #b8e8dc;
+    color: #6c7b75;
+    background-color: #f3fbf8;
+  }
+}

@@ -1,0 +1,137 @@
+.home-page {
+  min-height: 100vh;
+  padding: 44px 28px 156px;
+  box-sizing: border-box;
+  background-color: #f7f7f8;
+}
+
+.home-page--weapp {
+  padding-top: calc(44px + 44PX);
+}
+
+.home-hero {
+  display: flex;
+  align-items: center;
+  padding: 34px 28px;
+  border-radius: 12px;
+  background-color: #27ba9b;
+  box-shadow: 0 8px 18px rgba(39, 186, 155, 0.18);
+}
+
+.home-logo {
+  flex: 0 0 auto;
+  width: 92px;
+  height: 92px;
+  border-radius: 20px;
+  background-color: #fff;
+}
+
+.home-hero__copy {
+  min-width: 0;
+  margin-left: 22px;
+}
+
+.home-title,
+.home-subtitle {
+  display: block;
+}
+
+.home-title {
+  color: #fff;
+  font-size: 40px;
+  font-weight: 600;
+}
+
+.home-subtitle {
+  margin-top: 10px;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 24px;
+}
+
+.home-section {
+  margin-top: 24px;
+}
+
+.home-section__title {
+  display: block;
+  margin: 0 8px 14px;
+  color: #26332f;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.home-info-list,
+.home-demo-list {
+  overflow: hidden;
+  border-radius: 10px;
+  background-color: #fff;
+}
+
+.home-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 26px 24px;
+  border-bottom: 1px solid #edf1ef;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.home-info-label {
+  color: #66736f;
+  font-size: 26px;
+}
+
+.home-info-value {
+  color: #26332f;
+  font-size: 26px;
+  font-weight: 500;
+}
+
+.home-demo-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 26px 24px;
+  border-bottom: 1px solid #edf1ef;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.home-demo-dot {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background-color: #e8f8f4;
+  color: #16806d;
+  font-size: 24px;
+  line-height: 42px;
+  text-align: center;
+}
+
+.home-demo-copy {
+  min-width: 0;
+  margin-left: 18px;
+}
+
+.home-demo-title,
+.home-demo-desc {
+  display: block;
+}
+
+.home-demo-title {
+  color: #26332f;
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.home-demo-desc {
+  margin-top: 8px;
+  color: #8a9691;
+  font-size: 24px;
+  line-height: 1.5;
+}
