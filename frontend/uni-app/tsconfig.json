@@ -1,0 +1,14 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "sourceMap": true,
+    "lib": ["ESNext", "DOM"],
+    "moduleResolution": "Bundler",
+    "skipLibCheck": true,
+    "types": ["@dcloudio/types", "miniprogram-api-typings"]
+  },
+  "vueCompilerOptions": {
+    "strictTemplates": false
+  }
+}
