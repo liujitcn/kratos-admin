@@ -25,14 +25,6 @@
               <span class="document-tree-node" :class="`is-${data.kind}`" :title="data.path || data.label">
                 <el-icon v-if="data.kind === 'document'" class="document-tree-node__icon"><Document /></el-icon>
                 <span class="document-tree-node__label">{{ data.label }}</span>
-                <time
-                  v-if="data.kind === 'document' && data.document?.updated_at"
-                  class="document-tree-node__updated-at"
-                  :datetime="data.document.updated_at"
-                  :title="data.document.updated_at"
-                >
-                  {{ formatDocumentUpdatedAt(data.document.updated_at) }}
-                </time>
                 <code v-if="data.kind === 'project'">{{ data.projectKey }}</code>
               </span>
             </template>
@@ -47,24 +39,25 @@
           <el-skeleton :rows="10" animated />
         </div>
         <template v-else-if="selectedDocument">
+          <header class="reader-header">
+            <div class="reader-header__identity">
+              <el-icon><Document /></el-icon>
+              <div class="reader-header__title">
+                <strong>{{ selectedDocumentName }}</strong>
+                <span :title="selectedDocument.path">{{ selectedDocument.project_name }} / {{ selectedDocument.path }}</span>
+              </div>
+            </div>
+            <time v-if="selectedDocumentUpdatedAt" :datetime="selectedDocumentUpdatedAt" :title="selectedDocumentUpdatedAt">
+              更新于 {{ formatDocumentUpdatedAt(selectedDocumentUpdatedAt) }}
+            </time>
+          </header>
           <div ref="readerScrollRef" v-loading="detailLoading" class="reader-scroll">
-            <div ref="markdownRef" @click="handleMarkdownClick">
-              <MarkdownRenderer
-                class="project-markdown"
-                :markdown="selectedDocument.content"
-                :allow-html="false"
-                :sanitize="true"
-                :enable-breaks="true"
-                :enable-latex="false"
-                :enable-animate="false"
-                :enable-shiki="false"
-                :enable-mermaid="false"
+            <div ref="markdownRef" class="project-markdown" @click="handleMarkdownClick">
+              <MarkdownPreview
+                id="project-doc-preview"
+                class="project-markdown__preview"
+                :model-value="selectedDocument.content"
                 :is-dark="globalStore.isDark"
-                :show-code-block-header="true"
-                :sticky-code-block-header="false"
-                :enable-code-line-number="false"
-                code-max-height="480px"
-                :style="markdownRootStyle"
               />
             </div>
           </div>
@@ -79,8 +72,8 @@
 import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { Search } from "@element-plus/icons-vue";
 import type { TreeNodeData } from "element-plus";
-import { MarkdownRenderer } from "x-markdown-vue";
-import "x-markdown-vue/style";
+import MarkdownPreview from "@liujitcn/kratos-admin-core/components/MarkdownPreview/index.vue";
+import { useGlobalStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { defProjectDocumentService } from "@liujitcn/kratos-admin-system/api/system/project_document";
 import type {
   ProjectDocument,
@@ -88,7 +81,6 @@ import type {
   ProjectDocumentListItem,
   ProjectDocumentProject
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/project_document";
-import { useGlobalStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 
 defineOptions({
   name: "ProjectDocument",
@@ -129,11 +121,6 @@ const detailRequestToken = ref(0);
 const documentTreeRef = ref<InstanceType<typeof ElTree>>();
 const markdownRef = ref<HTMLElement>();
 const readerScrollRef = ref<HTMLElement>();
-const markdownRootStyle = {
-  padding: "0",
-  color: "inherit",
-  backgroundColor: "transparent"
-};
 const documentUpdatedAtFormatter = new Intl.DateTimeFormat("zh-CN", {
   month: "2-digit",
   day: "2-digit",
@@ -160,6 +147,10 @@ const filteredDocumentCount = computed(() => {
   ).length;
 });
 const selectedDocumentNodeKey = computed(() => (selectedDocumentId.value ? buildDocumentNodeKey(selectedDocumentId.value) : ""));
+const selectedDocumentName = computed(() => selectedDocument.value?.path.split("/").at(-1) ?? "");
+const selectedDocumentUpdatedAt = computed(
+  () => documents.value.find(node => node.document?.id === selectedDocumentId.value)?.document?.updated_at ?? ""
+);
 
 /** 加载项目文档目录并恢复当前选择。 */
 async function loadDocuments() {
@@ -370,7 +361,6 @@ onMounted(() => {
   color: var(--admin-page-text-primary);
   background: var(--el-bg-color-page);
 }
-
 .project-doc-shell {
   display: grid;
   flex: 1;
@@ -383,179 +373,186 @@ onMounted(() => {
   border-radius: var(--admin-page-radius);
   box-shadow: var(--admin-page-shadow);
 }
-
 .document-navigation,
 .document-reader {
   display: flex;
+  flex-direction: column;
   min-width: 0;
   min-height: 0;
-  flex-direction: column;
   overflow: hidden;
 }
-
 .document-navigation {
   border-right: 1px solid var(--admin-page-divider);
 }
-
 .navigation-header {
   display: flex;
-  align-items: center;
   gap: 12px;
+  align-items: center;
   padding: 16px;
   border-bottom: 1px solid var(--admin-page-divider);
 }
-
 .document-count {
   flex: 0 0 auto;
   font-size: 12px;
   color: var(--admin-page-text-secondary);
   white-space: nowrap;
 }
-
 .document-tree-scroll {
   flex: 1;
   min-height: 0;
   padding: 8px;
   overflow-y: auto;
 }
-
 .document-tree {
   min-width: 100%;
   color: var(--admin-page-text-primary);
   background: transparent;
+
   --el-tree-node-hover-bg-color: var(--el-fill-color-light);
 }
-
 .document-tree :deep(.el-tree-node__content) {
   height: 34px;
   padding-right: 8px;
   border-radius: 4px;
 }
-
 .document-tree :deep(.el-tree-node.is-current > .el-tree-node__content) {
   color: var(--el-color-primary);
   background: var(--admin-page-accent-soft-bg);
   box-shadow: inset 3px 0 0 var(--el-color-primary);
 }
-
 .document-tree-node {
   display: flex;
   flex: 1;
-  min-width: 0;
-  align-items: center;
   gap: 7px;
+  align-items: center;
+  min-width: 0;
   overflow: hidden;
 }
-
 .document-tree-node__icon {
   flex: 0 0 auto;
   font-size: 15px;
   color: var(--admin-page-text-secondary);
 }
-
 .document-tree-node__label {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 .document-tree-node.is-project .document-tree-node__label {
   font-weight: 650;
 }
-
 .document-tree-node.is-directory .document-tree-node__label {
   font-weight: 550;
 }
-
-.document-tree-node code,
-.document-tree-node__updated-at {
+.document-tree-node code {
   flex: 0 0 auto;
   margin-left: auto;
   font-size: 11px;
   color: var(--admin-page-text-secondary);
 }
-
-.document-tree-node__updated-at {
+.reader-header {
+  box-sizing: border-box;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 64px;
+  padding: 10px 24px;
+  border-bottom: 1px solid var(--admin-page-divider);
+}
+.reader-header__identity {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+}
+.reader-header__identity > :deep(.el-icon) {
+  flex: 0 0 auto;
+  font-size: 18px;
+  color: var(--el-color-primary);
+}
+.reader-header__title {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.reader-header__title strong,
+.reader-header__title span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.reader-header__title strong {
+  font-size: 15px;
+  color: var(--admin-page-text-primary);
+}
+.reader-header__title span,
+.reader-header time {
+  font-size: 12px;
+  color: var(--admin-page-text-secondary);
+}
+.reader-header time {
+  flex: 0 0 auto;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-
 .reader-scroll {
   flex: 1;
   min-height: 0;
-  padding: 24px;
+  padding: 28px clamp(24px, 4vw, 52px) 40px;
   overflow-y: auto;
+  scrollbar-gutter: stable;
 }
-
 .project-markdown {
   width: 100%;
-  max-width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
   overflow-wrap: anywhere;
 }
-
-.project-markdown :deep(.x-md-core > :first-child) {
-  margin-top: 0;
-}
-
-.project-markdown :deep(.x-md-core > :last-child) {
-  margin-bottom: 0;
-}
-
-.project-markdown :deep(h1),
-.project-markdown :deep(h2),
-.project-markdown :deep(h3),
-.project-markdown :deep(h4),
-.project-markdown :deep(h5),
-.project-markdown :deep(h6) {
-  color: var(--admin-page-text-primary);
-  scroll-margin-top: 16px;
-}
-
-.project-markdown :deep(a) {
-  color: var(--el-color-primary);
-}
-
-.project-markdown :deep(blockquote) {
-  border-left-color: var(--el-border-color);
-}
-
-.project-markdown :deep(table) {
-  display: block;
-  max-width: 100%;
-  overflow-x: auto;
-}
-
 .reader-loading {
   padding: 24px;
 }
 
-@media (max-width: 900px) {
+@media (width <= 900px) {
   .project-doc-shell {
     grid-template-columns: 280px minmax(0, 1fr);
   }
 }
 
-@media (max-width: 720px) {
+@media (width <= 720px) {
   .project-doc-shell {
     display: flex;
     flex-direction: column;
   }
-
   .document-navigation {
-    height: 320px;
     flex: 0 0 auto;
+    height: 240px;
     border-right: 0;
     border-bottom: 1px solid var(--admin-page-divider);
   }
-
   .document-reader {
-    min-height: 520px;
+    flex: 1;
+    min-height: 0;
   }
-
   .reader-scroll {
+    padding-top: 24px;
     padding-right: 16px;
     padding-left: 16px;
+  }
+  .reader-header {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+  .reader-header time {
+    display: none;
+  }
+  .project-markdown :deep(h1) {
+    font-size: 26px;
+  }
+  .project-markdown :deep(h2) {
+    font-size: 21px;
   }
 }
 </style>

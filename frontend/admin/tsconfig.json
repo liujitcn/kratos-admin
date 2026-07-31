@@ -14,6 +14,9 @@
       "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue": ["packages/core/src/components/Dialog/FormDialog.vue"],
       "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue": ["packages/core/src/components/Dialog/ProDialog.vue"],
       "@liujitcn/kratos-admin-core/components/Dict/DictLabel.vue": ["packages/core/src/components/Dict/DictLabel.vue"],
+      "@liujitcn/kratos-admin-core/components/MarkdownPreview/index.vue": [
+        "packages/core/src/components/MarkdownPreview/index.vue"
+      ],
       "@liujitcn/kratos-admin-core/components/PasswordStrength/index.vue": ["packages/core/src/components/PasswordStrength/index.vue"],
       "@liujitcn/kratos-admin-core/components/ProForm/index.vue": ["packages/core/src/components/ProForm/index.vue"],
       "@liujitcn/kratos-admin-core/components/ProForm/interface": ["packages/core/src/components/ProForm/interface/index.ts"],

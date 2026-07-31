@@ -83,22 +83,11 @@
                     <el-icon><Document /></el-icon>
                     <span>升级说明</span>
                   </div>
-                  <MarkdownRenderer
+                  <MarkdownPreview
                     class="migration-markdown"
-                    :markdown="selectedMigration.description"
-                    :allow-html="false"
-                    :sanitize="true"
-                    :enable-breaks="true"
-                    :enable-latex="false"
-                    :enable-animate="false"
-                    :enable-shiki="false"
-                    :enable-mermaid="false"
+                    :model-value="selectedMigration.description"
                     :is-dark="globalStore.isDark"
-                    :show-code-block-header="true"
-                    :sticky-code-block-header="false"
-                    :enable-code-line-number="false"
-                    code-max-height="360px"
-                    :style="markdownRootStyle"
+                    max-code-height="360px"
                   />
                 </section>
 
@@ -173,12 +162,11 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from "vue";
 import { CopyDocument, Document, DocumentAdd, DocumentRemove, Files, Refresh, Search } from "@element-plus/icons-vue";
-import { MarkdownRenderer } from "x-markdown-vue";
-import "x-markdown-vue/style";
-import { defBaseMigrationService } from "@liujitcn/kratos-admin-system/api/system/base_migration";
-import type { BaseMigration, BaseMigrationListItem, PageBaseMigrationRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_migration";
+import MarkdownPreview from "@liujitcn/kratos-admin-core/components/MarkdownPreview/index.vue";
 import { useGlobalStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
+import { defBaseMigrationService } from "@liujitcn/kratos-admin-system/api/system/base_migration";
+import type { BaseMigration, BaseMigrationListItem, PageBaseMigrationRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_migration";
 
 defineOptions({
   name: "BaseMigration",
@@ -222,12 +210,6 @@ const pageable = reactive<MigrationPageable>({
   page_size: 10,
   total: 0
 });
-/** 覆盖 MarkdownRenderer 默认容器样式，保持内容与详情面板对齐。 */
-const markdownRootStyle = {
-  padding: "0",
-  color: "inherit",
-  backgroundColor: "transparent"
-};
 const hasDetailContent = computed(() =>
   Boolean(selectedMigration.value?.description || selectedMigration.value?.up_sql || selectedMigration.value?.down_sql)
 );
@@ -594,36 +576,6 @@ onMounted(() => {
   width: 100%;
   max-width: 100%;
   overflow-wrap: anywhere;
-}
-
-.migration-markdown :deep(.x-md-core > :first-child) {
-  margin-top: 0;
-}
-
-.migration-markdown :deep(.x-md-core > :last-child) {
-  margin-bottom: 0;
-}
-
-.migration-markdown :deep(h1),
-.migration-markdown :deep(h2),
-.migration-markdown :deep(h3),
-.migration-markdown :deep(h4),
-.migration-markdown :deep(h5),
-.migration-markdown :deep(h6) {
-  color: var(--admin-page-text-primary);
-}
-
-.migration-markdown :deep(a) {
-  color: var(--el-color-primary);
-}
-
-.migration-markdown :deep(blockquote) {
-  border-left-color: var(--el-border-color);
-}
-
-.migration-markdown :deep(table) {
-  max-width: 100%;
-  overflow-x: auto;
 }
 
 .release-sql {

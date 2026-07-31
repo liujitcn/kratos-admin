@@ -1250,7 +1250,7 @@ function buildMessageAttachmentItems(attachments: AiAttachment[]): FilesCardProp
     flex: 0 1 auto;
     width: auto;
   }
-  :deep(.agent-markdown .x-md-core) {
+  :deep(.agent-markdown .md-editor-preview) {
     width: auto;
   }
   :deep(.agent-markdown p) {

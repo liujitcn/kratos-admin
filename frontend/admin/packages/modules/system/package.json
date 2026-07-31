@@ -19,11 +19,9 @@
   "dependencies": {
     "@liujitcn/kratos-admin-core": "workspace:*",
     "@microsoft/fetch-event-source": "^2.0.1",
-    "@shikijs/core": "^3.23.0",
     "sortablejs": "^1.15.2",
     "swagger-ui-dist": "^5.32.9",
-    "vue-element-plus-x": "^2.0.3",
-    "x-markdown-vue": "^0.0.200"
+    "vue-element-plus-x": "^2.0.3"
   },
   "peerDependencies": {
     "@element-plus/icons-vue": "^2.3.1",

@@ -1,33 +1,21 @@
 <template>
-  <MarkdownRenderer
+  <MarkdownPreview
     class="agent-markdown"
-    :markdown="content"
-    :allow-html="false"
-    :sanitize="true"
-    :enable-breaks="true"
-    :enable-latex="false"
-    :enable-animate="streaming"
-    :enable-shiki="false"
-    :enable-mermaid="false"
+    :model-value="content"
     :is-dark="globalStore.isDark"
-    :show-code-block-header="true"
-    :sticky-code-block-header="false"
-    :enable-code-line-number="false"
-    code-max-height="360px"
-    :style="markdownRootStyle"
+    max-code-height="360px"
   />
 </template>
 
 <script setup lang="ts" name="AiMarkdown">
-import { MarkdownRenderer } from "x-markdown-vue";
-import "x-markdown-vue/style";
+import MarkdownPreview from "@liujitcn/kratos-admin-core/components/MarkdownPreview/index.vue";
 import { useGlobalStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 
 /** AI 回复 Markdown 渲染组件入参。 */
 type AiMarkdownProps = {
   /** 需要渲染的 Markdown 正文。 */
   content: string;
-  /** 是否处于流式输出中，开启后按词显示动画。 */
+  /** 是否处于流式输出中。 */
   streaming?: boolean;
 };
 
@@ -36,12 +24,6 @@ withDefaults(defineProps<AiMarkdownProps>(), {
 });
 
 const globalStore = useGlobalStore();
-/** 覆盖 MarkdownRenderer 默认根样式，避免内置 16px padding 破坏消息列对齐。 */
-const markdownRootStyle = {
-  padding: "0",
-  color: "inherit",
-  backgroundColor: "transparent"
-};
 </script>
 
 <style scoped lang="scss">
@@ -50,27 +32,27 @@ const markdownRootStyle = {
   width: 100%;
   min-width: 0;
   max-width: 100%;
+  padding: 0;
+  margin: 0;
   line-height: 28px;
   color: inherit;
   overflow-wrap: anywhere;
-  margin: 0;
-  padding: 0;
-  :deep(.x-md-core) {
+  :deep(.md-editor-preview) {
     box-sizing: border-box;
     width: 100%;
     max-width: 100%;
-    margin: 0;
     padding: 0;
+    margin: 0;
     overflow-wrap: anywhere;
   }
-  :deep(.x-md-core > *) {
-    margin-left: 0;
+  :deep(.md-editor-preview > *) {
     padding-left: 0;
+    margin-left: 0;
   }
-  :deep(.x-md-core > :first-child) {
+  :deep(.md-editor-preview > :first-child) {
     margin-top: 0;
   }
-  :deep(.x-md-core > :last-child) {
+  :deep(.md-editor-preview > :last-child) {
     margin-bottom: 0;
   }
   :deep(p),
@@ -141,20 +123,18 @@ const markdownRootStyle = {
     font-weight: 700;
     background: var(--el-fill-color-light);
   }
-  :deep(.x-md-code-block),
-  :deep(.markdown-mermaid) {
+  :deep(.md-editor-code) {
     max-width: 100%;
     border-radius: var(--admin-page-radius);
   }
-  :deep(.x-md-code-header) {
+  :deep(.md-editor-code-head) {
     color: var(--admin-page-text-primary);
   }
-  :deep(.x-md-plain-pre),
-  :deep(.x-md-syntax-code-block pre) {
+  :deep(.md-editor-code pre code) {
     max-width: 100%;
     font-size: 13px;
   }
-  :deep(.x-md-inline-code) {
+  :deep(code:not(pre code)) {
     color: var(--el-color-primary);
     border-radius: 6px;
   }

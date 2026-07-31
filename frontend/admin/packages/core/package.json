@@ -35,11 +35,14 @@
     "axios": "^1.7.2",
     "code-inspector-plugin": "^1.5.1",
     "dayjs": "^1.11.21",
+    "dompurify": "^3.4.5",
     "driver.js": "^1.3.1",
     "echarts": "^5.5.1",
     "echarts-liquidfill": "^3.1.0",
     "element-plus": "^2.7.6",
     "go-captcha-vue": "2.0.6",
+    "highlight.js": "^11.11.1",
+    "md-editor-v3": "^6.5.5",
     "md5": "^2.3.0",
     "mitt": "^3.0.1",
     "nprogress": "^0.2.0",
@@ -108,6 +111,10 @@
     "./components/Dict/DictLabel.vue": {
       "types": "./dist/package/declarations/src/components/Dict/DictLabel.vue.d.ts",
       "default": "./dist/package/src/components/Dict/DictLabel.vue"
+    },
+    "./components/MarkdownPreview/index.vue": {
+      "types": "./dist/package/declarations/src/components/MarkdownPreview/index.vue.d.ts",
+      "default": "./dist/package/src/components/MarkdownPreview/index.vue"
     },
     "./components/PasswordStrength/index.vue": {
       "types": "./dist/package/declarations/src/components/PasswordStrength/index.vue.d.ts",

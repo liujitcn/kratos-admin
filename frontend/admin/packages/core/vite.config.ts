@@ -87,12 +87,15 @@ export function defineAdminViteConfig(options: AdminViteConfigOptions = {}) {
           "@liujitcn/kratos-admin-core > dayjs/plugin/localeData.js",
           "@liujitcn/kratos-admin-core > dayjs/plugin/weekOfYear.js",
           "@liujitcn/kratos-admin-core > dayjs/plugin/weekYear.js",
+          "@liujitcn/kratos-admin-core > dompurify",
+          "@liujitcn/kratos-admin-core > highlight.js",
+          "@liujitcn/kratos-admin-core > md-editor-v3",
           "@liujitcn/kratos-admin-core > nprogress",
           "@liujitcn/kratos-admin-core > qs",
           ...(options.optimizeDependencies ?? [])
         ],
         noDiscovery: true,
-        exclude: ["@liujitcn/kratos-admin-core", ...(options.modulePackages ?? [])]
+        exclude: ["vue", "@liujitcn/kratos-admin-core", ...(options.modulePackages ?? [])]
       },
       server: {
         host: "0.0.0.0",
