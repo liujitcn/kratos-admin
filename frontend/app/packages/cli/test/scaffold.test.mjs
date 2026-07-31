@@ -11,12 +11,23 @@ test('生成默认 system、本地模块和发布模块', () => {
   scaffoldKratosApp(target, { modules: ['orders'], packages: ['@acme/pay'] })
   const manifest = readFileSync(resolve(target, 'apps/app/src/module-manifest.ts'), 'utf8')
   const main = readFileSync(resolve(target, 'apps/app/src/main.ts'), 'utf8')
+  const cliPackage = JSON.parse(
+    readFileSync(resolve(import.meta.dirname, '../package.json'), 'utf8'),
+  )
+  const hostPackage = JSON.parse(readFileSync(resolve(target, 'apps/app/package.json'), 'utf8'))
+  const modulePackage = JSON.parse(
+    readFileSync(resolve(target, 'packages/modules/orders/package.json'), 'utf8'),
+  )
   assert.match(manifest, /kratos-app-system/)
   assert.match(manifest, /@local\/orders/)
   assert.match(manifest, /@acme\/pay/)
   assert.match(main, /import \{ createSSRApp \} from 'vue'/)
   assert.match(main, /registerKratosAppModules\(moduleManifest\)[\s\S]+export function createApp/)
+  assert.match(main, /registerUserStoreExtension\(\{[\s\S]+onLogin: initializeAppNavigation/)
   assert.match(main, /bootstrapKratosApp\(\{ app: App, createSSRApp,/)
+  assert.equal(hostPackage.dependencies['@liujitcn/kratos-app-core'], `^${cliPackage.version}`)
+  assert.equal(hostPackage.dependencies['@liujitcn/kratos-app-system'], `^${cliPackage.version}`)
+  assert.equal(modulePackage.dependencies['@liujitcn/kratos-app-core'], `^${cliPackage.version}`)
   assert.ok(existsSync(resolve(target, 'packages/modules/orders/src/index.mjs')))
   assert.ok(existsSync(resolve(target, 'apps/app/vite.config.ts')))
   assert.ok(existsSync(resolve(target, 'apps/app/src/main.ts')))

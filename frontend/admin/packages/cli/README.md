@@ -73,7 +73,7 @@ CLI 始终先引入 `@liujitcn/kratos-admin-system`。`--module` 可重复使用
 | `__MODULE_PASCAL__`     | PascalCase 模块名，例如 `Shop`。         |
 | `__MODULE_PACKAGE__`    | 模块包名，例如 `@shop/admin-module`。    |
 | `__MODULE_IDENTIFIER__` | 模块入口变量，例如 `shopAdminModule`。   |
-| `__CORE_VERSION__`      | 当前 core 包版本对应的 semver 范围。     |
+| `__CORE_VERSION__`      | 当前 CLI 包版本对应的公开包 semver 范围。 |
 | `__MODULE_FILTERS__`    | 全部自有 module 的 workspace 过滤参数。  |
 | `__MODULE_MANIFEST__`   | 宿主模块加载器、包名和预构建依赖清单。   |
 | `__MODULE_NAMES__`      | 文档中的全部自有 module 名称。           |

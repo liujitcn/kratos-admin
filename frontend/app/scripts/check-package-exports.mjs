@@ -11,13 +11,12 @@ const sourceExtensions = new Set(['.js', '.mjs', '.ts', '.vue'])
 const allFiles = await collectFiles(appRoot)
 const packageFiles = allFiles.filter((file) => file.endsWith(`${sep}package.json`))
 const packages = new Map()
+const publicPackageVersions = new Map()
 
 for (const packageFile of packageFiles) {
   const metadata = JSON.parse(await readFile(packageFile, 'utf8'))
   if (!metadata.name || !metadata.exports) continue
-  if (!metadata.private && metadata.version !== '0.0.1') {
-    throw new Error(`${metadata.name} 必须保持 v0.0.1`)
-  }
+  if (!metadata.private) publicPackageVersions.set(metadata.name, metadata.version)
   const packageRoot = dirname(packageFile)
   const exportEntries = Object.entries(metadata.exports)
   packages.set(metadata.name, { packageRoot, exportEntries })
@@ -32,6 +31,14 @@ for (const packageFile of packageFiles) {
       }
     }
   }
+}
+
+const distinctPublicVersions = new Set(publicPackageVersions.values())
+if (distinctPublicVersions.size !== 1 || [...distinctPublicVersions].some((version) => !version)) {
+  const versions = [...publicPackageVersions]
+    .map(([name, version]) => `${name}@${version}`)
+    .join('、')
+  throw new Error(`app 公开包版本必须保持一致：${versions}`)
 }
 
 const violations = []

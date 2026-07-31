@@ -319,10 +319,13 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	bizBaseDictItemCase := biz4.NewBaseDictItemCase(baseCase, baseDictRepository, baseDictItemRepository)
 	bizBaseDictCase := biz4.NewBaseDictCase(baseCase, baseDictRepository, bizBaseDictItemCase)
 	appBaseDictService := app.NewBaseDictService(bizBaseDictCase)
+	bizBaseMenuCase := biz4.NewBaseMenuCase(baseCase, baseMenuRepository)
+	appBaseMenuService := app.NewBaseMenuService(bizBaseMenuCase)
 	appServices := app2.Services{
 		Auth:     appAuthService,
 		BaseArea: appBaseAreaService,
 		BaseDict: appBaseDictService,
+		BaseMenu: appBaseMenuService,
 	}
 	modules := newModules(services, adminServices, appServices, additionalModules)
 	httpMiddlewares := server.NewHTTPMiddleware(context, authenticator, baseUserRepository, engine, userToken, authentication_Jwt)
@@ -637,10 +640,13 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 	bizBaseDictItemCase := biz4.NewBaseDictItemCase(baseCase, baseDictRepository, baseDictItemRepository)
 	bizBaseDictCase := biz4.NewBaseDictCase(baseCase, baseDictRepository, bizBaseDictItemCase)
 	appBaseDictService := app.NewBaseDictService(bizBaseDictCase)
+	bizBaseMenuCase := biz4.NewBaseMenuCase(baseCase, baseMenuRepository)
+	appBaseMenuService := app.NewBaseMenuService(bizBaseMenuCase)
 	appServices := app2.Services{
 		Auth:     appAuthService,
 		BaseArea: appBaseAreaService,
 		BaseDict: appBaseDictService,
+		BaseMenu: appBaseMenuService,
 	}
 	modules := newModules(services, adminServices, appServices, additionalModules)
 	httpMiddlewares := server.NewHTTPMiddleware(context, authenticator, baseUserRepository, engine, userToken, authentication_Jwt)

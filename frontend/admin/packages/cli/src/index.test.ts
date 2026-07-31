@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { mkdtemp, readFile, rm, stat } from "node:fs/promises";
+import { copyFile, cp, mkdir, mkdtemp, readFile, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import { promisify } from "node:util";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { createBusinessWorkspace, runCli } from "./index.js";
 
 const execFileAsync = promisify(execFile);
@@ -78,11 +78,12 @@ test("生成包含宿主和业务模块的 pnpm workspace", async () => {
     assert.doesNotMatch(viteConfig, /@liujitcn\/kratos-admin-system/);
 
     const packageJson = JSON.parse(await readFile(join(target, "apps/admin/package.json"), "utf8"));
+    const cliPackageJson = JSON.parse(await readFile(join(packageRoot, "package.json"), "utf8"));
+    assert.equal(packageJson.dependencies["@liujitcn/kratos-admin-core"], `^${cliPackageJson.version}`);
+    assert.equal(packageJson.dependencies["@liujitcn/kratos-admin-system"], `^${cliPackageJson.version}`);
+    assert.equal(packageJson.dependencies["@liujitcn/kratos-admin-audit"], `^${cliPackageJson.version}`);
     assert.equal(packageJson.dependencies["@shop/admin-module"], "workspace:*");
     assert.equal(packageJson.dependencies["@order/admin-module"], "workspace:*");
-    assert.match(packageJson.dependencies["@liujitcn/kratos-admin-core"], /^\^\d+\.\d+\.\d+$/);
-    assert.match(packageJson.dependencies["@liujitcn/kratos-admin-system"], /^\^\d+\.\d+\.\d+$/);
-    assert.match(packageJson.dependencies["@liujitcn/kratos-admin-audit"], /^\^\d+\.\d+\.\d+$/);
     assert.equal(packageJson.dependencies["@liujitcn/kratos-admin"], undefined);
 
     const modulePackageJson = JSON.parse(await readFile(join(target, "packages/modules/shop/package.json"), "utf8"));
@@ -110,6 +111,28 @@ test("发布包包含 gitignore 模板占位文件", async () => {
   const result = await execFileAsync("npm", ["pack", "--dry-run", "--ignore-scripts", "--json"], { cwd: packageRoot });
   const packResult = JSON.parse(result.stdout) as Array<{ files: Array<{ path: string }> }>;
   assert.ok(packResult[0]?.files.some(file => file.path === "templates/business-workspace/_gitignore"));
+});
+
+test("发布目录中的 CLI 不依赖仓库兄弟 core 包", async () => {
+  const root = await mkdtemp(join(tmpdir(), "kratos-admin-cli-install-"));
+  const installedRoot = join(root, "node_modules", "@liujitcn", "kratos-admin-cli");
+  try {
+    await mkdir(join(installedRoot, "dist"), { recursive: true });
+    await copyFile(join(packageRoot, "dist/index.js"), join(installedRoot, "dist/index.js"));
+    await copyFile(join(packageRoot, "package.json"), join(installedRoot, "package.json"));
+    await cp(join(packageRoot, "templates"), join(installedRoot, "templates"), { recursive: true });
+    const installedCli = (await import(`${pathToFileURL(join(installedRoot, "dist/index.js")).href}?standalone`)) as typeof import("./index.js");
+    const target = await installedCli.createBusinessWorkspace({
+      cwd: root,
+      projectName: "standalone-admin",
+      moduleNames: ["standalone"]
+    });
+    const appPackageJson = JSON.parse(await readFile(join(target, "apps/admin/package.json"), "utf8"));
+    const cliPackageJson = JSON.parse(await readFile(join(installedRoot, "package.json"), "utf8"));
+    assert.equal(appPackageJson.dependencies["@liujitcn/kratos-admin-core"], `^${cliPackageJson.version}`);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });
 
 test("拒绝覆盖已存在的目标目录", async () => {

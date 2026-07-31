@@ -1264,7 +1264,8 @@ page {
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100%;
+  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   color: #333;
   background-color: #f6f6f6;

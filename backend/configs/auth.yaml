@@ -27,3 +27,4 @@ authn:
       path:
       match:
         - "/base.v1.SseService/SubscribeSse"
+        - "/system.app.v1.BaseMenuService/ListBaseMenu"

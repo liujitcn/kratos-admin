@@ -56,7 +56,12 @@ import { defBaseMenuService } from "@liujitcn/kratos-admin-system/api/system/bas
 import { defBaseApiService } from "@liujitcn/kratos-admin-system/api/system/base_api";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import type { BaseApi } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_api";
-import type { BaseMenu, BaseMenuForm, BaseMenuMeta } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_menu";
+import type {
+  BaseMenu,
+  BaseMenuAppMeta,
+  BaseMenuForm,
+  BaseMenuMeta
+} from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_menu";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { BaseMenuType } from "@liujitcn/kratos-admin-system/rpc/system/common/v1/enum";
 import { normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
@@ -65,6 +70,8 @@ defineOptions({
   name: "BaseMenu",
   inheritAttrs: false
 });
+
+const APP_MENU_ROOT_ID = 99901;
 
 /**
  * 菜单表单状态，统一补齐 meta 字段，便于 ProForm 直接双向绑定。
@@ -88,6 +95,16 @@ const dialog = reactive({
   parentLocked: true
 });
 
+/** 创建默认移动端页面配置。 */
+function createDefaultAppMenuMeta(): BaseMenuAppMeta {
+  return {
+    view_key: "",
+    access: "AUTHENTICATED",
+    in_tab_bar: false,
+    selected_icon: undefined
+  };
+}
+
 /** 创建默认菜单元信息。 */
 function createDefaultMenuMeta(): BaseMenuMeta {
   return {
@@ -98,7 +115,8 @@ function createDefaultMenuMeta(): BaseMenuMeta {
     keep_alive: false,
     full: false,
     affix: false,
-    params: []
+    params: [],
+    app: undefined
   };
 }
 
@@ -136,6 +154,11 @@ const menuTypeOptions: ProFormOption[] = [
   { label: "外链", value: BaseMenuType.EXT_LINK }
 ];
 
+/** 判断是否为固定移动端根菜单的直属页面。 */
+function isAppMenu(parentId?: number) {
+  return parentId === APP_MENU_ROOT_ID;
+}
+
 /** 根据三、五、七、九位编号识别菜单层级。 */
 function getMenuLevel(menuId: number) {
   if (menuId >= 100 && menuId <= 999) return 1;
@@ -147,6 +170,7 @@ function getMenuLevel(menuId: number) {
 
 /** 判断当前菜单是否还能继续新增下级节点。 */
 function canCreateChild(menu: BaseMenu) {
+  if (isAppMenu(menu.parent_id)) return false;
   const level = getMenuLevel(menu.id);
   if (menu.type === BaseMenuType.FOLDER) return level === 1 || level === 2;
   if (menu.type === BaseMenuType.MENU) return level === 2 || level === 3;
@@ -157,6 +181,8 @@ function canCreateChild(menu: BaseMenu) {
 const availableMenuTypeOptions = computed(() => {
   const parentLevel = getMenuLevel(formData.parent_id ?? 0);
 
+  if (formData.id === APP_MENU_ROOT_ID) return menuTypeOptions.filter(item => item.value === BaseMenuType.MENU);
+  if (isAppMenu(formData.parent_id)) return menuTypeOptions.filter(item => item.value === BaseMenuType.MENU);
   if (formData.id > 0 && parentLevel === 0) return menuTypeOptions.filter(item => item.value === BaseMenuType.FOLDER);
   if (dialog.parentType === BaseMenuType.FOLDER && parentLevel === 1)
     return menuTypeOptions.filter(
@@ -172,6 +198,11 @@ const availableMenuTypeOptions = computed(() => {
 watch(
   () => formData.parent_id,
   () => {
+    if (isAppMenu(formData.parent_id)) {
+      formData.meta.app ??= createDefaultAppMenuMeta();
+    } else if (formData.id === 0) {
+      formData.meta.app = undefined;
+    }
     dialog.parentType = parentMenuTypeMap.value.get(formData.parent_id ?? 0) ?? BaseMenuType.UNKNOWN_MT;
     if (formData.id > 0 || availableMenuTypeOptions.value.some(item => item.value === formData.type)) return;
     formData.type = (availableMenuTypeOptions.value[0]?.value as BaseMenuType) ?? BaseMenuType.UNKNOWN_MT;
@@ -183,11 +214,18 @@ const statusOptions: ProFormOption[] = [
   { label: "禁用", value: Status.DISABLE }
 ];
 
+const appAccessOptions: ProFormOption[] = [
+  { label: "公开访问", value: "PUBLIC" },
+  { label: "仅游客", value: "GUEST_ONLY" },
+  { label: "登录访问", value: "AUTHENTICATED" }
+];
+
 /**
  * 渲染菜单图标单元格，统一兼容 Element Plus 图标和本地 svg 图标。
  */
 function renderMenuIconCell(scope: RenderScope<BaseMenu>) {
   const icon = scope.row.meta?.icon;
+  if (isAppMenu(scope.row.parent_id)) return icon || "--";
   const iconName = resolveElementIcon(icon);
   if (iconName) {
     return h(
@@ -212,7 +250,14 @@ function renderHiddenCell(scope: RenderScope<BaseMenu>) {
 
 /** 菜单表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
-  { type: "selection", width: 55, selectable: row => (row as BaseMenu).parent_id !== 0 },
+  {
+    type: "selection",
+    width: 55,
+    selectable: row => {
+      const menu = row as BaseMenu;
+      return menu.parent_id !== 0 && menu.id !== APP_MENU_ROOT_ID;
+    }
+  },
   {
     prop: "meta.title",
     label: "菜单名称",
@@ -284,7 +329,10 @@ const columns = computed<ColumnProps[]>(() => [
         type: "danger",
         link: true,
         icon: Delete,
-        hidden: scope => !BUTTONS.value["base:menu:delete"] || (scope.row as BaseMenu).parent_id === 0,
+        hidden: scope => {
+          const menu = scope.row as BaseMenu;
+          return !BUTTONS.value["base:menu:delete"] || menu.parent_id === 0 || menu.id === APP_MENU_ROOT_ID;
+        },
         onClick: scope => handleDeleteMenu(scope.row as BaseMenu)
       }
     ]
@@ -388,18 +436,77 @@ const formFields = computed<ProFormField[]>(() => [
     itemProps: model => ({
       required: model.type !== BaseMenuType.BUTTON
     }),
-    visible: model => model.type !== BaseMenuType.BUTTON
+    visible: model => !isAppMenu(model.parent_id) && model.type !== BaseMenuType.BUTTON
+  },
+  {
+    prop: "meta.icon",
+    label: "默认图标",
+    component: "input",
+    labelTooltip: "填写移动端模块注册的图标键或 HTTPS 图片地址。",
+    itemProps: model => ({
+      required: Boolean(model.meta?.app?.in_tab_bar)
+    }),
+    props: { placeholder: "例如 HOME_DEFAULT" },
+    visible: model => isAppMenu(model.parent_id)
   },
   {
     prop: "name",
-    label: "路由名称",
+    label: isAppMenu(formData.parent_id) ? "逻辑名称" : "路由名称",
     component: "input",
-    labelTooltip: "如果需要开启缓存，需保证页面 defineOptions 中的 name 与此处一致，建议使用驼峰。",
+    labelTooltip: isAppMenu(formData.parent_id)
+      ? "移动端页面使用 App 前缀的唯一逻辑名称。"
+      : "如果需要开启缓存，需保证页面 defineOptions 中的 name 与此处一致，建议使用驼峰。",
     itemProps: model => ({
       required: model.type === BaseMenuType.MENU
     }),
-    props: { placeholder: "请输入路由名称" },
+    props: () => ({
+      placeholder: isAppMenu(formData.parent_id) ? "例如 AppHome" : "请输入路由名称"
+    }),
     visible: model => model.type === BaseMenuType.MENU
+  },
+  {
+    prop: "meta.app.view_key",
+    label: "视图键",
+    component: "input",
+    labelTooltip: "必须与移动端模块注册的稳定 viewKey 一致，不填写组件文件路径。",
+    itemProps: { required: true },
+    props: { placeholder: "例如 HOME" },
+    visible: model => isAppMenu(model.parent_id)
+  },
+  {
+    prop: "meta.app.access",
+    label: "访问模式",
+    component: "select",
+    options: appAccessOptions,
+    itemProps: { required: true },
+    props: {
+      clearable: false,
+      placeholder: "请选择访问模式"
+    },
+    visible: model => isAppMenu(model.parent_id)
+  },
+  {
+    prop: "meta.app.in_tab_bar",
+    label: "底部导航栏",
+    component: "switch",
+    labelTooltip: "开启后，该页面会显示在移动端底部导航栏中。底部导航栏只能配置 0 项或 2–5 项，开启时需同时填写默认图标和选中图标。",
+    props: {
+      inlinePrompt: true,
+      activeText: "是",
+      inactiveText: "否",
+      activeValue: true,
+      inactiveValue: false
+    },
+    visible: model => isAppMenu(model.parent_id)
+  },
+  {
+    prop: "meta.app.selected_icon",
+    label: "选中图标",
+    component: "input",
+    labelTooltip: "填写移动端模块注册的图标键或 HTTPS 图片地址。",
+    itemProps: { required: true },
+    props: { placeholder: "例如 HOME_SELECTED" },
+    visible: model => isAppMenu(model.parent_id) && Boolean(model.meta?.app?.in_tab_bar)
   },
   {
     prop: "component",
@@ -407,10 +514,10 @@ const formFields = computed<ProFormField[]>(() => [
     component: "input",
     labelTooltip: "组件页面完整路径，格式为模块名/模块内 views 路径，例如 system/base/user/index，缺省后缀 .vue。",
     itemProps: model => ({
-      required: model.type === BaseMenuType.MENU
+      required: model.type === BaseMenuType.MENU && !isAppMenu(model.parent_id)
     }),
     props: { placeholder: "system/base/user/index" },
-    visible: model => model.type === BaseMenuType.MENU
+    visible: model => model.type === BaseMenuType.MENU && !isAppMenu(model.parent_id)
   },
   {
     prop: "meta.hidden",
@@ -423,7 +530,7 @@ const formFields = computed<ProFormField[]>(() => [
       activeValue: true,
       inactiveValue: false
     },
-    visible: model => model.type !== BaseMenuType.BUTTON
+    visible: model => !isAppMenu(model.parent_id) && model.type !== BaseMenuType.BUTTON
   },
   {
     prop: "meta.always_show",
@@ -437,7 +544,7 @@ const formFields = computed<ProFormField[]>(() => [
       activeValue: true,
       inactiveValue: false
     },
-    visible: model => model.type === BaseMenuType.FOLDER || model.type === BaseMenuType.MENU
+    visible: model => !isAppMenu(model.parent_id) && (model.type === BaseMenuType.FOLDER || model.type === BaseMenuType.MENU)
   },
   {
     prop: "meta.keep_alive",
@@ -450,7 +557,7 @@ const formFields = computed<ProFormField[]>(() => [
       activeValue: true,
       inactiveValue: false
     },
-    visible: model => model.type === BaseMenuType.MENU
+    visible: model => !isAppMenu(model.parent_id) && model.type === BaseMenuType.MENU
   },
   {
     prop: "meta.full",
@@ -463,7 +570,7 @@ const formFields = computed<ProFormField[]>(() => [
       activeValue: true,
       inactiveValue: false
     },
-    visible: model => model.type === BaseMenuType.MENU
+    visible: model => !isAppMenu(model.parent_id) && model.type === BaseMenuType.MENU
   },
   {
     prop: "meta.affix",
@@ -476,7 +583,7 @@ const formFields = computed<ProFormField[]>(() => [
       activeValue: true,
       inactiveValue: false
     },
-    visible: model => model.type === BaseMenuType.MENU
+    visible: model => !isAppMenu(model.parent_id) && model.type === BaseMenuType.MENU
   },
   {
     prop: "meta.params",
@@ -491,7 +598,7 @@ const formFields = computed<ProFormField[]>(() => [
     itemProps: {
       class: "menu-form__params"
     },
-    visible: model => model.type === BaseMenuType.MENU
+    visible: model => !isAppMenu(model.parent_id) && model.type === BaseMenuType.MENU
   },
   {
     prop: "api",
@@ -548,10 +655,38 @@ const rules = computed<FormRules>(() => ({
     {
       validator: (_rule, value, callback) => {
         if (formData.type === BaseMenuType.BUTTON) return callback();
+        if (isAppMenu(formData.parent_id) && !formData.meta.app?.in_tab_bar) return callback();
         if (value) return callback();
-        callback(new Error("请选择菜单图标"));
+        callback(new Error(isAppMenu(formData.parent_id) ? "请输入默认图标" : "请选择菜单图标"));
       },
       trigger: "change"
+    }
+  ],
+  "meta.app.view_key": [
+    {
+      validator: (_rule, value, callback) => {
+        if (!isAppMenu(formData.parent_id) || value) return callback();
+        callback(new Error("请输入视图键"));
+      },
+      trigger: "blur"
+    }
+  ],
+  "meta.app.access": [
+    {
+      validator: (_rule, value, callback) => {
+        if (!isAppMenu(formData.parent_id) || value) return callback();
+        callback(new Error("请选择访问模式"));
+      },
+      trigger: "change"
+    }
+  ],
+  "meta.app.selected_icon": [
+    {
+      validator: (_rule, value, callback) => {
+        if (!isAppMenu(formData.parent_id) || !formData.meta.app?.in_tab_bar || value) return callback();
+        callback(new Error("请输入选中图标"));
+      },
+      trigger: "blur"
     }
   ],
   path: [
@@ -559,10 +694,15 @@ const rules = computed<FormRules>(() => ({
     {
       validator: (_rule, value, callback) => {
         if (formData.type === BaseMenuType.FOLDER) return callback();
-        if (value) return callback();
-        if (formData.type === BaseMenuType.BUTTON) return callback(new Error("请输入权限标识"));
-        if (formData.type === BaseMenuType.EXT_LINK) return callback(new Error("请输入完整外链地址"));
-        callback(new Error("请输入路由路径"));
+        if (!value) {
+          if (formData.type === BaseMenuType.BUTTON) return callback(new Error("请输入权限标识"));
+          if (formData.type === BaseMenuType.EXT_LINK) return callback(new Error("请输入完整外链地址"));
+          return callback(new Error(isAppMenu(formData.parent_id) ? "请输入逻辑路径" : "请输入路由路径"));
+        }
+        if (isAppMenu(formData.parent_id) && !String(value).startsWith("app/")) {
+          return callback(new Error("移动端逻辑路径必须使用 app/ 前缀"));
+        }
+        callback();
       },
       trigger: "blur"
     }
@@ -583,8 +723,11 @@ const rules = computed<FormRules>(() => ({
     {
       validator: (_rule, value, callback) => {
         if (formData.type !== BaseMenuType.MENU) return callback();
-        if (value) return callback();
-        callback(new Error("请输入路由名称"));
+        if (!value) return callback(new Error(isAppMenu(formData.parent_id) ? "请输入逻辑名称" : "请输入路由名称"));
+        if (isAppMenu(formData.parent_id) && !String(value).startsWith("App")) {
+          return callback(new Error("移动端逻辑名称必须使用 App 前缀"));
+        }
+        callback();
       },
       trigger: "blur"
     }
@@ -593,7 +736,7 @@ const rules = computed<FormRules>(() => ({
     { max: 255, message: "组件路径不能超过 255 个字符", trigger: "blur" },
     {
       validator: (_rule, value, callback) => {
-        if (formData.type !== BaseMenuType.MENU) return callback();
+        if (formData.type !== BaseMenuType.MENU || isAppMenu(formData.parent_id)) return callback();
         if (value) return callback();
         callback(new Error("请输入组件路径"));
       },
@@ -606,6 +749,7 @@ const rules = computed<FormRules>(() => ({
 
 /** 计算当前路径字段文案。 */
 function getPathFieldLabel() {
+  if (isAppMenu(formData.parent_id)) return "逻辑路径";
   if (formData.type === BaseMenuType.BUTTON) return "权限标识";
   if (formData.type === BaseMenuType.EXT_LINK) return "内部路径";
   return "路由路径";
@@ -613,6 +757,7 @@ function getPathFieldLabel() {
 
 /** 计算当前路径字段占位文案。 */
 function getPathFieldPlaceholder() {
+  if (isAppMenu(formData.parent_id)) return "例如 app/home";
   if (formData.type === BaseMenuType.BUTTON) return "请输入按钮权限标识";
   if (formData.type === BaseMenuType.EXT_LINK) return "external/baidu";
   if (formData.type === BaseMenuType.FOLDER) return "base";
@@ -621,6 +766,7 @@ function getPathFieldPlaceholder() {
 
 /** 计算当前路径字段提示文案。 */
 function getPathFieldTooltip() {
+  if (isAppMenu(formData.parent_id)) return "使用 app/ 前缀的稳定逻辑路径，不填写 uni-app 物理页面路径。";
   if (formData.type === BaseMenuType.BUTTON) return "按钮类型菜单使用权限标识，例如 base:user:create。";
   if (formData.type === BaseMenuType.EXT_LINK) return "外链使用内部唯一路径，例如 external/baidu；实际地址填写在外链地址中。";
   if (formData.type === BaseMenuType.FOLDER) return "目录不填写路径，仅用于组织下级菜单。";
@@ -679,16 +825,18 @@ function normalizeMenuApiSelection(api?: unknown[]) {
 /** 将服务端菜单表单补齐为前端可编辑结构。 */
 function normalizeMenuForm(data?: Partial<BaseMenuForm>): MenuFormState {
   const defaultForm = createDefaultMenuForm();
+  const parentId = data?.parent_id === 0 ? undefined : data?.parent_id;
   const normalizedMeta = {
     ...createDefaultMenuMeta(),
     ...(data?.meta ?? {}),
-    params: data?.meta?.params ?? []
+    params: data?.meta?.params ?? [],
+    app: data?.meta?.app ?? (isAppMenu(parentId) ? createDefaultAppMenuMeta() : undefined)
   };
 
   return {
     ...defaultForm,
     ...data,
-    parent_id: data?.parent_id === 0 ? undefined : data?.parent_id,
+    parent_id: parentId,
     type: data?.type ?? BaseMenuType.FOLDER,
     status: data?.status ?? Status.ENABLE,
     api: normalizeMenuApiSelection(data?.api),
@@ -722,6 +870,19 @@ function buildSubmitPayload(): BaseMenuForm {
   // 一级菜单在表单中保持空白，提交时仍按接口约定传回根节点标识。
   if (payload.id > 0 && payload.parent_id === undefined) payload.parent_id = 0;
   payload.meta.params = (payload.meta.params ?? []).filter(item => item.key || item.value);
+
+  if (isAppMenu(payload.parent_id)) {
+    payload.component = "";
+    payload.redirect = "";
+    payload.meta.app ??= createDefaultAppMenuMeta();
+    payload.meta.always_show = false;
+    payload.meta.hidden = false;
+    payload.meta.keep_alive = false;
+    payload.meta.full = false;
+    payload.meta.affix = false;
+    payload.meta.params = [];
+    if (!payload.meta.app.in_tab_bar) payload.meta.app.selected_icon = undefined;
+  }
 
   if (payload.type === BaseMenuType.BUTTON) {
     payload.name = "";
@@ -897,8 +1058,8 @@ function handleDeleteMenu(selected?: number | string | Array<number | string> | 
     : selected && typeof selected === "object"
       ? [selected as BaseMenu]
       : [];
-  if (menuList.some(item => item.parent_id === 0)) {
-    ElMessage.warning("一级菜单不允许删除");
+  if (menuList.some(item => item.parent_id === 0 || item.id === APP_MENU_ROOT_ID)) {
+    ElMessage.warning("固定菜单不允许删除");
     return;
   }
   const menuIds = (

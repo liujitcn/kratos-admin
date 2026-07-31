@@ -24,7 +24,7 @@ export interface AppMenu {
 
 /** 菜单获取适配器。 */
 export interface AppNavigationAdapter {
-  /** 获取当前访问身份可见的扁平菜单。 */
+  /** 获取扁平移动菜单配置。 */
   list(): Promise<unknown>
 }
 
@@ -248,10 +248,13 @@ function normalizeMenu(value: unknown): AppMenu {
   const app = (meta.app ?? item.app ?? {}) as Record<string, unknown>
   return {
     id: Number(item.id),
-    parentId: item.parent_id === undefined ? undefined : Number(item.parent_id),
+    parentId:
+      item.parent_id === undefined && item.parentId === undefined
+        ? undefined
+        : Number(item.parent_id ?? item.parentId),
     name: String(item.name ?? ''),
     path: String(item.path ?? ''),
-    viewKey: String(item.view_key ?? item.viewKey ?? item.component ?? ''),
+    viewKey: String(app.view_key ?? app.viewKey ?? item.view_key ?? item.viewKey ?? ''),
     title: String(meta.title ?? item.title ?? ''),
     access: String(app.access ?? 'AUTHENTICATED') as AppMenuAccess,
     inTabBar: Boolean(app.in_tab_bar ?? app.inTabBar),

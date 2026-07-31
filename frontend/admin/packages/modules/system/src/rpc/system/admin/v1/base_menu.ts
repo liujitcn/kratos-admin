@@ -166,6 +166,20 @@ export interface BaseMenuMeta {
     | undefined;
   /** 参数 */
   params: BaseMenuParams[];
+  /** 移动端页面配置 */
+  app: BaseMenuAppMeta | undefined;
+}
+
+/** 移动端页面配置 */
+export interface BaseMenuAppMeta {
+  /** 已注册的稳定视图键 */
+  view_key: string;
+  /** 页面访问模式 */
+  access: string;
+  /** 是否显示在自绘标签栏 */
+  in_tab_bar: boolean;
+  /** 标签栏选中图标 */
+  selected_icon?: string | undefined;
 }
 
 /** 菜单参数 */

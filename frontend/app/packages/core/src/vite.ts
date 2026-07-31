@@ -1,5 +1,5 @@
 import {
-  cpSync,
+  copyFileSync,
   existsSync,
   mkdirSync,
   readFileSync,
@@ -37,7 +37,8 @@ type BuildTransaction = {
   pagesFile: string
   originalPages: string
   generatedFiles: string[]
-  generatedStatic: boolean
+  generatedStaticFiles: string[]
+  generatedStatic?: boolean
 }
 
 /** app Vite 插件参数。 */
@@ -62,11 +63,11 @@ export function kratosApp(options: KratosAppViteOptions): Plugin {
     pagesFile?: string
     originalPages?: string
     generatedFiles: string[]
-    generatedStatic: boolean
+    generatedStaticFiles: string[]
     cleaned: boolean
     transactionFile?: string
     moduleRoots: Map<string, string>
-  } = { generatedFiles: [], generatedStatic: false, cleaned: false, moduleRoots: new Map() }
+  } = { generatedFiles: [], generatedStaticFiles: [], cleaned: false, moduleRoots: new Map() }
 
   const cleanup = () => {
     if (state.cleaned) return
@@ -74,12 +75,12 @@ export function kratosApp(options: KratosAppViteOptions): Plugin {
     process.removeListener('exit', cleanup)
     process.removeListener('SIGINT', handleSigint)
     process.removeListener('SIGTERM', handleSigterm)
-    state.generatedFiles.reverse().forEach((file) => {
+    for (const file of [...state.generatedFiles].reverse()) {
       if (existsSync(file)) unlinkSync(file)
       removeEmptyParents(dirname(file), state.inputDir ?? '')
-    })
-    if (state.generatedStatic && state.inputDir) {
-      rmSync(resolve(state.inputDir, 'static'), { recursive: true, force: true })
+    }
+    if (state.inputDir) {
+      removeGeneratedStaticFiles(state.generatedStaticFiles, resolve(state.inputDir, 'static'))
     }
     if (state.pagesFile && state.originalPages !== undefined) {
       writeFileSync(state.pagesFile, state.originalPages)
@@ -100,7 +101,7 @@ export function kratosApp(options: KratosAppViteOptions): Plugin {
   return {
     name: 'kratos-app-pages',
     enforce: 'pre',
-    resolveId(source) {
+    resolveId(source, importer) {
       const [sourcePath, query = ''] = source.split('?', 2)
       let target: string | undefined
       if (
@@ -138,7 +139,8 @@ export function kratosApp(options: KratosAppViteOptions): Plugin {
       }
       if (!target) return
       const resolved = resolveSourceFile(target)
-      return `${resolved}${query ? `?${query}` : ''}`
+      const importQuery = query || dependencyVersionQuery(importer)
+      return `${resolved}${importQuery ? `?${importQuery}` : ''}`
     },
     transform(code, id) {
       const sourceFile = id.split('?', 1)[0]
@@ -195,7 +197,12 @@ export function kratosApp(options: KratosAppViteOptions): Plugin {
       state.generatedFiles = [...pageMap.values()]
         .map((page) => resolve(inputDir, `${page.route}.vue`))
         .filter((target) => !existsSync(target))
-      state.generatedStatic = !existsSync(resolve(inputDir, 'static'))
+      const staticTarget = resolve(inputDir, 'static')
+      const staticFiles = collectModuleStaticFiles(
+        moduleRoots.map(({ root }) => resolve(root, 'src/static')),
+        staticTarget,
+      )
+      state.generatedStaticFiles = staticFiles.map(({ target }) => target)
       writeFileSync(
         transactionFile,
         `${JSON.stringify(
@@ -204,7 +211,7 @@ export function kratosApp(options: KratosAppViteOptions): Plugin {
             pagesFile,
             originalPages,
             generatedFiles: state.generatedFiles,
-            generatedStatic: state.generatedStatic,
+            generatedStaticFiles: state.generatedStaticFiles,
           } satisfies BuildTransaction,
           null,
           2,
@@ -218,13 +225,10 @@ export function kratosApp(options: KratosAppViteOptions): Plugin {
         appendPage(manifest, page)
       })
 
-      const staticTarget = resolve(inputDir, 'static')
-      if (state.generatedStatic) {
-        moduleRoots.forEach(({ root }) => {
-          const source = resolve(root, 'src/static')
-          if (existsSync(source)) cpSync(source, staticTarget, { recursive: true })
-        })
-      }
+      staticFiles.forEach(({ source, target }) => {
+        mkdirSync(dirname(target), { recursive: true })
+        copyFileSync(source, target)
+      })
       writeFileSync(pagesFile, `${JSON.stringify(manifest, null, 2)}\n`)
       process.once('exit', cleanup)
       process.prependOnceListener('SIGINT', handleSigint)
@@ -267,15 +271,52 @@ function recoverBuildTransaction(
   if (transaction.inputDir !== inputDir || transaction.pagesFile !== pagesFile) {
     throw new Error(`app 构建事务目录不匹配：${transactionFile}`)
   }
-  transaction.generatedFiles.reverse().forEach((file) => {
+  for (const file of [...transaction.generatedFiles].reverse()) {
     if (existsSync(file)) unlinkSync(file)
     removeEmptyParents(dirname(file), inputDir)
-  })
-  if (transaction.generatedStatic) {
+  }
+  removeGeneratedStaticFiles(transaction.generatedStaticFiles ?? [], resolve(inputDir, 'static'))
+  // 兼容旧事务：旧格式仅在 static 原本不存在时记录整个目录由插件生成。
+  if (transaction.generatedStatic && transaction.generatedStaticFiles === undefined) {
     rmSync(resolve(inputDir, 'static'), { recursive: true, force: true })
   }
   writeFileSync(pagesFile, transaction.originalPages)
   unlinkSync(transactionFile)
+}
+
+function collectModuleStaticFiles(
+  sourceRoots: string[],
+  targetRoot: string,
+): Array<{ source: string; target: string }> {
+  const fileMap = new Map<string, { source: string; target: string }>()
+  sourceRoots.forEach((sourceRoot) => {
+    scanFiles(sourceRoot).forEach((source) => {
+      const target = resolve(targetRoot, relative(sourceRoot, source))
+      if (!existsSync(target)) fileMap.set(target, { source, target })
+    })
+  })
+  return [...fileMap.values()]
+}
+
+function scanFiles(root: string): string[] {
+  if (!existsSync(root)) return []
+  const files: string[] = []
+  const visit = (directory: string) => {
+    readdirSync(directory).forEach((entry) => {
+      const path = resolve(directory, entry)
+      if (statSync(path).isDirectory()) visit(path)
+      else files.push(path)
+    })
+  }
+  visit(root)
+  return files
+}
+
+function removeGeneratedStaticFiles(files: string[], staticRoot: string): void {
+  for (const file of [...files].reverse()) {
+    if (existsSync(file)) unlinkSync(file)
+    removeEmptyParents(dirname(file), staticRoot)
+  }
 }
 
 function scanViews(root: string): Array<{ route: string; source: string }> {
@@ -357,6 +398,13 @@ function resolveSourceFile(target: string): string {
   const resolved = candidates.find((candidate) => existsSync(candidate)) ?? target
   if (!isAbsolute(resolved)) throw new Error(`模块源码路径不是绝对路径：${resolved}`)
   return resolved
+}
+
+// dependencyVersionQuery 继承 Vite 依赖版本参数，避免同一源码生成多个模块实例。
+function dependencyVersionQuery(importer: string | undefined): string {
+  const query = importer?.split('?', 2)[1] ?? ''
+  const version = new URLSearchParams(query).get('v')
+  return version ? `v=${encodeURIComponent(version)}` : ''
 }
 
 function resolveWorkspacePackageSource(packageRoot: string, subpath: string): string {

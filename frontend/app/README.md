@@ -79,7 +79,7 @@ export const moduleManifest = [coreModule, systemModule]
 
 构建插件自动扫描各模块的 `src/views/**/*.vue`，忽略任意层级的 `components` 目录。后注册模块可以用相同物理路由或 `viewKey` 替换前面模块的静态页面。
 
-宿主 `pages.json` 只提交固定 bootstrap 页面。开发或构建期间，插件会临时生成页面 wrapper、合并页面配置并复制 static；正常退出后自动恢复。若进程被强制结束，下次启动会先根据 `.kratos-app-pages-state.json` 恢复上一次事务。
+宿主 `pages.json` 只提交固定 bootstrap 页面。开发或构建期间，插件会临时生成页面 wrapper、合并页面配置，并把模块 static 逐文件合并到宿主；同名宿主文件优先，事务只记录和清理插件实际写入的文件。正常退出后自动恢复。若进程被强制结束，下次启动会先根据 `.kratos-app-pages-state.json` 恢复上一次事务。
 
 ## 动态导航
 
@@ -89,16 +89,19 @@ export const moduleManifest = [coreModule, systemModule]
 GET /api/v1/app/base/menu
 ```
 
-请求 service path 为 `/v1/app/base/menu`，由统一 `/api` base 拼接。接口返回扁平菜单，core 不做树转换；也可以通过 `setAppNavigationAdapter()` 接入兼容契约。
+请求 service path 为 `/v1/app/base/menu`，由统一 `/api` base 拼接。后端固定查询 `base_menu.id = 99901` 下的启用页面并返回扁平菜单，core 不做树转换；也可以通过 `setAppNavigationAdapter()` 接入兼容契约。`99901` 根菜单只关联移动菜单查询，每个页面菜单分别关联该页面实际调用的受保护 API。
 
 菜单配置约束：
 
 - `path` 使用 `app/` 前缀，支持 `:参数` 和 query。
 - `name` 使用 `App` 前缀。
-- `viewKey` 必须已由模块注册，接口不能直接下发任意组件路径。
-- `access` 支持 `PUBLIC`、`GUEST_ONLY`、`AUTHENTICATED`，与管理端登录权限语义一致。
-- `inTabBar` 为真时，tab 数量只能为 0 或 2–5 项。
-- 图标可以使用 HTTPS 地址或模块 `icons` 中注册的键。
+- 标题和主图标使用 `meta.title`、`meta.icon`，图标可以使用 HTTPS 地址或模块 `icons` 中注册的键。
+- 移动端配置统一放在 `meta.app`，不增加独立表字段。
+- `meta.app.view_key` 必须已由模块注册，接口不能直接下发任意组件路径。
+- `meta.app.access` 支持 `PUBLIC`、`GUEST_ONLY`、`AUTHENTICATED`，与管理端登录权限语义一致。
+- `meta.app.in_tab_bar` 为真时，tab 数量只能为 0 或 2–5 项；选中图标使用 `meta.app.selected_icon`。
+
+管理端菜单表单以 `parent_id = 99901` 识别移动端页面，显示逻辑路径、逻辑名称、视图键、访问模式、底部导航栏、移动端图标及该页面 API 权限；提交时移动端配置统一包装到现有 `meta.app`。
 
 导航配置按匿名态和登录态分别缓存。新配置会整份校验后原子切换；远端失败时使用当前身份最后一次成功缓存，没有缓存时使用本地默认菜单。
 
@@ -165,7 +168,7 @@ pnpm dlx @liujitcn/kratos-app-cli create my-app --with @acme/pay
 
 ## 包与验证
 
-公开包均保持 `0.0.1`：
+三个公开包版本必须保持一致：
 
 - `@liujitcn/kratos-app-core`
 - `@liujitcn/kratos-app-system`

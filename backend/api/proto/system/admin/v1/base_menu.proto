@@ -228,6 +228,19 @@ message BaseMenuMeta {
   optional bool affix = 8 [(gnostic.openapi.v3.property) = {description: "【菜单】是否固定在标签页中(首页通常是固定项)"}]; // 【菜单】是否固定在标签页中(首页通常是固定项)
 
   repeated BaseMenuParams params = 9 [(gnostic.openapi.v3.property) = {description: "参数"}]; // 参数
+
+  BaseMenuAppMeta app = 10 [(gnostic.openapi.v3.property) = {description: "移动端页面配置"}]; // 移动端页面配置
+}
+
+// 移动端页面配置
+message BaseMenuAppMeta {
+  string view_key = 1 [(gnostic.openapi.v3.property) = {description: "已注册的稳定视图键"}]; // 已注册的稳定视图键
+
+  string access = 2 [(gnostic.openapi.v3.property) = {description: "页面访问模式"}]; // 页面访问模式
+
+  bool in_tab_bar = 3 [(gnostic.openapi.v3.property) = {description: "是否显示在自绘标签栏"}]; // 是否显示在自绘标签栏
+
+  optional string selected_icon = 4 [(gnostic.openapi.v3.property) = {description: "标签栏选中图标"}]; // 标签栏选中图标
 }
 
 // 菜单参数

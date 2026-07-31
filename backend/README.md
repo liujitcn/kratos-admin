@@ -37,7 +37,7 @@ backend
 | --- | --- | --- |
 | `base.v1` | 登录、OAuth、配置、文件、AI、SSE、MCP。 | admin 与 app 共用 |
 | `system.admin.v1` | 系统管理、个人中心、代码生成和迁移历史。 | 管理后台 |
-| `system.app.v1` | 应用端资料、地区和字典。 | 应用端 |
+| `system.app.v1` | 应用端资料、地区、字典和移动菜单。 | 应用端 |
 
 HTTP 路径由 Proto 的 `google.api.http` 生成；请求校验由 `buf.validate` 和全局 protovalidate 中间件执行。服务端业务错误统一使用 `core/pkg/errorsx`。
 
@@ -117,7 +117,7 @@ migration/assets/
 | `make ts` | 管理端 core 与 System 包的 TypeScript RPC。 |
 | `make ts-app` | app core 与 system 包的 TypeScript RPC。 |
 | `make project-docs` | `internal/projectdocs/assets/catalog.json` 和 `internal/projectdocs/catalog_gen.go`，收集三层范围内的 `README.md` 和 `docs` Markdown。 |
-| `make gorm-gen` | `internal/data/gen`。可用 `GORM_GEN_SOURCE`、`GORM_TABLE` 覆盖数据源和表。 |
+| `make gorm-gen` | `internal/data/gen`。默认读取 `configs/data_local.yaml`，可用 `GORM_GEN_CONFIG`、`GORM_GEN_DATABASE`、`GORM_TABLE` 覆盖配置、数据源和表。 |
 | `make wire` | `wire_gen.go`。 |
 | `make gen` | 依次执行以上生成和 Go 格式化。 |
 

@@ -44,6 +44,8 @@ const (
 const (
 	// BASE_MENU_HIDDEN_ROOT_ID 表示隐藏菜单根节点。
 	BASE_MENU_HIDDEN_ROOT_ID = int64(999)
+	// BASE_MENU_APP_ROOT_ID 表示固定移动端菜单根节点。
+	BASE_MENU_APP_ROOT_ID = int64(99901)
 	// BASE_MENU_TYPE_FOLDER 表示目录菜单节点。
 	BASE_MENU_TYPE_FOLDER = int32(systemcommonv1.BaseMenuType_FOLDER)
 	// BASE_MENU_TYPE_MENU 表示页面菜单节点。

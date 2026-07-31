@@ -409,6 +409,9 @@ func (r *Runtime) StaticMounts() []coreStatic.Mount {
 	return core.Modules(r.modules).StaticMounts()
 }
 
+// repositoryProviderSet 只装配仓储，数据库客户端统一由配置层完成多数据源和迁移初始化。
+var repositoryProviderSet = data.RepositoryProviderSet
+
 var moduleProviderSet = wire.NewSet(
 	event.NewUserEvents,
 	job.ProviderSet,
@@ -423,7 +426,7 @@ var moduleProviderSet = wire.NewSet(
 	einoModel.NewResponsesClient,
 	ai.NewRuntime,
 	systemConfig.ProviderSet,
-	data.RepositoryProviderSet,
+	repositoryProviderSet,
 	middleware.ProviderSet,
 	newAdditionalProjectDocuments,
 	newProjectDocumentCatalog,

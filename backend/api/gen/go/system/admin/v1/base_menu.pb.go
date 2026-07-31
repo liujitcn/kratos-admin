@@ -705,6 +705,7 @@ type BaseMenuMeta struct {
 	Full          *bool                  `protobuf:"varint,7,opt,name=full,proto3,oneof" json:"full,omitempty"`                               // 【菜单】是否全屏(示例：数据大屏页面)
 	Affix         *bool                  `protobuf:"varint,8,opt,name=affix,proto3,oneof" json:"affix,omitempty"`                             // 【菜单】是否固定在标签页中(首页通常是固定项)
 	Params        []*BaseMenuParams      `protobuf:"bytes,9,rep,name=params,proto3" json:"params,omitempty"`                                  // 参数
+	App           *BaseMenuAppMeta       `protobuf:"bytes,10,opt,name=app,proto3" json:"app,omitempty"`                                       // 移动端页面配置
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -795,6 +796,82 @@ func (x *BaseMenuMeta) GetParams() []*BaseMenuParams {
 	return nil
 }
 
+func (x *BaseMenuMeta) GetApp() *BaseMenuAppMeta {
+	if x != nil {
+		return x.App
+	}
+	return nil
+}
+
+// 移动端页面配置
+type BaseMenuAppMeta struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ViewKey       string                 `protobuf:"bytes,1,opt,name=view_key,json=viewKey,proto3" json:"view_key,omitempty"`                      // 已注册的稳定视图键
+	Access        string                 `protobuf:"bytes,2,opt,name=access,proto3" json:"access,omitempty"`                                       // 页面访问模式
+	InTabBar      bool                   `protobuf:"varint,3,opt,name=in_tab_bar,json=inTabBar,proto3" json:"in_tab_bar,omitempty"`                // 是否显示在自绘标签栏
+	SelectedIcon  *string                `protobuf:"bytes,4,opt,name=selected_icon,json=selectedIcon,proto3,oneof" json:"selected_icon,omitempty"` // 标签栏选中图标
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BaseMenuAppMeta) Reset() {
+	*x = BaseMenuAppMeta{}
+	mi := &file_system_admin_v1_base_menu_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BaseMenuAppMeta) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BaseMenuAppMeta) ProtoMessage() {}
+
+func (x *BaseMenuAppMeta) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_menu_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BaseMenuAppMeta.ProtoReflect.Descriptor instead.
+func (*BaseMenuAppMeta) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_menu_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *BaseMenuAppMeta) GetViewKey() string {
+	if x != nil {
+		return x.ViewKey
+	}
+	return ""
+}
+
+func (x *BaseMenuAppMeta) GetAccess() string {
+	if x != nil {
+		return x.Access
+	}
+	return ""
+}
+
+func (x *BaseMenuAppMeta) GetInTabBar() bool {
+	if x != nil {
+		return x.InTabBar
+	}
+	return false
+}
+
+func (x *BaseMenuAppMeta) GetSelectedIcon() string {
+	if x != nil && x.SelectedIcon != nil {
+		return *x.SelectedIcon
+	}
+	return ""
+}
+
 // 菜单参数
 type BaseMenuParams struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -806,7 +883,7 @@ type BaseMenuParams struct {
 
 func (x *BaseMenuParams) Reset() {
 	*x = BaseMenuParams{}
-	mi := &file_system_admin_v1_base_menu_proto_msgTypes[11]
+	mi := &file_system_admin_v1_base_menu_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -818,7 +895,7 @@ func (x *BaseMenuParams) String() string {
 func (*BaseMenuParams) ProtoMessage() {}
 
 func (x *BaseMenuParams) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_menu_proto_msgTypes[11]
+	mi := &file_system_admin_v1_base_menu_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -831,7 +908,7 @@ func (x *BaseMenuParams) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseMenuParams.ProtoReflect.Descriptor instead.
 func (*BaseMenuParams) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_menu_proto_rawDescGZIP(), []int{11}
+	return file_system_admin_v1_base_menu_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *BaseMenuParams) GetKey() string {
@@ -928,7 +1005,7 @@ const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12G\n" +
 	"\bchildren\x18\xac\x02 \x03(\v2\x19.system.admin.v1.BaseMenuB\x0f\xbaG\f\x92\x02\t子菜单R\bchildren\x12?\n" +
-	"\fhas_children\x18\xad\x02 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否存在子节点R\vhasChildren\"\xa2\x05\n" +
+	"\fhas_children\x18\xad\x02 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否存在子节点R\vhasChildren\"\xf3\x05\n" +
 	"\fBaseMenuMeta\x12(\n" +
 	"\x05title\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f菜单标题R\x05title\x12+\n" +
 	"\x04icon\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f菜单图标H\x00R\x04icon\x88\x01\x01\x12_\n" +
@@ -939,13 +1016,22 @@ const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"keep_alive\x18\x06 \x01(\bB*\xbaG'\x92\x02$【菜单】是否开启页面缓存H\x03R\tkeepAlive\x88\x01\x01\x12T\n" +
 	"\x04full\x18\a \x01(\bB;\xbaG8\x92\x025【菜单】是否全屏(示例：数据大屏页面)H\x04R\x04full\x88\x01\x01\x12b\n" +
 	"\x05affix\x18\b \x01(\bBG\xbaGD\x92\x02A【菜单】是否固定在标签页中(首页通常是固定项)H\x05R\x05affix\x88\x01\x01\x12E\n" +
-	"\x06params\x18\t \x03(\v2\x1f.system.admin.v1.BaseMenuParamsB\f\xbaG\t\x92\x02\x06参数R\x06paramsB\a\n" +
+	"\x06params\x18\t \x03(\v2\x1f.system.admin.v1.BaseMenuParamsB\f\xbaG\t\x92\x02\x06参数R\x06params\x12O\n" +
+	"\x03app\x18\n" +
+	" \x01(\v2 .system.admin.v1.BaseMenuAppMetaB\x1b\xbaG\x18\x92\x02\x15移动端页面配置R\x03appB\a\n" +
 	"\x05_iconB\x0e\n" +
 	"\f_always_showB\t\n" +
 	"\a_hiddenB\r\n" +
 	"\v_keep_aliveB\a\n" +
 	"\x05_fullB\b\n" +
-	"\x06_affix\"\\\n" +
+	"\x06_affix\"\x9e\x02\n" +
+	"\x0fBaseMenuAppMeta\x12<\n" +
+	"\bview_key\x18\x01 \x01(\tB!\xbaG\x1e\x92\x02\x1b已注册的稳定视图键R\aviewKey\x120\n" +
+	"\x06access\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12页面访问模式R\x06access\x12B\n" +
+	"\n" +
+	"in_tab_bar\x18\x03 \x01(\bB$\xbaG!\x92\x02\x1e是否显示在自绘标签栏R\binTabBar\x12E\n" +
+	"\rselected_icon\x18\x04 \x01(\tB\x1b\xbaG\x18\x92\x02\x15标签栏选中图标H\x00R\fselectedIcon\x88\x01\x01B\x10\n" +
+	"\x0e_selected_icon\"\\\n" +
 	"\x0eBaseMenuParams\x12!\n" +
 	"\x03key\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t参数keyR\x03key\x12'\n" +
 	"\x05value\x18\x02 \x01(\tB\x11\xbaG\x0e\x92\x02\v参数valueR\x05value2\x9c\a\n" +
@@ -971,7 +1057,7 @@ func file_system_admin_v1_base_menu_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_base_menu_proto_rawDescData
 }
 
-var file_system_admin_v1_base_menu_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_system_admin_v1_base_menu_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_system_admin_v1_base_menu_proto_goTypes = []any{
 	(*OptionBaseMenuRequest)(nil),    // 0: system.admin.v1.OptionBaseMenuRequest
 	(*TreeBaseMenuRequest)(nil),      // 1: system.admin.v1.TreeBaseMenuRequest
@@ -984,43 +1070,45 @@ var file_system_admin_v1_base_menu_proto_goTypes = []any{
 	(*SetBaseMenuStatusRequest)(nil), // 8: system.admin.v1.SetBaseMenuStatusRequest
 	(*BaseMenu)(nil),                 // 9: system.admin.v1.BaseMenu
 	(*BaseMenuMeta)(nil),             // 10: system.admin.v1.BaseMenuMeta
-	(*BaseMenuParams)(nil),           // 11: system.admin.v1.BaseMenuParams
-	(v1.BaseMenuType)(0),             // 12: system.common.v1.BaseMenuType
-	(v11.Status)(0),                  // 13: common.v1.Status
-	(*v11.TreeOptionResponse)(nil),   // 14: common.v1.TreeOptionResponse
-	(*emptypb.Empty)(nil),            // 15: google.protobuf.Empty
+	(*BaseMenuAppMeta)(nil),          // 11: system.admin.v1.BaseMenuAppMeta
+	(*BaseMenuParams)(nil),           // 12: system.admin.v1.BaseMenuParams
+	(v1.BaseMenuType)(0),             // 13: system.common.v1.BaseMenuType
+	(v11.Status)(0),                  // 14: common.v1.Status
+	(*v11.TreeOptionResponse)(nil),   // 15: common.v1.TreeOptionResponse
+	(*emptypb.Empty)(nil),            // 16: google.protobuf.Empty
 }
 var file_system_admin_v1_base_menu_proto_depIdxs = []int32{
 	9,  // 0: system.admin.v1.TreeBaseMenuResponse.base_menus:type_name -> system.admin.v1.BaseMenu
-	12, // 1: system.admin.v1.BaseMenuForm.type:type_name -> system.common.v1.BaseMenuType
+	13, // 1: system.admin.v1.BaseMenuForm.type:type_name -> system.common.v1.BaseMenuType
 	10, // 2: system.admin.v1.BaseMenuForm.meta:type_name -> system.admin.v1.BaseMenuMeta
-	13, // 3: system.admin.v1.BaseMenuForm.status:type_name -> common.v1.Status
+	14, // 3: system.admin.v1.BaseMenuForm.status:type_name -> common.v1.Status
 	4,  // 4: system.admin.v1.CreateBaseMenuRequest.base_menu:type_name -> system.admin.v1.BaseMenuForm
 	4,  // 5: system.admin.v1.UpdateBaseMenuRequest.base_menu:type_name -> system.admin.v1.BaseMenuForm
-	12, // 6: system.admin.v1.BaseMenu.type:type_name -> system.common.v1.BaseMenuType
+	13, // 6: system.admin.v1.BaseMenu.type:type_name -> system.common.v1.BaseMenuType
 	10, // 7: system.admin.v1.BaseMenu.meta:type_name -> system.admin.v1.BaseMenuMeta
-	13, // 8: system.admin.v1.BaseMenu.status:type_name -> common.v1.Status
+	14, // 8: system.admin.v1.BaseMenu.status:type_name -> common.v1.Status
 	9,  // 9: system.admin.v1.BaseMenu.children:type_name -> system.admin.v1.BaseMenu
-	11, // 10: system.admin.v1.BaseMenuMeta.params:type_name -> system.admin.v1.BaseMenuParams
-	0,  // 11: system.admin.v1.BaseMenuService.OptionBaseMenu:input_type -> system.admin.v1.OptionBaseMenuRequest
-	1,  // 12: system.admin.v1.BaseMenuService.TreeBaseMenu:input_type -> system.admin.v1.TreeBaseMenuRequest
-	3,  // 13: system.admin.v1.BaseMenuService.GetBaseMenu:input_type -> system.admin.v1.GetBaseMenuRequest
-	5,  // 14: system.admin.v1.BaseMenuService.CreateBaseMenu:input_type -> system.admin.v1.CreateBaseMenuRequest
-	6,  // 15: system.admin.v1.BaseMenuService.UpdateBaseMenu:input_type -> system.admin.v1.UpdateBaseMenuRequest
-	7,  // 16: system.admin.v1.BaseMenuService.DeleteBaseMenu:input_type -> system.admin.v1.DeleteBaseMenuRequest
-	8,  // 17: system.admin.v1.BaseMenuService.SetBaseMenuStatus:input_type -> system.admin.v1.SetBaseMenuStatusRequest
-	14, // 18: system.admin.v1.BaseMenuService.OptionBaseMenu:output_type -> common.v1.TreeOptionResponse
-	2,  // 19: system.admin.v1.BaseMenuService.TreeBaseMenu:output_type -> system.admin.v1.TreeBaseMenuResponse
-	4,  // 20: system.admin.v1.BaseMenuService.GetBaseMenu:output_type -> system.admin.v1.BaseMenuForm
-	15, // 21: system.admin.v1.BaseMenuService.CreateBaseMenu:output_type -> google.protobuf.Empty
-	15, // 22: system.admin.v1.BaseMenuService.UpdateBaseMenu:output_type -> google.protobuf.Empty
-	15, // 23: system.admin.v1.BaseMenuService.DeleteBaseMenu:output_type -> google.protobuf.Empty
-	15, // 24: system.admin.v1.BaseMenuService.SetBaseMenuStatus:output_type -> google.protobuf.Empty
-	18, // [18:25] is the sub-list for method output_type
-	11, // [11:18] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	12, // 10: system.admin.v1.BaseMenuMeta.params:type_name -> system.admin.v1.BaseMenuParams
+	11, // 11: system.admin.v1.BaseMenuMeta.app:type_name -> system.admin.v1.BaseMenuAppMeta
+	0,  // 12: system.admin.v1.BaseMenuService.OptionBaseMenu:input_type -> system.admin.v1.OptionBaseMenuRequest
+	1,  // 13: system.admin.v1.BaseMenuService.TreeBaseMenu:input_type -> system.admin.v1.TreeBaseMenuRequest
+	3,  // 14: system.admin.v1.BaseMenuService.GetBaseMenu:input_type -> system.admin.v1.GetBaseMenuRequest
+	5,  // 15: system.admin.v1.BaseMenuService.CreateBaseMenu:input_type -> system.admin.v1.CreateBaseMenuRequest
+	6,  // 16: system.admin.v1.BaseMenuService.UpdateBaseMenu:input_type -> system.admin.v1.UpdateBaseMenuRequest
+	7,  // 17: system.admin.v1.BaseMenuService.DeleteBaseMenu:input_type -> system.admin.v1.DeleteBaseMenuRequest
+	8,  // 18: system.admin.v1.BaseMenuService.SetBaseMenuStatus:input_type -> system.admin.v1.SetBaseMenuStatusRequest
+	15, // 19: system.admin.v1.BaseMenuService.OptionBaseMenu:output_type -> common.v1.TreeOptionResponse
+	2,  // 20: system.admin.v1.BaseMenuService.TreeBaseMenu:output_type -> system.admin.v1.TreeBaseMenuResponse
+	4,  // 21: system.admin.v1.BaseMenuService.GetBaseMenu:output_type -> system.admin.v1.BaseMenuForm
+	16, // 22: system.admin.v1.BaseMenuService.CreateBaseMenu:output_type -> google.protobuf.Empty
+	16, // 23: system.admin.v1.BaseMenuService.UpdateBaseMenu:output_type -> google.protobuf.Empty
+	16, // 24: system.admin.v1.BaseMenuService.DeleteBaseMenu:output_type -> google.protobuf.Empty
+	16, // 25: system.admin.v1.BaseMenuService.SetBaseMenuStatus:output_type -> google.protobuf.Empty
+	19, // [19:26] is the sub-list for method output_type
+	12, // [12:19] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_menu_proto_init() }
@@ -1032,13 +1120,14 @@ func file_system_admin_v1_base_menu_proto_init() {
 	file_system_admin_v1_base_menu_proto_msgTypes[1].OneofWrappers = []any{}
 	file_system_admin_v1_base_menu_proto_msgTypes[4].OneofWrappers = []any{}
 	file_system_admin_v1_base_menu_proto_msgTypes[10].OneofWrappers = []any{}
+	file_system_admin_v1_base_menu_proto_msgTypes[11].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_base_menu_proto_rawDesc), len(file_system_admin_v1_base_menu_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

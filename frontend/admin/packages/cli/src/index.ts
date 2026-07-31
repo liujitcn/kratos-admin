@@ -36,7 +36,7 @@ export async function createBusinessWorkspace(options: CreateWorkspaceOptions): 
   validateName(projectName, "项目名称");
   if (await pathExists(target)) throw new Error(`目标目录已存在，拒绝覆盖: ${target}`);
 
-  const packageVersion = await readCorePackageVersion();
+  const packageVersion = await readCliPackageVersion();
   const primaryModuleTokens = createModuleTokens(primaryModuleName, packageVersion);
   const moduleManifestEntries = [
     {
@@ -157,9 +157,10 @@ async function renderDirectory(source: string, target: string, tokens: Record<st
   }
 }
 
-/** 读取 core 版本，作为生成项目默认的公开包版本。 */
-async function readCorePackageVersion(): Promise<string> {
-  const packageJson = JSON.parse(await readFile(resolve(packageRoot, "../core/package.json"), "utf8"));
+/** 读取当前 CLI 版本，作为生成项目默认的公开包版本。 */
+async function readCliPackageVersion(): Promise<string> {
+  const packageJson = JSON.parse(await readFile(resolve(packageRoot, "package.json"), "utf8")) as { version?: unknown };
+  if (typeof packageJson.version !== "string" || !packageJson.version) throw new Error("CLI package.json 缺少有效版本");
   return packageJson.version;
 }
 

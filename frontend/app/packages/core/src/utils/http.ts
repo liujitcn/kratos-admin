@@ -73,8 +73,12 @@ const httpInterceptor = {
   // 拦截前触发
   invoke(options: UniApp.RequestOptions) {
     const authMode = (options as HttpRequestOptions).authMode
-    // 1. 非 http 开头需拼接地址
-    if (!options.url.startsWith('http')) {
+    // 1. 相对接口地址只拼接一次基础路径，兼容 HMR 等场景下拦截器重复注册。
+    if (
+      !options.url.startsWith('http') &&
+      options.url !== baseURL &&
+      !options.url.startsWith(`${baseURL}/`)
+    ) {
       options.url = baseURL + options.url
     }
     // 2. 请求超时，普通请求默认 10s；流式等长连接可自行传入更长超时。

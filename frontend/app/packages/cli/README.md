@@ -22,6 +22,8 @@ CLI 直接由 `src/index.mjs` 生成文件，不依赖外部模板目录。
 - 使用 `--module` 创建 workspace 内本地模块。
 - 使用 `--with` 安装额外的已发布模块。
 - 校验模块名和包名，目标目录已存在时拒绝覆盖。
+- core、system 和本地模块的 core 依赖版本统一跟随当前 CLI 包版本。
+- 生成的宿主在登录、退出和静默退出后重新加载当前身份的导航配置。
 - 为 workspace 根目录、`apps/app` 和每个本地模块生成同级 `README.md`；每个包含
   `package.json` 的生成目录都有对应的结构与职责说明。
 

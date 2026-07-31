@@ -18,11 +18,9 @@ GORM_GEN_BIN ?= $(or \
 	$(shell command -v gorm-gen 2>/dev/null), \
 	$(shell GOBIN=$$(go env GOBIN); GOPATH=$$(go env GOPATH); if [ -n "$$GOBIN" ]; then printf '%s' "$$GOBIN/gorm-gen"; else printf '%s' "$$GOPATH/bin/gorm-gen"; fi) \
 )
-GORM_GEN_SOURCE ?= root:112233@tcp(192.168.60.52:3306)/kratos_admin?charset=utf8&parseTime=True&loc=Local&timeout=1000ms
-GORM_TABLE ?= ai_message,ai_session,\
-	base_api,base_area,base_config,base_dept,base_dict,base_dict_item,base_job,base_job_log,base_log,base_menu,base_migration,base_post,base_role,base_tenant,base_third_account,base_user,\
-	casbin_rule,\
-	code_gen_column,code_gen_proto,code_gen_table
+GORM_GEN_CONFIG ?= configs/data_local.yaml
+GORM_GEN_DATABASE ?=
+GORM_TABLE ?=
 
 # 初始化开发环境
 init: plugin cli
@@ -86,7 +84,7 @@ lint:
 gorm-gen:
 	@echo "==> 生成 GORM 代码"
 	@test -x "$(GORM_GEN_BIN)" || (echo "gorm-gen not found. Run make cli first." && exit 1)
-	$(GORM_GEN_BIN) -base_path=internal/data/gen -source='$(GORM_GEN_SOURCE)' $(if $(strip $(GORM_TABLE)),-table='$(GORM_TABLE)')
+	$(GORM_GEN_BIN) -base_path=internal/data/gen -config='$(GORM_GEN_CONFIG)' $(if $(strip $(GORM_GEN_DATABASE)),-database='$(GORM_GEN_DATABASE)') $(if $(strip $(GORM_TABLE)),-table='$(GORM_TABLE)')
 	@echo "==> GORM 代码生成完成"
 
 # 生成 wire 依赖注入代码

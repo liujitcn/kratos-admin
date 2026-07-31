@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package system.app.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// App菜单服务
+service BaseMenuService {
+  // 查询移动端菜单
+  rpc ListBaseMenu(ListBaseMenuRequest) returns (ListBaseMenuResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/app/base/menu"
+    };
+  }
+}
+
+// 移动端菜单查询条件
+message ListBaseMenuRequest {}
+
+// 移动端菜单响应
+message ListBaseMenuResponse {
+  repeated BaseMenu items = 1 [(gnostic.openapi.v3.property) = {description: "移动端扁平菜单"}]; // 移动端扁平菜单
+}
+
+// 移动端菜单
+message BaseMenu {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "菜单ID"}]; // 菜单ID
+
+  int64 parent_id = 2 [(gnostic.openapi.v3.property) = {description: "父级菜单ID"}]; // 父级菜单ID
+
+  string path = 3 [(gnostic.openapi.v3.property) = {description: "逻辑路由地址"}]; // 逻辑路由地址
+
+  string name = 4 [(gnostic.openapi.v3.property) = {description: "逻辑路由名称"}]; // 逻辑路由名称
+
+  BaseMenuMeta meta = 5 [(gnostic.openapi.v3.property) = {description: "移动端菜单元信息"}]; // 移动端菜单元信息
+}
+
+// 移动端菜单元信息
+message BaseMenuMeta {
+  string title = 1 [(gnostic.openapi.v3.property) = {description: "菜单标题"}]; // 菜单标题
+
+  optional string icon = 2 [(gnostic.openapi.v3.property) = {description: "菜单图标"}]; // 菜单图标
+
+  BaseMenuAppMeta app = 3 [(gnostic.openapi.v3.property) = {description: "移动端页面配置"}]; // 移动端页面配置
+}
+
+// 移动端页面配置
+message BaseMenuAppMeta {
+  string view_key = 1 [(gnostic.openapi.v3.property) = {description: "已注册的稳定视图键"}]; // 已注册的稳定视图键
+
+  string access = 2 [(gnostic.openapi.v3.property) = {description: "页面访问模式"}]; // 页面访问模式
+
+  bool in_tab_bar = 3 [(gnostic.openapi.v3.property) = {description: "是否显示在自绘标签栏"}]; // 是否显示在自绘标签栏
+
+  optional string selected_icon = 4 [(gnostic.openapi.v3.property) = {description: "标签栏选中图标"}]; // 标签栏选中图标
+}

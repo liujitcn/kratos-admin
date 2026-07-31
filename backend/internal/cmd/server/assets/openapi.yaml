@@ -2645,6 +2645,19 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.app.v1.BaseDictForm'
+    /api/v1/app/base/menu:
+        get:
+            tags:
+                - BaseMenuService
+            description: 查询移动端菜单
+            operationId: BaseMenuService_ListBaseMenu
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.app.v1.ListBaseMenuResponse'
     /api/v1/base/ai/session:
         get:
             tags:
@@ -4966,6 +4979,22 @@ components:
                     type: boolean
                     description: 是否存在子节点
             description: 菜单
+        system.admin.v1.BaseMenuAppMeta:
+            type: object
+            properties:
+                view_key:
+                    type: string
+                    description: 已注册的稳定视图键
+                access:
+                    type: string
+                    description: 页面访问模式
+                in_tab_bar:
+                    type: boolean
+                    description: 是否显示在自绘标签栏
+                selected_icon:
+                    type: string
+                    description: 标签栏选中图标
+            description: 移动端页面配置
         system.admin.v1.BaseMenuForm:
             type: object
             properties:
@@ -5046,6 +5075,8 @@ components:
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseMenuParams'
                     description: 参数
+                app:
+                    $ref: '#/components/schemas/system.admin.v1.BaseMenuAppMeta'
             description: 菜单元信息
         system.admin.v1.BaseMenuParams:
             type: object
@@ -6820,6 +6851,52 @@ components:
                     type: string
                     description: 字典项标签
             description: 字典项
+        system.app.v1.BaseMenu:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 菜单ID
+                parent_id:
+                    type: string
+                    description: 父级菜单ID
+                path:
+                    type: string
+                    description: 逻辑路由地址
+                name:
+                    type: string
+                    description: 逻辑路由名称
+                meta:
+                    $ref: '#/components/schemas/system.app.v1.BaseMenuMeta'
+            description: 移动端菜单
+        system.app.v1.BaseMenuAppMeta:
+            type: object
+            properties:
+                view_key:
+                    type: string
+                    description: 已注册的稳定视图键
+                access:
+                    type: string
+                    description: 页面访问模式
+                in_tab_bar:
+                    type: boolean
+                    description: 是否显示在自绘标签栏
+                selected_icon:
+                    type: string
+                    description: 标签栏选中图标
+            description: 移动端页面配置
+        system.app.v1.BaseMenuMeta:
+            type: object
+            properties:
+                title:
+                    type: string
+                    description: 菜单标题
+                icon:
+                    type: string
+                    description: 菜单图标
+                app:
+                    $ref: '#/components/schemas/system.app.v1.BaseMenuAppMeta'
+            description: 移动端菜单元信息
         system.app.v1.BindUserPhoneRequest:
             type: object
             properties:
@@ -6834,6 +6911,15 @@ components:
                     type: string
                     description: 手机号
             description: 手机号授权响应
+        system.app.v1.ListBaseMenuResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.app.v1.BaseMenu'
+                    description: 移动端扁平菜单
+            description: 移动端菜单响应
         system.app.v1.TreeBaseAreaResponse:
             type: object
             properties:
@@ -6871,15 +6957,15 @@ tags:
     - name: AiToolService
       description: Base AI 助手工具服务
     - name: AuthService
-      description: Admin用户登录认证服务
-    - name: AuthService
       description: App用户认证服务
+    - name: AuthService
+      description: Admin用户登录认证服务
     - name: BaseApiService
       description: AdminAPI服务
     - name: BaseAreaService
-      description: Admin行政区域服务
-    - name: BaseAreaService
       description: App行政区域服务
+    - name: BaseAreaService
+      description: Admin行政区域服务
     - name: BaseConfigService
       description: Admin系统配置服务
     - name: BaseDeptService
@@ -6892,6 +6978,8 @@ tags:
       description: Admin定时任务服务
     - name: BaseLogService
       description: Admin日志服务
+    - name: BaseMenuService
+      description: App菜单服务
     - name: BaseMenuService
       description: Admin菜单管理服务
     - name: BaseMigrationService

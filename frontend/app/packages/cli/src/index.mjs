@@ -1,5 +1,11 @@
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { basename, resolve } from 'node:path'
+
+const cliPackage = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
+const publicPackageVersion = cliPackage.version
+if (typeof publicPackageVersion !== 'string' || !publicPackageVersion) {
+  throw new Error('CLI package.json 缺少有效版本')
+}
 
 /** 创建独立 kratos app workspace。 */
 export function scaffoldKratosApp(targetPath, options = {}) {
@@ -73,8 +79,8 @@ pnpm build:mp-weixin
 `,
   )
   const dependencies = {
-    '@liujitcn/kratos-app-core': '^0.0.1',
-    '@liujitcn/kratos-app-system': '^0.0.1',
+    '@liujitcn/kratos-app-core': `^${publicPackageVersion}`,
+    '@liujitcn/kratos-app-system': `^${publicPackageVersion}`,
     '@dcloudio/uni-app': 'latest',
     '@dcloudio/uni-components': 'latest',
     '@dcloudio/uni-h5': 'latest',
@@ -195,14 +201,21 @@ onLoad((options) => {
     'apps/app/src/main.ts',
     `import {
   bootstrapKratosApp,
+  initializeAppNavigation,
   pinia,
   registerKratosAppModules,
+  registerUserStoreExtension,
 } from '@liujitcn/kratos-app-core'
 import { createSSRApp } from 'vue'
 import App from './App.vue'
 import { moduleManifest } from './module-manifest'
 
 registerKratosAppModules(moduleManifest)
+registerUserStoreExtension({
+  onLogin: initializeAppNavigation,
+  onLogout: initializeAppNavigation,
+  onSilentLogout: initializeAppNavigation,
+})
 
 export function createApp() {
   return bootstrapKratosApp({ app: App, createSSRApp, pinia, modules: moduleManifest })
@@ -281,7 +294,7 @@ export default defineConfig({
           './views/*': './src/views/*',
           './package.json': './package.json',
         },
-        dependencies: { '@liujitcn/kratos-app-core': '^0.0.1' },
+        dependencies: { '@liujitcn/kratos-app-core': `^${publicPackageVersion}` },
       }),
     )
     write(

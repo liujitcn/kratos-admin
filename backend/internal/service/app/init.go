@@ -13,9 +13,11 @@ var ProviderSet = wire.NewSet(
 	biz.NewBaseDeptCase,
 	biz.NewBaseDictCase,
 	biz.NewBaseDictItemCase,
+	biz.NewBaseMenuCase,
 	biz.NewBaseRoleCase,
 	biz.NewBaseUserCase,
 	NewAuthService,
 	NewBaseAreaService,
 	NewBaseDictService,
+	NewBaseMenuService,
 )
