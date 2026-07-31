@@ -2,9 +2,6 @@
   <div v-loading="loading" class="app-container code-gen-sub-page">
     <div class="api-doc-page__layout">
       <el-card class="code-gen-sub-card api-doc-page__navigation" shadow="never">
-        <template #header>
-          <div class="api-doc-page__panel-title">文档服务</div>
-        </template>
         <div v-if="documents.length" class="api-doc-page__document-list">
           <button
             v-for="document in documents"
@@ -21,9 +18,6 @@
         <el-empty v-else :image-size="56" description="暂无文档" />
       </el-card>
       <el-card class="code-gen-sub-card api-doc-page__card" shadow="never">
-        <template #header>
-          <div class="api-doc-page__panel-title">{{ selectedDocumentName }}</div>
-        </template>
         <div ref="swaggerRootRef" class="api-doc-page__swagger" />
       </el-card>
     </div>
@@ -41,9 +35,6 @@ const swaggerRootRef = ref<HTMLElement>();
 const loading = ref(true);
 const documents = ref<OpenApiServiceOption[]>([]);
 const selectedDocumentKey = ref("");
-const selectedDocumentName = computed(
-  () => documents.value.find(document => document.key === selectedDocumentKey.value)?.name ?? "API 文档"
-);
 
 /** 初始化携带当前登录令牌的 Swagger UI。 */
 function initializeSwaggerUI(documentKey: string) {
@@ -141,14 +132,6 @@ onBeforeUnmount(() => {
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-}
-.api-doc-page__panel-title {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--admin-page-text-primary);
-  white-space: nowrap;
 }
 .api-doc-page__document-list {
   display: flex;
