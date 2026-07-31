@@ -1,7 +1,7 @@
 # Codex 规则（frontend/app）
 
 ## 项目概览
-- 技术栈：`uni-app + Vue 3 + TypeScript + Vite + Pinia + Sass`；主包 `src/pages`，会员分包 `src/pagesMember`，订单分包 `src/pagesOrder`。
+- 技术栈：`uni-app + Vue 3 + TypeScript + Vite + Pinia + Sass`；主包位于 `src/pages`，当前分包位于 `src/pagesMember`。
 
 ## 目录与职责
 - 新增页面放入最接近的包目录，并同步更新 `src/pages.json`（路由、分包、导航）。
@@ -19,7 +19,7 @@
 
 ## 样式与多端兼容
 - 全局样式复用 `src/styles/base.scss`、`src/styles/fonts.scss`、`src/uni.scss`；页面样式沿用现有色值与间距，不单页发明视觉规则。
-- 平台差异必须显式用 `#ifdef`/`#ifndef` 条件编译，不写成运行时分支；修改登录、路由、存储、分享、支付、预览图片等平台敏感逻辑时，同时检查 `MP-WEIXIN`、`H5`、`APP-PLUS`；仅支持单端的能力在代码与注释中明确说明。
+- 平台差异必须显式用 `#ifdef`/`#ifndef` 条件编译，不写成运行时分支；修改登录、路由、存储、上传、预览图片等平台敏感逻辑时，同时检查 `MP-WEIXIN`、`H5`、`APP-PLUS`；仅支持单端的能力在代码与注释中明确说明。
 - 样式优先保证微信小程序端可用，同时兼顾 H5。
 
 ## 变更边界

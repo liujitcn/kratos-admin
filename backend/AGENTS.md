@@ -7,7 +7,7 @@
 ## 新增业务流程
 - 完整流程见 [docs/new-feature.md](docs/new-feature.md)，新增业务前必须先读。
 - 核心顺序：需要新表则先按 `configs/data.yaml` 确认连接后把表结构真正建到开发库 → `make gorm-gen` → proto 契约 → `make gen` → service/biz → 前端；不需要新表则从 proto 开始。
-- 表结构变更、菜单权限（`base_menu`）、接口权限（`base_api`）脚本统一新增纯数字版本目录到 `backend/migration/assets/mysql`，目录内使用同一功能名的 `<feature>.up.sql` 和 `<feature>.description.md`，与代码同一次改动完成，禁止后补。
+- 表结构变更、菜单权限（`base_menu`）、接口权限（`base_api`）脚本统一新增版本目录到 `backend/migration/assets/vX.Y.Z/mysql`；需要区分数据源时再增加数据源子目录。目录内使用同一功能名的 `<feature>.up.sql` 和 `<feature>.description.md`，与代码同一次改动完成，禁止后补。
 - `api/gen`、`internal/data/gen` 生成产物禁止手改或手工添加文件；生成一律走 `make gen`、`make gorm-gen`、`make wire`。
 
 ## 注释

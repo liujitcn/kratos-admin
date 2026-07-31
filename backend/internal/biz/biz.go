@@ -2,14 +2,11 @@ package biz
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
 
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	coreOpenAPI "github.com/liujitcn/kratos-admin/backend/core/pkg/openapi"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
-	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 
 	"github.com/liujitcn/kratos-kit/auth"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
@@ -26,15 +23,12 @@ import (
 // BaseCase 承载后端通用业务上下文与基础能力。
 type BaseCase struct {
 	*bootstrap.Context
-	Cache          cache.Cache // Cache 提供后端业务缓存能力。
-	queue          queue.Queue
-	casbinRuleCase *CasbinRuleCase
-	baseAPICase    *BaseAPICase
-	baseTenantCase *BaseTenantCase
-	quitChan       chan struct{} //退出Chan
-	closeOnce      sync.Once
-	taskTimer      *time.Timer
-	rwLock         sync.RWMutex //异步数据锁
+	Cache     cache.Cache // Cache 提供后端业务缓存能力。
+	queue     queue.Queue
+	quitChan  chan struct{} //退出Chan
+	closeOnce sync.Once
+	taskTimer *time.Timer
+	rwLock    sync.RWMutex //异步数据锁
 }
 
 // NewBaseCase 创建基础业务实例。
@@ -45,9 +39,6 @@ func NewBaseCase(
 	gorm *gorm.Client,
 	_ gormmigration.Ready,
 	pprof pprof.Pprof,
-	casbinRuleCase *CasbinRuleCase,
-	baseAPICase *BaseAPICase,
-	baseTenantCase *BaseTenantCase,
 ) (*BaseCase, func(), error) {
 
 	// 设置全局变量
@@ -62,16 +53,13 @@ func NewBaseCase(
 	}
 
 	s := BaseCase{
-		Context:        ctx,
-		Cache:          cache,
-		queue:          queue,
-		casbinRuleCase: casbinRuleCase,
-		baseAPICase:    baseAPICase,
-		baseTenantCase: baseTenantCase,
-		quitChan:       make(chan struct{}),
-		closeOnce:      sync.Once{},
-		taskTimer:      nil,
-		rwLock:         sync.RWMutex{},
+		Context:   ctx,
+		Cache:     cache,
+		queue:     queue,
+		quitChan:  make(chan struct{}),
+		closeOnce: sync.Once{},
+		taskTimer: nil,
+		rwLock:    sync.RWMutex{},
 	}
 	// 启动后台队列消费线程，并等待清理信号退出。
 	go func() {
@@ -96,37 +84,6 @@ func NewBaseCase(
 	return &s, cleanup, nil
 }
 
-// InitializeOpenAPI 根据全部具名 OpenAPI 文档同步接口元数据与权限策略。
-func (c *BaseCase) InitializeOpenAPI(ctx context.Context, documents []coreOpenAPI.Document) error {
-	baseAPIList := make([]*models.BaseAPI, 0)
-	var err error
-	for _, document := range documents {
-		var documentBaseAPIs []*models.BaseAPI
-		documentBaseAPIs, err = c.baseAPICase.openAPIDataToBaseAPI(document.Data)
-		if err != nil {
-			return fmt.Errorf("解析 OpenAPI 文档 %q: %w", document.Key, err)
-		}
-		baseAPIList = append(baseAPIList, documentBaseAPIs...)
-	}
-
-	// 所有模块文档收集完成后一次重建接口数据，避免扩展模块接口缺失或重复同步。
-	err = c.baseAPICase.batchCreateBaseAPI(ctx, baseAPIList)
-	if err != nil {
-		return err
-	}
-	// API 数据就绪后，先将默认租户管理员角色菜单同步到普通租户副本。
-	err = c.baseTenantCase.SyncTenantRoleMenus(ctx)
-	if err != nil {
-		return err
-	}
-	// 菜单和 API 数据均已就绪后，全量重建数据库规则并加载 Casbin 内存策略。
-	err = c.casbinRuleCase.RebuildAllCasbinRules(ctx)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 // RegisterQueueConsumer 注册异步队列消费者。
 func (c *BaseCase) RegisterQueueConsumer(queueName _const.Queue, fn func(message queueData.Message) error) {
 	c.queue.Register(string(queueName), fn)
@@ -139,9 +96,4 @@ func (c *BaseCase) GetAuthInfo(ctx context.Context) (*authData.UserTokenPayload,
 		return nil, errorsx.Unauthenticated("用户认证失败").WithCause(err)
 	}
 	return authInfo, nil
-}
-
-// RebuildPolicyRule 重建内存权限策略。
-func (c *BaseCase) RebuildPolicyRule(ctx context.Context) error {
-	return c.casbinRuleCase.rebuildPolicyRule(ctx)
 }

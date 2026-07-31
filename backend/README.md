@@ -1,46 +1,51 @@
 # backend
 
-`backend` 是 Go + Kratos 管理服务，提供 HTTP、gRPC、SSE、MCP、数据库访问、文件上传、静态资源托管和代码生成能力。
+`backend` 是 Go + Kratos 服务端，既可作为独立 HTTP/gRPC 服务运行，也可作为进程内模块挂到其他 Core 宿主。当前实现包含认证授权、系统管理、文件、任务、AI、SSE、MCP、OpenAPI、静态资源和版本化数据库迁移。
 
 ## 目录
 
 ```text
 backend
-├── api/proto       # Backend 自有 Proto 契约，common/v1 从 Buf 引入
-├── api/gen         # 对外公开的 Go 协议、gRPC Client 与服务注册代码
-├── cmd/server      # 独立微服务启动入口
-├── configs         # 运行配置
-├── core            # 不包含 Proto 的 Kratos 基础运行时 module
-│   └── pkg/errorsx # 稳定的公共业务错误构造能力
+├── api
+│   ├── proto                         # Backend 自有 Proto
+│   └── gen/go                        # 生成的 Go 协议代码
+├── configs                           # 运行配置
+├── core                              # 无业务 Proto 的 Kratos 宿主运行时
 ├── internal
-│   ├── agent       # Eino 模型、工具、回调和工作流适配
-│   ├── biz         # Case 与业务规则
-│   ├── config      # 配置解析和数据源初始化
-│   ├── const       # Backend 内部共享常量
-│   ├── data        # GORM 生成代码和队列数据适配
-│   ├── server      # HTTP、gRPC、MCP、中间件和 OpenAPI
-│   └── service     # Proto 服务实现
-├── migration       # 版本化数据库迁移资源
-├── app.go          # 对外模块门面与独立应用入口
-└── wire_gen.go     # Backend 内部依赖装配生成代码
+│   ├── agent                         # Eino Agent 适配
+│   ├── biz/{admin,app,base,event,job}
+│   ├── cmd/server                    # 独立服务入口和内嵌 OpenAPI
+│   ├── config                        # 配置和数据库客户端装配
+│   ├── data                          # GORM 生成代码和队列适配
+│   ├── server                        # HTTP、gRPC、MCP、中间件和模块注册
+│   └── service/{admin,app,base}      # Proto 服务实现
+├── migration/assets                  # 内嵌版本化 SQL
+├── app.go                            # 对外模块门面
+├── wire.go                           # Wire 声明
+└── wire_gen.go                       # Wire 生成结果
 ```
+
+`common.v1` 通过 `buf.build/liujitcn/kratos-common` 引入，其余协议位于 `api/proto`。
+
+## 接口域
+
+| Proto package | 用途 | 消费端 |
+| --- | --- | --- |
+| `base.v1` | 登录、OAuth、配置、文件、AI、SSE、MCP。 | admin 与 app 共用 |
+| `system.admin.v1` | 系统管理、个人中心、代码生成和迁移历史。 | 管理后台 |
+| `system.app.v1` | 应用端资料、地区和字典。 | 应用端 |
+
+HTTP 路径由 Proto 的 `google.api.http` 生成；请求校验由 `buf.validate` 和全局 protovalidate 中间件执行。服务端业务错误统一使用 `core/pkg/errorsx`。
 
 ## 运行形态
 
-Backend 同时支持独立微服务和进程内 Go 模块。两种形态共享 `api/gen/go` 中生成的
-`FooServiceClient` 接口，调用方不得直接导入 `internal` 中的 Case、Repository、Model 或 Query。
+独立运行入口为 `internal/cmd/server`：
 
-独立微服务模式使用标准远程 gRPC 连接：
-
-```go
-conn, err := grpc.NewClient(target)
-if err != nil {
-	return err
-}
-client := systemadminv1.NewBaseUserServiceClient(conn)
+```bash
+go run ./internal/cmd/server --conf ./configs
 ```
 
-同一进程的启动器通过根包创建模块，并把 `ClientConn()` 交给相同的生成客户端：
+进程内使用 `NewModule`，调用方通过 `ClientConn()` 创建与远程形态相同的生成客户端：
 
 ```go
 module, cleanup, err := kratosadmin.NewModule(ctx)
@@ -52,109 +57,86 @@ defer cleanup()
 client := systemadminv1.NewBaseUserServiceClient(module.ClientConn())
 ```
 
-`ClientConn()` 将调用分派给已注册的内部 Service，再进入 Case 和 Repository，不经过网络。
-当前 Backend RPC 均为 unary；进程内连接会对 streaming RPC 返回明确的不支持错误。
+`NewApp` 复用同一业务装配，再创建独立 HTTP 和 gRPC Server。`WithAdditionalModules` 在两种形态下使用相同的 Core Contributor 契约：独立形态由 Backend 消费中间件、OpenAPI、任务、队列、SSE、启动钩子、健康检查和静态资源；模块形态由返回的 `Runtime` 继续贡献给外层 Core 宿主。
 
-其他 Kratos 启动器可直接把模块挂到 Core：
+调用方不得导入 `internal` 下的 Case、Repository、Model、Query 或 Service；跨模块调用只使用 `api/gen/go` 中的生成客户端。
 
-```go
-module, moduleCleanup, err := kratosadmin.NewModule(ctx)
-if err != nil {
-	return err
-}
-app, hostCleanup, err := core.NewApp(ctx, core.WithModules(module))
-```
+## 配置
 
-调用方退出时需要依次执行 `hostCleanup` 和 `moduleCleanup`。独立部署入口使用
-`kratosadmin.NewApp`，内部复用同一套模块装配并额外创建 HTTP、gRPC Server。
-可编译的独立 module 示例位于 `examples/module-host`。
+配置位于 `configs`：
 
-## 配置与数据库
+| 文件 | 说明 |
+| --- | --- |
+| `server.yaml` | HTTP、gRPC、MCP、SSE 和中间件。 |
+| `data.yaml`、`data_local.yaml` | MySQL、Redis 和队列。 |
+| `auth.yaml` | JWT、白名单和认证配置。 |
+| `oauth.yaml`、`oauth_local.yaml` | OAuth provider。 |
+| `ai.yaml`、`ai_local.yaml` | 模型连接。未配置时 AI 客户端保持关闭。 |
+| `oss.yaml` | 文件存储。 |
+| `logger.yaml`、`trace.yaml`、`pprof.yaml`、`registry.yaml` | 日志、追踪、性能分析和注册中心。 |
 
-默认配置文件位于 `configs`：
-
-- `data.yaml`：数据库、Redis 和队列连接。
-- `auth.yaml`：JWT 认证及白名单。
-- `pprof.yaml`：性能分析服务。
-
-默认数据库连接：
+默认数据库：
 
 ```text
 root:112233@tcp(127.0.0.1:3306)/kratos_admin?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms
 ```
 
-多数据源配置使用 `data.databases`，名称必须与迁移版本目录下的一级子目录一致：
+`data.database` 配置单一默认数据源；`data.databases` 可按名称配置多个数据源。默认数据源保存系统数据和所有模块的 `base_migration` 记录。
 
-```yaml
-data:
-  databases:
-    default:
-      driver: mysql
-      source: root:112233@tcp(127.0.0.1:3306)/kratos_admin
-      enable_migrate: true
-    shop:
-      driver: mysql
-      source: root:112233@tcp(127.0.0.1:3306)/shop
-      enable_migrate: true
-```
+## 数据库迁移
 
-初始化数据库（仅需创建库，服务启动会由 GORM 自动建表并执行内置迁移）：
-
-```sql
-CREATE DATABASE kratos_admin CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
-
-迁移资源位于 `migration/assets/mysql`，最外层只放版本目录，例如 `v0.0.1`。
-版本目录下的直系文件属于 `default` 数据源；一级子目录名表示目标数据源：
+当前资源结构为“版本 → 数据库类型 → 数据源”：
 
 ```text
-v0.0.1/
-  default_data.description.md
-  default_data.up.sql
-  shop/
-    shop.description.md
-    shop.up.sql
+migration/assets/
+└── v0.0.1/
+    └── mysql/
+        ├── default_data.up.sql        # 默认数据源
+        ├── default_data.description.md
+        ├── base_area.up.sql
+        └── analytics/                 # 可选的命名数据源
+            └── analytics.up.sql
 ```
 
-服务启动时先完成各数据源 GORM Client 初始化，再按目录数据源执行迁移。所有模块统一
-使用默认数据库的 `base_migration` 保存执行版本，`module` 区分迁移模块，`data_source`
-区分目标数据源；同一版本的 `default` 和 `shop` 会产生两条记录。版本记录只在该版本的全部
-升级脚本成功后写入；任一脚本失败会回滚当前版本、记录错误并阻止服务启动，修复后重启会重试。
-迁移记录模型由 admin 启动入口注册到 GORM；默认数据库配置为 `enable_migrate: true`
-时由 GORM 建表并执行迁移，未配置或为 `false` 时自动建表和迁移脚本都会跳过。
+`mysql` 下的直系文件属于 `default` 数据源，一级子目录名必须与 `data.databases` 中的数据源名称一致。迁移版本支持 `vX.Y.Z` 和项目生成器兼容的纯数字格式；同一目标内按文件名排序执行 `.up.sql`，`.md` 会写入迁移描述。
 
-接入项目直接使用 `github.com/liujitcn/kratos-kit/database/gorm/migration` 注册
-自己的 contributor。每个 contributor 可声明对基础模块的依赖；数据源客户端通过
-`data.databases` 的名称注入，迁移执行器会按资源目录自动查找并执行。不依赖
-kratos-admin 的项目也可以直接复用这套能力。
+启动时先创建数据库客户端，再执行 `kratos-admin` 迁移模块及其依赖。每个版本、模块和数据源只记录一次；当前版本任一脚本失败会回滚并阻止启动。
 
-## 常用命令
+`enable_migrate` 只控制 GORM `AutoMigrate` 和表注释回填，不会关闭版本化 SQL。全新数据库通常需要默认数据源设置为 `true`，以便先创建 `base_migration` 和业务表。
 
-```bash
-make api       # 生成 Go 接口代码
-make openapi   # 生成 OpenAPI 文档
-make ts        # 生成管理端 TypeScript RPC
-make ts-app    # 生成应用端 TypeScript RPC
-make gorm-gen  # 生成 GORM 模型、查询和数据访问代码
-make wire      # 生成依赖注入代码
-make gen       # 执行全部生成命令
-make run       # 启动服务
-make build     # 构建 Linux 可执行文件
-```
+## 生成
 
-生成代码不得手工修改。Backend 自有协议以 `backend/api/proto` 为协议源；通用 `common/v1`
-协议从 `buf.build/liujitcn/kratos-common` 引入。`make api`、`make ts` 和 `make ts-app`
-会同时生成 Backend 自有协议与锁定版本的通用协议产物，`make openapi` 通过 Buf 依赖解析通用类型。
+| 命令 | 产物 |
+| --- | --- |
+| `make api` | `api/gen/go` 中的 Go、HTTP、gRPC、错误、Agent Tool 和 MCP Tool 代码。 |
+| `make openapi` | `internal/cmd/server/assets/openapi.yaml`。 |
+| `make ts` | 管理端 core 与 System 包的 TypeScript RPC。 |
+| `make ts-app` | `frontend/app/src/rpc`。 |
+| `make gorm-gen` | `internal/data/gen`。可用 `GORM_GEN_SOURCE`、`GORM_TABLE` 覆盖数据源和表。 |
+| `make wire` | `wire_gen.go`。 |
+| `make gen` | 依次执行以上生成和 Go 格式化。 |
 
-通用 OpenAPI 注册、SSE 发布、任务注册、队列编解码和进程内调用连接由 `backend/core` 提供；
-Backend 的业务适配器、数据库访问和传输实现全部位于 `internal`。框架 request-id、
-recovery、tracing、metadata 等拦截器由 `kratos-kit/rpc` 按配置统一挂载，Backend 不重复注册。
+生成产物不得手工修改。Proto 改动后至少重新执行 `make api openapi`，再按消费端执行 `make ts` 或 `make ts-app`。
 
-管理端构建产物位于 `data/admin`，应用端构建产物位于 `data/app`，后端启动后分别可通过 `http://localhost:7001/admin` 与 `http://localhost:7001/app` 访问。Backend 内置协议生成系统 OpenAPI 文档 `/api/docs/openapi/admin`；外部模块按各自声明的 key 暴露为 `/api/docs/openapi/{key}`，管理端 API 文档页面会读取文档选项并按 key 切换。
+## HTTP 入口
 
-## 校验
+| 路径 | 用途 |
+| --- | --- |
+| `/api/v1/...` | 业务 HTTP API。 |
+| `/events/{stream}` | SSE。 |
+| `/mcp/{terminal}` | MCP Streamable HTTP。 |
+| `/healthz` | 存活和就绪检查。 |
+| `/api/docs/openapi/{key}` | 具名 OpenAPI 文档，如 `admin`。 |
+| `/admin/`、`/app/` | `data/admin`、`data/app` 中存在 `index.html` 时自动挂载的 SPA。 |
+
+Swagger 是否启用由 `server.http.enable_swagger` 控制。管理后台的 API 文档页通过 `BaseApiService` 获取已注册文档选项。
+
+## 构建与校验
 
 ```bash
 go test ./...
 go vet ./...
+go build -o bin/server ./internal/cmd/server
 ```
+
+新增业务的顺序和迁移要求见 [docs/new-feature.md](docs/new-feature.md)。

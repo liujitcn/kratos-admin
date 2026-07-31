@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -10,6 +11,7 @@ import (
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"gorm.io/gorm"
 
 	commonv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/common/v1"
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
@@ -73,6 +75,68 @@ func NewBaseTenantCase(
 		formMapper:           mapper.NewCopierMapper[systemadminv1.BaseTenantForm, models.BaseTenant](),
 		mapper:               mapper.NewCopierMapper[systemadminv1.BaseTenant, models.BaseTenant](),
 	}
+}
+
+// FindDefault 查询默认租户。
+func (c *BaseTenantCase) FindDefault(ctx context.Context) (*models.BaseTenant, error) {
+	query := c.Query(ctx).BaseTenant
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.Code.Eq(databaseGorm.DefaultTenantCode)))
+	return c.Find(ctx, opts...)
+}
+
+// SyncTenantRoleMenus 将默认租户管理员角色菜单同步到所有普通租户的角色副本。
+//
+// 该方法仅在服务启动时调用，必须位于 OpenAPI 接口同步之后、全量 Casbin 规则重建之前。
+// 默认租户或角色模板尚未初始化时返回 nil，使首次导入初始化数据前的启动流程保持幂等。
+func (c *BaseTenantCase) SyncTenantRoleMenus(ctx context.Context) error {
+	defaultTenant, err := c.FindDefault(ctx)
+	// 首次启动尚未导入初始化数据时没有默认租户，等待后续启动再同步。
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil
+	}
+	if err != nil {
+		return errorsx.Internal("查询默认租户失败").WithCause(err)
+	}
+
+	query := c.baseRoleRepo.Query(ctx).BaseRole
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.TenantID.Eq(defaultTenant.ID)))
+	opts = append(opts, repository.Where(query.Code.Eq(_const.BASE_ROLE_CODE_TENANT)))
+	var templateRole *models.BaseRole
+	templateRole, err = c.baseRoleRepo.Find(ctx, opts...)
+	// 初始化数据尚未写入租户角色模板时无需执行同步。
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+		allRoleOpts := make([]repository.QueryOption, 0, 1)
+		allRoleOpts = append(allRoleOpts, repository.Where(query.Code.Eq(_const.BASE_ROLE_CODE_TENANT)))
+		var baseRoleList []*models.BaseRole
+		baseRoleList, err = c.baseRoleRepo.List(ctx, allRoleOpts...)
+		if err != nil {
+			return err
+		}
+		for _, item := range baseRoleList {
+			// 默认租户模板和已同步副本无需重复写入。
+			if item.ID == templateRole.ID || item.Menus == templateRole.Menus {
+				continue
+			}
+			err = c.baseRoleRepo.UpdateByID(ctx, &models.BaseRole{
+				ID:       item.ID,
+				TenantID: item.TenantID,
+				Menus:    templateRole.Menus,
+			})
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }
 
 // OptionBaseTenant 查询租户选项。
@@ -204,7 +268,7 @@ func (c *BaseTenantCase) DeleteBaseTenant(ctx context.Context, id string) error 
 	}
 	// 上次删除可能已提交但权限重载失败，幂等重试仍需修复内存策略。
 	if len(baseTenants) == 0 {
-		return c.RebuildPolicyRule(ctx)
+		return c.casbinRuleCase.RebuildPolicyRule(ctx)
 	}
 
 	tenantIDs := make([]int64, 0, len(baseTenants))
@@ -230,7 +294,7 @@ func (c *BaseTenantCase) DeleteBaseTenant(ctx context.Context, id string) error 
 	}
 	// 数据库事务提交后，通知已装配模块清理租户关联用户数据。
 	c.userEvents.PublishUsersDeleted(deletedUserIDs)
-	return c.RebuildPolicyRule(ctx)
+	return c.casbinRuleCase.RebuildPolicyRule(ctx)
 }
 
 // SetBaseTenantStatus 设置租户状态。
@@ -299,17 +363,14 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 		return errorsx.Internal("初始化租户默认部门失败").WithCause(err)
 	}
 
-	query := c.Query(ctx).BaseTenant
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.Code.Eq(databaseGorm.DefaultTenantCode)))
 	var defaultTenant *models.BaseTenant
-	defaultTenant, err = c.Find(ctx, opts...)
+	defaultTenant, err = c.FindDefault(ctx)
 	if err != nil {
 		return errorsx.Internal("初始化租户管理员角色失败").WithCause(err)
 	}
 
 	roleQuery := c.baseRoleRepo.Query(ctx).BaseRole
-	opts = make([]repository.QueryOption, 0, 2)
+	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(roleQuery.TenantID.Eq(defaultTenant.ID)))
 	opts = append(opts, repository.Where(roleQuery.Code.Eq(_const.BASE_ROLE_CODE_TENANT)))
 	var defaultRole *models.BaseRole

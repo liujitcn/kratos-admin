@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/go-kratos/kratos/v3"
+	"github.com/go-kratos/kratos/v3/log"
 	kratosMiddleware "github.com/go-kratos/kratos/v3/middleware"
 	kratosTransport "github.com/go-kratos/kratos/v3/transport"
 	kratosGRPC "github.com/go-kratos/kratos/v3/transport/grpc"
@@ -40,6 +41,7 @@ import (
 	"github.com/liujitcn/kratos-kit/bootstrap"
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 	gormmigration "github.com/liujitcn/kratos-kit/database/gorm/migration"
+	kitQueue "github.com/liujitcn/kratos-kit/queue"
 	mcpserver "github.com/liujitcn/kratos-kit/transport/mcp"
 	"google.golang.org/grpc"
 )
@@ -93,6 +95,11 @@ type Runtime struct {
 	openAPIRegistry *coreOpenAPI.Registry
 }
 
+type standaloneRuntime struct {
+	servers        []kratosTransport.Server
+	startupManager *startup.Manager
+}
+
 var _ Module = (*Runtime)(nil)
 
 // NewModule 创建可挂载到其他启动器的 Backend 模块。
@@ -110,7 +117,8 @@ func NewApp(ctx *bootstrap.Context, optionValues ...Option) (*kratos.App, func()
 // newOptions 合并默认迁移和调用方提供的装配选项。
 func newOptions(optionValues []Option) options {
 	opts := options{
-		migrations: migration.NewMigrations(),
+		databaseOptions: []databaseGorm.ClientOption{databaseGorm.WithMigrateModels(data.Models()...)},
+		migrations:      migration.NewMigrations(),
 	}
 	for _, option := range optionValues {
 		option(&opts)
@@ -162,14 +170,93 @@ func newRuntime(
 	}, nil
 }
 
+// newStandaloneRuntime 收集扩展模块仅在独立部署形态下需要落地的运行时贡献。
+func newStandaloneRuntime(
+	runtime *Runtime,
+	queue kitQueue.Queue,
+	taskRegistry *coreTask.Registry,
+	sseRegistry *coreSSE.Registry,
+) (*standaloneRuntime, func(), error) {
+	modules := core.Modules(runtime.modules)
+	var err error
+	err = taskRegistry.Register(modules.Tasks()...)
+	if err != nil {
+		return nil, nil, fmt.Errorf("注册扩展模块任务: %w", err)
+	}
+	err = sseRegistry.Register(modules.SSEStreams()...)
+	if err != nil {
+		return nil, nil, fmt.Errorf("注册扩展模块 SSE 流: %w", err)
+	}
+
+	servers := append([]kratosTransport.Server(nil), runtime.Servers()...)
+	queueConsumers := modules.QueueConsumers()
+	if len(queueConsumers) > 0 {
+		var queueRuntime *coreQueue.Runtime
+		queueRuntime, err = coreQueue.NewRuntime(queue)
+		if err != nil {
+			return nil, nil, err
+		}
+		err = queueRuntime.Register(queueConsumers...)
+		if err != nil {
+			return nil, nil, fmt.Errorf("注册扩展模块队列消费者: %w", err)
+		}
+		servers = append(servers, queueRuntime)
+	}
+	if taskRegistry.Scheduled() {
+		var scheduler *coreTask.Scheduler
+		scheduler, err = coreTask.NewScheduler(taskRegistry, nil)
+		if err != nil {
+			return nil, nil, err
+		}
+		servers = append(servers, scheduler)
+	}
+
+	scripts := modules.Scripts()
+	scriptRegistry := script.NewRegistry()
+	err = scriptRegistry.Register(scripts...)
+	if err != nil {
+		return nil, nil, fmt.Errorf("注册扩展模块启动脚本: %w", err)
+	}
+	startupManager := startup.NewManager()
+	if len(scripts) > 0 {
+		err = startupManager.Register(startup.Hook{
+			Name:  "backend.scripts",
+			Start: scriptRegistry.Run,
+		})
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+	err = startupManager.Register(modules.StartupHooks()...)
+	if err != nil {
+		return nil, nil, fmt.Errorf("注册扩展模块启动钩子: %w", err)
+	}
+
+	standalone := &standaloneRuntime{
+		servers:        servers,
+		startupManager: startupManager,
+	}
+	cleanup := func() {
+		stopErr := startupManager.Stop(context.Background())
+		if stopErr != nil {
+			log.Error("清理扩展模块启动资源失败", "error", stopErr)
+		}
+	}
+	return standalone, cleanup, nil
+}
+
 // newKratosApp 将 Backend 后台服务和独立传输服务加入 Kratos 生命周期。
 func newKratosApp(
 	ctx *bootstrap.Context,
-	runtime *Runtime,
+	runtime *standaloneRuntime,
 	grpcServer *kratosGRPC.Server,
 	httpServer *kratosHTTP.Server,
 ) (*kratos.App, error) {
-	servers := append([]kratosTransport.Server(nil), runtime.Servers()...)
+	err := runtime.startupManager.Start(ctx.Context())
+	if err != nil {
+		return nil, err
+	}
+	servers := append([]kratosTransport.Server(nil), runtime.servers...)
 	if grpcServer != nil {
 		servers = append(servers, grpcServer)
 	}
@@ -271,7 +358,7 @@ var moduleProviderSet = wire.NewSet(
 	einoModel.NewResponsesClient,
 	ai.NewRuntime,
 	systemConfig.ProviderSet,
-	data.ProviderSet,
+	data.RepositoryProviderSet,
 	middleware.ProviderSet,
 	adminservice.ProviderSet,
 	appservice.ProviderSet,
@@ -288,6 +375,7 @@ var moduleProviderSet = wire.NewSet(
 
 var appProviderSet = wire.NewSet(
 	moduleProviderSet,
+	newStandaloneRuntime,
 	server.NewGRPCServer,
 	server.NewHTTPServer,
 	newKratosApp,

@@ -1,34 +1,46 @@
-# 新增业务开发流程
+# 新增业务流程
 
-> 新增业务前必读。核心顺序见 `backend/AGENTS.md` 的「新增业务流程」节。
+本文是仓库内新增一项后端和前端业务能力的最短闭环。跨模块详细示例见 [../../docs/服务接入指南.md](../../docs/服务接入指南.md)。
 
 ## 开发顺序
 
-1. **判断是否需要新增数据表。**
-2. **不需要新表**：直接从接口契约定义开始，按 `proto -> api/gen -> service/biz -> 前端` 顺序开发。
-3. **需要新表**：
-   - 先从 `configs` 目录读取当前数据库配置，优先检查 `configs/data.yaml` 中的 `data.database`；若存在本地环境覆盖配置，一并核对实际生效配置，避免建错库。
-   - 确认目标库连接信息后，**直接将表结构写入数据库**；禁止仅停留在本地 SQL 草稿或只改演示 SQL。
-   - 新表落库后依次执行：
-     1. `make gorm-gen` 更新 `internal/data/gen/query` 等数据库访问代码
-     2. 定义或更新 `api/proto` 下的接口契约
-     3. `make gen` 生成 `api/gen` 与前端 `src/rpc` 相关类型
-     4. 实现 service/biz 逻辑与前端页面
+1. 读取目标目录的 `AGENTS.md`，确认能力属于 `base`、`system.admin`、`system.app` 或新的外部模块。
+2. 有新表或字段时，先按 `configs/data.yaml` 连接开发库并实际调整表结构，再执行 `make gorm-gen`。
+3. 在 `api/proto` 定义接口、HTTP 路径、OpenAPI 描述和 `buf.validate`。
+4. 执行 `make api openapi`；按消费端执行 `make ts` 或 `make ts-app`。
+5. 实现 biz、service 和传输注册；依赖集合变化后执行 `make wire`。
+6. 实现管理端或应用端请求与页面，类型只使用生成 RPC。
+7. 同步版本化迁移中的默认数据、菜单、按钮和服务方法权限。
+8. 完成后统一执行生成、后端测试和对应前端检查。
 
-## 生成命令约定
+## 迁移结构
 
-- 凡涉及 `proto`、`api/gen`、`internal/data/gen`、依赖注入、RPC 桩代码、数据库模型等生成内容，必须用仓库既有命令生成：`make gen`、`make gorm-gen`、`make wire`；禁止手写或复制生成结果，禁止绕过生成流程直接修改产物。
-- 生成前确认目标命令与改动范围匹配；生成后若产物变化，必须一并纳入本次检查，禁止只改源文件不更新生成结果。
+迁移目录按“版本 → 数据库类型 → 数据源”组织：
 
-## 功能脚本同步（与代码同一次改动完成）
+```text
+backend/migration/assets/vX.Y.Z/mysql/<feature>.up.sql
+backend/migration/assets/vX.Y.Z/mysql/<feature>.description.md
+backend/migration/assets/vX.Y.Z/mysql/<data-source>/<feature>.up.sql
+```
 
-新增业务时，除业务代码外必须同步新增一个版本目录，例如
-`backend/migration/assets/mysql/vX.Y.Z`，目录内放置同一功能名的
-`order.up.sql` 和 `order.description.md`，不要分散到临时 SQL 文件：
+MySQL 默认数据源使用 `mysql` 直系文件；命名数据源放一级子目录。一个功能的 SQL 和描述使用相同文件名并与代码一起交付。脚本应可重复执行，不使用 `TRUNCATE` 或无条件删除业务数据。
 
-1. `<feature>.up.sql` 中使用 `ALTER TABLE` 修改已有表结构。
-2. `<feature>.up.sql` 中初始化菜单权限数据（`base_menu` 表）。
-3. `<feature>.up.sql` 中维护接口权限数据（`base_api` 表，与 proto 的 HTTP 路径保持一致）。
-4. `<feature>.description.md` 用简短中文说明本次升级做了什么，例如“新增订单表及其菜单、接口权限”。
+## 生成命令
 
-若新增业务同时涉及菜单、接口权限、表结构变更，以上脚本必须在同一次开发中一并完成，禁止拆成"代码已支持，但库表/API/菜单初始化后补"。
+```bash
+cd backend
+make api openapi ts ts-app gorm-gen wire fmt
+# 或执行全部：make gen
+```
+
+只执行改动涉及的前端 RPC 生成，避免把无关端的生成结果带入变更。生成产物只能由这些命令更新。
+
+## 验证
+
+```bash
+cd backend && go test ./...
+cd frontend/admin && pnpm lint:oxlint && pnpm type:check
+cd frontend/app && pnpm lint && pnpm tsc
+```
+
+只修改单个前端时执行对应前端检查；接口、生成器、模块契约或公共运行时变化时需要扩大验证范围。

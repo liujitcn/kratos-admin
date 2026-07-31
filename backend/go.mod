@@ -18,7 +18,7 @@ require (
 	github.com/liujitcn/go-utils/geoip v0.0.4
 	github.com/liujitcn/go-utils/http v0.0.5
 	github.com/liujitcn/gorm-kit v0.0.32
-	github.com/liujitcn/kratos-admin/backend/core v0.0.0
+	github.com/liujitcn/kratos-admin/backend/core v0.0.1
 	github.com/liujitcn/kratos-kit v0.0.61
 	github.com/liujitcn/kratos-kit/ai/eino v0.0.6
 	github.com/liujitcn/kratos-kit/api v0.0.23
@@ -41,7 +41,7 @@ require (
 	github.com/liujitcn/kratos-kit/pprof v0.0.12
 	github.com/liujitcn/kratos-kit/queue v0.0.22
 	github.com/liujitcn/kratos-kit/rpc v0.0.18
-	github.com/liujitcn/kratos-kit/swagger-ui v0.0.10
+	github.com/liujitcn/kratos-kit/swagger-ui v0.0.11
 	github.com/liujitcn/kratos-kit/transport/cron v0.0.11
 	github.com/liujitcn/kratos-kit/transport/mcp v0.0.12
 	github.com/liujitcn/kratos-kit/transport/sse v0.0.9
@@ -59,8 +59,6 @@ require (
 	gorm.io/plugin/dbresolver v1.6.2
 	gorm.io/plugin/soft_delete v1.2.1
 )
-
-replace github.com/liujitcn/kratos-admin/backend/core v0.0.0 => ./core
 
 require (
 	cel.dev/expr v0.25.2 // indirect

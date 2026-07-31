@@ -63,6 +63,9 @@
       "esbuild",
       "vue-demi",
       "workbox-build"
+    ],
+    "ignoredBuiltDependencies": [
+      "@scarf/scarf"
     ]
   }
 }

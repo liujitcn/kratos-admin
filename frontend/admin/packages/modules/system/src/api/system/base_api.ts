@@ -7,6 +7,8 @@ import {
   type GetBaseApiRequest,
   type OptionBaseApiRequest,
   type OptionBaseApiResponse,
+  type OptionOpenApiServiceRequest,
+  type OptionOpenApiServiceResponse,
   type PageBaseApiRequest,
   type PageBaseApiResponse,
   type SetBaseApiAgentStatusRequest,
@@ -23,6 +25,15 @@ export class BaseApiServiceImpl implements BaseApiService {
   OptionBaseApi(request: OptionBaseApiRequest): Promise<OptionBaseApiResponse> {
     return service<OptionBaseApiRequest, OptionBaseApiResponse>({
       url: `${BASE_API_URL}/option`,
+      method: "get",
+      params: request
+    });
+  }
+
+  /** 查询 OpenAPI 业务服务选项列表 */
+  OptionOpenApiService(request: OptionOpenApiServiceRequest): Promise<OptionOpenApiServiceResponse> {
+    return service<OptionOpenApiServiceRequest, OptionOpenApiServiceResponse>({
+      url: `${BASE_API_URL}/openapi-service/option`,
       method: "get",
       params: request
     });

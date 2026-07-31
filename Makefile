@@ -12,9 +12,8 @@ hooks:
 	@git config core.hooksPath scripts/githooks
 	@echo "==> git hooks 已启用 (scripts/githooks)"
 
-# 检查后端业务模块与管理端 npm 包的依赖边界
+# 检查管理端 npm 包的依赖边界
 check-boundary:
-	@bash scripts/check_backend_boundary.sh
 	@bash scripts/check_admin_boundary.sh
 
 # 统一升级、提交、打包、推送 tag，并等待 GitHub Actions 发布两个前端 npm 包

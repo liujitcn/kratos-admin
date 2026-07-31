@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/liujitcn/kratos-admin/backend/core"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	appMiddleware "github.com/liujitcn/kratos-admin/backend/internal/server/middleware"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/logging"
@@ -53,7 +54,9 @@ func NewGRPCServer(
 		return nil, nil
 	}
 
-	srv, err := rpc.CreateGrpcServer(cfg, middlewares...)
+	allMiddlewares := append(GRPCMiddlewares(nil), middlewares...)
+	allMiddlewares = append(allMiddlewares, core.Modules(modules).GRPCMiddlewares()...)
+	srv, err := rpc.CreateGrpcServer(cfg, allMiddlewares...)
 	if err != nil {
 		return nil, err
 	}

@@ -1,72 +1,64 @@
 # frontend/app
 
-`frontend/app` 是 `@liujitcn/kratos-app` 的源码包，基于 `uni-app + Vue 3 + TypeScript + Vite + Pinia + Sass` 提供通用应用宿主。它不绑定具体行业业务，只承载框架、登录态、账户资料、协议页面和基础 AI 会话。
+`frontend/app` 是可直接运行的 uni-app 应用端，也是 npm 包 `@liujitcn/kratos-app` 的源码。当前只包含通用首页、账户与登录、协议、WebView、设置、个人资料和 AI 会话，不包含商城、商品、订单、支付或推荐业务。
 
-## 目录职责
+技术栈为 `uni-app + Vue 3 + TypeScript + Vite + Pinia + Sass`，主要适配微信小程序和 H5。
+
+## 目录
 
 ```text
 frontend/app
-├── public                 # H5 静态资源目录
+├── bin/uni.mjs            # npm 包提供的 Uni CLI 启动包装器
+├── public                 # H5 静态资源
+├── scripts                # Vite 解析验证脚本
 ├── src
-│   ├── api/base           # 基础接口 service
-│   ├── api/system         # system.app 接口 service
-│   ├── pages              # 首页、账户、登录、协议和 WebView
-│   ├── pagesMember        # 设置、个人资料和 AI 会话
-│   ├── rpc                # proto 生成的 TypeScript 类型与客户端
+│   ├── api/base           # 登录、配置、文件、OAuth 和 AI service
+│   ├── api/system         # system.app 认证、地区和字典 service
+│   ├── modules            # 具名模块注册表
+│   ├── pages              # 主包页面
+│   ├── pagesMember        # 设置、资料和 AI 分包
+│   ├── rpc                # Proto 生成的 TypeScript 类型
+│   ├── static             # 应用内静态资源
 │   ├── stores             # Pinia 状态
 │   ├── styles             # 全局样式
-│   ├── types              # 手写类型
-│   ├── utils              # 请求、鉴权、路由和文件工具
+│   ├── types              # 手写类型声明
+│   ├── utils              # 请求、鉴权、路由、密码和文件工具
 │   ├── manifest.json      # uni-app 应用配置
-│   └── pages.json         # 页面、分包和 tabBar 配置
+│   └── pages.json         # 页面、分包和 tabBar
 ├── package.json
-└── vite.config.ts
+├── vite.cjs               # npm 的 `./vite` 公共入口
+├── vite.config.ts         # 当前应用的 Vite 配置
+└── vite.d.ts
 ```
 
-## 页面结构
+## 当前页面
 
-主包 `src/pages`：
+| 页面 | 路由 |
+| --- | --- |
+| 首页 | `pages/index/index` |
+| 我的 | `pages/my/my` |
+| 登录 | `pages/login/login` |
+| 协议详情 | `pages/login/protocal` |
+| WebView | `pages/webview/webview` |
+| 设置 | `pagesMember/settings/settings` |
+| 个人资料 | `pagesMember/profile/profile` |
+| AI 助手 | `pagesMember/ai/index` |
 
-- 首页：`pages/index/index`
-- 账户中心：`pages/my/my`
-- 登录与协议：`pages/login`
-- WebView：`pages/webview/webview`
+主包只有 `src/pages`，当前唯一分包是 `src/pagesMember`。新增页面时以 `src/pages.json` 为准，不在文档中预留尚不存在的业务分包。
 
-会员分包 `src/pagesMember`：
-
-- 设置：`pagesMember/settings/settings`
-- 个人资料：`pagesMember/profile/profile`
-- 智能助手：`pagesMember/ai/index`
-
-## 环境要求
-
-- `Node.js >= 16.18.0`
-- `pnpm`
-- 后端服务默认运行在 `http://localhost:7001`
-- 微信开发者工具（调试微信小程序时需要）
-
-安装依赖：
+## 开发与构建
 
 ```bash
 cd frontend/app
 pnpm install
-```
-
-## 启动与构建
-
-启动 H5：
-
-```bash
-cd frontend/app
 pnpm dev:h5
 ```
 
-默认地址：`http://localhost:5002`。
+H5 开发端口由 `.env.development-h5` 配置，当前为 `http://localhost:5002`；开发 API 默认代理到 `http://localhost:7001`。
 
-启动微信小程序：
+微信小程序开发：
 
 ```bash
-cd frontend/app
 pnpm dev:mp-weixin
 ```
 
@@ -76,42 +68,54 @@ pnpm dev:mp-weixin
 make -C frontend run-app
 ```
 
-构建 H5：
+H5 生产构建：
 
 ```bash
-cd frontend/app
 pnpm build:h5
 ```
 
-构建产物输出到 `backend/data/app`，后端启动后可通过 `/app` 访问。
+该命令把产物写入 `backend/data/app`。目录中存在 `index.html` 时，后端通过 `/app/` 挂载应用。
 
-## 接口、状态与生成代码
+其他 App、小程序和快应用平台的命令以 `package.json#scripts` 为准；是否可用取决于对应平台工具链和 uni-app 支持情况。
 
-- 请求统一通过 `src/api` 下的 service 发起。
-- `src/api/base` 对应基础协议，`src/api/system` 对应系统应用协议。
-- `src/rpc` 是生成产物，由后端 `make ts-app` 通过 `ts-proto` 生成，生成文件保留默认相对导入，不手工维护等价类型；人工源码使用 `@/*` 引用包内模块。
-- 全局状态放在 `src/stores/modules`，并通过 `src/stores/index.ts` 汇总。
-- 请求封装、鉴权、刷新令牌和错误提示集中在 `src/utils/http.ts`。
-- 令牌读写统一走 `src/utils/auth.ts`。
+## 接口与状态
 
-## 宿主接入
+- 页面通过 `src/api` 的 service 调用后端，不直接调用 `uni.request`。
+- `src/api/base` 使用 `base.v1` 契约；`src/api/system` 使用 `system.app.v1` 契约。
+- `src/utils/http.ts` 统一处理 API 地址、认证头、Token 刷新、上传拦截和错误提示。
+- Token 读写集中在 `src/utils/auth.ts`，登录跳转和原路返回集中在 `src/utils/navigation.ts`。
+- 全局状态位于 `src/stores/modules`，由 `src/stores/index.ts` 汇总。
+- `src/rpc` 由后端 `make ts-app` 生成，禁止手工修改或复制等价类型。
 
-- `bootstrapKratosApp` 创建 uni-app 实例并注册公共模块，业务宿主传入自己的 `App.vue`、Pinia 实例和模块列表。
-- `defineKratosAppModule` / `registerKratosAppModule` 提供业务模块注册边界。
-- `kratosApp()` 是 Vite 页面注册插件，在构建期合并宿主与公共 `pages.json`；宿主同路径页面优先，缺失页面生成临时 wrapper 指向公共页面，构建结束后清理，不复制源码。
-- `kratos-app-uni` 是共享包提供的 Uni CLI wrapper，底座依赖、Vite 插件和版本由本包统一管理，商城等业务宿主无需重复声明。
-- 包通过 `@liujitcn/kratos-app/api/*`、`@liujitcn/kratos-app/rpc/*`、`@liujitcn/kratos-app/utils/*` 等子路径导出公共能力；`@liujitcn/kratos-app/vite` 仅供构建配置加载页面插件。
+## npm 包边界
 
-后端接口、应用端页面和生成代码的完整接入顺序见仓库的[服务接入指南](../../docs/服务接入指南.md)。
+包根入口导出 `bootstrapKratosApp`、`defineKratosAppModule`、注册表函数和内置 `kratosAppModule`。当前 `KratosAppModule` 只有 `name` 字段，因此它只提供具名注册边界，不会自动注册页面、API、状态或组件。
 
-## 多端兼容
+包当前公开以下源码子路径：
 
-页面默认优先保证微信小程序端可用，同时兼顾 H5。涉及登录、路由、存储、上传和预览等平台敏感逻辑时，使用 uni-app 条件编译标记区分平台。新增页面和接口必须属于基础壳子、`base` 或 `system.app` 范围。
+- `@liujitcn/kratos-app/api/*`
+- `@liujitcn/kratos-app/rpc/*`
+- `@liujitcn/kratos-app/pages/*`
+- `@liujitcn/kratos-app/pagesMember/*`
+- `@liujitcn/kratos-app/utils/*`
+- `@liujitcn/kratos-app/stores/*`
+- `@liujitcn/kratos-app/static/*`
 
-## 校验
+`kratos-app-uni` 是包提供的 Uni CLI 包装器。`@liujitcn/kratos-app/vite` 当前只公开 Vite 配置类型、环境加载和 `createKratosUniPlugin()`；页面合并函数 `kratosApp()` 仍是本仓库 `src/vite.ts` 的内部构建能力，没有作为 npm 子路径导出。
+
+当前应用自己的 `vite.config.ts` 使用该内部插件：构建时合并公共与宿主 `pages.json`，同路径页面以宿主配置为准；缺失页面临时生成 wrapper，构建结束后恢复宿主文件。插件的 `modules` 参数目前只声明模块边界，不读取模块页面。
+
+## 多端约束
+
+平台差异使用 uni-app 的 `#ifdef`/`#ifndef` 条件编译。修改登录、路由、存储、上传或图片预览时，至少检查 `MP-WEIXIN`、`H5`、`APP-PLUS` 分支；当前页面优先保证微信小程序和 H5 可用。
+
+完整接口接入顺序见[服务接入指南](../../docs/服务接入指南.md)。
+
+## 验证
 
 ```bash
 cd frontend/app
+pnpm test:vite
 pnpm lint
 pnpm tsc
 ```

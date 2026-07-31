@@ -60,6 +60,10 @@ export interface PageBaseApiRequest {
   agent_status?:
     | Status
     | undefined;
+  /** OpenAPI文档key */
+  openapi_service_code?:
+    | string
+    | undefined;
   /** 页码 */
   page_num: number;
   /** 每页数量 */
@@ -104,6 +108,10 @@ export interface BaseApi {
   mcp_status: Status;
   /** Agent工具状态：枚举【Status】 */
   agent_status: Status;
+  /** OpenAPI文档key */
+  openapi_service_code: string;
+  /** OpenAPI文档名称 */
+  openapi_service_name: string;
 }
 
 /** API文档查询条件 */
@@ -192,6 +200,26 @@ export interface BaseApiDocResponse {
   body: BaseApiDocSchema | undefined;
 }
 
+/** OpenAPI业务服务选项查询条件 */
+export interface OptionOpenApiServiceRequest {
+  /** OpenAPI文档key */
+  service_code?: string | undefined;
+}
+
+/** OpenAPI业务服务选项响应 */
+export interface OptionOpenApiServiceResponse {
+  /** OpenAPI文档选项列表 */
+  list: OpenApiServiceOption[];
+}
+
+/** OpenAPI业务服务选项 */
+export interface OpenApiServiceOption {
+  /** OpenAPI文档key */
+  key: string;
+  /** OpenAPI文档名称 */
+  name: string;
+}
+
 /** AdminAPI服务 */
 export interface BaseApiService {
   /** 查询菜单分配API选项列表 */
@@ -208,4 +236,6 @@ export interface BaseApiService {
   SetBaseApiAgentStatus(request: SetBaseApiAgentStatusRequest): Promise<Empty>;
   /** 设置API MCP工具状态 */
   SetBaseApiMcpStatus(request: SetBaseApiMcpStatusRequest): Promise<Empty>;
+  /** 查询OpenAPI业务服务选项列表 */
+  OptionOpenApiService(request: OptionOpenApiServiceRequest): Promise<OptionOpenApiServiceResponse>;
 }

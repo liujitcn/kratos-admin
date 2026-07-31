@@ -121,20 +121,9 @@ System 的 API 与 RPC 都按 Proto 层级维护。当前服务端契约尚未�
 
 ## AI 扩展
 
-业务模块通过 System 导出的 `ADMIN_AI_EXTENSION` 向 AI 页面注入结构化流程卡片：
+System 导出 `ADMIN_AI_EXTENSION`、`AdminAiExtension` 和 `getAdminAiExtension()`。其他业务模块可以在 `AdminModule.extensions` 中使用该扩展名提供 `flowBlocks` 组件，AI 会话页会读取并渲染它。
 
-```ts
-import { defineAdminModule } from "@liujitcn/kratos-admin";
-import { ADMIN_AI_EXTENSION, type AdminAiExtension } from "@liujitcn/kratos-admin-system";
-import FlowBlocks from "./components/FlowBlocks.vue";
-
-const aiExtension = { flowBlocks: FlowBlocks } satisfies AdminAiExtension;
-
-export const shopAdminModule = defineAdminModule({
-  name: "shop",
-  extensions: { [ADMIN_AI_EXTENSION]: aiExtension }
-});
-```
+仓库当前没有内置流程卡片组件，也没有默认注册该扩展；未提供时 AI 会话仍按普通消息展示。扩展组件由实际业务模块自行实现，不属于 System 的内置能力。
 
 ## 命令
 

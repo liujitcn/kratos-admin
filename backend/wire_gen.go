@@ -91,39 +91,19 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 		cleanup()
 		return nil, nil, err
 	}
+	baseCase, cleanup4, err := biz.NewBaseCase(context, cacheCache, queueQueue, client, ready, pprofPprof)
+	if err != nil {
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	dataData := data.NewData(client)
-	casbinRuleRepository := data.NewCasbinRuleRepository(dataData)
 	transaction := data.NewTransaction(dataData)
-	baseMenuRepository := data.NewBaseMenuRepository(dataData)
-	baseRoleRepository := data.NewBaseRoleRepository(dataData)
-	baseTenantRepository := data.NewBaseTenantRepository(dataData)
-	baseAPIRepository := data.NewBaseAPIRepository(dataData)
-	baseAPICase := biz.NewBaseAPICase(baseAPIRepository)
-	engine, err := middleware.NewAuthzEngine()
-	if err != nil {
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	casbinRuleCase, err := biz.NewCasbinRuleCase(casbinRuleRepository, transaction, baseMenuRepository, baseRoleRepository, baseTenantRepository, baseAPICase, engine)
-	if err != nil {
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	baseTenantCase := biz.NewBaseTenantCase(transaction, baseRoleRepository, baseTenantRepository)
-	baseCase, cleanup4, err := biz.NewBaseCase(context, cacheCache, queueQueue, client, ready, pprofPprof, casbinRuleCase, baseAPICase, baseTenantCase)
-	if err != nil {
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
 	aiSessionRepository := data.NewAiSessionRepository(dataData)
 	aiMessageRepository := data.NewAiMessageRepository(dataData)
 	aiSessionCase := biz2.NewAiSessionCase(baseCase, transaction, aiSessionRepository, aiMessageRepository)
+	baseAPIRepository := data.NewBaseAPIRepository(dataData)
 	baseUserRepository := data.NewBaseUserRepository(dataData)
 	baseUserCase := biz2.NewBaseUserCase(baseUserRepository)
 	ai_Model := config.ParseAIModel(context)
@@ -153,7 +133,9 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	userToken := middleware.NewUserToken(authentication_Jwt, cacheCache, authenticator)
 	baseDeptRepository := data.NewBaseDeptRepository(dataData)
 	baseDeptCase := biz2.NewBaseDeptCase(baseDeptRepository)
-	baseRoleCase := biz2.NewBaseRoleCase(baseRoleRepository, baseTenantCase)
+	baseRoleRepository := data.NewBaseRoleRepository(dataData)
+	baseTenantRepository := data.NewBaseTenantRepository(dataData)
+	baseRoleCase := biz2.NewBaseRoleCase(baseRoleRepository, baseTenantRepository)
 	baseDictRepository := data.NewBaseDictRepository(dataData)
 	baseDictItemRepository := data.NewBaseDictItemRepository(dataData)
 	loginCase := biz2.NewLoginCase(baseCase, userToken, baseDeptCase, baseRoleCase, baseUserCase, baseTenantRepository, baseDictRepository, baseDictItemRepository)
@@ -221,6 +203,8 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 		Sse:       sseService,
 	}
 	basePostRepository := data.NewBasePostRepository(dataData)
+	casbinRuleRepository := data.NewCasbinRuleRepository(dataData)
+	baseMenuRepository := data.NewBaseMenuRepository(dataData)
 	openapiRegistry, err := server.NewOpenAPIRegistry()
 	if err != nil {
 		cleanup4()
@@ -229,8 +213,8 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 		cleanup()
 		return nil, nil, err
 	}
-	bizBaseAPICase := biz3.NewBaseAPICase(baseCase, baseAPIRepository, authentication_Jwt, openapiRegistry)
-	bizCasbinRuleCase, err := biz3.NewCasbinRuleCase(baseCase, transaction, casbinRuleRepository, baseMenuRepository, baseRoleRepository, baseTenantRepository, bizBaseAPICase)
+	baseAPICase := biz3.NewBaseAPICase(baseCase, baseAPIRepository, authentication_Jwt, openapiRegistry)
+	engine, err := middleware.NewAuthzEngine()
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -238,14 +222,22 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 		cleanup()
 		return nil, nil, err
 	}
-	bizBaseRoleCase := biz3.NewBaseRoleCase(baseCase, transaction, baseRoleRepository, baseTenantRepository, bizCasbinRuleCase)
+	casbinRuleCase, err := biz3.NewCasbinRuleCase(casbinRuleRepository, transaction, baseMenuRepository, baseRoleRepository, baseTenantRepository, baseAPICase, engine)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	bizBaseRoleCase := biz3.NewBaseRoleCase(baseCase, transaction, baseRoleRepository, baseTenantRepository, casbinRuleCase)
 	bizBaseDeptCase := biz3.NewBaseDeptCase(baseCase, baseDeptRepository)
-	baseMenuCase := biz3.NewBaseMenuCase(baseCase, transaction, baseMenuRepository, baseRoleRepository, bizCasbinRuleCase)
+	baseMenuCase := biz3.NewBaseMenuCase(baseCase, transaction, baseMenuRepository, baseRoleRepository, casbinRuleCase)
 	bizBaseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseDeptRepository, basePostRepository, bizBaseRoleCase, bizBaseDeptCase, baseMenuCase, userEvents)
-	bizBaseTenantCase := biz3.NewBaseTenantCase(baseCase, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, casbinRuleRepository, bizCasbinRuleCase, userEvents)
-	authCase := biz3.NewAuthCase(baseCase, bizBaseUserCase, bizBaseRoleCase, bizBaseDeptCase, bizBaseTenantCase, baseMenuCase, fileCase)
+	baseTenantCase := biz3.NewBaseTenantCase(baseCase, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, casbinRuleRepository, casbinRuleCase, userEvents)
+	authCase := biz3.NewAuthCase(baseCase, bizBaseUserCase, bizBaseRoleCase, bizBaseDeptCase, baseTenantCase, baseMenuCase, fileCase)
 	authService := admin.NewAuthService(authCase)
-	baseApiService := admin.NewBaseApiService(bizBaseAPICase)
+	baseApiService := admin.NewBaseApiService(baseAPICase)
 	baseAreaRepository := data.NewBaseAreaRepository(dataData)
 	baseAreaCase := biz3.NewBaseAreaCase(baseCase, baseAreaRepository)
 	baseAreaService := admin.NewBaseAreaService(baseAreaCase)
@@ -269,7 +261,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	basePostCase := biz3.NewBasePostCase(baseCase, transaction, basePostRepository, baseUserRepository)
 	basePostService := admin.NewBasePostService(basePostCase)
 	baseRoleService := admin.NewBaseRoleService(bizBaseRoleCase)
-	baseTenantService := admin.NewBaseTenantService(bizBaseTenantCase)
+	baseTenantService := admin.NewBaseTenantService(baseTenantCase)
 	baseUserService := admin.NewBaseUserService(bizBaseUserCase)
 	codeGenTableRepository := data.NewCodeGenTableRepository(dataData)
 	codeGenColumnRepository := data.NewCodeGenColumnRepository(dataData)
@@ -279,7 +271,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	codeGenTableCase := biz3.NewCodeGenTableCase(codeGenTableRepository, client, transaction, baseDictRepository, baseDictItemRepository, baseMenuCase, codeGenColumnCase, codeGenProtoCase)
 	baseMigrationRepository := data.NewBaseMigrationRepository(dataData)
 	baseMigrationCase := biz3.NewBaseMigrationCase(baseCase, baseMigrationRepository)
-	codeGenCase := biz3.NewCodeGenCase(baseCase, transaction, bizBaseAPICase, codeGenTableCase, codeGenColumnCase, codeGenProtoCase, baseMenuCase, baseMigrationCase, client, codegenManager)
+	codeGenCase := biz3.NewCodeGenCase(baseCase, transaction, baseAPICase, codeGenTableCase, codeGenColumnCase, codeGenProtoCase, baseMenuCase, baseMigrationCase, client, codegenManager)
 	codeGenService := admin.NewCodeGenService(codeGenCase)
 	codeGenColumnService := admin.NewCodeGenColumnService(codeGenColumnCase)
 	codeGenProtoService := admin.NewCodeGenProtoService(codeGenProtoCase)
@@ -330,7 +322,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 		cleanup()
 		return nil, nil, err
 	}
-	openAPIReady, err := server.NewOpenAPIReady(context, baseCase, openapiRegistry, modules)
+	openAPIReady, err := server.NewOpenAPIReady(context, baseAPICase, baseTenantCase, casbinRuleCase, openapiRegistry, modules)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -404,39 +396,19 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, ar
 		cleanup()
 		return nil, nil, err
 	}
+	baseCase, cleanup4, err := biz.NewBaseCase(context, cacheCache, queueQueue, client, ready, pprofPprof)
+	if err != nil {
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	dataData := data.NewData(client)
-	casbinRuleRepository := data.NewCasbinRuleRepository(dataData)
 	transaction := data.NewTransaction(dataData)
-	baseMenuRepository := data.NewBaseMenuRepository(dataData)
-	baseRoleRepository := data.NewBaseRoleRepository(dataData)
-	baseTenantRepository := data.NewBaseTenantRepository(dataData)
-	baseAPIRepository := data.NewBaseAPIRepository(dataData)
-	baseAPICase := biz.NewBaseAPICase(baseAPIRepository)
-	engine, err := middleware.NewAuthzEngine()
-	if err != nil {
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	casbinRuleCase, err := biz.NewCasbinRuleCase(casbinRuleRepository, transaction, baseMenuRepository, baseRoleRepository, baseTenantRepository, baseAPICase, engine)
-	if err != nil {
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	baseTenantCase := biz.NewBaseTenantCase(transaction, baseRoleRepository, baseTenantRepository)
-	baseCase, cleanup4, err := biz.NewBaseCase(context, cacheCache, queueQueue, client, ready, pprofPprof, casbinRuleCase, baseAPICase, baseTenantCase)
-	if err != nil {
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
 	aiSessionRepository := data.NewAiSessionRepository(dataData)
 	aiMessageRepository := data.NewAiMessageRepository(dataData)
 	aiSessionCase := biz2.NewAiSessionCase(baseCase, transaction, aiSessionRepository, aiMessageRepository)
+	baseAPIRepository := data.NewBaseAPIRepository(dataData)
 	baseUserRepository := data.NewBaseUserRepository(dataData)
 	baseUserCase := biz2.NewBaseUserCase(baseUserRepository)
 	ai_Model := config.ParseAIModel(context)
@@ -466,7 +438,9 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, ar
 	userToken := middleware.NewUserToken(authentication_Jwt, cacheCache, authenticator)
 	baseDeptRepository := data.NewBaseDeptRepository(dataData)
 	baseDeptCase := biz2.NewBaseDeptCase(baseDeptRepository)
-	baseRoleCase := biz2.NewBaseRoleCase(baseRoleRepository, baseTenantCase)
+	baseRoleRepository := data.NewBaseRoleRepository(dataData)
+	baseTenantRepository := data.NewBaseTenantRepository(dataData)
+	baseRoleCase := biz2.NewBaseRoleCase(baseRoleRepository, baseTenantRepository)
 	baseDictRepository := data.NewBaseDictRepository(dataData)
 	baseDictItemRepository := data.NewBaseDictItemRepository(dataData)
 	loginCase := biz2.NewLoginCase(baseCase, userToken, baseDeptCase, baseRoleCase, baseUserCase, baseTenantRepository, baseDictRepository, baseDictItemRepository)
@@ -534,6 +508,8 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, ar
 		Sse:       sseService,
 	}
 	basePostRepository := data.NewBasePostRepository(dataData)
+	casbinRuleRepository := data.NewCasbinRuleRepository(dataData)
+	baseMenuRepository := data.NewBaseMenuRepository(dataData)
 	openapiRegistry, err := server.NewOpenAPIRegistry()
 	if err != nil {
 		cleanup4()
@@ -542,8 +518,8 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, ar
 		cleanup()
 		return nil, nil, err
 	}
-	bizBaseAPICase := biz3.NewBaseAPICase(baseCase, baseAPIRepository, authentication_Jwt, openapiRegistry)
-	bizCasbinRuleCase, err := biz3.NewCasbinRuleCase(baseCase, transaction, casbinRuleRepository, baseMenuRepository, baseRoleRepository, baseTenantRepository, bizBaseAPICase)
+	baseAPICase := biz3.NewBaseAPICase(baseCase, baseAPIRepository, authentication_Jwt, openapiRegistry)
+	engine, err := middleware.NewAuthzEngine()
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -551,14 +527,22 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, ar
 		cleanup()
 		return nil, nil, err
 	}
-	bizBaseRoleCase := biz3.NewBaseRoleCase(baseCase, transaction, baseRoleRepository, baseTenantRepository, bizCasbinRuleCase)
+	casbinRuleCase, err := biz3.NewCasbinRuleCase(casbinRuleRepository, transaction, baseMenuRepository, baseRoleRepository, baseTenantRepository, baseAPICase, engine)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	bizBaseRoleCase := biz3.NewBaseRoleCase(baseCase, transaction, baseRoleRepository, baseTenantRepository, casbinRuleCase)
 	bizBaseDeptCase := biz3.NewBaseDeptCase(baseCase, baseDeptRepository)
-	baseMenuCase := biz3.NewBaseMenuCase(baseCase, transaction, baseMenuRepository, baseRoleRepository, bizCasbinRuleCase)
+	baseMenuCase := biz3.NewBaseMenuCase(baseCase, transaction, baseMenuRepository, baseRoleRepository, casbinRuleCase)
 	bizBaseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseDeptRepository, basePostRepository, bizBaseRoleCase, bizBaseDeptCase, baseMenuCase, userEvents)
-	bizBaseTenantCase := biz3.NewBaseTenantCase(baseCase, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, casbinRuleRepository, bizCasbinRuleCase, userEvents)
-	authCase := biz3.NewAuthCase(baseCase, bizBaseUserCase, bizBaseRoleCase, bizBaseDeptCase, bizBaseTenantCase, baseMenuCase, fileCase)
+	baseTenantCase := biz3.NewBaseTenantCase(baseCase, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, casbinRuleRepository, casbinRuleCase, userEvents)
+	authCase := biz3.NewAuthCase(baseCase, bizBaseUserCase, bizBaseRoleCase, bizBaseDeptCase, baseTenantCase, baseMenuCase, fileCase)
 	authService := admin.NewAuthService(authCase)
-	baseApiService := admin.NewBaseApiService(bizBaseAPICase)
+	baseApiService := admin.NewBaseApiService(baseAPICase)
 	baseAreaRepository := data.NewBaseAreaRepository(dataData)
 	baseAreaCase := biz3.NewBaseAreaCase(baseCase, baseAreaRepository)
 	baseAreaService := admin.NewBaseAreaService(baseAreaCase)
@@ -582,7 +566,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, ar
 	basePostCase := biz3.NewBasePostCase(baseCase, transaction, basePostRepository, baseUserRepository)
 	basePostService := admin.NewBasePostService(basePostCase)
 	baseRoleService := admin.NewBaseRoleService(bizBaseRoleCase)
-	baseTenantService := admin.NewBaseTenantService(bizBaseTenantCase)
+	baseTenantService := admin.NewBaseTenantService(baseTenantCase)
 	baseUserService := admin.NewBaseUserService(bizBaseUserCase)
 	codeGenTableRepository := data.NewCodeGenTableRepository(dataData)
 	codeGenColumnRepository := data.NewCodeGenColumnRepository(dataData)
@@ -592,7 +576,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, ar
 	codeGenTableCase := biz3.NewCodeGenTableCase(codeGenTableRepository, client, transaction, baseDictRepository, baseDictItemRepository, baseMenuCase, codeGenColumnCase, codeGenProtoCase)
 	baseMigrationRepository := data.NewBaseMigrationRepository(dataData)
 	baseMigrationCase := biz3.NewBaseMigrationCase(baseCase, baseMigrationRepository)
-	codeGenCase := biz3.NewCodeGenCase(baseCase, transaction, bizBaseAPICase, codeGenTableCase, codeGenColumnCase, codeGenProtoCase, baseMenuCase, baseMigrationCase, client, codegenManager)
+	codeGenCase := biz3.NewCodeGenCase(baseCase, transaction, baseAPICase, codeGenTableCase, codeGenColumnCase, codeGenProtoCase, baseMenuCase, baseMigrationCase, client, codegenManager)
 	codeGenService := admin.NewCodeGenService(codeGenCase)
 	codeGenColumnService := admin.NewCodeGenColumnService(codeGenColumnCase)
 	codeGenProtoService := admin.NewCodeGenProtoService(codeGenProtoCase)
@@ -643,7 +627,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, ar
 		cleanup()
 		return nil, nil, err
 	}
-	openAPIReady, err := server.NewOpenAPIReady(context, baseCase, openapiRegistry, modules)
+	openAPIReady, err := server.NewOpenAPIReady(context, baseAPICase, baseTenantCase, casbinRuleCase, openapiRegistry, modules)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -659,8 +643,17 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, ar
 		cleanup()
 		return nil, nil, err
 	}
+	kratosadminStandaloneRuntime, cleanup5, err := newStandaloneRuntime(kratosadminRuntime, queueQueue, taskRegistry, sseRegistry)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	grpcServer, err := server.NewGRPCServer(context, grpcMiddlewares, modules, mcpToolsReady, agentToolsReady)
 	if err != nil {
+		cleanup5()
 		cleanup4()
 		cleanup3()
 		cleanup2()
@@ -670,14 +663,16 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, ar
 	appInfo := config.GetAppInfo(context)
 	httpServer, err := server.NewHTTPServer(context, appInfo, httpMiddlewares, modules, openapiRegistry, authenticator, userToken, mcpToolsReady, agentToolsReady, openAPIReady)
 	if err != nil {
+		cleanup5()
 		cleanup4()
 		cleanup3()
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	kratosApp, err := newKratosApp(context, kratosadminRuntime, grpcServer, httpServer)
+	kratosApp, err := newKratosApp(context, kratosadminStandaloneRuntime, grpcServer, httpServer)
 	if err != nil {
+		cleanup5()
 		cleanup4()
 		cleanup3()
 		cleanup2()
@@ -685,6 +680,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, ar
 		return nil, nil, err
 	}
 	return kratosApp, func() {
+		cleanup5()
 		cleanup4()
 		cleanup3()
 		cleanup2()

@@ -1,41 +1,44 @@
-# proto 契约与 HTTP 接口命名细则
+# Proto 与 HTTP 契约
 
-> 新增或修改 proto、HTTP 接口前必读。核心约束见 `backend/AGENTS.md` 的「proto 与 HTTP 路径」节。
+本文记录当前仓库新增或修改接口时必须保持一致的契约规则。
 
-## proto package 与目录
+## 目录和 package
 
-- package 必须带版本号，按终端或模块分层命名：`system.admin.v1`、`system.app.v1`、`base.v1`、`common.v1`。
-- 文件目录必须与 package 对齐，版本号落到目录层级，例如 `api/proto/system/admin/v1/auth.proto` 对应 `package system.admin.v1;`。
-- 禁止新增未分组的 `admin.v1`、`app.v1`，以及不符合当前分层的公共包命名。
-- Go 生成包 import 必须使用真实包名别名：`systemadminv1`、`systemappv1`、`basev1`、`commonv1`；生成 import path 必须带 `/v1`，禁止退回不带版本层级的历史路径。
-- 前端 TS 生成类型与业务 import 必须带 `/v1/` 目录层级，例如 `@/rpc/system/admin/v1/auth`；禁止新增缺少模块分组或版本层级的历史路径。
+| 目录 | package | 用途 |
+| --- | --- | --- |
+| `api/proto/base/v1` | `base.v1` | admin 与 app 共用能力。 |
+| `api/proto/system/admin/v1` | `system.admin.v1` | 管理后台。 |
+| `api/proto/system/app/v1` | `system.app.v1` | 应用端。 |
+| `api/proto/system/common/v1` | `system.common.v1` | System 两端共享类型。 |
 
-## proto 字段与注释
+`common.v1` 来自 Buf 依赖，不在本仓库重复维护。目录、Proto package、Go import 别名和前端 RPC 层级必须一致。
 
-- 直接对应数据库表字段的字段，必须严格按表结构字段顺序排列、编号从 1 连续递增。
-- 新增表字段映射必须插入到与表结构一致的位置并重排其后编号；禁止只追加到消息末尾；删除字段直接重排，不保留 `reserved`。
-- 通过 ID 关联映射的 `name` 等派生字段，统一追加在全部表字段映射之后。
-- 每个 `message` 必须有中文注释，直接表达业务语义，例如"用户分页查询条件""部门详情响应"。
-- 每个字段必须有中文尾注释（如 `];  // 数量`），并同步补齐 `(gnostic.openapi.v3.property).description`，两者语义一致；字段尾部已有注释时不要在上方重复写语义相同的注释。
+## HTTP 路径
 
-## HTTP 路径规范（RESTful）
+- 公共接口：`/api/v1/base/<resource>`。
+- 管理端：`/api/v1/admin/<resource>`。
+- 应用端：`/api/v1/app/<resource>`。
+- SSE：`/events/{stream}`。
+- MCP：`/mcp/{terminal}`。
 
-- 路径层级统一带版本号前缀：`/api/v1/{terminal}/{module}/{resource}`。
-- 迁移旧接口时，新主路径必须用 `/api/v1/...`；旧路径 `/api/...` 通过 `additional_bindings` 暂时保留。
-- 优先表达"资源"而不是"动作"：标准 CRUD 用 HTTP Method 区分动作，同一资源的查/增/改/删复用同一主路径。
-- RESTful 判断以"资源建模"而不是"动词翻译"为准；业务动作优先抽象为会话、令牌、绑定关系、执行记录、导出任务等资源或子资源。
-- 状态切换、排序、导出、树结构、选项集、统计汇总等非标准 CRUD 场景，必须抽象成资源或子资源，禁止动词式路径。
-- 资源唯一标识放 path；筛选、分页、排序、统计维度放 query 或请求参数。
-- 路径统一小写英文，沿用项目现有的分隔风格；禁止驼峰、中文、空格；资源段默认沿用当前项目的单数/不可数风格，不混用复数。
-- 同一业务的列表、汇总、图表、明细等接口命名保持并列、稳定、可预测，例如 `/summary`、`/trend`、`/rank`、`/metric`、`/risk`、`/todo`。
-- 批量操作无法自然映射为单资源操作时，优先使用资源集合语义或明确的子资源命名。
-- RPC 方法名与最终资源语义保持一致，不保留历史动作式或歧义命名。
+资源名使用小写 kebab-case；列表使用集合路径，详情和动作使用路径参数。兼容旧接口时使用 `additional_bindings`，并明确删除时机。
 
-## 三处同步
+## 字段和注释
 
-HTTP 路径确定后，以下三处必须保持一致，禁止只改其中一处：
-1. proto 中的 `google.api.http` 映射
-2. `backend/migration/assets/mysql/<version>/<feature>.up.sql` 中的 `base_api.path`
-3. 前端请求地址（`src/rpc` 生成类型与调用处）
+- 每个 `message` 必须有中文注释。
+- 每个字段同时提供中文尾注释和 `(gnostic.openapi.v3.property).description`，语义保持一致。
+- 字段按业务或表结构顺序排列，编号连续；公共审计字段沿用项目现有编号。
+- 请求格式约束写入 `buf.validate`；唯一性、存在性、权限和状态流转由 biz 校验。
+- 枚举引用真实 package，避免复制等价枚举。
 
-修改或新增 proto 时，同步检查：`api/gen`、后端 service/biz、前端 RPC 类型与调用处、OpenAPI、对应版本目录中的 `<feature>.up.sql` 接口权限数据。
+## 同步范围
+
+一次接口变更至少核对：
+
+1. Proto 的 `google.api.http` 和 `buf.validate`。
+2. `make api openapi` 生成的 Go 与 OpenAPI。
+3. 后端 service、biz 和注册代码。
+4. `make ts` 或 `make ts-app` 生成的前端 RPC 类型，以及消费端人工维护的请求封装。
+5. `migration/assets/<version>/<database-type>/<feature>.up.sql` 中的菜单、按钮和服务方法权限。
+
+生成目录不得手工修改。完整流程见 [new-feature.md](new-feature.md)。

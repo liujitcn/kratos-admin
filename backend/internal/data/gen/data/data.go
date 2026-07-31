@@ -9,11 +9,13 @@ import (
 
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
+	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 )
 
-func init() {
-	databaseGorm.RegisterMigrateModels(
+// Models 返回当前数据源生成的全部迁移模型。
+func Models() []interface{} {
+	return []interface{}{
 		new(models.AiMessage),
 		new(models.AiSession),
 		new(models.BaseAPI),
@@ -36,6 +38,15 @@ func init() {
 		new(models.CodeGenColumn),
 		new(models.CodeGenProto),
 		new(models.CodeGenTable),
+	}
+}
+
+// NewClient 创建绑定当前数据源模型范围的 GORM 客户端。
+func NewClient(cfg *configv1.Data_Database) (*databaseGorm.Client, func(), error) {
+	return databaseGorm.NewGormClient(
+		cfg,
+		databaseGorm.WithName("default"),
+		databaseGorm.WithMigrateModels(Models()...),
 	)
 }
 

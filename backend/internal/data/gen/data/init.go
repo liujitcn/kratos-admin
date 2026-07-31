@@ -6,8 +6,8 @@ package data
 
 import "github.com/google/wire"
 
-// ProviderSet 定义 data 包依赖注入提供者集合。
-var ProviderSet = wire.NewSet(
+// RepositoryProviderSet 定义不包含数据库客户端的数据访问依赖注入提供者集合。
+var RepositoryProviderSet = wire.NewSet(
 	NewData,
 	NewTransaction,
 	NewAiMessageRepository,
@@ -32,4 +32,10 @@ var ProviderSet = wire.NewSet(
 	NewCodeGenColumnRepository,
 	NewCodeGenProtoRepository,
 	NewCodeGenTableRepository,
+)
+
+// ProviderSet 定义包含数据库客户端的完整 data 包依赖注入提供者集合。
+var ProviderSet = wire.NewSet(
+	NewClient,
+	RepositoryProviderSet,
 )

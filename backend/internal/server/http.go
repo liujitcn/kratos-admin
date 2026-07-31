@@ -1,19 +1,25 @@
 package server
 
 import (
+	"context"
+	"fmt"
 	"io/fs"
 	stdhttp "net/http"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/liujitcn/kratos-admin/backend/core"
+	"github.com/liujitcn/kratos-admin/backend/core/pkg/health"
 	coreOpenAPI "github.com/liujitcn/kratos-admin/backend/core/pkg/openapi"
+	coreStatic "github.com/liujitcn/kratos-admin/backend/core/pkg/static"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	appMiddleware "github.com/liujitcn/kratos-admin/backend/internal/server/middleware"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/logging"
 
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 
+	"github.com/go-kratos/kratos/v3/log"
 	kratosMiddleware "github.com/go-kratos/kratos/v3/middleware"
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
 	authnEngine "github.com/liujitcn/kratos-kit/auth/authn/engine"
@@ -66,11 +72,31 @@ func NewHTTPServer(
 		return nil, nil
 	}
 
-	srv, err := rpc.CreateHttpServer(cfg, middlewares...)
+	healthRegistry := health.NewRegistry()
+	var err error
+	err = healthRegistry.Register(core.Modules(modules).HealthChecks()...)
+	if err != nil {
+		return nil, fmt.Errorf("注册扩展模块健康检查: %w", err)
+	}
+	allMiddlewares := append(HTTPMiddlewares(nil), middlewares...)
+	allMiddlewares = append(allMiddlewares, core.Modules(modules).HTTPMiddlewares()...)
+	var srv *kratosHTTP.Server
+	srv, err = rpc.CreateHttpServer(cfg, allMiddlewares...)
 	if err != nil {
 		return nil, err
 	}
+	serverReturned := false
+	defer func() {
+		if serverReturned {
+			return
+		}
+		stopErr := srv.Stop(context.Background())
+		if stopErr != nil {
+			log.Error("清理 Backend HTTP 服务初始化资源失败", "error", stopErr)
+		}
+	}()
 
+	health.RegisterHTTP(srv, healthRegistry)
 	modules.RegisterHTTP(srv)
 
 	ossRootDirectory := "./data"
@@ -87,6 +113,10 @@ func NewHTTPServer(
 
 	// 自动发现本地 OSS 根目录下的前端入口，按子目录名称挂载为 SPA 路由。
 	registerLocalSPARoutes(srv, ossRootDirectory)
+	err = coreStatic.RegisterHTTP(srv, core.Modules(modules).StaticMounts()...)
+	if err != nil {
+		return nil, fmt.Errorf("注册扩展模块静态资源: %w", err)
+	}
 
 	// 显式启用 Swagger 时，为每个业务模块注册独立的受保护 OpenAPI 文档接口。
 	if cfg.GetServer().GetHttp().GetEnableSwagger() {
@@ -94,13 +124,14 @@ func NewHTTPServer(
 		for _, document := range openAPIRegistry.Documents() {
 			swaggerUI.RegisterOpenAPIServerWithOption(
 				srv,
-				swaggerUI.WithOpenAPIPath(defaultOpenAPIPath+"/"+document.Key),
+				swaggerUI.WithOpenAPIPath(swaggerUI.DefaultOpenAPIPath+"/"+document.Key),
 				swaggerUI.WithMemoryData(document.Data, "yaml"),
 				swaggerUI.WithOpenAPIAuthorizer(authorizer),
 			)
 		}
 	}
 
+	serverReturned = true
 	return srv, nil
 }
 

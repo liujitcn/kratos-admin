@@ -48,7 +48,6 @@ temp/
 Thumbs.db
 
 # Test binary
-*.test
 
 # Go cache
 .gocache/

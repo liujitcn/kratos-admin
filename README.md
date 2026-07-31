@@ -1,96 +1,124 @@
-# admin
+# kratos-admin
 
-这是一个前后端分离的管理后台项目，仓库包含 Go + Kratos 后端、Vue 管理端、内置数据库迁移和设计文档。
+`kratos-admin` 是一个前后端分离的管理系统仓库，包含 Go + Kratos 后端、Vue 管理后台、uni-app 应用底座、版本化数据库迁移和模块脚手架。
 
-## 模块文档
+## 已实现能力
 
-| 模块 | 文档 | 说明 |
+- 账号密码、验证码、OAuth、JWT 刷新、租户和 Casbin 权限。
+- 用户、角色、部门、岗位、菜单、字典、配置、任务、日志、地区、API 和迁移记录管理。
+- Proto 驱动的 HTTP、gRPC、OpenAPI、Agent Tool、MCP Tool 和 TypeScript RPC 生成。
+- AI 会话、流式消息、附件、工具调用、重试、再生成和分支会话。
+- 管理端代码生成配置、预览、生成进度和还原。
+- 可挂载的 Go Core 模块、管理端业务模块和 uni-app 具名模块注册边界。
+
+仓库不包含商城、订单、支付或推荐等业务模块。
+
+## 目录
+
+| 目录 | 说明 | 文档 |
 | --- | --- | --- |
-| 后端服务 | [backend/README.md](backend/README.md) | 服务启动、配置、接口生成、构建和校验。 |
-| 管理后台 | [frontend/admin/README.md](frontend/admin/README.md) | 页面结构、环境变量、开发与构建命令。 |
-| 应用壳子 | [frontend/app/README.md](frontend/app/README.md) | 基础应用、系统 app 接口、账户与 AI 会话。 |
-| 接入指南 | [docs/服务接入指南.md](docs/服务接入指南.md) | 后端模块、管理后台和应用端的完整接入流程。 |
+| `backend` | Kratos 服务、Proto、GORM、迁移和 Core 运行时。 | [backend/README.md](backend/README.md) |
+| `frontend/admin` | 管理端 workspace，包含 core、System、CLI 和默认宿主。 | [frontend/admin/README.md](frontend/admin/README.md) |
+| `frontend/app` | 可直接运行和复用的 uni-app 应用底座。 | [frontend/app/README.md](frontend/app/README.md) |
+| `docs` | 当前架构和专题说明。 | [docs/系统总体设计.md](docs/系统总体设计.md) |
 
-## 仓库结构
+## 环境
 
-```text
-.
-├── backend          # Go + Kratos 后端服务
-├── frontend
-│   ├── admin       # Vue 管理后台
-│   ├── app         # @liujitcn/kratos-app 公共应用宿主包
-│   └── Makefile    # 前端聚合命令
-└── docs            # 项目设计文档
-```
+- Go `1.26.3`。
+- Node.js `^20.19.0` 或 `>=22.12.0`。
+- pnpm `10.33.4`。
+- MySQL 和 Redis；默认连接见 `backend/configs/data.yaml`。
+- Buf、protoc 插件、Wire 和 gorm-gen 只在重新生成代码时需要，可通过 `make -C backend init` 安装。
 
 ## 本地启动
 
-1. 创建 `kratos_admin` 数据库。
-2. 启动后端，GORM 先按当前模型建表，再自动执行 `backend/migration/assets/mysql` 中的增量迁移。
-3. 后端默认 HTTP 地址为 `http://localhost:7001`。
-4. 启动管理后台，默认地址为 `http://localhost:8848`。
-5. 如需启动应用壳子，执行 `make -C frontend run-app`；业务应用通过 `@liujitcn/kratos-app` 注册自己的页面并调用公共启动入口。
+先创建数据库：
 
-## 统一发布
-
-统一发布命令会自动递增（或使用显式 `VERSION`）两个前端包的版本，将工作区全部改动统一提交，
-执行后端测试和两个前端包的检查打包，确认成功后推送分支及发布 tag。`npm/vX.Y.Z` tag 会触发
-GitHub Actions，通过 npm Trusted Publishing (OIDC) 发布两个 npm 包；本地命令会等待 workflow 完成：
-
-```bash
-make tag VERSION=0.0.4
+```sql
+CREATE DATABASE kratos_admin CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-发布 `0.0.4` 时会依次推送 `v0.0.4`、`backend/v0.0.4` 和 `npm/v0.0.4`。不指定 `VERSION` 时，脚本会先拉取远程
-tag，再按根目录最新 tag 自动递增 patch 版本。发布要求当前分支是远程默认分支且提交基线已与远程同步；
-工作区中的本地改动会全部纳入版本提交。本机需要安装并登录 GitHub CLI (`gh auth login`)。如果工作区无改动且
-当前提交已经带有最新根版本 tag，再次执行 `make tag` 不会升级版本：脚本会补推缺失的同版本 tag，并在 npm
-workflow 失败时重跑、运行中继续等待、成功时直接结束。
+安装前端依赖：
 
-首次使用前，在 npmjs.com 的两个包设置中分别添加同一个 Trusted Publisher：GitHub 用户填写
-`liujitcn`，仓库填写 `kratos-admin`，workflow 文件填写 `publish-npm.yml`，允许 `npm publish`。
-workflow 使用短期 OIDC 凭据，不需要保存 npm token，也不会在本地反复提示二次认证。
+```bash
+make -C frontend init
+```
 
-## npm 包发布
+启动后端：
 
-前端 npm 包由 `frontend/Makefile` 统一管理。完整版本发布请使用上面的 `make tag`；
-仅需要在本地应急发布已准备好的包时，确保已登录目标 npm registry 后执行：
+```bash
+cd backend
+go run ./internal/cmd/server --conf ./configs
+```
+
+启动管理后台或应用端 H5：
+
+```bash
+make -C frontend run-admin
+cd frontend/app && pnpm dev:h5
+```
+
+| 服务 | 默认地址 |
+| --- | --- |
+| 后端 HTTP | `http://localhost:7001` |
+| 后端 gRPC | `localhost:6001` |
+| 管理后台 | `http://localhost:8848` |
+| 应用端 H5 | `http://localhost:5002` |
+
+默认迁移提供开发账号 `super / 112233` 和 `admin / 112233`。部署前必须修改默认密码、JWT 密钥、数据库和 Redis 凭据。
+
+## 生成与检查
+
+```bash
+make -C backend gen
+cd backend && go test ./...
+
+cd frontend/admin
+pnpm check:exports
+pnpm test
+pnpm type:check
+pnpm lint:oxlint
+
+cd ../app
+pnpm test:vite
+pnpm tsc
+pnpm lint
+```
+
+`backend/api/gen`、`backend/internal/data/gen`、管理端和应用端 `rpc`、OpenAPI 及 `wire_gen.go` 都是生成产物，不得手工修改。
+
+## 发布
+
+统一发布会更新四个 npm 包的版本：
+
+- `@liujitcn/kratos-admin`
+- `@liujitcn/kratos-admin-system`
+- `@liujitcn/kratos-admin-cli`
+- `@liujitcn/kratos-app`
+
+```bash
+make tag VERSION=0.0.16
+```
+
+脚本要求当前分支为远程默认分支且与 `origin` 同步，会纳入当前工作区改动，执行后端测试和前端打包，然后推送 `vX.Y.Z`、`backend/vX.Y.Z`、`npm/vX.Y.Z`。`npm/vX.Y.Z` 触发 `.github/workflows/publish-npm.yml`，通过 npm Trusted Publishing 发布四个包；本机需要可用的 `git`、`gh` 和 GitHub 登录态。
+
+只做本地 npm 发布时：
 
 ```bash
 pnpm login
 make -C frontend publish
 ```
 
-该命令会先执行类型检查、构建并生成两个包，再依次发布
-`@liujitcn/kratos-admin` 和 `@liujitcn/kratos-app`。生成的 `.tgz` 文件位于各自的
-`dist/npm` 目录。发布前会查询精确版本，registry 中已经存在的版本会自动跳过，因此可以在部分成功后安全重试。
-本地发布使用当前 npm 会话并保留交互等待，默认跳过 pnpm 的工作区干净检查；需要强制工作区无未提交修改时设置
-`NPM_SKIP_GIT_CHECKS=false`。启用 `auth-and-writes` 2FA 的账号仍可能对每个本地发布动作分别认证，日常完整发布应使用 `make tag`。
+发布脚本会跳过 registry 中已存在的同版本包，支持失败后重试。私有 registry 可通过 `NPM_REGISTRY`、`NPM_ACCESS` 和 `NPM_TAG` 覆盖。
 
-发布到私有 registry 时通过变量覆盖地址和 tag：
+## 文档
 
-```bash
-make -C frontend publish \
-  NPM_REGISTRY=https://npm.example.com/ \
-  NPM_TAG=beta
-```
-
-`NPM_REGISTRY` 默认是可发布的官方地址 `https://registry.npmjs.org/`；常见的
-`npmmirror.com` 通常是只读下载镜像，不能作为发布地址。
-
-数据库迁移由 `backend/migration` 管理。所有模块统一将版本记录保存到默认数据库的
-`base_migration` 表，使用 `module` 区分迁移模块、`data_source` 区分目标数据源；SQL
-仍在各自配置的数据源执行。`data.database` 兼容单库配置，`data.databases` 可按名称
-创建多个 GORM 客户端。`base_migration` 作为 GORM 注册模型由 admin 服务启动时自动
-创建或更新；仅当默认数据库配置 `enable_migrate: true` 时才会建表并执行迁移。
-版本记录只在全部升级脚本成功后写入；脚本失败会回滚当前版本、输出错误并阻止服务启动，
-修复脚本后重启会重新执行未记录的增量版本。
-
-默认后台账号来自 admin 基础迁移（与 `backend/migration/assets/mysql/v0.0.1/default_data.up.sql` 内容一致）：
-
-- `super / 112233`
-- `admin / 112233`
-
-Backend 自有接口契约位于 `backend/api/proto`，通用 `common/v1` 契约从
-`buf.build/liujitcn/kratos-common` 引入；后端服务、管理端 API、应用 API 和生成 RPC 类型使用相同分层。
-后端托管 `backend/data/admin` 与 `backend/data/app` 下的前端构建产物，对应 `/admin` 与 `/app` 路径。
+| 主题 | 文档 |
+| --- | --- |
+| 总体架构 | [docs/系统总体设计.md](docs/系统总体设计.md) |
+| 新能力接入 | [docs/服务接入指南.md](docs/服务接入指南.md) |
+| 数据库迁移 | [docs/数据库与初始化数据设计.md](docs/数据库与初始化数据设计.md) |
+| 参数校验 | [docs/接口参数校验设计.md](docs/接口参数校验设计.md) |
+| 登录和密码 | [docs/登录与密码加密流程.md](docs/登录与密码加密流程.md) |
+| AI 助手 | [docs/AI助手设计.md](docs/AI助手设计.md) |
+| 管理端组件 | [docs/前端组件清单.md](docs/前端组件清单.md) |

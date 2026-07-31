@@ -406,7 +406,7 @@ func (c *BaseRoleCase) syncTenantRoleMenus(ctx context.Context, templateRole *mo
 			return err
 		}
 	}
-	return c.RebuildPolicyRule(ctx)
+	return c.casbinRuleCase.RebuildPolicyRule(ctx)
 }
 
 // isBaseRoleProtected 判断目标角色是否禁止当前账号通过角色管理操作。
