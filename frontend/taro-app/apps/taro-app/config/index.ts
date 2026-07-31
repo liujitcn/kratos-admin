@@ -4,6 +4,8 @@ import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin'
 import devConfig from './dev'
 import prodConfig from './prod'
 
+const h5RootFontScript = `!function(n){function f(){var e=n.document.documentElement,w=e.clientWidth||n.innerWidth||375,x=w>960?375:w;e.style.fontSize=20*x/375+"px"}n.addEventListener("resize",function(){f();setTimeout(f,500)}),f()}(window);`
+
 export default defineConfig<'webpack5'>(async (merge) => {
   const outputRoot = process.env.KRATOS_TARO_OUTPUT_ROOT || 'dist'
   const publicPath = process.env.KRATOS_TARO_PUBLIC_PATH || '/'
@@ -81,6 +83,10 @@ export default defineConfig<'webpack5'>(async (merge) => {
     h5: {
       publicPath,
       staticDirectory: 'static',
+      // 与 uni-app H5 的 rpx 规则一致：宽屏使用 375px 基准，移动端随页面宽度缩放。
+      htmlPluginOption: {
+        script: h5RootFontScript,
+      },
       router: {
         mode: 'hash',
       },

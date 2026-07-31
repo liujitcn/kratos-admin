@@ -26,18 +26,21 @@ button::after {
   border: 0;
 }
 
+// 与 uni-app H5 一致，仅在路由页内容溢出时显示系统滚动条。
+.taro_page {
+  overflow-y: auto !important;
+}
+
 // Taro H5 的默认确认色与 uni-app H5 不同，统一为基线平台色。
 .taro-model__confirm {
   color: #007aff !important;
 }
 
-// H5 路由页和 ScrollView 同时滚动，隐藏滚动条避免重复占用内容宽度。
-.taro_page,
+// H5 ScrollView 使用内部滚动，隐藏其滚动条避免额外占用内容宽度。
 .taro-scroll-view__scroll-y {
   scrollbar-width: none;
 }
 
-.taro_page::-webkit-scrollbar,
 .taro-scroll-view__scroll-y::-webkit-scrollbar {
   display: none;
   width: 0;
