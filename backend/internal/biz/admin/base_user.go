@@ -23,6 +23,8 @@ import (
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"gorm.io/gen"
+	"gorm.io/gen/field"
 )
 
 // BaseUserCase 用户业务实例
@@ -115,6 +117,73 @@ func (c *BaseUserCase) ListBaseUser(ctx context.Context, ids []int64) (*systemad
 		baseUsers = append(baseUsers, c.mapper.ToDTO(user))
 	}
 	return &systemadminv1.ListBaseUserResponse{BaseUsers: baseUsers}, nil
+}
+
+// SummaryBaseUser 汇总指定时间范围内的用户注册数据。
+func (c *BaseUserCase) SummaryBaseUser(ctx context.Context, req *systemadminv1.SummaryBaseUserRequest) (*systemadminv1.SummaryBaseUserResponse, error) {
+	startTimestamp := req.GetStartAt()
+	endTimestamp := req.GetEndAt()
+	if startTimestamp == nil || endTimestamp == nil {
+		return nil, errorsx.InvalidArgument("统计时间范围不能为空")
+	}
+	err := startTimestamp.CheckValid()
+	if err != nil {
+		return nil, errorsx.InvalidArgument("统计开始时间无效").WithCause(err)
+	}
+	err = endTimestamp.CheckValid()
+	if err != nil {
+		return nil, errorsx.InvalidArgument("统计结束时间无效").WithCause(err)
+	}
+	startAt := startTimestamp.AsTime()
+	endAt := endTimestamp.AsTime()
+	if !startAt.Before(endAt) {
+		return nil, errorsx.InvalidArgument("统计开始时间必须早于结束时间")
+	}
+
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+	tenantID := req.GetTenantId()
+	if authInfo.TenantCode != databaseGorm.DefaultTenantCode {
+		if tenantID > 0 && tenantID != authInfo.TenantId {
+			return nil, errorsx.PermissionDenied("不能统计其他租户的用户")
+		}
+		tenantID = authInfo.TenantId
+	}
+
+	ctx = baseUserGRPCContext(ctx)
+	query := c.Query(ctx).BaseUser
+	conditions := make([]gen.Condition, 0, 3)
+	conditions = append(conditions, query.CreatedAt.Gte(startAt), query.CreatedAt.Lt(endAt))
+	if tenantID > 0 {
+		conditions = append(conditions, query.TenantID.Eq(tenantID))
+	}
+	var total int64
+	total, err = query.WithContext(ctx).Where(conditions...).Count()
+	if err != nil {
+		return nil, err
+	}
+
+	var groupField field.Expr
+	switch req.GetTimeType() {
+	case commonv1.AnalyticsTimeType_ANALYTICS_TIME_TYPE_YEAR:
+		groupField = query.CreatedAt.Month()
+	case commonv1.AnalyticsTimeType_ANALYTICS_TIME_TYPE_MONTH:
+		groupField = query.CreatedAt.Day()
+	default:
+		groupField = query.CreatedAt.DayOfWeek().Add(5).Mod(7).Add(1)
+	}
+	summaries := make([]*systemadminv1.BaseUserSummaryItem, 0)
+	err = query.WithContext(ctx).
+		Select(groupField.As("key"), query.ID.Count().As("count")).
+		Where(conditions...).
+		Group(field.NewField("", "key")).
+		Scan(&summaries)
+	if err != nil {
+		return nil, err
+	}
+	return &systemadminv1.SummaryBaseUserResponse{Total: total, Summaries: summaries}, nil
 }
 
 // PageBaseUser 分页查询用户

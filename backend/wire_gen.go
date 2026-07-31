@@ -206,8 +206,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	basePostRepository := data.NewBasePostRepository(dataData)
 	casbinRuleRepository := data.NewCasbinRuleRepository(dataData)
 	baseMenuRepository := data.NewBaseMenuRepository(dataData)
-	appInfo := config.GetAppInfo(context)
-	openapiRegistry, err := server.NewOpenAPIRegistry(appInfo)
+	openapiRegistry, err := server.NewOpenAPIRegistry()
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -281,7 +280,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	codeGenTableService := admin.NewCodeGenTableService(codeGenTableCase)
 	baseMigrationService := admin.NewBaseMigrationService(baseMigrationCase)
 	additionalDocuments := newAdditionalProjectDocuments(additionalModules, configuredDocuments)
-	catalog, err := newProjectDocumentCatalog(appInfo, additionalDocuments)
+	catalog, err := newProjectDocumentCatalog(additionalDocuments)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -529,8 +528,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 	basePostRepository := data.NewBasePostRepository(dataData)
 	casbinRuleRepository := data.NewCasbinRuleRepository(dataData)
 	baseMenuRepository := data.NewBaseMenuRepository(dataData)
-	appInfo := config.GetAppInfo(context)
-	openapiRegistry, err := server.NewOpenAPIRegistry(appInfo)
+	openapiRegistry, err := server.NewOpenAPIRegistry()
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -604,7 +602,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 	codeGenTableService := admin.NewCodeGenTableService(codeGenTableCase)
 	baseMigrationService := admin.NewBaseMigrationService(baseMigrationCase)
 	additionalDocuments := newAdditionalProjectDocuments(additionalModules, configuredDocuments)
-	catalog, err := newProjectDocumentCatalog(appInfo, additionalDocuments)
+	catalog, err := newProjectDocumentCatalog(additionalDocuments)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -697,6 +695,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 		cleanup()
 		return nil, nil, err
 	}
+	appInfo := config.GetAppInfo(context)
 	httpServer, err := server.NewHTTPServer(context, appInfo, httpMiddlewares, modules, openapiRegistry, authenticator, userToken, mcpToolsReady, agentToolsReady, openAPIReady)
 	if err != nil {
 		cleanup5()

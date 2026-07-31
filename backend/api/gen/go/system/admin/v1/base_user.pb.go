@@ -19,6 +19,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -994,11 +995,186 @@ func (x *SetBaseUserAppRoleRequest) GetRoleCode() string {
 	return ""
 }
 
+// 用户注册汇总查询条件
+type SummaryBaseUserRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                            // 租户ID
+	StartAt       *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_at,json=startAt,proto3" json:"start_at,omitempty"`                                      // 开始时间
+	EndAt         *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_at,json=endAt,proto3" json:"end_at,omitempty"`                                            // 结束时间
+	TimeType      v11.AnalyticsTimeType  `protobuf:"varint,4,opt,name=time_type,json=timeType,proto3,enum=common.v1.AnalyticsTimeType" json:"time_type,omitempty"` // 统计时间类型
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SummaryBaseUserRequest) Reset() {
+	*x = SummaryBaseUserRequest{}
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SummaryBaseUserRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SummaryBaseUserRequest) ProtoMessage() {}
+
+func (x *SummaryBaseUserRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SummaryBaseUserRequest.ProtoReflect.Descriptor instead.
+func (*SummaryBaseUserRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *SummaryBaseUserRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+func (x *SummaryBaseUserRequest) GetStartAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartAt
+	}
+	return nil
+}
+
+func (x *SummaryBaseUserRequest) GetEndAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EndAt
+	}
+	return nil
+}
+
+func (x *SummaryBaseUserRequest) GetTimeType() v11.AnalyticsTimeType {
+	if x != nil {
+		return x.TimeType
+	}
+	return v11.AnalyticsTimeType(0)
+}
+
+// 用户注册汇总响应
+type SummaryBaseUserResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Total         int64                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`        // 用户总数
+	Summaries     []*BaseUserSummaryItem `protobuf:"bytes,2,rep,name=summaries,proto3" json:"summaries,omitempty"` // 用户分组汇总
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SummaryBaseUserResponse) Reset() {
+	*x = SummaryBaseUserResponse{}
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SummaryBaseUserResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SummaryBaseUserResponse) ProtoMessage() {}
+
+func (x *SummaryBaseUserResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SummaryBaseUserResponse.ProtoReflect.Descriptor instead.
+func (*SummaryBaseUserResponse) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *SummaryBaseUserResponse) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+func (x *SummaryBaseUserResponse) GetSummaries() []*BaseUserSummaryItem {
+	if x != nil {
+		return x.Summaries
+	}
+	return nil
+}
+
+// 用户注册分组汇总项
+type BaseUserSummaryItem struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Key           int64                  `protobuf:"varint,1,opt,name=key,proto3" json:"key,omitempty"`     // 分组序号
+	Count         int64                  `protobuf:"varint,2,opt,name=count,proto3" json:"count,omitempty"` // 用户数
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BaseUserSummaryItem) Reset() {
+	*x = BaseUserSummaryItem{}
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BaseUserSummaryItem) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BaseUserSummaryItem) ProtoMessage() {}
+
+func (x *BaseUserSummaryItem) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BaseUserSummaryItem.ProtoReflect.Descriptor instead.
+func (*BaseUserSummaryItem) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *BaseUserSummaryItem) GetKey() int64 {
+	if x != nil {
+		return x.Key
+	}
+	return 0
+}
+
+func (x *BaseUserSummaryItem) GetCount() int64 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
 var File_system_admin_v1_base_user_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\n" +
-	"\x1fsystem/admin/v1/base_user.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a\x1bsystem/common/v1/enum.proto\x1a\x15common/v1/types.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1bbuf/validate/validate.proto\"\x82\x01\n" +
+	"\x1fsystem/admin/v1/base_user.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x19common/v1/analytics.proto\x1a\x14common/v1/enum.proto\x1a\x1bsystem/common/v1/enum.proto\x1a\x15common/v1/types.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bbuf/validate/validate.proto\"\x82\x01\n" +
 	"\x15OptionBaseUserRequest\x12)\n" +
 	"\akeyword\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t关键字R\akeyword\x120\n" +
 	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01B\f\n" +
@@ -1103,7 +1279,20 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\auser_id\x18\x01 \x01(\x03B]\xbaG\v\x92\x02\b用户ID\xbaHL\xba\x01I\n" +
 	"'set_base_user_app_role.user_id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x06userId\x12\x9e\x01\n" +
 	"\trole_code\x18\x02 \x01(\tB\x80\x01\xbaG\x18\x92\x02\x15应用端角色编码\xbaHb\xba\x01_\n" +
-	")set_base_user_app_role.role_code.required\x12!应用端角色编码不能为空\x1a\x0fthis.size() > 0R\broleCode2\x8a\n" +
+	")set_base_user_app_role.role_code.required\x12!应用端角色编码不能为空\x1a\x0fthis.size() > 0R\broleCode\"\xd3\x02\n" +
+	"\x16SummaryBaseUserRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12O\n" +
+	"\bstart_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x18\xbaG\x0f\x92\x02\f开始时间\xbaH\x03\xc8\x01\x01R\astartAt\x12K\n" +
+	"\x06end_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x18\xbaG\x0f\x92\x02\f结束时间\xbaH\x03\xc8\x01\x01R\x05endAt\x12[\n" +
+	"\ttime_type\x18\x04 \x01(\x0e2\x1c.common.v1.AnalyticsTimeTypeB \xbaG\x15\x92\x02\x12统计时间类型\xbaH\x05\x82\x01\x02\x10\x01R\btimeTypeB\f\n" +
+	"\n" +
+	"_tenant_id\"\xa1\x01\n" +
+	"\x17SummaryBaseUserResponse\x12(\n" +
+	"\x05total\x18\x01 \x01(\x03B\x12\xbaG\x0f\x92\x02\f用户总数R\x05total\x12\\\n" +
+	"\tsummaries\x18\x02 \x03(\v2$.system.admin.v1.BaseUserSummaryItemB\x18\xbaG\x15\x92\x02\x12用户分组汇总R\tsummaries\"b\n" +
+	"\x13BaseUserSummaryItem\x12$\n" +
+	"\x03key\x18\x01 \x01(\x03B\x12\xbaG\x0f\x92\x02\f分组序号R\x03key\x12%\n" +
+	"\x05count\x18\x02 \x01(\x03B\x0f\xbaG\f\x92\x02\t用户数R\x05count2\xf0\n" +
 	"\n" +
 	"\x0fBaseUserService\x12\x81\x01\n" +
 	"\x0eOptionBaseUser\x12&.system.admin.v1.OptionBaseUserRequest\x1a\x1f.common.v1.SelectOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/user/option\x12\x81\x01\n" +
@@ -1115,7 +1304,8 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\x0eDeleteBaseUser\x12&.system.admin.v1.DeleteBaseUserRequest\x1a\x16.google.protobuf.Empty\"$\x82\xd3\xe4\x93\x02\x1e*\x1c/api/v1/admin/base/user/{id}\x12\x86\x01\n" +
 	"\x11SetBaseUserStatus\x12).system.admin.v1.SetBaseUserStatusRequest\x1a\x16.google.protobuf.Empty\".\x82\xd3\xe4\x93\x02(:\x01*\x1a#/api/v1/admin/base/user/{id}/status\x12\x90\x01\n" +
 	"\x15ResetBaseUserPassword\x12-.system.admin.v1.ResetBaseUserPasswordRequest\x1a\x16.google.protobuf.Empty\"0\x82\xd3\xe4\x93\x02*:\x01*\x1a%/api/v1/admin/base/user/{id}/password\x12X\n" +
-	"\x12SetBaseUserAppRole\x12*.system.admin.v1.SetBaseUserAppRoleRequest\x1a\x16.google.protobuf.EmptyB\xcf\x01\n" +
+	"\x12SetBaseUserAppRole\x12*.system.admin.v1.SetBaseUserAppRoleRequest\x1a\x16.google.protobuf.Empty\x12d\n" +
+	"\x0fSummaryBaseUser\x12'.system.admin.v1.SummaryBaseUserRequest\x1a(.system.admin.v1.SummaryBaseUserResponseB\xcf\x01\n" +
 	"\x13com.system.admin.v1B\rBaseUserProtoP\x01ZKgithub.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1;adminv1\xa2\x02\x03SAX\xaa\x02\x0fSystem.Admin.V1\xca\x02\x0fSystem\\Admin\\V1\xe2\x02\x1bSystem\\Admin\\V1\\GPBMetadata\xea\x02\x11System::Admin::V1b\x06proto3"
 
 var (
@@ -1130,7 +1320,7 @@ func file_system_admin_v1_base_user_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_base_user_proto_rawDescData
 }
 
-var file_system_admin_v1_base_user_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_system_admin_v1_base_user_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_system_admin_v1_base_user_proto_goTypes = []any{
 	(*OptionBaseUserRequest)(nil),        // 0: system.admin.v1.OptionBaseUserRequest
 	(*ListBaseUserRequest)(nil),          // 1: system.admin.v1.ListBaseUserRequest
@@ -1146,50 +1336,61 @@ var file_system_admin_v1_base_user_proto_goTypes = []any{
 	(*BaseUserForm)(nil),                 // 11: system.admin.v1.BaseUserForm
 	(*ResetBaseUserPasswordRequest)(nil), // 12: system.admin.v1.ResetBaseUserPasswordRequest
 	(*SetBaseUserAppRoleRequest)(nil),    // 13: system.admin.v1.SetBaseUserAppRoleRequest
-	(v1.BaseUserGender)(0),               // 14: system.common.v1.BaseUserGender
-	(v11.Status)(0),                      // 15: common.v1.Status
-	(*v11.PasswordCrypto)(nil),           // 16: common.v1.PasswordCrypto
-	(*v11.SelectOptionResponse)(nil),     // 17: common.v1.SelectOptionResponse
-	(*emptypb.Empty)(nil),                // 18: google.protobuf.Empty
+	(*SummaryBaseUserRequest)(nil),       // 14: system.admin.v1.SummaryBaseUserRequest
+	(*SummaryBaseUserResponse)(nil),      // 15: system.admin.v1.SummaryBaseUserResponse
+	(*BaseUserSummaryItem)(nil),          // 16: system.admin.v1.BaseUserSummaryItem
+	(v1.BaseUserGender)(0),               // 17: system.common.v1.BaseUserGender
+	(v11.Status)(0),                      // 18: common.v1.Status
+	(*v11.PasswordCrypto)(nil),           // 19: common.v1.PasswordCrypto
+	(*timestamppb.Timestamp)(nil),        // 20: google.protobuf.Timestamp
+	(v11.AnalyticsTimeType)(0),           // 21: common.v1.AnalyticsTimeType
+	(*v11.SelectOptionResponse)(nil),     // 22: common.v1.SelectOptionResponse
+	(*emptypb.Empty)(nil),                // 23: google.protobuf.Empty
 }
 var file_system_admin_v1_base_user_proto_depIdxs = []int32{
 	10, // 0: system.admin.v1.ListBaseUserResponse.base_users:type_name -> system.admin.v1.BaseUser
-	14, // 1: system.admin.v1.PageBaseUserRequest.gender:type_name -> system.common.v1.BaseUserGender
-	15, // 2: system.admin.v1.PageBaseUserRequest.status:type_name -> common.v1.Status
+	17, // 1: system.admin.v1.PageBaseUserRequest.gender:type_name -> system.common.v1.BaseUserGender
+	18, // 2: system.admin.v1.PageBaseUserRequest.status:type_name -> common.v1.Status
 	10, // 3: system.admin.v1.PageBaseUserResponse.base_users:type_name -> system.admin.v1.BaseUser
 	11, // 4: system.admin.v1.CreateBaseUserRequest.base_user:type_name -> system.admin.v1.BaseUserForm
 	11, // 5: system.admin.v1.UpdateBaseUserRequest.base_user:type_name -> system.admin.v1.BaseUserForm
-	14, // 6: system.admin.v1.BaseUser.gender:type_name -> system.common.v1.BaseUserGender
-	15, // 7: system.admin.v1.BaseUser.status:type_name -> common.v1.Status
-	14, // 8: system.admin.v1.BaseUserForm.gender:type_name -> system.common.v1.BaseUserGender
-	16, // 9: system.admin.v1.BaseUserForm.pwd:type_name -> common.v1.PasswordCrypto
-	15, // 10: system.admin.v1.BaseUserForm.status:type_name -> common.v1.Status
-	16, // 11: system.admin.v1.ResetBaseUserPasswordRequest.pwd:type_name -> common.v1.PasswordCrypto
-	0,  // 12: system.admin.v1.BaseUserService.OptionBaseUser:input_type -> system.admin.v1.OptionBaseUserRequest
-	1,  // 13: system.admin.v1.BaseUserService.ListBaseUser:input_type -> system.admin.v1.ListBaseUserRequest
-	3,  // 14: system.admin.v1.BaseUserService.PageBaseUser:input_type -> system.admin.v1.PageBaseUserRequest
-	5,  // 15: system.admin.v1.BaseUserService.GetBaseUser:input_type -> system.admin.v1.GetBaseUserRequest
-	6,  // 16: system.admin.v1.BaseUserService.CreateBaseUser:input_type -> system.admin.v1.CreateBaseUserRequest
-	7,  // 17: system.admin.v1.BaseUserService.UpdateBaseUser:input_type -> system.admin.v1.UpdateBaseUserRequest
-	8,  // 18: system.admin.v1.BaseUserService.DeleteBaseUser:input_type -> system.admin.v1.DeleteBaseUserRequest
-	9,  // 19: system.admin.v1.BaseUserService.SetBaseUserStatus:input_type -> system.admin.v1.SetBaseUserStatusRequest
-	12, // 20: system.admin.v1.BaseUserService.ResetBaseUserPassword:input_type -> system.admin.v1.ResetBaseUserPasswordRequest
-	13, // 21: system.admin.v1.BaseUserService.SetBaseUserAppRole:input_type -> system.admin.v1.SetBaseUserAppRoleRequest
-	17, // 22: system.admin.v1.BaseUserService.OptionBaseUser:output_type -> common.v1.SelectOptionResponse
-	2,  // 23: system.admin.v1.BaseUserService.ListBaseUser:output_type -> system.admin.v1.ListBaseUserResponse
-	4,  // 24: system.admin.v1.BaseUserService.PageBaseUser:output_type -> system.admin.v1.PageBaseUserResponse
-	11, // 25: system.admin.v1.BaseUserService.GetBaseUser:output_type -> system.admin.v1.BaseUserForm
-	18, // 26: system.admin.v1.BaseUserService.CreateBaseUser:output_type -> google.protobuf.Empty
-	18, // 27: system.admin.v1.BaseUserService.UpdateBaseUser:output_type -> google.protobuf.Empty
-	18, // 28: system.admin.v1.BaseUserService.DeleteBaseUser:output_type -> google.protobuf.Empty
-	18, // 29: system.admin.v1.BaseUserService.SetBaseUserStatus:output_type -> google.protobuf.Empty
-	18, // 30: system.admin.v1.BaseUserService.ResetBaseUserPassword:output_type -> google.protobuf.Empty
-	18, // 31: system.admin.v1.BaseUserService.SetBaseUserAppRole:output_type -> google.protobuf.Empty
-	22, // [22:32] is the sub-list for method output_type
-	12, // [12:22] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	17, // 6: system.admin.v1.BaseUser.gender:type_name -> system.common.v1.BaseUserGender
+	18, // 7: system.admin.v1.BaseUser.status:type_name -> common.v1.Status
+	17, // 8: system.admin.v1.BaseUserForm.gender:type_name -> system.common.v1.BaseUserGender
+	19, // 9: system.admin.v1.BaseUserForm.pwd:type_name -> common.v1.PasswordCrypto
+	18, // 10: system.admin.v1.BaseUserForm.status:type_name -> common.v1.Status
+	19, // 11: system.admin.v1.ResetBaseUserPasswordRequest.pwd:type_name -> common.v1.PasswordCrypto
+	20, // 12: system.admin.v1.SummaryBaseUserRequest.start_at:type_name -> google.protobuf.Timestamp
+	20, // 13: system.admin.v1.SummaryBaseUserRequest.end_at:type_name -> google.protobuf.Timestamp
+	21, // 14: system.admin.v1.SummaryBaseUserRequest.time_type:type_name -> common.v1.AnalyticsTimeType
+	16, // 15: system.admin.v1.SummaryBaseUserResponse.summaries:type_name -> system.admin.v1.BaseUserSummaryItem
+	0,  // 16: system.admin.v1.BaseUserService.OptionBaseUser:input_type -> system.admin.v1.OptionBaseUserRequest
+	1,  // 17: system.admin.v1.BaseUserService.ListBaseUser:input_type -> system.admin.v1.ListBaseUserRequest
+	3,  // 18: system.admin.v1.BaseUserService.PageBaseUser:input_type -> system.admin.v1.PageBaseUserRequest
+	5,  // 19: system.admin.v1.BaseUserService.GetBaseUser:input_type -> system.admin.v1.GetBaseUserRequest
+	6,  // 20: system.admin.v1.BaseUserService.CreateBaseUser:input_type -> system.admin.v1.CreateBaseUserRequest
+	7,  // 21: system.admin.v1.BaseUserService.UpdateBaseUser:input_type -> system.admin.v1.UpdateBaseUserRequest
+	8,  // 22: system.admin.v1.BaseUserService.DeleteBaseUser:input_type -> system.admin.v1.DeleteBaseUserRequest
+	9,  // 23: system.admin.v1.BaseUserService.SetBaseUserStatus:input_type -> system.admin.v1.SetBaseUserStatusRequest
+	12, // 24: system.admin.v1.BaseUserService.ResetBaseUserPassword:input_type -> system.admin.v1.ResetBaseUserPasswordRequest
+	13, // 25: system.admin.v1.BaseUserService.SetBaseUserAppRole:input_type -> system.admin.v1.SetBaseUserAppRoleRequest
+	14, // 26: system.admin.v1.BaseUserService.SummaryBaseUser:input_type -> system.admin.v1.SummaryBaseUserRequest
+	22, // 27: system.admin.v1.BaseUserService.OptionBaseUser:output_type -> common.v1.SelectOptionResponse
+	2,  // 28: system.admin.v1.BaseUserService.ListBaseUser:output_type -> system.admin.v1.ListBaseUserResponse
+	4,  // 29: system.admin.v1.BaseUserService.PageBaseUser:output_type -> system.admin.v1.PageBaseUserResponse
+	11, // 30: system.admin.v1.BaseUserService.GetBaseUser:output_type -> system.admin.v1.BaseUserForm
+	23, // 31: system.admin.v1.BaseUserService.CreateBaseUser:output_type -> google.protobuf.Empty
+	23, // 32: system.admin.v1.BaseUserService.UpdateBaseUser:output_type -> google.protobuf.Empty
+	23, // 33: system.admin.v1.BaseUserService.DeleteBaseUser:output_type -> google.protobuf.Empty
+	23, // 34: system.admin.v1.BaseUserService.SetBaseUserStatus:output_type -> google.protobuf.Empty
+	23, // 35: system.admin.v1.BaseUserService.ResetBaseUserPassword:output_type -> google.protobuf.Empty
+	23, // 36: system.admin.v1.BaseUserService.SetBaseUserAppRole:output_type -> google.protobuf.Empty
+	15, // 37: system.admin.v1.BaseUserService.SummaryBaseUser:output_type -> system.admin.v1.SummaryBaseUserResponse
+	27, // [27:38] is the sub-list for method output_type
+	16, // [16:27] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_user_proto_init() }
@@ -1199,13 +1400,14 @@ func file_system_admin_v1_base_user_proto_init() {
 	}
 	file_system_admin_v1_base_user_proto_msgTypes[0].OneofWrappers = []any{}
 	file_system_admin_v1_base_user_proto_msgTypes[3].OneofWrappers = []any{}
+	file_system_admin_v1_base_user_proto_msgTypes[14].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_base_user_proto_rawDesc), len(file_system_admin_v1_base_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   14,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

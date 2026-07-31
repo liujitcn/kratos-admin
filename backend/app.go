@@ -28,6 +28,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/event"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/job"
 	systemConfig "github.com/liujitcn/kratos-admin/backend/internal/config"
+	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	internalprojectdocs "github.com/liujitcn/kratos-admin/backend/internal/projectdocs"
 	"github.com/liujitcn/kratos-admin/backend/internal/server"
@@ -40,7 +41,6 @@ import (
 	baseservice "github.com/liujitcn/kratos-admin/backend/internal/service/base"
 	"github.com/liujitcn/kratos-admin/backend/migration"
 	"github.com/liujitcn/kratos-admin/backend/projectdoc"
-	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	"github.com/liujitcn/kratos-kit/bootstrap"
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 	gormmigration "github.com/liujitcn/kratos-kit/database/gorm/migration"
@@ -195,6 +195,7 @@ func newOptions(optionValues []Option) options {
 	for _, option := range optionValues {
 		option(&opts)
 	}
+	opts.migrations = append(opts.migrations, core.Modules(opts.additionalModules).MigrationContributors()...)
 	return opts
 }
 
@@ -214,15 +215,14 @@ func newAdditionalProjectDocuments(
 	return documents
 }
 
-// newProjectDocumentCatalog 合并内置目录与宿主、外部模块贡献的项目文档。
+// newProjectDocumentCatalog 合并 Admin 内置目录与宿主、外部模块贡献的项目文档。
 func newProjectDocumentCatalog(
-	appInfo *bootstrapConfigv1.AppInfo,
 	additionalDocuments projectdoc.AdditionalDocuments,
 ) (*projectdoc.Catalog, error) {
 	embeddedCatalog, err := projectdoc.ParseCatalog(
 		internalprojectdocs.CatalogData,
-		appInfo.GetProject(),
-		appInfo.GetName(),
+		_const.PROJECT_KEY,
+		_const.PROJECT_NAME,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("加载内置项目文档目录: %w", err)

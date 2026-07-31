@@ -32,6 +32,7 @@ const (
 	BaseUserService_SetBaseUserStatus_FullMethodName     = "/system.admin.v1.BaseUserService/SetBaseUserStatus"
 	BaseUserService_ResetBaseUserPassword_FullMethodName = "/system.admin.v1.BaseUserService/ResetBaseUserPassword"
 	BaseUserService_SetBaseUserAppRole_FullMethodName    = "/system.admin.v1.BaseUserService/SetBaseUserAppRole"
+	BaseUserService_SummaryBaseUser_FullMethodName       = "/system.admin.v1.BaseUserService/SummaryBaseUser"
 )
 
 // BaseUserServiceClient is the client API for BaseUserService service.
@@ -60,6 +61,8 @@ type BaseUserServiceClient interface {
 	ResetBaseUserPassword(ctx context.Context, in *ResetBaseUserPasswordRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 设置基础用户应用端角色
 	SetBaseUserAppRole(ctx context.Context, in *SetBaseUserAppRoleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 汇总用户注册数据
+	SummaryBaseUser(ctx context.Context, in *SummaryBaseUserRequest, opts ...grpc.CallOption) (*SummaryBaseUserResponse, error)
 }
 
 type baseUserServiceClient struct {
@@ -170,6 +173,16 @@ func (c *baseUserServiceClient) SetBaseUserAppRole(ctx context.Context, in *SetB
 	return out, nil
 }
 
+func (c *baseUserServiceClient) SummaryBaseUser(ctx context.Context, in *SummaryBaseUserRequest, opts ...grpc.CallOption) (*SummaryBaseUserResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SummaryBaseUserResponse)
+	err := c.cc.Invoke(ctx, BaseUserService_SummaryBaseUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BaseUserServiceServer is the server API for BaseUserService service.
 // All implementations must embed UnimplementedBaseUserServiceServer
 // for forward compatibility.
@@ -196,6 +209,8 @@ type BaseUserServiceServer interface {
 	ResetBaseUserPassword(context.Context, *ResetBaseUserPasswordRequest) (*emptypb.Empty, error)
 	// 设置基础用户应用端角色
 	SetBaseUserAppRole(context.Context, *SetBaseUserAppRoleRequest) (*emptypb.Empty, error)
+	// 汇总用户注册数据
+	SummaryBaseUser(context.Context, *SummaryBaseUserRequest) (*SummaryBaseUserResponse, error)
 	mustEmbedUnimplementedBaseUserServiceServer()
 }
 
@@ -235,6 +250,9 @@ func (UnimplementedBaseUserServiceServer) ResetBaseUserPassword(context.Context,
 }
 func (UnimplementedBaseUserServiceServer) SetBaseUserAppRole(context.Context, *SetBaseUserAppRoleRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetBaseUserAppRole not implemented")
+}
+func (UnimplementedBaseUserServiceServer) SummaryBaseUser(context.Context, *SummaryBaseUserRequest) (*SummaryBaseUserResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SummaryBaseUser not implemented")
 }
 func (UnimplementedBaseUserServiceServer) mustEmbedUnimplementedBaseUserServiceServer() {}
 func (UnimplementedBaseUserServiceServer) testEmbeddedByValue()                         {}
@@ -437,6 +455,24 @@ func _BaseUserService_SetBaseUserAppRole_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BaseUserService_SummaryBaseUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SummaryBaseUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BaseUserServiceServer).SummaryBaseUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BaseUserService_SummaryBaseUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BaseUserServiceServer).SummaryBaseUser(ctx, req.(*SummaryBaseUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BaseUserService_ServiceDesc is the grpc.ServiceDesc for BaseUserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -483,6 +519,10 @@ var BaseUserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetBaseUserAppRole",
 			Handler:    _BaseUserService_SetBaseUserAppRole_Handler,
+		},
+		{
+			MethodName: "SummaryBaseUser",
+			Handler:    _BaseUserService_SummaryBaseUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

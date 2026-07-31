@@ -79,6 +79,12 @@ func NewBaseUserServiceAgentTools(baseUserServiceServer BaseUserServiceServer) (
 		return nil, err
 	}
 	ts = append(ts, setBaseUserAppRoleTool)
+	var summaryBaseUserTool tool.InvokableTool
+	summaryBaseUserTool, err = NewBaseUserServiceSummaryBaseUserAgentTool(baseUserServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, summaryBaseUserTool)
 	return ts, nil
 }
 
@@ -218,6 +224,20 @@ func NewBaseUserServiceSetBaseUserAppRoleAgentTool(baseUserServiceServer BaseUse
 				req = &SetBaseUserAppRoleRequest{}
 			}
 			return baseUserServiceServer.SetBaseUserAppRole(ctx, req)
+		},
+	)
+}
+
+// NewBaseUserServiceSummaryBaseUserAgentTool 创建汇总用户注册数据的 Agent Tool。
+func NewBaseUserServiceSummaryBaseUserAgentTool(baseUserServiceServer BaseUserServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SummaryBaseUserRequest, *SummaryBaseUserResponse](
+		"system_admin_v1_base_user_service_summary_base_user",
+		"汇总用户注册数据",
+		func(ctx context.Context, req *SummaryBaseUserRequest) (*SummaryBaseUserResponse, error) {
+			if req == nil {
+				req = &SummaryBaseUserRequest{}
+			}
+			return baseUserServiceServer.SummaryBaseUser(ctx, req)
 		},
 	)
 }

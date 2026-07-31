@@ -44,11 +44,11 @@ import (
 
 var (
 	// Project 表示当前服务所属项目标识。
-	Project = "admin"
+	Project = _const.PROJECT_KEY
 	// AppID 表示当前服务应用标识。
 	AppID = "admin"
 	// Name 表示当前服务展示名称。
-	Name    = "系统管理"
+	Name    = _const.PROJECT_NAME
 	version = "1.0.0"
 )
 

@@ -62,7 +62,7 @@ defer cleanup()
 client := systemadminv1.NewBaseUserServiceClient(module.ClientConn())
 ```
 
-`NewApp` 复用同一业务装配，再创建独立 HTTP 和 gRPC Server。`WithAdditionalModules` 在两种形态下使用相同的 Core Contributor 契约：独立形态由 Backend 消费中间件、OpenAPI、任务、队列、SSE、启动钩子、健康检查和静态资源；模块形态由返回的 `Runtime` 继续贡献给外层 Core 宿主。
+`NewApp` 复用同一业务装配，再创建独立 HTTP 和 gRPC Server。`WithAdditionalModules` 在两种形态下使用相同的 Core Contributor 契约：独立形态由 Backend 消费中间件、OpenAPI、任务、队列、SSE、迁移、启动钩子、健康检查和静态资源；模块形态由返回的 `Runtime` 继续贡献给外层 Core 宿主。
 
 调用方不得导入 `internal` 下的 Case、Repository、Model、Query 或 Service；跨模块调用只使用 `api/gen/go` 中的生成客户端。
 
@@ -105,7 +105,7 @@ migration/assets/
 
 `mysql` 下的直系文件属于 `default` 数据源，一级子目录名必须与 `data.databases` 中的数据源名称一致。迁移版本支持 `vX.Y.Z` 和项目生成器兼容的纯数字格式；同一目标内按文件名排序执行 `.up.sql`，`.md` 会写入迁移描述。
 
-启动时先创建数据库客户端，再执行 `kratos-admin` 迁移模块及其依赖。每个版本、模块和数据源只记录一次；当前版本任一脚本失败会回滚并阻止启动。
+启动时先创建数据库客户端，再统一执行 `kratos-admin` 与 `MigrationContributor` 扩展模块提供的迁移及其依赖。每个版本、模块和数据源只记录一次；当前版本任一脚本失败会回滚并阻止启动。
 
 `enable_migrate` 只控制 GORM `AutoMigrate` 和表注释回填，不会关闭版本化 SQL。全新数据库通常需要默认数据源设置为 `true`，以便先创建 `base_migration` 和业务表。
 
@@ -127,9 +127,9 @@ migration/assets/
 
 ## 项目文档
 
-项目文档与 OpenAPI/Swagger 统一使用启动入口 `AppInfo` 的 `Project` 和
-`Name`。当前 Backend 在 `internal/cmd/server/main.go` 中将二者设为 `admin`
-和“系统管理”。构建期生成物不保存项目身份；服务加载后才生成稳定文档 ID。
+Admin 内置项目文档与 OpenAPI/Swagger 固定使用项目标识 `admin` 和展示名称
+“系统管理”，避免 Backend 被其他宿主组合时继承宿主身份并与外部模块冲突。
+独立启动入口复用同一组项目身份；构建期生成物不保存项目身份，服务加载后才生成稳定文档 ID。
 正常执行 `make run`、`make build` 或 `make gen` 时会自动刷新内嵌目录，也可以
 单独执行：
 
@@ -143,7 +143,7 @@ make project-docs
 `README.md`，以及任意 `docs` 目录中的 Markdown。命令输出递归目录树
 `internal/projectdocs/assets/catalog.json`，并自动生成
 `internal/projectdocs/catalog_gen.go`。文档节点只保存路径、正文和源文件的
-RFC3339 更新时间；服务装配时使用 `AppInfo` 补齐项目标识、展示名称和稳定
+RFC3339 更新时间；服务装配时使用 Admin 内置项目身份补齐项目标识、展示名称和稳定
 编号。`make wire` 会先执行该命令，因此生成目录被删除后也能自动恢复。
 
 引用 Backend 的宿主可通过 `WithProjectDocuments` 注入自己的生成文档。通过 `WithAdditionalModules` 注册的外部模块实现 `projectdoc.Contributor` 后会被自动汇总；`Runtime` 本身也实现该接口，因此 Backend 被更外层宿主引用时会继续贡献已经聚合的文档。

@@ -57,6 +57,16 @@ func (s *BaseUserService) ListBaseUser(ctx context.Context, req *systemadminv1.L
 	return list, nil
 }
 
+// SummaryBaseUser 汇总用户注册数据。
+func (s *BaseUserService) SummaryBaseUser(ctx context.Context, req *systemadminv1.SummaryBaseUserRequest) (*systemadminv1.SummaryBaseUserResponse, error) {
+	summary, err := s.baseUserCase.SummaryBaseUser(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("SummaryBaseUser %v", err))
+		return nil, errorsx.WrapInternal(err, "汇总用户注册数据失败")
+	}
+	return summary, nil
+}
+
 // PageBaseUser 查询用户分页列表
 func (s *BaseUserService) PageBaseUser(ctx context.Context, req *systemadminv1.PageBaseUserRequest) (*systemadminv1.PageBaseUserResponse, error) {
 	page, err := s.baseUserCase.PageBaseUser(ctx, req)

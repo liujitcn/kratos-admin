@@ -6,7 +6,7 @@ import (
 	coreOpenAPI "github.com/liujitcn/kratos-admin/backend/core/pkg/openapi"
 	adminBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/cmd/server/assets"
-	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-kit/bootstrap"
 )
 
@@ -14,10 +14,10 @@ import (
 type OpenAPIReady struct{}
 
 // NewOpenAPIRegistry 创建包含系统内置文档的 OpenAPI 注册表。
-func NewOpenAPIRegistry(appInfo *bootstrapConfigv1.AppInfo) (*coreOpenAPI.Registry, error) {
+func NewOpenAPIRegistry() (*coreOpenAPI.Registry, error) {
 	return coreOpenAPI.NewRegistry(coreOpenAPI.Document{
-		Key:  appInfo.GetProject(),
-		Name: appInfo.GetName(),
+		Key:  _const.PROJECT_KEY,
+		Name: _const.PROJECT_NAME,
 		Data: assets.OpenAPIData,
 	})
 }

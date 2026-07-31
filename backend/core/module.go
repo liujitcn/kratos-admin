@@ -15,6 +15,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/startup"
 	coreStatic "github.com/liujitcn/kratos-admin/backend/core/pkg/static"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/task"
+	gormmigration "github.com/liujitcn/kratos-kit/database/gorm/migration"
 )
 
 // Module 表示可挂载到核心服务宿主的外部服务模块。
@@ -86,6 +87,12 @@ type SSEPublisherAware interface {
 type ScriptContributor interface {
 	// Scripts 返回模块提供的启动脚本。
 	Scripts() []script.Script
+}
+
+// MigrationContributor 表示可向宿主贡献版本化数据库迁移的模块。
+type MigrationContributor interface {
+	// MigrationContributors 返回模块提供的数据库迁移贡献者。
+	MigrationContributors() gormmigration.AdditionalMigrations
 }
 
 // StartupContributor 表示可贡献服务启动和清理钩子的模块。
@@ -243,6 +250,19 @@ func (modules Modules) Scripts() []script.Script {
 		scripts = append(scripts, contributor.Scripts()...)
 	}
 	return scripts
+}
+
+// MigrationContributors 汇总全部外部模块贡献的数据库迁移。
+func (modules Modules) MigrationContributors() gormmigration.AdditionalMigrations {
+	migrations := make(gormmigration.AdditionalMigrations, 0)
+	for _, module := range modules {
+		contributor, ok := module.(MigrationContributor)
+		if !ok {
+			continue
+		}
+		migrations = append(migrations, contributor.MigrationContributors()...)
+	}
+	return migrations
 }
 
 // StartupHooks 汇总全部外部模块贡献的服务启动和清理钩子。
