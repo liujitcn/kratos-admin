@@ -32,6 +32,7 @@ type ScannedPage = {
   source: string
   style?: Record<string, unknown>
 }
+let sourceVersionCounter = 0
 type BuildTransaction = {
   inputDir: string
   pagesFile: string
@@ -39,6 +40,7 @@ type BuildTransaction = {
   generatedFiles: string[]
   generatedStaticFiles: string[]
   generatedStatic?: boolean
+  ownerPid?: number
 }
 
 /** app Vite 插件参数。 */
@@ -58,6 +60,7 @@ export function createKratosUniPlugin() {
 
 /** 创建自动页面装配插件。 */
 export function kratosApp(options: KratosAppViteOptions): Plugin {
+  const sourceVersion = `${process.pid}-${Date.now()}-${++sourceVersionCounter}`
   const state: {
     inputDir?: string
     pagesFile?: string
@@ -65,9 +68,16 @@ export function kratosApp(options: KratosAppViteOptions): Plugin {
     generatedFiles: string[]
     generatedStaticFiles: string[]
     cleaned: boolean
+    persistent: boolean
     transactionFile?: string
     moduleRoots: Map<string, string>
-  } = { generatedFiles: [], generatedStaticFiles: [], cleaned: false, moduleRoots: new Map() }
+  } = {
+    generatedFiles: [],
+    generatedStaticFiles: [],
+    cleaned: false,
+    persistent: false,
+    moduleRoots: new Map(),
+  }
 
   const cleanup = () => {
     if (state.cleaned) return
@@ -101,6 +111,9 @@ export function kratosApp(options: KratosAppViteOptions): Plugin {
   return {
     name: 'kratos-app-pages',
     enforce: 'pre',
+    configResolved(config) {
+      state.persistent = config.command === 'serve' || Boolean(config.build.watch)
+    },
     resolveId(source, importer) {
       const [sourcePath, query = ''] = source.split('?', 2)
       let target: string | undefined
@@ -136,10 +149,16 @@ export function kratosApp(options: KratosAppViteOptions): Plugin {
         if (coreRoot) {
           target = resolve(coreRoot, 'src', sourcePath.slice('@kratos-app-core-source/'.length))
         }
+      } else if (sourcePath.startsWith('.') && importer) {
+        const importerPath = importer.split('?', 1)[0]
+        const moduleRoot = [...state.moduleRoots.values()].find((root) =>
+          isWithinRoot(resolve(root, 'src'), importerPath),
+        )
+        if (moduleRoot) target = resolve(dirname(importerPath), sourcePath)
       }
       if (!target) return
       const resolved = resolveSourceFile(target)
-      const importQuery = query || dependencyVersionQuery(importer)
+      const importQuery = query || dependencyVersionQuery(importer, sourceVersion)
       return `${resolved}${importQuery ? `?${importQuery}` : ''}`
     },
     transform(code, id) {
@@ -212,10 +231,12 @@ export function kratosApp(options: KratosAppViteOptions): Plugin {
             originalPages,
             generatedFiles: state.generatedFiles,
             generatedStaticFiles: state.generatedStaticFiles,
+            ownerPid: process.pid,
           } satisfies BuildTransaction,
           null,
           2,
         )}\n`,
+        { flag: 'wx' },
       )
       pageMap.forEach((page) => {
         const target = resolve(inputDir, `${page.route}.vue`)
@@ -257,7 +278,10 @@ export function kratosApp(options: KratosAppViteOptions): Plugin {
     configureServer(server) {
       server.httpServer?.once('close', cleanup)
     },
-    closeBundle: cleanup,
+    closeBundle() {
+      if (!state.persistent) cleanup()
+    },
+    closeWatcher: cleanup,
   }
 }
 
@@ -271,6 +295,15 @@ function recoverBuildTransaction(
   if (transaction.inputDir !== inputDir || transaction.pagesFile !== pagesFile) {
     throw new Error(`app 构建事务目录不匹配：${transactionFile}`)
   }
+  if (
+    transaction.ownerPid !== undefined &&
+    transaction.ownerPid !== process.pid &&
+    isProcessRunning(transaction.ownerPid)
+  ) {
+    throw new Error(
+      `页面装配已由进程 ${transaction.ownerPid} 使用，请先停止另一个 H5 或小程序开发进程`,
+    )
+  }
   for (const file of [...transaction.generatedFiles].reverse()) {
     if (existsSync(file)) unlinkSync(file)
     removeEmptyParents(dirname(file), inputDir)
@@ -282,6 +315,16 @@ function recoverBuildTransaction(
   }
   writeFileSync(pagesFile, transaction.originalPages)
   unlinkSync(transactionFile)
+}
+
+// isProcessRunning 判断页面事务的所属进程是否仍然存活。
+function isProcessRunning(pid: number): boolean {
+  try {
+    process.kill(pid, 0)
+    return true
+  } catch (error) {
+    return (error as NodeJS.ErrnoException).code === 'EPERM'
+  }
 }
 
 function collectModuleStaticFiles(
@@ -358,7 +401,7 @@ function createPageWrapper(page: ScannedPage): string {
   const source = page.source.replace(/\\/g, '/')
   return `<script setup lang="ts">
 import KratosPage from ${JSON.stringify(source)}
-import { KratosTabBar } from '@liujitcn/kratos-app-core'
+import KratosTabBar from '@liujitcn/kratos-app-core/components/KratosTabBar.vue'
 
 defineOptions({ inheritAttrs: false })
 </script>
@@ -395,16 +438,20 @@ function resolveSourceFile(target: string): string {
     resolve(target, 'index.ts'),
     resolve(target, 'index.js'),
   ]
-  const resolved = candidates.find((candidate) => existsSync(candidate)) ?? target
+  const resolved =
+    candidates.find((candidate) => existsSync(candidate) && statSync(candidate).isFile()) ?? target
   if (!isAbsolute(resolved)) throw new Error(`模块源码路径不是绝对路径：${resolved}`)
   return resolved
 }
 
-// dependencyVersionQuery 继承 Vite 依赖版本参数，避免同一源码生成多个模块实例。
-function dependencyVersionQuery(importer: string | undefined): string {
+// dependencyVersionQuery 继承依赖版本并隔离开发服务缓存，避免源码重复实例或跨服务过期。
+function dependencyVersionQuery(importer: string | undefined, sourceVersion: string): string {
   const query = importer?.split('?', 2)[1] ?? ''
   const version = new URLSearchParams(query).get('v')
-  return version ? `v=${encodeURIComponent(version)}` : ''
+  const params = new URLSearchParams()
+  if (version) params.set('v', version)
+  params.set('kratos', sourceVersion)
+  return params.toString()
 }
 
 function resolveWorkspacePackageSource(packageRoot: string, subpath: string): string {

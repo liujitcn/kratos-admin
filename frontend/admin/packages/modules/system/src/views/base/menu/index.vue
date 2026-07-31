@@ -71,7 +71,7 @@ defineOptions({
   inheritAttrs: false
 });
 
-const APP_MENU_ROOT_ID = 99901;
+const APP_MENU_ROOT_ID = 999;
 
 /**
  * 菜单表单状态，统一补齐 meta 字段，便于 ProForm 直接双向绑定。
@@ -86,6 +86,7 @@ const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const menuOptions = ref<ProFormOption[]>([]);
 const parentMenuTypeMap = ref(new Map<number, BaseMenuType>());
+const appMenuIds = ref(new Set<number>([APP_MENU_ROOT_ID]));
 const apiList = ref<BaseApi[]>([]);
 
 const dialog = reactive({
@@ -154,8 +155,13 @@ const menuTypeOptions: ProFormOption[] = [
   { label: "外链", value: BaseMenuType.EXT_LINK }
 ];
 
-/** 判断是否为固定移动端根菜单的直属页面。 */
+/** 判断父节点是否属于固定移动端菜单树。 */
 function isAppMenu(parentId?: number) {
+  return parentId !== undefined && appMenuIds.value.has(parentId);
+}
+
+/** 判断页面是否为固定移动端根目录的直属 tab。 */
+function isAppTab(parentId?: number) {
   return parentId === APP_MENU_ROOT_ID;
 }
 
@@ -170,8 +176,8 @@ function getMenuLevel(menuId: number) {
 
 /** 判断当前菜单是否还能继续新增下级节点。 */
 function canCreateChild(menu: BaseMenu) {
-  if (isAppMenu(menu.parent_id)) return false;
   const level = getMenuLevel(menu.id);
+  if (menu.id === APP_MENU_ROOT_ID || isAppMenu(menu.parent_id)) return level >= 1 && level < 4;
   if (menu.type === BaseMenuType.FOLDER) return level === 1 || level === 2;
   if (menu.type === BaseMenuType.MENU) return level === 2 || level === 3;
   return false;
@@ -181,7 +187,7 @@ function canCreateChild(menu: BaseMenu) {
 const availableMenuTypeOptions = computed(() => {
   const parentLevel = getMenuLevel(formData.parent_id ?? 0);
 
-  if (formData.id === APP_MENU_ROOT_ID) return menuTypeOptions.filter(item => item.value === BaseMenuType.MENU);
+  if (formData.id === APP_MENU_ROOT_ID) return menuTypeOptions.filter(item => item.value === BaseMenuType.FOLDER);
   if (isAppMenu(formData.parent_id)) return menuTypeOptions.filter(item => item.value === BaseMenuType.MENU);
   if (formData.id > 0 && parentLevel === 0) return menuTypeOptions.filter(item => item.value === BaseMenuType.FOLDER);
   if (dialog.parentType === BaseMenuType.FOLDER && parentLevel === 1)
@@ -200,6 +206,7 @@ watch(
   () => {
     if (isAppMenu(formData.parent_id)) {
       formData.meta.app ??= createDefaultAppMenuMeta();
+      formData.meta.app.in_tab_bar = isAppTab(formData.parent_id);
     } else if (formData.id === 0) {
       formData.meta.app = undefined;
     }
@@ -486,27 +493,13 @@ const formFields = computed<ProFormField[]>(() => [
     visible: model => isAppMenu(model.parent_id)
   },
   {
-    prop: "meta.app.in_tab_bar",
-    label: "底部导航栏",
-    component: "switch",
-    labelTooltip: "开启后，该页面会显示在移动端底部导航栏中。底部导航栏只能配置 0 项或 2–5 项，开启时需同时填写默认图标和选中图标。",
-    props: {
-      inlinePrompt: true,
-      activeText: "是",
-      inactiveText: "否",
-      activeValue: true,
-      inactiveValue: false
-    },
-    visible: model => isAppMenu(model.parent_id)
-  },
-  {
     prop: "meta.app.selected_icon",
     label: "选中图标",
     component: "input",
     labelTooltip: "填写移动端模块注册的图标键或 HTTPS 图片地址。",
     itemProps: { required: true },
     props: { placeholder: "例如 HOME_SELECTED" },
-    visible: model => isAppMenu(model.parent_id) && Boolean(model.meta?.app?.in_tab_bar)
+    visible: model => isAppTab(model.parent_id)
   },
   {
     prop: "component",
@@ -610,7 +603,7 @@ const formFields = computed<ProFormField[]>(() => [
       filterable: true,
       titles: ["可选 API", "已选 API"]
     },
-    visible: model => model.type === BaseMenuType.MENU || model.type === BaseMenuType.BUTTON,
+    visible: model => model.id === APP_MENU_ROOT_ID || model.type === BaseMenuType.MENU || model.type === BaseMenuType.BUTTON,
     colSpan: 24
   },
   {
@@ -655,7 +648,7 @@ const rules = computed<FormRules>(() => ({
     {
       validator: (_rule, value, callback) => {
         if (formData.type === BaseMenuType.BUTTON) return callback();
-        if (isAppMenu(formData.parent_id) && !formData.meta.app?.in_tab_bar) return callback();
+        if (isAppMenu(formData.parent_id) && !isAppTab(formData.parent_id)) return callback();
         if (value) return callback();
         callback(new Error(isAppMenu(formData.parent_id) ? "请输入默认图标" : "请选择菜单图标"));
       },
@@ -683,7 +676,7 @@ const rules = computed<FormRules>(() => ({
   "meta.app.selected_icon": [
     {
       validator: (_rule, value, callback) => {
-        if (!isAppMenu(formData.parent_id) || !formData.meta.app?.in_tab_bar || value) return callback();
+        if (!isAppTab(formData.parent_id) || value) return callback();
         callback(new Error("请输入选中图标"));
       },
       trigger: "blur"
@@ -848,11 +841,13 @@ function normalizeMenuForm(data?: Partial<BaseMenuForm>): MenuFormState {
 /** 构建可选父级菜单树，并记录父节点类型用于约束下级菜单类型。 */
 function buildMenuOptions(menuList: BaseMenu[] = []) {
   const typeMap = new Map<number, BaseMenuType>();
+  const mobileIds = new Set<number>([APP_MENU_ROOT_ID]);
   const convert = (list: BaseMenu[]): ProFormOption[] =>
     list
       .filter(item => item.type === BaseMenuType.FOLDER || item.type === BaseMenuType.MENU)
       .map(item => {
         typeMap.set(item.id, item.type);
+        if (mobileIds.has(item.parent_id ?? 0)) mobileIds.add(item.id);
         return {
           label: item.meta?.title || item.name || item.path,
           value: item.id,
@@ -861,6 +856,7 @@ function buildMenuOptions(menuList: BaseMenu[] = []) {
       });
   const options = convert(menuList);
   parentMenuTypeMap.value = typeMap;
+  appMenuIds.value = mobileIds;
   return options;
 }
 
@@ -881,6 +877,7 @@ function buildSubmitPayload(): BaseMenuForm {
     payload.meta.full = false;
     payload.meta.affix = false;
     payload.meta.params = [];
+    payload.meta.app.in_tab_bar = isAppTab(payload.parent_id);
     if (!payload.meta.app.in_tab_bar) payload.meta.app.selected_icon = undefined;
   }
 
@@ -901,7 +898,7 @@ function buildSubmitPayload(): BaseMenuForm {
     payload.path = "";
     payload.name = "";
     payload.component = "Layout";
-    payload.api = [];
+    if (payload.id !== APP_MENU_ROOT_ID) payload.api = [];
     payload.meta.keep_alive = false;
     payload.meta.full = false;
     payload.meta.affix = false;

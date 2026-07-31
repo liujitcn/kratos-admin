@@ -31,22 +31,34 @@ func NewBaseMenuCase(baseCase *biz.BaseCase, baseMenuRepo *data.BaseMenuReposito
 	}
 }
 
-// ListBaseMenu 查询固定移动端根菜单下的启用页面配置。
+// ListBaseMenu 查询固定移动端根目录下的完整启用页面层级。
 func (c *BaseMenuCase) ListBaseMenu(ctx context.Context) ([]*systemappv1.BaseMenu, error) {
 	query := c.Query(ctx).BaseMenu
-	opts := make([]repository.QueryOption, 0, 4)
-	opts = append(opts, repository.Where(query.ParentID.Eq(_const.BASE_MENU_APP_ROOT_ID)))
-	opts = append(opts, repository.Where(query.Type.Eq(_const.BASE_MENU_TYPE_MENU)))
-	opts = append(opts, repository.Where(query.Status.Eq(_const.STATUS_ENABLE)))
-	opts = append(opts, repository.Order(query.Sort.Asc(), query.ID.Asc()))
-	list, err := c.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
+	items := make([]*systemappv1.BaseMenu, 0)
+	parentIDs := []int64{_const.BASE_MENU_APP_ROOT_ID}
+	visited := map[int64]struct{}{_const.BASE_MENU_APP_ROOT_ID: {}}
+	var err error
+	for len(parentIDs) > 0 {
+		opts := make([]repository.QueryOption, 0, 4)
+		opts = append(opts, repository.Where(query.ParentID.In(parentIDs...)))
+		opts = append(opts, repository.Where(query.Type.Eq(_const.BASE_MENU_TYPE_MENU)))
+		opts = append(opts, repository.Where(query.Status.Eq(_const.STATUS_ENABLE)))
+		opts = append(opts, repository.Order(query.Sort.Asc(), query.ID.Asc()))
+		var children []*models.BaseMenu
+		children, err = c.List(ctx, opts...)
+		if err != nil {
+			return nil, err
+		}
 
-	items := make([]*systemappv1.BaseMenu, 0, len(list))
-	for _, item := range list {
-		items = append(items, c.mapper.ToDTO(item))
+		parentIDs = make([]int64, 0, len(children))
+		for _, child := range children {
+			if _, exists := visited[child.ID]; exists {
+				continue
+			}
+			visited[child.ID] = struct{}{}
+			items = append(items, c.mapper.ToDTO(child))
+			parentIDs = append(parentIDs, child.ID)
+		}
 	}
 	return items, nil
 }

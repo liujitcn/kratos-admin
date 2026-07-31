@@ -4,6 +4,7 @@ import { hasValidToken } from './utils/auth'
 import { navigateToLogin } from './utils/navigation'
 import { resolveStaticView } from './module'
 import { matchLogicalPath, parseLogicalQuery } from './navigation-pattern.mjs'
+import { buildMenuTree } from './navigation-tree.mjs'
 
 /** 移动菜单访问模式。 */
 export type AppMenuAccess = 'PUBLIC' | 'GUEST_ONLY' | 'AUTHENTICATED'
@@ -22,6 +23,11 @@ export interface AppMenu {
   selectedIcon?: string
 }
 
+/** app 运行时使用的树形菜单节点。 */
+export interface AppMenuNode extends AppMenu {
+  children: AppMenuNode[]
+}
+
 /** 菜单获取适配器。 */
 export interface AppNavigationAdapter {
   /** 获取扁平移动菜单配置。 */
@@ -37,9 +43,12 @@ export interface ResolvedAppRoute {
 
 const ANONYMOUS_CACHE_KEY = 'kratos-app:navigation:anonymous'
 const AUTHENTICATED_CACHE_KEY = 'kratos-app:navigation:authenticated'
+/** 固定移动端菜单根目录编号。 */
+export const APP_MENU_ROOT_ID = 999
 const defaultMenus: AppMenu[] = [
   {
-    id: 9990101,
+    id: 99901,
+    parentId: APP_MENU_ROOT_ID,
     name: 'AppHome',
     path: 'app/home',
     viewKey: 'HOME',
@@ -50,7 +59,8 @@ const defaultMenus: AppMenu[] = [
     selectedIcon: 'HOME_SELECTED',
   },
   {
-    id: 9990102,
+    id: 99909,
+    parentId: APP_MENU_ROOT_ID,
     name: 'AppMy',
     path: 'app/my',
     viewKey: 'PROFILE_HOME',
@@ -61,7 +71,8 @@ const defaultMenus: AppMenu[] = [
     selectedIcon: 'USER_SELECTED',
   },
   {
-    id: 9990103,
+    id: 9990101,
+    parentId: 99901,
     name: 'AppLogin',
     path: 'app/login',
     viewKey: 'LOGIN',
@@ -70,7 +81,8 @@ const defaultMenus: AppMenu[] = [
     inTabBar: false,
   },
   {
-    id: 9990104,
+    id: 999010101,
+    parentId: 9990101,
     name: 'AppProtocol',
     path: 'app/protocol/:type',
     viewKey: 'PROTOCOL',
@@ -79,7 +91,8 @@ const defaultMenus: AppMenu[] = [
     inTabBar: false,
   },
   {
-    id: 9990105,
+    id: 9990901,
+    parentId: 99909,
     name: 'AppProfile',
     path: 'app/profile',
     viewKey: 'PROFILE',
@@ -88,7 +101,8 @@ const defaultMenus: AppMenu[] = [
     inTabBar: false,
   },
   {
-    id: 9990106,
+    id: 9990902,
+    parentId: 99909,
     name: 'AppSettings',
     path: 'app/settings',
     viewKey: 'SETTINGS',
@@ -97,7 +111,8 @@ const defaultMenus: AppMenu[] = [
     inTabBar: false,
   },
   {
-    id: 9990107,
+    id: 9990903,
+    parentId: 99909,
     name: 'AppAi',
     path: 'app/ai',
     viewKey: 'AI',
@@ -106,7 +121,8 @@ const defaultMenus: AppMenu[] = [
     inTabBar: false,
   },
   {
-    id: 9990108,
+    id: 9990102,
+    parentId: 99901,
     name: 'AppWebView',
     path: 'app/webview',
     viewKey: 'WEBVIEW',
@@ -200,9 +216,11 @@ export function navigateAppRoute(rawRoute: string, options: { replace?: boolean 
 
 /** 获取导航响应式状态。 */
 export function useAppNavigation() {
-  const tabBar = computed(() => menus.value.filter((menu) => menu.inTabBar))
+  const menuTree = computed<AppMenuNode[]>(() => buildMenuTree(menus.value, APP_MENU_ROOT_ID))
+  const tabBar = computed(() => menuTree.value.filter((menu) => menu.inTabBar))
   return {
     menus: readonly(menus),
+    menuTree,
     ready: readonly(ready),
     tabBar,
     navigate: navigateAppRoute,
@@ -288,6 +306,25 @@ function validateMenus(nextMenus: AppMenu[]): void {
     names.add(menu.name)
     paths.add(menu.path)
   }
-  const tabCount = nextMenus.filter((menu) => menu.inTabBar).length
+  const menuMap = new Map(nextMenus.map((menu) => [menu.id, menu]))
+  for (const menu of nextMenus) {
+    if (menu.parentId === undefined) throw new Error(`菜单缺少父级编号：${menu.name}`)
+    if (menu.parentId === APP_MENU_ROOT_ID) {
+      if (!menu.inTabBar) throw new Error(`移动端二级菜单必须作为 tab：${menu.name}`)
+      continue
+    }
+    if (menu.inTabBar) throw new Error(`只有移动端二级菜单可以作为 tab：${menu.name}`)
+    const visited = new Set<number>([menu.id])
+    let parentId = menu.parentId
+    while (parentId !== APP_MENU_ROOT_ID) {
+      if (visited.has(parentId)) throw new Error(`移动端菜单存在循环父级：${menu.name}`)
+      visited.add(parentId)
+      const parent = menuMap.get(parentId)
+      if (!parent) throw new Error(`移动端菜单父级不存在：${menu.name}`)
+      if (parent.parentId === undefined) throw new Error(`移动端菜单父级编号无效：${menu.name}`)
+      parentId = parent.parentId
+    }
+  }
+  const tabCount = nextMenus.filter((menu) => menu.parentId === APP_MENU_ROOT_ID).length
   if (tabCount === 1 || tabCount > 5) throw new Error('tabBar 只能配置 0 或 2-5 项')
 }

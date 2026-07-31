@@ -12,6 +12,7 @@
       "default": "./dist/module.mjs"
     },
     "./api/*": "./src/api/*.ts",
+    "./components/*.vue": "./src/components/*.vue",
     "./rpc/*": "./src/rpc/*",
     "./stores": "./src/stores/index.ts",
     "./static/*": "./src/static/*",

@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { resolveModuleIcon, resolveStaticView } from '../module'
-import { useAppNavigation } from '../navigation'
+import { APP_MENU_ROOT_ID, useAppNavigation } from '../navigation'
+import { resolveRootMenuId } from '../navigation-tree.mjs'
 
 const props = defineProps<{ route: string }>()
-const { tabBar, navigate } = useAppNavigation()
-const activeMenu = computed(() =>
-  tabBar.value.find((menu) => resolveStaticView(menu.viewKey) === props.route),
-)
+const { menus, tabBar, navigate } = useAppNavigation()
+const activeMenu = computed(() => {
+  const routeMenu = menus.value.find((menu) => resolveStaticView(menu.viewKey) === props.route)
+  if (!routeMenu) return
+  const tabMenuId = resolveRootMenuId(menus.value, routeMenu.id, APP_MENU_ROOT_ID)
+  return tabBar.value.find((menu) => menu.id === tabMenuId)
+})
 const visible = computed(() => Boolean(activeMenu.value && tabBar.value.length))
 </script>
 

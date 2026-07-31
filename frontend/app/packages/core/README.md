@@ -31,7 +31,7 @@ packages/core
 ## 功能
 
 - 定义 `KratosAppModule`、`viewKey`、静态页面覆盖和模块图标协议。
-- 从 `/v1/app/base/menu` 加载 `99901` 下的扁平菜单，以 `meta.app` 解析稳定视图键、访问模式和 tabBar 配置，校验后原子更新动态路由和 tabBar。
+- 从 `/v1/app/base/menu` 加载 `999` 下的扁平菜单，按 `parent_id` 构建树，以二级页面生成 tabBar，并原子更新动态路由和层级导航。
 - 按匿名态、登录态缓存导航，并在远端不可用时回退到最近缓存或默认菜单。
 - 统一认证、token、HTTP、上传、配置、Pinia 和基础页面能力。
 - 构建时扫描模块 `src/views/**/*.vue`，逐文件合并模块 static，生成宿主页并在退出时按事务精确恢复。
@@ -41,6 +41,6 @@ packages/core
 - `@liujitcn/kratos-app-core`：运行时、导航、store 和组件。
 - `@liujitcn/kratos-app-core/module`：模块协议和 core 模块。
 - `@liujitcn/kratos-app-core/vite`：Vite 配置与页面装配插件。
-- `@liujitcn/kratos-app-core/api/*`、`utils/*`、`views/*`：白名单子路径。
+- `@liujitcn/kratos-app-core/api/*`、`components/*.vue`、`utils/*`、`views/*`：白名单子路径。
 
 构建与验证命令见 [workspace 文档](../../README.md)。

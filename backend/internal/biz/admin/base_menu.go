@@ -170,9 +170,6 @@ func (c *BaseMenuCase) UpdateBaseMenu(ctx context.Context, req *systemadminv1.Ba
 				return errorsx.ProtectedResourceConflict("一级菜单的父级和类型不允许修改", "base_menu")
 			}
 		} else {
-			if currentMenu.ID == _const.BASE_MENU_APP_ROOT_ID && req.GetType() != systemcommonv1.BaseMenuType_MENU {
-				return errorsx.ProtectedResourceConflict("固定移动端根菜单的类型不允许修改", "base_menu")
-			}
 			if req.ParentId != nil && req.GetParentId() != currentMenu.ParentID {
 				return errorsx.ProtectedResourceConflict("菜单创建后不允许更换父级", "base_menu")
 			}
@@ -203,9 +200,6 @@ func (c *BaseMenuCase) DeleteBaseMenu(ctx context.Context, id string) error {
 	query := c.Query(ctx).BaseMenu
 	var err error
 	for _, menuID := range ids {
-		if menuID == _const.BASE_MENU_APP_ROOT_ID {
-			return errorsx.ProtectedResourceConflict("固定移动端根菜单不允许删除", "base_menu")
-		}
 		var menu *models.BaseMenu
 		menu, err = c.FindByID(ctx, menuID)
 		if err != nil {
@@ -524,10 +518,16 @@ func validateBaseMenuChild(parentMenu *models.BaseMenu, menuType int32) error {
 		if menuType == _const.BASE_MENU_TYPE_MENU {
 			return nil
 		}
-		return errorsx.InvalidArgument("移动端根菜单下只能创建页面菜单")
+		return errorsx.InvalidArgument("移动端根目录下只能创建标签页菜单")
 	}
-	if parentMenu.ParentID == _const.BASE_MENU_APP_ROOT_ID {
-		return errorsx.InvalidArgument("移动端页面菜单不能创建下级菜单")
+	if isAppMenuID(parentMenu.ID) {
+		if baseMenuIDLevel(parentMenu.ID) >= baseMenuMaxLevel {
+			return errorsx.InvalidArgument("移动端页面菜单已达到最大层级")
+		}
+		if menuType == _const.BASE_MENU_TYPE_MENU {
+			return nil
+		}
+		return errorsx.InvalidArgument("移动端页面下只能创建页面菜单")
 	}
 	if parentMenu.Type == _const.BASE_MENU_TYPE_BUTTON || parentMenu.Type == _const.BASE_MENU_TYPE_EXT_LINK {
 		return errorsx.InvalidArgument("按钮或外链不能作为父级菜单")
@@ -574,4 +574,12 @@ func baseMenuIDLevel(menuID int64) int {
 	default:
 		return 0
 	}
+}
+
+// isAppMenuID 判断菜单编号是否属于固定移动端菜单树。
+func isAppMenuID(menuID int64) bool {
+	for menuID > _const.BASE_MENU_APP_ROOT_ID {
+		menuID /= 100
+	}
+	return menuID == _const.BASE_MENU_APP_ROOT_ID
 }
