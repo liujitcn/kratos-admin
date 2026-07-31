@@ -1,10 +1,16 @@
 {
   "name": "@liujitcn/kratos-uni-app-cli",
   "description": "CLI for scaffolding modular Kratos uni-app workspaces.",
-  "version": "0.0.1",
+  "version": "0.0.16",
   "type": "module",
-  "files": ["bin", "src", "README.md"],
-  "bin": { "kratos-uni-app": "./bin/kratos-uni-app.mjs" },
+  "files": [
+    "bin",
+    "src",
+    "README.md"
+  ],
+  "bin": {
+    "kratos-uni-app": "./bin/kratos-uni-app.mjs"
+  },
   "exports": {
     ".": "./src/index.mjs",
     "./package.json": "./package.json"
@@ -12,5 +18,7 @@
   "scripts": {
     "build": "pnpm pack --pack-destination ../../dist/npm"
   },
-  "publishConfig": { "access": "public" }
+  "publishConfig": {
+    "access": "public"
+  }
 }

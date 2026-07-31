@@ -1,9 +1,13 @@
 {
   "name": "@liujitcn/kratos-taro-app-core",
   "description": "Runtime, navigation, authentication, and build foundation for Kratos Taro apps.",
-  "version": "0.0.1",
+  "version": "0.0.16",
   "type": "module",
-  "files": ["dist", "src", "README.md"],
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
   "exports": {
     ".": "./src/index.ts",
     "./build": {

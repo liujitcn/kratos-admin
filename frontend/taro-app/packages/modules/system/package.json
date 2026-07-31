@@ -1,9 +1,13 @@
 {
   "name": "@liujitcn/kratos-taro-app-system",
   "description": "Kratos Taro system module with profile, settings, and AI views.",
-  "version": "0.0.1",
+  "version": "0.0.16",
   "type": "module",
-  "files": ["dist", "src", "README.md"],
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
   "exports": {
     ".": "./src/index.ts",
     "./build": {

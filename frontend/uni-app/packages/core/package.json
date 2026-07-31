@@ -1,9 +1,13 @@
 {
   "name": "@liujitcn/kratos-uni-app-core",
   "description": "Runtime, navigation, authentication, and build foundation for Kratos apps.",
-  "version": "0.0.1",
+  "version": "0.0.16",
   "type": "module",
-  "files": ["dist", "src", "README.md"],
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
   "exports": {
     ".": "./src/index.ts",
     "./module": {
@@ -32,7 +36,9 @@
     "build:entries": "esbuild src/module.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/module.mjs && esbuild src/vite.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/vite.mjs",
     "tsc": "vue-tsc --noEmit -p tsconfig.json"
   },
-  "publishConfig": { "access": "public" },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@dcloudio/uni-app": "3.0.0-5010520260709002",
     "@dcloudio/uni-ui": "^1.4.28",

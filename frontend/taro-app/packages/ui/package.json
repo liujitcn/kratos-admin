@@ -1,9 +1,12 @@
 {
   "name": "@liujitcn/kratos-taro-app-ui",
   "description": "Shared theme and NutUI adapters for Kratos Taro apps.",
-  "version": "0.0.1",
+  "version": "0.0.16",
   "type": "module",
-  "files": ["src", "README.md"],
+  "files": [
+    "src",
+    "README.md"
+  ],
   "exports": {
     ".": "./src/index.ts",
     "./icons": "./src/icons.ts",
