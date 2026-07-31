@@ -30,6 +30,11 @@ func NewBaseRoleCase(
 
 // FindDefaultUser 查询默认租户的普通用户角色。
 func (c *BaseRoleCase) FindDefaultUser(ctx context.Context) (*models.BaseRole, error) {
+	return c.FindDefaultByCode(ctx, _const.BASE_ROLE_CODE_USER)
+}
+
+// FindDefaultByCode 按编码查询默认租户的基础角色。
+func (c *BaseRoleCase) FindDefaultByCode(ctx context.Context, roleCode string) (*models.BaseRole, error) {
 	tenantQuery := c.baseTenantRepo.Query(ctx).BaseTenant
 	tenantOpts := make([]repository.QueryOption, 0, 1)
 	tenantOpts = append(tenantOpts, repository.Where(tenantQuery.Code.Eq(databaseGorm.DefaultTenantCode)))
@@ -40,6 +45,6 @@ func (c *BaseRoleCase) FindDefaultUser(ctx context.Context) (*models.BaseRole, e
 	roleQuery := c.Query(ctx).BaseRole
 	roleOpts := make([]repository.QueryOption, 0, 2)
 	roleOpts = append(roleOpts, repository.Where(roleQuery.TenantID.Eq(defaultTenant.ID)))
-	roleOpts = append(roleOpts, repository.Where(roleQuery.Code.Eq(_const.BASE_ROLE_CODE_USER)))
+	roleOpts = append(roleOpts, repository.Where(roleQuery.Code.Eq(roleCode)))
 	return c.Find(ctx, roleOpts...)
 }

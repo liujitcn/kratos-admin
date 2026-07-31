@@ -19,6 +19,18 @@ export interface OptionBaseUserRequest {
   tenant_id?: number | undefined;
 }
 
+/** 用户列表查询条件 */
+export interface ListBaseUserRequest {
+  /** 用户ID列表 */
+  ids: number[];
+}
+
+/** 用户列表响应 */
+export interface ListBaseUserResponse {
+  /** 用户列表 */
+  base_users: BaseUser[];
+}
+
 /** 用户分页查询条件 */
 export interface PageBaseUserRequest {
   /** 用户编号 */
@@ -169,10 +181,20 @@ export interface ResetBaseUserPasswordRequest {
   pwd: PasswordCrypto | undefined;
 }
 
+/** 基础用户应用端角色设置参数 */
+export interface SetBaseUserAppRoleRequest {
+  /** 用户ID */
+  user_id: number;
+  /** 应用端角色编码 */
+  role_code: string;
+}
+
 /** Admin用户管理服务 */
 export interface BaseUserService {
   /** 查询用户下拉选择 */
   OptionBaseUser(request: OptionBaseUserRequest): Promise<SelectOptionResponse>;
+  /** 查询用户列表 */
+  ListBaseUser(request: ListBaseUserRequest): Promise<ListBaseUserResponse>;
   /** 查询用户分页列表 */
   PageBaseUser(request: PageBaseUserRequest): Promise<PageBaseUserResponse>;
   /** 查询用户 */
@@ -187,4 +209,6 @@ export interface BaseUserService {
   SetBaseUserStatus(request: SetBaseUserStatusRequest): Promise<Empty>;
   /** 重置密码 */
   ResetBaseUserPassword(request: ResetBaseUserPasswordRequest): Promise<Empty>;
+  /** 设置基础用户应用端角色 */
+  SetBaseUserAppRole(request: SetBaseUserAppRoleRequest): Promise<Empty>;
 }

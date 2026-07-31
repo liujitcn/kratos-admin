@@ -76,6 +76,12 @@ type SSEContributor interface {
 	SSEStreams() []coreSSE.Stream
 }
 
+// SSEPublisherAware 表示需要使用宿主 SSE 发布器的模块。
+type SSEPublisherAware interface {
+	// SetSSEPublisher 注入与宿主订阅端点共享的 SSE 发布器。
+	SetSSEPublisher(*coreSSE.Publisher)
+}
+
 // ScriptContributor 表示可贡献启动脚本或数据库迁移适配器的模块。
 type ScriptContributor interface {
 	// Scripts 返回模块提供的启动脚本。
@@ -213,6 +219,17 @@ func (modules Modules) SSEStreams() []coreSSE.Stream {
 		streams = append(streams, contributor.SSEStreams()...)
 	}
 	return streams
+}
+
+// SetSSEPublisher 向需要发布 SSE 消息的模块注入宿主发布器。
+func (modules Modules) SetSSEPublisher(publisher *coreSSE.Publisher) {
+	for _, module := range modules {
+		aware, ok := module.(SSEPublisherAware)
+		if !ok {
+			continue
+		}
+		aware.SetSSEPublisher(publisher)
+	}
 }
 
 // Scripts 汇总全部外部模块贡献的启动脚本。

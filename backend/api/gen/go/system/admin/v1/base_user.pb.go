@@ -81,6 +81,96 @@ func (x *OptionBaseUserRequest) GetTenantId() int64 {
 	return 0
 }
 
+// 用户列表查询条件
+type ListBaseUserRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Ids           []int64                `protobuf:"varint,1,rep,packed,name=ids,proto3" json:"ids,omitempty"` // 用户ID列表
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBaseUserRequest) Reset() {
+	*x = ListBaseUserRequest{}
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBaseUserRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBaseUserRequest) ProtoMessage() {}
+
+func (x *ListBaseUserRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBaseUserRequest.ProtoReflect.Descriptor instead.
+func (*ListBaseUserRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ListBaseUserRequest) GetIds() []int64 {
+	if x != nil {
+		return x.Ids
+	}
+	return nil
+}
+
+// 用户列表响应
+type ListBaseUserResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BaseUsers     []*BaseUser            `protobuf:"bytes,1,rep,name=base_users,json=baseUsers,proto3" json:"base_users,omitempty"` // 用户列表
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBaseUserResponse) Reset() {
+	*x = ListBaseUserResponse{}
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBaseUserResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBaseUserResponse) ProtoMessage() {}
+
+func (x *ListBaseUserResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBaseUserResponse.ProtoReflect.Descriptor instead.
+func (*ListBaseUserResponse) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ListBaseUserResponse) GetBaseUsers() []*BaseUser {
+	if x != nil {
+		return x.BaseUsers
+	}
+	return nil
+}
+
 // 用户分页查询条件
 type PageBaseUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -100,7 +190,7 @@ type PageBaseUserRequest struct {
 
 func (x *PageBaseUserRequest) Reset() {
 	*x = PageBaseUserRequest{}
-	mi := &file_system_admin_v1_base_user_proto_msgTypes[1]
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -112,7 +202,7 @@ func (x *PageBaseUserRequest) String() string {
 func (*PageBaseUserRequest) ProtoMessage() {}
 
 func (x *PageBaseUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_user_proto_msgTypes[1]
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -125,7 +215,7 @@ func (x *PageBaseUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageBaseUserRequest.ProtoReflect.Descriptor instead.
 func (*PageBaseUserRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{1}
+	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *PageBaseUserRequest) GetUserCode() string {
@@ -209,7 +299,7 @@ type PageBaseUserResponse struct {
 
 func (x *PageBaseUserResponse) Reset() {
 	*x = PageBaseUserResponse{}
-	mi := &file_system_admin_v1_base_user_proto_msgTypes[2]
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -221,7 +311,7 @@ func (x *PageBaseUserResponse) String() string {
 func (*PageBaseUserResponse) ProtoMessage() {}
 
 func (x *PageBaseUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_user_proto_msgTypes[2]
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -234,7 +324,7 @@ func (x *PageBaseUserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageBaseUserResponse.ProtoReflect.Descriptor instead.
 func (*PageBaseUserResponse) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{2}
+	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *PageBaseUserResponse) GetBaseUsers() []*BaseUser {
@@ -261,7 +351,7 @@ type GetBaseUserRequest struct {
 
 func (x *GetBaseUserRequest) Reset() {
 	*x = GetBaseUserRequest{}
-	mi := &file_system_admin_v1_base_user_proto_msgTypes[3]
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -273,7 +363,7 @@ func (x *GetBaseUserRequest) String() string {
 func (*GetBaseUserRequest) ProtoMessage() {}
 
 func (x *GetBaseUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_user_proto_msgTypes[3]
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -286,7 +376,7 @@ func (x *GetBaseUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBaseUserRequest.ProtoReflect.Descriptor instead.
 func (*GetBaseUserRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{3}
+	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetBaseUserRequest) GetId() int64 {
@@ -306,7 +396,7 @@ type CreateBaseUserRequest struct {
 
 func (x *CreateBaseUserRequest) Reset() {
 	*x = CreateBaseUserRequest{}
-	mi := &file_system_admin_v1_base_user_proto_msgTypes[4]
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -318,7 +408,7 @@ func (x *CreateBaseUserRequest) String() string {
 func (*CreateBaseUserRequest) ProtoMessage() {}
 
 func (x *CreateBaseUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_user_proto_msgTypes[4]
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -331,7 +421,7 @@ func (x *CreateBaseUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateBaseUserRequest.ProtoReflect.Descriptor instead.
 func (*CreateBaseUserRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{4}
+	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *CreateBaseUserRequest) GetBaseUser() *BaseUserForm {
@@ -351,7 +441,7 @@ type UpdateBaseUserRequest struct {
 
 func (x *UpdateBaseUserRequest) Reset() {
 	*x = UpdateBaseUserRequest{}
-	mi := &file_system_admin_v1_base_user_proto_msgTypes[5]
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -363,7 +453,7 @@ func (x *UpdateBaseUserRequest) String() string {
 func (*UpdateBaseUserRequest) ProtoMessage() {}
 
 func (x *UpdateBaseUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_user_proto_msgTypes[5]
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -376,7 +466,7 @@ func (x *UpdateBaseUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateBaseUserRequest.ProtoReflect.Descriptor instead.
 func (*UpdateBaseUserRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{5}
+	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *UpdateBaseUserRequest) GetBaseUser() *BaseUserForm {
@@ -396,7 +486,7 @@ type DeleteBaseUserRequest struct {
 
 func (x *DeleteBaseUserRequest) Reset() {
 	*x = DeleteBaseUserRequest{}
-	mi := &file_system_admin_v1_base_user_proto_msgTypes[6]
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -408,7 +498,7 @@ func (x *DeleteBaseUserRequest) String() string {
 func (*DeleteBaseUserRequest) ProtoMessage() {}
 
 func (x *DeleteBaseUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_user_proto_msgTypes[6]
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -421,7 +511,7 @@ func (x *DeleteBaseUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteBaseUserRequest.ProtoReflect.Descriptor instead.
 func (*DeleteBaseUserRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{6}
+	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *DeleteBaseUserRequest) GetId() string {
@@ -442,7 +532,7 @@ type SetBaseUserStatusRequest struct {
 
 func (x *SetBaseUserStatusRequest) Reset() {
 	*x = SetBaseUserStatusRequest{}
-	mi := &file_system_admin_v1_base_user_proto_msgTypes[7]
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -454,7 +544,7 @@ func (x *SetBaseUserStatusRequest) String() string {
 func (*SetBaseUserStatusRequest) ProtoMessage() {}
 
 func (x *SetBaseUserStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_user_proto_msgTypes[7]
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -467,7 +557,7 @@ func (x *SetBaseUserStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetBaseUserStatusRequest.ProtoReflect.Descriptor instead.
 func (*SetBaseUserStatusRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{7}
+	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *SetBaseUserStatusRequest) GetId() int64 {
@@ -509,7 +599,7 @@ type BaseUser struct {
 
 func (x *BaseUser) Reset() {
 	*x = BaseUser{}
-	mi := &file_system_admin_v1_base_user_proto_msgTypes[8]
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -521,7 +611,7 @@ func (x *BaseUser) String() string {
 func (*BaseUser) ProtoMessage() {}
 
 func (x *BaseUser) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_user_proto_msgTypes[8]
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -534,7 +624,7 @@ func (x *BaseUser) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseUser.ProtoReflect.Descriptor instead.
 func (*BaseUser) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{8}
+	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *BaseUser) GetId() int64 {
@@ -672,7 +762,7 @@ type BaseUserForm struct {
 
 func (x *BaseUserForm) Reset() {
 	*x = BaseUserForm{}
-	mi := &file_system_admin_v1_base_user_proto_msgTypes[9]
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -684,7 +774,7 @@ func (x *BaseUserForm) String() string {
 func (*BaseUserForm) ProtoMessage() {}
 
 func (x *BaseUserForm) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_user_proto_msgTypes[9]
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -697,7 +787,7 @@ func (x *BaseUserForm) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseUserForm.ProtoReflect.Descriptor instead.
 func (*BaseUserForm) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{9}
+	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *BaseUserForm) GetId() int64 {
@@ -809,7 +899,7 @@ type ResetBaseUserPasswordRequest struct {
 
 func (x *ResetBaseUserPasswordRequest) Reset() {
 	*x = ResetBaseUserPasswordRequest{}
-	mi := &file_system_admin_v1_base_user_proto_msgTypes[10]
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -821,7 +911,7 @@ func (x *ResetBaseUserPasswordRequest) String() string {
 func (*ResetBaseUserPasswordRequest) ProtoMessage() {}
 
 func (x *ResetBaseUserPasswordRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_user_proto_msgTypes[10]
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -834,7 +924,7 @@ func (x *ResetBaseUserPasswordRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResetBaseUserPasswordRequest.ProtoReflect.Descriptor instead.
 func (*ResetBaseUserPasswordRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{10}
+	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ResetBaseUserPasswordRequest) GetId() int64 {
@@ -851,6 +941,59 @@ func (x *ResetBaseUserPasswordRequest) GetPwd() *v11.PasswordCrypto {
 	return nil
 }
 
+// 基础用户应用端角色设置参数
+type SetBaseUserAppRoleRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`      // 用户ID
+	RoleCode      string                 `protobuf:"bytes,2,opt,name=role_code,json=roleCode,proto3" json:"role_code,omitempty"` // 应用端角色编码
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetBaseUserAppRoleRequest) Reset() {
+	*x = SetBaseUserAppRoleRequest{}
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetBaseUserAppRoleRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetBaseUserAppRoleRequest) ProtoMessage() {}
+
+func (x *SetBaseUserAppRoleRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_user_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetBaseUserAppRoleRequest.ProtoReflect.Descriptor instead.
+func (*SetBaseUserAppRoleRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *SetBaseUserAppRoleRequest) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *SetBaseUserAppRoleRequest) GetRoleCode() string {
+	if x != nil {
+		return x.RoleCode
+	}
+	return ""
+}
+
 var File_system_admin_v1_base_user_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_user_proto_rawDesc = "" +
@@ -860,7 +1003,13 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\akeyword\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t关键字R\akeyword\x120\n" +
 	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01B\f\n" +
 	"\n" +
-	"_tenant_id\"\xe8\x04\n" +
+	"_tenant_id\"\x99\x01\n" +
+	"\x13ListBaseUserRequest\x12\x81\x01\n" +
+	"\x03ids\x18\x01 \x03(\x03Bo\xbaG\x11\x92\x02\x0e用户ID列表\xbaHX\xba\x01N\n" +
+	"\x1blist_base_user.ids.positive\x12\x15用户ID必须大于0\x1a\x18this.all(item, item > 0)\x92\x01\x04\b\x01\x18\x01R\x03ids\"d\n" +
+	"\x14ListBaseUserResponse\x12L\n" +
+	"\n" +
+	"base_users\x18\x01 \x03(\v2\x19.system.admin.v1.BaseUserB\x12\xbaG\x0f\x92\x02\f用户列表R\tbaseUsers\"\xe8\x04\n" +
 	"\x13PageBaseUserRequest\x12/\n" +
 	"\tuser_code\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\buserCode\x12/\n" +
 	"\tuser_name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x12/\n" +
@@ -949,16 +1098,24 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\x1cResetBaseUserPasswordRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x129\n" +
 	"\x03pwd\x18\x02 \x01(\v2\x19.common.v1.PasswordCryptoB\f\xbaG\t\x92\x02\x06密码R\x03pwd:F\xbaHC\x1aA\n" +
-	"\x1cbase_user.reset_pwd.required\x12\x12请输入新密码\x1a\rhas(this.pwd)2\xac\b\n" +
+	"\x1cbase_user.reset_pwd.required\x12\x12请输入新密码\x1a\rhas(this.pwd)\"\xb4\x02\n" +
+	"\x19SetBaseUserAppRoleRequest\x12v\n" +
+	"\auser_id\x18\x01 \x01(\x03B]\xbaG\v\x92\x02\b用户ID\xbaHL\xba\x01I\n" +
+	"'set_base_user_app_role.user_id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x06userId\x12\x9e\x01\n" +
+	"\trole_code\x18\x02 \x01(\tB\x80\x01\xbaG\x18\x92\x02\x15应用端角色编码\xbaHb\xba\x01_\n" +
+	")set_base_user_app_role.role_code.required\x12!应用端角色编码不能为空\x1a\x0fthis.size() > 0R\broleCode2\x8a\n" +
+	"\n" +
 	"\x0fBaseUserService\x12\x81\x01\n" +
-	"\x0eOptionBaseUser\x12&.system.admin.v1.OptionBaseUserRequest\x1a\x1f.common.v1.SelectOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/user/option\x12|\n" +
+	"\x0eOptionBaseUser\x12&.system.admin.v1.OptionBaseUserRequest\x1a\x1f.common.v1.SelectOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/user/option\x12\x81\x01\n" +
+	"\fListBaseUser\x12$.system.admin.v1.ListBaseUserRequest\x1a%.system.admin.v1.ListBaseUserResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/user/list\x12|\n" +
 	"\fPageBaseUser\x12$.system.admin.v1.PageBaseUserRequest\x1a%.system.admin.v1.PageBaseUserResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/base/user\x12w\n" +
 	"\vGetBaseUser\x12#.system.admin.v1.GetBaseUserRequest\x1a\x1d.system.admin.v1.BaseUserForm\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/user/{id}\x12|\n" +
 	"\x0eCreateBaseUser\x12&.system.admin.v1.CreateBaseUserRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\tbase_user\"\x17/api/v1/admin/base/user\x12\x8b\x01\n" +
 	"\x0eUpdateBaseUser\x12&.system.admin.v1.UpdateBaseUserRequest\x1a\x16.google.protobuf.Empty\"9\x82\xd3\xe4\x93\x023:\tbase_user\x1a&/api/v1/admin/base/user/{base_user.id}\x12v\n" +
 	"\x0eDeleteBaseUser\x12&.system.admin.v1.DeleteBaseUserRequest\x1a\x16.google.protobuf.Empty\"$\x82\xd3\xe4\x93\x02\x1e*\x1c/api/v1/admin/base/user/{id}\x12\x86\x01\n" +
 	"\x11SetBaseUserStatus\x12).system.admin.v1.SetBaseUserStatusRequest\x1a\x16.google.protobuf.Empty\".\x82\xd3\xe4\x93\x02(:\x01*\x1a#/api/v1/admin/base/user/{id}/status\x12\x90\x01\n" +
-	"\x15ResetBaseUserPassword\x12-.system.admin.v1.ResetBaseUserPasswordRequest\x1a\x16.google.protobuf.Empty\"0\x82\xd3\xe4\x93\x02*:\x01*\x1a%/api/v1/admin/base/user/{id}/passwordB\xcf\x01\n" +
+	"\x15ResetBaseUserPassword\x12-.system.admin.v1.ResetBaseUserPasswordRequest\x1a\x16.google.protobuf.Empty\"0\x82\xd3\xe4\x93\x02*:\x01*\x1a%/api/v1/admin/base/user/{id}/password\x12X\n" +
+	"\x12SetBaseUserAppRole\x12*.system.admin.v1.SetBaseUserAppRoleRequest\x1a\x16.google.protobuf.EmptyB\xcf\x01\n" +
 	"\x13com.system.admin.v1B\rBaseUserProtoP\x01ZKgithub.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1;adminv1\xa2\x02\x03SAX\xaa\x02\x0fSystem.Admin.V1\xca\x02\x0fSystem\\Admin\\V1\xe2\x02\x1bSystem\\Admin\\V1\\GPBMetadata\xea\x02\x11System::Admin::V1b\x06proto3"
 
 var (
@@ -973,58 +1130,66 @@ func file_system_admin_v1_base_user_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_base_user_proto_rawDescData
 }
 
-var file_system_admin_v1_base_user_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_system_admin_v1_base_user_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_system_admin_v1_base_user_proto_goTypes = []any{
 	(*OptionBaseUserRequest)(nil),        // 0: system.admin.v1.OptionBaseUserRequest
-	(*PageBaseUserRequest)(nil),          // 1: system.admin.v1.PageBaseUserRequest
-	(*PageBaseUserResponse)(nil),         // 2: system.admin.v1.PageBaseUserResponse
-	(*GetBaseUserRequest)(nil),           // 3: system.admin.v1.GetBaseUserRequest
-	(*CreateBaseUserRequest)(nil),        // 4: system.admin.v1.CreateBaseUserRequest
-	(*UpdateBaseUserRequest)(nil),        // 5: system.admin.v1.UpdateBaseUserRequest
-	(*DeleteBaseUserRequest)(nil),        // 6: system.admin.v1.DeleteBaseUserRequest
-	(*SetBaseUserStatusRequest)(nil),     // 7: system.admin.v1.SetBaseUserStatusRequest
-	(*BaseUser)(nil),                     // 8: system.admin.v1.BaseUser
-	(*BaseUserForm)(nil),                 // 9: system.admin.v1.BaseUserForm
-	(*ResetBaseUserPasswordRequest)(nil), // 10: system.admin.v1.ResetBaseUserPasswordRequest
-	(v1.BaseUserGender)(0),               // 11: system.common.v1.BaseUserGender
-	(v11.Status)(0),                      // 12: common.v1.Status
-	(*v11.PasswordCrypto)(nil),           // 13: common.v1.PasswordCrypto
-	(*v11.SelectOptionResponse)(nil),     // 14: common.v1.SelectOptionResponse
-	(*emptypb.Empty)(nil),                // 15: google.protobuf.Empty
+	(*ListBaseUserRequest)(nil),          // 1: system.admin.v1.ListBaseUserRequest
+	(*ListBaseUserResponse)(nil),         // 2: system.admin.v1.ListBaseUserResponse
+	(*PageBaseUserRequest)(nil),          // 3: system.admin.v1.PageBaseUserRequest
+	(*PageBaseUserResponse)(nil),         // 4: system.admin.v1.PageBaseUserResponse
+	(*GetBaseUserRequest)(nil),           // 5: system.admin.v1.GetBaseUserRequest
+	(*CreateBaseUserRequest)(nil),        // 6: system.admin.v1.CreateBaseUserRequest
+	(*UpdateBaseUserRequest)(nil),        // 7: system.admin.v1.UpdateBaseUserRequest
+	(*DeleteBaseUserRequest)(nil),        // 8: system.admin.v1.DeleteBaseUserRequest
+	(*SetBaseUserStatusRequest)(nil),     // 9: system.admin.v1.SetBaseUserStatusRequest
+	(*BaseUser)(nil),                     // 10: system.admin.v1.BaseUser
+	(*BaseUserForm)(nil),                 // 11: system.admin.v1.BaseUserForm
+	(*ResetBaseUserPasswordRequest)(nil), // 12: system.admin.v1.ResetBaseUserPasswordRequest
+	(*SetBaseUserAppRoleRequest)(nil),    // 13: system.admin.v1.SetBaseUserAppRoleRequest
+	(v1.BaseUserGender)(0),               // 14: system.common.v1.BaseUserGender
+	(v11.Status)(0),                      // 15: common.v1.Status
+	(*v11.PasswordCrypto)(nil),           // 16: common.v1.PasswordCrypto
+	(*v11.SelectOptionResponse)(nil),     // 17: common.v1.SelectOptionResponse
+	(*emptypb.Empty)(nil),                // 18: google.protobuf.Empty
 }
 var file_system_admin_v1_base_user_proto_depIdxs = []int32{
-	11, // 0: system.admin.v1.PageBaseUserRequest.gender:type_name -> system.common.v1.BaseUserGender
-	12, // 1: system.admin.v1.PageBaseUserRequest.status:type_name -> common.v1.Status
-	8,  // 2: system.admin.v1.PageBaseUserResponse.base_users:type_name -> system.admin.v1.BaseUser
-	9,  // 3: system.admin.v1.CreateBaseUserRequest.base_user:type_name -> system.admin.v1.BaseUserForm
-	9,  // 4: system.admin.v1.UpdateBaseUserRequest.base_user:type_name -> system.admin.v1.BaseUserForm
-	11, // 5: system.admin.v1.BaseUser.gender:type_name -> system.common.v1.BaseUserGender
-	12, // 6: system.admin.v1.BaseUser.status:type_name -> common.v1.Status
-	11, // 7: system.admin.v1.BaseUserForm.gender:type_name -> system.common.v1.BaseUserGender
-	13, // 8: system.admin.v1.BaseUserForm.pwd:type_name -> common.v1.PasswordCrypto
-	12, // 9: system.admin.v1.BaseUserForm.status:type_name -> common.v1.Status
-	13, // 10: system.admin.v1.ResetBaseUserPasswordRequest.pwd:type_name -> common.v1.PasswordCrypto
-	0,  // 11: system.admin.v1.BaseUserService.OptionBaseUser:input_type -> system.admin.v1.OptionBaseUserRequest
-	1,  // 12: system.admin.v1.BaseUserService.PageBaseUser:input_type -> system.admin.v1.PageBaseUserRequest
-	3,  // 13: system.admin.v1.BaseUserService.GetBaseUser:input_type -> system.admin.v1.GetBaseUserRequest
-	4,  // 14: system.admin.v1.BaseUserService.CreateBaseUser:input_type -> system.admin.v1.CreateBaseUserRequest
-	5,  // 15: system.admin.v1.BaseUserService.UpdateBaseUser:input_type -> system.admin.v1.UpdateBaseUserRequest
-	6,  // 16: system.admin.v1.BaseUserService.DeleteBaseUser:input_type -> system.admin.v1.DeleteBaseUserRequest
-	7,  // 17: system.admin.v1.BaseUserService.SetBaseUserStatus:input_type -> system.admin.v1.SetBaseUserStatusRequest
-	10, // 18: system.admin.v1.BaseUserService.ResetBaseUserPassword:input_type -> system.admin.v1.ResetBaseUserPasswordRequest
-	14, // 19: system.admin.v1.BaseUserService.OptionBaseUser:output_type -> common.v1.SelectOptionResponse
-	2,  // 20: system.admin.v1.BaseUserService.PageBaseUser:output_type -> system.admin.v1.PageBaseUserResponse
-	9,  // 21: system.admin.v1.BaseUserService.GetBaseUser:output_type -> system.admin.v1.BaseUserForm
-	15, // 22: system.admin.v1.BaseUserService.CreateBaseUser:output_type -> google.protobuf.Empty
-	15, // 23: system.admin.v1.BaseUserService.UpdateBaseUser:output_type -> google.protobuf.Empty
-	15, // 24: system.admin.v1.BaseUserService.DeleteBaseUser:output_type -> google.protobuf.Empty
-	15, // 25: system.admin.v1.BaseUserService.SetBaseUserStatus:output_type -> google.protobuf.Empty
-	15, // 26: system.admin.v1.BaseUserService.ResetBaseUserPassword:output_type -> google.protobuf.Empty
-	19, // [19:27] is the sub-list for method output_type
-	11, // [11:19] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	10, // 0: system.admin.v1.ListBaseUserResponse.base_users:type_name -> system.admin.v1.BaseUser
+	14, // 1: system.admin.v1.PageBaseUserRequest.gender:type_name -> system.common.v1.BaseUserGender
+	15, // 2: system.admin.v1.PageBaseUserRequest.status:type_name -> common.v1.Status
+	10, // 3: system.admin.v1.PageBaseUserResponse.base_users:type_name -> system.admin.v1.BaseUser
+	11, // 4: system.admin.v1.CreateBaseUserRequest.base_user:type_name -> system.admin.v1.BaseUserForm
+	11, // 5: system.admin.v1.UpdateBaseUserRequest.base_user:type_name -> system.admin.v1.BaseUserForm
+	14, // 6: system.admin.v1.BaseUser.gender:type_name -> system.common.v1.BaseUserGender
+	15, // 7: system.admin.v1.BaseUser.status:type_name -> common.v1.Status
+	14, // 8: system.admin.v1.BaseUserForm.gender:type_name -> system.common.v1.BaseUserGender
+	16, // 9: system.admin.v1.BaseUserForm.pwd:type_name -> common.v1.PasswordCrypto
+	15, // 10: system.admin.v1.BaseUserForm.status:type_name -> common.v1.Status
+	16, // 11: system.admin.v1.ResetBaseUserPasswordRequest.pwd:type_name -> common.v1.PasswordCrypto
+	0,  // 12: system.admin.v1.BaseUserService.OptionBaseUser:input_type -> system.admin.v1.OptionBaseUserRequest
+	1,  // 13: system.admin.v1.BaseUserService.ListBaseUser:input_type -> system.admin.v1.ListBaseUserRequest
+	3,  // 14: system.admin.v1.BaseUserService.PageBaseUser:input_type -> system.admin.v1.PageBaseUserRequest
+	5,  // 15: system.admin.v1.BaseUserService.GetBaseUser:input_type -> system.admin.v1.GetBaseUserRequest
+	6,  // 16: system.admin.v1.BaseUserService.CreateBaseUser:input_type -> system.admin.v1.CreateBaseUserRequest
+	7,  // 17: system.admin.v1.BaseUserService.UpdateBaseUser:input_type -> system.admin.v1.UpdateBaseUserRequest
+	8,  // 18: system.admin.v1.BaseUserService.DeleteBaseUser:input_type -> system.admin.v1.DeleteBaseUserRequest
+	9,  // 19: system.admin.v1.BaseUserService.SetBaseUserStatus:input_type -> system.admin.v1.SetBaseUserStatusRequest
+	12, // 20: system.admin.v1.BaseUserService.ResetBaseUserPassword:input_type -> system.admin.v1.ResetBaseUserPasswordRequest
+	13, // 21: system.admin.v1.BaseUserService.SetBaseUserAppRole:input_type -> system.admin.v1.SetBaseUserAppRoleRequest
+	17, // 22: system.admin.v1.BaseUserService.OptionBaseUser:output_type -> common.v1.SelectOptionResponse
+	2,  // 23: system.admin.v1.BaseUserService.ListBaseUser:output_type -> system.admin.v1.ListBaseUserResponse
+	4,  // 24: system.admin.v1.BaseUserService.PageBaseUser:output_type -> system.admin.v1.PageBaseUserResponse
+	11, // 25: system.admin.v1.BaseUserService.GetBaseUser:output_type -> system.admin.v1.BaseUserForm
+	18, // 26: system.admin.v1.BaseUserService.CreateBaseUser:output_type -> google.protobuf.Empty
+	18, // 27: system.admin.v1.BaseUserService.UpdateBaseUser:output_type -> google.protobuf.Empty
+	18, // 28: system.admin.v1.BaseUserService.DeleteBaseUser:output_type -> google.protobuf.Empty
+	18, // 29: system.admin.v1.BaseUserService.SetBaseUserStatus:output_type -> google.protobuf.Empty
+	18, // 30: system.admin.v1.BaseUserService.ResetBaseUserPassword:output_type -> google.protobuf.Empty
+	18, // 31: system.admin.v1.BaseUserService.SetBaseUserAppRole:output_type -> google.protobuf.Empty
+	22, // [22:32] is the sub-list for method output_type
+	12, // [12:22] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_user_proto_init() }
@@ -1033,14 +1198,14 @@ func file_system_admin_v1_base_user_proto_init() {
 		return
 	}
 	file_system_admin_v1_base_user_proto_msgTypes[0].OneofWrappers = []any{}
-	file_system_admin_v1_base_user_proto_msgTypes[1].OneofWrappers = []any{}
+	file_system_admin_v1_base_user_proto_msgTypes[3].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_base_user_proto_rawDesc), len(file_system_admin_v1_base_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

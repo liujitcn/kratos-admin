@@ -20,6 +20,13 @@ service BaseUserService {
     };
   }
 
+  // 查询用户列表
+  rpc ListBaseUser(ListBaseUserRequest) returns (ListBaseUserResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/user/list"
+    };
+  }
+
   // 查询用户分页列表
   rpc PageBaseUser(PageBaseUserRequest) returns (PageBaseUserResponse) {
     option (google.api.http) = {
@@ -72,6 +79,9 @@ service BaseUserService {
       body: "*"
     };
   }
+
+  // 设置基础用户应用端角色
+  rpc SetBaseUserAppRole(SetBaseUserAppRoleRequest) returns (google.protobuf.Empty);
 }
 
 // 用户选项查询条件
@@ -79,6 +89,16 @@ message OptionBaseUserRequest {
   string keyword = 1 [(gnostic.openapi.v3.property) = {description: "关键字"}]; // 关键字
 
   optional int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+}
+
+// 用户列表查询条件
+message ListBaseUserRequest {
+  repeated int64 ids = 1 [(gnostic.openapi.v3.property) = {description: "用户ID列表"}, (buf.validate.field).repeated = {min_items: 1, unique: true}, (buf.validate.field).cel = {id: "list_base_user.ids.positive" message: "用户ID必须大于0" expression: "this.all(item, item > 0)"}]; // 用户ID列表
+}
+
+// 用户列表响应
+message ListBaseUserResponse {
+  repeated BaseUser base_users = 1 [(gnostic.openapi.v3.property) = {description: "用户列表"}]; // 用户列表
 }
 
 // 用户分页查询条件
@@ -229,4 +249,11 @@ message ResetBaseUserPasswordRequest {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
 
   .common.v1.PasswordCrypto pwd = 2 [(gnostic.openapi.v3.property) = {description: "密码"}]; // 密码
+}
+
+// 基础用户应用端角色设置参数
+message SetBaseUserAppRoleRequest {
+  int64 user_id = 1 [(gnostic.openapi.v3.property) = {description: "用户ID"}, (buf.validate.field).cel = {id: "set_base_user_app_role.user_id.required" message: "用户ID不能为空" expression: "this > 0"}]; // 用户ID
+
+  string role_code = 2 [(gnostic.openapi.v3.property) = {description: "应用端角色编码"}, (buf.validate.field).cel = {id: "set_base_user_app_role.role_code.required" message: "应用端角色编码不能为空" expression: "this.size() > 0"}]; // 应用端角色编码
 }

@@ -107,6 +107,7 @@ func NewApp(ctx *bootstrap.Context, optionValues ...Option) (*kratos.App, func()
 	if err != nil {
 		return nil, nil, err
 	}
+	opts.modules.SetSSEPublisher(coreSSE.NewPublisher(configuredSSEServer))
 
 	grpcServer, err = newGRPCServer(ctx, opts)
 	if err != nil {

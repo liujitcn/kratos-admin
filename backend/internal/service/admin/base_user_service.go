@@ -47,6 +47,16 @@ func (s *BaseUserService) OptionBaseUser(ctx context.Context, req *systemadminv1
 	return list, nil
 }
 
+// ListBaseUser 查询用户列表。
+func (s *BaseUserService) ListBaseUser(ctx context.Context, req *systemadminv1.ListBaseUserRequest) (*systemadminv1.ListBaseUserResponse, error) {
+	list, err := s.baseUserCase.ListBaseUser(ctx, req.GetIds())
+	if err != nil {
+		log.Error(fmt.Sprintf("ListBaseUser %v", err))
+		return nil, errorsx.WrapInternal(err, "查询用户列表失败")
+	}
+	return list, nil
+}
+
 // PageBaseUser 查询用户分页列表
 func (s *BaseUserService) PageBaseUser(ctx context.Context, req *systemadminv1.PageBaseUserRequest) (*systemadminv1.PageBaseUserResponse, error) {
 	page, err := s.baseUserCase.PageBaseUser(ctx, req)
@@ -113,6 +123,16 @@ func (s *BaseUserService) ResetBaseUserPassword(ctx context.Context, req *system
 	if err != nil {
 		log.Error(fmt.Sprintf("ResetBaseUserPassword %v", err))
 		return nil, errorsx.WrapInternal(err, "重置密码失败")
+	}
+	return new(emptypb.Empty), nil
+}
+
+// SetBaseUserAppRole 设置基础用户应用端角色。
+func (s *BaseUserService) SetBaseUserAppRole(ctx context.Context, req *systemadminv1.SetBaseUserAppRoleRequest) (*emptypb.Empty, error) {
+	err := s.baseUserCase.SetBaseUserAppRole(ctx, req.GetUserId(), req.GetRoleCode())
+	if err != nil {
+		log.Error(fmt.Sprintf("SetBaseUserAppRole %v", err))
+		return nil, errorsx.WrapInternal(err, "设置基础用户应用端角色失败")
 	}
 	return new(emptypb.Empty), nil
 }

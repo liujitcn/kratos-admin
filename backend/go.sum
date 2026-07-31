@@ -425,8 +425,6 @@ github.com/liujitcn/go-utils/http v0.0.5 h1:gNvxc2vNLszw2lkeme1fqFtAIRy7j444UHBJ
 github.com/liujitcn/go-utils/http v0.0.5/go.mod h1:0OZD9Mc75BOE3thAPJgICwS9ADUkFq7zsbbVAwrAx3o=
 github.com/liujitcn/gorm-kit v0.0.32 h1:1cc1L87oKgXk0kpXSO56WyocdHBMmbf8rfE/W4dYzNc=
 github.com/liujitcn/gorm-kit v0.0.32/go.mod h1:PaVfftsXRJp4CU0Hb80YWU/V4/WayzTh6iH9SxeT5SE=
-github.com/liujitcn/kratos-admin/backend/core v0.0.1 h1:tCs4YdD6Sm+qssaLa1QWyhpsw9Uras5iYUMNiJntGC8=
-github.com/liujitcn/kratos-admin/backend/core v0.0.1/go.mod h1:2GfO66aqCgcP9106vi7m/zxxurIBM8bMANzVrsjg1yo=
 github.com/liujitcn/kratos-kit v0.0.61 h1:6p9t+sx6e6C/lvBS//JL8WWCHSHLs20wxtdGgYSR9hw=
 github.com/liujitcn/kratos-kit v0.0.61/go.mod h1:+hrPAQYIEb8d/b1O9dqNbtDhaDaaT2+b+zAE0HLW1+I=
 github.com/liujitcn/kratos-kit/ai/eino v0.0.6 h1:WQo9lynN3fTQB0tTrsoW5qOg4+Nd37OqnV/zgJQJlcU=
@@ -487,8 +485,6 @@ github.com/liujitcn/kratos-kit/registry v0.0.20 h1:zVNxpu/Lqz3rkkVn8wPp2ZtAr1AHk
 github.com/liujitcn/kratos-kit/registry v0.0.20/go.mod h1:N+gu1glMyEZqSx5wi5w5vIlpNDsAHYtoNghrNszT0Cg=
 github.com/liujitcn/kratos-kit/rpc v0.0.18 h1:zKDrgvbaz73jW1d8Ex44oLGRC6CDI/gt9PshBjlHVZ0=
 github.com/liujitcn/kratos-kit/rpc v0.0.18/go.mod h1:Lq4gCnR9CFeIeerRlKjuuywOitYsTIffNtB2W9amcG0=
-github.com/liujitcn/kratos-kit/swagger-ui v0.0.10 h1:OZy5NZ7hKD+4KvY7k777Y3Ulhfb0LhdXTbIOhiOy8p0=
-github.com/liujitcn/kratos-kit/swagger-ui v0.0.10/go.mod h1:hJg5CswiozmDdRSgYJ7IJdYod9jUg4UnJL3pQ1KT/ME=
 github.com/liujitcn/kratos-kit/swagger-ui v0.0.11 h1:dhBtGKVpNbEvowQgWDy3ccNiwB3yOqD3DNPNDIdShGA=
 github.com/liujitcn/kratos-kit/swagger-ui v0.0.11/go.mod h1:hJg5CswiozmDdRSgYJ7IJdYod9jUg4UnJL3pQ1KT/ME=
 github.com/liujitcn/kratos-kit/tracer v0.0.14 h1:Bkn29ApY+8cD5tjo5olpuppvg9wT4sO29Tgd+YKS1sg=

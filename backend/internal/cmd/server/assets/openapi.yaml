@@ -2106,6 +2106,26 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/user/list:
+        get:
+            tags:
+                - BaseUserService
+            description: 查询用户列表
+            operationId: BaseUserService_ListBaseUser
+            parameters:
+                - name: ids
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.ListBaseUserResponse'
     /api/v1/admin/base/user/option:
         get:
             tags:
@@ -6012,6 +6032,15 @@ components:
                     type: string
                     description: 任务ID
             description: 执行任务请求参数
+        system.admin.v1.ListBaseUserResponse:
+            type: object
+            properties:
+                base_users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseUser'
+                    description: 用户列表
+            description: 用户列表响应
         system.admin.v1.ListCodeGenColumnResponse:
             type: object
             properties:

@@ -5,6 +5,8 @@ import {
   type CreateBaseUserRequest,
   type DeleteBaseUserRequest,
   type GetBaseUserRequest,
+  type ListBaseUserRequest,
+  type ListBaseUserResponse,
   type PageBaseUserRequest,
   type PageBaseUserResponse,
   type OptionBaseUserRequest,
@@ -18,11 +20,20 @@ import type { SelectOptionResponse } from "@liujitcn/kratos-admin-system/rpc/com
 const BASE_USER_URL = "/v1/admin/base/user";
 
 /** Admin用户服务 */
-export class BaseUserServiceImpl implements BaseUserService {
+export class BaseUserServiceImpl implements Omit<BaseUserService, "SetBaseUserAppRole"> {
   /** 查询用户下拉选择 */
   OptionBaseUser(request: OptionBaseUserRequest): Promise<SelectOptionResponse> {
     return service<OptionBaseUserRequest, SelectOptionResponse>({
       url: `${BASE_USER_URL}/option`,
+      method: "get",
+      params: request
+    });
+  }
+
+  /** 查询用户列表 */
+  ListBaseUser(request: ListBaseUserRequest): Promise<ListBaseUserResponse> {
+    return service<ListBaseUserRequest, ListBaseUserResponse>({
+      url: `${BASE_USER_URL}/list`,
       method: "get",
       params: request
     });

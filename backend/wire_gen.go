@@ -235,7 +235,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	bizBaseRoleCase := biz3.NewBaseRoleCase(baseCase, transaction, baseRoleRepository, baseTenantRepository, casbinRuleCase)
 	bizBaseDeptCase := biz3.NewBaseDeptCase(baseCase, baseDeptRepository)
 	baseMenuCase := biz3.NewBaseMenuCase(baseCase, transaction, baseMenuRepository, baseRoleRepository, casbinRuleCase)
-	bizBaseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseDeptRepository, basePostRepository, bizBaseRoleCase, bizBaseDeptCase, baseMenuCase, userEvents)
+	bizBaseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseDeptRepository, basePostRepository, bizBaseRoleCase, bizBaseDeptCase, baseMenuCase, baseRoleCase, userEvents)
 	baseTenantCase := biz3.NewBaseTenantCase(baseCase, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, casbinRuleRepository, casbinRuleCase, userEvents)
 	authCase := biz3.NewAuthCase(baseCase, bizBaseUserCase, bizBaseRoleCase, bizBaseDeptCase, baseTenantCase, baseMenuCase, fileCase)
 	authService := admin.NewAuthService(authCase)
@@ -264,6 +264,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	basePostService := admin.NewBasePostService(basePostCase)
 	baseRoleService := admin.NewBaseRoleService(bizBaseRoleCase)
 	baseTenantService := admin.NewBaseTenantService(baseTenantCase)
+	baseThirdAccountService := admin.NewBaseThirdAccountService(baseThirdAccountCase)
 	baseUserService := admin.NewBaseUserService(bizBaseUserCase)
 	codeGenTableRepository := data.NewCodeGenTableRepository(dataData)
 	codeGenColumnRepository := data.NewCodeGenColumnRepository(dataData)
@@ -291,25 +292,26 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	projectDocumentCase := biz3.NewProjectDocumentCase(catalog)
 	projectDocumentService := admin.NewProjectDocumentService(projectDocumentCase)
 	adminServices := admin2.Services{
-		Auth:            authService,
-		BaseAPI:         baseApiService,
-		BaseArea:        baseAreaService,
-		BaseConfig:      baseConfigService,
-		BaseDept:        baseDeptService,
-		BaseDict:        baseDictService,
-		BaseJob:         baseJobService,
-		BaseLog:         baseLogService,
-		BaseMenu:        baseMenuService,
-		BasePost:        basePostService,
-		BaseRole:        baseRoleService,
-		BaseTenant:      baseTenantService,
-		BaseUser:        baseUserService,
-		CodeGen:         codeGenService,
-		CodeGenColumn:   codeGenColumnService,
-		CodeGenProto:    codeGenProtoService,
-		CodeGenTable:    codeGenTableService,
-		BaseMigration:   baseMigrationService,
-		ProjectDocument: projectDocumentService,
+		Auth:             authService,
+		BaseAPI:          baseApiService,
+		BaseArea:         baseAreaService,
+		BaseConfig:       baseConfigService,
+		BaseDept:         baseDeptService,
+		BaseDict:         baseDictService,
+		BaseJob:          baseJobService,
+		BaseLog:          baseLogService,
+		BaseMenu:         baseMenuService,
+		BasePost:         basePostService,
+		BaseRole:         baseRoleService,
+		BaseTenant:       baseTenantService,
+		BaseThirdAccount: baseThirdAccountService,
+		BaseUser:         baseUserService,
+		CodeGen:          codeGenService,
+		CodeGenColumn:    codeGenColumnService,
+		CodeGenProto:     codeGenProtoService,
+		CodeGenTable:     codeGenTableService,
+		BaseMigration:    baseMigrationService,
+		ProjectDocument:  projectDocumentService,
 	}
 	baseUserCase2 := biz4.NewBaseUserCase(baseCase, baseUserRepository)
 	bizAuthCase := biz4.NewAuthCase(baseCase, baseUserCase2, manager, userEvents)
@@ -347,7 +349,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 		cleanup()
 		return nil, nil, err
 	}
-	kratosadminRuntime, err := newRuntime(modules, httpMiddlewares, grpcMiddlewares, cronServer, openapiRegistry, baseConfigCase, projectDocumentCase, mcpToolsReady, agentToolsReady, openAPIReady)
+	kratosadminRuntime, err := newRuntime(modules, httpMiddlewares, grpcMiddlewares, cronServer, openapiRegistry, baseConfigCase, projectDocumentCase, runtime, userEvents, mcpToolsReady, agentToolsReady, openAPIReady)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -556,7 +558,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 	bizBaseRoleCase := biz3.NewBaseRoleCase(baseCase, transaction, baseRoleRepository, baseTenantRepository, casbinRuleCase)
 	bizBaseDeptCase := biz3.NewBaseDeptCase(baseCase, baseDeptRepository)
 	baseMenuCase := biz3.NewBaseMenuCase(baseCase, transaction, baseMenuRepository, baseRoleRepository, casbinRuleCase)
-	bizBaseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseDeptRepository, basePostRepository, bizBaseRoleCase, bizBaseDeptCase, baseMenuCase, userEvents)
+	bizBaseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseDeptRepository, basePostRepository, bizBaseRoleCase, bizBaseDeptCase, baseMenuCase, baseRoleCase, userEvents)
 	baseTenantCase := biz3.NewBaseTenantCase(baseCase, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, casbinRuleRepository, casbinRuleCase, userEvents)
 	authCase := biz3.NewAuthCase(baseCase, bizBaseUserCase, bizBaseRoleCase, bizBaseDeptCase, baseTenantCase, baseMenuCase, fileCase)
 	authService := admin.NewAuthService(authCase)
@@ -585,6 +587,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 	basePostService := admin.NewBasePostService(basePostCase)
 	baseRoleService := admin.NewBaseRoleService(bizBaseRoleCase)
 	baseTenantService := admin.NewBaseTenantService(baseTenantCase)
+	baseThirdAccountService := admin.NewBaseThirdAccountService(baseThirdAccountCase)
 	baseUserService := admin.NewBaseUserService(bizBaseUserCase)
 	codeGenTableRepository := data.NewCodeGenTableRepository(dataData)
 	codeGenColumnRepository := data.NewCodeGenColumnRepository(dataData)
@@ -612,25 +615,26 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 	projectDocumentCase := biz3.NewProjectDocumentCase(catalog)
 	projectDocumentService := admin.NewProjectDocumentService(projectDocumentCase)
 	adminServices := admin2.Services{
-		Auth:            authService,
-		BaseAPI:         baseApiService,
-		BaseArea:        baseAreaService,
-		BaseConfig:      baseConfigService,
-		BaseDept:        baseDeptService,
-		BaseDict:        baseDictService,
-		BaseJob:         baseJobService,
-		BaseLog:         baseLogService,
-		BaseMenu:        baseMenuService,
-		BasePost:        basePostService,
-		BaseRole:        baseRoleService,
-		BaseTenant:      baseTenantService,
-		BaseUser:        baseUserService,
-		CodeGen:         codeGenService,
-		CodeGenColumn:   codeGenColumnService,
-		CodeGenProto:    codeGenProtoService,
-		CodeGenTable:    codeGenTableService,
-		BaseMigration:   baseMigrationService,
-		ProjectDocument: projectDocumentService,
+		Auth:             authService,
+		BaseAPI:          baseApiService,
+		BaseArea:         baseAreaService,
+		BaseConfig:       baseConfigService,
+		BaseDept:         baseDeptService,
+		BaseDict:         baseDictService,
+		BaseJob:          baseJobService,
+		BaseLog:          baseLogService,
+		BaseMenu:         baseMenuService,
+		BasePost:         basePostService,
+		BaseRole:         baseRoleService,
+		BaseTenant:       baseTenantService,
+		BaseThirdAccount: baseThirdAccountService,
+		BaseUser:         baseUserService,
+		CodeGen:          codeGenService,
+		CodeGenColumn:    codeGenColumnService,
+		CodeGenProto:     codeGenProtoService,
+		CodeGenTable:     codeGenTableService,
+		BaseMigration:    baseMigrationService,
+		ProjectDocument:  projectDocumentService,
 	}
 	baseUserCase2 := biz4.NewBaseUserCase(baseCase, baseUserRepository)
 	bizAuthCase := biz4.NewAuthCase(baseCase, baseUserCase2, manager, userEvents)
@@ -668,7 +672,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 		cleanup()
 		return nil, nil, err
 	}
-	kratosadminRuntime, err := newRuntime(modules, httpMiddlewares, grpcMiddlewares, cronServer, openapiRegistry, baseConfigCase, projectDocumentCase, mcpToolsReady, agentToolsReady, openAPIReady)
+	kratosadminRuntime, err := newRuntime(modules, httpMiddlewares, grpcMiddlewares, cronServer, openapiRegistry, baseConfigCase, projectDocumentCase, runtime, userEvents, mcpToolsReady, agentToolsReady, openAPIReady)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -676,7 +680,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 		cleanup()
 		return nil, nil, err
 	}
-	kratosadminStandaloneRuntime, cleanup5, err := newStandaloneRuntime(kratosadminRuntime, queueQueue, taskRegistry, sseRegistry)
+	kratosadminStandaloneRuntime, cleanup5, err := newStandaloneRuntime(kratosadminRuntime, queueQueue, taskRegistry, sseRegistry, publisher)
 	if err != nil {
 		cleanup4()
 		cleanup3()

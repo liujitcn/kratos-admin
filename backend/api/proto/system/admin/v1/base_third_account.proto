@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+
+// Admin用户三方账号服务
+service BaseThirdAccountService {
+  // 查询用户三方账号标识
+  rpc GetBaseThirdAccountIdentifier(GetBaseThirdAccountIdentifierRequest) returns (GetBaseThirdAccountIdentifierResponse);
+}
+
+// 用户三方账号标识查询条件
+message GetBaseThirdAccountIdentifierRequest {
+  int64 user_id = 1 [(gnostic.openapi.v3.property) = {description: "用户ID"}, (buf.validate.field).cel = {id: "get_base_third_account_identifier.user_id.required" message: "用户ID不能为空" expression: "this > 0"}]; // 用户ID
+
+  string provider = 2 [(gnostic.openapi.v3.property) = {description: "登录方式标识"}, (buf.validate.field).cel = {id: "get_base_third_account_identifier.provider.required" message: "登录方式标识不能为空" expression: "this.size() > 0"}]; // 登录方式标识
+}
+
+// 用户三方账号标识响应
+message GetBaseThirdAccountIdentifierResponse {
+  string identifier = 1 [(gnostic.openapi.v3.property) = {description: "三方账号唯一标识"}]; // 三方账号唯一标识
+}

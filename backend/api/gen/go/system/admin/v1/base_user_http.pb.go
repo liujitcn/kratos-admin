@@ -23,6 +23,7 @@ const _ = http.SupportPackageIsVersion3
 const OperationBaseUserServiceCreateBaseUser = "/system.admin.v1.BaseUserService/CreateBaseUser"
 const OperationBaseUserServiceDeleteBaseUser = "/system.admin.v1.BaseUserService/DeleteBaseUser"
 const OperationBaseUserServiceGetBaseUser = "/system.admin.v1.BaseUserService/GetBaseUser"
+const OperationBaseUserServiceListBaseUser = "/system.admin.v1.BaseUserService/ListBaseUser"
 const OperationBaseUserServiceOptionBaseUser = "/system.admin.v1.BaseUserService/OptionBaseUser"
 const OperationBaseUserServicePageBaseUser = "/system.admin.v1.BaseUserService/PageBaseUser"
 const OperationBaseUserServiceResetBaseUserPassword = "/system.admin.v1.BaseUserService/ResetBaseUserPassword"
@@ -36,6 +37,8 @@ type BaseUserServiceHTTPServer interface {
 	DeleteBaseUser(context.Context, *DeleteBaseUserRequest) (*emptypb.Empty, error)
 	// GetBaseUser 查询用户
 	GetBaseUser(context.Context, *GetBaseUserRequest) (*BaseUserForm, error)
+	// ListBaseUser 查询用户列表
+	ListBaseUser(context.Context, *ListBaseUserRequest) (*ListBaseUserResponse, error)
 	// OptionBaseUser 查询用户下拉选择
 	OptionBaseUser(context.Context, *OptionBaseUserRequest) (*v1.SelectOptionResponse, error)
 	// PageBaseUser 查询用户分页列表
@@ -51,6 +54,7 @@ type BaseUserServiceHTTPServer interface {
 func RegisterBaseUserServiceHTTPServer(s *http.Server, srv BaseUserServiceHTTPServer) {
 	r := s.Route("/")
 	r.Handle("GET", "/api/v1/admin/base/user/option", _BaseUserService_OptionBaseUser0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/user/list", _BaseUserService_ListBaseUser0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/user", _BaseUserService_PageBaseUser0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/user/{id}", _BaseUserService_GetBaseUser0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/base/user", _BaseUserService_CreateBaseUser0_HTTP_Handler(srv))
@@ -75,6 +79,25 @@ func _BaseUserService_OptionBaseUser0_HTTP_Handler(srv BaseUserServiceHTTPServer
 			return err
 		}
 		reply := out.(*v1.SelectOptionResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _BaseUserService_ListBaseUser0_HTTP_Handler(srv BaseUserServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ListBaseUserRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseUserServiceListBaseUser)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListBaseUser(ctx, req.(*ListBaseUserRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListBaseUserResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -240,6 +263,8 @@ type BaseUserServiceHTTPClient interface {
 	DeleteBaseUser(ctx context.Context, req *DeleteBaseUserRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetBaseUser 查询用户
 	GetBaseUser(ctx context.Context, req *GetBaseUserRequest, opts ...http.CallOption) (rsp *BaseUserForm, err error)
+	// ListBaseUser 查询用户列表
+	ListBaseUser(ctx context.Context, req *ListBaseUserRequest, opts ...http.CallOption) (rsp *ListBaseUserResponse, err error)
 	// OptionBaseUser 查询用户下拉选择
 	OptionBaseUser(ctx context.Context, req *OptionBaseUserRequest, opts ...http.CallOption) (rsp *v1.SelectOptionResponse, err error)
 	// PageBaseUser 查询用户分页列表
@@ -303,6 +328,23 @@ func (c *BaseUserServiceHTTPClientImpl) GetBaseUser(ctx context.Context, in *Get
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
 		http.Operation(OperationBaseUserServiceGetBaseUser),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// ListBaseUser 查询用户列表
+func (c *BaseUserServiceHTTPClientImpl) ListBaseUser(ctx context.Context, in *ListBaseUserRequest, opts ...http.CallOption) (*ListBaseUserResponse, error) {
+	var out ListBaseUserResponse
+	pattern := "/api/v1/admin/base/user/list"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationBaseUserServiceListBaseUser),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

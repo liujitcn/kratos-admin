@@ -17,6 +17,7 @@ import (
 // RegisterBaseUserServiceMCPTools 注册Admin用户管理服务的 MCP Tool。
 func RegisterBaseUserServiceMCPTools(mcpServer *mcp.Server, baseUserServiceServer BaseUserServiceServer) {
 	RegisterBaseUserServiceOptionBaseUserMCPTool(mcpServer, baseUserServiceServer)
+	RegisterBaseUserServiceListBaseUserMCPTool(mcpServer, baseUserServiceServer)
 	RegisterBaseUserServicePageBaseUserMCPTool(mcpServer, baseUserServiceServer)
 	RegisterBaseUserServiceGetBaseUserMCPTool(mcpServer, baseUserServiceServer)
 	RegisterBaseUserServiceCreateBaseUserMCPTool(mcpServer, baseUserServiceServer)
@@ -24,6 +25,7 @@ func RegisterBaseUserServiceMCPTools(mcpServer *mcp.Server, baseUserServiceServe
 	RegisterBaseUserServiceDeleteBaseUserMCPTool(mcpServer, baseUserServiceServer)
 	RegisterBaseUserServiceSetBaseUserStatusMCPTool(mcpServer, baseUserServiceServer)
 	RegisterBaseUserServiceResetBaseUserPasswordMCPTool(mcpServer, baseUserServiceServer)
+	RegisterBaseUserServiceSetBaseUserAppRoleMCPTool(mcpServer, baseUserServiceServer)
 }
 
 // RegisterBaseUserServiceOptionBaseUserMCPTool 注册查询用户下拉选择的 MCP Tool。
@@ -39,6 +41,27 @@ func RegisterBaseUserServiceOptionBaseUserMCPTool(mcpServer *mcp.Server, baseUse
 				input = &OptionBaseUserRequest{}
 			}
 			reply, err := baseUserServiceServer.OptionBaseUser(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterBaseUserServiceListBaseUserMCPTool 注册查询用户列表的 MCP Tool。
+func RegisterBaseUserServiceListBaseUserMCPTool(mcpServer *mcp.Server, baseUserServiceServer BaseUserServiceServer) {
+	mcp.AddTool[*ListBaseUserRequest, *ListBaseUserResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_base_user_service_list_base_user",
+			Description: "查询用户列表",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListBaseUserRequest) (*mcp.CallToolResult, *ListBaseUserResponse, error) {
+			if input == nil {
+				input = &ListBaseUserRequest{}
+			}
+			reply, err := baseUserServiceServer.ListBaseUser(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -186,6 +209,27 @@ func RegisterBaseUserServiceResetBaseUserPasswordMCPTool(mcpServer *mcp.Server, 
 				input = &ResetBaseUserPasswordRequest{}
 			}
 			reply, err := baseUserServiceServer.ResetBaseUserPassword(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterBaseUserServiceSetBaseUserAppRoleMCPTool 注册设置基础用户应用端角色的 MCP Tool。
+func RegisterBaseUserServiceSetBaseUserAppRoleMCPTool(mcpServer *mcp.Server, baseUserServiceServer BaseUserServiceServer) {
+	mcp.AddTool[*SetBaseUserAppRoleRequest, *emptypb.Empty](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_base_user_service_set_base_user_app_role",
+			Description: "设置基础用户应用端角色",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseUserAppRoleRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
+			if input == nil {
+				input = &SetBaseUserAppRoleRequest{}
+			}
+			reply, err := baseUserServiceServer.SetBaseUserAppRole(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

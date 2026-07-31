@@ -17,23 +17,24 @@ type Services struct {
 	Auth    *systemadmin.AuthService
 	BaseAPI *systemadmin.BaseApiService
 
-	BaseArea        *systemadmin.BaseAreaService
-	BaseConfig      *systemadmin.BaseConfigService
-	BaseDept        *systemadmin.BaseDeptService
-	BaseDict        *systemadmin.BaseDictService
-	BaseJob         *systemadmin.BaseJobService
-	BaseLog         *systemadmin.BaseLogService
-	BaseMenu        *systemadmin.BaseMenuService
-	BasePost        *systemadmin.BasePostService
-	BaseRole        *systemadmin.BaseRoleService
-	BaseTenant      *systemadmin.BaseTenantService
-	BaseUser        *systemadmin.BaseUserService
-	CodeGen         *systemadmin.CodeGenService
-	CodeGenColumn   *systemadmin.CodeGenColumnService
-	CodeGenProto    *systemadmin.CodeGenProtoService
-	CodeGenTable    *systemadmin.CodeGenTableService
-	BaseMigration   *systemadmin.BaseMigrationService
-	ProjectDocument *systemadmin.ProjectDocumentService
+	BaseArea         *systemadmin.BaseAreaService
+	BaseConfig       *systemadmin.BaseConfigService
+	BaseDept         *systemadmin.BaseDeptService
+	BaseDict         *systemadmin.BaseDictService
+	BaseJob          *systemadmin.BaseJobService
+	BaseLog          *systemadmin.BaseLogService
+	BaseMenu         *systemadmin.BaseMenuService
+	BasePost         *systemadmin.BasePostService
+	BaseRole         *systemadmin.BaseRoleService
+	BaseTenant       *systemadmin.BaseTenantService
+	BaseThirdAccount *systemadmin.BaseThirdAccountService
+	BaseUser         *systemadmin.BaseUserService
+	CodeGen          *systemadmin.CodeGenService
+	CodeGenColumn    *systemadmin.CodeGenColumnService
+	CodeGenProto     *systemadmin.CodeGenProtoService
+	CodeGenTable     *systemadmin.CodeGenTableService
+	BaseMigration    *systemadmin.BaseMigrationService
+	ProjectDocument  *systemadmin.ProjectDocumentService
 }
 
 var _ host.Module = Services{}
@@ -56,6 +57,7 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	systemadminv1.RegisterBasePostServiceServer(srv, s.BasePost)
 	systemadminv1.RegisterBaseRoleServiceServer(srv, s.BaseRole)
 	systemadminv1.RegisterBaseTenantServiceServer(srv, s.BaseTenant)
+	systemadminv1.RegisterBaseThirdAccountServiceServer(srv, s.BaseThirdAccount)
 	systemadminv1.RegisterBaseUserServiceServer(srv, s.BaseUser)
 	systemadminv1.RegisterCodeGenServiceServer(srv, s.CodeGen)
 	systemadminv1.RegisterCodeGenColumnServiceServer(srv, s.CodeGenColumn)
@@ -104,7 +106,16 @@ func (s Services) RegisterMCP(server *mcpserver.Server) {
 	systemadminv1.RegisterBaseMenuServiceMCPTools(mcpSrv, s.BaseMenu)
 	systemadminv1.RegisterBasePostServiceMCPTools(mcpSrv, s.BasePost)
 	systemadminv1.RegisterBaseRoleServiceMCPTools(mcpSrv, s.BaseRole)
-	systemadminv1.RegisterBaseUserServiceMCPTools(mcpSrv, s.BaseUser)
+	// 角色切换仅开放 gRPC，MCP 显式注册其余用户管理方法。
+	systemadminv1.RegisterBaseUserServiceOptionBaseUserMCPTool(mcpSrv, s.BaseUser)
+	systemadminv1.RegisterBaseUserServiceListBaseUserMCPTool(mcpSrv, s.BaseUser)
+	systemadminv1.RegisterBaseUserServicePageBaseUserMCPTool(mcpSrv, s.BaseUser)
+	systemadminv1.RegisterBaseUserServiceGetBaseUserMCPTool(mcpSrv, s.BaseUser)
+	systemadminv1.RegisterBaseUserServiceCreateBaseUserMCPTool(mcpSrv, s.BaseUser)
+	systemadminv1.RegisterBaseUserServiceUpdateBaseUserMCPTool(mcpSrv, s.BaseUser)
+	systemadminv1.RegisterBaseUserServiceDeleteBaseUserMCPTool(mcpSrv, s.BaseUser)
+	systemadminv1.RegisterBaseUserServiceSetBaseUserStatusMCPTool(mcpSrv, s.BaseUser)
+	systemadminv1.RegisterBaseUserServiceResetBaseUserPasswordMCPTool(mcpSrv, s.BaseUser)
 	systemadminv1.RegisterCodeGenServiceMCPTools(mcpSrv, s.CodeGen)
 	systemadminv1.RegisterCodeGenColumnServiceMCPTools(mcpSrv, s.CodeGenColumn)
 	systemadminv1.RegisterCodeGenProtoServiceMCPTools(mcpSrv, s.CodeGenProto)

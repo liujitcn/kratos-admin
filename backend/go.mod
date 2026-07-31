@@ -2,6 +2,9 @@ module github.com/liujitcn/kratos-admin/backend
 
 go 1.26.3
 
+// 本地开发直接引用仓库内 Core 源码，保证 Backend 与 Core 扩展契约同步。
+replace github.com/liujitcn/kratos-admin/backend/core => ./core
+
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260415201107-50325440f8f2.1
 	buf.build/go/protovalidate v1.2.0

@@ -2,11 +2,14 @@ package biz
 
 import (
 	"context"
+	"strings"
 
+	"github.com/go-kratos/kratos/v3/transport"
 	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
+	"github.com/liujitcn/kratos-kit/auth"
 	authnEngine "github.com/liujitcn/kratos-kit/auth/authn/engine"
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 
@@ -14,6 +17,7 @@ import (
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
+	basebiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/event"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
@@ -26,14 +30,15 @@ type BaseUserCase struct {
 	*biz.BaseCase
 	tx data.Transaction
 	*data.BaseUserRepository
-	baseDeptRepo *data.BaseDeptRepository
-	basePostRepo *data.BasePostRepository
-	baseRoleCase *BaseRoleCase
-	baseDeptCase *BaseDeptCase
-	baseMenuCase *BaseMenuCase
-	userEvents   *event.UserEvents
-	formMapper   *mapper.CopierMapper[systemadminv1.BaseUserForm, models.BaseUser]
-	mapper       *mapper.CopierMapper[systemadminv1.BaseUser, models.BaseUser]
+	baseDeptRepo    *data.BaseDeptRepository
+	basePostRepo    *data.BasePostRepository
+	baseRoleCase    *BaseRoleCase
+	baseDeptCase    *BaseDeptCase
+	baseMenuCase    *BaseMenuCase
+	defaultRoleCase *basebiz.BaseRoleCase
+	userEvents      *event.UserEvents
+	formMapper      *mapper.CopierMapper[systemadminv1.BaseUserForm, models.BaseUser]
+	mapper          *mapper.CopierMapper[systemadminv1.BaseUser, models.BaseUser]
 }
 
 // NewBaseUserCase 创建用户业务实例
@@ -46,6 +51,7 @@ func NewBaseUserCase(
 	baseRoleCase *BaseRoleCase,
 	baseDeptCase *BaseDeptCase,
 	baseMenuCase *BaseMenuCase,
+	defaultRoleCase *basebiz.BaseRoleCase,
 	userEvents *event.UserEvents,
 ) *BaseUserCase {
 	return &BaseUserCase{
@@ -57,6 +63,7 @@ func NewBaseUserCase(
 		baseRoleCase:       baseRoleCase,
 		baseDeptCase:       baseDeptCase,
 		baseMenuCase:       baseMenuCase,
+		defaultRoleCase:    defaultRoleCase,
 		userEvents:         userEvents,
 		formMapper:         mapper.NewCopierMapper[systemadminv1.BaseUserForm, models.BaseUser](),
 		mapper:             mapper.NewCopierMapper[systemadminv1.BaseUser, models.BaseUser](),
@@ -96,11 +103,27 @@ func (c *BaseUserCase) OptionBaseUser(ctx context.Context, req *systemadminv1.Op
 	return &commonv1.SelectOptionResponse{List: options}, nil
 }
 
+// ListBaseUser 按编号列表查询用户。
+func (c *BaseUserCase) ListBaseUser(ctx context.Context, ids []int64) (*systemadminv1.ListBaseUserResponse, error) {
+	ctx = baseUserGRPCContext(ctx)
+	users, err := c.ListByIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	baseUsers := make([]*systemadminv1.BaseUser, 0, len(users))
+	for _, user := range users {
+		baseUsers = append(baseUsers, c.mapper.ToDTO(user))
+	}
+	return &systemadminv1.ListBaseUserResponse{BaseUsers: baseUsers}, nil
+}
+
 // PageBaseUser 分页查询用户
 func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *systemadminv1.PageBaseUserRequest) (*systemadminv1.PageBaseUserResponse, error) {
+	ctx = baseUserGRPCContext(ctx)
 	query := c.Query(ctx).BaseUser
-	opts := make([]repository.QueryOption, 0, 7)
+	opts := make([]repository.QueryOption, 0, 8)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
+	opts = append(opts, repository.Order(query.ID.Desc()))
 	var err error
 	if req.GetTenantId() > 0 {
 		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
@@ -179,7 +202,10 @@ func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *systemadminv1.Page
 		var roleQueryCtx context.Context
 		roleQueryCtx, err = c.roleProtectionQueryContext(ctx)
 		if err != nil {
-			return nil, err
+			if !baseUserLocalCall(ctx) {
+				return nil, err
+			}
+			roleQueryCtx = ctx
 		}
 		roleQuery := c.baseRoleCase.Query(roleQueryCtx).BaseRole
 		roleOpts := make([]repository.QueryOption, 0, 2)
@@ -432,6 +458,24 @@ func (c *BaseUserCase) ResetBaseUserPassword(ctx context.Context, req *systemadm
 	})
 }
 
+// SetBaseUserAppRole 将基础用户切换到允许的应用端内置角色。
+func (c *BaseUserCase) SetBaseUserAppRole(ctx context.Context, userID int64, roleCode string) error {
+	if roleCode != _const.BASE_ROLE_CODE_USER && roleCode != _const.BASE_ROLE_CODE_AUTHUSER {
+		return errorsx.InvalidArgument("不允许设置应用端用户角色")
+	}
+	ctx = baseUserGRPCContext(ctx)
+	role, err := c.defaultRoleCase.FindDefaultByCode(ctx, roleCode)
+	if err != nil {
+		return err
+	}
+	err = c.UpdateByID(ctx, &models.BaseUser{ID: userID, RoleID: role.ID})
+	if err != nil {
+		return err
+	}
+	c.userEvents.PublishUserChanged(userID)
+	return nil
+}
+
 // validateUserManagementTarget 校验目标用户是否允许通过用户管理接口操作。
 func (c *BaseUserCase) validateUserManagementTarget(ctx context.Context, baseUser *models.BaseUser) error {
 	queryCtx, err := c.roleProtectionQueryContext(ctx)
@@ -493,4 +537,25 @@ func (c *BaseUserCase) updateBaseUserPostID(ctx context.Context, userID int64, p
 	}
 	_, err = query.WithContext(ctx).Where(query.ID.Eq(userID)).UpdateSimple(query.PostID.Null())
 	return err
+}
+
+// baseUserGRPCContext 将进程内模块调用切换为不受租户和数据范围限制的受信身份。
+func baseUserGRPCContext(ctx context.Context) context.Context {
+	if !baseUserLocalCall(ctx) {
+		return ctx
+	}
+	authInfo, err := auth.FromContext(ctx)
+	if err != nil || authInfo == nil {
+		return ctx
+	}
+	unscopedAuthInfo := *authInfo
+	unscopedAuthInfo.TenantCode = databaseGorm.DefaultTenantCode
+	unscopedAuthInfo.DataScope = databaseGorm.DataScopeAll
+	return authnEngine.ContextWithAuthClaims(ctx, unscopedAuthInfo.MakeAuthClaims())
+}
+
+// baseUserLocalCall 判断请求是否来自其他进程内模块。
+func baseUserLocalCall(ctx context.Context) bool {
+	serverTransport, ok := transport.FromServerContext(ctx)
+	return !ok || !strings.HasPrefix(serverTransport.Operation(), "/system.admin.v1.BaseUserService/")
 }

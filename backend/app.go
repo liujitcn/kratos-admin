@@ -58,6 +58,54 @@ type Module interface {
 // AdditionalModules 表示与 Backend 一起装配的扩展模块集合。
 type AdditionalModules []core.Module
 
+// RuntimeReadyContributor 表示需要接收 Backend 进程内 gRPC 连接的扩展模块。
+type RuntimeReadyContributor interface {
+	// RuntimeReady 在 Backend 运行时完成装配后绑定进程内 gRPC 连接。
+	RuntimeReady(grpc.ClientConnInterface) error
+}
+
+// UserSubscriber 接收基础用户数据变更通知。
+type UserSubscriber = event.UserSubscriber
+
+// UserSubscriberContributor 表示可订阅基础用户变更的扩展模块。
+type UserSubscriberContributor interface {
+	// UserSubscribers 返回模块提供的用户变更订阅者。
+	UserSubscribers() []UserSubscriber
+}
+
+// AIRuntime 表示 Backend AI 助手运行时。
+type AIRuntime = ai.Runtime
+
+// AIResponse 表示 AI 助手单轮回复结果。
+type AIResponse = ai.Response
+
+// AIToolUsage 表示 AI 助手单轮回复涉及的工具。
+type AIToolUsage = ai.ToolUsage
+
+// AIToolInvokeResult 表示一次 AI 工具调用结果。
+type AIToolInvokeResult = ai.ToolInvokeResult
+
+// AIFixedFlowProvider 提供模块私有的固定流程、入口校验和快捷入口。
+type AIFixedFlowProvider = ai.FixedFlowProvider
+
+// AIFixedFlowContributor 表示可向 Backend AI 助手贡献固定流程的扩展模块。
+type AIFixedFlowContributor interface {
+	// AIFixedFlowProviders 返回模块提供的固定流程。
+	AIFixedFlowProviders() []AIFixedFlowProvider
+}
+
+const (
+	// AITerminalApp 表示应用端 AI 终端值。
+	AITerminalApp = ai.TerminalApp
+	// AITerminalAdmin 表示管理端 AI 终端值。
+	AITerminalAdmin = ai.TerminalAdmin
+)
+
+// NormalizeAITerminalString 将 AI 终端编号转换为稳定字符串。
+func NormalizeAITerminalString(terminal int32) string {
+	return ai.NormalizeTerminalString(terminal)
+}
+
 // Option 配置 Backend 模块及独立应用装配。
 type Option func(*options)
 
@@ -208,6 +256,8 @@ func newRuntime(
 	openAPIRegistry *coreOpenAPI.Registry,
 	baseConfigCase *adminbiz.BaseConfigCase,
 	projectDocumentCase *adminbiz.ProjectDocumentCase,
+	aiRuntime *ai.Runtime,
+	userEvents *event.UserEvents,
 	_ server.MCPToolsReady,
 	_ server.AgentToolsReady,
 	_ server.OpenAPIReady,
@@ -219,6 +269,20 @@ func newRuntime(
 	}
 	clientConn := localgrpc.NewConn()
 	modules.RegisterGRPC(clientConn)
+	err = registerModuleExtensions(modules, aiRuntime, userEvents)
+	if err != nil {
+		return nil, err
+	}
+	for _, module := range modules {
+		contributor, ok := module.(RuntimeReadyContributor)
+		if !ok {
+			continue
+		}
+		err = contributor.RuntimeReady(clientConn)
+		if err != nil {
+			return nil, fmt.Errorf("通知扩展模块运行时就绪: %w", err)
+		}
+	}
 	return &Runtime{
 		modules:             modules,
 		clientConn:          clientConn,
@@ -230,14 +294,41 @@ func newRuntime(
 	}, nil
 }
 
+// registerModuleExtensions 注册扩展模块贡献的 AI 固定流程和用户事件订阅者。
+func registerModuleExtensions(modules server.Modules, aiRuntime *ai.Runtime, userEvents *event.UserEvents) error {
+	var err error
+	for _, module := range modules {
+		aiContributor, ok := module.(AIFixedFlowContributor)
+		if ok {
+			for _, provider := range aiContributor.AIFixedFlowProviders() {
+				err = aiRuntime.RegisterFixedFlow(provider)
+				if err != nil {
+					return fmt.Errorf("注册扩展模块 AI 固定流程: %w", err)
+				}
+			}
+		}
+		var userContributor UserSubscriberContributor
+		userContributor, ok = module.(UserSubscriberContributor)
+		if !ok {
+			continue
+		}
+		for _, subscriber := range userContributor.UserSubscribers() {
+			userEvents.Subscribe(subscriber)
+		}
+	}
+	return nil
+}
+
 // newStandaloneRuntime 收集扩展模块仅在独立部署形态下需要落地的运行时贡献。
 func newStandaloneRuntime(
 	runtime *Runtime,
 	queue kitQueue.Queue,
 	taskRegistry *coreTask.Registry,
 	sseRegistry *coreSSE.Registry,
+	ssePublisher *coreSSE.Publisher,
 ) (*standaloneRuntime, func(), error) {
 	modules := core.Modules(runtime.modules)
+	modules.SetSSEPublisher(ssePublisher)
 	var err error
 	err = taskRegistry.Register(modules.Tasks()...)
 	if err != nil {
@@ -389,6 +480,11 @@ func (r *Runtime) SSEStreams() []coreSSE.Stream {
 	return core.Modules(r.modules).SSEStreams()
 }
 
+// SetSSEPublisher 向需要发布 SSE 消息的扩展模块透传宿主发布器。
+func (r *Runtime) SetSSEPublisher(publisher *coreSSE.Publisher) {
+	core.Modules(r.modules).SetSSEPublisher(publisher)
+}
+
 // Scripts 返回扩展模块贡献的启动脚本。
 func (r *Runtime) Scripts() []script.Script {
 	return core.Modules(r.modules).Scripts()
@@ -460,6 +556,7 @@ var (
 	_ core.TaskContributor           = (*Runtime)(nil)
 	_ core.QueueConsumerContributor  = (*Runtime)(nil)
 	_ core.SSEContributor            = (*Runtime)(nil)
+	_ core.SSEPublisherAware         = (*Runtime)(nil)
 	_ core.ScriptContributor         = (*Runtime)(nil)
 	_ core.StartupContributor        = (*Runtime)(nil)
 	_ core.HealthContributor         = (*Runtime)(nil)

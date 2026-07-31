@@ -25,6 +25,12 @@ func NewBaseUserServiceAgentTools(baseUserServiceServer BaseUserServiceServer) (
 		return nil, err
 	}
 	ts = append(ts, optionBaseUserTool)
+	var listBaseUserTool tool.InvokableTool
+	listBaseUserTool, err = NewBaseUserServiceListBaseUserAgentTool(baseUserServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, listBaseUserTool)
 	var pageBaseUserTool tool.InvokableTool
 	pageBaseUserTool, err = NewBaseUserServicePageBaseUserAgentTool(baseUserServiceServer)
 	if err != nil {
@@ -67,6 +73,12 @@ func NewBaseUserServiceAgentTools(baseUserServiceServer BaseUserServiceServer) (
 		return nil, err
 	}
 	ts = append(ts, resetBaseUserPasswordTool)
+	var setBaseUserAppRoleTool tool.InvokableTool
+	setBaseUserAppRoleTool, err = NewBaseUserServiceSetBaseUserAppRoleAgentTool(baseUserServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, setBaseUserAppRoleTool)
 	return ts, nil
 }
 
@@ -80,6 +92,20 @@ func NewBaseUserServiceOptionBaseUserAgentTool(baseUserServiceServer BaseUserSer
 				req = &OptionBaseUserRequest{}
 			}
 			return baseUserServiceServer.OptionBaseUser(ctx, req)
+		},
+	)
+}
+
+// NewBaseUserServiceListBaseUserAgentTool 创建查询用户列表的 Agent Tool。
+func NewBaseUserServiceListBaseUserAgentTool(baseUserServiceServer BaseUserServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListBaseUserRequest, *ListBaseUserResponse](
+		"system_admin_v1_base_user_service_list_base_user",
+		"查询用户列表",
+		func(ctx context.Context, req *ListBaseUserRequest) (*ListBaseUserResponse, error) {
+			if req == nil {
+				req = &ListBaseUserRequest{}
+			}
+			return baseUserServiceServer.ListBaseUser(ctx, req)
 		},
 	)
 }
@@ -178,6 +204,20 @@ func NewBaseUserServiceResetBaseUserPasswordAgentTool(baseUserServiceServer Base
 				req = &ResetBaseUserPasswordRequest{}
 			}
 			return baseUserServiceServer.ResetBaseUserPassword(ctx, req)
+		},
+	)
+}
+
+// NewBaseUserServiceSetBaseUserAppRoleAgentTool 创建设置基础用户应用端角色的 Agent Tool。
+func NewBaseUserServiceSetBaseUserAppRoleAgentTool(baseUserServiceServer BaseUserServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetBaseUserAppRoleRequest, *emptypb.Empty](
+		"system_admin_v1_base_user_service_set_base_user_app_role",
+		"设置基础用户应用端角色",
+		func(ctx context.Context, req *SetBaseUserAppRoleRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &SetBaseUserAppRoleRequest{}
+			}
+			return baseUserServiceServer.SetBaseUserAppRole(ctx, req)
 		},
 	)
 }
