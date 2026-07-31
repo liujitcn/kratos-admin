@@ -39,7 +39,7 @@ export function defineAdminViteConfig(options: AdminViteConfigOptions = {}) {
     const packageInfo = readPackageInfo(root);
     const coreSourceRoot = resolveSourceRoot(coreRoot);
     const corePackage = {
-      packageName: "@liujitcn/kratos-admin",
+      packageName: "@liujitcn/kratos-admin-core",
       packageRoot: coreRoot,
       sourceRoot: coreSourceRoot
     };
@@ -78,21 +78,21 @@ export function defineAdminViteConfig(options: AdminViteConfigOptions = {}) {
       },
       optimizeDeps: {
         include: [
-          "@liujitcn/kratos-admin > dayjs",
-          "@liujitcn/kratos-admin > dayjs/plugin/advancedFormat.js",
-          "@liujitcn/kratos-admin > dayjs/plugin/customParseFormat.js",
-          "@liujitcn/kratos-admin > dayjs/plugin/dayOfYear.js",
-          "@liujitcn/kratos-admin > dayjs/plugin/isSameOrAfter.js",
-          "@liujitcn/kratos-admin > dayjs/plugin/isSameOrBefore.js",
-          "@liujitcn/kratos-admin > dayjs/plugin/localeData.js",
-          "@liujitcn/kratos-admin > dayjs/plugin/weekOfYear.js",
-          "@liujitcn/kratos-admin > dayjs/plugin/weekYear.js",
-          "@liujitcn/kratos-admin > nprogress",
-          "@liujitcn/kratos-admin > qs",
+          "@liujitcn/kratos-admin-core > dayjs",
+          "@liujitcn/kratos-admin-core > dayjs/plugin/advancedFormat.js",
+          "@liujitcn/kratos-admin-core > dayjs/plugin/customParseFormat.js",
+          "@liujitcn/kratos-admin-core > dayjs/plugin/dayOfYear.js",
+          "@liujitcn/kratos-admin-core > dayjs/plugin/isSameOrAfter.js",
+          "@liujitcn/kratos-admin-core > dayjs/plugin/isSameOrBefore.js",
+          "@liujitcn/kratos-admin-core > dayjs/plugin/localeData.js",
+          "@liujitcn/kratos-admin-core > dayjs/plugin/weekOfYear.js",
+          "@liujitcn/kratos-admin-core > dayjs/plugin/weekYear.js",
+          "@liujitcn/kratos-admin-core > nprogress",
+          "@liujitcn/kratos-admin-core > qs",
           ...(options.optimizeDependencies ?? [])
         ],
         noDiscovery: true,
-        exclude: ["@liujitcn/kratos-admin", ...(options.modulePackages ?? [])]
+        exclude: ["@liujitcn/kratos-admin-core", ...(options.modulePackages ?? [])]
       },
       server: {
         host: "0.0.0.0",

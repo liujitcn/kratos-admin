@@ -9,7 +9,7 @@
 ```text
 frontend/admin
 ├── apps/admin                        # 装配当前全部 module 的默认宿主
-├── packages/core                     # @liujitcn/kratos-admin 底座
+├── packages/core                     # @liujitcn/kratos-admin-core 底座
 │   ├── src/api/{base,system}         # 按 Proto 领域组织的底座请求
 │   ├── src/components                # 公共组件
 │   ├── src/layouts                   # 布局
@@ -18,7 +18,7 @@ frontend/admin
 │   └── src/views                     # 登录与静态错误页面
 ├── packages/modules/system           # @liujitcn/kratos-admin-system
 │   └── src/{api,rpc,views}           # API 与 RPC 按 Proto 领域层级维护
-├── packages/cli                      # @liujitcn/kratos-admin-cli
+├── packages/cli                      # 仓库内私有 workspace 生成工具
 │   └── templates/business-workspace  # 完整 pnpm workspace 模板
 ├── internal/vite-config              # 当前仓库宿主构建配置
 ├── internal/tsconfig                 # 共享 TypeScript 配置
@@ -60,6 +60,9 @@ frontend/admin
 
 每个包含 `package.json` 的子目录都有同级 `README.md`，用于说明该包内部文件和目录职责。
 
+管理端只发布 `@liujitcn/kratos-admin-core` 和 `@liujitcn/kratos-admin-system`。默认宿主
+`@liujitcn/kratos-admin` 与 CLI 均为私有包，不进入 npm 打包和发布清单。
+
 ## 开发与构建
 
 ```bash
@@ -78,7 +81,7 @@ pnpm build:package
 
 API 按 Proto 一级领域组织为 `api/base`、`api/system` 等目录；RPC 保留 `rpc/base/v1`、`rpc/system/admin/v1` 等完整 Proto 层级。RPC 类型按真实消费者归属放置：core 保留登录、菜单、用户信息和启动期能力所需服务类型；System 自包含系统管理、个人中心、AI 及其依赖类型。修改 Proto 后在 `backend` 执行 `make ts`，命令会按两份 Buf 配置分别清理并生成 core 与 System 的 RPC；服务端契约尚未完成细粒度拆分时，同一生成文件可能暂时包含当前包未调用的方法，不手写生成文件。
 
-core 内部源码使用 `@/*`；业务模块使用 `@liujitcn/kratos-admin/*` 和自身包名。模块间页面跳转使用 Vue Router，代码复用禁止跨目录相对引用。
+core 内部源码使用 `@/*`；业务模块使用 `@liujitcn/kratos-admin-core/*` 和自身包名。模块间页面跳转使用 Vue Router，代码复用禁止跨目录相对引用。
 
 根 TypeScript 路径和宿主 Vite 源码别名只为各 npm 包映射 `package.json#exports` 声明的入口。core 实现内部使用的 `@/*` 因源码传递编译而保留，但 `pnpm check:exports` 会扫描应用、core、业务模块和内部构建配置中的 import，拒绝未公开子路径、非 core 的 `@/*` 引用以及业务模块跨包相对引用；仓库级 pre-commit 会先处理暂存文件，再执行 core 依赖方向和包导出边界检查。
 
@@ -88,7 +91,7 @@ core 导出 `bootstrapAdminApp`、`defineAdminModule`、视图注册表以及顶
 
 ```ts
 import type { Component } from "vue";
-import { defineAdminModule } from "@liujitcn/kratos-admin";
+import { defineAdminModule } from "@liujitcn/kratos-admin-core";
 
 const views = import.meta.glob<{ default: Component }>("./views/**/*.vue");
 
@@ -124,7 +127,7 @@ core 通过 `ADMIN_STATIC_VIEWS` 公开全部静态页面的固定视图键：
 业务模块通过 `staticViews` 把自己的任意页面显式映射到固定视图键，后注册模块替换先注册实现：
 
 ```ts
-import { ADMIN_STATIC_VIEWS, defineAdminModule } from "@liujitcn/kratos-admin";
+import { ADMIN_STATIC_VIEWS, defineAdminModule } from "@liujitcn/kratos-admin-core";
 
 export const orderAdminModule = defineAdminModule({
   name: "order",
@@ -139,18 +142,12 @@ export const orderAdminModule = defineAdminModule({
 
 ## 创建业务项目
 
-CLI 生成的业务项目本身也是 pnpm workspace，包含独立宿主和可发布业务模块包：
+仓库内私有 CLI 生成的业务项目本身也是 pnpm workspace，包含独立宿主和可发布业务模块包：
 
 ```bash
-pnpm dlx @liujitcn/kratos-admin-cli create shop-admin --module shop
-pnpm dlx @liujitcn/kratos-admin-cli create shop-admin --module shop,order
-pnpm dlx @liujitcn/kratos-admin-cli create shop-admin --module shop --module order
-```
-
-在当前源码仓库调试 CLI 时使用：
-
-```bash
+pnpm module:create ../shop-admin --module shop
 pnpm module:create ../shop-admin --module shop,order
+pnpm module:create ../shop-admin --module shop --module order
 ```
 
 生成结果：

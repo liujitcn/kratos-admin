@@ -7,7 +7,7 @@
     "type:check": "tsc --noEmit"
   },
   "dependencies": {
-    "@liujitcn/kratos-admin": "workspace:*"
+    "@liujitcn/kratos-admin-core": "workspace:*"
   },
   "exports": {
     "./admin": "./src/admin.ts"

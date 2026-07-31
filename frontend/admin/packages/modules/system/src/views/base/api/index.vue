@@ -112,15 +112,15 @@
 import { computed, reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { EditPen, View } from "@element-plus/icons-vue";
-import type { ColumnProps, ProTableInstance } from "@liujitcn/kratos-admin/components/ProTable/interface";
-import ProTable from "@liujitcn/kratos-admin/components/ProTable";
-import FormDialog from "@liujitcn/kratos-admin/components/Dialog/FormDialog.vue";
-import type { ProFormField } from "@liujitcn/kratos-admin/components/ProForm/interface";
-import { useAuthButtons } from "@liujitcn/kratos-admin/auth";
+import type { ColumnProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
+import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
+import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
+import type { ProFormField } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
+import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBaseApiService } from "@liujitcn/kratos-admin-system/api/system/base_api";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import type { BaseApi, BaseApiDoc, BaseApiDocResponse, BaseApiDocSchema, PageBaseApiRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_api";
-import { buildPageRequest } from "@liujitcn/kratos-admin/table";
+import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
 
 defineOptions({
   name: "BaseApi",

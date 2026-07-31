@@ -1,5 +1,5 @@
-import previewAvatar from "@liujitcn/kratos-admin/assets/images/avatar.png";
-import type { ProFormOption } from "@liujitcn/kratos-admin/components/ProForm/interface";
+import previewAvatar from "@liujitcn/kratos-admin-core/assets/images/avatar.png";
+import type { ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import type { OptionBaseDictResponse_BaseDict } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dict";
 import type { CodeGenColumn, CodeGenColumnOptionConfig, CodeGenColumnQueryConfig } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_column";
 import type { CodeGenLeftTreeConfig, CodeGenTableForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_table";

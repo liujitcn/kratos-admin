@@ -42,11 +42,11 @@
 import { computed, nextTick, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import { CirclePlus, Clock, Connection, Delete, Document, EditPen, Promotion, RefreshRight, SetUp, View } from "@element-plus/icons-vue";
-import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin/components/ProTable/interface";
-import ProTable from "@liujitcn/kratos-admin/components/ProTable";
-import FormDialog from "@liujitcn/kratos-admin/components/Dialog/FormDialog.vue";
-import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin/components/ProForm/interface";
-import { useAuthButtons } from "@liujitcn/kratos-admin/auth";
+import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
+import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
+import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
+import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
+import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBaseMenuService } from "@liujitcn/kratos-admin-system/api/system/base_menu";
 import { defBaseDictService } from "@liujitcn/kratos-admin-system/api/system/base_dict";
 import { defCodeGenService } from "@liujitcn/kratos-admin-system/api/system/code_gen";
@@ -62,7 +62,7 @@ import type {
 import type { BaseMenu } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_menu";
 import type { OptionBaseDictResponse_BaseDictItem } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dict";
 import { BaseMenuType, CodeGenTableStatus } from "@liujitcn/kratos-admin-system/rpc/system/common/v1/enum";
-import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin/table";
+import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import CodeGenProgressDialog from "../components/CodeGenProgressDialog.vue";
 import {
   codeGenPageTypeOptions,

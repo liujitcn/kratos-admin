@@ -52,11 +52,11 @@ import { computed, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import { defProfileAuthService } from "@liujitcn/kratos-admin-system/api/system/auth";
 import type { UserPasswordForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/auth";
-import PasswordStrength from "@liujitcn/kratos-admin/components/PasswordStrength/index.vue";
-import ProForm from "@liujitcn/kratos-admin/components/ProForm/index.vue";
-import type { ProFormField, ProFormInstance } from "@liujitcn/kratos-admin/components/ProForm/interface";
-import { LOGIN_URL } from "@liujitcn/kratos-admin/config";
-import { useUserStore } from "@liujitcn/kratos-admin/stores/runtime";
+import PasswordStrength from "@liujitcn/kratos-admin-core/components/PasswordStrength/index.vue";
+import ProForm from "@liujitcn/kratos-admin-core/components/ProForm/index.vue";
+import type { ProFormField, ProFormInstance } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
+import { LOGIN_URL } from "@liujitcn/kratos-admin-core/config";
+import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { ElMessage } from "element-plus";
 import {
   PASSWORD_CRYPTO_SCENE,
@@ -64,7 +64,7 @@ import {
   encryptPassword,
   getPasswordStrength,
   validatePasswordStrengthValue
-} from "@liujitcn/kratos-admin/security";
+} from "@liujitcn/kratos-admin-core/security";
 
 /** 修改密码表单状态，明文只在前端校验和加密前短暂保存。 */
 interface UserPasswordFormState {

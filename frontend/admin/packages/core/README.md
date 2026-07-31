@@ -1,4 +1,4 @@
-# @liujitcn/kratos-admin
+# @liujitcn/kratos-admin-core
 
 kratos-admin 前端底座包。它不包含具体业务模块，提供登录、菜单、用户信息、应用启动、动态路由、布局、运行状态、公共组件和静态状态页。宿主可以只安装 core；个人中心、AI 助手和系统管理能力必须由 System 模块提供。
 
@@ -134,7 +134,7 @@ packages/core
 
 ## 模块边界
 
-core 内部源码使用 `@/*`，不得引用任何 System 包或 System 源码。业务模块只通过 `@liujitcn/kratos-admin` 及 `package.json#exports` 声明的子路径引用底座；不得相对引用 `packages/core/src`。RPC 按能力归属放入 core 或对应业务模块，生成文件和 `types/generated` 禁止手工修改。
+core 内部源码使用 `@/*`，不得引用任何 System 包或 System 源码。业务模块只通过 `@liujitcn/kratos-admin-core` 及 `package.json#exports` 声明的子路径引用底座；不得相对引用 `packages/core/src`。RPC 按能力归属放入 core 或对应业务模块，生成文件和 `types/generated` 禁止手工修改。
 
 core 的 API 目录只保留底座运行时实际调用的请求封装。RPC 生成文件以服务为生成粒度；服务端契约尚未拆分完成时，core 所需的登录、菜单或用户服务文件可能暂含个人中心相关方法，这属于当前生成结果，不代表个人中心页面归属 core，也不在前端手工裁剪。
 
@@ -144,25 +144,25 @@ core 通过 `ADMIN_STATIC_VIEWS` 注册全部默认静态页面，后注册业�
 
 | 能力             | 入口                                                   |
 | ---------------- | ------------------------------------------------------ |
-| 应用与模块注册   | `@liujitcn/kratos-admin`                               |
-| 请求客户端       | `@liujitcn/kratos-admin/request`                       |
-| 路由与跳转       | `@liujitcn/kratos-admin/navigation`                    |
-| 权限             | `@liujitcn/kratos-admin/auth`                          |
-| 格式化           | `@liujitcn/kratos-admin/format`                        |
-| 密码与 OAuth     | `@liujitcn/kratos-admin/security`                      |
-| 表格工具         | `@liujitcn/kratos-admin/table`                         |
-| 租户选项         | `@liujitcn/kratos-admin/tenant`                        |
-| 运行时 Store     | `@liujitcn/kratos-admin/stores/runtime`                |
-| ProTable Adapter | `@liujitcn/kratos-admin/components/ProTable`           |
-| ProTable 类型    | `@liujitcn/kratos-admin/components/ProTable/interface` |
+| 应用与模块注册   | `@liujitcn/kratos-admin-core`                               |
+| 请求客户端       | `@liujitcn/kratos-admin-core/request`                       |
+| 路由与跳转       | `@liujitcn/kratos-admin-core/navigation`                    |
+| 权限             | `@liujitcn/kratos-admin-core/auth`                          |
+| 格式化           | `@liujitcn/kratos-admin-core/format`                        |
+| 密码与 OAuth     | `@liujitcn/kratos-admin-core/security`                      |
+| 表格工具         | `@liujitcn/kratos-admin-core/table`                         |
+| 租户选项         | `@liujitcn/kratos-admin-core/tenant`                        |
+| 运行时 Store     | `@liujitcn/kratos-admin-core/stores/runtime`                |
+| ProTable Adapter | `@liujitcn/kratos-admin-core/components/ProTable`           |
+| ProTable 类型    | `@liujitcn/kratos-admin-core/components/ProTable/interface` |
 
 其他 Vue 组件以 `package.json#exports` 中的明确白名单为准。禁止使用 `components/ProTable/index.vue`、`utils/*`、`hooks/*`、`stores/modules/*` 等实现路径。发布构建会把内部 `@/` 别名转换成包内相对路径，内部实现不占用公共子路径。
 
 ## 命令
 
 ```bash
-pnpm --filter @liujitcn/kratos-admin test
-pnpm --filter @liujitcn/kratos-admin type:check
-pnpm --filter @liujitcn/kratos-admin build:package
-pnpm --filter @liujitcn/kratos-admin pack
+pnpm --filter @liujitcn/kratos-admin-core test
+pnpm --filter @liujitcn/kratos-admin-core type:check
+pnpm --filter @liujitcn/kratos-admin-core build:package
+pnpm --filter @liujitcn/kratos-admin-core pack
 ```

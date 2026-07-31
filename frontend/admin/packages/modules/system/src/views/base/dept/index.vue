@@ -32,19 +32,19 @@
 import { computed, reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
-import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin/components/ProTable/interface";
-import ProTable from "@liujitcn/kratos-admin/components/ProTable";
-import FormDialog from "@liujitcn/kratos-admin/components/Dialog/FormDialog.vue";
-import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin/components/ProForm/interface";
-import { useAuthButtons } from "@liujitcn/kratos-admin/auth";
+import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
+import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
+import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
+import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
+import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBaseDeptService } from "@liujitcn/kratos-admin-system/api/system/base_dept";
 import { defBaseTenantService } from "@liujitcn/kratos-admin-system/api/system/base_tenant";
-import { useUserStore } from "@liujitcn/kratos-admin/stores/runtime";
+import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import type { BaseDept, BaseDeptForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dept";
 import type { SelectOptionResponse_Option, TreeOptionResponse_Option } from "@liujitcn/kratos-admin-system/rpc/common/v1/common";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
-import { normalizeSelectedIds } from "@liujitcn/kratos-admin/table";
-import { DEFAULT_TENANT_CODE, requestTenantOptions } from "@liujitcn/kratos-admin/tenant";
+import { normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
+import { DEFAULT_TENANT_CODE, requestTenantOptions } from "@liujitcn/kratos-admin-core/tenant";
 
 defineOptions({
   name: "BaseDept",

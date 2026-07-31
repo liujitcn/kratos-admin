@@ -1,6 +1,6 @@
 # @liujitcn/kratos-admin-cli
 
-用于创建 kratos-admin 业务项目的命令行工具。生成结果是一个可独立安装、开发和构建的 pnpm workspace，其中宿主保持轻量，业务实现位于可独立发布的模块包。
+用于创建 kratos-admin 业务项目的仓库内私有命令行工具，不发布到 npm。生成结果是一个可独立安装、开发和构建的 pnpm workspace，其中宿主保持轻量，业务实现位于可独立发布的模块包。
 
 ## 目录与文件
 
@@ -31,7 +31,7 @@ packages/cli
 | `templates/business-workspace/apps/admin/`                       | 生成项目的薄宿主模板。                                       |
 | `templates/business-workspace/packages/modules/__MODULE_NAME__/` | 生成项目的可发布业务模块模板。                               |
 | `templates/business-workspace/scripts/build-package.mjs`         | 生成业务模块发布源码和声明文件。                             |
-| `package.json`                                                   | 声明 `kratos-admin` 可执行命令、发布文件、脚本和 Node 版本。 |
+| `package.json`                                                   | 声明 `kratos-admin` 可执行命令、私有属性、脚本和 Node 版本。 |
 | `README.md`                                                      | CLI 使用方法、模板结构和维护说明。                           |
 | `tsconfig.json`                                                  | CLI 源码、测试的编译配置和 `dist` 输出规则。                 |
 
@@ -40,17 +40,11 @@ packages/cli
 ## 使用
 
 ```bash
-pnpm dlx @liujitcn/kratos-admin-cli create shop-admin --module shop
-pnpm dlx @liujitcn/kratos-admin-cli create shop-admin --module shop,order
-pnpm dlx @liujitcn/kratos-admin-cli create shop-admin --module shop --module order
-pnpm dlx @liujitcn/kratos-admin-cli create shop-admin --module shop,order --with audit
-```
-
-源码仓库内调试：
-
-```bash
-pnpm --filter @liujitcn/kratos-admin-cli test
+pnpm module:create ../shop-admin --module shop
 pnpm module:create ../shop-admin --module shop,order
+pnpm module:create ../shop-admin --module shop --module order
+pnpm module:create ../shop-admin --module shop,order --with audit
+pnpm --filter @liujitcn/kratos-admin-cli test
 ```
 
 CLI 始终先引入 `@liujitcn/kratos-admin-system`。`--module` 可重复使用，也接受逗号分隔名称，并为每个名称创建独立 module 包；`--with` 接收逗号分隔的额外已发布 module 名称，只装配依赖而不生成源码。CLI 拒绝覆盖已有目录；渲染失败时会清理本次创建的不完整目标目录。
@@ -74,7 +68,7 @@ CLI 始终先引入 `@liujitcn/kratos-admin-system`。`--module` 可重复使用
 | `__MODULE_PASCAL__`     | PascalCase 模块名，例如 `Shop`。         |
 | `__MODULE_PACKAGE__`    | 模块包名，例如 `@shop/admin-module`。    |
 | `__MODULE_IDENTIFIER__` | 模块入口变量，例如 `shopAdminModule`。   |
-| `__CORE_VERSION__`      | 与当前 CLI 版本对应的 core semver 范围。 |
+| `__CORE_VERSION__`      | 当前 core 包版本对应的 semver 范围。     |
 | `__MODULE_FILTERS__`    | 全部自有 module 的 workspace 过滤参数。  |
 | `__MODULE_MANIFEST__`   | 宿主模块加载器、包名和预构建依赖清单。   |
 | `__MODULE_NAMES__`      | 文档中的全部自有 module 名称。           |

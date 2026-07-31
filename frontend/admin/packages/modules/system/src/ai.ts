@@ -1,5 +1,5 @@
 import type { Component } from "vue";
-import { getAdminModuleExtension } from "@liujitcn/kratos-admin";
+import { getAdminModuleExtension } from "@liujitcn/kratos-admin-core";
 
 /** ADMIN_AI_EXTENSION AI 助手扩展名称。 */
 export const ADMIN_AI_EXTENSION = "admin.ai";

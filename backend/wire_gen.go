@@ -29,6 +29,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/service/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/service/app"
 	"github.com/liujitcn/kratos-admin/backend/internal/service/base"
+	"github.com/liujitcn/kratos-admin/backend/projectdoc"
 	"github.com/liujitcn/kratos-kit/bootstrap"
 	"github.com/liujitcn/kratos-kit/cache"
 	"github.com/liujitcn/kratos-kit/database/gorm"
@@ -42,7 +43,7 @@ import (
 // Injectors from wire.go:
 
 // initModule 生成 Backend 模块内部依赖装配代码。
-func initModule(context *bootstrap.Context, additionalModules AdditionalModules, arg []gorm.ClientOption, arg2 []migration.Contributor) (*Runtime, func(), error) {
+func initModule(context *bootstrap.Context, additionalModules AdditionalModules, configuredDocuments projectdoc.ConfiguredDocuments, arg []gorm.ClientOption, arg2 []migration.Contributor) (*Runtime, func(), error) {
 	configv1Data, err := config.ParseData(context)
 	if err != nil {
 		return nil, nil, err
@@ -205,7 +206,8 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	basePostRepository := data.NewBasePostRepository(dataData)
 	casbinRuleRepository := data.NewCasbinRuleRepository(dataData)
 	baseMenuRepository := data.NewBaseMenuRepository(dataData)
-	openapiRegistry, err := server.NewOpenAPIRegistry()
+	appInfo := config.GetAppInfo(context)
+	openapiRegistry, err := server.NewOpenAPIRegistry(appInfo)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -277,25 +279,37 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	codeGenProtoService := admin.NewCodeGenProtoService(codeGenProtoCase)
 	codeGenTableService := admin.NewCodeGenTableService(codeGenTableCase)
 	baseMigrationService := admin.NewBaseMigrationService(baseMigrationCase)
+	additionalDocuments := newAdditionalProjectDocuments(additionalModules, configuredDocuments)
+	catalog, err := newProjectDocumentCatalog(appInfo, additionalDocuments)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	projectDocumentCase := biz3.NewProjectDocumentCase(catalog)
+	projectDocumentService := admin.NewProjectDocumentService(projectDocumentCase)
 	adminServices := admin2.Services{
-		Auth:          authService,
-		BaseAPI:       baseApiService,
-		BaseArea:      baseAreaService,
-		BaseConfig:    baseConfigService,
-		BaseDept:      baseDeptService,
-		BaseDict:      baseDictService,
-		BaseJob:       baseJobService,
-		BaseLog:       baseLogService,
-		BaseMenu:      baseMenuService,
-		BasePost:      basePostService,
-		BaseRole:      baseRoleService,
-		BaseTenant:    baseTenantService,
-		BaseUser:      baseUserService,
-		CodeGen:       codeGenService,
-		CodeGenColumn: codeGenColumnService,
-		CodeGenProto:  codeGenProtoService,
-		CodeGenTable:  codeGenTableService,
-		BaseMigration: baseMigrationService,
+		Auth:            authService,
+		BaseAPI:         baseApiService,
+		BaseArea:        baseAreaService,
+		BaseConfig:      baseConfigService,
+		BaseDept:        baseDeptService,
+		BaseDict:        baseDictService,
+		BaseJob:         baseJobService,
+		BaseLog:         baseLogService,
+		BaseMenu:        baseMenuService,
+		BasePost:        basePostService,
+		BaseRole:        baseRoleService,
+		BaseTenant:      baseTenantService,
+		BaseUser:        baseUserService,
+		CodeGen:         codeGenService,
+		CodeGenColumn:   codeGenColumnService,
+		CodeGenProto:    codeGenProtoService,
+		CodeGenTable:    codeGenTableService,
+		BaseMigration:   baseMigrationService,
+		ProjectDocument: projectDocumentService,
 	}
 	baseUserCase2 := biz4.NewBaseUserCase(baseCase, baseUserRepository)
 	bizAuthCase := biz4.NewAuthCase(baseCase, baseUserCase2, manager, userEvents)
@@ -330,7 +344,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 		cleanup()
 		return nil, nil, err
 	}
-	kratosadminRuntime, err := newRuntime(modules, httpMiddlewares, grpcMiddlewares, cronServer, openapiRegistry, baseConfigCase, mcpToolsReady, agentToolsReady, openAPIReady)
+	kratosadminRuntime, err := newRuntime(modules, httpMiddlewares, grpcMiddlewares, cronServer, openapiRegistry, baseConfigCase, projectDocumentCase, mcpToolsReady, agentToolsReady, openAPIReady)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -347,7 +361,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 }
 
 // initApp 生成 Backend 独立应用内部依赖装配代码。
-func initApp(context *bootstrap.Context, additionalModules AdditionalModules, arg []gorm.ClientOption, arg2 []migration.Contributor) (*kratos.App, func(), error) {
+func initApp(context *bootstrap.Context, additionalModules AdditionalModules, configuredDocuments projectdoc.ConfiguredDocuments, arg []gorm.ClientOption, arg2 []migration.Contributor) (*kratos.App, func(), error) {
 	configv1Data, err := config.ParseData(context)
 	if err != nil {
 		return nil, nil, err
@@ -510,7 +524,8 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, ar
 	basePostRepository := data.NewBasePostRepository(dataData)
 	casbinRuleRepository := data.NewCasbinRuleRepository(dataData)
 	baseMenuRepository := data.NewBaseMenuRepository(dataData)
-	openapiRegistry, err := server.NewOpenAPIRegistry()
+	appInfo := config.GetAppInfo(context)
+	openapiRegistry, err := server.NewOpenAPIRegistry(appInfo)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -582,25 +597,37 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, ar
 	codeGenProtoService := admin.NewCodeGenProtoService(codeGenProtoCase)
 	codeGenTableService := admin.NewCodeGenTableService(codeGenTableCase)
 	baseMigrationService := admin.NewBaseMigrationService(baseMigrationCase)
+	additionalDocuments := newAdditionalProjectDocuments(additionalModules, configuredDocuments)
+	catalog, err := newProjectDocumentCatalog(appInfo, additionalDocuments)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	projectDocumentCase := biz3.NewProjectDocumentCase(catalog)
+	projectDocumentService := admin.NewProjectDocumentService(projectDocumentCase)
 	adminServices := admin2.Services{
-		Auth:          authService,
-		BaseAPI:       baseApiService,
-		BaseArea:      baseAreaService,
-		BaseConfig:    baseConfigService,
-		BaseDept:      baseDeptService,
-		BaseDict:      baseDictService,
-		BaseJob:       baseJobService,
-		BaseLog:       baseLogService,
-		BaseMenu:      baseMenuService,
-		BasePost:      basePostService,
-		BaseRole:      baseRoleService,
-		BaseTenant:    baseTenantService,
-		BaseUser:      baseUserService,
-		CodeGen:       codeGenService,
-		CodeGenColumn: codeGenColumnService,
-		CodeGenProto:  codeGenProtoService,
-		CodeGenTable:  codeGenTableService,
-		BaseMigration: baseMigrationService,
+		Auth:            authService,
+		BaseAPI:         baseApiService,
+		BaseArea:        baseAreaService,
+		BaseConfig:      baseConfigService,
+		BaseDept:        baseDeptService,
+		BaseDict:        baseDictService,
+		BaseJob:         baseJobService,
+		BaseLog:         baseLogService,
+		BaseMenu:        baseMenuService,
+		BasePost:        basePostService,
+		BaseRole:        baseRoleService,
+		BaseTenant:      baseTenantService,
+		BaseUser:        baseUserService,
+		CodeGen:         codeGenService,
+		CodeGenColumn:   codeGenColumnService,
+		CodeGenProto:    codeGenProtoService,
+		CodeGenTable:    codeGenTableService,
+		BaseMigration:   baseMigrationService,
+		ProjectDocument: projectDocumentService,
 	}
 	baseUserCase2 := biz4.NewBaseUserCase(baseCase, baseUserRepository)
 	bizAuthCase := biz4.NewAuthCase(baseCase, baseUserCase2, manager, userEvents)
@@ -635,7 +662,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, ar
 		cleanup()
 		return nil, nil, err
 	}
-	kratosadminRuntime, err := newRuntime(modules, httpMiddlewares, grpcMiddlewares, cronServer, openapiRegistry, baseConfigCase, mcpToolsReady, agentToolsReady, openAPIReady)
+	kratosadminRuntime, err := newRuntime(modules, httpMiddlewares, grpcMiddlewares, cronServer, openapiRegistry, baseConfigCase, projectDocumentCase, mcpToolsReady, agentToolsReady, openAPIReady)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -660,7 +687,6 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, ar
 		cleanup()
 		return nil, nil, err
 	}
-	appInfo := config.GetAppInfo(context)
 	httpServer, err := server.NewHTTPServer(context, appInfo, httpMiddlewares, modules, openapiRegistry, authenticator, userToken, mcpToolsReady, agentToolsReady, openAPIReady)
 	if err != nil {
 		cleanup5()

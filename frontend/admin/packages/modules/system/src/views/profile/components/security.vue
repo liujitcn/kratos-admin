@@ -105,15 +105,15 @@ import type {
   UserPhoneForm,
   UserProfileForm
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/auth";
-import ProDialog from "@liujitcn/kratos-admin/components/Dialog/ProDialog.vue";
-import ProForm from "@liujitcn/kratos-admin/components/ProForm/index.vue";
-import type { ProFormField, ProFormInstance } from "@liujitcn/kratos-admin/components/ProForm/interface";
+import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
+import ProForm from "@liujitcn/kratos-admin-core/components/ProForm/index.vue";
+import type { ProFormField, ProFormInstance } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import {
   getOauthProviderIcon,
   withOauthProviderDisplay,
   type OauthProviderDisplay
-} from "@liujitcn/kratos-admin/security";
-import { resolveFrontendRouteURL } from "@liujitcn/kratos-admin/navigation";
+} from "@liujitcn/kratos-admin-core/security";
+import { resolveFrontendRouteURL } from "@liujitcn/kratos-admin-core/navigation";
 import { ElMessage, ElMessageBox } from "element-plus";
 
 /** 安全中心组件属性。 */

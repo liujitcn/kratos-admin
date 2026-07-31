@@ -1,10 +1,11 @@
 # Makefile 常用目标：初始化工具、生成代码、格式化代码、启动服务
-.PHONY: help init plugin cli fmt lint gorm-gen wire api openapi ts ts-app gen run build docker-build
+.PHONY: help init plugin cli fmt lint gorm-gen wire api openapi ts ts-app project-docs gen run build docker-build
 
 IMAGE ?= backend
 TAG ?= latest
 DOCKERFILE ?= Dockerfile
 BINARY ?= bin/server
+PROJECT_DOCS_BIN ?= project-docs
 GO_BIN_DIR ?= $(shell GOBIN=$$(go env GOBIN); if [ -n "$$GOBIN" ]; then printf '%s' "$$GOBIN"; else printf '%s/bin' "$$(go env GOPATH)"; fi)
 TS_PROTO_BIN ?= $(or \
 	$(shell command -v protoc-gen-ts_proto 2>/dev/null), \
@@ -58,6 +59,11 @@ cli:
 	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 	@go install golang.org/x/tools/cmd/goimports@latest
 	@go install honnef.co/go/tools/cmd/staticcheck@latest
+	@if [ -d ../../kratos-kit/cmd/project-docs ]; then \
+		cd ../../kratos-kit/cmd/project-docs && go install .; \
+	else \
+		go install github.com/liujitcn/kratos-kit/cmd/project-docs@latest; \
+	fi
 	@if [ -d ../../gorm-kit/gen/cmd/gorm-gen ]; then \
 		cd ../../gorm-kit/gen && go install ./cmd/gorm-gen; \
 	else \
@@ -84,7 +90,7 @@ gorm-gen:
 	@echo "==> GORM 代码生成完成"
 
 # 生成 wire 依赖注入代码
-wire:
+wire: project-docs
 	@echo "==> 生成 wire 依赖注入代码"
 	@PATH="$(GO_BIN_DIR):$$PATH" wire .
 	@PATH="$(GO_BIN_DIR):$$PATH" goimports -w wire.go wire_gen.go
@@ -123,18 +129,25 @@ ts-app:
 		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.app.typescript.gen.yaml --exclude-path proto/system/admin
 	@echo "==> app TypeScript RPC 代码生成完成"
 
-# 一键生成全部接口产物（Go 代码 + OpenAPI 文档 + TypeScript 代码）
-gen: api openapi ts ts-app gorm-gen wire fmt
+# 收集当前项目约定范围内的 README 与 docs Markdown
+project-docs:
+	@echo "==> 收集项目文档"
+	@command -v "$(PROJECT_DOCS_BIN)" >/dev/null 2>&1 || (echo "project-docs not found. Run make cli first." && exit 1)
+	@cd .. && "$(PROJECT_DOCS_BIN)"
+	@echo "==> 项目文档收集完成"
+
+# 一键生成全部接口与文档产物（Go 代码 + OpenAPI 文档 + TypeScript 代码）
+gen: project-docs api openapi ts ts-app gorm-gen wire fmt
 	@echo "==> 全部接口产物生成完成"
 
 # 启动应用
-run: api openapi
-	@go run ./cmd/server --conf ./configs
+run: project-docs api openapi
+	@go run ./internal/cmd/server --conf ./configs
 
 # 构建 Linux 可执行文件，供 Docker 镜像直接打包
-build:
+build: project-docs
 	@mkdir -p $(dir $(BINARY))
-	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(BINARY) ./cmd/server
+	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(BINARY) ./internal/cmd/server
 
 # 构建后端服务 Docker 镜像
 docker-build: build

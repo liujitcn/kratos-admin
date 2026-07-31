@@ -71,11 +71,11 @@
 import { computed, reactive, ref, watch } from "vue";
 import { defProfileAuthService } from "@liujitcn/kratos-admin-system/api/system/auth";
 import type { UserProfileForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/auth";
-import { defFileService } from "@liujitcn/kratos-admin/api/base/file";
-import defaultAvatar from "@liujitcn/kratos-admin/assets/images/avatar.png";
-import ProDialog from "@liujitcn/kratos-admin/components/Dialog/ProDialog.vue";
-import ProForm from "@liujitcn/kratos-admin/components/ProForm/index.vue";
-import type { ProFormField, ProFormInstance } from "@liujitcn/kratos-admin/components/ProForm/interface";
+import { defFileService } from "@liujitcn/kratos-admin-core/api/base/file";
+import defaultAvatar from "@liujitcn/kratos-admin-core/assets/images/avatar.png";
+import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
+import ProForm from "@liujitcn/kratos-admin-core/components/ProForm/index.vue";
+import type { ProFormField, ProFormInstance } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { ElMessage } from "element-plus";
 import { Camera } from "@element-plus/icons-vue";
 

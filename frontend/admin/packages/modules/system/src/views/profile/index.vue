@@ -42,7 +42,7 @@ import { onMounted, reactive, ref } from "vue";
 import { useRoute } from "vue-router";
 import { defProfileAuthService } from "@liujitcn/kratos-admin-system/api/system/auth";
 import type { UserProfileForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/auth";
-import { useUserStore } from "@liujitcn/kratos-admin/stores/runtime";
+import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import ProfileBase from "./components/base.vue";
 import ProfileSecurity from "./components/security.vue";
 import ProfilePassword from "./components/password.vue";

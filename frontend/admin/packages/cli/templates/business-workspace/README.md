@@ -1,7 +1,7 @@
 <!-- prettier-ignore -->
 # __PROJECT_NAME__
 
-基于 kratos-admin 的独立业务管理端 workspace。默认包含一个薄宿主、System module 和自有 module（**MODULE_NAMES**）；依赖方向为 `apps/admin -> business module -> @liujitcn/kratos-admin`。
+基于 kratos-admin 的独立业务管理端 workspace。默认包含一个薄宿主、System module 和自有 module（**MODULE_NAMES**）；依赖方向为 `apps/admin -> business module -> @liujitcn/kratos-admin-core`。
 
 ## 目录与文件
 

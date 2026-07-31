@@ -9,6 +9,7 @@
 - Proto 驱动的 HTTP、gRPC、OpenAPI、Agent Tool、MCP Tool 和 TypeScript RPC 生成。
 - AI 会话、流式消息、附件、工具调用、重试、再生成和分支会话。
 - 管理端代码生成配置、预览、生成进度和还原。
+- 构建期收集当前项目、宿主项目和外部模块的 README/docs，并在管理端统一查看。
 - 可挂载的 Go Core 模块、管理端业务模块和 uni-app 具名模块注册边界。
 
 仓库不包含商城、订单、支付或推荐等业务模块。
@@ -47,8 +48,7 @@ make -C frontend init
 启动后端：
 
 ```bash
-cd backend
-go run ./internal/cmd/server --conf ./configs
+make -C backend run
 ```
 
 启动管理后台或应用端 H5：
@@ -70,6 +70,7 @@ cd frontend/app && pnpm dev:h5
 ## 生成与检查
 
 ```bash
+make -C backend project-docs
 make -C backend gen
 cd backend && go test ./...
 
@@ -85,22 +86,21 @@ pnpm tsc
 pnpm lint
 ```
 
-`backend/api/gen`、`backend/internal/data/gen`、管理端和应用端 `rpc`、OpenAPI 及 `wire_gen.go` 都是生成产物，不得手工修改。
+`backend/api/gen`、`backend/internal/data/gen`、`backend/internal/projectdocs/assets/catalog.json`、`backend/internal/projectdocs/catalog_gen.go`、管理端和应用端 `rpc`、OpenAPI 及 `wire_gen.go` 都是生成产物，不得手工修改。
 
 ## 发布
 
-统一发布会更新四个 npm 包的版本：
+统一发布会更新并发布三个 npm 包：
 
-- `@liujitcn/kratos-admin`
+- `@liujitcn/kratos-admin-core`
 - `@liujitcn/kratos-admin-system`
-- `@liujitcn/kratos-admin-cli`
 - `@liujitcn/kratos-app`
 
 ```bash
 make tag VERSION=0.0.16
 ```
 
-脚本要求当前分支为远程默认分支且与 `origin` 同步，会纳入当前工作区改动，执行后端测试和前端打包，然后推送 `vX.Y.Z`、`backend/vX.Y.Z`、`npm/vX.Y.Z`。`npm/vX.Y.Z` 触发 `.github/workflows/publish-npm.yml`，通过 npm Trusted Publishing 发布四个包；本机需要可用的 `git`、`gh` 和 GitHub 登录态。
+脚本要求当前分支为远程默认分支且与 `origin` 同步，会纳入当前工作区改动，执行后端测试和前端打包，然后推送 `vX.Y.Z`、`backend/vX.Y.Z`、`npm/vX.Y.Z`。`npm/vX.Y.Z` 触发 `.github/workflows/publish-npm.yml`，通过 npm Trusted Publishing 发布以上三个包；管理端宿主和 CLI 均为私有包，不参与发布。本机需要可用的 `git`、`gh` 和 GitHub 登录态。
 
 只做本地 npm 发布时：
 

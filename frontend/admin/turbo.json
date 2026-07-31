@@ -5,7 +5,7 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
-    "@liujitcn/kratos-admin-app#build": {
+    "@liujitcn/kratos-admin#build": {
       "dependsOn": ["^build"],
       "cache": false,
       "outputs": []

@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import SwaggerUIBundle from "swagger-ui-dist/swagger-ui-bundle.js";
 import "swagger-ui-dist/swagger-ui.css";
-import { getRequestAccessToken } from "@liujitcn/kratos-admin/request";
+import { getRequestAccessToken } from "@liujitcn/kratos-admin-core/request";
 import { defBaseApiService } from "@liujitcn/kratos-admin-system/api/system/base_api";
 import type { OpenApiServiceOption } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_api";
 

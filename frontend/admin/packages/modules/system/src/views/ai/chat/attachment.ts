@@ -1,5 +1,5 @@
 import type { AiAttachment } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
-import { formatSrc } from "@liujitcn/kratos-admin/format";
+import { formatSrc } from "@liujitcn/kratos-admin-core/format";
 import type { FilesCardProps, FilesType } from "vue-element-plus-x/types/FilesCard";
 
 /** AI 助手附件图片判断所需的最小字段。 */

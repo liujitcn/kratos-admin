@@ -36,7 +36,7 @@ export async function createBusinessWorkspace(options: CreateWorkspaceOptions): 
   validateName(projectName, "项目名称");
   if (await pathExists(target)) throw new Error(`目标目录已存在，拒绝覆盖: ${target}`);
 
-  const packageVersion = await readPackageVersion();
+  const packageVersion = await readCorePackageVersion();
   const primaryModuleTokens = createModuleTokens(primaryModuleName, packageVersion);
   const moduleManifestEntries = [
     {
@@ -72,7 +72,7 @@ export async function createBusinessWorkspace(options: CreateWorkspaceOptions): 
     .join(",\n");
   const modulePackages = moduleNames.map(name => `@${name}/admin-module`);
   const appDependencies = {
-    "@liujitcn/kratos-admin": `^${packageVersion}`,
+    "@liujitcn/kratos-admin-core": `^${packageVersion}`,
     "@liujitcn/kratos-admin-system": `^${packageVersion}`,
     ...Object.fromEntries(modulePackages.map(packageName => [packageName, "workspace:*"])),
     ...Object.fromEntries(additionalModules.map(name => [`@liujitcn/kratos-admin-${name}`, `^${packageVersion}`]))
@@ -157,9 +157,9 @@ async function renderDirectory(source: string, target: string, tokens: Record<st
   }
 }
 
-/** 读取 CLI 版本，作为生成项目默认的底座版本。 */
-async function readPackageVersion(): Promise<string> {
-  const packageJson = JSON.parse(await readFile(resolve(packageRoot, "package.json"), "utf8"));
+/** 读取 core 版本，作为生成项目默认的公开包版本。 */
+async function readCorePackageVersion(): Promise<string> {
+  const packageJson = JSON.parse(await readFile(resolve(packageRoot, "../core/package.json"), "utf8"));
   return packageJson.version;
 }
 

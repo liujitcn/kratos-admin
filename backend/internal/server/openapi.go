@@ -6,22 +6,18 @@ import (
 	coreOpenAPI "github.com/liujitcn/kratos-admin/backend/core/pkg/openapi"
 	adminBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/cmd/server/assets"
+	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	"github.com/liujitcn/kratos-kit/bootstrap"
-)
-
-const (
-	defaultOpenAPIKey  = "admin"
-	defaultOpenAPIName = "系统管理"
 )
 
 // OpenAPIReady 表示全部模块文档和接口权限数据已经完成初始化。
 type OpenAPIReady struct{}
 
 // NewOpenAPIRegistry 创建包含系统内置文档的 OpenAPI 注册表。
-func NewOpenAPIRegistry() (*coreOpenAPI.Registry, error) {
+func NewOpenAPIRegistry(appInfo *bootstrapConfigv1.AppInfo) (*coreOpenAPI.Registry, error) {
 	return coreOpenAPI.NewRegistry(coreOpenAPI.Document{
-		Key:  defaultOpenAPIKey,
-		Name: defaultOpenAPIName,
+		Key:  appInfo.GetProject(),
+		Name: appInfo.GetName(),
 		Data: assets.OpenAPIData,
 	})
 }

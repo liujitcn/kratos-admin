@@ -47,19 +47,19 @@
 <script setup lang="ts">
 import { computed, h, reactive, ref, resolveComponent, resolveDynamicComponent, watch } from "vue";
 import { ElIcon, ElTag, type FormRules } from "element-plus";
-import ProTable from "@liujitcn/kratos-admin/components/ProTable";
-import FormDialog from "@liujitcn/kratos-admin/components/Dialog/FormDialog.vue";
-import type { ColumnProps, HeaderActionProps, ProTableInstance, RenderScope } from "@liujitcn/kratos-admin/components/ProTable/interface";
-import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin/components/ProForm/interface";
-import SelectIcon from "@liujitcn/kratos-admin/components/SelectIcon/index.vue";
+import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
+import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
+import type { ColumnProps, HeaderActionProps, ProTableInstance, RenderScope } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
+import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
+import SelectIcon from "@liujitcn/kratos-admin-core/components/SelectIcon/index.vue";
 import { defBaseMenuService } from "@liujitcn/kratos-admin-system/api/system/base_menu";
 import { defBaseApiService } from "@liujitcn/kratos-admin-system/api/system/base_api";
-import { useAuthButtons } from "@liujitcn/kratos-admin/auth";
+import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import type { BaseApi } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_api";
 import type { BaseMenu, BaseMenuForm, BaseMenuMeta } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_menu";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { BaseMenuType } from "@liujitcn/kratos-admin-system/rpc/system/common/v1/enum";
-import { normalizeSelectedIds } from "@liujitcn/kratos-admin/table";
+import { normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 
 defineOptions({
   name: "BaseMenu",

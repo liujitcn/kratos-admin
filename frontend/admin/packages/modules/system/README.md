@@ -54,6 +54,7 @@ packages/modules/system
 | `src/api/system/auth.ts`      | 个人中心认证请求。                        |
 | `src/api/system/base_*.ts`    | System 基础资源管理请求。                 |
 | `src/api/system/code_gen*.ts` | 代码生成、字段、Proto、表和进度订阅请求。 |
+| `src/api/system/project_document.ts` | 多项目文档树与详情请求。           |
 
 ## 页面文件组
 
@@ -78,6 +79,7 @@ packages/modules/system
 | `src/views/base/user/components/dept-tree.vue`                 | 用户页的部门树筛选组件。  |
 | `src/views/profile/`                                           | 个人中心与安全设置页面。  |
 | `src/views/tool/api-doc/index.vue`                             | OpenAPI/Swagger 文档页。  |
+| `src/views/tool/project-doc/index.vue`                         | 多项目 Markdown 树形导航与阅读页。 |
 | `src/views/tool/code-gen/table/index.vue`                      | 代码生成数据表列表页。    |
 | `src/views/tool/code-gen/columns/index.vue`                    | 代码生成字段配置页。      |
 | `src/views/tool/code-gen/columns/option-copy.ts`               | 字段选项复制规则。        |
@@ -108,6 +110,7 @@ export const adminModules = [systemAdminModule];
 | 个人中心 | `system/profile/index`      |
 | AI 助手  | `system/ai/chat/index`      |
 | API 文档 | `system/tool/api-doc/index` |
+| 项目文档 | `system/tool/project-doc/index` |
 
 不再兼容 `base/user/index`、`profile/index` 等无模块前缀路径。不同业务模块可以拥有同名 `views`，core 会按 `<module>/<view>` 解析，不发生覆盖。
 

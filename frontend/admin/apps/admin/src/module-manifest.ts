@@ -1,4 +1,4 @@
-import type { AdminModule } from "@liujitcn/kratos-admin";
+import type { AdminModule } from "@liujitcn/kratos-admin-core";
 
 /** 管理端宿主模块清单项。 */
 export interface AdminModuleManifestItem {

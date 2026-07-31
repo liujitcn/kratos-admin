@@ -6,6 +6,7 @@ package kratosadmin
 import (
 	"github.com/go-kratos/kratos/v3"
 	"github.com/google/wire"
+	"github.com/liujitcn/kratos-admin/backend/projectdoc"
 	"github.com/liujitcn/kratos-kit/bootstrap"
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 	gormmigration "github.com/liujitcn/kratos-kit/database/gorm/migration"
@@ -15,6 +16,7 @@ import (
 func initModule(
 	*bootstrap.Context,
 	AdditionalModules,
+	projectdoc.ConfiguredDocuments,
 	[]databaseGorm.ClientOption,
 	gormmigration.AdditionalMigrations,
 ) (*Runtime, func(), error) {
@@ -25,6 +27,7 @@ func initModule(
 func initApp(
 	*bootstrap.Context,
 	AdditionalModules,
+	projectdoc.ConfiguredDocuments,
 	[]databaseGorm.ClientOption,
 	gormmigration.AdditionalMigrations,
 ) (*kratos.App, func(), error) {

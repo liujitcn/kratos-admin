@@ -1,5 +1,5 @@
 import type { FormRules } from "element-plus";
-import type { ProFormComponentType, ProFormOption } from "@liujitcn/kratos-admin/components/ProForm/interface";
+import type { ProFormComponentType, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import type {
   CodeGenColumnFormConfig,
   CodeGenColumnListConfig,

@@ -1,6 +1,6 @@
 import { EventStreamContentType, fetchEventSource, type EventSourceMessage } from "@microsoft/fetch-event-source";
 import type { SubscribeSseRequest } from "@liujitcn/kratos-admin-system/rpc/base/v1/sse";
-import { getRequestAccessToken, handleAuthExpired } from "@liujitcn/kratos-admin/request";
+import { getRequestAccessToken, handleAuthExpired } from "@liujitcn/kratos-admin-core/request";
 
 const SSE_URL = "/events";
 

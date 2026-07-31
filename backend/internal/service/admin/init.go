@@ -33,6 +33,7 @@ var ProviderSet = wire.NewSet(
 	biz.NewCodeGenColumnCase,
 	biz.NewCodeGenProtoCase,
 	biz.NewCodeGenTableCase,
+	biz.NewProjectDocumentCase,
 	NewAuthService,
 	NewBaseApiService,
 	NewBaseConfigService,
@@ -50,5 +51,6 @@ var ProviderSet = wire.NewSet(
 	NewCodeGenProtoService,
 	NewCodeGenTableService,
 	NewBaseMigrationService,
+	NewProjectDocumentService,
 	biz.NewBaseMigrationCase,
 )

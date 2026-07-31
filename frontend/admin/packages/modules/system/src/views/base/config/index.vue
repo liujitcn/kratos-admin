@@ -53,19 +53,19 @@ import { computed, h, reactive, ref } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import { ElImage, ElMessage, ElMessageBox, ElTag, ElTooltip } from "element-plus";
 import { CirclePlus, Delete, EditPen, RefreshLeft } from "@element-plus/icons-vue";
-import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin/components/ProTable/interface";
-import ProTable from "@liujitcn/kratos-admin/components/ProTable";
-import FormDialog from "@liujitcn/kratos-admin/components/Dialog/FormDialog.vue";
-import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin/components/ProForm/interface";
-import DictLabel from "@liujitcn/kratos-admin/components/Dict/DictLabel.vue";
-import UploadImg from "@liujitcn/kratos-admin/components/Upload/Img.vue";
-import WangEditor from "@liujitcn/kratos-admin/components/WangEditor/index.vue";
-import { useAuthButtons } from "@liujitcn/kratos-admin/auth";
+import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
+import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
+import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
+import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
+import DictLabel from "@liujitcn/kratos-admin-core/components/Dict/DictLabel.vue";
+import UploadImg from "@liujitcn/kratos-admin-core/components/Upload/Img.vue";
+import WangEditor from "@liujitcn/kratos-admin-core/components/WangEditor/index.vue";
+import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBaseConfigService } from "@liujitcn/kratos-admin-system/api/system/base_config";
 import type { BaseConfig, BaseConfigForm, PageBaseConfigRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_config";
 import { BaseConfigSite, Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { BaseConfigType } from "@liujitcn/kratos-admin-system/rpc/system/common/v1/enum";
-import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin/table";
+import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 
 defineOptions({
   name: "BaseConfig",

@@ -2534,6 +2534,38 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.CodeGenTask'
+    /api/v1/admin/project-document/tree:
+        get:
+            tags:
+                - ProjectDocumentService
+            description: 查询项目文档树
+            operationId: ProjectDocumentService_TreeProjectDocument
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.TreeProjectDocumentResponse'
+    /api/v1/admin/project-document/{id}:
+        get:
+            tags:
+                - ProjectDocumentService
+            description: 查询项目文档详情
+            operationId: ProjectDocumentService_GetProjectDocument
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.ProjectDocument'
     /api/v1/app/auth/phone:
         put:
             tags:
@@ -6239,6 +6271,78 @@ components:
                 output_paths:
                     $ref: '#/components/schemas/system.admin.v1.CodeGenOutputPaths'
             description: 预览代码生成响应
+        system.admin.v1.ProjectDocument:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 项目文档ID
+                project_key:
+                    type: string
+                    description: 与OpenAPI文档一致的项目标识
+                project_name:
+                    type: string
+                    description: 与OpenAPI文档一致的项目名称
+                path:
+                    type: string
+                    description: 项目内相对路径
+                content:
+                    type: string
+                    description: Markdown文档内容
+            description: 项目文档
+        system.admin.v1.ProjectDocumentDirectory:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 目录名称
+                path:
+                    type: string
+                    description: 项目内相对目录路径
+                documents:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.ProjectDocumentListItem'
+                    description: 当前目录下的文档
+                directories:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.ProjectDocumentDirectory'
+                    description: 当前目录下的子目录
+            description: 项目文档目录节点
+        system.admin.v1.ProjectDocumentListItem:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 项目文档ID
+                path:
+                    type: string
+                    description: 项目内相对路径
+                updated_at:
+                    type: string
+                    description: Markdown文件更新时间，RFC3339格式
+            description: 项目文档目录项
+        system.admin.v1.ProjectDocumentProject:
+            type: object
+            properties:
+                key:
+                    type: string
+                    description: 与OpenAPI文档一致的项目标识
+                name:
+                    type: string
+                    description: 与OpenAPI文档一致的项目名称
+                documents:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.ProjectDocumentListItem'
+                    description: 项目根目录下的文档
+                directories:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.ProjectDocumentDirectory'
+                    description: 项目根目录下的子目录
+            description: 项目文档树
         system.admin.v1.RefreshBaseConfigCacheRequest:
             type: object
             properties: {}
@@ -6567,6 +6671,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseMenu'
                     description: 菜单树
             description: 菜单树响应
+        system.admin.v1.TreeProjectDocumentResponse:
+            type: object
+            properties:
+                projects:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.ProjectDocumentProject'
+                    description: 项目文档树
+            description: 项目文档树响应
         system.admin.v1.TreeRouteResponse:
             type: object
             properties:
@@ -6809,5 +6922,7 @@ tags:
       description: Base MCP服务
     - name: OauthService
       description: Base三方登录公共服务
+    - name: ProjectDocumentService
+      description: 项目文档服务
     - name: SseService
       description: Base SSE服务

@@ -80,10 +80,14 @@ test("生成包含宿主和业务模块的 pnpm workspace", async () => {
     const packageJson = JSON.parse(await readFile(join(target, "apps/admin/package.json"), "utf8"));
     assert.equal(packageJson.dependencies["@shop/admin-module"], "workspace:*");
     assert.equal(packageJson.dependencies["@order/admin-module"], "workspace:*");
+    assert.match(packageJson.dependencies["@liujitcn/kratos-admin-core"], /^\^\d+\.\d+\.\d+$/);
     assert.match(packageJson.dependencies["@liujitcn/kratos-admin-system"], /^\^\d+\.\d+\.\d+$/);
     assert.match(packageJson.dependencies["@liujitcn/kratos-admin-audit"], /^\^\d+\.\d+\.\d+$/);
+    assert.equal(packageJson.dependencies["@liujitcn/kratos-admin"], undefined);
 
     const modulePackageJson = JSON.parse(await readFile(join(target, "packages/modules/shop/package.json"), "utf8"));
+    assert.match(modulePackageJson.devDependencies["@liujitcn/kratos-admin-core"], /^\^\d+\.\d+\.\d+$/);
+    assert.match(modulePackageJson.peerDependencies["@liujitcn/kratos-admin-core"], /^\^\d+\.\d+\.\d+$/);
     assert.equal(modulePackageJson.exports["./rpc/*"].default, "./dist/package/src/rpc/*.ts");
     assert.equal(modulePackageJson.exports["./components/*.vue"], undefined);
     assert.equal(modulePackageJson.exports["./views/*.vue"], undefined);

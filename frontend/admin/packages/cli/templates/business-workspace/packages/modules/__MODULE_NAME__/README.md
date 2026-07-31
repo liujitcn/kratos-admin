@@ -41,7 +41,7 @@ packages/modules/__MODULE_NAME__
 
 - API 放在 `src/api/<proto-domain>`，例如 `src/api/base`、`src/api/system`；RPC 保留 `src/rpc/<proto-domain>/<version>` 等完整生成层级，不扁平化。
 - 页面放在 `src/views`。页面私有组件就近放置，需要模块内多个页面复用时再创建 `src/components`。
-- 底座能力通过 `@liujitcn/kratos-admin` 的公开子路径引用，不要依赖 core 源码目录。
+- 底座能力通过 `@liujitcn/kratos-admin-core` 的公开子路径引用，不要依赖 core 源码目录。
 - 跨模块页面跳转使用 Vue Router；跨模块代码复用需要对方先提供 npm 公开导出。
 - 新增页面后，动态菜单组件路径必须使用 `__MODULE_NAME__/` 模块前缀；模板首页对应 `__MODULE_NAME__/index/index`，不兼容 `index/index`。
 - 需要替换 core 静态页面时，使用 core 导出的 `ADMIN_STATIC_VIEWS` 在模块 `staticViews` 中显式映射页面。

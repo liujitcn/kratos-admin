@@ -1,6 +1,6 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { defineAdminViteConfig, type AdminViteConfigOptions } from "@liujitcn/kratos-admin/vite.config";
+import { defineAdminViteConfig, type AdminViteConfigOptions } from "@liujitcn/kratos-admin-core/vite.config";
 
 const currentDirectory = dirname(fileURLToPath(import.meta.url));
 

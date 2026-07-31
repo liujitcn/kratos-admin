@@ -1,4 +1,4 @@
-# @liujitcn/kratos-admin-app
+# @liujitcn/kratos-admin
 
 默认管理端宿主。该包不发布、不承载业务实现，只负责选择业务模块、加载 core 并提供本地开发和生产构建入口。
 
@@ -54,7 +54,7 @@ manifest 顺序就是模块注册顺序，只影响显式 `staticViews` 替换�
 ## 命令
 
 ```bash
-pnpm --filter @liujitcn/kratos-admin-app dev
-pnpm --filter @liujitcn/kratos-admin-app type:check
-pnpm --filter @liujitcn/kratos-admin-app build
+pnpm --filter @liujitcn/kratos-admin dev
+pnpm --filter @liujitcn/kratos-admin type:check
+pnpm --filter @liujitcn/kratos-admin build
 ```

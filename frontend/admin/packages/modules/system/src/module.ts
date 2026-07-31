@@ -1,6 +1,6 @@
 import type { Component } from "vue";
 import { User } from "@element-plus/icons-vue";
-import { defineAdminModule } from "@liujitcn/kratos-admin";
+import { defineAdminModule } from "@liujitcn/kratos-admin-core";
 import Ai from "./components/Ai.vue";
 
 const viewModules = import.meta.glob<{ default: Component }>("./views/**/*.vue");

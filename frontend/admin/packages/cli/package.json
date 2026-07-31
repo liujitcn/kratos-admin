@@ -1,6 +1,6 @@
 {
   "name": "@liujitcn/kratos-admin-cli",
-  "private": false,
+  "private": true,
   "version": "0.0.15",
   "type": "module",
   "description": "Create pnpm workspace projects for kratos-admin business modules",
@@ -27,8 +27,5 @@
     "dist/index.d.ts",
     "dist/index.js",
     "templates"
-  ],
-  "publishConfig": {
-    "access": "public"
-  }
+  ]
 }

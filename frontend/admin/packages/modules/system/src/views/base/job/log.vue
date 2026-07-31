@@ -42,12 +42,12 @@
 import { reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { InfoFilled } from "@element-plus/icons-vue";
-import type { ColumnProps, ProTableInstance } from "@liujitcn/kratos-admin/components/ProTable/interface";
-import ProTable from "@liujitcn/kratos-admin/components/ProTable";
-import ProDialog from "@liujitcn/kratos-admin/components/Dialog/ProDialog.vue";
+import type { ColumnProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
+import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
+import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import { defBaseJobService } from "@liujitcn/kratos-admin-system/api/system/base_job";
-import { buildPageRequest } from "@liujitcn/kratos-admin/table";
-import { formatJson } from "@liujitcn/kratos-admin/format";
+import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
+import { formatJson } from "@liujitcn/kratos-admin-core/format";
 import type { BaseJobLog, PageBaseJobLogRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_job";
 import { BaseJobLogStatus } from "@liujitcn/kratos-admin-system/rpc/system/common/v1/enum";
 

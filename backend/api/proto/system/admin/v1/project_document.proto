@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// 项目文档服务
+service ProjectDocumentService {
+  // 查询项目文档树
+  rpc TreeProjectDocument(TreeProjectDocumentRequest) returns (TreeProjectDocumentResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/project-document/tree"};
+  }
+
+  // 查询项目文档详情
+  rpc GetProjectDocument(GetProjectDocumentRequest) returns (ProjectDocument) {
+    option (google.api.http) = {get: "/api/v1/admin/project-document/{id}"};
+  }
+}
+
+// 项目文档树查询条件
+message TreeProjectDocumentRequest {}
+
+// 项目文档树响应
+message TreeProjectDocumentResponse {
+  repeated ProjectDocumentProject projects = 1 [(gnostic.openapi.v3.property) = {description: "项目文档树"}]; // 项目文档树
+}
+
+// 项目文档详情查询条件
+message GetProjectDocumentRequest {
+  string id = 1 [
+    (gnostic.openapi.v3.property) = {description: "项目文档ID"},
+    (buf.validate.field).string = {
+      min_len: 1
+      max_len: 64
+    }
+  ]; // 项目文档ID
+}
+
+// 项目文档目录项
+message ProjectDocumentListItem {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "项目文档ID"}]; // 项目文档ID
+
+  string path = 2 [(gnostic.openapi.v3.property) = {description: "项目内相对路径"}]; // 项目内相对路径
+
+  string updated_at = 3 [(gnostic.openapi.v3.property) = {description: "Markdown文件更新时间，RFC3339格式"}]; // Markdown文件更新时间，RFC3339格式
+}
+
+// 项目文档树
+message ProjectDocumentProject {
+  string key = 1 [(gnostic.openapi.v3.property) = {description: "与OpenAPI文档一致的项目标识"}]; // 与OpenAPI文档一致的项目标识
+
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "与OpenAPI文档一致的项目名称"}]; // 与OpenAPI文档一致的项目名称
+
+  repeated ProjectDocumentListItem documents = 3 [(gnostic.openapi.v3.property) = {description: "项目根目录下的文档"}]; // 项目根目录下的文档
+
+  repeated ProjectDocumentDirectory directories = 4 [(gnostic.openapi.v3.property) = {description: "项目根目录下的子目录"}]; // 项目根目录下的子目录
+}
+
+// 项目文档目录节点
+message ProjectDocumentDirectory {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "目录名称"}]; // 目录名称
+
+  string path = 2 [(gnostic.openapi.v3.property) = {description: "项目内相对目录路径"}]; // 项目内相对目录路径
+
+  repeated ProjectDocumentListItem documents = 3 [(gnostic.openapi.v3.property) = {description: "当前目录下的文档"}]; // 当前目录下的文档
+
+  repeated ProjectDocumentDirectory directories = 4 [(gnostic.openapi.v3.property) = {description: "当前目录下的子目录"}]; // 当前目录下的子目录
+}
+
+// 项目文档
+message ProjectDocument {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "项目文档ID"}]; // 项目文档ID
+
+  string project_key = 2 [(gnostic.openapi.v3.property) = {description: "与OpenAPI文档一致的项目标识"}]; // 与OpenAPI文档一致的项目标识
+
+  string project_name = 3 [(gnostic.openapi.v3.property) = {description: "与OpenAPI文档一致的项目名称"}]; // 与OpenAPI文档一致的项目名称
+
+  string path = 4 [(gnostic.openapi.v3.property) = {description: "项目内相对路径"}]; // 项目内相对路径
+
+  string content = 5 [(gnostic.openapi.v3.property) = {description: "Markdown文档内容"}]; // Markdown文档内容
+}

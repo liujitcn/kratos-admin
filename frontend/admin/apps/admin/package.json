@@ -1,5 +1,5 @@
 {
-  "name": "@liujitcn/kratos-admin-app",
+  "name": "@liujitcn/kratos-admin",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@liujitcn/admin-vite-config": "workspace:*",
-    "@liujitcn/kratos-admin": "workspace:*",
+    "@liujitcn/kratos-admin-core": "workspace:*",
     "@liujitcn/kratos-admin-system": "workspace:*"
   }
 }

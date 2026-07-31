@@ -16,7 +16,6 @@ ROOT = Path(__file__).resolve().parents[1]
 PACKAGE_FILES = (
     ROOT / "frontend/admin/packages/core/package.json",
     ROOT / "frontend/admin/packages/modules/system/package.json",
-    ROOT / "frontend/admin/packages/cli/package.json",
     ROOT / "frontend/app/package.json",
 )
 TAG_RE = re.compile(r"^v(\d+)\.(\d+)\.(\d+)$")

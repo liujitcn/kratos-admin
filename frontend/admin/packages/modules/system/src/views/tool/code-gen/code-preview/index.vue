@@ -28,8 +28,8 @@
 import { computed, ref, watch } from "vue";
 import { Clock, Promotion } from "@element-plus/icons-vue";
 import { useRoute } from "vue-router";
-import { useAuthButtons } from "@liujitcn/kratos-admin/auth";
-import { useTabsStore } from "@liujitcn/kratos-admin/stores/runtime";
+import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
+import { useTabsStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { defCodeGenService } from "@liujitcn/kratos-admin-system/api/system/code_gen";
 import { defCodeGenTableService } from "@liujitcn/kratos-admin-system/api/system/code_gen_table";
 import type { CodeGenPreviewFile } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen";

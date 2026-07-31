@@ -17,22 +17,23 @@ type Services struct {
 	Auth    *systemadmin.AuthService
 	BaseAPI *systemadmin.BaseApiService
 
-	BaseArea      *systemadmin.BaseAreaService
-	BaseConfig    *systemadmin.BaseConfigService
-	BaseDept      *systemadmin.BaseDeptService
-	BaseDict      *systemadmin.BaseDictService
-	BaseJob       *systemadmin.BaseJobService
-	BaseLog       *systemadmin.BaseLogService
-	BaseMenu      *systemadmin.BaseMenuService
-	BasePost      *systemadmin.BasePostService
-	BaseRole      *systemadmin.BaseRoleService
-	BaseTenant    *systemadmin.BaseTenantService
-	BaseUser      *systemadmin.BaseUserService
-	CodeGen       *systemadmin.CodeGenService
-	CodeGenColumn *systemadmin.CodeGenColumnService
-	CodeGenProto  *systemadmin.CodeGenProtoService
-	CodeGenTable  *systemadmin.CodeGenTableService
-	BaseMigration *systemadmin.BaseMigrationService
+	BaseArea        *systemadmin.BaseAreaService
+	BaseConfig      *systemadmin.BaseConfigService
+	BaseDept        *systemadmin.BaseDeptService
+	BaseDict        *systemadmin.BaseDictService
+	BaseJob         *systemadmin.BaseJobService
+	BaseLog         *systemadmin.BaseLogService
+	BaseMenu        *systemadmin.BaseMenuService
+	BasePost        *systemadmin.BasePostService
+	BaseRole        *systemadmin.BaseRoleService
+	BaseTenant      *systemadmin.BaseTenantService
+	BaseUser        *systemadmin.BaseUserService
+	CodeGen         *systemadmin.CodeGenService
+	CodeGenColumn   *systemadmin.CodeGenColumnService
+	CodeGenProto    *systemadmin.CodeGenProtoService
+	CodeGenTable    *systemadmin.CodeGenTableService
+	BaseMigration   *systemadmin.BaseMigrationService
+	ProjectDocument *systemadmin.ProjectDocumentService
 }
 
 var _ host.Module = Services{}
@@ -61,6 +62,7 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	systemadminv1.RegisterCodeGenProtoServiceServer(srv, s.CodeGenProto)
 	systemadminv1.RegisterCodeGenTableServiceServer(srv, s.CodeGenTable)
 	systemadminv1.RegisterBaseMigrationServiceServer(srv, s.BaseMigration)
+	systemadminv1.RegisterProjectDocumentServiceServer(srv, s.ProjectDocument)
 }
 
 // RegisterHTTP 注册 system.admin.v1 的 HTTP 服务。
@@ -84,6 +86,7 @@ func (s Services) RegisterHTTP(srv *kratosHTTP.Server) {
 	systemadminv1.RegisterCodeGenProtoServiceHTTPServer(srv, s.CodeGenProto)
 	systemadminv1.RegisterCodeGenTableServiceHTTPServer(srv, s.CodeGenTable)
 	systemadminv1.RegisterBaseMigrationServiceHTTPServer(srv, s.BaseMigration)
+	systemadminv1.RegisterProjectDocumentServiceHTTPServer(srv, s.ProjectDocument)
 }
 
 // RegisterMCP 注册 system.admin.v1 的 MCP 工具。
@@ -107,4 +110,5 @@ func (s Services) RegisterMCP(server *mcpserver.Server) {
 	systemadminv1.RegisterCodeGenProtoServiceMCPTools(mcpSrv, s.CodeGenProto)
 	systemadminv1.RegisterCodeGenTableServiceMCPTools(mcpSrv, s.CodeGenTable)
 	systemadminv1.RegisterBaseMigrationServiceMCPTools(mcpSrv, s.BaseMigration)
+	systemadminv1.RegisterProjectDocumentServiceMCPTools(mcpSrv, s.ProjectDocument)
 }

@@ -177,8 +177,8 @@ import { MarkdownRenderer } from "x-markdown-vue";
 import "x-markdown-vue/style";
 import { defBaseMigrationService } from "@liujitcn/kratos-admin-system/api/system/base_migration";
 import type { BaseMigration, BaseMigrationListItem, PageBaseMigrationRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_migration";
-import { useGlobalStore } from "@liujitcn/kratos-admin/stores/runtime";
-import { buildPageRequest } from "@liujitcn/kratos-admin/table";
+import { useGlobalStore } from "@liujitcn/kratos-admin-core/stores/runtime";
+import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
 
 defineOptions({
   name: "BaseMigration",

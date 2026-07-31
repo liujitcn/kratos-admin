@@ -17,7 +17,7 @@ if [[ "${skip_git_checks}" == "true" ]]; then
 fi
 
 if [[ "$#" -eq 0 ]]; then
-  set -- admin/packages/core admin/packages/modules/system admin/packages/cli app
+  set -- admin/packages/core admin/packages/modules/system app
 fi
 
 for package_dir in "$@"; do

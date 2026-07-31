@@ -43,10 +43,12 @@ import (
 )
 
 var (
-	// Project 表示当前服务所属项目名称。
+	// Project 表示当前服务所属项目标识。
 	Project = "admin"
 	// AppID 表示当前服务应用标识。
-	AppID   = "admin"
+	AppID = "admin"
+	// Name 表示当前服务展示名称。
+	Name    = "系统管理"
 	version = "1.0.0"
 )
 
@@ -57,6 +59,7 @@ func main() {
 		&bootstrapConfigv1.AppInfo{
 			Project: Project,
 			AppId:   AppID,
+			Name:    Name,
 			Version: version,
 		},
 	)

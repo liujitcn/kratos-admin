@@ -10,8 +10,8 @@
 import { ChatDotRound } from "@element-plus/icons-vue";
 import { computed } from "vue";
 import { useRouter } from "vue-router";
-import { useAuthStore } from "@liujitcn/kratos-admin/stores/runtime";
-import { navigateTo } from "@liujitcn/kratos-admin/navigation";
+import { useAuthStore } from "@liujitcn/kratos-admin-core/stores/runtime";
+import { navigateTo } from "@liujitcn/kratos-admin-core/navigation";
 
 const router = useRouter();
 const authStore = useAuthStore();

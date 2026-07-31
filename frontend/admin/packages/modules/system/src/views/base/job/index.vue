@@ -22,16 +22,16 @@
 import { computed, h, reactive, ref, type VNode } from "vue";
 import { ElButton, ElMessage, ElMessageBox, ElTag } from "element-plus";
 import { CirclePlus, Delete, EditPen, Promotion, Tickets, VideoPause, VideoPlay } from "@element-plus/icons-vue";
-import type { ColumnProps, HeaderActionProps, ProTableInstance, RenderScope } from "@liujitcn/kratos-admin/components/ProTable/interface";
-import FormDialog from "@liujitcn/kratos-admin/components/Dialog/FormDialog.vue";
-import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin/components/ProForm/interface";
-import ProTable from "@liujitcn/kratos-admin/components/ProTable";
-import { useAuthButtons } from "@liujitcn/kratos-admin/auth";
+import type { ColumnProps, HeaderActionProps, ProTableInstance, RenderScope } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
+import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
+import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
+import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
+import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBaseJobService } from "@liujitcn/kratos-admin-system/api/system/base_job";
 import type { BaseJob, BaseJobArgs, BaseJobForm, PageBaseJobRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_job";
-import router, { navigateTo } from "@liujitcn/kratos-admin/navigation";
+import router, { navigateTo } from "@liujitcn/kratos-admin-core/navigation";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
-import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin/table";
+import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 
 defineOptions({
   name: "BaseJob",

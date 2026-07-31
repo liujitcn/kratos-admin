@@ -21,7 +21,7 @@
 <script setup lang="ts" name="AiMarkdown">
 import { MarkdownRenderer } from "x-markdown-vue";
 import "x-markdown-vue/style";
-import { useGlobalStore } from "@liujitcn/kratos-admin/stores/runtime";
+import { useGlobalStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 
 /** AI 回复 Markdown 渲染组件入参。 */
 type AiMarkdownProps = {

@@ -64,13 +64,13 @@ import { computed, reactive, ref } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CirclePlus, Delete, EditPen, RefreshLeft } from "@element-plus/icons-vue";
-import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin/components/ProTable/interface";
-import ProTable from "@liujitcn/kratos-admin/components/ProTable";
-import FormDialog from "@liujitcn/kratos-admin/components/Dialog/FormDialog.vue";
-import PasswordStrength from "@liujitcn/kratos-admin/components/PasswordStrength/index.vue";
-import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin/components/ProForm/interface";
-import TreeFilter from "@liujitcn/kratos-admin/components/TreeFilter/index.vue";
-import { useAuthButtons } from "@liujitcn/kratos-admin/auth";
+import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
+import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
+import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
+import PasswordStrength from "@liujitcn/kratos-admin-core/components/PasswordStrength/index.vue";
+import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
+import TreeFilter from "@liujitcn/kratos-admin-core/components/TreeFilter/index.vue";
+import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBaseUserService } from "@liujitcn/kratos-admin-system/api/system/base_user";
 import type { BaseUser, BaseUserForm, PageBaseUserRequest, ResetBaseUserPasswordRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_user";
 import { defBaseDeptService } from "@liujitcn/kratos-admin-system/api/system/base_dept";
@@ -79,15 +79,15 @@ import { defBasePostService } from "@liujitcn/kratos-admin-system/api/system/bas
 import { defBaseTenantService } from "@liujitcn/kratos-admin-system/api/system/base_tenant";
 import type { SelectOptionResponse_Option, TreeOptionResponse_Option } from "@liujitcn/kratos-admin-system/rpc/common/v1/common";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
-import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin/table";
+import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import {
   PASSWORD_CRYPTO_SCENE,
   PASSWORD_STRENGTH_ERROR_MESSAGE,
   encryptPassword,
   validatePasswordStrengthValue
-} from "@liujitcn/kratos-admin/security";
-import { DEFAULT_TENANT_CODE, requestTenantOptions } from "@liujitcn/kratos-admin/tenant";
-import { useUserStore } from "@liujitcn/kratos-admin/stores/runtime";
+} from "@liujitcn/kratos-admin-core/security";
+import { DEFAULT_TENANT_CODE, requestTenantOptions } from "@liujitcn/kratos-admin-core/tenant";
+import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 
 /** 用户表单状态，前端保留明文密码并在提交前加密。 */
 interface BaseUserFormState extends Omit<BaseUserForm, "dept_id" | "post_id" | "pwd" | "role_id" | "tenant_id"> {

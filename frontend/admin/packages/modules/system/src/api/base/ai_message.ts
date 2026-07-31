@@ -2,7 +2,7 @@ import service, {
   getRequestAccessToken,
   handleAuthExpired,
   requestBaseURL
-} from "@liujitcn/kratos-admin/request";
+} from "@liujitcn/kratos-admin-core/request";
 import type {
   ListAiMessageRequest,
   ListAiMessageResponse

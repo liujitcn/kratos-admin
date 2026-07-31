@@ -83,20 +83,20 @@ import { computed, nextTick, reactive, ref, watch } from "vue";
 import { ElMessage, ElMessageBox, ElTree } from "element-plus";
 import type { CheckboxValueType } from "element-plus";
 import { CirclePlus, Delete, EditPen, Position, QuestionFilled, Search, Switch } from "@element-plus/icons-vue";
-import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin/components/ProTable/interface";
-import ProTable from "@liujitcn/kratos-admin/components/ProTable";
-import FormDialog from "@liujitcn/kratos-admin/components/Dialog/FormDialog.vue";
-import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin/components/ProForm/interface";
-import { useAuthButtons } from "@liujitcn/kratos-admin/auth";
+import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
+import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
+import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
+import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
+import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBaseRoleService } from "@liujitcn/kratos-admin-system/api/system/base_role";
 import type { BaseRole, BaseRoleForm, PageBaseRoleRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_role";
 import { defBaseMenuService } from "@liujitcn/kratos-admin-system/api/system/base_menu";
 import { defBaseTenantService } from "@liujitcn/kratos-admin-system/api/system/base_tenant";
 import type { SelectOptionResponse_Option, TreeOptionResponse_Option } from "@liujitcn/kratos-admin-system/rpc/common/v1/common";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
-import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin/table";
-import { useUserStore } from "@liujitcn/kratos-admin/stores/runtime";
-import { DEFAULT_TENANT_CODE, requestTenantOptions } from "@liujitcn/kratos-admin/tenant";
+import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
+import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
+import { DEFAULT_TENANT_CODE, requestTenantOptions } from "@liujitcn/kratos-admin-core/tenant";
 
 defineOptions({
   name: "BaseRole",

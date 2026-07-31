@@ -73,12 +73,12 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from "vue";
 import { InfoFilled } from "@element-plus/icons-vue";
-import type { ColumnProps, ProTableInstance } from "@liujitcn/kratos-admin/components/ProTable/interface";
-import ProTable from "@liujitcn/kratos-admin/components/ProTable";
-import ProDialog from "@liujitcn/kratos-admin/components/Dialog/ProDialog.vue";
+import type { ColumnProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
+import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
+import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import { defBaseLogService } from "@liujitcn/kratos-admin-system/api/system/base_log";
-import { buildPageRequest } from "@liujitcn/kratos-admin/table";
-import { formatJson } from "@liujitcn/kratos-admin/format";
+import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
+import { formatJson } from "@liujitcn/kratos-admin-core/format";
 import type { BaseLog, PageBaseLogRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_log";
 
 defineOptions({

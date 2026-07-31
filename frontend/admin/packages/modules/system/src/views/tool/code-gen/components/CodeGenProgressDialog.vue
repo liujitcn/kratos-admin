@@ -82,7 +82,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, ref, watch } from "vue";
 import { Check, CircleClose, Clock, CopyDocument, Document, Loading, Minus } from "@element-plus/icons-vue";
-import ProDialog from "@liujitcn/kratos-admin/components/Dialog/ProDialog.vue";
+import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import { defCodeGenService } from "@liujitcn/kratos-admin-system/api/system/code_gen";
 import { subscribeCodeGenProgress, type SseStop } from "@liujitcn/kratos-admin-system/api/system/code_gen_sse";
 import type { CodeGenTask } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen";

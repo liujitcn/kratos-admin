@@ -98,7 +98,7 @@ import { Attachments, useRecord, XSender as BaseXSender } from "vue-element-plus
 import type { FilesCardProps } from "vue-element-plus-x/types/FilesCard";
 import { Loading, Microphone, Paperclip, Promotion } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
-import { defFileService } from "@liujitcn/kratos-admin/api/base/file";
+import { defFileService } from "@liujitcn/kratos-admin-core/api/base/file";
 import type { AiAttachment } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import type { SubmitPayload } from "../types";
 import { buildAIAttachmentFileCard } from "../attachment";

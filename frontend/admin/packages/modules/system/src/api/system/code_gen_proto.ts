@@ -1,4 +1,4 @@
-import service from "@liujitcn/kratos-admin/request";
+import service from "@liujitcn/kratos-admin-core/request";
 import {
   type CodeGenProtoService,
   type ListCodeGenProtoRequest,

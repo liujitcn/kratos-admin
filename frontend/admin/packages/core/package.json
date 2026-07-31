@@ -1,5 +1,5 @@
 {
-  "name": "@liujitcn/kratos-admin",
+  "name": "@liujitcn/kratos-admin-core",
   "private": false,
   "version": "0.0.15",
   "type": "module",

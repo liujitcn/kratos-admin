@@ -17,9 +17,11 @@ backend
 │   ├── cmd/server                    # 独立服务入口和内嵌 OpenAPI
 │   ├── config                        # 配置和数据库客户端装配
 │   ├── data                          # GORM 生成代码和队列适配
+│   ├── projectdocs                   # Backend 内嵌项目文档目录
 │   ├── server                        # HTTP、gRPC、MCP、中间件和模块注册
 │   └── service/{admin,app,base}      # Proto 服务实现
 ├── migration/assets                  # 内嵌版本化 SQL
+├── projectdoc                        # 宿主和外部模块共用的文档贡献契约
 ├── app.go                            # 对外模块门面
 ├── wire.go                           # Wire 声明
 └── wire_gen.go                       # Wire 生成结果
@@ -112,11 +114,35 @@ migration/assets/
 | `make openapi` | `internal/cmd/server/assets/openapi.yaml`。 |
 | `make ts` | 管理端 core 与 System 包的 TypeScript RPC。 |
 | `make ts-app` | `frontend/app/src/rpc`。 |
+| `make project-docs` | `internal/projectdocs/assets/catalog.json` 和 `internal/projectdocs/catalog_gen.go`，收集三层范围内的 `README.md` 和 `docs` Markdown。 |
 | `make gorm-gen` | `internal/data/gen`。可用 `GORM_GEN_SOURCE`、`GORM_TABLE` 覆盖数据源和表。 |
 | `make wire` | `wire_gen.go`。 |
 | `make gen` | 依次执行以上生成和 Go 格式化。 |
 
 生成产物不得手工修改。Proto 改动后至少重新执行 `make api openapi`，再按消费端执行 `make ts` 或 `make ts-app`。
+
+## 项目文档
+
+项目文档与 OpenAPI/Swagger 统一使用启动入口 `AppInfo` 的 `Project` 和
+`Name`。当前 Backend 在 `internal/cmd/server/main.go` 中将二者设为 `admin`
+和“系统管理”。构建期生成物不保存项目身份；服务加载后才生成稳定文档 ID。
+正常执行 `make run`、`make build` 或 `make gen` 时会自动刷新内嵌目录，也可以
+单独执行：
+
+```bash
+go install github.com/liujitcn/kratos-kit/cmd/project-docs@latest
+make project-docs
+```
+
+`make project-docs` 在仓库根目录零参数调用 PATH 中已安装的 `project-docs`
+二进制，从项目根目录扫描相对路径不超过三段的文件，只收集精确命名的
+`README.md`，以及任意 `docs` 目录中的 Markdown。命令输出递归目录树
+`internal/projectdocs/assets/catalog.json`，并自动生成
+`internal/projectdocs/catalog_gen.go`。文档节点只保存路径、正文和源文件的
+RFC3339 更新时间；服务装配时使用 `AppInfo` 补齐项目标识、展示名称和稳定
+编号。`make wire` 会先执行该命令，因此生成目录被删除后也能自动恢复。
+
+引用 Backend 的宿主可通过 `WithProjectDocuments` 注入自己的生成文档。通过 `WithAdditionalModules` 注册的外部模块实现 `projectdoc.Contributor` 后会被自动汇总；`Runtime` 本身也实现该接口，因此 Backend 被更外层宿主引用时会继续贡献已经聚合的文档。
 
 ## HTTP 入口
 
@@ -127,6 +153,8 @@ migration/assets/
 | `/mcp/{terminal}` | MCP Streamable HTTP。 |
 | `/healthz` | 存活和就绪检查。 |
 | `/api/docs/openapi/{key}` | 具名 OpenAPI 文档，如 `admin`。 |
+| `/api/v1/admin/project-document/tree` | 按项目和目录递归组织的项目文档树。 |
+| `/api/v1/admin/project-document/{id}` | 按稳定 ID 查询 Markdown 文档详情。 |
 | `/admin/`、`/app/` | `data/admin`、`data/app` 中存在 `index.html` 时自动挂载的 SPA。 |
 
 Swagger 是否启用由 `server.http.enable_swagger` 控制。管理后台的 API 文档页通过 `BaseApiService` 获取已注册文档选项。
@@ -134,9 +162,10 @@ Swagger 是否启用由 `server.http.enable_swagger` 控制。管理后台的 AP
 ## 构建与校验
 
 ```bash
+make project-docs
 go test ./...
 go vet ./...
-go build -o bin/server ./internal/cmd/server
+make build
 ```
 
 新增业务的顺序和迁移要求见 [docs/new-feature.md](docs/new-feature.md)。

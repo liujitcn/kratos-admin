@@ -29,6 +29,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/job"
 	systemConfig "github.com/liujitcn/kratos-admin/backend/internal/config"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
+	internalprojectdocs "github.com/liujitcn/kratos-admin/backend/internal/projectdocs"
 	"github.com/liujitcn/kratos-admin/backend/internal/server"
 	adminserver "github.com/liujitcn/kratos-admin/backend/internal/server/admin"
 	appserver "github.com/liujitcn/kratos-admin/backend/internal/server/app"
@@ -38,6 +39,8 @@ import (
 	appservice "github.com/liujitcn/kratos-admin/backend/internal/service/app"
 	baseservice "github.com/liujitcn/kratos-admin/backend/internal/service/base"
 	"github.com/liujitcn/kratos-admin/backend/migration"
+	"github.com/liujitcn/kratos-admin/backend/projectdoc"
+	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	"github.com/liujitcn/kratos-kit/bootstrap"
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 	gormmigration "github.com/liujitcn/kratos-kit/database/gorm/migration"
@@ -59,15 +62,23 @@ type AdditionalModules []core.Module
 type Option func(*options)
 
 type options struct {
-	additionalModules AdditionalModules
-	databaseOptions   []databaseGorm.ClientOption
-	migrations        gormmigration.AdditionalMigrations
+	additionalModules          AdditionalModules
+	configuredProjectDocuments projectdoc.ConfiguredDocuments
+	databaseOptions            []databaseGorm.ClientOption
+	migrations                 gormmigration.AdditionalMigrations
 }
 
 // WithAdditionalModules 追加由同一启动器挂载的扩展模块。
 func WithAdditionalModules(modules ...core.Module) Option {
 	return func(opts *options) {
 		opts.additionalModules = append(opts.additionalModules, modules...)
+	}
+}
+
+// WithProjectDocuments 追加由宿主项目直接提供的文档。
+func WithProjectDocuments(documents ...projectdoc.Document) Option {
+	return func(opts *options) {
+		opts.configuredProjectDocuments = append(opts.configuredProjectDocuments, documents...)
 	}
 }
 
@@ -87,12 +98,13 @@ func WithMigrations(contributors ...gormmigration.Contributor) Option {
 
 // Runtime 封装 Backend 服务注册、本地客户端和运行时贡献。
 type Runtime struct {
-	modules         server.Modules
-	clientConn      *localgrpc.Conn
-	httpMiddlewares server.HTTPMiddlewares
-	grpcMiddlewares server.GRPCMiddlewares
-	cronServer      *job.CronServer
-	openAPIRegistry *coreOpenAPI.Registry
+	modules             server.Modules
+	clientConn          *localgrpc.Conn
+	httpMiddlewares     server.HTTPMiddlewares
+	grpcMiddlewares     server.GRPCMiddlewares
+	cronServer          *job.CronServer
+	openAPIRegistry     *coreOpenAPI.Registry
+	projectDocumentCase *adminbiz.ProjectDocumentCase
 }
 
 type standaloneRuntime struct {
@@ -105,13 +117,25 @@ var _ Module = (*Runtime)(nil)
 // NewModule 创建可挂载到其他启动器的 Backend 模块。
 func NewModule(ctx *bootstrap.Context, optionValues ...Option) (*Runtime, func(), error) {
 	opts := newOptions(optionValues)
-	return initModule(ctx, opts.additionalModules, opts.databaseOptions, opts.migrations)
+	return initModule(
+		ctx,
+		opts.additionalModules,
+		opts.configuredProjectDocuments,
+		opts.databaseOptions,
+		opts.migrations,
+	)
 }
 
 // NewApp 创建包含 Backend 模块和独立 HTTP、gRPC 服务的 Kratos 应用。
 func NewApp(ctx *bootstrap.Context, optionValues ...Option) (*kratos.App, func(), error) {
 	opts := newOptions(optionValues)
-	return initApp(ctx, opts.additionalModules, opts.databaseOptions, opts.migrations)
+	return initApp(
+		ctx,
+		opts.additionalModules,
+		opts.configuredProjectDocuments,
+		opts.databaseOptions,
+		opts.migrations,
+	)
 }
 
 // newOptions 合并默认迁移和调用方提供的装配选项。
@@ -124,6 +148,40 @@ func newOptions(optionValues []Option) options {
 		option(&opts)
 	}
 	return opts
+}
+
+// newAdditionalProjectDocuments 汇总宿主配置与外部模块贡献的项目文档。
+func newAdditionalProjectDocuments(
+	modules AdditionalModules,
+	configuredDocuments projectdoc.ConfiguredDocuments,
+) projectdoc.AdditionalDocuments {
+	documents := append(projectdoc.AdditionalDocuments(nil), configuredDocuments...)
+	for _, module := range modules {
+		contributor, ok := module.(projectdoc.Contributor)
+		if !ok {
+			continue
+		}
+		documents = append(documents, contributor.ProjectDocuments()...)
+	}
+	return documents
+}
+
+// newProjectDocumentCatalog 合并内置目录与宿主、外部模块贡献的项目文档。
+func newProjectDocumentCatalog(
+	appInfo *bootstrapConfigv1.AppInfo,
+	additionalDocuments projectdoc.AdditionalDocuments,
+) (*projectdoc.Catalog, error) {
+	embeddedCatalog, err := projectdoc.ParseCatalog(
+		internalprojectdocs.CatalogData,
+		appInfo.GetProject(),
+		appInfo.GetName(),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("加载内置项目文档目录: %w", err)
+	}
+	documents := embeddedCatalog.Documents()
+	documents = append(documents, additionalDocuments...)
+	return projectdoc.NewCatalog(documents...)
 }
 
 // newModules 汇总 Backend 内置服务与调用方扩展模块。
@@ -149,6 +207,7 @@ func newRuntime(
 	cronServer *job.CronServer,
 	openAPIRegistry *coreOpenAPI.Registry,
 	baseConfigCase *adminbiz.BaseConfigCase,
+	projectDocumentCase *adminbiz.ProjectDocumentCase,
 	_ server.MCPToolsReady,
 	_ server.AgentToolsReady,
 	_ server.OpenAPIReady,
@@ -161,12 +220,13 @@ func newRuntime(
 	clientConn := localgrpc.NewConn()
 	modules.RegisterGRPC(clientConn)
 	return &Runtime{
-		modules:         modules,
-		clientConn:      clientConn,
-		httpMiddlewares: httpMiddlewares,
-		grpcMiddlewares: grpcMiddlewares,
-		cronServer:      cronServer,
-		openAPIRegistry: openAPIRegistry,
+		modules:             modules,
+		clientConn:          clientConn,
+		httpMiddlewares:     httpMiddlewares,
+		grpcMiddlewares:     grpcMiddlewares,
+		cronServer:          cronServer,
+		openAPIRegistry:     openAPIRegistry,
+		projectDocumentCase: projectDocumentCase,
 	}, nil
 }
 
@@ -309,6 +369,11 @@ func (r *Runtime) OpenAPIDocuments() []coreOpenAPI.Document {
 	return r.openAPIRegistry.Documents()
 }
 
+// ProjectDocuments 返回 Backend、宿主配置及扩展模块贡献的项目文档。
+func (r *Runtime) ProjectDocuments() []projectdoc.Document {
+	return r.projectDocumentCase.ProjectDocuments()
+}
+
 // Tasks 返回扩展模块贡献的静态任务。
 func (r *Runtime) Tasks() []coreTask.Task {
 	return core.Modules(r.modules).Tasks()
@@ -360,6 +425,8 @@ var moduleProviderSet = wire.NewSet(
 	systemConfig.ProviderSet,
 	data.RepositoryProviderSet,
 	middleware.ProviderSet,
+	newAdditionalProjectDocuments,
+	newProjectDocumentCatalog,
 	adminservice.ProviderSet,
 	appservice.ProviderSet,
 	baseservice.ProviderSet,
@@ -386,6 +453,7 @@ var (
 	_ core.GRPCMiddlewareContributor = (*Runtime)(nil)
 	_ core.ServerContributor         = (*Runtime)(nil)
 	_ core.OpenAPIContributor        = (*Runtime)(nil)
+	_ projectdoc.Contributor         = (*Runtime)(nil)
 	_ core.TaskContributor           = (*Runtime)(nil)
 	_ core.QueueConsumerContributor  = (*Runtime)(nil)
 	_ core.SSEContributor            = (*Runtime)(nil)
