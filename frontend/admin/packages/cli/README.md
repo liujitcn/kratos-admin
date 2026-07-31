@@ -1,6 +1,6 @@
 # @liujitcn/kratos-admin-cli
 
-用于创建 kratos-admin 业务项目的仓库内私有命令行工具，不发布到 npm。生成结果是一个可独立安装、开发和构建的 pnpm workspace，其中宿主保持轻量，业务实现位于可独立发布的模块包。
+用于创建 kratos-admin 业务项目的公开命令行工具。生成结果是一个可独立安装、开发和构建的 pnpm workspace，其中宿主保持轻量，业务实现位于可独立发布的模块包。
 
 ## 目录与文件
 
@@ -31,7 +31,7 @@ packages/cli
 | `templates/business-workspace/apps/admin/`                       | 生成项目的薄宿主模板。                                       |
 | `templates/business-workspace/packages/modules/__MODULE_NAME__/` | 生成项目的可发布业务模块模板。                               |
 | `templates/business-workspace/scripts/build-package.mjs`         | 生成业务模块发布源码和声明文件。                             |
-| `package.json`                                                   | 声明 `kratos-admin` 可执行命令、私有属性、脚本和 Node 版本。 |
+| `package.json`                                                   | 声明 `kratos-admin` 可执行命令、脚本、Node 版本和发布配置。   |
 | `README.md`                                                      | CLI 使用方法、模板结构和维护说明。                           |
 | `tsconfig.json`                                                  | CLI 源码、测试的编译配置和 `dist` 输出规则。                 |
 
@@ -40,6 +40,11 @@ packages/cli
 ## 使用
 
 ```bash
+pnpm dlx @liujitcn/kratos-admin-cli create shop-admin --module shop
+pnpm dlx @liujitcn/kratos-admin-cli create shop-admin --module shop,order
+pnpm dlx @liujitcn/kratos-admin-cli create shop-admin --module shop --with audit
+
+# 当前仓库开发
 pnpm module:create ../shop-admin --module shop
 pnpm module:create ../shop-admin --module shop,order
 pnpm module:create ../shop-admin --module shop --module order
@@ -87,3 +92,7 @@ pnpm --filter @liujitcn/kratos-admin-cli test
 ```
 
 测试会生成临时 workspace，并检查根、宿主、模块和 RPC README 中的占位符均已替换。模板新增包或改变目录职责时，必须同步更新对应目录的 README 和 `src/index.test.ts` 断言。
+
+发布包包含编译后的 `dist/index.js`、类型声明、workspace 模板和本 README。仓库级
+`make -C frontend package-admin` 会先执行测试和构建，再生成
+`@liujitcn/kratos-admin-cli` tarball。

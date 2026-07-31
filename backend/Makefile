@@ -127,6 +127,8 @@ ts-app:
 	@test -n "$(TS_PROTO_BIN)" || (echo "protoc-gen-ts_proto not found. Run pnpm install in frontend/app, or install ts-proto globally." && exit 1)
 	@cd api && \
 		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.app.typescript.gen.yaml --exclude-path proto/system/admin
+	@cd api && \
+		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.app.core.typescript.gen.yaml --exclude-path proto/system/admin
 	@echo "==> app TypeScript RPC 代码生成完成"
 
 # 收集当前项目约定范围内的 README 与 docs Markdown

@@ -1,7 +1,7 @@
 {
   "name": "@liujitcn/kratos-admin-core",
   "private": false,
-  "version": "0.0.15",
+  "version": "0.0.1",
   "type": "module",
   "description": "kratos-admin frontend runtime and base modules",
   "author": {

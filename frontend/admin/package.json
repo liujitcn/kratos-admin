@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "turbo run dev --filter=@liujitcn/kratos-admin",
     "build": "turbo run build --filter=@liujitcn/kratos-admin",
-    "build:package": "turbo run build:package --filter=@liujitcn/kratos-admin-core --filter=@liujitcn/kratos-admin-system",
+    "build:package": "turbo run build:package --filter=@liujitcn/kratos-admin-core --filter=@liujitcn/kratos-admin-system --filter=@liujitcn/kratos-admin-cli",
     "check:exports": "node scripts/check-package-exports.mjs",
     "test": "pnpm --filter @liujitcn/kratos-admin-core test && pnpm --filter @liujitcn/kratos-admin-cli test",
     "type:check": "turbo run type:check",

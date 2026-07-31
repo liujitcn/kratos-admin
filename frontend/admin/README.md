@@ -18,7 +18,7 @@ frontend/admin
 │   └── src/views                     # 登录与静态错误页面
 ├── packages/modules/system           # @liujitcn/kratos-admin-system
 │   └── src/{api,rpc,views}           # API 与 RPC 按 Proto 领域层级维护
-├── packages/cli                      # 仓库内私有 workspace 生成工具
+├── packages/cli                      # @liujitcn/kratos-admin-cli
 │   └── templates/business-workspace  # 完整 pnpm workspace 模板
 ├── internal/vite-config              # 当前仓库宿主构建配置
 ├── internal/tsconfig                 # 共享 TypeScript 配置
@@ -39,7 +39,7 @@ frontend/admin
 | `apps/`                                | 可运行的管理端宿主集合；当前默认宿主是 `admin`。                  |
 | `packages/core/`                       | 可发布的管理端运行时、布局、组件和基础页面。                      |
 | `packages/modules/`                    | 可选业务模块集合，API 与页面在模块内一起维护。                    |
-| `packages/cli/`                        | 创建独立业务 workspace 的命令行工具和模板。                       |
+| `packages/cli/`                        | 可发布的独立业务 workspace 命令行工具和模板。                     |
 | `internal/`                            | 仅供当前源码仓库使用的 Vite、TypeScript 和 lint 配置包。          |
 | `scripts/build-package.mjs`            | 生成 npm 包源码副本和 TypeScript 声明，并转换 core 内部源码别名。 |
 | `package.json`                         | 声明 workspace 级命令、工具依赖、Node 与 pnpm 版本。              |
@@ -60,8 +60,9 @@ frontend/admin
 
 每个包含 `package.json` 的子目录都有同级 `README.md`，用于说明该包内部文件和目录职责。
 
-管理端只发布 `@liujitcn/kratos-admin-core` 和 `@liujitcn/kratos-admin-system`。默认宿主
-`@liujitcn/kratos-admin` 与 CLI 均为私有包，不进入 npm 打包和发布清单。
+管理端发布 `@liujitcn/kratos-admin-core`、`@liujitcn/kratos-admin-system` 和
+`@liujitcn/kratos-admin-cli`。默认宿主 `@liujitcn/kratos-admin` 为私有包，不进入
+npm 打包和发布清单。
 
 ## 开发与构建
 
@@ -142,9 +143,13 @@ export const orderAdminModule = defineAdminModule({
 
 ## 创建业务项目
 
-仓库内私有 CLI 生成的业务项目本身也是 pnpm workspace，包含独立宿主和可发布业务模块包：
+CLI 生成的业务项目本身也是 pnpm workspace，包含独立宿主和可发布业务模块包：
 
 ```bash
+pnpm dlx @liujitcn/kratos-admin-cli create shop-admin --module shop
+pnpm dlx @liujitcn/kratos-admin-cli create shop-admin --module shop,order
+
+# 当前仓库开发
 pnpm module:create ../shop-admin --module shop
 pnpm module:create ../shop-admin --module shop,order
 pnpm module:create ../shop-admin --module shop --module order

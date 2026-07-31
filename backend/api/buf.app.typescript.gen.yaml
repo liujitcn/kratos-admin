@@ -1,11 +1,7 @@
-# 配置 app 端 protoc 生成规则
+# 配置 app core 包的 TypeScript RPC 生成规则
 version: v2
 
 clean: true
-
-inputs:
-  - directory: proto
-  - module: buf.build/liujitcn/kratos-common:8228a068a8e044e1bf99c4dfc5b7a354
 
 managed:
   enabled: true
@@ -17,9 +13,30 @@ managed:
     - module: 'buf.build/gnostic/gnostic'
     - module: 'buf.build/gogo/protobuf'
 
+inputs:
+  - directory: .
+    paths:
+      - proto/base/v1/config.proto
+      - proto/base/v1/file.proto
+      - proto/base/v1/login.proto
+      - proto/base/v1/mcp.proto
+      - proto/base/v1/oauth.proto
+      - proto/base/v1/sse.proto
+      - proto/common/v1/common.proto
+      - proto/common/v1/enum.proto
+      - proto/common/v1/types.proto
+      - proto/system/app/v1
+      - proto/system/common/v1/enum.proto
+
 plugins:
   - local: protoc-gen-ts_proto
-    out: ../../frontend/app/src/rpc
+    out: ../../frontend/app/packages/core/src/rpc
+    include_imports: true
+    include_wkt: true
+    exclude_types:
+      - buf.validate
+      - gnostic.openapi.v3
+      - google.api
     opt:
       - outputSchema=false
       - outputTypeRegistry=false

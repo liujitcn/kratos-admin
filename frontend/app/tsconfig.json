@@ -3,18 +3,12 @@
   "compilerOptions": {
     "allowJs": true,
     "sourceMap": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-    "lib": ["esnext", "dom"],
-    "types": [
-      "@dcloudio/types",
-      "miniprogram-api-typings"
-    ]
+    "lib": ["ESNext", "DOM"],
+    "moduleResolution": "Bundler",
+    "skipLibCheck": true,
+    "types": ["@dcloudio/types", "miniprogram-api-typings"]
   },
   "vueCompilerOptions": {
     "strictTemplates": false
-  },
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]
+  }
 }

@@ -1,0 +1,16 @@
+{
+  "name": "@liujitcn/kratos-app-cli",
+  "description": "CLI for scaffolding modular Kratos app workspaces.",
+  "version": "0.0.1",
+  "type": "module",
+  "files": ["bin", "src", "README.md"],
+  "bin": { "kratos-app": "./bin/kratos-app.mjs" },
+  "exports": {
+    ".": "./src/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "pnpm pack --pack-destination ../../dist/npm"
+  },
+  "publishConfig": { "access": "public" }
+}

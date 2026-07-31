@@ -11,5 +11,6 @@ node_modules
 dist
 .DS_Store
 *.local
+.kratos-app-pages-state.json
 !bin/
 !bin/uni.mjs

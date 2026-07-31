@@ -10,7 +10,7 @@
 - AI 会话、流式消息、附件、工具调用、重试、再生成和分支会话。
 - 管理端代码生成配置、预览、生成进度和还原。
 - 构建期收集当前项目、宿主项目和外部模块的 README/docs，并在管理端统一查看。
-- 可挂载的 Go Core 模块、管理端业务模块和 uni-app 具名模块注册边界。
+- 可挂载的 Go Core 模块，以及管理端、应用端的独立 workspace、模块协议和脚手架。
 
 仓库不包含商城、订单、支付或推荐等业务模块。
 
@@ -19,15 +19,15 @@
 | 目录 | 说明 | 文档 |
 | --- | --- | --- |
 | `backend` | Kratos 服务、Proto、GORM、迁移和 Core 运行时。 | [backend/README.md](backend/README.md) |
-| `frontend/admin` | 管理端 workspace，包含 core、System、CLI 和默认宿主。 | [frontend/admin/README.md](frontend/admin/README.md) |
-| `frontend/app` | 可直接运行和复用的 uni-app 应用底座。 | [frontend/app/README.md](frontend/app/README.md) |
+| `frontend/admin` | 管理端 workspace，包含默认宿主、core、System 和 CLI。 | [frontend/admin/README.md](frontend/admin/README.md) |
+| `frontend/app` | uni-app workspace，包含默认宿主、core、system 和 CLI。 | [frontend/app/README.md](frontend/app/README.md) |
 | `docs` | 当前架构和专题说明。 | [docs/系统总体设计.md](docs/系统总体设计.md) |
 
 ## 环境
 
 - Go `1.26.3`。
 - Node.js `^20.19.0` 或 `>=22.12.0`。
-- pnpm `10.33.4`。
+- pnpm 版本以各 workspace 的 `packageManager` 为准：管理端 `10.33.4`，应用端 `10.13.1`。
 - MySQL 和 Redis；默认连接见 `backend/configs/data.yaml`。
 - Buf、protoc 插件、Wire 和 gorm-gen 只在重新生成代码时需要，可通过 `make -C backend init` 安装。
 
@@ -81,26 +81,31 @@ pnpm type:check
 pnpm lint:oxlint
 
 cd ../app
-pnpm test:vite
+pnpm test
+pnpm check:exports
 pnpm tsc
 pnpm lint
+pnpm build:packages
 ```
 
-`backend/api/gen`、`backend/internal/data/gen`、`backend/internal/projectdocs/assets/catalog.json`、`backend/internal/projectdocs/catalog_gen.go`、管理端和应用端 `rpc`、OpenAPI 及 `wire_gen.go` 都是生成产物，不得手工修改。
+`backend/api/gen`、`backend/internal/data/gen`、`backend/internal/projectdocs/assets/catalog.json`、`backend/internal/projectdocs/catalog_gen.go`、管理端和应用端各包的 `src/rpc`、OpenAPI 及 `wire_gen.go` 都是生成产物，不得手工修改。所有前端 RPC 的 Buf 配置统一位于 `backend/api`，分别通过 `make -C backend ts` 和 `make -C backend ts-app` 生成。
 
 ## 发布
 
-统一发布会更新并发布三个 npm 包：
+统一发布会更新并发布六个 npm 包：
 
 - `@liujitcn/kratos-admin-core`
 - `@liujitcn/kratos-admin-system`
-- `@liujitcn/kratos-app`
+- `@liujitcn/kratos-admin-cli`
+- `@liujitcn/kratos-app-core`
+- `@liujitcn/kratos-app-system`
+- `@liujitcn/kratos-app-cli`
 
 ```bash
 make tag VERSION=0.0.16
 ```
 
-脚本要求当前分支为远程默认分支且与 `origin` 同步，会纳入当前工作区改动，执行后端测试和前端打包，然后推送 `vX.Y.Z`、`backend/vX.Y.Z`、`npm/vX.Y.Z`。`npm/vX.Y.Z` 触发 `.github/workflows/publish-npm.yml`，通过 npm Trusted Publishing 发布以上三个包；管理端宿主和 CLI 均为私有包，不参与发布。本机需要可用的 `git`、`gh` 和 GitHub 登录态。
+脚本要求当前分支为远程默认分支且与 `origin` 同步，会纳入当前工作区改动，执行后端测试和前端打包，然后推送 `vX.Y.Z`、`backend/vX.Y.Z`、`npm/vX.Y.Z`。`npm/vX.Y.Z` 触发 `.github/workflows/publish-npm.yml`，通过 npm Trusted Publishing 发布以上六个包；管理端与应用端默认宿主均为私有包，不参与发布。本机需要可用的 `git`、`gh` 和 GitHub 登录态。
 
 只做本地 npm 发布时：
 

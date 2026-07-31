@@ -1,121 +1,188 @@
 # frontend/app
 
-`frontend/app` 是可直接运行的 uni-app 应用端，也是 npm 包 `@liujitcn/kratos-app` 的源码。当前只包含通用首页、账户与登录、协议、WebView、设置、个人资料和 AI 会话，不包含商城、商品、订单、支付或推荐业务。
+`frontend/app` 是独立的 pnpm workspace，提供可直接运行的 uni-app 宿主、可发布应用底座、system 业务模块和项目脚手架。技术栈为 `uni-app + Vue 3 + TypeScript + Vite + Pinia + Sass`，当前支持 H5 和微信小程序。
 
-技术栈为 `uni-app + Vue 3 + TypeScript + Vite + Pinia + Sass`，主要适配微信小程序和 H5。
+应用端只复用管理端的分层思想，不依赖 `frontend/admin` 的源码或 workspace。当前保留首页、登录、协议、WebView、个人中心、设置、个人资料和 AI 助手，不包含商城、订单、支付或推荐业务。
 
-## 目录
+## Workspace
 
 ```text
 frontend/app
-├── bin/uni.mjs            # npm 包提供的 Uni CLI 启动包装器
-├── public                 # H5 静态资源
-├── scripts                # Vite 解析验证脚本
-├── src
-│   ├── api/base           # 登录、配置、文件、OAuth 和 AI service
-│   ├── api/system         # system.app 认证、地区和字典 service
-│   ├── modules            # 具名模块注册表
-│   ├── pages              # 主包页面
-│   ├── pagesMember        # 设置、资料和 AI 分包
-│   ├── rpc                # Proto 生成的 TypeScript 类型
-│   ├── static             # 应用内静态资源
-│   ├── stores             # Pinia 状态
-│   ├── styles             # 全局样式
-│   ├── types              # 手写类型声明
-│   ├── utils              # 请求、鉴权、路由、密码和文件工具
-│   ├── manifest.json      # uni-app 应用配置
-│   └── pages.json         # 页面、分包和 tabBar
-├── package.json
-├── vite.cjs               # npm 的 `./vite` 公共入口
-├── vite.config.ts         # 当前应用的 Vite 配置
-└── vite.d.ts
+├── apps
+│   └── app                    # @liujitcn/kratos-app，默认宿主，不发布
+│       ├── src
+│       │   ├── pages/bootstrap
+│       │   ├── module-manifest.ts
+│       │   ├── manifest.json
+│       │   └── pages.json
+│       ├── README.md
+│       └── package.json
+├── packages
+│   ├── core                   # @liujitcn/kratos-app-core v0.0.1
+│   │   ├── src                # 底座运行时、页面、状态和构建插件
+│   │   ├── test
+│   │   ├── README.md
+│   │   └── package.json
+│   ├── modules
+│   │   └── system             # @liujitcn/kratos-app-system v0.0.1
+│   │       ├── src            # 个人中心、设置和 AI
+│   │       ├── README.md
+│   │       └── package.json
+│   └── cli                    # @liujitcn/kratos-app-cli v0.0.1
+│       ├── bin
+│       ├── src
+│       ├── test
+│       ├── README.md
+│       └── package.json
+├── scripts                    # 包导出边界检查
+├── README.md                  # workspace 总览和公共命令
+├── package.json               # workspace 脚本与公共开发依赖
+├── pnpm-workspace.yaml        # workspace 包范围
+└── turbo.json                 # 跨包任务依赖与缓存配置
 ```
 
-## 当前页面
+依赖方向固定为：
 
-| 页面 | 路由 |
-| --- | --- |
-| 首页 | `pages/index/index` |
-| 我的 | `pages/my/my` |
-| 登录 | `pages/login/login` |
-| 协议详情 | `pages/login/protocal` |
-| WebView | `pages/webview/webview` |
-| 设置 | `pagesMember/settings/settings` |
-| 个人资料 | `pagesMember/profile/profile` |
-| AI 助手 | `pagesMember/ai/index` |
+```text
+@liujitcn/kratos-app
+  -> @liujitcn/kratos-app-system
+  -> @liujitcn/kratos-app-core
+```
 
-主包只有 `src/pages`，当前唯一分包是 `src/pagesMember`。新增页面时以 `src/pages.json` 为准，不在文档中预留尚不存在的业务分包。
+- `core` 负责认证、请求、配置、Pinia、基础页面、状态页、动态导航和构建插件。
+- `system` 负责个人中心、资料、设置和 AI 页面，只通过 `core` 的公开 exports 复用底座能力。
+- `apps/app` 只维护宿主入口、manifest、模块清单、bootstrap 页面和 Vite 配置。
+- `cli` 创建同结构的独立 pnpm workspace。
+
+各包的目录边界、功能和公开入口见：
+
+- [宿主应用](apps/app/README.md)
+- [应用底座](packages/core/README.md)
+- [system 模块](packages/modules/system/README.md)
+- [项目脚手架](packages/cli/README.md)
+
+workspace 根目录不再保留旧单体应用的 `src`、`bin` 或空模板目录，业务源码只能位于对应的 app 或 package 内。
+
+## 页面装配
+
+宿主在 `apps/app/src/module-manifest.ts` 维护唯一模块清单，顺序决定静态视图覆盖优先级：
+
+```ts
+export const moduleManifest = [coreModule, systemModule]
+```
+
+每个模块使用 `defineKratosAppModule()` 声明：
+
+- `pages`：页面样式和可选物理路由覆盖。
+- `views`：稳定 `viewKey` 到物理页面的映射。
+- `icons`：动态导航可引用的模块内图标。
+
+构建插件自动扫描各模块的 `src/views/**/*.vue`，忽略任意层级的 `components` 目录。后注册模块可以用相同物理路由或 `viewKey` 替换前面模块的静态页面。
+
+宿主 `pages.json` 只提交固定 bootstrap 页面。开发或构建期间，插件会临时生成页面 wrapper、合并页面配置并复制 static；正常退出后自动恢复。若进程被强制结束，下次启动会先根据 `.kratos-app-pages-state.json` 恢复上一次事务。
+
+## 动态导航
+
+默认菜单接口与管理端 `base-menu` 服务保持一致：
+
+```text
+GET /api/v1/app/base/menu
+```
+
+请求 service path 为 `/v1/app/base/menu`，由统一 `/api` base 拼接。接口返回扁平菜单，core 不做树转换；也可以通过 `setAppNavigationAdapter()` 接入兼容契约。
+
+菜单配置约束：
+
+- `path` 使用 `app/` 前缀，支持 `:参数` 和 query。
+- `name` 使用 `App` 前缀。
+- `viewKey` 必须已由模块注册，接口不能直接下发任意组件路径。
+- `access` 支持 `PUBLIC`、`GUEST_ONLY`、`AUTHENTICATED`，与管理端登录权限语义一致。
+- `inTabBar` 为真时，tab 数量只能为 0 或 2–5 项。
+- 图标可以使用 HTTPS 地址或模块 `icons` 中注册的键。
+
+导航配置按匿名态和登录态分别缓存。新配置会整份校验后原子切换；远端失败时使用当前身份最后一次成功缓存，没有缓存时使用本地默认菜单。
+
+项目不配置原生 `tabBar`。页面 wrapper 统一挂载 `KratosTabBar`，tab 路由使用 `reLaunch`，普通页面优先使用 `navigateTo`。因此接口内容变化后可以调整菜单、tabBar、逻辑路径和 `viewKey`，无需把每个业务路由写死在宿主。
 
 ## 开发与构建
 
 ```bash
 cd frontend/app
 pnpm install
+
 pnpm dev:h5
-```
-
-H5 开发端口由 `.env.development-h5` 配置，当前为 `http://localhost:5002`；开发 API 默认代理到 `http://localhost:7001`。
-
-微信小程序开发：
-
-```bash
 pnpm dev:mp-weixin
 ```
 
-也可以从仓库根目录执行：
-
-```bash
-make -C frontend run-app
-```
-
-H5 生产构建：
+开发和构建命令由 `turbo.json` 保证先执行依赖包的 `build:entries`；独立测试和
+exports 检查则通过 `prepare:modules` 完成相同准备，因此不依赖仓库中的历史
+`dist`。H5 默认地址为 `http://localhost:5002`，开发 API 默认代理到
+`http://localhost:7001`。
+根命令由 Turbo 按 workspace 依赖图调度；启动或构建宿主前会先生成 core 和
+system 的运行入口，命令名称和产物目录保持不变。
 
 ```bash
 pnpm build:h5
+pnpm build:mp-weixin
 ```
 
-该命令把产物写入 `backend/data/app`。目录中存在 `index.html` 时，后端通过 `/app/` 挂载应用。
+- H5 产物写入 `backend/data/app`，后端通过 `/app/` 挂载。
+- 微信小程序产物写入 `apps/app/dist/build/mp-weixin`，使用微信开发者工具导入。
 
-其他 App、小程序和快应用平台的命令以 `package.json#scripts` 为准；是否可用取决于对应平台工具链和 uni-app 支持情况。
+## RPC 生成
 
-## 接口与状态
+app 与 admin 一样，由 backend API 契约目录统一维护 Buf 生成范围：
 
-- 页面通过 `src/api` 的 service 调用后端，不直接调用 `uni.request`。
-- `src/api/base` 使用 `base.v1` 契约；`src/api/system` 使用 `system.app.v1` 契约。
-- `src/utils/http.ts` 统一处理 API 地址、认证头、Token 刷新、上传拦截和错误提示。
-- Token 读写集中在 `src/utils/auth.ts`，登录跳转和原路返回集中在 `src/utils/navigation.ts`。
-- 全局状态位于 `src/stores/modules`，由 `src/stores/index.ts` 汇总。
-- `src/rpc` 由后端 `make ts-app` 生成，禁止手工修改或复制等价类型。
-
-## npm 包边界
-
-包根入口导出 `bootstrapKratosApp`、`defineKratosAppModule`、注册表函数和内置 `kratosAppModule`。当前 `KratosAppModule` 只有 `name` 字段，因此它只提供具名注册边界，不会自动注册页面、API、状态或组件。
-
-包当前公开以下源码子路径：
-
-- `@liujitcn/kratos-app/api/*`
-- `@liujitcn/kratos-app/rpc/*`
-- `@liujitcn/kratos-app/pages/*`
-- `@liujitcn/kratos-app/pagesMember/*`
-- `@liujitcn/kratos-app/utils/*`
-- `@liujitcn/kratos-app/stores/*`
-- `@liujitcn/kratos-app/static/*`
-
-`kratos-app-uni` 是包提供的 Uni CLI 包装器。`@liujitcn/kratos-app/vite` 当前只公开 Vite 配置类型、环境加载和 `createKratosUniPlugin()`；页面合并函数 `kratosApp()` 仍是本仓库 `src/vite.ts` 的内部构建能力，没有作为 npm 子路径导出。
-
-当前应用自己的 `vite.config.ts` 使用该内部插件：构建时合并公共与宿主 `pages.json`，同路径页面以宿主配置为准；缺失页面临时生成 wrapper，构建结束后恢复宿主文件。插件的 `modules` 参数目前只声明模块边界，不读取模块页面。
-
-## 多端约束
-
-平台差异使用 uni-app 的 `#ifdef`/`#ifndef` 条件编译。修改登录、路由、存储、上传或图片预览时，至少检查 `MP-WEIXIN`、`H5`、`APP-PLUS` 分支；当前页面优先保证微信小程序和 H5 可用。
-
-完整接口接入顺序见[服务接入指南](../../docs/服务接入指南.md)。
-
-## 验证
+- `backend/api/buf.app.typescript.gen.yaml` 生成 core RPC。
+- `backend/api/buf.app.core.typescript.gen.yaml` 生成 system RPC。
 
 ```bash
-cd frontend/app
-pnpm test:vite
+pnpm generate:rpc
+# 等价于
+make -C ../../backend ts-app
+```
+
+命令分别清理并生成 `packages/core/src/rpc` 和 `packages/modules/system/src/rpc`。frontend 不保存第二份 Buf 配置；RPC 文件是生成产物，不得手工修改。
+
+## CLI
+
+CLI 包提供 `kratos-app` 命令：
+
+```bash
+pnpm dlx @liujitcn/kratos-app-cli create my-app
+pnpm dlx @liujitcn/kratos-app-cli create my-app --module orders
+pnpm dlx @liujitcn/kratos-app-cli create my-app --with @acme/pay
+```
+
+- 默认包含 system 模块。
+- `--module` 创建 workspace 内本地模块。
+- `--with` 添加已发布模块依赖。
+- 目标目录已存在时拒绝覆盖。
+- workspace 根目录、`apps/app` 和每个本地模块都会生成 `README.md`，保证每个
+  `package.json` 都有同级的目录结构与功能说明。
+
+生成的宿主包含 Vue 3 `createSSRApp` 入口、模块清单、bootstrap 页面、manifest、Vite 配置、TypeScript 配置和 H5 HTML。
+
+## 包与验证
+
+公开包均保持 `0.0.1`：
+
+- `@liujitcn/kratos-app-core`
+- `@liujitcn/kratos-app-system`
+- `@liujitcn/kratos-app-cli`
+
+```bash
 pnpm lint
 pnpm tsc
+pnpm test
+pnpm check:exports
+pnpm build:packages
 ```
+
+`check:exports` 会检查 export target、跨包源码导入和相对路径越界。`build:packages` 在 `dist/npm` 生成三个 tarball，发布入口位于各包的 `dist`，TypeScript 源码和类型通过 exports 白名单公开。
+
+仓库级 `make -C frontend package-app` 会依次执行 lint、类型检查、测试、exports
+检查和三个包的构建；`make -C frontend publish-app` 发布 core、system 和 CLI，默认
+宿主 `@liujitcn/kratos-app` 保持私有。
+
+完整接口接入顺序见[服务接入指南](../../docs/服务接入指南.md)。

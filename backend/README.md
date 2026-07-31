@@ -8,7 +8,9 @@
 backend
 ├── api
 │   ├── proto                         # Backend 自有 Proto
-│   └── gen/go                        # 生成的 Go 协议代码
+│   ├── gen/go                        # 生成的 Go 协议代码
+│   ├── buf.admin*.typescript.gen.yaml
+│   └── buf.app*.typescript.gen.yaml  # admin/app 各包的 RPC 生成规则
 ├── configs                           # 运行配置
 ├── core                              # 无业务 Proto 的 Kratos 宿主运行时
 ├── internal
@@ -113,13 +115,13 @@ migration/assets/
 | `make api` | `api/gen/go` 中的 Go、HTTP、gRPC、错误、Agent Tool 和 MCP Tool 代码。 |
 | `make openapi` | `internal/cmd/server/assets/openapi.yaml`。 |
 | `make ts` | 管理端 core 与 System 包的 TypeScript RPC。 |
-| `make ts-app` | `frontend/app/src/rpc`。 |
+| `make ts-app` | app core 与 system 包的 TypeScript RPC。 |
 | `make project-docs` | `internal/projectdocs/assets/catalog.json` 和 `internal/projectdocs/catalog_gen.go`，收集三层范围内的 `README.md` 和 `docs` Markdown。 |
 | `make gorm-gen` | `internal/data/gen`。可用 `GORM_GEN_SOURCE`、`GORM_TABLE` 覆盖数据源和表。 |
 | `make wire` | `wire_gen.go`。 |
 | `make gen` | 依次执行以上生成和 Go 格式化。 |
 
-生成产物不得手工修改。Proto 改动后至少重新执行 `make api openapi`，再按消费端执行 `make ts` 或 `make ts-app`。
+所有前端 RPC 的 Buf 模板都归属 `api` 契约目录。`make ts` 分别生成到 `frontend/admin/packages/core/src/rpc` 和 `frontend/admin/packages/modules/system/src/rpc`；`make ts-app` 分别生成到 `frontend/app/packages/core/src/rpc` 和 `frontend/app/packages/modules/system/src/rpc`。生成产物不得手工修改。Proto 改动后至少重新执行 `make api openapi`，再按消费端执行 `make ts` 或 `make ts-app`。
 
 ## 项目文档
 

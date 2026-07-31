@@ -1,58 +1,38 @@
 {
-  "name": "@liujitcn/kratos-app",
-  "version": "0.0.15",
-  "private": false,
-  "description": "kratos-admin uni-app host and shared app runtime",
-  "homepage": "https://github.com/liujitcn/kratos-admin",
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:liujitcn/kratos-admin.git"
-  },
-  "bugs": {
-    "url": "https://github.com/liujitcn/kratos-admin/issues"
-  },
+  "name": "kratos-app-workspace",
+  "description": "Independent pnpm workspace for the Kratos cross-platform app.",
+  "private": true,
+  "packageManager": "pnpm@10.13.1",
   "scripts": {
-    "dev:app": "uni -p app",
-    "dev:app-android": "uni -p app-android",
-    "dev:app-ios": "uni -p app-ios",
-    "dev:custom": "uni -p",
-    "dev:h5": "uni --mode development-h5",
-    "dev:h5:ssr": "uni --ssr",
-    "dev:mp-alipay": "uni -p mp-alipay",
-    "dev:mp-baidu": "uni -p mp-baidu",
-    "dev:mp-kuaishou": "uni -p mp-kuaishou",
-    "dev:mp-lark": "uni -p mp-lark",
-    "dev:mp-qq": "uni -p mp-qq",
-    "dev:mp-toutiao": "uni -p mp-toutiao",
-    "dev:mp-weixin": "uni -p mp-weixin --mode development",
-    "dev:quickapp-webview": "uni -p quickapp-webview",
-    "dev:quickapp-webview-huawei": "uni -p quickapp-webview-huawei",
-    "dev:quickapp-webview-union": "uni -p quickapp-webview-union",
-    "build:app": "uni build -p app",
-    "build:app-android": "uni build -p app-android",
-    "build:app-ios": "uni build -p app-ios",
-    "build:custom": "uni build -p",
-    "build:h5": "UNI_OUTPUT_DIR=../../backend/data/app uni build --mode production-h5",
-    "build:h5:ssr": "uni build --ssr",
-    "build:mp-alipay": "uni build -p mp-alipay",
-    "build:mp-baidu": "uni build -p mp-baidu",
-    "build:mp-kuaishou": "uni build -p mp-kuaishou",
-    "build:mp-lark": "uni build -p mp-lark",
-    "build:mp-qq": "uni build -p mp-qq",
-    "build:mp-toutiao": "uni build -p mp-toutiao",
-    "build:mp-weixin": "uni build -p mp-weixin --mode production",
-    "build:quickapp-webview": "uni build -p quickapp-webview",
-    "build:quickapp-webview-huawei": "uni build -p quickapp-webview-huawei",
-    "build:quickapp-webview-union": "uni build -p quickapp-webview-union",
-    "test:vite": "node scripts/vite-resolver.test.mjs",
-    "tsc": "vue-tsc --noEmit --skipLibCheck",
+    "prepare:modules": "turbo run build:entries --filter=@liujitcn/kratos-app-system",
+    "dev:h5": "turbo run dev:h5 --filter=@liujitcn/kratos-app",
+    "dev:mp-weixin": "turbo run dev:mp-weixin --filter=@liujitcn/kratos-app",
+    "build:h5": "turbo run build:h5 --filter=@liujitcn/kratos-app",
+    "build:mp-weixin": "turbo run build:mp-weixin --filter=@liujitcn/kratos-app",
+    "build:packages": "turbo run build --concurrency=1 --filter=@liujitcn/kratos-app-core --filter=@liujitcn/kratos-app-system --filter=@liujitcn/kratos-app-cli",
+    "generate:rpc": "make -C ../../backend ts-app",
+    "check:exports": "pnpm run prepare:modules && node scripts/check-package-exports.mjs",
+    "test": "pnpm run prepare:modules && node --test packages/core/test/*.test.mjs packages/cli/test/*.test.mjs",
     "lint": "eslint . --fix",
-    "lint-staged": "lint-staged"
+    "tsc": "turbo run tsc --filter=@liujitcn/kratos-app"
   },
-  "lint-staged": {
-    "*.{js,ts,vue}": [
-      "eslint --fix"
-    ]
+  "devDependencies": {
+    "@dcloudio/types": "^3.4.8",
+    "@rushstack/eslint-patch": "^1.1.4",
+    "@uni-helper/uni-app-types": "1.0.0-alpha.6",
+    "@uni-helper/uni-ui-types": "1.0.0-alpha.6",
+    "@vue/compiler-sfc": "3.4.21",
+    "@vue/eslint-config-prettier": "10.2.0",
+    "@vue/eslint-config-typescript": "14.7.0",
+    "@vue/tsconfig": "^0.7.0",
+    "eslint": "9.39.1",
+    "eslint-plugin-vue": "10.8.0",
+    "miniprogram-api-typings": "^4.0.5",
+    "prettier": "3.6.2",
+    "ts-proto": "^2.7.7",
+    "turbo": "^2.10.7",
+    "typescript": "5.4.5",
+    "vue-tsc": "^1.8.8"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -62,88 +42,5 @@
       "core-js-pure",
       "vue-demi"
     ]
-  },
-  "exports": {
-    ".": "./src/index.ts",
-    "./api/*": "./src/api/*.ts",
-    "./rpc/*": "./src/rpc/*",
-    "./pages/*": "./src/pages/*",
-    "./pagesMember/*": "./src/pagesMember/*",
-    "./utils/*": "./src/utils/*",
-    "./stores/*": "./src/stores/*",
-    "./static/*": "./src/static/*",
-    "./vite": {
-      "types": "./vite.d.ts",
-      "require": "./vite.cjs",
-      "default": "./vite.cjs"
-    },
-    "./tsconfig.json": "./tsconfig.json",
-    "./package.json": "./package.json"
-  },
-  "bin": {
-    "kratos-app-uni": "./bin/uni.mjs"
-  },
-  "files": [
-    "bin",
-    "src",
-    "types",
-    "vite.cjs",
-    "vite.d.ts",
-    "vite.config.ts",
-    "tsconfig.json",
-    "pnpm-workspace.yaml"
-  ],
-  "publishConfig": {
-    "access": "public"
-  },
-  "dependencies": {
-    "@dcloudio/uni-app": "3.0.0-5010520260709002",
-    "@dcloudio/uni-app-harmony": "3.0.0-5010520260709002",
-    "@dcloudio/uni-app-plus": "3.0.0-5010520260709002",
-    "@dcloudio/uni-components": "3.0.0-5010520260709002",
-    "@dcloudio/uni-h5": "3.0.0-5010520260709002",
-    "@dcloudio/uni-mp-alipay": "3.0.0-5010520260709002",
-    "@dcloudio/uni-mp-baidu": "3.0.0-5010520260709002",
-    "@dcloudio/uni-mp-harmony": "3.0.0-5010520260709002",
-    "@dcloudio/uni-mp-jd": "3.0.0-5010520260709002",
-    "@dcloudio/uni-mp-kuaishou": "3.0.0-5010520260709002",
-    "@dcloudio/uni-mp-lark": "3.0.0-5010520260709002",
-    "@dcloudio/uni-mp-qq": "3.0.0-5010520260709002",
-    "@dcloudio/uni-mp-toutiao": "3.0.0-5010520260709002",
-    "@dcloudio/uni-mp-weixin": "3.0.0-5010520260709002",
-    "@dcloudio/uni-mp-xhs": "3.0.0-5010520260709002",
-    "@dcloudio/uni-quickapp-webview": "3.0.0-5010520260709002",
-    "@dcloudio/uni-ui": "^1.4.28",
-    "@dcloudio/vite-plugin-uni": "3.0.0-5010520260709002",
-    "@types/node": "^18.11.9",
-    "@uni-helper/uni-app-types": "1.0.0-alpha.6",
-    "@uni-helper/uni-ui-types": "1.0.0-alpha.6",
-    "@vue/tsconfig": "^0.7.0",
-    "asmcrypto.js": "^2.3.2",
-    "go-captcha-uni": "1.0.6",
-    "miniprogram-api-typings": "^4.0.5",
-    "pinia": "^2.0.27",
-    "pinia-plugin-persistedstate": "^3.2.0",
-    "sass": "1.77.8",
-    "vite": "5.2.8",
-    "vue": "^3.4.21",
-    "vue-i18n": "^9.1.9"
-  },
-  "devDependencies": {
-    "@dcloudio/types": "^3.4.8",
-    "@dcloudio/uni-automator": "3.0.0-5010520260709002",
-    "@dcloudio/uni-cli-shared": "3.0.0-5010520260709002",
-    "@dcloudio/uni-stacktracey": "3.0.0-5010520260709002",
-    "@rushstack/eslint-patch": "^1.1.4",
-    "@vue/eslint-config-prettier": "10.2.0",
-    "@vue/eslint-config-typescript": "14.7.0",
-    "@vue/runtime-core": "^3.4.21",
-    "eslint": "9.39.1",
-    "eslint-plugin-vue": "10.8.0",
-    "lint-staged": "^13.0.3",
-    "prettier": "3.6.2",
-    "rollup": "4.14.3",
-    "typescript": "5.4.5",
-    "vue-tsc": "^1.8.8"
   }
 }
