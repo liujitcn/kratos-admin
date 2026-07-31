@@ -15,6 +15,12 @@ function buildRouteUrl(path: string, query: Record<string, RouteQueryValue> = {}
   return queryString ? `${path}?${queryString}` : path
 }
 
+/** 规范化应用内部路由，避免多余的前导斜杠导致 Taro 跳转失败。 */
+function normalizeRouteUrl(url: string): string {
+  return `/${url.replace(/^\/+/, '')}`
+}
+
+/** 获取当前页面及其跨端查询参数。 */
 function getCurrentRouteUrl(): string {
   const pages = getCurrentPages()
   const currentPage = pages[pages.length - 1] as
@@ -26,24 +32,21 @@ function getCurrentRouteUrl(): string {
     | undefined
   if (!currentPage?.route) return ''
   return buildRouteUrl(
-    `/${currentPage.route}`,
-    currentPage.options ?? currentPage.$taroParams ?? {},
+    normalizeRouteUrl(currentPage.route),
+    { ...currentPage.$taroParams, ...currentPage.options },
   )
 }
 
 /** 保存当前页面路由，登录成功后恢复到用户原来的页面。 */
 export function saveCurrentRoute(): void {
   const currentRoute = getCurrentRouteUrl()
-  if (!currentRoute || currentRoute.startsWith(LOGIN_PAGE)) {
-    Taro.removeStorageSync(LAST_ROUTE_KEY)
-    return
-  }
+  if (!currentRoute || currentRoute.startsWith(LOGIN_PAGE)) return
   Taro.setStorageSync(LAST_ROUTE_KEY, currentRoute)
 }
 
 /** 保存指定页面路由，供登录成功后继续原访问目标。 */
 export function saveLoginRedirectUrl(url: string): void {
-  const normalizedUrl = url.startsWith('/') ? url : `/${url}`
+  const normalizedUrl = normalizeRouteUrl(url)
   if (!normalizedUrl.startsWith(LOGIN_PAGE)) Taro.setStorageSync(LAST_ROUTE_KEY, normalizedUrl)
 }
 
@@ -52,6 +55,17 @@ export function consumeLoginRedirectUrl(): string {
   const url = Taro.getStorageSync<string>(LAST_ROUTE_KEY) || ''
   Taro.removeStorageSync(LAST_ROUTE_KEY)
   return url
+}
+
+/** 登录成功后恢复访问目标，并仅在跳转成功后清理保存的地址。 */
+export async function restoreLoginRedirect(): Promise<void> {
+  const savedRoute = Taro.getStorageSync<string>(LAST_ROUTE_KEY) || ''
+  const targetRoute = savedRoute ? normalizeRouteUrl(savedRoute) : homeTabPage
+  if (targetRoute.startsWith(homeTabPage)) Taro.setStorageSync('SwitchTabIndex', true)
+  await Taro.reLaunch({ url: targetRoute })
+  if (savedRoute && Taro.getStorageSync<string>(LAST_ROUTE_KEY) === savedRoute) {
+    Taro.removeStorageSync(LAST_ROUTE_KEY)
+  }
 }
 
 /** 跳转到登录页，并在跳转前记录当前页面。 */

@@ -1,15 +1,13 @@
 import { Image, ScrollView, Text, View } from '@tarojs/components'
+import centerBackground from '@liujitcn/kratos-taro-app-core/static/images/center_bg.png'
+import defaultAvatar from '@liujitcn/kratos-taro-app-core/static/images/avatar.png'
 import {
   formatSrc,
   navigateAppRoute,
   navigateToLogin,
-  resolveBundledAsset,
   useUserStore,
 } from '@liujitcn/kratos-taro-app-core'
 import './my.scss'
-
-const defaultAvatar = resolveBundledAsset('static/images/avatar.png')
-const centerBackground = resolveBundledAsset('static/images/center_bg.png')
 
 /** 个人中心首页。 */
 export default function MyPage() {

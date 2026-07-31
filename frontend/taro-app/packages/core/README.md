@@ -8,13 +8,14 @@
 - 统一 HTTP、上传、下载、文件预览与 RSA/AES 密码加密。
 - Zustand 用户、配置和导航状态。
 - 接口驱动的逻辑路由、访问模式、自绘 tabBar 和稳定 `viewKey`。
-- 打包静态资源公共路径解析，以及 H5 默认导航栏兼容框架。
+- 页面静态资源 export、动态资源公共路径解析，以及 H5 默认导航栏兼容框架。
 - 首页、登录、协议、WebView、启动/错误状态页面。
 - H5 与微信小程序共用的模块页面装配 runner。
 
 ## 公开入口
 
-- `@liujitcn/kratos-taro-app-core`：启动、模块、导航、状态和常用工具，包含 `resolveBundledAsset()`。
+- `@liujitcn/kratos-taro-app-core`：启动、模块、导航、状态和常用工具，包含动态路径使用的 `resolveBundledAsset()`。
+- `@liujitcn/kratos-taro-app-core/static/*`：页面图片等可由 Webpack 静态分析的打包资源。
 - `@liujitcn/kratos-taro-app-core/build`：构建期模块描述。
 - `@liujitcn/kratos-taro-app-core/runner`：Taro 构建装配入口。
 - `api/*`、`components/*`、`rpc/*`、`styles/*`、`utils/*`、`views/*`：白名单子路径。

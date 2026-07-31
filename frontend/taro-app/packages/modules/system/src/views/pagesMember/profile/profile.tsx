@@ -10,6 +10,8 @@ import {
 } from '@tarojs/components'
 import Taro, { useLoad } from '@tarojs/taro'
 import { useState } from 'react'
+import defaultAvatar from '@liujitcn/kratos-taro-app-core/static/images/avatar.png'
+import navigatorBackground from '@liujitcn/kratos-taro-app-core/static/images/navigator_bg.png'
 import { defAuthService } from '@liujitcn/kratos-taro-app-core/api/system/auth'
 import { defBaseDictService } from '@liujitcn/kratos-taro-app-core/api/system/base_dict'
 import type { BaseDictForm_DictItem } from '@liujitcn/kratos-taro-app-core/rpc/system/app/v1/base_dict'
@@ -17,15 +19,12 @@ import type { UserProfileForm } from '@liujitcn/kratos-taro-app-core/rpc/system/
 import {
   formatSrc,
   navigateToLogin,
-  resolveBundledAsset,
   uploadFile,
   useUserStore,
 } from '@liujitcn/kratos-taro-app-core'
 import './profile.scss'
 
 const IMG_MAX_SIZE = 1024 * 1024
-const defaultAvatar = resolveBundledAsset('static/images/avatar.png')
-const navigatorBackground = resolveBundledAsset('static/images/navigator_bg.png')
 
 /** 用户个人资料编辑页。 */
 export default function ProfilePage() {

@@ -1,10 +1,8 @@
 import { Image, Text, View } from '@tarojs/components'
 import { useLoad } from '@tarojs/taro'
-import { resolveBundledAsset } from '../../../module'
+import defaultLogo from '@liujitcn/kratos-taro-app-core/static/images/logo_icon.png'
 import { useSettingStore } from '../../../stores'
 import './index.scss'
-
-const defaultLogo = resolveBundledAsset('static/images/logo_icon.png')
 
 /** 应用首页。 */
 export default function HomePage() {

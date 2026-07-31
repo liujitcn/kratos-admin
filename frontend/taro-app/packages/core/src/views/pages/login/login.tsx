@@ -1,12 +1,12 @@
 import { Button, Image, Input, Text, View } from '@tarojs/components'
 import Taro, { useLoad } from '@tarojs/taro'
 import { useMemo, useRef, useState } from 'react'
+import defaultLogo from '@liujitcn/kratos-taro-app-core/static/images/logo_icon.png'
 import { defLoginService } from '../../../api/base/login'
-import { resolveBundledAsset } from '../../../module'
 import { navigateAppRoute } from '../../../navigation'
 import type { LoginRequest } from '../../../rpc/base/v1/login'
 import { useSettingStore, useUserStore } from '../../../stores'
-import { consumeLoginRedirectUrl, homeTabPage } from '../../../utils/navigation'
+import { restoreLoginRedirect } from '../../../utils/navigation'
 import { encryptPassword, PASSWORD_CRYPTO_SCENE } from '../../../utils/passwordCrypto'
 import BehaviorCaptcha from './components/BehaviorCaptcha'
 import type {
@@ -17,7 +17,6 @@ import './login.scss'
 
 const behaviorCaptchaTypes = new Set(['slide', 'click', 'rotate'])
 const wechatMiniProvider = 'wechatmini'
-const defaultLogo = resolveBundledAsset('static/images/logo_icon.png')
 
 type BehaviorPayload = BehaviorCaptchaData & {
   type?: string
@@ -246,14 +245,12 @@ export default function LoginPage() {
     return result.confirm
   }
 
+  /** 完成用户资料加载并恢复登录前页面。 */
   const loginSuccess = async () => {
     await userStore.getUserProfile()
     await Taro.showToast({ icon: 'success', title: '登录成功' })
-    setTimeout(() => {
-      const lastRoute = consumeLoginRedirectUrl() || homeTabPage
-      if (lastRoute.startsWith(homeTabPage)) Taro.setStorageSync('SwitchTabIndex', true)
-      void Taro.reLaunch({ url: lastRoute })
-    }, 500)
+    await new Promise<void>((resolve) => setTimeout(resolve, 500))
+    await restoreLoginRedirect()
   }
 
   const validateLoginForm = async () => {

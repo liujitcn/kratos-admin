@@ -71,7 +71,7 @@ export default function AiPage() {
   let safeAreaTop = windowInfo.safeArea?.top || windowInfo.statusBarHeight || windowInfo.safeAreaInsets?.top || 0
   if (process.env.TARO_ENV === 'weapp') safeAreaTop ||= 44
   const safeAreaBottom = Math.max(windowInfo.safeAreaInsets?.bottom || 0, 9)
-  const composerBottom = `${safeAreaBottom}px`
+  const composerBottom = `${safeAreaBottom + 48}px`
   const drawerTopPadding = `${safeAreaTop + 12}px`
 
   const [showSessionDrawer, setShowSessionDrawer] = useState(false)

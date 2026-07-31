@@ -65,7 +65,7 @@ pnpm build:mp-weixin
 
 设计稿宽度为 750。迁移自 uni-app 的 `rpx` 直接写作 Taro 设计稿 `px`；必须保持物理像素的原 `px` 使用 Taro 不转换写法。
 
-模块内需要固定路径的打包资源统一放在 `src/static`，运行时通过 core 导出的 `resolveBundledAsset('static/...')` 解析公共路径，避免同一图片被复制和源码 import 重复发射。
+模块内需要固定路径的打包资源统一放在 `src/static`。页面直接展示的图片通过所属包的 `static/*` export 静态导入，例如 `@liujitcn/kratos-taro-app-core/static/images/avatar.png`，确保 Webpack 在 H5 与微信页面 chunk 中生成正确引用；`resolveBundledAsset('static/...')` 只用于动态菜单图标等无法静态导入的运行时路径。
 
 ## RPC 生成
 
