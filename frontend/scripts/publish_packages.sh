@@ -21,9 +21,9 @@ if [[ "$#" -eq 0 ]]; then
     admin/packages/core \
     admin/packages/modules/system \
     admin/packages/cli \
-    app/packages/core \
-    app/packages/modules/system \
-    app/packages/cli
+    uni-app/packages/core \
+    uni-app/packages/modules/system \
+    uni-app/packages/cli
 fi
 
 for package_dir in "$@"; do

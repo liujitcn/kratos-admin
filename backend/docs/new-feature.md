@@ -40,7 +40,7 @@ make api openapi ts ts-app gorm-gen wire fmt
 ```bash
 cd backend && go test ./...
 cd frontend/admin && pnpm lint:oxlint && pnpm type:check
-cd frontend/app && pnpm lint && pnpm tsc
+cd frontend/uni-app && pnpm lint && pnpm tsc
 ```
 
 只修改单个前端时执行对应前端检查；接口、生成器、模块契约或公共运行时变化时需要扩大验证范围。

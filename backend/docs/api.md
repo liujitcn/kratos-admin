@@ -6,7 +6,7 @@
 
 | 目录 | package | 用途 |
 | --- | --- | --- |
-| `api/proto/base/v1` | `base.v1` | admin 与 app 共用能力。 |
+| `api/proto/base/v1` | `base.v1` | 管理端与应用端共用能力。 |
 | `api/proto/system/admin/v1` | `system.admin.v1` | 管理后台。 |
 | `api/proto/system/app/v1` | `system.app.v1` | 应用端。 |
 | `api/proto/system/common/v1` | `system.common.v1` | System 两端共享类型。 |

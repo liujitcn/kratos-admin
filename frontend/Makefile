@@ -7,19 +7,19 @@ NPM_SKIP_GIT_CHECKS ?= true
 
 NPM_PUBLISH_ENV := NPM_REGISTRY="$(NPM_REGISTRY)" NPM_ACCESS="$(NPM_ACCESS)" NPM_TAG="$(NPM_TAG)" NPM_SKIP_GIT_CHECKS="$(NPM_SKIP_GIT_CHECKS)"
 
-.PHONY: help init pnpm-admin pnpm-app run run-admin run-app build build-admin build-app build-package package package-admin package-app publish publish-only publish-admin publish-app
+.PHONY: help init pnpm-admin pnpm-uni-app run run-admin run-uni-app build build-admin build-uni-app build-package package package-admin package-uni-app publish publish-only publish-admin publish-uni-app
 
-# 安装管理后台依赖
-init: pnpm-admin pnpm-app
+# 安装全部前端依赖
+init: pnpm-admin pnpm-uni-app
 
 # 安装管理后台依赖
 pnpm-admin:
 	@cd admin && \
 		CI=1 pnpm install
 
-# 安装 app 端依赖
-pnpm-app:
-	@cd app && \
+# 安装 uni-app 应用端依赖
+pnpm-uni-app:
+	@cd uni-app && \
 		CI=1 pnpm install
 
 # 启动管理后台开发环境
@@ -30,9 +30,9 @@ run-admin:
 	@cd admin && \
 		CI=1 pnpm run dev
 
-# 启动 app 端微信小程序开发环境
-run-app:
-	@cd app && \
+# 启动 uni-app 应用端微信小程序开发环境
+run-uni-app:
+	@cd uni-app && \
 		CI=1 pnpm run dev:mp-weixin
 
 # 构建管理后台产物
@@ -59,9 +59,9 @@ package-admin:
 		(cd "$$package_dir" && CI=1 pnpm pack --pack-destination "$(NPM_PACK_DEST)") || exit 1; \
 	done
 
-# 检查并生成应用端 npm 包
-package-app:
-	@cd app && \
+# 检查并生成 uni-app 应用端 npm 包
+package-uni-app:
+	@cd uni-app && \
 		CI=1 pnpm run lint && \
 		CI=1 pnpm run tsc && \
 		CI=1 pnpm run test && \
@@ -69,27 +69,27 @@ package-app:
 		CI=1 pnpm run build:packages
 
 # 检查并生成全部 npm 包
-package: package-admin package-app
+package: package-admin package-uni-app
 
 # 发布管理后台 npm 包
 publish-admin: package-admin
 	@$(NPM_PUBLISH_ENV) bash scripts/publish_packages.sh admin/packages/core admin/packages/modules/system admin/packages/cli
 
-# 发布应用端 npm 包
-publish-app: package-app
-	@$(NPM_PUBLISH_ENV) bash scripts/publish_packages.sh app/packages/core app/packages/modules/system app/packages/cli
+# 发布 uni-app 应用端 npm 包
+publish-uni-app: package-uni-app
+	@$(NPM_PUBLISH_ENV) bash scripts/publish_packages.sh uni-app/packages/core uni-app/packages/modules/system uni-app/packages/cli
 
 # 发布已检查并打包的全部 npm 包
 publish-only:
-	@$(NPM_PUBLISH_ENV) bash scripts/publish_packages.sh admin/packages/core admin/packages/modules/system admin/packages/cli app/packages/core app/packages/modules/system app/packages/cli
+	@$(NPM_PUBLISH_ENV) bash scripts/publish_packages.sh admin/packages/core admin/packages/modules/system admin/packages/cli uni-app/packages/core uni-app/packages/modules/system uni-app/packages/cli
 
 # 检查、打包并按顺序发布全部 npm 包
 publish: package
 	@$(MAKE) publish-only
 
-# 构建 app 端 H5 静态资源
-build-app:
-	@cd app && \
+# 构建 uni-app 应用端 H5 静态资源
+build-uni-app:
+	@cd uni-app && \
 		CI=1 pnpm run build:h5
 
 # 显示帮助

@@ -1,4 +1,4 @@
-# 配置 app core 包的 TypeScript RPC 生成规则
+# 配置 uni-app core 包的 TypeScript RPC 生成规则
 version: v2
 
 clean: true
@@ -30,7 +30,7 @@ inputs:
 
 plugins:
   - local: protoc-gen-ts_proto
-    out: ../../frontend/app/packages/core/src/rpc
+    out: ../../frontend/uni-app/packages/core/src/rpc
     include_imports: true
     include_wkt: true
     exclude_types:

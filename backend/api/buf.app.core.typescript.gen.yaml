@@ -1,4 +1,4 @@
-# 配置 app system 模块的 TypeScript RPC 生成规则
+# 配置 uni-app system 模块的 TypeScript RPC 生成规则
 version: v2
 
 clean: true
@@ -23,7 +23,7 @@ inputs:
 
 plugins:
   - local: protoc-gen-ts_proto
-    out: ../../frontend/app/packages/modules/system/src/rpc
+    out: ../../frontend/uni-app/packages/modules/system/src/rpc
     include_imports: true
     include_wkt: true
     exclude_types:

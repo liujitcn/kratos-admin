@@ -1,6 +1,6 @@
 # AI 助手
 
-AI 助手是 admin 与 app 共用的会话能力。两端使用同一组 `base.v1` 接口和数据表，但按终端筛选可用工具和快捷入口。
+AI 助手是管理端与应用端共用的会话能力。两端使用同一组 `base.v1` 接口和数据表，但按终端筛选可用工具和快捷入口。
 
 ## 已实现能力
 
@@ -57,7 +57,7 @@ System 模块还把 AI 图标注册为顶部工具。结构化流程块组件不
 
 ## 应用端
 
-应用端位于 `frontend/app/src/pagesMember/ai`，提供会话抽屉、欢迎快捷入口、输入与附件、消息流和多端 SSE 解析。页面属于 `pagesMember` 分包，使用同一 `base.v1` RPC 和 API 封装。
+应用端位于 `frontend/uni-app/packages/modules/system/src/views/pagesMember/ai`，提供会话抽屉、欢迎快捷入口、输入与附件、消息流和多端 SSE 解析。页面属于 `pagesMember` 分包，使用同一 `base.v1` RPC 和 API 封装。
 
 ## 配置与验证
 

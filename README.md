@@ -20,7 +20,7 @@
 | --- | --- | --- |
 | `backend` | Kratos 服务、Proto、GORM、迁移和 Core 运行时。 | [backend/README.md](backend/README.md) |
 | `frontend/admin` | 管理端 workspace，包含默认宿主、core、System 和 CLI。 | [frontend/admin/README.md](frontend/admin/README.md) |
-| `frontend/app` | uni-app workspace，包含默认宿主、core、system 和 CLI。 | [frontend/app/README.md](frontend/app/README.md) |
+| `frontend/uni-app` | uni-app workspace，包含默认宿主、core、system 和 CLI。 | [frontend/uni-app/README.md](frontend/uni-app/README.md) |
 | `docs` | 当前架构和专题说明。 | [docs/系统总体设计.md](docs/系统总体设计.md) |
 
 ## 环境
@@ -55,7 +55,7 @@ make -C backend run
 
 ```bash
 make -C frontend run-admin
-cd frontend/app && pnpm dev:h5
+cd frontend/uni-app && pnpm dev:h5
 ```
 
 | 服务 | 默认地址 |
@@ -80,7 +80,7 @@ pnpm test
 pnpm type:check
 pnpm lint:oxlint
 
-cd ../app
+cd ../uni-app
 pnpm test
 pnpm check:exports
 pnpm tsc
@@ -97,9 +97,9 @@ pnpm build:packages
 - `@liujitcn/kratos-admin-core`
 - `@liujitcn/kratos-admin-system`
 - `@liujitcn/kratos-admin-cli`
-- `@liujitcn/kratos-app-core`
-- `@liujitcn/kratos-app-system`
-- `@liujitcn/kratos-app-cli`
+- `@liujitcn/kratos-uni-app-core`
+- `@liujitcn/kratos-uni-app-system`
+- `@liujitcn/kratos-uni-app-cli`
 
 ```bash
 make tag VERSION=0.0.16

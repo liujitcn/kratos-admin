@@ -10,7 +10,7 @@ GO_BIN_DIR ?= $(shell GOBIN=$$(go env GOBIN); if [ -n "$$GOBIN" ]; then printf '
 TS_PROTO_BIN ?= $(or \
 	$(shell command -v protoc-gen-ts_proto 2>/dev/null), \
 	$(wildcard $(CURDIR)/../frontend/admin/node_modules/.bin/protoc-gen-ts_proto), \
-	$(wildcard $(CURDIR)/../frontend/app/node_modules/.bin/protoc-gen-ts_proto), \
+	$(wildcard $(CURDIR)/../frontend/uni-app/node_modules/.bin/protoc-gen-ts_proto), \
 	$(lastword $(wildcard $(HOME)/.nvm/versions/node/*/bin/protoc-gen-ts_proto)) \
 )
 TS_PROTO_BIN_DIR := $(dir $(TS_PROTO_BIN))
@@ -119,15 +119,15 @@ ts:
 		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.admin.core.typescript.gen.yaml --exclude-path proto/system/app
 	@echo "==> TypeScript RPC 代码生成完成"
 
-# 生成 app 端 TypeScript RPC 代码
+# 生成 uni-app 端 TypeScript RPC 代码
 ts-app:
-	@echo "==> 生成 app TypeScript RPC 代码"
-	@test -n "$(TS_PROTO_BIN)" || (echo "protoc-gen-ts_proto not found. Run pnpm install in frontend/app, or install ts-proto globally." && exit 1)
+	@echo "==> 生成 uni-app TypeScript RPC 代码"
+	@test -n "$(TS_PROTO_BIN)" || (echo "protoc-gen-ts_proto not found. Run pnpm install in frontend/uni-app, or install ts-proto globally." && exit 1)
 	@cd api && \
 		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.app.typescript.gen.yaml --exclude-path proto/system/admin
 	@cd api && \
 		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.app.core.typescript.gen.yaml --exclude-path proto/system/admin
-	@echo "==> app TypeScript RPC 代码生成完成"
+	@echo "==> uni-app TypeScript RPC 代码生成完成"
 
 # 收集当前项目约定范围内的 README 与 docs Markdown
 project-docs:
