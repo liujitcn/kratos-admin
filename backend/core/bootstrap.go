@@ -7,7 +7,6 @@ import (
 	"net"
 	stdhttp "net/http"
 	"strings"
-	"sync"
 
 	"github.com/go-kratos/kratos/v3"
 	"github.com/go-kratos/kratos/v3/log"
@@ -74,6 +73,7 @@ func NewApp(ctx *bootstrap.Context, optionValues ...Option) (*kratos.App, func()
 	var httpServer *kratosHTTP.Server
 	var servers []kratosTransport.Server
 	serversOwnedByApp := false
+	serversManaged := false
 	closeConfiguredSSEListener := func() {
 		if configuredSSEListener == nil {
 			return
@@ -88,31 +88,68 @@ func NewApp(ctx *bootstrap.Context, optionValues ...Option) (*kratos.App, func()
 			return
 		}
 		var stopErr error
-		if httpServer != nil {
-			stopErr = httpServer.Stop(context.Background())
-			if stopErr != nil {
-				log.Error("清理 HTTP 服务初始化资源失败", "error", stopErr)
+		if serversManaged {
+			for index := len(servers) - 1; index >= 0; index-- {
+				if servers[index] == nil {
+					continue
+				}
+				stopErr = servers[index].Stop(context.Background())
+				if stopErr != nil {
+					log.Error("清理核心服务初始化资源失败", "error", stopErr)
+				}
 			}
-		}
-		if grpcServer != nil {
-			stopErr = grpcServer.Stop(context.Background())
-			if stopErr != nil {
-				log.Error("清理 gRPC 服务初始化资源失败", "error", stopErr)
+			if configuredSSEServer != nil && sseInProcess(ctx.GetConfig()) {
+				stopErr = configuredSSEServer.Stop(context.Background())
+				if stopErr != nil {
+					log.Error("清理 SSE 服务初始化资源失败", "error", stopErr)
+				}
 			}
-		}
-		if configuredSSEServer != nil && opts.sseServer == nil {
-			stopErr = configuredSSEServer.Stop(context.Background())
-			if stopErr != nil {
-				log.Error("清理 SSE 服务初始化资源失败", "error", stopErr)
+			if mcpServer != nil && mcpInProcess(ctx.GetConfig()) {
+				stopErr = mcpServer.Stop(context.Background())
+				if stopErr != nil {
+					log.Error("清理 MCP 服务初始化资源失败", "error", stopErr)
+				}
+			}
+		} else {
+			for index := len(servers) - 1; index >= 0; index-- {
+				if servers[index] == nil {
+					continue
+				}
+				stopErr = servers[index].Stop(context.Background())
+				if stopErr != nil {
+					log.Error("清理核心服务初始化资源失败", "error", stopErr)
+				}
+			}
+			if httpServer != nil {
+				stopErr = httpServer.Stop(context.Background())
+				if stopErr != nil {
+					log.Error("清理 HTTP 服务初始化资源失败", "error", stopErr)
+				}
+			}
+			if grpcServer != nil {
+				stopErr = grpcServer.Stop(context.Background())
+				if stopErr != nil {
+					log.Error("清理 gRPC 服务初始化资源失败", "error", stopErr)
+				}
+			}
+			sseToStop := configuredSSEServer
+			if sseToStop == nil {
+				sseToStop = opts.sseServer
+			}
+			if sseToStop != nil {
+				stopErr = sseToStop.Stop(context.Background())
+				if stopErr != nil {
+					log.Error("清理 SSE 服务初始化资源失败", "error", stopErr)
+				}
+			}
+			if mcpServer != nil {
+				stopErr = mcpServer.Stop(context.Background())
+				if stopErr != nil {
+					log.Error("清理 MCP 服务初始化资源失败", "error", stopErr)
+				}
 			}
 		}
 		closeConfiguredSSEListener()
-		if mcpServer != nil {
-			stopErr = mcpServer.Stop(context.Background())
-			if stopErr != nil {
-				log.Error("清理 MCP 服务初始化资源失败", "error", stopErr)
-			}
-		}
 		stopErr = startupManager.Stop(context.Background())
 		if stopErr != nil {
 			log.Error("清理核心服务启动资源失败", "error", stopErr)
@@ -123,7 +160,7 @@ func NewApp(ctx *bootstrap.Context, optionValues ...Option) (*kratos.App, func()
 	if err != nil {
 		return nil, nil, err
 	}
-	configuredSSEServer, configuredSSEListener, err = newSSEServer(ctx.GetConfig(), opts.sseServer)
+	configuredSSEServer, configuredSSEListener, err = newSSEServer(ctx.GetConfig(), opts.sseServer, opts.sseListener)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -181,28 +218,31 @@ func NewApp(ctx *bootstrap.Context, optionValues ...Option) (*kratos.App, func()
 	if httpServer != nil {
 		servers = append(servers, httpServer)
 	}
+	for index, server := range servers {
+		if server != nil {
+			servers[index] = wrapManagedServer(server)
+		}
+	}
+	serversManaged = true
 	err = startupManager.Start(ctx.Context())
 	if err != nil {
 		return nil, nil, err
 	}
-	var cleanupOnce sync.Once
 	cleanup := func() {
-		cleanupOnce.Do(func() {
-			for index := len(servers) - 1; index >= 0; index-- {
-				if servers[index] == nil {
-					continue
-				}
-				stopErr := servers[index].Stop(context.Background())
-				if stopErr != nil {
-					log.Error("清理核心服务运行资源失败", "error", stopErr)
-				}
+		for index := len(servers) - 1; index >= 0; index-- {
+			if servers[index] == nil {
+				continue
 			}
-			stopErr := startupManager.Stop(context.Background())
+			stopErr := servers[index].Stop(context.Background())
 			if stopErr != nil {
-				log.Error("清理核心服务启动资源失败", "error", stopErr)
+				log.Error("清理核心服务运行资源失败", "error", stopErr)
 			}
-			closeConfiguredSSEListener()
-		})
+		}
+		stopErr := startupManager.Stop(context.Background())
+		if stopErr != nil {
+			log.Error("清理核心服务启动资源失败", "error", stopErr)
+		}
+		closeConfiguredSSEListener()
 	}
 	serversOwnedByApp = true
 	return bootstrap.NewApp(ctx, servers...), cleanup, nil
@@ -327,9 +367,15 @@ func newMCPServer(cfg *bootstrapConfigv1.Bootstrap, modules Modules) (*mcpserver
 }
 
 // newSSEServer 根据配置创建或复用 SSE 服务。
-func newSSEServer(cfg *bootstrapConfigv1.Bootstrap, configured *sseServer.Server) (*sseServer.Server, net.Listener, error) {
-	if configured != nil || cfg.GetServer().GetSse() == nil {
-		return configured, nil, nil
+func newSSEServer(cfg *bootstrapConfigv1.Bootstrap, configured *sseServer.Server, configuredListener net.Listener) (*sseServer.Server, net.Listener, error) {
+	if configured != nil {
+		if !sseInProcess(cfg) && configuredListener == nil {
+			return nil, nil, fmt.Errorf("独立 SSE 服务必须通过 WithSSEServerListener 注入监听器")
+		}
+		return configured, configuredListener, nil
+	}
+	if cfg.GetServer().GetSse() == nil {
+		return configured, configuredListener, nil
 	}
 	var err error
 	var server *sseServer.Server

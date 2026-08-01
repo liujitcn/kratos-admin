@@ -1,6 +1,7 @@
 package core
 
 import (
+	"net"
 	stdhttp "net/http"
 
 	kratosMiddleware "github.com/go-kratos/kratos/v3/middleware"
@@ -32,6 +33,7 @@ type options struct {
 	scripts          []script.Script
 	startupHooks     []startup.Hook
 	sseServer        *sseServer.Server
+	sseListener      net.Listener
 	grpcMiddlewares  []kratosMiddleware.Middleware
 	httpMiddlewares  []kratosMiddleware.Middleware
 	staticMounts     []coreStatic.Mount
@@ -135,10 +137,17 @@ func WithStartupHooks(hooks ...startup.Hook) Option {
 	}
 }
 
-// WithSSEServer 注入需要挂载或独立启动的 SSE 服务。
+// WithSSEServer 注入需要挂载或独立启动的 SSE 服务；独立服务须同时注入监听器。
 func WithSSEServer(server *sseServer.Server) Option {
 	return func(opts *options) {
 		opts.sseServer = server
+	}
+}
+
+// WithSSEServerListener 注入与 SSE 服务对应的监听器，并由核心宿主负责关闭。
+func WithSSEServerListener(listener net.Listener) Option {
+	return func(opts *options) {
+		opts.sseListener = listener
 	}
 }
 

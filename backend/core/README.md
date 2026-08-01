@@ -78,7 +78,7 @@ Core 不提供数据库客户端或迁移 Runner；数据库错误分类和业�
 4. `WithSSERegistry`、`WithSSEStreams`
 5. `WithHealthChecks`
 6. `WithScripts`、`WithStartupHooks`
-7. `WithSSEServer`
+7. `WithSSEServer`、`WithSSEServerListener`
 8. `WithGRPCMiddlewares`、`WithHTTPMiddlewares`
 9. `WithStaticMounts`
 10. `WithServers`
@@ -98,7 +98,7 @@ Core 不提供数据库客户端或迁移 Runner；数据库错误分类和业�
 
 OpenAPI 默认路径为 `/api/docs/openapi/{key}`，Swagger UI 默认路径为 `/api/docs/swagger/{key}/`，可通过 `WithOpenAPIPaths` 和 `WithOpenAPIAuthorizer` 调整。
 
-队列适配器通过 `WithQueue` 注入；任务注册表、SSE Server 和 SSE 注册表均可由宿主注入，以便与业务运行时共享。模块提供队列消费者时必须同时注入队列适配器，否则 `NewApp` 会返回错误。
+队列适配器通过 `WithQueue` 注入；任务注册表、SSE Server 和 SSE 注册表均可由宿主注入，以便与业务运行时共享。注入独立 HTTP SSE Server 时，必须同时通过 `WithSSEServerListener` 提供对应监听器，由 Core 统一负责关闭；进程内 SSE Handler 不需要监听器。模块提供队列消费者时必须同时注入队列适配器，否则 `NewApp` 会返回错误。
 
 ## 最小配置
 

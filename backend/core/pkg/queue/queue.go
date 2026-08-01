@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	kitQueue "github.com/liujitcn/kratos-kit/queue"
 	queueData "github.com/liujitcn/kratos-kit/queue/data"
@@ -117,7 +118,7 @@ func (r *Runtime) Stop(ctx context.Context) error {
 		return nil
 	}
 	r.stopOnce.Do(func() {
-		r.queue.Shutdown()
+		go r.shutdownQueue()
 	})
 	r.lifecycleMu.Unlock()
 	select {
@@ -125,6 +126,20 @@ func (r *Runtime) Stop(ctx context.Context) error {
 		return nil
 	case <-ctx.Done():
 		return ctx.Err()
+	}
+}
+
+// shutdownQueue 持续请求底层队列停止，覆盖 Stop 先于 Queue.Run 真正进入的竞态。
+func (r *Runtime) shutdownQueue() {
+	ticker := time.NewTicker(time.Millisecond)
+	defer ticker.Stop()
+	for {
+		r.queue.Shutdown()
+		select {
+		case <-r.done:
+			return
+		case <-ticker.C:
+		}
 	}
 }
 
