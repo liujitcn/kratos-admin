@@ -51,7 +51,7 @@ import { defAiToolService } from "@liujitcn/kratos-admin-system/api/base/ai_tool
 import type { AiAction } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_message";
 import type { AiSession } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import type { AiShortcut } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
-import { AiMessageStatus, Terminal } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
+import { AiMessageStatus, Terminal } from "@liujitcn/kratos-admin-system/rpc/base/v1/enum";
 import ChatPanel from "./components/ChatPanel.vue";
 import SessionPanel from "./components/SessionPanel.vue";
 import {
@@ -364,7 +364,7 @@ async function handleRetryMessage(item: ChatMessageItem) {
     }
     setSessionSending(sessionID, true);
     if (item.role === "user") {
-      if (item.status !== AiMessageStatus.FAILED_AAMS) {
+      if (item.status !== AiMessageStatus.FAILED_AMS) {
         ElMessage.warning("只有发送失败的消息可以重新发送");
         return;
       }

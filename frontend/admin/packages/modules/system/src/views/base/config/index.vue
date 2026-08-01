@@ -63,7 +63,8 @@ import WangEditor from "@liujitcn/kratos-admin-core/components/WangEditor/index.
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBaseConfigService } from "@liujitcn/kratos-admin-system/api/system/base_config";
 import type { BaseConfig, BaseConfigForm, PageBaseConfigRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_config";
-import { BaseConfigSite, Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
+import { BaseConfigSite } from "@liujitcn/kratos-admin-system/rpc/base/v1/enum";
+import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { BaseConfigType } from "@liujitcn/kratos-admin-system/rpc/system/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 

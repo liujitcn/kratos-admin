@@ -407,14 +407,16 @@ function appendPage(manifest: PagesManifest, page: ScannedPage): void {
 function createPageWrapper(page: ScannedPage): string {
   const source = page.source.replace(/\\/g, '/')
   return `<script setup lang="ts">
+import type { Component } from 'vue'
 import KratosPage from ${JSON.stringify(source)}
 import KratosTabBar from '@liujitcn/kratos-uni-app-core/components/KratosTabBar.vue'
 
 defineOptions({ inheritAttrs: false })
+const Page = KratosPage as Component
 </script>
 
 <template>
-  <KratosPage />
+  <Page v-bind="$attrs" />
   <KratosTabBar route=${JSON.stringify(page.route)} />
 </template>
 `

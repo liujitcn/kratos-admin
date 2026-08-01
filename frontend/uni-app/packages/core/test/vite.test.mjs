@@ -85,6 +85,14 @@ test('扫描模块页面、合并静态资源并在结束时恢复宿主文件',
       readFileSync(resolve(hostRoot, 'src/pages/index/index.vue'), 'utf8'),
       /import KratosTabBar from '@liujitcn\/kratos-uni-app-core\/components\/KratosTabBar\.vue'/,
     )
+    assert.match(
+      readFileSync(resolve(hostRoot, 'src/pages/index/index.vue'), 'utf8'),
+      /const Page = KratosPage as Component/,
+    )
+    assert.match(
+      readFileSync(resolve(hostRoot, 'src/pages/index/index.vue'), 'utf8'),
+      /<Page v-bind="\$attrs" \/>/,
+    )
     assert.ok(existsSync(transactionFile))
     assert.ok(existsSync(hostStaticFile))
     assert.ok(existsSync(generatedStaticFile))

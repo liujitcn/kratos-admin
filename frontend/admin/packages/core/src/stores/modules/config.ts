@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { defConfigService } from "@/api/base/config";
-import { BaseConfigSite } from "@/rpc/common/v1/enum";
+import { BaseConfigSite } from "@/rpc/base/v1/enum";
 import type { LoginCaptchaConfig, SiteConfigState, SiteDisplayConfig } from "@/stores/interface";
 import defaultLogoUrl from "@/assets/images/logo.svg";
 import defaultBackgroundUrl from "@/assets/images/login_left.png";

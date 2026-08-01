@@ -5,7 +5,7 @@
 // source: base/v1/ai_tool.proto
 
 /* eslint-disable */
-import type { Terminal } from "../../common/v1/enum";
+import type { Terminal } from "./enum";
 
 /** AI 助手快捷入口列表查询条件 */
 export interface ListAiShortcutRequest {

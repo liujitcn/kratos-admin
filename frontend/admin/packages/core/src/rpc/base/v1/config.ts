@@ -5,7 +5,7 @@
 // source: base/v1/config.proto
 
 /* eslint-disable */
-import type { BaseConfigSite } from "../../common/v1/enum";
+import type { BaseConfigSite } from "./enum";
 
 /** 获取系统配置条件 */
 export interface GetConfigRequest {

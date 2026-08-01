@@ -7,7 +7,7 @@ import { defAiToolService } from '../../../api/base/ai_tool'
 import type { AiMessage } from '../../../rpc/base/v1/ai_session'
 import type { AiAttachment, AiSession } from '../../../rpc/base/v1/ai_session'
 import type { AiShortcut, AiToolCall } from '../../../rpc/base/v1/ai_tool'
-import { AiMessageStatus, Terminal } from '../../../rpc/common/v1/enum'
+import { AiMessageStatus, Terminal } from '../../../rpc/base/v1/enum'
 import { uploadFile } from '@liujitcn/kratos-uni-app-core/utils/file'
 import { formatSrc } from '@liujitcn/kratos-uni-app-core/utils/index'
 import Composer from './components/Composer.vue'
@@ -70,7 +70,7 @@ safeAreaTop = safeAreaTop || 44
 // #endif
 const safeAreaBottom = Math.max(windowInfo.safeAreaInsets?.bottom || 0, 9)
 const windowHeight = windowInfo.windowHeight || windowInfo.screenHeight || 667
-const composerBottom = `${safeAreaBottom}px`
+const composerBottom = `${safeAreaBottom + 48}px`
 const drawerTopPadding = `${safeAreaTop + 12}px`
 
 const showSessionDrawer = ref(false)
@@ -886,7 +886,7 @@ function normalizeMessageList(list?: AiMessage[] | null) {
 }
 
 function hasSuccessfulAiMessages(list: ChatMessageItem[]) {
-  return list.some((item) => item.status === AiMessageStatus.SUCCESS_AAMS)
+  return list.some((item) => item.status === AiMessageStatus.SUCCESS_AMS)
 }
 
 function mapMessageItem(message: AiMessage, role: ChatRole): ChatMessageItem {
@@ -905,7 +905,7 @@ function mapMessageItem(message: AiMessage, role: ChatRole): ChatMessageItem {
     step: message.output_content?.step ?? '',
     blocks_json: message.output_content?.blocks_json ?? '',
   }
-  const status = Number(message.status ?? AiMessageStatus.SUCCESS_AAMS)
+  const status = Number(message.status ?? AiMessageStatus.SUCCESS_AMS)
   return {
     ...message,
     key: `${message.id}:${role}`,
@@ -945,7 +945,7 @@ function createLocalUserMessage(payload: { text: string; attachments: AiAttachme
         seconds: Math.floor(now / 1000),
         nanos: (now % 1000) * 1_000_000,
       },
-      status: AiMessageStatus.GENERATING_AAMS,
+      status: AiMessageStatus.GENERATING_AMS,
       token: { input: 0, output: 0, cache: 0, total: 0 },
       tools: [],
       first_token_ms: 0,
@@ -954,7 +954,7 @@ function createLocalUserMessage(payload: { text: string; attachments: AiAttachme
     'user',
   )
   message.localOnly = true
-  message.status = AiMessageStatus.GENERATING_AAMS
+  message.status = AiMessageStatus.GENERATING_AMS
   return message
 }
 
@@ -983,7 +983,7 @@ function createThinkingMessage(options?: { sessionID?: string; messageID?: strin
         seconds: Math.floor(now / 1000),
         nanos: (now % 1000) * 1_000_000,
       },
-      status: AiMessageStatus.GENERATING_AAMS,
+      status: AiMessageStatus.GENERATING_AMS,
       token: { input: 0, output: 0, cache: 0, total: 0 },
       tools: [],
       first_token_ms: 0,
@@ -1034,7 +1034,7 @@ function appendStreamingDelta(current: ChatMessageItem[], payload: AiStreamPaylo
     return {
       ...item,
       content: `${baseContent}${payload.delta}`,
-      status: AiMessageStatus.GENERATING_AAMS,
+      status: AiMessageStatus.GENERATING_AMS,
     }
   })
 }
@@ -1046,7 +1046,7 @@ function markThinkingMessageFailed(current: ChatMessageItem[]) {
     }
     return {
       ...item,
-      status: AiMessageStatus.FAILED_AAMS,
+      status: AiMessageStatus.FAILED_AMS,
       content:
         item.role === 'ai' ? '这次回复没有成功返回，你可以直接重试刚才的问题。' : item.content,
     }
@@ -1061,7 +1061,7 @@ function markStreamingError(current: ChatMessageItem[], payload: AiStreamPayload
     }
     return {
       ...item,
-      status: AiMessageStatus.FAILED_AAMS,
+      status: AiMessageStatus.FAILED_AMS,
       content: '这次回复没有成功返回，你可以直接重试刚才的问题。',
     }
   })
@@ -1187,7 +1187,7 @@ function showError(error: unknown, fallback: string) {
             class="bubble"
             :class="[
               item.role === 'ai' ? 'ai-bubble' : 'user-bubble',
-              item.status === AiMessageStatus.GENERATING_AAMS ? 'is-streaming' : '',
+              item.status === AiMessageStatus.GENERATING_AMS ? 'is-streaming' : '',
             ]"
             @longpress="handleMessageAction(item)"
           >

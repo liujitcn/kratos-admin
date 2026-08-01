@@ -1,5 +1,5 @@
 import { defLoginService } from "@/api/base/login";
-import { PasswordCryptoScene } from "@/rpc/common/v1/enum";
+import { PasswordCryptoScene } from "@/rpc/base/v1/enum";
 import type { PasswordCrypto } from "@/rpc/common/v1/types";
 
 export const PASSWORD_CRYPTO_SCENE = PasswordCryptoScene;

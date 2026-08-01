@@ -1,5 +1,7 @@
 /// <reference path="./types/nutui-icons.d.ts" />
 
+export { default as UniIcon } from './UniIcon'
+
 export { default as ArrowLeft } from '@nutui/icons-react-taro/dist/es/icons/ArrowLeft.js'
 export { default as ArrowRight } from '@nutui/icons-react-taro/dist/es/icons/ArrowRight.js'
 export { default as Category } from '@nutui/icons-react-taro/dist/es/icons/Category.js'

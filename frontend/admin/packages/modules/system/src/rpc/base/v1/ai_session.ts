@@ -5,9 +5,9 @@
 // source: base/v1/ai_session.proto
 
 /* eslint-disable */
-import type { AiMessageStatus, Terminal } from "../../common/v1/enum";
 import type { Timestamp } from "../../google/protobuf/timestamp";
 import type { AiToolCall } from "./ai_tool";
+import type { AiMessageStatus, Terminal } from "./enum";
 
 /** AI 助手消息列表查询条件 */
 export interface ListAiMessageRequest {

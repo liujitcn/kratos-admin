@@ -1,0 +1,16 @@
+@font-face {
+  font-family: kratos-uni-icons;
+  font-style: normal;
+  font-weight: normal;
+  src: url('../static/fonts/uniicons.ttf') format('truetype');
+}
+
+.kratos-uni-icon {
+  display: inline-block;
+  font-family: kratos-uni-icons;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  text-align: center;
+  text-decoration: none;
+}

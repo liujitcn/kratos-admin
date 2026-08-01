@@ -7,7 +7,7 @@ import {
   type AiToken
 } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import type { AiAction } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_message";
-import { AiMessageStatus, Terminal } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
+import { AiMessageStatus, Terminal } from "@liujitcn/kratos-admin-system/rpc/base/v1/enum";
 import type { AiStreamPayload, AIFlowBlock, ChatMessageItem, ReplySourceTag } from "./types";
 
 const THINKING_MESSAGE_ID_PREFIX = "ai-thinking";
@@ -168,17 +168,17 @@ export function mapMessageItem(message: AiMessage, role: "user" | "ai"): ChatMes
     step: role === "ai" ? outputContent.step : "",
     blocksJson: role === "ai" ? outputContent.blocks_json : "",
     blocks: role === "ai" ? markFlowBlocksDisabled(parseFlowBlocks(outputContent.blocks_json), String(message.id ?? "")) : [],
-    status: Number(message.status ?? AiMessageStatus.SUCCESS_AAMS),
+    status: Number(message.status ?? AiMessageStatus.SUCCESS_AMS),
     token: normalizeToken(message.token),
     tools: Array.isArray(message.tools) ? message.tools : [],
     variant: role === "user" ? "filled" : "borderless",
     shape: "corner",
     progressState:
-      message.status === AiMessageStatus.GENERATING_AAMS
+      message.status === AiMessageStatus.GENERATING_AMS
         ? role === "user"
           ? "idle"
           : "streaming"
-        : message.status === AiMessageStatus.FAILED_AAMS
+        : message.status === AiMessageStatus.FAILED_AMS
           ? "failed"
           : "idle",
     maxWidth: role === "user" ? "380px" : "100%"
@@ -209,7 +209,7 @@ export function createLocalUserMessage(payload: { text: string; attachments: AiA
         seconds: Math.floor(now.getTime() / 1000),
         nanos: (now.getTime() % 1000) * 1_000_000
       },
-      status: AiMessageStatus.GENERATING_AAMS,
+      status: AiMessageStatus.GENERATING_AMS,
       token: normalizeToken(),
       tools: [],
       first_token_ms: 0,
@@ -250,7 +250,7 @@ export function createThinkingMessage(options?: { sessionID?: string; messageID?
         seconds: Math.floor(now.getTime() / 1000),
         nanos: (now.getTime() % 1000) * 1_000_000
       },
-      status: AiMessageStatus.GENERATING_AAMS,
+      status: AiMessageStatus.GENERATING_AMS,
       token: normalizeToken(),
       tools: [],
       first_token_ms: 0,
@@ -299,7 +299,7 @@ export function markAIMessageRegenerating(current: ChatMessageItem[], sessionID:
       duration_ms: 0,
       progressState: "streaming",
       replySourceTag: { text: "思考中", tone: "info" },
-      status: AiMessageStatus.GENERATING_AAMS,
+      status: AiMessageStatus.GENERATING_AMS,
       streamKey
     };
   });
@@ -354,14 +354,14 @@ export function markThinkingMessageFailed(current: ChatMessageItem[], options?: 
       return {
         ...item,
         progressState: "failed",
-        status: AiMessageStatus.FAILED_AAMS
+        status: AiMessageStatus.FAILED_AMS
       };
     }
     if (item.progressState !== "streaming") return item;
     return {
       ...item,
       progressState: "failed",
-      status: AiMessageStatus.FAILED_AAMS,
+      status: AiMessageStatus.FAILED_AMS,
       content: "这次回复没有成功返回，你可以直接重试刚才的问题。",
       replySourceTag: { text: "发送失败", tone: "warning" }
     };
@@ -400,7 +400,7 @@ export function markStreamingError(current: ChatMessageItem[], payload: AiStream
     return {
       ...item,
       progressState: "failed",
-      status: AiMessageStatus.FAILED_AAMS,
+      status: AiMessageStatus.FAILED_AMS,
       content: "这次回复没有成功返回，你可以直接重试刚才的问题。",
       replySourceTag: { text: "发送失败", tone: "warning" }
     };

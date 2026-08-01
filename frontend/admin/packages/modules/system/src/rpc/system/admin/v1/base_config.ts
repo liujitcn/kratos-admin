@@ -5,7 +5,8 @@
 // source: system/admin/v1/base_config.proto
 
 /* eslint-disable */
-import type { BaseConfigSite, Status } from "../../../common/v1/enum";
+import type { BaseConfigSite } from "../../../base/v1/enum";
+import type { Status } from "../../../common/v1/enum";
 import type { Empty } from "../../../google/protobuf/empty";
 import type { BaseConfigType } from "../../common/v1/enum";
 

@@ -5,10 +5,12 @@
 // source: system/admin/v1/base_user.proto
 
 /* eslint-disable */
+import type { AnalyticsTimeType } from "../../../common/v1/analytics";
 import type { SelectOptionResponse } from "../../../common/v1/common";
 import type { Status } from "../../../common/v1/enum";
 import type { PasswordCrypto } from "../../../common/v1/types";
 import type { Empty } from "../../../google/protobuf/empty";
+import type { Timestamp } from "../../../google/protobuf/timestamp";
 import type { BaseUserGender } from "../../common/v1/enum";
 
 /** 用户选项查询条件 */
@@ -189,6 +191,40 @@ export interface SetBaseUserAppRoleRequest {
   role_code: string;
 }
 
+/** 用户注册汇总查询条件 */
+export interface SummaryBaseUserRequest {
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 开始时间 */
+  start_at:
+    | Timestamp
+    | undefined;
+  /** 结束时间 */
+  end_at:
+    | Timestamp
+    | undefined;
+  /** 统计时间类型 */
+  time_type: AnalyticsTimeType;
+}
+
+/** 用户注册汇总响应 */
+export interface SummaryBaseUserResponse {
+  /** 用户总数 */
+  total: number;
+  /** 用户分组汇总 */
+  summaries: BaseUserSummaryItem[];
+}
+
+/** 用户注册分组汇总项 */
+export interface BaseUserSummaryItem {
+  /** 分组序号 */
+  key: number;
+  /** 用户数 */
+  count: number;
+}
+
 /** Admin用户管理服务 */
 export interface BaseUserService {
   /** 查询用户下拉选择 */
@@ -211,4 +247,6 @@ export interface BaseUserService {
   ResetBaseUserPassword(request: ResetBaseUserPasswordRequest): Promise<Empty>;
   /** 设置基础用户应用端角色 */
   SetBaseUserAppRole(request: SetBaseUserAppRoleRequest): Promise<Empty>;
+  /** 汇总用户注册数据 */
+  SummaryBaseUser(request: SummaryBaseUserRequest): Promise<SummaryBaseUserResponse>;
 }

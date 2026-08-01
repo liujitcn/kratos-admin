@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { defConfigService } from '../api/base/config'
-import { BaseConfigSite } from '../rpc/common/v1/enum'
+import { BaseConfigSite } from '../rpc/base/v1/enum'
 
 const REQUIRED_APP_CONFIGS = [
   { key: 'serviceProtocol', name: '服务条款' },

@@ -6,13 +6,13 @@ import {
   navigateAppRoute,
   uploadFile,
 } from '@liujitcn/kratos-taro-app-core'
-import { ArrowLeft, Category } from '@liujitcn/kratos-taro-app-ui'
+import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
 import { defAiMessageService, StreamAiMessageByChunkedRequest } from '../../../api/base/ai_message'
 import { defAiSessionService } from '../../../api/base/ai_session'
 import { defAiToolService } from '../../../api/base/ai_tool'
 import type { AiAttachment, AiMessage, AiSession } from '../../../rpc/base/v1/ai_session'
 import type { AiShortcut, AiToolCall } from '../../../rpc/base/v1/ai_tool'
-import { AiMessageStatus, Terminal } from '../../../rpc/common/v1/enum'
+import { AiMessageStatus, Terminal } from '../../../rpc/base/v1/enum'
 import Composer from './components/Composer'
 import SessionDrawer from './components/SessionDrawer'
 import WelcomePanel from './components/WelcomePanel'
@@ -605,11 +605,11 @@ export default function AiPage() {
     <View className='ai-page'>
       <View className={`ai-navbar${process.env.TARO_ENV === 'weapp' ? ' is-weapp' : ''}`}>
         <Button className='nav-back-button' hoverClass='none' onClick={navigateBack}>
-          <ArrowLeft size={24} color='#111' />
+          <UniIcon type='left' size={24} color='#111' />
         </Button>
         <View className='ai-navbar__title'>AI 助手</View>
         <Button className='nav-menu-button' hoverClass='none' onClick={() => setShowSessionDrawer((open) => !open)}>
-          <Category size={24} color='#111' />
+          <UniIcon type='bars' size={24} color='#111' />
         </Button>
       </View>
       <ScrollView
@@ -641,7 +641,7 @@ export default function AiPage() {
                 className={`message-row ${item.role === 'user' ? 'is-user' : 'is-ai'}`}
               >
                 <View
-                  className={`bubble ${item.role === 'ai' ? 'ai-bubble' : 'user-bubble'}${item.status === AiMessageStatus.GENERATING_AAMS ? ' is-streaming' : ''}`}
+                  className={`bubble ${item.role === 'ai' ? 'ai-bubble' : 'user-bubble'}${item.status === AiMessageStatus.GENERATING_AMS ? ' is-streaming' : ''}`}
                   onLongPress={() => void handleMessageAction(item)}
                 >
                   {item.role === 'ai' && item.model ? (
@@ -743,7 +743,7 @@ function normalizeMessageList(list?: AiMessage[] | null) {
 }
 
 function hasSuccessfulAiMessages(list: ChatMessageItem[]) {
-  return list.some((item) => item.status === AiMessageStatus.SUCCESS_AAMS)
+  return list.some((item) => item.status === AiMessageStatus.SUCCESS_AMS)
 }
 
 function mapMessageItem(message: AiMessage, role: ChatRole): ChatMessageItem {
@@ -759,7 +759,7 @@ function mapMessageItem(message: AiMessage, role: ChatRole): ChatMessageItem {
     step: message.output_content?.step ?? '',
     blocks_json: message.output_content?.blocks_json ?? '',
   }
-  const status = Number(message.status ?? AiMessageStatus.SUCCESS_AAMS)
+  const status = Number(message.status ?? AiMessageStatus.SUCCESS_AMS)
   return {
     ...message,
     key: `${message.id}:${role}`,
@@ -795,14 +795,14 @@ function createLocalUserMessage(payload: { text: string; attachments: AiAttachme
     output_content: undefined,
     attachments: payload.attachments,
     created_at: { seconds: Math.floor(now / 1000), nanos: (now % 1000) * 1_000_000 },
-    status: AiMessageStatus.GENERATING_AAMS,
+    status: AiMessageStatus.GENERATING_AMS,
     token: { input: 0, output: 0, cache: 0, total: 0 },
     tools: [],
     first_token_ms: 0,
     duration_ms: 0,
   }, 'user')
   message.localOnly = true
-  message.status = AiMessageStatus.GENERATING_AAMS
+  message.status = AiMessageStatus.GENERATING_AMS
   return message
 }
 
@@ -820,7 +820,7 @@ function createThinkingMessage(options?: { sessionID?: string; messageID?: strin
     },
     attachments: [],
     created_at: { seconds: Math.floor(now / 1000), nanos: (now % 1000) * 1_000_000 },
-    status: AiMessageStatus.GENERATING_AAMS,
+    status: AiMessageStatus.GENERATING_AMS,
     token: { input: 0, output: 0, cache: 0, total: 0 },
     tools: [],
     first_token_ms: 0,
@@ -854,7 +854,7 @@ function appendStreamingDelta(current: ChatMessageItem[], payload: AiStreamPaylo
   return current.map((item) => {
     if (item.streamKey !== streamKey || item.role === 'user') return item
     const baseContent = item.content === THINKING_MESSAGE_CONTENT ? '' : item.content
-    return { ...item, content: `${baseContent}${payload.delta}`, status: AiMessageStatus.GENERATING_AAMS }
+    return { ...item, content: `${baseContent}${payload.delta}`, status: AiMessageStatus.GENERATING_AMS }
   })
 }
 
@@ -863,7 +863,7 @@ function markThinkingMessageFailed(current: ChatMessageItem[]) {
     item.localOnly
       ? {
           ...item,
-          status: AiMessageStatus.FAILED_AAMS,
+          status: AiMessageStatus.FAILED_AMS,
           content: item.role === 'ai' ? '这次回复没有成功返回，你可以直接重试刚才的问题。' : item.content,
         }
       : item,
@@ -874,7 +874,7 @@ function markStreamingError(current: ChatMessageItem[], payload: AiStreamPayload
   const streamKey = buildStreamMessageKey(payload.session_id, payload.message_id)
   return current.map((item) =>
     item.localOnly && item.streamKey === streamKey
-      ? { ...item, status: AiMessageStatus.FAILED_AAMS, content: '这次回复没有成功返回，你可以直接重试刚才的问题。' }
+      ? { ...item, status: AiMessageStatus.FAILED_AMS, content: '这次回复没有成功返回，你可以直接重试刚才的问题。' }
       : item,
   )
 }

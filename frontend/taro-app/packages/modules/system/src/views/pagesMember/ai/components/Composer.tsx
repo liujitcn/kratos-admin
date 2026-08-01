@@ -1,5 +1,5 @@
 import { Button, Text, Textarea, View } from '@tarojs/components'
-import { Microphone, Plus, Share } from '@liujitcn/kratos-taro-app-ui'
+import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
 import type { AiAttachment } from '../../../../rpc/base/v1/ai_session'
 import './composer.scss'
 
@@ -24,7 +24,7 @@ export default function Composer(props: ComposerProps) {
     <View className='composer' style={{ paddingBottom: props.bottom }}>
       <View className='composer-main'>
         <Button className='attach-button' hoverClass='none' onClick={props.onAttach}>
-          <Plus size={30} color='#111' />
+          <UniIcon type='plusempty' size={30} color='#111' />
         </Button>
         <View className='composer-card'>
           {props.attachments.length ? (
@@ -54,7 +54,7 @@ export default function Composer(props: ComposerProps) {
             hoverClass='none'
             onClick={props.onRecord}
           >
-            <Microphone size={28} color={props.recording ? '#00a96b' : '#111'} />
+            <UniIcon type='mic' size={28} color={props.recording ? '#00a96b' : '#111'} />
           </Button>
         </View>
         <Button
@@ -63,7 +63,7 @@ export default function Composer(props: ComposerProps) {
           hoverClass='none'
           onClick={props.onSend}
         >
-          <Share size={28} color={props.disabled ? '#111' : '#00a96b'} />
+          <UniIcon type='paperplane' size={28} color={props.disabled ? '#111' : '#00a96b'} />
         </Button>
       </View>
     </View>

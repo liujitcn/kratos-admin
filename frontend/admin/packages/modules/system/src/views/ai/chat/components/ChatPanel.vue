@@ -328,7 +328,7 @@ import { ElMessage } from "element-plus";
 import type { AiAction } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_message";
 import { type AiAttachment, type AiSession } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import type { AiShortcut, AiToolCall } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
-import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
+import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/base/v1/enum";
 import XSender from "./XSender.vue";
 
 // AI Markdown 渲染器依赖较重，仅在真正出现助手消息时再加载。
@@ -665,14 +665,14 @@ function parseActionPayload(payload?: string) {
 
 /** 根据消息角色返回可用操作。 */
 function resolveMessageActions(item: ChatMessageItem) {
-  if (item.progressState === "streaming" || item.status === AiMessageStatus.GENERATING_AAMS) return [];
+  if (item.progressState === "streaming" || item.status === AiMessageStatus.GENERATING_AMS) return [];
 
   const copyAction: MessageActionOption = { key: "copy" as const, label: "复制", icon: CopyDocument };
   const deleteAction: MessageActionOption = { key: "delete" as const, label: "删除", icon: Delete };
   const editAction: MessageActionOption = { key: "edit" as const, label: "编辑", icon: EditPen };
   if (item.role === "user") {
     const actions = isLastEditableUserMessage(item) ? [editAction, copyAction, deleteAction] : [copyAction, deleteAction];
-    if (item.status === AiMessageStatus.FAILED_AAMS) {
+    if (item.status === AiMessageStatus.FAILED_AMS) {
       return item.localOnly
         ? [{ key: "retry" as const, label: "重新发送", icon: Refresh }, copyAction, deleteAction]
         : [{ key: "retry" as const, label: "重新发送", icon: Refresh }, ...actions];
@@ -681,7 +681,7 @@ function resolveMessageActions(item: ChatMessageItem) {
   }
 
   const actions: MessageActionOption[] = [{ key: "retry" as const, label: "重新生成", icon: Refresh }];
-  if (item.status === AiMessageStatus.SUCCESS_AAMS) {
+  if (item.status === AiMessageStatus.SUCCESS_AMS) {
     actions.push({ key: "branch" as const, label: "从此处创建分支会话", icon: BranchActionIcon });
     actions.push({ key: "speak" as const, label: item.speaking ? "停止朗读" : "朗读", icon: SpeakActionIcon });
   }
@@ -690,7 +690,7 @@ function resolveMessageActions(item: ChatMessageItem) {
 
 /** 判断是否为需要渲染错误卡片的助手失败消息。 */
 function isAIFailedMessage(item: ChatMessageItem) {
-  return item.role !== "user" && item.status === AiMessageStatus.FAILED_AAMS;
+  return item.role !== "user" && item.status === AiMessageStatus.FAILED_AMS;
 }
 
 /** 返回助手错误摘要，优先展示服务端可读错误。 */

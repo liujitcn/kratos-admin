@@ -4,7 +4,7 @@
 
 ## 公开入口
 
-- `@liujitcn/kratos-taro-app-ui`：版本标识及按需封装的图标。
+- `@liujitcn/kratos-taro-app-ui`：版本标识、按需封装的 NutUI 图标和与 uni-app 对齐的 `UniIcon`。
 - `@liujitcn/kratos-taro-app-ui/icons`：图标专用入口。
 - `@liujitcn/kratos-taro-app-ui/styles/theme.scss`：Kratos 与 NutUI 主题变量。
 

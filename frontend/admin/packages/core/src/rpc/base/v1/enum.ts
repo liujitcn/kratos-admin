@@ -2,17 +2,30 @@
 // versions:
 //   protoc-gen-ts_proto  v2.11.8
 //   protoc               unknown
-// source: common/v1/enum.proto
+// source: base/v1/enum.proto
 
 /* eslint-disable */
 
-/** 状态 */
-export enum Status {
-  UNKNOWN = 0,
-  /** ENABLE - 启用 */
-  ENABLE = 1,
-  /** DISABLE - 禁用 */
-  DISABLE = 2,
+/** AI 助手消息状态 */
+export enum AiMessageStatus {
+  /** UNKNOWN_AMS - 未知AI助手消息状态 */
+  UNKNOWN_AMS = 0,
+  /** GENERATING_AMS - 生成中 */
+  GENERATING_AMS = 1,
+  /** SUCCESS_AMS - 成功 */
+  SUCCESS_AMS = 2,
+  /** FAILED_AMS - 失败 */
+  FAILED_AMS = 3,
+}
+
+/** 终端类型 */
+export enum Terminal {
+  /** UNKNOWN_TERMINAL - 未知终端 */
+  UNKNOWN_TERMINAL = 0,
+  /** TERMINAL_APP - 移动端 */
+  TERMINAL_APP = 1,
+  /** TERMINAL_ADMIN - 管理端 */
+  TERMINAL_ADMIN = 2,
 }
 
 /** 系统配置位置 */
@@ -38,34 +51,4 @@ export enum PasswordCryptoScene {
   RESET_BASE_USER_PASSWORD = 3,
   /** UPDATE_USER_PASSWORD - 个人修改密码加密场景 */
   UPDATE_USER_PASSWORD = 4,
-}
-
-/** AI 助手消息状态 */
-export enum AiMessageStatus {
-  /** UNKNOWN_AAMS - 未知AI助手消息状态 */
-  UNKNOWN_AAMS = 0,
-  /** GENERATING_AAMS - 生成中 */
-  GENERATING_AAMS = 1,
-  /** SUCCESS_AAMS - 成功 */
-  SUCCESS_AAMS = 2,
-  /** FAILED_AAMS - 失败 */
-  FAILED_AAMS = 3,
-}
-
-/** 支付通知资源类型 */
-export enum ResourceType {
-  /** TRANSACTION - 支付 */
-  TRANSACTION = 0,
-  /** REFUND - 退款 */
-  REFUND = 1,
-}
-
-/** 终端类型 */
-export enum Terminal {
-  /** TERMINAL_UNSPECIFIED - 未知终端 */
-  TERMINAL_UNSPECIFIED = 0,
-  /** TERMINAL_APP - 移动端 */
-  TERMINAL_APP = 1,
-  /** TERMINAL_ADMIN - 管理端 */
-  TERMINAL_ADMIN = 2,
 }

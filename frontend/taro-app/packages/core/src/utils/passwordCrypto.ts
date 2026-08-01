@@ -1,7 +1,7 @@
 import Taro from '@tarojs/taro'
 import * as miniCrypto from 'asmcrypto.js'
 import { defLoginService } from '../api/base/login'
-import { PasswordCryptoScene } from '../rpc/common/v1/enum'
+import { PasswordCryptoScene } from '../rpc/base/v1/enum'
 import type { PasswordCrypto } from '../rpc/common/v1/types'
 
 type MiniCrypto = typeof import('asmcrypto.js')

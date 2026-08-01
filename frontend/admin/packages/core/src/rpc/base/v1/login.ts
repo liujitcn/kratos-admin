@@ -5,9 +5,9 @@
 // source: base/v1/login.proto
 
 /* eslint-disable */
-import type { PasswordCryptoScene } from "../../common/v1/enum";
 import type { PasswordCrypto } from "../../common/v1/types";
 import type { Empty } from "../../google/protobuf/empty";
+import type { PasswordCryptoScene } from "./enum";
 
 /** 验证码获取条件 */
 export interface CaptchaRequest {

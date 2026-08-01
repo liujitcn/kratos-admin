@@ -74,6 +74,9 @@ export default defineConfig<'webpack5'>(async (merge) => {
           },
         },
       },
+      fontUrlLoaderOption: {
+        name: 'static/fonts/uniicons.ttf',
+      },
       webpackChain(chain) {
         chain.resolve.plugin('tsconfig-paths').use(TsconfigPathsPlugin)
         chain.merge({ resolve: { fallback: { crypto: false } } })
@@ -107,6 +110,9 @@ export default defineConfig<'webpack5'>(async (merge) => {
       output: {
         filename: 'assets/[name].[contenthash:8].js',
         chunkFilename: 'assets/[name].[contenthash:8].js',
+      },
+      fontUrlLoaderOption: {
+        name: 'static/fonts/uniicons.ttf',
       },
       miniCssExtractPluginOption: {
         ignoreOrder: true,
