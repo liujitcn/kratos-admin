@@ -2,6 +2,8 @@ module github.com/liujitcn/kratos-admin/backend
 
 go 1.26.3
 
+replace github.com/liujitcn/kratos-admin/backend/core => ./core
+
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260415201107-50325440f8f2.1
 	buf.build/go/protovalidate v1.2.0
@@ -40,7 +42,7 @@ require (
 	github.com/liujitcn/kratos-kit/oss v0.0.14
 	github.com/liujitcn/kratos-kit/pprof v0.0.12
 	github.com/liujitcn/kratos-kit/queue v0.0.22
-	github.com/liujitcn/kratos-kit/rpc v0.0.18
+	github.com/liujitcn/kratos-kit/rpc v0.0.19
 	github.com/liujitcn/kratos-kit/swagger-ui v0.0.11
 	github.com/liujitcn/kratos-kit/transport/cron v0.0.11
 	github.com/liujitcn/kratos-kit/transport/mcp v0.0.12

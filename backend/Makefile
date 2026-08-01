@@ -6,7 +6,7 @@ TAG ?= latest
 DOCKERFILE ?= Dockerfile
 BINARY ?= bin/server
 PROJECT_DOCS_BIN ?= project-docs
-GO_BIN_DIR ?= $(shell GOBIN=$$(go env GOBIN); if [ -n "$$GOBIN" ]; then printf '%s' "$$GOBIN"; else printf '%s/bin' "$$(go env GOPATH)"; fi)
+GO_BIN_DIR ?= $(or $(shell go env GOBIN),$(shell go env GOPATH)/bin)
 TS_PROTO_BIN ?= $(or \
 	$(shell command -v protoc-gen-ts_proto 2>/dev/null), \
 	$(wildcard $(CURDIR)/../frontend/admin/node_modules/.bin/protoc-gen-ts_proto), \
@@ -17,7 +17,7 @@ TS_PROTO_BIN ?= $(or \
 TS_PROTO_BIN_DIR := $(dir $(TS_PROTO_BIN))
 GORM_GEN_BIN ?= $(or \
 	$(shell command -v gorm-gen 2>/dev/null), \
-	$(shell GOBIN=$$(go env GOBIN); GOPATH=$$(go env GOPATH); if [ -n "$$GOBIN" ]; then printf '%s' "$$GOBIN/gorm-gen"; else printf '%s' "$$GOPATH/bin/gorm-gen"; fi) \
+	$(GO_BIN_DIR)/gorm-gen \
 )
 GORM_GEN_CONFIG ?= configs/data_local.yaml
 GORM_GEN_DATABASE ?=

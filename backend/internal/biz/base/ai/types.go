@@ -1,6 +1,10 @@
 package ai
 
-import "context"
+import (
+	"context"
+
+	backendmodule "github.com/liujitcn/kratos-admin/backend/module"
+)
 
 const (
 	// TerminalApp 表示应用端终端值。
@@ -56,60 +60,17 @@ type Attachment struct {
 	Bytes []byte `json:"-"`
 }
 
-// Response 表示 AI 助手单轮回复结果。
-//
-// 该结构同时承载模型原始回复与本地降级回复。落库时会被序列化为包含正文和元信息的
-// JSON，返回前端时再拆回正文、来源、模型名称和降级原因。
-type Response struct {
-	// Content 回复正文，面向前端展示。
-	Content string `json:"content"`
-	// Token 本次调用 token 消耗。
-	Token TokenUsage `json:"token"`
-	// Tools 本轮回复实际使用的工具列表。
-	Tools []ToolUsage `json:"tools"`
-	// Source 回复来源，例如 llm 或 fallback。
-	Source string `json:"source"`
-	// Model 使用的模型名称，便于前端展示和排障。
-	Model string `json:"model"`
-	// Fallback 标记本次回复是否由本地兜底逻辑生成。
-	Fallback bool `json:"fallback"`
-	// FallbackReason 记录触发降级的底层错误信息，仅用于排障和后台展示。
-	FallbackReason string `json:"fallbackReason"`
-	// Flow 记录本次回复所属的模块固定流程。
-	Flow string `json:"flow"`
-	// Step 记录本次回复所属的流程步骤。
-	Step string `json:"step"`
-	// BlocksJSON 记录模块定义的结构化内容 JSON。
-	BlocksJSON string `json:"blocksJson"`
-}
+// Response 是宿主 AI 契约的内部实现别名。
+type Response = backendmodule.AIResponse
 
-// TokenUsage 表示 AI 助手单轮真实 token 使用量。
-type TokenUsage struct {
-	// Input 输入 token 数。
-	Input int32 `json:"input"`
-	// Output 输出 token 数。
-	Output int32 `json:"output"`
-	// Cache 命中缓存 token 数。
-	Cache int32 `json:"cache"`
-	// Total 总 token 数。
-	Total int32 `json:"total"`
-}
+// TokenUsage 是宿主 AI 契约的内部实现别名。
+type TokenUsage = backendmodule.AITokenUsage
 
-// ToolUsage 表示 AI 助手单轮回复涉及的工具。
-type ToolUsage struct {
-	// Type 工具类型，例如 function 或 server。
-	Type string `json:"type"`
-	// Name 工具名称，用于排障和唯一识别。
-	Name string `json:"name"`
-	// Title 工具展示名称，优先使用生成工具描述。
-	Title string `json:"title"`
-	// Status 工具状态，例如 success、error。
-	Status string `json:"status"`
-	// Input 工具原始入参 JSON，用于后台展开排障。
-	Input string `json:"input"`
-	// Output 工具原始出参 JSON，用于后台展开排障。
-	Output string `json:"output"`
-}
+// ToolUsage 是宿主 AI 契约的内部实现别名。
+type ToolUsage = backendmodule.AIToolUsage
+
+// ToolInvokeResult 是宿主 AI 契约的内部实现别名。
+type ToolInvokeResult = backendmodule.AIToolInvokeResult
 
 // ToolAccessChecker 判断 Agent 工具是否允许在当前终端暴露。
 type ToolAccessChecker interface {

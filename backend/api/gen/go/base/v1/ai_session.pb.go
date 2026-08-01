@@ -13,7 +13,6 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -120,7 +119,7 @@ func (x *ListAiMessageResponse) GetMessages() []*AiMessage {
 // AI 助手会话列表查询条件
 type ListAiSessionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Terminal      v1.Terminal            `protobuf:"varint,1,opt,name=terminal,proto3,enum=common.v1.Terminal" json:"terminal,omitempty"` // 终端类型：枚举【Terminal】
+	Terminal      Terminal               `protobuf:"varint,1,opt,name=terminal,proto3,enum=base.v1.Terminal" json:"terminal,omitempty"` // 终端类型：枚举【Terminal】
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -155,11 +154,11 @@ func (*ListAiSessionRequest) Descriptor() ([]byte, []int) {
 	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *ListAiSessionRequest) GetTerminal() v1.Terminal {
+func (x *ListAiSessionRequest) GetTerminal() Terminal {
 	if x != nil {
 		return x.Terminal
 	}
-	return v1.Terminal(0)
+	return Terminal_UNKNOWN_TERMINAL
 }
 
 // AI 助手会话列表响应
@@ -210,8 +209,8 @@ func (x *ListAiSessionResponse) GetSessions() []*AiSession {
 // AI 助手会话创建请求
 type CreateAiSessionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Title         string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`                                // 会话标题
-	Terminal      v1.Terminal            `protobuf:"varint,2,opt,name=terminal,proto3,enum=common.v1.Terminal" json:"terminal,omitempty"` // 终端类型：枚举【Terminal】
+	Title         string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`                              // 会话标题
+	Terminal      Terminal               `protobuf:"varint,2,opt,name=terminal,proto3,enum=base.v1.Terminal" json:"terminal,omitempty"` // 终端类型：枚举【Terminal】
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -253,11 +252,11 @@ func (x *CreateAiSessionRequest) GetTitle() string {
 	return ""
 }
 
-func (x *CreateAiSessionRequest) GetTerminal() v1.Terminal {
+func (x *CreateAiSessionRequest) GetTerminal() Terminal {
 	if x != nil {
 		return x.Terminal
 	}
-	return v1.Terminal(0)
+	return Terminal_UNKNOWN_TERMINAL
 }
 
 // AI 助手会话创建响应
@@ -311,7 +310,7 @@ type CreateAiSessionBranchRequest struct {
 	SourceSessionId string                 `protobuf:"bytes,1,opt,name=source_session_id,json=sourceSessionId,proto3" json:"source_session_id,omitempty"` // 来源会话ID
 	AnchorMessageId string                 `protobuf:"bytes,2,opt,name=anchor_message_id,json=anchorMessageId,proto3" json:"anchor_message_id,omitempty"` // 分支锚点消息ID
 	Title           string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`                                              // 分支会话标题
-	Terminal        v1.Terminal            `protobuf:"varint,4,opt,name=terminal,proto3,enum=common.v1.Terminal" json:"terminal,omitempty"`               // 终端类型：枚举【Terminal】
+	Terminal        Terminal               `protobuf:"varint,4,opt,name=terminal,proto3,enum=base.v1.Terminal" json:"terminal,omitempty"`                 // 终端类型：枚举【Terminal】
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -367,11 +366,11 @@ func (x *CreateAiSessionBranchRequest) GetTitle() string {
 	return ""
 }
 
-func (x *CreateAiSessionBranchRequest) GetTerminal() v1.Terminal {
+func (x *CreateAiSessionBranchRequest) GetTerminal() Terminal {
 	if x != nil {
 		return x.Terminal
 	}
-	return v1.Terminal(0)
+	return Terminal_UNKNOWN_TERMINAL
 }
 
 // AI 助手分支会话创建响应
@@ -610,11 +609,11 @@ func (*DeleteAiSessionResponse) Descriptor() ([]byte, []int) {
 // AI 助手会话
 type AiSession struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                                      // 会话ID
-	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`                                // 会话标题
-	Summary       string                 `protobuf:"bytes,3,opt,name=summary,proto3" json:"summary,omitempty"`                            // 会话摘要
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`       // 更新时间
-	Terminal      v1.Terminal            `protobuf:"varint,6,opt,name=terminal,proto3,enum=common.v1.Terminal" json:"terminal,omitempty"` // 终端类型：枚举【Terminal】
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                                    // 会话ID
+	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`                              // 会话标题
+	Summary       string                 `protobuf:"bytes,3,opt,name=summary,proto3" json:"summary,omitempty"`                          // 会话摘要
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`     // 更新时间
+	Terminal      Terminal               `protobuf:"varint,6,opt,name=terminal,proto3,enum=base.v1.Terminal" json:"terminal,omitempty"` // 终端类型：枚举【Terminal】
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -677,11 +676,11 @@ func (x *AiSession) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *AiSession) GetTerminal() v1.Terminal {
+func (x *AiSession) GetTerminal() Terminal {
 	if x != nil {
 		return x.Terminal
 	}
-	return v1.Terminal(0)
+	return Terminal_UNKNOWN_TERMINAL
 }
 
 // AI 助手消息
@@ -692,7 +691,7 @@ type AiMessage struct {
 	OutputContent *AiOutputContent       `protobuf:"bytes,3,opt,name=output_content,json=outputContent,proto3" json:"output_content,omitempty"` // 输出内容
 	Attachments   []*AiAttachment        `protobuf:"bytes,4,rep,name=attachments,proto3" json:"attachments,omitempty"`                          // 附件列表
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`             // 创建时间
-	Status        v1.AiMessageStatus     `protobuf:"varint,6,opt,name=status,proto3,enum=common.v1.AiMessageStatus" json:"status,omitempty"`    // 消息生成状态：枚举【AiMessageStatus】
+	Status        AiMessageStatus        `protobuf:"varint,6,opt,name=status,proto3,enum=base.v1.AiMessageStatus" json:"status,omitempty"`      // 消息生成状态：枚举【AiMessageStatus】
 	Token         *AiToken               `protobuf:"bytes,7,opt,name=token,proto3" json:"token,omitempty"`                                      // Token 统计
 	Tools         []*AiToolCall          `protobuf:"bytes,8,rep,name=tools,proto3" json:"tools,omitempty"`                                      // 本次消息使用的工具调用记录
 	FirstTokenMs  int32                  `protobuf:"varint,9,opt,name=first_token_ms,json=firstTokenMs,proto3" json:"first_token_ms,omitempty"` // 首 Token 耗时毫秒
@@ -766,11 +765,11 @@ func (x *AiMessage) GetCreatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *AiMessage) GetStatus() v1.AiMessageStatus {
+func (x *AiMessage) GetStatus() AiMessageStatus {
 	if x != nil {
 		return x.Status
 	}
-	return v1.AiMessageStatus(0)
+	return AiMessageStatus_UNKNOWN_AMS
 }
 
 func (x *AiMessage) GetToken() *AiToken {
@@ -1113,30 +1112,30 @@ var File_base_v1_ai_session_proto protoreflect.FileDescriptor
 
 const file_base_v1_ai_session_proto_rawDesc = "" +
 	"\n" +
-	"\x18base/v1/ai_session.proto\x12\abase.v1\x1a\x15base/v1/ai_tool.proto\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa7\x01\n" +
+	"\x18base/v1/ai_session.proto\x12\abase.v1\x1a\x15base/v1/ai_tool.proto\x1a\x12base/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa7\x01\n" +
 	"\x14ListAiMessageRequest\x12\x8e\x01\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tBo\xbaG\v\x92\x02\b会话ID\xbaH^\xba\x01[\n" +
 	"#list_ai_message.session_id.positive\x12\x15会话编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\tsessionId\"[\n" +
 	"\x15ListAiMessageResponse\x12B\n" +
-	"\bmessages\x18\x01 \x03(\v2\x12.base.v1.AiMessageB\x12\xbaG\x0f\x92\x02\f消息列表R\bmessages\"r\n" +
-	"\x14ListAiSessionRequest\x12Z\n" +
-	"\bterminal\x18\x01 \x01(\x0e2\x13.common.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"[\n" +
+	"\bmessages\x18\x01 \x03(\v2\x12.base.v1.AiMessageB\x12\xbaG\x0f\x92\x02\f消息列表R\bmessages\"p\n" +
+	"\x14ListAiSessionRequest\x12X\n" +
+	"\bterminal\x18\x01 \x01(\x0e2\x11.base.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"[\n" +
 	"\x15ListAiSessionResponse\x12B\n" +
-	"\bsessions\x18\x01 \x03(\v2\x12.base.v1.AiSessionB\x12\xbaG\x0f\x92\x02\f会话列表R\bsessions\"\x9e\x01\n" +
+	"\bsessions\x18\x01 \x03(\v2\x12.base.v1.AiSessionB\x12\xbaG\x0f\x92\x02\f会话列表R\bsessions\"\x9c\x01\n" +
 	"\x16CreateAiSessionRequest\x12(\n" +
-	"\x05title\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f会话标题R\x05title\x12Z\n" +
-	"\bterminal\x18\x02 \x01(\x0e2\x13.common.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"[\n" +
+	"\x05title\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f会话标题R\x05title\x12X\n" +
+	"\bterminal\x18\x02 \x01(\x0e2\x11.base.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"[\n" +
 	"\x17CreateAiSessionResponse\x12@\n" +
-	"\asession\x18\x01 \x01(\v2\x12.base.v1.AiSessionB\x12\xbaG\x0f\x92\x02\f会话信息R\asession\"\x81\x05\n" +
+	"\asession\x18\x01 \x01(\v2\x12.base.v1.AiSessionB\x12\xbaG\x0f\x92\x02\f会话信息R\asession\"\xff\x04\n" +
 	"\x1cCreateAiSessionBranchRequest\x12\xb2\x01\n" +
 	"\x11source_session_id\x18\x01 \x01(\tB\x85\x01\xbaG\x11\x92\x02\x0e来源会话ID\xbaHn\xba\x01k\n" +
 	"3create_ai_session_branch.source_session_id.positive\x12\x15会话编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\x0fsourceSessionId\x12\xc4\x01\n" +
 	"\x11anchor_message_id\x18\x02 \x01(\tB\x97\x01\xbaG\x17\x92\x02\x14分支锚点消息ID\xbaHz\xba\x01w\n" +
 	"3create_ai_session_branch.anchor_message_id.positive\x12!分支锚点消息编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\x0fanchorMessageId\x12\x88\x01\n" +
 	"\x05title\x18\x03 \x01(\tBr\xbaG\x15\x92\x02\x12分支会话标题\xbaHW\xba\x01T\n" +
-	"'create_ai_session_branch.title.required\x12\x18会话标题不能为空\x1a\x0fthis.size() > 0R\x05title\x12Z\n" +
-	"\bterminal\x18\x04 \x01(\x0e2\x13.common.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"\xb1\x01\n" +
+	"'create_ai_session_branch.title.required\x12\x18会话标题不能为空\x1a\x0fthis.size() > 0R\x05title\x12X\n" +
+	"\bterminal\x18\x04 \x01(\x0e2\x11.base.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"\xb1\x01\n" +
 	"\x1dCreateAiSessionBranchResponse\x12C\n" +
 	"\asession\x18\x01 \x01(\v2\x12.base.v1.AiSessionB\x15\xbaG\x12\x92\x02\x0f新会话信息R\asession\x12K\n" +
 	"\bmessages\x18\x02 \x03(\v2\x12.base.v1.AiMessageB\x1b\xbaG\x18\x92\x02\x15新会话消息列表R\bmessages\"\x90\x02\n" +
@@ -1150,22 +1149,22 @@ const file_base_v1_ai_session_proto_rawDesc = "" +
 	"\x16DeleteAiSessionRequest\x12y\n" +
 	"\x02id\x18\x01 \x01(\tBi\xbaG\v\x92\x02\b会话ID\xbaHX\xba\x01U\n" +
 	"\x1ddelete_ai_session.id.positive\x12\x15会话编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\x02id\"\x19\n" +
-	"\x17DeleteAiSessionResponse\"\xae\x02\n" +
+	"\x17DeleteAiSessionResponse\"\xac\x02\n" +
 	"\tAiSession\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\x02id\x12(\n" +
 	"\x05title\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f会话标题R\x05title\x12,\n" +
 	"\asummary\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f会话摘要R\asummary\x12M\n" +
 	"\n" +
-	"updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12Z\n" +
-	"\bterminal\x18\x06 \x01(\x0e2\x13.common.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"\xec\x05\n" +
+	"updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12X\n" +
+	"\bterminal\x18\x06 \x01(\x0e2\x11.base.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"\xea\x05\n" +
 	"\tAiMessage\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b消息IDR\x02id\x12P\n" +
 	"\rinput_content\x18\x02 \x01(\v2\x17.base.v1.AiInputContentB\x12\xbaG\x0f\x92\x02\f输入内容R\finputContent\x12S\n" +
 	"\x0eoutput_content\x18\x03 \x01(\v2\x18.base.v1.AiOutputContentB\x12\xbaG\x0f\x92\x02\f输出内容R\routputContent\x12K\n" +
 	"\vattachments\x18\x04 \x03(\v2\x15.base.v1.AiAttachmentB\x12\xbaG\x0f\x92\x02\f附件列表R\vattachments\x12M\n" +
 	"\n" +
-	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x12j\n" +
-	"\x06status\x18\x06 \x01(\x0e2\x1a.common.v1.AiMessageStatusB6\xbaG3\x92\x020消息生成状态：枚举【AiMessageStatus】R\x06status\x12:\n" +
+	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x12h\n" +
+	"\x06status\x18\x06 \x01(\x0e2\x18.base.v1.AiMessageStatusB6\xbaG3\x92\x020消息生成状态：枚举【AiMessageStatus】R\x06status\x12:\n" +
 	"\x05token\x18\a \x01(\v2\x10.base.v1.AiTokenB\x12\xbaG\x0f\x92\x02\fToken 统计R\x05token\x12X\n" +
 	"\x05tools\x18\b \x03(\v2\x13.base.v1.AiToolCallB-\xbaG*\x92\x02'本次消息使用的工具调用记录R\x05tools\x12B\n" +
 	"\x0efirst_token_ms\x18\t \x01(\x05B\x1c\xbaG\x19\x92\x02\x16首 Token 耗时毫秒R\ffirstTokenMs\x126\n" +
@@ -1238,28 +1237,28 @@ var file_base_v1_ai_session_proto_goTypes = []any{
 	(*AiOutputContent)(nil),               // 15: base.v1.AiOutputContent
 	(*AiToken)(nil),                       // 16: base.v1.AiToken
 	(*AiAttachment)(nil),                  // 17: base.v1.AiAttachment
-	(v1.Terminal)(0),                      // 18: common.v1.Terminal
+	(Terminal)(0),                         // 18: base.v1.Terminal
 	(*timestamppb.Timestamp)(nil),         // 19: google.protobuf.Timestamp
-	(v1.AiMessageStatus)(0),               // 20: common.v1.AiMessageStatus
+	(AiMessageStatus)(0),                  // 20: base.v1.AiMessageStatus
 	(*AiToolCall)(nil),                    // 21: base.v1.AiToolCall
 }
 var file_base_v1_ai_session_proto_depIdxs = []int32{
 	13, // 0: base.v1.ListAiMessageResponse.messages:type_name -> base.v1.AiMessage
-	18, // 1: base.v1.ListAiSessionRequest.terminal:type_name -> common.v1.Terminal
+	18, // 1: base.v1.ListAiSessionRequest.terminal:type_name -> base.v1.Terminal
 	12, // 2: base.v1.ListAiSessionResponse.sessions:type_name -> base.v1.AiSession
-	18, // 3: base.v1.CreateAiSessionRequest.terminal:type_name -> common.v1.Terminal
+	18, // 3: base.v1.CreateAiSessionRequest.terminal:type_name -> base.v1.Terminal
 	12, // 4: base.v1.CreateAiSessionResponse.session:type_name -> base.v1.AiSession
-	18, // 5: base.v1.CreateAiSessionBranchRequest.terminal:type_name -> common.v1.Terminal
+	18, // 5: base.v1.CreateAiSessionBranchRequest.terminal:type_name -> base.v1.Terminal
 	12, // 6: base.v1.CreateAiSessionBranchResponse.session:type_name -> base.v1.AiSession
 	13, // 7: base.v1.CreateAiSessionBranchResponse.messages:type_name -> base.v1.AiMessage
 	12, // 8: base.v1.UpdateAiSessionResponse.session:type_name -> base.v1.AiSession
 	19, // 9: base.v1.AiSession.updated_at:type_name -> google.protobuf.Timestamp
-	18, // 10: base.v1.AiSession.terminal:type_name -> common.v1.Terminal
+	18, // 10: base.v1.AiSession.terminal:type_name -> base.v1.Terminal
 	14, // 11: base.v1.AiMessage.input_content:type_name -> base.v1.AiInputContent
 	15, // 12: base.v1.AiMessage.output_content:type_name -> base.v1.AiOutputContent
 	17, // 13: base.v1.AiMessage.attachments:type_name -> base.v1.AiAttachment
 	19, // 14: base.v1.AiMessage.created_at:type_name -> google.protobuf.Timestamp
-	20, // 15: base.v1.AiMessage.status:type_name -> common.v1.AiMessageStatus
+	20, // 15: base.v1.AiMessage.status:type_name -> base.v1.AiMessageStatus
 	16, // 16: base.v1.AiMessage.token:type_name -> base.v1.AiToken
 	21, // 17: base.v1.AiMessage.tools:type_name -> base.v1.AiToolCall
 	0,  // 18: base.v1.AiSessionService.ListAiMessage:input_type -> base.v1.ListAiMessageRequest
@@ -1287,6 +1286,7 @@ func file_base_v1_ai_session_proto_init() {
 		return
 	}
 	file_base_v1_ai_tool_proto_init()
+	file_base_v1_enum_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

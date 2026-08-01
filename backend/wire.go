@@ -6,7 +6,7 @@ package kratosadmin
 import (
 	"github.com/go-kratos/kratos/v3"
 	"github.com/google/wire"
-	"github.com/liujitcn/kratos-admin/backend/projectdoc"
+	"github.com/liujitcn/kratos-admin/backend/core/pkg/projectdoc"
 	"github.com/liujitcn/kratos-kit/bootstrap"
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 	gormmigration "github.com/liujitcn/kratos-kit/database/gorm/migration"

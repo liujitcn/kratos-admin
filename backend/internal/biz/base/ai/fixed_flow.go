@@ -6,29 +6,21 @@ import (
 	"sync"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	backendmodule "github.com/liujitcn/kratos-admin/backend/module"
 )
 
-// FixedFlowProvider 提供模块私有的固定流程、入口校验和快捷入口。
-type FixedFlowProvider interface {
-	// FlowNames 返回该模块声明的稳定流程标识，用于在启动阶段检测冲突。
-	FlowNames() []string
-	// GenerateFixedFlowReply 尝试生成固定流程回复；handled 为 false 时继续由通用聊天处理。
-	GenerateFixedFlowReply(context.Context, *Runtime, int32, string, *basev1.AiAction) (*Response, bool, error)
-	// IsFixedFlowEntryAction 判断动作是否为该模块流程的入口。
-	IsFixedFlowEntryAction(int32, string, string) bool
-	// FixedFlowShortcuts 返回当前终端可展示的模块快捷入口。
-	FixedFlowShortcuts(int32, map[string]bool) []*basev1.AiShortcut
-}
+// FixedFlowProvider 是宿主 AI 固定流程契约的内部实现别名。
+type FixedFlowProvider = backendmodule.AIFixedFlowProvider
 
 // fixedFlowRegistry 聚合当前组合根显式启用的固定流程提供者。
 type fixedFlowRegistry struct {
 	mu        sync.RWMutex
-	providers []FixedFlowProvider
+	providers []backendmodule.AIFixedFlowProvider
 	flowNames map[string]struct{}
 }
 
 // RegisterFixedFlow 注册模块固定流程提供者，并拒绝重复流程标识。
-func (r *Runtime) RegisterFixedFlow(provider FixedFlowProvider) error {
+func (r *Runtime) RegisterFixedFlow(provider backendmodule.AIFixedFlowProvider) error {
 	if r == nil {
 		return fmt.Errorf("AI助手运行时未初始化")
 	}
@@ -96,7 +88,7 @@ func (r *Runtime) FixedFlowShortcuts(terminal int32, enabledTools map[string]boo
 }
 
 // fixedFlowProviders 返回注册表快照，避免调用模块代码时持有锁。
-func (r *Runtime) fixedFlowProviders() []FixedFlowProvider {
+func (r *Runtime) fixedFlowProviders() []backendmodule.AIFixedFlowProvider {
 	if r == nil {
 		return nil
 	}

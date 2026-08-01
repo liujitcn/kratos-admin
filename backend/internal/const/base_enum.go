@@ -1,8 +1,9 @@
 package _const
 
 import (
-	commonv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/common/v1"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	systemcommonv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/common/v1"
+	commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
 )
 
 const (
@@ -14,11 +15,11 @@ const (
 
 const (
 	// BASE_CONFIG_SITE_SYSTEM 表示系统内部使用的配置项。
-	BASE_CONFIG_SITE_SYSTEM = int32(commonv1.BaseConfigSite_SYSTEM)
+	BASE_CONFIG_SITE_SYSTEM = int32(basev1.BaseConfigSite_SYSTEM)
 	// BASE_CONFIG_SITE_ADMIN 表示管理端使用的配置项。
-	BASE_CONFIG_SITE_ADMIN = int32(commonv1.BaseConfigSite_ADMIN)
+	BASE_CONFIG_SITE_ADMIN = int32(basev1.BaseConfigSite_ADMIN)
 	// BASE_CONFIG_SITE_APP 表示应用端使用的配置项。
-	BASE_CONFIG_SITE_APP = int32(commonv1.BaseConfigSite_APP)
+	BASE_CONFIG_SITE_APP = int32(basev1.BaseConfigSite_APP)
 )
 
 const (

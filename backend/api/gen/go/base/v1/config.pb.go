@@ -13,7 +13,6 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -29,7 +28,7 @@ const (
 // 获取系统配置条件
 type GetConfigRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Site          v1.BaseConfigSite      `protobuf:"varint,2,opt,name=site,proto3,enum=common.v1.BaseConfigSite" json:"site,omitempty"` // 位置：枚举【BaseConfigSite】
+	Site          BaseConfigSite         `protobuf:"varint,2,opt,name=site,proto3,enum=base.v1.BaseConfigSite" json:"site,omitempty"` // 位置：枚举【BaseConfigSite】
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -64,11 +63,11 @@ func (*GetConfigRequest) Descriptor() ([]byte, []int) {
 	return file_base_v1_config_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *GetConfigRequest) GetSite() v1.BaseConfigSite {
+func (x *GetConfigRequest) GetSite() BaseConfigSite {
 	if x != nil {
 		return x.Site
 	}
-	return v1.BaseConfigSite(0)
+	return BaseConfigSite_UNKNOWN_BCS
 }
 
 // 系统配置项
@@ -173,9 +172,9 @@ var File_base_v1_config_proto protoreflect.FileDescriptor
 
 const file_base_v1_config_proto_rawDesc = "" +
 	"\n" +
-	"\x14base/v1/config.proto\x12\abase.v1\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xb1\x01\n" +
-	"\x10GetConfigRequest\x12\x9c\x01\n" +
-	"\x04site\x18\x02 \x01(\x0e2\x19.common.v1.BaseConfigSiteBm\xbaG&\x92\x02#位置：枚举【BaseConfigSite】\xbaHA\xba\x019\n" +
+	"\x14base/v1/config.proto\x12\abase.v1\x1a\x12base/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xaf\x01\n" +
+	"\x10GetConfigRequest\x12\x9a\x01\n" +
+	"\x04site\x18\x02 \x01(\x0e2\x17.base.v1.BaseConfigSiteBm\xbaG&\x92\x02#位置：枚举【BaseConfigSite】\xbaHA\xba\x019\n" +
 	"\x18get_config.site.required\x12\x12位置不能为空\x1a\tthis != 0\x82\x01\x02\x10\x01R\x04site\"X\n" +
 	"\n" +
 	"ConfigItem\x12!\n" +
@@ -204,10 +203,10 @@ var file_base_v1_config_proto_goTypes = []any{
 	(*GetConfigRequest)(nil),  // 0: base.v1.GetConfigRequest
 	(*ConfigItem)(nil),        // 1: base.v1.ConfigItem
 	(*GetConfigResponse)(nil), // 2: base.v1.GetConfigResponse
-	(v1.BaseConfigSite)(0),    // 3: common.v1.BaseConfigSite
+	(BaseConfigSite)(0),       // 3: base.v1.BaseConfigSite
 }
 var file_base_v1_config_proto_depIdxs = []int32{
-	3, // 0: base.v1.GetConfigRequest.site:type_name -> common.v1.BaseConfigSite
+	3, // 0: base.v1.GetConfigRequest.site:type_name -> base.v1.BaseConfigSite
 	1, // 1: base.v1.GetConfigResponse.configs:type_name -> base.v1.ConfigItem
 	0, // 2: base.v1.ConfigService.GetConfig:input_type -> base.v1.GetConfigRequest
 	2, // 3: base.v1.ConfigService.GetConfig:output_type -> base.v1.GetConfigResponse
@@ -223,6 +222,7 @@ func file_base_v1_config_proto_init() {
 	if File_base_v1_config_proto != nil {
 		return
 	}
+	file_base_v1_enum_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

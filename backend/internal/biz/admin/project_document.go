@@ -3,7 +3,7 @@ package biz
 import (
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	"github.com/liujitcn/kratos-admin/backend/projectdoc"
+	"github.com/liujitcn/kratos-admin/backend/core/pkg/projectdoc"
 )
 
 // ProjectDocumentCase 提供多项目文档目录查询业务。

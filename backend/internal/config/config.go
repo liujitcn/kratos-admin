@@ -6,7 +6,6 @@ import (
 	"sort"
 
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	adminmigration "github.com/liujitcn/kratos-admin/backend/migration"
 
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	"github.com/liujitcn/kratos-kit/bootstrap"
@@ -60,11 +59,12 @@ func ParseDatabase(cfg *bootstrapConfigv1.Data) *bootstrapConfigv1.Data_Database
 	return cfg.GetDatabases()[gormmigration.DefaultTarget]
 }
 
-// NewDatabaseClient 创建全部数据库客户端并执行基础模块迁移。
+// NewDatabaseClient 创建全部数据库客户端并执行全部迁移贡献者。
 func NewDatabaseClient(
 	cfg *bootstrapConfigv1.Data,
 	options []databaseGorm.ClientOption,
 	runner *gormmigration.Runner,
+	contributors gormmigration.AdditionalMigrations,
 ) (*databaseGorm.Client, func(), error) {
 	configs, err := parseDatabaseConfigs(cfg)
 	if err != nil {
@@ -112,10 +112,16 @@ func NewDatabaseClient(
 		cleanup()
 		return nil, nil, fmt.Errorf("默认数据库客户端未配置")
 	}
-	err = runner.Run(context.Background(), adminmigration.ModuleName)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
+	// 每个贡献者都作为根模块执行一次，Runner 会按依赖递归执行前置模块。
+	for _, contributor := range contributors {
+		if contributor == nil {
+			continue
+		}
+		err = runner.Run(context.Background(), contributor.Name())
+		if err != nil {
+			cleanup()
+			return nil, nil, fmt.Errorf("执行迁移模块 %s: %w", contributor.Name(), err)
+		}
 	}
 	return client, cleanup, nil
 }

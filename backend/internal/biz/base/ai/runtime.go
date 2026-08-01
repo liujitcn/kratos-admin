@@ -153,14 +153,6 @@ func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta fun
 	return r.buildResponse(result.Message, tokenFromCallback(result.Token), toolsFromRecorder(recorder)), nil
 }
 
-// ToolInvokeResult 表示直接调用 Agent 工具后的结果。
-type ToolInvokeResult struct {
-	// Output 工具原始输出 JSON。
-	Output string
-	// Usage 本次工具调用的后台展示记录。
-	Usage ToolUsage
-}
-
 // disabledToolCall 保存禁用工具命中后的回复与展示记录。
 type disabledToolCall struct {
 	// Content 面向用户展示的禁用原因。

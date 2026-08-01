@@ -10,8 +10,8 @@ import (
 
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 
-	commonv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/common/v1"
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
 	coreOpenAPI "github.com/liujitcn/kratos-admin/backend/core/pkg/openapi"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"

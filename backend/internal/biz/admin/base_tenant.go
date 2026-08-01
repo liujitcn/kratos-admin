@@ -13,8 +13,8 @@ import (
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"gorm.io/gorm"
 
-	commonv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/common/v1"
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"

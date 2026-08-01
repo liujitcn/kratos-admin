@@ -13,7 +13,9 @@ backend
 │   ├── buf.app*.typescript.gen.yaml
 │   └── buf.taro-app*.typescript.gen.yaml # admin/uni-app/Taro 的 RPC 规则
 ├── configs                           # 运行配置
-├── core                              # 无业务 Proto 的 Kratos 宿主运行时
+├── core                              # 通用运行时、公共 Proto 和公共包
+│   ├── api/proto/common/v1            # 唯一通用 Proto 源码
+│   └── pkg/{errorsx,projectdoc}      # 公共错误与文档能力
 ├── internal
 │   ├── agent                         # Eino Agent 适配
 │   ├── biz/{admin,app,base,event,job}
@@ -24,13 +26,15 @@ backend
 │   ├── server                        # HTTP、gRPC、MCP、中间件和模块注册
 │   └── service/{admin,app,base}      # Proto 服务实现
 ├── migration/assets                  # 内嵌版本化 SQL
-├── projectdoc                        # 宿主和外部模块共用的文档贡献契约
-├── app.go                            # 对外模块门面
+├── module                            # Backend 宿主契约（迁移、用户、AI、运行时）
+├── app.go                            # 独立应用生命周期
+├── module.go                         # Backend Runtime 与模块装配
+├── option.go                         # 数据库、迁移和文档装配选项
 ├── wire.go                           # Wire 声明
 └── wire_gen.go                       # Wire 生成结果
 ```
 
-`common.v1` 通过 `buf.build/liujitcn/kratos-common` 引入，其余协议位于 `api/proto`。
+`common.v1` 通过 `buf.build/liujitcn/kratos-admin-core` 引入，其余协议位于 `api/proto`。
 
 ## 接口域
 
@@ -40,7 +44,7 @@ backend
 | `system.admin.v1` | 系统管理、个人中心、代码生成和迁移历史。 | 管理后台 |
 | `system.app.v1` | 应用端资料、地区、字典和移动菜单。 | 应用端 |
 
-HTTP 路径由 Proto 的 `google.api.http` 生成；请求校验由 `buf.validate` 和全局 protovalidate 中间件执行。服务端业务错误统一使用 `core/pkg/errorsx`。
+HTTP 路径由 Proto 的 `google.api.http` 生成；请求校验由 `buf.validate` 和全局 protovalidate 中间件执行。服务端及其他上层模块统一使用 `backend/core/pkg/errorsx`，其中包含结构化业务错误和常见 GORM/MySQL 错误分类。
 
 ## 运行形态
 
@@ -105,7 +109,7 @@ migration/assets/
 
 `mysql` 下的直系文件属于 `default` 数据源，一级子目录名必须与 `data.databases` 中的数据源名称一致。迁移版本支持 `vX.Y.Z` 和项目生成器兼容的纯数字格式；同一目标内按文件名排序执行 `.up.sql`，`.md` 会写入迁移描述。
 
-启动时先创建数据库客户端，再统一执行 `kratos-admin` 与 `MigrationContributor` 扩展模块提供的迁移及其依赖。每个版本、模块和数据源只记录一次；当前版本任一脚本失败会回滚并阻止启动。
+启动时先创建全部数据库客户端，再以每个已注册 Contributor 的模块名称作为根模块，统一执行 `kratos-admin` 和外部 `backend/module.MigrationContributor` 提供的迁移；Runner 会递归处理模块依赖。外部模块只贡献资源和依赖声明，不自行创建数据库客户端或调用迁移 Runner。每个版本、模块和数据源只记录一次；当前版本任一脚本失败会回滚并阻止启动。
 
 `enable_migrate` 只控制 GORM `AutoMigrate` 和表注释回填，不会关闭版本化 SQL。全新数据库通常需要默认数据源设置为 `true`，以便先创建 `base_migration` 和业务表。
 
@@ -114,6 +118,7 @@ migration/assets/
 | 命令 | 产物 |
 | --- | --- |
 | `make api` | `api/gen/go` 中的 Go、HTTP、gRPC、错误、Agent Tool 和 MCP Tool 代码。 |
+| `make -C core api` | Core 的 `common/v1` Go 协议代码。 |
 | `make openapi` | `internal/cmd/server/assets/openapi.yaml`。 |
 | `make ts` | 管理端 core 与 System 包的 TypeScript RPC。 |
 | `make ts-app` | uni-app core 与 system 包的 TypeScript RPC。 |
@@ -146,7 +151,7 @@ make project-docs
 RFC3339 更新时间；服务装配时使用 Admin 内置项目身份补齐项目标识、展示名称和稳定
 编号。`make wire` 会先执行该命令，因此生成目录被删除后也能自动恢复。
 
-引用 Backend 的宿主可通过 `WithProjectDocuments` 注入自己的生成文档。通过 `WithAdditionalModules` 注册的外部模块实现 `projectdoc.Contributor` 后会被自动汇总；`Runtime` 本身也实现该接口，因此 Backend 被更外层宿主引用时会继续贡献已经聚合的文档。
+引用 Backend 的宿主可通过 `WithProjectDocuments` 注入自己的生成文档。通过 `WithAdditionalModules` 注册的外部模块实现 `core.ProjectDocumentContributor` 后会被自动汇总；`Runtime` 本身也实现该接口，因此 Backend 被更外层宿主引用时会继续贡献已经聚合的文档。文档类型和目录解析位于 `core/pkg/projectdoc`，数据库迁移仍由 Backend 宿主负责。
 
 ## HTTP 入口
 

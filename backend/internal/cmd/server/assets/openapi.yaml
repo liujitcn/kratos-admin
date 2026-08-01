@@ -2689,7 +2689,7 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - TERMINAL_UNSPECIFIED
+                        - UNKNOWN_TERMINAL
                         - TERMINAL_APP
                         - TERMINAL_ADMIN
                     type: string
@@ -2954,7 +2954,7 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - TERMINAL_UNSPECIFIED
+                        - UNKNOWN_TERMINAL
                         - TERMINAL_APP
                         - TERMINAL_ADMIN
                     type: string
@@ -3515,10 +3515,10 @@ components:
                     format: date-time
                 status:
                     enum:
-                        - UNKNOWN_AAMS
-                        - GENERATING_AAMS
-                        - SUCCESS_AAMS
-                        - FAILED_AAMS
+                        - UNKNOWN_AMS
+                        - GENERATING_AMS
+                        - SUCCESS_AMS
+                        - FAILED_AMS
                     type: string
                     description: 消息生成状态：枚举【AiMessageStatus】
                     format: enum
@@ -3587,7 +3587,7 @@ components:
                     format: date-time
                 terminal:
                     enum:
-                        - TERMINAL_UNSPECIFIED
+                        - UNKNOWN_TERMINAL
                         - TERMINAL_APP
                         - TERMINAL_ADMIN
                     type: string
@@ -3740,7 +3740,7 @@ components:
                     description: 分支会话标题
                 terminal:
                     enum:
-                        - TERMINAL_UNSPECIFIED
+                        - UNKNOWN_TERMINAL
                         - TERMINAL_APP
                         - TERMINAL_ADMIN
                     type: string
@@ -3766,7 +3766,7 @@ components:
                     description: 会话标题
                 terminal:
                     enum:
-                        - TERMINAL_UNSPECIFIED
+                        - UNKNOWN_TERMINAL
                         - TERMINAL_APP
                         - TERMINAL_ADMIN
                     type: string

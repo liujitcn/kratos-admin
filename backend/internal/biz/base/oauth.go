@@ -15,7 +15,6 @@ import (
 	"time"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	commonv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/event"
@@ -252,7 +251,7 @@ func (c *OauthCase) CreateOauthSession(ctx context.Context, req *basev1.CreateOa
 
 // oauthAutoRegisterEnabled 读取微信未绑定时是否允许自动注册。
 func (c *OauthCase) oauthAutoRegisterEnabled(ctx context.Context) (bool, error) {
-	config, err := c.configCase.GetConfig(ctx, &basev1.GetConfigRequest{Site: commonv1.BaseConfigSite_APP})
+	config, err := c.configCase.GetConfig(ctx, &basev1.GetConfigRequest{Site: basev1.BaseConfigSite_APP})
 	if err != nil {
 		return false, errorsx.Internal("读取微信登录配置失败").WithCause(err)
 	}

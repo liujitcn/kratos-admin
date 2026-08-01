@@ -8,7 +8,6 @@ managed:
 
   disable:
     - module: 'buf.build/googleapis/googleapis'
-    - module: 'buf.build/envoyproxy/protoc-gen-validate'
     - module: 'buf.build/kratos/apis'
     - module: 'buf.build/gnostic/gnostic'
     - module: 'buf.build/gogo/protobuf'
@@ -21,9 +20,6 @@ inputs:
       - proto/base/v1/ai_tool.proto
       - proto/base/v1/oauth.proto
       - proto/base/v1/sse.proto
-      - proto/common/v1/common.proto
-      - proto/common/v1/enum.proto
-      - proto/common/v1/types.proto
       - proto/system/admin/v1
       - proto/system/common/v1/enum.proto
 
@@ -36,6 +32,7 @@ plugins:
       - buf.validate
       - gnostic.openapi.v3
       - google.api
+    strategy: all
     opt:
       - outputSchema=false # 生成模式 (const, no-file-descriptor, true, false)
       - outputTypeRegistry=false # 生成类型注册表

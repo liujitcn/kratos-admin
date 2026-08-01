@@ -14,7 +14,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	commonv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 
@@ -233,7 +233,7 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 		return nil, errorsx.Unauthenticated("用户名或密码错误")
 	}
 	var password string
-	password, err = utils.DecryptPassword(req.GetPassword(), commonv1.PasswordCryptoScene_LOGIN)
+	password, err = utils.DecryptPassword(req.GetPassword(), basev1.PasswordCryptoScene_LOGIN)
 	if err != nil {
 		return nil, errorsx.Unauthenticated("用户名或密码错误").WithCause(err)
 	}
@@ -267,7 +267,7 @@ func (c *LoginCase) FindUserByPassword(ctx context.Context, tenantCode string, u
 		return nil, errorsx.Unauthenticated("用户名或密码错误")
 	}
 	var password string
-	password, err = utils.DecryptPassword(encryptedPassword, commonv1.PasswordCryptoScene_LOGIN)
+	password, err = utils.DecryptPassword(encryptedPassword, basev1.PasswordCryptoScene_LOGIN)
 	if err != nil {
 		return nil, errorsx.Unauthenticated("用户名或密码错误").WithCause(err)
 	}

@@ -3,8 +3,8 @@ package admin
 import (
 	"context"
 
-	commonv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/common/v1"
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/admin"
 

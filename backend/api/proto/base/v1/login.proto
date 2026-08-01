@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package base.v1;
 
-import "common/v1/enum.proto";
+import "base/v1/enum.proto";
 import "common/v1/types.proto";
 import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
@@ -64,7 +64,7 @@ message CaptchaRequest {
 
 // 密码临时公钥获取条件
 message PasswordPublicKeyRequest {
-  .common.v1.PasswordCryptoScene scene = 1 [(gnostic.openapi.v3.property) = {description: "使用场景"}]; // 使用场景
+  .base.v1.PasswordCryptoScene scene = 1 [(gnostic.openapi.v3.property) = {description: "使用场景"}]; // 使用场景
 }
 
 // 登出请求条件

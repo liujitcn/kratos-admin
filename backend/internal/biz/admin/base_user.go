@@ -13,8 +13,9 @@ import (
 	authnEngine "github.com/liujitcn/kratos-kit/auth/authn/engine"
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 
-	commonv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/common/v1"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	basebiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
@@ -343,7 +344,7 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *systemadminv1.Ba
 	if req.GetPwd() == nil {
 		passwordStr = utils.GetDefaultPassword(req.GetUserName(), req.GetPhone())
 	} else {
-		passwordStr, err = utils.DecryptPassword(req.GetPwd(), commonv1.PasswordCryptoScene_CREATE_BASE_USER)
+		passwordStr, err = utils.DecryptPassword(req.GetPwd(), basev1.PasswordCryptoScene_CREATE_BASE_USER)
 		if err != nil {
 			return err
 		}
@@ -510,7 +511,7 @@ func (c *BaseUserCase) ResetBaseUserPassword(ctx context.Context, req *systemadm
 	if req.GetPwd() == nil {
 		passwordStr = utils.GetDefaultPassword(baseUser.UserName, baseUser.Phone)
 	} else {
-		passwordStr, err = utils.DecryptPassword(req.GetPwd(), commonv1.PasswordCryptoScene_RESET_BASE_USER_PASSWORD)
+		passwordStr, err = utils.DecryptPassword(req.GetPwd(), basev1.PasswordCryptoScene_RESET_BASE_USER_PASSWORD)
 		if err != nil {
 			return err
 		}

@@ -7,8 +7,9 @@ import (
 	"math/rand/v2"
 	"time"
 
-	commonv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/common/v1"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	baseBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
@@ -101,6 +102,7 @@ func (c *AuthCase) TreeUserMenu(ctx context.Context) (*systemadminv1.TreeRouteRe
 	}
 
 	opts := make([]repository.QueryOption, 0, 5)
+	opts = append(opts, repository.Order(query.Sort.Asc()), repository.Order(query.ID.Asc()))
 	opts = append(opts, repository.Where(query.Status.Eq(_const.STATUS_ENABLE)))
 	opts = append(opts, repository.Where(query.Type.In(
 		_const.BASE_MENU_TYPE_FOLDER,
@@ -273,12 +275,12 @@ func (c *AuthCase) UpdateUserPassword(ctx context.Context, req *systemadminv1.Us
 		return err
 	}
 	var oldPwd string
-	oldPwd, err = utils.DecryptPassword(req.GetOldPwd(), commonv1.PasswordCryptoScene_UPDATE_USER_PASSWORD)
+	oldPwd, err = utils.DecryptPassword(req.GetOldPwd(), basev1.PasswordCryptoScene_UPDATE_USER_PASSWORD)
 	if err != nil {
 		return err
 	}
 	var newPwd string
-	newPwd, err = utils.DecryptPassword(req.GetNewPwd(), commonv1.PasswordCryptoScene_UPDATE_USER_PASSWORD)
+	newPwd, err = utils.DecryptPassword(req.GetNewPwd(), basev1.PasswordCryptoScene_UPDATE_USER_PASSWORD)
 	if err != nil {
 		return err
 	}

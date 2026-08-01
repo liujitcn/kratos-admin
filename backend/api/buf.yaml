@@ -14,13 +14,11 @@ modules:
       use:
         - FILE
 deps:
-  - 'buf.build/liujitcn/kratos-common'
+  - 'buf.build/liujitcn/kratos-admin-core'
   - 'buf.build/googleapis/googleapis'
   - 'buf.build/kratos/apis'
   - 'buf.build/gnostic/gnostic'
-  - 'buf.build/envoyproxy/protoc-gen-validate'
   - 'buf.build/bufbuild/protovalidate'
-  - 'buf.build/menta2k-org/redact'
 
 breaking:
   use:

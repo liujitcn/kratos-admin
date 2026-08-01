@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/common/v1"
+	v1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -75,7 +75,7 @@ func (x *CaptchaRequest) GetType() string {
 // 密码临时公钥获取条件
 type PasswordPublicKeyRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Scene         v1.PasswordCryptoScene `protobuf:"varint,1,opt,name=scene,proto3,enum=common.v1.PasswordCryptoScene" json:"scene,omitempty"` // 使用场景
+	Scene         PasswordCryptoScene    `protobuf:"varint,1,opt,name=scene,proto3,enum=base.v1.PasswordCryptoScene" json:"scene,omitempty"` // 使用场景
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -110,11 +110,11 @@ func (*PasswordPublicKeyRequest) Descriptor() ([]byte, []int) {
 	return file_base_v1_login_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *PasswordPublicKeyRequest) GetScene() v1.PasswordCryptoScene {
+func (x *PasswordPublicKeyRequest) GetScene() PasswordCryptoScene {
 	if x != nil {
 		return x.Scene
 	}
-	return v1.PasswordCryptoScene(0)
+	return PasswordCryptoScene_UNKNOWN_PCS
 }
 
 // 登出请求条件
@@ -662,11 +662,11 @@ var File_base_v1_login_proto protoreflect.FileDescriptor
 
 const file_base_v1_login_proto_rawDesc = "" +
 	"\n" +
-	"\x13base/v1/login.proto\x12\abase.v1\x1a\x14common/v1/enum.proto\x1a\x15common/v1/types.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"u\n" +
+	"\x13base/v1/login.proto\x12\abase.v1\x1a\x12base/v1/enum.proto\x1a\x15common/v1/types.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"u\n" +
 	"\x0eCaptchaRequest\x12c\n" +
-	"\x04type\x18\x01 \x01(\tBO\xbaGL\x92\x02I验证码类型，random 表示随机选择当前支持的验证码类型R\x04type\"d\n" +
-	"\x18PasswordPublicKeyRequest\x12H\n" +
-	"\x05scene\x18\x01 \x01(\x0e2\x1e.common.v1.PasswordCryptoSceneB\x12\xbaG\x0f\x92\x02\f使用场景R\x05scene\"\x0f\n" +
+	"\x04type\x18\x01 \x01(\tBO\xbaGL\x92\x02I验证码类型，random 表示随机选择当前支持的验证码类型R\x04type\"b\n" +
+	"\x18PasswordPublicKeyRequest\x12F\n" +
+	"\x05scene\x18\x01 \x01(\x0e2\x1c.base.v1.PasswordCryptoSceneB\x12\xbaG\x0f\x92\x02\f使用场景R\x05scene\"\x0f\n" +
 	"\rLogoutRequest\"\xb8\x01\n" +
 	"\x0fCaptchaResponse\x120\n" +
 	"\n" +
@@ -754,12 +754,12 @@ var file_base_v1_login_proto_goTypes = []any{
 	(*RefreshTokenResponse)(nil),      // 8: base.v1.RefreshTokenResponse
 	(*LoginRequest)(nil),              // 9: base.v1.LoginRequest
 	(*LoginResponse)(nil),             // 10: base.v1.LoginResponse
-	(v1.PasswordCryptoScene)(0),       // 11: common.v1.PasswordCryptoScene
+	(PasswordCryptoScene)(0),          // 11: base.v1.PasswordCryptoScene
 	(*v1.PasswordCrypto)(nil),         // 12: common.v1.PasswordCrypto
 	(*emptypb.Empty)(nil),             // 13: google.protobuf.Empty
 }
 var file_base_v1_login_proto_depIdxs = []int32{
-	11, // 0: base.v1.PasswordPublicKeyRequest.scene:type_name -> common.v1.PasswordCryptoScene
+	11, // 0: base.v1.PasswordPublicKeyRequest.scene:type_name -> base.v1.PasswordCryptoScene
 	12, // 1: base.v1.LoginRequest.password:type_name -> common.v1.PasswordCrypto
 	0,  // 2: base.v1.LoginService.Captcha:input_type -> base.v1.CaptchaRequest
 	4,  // 3: base.v1.LoginService.VerifyCaptcha:input_type -> base.v1.VerifyCaptchaRequest
@@ -785,6 +785,7 @@ func file_base_v1_login_proto_init() {
 	if File_base_v1_login_proto != nil {
 		return
 	}
+	file_base_v1_enum_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

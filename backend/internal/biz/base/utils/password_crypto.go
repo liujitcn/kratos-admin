@@ -7,7 +7,7 @@ import (
 	"time"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	commonv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
 
 	"github.com/google/uuid"
@@ -21,11 +21,11 @@ const (
 	passwordCryptoTTL       = 5 * time.Minute
 )
 
-var passwordCryptoSceneSet = map[commonv1.PasswordCryptoScene]struct{}{
-	commonv1.PasswordCryptoScene_LOGIN:                    {},
-	commonv1.PasswordCryptoScene_CREATE_BASE_USER:         {},
-	commonv1.PasswordCryptoScene_RESET_BASE_USER_PASSWORD: {},
-	commonv1.PasswordCryptoScene_UPDATE_USER_PASSWORD:     {},
+var passwordCryptoSceneSet = map[basev1.PasswordCryptoScene]struct{}{
+	basev1.PasswordCryptoScene_LOGIN:                    {},
+	basev1.PasswordCryptoScene_CREATE_BASE_USER:         {},
+	basev1.PasswordCryptoScene_RESET_BASE_USER_PASSWORD: {},
+	basev1.PasswordCryptoScene_UPDATE_USER_PASSWORD:     {},
 }
 
 type passwordCryptoKeyRecord struct {
@@ -36,7 +36,7 @@ type passwordCryptoKeyRecord struct {
 }
 
 // GeneratePasswordPublicKey 生成密码加密使用的临时公钥。
-func GeneratePasswordPublicKey(scene commonv1.PasswordCryptoScene) (*basev1.PasswordPublicKeyResponse, error) {
+func GeneratePasswordPublicKey(scene basev1.PasswordCryptoScene) (*basev1.PasswordPublicKeyResponse, error) {
 	if _, ok := passwordCryptoSceneSet[scene]; !ok {
 		return nil, errorsx.InvalidArgument("密码加密场景不支持")
 	}
@@ -93,7 +93,7 @@ func GeneratePasswordPublicKey(scene commonv1.PasswordCryptoScene) (*basev1.Pass
 }
 
 // DecryptPassword 解密密码密文字段并返回原始密码。
-func DecryptPassword(password *commonv1.PasswordCrypto, scene commonv1.PasswordCryptoScene) (string, error) {
+func DecryptPassword(password *commonv1.PasswordCrypto, scene basev1.PasswordCryptoScene) (string, error) {
 	if _, ok := passwordCryptoSceneSet[scene]; !ok {
 		return "", errorsx.InvalidArgument("密码加密场景不支持")
 	}

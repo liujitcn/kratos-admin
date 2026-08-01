@@ -1208,7 +1208,7 @@ func ensureGeneratedGoImports(content string, methodContent string) string {
 		{marker: "context.", importLine: `"context"`, importPath: "context"},
 		{marker: "json.", importLine: `"encoding/json"`, importPath: "encoding/json"},
 		{marker: "fmt.", importLine: `"fmt"`, importPath: "fmt"},
-		{marker: "commonv1.", importLine: `commonv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/common/v1"`, importPath: "github.com/liujitcn/kratos-admin/backend/api/gen/go/common/v1"},
+		{marker: "commonv1.", importLine: `commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"`, importPath: "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"},
 		{marker: "errorsx.", importLine: `"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"`, importPath: "github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"},
 		{marker: "models.", importLine: `"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"`, importPath: "github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"},
 		{marker: "mapper.", importLine: `"github.com/liujitcn/go-utils/mapper"`, importPath: "github.com/liujitcn/go-utils/mapper"},

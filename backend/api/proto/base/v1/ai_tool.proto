@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package base.v1;
 
-import "common/v1/enum.proto";
+import "base/v1/enum.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 
@@ -18,7 +18,7 @@ service AiToolService {
 
 // AI 助手快捷入口列表查询条件
 message ListAiShortcutRequest {
-  .common.v1.Terminal terminal = 1 [(gnostic.openapi.v3.property) = {description: "终端类型：枚举【Terminal】"}]; // 终端类型：枚举【Terminal】
+  .base.v1.Terminal terminal = 1 [(gnostic.openapi.v3.property) = {description: "终端类型：枚举【Terminal】"}]; // 终端类型：枚举【Terminal】
 }
 
 // AI 助手快捷入口列表响应

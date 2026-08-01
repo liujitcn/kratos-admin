@@ -13,8 +13,9 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/common/v1"
+	v1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	v11 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/common/v1"
+	v12 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -31,11 +32,11 @@ const (
 // 系统配置分页查询条件
 type PageBaseConfigRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Site          *v1.BaseConfigSite     `protobuf:"varint,2,opt,name=site,proto3,enum=common.v1.BaseConfigSite,oneof" json:"site,omitempty"`        // 位置：枚举【BaseConfigSite】
+	Site          *v1.BaseConfigSite     `protobuf:"varint,2,opt,name=site,proto3,enum=base.v1.BaseConfigSite,oneof" json:"site,omitempty"`          // 位置：枚举【BaseConfigSite】
 	Name          *string                `protobuf:"bytes,3,opt,name=name,proto3,oneof" json:"name,omitempty"`                                       // 配置名称
 	Type          *v11.BaseConfigType    `protobuf:"varint,4,opt,name=type,proto3,enum=system.common.v1.BaseConfigType,oneof" json:"type,omitempty"` // 配置类型：枚举【BaseConfigType】
 	Key           *string                `protobuf:"bytes,5,opt,name=key,proto3,oneof" json:"key,omitempty"`                                         // 配置key
-	Status        *v1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`          // 状态：枚举【Status】
+	Status        *v12.Status            `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`          // 状态：枚举【Status】
 	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                     // 当前页码
 	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                  // 每一页的行数
 	unknownFields protoimpl.UnknownFields
@@ -100,11 +101,11 @@ func (x *PageBaseConfigRequest) GetKey() string {
 	return ""
 }
 
-func (x *PageBaseConfigRequest) GetStatus() v1.Status {
+func (x *PageBaseConfigRequest) GetStatus() v12.Status {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
-	return v1.Status(0)
+	return v12.Status(0)
 }
 
 func (x *PageBaseConfigRequest) GetPageNum() int64 {
@@ -223,12 +224,12 @@ func (x *GetBaseConfigRequest) GetId() int64 {
 type BaseConfigForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                          // 配置ID
-	Site          v1.BaseConfigSite      `protobuf:"varint,2,opt,name=site,proto3,enum=common.v1.BaseConfigSite" json:"site,omitempty"`        // 位置：枚举【BaseConfigSite】
+	Site          v1.BaseConfigSite      `protobuf:"varint,2,opt,name=site,proto3,enum=base.v1.BaseConfigSite" json:"site,omitempty"`          // 位置：枚举【BaseConfigSite】
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                       // 配置名称
 	Type          v11.BaseConfigType     `protobuf:"varint,4,opt,name=type,proto3,enum=system.common.v1.BaseConfigType" json:"type,omitempty"` // 配置类型：1、文本，2、图片，3、富文本，4、字典，5、布尔
 	Key           string                 `protobuf:"bytes,5,opt,name=key,proto3" json:"key,omitempty"`                                         // 配置key
 	Value         string                 `protobuf:"bytes,6,opt,name=value,proto3" json:"value,omitempty"`                                     // 配置value
-	Status        v1.Status              `protobuf:"varint,51,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`           // 状态
+	Status        v12.Status             `protobuf:"varint,51,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`           // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -305,11 +306,11 @@ func (x *BaseConfigForm) GetValue() string {
 	return ""
 }
 
-func (x *BaseConfigForm) GetStatus() v1.Status {
+func (x *BaseConfigForm) GetStatus() v12.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return v12.Status(0)
 }
 
 // 创建系统配置请求参数
@@ -541,12 +542,12 @@ func (*RefreshBaseConfigCacheRequest) Descriptor() ([]byte, []int) {
 type BaseConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                          // 配置ID
-	Site          v1.BaseConfigSite      `protobuf:"varint,2,opt,name=site,proto3,enum=common.v1.BaseConfigSite" json:"site,omitempty"`        // 位置：枚举【BaseConfigSite】
+	Site          v1.BaseConfigSite      `protobuf:"varint,2,opt,name=site,proto3,enum=base.v1.BaseConfigSite" json:"site,omitempty"`          // 位置：枚举【BaseConfigSite】
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                       // 配置名称
 	Type          v11.BaseConfigType     `protobuf:"varint,4,opt,name=type,proto3,enum=system.common.v1.BaseConfigType" json:"type,omitempty"` // 配置类型：枚举【BaseConfigType】
 	Key           string                 `protobuf:"bytes,5,opt,name=key,proto3" json:"key,omitempty"`                                         // 配置key
 	Value         string                 `protobuf:"bytes,6,opt,name=value,proto3" json:"value,omitempty"`                                     // 配置value
-	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`          // 状态：枚举【Status】
+	Status        v12.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`          // 状态：枚举【Status】
 	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`          // 创建时间
 	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`          // 更新时间
 	unknownFields protoimpl.UnknownFields
@@ -625,11 +626,11 @@ func (x *BaseConfig) GetValue() string {
 	return ""
 }
 
-func (x *BaseConfig) GetStatus() v1.Status {
+func (x *BaseConfig) GetStatus() v12.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return v12.Status(0)
 }
 
 func (x *BaseConfig) GetCreatedAt() string {
@@ -650,9 +651,9 @@ var File_system_admin_v1_base_config_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"\n" +
-	"!system/admin/v1/base_config.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1bsystem/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xb6\x04\n" +
-	"\x15PageBaseConfigRequest\x12]\n" +
-	"\x04site\x18\x02 \x01(\x0e2\x19.common.v1.BaseConfigSiteB)\xbaG&\x92\x02#位置：枚举【BaseConfigSite】H\x00R\x04site\x88\x01\x01\x12+\n" +
+	"!system/admin/v1/base_config.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x12base/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1bsystem/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xb4\x04\n" +
+	"\x15PageBaseConfigRequest\x12[\n" +
+	"\x04site\x18\x02 \x01(\x0e2\x17.base.v1.BaseConfigSiteB)\xbaG&\x92\x02#位置：枚举【BaseConfigSite】H\x00R\x04site\x88\x01\x01\x12+\n" +
 	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f配置名称H\x01R\x04name\x88\x01\x01\x12j\n" +
 	"\x04type\x18\x04 \x01(\x0e2 .system.common.v1.BaseConfigTypeB/\xbaG,\x92\x02)配置类型：枚举【BaseConfigType】H\x02R\x04type\x88\x01\x01\x12&\n" +
 	"\x03key\x18\x05 \x01(\tB\x0f\xbaG\f\x92\x02\t配置keyH\x03R\x03key\x88\x01\x01\x12Q\n" +
@@ -669,10 +670,10 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"y\n" +
 	"\x14GetBaseConfigRequest\x12a\n" +
 	"\x02id\x18\x01 \x01(\x03BQ\xbaG\v\x92\x02\b配置ID\xbaH@\xba\x01=\n" +
-	"\x1bget_base_config.id.required\x12\x14配置ID不能为空\x1a\bthis > 0R\x02id\"\x83\b\n" +
+	"\x1bget_base_config.id.required\x12\x14配置ID不能为空\x1a\bthis > 0R\x02id\"\x81\b\n" +
 	"\x0eBaseConfigForm\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12\xa6\x01\n" +
-	"\x04site\x18\x02 \x01(\x0e2\x19.common.v1.BaseConfigSiteBw\xbaG&\x92\x02#位置：枚举【BaseConfigSite】\xbaHK\xba\x01C\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12\xa4\x01\n" +
+	"\x04site\x18\x02 \x01(\x0e2\x17.base.v1.BaseConfigSiteBw\xbaG&\x92\x02#位置：枚举【BaseConfigSite】\xbaHK\xba\x01C\n" +
 	"\x19base_config.site.required\x12\x1b请选择系统配置位置\x1a\tthis != 0\x82\x01\x02\x10\x01R\x04site\x12\xce\x01\n" +
 	"\x04name\x18\x03 \x01(\tB\xb9\x01\xbaG\x0f\x92\x02\f配置名称\xbaH\xa3\x01\xba\x01I\n" +
 	"\x19base_config.name.required\x12\x1b请输入系统配置名称\x1a\x0fthis.size() > 0\xba\x01T\n" +
@@ -699,11 +700,11 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x03BX\xbaG\v\x92\x02\b配置ID\xbaHG\xba\x01D\n" +
 	"\"set_base_config_status.id.required\x12\x14配置ID不能为空\x1a\bthis > 0R\x02id\x12$\n" +
 	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\x1f\n" +
-	"\x1dRefreshBaseConfigCacheRequest\"\x97\x04\n" +
+	"\x1dRefreshBaseConfigCacheRequest\"\x95\x04\n" +
 	"\n" +
 	"BaseConfig\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12X\n" +
-	"\x04site\x18\x02 \x01(\x0e2\x19.common.v1.BaseConfigSiteB)\xbaG&\x92\x02#位置：枚举【BaseConfigSite】R\x04site\x12&\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12V\n" +
+	"\x04site\x18\x02 \x01(\x0e2\x17.base.v1.BaseConfigSiteB)\xbaG&\x92\x02#位置：枚举【BaseConfigSite】R\x04site\x12&\n" +
 	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f配置名称R\x04name\x12e\n" +
 	"\x04type\x18\x04 \x01(\x0e2 .system.common.v1.BaseConfigTypeB/\xbaG,\x92\x02)配置类型：枚举【BaseConfigType】R\x04type\x12!\n" +
 	"\x03key\x18\x05 \x01(\tB\x0f\xbaG\f\x92\x02\t配置keyR\x03key\x12'\n" +
@@ -747,22 +748,22 @@ var file_system_admin_v1_base_config_proto_goTypes = []any{
 	(*SetBaseConfigStatusRequest)(nil),    // 7: system.admin.v1.SetBaseConfigStatusRequest
 	(*RefreshBaseConfigCacheRequest)(nil), // 8: system.admin.v1.RefreshBaseConfigCacheRequest
 	(*BaseConfig)(nil),                    // 9: system.admin.v1.BaseConfig
-	(v1.BaseConfigSite)(0),                // 10: common.v1.BaseConfigSite
+	(v1.BaseConfigSite)(0),                // 10: base.v1.BaseConfigSite
 	(v11.BaseConfigType)(0),               // 11: system.common.v1.BaseConfigType
-	(v1.Status)(0),                        // 12: common.v1.Status
+	(v12.Status)(0),                       // 12: common.v1.Status
 	(*emptypb.Empty)(nil),                 // 13: google.protobuf.Empty
 }
 var file_system_admin_v1_base_config_proto_depIdxs = []int32{
-	10, // 0: system.admin.v1.PageBaseConfigRequest.site:type_name -> common.v1.BaseConfigSite
+	10, // 0: system.admin.v1.PageBaseConfigRequest.site:type_name -> base.v1.BaseConfigSite
 	11, // 1: system.admin.v1.PageBaseConfigRequest.type:type_name -> system.common.v1.BaseConfigType
 	12, // 2: system.admin.v1.PageBaseConfigRequest.status:type_name -> common.v1.Status
 	9,  // 3: system.admin.v1.PageBaseConfigResponse.base_configs:type_name -> system.admin.v1.BaseConfig
-	10, // 4: system.admin.v1.BaseConfigForm.site:type_name -> common.v1.BaseConfigSite
+	10, // 4: system.admin.v1.BaseConfigForm.site:type_name -> base.v1.BaseConfigSite
 	11, // 5: system.admin.v1.BaseConfigForm.type:type_name -> system.common.v1.BaseConfigType
 	12, // 6: system.admin.v1.BaseConfigForm.status:type_name -> common.v1.Status
 	3,  // 7: system.admin.v1.CreateBaseConfigRequest.base_config:type_name -> system.admin.v1.BaseConfigForm
 	3,  // 8: system.admin.v1.UpdateBaseConfigRequest.base_config:type_name -> system.admin.v1.BaseConfigForm
-	10, // 9: system.admin.v1.BaseConfig.site:type_name -> common.v1.BaseConfigSite
+	10, // 9: system.admin.v1.BaseConfig.site:type_name -> base.v1.BaseConfigSite
 	11, // 10: system.admin.v1.BaseConfig.type:type_name -> system.common.v1.BaseConfigType
 	12, // 11: system.admin.v1.BaseConfig.status:type_name -> common.v1.Status
 	8,  // 12: system.admin.v1.BaseConfigService.RefreshBaseConfigCache:input_type -> system.admin.v1.RefreshBaseConfigCacheRequest

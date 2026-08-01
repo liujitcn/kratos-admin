@@ -8,6 +8,7 @@ package kratosadmin
 
 import (
 	"github.com/go-kratos/kratos/v3"
+	"github.com/liujitcn/kratos-admin/backend/core/pkg/projectdoc"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/sse"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/task"
 	"github.com/liujitcn/kratos-admin/backend/internal/agent/model"
@@ -29,7 +30,6 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/service/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/service/app"
 	"github.com/liujitcn/kratos-admin/backend/internal/service/base"
-	"github.com/liujitcn/kratos-admin/backend/projectdoc"
 	"github.com/liujitcn/kratos-kit/bootstrap"
 	"github.com/liujitcn/kratos-kit/cache"
 	"github.com/liujitcn/kratos-kit/database/gorm"
@@ -71,7 +71,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 		cleanup()
 		return nil, nil, err
 	}
-	client, cleanup3, err := config.NewDatabaseClient(configv1Data, arg, runner)
+	client, cleanup3, err := config.NewDatabaseClient(configv1Data, arg, runner, arg2)
 	if err != nil {
 		cleanup2()
 		cleanup()
@@ -393,7 +393,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 		cleanup()
 		return nil, nil, err
 	}
-	client, cleanup3, err := config.NewDatabaseClient(configv1Data, arg, runner)
+	client, cleanup3, err := config.NewDatabaseClient(configv1Data, arg, runner, arg2)
 	if err != nil {
 		cleanup2()
 		cleanup()

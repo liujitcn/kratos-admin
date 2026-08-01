@@ -12,7 +12,6 @@ import (
 	unsafe "unsafe"
 
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -28,7 +27,7 @@ const (
 // AI 助手快捷入口列表查询条件
 type ListAiShortcutRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Terminal      v1.Terminal            `protobuf:"varint,1,opt,name=terminal,proto3,enum=common.v1.Terminal" json:"terminal,omitempty"` // 终端类型：枚举【Terminal】
+	Terminal      Terminal               `protobuf:"varint,1,opt,name=terminal,proto3,enum=base.v1.Terminal" json:"terminal,omitempty"` // 终端类型：枚举【Terminal】
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -63,11 +62,11 @@ func (*ListAiShortcutRequest) Descriptor() ([]byte, []int) {
 	return file_base_v1_ai_tool_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ListAiShortcutRequest) GetTerminal() v1.Terminal {
+func (x *ListAiShortcutRequest) GetTerminal() Terminal {
 	if x != nil {
 		return x.Terminal
 	}
-	return v1.Terminal(0)
+	return Terminal_UNKNOWN_TERMINAL
 }
 
 // AI 助手快捷入口列表响应
@@ -366,9 +365,9 @@ var File_base_v1_ai_tool_proto protoreflect.FileDescriptor
 
 const file_base_v1_ai_tool_proto_rawDesc = "" +
 	"\n" +
-	"\x15base/v1/ai_tool.proto\x12\abase.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"s\n" +
-	"\x15ListAiShortcutRequest\x12Z\n" +
-	"\bterminal\x18\x01 \x01(\x0e2\x13.common.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"e\n" +
+	"\x15base/v1/ai_tool.proto\x12\abase.v1\x1a\x12base/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"q\n" +
+	"\x15ListAiShortcutRequest\x12X\n" +
+	"\bterminal\x18\x01 \x01(\x0e2\x11.base.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"e\n" +
 	"\x16ListAiShortcutResponse\x12K\n" +
 	"\tshortcuts\x18\x01 \x03(\v2\x13.base.v1.AiShortcutB\x18\xbaG\x15\x92\x02\x12快捷入口列表R\tshortcuts\"\xfa\x02\n" +
 	"\n" +
@@ -416,10 +415,10 @@ var file_base_v1_ai_tool_proto_goTypes = []any{
 	(*AiShortcut)(nil),             // 2: base.v1.AiShortcut
 	(*AiShortcutAction)(nil),       // 3: base.v1.AiShortcutAction
 	(*AiToolCall)(nil),             // 4: base.v1.AiToolCall
-	(v1.Terminal)(0),               // 5: common.v1.Terminal
+	(Terminal)(0),                  // 5: base.v1.Terminal
 }
 var file_base_v1_ai_tool_proto_depIdxs = []int32{
-	5, // 0: base.v1.ListAiShortcutRequest.terminal:type_name -> common.v1.Terminal
+	5, // 0: base.v1.ListAiShortcutRequest.terminal:type_name -> base.v1.Terminal
 	2, // 1: base.v1.ListAiShortcutResponse.shortcuts:type_name -> base.v1.AiShortcut
 	3, // 2: base.v1.AiShortcut.action:type_name -> base.v1.AiShortcutAction
 	0, // 3: base.v1.AiToolService.ListAiShortcut:input_type -> base.v1.ListAiShortcutRequest
@@ -436,6 +435,7 @@ func file_base_v1_ai_tool_proto_init() {
 	if File_base_v1_ai_tool_proto != nil {
 		return
 	}
+	file_base_v1_enum_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
