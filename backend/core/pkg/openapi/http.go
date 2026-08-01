@@ -25,14 +25,8 @@ type HTTPOptions struct {
 
 // RegisterHTTP 为注册表中的每份文档挂载原文接口和独立 Swagger UI。
 func RegisterHTTP(server *kratosHTTP.Server, registry *Registry, opts HTTPOptions) {
-	documentPath := strings.TrimRight(opts.DocumentPath, "/")
-	if documentPath == "" {
-		documentPath = defaultDocumentPath
-	}
-	swaggerPath := strings.TrimRight(opts.SwaggerPath, "/")
-	if swaggerPath == "" {
-		swaggerPath = defaultSwaggerPath
-	}
+	documentPath := normalizePath(opts.DocumentPath, defaultDocumentPath)
+	swaggerPath := normalizePath(opts.SwaggerPath, defaultSwaggerPath)
 	authorizer := opts.Authorizer
 	if authorizer == nil {
 		authorizer = func(*stdhttp.Request) bool { return true }
@@ -53,4 +47,13 @@ func RegisterHTTP(server *kratosHTTP.Server, registry *Registry, opts HTTPOption
 			swaggerUI.WithRemoteFileURL(rawPath),
 		)
 	}
+}
+
+// normalizePath 将自定义 HTTP 路径规范化为带前导斜杠的路由前缀。
+func normalizePath(value, fallback string) string {
+	value = "/" + strings.Trim(value, "/")
+	if value == "/" {
+		return fallback
+	}
+	return value
 }

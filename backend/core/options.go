@@ -20,24 +20,24 @@ import (
 
 type options struct {
 	modules          Modules
-	httpMiddlewares  []kratosMiddleware.Middleware
-	grpcMiddlewares  []kratosMiddleware.Middleware
-	servers          []kratosTransport.Server
 	openAPIRegistry  *openapi.Registry
 	openAPIOptions   openapi.HTTPOptions
 	openAPIDocuments []openapi.Document
 	taskRegistry     *task.Registry
 	tasks            []task.Task
 	taskObserver     task.Observer
-	queue            kitQueue.Queue
-	queueConsumers   []coreQueue.Consumer
-	sseServer        *sseServer.Server
 	sseRegistry      *coreSSE.Registry
 	sseStreams       []coreSSE.Stream
+	healthChecks     []health.Check
 	scripts          []script.Script
 	startupHooks     []startup.Hook
-	healthChecks     []health.Check
+	sseServer        *sseServer.Server
+	grpcMiddlewares  []kratosMiddleware.Middleware
+	httpMiddlewares  []kratosMiddleware.Middleware
 	staticMounts     []coreStatic.Mount
+	servers          []kratosTransport.Server
+	queue            kitQueue.Queue
+	queueConsumers   []coreQueue.Consumer
 }
 
 // Option 表示核心服务宿主的装配选项。
@@ -47,27 +47,6 @@ type Option func(*options)
 func WithModules(modules ...Module) Option {
 	return func(opts *options) {
 		opts.modules = append(opts.modules, modules...)
-	}
-}
-
-// WithHTTPMiddlewares 追加 HTTP 服务端中间件。
-func WithHTTPMiddlewares(middlewares ...kratosMiddleware.Middleware) Option {
-	return func(opts *options) {
-		opts.httpMiddlewares = append(opts.httpMiddlewares, middlewares...)
-	}
-}
-
-// WithGRPCMiddlewares 追加 gRPC 服务端中间件。
-func WithGRPCMiddlewares(middlewares ...kratosMiddleware.Middleware) Option {
-	return func(opts *options) {
-		opts.grpcMiddlewares = append(opts.grpcMiddlewares, middlewares...)
-	}
-}
-
-// WithServers 追加定时任务、消费者等 Kratos 后台服务。
-func WithServers(servers ...kratosTransport.Server) Option {
-	return func(opts *options) {
-		opts.servers = append(opts.servers, servers...)
 	}
 }
 
@@ -121,27 +100,6 @@ func WithTaskObserver(observer task.Observer) Option {
 	}
 }
 
-// WithQueue 注入内存、Redis 或其他队列适配器。
-func WithQueue(queue kitQueue.Queue) Option {
-	return func(opts *options) {
-		opts.queue = queue
-	}
-}
-
-// WithQueueConsumers 追加由组合根直接提供的队列消费者。
-func WithQueueConsumers(consumers ...coreQueue.Consumer) Option {
-	return func(opts *options) {
-		opts.queueConsumers = append(opts.queueConsumers, consumers...)
-	}
-}
-
-// WithSSEServer 注入需要挂载或独立启动的 SSE 服务。
-func WithSSEServer(server *sseServer.Server) Option {
-	return func(opts *options) {
-		opts.sseServer = server
-	}
-}
-
 // WithSSERegistry 使用调用方创建的 SSE 流注册表。
 func WithSSERegistry(registry *coreSSE.Registry) Option {
 	return func(opts *options) {
@@ -153,6 +111,13 @@ func WithSSERegistry(registry *coreSSE.Registry) Option {
 func WithSSEStreams(streams ...coreSSE.Stream) Option {
 	return func(opts *options) {
 		opts.sseStreams = append(opts.sseStreams, streams...)
+	}
+}
+
+// WithHealthChecks 追加由组合根直接提供的就绪检查。
+func WithHealthChecks(checks ...health.Check) Option {
+	return func(opts *options) {
+		opts.healthChecks = append(opts.healthChecks, checks...)
 	}
 }
 
@@ -170,10 +135,24 @@ func WithStartupHooks(hooks ...startup.Hook) Option {
 	}
 }
 
-// WithHealthChecks 追加由组合根直接提供的就绪检查。
-func WithHealthChecks(checks ...health.Check) Option {
+// WithSSEServer 注入需要挂载或独立启动的 SSE 服务。
+func WithSSEServer(server *sseServer.Server) Option {
 	return func(opts *options) {
-		opts.healthChecks = append(opts.healthChecks, checks...)
+		opts.sseServer = server
+	}
+}
+
+// WithGRPCMiddlewares 追加 gRPC 服务端中间件。
+func WithGRPCMiddlewares(middlewares ...kratosMiddleware.Middleware) Option {
+	return func(opts *options) {
+		opts.grpcMiddlewares = append(opts.grpcMiddlewares, middlewares...)
+	}
+}
+
+// WithHTTPMiddlewares 追加 HTTP 服务端中间件。
+func WithHTTPMiddlewares(middlewares ...kratosMiddleware.Middleware) Option {
+	return func(opts *options) {
+		opts.httpMiddlewares = append(opts.httpMiddlewares, middlewares...)
 	}
 }
 
@@ -181,5 +160,26 @@ func WithHealthChecks(checks ...health.Check) Option {
 func WithStaticMounts(mounts ...coreStatic.Mount) Option {
 	return func(opts *options) {
 		opts.staticMounts = append(opts.staticMounts, mounts...)
+	}
+}
+
+// WithServers 追加定时任务、消费者等 Kratos 后台服务。
+func WithServers(servers ...kratosTransport.Server) Option {
+	return func(opts *options) {
+		opts.servers = append(opts.servers, servers...)
+	}
+}
+
+// WithQueue 注入内存、Redis 或其他队列适配器。
+func WithQueue(queue kitQueue.Queue) Option {
+	return func(opts *options) {
+		opts.queue = queue
+	}
+}
+
+// WithQueueConsumers 追加由组合根直接提供的队列消费者。
+func WithQueueConsumers(consumers ...coreQueue.Consumer) Option {
+	return func(opts *options) {
+		opts.queueConsumers = append(opts.queueConsumers, consumers...)
 	}
 }

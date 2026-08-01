@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/fs"
 	stdhttp "net/http"
+	"path"
 	"strings"
 
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
@@ -20,17 +21,22 @@ type Mount struct {
 	SPA bool
 }
 
-// RegisterHTTP 校验并挂载静态资源，重复路由前缀会返回错误。
+// RegisterHTTP 校验并挂载静态资源，重复或重叠路由前缀会返回错误。
 func RegisterHTTP(server *kratosHTTP.Server, mounts ...Mount) error {
 	var err error
 	prefixes := make(map[string]struct{}, len(mounts))
 	for _, mount := range mounts {
 		prefix := normalizePrefix(mount.Prefix)
+		if prefix == "/" {
+			return fmt.Errorf("静态资源路由前缀不能为根路径")
+		}
 		if mount.FS == nil {
 			return fmt.Errorf("静态资源文件系统不能为空: %s", prefix)
 		}
-		if _, exists := prefixes[prefix]; exists {
-			return fmt.Errorf("静态资源路由前缀重复: %s", prefix)
+		for registeredPrefix := range prefixes {
+			if prefix == registeredPrefix || strings.HasPrefix(prefix, registeredPrefix+"/") || strings.HasPrefix(registeredPrefix, prefix+"/") {
+				return fmt.Errorf("静态资源路由前缀重叠: %s、%s", registeredPrefix, prefix)
+			}
 		}
 		if mount.SPA {
 			_, err = fs.Stat(mount.FS, "index.html")
@@ -80,5 +86,5 @@ func newHandler(webFS fs.FS, prefix string, spa bool) stdhttp.Handler {
 
 func normalizePrefix(prefix string) string {
 	prefix = "/" + strings.Trim(prefix, "/")
-	return prefix
+	return path.Clean(prefix)
 }

@@ -1,4 +1,4 @@
-// Package errorsx 提供稳定的 Kratos 结构化错误构造能力。
+// Package errorsx 提供可复用的 Kratos 结构化错误构造与常见数据库错误分类能力。
 package errorsx
 
 import (

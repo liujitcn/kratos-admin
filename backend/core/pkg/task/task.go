@@ -138,9 +138,12 @@ func (r *Registry) Scheduled() bool {
 
 // Scheduler 将具备 Cron 表达式的任务接入 Kratos 服务生命周期。
 type Scheduler struct {
+	mu       sync.RWMutex
 	server   *cronTransport.Server
 	registry *Registry
 	observer Observer
+	runCtx   context.Context
+	cancel   context.CancelFunc
 }
 
 // NewScheduler 创建任务调度服务，并在启动前注册全部静态调度项。
@@ -161,7 +164,7 @@ func NewScheduler(registry *Registry, observer Observer) (*Scheduler, error) {
 		registeredTask := task
 		_, err = scheduler.server.NewTimerJob(task.Expression, func() {
 			var runErr error
-			_, runErr = scheduler.Run(context.Background(), registeredTask.Name, registeredTask.Args)
+			_, runErr = scheduler.Run(scheduler.executionContext(), registeredTask.Name, registeredTask.Args)
 			if runErr != nil {
 				log.Error("定时任务执行失败", "name", registeredTask.Name, "error", runErr)
 			}
@@ -175,11 +178,32 @@ func NewScheduler(registry *Registry, observer Observer) (*Scheduler, error) {
 
 // Start 启动 Cron 调度服务。
 func (s *Scheduler) Start(ctx context.Context) error {
-	return s.server.Start(ctx)
+	runCtx, cancel := context.WithCancel(ctx)
+	s.mu.Lock()
+	s.runCtx = runCtx
+	s.cancel = cancel
+	s.mu.Unlock()
+	err := s.server.Start(runCtx)
+	if err != nil {
+		cancel()
+		s.mu.Lock()
+		s.runCtx = nil
+		s.cancel = nil
+		s.mu.Unlock()
+	}
+	return err
 }
 
 // Stop 停止 Cron 调度服务并等待正在执行的任务结束。
 func (s *Scheduler) Stop(ctx context.Context) error {
+	s.mu.Lock()
+	cancel := s.cancel
+	s.runCtx = nil
+	s.cancel = nil
+	s.mu.Unlock()
+	if cancel != nil {
+		cancel()
+	}
 	return s.server.Stop(ctx)
 }
 
@@ -210,6 +234,17 @@ func (s *Scheduler) Run(ctx context.Context, name string, args map[string]string
 		return contextExec.ExecContext(ctx, cloneArgs(args))
 	}
 	return exec.Exec(cloneArgs(args))
+}
+
+// executionContext 返回当前调度周期使用的服务生命周期 Context。
+func (s *Scheduler) executionContext() context.Context {
+	s.mu.RLock()
+	runCtx := s.runCtx
+	s.mu.RUnlock()
+	if runCtx == nil {
+		return context.Background()
+	}
+	return runCtx
 }
 
 func cloneArgs(args map[string]string) map[string]string {

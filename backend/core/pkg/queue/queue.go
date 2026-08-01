@@ -26,6 +26,7 @@ type Runtime struct {
 	queue     kitQueue.Queue
 	mu        sync.Mutex
 	topics    map[string]struct{}
+	consumers []Consumer
 	done      chan struct{}
 	startOnce sync.Once
 	stopOnce  sync.Once
@@ -44,10 +45,13 @@ func NewRuntime(queue kitQueue.Queue) (*Runtime, error) {
 	}, nil
 }
 
-// Register 注册队列消费者，并拒绝空主题、空处理器和重复主题。
+// Register 记录队列消费者定义，并拒绝空主题、空处理器和重复主题。
 func (r *Runtime) Register(consumers ...Consumer) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if r.started.Load() {
+		return fmt.Errorf("队列运行时已启动，不能追加消费者")
+	}
 
 	registered := make(map[string]struct{}, len(consumers))
 	for _, consumer := range consumers {
@@ -66,16 +70,21 @@ func (r *Runtime) Register(consumers ...Consumer) error {
 		registered[consumer.Topic] = struct{}{}
 	}
 	for _, consumer := range consumers {
-		r.queue.Register(consumer.Topic, consumer.Handler)
 		r.topics[consumer.Topic] = struct{}{}
 	}
+	r.consumers = append(r.consumers, consumers...)
 	return nil
 }
 
-// Start 启动队列消费循环。
+// Start 注册队列消费者并启动消费循环。
 func (r *Runtime) Start(context.Context) error {
 	r.startOnce.Do(func() {
+		r.mu.Lock()
+		for _, consumer := range r.consumers {
+			r.queue.Register(consumer.Topic, consumer.Handler)
+		}
 		r.started.Store(true)
+		r.mu.Unlock()
 		go func() {
 			r.queue.Run()
 			close(r.done)

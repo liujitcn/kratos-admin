@@ -3,7 +3,9 @@ package core
 import (
 	"context"
 	"fmt"
+	"net"
 	stdhttp "net/http"
+	"strings"
 
 	"github.com/go-kratos/kratos/v3"
 	"github.com/go-kratos/kratos/v3/log"
@@ -48,7 +50,7 @@ func NewApp(ctx *bootstrap.Context, optionValues ...Option) (*kratos.App, func()
 	if err != nil {
 		return nil, nil, err
 	}
-	err = prepareSSE(opts)
+	err = prepareSSE(&opts)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -65,6 +67,7 @@ func NewApp(ctx *bootstrap.Context, optionValues ...Option) (*kratos.App, func()
 
 	var mcpServer *mcpserver.Server
 	var configuredSSEServer *sseServer.Server
+	var configuredSSEListener net.Listener
 	var grpcServer *grpc.Server
 	var httpServer *kratosHTTP.Server
 	serversOwnedByApp := false
@@ -91,6 +94,12 @@ func NewApp(ctx *bootstrap.Context, optionValues ...Option) (*kratos.App, func()
 				log.Error("清理 SSE 服务初始化资源失败", "error", stopErr)
 			}
 		}
+		if configuredSSEListener != nil {
+			stopErr = configuredSSEListener.Close()
+			if stopErr != nil {
+				log.Error("清理 SSE 服务监听资源失败", "error", stopErr)
+			}
+		}
 		if mcpServer != nil {
 			stopErr = mcpServer.Stop(context.Background())
 			if stopErr != nil {
@@ -103,7 +112,7 @@ func NewApp(ctx *bootstrap.Context, optionValues ...Option) (*kratos.App, func()
 	if err != nil {
 		return nil, nil, err
 	}
-	configuredSSEServer, err = newSSEServer(ctx.GetConfig(), opts.sseServer)
+	configuredSSEServer, configuredSSEListener, err = newSSEServer(ctx.GetConfig(), opts.sseServer)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -118,12 +127,18 @@ func NewApp(ctx *bootstrap.Context, optionValues ...Option) (*kratos.App, func()
 	if err != nil {
 		return nil, nil, err
 	}
+	if httpServer == nil && (sseInProcess(ctx.GetConfig()) || mcpInProcess(ctx.GetConfig())) {
+		return nil, nil, fmt.Errorf("进程内 SSE/MCP 需要配置 HTTP 服务")
+	}
 
 	servers := append([]kratosTransport.Server(nil), opts.servers...)
 	servers = append(servers, opts.modules.Servers()...)
 	queueConsumers := append([]coreQueue.Consumer(nil), opts.queueConsumers...)
 	queueConsumers = append(queueConsumers, opts.modules.QueueConsumers()...)
-	if opts.queue != nil {
+	if len(queueConsumers) > 0 {
+		if opts.queue == nil {
+			return nil, nil, fmt.Errorf("模块提供了队列消费者，但未通过 WithQueue 注入队列适配器")
+		}
 		var queueRuntime *coreQueue.Runtime
 		queueRuntime, err = coreQueue.NewRuntime(opts.queue)
 		if err != nil {
@@ -134,8 +149,6 @@ func NewApp(ctx *bootstrap.Context, optionValues ...Option) (*kratos.App, func()
 			return nil, nil, fmt.Errorf("注册队列消费者: %w", err)
 		}
 		servers = append(servers, queueRuntime)
-	} else if len(queueConsumers) > 0 {
-		return nil, nil, fmt.Errorf("模块提供了队列消费者，但未通过 WithQueue 注入队列适配器")
 	}
 	if taskRegistry.Scheduled() {
 		var scheduler *task.Scheduler
@@ -145,7 +158,7 @@ func NewApp(ctx *bootstrap.Context, optionValues ...Option) (*kratos.App, func()
 		}
 		servers = append(servers, scheduler)
 	}
-	if configuredSSEServer != nil && ctx.GetConfig().GetServer().GetSse().GetTransport() == bootstrapConfigv1.Server_Sse_HTTP {
+	if configuredSSEServer != nil && !sseInProcess(ctx.GetConfig()) {
 		servers = append(servers, configuredSSEServer)
 	}
 	if mcpServer != nil && !mcpInProcess(ctx.GetConfig()) {
@@ -207,11 +220,13 @@ func prepareTasks(opts options) (*task.Registry, error) {
 }
 
 // prepareSSE 收集并校验组合根和模块贡献的 SSE 流。
-func prepareSSE(opts options) error {
+func prepareSSE(opts *options) error {
 	registry := opts.sseRegistry
 	if registry == nil {
 		registry = coreSSE.NewRegistry()
+		opts.sseRegistry = registry
 	}
+	opts.modules.SetSSERegistry(registry)
 	streams := append([]coreSSE.Stream(nil), opts.sseStreams...)
 	streams = append(streams, opts.modules.SSEStreams()...)
 	var err error
@@ -270,12 +285,15 @@ func newMCPServer(cfg *bootstrapConfigv1.Bootstrap, modules Modules) (*mcpserver
 	if cfg.GetServer().GetMcp() == nil {
 		return nil, nil
 	}
+	mcpOptions := []mcpserver.ServerOption{
+		mcpserver.WithHandlerPath(normalizeHTTPPath(cfg.GetServer().GetMcp().GetPath(), defaultMCPPath)),
+	}
 	var err error
 	var server *mcpserver.Server
 	if mcpInProcess(cfg) {
-		server, err = rpc.CreateMcpHandler(cfg)
+		server, err = rpc.CreateMcpHandler(cfg, mcpOptions...)
 	} else {
-		server, err = rpc.CreateMcpServer(cfg)
+		server, err = rpc.CreateMcpServer(cfg, mcpOptions...)
 	}
 	if err != nil {
 		return nil, fmt.Errorf("创建 MCP 服务: %w", err)
@@ -285,24 +303,39 @@ func newMCPServer(cfg *bootstrapConfigv1.Bootstrap, modules Modules) (*mcpserver
 }
 
 // newSSEServer 根据配置创建或复用 SSE 服务。
-func newSSEServer(cfg *bootstrapConfigv1.Bootstrap, configured *sseServer.Server) (*sseServer.Server, error) {
+func newSSEServer(cfg *bootstrapConfigv1.Bootstrap, configured *sseServer.Server) (*sseServer.Server, net.Listener, error) {
 	if configured != nil || cfg.GetServer().GetSse() == nil {
-		return configured, nil
+		return configured, nil, nil
 	}
 	var err error
 	var server *sseServer.Server
-	if cfg.GetServer().GetSse().GetTransport() == bootstrapConfigv1.Server_Sse_HTTP {
-		server, err = rpc.CreateSseServer(cfg)
-		if err != nil {
-			return nil, fmt.Errorf("创建 SSE 服务: %w", err)
+	path := normalizeHTTPPath(cfg.GetServer().GetSse().GetPath(), "/events")
+	if !sseInProcess(cfg) {
+		network := cfg.GetServer().GetSse().GetNetwork()
+		if network == "" {
+			network = "tcp"
 		}
-		return server, nil
+		address := cfg.GetServer().GetSse().GetAddr()
+		if address == "" {
+			address = ":0"
+		}
+		var listener net.Listener
+		listener, err = net.Listen(network, address)
+		if err != nil {
+			return nil, nil, fmt.Errorf("创建 SSE 监听器: %w", err)
+		}
+		server, err = rpc.CreateSseServer(cfg, sseServer.WithListener(listener), sseServer.WithPath(path))
+		if err != nil {
+			_ = listener.Close()
+			return nil, nil, fmt.Errorf("创建 SSE 服务: %w", err)
+		}
+		return server, listener, nil
 	}
-	server, err = rpc.CreateSseHandler(cfg)
+	server, err = rpc.CreateSseHandler(cfg, sseServer.WithPath(path))
 	if err != nil {
-		return nil, fmt.Errorf("创建 SSE 处理器: %w", err)
+		return nil, nil, fmt.Errorf("创建 SSE 处理器: %w", err)
 	}
-	return server, nil
+	return server, nil, nil
 }
 
 // newGRPCServer 创建 gRPC 服务并挂载外部模块。
@@ -358,19 +391,11 @@ func newHTTPServer(
 	}()
 	health.RegisterHTTP(server, healthRegistry)
 	opts.modules.RegisterHTTP(server)
-	staticMounts := append([]coreStatic.Mount(nil), opts.staticMounts...)
-	staticMounts = append(staticMounts, opts.modules.StaticMounts()...)
-	if err = coreStatic.RegisterHTTP(server, staticMounts...); err != nil {
-		return nil, fmt.Errorf("注册静态资源: %w", err)
-	}
 	if cfg.GetServer().GetHttp().GetEnableSwagger() && len(openAPIRegistry.Documents()) > 0 {
 		openapi.RegisterHTTP(server, openAPIRegistry, opts.openAPIOptions)
 	}
-	if configuredSSEServer != nil && cfg.GetServer().GetSse().GetTransport() != bootstrapConfigv1.Server_Sse_HTTP {
-		path := cfg.GetServer().GetSse().GetPath()
-		if path == "" {
-			path = "/events"
-		}
+	if configuredSSEServer != nil && sseInProcess(cfg) {
+		path := normalizeHTTPPath(cfg.GetServer().GetSse().GetPath(), "/events")
 		server.Handle(path, configuredSSEServer)
 	}
 	if mcpServer != nil && mcpInProcess(cfg) {
@@ -379,11 +404,13 @@ func newHTTPServer(
 		if err != nil {
 			return nil, fmt.Errorf("创建 MCP HTTP 处理器: %w", err)
 		}
-		path := cfg.GetServer().GetMcp().GetPath()
-		if path == "" {
-			path = defaultMCPPath
-		}
+		path := normalizeHTTPPath(cfg.GetServer().GetMcp().GetPath(), defaultMCPPath)
 		server.Handle(path, handler)
+	}
+	staticMounts := append([]coreStatic.Mount(nil), opts.staticMounts...)
+	staticMounts = append(staticMounts, opts.modules.StaticMounts()...)
+	if err = coreStatic.RegisterHTTP(server, staticMounts...); err != nil {
+		return nil, fmt.Errorf("注册静态资源: %w", err)
 	}
 	serverReturned = true
 	return server, nil
@@ -392,7 +419,21 @@ func newHTTPServer(
 // mcpInProcess 判断 MCP 服务是否挂载到当前 HTTP 服务。
 func mcpInProcess(cfg *bootstrapConfigv1.Bootstrap) bool {
 	transport := cfg.GetServer().GetMcp().GetTransport()
-	return transport == bootstrapConfigv1.Server_Mcp_UNSPECIFIED || transport == bootstrapConfigv1.Server_Mcp_IN_PROCESS
+	return transport == bootstrapConfigv1.Server_Mcp_IN_PROCESS
+}
+
+// sseInProcess 判断 SSE 服务是否挂载到当前 HTTP 服务。
+func sseInProcess(cfg *bootstrapConfigv1.Bootstrap) bool {
+	return cfg.GetServer().GetSse().GetTransport() == bootstrapConfigv1.Server_Sse_IN_PROCESS
+}
+
+// normalizeHTTPPath 将自定义 HTTP 路径规范化为带前导斜杠的路由路径。
+func normalizeHTTPPath(value, fallback string) string {
+	value = "/" + strings.Trim(value, "/")
+	if value == "/" {
+		return fallback
+	}
+	return value
 }
 
 // defaultMiddlewares 根据传输配置创建框架级访问日志中间件。
