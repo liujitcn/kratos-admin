@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 )
 
 // Hook 描述一项需要在服务启动前初始化并在退出时清理的工作。
@@ -19,8 +20,10 @@ type Hook struct {
 
 // Manager 按注册顺序执行启动钩子，并按相反顺序清理已启动钩子。
 type Manager struct {
-	hooks   []Hook
-	started []Hook
+	lifecycleMu sync.Mutex
+	hooks       []Hook
+	started     []Hook
+	running     bool
 }
 
 // NewManager 创建空的启动钩子管理器。
@@ -30,6 +33,11 @@ func NewManager() *Manager {
 
 // Register 注册启动钩子，并拒绝空名称、空启动方法和重复名称。
 func (m *Manager) Register(hooks ...Hook) error {
+	m.lifecycleMu.Lock()
+	defer m.lifecycleMu.Unlock()
+	if m.running {
+		return fmt.Errorf("启动钩子管理器已启动，不能追加钩子")
+	}
 	names := make(map[string]struct{}, len(m.hooks)+len(hooks))
 	for _, hook := range m.hooks {
 		names[hook.Name] = struct{}{}
@@ -52,11 +60,20 @@ func (m *Manager) Register(hooks ...Hook) error {
 
 // Start 按注册顺序执行钩子，失败时逆序清理已经启动的钩子。
 func (m *Manager) Start(ctx context.Context) error {
+	m.lifecycleMu.Lock()
+	defer m.lifecycleMu.Unlock()
+	if m.running {
+		return fmt.Errorf("启动钩子管理器已启动")
+	}
+	m.running = true
+	m.started = nil
 	var err error
 	for _, hook := range m.hooks {
 		err = hook.Start(ctx)
 		if err != nil {
-			stopErr := m.Stop(ctx)
+			stopErr := m.stopStarted(ctx)
+			m.running = false
+			m.started = nil
 			if stopErr != nil {
 				return errors.Join(fmt.Errorf("执行启动钩子 %q: %w", hook.Name, err), stopErr)
 			}
@@ -69,6 +86,19 @@ func (m *Manager) Start(ctx context.Context) error {
 
 // Stop 按启动顺序的相反方向清理钩子，并汇总全部清理错误。
 func (m *Manager) Stop(ctx context.Context) error {
+	m.lifecycleMu.Lock()
+	defer m.lifecycleMu.Unlock()
+	if !m.running {
+		return nil
+	}
+	stopErr := m.stopStarted(ctx)
+	m.running = false
+	m.started = nil
+	return stopErr
+}
+
+// stopStarted 按启动顺序的相反方向清理已启动钩子。
+func (m *Manager) stopStarted(ctx context.Context) error {
 	var stopErr error
 	for index := len(m.started) - 1; index >= 0; index-- {
 		hook := m.started[index]
@@ -81,6 +111,5 @@ func (m *Manager) Stop(ctx context.Context) error {
 			stopErr = errors.Join(stopErr, fmt.Errorf("清理启动钩子 %q: %w", hook.Name, err))
 		}
 	}
-	m.started = nil
 	return stopErr
 }

@@ -99,10 +99,23 @@ func (p *Publisher) PublishJSON(ctx context.Context, streamID, eventID string, p
 	if err != nil {
 		return fmt.Errorf("编码SSE消息失败: %w", err)
 	}
-	p.server.Publish(ctx, sseServer.StreamID(streamID), &sseServer.Event{
+	if err = ctx.Err(); err != nil {
+		return err
+	}
+	transportID := sseServer.StreamID(streamID)
+	if p.server.GetStream(transportID) == nil {
+		return fmt.Errorf("SSE流不存在: %s", streamID)
+	}
+	published := p.server.TryPublish(ctx, transportID, &sseServer.Event{
 		Event: []byte(eventID),
 		Data:  data,
 	})
+	if !published {
+		if err = ctx.Err(); err != nil {
+			return err
+		}
+		return fmt.Errorf("SSE流缓冲区已满或已关闭: %s", streamID)
+	}
 	return nil
 }
 

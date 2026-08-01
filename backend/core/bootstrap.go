@@ -7,6 +7,7 @@ import (
 	"net"
 	stdhttp "net/http"
 	"strings"
+	"sync"
 
 	"github.com/go-kratos/kratos/v3"
 	"github.com/go-kratos/kratos/v3/log"
@@ -71,6 +72,7 @@ func NewApp(ctx *bootstrap.Context, optionValues ...Option) (*kratos.App, func()
 	var configuredSSEListener net.Listener
 	var grpcServer *grpc.Server
 	var httpServer *kratosHTTP.Server
+	var servers []kratosTransport.Server
 	serversOwnedByApp := false
 	closeConfiguredSSEListener := func() {
 		if configuredSSEListener == nil {
@@ -111,6 +113,10 @@ func NewApp(ctx *bootstrap.Context, optionValues ...Option) (*kratos.App, func()
 				log.Error("清理 MCP 服务初始化资源失败", "error", stopErr)
 			}
 		}
+		stopErr = startupManager.Stop(context.Background())
+		if stopErr != nil {
+			log.Error("清理核心服务启动资源失败", "error", stopErr)
+		}
 	}()
 
 	mcpServer, err = newMCPServer(ctx.GetConfig(), opts.modules)
@@ -136,7 +142,7 @@ func NewApp(ctx *bootstrap.Context, optionValues ...Option) (*kratos.App, func()
 		return nil, nil, fmt.Errorf("进程内 SSE/MCP 需要配置 HTTP 服务")
 	}
 
-	servers := append([]kratosTransport.Server(nil), opts.servers...)
+	servers = append([]kratosTransport.Server(nil), opts.servers...)
 	servers = append(servers, opts.modules.Servers()...)
 	queueConsumers := append([]coreQueue.Consumer(nil), opts.queueConsumers...)
 	queueConsumers = append(queueConsumers, opts.modules.QueueConsumers()...)
@@ -179,12 +185,24 @@ func NewApp(ctx *bootstrap.Context, optionValues ...Option) (*kratos.App, func()
 	if err != nil {
 		return nil, nil, err
 	}
+	var cleanupOnce sync.Once
 	cleanup := func() {
-		stopErr := startupManager.Stop(context.Background())
-		if stopErr != nil {
-			log.Error("清理核心服务启动资源失败", "error", stopErr)
-		}
-		closeConfiguredSSEListener()
+		cleanupOnce.Do(func() {
+			for index := len(servers) - 1; index >= 0; index-- {
+				if servers[index] == nil {
+					continue
+				}
+				stopErr := servers[index].Stop(context.Background())
+				if stopErr != nil {
+					log.Error("清理核心服务运行资源失败", "error", stopErr)
+				}
+			}
+			stopErr := startupManager.Stop(context.Background())
+			if stopErr != nil {
+				log.Error("清理核心服务启动资源失败", "error", stopErr)
+			}
+			closeConfiguredSSEListener()
+		})
 	}
 	serversOwnedByApp = true
 	return bootstrap.NewApp(ctx, servers...), cleanup, nil
@@ -396,7 +414,6 @@ func newHTTPServer(
 		}
 	}()
 	health.RegisterHTTP(server, healthRegistry)
-	opts.modules.RegisterHTTP(server)
 	if cfg.GetServer().GetHttp().GetEnableSwagger() && len(openAPIRegistry.Documents()) > 0 {
 		openapi.RegisterHTTP(server, openAPIRegistry, opts.openAPIOptions)
 	}
@@ -413,6 +430,7 @@ func newHTTPServer(
 		path := normalizeHTTPPath(cfg.GetServer().GetMcp().GetPath(), defaultMCPPath)
 		server.Handle(path, handler)
 	}
+	opts.modules.RegisterHTTP(server)
 	staticMounts := append([]coreStatic.Mount(nil), opts.staticMounts...)
 	staticMounts = append(staticMounts, opts.modules.StaticMounts()...)
 	if err = coreStatic.RegisterHTTP(server, staticMounts...); err != nil {
