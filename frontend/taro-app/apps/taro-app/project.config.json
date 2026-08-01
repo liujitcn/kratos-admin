@@ -1,5 +1,5 @@
 {
-  "miniprogramRoot": "./dist",
+  "miniprogramRoot": "./dist/mp-weixin",
   "projectname": "kratos-taro-app",
   "description": "Kratos Taro React application",
   "appid": "wx80073bcc341e31fb",

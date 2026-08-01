@@ -12,5 +12,6 @@ dist
 .DS_Store
 *.local
 .kratos-uni-app-pages-state.json
+.kratos-uni-app-pages-state.*
 !bin/
 !bin/uni.mjs

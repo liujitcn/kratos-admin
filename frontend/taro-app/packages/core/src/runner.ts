@@ -34,8 +34,18 @@ type BuildTransaction = {
   originalAppConfig: string
   generatedFiles: string[]
   generatedStaticFiles: string[]
-  ownerPid: number
+  ownerPid?: number
+  ready?: boolean
 }
+
+type PageAssembly = {
+  transaction: BuildTransaction
+  leaseFile: string
+}
+
+let sourceVersionCounter = 0
+const PAGE_ASSEMBLY_WAIT_TIMEOUT_MS = 30_000
+const PAGE_ASSEMBLY_POLL_INTERVAL_MS = 25
 
 type CliOptions = {
   type: 'h5' | 'weapp'
@@ -69,33 +79,21 @@ async function main(): Promise<void> {
     })
   })
 
-  const generatedFiles = [...pageMap.values()].flatMap((page) => {
-    const pageFile = resolve(inputDir, `${page.route}.tsx`)
-    const configFile = resolve(inputDir, `${page.route}.config.ts`)
-    return [pageFile, configFile].filter((file) => !existsSync(file))
-  })
-  const staticRoot = resolve(inputDir, 'static')
-  const staticFiles = collectModuleStaticFiles(
-    modules.map((module) => resolve(module.root, 'src/static')),
-    staticRoot,
-  )
-  const generatedStaticFiles = staticFiles.map(({ target }) => target)
-  const transaction: BuildTransaction = {
-    inputDir,
+  const pageAssembly = preparePageAssembly({
     appConfigFile,
+    baseManifest: manifest,
+    inputDir,
+    moduleStaticRoots: modules.map((module) => resolve(module.root, 'src/static')),
     originalAppConfig,
-    generatedFiles,
-    generatedStaticFiles,
-    ownerPid: process.pid,
-  }
-  writeFileSync(transactionFile, `${JSON.stringify(transaction, null, 2)}\n`, { flag: 'wx' })
+    pageMap: [...pageMap.values()],
+    transactionFile,
+  })
 
   let cleaned = false
   const cleanup = () => {
     if (cleaned) return
     cleaned = true
-    cleanupTransaction(transaction)
-    if (existsSync(transactionFile)) unlinkSync(transactionFile)
+    releasePageAssembly(transactionFile, pageAssembly.leaseFile)
   }
   const handleSignal = (signal: NodeJS.Signals) => {
     child?.kill(signal)
@@ -105,27 +103,6 @@ async function main(): Promise<void> {
   process.once('SIGTERM', () => handleSignal('SIGTERM'))
 
   try {
-    pageMap.forEach((page) => {
-      appendPage(manifest, page.route)
-      const pageFile = resolve(inputDir, `${page.route}.tsx`)
-      const configFile = resolve(inputDir, `${page.route}.config.ts`)
-      if (!existsSync(pageFile)) {
-        mkdirSync(dirname(pageFile), { recursive: true })
-        writeFileSync(pageFile, createPageWrapper(page))
-      }
-      if (!existsSync(configFile)) {
-        writeFileSync(configFile, createPageConfig(page))
-      }
-    })
-    staticFiles.forEach(({ source, target }) => {
-      mkdirSync(dirname(target), { recursive: true })
-      copyFileSync(source, target)
-    })
-    writeFileSync(
-      appConfigFile,
-      `export default defineAppConfig(${JSON.stringify(manifest, null, 2)})\n`,
-    )
-
     const args = ['exec', 'taro', 'build', '--type', options.type, '--mode', options.mode]
     if (options.watch) args.push('--watch')
     child = spawn(process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm', args, {
@@ -133,6 +110,9 @@ async function main(): Promise<void> {
       env: {
         ...process.env,
         NODE_ENV: options.mode === 'development' ? 'development' : 'production',
+        KRATOS_TARO_OUTPUT_ROOT:
+          process.env.KRATOS_TARO_OUTPUT_ROOT ||
+          (options.type === 'h5' ? 'dist/h5' : 'dist/mp-weixin'),
       },
       stdio: 'inherit',
     })
@@ -237,27 +217,242 @@ function recoverBuildTransaction(
   inputDir: string,
   appConfigFile: string,
 ): void {
+  const lockFile = `${transactionFile}.lock`
+  acquirePageAssemblyLock(lockFile)
+  try {
+    const transaction = readBuildTransaction(transactionFile, inputDir, appConfigFile)
+    if (!transaction || isPageAssemblyActive(transaction, transactionFile)) return
+    restoreBuildTransaction(transaction, transactionFile)
+  } finally {
+    releasePageAssemblyLock(lockFile)
+  }
+}
+
+function preparePageAssembly(options: {
+  appConfigFile: string
+  baseManifest: AppManifest
+  inputDir: string
+  moduleStaticRoots: string[]
+  originalAppConfig: string
+  pageMap: PageEntry[]
+  transactionFile: string
+}): PageAssembly {
+  const lockFile = `${options.transactionFile}.lock`
+  acquirePageAssemblyLock(lockFile)
+  try {
+    let transaction = readBuildTransaction(
+      options.transactionFile,
+      options.inputDir,
+      options.appConfigFile,
+    )
+    if (transaction && isPageAssemblyActive(transaction, options.transactionFile)) {
+      return {
+        transaction,
+        leaseFile: createPageAssemblyLease(options.transactionFile),
+      }
+    }
+
+    let originalAppConfig = options.originalAppConfig
+    if (transaction) {
+      originalAppConfig = transaction.originalAppConfig
+      restoreBuildTransaction(transaction, options.transactionFile)
+    }
+
+    const generatedFiles = options.pageMap.flatMap((page) => {
+      const pageFile = resolve(options.inputDir, `${page.route}.tsx`)
+      const configFile = resolve(options.inputDir, `${page.route}.config.ts`)
+      return [pageFile, configFile].filter((file) => !existsSync(file))
+    })
+    const staticFiles = collectModuleStaticFiles(
+      options.moduleStaticRoots,
+      resolve(options.inputDir, 'static'),
+    )
+    transaction = {
+      inputDir: options.inputDir,
+      appConfigFile: options.appConfigFile,
+      originalAppConfig,
+      generatedFiles,
+      generatedStaticFiles: staticFiles.map(({ target }) => target),
+      ownerPid: process.pid,
+      ready: false,
+    }
+    writeBuildTransaction(options.transactionFile, transaction, 'wx')
+    const leaseFile = createPageAssemblyLease(options.transactionFile)
+    try {
+      options.pageMap.forEach((page) => {
+        appendPage(options.baseManifest, page.route)
+        const pageFile = resolve(options.inputDir, `${page.route}.tsx`)
+        const configFile = resolve(options.inputDir, `${page.route}.config.ts`)
+        if (!existsSync(pageFile)) {
+          mkdirSync(dirname(pageFile), { recursive: true })
+          writeFileSync(pageFile, createPageWrapper(page))
+        }
+        if (!existsSync(configFile)) writeFileSync(configFile, createPageConfig(page))
+      })
+      staticFiles.forEach(({ source, target }) => {
+        mkdirSync(dirname(target), { recursive: true })
+        copyFileSync(source, target)
+      })
+      writeFileSync(
+        options.appConfigFile,
+        `export default defineAppConfig(${JSON.stringify(options.baseManifest, null, 2)})\n`,
+      )
+      transaction.ready = true
+      writeBuildTransaction(options.transactionFile, transaction)
+      return { transaction, leaseFile }
+    } catch (error) {
+      releasePageAssemblyLease(leaseFile)
+      restoreBuildTransaction(transaction, options.transactionFile)
+      throw error
+    }
+  } finally {
+    releasePageAssemblyLock(lockFile)
+  }
+}
+
+function readBuildTransaction(
+  transactionFile: string,
+  inputDir: string,
+  appConfigFile: string,
+): BuildTransaction | undefined {
   if (!existsSync(transactionFile)) return
   const transaction = JSON.parse(readFileSync(transactionFile, 'utf8')) as BuildTransaction
   if (transaction.inputDir !== inputDir || transaction.appConfigFile !== appConfigFile) {
     throw new Error(`Taro 构建事务目录不匹配：${transactionFile}`)
   }
-  if (transaction.ownerPid !== process.pid && isProcessRunning(transaction.ownerPid)) {
-    throw new Error(
-      `页面装配已由进程 ${transaction.ownerPid} 使用，请先停止另一个 H5 或小程序开发进程`,
-    )
-  }
-  cleanupTransaction(transaction)
-  unlinkSync(transactionFile)
+  return transaction
 }
 
-function cleanupTransaction(transaction: BuildTransaction): void {
+function writeBuildTransaction(
+  transactionFile: string,
+  transaction: BuildTransaction,
+  flag?: 'wx',
+): void {
+  writeFileSync(
+    transactionFile,
+    `${JSON.stringify(transaction, null, 2)}\n`,
+    flag ? { flag } : undefined,
+  )
+}
+
+function restoreBuildTransaction(transaction: BuildTransaction, transactionFile: string): void {
   for (const file of [...transaction.generatedFiles].reverse()) {
     if (existsSync(file)) unlinkSync(file)
     removeEmptyParents(dirname(file), transaction.inputDir)
   }
-  removeGeneratedStaticFiles(transaction.generatedStaticFiles, resolve(transaction.inputDir, 'static'))
+  removeGeneratedStaticFiles(
+    transaction.generatedStaticFiles ?? [],
+    resolve(transaction.inputDir, 'static'),
+  )
   writeFileSync(transaction.appConfigFile, transaction.originalAppConfig)
+  if (existsSync(transactionFile)) unlinkSync(transactionFile)
+}
+
+function releasePageAssembly(transactionFile: string, leaseFile: string): void {
+  releasePageAssemblyLease(leaseFile)
+  const lockFile = `${transactionFile}.lock`
+  acquirePageAssemblyLock(lockFile)
+  try {
+    const transaction = readBuildTransactionFromFile(transactionFile)
+    if (!transaction || isPageAssemblyActive(transaction, transactionFile)) return
+    restoreBuildTransaction(transaction, transactionFile)
+  } finally {
+    releasePageAssemblyLock(lockFile)
+  }
+}
+
+function readBuildTransactionFromFile(transactionFile: string): BuildTransaction | undefined {
+  if (!existsSync(transactionFile)) return
+  return JSON.parse(readFileSync(transactionFile, 'utf8')) as BuildTransaction
+}
+
+function createPageAssemblyLease(transactionFile: string): string {
+  const leaseDirectory = `${transactionFile}.leases`
+  mkdirSync(leaseDirectory, { recursive: true })
+  const leaseFile = resolve(
+    leaseDirectory,
+    `${process.pid}-${Date.now()}-${++sourceVersionCounter}.lease`,
+  )
+  writeFileSync(leaseFile, `${JSON.stringify({ ownerPid: process.pid })}\n`, { flag: 'wx' })
+  return leaseFile
+}
+
+function releasePageAssemblyLease(leaseFile: string): void {
+  if (existsSync(leaseFile)) unlinkSync(leaseFile)
+  const leaseDirectory = dirname(leaseFile)
+  if (existsSync(leaseDirectory) && !readdirSync(leaseDirectory).length) {
+    try {
+      rmdirSync(leaseDirectory)
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code
+      if (code !== 'ENOTEMPTY' && code !== 'EEXIST') throw error
+    }
+  }
+}
+
+function isPageAssemblyActive(transaction: BuildTransaction, transactionFile: string): boolean {
+  if (listActivePageLeases(`${transactionFile}.leases`).length) return true
+  return (
+    transaction.ownerPid !== undefined &&
+    transaction.ownerPid !== process.pid &&
+    isProcessRunning(transaction.ownerPid)
+  )
+}
+
+function listActivePageLeases(leaseDirectory: string): number[] {
+  if (!existsSync(leaseDirectory)) return []
+  const activePids: number[] = []
+  for (const entry of readdirSync(leaseDirectory)) {
+    const leaseFile = resolve(leaseDirectory, entry)
+    try {
+      const lease = JSON.parse(readFileSync(leaseFile, 'utf8')) as { ownerPid?: number }
+      if (lease.ownerPid && isProcessRunning(lease.ownerPid)) {
+        activePids.push(lease.ownerPid)
+      } else {
+        unlinkSync(leaseFile)
+      }
+    } catch {
+      unlinkSync(leaseFile)
+    }
+  }
+  return activePids
+}
+
+function acquirePageAssemblyLock(lockFile: string): void {
+  const deadline = Date.now() + PAGE_ASSEMBLY_WAIT_TIMEOUT_MS
+  while (true) {
+    try {
+      writeFileSync(lockFile, `${JSON.stringify({ ownerPid: process.pid })}\n`, { flag: 'wx' })
+      return
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error
+      const ownerPid = readPageAssemblyLockOwner(lockFile)
+      if (ownerPid !== undefined && !isProcessRunning(ownerPid)) {
+        unlinkSync(lockFile)
+        continue
+      }
+      if (Date.now() >= deadline) throw new Error(`等待 Taro 页面装配锁超时：${lockFile}`)
+      waitForPageAssembly(PAGE_ASSEMBLY_POLL_INTERVAL_MS)
+    }
+  }
+}
+
+function releasePageAssemblyLock(lockFile: string): void {
+  if (!existsSync(lockFile)) return
+  if (readPageAssemblyLockOwner(lockFile) === process.pid) unlinkSync(lockFile)
+}
+
+function readPageAssemblyLockOwner(lockFile: string): number | undefined {
+  try {
+    return (JSON.parse(readFileSync(lockFile, 'utf8')) as { ownerPid?: number }).ownerPid
+  } catch {
+    return
+  }
+}
+
+function waitForPageAssembly(milliseconds: number): void {
+  const buffer = new SharedArrayBuffer(4)
+  Atomics.wait(new Int32Array(buffer), 0, 0, milliseconds)
 }
 
 function isProcessRunning(pid: number): boolean {
@@ -334,7 +529,7 @@ function appendPage(manifest: AppManifest, route: string): void {
 }
 
 function createPageWrapper(page: PageEntry): string {
-  return `import KratosPage from ${JSON.stringify(page.source)}
+  return `import KratosPage from ${JSON.stringify(`${page.source}.tsx`)}
 import { KratosPageFrame } from '@liujitcn/kratos-taro-app-core/components/KratosPageFrame'
 import { KratosTabBar } from '@liujitcn/kratos-taro-app-core/components/KratosTabBar'
 

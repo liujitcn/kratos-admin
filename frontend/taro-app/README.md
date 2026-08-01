@@ -45,7 +45,7 @@ core 不依赖 UI 或业务模块；system 只通过 core 和 UI 的公开 expor
 - 合并各模块 `src/static` 到宿主，宿主已有文件优先，模块同名文件后注册优先。
 - 构建退出后恢复原始 `app.config.ts` 并删除临时文件。
 
-异常退出后，下次命令会根据 `.kratos-taro-app-pages-state.json` 自动恢复。一个宿主同一时间只能有一个 H5 或微信小程序进程持有装配事务。
+异常退出后，下次命令会根据 `.kratos-taro-app-pages-state.json` 自动恢复。H5 和微信小程序开发进程可以同时持有同一份页面装配事务；所有进程退出后，runner 才恢复宿主文件。两个目标的默认产物目录分别是 `dist/h5` 和 `dist/mp-weixin`。
 
 ## 开发与构建
 
@@ -60,7 +60,7 @@ pnpm build:mp-weixin
 
 - H5 开发地址默认是 `http://localhost:5002`，`/api` 和 `/events` 代理到 `http://localhost:7001`。
 - H5 生产产物写入 `backend/data/app`，公共路径是 `/app/`。
-- 微信小程序开发和生产产物统一写入 `apps/taro-app/dist`，微信开发者工具可直接导入该目录。
+- 微信小程序开发和生产产物统一写入 `apps/taro-app/dist/mp-weixin`，微信开发者工具可直接导入该目录。
 - `KRATOS_TARO_API_URL` 配置后端地址；`KRATOS_TARO_API_BASE`、`KRATOS_TARO_STATIC_URL`、`KRATOS_TARO_PUBLIC_PATH` 可分别覆盖 API 前缀、静态资源地址和 H5 公共路径。
 
 设计稿宽度为 750。迁移自 uni-app 的 `rpx` 直接写作 Taro 设计稿 `px`；必须保持物理像素的原 `px` 使用 Taro 不转换写法。

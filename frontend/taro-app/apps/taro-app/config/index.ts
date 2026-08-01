@@ -7,7 +7,13 @@ import prodConfig from './prod'
 const h5RootFontScript = `!function(n){function f(){var e=n.document.documentElement,w=e.clientWidth||n.innerWidth||375,x=w>960?375:w;e.style.fontSize=20*x/375+"px"}n.addEventListener("resize",function(){f();setTimeout(f,500)}),f()}(window);`
 
 export default defineConfig<'webpack5'>(async (merge) => {
-  const outputRoot = process.env.KRATOS_TARO_OUTPUT_ROOT || 'dist'
+  const outputRoot =
+    process.env.KRATOS_TARO_OUTPUT_ROOT ||
+    (process.env.TARO_ENV === 'h5'
+      ? 'dist/h5'
+      : process.env.TARO_ENV === 'weapp'
+        ? 'dist/mp-weixin'
+        : 'dist')
   const publicPath = process.env.KRATOS_TARO_PUBLIC_PATH || '/'
   const apiBasePath = process.env.KRATOS_TARO_API_BASE || '/api'
   const apiTargetUrl = process.env.KRATOS_TARO_API_URL || 'http://192.168.60.52:7001'

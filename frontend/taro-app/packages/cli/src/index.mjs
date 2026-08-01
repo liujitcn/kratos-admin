@@ -28,7 +28,7 @@ export function scaffoldKratosTaroApp(targetPath, options = {}) {
   write(
     target,
     '.gitignore',
-    'node_modules\ndist\n.kratos-taro-app-pages-state.json\napps/taro-app/src/pages/*\n!apps/taro-app/src/pages/bootstrap/\n!apps/taro-app/src/pages/bootstrap/**\napps/taro-app/src/pages?*/\n',
+    'node_modules\ndist\n.kratos-taro-app-pages-state.json\n.kratos-taro-app-pages-state.json.*\napps/taro-app/src/pages/*\n!apps/taro-app/src/pages/bootstrap/\n!apps/taro-app/src/pages/bootstrap/**\napps/taro-app/src/pages?*/\n',
   )
   write(
     target,
@@ -476,7 +476,13 @@ const packageNames = ${JSON.stringify(packageNames, null, 2)}
 const hostRequire = createRequire(resolve(__dirname, '../package.json'))
 
 export default defineConfig<'webpack5'>(async (merge) => {
-  const outputRoot = process.env.KRATOS_TARO_OUTPUT_ROOT || 'dist'
+  const outputRoot =
+    process.env.KRATOS_TARO_OUTPUT_ROOT ||
+    (process.env.TARO_ENV === 'h5'
+      ? 'dist/h5'
+      : process.env.TARO_ENV === 'weapp'
+        ? 'dist/mp-weixin'
+        : 'dist')
   const publicPath = process.env.KRATOS_TARO_PUBLIC_PATH || '/'
   const apiTargetUrl = process.env.KRATOS_TARO_API_URL || 'http://localhost:7001'
   const packageRoots = Object.fromEntries(

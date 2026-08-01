@@ -148,7 +148,7 @@ test('H5 serve 在 HTTP 服务关闭前保留生成页面', async () => {
   }
 })
 
-test('活动页面事务阻止第二个开发进程覆盖生成页面', async () => {
+test('活动页面事务允许第二个开发进程复用生成页面', async () => {
   const fixture = await createViteFixture({ configure: false })
   const { configure, inputDir, original, pagesFile, transactionFile } = fixture
   writeFileSync(
@@ -164,10 +164,40 @@ test('活动页面事务阻止第二个开发进程覆盖生成页面', async ()
   )
 
   try {
-    assert.throws(configure, new RegExp(`页面装配已由进程 ${process.ppid} 使用`))
+    let loadedConfig
+    assert.doesNotThrow(() => {
+      loadedConfig = configure()
+    })
+    assert.ok(loadedConfig)
     assert.equal(readFileSync(pagesFile, 'utf8'), original)
     assert.ok(existsSync(transactionFile))
   } finally {
+    fixture.dispose()
+  }
+})
+
+test('并行开发服务共享页面装配并在最后一个服务退出后恢复', async () => {
+  const fixture = await createViteFixture()
+  const secondPlugin = await loadPagePlugin(fixture.inputDir)
+  const configureSecond = () => {
+    process.env.UNI_INPUT_DIR = fixture.inputDir
+    try {
+      return secondPlugin.config()
+    } finally {
+      delete process.env.UNI_INPUT_DIR
+    }
+  }
+
+  try {
+    configureSecond()
+    fixture.plugin.configResolved?.({ command: 'serve', build: { watch: null } })
+    secondPlugin.configResolved?.({ command: 'serve', build: { watch: null } })
+    fixture.plugin.closeWatcher()
+    assert.notEqual(readFileSync(fixture.pagesFile, 'utf8'), fixture.original)
+    secondPlugin.closeWatcher()
+    assert.equal(readFileSync(fixture.pagesFile, 'utf8'), fixture.original)
+  } finally {
+    secondPlugin.closeWatcher?.()
     fixture.dispose()
   }
 })
@@ -264,5 +294,23 @@ async function createViteFixture(options = {}) {
       delete process.env.UNI_INPUT_DIR
       rmSync(root, { recursive: true, force: true })
     },
+  }
+}
+
+async function loadPagePlugin(inputDir) {
+  const workspaceRoot = resolve(import.meta.dirname, '../../..')
+  process.env.UNI_INPUT_DIR = inputDir
+  try {
+    const loaded = await loadConfigFromFile(
+      { command: 'build', mode: 'production-h5' },
+      resolve(workspaceRoot, 'apps/uni-app/vite.config.ts'),
+    )
+    const plugin = loaded.config.plugins
+      .flat(Infinity)
+      .find((item) => item?.name === 'kratos-uni-app-pages')
+    assert.ok(plugin)
+    return plugin
+  } finally {
+    delete process.env.UNI_INPUT_DIR
   }
 }

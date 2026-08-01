@@ -41,7 +41,16 @@ type BuildTransaction = {
   generatedStaticFiles: string[]
   generatedStatic?: boolean
   ownerPid?: number
+  ready?: boolean
 }
+
+type PageAssembly = {
+  transaction: BuildTransaction
+  leaseFile: string
+}
+
+const PAGE_ASSEMBLY_WAIT_TIMEOUT_MS = 30_000
+const PAGE_ASSEMBLY_POLL_INTERVAL_MS = 25
 
 /** uni-app Vite 插件参数。 */
 export interface KratosAppViteOptions {
@@ -63,18 +72,14 @@ export function createKratosUniPlugin() {
 export function kratosApp(options: KratosAppViteOptions): Plugin {
   const sourceVersion = `${process.pid}-${Date.now()}-${++sourceVersionCounter}`
   const state: {
-    inputDir?: string
     pagesFile?: string
     originalPages?: string
-    generatedFiles: string[]
-    generatedStaticFiles: string[]
     cleaned: boolean
     persistent: boolean
     transactionFile?: string
+    leaseFile?: string
     moduleRoots: Map<string, string>
   } = {
-    generatedFiles: [],
-    generatedStaticFiles: [],
     cleaned: false,
     persistent: false,
     moduleRoots: new Map(),
@@ -86,18 +91,10 @@ export function kratosApp(options: KratosAppViteOptions): Plugin {
     process.removeListener('exit', cleanup)
     process.removeListener('SIGINT', handleSigint)
     process.removeListener('SIGTERM', handleSigterm)
-    for (const file of [...state.generatedFiles].reverse()) {
-      if (existsSync(file)) unlinkSync(file)
-      removeEmptyParents(dirname(file), state.inputDir ?? '')
-    }
-    if (state.inputDir) {
-      removeGeneratedStaticFiles(state.generatedStaticFiles, resolve(state.inputDir, 'static'))
-    }
-    if (state.pagesFile && state.originalPages !== undefined) {
+    if (state.transactionFile && state.leaseFile) {
+      releasePageAssembly(state.transactionFile, state.leaseFile)
+    } else if (state.pagesFile && state.originalPages !== undefined) {
       writeFileSync(state.pagesFile, state.originalPages)
-    }
-    if (state.transactionFile && existsSync(state.transactionFile)) {
-      unlinkSync(state.transactionFile)
     }
   }
   const handleSigint = () => {
@@ -185,11 +182,8 @@ export function kratosApp(options: KratosAppViteOptions): Plugin {
       const inputDir = process.env.UNI_INPUT_DIR || resolve(process.cwd(), 'src')
       const pagesFile = resolve(inputDir, 'pages.json')
       const transactionFile = resolve(inputDir, '../.kratos-uni-app-pages-state.json')
-      recoverBuildTransaction(transactionFile, inputDir, pagesFile)
       const hostRequire = createRequire(resolve(inputDir, '../package.json'))
       const originalPages = readFileSync(pagesFile, 'utf8')
-      const manifest = JSON.parse(originalPages) as PagesManifest
-      manifest.pages ??= []
       const pageMap = new Map<string, ScannedPage>()
       const moduleRoots = options.modules.map((module) => {
         const linkedRoot = resolve(inputDir, '../node_modules', ...module.name.split('/'))
@@ -214,48 +208,19 @@ export function kratosApp(options: KratosAppViteOptions): Plugin {
         })
       })
 
-      state.inputDir = inputDir
       state.pagesFile = pagesFile
-      state.originalPages = originalPages
       state.transactionFile = transactionFile
-      state.generatedFiles = [...pageMap.values()]
-        .map((page) => resolve(inputDir, `${page.route}.vue`))
-        .filter((target) => !existsSync(target))
-      const staticTarget = resolve(inputDir, 'static')
-      const staticFiles = collectModuleStaticFiles(
-        moduleRoots.map(({ root }) => resolve(root, 'src/static')),
-        staticTarget,
-      )
-      state.generatedStaticFiles = staticFiles.map(({ target }) => target)
-      writeFileSync(
+      const pageAssembly = preparePageAssembly({
+        inputDir,
+        pagesFile,
         transactionFile,
-        `${JSON.stringify(
-          {
-            inputDir,
-            pagesFile,
-            originalPages,
-            generatedFiles: state.generatedFiles,
-            generatedStaticFiles: state.generatedStaticFiles,
-            ownerPid: process.pid,
-          } satisfies BuildTransaction,
-          null,
-          2,
-        )}\n`,
-        { flag: 'wx' },
-      )
-      pageMap.forEach((page) => {
-        const target = resolve(inputDir, `${page.route}.vue`)
-        if (existsSync(target)) return
-        mkdirSync(dirname(target), { recursive: true })
-        writeFileSync(target, createPageWrapper(page))
-        appendPage(manifest, page)
+        originalPages,
+        moduleRoots,
+        pageMap: [...pageMap.values()],
+        sourceVersion,
       })
-
-      staticFiles.forEach(({ source, target }) => {
-        mkdirSync(dirname(target), { recursive: true })
-        copyFileSync(source, target)
-      })
-      writeFileSync(pagesFile, `${JSON.stringify(manifest, null, 2)}\n`)
+      state.originalPages = pageAssembly.transaction.originalPages
+      state.leaseFile = pageAssembly.leaseFile
       process.once('exit', cleanup)
       process.prependOnceListener('SIGINT', handleSigint)
       process.prependOnceListener('SIGTERM', handleSigterm)
@@ -293,46 +258,260 @@ export function kratosApp(options: KratosAppViteOptions): Plugin {
   }
 }
 
-function recoverBuildTransaction(
+function preparePageAssembly(options: {
+  inputDir: string
+  pagesFile: string
+  transactionFile: string
+  originalPages: string
+  moduleRoots: Array<{ root: string }>
+  pageMap: ScannedPage[]
+  sourceVersion: string
+}): PageAssembly {
+  const lockFile = `${options.transactionFile}.lock`
+  acquirePageAssemblyLock(lockFile)
+  try {
+    let transaction = readBuildTransaction(
+      options.transactionFile,
+      options.inputDir,
+      options.pagesFile,
+    )
+    if (transaction && isPageAssemblyActive(transaction)) {
+      return {
+        transaction,
+        leaseFile: createPageAssemblyLease(options.transactionFile, options.sourceVersion),
+      }
+    }
+
+    let originalPages = options.originalPages
+    if (transaction) {
+      originalPages = transaction.originalPages
+      restoreBuildTransaction(transaction, options.transactionFile)
+    }
+
+    const manifest = JSON.parse(originalPages) as PagesManifest
+    manifest.pages ??= []
+    const generatedFiles = options.pageMap
+      .map((page) => resolve(options.inputDir, `${page.route}.vue`))
+      .filter((target) => !existsSync(target))
+    const staticTarget = resolve(options.inputDir, 'static')
+    const staticFiles = collectModuleStaticFiles(
+      options.moduleRoots.map(({ root }) => resolve(root, 'src/static')),
+      staticTarget,
+    )
+    const generatedStaticFiles = staticFiles.map(({ target }) => target)
+    transaction = {
+      inputDir: options.inputDir,
+      pagesFile: options.pagesFile,
+      originalPages,
+      generatedFiles,
+      generatedStaticFiles,
+      ownerPid: process.pid,
+      ready: false,
+    }
+    writeBuildTransaction(options.transactionFile, transaction, 'wx')
+    const leaseFile = createPageAssemblyLease(options.transactionFile, options.sourceVersion)
+    try {
+      options.pageMap.forEach((page) => {
+        const target = resolve(options.inputDir, `${page.route}.vue`)
+        if (existsSync(target)) return
+        mkdirSync(dirname(target), { recursive: true })
+        writeFileSync(target, createPageWrapper(page))
+        appendPage(manifest, page)
+      })
+
+      staticFiles.forEach(({ source, target }) => {
+        mkdirSync(dirname(target), { recursive: true })
+        copyFileSync(source, target)
+      })
+      writeFileSync(options.pagesFile, `${JSON.stringify(manifest, null, 2)}\n`)
+      transaction.ready = true
+      writeBuildTransaction(options.transactionFile, transaction)
+      return { transaction, leaseFile }
+    } catch (error) {
+      releasePageAssemblyLease(leaseFile)
+      restoreBuildTransaction(transaction, options.transactionFile)
+      throw error
+    }
+  } finally {
+    releasePageAssemblyLock(lockFile)
+  }
+}
+
+function readBuildTransaction(
   transactionFile: string,
   inputDir: string,
   pagesFile: string,
-): void {
+): BuildTransaction | undefined {
   if (!existsSync(transactionFile)) return
   const transaction = JSON.parse(readFileSync(transactionFile, 'utf8')) as BuildTransaction
   if (transaction.inputDir !== inputDir || transaction.pagesFile !== pagesFile) {
     throw new Error(`uni-app 构建事务目录不匹配：${transactionFile}`)
   }
-  if (
+  return transaction
+}
+
+function writeBuildTransaction(
+  transactionFile: string,
+  transaction: BuildTransaction,
+  flag?: 'wx',
+): void {
+  writeFileSync(
+    transactionFile,
+    `${JSON.stringify(transaction, null, 2)}\n`,
+    flag ? { flag } : undefined,
+  )
+}
+
+function restoreBuildTransaction(transaction: BuildTransaction, transactionFile: string): void {
+  for (const file of [...transaction.generatedFiles].reverse()) {
+    if (existsSync(file)) unlinkSync(file)
+    removeEmptyParents(dirname(file), transaction.inputDir)
+  }
+  removeGeneratedStaticFiles(
+    transaction.generatedStaticFiles ?? [],
+    resolve(transaction.inputDir, 'static'),
+  )
+  // 兼容旧事务：旧格式仅在 static 原本不存在时记录整个目录由插件生成。
+  if (transaction.generatedStatic && transaction.generatedStaticFiles === undefined) {
+    rmSync(resolve(transaction.inputDir, 'static'), { recursive: true, force: true })
+  }
+  writeFileSync(transaction.pagesFile, transaction.originalPages)
+  if (existsSync(transactionFile)) unlinkSync(transactionFile)
+}
+
+function releasePageAssembly(transactionFile: string, leaseFile: string): void {
+  releasePageAssemblyLease(leaseFile)
+  const lockFile = `${transactionFile}.lock`
+  acquirePageAssemblyLock(lockFile)
+  try {
+    if (!existsSync(transactionFile)) return
+    const transaction = JSON.parse(readFileSync(transactionFile, 'utf8')) as BuildTransaction
+    const current = readBuildTransaction(
+      transactionFile,
+      transaction.inputDir,
+      transaction.pagesFile,
+    )
+    if (!current || isPageAssemblyActive(current)) return
+    restoreBuildTransaction(current, transactionFile)
+  } finally {
+    releasePageAssemblyLock(lockFile)
+  }
+}
+
+function createPageAssemblyLease(transactionFile: string, sourceVersion: string): string {
+  const leaseDirectory = `${transactionFile}.leases`
+  mkdirSync(leaseDirectory, { recursive: true })
+  const leaseFile = resolve(leaseDirectory, `${process.pid}-${sourceVersion}.lease`)
+  writeFileSync(leaseFile, `${JSON.stringify({ ownerPid: process.pid })}\n`, { flag: 'wx' })
+  return leaseFile
+}
+
+function releasePageAssemblyLease(leaseFile: string): void {
+  if (existsSync(leaseFile)) unlinkSync(leaseFile)
+  const leaseDirectory = dirname(leaseFile)
+  if (existsSync(leaseDirectory) && !readdirSync(leaseDirectory).length) {
+    try {
+      rmdirSync(leaseDirectory)
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code
+      if (code !== 'ENOTEMPTY' && code !== 'EEXIST') throw error
+    }
+  }
+}
+
+function isPageAssemblyActive(transaction: BuildTransaction): boolean {
+  const leaseDirectory = resolve(
+    dirname(transaction.pagesFile),
+    '../.kratos-uni-app-pages-state.json.leases',
+  )
+  if (listActivePageLeases(leaseDirectory).length) return true
+  return (
     transaction.ownerPid !== undefined &&
     transaction.ownerPid !== process.pid &&
     isProcessRunning(transaction.ownerPid)
-  ) {
-    throw new Error(
-      `页面装配已由进程 ${transaction.ownerPid} 使用，请先停止另一个 H5 或小程序开发进程`,
-    )
+  )
+}
+
+function listActivePageLeases(leaseDirectory: string): number[] {
+  if (!existsSync(leaseDirectory)) return []
+  const activePids: number[] = []
+  for (const entry of readdirSync(leaseDirectory)) {
+    const leaseFile = resolve(leaseDirectory, entry)
+    try {
+      const lease = JSON.parse(readFileSync(leaseFile, 'utf8')) as { ownerPid?: number }
+      if (lease.ownerPid && isProcessRunning(lease.ownerPid)) {
+        activePids.push(lease.ownerPid)
+      } else {
+        unlinkSync(leaseFile)
+      }
+    } catch {
+      unlinkSync(leaseFile)
+    }
   }
-  for (const file of [...transaction.generatedFiles].reverse()) {
-    if (existsSync(file)) unlinkSync(file)
-    removeEmptyParents(dirname(file), inputDir)
+  return activePids
+}
+
+function acquirePageAssemblyLock(lockFile: string): void {
+  const deadline = Date.now() + PAGE_ASSEMBLY_WAIT_TIMEOUT_MS
+  while (true) {
+    try {
+      writeFileSync(lockFile, `${JSON.stringify({ ownerPid: process.pid })}\n`, { flag: 'wx' })
+      return
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error
+      const ownerPid = readPageAssemblyLockOwner(lockFile)
+      if (ownerPid !== undefined && !isProcessRunning(ownerPid)) {
+        unlinkSync(lockFile)
+        continue
+      }
+      if (Date.now() >= deadline) {
+        throw new Error(`等待 uni-app 页面装配锁超时：${lockFile}`)
+      }
+      waitForPageAssembly(PAGE_ASSEMBLY_POLL_INTERVAL_MS)
+    }
   }
-  removeGeneratedStaticFiles(transaction.generatedStaticFiles ?? [], resolve(inputDir, 'static'))
-  // 兼容旧事务：旧格式仅在 static 原本不存在时记录整个目录由插件生成。
-  if (transaction.generatedStatic && transaction.generatedStaticFiles === undefined) {
-    rmSync(resolve(inputDir, 'static'), { recursive: true, force: true })
+}
+
+function releasePageAssemblyLock(lockFile: string): void {
+  if (!existsSync(lockFile)) return
+  if (readPageAssemblyLockOwner(lockFile) === process.pid) unlinkSync(lockFile)
+}
+
+function readPageAssemblyLockOwner(lockFile: string): number | undefined {
+  try {
+    return (JSON.parse(readFileSync(lockFile, 'utf8')) as { ownerPid?: number }).ownerPid
+  } catch {
+    return
   }
-  writeFileSync(pagesFile, transaction.originalPages)
-  unlinkSync(transactionFile)
+}
+
+function waitForPageAssembly(milliseconds: number): void {
+  const buffer = new SharedArrayBuffer(4)
+  Atomics.wait(new Int32Array(buffer), 0, 0, milliseconds)
 }
 
 // recoverStalePageTransaction 在官方 uni 插件创建前恢复页面事务，避免官方插件先读取到空 pages.json。
 export function recoverStalePageTransaction(): void {
   const inputDir = process.env.UNI_INPUT_DIR || resolve(process.cwd(), 'src')
-  recoverBuildTransaction(
-    resolve(inputDir, '../.kratos-uni-app-pages-state.json'),
-    inputDir,
-    resolve(inputDir, 'pages.json'),
-  )
+  const transactionFile = resolve(inputDir, '../.kratos-uni-app-pages-state.json')
+  const pagesFile = resolve(inputDir, 'pages.json')
+  const lockFile = `${transactionFile}.lock`
+  acquirePageAssemblyLock(lockFile)
+  try {
+    recoverBuildTransaction(transactionFile, inputDir, pagesFile)
+  } finally {
+    releasePageAssemblyLock(lockFile)
+  }
+}
+
+function recoverBuildTransaction(
+  transactionFile: string,
+  inputDir: string,
+  pagesFile: string,
+): void {
+  const transaction = readBuildTransaction(transactionFile, inputDir, pagesFile)
+  if (!transaction || isPageAssemblyActive(transaction)) return
+  restoreBuildTransaction(transaction, transactionFile)
 }
 
 // isProcessRunning 判断页面事务的所属进程是否仍然存活。

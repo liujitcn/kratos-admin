@@ -4,6 +4,7 @@ dist
 apps/taro-app/dist
 apps/taro-app/.swc
 apps/taro-app/.kratos-taro-app-pages-state.json
+apps/taro-app/.kratos-taro-app-pages-state.json.*
 apps/taro-app/src/static
 apps/taro-app/src/pages/*
 !apps/taro-app/src/pages/bootstrap/

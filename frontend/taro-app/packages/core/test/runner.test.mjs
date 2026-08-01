@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { spawnSync } from 'node:child_process'
+import { spawn, spawnSync } from 'node:child_process'
 import {
   chmodSync,
   existsSync,
@@ -42,10 +42,10 @@ test('runner 扫描页面、应用后注册覆盖并在构建后恢复宿主', (
     assert.match(generatedConfig, /pages\/index\/index/)
     assert.match(generatedConfig, /"root": "pagesMember"/)
     assert.match(generatedConfig, /"orders\/detail"/)
-    assert.match(snapshot.homeWrapper, /@fixture\/two\/views\/pages\/override\/index/)
+    assert.match(snapshot.homeWrapper, /@fixture\/two\/views\/pages\/override\/index\.tsx/)
     assert.match(snapshot.homeWrapper, /KratosPageFrame/)
     assert.match(snapshot.homeWrapper, /navigationBarTitleText="second"/)
-    assert.match(snapshot.detailWrapper, /@fixture\/one\/views\/pagesMember\/orders\/detail/)
+    assert.match(snapshot.detailWrapper, /@fixture\/one\/views\/pagesMember\/orders\/detail\.tsx/)
     assert.match(snapshot.homeConfig, /"title": "second"/)
     assert.equal(snapshot.sharedStatic, 'second')
     assert.equal(snapshot.hostStatic, 'host')
@@ -62,26 +62,82 @@ test('runner 扫描页面、应用后注册覆盖并在构建后恢复宿主', (
   }
 })
 
-test('runner 拒绝覆盖活动进程持有的页面事务', () => {
+test('runner 复用活动进程持有的页面事务', () => {
   const fixture = createRunnerFixture()
   try {
+    const generatedFiles = [
+      resolve(fixture.inputDir, 'pages/index/index.tsx'),
+      resolve(fixture.inputDir, 'pages/index/index.config.ts'),
+      resolve(fixture.inputDir, 'pagesMember/orders/detail.tsx'),
+      resolve(fixture.inputDir, 'pagesMember/orders/detail.config.ts'),
+    ]
+    generatedFiles.forEach((file) => write(file, 'generated'))
+    const generatedStaticFile = resolve(fixture.inputDir, 'static/shared.txt')
+    write(generatedStaticFile, 'shared')
     write(
       fixture.transactionFile,
       `${JSON.stringify({
         inputDir: fixture.inputDir,
         appConfigFile: fixture.appConfigFile,
         originalAppConfig: fixture.originalAppConfig,
-        generatedFiles: [],
-        generatedStaticFiles: [],
+        generatedFiles,
+        generatedStaticFiles: [generatedStaticFile],
         ownerPid: process.pid,
       })}\n`,
     )
+    write(fixture.appConfigFile, 'mutated')
     const result = runFixture(fixture)
-    assert.notEqual(result.status, 0)
-    assert.match(result.stderr, new RegExp(`页面装配已由进程 ${process.pid} 使用`))
-    assert.equal(readFileSync(fixture.appConfigFile, 'utf8'), fixture.originalAppConfig)
+    assert.equal(result.status, 0, result.stderr)
+    assert.equal(readFileSync(fixture.appConfigFile, 'utf8'), 'mutated')
     assert.ok(existsSync(fixture.transactionFile))
-    assert.ok(!existsSync(fixture.snapshotFile))
+    assert.ok(existsSync(generatedFiles[0]))
+    assert.ok(existsSync(generatedStaticFile))
+  } finally {
+    fixture.dispose()
+  }
+})
+
+test('并行 runner 共享页面装配并在最后一个进程退出后恢复', async () => {
+  const fixture = createRunnerFixture()
+  const firstSnapshot = resolve(fixture.root, 'first-snapshot.json')
+  const secondSnapshot = resolve(fixture.root, 'second-snapshot.json')
+  const first = runFixtureAsync(fixture, {
+    delay: '5000',
+    snapshotFile: firstSnapshot,
+  })
+  let second
+  try {
+    await waitForFile(fixture.transactionFile)
+    second = runFixtureAsync(fixture, { snapshotFile: secondSnapshot })
+    const secondResult = await waitForExit(second)
+    assert.equal(secondResult.status, 0, secondResult.stderr)
+    assert.ok(existsSync(fixture.transactionFile))
+    assert.notEqual(readFileSync(fixture.appConfigFile, 'utf8'), fixture.originalAppConfig)
+
+    first.kill('SIGTERM')
+    const firstResult = await waitForExit(first)
+    assert.equal(firstResult.status, 143, firstResult.stderr)
+    assert.equal(readFileSync(fixture.appConfigFile, 'utf8'), fixture.originalAppConfig)
+    assert.ok(!existsSync(fixture.transactionFile))
+    assert.ok(!existsSync(resolve(fixture.inputDir, 'pages/index/index.tsx')))
+    assert.ok(!existsSync(resolve(fixture.inputDir, 'static/shared.txt')))
+  } finally {
+    second?.kill('SIGTERM')
+    first.kill('SIGTERM')
+    await Promise.all([waitForExit(first), second ? waitForExit(second) : undefined])
+    fixture.dispose()
+  }
+})
+
+test('runner 为 H5 和微信小程序设置独立默认产物目录', () => {
+  const fixture = createRunnerFixture()
+  const h5Snapshot = resolve(fixture.root, 'h5-snapshot.json')
+  const weappSnapshot = resolve(fixture.root, 'weapp-snapshot.json')
+  try {
+    assert.equal(runFixture(fixture, { snapshotFile: h5Snapshot }).status, 0)
+    assert.equal(runFixture(fixture, { snapshotFile: weappSnapshot, type: 'weapp' }).status, 0)
+    assert.equal(JSON.parse(readFileSync(h5Snapshot, 'utf8')).outputRoot, 'dist/h5')
+    assert.equal(JSON.parse(readFileSync(weappSnapshot, 'utf8')).outputRoot, 'dist/mp-weixin')
   } finally {
     fixture.dispose()
   }
@@ -150,7 +206,10 @@ writeFileSync(process.env.KRATOS_RUNNER_SNAPSHOT, JSON.stringify({
   detailWrapper: read('src/pagesMember/orders/detail.tsx'),
   sharedStatic: read('src/static/shared.txt'),
   hostStatic: read('src/static/host.txt'),
+  outputRoot: process.env.KRATOS_TARO_OUTPUT_ROOT,
 }))
+const delay = Number(process.env.KRATOS_RUNNER_DELAY_MS || 0)
+if (delay) await new Promise((resolve) => setTimeout(resolve, delay))
 `,
   )
   chmodSync(resolve(binRoot, 'pnpm'), 0o755)
@@ -162,6 +221,7 @@ writeFileSync(process.env.KRATOS_RUNNER_SNAPSHOT, JSON.stringify({
     hostRoot,
     inputDir,
     originalAppConfig,
+    root,
     snapshotFile,
     transactionFile,
   }
@@ -184,16 +244,57 @@ function createFixtureModule(hostRoot, packageName, directory, pages) {
   return moduleRoot
 }
 
-function runFixture(fixture) {
-  return spawnSync(process.execPath, [runner, '--type', 'h5', '--mode', 'production'], {
+function runFixture(fixture, options = {}) {
+  return spawnSync(process.execPath, [runner, '--type', options.type ?? 'h5', '--mode', 'production'], {
     cwd: fixture.hostRoot,
     encoding: 'utf8',
     env: {
       ...process.env,
-      KRATOS_RUNNER_SNAPSHOT: fixture.snapshotFile,
+      KRATOS_RUNNER_SNAPSHOT: options.snapshotFile ?? fixture.snapshotFile,
       PATH: `${fixture.binRoot}:${process.env.PATH ?? ''}`,
     },
   })
+}
+
+function runFixtureAsync(fixture, options = {}) {
+  const child = spawn(
+    process.execPath,
+    [runner, '--type', options.type ?? 'h5', '--mode', 'production'],
+    {
+      cwd: fixture.hostRoot,
+      env: {
+        ...process.env,
+        KRATOS_RUNNER_DELAY_MS: options.delay ?? '0',
+        KRATOS_RUNNER_SNAPSHOT: options.snapshotFile ?? fixture.snapshotFile,
+        PATH: `${fixture.binRoot}:${process.env.PATH ?? ''}`,
+      },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    },
+  )
+  return child
+}
+
+function waitForExit(child) {
+  if (!child || child.exitCode !== null) {
+    return Promise.resolve({ status: child?.exitCode ?? 0, stderr: '' })
+  }
+  let stderr = ''
+  child.stderr?.on('data', (chunk) => {
+    stderr += chunk
+  })
+  return new Promise((complete) => {
+    child.once('exit', (code, signal) => {
+      complete({ status: signal ? (signal === 'SIGINT' ? 130 : 143) : (code ?? 1), stderr })
+    })
+  })
+}
+
+async function waitForFile(file) {
+  const deadline = Date.now() + 2000
+  while (!existsSync(file)) {
+    if (Date.now() >= deadline) throw new Error(`等待文件超时：${file}`)
+    await new Promise((complete) => setTimeout(complete, 10))
+  }
 }
 
 function write(file, content) {
