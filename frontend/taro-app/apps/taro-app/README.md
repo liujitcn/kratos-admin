@@ -22,4 +22,4 @@ apps/taro-app
 
 模块清单顺序决定页面、`viewKey` 和图标的覆盖优先级。新增业务模块时把依赖加入宿主并在 `module-manifest.ts` 静态导入；不要把模块页面复制到宿主，也不要提交 runner 生成的 wrapper、config 或 static 文件。
 
-H5 构建默认输出到 `backend/data/app` 并使用 `/app/` 公共路径。微信小程序开发和生产产物统一输出到 `apps/taro-app/dist/mp-weixin`，微信开发者工具导入该目录即可。开发时 H5 和微信小程序可以同时运行，页面装配由 runner 共享，构建产物分别写入 `dist/h5` 和 `dist/mp-weixin`。
+H5 构建默认输出到 `backend/data/taro-app` 并使用 `/taro-app/` 公共路径。微信小程序开发和生产产物统一输出到 `apps/taro-app/dist/mp-weixin`，微信开发者工具导入该目录即可。开发时 H5 和微信小程序可以同时运行，页面装配由 runner 共享，构建产物分别写入 `dist/h5` 和 `dist/mp-weixin`。

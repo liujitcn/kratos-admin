@@ -51,6 +51,8 @@ type CliOptions = {
   type: 'h5' | 'weapp'
   mode: string
   watch: boolean
+  prepareOnly: boolean
+  cleanupOnly: boolean
 }
 
 /** 运行 Taro 构建并在进程结束后恢复临时页面。 */
@@ -62,6 +64,7 @@ async function main(): Promise<void> {
   const baseConfigFile = resolve(inputDir, 'app.config.base.json')
   const transactionFile = resolve(hostRoot, '.kratos-taro-app-pages-state.json')
   recoverBuildTransaction(transactionFile, inputDir, appConfigFile)
+  if (options.cleanupOnly) return
 
   const originalAppConfig = readFileSync(appConfigFile, 'utf8')
   const manifest = JSON.parse(readFileSync(baseConfigFile, 'utf8')) as AppManifest
@@ -94,6 +97,9 @@ async function main(): Promise<void> {
     if (cleaned) return
     cleaned = true
     releasePageAssembly(transactionFile, pageAssembly.leaseFile)
+  }
+  if (options.prepareOnly) {
+    return
   }
   const handleSignal = (signal: NodeJS.Signals) => {
     child?.kill(signal)
@@ -136,6 +142,8 @@ function parseArguments(args: string[]): CliOptions {
   let type: CliOptions['type'] | undefined
   let mode = 'production'
   let watch = false
+  let prepareOnly = false
+  let cleanupOnly = false
   for (let index = 0; index < args.length; index += 1) {
     const argument = args[index]
     if (argument === '--type') {
@@ -146,12 +154,16 @@ function parseArguments(args: string[]): CliOptions {
       mode = args[++index] || mode
     } else if (argument === '--watch') {
       watch = true
+    } else if (argument === '--prepare-only') {
+      prepareOnly = true
+    } else if (argument === '--cleanup-only') {
+      cleanupOnly = true
     } else {
       throw new Error(`未知参数：${argument}`)
     }
   }
   if (!type) throw new Error('缺少 --type h5|weapp')
-  return { type, mode, watch }
+  return { type, mode, watch, prepareOnly, cleanupOnly }
 }
 
 async function loadBuildModules(
@@ -261,7 +273,9 @@ function preparePageAssembly(options: {
     const generatedFiles = options.pageMap.flatMap((page) => {
       const pageFile = resolve(options.inputDir, `${page.route}.tsx`)
       const configFile = resolve(options.inputDir, `${page.route}.config.ts`)
-      return [pageFile, configFile].filter((file) => !existsSync(file))
+      return [pageFile, configFile].filter(
+        (file) => !existsSync(file) || isGeneratedPageFile(file) || isGeneratedPageConfig(file),
+      )
     })
     const staticFiles = collectModuleStaticFiles(
       options.moduleStaticRoots,
@@ -554,6 +568,14 @@ export default function KratosPageWrapper() {
 
 function createPageConfig(page: PageEntry): string {
   return `export default definePageConfig(${JSON.stringify(page.style ?? {}, null, 2)})\n`
+}
+
+function isGeneratedPageFile(file: string): boolean {
+  return existsSync(file) && readFileSync(file, 'utf8').includes('自动生成的模块页面包装器')
+}
+
+function isGeneratedPageConfig(file: string): boolean {
+  return existsSync(file) && readFileSync(file, 'utf8').includes('definePageConfig(')
 }
 
 function normalizeRoute(route: string): string {

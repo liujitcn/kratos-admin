@@ -120,7 +120,7 @@ pnpm dev:mp-weixin
 
 开发和构建命令由 `turbo.json` 保证先执行依赖包的 `build:entries`；独立测试和
 exports 检查则通过 `prepare:modules` 完成相同准备，因此不依赖仓库中的历史
-`dist`。H5 默认地址为 `http://localhost:5002`，开发 API 默认代理到
+`dist`。H5 默认地址为 `http://localhost:5004`，开发 API 默认代理到
 `http://localhost:7001`。
 根命令由 Turbo 按 workspace 依赖图调度；启动或构建宿主前会先生成 core 和
 system 的运行入口，命令名称和产物目录保持不变。
@@ -130,7 +130,7 @@ pnpm build:h5
 pnpm build:mp-weixin
 ```
 
-- H5 产物写入 `backend/data/app`，后端通过 `/app/` 挂载。
+- H5 产物写入 `backend/data/uni-app`，后端通过 `/uni-app/` 挂载。
 - 微信小程序产物写入 `apps/uni-app/dist/build/mp-weixin`，使用微信开发者工具导入。
 
 ## RPC 生成

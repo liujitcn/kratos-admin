@@ -123,7 +123,7 @@ migration/assets/
 | `make ts` | 管理端 core 与 System 包的 TypeScript RPC。 |
 | `make ts-app` | uni-app core 与 system 包的 TypeScript RPC。 |
 | `make ts-taro-app` | Taro React core 与 system 包的 TypeScript RPC。 |
-| `make project-docs` | `internal/projectdocs/assets/catalog.json` 和 `internal/projectdocs/catalog_gen.go`，收集三层范围内的 `README.md` 和 `docs` Markdown。 |
+| `make project-docs` | `internal/docs/assets/docs.json` 和 `internal/docs/docs.go`，收集三层范围内的 `README.md` 和 `docs` Markdown。 |
 | `make gorm-gen` | `internal/data/gen`。默认读取 `configs/data_local.yaml`，可用 `GORM_GEN_CONFIG`、`GORM_GEN_DATABASE`、`GORM_TABLE` 覆盖配置、数据源和表。 |
 | `make wire` | `wire_gen.go`。 |
 | `make gen` | 依次执行以上生成和 Go 格式化。 |
@@ -146,8 +146,8 @@ make project-docs
 `make project-docs` 在仓库根目录零参数调用 PATH 中已安装的 `project-docs`
 二进制，从项目根目录扫描相对路径不超过三段的文件，只收集精确命名的
 `README.md`，以及任意 `docs` 目录中的 Markdown。命令输出递归目录树
-`internal/projectdocs/assets/catalog.json`，并自动生成
-`internal/projectdocs/catalog_gen.go`。文档节点只保存路径、正文和源文件的
+`internal/docs/assets/docs.json`，并自动生成
+`internal/docs/docs.go`。文档节点只保存路径、正文和源文件的
 RFC3339 更新时间；服务装配时使用 Admin 内置项目身份补齐项目标识、展示名称和稳定
 编号。`make wire` 会先执行该命令，因此生成目录被删除后也能自动恢复。
 
@@ -164,7 +164,7 @@ RFC3339 更新时间；服务装配时使用 Admin 内置项目身份补齐项�
 | `/api/docs/openapi/{key}` | 具名 OpenAPI 文档，如 `admin`。 |
 | `/api/v1/admin/project-document/tree` | 按项目和目录递归组织的项目文档树。 |
 | `/api/v1/admin/project-document/{id}` | 按稳定 ID 查询 Markdown 文档详情。 |
-| `/admin/`、`/app/` | `data/admin`、`data/app` 中存在 `index.html` 时自动挂载的 SPA。 |
+| `/admin/`、`/app/`、`/taro-app/`、`/uni-app/` | `data/<目录名>` 中存在 `index.html` 时按目录名自动挂载的 SPA。 |
 
 Swagger 是否启用由 `server.http.enable_swagger` 控制。管理后台的 API 文档页通过 `BaseApiService` 获取已注册文档选项。
 

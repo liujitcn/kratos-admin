@@ -86,6 +86,11 @@ func (r *Runtime) SetSSEPublisher(publisher *coreSSE.Publisher) {
 	core.Modules(r.modules).SetSSEPublisher(publisher)
 }
 
+// SetSSERegistry 向需要解析 SSE 流定义的扩展模块透传宿主注册表。
+func (r *Runtime) SetSSERegistry(registry *coreSSE.Registry) {
+	core.Modules(r.modules).SetSSERegistry(registry)
+}
+
 // Scripts 返回扩展模块贡献的启动脚本。
 func (r *Runtime) Scripts() []script.Script {
 	return core.Modules(r.modules).Scripts()
@@ -116,6 +121,7 @@ var (
 	_ core.QueueConsumerContributor   = (*Runtime)(nil)
 	_ core.SSEContributor             = (*Runtime)(nil)
 	_ core.SSEPublisherAware          = (*Runtime)(nil)
+	_ core.SSERegistryAware           = (*Runtime)(nil)
 	_ core.ScriptContributor          = (*Runtime)(nil)
 	_ core.StartupContributor         = (*Runtime)(nil)
 	_ core.HealthContributor          = (*Runtime)(nil)

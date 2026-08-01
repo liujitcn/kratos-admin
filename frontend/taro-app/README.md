@@ -59,7 +59,7 @@ pnpm build:mp-weixin
 ```
 
 - H5 开发地址默认是 `http://localhost:5002`，`/api` 和 `/events` 代理到 `http://localhost:7001`。
-- H5 生产产物写入 `backend/data/app`，公共路径是 `/app/`。
+- H5 生产产物写入 `backend/data/taro-app`，访问地址是 `/taro-app/`。
 - 微信小程序开发和生产产物统一写入 `apps/taro-app/dist/mp-weixin`，微信开发者工具可直接导入该目录。
 - `KRATOS_TARO_API_URL` 配置后端地址；`KRATOS_TARO_API_BASE`、`KRATOS_TARO_STATIC_URL`、`KRATOS_TARO_PUBLIC_PATH` 可分别覆盖 API 前缀、静态资源地址和 H5 公共路径。
 

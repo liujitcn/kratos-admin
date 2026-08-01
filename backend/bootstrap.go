@@ -17,8 +17,10 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/startup"
 	coreTask "github.com/liujitcn/kratos-admin/backend/core/pkg/task"
 	"github.com/liujitcn/kratos-admin/backend/internal/server"
+	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	"github.com/liujitcn/kratos-kit/bootstrap"
 	kitQueue "github.com/liujitcn/kratos-kit/queue"
+	sseServer "github.com/liujitcn/kratos-kit/transport/sse"
 )
 
 type standaloneRuntime struct {
@@ -40,14 +42,17 @@ func NewApp(ctx *bootstrap.Context, optionValues ...Option) (*kratos.App, func()
 
 // newStandaloneRuntime 收集扩展模块仅在独立部署形态下需要落地的运行时贡献。
 func newStandaloneRuntime(
+	ctx *bootstrap.Context,
 	runtime *Runtime,
 	queue kitQueue.Queue,
 	taskRegistry *coreTask.Registry,
 	sseRegistry *coreSSE.Registry,
 	ssePublisher *coreSSE.Publisher,
+	sseServer *sseServer.Server,
 ) (*standaloneRuntime, func(), error) {
 	modules := core.Modules(runtime.modules)
 	modules.SetSSEPublisher(ssePublisher)
+	modules.SetSSERegistry(sseRegistry)
 	var err error
 	err = taskRegistry.Register(modules.Tasks()...)
 	if err != nil {
@@ -59,6 +64,9 @@ func newStandaloneRuntime(
 	}
 
 	servers := append([]kratosTransport.Server(nil), runtime.Servers()...)
+	if ctx.GetConfig().GetServer().GetSse() != nil && ctx.GetConfig().GetServer().GetSse().GetTransport() != bootstrapConfigv1.Server_Sse_IN_PROCESS && sseServer != nil {
+		servers = append(servers, sseServer)
+	}
 	queueConsumers := modules.QueueConsumers()
 	if len(queueConsumers) > 0 {
 		var queueRuntime *coreQueue.Runtime
@@ -138,7 +146,7 @@ func newKratosApp(
 }
 
 var appProviderSet = wire.NewSet(
-	moduleProviderSet,
+	appModuleProviderSet,
 	newStandaloneRuntime,
 	server.NewGRPCServer,
 	server.NewHTTPServer,

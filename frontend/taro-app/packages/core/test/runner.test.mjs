@@ -97,6 +97,24 @@ test('runner 复用活动进程持有的页面事务', () => {
   }
 })
 
+test('runner 准备类型检查后由清理模式恢复页面事务', () => {
+  const fixture = createRunnerFixture()
+  try {
+    const prepareResult = runFixture(fixture, { prepareOnly: true })
+    assert.equal(prepareResult.status, 0, prepareResult.stderr)
+    assert.ok(existsSync(fixture.transactionFile))
+    assert.ok(existsSync(resolve(fixture.inputDir, 'pages/index/index.tsx')))
+
+    const cleanupResult = runFixture(fixture, { cleanupOnly: true })
+    assert.equal(cleanupResult.status, 0, cleanupResult.stderr)
+    assert.equal(readFileSync(fixture.appConfigFile, 'utf8'), fixture.originalAppConfig)
+    assert.ok(!existsSync(resolve(fixture.inputDir, 'pages/index/index.tsx')))
+    assert.ok(!existsSync(fixture.transactionFile))
+  } finally {
+    fixture.dispose()
+  }
+})
+
 test('并行 runner 共享页面装配并在最后一个进程退出后恢复', async () => {
   const fixture = createRunnerFixture()
   const firstSnapshot = resolve(fixture.root, 'first-snapshot.json')
@@ -245,7 +263,10 @@ function createFixtureModule(hostRoot, packageName, directory, pages) {
 }
 
 function runFixture(fixture, options = {}) {
-  return spawnSync(process.execPath, [runner, '--type', options.type ?? 'h5', '--mode', 'production'], {
+  const args = [runner, '--type', options.type ?? 'h5', '--mode', 'production']
+  if (options.prepareOnly) args.push('--prepare-only')
+  if (options.cleanupOnly) args.push('--cleanup-only')
+  return spawnSync(process.execPath, args, {
     cwd: fixture.hostRoot,
     encoding: 'utf8',
     env: {

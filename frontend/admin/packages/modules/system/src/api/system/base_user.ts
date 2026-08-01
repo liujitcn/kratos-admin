@@ -20,7 +20,7 @@ import type { SelectOptionResponse } from "@liujitcn/kratos-admin-system/rpc/com
 const BASE_USER_URL = "/v1/admin/base/user";
 
 /** Admin用户服务 */
-export class BaseUserServiceImpl implements Omit<BaseUserService, "SetBaseUserAppRole"> {
+export class BaseUserServiceImpl implements Omit<BaseUserService, "SetBaseUserAppRole" | "SummaryBaseUser"> {
   /** 查询用户下拉选择 */
   OptionBaseUser(request: OptionBaseUserRequest): Promise<SelectOptionResponse> {
     return service<OptionBaseUserRequest, SelectOptionResponse>({

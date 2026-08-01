@@ -71,10 +71,10 @@ cd ../taro-app && pnpm dev:h5
 | 后端 HTTP | `http://localhost:7001` |
 | 后端 gRPC | `localhost:6001` |
 | 管理后台 | `http://localhost:8848` |
-| uni-app H5 | `http://localhost:5002` |
+| uni-app H5 | `http://localhost:5004` |
 | Taro H5 | `http://localhost:5002` |
 
-uni-app 和 Taro H5 默认使用同一个端口 `5002`，不能同时启动；需要联调两端时先启动其中一个，或为其中一端配置其他端口。
+uni-app 和 Taro H5 默认分别使用 `5004` 与 `5002`，可以同时启动。局域网设备访问 uni-app 时，将 `localhost` 替换为开发机局域网 IP。
 
 默认迁移提供开发账号 `super / 112233` 和 `admin / 112233`。部署前必须修改默认密码、JWT 密钥、数据库和 Redis 凭据。
 
@@ -108,7 +108,7 @@ pnpm build:h5
 pnpm build:mp-weixin
 ```
 
-`backend/api/gen`、`backend/internal/data/gen`、`backend/internal/projectdocs/assets/catalog.json`、`backend/internal/projectdocs/catalog_gen.go`、各前端包的 `src/rpc`、OpenAPI 及 `wire_gen.go` 都是生成产物，不得手工修改。所有前端 RPC 的 Buf 配置统一位于 `backend/api`，分别通过 `make -C backend ts`、`make -C backend ts-app` 和 `make -C backend ts-taro-app` 生成。
+`backend/api/gen`、`backend/internal/data/gen`、`backend/internal/docs/assets/docs.json`、`backend/internal/docs/docs.go`、各前端包的 `src/rpc`、OpenAPI 及 `wire_gen.go` 都是生成产物，不得手工修改。所有前端 RPC 的 Buf 配置统一位于 `backend/api`，分别通过 `make -C backend ts`、`make -C backend ts-app` 和 `make -C backend ts-taro-app` 生成。
 
 ## 发布
 

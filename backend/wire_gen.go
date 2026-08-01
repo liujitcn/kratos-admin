@@ -494,7 +494,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 		return nil, nil, err
 	}
 	mcpService := base.NewMcpService(mcpCase)
-	sseServer, err := base2.NewSSEHandler(context)
+	sseServer, err := base2.NewSSEServer(context)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -678,7 +678,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 		cleanup()
 		return nil, nil, err
 	}
-	kratosadminStandaloneRuntime, cleanup5, err := newStandaloneRuntime(kratosadminRuntime, queueQueue, taskRegistry, sseRegistry, publisher)
+	kratosadminStandaloneRuntime, cleanup5, err := newStandaloneRuntime(context, kratosadminRuntime, queueQueue, taskRegistry, sseRegistry, publisher, sseServer)
 	if err != nil {
 		cleanup4()
 		cleanup3()

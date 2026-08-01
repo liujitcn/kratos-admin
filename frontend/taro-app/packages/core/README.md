@@ -26,7 +26,7 @@
 
 模块必须同时提供运行时定义和 `./build` 导出。构建入口返回模块名称、包根目录与页面清单；runner 根据宿主的静态 `module-manifest.ts` 解析模块顺序，扫描页面并创建事务。
 
-runner 支持命名导入和默认导入的模块，后注册模块可以覆盖相同物理路由。页面私有 `components` 不会成为路由，模块 static 会先合并到宿主再由 Taro 编译。H5 下，runner 根据页面 `navigationStyle` 和 `navigationBar*` 配置生成默认顶部导航栏；微信小程序继续使用原生导航栏。构建失败、正常退出和收到终止信号时都会执行恢复。
+runner 支持命名导入和默认导入的模块，后注册模块可以覆盖相同物理路由。页面私有 `components` 不会成为路由，模块 static 会先合并到宿主再由 Taro 编译。H5 下，runner 根据页面 `navigationStyle` 和 `navigationBar*` 配置生成默认顶部导航栏；微信小程序继续使用原生导航栏。构建失败、正常退出和收到终止信号时都会执行恢复；传入 `--prepare-only` 时只装配页面供类型检查使用，配合 `--cleanup-only` 在检查结束后恢复，不启动 Taro 编译。
 
 ## 验证
 

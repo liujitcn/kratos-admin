@@ -31,7 +31,7 @@
       "persistent": true
     },
     "tsc": {
-      "dependsOn": ["^tsc"],
+      "dependsOn": ["^tsc", "^build:entries"],
       "outputs": []
     }
   }

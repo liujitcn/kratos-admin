@@ -8,7 +8,7 @@
     "recover:pages": "node -e \"import('@liujitcn/kratos-uni-app-core/vite').then(({ recoverStalePageTransaction }) => recoverStalePageTransaction())\"",
     "dev:h5": "pnpm run recover:pages && uni --mode development-h5",
     "dev:mp-weixin": "pnpm run recover:pages && uni -p mp-weixin --mode development",
-    "build:h5": "pnpm run recover:pages && UNI_OUTPUT_DIR=../../../../backend/data/app uni build --mode production-h5",
+    "build:h5": "pnpm run recover:pages && UNI_OUTPUT_DIR=../../../../backend/data/uni-app uni build --mode production-h5",
     "build:mp-weixin": "pnpm run recover:pages && uni build -p mp-weixin --mode production",
     "tsc": "vue-tsc --noEmit -p tsconfig.json"
   },

@@ -149,7 +149,7 @@ func registerModuleExtensions(modules server.Modules, aiRuntime *ai.Runtime, use
 // repositoryProviderSet 只装配仓储，数据库客户端统一由配置层完成多数据源和迁移初始化。
 var repositoryProviderSet = data.RepositoryProviderSet
 
-var moduleProviderSet = wire.NewSet(
+var moduleCommonProviderSet = wire.NewSet(
 	event.NewUserEvents,
 	job.ProviderSet,
 	coreSSE.NewRegistry,
@@ -173,9 +173,18 @@ var moduleProviderSet = wire.NewSet(
 	baseserver.ProviderSet,
 	adminserver.ProviderSet,
 	appserver.ProviderSet,
-	baseserver.NewSSEHandler,
 	newModules,
 	wire.Bind(new(server.TerminalToolSetter), new(*ai.Runtime)),
 	server.ModuleProviderSet,
 	newRuntime,
+)
+
+var moduleProviderSet = wire.NewSet(
+	moduleCommonProviderSet,
+	baseserver.NewSSEHandler,
+)
+
+var appModuleProviderSet = wire.NewSet(
+	moduleCommonProviderSet,
+	baseserver.NewSSEServer,
 )
