@@ -18,6 +18,7 @@ check-boundary:
 
 # 统一升级、提交、打包、推送 tag，并等待 GitHub Actions 发布两个前端 npm 包
 tag:
+	@$(MAKE) -C backend project-docs
 	@python3 scripts/tag_release.py $(if $(strip $(VERSION)),--version "$(VERSION)",)
 
 # 查看所有可用目标及说明

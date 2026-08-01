@@ -38,7 +38,7 @@
 1. Proto 的 `google.api.http` 和 `buf.validate`。
 2. `make api openapi` 生成的 Go 与 OpenAPI。
 3. 后端 service、biz 和注册代码。
-4. `make ts` 或 `make ts-app` 生成的前端 RPC 类型，以及消费端人工维护的请求封装。
+4. `make ts`、`make ts-app` 或 `make ts-taro-app` 生成的前端 RPC 类型，以及消费端人工维护的请求封装。
 5. `migration/assets/<version>/<database-type>/<feature>.up.sql` 中的菜单、按钮和服务方法权限。
 
 生成目录不得手工修改。完整流程见 [new-feature.md](new-feature.md)。

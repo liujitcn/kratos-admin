@@ -18,17 +18,17 @@ frontend/uni-app
 │       ├── README.md
 │       └── package.json
 ├── packages
-│   ├── core                   # @liujitcn/kratos-uni-app-core v0.0.1
+│   ├── core                   # @liujitcn/kratos-uni-app-core v0.0.17
 │   │   ├── src                # 底座运行时、页面、状态和构建插件
 │   │   ├── test
 │   │   ├── README.md
 │   │   └── package.json
 │   ├── modules
-│   │   └── system             # @liujitcn/kratos-uni-app-system v0.0.1
+│   │   └── system             # @liujitcn/kratos-uni-app-system v0.0.17
 │   │       ├── src            # 个人中心、设置和 AI
 │   │       ├── README.md
 │   │       └── package.json
-│   └── cli                    # @liujitcn/kratos-uni-app-cli v0.0.1
+│   └── cli                    # @liujitcn/kratos-uni-app-cli v0.0.17
 │       ├── bin
 │       ├── src
 │       ├── test

@@ -1,6 +1,6 @@
 # AI 助手
 
-AI 助手是管理端与应用端共用的会话能力。两端使用同一组 `base.v1` 接口和数据表，但按终端筛选可用工具和快捷入口。
+AI 助手是管理端、uni-app 和 Taro 应用端共用的会话能力。三个入口使用同一组 `base.v1` 接口和数据表，但按终端筛选可用工具和快捷入口。
 
 ## 已实现能力
 
@@ -57,10 +57,10 @@ System 模块还把 AI 图标注册为顶部工具。结构化流程块组件不
 
 ## 应用端
 
-应用端位于 `frontend/uni-app/packages/modules/system/src/views/pagesMember/ai`，提供会话抽屉、欢迎快捷入口、输入与附件、消息流和多端 SSE 解析。页面属于 `pagesMember` 分包，使用同一 `base.v1` RPC 和 API 封装。
+uni-app 位于 `frontend/uni-app/packages/modules/system/src/views/pagesMember/ai`，Taro 位于 `frontend/taro-app/packages/modules/system/src/views/pagesMember/ai`。两端都提供会话抽屉、欢迎快捷入口、输入与附件、消息流和多端 SSE 解析，页面属于 `pagesMember` 分包，使用同一 `base.v1` RPC 和 API 封装。H5 使用 Fetch SSE；微信小程序使用各自平台的分块请求能力。
 
 ## 配置与验证
 
 模型配置位于 `backend/configs/ai.yaml` 和 `ai_local.yaml`。未提供模型配置时服务仍可启动，但 AI 运行时处于关闭状态。
 
-修改协议或运行时后执行后端生成与测试；修改管理端执行 `pnpm lint:oxlint`、`pnpm type:check`；修改应用端执行 `pnpm lint`、`pnpm tsc`。前端至少检查空会话、历史会话、发送中、失败、附件和过期流程动作状态。
+修改协议或运行时后执行后端生成与测试；修改管理端执行 `pnpm lint:oxlint`、`pnpm type:check`；修改 uni-app 或 Taro 执行对应 workspace 的 `pnpm lint`、`pnpm tsc`，涉及模块协议或 runner 时再执行 `pnpm test`、`pnpm check:exports`。前端至少检查空会话、历史会话、发送中、失败、附件和过期流程动作状态。

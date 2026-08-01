@@ -8,7 +8,7 @@
 github.com/liujitcn/kratos-admin/backend/core
 ```
 
-本仓库 Backend 通过 `replace => ./core` 使用它；发布后可使用 `backend/core/vX.Y.Z` tag 对应的版本。
+本仓库 Backend 通过 `replace => ./core` 使用它。Core 与 Backend 主模块独立维护版本；Core 使用 `backend/core/vX.Y.Z` 形式的模块标签，Backend 主模块使用 `backend/vX.Y.Z` 标签。
 
 ## 模块契约
 

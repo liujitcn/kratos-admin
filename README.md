@@ -46,13 +46,19 @@ CREATE DATABASE kratos_admin CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 make -C frontend init
 ```
 
+如果依赖目录需要完全重建：
+
+```bash
+make -C frontend reinstall
+```
+
 启动后端：
 
 ```bash
 make -C backend run
 ```
 
-启动管理后台、uni-app 或 Taro H5：
+启动管理后台、uni-app 或 Taro H5（每个命令都应在独立终端运行）：
 
 ```bash
 make -C frontend run-admin
@@ -67,6 +73,8 @@ cd ../taro-app && pnpm dev:h5
 | 管理后台 | `http://localhost:8848` |
 | uni-app H5 | `http://localhost:5002` |
 | Taro H5 | `http://localhost:5002` |
+
+uni-app 和 Taro H5 默认使用同一个端口 `5002`，不能同时启动；需要联调两端时先启动其中一个，或为其中一端配置其他端口。
 
 默认迁移提供开发账号 `super / 112233` 和 `admin / 112233`。部署前必须修改默认密码、JWT 密钥、数据库和 Redis 凭据。
 
@@ -118,10 +126,10 @@ pnpm build:mp-weixin
 - `@liujitcn/kratos-taro-app-cli`
 
 ```bash
-make tag VERSION=0.0.16
+make tag VERSION=0.0.18
 ```
 
-脚本要求当前分支为远程默认分支且与 `origin` 同步，会纳入当前工作区改动，执行后端测试和前端打包，然后推送 `vX.Y.Z`、`backend/vX.Y.Z`、`npm/vX.Y.Z`。`npm/vX.Y.Z` 触发 `.github/workflows/publish-npm.yml`，通过 npm Trusted Publishing 发布以上 10 个包；三个默认宿主均为私有包，不参与发布。本机需要可用的 `git`、`gh` 和 GitHub 登录态。
+`make tag` 会先执行 `make -C backend project-docs` 刷新内嵌项目文档，再由发布脚本将文档和版本更新一起提交。脚本要求当前分支为远程默认分支且与 `origin` 同步，执行后端测试和前端打包，然后推送 `vX.Y.Z`、`backend/vX.Y.Z`、`npm/vX.Y.Z`。`npm/vX.Y.Z` 触发 `.github/workflows/publish-npm.yml`，通过 npm Trusted Publishing 发布以上 10 个包；三个默认宿主均为私有包，不参与发布。本机需要可用的 `git`、`gh` 和 GitHub 登录态。
 
 只做本地 npm 发布时：
 

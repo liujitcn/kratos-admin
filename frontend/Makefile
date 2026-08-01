@@ -7,10 +7,14 @@ NPM_SKIP_GIT_CHECKS ?= true
 
 NPM_PUBLISH_ENV := NPM_REGISTRY="$(NPM_REGISTRY)" NPM_ACCESS="$(NPM_ACCESS)" NPM_TAG="$(NPM_TAG)" NPM_SKIP_GIT_CHECKS="$(NPM_SKIP_GIT_CHECKS)"
 
-.PHONY: help init pnpm-admin pnpm-uni-app pnpm-taro-app run run-admin run-uni-app run-taro-app build build-admin build-uni-app build-taro-app build-package package package-admin package-uni-app package-taro-app publish publish-only publish-admin publish-uni-app publish-taro-app
+.PHONY: help init reinstall pnpm-admin pnpm-uni-app pnpm-taro-app run run-admin run-uni-app run-taro-app build build-admin build-uni-app build-taro-app build-package package package-admin package-uni-app package-taro-app publish publish-only publish-admin publish-uni-app publish-taro-app
 
 # 安装全部前端依赖
 init: pnpm-admin pnpm-uni-app pnpm-taro-app
+
+# 删除全部前端 node_modules 并重新安装依赖
+reinstall:
+	@bash scripts/reinstall_dependencies.sh
 
 # 安装管理后台依赖
 pnpm-admin:
