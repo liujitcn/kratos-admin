@@ -28,8 +28,27 @@ page {
 }
 
 .ai-navbar.is-weapp {
+  position: relative;
   height: 88PX;
   padding-top: 44PX;
+}
+
+.ai-navbar.is-weapp .nav-back-button,
+.ai-navbar.is-weapp .nav-menu-button {
+  position: absolute;
+  bottom: 0;
+  height: 44PX;
+}
+
+.ai-navbar.is-weapp .nav-back-button { left: 0; }
+.ai-navbar.is-weapp .nav-menu-button {
+  left: 56px;
+  right: auto;
+}
+.ai-navbar.is-weapp .ai-navbar__title {
+  width: 100%;
+  height: 44PX;
+  line-height: 44PX;
 }
 
 .nav-back-button,

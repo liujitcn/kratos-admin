@@ -70,7 +70,13 @@ export default function AiPage() {
   }
   let safeAreaTop = windowInfo.safeArea?.top || windowInfo.statusBarHeight || windowInfo.safeAreaInsets?.top || 0
   if (process.env.TARO_ENV === 'weapp') safeAreaTop ||= 44
-  const safeAreaBottom = Math.max(windowInfo.safeAreaInsets?.bottom || 0, 9)
+  // 部分微信基础库只返回 safeArea 坐标，需要用屏幕高度反推底部安全区。
+  const measuredSafeAreaBottom =
+    windowInfo.safeAreaInsets?.bottom ??
+    (windowInfo.screenHeight && windowInfo.safeArea?.bottom
+      ? Math.max(windowInfo.screenHeight - windowInfo.safeArea.bottom, 0)
+      : 0)
+  const safeAreaBottom = Math.max(measuredSafeAreaBottom, 9)
   const composerBottom = `${safeAreaBottom + 48}px`
   const drawerTopPadding = `${safeAreaTop + 12}px`
 

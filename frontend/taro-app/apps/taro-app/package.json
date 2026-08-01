@@ -7,7 +7,7 @@
     "dev:h5": "node ../../packages/core/dist/runner.mjs --type h5 --watch --mode development",
     "dev:mp-weixin": "node ../../packages/core/dist/runner.mjs --type weapp --watch --mode development",
     "build:h5": "KRATOS_TARO_OUTPUT_ROOT=../../../../backend/data/app KRATOS_TARO_PUBLIC_PATH=/app/ node ../../packages/core/dist/runner.mjs --type h5 --mode production",
-    "build:mp-weixin": "KRATOS_TARO_OUTPUT_ROOT=dist/build/mp-weixin node ../../packages/core/dist/runner.mjs --type weapp --mode production",
+    "build:mp-weixin": "node ../../packages/core/dist/runner.mjs --type weapp --mode production",
     "tsc": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {

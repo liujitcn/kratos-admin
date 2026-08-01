@@ -1288,6 +1288,33 @@ page {
   /* #endif */
 }
 
+/* #ifdef MP-WEIXIN */
+.ai-navbar {
+  position: relative;
+}
+
+.ai-navbar .nav-back-button,
+.ai-navbar .nav-menu-button {
+  position: absolute;
+  bottom: 0;
+}
+
+.ai-navbar .nav-back-button {
+  left: 0;
+}
+
+.ai-navbar .nav-menu-button {
+  left: 56rpx;
+  right: auto;
+}
+
+.ai-navbar__title {
+  width: 100%;
+  height: 44px;
+  line-height: 44px;
+}
+/* #endif */
+
 .nav-back-button,
 .nav-menu-button {
   display: flex;

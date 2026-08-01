@@ -51,6 +51,7 @@ export interface KratosAppViteOptions {
 
 /** 创建 uni-app 官方 Vite 插件。 */
 export function createKratosUniPlugin() {
+  recoverStalePageTransaction()
   const createPlugin =
     typeof uniPlugin === 'function'
       ? uniPlugin
@@ -322,6 +323,16 @@ function recoverBuildTransaction(
   }
   writeFileSync(pagesFile, transaction.originalPages)
   unlinkSync(transactionFile)
+}
+
+// recoverStalePageTransaction 在官方 uni 插件创建前恢复页面事务，避免官方插件先读取到空 pages.json。
+export function recoverStalePageTransaction(): void {
+  const inputDir = process.env.UNI_INPUT_DIR || resolve(process.cwd(), 'src')
+  recoverBuildTransaction(
+    resolve(inputDir, '../.kratos-uni-app-pages-state.json'),
+    inputDir,
+    resolve(inputDir, 'pages.json'),
+  )
 }
 
 // isProcessRunning 判断页面事务的所属进程是否仍然存活。
