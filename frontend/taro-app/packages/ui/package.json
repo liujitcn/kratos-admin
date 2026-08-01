@@ -1,7 +1,13 @@
 {
   "name": "@liujitcn/kratos-taro-app-ui",
   "description": "Shared theme and NutUI adapters for Kratos Taro apps.",
-  "version": "0.0.16",
+  "license": "MIT",
+  "homepage": "https://github.com/liujitcn/kratos-admin",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:liujitcn/kratos-admin.git"
+  },
+  "version": "0.0.17",
   "type": "module",
   "files": [
     "src",

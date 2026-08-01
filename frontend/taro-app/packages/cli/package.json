@@ -1,7 +1,13 @@
 {
   "name": "@liujitcn/kratos-taro-app-cli",
   "description": "CLI for creating modular Kratos Taro React workspaces.",
-  "version": "0.0.16",
+  "license": "MIT",
+  "homepage": "https://github.com/liujitcn/kratos-admin",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:liujitcn/kratos-admin.git"
+  },
+  "version": "0.0.17",
   "type": "module",
   "bin": {
     "kratos-taro-app": "./bin/kratos-taro-app.mjs"

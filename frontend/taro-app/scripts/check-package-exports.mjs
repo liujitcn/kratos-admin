@@ -13,11 +13,36 @@ const allFiles = await collectFiles(workspaceRoot)
 const packageFiles = allFiles.filter((file) => file.endsWith(`${sep}package.json`))
 const packages = new Map()
 const publicPackageVersions = new Map()
+const expectedPublicPackageMetadata = {
+  license: 'MIT',
+  homepage: 'https://github.com/liujitcn/kratos-admin',
+  repositoryType: 'git',
+  repositoryUrl: 'git@github.com:liujitcn/kratos-admin.git',
+}
+const violations = []
 
 for (const packageFile of packageFiles) {
   const metadata = JSON.parse(await readFile(packageFile, 'utf8'))
   if (!metadata.name || !metadata.exports) continue
-  if (!metadata.private) publicPackageVersions.set(metadata.name, metadata.version)
+  if (!metadata.private) {
+    publicPackageVersions.set(metadata.name, metadata.version)
+    if (metadata.license !== expectedPublicPackageMetadata.license) {
+      violations.push(`${metadata.name}: license 必须为 ${expectedPublicPackageMetadata.license}`)
+    }
+    if (metadata.homepage !== expectedPublicPackageMetadata.homepage) {
+      violations.push(`${metadata.name}: homepage 必须为 ${expectedPublicPackageMetadata.homepage}`)
+    }
+    if (metadata.repository?.type !== expectedPublicPackageMetadata.repositoryType) {
+      violations.push(
+        `${metadata.name}: repository.type 必须为 ${expectedPublicPackageMetadata.repositoryType}`,
+      )
+    }
+    if (metadata.repository?.url !== expectedPublicPackageMetadata.repositoryUrl) {
+      violations.push(
+        `${metadata.name}: repository.url 必须为 ${expectedPublicPackageMetadata.repositoryUrl}`,
+      )
+    }
+  }
   const packageRoot = dirname(packageFile)
   const exportEntries = Object.entries(metadata.exports)
   packages.set(metadata.name, { packageRoot, exportEntries })
@@ -40,7 +65,6 @@ if (distinctPublicVersions.size !== 1 || [...distinctPublicVersions].some((versi
   throw new Error(`Taro 公开包版本必须保持一致：${versions}`)
 }
 
-const violations = []
 for (const sourceFile of allFiles.filter((file) => sourceExtensions.has(extname(file)))) {
   if (sourceFile.includes(`${sep}src${sep}rpc${sep}`)) continue
   const source = await readFile(sourceFile, 'utf8')
