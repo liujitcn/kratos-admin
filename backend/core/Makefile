@@ -1,4 +1,4 @@
-.PHONY: fmt lint test vet api
+.PHONY: help fmt lint test vet api buf-push
 
 GO_BIN_DIR ?= $(or $(shell go env GOBIN),$(shell go env GOPATH)/bin)
 
@@ -23,3 +23,31 @@ test:
 # 静态检查核心模块。
 vet:
 	@go vet ./...
+
+# 推送 Core protobuf 模块到 Buf Schema Registry。
+buf-push:
+	@if ! buf registry whoami buf.build >/dev/null 2>&1; then \
+		echo "未登录 Buf Schema Registry，本次暂不推送，请先执行："; \
+		echo "  buf registry login buf.build --token-stdin"; \
+		exit 0; \
+	fi; \
+	$(MAKE) fmt && cd api && buf push --label main
+
+# 显示帮助
+help:
+	@echo ""
+	@echo "Usage:"
+	@echo " make [target]"
+	@echo ""
+	@echo 'Targets:'
+	@awk '/^[a-zA-Z\-_0-9]+:/ { \
+	helpMessage = match(lastLine, /^# (.*)/); \
+		if (helpMessage) { \
+			helpCommand = substr($$1, 0, index($$1, ":")-1); \
+			helpMessage = substr(lastLine, RSTART + 2, RLENGTH); \
+			printf "\033[36m%-22s\033[0m %s\n", helpCommand,helpMessage; \
+		} \
+	} \
+	{ lastLine = $$0 }' $(MAKEFILE_LIST)
+
+.DEFAULT_GOAL := help
