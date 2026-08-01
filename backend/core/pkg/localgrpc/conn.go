@@ -149,8 +149,11 @@ type localStream struct {
 	serverMessages  chan proto.Message
 	clientSendDone  chan struct{}
 	done            chan struct{}
+	headerReady     chan struct{}
 	mu              sync.Mutex
+	headerOnce      sync.Once
 	finishedErr     error
+	finished        bool
 	clientSendClose bool
 	header          metadata.MD
 	trailer         metadata.MD
@@ -170,6 +173,7 @@ func newLocalStream(ctx context.Context, description *grpc.StreamDesc) *localStr
 		serverMessages: make(chan proto.Message, 1),
 		clientSendDone: make(chan struct{}),
 		done:           make(chan struct{}),
+		headerReady:    make(chan struct{}),
 	}
 }
 
@@ -177,8 +181,17 @@ func newLocalStream(ctx context.Context, description *grpc.StreamDesc) *localStr
 func (s *localStream) finish(err error) {
 	s.mu.Lock()
 	s.finishedErr = err
+	s.finished = true
 	s.mu.Unlock()
+	s.markHeaderReady()
 	close(s.done)
+}
+
+// markHeaderReady 标记流响应头已经发送或流已经结束。
+func (s *localStream) markHeaderReady() {
+	s.headerOnce.Do(func() {
+		close(s.headerReady)
+	})
 }
 
 // result 返回服务端流处理结果。
@@ -192,6 +205,10 @@ func (s *localStream) result() error {
 // SetHeader 累积服务端流响应头。
 func (s *localStream) SetHeader(md metadata.MD) error {
 	s.mu.Lock()
+	if s.finished || s.headerSent {
+		s.mu.Unlock()
+		return status.Error(codes.Internal, "进程内 gRPC 流式响应头已发送")
+	}
 	s.header = metadata.Join(s.header, md)
 	s.mu.Unlock()
 	return nil
@@ -200,19 +217,24 @@ func (s *localStream) SetHeader(md metadata.MD) error {
 // SendHeader 发送服务端流响应头。
 func (s *localStream) SendHeader(md metadata.MD) error {
 	s.mu.Lock()
-	if s.headerSent {
+	if s.finished || s.headerSent {
 		s.mu.Unlock()
 		return status.Error(codes.Internal, "进程内 gRPC 流式响应头重复发送")
 	}
 	s.header = metadata.Join(s.header, md)
 	s.headerSent = true
 	s.mu.Unlock()
+	s.markHeaderReady()
 	return nil
 }
 
 // SetTrailer 累积服务端流尾部元数据。
 func (s *localStream) SetTrailer(md metadata.MD) {
 	s.mu.Lock()
+	if s.finished {
+		s.mu.Unlock()
+		return
+	}
 	s.trailer = metadata.Join(s.trailer, md)
 	s.mu.Unlock()
 }
@@ -228,6 +250,18 @@ func (s *localStream) SendMsg(message any) error {
 	if !ok {
 		return fmt.Errorf("进程内 gRPC 仅支持 protobuf 消息，来源 %T", message)
 	}
+	s.mu.Lock()
+	if s.finished {
+		err := s.finishedErr
+		s.mu.Unlock()
+		if err != nil {
+			return err
+		}
+		return io.EOF
+	}
+	s.headerSent = true
+	s.mu.Unlock()
+	s.markHeaderReady()
 	clonedMessage := proto.Clone(protobufMessage)
 	select {
 	case s.serverMessages <- clonedMessage:
@@ -301,6 +335,12 @@ func (s *localClientStream) CloseSend() error {
 
 // Header 返回服务端流响应头。
 func (s *localClientStream) Header() (metadata.MD, error) {
+	select {
+	case <-s.headerReady:
+	case <-s.done:
+	case <-s.Context().Done():
+		return nil, s.Context().Err()
+	}
 	s.mu.Lock()
 	header := metadata.Join(s.header)
 	s.mu.Unlock()

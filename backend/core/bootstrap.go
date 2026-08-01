@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	stdhttp "net/http"
@@ -71,6 +72,15 @@ func NewApp(ctx *bootstrap.Context, optionValues ...Option) (*kratos.App, func()
 	var grpcServer *grpc.Server
 	var httpServer *kratosHTTP.Server
 	serversOwnedByApp := false
+	closeConfiguredSSEListener := func() {
+		if configuredSSEListener == nil {
+			return
+		}
+		stopErr := configuredSSEListener.Close()
+		if stopErr != nil && !errors.Is(stopErr, net.ErrClosed) {
+			log.Error("清理 SSE 服务监听资源失败", "error", stopErr)
+		}
+	}
 	defer func() {
 		if serversOwnedByApp {
 			return
@@ -94,12 +104,7 @@ func NewApp(ctx *bootstrap.Context, optionValues ...Option) (*kratos.App, func()
 				log.Error("清理 SSE 服务初始化资源失败", "error", stopErr)
 			}
 		}
-		if configuredSSEListener != nil {
-			stopErr = configuredSSEListener.Close()
-			if stopErr != nil {
-				log.Error("清理 SSE 服务监听资源失败", "error", stopErr)
-			}
-		}
+		closeConfiguredSSEListener()
 		if mcpServer != nil {
 			stopErr = mcpServer.Stop(context.Background())
 			if stopErr != nil {
@@ -179,6 +184,7 @@ func NewApp(ctx *bootstrap.Context, optionValues ...Option) (*kratos.App, func()
 		if stopErr != nil {
 			log.Error("清理核心服务启动资源失败", "error", stopErr)
 		}
+		closeConfiguredSSEListener()
 	}
 	serversOwnedByApp = true
 	return bootstrap.NewApp(ctx, servers...), cleanup, nil

@@ -40,7 +40,7 @@ app, cleanup, err := core.NewApp(ctx, core.WithModules(orderModule))
 | `pkg/projectdoc` | 项目文档目录解析、稳定文档标识和文档贡献类型。 |
 | `pkg/event` | 类型安全的进程内发布订阅。 |
 | `pkg/health` | `/healthz` 和可扩展 readiness 检查。 |
-| `pkg/localgrpc` | 将已注册服务暴露为 `grpc.ClientConnInterface`。仅支持 unary RPC。 |
+| `pkg/localgrpc` | 将已注册服务暴露为 `grpc.ClientConnInterface`，支持 unary 和 streaming RPC。 |
 | `pkg/openapi` | 多文档注册、冲突检查、原始 OpenAPI 和 Swagger UI。 |
 | `pkg/queue` | 队列消费者注册、运行生命周期、JSON 发布和解码。 |
 | `pkg/script` | 有依赖顺序的启动脚本。 |

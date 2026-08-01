@@ -138,12 +138,13 @@ func (r *Registry) Scheduled() bool {
 
 // Scheduler 将具备 Cron 表达式的任务接入 Kratos 服务生命周期。
 type Scheduler struct {
-	mu       sync.RWMutex
-	server   *cronTransport.Server
-	registry *Registry
-	observer Observer
-	runCtx   context.Context
-	cancel   context.CancelFunc
+	mu          sync.RWMutex
+	lifecycleMu sync.Mutex
+	server      *cronTransport.Server
+	registry    *Registry
+	observer    Observer
+	runCtx      context.Context
+	cancel      context.CancelFunc
 }
 
 // NewScheduler 创建任务调度服务，并在启动前注册全部静态调度项。
@@ -178,8 +179,16 @@ func NewScheduler(registry *Registry, observer Observer) (*Scheduler, error) {
 
 // Start 启动 Cron 调度服务。
 func (s *Scheduler) Start(ctx context.Context) error {
+	s.lifecycleMu.Lock()
+	defer s.lifecycleMu.Unlock()
+
 	runCtx, cancel := context.WithCancel(ctx)
 	s.mu.Lock()
+	if s.cancel != nil {
+		s.mu.Unlock()
+		cancel()
+		return fmt.Errorf("任务调度器已启动")
+	}
 	s.runCtx = runCtx
 	s.cancel = cancel
 	s.mu.Unlock()
@@ -196,15 +205,21 @@ func (s *Scheduler) Start(ctx context.Context) error {
 
 // Stop 停止 Cron 调度服务并等待正在执行的任务结束。
 func (s *Scheduler) Stop(ctx context.Context) error {
+	s.lifecycleMu.Lock()
+	defer s.lifecycleMu.Unlock()
+
 	s.mu.Lock()
 	cancel := s.cancel
-	s.runCtx = nil
-	s.cancel = nil
 	s.mu.Unlock()
 	if cancel != nil {
 		cancel()
 	}
-	return s.server.Stop(ctx)
+	err := s.server.Stop(ctx)
+	s.mu.Lock()
+	s.runCtx = nil
+	s.cancel = nil
+	s.mu.Unlock()
+	return err
 }
 
 // Run 立即执行指定任务，并将结果交给观察器。

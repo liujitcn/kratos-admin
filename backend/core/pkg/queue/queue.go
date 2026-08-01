@@ -23,14 +23,16 @@ type Consumer struct {
 
 // Runtime 将队列消费者接入 Kratos 服务生命周期。
 type Runtime struct {
-	queue     kitQueue.Queue
-	mu        sync.Mutex
-	topics    map[string]struct{}
-	consumers []Consumer
-	done      chan struct{}
-	startOnce sync.Once
-	stopOnce  sync.Once
-	started   atomic.Bool
+	queue       kitQueue.Queue
+	mu          sync.Mutex
+	lifecycleMu sync.Mutex
+	topics      map[string]struct{}
+	consumers   []Consumer
+	done        chan struct{}
+	startOnce   sync.Once
+	stopOnce    sync.Once
+	started     atomic.Bool
+	stopped     bool
 }
 
 // NewRuntime 创建队列运行时。
@@ -47,8 +49,13 @@ func NewRuntime(queue kitQueue.Queue) (*Runtime, error) {
 
 // Register 记录队列消费者定义，并拒绝空主题、空处理器和重复主题。
 func (r *Runtime) Register(consumers ...Consumer) error {
+	r.lifecycleMu.Lock()
+	defer r.lifecycleMu.Unlock()
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if r.stopped {
+		return fmt.Errorf("队列运行时已停止")
+	}
 	if r.started.Load() {
 		return fmt.Errorf("队列运行时已启动，不能追加消费者")
 	}
@@ -77,7 +84,15 @@ func (r *Runtime) Register(consumers ...Consumer) error {
 }
 
 // Start 注册队列消费者并启动消费循环。
-func (r *Runtime) Start(context.Context) error {
+func (r *Runtime) Start(ctx context.Context) error {
+	r.lifecycleMu.Lock()
+	defer r.lifecycleMu.Unlock()
+	if r.stopped {
+		return fmt.Errorf("队列运行时已停止")
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	r.startOnce.Do(func() {
 		r.mu.Lock()
 		for _, consumer := range r.consumers {
@@ -95,12 +110,16 @@ func (r *Runtime) Start(context.Context) error {
 
 // Stop 停止队列并等待消费循环退出。
 func (r *Runtime) Stop(ctx context.Context) error {
+	r.lifecycleMu.Lock()
+	r.stopped = true
 	if !r.started.Load() {
+		r.lifecycleMu.Unlock()
 		return nil
 	}
 	r.stopOnce.Do(func() {
 		r.queue.Shutdown()
 	})
+	r.lifecycleMu.Unlock()
 	select {
 	case <-r.done:
 		return nil
