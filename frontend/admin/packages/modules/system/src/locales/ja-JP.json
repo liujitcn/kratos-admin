@@ -267,6 +267,8 @@
   "system.user.message.deleteSuccess": "ユーザーを削除しました",
   "system.user.message.deleteCanceled": "ユーザーの削除をキャンセルしました",
   "system.translation.field.translations": "多言語翻訳",
+  "system.translation.field.nameTranslations": "名称の翻訳",
+  "system.translation.field.valueTranslations": "値の翻訳",
   "system.translation.placeholder.text": "{language}の翻訳を入力してください",
   "system.translation.action.generateDraft": "{language}の下書きを生成",
   "system.translation.message.saveBeforeDraft": "機械翻訳の下書きを生成する前に中国語のリソースを保存してください",

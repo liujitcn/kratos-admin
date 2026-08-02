@@ -12,9 +12,13 @@ import type { Empty } from "../../../google/protobuf/empty";
 /** 部门选项查询条件 */
 export interface OptionBaseDeptRequest {
   /** 租户ID */
-  tenant_id?: number | undefined;
+  tenant_id?:
+    | number
+    | undefined;
   /** 父级部门ID */
-  parent_id?: number | undefined;
+  parent_id?:
+    | number
+    | undefined;
   /** 是否懒加载 */
   lazy?: boolean | undefined;
 }
@@ -22,9 +26,13 @@ export interface OptionBaseDeptRequest {
 /** 部门树查询条件 */
 export interface TreeBaseDeptRequest {
   /** 租户ID */
-  tenant_id?: number | undefined;
+  tenant_id?:
+    | number
+    | undefined;
   /** 父级部门ID */
-  parent_id?: number | undefined;
+  parent_id?:
+    | number
+    | undefined;
   /** 是否懒加载 */
   lazy?: boolean | undefined;
 }
@@ -48,7 +56,9 @@ export interface BaseDeptForm {
   /** 租户ID */
   tenant_id: number;
   /** 父级部门ID */
-  parent_id?: number | undefined;
+  parent_id?:
+    | number
+    | undefined;
   /** 部门名称 */
   name: string;
   /** 排序 */

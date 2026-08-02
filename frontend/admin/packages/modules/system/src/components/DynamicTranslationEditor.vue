@@ -9,6 +9,8 @@
         <el-input
           :model-value="item.text"
           :maxlength="maxlength"
+          :type="multiline ? 'textarea' : 'text'"
+          :rows="multiline ? 6 : undefined"
           show-word-limit
           :placeholder="t('system.translation.placeholder.text', { language: t(`common.language.${item.locale}`) })"
           @update:model-value="value => updateText(item.locale, value)"
@@ -41,7 +43,11 @@ import { ref, watch } from "vue";
 import { MagicStick } from "@element-plus/icons-vue";
 import { t } from "@liujitcn/kratos-admin-core";
 import { defBaseTranslationService } from "@liujitcn/kratos-admin-system/api/system/base_translation";
-import { TranslationResourceType, TranslationStatus } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
+import {
+  BaseConfigTranslationField,
+  TranslationResourceType,
+  TranslationStatus
+} from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
 import type { DynamicTranslationValue } from "./dynamicTranslation";
 
 /** DynamicTranslationEditorProps 动态翻译编辑器属性。 */
@@ -49,13 +55,16 @@ interface DynamicTranslationEditorProps {
   modelValue: DynamicTranslationValue[];
   resourceId: number;
   resourceType: TranslationResourceType;
+  field?: BaseConfigTranslationField;
   draftEnabled?: boolean;
   maxlength?: number;
+  multiline?: boolean;
 }
 
 const props = withDefaults(defineProps<DynamicTranslationEditorProps>(), {
   draftEnabled: false,
-  maxlength: 100
+  maxlength: 100,
+  multiline: false
 });
 
 const emit = defineEmits<{ "update:modelValue": [value: DynamicTranslationValue[]] }>();
@@ -84,7 +93,8 @@ async function generateDraft(locale: DynamicTranslationValue["locale"]) {
     const response = await defBaseTranslationService.GenerateTranslationDraft({
       resource_type: props.resourceType,
       resource_id: props.resourceId,
-      target_locale: locale
+      target_locale: locale,
+      field: props.field ?? BaseConfigTranslationField.BASE_CONFIG_TRANSLATION_FIELD_UNSPECIFIED
     });
     const values = localValues.value.map(item =>
       item.locale === locale

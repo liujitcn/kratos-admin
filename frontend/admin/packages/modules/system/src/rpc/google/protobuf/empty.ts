@@ -15,4 +15,5 @@
  *       rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty);
  *     }
  */
-export interface Empty {}
+export interface Empty {
+}

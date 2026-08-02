@@ -85,11 +85,17 @@ export interface CodeGenColumn {
   /** TypeScript字段类型 */
   ts_type: string;
   /** 查询条件配置 */
-  query_config: CodeGenColumnQueryConfig | undefined;
+  query_config:
+    | CodeGenColumnQueryConfig
+    | undefined;
   /** 列表展示配置 */
-  list_config: CodeGenColumnListConfig | undefined;
+  list_config:
+    | CodeGenColumnListConfig
+    | undefined;
   /** 表单录入配置 */
-  form_config: CodeGenColumnFormConfig | undefined;
+  form_config:
+    | CodeGenColumnFormConfig
+    | undefined;
   /** 排序 */
   sort: number;
   /** 按语言区域索引的字段国际化配置 */
@@ -132,7 +138,9 @@ export interface CodeGenColumnFormConfig {
   /** 是否必填 */
   required: boolean;
   /** 表单选项配置 */
-  option: CodeGenColumnOptionConfig | undefined;
+  option:
+    | CodeGenColumnOptionConfig
+    | undefined;
   /** 树形选择是否多选 */
   multiple: boolean;
 }

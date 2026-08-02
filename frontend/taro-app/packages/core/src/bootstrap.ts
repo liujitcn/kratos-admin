@@ -7,7 +7,7 @@ import {
   registerUserStoreExtension,
   startUserStoreEventBridge,
   useUserStore,
-} from './stores'
+ useSettingStore } from './stores'
 import { initializeLocale, registerLocaleChangeHandler, registerLocaleMessages } from './locales'
 
 /** Taro 应用启动参数。 */
@@ -26,6 +26,7 @@ export function bootstrapKratosTaroApp(options: KratosTaroBootstrapOptions): voi
   if (bootstrapped) return
   bootstrapped = true
   registerLocaleChangeHandler(initializeAppNavigation)
+  registerLocaleChangeHandler(() => useSettingStore.getState().loadData())
   startUserStoreEventBridge()
   registerUserStoreExtension({
     onLogin: initializeAppNavigation,

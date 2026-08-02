@@ -12,13 +12,21 @@ import type { CodeGenLocaleConfig } from "./base_translation";
 /** 代码生成表配置分页查询条件 */
 export interface PageCodeGenTableRequest {
   /** 业务表名 */
-  name?: string | undefined;
+  name?:
+    | string
+    | undefined;
   /** 业务模块 */
-  business_module?: string | undefined;
+  business_module?:
+    | string
+    | undefined;
   /** 页面类型 */
-  page_type?: string | undefined;
+  page_type?:
+    | string
+    | undefined;
   /** 状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用 */
-  status?: CodeGenTableStatus | undefined;
+  status?:
+    | CodeGenTableStatus
+    | undefined;
   /** 当前页码 */
   page_num: number;
   /** 每一页的行数 */
@@ -34,7 +42,8 @@ export interface PageCodeGenTableResponse {
 }
 
 /** 数据库表列表查询条件 */
-export interface ListCodeGenDatabaseTableRequest {}
+export interface ListCodeGenDatabaseTableRequest {
+}
 
 /** 数据库表列表响应 */
 export interface ListCodeGenDatabaseTableResponse {
@@ -67,7 +76,9 @@ export interface CodeGenTableForm {
   /** 树节点显示字段 */
   tree_label_column: string;
   /** 左树配置 */
-  left_tree_config: CodeGenLeftTreeConfig | undefined;
+  left_tree_config:
+    | CodeGenLeftTreeConfig
+    | undefined;
   /** 是否生成后端 */
   gen_backend: boolean;
   /** 是否生成前端 */

@@ -57,6 +57,27 @@
           inline-prompt
         />
       </template>
+      <template #nameTranslations>
+        <DynamicTranslationEditor
+          v-model="nameTranslationValues"
+          :resource-id="formData.id"
+          :resource-type="TranslationResourceType.TRANSLATION_RESOURCE_TYPE_CONFIG"
+          :field="BaseConfigTranslationField.BASE_CONFIG_TRANSLATION_FIELD_NAME"
+          :draft-enabled="configStore.translationDraftEnabled"
+          :maxlength="100"
+        />
+      </template>
+      <template #valueTranslations>
+        <DynamicTranslationEditor
+          v-model="valueTranslationValues"
+          :resource-id="formData.id"
+          :resource-type="TranslationResourceType.TRANSLATION_RESOURCE_TYPE_CONFIG"
+          :field="BaseConfigTranslationField.BASE_CONFIG_TRANSLATION_FIELD_VALUE"
+          :draft-enabled="configStore.translationDraftEnabled"
+          :maxlength="10000"
+          multiline
+        />
+      </template>
     </FormDialog>
   </div>
 </template>
@@ -80,11 +101,20 @@ import type {
   BaseConfigForm,
   PageBaseConfigRequest
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_config";
+import type { BaseConfigTranslation } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
 import { BaseConfigSite } from "@liujitcn/kratos-admin-system/rpc/base/v1/enum";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { BaseConfigType } from "@liujitcn/kratos-admin-system/rpc/system/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
+import { useConfigStore } from "@liujitcn/kratos-admin-core/stores/runtime";
+import DynamicTranslationEditor from "@liujitcn/kratos-admin-system/components/DynamicTranslationEditor.vue";
+import type { DynamicTranslationValue } from "@liujitcn/kratos-admin-system/components/dynamicTranslation";
+import {
+  BaseConfigTranslationField,
+  TranslationResourceType,
+  TranslationStatus
+} from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
 
 defineOptions({
   name: "BaseConfig",
@@ -92,6 +122,7 @@ defineOptions({
 });
 
 const { BUTTONS } = useAuthButtons();
+const configStore = useConfigStore();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
@@ -114,7 +145,57 @@ const formData = reactive<BaseConfigForm>({
   /** 配置value */
   value: "",
   /** 状态 */
-  status: Status.ENABLE
+  status: Status.ENABLE,
+  /** 配置英日翻译 */
+  translations: []
+});
+
+/** 将配置翻译记录转换为编辑器值，缺少记录时保留可编辑的空行。 */
+function normalizeConfigTranslations(field: BaseConfigTranslationField): DynamicTranslationValue[] {
+  return (['en-US', 'ja-JP'] as const).map(locale => {
+    const record = formData.translations?.find(item => item.locale === locale && item.field === field);
+    return {
+      id: record?.id ?? 0,
+      locale,
+      text: record?.text ?? "",
+      translation_status: record?.translation_status ?? TranslationStatus.TRANSLATION_STATUS_PENDING,
+      source_changed: record?.source_changed ?? false,
+      source_hash: record?.source_hash ?? "",
+      translation_provider: record?.translation_provider ?? "",
+      translated_at: record?.translated_at ?? "",
+      reviewed_by: record?.reviewed_by ?? 0,
+      reviewed_at: record?.reviewed_at ?? "",
+      created_by: record?.created_by ?? 0,
+      updated_by: record?.updated_by ?? 0,
+      created_at: record?.created_at ?? "",
+      updated_at: record?.updated_at ?? "",
+      deleted_at: record?.deleted_at ?? 0
+    };
+  });
+}
+
+/** 保存指定字段的编辑器值，并保留另一字段的翻译。 */
+function updateConfigTranslations(field: BaseConfigTranslationField, values: DynamicTranslationValue[]) {
+  const remaining = (formData.translations ?? []).filter(item => item.field !== field);
+  const next = values.map(item =>
+    ({
+      ...item,
+      config_id: formData.id,
+      field,
+      text: item.text
+    }) as BaseConfigTranslation
+  );
+  formData.translations = [...remaining, ...next];
+}
+
+const nameTranslationValues = computed<DynamicTranslationValue[]>({
+  get: () => normalizeConfigTranslations(BaseConfigTranslationField.BASE_CONFIG_TRANSLATION_FIELD_NAME),
+  set: values => updateConfigTranslations(BaseConfigTranslationField.BASE_CONFIG_TRANSLATION_FIELD_NAME, values)
+});
+
+const valueTranslationValues = computed<DynamicTranslationValue[]>({
+  get: () => normalizeConfigTranslations(BaseConfigTranslationField.BASE_CONFIG_TRANSLATION_FIELD_VALUE),
+  set: values => updateConfigTranslations(BaseConfigTranslationField.BASE_CONFIG_TRANSLATION_FIELD_VALUE, values)
 });
 
 const rules = computed(() => ({
@@ -252,6 +333,21 @@ const formFields = computed<ProFormField[]>(() => [
     component: "slot",
     slotName: "booleanValue",
     visible: model => model.type == BaseConfigType.BOOLEAN
+  },
+  {
+    prop: "translations",
+    label: t("system.translation.field.nameTranslations"),
+    component: "slot",
+    slotName: "nameTranslations",
+    colSpan: 24
+  },
+  {
+    prop: "translations",
+    label: t("system.translation.field.valueTranslations"),
+    component: "slot",
+    slotName: "valueTranslations",
+    visible: model => model.type == BaseConfigType.TEXT || model.type == BaseConfigType.RICH_TEXT,
+    colSpan: 24
   },
   { prop: "status", label: t("system.common.field.status"), component: "radio-group", options: statusOptions.value }
 ]);
@@ -448,6 +544,7 @@ function resetForm() {
   formData.type = BaseConfigType.UNKNOWN_BCT;
   formData.key = "";
   formData.value = "";
+  formData.translations = [];
   formData.status = Status.ENABLE;
 }
 

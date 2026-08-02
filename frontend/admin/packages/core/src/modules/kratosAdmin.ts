@@ -1,4 +1,6 @@
 import { ADMIN_STATIC_VIEWS, defineAdminModule, type AdminStaticViewModules } from "./index";
+
+// 语言包由 core 模块注册，供管理端公共组件、登录页和错误处理使用。
 import enUS from "../locales/en-US.json";
 import jaJP from "../locales/ja-JP.json";
 import zhCN from "../locales/zh-CN.json";

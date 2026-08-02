@@ -9,7 +9,8 @@ import type { Status } from "../../../common/v1/enum";
 import type { Empty } from "../../../google/protobuf/empty";
 
 /** API选项查询条件 */
-export interface OptionBaseApiRequest {}
+export interface OptionBaseApiRequest {
+}
 
 /** API选项响应 */
 export interface OptionBaseApiResponse {
@@ -20,27 +21,49 @@ export interface OptionBaseApiResponse {
 /** API分页查询条件 */
 export interface PageBaseApiRequest {
   /** 工具名 */
-  tool_name?: string | undefined;
+  tool_name?:
+    | string
+    | undefined;
   /** Agent/MCP工具提示词搜索关键字 */
-  tool_prompt?: string | undefined;
+  tool_prompt?:
+    | string
+    | undefined;
   /** 服务名 */
-  service_name?: string | undefined;
+  service_name?:
+    | string
+    | undefined;
   /** 服务描述 */
-  service_desc?: string | undefined;
+  service_desc?:
+    | string
+    | undefined;
   /** 描述 */
-  desc?: string | undefined;
+  desc?:
+    | string
+    | undefined;
   /** 操作方法 */
-  operation?: string | undefined;
+  operation?:
+    | string
+    | undefined;
   /** 请求方式 */
-  method?: string | undefined;
+  method?:
+    | string
+    | undefined;
   /** 请求地址 */
-  path?: string | undefined;
+  path?:
+    | string
+    | undefined;
   /** MCP工具状态：枚举【Status】 */
-  mcp_status?: Status | undefined;
+  mcp_status?:
+    | Status
+    | undefined;
   /** Agent工具状态：枚举【Status】 */
-  agent_status?: Status | undefined;
+  agent_status?:
+    | Status
+    | undefined;
   /** OpenAPI文档key */
-  openapi_service_code?: string | undefined;
+  openapi_service_code?:
+    | string
+    | undefined;
   /** 页码 */
   page_num: number;
   /** 每页数量 */
@@ -108,7 +131,9 @@ export interface BaseApiDoc {
   /** 请求参数 */
   parameters: BaseApiDocSchema[];
   /** 请求体 */
-  request_body: BaseApiDocSchema | undefined;
+  request_body:
+    | BaseApiDocSchema
+    | undefined;
   /** 返回值 */
   responses: BaseApiDocResponse[];
 }

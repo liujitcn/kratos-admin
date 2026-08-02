@@ -23,6 +23,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		BaseAPI:                 newBaseAPI(db, opts...),
 		BaseArea:                newBaseArea(db, opts...),
 		BaseConfig:              newBaseConfig(db, opts...),
+		BaseConfigTranslation:   newBaseConfigTranslation(db, opts...),
 		BaseDept:                newBaseDept(db, opts...),
 		BaseDict:                newBaseDict(db, opts...),
 		BaseDictItem:            newBaseDictItem(db, opts...),
@@ -54,6 +55,7 @@ type Query struct {
 	BaseAPI                 baseAPI
 	BaseArea                baseArea
 	BaseConfig              baseConfig
+	BaseConfigTranslation   baseConfigTranslation
 	BaseDept                baseDept
 	BaseDict                baseDict
 	BaseDictItem            baseDictItem
@@ -86,6 +88,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		BaseAPI:                 q.BaseAPI.clone(db),
 		BaseArea:                q.BaseArea.clone(db),
 		BaseConfig:              q.BaseConfig.clone(db),
+		BaseConfigTranslation:   q.BaseConfigTranslation.clone(db),
 		BaseDept:                q.BaseDept.clone(db),
 		BaseDict:                q.BaseDict.clone(db),
 		BaseDictItem:            q.BaseDictItem.clone(db),
@@ -125,6 +128,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		BaseAPI:                 q.BaseAPI.replaceDB(db),
 		BaseArea:                q.BaseArea.replaceDB(db),
 		BaseConfig:              q.BaseConfig.replaceDB(db),
+		BaseConfigTranslation:   q.BaseConfigTranslation.replaceDB(db),
 		BaseDept:                q.BaseDept.replaceDB(db),
 		BaseDict:                q.BaseDict.replaceDB(db),
 		BaseDictItem:            q.BaseDictItem.replaceDB(db),
@@ -154,6 +158,7 @@ type queryCtx struct {
 	BaseAPI                 *baseAPIDo
 	BaseArea                *baseAreaDo
 	BaseConfig              *baseConfigDo
+	BaseConfigTranslation   *baseConfigTranslationDo
 	BaseDept                *baseDeptDo
 	BaseDict                *baseDictDo
 	BaseDictItem            *baseDictItemDo
@@ -183,6 +188,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		BaseAPI:                 q.BaseAPI.WithContext(ctx),
 		BaseArea:                q.BaseArea.WithContext(ctx),
 		BaseConfig:              q.BaseConfig.WithContext(ctx),
+		BaseConfigTranslation:   q.BaseConfigTranslation.WithContext(ctx),
 		BaseDept:                q.BaseDept.WithContext(ctx),
 		BaseDict:                q.BaseDict.WithContext(ctx),
 		BaseDictItem:            q.BaseDictItem.WithContext(ctx),

@@ -267,6 +267,8 @@
   "system.user.message.deleteSuccess": "删除用户成功",
   "system.user.message.deleteCanceled": "已取消删除用户",
   "system.translation.field.translations": "多语言翻译",
+  "system.translation.field.nameTranslations": "名称翻译",
+  "system.translation.field.valueTranslations": "值翻译",
   "system.translation.placeholder.text": "请输入{language}译文",
   "system.translation.action.generateDraft": "生成{language}草稿",
   "system.translation.message.saveBeforeDraft": "请先保存中文资源，再生成机器翻译草稿",

@@ -1,3 +1,4 @@
+// System 语言包随 systemModule 注册，供 Taro System 页面、个人中心和 AI 功能使用。
 import { defineKratosTaroModule } from '@liujitcn/kratos-taro-app-core'
 import { systemPages } from './pages'
 import enUS from './locales/en-US.json'

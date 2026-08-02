@@ -1,5 +1,7 @@
 import { corePages } from './pages'
 import type { LocaleMessages, SupportedLocale } from './locales'
+
+// Core 语言包随 coreModule 注册，供 uni-app 公共页面、请求工具和基础组件使用。
 import coreEnUS from './locales/en-US.json'
 import coreJaJP from './locales/ja-JP.json'
 import coreZhCN from './locales/zh-CN.json'

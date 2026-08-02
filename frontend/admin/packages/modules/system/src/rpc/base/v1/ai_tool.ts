@@ -28,7 +28,9 @@ export interface AiShortcut {
   /** 发送给助手的提示词 */
   prompt: string;
   /** 快捷入口动作 */
-  action: AiShortcutAction | undefined;
+  action:
+    | AiShortcutAction
+    | undefined;
   /** 依赖工具列表 */
   required_tools: string[];
   /** 排序值 */

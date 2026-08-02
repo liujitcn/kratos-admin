@@ -73,8 +73,9 @@ func (x *GetConfigRequest) GetSite() BaseConfigSite {
 // 系统配置项
 type ConfigItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`     // 配置key
-	Value         string                 `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"` // 配置value
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`      // 配置ID
+	Key           string                 `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`     // 配置key
+	Value         string                 `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"` // 配置value
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -107,6 +108,13 @@ func (x *ConfigItem) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ConfigItem.ProtoReflect.Descriptor instead.
 func (*ConfigItem) Descriptor() ([]byte, []int) {
 	return file_base_v1_config_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ConfigItem) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
 }
 
 func (x *ConfigItem) GetKey() string {
@@ -175,11 +183,12 @@ const file_base_v1_config_proto_rawDesc = "" +
 	"\x14base/v1/config.proto\x12\abase.v1\x1a\x12base/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xaf\x01\n" +
 	"\x10GetConfigRequest\x12\x9a\x01\n" +
 	"\x04site\x18\x02 \x01(\x0e2\x17.base.v1.BaseConfigSiteBm\xbaG&\x92\x02#位置：枚举【BaseConfigSite】\xbaHA\xba\x019\n" +
-	"\x18get_config.site.required\x12\x12位置不能为空\x1a\tthis != 0\x82\x01\x02\x10\x01R\x04site\"X\n" +
+	"\x18get_config.site.required\x12\x12位置不能为空\x1a\tthis != 0\x82\x01\x02\x10\x01R\x04site\"x\n" +
 	"\n" +
-	"ConfigItem\x12!\n" +
-	"\x03key\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t配置keyR\x03key\x12'\n" +
-	"\x05value\x18\x02 \x01(\tB\x11\xbaG\x0e\x92\x02\v配置valueR\x05value\"\\\n" +
+	"ConfigItem\x12\x1e\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12!\n" +
+	"\x03key\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t配置keyR\x03key\x12'\n" +
+	"\x05value\x18\x03 \x01(\tB\x11\xbaG\x0e\x92\x02\v配置valueR\x05value\"\\\n" +
 	"\x11GetConfigResponse\x12G\n" +
 	"\aconfigs\x18\x01 \x03(\v2\x13.base.v1.ConfigItemB\x18\xbaG\x15\x92\x02\x12系统配置列表R\aconfigs2p\n" +
 	"\rConfigService\x12_\n" +

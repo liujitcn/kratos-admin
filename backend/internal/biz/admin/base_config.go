@@ -10,6 +10,7 @@ import (
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 
@@ -17,23 +18,26 @@ import (
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-kit/sdk"
+	"gorm.io/gen/field"
 )
 
 // BaseConfigCase 配置业务实例
 type BaseConfigCase struct {
 	*biz.BaseCase
 	*data.BaseConfigRepository
-	formMapper *mapper.CopierMapper[systemadminv1.BaseConfigForm, models.BaseConfig]
-	mapper     *mapper.CopierMapper[systemadminv1.BaseConfig, models.BaseConfig]
+	formMapper      *mapper.CopierMapper[systemadminv1.BaseConfigForm, models.BaseConfig]
+	mapper          *mapper.CopierMapper[systemadminv1.BaseConfig, models.BaseConfig]
+	translationCase *biz.TranslationCase
 }
 
 // NewBaseConfigCase 创建配置业务实例
-func NewBaseConfigCase(baseCase *biz.BaseCase, baseConfigRepo *data.BaseConfigRepository) *BaseConfigCase {
+func NewBaseConfigCase(baseCase *biz.BaseCase, baseConfigRepo *data.BaseConfigRepository, translationCase *biz.TranslationCase) *BaseConfigCase {
 	return &BaseConfigCase{
 		BaseCase:             baseCase,
 		BaseConfigRepository: baseConfigRepo,
 		formMapper:           mapper.NewCopierMapper[systemadminv1.BaseConfigForm, models.BaseConfig](),
 		mapper:               mapper.NewCopierMapper[systemadminv1.BaseConfig, models.BaseConfig](),
+		translationCase:      translationCase,
 	}
 }
 
@@ -64,7 +68,16 @@ func (c *BaseConfigCase) PageBaseConfig(ctx context.Context, req *systemadminv1.
 	}
 	// 传入名称关键字时，按配置名称模糊匹配。
 	if req.GetName() != "" {
-		opts = append(opts, repository.Where(query.Name.Like("%"+req.GetName()+"%")))
+		translatedIDs, err := c.translationCase.ReviewedConfigIDsByName(ctx, req.GetName())
+		if err != nil {
+			return nil, err
+		}
+		nameCondition := query.Name.Like("%" + req.GetName() + "%")
+		if len(translatedIDs) > 0 {
+			opts = append(opts, repository.Where(field.Or(nameCondition, query.ID.In(translatedIDs...))))
+		} else {
+			opts = append(opts, repository.Where(nameCondition))
+		}
 	}
 	if req.Type != nil {
 		opts = append(opts, repository.Where(query.Type.Eq(int32(req.GetType()))))
@@ -82,9 +95,29 @@ func (c *BaseConfigCase) PageBaseConfig(ctx context.Context, req *systemadminv1.
 		return nil, err
 	}
 
+	configIDs := make([]int64, 0, len(list))
+	sources := make(map[int64]dto.ConfigTranslationSource, len(list))
+	for _, item := range list {
+		configIDs = append(configIDs, item.ID)
+		sources[item.ID] = dto.ConfigTranslationSource{Name: item.Name, Value: item.Value, Type: item.Type}
+	}
+	var translations map[int64][]*systemadminv1.BaseConfigTranslation
+	translations, err = c.translationCase.ConfigTranslations(ctx, sources)
+	if err != nil {
+		return nil, err
+	}
+	var translatedNames map[int64]string
+	translatedNames, err = c.translationCase.ReviewedConfigNames(ctx, configIDs)
+	if err != nil {
+		return nil, err
+	}
 	resList := make([]*systemadminv1.BaseConfig, 0, len(list))
 	for _, item := range list {
 		baseConfig := c.mapper.ToDTO(item)
+		baseConfig.Translations = translations[item.ID]
+		if translatedName := translatedNames[item.ID]; translatedName != "" {
+			baseConfig.Name = translatedName
+		}
 		resList = append(resList, baseConfig)
 	}
 
@@ -101,6 +134,12 @@ func (c *BaseConfigCase) GetBaseConfig(ctx context.Context, id int64) (*systemad
 		return nil, err
 	}
 	res := c.formMapper.ToDTO(baseConfig)
+	var translations map[int64][]*systemadminv1.BaseConfigTranslation
+	translations, err = c.translationCase.ConfigTranslations(ctx, map[int64]dto.ConfigTranslationSource{id: {Name: baseConfig.Name, Value: baseConfig.Value, Type: baseConfig.Type}})
+	if err != nil {
+		return nil, err
+	}
+	res.Translations = translations[id]
 	return res, nil
 }
 
@@ -113,6 +152,10 @@ func (c *BaseConfigCase) CreateBaseConfig(ctx context.Context, req *systemadminv
 		if errorsx.IsMySQLDuplicateKey(err) {
 			return errorsx.UniqueConflict("同一位置的配置键重复", "base_config", "", "unique_base_config").WithCause(err)
 		}
+		return err
+	}
+	err = c.translationCase.SaveConfigTranslations(ctx, entity.ID, dto.ConfigTranslationSource{Name: entity.Name, Value: entity.Value, Type: entity.Type}, req.GetTranslations())
+	if err != nil {
 		return err
 	}
 	err = c.refreshBaseConfigSite(ctx, entity.Site)
@@ -138,6 +181,14 @@ func (c *BaseConfigCase) UpdateBaseConfig(ctx context.Context, req *systemadminv
 		}
 		return err
 	}
+	err = c.translationCase.MarkConfigSourceChanged(ctx, entity.ID, dto.ConfigTranslationSource{Name: oldConfig.Name, Value: oldConfig.Value, Type: oldConfig.Type}, dto.ConfigTranslationSource{Name: entity.Name, Value: entity.Value, Type: entity.Type})
+	if err != nil {
+		return err
+	}
+	err = c.translationCase.SaveConfigTranslations(ctx, entity.ID, dto.ConfigTranslationSource{Name: entity.Name, Value: entity.Value, Type: entity.Type}, req.GetTranslations())
+	if err != nil {
+		return err
+	}
 
 	err = c.refreshBaseConfigSite(ctx, oldConfig.Site)
 	if err != nil {
@@ -161,6 +212,10 @@ func (c *BaseConfigCase) DeleteBaseConfig(ctx context.Context, id string) error 
 	}
 
 	err = c.DeleteByIDs(ctx, ids)
+	if err != nil {
+		return err
+	}
+	err = c.translationCase.DeleteConfigTranslations(ctx, ids)
 	if err != nil {
 		return err
 	}
@@ -216,6 +271,7 @@ func (c *BaseConfigCase) refreshBaseConfigSite(ctx context.Context, site int32) 
 	configs := make([]*basev1.ConfigItem, 0, len(list))
 	for _, item := range list {
 		configs = append(configs, &basev1.ConfigItem{
+			Id:    item.ID,
 			Key:   item.Key,
 			Value: item.Value,
 		})

@@ -15,6 +15,7 @@ var RepositoryProviderSet = wire.NewSet(
 	NewBaseAPIRepository,
 	NewBaseAreaRepository,
 	NewBaseConfigRepository,
+	NewBaseConfigTranslationRepository,
 	NewBaseDeptRepository,
 	NewBaseDictRepository,
 	NewBaseDictItemRepository,

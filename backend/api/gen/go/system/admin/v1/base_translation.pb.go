@@ -86,6 +86,7 @@ const (
 	TranslationResourceType_TRANSLATION_RESOURCE_TYPE_MENU        TranslationResourceType = 1
 	TranslationResourceType_TRANSLATION_RESOURCE_TYPE_DICT        TranslationResourceType = 2
 	TranslationResourceType_TRANSLATION_RESOURCE_TYPE_DICT_ITEM   TranslationResourceType = 3
+	TranslationResourceType_TRANSLATION_RESOURCE_TYPE_CONFIG      TranslationResourceType = 4
 )
 
 // Enum value maps for TranslationResourceType.
@@ -95,12 +96,14 @@ var (
 		1: "TRANSLATION_RESOURCE_TYPE_MENU",
 		2: "TRANSLATION_RESOURCE_TYPE_DICT",
 		3: "TRANSLATION_RESOURCE_TYPE_DICT_ITEM",
+		4: "TRANSLATION_RESOURCE_TYPE_CONFIG",
 	}
 	TranslationResourceType_value = map[string]int32{
 		"TRANSLATION_RESOURCE_TYPE_UNSPECIFIED": 0,
 		"TRANSLATION_RESOURCE_TYPE_MENU":        1,
 		"TRANSLATION_RESOURCE_TYPE_DICT":        2,
 		"TRANSLATION_RESOURCE_TYPE_DICT_ITEM":   3,
+		"TRANSLATION_RESOURCE_TYPE_CONFIG":      4,
 	}
 )
 
@@ -131,12 +134,63 @@ func (TranslationResourceType) EnumDescriptor() ([]byte, []int) {
 	return file_system_admin_v1_base_translation_proto_rawDescGZIP(), []int{1}
 }
 
+// 系统配置翻译字段
+type BaseConfigTranslationField int32
+
+const (
+	BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_UNSPECIFIED BaseConfigTranslationField = 0
+	BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_NAME        BaseConfigTranslationField = 1
+	BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_VALUE       BaseConfigTranslationField = 2
+)
+
+// Enum value maps for BaseConfigTranslationField.
+var (
+	BaseConfigTranslationField_name = map[int32]string{
+		0: "BASE_CONFIG_TRANSLATION_FIELD_UNSPECIFIED",
+		1: "BASE_CONFIG_TRANSLATION_FIELD_NAME",
+		2: "BASE_CONFIG_TRANSLATION_FIELD_VALUE",
+	}
+	BaseConfigTranslationField_value = map[string]int32{
+		"BASE_CONFIG_TRANSLATION_FIELD_UNSPECIFIED": 0,
+		"BASE_CONFIG_TRANSLATION_FIELD_NAME":        1,
+		"BASE_CONFIG_TRANSLATION_FIELD_VALUE":       2,
+	}
+)
+
+func (x BaseConfigTranslationField) Enum() *BaseConfigTranslationField {
+	p := new(BaseConfigTranslationField)
+	*p = x
+	return p
+}
+
+func (x BaseConfigTranslationField) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (BaseConfigTranslationField) Descriptor() protoreflect.EnumDescriptor {
+	return file_system_admin_v1_base_translation_proto_enumTypes[2].Descriptor()
+}
+
+func (BaseConfigTranslationField) Type() protoreflect.EnumType {
+	return &file_system_admin_v1_base_translation_proto_enumTypes[2]
+}
+
+func (x BaseConfigTranslationField) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use BaseConfigTranslationField.Descriptor instead.
+func (BaseConfigTranslationField) EnumDescriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_translation_proto_rawDescGZIP(), []int{2}
+}
+
 // 生成翻译草稿请求
 type GenerateTranslationDraftRequest struct {
-	state         protoimpl.MessageState  `protogen:"open.v1"`
-	ResourceType  TranslationResourceType `protobuf:"varint,1,opt,name=resource_type,json=resourceType,proto3,enum=system.admin.v1.TranslationResourceType" json:"resource_type,omitempty"` // 资源类型
-	ResourceId    int64                   `protobuf:"varint,2,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`                                                    // 已保存资源ID
-	TargetLocale  string                  `protobuf:"bytes,3,opt,name=target_locale,json=targetLocale,proto3" json:"target_locale,omitempty"`                                               // 目标语言区域，仅支持en-US和ja-JP
+	state         protoimpl.MessageState     `protogen:"open.v1"`
+	ResourceType  TranslationResourceType    `protobuf:"varint,1,opt,name=resource_type,json=resourceType,proto3,enum=system.admin.v1.TranslationResourceType" json:"resource_type,omitempty"` // 资源类型
+	ResourceId    int64                      `protobuf:"varint,2,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`                                                    // 已保存资源ID
+	TargetLocale  string                     `protobuf:"bytes,3,opt,name=target_locale,json=targetLocale,proto3" json:"target_locale,omitempty"`                                               // 目标语言区域，仅支持en-US和ja-JP
+	Field         BaseConfigTranslationField `protobuf:"varint,4,opt,name=field,proto3,enum=system.admin.v1.BaseConfigTranslationField" json:"field,omitempty"`                                // 系统配置翻译字段，配置资源必填
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -192,17 +246,25 @@ func (x *GenerateTranslationDraftRequest) GetTargetLocale() string {
 	return ""
 }
 
+func (x *GenerateTranslationDraftRequest) GetField() BaseConfigTranslationField {
+	if x != nil {
+		return x.Field
+	}
+	return BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_UNSPECIFIED
+}
+
 // 生成翻译草稿响应
 type GenerateTranslationDraftResponse struct {
-	state               protoimpl.MessageState  `protogen:"open.v1"`
-	ResourceType        TranslationResourceType `protobuf:"varint,1,opt,name=resource_type,json=resourceType,proto3,enum=system.admin.v1.TranslationResourceType" json:"resource_type,omitempty"`          // 资源类型
-	ResourceId          int64                   `protobuf:"varint,2,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`                                                             // 资源ID
-	Locale              string                  `protobuf:"bytes,3,opt,name=locale,proto3" json:"locale,omitempty"`                                                                                        // 语言区域
-	Translation         string                  `protobuf:"bytes,4,opt,name=translation,proto3" json:"translation,omitempty"`                                                                              // 机器翻译草稿
-	TranslationStatus   TranslationStatus       `protobuf:"varint,5,opt,name=translation_status,json=translationStatus,proto3,enum=system.admin.v1.TranslationStatus" json:"translation_status,omitempty"` // 翻译状态
-	SourceHash          string                  `protobuf:"bytes,6,opt,name=source_hash,json=sourceHash,proto3" json:"source_hash,omitempty"`                                                              // 中文源文SHA-256
-	TranslationProvider string                  `protobuf:"bytes,7,opt,name=translation_provider,json=translationProvider,proto3" json:"translation_provider,omitempty"`                                   // 机器翻译提供方
-	TranslatedAt        string                  `protobuf:"bytes,8,opt,name=translated_at,json=translatedAt,proto3" json:"translated_at,omitempty"`                                                        // 最近机器翻译时间
+	state               protoimpl.MessageState     `protogen:"open.v1"`
+	ResourceType        TranslationResourceType    `protobuf:"varint,1,opt,name=resource_type,json=resourceType,proto3,enum=system.admin.v1.TranslationResourceType" json:"resource_type,omitempty"`          // 资源类型
+	ResourceId          int64                      `protobuf:"varint,2,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`                                                             // 资源ID
+	Locale              string                     `protobuf:"bytes,3,opt,name=locale,proto3" json:"locale,omitempty"`                                                                                        // 语言区域
+	Translation         string                     `protobuf:"bytes,4,opt,name=translation,proto3" json:"translation,omitempty"`                                                                              // 机器翻译草稿
+	TranslationStatus   TranslationStatus          `protobuf:"varint,5,opt,name=translation_status,json=translationStatus,proto3,enum=system.admin.v1.TranslationStatus" json:"translation_status,omitempty"` // 翻译状态
+	SourceHash          string                     `protobuf:"bytes,6,opt,name=source_hash,json=sourceHash,proto3" json:"source_hash,omitempty"`                                                              // 中文源文SHA-256
+	TranslationProvider string                     `protobuf:"bytes,7,opt,name=translation_provider,json=translationProvider,proto3" json:"translation_provider,omitempty"`                                   // 机器翻译提供方
+	TranslatedAt        string                     `protobuf:"bytes,8,opt,name=translated_at,json=translatedAt,proto3" json:"translated_at,omitempty"`                                                        // 最近机器翻译时间
+	Field               BaseConfigTranslationField `protobuf:"varint,9,opt,name=field,proto3,enum=system.admin.v1.BaseConfigTranslationField" json:"field,omitempty"`                                         // 系统配置翻译字段
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -293,6 +355,186 @@ func (x *GenerateTranslationDraftResponse) GetTranslatedAt() string {
 	return ""
 }
 
+func (x *GenerateTranslationDraftResponse) GetField() BaseConfigTranslationField {
+	if x != nil {
+		return x.Field
+	}
+	return BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_UNSPECIFIED
+}
+
+// 系统配置单语言翻译
+type BaseConfigTranslation struct {
+	state               protoimpl.MessageState     `protogen:"open.v1"`
+	Id                  int64                      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                                               // 翻译记录ID
+	ConfigId            int64                      `protobuf:"varint,2,opt,name=config_id,json=configId,proto3" json:"config_id,omitempty"`                                                                   // 系统配置ID
+	Locale              string                     `protobuf:"bytes,3,opt,name=locale,proto3" json:"locale,omitempty"`                                                                                        // 语言区域
+	Field               BaseConfigTranslationField `protobuf:"varint,4,opt,name=field,proto3,enum=system.admin.v1.BaseConfigTranslationField" json:"field,omitempty"`                                         // 翻译字段：name或value
+	Text                string                     `protobuf:"bytes,5,opt,name=text,proto3" json:"text,omitempty"`                                                                                            // 翻译文本
+	TranslationStatus   TranslationStatus          `protobuf:"varint,6,opt,name=translation_status,json=translationStatus,proto3,enum=system.admin.v1.TranslationStatus" json:"translation_status,omitempty"` // 翻译审核状态
+	SourceHash          string                     `protobuf:"bytes,7,opt,name=source_hash,json=sourceHash,proto3" json:"source_hash,omitempty"`                                                              // 中文源文SHA-256
+	SourceChanged       bool                       `protobuf:"varint,8,opt,name=source_changed,json=sourceChanged,proto3" json:"source_changed,omitempty"`                                                    // 中文源文是否已变化
+	TranslationProvider string                     `protobuf:"bytes,9,opt,name=translation_provider,json=translationProvider,proto3" json:"translation_provider,omitempty"`                                   // 机器翻译提供方
+	TranslatedAt        string                     `protobuf:"bytes,10,opt,name=translated_at,json=translatedAt,proto3" json:"translated_at,omitempty"`                                                       // 最近机器翻译时间
+	ReviewedBy          int64                      `protobuf:"varint,11,opt,name=reviewed_by,json=reviewedBy,proto3" json:"reviewed_by,omitempty"`                                                            // 审核人ID
+	ReviewedAt          string                     `protobuf:"bytes,12,opt,name=reviewed_at,json=reviewedAt,proto3" json:"reviewed_at,omitempty"`                                                             // 审核时间
+	CreatedBy           int64                      `protobuf:"varint,13,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`                                                               // 创建人ID
+	UpdatedBy           int64                      `protobuf:"varint,14,opt,name=updated_by,json=updatedBy,proto3" json:"updated_by,omitempty"`                                                               // 更新人ID
+	CreatedAt           string                     `protobuf:"bytes,15,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                                                // 创建时间
+	UpdatedAt           string                     `protobuf:"bytes,16,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                                                // 更新时间
+	DeletedAt           int64                      `protobuf:"varint,17,opt,name=deleted_at,json=deletedAt,proto3" json:"deleted_at,omitempty"`                                                               // 删除时间
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *BaseConfigTranslation) Reset() {
+	*x = BaseConfigTranslation{}
+	mi := &file_system_admin_v1_base_translation_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BaseConfigTranslation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BaseConfigTranslation) ProtoMessage() {}
+
+func (x *BaseConfigTranslation) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_translation_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BaseConfigTranslation.ProtoReflect.Descriptor instead.
+func (*BaseConfigTranslation) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_translation_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *BaseConfigTranslation) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *BaseConfigTranslation) GetConfigId() int64 {
+	if x != nil {
+		return x.ConfigId
+	}
+	return 0
+}
+
+func (x *BaseConfigTranslation) GetLocale() string {
+	if x != nil {
+		return x.Locale
+	}
+	return ""
+}
+
+func (x *BaseConfigTranslation) GetField() BaseConfigTranslationField {
+	if x != nil {
+		return x.Field
+	}
+	return BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_UNSPECIFIED
+}
+
+func (x *BaseConfigTranslation) GetText() string {
+	if x != nil {
+		return x.Text
+	}
+	return ""
+}
+
+func (x *BaseConfigTranslation) GetTranslationStatus() TranslationStatus {
+	if x != nil {
+		return x.TranslationStatus
+	}
+	return TranslationStatus_TRANSLATION_STATUS_UNSPECIFIED
+}
+
+func (x *BaseConfigTranslation) GetSourceHash() string {
+	if x != nil {
+		return x.SourceHash
+	}
+	return ""
+}
+
+func (x *BaseConfigTranslation) GetSourceChanged() bool {
+	if x != nil {
+		return x.SourceChanged
+	}
+	return false
+}
+
+func (x *BaseConfigTranslation) GetTranslationProvider() string {
+	if x != nil {
+		return x.TranslationProvider
+	}
+	return ""
+}
+
+func (x *BaseConfigTranslation) GetTranslatedAt() string {
+	if x != nil {
+		return x.TranslatedAt
+	}
+	return ""
+}
+
+func (x *BaseConfigTranslation) GetReviewedBy() int64 {
+	if x != nil {
+		return x.ReviewedBy
+	}
+	return 0
+}
+
+func (x *BaseConfigTranslation) GetReviewedAt() string {
+	if x != nil {
+		return x.ReviewedAt
+	}
+	return ""
+}
+
+func (x *BaseConfigTranslation) GetCreatedBy() int64 {
+	if x != nil {
+		return x.CreatedBy
+	}
+	return 0
+}
+
+func (x *BaseConfigTranslation) GetUpdatedBy() int64 {
+	if x != nil {
+		return x.UpdatedBy
+	}
+	return 0
+}
+
+func (x *BaseConfigTranslation) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
+func (x *BaseConfigTranslation) GetUpdatedAt() string {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return ""
+}
+
+func (x *BaseConfigTranslation) GetDeletedAt() int64 {
+	if x != nil {
+		return x.DeletedAt
+	}
+	return 0
+}
+
 // 代码生成单语言国际化配置
 type CodeGenLocaleConfig struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
@@ -304,7 +546,7 @@ type CodeGenLocaleConfig struct {
 
 func (x *CodeGenLocaleConfig) Reset() {
 	*x = CodeGenLocaleConfig{}
-	mi := &file_system_admin_v1_base_translation_proto_msgTypes[2]
+	mi := &file_system_admin_v1_base_translation_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -316,7 +558,7 @@ func (x *CodeGenLocaleConfig) String() string {
 func (*CodeGenLocaleConfig) ProtoMessage() {}
 
 func (x *CodeGenLocaleConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_translation_proto_msgTypes[2]
+	mi := &file_system_admin_v1_base_translation_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -329,7 +571,7 @@ func (x *CodeGenLocaleConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CodeGenLocaleConfig.ProtoReflect.Descriptor instead.
 func (*CodeGenLocaleConfig) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_translation_proto_rawDescGZIP(), []int{2}
+	return file_system_admin_v1_base_translation_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *CodeGenLocaleConfig) GetComment() string {
@@ -350,7 +592,7 @@ var File_system_admin_v1_base_translation_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_translation_proto_rawDesc = "" +
 	"\n" +
-	"&system/admin/v1/base_translation.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xb5\x04\n" +
+	"&system/admin/v1/base_translation.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xb5\x05\n" +
 	"\x1fGenerateTranslationDraftRequest\x12\xbd\x01\n" +
 	"\rresource_type\x18\x01 \x01(\x0e2(.system.admin.v1.TranslationResourceTypeBn\xbaG\x0f\x92\x02\f资源类型\xbaHY\xba\x01Q\n" +
 	"'base_translation.resource_type.required\x12\x1b请选择翻译资源类型\x1a\tthis != 0\x82\x01\x02\x10\x01R\fresourceType\x12\x85\x01\n" +
@@ -358,7 +600,8 @@ const file_system_admin_v1_base_translation_proto_rawDesc = "" +
 	"%base_translation.resource_id.required\x12\x14资源ID不能为空\x1a\bthis > 0R\n" +
 	"resourceId\x12\xc9\x01\n" +
 	"\rtarget_locale\x18\x03 \x01(\tB\xa3\x01\xbaG.\x92\x02+目标语言区域，仅支持en-US和ja-JP\xbaHo\xba\x01l\n" +
-	"(base_translation.target_locale.supported\x12$目标语言仅支持英语或日语\x1a\x1athis in ['en-US', 'ja-JP']R\ftargetLocale\"\xd6\x04\n" +
+	"(base_translation.target_locale.supported\x12$目标语言仅支持英语或日语\x1a\x1athis in ['en-US', 'ja-JP']R\ftargetLocale\x12~\n" +
+	"\x05field\x18\x04 \x01(\x0e2+.system.admin.v1.BaseConfigTranslationFieldB;\xbaG0\x92\x02-系统配置翻译字段，配置资源必填\xbaH\x05\x82\x01\x02\x10\x01R\x05field\"\xb9\x05\n" +
 	" GenerateTranslationDraftResponse\x12a\n" +
 	"\rresource_type\x18\x01 \x01(\x0e2(.system.admin.v1.TranslationResourceTypeB\x12\xbaG\x0f\x92\x02\f资源类型R\fresourceType\x12/\n" +
 	"\vresource_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b资源IDR\n" +
@@ -369,7 +612,35 @@ const file_system_admin_v1_base_translation_proto_rawDesc = "" +
 	"\vsource_hash\x18\x06 \x01(\tB\x19\xbaG\x16\x92\x02\x13中文源文SHA-256R\n" +
 	"sourceHash\x12N\n" +
 	"\x14translation_provider\x18\a \x01(\tB\x1b\xbaG\x18\x92\x02\x15机器翻译提供方R\x13translationProvider\x12C\n" +
-	"\rtranslated_at\x18\b \x01(\tB\x1e\xbaG\x1b\x92\x02\x18最近机器翻译时间R\ftranslatedAt\"\x8c\x01\n" +
+	"\rtranslated_at\x18\b \x01(\tB\x1e\xbaG\x1b\x92\x02\x18最近机器翻译时间R\ftranslatedAt\x12a\n" +
+	"\x05field\x18\t \x01(\x0e2+.system.admin.v1.BaseConfigTranslationFieldB\x1e\xbaG\x1b\x92\x02\x18系统配置翻译字段R\x05field\"\x98\b\n" +
+	"\x15BaseConfigTranslation\x12$\n" +
+	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e翻译记录IDR\x02id\x121\n" +
+	"\tconfig_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e系统配置IDR\bconfigId\x12*\n" +
+	"\x06locale\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f语言区域R\x06locale\x12d\n" +
+	"\x05field\x18\x04 \x01(\x0e2+.system.admin.v1.BaseConfigTranslationFieldB!\xbaG\x1e\x92\x02\x1b翻译字段：name或valueR\x05field\x12&\n" +
+	"\x04text\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f翻译文本R\x04text\x12k\n" +
+	"\x12translation_status\x18\x06 \x01(\x0e2\".system.admin.v1.TranslationStatusB\x18\xbaG\x15\x92\x02\x12翻译审核状态R\x11translationStatus\x12:\n" +
+	"\vsource_hash\x18\a \x01(\tB\x19\xbaG\x16\x92\x02\x13中文源文SHA-256R\n" +
+	"sourceHash\x12H\n" +
+	"\x0esource_changed\x18\b \x01(\bB!\xbaG\x1e\x92\x02\x1b中文源文是否已变化R\rsourceChanged\x12N\n" +
+	"\x14translation_provider\x18\t \x01(\tB\x1b\xbaG\x18\x92\x02\x15机器翻译提供方R\x13translationProvider\x12C\n" +
+	"\rtranslated_at\x18\n" +
+	" \x01(\tB\x1e\xbaG\x1b\x92\x02\x18最近机器翻译时间R\ftranslatedAt\x122\n" +
+	"\vreviewed_by\x18\v \x01(\x03B\x11\xbaG\x0e\x92\x02\v审核人IDR\n" +
+	"reviewedBy\x123\n" +
+	"\vreviewed_at\x18\f \x01(\tB\x12\xbaG\x0f\x92\x02\f审核时间R\n" +
+	"reviewedAt\x120\n" +
+	"\n" +
+	"created_by\x18\r \x01(\x03B\x11\xbaG\x0e\x92\x02\v创建人IDR\tcreatedBy\x120\n" +
+	"\n" +
+	"updated_by\x18\x0e \x01(\x03B\x11\xbaG\x0e\x92\x02\v更新人IDR\tupdatedBy\x121\n" +
+	"\n" +
+	"created_at\x18\x0f \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x121\n" +
+	"\n" +
+	"updated_at\x18\x10 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x121\n" +
+	"\n" +
+	"deleted_at\x18\x11 \x01(\x03B\x12\xbaG\x0f\x92\x02\f删除时间R\tdeletedAt\"\x8c\x01\n" +
 	"\x13CodeGenLocaleConfig\x125\n" +
 	"\acomment\x18\x01 \x01(\tB\x1b\xbaG\x18\x92\x02\x15业务或字段描述R\acomment\x12>\n" +
 	"\x11left_tree_comment\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f左树描述R\x0fleftTreeComment*\x98\x01\n" +
@@ -377,12 +648,17 @@ const file_system_admin_v1_base_translation_proto_rawDesc = "" +
 	"\x1eTRANSLATION_STATUS_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aTRANSLATION_STATUS_PENDING\x10\x01\x12\x1e\n" +
 	"\x1aTRANSLATION_STATUS_MACHINE\x10\x02\x12\x1f\n" +
-	"\x1bTRANSLATION_STATUS_REVIEWED\x10\x03*\xb5\x01\n" +
+	"\x1bTRANSLATION_STATUS_REVIEWED\x10\x03*\xdb\x01\n" +
 	"\x17TranslationResourceType\x12)\n" +
 	"%TRANSLATION_RESOURCE_TYPE_UNSPECIFIED\x10\x00\x12\"\n" +
 	"\x1eTRANSLATION_RESOURCE_TYPE_MENU\x10\x01\x12\"\n" +
 	"\x1eTRANSLATION_RESOURCE_TYPE_DICT\x10\x02\x12'\n" +
-	"#TRANSLATION_RESOURCE_TYPE_DICT_ITEM\x10\x032\xcb\x01\n" +
+	"#TRANSLATION_RESOURCE_TYPE_DICT_ITEM\x10\x03\x12$\n" +
+	" TRANSLATION_RESOURCE_TYPE_CONFIG\x10\x04*\x9c\x01\n" +
+	"\x1aBaseConfigTranslationField\x12-\n" +
+	")BASE_CONFIG_TRANSLATION_FIELD_UNSPECIFIED\x10\x00\x12&\n" +
+	"\"BASE_CONFIG_TRANSLATION_FIELD_NAME\x10\x01\x12'\n" +
+	"#BASE_CONFIG_TRANSLATION_FIELD_VALUE\x10\x022\xcb\x01\n" +
 	"\x16BaseTranslationService\x12\xb0\x01\n" +
 	"\x18GenerateTranslationDraft\x120.system.admin.v1.GenerateTranslationDraftRequest\x1a1.system.admin.v1.GenerateTranslationDraftResponse\"/\x82\xd3\xe4\x93\x02):\x01*\"$/api/v1/admin/base/translation/draftB\xd6\x01\n" +
 	"\x13com.system.admin.v1B\x14BaseTranslationProtoP\x01ZKgithub.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1;adminv1\xa2\x02\x03SAX\xaa\x02\x0fSystem.Admin.V1\xca\x02\x0fSystem\\Admin\\V1\xe2\x02\x1bSystem\\Admin\\V1\\GPBMetadata\xea\x02\x11System::Admin::V1b\x06proto3"
@@ -399,26 +675,32 @@ func file_system_admin_v1_base_translation_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_base_translation_proto_rawDescData
 }
 
-var file_system_admin_v1_base_translation_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_system_admin_v1_base_translation_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_system_admin_v1_base_translation_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_system_admin_v1_base_translation_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_system_admin_v1_base_translation_proto_goTypes = []any{
 	(TranslationStatus)(0),                   // 0: system.admin.v1.TranslationStatus
 	(TranslationResourceType)(0),             // 1: system.admin.v1.TranslationResourceType
-	(*GenerateTranslationDraftRequest)(nil),  // 2: system.admin.v1.GenerateTranslationDraftRequest
-	(*GenerateTranslationDraftResponse)(nil), // 3: system.admin.v1.GenerateTranslationDraftResponse
-	(*CodeGenLocaleConfig)(nil),              // 4: system.admin.v1.CodeGenLocaleConfig
+	(BaseConfigTranslationField)(0),          // 2: system.admin.v1.BaseConfigTranslationField
+	(*GenerateTranslationDraftRequest)(nil),  // 3: system.admin.v1.GenerateTranslationDraftRequest
+	(*GenerateTranslationDraftResponse)(nil), // 4: system.admin.v1.GenerateTranslationDraftResponse
+	(*BaseConfigTranslation)(nil),            // 5: system.admin.v1.BaseConfigTranslation
+	(*CodeGenLocaleConfig)(nil),              // 6: system.admin.v1.CodeGenLocaleConfig
 }
 var file_system_admin_v1_base_translation_proto_depIdxs = []int32{
 	1, // 0: system.admin.v1.GenerateTranslationDraftRequest.resource_type:type_name -> system.admin.v1.TranslationResourceType
-	1, // 1: system.admin.v1.GenerateTranslationDraftResponse.resource_type:type_name -> system.admin.v1.TranslationResourceType
-	0, // 2: system.admin.v1.GenerateTranslationDraftResponse.translation_status:type_name -> system.admin.v1.TranslationStatus
-	2, // 3: system.admin.v1.BaseTranslationService.GenerateTranslationDraft:input_type -> system.admin.v1.GenerateTranslationDraftRequest
-	3, // 4: system.admin.v1.BaseTranslationService.GenerateTranslationDraft:output_type -> system.admin.v1.GenerateTranslationDraftResponse
-	4, // [4:5] is the sub-list for method output_type
-	3, // [3:4] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	2, // 1: system.admin.v1.GenerateTranslationDraftRequest.field:type_name -> system.admin.v1.BaseConfigTranslationField
+	1, // 2: system.admin.v1.GenerateTranslationDraftResponse.resource_type:type_name -> system.admin.v1.TranslationResourceType
+	0, // 3: system.admin.v1.GenerateTranslationDraftResponse.translation_status:type_name -> system.admin.v1.TranslationStatus
+	2, // 4: system.admin.v1.GenerateTranslationDraftResponse.field:type_name -> system.admin.v1.BaseConfigTranslationField
+	2, // 5: system.admin.v1.BaseConfigTranslation.field:type_name -> system.admin.v1.BaseConfigTranslationField
+	0, // 6: system.admin.v1.BaseConfigTranslation.translation_status:type_name -> system.admin.v1.TranslationStatus
+	3, // 7: system.admin.v1.BaseTranslationService.GenerateTranslationDraft:input_type -> system.admin.v1.GenerateTranslationDraftRequest
+	4, // 8: system.admin.v1.BaseTranslationService.GenerateTranslationDraft:output_type -> system.admin.v1.GenerateTranslationDraftResponse
+	8, // [8:9] is the sub-list for method output_type
+	7, // [7:8] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_translation_proto_init() }
@@ -431,8 +713,8 @@ func file_system_admin_v1_base_translation_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_base_translation_proto_rawDesc), len(file_system_admin_v1_base_translation_proto_rawDesc)),
-			NumEnums:      2,
-			NumMessages:   3,
+			NumEnums:      3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -9,6 +9,7 @@ import "system/common/v1/enum.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
+import "system/admin/v1/base_translation.proto";
 
 // Admin系统配置服务
 service BaseConfigService {
@@ -116,6 +117,8 @@ message BaseConfigForm {
 
   string value = 6 [(gnostic.openapi.v3.property) = {description: "配置value"}, (buf.validate.field).cel = {id: "base_config.value.required" message: "配置值不能为空" expression: "this.size() > 0"}]; // 配置value
 
+  repeated BaseConfigTranslation translations = 7 [(gnostic.openapi.v3.property) = {description: "配置名称及文本/富文本值的英日翻译"}]; // 配置名称及文本/富文本值的英日翻译
+
   .common.v1.Status status = 51 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
 }
 
@@ -159,6 +162,8 @@ message BaseConfig {
   string key = 5 [(gnostic.openapi.v3.property) = {description: "配置key"}]; // 配置key
 
   string value = 6 [(gnostic.openapi.v3.property) = {description: "配置value"}]; // 配置value
+
+  repeated BaseConfigTranslation translations = 7 [(gnostic.openapi.v3.property) = {description: "配置名称及文本/富文本值的英日翻译"}]; // 配置名称及文本/富文本值的英日翻译
 
   .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态：枚举【Status】"}]; // 状态：枚举【Status】
 

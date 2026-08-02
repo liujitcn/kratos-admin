@@ -1,3 +1,5 @@
 初始化默认租户、部门、岗位、字典、配置、菜单、角色和 `super`、`admin` 开发账号。
 
 同时提供管理端 System 页面、AI、代码生成、API 文档、项目文档及应用端公共能力所需的菜单和服务方法权限。固定移动端根目录为 `999`，二级首页使用 `99901`、二级我的使用 `99909`，其余二级编号预留业务使用；页面配置统一保存在 `base_menu.meta.app`，每个页面菜单分别关联自身实际调用的受保护 API，根目录只关联移动菜单查询。项目文档在构建期收集并嵌入 Backend 二进制，项目标识与对应 OpenAPI/Swagger 文档 key 保持一致；OAuth 自动注册与租户编号显示使用布尔配置；OpenAPI 接口元数据和 Casbin 策略在服务启动时按当前文档与菜单关系同步。
+
+翻译数据按语言拆分为 `translation.en-US.up.sql` 和 `translation.ja-JP.up.sql`，每个文件只包含对应语言的 `base_config_translation`、`base_dict_translation`、`base_dict_item_translation` 和 `base_menu_translation` 数据。每条翻译记录使用一条 `INSERT IGNORE`，不使用批量 `INSERT ... SELECT` 或 `UNION ALL`；文件名排序确保主数据先于翻译数据执行。

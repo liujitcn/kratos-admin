@@ -7,7 +7,8 @@
 /* eslint-disable */
 
 /** 项目文档树查询条件 */
-export interface TreeProjectDocumentRequest {}
+export interface TreeProjectDocumentRequest {
+}
 
 /** 项目文档树响应 */
 export interface TreeProjectDocumentResponse {

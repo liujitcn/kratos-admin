@@ -3,6 +3,7 @@ import type { App, Component } from 'vue'
 import { registerKratosAppModules, type KratosAppModule } from './module'
 import { initializeLocale, registerLocaleChangeHandler, registerLocaleMessages } from './locales'
 import { initializeAppNavigation } from './navigation'
+import { useSettingStore } from './stores'
 
 /** uni-app 启动参数。 */
 export interface KratosAppBootstrapOptions {
@@ -22,6 +23,7 @@ export function bootstrapKratosApp(options: KratosAppBootstrapOptions) {
   registerLocaleMessages(options.modules)
   initializeLocale()
   registerLocaleChangeHandler(initializeAppNavigation)
+  registerLocaleChangeHandler(() => useSettingStore(options.pinia).loadData())
   const app = options.createSSRApp(options.app)
   app.use(options.pinia)
   return { app }

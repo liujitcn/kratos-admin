@@ -23,5 +23,7 @@ export interface GetBaseThirdAccountIdentifierResponse {
 /** Admin用户三方账号服务 */
 export interface BaseThirdAccountService {
   /** 查询用户三方账号标识 */
-  GetBaseThirdAccountIdentifier(request: GetBaseThirdAccountIdentifierRequest): Promise<GetBaseThirdAccountIdentifierResponse>;
+  GetBaseThirdAccountIdentifier(
+    request: GetBaseThirdAccountIdentifierRequest,
+  ): Promise<GetBaseThirdAccountIdentifierResponse>;
 }

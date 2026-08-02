@@ -11,9 +11,13 @@ export interface PageBaseMigrationRequest {
   /** 数据源 */
   data_source: string;
   /** 迁移版本 */
-  version?: string | undefined;
+  version?:
+    | string
+    | undefined;
   /** 迁移模块 */
-  module?: string | undefined;
+  module?:
+    | string
+    | undefined;
   /** 当前页码 */
   page_num: number;
   /** 每一页的行数 */

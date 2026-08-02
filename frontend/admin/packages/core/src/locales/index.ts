@@ -1,3 +1,7 @@
+/**
+ * 管理端国际化运行时：合并 core 和业务模块语言包，并为 Vue I18n、组件和请求层提供统一入口。
+ * 各语言 JSON 由对应模块定义文件导入，不能在 JSON 文件内添加注释。
+ */
 import dayjs from "dayjs";
 import "dayjs/locale/en";
 import "dayjs/locale/ja";

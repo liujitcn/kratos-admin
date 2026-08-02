@@ -23,9 +23,13 @@ export interface PageBaseRoleRequest {
   /** 角色编号 */
   code: string;
   /** 租户ID */
-  tenant_id?: number | undefined;
+  tenant_id?:
+    | number
+    | undefined;
   /** 状态 */
-  status?: Status | undefined;
+  status?:
+    | Status
+    | undefined;
   /** 当前页码 */
   page_num: number;
   /** 每一页的行数 */

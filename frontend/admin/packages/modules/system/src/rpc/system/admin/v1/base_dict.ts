@@ -10,7 +10,8 @@ import type { Empty } from "../../../google/protobuf/empty";
 import type { TranslationStatus } from "./base_translation";
 
 /** 字典选项查询条件 */
-export interface OptionBaseDictRequest {}
+export interface OptionBaseDictRequest {
+}
 
 /** 字典选项响应 */
 export interface OptionBaseDictResponse {
@@ -45,7 +46,9 @@ export interface PageBaseDictRequest {
   /** 字典名称 */
   name: string;
   /** 状态 */
-  status?: Status | undefined;
+  status?:
+    | Status
+    | undefined;
   /** 当前页码 */
   page_num: number;
   /** 每一页的行数 */
@@ -67,7 +70,9 @@ export interface PageBaseDictItemRequest {
   /** 字典属性名称 */
   label: string;
   /** 状态 */
-  status?: Status | undefined;
+  status?:
+    | Status
+    | undefined;
   /** 当前页码 */
   page_num: number;
   /** 每一页的行数 */

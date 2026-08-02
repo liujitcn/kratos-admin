@@ -14,9 +14,13 @@ import type { TranslationStatus } from "./base_translation";
 /** 菜单选项查询条件 */
 export interface OptionBaseMenuRequest {
   /** 父级菜单ID */
-  parent_id?: number | undefined;
+  parent_id?:
+    | number
+    | undefined;
   /** 目标角色ID */
-  role_id?: number | undefined;
+  role_id?:
+    | number
+    | undefined;
   /** 是否懒加载 */
   lazy?: boolean | undefined;
 }
@@ -24,7 +28,9 @@ export interface OptionBaseMenuRequest {
 /** 菜单树查询条件 */
 export interface TreeBaseMenuRequest {
   /** 父级菜单ID */
-  parent_id?: number | undefined;
+  parent_id?:
+    | number
+    | undefined;
   /** 是否懒加载 */
   lazy?: boolean | undefined;
 }
@@ -46,7 +52,9 @@ export interface BaseMenuForm {
   /** 菜单ID */
   id: number;
   /** 父级菜单ID */
-  parent_id?: number | undefined;
+  parent_id?:
+    | number
+    | undefined;
   /** 菜单类型 */
   type: BaseMenuType;
   /** 菜单路径、按钮权限标识或外链内部路径，目录可为空 */
@@ -58,7 +66,9 @@ export interface BaseMenuForm {
   /** 目录跳转路由或外链地址 */
   redirect: string;
   /** 路由元信息 */
-  meta: BaseMenuMeta | undefined;
+  meta:
+    | BaseMenuMeta
+    | undefined;
   /** 分配的API列表 */
   api: string[];
   /** 非默认语言翻译 */
@@ -112,7 +122,9 @@ export interface BaseMenu {
   /** 重定向地址 */
   redirect: string;
   /** 路由元信息 */
-  meta: BaseMenuMeta | undefined;
+  meta:
+    | BaseMenuMeta
+    | undefined;
   /** 非默认语言翻译 */
   translations: BaseMenuTranslation[];
   /** 排序 */
@@ -134,17 +146,29 @@ export interface BaseMenuMeta {
   /** 菜单标题 */
   title: string;
   /** 菜单图标 */
-  icon?: string | undefined;
+  icon?:
+    | string
+    | undefined;
   /** 【目录】只有一个子路由是否始终显示 */
-  always_show?: boolean | undefined;
+  always_show?:
+    | boolean
+    | undefined;
   /** 是否隐藏(true-是 false-否) */
-  hidden?: boolean | undefined;
+  hidden?:
+    | boolean
+    | undefined;
   /** 【菜单】是否开启页面缓存 */
-  keep_alive?: boolean | undefined;
+  keep_alive?:
+    | boolean
+    | undefined;
   /** 【菜单】是否全屏(示例：数据大屏页面) */
-  full?: boolean | undefined;
+  full?:
+    | boolean
+    | undefined;
   /** 【菜单】是否固定在标签页中(首页通常是固定项) */
-  affix?: boolean | undefined;
+  affix?:
+    | boolean
+    | undefined;
   /** 参数 */
   params: BaseMenuParams[];
   /** 移动端页面配置 */

@@ -267,6 +267,8 @@
   "system.user.message.deleteSuccess": "User deleted",
   "system.user.message.deleteCanceled": "User deletion canceled",
   "system.translation.field.translations": "Translations",
+  "system.translation.field.nameTranslations": "Name translations",
+  "system.translation.field.valueTranslations": "Value translations",
   "system.translation.placeholder.text": "Enter the {language} translation",
   "system.translation.action.generateDraft": "Generate {language} draft",
   "system.translation.message.saveBeforeDraft": "Save the Chinese source before generating a machine translation draft",

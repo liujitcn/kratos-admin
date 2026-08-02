@@ -6,10 +6,12 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	systemcommonv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/common/v1"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
 	coreLocale "github.com/liujitcn/kratos-admin/backend/core/pkg/locale"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/dto"
@@ -37,9 +39,11 @@ type TranslationCase struct {
 	menuRepo                *data.BaseMenuRepository
 	dictRepo                *data.BaseDictRepository
 	dictItemRepo            *data.BaseDictItemRepository
+	configRepo              *data.BaseConfigRepository
 	menuTranslationRepo     *data.BaseMenuTranslationRepository
 	dictTranslationRepo     *data.BaseDictTranslationRepository
 	dictItemTranslationRepo *data.BaseDictItemTranslationRepository
+	configTranslationRepo   *data.BaseConfigTranslationRepository
 	draftMu                 sync.Mutex
 }
 
@@ -51,9 +55,11 @@ func NewTranslationCase(
 	menuRepo *data.BaseMenuRepository,
 	dictRepo *data.BaseDictRepository,
 	dictItemRepo *data.BaseDictItemRepository,
+	configRepo *data.BaseConfigRepository,
 	menuTranslationRepo *data.BaseMenuTranslationRepository,
 	dictTranslationRepo *data.BaseDictTranslationRepository,
 	dictItemTranslationRepo *data.BaseDictItemTranslationRepository,
+	configTranslationRepo *data.BaseConfigTranslationRepository,
 ) *TranslationCase {
 	return &TranslationCase{
 		BaseCase:                baseCase,
@@ -62,9 +68,11 @@ func NewTranslationCase(
 		menuRepo:                menuRepo,
 		dictRepo:                dictRepo,
 		dictItemRepo:            dictItemRepo,
+		configRepo:              configRepo,
 		menuTranslationRepo:     menuTranslationRepo,
 		dictTranslationRepo:     dictTranslationRepo,
 		dictItemTranslationRepo: dictItemTranslationRepo,
+		configTranslationRepo:   configTranslationRepo,
 	}
 }
 
@@ -82,7 +90,7 @@ func (c *TranslationCase) GenerateTranslationDraft(ctx context.Context, req *sys
 	if !ok {
 		return nil, errorsx.InvalidArgument("目标语言仅支持英语或日语")
 	}
-	source, err := c.findTranslationDraftSource(ctx, req.GetResourceType(), req.GetResourceId())
+	source, err := c.findTranslationDraftSource(ctx, req.GetResourceType(), req.GetResourceId(), req.GetField())
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +101,7 @@ func (c *TranslationCase) GenerateTranslationDraft(ctx context.Context, req *sys
 		return nil, errorsx.InvalidArgument("待翻译源文不能超过2000字节")
 	}
 	var reviewed bool
-	reviewed, err = c.hasReviewedTranslation(ctx, source.ResourceType, source.ResourceID, targetLocale)
+	reviewed, err = c.hasReviewedTranslation(ctx, source, targetLocale)
 	if err != nil {
 		return nil, err
 	}
@@ -129,12 +137,13 @@ func (c *TranslationCase) GenerateTranslationDraft(ctx context.Context, req *sys
 		SourceHash:          sourceHash,
 		TranslationProvider: _const.TRANSLATION_PROVIDER_GOOGLE_V1,
 		TranslatedAt:        formatTranslationTime(now),
+		Field:               source.Field,
 	}, nil
 }
 
 // findTranslationDraftSource 按资源类型从服务端读取允许外发的展示源文。
-func (c *TranslationCase) findTranslationDraftSource(ctx context.Context, resourceType systemadminv1.TranslationResourceType, resourceID int64) (*dto.TranslationDraftSource, error) {
-	source := &dto.TranslationDraftSource{ResourceType: resourceType, ResourceID: resourceID}
+func (c *TranslationCase) findTranslationDraftSource(ctx context.Context, resourceType systemadminv1.TranslationResourceType, resourceID int64, field systemadminv1.BaseConfigTranslationField) (*dto.TranslationDraftSource, error) {
+	source := &dto.TranslationDraftSource{ResourceType: resourceType, ResourceID: resourceID, Field: field}
 	var err error
 	switch resourceType {
 	case systemadminv1.TranslationResourceType_TRANSLATION_RESOURCE_TYPE_MENU:
@@ -159,6 +168,12 @@ func (c *TranslationCase) findTranslationDraftSource(ctx context.Context, resour
 		if err == nil {
 			source.Text = item.Label
 		}
+	case systemadminv1.TranslationResourceType_TRANSLATION_RESOURCE_TYPE_CONFIG:
+		var config *models.BaseConfig
+		config, err = c.configRepo.FindByID(ctx, resourceID)
+		if err == nil {
+			source.Text, err = configTranslationSourceText(config, source.Field)
+		}
 	default:
 		return nil, errorsx.InvalidArgument("翻译资源类型无效")
 	}
@@ -172,28 +187,39 @@ func (c *TranslationCase) findTranslationDraftSource(ctx context.Context, resour
 }
 
 // hasReviewedTranslation 判断目标资源是否已有不可覆盖的人工译文。
-func (c *TranslationCase) hasReviewedTranslation(ctx context.Context, resourceType systemadminv1.TranslationResourceType, resourceID int64, localeValue string) (bool, error) {
+func (c *TranslationCase) hasReviewedTranslation(ctx context.Context, source *dto.TranslationDraftSource, localeValue string) (bool, error) {
 	var status string
 	var err error
-	switch resourceType {
+	switch source.ResourceType {
 	case systemadminv1.TranslationResourceType_TRANSLATION_RESOURCE_TYPE_MENU:
 		query := c.menuTranslationRepo.Query(ctx).BaseMenuTranslation
 		var row *models.BaseMenuTranslation
-		row, err = c.menuTranslationRepo.Find(ctx, repository.Where(query.MenuID.Eq(resourceID)), repository.Where(query.Locale.Eq(localeValue)))
+		row, err = c.menuTranslationRepo.Find(ctx, repository.Where(query.MenuID.Eq(source.ResourceID)), repository.Where(query.Locale.Eq(localeValue)))
 		if err == nil {
 			status = row.TranslationStatus
 		}
 	case systemadminv1.TranslationResourceType_TRANSLATION_RESOURCE_TYPE_DICT:
 		query := c.dictTranslationRepo.Query(ctx).BaseDictTranslation
 		var row *models.BaseDictTranslation
-		row, err = c.dictTranslationRepo.Find(ctx, repository.Where(query.DictID.Eq(resourceID)), repository.Where(query.Locale.Eq(localeValue)))
+		row, err = c.dictTranslationRepo.Find(ctx, repository.Where(query.DictID.Eq(source.ResourceID)), repository.Where(query.Locale.Eq(localeValue)))
 		if err == nil {
 			status = row.TranslationStatus
 		}
 	case systemadminv1.TranslationResourceType_TRANSLATION_RESOURCE_TYPE_DICT_ITEM:
 		query := c.dictItemTranslationRepo.Query(ctx).BaseDictItemTranslation
 		var row *models.BaseDictItemTranslation
-		row, err = c.dictItemTranslationRepo.Find(ctx, repository.Where(query.DictItemID.Eq(resourceID)), repository.Where(query.Locale.Eq(localeValue)))
+		row, err = c.dictItemTranslationRepo.Find(ctx, repository.Where(query.DictItemID.Eq(source.ResourceID)), repository.Where(query.Locale.Eq(localeValue)))
+		if err == nil {
+			status = row.TranslationStatus
+		}
+	case systemadminv1.TranslationResourceType_TRANSLATION_RESOURCE_TYPE_CONFIG:
+		fieldValue, ok := configTranslationFieldValue(source.Field)
+		if !ok {
+			return false, errorsx.InvalidArgument("系统配置翻译字段无效")
+		}
+		query := c.configTranslationRepo.Query(ctx).BaseConfigTranslation
+		var row *models.BaseConfigTranslation
+		row, err = c.configTranslationRepo.Find(ctx, repository.Where(query.ConfigID.Eq(source.ResourceID)), repository.Where(query.Locale.Eq(localeValue)), repository.Where(query.Field.Eq(fieldValue)))
 		if err == nil {
 			status = row.TranslationStatus
 		}
@@ -213,9 +239,33 @@ func (c *TranslationCase) saveMachineDraft(ctx context.Context, source *dto.Tran
 		return c.saveDictMachineDraft(ctx, source.ResourceID, localeValue, translated, sourceHash, translatedAt)
 	case systemadminv1.TranslationResourceType_TRANSLATION_RESOURCE_TYPE_DICT_ITEM:
 		return c.saveDictItemMachineDraft(ctx, source.ResourceID, localeValue, translated, sourceHash, translatedAt)
+	case systemadminv1.TranslationResourceType_TRANSLATION_RESOURCE_TYPE_CONFIG:
+		return c.saveConfigMachineDraft(ctx, source.ResourceID, source.Field, localeValue, translated, sourceHash, translatedAt)
 	default:
 		return errorsx.InvalidArgument("翻译资源类型无效")
 	}
+}
+
+// saveConfigMachineDraft 保存系统配置机器翻译草稿。
+func (c *TranslationCase) saveConfigMachineDraft(ctx context.Context, configID int64, field systemadminv1.BaseConfigTranslationField, localeValue, translated, sourceHash string, translatedAt time.Time) error {
+	fieldValue, ok := configTranslationFieldValue(field)
+	if !ok {
+		return errorsx.InvalidArgument("系统配置翻译字段无效")
+	}
+	query := c.configTranslationRepo.Query(ctx).BaseConfigTranslation
+	row, err := c.configTranslationRepo.Find(ctx, repository.Where(query.ConfigID.Eq(configID)), repository.Where(query.Locale.Eq(localeValue)), repository.Where(query.Field.Eq(fieldValue)))
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return c.configTranslationRepo.Create(ctx, &models.BaseConfigTranslation{ConfigID: configID, Locale: localeValue, Field: fieldValue, Text: translated, TranslationStatus: _const.TRANSLATION_STATUS_MACHINE, SourceHash: sourceHash, TranslationProvider: _const.TRANSLATION_PROVIDER_GOOGLE_V1, TranslatedAt: translatedAt})
+	}
+	if err != nil {
+		return err
+	}
+	row.Text = translated
+	row.TranslationStatus = _const.TRANSLATION_STATUS_MACHINE
+	row.SourceHash = sourceHash
+	row.TranslationProvider = _const.TRANSLATION_PROVIDER_GOOGLE_V1
+	row.TranslatedAt = translatedAt
+	return c.configTranslationRepo.UpdateByID(ctx, row)
 }
 
 // saveMenuMachineDraft 保存菜单机器翻译草稿。
@@ -764,6 +814,201 @@ func (c *TranslationCase) DeleteDictItemTranslations(ctx context.Context, dictIt
 	return c.dictItemTranslationRepo.Delete(ctx, repository.Where(query.DictItemID.In(dictItemIDs...)))
 }
 
+// ReviewedConfigValues 批量查询当前语言已审核的文本配置值。
+func (c *TranslationCase) ReviewedConfigValues(ctx context.Context, configIDs []int64) (map[int64]string, error) {
+	result := make(map[int64]string)
+	localeValue := coreLocale.FromContext(ctx)
+	if localeValue == coreLocale.Default || len(configIDs) == 0 {
+		return result, nil
+	}
+	query := c.configTranslationRepo.Query(ctx).BaseConfigTranslation
+	rows, err := c.configTranslationRepo.List(ctx, repository.Where(query.ConfigID.In(configIDs...)), repository.Where(query.Locale.Eq(localeValue)), repository.Where(query.Field.Eq("value")), repository.Where(query.TranslationStatus.Eq(_const.TRANSLATION_STATUS_REVIEWED)))
+	if err != nil {
+		return nil, err
+	}
+	for _, row := range rows {
+		result[row.ConfigID] = row.Text
+	}
+	return result, nil
+}
+
+// ReviewedConfigNames 批量查询当前语言已审核的系统配置名称。
+func (c *TranslationCase) ReviewedConfigNames(ctx context.Context, configIDs []int64) (map[int64]string, error) {
+	result := make(map[int64]string)
+	localeValue := coreLocale.FromContext(ctx)
+	if localeValue == coreLocale.Default || len(configIDs) == 0 {
+		return result, nil
+	}
+	query := c.configTranslationRepo.Query(ctx).BaseConfigTranslation
+	rows, err := c.configTranslationRepo.List(ctx, repository.Where(query.ConfigID.In(configIDs...)), repository.Where(query.Locale.Eq(localeValue)), repository.Where(query.Field.Eq("name")), repository.Where(query.TranslationStatus.Eq(_const.TRANSLATION_STATUS_REVIEWED)))
+	if err != nil {
+		return nil, err
+	}
+	for _, row := range rows {
+		result[row.ConfigID] = row.Text
+	}
+	return result, nil
+}
+
+// ReviewedConfigIDsByName 查询当前语言名称包含关键字的已审核系统配置编号。
+func (c *TranslationCase) ReviewedConfigIDsByName(ctx context.Context, keyword string) ([]int64, error) {
+	localeValue := coreLocale.FromContext(ctx)
+	if localeValue == coreLocale.Default || keyword == "" {
+		return nil, nil
+	}
+	query := c.configTranslationRepo.Query(ctx).BaseConfigTranslation
+	rows, err := c.configTranslationRepo.List(ctx, repository.Where(query.Locale.Eq(localeValue)), repository.Where(query.Field.Eq("name")), repository.Where(query.TranslationStatus.Eq(_const.TRANSLATION_STATUS_REVIEWED)), repository.Where(query.Text.Like("%"+keyword+"%")))
+	if err != nil {
+		return nil, err
+	}
+	ids := make([]int64, 0, len(rows))
+	for _, row := range rows {
+		ids = append(ids, row.ConfigID)
+	}
+	return ids, nil
+}
+
+// ConfigTranslations 批量查询系统配置维护界面的翻译状态。
+func (c *TranslationCase) ConfigTranslations(ctx context.Context, sources map[int64]dto.ConfigTranslationSource) (map[int64][]*systemadminv1.BaseConfigTranslation, error) {
+	result := make(map[int64][]*systemadminv1.BaseConfigTranslation, len(sources))
+	if len(sources) == 0 {
+		return result, nil
+	}
+	ids := make([]int64, 0, len(sources))
+	for configID := range sources {
+		ids = append(ids, configID)
+	}
+	query := c.configTranslationRepo.Query(ctx).BaseConfigTranslation
+	rows, err := c.configTranslationRepo.List(ctx, repository.Where(query.ConfigID.In(ids...)))
+	if err != nil {
+		return nil, err
+	}
+	rowMap := make(map[string]*models.BaseConfigTranslation, len(rows))
+	for _, row := range rows {
+		rowMap[configTranslationKey(row.ConfigID, row.Locale, row.Field)] = row
+	}
+	for configID, source := range sources {
+		fields := []systemadminv1.BaseConfigTranslationField{systemadminv1.BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_NAME}
+		if isTranslatableConfigType(source.Type) {
+			fields = append(fields, systemadminv1.BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_VALUE)
+		}
+		translations := make([]*systemadminv1.BaseConfigTranslation, 0, len(editableLocales)*len(fields))
+		for _, field := range fields {
+			fieldValue, _ := configTranslationFieldValue(field)
+			sourceText := source.Name
+			if field == systemadminv1.BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_VALUE {
+				sourceText = source.Value
+			}
+			for _, localeValue := range editableLocales {
+				row := rowMap[configTranslationKey(configID, localeValue, fieldValue)]
+				translations = append(translations, configTranslationDTO(row, configID, localeValue, field, sourceText))
+			}
+		}
+		result[configID] = translations
+	}
+	return result, nil
+}
+
+// SaveConfigTranslations 将人工维护的系统配置译文保存为已审核状态。
+func (c *TranslationCase) SaveConfigTranslations(ctx context.Context, configID int64, source dto.ConfigTranslationSource, translations []*systemadminv1.BaseConfigTranslation) error {
+	if translations == nil {
+		return nil
+	}
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+	query := c.configTranslationRepo.Query(ctx).BaseConfigTranslation
+	var existingRows []*models.BaseConfigTranslation
+	existingRows, err = c.configTranslationRepo.List(ctx, repository.Where(query.ConfigID.Eq(configID)))
+	if err != nil {
+		return err
+	}
+	existing := make(map[string]*models.BaseConfigTranslation, len(existingRows))
+	for _, row := range existingRows {
+		existing[configTranslationKey(row.ConfigID, row.Locale, row.Field)] = row
+	}
+	seen := make(map[string]struct{}, len(translations))
+	now := time.Now()
+	for _, translation := range translations {
+		localeValue, ok := editableLocale(translation.GetLocale())
+		if !ok {
+			return errorsx.InvalidArgument("系统配置翻译语言仅支持英语或日语")
+		}
+		fieldValue, ok := configTranslationFieldValue(translation.GetField())
+		if !ok || (fieldValue == "value" && !isTranslatableConfigType(source.Type)) {
+			return errorsx.InvalidArgument("当前系统配置类型不支持该翻译字段")
+		}
+		key := configTranslationKey(configID, localeValue, fieldValue)
+		if _, duplicated := seen[key]; duplicated {
+			return errorsx.Conflict("同一系统配置语言和字段不能重复")
+		}
+		seen[key] = struct{}{}
+		row := existing[key]
+		if translation.GetText() == "" {
+			if row != nil {
+				err = c.configTranslationRepo.DeleteByID(ctx, row.ID)
+				if err != nil {
+					return err
+				}
+			}
+			continue
+		}
+		if row == nil {
+			row = &models.BaseConfigTranslation{ConfigID: configID, Locale: localeValue, Field: fieldValue}
+		}
+		sourceText := source.Name
+		if fieldValue == "value" {
+			sourceText = source.Value
+		}
+		row.Text = translation.GetText()
+		row.TranslationStatus = _const.TRANSLATION_STATUS_REVIEWED
+		row.SourceHash = translationSourceHash(sourceText)
+		row.ReviewedBy = authInfo.UserId
+		row.ReviewedAt = now
+		if row.ID == 0 {
+			err = c.configTranslationRepo.Create(ctx, row)
+		} else {
+			err = c.configTranslationRepo.UpdateByID(ctx, row)
+		}
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// MarkConfigSourceChanged 将源文变化的系统配置译文标记为待处理。
+func (c *TranslationCase) MarkConfigSourceChanged(ctx context.Context, configID int64, previousSource, currentSource dto.ConfigTranslationSource) error {
+	query := c.configTranslationRepo.Query(ctx).BaseConfigTranslation
+	rows, err := c.configTranslationRepo.List(ctx, repository.Where(query.ConfigID.Eq(configID)))
+	if err != nil {
+		return err
+	}
+	for _, row := range rows {
+		changed := previousSource.Name != currentSource.Name && row.Field == "name"
+		changed = changed || (previousSource.Value != currentSource.Value && row.Field == "value")
+		if !changed {
+			continue
+		}
+		row.TranslationStatus = _const.TRANSLATION_STATUS_PENDING
+		err = c.configTranslationRepo.UpdateByID(ctx, row)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// DeleteConfigTranslations 删除系统配置时同步软删除其翻译记录。
+func (c *TranslationCase) DeleteConfigTranslations(ctx context.Context, configIDs []int64) error {
+	if len(configIDs) == 0 {
+		return nil
+	}
+	query := c.configTranslationRepo.Query(ctx).BaseConfigTranslation
+	return c.configTranslationRepo.Delete(ctx, repository.Where(query.ConfigID.In(configIDs...)))
+}
+
 // editableLocale 规范化并限制可维护的非默认语言。
 func editableLocale(value string) (string, bool) {
 	if !coreLocale.IsSupported(value) {
@@ -824,6 +1069,62 @@ func dictItemTranslationDTO(row *models.BaseDictItemTranslation, resourceID int6
 		return &systemadminv1.BaseDictItemTranslation{DictItemId: resourceID, Locale: localeValue, TranslationStatus: systemadminv1.TranslationStatus_TRANSLATION_STATUS_PENDING, SourceHash: translationSourceHash(source)}
 	}
 	return &systemadminv1.BaseDictItemTranslation{Id: row.ID, DictItemId: row.DictItemID, Locale: row.Locale, Label: row.Label, TranslationStatus: translationStatusDTO(row.TranslationStatus), SourceHash: row.SourceHash, TranslationProvider: row.TranslationProvider, TranslatedAt: formatTranslationTime(row.TranslatedAt), ReviewedBy: row.ReviewedBy, ReviewedAt: formatTranslationTime(row.ReviewedAt), CreatedBy: row.CreatedBy, UpdatedBy: row.UpdatedBy, CreatedAt: formatTranslationTime(row.CreatedAt), UpdatedAt: formatTranslationTime(row.UpdatedAt), DeletedAt: uint64(row.DeletedAt), SourceChanged: row.SourceHash != translationSourceHash(source)}
+}
+
+// configTranslationDTO 转换系统配置翻译维护数据并计算源文变化状态。
+func configTranslationDTO(row *models.BaseConfigTranslation, resourceID int64, localeValue string, field systemadminv1.BaseConfigTranslationField, source string) *systemadminv1.BaseConfigTranslation {
+	if row == nil {
+		return &systemadminv1.BaseConfigTranslation{ConfigId: resourceID, Locale: localeValue, Field: field, TranslationStatus: systemadminv1.TranslationStatus_TRANSLATION_STATUS_PENDING, SourceHash: translationSourceHash(source)}
+	}
+	return &systemadminv1.BaseConfigTranslation{Id: row.ID, ConfigId: row.ConfigID, Locale: row.Locale, Field: configTranslationFieldEnum(row.Field), Text: row.Text, TranslationStatus: translationStatusDTO(row.TranslationStatus), SourceHash: row.SourceHash, SourceChanged: row.SourceHash != translationSourceHash(source), TranslationProvider: row.TranslationProvider, TranslatedAt: formatTranslationTime(row.TranslatedAt), ReviewedBy: row.ReviewedBy, ReviewedAt: formatTranslationTime(row.ReviewedAt), CreatedBy: row.CreatedBy, UpdatedBy: row.UpdatedBy, CreatedAt: formatTranslationTime(row.CreatedAt), UpdatedAt: formatTranslationTime(row.UpdatedAt), DeletedAt: int64(row.DeletedAt)}
+}
+
+// configTranslationSourceText 返回配置指定翻译字段的中文源文。
+func configTranslationSourceText(config *models.BaseConfig, field systemadminv1.BaseConfigTranslationField) (string, error) {
+	switch field {
+	case systemadminv1.BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_NAME:
+		return config.Name, nil
+	case systemadminv1.BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_VALUE:
+		if !isTranslatableConfigType(config.Type) {
+			return "", errorsx.InvalidArgument("图片、字典和布尔配置值不支持翻译")
+		}
+		return config.Value, nil
+	default:
+		return "", errorsx.InvalidArgument("系统配置翻译字段无效")
+	}
+}
+
+// configTranslationFieldValue 返回数据库中的系统配置翻译字段值。
+func configTranslationFieldValue(field systemadminv1.BaseConfigTranslationField) (string, bool) {
+	switch field {
+	case systemadminv1.BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_NAME:
+		return "name", true
+	case systemadminv1.BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_VALUE:
+		return "value", true
+	default:
+		return "", false
+	}
+}
+
+// configTranslationFieldEnum 返回接口中的系统配置翻译字段枚举。
+func configTranslationFieldEnum(value string) systemadminv1.BaseConfigTranslationField {
+	if value == "name" {
+		return systemadminv1.BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_NAME
+	}
+	if value == "value" {
+		return systemadminv1.BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_VALUE
+	}
+	return systemadminv1.BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_UNSPECIFIED
+}
+
+// isTranslatableConfigType 判断配置值是否属于允许翻译的文本类型。
+func isTranslatableConfigType(configType int32) bool {
+	return configType == int32(systemcommonv1.BaseConfigType_TEXT) || configType == int32(systemcommonv1.BaseConfigType_RICH_TEXT)
+}
+
+// configTranslationKey 生成配置翻译记录的内存索引键。
+func configTranslationKey(configID int64, localeValue, fieldValue string) string {
+	return fmt.Sprintf("%d:%s:%s", configID, localeValue, fieldValue)
 }
 
 // formatTranslationTime 将可空数据库时间转换为接口时间字符串。

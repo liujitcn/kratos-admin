@@ -16,7 +16,9 @@ export interface PageBaseJobRequest {
   /** 调用目标 */
   invoke_target: string;
   /** 状态 */
-  status?: Status | undefined;
+  status?:
+    | Status
+    | undefined;
   /** 当前页码 */
   page_num: number;
   /** 每一页的行数 */
@@ -36,7 +38,9 @@ export interface PageBaseJobLogRequest {
   /** 任务ID */
   job_id: number;
   /** 状态 */
-  status?: BaseJobLogStatus | undefined;
+  status?:
+    | BaseJobLogStatus
+    | undefined;
   /** 执行时间 */
   execute_time: string[];
   /** 当前页码 */

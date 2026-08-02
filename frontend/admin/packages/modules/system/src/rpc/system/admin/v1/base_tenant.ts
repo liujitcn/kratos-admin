@@ -22,7 +22,9 @@ export interface PageBaseTenantRequest {
   /** 租户名称 */
   name: string;
   /** 状态 */
-  status?: Status | undefined;
+  status?:
+    | Status
+    | undefined;
   /** 当前页码 */
   page_num: number;
   /** 每一页的行数 */
@@ -106,7 +108,9 @@ export interface BaseTenantForm {
   /** 联系电话 */
   contact_phone: string;
   /** 状态 */
-  status?: Status | undefined;
+  status?:
+    | Status
+    | undefined;
   /** 备注 */
   remark: string;
 }

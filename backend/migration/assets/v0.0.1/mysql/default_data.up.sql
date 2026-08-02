@@ -1,5 +1,6 @@
 -- 管理后台默认初始化数据。
 -- 可重复执行：只补充不存在的记录，不清空或覆盖已有数据。
+-- 翻译初始化数据按语言拆分到 translation.en-US.up.sql 和 translation.ja-JP.up.sql。
 
 SET NAMES utf8mb4;
 SET @old_foreign_key_checks = @@FOREIGN_KEY_CHECKS;
@@ -178,6 +179,12 @@ INSERT IGNORE INTO `base_menu` (`id`, `parent_id`, `type`, `path`, `name`, `comp
 INSERT IGNORE INTO `base_menu` (`id`, `parent_id`, `type`, `path`, `name`, `component`, `redirect`, `meta`, `api`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (9990901, 99909, 2, 'app/profile', 'AppProfile', '', '', '{\"title\": \"个人信息\", \"app\": {\"view_key\": \"PROFILE\", \"access\": \"AUTHENTICATED\", \"in_tab_bar\": false}}', '[\"/base.v1.FileService/UploadFile\", \"/system.app.v1.AuthService/BindUserPhone\", \"/system.app.v1.AuthService/GetUserProfile\", \"/system.app.v1.AuthService/UpdateUserProfile\", \"/system.app.v1.BaseDictService/GetBaseDict\"]', 1, 1, 1, 1, '2026-07-31 00:00:00', '2026-07-31 00:00:00', 0);
 INSERT IGNORE INTO `base_menu` (`id`, `parent_id`, `type`, `path`, `name`, `component`, `redirect`, `meta`, `api`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (9990902, 99909, 2, 'app/settings', 'AppSettings', '', '', '{\"title\": \"设置\", \"app\": {\"view_key\": \"SETTINGS\", \"access\": \"AUTHENTICATED\", \"in_tab_bar\": false}}', '[\"/base.v1.LoginService/Logout\"]', 2, 1, 1, 1, '2026-07-31 00:00:00', '2026-07-31 00:00:00', 0);
 INSERT IGNORE INTO `base_menu` (`id`, `parent_id`, `type`, `path`, `name`, `component`, `redirect`, `meta`, `api`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (9990903, 99909, 2, 'app/ai', 'AppAi', '', '', '{\"title\": \"AI 助手\", \"app\": {\"view_key\": \"AI\", \"access\": \"AUTHENTICATED\", \"in_tab_bar\": false}}', '[\"/base.v1.AiMessageService/DeleteAiMessage\", \"/base.v1.AiMessageService/RegenerateAiMessage\", \"/base.v1.AiMessageService/SendAiMessage\", \"/base.v1.AiSessionService/CreateAiSession\", \"/base.v1.AiSessionService/DeleteAiSession\", \"/base.v1.AiSessionService/ListAiMessage\", \"/base.v1.AiSessionService/ListAiSession\", \"/base.v1.AiToolService/ListAiShortcut\", \"/base.v1.FileService/UploadFile\"]', 3, 1, 1, 1, '2026-07-31 00:00:00', '2026-07-31 00:00:00', 0);
+
+UPDATE `base_menu`
+SET `api` = JSON_ARRAY_APPEND(`api`, '$', '/system.admin.v1.BaseTranslationService/GenerateTranslationDraft')
+WHERE `id` IN (2000103, 2000203, 2000303)
+  AND JSON_VALID(`api`)
+  AND NOT JSON_CONTAINS(`api`, JSON_QUOTE('/system.admin.v1.BaseTranslationService/GenerateTranslationDraft'));
 
 INSERT IGNORE INTO `base_role` (`id`, `tenant_id`, `name`, `code`, `data_scope`, `menus`, `status`, `remark`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (1, 1, '超级管理员', 'super', 1, '[]', 1, '超级管理员拥有对系统的最高权限', 1, 1, '2026-07-18 13:51:31', '2026-07-22 12:20:07', 0);
 INSERT IGNORE INTO `base_role` (`id`, `tenant_id`, `name`, `code`, `data_scope`, `menus`, `status`, `remark`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (2, 1, '租户管理员', 'tenant', 1, '[100, 10005, 300, 30002, 3000201, 3000202, 3000203, 3000204, 3000205, 30003, 3000301, 3000302, 3000303, 3000304, 3000305, 30004, 3000401, 3000402, 3000403, 3000404, 30005, 3000501, 3000502, 3000503, 3000504]', 1, '默认租户管理员权限模板，可由默认租户维护', 1, 1, '2026-07-23 14:07:56', '2026-07-24 20:07:13', 0);

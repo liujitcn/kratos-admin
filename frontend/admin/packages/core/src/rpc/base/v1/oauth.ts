@@ -9,7 +9,8 @@ import type { PasswordCrypto } from "../../common/v1/types";
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 个人中心三方账号绑定列表查询条件 */
-export interface ListOauthBindingRequest {}
+export interface ListOauthBindingRequest {
+}
 
 /** 个人中心三方账号绑定列表响应 */
 export interface ListOauthBindingResponse {
@@ -18,7 +19,8 @@ export interface ListOauthBindingResponse {
 }
 
 /** 三方登录方式查询条件 */
-export interface ListOauthProviderRequest {}
+export interface ListOauthProviderRequest {
+}
 
 /** 三方登录方式查询结果 */
 export interface ListOauthProviderResponse {
@@ -73,7 +75,9 @@ export interface BindOauthSessionRequest {
   /** 用户名 */
   user_name: string;
   /** 用户密码 */
-  password: PasswordCrypto | undefined;
+  password:
+    | PasswordCrypto
+    | undefined;
   /** 验证码 */
   captcha_code: string;
   /** 验证码Id */
@@ -109,7 +113,8 @@ export interface HandleOauthCallbackRequest {
 }
 
 /** 三方登录回调结果 */
-export interface HandleOauthCallbackResponse {}
+export interface HandleOauthCallbackResponse {
+}
 
 /** 三方登录票据兑换请求 */
 export interface ExchangeOauthTicketRequest {
@@ -144,7 +149,8 @@ export interface HandleOauthBindingCallbackRequest {
 }
 
 /** 个人中心三方账号绑定回调响应 */
-export interface HandleOauthBindingCallbackResponse {}
+export interface HandleOauthBindingCallbackResponse {
+}
 
 /** 个人中心三方账号解绑条件 */
 export interface UnbindOauthAccountRequest {
@@ -176,7 +182,7 @@ export interface OauthService {
   CreateOauthAuthorization(request: CreateOauthAuthorizationRequest): Promise<CreateOauthAuthorizationResponse>;
   /** 创建个人中心三方账号绑定授权地址 */
   CreateOauthBindingAuthorization(
-    request: CreateOauthBindingAuthorizationRequest
+    request: CreateOauthBindingAuthorizationRequest,
   ): Promise<CreateOauthBindingAuthorizationResponse>;
   /** 创建三方登录会话 */
   CreateOauthSession(request: CreateOauthSessionRequest): Promise<CreateOauthSessionResponse>;

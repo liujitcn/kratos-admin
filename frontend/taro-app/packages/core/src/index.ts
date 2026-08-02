@@ -1,3 +1,4 @@
+// Core 语言包在本文件的 coreModule 中注册，供 Taro 公共页面、请求工具和业务模块复用。
 import { corePages } from './pages'
 import { defineKratosTaroModule } from './module'
 import coreEnUS from './locales/en-US.json'

@@ -34,7 +34,8 @@ export interface DeleteAiMessageRequest {
 }
 
 /** AI 助手消息删除响应 */
-export interface DeleteAiMessageResponse {}
+export interface DeleteAiMessageResponse {
+}
 
 /** AI 助手消息发送请求 */
 export interface SendAiMessageRequest {

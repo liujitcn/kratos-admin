@@ -11,7 +11,9 @@ import type { Empty } from "../../../google/protobuf/empty";
 /** 行政区域树形选择查询条件 */
 export interface OptionBaseAreaRequest {
   /** 父节点ID */
-  parent_id?: number | undefined;
+  parent_id?:
+    | number
+    | undefined;
   /** 是否懒加载 */
   lazy?: boolean | undefined;
 }
@@ -19,9 +21,13 @@ export interface OptionBaseAreaRequest {
 /** 行政区域树形列表查询条件 */
 export interface TreeBaseAreaRequest {
   /** 区域名称 */
-  name?: string | undefined;
+  name?:
+    | string
+    | undefined;
   /** 父级区域ID */
-  parent_id?: number | undefined;
+  parent_id?:
+    | number
+    | undefined;
   /** 是否懒加载 */
   lazy?: boolean | undefined;
 }

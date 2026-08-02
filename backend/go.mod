@@ -20,8 +20,8 @@ require (
 	github.com/liujitcn/go-utils/translator v0.0.1
 	github.com/liujitcn/go-utils/translator/google v0.0.1
 	github.com/liujitcn/gorm-kit v0.0.32
-	github.com/liujitcn/kratos-admin/backend/core v0.0.4
-	github.com/liujitcn/kratos-kit v0.0.61
+	github.com/liujitcn/kratos-admin/backend/core v0.0.5
+	github.com/liujitcn/kratos-kit v0.0.63
 	github.com/liujitcn/kratos-kit/ai/eino v0.0.6
 	github.com/liujitcn/kratos-kit/api v0.0.23
 	github.com/liujitcn/kratos-kit/auth v0.0.23
@@ -34,9 +34,9 @@ require (
 	github.com/liujitcn/kratos-kit/bootstrap v0.0.18
 	github.com/liujitcn/kratos-kit/cache v0.0.16
 	github.com/liujitcn/kratos-kit/captcha v0.0.19
-	github.com/liujitcn/kratos-kit/database/gorm v0.0.37
+	github.com/liujitcn/kratos-kit/database/gorm v0.0.38
 	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.15
-	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.10
+	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.11
 	github.com/liujitcn/kratos-kit/logger/zap v0.0.14
 	github.com/liujitcn/kratos-kit/oauth v0.0.8
 	github.com/liujitcn/kratos-kit/oss v0.0.14
@@ -63,8 +63,6 @@ require (
 	gorm.io/plugin/dbresolver v1.6.2
 	gorm.io/plugin/soft_delete v1.2.1
 )
-
-replace github.com/liujitcn/kratos-admin/backend/core => ./core
 
 require (
 	cel.dev/expr v0.25.2 // indirect

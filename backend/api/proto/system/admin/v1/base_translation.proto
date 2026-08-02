@@ -31,6 +31,14 @@ enum TranslationResourceType {
   TRANSLATION_RESOURCE_TYPE_MENU = 1;
   TRANSLATION_RESOURCE_TYPE_DICT = 2;
   TRANSLATION_RESOURCE_TYPE_DICT_ITEM = 3;
+  TRANSLATION_RESOURCE_TYPE_CONFIG = 4;
+}
+
+// 系统配置翻译字段
+enum BaseConfigTranslationField {
+  BASE_CONFIG_TRANSLATION_FIELD_UNSPECIFIED = 0;
+  BASE_CONFIG_TRANSLATION_FIELD_NAME = 1;
+  BASE_CONFIG_TRANSLATION_FIELD_VALUE = 2;
 }
 
 // 生成翻译草稿请求
@@ -40,6 +48,8 @@ message GenerateTranslationDraftRequest {
   int64 resource_id = 2 [(gnostic.openapi.v3.property) = {description: "已保存资源ID"}, (buf.validate.field).cel = {id: "base_translation.resource_id.required" message: "资源ID不能为空" expression: "this > 0"}]; // 已保存资源ID
 
   string target_locale = 3 [(gnostic.openapi.v3.property) = {description: "目标语言区域，仅支持en-US和ja-JP"}, (buf.validate.field).cel = {id: "base_translation.target_locale.supported" message: "目标语言仅支持英语或日语" expression: "this in ['en-US', 'ja-JP']"}]; // 目标语言区域，仅支持en-US和ja-JP
+
+  BaseConfigTranslationField field = 4 [(gnostic.openapi.v3.property) = {description: "系统配置翻译字段，配置资源必填"}, (buf.validate.field).enum = {defined_only: true}]; // 系统配置翻译字段，配置资源必填
 }
 
 // 生成翻译草稿响应
@@ -59,6 +69,45 @@ message GenerateTranslationDraftResponse {
   string translation_provider = 7 [(gnostic.openapi.v3.property) = {description: "机器翻译提供方"}]; // 机器翻译提供方
 
   string translated_at = 8 [(gnostic.openapi.v3.property) = {description: "最近机器翻译时间"}]; // 最近机器翻译时间
+
+  BaseConfigTranslationField field = 9 [(gnostic.openapi.v3.property) = {description: "系统配置翻译字段"}]; // 系统配置翻译字段
+}
+
+// 系统配置单语言翻译
+message BaseConfigTranslation {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "翻译记录ID"}]; // 翻译记录ID
+
+  int64 config_id = 2 [(gnostic.openapi.v3.property) = {description: "系统配置ID"}]; // 系统配置ID
+
+  string locale = 3 [(gnostic.openapi.v3.property) = {description: "语言区域"}]; // 语言区域
+
+  BaseConfigTranslationField field = 4 [(gnostic.openapi.v3.property) = {description: "翻译字段：name或value"}]; // 翻译字段：name或value
+
+  string text = 5 [(gnostic.openapi.v3.property) = {description: "翻译文本"}]; // 翻译文本
+
+  TranslationStatus translation_status = 6 [(gnostic.openapi.v3.property) = {description: "翻译审核状态"}]; // 翻译审核状态
+
+  string source_hash = 7 [(gnostic.openapi.v3.property) = {description: "中文源文SHA-256"}]; // 中文源文SHA-256
+
+  bool source_changed = 8 [(gnostic.openapi.v3.property) = {description: "中文源文是否已变化"}]; // 中文源文是否已变化
+
+  string translation_provider = 9 [(gnostic.openapi.v3.property) = {description: "机器翻译提供方"}]; // 机器翻译提供方
+
+  string translated_at = 10 [(gnostic.openapi.v3.property) = {description: "最近机器翻译时间"}]; // 最近机器翻译时间
+
+  int64 reviewed_by = 11 [(gnostic.openapi.v3.property) = {description: "审核人ID"}]; // 审核人ID
+
+  string reviewed_at = 12 [(gnostic.openapi.v3.property) = {description: "审核时间"}]; // 审核时间
+
+  int64 created_by = 13 [(gnostic.openapi.v3.property) = {description: "创建人ID"}]; // 创建人ID
+
+  int64 updated_by = 14 [(gnostic.openapi.v3.property) = {description: "更新人ID"}]; // 更新人ID
+
+  string created_at = 15 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+
+  string updated_at = 16 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+
+  int64 deleted_at = 17 [(gnostic.openapi.v3.property) = {description: "删除时间"}]; // 删除时间
 }
 
 // 代码生成单语言国际化配置

@@ -30,6 +30,11 @@ func (*BaseConfig) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*BaseConfigTranslation) TableComment() string {
+	return "系统配置翻译"
+}
+
+// TableComment 返回表注释。
 func (*BaseDept) TableComment() string {
 	return "部门信息"
 }

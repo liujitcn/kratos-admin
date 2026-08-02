@@ -11,7 +11,7 @@ export enum TranslationStatus {
   TRANSLATION_STATUS_UNSPECIFIED = 0,
   TRANSLATION_STATUS_PENDING = 1,
   TRANSLATION_STATUS_MACHINE = 2,
-  TRANSLATION_STATUS_REVIEWED = 3
+  TRANSLATION_STATUS_REVIEWED = 3,
 }
 
 /** 翻译资源类型 */
@@ -19,7 +19,15 @@ export enum TranslationResourceType {
   TRANSLATION_RESOURCE_TYPE_UNSPECIFIED = 0,
   TRANSLATION_RESOURCE_TYPE_MENU = 1,
   TRANSLATION_RESOURCE_TYPE_DICT = 2,
-  TRANSLATION_RESOURCE_TYPE_DICT_ITEM = 3
+  TRANSLATION_RESOURCE_TYPE_DICT_ITEM = 3,
+  TRANSLATION_RESOURCE_TYPE_CONFIG = 4,
+}
+
+/** 系统配置翻译字段 */
+export enum BaseConfigTranslationField {
+  BASE_CONFIG_TRANSLATION_FIELD_UNSPECIFIED = 0,
+  BASE_CONFIG_TRANSLATION_FIELD_NAME = 1,
+  BASE_CONFIG_TRANSLATION_FIELD_VALUE = 2,
 }
 
 /** 生成翻译草稿请求 */
@@ -30,6 +38,8 @@ export interface GenerateTranslationDraftRequest {
   resource_id: number;
   /** 目标语言区域，仅支持en-US和ja-JP */
   target_locale: string;
+  /** 系统配置翻译字段，配置资源必填 */
+  field: BaseConfigTranslationField;
 }
 
 /** 生成翻译草稿响应 */
@@ -50,6 +60,46 @@ export interface GenerateTranslationDraftResponse {
   translation_provider: string;
   /** 最近机器翻译时间 */
   translated_at: string;
+  /** 系统配置翻译字段 */
+  field: BaseConfigTranslationField;
+}
+
+/** 系统配置单语言翻译 */
+export interface BaseConfigTranslation {
+  /** 翻译记录ID */
+  id: number;
+  /** 系统配置ID */
+  config_id: number;
+  /** 语言区域 */
+  locale: string;
+  /** 翻译字段：name或value */
+  field: BaseConfigTranslationField;
+  /** 翻译文本 */
+  text: string;
+  /** 翻译审核状态 */
+  translation_status: TranslationStatus;
+  /** 中文源文SHA-256 */
+  source_hash: string;
+  /** 中文源文是否已变化 */
+  source_changed: boolean;
+  /** 机器翻译提供方 */
+  translation_provider: string;
+  /** 最近机器翻译时间 */
+  translated_at: string;
+  /** 审核人ID */
+  reviewed_by: number;
+  /** 审核时间 */
+  reviewed_at: string;
+  /** 创建人ID */
+  created_by: number;
+  /** 更新人ID */
+  updated_by: number;
+  /** 创建时间 */
+  created_at: string;
+  /** 更新时间 */
+  updated_at: string;
+  /** 删除时间 */
+  deleted_at: number;
 }
 
 /** 代码生成单语言国际化配置 */

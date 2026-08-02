@@ -13,6 +13,8 @@ import (
 	"golang.org/x/text/language"
 )
 
+// localeFiles 嵌入三语后端错误目录，供 Catalog 启动时读取。
+//
 //go:embed locales/*.json
 var localeFiles embed.FS
 

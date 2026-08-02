@@ -3738,6 +3738,9 @@ components:
         base.v1.ConfigItem:
             type: object
             properties:
+                id:
+                    type: string
+                    description: 配置ID
                 key:
                     type: string
                     description: 配置key
@@ -4512,6 +4515,11 @@ components:
                 value:
                     type: string
                     description: 配置value
+                translations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseConfigTranslation'
+                    description: 配置名称及文本/富文本值的英日翻译
                 status:
                     enum:
                         - UNKNOWN
@@ -4562,6 +4570,11 @@ components:
                 value:
                     type: string
                     description: 配置value
+                translations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseConfigTranslation'
+                    description: 配置名称及文本/富文本值的英日翻译
                 status:
                     enum:
                         - UNKNOWN
@@ -4571,6 +4584,72 @@ components:
                     description: 状态
                     format: enum
             description: 系统配置表单
+        system.admin.v1.BaseConfigTranslation:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 翻译记录ID
+                config_id:
+                    type: string
+                    description: 系统配置ID
+                locale:
+                    type: string
+                    description: 语言区域
+                field:
+                    enum:
+                        - BASE_CONFIG_TRANSLATION_FIELD_UNSPECIFIED
+                        - BASE_CONFIG_TRANSLATION_FIELD_NAME
+                        - BASE_CONFIG_TRANSLATION_FIELD_VALUE
+                    type: string
+                    description: 翻译字段：name或value
+                    format: enum
+                text:
+                    type: string
+                    description: 翻译文本
+                translation_status:
+                    enum:
+                        - TRANSLATION_STATUS_UNSPECIFIED
+                        - TRANSLATION_STATUS_PENDING
+                        - TRANSLATION_STATUS_MACHINE
+                        - TRANSLATION_STATUS_REVIEWED
+                    type: string
+                    description: 翻译审核状态
+                    format: enum
+                source_hash:
+                    type: string
+                    description: 中文源文SHA-256
+                source_changed:
+                    type: boolean
+                    description: 中文源文是否已变化
+                translation_provider:
+                    type: string
+                    description: 机器翻译提供方
+                translated_at:
+                    type: string
+                    description: 最近机器翻译时间
+                reviewed_by:
+                    type: string
+                    description: 审核人ID
+                reviewed_at:
+                    type: string
+                    description: 审核时间
+                created_by:
+                    type: string
+                    description: 创建人ID
+                updated_by:
+                    type: string
+                    description: 更新人ID
+                created_at:
+                    type: string
+                    description: 创建时间
+                updated_at:
+                    type: string
+                    description: 更新时间
+                deleted_at:
+                    type: string
+                    description: 删除时间
+            description: 系统配置单语言翻译
         system.admin.v1.BaseDept:
             type: object
             properties:
@@ -6289,6 +6368,7 @@ components:
                         - TRANSLATION_RESOURCE_TYPE_MENU
                         - TRANSLATION_RESOURCE_TYPE_DICT
                         - TRANSLATION_RESOURCE_TYPE_DICT_ITEM
+                        - TRANSLATION_RESOURCE_TYPE_CONFIG
                     type: string
                     description: 资源类型
                     format: enum
@@ -6298,6 +6378,14 @@ components:
                 target_locale:
                     type: string
                     description: 目标语言区域，仅支持en-US和ja-JP
+                field:
+                    enum:
+                        - BASE_CONFIG_TRANSLATION_FIELD_UNSPECIFIED
+                        - BASE_CONFIG_TRANSLATION_FIELD_NAME
+                        - BASE_CONFIG_TRANSLATION_FIELD_VALUE
+                    type: string
+                    description: 系统配置翻译字段，配置资源必填
+                    format: enum
             description: 生成翻译草稿请求
         system.admin.v1.GenerateTranslationDraftResponse:
             type: object
@@ -6308,6 +6396,7 @@ components:
                         - TRANSLATION_RESOURCE_TYPE_MENU
                         - TRANSLATION_RESOURCE_TYPE_DICT
                         - TRANSLATION_RESOURCE_TYPE_DICT_ITEM
+                        - TRANSLATION_RESOURCE_TYPE_CONFIG
                     type: string
                     description: 资源类型
                     format: enum
@@ -6338,6 +6427,14 @@ components:
                 translated_at:
                     type: string
                     description: 最近机器翻译时间
+                field:
+                    enum:
+                        - BASE_CONFIG_TRANSLATION_FIELD_UNSPECIFIED
+                        - BASE_CONFIG_TRANSLATION_FIELD_NAME
+                        - BASE_CONFIG_TRANSLATION_FIELD_VALUE
+                    type: string
+                    description: 系统配置翻译字段
+                    format: enum
             description: 生成翻译草稿响应
         system.admin.v1.ListBaseUserResponse:
             type: object
@@ -7298,31 +7395,31 @@ tags:
     - name: AiToolService
       description: Base AI 助手工具服务
     - name: AuthService
-      description: Admin用户登录认证服务
-    - name: AuthService
       description: App用户认证服务
+    - name: AuthService
+      description: Admin用户登录认证服务
     - name: BaseApiService
       description: AdminAPI服务
     - name: BaseAreaService
-      description: Admin行政区域服务
-    - name: BaseAreaService
       description: App行政区域服务
+    - name: BaseAreaService
+      description: Admin行政区域服务
     - name: BaseConfigService
       description: Admin系统配置服务
     - name: BaseDeptService
       description: Admin部门服务
     - name: BaseDictService
-      description: Admin字典服务
-    - name: BaseDictService
       description: App字典服务
+    - name: BaseDictService
+      description: Admin字典服务
     - name: BaseJobService
       description: Admin定时任务服务
     - name: BaseLogService
       description: Admin日志服务
     - name: BaseMenuService
-      description: App菜单服务
-    - name: BaseMenuService
       description: Admin菜单管理服务
+    - name: BaseMenuService
+      description: App菜单服务
     - name: BaseMigrationService
       description: 数据库迁移服务
     - name: BasePostService

@@ -1,3 +1,7 @@
+/**
+ * Taro 国际化运行时：合并 core 和业务模块语言包，并向 React 页面、请求工具暴露统一翻译入口。
+ * 各语言 JSON 由模块定义文件导入，不能在 JSON 文件内添加注释。
+ */
 import Taro from '@tarojs/taro'
 import { create } from 'zustand'
 import type { KratosTaroModule } from '../module'
