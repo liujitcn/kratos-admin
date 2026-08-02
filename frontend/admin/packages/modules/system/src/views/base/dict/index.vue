@@ -35,10 +35,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, h, reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CirclePlus, Delete, EditPen, List } from "@element-plus/icons-vue";
-import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
+import type {
+  ColumnProps,
+  HeaderActionProps,
+  ProTableInstance,
+  RenderScope
+} from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
@@ -51,6 +56,7 @@ import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-c
 import { t } from "@liujitcn/kratos-admin-core";
 import { useConfigStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import DynamicTranslationEditor from "@liujitcn/kratos-admin-system/components/DynamicTranslationEditor.vue";
+import DynamicTranslationCell from "@liujitcn/kratos-admin-system/components/DynamicTranslationCell.vue";
 import {
   normalizeDynamicTranslations,
   serializeDynamicTranslations,
@@ -138,10 +144,29 @@ const formFields = computed<ProFormField[]>(() => [
   { prop: "status", label: t("system.common.field.status"), component: "radio-group", options: statusOptions.value }
 ]);
 
+/** 渲染字典名称翻译预览，并复用当前页面的编辑弹窗。 */
+function renderDictNameCell(scope: RenderScope<BaseDict>) {
+  const row = scope.row;
+  return h(DynamicTranslationCell, {
+    source: row.name,
+    translations: row.translations,
+    textField: "name",
+    editable: BUTTONS.value["base:dict:update"],
+    onEdit: () => handleOpenDialog(row.id)
+  });
+}
+
 /** 字典表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
-  { prop: "name", label: t("system.dict.field.name"), minWidth: 140, search: { el: "input" } },
+  {
+    prop: "name",
+    label: t("system.dict.field.name"),
+    minWidth: 140,
+    search: { el: "input" },
+    showOverflowTooltip: false,
+    render: scope => renderDictNameCell(scope as unknown as RenderScope<BaseDict>)
+  },
   { prop: "code", label: t("system.dict.field.code"), minWidth: 160, search: { el: "input" } },
   {
     prop: "status",

@@ -75,6 +75,7 @@ import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-c
 import { t } from "@liujitcn/kratos-admin-core";
 import { useConfigStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import DynamicTranslationEditor from "@liujitcn/kratos-admin-system/components/DynamicTranslationEditor.vue";
+import DynamicTranslationCell from "@liujitcn/kratos-admin-system/components/DynamicTranslationCell.vue";
 import {
   normalizeDynamicTranslations,
   serializeDynamicTranslations,
@@ -203,10 +204,29 @@ function renderTagTypeCell(scope: RenderScope<BaseDictItem>) {
   );
 }
 
+/** 渲染字典项标签翻译预览，并复用当前页面的编辑弹窗。 */
+function renderDictItemLabelCell(scope: RenderScope<BaseDictItem>) {
+  const row = scope.row;
+  return h(DynamicTranslationCell, {
+    source: row.label,
+    translations: row.translations,
+    textField: "label",
+    editable: BUTTONS.value["base:dict-item:update"],
+    onEdit: () => handleOpenDialog(row.id)
+  });
+}
+
 /** 字典项表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
-  { prop: "label", label: t("system.dictItem.field.label"), minWidth: 140, search: { el: "input" } },
+  {
+    prop: "label",
+    label: t("system.dictItem.field.label"),
+    minWidth: 140,
+    search: { el: "input" },
+    showOverflowTooltip: false,
+    render: scope => renderDictItemLabelCell(scope as unknown as RenderScope<BaseDictItem>)
+  },
   { prop: "value", label: t("system.dictItem.field.value"), minWidth: 140 },
   { prop: "sort", label: t("system.common.field.sort"), minWidth: 90, align: "right" },
   {

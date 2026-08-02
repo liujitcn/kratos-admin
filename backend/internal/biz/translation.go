@@ -420,9 +420,15 @@ func (c *TranslationCase) SaveMenuTranslations(ctx context.Context, menuID int64
 		row.ReviewedBy = authInfo.UserId
 		row.ReviewedAt = now
 		if row.ID == 0 {
-			err = c.menuTranslationRepo.Create(ctx, row)
+			err = query.WithContext(ctx).Omit(query.TranslationProvider, query.TranslatedAt).Create(row)
 		} else {
-			err = c.menuTranslationRepo.UpdateByID(ctx, row)
+			_, err = query.WithContext(ctx).Where(query.ID.Eq(row.ID)).UpdateSimple(
+				query.Title.Value(row.Title),
+				query.TranslationStatus.Value(row.TranslationStatus),
+				query.SourceHash.Value(row.SourceHash),
+				query.ReviewedBy.Value(row.ReviewedBy),
+				query.ReviewedAt.Value(row.ReviewedAt),
+			)
 		}
 		if err != nil {
 			return err
@@ -470,9 +476,17 @@ func (c *TranslationCase) SaveGeneratedMenuTranslations(ctx context.Context, men
 		row.ReviewedBy = authInfo.UserId
 		row.ReviewedAt = now
 		if row.ID == 0 {
-			err = c.menuTranslationRepo.Create(ctx, row)
+			err = query.WithContext(ctx).Omit(query.TranslationProvider, query.TranslatedAt).Create(row)
 		} else {
-			err = c.menuTranslationRepo.UpdateByID(ctx, row)
+			_, err = query.WithContext(ctx).Where(query.ID.Eq(row.ID)).UpdateSimple(
+				query.Title.Value(row.Title),
+				query.TranslationStatus.Value(row.TranslationStatus),
+				query.SourceHash.Value(row.SourceHash),
+				query.TranslationProvider.Null(),
+				query.TranslatedAt.Null(),
+				query.ReviewedBy.Value(row.ReviewedBy),
+				query.ReviewedAt.Value(row.ReviewedAt),
+			)
 		}
 		if err != nil {
 			return err
@@ -492,8 +506,7 @@ func (c *TranslationCase) MarkMenuSourceChanged(ctx context.Context, menuID int6
 		return err
 	}
 	for _, row := range rows {
-		row.TranslationStatus = _const.TRANSLATION_STATUS_PENDING
-		err = c.menuTranslationRepo.UpdateByID(ctx, row)
+		_, err = query.WithContext(ctx).Where(query.ID.Eq(row.ID)).UpdateSimple(query.TranslationStatus.Value(_const.TRANSLATION_STATUS_PENDING))
 		if err != nil {
 			return err
 		}
@@ -622,9 +635,15 @@ func (c *TranslationCase) SaveDictTranslations(ctx context.Context, dictID int64
 		row.ReviewedBy = authInfo.UserId
 		row.ReviewedAt = now
 		if row.ID == 0 {
-			err = c.dictTranslationRepo.Create(ctx, row)
+			err = query.WithContext(ctx).Omit(query.TranslationProvider, query.TranslatedAt).Create(row)
 		} else {
-			err = c.dictTranslationRepo.UpdateByID(ctx, row)
+			_, err = query.WithContext(ctx).Where(query.ID.Eq(row.ID)).UpdateSimple(
+				query.Name.Value(row.Name),
+				query.TranslationStatus.Value(row.TranslationStatus),
+				query.SourceHash.Value(row.SourceHash),
+				query.ReviewedBy.Value(row.ReviewedBy),
+				query.ReviewedAt.Value(row.ReviewedAt),
+			)
 		}
 		if err != nil {
 			return err
@@ -644,8 +663,7 @@ func (c *TranslationCase) MarkDictSourceChanged(ctx context.Context, dictID int6
 		return err
 	}
 	for _, row := range rows {
-		row.TranslationStatus = _const.TRANSLATION_STATUS_PENDING
-		err = c.dictTranslationRepo.UpdateByID(ctx, row)
+		_, err = query.WithContext(ctx).Where(query.ID.Eq(row.ID)).UpdateSimple(query.TranslationStatus.Value(_const.TRANSLATION_STATUS_PENDING))
 		if err != nil {
 			return err
 		}
@@ -774,9 +792,15 @@ func (c *TranslationCase) SaveDictItemTranslations(ctx context.Context, dictItem
 		row.ReviewedBy = authInfo.UserId
 		row.ReviewedAt = now
 		if row.ID == 0 {
-			err = c.dictItemTranslationRepo.Create(ctx, row)
+			err = query.WithContext(ctx).Omit(query.TranslationProvider, query.TranslatedAt).Create(row)
 		} else {
-			err = c.dictItemTranslationRepo.UpdateByID(ctx, row)
+			_, err = query.WithContext(ctx).Where(query.ID.Eq(row.ID)).UpdateSimple(
+				query.Label.Value(row.Label),
+				query.TranslationStatus.Value(row.TranslationStatus),
+				query.SourceHash.Value(row.SourceHash),
+				query.ReviewedBy.Value(row.ReviewedBy),
+				query.ReviewedAt.Value(row.ReviewedAt),
+			)
 		}
 		if err != nil {
 			return err
@@ -796,8 +820,7 @@ func (c *TranslationCase) MarkDictItemSourceChanged(ctx context.Context, dictIte
 		return err
 	}
 	for _, row := range rows {
-		row.TranslationStatus = _const.TRANSLATION_STATUS_PENDING
-		err = c.dictItemTranslationRepo.UpdateByID(ctx, row)
+		_, err = query.WithContext(ctx).Where(query.ID.Eq(row.ID)).UpdateSimple(query.TranslationStatus.Value(_const.TRANSLATION_STATUS_PENDING))
 		if err != nil {
 			return err
 		}
@@ -967,9 +990,15 @@ func (c *TranslationCase) SaveConfigTranslations(ctx context.Context, configID i
 		row.ReviewedBy = authInfo.UserId
 		row.ReviewedAt = now
 		if row.ID == 0 {
-			err = c.configTranslationRepo.Create(ctx, row)
+			err = query.WithContext(ctx).Omit(query.TranslationProvider, query.TranslatedAt).Create(row)
 		} else {
-			err = c.configTranslationRepo.UpdateByID(ctx, row)
+			_, err = query.WithContext(ctx).Where(query.ID.Eq(row.ID)).UpdateSimple(
+				query.Text.Value(row.Text),
+				query.TranslationStatus.Value(row.TranslationStatus),
+				query.SourceHash.Value(row.SourceHash),
+				query.ReviewedBy.Value(row.ReviewedBy),
+				query.ReviewedAt.Value(row.ReviewedAt),
+			)
 		}
 		if err != nil {
 			return err
@@ -991,8 +1020,7 @@ func (c *TranslationCase) MarkConfigSourceChanged(ctx context.Context, configID 
 		if !changed {
 			continue
 		}
-		row.TranslationStatus = _const.TRANSLATION_STATUS_PENDING
-		err = c.configTranslationRepo.UpdateByID(ctx, row)
+		_, err = query.WithContext(ctx).Where(query.ID.Eq(row.ID)).UpdateSimple(query.TranslationStatus.Value(_const.TRANSLATION_STATUS_PENDING))
 		if err != nil {
 			return err
 		}

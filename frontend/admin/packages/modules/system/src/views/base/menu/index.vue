@@ -83,6 +83,7 @@ import { normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
 import { useConfigStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import DynamicTranslationEditor from "@liujitcn/kratos-admin-system/components/DynamicTranslationEditor.vue";
+import DynamicTranslationCell from "@liujitcn/kratos-admin-system/components/DynamicTranslationCell.vue";
 import {
   normalizeDynamicTranslations,
   serializeDynamicTranslations,
@@ -286,6 +287,18 @@ function renderHiddenCell(scope: RenderScope<BaseMenu>) {
   );
 }
 
+/** 渲染菜单标题翻译预览，并复用当前页面的编辑弹窗。 */
+function renderMenuTitleCell(scope: RenderScope<BaseMenu>) {
+  const row = scope.row;
+  return h(DynamicTranslationCell, {
+    source: row.meta?.title ?? "",
+    translations: row.translations,
+    textField: "title",
+    editable: BUTTONS.value["base:menu:update"],
+    onEdit: () => handleOpenDialog(undefined, row.id)
+  });
+}
+
 /** 菜单表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
   {
@@ -301,7 +314,9 @@ const columns = computed<ColumnProps[]>(() => [
     label: t("system.menu.field.name"),
     minWidth: 220,
     align: "left",
-    search: { el: "input", key: "title" }
+    search: { el: "input", key: "title" },
+    showOverflowTooltip: false,
+    render: scope => renderMenuTitleCell(scope as unknown as RenderScope<BaseMenu>)
   },
   { prop: "type", label: t("system.menu.field.type"), minWidth: 120, dictCode: "base_menu_type", search: { el: "select" } },
   {

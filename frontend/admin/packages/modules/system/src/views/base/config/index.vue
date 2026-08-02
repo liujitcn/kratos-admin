@@ -109,6 +109,7 @@ import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-c
 import { t } from "@liujitcn/kratos-admin-core";
 import { useConfigStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import DynamicTranslationEditor from "@liujitcn/kratos-admin-system/components/DynamicTranslationEditor.vue";
+import DynamicTranslationCell from "@liujitcn/kratos-admin-system/components/DynamicTranslationCell.vue";
 import type { DynamicTranslationValue } from "@liujitcn/kratos-admin-system/components/dynamicTranslation";
 import {
   BaseConfigTranslationField,
@@ -356,7 +357,14 @@ const formFields = computed<ProFormField[]>(() => [
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
   { prop: "site", label: t("system.config.field.site"), minWidth: 120, dictCode: "base_config_site", search: { el: "select" } },
-  { prop: "name", label: t("system.config.field.name"), minWidth: 140, search: { el: "input" } },
+  {
+    prop: "name",
+    label: t("system.config.field.name"),
+    minWidth: 140,
+    search: { el: "input" },
+    showOverflowTooltip: false,
+    render: scope => renderConfigNameCell(scope.row as BaseConfig)
+  },
   { prop: "type", label: t("system.config.field.type"), minWidth: 120, dictCode: "base_config_type", search: { el: "select" } },
   {
     prop: "key",
@@ -409,6 +417,19 @@ const columns = computed<ColumnProps[]>(() => [
     ]
   }
 ]);
+
+/** 渲染系统配置名称翻译预览，并复用当前页面的编辑弹窗。 */
+function renderConfigNameCell(row: BaseConfig) {
+  return h(DynamicTranslationCell, {
+    source: row.name,
+    translations: (row.translations ?? []).filter(
+      item => item.field === BaseConfigTranslationField.BASE_CONFIG_TRANSLATION_FIELD_NAME
+    ),
+    textField: "text",
+    editable: BUTTONS.value["base:config:update"],
+    onEdit: () => handleOpenDialog(row.id)
+  });
+}
 
 /**
  * 将配置键渲染为可悬停查看配置值的单元格。
