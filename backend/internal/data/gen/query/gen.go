@@ -17,86 +17,95 @@ import (
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:               db,
-		AiMessage:        newAiMessage(db, opts...),
-		AiSession:        newAiSession(db, opts...),
-		BaseAPI:          newBaseAPI(db, opts...),
-		BaseArea:         newBaseArea(db, opts...),
-		BaseConfig:       newBaseConfig(db, opts...),
-		BaseDept:         newBaseDept(db, opts...),
-		BaseDict:         newBaseDict(db, opts...),
-		BaseDictItem:     newBaseDictItem(db, opts...),
-		BaseJob:          newBaseJob(db, opts...),
-		BaseJobLog:       newBaseJobLog(db, opts...),
-		BaseLog:          newBaseLog(db, opts...),
-		BaseMenu:         newBaseMenu(db, opts...),
-		BaseMigration:    newBaseMigration(db, opts...),
-		BasePost:         newBasePost(db, opts...),
-		BaseRole:         newBaseRole(db, opts...),
-		BaseTenant:       newBaseTenant(db, opts...),
-		BaseThirdAccount: newBaseThirdAccount(db, opts...),
-		BaseUser:         newBaseUser(db, opts...),
-		CasbinRule:       newCasbinRule(db, opts...),
-		CodeGenColumn:    newCodeGenColumn(db, opts...),
-		CodeGenProto:     newCodeGenProto(db, opts...),
-		CodeGenTable:     newCodeGenTable(db, opts...),
+		db:                      db,
+		AiMessage:               newAiMessage(db, opts...),
+		AiSession:               newAiSession(db, opts...),
+		BaseAPI:                 newBaseAPI(db, opts...),
+		BaseArea:                newBaseArea(db, opts...),
+		BaseConfig:              newBaseConfig(db, opts...),
+		BaseDept:                newBaseDept(db, opts...),
+		BaseDict:                newBaseDict(db, opts...),
+		BaseDictItem:            newBaseDictItem(db, opts...),
+		BaseDictItemTranslation: newBaseDictItemTranslation(db, opts...),
+		BaseDictTranslation:     newBaseDictTranslation(db, opts...),
+		BaseJob:                 newBaseJob(db, opts...),
+		BaseJobLog:              newBaseJobLog(db, opts...),
+		BaseLog:                 newBaseLog(db, opts...),
+		BaseMenu:                newBaseMenu(db, opts...),
+		BaseMenuTranslation:     newBaseMenuTranslation(db, opts...),
+		BaseMigration:           newBaseMigration(db, opts...),
+		BasePost:                newBasePost(db, opts...),
+		BaseRole:                newBaseRole(db, opts...),
+		BaseTenant:              newBaseTenant(db, opts...),
+		BaseThirdAccount:        newBaseThirdAccount(db, opts...),
+		BaseUser:                newBaseUser(db, opts...),
+		CasbinRule:              newCasbinRule(db, opts...),
+		CodeGenColumn:           newCodeGenColumn(db, opts...),
+		CodeGenProto:            newCodeGenProto(db, opts...),
+		CodeGenTable:            newCodeGenTable(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	AiMessage        aiMessage
-	AiSession        aiSession
-	BaseAPI          baseAPI
-	BaseArea         baseArea
-	BaseConfig       baseConfig
-	BaseDept         baseDept
-	BaseDict         baseDict
-	BaseDictItem     baseDictItem
-	BaseJob          baseJob
-	BaseJobLog       baseJobLog
-	BaseLog          baseLog
-	BaseMenu         baseMenu
-	BaseMigration    baseMigration
-	BasePost         basePost
-	BaseRole         baseRole
-	BaseTenant       baseTenant
-	BaseThirdAccount baseThirdAccount
-	BaseUser         baseUser
-	CasbinRule       casbinRule
-	CodeGenColumn    codeGenColumn
-	CodeGenProto     codeGenProto
-	CodeGenTable     codeGenTable
+	AiMessage               aiMessage
+	AiSession               aiSession
+	BaseAPI                 baseAPI
+	BaseArea                baseArea
+	BaseConfig              baseConfig
+	BaseDept                baseDept
+	BaseDict                baseDict
+	BaseDictItem            baseDictItem
+	BaseDictItemTranslation baseDictItemTranslation
+	BaseDictTranslation     baseDictTranslation
+	BaseJob                 baseJob
+	BaseJobLog              baseJobLog
+	BaseLog                 baseLog
+	BaseMenu                baseMenu
+	BaseMenuTranslation     baseMenuTranslation
+	BaseMigration           baseMigration
+	BasePost                basePost
+	BaseRole                baseRole
+	BaseTenant              baseTenant
+	BaseThirdAccount        baseThirdAccount
+	BaseUser                baseUser
+	CasbinRule              casbinRule
+	CodeGenColumn           codeGenColumn
+	CodeGenProto            codeGenProto
+	CodeGenTable            codeGenTable
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:               db,
-		AiMessage:        q.AiMessage.clone(db),
-		AiSession:        q.AiSession.clone(db),
-		BaseAPI:          q.BaseAPI.clone(db),
-		BaseArea:         q.BaseArea.clone(db),
-		BaseConfig:       q.BaseConfig.clone(db),
-		BaseDept:         q.BaseDept.clone(db),
-		BaseDict:         q.BaseDict.clone(db),
-		BaseDictItem:     q.BaseDictItem.clone(db),
-		BaseJob:          q.BaseJob.clone(db),
-		BaseJobLog:       q.BaseJobLog.clone(db),
-		BaseLog:          q.BaseLog.clone(db),
-		BaseMenu:         q.BaseMenu.clone(db),
-		BaseMigration:    q.BaseMigration.clone(db),
-		BasePost:         q.BasePost.clone(db),
-		BaseRole:         q.BaseRole.clone(db),
-		BaseTenant:       q.BaseTenant.clone(db),
-		BaseThirdAccount: q.BaseThirdAccount.clone(db),
-		BaseUser:         q.BaseUser.clone(db),
-		CasbinRule:       q.CasbinRule.clone(db),
-		CodeGenColumn:    q.CodeGenColumn.clone(db),
-		CodeGenProto:     q.CodeGenProto.clone(db),
-		CodeGenTable:     q.CodeGenTable.clone(db),
+		db:                      db,
+		AiMessage:               q.AiMessage.clone(db),
+		AiSession:               q.AiSession.clone(db),
+		BaseAPI:                 q.BaseAPI.clone(db),
+		BaseArea:                q.BaseArea.clone(db),
+		BaseConfig:              q.BaseConfig.clone(db),
+		BaseDept:                q.BaseDept.clone(db),
+		BaseDict:                q.BaseDict.clone(db),
+		BaseDictItem:            q.BaseDictItem.clone(db),
+		BaseDictItemTranslation: q.BaseDictItemTranslation.clone(db),
+		BaseDictTranslation:     q.BaseDictTranslation.clone(db),
+		BaseJob:                 q.BaseJob.clone(db),
+		BaseJobLog:              q.BaseJobLog.clone(db),
+		BaseLog:                 q.BaseLog.clone(db),
+		BaseMenu:                q.BaseMenu.clone(db),
+		BaseMenuTranslation:     q.BaseMenuTranslation.clone(db),
+		BaseMigration:           q.BaseMigration.clone(db),
+		BasePost:                q.BasePost.clone(db),
+		BaseRole:                q.BaseRole.clone(db),
+		BaseTenant:              q.BaseTenant.clone(db),
+		BaseThirdAccount:        q.BaseThirdAccount.clone(db),
+		BaseUser:                q.BaseUser.clone(db),
+		CasbinRule:              q.CasbinRule.clone(db),
+		CodeGenColumn:           q.CodeGenColumn.clone(db),
+		CodeGenProto:            q.CodeGenProto.clone(db),
+		CodeGenTable:            q.CodeGenTable.clone(db),
 	}
 }
 
@@ -110,81 +119,90 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:               db,
-		AiMessage:        q.AiMessage.replaceDB(db),
-		AiSession:        q.AiSession.replaceDB(db),
-		BaseAPI:          q.BaseAPI.replaceDB(db),
-		BaseArea:         q.BaseArea.replaceDB(db),
-		BaseConfig:       q.BaseConfig.replaceDB(db),
-		BaseDept:         q.BaseDept.replaceDB(db),
-		BaseDict:         q.BaseDict.replaceDB(db),
-		BaseDictItem:     q.BaseDictItem.replaceDB(db),
-		BaseJob:          q.BaseJob.replaceDB(db),
-		BaseJobLog:       q.BaseJobLog.replaceDB(db),
-		BaseLog:          q.BaseLog.replaceDB(db),
-		BaseMenu:         q.BaseMenu.replaceDB(db),
-		BaseMigration:    q.BaseMigration.replaceDB(db),
-		BasePost:         q.BasePost.replaceDB(db),
-		BaseRole:         q.BaseRole.replaceDB(db),
-		BaseTenant:       q.BaseTenant.replaceDB(db),
-		BaseThirdAccount: q.BaseThirdAccount.replaceDB(db),
-		BaseUser:         q.BaseUser.replaceDB(db),
-		CasbinRule:       q.CasbinRule.replaceDB(db),
-		CodeGenColumn:    q.CodeGenColumn.replaceDB(db),
-		CodeGenProto:     q.CodeGenProto.replaceDB(db),
-		CodeGenTable:     q.CodeGenTable.replaceDB(db),
+		db:                      db,
+		AiMessage:               q.AiMessage.replaceDB(db),
+		AiSession:               q.AiSession.replaceDB(db),
+		BaseAPI:                 q.BaseAPI.replaceDB(db),
+		BaseArea:                q.BaseArea.replaceDB(db),
+		BaseConfig:              q.BaseConfig.replaceDB(db),
+		BaseDept:                q.BaseDept.replaceDB(db),
+		BaseDict:                q.BaseDict.replaceDB(db),
+		BaseDictItem:            q.BaseDictItem.replaceDB(db),
+		BaseDictItemTranslation: q.BaseDictItemTranslation.replaceDB(db),
+		BaseDictTranslation:     q.BaseDictTranslation.replaceDB(db),
+		BaseJob:                 q.BaseJob.replaceDB(db),
+		BaseJobLog:              q.BaseJobLog.replaceDB(db),
+		BaseLog:                 q.BaseLog.replaceDB(db),
+		BaseMenu:                q.BaseMenu.replaceDB(db),
+		BaseMenuTranslation:     q.BaseMenuTranslation.replaceDB(db),
+		BaseMigration:           q.BaseMigration.replaceDB(db),
+		BasePost:                q.BasePost.replaceDB(db),
+		BaseRole:                q.BaseRole.replaceDB(db),
+		BaseTenant:              q.BaseTenant.replaceDB(db),
+		BaseThirdAccount:        q.BaseThirdAccount.replaceDB(db),
+		BaseUser:                q.BaseUser.replaceDB(db),
+		CasbinRule:              q.CasbinRule.replaceDB(db),
+		CodeGenColumn:           q.CodeGenColumn.replaceDB(db),
+		CodeGenProto:            q.CodeGenProto.replaceDB(db),
+		CodeGenTable:            q.CodeGenTable.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	AiMessage        *aiMessageDo
-	AiSession        *aiSessionDo
-	BaseAPI          *baseAPIDo
-	BaseArea         *baseAreaDo
-	BaseConfig       *baseConfigDo
-	BaseDept         *baseDeptDo
-	BaseDict         *baseDictDo
-	BaseDictItem     *baseDictItemDo
-	BaseJob          *baseJobDo
-	BaseJobLog       *baseJobLogDo
-	BaseLog          *baseLogDo
-	BaseMenu         *baseMenuDo
-	BaseMigration    *baseMigrationDo
-	BasePost         *basePostDo
-	BaseRole         *baseRoleDo
-	BaseTenant       *baseTenantDo
-	BaseThirdAccount *baseThirdAccountDo
-	BaseUser         *baseUserDo
-	CasbinRule       *casbinRuleDo
-	CodeGenColumn    *codeGenColumnDo
-	CodeGenProto     *codeGenProtoDo
-	CodeGenTable     *codeGenTableDo
+	AiMessage               *aiMessageDo
+	AiSession               *aiSessionDo
+	BaseAPI                 *baseAPIDo
+	BaseArea                *baseAreaDo
+	BaseConfig              *baseConfigDo
+	BaseDept                *baseDeptDo
+	BaseDict                *baseDictDo
+	BaseDictItem            *baseDictItemDo
+	BaseDictItemTranslation *baseDictItemTranslationDo
+	BaseDictTranslation     *baseDictTranslationDo
+	BaseJob                 *baseJobDo
+	BaseJobLog              *baseJobLogDo
+	BaseLog                 *baseLogDo
+	BaseMenu                *baseMenuDo
+	BaseMenuTranslation     *baseMenuTranslationDo
+	BaseMigration           *baseMigrationDo
+	BasePost                *basePostDo
+	BaseRole                *baseRoleDo
+	BaseTenant              *baseTenantDo
+	BaseThirdAccount        *baseThirdAccountDo
+	BaseUser                *baseUserDo
+	CasbinRule              *casbinRuleDo
+	CodeGenColumn           *codeGenColumnDo
+	CodeGenProto            *codeGenProtoDo
+	CodeGenTable            *codeGenTableDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		AiMessage:        q.AiMessage.WithContext(ctx),
-		AiSession:        q.AiSession.WithContext(ctx),
-		BaseAPI:          q.BaseAPI.WithContext(ctx),
-		BaseArea:         q.BaseArea.WithContext(ctx),
-		BaseConfig:       q.BaseConfig.WithContext(ctx),
-		BaseDept:         q.BaseDept.WithContext(ctx),
-		BaseDict:         q.BaseDict.WithContext(ctx),
-		BaseDictItem:     q.BaseDictItem.WithContext(ctx),
-		BaseJob:          q.BaseJob.WithContext(ctx),
-		BaseJobLog:       q.BaseJobLog.WithContext(ctx),
-		BaseLog:          q.BaseLog.WithContext(ctx),
-		BaseMenu:         q.BaseMenu.WithContext(ctx),
-		BaseMigration:    q.BaseMigration.WithContext(ctx),
-		BasePost:         q.BasePost.WithContext(ctx),
-		BaseRole:         q.BaseRole.WithContext(ctx),
-		BaseTenant:       q.BaseTenant.WithContext(ctx),
-		BaseThirdAccount: q.BaseThirdAccount.WithContext(ctx),
-		BaseUser:         q.BaseUser.WithContext(ctx),
-		CasbinRule:       q.CasbinRule.WithContext(ctx),
-		CodeGenColumn:    q.CodeGenColumn.WithContext(ctx),
-		CodeGenProto:     q.CodeGenProto.WithContext(ctx),
-		CodeGenTable:     q.CodeGenTable.WithContext(ctx),
+		AiMessage:               q.AiMessage.WithContext(ctx),
+		AiSession:               q.AiSession.WithContext(ctx),
+		BaseAPI:                 q.BaseAPI.WithContext(ctx),
+		BaseArea:                q.BaseArea.WithContext(ctx),
+		BaseConfig:              q.BaseConfig.WithContext(ctx),
+		BaseDept:                q.BaseDept.WithContext(ctx),
+		BaseDict:                q.BaseDict.WithContext(ctx),
+		BaseDictItem:            q.BaseDictItem.WithContext(ctx),
+		BaseDictItemTranslation: q.BaseDictItemTranslation.WithContext(ctx),
+		BaseDictTranslation:     q.BaseDictTranslation.WithContext(ctx),
+		BaseJob:                 q.BaseJob.WithContext(ctx),
+		BaseJobLog:              q.BaseJobLog.WithContext(ctx),
+		BaseLog:                 q.BaseLog.WithContext(ctx),
+		BaseMenu:                q.BaseMenu.WithContext(ctx),
+		BaseMenuTranslation:     q.BaseMenuTranslation.WithContext(ctx),
+		BaseMigration:           q.BaseMigration.WithContext(ctx),
+		BasePost:                q.BasePost.WithContext(ctx),
+		BaseRole:                q.BaseRole.WithContext(ctx),
+		BaseTenant:              q.BaseTenant.WithContext(ctx),
+		BaseThirdAccount:        q.BaseThirdAccount.WithContext(ctx),
+		BaseUser:                q.BaseUser.WithContext(ctx),
+		CasbinRule:              q.CasbinRule.WithContext(ctx),
+		CodeGenColumn:           q.CodeGenColumn.WithContext(ctx),
+		CodeGenProto:            q.CodeGenProto.WithContext(ctx),
+		CodeGenTable:            q.CodeGenTable.WithContext(ctx),
 	}
 }
 

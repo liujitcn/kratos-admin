@@ -197,7 +197,11 @@ func (c *CodeGenCase) PreviewCodeGen(ctx context.Context, tableID int64, request
 	if err = c.validateCodeGenParentMenu(ctx, generation.Table.ParentMenuID); err != nil {
 		return nil, err
 	}
-	return &systemadminv1.PreviewCodeGenResponse{Files: generation.Files, OutputPaths: generation.OutputPaths}, nil
+	return &systemadminv1.PreviewCodeGenResponse{
+		Files:               generation.Files,
+		OutputPaths:         generation.OutputPaths,
+		MissingTranslations: codegen.MissingTranslationFields(table, columns),
+	}, nil
 }
 
 // StartCodeGenTask 校验生成对象并创建后台批量任务。
@@ -486,6 +490,10 @@ func (c *CodeGenCase) prepareCodeGenBatch(ctx context.Context, tableIDs []int64)
 		table, columns, protos, err = c.loadCodeGenContext(ctx, tableID)
 		if err != nil {
 			return nil, err
+		}
+		missingTranslations := codegen.MissingTranslationFields(table, columns)
+		if len(missingTranslations) > 0 {
+			return nil, errorsx.InvalidArgument("正式生成前请补齐翻译配置：" + strings.Join(missingTranslations, "、"))
 		}
 		// 停用配置只允许查看，不能写入生成文件。
 		if table.Status == codegen.StatusDisabled {
@@ -979,9 +987,17 @@ func (c *CodeGenCase) syncGeneratedMenus(ctx context.Context, table *codegen.Tab
 	if err != nil {
 		return err
 	}
+	if err = c.baseMenuCase.translationCase.SaveGeneratedMenuTranslations(ctx, pageMenu.ID, pageSpec.SourceTitle, pageSpec.Translations); err != nil {
+		return err
+	}
 	for _, buttonSpec := range buttonSpecs {
 		buttonSpec.Menu.ParentID = pageMenu.ID
-		if err = c.upsertGeneratedButtonMenu(ctx, buttonSpec); err != nil {
+		var buttonMenu *models.BaseMenu
+		buttonMenu, err = c.upsertGeneratedButtonMenu(ctx, buttonSpec)
+		if err != nil {
+			return err
+		}
+		if err = c.baseMenuCase.translationCase.SaveGeneratedMenuTranslations(ctx, buttonMenu.ID, buttonSpec.SourceTitle, buttonSpec.Translations); err != nil {
 			return err
 		}
 	}
@@ -1065,14 +1081,14 @@ func (c *CodeGenCase) upsertGeneratedPageMenu(ctx context.Context, spec codegen.
 }
 
 // upsertGeneratedButtonMenu 创建或更新生成按钮权限菜单。
-func (c *CodeGenCase) upsertGeneratedButtonMenu(ctx context.Context, spec codegen.CodeGenMenuSpec) error {
+func (c *CodeGenCase) upsertGeneratedButtonMenu(ctx context.Context, spec codegen.CodeGenMenuSpec) (*models.BaseMenu, error) {
 	query := c.baseMenuCase.Query(ctx).BaseMenu
 	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(query.ParentID.Eq(spec.Menu.ParentID)))
 	opts = append(opts, repository.Where(query.Type.Eq(_const.BASE_MENU_TYPE_BUTTON)))
 	menus, err := c.baseMenuCase.List(ctx, opts...)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	for _, menu := range menus {
 		if menu.Path != spec.Menu.Path && menu.API != spec.Menu.API {
@@ -1080,11 +1096,17 @@ func (c *CodeGenCase) upsertGeneratedButtonMenu(ctx context.Context, spec codege
 		}
 		spec.Menu.ID = menu.ID
 		if err = c.baseMenuCase.UpdateByID(ctx, spec.Menu); err != nil {
-			return err
+			return nil, err
 		}
-		return c.baseMenuCase.casbinRuleCase.RebuildCasbinRuleByMenuID(ctx, spec.Menu.ID)
+		if err = c.baseMenuCase.casbinRuleCase.RebuildCasbinRuleByMenuID(ctx, spec.Menu.ID); err != nil {
+			return nil, err
+		}
+		return spec.Menu, nil
 	}
-	return c.baseMenuCase.createBaseMenu(ctx, spec.Menu)
+	if err = c.baseMenuCase.createBaseMenu(ctx, spec.Menu); err != nil {
+		return nil, err
+	}
+	return spec.Menu, nil
 }
 
 // updateStep 更新当前生成对象的单个执行步骤。
@@ -1109,9 +1131,10 @@ func codeGenTableToSnapshot(item *models.CodeGenTable) (*codegen.Table, error) {
 	entityName := stringcase.ToPascalCase(item.Name)
 	businessName := codegen.DefaultString(item.Comment, item.Name)
 	leftTreeConfig := ""
+	var err error
 	if item.LeftTreeConfig != "" {
 		var config systemadminv1.CodeGenLeftTreeConfig
-		err := json.Unmarshal([]byte(item.LeftTreeConfig), &config)
+		err = json.Unmarshal([]byte(item.LeftTreeConfig), &config)
 		if err != nil {
 			return nil, errorsx.Internal("左树配置格式错误").WithCause(err)
 		}
@@ -1132,6 +1155,15 @@ func codeGenTableToSnapshot(item *models.CodeGenTable) (*codegen.Table, error) {
 		}
 		leftTreeConfig = string(data)
 	}
+	i18nConfig := make(map[string]codegen.LocaleConfig)
+	if item.I18NConfig != "" {
+		var config map[string]*systemadminv1.CodeGenLocaleConfig
+		err = json.Unmarshal([]byte(item.I18NConfig), &config)
+		if err != nil {
+			return nil, errorsx.Internal("表级国际化配置格式错误").WithCause(err)
+		}
+		i18nConfig = codeGenLocaleConfigsToSnapshots(config)
+	}
 	return &codegen.Table{
 		ID:               item.ID,
 		TableName_:       item.Name,
@@ -1147,6 +1179,7 @@ func codeGenTableToSnapshot(item *models.CodeGenTable) (*codegen.Table, error) {
 		ParentColumn:     item.ParentColumn,
 		TreeLabelColumn:  item.TreeLabelColumn,
 		LeftTreeConfig:   leftTreeConfig,
+		I18NConfig:       i18nConfig,
 		GenBackend:       item.GenBackend,
 		GenFrontend:      item.GenFrontend,
 		GenSql:           item.GenSql,
@@ -1187,6 +1220,7 @@ func codeGenColumnsToSnapshots(configs []*systemadminv1.CodeGenColumn, databaseC
 			TableID:             config.GetTableId(),
 			Name:                databaseColumn.Name,
 			Comment:             config.GetComment(),
+			I18NConfig:          codeGenLocaleConfigsToSnapshots(config.GetI18NConfig()),
 			DbType:              databaseColumn.DataType,
 			ColumnType:          databaseColumn.ColumnType,
 			DbLength:            config.GetDbLength(),
@@ -1228,6 +1262,21 @@ func codeGenColumnsToSnapshots(configs []*systemadminv1.CodeGenColumn, databaseC
 		columns = append(columns, column)
 	}
 	return columns
+}
+
+// codeGenLocaleConfigsToSnapshots 将协议国际化配置转换为生成器只读快照。
+func codeGenLocaleConfigsToSnapshots(configs map[string]*systemadminv1.CodeGenLocaleConfig) map[string]codegen.LocaleConfig {
+	result := make(map[string]codegen.LocaleConfig, len(configs))
+	for localeValue, config := range configs {
+		if config == nil {
+			continue
+		}
+		result[localeValue] = codegen.LocaleConfig{
+			Comment:         config.GetComment(),
+			LeftTreeComment: config.GetLeftTreeComment(),
+		}
+	}
+	return result
 }
 
 // validateCodeGenStatusDefaults 校验状态字段数据库默认值属于启用或禁用值。

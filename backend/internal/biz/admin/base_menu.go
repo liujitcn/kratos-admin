@@ -30,11 +30,12 @@ type BaseMenuCase struct {
 	*biz.BaseCase
 	tx data.Transaction
 	*data.BaseMenuRepository
-	baseRoleRepo   *data.BaseRoleRepository
-	casbinRuleCase *CasbinRuleCase
-	formMapper     *_mapper.CopierMapper[systemadminv1.BaseMenuForm, models.BaseMenu]
-	mapper         *_mapper.CopierMapper[systemadminv1.BaseMenu, models.BaseMenu]
-	routerMapper   *_mapper.CopierMapper[systemadminv1.RouteItem, models.BaseMenu]
+	baseRoleRepo    *data.BaseRoleRepository
+	casbinRuleCase  *CasbinRuleCase
+	translationCase *biz.TranslationCase
+	formMapper      *_mapper.CopierMapper[systemadminv1.BaseMenuForm, models.BaseMenu]
+	mapper          *_mapper.CopierMapper[systemadminv1.BaseMenu, models.BaseMenu]
+	routerMapper    *_mapper.CopierMapper[systemadminv1.RouteItem, models.BaseMenu]
 }
 
 // NewBaseMenuCase 创建菜单业务实例
@@ -44,6 +45,7 @@ func NewBaseMenuCase(
 	baseMenuRepo *data.BaseMenuRepository,
 	baseRoleRepo *data.BaseRoleRepository,
 	casbinRuleCase *CasbinRuleCase,
+	translationCase *biz.TranslationCase,
 ) *BaseMenuCase {
 	formMapper := _mapper.NewCopierMapper[systemadminv1.BaseMenuForm, models.BaseMenu]()
 	formMapper.AppendConverters(_mapper.NewJSONTypeConverter[*systemadminv1.BaseMenuMeta]().NewConverterPair())
@@ -57,6 +59,7 @@ func NewBaseMenuCase(
 		BaseMenuRepository: baseMenuRepo,
 		baseRoleRepo:       baseRoleRepo,
 		casbinRuleCase:     casbinRuleCase,
+		translationCase:    translationCase,
 		formMapper:         formMapper,
 		mapper:             mapper,
 		routerMapper:       routerMapper,
@@ -98,7 +101,12 @@ func (c *BaseMenuCase) OptionBaseMenu(ctx context.Context, req *systemadminv1.Op
 	if req.GetLazy() {
 		parentID = req.GetParentId()
 	}
-	return &commonv1.TreeOptionResponse{List: c.buildBaseMenuOption(list, parentID, req.GetLazy(), hasChildren)}, nil
+	var titles map[int64]string
+	titles, err = c.reviewedMenuTitles(ctx, list)
+	if err != nil {
+		return nil, err
+	}
+	return &commonv1.TreeOptionResponse{List: c.buildBaseMenuOption(list, parentID, req.GetLazy(), hasChildren, titles)}, nil
 }
 
 // TreeBaseMenu 查询菜单树
@@ -136,7 +144,22 @@ func (c *BaseMenuCase) TreeBaseMenu(ctx context.Context, req *systemadminv1.Tree
 	if req.GetLazy() {
 		parentID = req.GetParentId()
 	}
-	return &systemadminv1.TreeBaseMenuResponse{BaseMenus: c.buildBaseMenuTree(list, parentID, req.GetLazy(), hasChildren)}, nil
+	var titles map[int64]string
+	titles, err = c.reviewedMenuTitles(ctx, list)
+	if err != nil {
+		return nil, err
+	}
+	sources := make(map[int64]string, len(list))
+	for _, item := range list {
+		form := c.formMapper.ToDTO(item)
+		sources[item.ID] = form.GetMeta().GetTitle()
+	}
+	var translations map[int64][]*systemadminv1.BaseMenuTranslation
+	translations, err = c.translationCase.MenuTranslations(ctx, sources)
+	if err != nil {
+		return nil, err
+	}
+	return &systemadminv1.TreeBaseMenuResponse{BaseMenus: c.buildBaseMenuTree(list, parentID, req.GetLazy(), hasChildren, titles, translations)}, nil
 }
 
 // GetBaseMenu 获取菜单
@@ -145,14 +168,27 @@ func (c *BaseMenuCase) GetBaseMenu(ctx context.Context, id int64) (*systemadminv
 	if err != nil {
 		return nil, err
 	}
-	return c.formMapper.ToDTO(baseMenu), nil
+	form := c.formMapper.ToDTO(baseMenu)
+	sources := map[int64]string{id: form.GetMeta().GetTitle()}
+	var translations map[int64][]*systemadminv1.BaseMenuTranslation
+	translations, err = c.translationCase.MenuTranslations(ctx, sources)
+	if err != nil {
+		return nil, err
+	}
+	form.Translations = translations[id]
+	return form, nil
 }
 
 // CreateBaseMenu 创建菜单
 func (c *BaseMenuCase) CreateBaseMenu(ctx context.Context, req *systemadminv1.BaseMenuForm) error {
 	baseMenu := c.formMapper.ToEntity(req)
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		return c.createBaseMenu(ctx, baseMenu)
+		var err error
+		err = c.createBaseMenu(ctx, baseMenu)
+		if err != nil {
+			return err
+		}
+		return c.translationCase.SaveMenuTranslations(ctx, baseMenu.ID, req.GetMeta().GetTitle(), req.GetTranslations())
 	})
 }
 
@@ -190,6 +226,15 @@ func (c *BaseMenuCase) UpdateBaseMenu(ctx context.Context, req *systemadminv1.Ba
 		if err = c.UpdateByID(ctx, baseMenu); err != nil {
 			return err
 		}
+		currentForm := c.formMapper.ToDTO(currentMenu)
+		err = c.translationCase.MarkMenuSourceChanged(ctx, currentMenu.ID, currentForm.GetMeta().GetTitle(), req.GetMeta().GetTitle())
+		if err != nil {
+			return err
+		}
+		err = c.translationCase.SaveMenuTranslations(ctx, currentMenu.ID, req.GetMeta().GetTitle(), req.GetTranslations())
+		if err != nil {
+			return err
+		}
 		return c.casbinRuleCase.RebuildCasbinRuleByMenuID(ctx, baseMenu.ID)
 	})
 }
@@ -222,6 +267,9 @@ func (c *BaseMenuCase) DeleteBaseMenu(ctx context.Context, id string) error {
 	}
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
 		if err = c.DeleteByIDs(ctx, ids); err != nil {
+			return err
+		}
+		if err = c.translationCase.DeleteMenuTranslations(ctx, ids); err != nil {
 			return err
 		}
 		return c.casbinRuleCase.DeleteCasbinRuleByMenuIDs(ctx, ids)
@@ -398,8 +446,21 @@ func (c *BaseMenuCase) listSubtreeIDs(ctx context.Context, rootID int64) ([]int6
 	return ids, nil
 }
 
-// buildRouteTree 构建菜单路由树
-func (c *BaseMenuCase) buildRouteTree(menuList []*models.BaseMenu, parentID int64) []*systemadminv1.RouteItem {
+// reviewedMenuTitles 查询菜单集合在当前语言下可展示的审核译文。
+func (c *BaseMenuCase) reviewedMenuTitles(ctx context.Context, menuList []*models.BaseMenu) (map[int64]string, error) {
+	menuIDs := make([]int64, 0, len(menuList))
+	for _, item := range menuList {
+		menuIDs = append(menuIDs, item.ID)
+	}
+	titles, err := c.translationCase.ReviewedMenuTitles(ctx, menuIDs)
+	if err != nil {
+		return nil, err
+	}
+	return titles, nil
+}
+
+// buildRouteTree 构建菜单路由树。
+func (c *BaseMenuCase) buildRouteTree(menuList []*models.BaseMenu, parentID int64, titles map[int64]string) []*systemadminv1.RouteItem {
 	list := make([]*systemadminv1.RouteItem, 0)
 	for _, menu := range menuList {
 		// 非当前父节点的菜单不参与当前层级路由构建。
@@ -408,8 +469,10 @@ func (c *BaseMenuCase) buildRouteTree(menuList []*models.BaseMenu, parentID int6
 		}
 
 		route := c.routerMapper.ToDTO(menu)
-
-		route.Children = c.buildRouteTree(menuList, menu.ID)
+		if title := titles[menu.ID]; title != "" && route.GetMeta() != nil {
+			route.Meta.Title = &title
+		}
+		route.Children = c.buildRouteTree(menuList, menu.ID, titles)
 		list = append(list, route)
 	}
 	return list
@@ -421,6 +484,8 @@ func (c *BaseMenuCase) buildBaseMenuTree(
 	parentID int64,
 	lazy bool,
 	hasChildren map[int64]struct{},
+	titles map[int64]string,
+	translations map[int64][]*systemadminv1.BaseMenuTranslation,
 ) []*systemadminv1.BaseMenu {
 	res := make([]*systemadminv1.BaseMenu, 0)
 	for _, item := range menuList {
@@ -429,9 +494,13 @@ func (c *BaseMenuCase) buildBaseMenuTree(
 			continue
 		}
 		menu := c.mapper.ToDTO(item)
+		menu.Translations = translations[item.ID]
+		if title := titles[item.ID]; title != "" && menu.GetMeta() != nil {
+			menu.Meta.Title = title
+		}
 		_, menu.HasChildren = hasChildren[item.ID]
 		if !lazy {
-			menu.Children = c.buildBaseMenuTree(menuList, item.ID, false, hasChildren)
+			menu.Children = c.buildBaseMenuTree(menuList, item.ID, false, hasChildren, titles, translations)
 		}
 		res = append(res, menu)
 	}
@@ -444,6 +513,7 @@ func (c *BaseMenuCase) buildBaseMenuOption(
 	parentID int64,
 	lazy bool,
 	hasChildren map[int64]struct{},
+	titles map[int64]string,
 ) []*commonv1.TreeOptionResponse_Option {
 	res := make([]*commonv1.TreeOptionResponse_Option, 0)
 	for _, item := range menuList {
@@ -462,6 +532,9 @@ func (c *BaseMenuCase) buildBaseMenuOption(
 		if route != nil && route.GetMeta() != nil && route.GetMeta().GetTitle() != "" {
 			label = route.GetMeta().GetTitle()
 		}
+		if title := titles[item.ID]; title != "" {
+			label = title
+		}
 
 		menu := &commonv1.TreeOptionResponse_Option{
 			Label: label,
@@ -469,7 +542,7 @@ func (c *BaseMenuCase) buildBaseMenuOption(
 		}
 		_, menu.HasChildren = hasChildren[item.ID]
 		if !lazy {
-			menu.Children = c.buildBaseMenuOption(menuList, item.ID, false, hasChildren)
+			menu.Children = c.buildBaseMenuOption(menuList, item.ID, false, hasChildren, titles)
 		}
 		res = append(res, menu)
 	}

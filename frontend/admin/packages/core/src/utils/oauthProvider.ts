@@ -6,11 +6,14 @@ import githubIconUrl from "@/assets/images/oauth/github.png";
 import googleIconUrl from "@/assets/images/oauth/google.png";
 import wechatIconUrl from "@/assets/images/oauth/wechat.png";
 import wechatworkIconUrl from "@/assets/images/oauth/wechatwork.png";
+import { t } from "@/locales";
 
 /** 三方登录展示信息。 */
 export interface OauthProviderDisplay {
   /** 登录方式名称。 */
   name: string;
+  /** 登录方式名称对应的稳定语言键。 */
+  nameKey: string;
   /** 登录方式图标标识。 */
   icon: string;
 }
@@ -21,15 +24,15 @@ export interface OauthProviderSource {
   provider: string;
 }
 
-const oauthProviderDisplayMap: Record<string, OauthProviderDisplay> = {
-  github: { name: "GitHub", icon: "github" },
-  wechat: { name: "微信", icon: "wechat" },
-  wechatmp: { name: "微信公众号", icon: "wechat" },
-  gitee: { name: "Gitee", icon: "gitee" },
-  google: { name: "Google", icon: "google" },
-  dingtalk: { name: "钉钉", icon: "dingtalk" },
-  feishu: { name: "飞书", icon: "feishu" },
-  wechatwork: { name: "企业微信", icon: "wechatwork" }
+const oauthProviderDisplayMap: Record<string, Omit<OauthProviderDisplay, "name">> = {
+  github: { nameKey: "GitHub", icon: "github" },
+  wechat: { nameKey: "core.oauth.wechat", icon: "wechat" },
+  wechatmp: { nameKey: "core.oauth.wechatmp", icon: "wechat" },
+  gitee: { nameKey: "Gitee", icon: "gitee" },
+  google: { nameKey: "Google", icon: "google" },
+  dingtalk: { nameKey: "core.oauth.dingtalk", icon: "dingtalk" },
+  feishu: { nameKey: "core.oauth.feishu", icon: "feishu" },
+  wechatwork: { nameKey: "core.oauth.wechatwork", icon: "wechatwork" }
 };
 
 /** 创建本地官方图标图片组件。 */
@@ -56,7 +59,9 @@ const oauthIconMap: Record<string, Component> = {
 
 /** 根据 provider 标识获取前端展示信息。 */
 export function getOauthProviderDisplay(provider: string): OauthProviderDisplay {
-  return oauthProviderDisplayMap[provider] || { name: provider || "未知方式", icon: provider };
+  const display = oauthProviderDisplayMap[provider] ?? { nameKey: "core.oauth.unknown", icon: provider };
+  const name = display.nameKey.includes(".") ? t(display.nameKey) : display.nameKey;
+  return { ...display, name: provider ? name : t("core.oauth.unknown") };
 }
 
 /** 创建未知 provider 的文字兜底图标。 */

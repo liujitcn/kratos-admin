@@ -1,7 +1,12 @@
 import previewAvatar from "@liujitcn/kratos-admin-core/assets/images/avatar.png";
+import { t } from "@liujitcn/kratos-admin-core";
 import type { ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import type { OptionBaseDictResponse_BaseDict } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dict";
-import type { CodeGenColumn, CodeGenColumnOptionConfig, CodeGenColumnQueryConfig } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_column";
+import type {
+  CodeGenColumn,
+  CodeGenColumnOptionConfig,
+  CodeGenColumnQueryConfig
+} from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_column";
 import type { CodeGenLeftTreeConfig, CodeGenTableForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_table";
 
 /** 页面预览中的字段配置范围。 */
@@ -79,7 +84,7 @@ export function createCodeGenLeftTreeOptions(config?: CodeGenLeftTreeConfig): Pr
     inactive_value: "",
     lazy: config.lazy
   };
-  return createCodeGenPreviewOptions(config.label_column || "分类", option, new Map());
+  return createCodeGenPreviewOptions(config.label_column || t("system.codegen.preview.value.category"), option, new Map());
 }
 
 /** 创建页面列表所需的模拟业务记录。 */
@@ -91,21 +96,18 @@ export function createCodeGenPreviewRows(
   const { table, columns } = snapshot;
   const primaryColumn = resolveCodeGenPrimaryColumn(columns);
   const leftTreeValues = flattenCodeGenPreviewOptions(leftTreeOptions).map(option => option.value);
-  const rows = Array.from(
-    { length: table.page_type === "tree" || table.page_type === "tree_lazy" ? 12 : 18 },
-    (_, rowIndex) => {
-      const row: CodeGenPreviewRow = {};
-      columns.forEach(column => {
-        const options = resolveColumnPreviewOptions(optionMap, column);
-        row[column.name] = createCodeGenPreviewValue(column, rowIndex, options);
-      });
-      if (!(primaryColumn in row)) row[primaryColumn] = rowIndex + 1;
-      if (table.page_type === "left_tree" && table.left_tree_config?.filter_column && leftTreeValues.length) {
-        row[table.left_tree_config.filter_column] = leftTreeValues[rowIndex % leftTreeValues.length];
-      }
-      return row;
+  const rows = Array.from({ length: table.page_type === "tree" || table.page_type === "tree_lazy" ? 12 : 18 }, (_, rowIndex) => {
+    const row: CodeGenPreviewRow = {};
+    columns.forEach(column => {
+      const options = resolveColumnPreviewOptions(optionMap, column);
+      row[column.name] = createCodeGenPreviewValue(column, rowIndex, options);
+    });
+    if (!(primaryColumn in row)) row[primaryColumn] = rowIndex + 1;
+    if (table.page_type === "left_tree" && table.left_tree_config?.filter_column && leftTreeValues.length) {
+      row[table.left_tree_config.filter_column] = leftTreeValues[rowIndex % leftTreeValues.length];
     }
-  );
+    return row;
+  });
 
   // 树形页面按照真实父节点字段构造层级，列表字段和值仍来自当前数据库配置。
   if (
@@ -215,7 +217,7 @@ function createCodeGenPreviewOptions(
     });
   }
   return Array.from({ length: 4 }, (_, optionIndex) => ({
-    label: `${sourceLabel}选项 ${optionIndex + 1}`,
+    label: t("system.codegen.preview.value.option", { source: sourceLabel, index: optionIndex + 1 }),
     value: `${sourceLabel}-${optionIndex + 1}`
   }));
 }

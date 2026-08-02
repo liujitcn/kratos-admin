@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { AiShortcut } from '../../../../rpc/base/v1/ai_tool'
+import { useI18n } from '@liujitcn/kratos-uni-app-core'
 
 defineProps<{
   greetingMessage: string
@@ -12,6 +13,7 @@ const emit = defineEmits<{
   refresh: []
   'shortcut-tap': [shortcut: AiShortcut]
 }>()
+const { t } = useI18n()
 </script>
 
 <template>
@@ -36,23 +38,25 @@ const emit = defineEmits<{
         <view class="ai-avatar__bow"></view>
         <view class="ai-avatar__spark"></view>
       </view>
-      <view class="welcome-bubble is-hello">您好，AI助手为您服务！</view>
+      <view class="welcome-bubble is-hello">{{ t('system.ai.greetingHello') }}</view>
     </view>
     <view class="welcome-bubble is-intro">{{ greetingMessage }}</view>
 
     <view class="prompt-card">
       <view class="prompt-card__head">
         <view>
-          <view class="prompt-card__eyebrow">快捷操作</view>
-          <view class="prompt-card__title">您可以这样问</view>
+          <view class="prompt-card__eyebrow">{{ t('system.ai.quickActions') }}</view>
+          <view class="prompt-card__title">{{ t('system.ai.shortcutQuestion') }}</view>
         </view>
         <button v-if="canRefresh" class="prompt-refresh" hover-class="none" @tap="emit('refresh')">
-          <text>换一换</text>
+          <text>{{ t('system.ai.refresh') }}</text>
           <uni-icons type="refresh" size="25" color="#00a96b" />
         </button>
       </view>
-      <view v-if="loading" class="prompt-loading">正在加载...</view>
-      <view v-else-if="!shortcuts.length" class="prompt-loading">暂无可用快捷助手</view>
+      <view v-if="loading" class="prompt-loading">{{ t('common.message.loading') }}...</view>
+      <view v-else-if="!shortcuts.length" class="prompt-loading">{{
+        t('system.ai.noShortcuts')
+      }}</view>
       <template v-else>
         <button
           v-for="(shortcut, shortcutIndex) in shortcuts"
@@ -64,7 +68,7 @@ const emit = defineEmits<{
           <text class="prompt-index">{{ shortcutIndex + 1 }}</text>
           <view class="prompt-content">
             <text class="prompt-text">{{ shortcut.title }}</text>
-            <text class="prompt-meta">{{ shortcut.group || '通用助手' }}</text>
+            <text class="prompt-meta">{{ shortcut.group || t('system.ai.generalAssistant') }}</text>
           </view>
           <uni-icons type="right" size="20" color="#9aa0aa" />
         </button>

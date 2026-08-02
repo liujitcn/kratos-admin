@@ -99,4 +99,6 @@ export interface SiteConfigState {
   display: SiteDisplayConfig;
   /** 当前登录验证码配置 */
   captcha: LoginCaptchaConfig;
+  /** 是否允许显式生成机器翻译草稿。 */
+  translationDraftEnabled: boolean;
 }

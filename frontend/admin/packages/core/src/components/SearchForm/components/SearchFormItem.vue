@@ -49,6 +49,9 @@ import {
 import Dict from "@/components/Dict/index.vue";
 import { handleProp } from "@/utils";
 import { ColumnProps, SearchType } from "@/components/ProTable/interface";
+import { useLocaleStore } from "@/locales";
+
+const { t } = useLocaleStore();
 
 /** 单个搜索表单项组件属性。 */
 interface SearchFormItem {
@@ -151,12 +154,14 @@ const placeholder = computed(() => {
   const search = props.column.search;
   if (["datetimerange", "daterange", "monthrange"].includes(search?.props?.type) || search?.props?.isRange) {
     return {
-      rangeSeparator: search?.props?.rangeSeparator ?? "至",
-      startPlaceholder: search?.props?.startPlaceholder ?? "开始时间",
-      endPlaceholder: search?.props?.endPlaceholder ?? "结束时间"
+      rangeSeparator: search?.props?.rangeSeparator ?? "-",
+      startPlaceholder: search?.props?.startPlaceholder ?? t("common.field.startTime"),
+      endPlaceholder: search?.props?.endPlaceholder ?? t("common.field.endTime")
     };
   }
-  const placeholder = search?.props?.placeholder ?? (search?.el?.includes("input") ? "请输入" : "请选择");
+  const placeholder =
+    search?.props?.placeholder ??
+    (search?.el?.includes("input") ? t("common.placeholder.input") : t("common.placeholder.select"));
   return { placeholder };
 });
 

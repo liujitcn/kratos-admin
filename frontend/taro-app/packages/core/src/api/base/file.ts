@@ -5,6 +5,7 @@ import type {
   MultiUploadFileResponse,
 } from '../../rpc/base/v1/file'
 import { uploadFile, uploadFileList } from '../../utils/file'
+import { getLocaleRequestHeaders, t } from '../../locales'
 import { getRequestAccessToken, requestBaseURL } from '../../utils/http'
 
 const FILE_URL = '/v1/base/file'
@@ -14,7 +15,7 @@ export class FileServiceImpl {
   /** 上传多个浏览器文件。 */
   async MultiUploadFile(files: File[], fileType: string): Promise<MultiUploadFileResponse> {
     if (process.env.TARO_ENV !== 'h5') {
-      throw new Error('小程序端请使用文件临时路径上传')
+      throw new Error(t('core.file.temporaryPathRequired'))
     }
     const paths = files.map((file) => URL.createObjectURL(file))
     try {
@@ -27,7 +28,7 @@ export class FileServiceImpl {
   /** 上传单个浏览器文件。 */
   async UploadFile(file: File, fileType: string): Promise<FileInfo> {
     if (process.env.TARO_ENV !== 'h5') {
-      throw new Error('小程序端请使用文件临时路径上传')
+      throw new Error(t('core.file.temporaryPathRequired'))
     }
     const path = URL.createObjectURL(file)
     try {
@@ -46,9 +47,13 @@ export class FileServiceImpl {
     const token = await getRequestAccessToken()
     const response = await Taro.downloadFile({
       url: `${requestBaseURL}${FILE_URL}?${query}`,
-      header: { Authorization: token, 'source-client': 'miniapp' },
+      header: {
+        ...getLocaleRequestHeaders(),
+        Authorization: token,
+        'source-client': 'miniapp',
+      },
     })
-    if (response.statusCode !== 200) throw new Error('下载失败')
+    if (response.statusCode !== 200) throw new Error(t('core.file.downloadFailed'))
     await Taro.openDocument({ filePath: response.tempFilePath, showMenu: true })
   }
 }

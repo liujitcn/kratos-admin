@@ -31,6 +31,7 @@ func NewGRPCMiddleware(
 ) GRPCMiddlewares {
 	var ms GRPCMiddlewares
 	cfg := ctx.GetConfig()
+	ms = append(ms, appMiddleware.NewLocaleMiddleware())
 	// request-id、recovery、tracing、metadata 等框架拦截器由 rpc.CreateGrpcServer 按配置挂载。
 	if cfg != nil && cfg.Server != nil && cfg.Server.Grpc != nil && cfg.Server.Grpc.Middleware != nil && cfg.Server.Grpc.Middleware.EnableLogging {
 		ms = append(ms, logging.Server(ctx.GetLogger(), baseUserRepo, authenticator))

@@ -2,6 +2,7 @@ import { RichText, View } from '@tarojs/components'
 import Taro, { useLoad } from '@tarojs/taro'
 import { useState } from 'react'
 import { useSettingStore } from '../../../stores'
+import { useI18n } from '../../../locales'
 import './protocal.scss'
 
 const protocolClassMap: Record<string, string> = {
@@ -39,25 +40,26 @@ function decorateProtocolContent(html: string): string {
 
 /** 服务条款与隐私协议页。 */
 export default function ProtocolPage() {
+  const { t } = useI18n()
   const [content, setContent] = useState('')
 
   useLoad((query) => {
     const isPrivacy = query?.type === 'privacy'
-    const title = isPrivacy ? '隐私协议' : '服务条款'
+    const title = isPrivacy ? t('core.protocol.privacy') : t('core.protocol.service')
     const key = isPrivacy ? 'privacyProtocol' : 'serviceProtocol'
     const settingStore = useSettingStore.getState()
     void settingStore
       .loadData()
       .then(() => {
         const protocol = settingStore.getData(key)
-        if (!protocol) throw new Error(`${title}未配置，暂时无法查看`)
+        if (!protocol) throw new Error(t('core.protocol.notConfigured', { title }))
         void Taro.setNavigationBarTitle({ title })
         setContent(decorateProtocolContent(protocol))
       })
       .catch(async (error: unknown) => {
         await Taro.showToast({
           icon: 'none',
-          title: error instanceof Error ? error.message : '移动端配置加载失败',
+          title: error instanceof Error ? error.message : t('core.protocol.loadFailed'),
         })
         setTimeout(() => void Taro.navigateBack(), 300)
       })

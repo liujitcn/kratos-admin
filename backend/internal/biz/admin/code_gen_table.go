@@ -51,6 +51,7 @@ func NewCodeGenTableCase(
 ) *CodeGenTableCase {
 	formMapper := mapper.NewCopierMapper[systemadminv1.CodeGenTableForm, models.CodeGenTable]()
 	formMapper.AppendConverters(mapper.NewJSONTypeConverter[*systemadminv1.CodeGenLeftTreeConfig]().NewConverterPair())
+	formMapper.AppendConverters(mapper.NewJSONTypeConverter[map[string]*systemadminv1.CodeGenLocaleConfig]().NewConverterPair())
 	formMapper.AppendConverters(mapper.NewGenericTypeConverterPair(
 		false,
 		int32(0),
@@ -64,6 +65,8 @@ func NewCodeGenTableCase(
 			return value == 1
 		},
 	))
+	tableMapper := mapper.NewCopierMapper[systemadminv1.CodeGenTable, models.CodeGenTable]()
+	tableMapper.AppendConverters(mapper.NewJSONTypeConverter[map[string]*systemadminv1.CodeGenLocaleConfig]().NewConverterPair())
 	return &CodeGenTableCase{
 		CodeGenTableRepository: codeGenTableRepo,
 		dbClient:               dbClient,
@@ -74,7 +77,7 @@ func NewCodeGenTableCase(
 		codeGenColumnCase:      codeGenColumnCase,
 		codeGenProtoCase:       codeGenProtoCase,
 		formMapper:             formMapper,
-		mapper:                 mapper.NewCopierMapper[systemadminv1.CodeGenTable, models.CodeGenTable](),
+		mapper:                 tableMapper,
 	}
 }
 
@@ -209,6 +212,7 @@ func (c *CodeGenTableCase) UpdateCodeGenTable(ctx context.Context, id int64, req
 		query.GenSql,
 		query.Status,
 		query.Remark,
+		query.I18NConfig,
 	))
 	err = c.Update(ctx, item, opts...)
 	if err != nil {

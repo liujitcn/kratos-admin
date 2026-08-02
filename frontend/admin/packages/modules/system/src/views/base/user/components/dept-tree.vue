@@ -1,7 +1,7 @@
 <!-- 部门树 -->
 <template>
   <el-card shadow="never">
-    <el-input v-model="name" placeholder="部门名称" clearable>
+    <el-input v-model="name" :placeholder="t('system.dept.field.name')" clearable>
       <template #prefix>
         <el-icon><Search /></el-icon>
       </template>
@@ -27,6 +27,7 @@ import { useVModel } from "@vueuse/core";
 import { ElTree } from "element-plus";
 import { defBaseDeptService } from "@liujitcn/kratos-admin-system/api/system/base_dept";
 import { TreeOptionResponse_Option } from "@liujitcn/kratos-admin-system/rpc/common/v1/common";
+import { t } from "@liujitcn/kratos-admin-core";
 const props = defineProps({
   modelValue: {
     type: [Number],

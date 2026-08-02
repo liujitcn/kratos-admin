@@ -5,6 +5,7 @@ import { navigateToLogin } from './utils/navigation'
 import { resolveStaticView } from './module'
 import { matchLogicalPath, parseLogicalQuery } from './navigation-pattern.mjs'
 import { buildMenuTree } from './navigation-tree.mjs'
+import { getCurrentLocale, t } from './locales'
 
 /** 移动菜单访问模式。 */
 export type AppMenuAccess = 'PUBLIC' | 'GUEST_ONLY' | 'AUTHENTICATED'
@@ -45,14 +46,14 @@ const ANONYMOUS_CACHE_KEY = 'kratos-uni-app:navigation:anonymous'
 const AUTHENTICATED_CACHE_KEY = 'kratos-uni-app:navigation:authenticated'
 /** 固定移动端菜单根目录编号。 */
 export const APP_MENU_ROOT_ID = 999
-const defaultMenus: AppMenu[] = [
+const createDefaultMenus = (): AppMenu[] => [
   {
     id: 99901,
     parentId: APP_MENU_ROOT_ID,
     name: 'AppHome',
     path: 'app/home',
     viewKey: 'HOME',
-    title: '首页',
+    title: t('core.navigation.home'),
     access: 'PUBLIC',
     inTabBar: true,
     icon: 'HOME_DEFAULT',
@@ -64,7 +65,7 @@ const defaultMenus: AppMenu[] = [
     name: 'AppMy',
     path: 'app/my',
     viewKey: 'PROFILE_HOME',
-    title: '我的',
+    title: t('core.navigation.my'),
     access: 'PUBLIC',
     inTabBar: true,
     icon: 'USER_DEFAULT',
@@ -76,7 +77,7 @@ const defaultMenus: AppMenu[] = [
     name: 'AppLogin',
     path: 'app/login',
     viewKey: 'LOGIN',
-    title: '登录',
+    title: t('common.action.login'),
     access: 'GUEST_ONLY',
     inTabBar: false,
   },
@@ -86,7 +87,7 @@ const defaultMenus: AppMenu[] = [
     name: 'AppProtocol',
     path: 'app/protocol/:type',
     viewKey: 'PROTOCOL',
-    title: '协议详情',
+    title: t('core.navigation.protocol'),
     access: 'PUBLIC',
     inTabBar: false,
   },
@@ -96,7 +97,7 @@ const defaultMenus: AppMenu[] = [
     name: 'AppProfile',
     path: 'app/profile',
     viewKey: 'PROFILE',
-    title: '个人信息',
+    title: t('system.profile.title'),
     access: 'AUTHENTICATED',
     inTabBar: false,
   },
@@ -106,7 +107,7 @@ const defaultMenus: AppMenu[] = [
     name: 'AppSettings',
     path: 'app/settings',
     viewKey: 'SETTINGS',
-    title: '设置',
+    title: t('system.settings.title'),
     access: 'AUTHENTICATED',
     inTabBar: false,
   },
@@ -116,7 +117,7 @@ const defaultMenus: AppMenu[] = [
     name: 'AppAi',
     path: 'app/ai',
     viewKey: 'AI',
-    title: 'AI 助手',
+    title: t('system.ai.chatTitle'),
     access: 'AUTHENTICATED',
     inTabBar: false,
   },
@@ -132,7 +133,7 @@ const defaultMenus: AppMenu[] = [
   },
 ]
 
-const menus = ref<AppMenu[]>(defaultMenus)
+const menus = ref<AppMenu[]>([])
 const ready = ref(false)
 let adapter: AppNavigationAdapter = {
   list: () => defBaseMenuService.ListBaseMenu(),
@@ -147,7 +148,7 @@ export function setAppNavigationAdapter(nextAdapter: AppNavigationAdapter): void
 export async function initializeAppNavigation(): Promise<void> {
   const cacheKey = resolveCacheKey()
   const cached = readCachedMenus(cacheKey)
-  menus.value = cached ?? defaultMenus
+  menus.value = cached ?? createDefaultMenus()
   try {
     const nextMenus = normalizeMenuResponse(await adapter.list())
     validateMenus(nextMenus)
@@ -235,7 +236,8 @@ export function launchAppStatus(state: import('./module').BootstrapViewKey, deta
 }
 
 function resolveCacheKey(): string {
-  return hasValidToken() ? AUTHENTICATED_CACHE_KEY : ANONYMOUS_CACHE_KEY
+  const identity = hasValidToken() ? AUTHENTICATED_CACHE_KEY : ANONYMOUS_CACHE_KEY
+  return `${identity}:${getCurrentLocale()}`
 }
 
 function readCachedMenus(cacheKey: string): AppMenu[] | undefined {
@@ -252,15 +254,16 @@ function readCachedMenus(cacheKey: string): AppMenu[] | undefined {
 
 function normalizeMenuResponse(response: unknown): AppMenu[] {
   if (Array.isArray(response)) return response.map(normalizeMenu)
-  if (!response || typeof response !== 'object') throw new Error('菜单响应不是对象')
+  if (!response || typeof response !== 'object')
+    throw new Error(t('core.navigation.error.responseObject'))
   const record = response as Record<string, unknown>
   const list = record.items ?? record.list ?? record.data
-  if (!Array.isArray(list)) throw new Error('菜单响应缺少扁平列表')
+  if (!Array.isArray(list)) throw new Error(t('core.navigation.error.listMissing'))
   return list.map(normalizeMenu)
 }
 
 function normalizeMenu(value: unknown): AppMenu {
-  if (!value || typeof value !== 'object') throw new Error('菜单项不是对象')
+  if (!value || typeof value !== 'object') throw new Error(t('core.navigation.error.itemObject'))
   const item = value as Record<string, unknown>
   const meta = (item.meta ?? {}) as Record<string, unknown>
   const app = (meta.app ?? item.app ?? {}) as Record<string, unknown>
@@ -292,15 +295,19 @@ function validateMenus(nextMenus: AppMenu[]): void {
   const paths = new Set<string>()
   for (const menu of nextMenus) {
     if (!Number.isSafeInteger(menu.id) || !menu.name || !menu.path.startsWith('app/')) {
-      throw new Error('菜单 id、name 或 app/ 路径无效')
+      throw new Error(t('core.navigation.error.identity'))
     }
-    if (!menu.name.startsWith('App')) throw new Error(`菜单名称必须使用 App 前缀：${menu.name}`)
+    if (!menu.name.startsWith('App')) {
+      throw new Error(t('core.navigation.error.namePrefix', { name: menu.name }))
+    }
     if (!['PUBLIC', 'GUEST_ONLY', 'AUTHENTICATED'].includes(menu.access)) {
-      throw new Error(`菜单访问模式无效：${menu.access}`)
+      throw new Error(t('core.navigation.error.access', { access: menu.access }))
     }
-    if (!resolveStaticView(menu.viewKey)) throw new Error(`未注册 viewKey：${menu.viewKey}`)
+    if (!resolveStaticView(menu.viewKey)) {
+      throw new Error(t('core.navigation.error.viewKey', { viewKey: menu.viewKey }))
+    }
     if (ids.has(menu.id) || names.has(menu.name) || paths.has(menu.path)) {
-      throw new Error('菜单 id、name、path 必须唯一')
+      throw new Error(t('core.navigation.error.unique'))
     }
     ids.add(menu.id)
     names.add(menu.name)
@@ -308,23 +315,28 @@ function validateMenus(nextMenus: AppMenu[]): void {
   }
   const menuMap = new Map(nextMenus.map((menu) => [menu.id, menu]))
   for (const menu of nextMenus) {
-    if (menu.parentId === undefined) throw new Error(`菜单缺少父级编号：${menu.name}`)
+    if (menu.parentId === undefined) {
+      throw new Error(t('core.navigation.error.parentMissing', { name: menu.name }))
+    }
     if (menu.parentId === APP_MENU_ROOT_ID) {
-      if (!menu.inTabBar) throw new Error(`移动端二级菜单必须作为 tab：${menu.name}`)
+      if (!menu.inTabBar) throw new Error(t('core.navigation.error.rootTab', { name: menu.name }))
       continue
     }
-    if (menu.inTabBar) throw new Error(`只有移动端二级菜单可以作为 tab：${menu.name}`)
+    if (menu.inTabBar) throw new Error(t('core.navigation.error.childTab', { name: menu.name }))
     const visited = new Set<number>([menu.id])
     let parentId = menu.parentId
     while (parentId !== APP_MENU_ROOT_ID) {
-      if (visited.has(parentId)) throw new Error(`移动端菜单存在循环父级：${menu.name}`)
+      if (visited.has(parentId))
+        throw new Error(t('core.navigation.error.cycle', { name: menu.name }))
       visited.add(parentId)
       const parent = menuMap.get(parentId)
-      if (!parent) throw new Error(`移动端菜单父级不存在：${menu.name}`)
-      if (parent.parentId === undefined) throw new Error(`移动端菜单父级编号无效：${menu.name}`)
+      if (!parent) throw new Error(t('core.navigation.error.parentNotFound', { name: menu.name }))
+      if (parent.parentId === undefined) {
+        throw new Error(t('core.navigation.error.parentInvalid', { name: menu.name }))
+      }
       parentId = parent.parentId
     }
   }
   const tabCount = nextMenus.filter((menu) => menu.parentId === APP_MENU_ROOT_ID).length
-  if (tabCount === 1 || tabCount > 5) throw new Error('tabBar 只能配置 0 或 2-5 项')
+  if (tabCount === 1 || tabCount > 5) throw new Error(t('core.navigation.error.tabCount'))
 }

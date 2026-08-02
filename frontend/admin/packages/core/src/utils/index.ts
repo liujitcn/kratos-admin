@@ -1,6 +1,7 @@
 import { isArray } from "@/utils/is";
 import type { RouteItem, RouteMeta } from "@/rpc/system/admin/v1/auth";
 import { BaseMenuType } from "@/rpc/system/common/v1/enum";
+import { t } from "@/locales";
 
 const mode = import.meta.env.VITE_ROUTER_MODE;
 
@@ -22,7 +23,7 @@ export function getRouteMetaIcon(meta?: RouteMeta) {
  * 获取菜单标题。
  */
 export function getRouteMetaTitle(meta?: RouteMeta) {
-  return meta?.title ?? "未命名菜单";
+  return meta?.title ?? t("core.layout.unnamedMenu");
 }
 
 /**
@@ -169,11 +170,11 @@ export function randomNum(min: number, max: number): number {
 export function getTimeState() {
   let timeNow = new Date();
   let hours = timeNow.getHours();
-  if (hours >= 6 && hours <= 10) return `早上好 ⛅`;
-  if (hours >= 10 && hours <= 14) return `中午好 🌞`;
-  if (hours >= 14 && hours <= 18) return `下午好 🌞`;
-  if (hours >= 18 && hours <= 24) return `晚上好 🌛`;
-  if (hours >= 0 && hours <= 6) return `凌晨好 🌛`;
+  if (hours >= 6 && hours <= 10) return t("core.login.greeting.morning");
+  if (hours >= 10 && hours <= 14) return t("core.login.greeting.noon");
+  if (hours >= 14 && hours <= 18) return t("core.login.greeting.afternoon");
+  if (hours >= 18 && hours <= 24) return t("core.login.greeting.evening");
+  return t("core.login.greeting.night");
 }
 
 /**

@@ -11,6 +11,7 @@
 - 管理端代码生成配置、预览、生成进度和还原。
 - 构建期收集当前项目、宿主项目和外部模块的 README/docs，并在管理端统一查看。
 - 可挂载的 Go Core 模块，以及管理端、应用端的独立 workspace、模块协议和脚手架。
+- 管理端、uni-app、Taro 和后端错误目录的 `zh-CN`、`en-US`、`ja-JP` 三语国际化；动态菜单、字典和代码生成也支持三语。
 
 仓库不包含商城、订单、支付或推荐等业务模块。
 
@@ -84,6 +85,7 @@ uni-app 和 Taro H5 默认分别使用 `5004` 与 `5002`，可以同时启动。
 make -C backend project-docs
 make -C backend gen
 cd backend && go test ./...
+make i18n-check
 
 cd frontend/admin
 pnpm check:exports
@@ -109,6 +111,20 @@ pnpm build:mp-weixin
 ```
 
 `backend/api/gen`、`backend/internal/data/gen`、`backend/internal/docs/assets/docs.json`、`backend/internal/docs/docs.go`、各前端包的 `src/rpc`、OpenAPI 及 `wire_gen.go` 都是生成产物，不得手工修改。所有前端 RPC 的 Buf 配置统一位于 `backend/api`，分别通过 `make -C backend ts`、`make -C backend ts-app` 和 `make -C backend ts-taro-app` 生成。
+
+## 国际化
+
+全端支持 `zh-CN`、`en-US`、`ja-JP`。管理端语言偏好保存为 `kratos-admin:locale`，uni-app 和 Taro 保存为 `kratos-app:locale`；所有 HTTP、刷新令牌、fetch、SSE、uni.request 和 Taro.request 请求都会发送规范化的 `Accept-Language`。固定文案由各 workspace 的 core/System JSON 语言包维护，动态菜单和字典由后端翻译表按请求语言解析，缺少英语或日语时回退中文。
+
+后端错误目录检查与草稿命令：
+
+```bash
+make -C backend i18n-check
+make -C backend i18n-draft
+I18N_WRITE=1 make -C backend i18n-draft
+```
+
+机器翻译仅生成可审核的英语或日语草稿，不参与正常业务读取；Provider 不可用时不影响已审核译文和中文回退。
 
 ## 发布
 

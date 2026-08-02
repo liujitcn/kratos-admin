@@ -1,12 +1,6 @@
-import service, {
-  getRequestAccessToken,
-  handleAuthExpired,
-  requestBaseURL
-} from "@liujitcn/kratos-admin-core/request";
-import type {
-  ListAiMessageRequest,
-  ListAiMessageResponse
-} from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
+import service, { getRequestAccessToken, handleAuthExpired, requestBaseURL } from "@liujitcn/kratos-admin-core/request";
+import { getLocaleRequestHeaders, t } from "@liujitcn/kratos-admin-core";
+import type { ListAiMessageRequest, ListAiMessageResponse } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import type {
   AiMessageService,
   DeleteAiMessageRequest,
@@ -28,7 +22,7 @@ export type AiMessageStreamOptions = {
 
 /** 从 direct stream 错误响应中提取后端业务提示。 */
 async function resolveStreamErrorMessage(response: Response): Promise<string> {
-  const fallbackMessage = `AI 助手请求失败（${response.status}）`;
+  const fallbackMessage = t("system.ai.requestFailedWithStatus", { status: response.status });
   const contentType = response.headers.get("Content-Type") ?? "";
   if (contentType.includes("application/json")) {
     try {
@@ -51,7 +45,8 @@ export async function SendAiMessageStream(request: SendAiMessageRequest, options
   const accessToken = await getRequestAccessToken();
   const headers: Record<string, string> = {
     Accept: "text/event-stream",
-    "Content-Type": "application/json;charset=utf-8"
+    "Content-Type": "application/json;charset=utf-8",
+    ...getLocaleRequestHeaders()
   };
   if (accessToken) headers.Authorization = accessToken;
 
@@ -65,7 +60,7 @@ export async function SendAiMessageStream(request: SendAiMessageRequest, options
   // direct stream 不经过 axios 响应拦截器，需要在这里补齐登录失效处理。
   if (response.status === 401 || response.status === 403) {
     handleAuthExpired();
-    throw new Error("登录状态已失效，请重新登录");
+    throw new Error(t("core.auth.sessionExpired"));
   }
   if (!response.ok) {
     throw new Error(await resolveStreamErrorMessage(response));

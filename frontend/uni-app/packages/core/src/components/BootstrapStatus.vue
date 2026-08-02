@@ -1,11 +1,14 @@
 <script setup lang="ts">
+import { useI18n } from '../locales'
+
 defineProps<{ title?: string; detail?: string }>()
+const { t } = useI18n()
 </script>
 
 <template>
   <view class="bootstrap-status">
     <image class="bootstrap-status__logo" src="../static/images/logo_icon.png" mode="aspectFit" />
-    <text class="bootstrap-status__title">{{ title || '正在加载' }}</text>
+    <text class="bootstrap-status__title">{{ title || t('core.status.loading') }}</text>
     <text v-if="detail" class="bootstrap-status__detail">{{ detail }}</text>
   </view>
 </template>

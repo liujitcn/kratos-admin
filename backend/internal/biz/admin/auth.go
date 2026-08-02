@@ -127,7 +127,12 @@ func (c *AuthCase) TreeUserMenu(ctx context.Context) (*systemadminv1.TreeRouteRe
 		return nil, errorsx.Internal("获取用户菜单失败").WithCause(err)
 	}
 
-	list := c.baseMenuCase.buildRouteTree(menuList, 0)
+	var titles map[int64]string
+	titles, err = c.baseMenuCase.reviewedMenuTitles(ctx, menuList)
+	if err != nil {
+		return nil, errorsx.Internal("获取用户菜单失败").WithCause(err)
+	}
+	list := c.baseMenuCase.buildRouteTree(menuList, 0, titles)
 	return &systemadminv1.TreeRouteResponse{Routes: list}, nil
 }
 

@@ -14,19 +14,29 @@
     <FormDialog
       v-model="dialog.visible"
       ref="formDialogRef"
-      :title="dialog.title"
+      :title="dialogTitle"
       width="min(920px, calc(100vw - 32px))"
       top="4vh"
       :model="formData"
       :fields="formFields"
-      :rules="codeGenTableRules"
+      :rules="tableRules"
       :confirm-loading="saving"
       label-width="116px"
       :gutter="16"
       :col-span="12"
       @confirm="handleSubmit"
       @close="handleCloseDialog"
-    />
+    >
+      <template #tableI18nConfig>
+        <CodeGenLocaleEditor
+          :model-value="formData.i18n_config"
+          :source-comment="formData.comment"
+          :show-left-tree-comment="formData.page_type === 'left_tree'"
+          :source-left-tree-comment="formData.left_tree_config?.comment"
+          @update:model-value="value => (formData.i18n_config = value)"
+        />
+      </template>
+    </FormDialog>
 
     <CodeGenProgressDialog
       v-model="progressDialogVisible"
@@ -41,7 +51,18 @@
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
-import { CirclePlus, Clock, Connection, Delete, Document, EditPen, Promotion, RefreshRight, SetUp, View } from "@element-plus/icons-vue";
+import {
+  CirclePlus,
+  Clock,
+  Connection,
+  Delete,
+  Document,
+  EditPen,
+  Promotion,
+  RefreshRight,
+  SetUp,
+  View
+} from "@element-plus/icons-vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
@@ -63,7 +84,9 @@ import type { BaseMenu } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1
 import type { OptionBaseDictResponse_BaseDictItem } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dict";
 import { BaseMenuType, CodeGenTableStatus } from "@liujitcn/kratos-admin-system/rpc/system/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
+import { t } from "@liujitcn/kratos-admin-core";
 import CodeGenProgressDialog from "../components/CodeGenProgressDialog.vue";
+import CodeGenLocaleEditor from "../components/CodeGenLocaleEditor.vue";
 import {
   codeGenPageTypeOptions,
   codeGenTableRules,
@@ -117,12 +140,12 @@ const progressTaskAvailable = ref(!!progressTaskId.value);
 const generating = ref(!!progressTaskId.value);
 const progressSelectedTableIds = ref<Array<string | number>>(readProgressSelectedTableIds());
 
-const dialog = reactive({
-  title: "",
-  visible: false
-});
+const dialog = reactive({ editing: false, visible: false });
 
 const formData = reactive<CodeGenTableFormState>({ ...createDefaultCodeGenTableForm(), parent_menu_id: undefined });
+const dialogTitle = computed(() => t(dialog.editing ? "system.codegen.table.title.edit" : "system.codegen.table.title.create"));
+const tableRules = computed(() => codeGenTableRules());
+const pageTypeOptions = computed(() => codeGenPageTypeOptions());
 
 /** 当前业务表选择项。 */
 const databaseTableOptions = computed<ProFormOption[]>(() =>
@@ -145,7 +168,11 @@ const leftTreeTableOptions = computed<ProFormOption[]>(() =>
 const businessModuleOptions = computed<ProFormOption[]>(() => {
   const options: ProFormOption[] = businessModuleItems.value.map(item => ({ label: item.label, value: item.value }));
   if (formData.business_module && !options.some(item => item.value === formData.business_module)) {
-    options.push({ label: `${formData.business_module}（已停用）`, value: formData.business_module, disabled: true });
+    options.push({
+      label: t("system.codegen.table.value.disabledModule", { module: formData.business_module }),
+      value: formData.business_module,
+      disabled: true
+    });
   }
   return options;
 });
@@ -161,13 +188,13 @@ const formFields = computed<ProFormField[]>(() => [
   // 标签提示与当前生成器的实际读写逻辑保持一致，方便配置时判断影响范围。
   {
     prop: "name",
-    label: "业务表名",
+    label: t("system.codegen.table.field.name"),
     component: "select",
     options: databaseTableOptions.value,
     colSpan: 24,
-    labelTooltip: "选择代码生成的源数据库表。生成器据此读取字段元数据、定位数据模型和生成目标；同一张表不能重复配置。",
+    labelTooltip: t("system.codegen.table.tooltip.name"),
     props: {
-      placeholder: "请选择数据库表",
+      placeholder: t("system.codegen.table.placeholder.databaseTable"),
       clearable: true,
       filterable: true,
       style: { width: "100%" },
@@ -176,29 +203,36 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "comment",
-    label: "业务表描述",
+    label: t("system.codegen.table.field.comment"),
     component: "input",
     colSpan: 24,
-    labelTooltip: "业务的中文描述。生成器优先用它写入 Proto、后端和前端文案，并作为生成菜单标题；修改后在下次生成生效。",
-    props: { placeholder: "选择业务表后自动带出，可修改" }
+    labelTooltip: t("system.codegen.table.tooltip.comment"),
+    props: { placeholder: t("system.codegen.table.placeholder.comment") }
+  },
+  {
+    prop: "i18n_config",
+    label: t("system.codegen.i18n.field.translations"),
+    component: "slot",
+    slotName: "tableI18nConfig",
+    colSpan: 24,
+    labelTooltip: t("system.codegen.i18n.tooltip.table")
   },
   {
     prop: "business_module",
-    label: "业务模块",
+    label: t("system.codegen.table.field.businessModule"),
     component: "select",
     options: businessModuleOptions.value,
-    labelTooltip: "选择业务模块后，Proto、后端服务、前端 API 与页面路径均由模块和表名自动推导。",
-    props: { placeholder: "请选择业务模块", filterable: true, style: { width: "100%" } }
+    labelTooltip: t("system.codegen.table.tooltip.businessModule"),
+    props: { placeholder: t("system.codegen.table.placeholder.businessModule"), filterable: true, style: { width: "100%" } }
   },
   {
     prop: "parent_menu_id",
-    label: "父级菜单",
+    label: t("system.codegen.table.field.parentMenu"),
     component: "tree-select",
     options: parentMenuOptions.value,
-    labelTooltip:
-      "选择一级模块目录或二级业务目录作为挂载点。仅当同时生成前端、开启“生成SQL”且页面接口完整时，生成流程才会同步页面菜单和按钮权限。",
+    labelTooltip: t("system.codegen.table.tooltip.parentMenu"),
     props: {
-      placeholder: "请选择生成页面挂载菜单",
+      placeholder: t("system.codegen.table.placeholder.parentMenu"),
       clearable: true,
       filterable: true,
       checkStrictly: true,
@@ -208,38 +242,48 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "page_type",
-    label: "页面类型",
+    label: t("system.codegen.table.field.pageType"),
     component: "segmented",
-    options: codeGenPageTypeOptions,
-    labelTooltip: "普通表格生成分页 CRUD；树形表格生成完整层级列表；树形懒加载按节点请求子列表；左树右表生成左侧树筛选与右侧列表。",
+    options: pageTypeOptions.value,
+    labelTooltip: t("system.codegen.table.tooltip.pageType"),
     props: { onChange: handlePageTypeChange }
   },
   {
     prop: "parent_column",
-    label: "父节点字段",
+    label: t("system.codegen.table.field.parentColumn"),
     component: "select",
     options: databaseColumnOptions.value,
-    labelTooltip: "树形表格中指向父记录的字段，例如 parent_id。它决定生成的树查询和选项接口如何组织父子层级。",
-    props: { placeholder: "请选择父节点字段", clearable: true, filterable: true, style: { width: "100%" } },
+    labelTooltip: t("system.codegen.table.tooltip.parentColumn"),
+    props: {
+      placeholder: t("system.codegen.table.placeholder.parentColumn"),
+      clearable: true,
+      filterable: true,
+      style: { width: "100%" }
+    },
     visible: model => isCodeGenTreePageType(model.page_type)
   },
   {
     prop: "tree_label_column",
-    label: "树显示字段",
+    label: t("system.codegen.table.field.treeLabelColumn"),
     component: "select",
     options: databaseColumnOptions.value,
-    labelTooltip: "树节点显示的文字字段，例如 name。它会写入生成的树查询和选项接口响应，并显示在前端树节点上。",
-    props: { placeholder: "请选择树显示字段", clearable: true, filterable: true, style: { width: "100%" } },
+    labelTooltip: t("system.codegen.table.tooltip.treeLabelColumn"),
+    props: {
+      placeholder: t("system.codegen.table.placeholder.treeLabelColumn"),
+      clearable: true,
+      filterable: true,
+      style: { width: "100%" }
+    },
     visible: model => isCodeGenTreePageType(model.page_type)
   },
   {
     prop: "left_tree_config.table_name",
-    label: "左树数据表",
+    label: t("system.codegen.table.field.leftTreeTable"),
     component: "select",
     options: leftTreeTableOptions.value,
-    labelTooltip: "左侧树的数据来源。它决定要调用哪个实体的树选项接口，并限定左树父、显示和值字段的可选范围。",
+    labelTooltip: t("system.codegen.table.tooltip.leftTreeTable"),
     props: {
-      placeholder: "请选择左树数据表",
+      placeholder: t("system.codegen.table.placeholder.leftTreeTable"),
       clearable: true,
       filterable: true,
       style: { width: "100%" },
@@ -249,126 +293,158 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "left_tree_config.comment",
-    label: "左树描述",
+    label: t("system.codegen.table.field.leftTreeComment"),
     component: "input",
-    labelTooltip: "左侧树的中文说明。页面预览会优先显示该标题；它不改变生成接口、路由或文件路径。",
-    props: { placeholder: "选择左树数据表后自动带出，可修改" },
+    labelTooltip: t("system.codegen.table.tooltip.leftTreeComment"),
+    props: { placeholder: t("system.codegen.table.placeholder.leftTreeComment") },
     visible: model => model.page_type === "left_tree"
   },
   {
     prop: "left_tree_config.filter_column",
-    label: "筛选字段",
-    labelTooltip: "当前业务表中关联左树节点值的字段。点击左树节点后，生成页面会把节点值作为该字段的查询条件传给右侧列表。",
+    label: t("system.codegen.table.field.filterColumn"),
+    labelTooltip: t("system.codegen.table.tooltip.filterColumn"),
     component: "select",
     options: databaseColumnOptions.value,
-    props: { placeholder: "请选择当前表筛选字段", clearable: true, filterable: true, style: { width: "100%" } },
+    props: {
+      placeholder: t("system.codegen.table.placeholder.filterColumn"),
+      clearable: true,
+      filterable: true,
+      style: { width: "100%" }
+    },
     visible: model => model.page_type === "left_tree"
   },
   {
     prop: "left_tree_config.parent_column",
-    label: "左树父字段",
+    label: t("system.codegen.table.field.leftTreeParentColumn"),
     component: "select",
     options: leftTreeColumnOptions.value,
-    labelTooltip: "左树数据表中指向父节点的字段，例如 parent_id。它决定左侧选项接口如何返回层级 children。",
-    props: { placeholder: "请选择左树父字段", clearable: true, filterable: true, style: { width: "100%" } },
+    labelTooltip: t("system.codegen.table.tooltip.leftTreeParentColumn"),
+    props: {
+      placeholder: t("system.codegen.table.placeholder.leftTreeParentColumn"),
+      clearable: true,
+      filterable: true,
+      style: { width: "100%" }
+    },
     visible: model => model.page_type === "left_tree"
   },
   {
     prop: "left_tree_config.label_column",
-    label: "左树显示字段",
+    label: t("system.codegen.table.field.leftTreeLabelColumn"),
     component: "select",
     options: leftTreeColumnOptions.value,
-    labelTooltip: "左树节点显示的文字字段，例如 name。它会映射为左侧 TreeFilter 组件的节点标签。",
-    props: { placeholder: "请选择左树显示字段", clearable: true, filterable: true, style: { width: "100%" } },
+    labelTooltip: t("system.codegen.table.tooltip.leftTreeLabelColumn"),
+    props: {
+      placeholder: t("system.codegen.table.placeholder.leftTreeLabelColumn"),
+      clearable: true,
+      filterable: true,
+      style: { width: "100%" }
+    },
     visible: model => model.page_type === "left_tree"
   },
   {
     prop: "left_tree_config.value_column",
-    label: "左树值字段",
+    label: t("system.codegen.table.field.leftTreeValueColumn"),
     component: "select",
     options: leftTreeColumnOptions.value,
-    labelTooltip: "左树节点的唯一值字段，通常为主键 id。它作为点击节点后传给右侧列表筛选字段的值。",
-    props: { placeholder: "请选择左树值字段", clearable: true, filterable: true, style: { width: "100%" } },
+    labelTooltip: t("system.codegen.table.tooltip.leftTreeValueColumn"),
+    props: {
+      placeholder: t("system.codegen.table.placeholder.leftTreeValueColumn"),
+      clearable: true,
+      filterable: true,
+      style: { width: "100%" }
+    },
     visible: model => model.page_type === "left_tree"
   },
   {
     prop: "left_tree_config.lazy",
-    label: "左树懒加载",
+    label: t("system.codegen.table.field.leftTreeLazy"),
     component: "switch",
-    labelTooltip: "开启后左树只请求当前展开节点的子节点，适合层级较深或数据量较大的树。",
-    props: { activeText: "懒加载", inactiveText: "全部加载" },
+    labelTooltip: t("system.codegen.table.tooltip.leftTreeLazy"),
+    props: { activeText: t("system.codegen.value.lazy"), inactiveText: t("system.codegen.value.eager") },
     visible: model => model.page_type === "left_tree"
   },
   {
     prop: "gen_backend",
-    label: "生成后端",
+    label: t("system.codegen.table.field.genBackend"),
     component: "switch",
-    labelTooltip: "开启后生成 Proto、后端 Biz/Service 及注册代码；关闭后本次任务不会写入这些后端文件。",
+    labelTooltip: t("system.codegen.table.tooltip.genBackend"),
     // 三个生成开关始终从新行开始并排展示。
     rowBreakBefore: true,
     colSpan: 8,
-    props: { activeText: "生成", inactiveText: "跳过" }
+    props: { activeText: t("system.codegen.value.generate"), inactiveText: t("system.codegen.value.skip") }
   },
   {
     prop: "gen_frontend",
-    label: "生成前端",
+    label: t("system.codegen.table.field.genFrontend"),
     component: "switch",
-    labelTooltip: "开启后生成前端 API 和 Vue 页面；同时它也是同步页面菜单与按钮权限的前置条件。",
+    labelTooltip: t("system.codegen.table.tooltip.genFrontend"),
     colSpan: 8,
-    props: { activeText: "生成", inactiveText: "跳过" }
+    props: { activeText: t("system.codegen.value.generate"), inactiveText: t("system.codegen.value.skip") }
   },
   {
     prop: "gen_sql",
-    label: "生成SQL",
+    label: t("system.codegen.table.field.genSql"),
     component: "switch",
     colSpan: 8,
-    labelTooltip: "开启后在满足前端生成与页面接口完整的条件下，同时同步菜单和按钮权限到数据库，并复用或新增当前未执行的数据库迁移脚本。",
-    props: { activeText: "生成", inactiveText: "跳过" }
+    labelTooltip: t("system.codegen.table.tooltip.genSql"),
+    props: { activeText: t("system.codegen.value.generate"), inactiveText: t("system.codegen.value.skip") }
   },
   {
     prop: "status",
-    label: "状态",
+    label: t("system.codegen.table.field.status"),
     component: "dict",
     colSpan: 24,
     props: { code: "code_gen_table_status", codeType: "number", type: "radio" },
-    labelTooltip: "草稿和已生成配置均可再次生成；停用后只能查看，生成任务会拒绝写入任何文件。成功生成后状态自动更新为“已生成”。"
+    labelTooltip: t("system.codegen.table.tooltip.status")
   },
   {
     prop: "remark",
-    label: "备注",
+    label: t("system.codegen.table.field.remark"),
     component: "textarea",
     colSpan: 24,
-    labelTooltip: "仅保存给维护人员的配置备注，不参与生成文件、接口、路由或权限的命名。",
-    props: { placeholder: "请输入备注", rows: 3 }
+    labelTooltip: t("system.codegen.table.tooltip.remark"),
+    props: { placeholder: t("system.codegen.table.placeholder.remark"), rows: 3 }
   }
 ]);
 
 /** 代码生成表配置列表列。 */
-const columns: ColumnProps[] = [
+const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
-  { prop: "name", label: "业务表名", minWidth: 160, search: { el: "input" } },
-  { prop: "comment", label: "业务表描述", minWidth: 160, showOverflowTooltip: true },
+  { prop: "name", label: t("system.codegen.table.field.name"), minWidth: 160, search: { el: "input" } },
+  { prop: "comment", label: t("system.codegen.table.field.comment"), minWidth: 160, showOverflowTooltip: true },
   {
     prop: "business_module",
-    label: "业务模块",
+    label: t("system.codegen.table.field.businessModule"),
     minWidth: 140,
     dictCode: "business_module",
     dictValueType: "string",
     search: { el: "select" }
   },
-  { prop: "page_type", label: "页面类型", minWidth: 120, enum: codeGenPageTypeOptions, search: { el: "select" } },
-  { prop: "status", label: "状态", width: 100, dictCode: "code_gen_table_status", search: { el: "select" } },
-  { prop: "remark", label: "备注", minWidth: 180, showOverflowTooltip: true },
-  { prop: "created_at", label: "创建时间", minWidth: 180 },
+  {
+    prop: "page_type",
+    label: t("system.codegen.table.field.pageType"),
+    minWidth: 120,
+    enum: pageTypeOptions.value,
+    search: { el: "select" }
+  },
+  {
+    prop: "status",
+    label: t("system.codegen.table.field.status"),
+    width: 100,
+    dictCode: "code_gen_table_status",
+    search: { el: "select" }
+  },
+  { prop: "remark", label: t("system.codegen.table.field.remark"), minWidth: 180, showOverflowTooltip: true },
+  { prop: "created_at", label: t("system.codegen.table.field.createdAt"), minWidth: 180 },
   {
     prop: "operation",
-    label: "操作",
+    label: t("common.field.operation"),
     width: 660,
     fixed: "right",
     cellType: "actions",
     actions: [
       {
-        label: "字段配置",
+        label: t("system.codegen.table.action.columns"),
         type: "success",
         link: true,
         icon: SetUp,
@@ -376,7 +452,7 @@ const columns: ColumnProps[] = [
         onClick: scope => handleOpenColumnConfig((scope.row as CodeGenTable).id)
       },
       {
-        label: "Proto配置",
+        label: t("system.codegen.table.action.proto"),
         type: "warning",
         link: true,
         icon: Connection,
@@ -384,7 +460,7 @@ const columns: ColumnProps[] = [
         onClick: scope => handleOpenProtoConfig((scope.row as CodeGenTable).id)
       },
       {
-        label: "页面预览",
+        label: t("system.codegen.table.action.pagePreview"),
         type: "primary",
         link: true,
         icon: View,
@@ -392,7 +468,7 @@ const columns: ColumnProps[] = [
         onClick: scope => handleOpenPreview((scope.row as CodeGenTable).id)
       },
       {
-        label: "代码预览",
+        label: t("system.codegen.table.action.codePreview"),
         type: "primary",
         link: true,
         icon: Document,
@@ -400,7 +476,7 @@ const columns: ColumnProps[] = [
         onClick: scope => handleOpenCodePreview((scope.row as CodeGenTable).id)
       },
       {
-        label: "生成",
+        label: t("system.codegen.action.generate"),
         type: "success",
         link: true,
         icon: Promotion,
@@ -409,7 +485,7 @@ const columns: ColumnProps[] = [
         onClick: scope => handleGenerate(scope.row as CodeGenTable)
       },
       {
-        label: "还原",
+        label: t("system.codegen.action.restore"),
         type: "warning",
         link: true,
         icon: RefreshRight,
@@ -418,7 +494,7 @@ const columns: ColumnProps[] = [
         onClick: scope => handleRestore(scope.row as CodeGenTable)
       },
       {
-        label: "编辑",
+        label: t("common.action.edit"),
         type: "primary",
         link: true,
         icon: EditPen,
@@ -426,7 +502,7 @@ const columns: ColumnProps[] = [
         onClick: scope => handleOpenDialog((scope.row as CodeGenTable).id)
       },
       {
-        label: "删除",
+        label: t("common.action.delete"),
         type: "danger",
         link: true,
         icon: Delete,
@@ -435,7 +511,7 @@ const columns: ColumnProps[] = [
       }
     ]
   }
-];
+]);
 
 /** 打开已经保存的代码生成页面预览。 */
 async function handleOpenPreview(tableId: number) {
@@ -453,16 +529,16 @@ async function handleOpenProtoConfig(tableId: number) {
 }
 
 /** 代码生成表配置列表顶部操作。 */
-const headerActions: HeaderActionProps[] = [
+const headerActions = computed<HeaderActionProps[]>(() => [
   {
-    label: "新增",
+    label: t("common.action.create"),
     type: "success",
     icon: CirclePlus,
     hidden: () => !BUTTONS.value["tool:code-gen-table:create"],
     onClick: () => handleOpenDialog()
   },
   {
-    label: "批量生成",
+    label: t("system.codegen.action.batchGenerate"),
     type: "primary",
     icon: Promotion,
     hidden: () => !BUTTONS.value["tool:code-gen-table:generate"],
@@ -470,7 +546,7 @@ const headerActions: HeaderActionProps[] = [
     onClick: scope => handleGenerate(scope.selectedList as CodeGenTable[])
   },
   {
-    label: "批量还原",
+    label: t("system.codegen.action.batchRestore"),
     type: "warning",
     icon: RefreshRight,
     hidden: () => !BUTTONS.value["tool:code-gen-table:restore"],
@@ -478,21 +554,21 @@ const headerActions: HeaderActionProps[] = [
     onClick: scope => handleRestore(scope.selectedList as CodeGenTable[])
   },
   {
-    label: "最近任务",
+    label: t("system.codegen.action.recentTask"),
     icon: Clock,
     hidden: () => !BUTTONS.value["tool:code-gen-table:generate"],
     disabled: () => !progressTaskAvailable.value,
     onClick: handleOpenProgress
   },
   {
-    label: "删除",
+    label: t("common.action.delete"),
     type: "danger",
     icon: Delete,
     hidden: () => !BUTTONS.value["tool:code-gen-table:delete"],
     disabled: scope => !scope.selectedList.length,
     onClick: scope => handleDelete(scope.selectedList as CodeGenTable[])
   }
-];
+]);
 
 /** 打开已经保存的代码生成文件预览。 */
 async function handleOpenCodePreview(tableId: number) {
@@ -503,19 +579,22 @@ async function handleOpenCodePreview(tableId: number) {
 async function handleGenerate(selected: CodeGenGenerateTarget) {
   const tables = Array.isArray(selected) ? selected : [selected];
   if (!tables.length) {
-    ElMessage.warning("请勾选生成项");
+    ElMessage.warning(t("system.codegen.table.message.selectGenerate"));
     return;
   }
   const disabledTable = tables.find(table => table.status === codeGenStatusDisabled);
   if (disabledTable) {
-    ElMessage.warning(`代码生成表配置 ${disabledTable.name} 已停用`);
+    ElMessage.warning(t("system.codegen.table.message.disabled", { name: disabledTable.name }));
     return;
   }
-  const message = tables.length === 1 ? `确认生成业务表：${tables[0].name}？` : `确认按勾选顺序生成 ${tables.length} 个业务表？`;
+  const message =
+    tables.length === 1
+      ? t("system.codegen.table.dialog.generateOne", { name: tables[0].name })
+      : t("system.codegen.table.dialog.generateBatch", { count: tables.length });
   try {
-    await ElMessageBox.confirm(message, "提示", {
-      confirmButtonText: "确认",
-      cancelButtonText: "取消",
+    await ElMessageBox.confirm(message, t("common.title.notice"), {
+      confirmButtonText: t("common.action.confirm"),
+      cancelButtonText: t("common.action.cancel"),
       type: "warning"
     });
   } catch {
@@ -543,24 +622,24 @@ async function handleRestore(selected: CodeGenRestoreTarget) {
   const tables = Array.isArray(selected) ? selected : [selected];
   const restorableTables = tables.filter(table => table.restore_available);
   if (!restorableTables.length) {
-    ElMessage.warning("请选择有可用还原快照的代码生成项");
+    ElMessage.warning(t("system.codegen.table.message.selectRestore"));
     return;
   }
   const message =
     restorableTables.length === 1
-      ? `确认还原业务表：${restorableTables[0].name}？生成文件、页面菜单和按钮权限将恢复到生成前状态。`
-      : `确认批量还原 ${restorableTables.length} 个业务表？批量生成的共享文件必须整批还原。`;
+      ? t("system.codegen.table.dialog.restoreOne", { name: restorableTables[0].name })
+      : t("system.codegen.table.dialog.restoreBatch", { count: restorableTables.length });
   try {
-    await ElMessageBox.confirm(message, "警告", {
-      confirmButtonText: "确认还原",
-      cancelButtonText: "取消",
+    await ElMessageBox.confirm(message, t("common.title.warning"), {
+      confirmButtonText: t("system.codegen.action.confirmRestore"),
+      cancelButtonText: t("common.action.cancel"),
       type: "warning"
     });
   } catch {
     return;
   }
   await defCodeGenService.RestoreCodeGen({ table_ids: restorableTables.map(table => table.id) });
-  ElMessage.success("还原代码生成结果成功");
+  ElMessage.success(t("system.codegen.table.message.restoreSuccess"));
   progressSelectedTableIds.value = [];
   proTable.value?.clearSelection();
   refreshTable();
@@ -654,9 +733,7 @@ async function handleOpenDialog(tableId?: number) {
         databaseTables.value.find(item => item.name === formData.left_tree_config?.table_name)?.comment ?? "";
     }
     await Promise.all([loadDatabaseColumns(databaseColumns, formData.name), loadLeftTreeDatabaseColumns()]);
-    dialog.title = "编辑代码生成表配置";
-  } else {
-    dialog.title = "新增代码生成表配置";
+    dialog.editing = true;
   }
   dialog.visible = true;
 }
@@ -670,6 +747,7 @@ function handleCloseDialog() {
 /** 重置弹窗表单和字段选项。 */
 function resetForm() {
   Object.assign(formData, { ...createDefaultCodeGenTableForm(), parent_menu_id: undefined });
+  dialog.editing = false;
   databaseColumns.value = [];
   leftTreeDatabaseColumns.value = [];
   void nextTick(() => {
@@ -682,6 +760,7 @@ function resetForm() {
 async function handleTableNameChange(tableName: string) {
   const table = databaseTables.value.find(item => item.name === tableName);
   formData.comment = table?.comment ?? "";
+  formData.i18n_config = new Map();
   await loadDatabaseColumns(databaseColumns, tableName);
   resetUnavailableTableColumns();
   formData.parent_column = resolveDefaultColumn(databaseColumns.value, "parent_id");
@@ -722,10 +801,10 @@ async function handleSubmit() {
   try {
     if (formData.id) {
       await defCodeGenTableService.UpdateCodeGenTable({ id: formData.id, code_gen_table: payload });
-      ElMessage.success("编辑代码生成表配置成功");
+      ElMessage.success(t("system.codegen.table.message.updateSuccess"));
     } else {
       await defCodeGenTableService.CreateCodeGenTable({ code_gen_table: payload });
-      ElMessage.success("新增代码生成表配置成功");
+      ElMessage.success(t("system.codegen.table.message.createSuccess"));
     }
     handleCloseDialog();
     refreshTable();
@@ -745,23 +824,25 @@ async function handleDelete(selected?: CodeGenDeleteTarget) {
     tableList.length ? tableList.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");
   if (!tableIds) {
-    ElMessage.warning("请勾选删除项");
+    ElMessage.warning(t("system.codegen.table.message.selectDelete"));
     return;
   }
   const confirmMessage =
-    tableList.length === 1 ? `确认删除业务表：${tableList[0].name}？` : `确认删除已选中的 ${tableList.length} 条配置？`;
+    tableList.length === 1
+      ? t("system.codegen.table.dialog.deleteOne", { name: tableList[0].name })
+      : t("system.codegen.table.dialog.deleteBatch", { count: tableList.length });
   try {
-    await ElMessageBox.confirm(confirmMessage, "警告", {
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
+    await ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
+      confirmButtonText: t("common.action.confirm"),
+      cancelButtonText: t("common.action.cancel"),
       type: "warning"
     });
   } catch {
-    ElMessage.info("已取消删除代码生成表配置");
+    ElMessage.info(t("system.codegen.table.message.deleteCanceled"));
     return;
   }
   await defCodeGenTableService.DeleteCodeGenTable({ ids: tableIds });
-  ElMessage.success("删除代码生成表配置成功");
+  ElMessage.success(t("system.codegen.table.message.deleteSuccess"));
   refreshTable();
 }
 
@@ -849,7 +930,6 @@ function ensureLeftTreeConfig() {
   formData.left_tree_config ??= createDefaultCodeGenLeftTreeConfig();
   return formData.left_tree_config;
 }
-
 </script>
 
 <style scoped lang="scss">

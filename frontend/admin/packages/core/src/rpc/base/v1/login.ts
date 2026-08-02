@@ -22,8 +22,7 @@ export interface PasswordPublicKeyRequest {
 }
 
 /** 登出请求条件 */
-export interface LogoutRequest {
-}
+export interface LogoutRequest {}
 
 /** 验证码响应 */
 export interface CaptchaResponse {
@@ -90,9 +89,7 @@ export interface LoginRequest {
   /** 用户名，必选项。 */
   user_name: string;
   /** 用户的密码，必选项。 */
-  password:
-    | PasswordCrypto
-    | undefined;
+  password: PasswordCrypto | undefined;
   /** 验证码 */
   captcha_code: string;
   /** 验证码Id */

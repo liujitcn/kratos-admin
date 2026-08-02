@@ -23,17 +23,17 @@ packages/cli
 └── tsconfig.json
 ```
 
-| 路径                                                             | 作用                                                         |
-| ---------------------------------------------------------------- | ------------------------------------------------------------ |
-| `src/index.ts`                                                   | 解析 `create` 命令并生成宿主与一个或多个业务 module。        |
-| `src/index.test.ts`                                              | 验证多 module、默认 System、README 和依赖生成行为。          |
-| `templates/business-workspace/`                                  | 完整业务 workspace 模板；目录和文本中的占位符由 CLI 替换。   |
-| `templates/business-workspace/apps/admin/`                       | 生成项目的薄宿主模板。                                       |
-| `templates/business-workspace/packages/modules/__MODULE_NAME__/` | 生成项目的可发布业务模块模板。                               |
-| `templates/business-workspace/scripts/build-package.mjs`         | 生成业务模块发布源码和声明文件。                             |
-| `package.json`                                                   | 声明 `kratos-admin` 可执行命令、脚本、Node 版本和发布配置。   |
-| `README.md`                                                      | CLI 使用方法、模板结构和维护说明。                           |
-| `tsconfig.json`                                                  | CLI 源码、测试的编译配置和 `dist` 输出规则。                 |
+| 路径                                                             | 作用                                                        |
+| ---------------------------------------------------------------- | ----------------------------------------------------------- |
+| `src/index.ts`                                                   | 解析 `create` 命令并生成宿主与一个或多个业务 module。       |
+| `src/index.test.ts`                                              | 验证多 module、默认 System、README 和依赖生成行为。         |
+| `templates/business-workspace/`                                  | 完整业务 workspace 模板；目录和文本中的占位符由 CLI 替换。  |
+| `templates/business-workspace/apps/admin/`                       | 生成项目的薄宿主模板。                                      |
+| `templates/business-workspace/packages/modules/__MODULE_NAME__/` | 生成项目的可发布业务模块模板。                              |
+| `templates/business-workspace/scripts/build-package.mjs`         | 生成业务模块发布源码和声明文件。                            |
+| `package.json`                                                   | 声明 `kratos-admin` 可执行命令、脚本、Node 版本和发布配置。 |
+| `README.md`                                                      | CLI 使用方法、模板结构和维护说明。                          |
+| `tsconfig.json`                                                  | CLI 源码、测试的编译配置和 `dist` 输出规则。                |
 
 模板内部每个含 `package.json` 的目录都有同级 README，生成时目录名、包名、模块变量和文档占位符会一起替换。
 
@@ -64,23 +64,23 @@ CLI 始终先引入 `@liujitcn/kratos-admin-system`。`--module` 可重复使用
 
 ## 模板占位符
 
-| 占位符                  | 生成内容                                 |
-| ----------------------- | ---------------------------------------- |
-| `__PROJECT_NAME__`      | 项目目录名称，例如 `shop-admin`。        |
-| `__APP_PACKAGE__`       | 宿主包名，例如 `@shop/admin-app`。       |
-| `__APP_DEPENDENCIES__`  | System、自有 module 和额外 module 依赖。 |
-| `__MODULE_NAME__`       | kebab-case 模块名，例如 `shop`。         |
-| `__MODULE_PASCAL__`     | PascalCase 模块名，例如 `Shop`。         |
-| `__MODULE_PACKAGE__`    | 模块包名，例如 `@shop/admin-module`。    |
-| `__MODULE_IDENTIFIER__` | 模块入口变量，例如 `shopAdminModule`。   |
+| 占位符                  | 生成内容                                  |
+| ----------------------- | ----------------------------------------- |
+| `__PROJECT_NAME__`      | 项目目录名称，例如 `shop-admin`。         |
+| `__APP_PACKAGE__`       | 宿主包名，例如 `@shop/admin-app`。        |
+| `__APP_DEPENDENCIES__`  | System、自有 module 和额外 module 依赖。  |
+| `__MODULE_NAME__`       | kebab-case 模块名，例如 `shop`。          |
+| `__MODULE_PASCAL__`     | PascalCase 模块名，例如 `Shop`。          |
+| `__MODULE_PACKAGE__`    | 模块包名，例如 `@shop/admin-module`。     |
+| `__MODULE_IDENTIFIER__` | 模块入口变量，例如 `shopAdminModule`。    |
 | `__CORE_VERSION__`      | 当前 CLI 包版本对应的公开包 semver 范围。 |
-| `__MODULE_FILTERS__`    | 全部自有 module 的 workspace 过滤参数。  |
-| `__MODULE_MANIFEST__`   | 宿主模块加载器、包名和预构建依赖清单。   |
-| `__MODULE_NAMES__`      | 文档中的全部自有 module 名称。           |
-| `__MODULE_PACKAGES__`   | 文档中的全部自有 module 包名。           |
-| `__MODULE_PATHS__`      | 全部自有 module 的 TypeScript 路径映射。 |
-| `__MODULE_TREE__`       | 文档中的自有 module 目录树。             |
-| `__MODULE_TABLE_ROWS__` | 文档中的自有 module 目录说明。           |
+| `__MODULE_FILTERS__`    | 全部自有 module 的 workspace 过滤参数。   |
+| `__MODULE_MANIFEST__`   | 宿主模块加载器、包名和预构建依赖清单。    |
+| `__MODULE_NAMES__`      | 文档中的全部自有 module 名称。            |
+| `__MODULE_PACKAGES__`   | 文档中的全部自有 module 包名。            |
+| `__MODULE_PATHS__`      | 全部自有 module 的 TypeScript 路径映射。  |
+| `__MODULE_TREE__`       | 文档中的自有 module 目录树。              |
+| `__MODULE_TABLE_ROWS__` | 文档中的自有 module 目录说明。            |
 
 ## 维护与验证
 

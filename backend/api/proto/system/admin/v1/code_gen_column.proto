@@ -6,6 +6,7 @@ import "gnostic/openapi/v3/annotations.proto";
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
+import "system/admin/v1/base_translation.proto";
 
 // Admin代码生成字段服务
 service CodeGenColumnService {
@@ -109,6 +110,8 @@ message CodeGenColumn {
   CodeGenColumnFormConfig form_config = 16 [(gnostic.openapi.v3.property) = {description: "表单录入配置"}]; // 表单录入配置
 
   int32 sort = 17 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
+
+  map<string, CodeGenLocaleConfig> i18n_config = 18 [(gnostic.openapi.v3.property) = {description: "按语言区域索引的字段国际化配置"}]; // 按语言区域索引的字段国际化配置
 }
 
 // 代码生成字段查询条件配置

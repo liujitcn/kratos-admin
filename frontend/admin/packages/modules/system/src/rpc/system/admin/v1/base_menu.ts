@@ -9,17 +9,14 @@ import type { TreeOptionResponse } from "../../../common/v1/common";
 import type { Status } from "../../../common/v1/enum";
 import type { Empty } from "../../../google/protobuf/empty";
 import type { BaseMenuType } from "../../common/v1/enum";
+import type { TranslationStatus } from "./base_translation";
 
 /** 菜单选项查询条件 */
 export interface OptionBaseMenuRequest {
   /** 父级菜单ID */
-  parent_id?:
-    | number
-    | undefined;
+  parent_id?: number | undefined;
   /** 目标角色ID */
-  role_id?:
-    | number
-    | undefined;
+  role_id?: number | undefined;
   /** 是否懒加载 */
   lazy?: boolean | undefined;
 }
@@ -27,9 +24,7 @@ export interface OptionBaseMenuRequest {
 /** 菜单树查询条件 */
 export interface TreeBaseMenuRequest {
   /** 父级菜单ID */
-  parent_id?:
-    | number
-    | undefined;
+  parent_id?: number | undefined;
   /** 是否懒加载 */
   lazy?: boolean | undefined;
 }
@@ -51,9 +46,7 @@ export interface BaseMenuForm {
   /** 菜单ID */
   id: number;
   /** 父级菜单ID */
-  parent_id?:
-    | number
-    | undefined;
+  parent_id?: number | undefined;
   /** 菜单类型 */
   type: BaseMenuType;
   /** 菜单路径、按钮权限标识或外链内部路径，目录可为空 */
@@ -65,11 +58,11 @@ export interface BaseMenuForm {
   /** 目录跳转路由或外链地址 */
   redirect: string;
   /** 路由元信息 */
-  meta:
-    | BaseMenuMeta
-    | undefined;
+  meta: BaseMenuMeta | undefined;
   /** 分配的API列表 */
   api: string[];
+  /** 非默认语言翻译 */
+  translations: BaseMenuTranslation[];
   /** 排序 */
   sort: number;
   /** 状态 */
@@ -119,9 +112,9 @@ export interface BaseMenu {
   /** 重定向地址 */
   redirect: string;
   /** 路由元信息 */
-  meta:
-    | BaseMenuMeta
-    | undefined;
+  meta: BaseMenuMeta | undefined;
+  /** 非默认语言翻译 */
+  translations: BaseMenuTranslation[];
   /** 排序 */
   sort: number;
   /** 状态 */
@@ -141,29 +134,17 @@ export interface BaseMenuMeta {
   /** 菜单标题 */
   title: string;
   /** 菜单图标 */
-  icon?:
-    | string
-    | undefined;
+  icon?: string | undefined;
   /** 【目录】只有一个子路由是否始终显示 */
-  always_show?:
-    | boolean
-    | undefined;
+  always_show?: boolean | undefined;
   /** 是否隐藏(true-是 false-否) */
-  hidden?:
-    | boolean
-    | undefined;
+  hidden?: boolean | undefined;
   /** 【菜单】是否开启页面缓存 */
-  keep_alive?:
-    | boolean
-    | undefined;
+  keep_alive?: boolean | undefined;
   /** 【菜单】是否全屏(示例：数据大屏页面) */
-  full?:
-    | boolean
-    | undefined;
+  full?: boolean | undefined;
   /** 【菜单】是否固定在标签页中(首页通常是固定项) */
-  affix?:
-    | boolean
-    | undefined;
+  affix?: boolean | undefined;
   /** 参数 */
   params: BaseMenuParams[];
   /** 移动端页面配置 */
@@ -188,6 +169,42 @@ export interface BaseMenuParams {
   key: string;
   /** 参数value */
   value: string;
+}
+
+/** 菜单翻译 */
+export interface BaseMenuTranslation {
+  /** 主键ID */
+  id: number;
+  /** 菜单ID */
+  menu_id: number;
+  /** 语言区域 */
+  locale: string;
+  /** 菜单标题 */
+  title: string;
+  /** 翻译状态 */
+  translation_status: TranslationStatus;
+  /** 中文源文SHA-256 */
+  source_hash: string;
+  /** 机器翻译提供方 */
+  translation_provider: string;
+  /** 最近机器翻译时间 */
+  translated_at: string;
+  /** 审核人ID */
+  reviewed_by: number;
+  /** 审核时间 */
+  reviewed_at: string;
+  /** 创建人ID */
+  created_by: number;
+  /** 更新人ID */
+  updated_by: number;
+  /** 创建时间 */
+  created_at: string;
+  /** 更新时间 */
+  updated_at: string;
+  /** 删除时间 */
+  deleted_at: number;
+  /** 中文源文是否已变化 */
+  source_changed: boolean;
 }
 
 /** Admin菜单管理服务 */

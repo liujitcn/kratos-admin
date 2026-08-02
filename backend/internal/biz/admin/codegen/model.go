@@ -17,15 +17,17 @@ const (
 
 // ProtoTarget 描述代码生成器支持的 Proto 与后端服务分组。
 type ProtoTarget struct {
-	Directory              string // Proto 根目录下的相对目录
-	PackageName            string // Proto package 名称
-	GoAlias                string // Go 协议包别名
-	GoImportPath           string // Go 协议包导入路径
-	ServiceImportAlias     string // 后端服务包别名
-	BackendModuleDirectory string // 后端业务模块目录
-	ModuleRegisterPath     string // 业务模块注册文件路径
-	FrontendAPIDirectory   string // 前端 API 目录
-	FrontendPageDirectory  string // 前端页面目录
+	Directory               string // Proto 根目录下的相对目录
+	PackageName             string // Proto package 名称
+	GoAlias                 string // Go 协议包别名
+	GoImportPath            string // Go 协议包导入路径
+	ServiceImportAlias      string // 后端服务包别名
+	BackendModuleDirectory  string // 后端业务模块目录
+	ModuleRegisterPath      string // 业务模块注册文件路径
+	FrontendPackageName     string // 前端业务模块包名
+	FrontendAPIDirectory    string // 前端 API 目录
+	FrontendPageDirectory   string // 前端页面目录
+	FrontendLocaleDirectory string // 前端语言包目录
 }
 
 // ProtoTargetForBusinessModule 根据业务模块值推导代码生成目标。
@@ -35,15 +37,17 @@ func ProtoTargetForBusinessModule(module string) (ProtoTarget, bool) {
 		return ProtoTarget{}, false
 	}
 	return ProtoTarget{
-		Directory:              module + "/admin/v1",
-		PackageName:            module + ".admin.v1",
-		GoAlias:                strings.ReplaceAll(module, "_", "") + "adminv1",
-		GoImportPath:           "github.com/liujitcn/kratos-admin/backend/api/gen/go/" + module + "/admin/v1",
-		ServiceImportAlias:     strings.ReplaceAll(module, "_", "") + "admin",
-		BackendModuleDirectory: "backend/internal/service/" + module + "/admin",
-		ModuleRegisterPath:     "backend/internal/server/" + module + "/admin/register.go",
-		FrontendAPIDirectory:   "frontend/admin/src/api/" + module,
-		FrontendPageDirectory:  "frontend/admin/src/views/" + module,
+		Directory:               module + "/admin/v1",
+		PackageName:             module + ".admin.v1",
+		GoAlias:                 strings.ReplaceAll(module, "_", "") + "adminv1",
+		GoImportPath:            "github.com/liujitcn/kratos-admin/backend/api/gen/go/" + module + "/admin/v1",
+		ServiceImportAlias:      strings.ReplaceAll(module, "_", "") + "admin",
+		BackendModuleDirectory:  "backend/internal/service/" + module + "/admin",
+		ModuleRegisterPath:      "backend/internal/server/" + module + "/admin/register.go",
+		FrontendPackageName:     "@liujitcn/kratos-admin-" + module,
+		FrontendAPIDirectory:    "frontend/admin/packages/modules/" + module + "/src/api/" + module,
+		FrontendPageDirectory:   "frontend/admin/packages/modules/" + module + "/src/views",
+		FrontendLocaleDirectory: "frontend/admin/packages/modules/" + module + "/src/locales",
 	}, true
 }
 
@@ -89,6 +93,11 @@ func (t ProtoTarget) FrontendAPIFilePath(entityName string) string {
 	return filepath.ToSlash(filepath.Join(t.FrontendAPIDirectory, stringcase.ToSnakeCase(entityName)+".ts"))
 }
 
+// FrontendLocaleFilePath 返回目标分组内的前端语言包文件路径。
+func (t ProtoTarget) FrontendLocaleFilePath(localeValue string) string {
+	return filepath.ToSlash(filepath.Join(t.FrontendLocaleDirectory, localeValue+".json"))
+}
+
 // BackendBizImportPath 返回目标分组 Biz 包的 Go 导入路径。
 func (t ProtoTarget) BackendBizImportPath() string {
 	return "github.com/liujitcn/kratos-admin/backend/" + strings.TrimPrefix(filepath.ToSlash(filepath.Join(t.BackendModuleDirectory, "biz")), "backend/")
@@ -96,27 +105,28 @@ func (t ProtoTarget) BackendBizImportPath() string {
 
 // Table 描述一次代码生成所需的表配置快照。
 type Table struct {
-	ID               int64     // 代码生成表配置 ID
-	TableName_       string    // 业务表名
-	TableComment     string    // 业务表描述
-	BusinessModule   string    // 业务模块
-	BusinessName     string    // 业务名称
-	EntityName       string    // 实体名称
-	ModulePath       string    // 模块路径
-	APIPath          string    // Proto 目录
-	ProtoFilePath    string    // 本次生成覆盖的 Proto 文件路径
-	PermissionPrefix string    // 权限标识前缀
-	ParentMenuID     int64     // 父级菜单 ID
-	PageType         string    // 页面类型
-	ParentColumn     string    // 树形页面父节点字段
-	TreeLabelColumn  string    // 树形页面显示字段
-	LeftTreeConfig   string    // 左树右表配置 JSON
-	GenBackend       int32     // 是否生成后端
-	GenFrontend      int32     // 是否生成前端
-	GenSql           int32     // 是否同步菜单权限
-	Status           int32     // 配置状态
-	CreatedAt        time.Time // 配置创建时间
-	UpdatedAt        time.Time // 配置更新时间
+	ID               int64                   // 代码生成表配置 ID
+	TableName_       string                  // 业务表名
+	TableComment     string                  // 业务表描述
+	BusinessModule   string                  // 业务模块
+	BusinessName     string                  // 业务名称
+	EntityName       string                  // 实体名称
+	ModulePath       string                  // 模块路径
+	APIPath          string                  // Proto 目录
+	ProtoFilePath    string                  // 本次生成覆盖的 Proto 文件路径
+	PermissionPrefix string                  // 权限标识前缀
+	ParentMenuID     int64                   // 父级菜单 ID
+	PageType         string                  // 页面类型
+	ParentColumn     string                  // 树形页面父节点字段
+	TreeLabelColumn  string                  // 树形页面显示字段
+	LeftTreeConfig   string                  // 左树右表配置 JSON
+	I18NConfig       map[string]LocaleConfig // 表级国际化配置
+	GenBackend       int32                   // 是否生成后端
+	GenFrontend      int32                   // 是否生成前端
+	GenSql           int32                   // 是否同步菜单权限
+	Status           int32                   // 配置状态
+	CreatedAt        time.Time               // 配置创建时间
+	UpdatedAt        time.Time               // 配置更新时间
 }
 
 // Proto 描述一次代码生成所需的 Proto 接口配置快照。
@@ -219,6 +229,10 @@ type CodeGenExternalTarget struct {
 type CodeGenMenuSpec struct {
 	// Menu 待创建或更新的菜单。
 	Menu *models.BaseMenu
+	// SourceTitle 菜单中文权威标题。
+	SourceTitle string
+	// Translations 按语言区域索引的菜单标题。
+	Translations map[string]string
 }
 
 // TableInfo 数据库表元数据查询结果。
@@ -239,6 +253,8 @@ type CodeGenColumn struct {
 	Name string
 	// Comment 字段注释。
 	Comment string
+	// I18NConfig 字段国际化配置。
+	I18NConfig map[string]LocaleConfig
 	// DbType 数据库基础类型。
 	DbType string
 	// ColumnType 数据库完整类型。
@@ -327,6 +343,14 @@ type CodeGenColumn struct {
 	StatusForm int32
 	// Sort 字段排序。
 	Sort int32
+}
+
+// LocaleConfig 描述单语言的代码生成展示配置。
+type LocaleConfig struct {
+	// Comment 业务或字段描述。
+	Comment string `json:"comment"`
+	// LeftTreeComment 左树描述。
+	LeftTreeComment string `json:"left_tree_comment"`
 }
 
 // CodeGenColumnQueryConfig 描述字段查询配置。

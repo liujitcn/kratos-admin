@@ -142,8 +142,8 @@ core 通过 `ADMIN_STATIC_VIEWS` 注册全部默认静态页面，后注册业�
 
 ## 公共 Interface
 
-| 能力             | 入口                                                   |
-| ---------------- | ------------------------------------------------------ |
+| 能力             | 入口                                                        |
+| ---------------- | ----------------------------------------------------------- |
 | 应用与模块注册   | `@liujitcn/kratos-admin-core`                               |
 | 请求客户端       | `@liujitcn/kratos-admin-core/request`                       |
 | 路由与跳转       | `@liujitcn/kratos-admin-core/navigation`                    |

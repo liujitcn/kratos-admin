@@ -7,6 +7,8 @@ import (
 // ProviderSet 汇总系统配置层依赖注入提供者。
 var ProviderSet = wire.NewSet(
 	GetAppInfo,
+	NewTranslationDraftConfig,
+	NewDraftTranslator,
 	ParseAIModel,
 	ParseOSS,
 	ParseData,

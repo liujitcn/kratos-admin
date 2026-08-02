@@ -15,7 +15,7 @@
             <span class="api-doc-page__document-key">{{ document.key }}</span>
           </button>
         </div>
-        <el-empty v-else :image-size="56" description="暂无文档" />
+        <el-empty v-else :image-size="56" :description="t('system.apiDoc.message.empty')" />
       </el-card>
       <el-card class="code-gen-sub-card api-doc-page__card" shadow="never">
         <div ref="swaggerRootRef" class="api-doc-page__swagger" />
@@ -27,9 +27,10 @@
 <script setup lang="ts">
 import SwaggerUIBundle from "swagger-ui-dist/swagger-ui-bundle.js";
 import "swagger-ui-dist/swagger-ui.css";
-import { getRequestAccessToken } from "@liujitcn/kratos-admin-core/request";
+import { getLocaleRequestHeaders, getRequestAccessToken } from "@liujitcn/kratos-admin-core/request";
 import { defBaseApiService } from "@liujitcn/kratos-admin-system/api/system/base_api";
 import type { OpenApiServiceOption } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_api";
+import { t } from "@liujitcn/kratos-admin-core";
 
 const swaggerRootRef = ref<HTMLElement>();
 const loading = ref(true);
@@ -63,8 +64,11 @@ function initializeSwaggerUI(documentKey: string) {
       if (accessToken) {
         request.headers = {
           ...request.headers,
+          ...getLocaleRequestHeaders(),
           Authorization: accessToken
         };
+      } else {
+        request.headers = { ...request.headers, ...getLocaleRequestHeaders() };
       }
       return request;
     }

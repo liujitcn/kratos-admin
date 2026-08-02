@@ -4,7 +4,7 @@
       <div class="select-filter-item-title">
         <span>{{ item.title }} ：</span>
       </div>
-      <span v-if="!item.options.length" class="select-filter-notData">暂无数据 ~</span>
+      <span v-if="!item.options.length" class="select-filter-notData">{{ t("common.message.noData") }}</span>
       <el-scrollbar>
         <ul class="select-filter-list">
           <li
@@ -32,6 +32,9 @@
 
 <script setup lang="ts" name="selectFilter">
 import { ref, watch } from "vue";
+import { useLocaleStore } from "@/locales";
+
+const { t } = useLocaleStore();
 
 /** 筛选项候选值。 */
 interface OptionsProps {

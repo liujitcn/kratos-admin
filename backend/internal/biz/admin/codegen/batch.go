@@ -388,7 +388,8 @@ func isBatchMergeableFile(path string) bool {
 		return true
 	}
 	return strings.HasPrefix(path, "backend/internal/service/") && (strings.HasSuffix(path, ".go") || strings.HasSuffix(path, ".ts")) ||
-		strings.HasPrefix(path, "frontend/admin/src/api/") && strings.HasSuffix(path, ".ts") ||
-		strings.HasPrefix(path, "frontend/admin/src/views/") && strings.HasSuffix(path, ".vue") ||
+		strings.HasPrefix(path, "frontend/admin/packages/modules/") && strings.Contains(path, "/src/api/") && strings.HasSuffix(path, ".ts") ||
+		strings.HasPrefix(path, "frontend/admin/packages/modules/") && strings.Contains(path, "/src/views/") && strings.HasSuffix(path, ".vue") ||
+		strings.HasPrefix(path, "frontend/admin/packages/modules/") && strings.Contains(path, "/src/locales/") && strings.HasSuffix(path, ".json") ||
 		strings.HasPrefix(path, "backend/internal/server/") && strings.HasSuffix(path, ".go")
 }

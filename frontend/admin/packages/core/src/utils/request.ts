@@ -5,6 +5,7 @@ import router from "@/routers";
 import { LOGIN_URL } from "@/config";
 import pinia from "@/stores";
 import { useUserStore } from "@/stores/modules/user";
+import { getLocaleRequestHeaders, t } from "@/locales";
 
 const apiBasePath = import.meta.env.VITE_APP_BASE_API || "";
 const apiTargetUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_APP_API_URL || "";
@@ -156,9 +157,9 @@ export function handleAuthExpired() {
   }
 
   isHandlingAuthExpired = true;
-  ElMessageBox.confirm("登录状态已失效，请重新登录", "提示", {
-    confirmButtonText: "重新登录",
-    cancelButtonText: "取消",
+  ElMessageBox.confirm(t("core.auth.sessionExpired"), t("common.title.notice"), {
+    confirmButtonText: t("core.auth.loginAgain"),
+    cancelButtonText: t("common.action.cancel"),
     type: "warning",
     closeOnClickModal: false,
     closeOnPressEscape: false
@@ -183,6 +184,7 @@ service.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     const skipAuth = shouldSkipAuth(config);
     const accessToken = skipAuth ? "" : await getRequestAccessToken();
+    Object.assign(config.headers, getLocaleRequestHeaders());
     // 登录、验证码、刷新令牌接口不携带旧 token，避免请求头污染。
     if (!skipAuth && accessToken) {
       config.headers.Authorization = accessToken;
@@ -207,7 +209,7 @@ service.interceptors.response.use(
       return response.data;
     }
 
-    ElMessage.error(message || "系统出错");
+    ElMessage.error(message || t("common.message.systemError"));
     return Promise.reject(new Error(message || "Error"));
   },
   async (error: AxiosError) => {
@@ -235,11 +237,11 @@ service.interceptors.response.use(
         if (message) {
           ElMessage.error(message);
         } else {
-          ElMessage.error("系统出错");
+          ElMessage.error(t("common.message.systemError"));
         }
       }
     } else if (!shouldSkipErrorMessage(requestConfig)) {
-      ElMessage.error(error.message || "系统出错");
+      ElMessage.error(error.message || t("common.message.systemError"));
     }
     return Promise.reject(error.message);
   }
@@ -278,13 +280,13 @@ async function handleTokenRefresh(promptOnFailure = true) {
 async function refreshAccessToken() {
   const userStore = getUserStore();
   if (!userStore.refreshToken) {
-    return Promise.reject(new Error("refresh token 不存在"));
+    return Promise.reject(new Error(t("core.auth.refreshTokenMissing")));
   }
 
   const response = await refreshService.post(
     TOKEN_URL,
     { refresh_token: userStore.refreshToken },
-    { headers: { Authorization: "no-auth" } }
+    { headers: { Authorization: "no-auth", ...getLocaleRequestHeaders() } }
   );
   const data = response.data;
   userStore.updateTokenAuth(

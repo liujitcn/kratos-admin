@@ -10,6 +10,7 @@ import {
   shouldRefreshToken,
 } from './auth'
 import { saveCurrentRoute } from './navigation'
+import { getLocaleRequestHeaders, t } from '../locales'
 
 const apiBasePath = process.env.KRATOS_TARO_API_BASE || '/api'
 const apiTargetUrl = process.env.KRATOS_TARO_API_URL || ''
@@ -65,7 +66,9 @@ function isAuthErrorResponse(data: unknown): boolean {
   const response = data as ErrorData
   const code = response.code === undefined ? '' : String(response.code)
   const reason = response.reason === undefined ? '' : String(response.reason)
-  return authErrorCodeSet.has(code) || authErrorCodeSet.has(reason) || authErrorReasonSet.has(reason)
+  return (
+    authErrorCodeSet.has(code) || authErrorCodeSet.has(reason) || authErrorReasonSet.has(reason)
+  )
 }
 
 function resolveAuthMode(options: HttpRequestOptions, url: string): AuthMode {
@@ -75,7 +78,9 @@ function resolveAuthMode(options: HttpRequestOptions, url: string): AuthMode {
 }
 
 function resolveRequestUrl(url: string): string {
-  return /^https?:\/\//.test(url) ? url : `${requestBaseURL}${url.startsWith('/') ? url : `/${url}`}`
+  return /^https?:\/\//.test(url)
+    ? url
+    : `${requestBaseURL}${url.startsWith('/') ? url : `/${url}`}`
 }
 
 /** 发送经过认证、刷新令牌和统一错误处理的 Taro 请求。 */
@@ -110,11 +115,16 @@ async function sendRequest<T>(
       header: {
         ...options.header,
         'source-client': 'miniapp',
+        ...getLocaleRequestHeaders(),
         ...(accessToken ? { Authorization: accessToken } : {}),
       },
     })
     const responseData = response.data as ErrorData | null | undefined
-    if (response.statusCode >= 200 && response.statusCode < 300 && !isAuthErrorResponse(responseData)) {
+    if (
+      response.statusCode >= 200 &&
+      response.statusCode < 300 &&
+      !isAuthErrorResponse(responseData)
+    ) {
       return response.data as T
     }
     if (
@@ -129,7 +139,10 @@ async function sendRequest<T>(
       handleAuthExpiredByMode(authMode, requestUrl, responseData)
       throw response
     }
-    await Taro.showToast({ icon: 'none', title: responseData?.message || '请求错误' })
+    await Taro.showToast({
+      icon: 'none',
+      title: responseData?.message || t('common.message.requestError'),
+    })
     throw response
   } catch (error) {
     if (
@@ -139,7 +152,7 @@ async function sendRequest<T>(
     ) {
       throw error
     }
-    await Taro.showToast({ icon: 'none', title: '网络错误，换个网络试试' })
+    await Taro.showToast({ icon: 'none', title: t('common.message.networkError') })
     throw error
   }
 }
@@ -195,7 +208,7 @@ async function refreshAccessToken(): Promise<void> {
     url: resolveRequestUrl(REFRESH_TOKEN_URL),
     method: 'POST',
     data: { refresh_token: refreshToken },
-    header: { 'source-client': 'miniapp' },
+    header: { 'source-client': 'miniapp', ...getLocaleRequestHeaders() },
   })
   const data = response.data as ErrorData & {
     token_type?: string
@@ -224,10 +237,10 @@ async function promptRelogin(): Promise<void> {
   isPromptingRelogin = true
   try {
     const modal = await Taro.showModal({
-      title: '提示',
-      content: '当前页面已失效，请重新登录',
+      title: t('common.title.notice'),
+      content: t('core.auth.sessionExpired'),
       showCancel: false,
-      confirmText: '重新登录',
+      confirmText: t('core.auth.loginAgain'),
     })
     if (!modal.confirm) return
     await new Promise((resolve) => setTimeout(resolve, 80))
@@ -251,7 +264,10 @@ function handleAuthExpiredByMode(
   }
   silentClearAuthData()
   if (authMode !== 'optional') {
-    void Taro.showToast({ icon: 'none', title: responseData?.message || '请求错误' })
+    void Taro.showToast({
+      icon: 'none',
+      title: responseData?.message || t('common.message.requestError'),
+    })
   }
 }
 

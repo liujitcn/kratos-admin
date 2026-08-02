@@ -15,7 +15,7 @@ export enum AiMessageStatus {
   /** SUCCESS_AMS - 成功 */
   SUCCESS_AMS = 2,
   /** FAILED_AMS - 失败 */
-  FAILED_AMS = 3,
+  FAILED_AMS = 3
 }
 
 /** 终端类型 */
@@ -25,7 +25,7 @@ export enum Terminal {
   /** TERMINAL_APP - 移动端 */
   TERMINAL_APP = 1,
   /** TERMINAL_ADMIN - 管理端 */
-  TERMINAL_ADMIN = 2,
+  TERMINAL_ADMIN = 2
 }
 
 /** 系统配置位置 */
@@ -36,7 +36,7 @@ export enum BaseConfigSite {
   /** ADMIN - 管理端 */
   ADMIN = 2,
   /** APP - 移动端 */
-  APP = 3,
+  APP = 3
 }
 
 /** 密码加密场景枚举 */
@@ -50,5 +50,5 @@ export enum PasswordCryptoScene {
   /** RESET_BASE_USER_PASSWORD - 重置后台用户密码加密场景 */
   RESET_BASE_USER_PASSWORD = 3,
   /** UPDATE_USER_PASSWORD - 个人修改密码加密场景 */
-  UPDATE_USER_PASSWORD = 4,
+  UPDATE_USER_PASSWORD = 4
 }

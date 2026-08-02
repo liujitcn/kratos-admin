@@ -2,12 +2,13 @@
 import { useSettingStore, useUserStore } from '../../../stores'
 import type { LoginRequest } from '../../../rpc/base/v1/login'
 import { onLoad } from '@dcloudio/uni-app'
-import { computed, defineAsyncComponent, reactive, ref } from 'vue'
+import { computed, defineAsyncComponent, reactive, ref, watch } from 'vue'
 import { defLoginService } from '../../../api/base/login'
 import defaultLogo from '../../../static/images/logo_icon.png'
 import { homeTabPage } from '../../../utils/navigation'
 import { PASSWORD_CRYPTO_SCENE, encryptPassword } from '../../../utils/passwordCrypto'
 import { navigateAppRoute } from '../../../navigation'
+import { SUPPORTED_LOCALES, useI18n, type SupportedLocale } from '../../../locales'
 
 // go-captcha-uni 仅在 H5 端使用，小程序端不支持 defineAsyncComponent，需按平台裁剪。
 // #ifdef H5
@@ -16,12 +17,19 @@ const GoCaptchaUni = defineAsyncComponent(() => import('go-captcha-uni'))
 
 const userStore = useUserStore()
 const settingStore = useSettingStore()
+const { locale, setLocale, t } = useI18n()
+const localeLabels = computed(() => SUPPORTED_LOCALES.map((item) => t(`common.language.${item}`)))
+const localeIndex = computed(() => Math.max(0, SUPPORTED_LOCALES.indexOf(locale.value)))
 const wechatMiniProvider = 'wechatmini'
 const loginSettingsReady = ref(false)
 let loginSettingsPromise: Promise<boolean> | undefined
 
-const configuredMainTitle = computed(() => settingStore.getData('mainTitle') || '应用框架示例')
-const configuredSubTitle = computed(() => settingStore.getData('subTitle') || '欢迎使用本应用')
+const configuredMainTitle = computed(
+  () => settingStore.getData('mainTitle') || t('core.home.mainTitle'),
+)
+const configuredSubTitle = computed(
+  () => settingStore.getData('subTitle') || t('core.login.defaultSubTitle'),
+)
 const configuredAppLogo = computed(() => settingStore.getData('appLogo') || defaultLogo)
 const showTenantCode = computed(() => settingStore.getData('showTenantCode') !== 'false')
 
@@ -29,6 +37,16 @@ const showTenantCode = computed(() => settingStore.getData('showTenantCode') !==
 const isAgreePrivacy = ref(false)
 const isAgreePrivacyShakeY = ref(false)
 const loading = ref(false)
+
+watch(locale, () => void uni.setNavigationBarTitle({ title: t('common.action.login') }), {
+  immediate: true,
+})
+
+/** 切换登录页语言。 */
+const onLocaleChange = (event: { detail: { value: string | number } }) => {
+  const nextLocale = SUPPORTED_LOCALES[Number(event.detail.value)] as SupportedLocale | undefined
+  if (nextLocale) void setLocale(nextLocale)
+}
 
 const toggleAgreePrivacy = () => {
   isAgreePrivacy.value = !isAgreePrivacy.value
@@ -95,7 +113,7 @@ const resolveMiniCaptchaImage = (payload: string, captchaId: string) => {
       data: payload.slice(commaIndex + 1),
       encoding: 'base64',
       success: () => resolve(filePath),
-      fail: () => reject(new Error('验证码图片写入失败')),
+      fail: () => reject(new Error(t('core.login.captchaWriteFailed'))),
     })
   })
 }
@@ -111,7 +129,7 @@ const refreshMiniCaptcha = async () => {
     miniForm.captcha_id = captcha.captcha_id
     miniForm.captcha_code = ''
   } catch {
-    await uni.showToast({ icon: 'none', title: '验证码加载失败' })
+    await uni.showToast({ icon: 'none', title: t('core.login.captchaLoadFailed') })
   }
 }
 
@@ -128,12 +146,7 @@ const isWechatUnboundError = (error: unknown) => {
     }
   }
   const reason = response.data?.reason ?? response.data?.error?.reason
-  const message = response.data?.message ?? response.data?.error?.message
-  return (
-    response.data?.binding_required === true ||
-    String(reason || '') === 'UNAUTHENTICATED' ||
-    message === '微信账号未绑定，请先绑定已有账号'
-  )
+  return response.data?.binding_required === true || String(reason || '') === 'UNAUTHENTICATED'
 }
 
 // 微信授权失败时保留请求层提示，避免异步登录异常冒泡到小程序调试器。
@@ -150,7 +163,7 @@ const wxLogin = async () => {
   try {
     loginCode = (await wx.login()).code
   } catch {
-    await uni.showToast({ icon: 'none', title: '微信登录失败，请稍后重试' })
+    await uni.showToast({ icon: 'none', title: t('core.login.wechatFailed') })
     loading.value = false
     return
   }
@@ -167,7 +180,7 @@ const wxLogin = async () => {
     await loginSuccess()
   } catch (error) {
     if (!isWechatUnboundError(error)) {
-      await uni.showToast({ icon: 'none', title: '微信登录失败，请稍后重试' })
+      await uni.showToast({ icon: 'none', title: t('core.login.wechatFailed') })
       return
     }
     miniBinding.value = true
@@ -182,15 +195,15 @@ const bindMiniAccount = async () => {
   if (loading.value) return
   if (!(await checkedAgreePrivacy())) return
   if (showTenantCode.value && !miniForm.tenant_code) {
-    await uni.showToast({ icon: 'none', title: '请输入租户编号' })
+    await uni.showToast({ icon: 'none', title: t('core.login.tenant') })
     return
   }
   if (!miniForm.user_name || !miniPasswordValue.value) {
-    await uni.showToast({ icon: 'none', title: '请输入用户名和密码' })
+    await uni.showToast({ icon: 'none', title: t('core.login.userNamePassword') })
     return
   }
   if (!miniForm.captcha_id || !miniForm.captcha_code) {
-    await uni.showToast({ icon: 'none', title: '请输入验证码' })
+    await uni.showToast({ icon: 'none', title: t('core.login.captcha') })
     return
   }
   loading.value = true
@@ -317,7 +330,7 @@ const behaviorCaptchaConfig = computed(() => {
       verticalPadding: 0,
       horizontalPadding: 0,
       iconSize: 20,
-      title: '拖动滑块，将内圈图片转正',
+      title: t('core.login.behaviorRotate'),
     }
   }
   return {
@@ -328,10 +341,13 @@ const behaviorCaptchaConfig = computed(() => {
     showTheme: false,
     verticalPadding: 0,
     horizontalPadding: 0,
-    buttonText: '确认',
+    buttonText: t('common.action.confirm'),
     iconSize: 20,
     dotSize: 20,
-    title: currentCaptchaType.value === 'click' ? '请按顺序点击文字' : '请拖动滑块完成拼图',
+    title:
+      currentCaptchaType.value === 'click'
+        ? t('core.login.behaviorClick')
+        : t('core.login.behaviorPuzzle'),
   }
 })
 const behaviorCaptchaTheme = {
@@ -353,11 +369,11 @@ const behaviorCaptchaTheme = {
 const getCaptcha = async () => {
   const requestedCaptchaType = configuredCaptchaType.value
   if (!requestedCaptchaType) {
-    throw new Error('登录验证码类型未配置')
+    throw new Error(t('core.login.captchaTypeMissing'))
   }
   const data = await defLoginService.Captcha({ type: requestedCaptchaType })
   if (!data.type) {
-    throw new Error('验证码接口未返回类型')
+    throw new Error(t('core.login.captchaTypeResponseMissing'))
   }
   currentCaptchaType.value = data.type
   if (!isBehaviorCaptcha.value) {
@@ -381,7 +397,7 @@ const refreshCaptcha = async () => {
     behaviorDialogVisible.value = false
     await uni.showToast({
       icon: 'none',
-      title: error instanceof Error ? error.message : '验证码加载失败',
+      title: error instanceof Error ? error.message : t('core.login.captchaLoadFailed'),
     })
     return false
   }
@@ -442,28 +458,28 @@ const validateLoginForm = async () => {
   if (showTenantCode.value && !form.value.tenant_code) {
     await uni.showToast({
       icon: 'none',
-      title: '请输入租户编号',
+      title: t('core.login.tenant'),
     })
     return false
   }
   if (!form.value.user_name) {
     await uni.showToast({
       icon: 'none',
-      title: '请输入用户名或手机号',
+      title: t('core.login.userName'),
     })
     return false
   }
   if (!passwordValue.value) {
     await uni.showToast({
       icon: 'none',
-      title: '请输入密码',
+      title: t('core.login.password'),
     })
     return false
   }
   if (!isBehaviorCaptcha.value && !form.value.captcha_code) {
     await uni.showToast({
       icon: 'none',
-      title: '请输入验证码',
+      title: t('core.login.captcha'),
     })
     return false
   }
@@ -567,7 +583,7 @@ const onSubmit = async () => {
 const loginSuccess = async () => {
   await userStore.getUserProfile()
   // 成功提示
-  await uni.showToast({ icon: 'success', title: '登录成功' })
+  await uni.showToast({ icon: 'success', title: t('core.login.loginSuccess') })
   setTimeout(() => {
     const lastRoute = uni.getStorageSync('lastRoute') || homeTabPage
     if (lastRoute.startsWith(homeTabPage)) {
@@ -586,7 +602,7 @@ const checkedAgreePrivacy = async () => {
   }
 
   if (!settingStore.getData('serviceProtocol') || !settingStore.getData('privacyProtocol')) {
-    await uni.showToast({ icon: 'none', title: '服务条款和隐私协议未配置' })
+    await uni.showToast({ icon: 'none', title: t('core.login.protocolMissing') })
     return false
   }
 
@@ -598,10 +614,10 @@ const checkedAgreePrivacy = async () => {
 
   return new Promise<boolean>((resolve) => {
     uni.showModal({
-      title: '提示',
-      content: '请先阅读并勾选协议内容，点击确定后将自动勾选并继续登录',
-      confirmText: '确定',
-      cancelText: '取消',
+      title: t('common.title.notice'),
+      content: t('core.login.protocolPrompt'),
+      confirmText: t('common.action.confirm'),
+      cancelText: t('common.action.cancel'),
       success: ({ confirm }) => {
         if (confirm) {
           isAgreePrivacy.value = true
@@ -630,7 +646,7 @@ const loadLoginSettings = () => {
       // #ifdef H5
       const captchaType = configuredCaptchaType.value
       if (!captchaType) {
-        throw new Error('登录验证码类型未配置')
+        throw new Error(t('core.login.captchaTypeMissing'))
       }
       currentCaptchaType.value = captchaType
       await loadPageCaptcha()
@@ -643,7 +659,7 @@ const loadLoginSettings = () => {
     } catch (error) {
       await uni.showToast({
         icon: 'none',
-        title: error instanceof Error ? error.message : '移动端配置加载失败',
+        title: error instanceof Error ? error.message : t('core.protocol.loadFailed'),
       })
       loginSettingsPromise = undefined
       return false
@@ -664,6 +680,14 @@ onLoad(() => {
 
 <template>
   <view class="login-page">
+    <picker
+      class="login-locale"
+      :range="localeLabels"
+      :value="localeIndex"
+      @change="onLocaleChange"
+    >
+      <view class="login-locale__value">{{ localeLabels[localeIndex] }}</view>
+    </picker>
     <view class="login-hero">
       <view class="login-logo-shell">
         <image :src="configuredAppLogo" />
@@ -683,14 +707,14 @@ onLoad(() => {
           class="login-input"
           type="text"
           confirm-type="next"
-          placeholder="请输入租户编号"
+          :placeholder="t('core.login.tenant')"
         />
         <input
           v-model="form.user_name"
           class="login-input"
           type="text"
           confirm-type="next"
-          placeholder="请输入用户名/手机号码"
+          :placeholder="t('core.login.userNameMobile')"
           @confirm="onSubmit"
         />
         <input
@@ -699,7 +723,7 @@ onLoad(() => {
           type="text"
           password
           confirm-type="done"
-          placeholder="请输入密码"
+          :placeholder="t('core.login.password')"
           @confirm="onSubmit"
         />
         <view v-if="!isBehaviorCaptcha" class="captcha-row">
@@ -708,7 +732,7 @@ onLoad(() => {
             class="login-input captcha-input"
             type="text"
             confirm-type="done"
-            placeholder="请输入验证码"
+            :placeholder="t('core.login.captcha')"
             @confirm="onSubmit"
           />
           <view class="captcha-divider"></view>
@@ -722,10 +746,14 @@ onLoad(() => {
             />
           </view>
         </view>
-        <button @tap="onSubmit" class="login-button login-button-primary">登录</button>
+        <button @tap="onSubmit" class="login-button login-button-primary">
+          {{ t('common.action.login') }}
+        </button>
         <view v-if="behaviorDialogVisible" class="login-behavior-mask">
           <view class="login-behavior-panel">
-            <view v-if="behaviorLoading" class="login-behavior-loading">加载中...</view>
+            <view v-if="behaviorLoading" class="login-behavior-loading">{{
+              t('core.login.behaviorLoading')
+            }}</view>
             <GoCaptchaUni
               :type="currentCaptchaType"
               :data="behaviorCaptchaData"
@@ -748,36 +776,36 @@ onLoad(() => {
           @tap="wxLogin"
         >
           <text class="icon icon-phone"></text>
-          微信一键登录
+          {{ t('core.login.wechat') }}
         </button>
         <view v-else class="login-form">
-          <view class="login-bind-tip">该微信尚未绑定，请登录已有账号完成绑定</view>
+          <view class="login-bind-tip">{{ t('core.login.wechatBindTip') }}</view>
           <input
             v-if="showTenantCode"
             v-model="miniForm.tenant_code"
             class="login-input"
             type="text"
-            placeholder="请输入租户编号"
+            :placeholder="t('core.login.tenant')"
           />
           <input
             v-model="miniForm.user_name"
             class="login-input"
             type="text"
-            placeholder="请输入用户名/手机号码"
+            :placeholder="t('core.login.userNameMobile')"
           />
           <input
             v-model="miniPasswordValue"
             class="login-input"
             type="text"
             password
-            placeholder="请输入密码"
+            :placeholder="t('core.login.password')"
           />
           <view class="captcha-row">
             <input
               v-model="miniForm.captcha_code"
               class="login-input captcha-input"
               type="text"
-              placeholder="请输入验证码"
+              :placeholder="t('core.login.captcha')"
             />
             <view class="captcha-divider"></view>
             <view class="captcha-trigger" @tap="refreshMiniCaptcha">
@@ -789,7 +817,7 @@ onLoad(() => {
             :loading="loading"
             @tap="bindMiniAccount"
           >
-            登录并绑定微信
+            {{ t('core.login.bindWechat') }}
           </button>
         </view>
         <!-- #endif -->
@@ -797,10 +825,14 @@ onLoad(() => {
       <view class="login-tips" :class="{ animate__shakeY: isAgreePrivacyShakeY }">
         <view class="login-agreement" @tap="toggleAgreePrivacy">
           <view class="login-agree-icon" :class="{ checked: isAgreePrivacy }"></view>
-          <text class="login-agree-desc">我已阅读并同意</text>
-          <text class="login-agree-link" @tap.stop="onOpenServiceProtocol">《服务条款》</text>
-          <text class="login-agree-separator">和</text>
-          <text class="login-agree-link" @tap.stop="onOpenPrivacyContract">《隐私协议》</text>
+          <text class="login-agree-desc">{{ t('core.login.agreePrefix') }}</text>
+          <text class="login-agree-link" @tap.stop="onOpenServiceProtocol">{{
+            t('core.login.service')
+          }}</text>
+          <text class="login-agree-separator">{{ t('core.login.agreeSeparator') }}</text>
+          <text class="login-agree-link" @tap.stop="onOpenPrivacyContract">{{
+            t('core.login.privacy')
+          }}</text>
         </view>
       </view>
     </view>
@@ -809,6 +841,7 @@ onLoad(() => {
 
 <style lang="scss">
 .login-page {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -816,6 +849,19 @@ onLoad(() => {
   padding: 48rpx 40rpx 56rpx;
   background: linear-gradient(180deg, #f4fbf8 0%, #ffffff 45%, #ffffff 100%);
   box-sizing: border-box;
+}
+
+.login-locale {
+  position: absolute;
+  top: calc(24rpx + env(safe-area-inset-top));
+  right: 28rpx;
+  z-index: 2;
+}
+
+.login-locale__value {
+  padding: 12rpx 16rpx;
+  color: #16806d;
+  font-size: 24rpx;
 }
 
 .login-hero {

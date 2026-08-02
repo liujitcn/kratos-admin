@@ -115,7 +115,7 @@ message GetBaseRoleRequest {
 message BaseRoleForm {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "角色ID"}]; // 角色ID
 
-  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}, (buf.validate.field).cel = {id: "base_role.tenant_id.required" message: "请选择所属租户" expression: "this > 0"}]; // 租户ID
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}, (buf.validate.field).cel = {id: "base_role.tenant_id.required" message: "所属租户不能为空" expression: "this > 0"}]; // 租户ID
 
   string name = 3 [(gnostic.openapi.v3.property) = {description: "角色名称"}, (buf.validate.field).cel = {id: "base_role.name.required" message: "请输入角色名称" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "base_role.name.max_len" message: "角色名称不能超过 30 个字符" expression: "this.size() <= 30"}]; // 角色名称
 

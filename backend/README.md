@@ -130,6 +130,18 @@ migration/assets/
 
 所有前端 RPC 的 Buf 模板都归属 `api` 契约目录。`make ts` 生成管理端 RPC，`make ts-app` 生成 uni-app RPC，`make ts-taro-app` 生成 React/Taro RPC；每条命令分别输出到对应 workspace 的 core 与 system 包。生成产物不得手工修改。Proto 改动后至少重新执行 `make api openapi`，再按实际消费端运行对应 TypeScript 生成命令。
 
+## 国际化
+
+后端支持 `zh-CN`、`en-US`、`ja-JP`。`core/pkg/locale` 负责规范化 `Accept-Language`，locale 中间件将语言区域写入请求上下文，并在响应边界本地化结构化错误。`internal/i18n/locales` 通过 `go:embed` 提供三语错误目录；动态菜单、字典和字典项的审核译文由 `v0.0.2` 翻译表按请求语言解析，缺少英语或日语时回退中文。
+
+```bash
+make i18n-check
+make i18n-draft
+I18N_WRITE=1 make i18n-draft
+```
+
+草稿命令的 Google V1 仅用于显式生成可审核的英语或日语草稿，不进入普通业务请求链路；关闭 Provider 不影响中文回退和已审核译文。
+
 ## 项目文档
 
 Admin 内置项目文档与 OpenAPI/Swagger 固定使用项目标识 `admin` 和展示名称

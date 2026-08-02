@@ -6,6 +6,7 @@
 
 import type { Directive, DirectiveBinding } from "vue";
 import { ElMessage } from "element-plus";
+import { t } from "@/locales";
 /** 复制指令绑定后挂载复制内容的元素类型。 */
 interface ElType extends HTMLElement {
   copyData: string | number;
@@ -29,7 +30,7 @@ async function handleClick(this: any) {
     await navigator.clipboard.writeText(this.copyData);
     ElMessage({
       type: "success",
-      message: "复制成功"
+      message: t("core.clipboard.success")
     });
   } catch (err) {
     console.error("复制操作不被支持或失败: ", err);

@@ -1,5 +1,5 @@
 # Makefile 常用目标：初始化工具、生成代码、格式化代码、启动服务
-.PHONY: help init plugin cli fmt lint gorm-gen wire api openapi ts ts-app ts-taro-app project-docs gen run build docker-build
+.PHONY: help init plugin cli fmt lint i18n-check i18n-draft gorm-gen wire api openapi ts ts-app ts-taro-app project-docs gen run build docker-build
 
 IMAGE ?= backend
 TAG ?= latest
@@ -22,6 +22,7 @@ GORM_GEN_BIN ?= $(or \
 GORM_GEN_CONFIG ?= configs/data_local.yaml
 GORM_GEN_DATABASE ?=
 GORM_TABLE ?=
+I18N_WRITE ?= 0
 
 # 初始化开发环境
 init: plugin cli
@@ -80,6 +81,14 @@ lint:
 	@echo "==> 运行 golangci-lint 静态检查"
 	@PATH="$(GO_BIN_DIR):$$PATH" golangci-lint run ./...
 	@echo "==> golangci-lint 静态检查完成"
+
+# 检查 Proto 消息键和后端三语错误目录完整性
+i18n-check:
+	@go run ./internal/cmd/i18n -mode check
+
+# 报告错误目录缺失草稿；I18N_WRITE=1 时使用 Google V1 只补缺失项
+i18n-draft:
+	@go run ./internal/cmd/i18n -mode draft $(if $(filter 1 true,$(I18N_WRITE)),-write)
 
 # 生成 GORM 代码
 gorm-gen:

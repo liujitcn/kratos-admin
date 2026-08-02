@@ -48,6 +48,7 @@ func NewCodeGenColumnCase(
 	columnMapper.AppendConverters(mapper.NewJSONTypeConverter[*systemadminv1.CodeGenColumnQueryConfig]().NewConverterPair())
 	columnMapper.AppendConverters(mapper.NewJSONTypeConverter[*systemadminv1.CodeGenColumnListConfig]().NewConverterPair())
 	columnMapper.AppendConverters(mapper.NewJSONTypeConverter[*systemadminv1.CodeGenColumnFormConfig]().NewConverterPair())
+	columnMapper.AppendConverters(mapper.NewJSONTypeConverter[map[string]*systemadminv1.CodeGenLocaleConfig]().NewConverterPair())
 	return &CodeGenColumnCase{
 		CodeGenColumnRepository: codeGenColumnRepo,
 		dbClient:                dbClient,
@@ -190,6 +191,7 @@ func (c *CodeGenColumnCase) SaveCodeGenColumn(ctx context.Context, req *systemad
 					query.ListConfig.Value(item.ListConfig),
 					query.FormConfig.Value(item.FormConfig),
 					query.Sort.Value(item.Sort),
+					query.I18NConfig.Value(item.I18NConfig),
 				)
 				if err != nil {
 					return err

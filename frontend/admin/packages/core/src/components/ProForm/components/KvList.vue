@@ -1,17 +1,22 @@
 <template>
   <div class="kv-list">
     <div v-for="(item, index) in modelValue" :key="index" class="kv-list__item">
-      <el-input v-model="item.key" v-bind="keyInputProps" />
-      <el-input v-model="item.value" v-bind="valueInputProps" />
+      <el-input v-model="item.key" v-bind="resolvedKeyInputProps" />
+      <el-input v-model="item.value" v-bind="resolvedValueInputProps" />
       <el-button :icon="Delete" circle type="danger" plain @click="handleRemove(index)" />
     </div>
-    <el-button :icon="Plus" type="primary" plain v-bind="addButtonProps" @click="handleAdd">{{ addText }}</el-button>
+    <el-button :icon="Plus" type="primary" plain v-bind="addButtonProps" @click="handleAdd">
+      {{ addText || t("common.action.create") }}
+    </el-button>
   </div>
 </template>
 
 <script setup lang="ts" name="KvList">
 import { computed } from "vue";
 import { Delete, Plus } from "@element-plus/icons-vue";
+import { useLocaleStore } from "@/locales";
+
+const { t } = useLocaleStore();
 
 /** 键值对列表单项。 */
 interface KvItem {
@@ -30,11 +35,14 @@ interface KvListProps {
 
 const props = withDefaults(defineProps<KvListProps>(), {
   modelValue: () => [],
-  keyInputProps: () => ({ placeholder: "参数名" }),
-  valueInputProps: () => ({ placeholder: "参数值" }),
-  addText: "添加",
+  keyInputProps: () => ({}),
+  valueInputProps: () => ({}),
+  addText: "",
   addButtonProps: () => ({})
 });
+
+const resolvedKeyInputProps = computed(() => ({ placeholder: t("common.field.parameterName"), ...props.keyInputProps }));
+const resolvedValueInputProps = computed(() => ({ placeholder: t("common.field.parameterValue"), ...props.valueInputProps }));
 
 const emit = defineEmits<{
   "update:modelValue": [value: KvItem[]];

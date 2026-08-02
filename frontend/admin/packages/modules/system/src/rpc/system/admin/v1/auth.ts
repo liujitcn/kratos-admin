@@ -10,8 +10,7 @@ import type { Empty } from "../../../google/protobuf/empty";
 import type { BaseMenuType } from "../../common/v1/enum";
 
 /** 登录用户菜单树查询参数 */
-export interface TreeUserMenuRequest {
-}
+export interface TreeUserMenuRequest {}
 
 /** Route树响应 */
 export interface TreeRouteResponse {
@@ -20,12 +19,10 @@ export interface TreeRouteResponse {
 }
 
 /** 登录用户按钮列表查询参数 */
-export interface ListUserButtonRequest {
-}
+export interface ListUserButtonRequest {}
 
 /** 获取登录用户信息请求参数 */
-export interface GetUserInfoRequest {
-}
+export interface GetUserInfoRequest {}
 
 /** 用户信息表单 */
 export interface UserInfoForm {
@@ -50,8 +47,7 @@ export interface UserInfoForm {
 }
 
 /** 获取个人中心用户信息请求参数 */
-export interface GetUserProfileRequest {
-}
+export interface GetUserProfileRequest {}
 
 /** 用户资料表单 */
 export interface UserProfileForm {
@@ -100,25 +96,15 @@ export interface SendPhoneCodeRequest {
 /** Route项 */
 export interface RouteItem {
   /** 路由路径 */
-  path?:
-    | string
-    | undefined;
+  path?: string | undefined;
   /** 重定向地址 */
-  redirect?:
-    | string
-    | undefined;
+  redirect?: string | undefined;
   /** 路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。 */
-  name?:
-    | string
-    | undefined;
+  name?: string | undefined;
   /** 指向的组件 */
-  component?:
-    | string
-    | undefined;
+  component?: string | undefined;
   /** 路由元信息 */
-  meta?:
-    | RouteMeta
-    | undefined;
+  meta?: RouteMeta | undefined;
   /** 菜单类型 */
   type: BaseMenuType;
   /** 子节点树 */
@@ -128,33 +114,19 @@ export interface RouteItem {
 /** Route元信息 */
 export interface RouteMeta {
   /** 菜单标题 */
-  title?:
-    | string
-    | undefined;
+  title?: string | undefined;
   /** 菜单图标 */
-  icon?:
-    | string
-    | undefined;
+  icon?: string | undefined;
   /** 【目录】只有一个子路由是否始终显示 */
-  always_show?:
-    | boolean
-    | undefined;
+  always_show?: boolean | undefined;
   /** 是否隐藏(true-是 false-否) */
-  hidden?:
-    | boolean
-    | undefined;
+  hidden?: boolean | undefined;
   /** 【菜单】是否开启页面缓存 */
-  keep_alive?:
-    | boolean
-    | undefined;
+  keep_alive?: boolean | undefined;
   /** 【菜单】是否全屏(示例：数据大屏页面) */
-  full?:
-    | boolean
-    | undefined;
+  full?: boolean | undefined;
   /** 【菜单】是否固定在标签页中(首页通常是固定项) */
-  affix?:
-    | boolean
-    | undefined;
+  affix?: boolean | undefined;
   /** 参数 */
   params: RouteParams[];
 }
@@ -162,9 +134,7 @@ export interface RouteMeta {
 /** Route参数 */
 export interface RouteParams {
   /** key */
-  key?:
-    | string
-    | undefined;
+  key?: string | undefined;
   /** value */
   value?: string | undefined;
 }
@@ -172,9 +142,7 @@ export interface RouteParams {
 /** 用户密码表单 */
 export interface UserPasswordForm {
   /** 原密码 */
-  old_pwd:
-    | PasswordCrypto
-    | undefined;
+  old_pwd: PasswordCrypto | undefined;
   /** 新密码 */
   new_pwd: PasswordCrypto | undefined;
 }

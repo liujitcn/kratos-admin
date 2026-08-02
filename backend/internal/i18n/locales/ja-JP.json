@@ -1,0 +1,674 @@
+{
+  "auth.user_password.new_pwd.required": {
+    "other": "新しいパスワードを入力してください"
+  },
+  "auth.user_password.old_pwd.required": {
+    "other": "元のパスワードを入力してください"
+  },
+  "auth.user_password.required": {
+    "other": "元のパスワードを入力してください"
+  },
+  "base_area.name.length": {
+    "other": "ゾーン名は空にすることはできず、50 文字を超えることはできません"
+  },
+  "base_config.key.max_len": {
+    "other": "構成キーは 50 文字を超えることはできません"
+  },
+  "base_config.key.required": {
+    "other": "システム構成コードを入力してください"
+  },
+  "base_config.name.max_len": {
+    "other": "構成名は 50 文字を超えることはできません"
+  },
+  "base_config.name.required": {
+    "other": "システム構成名を入力してください"
+  },
+  "base_config.site.required": {
+    "other": "システム構成の場所を選択してください"
+  },
+  "base_config.type.required": {
+    "other": "システム構成タイプを選択してください"
+  },
+  "base_config.value.required": {
+    "other": "構成値を空にすることはできません"
+  },
+  "base_dept.name.length": {
+    "other": "部門名は空にすることはできず、255 文字を超えることはできません"
+  },
+  "base_dept.name.max_len": {
+    "other": "部署名は 255 文字を超えることはできません"
+  },
+  "base_dept.name.required": {
+    "other": "部署名を空にすることはできません"
+  },
+  "base_dept.parent_id.non_negative": {
+    "other": "親部門を 0 未満にすることはできません"
+  },
+  "base_dept.remark.max_len": {
+    "other": "コメントは 500 文字を超えることはできません"
+  },
+  "base_dept.sort.required": {
+    "other": "並べ替えは 0 より大きくなければなりません"
+  },
+  "base_dept.tenant_id.required": {
+    "other": "テナントを空にすることはできません"
+  },
+  "base_dict.code.length": {
+    "other": "辞書番号を空にすることはできず、50 文字を超えることはできません"
+  },
+  "base_dict.code.max_len": {
+    "other": "辞書番号は 50 文字を超えることはできません"
+  },
+  "base_dict.code.required": {
+    "other": "辞書コードを入力してください"
+  },
+  "base_dict.name.length": {
+    "other": "辞書名は空にすることはできず、50 文字を超えることはできません"
+  },
+  "base_dict.name.max_len": {
+    "other": "辞書名は 50 文字を超えることはできません"
+  },
+  "base_dict.name.required": {
+    "other": "辞書名を入力してください"
+  },
+  "base_dict_item.dict_id.required": {
+    "other": "辞書を空にすることはできません"
+  },
+  "base_dict_item.label.length": {
+    "other": "辞書項目ラベルは空にすることはできず、100 文字を超えることはできません"
+  },
+  "base_dict_item.label.max_len": {
+    "other": "辞書ラベルを​​入力してください(100文字以内)"
+  },
+  "base_dict_item.label.required": {
+    "other": "辞書ラベルを​​入力してください(100文字以内)"
+  },
+  "base_dict_item.sort.required": {
+    "other": "並べ替えは 0 より大きくなければなりません"
+  },
+  "base_dict_item.tag_type.max_len": {
+    "other": "ラベルの種類は 50 文字を超えることはできません"
+  },
+  "base_dict_item.value.length": {
+    "other": "ディクショナリ項目の値は空にすることはできず、50 文字を超えることはできません"
+  },
+  "base_dict_item.value.max_len": {
+    "other": "辞書の値を入力してください (50 文字以内)"
+  },
+  "base_dict_item.value.required": {
+    "other": "辞書の値を入力してください (50 文字以内)"
+  },
+  "base_dict_item_translation.label.max_len": {
+    "other": "辞書項目の翻訳ラベルは 100 文字を超えることはできません"
+  },
+  "base_dict_item_translation.locale.supported": {
+    "other": "辞書項目の翻訳言語は英語または日本語のみをサポートします"
+  },
+  "base_dict_translation.locale.supported": {
+    "other": "辞書の翻訳言語は英語または日本語のみをサポートします"
+  },
+  "base_dict_translation.name.max_len": {
+    "other": "辞書の翻訳名は 50 文字を超えることはできません"
+  },
+  "base_job.cron_expression.length": {
+    "other": "cron 式は空にすることはできず、50 文字を超えることはできません"
+  },
+  "base_job.invoke_target.length": {
+    "other": "呼び出しターゲットを空にすることはできず、100 文字を超えることはできません"
+  },
+  "base_job.name.length": {
+    "other": "タスク名は空にすることはできず、50 文字を超えることはできません"
+  },
+  "base_job_args.key.required": {
+    "other": "すべてのパラメータをキーに入力する必要があります"
+  },
+  "base_menu.component.max_len": {
+    "other": "コンポーネントのパスは 255 文字を超えることはできません"
+  },
+  "base_menu.external.path_internal": {
+    "other": "外部リンク パスは内部の一意のパスを使用する必要があります"
+  },
+  "base_menu.folder.identity_empty": {
+    "other": "ディレクトリにパスとルーティング名を入力できません"
+  },
+  "base_menu.name.max_len": {
+    "other": "ルート名は 255 文字を超えることはできません"
+  },
+  "base_menu.name.menu_only": {
+    "other": "ルート名を入力できるのはメニュータイプのみです"
+  },
+  "base_menu.name.required": {
+    "other": "メニュータイプにはルート名を入力する必要があります"
+  },
+  "base_menu.path.length": {
+    "other": "パスは 1024 文字を超えることはできません"
+  },
+  "base_menu.path.required": {
+    "other": "ディレクトリ以外のメニューにはパスを入力する必要があります"
+  },
+  "base_menu.redirect.external": {
+    "other": "外部リンクには完全な HTTP アドレスを入力する必要があります"
+  },
+  "base_menu.redirect.max_len": {
+    "other": "リダイレクトアドレスは1024文字を超えることはできません"
+  },
+  "base_menu.sort.required": {
+    "other": "並べ替えは 0 より大きくなければなりません"
+  },
+  "base_menu.type.required": {
+    "other": "メニュータイプを空にすることはできません"
+  },
+  "base_menu_translation.locale.supported": {
+    "other": "メニューの翻訳言語は英語または日本語のみをサポートしています"
+  },
+  "base_menu_translation.title.max_len": {
+    "other": "メニュー翻訳のタイトルは 255 文字を超えることはできません"
+  },
+  "base_post.code.max_len": {
+    "other": "位置番号は 20 文字を超えることはできません"
+  },
+  "base_post.code.required": {
+    "other": "ポジション番号を入力してください"
+  },
+  "base_post.name.max_len": {
+    "other": "役職名は 30 文字を超えることはできません"
+  },
+  "base_post.name.required": {
+    "other": "役職名を入力してください"
+  },
+  "base_post.remark.max_len": {
+    "other": "コメントは 500 文字を超えることはできません"
+  },
+  "base_post.sort.required": {
+    "other": "並べ替えは 0 より大きくなければなりません"
+  },
+  "base_post.tenant_id.required": {
+    "other": "テナントを選択してください"
+  },
+  "base_role.code.max_len": {
+    "other": "ロール番号は 20 文字を超えることはできません"
+  },
+  "base_role.code.required": {
+    "other": "役割コードを入力してください"
+  },
+  "base_role.data_scope.required": {
+    "other": "データ権限を選択してください"
+  },
+  "base_role.menus.required": {
+    "other": "メニューの権限を選択してください"
+  },
+  "base_role.menus.unique": {
+    "other": "メニュー権限を繰り返すことはできません"
+  },
+  "base_role.name.max_len": {
+    "other": "キャラクター名は30文字を超えることはできません"
+  },
+  "base_role.name.required": {
+    "other": "ロール名を入力してください"
+  },
+  "base_role.remark.max_len": {
+    "other": "コメントは 500 文字を超えることはできません"
+  },
+  "base_role.tenant_id.required": {
+    "other": "テナントを空にすることはできません"
+  },
+  "base_tenant.code.length": {
+    "other": "テナント番号は空にすることはできず、50 文字を超えることはできません"
+  },
+  "base_tenant.contact_name.max_len": {
+    "other": "連絡先は 50 文字を超えることはできません"
+  },
+  "base_tenant.contact_phone.format": {
+    "other": "正しい連絡先番号を入力してください"
+  },
+  "base_tenant.contact_phone.max_len": {
+    "other": "連絡先番号は 20 文字を超えることはできません"
+  },
+  "base_tenant.name.length": {
+    "other": "テナント名は空にすることはできず、100 文字を超えることはできません"
+  },
+  "base_tenant.name.max_len": {
+    "other": "テナント名は 100 文字を超えることはできません"
+  },
+  "base_tenant.name.required": {
+    "other": "テナント名を入力してください"
+  },
+  "base_tenant.remark.max_len": {
+    "other": "コメントは 500 文字を超えることはできません"
+  },
+  "base_translation.resource_id.required": {
+    "other": "リソース ID を空にすることはできません"
+  },
+  "base_translation.resource_type.required": {
+    "other": "翻訳リソースのタイプを選択してください"
+  },
+  "base_translation.target_locale.supported": {
+    "other": "ターゲット言語は英語または日本語のみをサポートします"
+  },
+  "base_user.avatar.max_len": {
+    "other": "アバターは 1024 文字を超えることはできません"
+  },
+  "base_user.dept_id.required": {
+    "other": "部門を空にすることはできません"
+  },
+  "base_user.nick_name.max_len": {
+    "other": "ユーザーのニックネームは 30 文字を超えることはできません"
+  },
+  "base_user.nick_name.required": {
+    "other": "ユーザーニックネームを空にすることはできません"
+  },
+  "base_user.phone.format": {
+    "other": "正しい携帯電話番号を入力してください"
+  },
+  "base_user.phone.max_len": {
+    "other": "携帯電話番号は 20 文字を超えることはできません"
+  },
+  "base_user.pwd.required": {
+    "other": "パスワードを入力してください"
+  },
+  "base_user.remark.max_len": {
+    "other": "コメントは 500 文字を超えることはできません"
+  },
+  "base_user.reset_pwd.required": {
+    "other": "新しいパスワードを入力してください"
+  },
+  "base_user.role_id.required": {
+    "other": "役割を空にすることはできません"
+  },
+  "base_user.tenant_id.required": {
+    "other": "テナントを空にすることはできません"
+  },
+  "base_user.user_code.length": {
+    "other": "ユーザー ID は空にすることはできず、30 文字を超えることはできません"
+  },
+  "base_user.user_name.length": {
+    "other": "ユーザーアカウントを空にすることはできず、50 文字を超えることはできません"
+  },
+  "bind_oauth_session.captcha_code.required": {
+    "other": "確認コードを空にすることはできません"
+  },
+  "bind_oauth_session.captcha_id.required": {
+    "other": "確認コード ID を空にすることはできません"
+  },
+  "bind_oauth_session.code.required": {
+    "other": "サードパーティ認証コードを空にすることはできません"
+  },
+  "bind_oauth_session.provider.required": {
+    "other": "ログイン方法識別子を空にすることはできません"
+  },
+  "bind_oauth_session.tenant_code.required": {
+    "other": "テナント コードを空にすることはできません"
+  },
+  "bind_oauth_session.user_name.required": {
+    "other": "ユーザー名を空にすることはできません"
+  },
+  "code_gen_table.status.required": {
+    "other": "コード生成テーブルのステータスを選択してください"
+  },
+  "common.error.conflict": {
+    "other": "リソースの状態がこの操作と競合しています"
+  },
+  "common.error.internal": {
+    "other": "内部エラーが発生しました"
+  },
+  "common.error.invalid_argument": {
+    "other": "リクエストパラメータが正しくありません"
+  },
+  "common.error.permission_denied": {
+    "other": "この操作を行う権限がありません"
+  },
+  "common.error.resource_not_found": {
+    "other": "指定されたリソースが見つかりません"
+  },
+  "common.error.unauthenticated": {
+    "other": "セッションの有効期限が切れました。もう一度ログインしてください"
+  },
+  "common.validation.invalid": {
+    "other": "フィールド {{.Field}} が正しくありません"
+  },
+  "common.validation.required": {
+    "other": "フィールド {{.Field}} は必須です"
+  },
+  "create_ai_session_branch.anchor_message_id.positive": {
+    "other": "ブランチアンカーメッセージ番号が不正です"
+  },
+  "create_ai_session_branch.source_session_id.positive": {
+    "other": "セッション番号が無効です"
+  },
+  "create_ai_session_branch.title.required": {
+    "other": "セッションタイトルを空にすることはできません"
+  },
+  "create_base_menu.parent_id.required": {
+    "other": "新しいメニューを追加するには、上位レベルのメニューを選択する必要があります"
+  },
+  "create_oauth_authorization.provider.required": {
+    "other": "ログイン方法識別子を空にすることはできません"
+  },
+  "create_oauth_authorization.redirect_url.required": {
+    "other": "ログインページのアドレスを空にすることはできません"
+  },
+  "create_oauth_binding_authorization.provider.required": {
+    "other": "ログイン方法識別子を空にすることはできません"
+  },
+  "create_oauth_binding_authorization.redirect_url.required": {
+    "other": "バインディングが完了した後は、バウンス アドレスを空にすることはできません。"
+  },
+  "create_oauth_session.code.required": {
+    "other": "サードパーティ認証コードを空にすることはできません"
+  },
+  "create_oauth_session.provider.required": {
+    "other": "ログイン方法識別子を空にすることはできません"
+  },
+  "delete_ai_message.message_id.positive": {
+    "other": "メッセージ番号が無効です"
+  },
+  "delete_ai_message.session_id.positive": {
+    "other": "セッション番号が無効です"
+  },
+  "delete_ai_session.id.positive": {
+    "other": "セッション番号が無効です"
+  },
+  "delete_base_config.id.required": {
+    "other": "構成 ID リストを空にすることはできません"
+  },
+  "delete_base_dept.id.required": {
+    "other": "部門 ID リストを空にすることはできません"
+  },
+  "delete_base_dict.id.required": {
+    "other": "辞書 ID リストを空にすることはできません"
+  },
+  "delete_base_dict_item.id.required": {
+    "other": "ディクショナリ属性 ID リストを空にすることはできません"
+  },
+  "delete_base_menu.id.required": {
+    "other": "メニュー ID リストを空にすることはできません"
+  },
+  "delete_base_post.id.required": {
+    "other": "位置 ID リストを空にすることはできません"
+  },
+  "delete_base_role.id.required": {
+    "other": "ロール ID リストを空にすることはできません"
+  },
+  "delete_base_tenant.id.required": {
+    "other": "テナント ID リストを空にすることはできません"
+  },
+  "delete_base_user.id.required": {
+    "other": "ユーザー ID リストを空にすることはできません"
+  },
+  "download_file.path.required": {
+    "other": "ファイルパスを空にすることはできません"
+  },
+  "exchange_oauth_ticket.ticket.required": {
+    "other": "サードパーティのログインチケットを空にすることはできません"
+  },
+  "field.business_module.length": {
+    "other": "ビジネスモジュールは64文字を超えることはできません"
+  },
+  "field.business_module.pattern": {
+    "other": "ビジネスモジュールの形式が正しくありません"
+  },
+  "field.business_module.required": {
+    "other": "ビジネスモジュールを空にすることはできません"
+  },
+  "field.comment.length": {
+    "other": "ビジネス テーブルの説明は 128 文字を超えることはできません"
+  },
+  "field.name.length": {
+    "other": "ビジネステーブル名は128文字を超えることはできません"
+  },
+  "field.name.pattern": {
+    "other": "ビジネステーブル名の形式が正しくありません"
+  },
+  "field.name.required": {
+    "other": "ビジネステーブル名を空にすることはできません"
+  },
+  "field.page_type.length": {
+    "other": "ページタイプは32文字を超えることはできません"
+  },
+  "field.page_type.required": {
+    "other": "ページタイプを空にすることはできません"
+  },
+  "field.parent_column.length": {
+    "other": "ツリー テーブルの親ノード フィールドは 64 文字を超えることはできません。"
+  },
+  "field.parent_menu_id.required": {
+    "other": "親メニューを選択してください"
+  },
+  "field.remark.length": {
+    "other": "コメントは 500 文字を超えることはできません"
+  },
+  "field.tree_label_column.length": {
+    "other": "ツリー ノードの表示フィールドは 64 文字を超えることはできません"
+  },
+  "get_base_config.id.required": {
+    "other": "構成 ID を空にすることはできません"
+  },
+  "get_base_dept.id.required": {
+    "other": "部門 ID を空にすることはできません"
+  },
+  "get_base_dict.id.required": {
+    "other": "辞書 ID を空にすることはできません"
+  },
+  "get_base_dict_item.id.required": {
+    "other": "ディクショナリ属性 ID を空にすることはできません"
+  },
+  "get_base_post.id.required": {
+    "other": "ポジション ID を空にすることはできません"
+  },
+  "get_base_role.id.required": {
+    "other": "ロール ID を空にすることはできません"
+  },
+  "get_base_tenant.id.required": {
+    "other": "テナント ID を空にすることはできません"
+  },
+  "get_base_third_account_identifier.provider.required": {
+    "other": "ログイン方法識別子を空にすることはできません"
+  },
+  "get_base_third_account_identifier.user_id.required": {
+    "other": "ユーザーIDを空にすることはできません"
+  },
+  "get_base_user.id.required": {
+    "other": "ユーザーIDを空にすることはできません"
+  },
+  "get_code_gen_table.id.required": {
+    "other": "主キー ID を空にすることはできません"
+  },
+  "get_code_gen_task.task_id.required": {
+    "other": "生成タスク ID を空にすることはできません"
+  },
+  "get_config.site.required": {
+    "other": "場所を空にすることはできません"
+  },
+  "handle_mcp.terminal.required": {
+    "other": "MCP サービス ID を空にすることはできません"
+  },
+  "handle_oauth_binding_callback.code.required_on_success": {
+    "other": "サードパーティ認証コードを空にすることはできません"
+  },
+  "handle_oauth_binding_callback.provider.required": {
+    "other": "ログイン方法識別子を空にすることはできません"
+  },
+  "handle_oauth_binding_callback.state.required": {
+    "other": "認可ステータスコードを空にすることはできません"
+  },
+  "handle_oauth_callback.code.required_on_success": {
+    "other": "サードパーティ認証コードを空にすることはできません"
+  },
+  "handle_oauth_callback.provider.required": {
+    "other": "ログイン方法識別子を空にすることはできません"
+  },
+  "handle_oauth_callback.state.required": {
+    "other": "認可ステータスコードを空にすることはできません"
+  },
+  "list_ai_message.session_id.positive": {
+    "other": "セッション番号が無効です"
+  },
+  "list_base_user.ids.positive": {
+    "other": "ユーザー ID は 0 より大きくなければなりません"
+  },
+  "list_code_gen_column.table_id.required": {
+    "other": "コード生成テーブル構成 ID を空にすることはできません"
+  },
+  "list_code_gen_database_column.table_name.pattern": {
+    "other": "データベーステーブル名の形式が正しくありません"
+  },
+  "list_code_gen_database_column.table_name.required": {
+    "other": "データベーステーブル名を空にすることはできません"
+  },
+  "list_code_gen_proto.table_id.required": {
+    "other": "コード生成テーブル構成 ID を空にすることはできません"
+  },
+  "login.captcha_code.required": {
+    "other": "確認コードを空にすることはできません"
+  },
+  "login.captcha_id.required": {
+    "other": "確認コードを空にすることはできません"
+  },
+  "login.user_name.required": {
+    "other": "ユーザー名を空にすることはできません"
+  },
+  "preview_code_gen.table_id.required": {
+    "other": "コード生成テーブル構成 ID を空にすることはできません"
+  },
+  "refresh_token.required": {
+    "other": "リフレッシュトークンを空にすることはできません"
+  },
+  "regenerate_ai_message.message_id.positive": {
+    "other": "メッセージ番号が無効です"
+  },
+  "regenerate_ai_message.session_id.positive": {
+    "other": "セッション番号が無効です"
+  },
+  "reset_base_user_password.id.required": {
+    "other": "ユーザーIDを空にすることはできません"
+  },
+  "restore_code_gen.table_ids.positive": {
+    "other": "コード生成テーブル構成 ID は 0 より大きくなければなりません"
+  },
+  "retry_ai_message.message_id.positive": {
+    "other": "メッセージ番号が無効です"
+  },
+  "retry_ai_message.session_id.positive": {
+    "other": "セッション番号が無効です"
+  },
+  "save_code_gen_column.table_id.required": {
+    "other": "コード生成テーブル構成 ID を空にすることはできません"
+  },
+  "save_code_gen_proto.table_id.required": {
+    "other": "コード生成テーブル構成 ID を空にすることはできません"
+  },
+  "send_ai_message.session_id.positive": {
+    "other": "セッション番号が無効です"
+  },
+  "send_phone_code.phone.format": {
+    "other": "正しい携帯電話番号を入力してください"
+  },
+  "send_phone_code.phone.required": {
+    "other": "携帯電話番号を入力してください"
+  },
+  "set_base_config_status.id.required": {
+    "other": "構成 ID を空にすることはできません"
+  },
+  "set_base_dept_status.id.required": {
+    "other": "部門 ID を空にすることはできません"
+  },
+  "set_base_dict_item_status.id.required": {
+    "other": "ディクショナリ属性 ID を空にすることはできません"
+  },
+  "set_base_dict_status.id.required": {
+    "other": "辞書 ID を空にすることはできません"
+  },
+  "set_base_menu_status.id.required": {
+    "other": "メニュー ID を空にすることはできません"
+  },
+  "set_base_menu_status.status.required": {
+    "other": "ステータスを空にすることはできません"
+  },
+  "set_base_post_status.id.required": {
+    "other": "ポジション ID を空にすることはできません"
+  },
+  "set_base_role_menu.id.required": {
+    "other": "ロール ID を空にすることはできません"
+  },
+  "set_base_role_status.id.required": {
+    "other": "ロール ID を空にすることはできません"
+  },
+  "set_base_tenant_status.id.required": {
+    "other": "テナント ID を空にすることはできません"
+  },
+  "set_base_user_app_role.role_code.required": {
+    "other": "アプリケーション側のロール コードを空にすることはできません"
+  },
+  "set_base_user_app_role.user_id.required": {
+    "other": "ユーザーIDを空にすることはできません"
+  },
+  "set_base_user_status.id.required": {
+    "other": "ユーザーIDを空にすることはできません"
+  },
+  "start_code_gen_task.table_ids.positive": {
+    "other": "コード生成テーブル構成 ID は 0 より大きくなければなりません"
+  },
+  "subscribe_sse.stream.required": {
+    "other": "SSE ストリームを空にすることはできません"
+  },
+  "unbind_oauth_account.provider.required": {
+    "other": "ログイン方法識別子を空にすることはできません"
+  },
+  "update_ai_message.content.required": {
+    "other": "メッセージの内容を空にすることはできません"
+  },
+  "update_ai_message.message_id.positive": {
+    "other": "メッセージ番号が無効です"
+  },
+  "update_ai_message.session_id.positive": {
+    "other": "セッション番号が無効です"
+  },
+  "update_ai_session.id.positive": {
+    "other": "セッション番号が無効です"
+  },
+  "update_ai_session.title.required": {
+    "other": "セッションタイトルを空にすることはできません"
+  },
+  "update_base_config.id.required": {
+    "other": "構成 ID を空にすることはできません"
+  },
+  "update_base_dept.id.required": {
+    "other": "部門 ID を空にすることはできません"
+  },
+  "update_base_dict.id.required": {
+    "other": "辞書 ID を空にすることはできません"
+  },
+  "update_base_dict_item.id.required": {
+    "other": "ディクショナリ属性 ID を空にすることはできません"
+  },
+  "update_base_post.id.required": {
+    "other": "ポジション ID を空にすることはできません"
+  },
+  "update_base_role.id.required": {
+    "other": "ロール ID を空にすることはできません"
+  },
+  "update_base_tenant.id.required": {
+    "other": "テナント ID を空にすることはできません"
+  },
+  "update_base_user.id.required": {
+    "other": "ユーザーIDを空にすることはできません"
+  },
+  "update_code_gen_table.id.required": {
+    "other": "主キー ID を空にすることはできません"
+  },
+  "user_phone.code.required": {
+    "other": "確認コードを入力してください"
+  },
+  "user_phone.phone.format": {
+    "other": "正しい携帯電話番号を入力してください"
+  },
+  "user_phone.phone.required": {
+    "other": "携帯電話番号を入力してください"
+  },
+  "verify_captcha.captcha_code.required": {
+    "other": "確認コードを空にすることはできません"
+  },
+  "verify_captcha.captcha_id.required": {
+    "other": "確認コードを空にすることはできません"
+  }
+}

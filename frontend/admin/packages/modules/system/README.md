@@ -44,53 +44,53 @@ packages/modules/system
 
 ## API 文件
 
-| 路径                          | 作用                                      |
-| ----------------------------- | ----------------------------------------- |
-| `src/api/base/ai_message.ts`  | AI 消息请求。                             |
-| `src/api/base/ai_session.ts`  | AI 会话请求。                             |
-| `src/api/base/ai_tool.ts`     | AI 工具请求。                             |
-| `src/api/base/oauth.ts`       | 个人中心账号绑定请求。                    |
-| `src/api/base/sse.ts`         | AI 与业务流式响应订阅。                   |
-| `src/api/system/auth.ts`      | 个人中心认证请求。                        |
-| `src/api/system/base_*.ts`    | System 基础资源管理请求。                 |
-| `src/api/system/code_gen*.ts` | 代码生成、字段、Proto、表和进度订阅请求。 |
-| `src/api/system/project_document.ts` | 多项目文档树与详情请求。           |
+| 路径                                 | 作用                                      |
+| ------------------------------------ | ----------------------------------------- |
+| `src/api/base/ai_message.ts`         | AI 消息请求。                             |
+| `src/api/base/ai_session.ts`         | AI 会话请求。                             |
+| `src/api/base/ai_tool.ts`            | AI 工具请求。                             |
+| `src/api/base/oauth.ts`              | 个人中心账号绑定请求。                    |
+| `src/api/base/sse.ts`                | AI 与业务流式响应订阅。                   |
+| `src/api/system/auth.ts`             | 个人中心认证请求。                        |
+| `src/api/system/base_*.ts`           | System 基础资源管理请求。                 |
+| `src/api/system/code_gen*.ts`        | 代码生成、字段、Proto、表和进度订阅请求。 |
+| `src/api/system/project_document.ts` | 多项目文档树与详情请求。                  |
 
 ## 页面文件组
 
-| 路径                                                           | 作用                      |
-| -------------------------------------------------------------- | ------------------------- |
-| `src/views/ai/chat/`                                           | AI 会话、消息和附件页面。 |
-| `src/views/base/api/index.vue`                                 | API 资源管理页。          |
-| `src/views/base/area/index.vue`                                | 行政区域管理页。          |
-| `src/views/base/config/index.vue`                              | 系统配置管理页。          |
-| `src/views/base/dept/index.vue`                                | 部门管理页。              |
-| `src/views/base/dict/index.vue`                                | 字典类型管理页。          |
-| `src/views/base/dict/item.vue`                                 | 字典项管理页。            |
-| `src/views/base/job/index.vue`                                 | 定时任务管理页。          |
-| `src/views/base/job/log.vue`                                   | 定时任务执行日志页。      |
-| `src/views/base/log/index.vue`                                 | 系统日志页。              |
-| `src/views/base/menu/index.vue`                                | 菜单管理页。              |
-| `src/views/base/migration/index.vue`                           | 数据迁移管理页。          |
-| `src/views/base/post/index.vue`                                | 岗位管理页。              |
-| `src/views/base/role/index.vue`                                | 角色管理页。              |
-| `src/views/base/tenant/index.vue`                              | 租户管理页。              |
-| `src/views/base/user/index.vue`                                | 用户管理页。              |
-| `src/views/base/user/components/dept-tree.vue`                 | 用户页的部门树筛选组件。  |
-| `src/views/profile/`                                           | 个人中心与安全设置页面。  |
-| `src/views/tool/api-doc/index.vue`                             | OpenAPI/Swagger 文档页。  |
+| 路径                                                           | 作用                               |
+| -------------------------------------------------------------- | ---------------------------------- |
+| `src/views/ai/chat/`                                           | AI 会话、消息和附件页面。          |
+| `src/views/base/api/index.vue`                                 | API 资源管理页。                   |
+| `src/views/base/area/index.vue`                                | 行政区域管理页。                   |
+| `src/views/base/config/index.vue`                              | 系统配置管理页。                   |
+| `src/views/base/dept/index.vue`                                | 部门管理页。                       |
+| `src/views/base/dict/index.vue`                                | 字典类型管理页。                   |
+| `src/views/base/dict/item.vue`                                 | 字典项管理页。                     |
+| `src/views/base/job/index.vue`                                 | 定时任务管理页。                   |
+| `src/views/base/job/log.vue`                                   | 定时任务执行日志页。               |
+| `src/views/base/log/index.vue`                                 | 系统日志页。                       |
+| `src/views/base/menu/index.vue`                                | 菜单管理页。                       |
+| `src/views/base/migration/index.vue`                           | 数据迁移管理页。                   |
+| `src/views/base/post/index.vue`                                | 岗位管理页。                       |
+| `src/views/base/role/index.vue`                                | 角色管理页。                       |
+| `src/views/base/tenant/index.vue`                              | 租户管理页。                       |
+| `src/views/base/user/index.vue`                                | 用户管理页。                       |
+| `src/views/base/user/components/dept-tree.vue`                 | 用户页的部门树筛选组件。           |
+| `src/views/profile/`                                           | 个人中心与安全设置页面。           |
+| `src/views/tool/api-doc/index.vue`                             | OpenAPI/Swagger 文档页。           |
 | `src/views/tool/project-doc/index.vue`                         | 多项目 Markdown 树形导航与阅读页。 |
-| `src/views/tool/code-gen/table/index.vue`                      | 代码生成数据表列表页。    |
-| `src/views/tool/code-gen/columns/index.vue`                    | 代码生成字段配置页。      |
-| `src/views/tool/code-gen/columns/option-copy.ts`               | 字段选项复制规则。        |
-| `src/views/tool/code-gen/proto/index.vue`                      | Proto 生成配置页。        |
-| `src/views/tool/code-gen/preview/index.vue`                    | 代码生成预览入口。        |
-| `src/views/tool/code-gen/preview/capabilities.ts`              | 预览文件能力和操作规则。  |
-| `src/views/tool/code-gen/preview/data.ts`                      | 预览树和文件数据转换。    |
-| `src/views/tool/code-gen/code-preview/index.vue`               | 单个文件代码预览页。      |
-| `src/views/tool/code-gen/components/CodeGenProgressDialog.vue` | 代码生成进度弹窗。        |
-| `src/views/tool/code-gen/components/CodePreviewPane.vue`       | 代码内容预览面板。        |
-| `src/views/tool/code-gen/config.ts`                            | 代码生成页面的公共配置。  |
+| `src/views/tool/code-gen/table/index.vue`                      | 代码生成数据表列表页。             |
+| `src/views/tool/code-gen/columns/index.vue`                    | 代码生成字段配置页。               |
+| `src/views/tool/code-gen/columns/option-copy.ts`               | 字段选项复制规则。                 |
+| `src/views/tool/code-gen/proto/index.vue`                      | Proto 生成配置页。                 |
+| `src/views/tool/code-gen/preview/index.vue`                    | 代码生成预览入口。                 |
+| `src/views/tool/code-gen/preview/capabilities.ts`              | 预览文件能力和操作规则。           |
+| `src/views/tool/code-gen/preview/data.ts`                      | 预览树和文件数据转换。             |
+| `src/views/tool/code-gen/code-preview/index.vue`               | 单个文件代码预览页。               |
+| `src/views/tool/code-gen/components/CodeGenProgressDialog.vue` | 代码生成进度弹窗。                 |
+| `src/views/tool/code-gen/components/CodePreviewPane.vue`       | 代码内容预览面板。                 |
+| `src/views/tool/code-gen/config.ts`                            | 代码生成页面的公共配置。           |
 
 ## 接入
 
@@ -104,12 +104,12 @@ export const adminModules = [systemAdminModule];
 
 动态菜单组件路径必须包含模块前缀，例如：
 
-| 页面     | `component`                 |
-| -------- | --------------------------- |
-| 用户管理 | `system/base/user/index`    |
-| 个人中心 | `system/profile/index`      |
-| AI 助手  | `system/ai/chat/index`      |
-| API 文档 | `system/tool/api-doc/index` |
+| 页面     | `component`                     |
+| -------- | ------------------------------- |
+| 用户管理 | `system/base/user/index`        |
+| 个人中心 | `system/profile/index`          |
+| AI 助手  | `system/ai/chat/index`          |
+| API 文档 | `system/tool/api-doc/index`     |
 | 项目文档 | `system/tool/project-doc/index` |
 
 不再兼容 `base/user/index`、`profile/index` 等无模块前缀路径。不同业务模块可以拥有同名 `views`，core 会按 `<module>/<view>` 解析，不发生覆盖。

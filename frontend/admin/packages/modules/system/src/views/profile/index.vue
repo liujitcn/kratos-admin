@@ -38,8 +38,9 @@ defineOptions({
   inheritAttrs: false
 });
 
-import { onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import { useRoute } from "vue-router";
+import { t } from "@liujitcn/kratos-admin-core";
 import { defProfileAuthService } from "@liujitcn/kratos-admin-system/api/system/auth";
 import type { UserProfileForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/auth";
 import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
@@ -64,23 +65,23 @@ interface ProfileTabOption {
 const userStore = useUserStore();
 const route = useRoute();
 const activeTab = ref<ProfileTab>("account");
-const profileTabs: ProfileTabOption[] = [
+const profileTabs = computed<ProfileTabOption[]>(() => [
   {
     value: "account",
-    label: "账号信息",
-    description: "维护头像和资料"
+    label: t("system.profile.account.title"),
+    description: t("system.profile.account.navDescription")
   },
   {
     value: "security",
-    label: "安全设置",
-    description: "管理验证与安全"
+    label: t("system.profile.security.title"),
+    description: t("system.profile.security.navDescription")
   },
   {
     value: "password",
-    label: "修改密码",
-    description: "更新登录密码"
+    label: t("system.profile.password.title"),
+    description: t("system.profile.password.navDescription")
   }
-];
+]);
 const userProfileForm = reactive<UserProfileForm>({
   user_name: "",
   nick_name: "",

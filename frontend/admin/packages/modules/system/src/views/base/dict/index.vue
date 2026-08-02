@@ -12,15 +12,25 @@
     <FormDialog
       v-model="dialog.visible"
       ref="formDialogRef"
-      :title="dialog.title"
-      width="500px"
+      :title="t(dialog.editing ? 'system.dict.action.edit' : 'system.dict.action.create')"
+      width="700px"
       :model="formData"
       :fields="formFields"
       :rules="rules"
       label-width="100px"
       @confirm="handleSubmit"
       @close="handleCloseDialog"
-    />
+    >
+      <template #translations>
+        <DynamicTranslationEditor
+          v-model="translationValues"
+          :resource-id="formData.id"
+          :resource-type="TranslationResourceType.TRANSLATION_RESOURCE_TYPE_DICT"
+          :draft-enabled="configStore.translationDraftEnabled"
+          :maxlength="50"
+        />
+      </template>
+    </FormDialog>
   </div>
 </template>
 
@@ -38,6 +48,17 @@ import type { BaseDict, BaseDictForm, PageBaseDictRequest } from "@liujitcn/krat
 import router, { navigateTo } from "@liujitcn/kratos-admin-core/navigation";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
+import { t } from "@liujitcn/kratos-admin-core";
+import { useConfigStore } from "@liujitcn/kratos-admin-core/stores/runtime";
+import DynamicTranslationEditor from "@liujitcn/kratos-admin-system/components/DynamicTranslationEditor.vue";
+import {
+  normalizeDynamicTranslations,
+  serializeDynamicTranslations,
+  type DynamicTranslationRecord,
+  type DynamicTranslationValue
+} from "@liujitcn/kratos-admin-system/components/dynamicTranslation";
+import { TranslationResourceType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
+import type { BaseDictTranslation } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dict";
 
 defineOptions({
   name: "BaseDict",
@@ -45,11 +66,13 @@ defineOptions({
 });
 
 const { BUTTONS } = useAuthButtons();
+const configStore = useConfigStore();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
+const translationValues = ref<DynamicTranslationValue[]>(normalizeDynamicTranslations(undefined, "name"));
 
 const dialog = reactive({
-  title: "",
+  editing: false,
   visible: false
 });
 
@@ -60,65 +83,92 @@ const formData = reactive<BaseDictForm>({
   code: "",
   /** 字典名称 */
   name: "",
+  /** 非默认语言翻译 */
+  translations: [],
   /** 状态 */
   status: Status.ENABLE
 });
 
 const rules = computed(() => ({
   name: [
-    { required: true, message: "请输入字典名称", trigger: "blur" },
-    { max: 50, message: "字典名称不能超过 50 个字符", trigger: "blur" }
+    { required: true, message: t("system.dict.placeholder.name"), trigger: "blur" },
+    {
+      max: 50,
+      message: t("system.common.validation.maxLength", { field: t("system.dict.field.name"), max: 50 }),
+      trigger: "blur"
+    }
   ],
   code: [
-    { required: true, message: "请输入字典编码", trigger: "blur" },
-    { max: 50, message: "字典编号不能超过 50 个字符", trigger: "blur" }
+    { required: true, message: t("system.dict.placeholder.code"), trigger: "blur" },
+    {
+      max: 50,
+      message: t("system.common.validation.maxLength", { field: t("system.dict.field.code"), max: 50 }),
+      trigger: "blur"
+    }
   ],
-  status: [{ required: true, message: "状态不能为空", trigger: "change" }]
+  status: [
+    {
+      required: true,
+      message: t("system.common.validation.requiredSelect", { field: t("system.common.field.status") }),
+      trigger: "change"
+    }
+  ]
 }));
 
-const statusOptions: ProFormOption[] = [
-  { label: "启用", value: Status.ENABLE },
-  { label: "禁用", value: Status.DISABLE }
-];
+const statusOptions = computed<ProFormOption[]>(() => [
+  { label: t("common.status.enabled"), value: Status.ENABLE },
+  { label: t("common.status.disabled"), value: Status.DISABLE }
+]);
 
 /** 字典表单字段配置。 */
-const formFields: ProFormField[] = [
-  { prop: "name", label: "字典名称", component: "input", props: { placeholder: "请输入字典名称" } },
-  { prop: "code", label: "字典编码", component: "input", props: { placeholder: "请输入字典编码" } },
-  { prop: "status", label: "状态", component: "radio-group", options: statusOptions }
-];
+const formFields = computed<ProFormField[]>(() => [
+  {
+    prop: "name",
+    label: t("system.dict.field.name"),
+    component: "input",
+    props: { placeholder: t("system.dict.placeholder.name") }
+  },
+  {
+    prop: "code",
+    label: t("system.dict.field.code"),
+    component: "input",
+    props: { placeholder: t("system.dict.placeholder.code") }
+  },
+  { prop: "translations", label: t("system.translation.field.translations"), component: "slot", slotName: "translations" },
+  { prop: "status", label: t("system.common.field.status"), component: "radio-group", options: statusOptions.value }
+]);
 
 /** 字典表格列配置。 */
-const columns: ColumnProps[] = [
+const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
-  { prop: "name", label: "字典名称", minWidth: 140, search: { el: "input" } },
-  { prop: "code", label: "字典编码", minWidth: 160, search: { el: "input" } },
+  { prop: "name", label: t("system.dict.field.name"), minWidth: 140, search: { el: "input" } },
+  { prop: "code", label: t("system.dict.field.code"), minWidth: 160, search: { el: "input" } },
   {
     prop: "status",
-    label: "状态",
+    label: t("system.common.field.status"),
     minWidth: 100,
     search: { el: "select" },
     cellType: "status",
     statusProps: {
       activeValue: Status.ENABLE,
       inactiveValue: Status.DISABLE,
-      activeText: "启用",
-      inactiveText: "禁用",
+      activeText: t("common.status.enabled"),
+      inactiveText: t("common.status.disabled"),
       disabled: () => !BUTTONS.value["base:dict:status"],
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseDict)
     }
   },
-  { prop: "created_at", label: "创建时间", minWidth: 180 },
-  { prop: "updated_at", label: "更新时间", minWidth: 180 },
+  { prop: "created_at", label: t("system.common.field.createdAt"), minWidth: 180 },
+  { prop: "updated_at", label: t("system.common.field.updatedAt"), minWidth: 180 },
   {
     prop: "operation",
-    label: "操作",
+    label: t("system.common.field.action"),
     width: 240,
     fixed: "right",
     cellType: "actions",
     actions: [
       {
-        label: "字典数据",
+        label: t("system.dict.action.items"),
         type: "primary",
         link: true,
         icon: List,
@@ -126,7 +176,7 @@ const columns: ColumnProps[] = [
         onClick: scope => handleOpenBaseDictItem(scope.row as BaseDict)
       },
       {
-        label: "编辑",
+        label: t("common.action.edit"),
         type: "primary",
         link: true,
         icon: EditPen,
@@ -135,7 +185,7 @@ const columns: ColumnProps[] = [
         onClick: (scope, params) => handleOpenDialog((params?.dictId as number | undefined) ?? (scope.row as BaseDict).id)
       },
       {
-        label: "删除",
+        label: t("common.action.delete"),
         type: "danger",
         link: true,
         icon: Delete,
@@ -144,26 +194,26 @@ const columns: ColumnProps[] = [
       }
     ]
   }
-];
+]);
 
 /** 字典顶部按钮配置。 */
-const headerActions: HeaderActionProps[] = [
+const headerActions = computed<HeaderActionProps[]>(() => [
   {
-    label: "新增",
+    label: t("common.action.create"),
     type: "success",
     icon: CirclePlus,
     hidden: () => !BUTTONS.value["base:dict:create"],
     onClick: () => handleOpenDialog()
   },
   {
-    label: "删除",
+    label: t("common.action.delete"),
     type: "danger",
     icon: Delete,
     hidden: () => !BUTTONS.value["base:dict:delete"],
     disabled: scope => !scope.selectedList.length,
     onClick: scope => handleDelete(scope.selectedList as BaseDict[])
   }
-];
+]);
 
 /**
  * 请求字典列表，并由 ProTable 统一管理分页搜索。
@@ -185,12 +235,13 @@ function refreshTable() {
  */
 function handleOpenDialog(dictId?: number) {
   resetForm();
-  dialog.title = dictId ? "修改字典" : "新增字典";
+  dialog.editing = Boolean(dictId);
   dialog.visible = true;
   if (!dictId) return;
 
   defBaseDictService.GetBaseDict({ id: dictId }).then(data => {
     Object.assign(formData, data);
+    translationValues.value = normalizeDynamicTranslations(data.translations as DynamicTranslationRecord[], "name");
   });
 }
 
@@ -211,7 +262,9 @@ function resetForm() {
   formData.id = 0;
   formData.code = "";
   formData.name = "";
+  formData.translations = [];
   formData.status = Status.ENABLE;
+  translationValues.value = normalizeDynamicTranslations(undefined, "name");
 }
 
 /**
@@ -222,11 +275,12 @@ function handleSubmit() {
     if (!isValid) return;
 
     const submitData = JSON.parse(JSON.stringify(formData)) as BaseDictForm;
+    submitData.translations = serializeDynamicTranslations(translationValues.value, "name") as BaseDictTranslation[];
     const request = submitData.id
       ? defBaseDictService.UpdateBaseDict({ base_dict: submitData })
       : defBaseDictService.CreateBaseDict({ base_dict: submitData });
     request.then(() => {
-      ElMessage.success(submitData.id ? "修改字典成功" : "新增字典成功");
+      ElMessage.success(t(submitData.id ? "system.dict.message.updateSuccess" : "system.dict.message.createSuccess"));
       handleCloseDialog();
       refreshTable();
     });
@@ -238,16 +292,16 @@ function handleSubmit() {
  */
 async function handleBeforeSetStatus(row: BaseDict) {
   const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
-  const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
+  const action = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
   const dictName = row.name || row.code || String(row.id);
   try {
-    await ElMessageBox.confirm(`是否确定${text}字典？\n字典名称：${dictName}`, "提示", {
-      confirmButtonText: "确认",
-      cancelButtonText: "取消",
+    await ElMessageBox.confirm(t("system.dict.message.confirmStatus", { action, name: dictName }), t("common.title.notice"), {
+      confirmButtonText: t("common.action.confirm"),
+      cancelButtonText: t("common.action.cancel"),
       type: "warning"
     });
     await defBaseDictService.SetBaseDictStatus({ id: row.id, status: nextStatus });
-    ElMessage.success(`${text}成功`);
+    ElMessage.success(t("system.common.message.statusSuccess", { action }));
     refreshTable();
     return true;
   } catch {
@@ -268,29 +322,29 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
     dictList.length ? dictList.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");
   if (!dictIds) {
-    ElMessage.warning("请勾选删除项");
+    ElMessage.warning(t("system.common.message.selectDeleteItem"));
     return;
   }
 
   const confirmMessage = dictList.length
     ? dictList.length === 1
-      ? `是否确定删除字典？\n字典名称：${dictList[0].name || dictList[0].code || `ID:${dictList[0].id}`}`
-      : `确认删除已选中的 ${dictList.length} 个字典吗？`
-    : "确认删除已选中的字典吗？";
+      ? t("system.dict.message.confirmDeleteSingle", { name: dictList[0].name || dictList[0].code || `ID:${dictList[0].id}` })
+      : t("system.dict.message.confirmDeleteBatch", { count: dictList.length })
+    : t("system.dict.message.confirmDeleteSelected");
 
-  ElMessageBox.confirm(confirmMessage, "警告", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
+  ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
+    confirmButtonText: t("common.action.confirm"),
+    cancelButtonText: t("common.action.cancel"),
     type: "warning"
   }).then(
     () => {
       defBaseDictService.DeleteBaseDict({ id: dictIds }).then(() => {
-        ElMessage.success("删除字典成功");
+        ElMessage.success(t("system.dict.message.deleteSuccess"));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info("已取消删除字典");
+      ElMessage.info(t("system.dict.message.deleteCanceled"));
     }
   );
 }
@@ -299,6 +353,6 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
  * 打开字典数据页面。
  */
 function handleOpenBaseDictItem(row: BaseDict) {
-  navigateTo(router, "/base/dict/item", { dictId: row.id, title: `【${row.name}】字典数据` });
+  navigateTo(router, "/base/dict/item", { dictId: row.id, title: t("system.dict.title.items", { name: row.name }) });
 }
 </script>

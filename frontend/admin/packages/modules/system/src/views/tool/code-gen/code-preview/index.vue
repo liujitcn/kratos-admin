@@ -4,14 +4,18 @@
     <el-card class="code-gen-sub-card" shadow="never">
       <div v-if="BUTTONS['tool:code-gen-table:generate']" class="code-gen-toolbar">
         <div class="code-gen-code-preview-actions">
-          <el-button :icon="Clock" :disabled="!progressTaskAvailable" @click="handleOpenProgress">最近任务</el-button>
-          <el-button :icon="Promotion" type="primary" :loading="generating" @click="handleGenerate">生成</el-button>
+          <el-button :icon="Clock" :disabled="!progressTaskAvailable" @click="handleOpenProgress">
+            {{ t("system.codegen.action.recentTask") }}
+          </el-button>
+          <el-button :icon="Promotion" type="primary" :loading="generating" @click="handleGenerate">
+            {{ t("system.codegen.action.generate") }}
+          </el-button>
         </div>
       </div>
 
       <el-alert v-if="previewError" class="code-gen-code-preview-alert" :title="previewError" type="warning" :closable="false" />
       <CodePreviewPane v-if="loading || files.length" class="code-gen-code-preview-table" :files="files" :loading="loading" />
-      <el-empty v-else class="code-gen-code-preview-empty" description="暂无生成文件，请先确认表配置和 Proto 接口配置后再生成或预览" />
+      <el-empty v-else class="code-gen-code-preview-empty" :description="t('system.codegen.preview.message.emptyFiles')" />
     </el-card>
 
     <CodeGenProgressDialog
@@ -28,6 +32,7 @@
 import { computed, ref, watch } from "vue";
 import { Clock, Promotion } from "@element-plus/icons-vue";
 import { useRoute } from "vue-router";
+import { t } from "@liujitcn/kratos-admin-core";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { useTabsStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { defCodeGenService } from "@liujitcn/kratos-admin-system/api/system/code_gen";
@@ -55,6 +60,7 @@ const table = ref<CodeGenTableForm>();
 const files = ref<CodeGenPreviewFile[]>([]);
 const loading = ref(false);
 const previewError = ref("");
+const missingTranslations = ref<string[]>([]);
 const progressTaskId = ref(typeof window === "undefined" ? "" : (window.sessionStorage.getItem(codeGenTaskStorageKey) ?? ""));
 const progressDialogVisible = ref(
   !!progressTaskId.value &&
@@ -72,7 +78,7 @@ const tableId = computed(() => {
 });
 
 /** 当前代码预览页标题。 */
-const pageTitle = computed(() => table.value?.comment || table.value?.name || "代码预览");
+const pageTitle = computed(() => table.value?.comment || table.value?.name || t("system.codegen.preview.title.code"));
 
 // 路由生成对象变化时重新载入对应代码预览。
 watch(
@@ -88,6 +94,7 @@ async function loadCodePreview() {
   table.value = undefined;
   files.value = [];
   previewError.value = "";
+  missingTranslations.value = [];
   if (!tableId.value) return;
   loading.value = true;
   try {
@@ -96,10 +103,16 @@ async function loadCodePreview() {
     try {
       const preview = await defCodeGenService.PreviewCodeGen({ table_id: tableId.value, output_paths: undefined });
       files.value = preview.files ?? [];
-      if (!files.value.length) previewError.value = "当前没有可预览的生成文件，请先检查是否已配置生成字段、接口和输出路径。";
+      missingTranslations.value = preview.missing_translations ?? [];
+      if (missingTranslations.value.length) {
+        previewError.value = t("system.codegen.preview.message.missingTranslations", {
+          items: missingTranslations.value.join(t("system.codegen.preview.value.listSeparator"))
+        });
+      }
+      if (!files.value.length && !previewError.value) previewError.value = t("system.codegen.preview.message.noPreviewFiles");
     } catch {
       // 预览错误在页面内转成可操作提示，避免全局错误弹窗只显示“系统出错”。
-      previewError.value = "代码预览加载失败，请先检查表配置、字段配置、Proto 接口配置和父级菜单是否完整。";
+      previewError.value = t("system.codegen.preview.message.loadFailed");
     }
     syncWorkspaceTitle();
   } finally {
@@ -109,7 +122,7 @@ async function loadCodePreview() {
 
 /** 同步代码预览页签和浏览器标题。 */
 function syncWorkspaceTitle() {
-  const title = `${pageTitle.value}代码预览`;
+  const title = t("system.codegen.preview.title.workspace", { table: pageTitle.value });
   tabsStore.setTabsTitle(title);
   document.title = `${title} - ${import.meta.env.VITE_GLOB_APP_TITLE}`;
 }
@@ -118,15 +131,19 @@ function syncWorkspaceTitle() {
 async function handleGenerate() {
   if (!table.value) return;
   if (table.value.status === codeGenStatusDisabled) {
-    ElMessage.warning(`代码生成表配置 ${table.value.name} 已停用`);
+    ElMessage.warning(t("system.codegen.table.message.disabled", { name: table.value.name }));
     return;
   }
   try {
-    await ElMessageBox.confirm(`确认生成业务表：${table.value.name}？`, "提示", {
-      confirmButtonText: "确认",
-      cancelButtonText: "取消",
-      type: "warning"
-    });
+    await ElMessageBox.confirm(
+      t("system.codegen.table.dialog.generateOne", { name: table.value.name }),
+      t("common.title.notice"),
+      {
+        confirmButtonText: t("common.action.confirm"),
+        cancelButtonText: t("common.action.cancel"),
+        type: "warning"
+      }
+    );
   } catch {
     return;
   }
@@ -177,7 +194,6 @@ function handleProgressUnavailable() {
   window.sessionStorage.removeItem(codeGenProgressSelectedTableIdsStorageKey);
   window.sessionStorage.removeItem(codeGenTaskStorageKey);
 }
-
 </script>
 
 <style scoped lang="scss">

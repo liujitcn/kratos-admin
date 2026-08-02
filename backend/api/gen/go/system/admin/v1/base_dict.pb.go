@@ -420,6 +420,7 @@ type BaseDictForm struct {
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                 // 字典ID
 	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                              // 字典编号
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                              // 字典名称
+	Translations  []*BaseDictTranslation `protobuf:"bytes,4,rep,name=translations,proto3" json:"translations,omitempty"`              // 非默认语言翻译
 	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -476,6 +477,13 @@ func (x *BaseDictForm) GetName() string {
 	return ""
 }
 
+func (x *BaseDictForm) GetTranslations() []*BaseDictTranslation {
+	if x != nil {
+		return x.Translations
+	}
+	return nil
+}
+
 func (x *BaseDictForm) GetStatus() v1.Status {
 	if x != nil {
 		return x.Status
@@ -530,14 +538,15 @@ func (x *GetBaseDictItemRequest) GetId() int64 {
 
 // 字典属性表单
 type BaseDictItemForm struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                 // 字典项ID
-	DictId        int64                  `protobuf:"varint,2,opt,name=dict_id,json=dictId,proto3" json:"dict_id,omitempty"`           // 字典ID
-	Value         string                 `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`                            // 字典项值
-	Label         string                 `protobuf:"bytes,4,opt,name=label,proto3" json:"label,omitempty"`                            // 字典项标签
-	TagType       string                 `protobuf:"bytes,5,opt,name=tag_type,json=tagType,proto3" json:"tag_type,omitempty"`         // 标签类型，用于前端样式展示（如success、warning等）
-	Sort          int32                  `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                             // 排序
-	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
+	state         protoimpl.MessageState     `protogen:"open.v1"`
+	Id            int64                      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                 // 字典项ID
+	DictId        int64                      `protobuf:"varint,2,opt,name=dict_id,json=dictId,proto3" json:"dict_id,omitempty"`           // 字典ID
+	Value         string                     `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`                            // 字典项值
+	Label         string                     `protobuf:"bytes,4,opt,name=label,proto3" json:"label,omitempty"`                            // 字典项标签
+	TagType       string                     `protobuf:"bytes,5,opt,name=tag_type,json=tagType,proto3" json:"tag_type,omitempty"`         // 标签类型，用于前端样式展示（如success、warning等）
+	Sort          int32                      `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                             // 排序
+	Translations  []*BaseDictItemTranslation `protobuf:"bytes,7,rep,name=translations,proto3" json:"translations,omitempty"`              // 非默认语言翻译
+	Status        v1.Status                  `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -612,6 +621,13 @@ func (x *BaseDictItemForm) GetSort() int32 {
 		return x.Sort
 	}
 	return 0
+}
+
+func (x *BaseDictItemForm) GetTranslations() []*BaseDictItemTranslation {
+	if x != nil {
+		return x.Translations
+	}
+	return nil
 }
 
 func (x *BaseDictItemForm) GetStatus() v1.Status {
@@ -1003,6 +1019,7 @@ type BaseDict struct {
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                 // 字典ID
 	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                              // 字典编号
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                              // 字典名称
+	Translations  []*BaseDictTranslation `protobuf:"bytes,4,rep,name=translations,proto3" json:"translations,omitempty"`              // 非默认语言翻译
 	Status        v1.Status              `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // 创建时间
 	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"` // 更新时间
@@ -1061,6 +1078,13 @@ func (x *BaseDict) GetName() string {
 	return ""
 }
 
+func (x *BaseDict) GetTranslations() []*BaseDictTranslation {
+	if x != nil {
+		return x.Translations
+	}
+	return nil
+}
+
 func (x *BaseDict) GetStatus() v1.Status {
 	if x != nil {
 		return x.Status
@@ -1084,16 +1108,17 @@ func (x *BaseDict) GetUpdatedAt() string {
 
 // 字典项
 type BaseDictItem struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                 // 字典项ID
-	DictId        int64                  `protobuf:"varint,2,opt,name=dict_id,json=dictId,proto3" json:"dict_id,omitempty"`           // 字典ID
-	Value         string                 `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`                            // 字典项值
-	Label         string                 `protobuf:"bytes,4,opt,name=label,proto3" json:"label,omitempty"`                            // 字典项标签
-	TagType       string                 `protobuf:"bytes,5,opt,name=tag_type,json=tagType,proto3" json:"tag_type,omitempty"`         // 标签类型，用于前端样式展示（如success、warning等）
-	Sort          int32                  `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                             // 排序
-	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
-	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // 创建时间
-	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"` // 更新时间
+	state         protoimpl.MessageState     `protogen:"open.v1"`
+	Id            int64                      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                 // 字典项ID
+	DictId        int64                      `protobuf:"varint,2,opt,name=dict_id,json=dictId,proto3" json:"dict_id,omitempty"`           // 字典ID
+	Value         string                     `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`                            // 字典项值
+	Label         string                     `protobuf:"bytes,4,opt,name=label,proto3" json:"label,omitempty"`                            // 字典项标签
+	TagType       string                     `protobuf:"bytes,5,opt,name=tag_type,json=tagType,proto3" json:"tag_type,omitempty"`         // 标签类型，用于前端样式展示（如success、warning等）
+	Sort          int32                      `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                             // 排序
+	Translations  []*BaseDictItemTranslation `protobuf:"bytes,7,rep,name=translations,proto3" json:"translations,omitempty"`              // 非默认语言翻译
+	Status        v1.Status                  `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
+	CreatedAt     string                     `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // 创建时间
+	UpdatedAt     string                     `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"` // 更新时间
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1170,6 +1195,13 @@ func (x *BaseDictItem) GetSort() int32 {
 	return 0
 }
 
+func (x *BaseDictItem) GetTranslations() []*BaseDictItemTranslation {
+	if x != nil {
+		return x.Translations
+	}
+	return nil
+}
+
 func (x *BaseDictItem) GetStatus() v1.Status {
 	if x != nil {
 		return x.Status
@@ -1191,6 +1223,336 @@ func (x *BaseDictItem) GetUpdatedAt() string {
 	return ""
 }
 
+// 字典翻译
+type BaseDictTranslation struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	Id                  int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                                               // 主键ID
+	DictId              int64                  `protobuf:"varint,2,opt,name=dict_id,json=dictId,proto3" json:"dict_id,omitempty"`                                                                         // 字典ID
+	Locale              string                 `protobuf:"bytes,3,opt,name=locale,proto3" json:"locale,omitempty"`                                                                                        // 语言区域
+	Name                string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`                                                                                            // 字典名称
+	TranslationStatus   TranslationStatus      `protobuf:"varint,5,opt,name=translation_status,json=translationStatus,proto3,enum=system.admin.v1.TranslationStatus" json:"translation_status,omitempty"` // 翻译状态
+	SourceHash          string                 `protobuf:"bytes,6,opt,name=source_hash,json=sourceHash,proto3" json:"source_hash,omitempty"`                                                              // 中文源文SHA-256
+	TranslationProvider string                 `protobuf:"bytes,7,opt,name=translation_provider,json=translationProvider,proto3" json:"translation_provider,omitempty"`                                   // 机器翻译提供方
+	TranslatedAt        string                 `protobuf:"bytes,8,opt,name=translated_at,json=translatedAt,proto3" json:"translated_at,omitempty"`                                                        // 最近机器翻译时间
+	ReviewedBy          int64                  `protobuf:"varint,9,opt,name=reviewed_by,json=reviewedBy,proto3" json:"reviewed_by,omitempty"`                                                             // 审核人ID
+	ReviewedAt          string                 `protobuf:"bytes,10,opt,name=reviewed_at,json=reviewedAt,proto3" json:"reviewed_at,omitempty"`                                                             // 审核时间
+	CreatedBy           int64                  `protobuf:"varint,11,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`                                                               // 创建人ID
+	UpdatedBy           int64                  `protobuf:"varint,12,opt,name=updated_by,json=updatedBy,proto3" json:"updated_by,omitempty"`                                                               // 更新人ID
+	CreatedAt           string                 `protobuf:"bytes,13,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                                                // 创建时间
+	UpdatedAt           string                 `protobuf:"bytes,14,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                                                // 更新时间
+	DeletedAt           uint64                 `protobuf:"varint,15,opt,name=deleted_at,json=deletedAt,proto3" json:"deleted_at,omitempty"`                                                               // 删除时间
+	SourceChanged       bool                   `protobuf:"varint,16,opt,name=source_changed,json=sourceChanged,proto3" json:"source_changed,omitempty"`                                                   // 中文源文是否已变化
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *BaseDictTranslation) Reset() {
+	*x = BaseDictTranslation{}
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BaseDictTranslation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BaseDictTranslation) ProtoMessage() {}
+
+func (x *BaseDictTranslation) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BaseDictTranslation.ProtoReflect.Descriptor instead.
+func (*BaseDictTranslation) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *BaseDictTranslation) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *BaseDictTranslation) GetDictId() int64 {
+	if x != nil {
+		return x.DictId
+	}
+	return 0
+}
+
+func (x *BaseDictTranslation) GetLocale() string {
+	if x != nil {
+		return x.Locale
+	}
+	return ""
+}
+
+func (x *BaseDictTranslation) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *BaseDictTranslation) GetTranslationStatus() TranslationStatus {
+	if x != nil {
+		return x.TranslationStatus
+	}
+	return TranslationStatus_TRANSLATION_STATUS_UNSPECIFIED
+}
+
+func (x *BaseDictTranslation) GetSourceHash() string {
+	if x != nil {
+		return x.SourceHash
+	}
+	return ""
+}
+
+func (x *BaseDictTranslation) GetTranslationProvider() string {
+	if x != nil {
+		return x.TranslationProvider
+	}
+	return ""
+}
+
+func (x *BaseDictTranslation) GetTranslatedAt() string {
+	if x != nil {
+		return x.TranslatedAt
+	}
+	return ""
+}
+
+func (x *BaseDictTranslation) GetReviewedBy() int64 {
+	if x != nil {
+		return x.ReviewedBy
+	}
+	return 0
+}
+
+func (x *BaseDictTranslation) GetReviewedAt() string {
+	if x != nil {
+		return x.ReviewedAt
+	}
+	return ""
+}
+
+func (x *BaseDictTranslation) GetCreatedBy() int64 {
+	if x != nil {
+		return x.CreatedBy
+	}
+	return 0
+}
+
+func (x *BaseDictTranslation) GetUpdatedBy() int64 {
+	if x != nil {
+		return x.UpdatedBy
+	}
+	return 0
+}
+
+func (x *BaseDictTranslation) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
+func (x *BaseDictTranslation) GetUpdatedAt() string {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return ""
+}
+
+func (x *BaseDictTranslation) GetDeletedAt() uint64 {
+	if x != nil {
+		return x.DeletedAt
+	}
+	return 0
+}
+
+func (x *BaseDictTranslation) GetSourceChanged() bool {
+	if x != nil {
+		return x.SourceChanged
+	}
+	return false
+}
+
+// 字典项翻译
+type BaseDictItemTranslation struct {
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	Id                  int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                                               // 主键ID
+	DictItemId          int64                  `protobuf:"varint,2,opt,name=dict_item_id,json=dictItemId,proto3" json:"dict_item_id,omitempty"`                                                           // 字典项ID
+	Locale              string                 `protobuf:"bytes,3,opt,name=locale,proto3" json:"locale,omitempty"`                                                                                        // 语言区域
+	Label               string                 `protobuf:"bytes,4,opt,name=label,proto3" json:"label,omitempty"`                                                                                          // 字典项标签
+	TranslationStatus   TranslationStatus      `protobuf:"varint,5,opt,name=translation_status,json=translationStatus,proto3,enum=system.admin.v1.TranslationStatus" json:"translation_status,omitempty"` // 翻译状态
+	SourceHash          string                 `protobuf:"bytes,6,opt,name=source_hash,json=sourceHash,proto3" json:"source_hash,omitempty"`                                                              // 中文源文SHA-256
+	TranslationProvider string                 `protobuf:"bytes,7,opt,name=translation_provider,json=translationProvider,proto3" json:"translation_provider,omitempty"`                                   // 机器翻译提供方
+	TranslatedAt        string                 `protobuf:"bytes,8,opt,name=translated_at,json=translatedAt,proto3" json:"translated_at,omitempty"`                                                        // 最近机器翻译时间
+	ReviewedBy          int64                  `protobuf:"varint,9,opt,name=reviewed_by,json=reviewedBy,proto3" json:"reviewed_by,omitempty"`                                                             // 审核人ID
+	ReviewedAt          string                 `protobuf:"bytes,10,opt,name=reviewed_at,json=reviewedAt,proto3" json:"reviewed_at,omitempty"`                                                             // 审核时间
+	CreatedBy           int64                  `protobuf:"varint,11,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`                                                               // 创建人ID
+	UpdatedBy           int64                  `protobuf:"varint,12,opt,name=updated_by,json=updatedBy,proto3" json:"updated_by,omitempty"`                                                               // 更新人ID
+	CreatedAt           string                 `protobuf:"bytes,13,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                                                // 创建时间
+	UpdatedAt           string                 `protobuf:"bytes,14,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                                                // 更新时间
+	DeletedAt           uint64                 `protobuf:"varint,15,opt,name=deleted_at,json=deletedAt,proto3" json:"deleted_at,omitempty"`                                                               // 删除时间
+	SourceChanged       bool                   `protobuf:"varint,16,opt,name=source_changed,json=sourceChanged,proto3" json:"source_changed,omitempty"`                                                   // 中文源文是否已变化
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *BaseDictItemTranslation) Reset() {
+	*x = BaseDictItemTranslation{}
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BaseDictItemTranslation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BaseDictItemTranslation) ProtoMessage() {}
+
+func (x *BaseDictItemTranslation) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BaseDictItemTranslation.ProtoReflect.Descriptor instead.
+func (*BaseDictItemTranslation) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *BaseDictItemTranslation) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *BaseDictItemTranslation) GetDictItemId() int64 {
+	if x != nil {
+		return x.DictItemId
+	}
+	return 0
+}
+
+func (x *BaseDictItemTranslation) GetLocale() string {
+	if x != nil {
+		return x.Locale
+	}
+	return ""
+}
+
+func (x *BaseDictItemTranslation) GetLabel() string {
+	if x != nil {
+		return x.Label
+	}
+	return ""
+}
+
+func (x *BaseDictItemTranslation) GetTranslationStatus() TranslationStatus {
+	if x != nil {
+		return x.TranslationStatus
+	}
+	return TranslationStatus_TRANSLATION_STATUS_UNSPECIFIED
+}
+
+func (x *BaseDictItemTranslation) GetSourceHash() string {
+	if x != nil {
+		return x.SourceHash
+	}
+	return ""
+}
+
+func (x *BaseDictItemTranslation) GetTranslationProvider() string {
+	if x != nil {
+		return x.TranslationProvider
+	}
+	return ""
+}
+
+func (x *BaseDictItemTranslation) GetTranslatedAt() string {
+	if x != nil {
+		return x.TranslatedAt
+	}
+	return ""
+}
+
+func (x *BaseDictItemTranslation) GetReviewedBy() int64 {
+	if x != nil {
+		return x.ReviewedBy
+	}
+	return 0
+}
+
+func (x *BaseDictItemTranslation) GetReviewedAt() string {
+	if x != nil {
+		return x.ReviewedAt
+	}
+	return ""
+}
+
+func (x *BaseDictItemTranslation) GetCreatedBy() int64 {
+	if x != nil {
+		return x.CreatedBy
+	}
+	return 0
+}
+
+func (x *BaseDictItemTranslation) GetUpdatedBy() int64 {
+	if x != nil {
+		return x.UpdatedBy
+	}
+	return 0
+}
+
+func (x *BaseDictItemTranslation) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
+func (x *BaseDictItemTranslation) GetUpdatedAt() string {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return ""
+}
+
+func (x *BaseDictItemTranslation) GetDeletedAt() uint64 {
+	if x != nil {
+		return x.DeletedAt
+	}
+	return 0
+}
+
+func (x *BaseDictItemTranslation) GetSourceChanged() bool {
+	if x != nil {
+		return x.SourceChanged
+	}
+	return false
+}
+
 // 字典项
 type OptionBaseDictResponse_BaseDictItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -1203,7 +1565,7 @@ type OptionBaseDictResponse_BaseDictItem struct {
 
 func (x *OptionBaseDictResponse_BaseDictItem) Reset() {
 	*x = OptionBaseDictResponse_BaseDictItem{}
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[20]
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1215,7 +1577,7 @@ func (x *OptionBaseDictResponse_BaseDictItem) String() string {
 func (*OptionBaseDictResponse_BaseDictItem) ProtoMessage() {}
 
 func (x *OptionBaseDictResponse_BaseDictItem) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[20]
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1264,7 +1626,7 @@ type OptionBaseDictResponse_BaseDict struct {
 
 func (x *OptionBaseDictResponse_BaseDict) Reset() {
 	*x = OptionBaseDictResponse_BaseDict{}
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[21]
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1276,7 +1638,7 @@ func (x *OptionBaseDictResponse_BaseDict) String() string {
 func (*OptionBaseDictResponse_BaseDict) ProtoMessage() {}
 
 func (x *OptionBaseDictResponse_BaseDict) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[21]
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1317,7 +1679,7 @@ var File_system_admin_v1_base_dict_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"\n" +
-	"\x1fsystem/admin/v1/base_dict.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x17\n" +
+	"\x1fsystem/admin/v1/base_dict.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a&system/admin/v1/base_translation.proto\"\x17\n" +
 	"\x15OptionBaseDictRequest\"\x8a\x04\n" +
 	"\x16OptionBaseDictResponse\x12c\n" +
 	"\n" +
@@ -1353,7 +1715,7 @@ const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"u\n" +
 	"\x12GetBaseDictRequest\x12_\n" +
 	"\x02id\x18\x01 \x01(\x03BO\xbaG\v\x92\x02\b字典ID\xbaH>\xba\x01;\n" +
-	"\x19get_base_dict.id.required\x12\x14字典ID不能为空\x1a\bthis > 0R\x02id\"\xfd\x03\n" +
+	"\x19get_base_dict.id.required\x12\x14字典ID不能为空\x1a\bthis > 0R\x02id\"\xe4\x04\n" +
 	"\fBaseDictForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b字典IDR\x02id\x12\xc4\x01\n" +
 	"\x04code\x18\x02 \x01(\tB\xaf\x01\xbaG\x0f\x92\x02\f字典编号\xbaH\x99\x01\xba\x01A\n" +
@@ -1361,11 +1723,12 @@ const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"\x16base_dict.code.max_len\x12%字典编号不能超过 50 个字符\x1a\x11this.size() <= 50R\x04code\x12\xc4\x01\n" +
 	"\x04name\x18\x03 \x01(\tB\xaf\x01\xbaG\x0f\x92\x02\f字典名称\xbaH\x99\x01\xba\x01A\n" +
 	"\x17base_dict.name.required\x12\x15请输入字典名称\x1a\x0fthis.size() > 0\xba\x01R\n" +
-	"\x16base_dict.name.max_len\x12%字典名称不能超过 50 个字符\x1a\x11this.size() <= 50R\x04name\x12?\n" +
+	"\x16base_dict.name.max_len\x12%字典名称不能超过 50 个字符\x1a\x11this.size() <= 50R\x04name\x12e\n" +
+	"\ftranslations\x18\x04 \x03(\v2$.system.admin.v1.BaseDictTranslationB\x1b\xbaG\x18\x92\x02\x15非默认语言翻译R\ftranslations\x12?\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\x8a\x01\n" +
 	"\x16GetBaseDictItemRequest\x12p\n" +
 	"\x02id\x18\x01 \x01(\x03B`\xbaG\x11\x92\x02\x0e字典属性ID\xbaHI\xba\x01F\n" +
-	"\x1eget_base_dict_item.id.required\x12\x1a字典属性ID不能为空\x1a\bthis > 0R\x02id\"\xbc\a\n" +
+	"\x1eget_base_dict_item.id.required\x12\x1a字典属性ID不能为空\x1a\bthis > 0R\x02id\"\xac\b\n" +
 	"\x10BaseDictItemForm\x12!\n" +
 	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v字典项IDR\x02id\x12'\n" +
 	"\adict_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b字典IDR\x06dictId\x12\xf0\x01\n" +
@@ -1376,9 +1739,10 @@ const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"\x1dbase_dict_item.label.required\x120请输入字典标签（不超过100个字符）\x1a\x0fthis.size() > 0\xba\x01d\n" +
 	"\x1cbase_dict_item.label.max_len\x120请输入字典标签（不超过100个字符）\x1a\x12this.size() <= 100R\x05label\x12\xc7\x01\n" +
 	"\btag_type\x18\x05 \x01(\tB\xab\x01\xbaGG\x92\x02D标签类型，用于前端样式展示（如success、warning等）\xbaH^\xba\x01[\n" +
-	"\x1fbase_dict_item.tag_type.max_len\x12%标签类型不能超过 50 个字符\x1a\x11this.size() <= 50R\atagType\x12_\n" +
-	"\x04sort\x18\x06 \x01(\x05BK\xbaG\t\x92\x02\x06排序\xbaH<\xba\x019\n" +
-	"\x1cbase_dict_item.sort.required\x12\x0f请输入排序\x1a\bthis > 0R\x04sort\x12?\n" +
+	"\x1fbase_dict_item.tag_type.max_len\x12%标签类型不能超过 50 个字符\x1a\x11this.size() <= 50R\atagType\x12d\n" +
+	"\x04sort\x18\x06 \x01(\x05BP\xbaG\t\x92\x02\x06排序\xbaHA\xba\x01>\n" +
+	"\x1cbase_dict_item.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x12i\n" +
+	"\ftranslations\x18\a \x03(\v2(.system.admin.v1.BaseDictItemTranslationB\x1b\xbaG\x18\x92\x02\x15非默认语言翻译R\ftranslations\x12?\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"m\n" +
 	"\x15CreateBaseDictRequest\x12T\n" +
 	"\tbase_dict\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseDictFormB\x18\xbaG\x0f\x92\x02\f字典表单\xbaH\x03\xc8\x01\x01R\bbaseDict\"\x84\x01\n" +
@@ -1403,18 +1767,19 @@ const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"\x18SetBaseDictStatusRequest\x12f\n" +
 	"\x02id\x18\x01 \x01(\x03BV\xbaG\v\x92\x02\b字典ID\xbaHE\xba\x01B\n" +
 	" set_base_dict_status.id.required\x12\x14字典ID不能为空\x1a\bthis > 0R\x02id\x12$\n" +
-	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\x8b\x04\n" +
+	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xf2\x04\n" +
 	"\bBaseDict\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b字典IDR\x02id\x12\x9d\x01\n" +
 	"\x04code\x18\x02 \x01(\tB\x88\x01\xbaG\x0f\x92\x02\f字典编号\xbaHs\xba\x01p\n" +
 	"\x15base_dict.code.length\x121字典编号不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\x04code\x12\x9d\x01\n" +
 	"\x04name\x18\x03 \x01(\tB\x88\x01\xbaG\x0f\x92\x02\f字典名称\xbaHs\xba\x01p\n" +
-	"\x15base_dict.name.length\x121字典名称不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\x04name\x127\n" +
+	"\x15base_dict.name.length\x121字典名称不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\x04name\x12e\n" +
+	"\ftranslations\x18\x04 \x03(\v2$.system.admin.v1.BaseDictTranslationB\x1b\xbaG\x18\x92\x02\x15非默认语言翻译R\ftranslations\x127\n" +
 	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x122\n" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xc8\a\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xb3\b\n" +
 	"\fBaseDictItem\x12!\n" +
 	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v字典项IDR\x02id\x12l\n" +
 	"\adict_id\x18\x02 \x01(\x03BS\xbaG\v\x92\x02\b字典ID\xbaHB\xba\x01?\n" +
@@ -1426,12 +1791,70 @@ const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"\btag_type\x18\x05 \x01(\tB\xab\x01\xbaGG\x92\x02D标签类型，用于前端样式展示（如success、warning等）\xbaH^\xba\x01[\n" +
 	"\x1fbase_dict_item.tag_type.max_len\x12%标签类型不能超过 50 个字符\x1a\x11this.size() <= 50R\atagType\x12d\n" +
 	"\x04sort\x18\x06 \x01(\x05BP\xbaG\t\x92\x02\x06排序\xbaHA\xba\x01>\n" +
-	"\x1cbase_dict_item.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x127\n" +
+	"\x1cbase_dict_item.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x12i\n" +
+	"\ftranslations\x18\a \x03(\v2(.system.admin.v1.BaseDictItemTranslationB\x1b\xbaG\x18\x92\x02\x15非默认语言翻译R\ftranslations\x127\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x122\n" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt2\x8e\x0e\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xfb\b\n" +
+	"\x13BaseDictTranslation\x12\x1e\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12'\n" +
+	"\adict_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b字典IDR\x06dictId\x12\xa1\x01\n" +
+	"\x06locale\x18\x03 \x01(\tB\x88\x01\xbaG\x0f\x92\x02\f语言区域\xbaHs\xba\x01p\n" +
+	"&base_dict_translation.locale.supported\x12*字典翻译语言仅支持英语或日语\x1a\x1athis in ['en-US', 'ja-JP']R\x06locale\x12\x8e\x01\n" +
+	"\x04name\x18\x04 \x01(\tBz\xbaG\x0f\x92\x02\f字典名称\xbaHe\xba\x01b\n" +
+	"\"base_dict_translation.name.max_len\x12)字典翻译名称不能超过50个字符\x1a\x11this.size() <= 50R\x04name\x12e\n" +
+	"\x12translation_status\x18\x05 \x01(\x0e2\".system.admin.v1.TranslationStatusB\x12\xbaG\x0f\x92\x02\f翻译状态R\x11translationStatus\x12:\n" +
+	"\vsource_hash\x18\x06 \x01(\tB\x19\xbaG\x16\x92\x02\x13中文源文SHA-256R\n" +
+	"sourceHash\x12N\n" +
+	"\x14translation_provider\x18\a \x01(\tB\x1b\xbaG\x18\x92\x02\x15机器翻译提供方R\x13translationProvider\x12C\n" +
+	"\rtranslated_at\x18\b \x01(\tB\x1e\xbaG\x1b\x92\x02\x18最近机器翻译时间R\ftranslatedAt\x122\n" +
+	"\vreviewed_by\x18\t \x01(\x03B\x11\xbaG\x0e\x92\x02\v审核人IDR\n" +
+	"reviewedBy\x123\n" +
+	"\vreviewed_at\x18\n" +
+	" \x01(\tB\x12\xbaG\x0f\x92\x02\f审核时间R\n" +
+	"reviewedAt\x120\n" +
+	"\n" +
+	"created_by\x18\v \x01(\x03B\x11\xbaG\x0e\x92\x02\v创建人IDR\tcreatedBy\x120\n" +
+	"\n" +
+	"updated_by\x18\f \x01(\x03B\x11\xbaG\x0e\x92\x02\v更新人IDR\tupdatedBy\x121\n" +
+	"\n" +
+	"created_at\x18\r \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x121\n" +
+	"\n" +
+	"updated_at\x18\x0e \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x121\n" +
+	"\n" +
+	"deleted_at\x18\x0f \x01(\x04B\x12\xbaG\x0f\x92\x02\f删除时间R\tdeletedAt\x12H\n" +
+	"\x0esource_changed\x18\x10 \x01(\bB!\xbaG\x1e\x92\x02\x1b中文源文是否已变化R\rsourceChanged\"\xa4\t\n" +
+	"\x17BaseDictItemTranslation\x12\x1e\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x123\n" +
+	"\fdict_item_id\x18\x02 \x01(\x03B\x11\xbaG\x0e\x92\x02\v字典项IDR\n" +
+	"dictItemId\x12\xa9\x01\n" +
+	"\x06locale\x18\x03 \x01(\tB\x90\x01\xbaG\x0f\x92\x02\f语言区域\xbaH{\xba\x01x\n" +
+	"+base_dict_item_translation.locale.supported\x12-字典项翻译语言仅支持英语或日语\x1a\x1athis in ['en-US', 'ja-JP']R\x06locale\x12\x9f\x01\n" +
+	"\x05label\x18\x04 \x01(\tB\x88\x01\xbaG\x12\x92\x02\x0f字典项标签\xbaHp\xba\x01m\n" +
+	"(base_dict_item_translation.label.max_len\x12-字典项翻译标签不能超过100个字符\x1a\x12this.size() <= 100R\x05label\x12e\n" +
+	"\x12translation_status\x18\x05 \x01(\x0e2\".system.admin.v1.TranslationStatusB\x12\xbaG\x0f\x92\x02\f翻译状态R\x11translationStatus\x12:\n" +
+	"\vsource_hash\x18\x06 \x01(\tB\x19\xbaG\x16\x92\x02\x13中文源文SHA-256R\n" +
+	"sourceHash\x12N\n" +
+	"\x14translation_provider\x18\a \x01(\tB\x1b\xbaG\x18\x92\x02\x15机器翻译提供方R\x13translationProvider\x12C\n" +
+	"\rtranslated_at\x18\b \x01(\tB\x1e\xbaG\x1b\x92\x02\x18最近机器翻译时间R\ftranslatedAt\x122\n" +
+	"\vreviewed_by\x18\t \x01(\x03B\x11\xbaG\x0e\x92\x02\v审核人IDR\n" +
+	"reviewedBy\x123\n" +
+	"\vreviewed_at\x18\n" +
+	" \x01(\tB\x12\xbaG\x0f\x92\x02\f审核时间R\n" +
+	"reviewedAt\x120\n" +
+	"\n" +
+	"created_by\x18\v \x01(\x03B\x11\xbaG\x0e\x92\x02\v创建人IDR\tcreatedBy\x120\n" +
+	"\n" +
+	"updated_by\x18\f \x01(\x03B\x11\xbaG\x0e\x92\x02\v更新人IDR\tupdatedBy\x121\n" +
+	"\n" +
+	"created_at\x18\r \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x121\n" +
+	"\n" +
+	"updated_at\x18\x0e \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x121\n" +
+	"\n" +
+	"deleted_at\x18\x0f \x01(\x04B\x12\xbaG\x0f\x92\x02\f删除时间R\tdeletedAt\x12H\n" +
+	"\x0esource_changed\x18\x10 \x01(\bB!\xbaG\x1e\x92\x02\x1b中文源文是否已变化R\rsourceChanged2\x8e\x0e\n" +
 	"\x0fBaseDictService\x12\x89\x01\n" +
 	"\x0eOptionBaseDict\x12&.system.admin.v1.OptionBaseDictRequest\x1a'.system.admin.v1.OptionBaseDictResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/dict/option\x12|\n" +
 	"\fPageBaseDict\x12$.system.admin.v1.PageBaseDictRequest\x1a%.system.admin.v1.PageBaseDictResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/base/dict\x12\x8d\x01\n" +
@@ -1460,7 +1883,7 @@ func file_system_admin_v1_base_dict_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_base_dict_proto_rawDescData
 }
 
-var file_system_admin_v1_base_dict_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
+var file_system_admin_v1_base_dict_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
 var file_system_admin_v1_base_dict_proto_goTypes = []any{
 	(*OptionBaseDictRequest)(nil),               // 0: system.admin.v1.OptionBaseDictRequest
 	(*OptionBaseDictResponse)(nil),              // 1: system.admin.v1.OptionBaseDictResponse
@@ -1482,57 +1905,66 @@ var file_system_admin_v1_base_dict_proto_goTypes = []any{
 	(*SetBaseDictStatusRequest)(nil),            // 17: system.admin.v1.SetBaseDictStatusRequest
 	(*BaseDict)(nil),                            // 18: system.admin.v1.BaseDict
 	(*BaseDictItem)(nil),                        // 19: system.admin.v1.BaseDictItem
-	(*OptionBaseDictResponse_BaseDictItem)(nil), // 20: system.admin.v1.OptionBaseDictResponse.BaseDictItem
-	(*OptionBaseDictResponse_BaseDict)(nil),     // 21: system.admin.v1.OptionBaseDictResponse.BaseDict
-	(v1.Status)(0),                              // 22: common.v1.Status
-	(*emptypb.Empty)(nil),                       // 23: google.protobuf.Empty
+	(*BaseDictTranslation)(nil),                 // 20: system.admin.v1.BaseDictTranslation
+	(*BaseDictItemTranslation)(nil),             // 21: system.admin.v1.BaseDictItemTranslation
+	(*OptionBaseDictResponse_BaseDictItem)(nil), // 22: system.admin.v1.OptionBaseDictResponse.BaseDictItem
+	(*OptionBaseDictResponse_BaseDict)(nil),     // 23: system.admin.v1.OptionBaseDictResponse.BaseDict
+	(v1.Status)(0),                              // 24: common.v1.Status
+	(TranslationStatus)(0),                      // 25: system.admin.v1.TranslationStatus
+	(*emptypb.Empty)(nil),                       // 26: google.protobuf.Empty
 }
 var file_system_admin_v1_base_dict_proto_depIdxs = []int32{
-	21, // 0: system.admin.v1.OptionBaseDictResponse.base_dicts:type_name -> system.admin.v1.OptionBaseDictResponse.BaseDict
-	22, // 1: system.admin.v1.PageBaseDictRequest.status:type_name -> common.v1.Status
+	23, // 0: system.admin.v1.OptionBaseDictResponse.base_dicts:type_name -> system.admin.v1.OptionBaseDictResponse.BaseDict
+	24, // 1: system.admin.v1.PageBaseDictRequest.status:type_name -> common.v1.Status
 	18, // 2: system.admin.v1.PageBaseDictResponse.base_dicts:type_name -> system.admin.v1.BaseDict
-	22, // 3: system.admin.v1.PageBaseDictItemRequest.status:type_name -> common.v1.Status
+	24, // 3: system.admin.v1.PageBaseDictItemRequest.status:type_name -> common.v1.Status
 	19, // 4: system.admin.v1.PageBaseDictItemResponse.base_dict_items:type_name -> system.admin.v1.BaseDictItem
-	22, // 5: system.admin.v1.BaseDictForm.status:type_name -> common.v1.Status
-	22, // 6: system.admin.v1.BaseDictItemForm.status:type_name -> common.v1.Status
-	7,  // 7: system.admin.v1.CreateBaseDictRequest.base_dict:type_name -> system.admin.v1.BaseDictForm
-	9,  // 8: system.admin.v1.CreateBaseDictItemRequest.base_dict_item:type_name -> system.admin.v1.BaseDictItemForm
-	7,  // 9: system.admin.v1.UpdateBaseDictRequest.base_dict:type_name -> system.admin.v1.BaseDictForm
-	9,  // 10: system.admin.v1.UpdateBaseDictItemRequest.base_dict_item:type_name -> system.admin.v1.BaseDictItemForm
-	22, // 11: system.admin.v1.BaseDict.status:type_name -> common.v1.Status
-	22, // 12: system.admin.v1.BaseDictItem.status:type_name -> common.v1.Status
-	20, // 13: system.admin.v1.OptionBaseDictResponse.BaseDict.items:type_name -> system.admin.v1.OptionBaseDictResponse.BaseDictItem
-	0,  // 14: system.admin.v1.BaseDictService.OptionBaseDict:input_type -> system.admin.v1.OptionBaseDictRequest
-	2,  // 15: system.admin.v1.BaseDictService.PageBaseDict:input_type -> system.admin.v1.PageBaseDictRequest
-	4,  // 16: system.admin.v1.BaseDictService.PageBaseDictItem:input_type -> system.admin.v1.PageBaseDictItemRequest
-	6,  // 17: system.admin.v1.BaseDictService.GetBaseDict:input_type -> system.admin.v1.GetBaseDictRequest
-	8,  // 18: system.admin.v1.BaseDictService.GetBaseDictItem:input_type -> system.admin.v1.GetBaseDictItemRequest
-	10, // 19: system.admin.v1.BaseDictService.CreateBaseDict:input_type -> system.admin.v1.CreateBaseDictRequest
-	11, // 20: system.admin.v1.BaseDictService.CreateBaseDictItem:input_type -> system.admin.v1.CreateBaseDictItemRequest
-	12, // 21: system.admin.v1.BaseDictService.UpdateBaseDict:input_type -> system.admin.v1.UpdateBaseDictRequest
-	13, // 22: system.admin.v1.BaseDictService.UpdateBaseDictItem:input_type -> system.admin.v1.UpdateBaseDictItemRequest
-	14, // 23: system.admin.v1.BaseDictService.DeleteBaseDict:input_type -> system.admin.v1.DeleteBaseDictRequest
-	15, // 24: system.admin.v1.BaseDictService.DeleteBaseDictItem:input_type -> system.admin.v1.DeleteBaseDictItemRequest
-	16, // 25: system.admin.v1.BaseDictService.SetBaseDictItemStatus:input_type -> system.admin.v1.SetBaseDictItemStatusRequest
-	17, // 26: system.admin.v1.BaseDictService.SetBaseDictStatus:input_type -> system.admin.v1.SetBaseDictStatusRequest
-	1,  // 27: system.admin.v1.BaseDictService.OptionBaseDict:output_type -> system.admin.v1.OptionBaseDictResponse
-	3,  // 28: system.admin.v1.BaseDictService.PageBaseDict:output_type -> system.admin.v1.PageBaseDictResponse
-	5,  // 29: system.admin.v1.BaseDictService.PageBaseDictItem:output_type -> system.admin.v1.PageBaseDictItemResponse
-	7,  // 30: system.admin.v1.BaseDictService.GetBaseDict:output_type -> system.admin.v1.BaseDictForm
-	9,  // 31: system.admin.v1.BaseDictService.GetBaseDictItem:output_type -> system.admin.v1.BaseDictItemForm
-	23, // 32: system.admin.v1.BaseDictService.CreateBaseDict:output_type -> google.protobuf.Empty
-	23, // 33: system.admin.v1.BaseDictService.CreateBaseDictItem:output_type -> google.protobuf.Empty
-	23, // 34: system.admin.v1.BaseDictService.UpdateBaseDict:output_type -> google.protobuf.Empty
-	23, // 35: system.admin.v1.BaseDictService.UpdateBaseDictItem:output_type -> google.protobuf.Empty
-	23, // 36: system.admin.v1.BaseDictService.DeleteBaseDict:output_type -> google.protobuf.Empty
-	23, // 37: system.admin.v1.BaseDictService.DeleteBaseDictItem:output_type -> google.protobuf.Empty
-	23, // 38: system.admin.v1.BaseDictService.SetBaseDictItemStatus:output_type -> google.protobuf.Empty
-	23, // 39: system.admin.v1.BaseDictService.SetBaseDictStatus:output_type -> google.protobuf.Empty
-	27, // [27:40] is the sub-list for method output_type
-	14, // [14:27] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	20, // 5: system.admin.v1.BaseDictForm.translations:type_name -> system.admin.v1.BaseDictTranslation
+	24, // 6: system.admin.v1.BaseDictForm.status:type_name -> common.v1.Status
+	21, // 7: system.admin.v1.BaseDictItemForm.translations:type_name -> system.admin.v1.BaseDictItemTranslation
+	24, // 8: system.admin.v1.BaseDictItemForm.status:type_name -> common.v1.Status
+	7,  // 9: system.admin.v1.CreateBaseDictRequest.base_dict:type_name -> system.admin.v1.BaseDictForm
+	9,  // 10: system.admin.v1.CreateBaseDictItemRequest.base_dict_item:type_name -> system.admin.v1.BaseDictItemForm
+	7,  // 11: system.admin.v1.UpdateBaseDictRequest.base_dict:type_name -> system.admin.v1.BaseDictForm
+	9,  // 12: system.admin.v1.UpdateBaseDictItemRequest.base_dict_item:type_name -> system.admin.v1.BaseDictItemForm
+	20, // 13: system.admin.v1.BaseDict.translations:type_name -> system.admin.v1.BaseDictTranslation
+	24, // 14: system.admin.v1.BaseDict.status:type_name -> common.v1.Status
+	21, // 15: system.admin.v1.BaseDictItem.translations:type_name -> system.admin.v1.BaseDictItemTranslation
+	24, // 16: system.admin.v1.BaseDictItem.status:type_name -> common.v1.Status
+	25, // 17: system.admin.v1.BaseDictTranslation.translation_status:type_name -> system.admin.v1.TranslationStatus
+	25, // 18: system.admin.v1.BaseDictItemTranslation.translation_status:type_name -> system.admin.v1.TranslationStatus
+	22, // 19: system.admin.v1.OptionBaseDictResponse.BaseDict.items:type_name -> system.admin.v1.OptionBaseDictResponse.BaseDictItem
+	0,  // 20: system.admin.v1.BaseDictService.OptionBaseDict:input_type -> system.admin.v1.OptionBaseDictRequest
+	2,  // 21: system.admin.v1.BaseDictService.PageBaseDict:input_type -> system.admin.v1.PageBaseDictRequest
+	4,  // 22: system.admin.v1.BaseDictService.PageBaseDictItem:input_type -> system.admin.v1.PageBaseDictItemRequest
+	6,  // 23: system.admin.v1.BaseDictService.GetBaseDict:input_type -> system.admin.v1.GetBaseDictRequest
+	8,  // 24: system.admin.v1.BaseDictService.GetBaseDictItem:input_type -> system.admin.v1.GetBaseDictItemRequest
+	10, // 25: system.admin.v1.BaseDictService.CreateBaseDict:input_type -> system.admin.v1.CreateBaseDictRequest
+	11, // 26: system.admin.v1.BaseDictService.CreateBaseDictItem:input_type -> system.admin.v1.CreateBaseDictItemRequest
+	12, // 27: system.admin.v1.BaseDictService.UpdateBaseDict:input_type -> system.admin.v1.UpdateBaseDictRequest
+	13, // 28: system.admin.v1.BaseDictService.UpdateBaseDictItem:input_type -> system.admin.v1.UpdateBaseDictItemRequest
+	14, // 29: system.admin.v1.BaseDictService.DeleteBaseDict:input_type -> system.admin.v1.DeleteBaseDictRequest
+	15, // 30: system.admin.v1.BaseDictService.DeleteBaseDictItem:input_type -> system.admin.v1.DeleteBaseDictItemRequest
+	16, // 31: system.admin.v1.BaseDictService.SetBaseDictItemStatus:input_type -> system.admin.v1.SetBaseDictItemStatusRequest
+	17, // 32: system.admin.v1.BaseDictService.SetBaseDictStatus:input_type -> system.admin.v1.SetBaseDictStatusRequest
+	1,  // 33: system.admin.v1.BaseDictService.OptionBaseDict:output_type -> system.admin.v1.OptionBaseDictResponse
+	3,  // 34: system.admin.v1.BaseDictService.PageBaseDict:output_type -> system.admin.v1.PageBaseDictResponse
+	5,  // 35: system.admin.v1.BaseDictService.PageBaseDictItem:output_type -> system.admin.v1.PageBaseDictItemResponse
+	7,  // 36: system.admin.v1.BaseDictService.GetBaseDict:output_type -> system.admin.v1.BaseDictForm
+	9,  // 37: system.admin.v1.BaseDictService.GetBaseDictItem:output_type -> system.admin.v1.BaseDictItemForm
+	26, // 38: system.admin.v1.BaseDictService.CreateBaseDict:output_type -> google.protobuf.Empty
+	26, // 39: system.admin.v1.BaseDictService.CreateBaseDictItem:output_type -> google.protobuf.Empty
+	26, // 40: system.admin.v1.BaseDictService.UpdateBaseDict:output_type -> google.protobuf.Empty
+	26, // 41: system.admin.v1.BaseDictService.UpdateBaseDictItem:output_type -> google.protobuf.Empty
+	26, // 42: system.admin.v1.BaseDictService.DeleteBaseDict:output_type -> google.protobuf.Empty
+	26, // 43: system.admin.v1.BaseDictService.DeleteBaseDictItem:output_type -> google.protobuf.Empty
+	26, // 44: system.admin.v1.BaseDictService.SetBaseDictItemStatus:output_type -> google.protobuf.Empty
+	26, // 45: system.admin.v1.BaseDictService.SetBaseDictStatus:output_type -> google.protobuf.Empty
+	33, // [33:46] is the sub-list for method output_type
+	20, // [20:33] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_dict_proto_init() }
@@ -1540,6 +1972,7 @@ func file_system_admin_v1_base_dict_proto_init() {
 	if File_system_admin_v1_base_dict_proto != nil {
 		return
 	}
+	file_system_admin_v1_base_translation_proto_init()
 	file_system_admin_v1_base_dict_proto_msgTypes[2].OneofWrappers = []any{}
 	file_system_admin_v1_base_dict_proto_msgTypes[4].OneofWrappers = []any{}
 	type x struct{}
@@ -1548,7 +1981,7 @@ func file_system_admin_v1_base_dict_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_base_dict_proto_rawDesc), len(file_system_admin_v1_base_dict_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   22,
+			NumMessages:   24,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

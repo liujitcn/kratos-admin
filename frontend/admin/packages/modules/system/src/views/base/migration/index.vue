@@ -3,26 +3,41 @@
   <div v-loading="loading" class="table-box migration-page">
     <main class="migration-content">
       <el-form class="migration-filters" :model="filters" inline @submit.prevent="handleSearch">
-        <el-form-item label="模块">
-          <el-input v-model="filters.module" clearable placeholder="请输入迁移模块" @keyup.enter="handleSearch" />
+        <el-form-item :label="t('system.migration.field.module')">
+          <el-input
+            v-model="filters.module"
+            clearable
+            :placeholder="t('system.migration.placeholder.module')"
+            @keyup.enter="handleSearch"
+          />
         </el-form-item>
-        <el-form-item label="数据源">
-          <el-input v-model="filters.data_source" clearable placeholder="请输入数据源名称" @keyup.enter="handleSearch" />
+        <el-form-item :label="t('system.migration.field.dataSource')">
+          <el-input
+            v-model="filters.data_source"
+            clearable
+            :placeholder="t('system.migration.placeholder.dataSource')"
+            @keyup.enter="handleSearch"
+          />
         </el-form-item>
-        <el-form-item label="版本">
-          <el-input v-model="filters.version" clearable placeholder="请输入版本号" @keyup.enter="handleSearch" />
+        <el-form-item :label="t('system.migration.field.version')">
+          <el-input
+            v-model="filters.version"
+            clearable
+            :placeholder="t('system.migration.placeholder.version')"
+            @keyup.enter="handleSearch"
+          />
         </el-form-item>
         <el-form-item class="migration-filters__actions">
-          <el-button type="primary" :icon="Search" native-type="submit">查询</el-button>
-          <el-button :icon="Refresh" @click="handleReset">重置</el-button>
+          <el-button type="primary" :icon="Search" native-type="submit">{{ t("common.action.search") }}</el-button>
+          <el-button :icon="Refresh" @click="handleReset">{{ t("common.action.reset") }}</el-button>
         </el-form-item>
       </el-form>
 
-      <el-empty v-if="!loading && !histories.length" description="暂无升级历史" />
+      <el-empty v-if="!loading && !histories.length" :description="t('system.migration.message.emptyHistory')" />
 
-      <section v-else class="migration-workspace" aria-label="数据库升级历史">
+      <section v-else class="migration-workspace" :aria-label="t('system.migration.title.history')">
         <aside class="migration-list-panel">
-          <div class="migration-list-scroll" role="listbox" aria-label="升级记录列表">
+          <div class="migration-list-scroll" role="listbox" :aria-label="t('system.migration.title.list')">
             <button
               v-for="history in histories"
               :key="history.id"
@@ -36,14 +51,14 @@
                 <strong>{{ history.version }}</strong>
               </div>
               <div class="migration-list-item__data-source">
-                {{ history.module || "数据库迁移" }} · {{ history.data_source || "default" }}
+                {{ history.module || t("system.migration.value.defaultModule") }} · {{ history.data_source || "default" }}
               </div>
               <time :datetime="history.created_at">{{ formatDate(history.created_at) }}</time>
             </button>
           </div>
 
           <div v-if="pageable.total > pageable.page_size" class="migration-pagination">
-            <span class="migration-pagination__total">共 {{ pageable.total }} 条</span>
+            <span class="migration-pagination__total">{{ t("system.migration.message.total", { total: pageable.total }) }}</span>
             <el-pagination
               background
               small
@@ -65,7 +80,8 @@
             <header class="detail-header">
               <div class="detail-header__title">
                 <span class="detail-header__data-source">
-                  {{ selectedMigration.module || "数据库迁移" }} · {{ selectedMigration.data_source || "default" }}
+                  {{ selectedMigration.module || t("system.migration.value.defaultModule") }} ·
+                  {{ selectedMigration.data_source || "default" }}
                 </span>
                 <div class="detail-header__version">
                   <h2>{{ selectedMigration.version }}</h2>
@@ -81,7 +97,7 @@
                 <section v-if="selectedMigration.description" class="detail-section">
                   <div class="detail-section__title">
                     <el-icon><Document /></el-icon>
-                    <span>升级说明</span>
+                    <span>{{ t("system.migration.section.description") }}</span>
                   </div>
                   <MarkdownPreview
                     class="migration-markdown"
@@ -94,26 +110,26 @@
                 <section v-if="selectedMigration.up_sql || selectedMigration.down_sql" class="detail-section">
                   <div class="detail-section__title">
                     <el-icon><Files /></el-icon>
-                    <span>SQL 脚本</span>
+                    <span>{{ t("system.migration.section.sql") }}</span>
                   </div>
                   <el-collapse class="release-sql">
                     <el-collapse-item v-if="selectedMigration.up_sql" name="up">
                       <template #title>
                         <span class="sql-title">
                           <el-icon><DocumentAdd /></el-icon>
-                          <span>升级脚本</span>
+                          <span>{{ t("system.migration.field.upScript") }}</span>
                           <code>up.sql</code>
                         </span>
                       </template>
                       <div class="sql-panel">
                         <pre class="sql-code"><code>{{ selectedMigration.up_sql }}</code></pre>
-                        <el-tooltip content="复制升级脚本" placement="top">
+                        <el-tooltip :content="t('system.migration.action.copyUpScript')" placement="top">
                           <el-button
                             class="sql-copy"
                             text
                             circle
                             :icon="CopyDocument"
-                            aria-label="复制升级脚本"
+                            :aria-label="t('system.migration.action.copyUpScript')"
                             @click.stop="copySql(selectedMigration.up_sql)"
                           />
                         </el-tooltip>
@@ -123,19 +139,19 @@
                       <template #title>
                         <span class="sql-title">
                           <el-icon><DocumentRemove /></el-icon>
-                          <span>回退脚本</span>
+                          <span>{{ t("system.migration.field.downScript") }}</span>
                           <code>down.sql</code>
                         </span>
                       </template>
                       <div class="sql-panel">
                         <pre class="sql-code"><code>{{ selectedMigration.down_sql }}</code></pre>
-                        <el-tooltip content="复制回退脚本" placement="top">
+                        <el-tooltip :content="t('system.migration.action.copyDownScript')" placement="top">
                           <el-button
                             class="sql-copy"
                             text
                             circle
                             :icon="CopyDocument"
-                            aria-label="复制回退脚本"
+                            :aria-label="t('system.migration.action.copyDownScript')"
                             @click.stop="copySql(selectedMigration.down_sql)"
                           />
                         </el-tooltip>
@@ -146,15 +162,14 @@
 
                 <div v-if="!hasDetailContent" class="detail-empty">
                   <el-icon><Document /></el-icon>
-                  <span>该记录暂无描述或脚本</span>
+                  <span>{{ t("system.migration.message.emptyDetail") }}</span>
                 </div>
               </template>
             </div>
           </template>
-          <el-empty v-else description="请选择一条升级记录" />
+          <el-empty v-else :description="t('system.migration.message.selectRecord')" />
         </section>
       </section>
-
     </main>
   </div>
 </template>
@@ -166,7 +181,12 @@ import MarkdownPreview from "@liujitcn/kratos-admin-core/components/MarkdownPrev
 import { useGlobalStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
 import { defBaseMigrationService } from "@liujitcn/kratos-admin-system/api/system/base_migration";
-import type { BaseMigration, BaseMigrationListItem, PageBaseMigrationRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_migration";
+import type {
+  BaseMigration,
+  BaseMigrationListItem,
+  PageBaseMigrationRequest
+} from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_migration";
+import { getCurrentLocale, t } from "@liujitcn/kratos-admin-core";
 
 defineOptions({
   name: "BaseMigration",
@@ -296,9 +316,9 @@ function handleCurrentPageChange(page: number) {
 async function copySql(sql: string) {
   try {
     await navigator.clipboard.writeText(sql);
-    ElMessage.success("SQL 脚本已复制");
+    ElMessage.success(t("system.migration.message.copySuccess"));
   } catch {
-    ElMessage.error("复制失败，请手动选择脚本内容");
+    ElMessage.error(t("system.migration.message.copyFailed"));
   }
 }
 
@@ -309,7 +329,7 @@ function formatDate(value: string) {
   if (!value) return "--";
   const date = new Date(value.replace(" ", "T"));
   if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("zh-CN", {
+  return new Intl.DateTimeFormat(getCurrentLocale(), {
     year: "numeric",
     month: "short",
     day: "numeric"

@@ -6,6 +6,7 @@ import { staticRouter, errorRouter } from "@/routers/modules/staticRouter";
 import NProgress from "@/config/nprogress";
 import { isUnmatchedRoute } from "@/utils/router";
 import { ensureAccessToken } from "@/utils/request";
+import { t } from "@/locales";
 
 const mode = import.meta.env.VITE_ROUTER_MODE;
 
@@ -48,7 +49,9 @@ router.beforeEach(async to => {
 
   // 2.动态设置标题
   const title = import.meta.env.VITE_GLOB_APP_TITLE;
-  document.title = to.meta.title ? `${to.meta.title} - ${title}` : title;
+  const titleKey = typeof to.meta.titleKey === "string" ? to.meta.titleKey : "";
+  const routeTitle = titleKey ? t(titleKey) : String(to.meta.title ?? "");
+  document.title = routeTitle ? `${routeTitle} - ${title}` : title;
 
   const hasAccessToken = await ensureAccessToken();
 

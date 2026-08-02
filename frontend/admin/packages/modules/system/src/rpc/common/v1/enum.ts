@@ -13,5 +13,5 @@ export enum Status {
   /** ENABLE - 启用 */
   ENABLE = 1,
   /** DISABLE - 禁用 */
-  DISABLE = 2,
+  DISABLE = 2
 }

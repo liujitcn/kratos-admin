@@ -40,9 +40,7 @@ export interface CodeGenProto {
   /** 缺失时是否生成 */
   generate_when_missing: boolean;
   /** 接口类型配置 */
-  config:
-    | CodeGenProtoConfig
-    | undefined;
+  config: CodeGenProtoConfig | undefined;
   /** 排序 */
   sort: number;
 }
@@ -66,9 +64,7 @@ export interface CodeGenProtoCheck {
   /** 缺失时是否生成 */
   generate_when_missing: boolean;
   /** 接口类型配置 */
-  config:
-    | CodeGenProtoConfig
-    | undefined;
+  config: CodeGenProtoConfig | undefined;
   /** 检查说明 */
   message: string;
   /** 排序 */

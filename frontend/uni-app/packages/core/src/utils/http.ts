@@ -16,6 +16,7 @@ import {
   shouldRefreshToken,
 } from './auth'
 import { saveCurrentRoute } from './navigation'
+import { getLocaleRequestHeaders, t } from '../locales'
 
 const apiBasePath = import.meta.env.VITE_APP_BASE_API || '/api'
 const apiTargetUrl = import.meta.env.VITE_APP_API_URL || ''
@@ -87,6 +88,7 @@ const httpInterceptor = {
     options.header = {
       ...options.header,
       'source-client': 'miniapp',
+      ...getLocaleRequestHeaders(),
     }
     // 4. 添加 token 请求头标识
     const accessToken = getToken()
@@ -219,7 +221,7 @@ export const http = <T>(options: HttpRequestOptions) => {
               // 其他错误 -> 根据后端错误信息轻提示
               void uni.showToast({
                 icon: 'none',
-                title: responseData.message || '请求错误',
+                title: responseData.message || t('common.message.requestError'),
               })
               reject(res)
             }
@@ -228,7 +230,7 @@ export const http = <T>(options: HttpRequestOptions) => {
           fail(err) {
             void uni.showToast({
               icon: 'none',
-              title: '网络错误，换个网络试试',
+              title: t('common.message.networkError'),
             })
             reject(err)
           },
@@ -326,6 +328,7 @@ async function refreshAccessToken() {
       data: { refresh_token: refreshToken },
       header: {
         'source-client': 'miniapp',
+        ...getLocaleRequestHeaders(),
       },
       success: resolve,
       fail: reject,
@@ -377,10 +380,10 @@ async function promptRelogin() {
   isPromptingRelogin = true
   try {
     const modalRes = await uni.showModal({
-      title: '提示',
-      content: '当前页面已失效，请重新登录',
+      title: t('common.title.notice'),
+      content: t('core.auth.sessionExpired'),
       showCancel: false,
-      confirmText: '重新登录',
+      confirmText: t('core.auth.loginAgain'),
     })
 
     if (!modalRes.confirm) {
@@ -405,7 +408,7 @@ function handleAuthExpiredByMode(authMode: AuthMode, url: string, responseData: 
   if (authMode !== 'optional') {
     void uni.showToast({
       icon: 'none',
-      title: responseData.message || '请求错误',
+      title: responseData.message || t('common.message.requestError'),
     })
   }
 }

@@ -28,6 +28,7 @@ type Services struct {
 	BaseRole         *systemadmin.BaseRoleService
 	BaseTenant       *systemadmin.BaseTenantService
 	BaseThirdAccount *systemadmin.BaseThirdAccountService
+	BaseTranslation  *systemadmin.BaseTranslationService
 	BaseUser         *systemadmin.BaseUserService
 	CodeGen          *systemadmin.CodeGenService
 	CodeGenColumn    *systemadmin.CodeGenColumnService
@@ -58,6 +59,7 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	systemadminv1.RegisterBaseRoleServiceServer(srv, s.BaseRole)
 	systemadminv1.RegisterBaseTenantServiceServer(srv, s.BaseTenant)
 	systemadminv1.RegisterBaseThirdAccountServiceServer(srv, s.BaseThirdAccount)
+	systemadminv1.RegisterBaseTranslationServiceServer(srv, s.BaseTranslation)
 	systemadminv1.RegisterBaseUserServiceServer(srv, s.BaseUser)
 	systemadminv1.RegisterCodeGenServiceServer(srv, s.CodeGen)
 	systemadminv1.RegisterCodeGenColumnServiceServer(srv, s.CodeGenColumn)
@@ -82,6 +84,7 @@ func (s Services) RegisterHTTP(srv *kratosHTTP.Server) {
 	systemadminv1.RegisterBasePostServiceHTTPServer(srv, s.BasePost)
 	systemadminv1.RegisterBaseRoleServiceHTTPServer(srv, s.BaseRole)
 	systemadminv1.RegisterBaseTenantServiceHTTPServer(srv, s.BaseTenant)
+	systemadminv1.RegisterBaseTranslationServiceHTTPServer(srv, s.BaseTranslation)
 	systemadminv1.RegisterBaseUserServiceHTTPServer(srv, s.BaseUser)
 	systemadminv1.RegisterCodeGenServiceHTTPServer(srv, s.CodeGen)
 	systemadminv1.RegisterCodeGenColumnServiceHTTPServer(srv, s.CodeGenColumn)
@@ -106,6 +109,7 @@ func (s Services) RegisterMCP(server *mcpserver.Server) {
 	systemadminv1.RegisterBaseMenuServiceMCPTools(mcpSrv, s.BaseMenu)
 	systemadminv1.RegisterBasePostServiceMCPTools(mcpSrv, s.BasePost)
 	systemadminv1.RegisterBaseRoleServiceMCPTools(mcpSrv, s.BaseRole)
+	systemadminv1.RegisterBaseTranslationServiceMCPTools(mcpSrv, s.BaseTranslation)
 	// 角色切换仅开放 gRPC，MCP 显式注册其余用户管理方法。
 	systemadminv1.RegisterBaseUserServiceOptionBaseUserMCPTool(mcpSrv, s.BaseUser)
 	systemadminv1.RegisterBaseUserServiceListBaseUserMCPTool(mcpSrv, s.BaseUser)

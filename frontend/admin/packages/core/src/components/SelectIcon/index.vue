@@ -14,7 +14,7 @@
       </template>
     </el-input>
     <el-dialog v-model="dialogVisible" :title="placeholder" top="50px" width="66%">
-      <el-input v-model="inputValue" placeholder="搜索图标" size="large" :prefix-icon="Icons.Search" />
+      <el-input v-model="inputValue" :placeholder="t('core.icon.search')" size="large" :prefix-icon="Icons.Search" />
       <el-scrollbar v-if="Object.keys(iconsList).length">
         <div class="icon-list">
           <div v-for="item in iconsList" :key="item" class="icon-item" @click="selectIcon(item)">
@@ -23,7 +23,7 @@
           </div>
         </div>
       </el-scrollbar>
-      <el-empty v-else description="未搜索到您要找的图标~" />
+      <el-empty v-else :description="t('core.icon.empty')" />
     </el-dialog>
   </div>
 </template>
@@ -31,6 +31,9 @@
 <script setup lang="ts" name="SelectIcon">
 import { ref, computed, watch } from "vue";
 import * as Icons from "@element-plus/icons-vue";
+import { useLocaleStore } from "@/locales";
+
+const { t } = useLocaleStore();
 
 /** 图标选择器组件属性。 */
 interface SelectIconProps {
@@ -42,10 +45,11 @@ interface SelectIconProps {
 
 const props = withDefaults(defineProps<SelectIconProps>(), {
   iconValue: "",
-  title: "请选择图标",
+  title: "",
   clearable: true,
-  placeholder: "请选择图标"
+  placeholder: ""
 });
+const placeholder = computed(() => props.placeholder || t("core.icon.placeholder"));
 
 // 重新接收一下，防止打包后 clearable 报错
 const valueIcon = ref(props.iconValue);

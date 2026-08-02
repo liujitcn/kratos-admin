@@ -5,5 +5,6 @@
 /// <reference path="../types/generated/components.d.ts" />
 
 export * from "./modules";
+export * from "./locales";
 export { kratosAdminModule } from "./modules/kratosAdmin";
 export { bootstrapAdminApp } from "./bootstrap";

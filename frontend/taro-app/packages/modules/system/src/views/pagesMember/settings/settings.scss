@@ -49,6 +49,16 @@
   text-align: center;
 }
 
+.settings-locale {
+  display: flex;
+  justify-content: space-between;
+  padding-right: 42px;
+}
+
+.settings-locale__value {
+  color: #888;
+}
+
 .settings-button {
   margin-bottom: 20px;
   border-radius: 10px;

@@ -23,14 +23,20 @@
     </template>
     <template v-else-if="showFooter" #footer>
       <div class="dialog-footer">
-        <el-button @click="handleCancel"> {{ cancelText }} </el-button>
-        <el-button type="primary" :loading="confirmLoading" @click="handleConfirm"> {{ confirmText }} </el-button>
+        <el-button @click="handleCancel">{{ cancelText || t("common.action.cancel") }}</el-button>
+        <el-button type="primary" :loading="confirmLoading" @click="handleConfirm">
+          {{ confirmText || t("common.action.confirm") }}
+        </el-button>
       </div>
     </template>
   </el-dialog>
 </template>
 
 <script setup lang="ts" name="ProDialog">
+import { useLocaleStore } from "@/locales";
+
+const { t } = useLocaleStore();
+
 /** 通用弹窗组件属性。 */
 interface ProDialogProps {
   modelValue: boolean;
@@ -51,8 +57,8 @@ withDefaults(defineProps<ProDialogProps>(), {
   title: "",
   width: "500px",
   top: "8vh",
-  confirmText: "确定",
-  cancelText: "取消",
+  confirmText: "",
+  cancelText: "",
   confirmLoading: false,
   destroyOnClose: false,
   closeOnClickModal: true,

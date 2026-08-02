@@ -10,9 +10,11 @@
 import { computed, onMounted, ref } from "vue";
 import { ElMessage } from "element-plus";
 import screenfull from "screenfull";
+import { useLocaleStore } from "@/locales";
 
 const isFullscreen = ref(screenfull.isFullscreen);
-const fullscreenTooltip = computed(() => (isFullscreen.value ? "退出全屏" : "全屏"));
+const { t } = useLocaleStore();
+const fullscreenTooltip = computed(() => (isFullscreen.value ? t("core.header.fullscreenExit") : t("core.header.fullscreen")));
 
 onMounted(() => {
   screenfull.on("change", () => {
@@ -22,7 +24,7 @@ onMounted(() => {
 });
 
 const handleFullScreen = () => {
-  if (!screenfull.isEnabled) ElMessage.warning("当前您的浏览器不支持全屏 ❌");
+  if (!screenfull.isEnabled) ElMessage.warning(t("core.header.fullscreenUnsupported"));
   screenfull.toggle();
 };
 </script>

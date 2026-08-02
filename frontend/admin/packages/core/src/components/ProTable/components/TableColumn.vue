@@ -10,6 +10,7 @@ import { ColumnProps, HeaderRenderScope, RenderScope, TableActionProps } from "@
 import type { TableAlign } from "@/utils/proTable";
 import { filterEnum, formatValue, handleProp, handleRowAccordingToProp } from "@/utils";
 import { formatPrice } from "@/utils/utils";
+import { t } from "@/locales";
 
 const props = defineProps<{
   column: ColumnProps;
@@ -119,7 +120,7 @@ const renderImageCell = (item: ColumnProps, scope: RenderScope<any>) => {
       }
     },
     {
-      error: () => h(ElText, { type: "info", size: "small" }, () => "无图")
+      error: () => h(ElText, { type: "info", size: "small" }, () => t("common.message.noData"))
     }
   );
 };

@@ -18,7 +18,7 @@ export enum CodeGenTaskStatus {
   /** CODE_GEN_TASK_STATUS_SUCCEEDED - 执行成功 */
   CODE_GEN_TASK_STATUS_SUCCEEDED = 3,
   /** CODE_GEN_TASK_STATUS_FAILED - 执行失败 */
-  CODE_GEN_TASK_STATUS_FAILED = 4,
+  CODE_GEN_TASK_STATUS_FAILED = 4
 }
 
 /** 代码生成步骤状态 */
@@ -34,7 +34,7 @@ export enum CodeGenTaskStepStatus {
   /** CODE_GEN_TASK_STEP_STATUS_FAILED - 执行失败 */
   CODE_GEN_TASK_STEP_STATUS_FAILED = 4,
   /** CODE_GEN_TASK_STEP_STATUS_SKIPPED - 无需处理 */
-  CODE_GEN_TASK_STEP_STATUS_SKIPPED = 5,
+  CODE_GEN_TASK_STEP_STATUS_SKIPPED = 5
 }
 
 /** 查询代码生成任务条件 */
@@ -79,6 +79,8 @@ export interface PreviewCodeGenResponse {
   files: CodeGenPreviewFile[];
   /** 本次生效输出路径 */
   output_paths: CodeGenOutputPaths | undefined;
+  /** 正式生成前必须补齐的翻译配置 */
+  missing_translations: string[];
 }
 
 /** 启动代码生成任务条件 */

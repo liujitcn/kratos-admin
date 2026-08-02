@@ -6,9 +6,11 @@ import { navigateToLogin } from '@liujitcn/kratos-uni-app-core/utils/navigation'
 import { navigateAppRoute } from '@liujitcn/kratos-uni-app-core'
 import defaultAvatar from '@liujitcn/kratos-uni-app-core/static/images/avatar.png'
 import centerBackground from '@liujitcn/kratos-uni-app-core/static/images/center_bg.png'
+import { useI18n } from '@liujitcn/kratos-uni-app-core'
 
 // 获取会员信息
 const userStore = useUserStore()
+const { t } = useI18n()
 const isLoggedIn = computed(() => userStore.isAuthenticated())
 const profile = computed(() => userStore.userInfo)
 
@@ -61,7 +63,7 @@ const navigateToProfile = () => navigateAppRoute('app/profile')
             {{ profile.nick_name }}
           </view>
           <view class="extra" @tap="navigateToProfile">
-            <text class="update">更新头像昵称</text>
+            <text class="update">{{ t('system.profile.avatarUpdate') }}</text>
           </view>
         </view>
       </view>
@@ -71,22 +73,22 @@ const navigateToProfile = () => navigateAppRoute('app/profile')
           <image class="avatar gray" mode="aspectFill" :src="defaultAvatar"></image>
         </view>
         <view class="meta">
-          <view @tap="navigateToLogin" class="nickname"> 未登录 </view>
+          <view @tap="navigateToLogin" class="nickname">{{ t('system.profile.notLoggedIn') }}</view>
           <view class="extra">
-            <text class="tips">点击登录账号</text>
+            <text class="tips">{{ t('system.profile.loginPrompt') }}</text>
           </view>
         </view>
       </view>
-      <view class="settings" @tap="navigateToSettings">设置</view>
+      <view class="settings" @tap="navigateToSettings">{{ t('system.settings.title') }}</view>
     </view>
     <!-- AI 助手入口 -->
     <view class="ai-entry" @tap="navigateToAi">
       <view class="ai-entry__icon">AI</view>
       <view class="ai-entry__content">
-        <view class="ai-entry__title">智能助手</view>
-        <view class="ai-entry__desc">帮你整理信息、回答问题并处理日常任务</view>
+        <view class="ai-entry__title">{{ t('system.settings.aiTitle') }}</view>
+        <view class="ai-entry__desc">{{ t('system.settings.aiDescription') }}</view>
       </view>
-      <view class="ai-entry__action">去提问</view>
+      <view class="ai-entry__action">{{ t('system.settings.goAsk') }}</view>
     </view>
   </scroll-view>
 </template>

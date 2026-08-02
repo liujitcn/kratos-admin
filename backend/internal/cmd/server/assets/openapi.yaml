@@ -2026,6 +2026,25 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/translation/draft:
+        post:
+            tags:
+                - BaseTranslationService
+            description: 为单个已保存资源生成机器翻译草稿
+            operationId: BaseTranslationService_GenerateTranslationDraft
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.GenerateTranslationDraftRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.GenerateTranslationDraftResponse'
     /api/v1/admin/base/user:
         get:
             tags:
@@ -4640,6 +4659,11 @@ components:
                 name:
                     type: string
                     description: 字典名称
+                translations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseDictTranslation'
+                    description: 非默认语言翻译
                 status:
                     enum:
                         - UNKNOWN
@@ -4667,6 +4691,11 @@ components:
                 name:
                     type: string
                     description: 字典名称
+                translations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseDictTranslation'
+                    description: 非默认语言翻译
                 status:
                     enum:
                         - UNKNOWN
@@ -4698,6 +4727,11 @@ components:
                     type: integer
                     description: 排序
                     format: int32
+                translations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseDictItemTranslation'
+                    description: 非默认语言翻译
                 status:
                     enum:
                         - UNKNOWN
@@ -4735,6 +4769,11 @@ components:
                     type: integer
                     description: 排序
                     format: int32
+                translations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseDictItemTranslation'
+                    description: 非默认语言翻译
                 status:
                     enum:
                         - UNKNOWN
@@ -4744,6 +4783,122 @@ components:
                     description: 状态
                     format: enum
             description: 字典属性表单
+        system.admin.v1.BaseDictItemTranslation:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 主键ID
+                dict_item_id:
+                    type: string
+                    description: 字典项ID
+                locale:
+                    type: string
+                    description: 语言区域
+                label:
+                    type: string
+                    description: 字典项标签
+                translation_status:
+                    enum:
+                        - TRANSLATION_STATUS_UNSPECIFIED
+                        - TRANSLATION_STATUS_PENDING
+                        - TRANSLATION_STATUS_MACHINE
+                        - TRANSLATION_STATUS_REVIEWED
+                    type: string
+                    description: 翻译状态
+                    format: enum
+                source_hash:
+                    type: string
+                    description: 中文源文SHA-256
+                translation_provider:
+                    type: string
+                    description: 机器翻译提供方
+                translated_at:
+                    type: string
+                    description: 最近机器翻译时间
+                reviewed_by:
+                    type: string
+                    description: 审核人ID
+                reviewed_at:
+                    type: string
+                    description: 审核时间
+                created_by:
+                    type: string
+                    description: 创建人ID
+                updated_by:
+                    type: string
+                    description: 更新人ID
+                created_at:
+                    type: string
+                    description: 创建时间
+                updated_at:
+                    type: string
+                    description: 更新时间
+                deleted_at:
+                    type: string
+                    description: 删除时间
+                source_changed:
+                    type: boolean
+                    description: 中文源文是否已变化
+            description: 字典项翻译
+        system.admin.v1.BaseDictTranslation:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 主键ID
+                dict_id:
+                    type: string
+                    description: 字典ID
+                locale:
+                    type: string
+                    description: 语言区域
+                name:
+                    type: string
+                    description: 字典名称
+                translation_status:
+                    enum:
+                        - TRANSLATION_STATUS_UNSPECIFIED
+                        - TRANSLATION_STATUS_PENDING
+                        - TRANSLATION_STATUS_MACHINE
+                        - TRANSLATION_STATUS_REVIEWED
+                    type: string
+                    description: 翻译状态
+                    format: enum
+                source_hash:
+                    type: string
+                    description: 中文源文SHA-256
+                translation_provider:
+                    type: string
+                    description: 机器翻译提供方
+                translated_at:
+                    type: string
+                    description: 最近机器翻译时间
+                reviewed_by:
+                    type: string
+                    description: 审核人ID
+                reviewed_at:
+                    type: string
+                    description: 审核时间
+                created_by:
+                    type: string
+                    description: 创建人ID
+                updated_by:
+                    type: string
+                    description: 更新人ID
+                created_at:
+                    type: string
+                    description: 创建时间
+                updated_at:
+                    type: string
+                    description: 更新时间
+                deleted_at:
+                    type: string
+                    description: 删除时间
+                source_changed:
+                    type: boolean
+                    description: 中文源文是否已变化
+            description: 字典翻译
         system.admin.v1.BaseJob:
             type: object
             properties:
@@ -4972,6 +5127,11 @@ components:
                     description: 重定向地址
                 meta:
                     $ref: '#/components/schemas/system.admin.v1.BaseMenuMeta'
+                translations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseMenuTranslation'
+                    description: 非默认语言翻译
                 sort:
                     type: integer
                     description: 排序
@@ -5053,6 +5213,11 @@ components:
                     items:
                         type: string
                     description: 分配的API列表
+                translations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseMenuTranslation'
+                    description: 非默认语言翻译
                 sort:
                     type: integer
                     description: 排序
@@ -5108,6 +5273,64 @@ components:
                     type: string
                     description: 参数value
             description: 菜单参数
+        system.admin.v1.BaseMenuTranslation:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 主键ID
+                menu_id:
+                    type: string
+                    description: 菜单ID
+                locale:
+                    type: string
+                    description: 语言区域
+                title:
+                    type: string
+                    description: 菜单标题
+                translation_status:
+                    enum:
+                        - TRANSLATION_STATUS_UNSPECIFIED
+                        - TRANSLATION_STATUS_PENDING
+                        - TRANSLATION_STATUS_MACHINE
+                        - TRANSLATION_STATUS_REVIEWED
+                    type: string
+                    description: 翻译状态
+                    format: enum
+                source_hash:
+                    type: string
+                    description: 中文源文SHA-256
+                translation_provider:
+                    type: string
+                    description: 机器翻译提供方
+                translated_at:
+                    type: string
+                    description: 最近机器翻译时间
+                reviewed_by:
+                    type: string
+                    description: 审核人ID
+                reviewed_at:
+                    type: string
+                    description: 审核时间
+                created_by:
+                    type: string
+                    description: 创建人ID
+                updated_by:
+                    type: string
+                    description: 更新人ID
+                created_at:
+                    type: string
+                    description: 创建时间
+                updated_at:
+                    type: string
+                    description: 更新时间
+                deleted_at:
+                    type: string
+                    description: 删除时间
+                source_changed:
+                    type: boolean
+                    description: 中文源文是否已变化
+            description: 菜单翻译
         system.admin.v1.BaseMigration:
             type: object
             properties:
@@ -5558,6 +5781,11 @@ components:
                     type: integer
                     description: 排序
                     format: int32
+                i18n_config:
+                    type: object
+                    additionalProperties:
+                        $ref: '#/components/schemas/system.admin.v1.CodeGenLocaleConfig'
+                    description: 按语言区域索引的字段国际化配置
             description: 代码生成字段配置
         system.admin.v1.CodeGenColumnFormConfig:
             type: object
@@ -5695,6 +5923,16 @@ components:
                     type: boolean
                     description: 左树是否懒加载
             description: 左树右表页面配置
+        system.admin.v1.CodeGenLocaleConfig:
+            type: object
+            properties:
+                comment:
+                    type: string
+                    description: 业务或字段描述
+                left_tree_comment:
+                    type: string
+                    description: 左树描述
+            description: 代码生成单语言国际化配置
         system.admin.v1.CodeGenOutputPaths:
             type: object
             properties:
@@ -5862,6 +6100,11 @@ components:
                 restore_available:
                     type: boolean
                     description: 是否可以还原生成结果
+                i18n_config:
+                    type: object
+                    additionalProperties:
+                        $ref: '#/components/schemas/system.admin.v1.CodeGenLocaleConfig'
+                    description: 按语言区域索引的表级国际化配置
             description: 代码生成表配置
         system.admin.v1.CodeGenTableForm:
             type: object
@@ -5913,6 +6156,11 @@ components:
                 remark:
                     type: string
                     description: 备注
+                i18n_config:
+                    type: object
+                    additionalProperties:
+                        $ref: '#/components/schemas/system.admin.v1.CodeGenLocaleConfig'
+                    description: 按语言区域索引的表级国际化配置
             description: 代码生成表配置表单
         system.admin.v1.CodeGenTask:
             type: object
@@ -6032,6 +6280,65 @@ components:
                     type: string
                     description: 任务ID
             description: 执行任务请求参数
+        system.admin.v1.GenerateTranslationDraftRequest:
+            type: object
+            properties:
+                resource_type:
+                    enum:
+                        - TRANSLATION_RESOURCE_TYPE_UNSPECIFIED
+                        - TRANSLATION_RESOURCE_TYPE_MENU
+                        - TRANSLATION_RESOURCE_TYPE_DICT
+                        - TRANSLATION_RESOURCE_TYPE_DICT_ITEM
+                    type: string
+                    description: 资源类型
+                    format: enum
+                resource_id:
+                    type: string
+                    description: 已保存资源ID
+                target_locale:
+                    type: string
+                    description: 目标语言区域，仅支持en-US和ja-JP
+            description: 生成翻译草稿请求
+        system.admin.v1.GenerateTranslationDraftResponse:
+            type: object
+            properties:
+                resource_type:
+                    enum:
+                        - TRANSLATION_RESOURCE_TYPE_UNSPECIFIED
+                        - TRANSLATION_RESOURCE_TYPE_MENU
+                        - TRANSLATION_RESOURCE_TYPE_DICT
+                        - TRANSLATION_RESOURCE_TYPE_DICT_ITEM
+                    type: string
+                    description: 资源类型
+                    format: enum
+                resource_id:
+                    type: string
+                    description: 资源ID
+                locale:
+                    type: string
+                    description: 语言区域
+                translation:
+                    type: string
+                    description: 机器翻译草稿
+                translation_status:
+                    enum:
+                        - TRANSLATION_STATUS_UNSPECIFIED
+                        - TRANSLATION_STATUS_PENDING
+                        - TRANSLATION_STATUS_MACHINE
+                        - TRANSLATION_STATUS_REVIEWED
+                    type: string
+                    description: 翻译状态
+                    format: enum
+                source_hash:
+                    type: string
+                    description: 中文源文SHA-256
+                translation_provider:
+                    type: string
+                    description: 机器翻译提供方
+                translated_at:
+                    type: string
+                    description: 最近机器翻译时间
+            description: 生成翻译草稿响应
         system.admin.v1.ListBaseUserResponse:
             type: object
             properties:
@@ -6330,6 +6637,11 @@ components:
                     description: 预览文件列表
                 output_paths:
                     $ref: '#/components/schemas/system.admin.v1.CodeGenOutputPaths'
+                missing_translations:
+                    type: array
+                    items:
+                        type: string
+                    description: 正式生成前必须补齐的翻译配置
             description: 预览代码生成响应
         system.admin.v1.ProjectDocument:
             type: object
@@ -6986,23 +7298,23 @@ tags:
     - name: AiToolService
       description: Base AI 助手工具服务
     - name: AuthService
-      description: App用户认证服务
-    - name: AuthService
       description: Admin用户登录认证服务
+    - name: AuthService
+      description: App用户认证服务
     - name: BaseApiService
       description: AdminAPI服务
     - name: BaseAreaService
-      description: App行政区域服务
-    - name: BaseAreaService
       description: Admin行政区域服务
+    - name: BaseAreaService
+      description: App行政区域服务
     - name: BaseConfigService
       description: Admin系统配置服务
     - name: BaseDeptService
       description: Admin部门服务
     - name: BaseDictService
-      description: App字典服务
-    - name: BaseDictService
       description: Admin字典服务
+    - name: BaseDictService
+      description: App字典服务
     - name: BaseJobService
       description: Admin定时任务服务
     - name: BaseLogService
@@ -7019,6 +7331,8 @@ tags:
       description: Admin角色管理服务
     - name: BaseTenantService
       description: Admin租户管理服务
+    - name: BaseTranslationService
+      description: Admin翻译草稿服务
     - name: BaseUserService
       description: Admin用户管理服务
     - name: CodeGenColumnService

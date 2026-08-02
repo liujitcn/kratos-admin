@@ -5,7 +5,7 @@
       class="agent-sender"
       variant="updown"
       submit-type="enter"
-      placeholder="输入任何问题，或上传附件后继续提问"
+      :placeholder="t('system.ai.chat.placeholder.input')"
       :loading="sending"
       :clearable="true"
       :tip-config="false"
@@ -27,7 +27,12 @@
         <div class="agent-prefix-actions">
           <el-popover placement="top-start" :width="236" trigger="click" popper-class="agent-sender-popover">
             <template #reference>
-              <button class="agent-icon-button" type="button" :disabled="sending || uploading" aria-label="上传附件">
+              <button
+                class="agent-icon-button"
+                type="button"
+                :disabled="sending || uploading"
+                :aria-label="t('system.ai.chat.action.uploadAttachment')"
+              >
                 <el-icon :class="{ 'is-loading': uploading }">
                   <Loading v-if="uploading" />
                   <Paperclip v-else />
@@ -35,10 +40,10 @@
               </button>
             </template>
             <div class="agent-popover-card">
-              <div class="agent-popover-title">上传附件</div>
-              <div class="agent-popover-desc">可补充图片或文本类附件，发送后用于当前问题分析。</div>
+              <div class="agent-popover-title">{{ t("system.ai.chat.action.uploadAttachment") }}</div>
+              <div class="agent-popover-desc">{{ t("system.ai.chat.message.attachmentHint") }}</div>
               <button class="agent-popover-action" type="button" :disabled="sending || uploading" @click="handleSelectAttachment">
-                {{ uploading ? "上传中..." : "选择本地文件" }}
+                {{ uploading ? t("system.ai.chat.status.uploading") : t("system.ai.chat.action.selectLocalFile") }}
               </button>
             </div>
           </el-popover>
@@ -49,14 +54,17 @@
 
       <template #action-list>
         <div class="agent-sender-actions">
-          <el-tooltip :content="recording ? '停止语音输入' : '语音输入'" placement="top">
+          <el-tooltip
+            :content="recording ? t('system.ai.chat.action.stopVoiceInput') : t('system.ai.chat.action.voiceInput')"
+            placement="top"
+          >
             <button
               class="agent-icon-button"
               :class="{ 'is-active': recording }"
               type="button"
               :disabled="sending"
               :aria-pressed="recording"
-              :aria-label="recording ? '停止语音输入' : '语音输入'"
+              :aria-label="recording ? t('system.ai.chat.action.stopVoiceInput') : t('system.ai.chat.action.voiceInput')"
               @click="handleToggleRecord"
             >
               <el-icon :class="{ 'is-loading': recording }">
@@ -65,12 +73,12 @@
               </el-icon>
             </button>
           </el-tooltip>
-          <el-tooltip content="发送" placement="top">
+          <el-tooltip :content="t('system.ai.chat.action.send')" placement="top">
             <button
               class="agent-send-button"
               type="button"
               :disabled="sending || uploading || recording || isSubmitDisabled"
-              aria-label="发送"
+              :aria-label="t('system.ai.chat.action.send')"
               @click="handleSubmit()"
             >
               <el-icon v-if="!sending"><Promotion /></el-icon>
@@ -98,6 +106,7 @@ import { Attachments, useRecord, XSender as BaseXSender } from "vue-element-plus
 import type { FilesCardProps } from "vue-element-plus-x/types/FilesCard";
 import { Loading, Microphone, Paperclip, Promotion } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
+import { t } from "@liujitcn/kratos-admin-core";
 import { defFileService } from "@liujitcn/kratos-admin-core/api/base/file";
 import type { AiAttachment } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import type { SubmitPayload } from "../types";
@@ -155,10 +164,12 @@ const {
 });
 
 const actionHintText = computed(() => {
-  if (recording.value) return "正在识别语音...";
-  if (uploading.value) return "附件上传中...";
-  if (selectedAttachments.value.length) return `已选 ${selectedAttachments.value.length} 个附件`;
-  return "可上传附件";
+  if (recording.value) return t("system.ai.chat.status.recognizingVoice");
+  if (uploading.value) return t("system.ai.chat.status.uploadingAttachments");
+  if (selectedAttachments.value.length) {
+    return t("system.ai.chat.value.selectedAttachments", { count: selectedAttachments.value.length });
+  }
+  return t("system.ai.chat.value.attachmentsAvailable");
 });
 
 const attachmentItems = computed<FilesCardProps[]>(() =>
@@ -185,7 +196,7 @@ function handleSubmit() {
   if (!trimmedText && selectedAttachments.value.length === 0) return;
 
   emit("submit", {
-    text: trimmedText || "请结合附件内容继续分析",
+    text: trimmedText || t("system.ai.chat.value.analyzeAttachments"),
     attachments: [...selectedAttachments.value]
   });
   inputText.value = "";
@@ -264,10 +275,12 @@ function matchCumulativeRecordCandidate(text: string, candidate: string) {
 
 /** 根据浏览器语音识别错误类型生成用户可理解的提示。 */
 function resolveRecordErrorMessage(error: RecordError) {
-  if (error.code === -1) return "当前浏览器不支持语音识别";
+  if (error.code === -1) return t("system.ai.chat.message.voiceUnsupported");
   const errorName = error.error ?? "";
-  if (["not-allowed", "service-not-allowed", "permission-denied"].includes(errorName)) return "麦克风授权失败，请检查浏览器权限";
-  return "语音识别失败，请稍后重试";
+  if (["not-allowed", "service-not-allowed", "permission-denied"].includes(errorName)) {
+    return t("system.ai.chat.message.microphoneDenied");
+  }
+  return t("system.ai.chat.message.voiceFailed");
 }
 
 /** 同步输入器内部文本，保证发送按钮禁用态能实时响应。 */
@@ -314,10 +327,10 @@ async function uploadAttachments(files: File[]) {
     });
     selectedAttachments.value = Array.from(attachmentMap.values());
     if (response?.files?.length) {
-      ElMessage.success(`已上传 ${response.files.length} 个附件`);
+      ElMessage.success(t("system.ai.chat.message.attachmentsUploaded", { count: response.files.length }));
     }
   } catch {
-    ElMessage.error("附件上传失败");
+    ElMessage.error(t("system.ai.chat.message.attachmentUploadFailed"));
   } finally {
     uploading.value = false;
     resetFileInput();
@@ -328,22 +341,22 @@ async function uploadAttachments(files: File[]) {
 function filterUploadFiles(files: File[]) {
   const remainingCount = maxAttachmentCount - selectedAttachments.value.length;
   if (remainingCount <= 0) {
-    ElMessage.warning(`最多上传 ${maxAttachmentCount} 个附件`);
+    ElMessage.warning(t("system.ai.chat.message.attachmentLimit", { count: maxAttachmentCount }));
     return [];
   }
   const validFiles = files.filter(file => {
     if (!isAcceptedAttachmentFile(file)) {
-      ElMessage.warning(`附件「${file.name}」暂不支持，已跳过`);
+      ElMessage.warning(t("system.ai.chat.message.attachmentUnsupported", { name: file.name }));
       return false;
     }
     if (file.size > maxAttachmentSize) {
-      ElMessage.warning(`附件「${file.name}」超过 ${maxAttachmentSizeMB}MB，已跳过`);
+      ElMessage.warning(t("system.ai.chat.message.attachmentTooLarge", { name: file.name, size: maxAttachmentSizeMB }));
       return false;
     }
     return true;
   });
   if (validFiles.length > remainingCount) {
-    ElMessage.warning(`最多还能选择 ${remainingCount} 个附件，已自动截取`);
+    ElMessage.warning(t("system.ai.chat.message.attachmentRemaining", { count: remainingCount }));
   }
   return validFiles.slice(0, remainingCount);
 }

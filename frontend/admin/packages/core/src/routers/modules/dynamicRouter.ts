@@ -1,5 +1,6 @@
 import router from "@/routers/index";
 import { LOGIN_URL } from "@/config";
+import { t } from "@/locales";
 import { RouteRecordRaw } from "vue-router";
 import { ElNotification } from "element-plus";
 import { useUserStore } from "@/stores/modules/user";
@@ -121,8 +122,8 @@ export const initDynamicRouter = async () => {
     // 2.判断当前用户有没有菜单权限
     if (!authStore.authMenuListGet.length) {
       ElNotification({
-        title: "无权限访问",
-        message: "当前账号无任何菜单权限，请联系系统管理员！",
+        title: t("core.auth.noPermission"),
+        message: t("core.auth.noMenuPermission"),
         type: "warning",
         duration: 3000
       });

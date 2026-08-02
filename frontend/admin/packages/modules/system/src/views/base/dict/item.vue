@@ -12,7 +12,7 @@
     <FormDialog
       v-model="dialog.visible"
       ref="formDialogRef"
-      :title="dialog.title"
+      :title="t(dialog.editing ? 'system.dictItem.action.edit' : 'system.dictItem.action.create')"
       width="820px"
       :model="formData"
       :fields="formFields"
@@ -24,7 +24,7 @@
       <template #tagTypeField>
         <div class="dict-item-tag-type">
           <el-tag v-if="formData.tag_type" :type="formatTagType(formData.tag_type)" class="mr-2">
-            {{ formData.label || "标签预览" }}
+            {{ formData.label || t("system.dictItem.value.tagPreview") }}
           </el-tag>
           <el-radio-group v-model="formData.tag_type">
             <el-radio value="success" border size="small">success</el-radio>
@@ -32,9 +32,18 @@
             <el-radio value="info" border size="small">info</el-radio>
             <el-radio value="primary" border size="small">primary</el-radio>
             <el-radio value="danger" border size="small">danger</el-radio>
-            <el-radio value="" border size="small">清空</el-radio>
+            <el-radio value="" border size="small">{{ t("system.dictItem.action.clearTag") }}</el-radio>
           </el-radio-group>
         </div>
+      </template>
+      <template #translations>
+        <DynamicTranslationEditor
+          v-model="translationValues"
+          :resource-id="formData.id"
+          :resource-type="TranslationResourceType.TRANSLATION_RESOURCE_TYPE_DICT_ITEM"
+          :draft-enabled="configStore.translationDraftEnabled"
+          :maxlength="100"
+        />
       </template>
     </FormDialog>
   </div>
@@ -45,15 +54,35 @@ import { computed, h, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { ElMessage, ElMessageBox, ElTag } from "element-plus";
 import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
-import type { ColumnProps, HeaderActionProps, ProTableInstance, RenderScope } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
+import type {
+  ColumnProps,
+  HeaderActionProps,
+  ProTableInstance,
+  RenderScope
+} from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBaseDictService } from "@liujitcn/kratos-admin-system/api/system/base_dict";
-import type { BaseDictItem, BaseDictItemForm, PageBaseDictItemRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dict";
+import type {
+  BaseDictItem,
+  BaseDictItemForm,
+  PageBaseDictItemRequest
+} from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dict";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
+import { t } from "@liujitcn/kratos-admin-core";
+import { useConfigStore } from "@liujitcn/kratos-admin-core/stores/runtime";
+import DynamicTranslationEditor from "@liujitcn/kratos-admin-system/components/DynamicTranslationEditor.vue";
+import {
+  normalizeDynamicTranslations,
+  serializeDynamicTranslations,
+  type DynamicTranslationRecord,
+  type DynamicTranslationValue
+} from "@liujitcn/kratos-admin-system/components/dynamicTranslation";
+import { TranslationResourceType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
+import type { BaseDictItemTranslation } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dict";
 
 defineOptions({
   name: "BaseDictItem",
@@ -62,13 +91,15 @@ defineOptions({
 
 const route = useRoute();
 const { BUTTONS } = useAuthButtons();
+const configStore = useConfigStore();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
+const translationValues = ref<DynamicTranslationValue[]>(normalizeDynamicTranslations(undefined, "label"));
 
 const dictId = ref(Number(route.query.dictId ?? 0));
 
 const dialog = reactive({
-  title: "",
+  editing: false,
   visible: false
 });
 
@@ -81,6 +112,8 @@ const formData = reactive<BaseDictItemForm>({
   value: "",
   /** 字典项标签 */
   label: "",
+  /** 非默认语言翻译 */
+  translations: [],
   /** 标签类型 */
   tag_type: "",
   /** 排序 */
@@ -90,31 +123,60 @@ const formData = reactive<BaseDictItemForm>({
 });
 
 const rules = computed(() => ({
-  value: [{ required: true, max: 50, message: "请输入字典值（不超过50个字符）", trigger: "blur" }],
-  label: [{ required: true, max: 100, message: "请输入字典标签（不超过100个字符）", trigger: "blur" }],
-  tag_type: [{ max: 50, message: "标签类型不能超过 50 个字符", trigger: "blur" }],
-  sort: [{ required: true, message: "请输入排序", trigger: "blur" }],
-  status: [{ required: true, message: "状态不能为空", trigger: "change" }]
+  value: [{ required: true, max: 50, message: t("system.dictItem.validation.value"), trigger: "blur" }],
+  label: [{ required: true, max: 100, message: t("system.dictItem.validation.label"), trigger: "blur" }],
+  tag_type: [
+    {
+      max: 50,
+      message: t("system.common.validation.maxLength", { field: t("system.dictItem.field.tagType"), max: 50 }),
+      trigger: "blur"
+    }
+  ],
+  sort: [{ required: true, message: t("system.common.validation.sortPositive"), trigger: "blur" }],
+  status: [
+    {
+      required: true,
+      message: t("system.common.validation.requiredSelect", { field: t("system.common.field.status") }),
+      trigger: "change"
+    }
+  ]
 }));
 
-const statusOptions: ProFormOption[] = [
-  { label: "启用", value: Status.ENABLE },
-  { label: "禁用", value: Status.DISABLE }
-];
+const statusOptions = computed<ProFormOption[]>(() => [
+  { label: t("common.status.enabled"), value: Status.ENABLE },
+  { label: t("common.status.disabled"), value: Status.DISABLE }
+]);
 
 /** 字典项表单字段配置。 */
-const formFields: ProFormField[] = [
-  { prop: "label", label: "字典标签", component: "input", props: { placeholder: "请输入字典标签" } },
-  { prop: "value", label: "字典值", component: "input", props: { placeholder: "请输入字典值" } },
+const formFields = computed<ProFormField[]>(() => [
+  {
+    prop: "label",
+    label: t("system.dictItem.field.label"),
+    component: "input",
+    props: { placeholder: t("system.dictItem.placeholder.label") }
+  },
+  {
+    prop: "value",
+    label: t("system.dictItem.field.value"),
+    component: "input",
+    props: { placeholder: t("system.dictItem.placeholder.value") }
+  },
+  {
+    prop: "translations",
+    label: t("system.translation.field.translations"),
+    component: "slot",
+    slotName: "translations",
+    colSpan: 24
+  },
   {
     prop: "sort",
-    label: "排序",
+    label: t("system.common.field.sort"),
     component: "input-number",
     props: { min: 1, precision: 0, step: 1, controlsPosition: "right", style: { width: "100%" } }
   },
-  { prop: "status", label: "状态", component: "radio-group", options: statusOptions },
-  { prop: "tag_type", label: "标签类型", component: "slot", slotName: "tagTypeField", colSpan: 24 }
-];
+  { prop: "status", label: t("system.common.field.status"), component: "radio-group", options: statusOptions.value },
+  { prop: "tag_type", label: t("system.dictItem.field.tagType"), component: "slot", slotName: "tagTypeField", colSpan: 24 }
+]);
 
 /**
  * 规范化标签类型，兼容 Element Plus Tag 的可选值。
@@ -130,7 +192,7 @@ function formatTagType(tag_type: string) {
  * 渲染标签类型列，统一复用字典项标签的展示方式。
  */
 function renderTagTypeCell(scope: RenderScope<BaseDictItem>) {
-  if (!scope.row.tag_type) return "无";
+  if (!scope.row.tag_type) return t("system.common.value.none");
   return h(
     ElTag,
     {
@@ -142,43 +204,43 @@ function renderTagTypeCell(scope: RenderScope<BaseDictItem>) {
 }
 
 /** 字典项表格列配置。 */
-const columns: ColumnProps[] = [
+const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
-  { prop: "label", label: "字典标签", minWidth: 140, search: { el: "input" } },
-  { prop: "value", label: "字典值", minWidth: 140 },
-  { prop: "sort", label: "排序", minWidth: 90, align: "right" },
+  { prop: "label", label: t("system.dictItem.field.label"), minWidth: 140, search: { el: "input" } },
+  { prop: "value", label: t("system.dictItem.field.value"), minWidth: 140 },
+  { prop: "sort", label: t("system.common.field.sort"), minWidth: 90, align: "right" },
   {
     prop: "tag_type",
-    label: "标签类型",
+    label: t("system.dictItem.field.tagType"),
     minWidth: 120,
     render: scope => renderTagTypeCell(scope as unknown as RenderScope<BaseDictItem>)
   },
   {
     prop: "status",
-    label: "状态",
+    label: t("system.common.field.status"),
     minWidth: 100,
     search: { el: "select" },
     cellType: "status",
     statusProps: {
       activeValue: Status.ENABLE,
       inactiveValue: Status.DISABLE,
-      activeText: "启用",
-      inactiveText: "禁用",
+      activeText: t("common.status.enabled"),
+      inactiveText: t("common.status.disabled"),
       disabled: () => !BUTTONS.value["base:dict-item:status"],
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseDictItem)
     }
   },
-  { prop: "created_at", label: "创建时间", minWidth: 180 },
-  { prop: "updated_at", label: "更新时间", minWidth: 180 },
+  { prop: "created_at", label: t("system.common.field.createdAt"), minWidth: 180 },
+  { prop: "updated_at", label: t("system.common.field.updatedAt"), minWidth: 180 },
   {
     prop: "operation",
-    label: "操作",
+    label: t("system.common.field.action"),
     width: 180,
     fixed: "right",
     cellType: "actions",
     actions: [
       {
-        label: "编辑",
+        label: t("common.action.edit"),
         type: "primary",
         link: true,
         icon: EditPen,
@@ -187,7 +249,7 @@ const columns: ColumnProps[] = [
         onClick: (scope, params) => handleOpenDialog((params?.dictItemId as number | undefined) ?? (scope.row as BaseDictItem).id)
       },
       {
-        label: "删除",
+        label: t("common.action.delete"),
         type: "danger",
         link: true,
         icon: Delete,
@@ -196,26 +258,26 @@ const columns: ColumnProps[] = [
       }
     ]
   }
-];
+]);
 
 /** 字典项顶部按钮配置。 */
-const headerActions: HeaderActionProps[] = [
+const headerActions = computed<HeaderActionProps[]>(() => [
   {
-    label: "新增",
+    label: t("common.action.create"),
     type: "success",
     icon: CirclePlus,
     hidden: () => !BUTTONS.value["base:dict-item:create"],
     onClick: () => handleOpenDialog()
   },
   {
-    label: "删除",
+    label: t("common.action.delete"),
     type: "danger",
     icon: Delete,
     hidden: () => !BUTTONS.value["base:dict-item:delete"],
     disabled: scope => !scope.selectedList.length,
     onClick: scope => handleDelete(scope.selectedList as BaseDictItem[])
   }
-];
+]);
 
 watch(
   () => route.query.dictId,
@@ -246,12 +308,13 @@ function refreshTable() {
  */
 function handleOpenDialog(dictItemId?: number) {
   resetForm();
-  dialog.title = dictItemId ? "修改字典数据" : "新增字典数据";
+  dialog.editing = Boolean(dictItemId);
   dialog.visible = true;
   if (!dictItemId) return;
 
   defBaseDictService.GetBaseDictItem({ id: dictItemId }).then(data => {
     Object.assign(formData, data);
+    translationValues.value = normalizeDynamicTranslations(data.translations as DynamicTranslationRecord[], "label");
   });
 }
 
@@ -273,9 +336,11 @@ function resetForm() {
   formData.dict_id = dictId.value;
   formData.value = "";
   formData.label = "";
+  formData.translations = [];
   formData.tag_type = "";
   formData.sort = 1;
   formData.status = Status.ENABLE;
+  translationValues.value = normalizeDynamicTranslations(undefined, "label");
 }
 
 /**
@@ -287,11 +352,12 @@ function handleSubmit() {
 
     formData.dict_id = dictId.value;
     const submitData = JSON.parse(JSON.stringify(formData)) as BaseDictItemForm;
+    submitData.translations = serializeDynamicTranslations(translationValues.value, "label") as BaseDictItemTranslation[];
     const request = submitData.id
       ? defBaseDictService.UpdateBaseDictItem({ base_dict_item: submitData })
       : defBaseDictService.CreateBaseDictItem({ base_dict_item: submitData });
     request.then(() => {
-      ElMessage.success(submitData.id ? "修改字典数据成功" : "新增字典数据成功");
+      ElMessage.success(t(submitData.id ? "system.dictItem.message.updateSuccess" : "system.dictItem.message.createSuccess"));
       handleCloseDialog();
       refreshTable();
     });
@@ -303,16 +369,16 @@ function handleSubmit() {
  */
 async function handleBeforeSetStatus(row: BaseDictItem) {
   const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
-  const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
+  const action = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
   const itemName = row.label || row.value || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(`是否确定${text}字典数据？\n字典标签：${itemName}`, "提示", {
-      confirmButtonText: "确认",
-      cancelButtonText: "取消",
+    await ElMessageBox.confirm(t("system.dictItem.message.confirmStatus", { action, name: itemName }), t("common.title.notice"), {
+      confirmButtonText: t("common.action.confirm"),
+      cancelButtonText: t("common.action.cancel"),
       type: "warning"
     });
     await defBaseDictService.SetBaseDictItemStatus({ id: row.id, status: nextStatus });
-    ElMessage.success(`${text}成功`);
+    ElMessage.success(t("system.common.message.statusSuccess", { action }));
     refreshTable();
     return true;
   } catch {
@@ -335,30 +401,30 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
       : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");
   if (!dictItemIds) {
-    ElMessage.warning("请勾选删除项");
+    ElMessage.warning(t("system.common.message.selectDeleteItem"));
     return;
   }
 
   const singleItemName = dictItemList[0]?.label || dictItemList[0]?.value || `ID:${dictItemList[0]?.id ?? ""}`;
   const confirmMessage = dictItemList.length
     ? dictItemList.length === 1
-      ? `是否确定删除字典数据？\n字典标签：${singleItemName}`
-      : `确认删除已选中的 ${dictItemList.length} 项字典数据吗？`
-    : "确认删除已选中的字典数据吗？";
+      ? t("system.dictItem.message.confirmDeleteSingle", { name: singleItemName })
+      : t("system.dictItem.message.confirmDeleteBatch", { count: dictItemList.length })
+    : t("system.dictItem.message.confirmDeleteSelected");
 
-  ElMessageBox.confirm(confirmMessage, "警告", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
+  ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
+    confirmButtonText: t("common.action.confirm"),
+    cancelButtonText: t("common.action.cancel"),
     type: "warning"
   }).then(
     () => {
       defBaseDictService.DeleteBaseDictItem({ id: dictItemIds }).then(() => {
-        ElMessage.success("删除字典数据成功");
+        ElMessage.success(t("system.dictItem.message.deleteSuccess"));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info("已取消删除字典数据");
+      ElMessage.info(t("system.dictItem.message.deleteCanceled"));
     }
   );
 }

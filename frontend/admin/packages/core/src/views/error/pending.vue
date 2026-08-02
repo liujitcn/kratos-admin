@@ -1,8 +1,11 @@
-<script setup lang="ts" name="Pending"></script>
+<script setup lang="ts" name="Pending">
+import { useLocaleStore } from "@/locales";
+const { t } = useLocaleStore();
+</script>
 
 <template>
   <div class="route-pending page-card">
-    <el-empty description="该页面暂不可用，请联系管理员检查菜单组件配置" />
+    <el-empty :description="t('core.error.pending.detail')" />
   </div>
 </template>
 

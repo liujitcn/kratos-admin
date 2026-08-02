@@ -1,10 +1,16 @@
 <template>
-  <el-dialog v-model="dialogVisible" :title="`批量添加${parameter.title}`" :destroy-on-close="true" width="580px" draggable>
+  <el-dialog
+    v-model="dialogVisible"
+    :title="t('core.upload.batchAdd', { resource: parameter.title })"
+    :destroy-on-close="true"
+    width="580px"
+    draggable
+  >
     <el-form class="drawer-multiColumn-form" label-width="100px">
-      <el-form-item label="模板下载 :">
-        <el-button type="primary" :icon="Download" @click="downloadTemp"> 点击下载 </el-button>
+      <el-form-item :label="t('core.upload.templateDownload')">
+        <el-button type="primary" :icon="Download" @click="downloadTemp">{{ t("common.action.download") }}</el-button>
       </el-form-item>
-      <el-form-item label="文件上传 :">
+      <el-form-item :label="t('core.upload.file')">
         <el-upload
           action="#"
           class="upload"
@@ -23,16 +29,18 @@
             <el-icon class="el-icon--upload">
               <upload-filled />
             </el-icon>
-            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+            <div class="el-upload__text">
+              {{ t("core.upload.dragOrClick") }}<em>{{ t("core.upload.click") }}</em>
+            </div>
           </slot>
           <template #tip>
             <slot name="tip">
-              <div class="el-upload__tip">请上传 .xls , .xlsx 标准格式文件，文件最大为 {{ parameter.fileSize }}M</div>
+              <div class="el-upload__tip">{{ t("core.upload.excelFormat", { size: parameter.fileSize ?? 5 }) }}</div>
             </slot>
           </template>
         </el-upload>
       </el-form-item>
-      <el-form-item label="数据覆盖 :">
+      <el-form-item :label="t('core.upload.dataCover')">
         <el-switch v-model="isCover" />
       </el-form-item>
     </el-form>
@@ -44,6 +52,9 @@ import { ref } from "vue";
 import { useDownload } from "@/hooks/useDownload";
 import { Download } from "@element-plus/icons-vue";
 import { ElNotification, UploadRequestOptions, UploadRawFile } from "element-plus";
+import { useLocaleStore } from "@/locales";
+
+const { t } = useLocaleStore();
 
 /** Excel 导入弹窗参数。 */
 export interface ExcelParameterProps {
@@ -77,7 +88,7 @@ const acceptParams = (params: ExcelParameterProps) => {
 // Excel 导入模板下载
 const downloadTemp = () => {
   if (!parameter.value.tempApi) return;
-  useDownload(parameter.value.tempApi, `${parameter.value.title}模板`);
+  useDownload(parameter.value.tempApi, t("core.upload.template", { resource: parameter.value.title }));
 };
 
 // 文件上传
@@ -99,15 +110,15 @@ const beforeExcelUpload = (file: UploadRawFile) => {
   const fileSize = file.size / 1024 / 1024 < parameter.value.fileSize!;
   if (!isExcel)
     ElNotification({
-      title: "温馨提示",
-      message: "上传文件只能是 xls / xlsx 格式！",
+      title: t("common.title.warning"),
+      message: t("core.upload.fileFormatInvalid"),
       type: "warning"
     });
   if (!fileSize)
     setTimeout(() => {
       ElNotification({
-        title: "温馨提示",
-        message: `上传文件大小不能超过 ${parameter.value.fileSize}MB！`,
+        title: t("common.title.warning"),
+        message: t("core.upload.fileSizeExceeded", { size: parameter.value.fileSize ?? 5 }),
         type: "warning"
       });
     }, 0);
@@ -117,8 +128,8 @@ const beforeExcelUpload = (file: UploadRawFile) => {
 // 文件数超出提示
 const handleExceed = () => {
   ElNotification({
-    title: "温馨提示",
-    message: "最多只能上传一个文件！",
+    title: t("common.title.warning"),
+    message: t("core.upload.singleFileOnly"),
     type: "warning"
   });
 };
@@ -126,8 +137,8 @@ const handleExceed = () => {
 // 上传错误提示
 const excelUploadError = () => {
   ElNotification({
-    title: "温馨提示",
-    message: `批量添加${parameter.value.title}失败，请您重新上传！`,
+    title: t("common.title.warning"),
+    message: t("core.upload.batchFailed", { resource: parameter.value.title }),
     type: "error"
   });
 };
@@ -135,8 +146,8 @@ const excelUploadError = () => {
 // 上传成功提示
 const excelUploadSuccess = () => {
   ElNotification({
-    title: "温馨提示",
-    message: `批量添加${parameter.value.title}成功！`,
+    title: t("common.title.notice"),
+    message: t("core.upload.batchSuccess", { resource: parameter.value.title }),
     type: "success"
   });
 };

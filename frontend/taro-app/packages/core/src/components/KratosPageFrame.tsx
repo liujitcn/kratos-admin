@@ -1,6 +1,7 @@
 import { Text, View } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import type { ReactNode } from 'react'
+import { useI18n } from '../locales'
 import { homeTabPage } from '../utils/navigation'
 import './KratosPageFrame.scss'
 
@@ -21,6 +22,7 @@ export function KratosPageFrame({
   navigationBarBackgroundColor,
   navigationBarTextStyle,
 }: KratosPageFrameProps) {
+  const { t } = useI18n()
   if (process.env.TARO_ENV !== 'h5' || navigationStyle === 'custom') return children
 
   const color = navigationBarTextStyle === 'white' ? '#fff' : '#000'
@@ -38,7 +40,7 @@ export function KratosPageFrame({
         className='kratos-page-frame__navigation'
         style={{ backgroundColor: navigationBarBackgroundColor, color }}
       >
-        <View className='kratos-page-frame__back' aria-label='返回' onClick={() => void goBack()}>
+        <View className='kratos-page-frame__back' aria-label={t('common.action.back')} onClick={() => void goBack()}>
           <View className='kratos-page-frame__back-icon' />
         </View>
         <Text className='kratos-page-frame__title'>{navigationBarTitleText}</Text>

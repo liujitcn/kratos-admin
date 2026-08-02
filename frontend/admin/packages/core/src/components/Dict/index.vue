@@ -2,7 +2,7 @@
   <el-select
     v-if="type === 'select'"
     v-model="selectedSingleValue"
-    :placeholder="placeholder"
+    :placeholder="placeholder || t('common.placeholder.select')"
     :disabled="disabled"
     clearable
     :style="style"
@@ -41,6 +41,9 @@ import type { CSSProperties } from "vue";
 import { ref, watch } from "vue";
 import { useDictStore } from "@/stores/modules/dict";
 import type { OptionBaseDictResponse_BaseDictItem } from "@/rpc/system/admin/v1/base_dict";
+import { useLocaleStore } from "@/locales";
+
+const { t } = useLocaleStore();
 
 /** 字典组件支持的控件类型。 */
 type DictType = "select" | "radio" | "checkbox";
@@ -63,7 +66,7 @@ interface DictProps {
 const props = withDefaults(defineProps<DictProps>(), {
   codeType: "number",
   type: "select",
-  placeholder: "请选择",
+  placeholder: "",
   disabled: false,
   style: () =>
     ({

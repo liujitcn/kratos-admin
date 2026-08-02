@@ -104,7 +104,7 @@ message BaseAreaForm {
 
   int64 parent_id = 2 [(gnostic.openapi.v3.property) = {description: "父级区域"}]; // 父级区域
 
-  string name = 3 [(gnostic.openapi.v3.property) = {description: "区域名称"}, (buf.validate.field).cel = {id: "field.name.length" message: "区域名称不能为空且不超过 50 个字符" expression: "this.size() > 0 && this.size() <= 50"}]; // 区域名称
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "区域名称"}, (buf.validate.field).cel = {id: "base_area.name.length" message: "区域名称不能为空且不超过 50 个字符" expression: "this.size() > 0 && this.size() <= 50"}]; // 区域名称
 
 }
 

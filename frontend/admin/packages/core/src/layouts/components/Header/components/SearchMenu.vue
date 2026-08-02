@@ -1,13 +1,13 @@
 <template>
   <div class="search-menu">
-    <el-tooltip effect="dark" content="菜单搜索" placement="bottom" :show-after="200">
+    <el-tooltip effect="dark" :content="t('core.header.menuSearch')" placement="bottom" :show-after="200">
       <i :class="'iconfont icon-sousuo'" class="toolBar-icon" @click="handleOpen"></i>
     </el-tooltip>
     <el-dialog class="search-dialog" v-model="isShowSearch" :width="600" :show-close="false" top="10vh">
       <el-input
         v-model="searchMenu"
         ref="menuInputRef"
-        placeholder="菜单搜索：支持菜单名称、路径"
+        :placeholder="t('core.header.menuSearchPlaceholder')"
         size="large"
         clearable
         :prefix-icon="Search"
@@ -29,7 +29,7 @@
           <i :class="'iconfont icon-huiche'" class="menu-enter" @click="handleOpen"></i>
         </div>
       </div>
-      <el-empty v-else class="mt20 mb20" :image-size="100" description="暂无菜单" />
+      <el-empty v-else class="mt20 mb20" :image-size="100" :description="t('core.header.menuSearchEmpty')" />
     </el-dialog>
   </div>
 </template>
@@ -43,6 +43,7 @@ import { useRouter } from "vue-router";
 import { useDebounceFn } from "@vueuse/core";
 import type { RouteItem } from "@/rpc/system/admin/v1/auth";
 import { getRouteMetaHidden, getRouteMetaIcon, getRouteMetaTitle, getRouteTarget, isExternalPath } from "@/utils";
+import { useLocaleStore } from "@/locales";
 
 /** 可被菜单搜索展示的路由项。 */
 interface SearchRouteItem extends RouteItem {
@@ -51,6 +52,7 @@ interface SearchRouteItem extends RouteItem {
 
 const router = useRouter();
 const authStore = useAuthStore();
+const { t } = useLocaleStore();
 const menuList = computed<SearchRouteItem[]>(() => {
   return authStore.flatMenuListGet.filter((item): item is SearchRouteItem => {
     return Boolean(item.path) && !getRouteMetaHidden(item.meta);

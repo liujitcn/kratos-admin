@@ -1,5 +1,6 @@
 export * from './bootstrap'
 export * from './module'
+export * from './locales'
 export * from './navigation'
 export { default as KratosTabBar } from './components/KratosTabBar.vue'
 export { default as pinia } from './stores'

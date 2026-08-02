@@ -18,8 +18,14 @@ import (
 
 // FrontendPageComponentPath 根据页面文件路径推导动态路由组件路径。
 func FrontendPageComponentPath(path string) string {
-	relativePath := strings.TrimPrefix(path, "frontend/admin/src/views/")
-	return strings.TrimSuffix(relativePath, "/index.vue")
+	path = filepath.ToSlash(filepath.Clean(path))
+	prefix := "frontend/admin/packages/modules/"
+	relativePath := strings.TrimPrefix(path, prefix)
+	parts := strings.Split(relativePath, "/src/views/")
+	if len(parts) != 2 || relativePath == path {
+		return strings.TrimSuffix(strings.TrimPrefix(path, "frontend/admin/src/views/"), "/index.vue")
+	}
+	return strings.TrimSuffix(parts[0]+"/"+parts[1], "/index.vue")
 }
 
 // SafeRepoFilePath 返回仓库内安全文件路径。
@@ -139,6 +145,7 @@ func InferProtoType(dbType string) string {
 // renderFrontendAPIFile 渲染前端 API 文件占位内容。
 func (c *renderer) renderFrontendAPIFile(table *Table, columns []*CodeGenColumn, methods []*Proto) string {
 	entity := table.EntityName
+	target := ProtoTargetForTable(table)
 	snakeEntity := stringcase.ToSnakeCase(entity)
 	urlConst := stringcase.UpperSnakeCase(entity) + "_URL"
 	statusMethods := methodsByKinds(methods, APIKindStatus)
@@ -181,11 +188,11 @@ func (c *renderer) renderFrontendAPIFile(table *Table, columns []*CodeGenColumn,
 
 	emptyImport := ""
 	if hasCreate || hasUpdate || hasDelete || len(statusMethods) > 0 {
-		emptyImport = "import type { Empty } from \"@/rpc/google/protobuf/empty\";\n"
+		emptyImport = "import type { Empty } from \"" + target.FrontendPackageName + "/rpc/google/protobuf/empty\";\n"
 	}
 	optionImport := ""
 	if optionMethod != nil {
-		optionImport = "import type { " + strings.Join(tsCommonOptionResponseTypes([]*Proto{optionMethod}), ", ") + " } from \"@/rpc/common/v1/common\";\n"
+		optionImport = "import type { " + strings.Join(tsCommonOptionResponseTypes([]*Proto{optionMethod}), ", ") + " } from \"" + target.FrontendPackageName + "/rpc/common/v1/common\";\n"
 	}
 	var methodsBuilder strings.Builder
 	if hasTree {
@@ -298,6 +305,7 @@ func (c *renderer) renderFrontendAPIFile(table *Table, columns []*CodeGenColumn,
 
 // renderExternalTargetFrontendAPIFile 渲染外部目标实体的最小前端 API 文件。
 func (c *renderer) renderExternalTargetFrontendAPIFile(table *Table, methods []*Proto) string {
+	target := ProtoTargetForTable(table)
 	entity := table.EntityName
 	urlConst := stringcase.UpperSnakeCase(entity) + "_URL"
 	var typeImports []string
@@ -310,7 +318,7 @@ func (c *renderer) renderExternalTargetFrontendAPIFile(table *Table, methods []*
 		BusinessName: table.BusinessName,
 		TypeImports:  strings.Join(typeImports, ",\n"),
 		RPCImport:    frontendRPCImportPath(c.defaultProtoPath(table)),
-		OptionImport: "import type { " + strings.Join(tsCommonOptionResponseTypes(methods), ", ") + " } from \"@/rpc/common/v1/common\";\n",
+		OptionImport: "import type { " + strings.Join(tsCommonOptionResponseTypes(methods), ", ") + " } from \"" + target.FrontendPackageName + "/rpc/common/v1/common\";\n",
 		URLConst:     urlConst,
 		ResourcePath: c.frontendResourcePath(table),
 		Methods:      c.renderExternalTargetFrontendAPIMethods(table, methods),
@@ -342,7 +350,7 @@ func (c *renderer) appendExternalTargetFrontendAPIMethods(content string, table 
 		typeNames = append(typeNames, method.MethodName+"Request")
 	}
 	content = ensureTSNamedTypeNames(content, frontendRPCImportPath(c.defaultProtoPath(table)), typeNames)
-	content = ensureTSCommonOptionImport(content, missingMethods)
+	content = ensureTSCommonOptionImport(content, missingMethods, ProtoTargetForTable(table).FrontendPackageName+"/rpc/common/v1/common")
 	return mergeGeneratedTSClassMethods(content, c.renderExternalTargetFrontendAPIFile(table, missingMethods), className)
 }
 
@@ -385,10 +393,10 @@ func (c *renderer) renderFrontendPageFile(table *Table, columns []*CodeGenColumn
 		return 0
 	})
 	entity := table.EntityName
+	target := ProtoTargetForTable(table)
 	pluralEntity := pluralize(entity)
 	snakeEntity := stringcase.ToSnakeCase(entity)
-	frontendAPIPath := strings.TrimPrefix(paths.GetFrontendApiFilePath(), "frontend/admin/src/")
-	frontendAPIImport := "@/" + strings.TrimSuffix(frontendAPIPath, filepath.Ext(frontendAPIPath))
+	frontendAPIImport := target.FrontendPackageName + "/api/" + table.BusinessModule + "/" + snakeEntity
 	frontendRPCImport := frontendRPCImportPath(paths.GetProtoFilePath())
 	listField := stringcase.ToSnakeCase(pluralEntity)
 	hasTenantOption := hasTenantQueryOption(columns) || hasTenantListColumn(columns)
@@ -415,7 +423,7 @@ func (c *renderer) renderFrontendPageFile(table *Table, columns []*CodeGenColumn
 	tenantImports := ""
 	tenantState := ""
 	if hasTenantOption {
-		tenantImports = "import { useUserStore } from \"@/stores/modules/user\";\nimport { DEFAULT_TENANT_CODE, requestTenantOptions } from \"@/utils/tenant\";"
+		tenantImports = "import { useUserStore } from \"@liujitcn/kratos-admin-core/stores/runtime\";\nimport { DEFAULT_TENANT_CODE, requestTenantOptions } from \"@liujitcn/kratos-admin-core/tenant\";"
 		tenantState = `const userStore = useUserStore();
 /** 当前登录账号是否默认租户。 */
 const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAULT_TENANT_CODE);`
@@ -433,17 +441,18 @@ import { computed, reactive, ref } from "vue";
 %s
 import type { FormRules } from "element-plus";
 import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
-import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
-import ProTable from "@/components/ProTable/index.vue";
-import FormDialog from "@/components/Dialog/FormDialog.vue";
-import type { %s } from "@/components/ProForm/interface";
-import { useAuthButtons } from "@/hooks/useAuthButtons";
+import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
+import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
+import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
+import type { %s } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
+import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
+import { t } from "@liujitcn/kratos-admin-core";
 import { def%sService } from "%s";
 %s
 %s
 import type { Page%sRequest, %s, %sForm%s } from "%s";
 %s
-import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
+import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 
 defineOptions({
   name: "%s",
@@ -451,23 +460,25 @@ defineOptions({
 });
 
 const { BUTTONS } = useAuthButtons();
+const localeKeyPrefix = "%s";
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 %s
 %s
 
 const dialog = reactive({
-  title: "",
-  visible: false
+  visible: false,
+  editing: false
 });
+const dialogTitle = computed(() => t(dialog.editing ? localeKeyPrefix + ".title.edit" : localeKeyPrefix + ".title.create"));
 
 const formData = reactive<%s>({
 %s
 });
 
-const rules = reactive<FormRules>({
+const rules = computed<FormRules>(() => ({
 %s
-});
+}));
 %s
 /** %s表单字段配置。 */
 const formFields = computed<ProFormField[]>(() => [
@@ -480,14 +491,14 @@ const columns = computed<ColumnProps[]>(() => [
 %s
   {
     prop: "operation",
-    label: "操作",
+    label: t("common.field.operation"),
     width: __CODEGEN_OPERATION_WIDTH__,
     fixed: "right",
     cellType: "actions",
     actions: [
 __CODEGEN_TREE_CREATE_ACTION__
       {
-        label: "编辑",
+        label: t("common.action.edit"),
         type: "primary",
         link: true,
         icon: EditPen,
@@ -497,7 +508,7 @@ __CODEGEN_TREE_EDIT_PARAMS__
 __CODEGEN_LEGACY_EDIT_ARG_START__%s__CODEGEN_LEGACY_EDIT_ARG_END__
       },
       {
-        label: "删除",
+        label: t("common.action.delete"),
         type: "danger",
         link: true,
         icon: Delete,
@@ -509,23 +520,23 @@ __CODEGEN_LEGACY_EDIT_ARG_START__%s__CODEGEN_LEGACY_EDIT_ARG_END__
 ]);
 
 /** %s顶部按钮配置。 */
-const headerActions: HeaderActionProps[] = [
+const headerActions = computed<HeaderActionProps[]>(() => [
   {
-    label: "新增",
+    label: t("common.action.create"),
     type: "success",
     icon: CirclePlus,
     hidden: () => !BUTTONS.value["%s:create"],
     onClick: () => handleOpenDialog()
   },
   {
-    label: "删除",
+    label: t("common.action.delete"),
     type: "danger",
     icon: Delete,
     hidden: () => !BUTTONS.value["%s:delete"],
     disabled: scope => !scope.selectedList.length,
     onClick: scope => handleDelete(scope.selectedList as %s[])
   }
-];
+]);
 
 %s
 /**
@@ -560,7 +571,7 @@ function resetForm() {
  */
 async function handleOpenDialog(__CODEGEN_OPEN_DIALOG_PARAMETERS__) {
   resetForm();
-%s  dialog.title = id ? "修改%s" : "新增%s";
+%s  dialog.editing = Boolean(id);
   dialog.visible = true;
 __CODEGEN_OPEN_DIALOG_DATA__
 __CODEGEN_LEGACY_OPEN_DIALOG_ARGS_START__%s%s__CODEGEN_LEGACY_OPEN_DIALOG_ARGS_END__
@@ -579,7 +590,7 @@ __CODEGEN_PASSWORD_UPDATE__
       ? def%sService.Update%s({ id: payload.id, %s: payload })
       : def%sService.Create%s({ %s: payload });
     request.then(() => {
-      ElMessage.success(payload.id ? "修改%s成功" : "新增%s成功");
+      ElMessage.success(t(payload.id ? localeKeyPrefix + ".message.updateSuccess" : localeKeyPrefix + ".message.createSuccess"));
       handleCloseDialog();
       refreshTable();
     });
@@ -599,24 +610,24 @@ function handleDelete(selected?: number | string | Array<number | string> | %s |
     rowList.length ? rowList.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");
   if (!ids) {
-    ElMessage.warning("请勾选删除项");
+    ElMessage.warning(t(localeKeyPrefix + ".message.selectDelete"));
     return;
   }
 
-  const confirmMessage = rowList.length === 1 ? "是否确定删除%s？" : "确认删除已选中的%s吗？";
-  ElMessageBox.confirm(confirmMessage, "警告", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
+  const confirmMessage = t(rowList.length === 1 ? localeKeyPrefix + ".dialog.deleteSingle" : localeKeyPrefix + ".dialog.deleteBatch");
+  ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
+    confirmButtonText: t("common.action.confirm"),
+    cancelButtonText: t("common.action.cancel"),
     type: "warning"
   }).then(
     () => {
       def%sService.Delete%s({ ids }).then(() => {
-        ElMessage.success("删除%s成功");
+        ElMessage.success(t(localeKeyPrefix + ".message.deleteSuccess"));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info("已取消删除%s");
+      ElMessage.info(t(localeKeyPrefix + ".message.deleteCanceled"));
     }
   );
 }
@@ -629,13 +640,13 @@ function handleCloseDialog() {
   resetForm();
 }
 </script>
-	`, renderFrontendDateImport(columns), proFormTypeImport, entity, frontendAPIImport, c.renderFrontendOptionImports(table, columns, methods), tenantImports, entity, entity, entity, statusTypeImport, frontendRPCImport, c.renderFrontendEnumImports(columns), entity, formStateType, tenantState, formDataType, c.renderFrontendFormDefaults(columns), c.renderFrontendRules(columns), c.renderFrontendStatusOptions(columns)+c.renderFrontendOptionState(columns, methods), table.BusinessName, c.renderFrontendFormFields(columns), table.BusinessName, c.renderFrontendColumns(table, columns, methods), PermissionPrefix(table), entity, PermissionPrefix(table), entity, table.BusinessName, PermissionPrefix(table), PermissionPrefix(table), entity, "", table.BusinessName, entity, entity, entity, entity, listField, listField, table.BusinessName, table.BusinessName, c.renderFrontendResetForm(columns), table.BusinessName, c.renderFrontendLoadOptionsCall(columns, methods), table.BusinessName, table.BusinessName, entity, entity, table.BusinessName, entity, entity, entity, snakeEntity, entity, entity, snakeEntity, table.BusinessName, table.BusinessName, c.renderFrontendStatusHandlers(table, columns, methods), table.BusinessName, entity, entity, entity, entity, table.BusinessName, table.BusinessName, entity, entity, table.BusinessName, table.BusinessName, table.BusinessName)
+			`, renderFrontendDateImport(columns), proFormTypeImport, entity, frontendAPIImport, c.renderFrontendOptionImports(table, columns, methods), tenantImports, entity, entity, entity, statusTypeImport, frontendRPCImport, c.renderFrontendEnumImports(table, columns), entity, FrontendLocaleKeyPrefix(table), formStateType, tenantState, formDataType, c.renderFrontendFormDefaults(columns), c.renderFrontendRules(table, columns), c.renderFrontendStatusOptions(table, columns)+c.renderFrontendOptionState(table, columns, methods), table.BusinessName, c.renderFrontendFormFields(table, columns), table.BusinessName, c.renderFrontendColumns(table, columns, methods), PermissionPrefix(table), entity, PermissionPrefix(table), entity, table.BusinessName, PermissionPrefix(table), PermissionPrefix(table), entity, "", table.BusinessName, entity, entity, entity, entity, listField, listField, table.BusinessName, table.BusinessName, c.renderFrontendResetForm(columns), table.BusinessName, c.renderFrontendLoadOptionsCall(columns, methods), "", "", table.BusinessName, entity, entity, entity, snakeEntity, entity, entity, snakeEntity, c.renderFrontendStatusHandlers(table, columns, methods), table.BusinessName, entity, entity, entity, entity, entity, entity, table.BusinessName)
 	if passwordColumn := c.findFrontendPasswordColumn(columns); passwordColumn != nil {
 		script = strings.Replace(
 			script,
-			`import FormDialog from "@/components/Dialog/FormDialog.vue";`,
-			`import FormDialog from "@/components/Dialog/FormDialog.vue";
-import PasswordStrength from "@/components/PasswordStrength/index.vue";`,
+			`import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";`,
+			`import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
+import PasswordStrength from "@liujitcn/kratos-admin-core/components/PasswordStrength/index.vue";`,
 			1,
 		)
 	}
@@ -684,7 +695,7 @@ func (c *renderer) renderFrontendTreeCreateAction(table *Table, columns []*CodeG
 	tenantColumn := FindColumnByName(columns, "tenant_id")
 	if tenantColumn != nil && generatedFormIncludesColumn(tenantColumn) {
 		return fmt.Sprintf(`      {
-        label: "新增",
+        label: t("common.action.create"),
         type: "primary",
         link: true,
         icon: CirclePlus,
@@ -699,7 +710,7 @@ func (c *renderer) renderFrontendTreeCreateAction(table *Table, columns []*CodeG
 `, PermissionPrefix(table), table.EntityName)
 	}
 	return fmt.Sprintf(`      {
-        label: "新增",
+        label: t("common.action.create"),
         type: "primary",
         link: true,
         icon: CirclePlus,
@@ -926,7 +937,7 @@ func (c *renderer) applyFrontendTreePage(content string, table *Table, methods [
 	}
 	pluralEntity := pluralize(table.EntityName)
 	content = strings.ReplaceAll(content, "Page"+table.EntityName+"Request", "Tree"+table.EntityName+"Request")
-	content = strings.Replace(content, `import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";`, `import { normalizeSelectedIds } from "@/utils/proTable";`, 1)
+	content = strings.Replace(content, `import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";`, `import { normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";`, 1)
 	requestMarker := fmt.Sprintf(`:request-api="request%sTable"`, table.EntityName)
 	treeProps := requestMarker + `
       :pagination="false"
@@ -992,20 +1003,20 @@ func (c *renderer) applyFrontendLeftTreePage(content string, table *Table, metho
 	content = strings.Replace(content, `  <div class="table-box">`, fmt.Sprintf(`  <div class="main-box">
     <TreeFilter
       label="name"
-      title="筛选"
+      :title="t('%s.title.leftTree')"
       :request-api="request%sTreeFilter"
       :default-value="treeFilterValue"
 %s
       @change="changeTreeFilter"
     />
 
-    <div class="table-box">`, table.EntityName, treeFilterProps), 1)
+    <div class="table-box">`, FrontendLocaleKeyPrefix(table), table.EntityName, treeFilterProps), 1)
 	closingIndex := strings.LastIndex(content, "  </div>\n</template>")
 	if closingIndex >= 0 {
 		content = content[:closingIndex] + "    </div>\n  </div>\n</template>" + content[closingIndex+len("  </div>\n</template>"):]
 	}
-	content = strings.Replace(content, `import FormDialog from "@/components/Dialog/FormDialog.vue";`, `import FormDialog from "@/components/Dialog/FormDialog.vue";
-import TreeFilter from "@/components/TreeFilter/index.vue";`, 1)
+	content = strings.Replace(content, `import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";`, `import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
+import TreeFilter from "@liujitcn/kratos-admin-core/components/TreeFilter/index.vue";`, 1)
 
 	treeMethod := firstMethodByKind(methods, APIKindTree, TriggerLeftTree)
 	serviceName := ""
@@ -1132,7 +1143,7 @@ func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn,
 		list = append(list, fmt.Sprintf(`  ...(isDefaultTenant.value
 	    ? ([{
 %s        prop: "tenant_id",
-        label: "租户",
+        label: t(localeKeyPrefix + ".field.tenantId"),
         minWidth: 140,
         align: "left",
         showOverflowTooltip: true,
@@ -1152,11 +1163,11 @@ func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn,
 	appendColumn := func(column *CodeGenColumn, align string, hidden bool) {
 		if hidden {
 			// 查询专用字段不参与列表单元格渲染，避免误用列表组件或其选项依赖。
-			list = append(list, fmt.Sprintf(`  { isShow: false, isSetting: false, prop: "%s", label: "%s"%s }`, column.Name, column.Comment, frontendSearchConfig(column)))
+			list = append(list, fmt.Sprintf(`  { isShow: false, isSetting: false, prop: "%s", label: t(%q)%s }`, column.Name, frontendFieldLocaleKey(table, column), frontendSearchConfig(column)))
 			return
 		}
 		align = c.resolveFrontendColumnAlign(column, align)
-		content := renderFrontendColumn(PermissionPrefix(table), table.EntityName, column, findStatusMethodForColumn(column, methods), statusColumnCount, align)
+		content := renderFrontendColumn(FrontendLocaleKeyPrefix(table), PermissionPrefix(table), table.EntityName, column, findStatusMethodForColumn(column, methods), statusColumnCount, align)
 		list = append(list, content)
 	}
 	// 树表格将树显示字段固定为首个数据列，确保 Element Plus 的缩进落在业务名称上。
@@ -1198,6 +1209,11 @@ func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn,
 		appendColumn(column, "", true)
 	}
 	return strings.Join(list, ",\n") + ","
+}
+
+// frontendFieldLocaleKey 返回生成字段的稳定语言键。
+func frontendFieldLocaleKey(table *Table, column *CodeGenColumn) string {
+	return FrontendLocaleKeyPrefix(table) + ".field." + stringcase.ToCamelCase(column.Name)
 }
 
 // resolveFrontendColumnAlign 返回代码生成页面列的默认对齐方式。
@@ -1274,7 +1290,7 @@ func (c *renderer) renderFrontendResetForm(columns []*CodeGenColumn) string {
 }
 
 // renderFrontendRules 渲染表单校验规则。
-func (c *renderer) renderFrontendRules(columns []*CodeGenColumn) string {
+func (c *renderer) renderFrontendRules(table *Table, columns []*CodeGenColumn) string {
 	lines := make([]string, 0)
 	for _, column := range columns {
 		if !generatedFormIncludesColumn(column) {
@@ -1289,9 +1305,10 @@ func (c *renderer) renderFrontendRules(columns []*CodeGenColumn) string {
 		if column.IsStatusField == 1 && column.StatusForm == 1 || column.FormComponent == "switch" || isSelectComponent(column.FormComponent) {
 			trigger = "change"
 		}
-		rules := fmt.Sprintf("{ required: true, message: \"%s不能为空\", trigger: %q }", DefaultString(column.Comment, column.Name), trigger)
+		fieldKey := frontendFieldLocaleKey(table, column)
+		rules := fmt.Sprintf("{ required: true, message: t(localeKeyPrefix + \".validation.required\", { field: t(%q) }), trigger: %q }", fieldKey, trigger)
 		if isString && column.DbLength > 0 {
-			maxRule := fmt.Sprintf("{ max: %d, message: \"%s不能超过 %d 个字符\", trigger: %q }", column.DbLength, DefaultString(column.Comment, column.Name), column.DbLength, trigger)
+			maxRule := fmt.Sprintf("{ max: %d, message: t(localeKeyPrefix + \".validation.maxLength\", { field: t(%q), max: %d }), trigger: %q }", column.DbLength, fieldKey, column.DbLength, trigger)
 			if required {
 				rules += ", " + maxRule
 			} else {
@@ -1304,32 +1321,32 @@ func (c *renderer) renderFrontendRules(columns []*CodeGenColumn) string {
 }
 
 // renderFrontendStatusOptions 渲染状态选项。
-func (c *renderer) renderFrontendStatusOptions(columns []*CodeGenColumn) string {
+func (c *renderer) renderFrontendStatusOptions(_ *Table, columns []*CodeGenColumn) string {
 	statusColumnList := statusColumns(columns)
 	var builder strings.Builder
 	for _, column := range statusColumnList {
 		if !statusNeedsFrontendOptions(column) {
 			continue
 		}
-		builder.WriteString(fmt.Sprintf(`const %s: ProFormOption[] = [
-  { label: "启用", value: %s },
-  { label: "禁用", value: %s }
-];
+		builder.WriteString(fmt.Sprintf(`const %s = computed<ProFormOption[]>(() => [
+  { label: t("common.status.enabled"), value: %s },
+  { label: t("common.status.disabled"), value: %s }
+]);
 `, statusOptionsVariable(column, len(statusColumnList)), statusValueExpression(column, column.StatusEnabledValue, "1"), statusValueExpression(column, column.StatusDisabledValue, "2")))
 	}
 	return builder.String()
 }
 
 // renderFrontendFormFields 渲染 ProForm 字段配置。
-func (c *renderer) renderFrontendFormFields(columns []*CodeGenColumn) string {
+func (c *renderer) renderFrontendFormFields(table *Table, columns []*CodeGenColumn) string {
 	fields := make([]string, 0, len(columns))
 	for _, column := range columns {
 		if !generatedFormIncludesColumn(column) || column.IsPrimary == 1 {
 			continue
 		}
-		fields = append(fields, c.renderFrontendFormField(column))
+		fields = append(fields, c.renderFrontendFormField(table, column))
 		if column.FormComponent == "password" {
-			fields = append(fields, `  { prop: "passwordStrength", label: "强度提示", component: "slot", slotName: "passwordStrength", visible: model => !model.id }`)
+			fields = append(fields, "  { prop: \"passwordStrength\", label: t(localeKeyPrefix + \".field.passwordStrength\"), component: \"slot\", slotName: \"passwordStrength\", visible: model => !model.id }")
 		}
 	}
 	return strings.Join(fields, ",\n")
@@ -1346,22 +1363,22 @@ func (c *renderer) findFrontendPasswordColumn(columns []*CodeGenColumn) *CodeGen
 }
 
 // renderFrontendFormField 渲染单个 ProForm 字段。
-func (c *renderer) renderFrontendFormField(column *CodeGenColumn) string {
+func (c *renderer) renderFrontendFormField(table *Table, column *CodeGenColumn) string {
 	component := DefaultString(column.FormComponent, "input")
-	label := DefaultString(column.Comment, column.Name)
+	label := fmt.Sprintf("t(%q)", frontendFieldLocaleKey(table, column))
 	disabled := frontendFormFieldDisabledPrefix(column)
 	if component == "password" {
-		return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "password", props: { placeholder: "请输入%s", showPassword: true }, visible: model => !model.id }`, column.Name, label, label)
+		return fmt.Sprintf(`  { prop: "%s", label: %s, component: "password", props: { placeholder: t(localeKeyPrefix + ".placeholder.input", { field: %s }), showPassword: true }, visible: model => !model.id }`, column.Name, label, label)
 	}
 	if component == "switch" {
 		// 开关提交值由表单范围的独立配置决定。
-		return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "switch", props: { %sactiveValue: %s, inactiveValue: %s } }`, column.Name, label, disabled, statusValueExpression(column, column.FormOption.ActiveValue, "1"), statusValueExpression(column, column.FormOption.InactiveValue, "2"))
+		return fmt.Sprintf(`  { prop: "%s", label: %s, component: "switch", props: { %sactiveValue: %s, inactiveValue: %s } }`, column.Name, label, disabled, statusValueExpression(column, column.FormOption.ActiveValue, "1"), statusValueExpression(column, column.FormOption.InactiveValue, "2"))
 	}
 	option := column.FormOption
 	if option.Kind != "" && isSelectComponent(component) {
-		props := fmt.Sprintf(`props: { %splaceholder: "请选择", filterable: true, style: { width: "100%%" } }`, disabled)
+		props := fmt.Sprintf(`props: { %splaceholder: t(localeKeyPrefix + ".placeholder.select", { field: %s }), filterable: true, style: { width: "100%%" } }`, disabled, label)
 		if option.Kind == APIKindTree && option.Lazy {
-			props = fmt.Sprintf(`props: { %slazy: true, load: %s, placeholder: "请选择", filterable: true, style: { width: "100%%" } }`, disabled, frontendOptionLoaderVar(column, "form"))
+			props = fmt.Sprintf(`props: { %slazy: true, load: %s, placeholder: t(localeKeyPrefix + ".placeholder.select", { field: %s }), filterable: true, style: { width: "100%%" } }`, disabled, frontendOptionLoaderVar(column, "form"), label)
 		}
 		// 多选树形选择使用复选框，并允许选择任意层级节点。
 		if isFormTreeMultiple(column) {
@@ -1369,36 +1386,36 @@ func (c *renderer) renderFrontendFormField(column *CodeGenColumn) string {
 			if option.Kind == APIKindTree && option.Lazy {
 				lazyProps = fmt.Sprintf("lazy: true, load: %s, ", frontendOptionLoaderVar(column, "form"))
 			}
-			props = fmt.Sprintf(`props: { %s%smultiple: true, showCheckbox: true, checkStrictly: true, nodeKey: "value", placeholder: "请选择", filterable: true, style: { width: "100%%" } }`, disabled, lazyProps)
+			props = fmt.Sprintf(`props: { %s%smultiple: true, showCheckbox: true, checkStrictly: true, nodeKey: "value", placeholder: t(localeKeyPrefix + ".placeholder.select", { field: %s }), filterable: true, style: { width: "100%%" } }`, disabled, lazyProps, label)
 		}
 		switch option.SourceType {
 		case OptionSourceDict:
 			if option.SourceValue != "" {
 				if component == "radio-group" {
-					return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "dict", props: { %scode: %q, codeType: %q, type: "radio" } }`, column.Name, label, disabled, option.SourceValue, frontendDictValueType(column))
+					return fmt.Sprintf(`  { prop: "%s", label: %s, component: "dict", props: { %scode: %q, codeType: %q, type: "radio" } }`, column.Name, label, disabled, option.SourceValue, frontendDictValueType(column))
 				}
 				if component == "checkbox-group" {
-					return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "dict", props: { %scode: %q, codeType: %q, type: "checkbox" } }`, column.Name, label, disabled, option.SourceValue, frontendDictValueType(column))
+					return fmt.Sprintf(`  { prop: "%s", label: %s, component: "dict", props: { %scode: %q, codeType: %q, type: "checkbox" } }`, column.Name, label, disabled, option.SourceValue, frontendDictValueType(column))
 				}
-				return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "dict", props: { %scode: %q, codeType: %q } }`, column.Name, label, disabled, option.SourceValue, frontendDictValueType(column))
+				return fmt.Sprintf(`  { prop: "%s", label: %s, component: "dict", props: { %scode: %q, codeType: %q } }`, column.Name, label, disabled, option.SourceValue, frontendDictValueType(column))
 			}
 		case OptionSourceStatic:
-			return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "%s", options: %sOptions, %s }`, column.Name, label, component, frontendOptionVar(column, "form"), props)
+			return fmt.Sprintf(`  { prop: "%s", label: %s, component: "%s", options: %sOptions.value, %s }`, column.Name, label, component, frontendOptionVar(column, "form"), props)
 		case OptionSourceTable:
-			return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "%s", options: %sOptions.value, %s }`, column.Name, label, component, frontendOptionVar(column, "form"), props)
+			return fmt.Sprintf(`  { prop: "%s", label: %s, component: "%s", options: %sOptions.value, %s }`, column.Name, label, component, frontendOptionVar(column, "form"), props)
 		}
 	}
 	if component == "input-number" {
-		return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "input-number", props: { %smin: 0, precision: %d, controlsPosition: "right", style: { width: "100%%" } } }`, column.Name, label, disabled, column.DbScale)
+		return fmt.Sprintf(`  { prop: "%s", label: %s, component: "input-number", props: { %smin: 0, precision: %d, controlsPosition: "right", style: { width: "100%%" } } }`, column.Name, label, disabled, column.DbScale)
 	}
 	if component == "date-picker" {
 		dbType := strings.ToLower(DefaultString(column.ColumnType, column.DbType))
 		if strings.Contains(dbType, "datetime") || strings.Contains(dbType, "timestamp") {
-			return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "date-picker", props: { %stype: "datetime", valueFormat: "YYYY-MM-DD HH:mm:ss", placeholder: "请选择%s", style: { width: "100%%" } } }`, column.Name, label, disabled, label)
+			return fmt.Sprintf(`  { prop: "%s", label: %s, component: "date-picker", props: { %stype: "datetime", valueFormat: "YYYY-MM-DD HH:mm:ss", placeholder: t(localeKeyPrefix + ".placeholder.select", { field: %s }), style: { width: "100%%" } } }`, column.Name, label, disabled, label)
 		}
-		return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "date-picker", props: { %stype: "date", valueFormat: "YYYY-MM-DD", placeholder: "请选择%s", style: { width: "100%%" } } }`, column.Name, label, disabled, label)
+		return fmt.Sprintf(`  { prop: "%s", label: %s, component: "date-picker", props: { %stype: "date", valueFormat: "YYYY-MM-DD", placeholder: t(localeKeyPrefix + ".placeholder.select", { field: %s }), style: { width: "100%%" } } }`, column.Name, label, disabled, label)
 	}
-	return fmt.Sprintf(`  { prop: "%s", label: "%s", component: "%s", props: { %splaceholder: "请输入%s" } }`, column.Name, label, component, disabled, label)
+	return fmt.Sprintf(`  { prop: "%s", label: %s, component: "%s", props: { %splaceholder: t(localeKeyPrefix + ".placeholder.input", { field: %s }) } }`, column.Name, label, component, disabled, label)
 }
 
 // frontendFormFieldDisabledPrefix 返回租户字段的编辑态禁用配置。
@@ -1410,7 +1427,7 @@ func frontendFormFieldDisabledPrefix(column *CodeGenColumn) string {
 }
 
 // renderFrontendOptionState 渲染静态选项、数据表选项状态与加载方法。
-func (c *renderer) renderFrontendOptionState(columns []*CodeGenColumn, methods []*Proto) string {
+func (c *renderer) renderFrontendOptionState(table *Table, columns []*CodeGenColumn, methods []*Proto) string {
 	var builder strings.Builder
 	hasTableSource := false
 	hasLazyTree := false
@@ -1422,7 +1439,7 @@ func (c *renderer) renderFrontendOptionState(columns []*CodeGenColumn, methods [
 			}
 			switch scope.option.SourceType {
 			case OptionSourceStatic:
-				builder.WriteString(fmt.Sprintf("const %sOptions: ProFormOption[] = %s;\n", frontendOptionVar(column, scope.name), renderFrontendStaticOptions(scope.option)))
+				builder.WriteString(fmt.Sprintf("const %sOptions = computed<ProFormOption[]>(() => %s);\n", frontendOptionVar(column, scope.name), renderFrontendStaticOptions(table, column, scope.option)))
 			case OptionSourceTable:
 				hasTableSource = true
 				hasLazyTree = hasLazyTree || scope.name == "form" && scope.option.Kind == APIKindTree && scope.option.Lazy
@@ -1516,11 +1533,11 @@ async function %s(node: { level: number; value?: string | number; data?: { value
 			builder.WriteString(fmt.Sprintf("  const %sResponse = await %s.%s(%s as Parameters<typeof %s.%s>[0]);\n", variable, serviceName, method.MethodName, request, serviceName, method.MethodName))
 			if column.Name == DefaultString(method.ParentColumn, "parent_id") && (column.FormComponent == "tree-select" || column.ListComponent == "tree-select" || column.QueryComponent == "tree-select") {
 				if scope.name == "form" && scope.option.Kind == APIKindTree && scope.option.Lazy {
-					builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: \"顶级节点\", value: 0 }, ...normalizeLazyTreeOptions((%sResponse.list ?? []) as GeneratedTreeOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
+					builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: t(localeKeyPrefix + \".value.topLevel\"), value: 0 }, ...normalizeLazyTreeOptions((%sResponse.list ?? []) as GeneratedTreeOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
 				} else if scope.option.Kind == APIKindTree {
-					builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: \"顶级节点\", value: 0 }, ...transformTreeOptionPaths((%sResponse.list ?? []) as ProFormOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
+					builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: t(localeKeyPrefix + \".value.topLevel\"), value: 0 }, ...transformTreeOptionPaths((%sResponse.list ?? []) as ProFormOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
 				} else {
-					builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: \"顶级节点\", value: 0 }, ...((%sResponse.list ?? []) as ProFormOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
+					builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: t(localeKeyPrefix + \".value.topLevel\"), value: 0 }, ...((%sResponse.list ?? []) as ProFormOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
 				}
 				continue
 			}
@@ -1561,7 +1578,7 @@ func (c *renderer) renderFrontendOptionImports(table *Table, columns []*CodeGenC
 }
 
 // renderFrontendEnumImports 渲染状态枚举导入。
-func (c *renderer) renderFrontendEnumImports(columns []*CodeGenColumn) string {
+func (c *renderer) renderFrontendEnumImports(table *Table, columns []*CodeGenColumn) string {
 	enumNames := make([]string, 0)
 	seen := make(map[string]struct{})
 	for _, column := range statusColumns(columns) {
@@ -1577,7 +1594,7 @@ func (c *renderer) renderFrontendEnumImports(columns []*CodeGenColumn) string {
 	if len(enumNames) == 0 {
 		return ""
 	}
-	return fmt.Sprintf("import { %s } from \"@/rpc/common/v1/enum\";", strings.Join(enumNames, ", "))
+	return fmt.Sprintf("import { %s } from %q;", strings.Join(enumNames, ", "), ProtoTargetForTable(table).FrontendPackageName+"/rpc/common/v1/enum")
 }
 
 // renderFrontendLoadOptionsCall 渲染打开弹窗时加载选项调用。
@@ -1620,22 +1637,22 @@ func (c *renderer) renderFrontendStatusHandler(table *Table, column *CodeGenColu
 async function %s(row: %s) {
   const currentStatus = (row as unknown as Record<string, unknown>)["%s"];
   const nextStatus = currentStatus === %s ? %s : %s;
-  const text = nextStatus === %s ? "启用" : "禁用";
+  const text = t(nextStatus === %s ? "common.status.enabled" : "common.status.disabled");
   try {
-    await ElMessageBox.confirm("是否确定" + text + "%s？", "提示", {
-      confirmButtonText: "确认",
-      cancelButtonText: "取消",
+    await ElMessageBox.confirm(t(localeKeyPrefix + ".dialog.confirmStatus", { action: text }), t("common.title.notice"), {
+      confirmButtonText: t("common.action.confirm"),
+      cancelButtonText: t("common.action.cancel"),
       type: "warning"
     });
     await def%sService.%s({ id: row.id, status: nextStatus as %sRequest["status"] });
-    ElMessage.success(text + "成功");
+    ElMessage.success(t(localeKeyPrefix + ".message.statusSuccess", { action: text }));
     refreshTable();
     return true;
   } catch {
     return false;
   }
 }
-	`, DefaultString(column.Comment, column.Name), handlerName, table.EntityName, column.Name, enabled, disabled, enabled, enabled, table.BusinessName, table.EntityName, statusMethod.MethodName, statusMethod.MethodName)
+	`, DefaultString(column.Comment, column.Name), handlerName, table.EntityName, column.Name, enabled, disabled, enabled, enabled, table.EntityName, statusMethod.MethodName, statusMethod.MethodName)
 }
 
 // removeFrontendFunctionBlock 移除并返回指定 TypeScript 函数及其中文注释。
@@ -1736,7 +1753,11 @@ func validateCodeGenOutputPathLayout(target ProtoTarget, paths *systemadminv1.Co
 // frontendRPCImportPath 根据 Proto 文件路径推导前端生成类型导入路径。
 func frontendRPCImportPath(protoPath string) string {
 	relativePath := strings.TrimPrefix(protoPath, "backend/api/proto/")
-	return "@/rpc/" + strings.TrimSuffix(relativePath, filepath.Ext(relativePath))
+	target, ok := ProtoTargetForProtoPath(protoPath)
+	if !ok {
+		return "@/rpc/" + strings.TrimSuffix(relativePath, filepath.Ext(relativePath))
+	}
+	return target.FrontendPackageName + "/rpc/" + strings.TrimSuffix(relativePath, filepath.Ext(relativePath))
 }
 
 // frontendAPIImportPathForMethod 根据接口所属 Proto 目标推导前端 API 导入路径。
@@ -1744,8 +1765,7 @@ func frontendAPIImportPathForMethod(method *Proto) string {
 	protoDirectory := strings.TrimPrefix(filepath.ToSlash(filepath.Dir(method.ProtoFilePath)), ProtoRootPath+"/")
 	module := strings.TrimSuffix(strings.TrimSuffix(protoDirectory, "/v1"), "/admin")
 	target, _ := ProtoTargetForBusinessModule(module)
-	apiPath := strings.TrimPrefix(target.FrontendAPIFilePath(method.TargetEntityName), "frontend/admin/src/")
-	return "@/" + strings.TrimSuffix(apiPath, filepath.Ext(apiPath))
+	return target.FrontendPackageName + "/api/" + module + "/" + stringcase.ToSnakeCase(method.TargetEntityName)
 }
 
 // repoRoot 返回仓库根目录。
@@ -1827,8 +1847,9 @@ func renderFrontendDateImport(columns []*CodeGenColumn) string {
 }
 
 // renderFrontendColumn 渲染前端表格列配置。
-func renderFrontendColumn(permissionPrefix string, entityName string, column *CodeGenColumn, statusMethod *Proto, statusColumnCount int, align string) string {
+func renderFrontendColumn(localePrefix string, permissionPrefix string, entityName string, column *CodeGenColumn, statusMethod *Proto, statusColumnCount int, align string) string {
 	alignConfig := ""
+	label := fmt.Sprintf("t(%q)", localePrefix+".field."+stringcase.ToCamelCase(column.Name))
 	if align != "" {
 		alignConfig = fmt.Sprintf(`, align: %q`, align)
 	}
@@ -1844,28 +1865,28 @@ func renderFrontendColumn(permissionPrefix string, entityName string, column *Co
 		if column.StatusSwitch == 1 && statusMethod != nil {
 			return fmt.Sprintf(`  {
     prop: "%s",
-    label: "%s"%s,
+    label: %s%s,
     width: 100%s%s,
     cellType: "status",
     statusProps: {
       activeValue: %s,
       inactiveValue: %s,
-      activeText: "启用",
-      inactiveText: "禁用",
+      activeText: t("common.status.enabled"),
+      inactiveText: t("common.status.disabled"),
       disabled: () => !BUTTONS.value[%q],
       beforeChange: scope => %s(scope.row as %s)
     }
-  }`, column.Name, column.Comment, alignConfig, dictConfig, search, statusValueExpression(column, column.StatusEnabledValue, "1"), statusValueExpression(column, column.StatusDisabledValue, "2"), statusPermissionPath(permissionPrefix, column.Name, statusColumnCount), statusHandlerName(column, statusColumnCount), entityName)
+  }`, column.Name, label, alignConfig, dictConfig, search, statusValueExpression(column, column.StatusEnabledValue, "1"), statusValueExpression(column, column.StatusDisabledValue, "2"), statusPermissionPath(permissionPrefix, column.Name, statusColumnCount), statusHandlerName(column, statusColumnCount), entityName)
 		}
 		if statusUsesDictionary(column) {
-			return fmt.Sprintf(`  { prop: "%s", label: "%s"%s%s%s }`, column.Name, column.Comment, alignConfig, dictConfig, search)
+			return fmt.Sprintf(`  { prop: "%s", label: %s%s%s%s }`, column.Name, label, alignConfig, dictConfig, search)
 		}
-		return fmt.Sprintf(`  { prop: "%s", label: "%s"%s, enum: %s%s }`, column.Name, column.Comment, alignConfig, statusOptionsVariable(column, statusColumnCount), search)
+		return fmt.Sprintf(`  { prop: "%s", label: %s%s, enum: %s.value%s }`, column.Name, label, alignConfig, statusOptionsVariable(column, statusColumnCount), search)
 	}
 	optionConfig := frontendColumnOptionConfig(column)
 	searchConfig := frontendSearchConfig(column)
 	if column.ListComponent == "image" {
-		return fmt.Sprintf(`  { prop: "%s", label: "%s"%s, cellType: "image"%s%s }`, column.Name, column.Comment, alignConfig, optionConfig, searchConfig)
+		return fmt.Sprintf(`  { prop: "%s", label: %s%s, cellType: "image"%s%s }`, column.Name, label, alignConfig, optionConfig, searchConfig)
 	}
 	if column.ListComponent == "date" {
 		dbType := strings.ToLower(DefaultString(column.ColumnType, column.DbType))
@@ -1875,9 +1896,9 @@ func renderFrontendColumn(permissionPrefix string, entityName string, column *Co
 		} else if strings.Contains(dbType, "time") {
 			format = "HH:mm:ss"
 		}
-		return fmt.Sprintf(`  { prop: "%s", label: "%s"%s, render: scope => scope.row.%s ? dayjs(scope.row.%s).format(%q) : "--"%s%s }`, column.Name, column.Comment, alignConfig, column.Name, column.Name, format, optionConfig, searchConfig)
+		return fmt.Sprintf(`  { prop: "%s", label: %s%s, render: scope => scope.row.%s ? dayjs(scope.row.%s).format(%q) : "--"%s%s }`, column.Name, label, alignConfig, column.Name, column.Name, format, optionConfig, searchConfig)
 	}
-	return fmt.Sprintf(`  { prop: "%s", label: "%s"%s%s%s }`, column.Name, column.Comment, alignConfig, optionConfig, searchConfig)
+	return fmt.Sprintf(`  { prop: "%s", label: %s%s%s%s }`, column.Name, label, alignConfig, optionConfig, searchConfig)
 }
 
 // frontendColumnOptionConfig 渲染列表或查询选择组件的数据源配置。
@@ -1893,7 +1914,7 @@ func frontendColumnOptionConfig(column *CodeGenColumn) string {
 		}
 	case OptionSourceStatic, OptionSourceTable:
 		if option.Kind != "" {
-			return ", enum: " + frontendOptionVar(column, "list") + "Options"
+			return ", enum: " + frontendOptionVar(column, "list") + "Options.value"
 		}
 	}
 	return ""
@@ -1921,7 +1942,7 @@ func frontendSearchConfig(column *CodeGenColumn) string {
 			return fmt.Sprintf(`, search: { el: "%s", dictCode: %q, dictValueType: %q }`, component, option.SourceValue, frontendDictValueType(column))
 		case OptionSourceStatic, OptionSourceTable:
 			if option.Kind != "" {
-				return fmt.Sprintf(`, search: { el: "%s", enum: %sOptions }`, component, frontendOptionVar(column, "query"))
+				return fmt.Sprintf(`, search: { el: "%s", enum: %sOptions.value }`, component, frontendOptionVar(column, "query"))
 			}
 		}
 		return fmt.Sprintf(`, search: { el: "%s" }`, component)
@@ -1941,18 +1962,20 @@ func statusOptionsVariable(column *CodeGenColumn, statusColumnCount int) string 
 }
 
 // renderFrontendStaticOptions 将静态选项 JSON 渲染为安全的 TypeScript 字面量。
-func renderFrontendStaticOptions(option CodeGenColumnOptionConfig) string {
-	var options []CodeGenStaticOption
-	err := json.Unmarshal([]byte(option.SourceValue), &options)
-	if err != nil {
+func renderFrontendStaticOptions(table *Table, column *CodeGenColumn, option CodeGenColumnOptionConfig) string {
+	options := parseCodeGenStaticOptions(option)
+	if len(options) == 0 {
 		return "[]"
 	}
-	var content []byte
-	content, err = json.Marshal(options)
-	if err != nil {
-		return "[]"
+	items := make([]string, 0, len(options))
+	for _, option := range options {
+		value, err := json.Marshal(option.Value)
+		if err != nil {
+			continue
+		}
+		items = append(items, fmt.Sprintf("{ label: t(%q), value: %s }", frontendStaticOptionLocaleKey(table, column, option.Value), value))
 	}
-	return string(content)
+	return "[" + strings.Join(items, ", ") + "]"
 }
 
 // renderFrontendStatusTypeImports 渲染状态切换处理函数依赖的请求类型。

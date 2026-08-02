@@ -14,7 +14,7 @@
       :on-exceed="handleExceed"
       :accept="fileType.join(',')"
     >
-      <el-button type="primary" :disabled="selfDisabled">上传文件</el-button>
+      <el-button type="primary" :disabled="selfDisabled">{{ t("core.upload.action") }}</el-button>
     </el-upload>
 
     <div v-if="_fileList.length" class="file-list">
@@ -22,13 +22,17 @@
         <div class="file-card__main">
           <el-icon class="file-card__icon"><Document /></el-icon>
           <div class="file-card__meta">
-            <div class="file-card__name">{{ file.name || "未命名文件" }}</div>
+            <div class="file-card__name">{{ file.name || t("core.upload.unnamedFile") }}</div>
             <div class="file-card__url">{{ file.url }}</div>
           </div>
         </div>
         <div class="file-card__action">
-          <el-button link type="primary" :icon="Download" @click.stop="handleDownload(file)">下载</el-button>
-          <el-button v-if="!selfDisabled" link type="danger" :icon="Delete" @click.stop="handleRemove(file)">删除</el-button>
+          <el-button link type="primary" :icon="Download" @click.stop="handleDownload(file)">
+            {{ t("common.action.download") }}
+          </el-button>
+          <el-button v-if="!selfDisabled" link type="danger" :icon="Delete" @click.stop="handleRemove(file)">
+            {{ t("common.action.delete") }}
+          </el-button>
         </div>
       </div>
     </div>
@@ -42,6 +46,9 @@ import { ElNotification, formContextKey, formItemContextKey } from "element-plus
 import type { UploadProps, UploadRequestOptions, UploadUserFile } from "element-plus";
 import { defFileService } from "@/api/base/file";
 import type { FileInfo } from "@/rpc/base/v1/file";
+import { useLocaleStore } from "@/locales";
+
+const { t } = useLocaleStore();
 
 /** 多文件上传组件属性。 */
 interface UploadFilesProps {
@@ -75,7 +82,7 @@ type UploadRequestError = Parameters<NonNullable<UploadRequestOptions["onError"]
 
 /** 兼容 Element Plus 上传组件要求的错误对象结构。 */
 function buildUploadError(error: unknown): UploadRequestError {
-  const uploadError = error instanceof Error ? error : new Error("文件上传失败");
+  const uploadError = error instanceof Error ? error : new Error(t("core.upload.fileFailed"));
   return Object.assign(uploadError, {
     status: 500,
     method: "POST",
@@ -102,16 +109,16 @@ const beforeUpload: UploadProps["beforeUpload"] = rawFile => {
 
   if (!fileTypeValid) {
     ElNotification({
-      title: "温馨提示",
-      message: "上传文件不符合所需的格式！",
+      title: t("common.title.warning"),
+      message: t("core.upload.fileFormatInvalid"),
       type: "warning"
     });
   }
 
   if (!fileSizeValid) {
     ElNotification({
-      title: "温馨提示",
-      message: `上传文件大小不能超过 ${props.fileSize}M！`,
+      title: t("common.title.warning"),
+      message: t("core.upload.fileSizeExceeded", { size: props.fileSize }),
       type: "warning"
     });
   }
@@ -143,8 +150,8 @@ const uploadSuccess = (response: FileInfo | undefined) => {
   emit("update:fileList", _fileList.value);
   formItemContext?.prop && formContext?.validateField([formItemContext.prop as string]);
   ElNotification({
-    title: "温馨提示",
-    message: "文件上传成功！",
+    title: t("common.title.notice"),
+    message: t("core.upload.fileSuccess"),
     type: "success"
   });
 };
@@ -152,8 +159,8 @@ const uploadSuccess = (response: FileInfo | undefined) => {
 /** 处理文件上传失败提示。 */
 const uploadError = () => {
   ElNotification({
-    title: "温馨提示",
-    message: "文件上传失败，请您重新上传！",
+    title: t("common.title.warning"),
+    message: t("core.upload.fileFailed"),
     type: "error"
   });
 };
@@ -161,8 +168,8 @@ const uploadError = () => {
 /** 超出上传数量限制时给出提示。 */
 function handleExceed() {
   ElNotification({
-    title: "温馨提示",
-    message: `当前最多只能上传 ${props.limit} 个文件，请移除后上传！`,
+    title: t("common.title.warning"),
+    message: t("core.upload.limitExceeded", { limit: props.limit }),
     type: "warning"
   });
 }

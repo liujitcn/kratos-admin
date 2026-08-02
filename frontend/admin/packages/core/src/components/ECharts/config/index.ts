@@ -12,7 +12,12 @@ import {
 import { LabelLayout, UniversalTransition } from "echarts/features";
 import { CanvasRenderer } from "echarts/renderers";
 import type { BarSeriesOption, LineSeriesOption, PieSeriesOption } from "echarts/charts";
-import type { TitleComponentOption, TooltipComponentOption, GridComponentOption, DatasetComponentOption } from "echarts/components";
+import type {
+  TitleComponentOption,
+  TooltipComponentOption,
+  GridComponentOption,
+  DatasetComponentOption
+} from "echarts/components";
 import type { ComposeOption } from "echarts/core";
 
 /** 管理后台 ECharts 组件统一支持的图表配置类型。 */

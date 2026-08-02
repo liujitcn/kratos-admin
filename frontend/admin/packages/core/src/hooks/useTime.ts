@@ -1,4 +1,5 @@
 import { ref } from "vue";
+import { getCurrentLocale } from "@/locales";
 
 /**
  * @description 获取本地时间
@@ -18,7 +19,7 @@ export const useTime = () => {
     const date = new Date();
     year.value = date.getFullYear();
     month.value = date.getMonth() + 1;
-    week.value = "日一二三四五六".charAt(date.getDay());
+    week.value = new Intl.DateTimeFormat(getCurrentLocale(), { weekday: "short" }).format(date);
     day.value = date.getDate();
     hour.value =
       (date.getHours() + "")?.padStart(2, "0") ||
@@ -29,7 +30,15 @@ export const useTime = () => {
     second.value =
       (date.getSeconds() + "")?.padStart(2, "0") ||
       new Intl.NumberFormat(undefined, { minimumIntegerDigits: 2 }).format(date.getSeconds());
-    nowTime.value = `${year.value}年${month.value}月${day.value} ${hour.value}:${minute.value}:${second.value}`;
+    nowTime.value = new Intl.DateTimeFormat(getCurrentLocale(), {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false
+    }).format(date);
   };
 
   updateTime();

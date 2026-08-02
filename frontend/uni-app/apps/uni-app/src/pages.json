@@ -12,50 +12,6 @@
         "navigationStyle": "custom",
         "navigationBarTitleText": ""
       }
-    },
-    {
-      "path": "pages/index/index",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTextStyle": "white",
-        "navigationBarTitleText": "首页"
-      }
-    },
-    {
-      "path": "pages/login/login",
-      "style": {
-        "navigationBarTitleText": "登录"
-      }
-    },
-    {
-      "path": "pages/login/protocal",
-      "style": {
-        "navigationBarTitleText": "协议详情"
-      }
-    },
-    {
-      "path": "pages/status/index",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTitleText": ""
-      }
-    },
-    {
-      "path": "pages/webview/webview",
-      "style": {
-        "navigationBarTitleText": "",
-        "app-plus": {
-          "titleNView": false
-        }
-      }
-    },
-    {
-      "path": "pages/my/my",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTextStyle": "white",
-        "navigationBarTitleText": "我的"
-      }
     }
   ],
   "globalStyle": {
@@ -63,33 +19,5 @@
     "navigationBarTitleText": "",
     "navigationBarBackgroundColor": "#F8F8F8",
     "backgroundColor": "#F8F8F8"
-  },
-  "subPackages": [
-    {
-      "root": "pagesMember",
-      "pages": [
-        {
-          "path": "ai/index",
-          "style": {
-            "navigationStyle": "custom",
-            "navigationBarTitleText": "AI 助手"
-          }
-        },
-        {
-          "path": "profile/profile",
-          "style": {
-            "navigationStyle": "custom",
-            "navigationBarTextStyle": "white",
-            "navigationBarTitleText": "个人信息"
-          }
-        },
-        {
-          "path": "settings/settings",
-          "style": {
-            "navigationBarTitleText": "设置"
-          }
-        }
-      ]
-    }
-  ]
+  }
 }

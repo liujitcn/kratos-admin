@@ -22,6 +22,12 @@ import { useConfigStore } from "@/stores/modules/config";
 import { kratosAdminModule } from "./modules/kratosAdmin";
 import { registerAdminModules } from "./modules";
 import type { AdminModule } from "./modules";
+import { adminI18n, initializeLocale, registerLocaleChangeHandler, registerLocaleMessages, t } from "./locales";
+import { useAuthStore } from "@/stores/modules/auth";
+import { useDictStore } from "@/stores/modules/dict";
+import { useTabsStore } from "@/stores/modules/tabs";
+import { useUserStore } from "@/stores/modules/user";
+import { getRouteMetaTitle } from "@/utils";
 
 /**
  * 管理端启动参数。
@@ -37,7 +43,10 @@ export interface AdminBootstrapOptions {
  * 创建并启动管理端应用，业务项目可通过 modules 注册自己的页面。
  */
 export async function bootstrapAdminApp(options: AdminBootstrapOptions = {}) {
-  registerAdminModules([kratosAdminModule, ...(options.modules ?? [])]);
+  const modules = [kratosAdminModule, ...(options.modules ?? [])];
+  registerAdminModules(modules);
+  registerLocaleMessages(modules);
+  initializeLocale();
 
   const app = createApp(App);
 
@@ -56,7 +65,8 @@ export async function bootstrapAdminApp(options: AdminBootstrapOptions = {}) {
   // 按需加载模式不会自动注册 v-loading 指令，需要显式挂载。
   app.directive("loading", ElLoading.directive);
 
-  app.use(directives).use(pinia).use(router);
+  app.use(directives).use(pinia).use(router).use(adminI18n);
+  registerLocaleChangeHandler(refreshLocalizedRuntimeData);
 
   try {
     await useConfigStore().loadDisplayConfig();
@@ -66,4 +76,41 @@ export async function bootstrapAdminApp(options: AdminBootstrapOptions = {}) {
 
   app.mount(options.mount ?? "#app");
   return app;
+}
+
+/** 刷新当前语言对应的菜单、字典、页签和页面标题。 */
+async function refreshLocalizedRuntimeData() {
+  const userStore = useUserStore(pinia);
+  const authStore = useAuthStore(pinia);
+  const dictStore = useDictStore(pinia);
+  if (userStore.token || userStore.refreshToken) {
+    await Promise.allSettled([authStore.getAuthMenuList(), dictStore.updateDictionaryCache()]);
+    syncLocalizedRouteState();
+  }
+  updateDocumentTitle();
+}
+
+function syncLocalizedRouteState() {
+  const authStore = useAuthStore(pinia);
+  const tabsStore = useTabsStore(pinia);
+  const menuMap = new Map(authStore.flatMenuListGet.flatMap(item => (item.name ? [[item.name, item] as const] : [])));
+
+  router.getRoutes().forEach(record => {
+    const menu = typeof record.name === "string" ? menuMap.get(record.name) : undefined;
+    if (menu?.meta) Object.assign(record.meta, menu.meta);
+  });
+  tabsStore.setTabs(
+    tabsStore.tabsMenuList.map(tab => {
+      const menu = menuMap.get(tab.name);
+      return menu ? { ...tab, title: getRouteMetaTitle(menu.meta) } : tab;
+    })
+  );
+}
+
+function updateDocumentTitle() {
+  const route = router.currentRoute.value;
+  const titleKey = typeof route.meta.titleKey === "string" ? route.meta.titleKey : "";
+  const routeTitle = titleKey ? t(titleKey) : String(route.meta.title ?? "");
+  const appTitle = import.meta.env.VITE_GLOB_APP_TITLE;
+  document.title = routeTitle ? `${routeTitle} - ${appTitle}` : appTitle;
 }

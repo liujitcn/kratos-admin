@@ -1,5 +1,6 @@
 import { Button, Input, ScrollView, Text, View } from '@tarojs/components'
 import { More, Plus, Search } from '@liujitcn/kratos-taro-app-ui'
+import { t, useI18n } from '@liujitcn/kratos-taro-app-core'
 import type { AiSession } from '../../../../rpc/base/v1/ai_session'
 import './session-drawer.scss'
 
@@ -37,6 +38,7 @@ function formatSessionTime(session: AiSession) {
 
 /** AI 助手历史会话抽屉。 */
 export default function SessionDrawer(props: SessionDrawerProps) {
+  useI18n()
   return (
     <>
       {props.open ? <View className='session-mask' onClick={props.onClose} /> : null}
@@ -45,10 +47,10 @@ export default function SessionDrawer(props: SessionDrawerProps) {
         style={{ paddingTop: props.topPadding }}
       >
         <View className='session-drawer__head'>
-          <View className='session-drawer__title'>历史会话</View>
+          <View className='session-drawer__title'>{t('system.ai.history')}</View>
           <Button className='session-create' hoverClass='none' onClick={props.onCreate}>
             <Plus size={16} color='#27ba9b' />
-            <Text>新建</Text>
+            <Text>{t('common.action.new')}</Text>
           </Button>
         </View>
         <View className='session-search'>
@@ -56,14 +58,14 @@ export default function SessionDrawer(props: SessionDrawerProps) {
           <Input
             className='session-search-input'
             confirmType='search'
-            placeholder='搜索会话'
+            placeholder={t('system.ai.searchSession')}
             placeholderClass='session-search-placeholder'
             value={props.keyword}
             onInput={(event) => props.onKeywordChange(event.detail.value)}
           />
         </View>
         <ScrollView className='session-list' scrollY showScrollbar={false}>
-          {props.loading ? <View className='session-empty'>正在加载会话...</View> : null}
+          {props.loading ? <View className='session-empty'>{t('system.ai.loadSessions')}</View> : null}
           {props.sessions.map((session) => (
             <View
               key={session.id}
@@ -76,7 +78,7 @@ export default function SessionDrawer(props: SessionDrawerProps) {
                   <View className='session-title'>{session.title}</View>
                   <View className='session-time'>{formatSessionTime(session)}</View>
                 </View>
-                <View className='session-summary'>{session.summary || '暂无摘要'}</View>
+                <View className='session-summary'>{session.summary || t('system.ai.noSummary')}</View>
               </View>
               <Button
                 className='session-more'
@@ -91,7 +93,7 @@ export default function SessionDrawer(props: SessionDrawerProps) {
             </View>
           ))}
           {!props.loading && !props.sessions.length ? (
-            <View className='session-empty'>没有匹配的会话</View>
+            <View className='session-empty'>{t('system.ai.noMatchingSessions')}</View>
           ) : null}
         </ScrollView>
       </View>

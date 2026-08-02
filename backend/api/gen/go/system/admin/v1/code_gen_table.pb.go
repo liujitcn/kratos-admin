@@ -294,21 +294,22 @@ func (x *GetCodeGenTableRequest) GetId() int64 {
 
 // 代码生成表配置表单
 type CodeGenTableForm struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	Id              int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                   // 主键ID
-	Name            string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                                // 业务表名
-	Comment         string                 `protobuf:"bytes,3,opt,name=comment,proto3" json:"comment,omitempty"`                                          // 业务表描述
-	BusinessModule  string                 `protobuf:"bytes,4,opt,name=business_module,json=businessModule,proto3" json:"business_module,omitempty"`      // 业务模块
-	ParentMenuId    int64                  `protobuf:"varint,5,opt,name=parent_menu_id,json=parentMenuId,proto3" json:"parent_menu_id,omitempty"`         // 父级菜单ID
-	PageType        string                 `protobuf:"bytes,6,opt,name=page_type,json=pageType,proto3" json:"page_type,omitempty"`                        // 页面类型：normal普通表格 tree树形表格 tree_lazy树形懒加载表格 left_tree左树右表
-	ParentColumn    string                 `protobuf:"bytes,7,opt,name=parent_column,json=parentColumn,proto3" json:"parent_column,omitempty"`            // 树形表格父节点字段
-	TreeLabelColumn string                 `protobuf:"bytes,8,opt,name=tree_label_column,json=treeLabelColumn,proto3" json:"tree_label_column,omitempty"` // 树节点显示字段
-	LeftTreeConfig  *CodeGenLeftTreeConfig `protobuf:"bytes,9,opt,name=left_tree_config,json=leftTreeConfig,proto3" json:"left_tree_config,omitempty"`    // 左树配置
-	GenBackend      bool                   `protobuf:"varint,10,opt,name=gen_backend,json=genBackend,proto3" json:"gen_backend,omitempty"`                // 是否生成后端
-	GenFrontend     bool                   `protobuf:"varint,11,opt,name=gen_frontend,json=genFrontend,proto3" json:"gen_frontend,omitempty"`             // 是否生成前端
-	GenSql          bool                   `protobuf:"varint,12,opt,name=gen_sql,json=genSql,proto3" json:"gen_sql,omitempty"`                            // 是否同步菜单和接口权限
-	Status          v1.CodeGenTableStatus  `protobuf:"varint,13,opt,name=status,proto3,enum=system.common.v1.CodeGenTableStatus" json:"status,omitempty"` // 状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用
-	Remark          string                 `protobuf:"bytes,14,opt,name=remark,proto3" json:"remark,omitempty"`                                           // 备注
+	state           protoimpl.MessageState          `protogen:"open.v1"`
+	Id              int64                           `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                                                             // 主键ID
+	Name            string                          `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                                                                                          // 业务表名
+	Comment         string                          `protobuf:"bytes,3,opt,name=comment,proto3" json:"comment,omitempty"`                                                                                                    // 业务表描述
+	BusinessModule  string                          `protobuf:"bytes,4,opt,name=business_module,json=businessModule,proto3" json:"business_module,omitempty"`                                                                // 业务模块
+	ParentMenuId    int64                           `protobuf:"varint,5,opt,name=parent_menu_id,json=parentMenuId,proto3" json:"parent_menu_id,omitempty"`                                                                   // 父级菜单ID
+	PageType        string                          `protobuf:"bytes,6,opt,name=page_type,json=pageType,proto3" json:"page_type,omitempty"`                                                                                  // 页面类型：normal普通表格 tree树形表格 tree_lazy树形懒加载表格 left_tree左树右表
+	ParentColumn    string                          `protobuf:"bytes,7,opt,name=parent_column,json=parentColumn,proto3" json:"parent_column,omitempty"`                                                                      // 树形表格父节点字段
+	TreeLabelColumn string                          `protobuf:"bytes,8,opt,name=tree_label_column,json=treeLabelColumn,proto3" json:"tree_label_column,omitempty"`                                                           // 树节点显示字段
+	LeftTreeConfig  *CodeGenLeftTreeConfig          `protobuf:"bytes,9,opt,name=left_tree_config,json=leftTreeConfig,proto3" json:"left_tree_config,omitempty"`                                                              // 左树配置
+	GenBackend      bool                            `protobuf:"varint,10,opt,name=gen_backend,json=genBackend,proto3" json:"gen_backend,omitempty"`                                                                          // 是否生成后端
+	GenFrontend     bool                            `protobuf:"varint,11,opt,name=gen_frontend,json=genFrontend,proto3" json:"gen_frontend,omitempty"`                                                                       // 是否生成前端
+	GenSql          bool                            `protobuf:"varint,12,opt,name=gen_sql,json=genSql,proto3" json:"gen_sql,omitempty"`                                                                                      // 是否同步菜单和接口权限
+	Status          v1.CodeGenTableStatus           `protobuf:"varint,13,opt,name=status,proto3,enum=system.common.v1.CodeGenTableStatus" json:"status,omitempty"`                                                           // 状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用
+	Remark          string                          `protobuf:"bytes,14,opt,name=remark,proto3" json:"remark,omitempty"`                                                                                                     // 备注
+	I18NConfig      map[string]*CodeGenLocaleConfig `protobuf:"bytes,15,rep,name=i18n_config,json=i18nConfig,proto3" json:"i18n_config,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // 按语言区域索引的表级国际化配置
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -439,6 +440,13 @@ func (x *CodeGenTableForm) GetRemark() string {
 		return x.Remark
 	}
 	return ""
+}
+
+func (x *CodeGenTableForm) GetI18NConfig() map[string]*CodeGenLocaleConfig {
+	if x != nil {
+		return x.I18NConfig
+	}
+	return nil
 }
 
 // 代码生成表配置创建条件
@@ -647,17 +655,18 @@ func (x *CodeGenDatabaseTable) GetDisabled() bool {
 
 // 代码生成表配置
 type CodeGenTable struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	Id               int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                      // 主键ID
-	Name             string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                                   // 业务表名
-	Comment          string                 `protobuf:"bytes,3,opt,name=comment,proto3" json:"comment,omitempty"`                                             // 业务表描述
-	BusinessModule   string                 `protobuf:"bytes,4,opt,name=business_module,json=businessModule,proto3" json:"business_module,omitempty"`         // 业务模块
-	PageType         string                 `protobuf:"bytes,5,opt,name=page_type,json=pageType,proto3" json:"page_type,omitempty"`                           // 页面类型
-	Status           v1.CodeGenTableStatus  `protobuf:"varint,6,opt,name=status,proto3,enum=system.common.v1.CodeGenTableStatus" json:"status,omitempty"`     // 状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用
-	Remark           string                 `protobuf:"bytes,7,opt,name=remark,proto3" json:"remark,omitempty"`                                               // 备注
-	CreatedAt        string                 `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                        // 创建时间
-	UpdatedAt        string                 `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                        // 更新时间
-	RestoreAvailable bool                   `protobuf:"varint,10,opt,name=restore_available,json=restoreAvailable,proto3" json:"restore_available,omitempty"` // 是否可以还原生成结果
+	state            protoimpl.MessageState          `protogen:"open.v1"`
+	Id               int64                           `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                                                             // 主键ID
+	Name             string                          `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                                                                                          // 业务表名
+	Comment          string                          `protobuf:"bytes,3,opt,name=comment,proto3" json:"comment,omitempty"`                                                                                                    // 业务表描述
+	BusinessModule   string                          `protobuf:"bytes,4,opt,name=business_module,json=businessModule,proto3" json:"business_module,omitempty"`                                                                // 业务模块
+	PageType         string                          `protobuf:"bytes,5,opt,name=page_type,json=pageType,proto3" json:"page_type,omitempty"`                                                                                  // 页面类型
+	Status           v1.CodeGenTableStatus           `protobuf:"varint,6,opt,name=status,proto3,enum=system.common.v1.CodeGenTableStatus" json:"status,omitempty"`                                                            // 状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用
+	Remark           string                          `protobuf:"bytes,7,opt,name=remark,proto3" json:"remark,omitempty"`                                                                                                      // 备注
+	CreatedAt        string                          `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                                                               // 创建时间
+	UpdatedAt        string                          `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                                                               // 更新时间
+	RestoreAvailable bool                            `protobuf:"varint,10,opt,name=restore_available,json=restoreAvailable,proto3" json:"restore_available,omitempty"`                                                        // 是否可以还原生成结果
+	I18NConfig       map[string]*CodeGenLocaleConfig `protobuf:"bytes,11,rep,name=i18n_config,json=i18nConfig,proto3" json:"i18n_config,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // 按语言区域索引的表级国际化配置
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -762,6 +771,13 @@ func (x *CodeGenTable) GetRestoreAvailable() bool {
 	return false
 }
 
+func (x *CodeGenTable) GetI18NConfig() map[string]*CodeGenLocaleConfig {
+	if x != nil {
+		return x.I18NConfig
+	}
+	return nil
+}
+
 // 左树右表页面配置
 type CodeGenLeftTreeConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -859,7 +875,7 @@ var File_system_admin_v1_code_gen_table_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\n" +
-	"$system/admin/v1/code_gen_table.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1bsystem/common/v1/enum.proto\"\x82\x04\n" +
+	"$system/admin/v1/code_gen_table.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1bsystem/common/v1/enum.proto\x1a&system/admin/v1/base_translation.proto\"\x82\x04\n" +
 	"\x17PageCodeGenTableRequest\x12+\n" +
 	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f业务表名H\x00R\x04name\x88\x01\x01\x12@\n" +
 	"\x0fbusiness_module\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f业务模块H\x01R\x0ebusinessModule\x88\x01\x01\x124\n" +
@@ -880,7 +896,7 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\x06tables\x18\x01 \x03(\v2%.system.admin.v1.CodeGenDatabaseTableB\x18\xbaG\x15\x92\x02\x12数据库表列表R\x06tables\"~\n" +
 	"\x16GetCodeGenTableRequest\x12d\n" +
 	"\x02id\x18\x01 \x01(\x03BT\xbaG\v\x92\x02\b主键ID\xbaHC\xba\x01@\n" +
-	"\x1eget_code_gen_table.id.required\x12\x14主键ID不能为空\x1a\bthis > 0R\x02id\"\xba\x11\n" +
+	"\x1eget_code_gen_table.id.required\x12\x14主键ID不能为空\x1a\bthis > 0R\x02id\"\xa9\x13\n" +
 	"\x10CodeGenTableForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12\x97\x02\n" +
 	"\x04name\x18\x02 \x01(\tB\x82\x02\xbaG\x0f\x92\x02\f业务表名\xbaH\xec\x01\xba\x01@\n" +
@@ -911,7 +927,12 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\x06status\x18\r \x01(\x0e2$.system.common.v1.CodeGenTableStatusB\x9f\x01\xbaGG\x92\x02D状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用\xbaHR\xba\x01J\n" +
 	"\x1ecode_gen_table.status.required\x12\x1e请选择代码生成表状态\x1a\bthis > 0\x82\x01\x02\x10\x01R\x06status\x12u\n" +
 	"\x06remark\x18\x0e \x01(\tB]\xbaG\t\x92\x02\x06备注\xbaHN\xba\x01K\n" +
-	"\x13field.remark.length\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remark\"\x8d\x01\n" +
+	"\x13field.remark.length\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remark\x12\x87\x01\n" +
+	"\vi18n_config\x18\x0f \x03(\v21.system.admin.v1.CodeGenTableForm.I18nConfigEntryB3\xbaG0\x92\x02-按语言区域索引的表级国际化配置R\n" +
+	"i18nConfig\x1ac\n" +
+	"\x0fI18nConfigEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12:\n" +
+	"\x05value\x18\x02 \x01(\v2$.system.admin.v1.CodeGenLocaleConfigR\x05value:\x028\x01\"\x8d\x01\n" +
 	"\x19CreateCodeGenTableRequest\x12p\n" +
 	"\x0ecode_gen_table\x18\x01 \x01(\v2!.system.admin.v1.CodeGenTableFormB'\xbaG\x1e\x92\x02\x1b代码生成表配置表单\xbaH\x03\xc8\x01\x01R\fcodeGenTable\"\xf6\x01\n" +
 	"\x19UpdateCodeGenTableRequest\x12g\n" +
@@ -923,7 +944,7 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\x14CodeGenDatabaseTable\x12)\n" +
 	"\x04name\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据库表名R\x04name\x12/\n" +
 	"\acomment\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f业务表描述R\acomment\x124\n" +
-	"\bdisabled\x18\x03 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否已被选择R\bdisabled\"\xdf\x04\n" +
+	"\bdisabled\x18\x03 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否已被选择R\bdisabled\"\xca\x06\n" +
 	"\fCodeGenTable\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f业务表名R\x04name\x12/\n" +
@@ -937,7 +958,12 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\t \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12Q\n" +
 	"\x11restore_available\x18\n" +
-	" \x01(\bB$\xbaG!\x92\x02\x1e是否可以还原生成结果R\x10restoreAvailable\"\xb0\x03\n" +
+	" \x01(\bB$\xbaG!\x92\x02\x1e是否可以还原生成结果R\x10restoreAvailable\x12\x83\x01\n" +
+	"\vi18n_config\x18\v \x03(\v2-.system.admin.v1.CodeGenTable.I18nConfigEntryB3\xbaG0\x92\x02-按语言区域索引的表级国际化配置R\n" +
+	"i18nConfig\x1ac\n" +
+	"\x0fI18nConfigEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12:\n" +
+	"\x05value\x18\x02 \x01(\v2$.system.admin.v1.CodeGenLocaleConfigR\x05value:\x028\x01\"\xb0\x03\n" +
 	"\x15CodeGenLeftTreeConfig\x127\n" +
 	"\n" +
 	"table_name\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12左树数据表名R\ttableName\x12F\n" +
@@ -968,7 +994,7 @@ func file_system_admin_v1_code_gen_table_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_code_gen_table_proto_rawDescData
 }
 
-var file_system_admin_v1_code_gen_table_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_system_admin_v1_code_gen_table_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_system_admin_v1_code_gen_table_proto_goTypes = []any{
 	(*PageCodeGenTableRequest)(nil),          // 0: system.admin.v1.PageCodeGenTableRequest
 	(*PageCodeGenTableResponse)(nil),         // 1: system.admin.v1.PageCodeGenTableResponse
@@ -982,35 +1008,42 @@ var file_system_admin_v1_code_gen_table_proto_goTypes = []any{
 	(*CodeGenDatabaseTable)(nil),             // 9: system.admin.v1.CodeGenDatabaseTable
 	(*CodeGenTable)(nil),                     // 10: system.admin.v1.CodeGenTable
 	(*CodeGenLeftTreeConfig)(nil),            // 11: system.admin.v1.CodeGenLeftTreeConfig
-	(v1.CodeGenTableStatus)(0),               // 12: system.common.v1.CodeGenTableStatus
-	(*emptypb.Empty)(nil),                    // 13: google.protobuf.Empty
+	nil,                                      // 12: system.admin.v1.CodeGenTableForm.I18nConfigEntry
+	nil,                                      // 13: system.admin.v1.CodeGenTable.I18nConfigEntry
+	(v1.CodeGenTableStatus)(0),               // 14: system.common.v1.CodeGenTableStatus
+	(*CodeGenLocaleConfig)(nil),              // 15: system.admin.v1.CodeGenLocaleConfig
+	(*emptypb.Empty)(nil),                    // 16: google.protobuf.Empty
 }
 var file_system_admin_v1_code_gen_table_proto_depIdxs = []int32{
-	12, // 0: system.admin.v1.PageCodeGenTableRequest.status:type_name -> system.common.v1.CodeGenTableStatus
+	14, // 0: system.admin.v1.PageCodeGenTableRequest.status:type_name -> system.common.v1.CodeGenTableStatus
 	10, // 1: system.admin.v1.PageCodeGenTableResponse.code_gen_tables:type_name -> system.admin.v1.CodeGenTable
 	9,  // 2: system.admin.v1.ListCodeGenDatabaseTableResponse.tables:type_name -> system.admin.v1.CodeGenDatabaseTable
 	11, // 3: system.admin.v1.CodeGenTableForm.left_tree_config:type_name -> system.admin.v1.CodeGenLeftTreeConfig
-	12, // 4: system.admin.v1.CodeGenTableForm.status:type_name -> system.common.v1.CodeGenTableStatus
-	5,  // 5: system.admin.v1.CreateCodeGenTableRequest.code_gen_table:type_name -> system.admin.v1.CodeGenTableForm
-	5,  // 6: system.admin.v1.UpdateCodeGenTableRequest.code_gen_table:type_name -> system.admin.v1.CodeGenTableForm
-	12, // 7: system.admin.v1.CodeGenTable.status:type_name -> system.common.v1.CodeGenTableStatus
-	0,  // 8: system.admin.v1.CodeGenTableService.PageCodeGenTable:input_type -> system.admin.v1.PageCodeGenTableRequest
-	2,  // 9: system.admin.v1.CodeGenTableService.ListCodeGenDatabaseTable:input_type -> system.admin.v1.ListCodeGenDatabaseTableRequest
-	4,  // 10: system.admin.v1.CodeGenTableService.GetCodeGenTable:input_type -> system.admin.v1.GetCodeGenTableRequest
-	6,  // 11: system.admin.v1.CodeGenTableService.CreateCodeGenTable:input_type -> system.admin.v1.CreateCodeGenTableRequest
-	7,  // 12: system.admin.v1.CodeGenTableService.UpdateCodeGenTable:input_type -> system.admin.v1.UpdateCodeGenTableRequest
-	8,  // 13: system.admin.v1.CodeGenTableService.DeleteCodeGenTable:input_type -> system.admin.v1.DeleteCodeGenTableRequest
-	1,  // 14: system.admin.v1.CodeGenTableService.PageCodeGenTable:output_type -> system.admin.v1.PageCodeGenTableResponse
-	3,  // 15: system.admin.v1.CodeGenTableService.ListCodeGenDatabaseTable:output_type -> system.admin.v1.ListCodeGenDatabaseTableResponse
-	5,  // 16: system.admin.v1.CodeGenTableService.GetCodeGenTable:output_type -> system.admin.v1.CodeGenTableForm
-	13, // 17: system.admin.v1.CodeGenTableService.CreateCodeGenTable:output_type -> google.protobuf.Empty
-	13, // 18: system.admin.v1.CodeGenTableService.UpdateCodeGenTable:output_type -> google.protobuf.Empty
-	13, // 19: system.admin.v1.CodeGenTableService.DeleteCodeGenTable:output_type -> google.protobuf.Empty
-	14, // [14:20] is the sub-list for method output_type
-	8,  // [8:14] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	14, // 4: system.admin.v1.CodeGenTableForm.status:type_name -> system.common.v1.CodeGenTableStatus
+	12, // 5: system.admin.v1.CodeGenTableForm.i18n_config:type_name -> system.admin.v1.CodeGenTableForm.I18nConfigEntry
+	5,  // 6: system.admin.v1.CreateCodeGenTableRequest.code_gen_table:type_name -> system.admin.v1.CodeGenTableForm
+	5,  // 7: system.admin.v1.UpdateCodeGenTableRequest.code_gen_table:type_name -> system.admin.v1.CodeGenTableForm
+	14, // 8: system.admin.v1.CodeGenTable.status:type_name -> system.common.v1.CodeGenTableStatus
+	13, // 9: system.admin.v1.CodeGenTable.i18n_config:type_name -> system.admin.v1.CodeGenTable.I18nConfigEntry
+	15, // 10: system.admin.v1.CodeGenTableForm.I18nConfigEntry.value:type_name -> system.admin.v1.CodeGenLocaleConfig
+	15, // 11: system.admin.v1.CodeGenTable.I18nConfigEntry.value:type_name -> system.admin.v1.CodeGenLocaleConfig
+	0,  // 12: system.admin.v1.CodeGenTableService.PageCodeGenTable:input_type -> system.admin.v1.PageCodeGenTableRequest
+	2,  // 13: system.admin.v1.CodeGenTableService.ListCodeGenDatabaseTable:input_type -> system.admin.v1.ListCodeGenDatabaseTableRequest
+	4,  // 14: system.admin.v1.CodeGenTableService.GetCodeGenTable:input_type -> system.admin.v1.GetCodeGenTableRequest
+	6,  // 15: system.admin.v1.CodeGenTableService.CreateCodeGenTable:input_type -> system.admin.v1.CreateCodeGenTableRequest
+	7,  // 16: system.admin.v1.CodeGenTableService.UpdateCodeGenTable:input_type -> system.admin.v1.UpdateCodeGenTableRequest
+	8,  // 17: system.admin.v1.CodeGenTableService.DeleteCodeGenTable:input_type -> system.admin.v1.DeleteCodeGenTableRequest
+	1,  // 18: system.admin.v1.CodeGenTableService.PageCodeGenTable:output_type -> system.admin.v1.PageCodeGenTableResponse
+	3,  // 19: system.admin.v1.CodeGenTableService.ListCodeGenDatabaseTable:output_type -> system.admin.v1.ListCodeGenDatabaseTableResponse
+	5,  // 20: system.admin.v1.CodeGenTableService.GetCodeGenTable:output_type -> system.admin.v1.CodeGenTableForm
+	16, // 21: system.admin.v1.CodeGenTableService.CreateCodeGenTable:output_type -> google.protobuf.Empty
+	16, // 22: system.admin.v1.CodeGenTableService.UpdateCodeGenTable:output_type -> google.protobuf.Empty
+	16, // 23: system.admin.v1.CodeGenTableService.DeleteCodeGenTable:output_type -> google.protobuf.Empty
+	18, // [18:24] is the sub-list for method output_type
+	12, // [12:18] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_code_gen_table_proto_init() }
@@ -1018,6 +1051,7 @@ func file_system_admin_v1_code_gen_table_proto_init() {
 	if File_system_admin_v1_code_gen_table_proto != nil {
 		return
 	}
+	file_system_admin_v1_base_translation_proto_init()
 	file_system_admin_v1_code_gen_table_proto_msgTypes[0].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -1025,7 +1059,7 @@ func file_system_admin_v1_code_gen_table_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_code_gen_table_proto_rawDesc), len(file_system_admin_v1_code_gen_table_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

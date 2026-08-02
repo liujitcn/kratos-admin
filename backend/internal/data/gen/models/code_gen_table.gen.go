@@ -23,6 +23,7 @@ type CodeGenTable struct {
 	ParentColumn    string                `gorm:"column:parent_column;type:varchar(64);comment:树形表格父节点字段" json:"parent_column"`                                                                 // 树形表格父节点字段
 	TreeLabelColumn string                `gorm:"column:tree_label_column;type:varchar(64);comment:树节点显示字段" json:"tree_label_column"`                                                           // 树节点显示字段
 	LeftTreeConfig  string                `gorm:"column:left_tree_config;type:json;comment:左树配置JSON" json:"left_tree_config"`                                                                   // 左树配置JSON
+	I18NConfig      string                `gorm:"column:i18n_config;type:json;comment:表级国际化配置JSON" json:"i18n_config"`                                                                          // 表级国际化配置JSON
 	GenBackend      int32                 `gorm:"column:gen_backend;type:tinyint;not null;comment:是否生成后端" json:"gen_backend"`                                                                   // 是否生成后端
 	GenFrontend     int32                 `gorm:"column:gen_frontend;type:tinyint;not null;comment:是否生成前端" json:"gen_frontend"`                                                                 // 是否生成前端
 	GenSql          int32                 `gorm:"column:gen_sql;type:tinyint;not null;comment:是否生成建表SQL" json:"gen_sql"`                                                                        // 是否生成建表SQL

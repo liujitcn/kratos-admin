@@ -1,5 +1,6 @@
 import { ElMessageBox, ElMessage } from "element-plus";
 import { HandleData } from "./interface";
+import { t } from "@/locales";
 
 /**
  * @description 操作单条数据信息 (二次确认【删除、禁用、启用、重置密码】)
@@ -16,9 +17,9 @@ export const useHandleData = (
   confirmType: HandleData.MessageType = "warning"
 ) => {
   return new Promise((resolve, reject) => {
-    ElMessageBox.confirm(`是否${message}?`, "温馨提示", {
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
+    ElMessageBox.confirm(t("core.data.confirmAction", { action: message }), t("common.title.warning"), {
+      confirmButtonText: t("common.action.confirm"),
+      cancelButtonText: t("common.action.cancel"),
       type: confirmType,
       draggable: true
     })
@@ -27,7 +28,7 @@ export const useHandleData = (
         if (!res) return reject(false);
         ElMessage({
           type: "success",
-          message: `${message}成功!`
+          message: t("core.data.operationSuccess", { action: message })
         });
         resolve(true);
       })

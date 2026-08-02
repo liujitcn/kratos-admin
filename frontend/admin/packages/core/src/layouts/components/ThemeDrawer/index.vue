@@ -1,12 +1,12 @@
 <template>
-  <el-drawer v-model="drawerVisible" title="布局设置" size="290px">
+  <el-drawer v-model="drawerVisible" :title="t('core.theme.settings')" size="290px">
     <!-- 布局样式 -->
     <el-divider class="divider" content-position="center">
       <el-icon><Notification /></el-icon>
-      布局样式
+      {{ t("core.theme.layout") }}
     </el-divider>
     <div class="layout-box">
-      <el-tooltip effect="dark" content="纵向" placement="top" :show-after="200">
+      <el-tooltip effect="dark" :content="t('core.theme.layout.vertical')" placement="top" :show-after="200">
         <div :class="['layout-item layout-vertical', { 'is-active': layout == 'vertical' }]" @click="setLayout('vertical')">
           <div class="layout-dark"></div>
           <div class="layout-container">
@@ -18,7 +18,7 @@
           </el-icon>
         </div>
       </el-tooltip>
-      <el-tooltip effect="dark" content="经典" placement="top" :show-after="200">
+      <el-tooltip effect="dark" :content="t('core.theme.layout.classic')" placement="top" :show-after="200">
         <div :class="['layout-item layout-classic', { 'is-active': layout == 'classic' }]" @click="setLayout('classic')">
           <div class="layout-dark"></div>
           <div class="layout-container">
@@ -30,7 +30,7 @@
           </el-icon>
         </div>
       </el-tooltip>
-      <el-tooltip effect="dark" content="横向" placement="top" :show-after="200">
+      <el-tooltip effect="dark" :content="t('core.theme.layout.transverse')" placement="top" :show-after="200">
         <div :class="['layout-item layout-transverse', { 'is-active': layout == 'transverse' }]" @click="setLayout('transverse')">
           <div class="layout-dark"></div>
           <div class="layout-content"></div>
@@ -39,7 +39,7 @@
           </el-icon>
         </div>
       </el-tooltip>
-      <el-tooltip effect="dark" content="分栏" placement="top" :show-after="200">
+      <el-tooltip effect="dark" :content="t('core.theme.layout.columns')" placement="top" :show-after="200">
         <div :class="['layout-item layout-columns', { 'is-active': layout == 'columns' }]" @click="setLayout('columns')">
           <div class="layout-dark"></div>
           <div class="layout-light"></div>
@@ -52,8 +52,8 @@
     </div>
     <div class="theme-item">
       <span>
-        侧边栏反转色
-        <el-tooltip effect="dark" content="侧边栏颜色变为深色模式" placement="top">
+        {{ t("core.theme.asideInverted") }}
+        <el-tooltip effect="dark" :content="t('core.theme.asideInvertedTip')" placement="top">
           <el-icon><QuestionFilled /></el-icon>
         </el-tooltip>
       </span>
@@ -61,8 +61,8 @@
     </div>
     <div class="theme-item mb50">
       <span>
-        头部反转色
-        <el-tooltip effect="dark" content="头部颜色变为深色模式" placement="top">
+        {{ t("core.theme.headerInverted") }}
+        <el-tooltip effect="dark" :content="t('core.theme.headerInvertedTip')" placement="top">
           <el-icon><QuestionFilled /></el-icon>
         </el-tooltip>
       </span>
@@ -72,60 +72,60 @@
     <!-- 全局主题 -->
     <el-divider class="divider" content-position="center">
       <el-icon><ColdDrink /></el-icon>
-      全局主题
+      {{ t("core.theme.global") }}
     </el-divider>
     <div class="theme-item">
-      <span>主题颜色</span>
+      <span>{{ t("core.theme.color") }}</span>
       <el-color-picker v-model="primary" :predefine="colorList" @change="changePrimary" />
     </div>
     <div class="theme-item">
-      <span>暗黑模式</span>
+      <span>{{ t("core.theme.dark") }}</span>
       <SwitchDark />
     </div>
     <div class="theme-item">
-      <span>灰色模式</span>
+      <span>{{ t("core.theme.grey") }}</span>
       <el-switch v-model="isGrey" @change="changeGreyOrWeak('grey', !!$event)" />
     </div>
     <div class="theme-item mb40">
-      <span>色弱模式</span>
+      <span>{{ t("core.theme.weak") }}</span>
       <el-switch v-model="isWeak" @change="changeGreyOrWeak('weak', !!$event)" />
     </div>
 
     <!-- 界面设置 -->
     <el-divider class="divider" content-position="center">
       <el-icon><Setting /></el-icon>
-      界面设置
+      {{ t("core.theme.interface") }}
     </el-divider>
     <div class="theme-item">
-      <span>菜单折叠</span>
+      <span>{{ t("core.theme.menuCollapse") }}</span>
       <el-switch v-model="isCollapse" />
     </div>
     <div class="theme-item">
-      <span>菜单手风琴</span>
+      <span>{{ t("core.theme.accordion") }}</span>
       <el-switch v-model="accordion" />
     </div>
     <div class="theme-item">
-      <span>水印</span>
+      <span>{{ t("core.theme.watermark") }}</span>
       <el-switch v-model="watermark" />
     </div>
     <div class="theme-item">
-      <span>面包屑</span>
+      <span>{{ t("core.theme.breadcrumb") }}</span>
       <el-switch v-model="breadcrumb" />
     </div>
     <div class="theme-item">
-      <span>面包屑图标</span>
+      <span>{{ t("core.theme.breadcrumbIcon") }}</span>
       <el-switch v-model="breadcrumbIcon" />
     </div>
     <div class="theme-item">
-      <span>标签栏</span>
+      <span>{{ t("core.theme.tabs") }}</span>
       <el-switch v-model="tabs" />
     </div>
     <div class="theme-item">
-      <span>标签栏图标</span>
+      <span>{{ t("core.theme.tabsIcon") }}</span>
       <el-switch v-model="tabsIcon" />
     </div>
     <div class="theme-item">
-      <span>页脚</span>
+      <span>{{ t("core.theme.footer") }}</span>
       <el-switch v-model="footer" />
     </div>
   </el-drawer>
@@ -140,6 +140,9 @@ import { LayoutType } from "@/stores/interface";
 import { DEFAULT_PRIMARY } from "@/config";
 import mittBus from "@/utils/mittBus";
 import SwitchDark from "@/components/SwitchDark/index.vue";
+import { useLocaleStore } from "@/locales";
+
+const { t } = useLocaleStore();
 
 const { changePrimary, changeGreyOrWeak, setAsideTheme, setHeaderTheme } = useTheme();
 

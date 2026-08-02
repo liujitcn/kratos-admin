@@ -1,6 +1,6 @@
-import { Button, Image, Input, Text, View } from '@tarojs/components'
+import { Button, Image, Input, Picker, Text, View } from '@tarojs/components'
 import Taro, { useLoad } from '@tarojs/taro'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import defaultLogo from '@liujitcn/kratos-taro-app-core/static/images/logo_icon.png'
 import { defLoginService } from '../../../api/base/login'
 import { navigateAppRoute } from '../../../navigation'
@@ -14,6 +14,12 @@ import type {
   BehaviorCaptchaPoint,
 } from './components/types'
 import './login.scss'
+import {
+  SUPPORTED_LOCALES,
+  t as translate,
+  useI18n,
+  type SupportedLocale,
+} from '../../../locales'
 
 const behaviorCaptchaTypes = new Set(['slide', 'click', 'rotate'])
 const wechatMiniProvider = 'wechatmini'
@@ -43,11 +49,9 @@ function isWechatUnboundError(error: unknown): boolean {
     }
   }
   const reason = response.data?.reason ?? response.data?.error?.reason
-  const message = response.data?.message ?? response.data?.error?.message
   return (
     response.data?.binding_required === true ||
-    String(reason || '') === 'UNAUTHENTICATED' ||
-    message === '微信账号未绑定，请先绑定已有账号'
+    String(reason || '') === 'UNAUTHENTICATED'
   )
 }
 
@@ -62,7 +66,7 @@ async function resolveMiniCaptchaImage(payload: string, captchaId: string): Prom
       data: payload.slice(commaIndex + 1),
       encoding: 'base64',
       success: () => resolve(),
-      fail: () => reject(new Error('验证码图片写入失败')),
+      fail: () => reject(new Error(translate('core.login.captchaWriteFailed'))),
     })
   })
   return filePath
@@ -70,6 +74,7 @@ async function resolveMiniCaptchaImage(payload: string, captchaId: string): Prom
 
 /** 账号和微信授权登录页。 */
 export default function LoginPage() {
+  const { locale, setLocale, t } = useI18n()
   const settings = useSettingStore((state) => state.data)
   const loadSettings = useSettingStore((state) => state.loadData)
   const userStore = useUserStore.getState()
@@ -91,8 +96,8 @@ export default function LoginPage() {
   const [miniForm, setMiniForm] = useState(emptyLoginForm)
   const [miniPassword, setMiniPassword] = useState('')
 
-  const mainTitle = settings?.get('mainTitle') || '应用框架示例'
-  const subTitle = settings?.get('subTitle') || '欢迎使用本应用'
+  const mainTitle = settings?.get('mainTitle') || t('core.home.mainTitle')
+  const subTitle = settings?.get('subTitle') || t('core.login.defaultSubTitle')
   const appLogo = settings?.get('appLogo') || defaultLogo
   const showTenantCode = settings?.get('showTenantCode') !== 'false'
   const configuredCaptchaType = settings?.get('captchaType') || ''
@@ -112,7 +117,7 @@ export default function LoginPage() {
         verticalPadding: 0,
         horizontalPadding: 0,
         iconSize: 20,
-        title: '拖动滑块，将内圈图片转正',
+        title: t('core.login.behaviorRotate'),
       }
     }
     return {
@@ -123,10 +128,10 @@ export default function LoginPage() {
       showTheme: false,
       verticalPadding: 0,
       horizontalPadding: 0,
-      buttonText: '确认',
+      buttonText: t('common.action.confirm'),
       iconSize: 20,
       dotSize: 20,
-      title: captchaType === 'click' ? '请按顺序点击文字' : '请拖动滑块完成拼图',
+      title: captchaType === 'click' ? t('core.login.behaviorClick') : t('core.login.behaviorPuzzle'),
     }
   }, [
     behaviorData.thumbHeight,
@@ -134,7 +139,12 @@ export default function LoginPage() {
     behaviorHeight,
     behaviorWidth,
     captchaType,
+    locale,
   ]) as unknown as Record<string, string | number | boolean>
+
+  useEffect(() => {
+    void Taro.setNavigationBarTitle({ title: t('common.action.login') })
+  }, [locale])
 
   const updateForm = (key: keyof LoginRequest, value: string) => {
     setForm((current) => ({ ...current, [key]: value }))
@@ -144,9 +154,9 @@ export default function LoginPage() {
   }
 
   const refreshCaptcha = async (requestedType = captchaType || configuredCaptchaType) => {
-    if (!requestedType) throw new Error('登录验证码类型未配置')
+    if (!requestedType) throw new Error(t('core.login.captchaTypeMissing'))
     const data = await defLoginService.Captcha({ type: requestedType })
-    if (!data.type) throw new Error('验证码接口未返回类型')
+    if (!data.type) throw new Error(t('core.login.captchaTypeResponseMissing'))
     setCaptchaType(data.type)
     setForm((current) => ({ ...current, captcha_id: data.captcha_id, captcha_code: '' }))
     if (!behaviorCaptchaTypes.has(data.type)) {
@@ -189,7 +199,7 @@ export default function LoginPage() {
         captcha_code: '',
       }))
     } catch {
-      await Taro.showToast({ icon: 'none', title: '验证码加载失败' })
+      await Taro.showToast({ icon: 'none', title: t('core.login.captchaLoadFailed') })
     }
   }
 
@@ -201,7 +211,7 @@ export default function LoginPage() {
         await loadSettings()
         const nextCaptchaType = useSettingStore.getState().getData('captchaType')
         if (process.env.TARO_ENV === 'h5') {
-          if (!nextCaptchaType) throw new Error('登录验证码类型未配置')
+          if (!nextCaptchaType) throw new Error(t('core.login.captchaTypeMissing'))
           setCaptchaType(nextCaptchaType)
           if (!behaviorCaptchaTypes.has(nextCaptchaType)) await refreshCaptcha(nextCaptchaType)
         } else {
@@ -212,7 +222,7 @@ export default function LoginPage() {
       } catch (error) {
         await Taro.showToast({
           icon: 'none',
-          title: error instanceof Error ? error.message : '移动端配置加载失败',
+          title: error instanceof Error ? error.message : t('core.protocol.loadFailed'),
         })
         settingsPromise.current = undefined
         return false
@@ -229,17 +239,17 @@ export default function LoginPage() {
     if (!(await loadLoginSettings())) return false
     const currentSettings = useSettingStore.getState()
     if (!currentSettings.getData('serviceProtocol') || !currentSettings.getData('privacyProtocol')) {
-      await Taro.showToast({ icon: 'none', title: '服务条款和隐私协议未配置' })
+      await Taro.showToast({ icon: 'none', title: t('core.login.protocolMissing') })
       return false
     }
     if (agreed) return true
     setShake(true)
     setTimeout(() => setShake(false), 500)
     const result = await Taro.showModal({
-      title: '提示',
-      content: '请先阅读并勾选协议内容，点击确定后将自动勾选并继续登录',
-      confirmText: '确定',
-      cancelText: '取消',
+      title: t('common.title.notice'),
+      content: t('core.login.protocolPrompt'),
+      confirmText: t('common.action.confirm'),
+      cancelText: t('common.action.cancel'),
     })
     if (result.confirm) setAgreed(true)
     return result.confirm
@@ -248,7 +258,7 @@ export default function LoginPage() {
   /** 完成用户资料加载并恢复登录前页面。 */
   const loginSuccess = async () => {
     await userStore.getUserProfile()
-    await Taro.showToast({ icon: 'success', title: '登录成功' })
+    await Taro.showToast({ icon: 'success', title: t('core.login.loginSuccess') })
     await new Promise<void>((resolve) => setTimeout(resolve, 500))
     await restoreLoginRedirect()
   }
@@ -256,10 +266,10 @@ export default function LoginPage() {
   const validateLoginForm = async () => {
     if (!(await loadLoginSettings())) return false
     const validations: Array<[boolean, string]> = [
-      [!showTenantCode || Boolean(form.tenant_code), '请输入租户编号'],
-      [Boolean(form.user_name), '请输入用户名或手机号'],
-      [Boolean(password), '请输入密码'],
-      [isBehaviorCaptcha || Boolean(form.captcha_code), '请输入验证码'],
+      [!showTenantCode || Boolean(form.tenant_code), t('core.login.tenant')],
+      [Boolean(form.user_name), t('core.login.userName')],
+      [Boolean(password), t('core.login.password')],
+      [isBehaviorCaptcha || Boolean(form.captcha_code), t('core.login.captcha')],
     ]
     const failed = validations.find(([valid]) => !valid)
     if (failed) {
@@ -298,7 +308,7 @@ export default function LoginPage() {
     } catch (error) {
       await refreshCaptcha().catch(() => undefined)
       if (error instanceof Error) {
-        await Taro.showToast({ icon: 'none', title: error.message || '登录失败，请重试' })
+        await Taro.showToast({ icon: 'none', title: error.message || t('core.login.loginFailed') })
       }
     } finally {
       setLoading(false)
@@ -359,7 +369,7 @@ export default function LoginPage() {
         setMiniBinding(true)
         await refreshMiniCaptcha()
       } else {
-        await Taro.showToast({ icon: 'none', title: '微信登录失败，请稍后重试' })
+        await Taro.showToast({ icon: 'none', title: t('core.login.wechatFailed') })
       }
     } finally {
       setLoading(false)
@@ -369,9 +379,9 @@ export default function LoginPage() {
   const bindMiniAccount = async () => {
     if (loading || !(await checkedAgreePrivacy())) return
     const failed = [
-      [showTenantCode && !miniForm.tenant_code, '请输入租户编号'],
-      [!miniForm.user_name || !miniPassword, '请输入用户名和密码'],
-      [!miniForm.captcha_id || !miniForm.captcha_code, '请输入验证码'],
+      [showTenantCode && !miniForm.tenant_code, t('core.login.tenant')],
+      [!miniForm.user_name || !miniPassword, t('core.login.userNamePassword')],
+      [!miniForm.captcha_id || !miniForm.captcha_code, t('core.login.captcha')],
     ].find(([invalid]) => invalid)
     if (failed) {
       await Taro.showToast({ icon: 'none', title: String(failed[1]) })
@@ -403,7 +413,7 @@ export default function LoginPage() {
     <View className={`login-tips${shake ? ' login-tips--shake' : ''}`}>
       <View className='login-agreement' onClick={() => setAgreed((value) => !value)}>
         <View className={`login-agree-icon${agreed ? ' checked' : ''}`} />
-        <Text className='login-agree-desc'>我已阅读并同意</Text>
+        <Text className='login-agree-desc'>{t('core.login.agreePrefix')}</Text>
         <Text
           className='login-agree-link'
           onClick={(event) => {
@@ -411,9 +421,9 @@ export default function LoginPage() {
             navigateAppRoute('app/protocol/service')
           }}
         >
-          《服务条款》
+          {t('core.login.service')}
         </Text>
-        <Text className='login-agree-separator'>和</Text>
+        <Text className='login-agree-separator'>{t('core.login.agreeSeparator')}</Text>
         <Text
           className='login-agree-link'
           onClick={(event) => {
@@ -421,7 +431,7 @@ export default function LoginPage() {
             navigateAppRoute('app/protocol/privacy')
           }}
         >
-          《隐私协议》
+          {t('core.login.privacy')}
         </Text>
       </View>
     </View>
@@ -429,6 +439,18 @@ export default function LoginPage() {
 
   return (
     <View className='login-page'>
+      <Picker
+        className='login-locale'
+        mode='selector'
+        range={SUPPORTED_LOCALES.map((item) => t(`common.language.${item}`))}
+        value={Math.max(0, SUPPORTED_LOCALES.indexOf(locale))}
+        onChange={(event) => {
+          const nextLocale = SUPPORTED_LOCALES[Number(event.detail.value)] as SupportedLocale | undefined
+          if (nextLocale) void setLocale(nextLocale)
+        }}
+      >
+        <View className='login-locale__value'>{t(`common.language.${locale}`)}</View>
+      </Picker>
       <View className='login-hero'>
         <View className='login-logo-shell'>
           <Image className='login-logo' src={appLogo} />
@@ -442,24 +464,24 @@ export default function LoginPage() {
         {process.env.TARO_ENV === 'h5' ? (
           <View className='login-form'>
             {showTenantCode ? (
-              <Input className='login-input' placeholder='请输入租户编号' value={form.tenant_code} onInput={(event) => updateForm('tenant_code', event.detail.value)} />
+              <Input className='login-input' placeholder={t('core.login.tenant')} value={form.tenant_code} onInput={(event) => updateForm('tenant_code', event.detail.value)} />
             ) : null}
-            <Input className='login-input' placeholder='请输入用户名/手机号码' value={form.user_name} onInput={(event) => updateForm('user_name', event.detail.value)} />
-            <Input className='login-input' password placeholder='请输入密码' value={password} onInput={(event) => setPassword(event.detail.value)} onConfirm={() => void onSubmit()} />
+            <Input className='login-input' placeholder={t('core.login.userNameMobile')} value={form.user_name} onInput={(event) => updateForm('user_name', event.detail.value)} />
+            <Input className='login-input' password placeholder={t('core.login.password')} value={password} onInput={(event) => setPassword(event.detail.value)} onConfirm={() => void onSubmit()} />
             {!isBehaviorCaptcha ? (
               <View className='captcha-row'>
-                <Input className='login-input captcha-input' placeholder='请输入验证码' value={form.captcha_code} onInput={(event) => updateForm('captcha_code', event.detail.value)} onConfirm={() => void onSubmit()} />
+                <Input className='login-input captcha-input' placeholder={t('core.login.captcha')} value={form.captcha_code} onInput={(event) => updateForm('captcha_code', event.detail.value)} onConfirm={() => void onSubmit()} />
                 <View className='captcha-divider' />
                 <View className='captcha-trigger' onClick={() => void refreshCaptcha()}>
                   <Image className='captcha-image' src={captchaImage} mode='aspectFit' />
                 </View>
               </View>
             ) : null}
-            <Button className='login-button login-button-primary' loading={loading} onClick={() => void onSubmit()}>登录</Button>
+            <Button className='login-button login-button-primary' loading={loading} onClick={() => void onSubmit()}>{t('common.action.login')}</Button>
             {behaviorVisible ? (
               <View className='login-behavior-mask'>
                 <View className='login-behavior-panel'>
-                  {behaviorLoading ? <View className='login-behavior-loading'>加载中...</View> : null}
+                  {behaviorLoading ? <View className='login-behavior-loading'>{t('core.login.behaviorLoading')}</View> : null}
                   <BehaviorCaptcha type={captchaType} data={behaviorData} config={behaviorConfig} onConfirm={(value, reset) => void verifyBehaviorCaptcha(value, reset)} onRefresh={() => void refreshCaptcha()} onClose={() => setBehaviorVisible(false)} />
                 </View>
               </View>
@@ -467,20 +489,20 @@ export default function LoginPage() {
           </View>
         ) : !miniBinding ? (
           <Button className='login-button login-button-primary' loading={loading} onClick={() => void wxLogin()}>
-            <Text className='login-phone-icon'>☎</Text>微信一键登录
+            <Text className='login-phone-icon'>☎</Text>{t('core.login.wechat')}
           </Button>
         ) : (
           <View className='login-form'>
-            <View className='login-bind-tip'>该微信尚未绑定，请登录已有账号完成绑定</View>
-            {showTenantCode ? <Input className='login-input' placeholder='请输入租户编号' value={miniForm.tenant_code} onInput={(event) => updateMiniForm('tenant_code', event.detail.value)} /> : null}
-            <Input className='login-input' placeholder='请输入用户名/手机号码' value={miniForm.user_name} onInput={(event) => updateMiniForm('user_name', event.detail.value)} />
-            <Input className='login-input' password placeholder='请输入密码' value={miniPassword} onInput={(event) => setMiniPassword(event.detail.value)} />
+            <View className='login-bind-tip'>{t('core.login.wechatBindTip')}</View>
+            {showTenantCode ? <Input className='login-input' placeholder={t('core.login.tenant')} value={miniForm.tenant_code} onInput={(event) => updateMiniForm('tenant_code', event.detail.value)} /> : null}
+            <Input className='login-input' placeholder={t('core.login.userNameMobile')} value={miniForm.user_name} onInput={(event) => updateMiniForm('user_name', event.detail.value)} />
+            <Input className='login-input' password placeholder={t('core.login.password')} value={miniPassword} onInput={(event) => setMiniPassword(event.detail.value)} />
             <View className='captcha-row'>
-              <Input className='login-input captcha-input' placeholder='请输入验证码' value={miniForm.captcha_code} onInput={(event) => updateMiniForm('captcha_code', event.detail.value)} />
+              <Input className='login-input captcha-input' placeholder={t('core.login.captcha')} value={miniForm.captcha_code} onInput={(event) => updateMiniForm('captcha_code', event.detail.value)} />
               <View className='captcha-divider' />
               <View className='captcha-trigger' onClick={() => void refreshMiniCaptcha()}><Image className='captcha-image' src={miniCaptchaImage} mode='aspectFit' /></View>
             </View>
-            <Button className='login-button login-button-primary' loading={loading} onClick={() => void bindMiniAccount()}>登录并绑定微信</Button>
+            <Button className='login-button login-button-primary' loading={loading} onClick={() => void bindMiniAccount()}>{t('core.login.bindWechat')}</Button>
           </View>
         )}
         {agreement}

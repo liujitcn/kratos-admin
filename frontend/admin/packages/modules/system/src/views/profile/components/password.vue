@@ -4,10 +4,10 @@
       <template #header>
         <div class="panel-header">
           <div>
-            <h3>修改密码</h3>
-            <p>更新当前登录密码，保持账号安全。</p>
+            <h3>{{ t("system.profile.password.title") }}</h3>
+            <p>{{ t("system.profile.password.description") }}</p>
           </div>
-          <el-tag type="warning" effect="plain">建议高强度</el-tag>
+          <el-tag type="warning" effect="plain">{{ t("system.profile.password.value.strongRecommended") }}</el-tag>
         </div>
       </template>
       <div class="password-layout">
@@ -21,25 +21,27 @@
           />
           <PasswordStrength :password="passwordForm.new_pwd" class="password-form-wrap__strength" />
           <div class="password-footer">
-            <el-button @click="resetPasswordForm">重置</el-button>
-            <el-button type="primary" :loading="submitLoading" @click="handleSubmitPassword">更新密码</el-button>
+            <el-button @click="resetPasswordForm">{{ t("common.action.reset") }}</el-button>
+            <el-button type="primary" :loading="submitLoading" @click="handleSubmitPassword">
+              {{ t("system.profile.password.action.update") }}
+            </el-button>
           </div>
         </div>
         <div class="password-tips">
           <div class="tip-card">
             <span class="tip-badge">01</span>
-            <strong>避免重复密码</strong>
-            <p>不要重复使用旧密码或其他系统已使用密码。</p>
+            <strong>{{ t("system.profile.password.tip.uniqueTitle") }}</strong>
+            <p>{{ t("system.profile.password.tip.uniqueDescription") }}</p>
           </div>
           <div class="tip-card">
             <span class="tip-badge">02</span>
-            <strong>控制密码强度</strong>
-            <p>建议使用大小写字母、数字和符号组合。</p>
+            <strong>{{ t("system.profile.password.tip.strengthTitle") }}</strong>
+            <p>{{ t("system.profile.password.tip.strengthDescription") }}</p>
           </div>
           <div class="tip-card">
             <span class="tip-badge">03</span>
-            <strong>及时更新记录</strong>
-            <p>如有账号交接，请同步更新保管记录。</p>
+            <strong>{{ t("system.profile.password.tip.recordTitle") }}</strong>
+            <p>{{ t("system.profile.password.tip.recordDescription") }}</p>
           </div>
         </div>
       </div>
@@ -50,6 +52,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
+import { t } from "@liujitcn/kratos-admin-core";
 import { defProfileAuthService } from "@liujitcn/kratos-admin-system/api/system/auth";
 import type { UserPasswordForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/auth";
 import PasswordStrength from "@liujitcn/kratos-admin-core/components/PasswordStrength/index.vue";
@@ -57,10 +60,8 @@ import ProForm from "@liujitcn/kratos-admin-core/components/ProForm/index.vue";
 import type { ProFormField, ProFormInstance } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { LOGIN_URL } from "@liujitcn/kratos-admin-core/config";
 import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
-import { ElMessage } from "element-plus";
 import {
   PASSWORD_CRYPTO_SCENE,
-  PASSWORD_STRENGTH_ERROR_MESSAGE,
   encryptPassword,
   getPasswordStrength,
   validatePasswordStrengthValue
@@ -86,20 +87,35 @@ const passwordForm = reactive<UserPasswordFormState>({
   confirm_pwd: ""
 });
 
-const passwordFormFields: ProFormField[] = [
-  { prop: "old_pwd", label: "原密码", component: "password", props: { placeholder: "请输入原密码" } },
-  { prop: "new_pwd", label: "新密码", component: "password", props: { placeholder: "请输入新密码" } },
-  { prop: "confirm_pwd", label: "确认密码", component: "password", props: { placeholder: "请再次输入新密码" } }
-];
+const passwordFormFields = computed<ProFormField[]>(() => [
+  {
+    prop: "old_pwd",
+    label: t("system.profile.password.field.oldPassword"),
+    component: "password",
+    props: { placeholder: t("system.profile.password.placeholder.oldPassword") }
+  },
+  {
+    prop: "new_pwd",
+    label: t("system.profile.password.field.newPassword"),
+    component: "password",
+    props: { placeholder: t("system.profile.password.placeholder.newPassword") }
+  },
+  {
+    prop: "confirm_pwd",
+    label: t("system.profile.password.field.confirmPassword"),
+    component: "password",
+    props: { placeholder: t("system.profile.password.placeholder.confirmPassword") }
+  }
+]);
 
-const passwordFormRules = {
-  old_pwd: [{ required: true, message: "请输入原密码", trigger: "blur" }],
+const passwordFormRules = computed(() => ({
+  old_pwd: [{ required: true, message: t("system.profile.password.placeholder.oldPassword"), trigger: "blur" }],
   new_pwd: [
-    { required: true, message: "请输入新密码", trigger: "blur" },
+    { required: true, message: t("system.profile.password.placeholder.newPassword"), trigger: "blur" },
     { validator: validatePasswordStrength, trigger: "blur" }
   ],
-  confirm_pwd: [{ required: true, message: "请再次输入新密码", trigger: "blur" }]
-};
+  confirm_pwd: [{ required: true, message: t("system.profile.password.placeholder.confirmPassword"), trigger: "blur" }]
+}));
 
 /** 统一计算当前新密码强度，供展示和提交校验复用。 */
 const passwordStrength = computed(() => getPasswordStrength(passwordForm.new_pwd));
@@ -108,11 +124,11 @@ const passwordStrength = computed(() => getPasswordStrength(passwordForm.new_pwd
 async function handleSubmitPassword() {
   if (!(await passwordFormRef.value?.validate())) return;
   if (passwordForm.new_pwd !== passwordForm.confirm_pwd) {
-    ElMessage.error("两次输入的密码不一致");
+    ElMessage.error(t("system.profile.password.message.mismatch"));
     return;
   }
   if (!passwordStrength.value.isValid) {
-    ElMessage.error("新密码强度不足，请提升到最高强度");
+    ElMessage.error(t("system.profile.password.message.strengthInsufficient"));
     return;
   }
 
@@ -125,7 +141,7 @@ async function handleSubmitPassword() {
       new_pwd: newPwd
     };
     await defProfileAuthService.UpdateUserPassword({ user_password: userPassword });
-    ElMessage.success("密码修改成功，请重新登录");
+    ElMessage.success(t("system.profile.password.message.updated"));
     resetPasswordForm();
     await forceRelogin();
   } finally {
@@ -167,7 +183,7 @@ function validatePasswordStrength(_rule: unknown, value: string, callback: (erro
   }
   const result = validatePasswordStrengthValue(value);
   if (!result.valid) {
-    callback(new Error(result.message || PASSWORD_STRENGTH_ERROR_MESSAGE));
+    callback(new Error(t("core.password.error")));
     return;
   }
   callback();

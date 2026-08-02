@@ -1,9 +1,9 @@
 <template>
   <div v-loading="loading" class="table-box project-doc-page">
     <main class="project-doc-shell">
-      <aside class="document-navigation" aria-label="项目文档目录">
+      <aside class="document-navigation" :aria-label="t('system.projectDoc.title.navigation')">
         <header class="navigation-header">
-          <el-input v-model="keyword" clearable placeholder="搜索项目或路径" :prefix-icon="Search" />
+          <el-input v-model="keyword" clearable :placeholder="t('system.projectDoc.placeholder.search')" :prefix-icon="Search" />
           <span class="document-count">{{ filteredDocumentCount }} / {{ documents.length }}</span>
         </header>
 
@@ -29,9 +29,9 @@
               </span>
             </template>
           </el-tree>
-          <el-empty v-if="filteredDocumentCount === 0" description="暂无匹配文档" :image-size="72" />
+          <el-empty v-if="filteredDocumentCount === 0" :description="t('system.projectDoc.message.noMatch')" :image-size="72" />
         </div>
-        <el-empty v-else description="暂无项目文档" :image-size="72" />
+        <el-empty v-else :description="t('system.projectDoc.message.empty')" :image-size="72" />
       </aside>
 
       <section class="document-reader">
@@ -48,7 +48,7 @@
               </div>
             </div>
             <time v-if="selectedDocumentUpdatedAt" :datetime="selectedDocumentUpdatedAt" :title="selectedDocumentUpdatedAt">
-              更新于 {{ formatDocumentUpdatedAt(selectedDocumentUpdatedAt) }}
+              {{ t("system.projectDoc.value.updatedAt", { time: formatDocumentUpdatedAt(selectedDocumentUpdatedAt) }) }}
             </time>
           </header>
           <div ref="readerScrollRef" v-loading="detailLoading" class="reader-scroll">
@@ -62,7 +62,7 @@
             </div>
           </div>
         </template>
-        <el-empty v-else description="请选择一篇项目文档" />
+        <el-empty v-else :description="t('system.projectDoc.message.select')" />
       </section>
     </main>
   </div>
@@ -72,6 +72,7 @@
 import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { Search } from "@element-plus/icons-vue";
 import type { TreeNodeData } from "element-plus";
+import { getCurrentLocale, t } from "@liujitcn/kratos-admin-core";
 import MarkdownPreview from "@liujitcn/kratos-admin-core/components/MarkdownPreview/index.vue";
 import { useGlobalStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { defProjectDocumentService } from "@liujitcn/kratos-admin-system/api/system/project_document";
@@ -121,13 +122,6 @@ const detailRequestToken = ref(0);
 const documentTreeRef = ref<InstanceType<typeof ElTree>>();
 const markdownRef = ref<HTMLElement>();
 const readerScrollRef = ref<HTMLElement>();
-const documentUpdatedAtFormatter = new Intl.DateTimeFormat("zh-CN", {
-  month: "2-digit",
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-  hourCycle: "h23"
-});
 const documentTree = computed<ProjectDocumentTreeNode[]>(() => projects.value.map(buildProjectTreeNode));
 const documents = computed<ProjectDocumentTreeNode[]>(() => flattenDocumentTree(documentTree.value));
 const documentPathIndex = computed(() => {
@@ -237,7 +231,7 @@ function handleMarkdownClick(event: MouseEvent) {
   const documentPath = resolveDocumentPath(selectedDocument.value.path, linkPath);
   const linkedDocument = documentPathIndex.value.get(`${selectedDocument.value.project_key}\0${documentPath}`);
   if (!linkedDocument) {
-    ElMessage.warning(`未收集引用文档：${documentPath}`);
+    ElMessage.warning(t("system.projectDoc.message.uncollected", { path: documentPath }));
     return;
   }
   void selectDocument(linkedDocument.id, decodeURIComponent(rawAnchor));
@@ -272,7 +266,15 @@ function scrollToAnchor(anchor: string) {
 function formatDocumentUpdatedAt(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return documentUpdatedAtFormatter.format(date).replaceAll("/", "-");
+  return new Intl.DateTimeFormat(getCurrentLocale(), {
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23"
+  })
+    .format(date)
+    .replaceAll("/", "-");
 }
 
 /** 将接口项目节点转换为管理端树节点。 */

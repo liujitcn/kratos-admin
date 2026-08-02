@@ -12,7 +12,7 @@
     <FormDialog
       v-model="dialog.visible"
       ref="formDialogRef"
-      :title="dialog.title"
+      :title="t(dialog.titleKey, { resource: t('system.config.resource') })"
       width="1200px"
       :model="formData"
       :fields="formFields"
@@ -22,7 +22,10 @@
       @close="handleCloseDialog"
     >
       <template #textValue>
-        <el-input v-model="formData.value" placeholder="请输入配置值" />
+        <el-input
+          v-model="formData.value"
+          :placeholder="t('system.common.validation.requiredInput', { field: t('system.config.field.value') })"
+        />
       </template>
       <template #imageValue>
         <UploadImg v-model:image-url="formData.value" upload-type="config" />
@@ -31,8 +34,18 @@
         <WangEditor v-model:value="formData.value" />
       </template>
       <template #dictValue>
-        <Dict v-if="dictValueCode" v-model="formData.value" :code="dictValueCode" code-type="string" placeholder="请选择字典配置值" />
-        <el-input v-else v-model="formData.value" placeholder="请输入配置值" />
+        <Dict
+          v-if="dictValueCode"
+          v-model="formData.value"
+          :code="dictValueCode"
+          code-type="string"
+          :placeholder="t('system.common.validation.requiredSelect', { field: t('system.config.field.value') })"
+        />
+        <el-input
+          v-else
+          v-model="formData.value"
+          :placeholder="t('system.common.validation.requiredInput', { field: t('system.config.field.value') })"
+        />
       </template>
       <template #booleanValue>
         <el-switch
@@ -62,11 +75,16 @@ import UploadImg from "@liujitcn/kratos-admin-core/components/Upload/Img.vue";
 import WangEditor from "@liujitcn/kratos-admin-core/components/WangEditor/index.vue";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBaseConfigService } from "@liujitcn/kratos-admin-system/api/system/base_config";
-import type { BaseConfig, BaseConfigForm, PageBaseConfigRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_config";
+import type {
+  BaseConfig,
+  BaseConfigForm,
+  PageBaseConfigRequest
+} from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_config";
 import { BaseConfigSite } from "@liujitcn/kratos-admin-system/rpc/base/v1/enum";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { BaseConfigType } from "@liujitcn/kratos-admin-system/rpc/system/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
+import { t } from "@liujitcn/kratos-admin-core";
 
 defineOptions({
   name: "BaseConfig",
@@ -78,7 +96,7 @@ const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
 const dialog = reactive({
-  title: "",
+  titleKey: "system.common.action.createResource",
   visible: false
 });
 
@@ -99,25 +117,65 @@ const formData = reactive<BaseConfigForm>({
   status: Status.ENABLE
 });
 
-const rules = reactive({
-  site: [{ required: true, message: "请选择系统配置位置", trigger: "change" }],
+const rules = computed(() => ({
+  site: [
+    {
+      required: true,
+      message: t("system.common.validation.requiredSelect", { field: t("system.config.field.site") }),
+      trigger: "change"
+    }
+  ],
   name: [
-    { required: true, message: "请输入系统配置名称", trigger: "blur" },
-    { max: 50, message: "配置名称不能超过 50 个字符", trigger: "blur" }
+    {
+      required: true,
+      message: t("system.common.validation.requiredInput", { field: t("system.config.field.name") }),
+      trigger: "blur"
+    },
+    {
+      max: 50,
+      message: t("system.common.validation.maxLength", { field: t("system.config.field.name"), max: 50 }),
+      trigger: "blur"
+    }
   ],
-  type: [{ required: true, message: "请选择系统配置类型", trigger: "change" }],
+  type: [
+    {
+      required: true,
+      message: t("system.common.validation.requiredSelect", { field: t("system.config.field.type") }),
+      trigger: "change"
+    }
+  ],
   key: [
-    { required: true, message: "请输入系统配置编码", trigger: "blur" },
-    { max: 50, message: "配置key不能超过 50 个字符", trigger: "blur" }
+    {
+      required: true,
+      message: t("system.common.validation.requiredInput", { field: t("system.config.field.key") }),
+      trigger: "blur"
+    },
+    {
+      max: 50,
+      message: t("system.common.validation.maxLength", { field: t("system.config.field.key"), max: 50 }),
+      trigger: "blur"
+    }
   ],
-  value: [{ required: true, message: "配置值不能为空", trigger: "blur" }],
-  status: [{ required: true, message: "请选择状态", trigger: "change" }]
-});
+  value: [
+    {
+      required: true,
+      message: t("system.common.validation.requiredInput", { field: t("system.config.field.value") }),
+      trigger: "blur"
+    }
+  ],
+  status: [
+    {
+      required: true,
+      message: t("system.common.validation.requiredSelect", { field: t("system.common.field.status") }),
+      trigger: "change"
+    }
+  ]
+}));
 
-const statusOptions: ProFormOption[] = [
-  { label: "启用", value: Status.ENABLE },
-  { label: "禁用", value: Status.DISABLE }
-];
+const statusOptions = computed<ProFormOption[]>(() => [
+  { label: t("common.status.enabled"), value: Status.ENABLE },
+  { label: t("common.status.disabled"), value: Status.DISABLE }
+]);
 
 /** 字典类系统配置与字典编码的映射关系。 */
 const BASE_CONFIG_DICT_CODE_MAP: Record<string, string> = {
@@ -131,45 +189,51 @@ const dictValueCode = computed(() => BASE_CONFIG_DICT_CODE_MAP[formData.key] ?? 
 const formFields = computed<ProFormField[]>(() => [
   {
     prop: "name",
-    label: "配置名称",
+    label: t("system.config.field.name"),
     component: "input",
-    props: { placeholder: "请输入配置名称", disabled: formData.id > 0 }
+    props: {
+      placeholder: t("system.common.validation.requiredInput", { field: t("system.config.field.name") }),
+      disabled: formData.id > 0
+    }
   },
   {
     prop: "site",
-    label: "配置位置",
+    label: t("system.config.field.site"),
     component: "dict",
     props: { code: "base_config_site", disabled: formData.id > 0 }
   },
   {
     prop: "key",
-    label: "配置键",
+    label: t("system.config.field.key"),
     component: "input",
-    props: { placeholder: "请输入配置键", disabled: formData.id > 0 }
+    props: {
+      placeholder: t("system.common.validation.requiredInput", { field: t("system.config.field.key") }),
+      disabled: formData.id > 0
+    }
   },
   {
     prop: "type",
-    label: "配置类型",
+    label: t("system.config.field.type"),
     component: "dict",
     props: { code: "base_config_type", disabled: formData.id > 0 }
   },
   {
     prop: "value",
-    label: "配置值",
+    label: t("system.config.field.value"),
     component: "slot",
     slotName: "textValue",
     visible: model => model.type == BaseConfigType.TEXT
   },
   {
     prop: "value",
-    label: "配置值",
+    label: t("system.config.field.value"),
     component: "slot",
     slotName: "imageValue",
     visible: model => model.type == BaseConfigType.IMAGE
   },
   {
     prop: "value",
-    label: "配置值",
+    label: t("system.config.field.value"),
     component: "slot",
     slotName: "richTextValue",
     visible: model => model.type == BaseConfigType.RICH_TEXT,
@@ -177,60 +241,60 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "value",
-    label: "配置值",
+    label: t("system.config.field.value"),
     component: "slot",
     slotName: "dictValue",
     visible: model => model.type == BaseConfigType.DICT
   },
   {
     prop: "value",
-    label: "配置值",
+    label: t("system.config.field.value"),
     component: "slot",
     slotName: "booleanValue",
     visible: model => model.type == BaseConfigType.BOOLEAN
   },
-  { prop: "status", label: "状态", component: "radio-group", options: statusOptions }
+  { prop: "status", label: t("system.common.field.status"), component: "radio-group", options: statusOptions.value }
 ]);
 
 /** 系统配置表格列配置。 */
-const columns: ColumnProps[] = [
+const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
-  { prop: "site", label: "配置位置", minWidth: 120, dictCode: "base_config_site", search: { el: "select" } },
-  { prop: "name", label: "配置名称", minWidth: 140, search: { el: "input" } },
-  { prop: "type", label: "配置类型", minWidth: 120, dictCode: "base_config_type", search: { el: "select" } },
+  { prop: "site", label: t("system.config.field.site"), minWidth: 120, dictCode: "base_config_site", search: { el: "select" } },
+  { prop: "name", label: t("system.config.field.name"), minWidth: 140, search: { el: "input" } },
+  { prop: "type", label: t("system.config.field.type"), minWidth: 120, dictCode: "base_config_type", search: { el: "select" } },
   {
     prop: "key",
-    label: "配置键",
+    label: t("system.config.field.key"),
     minWidth: 160,
     search: { el: "input" },
     render: scope => renderConfigKeyCell(scope.row as BaseConfig)
   },
   {
     prop: "status",
-    label: "状态",
+    label: t("system.common.field.status"),
     minWidth: 100,
     search: { el: "select" },
     cellType: "status",
     statusProps: {
       activeValue: Status.ENABLE,
       inactiveValue: Status.DISABLE,
-      activeText: "启用",
-      inactiveText: "禁用",
+      activeText: t("common.status.enabled"),
+      inactiveText: t("common.status.disabled"),
       disabled: () => !BUTTONS.value["base:config:status"],
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseConfig)
     }
   },
-  { prop: "created_at", label: "创建时间", minWidth: 180 },
-  { prop: "updated_at", label: "更新时间", minWidth: 180 },
+  { prop: "created_at", label: t("system.common.field.createdAt"), minWidth: 180 },
+  { prop: "updated_at", label: t("system.common.field.updatedAt"), minWidth: 180 },
   {
     prop: "operation",
-    label: "操作",
+    label: t("system.common.field.operation"),
     width: 150,
     fixed: "right",
     cellType: "actions",
     actions: [
       {
-        label: "编辑",
+        label: t("common.action.edit"),
         type: "primary",
         link: true,
         icon: EditPen,
@@ -239,7 +303,7 @@ const columns: ColumnProps[] = [
         onClick: (scope, params) => handleOpenDialog((params?.configId as number | undefined) ?? (scope.row as BaseConfig).id)
       },
       {
-        label: "删除",
+        label: t("common.action.delete"),
         type: "danger",
         link: true,
         icon: Delete,
@@ -248,7 +312,7 @@ const columns: ColumnProps[] = [
       }
     ]
   }
-];
+]);
 
 /**
  * 将配置键渲染为可悬停查看配置值的单元格。
@@ -283,7 +347,7 @@ function renderConfigValuePreview(row: BaseConfig) {
           fit: "contain",
           style: { width: "180px", height: "120px", borderRadius: "4px" }
         })
-      : h("span", { class: "config-value-preview" }, "未配置图片");
+      : h("span", { class: "config-value-preview" }, t("system.config.message.imageMissing"));
   }
 
   if (row.type === BaseConfigType.BOOLEAN) {
@@ -302,24 +366,24 @@ function renderConfigValuePreview(row: BaseConfig) {
   if (row.type === BaseConfigType.RICH_TEXT) {
     return row.value
       ? h("div", { class: "config-rich-text-preview", innerHTML: row.value })
-      : h("span", { class: "config-value-preview" }, "未配置富文本");
+      : h("span", { class: "config-value-preview" }, t("system.config.message.richTextMissing"));
   }
 
   const value = row.value;
-  return h("span", { class: "config-value-preview" }, value || "未配置");
+  return h("span", { class: "config-value-preview" }, value || t("system.config.message.valueMissing"));
 }
 
 /** 系统配置顶部按钮配置。 */
-const headerActions: HeaderActionProps[] = [
+const headerActions = computed<HeaderActionProps[]>(() => [
   {
-    label: "新增",
+    label: t("common.action.create"),
     type: "success",
     icon: CirclePlus,
     hidden: () => !BUTTONS.value["base:config:create"],
     onClick: () => handleOpenDialog()
   },
   {
-    label: "删除",
+    label: t("common.action.delete"),
     type: "danger",
     icon: Delete,
     hidden: () => !BUTTONS.value["base:config:delete"],
@@ -327,13 +391,13 @@ const headerActions: HeaderActionProps[] = [
     onClick: scope => handleDelete(scope.selectedList as BaseConfig[])
   },
   {
-    label: "刷新缓存",
+    label: t("system.common.action.refreshCache"),
     type: "primary",
     icon: RefreshLeft,
     hidden: () => !BUTTONS.value["base:config:refresh"],
     onClick: () => handleRefreshCache()
   }
-];
+]);
 
 /**
  * 请求系统配置列表，并由 ProTable 统一维护分页与搜索参数。
@@ -355,7 +419,7 @@ function refreshTable() {
  */
 function handleOpenDialog(configId?: number) {
   resetForm();
-  dialog.title = configId ? "修改系统配置" : "新增系统配置";
+  dialog.titleKey = configId ? "system.common.action.editResource" : "system.common.action.createResource";
   dialog.visible = true;
   if (!configId) return;
 
@@ -402,7 +466,11 @@ function handleSubmit() {
       ? defBaseConfigService.UpdateBaseConfig({ base_config: submitData })
       : defBaseConfigService.CreateBaseConfig({ base_config: submitData });
     request.then(() => {
-      ElMessage.success(submitData.id ? "修改系统配置成功" : "新增系统配置成功");
+      ElMessage.success(
+        t(submitData.id ? "system.common.message.updateSuccess" : "system.common.message.createSuccess", {
+          resource: t("system.config.resource")
+        })
+      );
       handleCloseDialog();
       refreshTable();
     });
@@ -414,7 +482,7 @@ function handleSubmit() {
  */
 const handleRefreshCache = useDebounceFn(() => {
   defBaseConfigService.RefreshBaseConfigCache({}).then(() => {
-    ElMessage.success("刷新成功");
+    ElMessage.success(t("system.common.message.refreshSuccess"));
   });
 }, 1000);
 
@@ -423,16 +491,25 @@ const handleRefreshCache = useDebounceFn(() => {
  */
 async function handleBeforeSetStatus(row: BaseConfig) {
   const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
-  const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
+  const text = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
   const configName = row.name || row.key || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(`是否确定${text}配置？\n配置名称：${configName}`, "提示", {
-      confirmButtonText: "确认",
-      cancelButtonText: "取消",
-      type: "warning"
-    });
+    await ElMessageBox.confirm(
+      t("system.common.dialog.statusChange", {
+        action: text,
+        resource: t("system.config.resource"),
+        field: t("system.config.field.name"),
+        value: configName
+      }),
+      t("common.title.notice"),
+      {
+        confirmButtonText: t("common.action.confirm"),
+        cancelButtonText: t("common.action.cancel"),
+        type: "warning"
+      }
+    );
     await defBaseConfigService.SetBaseConfigStatus({ id: row.id, status: nextStatus });
-    ElMessage.success(`${text}成功`);
+    ElMessage.success(t("system.common.message.statusSuccess", { action: text }));
     refreshTable();
     return true;
   } catch {
@@ -455,29 +532,29 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
       : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");
   if (!configIds) {
-    ElMessage.warning("请勾选删除项");
+    ElMessage.warning(t("system.common.message.selectDeleteItem"));
     return;
   }
 
   const confirmMessage = configList.length
     ? configList.length === 1
-      ? `是否确定删除配置？\n配置名称：${configList[0].name || configList[0].key || `ID:${configList[0].id}`}`
-      : `确认删除已选中的 ${configList.length} 项系统配置吗？`
-    : "确认删除已选中的系统配置吗？";
+      ? `${t("system.common.dialog.deleteSingle", { resource: t("system.config.resource") })}\n${t("system.common.dialog.resourceField", { field: t("system.config.field.name"), value: configList[0].name || configList[0].key || `ID:${configList[0].id}` })}`
+      : t("system.common.dialog.deleteBatch", { count: configList.length, unit: "", resource: t("system.config.resource") })
+    : t("system.common.dialog.deleteSelected", { resource: t("system.config.resource") });
 
-  ElMessageBox.confirm(confirmMessage, "警告", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
+  ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
+    confirmButtonText: t("common.action.confirm"),
+    cancelButtonText: t("common.action.cancel"),
     type: "warning"
   }).then(
     () => {
       defBaseConfigService.DeleteBaseConfig({ id: configIds }).then(() => {
-        ElMessage.success("删除系统配置成功");
+        ElMessage.success(t("system.common.message.deleteSuccess", { resource: t("system.config.resource") }));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info("已取消删除系统配置");
+      ElMessage.info(t("system.common.dialog.cancelDelete", { resource: t("system.config.resource") }));
     }
   );
 }

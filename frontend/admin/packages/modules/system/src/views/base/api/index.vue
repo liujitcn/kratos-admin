@@ -3,28 +3,34 @@
   <div class="table-box">
     <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestBaseApiTable" />
 
-    <el-drawer v-model="detailDrawer.visible" title="API 详情" size="70%" @close="handleCloseDetail">
+    <el-drawer v-model="detailDrawer.visible" :title="t('system.api.title.detail')" size="70%" @close="handleCloseDetail">
       <el-descriptions v-if="detailData" :column="1" border>
-        <el-descriptions-item label="工具名">{{ detailData.tool_name }}</el-descriptions-item>
-        <el-descriptions-item label="工具提示词">
+        <el-descriptions-item :label="t('system.api.field.toolName')">{{ detailData.tool_name }}</el-descriptions-item>
+        <el-descriptions-item :label="t('system.api.field.toolPrompts')">
           <div class="tool-prompts">
             <el-tag v-for="prompt in detailToolPrompts" :key="prompt" effect="plain">{{ prompt }}</el-tag>
             <span v-if="!detailToolPrompts.length">--</span>
           </div>
         </el-descriptions-item>
-        <el-descriptions-item label="服务名">{{ detailData.service_name }}</el-descriptions-item>
-        <el-descriptions-item label="服务描述">{{ detailData.service_desc }}</el-descriptions-item>
-        <el-descriptions-item label="描述">{{ detailData.desc }}</el-descriptions-item>
-        <el-descriptions-item label="操作方法">{{ detailData.operation }}</el-descriptions-item>
-        <el-descriptions-item label="请求方法">{{ detailData.method }}</el-descriptions-item>
-        <el-descriptions-item label="请求地址">{{ detailData.path }}</el-descriptions-item>
-        <el-descriptions-item label="MCP工具">{{ formatStatus(detailData.mcp_status) }}</el-descriptions-item>
-        <el-descriptions-item label="Agent工具">{{ formatStatus(detailData.agent_status) }}</el-descriptions-item>
+        <el-descriptions-item :label="t('system.api.field.serviceName')">{{ detailData.service_name }}</el-descriptions-item>
+        <el-descriptions-item :label="t('system.api.field.serviceDescription')">{{
+          detailData.service_desc
+        }}</el-descriptions-item>
+        <el-descriptions-item :label="t('system.api.field.description')">{{ detailData.desc }}</el-descriptions-item>
+        <el-descriptions-item :label="t('system.api.field.operation')">{{ detailData.operation }}</el-descriptions-item>
+        <el-descriptions-item :label="t('system.api.field.method')">{{ detailData.method }}</el-descriptions-item>
+        <el-descriptions-item :label="t('system.api.field.path')">{{ detailData.path }}</el-descriptions-item>
+        <el-descriptions-item :label="t('system.api.field.mcpTool')">{{
+          formatStatus(detailData.mcp_status)
+        }}</el-descriptions-item>
+        <el-descriptions-item :label="t('system.api.field.agentTool')">{{
+          formatStatus(detailData.agent_status)
+        }}</el-descriptions-item>
       </el-descriptions>
 
       <div v-if="detailDoc" class="api-doc">
         <section class="api-doc-section">
-          <div class="api-doc-title">请求参数</div>
+          <div class="api-doc-title">{{ t("system.api.section.parameters") }}</div>
           <el-table
             v-if="detailParameters.length > 0"
             :data="detailParameters"
@@ -32,21 +38,26 @@
             default-expand-all
             :tree-props="{ children: 'children' }"
           >
-            <el-table-column prop="path" label="字段" min-width="220" />
-            <el-table-column prop="in" label="位置" width="90" />
-            <el-table-column label="类型" min-width="180">
+            <el-table-column prop="path" :label="t('system.api.doc.field.name')" min-width="220" />
+            <el-table-column prop="in" :label="t('system.api.doc.field.location')" width="90" />
+            <el-table-column :label="t('system.api.doc.field.type')" min-width="180">
               <template #default="{ row }">{{ formatSchemaType(row) }}</template>
             </el-table-column>
-            <el-table-column label="必填" width="80" align="center">
-              <template #default="{ row }">{{ row.required ? "是" : "否" }}</template>
+            <el-table-column :label="t('system.api.doc.field.required')" width="80" align="center">
+              <template #default="{ row }">{{ t(row.required ? "system.common.value.yes" : "system.common.value.no") }}</template>
             </el-table-column>
-            <el-table-column prop="description" label="说明" min-width="240" show-overflow-tooltip />
+            <el-table-column
+              prop="description"
+              :label="t('system.api.doc.field.description')"
+              min-width="240"
+              show-overflow-tooltip
+            />
           </el-table>
-          <el-empty v-else description="无请求参数" :image-size="72" />
+          <el-empty v-else :description="t('system.api.message.noParameters')" :image-size="72" />
         </section>
 
         <section class="api-doc-section">
-          <div class="api-doc-title">请求体</div>
+          <div class="api-doc-title">{{ t("system.api.section.requestBody") }}</div>
           <el-table
             v-if="requestBodyRows.length > 0"
             :data="requestBodyRows"
@@ -54,20 +65,25 @@
             default-expand-all
             :tree-props="{ children: 'children' }"
           >
-            <el-table-column prop="path" label="字段" min-width="220" />
-            <el-table-column label="类型" min-width="180">
+            <el-table-column prop="path" :label="t('system.api.doc.field.name')" min-width="220" />
+            <el-table-column :label="t('system.api.doc.field.type')" min-width="180">
               <template #default="{ row }">{{ formatSchemaType(row) }}</template>
             </el-table-column>
-            <el-table-column label="必填" width="80" align="center">
-              <template #default="{ row }">{{ row.required ? "是" : "否" }}</template>
+            <el-table-column :label="t('system.api.doc.field.required')" width="80" align="center">
+              <template #default="{ row }">{{ t(row.required ? "system.common.value.yes" : "system.common.value.no") }}</template>
             </el-table-column>
-            <el-table-column prop="description" label="说明" min-width="240" show-overflow-tooltip />
+            <el-table-column
+              prop="description"
+              :label="t('system.api.doc.field.description')"
+              min-width="240"
+              show-overflow-tooltip
+            />
           </el-table>
-          <el-empty v-else description="无请求体" :image-size="72" />
+          <el-empty v-else :description="t('system.api.message.noRequestBody')" :image-size="72" />
         </section>
 
         <section class="api-doc-section">
-          <div class="api-doc-title">返回值</div>
+          <div class="api-doc-title">{{ t("system.api.section.responses") }}</div>
           <el-collapse v-if="detailResponses.length > 0">
             <el-collapse-item v-for="response in detailResponses" :key="response.status" :name="response.status">
               <template #title>
@@ -80,16 +96,21 @@
                 default-expand-all
                 :tree-props="{ children: 'children' }"
               >
-                <el-table-column prop="path" label="字段" min-width="220" />
-                <el-table-column label="类型" min-width="180">
+                <el-table-column prop="path" :label="t('system.api.doc.field.name')" min-width="220" />
+                <el-table-column :label="t('system.api.doc.field.type')" min-width="180">
                   <template #default="{ row }">{{ formatSchemaType(row) }}</template>
                 </el-table-column>
-                <el-table-column prop="description" label="说明" min-width="240" show-overflow-tooltip />
+                <el-table-column
+                  prop="description"
+                  :label="t('system.api.doc.field.description')"
+                  min-width="240"
+                  show-overflow-tooltip
+                />
               </el-table>
-              <el-empty v-else description="无响应体" :image-size="72" />
+              <el-empty v-else :description="t('system.api.message.noResponseBody')" :image-size="72" />
             </el-collapse-item>
           </el-collapse>
-          <el-empty v-else description="无返回值" :image-size="72" />
+          <el-empty v-else :description="t('system.api.message.noResponses')" :image-size="72" />
         </section>
       </div>
     </el-drawer>
@@ -97,7 +118,7 @@
     <FormDialog
       v-model="editDialog.visible"
       ref="editDialogRef"
-      title="编辑API"
+      :title="t('system.api.title.edit')"
       width="760px"
       :model="editForm"
       :fields="editFields"
@@ -119,8 +140,15 @@ import type { ProFormField } from "@liujitcn/kratos-admin-core/components/ProFor
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBaseApiService } from "@liujitcn/kratos-admin-system/api/system/base_api";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
-import type { BaseApi, BaseApiDoc, BaseApiDocResponse, BaseApiDocSchema, PageBaseApiRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_api";
+import type {
+  BaseApi,
+  BaseApiDoc,
+  BaseApiDocResponse,
+  BaseApiDocSchema,
+  PageBaseApiRequest
+} from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_api";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
+import { t } from "@liujitcn/kratos-admin-core";
 
 defineOptions({
   name: "BaseApi",
@@ -157,95 +185,105 @@ const detailResponses = computed(() => detailDoc.value?.responses ?? []);
 const detailToolPrompts = computed(() => detailData.value?.tool_prompts ?? []);
 
 /** API 编辑表单字段配置。 */
-const editFields: ProFormField[] = [
+const editFields = computed<ProFormField[]>(() => [
   {
     prop: "tool_name",
-    label: "工具名",
+    label: t("system.api.field.toolName"),
     component: "input",
     props: { disabled: true }
   },
   {
     prop: "tool_prompts",
-    label: "工具提示词",
+    label: t("system.api.field.toolPrompts"),
     component: "dynamic-list",
-    props: { inputProps: { placeholder: "请输入工具提示词" } }
+    props: { inputProps: { placeholder: t("system.api.placeholder.toolPrompt") } }
   },
   {
     prop: "mcp_status",
-    label: "MCP工具状态",
+    label: t("system.api.field.mcpStatus"),
     component: "switch",
-    props: { activeValue: Status.ENABLE, inactiveValue: Status.DISABLE, activeText: "启用", inactiveText: "禁用" }
+    props: {
+      activeValue: Status.ENABLE,
+      inactiveValue: Status.DISABLE,
+      activeText: t("common.status.enabled"),
+      inactiveText: t("common.status.disabled")
+    }
   },
   {
     prop: "agent_status",
-    label: "Agent工具状态",
+    label: t("system.api.field.agentStatus"),
     component: "switch",
-    props: { activeValue: Status.ENABLE, inactiveValue: Status.DISABLE, activeText: "启用", inactiveText: "禁用" }
+    props: {
+      activeValue: Status.ENABLE,
+      inactiveValue: Status.DISABLE,
+      activeText: t("common.status.enabled"),
+      inactiveText: t("common.status.disabled")
+    }
   }
-];
+]);
 
-const statusOptions = [
-  { label: "启用", value: Status.ENABLE },
-  { label: "禁用", value: Status.DISABLE }
-];
+const statusOptions = computed(() => [
+  { label: t("common.status.enabled"), value: Status.ENABLE },
+  { label: t("common.status.disabled"), value: Status.DISABLE }
+]);
 
 /** API 表格列配置。 */
-const columns: ColumnProps[] = [
-  { prop: "tool_name", label: "工具名", minWidth: 260, search: { el: "input" } },
+const columns = computed<ColumnProps[]>(() => [
+  { prop: "tool_name", label: t("system.api.field.toolName"), minWidth: 260, search: { el: "input" } },
   {
     prop: "tool_prompts",
-    label: "工具提示词",
+    label: t("system.api.field.toolPrompts"),
     minWidth: 240,
     search: { el: "input", key: "tool_prompt" },
     render: scope => formatToolPrompts((scope.row as BaseApi).tool_prompts)
   },
-  { prop: "service_name", label: "服务名", minWidth: 180, search: { el: "input" } },
-  { prop: "service_desc", label: "服务描述", minWidth: 180, search: { el: "input" } },
-  { prop: "desc", label: "描述", minWidth: 180, search: { el: "input" } },
-  { prop: "operation", label: "操作方法", minWidth: 260, search: { el: "input" } },
-  { prop: "method", label: "请求方法", width: 110, search: { el: "input" } },
-  { prop: "path", label: "请求地址", minWidth: 260, search: { el: "input" } },
+  { prop: "service_name", label: t("system.api.field.serviceName"), minWidth: 180, search: { el: "input" } },
+  { prop: "service_desc", label: t("system.api.field.serviceDescription"), minWidth: 180, search: { el: "input" } },
+  { prop: "desc", label: t("system.api.field.description"), minWidth: 180, search: { el: "input" } },
+  { prop: "operation", label: t("system.api.field.operation"), minWidth: 260, search: { el: "input" } },
+  { prop: "method", label: t("system.api.field.method"), width: 110, search: { el: "input" } },
+  { prop: "path", label: t("system.api.field.path"), minWidth: 260, search: { el: "input" } },
   {
     prop: "mcp_status",
-    label: "MCP工具状态",
+    label: t("system.api.field.mcpStatus"),
     width: 120,
-    enum: statusOptions,
+    enum: statusOptions.value,
     search: { el: "select" },
     cellType: "status",
     statusProps: {
       activeValue: Status.ENABLE,
       inactiveValue: Status.DISABLE,
-      activeText: "启用",
-      inactiveText: "禁用",
+      activeText: t("common.status.enabled"),
+      inactiveText: t("common.status.disabled"),
       disabled: () => !BUTTONS.value["base:api:mcp-status"],
       beforeChange: scope => handleBeforeSetMcpStatus(scope.row as BaseApi)
     }
   },
   {
     prop: "agent_status",
-    label: "Agent工具状态",
+    label: t("system.api.field.agentStatus"),
     width: 130,
-    enum: statusOptions,
+    enum: statusOptions.value,
     search: { el: "select" },
     cellType: "status",
     statusProps: {
       activeValue: Status.ENABLE,
       inactiveValue: Status.DISABLE,
-      activeText: "启用",
-      inactiveText: "禁用",
+      activeText: t("common.status.enabled"),
+      inactiveText: t("common.status.disabled"),
       disabled: () => !BUTTONS.value["base:api:agent-status"],
       beforeChange: scope => handleBeforeSetAgentStatus(scope.row as BaseApi)
     }
   },
   {
     prop: "operation",
-    label: "操作",
+    label: t("system.common.field.action"),
     width: 210,
     fixed: "right",
     cellType: "actions",
     actions: [
       {
-        label: "编辑",
+        label: t("common.action.edit"),
         type: "primary",
         link: true,
         icon: EditPen,
@@ -253,7 +291,7 @@ const columns: ColumnProps[] = [
         onClick: scope => handleOpenEditDialog(scope.row as BaseApi)
       },
       {
-        label: "详情",
+        label: t("common.action.view"),
         type: "primary",
         link: true,
         icon: View,
@@ -262,7 +300,7 @@ const columns: ColumnProps[] = [
       }
     ]
   }
-];
+]);
 
 /**
  * 请求 API 分页列表，并由 ProTable 统一维护分页与搜索参数。
@@ -337,7 +375,7 @@ async function handleSubmitEdit() {
     mcp_status: editForm.mcp_status,
     agent_status: editForm.agent_status
   });
-  ElMessage.success("保存成功");
+  ElMessage.success(t("system.api.message.saveSuccess"));
   handleCloseEditDialog();
   refreshTable();
 }
@@ -347,16 +385,16 @@ async function handleSubmitEdit() {
  */
 async function handleBeforeSetMcpStatus(row: BaseApi) {
   const nextStatus = row.mcp_status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
-  const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
+  const action = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
   const apiName = row.desc || row.operation || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(`是否确定${text}该 API 的 MCP 工具能力？\nAPI：${apiName}`, "提示", {
-      confirmButtonText: "确认",
-      cancelButtonText: "取消",
+    await ElMessageBox.confirm(t("system.api.message.confirmMcpStatus", { action, api: apiName }), t("common.title.notice"), {
+      confirmButtonText: t("common.action.confirm"),
+      cancelButtonText: t("common.action.cancel"),
       type: "warning"
     });
     await defBaseApiService.SetBaseApiMcpStatus({ id: row.id, mcp_status: nextStatus });
-    ElMessage.success(`${text}成功`);
+    ElMessage.success(t("system.common.message.statusSuccess", { action }));
     refreshTable();
     return true;
   } catch {
@@ -369,16 +407,16 @@ async function handleBeforeSetMcpStatus(row: BaseApi) {
  */
 async function handleBeforeSetAgentStatus(row: BaseApi) {
   const nextStatus = row.agent_status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
-  const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
+  const action = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
   const apiName = row.desc || row.operation || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(`是否确定${text}该 API 的 Agent 工具能力？\nAPI：${apiName}`, "提示", {
-      confirmButtonText: "确认",
-      cancelButtonText: "取消",
+    await ElMessageBox.confirm(t("system.api.message.confirmAgentStatus", { action, api: apiName }), t("common.title.notice"), {
+      confirmButtonText: t("common.action.confirm"),
+      cancelButtonText: t("common.action.cancel"),
       type: "warning"
     });
     await defBaseApiService.SetBaseApiAgentStatus({ id: row.id, agent_status: nextStatus });
-    ElMessage.success(`${text}成功`);
+    ElMessage.success(t("system.common.message.statusSuccess", { action }));
     refreshTable();
     return true;
   } catch {
@@ -391,16 +429,16 @@ async function handleBeforeSetAgentStatus(row: BaseApi) {
  */
 function formatToolPrompts(prompts: string[]) {
   if (!prompts?.length) return "--";
-  return prompts.filter(Boolean).join("；");
+  return prompts.filter(Boolean).join(", ");
 }
 
 /**
  * 格式化 API 工具状态。
  */
 function formatStatus(status: Status) {
-  if (status === Status.ENABLE) return "启用";
-  if (status === Status.DISABLE) return "禁用";
-  return "未知";
+  if (status === Status.ENABLE) return t("common.status.enabled");
+  if (status === Status.DISABLE) return t("common.status.disabled");
+  return t("system.common.value.unknown");
 }
 
 /**

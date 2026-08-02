@@ -5,233 +5,273 @@
       <div v-if="formData.id" class="code-gen-column-pane">
         <div class="code-gen-toolbar code-gen-column-toolbar">
           <div class="code-gen-column-toolbar__meta">
-            <strong>数据库字段</strong>
+            <strong>{{ t("system.codegen.column.title.databaseFields") }}</strong>
             <!-- 展示当前字段配置对应的业务表。 -->
-            <span class="code-gen-column-toolbar__table-name" :title="formData.name">表名：{{ formData.name }}</span>
-            <span class="code-gen-column-toolbar__table-comment" :title="formData.comment || '--'">
-              表注释：{{ formData.comment || "--" }}
+            <span class="code-gen-column-toolbar__table-name" :title="formData.name">
+              {{ t("system.codegen.column.value.tableName", { name: formData.name }) }}
             </span>
-            <span>查询 {{ enabledSummary.query }} 项</span>
-            <span>列表 {{ enabledSummary.list }} 项</span>
-            <span>表单 {{ enabledSummary.form }} 项</span>
+            <span class="code-gen-column-toolbar__table-comment" :title="formData.comment || '--'">
+              {{ t("system.codegen.column.value.tableComment", { comment: formData.comment || "--" }) }}
+            </span>
+            <span>{{ t("system.codegen.column.value.queryCount", { count: enabledSummary.query }) }}</span>
+            <span>{{ t("system.codegen.column.value.listCount", { count: enabledSummary.list }) }}</span>
+            <span>{{ t("system.codegen.column.value.formCount", { count: enabledSummary.form }) }}</span>
           </div>
           <div class="code-gen-column-toolbar__actions">
-            <el-button type="primary" :icon="Document" :disabled="!canEdit" @click="handleSaveColumns()">保存</el-button>
+            <el-button type="primary" :icon="Document" :disabled="!canEdit" @click="handleSaveColumns()">
+              {{ t("common.action.save") }}
+            </el-button>
           </div>
         </div>
 
         <div ref="columnTableRef" class="code-gen-column-table">
-          <el-table :data="columns" row-key="name" border stripe table-layout="fixed" empty-text="暂无字段配置">
-          <el-table-column label="数据库字段" min-width="320" fixed="left">
-            <template #default="{ row, $index }">
-              <div class="code-gen-field-cell">
-                <el-popover trigger="hover" placement="right-start" :width="320" :show-after="250">
-                  <template #reference>
-                    <div class="code-gen-field-trigger">
-                      <span class="code-gen-field-trigger__name">{{ row.name }}</span>
-                    </div>
-                  </template>
-                  <div class="code-gen-field-popover">
-                    <div class="code-gen-field-popover__header">
-                      <strong>{{ row.name }}</strong>
-                      <span>{{ row.comment || row.name }}</span>
-                    </div>
-                    <div class="code-gen-field-popover__types">
-                      <div>
-                        <span>数据库</span><b>{{ row.db_type || "--" }}</b>
+          <el-table
+            :data="columns"
+            row-key="name"
+            border
+            stripe
+            table-layout="fixed"
+            :empty-text="t('system.codegen.column.message.empty')"
+          >
+            <el-table-column :label="t('system.codegen.column.field.databaseColumn')" min-width="320" fixed="left">
+              <template #default="{ row, $index }">
+                <div class="code-gen-field-cell">
+                  <el-popover trigger="hover" placement="right-start" :width="320" :show-after="250">
+                    <template #reference>
+                      <div class="code-gen-field-trigger">
+                        <span class="code-gen-field-trigger__name">{{ row.name }}</span>
                       </div>
-                      <div>
-                        <span>Go</span><b>{{ row.go_type || "--" }}</b>
+                    </template>
+                    <div class="code-gen-field-popover">
+                      <div class="code-gen-field-popover__header">
+                        <strong>{{ row.name }}</strong>
+                        <span>{{ row.comment || row.name }}</span>
                       </div>
-                      <div>
-                        <span>Proto</span><b>{{ row.proto_type || "--" }}</b>
+                      <div class="code-gen-field-popover__types">
+                        <div>
+                          <span>{{ t("system.codegen.column.value.database") }}</span
+                          ><b>{{ row.db_type || "--" }}</b>
+                        </div>
+                        <div>
+                          <span>Go</span><b>{{ row.go_type || "--" }}</b>
+                        </div>
+                        <div>
+                          <span>Proto</span><b>{{ row.proto_type || "--" }}</b>
+                        </div>
+                        <div>
+                          <span>TS</span><b>{{ row.ts_type || "--" }}</b>
+                        </div>
                       </div>
-                      <div>
-                        <span>TS</span><b>{{ row.ts_type || "--" }}</b>
+                      <div class="code-gen-field-popover__flags">
+                        <el-tag v-if="row.is_primary" size="small" type="danger" effect="plain">
+                          {{ t("system.codegen.column.value.primaryKey") }}
+                        </el-tag>
+                        <el-tag v-if="row.is_auto_increment" size="small" type="warning" effect="plain">
+                          {{ t("system.codegen.column.value.autoIncrement") }}
+                        </el-tag>
+                        <el-tag size="small" :type="row.is_nullable ? 'info' : 'success'" effect="plain">
+                          {{
+                            t(row.is_nullable ? "system.codegen.column.value.nullable" : "system.codegen.column.value.notNull")
+                          }}
+                        </el-tag>
                       </div>
                     </div>
-                    <div class="code-gen-field-popover__flags">
-                      <el-tag v-if="row.is_primary" size="small" type="danger" effect="plain">主键</el-tag>
-                      <el-tag v-if="row.is_auto_increment" size="small" type="warning" effect="plain">自增</el-tag>
-                      <el-tag size="small" :type="row.is_nullable ? 'info' : 'success'" effect="plain">
-                        {{ row.is_nullable ? "可空" : "必填" }}
-                      </el-tag>
-                    </div>
+                  </el-popover>
+                  <div class="code-gen-field-order">
+                    <span class="code-gen-field-order__index">{{ $index + 1 }}</span>
+                    <el-tooltip :content="t('system.codegen.column.tooltip.drag')" placement="top">
+                      <el-button
+                        text
+                        size="small"
+                        :icon="List"
+                        :disabled="!canEdit"
+                        class="code-gen-field-order__drag"
+                        :aria-label="t('system.codegen.column.tooltip.dragAria')"
+                      />
+                    </el-tooltip>
                   </div>
-                </el-popover>
-                <div class="code-gen-field-order">
-                  <span class="code-gen-field-order__index">{{ $index + 1 }}</span>
-                  <el-tooltip content="拖拽排序" placement="top">
-                    <el-button
-                      text
-                      size="small"
-                      :icon="List"
-                      :disabled="!canEdit"
-                      class="code-gen-field-order__drag"
-                      aria-label="拖拽调整字段顺序"
+                </div>
+              </template>
+            </el-table-column>
+
+            <el-table-column :label="t('system.codegen.column.field.comment')" min-width="360">
+              <template #default="{ row }">
+                <div class="code-gen-comment-editor">
+                  <el-input
+                    v-model="row.comment"
+                    :disabled="!canEdit"
+                    maxlength="255"
+                    :placeholder="t('system.codegen.column.placeholder.comment')"
+                  />
+                  <el-popover placement="right-start" :width="400" trigger="click">
+                    <template #reference>
+                      <el-button
+                        :icon="ChatLineSquare"
+                        circle
+                        :type="hasMissingColumnLocales(row) ? 'warning' : 'success'"
+                        :aria-label="t('system.codegen.i18n.action.editColumn')"
+                      />
+                    </template>
+                    <CodeGenLocaleEditor
+                      :model-value="row.i18n_config"
+                      :source-comment="row.comment"
+                      @update:model-value="value => (row.i18n_config = value)"
                     />
+                  </el-popover>
+                </div>
+              </template>
+            </el-table-column>
+
+            <el-table-column :label="t('system.codegen.column.field.query')" min-width="440">
+              <template #default="{ row }">
+                <div class="code-gen-config-cell">
+                  <el-switch
+                    v-model="row.query_config.enabled"
+                    :disabled="!canEdit"
+                    inline-prompt
+                    :active-text="t('system.codegen.value.on')"
+                    :inactive-text="t('system.codegen.value.off')"
+                  />
+                  <el-select
+                    v-model="row.query_config.operator"
+                    :disabled="!canEdit || !row.query_config.enabled"
+                    :placeholder="t('system.codegen.column.placeholder.queryOperator')"
+                  >
+                    <el-option
+                      v-for="item in queryOperatorOptions"
+                      :key="String(item.value)"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </el-select>
+                  <el-select
+                    v-model="row.query_config.component"
+                    :disabled="!canEdit || !row.query_config.enabled"
+                    :placeholder="t('system.codegen.column.placeholder.queryComponent')"
+                    @change="handleComponentChange(row, 'query')"
+                  >
+                    <el-option
+                      v-for="item in queryComponentOptions"
+                      :key="String(item.value)"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </el-select>
+                  <el-tooltip
+                    v-if="shouldShowOptionEntry(row.query_config, 'query')"
+                    :content="optionEntryTip(row.query_config.option)"
+                    placement="top"
+                  >
+                    <el-button
+                      size="small"
+                      :type="hasOptionConfig(row.query_config.option) ? 'primary' : 'default'"
+                      :icon="Setting"
+                      :disabled="!canEdit"
+                      @click="openOptionDialog(row, 'query')"
+                    >
+                      {{ t("system.codegen.column.action.options") }}
+                    </el-button>
                   </el-tooltip>
                 </div>
-              </div>
-            </template>
-          </el-table-column>
+              </template>
+            </el-table-column>
 
-          <el-table-column label="字段描述" min-width="280">
-            <template #default="{ row }">
-              <el-input v-model="row.comment" :disabled="!canEdit" maxlength="255" placeholder="请输入字段描述" />
-            </template>
-          </el-table-column>
-
-          <el-table-column label="查询" min-width="440">
-            <template #default="{ row }">
-              <div class="code-gen-config-cell">
-                <el-switch
-                  v-model="row.query_config.enabled"
-                  :disabled="!canEdit"
-                  inline-prompt
-                  active-text="开"
-                  inactive-text="关"
-                />
-                <el-select
-                  v-model="row.query_config.operator"
-                  :disabled="!canEdit || !row.query_config.enabled"
-                  placeholder="查询方式"
-                >
-                  <el-option
-                    v-for="item in queryOperatorOptions"
-                    :key="String(item.value)"
-                    :label="item.label"
-                    :value="item.value"
-                  />
-                </el-select>
-                <el-select
-                  v-model="row.query_config.component"
-                  :disabled="!canEdit || !row.query_config.enabled"
-                  placeholder="查询组件"
-                  @change="handleComponentChange(row, 'query')"
-                >
-                  <el-option
-                    v-for="item in queryComponentOptions"
-                    :key="String(item.value)"
-                    :label="item.label"
-                    :value="item.value"
-                  />
-                </el-select>
-                <el-tooltip
-                  v-if="shouldShowOptionEntry(row.query_config, 'query')"
-                  :content="optionEntryTip(row.query_config.option)"
-                  placement="top"
-                >
-                  <el-button
-                    size="small"
-                    :type="hasOptionConfig(row.query_config.option) ? 'primary' : 'default'"
-                    :icon="Setting"
+            <el-table-column :label="t('system.codegen.column.field.list')" min-width="420">
+              <template #default="{ row }">
+                <div class="code-gen-config-cell">
+                  <el-switch
+                    v-model="row.list_config.enabled"
                     :disabled="!canEdit"
-                    @click="openOptionDialog(row, 'query')"
-                  >
-                    选项
-                  </el-button>
-                </el-tooltip>
-              </div>
-            </template>
-          </el-table-column>
-
-          <el-table-column label="列表" min-width="420">
-            <template #default="{ row }">
-              <div class="code-gen-config-cell">
-                <el-switch
-                  v-model="row.list_config.enabled"
-                  :disabled="!canEdit"
-                  inline-prompt
-                  active-text="开"
-                  inactive-text="关"
-                />
-                <el-select
-                  v-model="row.list_config.component"
-                  :disabled="!canEdit || !row.list_config.enabled"
-                  placeholder="展示组件"
-                  @change="handleComponentChange(row, 'list')"
-                >
-                  <el-option
-                    v-for="item in listComponentOptions"
-                    :key="String(item.value)"
-                    :label="item.label"
-                    :value="item.value"
+                    inline-prompt
+                    :active-text="t('system.codegen.value.on')"
+                    :inactive-text="t('system.codegen.value.off')"
                   />
-                </el-select>
-                <el-tooltip
-                  v-if="shouldShowOptionEntry(row.list_config, 'list')"
-                  :content="optionEntryTip(row.list_config.option)"
-                  placement="top"
-                >
-                  <el-button
-                    size="small"
-                    :type="hasOptionConfig(row.list_config.option) ? 'primary' : 'default'"
-                    :icon="Setting"
-                    :disabled="!canEdit"
-                    @click="openOptionDialog(row, 'list')"
+                  <el-select
+                    v-model="row.list_config.component"
+                    :disabled="!canEdit || !row.list_config.enabled"
+                    :placeholder="t('system.codegen.column.placeholder.listComponent')"
+                    @change="handleComponentChange(row, 'list')"
                   >
-                    选项
-                  </el-button>
-                </el-tooltip>
-              </div>
-            </template>
-          </el-table-column>
+                    <el-option
+                      v-for="item in listComponentOptions"
+                      :key="String(item.value)"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </el-select>
+                  <el-tooltip
+                    v-if="shouldShowOptionEntry(row.list_config, 'list')"
+                    :content="optionEntryTip(row.list_config.option)"
+                    placement="top"
+                  >
+                    <el-button
+                      size="small"
+                      :type="hasOptionConfig(row.list_config.option) ? 'primary' : 'default'"
+                      :icon="Setting"
+                      :disabled="!canEdit"
+                      @click="openOptionDialog(row, 'list')"
+                    >
+                      {{ t("system.codegen.column.action.options") }}
+                    </el-button>
+                  </el-tooltip>
+                </div>
+              </template>
+            </el-table-column>
 
-          <el-table-column label="表单" min-width="440">
-            <template #default="{ row }">
-              <div class="code-gen-config-cell">
-                <el-switch
-                  v-model="row.form_config.enabled"
-                  :disabled="!canEdit"
-                  inline-prompt
-                  active-text="开"
-                  inactive-text="关"
-                  @change="handleFormEnabledChange(row)"
-                />
-                <el-select
-                  v-model="row.form_config.component"
-                  :disabled="!canEdit || !row.form_config.enabled"
-                  placeholder="录入组件"
-                  @change="handleComponentChange(row, 'form')"
-                >
-                  <el-option
-                    v-for="item in formComponentOptions"
-                    :key="String(item.value)"
-                    :label="item.label"
-                    :value="item.value"
-                  />
-                </el-select>
-                <el-checkbox v-model="row.form_config.required" :disabled="!canEdit || !row.form_config.enabled"
-                  >必填</el-checkbox
-                >
-                <el-tooltip
-                  v-if="shouldShowOptionEntry(row.form_config, 'form')"
-                  :content="optionEntryTip(row.form_config.option)"
-                  placement="top"
-                >
-                  <el-button
-                    size="small"
-                    :type="hasOptionConfig(row.form_config.option) ? 'primary' : 'default'"
-                    :icon="Setting"
+            <el-table-column :label="t('system.codegen.column.field.form')" min-width="440">
+              <template #default="{ row }">
+                <div class="code-gen-config-cell">
+                  <el-switch
+                    v-model="row.form_config.enabled"
                     :disabled="!canEdit"
-                    @click="openOptionDialog(row, 'form')"
+                    inline-prompt
+                    :active-text="t('system.codegen.value.on')"
+                    :inactive-text="t('system.codegen.value.off')"
+                    @change="handleFormEnabledChange(row)"
+                  />
+                  <el-select
+                    v-model="row.form_config.component"
+                    :disabled="!canEdit || !row.form_config.enabled"
+                    :placeholder="t('system.codegen.column.placeholder.formComponent')"
+                    @change="handleComponentChange(row, 'form')"
                   >
-                    选项
-                  </el-button>
-                </el-tooltip>
-              </div>
-            </template>
-          </el-table-column>
+                    <el-option
+                      v-for="item in formComponentOptions"
+                      :key="String(item.value)"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </el-select>
+                  <el-checkbox v-model="row.form_config.required" :disabled="!canEdit || !row.form_config.enabled">{{
+                    t("system.codegen.column.value.required")
+                  }}</el-checkbox>
+                  <el-tooltip
+                    v-if="shouldShowOptionEntry(row.form_config, 'form')"
+                    :content="optionEntryTip(row.form_config.option)"
+                    placement="top"
+                  >
+                    <el-button
+                      size="small"
+                      :type="hasOptionConfig(row.form_config.option) ? 'primary' : 'default'"
+                      :icon="Setting"
+                      :disabled="!canEdit"
+                      @click="openOptionDialog(row, 'form')"
+                    >
+                      {{ t("system.codegen.column.action.options") }}
+                    </el-button>
+                  </el-tooltip>
+                </div>
+              </template>
+            </el-table-column>
           </el-table>
         </div>
       </div>
-      <el-empty v-else description="请先选择生成记录" />
+      <el-empty v-else :description="t('system.codegen.column.message.selectRecord')" />
     </el-card>
 
     <ProDialog
       v-model="optionDialog.visible"
-      :title="`${optionDialog.scopeLabel}选项 - ${optionDialog.columnName}`"
+      :title="optionDialogTitle"
       width="min(560px, calc(100vw - 32px))"
       destroy-on-close
       :show-close="false"
@@ -242,26 +282,32 @@
     >
       <template #header="{ titleId, titleClass }">
         <div class="code-gen-config-dialog__header">
-          <span :id="titleId" :class="titleClass">{{ `${optionDialog.scopeLabel}选项 - ${optionDialog.columnName}` }}</span>
+          <span :id="titleId" :class="titleClass">{{ optionDialogTitle }}</span>
           <el-button
             type="primary"
             :icon="Document"
             :disabled="!canEdit"
-            aria-label="保存并关闭"
+            :aria-label="t('system.codegen.column.action.saveAndClose')"
             @click="handleSaveOptionDialog"
           >
-            保存
+            {{ t("common.action.save") }}
           </el-button>
         </div>
       </template>
 
       <div v-if="optionDialog.option" class="code-gen-option-dialog">
         <div v-if="optionDialog.formConfig" class="code-gen-popover-form__row">
-          <span class="code-gen-popover-form__label">选择模式</span>
+          <span class="code-gen-popover-form__label">{{ t("system.codegen.column.field.selectionMode") }}</span>
           <el-radio-group v-model="optionDialog.formConfig.multiple" :disabled="!canEdit">
-            <el-radio-button :value="false">单选</el-radio-button>
-            <el-tooltip content="多选仅支持 JSON 字段" :disabled="optionDialog.isJSONColumn" placement="top">
-              <el-radio-button :value="true" :disabled="!optionDialog.isJSONColumn">多选</el-radio-button>
+            <el-radio-button :value="false">{{ t("system.codegen.column.value.single") }}</el-radio-button>
+            <el-tooltip
+              :content="t('system.codegen.column.tooltip.multipleJsonOnly')"
+              :disabled="optionDialog.isJSONColumn"
+              placement="top"
+            >
+              <el-radio-button :value="true" :disabled="!optionDialog.isJSONColumn">
+                {{ t("system.codegen.column.value.multiple") }}
+              </el-radio-button>
             </el-tooltip>
           </el-radio-group>
         </div>
@@ -272,31 +318,26 @@
           "
           class="code-gen-popover-form__row"
         >
-          <span class="code-gen-popover-form__label">来源</span>
+          <span class="code-gen-popover-form__label">{{ t("system.codegen.column.field.source") }}</span>
           <el-select
             v-model="optionDialog.option.source_type"
             :disabled="!canEdit"
             clearable
-            placeholder="选择来源"
+            :placeholder="t('system.codegen.column.placeholder.source')"
             @change="handleOptionSourceTypeChange"
           >
-            <el-option
-              v-for="item in sourceTypeOptions"
-              :key="String(item.value)"
-              :label="item.label"
-              :value="item.value"
-            />
+            <el-option v-for="item in sourceTypeOptions" :key="String(item.value)" :label="item.label" :value="item.value" />
           </el-select>
         </div>
         <div v-if="optionDialog.option.source_type === 'dict'" class="code-gen-popover-form__row">
-          <span class="code-gen-popover-form__label">字典</span>
+          <span class="code-gen-popover-form__label">{{ t("system.codegen.column.field.dictionary") }}</span>
           <el-select
             v-model="optionDialog.option.source_value"
             :disabled="!canEdit"
             :loading="loadingDictionaries"
             filterable
             clearable
-            placeholder="选择字典"
+            :placeholder="t('system.codegen.column.placeholder.dictionary')"
             @change="handleOptionSourceValueChange"
           >
             <el-option
@@ -309,12 +350,12 @@
         </div>
         <template v-if="optionDialog.option.kind === 'switch' && optionDialog.option.source_value">
           <div class="code-gen-popover-form__row">
-            <span class="code-gen-popover-form__label">开启值</span>
+            <span class="code-gen-popover-form__label">{{ t("system.codegen.column.field.activeValue") }}</span>
             <el-select
               v-model="optionDialog.option.active_value"
               :disabled="!canEdit"
               filterable
-              placeholder="选择开启值"
+              :placeholder="t('system.codegen.column.placeholder.activeValue')"
             >
               <el-option
                 v-for="item in dictionaryItemsForEditor"
@@ -326,12 +367,12 @@
             </el-select>
           </div>
           <div class="code-gen-popover-form__row">
-            <span class="code-gen-popover-form__label">关闭值</span>
+            <span class="code-gen-popover-form__label">{{ t("system.codegen.column.field.inactiveValue") }}</span>
             <el-select
               v-model="optionDialog.option.inactive_value"
               :disabled="!canEdit"
               filterable
-              placeholder="选择关闭值"
+              :placeholder="t('system.codegen.column.placeholder.inactiveValue')"
             >
               <el-option
                 v-for="item in dictionaryItemsForEditor"
@@ -344,14 +385,14 @@
           </div>
         </template>
         <div v-else-if="optionDialog.option.source_type === 'table'" class="code-gen-popover-form__row">
-          <span class="code-gen-popover-form__label">数据表</span>
+          <span class="code-gen-popover-form__label">{{ t("system.codegen.column.field.dataTable") }}</span>
           <el-select
             v-model="optionDialog.option.source_value"
             :disabled="!canEdit"
             :loading="loadingDatabaseTables"
             filterable
             clearable
-            placeholder="选择数据表"
+            :placeholder="t('system.codegen.column.placeholder.dataTable')"
             @change="handleOptionSourceValueChange"
           >
             <el-option
@@ -364,14 +405,14 @@
         </div>
         <template v-if="optionDialog.option.source_type === 'table'">
           <div v-if="optionDialog.option.kind === 'tree'" class="code-gen-popover-form__row">
-            <span class="code-gen-popover-form__label">树父字段</span>
+            <span class="code-gen-popover-form__label">{{ t("system.codegen.column.field.treeParent") }}</span>
             <el-select
               v-model="optionDialog.option.parent_field"
               :disabled="!canEdit || !optionDialog.option.source_value"
               :loading="loadingDatabaseColumns.has(optionDialog.option.source_value)"
               filterable
               clearable
-              placeholder="选择树父字段"
+              :placeholder="t('system.codegen.column.placeholder.treeParent')"
             >
               <el-option
                 v-for="item in databaseColumnsForEditor"
@@ -382,14 +423,20 @@
             </el-select>
           </div>
           <div v-if="optionDialog.option.kind === 'tree'" class="code-gen-popover-form__row">
-            <span class="code-gen-popover-form__label">加载方式</span>
+            <span class="code-gen-popover-form__label">{{ t("system.codegen.column.field.loadMode") }}</span>
             <el-checkbox v-model="optionDialog.option.lazy" :disabled="!canEdit">
-              懒加载子节点
+              {{ t("system.codegen.column.value.lazyChildren") }}
             </el-checkbox>
           </div>
           <div class="code-gen-popover-form__row">
             <span class="code-gen-popover-form__label">
-              {{ optionDialog.option.kind === "tree" ? "树显示字段" : "Label 字段" }}
+              {{
+                t(
+                  optionDialog.option.kind === "tree"
+                    ? "system.codegen.column.field.treeLabel"
+                    : "system.codegen.column.field.labelField"
+                )
+              }}
             </span>
             <el-select
               v-model="optionDialog.option.label_field"
@@ -397,7 +444,13 @@
               :loading="loadingDatabaseColumns.has(optionDialog.option.source_value)"
               filterable
               clearable
-              :placeholder="optionDialog.option.kind === 'tree' ? '选择树显示字段' : '选择显示字段'"
+              :placeholder="
+                t(
+                  optionDialog.option.kind === 'tree'
+                    ? 'system.codegen.column.placeholder.treeLabel'
+                    : 'system.codegen.column.placeholder.labelField'
+                )
+              "
             >
               <el-option
                 v-for="item in databaseColumnsForEditor"
@@ -409,7 +462,13 @@
           </div>
           <div class="code-gen-popover-form__row">
             <span class="code-gen-popover-form__label">
-              {{ optionDialog.option.kind === "tree" ? "树值字段" : "Value 字段" }}
+              {{
+                t(
+                  optionDialog.option.kind === "tree"
+                    ? "system.codegen.column.field.treeValue"
+                    : "system.codegen.column.field.valueField"
+                )
+              }}
             </span>
             <el-select
               v-model="optionDialog.option.value_field"
@@ -417,7 +476,13 @@
               :loading="loadingDatabaseColumns.has(optionDialog.option.source_value)"
               filterable
               clearable
-              :placeholder="optionDialog.option.kind === 'tree' ? '选择树值字段' : '选择值字段'"
+              :placeholder="
+                t(
+                  optionDialog.option.kind === 'tree'
+                    ? 'system.codegen.column.placeholder.treeValue'
+                    : 'system.codegen.column.placeholder.valueField'
+                )
+              "
             >
               <el-option
                 v-for="item in databaseColumnsForEditor"
@@ -430,31 +495,38 @@
         </template>
         <div v-if="optionDialog.option.source_type === 'static'" class="code-gen-static-options">
           <div class="code-gen-static-options__header">
-            <span class="code-gen-popover-form__label">静态数据</span>
-            <el-button size="small" :icon="Plus" :disabled="!canEdit" @click="addStaticOption">添加</el-button>
+            <span class="code-gen-popover-form__label">{{ t("system.codegen.column.field.staticData") }}</span>
+            <el-button size="small" :icon="Plus" :disabled="!canEdit" @click="addStaticOption">
+              {{ t("common.action.create") }}
+            </el-button>
           </div>
           <div v-if="staticOptionsForEditor.length" class="code-gen-static-options__list">
             <div v-for="(item, index) in staticOptionsForEditor" :key="index" class="code-gen-static-options__item">
-              <el-input v-model="item.label" :disabled="!canEdit" placeholder="Label" @input="syncStaticOptions" />
+              <el-input
+                v-model="item.label"
+                :disabled="!canEdit"
+                :placeholder="t('system.codegen.column.placeholder.optionLabel')"
+                @input="syncStaticOptions"
+              />
               <el-input
                 :model-value="String(item.value)"
                 :disabled="!canEdit"
-                placeholder="Value"
+                :placeholder="t('system.codegen.column.placeholder.optionValue')"
                 @update:model-value="updateStaticOptionValue(item, $event)"
               />
-              <el-tooltip content="删除静态数据" placement="top">
+              <el-tooltip :content="t('system.codegen.column.action.deleteStatic')" placement="top">
                 <el-button
                   :icon="Delete"
                   :disabled="!canEdit"
                   circle
                   text
-                  aria-label="删除静态数据"
+                  :aria-label="t('system.codegen.column.action.deleteStatic')"
                   @click="removeStaticOption(index)"
                 />
               </el-tooltip>
             </div>
           </div>
-          <el-empty v-else :image-size="48" description="暂无静态数据" />
+          <el-empty v-else :image-size="48" :description="t('system.codegen.column.message.emptyStatic')" />
         </div>
       </div>
     </ProDialog>
@@ -464,8 +536,9 @@
 <script setup lang="ts">
 import Sortable from "sortablejs";
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
-import { Delete, Document, List, Plus, Setting } from "@element-plus/icons-vue";
+import { ChatLineSquare, Delete, Document, List, Plus, Setting } from "@element-plus/icons-vue";
 import { useRoute, useRouter } from "vue-router";
+import { t } from "@liujitcn/kratos-admin-core";
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { useTabsStore } from "@liujitcn/kratos-admin-core/stores/runtime";
@@ -482,6 +555,7 @@ import type {
   CodeGenDatabaseColumn
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_column";
 import type { CodeGenDatabaseTable, CodeGenTableForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_table";
+import CodeGenLocaleEditor from "../components/CodeGenLocaleEditor.vue";
 import {
   copyCodeGenOptionToEmptyMatches,
   copyFirstMatchingCodeGenOption,
@@ -491,11 +565,11 @@ import {
 } from "./option-copy";
 import type { CodeGenOptionContainer, CodeGenOptionScope } from "./option-copy";
 import {
-  codeGenFormComponentOptions as formComponentOptions,
-  codeGenListComponentOptions as listComponentOptions,
-  codeGenQueryComponentOptions as queryComponentOptions,
-  codeGenQueryOperatorOptions as queryOperatorOptions,
-  codeGenSourceTypeOptions as sourceTypeOptions,
+  codeGenFormComponentOptions,
+  codeGenListComponentOptions,
+  codeGenQueryComponentOptions,
+  codeGenQueryOperatorOptions,
+  codeGenSourceTypeOptions,
   createDefaultCodeGenFormConfig,
   createDefaultCodeGenListConfig,
   createDefaultCodeGenOptionConfig,
@@ -552,7 +626,6 @@ interface CodeGenStaticOption {
 interface CodeGenOptionDialog {
   visible: boolean;
   scope: CodeGenOptionScope;
-  scopeLabel: string;
   columnName: string;
   component: string;
   isJSONColumn: boolean;
@@ -577,7 +650,6 @@ interface CodeGenColumnOptionConsistencyIssue {
 const optionDialog = reactive<CodeGenOptionDialog>({
   visible: false,
   scope: "query",
-  scopeLabel: "查询",
   columnName: "",
   component: "",
   isJSONColumn: false,
@@ -601,6 +673,17 @@ const enabledSummary = computed(() => ({
   list: columns.value.filter(item => item.list_config.enabled).length,
   form: columns.value.filter(item => item.form_config.enabled).length
 }));
+const queryOperatorOptions = computed(() => codeGenQueryOperatorOptions());
+const queryComponentOptions = computed(() => codeGenQueryComponentOptions());
+const listComponentOptions = computed(() => codeGenListComponentOptions());
+const formComponentOptions = computed(() => codeGenFormComponentOptions());
+const sourceTypeOptions = computed(() => codeGenSourceTypeOptions());
+const optionDialogTitle = computed(() =>
+  t("system.codegen.column.title.options", {
+    scope: codeGenScopeLabel(optionDialog.scope),
+    column: optionDialog.columnName
+  })
+);
 
 /** 当前选项编辑器可用的数据库字段。 */
 const databaseColumnsForEditor = computed(() => {
@@ -653,7 +736,9 @@ async function handleQuery() {
 /** 同步当前页签和浏览器标题。 */
 function syncWorkspaceTitle() {
   const tableTitle = formData.comment || formData.name;
-  const title = tableTitle ? `${tableTitle}字段配置` : "字段配置";
+  const title = tableTitle
+    ? t("system.codegen.column.title.workspaceWithTable", { table: tableTitle })
+    : t("system.codegen.column.title.workspace");
   tabsStore.setTabsTitle(title);
   document.title = `${title} - ${import.meta.env.VITE_GLOB_APP_TITLE}`;
 }
@@ -664,7 +749,7 @@ async function handleSaveColumns(showMessage = true) {
   syncColumnSorts();
   columns.value.forEach(syncColumnOptionKinds);
   if (columns.value.some(item => !item.name || !item.db_type)) {
-    ElMessage.warning("字段名和数据库类型不能为空");
+    ElMessage.warning(t("system.codegen.column.message.nameAndTypeRequired"));
     return false;
   }
   const optionIssue = findCodeGenColumnOptionIssue(columns.value);
@@ -677,11 +762,14 @@ async function handleSaveColumns(showMessage = true) {
   if (consistencyIssue) {
     try {
       await ElMessageBox.confirm(
-        `字段 ${consistencyIssue.columnName} 的${consistencyIssue.scopes}选项来源不一致，是否继续保存？`,
-        "选项配置警告",
+        t("system.codegen.column.dialog.inconsistentSource", {
+          column: consistencyIssue.columnName,
+          scopes: consistencyIssue.scopes
+        }),
+        t("system.codegen.column.title.optionWarning"),
         {
-          confirmButtonText: "继续保存",
-          cancelButtonText: "返回修改",
+          confirmButtonText: t("system.codegen.column.action.continueSave"),
+          cancelButtonText: t("system.codegen.column.action.backToEdit"),
           type: "warning"
         }
       );
@@ -697,7 +785,7 @@ async function handleSaveColumns(showMessage = true) {
       sort: index + 1
     }))
   });
-  if (showMessage) ElMessage.success("保存成功");
+  if (showMessage) ElMessage.success(t("common.message.operationSuccess"));
   // 路由切换前保留当前页签地址，避免误删目标页签。
   const currentPath = route.fullPath;
   await router.push("/code/gen/table");
@@ -788,7 +876,6 @@ async function openOptionDialog(row: CodeGenColumnView, scope: CodeGenOptionScop
   const config = getCodeGenOptionContainer(row, scope);
   syncOptionKind(config, scope);
   optionDialog.scope = scope;
-  optionDialog.scopeLabel = scope === "query" ? "查询" : scope === "list" ? "列表" : "表单";
   optionDialog.columnName = row.name;
   optionDialog.component = config.component;
   optionDialog.isJSONColumn = row.db_type.trim().toLowerCase() === "json";
@@ -935,9 +1022,7 @@ function applyTableOptionDefaultFields(option: CodeGenColumnOptionConfig, compon
 /** 格式化数据表字段选项。 */
 function formatDatabaseColumn(column: CodeGenDatabaseColumn) {
   const columnType = column.column_type || column.db_type;
-  return column.comment
-    ? `${column.name}（${column.comment} / ${columnType}）`
-    : `${column.name}（${columnType}）`;
+  return column.comment ? `${column.name}（${column.comment} / ${columnType}）` : `${column.name}（${columnType}）`;
 }
 
 /** 添加一条空白静态选项。 */
@@ -1011,7 +1096,7 @@ function findCodeGenColumnOptionIssue(items: CodeGenColumnView[]): CodeGenColumn
       ["form", column.form_config.option]
     ];
     for (const [scope, option] of optionConfigs) {
-      const scopeLabel = scope === "query" ? "查询" : scope === "list" ? "列表" : "表单";
+      const scopeLabel = codeGenScopeLabel(scope);
       const message = getCodeGenOptionValidationMessage(column.name, scopeLabel, option);
       if (message) return { row: column, scope, message };
     }
@@ -1023,17 +1108,20 @@ function findCodeGenColumnOptionConsistencyIssue(items: CodeGenColumnView[]): Co
   for (const column of items) {
     const entries = (
       [
-        ["查询", column.query_config, "query"],
-        ["列表", column.list_config, "list"],
-        ["表单", column.form_config, "form"]
+        [codeGenScopeLabel("query"), column.query_config, "query"],
+        [codeGenScopeLabel("list"), column.list_config, "list"],
+        [codeGenScopeLabel("form"), column.form_config, "form"]
       ] as const
-    ).filter(([, config, scope]) => config.enabled && hasOptionComponent(config.component, scope) && isCompleteCodeGenOptionConfig(config.option));
+    ).filter(
+      ([, config, scope]) =>
+        config.enabled && hasOptionComponent(config.component, scope) && isCompleteCodeGenOptionConfig(config.option)
+    );
     if (entries.length < 2) continue;
     const firstSignature = codeGenOptionSourceSignature(entries[0][1].option);
     if (entries.every(([, config]) => codeGenOptionSourceSignature(config.option) === firstSignature)) continue;
     return {
       columnName: column.name,
-      scopes: entries.map(([label]) => label).join("、")
+      scopes: entries.map(([label]) => label).join(t("system.codegen.preview.value.listSeparator"))
     };
   }
 }
@@ -1062,33 +1150,34 @@ function getCodeGenOptionValidationMessage(columnName: string, scope: string, op
     option.inactive_value ||
     option.lazy
   );
-  if (!option.kind) return hasSourceFields ? `字段 ${columnName} 的${scope}选项配置无对应组件` : "";
+  const args = { column: columnName, scope };
+  if (!option.kind) return hasSourceFields ? t("system.codegen.column.validation.optionComponentMissing", args) : "";
   if (option.kind === "switch") {
     if (option.source_type !== "dict" || !option.source_value || !option.active_value || !option.inactive_value) {
-      return `字段 ${columnName} 的${scope}开关配置不完整`;
+      return t("system.codegen.column.validation.switchIncomplete", args);
     }
-    if (option.active_value === option.inactive_value) return `字段 ${columnName} 的${scope}开启值和关闭值不能相同`;
+    if (option.active_value === option.inactive_value) return t("system.codegen.column.validation.switchValuesSame", args);
     return "";
   }
-  if (option.active_value || option.inactive_value) return `字段 ${columnName} 的${scope}选项不能配置开关值`;
-  if (option.lazy && option.kind !== "tree") return `字段 ${columnName} 的${scope}仅树形选项支持懒加载`;
+  if (option.active_value || option.inactive_value) return t("system.codegen.column.validation.switchValuesUnsupported", args);
+  if (option.lazy && option.kind !== "tree") return t("system.codegen.column.validation.lazyTreeOnly", args);
   if (option.kind === "tree" && option.source_type !== "table") {
-    return `字段 ${columnName} 的${scope}树形选项只能使用数据表来源`;
+    return t("system.codegen.column.validation.treeTableOnly", args);
   }
   if (!new Set(["static", "dict", "table"]).has(option.source_type) || !option.source_value) {
-    return `字段 ${columnName} 的${scope}选项来源配置不完整`;
+    return t("system.codegen.column.validation.sourceIncomplete", args);
   }
   if (option.source_type === "static") {
     const options = parseCodeGenStaticOptions(option.source_value);
     if (!options.length || options.some(item => item.label === "" || item.value === "")) {
-      return `字段 ${columnName} 的${scope}选项至少需要一条完整的静态数据`;
+      return t("system.codegen.column.validation.staticIncomplete", args);
     }
   }
   if (
     option.source_type === "table" &&
     (!option.label_field || !option.value_field || (option.kind === "tree" && !option.parent_field))
   ) {
-    return `字段 ${columnName} 的${scope}数据表选项字段配置不完整`;
+    return t("system.codegen.column.validation.tableFieldsIncomplete", args);
   }
   return "";
 }
@@ -1105,7 +1194,19 @@ function hasOptionConfig(option: CodeGenColumnOptionConfig) {
 
 /** 返回选项入口的当前状态提示。 */
 function optionEntryTip(option: CodeGenColumnOptionConfig) {
-  return hasOptionConfig(option) ? "已配置，可直接保存；需要覆盖时可打开修改" : "配置选项";
+  return t(
+    hasOptionConfig(option) ? "system.codegen.column.tooltip.optionConfigured" : "system.codegen.column.tooltip.configureOption"
+  );
+}
+
+/** 返回配置范围的当前语言名称。 */
+function codeGenScopeLabel(scope: CodeGenOptionScope) {
+  return t(`system.codegen.column.scope.${scope}`);
+}
+
+/** 判断字段是否缺少英语或日语描述。 */
+function hasMissingColumnLocales(column: CodeGenColumnView) {
+  return ["en-US", "ja-JP"].some(locale => !column.i18n_config?.get(locale)?.comment);
 }
 
 /** 判断组件是否依赖选择数据源。 */
@@ -1131,11 +1232,7 @@ function syncOptionKind(config: CodeGenOptionContainer, scope: CodeGenOptionScop
     return;
   }
   const kind =
-    config.component === "tree-select"
-      ? "tree"
-      : scope !== "query" && config.component === "switch"
-        ? "switch"
-        : "option";
+    config.component === "tree-select" ? "tree" : scope !== "query" && config.component === "switch" ? "switch" : "option";
   if (kind === "tree" && config.option.source_type !== "table") {
     Object.assign(config.option, createDefaultCodeGenOptionConfig());
     config.option.source_type = "table";
@@ -1318,12 +1415,21 @@ onBeforeUnmount(() => {
 }
 
 .code-gen-config-cell,
+.code-gen-comment-editor,
 .code-gen-static-options__header,
 .code-gen-static-options__item {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
+}
+
+.code-gen-comment-editor {
+  flex-wrap: nowrap;
+}
+
+.code-gen-comment-editor .el-input {
+  min-width: 0;
 }
 
 .code-gen-field-trigger__name {

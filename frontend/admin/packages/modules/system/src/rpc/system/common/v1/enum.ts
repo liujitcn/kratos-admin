@@ -18,7 +18,7 @@ export enum BaseConfigType {
   /** DICT - 字典 */
   DICT = 4,
   /** BOOLEAN - 布尔 */
-  BOOLEAN = 5,
+  BOOLEAN = 5
 }
 
 /** 定时任务日志状态 */
@@ -27,7 +27,7 @@ export enum BaseJobLogStatus {
   /** SUCCESS - 成功 */
   SUCCESS = 1,
   /** FAIL - 失败 */
-  FAIL = 2,
+  FAIL = 2
 }
 
 /** 菜单类型 */
@@ -40,7 +40,7 @@ export enum BaseMenuType {
   /** BUTTON - 按钮 */
   BUTTON = 3,
   /** EXT_LINK - 外部链接 */
-  EXT_LINK = 4,
+  EXT_LINK = 4
 }
 
 /** 角色数据范围 */
@@ -53,7 +53,7 @@ export enum BaseRoleDataScope {
   /** SELF_DEPT - 本部门数据 */
   SELF_DEPT = 3,
   /** SELF_USER - 本人数据 */
-  SELF_USER = 4,
+  SELF_USER = 4
 }
 
 /** 用户性别 */
@@ -64,7 +64,7 @@ export enum BaseUserGender {
   /** BOY - 男 */
   BOY = 2,
   /** GIRL - 禁用 */
-  GIRL = 3,
+  GIRL = 3
 }
 
 /** 代码生成表状态 */
@@ -76,5 +76,5 @@ export enum CodeGenTableStatus {
   /** GENERATED_CGTS - 已生成 */
   GENERATED_CGTS = 2,
   /** DISABLED_CGTS - 停用 */
-  DISABLED_CGTS = 3,
+  DISABLED_CGTS = 3
 }

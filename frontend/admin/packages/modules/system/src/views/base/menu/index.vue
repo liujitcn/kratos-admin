@@ -2,7 +2,7 @@
   <div class="table-box">
     <ProTable
       ref="proTable"
-      title="菜单列表"
+      :title="t('system.menu.title.list')"
       row-key="id"
       :indent="20"
       :columns="columns"
@@ -16,7 +16,7 @@
     <FormDialog
       v-model="dialog.visible"
       ref="formDialogRef"
-      :title="dialog.title"
+      :title="t(dialog.editing ? 'system.menu.action.edit' : 'system.menu.action.create')"
       width="1180px"
       :model="formData"
       :fields="formFields"
@@ -27,15 +27,25 @@
       @close="handleCloseDialog"
     >
       <template #menuIcon>
-        <SelectIcon v-model:icon-value="menuIconValue" placeholder="请选择菜单图标" />
+        <SelectIcon v-model:icon-value="menuIconValue" :placeholder="t('system.menu.placeholder.icon')" />
+      </template>
+
+      <template #translations>
+        <DynamicTranslationEditor
+          v-model="translationValues"
+          :resource-id="formData.id"
+          :resource-type="TranslationResourceType.TRANSLATION_RESOURCE_TYPE_MENU"
+          :draft-enabled="configStore.translationDraftEnabled"
+          :maxlength="100"
+        />
       </template>
 
       <template #apiTransferItem="slotScope">
         <el-popover effect="light" trigger="hover" placement="top" width="auto">
           <template #default>
-            <div>操作名称：{{ slotScope.option.operation }}</div>
-            <div>请求方式：{{ slotScope.option.method }}</div>
-            <div>请求地址：{{ slotScope.option.path }}</div>
+            <div>{{ t("system.api.field.operation") }}：{{ slotScope.option.operation }}</div>
+            <div>{{ t("system.api.field.method") }}：{{ slotScope.option.method }}</div>
+            <div>{{ t("system.api.field.path") }}：{{ slotScope.option.path }}</div>
           </template>
           <template #reference>{{ slotScope.option.label }}</template>
         </el-popover>
@@ -49,7 +59,12 @@ import { computed, h, reactive, ref, resolveComponent, resolveDynamicComponent, 
 import { ElIcon, ElTag, type FormRules } from "element-plus";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
-import type { ColumnProps, HeaderActionProps, ProTableInstance, RenderScope } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
+import type {
+  ColumnProps,
+  HeaderActionProps,
+  ProTableInstance,
+  RenderScope
+} from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import SelectIcon from "@liujitcn/kratos-admin-core/components/SelectIcon/index.vue";
 import { defBaseMenuService } from "@liujitcn/kratos-admin-system/api/system/base_menu";
@@ -65,6 +80,17 @@ import type {
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { BaseMenuType } from "@liujitcn/kratos-admin-system/rpc/system/common/v1/enum";
 import { normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
+import { t } from "@liujitcn/kratos-admin-core";
+import { useConfigStore } from "@liujitcn/kratos-admin-core/stores/runtime";
+import DynamicTranslationEditor from "@liujitcn/kratos-admin-system/components/DynamicTranslationEditor.vue";
+import {
+  normalizeDynamicTranslations,
+  serializeDynamicTranslations,
+  type DynamicTranslationRecord,
+  type DynamicTranslationValue
+} from "@liujitcn/kratos-admin-system/components/dynamicTranslation";
+import { TranslationResourceType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
+import type { BaseMenuTranslation } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_menu";
 
 defineOptions({
   name: "BaseMenu",
@@ -82,15 +108,17 @@ type MenuFormState = Omit<BaseMenuForm, "meta"> & {
 };
 
 const { BUTTONS } = useAuthButtons();
+const configStore = useConfigStore();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const menuOptions = ref<ProFormOption[]>([]);
 const parentMenuTypeMap = ref(new Map<number, BaseMenuType>());
 const appMenuIds = ref(new Set<number>([APP_MENU_ROOT_ID]));
 const apiList = ref<BaseApi[]>([]);
+const translationValues = ref<DynamicTranslationValue[]>(normalizeDynamicTranslations(undefined, "title"));
 
 const dialog = reactive({
-  title: "",
+  editing: false,
   visible: false,
   parentType: BaseMenuType.UNKNOWN_MT,
   parentLocked: true
@@ -133,6 +161,7 @@ function createDefaultMenuForm(): MenuFormState {
     redirect: "",
     meta: createDefaultMenuMeta(),
     api: [],
+    translations: [],
     sort: 1,
     status: Status.ENABLE
   };
@@ -148,12 +177,12 @@ const menuIconValue = computed({
   }
 });
 
-const menuTypeOptions: ProFormOption[] = [
-  { label: "目录", value: BaseMenuType.FOLDER },
-  { label: "菜单", value: BaseMenuType.MENU },
-  { label: "按钮", value: BaseMenuType.BUTTON },
-  { label: "外链", value: BaseMenuType.EXT_LINK }
-];
+const menuTypeOptions = computed<ProFormOption[]>(() => [
+  { label: t("system.menu.type.folder"), value: BaseMenuType.FOLDER },
+  { label: t("system.menu.type.menu"), value: BaseMenuType.MENU },
+  { label: t("system.menu.type.button"), value: BaseMenuType.BUTTON },
+  { label: t("system.menu.type.external"), value: BaseMenuType.EXT_LINK }
+]);
 
 /** 判断父节点是否属于固定移动端菜单树。 */
 function isAppMenu(parentId?: number) {
@@ -187,17 +216,17 @@ function canCreateChild(menu: BaseMenu) {
 const availableMenuTypeOptions = computed(() => {
   const parentLevel = getMenuLevel(formData.parent_id ?? 0);
 
-  if (formData.id === APP_MENU_ROOT_ID) return menuTypeOptions.filter(item => item.value === BaseMenuType.FOLDER);
-  if (isAppMenu(formData.parent_id)) return menuTypeOptions.filter(item => item.value === BaseMenuType.MENU);
-  if (formData.id > 0 && parentLevel === 0) return menuTypeOptions.filter(item => item.value === BaseMenuType.FOLDER);
+  if (formData.id === APP_MENU_ROOT_ID) return menuTypeOptions.value.filter(item => item.value === BaseMenuType.FOLDER);
+  if (isAppMenu(formData.parent_id)) return menuTypeOptions.value.filter(item => item.value === BaseMenuType.MENU);
+  if (formData.id > 0 && parentLevel === 0) return menuTypeOptions.value.filter(item => item.value === BaseMenuType.FOLDER);
   if (dialog.parentType === BaseMenuType.FOLDER && parentLevel === 1)
-    return menuTypeOptions.filter(
+    return menuTypeOptions.value.filter(
       item => item.value === BaseMenuType.FOLDER || item.value === BaseMenuType.MENU || item.value === BaseMenuType.EXT_LINK
     );
   if (dialog.parentType === BaseMenuType.FOLDER && parentLevel === 2)
-    return menuTypeOptions.filter(item => item.value === BaseMenuType.MENU || item.value === BaseMenuType.EXT_LINK);
+    return menuTypeOptions.value.filter(item => item.value === BaseMenuType.MENU || item.value === BaseMenuType.EXT_LINK);
   if (dialog.parentType === BaseMenuType.MENU && (parentLevel === 2 || parentLevel === 3))
-    return menuTypeOptions.filter(item => item.value === BaseMenuType.BUTTON);
+    return menuTypeOptions.value.filter(item => item.value === BaseMenuType.BUTTON);
   return [];
 });
 
@@ -216,16 +245,16 @@ watch(
   }
 );
 
-const statusOptions: ProFormOption[] = [
-  { label: "启用", value: Status.ENABLE },
-  { label: "禁用", value: Status.DISABLE }
-];
+const statusOptions = computed<ProFormOption[]>(() => [
+  { label: t("common.status.enabled"), value: Status.ENABLE },
+  { label: t("common.status.disabled"), value: Status.DISABLE }
+]);
 
-const appAccessOptions: ProFormOption[] = [
-  { label: "公开访问", value: "PUBLIC" },
-  { label: "仅游客", value: "GUEST_ONLY" },
-  { label: "登录访问", value: "AUTHENTICATED" }
-];
+const appAccessOptions = computed<ProFormOption[]>(() => [
+  { label: t("system.menu.access.public"), value: "PUBLIC" },
+  { label: t("system.menu.access.guest"), value: "GUEST_ONLY" },
+  { label: t("system.menu.access.authenticated"), value: "AUTHENTICATED" }
+]);
 
 /**
  * 渲染菜单图标单元格，统一兼容 Element Plus 图标和本地 svg 图标。
@@ -252,7 +281,9 @@ function renderMenuIconCell(scope: RenderScope<BaseMenu>) {
  */
 function renderHiddenCell(scope: RenderScope<BaseMenu>) {
   const isHidden = Boolean(scope.row.meta?.hidden);
-  return h(ElTag, { type: isHidden ? "info" : "success" }, () => (isHidden ? "隐藏" : "显示"));
+  return h(ElTag, { type: isHidden ? "info" : "success" }, () =>
+    t(isHidden ? "system.menu.status.hidden" : "system.menu.status.visible")
+  );
 }
 
 /** 菜单表格列配置。 */
@@ -267,26 +298,26 @@ const columns = computed<ColumnProps[]>(() => [
   },
   {
     prop: "meta.title",
-    label: "菜单名称",
+    label: t("system.menu.field.name"),
     minWidth: 220,
     align: "left",
     search: { el: "input", key: "title" }
   },
-  { prop: "type", label: "菜单类型", minWidth: 120, dictCode: "base_menu_type", search: { el: "select" } },
+  { prop: "type", label: t("system.menu.field.type"), minWidth: 120, dictCode: "base_menu_type", search: { el: "select" } },
   {
     prop: "meta.icon",
-    label: "菜单图标",
+    label: t("system.menu.field.icon"),
     width: 90,
     render: scope => renderMenuIconCell(scope as unknown as RenderScope<BaseMenu>)
   },
-  { prop: "path", label: "路由路径/权限标识", minWidth: 260, search: { el: "input" } },
-  { prop: "name", label: "路由名称", minWidth: 180, search: { el: "input" } },
-  { prop: "component", label: "组件路径", minWidth: 260 },
-  { prop: "redirect", label: "重定向地址", minWidth: 220 },
-  { prop: "sort", label: "排序", minWidth: 80, align: "right" },
+  { prop: "path", label: t("system.menu.field.pathOrPermission"), minWidth: 260, search: { el: "input" } },
+  { prop: "name", label: t("system.menu.field.routeName"), minWidth: 180, search: { el: "input" } },
+  { prop: "component", label: t("system.menu.field.component"), minWidth: 260 },
+  { prop: "redirect", label: t("system.menu.field.redirect"), minWidth: 220 },
+  { prop: "sort", label: t("system.common.field.sort"), minWidth: 80, align: "right" },
   {
     prop: "status",
-    label: "状态",
+    label: t("system.common.field.status"),
     width: 100,
     dictCode: "status",
     search: { el: "select" },
@@ -294,29 +325,29 @@ const columns = computed<ColumnProps[]>(() => [
     statusProps: {
       activeValue: Status.ENABLE,
       inactiveValue: Status.DISABLE,
-      activeText: "启用",
-      inactiveText: "禁用",
+      activeText: t("common.status.enabled"),
+      inactiveText: t("common.status.disabled"),
       disabled: () => !BUTTONS.value["base:menu:status"],
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseMenu)
     }
   },
   {
     prop: "meta.hidden",
-    label: "显示状态",
+    label: t("system.menu.field.displayStatus"),
     width: 100,
     render: scope => renderHiddenCell(scope as unknown as RenderScope<BaseMenu>)
   },
-  { prop: "created_at", label: "创建时间", minWidth: 180 },
-  { prop: "updated_at", label: "更新时间", minWidth: 180 },
+  { prop: "created_at", label: t("system.common.field.createdAt"), minWidth: 180 },
+  { prop: "updated_at", label: t("system.common.field.updatedAt"), minWidth: 180 },
   {
     prop: "operation",
-    label: "操作",
+    label: t("system.common.field.action"),
     width: 220,
     fixed: "right",
     cellType: "actions",
     actions: [
       {
-        label: "新增",
+        label: t("common.action.create"),
         type: "primary",
         link: true,
         icon: CirclePlus,
@@ -324,7 +355,7 @@ const columns = computed<ColumnProps[]>(() => [
         onClick: scope => handleOpenDialog(scope.row as BaseMenu)
       },
       {
-        label: "编辑",
+        label: t("common.action.edit"),
         type: "primary",
         link: true,
         icon: EditPen,
@@ -332,7 +363,7 @@ const columns = computed<ColumnProps[]>(() => [
         onClick: scope => handleOpenDialog(undefined, (scope.row as BaseMenu).id)
       },
       {
-        label: "删除",
+        label: t("common.action.delete"),
         type: "danger",
         link: true,
         icon: Delete,
@@ -349,14 +380,14 @@ const columns = computed<ColumnProps[]>(() => [
 /** 菜单表格顶部按钮配置。 */
 const headerActions = computed<HeaderActionProps[]>(() => [
   {
-    label: "新增",
+    label: t("common.action.create"),
     type: "success",
     icon: CirclePlus,
     hidden: () => !BUTTONS.value["base:menu:create"],
     onClick: () => handleOpenDialog()
   },
   {
-    label: "删除",
+    label: t("common.action.delete"),
     type: "danger",
     icon: Delete,
     hidden: () => !BUTTONS.value["base:menu:delete"],
@@ -378,7 +409,7 @@ const transferData = computed<ProFormOption[]>(() => {
 const formFields = computed<ProFormField[]>(() => [
   {
     prop: "parent_id",
-    label: "上级菜单",
+    label: t("system.menu.field.parent"),
     component: "tree-select",
     options: menuOptions.value,
     props: () => ({
@@ -387,14 +418,14 @@ const formFields = computed<ProFormField[]>(() => [
       checkStrictly: true,
       clearable: false,
       filterable: true,
-      placeholder: "请选择上级菜单",
+      placeholder: t("system.menu.placeholder.parent"),
       disabled: dialog.parentLocked,
       style: { width: "100%" }
     })
   },
   {
     prop: "type",
-    label: "菜单类型",
+    label: t("system.menu.field.type"),
     component: "radio-group",
     options: availableMenuTypeOptions.value,
     props: model => ({
@@ -403,14 +434,23 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "meta.title",
-    label: formData.type === BaseMenuType.BUTTON ? "按钮名称" : "菜单标题",
+    label: t(formData.type === BaseMenuType.BUTTON ? "system.menu.field.buttonName" : "system.menu.field.title"),
     component: "input",
     itemProps: {
       required: true
     },
     props: () => ({
-      placeholder: formData.type === BaseMenuType.BUTTON ? "请输入按钮名称" : "请输入菜单标题"
+      placeholder: t(
+        formData.type === BaseMenuType.BUTTON ? "system.menu.placeholder.buttonName" : "system.menu.placeholder.title"
+      )
     })
+  },
+  {
+    prop: "translations",
+    label: t("system.translation.field.translations"),
+    component: "slot",
+    slotName: "translations",
+    colSpan: 24
   },
   {
     prop: "path",
@@ -437,7 +477,7 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "meta.icon",
-    label: "菜单图标",
+    label: t("system.menu.field.icon"),
     component: "slot",
     slotName: "menuIcon",
     itemProps: model => ({
@@ -447,65 +487,65 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "meta.icon",
-    label: "默认图标",
+    label: t("system.menu.field.defaultIcon"),
     component: "input",
-    labelTooltip: "填写移动端模块注册的图标键或 HTTPS 图片地址。",
+    labelTooltip: t("system.menu.tooltip.mobileIcon"),
     itemProps: model => ({
       required: Boolean(model.meta?.app?.in_tab_bar)
     }),
-    props: { placeholder: "例如 HOME_DEFAULT" },
+    props: { placeholder: t("system.menu.placeholder.defaultIcon") },
     visible: model => isAppMenu(model.parent_id)
   },
   {
     prop: "name",
-    label: isAppMenu(formData.parent_id) ? "逻辑名称" : "路由名称",
+    label: t(isAppMenu(formData.parent_id) ? "system.menu.field.logicalName" : "system.menu.field.routeName"),
     component: "input",
-    labelTooltip: isAppMenu(formData.parent_id)
-      ? "移动端页面使用 App 前缀的唯一逻辑名称。"
-      : "如果需要开启缓存，需保证页面 defineOptions 中的 name 与此处一致，建议使用驼峰。",
+    labelTooltip: isAppMenu(formData.parent_id) ? t("system.menu.tooltip.logicalName") : t("system.menu.tooltip.routeName"),
     itemProps: model => ({
       required: model.type === BaseMenuType.MENU
     }),
     props: () => ({
-      placeholder: isAppMenu(formData.parent_id) ? "例如 AppHome" : "请输入路由名称"
+      placeholder: isAppMenu(formData.parent_id)
+        ? t("system.menu.placeholder.logicalName")
+        : t("system.menu.placeholder.routeName")
     }),
     visible: model => model.type === BaseMenuType.MENU
   },
   {
     prop: "meta.app.view_key",
-    label: "视图键",
+    label: t("system.menu.field.viewKey"),
     component: "input",
-    labelTooltip: "必须与移动端模块注册的稳定 viewKey 一致，不填写组件文件路径。",
+    labelTooltip: t("system.menu.tooltip.viewKey"),
     itemProps: { required: true },
-    props: { placeholder: "例如 HOME" },
+    props: { placeholder: t("system.menu.placeholder.viewKey") },
     visible: model => isAppMenu(model.parent_id)
   },
   {
     prop: "meta.app.access",
-    label: "访问模式",
+    label: t("system.menu.field.access"),
     component: "select",
-    options: appAccessOptions,
+    options: appAccessOptions.value,
     itemProps: { required: true },
     props: {
       clearable: false,
-      placeholder: "请选择访问模式"
+      placeholder: t("system.menu.placeholder.access")
     },
     visible: model => isAppMenu(model.parent_id)
   },
   {
     prop: "meta.app.selected_icon",
-    label: "选中图标",
+    label: t("system.menu.field.selectedIcon"),
     component: "input",
-    labelTooltip: "填写移动端模块注册的图标键或 HTTPS 图片地址。",
+    labelTooltip: t("system.menu.tooltip.mobileIcon"),
     itemProps: { required: true },
-    props: { placeholder: "例如 HOME_SELECTED" },
+    props: { placeholder: t("system.menu.placeholder.selectedIcon") },
     visible: model => isAppTab(model.parent_id)
   },
   {
     prop: "component",
-    label: "组件路径",
+    label: t("system.menu.field.component"),
     component: "input",
-    labelTooltip: "组件页面完整路径，格式为模块名/模块内 views 路径，例如 system/base/user/index，缺省后缀 .vue。",
+    labelTooltip: t("system.menu.tooltip.component"),
     itemProps: model => ({
       required: model.type === BaseMenuType.MENU && !isAppMenu(model.parent_id)
     }),
@@ -514,12 +554,12 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "meta.hidden",
-    label: "是否隐藏",
+    label: t("system.menu.field.hidden"),
     component: "switch",
     props: {
       inlinePrompt: true,
-      activeText: "是",
-      inactiveText: "否",
+      activeText: t("system.common.value.yes"),
+      inactiveText: t("system.common.value.no"),
       activeValue: true,
       inactiveValue: false
     },
@@ -527,13 +567,13 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "meta.always_show",
-    label: "始终显示",
+    label: t("system.menu.field.alwaysShow"),
     component: "switch",
-    labelTooltip: "选择“是”，即使目录或菜单下只有一个子节点，也会显示父节点；选择“否”，若只有一个子节点则只显示子节点。",
+    labelTooltip: t("system.menu.tooltip.alwaysShow"),
     props: {
       inlinePrompt: true,
-      activeText: "是",
-      inactiveText: "否",
+      activeText: t("system.common.value.yes"),
+      inactiveText: t("system.common.value.no"),
       activeValue: true,
       inactiveValue: false
     },
@@ -541,12 +581,12 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "meta.keep_alive",
-    label: "缓存页面",
+    label: t("system.menu.field.keepAlive"),
     component: "switch",
     props: {
       inlinePrompt: true,
-      activeText: "开",
-      inactiveText: "关",
+      activeText: t("common.status.enabled"),
+      inactiveText: t("common.status.disabled"),
       activeValue: true,
       inactiveValue: false
     },
@@ -554,12 +594,12 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "meta.full",
-    label: "全屏模式",
+    label: t("system.menu.field.fullscreen"),
     component: "switch",
     props: {
       inlinePrompt: true,
-      activeText: "开",
-      inactiveText: "关",
+      activeText: t("common.status.enabled"),
+      inactiveText: t("common.status.disabled"),
       activeValue: true,
       inactiveValue: false
     },
@@ -567,12 +607,12 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "meta.affix",
-    label: "固定标签",
+    label: t("system.menu.field.affix"),
     component: "switch",
     props: {
       inlinePrompt: true,
-      activeText: "开",
-      inactiveText: "关",
+      activeText: t("common.status.enabled"),
+      inactiveText: t("common.status.disabled"),
       activeValue: true,
       inactiveValue: false
     },
@@ -580,13 +620,13 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "meta.params",
-    label: "路由参数",
+    label: t("system.menu.field.routeParams"),
     component: "kv-list",
-    labelTooltip: "组件页面使用 useRoute().query.参数名 获取路由参数值。",
+    labelTooltip: t("system.menu.tooltip.routeParams"),
     props: {
-      addText: "添加路由参数",
-      keyInputProps: { placeholder: "参数名" },
-      valueInputProps: { placeholder: "参数值" }
+      addText: t("system.menu.action.addRouteParam"),
+      keyInputProps: { placeholder: t("common.field.parameterName") },
+      valueInputProps: { placeholder: t("common.field.parameterValue") }
     },
     itemProps: {
       class: "menu-form__params"
@@ -595,20 +635,20 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "api",
-    label: "API 列表",
+    label: t("system.menu.field.apiList"),
     component: "transfer",
     slotName: "apiTransferItem",
     options: transferData.value,
     props: {
       filterable: true,
-      titles: ["可选 API", "已选 API"]
+      titles: [t("system.menu.value.availableApi"), t("system.menu.value.selectedApi")]
     },
     visible: model => model.id === APP_MENU_ROOT_ID || model.type === BaseMenuType.MENU || model.type === BaseMenuType.BUTTON,
     colSpan: 24
   },
   {
     prop: "sort",
-    label: "排序",
+    label: t("system.common.field.sort"),
     component: "input-number",
     itemProps: {
       required: true
@@ -623,23 +663,35 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "status",
-    label: "状态",
+    label: t("system.common.field.status"),
     component: "radio-group",
     itemProps: {
       required: true
     },
-    options: statusOptions
+    options: statusOptions.value
   }
 ]);
 
 const rules = computed<FormRules>(() => ({
-  parent_id: formData.id ? [] : [{ required: true, type: "number", min: 1, message: "请选择上级菜单", trigger: "change" }],
-  type: [{ required: true, message: "请选择菜单类型", trigger: "change" }],
+  parent_id: formData.id
+    ? []
+    : [{ required: true, type: "number", min: 1, message: t("system.menu.placeholder.parent"), trigger: "change" }],
+  type: [
+    {
+      required: true,
+      message: t("system.common.validation.requiredSelect", { field: t("system.menu.field.type") }),
+      trigger: "change"
+    }
+  ],
   "meta.title": [
     {
       validator: (_rule, value, callback) => {
         if (value) return callback();
-        callback(new Error(formData.type === BaseMenuType.BUTTON ? "请输入按钮名称" : "请输入菜单标题"));
+        callback(
+          new Error(
+            t(formData.type === BaseMenuType.BUTTON ? "system.menu.placeholder.buttonName" : "system.menu.placeholder.title")
+          )
+        );
       },
       trigger: "blur"
     }
@@ -650,7 +702,9 @@ const rules = computed<FormRules>(() => ({
         if (formData.type === BaseMenuType.BUTTON) return callback();
         if (isAppMenu(formData.parent_id) && !isAppTab(formData.parent_id)) return callback();
         if (value) return callback();
-        callback(new Error(isAppMenu(formData.parent_id) ? "请输入默认图标" : "请选择菜单图标"));
+        callback(
+          new Error(t(isAppMenu(formData.parent_id) ? "system.menu.validation.defaultIcon" : "system.menu.placeholder.icon"))
+        );
       },
       trigger: "change"
     }
@@ -659,7 +713,7 @@ const rules = computed<FormRules>(() => ({
     {
       validator: (_rule, value, callback) => {
         if (!isAppMenu(formData.parent_id) || value) return callback();
-        callback(new Error("请输入视图键"));
+        callback(new Error(t("system.menu.validation.viewKey")));
       },
       trigger: "blur"
     }
@@ -668,7 +722,7 @@ const rules = computed<FormRules>(() => ({
     {
       validator: (_rule, value, callback) => {
         if (!isAppMenu(formData.parent_id) || value) return callback();
-        callback(new Error("请选择访问模式"));
+        callback(new Error(t("system.menu.placeholder.access")));
       },
       trigger: "change"
     }
@@ -677,23 +731,31 @@ const rules = computed<FormRules>(() => ({
     {
       validator: (_rule, value, callback) => {
         if (!isAppTab(formData.parent_id) || value) return callback();
-        callback(new Error("请输入选中图标"));
+        callback(new Error(t("system.menu.validation.selectedIcon")));
       },
       trigger: "blur"
     }
   ],
   path: [
-    { max: 1024, message: "路径不能超过 1024 个字符", trigger: "blur" },
+    {
+      max: 1024,
+      message: t("system.common.validation.maxLength", { field: t("system.menu.field.path"), max: 1024 }),
+      trigger: "blur"
+    },
     {
       validator: (_rule, value, callback) => {
         if (formData.type === BaseMenuType.FOLDER) return callback();
         if (!value) {
-          if (formData.type === BaseMenuType.BUTTON) return callback(new Error("请输入权限标识"));
-          if (formData.type === BaseMenuType.EXT_LINK) return callback(new Error("请输入完整外链地址"));
-          return callback(new Error(isAppMenu(formData.parent_id) ? "请输入逻辑路径" : "请输入路由路径"));
+          if (formData.type === BaseMenuType.BUTTON) return callback(new Error(t("system.menu.validation.permission")));
+          if (formData.type === BaseMenuType.EXT_LINK) return callback(new Error(t("system.menu.validation.externalUrl")));
+          return callback(
+            new Error(
+              t(isAppMenu(formData.parent_id) ? "system.menu.validation.logicalPath" : "system.menu.validation.routePath")
+            )
+          );
         }
         if (isAppMenu(formData.parent_id) && !String(value).startsWith("app/")) {
-          return callback(new Error("移动端逻辑路径必须使用 app/ 前缀"));
+          return callback(new Error(t("system.menu.validation.appPathPrefix")));
         }
         callback();
       },
@@ -701,24 +763,37 @@ const rules = computed<FormRules>(() => ({
     }
   ],
   redirect: [
-    { max: 1024, message: "重定向地址不能超过 1024 个字符", trigger: "blur" },
+    {
+      max: 1024,
+      message: t("system.common.validation.maxLength", { field: t("system.menu.field.redirect"), max: 1024 }),
+      trigger: "blur"
+    },
     {
       validator: (_rule, value, callback) => {
         if (formData.type !== BaseMenuType.EXT_LINK) return callback();
         if (/^https?:\/\/\S+$/.test(value)) return callback();
-        callback(new Error("请输入完整的 HTTP 外链地址"));
+        callback(new Error(t("system.menu.validation.httpUrl")));
       },
       trigger: "blur"
     }
   ],
   name: [
-    { max: 255, message: "路由名称不能超过 255 个字符", trigger: "blur" },
+    {
+      max: 255,
+      message: t("system.common.validation.maxLength", { field: t("system.menu.field.routeName"), max: 255 }),
+      trigger: "blur"
+    },
     {
       validator: (_rule, value, callback) => {
         if (formData.type !== BaseMenuType.MENU) return callback();
-        if (!value) return callback(new Error(isAppMenu(formData.parent_id) ? "请输入逻辑名称" : "请输入路由名称"));
+        if (!value)
+          return callback(
+            new Error(
+              t(isAppMenu(formData.parent_id) ? "system.menu.validation.logicalName" : "system.menu.placeholder.routeName")
+            )
+          );
         if (isAppMenu(formData.parent_id) && !String(value).startsWith("App")) {
-          return callback(new Error("移动端逻辑名称必须使用 App 前缀"));
+          return callback(new Error(t("system.menu.validation.appNamePrefix")));
         }
         callback();
       },
@@ -726,32 +801,42 @@ const rules = computed<FormRules>(() => ({
     }
   ],
   component: [
-    { max: 255, message: "组件路径不能超过 255 个字符", trigger: "blur" },
+    {
+      max: 255,
+      message: t("system.common.validation.maxLength", { field: t("system.menu.field.component"), max: 255 }),
+      trigger: "blur"
+    },
     {
       validator: (_rule, value, callback) => {
         if (formData.type !== BaseMenuType.MENU || isAppMenu(formData.parent_id)) return callback();
         if (value) return callback();
-        callback(new Error("请输入组件路径"));
+        callback(new Error(t("system.menu.validation.component")));
       },
       trigger: "blur"
     }
   ],
-  sort: [{ required: true, type: "number", min: 1, message: "排序必须大于 0", trigger: "blur" }],
-  status: [{ required: true, message: "请选择状态", trigger: "change" }]
+  sort: [{ required: true, type: "number", min: 1, message: t("system.common.validation.sortPositive"), trigger: "blur" }],
+  status: [
+    {
+      required: true,
+      message: t("system.common.validation.requiredSelect", { field: t("system.common.field.status") }),
+      trigger: "change"
+    }
+  ]
 }));
 
 /** 计算当前路径字段文案。 */
 function getPathFieldLabel() {
-  if (isAppMenu(formData.parent_id)) return "逻辑路径";
-  if (formData.type === BaseMenuType.BUTTON) return "权限标识";
-  if (formData.type === BaseMenuType.EXT_LINK) return "内部路径";
-  return "路由路径";
+  if (isAppMenu(formData.parent_id)) return t("system.menu.field.logicalPath");
+  if (formData.type === BaseMenuType.BUTTON) return t("system.menu.field.permission");
+  if (formData.type === BaseMenuType.EXT_LINK) return t("system.menu.field.internalPath");
+  return t("system.menu.field.path");
 }
 
 /** 计算当前路径字段占位文案。 */
 function getPathFieldPlaceholder() {
-  if (isAppMenu(formData.parent_id)) return "例如 app/home";
-  if (formData.type === BaseMenuType.BUTTON) return "请输入按钮权限标识";
+  if (isAppMenu(formData.parent_id)) return t("system.menu.placeholder.logicalPath");
+  if (formData.type === BaseMenuType.BUTTON) return t("system.menu.placeholder.permission");
   if (formData.type === BaseMenuType.EXT_LINK) return "external/baidu";
   if (formData.type === BaseMenuType.FOLDER) return "base";
   return "user";
@@ -759,21 +844,21 @@ function getPathFieldPlaceholder() {
 
 /** 计算当前路径字段提示文案。 */
 function getPathFieldTooltip() {
-  if (isAppMenu(formData.parent_id)) return "使用 app/ 前缀的稳定逻辑路径，不填写 uni-app 物理页面路径。";
-  if (formData.type === BaseMenuType.BUTTON) return "按钮类型菜单使用权限标识，例如 base:user:create。";
-  if (formData.type === BaseMenuType.EXT_LINK) return "外链使用内部唯一路径，例如 external/baidu；实际地址填写在外链地址中。";
-  if (formData.type === BaseMenuType.FOLDER) return "目录不填写路径，仅用于组织下级菜单。";
-  return "菜单路径通常不带 /，例如 user。";
+  if (isAppMenu(formData.parent_id)) return t("system.menu.tooltip.logicalPath");
+  if (formData.type === BaseMenuType.BUTTON) return t("system.menu.tooltip.permission");
+  if (formData.type === BaseMenuType.EXT_LINK) return t("system.menu.tooltip.internalPath");
+  if (formData.type === BaseMenuType.FOLDER) return t("system.menu.tooltip.folderPath");
+  return t("system.menu.tooltip.routePath");
 }
 
 /** 计算重定向字段文案。 */
 function getRedirectFieldLabel() {
-  return formData.type === BaseMenuType.EXT_LINK ? "外链地址" : "跳转路由";
+  return t(formData.type === BaseMenuType.EXT_LINK ? "system.menu.field.externalUrl" : "system.menu.field.redirectRoute");
 }
 
 /** 计算重定向字段占位文案。 */
 function getRedirectFieldPlaceholder() {
-  return formData.type === BaseMenuType.EXT_LINK ? "https://www.baidu.com/" : "请输入跳转路由";
+  return formData.type === BaseMenuType.EXT_LINK ? "https://www.example.com/" : t("system.menu.placeholder.redirectRoute");
 }
 
 /** 判断当前图标是否为 Element Plus 图标。 */
@@ -863,6 +948,7 @@ function buildMenuOptions(menuList: BaseMenu[] = []) {
 /** 根据菜单类型清理无效字段，避免提交脏数据。 */
 function buildSubmitPayload(): BaseMenuForm {
   const payload = normalizeMenuForm(formData);
+  payload.translations = serializeDynamicTranslations(translationValues.value, "title") as BaseMenuTranslation[];
   // 一级菜单在表单中保持空白，提交时仍按接口约定传回根节点标识。
   if (payload.id > 0 && payload.parent_id === undefined) payload.parent_id = 0;
   payload.meta.params = (payload.meta.params ?? []).filter(item => item.key || item.value);
@@ -977,18 +1063,16 @@ function refreshTable() {
 async function handleOpenDialog(parentMenu?: BaseMenu, menuId?: number) {
   await loadDialogResources();
   dialog.parentLocked = Boolean(parentMenu || menuId);
+  dialog.editing = Boolean(menuId);
   dialog.parentType = parentMenu?.type ?? BaseMenuType.UNKNOWN_MT;
   resetForm(menuId ? undefined : { parent_id: parentMenu?.id });
   dialog.visible = true;
 
   if (menuId) {
-    dialog.title = "修改菜单";
     const data = await defBaseMenuService.GetBaseMenu({ id: menuId });
     resetForm(data);
     return;
   }
-
-  dialog.title = "新增菜单";
 }
 
 /** 关闭菜单弹窗并显式重置表单与校验状态。 */
@@ -1004,6 +1088,7 @@ function resetForm(data?: Partial<BaseMenuForm>) {
   formDialogRef.value?.resetFields();
   formDialogRef.value?.clearValidate();
   Object.assign(formData, normalizeMenuForm(data));
+  translationValues.value = normalizeDynamicTranslations(data?.translations as DynamicTranslationRecord[] | undefined, "title");
 }
 
 /** 提交菜单表单，并在成功后关闭弹窗、刷新表格。 */
@@ -1014,10 +1099,10 @@ async function handleSubmit() {
   const payload = buildSubmitPayload();
   if (payload.id > 0) {
     await defBaseMenuService.UpdateBaseMenu({ base_menu: payload });
-    ElMessage.success("菜单更新成功");
+    ElMessage.success(t("system.menu.message.updateSuccess"));
   } else {
     await defBaseMenuService.CreateBaseMenu({ base_menu: payload });
-    ElMessage.success("菜单创建成功");
+    ElMessage.success(t("system.menu.message.createSuccess"));
   }
 
   handleCloseDialog();
@@ -1029,16 +1114,16 @@ async function handleSubmit() {
  */
 async function handleBeforeSetStatus(row: BaseMenu) {
   const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
-  const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
+  const action = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
   const menuName = row.meta?.title || row.name || row.path || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(`是否确定${text}菜单？\n菜单名称：${menuName}`, "提示", {
-      confirmButtonText: "确认",
-      cancelButtonText: "取消",
+    await ElMessageBox.confirm(t("system.menu.message.confirmStatus", { action, name: menuName }), t("common.title.notice"), {
+      confirmButtonText: t("common.action.confirm"),
+      cancelButtonText: t("common.action.cancel"),
       type: "warning"
     });
     await defBaseMenuService.SetBaseMenuStatus({ id: row.id, status: nextStatus });
-    ElMessage.success(`${text}成功`);
+    ElMessage.success(t("system.common.message.statusSuccess", { action }));
     refreshTable();
     return true;
   } catch {
@@ -1056,37 +1141,37 @@ function handleDeleteMenu(selected?: number | string | Array<number | string> | 
       ? [selected as BaseMenu]
       : [];
   if (menuList.some(item => item.parent_id === 0 || item.id === APP_MENU_ROOT_ID)) {
-    ElMessage.warning("固定菜单不允许删除");
+    ElMessage.warning(t("system.menu.message.protectedDelete"));
     return;
   }
   const menuIds = (
     menuList.length ? menuList.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");
   if (!menuIds) {
-    ElMessage.warning("请勾选删除项");
+    ElMessage.warning(t("system.common.message.selectDeleteItem"));
     return;
   }
 
   const singleMenuName = menuList[0]?.meta?.title || menuList[0]?.name || menuList[0]?.path || `ID:${menuList[0]?.id ?? ""}`;
   const confirmMessage = menuList.length
     ? menuList.length === 1
-      ? `是否确定删除菜单？\n菜单名称：${singleMenuName}`
-      : `确认删除已选中的 ${menuList.length} 个菜单项吗？`
-    : "确认删除已选中的菜单项吗？";
+      ? t("system.menu.message.confirmDeleteSingle", { name: singleMenuName })
+      : t("system.menu.message.confirmDeleteBatch", { count: menuList.length })
+    : t("system.menu.message.confirmDeleteSelected");
 
-  ElMessageBox.confirm(confirmMessage, "警告", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
+  ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
+    confirmButtonText: t("common.action.confirm"),
+    cancelButtonText: t("common.action.cancel"),
     type: "warning"
   }).then(
     () => {
       defBaseMenuService.DeleteBaseMenu({ id: menuIds }).then(() => {
-        ElMessage.success("删除菜单成功");
+        ElMessage.success(t("system.menu.message.deleteSuccess"));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info("已取消删除菜单");
+      ElMessage.info(t("system.menu.message.deleteCanceled"));
     }
   );
 }

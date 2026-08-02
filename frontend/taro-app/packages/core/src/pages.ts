@@ -6,11 +6,11 @@ export const corePages: Record<string, KratosTaroPageConfig> = {
     style: {
       navigationStyle: 'custom',
       navigationBarTextStyle: 'white',
-      navigationBarTitleText: '首页',
+      navigationBarTitleText: '',
     },
   },
-  'pages/login/login': { style: { navigationBarTitleText: '登录' } },
-  'pages/login/protocal': { style: { navigationBarTitleText: '协议详情' } },
+  'pages/login/login': { style: { navigationBarTitleText: '' } },
+  'pages/login/protocal': { style: { navigationBarTitleText: '' } },
   'pages/webview/webview': { style: { navigationBarTitleText: '' } },
   'pages/status/index': {
     style: {

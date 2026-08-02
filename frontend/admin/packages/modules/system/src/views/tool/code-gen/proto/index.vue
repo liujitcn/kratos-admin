@@ -6,24 +6,24 @@
         <div class="code-gen-toolbar">
           <!-- 展示当前 Proto 配置对应的业务表。 -->
           <div class="code-gen-proto-toolbar__meta">
-            <span class="code-gen-proto-toolbar__table-name" :title="formData.name">表名：{{ formData.name }}</span>
+            <span class="code-gen-proto-toolbar__table-name" :title="formData.name">
+              {{ t("system.codegen.column.value.tableName", { name: formData.name }) }}
+            </span>
             <span class="code-gen-proto-toolbar__table-comment" :title="formData.comment || '--'">
-              表注释：{{ formData.comment || "--" }}
+              {{ t("system.codegen.column.value.tableComment", { comment: formData.comment || "--" }) }}
             </span>
           </div>
-          <el-button type="primary" :icon="Document" :disabled="!canEdit" @click="handleSaveProtoMethods()">保存</el-button>
+          <el-button type="primary" :icon="Document" :disabled="!canEdit" @click="handleSaveProtoMethods()">
+            {{ t("common.action.save") }}
+          </el-button>
         </div>
 
-        <ProTable
-          row-key="sort"
-          :data="protoChecks"
-          :columns="protoColumns"
-          :pagination="false"
-          :tool-button="false"
-        >
+        <ProTable row-key="sort" :data="protoChecks" :columns="protoColumns" :pagination="false" :tool-button="false">
           <template #exists="{ row }">
             <div class="code-gen-proto-status">
-              <el-tag :type="row.exists ? 'success' : 'warning'">{{ row.exists ? "已存在" : "缺失" }}</el-tag>
+              <el-tag :type="row.exists ? 'success' : 'warning'">
+                {{ t(row.exists ? "system.codegen.proto.status.exists" : "system.codegen.proto.status.missing") }}
+              </el-tag>
               <span class="code-gen-proto-cell__secondary" :title="row.message">{{ row.message }}</span>
             </div>
           </template>
@@ -38,23 +38,23 @@
               </template>
               <div class="code-gen-proto-capability-popover">
                 <div class="code-gen-proto-capability-popover__item">
-                  <span>方法描述</span>
+                  <span>{{ t("system.codegen.proto.field.methodComment") }}</span>
                   <span class="code-gen-proto-capability-popover__value">{{ row.method_comment || "--" }}</span>
                 </div>
                 <div class="code-gen-proto-capability-popover__item">
-                  <span>方法名</span>
+                  <span>{{ t("system.codegen.proto.field.methodName") }}</span>
                   <code>{{ row.method_name || "--" }}</code>
                 </div>
                 <div class="code-gen-proto-capability-popover__item">
-                  <span>Proto路径</span>
+                  <span>{{ t("system.codegen.proto.field.protoPath") }}</span>
                   <code class="code-gen-proto-capability-popover__path">{{ row.proto_file_path || "--" }}</code>
                 </div>
                 <div class="code-gen-proto-capability-popover__item">
-                  <span>服务描述</span>
+                  <span>{{ t("system.codegen.proto.field.serviceComment") }}</span>
                   <span class="code-gen-proto-capability-popover__value">{{ row.service_comment || "--" }}</span>
                 </div>
                 <div class="code-gen-proto-capability-popover__item">
-                  <span>服务名</span>
+                  <span>{{ t("system.codegen.proto.field.serviceName") }}</span>
                   <code>{{ row.service_name || "--" }}</code>
                 </div>
                 <pre class="code-gen-proto-capability-popover__preview"><code>{{ resolveProtoDefinition(row) }}</code></pre>
@@ -63,7 +63,9 @@
           </template>
           <template #generate_when_missing="{ row }">
             <div class="code-gen-proto-generate">
-              <el-checkbox v-model="row.generate_when_missing" :disabled="row.exists || !canEdit">生成接口</el-checkbox>
+              <el-checkbox v-model="row.generate_when_missing" :disabled="row.exists || !canEdit">
+                {{ t("system.codegen.proto.action.generateApi") }}
+              </el-checkbox>
               <el-button
                 v-if="showProtoConfigButton(row)"
                 type="primary"
@@ -73,18 +75,18 @@
                 :disabled="!canEdit"
                 @click="openProtoConfigDialog(row)"
               >
-                配置
+                {{ t("system.codegen.proto.action.configure") }}
               </el-button>
             </div>
           </template>
         </ProTable>
       </template>
-      <el-empty v-else description="请先选择生成记录" />
+      <el-empty v-else :description="t('system.codegen.column.message.selectRecord')" />
     </el-card>
 
     <ProDialog
       v-model="configDialog.visible"
-      :title="`${configDialog.methodName} - ${resolveAPIKindLabel(configDialog.apiKind)}配置`"
+      :title="configDialogTitle"
       width="min(520px, calc(100vw - 32px))"
       destroy-on-close
       :show-close="false"
@@ -96,16 +98,16 @@
       <template #header="{ titleId, titleClass }">
         <div class="code-gen-config-dialog__header">
           <span :id="titleId" :class="titleClass">
-            {{ `${configDialog.methodName} - ${resolveAPIKindLabel(configDialog.apiKind)}配置` }}
+            {{ configDialogTitle }}
           </span>
           <el-button
             type="primary"
             :icon="Document"
             :disabled="!canEdit"
-            aria-label="保存并关闭"
+            :aria-label="t('system.codegen.column.action.saveAndClose')"
             @click="handleSaveProtoConfigDialog"
           >
-            保存
+            {{ t("common.action.save") }}
           </el-button>
         </div>
       </template>
@@ -124,6 +126,7 @@
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { Document, Setting } from "@element-plus/icons-vue";
 import { useRoute, useRouter } from "vue-router";
+import { t } from "@liujitcn/kratos-admin-core";
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import ProForm from "@liujitcn/kratos-admin-core/components/ProForm/index.vue";
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
@@ -134,7 +137,11 @@ import { useTabsStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { defCodeGenColumnService } from "@liujitcn/kratos-admin-system/api/system/code_gen_column";
 import { defCodeGenProtoService } from "@liujitcn/kratos-admin-system/api/system/code_gen_proto";
 import { defCodeGenTableService } from "@liujitcn/kratos-admin-system/api/system/code_gen_table";
-import type { CodeGenProto, CodeGenProtoCheck, CodeGenProtoConfig } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_proto";
+import type {
+  CodeGenProto,
+  CodeGenProtoCheck,
+  CodeGenProtoConfig
+} from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_proto";
 import type { CodeGenDatabaseTable, CodeGenTableForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_table";
 import { createDefaultCodeGenTableForm } from "../config";
 
@@ -155,21 +162,21 @@ const targetColumnOptions = reactive<Record<string, ProFormOption[]>>({});
 const loadingTargetColumns = reactive(new Set<string>());
 const formData = reactive<CodeGenTableForm>(createDefaultCodeGenTableForm());
 
-const triggerTypeLabels: Record<string, string> = {
-  crud: "基础能力",
-  page_tree: "树形页面",
-  left_tree: "左树数据",
-  entity_option: "实体选项",
-  field_option: "字段选项",
-  field_status: "字段状态"
+const triggerTypeLabelKeys: Record<string, string> = {
+  crud: "system.codegen.proto.trigger.crud",
+  page_tree: "system.codegen.proto.trigger.pageTree",
+  left_tree: "system.codegen.proto.trigger.leftTree",
+  entity_option: "system.codegen.proto.trigger.entityOption",
+  field_option: "system.codegen.proto.trigger.fieldOption",
+  field_status: "system.codegen.proto.trigger.fieldStatus"
 };
 
-const apiKindLabels: Record<string, string> = {
-  crud: "增删改查",
-  list: "分页列表",
-  option: "选项",
-  tree: "树形",
-  status: "状态"
+const apiKindLabelKeys: Record<string, string> = {
+  crud: "system.codegen.proto.apiKind.crud",
+  list: "system.codegen.proto.apiKind.list",
+  option: "system.codegen.proto.apiKind.option",
+  tree: "system.codegen.proto.apiKind.tree",
+  status: "system.codegen.proto.apiKind.status"
 };
 
 /** Proto 类型配置弹窗上下文。 */
@@ -193,57 +200,93 @@ const configDialog = reactive<CodeGenProtoConfigDialog>({
 });
 
 /** Proto 检查结果表格列配置。 */
-const protoColumns: ColumnProps[] = [
-  { prop: "trigger_type", label: "触发来源", minWidth: 150, render: scope => resolveTriggerTypeLabel(String(scope.row.trigger_type)) },
-  { prop: "api_kind", label: "接口类型", minWidth: 150, render: scope => resolveAPIKindLabel(String(scope.row.api_kind)) },
-  { prop: "proto_info", label: "接口能力", minWidth: 290 },
-  { prop: "exists", label: "状态", minWidth: 210 },
-  { prop: "generate_when_missing", label: "生成设置", minWidth: 230 }
-];
+const protoColumns = computed<ColumnProps[]>(() => [
+  {
+    prop: "trigger_type",
+    label: t("system.codegen.proto.field.triggerType"),
+    minWidth: 150,
+    render: scope => resolveTriggerTypeLabel(String(scope.row.trigger_type))
+  },
+  {
+    prop: "api_kind",
+    label: t("system.codegen.proto.field.apiKind"),
+    minWidth: 150,
+    render: scope => resolveAPIKindLabel(String(scope.row.api_kind))
+  },
+  { prop: "proto_info", label: t("system.codegen.proto.field.capability"), minWidth: 290 },
+  { prop: "exists", label: t("system.codegen.table.field.status"), minWidth: 210 },
+  { prop: "generate_when_missing", label: t("system.codegen.proto.field.generateSetting"), minWidth: 230 }
+]);
 
 /** 将 Proto 配置对象适配为 ProForm 所需的通用表单模型。 */
 const protoConfigFormModel = computed<Record<string, any>>(() => configDialog.config as Record<string, any>);
+const configDialogTitle = computed(() =>
+  t("system.codegen.proto.title.config", {
+    method: configDialog.methodName,
+    kind: resolveAPIKindLabel(configDialog.apiKind)
+  })
+);
 
 /** Proto 配置弹窗的动态表单字段。 */
 const protoConfigFields = computed<ProFormField[]>(() => [
   {
     prop: "parent_column",
-    label: "父节点字段",
+    label: t("system.codegen.proto.field.parentColumn"),
     component: "select",
     options: () => configColumnOptions.value,
-    props: () => ({ loading: configDialogLoading.value, filterable: true, clearable: true, placeholder: "请选择父节点字段" }),
+    props: () => ({
+      loading: configDialogLoading.value,
+      filterable: true,
+      clearable: true,
+      placeholder: t("system.codegen.proto.placeholder.parentColumn")
+    }),
     visible: () => configDialog.apiKind === "tree"
   },
   {
     prop: "label_column",
-    label: "显示字段",
+    label: t("system.codegen.proto.field.labelColumn"),
     component: "select",
     options: () => configColumnOptions.value,
-    props: () => ({ loading: configDialogLoading.value, filterable: true, clearable: true, placeholder: "请选择显示字段" }),
+    props: () => ({
+      loading: configDialogLoading.value,
+      filterable: true,
+      clearable: true,
+      placeholder: t("system.codegen.proto.placeholder.labelColumn")
+    }),
     visible: () => ["option", "tree"].includes(configDialog.apiKind)
   },
   {
     prop: "value_column",
-    label: "值字段",
+    label: t("system.codegen.proto.field.valueColumn"),
     component: "select",
     options: () => configColumnOptions.value,
-    props: () => ({ loading: configDialogLoading.value, filterable: true, clearable: true, placeholder: "请选择值字段" }),
+    props: () => ({
+      loading: configDialogLoading.value,
+      filterable: true,
+      clearable: true,
+      placeholder: t("system.codegen.proto.placeholder.valueColumn")
+    }),
     visible: () => ["option", "tree"].includes(configDialog.apiKind)
   },
   {
     prop: "lazy",
-    label: "加载方式",
+    label: t("system.codegen.proto.field.loadMode"),
     component: "checkbox",
-    checkboxLabel: "懒加载子节点",
+    checkboxLabel: t("system.codegen.column.value.lazyChildren"),
     props: () => ({ disabled: configDialog.apiKind !== "tree" }),
     visible: () => configDialog.apiKind === "tree"
   },
   {
     prop: "status_column",
-    label: "状态字段",
+    label: t("system.codegen.proto.field.statusColumn"),
     component: "select",
     options: () => configColumnOptions.value,
-    props: () => ({ loading: configDialogLoading.value, filterable: true, clearable: true, placeholder: "请选择状态字段" }),
+    props: () => ({
+      loading: configDialogLoading.value,
+      filterable: true,
+      clearable: true,
+      placeholder: t("system.codegen.proto.placeholder.statusColumn")
+    }),
     visible: () => configDialog.apiKind === "status"
   }
 ]);
@@ -305,7 +348,9 @@ async function handleQuery() {
  */
 function syncWorkspaceTitle() {
   const tableTitle = formData.comment || formData.name;
-  const title = tableTitle ? `${tableTitle} Proto 能力` : "Proto 能力";
+  const title = tableTitle
+    ? t("system.codegen.proto.title.workspaceWithTable", { table: tableTitle })
+    : t("system.codegen.proto.title.workspace");
   tabsStore.setTabsTitle(title);
   document.title = `${title} - ${import.meta.env.VITE_GLOB_APP_TITLE}`;
 }
@@ -337,12 +382,14 @@ function resolveColumnNameOptions(row: CodeGenProtoCheck) {
 
 /** 返回触发来源的展示文案。 */
 function resolveTriggerTypeLabel(triggerType: string) {
-  return triggerTypeLabels[triggerType] ?? triggerType;
+  const key = triggerTypeLabelKeys[triggerType];
+  return key ? t(key) : triggerType;
 }
 
 /** 返回接口类型的展示文案。 */
 function resolveAPIKindLabel(apiKind: string) {
-  return apiKindLabels[apiKind] ?? apiKind;
+  const key = apiKindLabelKeys[apiKind];
+  return key ? t(key) : apiKind;
 }
 
 /** 返回生成 RPC 的请求与响应类型签名。 */
@@ -353,9 +400,10 @@ function resolveProtoRPCSignature(row: CodeGenProtoCheck) {
   switch (row.api_kind) {
     case "list":
     case "tree":
-      responseType = row.api_kind === "tree" && ["entity_option", "field_option", "left_tree"].includes(row.trigger_type)
-        ? ".common.v1.TreeOptionResponse"
-        : `${methodName}Response`;
+      responseType =
+        row.api_kind === "tree" && ["entity_option", "field_option", "left_tree"].includes(row.trigger_type)
+          ? ".common.v1.TreeOptionResponse"
+          : `${methodName}Response`;
       break;
     case "option":
       responseType = ".common.v1.SelectOptionResponse";
@@ -475,7 +523,7 @@ function validateProtoConfigs() {
     item => !item.exists && item.generate_when_missing && needsProtoConfig(item.api_kind) && !hasCompleteProtoConfig(item)
   );
   if (!row) return true;
-  ElMessage.warning(`请先配置接口 ${row.method_name}`);
+  ElMessage.warning(t("system.codegen.proto.message.configureFirst", { method: row.method_name }));
   openProtoConfigDialog(row);
   return false;
 }
@@ -521,7 +569,7 @@ async function handleSaveProtoMethods(showMessage = true) {
     table_id: formData.id,
     code_gen_protos: codeGenProtos
   });
-  if (showMessage) ElMessage.success("保存Proto生成选择成功");
+  if (showMessage) ElMessage.success(t("system.codegen.proto.message.saveSuccess"));
   // 路由切换前保留当前页签地址，避免误删目标页签。
   const currentPath = route.fullPath;
   await router.push("/code/gen/table");

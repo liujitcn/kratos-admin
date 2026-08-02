@@ -1176,15 +1176,15 @@ func ensureTSNamedTypeNames(content string, importPath string, typeNames []strin
 }
 
 // ensureTSCommonOptionImport 确保 TS 文件只导入方法实际使用的选项响应类型。
-func ensureTSCommonOptionImport(content string, methods []*Proto) string {
+func ensureTSCommonOptionImport(content string, methods []*Proto, importPath string) string {
 	typeNames := tsCommonOptionResponseTypes(methods)
 	if len(typeNames) == 0 {
 		return content
 	}
-	if strings.Contains(content, "@/rpc/common/v1/common") {
+	if strings.Contains(content, importPath) {
 		for _, typeName := range typeNames {
 			if !strings.Contains(content, typeName) {
-				fromLine := "} from \"@/rpc/common/v1/common\";"
+				fromLine := "} from \"" + importPath + "\";"
 				index := strings.Index(content, fromLine)
 				if index >= 0 {
 					content = content[:index] + ", " + typeName + " " + content[index:]
@@ -1193,7 +1193,7 @@ func ensureTSCommonOptionImport(content string, methods []*Proto) string {
 		}
 		return content
 	}
-	importLine := "import type { " + strings.Join(typeNames, ", ") + " } from \"@/rpc/common/v1/common\";"
+	importLine := "import type { " + strings.Join(typeNames, ", ") + " } from \"" + importPath + "\";"
 	insertIndex := strings.Index(content, "\n\nconst ")
 	if insertIndex < 0 {
 		return importLine + "\n" + content

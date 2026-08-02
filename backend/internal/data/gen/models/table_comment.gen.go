@@ -45,6 +45,16 @@ func (*BaseDictItem) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*BaseDictItemTranslation) TableComment() string {
+	return "字典项翻译"
+}
+
+// TableComment 返回表注释。
+func (*BaseDictTranslation) TableComment() string {
+	return "字典翻译"
+}
+
+// TableComment 返回表注释。
 func (*BaseJob) TableComment() string {
 	return "定时任务信息"
 }
@@ -62,6 +72,11 @@ func (*BaseLog) TableComment() string {
 // TableComment 返回表注释。
 func (*BaseMenu) TableComment() string {
 	return "菜单信息"
+}
+
+// TableComment 返回表注释。
+func (*BaseMenuTranslation) TableComment() string {
+	return "菜单翻译"
 }
 
 // TableComment 返回表注释。

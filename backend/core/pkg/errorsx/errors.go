@@ -2,6 +2,7 @@
 package errorsx
 
 import (
+	"encoding/json"
 	stderrs "errors"
 
 	kratosErrors "github.com/go-kratos/kratos/v3/errors"
@@ -35,6 +36,10 @@ const (
 	METADATA_KEY_CURRENT_STATE = "current_state"
 	// METADATA_KEY_EXPECTED_STATE 标识期望状态。
 	METADATA_KEY_EXPECTED_STATE = "expected_state"
+	// METADATA_KEY_MESSAGE_KEY 标识稳定的国际化消息键。
+	METADATA_KEY_MESSAGE_KEY = "message_key"
+	// METADATA_KEY_MESSAGE_ARGS 标识国际化消息命名参数。
+	METADATA_KEY_MESSAGE_ARGS = "message_args"
 
 	// CONFLICT_TYPE_UNIQUE_VIOLATION 表示唯一约束冲突。
 	CONFLICT_TYPE_UNIQUE_VIOLATION = "unique_violation"
@@ -74,6 +79,28 @@ func Conflict(message string) *kratosErrors.Error {
 // Internal 构造内部错误。
 func Internal(message string) *kratosErrors.Error {
 	return kratosErrors.New(500, ReasonInternalError, message)
+}
+
+// WithMessageKey 为结构化错误补充稳定消息键和命名参数。
+func WithMessageKey(structuredErr *kratosErrors.Error, messageKey string, messageArgs map[string]string) *kratosErrors.Error {
+	if structuredErr == nil {
+		return nil
+	}
+	metadata := make(map[string]string, len(structuredErr.Metadata)+2)
+	for key, value := range structuredErr.Metadata {
+		metadata[key] = value
+	}
+	metadata[METADATA_KEY_MESSAGE_KEY] = messageKey
+	metadata[METADATA_KEY_MESSAGE_ARGS] = "{}"
+	if len(messageArgs) > 0 {
+		var data []byte
+		var err error
+		data, err = json.Marshal(messageArgs)
+		if err == nil {
+			metadata[METADATA_KEY_MESSAGE_ARGS] = string(data)
+		}
+	}
+	return structuredErr.WithMetadata(metadata)
 }
 
 // UniqueConflict 构造唯一约束冲突错误。

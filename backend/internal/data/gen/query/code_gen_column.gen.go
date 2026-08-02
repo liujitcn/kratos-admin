@@ -31,6 +31,7 @@ func newCodeGenColumn(db *gorm.DB, opts ...gen.DOOption) codeGenColumn {
 	_codeGenColumn.TableID = field.NewInt64(tableName, "table_id")
 	_codeGenColumn.Name = field.NewString(tableName, "name")
 	_codeGenColumn.Comment = field.NewString(tableName, "comment")
+	_codeGenColumn.I18NConfig = field.NewString(tableName, "i18n_config")
 	_codeGenColumn.QueryConfig = field.NewString(tableName, "query_config")
 	_codeGenColumn.ListConfig = field.NewString(tableName, "list_config")
 	_codeGenColumn.FormConfig = field.NewString(tableName, "form_config")
@@ -55,6 +56,7 @@ type codeGenColumn struct {
 	TableID     field.Int64  // 生成对象ID
 	Name        field.String // 字段名
 	Comment     field.String // 字段描述
+	I18NConfig  field.String // 字段国际化配置JSON
 	QueryConfig field.String // 查询条件配置JSON
 	ListConfig  field.String // 列表展示配置JSON
 	FormConfig  field.String // 表单录入配置JSON
@@ -84,6 +86,7 @@ func (c *codeGenColumn) updateTableName(table string) *codeGenColumn {
 	c.TableID = field.NewInt64(table, "table_id")
 	c.Name = field.NewString(table, "name")
 	c.Comment = field.NewString(table, "comment")
+	c.I18NConfig = field.NewString(table, "i18n_config")
 	c.QueryConfig = field.NewString(table, "query_config")
 	c.ListConfig = field.NewString(table, "list_config")
 	c.FormConfig = field.NewString(table, "form_config")
@@ -121,11 +124,12 @@ func (c *codeGenColumn) GetFieldByName(fieldName string) (field.OrderExpr, bool)
 }
 
 func (c *codeGenColumn) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 13)
+	c.fieldMap = make(map[string]field.Expr, 14)
 	c.fieldMap["id"] = c.ID
 	c.fieldMap["table_id"] = c.TableID
 	c.fieldMap["name"] = c.Name
 	c.fieldMap["comment"] = c.Comment
+	c.fieldMap["i18n_config"] = c.I18NConfig
 	c.fieldMap["query_config"] = c.QueryConfig
 	c.fieldMap["list_config"] = c.ListConfig
 	c.fieldMap["form_config"] = c.FormConfig

@@ -246,7 +246,7 @@ func (c *renderer) applyCodeGenOutputPaths(table *Table, methods []*Proto, paths
 func (c *renderer) buildPreviewFiles(table *Table, columns []*CodeGenColumn, methods []*Proto, paths *systemadminv1.CodeGenOutputPaths) []*systemadminv1.CodeGenPreviewFile {
 	generatedMethods := c.generatedProtoMethods(table, columns, methods)
 	frontendMethods := c.frontendProtoMethods(table, columns, methods)
-	files := make([]*systemadminv1.CodeGenPreviewFile, 0, 6)
+	files := make([]*systemadminv1.CodeGenPreviewFile, 0, 9)
 	if table.GenBackend == 1 {
 		// 主 Proto 先生成，随后按路径去重补齐外部选项目标的 Proto 文件。
 		files = append(files, c.newTargetProtoPreviewFile(table, columns, generatedMethods, c.defaultProtoPath(table)))
@@ -288,6 +288,7 @@ func (c *renderer) buildPreviewFiles(table *Table, columns []*CodeGenColumn, met
 			files = append(files, pageFile)
 		}
 		files = append(files, c.newExternalTargetFrontendPreviewFiles(table, frontendMethods)...)
+		files = append(files, c.newFrontendLocalePreviewFiles(table, columns)...)
 	}
 	if ShouldSyncMenus(table, generatedMethods) {
 		sqlFile := c.newGeneratedMenuSQLPreviewFile(table, RenderGeneratedMenuSQL(
@@ -401,8 +402,9 @@ func (c *renderer) appendMainFrontendAPIMethods(content string, table *Table, co
 	rpcPath := frontendRPCImportPath(c.defaultProtoPath(table))
 	content = ensureTSNamedTypeNames(content, rpcPath, typeNames)
 	joinedMethods := strings.Join(methodContents, "\n\n")
+	target := ProtoTargetForTable(table)
 	if strings.Contains(joinedMethods, "Empty") {
-		content = ensureTSNamedTypeNames(content, "@/rpc/google/protobuf/empty", []string{"Empty"})
+		content = ensureTSNamedTypeNames(content, target.FrontendPackageName+"/rpc/google/protobuf/empty", []string{"Empty"})
 	}
 	commonTypes := make([]string, 0, 2)
 	if strings.Contains(joinedMethods, "SelectOptionResponse") {
@@ -411,7 +413,7 @@ func (c *renderer) appendMainFrontendAPIMethods(content string, table *Table, co
 	if strings.Contains(joinedMethods, "TreeOptionResponse") {
 		commonTypes = append(commonTypes, "TreeOptionResponse")
 	}
-	content = ensureTSNamedTypeNames(content, "@/rpc/common/v1/common", commonTypes)
+	content = ensureTSNamedTypeNames(content, target.FrontendPackageName+"/rpc/common/v1/common", commonTypes)
 	return mergeGeneratedTSClassMethods(content, candidate, className)
 }
 

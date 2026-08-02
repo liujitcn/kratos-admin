@@ -1,3 +1,5 @@
+import type { LocaleMessages, SupportedLocale } from './locales'
+
 /** bootstrap 可见状态键。 */
 export type BootstrapViewKey =
   | 'BOOTSTRAP_LOADING'
@@ -19,6 +21,8 @@ export interface KratosTaroModule {
   pages: Record<string, KratosTaroPageConfig>
   views: Record<string, string>
   icons?: Record<string, string>
+  /** 模块按语言区域贡献的扁平语言包。 */
+  messages?: Partial<Record<SupportedLocale, LocaleMessages>>
 }
 
 /** 声明 Taro 模块。 */

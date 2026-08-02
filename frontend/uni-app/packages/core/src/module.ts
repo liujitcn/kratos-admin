@@ -1,4 +1,8 @@
 import { corePages } from './pages'
+import type { LocaleMessages, SupportedLocale } from './locales'
+import coreEnUS from './locales/en-US.json'
+import coreJaJP from './locales/ja-JP.json'
+import coreZhCN from './locales/zh-CN.json'
 
 /** bootstrap 可见状态键。 */
 export type BootstrapViewKey =
@@ -21,6 +25,8 @@ export interface KratosAppModule {
   pages: Record<string, KratosAppPageConfig>
   views: Record<string, string>
   icons?: Record<string, string>
+  /** 模块按语言区域贡献的扁平语言包。 */
+  messages?: Partial<Record<SupportedLocale, LocaleMessages>>
 }
 
 /** 声明 uni-app 模块。 */
@@ -81,5 +87,10 @@ export const coreModule = defineKratosAppModule({
     HOME_SELECTED: 'static/tabs/home_selected.png',
     USER_DEFAULT: 'static/tabs/user_default.png',
     USER_SELECTED: 'static/tabs/user_selected.png',
+  },
+  messages: {
+    'zh-CN': coreZhCN,
+    'en-US': coreEnUS,
+    'ja-JP': coreJaJP,
   },
 })

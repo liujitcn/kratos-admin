@@ -6,7 +6,7 @@
       class="editor-content"
       :style="{ height }"
       :mode="mode"
-      :default-config="editorConfig"
+      :default-config="resolvedEditorConfig"
       @on-created="handleCreated"
       @on-blur="handleBlur"
     />
@@ -20,6 +20,9 @@ import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import { defFileService } from "@/api/base/file";
 import "@wangeditor/editor/dist/css/style.css";
 import { formContextKey, formItemContextKey } from "element-plus";
+import { useLocaleStore } from "@/locales";
+
+const { t } = useLocaleStore();
 
 // 富文本 DOM 元素
 const editorRef = shallowRef();
@@ -47,7 +50,6 @@ const props = withDefaults(defineProps<RichEditorProps>(), {
   },
   editorConfig: () => {
     return {
-      placeholder: "请输入内容...",
       MENU_CONF: {}
     };
   },
@@ -56,6 +58,12 @@ const props = withDefaults(defineProps<RichEditorProps>(), {
   hideToolBar: false,
   disabled: false
 });
+const editorMenuConfig = props.editorConfig.MENU_CONF ?? {};
+const resolvedEditorConfig = computed(() => ({
+  ...props.editorConfig,
+  placeholder: props.editorConfig.placeholder || t("common.placeholder.inputContent"),
+  MENU_CONF: editorMenuConfig
+}));
 
 // 获取 el-form 组件上下文
 const formContext = inject(formContextKey, void 0);
@@ -91,7 +99,7 @@ const valueHtml = computed({
  * @param insertFn 上传成功后的回调函数（插入到富文本编辑器中）
  * */
 type InsertFnTypeImg = (url: string, alt?: string, href?: string) => void;
-props.editorConfig.MENU_CONF!["uploadImage"] = {
+editorMenuConfig["uploadImage"] = {
   async customUpload(file: File, insertFn: InsertFnTypeImg) {
     if (!uploadImgValidate(file)) return;
     try {
@@ -115,7 +123,7 @@ const uploadImgValidate = (file: File): boolean => {
  * @param insertFn 上传成功后的回调函数（插入到富文本编辑器中）
  * */
 type InsertFnTypeVideo = (url: string, poster?: string) => void;
-props.editorConfig.MENU_CONF!["uploadVideo"] = {
+editorMenuConfig["uploadVideo"] = {
   async customUpload(file: File, insertFn: InsertFnTypeVideo) {
     if (!uploadVideoValidate(file)) return;
     try {

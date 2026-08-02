@@ -1,4 +1,5 @@
 import { defLoginService } from '../api/base/login'
+import { t } from '../locales'
 import { PasswordCryptoScene } from '../rpc/base/v1/enum'
 import type { PasswordCrypto } from '../rpc/common/v1/types'
 
@@ -19,7 +20,7 @@ function pemToArrayBuffer(pem: string) {
     .replace(/\s/g, '')
   const decode = globalThis.atob
   if (!decode) {
-    throw new Error('当前环境不支持 Base64 解码')
+    throw new Error(t('core.crypto.base64DecodeUnsupported'))
   }
   const binary = decode(base64)
   const buffer = new Uint8Array(binary.length)
@@ -38,7 +39,7 @@ function arrayBufferToBase64(buffer: ArrayBuffer) {
   }
   const encode = globalThis.btoa
   if (!encode) {
-    throw new Error('当前环境不支持 Base64 编码')
+    throw new Error(t('core.crypto.base64EncodeUnsupported'))
   }
   return encode(binary)
 }
@@ -47,7 +48,7 @@ function arrayBufferToBase64(buffer: ArrayBuffer) {
 function getSubtleCrypto() {
   const cryptoApi = globalThis.crypto
   if (!cryptoApi?.subtle) {
-    throw new Error('当前环境不支持密码加密')
+    throw new Error(t('core.crypto.unsupported'))
   }
   return cryptoApi
 }
@@ -56,7 +57,7 @@ function getSubtleCrypto() {
 function getMiniRandomBytes(length: number) {
   return new Promise<ArrayBuffer>((resolve, reject) => {
     if (typeof wx === 'undefined' || typeof wx.getRandomValues !== 'function') {
-      reject(new Error('当前环境不支持密码加密'))
+      reject(new Error(t('core.crypto.unsupported')))
       return
     }
     wx.getRandomValues({
@@ -65,7 +66,7 @@ function getMiniRandomBytes(length: number) {
         resolve(randomValues)
       },
       fail: ({ errMsg }) => {
-        reject(new Error(errMsg || '随机数生成失败'))
+        reject(new Error(errMsg || t('core.crypto.randomFailed')))
       },
     })
   })
@@ -80,7 +81,7 @@ type DerNode = {
 /** 读取 DER 编码节点，用于解析 RSA SubjectPublicKeyInfo。 */
 function readDerNode(data: Uint8Array, offset: number): DerNode {
   if (offset + 2 > data.length) {
-    throw new Error('公钥格式无效')
+    throw new Error(t('core.crypto.publicKeyInvalid'))
   }
   const tag = data[offset]
   const firstLengthByte = data[offset + 1]
@@ -89,7 +90,7 @@ function readDerNode(data: Uint8Array, offset: number): DerNode {
   if (firstLengthByte & 0x80) {
     const lengthByteCount = firstLengthByte & 0x7f
     if (lengthByteCount === 0 || valueOffset + lengthByteCount > data.length) {
-      throw new Error('公钥格式无效')
+      throw new Error(t('core.crypto.publicKeyInvalid'))
     }
     length = 0
     for (let index = 0; index < lengthByteCount; index += 1) {
@@ -99,7 +100,7 @@ function readDerNode(data: Uint8Array, offset: number): DerNode {
   }
   const end = valueOffset + length
   if (end > data.length) {
-    throw new Error('公钥格式无效')
+    throw new Error(t('core.crypto.publicKeyInvalid'))
   }
   return {
     tag,
@@ -128,13 +129,13 @@ function parseMiniRsaPublicKey(publicKey: string): [Uint8Array, Uint8Array] {
   const algorithm = readDerNode(subjectPublicKeyInfo.value, 0)
   const bitString = readDerNode(subjectPublicKeyInfo.value, algorithm.next)
   if (bitString.tag !== 0x03 || bitString.value[0] !== 0) {
-    throw new Error('公钥格式无效')
+    throw new Error(t('core.crypto.publicKeyInvalid'))
   }
   const rsaPublicKey = readDerNode(bitString.value, 1)
   const modulus = readDerNode(rsaPublicKey.value, 0)
   const exponent = readDerNode(rsaPublicKey.value, modulus.next)
   if (modulus.tag !== 0x02 || exponent.tag !== 0x02) {
-    throw new Error('公钥格式无效')
+    throw new Error(t('core.crypto.publicKeyInvalid'))
   }
   return [trimDerInteger(modulus.value), trimDerInteger(exponent.value)]
 }
@@ -152,7 +153,7 @@ function generateMgf1Mask(crypto: MiniCrypto, seed: Uint8Array, length: number) 
     counter[3] = index
     let block = hash.reset().process(seed).process(counter).finish().result
     if (!block) {
-      throw new Error('密码加密失败')
+      throw new Error(t('core.crypto.encryptFailed'))
     }
     const target = mask.subarray(index * hash.HASH_SIZE)
     if (block.length > target.length) {
@@ -189,14 +190,14 @@ async function encryptMiniProgramPassword(
   const dataBlockLength = keySize - hash.HASH_SIZE - 1
   const paddingLength = dataBlockLength - aesKey.length - hash.HASH_SIZE - 1
   if (paddingLength < 0) {
-    throw new Error('密码长度超出限制')
+    throw new Error(t('core.crypto.passwordTooLong'))
   }
   const encodedMessage = new Uint8Array(keySize)
   const maskedSeed = encodedMessage.subarray(1, hash.HASH_SIZE + 1)
   const dataBlock = encodedMessage.subarray(hash.HASH_SIZE + 1)
   const labelHash = hash.reset().process(new Uint8Array()).finish().result
   if (!labelHash) {
-    throw new Error('密码加密失败')
+    throw new Error(t('core.crypto.encryptFailed'))
   }
   dataBlock.set(labelHash, 0)
   dataBlock.set(aesKey, hash.HASH_SIZE + paddingLength + 1)
@@ -214,7 +215,7 @@ async function encryptMiniProgramPassword(
     new crypto.BigNumber(encodedMessage),
   ).result
   if (!encryptedKey) {
-    throw new Error('密码加密失败')
+    throw new Error(t('core.crypto.encryptFailed'))
   }
   const ciphertext = crypto.AES_GCM.encrypt(plaintext, aesKey, iv)
   return {
@@ -234,7 +235,7 @@ export async function encryptPassword(
 ): Promise<PasswordCrypto> {
   const plainPassword = password.trim()
   if (!plainPassword) {
-    throw new Error('密码不能为空')
+    throw new Error(t('core.crypto.passwordRequired'))
   }
 
   const publicKeyResponse = await defLoginService.PasswordPublicKey({ scene })

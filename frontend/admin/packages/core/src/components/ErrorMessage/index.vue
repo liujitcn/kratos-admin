@@ -1,5 +1,6 @@
 <script setup lang="ts" name="ErrorMessage">
 import { useRouter } from "vue-router";
+import { useLocaleStore } from "@/locales";
 
 /** 错误状态展示属性。 */
 interface ErrorMessageProps {
@@ -14,6 +15,7 @@ interface ErrorMessageProps {
 defineProps<ErrorMessageProps>();
 
 const router = useRouter();
+const { t } = useLocaleStore();
 </script>
 
 <template>
@@ -22,7 +24,7 @@ const router = useRouter();
     <div class="not-detail">
       <h2>{{ code }}</h2>
       <h4>{{ message }}</h4>
-      <el-button type="primary" @click="router.back()"> 返回上一页 </el-button>
+      <el-button type="primary" @click="router.back()">{{ t("common.action.back") }}</el-button>
     </div>
   </div>
 </template>

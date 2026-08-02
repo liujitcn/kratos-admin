@@ -1,5 +1,6 @@
 import { Button, Text, View } from '@tarojs/components'
 import { ArrowRight, Refresh } from '@liujitcn/kratos-taro-app-ui'
+import { t, useI18n } from '@liujitcn/kratos-taro-app-core'
 import type { AiShortcut } from '../../../../rpc/base/v1/ai_tool'
 import './welcome-panel.scss'
 
@@ -14,6 +15,7 @@ type WelcomePanelProps = {
 
 /** AI 助手空会话欢迎面板。 */
 export default function WelcomePanel(props: WelcomePanelProps) {
+  useI18n()
   return (
     <View className='welcome-panel'>
       <View className='welcome-row is-hello'>
@@ -33,24 +35,24 @@ export default function WelcomePanel(props: WelcomePanelProps) {
           <View className='ai-avatar__bow' />
           <View className='ai-avatar__spark' />
         </View>
-        <View className='welcome-bubble is-hello'>您好，AI助手为您服务！</View>
+        <View className='welcome-bubble is-hello'>{t('system.ai.greetingHello')}</View>
       </View>
       <View className='welcome-bubble is-intro'>{props.greetingMessage}</View>
       <View className='prompt-card'>
         <View className='prompt-card__head'>
           <View>
-            <View className='prompt-card__eyebrow'>快捷操作</View>
-            <View className='prompt-card__title'>您可以这样问</View>
+            <View className='prompt-card__eyebrow'>{t('system.ai.quickActions')}</View>
+            <View className='prompt-card__title'>{t('system.ai.shortcutQuestion')}</View>
           </View>
           {props.canRefresh ? (
             <Button className='prompt-refresh' hoverClass='none' onClick={props.onRefresh}>
-              <Text>换一换</Text><Refresh size={25} color='#00a96b' />
+              <Text>{t('system.ai.refresh')}</Text><Refresh size={25} color='#00a96b' />
             </Button>
           ) : null}
         </View>
-        {props.loading ? <View className='prompt-loading'>正在加载...</View> : null}
+        {props.loading ? <View className='prompt-loading'>{t('common.message.loading')}</View> : null}
         {!props.loading && !props.shortcuts.length ? (
-          <View className='prompt-loading'>暂无可用快捷助手</View>
+          <View className='prompt-loading'>{t('system.ai.noShortcuts')}</View>
         ) : null}
         {!props.loading
           ? props.shortcuts.map((shortcut, index) => (
@@ -63,7 +65,7 @@ export default function WelcomePanel(props: WelcomePanelProps) {
                 <Text className='prompt-index'>{index + 1}</Text>
                 <View className='prompt-content'>
                   <Text className='prompt-text'>{shortcut.title}</Text>
-                  <Text className='prompt-meta'>{shortcut.group || '通用助手'}</Text>
+                  <Text className='prompt-meta'>{shortcut.group || t('system.ai.generalAssistant')}</Text>
                 </View>
                 <ArrowRight size={20} color='#9aa0aa' />
               </Button>

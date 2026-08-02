@@ -6,25 +6,25 @@
     <template #dropdown>
       <el-dropdown-menu>
         <el-dropdown-item @click="refresh">
-          <el-icon><Refresh /></el-icon>刷新当前
+          <el-icon><Refresh /></el-icon>{{ t("core.tabs.refresh") }}
         </el-dropdown-item>
         <el-dropdown-item @click="maximize">
-          <el-icon><FullScreen /></el-icon>最大化
+          <el-icon><FullScreen /></el-icon>{{ t("core.tabs.maximize") }}
         </el-dropdown-item>
         <el-dropdown-item divided @click="closeCurrentTab">
-          <el-icon><Remove /></el-icon>关闭当前
+          <el-icon><Remove /></el-icon>{{ t("core.tabs.closeCurrent") }}
         </el-dropdown-item>
         <el-dropdown-item @click="tabStore.closeTabsOnSide(currentTabPath, 'left')">
-          <el-icon><DArrowLeft /></el-icon>关闭左侧
+          <el-icon><DArrowLeft /></el-icon>{{ t("core.tabs.closeLeft") }}
         </el-dropdown-item>
         <el-dropdown-item @click="tabStore.closeTabsOnSide(currentTabPath, 'right')">
-          <el-icon><DArrowRight /></el-icon>关闭右侧
+          <el-icon><DArrowRight /></el-icon>{{ t("core.tabs.closeRight") }}
         </el-dropdown-item>
         <el-dropdown-item divided @click="tabStore.closeMultipleTab(currentTabPath)">
-          <el-icon><CircleClose /></el-icon>关闭其他
+          <el-icon><CircleClose /></el-icon>{{ t("core.tabs.closeOther") }}
         </el-dropdown-item>
         <el-dropdown-item @click="closeAllTab">
-          <el-icon><FolderDelete /></el-icon>关闭全部
+          <el-icon><FolderDelete /></el-icon>{{ t("core.tabs.closeAll") }}
         </el-dropdown-item>
       </el-dropdown-menu>
     </template>
@@ -39,12 +39,14 @@ import { useTabsStore } from "@/stores/modules/tabs";
 import { useGlobalStore } from "@/stores/modules/global";
 import { useKeepAliveStore } from "@/stores/modules/keepAlive";
 import { useRoute, useRouter } from "vue-router";
+import { useLocaleStore } from "@/locales";
 
 const route = useRoute();
 const router = useRouter();
 const tabStore = useTabsStore();
 const globalStore = useGlobalStore();
 const keepAliveStore = useKeepAliveStore();
+const { t } = useLocaleStore();
 const currentTabPath = computed(() => getAdminTabPath(route));
 
 // refresh current page

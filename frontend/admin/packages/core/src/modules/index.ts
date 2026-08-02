@@ -1,5 +1,6 @@
 import type { Component } from "vue";
 import type { RouteLocationNormalizedLoaded } from "vue-router";
+import type { LocaleMessages, SupportedLocale } from "@/locales";
 
 /**
  * 管理端视图加载器。
@@ -42,8 +43,10 @@ export interface AdminHeaderTool {
 export interface AdminUserMenuAction {
   /** 操作唯一名称。 */
   name: string;
-  /** 操作显示名称。 */
-  label: string;
+  /** 操作显示名称对应的稳定语言键。 */
+  labelKey?: string;
+  /** 兼容未迁移模块的静态显示名称。 */
+  label?: string;
   /** 对应后端动态菜单名称，菜单不存在时不显示操作。 */
   menuName: string;
   /** 操作图标。 */
@@ -74,6 +77,8 @@ export interface AdminModule {
   routeOptions?: Record<string, AdminRouteOptions>;
   /** 模块提供的命名扩展，由扩展所属业务包定义具体类型。 */
   extensions?: Record<string, unknown>;
+  /** 模块按语言区域贡献的扁平语言包。 */
+  messages?: Partial<Record<SupportedLocale, LocaleMessages>>;
 }
 
 const registeredModules = new Map<string, AdminModule>();

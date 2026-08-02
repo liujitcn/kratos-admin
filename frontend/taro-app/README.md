@@ -67,6 +67,12 @@ pnpm build:mp-weixin
 
 模块内需要固定路径的打包资源统一放在 `src/static`。页面直接展示的图片通过所属包的 `static/*` export 静态导入，例如 `@liujitcn/kratos-taro-app-core/static/images/avatar.png`，确保 Webpack 在 H5 与微信页面 chunk 中生成正确引用；`resolveBundledAsset('static/...')` 只用于动态菜单图标等无法静态导入的运行时路径。
 
+## 国际化
+
+Taro 支持 `zh-CN`、`en-US`、`ja-JP`。core 和 System 包分别提供三语 JSON 语言包，模块注册时校验 key 与占位符集合；登录、首页、状态页、WebView、个人中心、设置、资料和 AI 页面都通过 `t(key)` 使用固定文案。语言偏好保存为 `kratos-app:locale`，切换后不改变稳定路由和业务字段。
+
+所有 `Taro.request`、文件上传和 SSE 请求统一发送 `Accept-Language`。动态菜单沿用后端解析后的标题，缺少英语或日语时回退中文；新增业务模块应同时提供三个 locale 文件并通过 `messages` 注册。
+
 ## RPC 生成
 
 Taro RPC 模板统一位于 `backend/api`：

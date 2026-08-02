@@ -42,23 +42,15 @@ export interface PageBaseUserRequest {
   /** 用户昵称 */
   nick_name: string;
   /** 租户ID */
-  tenant_id?:
-    | number
-    | undefined;
+  tenant_id?: number | undefined;
   /** 部门ID */
-  dept_id?:
-    | number
-    | undefined;
+  dept_id?: number | undefined;
   /** 手机号 */
   phone: string;
   /** 性别 */
-  gender?:
-    | BaseUserGender
-    | undefined;
+  gender?: BaseUserGender | undefined;
   /** 状态 */
-  status?:
-    | Status
-    | undefined;
+  status?: Status | undefined;
   /** 当前页码 */
   page_num: number;
   /** 每一页的行数 */
@@ -166,9 +158,7 @@ export interface BaseUserForm {
   /** 性别 */
   gender: BaseUserGender;
   /** 密码 */
-  pwd:
-    | PasswordCrypto
-    | undefined;
+  pwd: PasswordCrypto | undefined;
   /** 用户状态 */
   status: Status;
   /** 备注名 */
@@ -194,17 +184,11 @@ export interface SetBaseUserAppRoleRequest {
 /** 用户注册汇总查询条件 */
 export interface SummaryBaseUserRequest {
   /** 租户ID */
-  tenant_id?:
-    | number
-    | undefined;
+  tenant_id?: number | undefined;
   /** 开始时间 */
-  start_at:
-    | Timestamp
-    | undefined;
+  start_at: Timestamp | undefined;
   /** 结束时间 */
-  end_at:
-    | Timestamp
-    | undefined;
+  end_at: Timestamp | undefined;
   /** 统计时间类型 */
   time_type: AnalyticsTimeType;
 }

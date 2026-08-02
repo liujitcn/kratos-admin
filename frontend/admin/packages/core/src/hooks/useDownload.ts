@@ -1,4 +1,5 @@
 import { ElNotification } from "element-plus";
+import { t } from "@/locales";
 
 /**
  * @description 接收数据流生成 blob，创建链接，下载文件
@@ -17,8 +18,8 @@ export const useDownload = async (
 ) => {
   if (isNotify) {
     ElNotification({
-      title: "温馨提示",
-      message: "如果数据庞大会导致下载缓慢哦，请您耐心等待！",
+      title: t("common.title.notice"),
+      message: t("core.download.largeFileNotice"),
       type: "info",
       duration: 3000
     });

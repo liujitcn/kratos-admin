@@ -1,7 +1,7 @@
 <template>
   <ProDialog
     :model-value="modelValue"
-    title="代码生成进度"
+    :title="t('system.codegen.progress.title')"
     width="min(1080px, 94vw)"
     top="4vh"
     :close-on-click-modal="false"
@@ -13,7 +13,9 @@
         <div class="task-heading">
           <div>
             <strong>{{ task.message }}</strong>
-            <span v-if="task.current_table_name">当前：{{ task.current_table_name }}</span>
+            <span v-if="task.current_table_name">
+              {{ t("system.codegen.progress.value.current", { table: task.current_table_name }) }}
+            </span>
           </div>
           <el-tag :type="statusMeta(task.status).type" effect="plain">{{ statusMeta(task.status).label }}</el-tag>
         </div>
@@ -23,9 +25,13 @@
           :stroke-width="12"
         />
         <div class="task-meta">
-          <span>{{ task.completed_steps }} / {{ task.total_steps }} 步</span>
-          <span>创建：{{ formatTime(task.created_at) }}</span>
-          <span v-if="task.finished_at">完成：{{ formatTime(task.finished_at) }}</span>
+          <span>{{
+            t("system.codegen.progress.value.steps", { completed: task.completed_steps, total: task.total_steps })
+          }}</span>
+          <span>{{ t("system.codegen.progress.value.createdAt", { time: formatTime(task.created_at) }) }}</span>
+          <span v-if="task.finished_at">{{
+            t("system.codegen.progress.value.finishedAt", { time: formatTime(task.finished_at) })
+          }}</span>
         </div>
 
         <el-collapse v-model="expandedTables" class="table-progress-list">
@@ -41,12 +47,17 @@
             </template>
             <div v-if="table.message" class="table-message">
               <span>{{ table.message }}</span>
-              <el-tooltip content="复制错误信息" placement="top">
-                <el-button :icon="CopyDocument" link aria-label="复制错误信息" @click.stop="copyMessage(table.message)" />
+              <el-tooltip :content="t('system.codegen.progress.action.copyError')" placement="top">
+                <el-button
+                  :icon="CopyDocument"
+                  link
+                  :aria-label="t('system.codegen.progress.action.copyError')"
+                  @click.stop="copyMessage(table.message)"
+                />
               </el-tooltip>
             </div>
             <el-table :data="table.steps" row-key="id" size="small" border>
-              <el-table-column label="状态" width="86" align="center">
+              <el-table-column :label="t('system.codegen.table.field.status')" width="86" align="center">
                 <template #default="{ row }">
                   <el-icon :class="{ 'is-loading': row.status === CodeGenTaskStepStatus.CODE_GEN_TASK_STEP_STATUS_RUNNING }">
                     <Loading v-if="row.status === CodeGenTaskStepStatus.CODE_GEN_TASK_STEP_STATUS_RUNNING" />
@@ -57,10 +68,20 @@
                   </el-icon>
                 </template>
               </el-table-column>
-              <el-table-column prop="label" label="步骤" min-width="130" />
-              <el-table-column prop="path" label="文件路径" min-width="260" show-overflow-tooltip />
-              <el-table-column prop="message" label="结果" min-width="180" show-overflow-tooltip />
-              <el-table-column label="输出" width="90" align="center">
+              <el-table-column prop="label" :label="t('system.codegen.progress.field.step')" min-width="130" />
+              <el-table-column
+                prop="path"
+                :label="t('system.codegen.preview.field.path')"
+                min-width="260"
+                show-overflow-tooltip
+              />
+              <el-table-column
+                prop="message"
+                :label="t('system.codegen.progress.field.result')"
+                min-width="180"
+                show-overflow-tooltip
+              />
+              <el-table-column :label="t('system.codegen.progress.field.output')" width="90" align="center">
                 <template #default="{ row }">
                   <el-button v-if="row.output" :icon="Document" link @click="showOutput(row.label, row.output)" />
                 </template>
@@ -69,19 +90,24 @@
           </el-collapse-item>
         </el-collapse>
       </template>
-      <el-result v-else-if="errorMessage" icon="error" title="任务不可用" :sub-title="errorMessage">
+      <el-result
+        v-else-if="errorMessage"
+        icon="error"
+        :title="t('system.codegen.progress.message.unavailableTitle')"
+        :sub-title="errorMessage"
+      >
         <template #extra>
-          <el-button type="primary" @click="startTracking">重新加载</el-button>
+          <el-button type="primary" @click="startTracking">{{ t("system.codegen.progress.action.reload") }}</el-button>
         </template>
       </el-result>
     </div>
-
   </ProDialog>
 </template>
 
 <script setup lang="ts">
 import { onBeforeUnmount, ref, watch } from "vue";
 import { Check, CircleClose, Clock, CopyDocument, Document, Loading, Minus } from "@element-plus/icons-vue";
+import { getCurrentLocale, t } from "@liujitcn/kratos-admin-core";
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import { defCodeGenService } from "@liujitcn/kratos-admin-system/api/system/code_gen";
 import { subscribeCodeGenProgress, type SseStop } from "@liujitcn/kratos-admin-system/api/system/code_gen_sse";
@@ -166,7 +192,7 @@ function applyTask(latest: CodeGenTask) {
 function markUnavailable() {
   stopTracking();
   task.value = undefined;
-  errorMessage.value = "任务不存在、已过期或无权访问";
+  errorMessage.value = t("system.codegen.progress.message.unavailable");
   emit("unavailable");
 }
 
@@ -180,10 +206,13 @@ function stopTracking() {
 
 /** 返回状态标签配置。 */
 function statusMeta(status: CodeGenTaskStatus): StatusMeta {
-  if (status === CodeGenTaskStatus.CODE_GEN_TASK_STATUS_RUNNING) return { label: "执行中", type: "warning" };
-  if (status === CodeGenTaskStatus.CODE_GEN_TASK_STATUS_SUCCEEDED) return { label: "已完成", type: "success" };
-  if (status === CodeGenTaskStatus.CODE_GEN_TASK_STATUS_FAILED) return { label: "失败", type: "danger" };
-  return { label: "等待中", type: "info" };
+  if (status === CodeGenTaskStatus.CODE_GEN_TASK_STATUS_RUNNING)
+    return { label: t("system.codegen.progress.status.running"), type: "warning" };
+  if (status === CodeGenTaskStatus.CODE_GEN_TASK_STATUS_SUCCEEDED)
+    return { label: t("system.codegen.progress.status.succeeded"), type: "success" };
+  if (status === CodeGenTaskStatus.CODE_GEN_TASK_STATUS_FAILED)
+    return { label: t("system.codegen.progress.status.failed"), type: "danger" };
+  return { label: t("system.codegen.progress.status.pending"), type: "info" };
 }
 
 /** 返回进度条状态。 */
@@ -206,7 +235,7 @@ function isFinished(status: CodeGenTaskStatus) {
 /** 格式化任务时间。 */
 function formatTime(value: string) {
   const date = new Date(value);
-  return !value || Number.isNaN(date.getTime()) ? "-" : date.toLocaleString();
+  return !value || Number.isNaN(date.getTime()) ? "-" : date.toLocaleString(getCurrentLocale());
 }
 
 /** 弹出展示命令输出。 */
@@ -214,18 +243,18 @@ function showOutput(title: string, output: string) {
   ElMessageBox.alert(`<pre class="code-gen-command-output">${escapeHTML(output)}</pre>`, title, {
     dangerouslyUseHTMLString: true,
     customClass: "code-gen-output-dialog",
-    confirmButtonText: "关闭"
+    confirmButtonText: t("common.action.close")
   });
 }
 
 /** 复制生成任务的错误信息，便于定位生成命令问题。 */
 async function copyMessage(message: string) {
-	try {
-		await navigator.clipboard.writeText(message);
-		ElMessage.success("错误信息已复制");
-	} catch {
-		ElMessage.error("复制失败，请手动复制");
-	}
+  try {
+    await navigator.clipboard.writeText(message);
+    ElMessage.success(t("system.codegen.progress.message.copied"));
+  } catch {
+    ElMessage.error(t("system.codegen.progress.message.copyFailed"));
+  }
 }
 
 /** 转义命令输出中的HTML字符。 */
@@ -301,17 +330,17 @@ onBeforeUnmount(stopTracking);
 }
 
 .table-message {
-	display: flex;
-	gap: 6px;
-	align-items: flex-start;
-	margin: 0 0 10px;
-	color: var(--el-text-color-secondary);
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  margin: 0 0 10px;
+  color: var(--el-text-color-secondary);
 }
 
 .table-message span {
-	min-width: 0;
-	white-space: pre-wrap;
-	word-break: break-word;
+  min-width: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 </style>
 

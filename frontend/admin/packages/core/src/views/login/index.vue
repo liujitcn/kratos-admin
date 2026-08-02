@@ -2,6 +2,7 @@
   <div class="login-container flx-center">
     <div class="login-box">
       <SwitchDark class="dark" />
+      <LocaleSwitch class="locale" />
       <div class="login-left">
         <img class="login-left-img" :src="backgroundUrl" alt="login" />
       </div>
@@ -20,6 +21,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import LoginForm from "./components/LoginForm.vue";
 import SwitchDark from "@/components/SwitchDark/index.vue";
+import LocaleSwitch from "@/components/LocaleSwitch/index.vue";
 import { useConfigStore } from "@/stores/modules/config";
 
 const configStore = useConfigStore();

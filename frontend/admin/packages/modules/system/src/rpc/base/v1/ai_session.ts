@@ -62,9 +62,7 @@ export interface CreateAiSessionBranchRequest {
 /** AI 助手分支会话创建响应 */
 export interface CreateAiSessionBranchResponse {
   /** 新会话信息 */
-  session:
-    | AiSession
-    | undefined;
+  session: AiSession | undefined;
   /** 新会话消息列表 */
   messages: AiMessage[];
 }
@@ -90,8 +88,7 @@ export interface DeleteAiSessionRequest {
 }
 
 /** AI 助手会话删除响应 */
-export interface DeleteAiSessionResponse {
-}
+export interface DeleteAiSessionResponse {}
 
 /** AI 助手会话 */
 export interface AiSession {
@@ -102,9 +99,7 @@ export interface AiSession {
   /** 会话摘要 */
   summary: string;
   /** 更新时间 */
-  updated_at:
-    | Timestamp
-    | undefined;
+  updated_at: Timestamp | undefined;
   /** 终端类型：枚举【Terminal】 */
   terminal: Terminal;
 }
@@ -114,25 +109,17 @@ export interface AiMessage {
   /** 消息ID */
   id: string;
   /** 输入内容 */
-  input_content:
-    | AiInputContent
-    | undefined;
+  input_content: AiInputContent | undefined;
   /** 输出内容 */
-  output_content:
-    | AiOutputContent
-    | undefined;
+  output_content: AiOutputContent | undefined;
   /** 附件列表 */
   attachments: AiAttachment[];
   /** 创建时间 */
-  created_at:
-    | Timestamp
-    | undefined;
+  created_at: Timestamp | undefined;
   /** 消息生成状态：枚举【AiMessageStatus】 */
   status: AiMessageStatus;
   /** Token 统计 */
-  token:
-    | AiToken
-    | undefined;
+  token: AiToken | undefined;
   /** 本次消息使用的工具调用记录 */
   tools: AiToolCall[];
   /** 首 Token 耗时毫秒 */

@@ -53,7 +53,7 @@
       <FormDialog
         v-model="dialog.visible"
         ref="formDialogRef"
-        :title="dialog.title"
+        :title="dialogTitle"
         width="min(920px, calc(100vw - 32px))"
         top="4vh"
         :model="previewFormModel"
@@ -68,13 +68,13 @@
           <PasswordStrength :password="String(previewFormModel[passwordFieldName])" />
         </template>
         <template #codeGenPreviewSlot="{ field }">
-          <el-input v-model="previewFormModel[field.prop]" placeholder="自定义插槽内容">
-            <template #append>自定义</template>
+          <el-input v-model="previewFormModel[field.prop]" :placeholder="t('system.codegen.preview.placeholder.customSlot')">
+            <template #append>{{ t("system.codegen.preview.value.custom") }}</template>
           </el-input>
         </template>
       </FormDialog>
     </template>
-    <el-empty v-else-if="!loading" description="暂无页面配置" />
+    <el-empty v-else-if="!loading" :description="t('system.codegen.preview.message.emptyPage')" />
   </div>
 </template>
 
@@ -83,8 +83,14 @@ import { computed, nextTick, onMounted, reactive, ref, watch } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
 import { useRoute } from "vue-router";
+import { t } from "@liujitcn/kratos-admin-core";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
-import type { ColumnProps, HeaderActionProps, ProTableInstance, RenderScope } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
+import type {
+  ColumnProps,
+  HeaderActionProps,
+  ProTableInstance,
+  RenderScope
+} from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
 import PasswordStrength from "@liujitcn/kratos-admin-core/components/PasswordStrength/index.vue";
 import type { ProFormComponentType, ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
@@ -132,13 +138,22 @@ const mockRows = ref<CodeGenPreviewRow[]>([]);
 const previewFormModel = reactive<Record<string, any>>({});
 const editingRowKey = ref<string | number>();
 const selectedLeftTreeValues = ref<Array<string | number | boolean>>([]);
-const passwordFieldName = computed(() => snapshot.value?.columns.find(column => column.form_config?.component === "password")?.name ?? "pwd");
-const supportedFormComponents = new Set(codeGenFormComponentOptions.map(item => String(item.value)));
+const passwordFieldName = computed(
+  () => snapshot.value?.columns.find(column => column.form_config?.component === "password")?.name ?? "pwd"
+);
+const supportedFormComponents = computed(() => new Set(codeGenFormComponentOptions().map(item => String(item.value))));
 
 const dialog = reactive({
-  title: "",
+  editing: false,
   visible: false
 });
+
+/** 模拟数据新增或编辑弹窗标题。 */
+const dialogTitle = computed(() =>
+  t(dialog.editing ? "system.codegen.preview.title.edit" : "system.codegen.preview.title.create", {
+    resource: snapshot.value?.table.comment || t("system.codegen.preview.value.data")
+  })
+);
 
 /** 当前代码生成表配置 ID。 */
 const tableId = computed(() => {
@@ -180,7 +195,7 @@ const leftTreeTitle = computed(
     snapshot.value?.table.left_tree_config?.comment ||
     leftTreeTableComment.value ||
     snapshot.value?.table.left_tree_config?.table_name ||
-    "分类列表"
+    t("system.codegen.preview.title.categoryList")
 );
 
 /** 当前实体已经存在或已经选择生成的 Proto 维护能力。 */
@@ -192,7 +207,8 @@ const protoCapabilities = computed(() =>
 const tableColumns = computed<ColumnProps[]>(() => {
   const columns = snapshot.value?.columns ?? [];
   const treeParentColumn = pageType.value === "tree" || pageType.value === "tree_lazy" ? snapshot.value?.table.parent_column : "";
-  const treeLabelColumn = pageType.value === "tree" || pageType.value === "tree_lazy" ? snapshot.value?.table.tree_label_column : "";
+  const treeLabelColumn =
+    pageType.value === "tree" || pageType.value === "tree_lazy" ? snapshot.value?.table.tree_label_column : "";
   const configuredColumns = columns
     .filter(
       column =>
@@ -212,9 +228,8 @@ const tableColumns = computed<ColumnProps[]>(() => {
       const isTreeLabel = column.name === treeLabelColumn;
       const isTreeParent = column.name === treeParentColumn && treeParentColumn !== treeLabelColumn;
       const listConfig = column.list_config ?? { enabled: false, component: "input", option: undefined };
-      const previewColumn = isTreeLabel && !listConfig.enabled
-        ? { ...column, list_config: { ...listConfig, enabled: true } }
-        : column;
+      const previewColumn =
+        isTreeLabel && !listConfig.enabled ? { ...column, list_config: { ...listConfig, enabled: true } } : column;
       const result = createPreviewTableColumn(previewColumn);
       if (isTreeLabel) result.align = "left";
       if (isTreeParent) {
@@ -228,7 +243,7 @@ const tableColumns = computed<ColumnProps[]>(() => {
   const actions: NonNullable<ColumnProps["actions"]> = [];
   if (protoCapabilities.value.update) {
     actions.push({
-      label: "编辑",
+      label: t("common.action.edit"),
       type: "primary",
       link: true,
       icon: EditPen,
@@ -237,7 +252,7 @@ const tableColumns = computed<ColumnProps[]>(() => {
   }
   if (protoCapabilities.value.delete) {
     actions.push({
-      label: "删除",
+      label: t("common.action.delete"),
       type: "danger",
       link: true,
       icon: Delete,
@@ -247,7 +262,7 @@ const tableColumns = computed<ColumnProps[]>(() => {
   if (actions.length) {
     result.push({
       prop: "operation",
-      label: "操作",
+      label: t("common.field.operation"),
       width: actions.length === 1 ? 100 : 180,
       fixed: "right",
       cellType: "actions",
@@ -262,7 +277,7 @@ const headerActions = computed<HeaderActionProps[]>(() => {
   const actions: HeaderActionProps[] = [];
   if (protoCapabilities.value.create && formFields.value.length) {
     actions.push({
-      label: "新增",
+      label: t("common.action.create"),
       type: "success",
       icon: CirclePlus,
       onClick: () => handleOpenDialog()
@@ -270,7 +285,7 @@ const headerActions = computed<HeaderActionProps[]>(() => {
   }
   if (protoCapabilities.value.delete) {
     actions.push({
-      label: "删除",
+      label: t("common.action.delete"),
       type: "danger",
       icon: Delete,
       disabled: scope => !scope.selectedList.length,
@@ -284,8 +299,7 @@ const headerActions = computed<HeaderActionProps[]>(() => {
 const formFields = computed<ProFormField[]>(() => {
   return (snapshot.value?.columns ?? [])
     .filter(
-      column =>
-        !column.is_primary && !column.is_auto_increment && column.name !== "deleted_at" && column.form_config?.enabled
+      column => !column.is_primary && !column.is_auto_increment && column.name !== "deleted_at" && column.form_config?.enabled
     )
     .sort((left, right) => left.sort - right.sort)
     .flatMap(column => {
@@ -294,9 +308,7 @@ const formFields = computed<ProFormField[]>(() => {
         (pageType.value === "tree" || pageType.value === "tree_lazy") && column.name === snapshot.value?.table.parent_column;
       const component = isTreeParent ? "tree-select" : resolvePreviewFormComponent(column.form_config?.component);
       const isMultipleTreeSelect = component === "tree-select" && Boolean(column.form_config?.multiple);
-      const options = isTreeParent
-        ? treeParentOptions.value
-        : resolveCodeGenPreviewOptions(optionMap.value, column.name, "form");
+      const options = isTreeParent ? treeParentOptions.value : resolveCodeGenPreviewOptions(optionMap.value, column.name, "form");
       const field: ProFormField = {
         prop: column.name,
         label,
@@ -306,10 +318,12 @@ const formFields = computed<ProFormField[]>(() => {
           ...(isTreeParent ? { disabled: Boolean(previewFormModel[primaryColumn.value]) } : {})
         },
         options,
-        checkboxLabel: component === "checkbox" ? `启用${label}` : undefined,
+        checkboxLabel: component === "checkbox" ? t("system.codegen.preview.value.enableField", { field: label }) : undefined,
         slotName: component === "slot" ? "codeGenPreviewSlot" : undefined,
         visible: component === "password" ? model => !model[primaryColumn.value] : undefined,
-        rules: column.form_config?.required ? [{ required: true, message: `${label}不能为空` }] : undefined,
+        rules: column.form_config?.required
+          ? [{ required: true, message: t("system.codegen.preview.validation.required", { field: label }) }]
+          : undefined,
         colSpan: resolvePreviewColSpan(component)
       };
       if (component !== "password") return [field];
@@ -317,7 +331,7 @@ const formFields = computed<ProFormField[]>(() => {
         field,
         {
           prop: "passwordStrength",
-          label: "强度提示",
+          label: t("system.codegen.preview.field.passwordStrength"),
           component: "slot",
           slotName: "passwordStrength",
           visible: model => !model[primaryColumn.value]
@@ -330,7 +344,7 @@ const formFields = computed<ProFormField[]>(() => {
 const treeParentOptions = computed<ProFormOption[]>(() => {
   if (!snapshot.value?.table.parent_column || (pageType.value !== "tree" && pageType.value !== "tree_lazy")) return [];
   const treeRows = buildCodeGenPreviewTree(mockRows.value, primaryColumn.value, snapshot.value.table.parent_column);
-  return [{ label: "顶级节点", value: 0 }, ...mapPreviewRowsToOptions(treeRows)];
+  return [{ label: t("system.codegen.preview.value.topLevel"), value: 0 }, ...mapPreviewRowsToOptions(treeRows)];
 });
 
 // 路由生成对象变化时重新载入对应预览。
@@ -393,11 +407,7 @@ async function requestPreviewTable(params: Record<string, any>) {
 }
 
 /** 请求懒加载树表格的子节点。 */
-async function loadPreviewTreeChildren(
-  row: CodeGenPreviewRow,
-  _treeNode: unknown,
-  resolve: (data: CodeGenPreviewRow[]) => void
-) {
+async function loadPreviewTreeChildren(row: CodeGenPreviewRow, _treeNode: unknown, resolve: (data: CodeGenPreviewRow[]) => void) {
   const parentColumn = snapshot.value?.table.parent_column;
   if (!parentColumn) {
     resolve([]);
@@ -442,9 +452,7 @@ async function loadPreview() {
 /** 根据 TreeFilter 当前节点筛选该节点及其全部子节点。 */
 function handleLeftTreeChange(value: string | number | boolean | undefined) {
   const selectedNode = flattenCodeGenPreviewOptions(leftTreeOptions.value).find(option => String(option.value) === String(value));
-  selectedLeftTreeValues.value = selectedNode
-    ? flattenCodeGenPreviewOptions([selectedNode]).map(option => option.value)
-    : [];
+  selectedLeftTreeValues.value = selectedNode ? flattenCodeGenPreviewOptions([selectedNode]).map(option => option.value) : [];
   proTable.value?.search();
 }
 
@@ -452,7 +460,7 @@ function handleLeftTreeChange(value: string | number | boolean | undefined) {
 function handleOpenDialog(row?: CodeGenPreviewRow) {
   resetPreviewForm(row);
   editingRowKey.value = row?.[primaryColumn.value];
-  dialog.title = row ? `编辑${snapshot.value?.table.comment || "数据"}` : `新增${snapshot.value?.table.comment || "数据"}`;
+  dialog.editing = Boolean(row);
   dialog.visible = true;
 }
 
@@ -493,7 +501,11 @@ function handleSubmit() {
       }
       mockRows.value.unshift(newRow);
     }
-    const successMessage = editingRowKey.value !== undefined ? "修改成功" : "新增成功";
+    const successMessage = t(
+      editingRowKey.value !== undefined
+        ? "system.codegen.preview.message.updateSuccess"
+        : "system.codegen.preview.message.createSuccess"
+    );
     handleCloseDialog();
     await nextTick();
     refreshTable();
@@ -504,15 +516,19 @@ function handleSubmit() {
 /** 删除一条或多条模拟记录。 */
 async function handleDelete(rows: CodeGenPreviewRow[]) {
   if (!rows.length) {
-    ElMessage.warning("请勾选删除项");
+    ElMessage.warning(t("system.common.message.selectDeleteItem"));
     return;
   }
   try {
-    await ElMessageBox.confirm(`确认删除选中的 ${rows.length} 条数据吗？`, "删除确认", {
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
-      type: "warning"
-    });
+    await ElMessageBox.confirm(
+      t("system.codegen.preview.dialog.confirmDelete", { count: rows.length }),
+      t("system.codegen.preview.title.deleteConfirm"),
+      {
+        confirmButtonText: t("common.action.confirm"),
+        cancelButtonText: t("common.action.cancel"),
+        type: "warning"
+      }
+    );
   } catch {
     return;
   }
@@ -520,7 +536,7 @@ async function handleDelete(rows: CodeGenPreviewRow[]) {
   mockRows.value = mockRows.value.filter(row => !keys.has(String(row[primaryColumn.value])));
   await nextTick();
   refreshTable();
-  ElMessage.success("删除成功");
+  ElMessage.success(t("system.codegen.preview.message.deleteSuccess"));
 }
 
 /** 创建当前页面类型使用的完整模拟数据。 */
@@ -531,7 +547,7 @@ function createMockRows() {
 
 /** 同步预览页签和浏览器标题。 */
 function syncWorkspaceTitle() {
-  const title = snapshot.value?.table.comment || snapshot.value?.table.name || "数据列表";
+  const title = snapshot.value?.table.comment || snapshot.value?.table.name || t("system.codegen.preview.title.dataList");
   tabsStore.setTabsTitle(title);
   document.title = `${title} - ${import.meta.env.VITE_GLOB_APP_TITLE}`;
 }
@@ -658,7 +674,7 @@ function mapPreviewRowsToOptions(rows: CodeGenPreviewRow[], parentPath = ""): Pr
 /** 将配置中的组件字符串收敛为 ProForm 支持类型，字典预览使用模拟下拉避免接口请求。 */
 function resolvePreviewFormComponent(component?: string): ProFormComponentType {
   if (component === "dict") return "select";
-  return component && supportedFormComponents.has(component) ? (component as ProFormComponentType) : "input";
+  return component && supportedFormComponents.value.has(component) ? (component as ProFormComponentType) : "input";
 }
 
 /** 创建不同 ProForm 组件在最终新增弹窗中的参数。 */
@@ -671,20 +687,35 @@ function createPreviewFormProps(
   const fullWidthStyle = { width: "100%" };
   switch (component) {
     case "input":
-      return { placeholder: `请输入${label}`, clearable: true, style: fullWidthStyle };
+      return {
+        placeholder: t("system.codegen.preview.placeholder.input", { field: label }),
+        clearable: true,
+        style: fullWidthStyle
+      };
     case "password":
-      return { placeholder: `请输入${label}`, clearable: true, showPassword: true, style: fullWidthStyle };
+      return {
+        placeholder: t("system.codegen.preview.placeholder.input", { field: label }),
+        clearable: true,
+        showPassword: true,
+        style: fullWidthStyle
+      };
     case "textarea":
-      return { placeholder: `请输入${label}`, rows: 4 };
+      return { placeholder: t("system.codegen.preview.placeholder.input", { field: label }), rows: 4 };
     case "input-number":
       return { min: 0, controlsPosition: "right", style: fullWidthStyle };
     case "segmented":
       return { block: true };
     case "select":
-      return { placeholder: `请选择${label}`, clearable: true, filterable: true, checkStrictly: true, style: fullWidthStyle };
+      return {
+        placeholder: t("system.codegen.preview.placeholder.select", { field: label }),
+        clearable: true,
+        filterable: true,
+        checkStrictly: true,
+        style: fullWidthStyle
+      };
     case "tree-select":
       return {
-        placeholder: `请选择${label}`,
+        placeholder: t("system.codegen.preview.placeholder.select", { field: label }),
         clearable: true,
         filterable: true,
         checkStrictly: true,
@@ -692,18 +723,25 @@ function createPreviewFormProps(
         style: fullWidthStyle
       };
     case "date-picker":
-      return { type: "datetime", placeholder: `请选择${label}`, style: fullWidthStyle };
+      return {
+        type: "datetime",
+        placeholder: t("system.codegen.preview.placeholder.select", { field: label }),
+        style: fullWidthStyle
+      };
     case "transfer":
-      return { titles: ["可选项", "已选项"] };
+      return { titles: [t("system.codegen.preview.value.available"), t("system.codegen.preview.value.selected")] };
     case "image-upload":
     case "images-upload":
     case "file-upload":
     case "files-upload":
       return { disabled: true };
     case "dynamic-list":
-      return { inputProps: { placeholder: `请输入${label}` } };
+      return { inputProps: { placeholder: t("system.codegen.preview.placeholder.input", { field: label }) } };
     case "kv-list":
-      return { keyInputProps: { placeholder: "键" }, valueInputProps: { placeholder: "值" } };
+      return {
+        keyInputProps: { placeholder: t("system.codegen.preview.value.key") },
+        valueInputProps: { placeholder: t("system.codegen.preview.value.value") }
+      };
     default:
       return option?.source_value ? { placeholder: option.source_value } : {};
   }
@@ -720,9 +758,9 @@ function createPreviewSearchProps(column: CodeGenColumn) {
   const props: Record<string, any> = { clearable: true, style: { width: "100%" } };
   if (column.query_config?.component === "date-picker") {
     props.type = column.query_config.operator === "between" ? "datetimerange" : "datetime";
-    props.rangeSeparator = "至";
-    props.startPlaceholder = "开始时间";
-    props.endPlaceholder = "结束时间";
+    props.rangeSeparator = t("system.codegen.preview.value.rangeSeparator");
+    props.startPlaceholder = t("system.common.placeholder.startDate");
+    props.endPlaceholder = t("system.common.placeholder.endDate");
   }
   if (column.query_config?.component === "tree-select") {
     props.checkStrictly = true;

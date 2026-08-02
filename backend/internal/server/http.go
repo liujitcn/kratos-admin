@@ -44,6 +44,7 @@ func NewHTTPMiddleware(
 ) HTTPMiddlewares {
 	var ms HTTPMiddlewares
 	cfg := ctx.GetConfig()
+	ms = append(ms, appMiddleware.NewLocaleMiddleware())
 	// request-id、recovery、tracing、metadata 等框架拦截器由 rpc.CreateHttpServer 按配置挂载。
 	if cfg != nil && cfg.Server != nil && cfg.Server.Http != nil && cfg.Server.Http.Middleware != nil && cfg.Server.Http.Middleware.EnableLogging {
 		ms = append(ms, logging.Server(ctx.GetLogger(), baseUserRepo, authenticator))

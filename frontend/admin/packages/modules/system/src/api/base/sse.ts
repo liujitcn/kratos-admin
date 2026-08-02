@@ -1,6 +1,7 @@
 import { EventStreamContentType, fetchEventSource, type EventSourceMessage } from "@microsoft/fetch-event-source";
 import type { SubscribeSseRequest } from "@liujitcn/kratos-admin-system/rpc/base/v1/sse";
 import { getRequestAccessToken, handleAuthExpired } from "@liujitcn/kratos-admin-core/request";
+import { getLocaleRequestHeaders } from "@liujitcn/kratos-admin-core";
 
 const SSE_URL = "/events";
 
@@ -105,7 +106,8 @@ export class SseServiceImpl {
         openWhenHidden: true,
         headers: {
           Accept: EventStreamContentType,
-          Authorization: accessToken
+          Authorization: accessToken,
+          ...getLocaleRequestHeaders()
         },
         async onopen(response) {
           const contentType = response.headers.get("content-type") ?? "";

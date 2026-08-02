@@ -95,6 +95,30 @@ func (c *renderer) newMergedFrontendPagePreviewFile(path string, renderedContent
 	return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: mergedContent, Exists: true, Message: "生成页面将按功能顺序更新并保留已有扩展"}
 }
 
+// newMergedFrontendLocalePreviewFile 解析并合并已有扁平 JSON 语言包。
+func (c *renderer) newMergedFrontendLocalePreviewFile(path string, prefix string, messages map[string]string) *systemadminv1.CodeGenPreviewFile {
+	_, pathErr := SafeRepoFilePath(path)
+	if pathErr != nil {
+		return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "skip", Exists: false, Message: pathErr.Error()}
+	}
+	renderedContent, err := renderFrontendLocaleMessages(messages)
+	if err != nil {
+		return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "skip", Exists: false, Message: err.Error()}
+	}
+	content, err := c.readRepoFile(path)
+	if err != nil {
+		return c.newPreviewFile(path, renderedContent)
+	}
+	mergedContent, err := mergeFrontendLocaleMessages(string(content), prefix, messages)
+	if err != nil {
+		return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: string(content), Exists: true, Message: err.Error()}
+	}
+	if string(content) == mergedContent {
+		return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: string(content), Exists: true, Message: "生成语言包已与当前配置一致"}
+	}
+	return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: mergedContent, Exists: true, Message: "将更新当前生成对象的语言键并保留其他文案"}
+}
+
 // newAdminRegistrationPreviewFiles 创建管理端业务模块依赖注入与传输层注册补丁。
 func (c *renderer) newAdminRegistrationPreviewFiles(table *Table, methods []*Proto) []*systemadminv1.CodeGenPreviewFile {
 	type registrationGroup struct {

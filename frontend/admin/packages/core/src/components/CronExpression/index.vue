@@ -3,7 +3,7 @@
     <el-input v-model="currentValue" :placeholder="placeholder" clearable>
       <template #suffix>
         <div class="cron-expression__actions">
-          <el-tooltip content="编辑表达式" placement="top">
+          <el-tooltip :content="t('core.cron.edit')" placement="top">
             <el-icon class="cron-expression__icon" @click="handleOpenEditor()">
               <Operation />
             </el-icon>
@@ -12,10 +12,10 @@
       </template>
     </el-input>
 
-    <el-dialog v-model="dialogVisible" title="编辑定时表达式" width="980px" top="2vh" destroy-on-close>
+    <el-dialog v-model="dialogVisible" :title="t('core.cron.title')" width="980px" top="2vh" destroy-on-close>
       <div class="cron-editor">
         <div class="cron-editor__preset">
-          <div class="cron-editor__section-title">常用表达式</div>
+          <div class="cron-editor__section-title">{{ t("core.cron.presets") }}</div>
           <div class="cron-editor__preset-list">
             <el-tag
               v-for="option in presetOptions"
@@ -30,36 +30,36 @@
         </div>
 
         <el-tabs v-model="activeTab">
-          <el-tab-pane label="秒" name="second">
+          <el-tab-pane :label="t('core.cron.segment.second')" name="second">
             <CronSegmentEditor
-              unit="秒"
+              unit-key="second"
               :max="59"
               :state="editorState.second"
               :supports-unspecified="false"
               @change="value => handleUpdateSegment('second', value)"
             />
           </el-tab-pane>
-          <el-tab-pane label="分" name="minute">
+          <el-tab-pane :label="t('core.cron.segment.minute')" name="minute">
             <CronSegmentEditor
-              unit="分"
+              unit-key="minute"
               :max="59"
               :state="editorState.minute"
               :supports-unspecified="false"
               @change="value => handleUpdateSegment('minute', value)"
             />
           </el-tab-pane>
-          <el-tab-pane label="时" name="hour">
+          <el-tab-pane :label="t('core.cron.segment.hour')" name="hour">
             <CronSegmentEditor
-              unit="时"
+              unit-key="hour"
               :max="23"
               :state="editorState.hour"
               :supports-unspecified="false"
               @change="value => handleUpdateSegment('hour', value)"
             />
           </el-tab-pane>
-          <el-tab-pane label="日" name="day">
+          <el-tab-pane :label="t('core.cron.segment.day')" name="day">
             <CronSegmentEditor
-              unit="日"
+              unit-key="day"
               :min="1"
               :max="31"
               :state="editorState.day"
@@ -69,9 +69,9 @@
               @change="value => handleUpdateSegment('day', value)"
             />
           </el-tab-pane>
-          <el-tab-pane label="月" name="month">
+          <el-tab-pane :label="t('core.cron.segment.month')" name="month">
             <CronSegmentEditor
-              unit="月"
+              unit-key="month"
               :min="1"
               :max="12"
               :state="editorState.month"
@@ -79,9 +79,9 @@
               @change="value => handleUpdateSegment('month', value)"
             />
           </el-tab-pane>
-          <el-tab-pane label="年" name="year">
+          <el-tab-pane :label="t('core.cron.segment.year')" name="year">
             <CronSegmentEditor
-              unit="年"
+              unit-key="year"
               :min="currentYear"
               :max="currentYear + 20"
               :state="editorState.year"
@@ -95,7 +95,7 @@
         </el-tabs>
 
         <div class="cron-editor__preview">
-          <div class="cron-editor__section-title">Cron 表达式</div>
+          <div class="cron-editor__section-title">{{ t("core.cron.expression") }}</div>
           <el-input :model-value="previewExpression" readonly />
           <div class="cron-editor__preview-desc">{{ expressionDescription }}</div>
         </div>
@@ -103,8 +103,8 @@
 
       <template #footer>
         <div class="dialog-footer">
-          <el-button type="primary" @click="handleConfirmEditor">确 定</el-button>
-          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="handleConfirmEditor">{{ t("common.action.confirm") }}</el-button>
+          <el-button @click="dialogVisible = false">{{ t("common.action.cancel") }}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -116,6 +116,9 @@ import { computed, defineComponent, h, reactive, ref, watch } from "vue";
 import type { PropType } from "vue";
 import { ElCheckbox, ElCheckboxGroup, ElInputNumber, ElRadio } from "element-plus";
 import { Operation } from "@element-plus/icons-vue";
+import { useLocaleStore } from "@/locales";
+
+const { t } = useLocaleStore();
 
 /** Cron 单个字段支持的编辑模式。 */
 type CronSegmentMode = "every" | "unspecified" | "range" | "step" | "specific" | "last" | "weekday";
@@ -144,8 +147,9 @@ type CronEditorState = Record<CronSegmentKey, CronSegmentState>;
 
 const props = withDefaults(defineProps<CronExpressionProps>(), {
   modelValue: "",
-  placeholder: "请输入 cron 表达式"
+  placeholder: ""
 });
+const placeholder = computed(() => props.placeholder || t("core.cron.placeholder"));
 
 const emit = defineEmits<{
   "update:modelValue": [value: string];
@@ -155,15 +159,15 @@ const currentYear = new Date().getFullYear();
 const dialogVisible = ref(false);
 const activeTab = ref<CronSegmentKey>("second");
 
-const presetOptions = [
-  { label: "每分钟执行", value: "0 * * * * *" },
-  { label: "每 5 分钟执行", value: "0 */5 * * * *" },
-  { label: "每小时执行", value: "0 0 * * * *" },
-  { label: "每天零点执行", value: "0 0 0 * * *" },
-  { label: "每天早上 8 点执行", value: "0 0 8 * * *" },
-  { label: "每月 1 号零点执行", value: "0 0 0 1 * *" },
-  { label: "明年每天零点执行", value: `0 0 0 * * ${currentYear + 1}` }
-];
+const presetOptions = computed(() => [
+  { label: t("core.cron.preset.everyMinute"), value: "0 * * * * *" },
+  { label: t("core.cron.preset.everyFiveMinutes"), value: "0 */5 * * * *" },
+  { label: t("core.cron.preset.everyHour"), value: "0 0 * * * *" },
+  { label: t("core.cron.preset.dailyMidnight"), value: "0 0 0 * * *" },
+  { label: t("core.cron.preset.dailyEight"), value: "0 0 8 * * *" },
+  { label: t("core.cron.preset.monthlyFirst"), value: "0 0 0 1 * *" },
+  { label: t("core.cron.preset.nextYearDaily"), value: `0 0 0 * * ${currentYear + 1}` }
+]);
 
 /** 创建单个 Cron 字段的默认编辑状态。 */
 function createSegmentState(min = 0): CronSegmentState {
@@ -210,14 +214,14 @@ const previewExpression = computed(() => {
 
 const expressionDescription = computed(() => {
   const descriptionList = [
-    formatSegmentDescription("秒", editorState.second),
-    formatSegmentDescription("分钟", editorState.minute),
-    formatSegmentDescription("小时", editorState.hour),
-    formatSegmentDescription("日期", editorState.day),
-    formatSegmentDescription("月份", editorState.month),
-    formatSegmentDescription("年份", editorState.year)
+    formatSegmentDescription("second", editorState.second),
+    formatSegmentDescription("minute", editorState.minute),
+    formatSegmentDescription("hour", editorState.hour),
+    formatSegmentDescription("day", editorState.day),
+    formatSegmentDescription("month", editorState.month),
+    formatSegmentDescription("year", editorState.year)
   ].filter(Boolean);
-  return descriptionList.length ? descriptionList.join("，") : "未配置执行规则";
+  return descriptionList.length ? descriptionList.join(t("core.cron.descriptionSeparator")) : t("core.cron.notConfigured");
 });
 
 /** 打开 Cron 编辑弹窗，并按当前表达式回填编辑状态。 */
@@ -280,50 +284,43 @@ function buildSegmentValue(segment: CronSegmentState) {
   }
 }
 
-/** 将单个字段编辑状态转换为中文预览描述。 */
-function formatSegmentDescription(label: string, segment: CronSegmentState) {
+/** 将单个字段编辑状态转换为当前语言的预览描述。 */
+function formatSegmentDescription(segmentKey: CronSegmentKey, segment: CronSegmentState) {
+  const segmentName = t(`core.cron.segment.${segmentKey}`);
+  const unit = t(`core.cron.unit.${segmentKey}`);
   switch (segment.mode) {
     case "every":
-      return `每${label === "分钟" ? "分钟" : label === "小时" ? "小时" : label}`;
+      return t("core.cron.description.every", { unit });
     case "unspecified":
-      return `${label}不指定`;
+      return t("core.cron.description.unspecified", { segment: segmentName });
     case "range":
-      return `${label}${segment.rangeStart}到${segment.rangeEnd}`;
+      return t("core.cron.description.range", { segment: segmentName, start: segment.rangeStart, end: segment.rangeEnd });
     case "step":
-      return `从${segment.stepStart}${formatUnitSuffix(label)}开始，每${segment.stepValue}${formatCycleSuffix(label)}执行一次`;
+      return t("core.cron.description.step", {
+        start: segment.stepStart,
+        unit,
+        step: segment.stepValue,
+        cycleUnit: t(`core.cron.cycleUnit.${segmentKey}`)
+      });
     case "specific":
       return segment.specific.length
-        ? `${label}指定为 ${segment.specific.map(item => formatSpecificLabel(label, item)).join("、")}`
-        : `${label}未指定`;
+        ? t("core.cron.description.specific", {
+            segment: segmentName,
+            values: segment.specific.map(item => formatSpecificLabel(segmentKey, item)).join(t("core.cron.valueSeparator"))
+          })
+        : t("core.cron.description.unspecified", { segment: segmentName });
     case "last":
-      return "本月最后一天";
+      return t("core.cron.lastDay");
     case "weekday":
-      return `本月 ${segment.weekday} 号最近的工作日`;
+      return t("core.cron.description.weekday", { day: segment.weekday });
     default:
       return "";
   }
 }
 
-/** 获取 Cron 字段在范围描述中的单位后缀。 */
-function formatUnitSuffix(label: string) {
-  if (label === "日期") return "日";
-  if (label === "月份") return "月";
-  if (label === "年份") return "年";
-  return label;
-}
-
-/** 获取 Cron 字段在周期描述中的单位后缀。 */
-function formatCycleSuffix(label: string) {
-  if (label === "日期") return "天";
-  if (label === "月份") return "个月";
-  if (label === "年份") return "年";
-  return label;
-}
-
 /** 格式化指定值模式下的单个展示值。 */
-function formatSpecificLabel(label: string, value: number) {
-  if (label === "年份") return `${value}年`;
-  return String(value);
+function formatSpecificLabel(segmentKey: CronSegmentKey, value: number) {
+  return t("core.cron.valueWithUnit", { value, unit: t(`core.cron.unit.${segmentKey}`) });
 }
 
 /**
@@ -404,8 +401,8 @@ watch(
 const CronSegmentEditor = defineComponent({
   name: "CronSegmentEditor",
   props: {
-    unit: {
-      type: String,
+    unitKey: {
+      type: String as PropType<CronSegmentKey>,
       required: true
     },
     min: {
@@ -468,9 +465,10 @@ const CronSegmentEditor = defineComponent({
     });
 
     const specificOptions = computed(() => {
+      const unit = t(`core.cron.unit.${segmentProps.unitKey}`);
       return numberOptions.value.map(item => ({
         value: item,
-        label: segmentProps.unit === "年" ? `${item}年` : `${item}${segmentProps.unit}`
+        label: t("core.cron.valueWithUnit", { value: item, unit })
       }));
     });
 
@@ -501,21 +499,21 @@ const CronSegmentEditor = defineComponent({
         {segmentProps.supportsEvery && (
           <label class="segment-editor__row">
             {h(ElRadio, { modelValue: localState.mode, value: "every", onChange: () => handleModeChange("every") })}
-            <span>每{segmentProps.unit}</span>
+            <span>{t("core.cron.everyUnit", { unit: t(`core.cron.unit.${segmentProps.unitKey}`) })}</span>
           </label>
         )}
 
         {segmentProps.supportsUnspecified && (
           <label class="segment-editor__row">
             {h(ElRadio, { modelValue: localState.mode, value: "unspecified", onChange: () => handleModeChange("unspecified") })}
-            <span>不指定</span>
+            <span>{t("core.cron.unspecified")}</span>
           </label>
         )}
 
         <label class="segment-editor__row">
           {h(ElRadio, { modelValue: localState.mode, value: "range", onChange: () => handleModeChange("range") })}
-          <span>周期</span>
-          <span>从</span>
+          <span>{t("core.cron.range")}</span>
+          <span>{t("core.cron.from")}</span>
           {h(ElInputNumber, {
             modelValue: localState.rangeStart,
             min: segmentProps.min,
@@ -523,7 +521,7 @@ const CronSegmentEditor = defineComponent({
             controlsPosition: "right",
             "onUpdate:modelValue": value => handleNumberChange("rangeStart", Number(value))
           })}
-          <span>至</span>
+          <span>{t("core.cron.to")}</span>
           {h(ElInputNumber, {
             modelValue: localState.rangeEnd,
             min: segmentProps.min,
@@ -531,14 +529,14 @@ const CronSegmentEditor = defineComponent({
             controlsPosition: "right",
             "onUpdate:modelValue": value => handleNumberChange("rangeEnd", Number(value))
           })}
-          <span>{segmentProps.unit}</span>
+          <span>{t(`core.cron.unit.${segmentProps.unitKey}`)}</span>
         </label>
 
         {segmentProps.supportsStep && (
           <label class="segment-editor__row">
             {h(ElRadio, { modelValue: localState.mode, value: "step", onChange: () => handleModeChange("step") })}
-            <span>循环</span>
-            <span>从</span>
+            <span>{t("core.cron.repeat")}</span>
+            <span>{t("core.cron.from")}</span>
             {h(ElInputNumber, {
               modelValue: localState.stepStart,
               min: segmentProps.min,
@@ -546,7 +544,7 @@ const CronSegmentEditor = defineComponent({
               controlsPosition: "right",
               "onUpdate:modelValue": value => handleNumberChange("stepStart", Number(value))
             })}
-            <span>{segmentProps.unit}开始，每</span>
+            <span>{t("core.cron.startEvery", { unit: t(`core.cron.unit.${segmentProps.unitKey}`) })}</span>
             {h(ElInputNumber, {
               modelValue: localState.stepValue,
               min: 1,
@@ -554,14 +552,14 @@ const CronSegmentEditor = defineComponent({
               controlsPosition: "right",
               "onUpdate:modelValue": value => handleNumberChange("stepValue", Number(value))
             })}
-            <span>{segmentProps.unit}执行一次</span>
+            <span>{t("core.cron.runOnce", { unit: t(`core.cron.cycleUnit.${segmentProps.unitKey}`) })}</span>
           </label>
         )}
 
         {segmentProps.supportsSpecific && (
           <div class="segment-editor__row segment-editor__row--top">
             {h(ElRadio, { modelValue: localState.mode, value: "specific", onChange: () => handleModeChange("specific") })}
-            <span>指定</span>
+            <span>{t("core.cron.specific")}</span>
             {h(
               ElCheckboxGroup,
               {
@@ -582,15 +580,15 @@ const CronSegmentEditor = defineComponent({
         {segmentProps.supportsLast && (
           <label class="segment-editor__row">
             {h(ElRadio, { modelValue: localState.mode, value: "last", onChange: () => handleModeChange("last") })}
-            <span>本月最后一天</span>
+            <span>{t("core.cron.lastDay")}</span>
           </label>
         )}
 
         {segmentProps.supportsWeekday && (
           <label class="segment-editor__row">
             {h(ElRadio, { modelValue: localState.mode, value: "weekday", onChange: () => handleModeChange("weekday") })}
-            <span>工作日</span>
-            <span>本月</span>
+            <span>{t("core.cron.workday")}</span>
+            <span>{t("core.cron.thisMonth")}</span>
             {h(ElInputNumber, {
               modelValue: localState.weekday,
               min: segmentProps.min,
@@ -598,7 +596,7 @@ const CronSegmentEditor = defineComponent({
               controlsPosition: "right",
               "onUpdate:modelValue": value => handleNumberChange("weekday", Number(value))
             })}
-            <span>号最近的工作日</span>
+            <span>{t("core.cron.nearestWorkday")}</span>
           </label>
         )}
       </div>

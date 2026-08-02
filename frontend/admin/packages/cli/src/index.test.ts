@@ -121,7 +121,9 @@ test("发布目录中的 CLI 不依赖仓库兄弟 core 包", async () => {
     await copyFile(join(packageRoot, "dist/index.js"), join(installedRoot, "dist/index.js"));
     await copyFile(join(packageRoot, "package.json"), join(installedRoot, "package.json"));
     await cp(join(packageRoot, "templates"), join(installedRoot, "templates"), { recursive: true });
-    const installedCli = (await import(`${pathToFileURL(join(installedRoot, "dist/index.js")).href}?standalone`)) as typeof import("./index.js");
+    const installedCli = (await import(
+      `${pathToFileURL(join(installedRoot, "dist/index.js")).href}?standalone`
+    )) as typeof import("./index.js");
     const target = await installedCli.createBusinessWorkspace({
       cwd: root,
       projectName: "standalone-admin",

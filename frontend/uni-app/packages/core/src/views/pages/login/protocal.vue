@@ -2,8 +2,10 @@
 import { onLoad } from '@dcloudio/uni-app'
 import { useSettingStore } from '../../../stores'
 import { ref } from 'vue'
+import { useI18n } from '../../../locales'
 
 const settingStore = useSettingStore()
+const { t } = useI18n()
 const content = ref('')
 
 const protocolClassMap: Record<string, string> = {
@@ -46,14 +48,14 @@ const decorateProtocolContent = (html: string) => {
 // 加载协议内容
 const loadProtocol = async (type?: string) => {
   const isPrivacy = type === 'privacy'
-  const title = isPrivacy ? '隐私协议' : '服务条款'
+  const title = isPrivacy ? t('core.protocol.privacy') : t('core.protocol.service')
   const key = isPrivacy ? 'privacyProtocol' : 'serviceProtocol'
 
   try {
     await settingStore.loadData()
     const protocol = settingStore.getData(key)
     if (!protocol) {
-      throw new Error(`${title}未配置，暂时无法查看`)
+      throw new Error(t('core.protocol.notConfigured', { title }))
     }
 
     await uni.setNavigationBarTitle({ title })
@@ -61,7 +63,7 @@ const loadProtocol = async (type?: string) => {
   } catch (error) {
     await uni.showToast({
       icon: 'none',
-      title: error instanceof Error ? error.message : '移动端配置加载失败',
+      title: error instanceof Error ? error.message : t('core.protocol.loadFailed'),
     })
     setTimeout(() => {
       uni.navigateBack()

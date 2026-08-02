@@ -31,18 +31,22 @@
       </div>
       <div v-if="showToolButtonArea" class="header-button-ri">
         <slot name="toolButton">
-          <el-tooltip v-if="showTreeToggleButton" :content="isTreeExpanded ? '折叠全部' : '展开全部'" placement="top">
+          <el-tooltip
+            v-if="showTreeToggleButton"
+            :content="isTreeExpanded ? t('core.table.collapseAll') : t('core.table.expandAll')"
+            placement="top"
+          >
             <el-button class="tool-button" :icon="isTreeExpanded ? Fold : Expand" circle @click="toggleTreeExpand" />
           </el-tooltip>
-          <el-tooltip v-if="showToolButton('refresh')" content="刷新数据" placement="top">
+          <el-tooltip v-if="showToolButton('refresh')" :content="t('core.table.refresh')" placement="top">
             <el-button class="tool-button" :icon="Refresh" circle @click="handleToolRefresh" />
           </el-tooltip>
-          <el-tooltip v-if="showToolButton('setting') && columns.length" content="列设置" placement="top">
+          <el-tooltip v-if="showToolButton('setting') && columns.length" :content="t('core.table.columnSetting')" placement="top">
             <el-button class="tool-button" :icon="Operation" circle @click="openColSetting" />
           </el-tooltip>
           <el-tooltip
             v-if="showToolButton('search') && searchColumns?.length"
-            :content="isShowSearch ? '隐藏搜索' : '显示搜索'"
+            :content="isShowSearch ? t('core.table.hideSearch') : t('core.table.showSearch')"
             placement="top"
           >
             <el-button class="tool-button" :icon="Search" circle @click="isShowSearch = !isShowSearch" />
@@ -104,7 +108,7 @@
         <div class="table-empty">
           <slot name="empty">
             <img src="@/assets/images/notData.png" alt="notData" />
-            <div>暂无数据</div>
+            <div>{{ t("common.message.noData") }}</div>
           </slot>
         </div>
       </template>
@@ -128,7 +132,14 @@ import { ref, watch, provide, onMounted, unref, computed, nextTick, useAttrs, us
 import { ElTable } from "element-plus";
 import { useTable } from "@/hooks/useTable";
 import { useSelection } from "@/hooks/useSelection";
-import { ColumnProps, EnumProps, HeaderActionProps, HeaderActionScope, ProTableProps, TypeProps } from "@/components/ProTable/interface";
+import {
+  ColumnProps,
+  EnumProps,
+  HeaderActionProps,
+  HeaderActionScope,
+  ProTableProps,
+  TypeProps
+} from "@/components/ProTable/interface";
 import { Expand, Fold, Refresh, Operation, Search } from "@element-plus/icons-vue";
 import { generateUUID, handleProp } from "@/utils";
 import { resolveTableColumnAlign } from "@/utils/proTable";
@@ -137,6 +148,9 @@ import Pagination from "./components/Pagination.vue";
 import ColSetting from "./components/ColSetting.vue";
 import TableColumn from "./components/TableColumn.vue";
 import Sortable from "sortablejs";
+import { useLocaleStore } from "@/locales";
+
+const { t } = useLocaleStore();
 
 // 接受父组件参数，配置默认值
 const props = withDefaults(defineProps<ProTableProps>(), {
@@ -208,8 +222,18 @@ const headerActionScope = computed<HeaderActionScope>(() => ({
 }));
 
 // 表格操作 Hooks
-const { loading, tableData, pageable, searchParam, searchInitParam, getTableList, search, reset, handleSizeChange, handleCurrentChange } =
-  useTable(props.requestApi, props.initParam, props.pagination, props.dataCallback, props.requestError);
+const {
+  loading,
+  tableData,
+  pageable,
+  searchParam,
+  searchInitParam,
+  getTableList,
+  search,
+  reset,
+  handleSizeChange,
+  handleCurrentChange
+} = useTable(props.requestApi, props.initParam, props.pagination, props.dataCallback, props.requestError);
 
 // 清空选中数据列表
 const clearSelection = () => tableRef.value!.clearSelection();
@@ -299,10 +323,11 @@ const setEnumMapValue = (prop: string | undefined, data: { [key: string]: any }[
  * 根据状态开关配置自动生成搜索下拉枚举，避免状态列只配置开关后搜索框无选项。
  */
 const buildStatusEnum = (column: ColumnProps): EnumProps[] => {
-  if (column.enum || column.dictCode || column.cellType !== "status" || column.search?.el !== "select" || !column.statusProps) return [];
+  if (column.enum || column.dictCode || column.cellType !== "status" || column.search?.el !== "select" || !column.statusProps)
+    return [];
   return [
-    { label: column.statusProps.activeText ?? "启用", value: column.statusProps.activeValue },
-    { label: column.statusProps.inactiveText ?? "禁用", value: column.statusProps.inactiveValue }
+    { label: column.statusProps.activeText ?? t("common.status.enabled"), value: column.statusProps.activeValue },
+    { label: column.statusProps.inactiveText ?? t("common.status.disabled"), value: column.statusProps.inactiveValue }
   ];
 };
 

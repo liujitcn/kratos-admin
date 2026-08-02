@@ -21,16 +21,18 @@ type BaseDictCase struct {
 	*biz.BaseCase
 	*data.BaseDictRepository
 	baseDictItemCase *BaseDictItemCase
+	translationCase  *biz.TranslationCase
 	dictMapper       *mapper.CopierMapper[systemappv1.BaseDictForm, models.BaseDict]
 	itemMapper       *mapper.CopierMapper[systemappv1.BaseDictForm_DictItem, models.BaseDictItem]
 }
 
 // NewBaseDictCase 创建字典业务处理对象
-func NewBaseDictCase(baseCase *biz.BaseCase, baseDictRepo *data.BaseDictRepository, baseDictItemCase *BaseDictItemCase) *BaseDictCase {
+func NewBaseDictCase(baseCase *biz.BaseCase, baseDictRepo *data.BaseDictRepository, baseDictItemCase *BaseDictItemCase, translationCase *biz.TranslationCase) *BaseDictCase {
 	return &BaseDictCase{
 		BaseCase:           baseCase,
 		BaseDictRepository: baseDictRepo,
 		baseDictItemCase:   baseDictItemCase,
+		translationCase:    translationCase,
 		dictMapper:         mapper.NewCopierMapper[systemappv1.BaseDictForm, models.BaseDict](),
 		itemMapper:         mapper.NewCopierMapper[systemappv1.BaseDictForm_DictItem, models.BaseDictItem](),
 	}
@@ -58,6 +60,20 @@ func (c *BaseDictCase) GetBaseDict(ctx context.Context, code string) (*systemapp
 	for _, item := range baseDictItemList {
 		dictItemMap[item.DictID] = append(dictItemMap[item.DictID], item)
 	}
+	var dictNames map[int64]string
+	dictNames, err = c.translationCase.ReviewedDictNames(ctx, []int64{baseDict.ID})
+	if err != nil {
+		return nil, err
+	}
+	dictItemIDs := make([]int64, 0, len(baseDictItemList))
+	for _, item := range baseDictItemList {
+		dictItemIDs = append(dictItemIDs, item.ID)
+	}
+	var dictItemLabels map[int64]string
+	dictItemLabels, err = c.translationCase.ReviewedDictItemLabels(ctx, dictItemIDs)
+	if err != nil {
+		return nil, err
+	}
 
 	items := make([]*systemappv1.BaseDictForm_DictItem, 0)
 	// 命中字典项映射时，再按排序规则组装当前字典的子项。
@@ -66,11 +82,18 @@ func (c *BaseDictCase) GetBaseDict(ctx context.Context, code string) (*systemapp
 			return dictItems[i].Sort < dictItems[j].Sort
 		})
 		for _, dictItem := range dictItems {
-			items = append(items, c.itemMapper.ToDTO(dictItem))
+			item := c.itemMapper.ToDTO(dictItem)
+			if translated := dictItemLabels[dictItem.ID]; translated != "" {
+				item.Label = translated
+			}
+			items = append(items, item)
 		}
 	}
 
 	res := c.dictMapper.ToDTO(baseDict)
+	if translated := dictNames[baseDict.ID]; translated != "" {
+		res.Name = translated
+	}
 	res.Items = items
 	return res, nil
 }

@@ -50,15 +50,34 @@ func MenuSpecs(table *Table, columns []*CodeGenColumn, methods []*Proto, resourc
 	permission := PermissionPrefix(table)
 	buttonSpecs := make([]CodeGenMenuSpec, 0, 4)
 	if createMethod := methodByName["Create"+table.EntityName]; createMethod != nil {
-		buttonSpecs = append(buttonSpecs, newButtonMenuSpec(permission+":create", "新增"+table.BusinessName, int32(len(buttonSpecs)+1), GeneratedRPCPath(table, createMethod)))
+		buttonSpecs = append(buttonSpecs, newButtonMenuSpec(
+			permission+":create",
+			"新增"+table.BusinessName,
+			GeneratedMenuTranslations(table, nil, "create"),
+			int32(len(buttonSpecs)+1),
+			GeneratedRPCPath(table, createMethod),
+		))
 	}
 	getMethod := methodByName["Get"+table.EntityName]
 	updateMethod := methodByName["Update"+table.EntityName]
 	if getMethod != nil && updateMethod != nil {
-		buttonSpecs = append(buttonSpecs, newButtonMenuSpec(permission+":update", "编辑"+table.BusinessName, int32(len(buttonSpecs)+1), GeneratedRPCPath(table, getMethod), GeneratedRPCPath(table, updateMethod)))
+		buttonSpecs = append(buttonSpecs, newButtonMenuSpec(
+			permission+":update",
+			"编辑"+table.BusinessName,
+			GeneratedMenuTranslations(table, nil, "update"),
+			int32(len(buttonSpecs)+1),
+			GeneratedRPCPath(table, getMethod),
+			GeneratedRPCPath(table, updateMethod),
+		))
 	}
 	if deleteMethod := methodByName["Delete"+table.EntityName]; deleteMethod != nil {
-		buttonSpecs = append(buttonSpecs, newButtonMenuSpec(permission+":delete", "删除"+table.BusinessName, int32(len(buttonSpecs)+1), GeneratedRPCPath(table, deleteMethod)))
+		buttonSpecs = append(buttonSpecs, newButtonMenuSpec(
+			permission+":delete",
+			"删除"+table.BusinessName,
+			GeneratedMenuTranslations(table, nil, "delete"),
+			int32(len(buttonSpecs)+1),
+			GeneratedRPCPath(table, deleteMethod),
+		))
 	}
 	statusColumnList := statusColumns(columns)
 	for _, column := range statusColumnList {
@@ -69,11 +88,17 @@ func MenuSpecs(table *Table, columns []*CodeGenColumn, methods []*Proto, resourc
 		buttonSpecs = append(buttonSpecs, newButtonMenuSpec(
 			statusPermissionPath(permission, column.Name, len(statusColumnList)),
 			"设置"+DefaultString(column.Comment, column.Name),
+			GeneratedMenuTranslations(table, column, "status"),
 			int32(len(buttonSpecs)+1),
 			GeneratedRPCPath(table, method),
 		))
 	}
-	return CodeGenMenuSpec{Menu: pageMenu}, buttonSpecs
+	pageTitle := DefaultString(tableComment, table.BusinessName)
+	return CodeGenMenuSpec{
+		Menu:         pageMenu,
+		SourceTitle:  pageTitle,
+		Translations: GeneratedMenuTranslations(table, nil, ""),
+	}, buttonSpecs
 }
 
 // statusPermissionPath 返回状态字段对应的按钮权限标识。
@@ -101,7 +126,7 @@ func GeneratedRPCPath(table *Table, method *Proto) string {
 }
 
 // newButtonMenuSpec 创建按钮菜单定义。
-func newButtonMenuSpec(path string, title string, sort int32, apis ...string) CodeGenMenuSpec {
+func newButtonMenuSpec(path string, title string, translations map[string]string, sort int32, apis ...string) CodeGenMenuSpec {
 	return CodeGenMenuSpec{
 		Menu: &models.BaseMenu{
 			Type:   _const.BASE_MENU_TYPE_BUTTON,
@@ -111,6 +136,8 @@ func newButtonMenuSpec(path string, title string, sort int32, apis ...string) Co
 			Sort:   sort,
 			Status: _const.STATUS_ENABLE,
 		},
+		SourceTitle:  title,
+		Translations: translations,
 	}
 }
 

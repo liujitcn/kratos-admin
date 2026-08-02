@@ -1,8 +1,11 @@
 import type { FileInfo, MultiUploadFileResponse } from '../rpc/base/v1/file'
 import { formatSrc } from './index'
+import { getLocaleRequestHeaders, t } from '../locales'
+import { getRequestAccessToken } from './http'
 
 // 文件上传-兼容小程序端、H5端、App端
 export const uploadFile = async (fileType: string, filePath: string): Promise<FileInfo> => {
+  const token = await getRequestAccessToken()
   const res = await uni.uploadFile({
     url: '/v1/base/file',
     name: 'file',
@@ -10,11 +13,16 @@ export const uploadFile = async (fileType: string, filePath: string): Promise<Fi
     formData: {
       fileType: fileType,
     },
+    header: {
+      ...getLocaleRequestHeaders(),
+      'source-client': 'miniapp',
+      ...(token ? { Authorization: token } : {}),
+    },
   })
   if (res.statusCode === 200) {
     return JSON.parse(res.data) as FileInfo
   } else {
-    throw new Error('上传失败')
+    throw new Error(t('core.file.uploadFailed'))
   }
 }
 
@@ -23,35 +31,15 @@ export const uploadFileList = async (
   fileType: string,
   filePaths: string[],
 ): Promise<FileInfo[]> => {
-  const fileInfoArr: FileInfo[] = []
-  // 使用 Promise.all 等待所有上传完成
-  await Promise.all(
-    filePaths.map(async (filePath) => {
-      try {
-        const res = await uni.uploadFile({
-          url: '/v1/base/file',
-          name: 'file',
-          filePath: filePath,
-          formData: {
-            fileType: fileType,
-          },
-        })
-        if (res.statusCode === 200) {
-          const data = JSON.parse(res.data) as FileInfo
-          fileInfoArr.push(data)
-        } else {
-          console.error('上传失败，状态码:', res.statusCode)
-        }
-      } catch (error) {
-        console.error('上传异常:', error)
-      }
-    }),
+  const results = await Promise.allSettled(
+    filePaths.map((filePath) => uploadFile(fileType, filePath)),
   )
-  return fileInfoArr
+  return results.flatMap((result) => (result.status === 'fulfilled' ? [result.value] : []))
 }
 
 // 多文件上传-兼容小程序端、H5端、App端
 export const multiUploadFile = async (fileType: string, files: any): Promise<FileInfo[]> => {
+  const token = await getRequestAccessToken()
   const res = await uni.uploadFile({
     url: '/v1/base/file/multi',
     name: 'file',
@@ -60,12 +48,17 @@ export const multiUploadFile = async (fileType: string, files: any): Promise<Fil
     formData: {
       fileType: fileType,
     },
+    header: {
+      ...getLocaleRequestHeaders(),
+      'source-client': 'miniapp',
+      ...(token ? { Authorization: token } : {}),
+    },
   })
   if (res.statusCode === 200) {
     const data = JSON.parse(res.data) as MultiUploadFileResponse
     return data.files
   } else {
-    await uni.showToast({ icon: 'error', title: '上传失败' })
+    await uni.showToast({ icon: 'error', title: t('core.file.uploadFailed') })
     return []
   }
 }

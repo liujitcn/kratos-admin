@@ -12,7 +12,7 @@
     <FormDialog
       v-model="dialog.visible"
       ref="formDialogRef"
-      :title="dialog.title"
+      :title="t(dialog.editing ? 'system.role.action.edit' : 'system.role.action.create')"
       width="500px"
       :model="formData"
       :fields="formFields"
@@ -22,9 +22,13 @@
       @close="handleCloseDialog"
     />
 
-    <el-drawer v-model="assignPermDialogVisible" :title="`【${checkedBaseRole.name}】权限分配`" size="500">
+    <el-drawer
+      v-model="assignPermDialogVisible"
+      :title="t('system.role.title.assignPermission', { name: checkedBaseRole.name || '' })"
+      size="500"
+    >
       <div class="perm-toolbar">
-        <el-input v-model="permKeywords" clearable class="perm-search" placeholder="菜单权限名称">
+        <el-input v-model="permKeywords" clearable class="perm-search" :placeholder="t('system.role.placeholder.menuPermission')">
           <template #prefix>
             <Search />
           </template>
@@ -32,19 +36,21 @@
 
         <div class="perm-toolbar__actions">
           <div class="perm-toolbar__group">
-            <span class="perm-toolbar__label">树操作</span>
+            <span class="perm-toolbar__label">{{ t("system.role.field.treeOperation") }}</span>
             <el-button type="primary" size="small" plain class="perm-toolbar__button" @click="togglePermTree">
               <template #icon>
                 <Switch />
               </template>
-              {{ isExpanded ? "收缩节点" : "展开节点" }}
+              {{ t(isExpanded ? "system.role.action.collapseNodes" : "system.role.action.expandNodes") }}
             </el-button>
           </div>
           <div class="perm-toolbar__group perm-toolbar__group--linkage">
-            <span class="perm-toolbar__label">勾选模式</span>
-            <el-checkbox v-model="parentChildLinked" @change="handelParentChildLinkedChange">父子联动</el-checkbox>
+            <span class="perm-toolbar__label">{{ t("system.role.field.selectionMode") }}</span>
+            <el-checkbox v-model="parentChildLinked" @change="handelParentChildLinkedChange">{{
+              t("system.role.field.parentChildLinked")
+            }}</el-checkbox>
             <el-tooltip placement="bottom">
-              <template #content>如果只需勾选菜单权限，不需要勾选子菜单或者按钮权限，请关闭父子联动</template>
+              <template #content>{{ t("system.role.message.parentChildLinkedTip") }}</template>
               <el-icon class="perm-linkage__icon">
                 <QuestionFilled />
               </el-icon>
@@ -70,8 +76,8 @@
 
       <template #footer>
         <div class="dialog-footer">
-          <el-button type="primary" @click="handleAssignPermSubmit">确 定</el-button>
-          <el-button @click="assignPermDialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="handleAssignPermSubmit">{{ t("common.action.confirm") }}</el-button>
+          <el-button @click="assignPermDialogVisible = false">{{ t("common.action.cancel") }}</el-button>
         </div>
       </template>
     </el-drawer>
@@ -97,6 +103,7 @@ import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { DEFAULT_TENANT_CODE, requestTenantOptions } from "@liujitcn/kratos-admin-core/tenant";
+import { t } from "@liujitcn/kratos-admin-core";
 
 defineOptions({
   name: "BaseRole",
@@ -122,16 +129,16 @@ const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const permTreeRef = ref<InstanceType<typeof ElTree>>();
 
 const dialog = reactive({
-  title: "",
+  editing: false,
   visible: false
 });
 
 const menuPermOptions = ref<TreeOptionResponse_Option[]>([]);
 const tenantOptions = ref<SelectOptionResponse_Option[]>([]);
-const statusOptions: ProFormOption[] = [
-  { label: "启用", value: Status.ENABLE },
-  { label: "禁用", value: Status.DISABLE }
-];
+const statusOptions = computed<ProFormOption[]>(() => [
+  { label: t("common.status.enabled"), value: Status.ENABLE },
+  { label: t("common.status.disabled"), value: Status.DISABLE }
+]);
 const protectedRoleCodes = new Set(["admin", "authuser", "user"]);
 
 const formData = reactive<BaseRoleFormState>({
@@ -153,24 +160,56 @@ const formData = reactive<BaseRoleFormState>({
   remark: ""
 });
 
-const rules = reactive({
-  tenant_id: [{ required: true, message: "请选择所属租户", trigger: "change" }],
+const rules = computed(() => ({
+  tenant_id: [
+    {
+      required: true,
+      message: t("system.common.validation.requiredSelect", { field: t("system.role.field.tenant") }),
+      trigger: "change"
+    }
+  ],
   name: [
-    { required: true, message: "请输入角色名称", trigger: "blur" },
-    { max: 30, message: "角色名称不能超过 30 个字符", trigger: "blur" }
+    {
+      required: true,
+      message: t("system.common.validation.requiredInput", { field: t("system.role.field.name") }),
+      trigger: "blur"
+    },
+    {
+      max: 30,
+      message: t("system.common.validation.maxLength", { field: t("system.role.field.name"), max: 30 }),
+      trigger: "blur"
+    }
   ],
   code: [
-    { required: true, message: "请输入角色编码", trigger: "blur" },
-    { max: 20, message: "角色编号不能超过 20 个字符", trigger: "blur" }
+    {
+      required: true,
+      message: t("system.common.validation.requiredInput", { field: t("system.role.field.code") }),
+      trigger: "blur"
+    },
+    {
+      max: 20,
+      message: t("system.common.validation.maxLength", { field: t("system.role.field.code"), max: 20 }),
+      trigger: "blur"
+    }
   ],
-  data_scope: [{ required: true, message: "请选择数据权限", trigger: "change" }],
+  data_scope: [
+    {
+      required: true,
+      message: t("system.common.validation.requiredSelect", { field: t("system.role.field.dataScope") }),
+      trigger: "change"
+    }
+  ],
   menus: [
-    { required: true, message: "请选择菜单权限", trigger: "change" },
+    {
+      required: true,
+      message: t("system.common.validation.requiredSelect", { field: t("system.role.field.menuPermission") }),
+      trigger: "change"
+    },
     {
       validator: (_rule: unknown, value: unknown, callback: (error?: Error) => void) => {
         const menuIds = Array.isArray(value) ? value : [];
         if (new Set(menuIds).size !== menuIds.length) {
-          callback(new Error("菜单权限不能重复"));
+          callback(new Error(t("system.role.validation.menuDuplicate")));
           return;
         }
         callback();
@@ -178,9 +217,21 @@ const rules = reactive({
       trigger: "change"
     }
   ],
-  status: [{ required: true, message: "请选择状态", trigger: "change" }],
-  remark: [{ max: 500, message: "备注不能超过 500 个字符", trigger: "blur" }]
-});
+  status: [
+    {
+      required: true,
+      message: t("system.common.validation.requiredSelect", { field: t("system.common.field.status") }),
+      trigger: "change"
+    }
+  ],
+  remark: [
+    {
+      max: 500,
+      message: t("system.common.validation.maxLength", { field: t("system.common.field.remark"), max: 500 }),
+      trigger: "blur"
+    }
+  ]
+}));
 
 const checkedBaseRole = ref<CheckedBaseRole>({});
 const assignPermDialogVisible = ref(false);
@@ -195,10 +246,10 @@ const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAUL
 const formFields = computed<ProFormField[]>(() => [
   {
     prop: "tenant_id",
-    label: "所属租户",
+    label: t("system.role.field.tenant"),
     component: "select",
     props: {
-      placeholder: "请选择所属租户",
+      placeholder: t("system.role.placeholder.tenant"),
       filterable: true,
       disabled: Boolean(formData.id),
       onChange: handleFormTenantChange
@@ -206,17 +257,22 @@ const formFields = computed<ProFormField[]>(() => [
     visible: () => isDefaultTenant.value,
     options: tenantOptions.value
   },
-  { prop: "name", label: "角色名称", component: "input", props: { placeholder: "请输入角色名称" } },
+  {
+    prop: "name",
+    label: t("system.role.field.name"),
+    component: "input",
+    props: { placeholder: t("system.role.placeholder.name") }
+  },
   {
     prop: "code",
-    label: "角色编码",
+    label: t("system.role.field.code"),
     component: "input",
-    props: { placeholder: "请输入角色编码", disabled: Boolean(formData.id && formData.code === "tenant") }
+    props: { placeholder: t("system.role.placeholder.code"), disabled: Boolean(formData.id && formData.code === "tenant") }
   },
-  { prop: "data_scope", label: "数据权限", component: "dict", props: { code: "base_role_data_scope" } },
+  { prop: "data_scope", label: t("system.role.field.dataScope"), component: "dict", props: { code: "base_role_data_scope" } },
   {
     prop: "menus",
-    label: "菜单权限",
+    label: t("system.role.field.menuPermission"),
     component: "tree-select",
     options: menuPermOptions.value as unknown as ProFormOption[],
     props: {
@@ -229,12 +285,17 @@ const formFields = computed<ProFormField[]>(() => [
       onCheck: handleCheck
     }
   },
-  { prop: "remark", label: "备注", component: "textarea", props: { placeholder: "请输入备注" } },
+  {
+    prop: "remark",
+    label: t("system.common.field.remark"),
+    component: "textarea",
+    props: { placeholder: t("system.common.placeholder.remark") }
+  },
   {
     prop: "status",
-    label: "状态",
+    label: t("system.common.field.status"),
     component: "radio-group",
-    options: statusOptions,
+    options: statusOptions.value,
     props: { disabled: isRoleProtected(formData.code) }
   }
 ]);
@@ -246,7 +307,7 @@ const columns = computed<ColumnProps[]>(() => [
     ? ([
         {
           prop: "tenant_id",
-          label: "租户",
+          label: t("system.role.field.tenantShort"),
           minWidth: 140,
           showOverflowTooltip: true,
           search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 1 },
@@ -254,36 +315,42 @@ const columns = computed<ColumnProps[]>(() => [
         }
       ] satisfies ColumnProps[])
     : []),
-  { prop: "name", label: "角色名称", minWidth: 140, search: { el: "input" } },
-  { prop: "code", label: "角色编码", minWidth: 160, search: { el: "input" } },
-  { prop: "data_scope", label: "数据权限", minWidth: 120, dictCode: "base_role_data_scope", search: { el: "select" } },
-  { prop: "remark", label: "备注", minWidth: 160 },
+  { prop: "name", label: t("system.role.field.name"), minWidth: 140, search: { el: "input" } },
+  { prop: "code", label: t("system.role.field.code"), minWidth: 160, search: { el: "input" } },
+  {
+    prop: "data_scope",
+    label: t("system.role.field.dataScope"),
+    minWidth: 120,
+    dictCode: "base_role_data_scope",
+    search: { el: "select" }
+  },
+  { prop: "remark", label: t("system.common.field.remark"), minWidth: 160 },
   {
     prop: "status",
-    label: "状态",
+    label: t("system.common.field.status"),
     minWidth: 100,
     search: { el: "select" },
     cellType: "status",
     statusProps: {
       activeValue: Status.ENABLE,
       inactiveValue: Status.DISABLE,
-      activeText: "启用",
-      inactiveText: "禁用",
+      activeText: t("common.status.enabled"),
+      inactiveText: t("common.status.disabled"),
       disabled: scope => !canChangeRoleStatus(scope.row as BaseRole) || !BUTTONS.value["base:role:status"],
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseRole)
     }
   },
-  { prop: "created_at", label: "创建时间", minWidth: 180 },
-  { prop: "updated_at", label: "更新时间", minWidth: 180 },
+  { prop: "created_at", label: t("system.common.field.createdAt"), minWidth: 180 },
+  { prop: "updated_at", label: t("system.common.field.updatedAt"), minWidth: 180 },
   {
     prop: "operation",
-    label: "操作",
+    label: t("system.common.field.action"),
     width: 280,
     fixed: "right",
     cellType: "actions",
     actions: [
       {
-        label: "分配权限",
+        label: t("system.role.action.assignPermission"),
         type: "primary",
         link: true,
         icon: Position,
@@ -291,7 +358,7 @@ const columns = computed<ColumnProps[]>(() => [
         onClick: scope => handleOpenAssignPermDialog(scope.row as BaseRole)
       },
       {
-        label: "编辑",
+        label: t("common.action.edit"),
         type: "primary",
         link: true,
         icon: EditPen,
@@ -300,7 +367,7 @@ const columns = computed<ColumnProps[]>(() => [
         onClick: (scope, params) => handleOpenDialog((params?.roleId as number | undefined) ?? (scope.row as BaseRole).id)
       },
       {
-        label: "删除",
+        label: t("common.action.delete"),
         type: "danger",
         link: true,
         icon: Delete,
@@ -312,23 +379,23 @@ const columns = computed<ColumnProps[]>(() => [
 ]);
 
 /** 角色顶部按钮配置。 */
-const headerActions: HeaderActionProps[] = [
+const headerActions = computed<HeaderActionProps[]>(() => [
   {
-    label: "新增",
+    label: t("common.action.create"),
     type: "success",
     icon: CirclePlus,
     hidden: () => !BUTTONS.value["base:role:create"],
     onClick: () => handleOpenDialog()
   },
   {
-    label: "删除",
+    label: t("common.action.delete"),
     type: "danger",
     icon: Delete,
     hidden: () => !BUTTONS.value["base:role:delete"],
     disabled: scope => !scope.selectedList.length,
     onClick: scope => handleDelete(scope.selectedList as BaseRole[])
   }
-];
+]);
 
 /**
  * 请求角色列表，并由 ProTable 统一维护分页与搜索参数。
@@ -336,7 +403,7 @@ const headerActions: HeaderActionProps[] = [
 async function requestBaseRoleTable(params: PageBaseRoleRequest) {
   const data = await defBaseRoleService.PageBaseRole({
     ...buildPageRequest(params),
-    tenant_id: isDefaultTenant.value ? params.tenant_id : undefined,
+    tenant_id: isDefaultTenant.value ? params.tenant_id : undefined
   });
   return { data: { list: data.base_roles ?? [], total: data.total } };
 }
@@ -381,7 +448,7 @@ async function handleFormTenantChange() {
 async function handleOpenDialog(roleId?: number) {
   resetForm();
   await loadTenantOptions();
-  dialog.title = roleId ? "修改角色" : "新增角色";
+  dialog.editing = Boolean(roleId);
   dialog.visible = true;
   if (!roleId) {
     await loadMenuPermOptions();
@@ -437,7 +504,7 @@ function handleSubmit() {
       ? defBaseRoleService.UpdateBaseRole({ base_role: submitData })
       : defBaseRoleService.CreateBaseRole({ base_role: submitData });
     request.then(() => {
-      ElMessage.success(submitData.id ? "修改角色成功" : "新增角色成功");
+      ElMessage.success(t(submitData.id ? "system.role.message.updateSuccess" : "system.role.message.createSuccess"));
       handleCloseDialog();
       refreshTable();
     });
@@ -471,21 +538,21 @@ function canDeleteRole(row?: BaseRole) {
  */
 async function handleBeforeSetStatus(row: BaseRole) {
   if (!canChangeRoleStatus(row)) {
-    ElMessage.warning("默认角色不允许修改状态");
+    ElMessage.warning(t("system.role.message.protectedStatus"));
     return false;
   }
 
   const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
-  const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
+  const action = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
   const roleName = row.name || row.code || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(`是否确定${text}角色？\n角色名称：${roleName}`, "提示", {
-      confirmButtonText: "确认",
-      cancelButtonText: "取消",
+    await ElMessageBox.confirm(t("system.role.message.confirmStatus", { action, name: roleName }), t("common.title.notice"), {
+      confirmButtonText: t("common.action.confirm"),
+      cancelButtonText: t("common.action.cancel"),
       type: "warning"
     });
     await defBaseRoleService.SetBaseRoleStatus({ id: row.id, status: nextStatus });
-    ElMessage.success(`${text}成功`);
+    ElMessage.success(t("system.common.message.statusSuccess", { action }));
     refreshTable();
     return true;
   } catch {
@@ -503,7 +570,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
       ? [selected as BaseRole]
       : [];
   if (roleList.some(role => !canDeleteRole(role))) {
-    ElMessage.warning("默认角色不允许删除");
+    ElMessage.warning(t("system.role.message.protectedDelete"));
     return;
   }
 
@@ -511,29 +578,29 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
     roleList.length ? roleList.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");
   if (!roleIds) {
-    ElMessage.warning("请勾选删除项");
+    ElMessage.warning(t("system.common.message.selectDeleteItem"));
     return;
   }
 
   const confirmMessage = roleList.length
     ? roleList.length === 1
-      ? `是否确定删除角色？\n角色名称：${roleList[0].name || roleList[0].code || `ID:${roleList[0].id}`}`
-      : `确认删除已选中的 ${roleList.length} 个角色吗？`
-    : "确认删除已选中的角色吗？";
+      ? t("system.role.message.confirmDeleteSingle", { name: roleList[0].name || roleList[0].code || `ID:${roleList[0].id}` })
+      : t("system.role.message.confirmDeleteBatch", { count: roleList.length })
+    : t("system.role.message.confirmDeleteSelected");
 
-  ElMessageBox.confirm(confirmMessage, "警告", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
+  ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
+    confirmButtonText: t("common.action.confirm"),
+    cancelButtonText: t("common.action.cancel"),
     type: "warning"
   }).then(
     () => {
       defBaseRoleService.DeleteBaseRole({ id: roleIds }).then(() => {
-        ElMessage.success("删除角色成功");
+        ElMessage.success(t("system.role.message.deleteSuccess"));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info("已取消删除角色");
+      ElMessage.info(t("system.role.message.deleteCanceled"));
     }
   );
 }
@@ -544,7 +611,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
 async function handleOpenAssignPermDialog(row: BaseRole) {
   if (!row.id) return;
   if (!canManageRole(row)) {
-    ElMessage.warning("当前租户不能分配该内置角色权限");
+    ElMessage.warning(t("system.role.message.protectedPermission"));
     return;
   }
   checkedBaseRole.value = { id: row.id, name: row.name };
@@ -565,15 +632,15 @@ function handleAssignPermSubmit() {
   const checkedNodes = (permTreeRef.value?.getCheckedNodes(false, true) as Array<{ value: number }> | undefined) ?? [];
   const checkedMenuIds = checkedNodes.map(node => Number(node.value));
   if (!checkedMenuIds.length) {
-    ElMessage.warning("请选择菜单权限");
+    ElMessage.warning(t("system.common.validation.requiredSelect", { field: t("system.role.field.menuPermission") }));
     return;
   }
   if (new Set(checkedMenuIds).size !== checkedMenuIds.length) {
-    ElMessage.warning("菜单权限不能重复");
+    ElMessage.warning(t("system.role.validation.menuDuplicate"));
     return;
   }
   defBaseRoleService.SetBaseRoleMenu({ id: roleId, menus: checkedMenuIds }).then(() => {
-    ElMessage.success("分配权限成功");
+    ElMessage.success(t("system.role.message.assignSuccess"));
     assignPermDialogVisible.value = false;
     refreshTable();
   });

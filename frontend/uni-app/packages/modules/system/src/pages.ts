@@ -6,21 +6,21 @@ export const systemPages: Record<string, KratosAppPageConfig> = {
     style: {
       navigationStyle: 'custom',
       navigationBarTextStyle: 'white',
-      navigationBarTitleText: '我的',
+      navigationBarTitleText: '',
     },
   },
-  'pagesMember/settings/settings': { style: { navigationBarTitleText: '设置' } },
+  'pagesMember/settings/settings': { style: { navigationBarTitleText: '' } },
   'pagesMember/ai/index': {
     style: {
       navigationStyle: 'custom',
-      navigationBarTitleText: 'AI 助手',
+      navigationBarTitleText: '',
     },
   },
   'pagesMember/profile/profile': {
     style: {
       navigationStyle: 'custom',
       navigationBarTextStyle: 'white',
-      navigationBarTitleText: '个人信息',
+      navigationBarTitleText: '',
     },
   },
 }

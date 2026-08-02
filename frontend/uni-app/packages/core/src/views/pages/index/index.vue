@@ -3,10 +3,12 @@ import { onLoad } from '@dcloudio/uni-app'
 import { computed } from 'vue'
 import { useSettingStore } from '../../../stores'
 import defaultLogo from '../../../static/images/logo_icon.png'
+import { useI18n } from '../../../locales'
 
 const settingStore = useSettingStore()
-const mainTitle = computed(() => settingStore.getData('mainTitle') || '应用框架示例')
-const subTitle = computed(() => settingStore.getData('subTitle') || '保留通用导航与个人中心体验')
+const { t } = useI18n()
+const mainTitle = computed(() => settingStore.getData('mainTitle') || t('core.home.mainTitle'))
+const subTitle = computed(() => settingStore.getData('subTitle') || t('core.home.subTitle'))
 const appLogo = computed(() => settingStore.getData('appLogo') || defaultLogo)
 
 onLoad(() => {
@@ -25,49 +27,49 @@ onLoad(() => {
     </view>
 
     <view class="section">
-      <text class="section-title">当前技术栈</text>
+      <text class="section-title">{{ t('core.home.techStack') }}</text>
       <view class="info-list">
         <view class="info-row">
-          <text class="info-label">应用框架</text>
+          <text class="info-label">{{ t('core.home.framework') }}</text>
           <text class="info-value">uni-app + Vue 3</text>
         </view>
         <view class="info-row">
-          <text class="info-label">开发语言</text>
+          <text class="info-label">{{ t('core.home.language') }}</text>
           <text class="info-value">TypeScript</text>
         </view>
         <view class="info-row">
-          <text class="info-label">状态管理</text>
+          <text class="info-label">{{ t('core.home.stateManagement') }}</text>
           <text class="info-value">Pinia</text>
         </view>
         <view class="info-row">
-          <text class="info-label">样式方案</text>
+          <text class="info-label">{{ t('core.home.styleSolution') }}</text>
           <text class="info-value">Sass + rpx</text>
         </view>
       </view>
     </view>
 
     <view class="section">
-      <text class="section-title">演示范围</text>
+      <text class="section-title">{{ t('core.home.demoScope') }}</text>
       <view class="demo-list">
         <view class="demo-item">
           <view class="demo-dot">1</view>
           <view class="demo-copy">
-            <text class="demo-title">跨端页面</text>
-            <text class="demo-desc">同一套页面代码适配 H5、微信小程序和 App</text>
+            <text class="demo-title">{{ t('core.home.crossPlatform') }}</text>
+            <text class="demo-desc">{{ t('core.home.crossPlatformDescription') }}</text>
           </view>
         </view>
         <view class="demo-item">
           <view class="demo-dot">2</view>
           <view class="demo-copy">
-            <text class="demo-title">账户能力</text>
-            <text class="demo-desc">个人资料、应用设置与智能助手入口已保留</text>
+            <text class="demo-title">{{ t('core.home.accountCapability') }}</text>
+            <text class="demo-desc">{{ t('core.home.accountCapabilityDescription') }}</text>
           </view>
         </view>
         <view class="demo-item">
           <view class="demo-dot">3</view>
           <view class="demo-copy">
-            <text class="demo-title">静态首页</text>
-            <text class="demo-desc">当前首页用于展示框架信息，不依赖业务接口</text>
+            <text class="demo-title">{{ t('core.home.staticHome') }}</text>
+            <text class="demo-desc">{{ t('core.home.staticHomeDescription') }}</text>
           </view>
         </view>
       </view>

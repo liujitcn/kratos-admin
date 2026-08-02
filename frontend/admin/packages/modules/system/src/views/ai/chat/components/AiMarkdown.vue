@@ -1,10 +1,5 @@
 <template>
-  <MarkdownPreview
-    class="agent-markdown"
-    :model-value="content"
-    :is-dark="globalStore.isDark"
-    max-code-height="360px"
-  />
+  <MarkdownPreview class="agent-markdown" :model-value="content" :is-dark="globalStore.isDark" max-code-height="360px" />
 </template>
 
 <script setup lang="ts" name="AiMarkdown">

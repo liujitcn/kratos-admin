@@ -1,9 +1,9 @@
 <template>
   <div class="password-strength">
     <div class="password-strength__header">
-      <span>密码强度</span>
+      <span>{{ t("core.password.strength") }}</span>
       <strong :class="`password-strength__label password-strength__label--${strength.level}`">
-        {{ strength.text }}
+        {{ t(`core.password.strength.${strength.level}`) }}
       </strong>
     </div>
     <div class="password-strength__bars">
@@ -17,13 +17,16 @@
         }"
       />
     </div>
-    <p class="password-strength__tip">{{ tip }}</p>
+    <p class="password-strength__tip">{{ tip || t("core.password.tip") }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { getPasswordStrength, PASSWORD_STRENGTH_TIP } from "@/utils/passwordStrength";
+import { getPasswordStrength } from "@/utils/passwordStrength";
+import { useLocaleStore } from "@/locales";
+
+const { t } = useLocaleStore();
 
 /** 密码强度组件属性。 */
 interface PasswordStrengthProps {
@@ -35,7 +38,7 @@ interface PasswordStrengthProps {
 
 const props = withDefaults(defineProps<PasswordStrengthProps>(), {
   password: "",
-  tip: PASSWORD_STRENGTH_TIP
+  tip: ""
 });
 
 /** 强度条固定为三段，保持所有页面一致。 */

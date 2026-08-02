@@ -9,17 +9,9 @@ export interface PasswordStrengthResult {
   strengthScore: number;
   /** 强度等级。 */
   level: PasswordStrengthLevel;
-  /** 强度文案。 */
-  text: string;
   /** 是否达到允许提交的最高强度。 */
   isValid: boolean;
 }
-
-/** 密码强度错误提示。 */
-export const PASSWORD_STRENGTH_ERROR_MESSAGE = "密码需同时包含大小写字母、数字、特殊字符，且长度不少于 8 位";
-
-/** 密码强度说明文案。 */
-export const PASSWORD_STRENGTH_TIP = "需同时包含大小写字母、数字、特殊字符，且长度不少于 8 位，达到最高强度后才可提交。";
 
 /**
  * 计算密码强度结果，供表单展示和校验统一复用。
@@ -33,7 +25,6 @@ export function getPasswordStrength(password?: string): PasswordStrengthResult {
       ruleScore: 0,
       strengthScore: 0,
       level: "empty",
-      text: "未输入",
       isValid: false
     };
   }
@@ -49,7 +40,6 @@ export function getPasswordStrength(password?: string): PasswordStrengthResult {
       ruleScore,
       strengthScore: 3,
       level: "high",
-      text: "高",
       isValid: true
     };
   }
@@ -58,7 +48,6 @@ export function getPasswordStrength(password?: string): PasswordStrengthResult {
       ruleScore,
       strengthScore: 2,
       level: "medium",
-      text: "中",
       isValid: false
     };
   }
@@ -66,7 +55,6 @@ export function getPasswordStrength(password?: string): PasswordStrengthResult {
     ruleScore,
     strengthScore: 1,
     level: "low",
-    text: "低",
     isValid: false
   };
 }
@@ -79,8 +67,5 @@ export function getPasswordStrength(password?: string): PasswordStrengthResult {
  */
 export function validatePasswordStrengthValue(password?: string) {
   const result = getPasswordStrength(password);
-  return {
-    valid: result.isValid,
-    message: result.isValid ? "" : PASSWORD_STRENGTH_ERROR_MESSAGE
-  };
+  return { valid: result.isValid };
 }

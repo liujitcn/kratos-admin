@@ -6,6 +6,7 @@
 
 /* eslint-disable */
 import type { Empty } from "../../../google/protobuf/empty";
+import type { CodeGenLocaleConfig } from "./base_translation";
 
 /** 代码生成字段配置查询条件 */
 export interface ListCodeGenColumnRequest {
@@ -84,19 +85,20 @@ export interface CodeGenColumn {
   /** TypeScript字段类型 */
   ts_type: string;
   /** 查询条件配置 */
-  query_config:
-    | CodeGenColumnQueryConfig
-    | undefined;
+  query_config: CodeGenColumnQueryConfig | undefined;
   /** 列表展示配置 */
-  list_config:
-    | CodeGenColumnListConfig
-    | undefined;
+  list_config: CodeGenColumnListConfig | undefined;
   /** 表单录入配置 */
-  form_config:
-    | CodeGenColumnFormConfig
-    | undefined;
+  form_config: CodeGenColumnFormConfig | undefined;
   /** 排序 */
   sort: number;
+  /** 按语言区域索引的字段国际化配置 */
+  i18n_config: Map<string, CodeGenLocaleConfig>;
+}
+
+export interface CodeGenColumn_I18nConfigEntry {
+  key: string;
+  value: CodeGenLocaleConfig | undefined;
 }
 
 /** 代码生成字段查询条件配置 */
@@ -130,9 +132,7 @@ export interface CodeGenColumnFormConfig {
   /** 是否必填 */
   required: boolean;
   /** 表单选项配置 */
-  option:
-    | CodeGenColumnOptionConfig
-    | undefined;
+  option: CodeGenColumnOptionConfig | undefined;
   /** 树形选择是否多选 */
   multiple: boolean;
 }

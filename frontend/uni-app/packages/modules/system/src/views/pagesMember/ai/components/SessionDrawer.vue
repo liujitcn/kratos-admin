@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { AiSession } from '../../../../rpc/base/v1/ai_session'
+import { useI18n } from '@liujitcn/kratos-uni-app-core'
 
 type PressPoint = {
   clientX?: number
@@ -41,6 +42,7 @@ const emit = defineEmits<{
   action: [session: AiSession, event?: PressEvent]
   'update:keyword': [value: string]
 }>()
+const { t } = useI18n()
 
 function handleKeywordInput(event: Event) {
   emit('update:keyword', ((event as unknown as InputEventValue).detail?.value || '').toString())
@@ -71,10 +73,10 @@ function formatSessionTime(session: AiSession) {
   <view v-if="open" class="session-mask" @tap="emit('close')"></view>
   <view class="session-drawer" :class="{ 'is-open': open }" :style="{ paddingTop: topPadding }">
     <view class="session-drawer__head">
-      <view class="session-drawer__title">历史会话</view>
+      <view class="session-drawer__title">{{ t('system.ai.history') }}</view>
       <button class="session-create" hover-class="none" @tap="emit('create')">
         <uni-icons type="plusempty" size="16" color="#27ba9b" />
-        <text>新建</text>
+        <text>{{ t('common.action.new') }}</text>
       </button>
     </view>
     <view class="session-search">
@@ -82,14 +84,14 @@ function formatSessionTime(session: AiSession) {
       <input
         class="session-search-input"
         confirm-type="search"
-        placeholder="搜索会话"
+        :placeholder="t('system.ai.searchSession')"
         placeholder-class="session-search-placeholder"
         :value="keyword"
         @input="handleKeywordInput"
       />
     </view>
     <scroll-view class="session-list" scroll-y :show-scrollbar="false">
-      <view v-if="loading" class="session-empty">正在加载会话...</view>
+      <view v-if="loading" class="session-empty">{{ t('system.ai.loadSessions') }}</view>
       <view
         v-for="session in sessions"
         :key="session.id"
@@ -103,7 +105,7 @@ function formatSessionTime(session: AiSession) {
             <view class="session-title">{{ session.title }}</view>
             <view class="session-time">{{ formatSessionTime(session) }}</view>
           </view>
-          <view class="session-summary">{{ session.summary || '暂无摘要' }}</view>
+          <view class="session-summary">{{ session.summary || t('system.ai.noSummary') }}</view>
         </view>
         <button class="session-more" hover-class="none" @tap.stop="emit('action', session, $event)">
           <view></view>
@@ -111,7 +113,9 @@ function formatSessionTime(session: AiSession) {
           <view></view>
         </button>
       </view>
-      <view v-if="!loading && !sessions.length" class="session-empty">没有匹配的会话</view>
+      <view v-if="!loading && !sessions.length" class="session-empty">{{
+        t('system.ai.noMatchingSessions')
+      }}</view>
     </scroll-view>
   </view>
 </template>

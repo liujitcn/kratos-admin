@@ -1,6 +1,8 @@
 import type { Pinia } from 'pinia'
 import type { App, Component } from 'vue'
 import { registerKratosAppModules, type KratosAppModule } from './module'
+import { initializeLocale, registerLocaleChangeHandler, registerLocaleMessages } from './locales'
+import { initializeAppNavigation } from './navigation'
 
 /** uni-app 启动参数。 */
 export interface KratosAppBootstrapOptions {
@@ -17,6 +19,9 @@ export interface KratosAppBootstrapOptions {
 /** 创建 uni-app 实例并注册模块。 */
 export function bootstrapKratosApp(options: KratosAppBootstrapOptions) {
   registerKratosAppModules(options.modules)
+  registerLocaleMessages(options.modules)
+  initializeLocale()
+  registerLocaleChangeHandler(initializeAppNavigation)
   const app = options.createSSRApp(options.app)
   app.use(options.pinia)
   return { app }

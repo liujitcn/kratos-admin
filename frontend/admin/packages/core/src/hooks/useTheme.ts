@@ -7,6 +7,7 @@ import { getLightColor, getDarkColor } from "@/utils/color";
 import { menuTheme } from "@/styles/theme/menu";
 import { asideTheme } from "@/styles/theme/aside";
 import { headerTheme } from "@/styles/theme/header";
+import { t } from "@/locales";
 
 /**
  * @description 全局主题 hooks
@@ -29,7 +30,7 @@ export const useTheme = () => {
   const changePrimary = (val: string | null) => {
     if (!val) {
       val = DEFAULT_PRIMARY;
-      ElMessage({ type: "success", message: `主题颜色已重置为 ${DEFAULT_PRIMARY}` });
+      ElMessage({ type: "success", message: t("core.theme.primaryReset", { color: DEFAULT_PRIMARY }) });
     }
     // 计算主题颜色变化
     document.documentElement.style.setProperty("--el-color-primary", val);

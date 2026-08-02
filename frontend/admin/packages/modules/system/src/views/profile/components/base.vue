@@ -3,10 +3,10 @@
     <template #header>
       <div class="panel-header">
         <div>
-          <h3>账号信息</h3>
-          <p>维护头像、昵称和基础账号资料。</p>
+          <h3>{{ t("system.profile.account.title") }}</h3>
+          <p>{{ t("system.profile.account.description") }}</p>
         </div>
-        <el-button type="primary" plain @click="openAccountDialog">修改基本资料</el-button>
+        <el-button type="primary" plain @click="openAccountDialog">{{ t("system.profile.account.action.edit") }}</el-button>
       </div>
     </template>
 
@@ -18,49 +18,56 @@
           <input ref="fileInputRef" type="file" class="hidden-input" accept="image/*" @change="handleFileChange" />
         </div>
         <div class="avatar-copy">
-          <strong>头像</strong>
-          <p>点击右下角可更换头像</p>
+          <strong>{{ t("system.profile.account.field.avatar") }}</strong>
+          <p>{{ t("system.profile.account.message.avatarHint") }}</p>
         </div>
       </div>
 
       <div class="detail-grid">
         <div class="detail-item">
-          <span class="detail-label">登录账号</span>
+          <span class="detail-label">{{ t("system.profile.account.field.userName") }}</span>
           <span class="detail-value">{{ profile.user_name || "--" }}</span>
         </div>
         <div class="detail-item">
-          <span class="detail-label">昵称</span>
+          <span class="detail-label">{{ t("system.profile.account.field.nickName") }}</span>
           <span class="detail-value">{{ profile.nick_name || "--" }}</span>
         </div>
         <div class="detail-item">
-          <span class="detail-label">性别</span>
+          <span class="detail-label">{{ t("system.profile.account.field.gender") }}</span>
           <span class="detail-value">{{ genderText }}</span>
         </div>
         <div class="detail-item">
-          <span class="detail-label">绑定手机</span>
-          <span class="detail-value">{{ profile.phone || "未绑定" }}</span>
+          <span class="detail-label">{{ t("system.profile.account.field.phone") }}</span>
+          <span class="detail-value">{{ profile.phone || t("system.profile.value.unbound") }}</span>
         </div>
         <div class="detail-item">
-          <span class="detail-label">所属角色</span>
+          <span class="detail-label">{{ t("system.profile.account.field.role") }}</span>
           <span class="detail-value">{{ profile.role_name || "--" }}</span>
         </div>
         <div class="detail-item">
-          <span class="detail-label">所属部门</span>
+          <span class="detail-label">{{ t("system.profile.account.field.dept") }}</span>
           <span class="detail-value">{{ profile.dept_name || "--" }}</span>
         </div>
         <div class="detail-item detail-item--wide">
-          <span class="detail-label">创建时间</span>
+          <span class="detail-label">{{ t("system.common.field.createdAt") }}</span>
           <span class="detail-value">{{ profile.created_at || "--" }}</span>
         </div>
       </div>
     </div>
 
-    <ProDialog v-model="accountDialogVisible" title="修改基本资料" :width="520" @closed="handleDialogClosed">
+    <ProDialog
+      v-model="accountDialogVisible"
+      :title="t('system.profile.account.action.edit')"
+      :width="520"
+      @closed="handleDialogClosed"
+    >
       <ProForm ref="accountFormRef" :model="accountForm" :fields="accountFormFields" label-width="96px" />
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="accountDialogVisible = false">取消</el-button>
-          <el-button type="primary" :loading="submitLoading" @click="handleSubmitAccount">保存</el-button>
+          <el-button @click="accountDialogVisible = false">{{ t("common.action.cancel") }}</el-button>
+          <el-button type="primary" :loading="submitLoading" @click="handleSubmitAccount">
+            {{ t("common.action.save") }}
+          </el-button>
         </div>
       </template>
     </ProDialog>
@@ -69,6 +76,7 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from "vue";
+import { t } from "@liujitcn/kratos-admin-core";
 import { defProfileAuthService } from "@liujitcn/kratos-admin-system/api/system/auth";
 import type { UserProfileForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/auth";
 import { defFileService } from "@liujitcn/kratos-admin-core/api/base/file";
@@ -76,7 +84,6 @@ import defaultAvatar from "@liujitcn/kratos-admin-core/assets/images/avatar.png"
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import ProForm from "@liujitcn/kratos-admin-core/components/ProForm/index.vue";
 import type { ProFormField, ProFormInstance } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
-import { ElMessage } from "element-plus";
 import { Camera } from "@element-plus/icons-vue";
 
 /** 个人中心基础资料组件属性。 */
@@ -101,16 +108,26 @@ const accountForm = reactive<Pick<UserProfileForm, "nick_name" | "gender">>({
   gender: 3
 });
 
-const accountFormFields: ProFormField[] = [
-  { prop: "nick_name", label: "昵称", component: "input", props: { placeholder: "请输入昵称" } },
-  { prop: "gender", label: "性别", component: "dict", props: { code: "base_user_gender" } }
-];
+const accountFormFields = computed<ProFormField[]>(() => [
+  {
+    prop: "nick_name",
+    label: t("system.profile.account.field.nickName"),
+    component: "input",
+    props: { placeholder: t("system.profile.account.placeholder.nickName") }
+  },
+  {
+    prop: "gender",
+    label: t("system.profile.account.field.gender"),
+    component: "dict",
+    props: { code: "base_user_gender" }
+  }
+]);
 
 /** 根据资料中的性别值输出展示文案。 */
 const genderText = computed(() => {
-  if (props.profile.gender === 1) return "男";
-  if (props.profile.gender === 2) return "女";
-  return "保密";
+  if (props.profile.gender === 1) return t("common.value.male");
+  if (props.profile.gender === 2) return t("common.value.female");
+  return t("system.profile.value.private");
 });
 
 /**
@@ -165,10 +182,10 @@ async function handleFileChange(event: Event) {
         avatar: uploadResult.url
       }
     });
-    ElMessage.success("头像更新成功");
+    ElMessage.success(t("system.profile.account.message.avatarUpdated"));
     emit("refreshed");
   } catch (_error) {
-    ElMessage.error("头像上传失败");
+    ElMessage.error(t("system.profile.account.message.avatarUploadFailed"));
   } finally {
     target.value = "";
   }
@@ -187,7 +204,7 @@ async function handleSubmitAccount() {
         gender: accountForm.gender
       }
     });
-    ElMessage.success("基本资料已更新");
+    ElMessage.success(t("system.profile.account.message.updated"));
     accountDialogVisible.value = false;
     emit("refreshed");
   } finally {

@@ -2,6 +2,7 @@
   <div class="tool-bar-ri">
     <div class="header-icon">
       <component :is="tool.component" v-for="tool in headerTools" :id="tool.name" :key="tool.name" />
+      <LocaleSwitch id="localeSwitch" />
       <AssemblySize id="assemblySize" />
       <SearchMenu id="searchMenu" />
       <ThemeSetting id="themeSetting" />
@@ -18,6 +19,7 @@ import SearchMenu from "./components/SearchMenu.vue";
 import ThemeSetting from "./components/ThemeSetting.vue";
 import Fullscreen from "./components/Fullscreen.vue";
 import Avatar from "./components/Avatar.vue";
+import LocaleSwitch from "@/components/LocaleSwitch/index.vue";
 
 const headerTools = getAdminHeaderTools();
 </script>

@@ -7,6 +7,7 @@ import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
+import "system/admin/v1/base_translation.proto";
 
 // Admin字典服务
 service BaseDictService {
@@ -199,6 +200,8 @@ message BaseDictForm {
 
   string name = 3 [(gnostic.openapi.v3.property) = {description: "字典名称"}, (buf.validate.field).cel = {id: "base_dict.name.required" message: "请输入字典名称" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "base_dict.name.max_len" message: "字典名称不能超过 50 个字符" expression: "this.size() <= 50"}]; // 字典名称
 
+  repeated BaseDictTranslation translations = 4 [(gnostic.openapi.v3.property) = {description: "非默认语言翻译"}]; // 非默认语言翻译
+
   .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
 }
 
@@ -219,7 +222,9 @@ message BaseDictItemForm {
 
   string tag_type = 5 [(gnostic.openapi.v3.property) = {description: "标签类型，用于前端样式展示（如success、warning等）"}, (buf.validate.field).cel = {id: "base_dict_item.tag_type.max_len" message: "标签类型不能超过 50 个字符" expression: "this.size() <= 50"}]; // 标签类型，用于前端样式展示（如success、warning等）
 
-  int32 sort = 6 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).cel = {id: "base_dict_item.sort.required" message: "请输入排序" expression: "this > 0"}]; // 排序
+  int32 sort = 6 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).cel = {id: "base_dict_item.sort.required" message: "排序必须大于 0" expression: "this > 0"}]; // 排序
+
+  repeated BaseDictItemTranslation translations = 7 [(gnostic.openapi.v3.property) = {description: "非默认语言翻译"}]; // 非默认语言翻译
 
   .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
 }
@@ -280,6 +285,8 @@ message BaseDict {
 
   string name = 3 [(gnostic.openapi.v3.property) = {description: "字典名称"}, (buf.validate.field).cel = {id: "base_dict.name.length" message: "字典名称不能为空且不超过 50 个字符" expression: "this.size() > 0 && this.size() <= 50"}]; // 字典名称
 
+  repeated BaseDictTranslation translations = 4 [(gnostic.openapi.v3.property) = {description: "非默认语言翻译"}]; // 非默认语言翻译
+
   .common.v1.Status status = 101 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
 
   string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
@@ -301,9 +308,81 @@ message BaseDictItem {
 
   int32 sort = 6 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).cel = {id: "base_dict_item.sort.required" message: "排序必须大于 0" expression: "this > 0"}]; // 排序
 
+  repeated BaseDictItemTranslation translations = 7 [(gnostic.openapi.v3.property) = {description: "非默认语言翻译"}]; // 非默认语言翻译
+
   .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
 
   string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
 
   string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+}
+
+// 字典翻译
+message BaseDictTranslation {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}]; // 主键ID
+
+  int64 dict_id = 2 [(gnostic.openapi.v3.property) = {description: "字典ID"}]; // 字典ID
+
+  string locale = 3 [(gnostic.openapi.v3.property) = {description: "语言区域"}, (buf.validate.field).cel = {id: "base_dict_translation.locale.supported" message: "字典翻译语言仅支持英语或日语" expression: "this in ['en-US', 'ja-JP']"}]; // 语言区域
+
+  string name = 4 [(gnostic.openapi.v3.property) = {description: "字典名称"}, (buf.validate.field).cel = {id: "base_dict_translation.name.max_len" message: "字典翻译名称不能超过50个字符" expression: "this.size() <= 50"}]; // 字典名称
+
+  TranslationStatus translation_status = 5 [(gnostic.openapi.v3.property) = {description: "翻译状态"}]; // 翻译状态
+
+  string source_hash = 6 [(gnostic.openapi.v3.property) = {description: "中文源文SHA-256"}]; // 中文源文SHA-256
+
+  string translation_provider = 7 [(gnostic.openapi.v3.property) = {description: "机器翻译提供方"}]; // 机器翻译提供方
+
+  string translated_at = 8 [(gnostic.openapi.v3.property) = {description: "最近机器翻译时间"}]; // 最近机器翻译时间
+
+  int64 reviewed_by = 9 [(gnostic.openapi.v3.property) = {description: "审核人ID"}]; // 审核人ID
+
+  string reviewed_at = 10 [(gnostic.openapi.v3.property) = {description: "审核时间"}]; // 审核时间
+
+  int64 created_by = 11 [(gnostic.openapi.v3.property) = {description: "创建人ID"}]; // 创建人ID
+
+  int64 updated_by = 12 [(gnostic.openapi.v3.property) = {description: "更新人ID"}]; // 更新人ID
+
+  string created_at = 13 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+
+  string updated_at = 14 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+
+  uint64 deleted_at = 15 [(gnostic.openapi.v3.property) = {description: "删除时间"}]; // 删除时间
+
+  bool source_changed = 16 [(gnostic.openapi.v3.property) = {description: "中文源文是否已变化"}]; // 中文源文是否已变化
+}
+
+// 字典项翻译
+message BaseDictItemTranslation {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}]; // 主键ID
+
+  int64 dict_item_id = 2 [(gnostic.openapi.v3.property) = {description: "字典项ID"}]; // 字典项ID
+
+  string locale = 3 [(gnostic.openapi.v3.property) = {description: "语言区域"}, (buf.validate.field).cel = {id: "base_dict_item_translation.locale.supported" message: "字典项翻译语言仅支持英语或日语" expression: "this in ['en-US', 'ja-JP']"}]; // 语言区域
+
+  string label = 4 [(gnostic.openapi.v3.property) = {description: "字典项标签"}, (buf.validate.field).cel = {id: "base_dict_item_translation.label.max_len" message: "字典项翻译标签不能超过100个字符" expression: "this.size() <= 100"}]; // 字典项标签
+
+  TranslationStatus translation_status = 5 [(gnostic.openapi.v3.property) = {description: "翻译状态"}]; // 翻译状态
+
+  string source_hash = 6 [(gnostic.openapi.v3.property) = {description: "中文源文SHA-256"}]; // 中文源文SHA-256
+
+  string translation_provider = 7 [(gnostic.openapi.v3.property) = {description: "机器翻译提供方"}]; // 机器翻译提供方
+
+  string translated_at = 8 [(gnostic.openapi.v3.property) = {description: "最近机器翻译时间"}]; // 最近机器翻译时间
+
+  int64 reviewed_by = 9 [(gnostic.openapi.v3.property) = {description: "审核人ID"}]; // 审核人ID
+
+  string reviewed_at = 10 [(gnostic.openapi.v3.property) = {description: "审核时间"}]; // 审核时间
+
+  int64 created_by = 11 [(gnostic.openapi.v3.property) = {description: "创建人ID"}]; // 创建人ID
+
+  int64 updated_by = 12 [(gnostic.openapi.v3.property) = {description: "更新人ID"}]; // 更新人ID
+
+  string created_at = 13 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+
+  string updated_at = 14 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+
+  uint64 deleted_at = 15 [(gnostic.openapi.v3.property) = {description: "删除时间"}]; // 删除时间
+
+  bool source_changed = 16 [(gnostic.openapi.v3.property) = {description: "中文源文是否已变化"}]; // 中文源文是否已变化
 }

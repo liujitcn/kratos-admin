@@ -1,4 +1,7 @@
 import { ADMIN_STATIC_VIEWS, defineAdminModule, type AdminStaticViewModules } from "./index";
+import enUS from "../locales/en-US.json";
+import jaJP from "../locales/ja-JP.json";
+import zhCN from "../locales/zh-CN.json";
 
 const staticViewModules: AdminStaticViewModules = {
   [ADMIN_STATIC_VIEWS.LOGIN]: () => import("../views/login/index.vue"),
@@ -13,5 +16,10 @@ const staticViewModules: AdminStaticViewModules = {
  */
 export const kratosAdminModule = defineAdminModule({
   name: "kratos-admin",
-  staticViews: staticViewModules
+  staticViews: staticViewModules,
+  messages: {
+    "zh-CN": zhCN,
+    "en-US": enUS,
+    "ja-JP": jaJP
+  }
 });

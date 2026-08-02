@@ -1,5 +1,6 @@
 import Taro from '@tarojs/taro'
 import type { FileInfo, MultiUploadFileResponse } from '../rpc/base/v1/file'
+import { getLocaleRequestHeaders, t } from '../locales'
 import { formatSrc } from './index'
 import { getRequestAccessToken, requestBaseURL } from './http'
 
@@ -11,9 +12,13 @@ export async function uploadFile(fileType: string, filePath: string): Promise<Fi
     name: 'file',
     filePath,
     formData: { fileType },
-    header: token ? { Authorization: token, 'source-client': 'miniapp' } : {},
+    header: {
+      ...getLocaleRequestHeaders(),
+      'source-client': 'miniapp',
+      ...(token ? { Authorization: token } : {}),
+    },
   })
-  if (response.statusCode !== 200) throw new Error('上传失败')
+  if (response.statusCode !== 200) throw new Error(t('core.file.uploadFailed'))
   return JSON.parse(response.data) as FileInfo
 }
 

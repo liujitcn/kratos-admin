@@ -23,11 +23,11 @@
             @click.stop="handleUserMenuAction(action.path)"
           >
             <el-icon v-if="action.icon"><component :is="action.icon" /></el-icon>
-            <span>{{ action.label }}</span>
+            <span>{{ action.labelKey ? t(action.labelKey) : action.label }}</span>
           </button>
           <button class="action-btn action-btn--danger" type="button" @click="logout">
             <el-icon><SwitchButton /></el-icon>
-            <span>退出登录</span>
+            <span>{{ t("common.action.logout") }}</span>
           </button>
         </div>
       </div>
@@ -46,16 +46,18 @@ import type { DropdownInstance } from "element-plus";
 import defaultAvatar from "@/assets/images/avatar.png";
 import { navigateTo } from "@/utils/router";
 import { getAdminUserMenuActions } from "@/modules";
+import { useLocaleStore } from "@/locales";
 
 const router = useRouter();
 const userStore = useUserStore();
 const authStore = useAuthStore();
 const userMenuActions = getAdminUserMenuActions();
 const dropdownRef = ref<DropdownInstance>();
+const { t } = useLocaleStore();
 const avatarSrc = ref(defaultAvatar);
-const displayName = computed(() => userStore.userInfo.nick_name || userStore.userInfo.user_name || "未设置");
-const roleName = computed(() => userStore.userInfo.role_name || "未分配角色");
-const deptName = computed(() => userStore.userInfo.dept_name || "未分配部门");
+const displayName = computed(() => userStore.userInfo.nick_name || userStore.userInfo.user_name || t("core.layout.notSet"));
+const roleName = computed(() => userStore.userInfo.role_name || t("core.layout.roleUnassigned"));
+const deptName = computed(() => userStore.userInfo.dept_name || t("core.layout.departmentUnassigned"));
 const profileSummary = computed(() => `${roleName.value} / ${deptName.value}`);
 const availableUserMenuActions = computed(() => {
   return userMenuActions.flatMap(action => {
@@ -84,9 +86,9 @@ watch(
 
 /** 退出登录并清理当前登录态。 */
 const logout = () => {
-  ElMessageBox.confirm("您是否确认退出登录?", "温馨提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
+  ElMessageBox.confirm(t("core.layout.logoutConfirm"), t("common.title.warning"), {
+    confirmButtonText: t("common.action.confirm"),
+    cancelButtonText: t("common.action.cancel"),
     type: "warning"
   }).then(async () => {
     // 1.执行退出登录接口并清理本地状态
@@ -94,7 +96,7 @@ const logout = () => {
 
     // 2.重定向到登录页
     router.replace(LOGIN_URL);
-    ElMessage.success("退出登录成功！");
+    ElMessage.success(t("core.layout.logoutSuccess"));
   });
 };
 

@@ -5,6 +5,7 @@
     "paths": {
       "@liujitcn/kratos-admin-system": ["src/index.ts"],
       "@liujitcn/kratos-admin-system/api/*": ["src/api/*"],
+      "@liujitcn/kratos-admin-system/components/*": ["src/components/*"],
       "@liujitcn/kratos-admin-system/package.json": ["package.json"],
       "@liujitcn/kratos-admin-system/rpc/*": ["src/rpc/*"]
     },

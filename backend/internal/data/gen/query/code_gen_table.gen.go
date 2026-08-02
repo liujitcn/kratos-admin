@@ -36,6 +36,7 @@ func newCodeGenTable(db *gorm.DB, opts ...gen.DOOption) codeGenTable {
 	_codeGenTable.ParentColumn = field.NewString(tableName, "parent_column")
 	_codeGenTable.TreeLabelColumn = field.NewString(tableName, "tree_label_column")
 	_codeGenTable.LeftTreeConfig = field.NewString(tableName, "left_tree_config")
+	_codeGenTable.I18NConfig = field.NewString(tableName, "i18n_config")
 	_codeGenTable.GenBackend = field.NewInt32(tableName, "gen_backend")
 	_codeGenTable.GenFrontend = field.NewInt32(tableName, "gen_frontend")
 	_codeGenTable.GenSql = field.NewInt32(tableName, "gen_sql")
@@ -66,6 +67,7 @@ type codeGenTable struct {
 	ParentColumn    field.String // 树形表格父节点字段
 	TreeLabelColumn field.String // 树节点显示字段
 	LeftTreeConfig  field.String // 左树配置JSON
+	I18NConfig      field.String // 表级国际化配置JSON
 	GenBackend      field.Int32  // 是否生成后端
 	GenFrontend     field.Int32  // 是否生成前端
 	GenSql          field.Int32  // 是否生成建表SQL
@@ -101,6 +103,7 @@ func (c *codeGenTable) updateTableName(table string) *codeGenTable {
 	c.ParentColumn = field.NewString(table, "parent_column")
 	c.TreeLabelColumn = field.NewString(table, "tree_label_column")
 	c.LeftTreeConfig = field.NewString(table, "left_tree_config")
+	c.I18NConfig = field.NewString(table, "i18n_config")
 	c.GenBackend = field.NewInt32(table, "gen_backend")
 	c.GenFrontend = field.NewInt32(table, "gen_frontend")
 	c.GenSql = field.NewInt32(table, "gen_sql")
@@ -139,7 +142,7 @@ func (c *codeGenTable) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (c *codeGenTable) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 19)
+	c.fieldMap = make(map[string]field.Expr, 20)
 	c.fieldMap["id"] = c.ID
 	c.fieldMap["name"] = c.Name
 	c.fieldMap["comment"] = c.Comment
@@ -149,6 +152,7 @@ func (c *codeGenTable) fillFieldMap() {
 	c.fieldMap["parent_column"] = c.ParentColumn
 	c.fieldMap["tree_label_column"] = c.TreeLabelColumn
 	c.fieldMap["left_tree_config"] = c.LeftTreeConfig
+	c.fieldMap["i18n_config"] = c.I18NConfig
 	c.fieldMap["gen_backend"] = c.GenBackend
 	c.fieldMap["gen_frontend"] = c.GenFrontend
 	c.fieldMap["gen_sql"] = c.GenSql

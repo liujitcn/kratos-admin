@@ -1,18 +1,31 @@
-import { Button, View } from '@tarojs/components'
+import { Button, Picker, Text, View } from '@tarojs/components'
 import Taro, { useLoad } from '@tarojs/taro'
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
+  SUPPORTED_LOCALES,
   navigateToLogin,
+  type SupportedLocale,
+  useI18n,
   useUserStore,
 } from '@liujitcn/kratos-taro-app-core'
 import './settings.scss'
 
 /** 应用设置页。 */
 export default function SettingsPage() {
+  const { locale, setLocale, t } = useI18n()
   const [logoutLoading, setLogoutLoading] = useState(false)
   const authenticated = useUserStore((state) => state.isAuthenticated())
   const ensureAuthenticated = useUserStore((state) => state.ensureAuthenticated)
   const logout = useUserStore((state) => state.logout)
+  const localeLabels = useMemo(
+    () => SUPPORTED_LOCALES.map((item) => t(`common.language.${item}`)),
+    [locale, t],
+  )
+  const localeIndex = Math.max(0, SUPPORTED_LOCALES.indexOf(locale))
+
+  useEffect(() => {
+    void Taro.setNavigationBarTitle({ title: t('system.settings.title') })
+  }, [locale, t])
 
   useLoad(() => {
     if (process.env.TARO_ENV !== 'weapp' && !ensureAuthenticated()) navigateToLogin()
@@ -20,14 +33,17 @@ export default function SettingsPage() {
 
   const onLogout = async () => {
     if (logoutLoading) return
-    const result = await Taro.showModal({ content: '是否退出登录？', confirmColor: '#27BA9B' })
+    const result = await Taro.showModal({
+      content: t('system.settings.logoutConfirm'),
+      confirmColor: '#27BA9B',
+    })
     if (!result.confirm) return
     setLogoutLoading(true)
     try {
       await logout()
       await Taro.navigateBack()
     } catch {
-      await Taro.showToast({ icon: 'none', title: '退出登录失败' })
+      await Taro.showToast({ icon: 'none', title: t('system.settings.logoutFailed') })
     } finally {
       setLogoutLoading(false)
     }
@@ -38,20 +54,38 @@ export default function SettingsPage() {
       {process.env.TARO_ENV === 'weapp' ? (
         <View className='settings-list'>
           <Button className='settings-item settings-arrow' hoverClass='none' openType='openSetting'>
-            授权管理
+            {t('system.settings.authorization')}
           </Button>
           <Button className='settings-item settings-arrow' hoverClass='none' openType='feedback'>
-            问题反馈
+            {t('system.settings.feedback')}
           </Button>
           <Button className='settings-item settings-arrow' hoverClass='none' openType='contact'>
-            联系我们
+            {t('system.settings.contact')}
           </Button>
         </View>
       ) : null}
+      <View className='settings-list'>
+        <Picker
+          mode='selector'
+          range={localeLabels}
+          value={localeIndex}
+          onChange={(event) => {
+            const nextLocale = SUPPORTED_LOCALES[Number(event.detail.value)] as
+              | SupportedLocale
+              | undefined
+            if (nextLocale) void setLocale(nextLocale)
+          }}
+        >
+          <View className='settings-item settings-arrow settings-locale'>
+            <Text>{t('common.field.language')}</Text>
+            <Text className='settings-locale__value'>{localeLabels[localeIndex]}</Text>
+          </View>
+        </Picker>
+      </View>
       {authenticated ? (
         <View className='settings-action'>
           <View className='settings-button' onClick={() => void onLogout()}>
-            退出登录
+            {t('common.action.logout')}
           </View>
         </View>
       ) : null}

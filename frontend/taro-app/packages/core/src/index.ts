@@ -1,5 +1,8 @@
 import { corePages } from './pages'
 import { defineKratosTaroModule } from './module'
+import coreEnUS from './locales/en-US.json'
+import coreJaJP from './locales/ja-JP.json'
+import coreZhCN from './locales/zh-CN.json'
 
 /** core 内置模块。 */
 export const coreModule = defineKratosTaroModule({
@@ -23,11 +26,17 @@ export const coreModule = defineKratosTaroModule({
     USER_DEFAULT: 'static/tabs/user_default.png',
     USER_SELECTED: 'static/tabs/user_selected.png',
   },
+  messages: {
+    'zh-CN': coreZhCN,
+    'en-US': coreEnUS,
+    'ja-JP': coreJaJP,
+  },
 })
 
 export * from './module'
 export * from './bootstrap'
 export * from './navigation'
+export * from './locales'
 export * from './stores'
 export * from './utils/auth'
 export * from './utils/file'

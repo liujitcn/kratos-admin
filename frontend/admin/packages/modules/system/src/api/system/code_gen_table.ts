@@ -12,6 +12,7 @@ import {
   type UpdateCodeGenTableRequest
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_table";
 import type { Empty } from "@liujitcn/kratos-admin-system/rpc/google/protobuf/empty";
+import { normalizeCodeGenLocaleConfigMap, serializeCodeGenLocaleConfigMap } from "./code_gen_i18n";
 
 const CODE_GEN_TABLE_URL = "/v1/admin/code-gen/table";
 const CODE_GEN_DATABASE_TABLE_URL = "/v1/admin/code-gen/database/table";
@@ -37,11 +38,12 @@ export class CodeGenTableServiceImpl implements CodeGenTableService {
   }
 
   /** 查询代码生成表配置。 */
-  GetCodeGenTable(request: GetCodeGenTableRequest): Promise<CodeGenTableForm> {
-    return service<GetCodeGenTableRequest, CodeGenTableForm>({
+  async GetCodeGenTable(request: GetCodeGenTableRequest): Promise<CodeGenTableForm> {
+    const response = await service<GetCodeGenTableRequest, CodeGenTableForm>({
       url: `${CODE_GEN_TABLE_URL}/${request.id}`,
       method: "get"
     });
+    return { ...response, i18n_config: normalizeCodeGenLocaleConfigMap(response.i18n_config) };
   }
 
   /** 创建代码生成表配置。 */
@@ -49,7 +51,7 @@ export class CodeGenTableServiceImpl implements CodeGenTableService {
     return service<CodeGenTableForm | undefined, Empty>({
       url: CODE_GEN_TABLE_URL,
       method: "post",
-      data: request.code_gen_table
+      data: serializeCodeGenTableForm(request.code_gen_table)
     });
   }
 
@@ -58,7 +60,7 @@ export class CodeGenTableServiceImpl implements CodeGenTableService {
     return service<CodeGenTableForm | undefined, Empty>({
       url: `${CODE_GEN_TABLE_URL}/${request.id}`,
       method: "put",
-      data: request.code_gen_table
+      data: serializeCodeGenTableForm(request.code_gen_table)
     });
   }
 
@@ -72,3 +74,9 @@ export class CodeGenTableServiceImpl implements CodeGenTableService {
 }
 
 export const defCodeGenTableService = new CodeGenTableServiceImpl();
+
+/** 将表配置中的 Map 转为 REST JSON 对象。 */
+function serializeCodeGenTableForm(value?: CodeGenTableForm) {
+  if (!value) return value;
+  return { ...value, i18n_config: serializeCodeGenLocaleConfigMap(value.i18n_config) };
+}

@@ -17,16 +17,18 @@ import (
 type BaseMenuCase struct {
 	*biz.BaseCase
 	*data.BaseMenuRepository
-	mapper *mapper.CopierMapper[systemappv1.BaseMenu, models.BaseMenu]
+	translationCase *biz.TranslationCase
+	mapper          *mapper.CopierMapper[systemappv1.BaseMenu, models.BaseMenu]
 }
 
 // NewBaseMenuCase 创建移动端菜单业务处理对象。
-func NewBaseMenuCase(baseCase *biz.BaseCase, baseMenuRepo *data.BaseMenuRepository) *BaseMenuCase {
+func NewBaseMenuCase(baseCase *biz.BaseCase, baseMenuRepo *data.BaseMenuRepository, translationCase *biz.TranslationCase) *BaseMenuCase {
 	menuMapper := mapper.NewCopierMapper[systemappv1.BaseMenu, models.BaseMenu]()
 	menuMapper.AppendConverters(mapper.NewJSONTypeConverter[*systemappv1.BaseMenuMeta]().NewConverterPair())
 	return &BaseMenuCase{
 		BaseCase:           baseCase,
 		BaseMenuRepository: baseMenuRepo,
+		translationCase:    translationCase,
 		mapper:             menuMapper,
 	}
 }
@@ -35,6 +37,7 @@ func NewBaseMenuCase(baseCase *biz.BaseCase, baseMenuRepo *data.BaseMenuReposito
 func (c *BaseMenuCase) ListBaseMenu(ctx context.Context) ([]*systemappv1.BaseMenu, error) {
 	query := c.Query(ctx).BaseMenu
 	items := make([]*systemappv1.BaseMenu, 0)
+	menuIDs := make([]int64, 0)
 	parentIDs := []int64{_const.BASE_MENU_APP_ROOT_ID}
 	visited := map[int64]struct{}{_const.BASE_MENU_APP_ROOT_ID: {}}
 	var err error
@@ -57,7 +60,18 @@ func (c *BaseMenuCase) ListBaseMenu(ctx context.Context) ([]*systemappv1.BaseMen
 			}
 			visited[child.ID] = struct{}{}
 			items = append(items, c.mapper.ToDTO(child))
+			menuIDs = append(menuIDs, child.ID)
 			parentIDs = append(parentIDs, child.ID)
+		}
+	}
+	var titles map[int64]string
+	titles, err = c.translationCase.ReviewedMenuTitles(ctx, menuIDs)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range items {
+		if title := titles[item.GetId()]; title != "" && item.GetMeta() != nil {
+			item.Meta.Title = title
 		}
 	}
 	return items, nil

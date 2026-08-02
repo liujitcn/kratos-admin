@@ -13,25 +13,15 @@ import type { BaseConfigType } from "../../common/v1/enum";
 /** 系统配置分页查询条件 */
 export interface PageBaseConfigRequest {
   /** 位置：枚举【BaseConfigSite】 */
-  site?:
-    | BaseConfigSite
-    | undefined;
+  site?: BaseConfigSite | undefined;
   /** 配置名称 */
-  name?:
-    | string
-    | undefined;
+  name?: string | undefined;
   /** 配置类型：枚举【BaseConfigType】 */
-  type?:
-    | BaseConfigType
-    | undefined;
+  type?: BaseConfigType | undefined;
   /** 配置key */
-  key?:
-    | string
-    | undefined;
+  key?: string | undefined;
   /** 状态：枚举【Status】 */
-  status?:
-    | Status
-    | undefined;
+  status?: Status | undefined;
   /** 当前页码 */
   page_num: number;
   /** 每一页的行数 */
@@ -97,8 +87,7 @@ export interface SetBaseConfigStatusRequest {
 }
 
 /** 刷新系统配置缓存请求参数 */
-export interface RefreshBaseConfigCacheRequest {
-}
+export interface RefreshBaseConfigCacheRequest {}
 
 /** 系统配置 */
 export interface BaseConfig {

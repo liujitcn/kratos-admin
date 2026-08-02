@@ -3,12 +3,12 @@
     <template v-if="isEmptyState">
       <div class="agent-chat-empty">
         <div class="agent-chat-empty__title">{{ welcomeTitle }}</div>
-        <div class="agent-chat-empty__desc">可直接提问，也可以上传附件一起分析。</div>
+        <div class="agent-chat-empty__desc">{{ t("system.ai.chat.welcomeDescription") }}</div>
         <section v-if="hasShortcutPanel" class="agent-shortcuts">
           <div class="agent-shortcuts__head">
             <div>
-              <div class="agent-shortcuts__eyebrow">快捷操作</div>
-              <div class="agent-shortcuts__title">从常用工作流开始</div>
+              <div class="agent-shortcuts__eyebrow">{{ t("system.ai.chat.shortcut.eyebrow") }}</div>
+              <div class="agent-shortcuts__title">{{ t("system.ai.chat.shortcut.startTitle") }}</div>
             </div>
             <div class="agent-shortcuts__actions">
               <span class="agent-shortcuts__count">{{ shortcutBatchLabel }}</span>
@@ -19,12 +19,14 @@
                 :disabled="sending"
                 @click="refreshShortcutBatch"
               >
-                <span>换一批</span>
+                <span>{{ t("system.ai.chat.action.refreshShortcuts") }}</span>
                 <el-icon><Refresh /></el-icon>
               </button>
             </div>
           </div>
-          <div v-if="loadingShortcuts" class="agent-shortcuts__loading">正在加载快捷入口...</div>
+          <div v-if="loadingShortcuts" class="agent-shortcuts__loading">
+            {{ t("system.ai.chat.message.loadingShortcuts") }}
+          </div>
           <div v-else class="agent-shortcuts__grid">
             <button
               v-for="shortcut in shortcutVisibleList"
@@ -104,7 +106,7 @@
                       <button
                         class="agent-message-tool-copy"
                         type="button"
-                        aria-label="复制请求报文"
+                        :aria-label="t('system.ai.chat.action.copyRequest')"
                         @click.stop="handleCopyToolRequest(tool)"
                       >
                         <el-icon><CopyDocument /></el-icon>
@@ -132,10 +134,10 @@
                 }"
               >
                 <div v-if="isAIFailedMessage(item)" class="agent-message-error">
-                  <div class="agent-message-error__title">服务器异常，建议稍后重试</div>
+                  <div class="agent-message-error__title">{{ t("system.ai.chat.message.serverError") }}</div>
                   <div class="agent-message-error__content">{{ resolveAIErrorMessage(item) }}</div>
                   <el-collapse v-if="item.fallback_reason" class="agent-message-error__detail" accordion>
-                    <el-collapse-item title="错误详情" :name="String(item.id)">
+                    <el-collapse-item :title="t('system.ai.chat.title.errorDetail')" :name="String(item.id)">
                       <pre>{{ item.fallback_reason }}</pre>
                     </el-collapse-item>
                   </el-collapse>
@@ -144,7 +146,7 @@
                   <AiMarkdown :content="item.content" :streaming="item.progressState === 'streaming'" />
                   <slot name="flow-blocks" :message="item" :active-flow-message-id="activeFlowMessageID" />
                   <el-collapse v-if="item.fallback_reason" class="agent-message-error__detail" accordion>
-                    <el-collapse-item title="错误详情" :name="String(item.id)">
+                    <el-collapse-item :title="t('system.ai.chat.title.errorDetail')" :name="String(item.id)">
                       <pre>{{ item.fallback_reason }}</pre>
                     </el-collapse-item>
                   </el-collapse>
@@ -168,8 +170,8 @@
                   <el-popconfirm
                     v-if="shouldConfirmMessageAction(action.key)"
                     :title="resolveActionConfirmTitle(action.key, item)"
-                    confirm-button-text="确定"
-                    cancel-button-text="取消"
+                    :confirm-button-text="t('common.action.confirm')"
+                    :cancel-button-text="t('common.action.cancel')"
                     width="220"
                     @confirm="handleMessageAction(action.key, item)"
                   >
@@ -207,7 +209,7 @@
                     <button
                       class="agent-message-action agent-message-runtime-trigger"
                       type="button"
-                      aria-label="查看运行明细"
+                      :aria-label="t('system.ai.chat.action.viewRuntime')"
                       :disabled="item.progressState === 'streaming'"
                     >
                       <el-icon><DataAnalysis /></el-icon>
@@ -216,34 +218,34 @@
                     </button>
                   </template>
                   <div class="agent-runtime-detail">
-                    <div class="agent-runtime-detail__title">运行明细</div>
+                    <div class="agent-runtime-detail__title">{{ t("system.ai.chat.title.runtime") }}</div>
                     <div v-if="resolveTokenTotal(item) > 0" class="agent-runtime-detail__section">
                       <div class="agent-runtime-detail__section-title">Token</div>
                       <div class="agent-runtime-detail__row">
-                        <span>输入</span>
+                        <span>{{ t("system.ai.chat.field.inputTokens") }}</span>
                         <strong>{{ formatNumber(item.token?.input) }}</strong>
                       </div>
                       <div class="agent-runtime-detail__row">
-                        <span>输出</span>
+                        <span>{{ t("system.ai.chat.field.outputTokens") }}</span>
                         <strong>{{ formatNumber(item.token?.output) }}</strong>
                       </div>
                       <div v-if="(item.token?.cache ?? 0) > 0" class="agent-runtime-detail__row">
-                        <span>缓存读取</span>
+                        <span>{{ t("system.ai.chat.field.cacheTokens") }}</span>
                         <strong>{{ formatNumber(item.token?.cache) }}</strong>
                       </div>
                       <div class="agent-runtime-detail__row is-total">
-                        <span>总计</span>
+                        <span>{{ t("system.ai.chat.field.totalTokens") }}</span>
                         <strong>{{ formatNumber(item.token?.total) }}</strong>
                       </div>
                     </div>
                     <div v-if="item.first_token_ms > 0 || item.duration_ms > 0" class="agent-runtime-detail__section">
-                      <div class="agent-runtime-detail__section-title">耗时</div>
+                      <div class="agent-runtime-detail__section-title">{{ t("system.ai.chat.field.duration") }}</div>
                       <div v-if="item.first_token_ms > 0" class="agent-runtime-detail__row">
-                        <span>首 Token</span>
+                        <span>{{ t("system.ai.chat.field.firstToken") }}</span>
                         <strong>{{ formatDurationMs(item.first_token_ms) }}</strong>
                       </div>
                       <div v-if="item.duration_ms > 0" class="agent-runtime-detail__row is-total">
-                        <span>总耗时</span>
+                        <span>{{ t("system.ai.chat.field.totalDuration") }}</span>
                         <strong>{{ formatDurationMs(item.duration_ms) }}</strong>
                       </div>
                     </div>
@@ -262,8 +264,12 @@
                   @keydown.meta.enter.prevent="submitMessageEdit(item)"
                 />
                 <div class="agent-message-edit__footer">
-                  <el-button size="small" :disabled="sending" @click="cancelMessageEdit">取消</el-button>
-                  <el-button size="small" type="primary" :loading="sending" @click="submitMessageEdit(item)">发送</el-button>
+                  <el-button size="small" :disabled="sending" @click="cancelMessageEdit">
+                    {{ t("common.action.cancel") }}
+                  </el-button>
+                  <el-button size="small" type="primary" :loading="sending" @click="submitMessageEdit(item)">
+                    {{ t("system.ai.chat.action.send") }}
+                  </el-button>
                 </div>
               </div>
             </div>
@@ -275,8 +281,8 @@
         <section v-if="hasShortcutPanel" class="agent-shortcuts agent-shortcuts--compact">
           <div class="agent-shortcuts__head">
             <div>
-              <div class="agent-shortcuts__eyebrow">快捷操作</div>
-              <div class="agent-shortcuts__title">继续调用常用流程</div>
+              <div class="agent-shortcuts__eyebrow">{{ t("system.ai.chat.shortcut.eyebrow") }}</div>
+              <div class="agent-shortcuts__title">{{ t("system.ai.chat.shortcut.continueTitle") }}</div>
             </div>
             <div class="agent-shortcuts__actions">
               <span class="agent-shortcuts__count">{{ shortcutBatchLabel }}</span>
@@ -287,12 +293,14 @@
                 :disabled="sending"
                 @click="refreshShortcutBatch"
               >
-                <span>换一批</span>
+                <span>{{ t("system.ai.chat.action.refreshShortcuts") }}</span>
                 <el-icon><Refresh /></el-icon>
               </button>
             </div>
           </div>
-          <div v-if="loadingShortcuts" class="agent-shortcuts__loading">正在加载快捷入口...</div>
+          <div v-if="loadingShortcuts" class="agent-shortcuts__loading">
+            {{ t("system.ai.chat.message.loadingShortcuts") }}
+          </div>
           <div v-else class="agent-shortcuts__grid">
             <button
               v-for="shortcut in shortcutVisibleList"
@@ -325,6 +333,7 @@ import { Attachments, BubbleList } from "vue-element-plus-x";
 import type { FilesCardProps } from "vue-element-plus-x/types/FilesCard";
 import { Check, CopyDocument, DataAnalysis, Delete, EditPen, Link, Memo, PieChart, Refresh, User } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
+import { getCurrentLocale, t } from "@liujitcn/kratos-admin-core";
 import type { AiAction } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_message";
 import { type AiAttachment, type AiSession } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import type { AiShortcut, AiToolCall } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
@@ -508,9 +517,9 @@ const activeFlowMessageID = computed(() => {
 
 const welcomeTitle = computed(() => {
   const hour = new Date().getHours();
-  if (hour < 12) return "上午好，我是通用 AI 助手";
-  if (hour < 18) return "下午好，我是通用 AI 助手";
-  return "晚上好，我是通用 AI 助手";
+  if (hour < 12) return t("system.ai.chat.welcome.morning");
+  if (hour < 18) return t("system.ai.chat.welcome.afternoon");
+  return t("system.ai.chat.welcome.evening");
 });
 
 const shortcutAllList = computed(() =>
@@ -533,8 +542,8 @@ const canRefreshShortcutBatch = computed(() => shortcutAllList.value.length > SH
 
 const shortcutBatchLabel = computed(() => {
   const total = shortcutAllList.value.length;
-  if (props.loadingShortcuts && total === 0) return "加载中";
-  if (total <= SHORTCUT_BATCH_SIZE) return `${total} 项`;
+  if (props.loadingShortcuts && total === 0) return t("system.ai.chat.status.loading");
+  if (total <= SHORTCUT_BATCH_SIZE) return t("system.ai.chat.value.itemCount", { count: total });
   const pageIndex = shortcutBatchIndex.value % shortcutBatchCount.value;
   const start = pageIndex * SHORTCUT_BATCH_SIZE + 1;
   const end = Math.min(start + SHORTCUT_BATCH_SIZE - 1, total);
@@ -629,9 +638,9 @@ function resolveShortcutIcon(shortcut: AiShortcut) {
 
 /** 展示快捷入口的分组和工具依赖摘要，帮助运营判断动作上下文。 */
 function resolveShortcutMeta(shortcut: AiShortcut) {
-  const group = shortcut.group || "通用助手";
+  const group = shortcut.group || t("system.ai.chat.value.generalAssistant");
   const toolCount = shortcut.required_tools?.length ?? 0;
-  return toolCount > 0 ? `${group} · ${toolCount} 个工具` : group;
+  return toolCount > 0 ? t("system.ai.chat.value.shortcutTools", { group, count: toolCount }) : group;
 }
 
 /** 生成快捷入口对应的流程动作。 */
@@ -667,23 +676,31 @@ function parseActionPayload(payload?: string) {
 function resolveMessageActions(item: ChatMessageItem) {
   if (item.progressState === "streaming" || item.status === AiMessageStatus.GENERATING_AMS) return [];
 
-  const copyAction: MessageActionOption = { key: "copy" as const, label: "复制", icon: CopyDocument };
-  const deleteAction: MessageActionOption = { key: "delete" as const, label: "删除", icon: Delete };
-  const editAction: MessageActionOption = { key: "edit" as const, label: "编辑", icon: EditPen };
+  const copyAction: MessageActionOption = {
+    key: "copy" as const,
+    label: t("system.ai.chat.action.copy"),
+    icon: CopyDocument
+  };
+  const deleteAction: MessageActionOption = { key: "delete" as const, label: t("common.action.delete"), icon: Delete };
+  const editAction: MessageActionOption = { key: "edit" as const, label: t("common.action.edit"), icon: EditPen };
   if (item.role === "user") {
     const actions = isLastEditableUserMessage(item) ? [editAction, copyAction, deleteAction] : [copyAction, deleteAction];
     if (item.status === AiMessageStatus.FAILED_AMS) {
       return item.localOnly
-        ? [{ key: "retry" as const, label: "重新发送", icon: Refresh }, copyAction, deleteAction]
-        : [{ key: "retry" as const, label: "重新发送", icon: Refresh }, ...actions];
+        ? [{ key: "retry" as const, label: t("system.ai.chat.action.resend"), icon: Refresh }, copyAction, deleteAction]
+        : [{ key: "retry" as const, label: t("system.ai.chat.action.resend"), icon: Refresh }, ...actions];
     }
     return item.localOnly ? [copyAction, deleteAction] : actions;
   }
 
-  const actions: MessageActionOption[] = [{ key: "retry" as const, label: "重新生成", icon: Refresh }];
+  const actions: MessageActionOption[] = [{ key: "retry" as const, label: t("system.ai.chat.action.regenerate"), icon: Refresh }];
   if (item.status === AiMessageStatus.SUCCESS_AMS) {
-    actions.push({ key: "branch" as const, label: "从此处创建分支会话", icon: BranchActionIcon });
-    actions.push({ key: "speak" as const, label: item.speaking ? "停止朗读" : "朗读", icon: SpeakActionIcon });
+    actions.push({ key: "branch" as const, label: t("system.ai.chat.action.createBranch"), icon: BranchActionIcon });
+    actions.push({
+      key: "speak" as const,
+      label: item.speaking ? t("system.ai.chat.action.stopSpeaking") : t("system.ai.chat.action.speak"),
+      icon: SpeakActionIcon
+    });
   }
   return [...actions, copyAction, deleteAction];
 }
@@ -696,7 +713,7 @@ function isAIFailedMessage(item: ChatMessageItem) {
 /** 返回助手错误摘要，优先展示服务端可读错误。 */
 function resolveAIErrorMessage(item: ChatMessageItem) {
   const content = String(item.content ?? "").trim();
-  return content || "这次回复没有成功返回，你可以直接重试刚才的问题。";
+  return content || t("system.ai.chat.message.replyFailed");
 }
 
 /** 判断助手消息是否存在最终用量信息。 */
@@ -720,7 +737,7 @@ function formatDurationMs(value?: number) {
 function resolveMessageReplyTime(item: ChatMessageItem) {
   const timestamp = resolveMessageCreatedAt(item);
   if (!timestamp) return "";
-  return new Intl.DateTimeFormat("zh-CN", {
+  return new Intl.DateTimeFormat(getCurrentLocale(), {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -749,7 +766,7 @@ function formatCompactNumber(value?: number) {
 
 /** 格式化明细数字，保持 Token 明细易读。 */
 function formatNumber(value?: number) {
-  return new Intl.NumberFormat("zh-CN").format(Number(value ?? 0));
+  return new Intl.NumberFormat(getCurrentLocale()).format(Number(value ?? 0));
 }
 
 /** 生成工具标签稳定键。 */
@@ -782,7 +799,7 @@ function resolveVisibleTools(item: ChatMessageItem) {
 
 /** 生成工具展示名称。 */
 function resolveToolTitle(tool: AiToolCall) {
-  return tool.title || tool.name || "工具";
+  return tool.title || tool.name || t("system.ai.chat.value.tool");
 }
 
 /** 返回工具真实名称，用于排障时识别具体 Agent Tool。 */
@@ -797,7 +814,7 @@ function resolveToolStatusClass(status?: string) {
 
 /** 生成工具状态展示文案。 */
 function resolveToolStatusText(status?: string) {
-  return isToolFailed(status) ? "失败" : "已完成";
+  return isToolFailed(status) ? t("system.ai.chat.status.failed") : t("system.ai.chat.status.completed");
 }
 
 /** 判断工具调用是否失败，兼容后端历史状态值。 */
@@ -876,9 +893,9 @@ function formatToolArgumentValue(value: unknown) {
 async function handleCopyToolRequest(tool: AiToolCall) {
   try {
     await navigator.clipboard.writeText(formatToolRequest(tool));
-    ElMessage.success("请求报文已复制");
+    ElMessage.success(t("system.ai.chat.message.requestCopied"));
   } catch {
-    ElMessage.error("当前浏览器不支持复制");
+    ElMessage.error(t("system.ai.chat.message.copyUnsupported"));
   }
 }
 
@@ -924,11 +941,11 @@ function submitMessageEdit(item: ChatMessageItem) {
   if (props.sending) return;
   const content = editingContent.value;
   if (content === "") {
-    ElMessage.warning("消息内容不能为空");
+    ElMessage.warning(t("system.ai.chat.message.contentRequired"));
     return;
   }
   if (content === String(item.content ?? "")) {
-    ElMessage.info("消息内容没有变化");
+    ElMessage.info(t("system.ai.chat.message.contentUnchanged"));
     return;
   }
   emit("messageEdit", { item, content });
@@ -942,9 +959,9 @@ function shouldConfirmMessageAction(action: ChatMessageAction) {
 
 /** 返回消息操作确认文案，避免误删或误覆盖当前气泡。 */
 function resolveActionConfirmTitle(action: ChatMessageAction, item: ChatMessageItem) {
-  if (action === "delete") return "确认删除当前消息？";
-  if (item.role === "user") return "确认重新发送当前消息？";
-  return "重新生成会覆盖当前消息";
+  if (action === "delete") return t("system.ai.chat.dialog.confirmDeleteMessage");
+  if (item.role === "user") return t("system.ai.chat.dialog.confirmResendMessage");
+  return t("system.ai.chat.dialog.confirmRegenerateMessage");
 }
 
 /** 统一回复来源标签配色。 */

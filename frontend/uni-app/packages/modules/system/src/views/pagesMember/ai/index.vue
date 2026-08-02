@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onLoad } from '@dcloudio/uni-app'
-import { computed, nextTick, onBeforeUnmount, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { defAiMessageService, StreamAiMessageByChunkedRequest } from '../../../api/base/ai_message'
 import { defAiSessionService } from '../../../api/base/ai_session'
 import { defAiToolService } from '../../../api/base/ai_tool'
@@ -13,7 +13,7 @@ import { formatSrc } from '@liujitcn/kratos-uni-app-core/utils/index'
 import Composer from './components/Composer.vue'
 import SessionDrawer from './components/SessionDrawer.vue'
 import WelcomePanel from './components/WelcomePanel.vue'
-import { navigateAppRoute } from '@liujitcn/kratos-uni-app-core'
+import { navigateAppRoute, useI18n } from '@liujitcn/kratos-uni-app-core'
 import {
   type AiStreamEvent,
   type AiStreamPayload,
@@ -56,11 +56,11 @@ type StreamTask = {
 }
 
 const AI_TERMINAL = Terminal.TERMINAL_APP
-const THINKING_MESSAGE_CONTENT = '正在回复'
 const LOCAL_USER_MESSAGE_PREFIX = 'ai-user-local'
 const PENDING_MESSAGE_ID = 'pending'
 const MAX_ATTACHMENT_COUNT = 6
 const STARTER_PROMPT_PAGE_SIZE = 4
+const { locale, t } = useI18n()
 
 const windowInfo = uni.getWindowInfo()
 let safeAreaTop =
@@ -92,44 +92,45 @@ const runningStreamTaskMap = new Map<string, StreamTask>()
 const pendingDeltaMap = new Map<string, AiStreamPayload>()
 let pendingDeltaTimer = 0
 
-const starterShortcuts = ref<AiShortcut[]>([
+const createStarterShortcuts = (): AiShortcut[] => [
   {
     key: 'summarize',
-    title: '帮我总结一段内容',
-    prompt: '请帮我总结以下内容',
+    title: t('system.ai.prompt.summary'),
+    prompt: t('system.ai.prompt.summaryContent'),
     action: undefined,
     required_tools: [],
     sort: 1,
-    group: '文本助手',
+    group: t('system.ai.textAssistant'),
   },
   {
     key: 'rewrite',
-    title: '帮我优化一段文字',
-    prompt: '请帮我优化以下文字',
+    title: t('system.ai.prompt.optimize'),
+    prompt: t('system.ai.prompt.optimizeContent'),
     action: undefined,
     required_tools: [],
     sort: 2,
-    group: '文本助手',
+    group: t('system.ai.textAssistant'),
   },
   {
     key: 'plan',
-    title: '帮我制定一个计划',
-    prompt: '请帮我制定一个清晰的执行计划',
+    title: t('system.ai.prompt.plan'),
+    prompt: t('system.ai.prompt.planContent'),
     action: undefined,
     required_tools: [],
     sort: 3,
-    group: '效率助手',
+    group: t('system.ai.efficiencyAssistant'),
   },
   {
     key: 'ideas',
-    title: '给我一些灵感',
-    prompt: '请围绕这个主题给我一些新想法',
+    title: t('system.ai.prompt.idea'),
+    prompt: t('system.ai.prompt.ideaContent'),
     action: undefined,
     required_tools: [],
     sort: 4,
-    group: '效率助手',
+    group: t('system.ai.efficiencyAssistant'),
   },
-])
+]
+const starterShortcuts = ref<AiShortcut[]>(createStarterShortcuts())
 
 const filteredSessions = computed(() => {
   const keyword = sessionKeyword.value.trim()
@@ -158,27 +159,29 @@ const starterPrompts = computed(() => {
 const aiGreetingPeriod = computed(() => {
   const hour = new Date().getHours()
   if (hour < 11) {
-    return '上午'
+    return t('system.ai.period.morning')
   }
   if (hour < 14) {
-    return '中午'
+    return t('system.ai.period.noon')
   }
   if (hour < 18) {
-    return '下午'
+    return t('system.ai.period.afternoon')
   }
-  return '晚上'
+  return t('system.ai.period.evening')
 })
-const aiGreetingMessage = computed(
-  () => `您好，${aiGreetingPeriod.value}好！今天有什么需要我协助的吗？`,
+const aiGreetingMessage = computed(() =>
+  t('system.ai.greeting', { period: aiGreetingPeriod.value }),
 )
 const composerPlaceholder = computed(() => {
   if (isRecording.value) {
-    return '正在听...'
+    return t('system.ai.recording')
   }
   if (uploadingAttachment.value) {
-    return '附件上传中...'
+    return t('system.ai.attachmentUploading')
   }
-  return hasMessages.value ? '继续输入问题' : '输入你想了解的内容'
+  return hasMessages.value
+    ? t('system.ai.placeholder.continue')
+    : t('system.ai.placeholder.default')
 })
 const isSubmitDisabled = computed(
   () =>
@@ -191,6 +194,11 @@ const isSubmitDisabled = computed(
 onLoad(() => {
   void loadAiShortcuts()
   void ensureSessionsLoaded()
+})
+
+watch(locale, () => {
+  starterShortcuts.value = createStarterShortcuts()
+  void loadAiShortcuts()
 })
 
 onBeforeUnmount(() => {
@@ -224,16 +232,18 @@ const createSession = async () => {
     sessionKeyword.value = ''
     showSessionDrawer.value = false
   } catch (error) {
-    showError(error, '创建会话失败')
+    showError(error, t('system.ai.createSessionFailed'))
   }
 }
 
 const deleteSession = async (sessionID: string) => {
   const session = sessions.value.find((item) => item.id === sessionID)
   const result = await uni.showModal({
-    title: '删除会话',
-    content: `是否删除「${session?.title || '当前会话'}」？`,
-    confirmText: '删除',
+    title: t('system.ai.deleteSession'),
+    content: t('system.ai.deleteSessionConfirm', {
+      title: session?.title || t('system.ai.currentSession'),
+    }),
+    confirmText: t('common.action.delete'),
     confirmColor: '#cf4444',
   })
   if (!result.confirm) {
@@ -249,13 +259,13 @@ const deleteSession = async (sessionID: string) => {
       await ensureActiveSession()
     }
   } catch (error) {
-    showError(error, '删除会话失败')
+    showError(error, t('system.ai.deleteSessionFailed'))
   }
 }
 
 const handleSessionAction = (session: AiSession) => {
   uni.showActionSheet({
-    itemList: ['删除会话'],
+    itemList: [t('system.ai.deleteSession')],
     success: ({ tapIndex }) => {
       if (tapIndex === 0) {
         void deleteSession(session.id)
@@ -267,7 +277,7 @@ const handleSessionAction = (session: AiSession) => {
 const copyMessage = (item: ChatMessageItem) => {
   uni.setClipboardData({
     data: item.content,
-    success: () => uni.showToast({ icon: 'none', title: '消息已复制' }),
+    success: () => uni.showToast({ icon: 'none', title: t('system.ai.copySuccess') }),
   })
 }
 
@@ -287,7 +297,7 @@ const deleteMessage = async (item: ChatMessageItem) => {
       (message) => message.messageID !== item.messageID,
     )
   } catch (error) {
-    showError(error, '删除消息失败')
+    showError(error, t('system.ai.deleteMessageFailed'))
   }
 }
 
@@ -306,14 +316,17 @@ const regenerateMessage = async (item: ChatMessageItem) => {
       upsertSession(normalizeSession(response.session))
     }
   } catch (error) {
-    showError(error, '重新生成失败')
+    showError(error, t('system.ai.regenerateFailed'))
   } finally {
     setSessionSending(activeSessionID.value, false)
   }
 }
 
 const handleMessageAction = (item: ChatMessageItem) => {
-  const itemList = item.role === 'ai' ? ['复制', '删除', '重新生成'] : ['复制', '删除']
+  const itemList =
+    item.role === 'ai'
+      ? [t('system.ai.action.copy'), t('common.action.delete'), t('system.ai.action.regenerate')]
+      : [t('system.ai.action.copy'), t('common.action.delete')]
   uni.showActionSheet({
     itemList,
     success: ({ tapIndex }) => {
@@ -341,7 +354,7 @@ const handleSend = async () => {
   if (isSubmitDisabled.value) {
     return
   }
-  const text = inputText.value.trim() || '请结合附件内容回答我的问题'
+  const text = inputText.value.trim() || t('system.ai.attachmentAnswer')
   inputText.value = ''
   const attachments = [...selectedAttachments.value]
   selectedAttachments.value = []
@@ -369,7 +382,7 @@ const handleToggleRecord = () => {
   isRecording.value = !isRecording.value
   uni.showToast({
     icon: 'none',
-    title: isRecording.value ? '正在识别语音' : '已停止语音输入',
+    title: isRecording.value ? t('system.ai.recognizing') : t('system.ai.speechStopped'),
   })
 }
 
@@ -378,7 +391,10 @@ const handleAttachment = () => {
     return
   }
   if (selectedAttachments.value.length >= MAX_ATTACHMENT_COUNT) {
-    uni.showToast({ icon: 'none', title: `最多上传 ${MAX_ATTACHMENT_COUNT} 个附件` })
+    uni.showToast({
+      icon: 'none',
+      title: t('system.ai.attachmentLimit', { count: MAX_ATTACHMENT_COUNT }),
+    })
     return
   }
 
@@ -396,7 +412,9 @@ const handleAttachment = () => {
           : []
       const files: AttachmentUpload[] = paths.map((path: string, index: number) => ({
         path,
-        name: (tempFiles[index] as { name?: string } | undefined)?.name || `图片${index + 1}`,
+        name:
+          (tempFiles[index] as { name?: string } | undefined)?.name ||
+          t('system.ai.imageName', { index: index + 1 }),
         size: Number((tempFiles[index] as { size?: number } | undefined)?.size || 0),
       }))
       uploadingAttachment.value = true
@@ -414,7 +432,7 @@ const handleAttachment = () => {
           MAX_ATTACHMENT_COUNT,
         )
       } catch (error) {
-        showError(error, '附件上传失败')
+        showError(error, t('system.ai.uploadFailed'))
       } finally {
         uploadingAttachment.value = false
       }
@@ -451,7 +469,7 @@ async function loadAiShortcuts() {
       starterPromptGroupIndex.value = 0
     }
   } catch (error) {
-    showError(error, '加载快捷助手失败')
+    showError(error, t('system.ai.loadShortcutsFailed'))
   } finally {
     loadingShortcuts.value = false
   }
@@ -507,7 +525,7 @@ async function runAiTask(
     await chunkedTask.promise
     parser.flush()
     if (!task.finished && !task.aborted) {
-      throw new Error('AI 助手流式响应未完整返回')
+      throw new Error(t('system.ai.responseIncomplete'))
     }
     // #endif
 
@@ -532,7 +550,7 @@ async function runAiTask(
         signal: controller.signal,
       })
       if (!response.body) {
-        throw new Error('AI 助手流式响应为空')
+        throw new Error(t('system.ai.streamEmpty'))
       }
       await readAiEventStream(
         response.body,
@@ -540,7 +558,7 @@ async function runAiTask(
         controller.signal,
       )
       if (!task.finished && !task.aborted) {
-        throw new Error('AI 助手流式响应未完整返回')
+        throw new Error(t('system.ai.responseIncomplete'))
       }
       handledByStream = true
     }
@@ -550,7 +568,7 @@ async function runAiTask(
       const response = await defAiMessageService.SendAiMessage(request)
       const nextMessages = normalizeNonStreamMessages(response)
       if (!nextMessages.length) {
-        throw new Error('AI 助手响应为空')
+        throw new Error(t('system.ai.responseEmpty'))
       }
       const success = hasSuccessfulAiMessages(nextMessages)
       messages.value[sessionID] = replacePendingMessages(
@@ -570,7 +588,7 @@ async function runAiTask(
     }
     messages.value[sessionID] = markThinkingMessageFailed(messages.value[sessionID] ?? [])
     scrollChatToBottom()
-    showError(error, 'AI 助手请求失败')
+    showError(error, t('system.ai.requestFailed'))
   } finally {
     if (task && runningStreamTaskMap.get(sessionID) === task) {
       runningStreamTaskMap.delete(sessionID)
@@ -721,7 +739,7 @@ function normalizeNonStreamMessages(response: unknown) {
   }
   const errorEvent = [...events].reverse().find((item) => item.event === 'error')
   if (errorEvent) {
-    throw new Error('AI 助手请求失败')
+    throw new Error(t('system.ai.requestFailed'))
   }
   return []
 }
@@ -781,7 +799,7 @@ async function ensureSessionsLoaded() {
       await loadMessages(sessionID)
     }
   } catch (error) {
-    showError(error, '加载会话失败')
+    showError(error, t('system.ai.loadSessionsFailed'))
   } finally {
     loadingSessions.value = false
   }
@@ -805,7 +823,7 @@ async function ensureActiveSession() {
 
 async function createRemoteSession() {
   const response = await defAiSessionService.CreateAiSession({
-    title: '新会话',
+    title: t('system.ai.newSession'),
     terminal: AI_TERMINAL,
   })
   const session = response.session ? normalizeSession(response.session) : undefined
@@ -835,7 +853,7 @@ async function loadMessages(sessionID: string) {
     if (loadingSessionID.value === sessionID) {
       messages.value[sessionID] = []
     }
-    showError(error, '加载消息失败')
+    showError(error, t('system.ai.loadMessagesFailed'))
   } finally {
     if (loadingSessionID.value === sessionID) {
       loadingSessionID.value = ''
@@ -846,7 +864,7 @@ async function loadMessages(sessionID: string) {
 function normalizeSession(session?: Partial<AiSession> | null): AiSession {
   return {
     id: String(session?.id ?? ''),
-    title: String(session?.title ?? '新会话'),
+    title: String(session?.title ?? t('system.ai.newSession')),
     summary: String(session?.summary ?? ''),
     updated_at: session?.updated_at,
     terminal: Number(session?.terminal ?? AI_TERMINAL),
@@ -969,7 +987,7 @@ function createThinkingMessage(options?: { sessionID?: string; messageID?: strin
       input_content: undefined,
       output_content: {
         kind: 'text',
-        content: THINKING_MESSAGE_CONTENT,
+        content: t('system.ai.thinking'),
         reply_source: '',
         model: '',
         fallback: false,
@@ -1030,7 +1048,7 @@ function appendStreamingDelta(current: ChatMessageItem[], payload: AiStreamPaylo
     if (item.streamKey !== streamKey || item.role === 'user') {
       return item
     }
-    const baseContent = item.content === THINKING_MESSAGE_CONTENT ? '' : item.content
+    const baseContent = item.content === t('system.ai.thinking') ? '' : item.content
     return {
       ...item,
       content: `${baseContent}${payload.delta}`,
@@ -1047,8 +1065,7 @@ function markThinkingMessageFailed(current: ChatMessageItem[]) {
     return {
       ...item,
       status: AiMessageStatus.FAILED_AMS,
-      content:
-        item.role === 'ai' ? '这次回复没有成功返回，你可以直接重试刚才的问题。' : item.content,
+      content: item.role === 'ai' ? t('system.ai.failedResponse') : item.content,
     }
   })
 }
@@ -1062,7 +1079,7 @@ function markStreamingError(current: ChatMessageItem[], payload: AiStreamPayload
     return {
       ...item,
       status: AiMessageStatus.FAILED_AMS,
-      content: '这次回复没有成功返回，你可以直接重试刚才的问题。',
+      content: t('system.ai.failedResponse'),
     }
   })
 }
@@ -1075,7 +1092,7 @@ function sortMessages(list: ChatMessageItem[]) {
       if (left.role !== right.role) {
         return left.role === 'user' ? -1 : 1
       }
-      return left.messageID.localeCompare(right.messageID, 'zh-Hans-CN', { numeric: true })
+      return left.messageID.localeCompare(right.messageID, locale.value, { numeric: true })
     }
     return leftTime - rightTime
   })
@@ -1127,7 +1144,7 @@ function isImageAttachment(attachment: AiAttachment) {
 
 function formatAttachmentMeta(attachment: AiAttachment) {
   if (!attachment.size) {
-    return '附件'
+    return t('system.ai.attachment')
   }
   return `${Math.max(1, Math.round(attachment.size / 1024))} KB`
 }
@@ -1151,7 +1168,7 @@ function showError(error: unknown, fallback: string) {
       <button class="nav-back-button" hover-class="none" @tap="navigateBack">
         <uni-icons type="left" size="24" color="#111" />
       </button>
-      <view class="ai-navbar__title">AI 助手</view>
+      <view class="ai-navbar__title">{{ t('system.ai.chatTitle') }}</view>
       <button class="nav-menu-button" hover-class="none" @tap="toggleSessionDrawer">
         <uni-icons type="bars" size="24" color="#111" />
       </button>
@@ -1192,7 +1209,7 @@ function showError(error: unknown, fallback: string) {
             @longpress="handleMessageAction(item)"
           >
             <view v-if="item.role === 'ai' && item.model" class="reply-meta">
-              <text class="reply-tag">模型回复</text>
+              <text class="reply-tag">{{ t('system.ai.modelReply') }}</text>
               <text class="reply-model">{{ item.model }}</text>
             </view>
             <view class="bubble-content">{{ item.content }}</view>
@@ -1204,7 +1221,9 @@ function showError(error: unknown, fallback: string) {
                 @tap="previewAttachment(attachment, item.attachments)"
               >
                 <view class="attachment-icon">{{
-                  isImageAttachment(attachment) ? '图' : '件'
+                  isImageAttachment(attachment)
+                    ? t('system.ai.imageAttachment')
+                    : t('system.ai.attachment')
                 }}</view>
                 <view class="attachment-info">
                   <view class="attachment-name">{{ attachment.name }}</view>
@@ -1212,14 +1231,14 @@ function showError(error: unknown, fallback: string) {
                 </view>
               </view>
             </view>
-            <view v-if="item.tools.length" class="tool-row"
-              >已调用：{{ formatTools(item.tools) }}</view
-            >
+            <view v-if="item.tools.length" class="tool-row">{{
+              t('system.ai.toolCalled', { tools: formatTools(item.tools) })
+            }}</view>
           </view>
         </view>
         <view id="chat-bottom" class="chat-bottom"></view>
       </view>
-      <view v-if="loadingSessionID" class="loading-session">正在加载消息...</view>
+      <view v-if="loadingSessionID" class="loading-session">{{ t('system.ai.loadMessages') }}</view>
     </scroll-view>
 
     <Composer

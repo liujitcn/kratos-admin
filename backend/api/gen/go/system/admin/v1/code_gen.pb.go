@@ -350,11 +350,12 @@ func (x *PreviewCodeGenRequest) GetOutputPaths() *CodeGenOutputPaths {
 
 // 预览代码生成响应
 type PreviewCodeGenResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Files         []*CodeGenPreviewFile  `protobuf:"bytes,1,rep,name=files,proto3" json:"files,omitempty"`                                // 预览文件列表
-	OutputPaths   *CodeGenOutputPaths    `protobuf:"bytes,2,opt,name=output_paths,json=outputPaths,proto3" json:"output_paths,omitempty"` // 本次生效输出路径
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	Files               []*CodeGenPreviewFile  `protobuf:"bytes,1,rep,name=files,proto3" json:"files,omitempty"`                                                        // 预览文件列表
+	OutputPaths         *CodeGenOutputPaths    `protobuf:"bytes,2,opt,name=output_paths,json=outputPaths,proto3" json:"output_paths,omitempty"`                         // 本次生效输出路径
+	MissingTranslations []string               `protobuf:"bytes,3,rep,name=missing_translations,json=missingTranslations,proto3" json:"missing_translations,omitempty"` // 正式生成前必须补齐的翻译配置
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *PreviewCodeGenResponse) Reset() {
@@ -397,6 +398,13 @@ func (x *PreviewCodeGenResponse) GetFiles() []*CodeGenPreviewFile {
 func (x *PreviewCodeGenResponse) GetOutputPaths() *CodeGenOutputPaths {
 	if x != nil {
 		return x.OutputPaths
+	}
+	return nil
+}
+
+func (x *PreviewCodeGenResponse) GetMissingTranslations() []string {
+	if x != nil {
+		return x.MissingTranslations
 	}
 	return nil
 }
@@ -900,10 +908,11 @@ const file_system_admin_v1_code_gen_proto_rawDesc = "" +
 	"\x15PreviewCodeGenRequest\x12\x91\x01\n" +
 	"\btable_id\x18\x01 \x01(\x03Bv\xbaG\x1a\x92\x02\x17代码生成表配置ID\xbaHV\xba\x01S\n" +
 	"\"preview_code_gen.table_id.required\x12#代码生成表配置ID不能为空\x1a\bthis > 0R\atableId\x12f\n" +
-	"\foutput_paths\x18\x02 \x01(\v2#.system.admin.v1.CodeGenOutputPathsB\x1e\xbaG\x1b\x92\x02\x18本次生成输出路径R\voutputPaths\"\xd5\x01\n" +
+	"\foutput_paths\x18\x02 \x01(\v2#.system.admin.v1.CodeGenOutputPathsB\x1e\xbaG\x1b\x92\x02\x18本次生成输出路径R\voutputPaths\"\xba\x02\n" +
 	"\x16PreviewCodeGenResponse\x12S\n" +
 	"\x05files\x18\x01 \x03(\v2#.system.admin.v1.CodeGenPreviewFileB\x18\xbaG\x15\x92\x02\x12预览文件列表R\x05files\x12f\n" +
-	"\foutput_paths\x18\x02 \x01(\v2#.system.admin.v1.CodeGenOutputPathsB\x1e\xbaG\x1b\x92\x02\x18本次生效输出路径R\voutputPaths\"\xd3\x01\n" +
+	"\foutput_paths\x18\x02 \x01(\v2#.system.admin.v1.CodeGenOutputPathsB\x1e\xbaG\x1b\x92\x02\x18本次生效输出路径R\voutputPaths\x12c\n" +
+	"\x14missing_translations\x18\x03 \x03(\tB0\xbaG-\x92\x02*正式生成前必须补齐的翻译配置R\x13missingTranslations\"\xd3\x01\n" +
 	"\x17StartCodeGenTaskRequest\x12\xb7\x01\n" +
 	"\ttable_ids\x18\x01 \x03(\x03B\x99\x01\xbaG \x92\x02\x1d代码生成表配置ID列表\xbaHs\xba\x01i\n" +
 	"&start_code_gen_task.table_ids.positive\x12%代码生成表配置ID必须大于 0\x1a\x18this.all(item, item > 0)\x92\x01\x04\b\x01\x18\x01R\btableIds\"I\n" +

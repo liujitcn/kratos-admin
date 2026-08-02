@@ -3,36 +3,44 @@
     <el-card class="security-card" shadow="never">
       <div class="security-intro">
         <div>
-          <h3>安全设置</h3>
-          <p>管理登录密码、手机验证和账号完整度。</p>
+          <h3>{{ t("system.profile.security.title") }}</h3>
+          <p>{{ t("system.profile.security.description") }}</p>
         </div>
-        <el-tag effect="plain" type="success">账号状态正常</el-tag>
+        <el-tag effect="plain" type="success">{{ t("system.profile.security.value.accountNormal") }}</el-tag>
       </div>
       <div class="security-list">
         <div class="security-item">
           <div class="security-item__content">
-            <strong>登录密码</strong>
-            <p>建议定期更新，避免长期使用同一密码。</p>
+            <strong>{{ t("system.profile.security.field.loginPassword") }}</strong>
+            <p>{{ t("system.profile.security.message.passwordHint") }}</p>
           </div>
-          <el-button type="primary" plain @click="emit('switchTab', 'password')">前往修改</el-button>
+          <el-button type="primary" plain @click="emit('switchTab', 'password')">
+            {{ t("system.profile.security.action.changePassword") }}
+          </el-button>
         </div>
         <div class="security-item">
           <div class="security-item__content">
-            <strong>绑定手机</strong>
+            <strong>{{ t("system.profile.security.field.phone") }}</strong>
             <p>{{ mobileTip }}</p>
           </div>
-          <el-button plain @click="openPhoneDialog">{{ profile.phone ? "更换手机号" : "立即绑定" }}</el-button>
+          <el-button plain @click="openPhoneDialog">
+            {{ profile.phone ? t("system.profile.security.action.changePhone") : t("system.profile.security.action.bindNow") }}
+          </el-button>
         </div>
         <div v-for="item in oauthBindings" :key="item.provider" class="security-item">
           <div class="security-item__content security-item__content--oauth">
-            <el-tooltip :content="item.name" placement="top" :trigger="['hover', 'focus']">
-              <span class="oauth-icon" :aria-label="item.name" :title="item.name">
+            <el-tooltip :content="oauthName(item)" placement="top" :trigger="['hover', 'focus']">
+              <span class="oauth-icon" :aria-label="oauthName(item)" :title="oauthName(item)">
                 <component :is="getOauthProviderIcon(item)" />
               </span>
             </el-tooltip>
             <div>
-              <strong>{{ item.name }}</strong>
-              <p>{{ item.bound ? "已绑定，可用于登录管理后台。" : "未绑定，绑定成功后可用于登录管理后台。" }}</p>
+              <strong>{{ oauthName(item) }}</strong>
+              <p>
+                {{
+                  item.bound ? t("system.profile.security.message.oauthBound") : t("system.profile.security.message.oauthUnbound")
+                }}
+              </p>
             </div>
           </div>
           <el-button
@@ -42,11 +50,11 @@
             :loading="oauthLoadingProvider === item.provider"
             @click="handleUnbindOauth(item)"
           >
-            解绑
+            {{ t("system.profile.security.action.unbind") }}
           </el-button>
-          <el-button v-else plain :loading="oauthLoadingProvider === item.provider" @click="handleBindOauth(item)"
-            >绑定</el-button
-          >
+          <el-button v-else plain :loading="oauthLoadingProvider === item.provider" @click="handleBindOauth(item)">{{
+            t("system.profile.security.action.bind")
+          }}</el-button>
         </div>
       </div>
     </el-card>
@@ -55,30 +63,39 @@
       <template #header>
         <div class="status-header">
           <div>
-            <h3>账号状态</h3>
-            <p>查看当前账号验证状态与资料完整度。</p>
+            <h3>{{ t("system.profile.security.status.title") }}</h3>
+            <p>{{ t("system.profile.security.status.description") }}</p>
           </div>
         </div>
       </template>
       <div class="status-grid">
         <div class="status-item">
-          <span>手机验证</span>
-          <strong>{{ profile.phone ? "已启用" : "未启用" }}</strong>
+          <span>{{ t("system.profile.security.field.phoneVerification") }}</span>
+          <strong>{{ profile.phone ? t("common.status.enabled") : t("common.status.disabled") }}</strong>
         </div>
         <div class="status-item">
-          <span>资料完整度</span>
+          <span>{{ t("system.profile.security.field.profileCompletion") }}</span>
           <strong>{{ profileCompletion }}</strong>
         </div>
       </div>
     </el-card>
 
-    <ProDialog v-model="phoneDialogVisible" title="绑定手机" :width="520" @closed="handleDialogClosed">
+    <ProDialog
+      v-model="phoneDialogVisible"
+      :title="t('system.profile.security.dialog.bindPhone')"
+      :width="520"
+      @closed="handleDialogClosed"
+    >
       <ProForm ref="phoneFormRef" :model="phoneForm" :fields="phoneFormFields" :rules="phoneFormRules" label-width="96px">
         <template #mobileCodeInput>
-          <el-input v-model="phoneForm.code" placeholder="请输入验证码">
+          <el-input v-model="phoneForm.code" :placeholder="t('system.profile.security.placeholder.code')">
             <template #append>
               <el-button :disabled="countdown > 0" @click="handleSendCode">
-                {{ countdown > 0 ? `${countdown}s后重试` : "发送验证码" }}
+                {{
+                  countdown > 0
+                    ? t("system.profile.security.action.retryAfter", { seconds: countdown })
+                    : t("system.profile.security.action.sendCode")
+                }}
               </el-button>
             </template>
           </el-input>
@@ -86,8 +103,10 @@
       </ProForm>
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="phoneDialogVisible = false">取消</el-button>
-          <el-button type="primary" :loading="submitLoading" @click="handleSubmitPhone">保存</el-button>
+          <el-button @click="phoneDialogVisible = false">{{ t("common.action.cancel") }}</el-button>
+          <el-button type="primary" :loading="submitLoading" @click="handleSubmitPhone">
+            {{ t("common.action.save") }}
+          </el-button>
         </div>
       </template>
     </ProDialog>
@@ -97,6 +116,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { t } from "@liujitcn/kratos-admin-core";
 import { defProfileAuthService } from "@liujitcn/kratos-admin-system/api/system/auth";
 import { defProfileOauthService } from "@liujitcn/kratos-admin-system/api/base/oauth";
 import type { OauthBinding } from "@liujitcn/kratos-admin-system/rpc/base/v1/oauth";
@@ -108,13 +128,8 @@ import type {
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import ProForm from "@liujitcn/kratos-admin-core/components/ProForm/index.vue";
 import type { ProFormField, ProFormInstance } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
-import {
-  getOauthProviderIcon,
-  withOauthProviderDisplay,
-  type OauthProviderDisplay
-} from "@liujitcn/kratos-admin-core/security";
+import { getOauthProviderIcon, withOauthProviderDisplay, type OauthProviderDisplay } from "@liujitcn/kratos-admin-core/security";
 import { resolveFrontendRouteURL } from "@liujitcn/kratos-admin-core/navigation";
-import { ElMessage, ElMessageBox } from "element-plus";
 
 /** 安全中心组件属性。 */
 interface ProfileSecurityProps {
@@ -149,22 +164,34 @@ const sendPhoneCodeForm = reactive<SendPhoneCodeRequest>({
   phone: ""
 });
 
-const phoneFormFields: ProFormField[] = [
-  { prop: "phone", label: "手机号码", component: "input", props: { placeholder: "请输入手机号" } },
-  { prop: "code", label: "验证码", component: "slot", slotName: "mobileCodeInput" }
-];
+const phoneFormFields = computed<ProFormField[]>(() => [
+  {
+    prop: "phone",
+    label: t("system.profile.security.field.phoneNumber"),
+    component: "input",
+    props: { placeholder: t("system.profile.security.placeholder.phone") }
+  },
+  {
+    prop: "code",
+    label: t("system.profile.security.field.code"),
+    component: "slot",
+    slotName: "mobileCodeInput"
+  }
+]);
 
-const phoneFormRules = {
+const phoneFormRules = computed(() => ({
   phone: [
-    { required: true, message: "请输入手机号", trigger: "blur" },
-    { pattern: /^1[3-9]\d{9}$/, message: "请输入正确的手机号码", trigger: "blur" }
+    { required: true, message: t("system.profile.security.placeholder.phone"), trigger: "blur" },
+    { pattern: /^1[3-9]\d{9}$/, message: t("system.profile.security.validation.phone"), trigger: "blur" }
   ],
-  code: [{ required: true, message: "请输入验证码", trigger: "blur" }]
-};
+  code: [{ required: true, message: t("system.profile.security.placeholder.code"), trigger: "blur" }]
+}));
 
 /** 根据当前绑定状态输出手机号说明文案。 */
 const mobileTip = computed(() => {
-  return props.profile.phone ? `已绑定：${props.profile.phone}` : "当前未绑定手机。";
+  return props.profile.phone
+    ? t("system.profile.security.message.phoneBound", { phone: props.profile.phone })
+    : t("system.profile.security.message.phoneUnbound");
 });
 
 /** 根据关键资料估算当前资料完成度。 */
@@ -189,6 +216,11 @@ async function loadOauthBindings() {
   oauthBindings.value = result.bindings.map(withOauthProviderDisplay);
 }
 
+/** 根据当前语言返回三方登录方式名称。 */
+function oauthName(binding: SecurityOauthBinding) {
+  return binding.nameKey.includes(".") ? t(binding.nameKey) : binding.nameKey;
+}
+
 /** 处理 OAuth 绑定回跳结果。 */
 async function consumeOauthBindingResult() {
   const bindError = route.query.oauth_bind_error;
@@ -196,7 +228,7 @@ async function consumeOauthBindingResult() {
   if (typeof bindError === "string" && bindError) {
     ElMessage.error(bindError);
   } else if (bindSuccess === "1") {
-    ElMessage.success("三方账号绑定成功");
+    ElMessage.success(t("system.profile.security.message.oauthBindSuccess"));
   } else {
     return;
   }
@@ -230,15 +262,19 @@ async function handleBindOauth(binding: SecurityOauthBinding) {
 
 /** 解绑三方账号并刷新绑定状态。 */
 async function handleUnbindOauth(binding: SecurityOauthBinding) {
-  await ElMessageBox.confirm(`是否确定解绑该登录方式？\n登录方式：${binding.name}`, "提示", {
-    type: "warning",
-    confirmButtonText: "解绑",
-    cancelButtonText: "取消"
-  });
+  await ElMessageBox.confirm(
+    t("system.profile.security.dialog.confirmUnbind", { provider: oauthName(binding) }),
+    t("common.title.warning"),
+    {
+      type: "warning",
+      confirmButtonText: t("system.profile.security.action.unbind"),
+      cancelButtonText: t("common.action.cancel")
+    }
+  );
   oauthLoadingProvider.value = binding.provider;
   try {
     await defProfileOauthService.UnbindOauthAccount({ provider: binding.provider });
-    ElMessage.success("三方账号已解绑");
+    ElMessage.success(t("system.profile.security.message.oauthUnbindSuccess"));
     await loadOauthBindings();
   } finally {
     oauthLoadingProvider.value = "";
@@ -255,17 +291,17 @@ function openPhoneDialog() {
 /** 发送手机验证码并启动倒计时。 */
 async function handleSendCode() {
   if (!phoneForm.phone) {
-    ElMessage.error("请输入手机号");
+    ElMessage.error(t("system.profile.security.placeholder.phone"));
     return;
   }
   if (!/^1[3-9]\d{9}$/.test(phoneForm.phone)) {
-    ElMessage.error("手机号格式不正确");
+    ElMessage.error(t("system.profile.security.validation.phone"));
     return;
   }
 
   sendPhoneCodeForm.phone = phoneForm.phone;
   await defProfileAuthService.SendPhoneCode(sendPhoneCodeForm);
-  ElMessage.success("验证码已发送");
+  ElMessage.success(t("system.profile.security.message.codeSent"));
   startCountdown();
 }
 
@@ -276,7 +312,7 @@ async function handleSubmitPhone() {
   submitLoading.value = true;
   try {
     await defProfileAuthService.UpdateUserPhone({ user_phone: phoneForm });
-    ElMessage.success("手机号更新成功");
+    ElMessage.success(t("system.profile.security.message.phoneUpdated"));
     phoneDialogVisible.value = false;
     emit("refreshed");
   } finally {

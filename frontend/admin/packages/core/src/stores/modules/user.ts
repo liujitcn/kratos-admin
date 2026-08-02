@@ -6,6 +6,7 @@ import type { UserInfoForm } from "@/rpc/system/admin/v1/auth";
 import { UserState } from "@/stores/interface";
 import piniaPersistConfig from "@/stores/helper/persist";
 import { useDictStoreHook } from "@/stores/modules/dict";
+import { t } from "@/locales";
 
 const defaultUserInfo: UserInfoForm = {
   user_name: "",
@@ -71,7 +72,7 @@ export const useUserStore = defineStore("admin-user", {
     /** 刷新认证令牌 */
     async refreshAccessToken() {
       if (!this.refreshToken) {
-        return Promise.reject(new Error("refresh token 不存在"));
+        return Promise.reject(new Error(t("core.auth.refreshTokenMissing")));
       }
 
       const data = await defLoginService.RefreshToken({ refresh_token: this.refreshToken });

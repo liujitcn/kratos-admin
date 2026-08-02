@@ -346,24 +346,25 @@ func (x *CodeGenDatabaseColumn) GetIsNullable() bool {
 
 // 代码生成字段配置
 type CodeGenColumn struct {
-	state           protoimpl.MessageState    `protogen:"open.v1"`
-	Id              int64                     `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                    // 主键ID
-	TableId         int64                     `protobuf:"varint,2,opt,name=table_id,json=tableId,proto3" json:"table_id,omitempty"`                           // 代码生成表配置ID
-	Name            string                    `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                                 // 数据库字段名
-	Comment         string                    `protobuf:"bytes,4,opt,name=comment,proto3" json:"comment,omitempty"`                                           // 数据库字段注释
-	DbType          string                    `protobuf:"bytes,5,opt,name=db_type,json=dbType,proto3" json:"db_type,omitempty"`                               // 数据库字段类型
-	DbLength        int32                     `protobuf:"varint,6,opt,name=db_length,json=dbLength,proto3" json:"db_length,omitempty"`                        // 数据库字段长度
-	DbScale         int32                     `protobuf:"varint,7,opt,name=db_scale,json=dbScale,proto3" json:"db_scale,omitempty"`                           // 数据库字段小数位
-	IsPrimary       bool                      `protobuf:"varint,8,opt,name=is_primary,json=isPrimary,proto3" json:"is_primary,omitempty"`                     // 是否主键
-	IsAutoIncrement bool                      `protobuf:"varint,9,opt,name=is_auto_increment,json=isAutoIncrement,proto3" json:"is_auto_increment,omitempty"` // 是否自增
-	IsNullable      bool                      `protobuf:"varint,10,opt,name=is_nullable,json=isNullable,proto3" json:"is_nullable,omitempty"`                 // 是否允许为空
-	GoType          string                    `protobuf:"bytes,11,opt,name=go_type,json=goType,proto3" json:"go_type,omitempty"`                              // Go字段类型
-	ProtoType       string                    `protobuf:"bytes,12,opt,name=proto_type,json=protoType,proto3" json:"proto_type,omitempty"`                     // Proto字段类型
-	TsType          string                    `protobuf:"bytes,13,opt,name=ts_type,json=tsType,proto3" json:"ts_type,omitempty"`                              // TypeScript字段类型
-	QueryConfig     *CodeGenColumnQueryConfig `protobuf:"bytes,14,opt,name=query_config,json=queryConfig,proto3" json:"query_config,omitempty"`               // 查询条件配置
-	ListConfig      *CodeGenColumnListConfig  `protobuf:"bytes,15,opt,name=list_config,json=listConfig,proto3" json:"list_config,omitempty"`                  // 列表展示配置
-	FormConfig      *CodeGenColumnFormConfig  `protobuf:"bytes,16,opt,name=form_config,json=formConfig,proto3" json:"form_config,omitempty"`                  // 表单录入配置
-	Sort            int32                     `protobuf:"varint,17,opt,name=sort,proto3" json:"sort,omitempty"`                                               // 排序
+	state           protoimpl.MessageState          `protogen:"open.v1"`
+	Id              int64                           `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                                                             // 主键ID
+	TableId         int64                           `protobuf:"varint,2,opt,name=table_id,json=tableId,proto3" json:"table_id,omitempty"`                                                                                    // 代码生成表配置ID
+	Name            string                          `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                                                                                          // 数据库字段名
+	Comment         string                          `protobuf:"bytes,4,opt,name=comment,proto3" json:"comment,omitempty"`                                                                                                    // 数据库字段注释
+	DbType          string                          `protobuf:"bytes,5,opt,name=db_type,json=dbType,proto3" json:"db_type,omitempty"`                                                                                        // 数据库字段类型
+	DbLength        int32                           `protobuf:"varint,6,opt,name=db_length,json=dbLength,proto3" json:"db_length,omitempty"`                                                                                 // 数据库字段长度
+	DbScale         int32                           `protobuf:"varint,7,opt,name=db_scale,json=dbScale,proto3" json:"db_scale,omitempty"`                                                                                    // 数据库字段小数位
+	IsPrimary       bool                            `protobuf:"varint,8,opt,name=is_primary,json=isPrimary,proto3" json:"is_primary,omitempty"`                                                                              // 是否主键
+	IsAutoIncrement bool                            `protobuf:"varint,9,opt,name=is_auto_increment,json=isAutoIncrement,proto3" json:"is_auto_increment,omitempty"`                                                          // 是否自增
+	IsNullable      bool                            `protobuf:"varint,10,opt,name=is_nullable,json=isNullable,proto3" json:"is_nullable,omitempty"`                                                                          // 是否允许为空
+	GoType          string                          `protobuf:"bytes,11,opt,name=go_type,json=goType,proto3" json:"go_type,omitempty"`                                                                                       // Go字段类型
+	ProtoType       string                          `protobuf:"bytes,12,opt,name=proto_type,json=protoType,proto3" json:"proto_type,omitempty"`                                                                              // Proto字段类型
+	TsType          string                          `protobuf:"bytes,13,opt,name=ts_type,json=tsType,proto3" json:"ts_type,omitempty"`                                                                                       // TypeScript字段类型
+	QueryConfig     *CodeGenColumnQueryConfig       `protobuf:"bytes,14,opt,name=query_config,json=queryConfig,proto3" json:"query_config,omitempty"`                                                                        // 查询条件配置
+	ListConfig      *CodeGenColumnListConfig        `protobuf:"bytes,15,opt,name=list_config,json=listConfig,proto3" json:"list_config,omitempty"`                                                                           // 列表展示配置
+	FormConfig      *CodeGenColumnFormConfig        `protobuf:"bytes,16,opt,name=form_config,json=formConfig,proto3" json:"form_config,omitempty"`                                                                           // 表单录入配置
+	Sort            int32                           `protobuf:"varint,17,opt,name=sort,proto3" json:"sort,omitempty"`                                                                                                        // 排序
+	I18NConfig      map[string]*CodeGenLocaleConfig `protobuf:"bytes,18,rep,name=i18n_config,json=i18nConfig,proto3" json:"i18n_config,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // 按语言区域索引的字段国际化配置
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -515,6 +516,13 @@ func (x *CodeGenColumn) GetSort() int32 {
 		return x.Sort
 	}
 	return 0
+}
+
+func (x *CodeGenColumn) GetI18NConfig() map[string]*CodeGenLocaleConfig {
+	if x != nil {
+		return x.I18NConfig
+	}
+	return nil
 }
 
 // 代码生成字段查询条件配置
@@ -837,7 +845,7 @@ var File_system_admin_v1_code_gen_column_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_code_gen_column_proto_rawDesc = "" +
 	"\n" +
-	"%system/admin/v1/code_gen_column.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xb2\x01\n" +
+	"%system/admin/v1/code_gen_column.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a&system/admin/v1/base_translation.proto\"\xb2\x01\n" +
 	"\x18ListCodeGenColumnRequest\x12\x95\x01\n" +
 	"\btable_id\x18\x01 \x01(\x03Bz\xbaG\x1a\x92\x02\x17代码生成表配置ID\xbaHZ\xba\x01W\n" +
 	"&list_code_gen_column.table_id.required\x12#代码生成表配置ID不能为空\x1a\bthis > 0R\atableId\"\x8b\x01\n" +
@@ -863,7 +871,8 @@ const file_system_admin_v1_code_gen_column_proto_rawDesc = "" +
 	"\n" +
 	"is_primary\x18\x05 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否主键R\tisPrimary\x129\n" +
 	"\vis_nullable\x18\x06 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否允许为空R\n" +
-	"isNullable\"\x99\b\n" +
+	"isNullable\"\x85\n" +
+	"\n" +
 	"\rCodeGenColumn\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x128\n" +
 	"\btable_id\x18\x02 \x01(\x03B\x1d\xbaG\x1a\x92\x02\x17代码生成表配置IDR\atableId\x12,\n" +
@@ -887,7 +896,12 @@ const file_system_admin_v1_code_gen_column_proto_rawDesc = "" +
 	"listConfig\x12c\n" +
 	"\vform_config\x18\x10 \x01(\v2(.system.admin.v1.CodeGenColumnFormConfigB\x18\xbaG\x15\x92\x02\x12表单录入配置R\n" +
 	"formConfig\x12 \n" +
-	"\x04sort\x18\x11 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\"\x91\x02\n" +
+	"\x04sort\x18\x11 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12\x84\x01\n" +
+	"\vi18n_config\x18\x12 \x03(\v2..system.admin.v1.CodeGenColumn.I18nConfigEntryB3\xbaG0\x92\x02-按语言区域索引的字段国际化配置R\n" +
+	"i18nConfig\x1ac\n" +
+	"\x0fI18nConfigEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12:\n" +
+	"\x05value\x18\x02 \x01(\v2$.system.admin.v1.CodeGenLocaleConfigR\x05value:\x028\x01\"\x91\x02\n" +
 	"\x18CodeGenColumnQueryConfig\x122\n" +
 	"\aenabled\x18\x01 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否启用查询R\aenabled\x121\n" +
 	"\boperator\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f查询操作符R\boperator\x120\n" +
@@ -934,7 +948,7 @@ func file_system_admin_v1_code_gen_column_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_code_gen_column_proto_rawDescData
 }
 
-var file_system_admin_v1_code_gen_column_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_system_admin_v1_code_gen_column_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_system_admin_v1_code_gen_column_proto_goTypes = []any{
 	(*ListCodeGenColumnRequest)(nil),          // 0: system.admin.v1.ListCodeGenColumnRequest
 	(*ListCodeGenColumnResponse)(nil),         // 1: system.admin.v1.ListCodeGenColumnResponse
@@ -947,7 +961,9 @@ var file_system_admin_v1_code_gen_column_proto_goTypes = []any{
 	(*CodeGenColumnListConfig)(nil),           // 8: system.admin.v1.CodeGenColumnListConfig
 	(*CodeGenColumnFormConfig)(nil),           // 9: system.admin.v1.CodeGenColumnFormConfig
 	(*CodeGenColumnOptionConfig)(nil),         // 10: system.admin.v1.CodeGenColumnOptionConfig
-	(*emptypb.Empty)(nil),                     // 11: google.protobuf.Empty
+	nil,                                       // 11: system.admin.v1.CodeGenColumn.I18nConfigEntry
+	(*CodeGenLocaleConfig)(nil),               // 12: system.admin.v1.CodeGenLocaleConfig
+	(*emptypb.Empty)(nil),                     // 13: google.protobuf.Empty
 }
 var file_system_admin_v1_code_gen_column_proto_depIdxs = []int32{
 	6,  // 0: system.admin.v1.ListCodeGenColumnResponse.code_gen_columns:type_name -> system.admin.v1.CodeGenColumn
@@ -956,20 +972,22 @@ var file_system_admin_v1_code_gen_column_proto_depIdxs = []int32{
 	7,  // 3: system.admin.v1.CodeGenColumn.query_config:type_name -> system.admin.v1.CodeGenColumnQueryConfig
 	8,  // 4: system.admin.v1.CodeGenColumn.list_config:type_name -> system.admin.v1.CodeGenColumnListConfig
 	9,  // 5: system.admin.v1.CodeGenColumn.form_config:type_name -> system.admin.v1.CodeGenColumnFormConfig
-	10, // 6: system.admin.v1.CodeGenColumnQueryConfig.option:type_name -> system.admin.v1.CodeGenColumnOptionConfig
-	10, // 7: system.admin.v1.CodeGenColumnListConfig.option:type_name -> system.admin.v1.CodeGenColumnOptionConfig
-	10, // 8: system.admin.v1.CodeGenColumnFormConfig.option:type_name -> system.admin.v1.CodeGenColumnOptionConfig
-	0,  // 9: system.admin.v1.CodeGenColumnService.ListCodeGenColumn:input_type -> system.admin.v1.ListCodeGenColumnRequest
-	2,  // 10: system.admin.v1.CodeGenColumnService.ListCodeGenDatabaseColumn:input_type -> system.admin.v1.ListCodeGenDatabaseColumnRequest
-	4,  // 11: system.admin.v1.CodeGenColumnService.SaveCodeGenColumn:input_type -> system.admin.v1.SaveCodeGenColumnRequest
-	1,  // 12: system.admin.v1.CodeGenColumnService.ListCodeGenColumn:output_type -> system.admin.v1.ListCodeGenColumnResponse
-	3,  // 13: system.admin.v1.CodeGenColumnService.ListCodeGenDatabaseColumn:output_type -> system.admin.v1.ListCodeGenDatabaseColumnResponse
-	11, // 14: system.admin.v1.CodeGenColumnService.SaveCodeGenColumn:output_type -> google.protobuf.Empty
-	12, // [12:15] is the sub-list for method output_type
-	9,  // [9:12] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	11, // 6: system.admin.v1.CodeGenColumn.i18n_config:type_name -> system.admin.v1.CodeGenColumn.I18nConfigEntry
+	10, // 7: system.admin.v1.CodeGenColumnQueryConfig.option:type_name -> system.admin.v1.CodeGenColumnOptionConfig
+	10, // 8: system.admin.v1.CodeGenColumnListConfig.option:type_name -> system.admin.v1.CodeGenColumnOptionConfig
+	10, // 9: system.admin.v1.CodeGenColumnFormConfig.option:type_name -> system.admin.v1.CodeGenColumnOptionConfig
+	12, // 10: system.admin.v1.CodeGenColumn.I18nConfigEntry.value:type_name -> system.admin.v1.CodeGenLocaleConfig
+	0,  // 11: system.admin.v1.CodeGenColumnService.ListCodeGenColumn:input_type -> system.admin.v1.ListCodeGenColumnRequest
+	2,  // 12: system.admin.v1.CodeGenColumnService.ListCodeGenDatabaseColumn:input_type -> system.admin.v1.ListCodeGenDatabaseColumnRequest
+	4,  // 13: system.admin.v1.CodeGenColumnService.SaveCodeGenColumn:input_type -> system.admin.v1.SaveCodeGenColumnRequest
+	1,  // 14: system.admin.v1.CodeGenColumnService.ListCodeGenColumn:output_type -> system.admin.v1.ListCodeGenColumnResponse
+	3,  // 15: system.admin.v1.CodeGenColumnService.ListCodeGenDatabaseColumn:output_type -> system.admin.v1.ListCodeGenDatabaseColumnResponse
+	13, // 16: system.admin.v1.CodeGenColumnService.SaveCodeGenColumn:output_type -> google.protobuf.Empty
+	14, // [14:17] is the sub-list for method output_type
+	11, // [11:14] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_code_gen_column_proto_init() }
@@ -977,13 +995,14 @@ func file_system_admin_v1_code_gen_column_proto_init() {
 	if File_system_admin_v1_code_gen_column_proto != nil {
 		return
 	}
+	file_system_admin_v1_base_translation_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_code_gen_column_proto_rawDesc), len(file_system_admin_v1_code_gen_column_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

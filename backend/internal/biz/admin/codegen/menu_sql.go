@@ -61,6 +61,7 @@ func RenderGeneratedMenuSQL(table *Table, columns []*CodeGenColumn, methods []*P
 	builder.WriteString(" OR `component` = ")
 	builder.WriteString(sqlString(page.Component))
 	builder.WriteString(") ORDER BY `id` LIMIT 1);\n")
+	writeMenuTranslationSQL(&builder, "@codegen_page_menu_id", pageSpec)
 	for index, buttonSpec := range buttonSpecs {
 		button := buttonSpec.Menu
 		varName := fmt.Sprintf("@codegen_button_menu_id_%d", index+1)
@@ -72,10 +73,38 @@ func RenderGeneratedMenuSQL(table *Table, columns []*CodeGenColumn, methods []*P
 		builder.WriteString(" OR `api` = ")
 		builder.WriteString(sqlString(button.API))
 		builder.WriteString(") ORDER BY `id` LIMIT 1);\n")
+		writeMenuTranslationSQL(&builder, varName, buttonSpec)
 	}
 	writeStaleStatusMenuSQL(&builder, table, buttonSpecs)
 	builder.WriteString("\n-- 代码生成菜单权限脚本结束。\n")
 	return builder.String()
+}
+
+// writeMenuTranslationSQL 写入菜单英语和日语译文，已有记录一律保留。
+func writeMenuTranslationSQL(builder *strings.Builder, menuIDExpression string, spec CodeGenMenuSpec) {
+	for _, localeValue := range RequiredTranslationLocales() {
+		title := spec.Translations[localeValue]
+		if title == "" {
+			continue
+		}
+		builder.WriteString("INSERT INTO `base_menu_translation` (`menu_id`, `locale`, `title`, `translation_status`, `source_hash`, `translation_provider`, `translated_at`, `reviewed_by`, `reviewed_at`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`)\n")
+		builder.WriteString("SELECT ")
+		builder.WriteString(menuIDExpression)
+		builder.WriteString(", ")
+		builder.WriteString(sqlString(localeValue))
+		builder.WriteString(", ")
+		builder.WriteString(sqlString(title))
+		builder.WriteString(", 'reviewed', SHA2(")
+		builder.WriteString(sqlString(spec.SourceTitle))
+		builder.WriteString(", 256), '', NULL, 0, CURRENT_TIMESTAMP, 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0\n")
+		builder.WriteString("WHERE ")
+		builder.WriteString(menuIDExpression)
+		builder.WriteString(" IS NOT NULL AND NOT EXISTS (SELECT 1 FROM `base_menu_translation` WHERE `menu_id` = ")
+		builder.WriteString(menuIDExpression)
+		builder.WriteString(" AND `locale` = ")
+		builder.WriteString(sqlString(localeValue))
+		builder.WriteString(" AND `deleted_at` = 0);\n")
+	}
 }
 
 // newGeneratedMenuSQLPreviewFile 创建新版本迁移 SQL 的菜单权限预览文件。

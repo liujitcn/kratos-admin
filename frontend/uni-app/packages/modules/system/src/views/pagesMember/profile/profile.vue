@@ -11,8 +11,10 @@ import { uploadFile } from '@liujitcn/kratos-uni-app-core/utils/file'
 import { navigateToLogin } from '@liujitcn/kratos-uni-app-core/utils/navigation'
 import defaultAvatar from '@liujitcn/kratos-uni-app-core/static/images/avatar.png'
 import navigatorBackground from '@liujitcn/kratos-uni-app-core/static/images/navigator_bg.png'
+import { useI18n } from '@liujitcn/kratos-uni-app-core'
 
 const userStore = useUserStore()
+const { t } = useI18n()
 
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
@@ -75,7 +77,7 @@ const onAvatarChange = async () => {
       const { path, size } = res.tempFiles[0]
       if (size > imgMaxSize.value) {
         await uni.showToast({
-          title: '请上传小于1M的照片',
+          title: t('system.profile.photoLimit'),
           icon: 'none',
           duration: 1500,
         })
@@ -99,7 +101,7 @@ const onAvatarChange = async () => {
       const { tempFilePath, size } = res.tempFiles[0]
       if (size > imgMaxSize.value) {
         await uni.showToast({
-          title: '请上传小于1M的照片',
+          title: t('system.profile.photoLimit'),
           icon: 'none',
           duration: 1500,
         })
@@ -123,9 +125,9 @@ const uploadAvatar = async (file: string) => {
     userInfo.value.avatar = fileInfo.url
     await defAuthService.UpdateUserProfile(userInfo.value)
     syncUserStoreProfile(userInfo.value)
-    await uni.showToast({ icon: 'success', title: '更新成功' })
+    await uni.showToast({ icon: 'success', title: t('system.profile.updateSuccess') })
   } catch {
-    await uni.showToast({ icon: 'error', title: '上传头像失败' })
+    await uni.showToast({ icon: 'error', title: t('system.profile.avatarUploadFailed') })
   }
 }
 
@@ -146,7 +148,7 @@ const onGetPhoneNumber: UniHelper.ButtonOnGetphonenumber = async (e) => {
   const res = await defAuthService.BindUserPhone({ code: e.detail.code || '' })
   userInfo.value.phone = res.phone
   syncUserStoreProfile(userInfo.value)
-  await uni.showToast({ icon: 'success', title: '授权成功' })
+  await uni.showToast({ icon: 'success', title: t('system.profile.phoneAuthorizationSuccess') })
 }
 
 // #endif
@@ -168,7 +170,7 @@ const onSubmit = async () => {
   })
   // 更新Store昵称
   syncUserStoreProfile(userInfo.value)
-  await uni.showToast({ icon: 'success', title: '保存成功' })
+  await uni.showToast({ icon: 'success', title: t('system.profile.saveSuccess') })
   setTimeout(() => {
     uni.navigateBack()
   }, 400)
@@ -180,7 +182,7 @@ const onSubmit = async () => {
     <!-- 导航栏 -->
     <view class="navbar" :style="{ paddingTop: safeAreaInsets?.top + 'px' }">
       <navigator open-type="navigateBack" class="back icon-left" hover-class="none"></navigator>
-      <view class="title">个人信息</view>
+      <view class="title">{{ t('system.profile.title') }}</view>
     </view>
     <view class="avatar">
       <view @tap="onAvatarChange" class="avatar-content">
@@ -191,7 +193,7 @@ const onSubmit = async () => {
           mode="aspectFill"
         />
         <image v-else class="image" :src="defaultAvatar" mode="aspectFill"></image>
-        <text class="text">点击修改头像</text>
+        <text class="text">{{ t('system.profile.avatarChange') }}</text>
       </view>
     </view>
     <!-- 表单 -->
@@ -199,13 +201,13 @@ const onSubmit = async () => {
       <!-- 表单内容 -->
       <view class="form-content">
         <view class="form-item" v-if="userInfo?.user_name">
-          <text class="label">账号</text>
+          <text class="label">{{ t('system.profile.account') }}</text>
           <text class="account placeholder">{{ userInfo?.user_name }}</text>
         </view>
         <!-- #ifdef MP-WEIXIN -->
         <!-- 手机号 -->
         <view class="form-item">
-          <text class="label">手机号</text>
+          <text class="label">{{ t('system.profile.mobile') }}</text>
           <view class="input">
             <text v-if="userInfo.phone" class="account">{{ userInfo.phone }}</text>
             <button
@@ -214,17 +216,22 @@ const onSubmit = async () => {
               open-type="getPhoneNumber"
               @getphonenumber="onGetPhoneNumber"
             >
-              微信授权手机号
+              {{ t('system.profile.phoneAuthorization') }}
             </button>
           </view>
         </view>
         <!-- #endif -->
         <view class="form-item">
-          <text class="label">昵称</text>
-          <input class="input" type="text" placeholder="请填写昵称" v-model="userInfo.nick_name" />
+          <text class="label">{{ t('system.profile.nickName') }}</text>
+          <input
+            class="input"
+            type="text"
+            :placeholder="t('system.profile.nickNamePlaceholder')"
+            v-model="userInfo.nick_name"
+          />
         </view>
         <view class="form-item">
-          <text class="label">性别</text>
+          <text class="label">{{ t('system.profile.gender') }}</text>
           <radio-group @change="onGenderChange">
             <label class="radio" v-for="(item, index) in genderList" :key="index">
               <radio
@@ -238,7 +245,7 @@ const onSubmit = async () => {
         </view>
       </view>
       <!-- 提交按钮 -->
-      <button @tap="onSubmit" class="form-button">保 存</button>
+      <button @tap="onSubmit" class="form-button">{{ t('common.action.save') }}</button>
     </view>
   </view>
 </template>

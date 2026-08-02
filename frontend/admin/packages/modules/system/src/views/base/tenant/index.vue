@@ -12,7 +12,7 @@
     <FormDialog
       v-model="dialog.visible"
       ref="formDialogRef"
-      :title="dialog.title"
+      :title="t(dialog.titleKey, { resource: t('system.tenant.resource') })"
       width="780px"
       :model="formData"
       :fields="formFields"
@@ -25,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
@@ -34,9 +34,14 @@ import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBaseTenantService } from "@liujitcn/kratos-admin-system/api/system/base_tenant";
-import type { BaseTenant, BaseTenantForm, PageBaseTenantRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_tenant";
+import type {
+  BaseTenant,
+  BaseTenantForm,
+  PageBaseTenantRequest
+} from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_tenant";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
+import { t } from "@liujitcn/kratos-admin-core";
 
 defineOptions({
   name: "BaseTenant",
@@ -48,7 +53,7 @@ const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
 const dialog = reactive({
-  title: "",
+  titleKey: "system.common.action.createResource",
   visible: false
 });
 
@@ -70,74 +75,125 @@ const formData = reactive<BaseTenantForm>({
 });
 
 /** 租户表单校验规则。 */
-const rules = reactive({
+const rules = computed(() => ({
   name: [
-    { required: true, message: "请输入租户名称", trigger: "blur" },
-    { max: 100, message: "租户名称不能超过 100 个字符", trigger: "blur" }
+    {
+      required: true,
+      message: t("system.common.validation.requiredInput", { field: t("system.tenant.field.name") }),
+      trigger: "blur"
+    },
+    {
+      max: 100,
+      message: t("system.common.validation.maxLength", { field: t("system.tenant.field.name"), max: 100 }),
+      trigger: "blur"
+    }
   ],
-  contact_name: [{ max: 50, message: "联系人不能超过 50 个字符", trigger: "blur" }],
+  contact_name: [
+    {
+      max: 50,
+      message: t("system.common.validation.maxLength", { field: t("system.tenant.field.contactName"), max: 50 }),
+      trigger: "blur"
+    }
+  ],
   contact_phone: [
-    { max: 20, message: "联系电话不能超过 20 个字符", trigger: "blur" },
-    { pattern: /^1[3-9]\d{9}$/, message: "请输入正确的联系电话", trigger: "blur" }
+    {
+      max: 20,
+      message: t("system.common.validation.maxLength", { field: t("system.tenant.field.contactPhone"), max: 20 }),
+      trigger: "blur"
+    },
+    { pattern: /^1[3-9]\d{9}$/, message: t("system.tenant.message.phoneInvalid"), trigger: "blur" }
   ],
-  status: [{ required: true, message: "请选择状态", trigger: "change" }],
-  remark: [{ max: 500, message: "备注不能超过 500 个字符", trigger: "blur" }]
-});
+  status: [
+    {
+      required: true,
+      message: t("system.common.validation.requiredSelect", { field: t("system.common.field.status") }),
+      trigger: "change"
+    }
+  ],
+  remark: [
+    {
+      max: 500,
+      message: t("system.common.validation.maxLength", { field: t("system.common.field.remark"), max: 500 }),
+      trigger: "blur"
+    }
+  ]
+}));
 
-const statusOptions: ProFormOption[] = [
-  { label: "启用", value: Status.ENABLE },
-  { label: "禁用", value: Status.DISABLE }
-];
+const statusOptions = computed<ProFormOption[]>(() => [
+  { label: t("common.status.enabled"), value: Status.ENABLE },
+  { label: t("common.status.disabled"), value: Status.DISABLE }
+]);
 
 /** 租户表单字段配置。 */
-const formFields: ProFormField[] = [
+const formFields = computed<ProFormField[]>(() => [
   {
     prop: "code",
-    label: "租户编号",
+    label: t("system.tenant.field.code"),
     component: "input",
     props: { disabled: true },
     visible: model => Boolean(model.id)
   },
-  { prop: "name", label: "租户名称", component: "input", props: { placeholder: "请输入租户名称" } },
-  { prop: "contact_name", label: "联系人", component: "input", props: { placeholder: "请输入联系人" } },
-  { prop: "contact_phone", label: "联系电话", component: "input", props: { placeholder: "请输入联系电话" } },
-  { prop: "status", label: "状态", component: "radio-group", options: statusOptions },
-  { prop: "remark", label: "备注", component: "textarea", props: { placeholder: "请输入备注", rows: 3 }, colSpan: 24 }
-];
+  {
+    prop: "name",
+    label: t("system.tenant.field.name"),
+    component: "input",
+    props: { placeholder: t("system.common.validation.requiredInput", { field: t("system.tenant.field.name") }) }
+  },
+  {
+    prop: "contact_name",
+    label: t("system.tenant.field.contactName"),
+    component: "input",
+    props: { placeholder: t("system.common.validation.requiredInput", { field: t("system.tenant.field.contactName") }) }
+  },
+  {
+    prop: "contact_phone",
+    label: t("system.tenant.field.contactPhone"),
+    component: "input",
+    props: { placeholder: t("system.common.validation.requiredInput", { field: t("system.tenant.field.contactPhone") }) }
+  },
+  { prop: "status", label: t("system.common.field.status"), component: "radio-group", options: statusOptions.value },
+  {
+    prop: "remark",
+    label: t("system.common.field.remark"),
+    component: "textarea",
+    props: { placeholder: t("system.common.placeholder.remark"), rows: 3 },
+    colSpan: 24
+  }
+]);
 
 /** 租户表格列配置。 */
-const columns: ColumnProps[] = [
+const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55, selectable: row => !isProtectedManagementTenant(row as BaseTenant) },
-  { prop: "code", label: "租户编号", minWidth: 140, search: { el: "input", order: 1 } },
-  { prop: "name", label: "租户名称", minWidth: 160, search: { el: "input", order: 2 } },
-  { prop: "contact_name", label: "联系人", minWidth: 120 },
-  { prop: "contact_phone", label: "联系电话", minWidth: 140 },
+  { prop: "code", label: t("system.tenant.field.code"), minWidth: 140, search: { el: "input", order: 1 } },
+  { prop: "name", label: t("system.tenant.field.name"), minWidth: 160, search: { el: "input", order: 2 } },
+  { prop: "contact_name", label: t("system.tenant.field.contactName"), minWidth: 120 },
+  { prop: "contact_phone", label: t("system.tenant.field.contactPhone"), minWidth: 140 },
   {
     prop: "status",
-    label: "状态",
+    label: t("system.common.field.status"),
     minWidth: 100,
     search: { el: "select" },
     cellType: "status",
     statusProps: {
       activeValue: Status.ENABLE,
       inactiveValue: Status.DISABLE,
-      activeText: "启用",
-      inactiveText: "禁用",
+      activeText: t("common.status.enabled"),
+      inactiveText: t("common.status.disabled"),
       disabled: scope => isProtectedManagementTenant(scope.row as BaseTenant) || !BUTTONS.value["base:tenant:status"],
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseTenant)
     }
   },
-  { prop: "created_at", label: "创建时间", minWidth: 180 },
-  { prop: "updated_at", label: "更新时间", minWidth: 180 },
+  { prop: "created_at", label: t("system.common.field.createdAt"), minWidth: 180 },
+  { prop: "updated_at", label: t("system.common.field.updatedAt"), minWidth: 180 },
   {
     prop: "operation",
-    label: "操作",
+    label: t("system.common.field.operation"),
     width: 150,
     fixed: "right",
     cellType: "actions",
     actions: [
       {
-        label: "编辑",
+        label: t("common.action.edit"),
         type: "primary",
         link: true,
         icon: EditPen,
@@ -146,7 +202,7 @@ const columns: ColumnProps[] = [
         onClick: (scope, params) => handleOpenDialog((params?.tenantId as number | undefined) ?? (scope.row as BaseTenant).id)
       },
       {
-        label: "删除",
+        label: t("common.action.delete"),
         type: "danger",
         link: true,
         icon: Delete,
@@ -155,26 +211,26 @@ const columns: ColumnProps[] = [
       }
     ]
   }
-];
+]);
 
 /** 租户顶部按钮配置。 */
-const headerActions: HeaderActionProps[] = [
+const headerActions = computed<HeaderActionProps[]>(() => [
   {
-    label: "新增",
+    label: t("common.action.create"),
     type: "success",
     icon: CirclePlus,
     hidden: () => !BUTTONS.value["base:tenant:create"],
     onClick: () => handleOpenDialog()
   },
   {
-    label: "删除",
+    label: t("common.action.delete"),
     type: "danger",
     icon: Delete,
     hidden: () => !BUTTONS.value["base:tenant:delete"],
     disabled: scope => !scope.selectedList.length,
     onClick: scope => handleDelete(scope.selectedList as BaseTenant[])
   }
-];
+]);
 
 /**
  * 请求租户列表，并由 ProTable 统一维护分页与搜索参数。
@@ -203,7 +259,7 @@ function isProtectedManagementTenant(row?: BaseTenant) {
  */
 async function handleOpenDialog(tenantId?: number) {
   resetForm();
-  dialog.title = tenantId ? "修改租户" : "新增租户";
+  dialog.titleKey = tenantId ? "system.common.action.editResource" : "system.common.action.createResource";
   dialog.visible = true;
   if (!tenantId) return;
 
@@ -246,7 +302,11 @@ function handleSubmit() {
       ? defBaseTenantService.UpdateBaseTenant({ base_tenant: submitData })
       : defBaseTenantService.CreateBaseTenant({ base_tenant: submitData });
     request.then(() => {
-      ElMessage.success(submitData.id ? "修改租户成功" : "新增租户成功");
+      ElMessage.success(
+        t(submitData.id ? "system.common.message.updateSuccess" : "system.common.message.createSuccess", {
+          resource: t("system.tenant.resource")
+        })
+      );
       handleCloseDialog();
       refreshTable();
     });
@@ -258,20 +318,29 @@ function handleSubmit() {
  */
 async function handleBeforeSetStatus(row: BaseTenant) {
   if (isProtectedManagementTenant(row)) {
-    ElMessage.warning("默认租户不能修改状态");
+    ElMessage.warning(t("system.tenant.message.protectedStatus"));
     return false;
   }
 
   const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
-  const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
+  const text = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
   try {
-    await ElMessageBox.confirm(`是否确定${text}租户？\n租户名称：${row.name || `ID:${row.id}`}`, "提示", {
-      confirmButtonText: "确认",
-      cancelButtonText: "取消",
-      type: "warning"
-    });
+    await ElMessageBox.confirm(
+      t("system.common.dialog.statusChange", {
+        action: text,
+        resource: t("system.tenant.resource"),
+        field: t("system.tenant.field.name"),
+        value: row.name || `ID:${row.id}`
+      }),
+      t("common.title.notice"),
+      {
+        confirmButtonText: t("common.action.confirm"),
+        cancelButtonText: t("common.action.cancel"),
+        type: "warning"
+      }
+    );
     await defBaseTenantService.SetBaseTenantStatus({ id: row.id, status: nextStatus });
-    ElMessage.success(`${text}成功`);
+    ElMessage.success(t("system.common.message.statusSuccess", { action: text }));
     refreshTable();
     return true;
   } catch {
@@ -289,7 +358,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
       ? [selected as BaseTenant]
       : [];
   if (tenantList.some(isProtectedManagementTenant)) {
-    ElMessage.warning("默认租户不能删除");
+    ElMessage.warning(t("system.tenant.message.protectedDelete"));
     return;
   }
 
@@ -299,29 +368,29 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
       : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");
   if (!tenantIds) {
-    ElMessage.warning("请勾选删除项");
+    ElMessage.warning(t("system.common.message.selectDeleteItem"));
     return;
   }
 
   const confirmMessage = tenantList.length
     ? tenantList.length === 1
-      ? `是否确定删除租户？\n租户名称：${tenantList[0].name || `ID:${tenantList[0].id}`}`
-      : `确认删除已选中的 ${tenantList.length} 项租户吗？`
-    : "确认删除已选中的租户吗？";
+      ? `${t("system.common.dialog.deleteSingle", { resource: t("system.tenant.resource") })}\n${t("system.common.dialog.resourceField", { field: t("system.tenant.field.name"), value: tenantList[0].name || `ID:${tenantList[0].id}` })}`
+      : t("system.common.dialog.deleteBatch", { count: tenantList.length, unit: "", resource: t("system.tenant.resource") })
+    : t("system.common.dialog.deleteSelected", { resource: t("system.tenant.resource") });
 
-  ElMessageBox.confirm(confirmMessage, "警告", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
+  ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
+    confirmButtonText: t("common.action.confirm"),
+    cancelButtonText: t("common.action.cancel"),
     type: "warning"
   }).then(
     () => {
       defBaseTenantService.DeleteBaseTenant({ id: tenantIds }).then(() => {
-        ElMessage.success("删除租户成功");
+        ElMessage.success(t("system.common.message.deleteSuccess", { resource: t("system.tenant.resource") }));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info("已取消删除租户");
+      ElMessage.info(t("system.common.dialog.cancelDelete", { resource: t("system.tenant.resource") }));
     }
   );
 }

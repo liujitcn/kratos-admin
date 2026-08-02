@@ -4,7 +4,7 @@
     <TreeFilter
       :key="`dept-filter-${selectedTenantId ?? 0}`"
       label="name"
-      title="部门列表"
+      :title="t('system.user.title.departmentList')"
       :request-api="requestDeptTreeFilter"
       :show-all="false"
       :default-value="deptFilterValue"
@@ -26,7 +26,7 @@
     <FormDialog
       v-model="dialog.visible"
       ref="formDialogRef"
-      :title="dialog.title"
+      :title="t(dialog.editing ? 'system.user.action.edit' : 'system.user.action.create')"
       width="800px"
       :model="formData"
       :fields="formFields"
@@ -43,7 +43,7 @@
     <FormDialog
       v-model="resetPwdDialog.visible"
       ref="resetPwdFormDialogRef"
-      :title="resetPwdDialog.title"
+      :title="t('system.user.title.resetPassword', { name: resetPwdTargetName })"
       width="520px"
       :model="resetPwdForm"
       :fields="resetPwdFields"
@@ -72,7 +72,12 @@ import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/co
 import TreeFilter from "@liujitcn/kratos-admin-core/components/TreeFilter/index.vue";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBaseUserService } from "@liujitcn/kratos-admin-system/api/system/base_user";
-import type { BaseUser, BaseUserForm, PageBaseUserRequest, ResetBaseUserPasswordRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_user";
+import type {
+  BaseUser,
+  BaseUserForm,
+  PageBaseUserRequest,
+  ResetBaseUserPasswordRequest
+} from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_user";
 import { defBaseDeptService } from "@liujitcn/kratos-admin-system/api/system/base_dept";
 import { defBaseRoleService } from "@liujitcn/kratos-admin-system/api/system/base_role";
 import { defBasePostService } from "@liujitcn/kratos-admin-system/api/system/base_post";
@@ -80,14 +85,10 @@ import { defBaseTenantService } from "@liujitcn/kratos-admin-system/api/system/b
 import type { SelectOptionResponse_Option, TreeOptionResponse_Option } from "@liujitcn/kratos-admin-system/rpc/common/v1/common";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
-import {
-  PASSWORD_CRYPTO_SCENE,
-  PASSWORD_STRENGTH_ERROR_MESSAGE,
-  encryptPassword,
-  validatePasswordStrengthValue
-} from "@liujitcn/kratos-admin-core/security";
+import { PASSWORD_CRYPTO_SCENE, encryptPassword, validatePasswordStrengthValue } from "@liujitcn/kratos-admin-core/security";
 import { DEFAULT_TENANT_CODE, requestTenantOptions } from "@liujitcn/kratos-admin-core/tenant";
 import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
+import { t } from "@liujitcn/kratos-admin-core";
 
 /** 用户表单状态，前端保留明文密码并在提交前加密。 */
 interface BaseUserFormState extends Omit<BaseUserForm, "dept_id" | "post_id" | "pwd" | "role_id" | "tenant_id"> {
@@ -135,11 +136,10 @@ const deptFilterValue = ref("");
 
 const dialog = reactive({
   visible: false,
-  title: "新增用户"
+  editing: false
 });
 const resetPwdDialog = reactive({
-  visible: false,
-  title: "重置密码"
+  visible: false
 });
 
 const formData = reactive<BaseUserFormState>({
@@ -178,66 +178,120 @@ const resetPwdForm = reactive<ResetBaseUserPasswordFormState>({
 });
 const resetPwdTargetName = ref("");
 
-const rules = reactive({
-  tenant_id: [{ required: true, message: "所属租户不能为空", trigger: "change" }],
+const rules = computed(() => ({
+  tenant_id: [
+    {
+      required: true,
+      message: t("system.common.validation.requiredSelect", { field: t("system.user.field.tenant") }),
+      trigger: "change"
+    }
+  ],
   user_name: [
-    { required: true, message: "用户账号不能为空", trigger: "blur" },
-    { max: 50, message: "用户账号不能超过 50 个字符", trigger: "blur" }
+    {
+      required: true,
+      message: t("system.common.validation.requiredInput", { field: t("system.user.field.userName") }),
+      trigger: "blur"
+    },
+    {
+      max: 50,
+      message: t("system.common.validation.maxLength", { field: t("system.user.field.userName"), max: 50 }),
+      trigger: "blur"
+    }
   ],
   user_code: [
-    { required: true, message: "用户编号不能为空", trigger: "blur" },
-    { max: 30, message: "用户编号不能超过 30 个字符", trigger: "blur" }
+    {
+      required: true,
+      message: t("system.common.validation.requiredInput", { field: t("system.user.field.userCode") }),
+      trigger: "blur"
+    },
+    {
+      max: 30,
+      message: t("system.common.validation.maxLength", { field: t("system.user.field.userCode"), max: 30 }),
+      trigger: "blur"
+    }
   ],
   nick_name: [
-    { required: true, message: "用户昵称不能为空", trigger: "blur" },
-    { max: 30, message: "用户昵称不能超过 30 个字符", trigger: "blur" }
+    {
+      required: true,
+      message: t("system.common.validation.requiredInput", { field: t("system.user.field.nickName") }),
+      trigger: "blur"
+    },
+    {
+      max: 30,
+      message: t("system.common.validation.maxLength", { field: t("system.user.field.nickName"), max: 30 }),
+      trigger: "blur"
+    }
   ],
-  dept_id: [{ required: true, message: "用户部门不能为空", trigger: "change" }],
-  role_id: [{ required: true, message: "用户角色不能为空", trigger: "change" }],
+  dept_id: [
+    {
+      required: true,
+      message: t("system.common.validation.requiredSelect", { field: t("system.user.field.department") }),
+      trigger: "change"
+    }
+  ],
+  role_id: [
+    {
+      required: true,
+      message: t("system.common.validation.requiredSelect", { field: t("system.user.field.role") }),
+      trigger: "change"
+    }
+  ],
   phone: [
-    { max: 20, message: "手机号不能超过 20 个字符", trigger: "blur" },
+    { max: 20, message: t("system.common.validation.maxLength", { field: t("common.field.phone"), max: 20 }), trigger: "blur" },
     {
       pattern: /^1[3-9]\d{9}$/,
-      message: "请输入正确的手机号码",
+      message: t("common.validation.phoneInvalid"),
       trigger: "blur"
     }
   ],
   pwd: [
-    { required: true, message: "请输入密码", trigger: "blur" },
+    { required: true, message: t("core.password.required"), trigger: "blur" },
     { validator: validatePasswordField, trigger: "blur" }
   ],
-  status: [{ required: true, message: "用户状态不能为空", trigger: "change" }],
-  remark: [{ max: 500, message: "备注不能超过 500 个字符", trigger: "blur" }]
-});
-const resetPwdRules = reactive({
+  status: [
+    {
+      required: true,
+      message: t("system.common.validation.requiredSelect", { field: t("system.common.field.status") }),
+      trigger: "change"
+    }
+  ],
+  remark: [
+    {
+      max: 500,
+      message: t("system.common.validation.maxLength", { field: t("system.common.field.remark"), max: 500 }),
+      trigger: "blur"
+    }
+  ]
+}));
+const resetPwdRules = computed(() => ({
   pwd: [
-    { required: true, message: "请输入新密码", trigger: "blur" },
+    { required: true, message: t("system.user.placeholder.newPassword"), trigger: "blur" },
     { validator: validatePasswordField, trigger: "blur" }
   ]
-});
+}));
 
 const basedDeptOptions = ref<TreeOptionResponse_Option[]>([]);
 const baseRoleOptions = ref<SelectOptionResponse_Option[]>([]);
 const basePostOptions = ref<SelectOptionResponse_Option[]>([]);
 const tenantOptions = ref<SelectOptionResponse_Option[]>([]);
-const statusOptions: ProFormOption[] = [
-  { label: "启用", value: Status.ENABLE },
-  { label: "禁用", value: Status.DISABLE }
-];
-const resetPwdFields: ProFormField[] = [
+const statusOptions = computed<ProFormOption[]>(() => [
+  { label: t("common.status.enabled"), value: Status.ENABLE },
+  { label: t("common.status.disabled"), value: Status.DISABLE }
+]);
+const resetPwdFields = computed<ProFormField[]>(() => [
   {
     prop: "pwd",
-    label: "新密码",
+    label: t("system.user.field.newPassword"),
     component: "password",
-    props: { placeholder: "请输入新密码", showPassword: true }
+    props: { placeholder: t("system.user.placeholder.newPassword"), showPassword: true }
   },
   {
     prop: "resetPwdStrength",
-    label: "强度提示",
+    label: t("system.user.field.passwordStrength"),
     component: "slot",
     slotName: "resetPwdStrength"
   }
-];
+]);
 
 /** 当前登录账号是否默认租户。 */
 const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAULT_TENANT_CODE);
@@ -255,10 +309,10 @@ const isSuperEditUser = computed(() => Boolean(formData.id && formData.user_name
 const formFields = computed<ProFormField[]>(() => [
   {
     prop: "tenant_id",
-    label: "所属租户",
+    label: t("system.user.field.tenant"),
     component: "select",
     props: {
-      placeholder: "请选择所属租户",
+      placeholder: t("system.user.placeholder.tenant"),
       filterable: true,
       disabled: Boolean(formData.id),
       onChange: handleFormTenantChange
@@ -268,31 +322,36 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "user_name",
-    label: "用户账号",
+    label: t("system.user.field.userName"),
     component: "input",
-    props: { placeholder: "请输入用户账号", disabled: Boolean(formData.id) }
+    props: { placeholder: t("system.user.placeholder.userName"), disabled: Boolean(formData.id) }
   },
   {
     prop: "user_code",
-    label: "用户编号",
+    label: t("system.user.field.userCode"),
     component: "input",
-    props: { placeholder: "请输入用户编号", disabled: Boolean(formData.id) }
+    props: { placeholder: t("system.user.placeholder.userCode"), disabled: Boolean(formData.id) }
   },
-  { prop: "nick_name", label: "用户昵称", component: "input", props: { placeholder: "请输入用户昵称" } },
+  {
+    prop: "nick_name",
+    label: t("system.user.field.nickName"),
+    component: "input",
+    props: { placeholder: t("system.user.placeholder.nickName") }
+  },
   {
     prop: "role_id",
-    label: "角色",
+    label: t("system.user.field.role"),
     component: "select",
     options: baseRoleOptions.value.map(item => ({ label: item.label, value: item.value, disabled: item.disabled })),
-    props: { placeholder: "请选择", disabled: isProtectedUserRole.value }
+    props: { placeholder: t("common.placeholder.select"), disabled: isProtectedUserRole.value }
   },
   {
     prop: "dept_id",
-    label: "用户部门",
+    label: t("system.user.field.department"),
     component: "tree-select",
     options: basedDeptOptions.value as unknown as ProFormOption[],
     props: {
-      placeholder: "请选择用户部门",
+      placeholder: t("system.user.placeholder.department"),
       filterable: true,
       checkStrictly: true,
       renderAfterExpand: false,
@@ -301,35 +360,45 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "post_id",
-    label: "用户岗位",
+    label: t("system.user.field.post"),
     component: "select",
     options: basePostOptions.value.map(item => ({ label: item.label, value: item.value, disabled: item.disabled })),
-    props: { placeholder: "请选择用户岗位", clearable: true, filterable: true }
+    props: { placeholder: t("system.user.placeholder.post"), clearable: true, filterable: true }
   },
-  { prop: "phone", label: "手机号码", component: "input", props: { placeholder: "请输入手机号码" } },
+  {
+    prop: "phone",
+    label: t("common.field.phone"),
+    component: "input",
+    props: { placeholder: t("common.validation.phoneRequired") }
+  },
   {
     prop: "pwd",
-    label: "密码",
+    label: t("system.user.field.password"),
     component: "password",
-    props: { placeholder: "请输入密码", showPassword: true },
+    props: { placeholder: t("system.user.placeholder.password"), showPassword: true },
     visible: model => !model.id
   },
   {
     prop: "passwordStrength",
-    label: "强度提示",
+    label: t("system.user.field.passwordStrength"),
     component: "slot",
     slotName: "passwordStrength",
     visible: model => !model.id
   },
-  { prop: "gender", label: "性别", component: "dict", props: { code: "base_user_gender" } },
+  { prop: "gender", label: t("system.user.field.gender"), component: "dict", props: { code: "base_user_gender" } },
   {
     prop: "status",
-    label: "状态",
+    label: t("system.common.field.status"),
     component: "radio-group",
-    options: statusOptions,
+    options: statusOptions.value,
     props: { disabled: isSuperEditUser.value }
   },
-  { prop: "remark", label: "备注", component: "textarea", props: { placeholder: "请输入备注" } }
+  {
+    prop: "remark",
+    label: t("system.common.field.remark"),
+    component: "textarea",
+    props: { placeholder: t("system.common.placeholder.remark") }
+  }
 ]);
 
 /** 用户表格列配置。 */
@@ -339,7 +408,7 @@ const columns = computed<ColumnProps[]>(() => [
     ? ([
         {
           prop: "tenant_id",
-          label: "租户",
+          label: t("system.user.field.tenantShort"),
           minWidth: 140,
           showOverflowTooltip: true,
           search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 1 },
@@ -347,41 +416,54 @@ const columns = computed<ColumnProps[]>(() => [
         }
       ] satisfies ColumnProps[])
     : []),
-  { prop: "user_name", label: "用户账号", minWidth: 140, search: { el: "input" } },
-  { prop: "user_code", label: "用户编号", minWidth: 140, search: { el: "input" } },
-  { prop: "nick_name", label: "昵称", minWidth: 100, search: { el: "input" } },
-  { prop: "role_id", label: "角色", minWidth: 140, enum: requestRoleOptions },
-  { prop: "dept_id", label: "部门", minWidth: 180, showOverflowTooltip: true, enum: requestDeptOptions },
-  { prop: "post_id", label: "岗位", minWidth: 120, enum: requestPostOptions },
-  { prop: "phone", label: "手机号码", minWidth: 130, search: { el: "input" } },
-  { prop: "gender", label: "性别", minWidth: 90, align: "center", dictCode: "base_user_gender", search: { el: "select" } },
+  { prop: "user_name", label: t("system.user.field.userName"), minWidth: 140, search: { el: "input" } },
+  { prop: "user_code", label: t("system.user.field.userCode"), minWidth: 140, search: { el: "input" } },
+  { prop: "nick_name", label: t("system.user.field.nickNameShort"), minWidth: 100, search: { el: "input" } },
+  { prop: "role_id", label: t("system.user.field.role"), minWidth: 140, enum: requestRoleOptions },
+  {
+    prop: "dept_id",
+    label: t("system.user.field.departmentShort"),
+    minWidth: 180,
+    showOverflowTooltip: true,
+    enum: requestDeptOptions
+  },
+  { prop: "post_id", label: t("system.user.field.postShort"), minWidth: 120, enum: requestPostOptions },
+  { prop: "phone", label: t("common.field.phone"), minWidth: 130, search: { el: "input" } },
+  {
+    prop: "gender",
+    label: t("system.user.field.gender"),
+    minWidth: 90,
+    align: "center",
+    dictCode: "base_user_gender",
+    search: { el: "select" }
+  },
   {
     prop: "status",
-    label: "状态",
+    label: t("system.common.field.status"),
     minWidth: 100,
     search: { el: "select" },
     cellType: "status",
     statusProps: {
       activeValue: Status.ENABLE,
       inactiveValue: Status.DISABLE,
-      activeText: "启用",
-      inactiveText: "禁用",
+      activeText: t("common.status.enabled"),
+      inactiveText: t("common.status.disabled"),
       disabled: scope => isProtectedManagementUser(scope.row as BaseUser) || !BUTTONS.value["base:user:status"],
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseUser)
     }
   },
-  { prop: "remark", label: "备注", minWidth: 160 },
-  { prop: "created_at", label: "创建时间", minWidth: 180 },
-  { prop: "updated_at", label: "更新时间", minWidth: 180 },
+  { prop: "remark", label: t("system.common.field.remark"), minWidth: 160 },
+  { prop: "created_at", label: t("system.common.field.createdAt"), minWidth: 180 },
+  { prop: "updated_at", label: t("system.common.field.updatedAt"), minWidth: 180 },
   {
     prop: "operation",
-    label: "操作",
+    label: t("system.common.field.action"),
     width: 260,
     fixed: "right",
     cellType: "actions",
     actions: [
       {
-        label: "重置密码",
+        label: t("system.user.action.resetPassword"),
         type: "primary",
         link: true,
         icon: RefreshLeft,
@@ -389,7 +471,7 @@ const columns = computed<ColumnProps[]>(() => [
         onClick: scope => handleResetPassword(scope.row as BaseUser)
       },
       {
-        label: "编辑",
+        label: t("common.action.edit"),
         type: "primary",
         link: true,
         icon: EditPen,
@@ -398,7 +480,7 @@ const columns = computed<ColumnProps[]>(() => [
         onClick: (scope, params) => handleOpenDialog((params?.userId as number | undefined) ?? (scope.row as BaseUser).id)
       },
       {
-        label: "删除",
+        label: t("common.action.delete"),
         type: "danger",
         link: true,
         icon: Delete,
@@ -410,23 +492,23 @@ const columns = computed<ColumnProps[]>(() => [
 ]);
 
 /** 用户顶部按钮配置。 */
-const headerActions: HeaderActionProps[] = [
+const headerActions = computed<HeaderActionProps[]>(() => [
   {
-    label: "新增",
+    label: t("common.action.create"),
     type: "success",
     icon: CirclePlus,
     hidden: () => !BUTTONS.value["base:user:create"],
     onClick: () => handleOpenDialog()
   },
   {
-    label: "删除",
+    label: t("common.action.delete"),
     type: "danger",
     icon: Delete,
     hidden: () => !BUTTONS.value["base:user:delete"],
     disabled: scope => !scope.selectedList.length,
     onClick: scope => handleDelete(scope.selectedList as BaseUser[])
   }
-];
+]);
 
 /**
  * 递归转换部门树筛选数据，适配 TreeFilter 组件的 id/name 字段。
@@ -442,10 +524,7 @@ function transformDeptFilterNodes(options: TreeOptionResponse_Option[] = []): De
 /**
  * 将部门树选项转换为完整路径标签，便于扁平列表关联字段按部门 ID 映射展示。
  */
-function transformDeptOptionPaths(
-  options: TreeOptionResponse_Option[] = [],
-  parentPath = ""
-): TreeOptionResponse_Option[] {
+function transformDeptOptionPaths(options: TreeOptionResponse_Option[] = [], parentPath = ""): TreeOptionResponse_Option[] {
   return options.map(option => {
     const label = option.label || "";
     const fullPath = [parentPath, label].filter(Boolean).join("/");
@@ -574,7 +653,7 @@ async function handleFormTenantChange() {
 async function handleOpenDialog(id?: number) {
   resetForm();
   await loadTenantOptions();
-  dialog.title = id ? "修改用户" : "新增用户";
+  dialog.editing = Boolean(id);
   dialog.visible = true;
   if (!id) {
     await loadFormOptions();
@@ -629,7 +708,6 @@ function handleResetPassword(row: BaseUser) {
   resetPwdForm.id = row.id;
   resetPwdForm.pwd = "";
   resetPwdTargetName.value = row.nick_name || row.user_name || `ID:${row.id}`;
-  resetPwdDialog.title = `重置密码：${resetPwdTargetName.value}`;
   resetPwdDialog.visible = true;
 }
 
@@ -654,7 +732,7 @@ async function handleConfirmResetPassword() {
 
     const pwd = await encryptPassword(resetPwdForm.pwd, PASSWORD_CRYPTO_SCENE.RESET_BASE_USER_PASSWORD);
     defBaseUserService.ResetBaseUserPassword({ id: resetPwdForm.id, pwd }).then(() => {
-      ElMessage.success(`重置密码成功\n用户名称：${resetPwdTargetName.value}`);
+      ElMessage.success(t("system.user.message.resetPasswordSuccess", { name: resetPwdTargetName.value }));
       handleCloseResetPasswordDialog();
     });
   });
@@ -676,7 +754,7 @@ const handleSubmit = useDebounceFn(() => {
       ? defBaseUserService.UpdateBaseUser({ base_user: baseUser })
       : defBaseUserService.CreateBaseUser({ base_user: baseUser });
     request.then(() => {
-      ElMessage.success(submitData.id ? "修改用户成功" : "新增用户成功");
+      ElMessage.success(t(submitData.id ? "system.user.message.updateSuccess" : "system.user.message.createSuccess"));
       handleCloseDialog();
       refreshTable();
     });
@@ -688,21 +766,21 @@ const handleSubmit = useDebounceFn(() => {
  */
 async function handleBeforeSetStatus(row: BaseUser) {
   if (isProtectedManagementUser(row)) {
-    ElMessage.warning("内置管理员账号只能通过个人中心修改");
+    ElMessage.warning(t("system.user.message.protectedAccount"));
     return false;
   }
 
   const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
-  const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
-  const user_name = row.nick_name || row.user_name || `ID:${row.id}`;
+  const action = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
+  const userName = row.nick_name || row.user_name || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(`是否确定${text}用户？\n用户名称：${user_name}`, "提示", {
-      confirmButtonText: "确认",
-      cancelButtonText: "取消",
+    await ElMessageBox.confirm(t("system.user.message.confirmStatus", { action, name: userName }), t("common.title.notice"), {
+      confirmButtonText: t("common.action.confirm"),
+      cancelButtonText: t("common.action.cancel"),
       type: "warning"
     });
     await defBaseUserService.SetBaseUserStatus({ id: row.id, status: nextStatus });
-    ElMessage.success(`${text}成功`);
+    ElMessage.success(t("system.common.message.statusSuccess", { action }));
     refreshTable();
     return true;
   } catch {
@@ -720,36 +798,38 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
       ? [selected]
       : [];
   if (userList.some(isProtectedManagementUser)) {
-    ElMessage.warning("内置管理员账号只能通过个人中心修改");
+    ElMessage.warning(t("system.user.message.protectedAccount"));
     return;
   }
   const userIds = normalizeSelectedIds(
     userList.length ? userList.map(item => item.id) : (selected as number | string | Array<number | string> | undefined)
   ).join(",");
   if (!userIds) {
-    ElMessage.warning("请勾选删除项");
+    ElMessage.warning(t("system.common.message.selectDeleteItem"));
     return;
   }
 
   const confirmMessage = userList.length
     ? userList.length === 1
-      ? `是否确定删除用户？\n用户名称：${userList[0].nick_name || userList[0].user_name || `ID:${userList[0].id}`}`
-      : `确认删除已选中的 ${userList.length} 个用户吗？`
-    : "确认删除已选中的用户吗？";
+      ? t("system.user.message.confirmDeleteSingle", {
+          name: userList[0].nick_name || userList[0].user_name || `ID:${userList[0].id}`
+        })
+      : t("system.user.message.confirmDeleteBatch", { count: userList.length })
+    : t("system.user.message.confirmDeleteSelected");
 
-  ElMessageBox.confirm(confirmMessage, "警告", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
+  ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
+    confirmButtonText: t("common.action.confirm"),
+    cancelButtonText: t("common.action.cancel"),
     type: "warning"
   }).then(
     () => {
       defBaseUserService.DeleteBaseUser({ id: userIds }).then(() => {
-        ElMessage.success("删除用户成功");
+        ElMessage.success(t("system.user.message.deleteSuccess"));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info("已取消删除用户");
+      ElMessage.info(t("system.user.message.deleteCanceled"));
     }
   );
 }
@@ -768,7 +848,7 @@ function validatePasswordField(_rule: unknown, value: string, callback: (error?:
   }
   const result = validatePasswordStrengthValue(value);
   if (!result.valid) {
-    callback(new Error(result.message || PASSWORD_STRENGTH_ERROR_MESSAGE));
+    callback(new Error(t("core.password.error")));
     return;
   }
   callback();

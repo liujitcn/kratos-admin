@@ -1,0 +1,674 @@
+{
+  "auth.user_password.new_pwd.required": {
+    "other": "Please enter new password"
+  },
+  "auth.user_password.old_pwd.required": {
+    "other": "Please enter the original password"
+  },
+  "auth.user_password.required": {
+    "other": "Please enter the original password"
+  },
+  "base_area.name.length": {
+    "other": "Zone name cannot be empty and cannot exceed 50 characters"
+  },
+  "base_config.key.max_len": {
+    "other": "Configuration key cannot exceed 50 characters"
+  },
+  "base_config.key.required": {
+    "other": "Please enter the system configuration code"
+  },
+  "base_config.name.max_len": {
+    "other": "Configuration name cannot exceed 50 characters"
+  },
+  "base_config.name.required": {
+    "other": "Please enter the system configuration name"
+  },
+  "base_config.site.required": {
+    "other": "Please select a system configuration location"
+  },
+  "base_config.type.required": {
+    "other": "Please select system configuration type"
+  },
+  "base_config.value.required": {
+    "other": "Configuration value cannot be empty"
+  },
+  "base_dept.name.length": {
+    "other": "Department name cannot be empty and cannot exceed 255 characters"
+  },
+  "base_dept.name.max_len": {
+    "other": "Department name cannot exceed 255 characters"
+  },
+  "base_dept.name.required": {
+    "other": "Department name cannot be empty"
+  },
+  "base_dept.parent_id.non_negative": {
+    "other": "The parent department cannot be less than 0"
+  },
+  "base_dept.remark.max_len": {
+    "other": "Comments cannot exceed 500 characters"
+  },
+  "base_dept.sort.required": {
+    "other": "Sort must be greater than 0"
+  },
+  "base_dept.tenant_id.required": {
+    "other": "The tenant cannot be empty"
+  },
+  "base_dict.code.length": {
+    "other": "Dictionary number cannot be empty and cannot exceed 50 characters"
+  },
+  "base_dict.code.max_len": {
+    "other": "Dictionary number cannot exceed 50 characters"
+  },
+  "base_dict.code.required": {
+    "other": "Please enter the dictionary code"
+  },
+  "base_dict.name.length": {
+    "other": "Dictionary name cannot be empty and cannot exceed 50 characters"
+  },
+  "base_dict.name.max_len": {
+    "other": "Dictionary name cannot exceed 50 characters"
+  },
+  "base_dict.name.required": {
+    "other": "Please enter a dictionary name"
+  },
+  "base_dict_item.dict_id.required": {
+    "other": "Dictionary cannot be empty"
+  },
+  "base_dict_item.label.length": {
+    "other": "Dictionary item label cannot be empty and cannot exceed 100 characters"
+  },
+  "base_dict_item.label.max_len": {
+    "other": "Please enter a dictionary label (no more than 100 characters)"
+  },
+  "base_dict_item.label.required": {
+    "other": "Please enter a dictionary label (no more than 100 characters)"
+  },
+  "base_dict_item.sort.required": {
+    "other": "Sort must be greater than 0"
+  },
+  "base_dict_item.tag_type.max_len": {
+    "other": "Label type cannot exceed 50 characters"
+  },
+  "base_dict_item.value.length": {
+    "other": "Dictionary item value cannot be empty and cannot exceed 50 characters"
+  },
+  "base_dict_item.value.max_len": {
+    "other": "Please enter a dictionary value (no more than 50 characters)"
+  },
+  "base_dict_item.value.required": {
+    "other": "Please enter a dictionary value (no more than 50 characters)"
+  },
+  "base_dict_item_translation.label.max_len": {
+    "other": "Dictionary item translation labels cannot exceed 100 characters"
+  },
+  "base_dict_item_translation.locale.supported": {
+    "other": "Dictionary item translation language only supports English or Japanese"
+  },
+  "base_dict_translation.locale.supported": {
+    "other": "Dictionary translation language only supports English or Japanese"
+  },
+  "base_dict_translation.name.max_len": {
+    "other": "Dictionary translation names cannot exceed 50 characters"
+  },
+  "base_job.cron_expression.length": {
+    "other": "cron expression cannot be empty and cannot exceed 50 characters"
+  },
+  "base_job.invoke_target.length": {
+    "other": "The call target cannot be empty and cannot exceed 100 characters"
+  },
+  "base_job.name.length": {
+    "other": "Task name cannot be empty and cannot exceed 50 characters"
+  },
+  "base_job_args.key.required": {
+    "other": "All parameters must be filled in key"
+  },
+  "base_menu.component.max_len": {
+    "other": "Component path cannot exceed 255 characters"
+  },
+  "base_menu.external.path_internal": {
+    "other": "External link paths must use internal unique paths"
+  },
+  "base_menu.folder.identity_empty": {
+    "other": "The directory cannot fill in the path and routing name"
+  },
+  "base_menu.name.max_len": {
+    "other": "Route name cannot exceed 255 characters"
+  },
+  "base_menu.name.menu_only": {
+    "other": "Only the menu type can fill in the route name"
+  },
+  "base_menu.name.required": {
+    "other": "The menu type must fill in the route name"
+  },
+  "base_menu.path.length": {
+    "other": "Path cannot exceed 1024 characters"
+  },
+  "base_menu.path.required": {
+    "other": "Non-directory menu must fill in the path"
+  },
+  "base_menu.redirect.external": {
+    "other": "External links must fill in the complete HTTP address"
+  },
+  "base_menu.redirect.max_len": {
+    "other": "Redirect address cannot exceed 1024 characters"
+  },
+  "base_menu.sort.required": {
+    "other": "Sort must be greater than 0"
+  },
+  "base_menu.type.required": {
+    "other": "Menu type cannot be empty"
+  },
+  "base_menu_translation.locale.supported": {
+    "other": "Menu translation language only supports English or Japanese"
+  },
+  "base_menu_translation.title.max_len": {
+    "other": "Menu translation title cannot exceed 255 characters"
+  },
+  "base_post.code.max_len": {
+    "other": "Position number cannot exceed 20 characters"
+  },
+  "base_post.code.required": {
+    "other": "Please enter the position number"
+  },
+  "base_post.name.max_len": {
+    "other": "Job title cannot exceed 30 characters"
+  },
+  "base_post.name.required": {
+    "other": "Please enter the position name"
+  },
+  "base_post.remark.max_len": {
+    "other": "Comments cannot exceed 500 characters"
+  },
+  "base_post.sort.required": {
+    "other": "Sort must be greater than 0"
+  },
+  "base_post.tenant_id.required": {
+    "other": "Please select your tenant"
+  },
+  "base_role.code.max_len": {
+    "other": "Role number cannot exceed 20 characters"
+  },
+  "base_role.code.required": {
+    "other": "Please enter the role code"
+  },
+  "base_role.data_scope.required": {
+    "other": "Please select data permissions"
+  },
+  "base_role.menus.required": {
+    "other": "Please select menu permissions"
+  },
+  "base_role.menus.unique": {
+    "other": "Menu permissions cannot be repeated"
+  },
+  "base_role.name.max_len": {
+    "other": "Character name cannot exceed 30 characters"
+  },
+  "base_role.name.required": {
+    "other": "Please enter a role name"
+  },
+  "base_role.remark.max_len": {
+    "other": "Comments cannot exceed 500 characters"
+  },
+  "base_role.tenant_id.required": {
+    "other": "The tenant cannot be empty"
+  },
+  "base_tenant.code.length": {
+    "other": "Tenant number cannot be empty and cannot exceed 50 characters"
+  },
+  "base_tenant.contact_name.max_len": {
+    "other": "Contact cannot exceed 50 characters"
+  },
+  "base_tenant.contact_phone.format": {
+    "other": "Please enter the correct contact number"
+  },
+  "base_tenant.contact_phone.max_len": {
+    "other": "Contact number cannot exceed 20 characters"
+  },
+  "base_tenant.name.length": {
+    "other": "Tenant name cannot be empty and cannot exceed 100 characters"
+  },
+  "base_tenant.name.max_len": {
+    "other": "Tenant name cannot exceed 100 characters"
+  },
+  "base_tenant.name.required": {
+    "other": "Please enter tenant name"
+  },
+  "base_tenant.remark.max_len": {
+    "other": "Comments cannot exceed 500 characters"
+  },
+  "base_translation.resource_id.required": {
+    "other": "Resource ID cannot be empty"
+  },
+  "base_translation.resource_type.required": {
+    "other": "Please select a translation resource type"
+  },
+  "base_translation.target_locale.supported": {
+    "other": "Target language only supports English or Japanese"
+  },
+  "base_user.avatar.max_len": {
+    "other": "Avatar cannot exceed 1024 characters"
+  },
+  "base_user.dept_id.required": {
+    "other": "Department cannot be empty"
+  },
+  "base_user.nick_name.max_len": {
+    "other": "User nickname cannot exceed 30 characters"
+  },
+  "base_user.nick_name.required": {
+    "other": "User nickname cannot be empty"
+  },
+  "base_user.phone.format": {
+    "other": "Please enter the correct mobile phone number"
+  },
+  "base_user.phone.max_len": {
+    "other": "Mobile phone number cannot exceed 20 characters"
+  },
+  "base_user.pwd.required": {
+    "other": "Please enter password"
+  },
+  "base_user.remark.max_len": {
+    "other": "Comments cannot exceed 500 characters"
+  },
+  "base_user.reset_pwd.required": {
+    "other": "Please enter new password"
+  },
+  "base_user.role_id.required": {
+    "other": "Role cannot be empty"
+  },
+  "base_user.tenant_id.required": {
+    "other": "The tenant cannot be empty"
+  },
+  "base_user.user_code.length": {
+    "other": "User ID cannot be empty and cannot exceed 30 characters"
+  },
+  "base_user.user_name.length": {
+    "other": "User account cannot be empty and cannot exceed 50 characters"
+  },
+  "bind_oauth_session.captcha_code.required": {
+    "other": "Verification code cannot be empty"
+  },
+  "bind_oauth_session.captcha_id.required": {
+    "other": "Verification code ID cannot be empty"
+  },
+  "bind_oauth_session.code.required": {
+    "other": "The third-party authorization code cannot be empty"
+  },
+  "bind_oauth_session.provider.required": {
+    "other": "Login method identifier cannot be empty"
+  },
+  "bind_oauth_session.tenant_code.required": {
+    "other": "Tenant code cannot be empty"
+  },
+  "bind_oauth_session.user_name.required": {
+    "other": "Username cannot be empty"
+  },
+  "code_gen_table.status.required": {
+    "other": "Please select a code generation table status"
+  },
+  "common.error.conflict": {
+    "other": "The resource state conflicts with this operation"
+  },
+  "common.error.internal": {
+    "other": "An internal error occurred"
+  },
+  "common.error.invalid_argument": {
+    "other": "The request parameters are invalid"
+  },
+  "common.error.permission_denied": {
+    "other": "You do not have permission to perform this operation"
+  },
+  "common.error.resource_not_found": {
+    "other": "The requested resource was not found"
+  },
+  "common.error.unauthenticated": {
+    "other": "Your session has expired. Please sign in again"
+  },
+  "common.validation.invalid": {
+    "other": "Field {{.Field}} is invalid"
+  },
+  "common.validation.required": {
+    "other": "Field {{.Field}} is required"
+  },
+  "create_ai_session_branch.anchor_message_id.positive": {
+    "other": "Branch anchor message number is illegal"
+  },
+  "create_ai_session_branch.source_session_id.positive": {
+    "other": "The session number is invalid"
+  },
+  "create_ai_session_branch.title.required": {
+    "other": "Session title cannot be empty"
+  },
+  "create_base_menu.parent_id.required": {
+    "other": "To add a new menu, you must select the upper-level menu"
+  },
+  "create_oauth_authorization.provider.required": {
+    "other": "Login method identifier cannot be empty"
+  },
+  "create_oauth_authorization.redirect_url.required": {
+    "other": "Login page address cannot be empty"
+  },
+  "create_oauth_binding_authorization.provider.required": {
+    "other": "Login method identifier cannot be empty"
+  },
+  "create_oauth_binding_authorization.redirect_url.required": {
+    "other": "After the binding is completed, the bounce address cannot be empty."
+  },
+  "create_oauth_session.code.required": {
+    "other": "The third-party authorization code cannot be empty"
+  },
+  "create_oauth_session.provider.required": {
+    "other": "Login method identifier cannot be empty"
+  },
+  "delete_ai_message.message_id.positive": {
+    "other": "The message number is invalid"
+  },
+  "delete_ai_message.session_id.positive": {
+    "other": "The session number is invalid"
+  },
+  "delete_ai_session.id.positive": {
+    "other": "The session number is invalid"
+  },
+  "delete_base_config.id.required": {
+    "other": "Configuration ID list cannot be empty"
+  },
+  "delete_base_dept.id.required": {
+    "other": "Department ID list cannot be empty"
+  },
+  "delete_base_dict.id.required": {
+    "other": "Dictionary ID list cannot be empty"
+  },
+  "delete_base_dict_item.id.required": {
+    "other": "Dictionary attribute ID list cannot be empty"
+  },
+  "delete_base_menu.id.required": {
+    "other": "Menu ID list cannot be empty"
+  },
+  "delete_base_post.id.required": {
+    "other": "The position ID list cannot be empty"
+  },
+  "delete_base_role.id.required": {
+    "other": "Role ID list cannot be empty"
+  },
+  "delete_base_tenant.id.required": {
+    "other": "Tenant ID list cannot be empty"
+  },
+  "delete_base_user.id.required": {
+    "other": "User ID list cannot be empty"
+  },
+  "download_file.path.required": {
+    "other": "File path cannot be empty"
+  },
+  "exchange_oauth_ticket.ticket.required": {
+    "other": "The third-party login ticket cannot be empty"
+  },
+  "field.business_module.length": {
+    "other": "Business module cannot exceed 64 characters"
+  },
+  "field.business_module.pattern": {
+    "other": "Business module format is incorrect"
+  },
+  "field.business_module.required": {
+    "other": "Business module cannot be empty"
+  },
+  "field.comment.length": {
+    "other": "Business table description cannot exceed 128 characters"
+  },
+  "field.name.length": {
+    "other": "Business table name cannot exceed 128 characters"
+  },
+  "field.name.pattern": {
+    "other": "Business table name format is incorrect"
+  },
+  "field.name.required": {
+    "other": "Business table name cannot be empty"
+  },
+  "field.page_type.length": {
+    "other": "Page type cannot exceed 32 characters"
+  },
+  "field.page_type.required": {
+    "other": "Page type cannot be empty"
+  },
+  "field.parent_column.length": {
+    "other": "The tree table parent node field cannot exceed 64 characters."
+  },
+  "field.parent_menu_id.required": {
+    "other": "Please select a parent menu"
+  },
+  "field.remark.length": {
+    "other": "Comments cannot exceed 500 characters"
+  },
+  "field.tree_label_column.length": {
+    "other": "The tree node display field cannot exceed 64 characters"
+  },
+  "get_base_config.id.required": {
+    "other": "Configuration ID cannot be empty"
+  },
+  "get_base_dept.id.required": {
+    "other": "Department ID cannot be empty"
+  },
+  "get_base_dict.id.required": {
+    "other": "Dictionary ID cannot be empty"
+  },
+  "get_base_dict_item.id.required": {
+    "other": "Dictionary attribute ID cannot be empty"
+  },
+  "get_base_post.id.required": {
+    "other": "Position ID cannot be empty"
+  },
+  "get_base_role.id.required": {
+    "other": "Role ID cannot be empty"
+  },
+  "get_base_tenant.id.required": {
+    "other": "Tenant ID cannot be empty"
+  },
+  "get_base_third_account_identifier.provider.required": {
+    "other": "Login method identifier cannot be empty"
+  },
+  "get_base_third_account_identifier.user_id.required": {
+    "other": "User ID cannot be empty"
+  },
+  "get_base_user.id.required": {
+    "other": "User ID cannot be empty"
+  },
+  "get_code_gen_table.id.required": {
+    "other": "Primary key ID cannot be empty"
+  },
+  "get_code_gen_task.task_id.required": {
+    "other": "Generate task ID cannot be empty"
+  },
+  "get_config.site.required": {
+    "other": "Location cannot be empty"
+  },
+  "handle_mcp.terminal.required": {
+    "other": "MCP service identifier cannot be empty"
+  },
+  "handle_oauth_binding_callback.code.required_on_success": {
+    "other": "The third-party authorization code cannot be empty"
+  },
+  "handle_oauth_binding_callback.provider.required": {
+    "other": "Login method identifier cannot be empty"
+  },
+  "handle_oauth_binding_callback.state.required": {
+    "other": "Authorization status code cannot be empty"
+  },
+  "handle_oauth_callback.code.required_on_success": {
+    "other": "The third-party authorization code cannot be empty"
+  },
+  "handle_oauth_callback.provider.required": {
+    "other": "Login method identifier cannot be empty"
+  },
+  "handle_oauth_callback.state.required": {
+    "other": "Authorization status code cannot be empty"
+  },
+  "list_ai_message.session_id.positive": {
+    "other": "The session number is invalid"
+  },
+  "list_base_user.ids.positive": {
+    "other": "User ID must be greater than 0"
+  },
+  "list_code_gen_column.table_id.required": {
+    "other": "Code generation table configuration ID cannot be empty"
+  },
+  "list_code_gen_database_column.table_name.pattern": {
+    "other": "Database table name format is incorrect"
+  },
+  "list_code_gen_database_column.table_name.required": {
+    "other": "Database table name cannot be empty"
+  },
+  "list_code_gen_proto.table_id.required": {
+    "other": "Code generation table configuration ID cannot be empty"
+  },
+  "login.captcha_code.required": {
+    "other": "Verification code cannot be empty"
+  },
+  "login.captcha_id.required": {
+    "other": "Verification code cannot be empty"
+  },
+  "login.user_name.required": {
+    "other": "Username cannot be empty"
+  },
+  "preview_code_gen.table_id.required": {
+    "other": "Code generation table configuration ID cannot be empty"
+  },
+  "refresh_token.required": {
+    "other": "Refresh token cannot be empty"
+  },
+  "regenerate_ai_message.message_id.positive": {
+    "other": "The message number is invalid"
+  },
+  "regenerate_ai_message.session_id.positive": {
+    "other": "The session number is invalid"
+  },
+  "reset_base_user_password.id.required": {
+    "other": "User ID cannot be empty"
+  },
+  "restore_code_gen.table_ids.positive": {
+    "other": "Code generation table configuration ID must be greater than 0"
+  },
+  "retry_ai_message.message_id.positive": {
+    "other": "The message number is invalid"
+  },
+  "retry_ai_message.session_id.positive": {
+    "other": "The session number is invalid"
+  },
+  "save_code_gen_column.table_id.required": {
+    "other": "Code generation table configuration ID cannot be empty"
+  },
+  "save_code_gen_proto.table_id.required": {
+    "other": "Code generation table configuration ID cannot be empty"
+  },
+  "send_ai_message.session_id.positive": {
+    "other": "The session number is invalid"
+  },
+  "send_phone_code.phone.format": {
+    "other": "Please enter the correct mobile phone number"
+  },
+  "send_phone_code.phone.required": {
+    "other": "Please enter mobile phone number"
+  },
+  "set_base_config_status.id.required": {
+    "other": "Configuration ID cannot be empty"
+  },
+  "set_base_dept_status.id.required": {
+    "other": "Department ID cannot be empty"
+  },
+  "set_base_dict_item_status.id.required": {
+    "other": "Dictionary attribute ID cannot be empty"
+  },
+  "set_base_dict_status.id.required": {
+    "other": "Dictionary ID cannot be empty"
+  },
+  "set_base_menu_status.id.required": {
+    "other": "Menu ID cannot be empty"
+  },
+  "set_base_menu_status.status.required": {
+    "other": "Status cannot be empty"
+  },
+  "set_base_post_status.id.required": {
+    "other": "Position ID cannot be empty"
+  },
+  "set_base_role_menu.id.required": {
+    "other": "Role ID cannot be empty"
+  },
+  "set_base_role_status.id.required": {
+    "other": "Role ID cannot be empty"
+  },
+  "set_base_tenant_status.id.required": {
+    "other": "Tenant ID cannot be empty"
+  },
+  "set_base_user_app_role.role_code.required": {
+    "other": "The application-side role code cannot be empty"
+  },
+  "set_base_user_app_role.user_id.required": {
+    "other": "User ID cannot be empty"
+  },
+  "set_base_user_status.id.required": {
+    "other": "User ID cannot be empty"
+  },
+  "start_code_gen_task.table_ids.positive": {
+    "other": "Code generation table configuration ID must be greater than 0"
+  },
+  "subscribe_sse.stream.required": {
+    "other": "SSE stream cannot be empty"
+  },
+  "unbind_oauth_account.provider.required": {
+    "other": "Login method identifier cannot be empty"
+  },
+  "update_ai_message.content.required": {
+    "other": "Message content cannot be empty"
+  },
+  "update_ai_message.message_id.positive": {
+    "other": "The message number is invalid"
+  },
+  "update_ai_message.session_id.positive": {
+    "other": "The session number is invalid"
+  },
+  "update_ai_session.id.positive": {
+    "other": "The session number is invalid"
+  },
+  "update_ai_session.title.required": {
+    "other": "Session title cannot be empty"
+  },
+  "update_base_config.id.required": {
+    "other": "Configuration ID cannot be empty"
+  },
+  "update_base_dept.id.required": {
+    "other": "Department ID cannot be empty"
+  },
+  "update_base_dict.id.required": {
+    "other": "Dictionary ID cannot be empty"
+  },
+  "update_base_dict_item.id.required": {
+    "other": "Dictionary attribute ID cannot be empty"
+  },
+  "update_base_post.id.required": {
+    "other": "Position ID cannot be empty"
+  },
+  "update_base_role.id.required": {
+    "other": "Role ID cannot be empty"
+  },
+  "update_base_tenant.id.required": {
+    "other": "Tenant ID cannot be empty"
+  },
+  "update_base_user.id.required": {
+    "other": "User ID cannot be empty"
+  },
+  "update_code_gen_table.id.required": {
+    "other": "Primary key ID cannot be empty"
+  },
+  "user_phone.code.required": {
+    "other": "Please enter the verification code"
+  },
+  "user_phone.phone.format": {
+    "other": "Please enter the correct mobile phone number"
+  },
+  "user_phone.phone.required": {
+    "other": "Please enter mobile phone number"
+  },
+  "verify_captcha.captcha_code.required": {
+    "other": "Verification code cannot be empty"
+  },
+  "verify_captcha.captcha_id.required": {
+    "other": "Verification code cannot be empty"
+  }
+}

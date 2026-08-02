@@ -2,9 +2,11 @@ import { Button, Text, View, WebView } from '@tarojs/components'
 import Taro, { useLoad } from '@tarojs/taro'
 import { useEffect, useState } from 'react'
 import './webview.scss'
+import { useI18n } from '../../../locales'
 
 /** 统一外链承载页。 */
 export default function WebViewPage() {
+  const { t } = useI18n()
   const [url, setUrl] = useState('')
   const [iframeLoaded, setIframeLoaded] = useState(false)
   const [iframeTimedOut, setIframeTimedOut] = useState(false)
@@ -27,8 +29,8 @@ export default function WebViewPage() {
 
   const showFallback = !url || (isH5 && iframeTimedOut && !iframeLoaded)
   const emptyDescription = url
-    ? '当前 H5 页面可能被目标站点限制嵌入'
-    : '缺少有效链接地址'
+    ? t('core.webview.embedBlocked')
+    : t('core.webview.invalidUrl')
 
   return (
     <View className='webview-container'>
@@ -41,7 +43,7 @@ export default function WebViewPage() {
       ) : null}
       {showFallback ? (
         <View className='webview-empty'>
-          <Text className='webview-empty__title'>链接无法打开</Text>
+          <Text className='webview-empty__title'>{t('core.webview.openFailed')}</Text>
           <Text className='webview-empty__desc'>{emptyDescription}</Text>
         </View>
       ) : null}
@@ -50,7 +52,7 @@ export default function WebViewPage() {
           className='webview-open-button'
           onClick={() => window.open(url, '_blank', 'noopener,noreferrer')}
         >
-          新窗口打开
+          {t('common.action.openInNewWindow')}
         </Button>
       ) : null}
     </View>

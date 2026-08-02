@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	systemConfig "github.com/liujitcn/kratos-admin/backend/internal/config"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -19,12 +21,14 @@ import (
 // ConfigCase 处理基础配置查询业务。
 type ConfigCase struct {
 	*data.BaseConfigRepository
+	draftConfig systemConfig.TranslationDraftConfig
 }
 
 // NewConfigCase 创建配置业务实例。
-func NewConfigCase(baseConfigRepo *data.BaseConfigRepository) *ConfigCase {
+func NewConfigCase(baseConfigRepo *data.BaseConfigRepository, draftConfig systemConfig.TranslationDraftConfig) *ConfigCase {
 	return &ConfigCase{
 		BaseConfigRepository: baseConfigRepo,
+		draftConfig:          draftConfig,
 	}
 }
 
@@ -38,7 +42,7 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 		configs := make([]*basev1.ConfigItem, 0)
 		err = json.Unmarshal([]byte(cached), &configs)
 		if err == nil {
-			return &basev1.GetConfigResponse{Configs: configs}, nil
+			return &basev1.GetConfigResponse{Configs: appendI18nRuntimeConfig(configs, c.draftConfig.Enabled)}, nil
 		}
 	}
 
@@ -60,7 +64,7 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 		})
 	}
 	response := &basev1.GetConfigResponse{
-		Configs: configs,
+		Configs: appendI18nRuntimeConfig(configs, c.draftConfig.Enabled),
 	}
 	var payload []byte
 	payload, err = json.Marshal(configs)
@@ -73,4 +77,15 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 		log.Error(fmt.Sprintf("SetBaseConfigCache %v", err))
 	}
 	return response, nil
+}
+
+// appendI18nRuntimeConfig 将部署级翻译草稿开关附加到公共配置结果。
+func appendI18nRuntimeConfig(configs []*basev1.ConfigItem, enabled bool) []*basev1.ConfigItem {
+	result := make([]*basev1.ConfigItem, 0, len(configs)+1)
+	for _, item := range configs {
+		if item.GetKey() != _const.I18N_TRANSLATION_DRAFT_CONFIG_KEY {
+			result = append(result, item)
+		}
+	}
+	return append(result, &basev1.ConfigItem{Key: _const.I18N_TRANSLATION_DRAFT_CONFIG_KEY, Value: strconv.FormatBool(enabled)})
 }

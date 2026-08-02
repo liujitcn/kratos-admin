@@ -1,6 +1,7 @@
 import { defLoginService } from "@/api/base/login";
 import { PasswordCryptoScene } from "@/rpc/base/v1/enum";
 import type { PasswordCrypto } from "@/rpc/common/v1/types";
+import { t } from "@/locales";
 
 export const PASSWORD_CRYPTO_SCENE = PasswordCryptoScene;
 export type { PasswordCryptoScene };
@@ -33,7 +34,7 @@ function arrayBufferToBase64(buffer: ArrayBuffer) {
 function getSubtleCrypto() {
   const cryptoApi = globalThis.crypto;
   if (!cryptoApi?.subtle) {
-    throw new Error("当前环境不支持密码加密");
+    throw new Error(t("core.password.cryptoUnsupported"));
   }
   return cryptoApi;
 }
@@ -42,7 +43,7 @@ function getSubtleCrypto() {
 export async function encryptPassword(password: string, scene: PasswordCryptoScene): Promise<PasswordCrypto> {
   const plainPassword = password.trim();
   if (!plainPassword) {
-    throw new Error("密码不能为空");
+    throw new Error(t("core.password.required"));
   }
 
   const cryptoApi = getSubtleCrypto();

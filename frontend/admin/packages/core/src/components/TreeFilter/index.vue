@@ -4,14 +4,14 @@
       {{ title }}
     </h4>
     <div class="search">
-      <el-input v-model="filterText" placeholder="输入关键字进行过滤" clearable />
+      <el-input v-model="filterText" :placeholder="t('core.tree.filterPlaceholder')" clearable />
       <el-dropdown trigger="click">
         <el-icon size="20"><More /></el-icon>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item v-if="!multiple" @click="resetSelected">重置选择</el-dropdown-item>
-            <el-dropdown-item @click="toggleTreeNodes(true)">展开全部</el-dropdown-item>
-            <el-dropdown-item @click="toggleTreeNodes(false)">折叠全部</el-dropdown-item>
+            <el-dropdown-item v-if="!multiple" @click="resetSelected">{{ t("core.tree.resetSelection") }}</el-dropdown-item>
+            <el-dropdown-item @click="toggleTreeNodes(true)">{{ t("core.table.expandAll") }}</el-dropdown-item>
+            <el-dropdown-item @click="toggleTreeNodes(false)">{{ t("core.table.collapseAll") }}</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
@@ -51,6 +51,9 @@
 <script setup lang="ts" name="TreeFilter">
 import { ref, watch, onBeforeMount, nextTick } from "vue";
 import { ElTree } from "element-plus";
+import { useLocaleStore } from "@/locales";
+
+const { locale, t } = useLocaleStore();
 
 // 接收父组件参数并设置默认值
 interface TreeFilterProps {
@@ -97,7 +100,7 @@ const normalizeLazyNodes = (nodes: { [key: string]: any }[] = []) =>
 
 const updateTreeData = (data: { [key: string]: any }[]) => {
   treeData.value = props.lazy ? normalizeLazyNodes(data) : data;
-  const allNode = { id: "", [props.label]: "全部", isLeaf: true };
+  const allNode = { id: "", [props.label]: t("common.value.all"), isLeaf: true };
   treeAllData.value = props.showAll ? [allNode, ...treeData.value] : treeData.value;
 };
 
@@ -110,7 +113,10 @@ onBeforeMount(async () => {
   }
 });
 
-const loadTreeNode = async (node: { level: number; data?: { [key: string]: any } }, resolve: (data: { [key: string]: any }[]) => void) => {
+const loadTreeNode = async (
+  node: { level: number; data?: { [key: string]: any } },
+  resolve: (data: { [key: string]: any }[]) => void
+) => {
   if (!props.requestApi) {
     resolve([]);
     return;
@@ -140,6 +146,8 @@ watch(
   },
   { deep: true, immediate: true }
 );
+
+watch(locale, () => updateTreeData(treeData.value));
 
 const filterText = ref("");
 watch(filterText, val => {

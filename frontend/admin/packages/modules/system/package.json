@@ -42,6 +42,10 @@
       "types": "./dist/package/declarations/src/api/*.d.ts",
       "default": "./dist/package/src/api/*.ts"
     },
+    "./components/*": {
+      "types": "./dist/package/declarations/src/components/*.d.ts",
+      "default": "./dist/package/src/components/*"
+    },
     "./rpc/*": {
       "types": "./dist/package/declarations/src/rpc/*.d.ts",
       "default": "./dist/package/src/rpc/*.ts"

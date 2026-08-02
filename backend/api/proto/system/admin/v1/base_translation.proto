@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// Admin翻译草稿服务
+service BaseTranslationService {
+  // 为单个已保存资源生成机器翻译草稿
+  rpc GenerateTranslationDraft(GenerateTranslationDraftRequest) returns (GenerateTranslationDraftResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/base/translation/draft"
+      body: "*"
+    };
+  }
+}
+
+// 翻译状态
+enum TranslationStatus {
+  TRANSLATION_STATUS_UNSPECIFIED = 0;
+  TRANSLATION_STATUS_PENDING = 1;
+  TRANSLATION_STATUS_MACHINE = 2;
+  TRANSLATION_STATUS_REVIEWED = 3;
+}
+
+// 翻译资源类型
+enum TranslationResourceType {
+  TRANSLATION_RESOURCE_TYPE_UNSPECIFIED = 0;
+  TRANSLATION_RESOURCE_TYPE_MENU = 1;
+  TRANSLATION_RESOURCE_TYPE_DICT = 2;
+  TRANSLATION_RESOURCE_TYPE_DICT_ITEM = 3;
+}
+
+// 生成翻译草稿请求
+message GenerateTranslationDraftRequest {
+  TranslationResourceType resource_type = 1 [(gnostic.openapi.v3.property) = {description: "资源类型"}, (buf.validate.field).enum = {defined_only: true}, (buf.validate.field).cel = {id: "base_translation.resource_type.required" message: "请选择翻译资源类型" expression: "this != 0"}]; // 资源类型
+
+  int64 resource_id = 2 [(gnostic.openapi.v3.property) = {description: "已保存资源ID"}, (buf.validate.field).cel = {id: "base_translation.resource_id.required" message: "资源ID不能为空" expression: "this > 0"}]; // 已保存资源ID
+
+  string target_locale = 3 [(gnostic.openapi.v3.property) = {description: "目标语言区域，仅支持en-US和ja-JP"}, (buf.validate.field).cel = {id: "base_translation.target_locale.supported" message: "目标语言仅支持英语或日语" expression: "this in ['en-US', 'ja-JP']"}]; // 目标语言区域，仅支持en-US和ja-JP
+}
+
+// 生成翻译草稿响应
+message GenerateTranslationDraftResponse {
+  TranslationResourceType resource_type = 1 [(gnostic.openapi.v3.property) = {description: "资源类型"}]; // 资源类型
+
+  int64 resource_id = 2 [(gnostic.openapi.v3.property) = {description: "资源ID"}]; // 资源ID
+
+  string locale = 3 [(gnostic.openapi.v3.property) = {description: "语言区域"}]; // 语言区域
+
+  string translation = 4 [(gnostic.openapi.v3.property) = {description: "机器翻译草稿"}]; // 机器翻译草稿
+
+  TranslationStatus translation_status = 5 [(gnostic.openapi.v3.property) = {description: "翻译状态"}]; // 翻译状态
+
+  string source_hash = 6 [(gnostic.openapi.v3.property) = {description: "中文源文SHA-256"}]; // 中文源文SHA-256
+
+  string translation_provider = 7 [(gnostic.openapi.v3.property) = {description: "机器翻译提供方"}]; // 机器翻译提供方
+
+  string translated_at = 8 [(gnostic.openapi.v3.property) = {description: "最近机器翻译时间"}]; // 最近机器翻译时间
+}
+
+// 代码生成单语言国际化配置
+message CodeGenLocaleConfig {
+  string comment = 1 [(gnostic.openapi.v3.property) = {description: "业务或字段描述"}]; // 业务或字段描述
+
+  string left_tree_comment = 2 [(gnostic.openapi.v3.property) = {description: "左树描述"}]; // 左树描述
+}

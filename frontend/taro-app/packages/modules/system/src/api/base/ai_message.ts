@@ -4,6 +4,7 @@ import {
   http,
   requestBaseURL,
 } from '@liujitcn/kratos-taro-app-core/utils/http'
+import { getLocaleRequestHeaders, t } from '@liujitcn/kratos-taro-app-core'
 import Taro from '@tarojs/taro'
 import type { ListAiMessageRequest, ListAiMessageResponse } from '../../rpc/base/v1/ai_session'
 import type {
@@ -47,7 +48,7 @@ type ChunkedRequestTask = Promise<Taro.request.SuccessCallbackResult<ArrayBuffer
 
 /** 从 direct stream 错误响应中提取后端业务提示。 */
 async function resolveStreamErrorMessage(response: Response): Promise<string> {
-  const fallbackMessage = `AI 助手请求失败（${response.status}）`
+  const fallbackMessage = t('system.ai.requestFailedWithStatus', { status: response.status })
   const contentType = response.headers.get('Content-Type') ?? ''
   if (contentType.includes('application/json')) {
     try {
@@ -76,6 +77,7 @@ export async function SendAiMessageStream(
     Accept: 'text/event-stream',
     'Content-Type': 'application/json;charset=utf-8',
     'source-client': 'miniapp',
+    ...getLocaleRequestHeaders(),
   }
   if (accessToken) {
     headers.Authorization = accessToken
@@ -91,7 +93,7 @@ export async function SendAiMessageStream(
   // direct stream 不经过 uni.request 拦截器，需要在这里补齐登录失效处理。
   if (response.status === 401 || response.status === 403) {
     handleAuthExpired('required')
-    throw new Error('登录状态已失效，请重新登录')
+    throw new Error(t('core.auth.sessionExpired'))
   }
   if (!response.ok) {
     throw new Error(await resolveStreamErrorMessage(response))
@@ -129,6 +131,7 @@ export function StreamAiMessageByChunkedRequest(
           Accept: 'text/event-stream',
           'Content-Type': 'application/json;charset=utf-8',
           'source-client': 'miniapp',
+          ...getLocaleRequestHeaders(),
           ...(accessToken ? { Authorization: accessToken } : {}),
         },
         success(res) {
@@ -138,7 +141,7 @@ export function StreamAiMessageByChunkedRequest(
           }
           if (res.statusCode === 401 || res.statusCode === 403) {
             handleAuthExpired('required')
-            reject(new Error('登录状态已失效，请重新登录'))
+            reject(new Error(t('core.auth.sessionExpired')))
             return
           }
           if (res.statusCode < 200 || res.statusCode >= 300) {
@@ -169,7 +172,7 @@ export function StreamAiMessageByChunkedRequest(
 
       if (typeof requestTask.onChunkReceived !== 'function') {
         requestTask.abort()
-        reject(new Error('当前端不支持流式回复'))
+        reject(new Error(t('system.ai.streamUnsupported')))
         return
       }
 
@@ -271,7 +274,7 @@ export const defAiMessageService = new AiMessageServiceImpl()
 function resolveChunkedStreamErrorMessage(
   response: Taro.request.SuccessCallbackResult<ArrayBuffer>,
 ) {
-  const fallbackMessage = `AI 助手请求失败（${response.statusCode}）`
+  const fallbackMessage = t('system.ai.requestFailedWithStatus', { status: response.statusCode })
   const text = decodeChunkedResponseData(response.data).trim()
   if (!text) {
     return fallbackMessage

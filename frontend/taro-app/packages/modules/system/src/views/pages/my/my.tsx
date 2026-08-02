@@ -5,15 +5,23 @@ import {
   formatSrc,
   navigateAppRoute,
   navigateToLogin,
+  useI18n,
   useUserStore,
 } from '@liujitcn/kratos-taro-app-core'
+import Taro from '@tarojs/taro'
+import { useEffect } from 'react'
 import './my.scss'
 
 /** 个人中心首页。 */
 export default function MyPage() {
+  const { locale, t } = useI18n()
   const profile = useUserStore((state) => state.userInfo)
   const isLoggedIn = useUserStore((state) => state.isAuthenticated())
   const ensureAuthenticated = useUserStore((state) => state.ensureAuthenticated)
+
+  useEffect(() => {
+    void Taro.setNavigationBarTitle({ title: t('core.navigation.my') })
+  }, [locale, t])
 
   const openAuthenticatedPage = (route: string) => {
     if (!ensureAuthenticated()) {
@@ -43,7 +51,7 @@ export default function MyPage() {
             <View className='my-meta'>
               <View className='my-nickname'>{profile.nick_name}</View>
               <View className='my-extra' onClick={() => navigateAppRoute('app/profile')}>
-                <Text className='my-update'>更新头像昵称</Text>
+                <Text className='my-update'>{t('system.profile.avatarUpdate')}</Text>
               </View>
             </View>
           </View>
@@ -54,26 +62,26 @@ export default function MyPage() {
             </View>
             <View className='my-meta'>
               <View className='my-nickname' onClick={() => navigateToLogin()}>
-                未登录
+                {t('system.profile.notLoggedIn')}
               </View>
               <View className='my-extra'>
-                <Text className='my-tips'>点击登录账号</Text>
+                <Text className='my-tips'>{t('system.profile.loginPrompt')}</Text>
               </View>
             </View>
           </View>
         )}
         <View className='my-settings' onClick={() => openAuthenticatedPage('app/settings')}>
-          设置
+          {t('system.settings.title')}
         </View>
       </View>
 
       <View className='my-ai-entry' onClick={() => openAuthenticatedPage('app/ai')}>
         <View className='my-ai-entry__icon'>AI</View>
         <View className='my-ai-entry__content'>
-          <View className='my-ai-entry__title'>智能助手</View>
-          <View className='my-ai-entry__desc'>帮你整理信息、回答问题并处理日常任务</View>
+          <View className='my-ai-entry__title'>{t('system.settings.aiTitle')}</View>
+          <View className='my-ai-entry__desc'>{t('system.settings.aiDescription')}</View>
         </View>
-        <View className='my-ai-entry__action'>去提问</View>
+        <View className='my-ai-entry__action'>{t('system.settings.goAsk')}</View>
       </View>
     </ScrollView>
   )

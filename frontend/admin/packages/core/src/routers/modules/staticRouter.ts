@@ -24,7 +24,8 @@ export const staticRouter: RouteRecordRaw[] = [
     name: "Login",
     component: createAdminStaticViewLoader(ADMIN_STATIC_VIEWS.LOGIN),
     meta: {
-      title: "登录"
+      title: "",
+      titleKey: "core.route.login"
     }
   },
   {
@@ -46,7 +47,8 @@ export const errorRouter = [
     name: "403",
     component: createAdminStaticViewLoader(ADMIN_STATIC_VIEWS.FORBIDDEN),
     meta: {
-      title: "403页面"
+      title: "",
+      titleKey: "core.route.forbidden"
     }
   },
   {
@@ -54,7 +56,8 @@ export const errorRouter = [
     name: "404",
     component: createAdminStaticViewLoader(ADMIN_STATIC_VIEWS.NOT_FOUND),
     meta: {
-      title: "404页面"
+      title: "",
+      titleKey: "core.route.notFound"
     }
   },
   {
@@ -62,7 +65,8 @@ export const errorRouter = [
     name: "500",
     component: createAdminStaticViewLoader(ADMIN_STATIC_VIEWS.SERVER_ERROR),
     meta: {
-      title: "500页面"
+      title: "",
+      titleKey: "core.route.serverError"
     }
   },
   // Resolve refresh page, route warnings

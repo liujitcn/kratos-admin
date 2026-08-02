@@ -2,28 +2,28 @@
   <div class="table-box">
     <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestBaseJobLogTable" />
 
-    <ProDialog v-model="dialog.visible" :title="dialog.title" width="1200px" @close="handleCloseDialog">
+    <ProDialog v-model="dialog.visible" :title="t('system.jobLog.title.detail')" width="1200px" @close="handleCloseDialog">
       <div class="detail-container">
-        <el-descriptions title="基础信息" border :column="2">
-          <el-descriptions-item label="状态">
+        <el-descriptions :title="t('system.jobLog.section.basic')" border :column="2">
+          <el-descriptions-item :label="t('system.common.field.status')">
             <DictLabel v-model="detail.status" code="base_job_log_status" />
           </el-descriptions-item>
-          <el-descriptions-item label="耗时">{{ detail.process_time }}</el-descriptions-item>
-          <el-descriptions-item label="操作时间">{{ detail.execute_time }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.jobLog.field.processTime')">{{ detail.process_time }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.jobLog.field.executeTime')">{{ detail.execute_time }}</el-descriptions-item>
         </el-descriptions>
 
-        <el-descriptions title="请求信息" border :column="1" class="mt-4">
-          <el-descriptions-item label="执行参数">
+        <el-descriptions :title="t('system.jobLog.section.execution')" border :column="1" class="mt-4">
+          <el-descriptions-item :label="t('system.jobLog.field.input')">
             <pre class="code-block">{{ formatJson(detail.input) }}</pre>
           </el-descriptions-item>
-          <el-descriptions-item label="输出结果">
+          <el-descriptions-item :label="t('system.jobLog.field.output')">
             <pre class="code-block">{{ formatJson(detail.output) }}</pre>
           </el-descriptions-item>
         </el-descriptions>
 
         <el-alert
           v-if="detail.status === BaseJobLogStatus.FAIL"
-          title="失败原因"
+          :title="t('system.jobLog.field.error')"
           type="error"
           :description="detail.error"
           class="mt-4"
@@ -32,14 +32,14 @@
       </div>
 
       <template #footer>
-        <el-button @click="handleCloseDialog">关闭</el-button>
+        <el-button @click="handleCloseDialog">{{ t("common.action.close") }}</el-button>
       </template>
     </ProDialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { InfoFilled } from "@element-plus/icons-vue";
 import type { ColumnProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
@@ -50,6 +50,7 @@ import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
 import { formatJson } from "@liujitcn/kratos-admin-core/format";
 import type { BaseJobLog, PageBaseJobLogRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_job";
 import { BaseJobLogStatus } from "@liujitcn/kratos-admin-system/rpc/system/common/v1/enum";
+import { t } from "@liujitcn/kratos-admin-core";
 
 defineOptions({
   name: "BaseJobLog",
@@ -61,7 +62,6 @@ const proTable = ref<ProTableInstance>();
 const jobId = ref(Number(route.query.jobId ?? 0));
 
 const dialog = reactive({
-  title: "",
   visible: false
 });
 
@@ -90,17 +90,17 @@ function createDefaultDetail(): BaseJobLog {
 const detail = reactive<BaseJobLog>(createDefaultDetail());
 
 /** 定时任务日志表格列配置。 */
-const columns: ColumnProps[] = [
+const columns = computed<ColumnProps[]>(() => [
   {
     prop: "status",
-    label: "状态",
+    label: t("system.common.field.status"),
     minWidth: 120,
     dictCode: "base_job_log_status",
     search: { el: "select" }
   },
   {
     prop: "execute_time",
-    label: "执行时间",
+    label: t("system.jobLog.field.executeTime"),
     minWidth: 180,
     search: {
       el: "date-picker",
@@ -109,22 +109,22 @@ const columns: ColumnProps[] = [
         editable: false,
         class: "!w-[240px]",
         rangeSeparator: "~",
-        startPlaceholder: "开始时间",
-        endPlaceholder: "截止时间",
+        startPlaceholder: t("system.common.placeholder.startDate"),
+        endPlaceholder: t("system.common.placeholder.endDate"),
         valueFormat: "YYYY-MM-DD"
       }
     }
   },
-  { prop: "process_time", label: "消耗时间(ms)", minWidth: 130, align: "right" },
+  { prop: "process_time", label: t("system.jobLog.field.processTimeMs"), minWidth: 130, align: "right" },
   {
     prop: "detailAction",
-    label: "操作",
+    label: t("system.common.field.action"),
     width: 100,
     fixed: "right",
     cellType: "actions",
     actions: [
       {
-        label: "详情",
+        label: t("common.action.view"),
         type: "primary",
         link: true,
         icon: InfoFilled,
@@ -132,7 +132,7 @@ const columns: ColumnProps[] = [
       }
     ]
   }
-];
+]);
 
 watch(
   () => route.query.jobId,
@@ -155,7 +155,6 @@ async function requestBaseJobLogTable(params: PageBaseJobLogRequest) {
  */
 function handleOpenDialog(logId?: number) {
   resetDetail();
-  dialog.title = "定时任务日志详情";
   dialog.visible = true;
   if (!logId) return;
 

@@ -2,23 +2,33 @@
   <aside class="agent-session-panel">
     <el-input
       :model-value="keyword"
-      placeholder="搜索对话"
+      :placeholder="t('system.ai.chat.placeholder.searchConversation')"
       clearable
       :prefix-icon="Search"
       @update:model-value="handleKeywordUpdate"
     />
     <div class="agent-divider"></div>
     <div class="agent-panel-header">
-      <div class="agent-panel-title">最近对话</div>
+      <div class="agent-panel-title">{{ t("system.ai.chat.title.recentConversations") }}</div>
       <div class="agent-panel-actions">
-        <el-tooltip content="收起会话栏" placement="top">
-          <button class="agent-panel-icon" type="button" aria-label="收起会话栏" @click="$emit('toggleCollapse')">
+        <el-tooltip :content="t('system.ai.chat.action.collapseSessions')" placement="top">
+          <button
+            class="agent-panel-icon"
+            type="button"
+            :aria-label="t('system.ai.chat.action.collapseSessions')"
+            @click="$emit('toggleCollapse')"
+          >
             <el-icon><DArrowLeft /></el-icon>
           </button>
         </el-tooltip>
-        <button class="agent-panel-create" type="button" aria-label="新建会话" @click="handleCreateSession">
+        <button
+          class="agent-panel-create"
+          type="button"
+          :aria-label="t('system.ai.chat.action.newConversation')"
+          @click="handleCreateSession"
+        >
           <el-icon><Plus /></el-icon>
-          <span>新建</span>
+          <span>{{ t("common.action.create") }}</span>
         </button>
       </div>
     </div>
@@ -48,13 +58,13 @@
           @click.stop
           @command="command => handleMenuCommand(command, item)"
         >
-          <button class="agent-session-more" type="button" aria-label="会话操作">
+          <button class="agent-session-more" type="button" :aria-label="t('system.ai.chat.action.conversationMenu')">
             <el-icon><MoreFilled /></el-icon>
           </button>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item command="rename" :icon="EditPen">重命名</el-dropdown-item>
-              <el-dropdown-item command="delete" :icon="Delete" divided>删除</el-dropdown-item>
+              <el-dropdown-item command="rename" :icon="EditPen">{{ t("system.ai.chat.action.rename") }}</el-dropdown-item>
+              <el-dropdown-item command="delete" :icon="Delete" divided>{{ t("common.action.delete") }}</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -65,6 +75,7 @@
 
 <script setup lang="ts" name="SessionPanel">
 import { DArrowLeft, Delete, EditPen, MoreFilled, Plus, Search } from "@element-plus/icons-vue";
+import { t } from "@liujitcn/kratos-admin-core";
 import type { AiSession } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 
 /** 会话列表支持的菜单操作。 */

@@ -9,7 +9,7 @@ import {
   View,
 } from '@tarojs/components'
 import Taro, { useLoad } from '@tarojs/taro'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import defaultAvatar from '@liujitcn/kratos-taro-app-core/static/images/avatar.png'
 import navigatorBackground from '@liujitcn/kratos-taro-app-core/static/images/navigator_bg.png'
 import { defAuthService } from '@liujitcn/kratos-taro-app-core/api/system/auth'
@@ -20,6 +20,7 @@ import {
   formatSrc,
   navigateToLogin,
   uploadFile,
+  useI18n,
   useUserStore,
 } from '@liujitcn/kratos-taro-app-core'
 import './profile.scss'
@@ -28,6 +29,7 @@ const IMG_MAX_SIZE = 1024 * 1024
 
 /** 用户个人资料编辑页。 */
 export default function ProfilePage() {
+  const { locale, t } = useI18n()
   const [userInfo, setUserInfo] = useState<UserProfileForm>({
     user_name: '',
     nick_name: '',
@@ -38,6 +40,10 @@ export default function ProfilePage() {
   const [genderList, setGenderList] = useState<BaseDictForm_DictItem[]>([])
   const ensureAuthenticated = useUserStore((state) => state.ensureAuthenticated)
   const safeTop = Taro.getWindowInfo().safeArea?.top || 0
+
+  useEffect(() => {
+    void Taro.setNavigationBarTitle({ title: t('system.profile.title') })
+  }, [locale, t])
 
   const requireAuth = () => {
     if (ensureAuthenticated()) return true
@@ -66,9 +72,9 @@ export default function ProfilePage() {
       await defAuthService.UpdateUserProfile(nextProfile)
       setUserInfo(nextProfile)
       await useUserStore.getState().getUserProfile()
-      await Taro.showToast({ icon: 'success', title: '更新成功' })
+      await Taro.showToast({ icon: 'success', title: t('system.profile.updateSuccess') })
     } catch {
-      await Taro.showToast({ icon: 'error', title: '上传头像失败' })
+      await Taro.showToast({ icon: 'error', title: t('system.profile.avatarUploadFailed') })
     }
   }
 
@@ -81,7 +87,7 @@ export default function ProfilePage() {
     const file = selected.tempFiles[0]
     const filePath = 'tempFilePath' in file ? file.tempFilePath : file.path
     if (file.size > IMG_MAX_SIZE) {
-      await Taro.showToast({ title: '请上传小于1M的照片', icon: 'none', duration: 1500 })
+      await Taro.showToast({ title: t('system.profile.photoLimit'), icon: 'none', duration: 1500 })
       return
     }
     await uploadAvatar(filePath)
@@ -92,14 +98,14 @@ export default function ProfilePage() {
     const response = await defAuthService.BindUserPhone({ code: event.detail.code || '' })
     setUserInfo((current) => ({ ...current, phone: response.phone }))
     await useUserStore.getState().getUserProfile()
-    await Taro.showToast({ icon: 'success', title: '授权成功' })
+    await Taro.showToast({ icon: 'success', title: t('system.profile.phoneAuthorizationSuccess') })
   }
 
   const onSubmit = async () => {
     if (!requireAuth()) return
     await defAuthService.UpdateUserProfile(userInfo)
     await useUserStore.getState().getUserProfile()
-    await Taro.showToast({ icon: 'success', title: '保存成功' })
+    await Taro.showToast({ icon: 'success', title: t('system.profile.saveSuccess') })
     setTimeout(() => void Taro.navigateBack(), 400)
   }
 
@@ -107,40 +113,40 @@ export default function ProfilePage() {
     <View className='profile-viewport' style={{ backgroundImage: `url(${navigatorBackground})` }}>
       <View className='profile-navbar' style={{ paddingTop: `${safeTop}px` }}>
         <View className='profile-back' onClick={() => void Taro.navigateBack()}>‹</View>
-        <View className='profile-navbar__title'>个人信息</View>
+        <View className='profile-navbar__title'>{t('system.profile.title')}</View>
       </View>
       <View className='profile-avatar'>
         <View className='profile-avatar__content' onClick={() => void onAvatarChange()}>
           <Image className='profile-avatar__image' src={userInfo.avatar ? formatSrc(userInfo.avatar) : defaultAvatar} mode='aspectFill' />
-          <Text className='profile-avatar__text'>点击修改头像</Text>
+          <Text className='profile-avatar__text'>{t('system.profile.avatarChange')}</Text>
         </View>
       </View>
       <View className='profile-form'>
         <View className='profile-form__content'>
           {userInfo.user_name ? (
             <View className='profile-form__item'>
-              <Text className='profile-label'>账号</Text>
+              <Text className='profile-label'>{t('system.profile.account')}</Text>
               <Text className='profile-account profile-placeholder'>{userInfo.user_name}</Text>
             </View>
           ) : null}
           {process.env.TARO_ENV === 'weapp' ? (
             <View className='profile-form__item'>
-              <Text className='profile-label'>手机号</Text>
+              <Text className='profile-label'>{t('system.profile.mobile')}</Text>
               <View className='profile-input'>
                 {userInfo.phone ? (
                   <Text className='profile-account'>{userInfo.phone}</Text>
                 ) : (
-                  <Button className='profile-auth-button' openType='getPhoneNumber' onGetPhoneNumber={onGetPhoneNumber}>微信授权手机号</Button>
+                  <Button className='profile-auth-button' openType='getPhoneNumber' onGetPhoneNumber={onGetPhoneNumber}>{t('system.profile.phoneAuthorization')}</Button>
                 )}
               </View>
             </View>
           ) : null}
           <View className='profile-form__item'>
-            <Text className='profile-label'>昵称</Text>
-            <Input className='profile-input' placeholder='请填写昵称' value={userInfo.nick_name} onInput={(event) => setUserInfo((current) => ({ ...current, nick_name: event.detail.value }))} />
+            <Text className='profile-label'>{t('system.profile.nickName')}</Text>
+            <Input className='profile-input' placeholder={t('system.profile.nickNamePlaceholder')} value={userInfo.nick_name} onInput={(event) => setUserInfo((current) => ({ ...current, nick_name: event.detail.value }))} />
           </View>
           <View className='profile-form__item'>
-            <Text className='profile-label'>性别</Text>
+            <Text className='profile-label'>{t('system.profile.gender')}</Text>
             <RadioGroup onChange={(event) => setUserInfo((current) => ({ ...current, gender: Number(event.detail.value) }))}>
               {genderList.map((item) => (
                 <Label className='profile-radio' key={item.value}>
@@ -151,7 +157,7 @@ export default function ProfilePage() {
             </RadioGroup>
           </View>
         </View>
-        <Button className='profile-form__button' onClick={() => void onSubmit()}>保 存</Button>
+        <Button className='profile-form__button' onClick={() => void onSubmit()}>{t('common.action.save')}</Button>
       </View>
     </View>
   )

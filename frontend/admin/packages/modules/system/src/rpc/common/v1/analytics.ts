@@ -15,7 +15,7 @@ export enum AnalyticsTimeType {
   /** ANALYTICS_TIME_TYPE_MONTH - 按月统计。 */
   ANALYTICS_TIME_TYPE_MONTH = 2,
   /** ANALYTICS_TIME_TYPE_YEAR - 按年统计。 */
-  ANALYTICS_TIME_TYPE_YEAR = 3,
+  ANALYTICS_TIME_TYPE_YEAR = 3
 }
 
 /** 分析图表系列类型。 */
@@ -25,7 +25,7 @@ export enum AnalyticsSeriesType {
   /** ANALYTICS_SERIES_TYPE_BAR - 柱状图系列。 */
   ANALYTICS_SERIES_TYPE_BAR = 1,
   /** ANALYTICS_SERIES_TYPE_LINE - 折线图系列。 */
-  ANALYTICS_SERIES_TYPE_LINE = 2,
+  ANALYTICS_SERIES_TYPE_LINE = 2
 }
 
 /** 分析时间请求参数。 */

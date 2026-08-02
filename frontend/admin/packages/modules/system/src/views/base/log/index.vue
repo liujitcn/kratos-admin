@@ -2,69 +2,92 @@
   <div class="table-box">
     <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestBaseLogTable" />
 
-    <ProDialog v-model="dialog.visible" :title="dialog.title" width="1500px" @close="handleCloseDialog">
+    <ProDialog v-model="dialog.visible" :title="t('system.log.title.detail')" width="1500px" @close="handleCloseDialog">
       <div class="detail-container">
-        <el-descriptions title="基础信息" border :column="2">
-          <el-descriptions-item label="操作结果">
+        <el-descriptions :title="t('system.log.section.basic')" border :column="2">
+          <el-descriptions-item :label="t('system.log.field.result')">
             <el-tag :type="detail.is_success ? 'success' : 'danger'" effect="light">
-              {{ detail.is_success ? "成功" : "失败" }}
+              {{ t(detail.is_success ? "system.log.status.success" : "system.log.status.failed") }}
             </el-tag>
           </el-descriptions-item>
-          <el-descriptions-item label="状态码">
+          <el-descriptions-item :label="t('system.log.field.statusCode')">
             <el-tag :type="statusCodeColor" effect="light">{{ detail.status_code || "--" }}</el-tag>
           </el-descriptions-item>
-          <el-descriptions-item label="耗时">{{ detail.cost_time || "--" }}</el-descriptions-item>
-          <el-descriptions-item label="操作时间">{{ detail.request_time || "--" }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.log.field.costTime')">{{ detail.cost_time || "--" }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.log.field.requestTime')">{{
+            detail.request_time || "--"
+          }}</el-descriptions-item>
         </el-descriptions>
 
-        <el-descriptions title="请求信息" border :column="2" direction="vertical" class="mt-4 compact-descriptions">
-          <el-descriptions-item label="请求ID">{{ detail.request_id || "--" }}</el-descriptions-item>
-          <el-descriptions-item label="操作方法">
+        <el-descriptions
+          :title="t('system.log.section.request')"
+          border
+          :column="2"
+          direction="vertical"
+          class="mt-4 compact-descriptions"
+        >
+          <el-descriptions-item :label="t('system.log.field.requestId')">{{ detail.request_id || "--" }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.log.field.operation')">
             <el-tag effect="plain">{{ detail.operation || "--" }}</el-tag>
           </el-descriptions-item>
-          <el-descriptions-item label="请求方法">
+          <el-descriptions-item :label="t('system.log.field.method')">
             <el-tag effect="plain">{{ detail.method || "--" }}</el-tag>
           </el-descriptions-item>
-          <el-descriptions-item label="请求路径">{{ detail.path || "--" }}</el-descriptions-item>
-          <el-descriptions-item v-if="detail.request_uri" label="请求 URI" :span="2">{{
+          <el-descriptions-item :label="t('system.log.field.path')">{{ detail.path || "--" }}</el-descriptions-item>
+          <el-descriptions-item v-if="detail.request_uri" :label="t('system.log.field.requestUri')" :span="2">{{
             detail.request_uri
           }}</el-descriptions-item>
-          <el-descriptions-item v-if="detail.referer" label="来源页" :span="2">{{ detail.referer }}</el-descriptions-item>
-          <el-descriptions-item label="请求头" :span="2">
+          <el-descriptions-item v-if="detail.referer" :label="t('system.log.field.referer')" :span="2">{{
+            detail.referer
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.log.field.requestHeader')" :span="2">
             <pre class="code-block">{{ formatPayload(detail.request_header) }}</pre>
           </el-descriptions-item>
-          <el-descriptions-item label="请求体" :span="2">
+          <el-descriptions-item :label="t('system.log.field.requestBody')" :span="2">
             <pre class="code-block">{{ formatPayload(detail.request_body) }}</pre>
           </el-descriptions-item>
-          <el-descriptions-item label="请求结果" :span="2">
+          <el-descriptions-item :label="t('system.log.field.requestResult')" :span="2">
             <pre class="code-block">{{ formatPayload(detail.response) }}</pre>
           </el-descriptions-item>
         </el-descriptions>
 
-        <el-descriptions title="用户信息" border :column="2" class="mt-4">
-          <el-descriptions-item label="用户ID">{{ detail.user_id || "--" }}</el-descriptions-item>
-          <el-descriptions-item label="用户名">{{ detail.user_name || "--" }}</el-descriptions-item>
-          <el-descriptions-item label="客户端IP">{{ detail.client_ip || "--" }}</el-descriptions-item>
-          <el-descriptions-item label="地理位置">{{ detail.location || "--" }}</el-descriptions-item>
+        <el-descriptions :title="t('system.log.section.user')" border :column="2" class="mt-4">
+          <el-descriptions-item :label="t('system.log.field.userId')">{{ detail.user_id || "--" }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.log.field.userName')">{{ detail.user_name || "--" }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.log.field.clientIp')">{{ detail.client_ip || "--" }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.log.field.location')">{{ detail.location || "--" }}</el-descriptions-item>
         </el-descriptions>
 
-        <el-descriptions title="客户端信息" border :column="2" direction="vertical" class="mt-4 compact-descriptions">
-          <el-descriptions-item label="浏览器">
+        <el-descriptions
+          :title="t('system.log.section.client')"
+          border
+          :column="2"
+          direction="vertical"
+          class="mt-4 compact-descriptions"
+        >
+          <el-descriptions-item :label="t('system.log.field.browser')">
             {{ [detail.browser_name, detail.browser_version].filter(Boolean).join(" ") || "--" }}
           </el-descriptions-item>
-          <el-descriptions-item label="操作系统">
+          <el-descriptions-item :label="t('system.log.field.os')">
             {{ [detail.os_name, detail.os_version].filter(Boolean).join(" ") || "--" }}
           </el-descriptions-item>
-          <el-descriptions-item label="客户端名称">{{ detail.client_name || "--" }}</el-descriptions-item>
-          <el-descriptions-item label="客户端ID">{{ detail.client_id || "--" }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.log.field.clientName')">{{ detail.client_name || "--" }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.log.field.clientId')">{{ detail.client_id || "--" }}</el-descriptions-item>
           <el-descriptions-item label="User Agent" :span="2">{{ detail.user_agent || "--" }}</el-descriptions-item>
         </el-descriptions>
 
-        <el-alert v-if="!detail.is_success" title="失败原因" type="error" :description="detail.reason" class="mt-4" show-icon />
+        <el-alert
+          v-if="!detail.is_success"
+          :title="t('system.log.field.reason')"
+          type="error"
+          :description="detail.reason"
+          class="mt-4"
+          show-icon
+        />
       </div>
 
       <template #footer>
-        <el-button @click="handleCloseDialog">关闭</el-button>
+        <el-button @click="handleCloseDialog">{{ t("common.action.close") }}</el-button>
       </template>
     </ProDialog>
   </div>
@@ -80,6 +103,7 @@ import { defBaseLogService } from "@liujitcn/kratos-admin-system/api/system/base
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
 import { formatJson } from "@liujitcn/kratos-admin-core/format";
 import type { BaseLog, PageBaseLogRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_log";
+import { t } from "@liujitcn/kratos-admin-core";
 
 defineOptions({
   name: "BaseLog",
@@ -89,7 +113,6 @@ defineOptions({
 const proTable = ref<ProTableInstance>();
 
 const dialog = reactive({
-  title: "",
   visible: false
 });
 
@@ -194,22 +217,22 @@ function formatPayload(value: string): string {
 }
 
 /** 日志表格列配置。 */
-const columns: ColumnProps[] = [
+const columns = computed<ColumnProps[]>(() => [
   {
     prop: "operation",
-    label: "操作方法",
+    label: t("system.log.field.operation"),
     minWidth: 240,
     search: { el: "input" }
   },
   {
     prop: "status_code",
-    label: "状态码",
+    label: t("system.log.field.statusCode"),
     minWidth: 100,
     search: { el: "input-number", props: { min: 0, controlsPosition: "right" } }
   },
   {
     prop: "request_time",
-    label: "操作时间",
+    label: t("system.log.field.requestTime"),
     minWidth: 140,
     search: {
       el: "date-picker",
@@ -218,27 +241,27 @@ const columns: ColumnProps[] = [
         editable: false,
         class: "!w-[240px]",
         rangeSeparator: "~",
-        startPlaceholder: "开始时间",
-        endPlaceholder: "截止时间",
+        startPlaceholder: t("system.common.placeholder.startDate"),
+        endPlaceholder: t("system.common.placeholder.endDate"),
         valueFormat: "YYYY-MM-DD"
       }
     }
   },
-  { prop: "user_name", label: "操作人", minWidth: 80 },
-  { prop: "client_ip", label: "IP 地址", minWidth: 80 },
-  { prop: "location", label: "地区", minWidth: 80 },
-  { prop: "browser_name", label: "浏览器", minWidth: 80 },
-  { prop: "os_name", label: "终端系统", minWidth: 80 },
-  { prop: "cost_time", label: "执行时间(ms)", minWidth: 100, align: "right" },
+  { prop: "user_name", label: t("system.log.field.userName"), minWidth: 80 },
+  { prop: "client_ip", label: t("system.log.field.clientIp"), minWidth: 80 },
+  { prop: "location", label: t("system.log.field.location"), minWidth: 80 },
+  { prop: "browser_name", label: t("system.log.field.browser"), minWidth: 80 },
+  { prop: "os_name", label: t("system.log.field.os"), minWidth: 80 },
+  { prop: "cost_time", label: t("system.log.field.costTime"), minWidth: 100, align: "right" },
   {
     prop: "detailAction",
-    label: "操作",
+    label: t("system.common.field.action"),
     width: 100,
     fixed: "right",
     cellType: "actions",
     actions: [
       {
-        label: "详情",
+        label: t("common.action.view"),
         type: "primary",
         link: true,
         icon: InfoFilled,
@@ -246,7 +269,7 @@ const columns: ColumnProps[] = [
       }
     ]
   }
-];
+]);
 
 /**
  * 请求系统日志列表，并通过 buildPageRequest 统一处理分页参数。
@@ -261,7 +284,6 @@ async function requestBaseLogTable(params: PageBaseLogRequest) {
  */
 function handleOpenDialog(logId?: number) {
   resetDetail();
-  dialog.title = "系统日志详情";
   dialog.visible = true;
   if (!logId) return;
 

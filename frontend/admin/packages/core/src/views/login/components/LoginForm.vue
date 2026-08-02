@@ -1,7 +1,7 @@
 <template>
   <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" size="large">
     <el-form-item prop="tenant_code">
-      <el-input v-model="loginForm.tenant_code" placeholder="请输入租户编码">
+      <el-input v-model="loginForm.tenant_code" :placeholder="t('core.login.tenantCode')">
         <template #prefix>
           <el-icon class="el-input__icon">
             <office-building />
@@ -10,7 +10,7 @@
       </el-input>
     </el-form-item>
     <el-form-item prop="user_name">
-      <el-input v-model="loginForm.user_name" placeholder="请输入用户名">
+      <el-input v-model="loginForm.user_name" :placeholder="t('core.login.userName')">
         <template #prefix>
           <el-icon class="el-input__icon">
             <user />
@@ -19,7 +19,13 @@
       </el-input>
     </el-form-item>
     <el-form-item prop="password">
-      <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" show-password autocomplete="new-password">
+      <el-input
+        v-model="loginForm.password"
+        type="password"
+        :placeholder="t('core.login.password')"
+        show-password
+        autocomplete="new-password"
+      >
         <template #prefix>
           <el-icon class="el-input__icon">
             <lock />
@@ -29,7 +35,11 @@
     </el-form-item>
     <el-form-item v-if="!isBehaviorCaptcha" prop="captcha_code">
       <div class="captcha-row">
-        <el-input v-model="loginForm.captcha_code" placeholder="请输入验证码" @keyup.enter="handleLogin(loginFormRef)">
+        <el-input
+          v-model="loginForm.captcha_code"
+          :placeholder="t('core.login.captcha')"
+          @keyup.enter="handleLogin(loginFormRef)"
+        >
           <template #prefix>
             <el-icon class="el-input__icon">
               <Key />
@@ -41,7 +51,7 @@
           class="captcha-image"
           :style="{ width: captchaImageWidth }"
           :src="captcha_base64"
-          alt="验证码"
+          :alt="t('core.login.captchaAlt')"
           @load="handleCaptchaImageLoad"
           @click="getCaptcha"
         />
@@ -49,28 +59,35 @@
     </el-form-item>
   </el-form>
   <div class="login-btn">
-    <el-button :icon="CircleClose" round size="large" @click="resetForm(loginFormRef)"> 重置 </el-button>
-    <el-button :icon="UserFilled" round size="large" type="primary" :loading="loading || oauthTicketLoading" @click="handleLogin(loginFormRef)">
-      登录
+    <el-button :icon="CircleClose" round size="large" @click="resetForm(loginFormRef)">{{ t("common.action.reset") }}</el-button>
+    <el-button
+      :icon="UserFilled"
+      round
+      size="large"
+      type="primary"
+      :loading="loading || oauthTicketLoading"
+      @click="handleLogin(loginFormRef)"
+    >
+      {{ t("common.action.login") }}
     </el-button>
   </div>
   <div v-if="oauthProviders.length" class="oauth-login">
     <div class="oauth-divider">
-      <span>其他登录方式</span>
+      <span>{{ t("core.login.otherMethods") }}</span>
     </div>
     <div class="oauth-provider-list">
       <el-tooltip
         v-for="provider in oauthProviders"
         :key="provider.provider"
-        :content="provider.name"
+        :content="provider.nameKey.includes('.') ? t(provider.nameKey) : provider.nameKey"
         placement="top"
         :trigger="['hover', 'focus']"
       >
         <button
           class="oauth-provider-button"
           type="button"
-          :aria-label="provider.name"
-          :title="provider.name"
+          :aria-label="provider.nameKey.includes('.') ? t(provider.nameKey) : provider.nameKey"
+          :title="provider.nameKey.includes('.') ? t(provider.nameKey) : provider.nameKey"
           :disabled="oauthTicketLoading || oauthLoadingProvider === provider.provider"
           @click="handleOauthLogin(provider)"
         >
@@ -133,6 +150,7 @@ import { PASSWORD_CRYPTO_SCENE, encryptPassword } from "@/utils/passwordCrypto";
 import { useConfigStore } from "@/stores/modules/config";
 import { Click as GoCaptchaClick, Rotate as GoCaptchaRotate, Slide as GoCaptchaSlide } from "go-captcha-vue";
 import "go-captcha-vue/dist/style.css";
+import { useLocaleStore } from "@/locales";
 
 const router = useRouter();
 const route = useRoute();
@@ -141,6 +159,7 @@ const configStore = useConfigStore();
 const dictStore = useDictStore();
 const tabsStore = useTabsStore();
 const keepAliveStore = useKeepAliveStore();
+const { t } = useLocaleStore();
 
 /** 登录表单实例类型。 */
 type FormInstance = InstanceType<typeof ElForm>;
@@ -150,12 +169,12 @@ const defaultCaptchaImageWidth = 96;
 const captchaImageWidth = ref(`${defaultCaptchaImageWidth}px`);
 const behaviorDialogVisible = ref(false);
 const behaviorLoading = ref(false);
-const loginRules = reactive({
-  tenant_code: [{ required: true, message: "请输入租户编码", trigger: "blur" }],
-  user_name: [{ required: true, message: "请输入用户名", trigger: "blur" }],
-  password: [{ required: true, message: "请输入密码", trigger: "blur" }],
-  captcha_code: [{ required: true, message: "请输入验证码", trigger: "blur" }]
-});
+const loginRules = computed(() => ({
+  tenant_code: [{ required: true, message: t("core.login.tenantCode"), trigger: "blur" }],
+  user_name: [{ required: true, message: t("core.login.userName"), trigger: "blur" }],
+  password: [{ required: true, message: t("core.login.password"), trigger: "blur" }],
+  captcha_code: [{ required: true, message: t("core.login.captcha"), trigger: "blur" }]
+}));
 
 const loading = ref(false);
 const oauthLoadingProvider = ref("");
@@ -245,7 +264,9 @@ const behaviorCaptchaSource = reactive({
   thumbHeight: 60,
   thumbSize: 150
 });
-const behaviorCaptchaDisplayHeight = computed(() => Math.round((behaviorCaptchaSource.height * behaviorCaptchaDisplayWidth) / behaviorCaptchaSource.width));
+const behaviorCaptchaDisplayHeight = computed(() =>
+  Math.round((behaviorCaptchaSource.height * behaviorCaptchaDisplayWidth) / behaviorCaptchaSource.width)
+);
 const behaviorCaptchaScaleX = computed(() => behaviorCaptchaDisplayWidth / behaviorCaptchaSource.width);
 const behaviorCaptchaScaleY = computed(() => behaviorCaptchaDisplayHeight.value / behaviorCaptchaSource.height);
 const rotateCaptchaScale = computed(() => rotateCaptchaDisplaySize / behaviorCaptchaSource.width);
@@ -260,10 +281,12 @@ const toDisplayCaptchaY = (value: number) => Math.round(value * behaviorCaptchaS
 const toDisplayRotateSize = (value: number) => Math.round(value * rotateCaptchaScale.value);
 
 /** 将前端展示 X 坐标换算回服务端原始坐标。 */
-const toOriginalCaptchaX = (value: number) => Math.min(behaviorCaptchaSource.width, Math.max(0, Math.round(value / behaviorCaptchaScaleX.value)));
+const toOriginalCaptchaX = (value: number) =>
+  Math.min(behaviorCaptchaSource.width, Math.max(0, Math.round(value / behaviorCaptchaScaleX.value)));
 
 /** 将前端展示 Y 坐标换算回服务端原始坐标。 */
-const toOriginalCaptchaY = (value: number) => Math.min(behaviorCaptchaSource.height, Math.max(0, Math.round(value / behaviorCaptchaScaleY.value)));
+const toOriginalCaptchaY = (value: number) =>
+  Math.min(behaviorCaptchaSource.height, Math.max(0, Math.round(value / behaviorCaptchaScaleY.value)));
 const slideCaptchaConfig = computed(() => ({
   width: behaviorCaptchaDisplayWidth,
   height: behaviorCaptchaDisplayHeight.value,
@@ -273,7 +296,7 @@ const slideCaptchaConfig = computed(() => ({
   verticalPadding: 0,
   horizontalPadding: 0,
   iconSize: 20,
-  title: "请拖动滑块完成拼图"
+  title: t("core.login.behaviorPuzzle")
 }));
 const clickCaptchaConfig = computed(() => ({
   width: behaviorCaptchaDisplayWidth,
@@ -283,10 +306,10 @@ const clickCaptchaConfig = computed(() => ({
   showTheme: false,
   verticalPadding: 0,
   horizontalPadding: 0,
-  buttonText: "确认",
+  buttonText: t("core.login.behaviorConfirm"),
   iconSize: 20,
   dotSize: 20,
-  title: "请按顺序点击文字"
+  title: t("core.login.behaviorClick")
 }));
 const rotateCaptchaConfig = computed(() => ({
   width: behaviorCaptchaDisplayWidth,
@@ -296,7 +319,7 @@ const rotateCaptchaConfig = computed(() => ({
   verticalPadding: 0,
   horizontalPadding: 0,
   iconSize: 20,
-  title: "拖动滑块，将内圈图片转正"
+  title: t("core.login.behaviorRotate")
 }));
 const slideCaptchaEvents = {
   refresh: () => getCaptcha(),
@@ -307,7 +330,10 @@ const clickCaptchaEvents = {
   refresh: () => getCaptcha(),
   close: () => closeBehaviorCaptcha(),
   confirm: (dots: ClickCaptchaPoint[], reset: () => void) =>
-    verifyBehaviorCaptcha(JSON.stringify(dots.map(dot => ({ x: toOriginalCaptchaX(dot.x), y: toOriginalCaptchaY(dot.y) }))), reset)
+    verifyBehaviorCaptcha(
+      JSON.stringify(dots.map(dot => ({ x: toOriginalCaptchaX(dot.x), y: toOriginalCaptchaY(dot.y) }))),
+      reset
+    )
 };
 const rotateCaptchaEvents = {
   refresh: () => getCaptcha(),
@@ -402,7 +428,7 @@ const finishLogin = async () => {
   await navigateTo(router, getLoginRedirectPath());
   ElNotification({
     title: getTimeState(),
-    message: "欢迎登录管理后台",
+    message: t("core.login.welcome"),
     type: "success",
     duration: 3000
   });

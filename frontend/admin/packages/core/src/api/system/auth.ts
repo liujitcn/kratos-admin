@@ -38,7 +38,6 @@ export class AuthServiceImpl {
       params: request
     });
   }
-
 }
 
 /** defAuthService 管理端运行壳认证服务实例。 */

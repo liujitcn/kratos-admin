@@ -29,18 +29,26 @@ import { useGlobalStore } from "@/stores/modules/global";
 import type { RouteItem } from "@/rpc/system/admin/v1/auth";
 import { BaseMenuType } from "@/rpc/system/common/v1/enum";
 import { getRouteMetaIcon, getRouteMetaTitle, getRouteTarget, isExternalPath } from "@/utils";
+import { useLocaleStore } from "@/locales";
 
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 const globalStore = useGlobalStore();
+const { t } = useLocaleStore();
 
 const breadcrumbList = computed(() => {
   let breadcrumbData = authStore.breadcrumbListGet[route.matched[route.matched.length - 1].path] ?? [];
   // 🙅‍♀️不需要首页面包屑可删除以下判断
-  if (breadcrumbData[0]?.path !== HOME_URL && getRouteMetaTitle(breadcrumbData[0]?.meta) !== "首页") {
+  if (breadcrumbData[0]?.path !== HOME_URL) {
     breadcrumbData = [
-      { path: HOME_URL, name: "home", type: BaseMenuType.MENU, meta: { icon: "HomeFilled", title: "首页", params: [] }, children: [] },
+      {
+        path: HOME_URL,
+        name: "home",
+        type: BaseMenuType.MENU,
+        meta: { icon: "HomeFilled", title: t("core.layout.home"), params: [] },
+        children: []
+      },
       ...breadcrumbData
     ];
   }

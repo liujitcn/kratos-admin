@@ -3,9 +3,24 @@ import { useUserStore } from '@liujitcn/kratos-uni-app-core/stores'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import { navigateToLogin } from '@liujitcn/kratos-uni-app-core/utils/navigation'
+import { SUPPORTED_LOCALES, useI18n, type SupportedLocale } from '@liujitcn/kratos-uni-app-core'
+import { computed, watch } from 'vue'
 
 const userStore = useUserStore()
+const { locale, setLocale, t } = useI18n()
 const logoutLoading = ref(false)
+const localeLabels = computed(() => SUPPORTED_LOCALES.map((item) => t(`common.language.${item}`)))
+const localeIndex = computed(() => Math.max(0, SUPPORTED_LOCALES.indexOf(locale.value)))
+
+watch(locale, () => void uni.setNavigationBarTitle({ title: t('system.settings.title') }), {
+  immediate: true,
+})
+
+/** 处理语言选择并刷新动态本地化数据。 */
+const onLocaleChange = (event: { detail: { value: string | number } }) => {
+  const nextLocale = SUPPORTED_LOCALES[Number(event.detail.value)] as SupportedLocale | undefined
+  if (nextLocale) void setLocale(nextLocale)
+}
 
 // #ifndef MP-WEIXIN
 // 非微信小程序端未登录时没有可用设置项，直接引导登录以避免显示空白页面。
@@ -23,7 +38,7 @@ const onLogout = () => {
   }
   // 模态弹窗
   uni.showModal({
-    content: '是否退出登录？',
+    content: t('system.settings.logoutConfirm'),
     confirmColor: '#27BA9B',
     success: async (res) => {
       if (!res.confirm) {
@@ -38,7 +53,7 @@ const onLogout = () => {
       } catch (error) {
         await uni.showToast({
           icon: 'none',
-          title: '退出登录失败',
+          title: t('system.settings.logoutFailed'),
         })
       } finally {
         logoutLoading.value = false
@@ -53,14 +68,28 @@ const onLogout = () => {
     <!-- #ifdef MP-WEIXIN -->
     <!-- 列表2 -->
     <view class="list">
-      <button hover-class="none" class="item arrow" open-type="openSetting">授权管理</button>
-      <button hover-class="none" class="item arrow" open-type="feedback">问题反馈</button>
-      <button hover-class="none" class="item arrow" open-type="contact">联系我们</button>
+      <button hover-class="none" class="item arrow" open-type="openSetting">
+        {{ t('system.settings.authorization') }}
+      </button>
+      <button hover-class="none" class="item arrow" open-type="feedback">
+        {{ t('system.settings.feedback') }}
+      </button>
+      <button hover-class="none" class="item arrow" open-type="contact">
+        {{ t('system.settings.contact') }}
+      </button>
     </view>
     <!-- #endif -->
+    <view class="list">
+      <picker :range="localeLabels" :value="localeIndex" @change="onLocaleChange">
+        <view class="item arrow locale-item">
+          <text>{{ t('common.field.language') }}</text>
+          <text class="locale-value">{{ localeLabels[localeIndex] }}</text>
+        </view>
+      </picker>
+    </view>
     <!-- 操作按钮 -->
     <view class="action" v-if="userStore.isAuthenticated()">
-      <view @tap="onLogout" class="button">退出登录</view>
+      <view @tap="onLogout" class="button">{{ t('common.action.logout') }}</view>
     </view>
   </view>
 </template>
@@ -111,6 +140,16 @@ page {
     font-size: 36rpx;
     transform: translateY(-50%);
   }
+}
+
+.locale-item {
+  display: flex;
+  justify-content: space-between;
+  padding-right: 42rpx;
+}
+
+.locale-value {
+  color: #888;
 }
 
 /* 操作按钮 */

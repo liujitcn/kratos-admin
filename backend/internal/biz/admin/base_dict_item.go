@@ -12,23 +12,28 @@ import (
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
+	"gorm.io/gen/field"
 )
 
 // BaseDictItemCase 字典项业务实例
 type BaseDictItemCase struct {
 	*biz.BaseCase
+	tx           data.Transaction
 	baseDictRepo *data.BaseDictRepository
 	*data.BaseDictItemRepository
-	formMapper *mapper.CopierMapper[systemadminv1.BaseDictItemForm, models.BaseDictItem]
-	mapper     *mapper.CopierMapper[systemadminv1.BaseDictItem, models.BaseDictItem]
+	translationCase *biz.TranslationCase
+	formMapper      *mapper.CopierMapper[systemadminv1.BaseDictItemForm, models.BaseDictItem]
+	mapper          *mapper.CopierMapper[systemadminv1.BaseDictItem, models.BaseDictItem]
 }
 
 // NewBaseDictItemCase 创建字典项业务实例
-func NewBaseDictItemCase(baseCase *biz.BaseCase, baseDictRepo *data.BaseDictRepository, baseDictItemRepo *data.BaseDictItemRepository) *BaseDictItemCase {
+func NewBaseDictItemCase(baseCase *biz.BaseCase, tx data.Transaction, baseDictRepo *data.BaseDictRepository, baseDictItemRepo *data.BaseDictItemRepository, translationCase *biz.TranslationCase) *BaseDictItemCase {
 	return &BaseDictItemCase{
 		BaseCase:               baseCase,
+		tx:                     tx,
 		baseDictRepo:           baseDictRepo,
 		BaseDictItemRepository: baseDictItemRepo,
+		translationCase:        translationCase,
 		formMapper:             mapper.NewCopierMapper[systemadminv1.BaseDictItemForm, models.BaseDictItem](),
 		mapper:                 mapper.NewCopierMapper[systemadminv1.BaseDictItem, models.BaseDictItem](),
 	}
@@ -48,18 +53,50 @@ func (c *BaseDictItemCase) PageBaseDictItem(ctx context.Context, req *systemadmi
 		opts = append(opts, repository.Where(query.Status.Eq(int32(req.GetStatus()))))
 	}
 	// 传入标签关键字时，按标签模糊匹配字典项。
+	var err error
 	if req.GetLabel() != "" {
-		opts = append(opts, repository.Where(query.Label.Like("%"+req.GetLabel()+"%")))
+		var translatedIDs []int64
+		translatedIDs, err = c.translationCase.ReviewedDictItemIDsByLabel(ctx, req.GetLabel())
+		if err != nil {
+			return nil, err
+		}
+		labelCondition := query.Label.Like("%" + req.GetLabel() + "%")
+		if len(translatedIDs) > 0 {
+			opts = append(opts, repository.Where(field.Or(labelCondition, query.ID.In(translatedIDs...))))
+		} else {
+			opts = append(opts, repository.Where(labelCondition))
+		}
 	}
 
-	list, total, err := c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
+	var list []*models.BaseDictItem
+	var total int64
+	list, total, err = c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
 	if err != nil {
 		return nil, err
 	}
-
+	itemIDs := make([]int64, 0, len(list))
+	sources := make(map[int64]string, len(list))
+	for _, item := range list {
+		itemIDs = append(itemIDs, item.ID)
+		sources[item.ID] = item.Label
+	}
+	var labels map[int64]string
+	labels, err = c.translationCase.ReviewedDictItemLabels(ctx, itemIDs)
+	if err != nil {
+		return nil, err
+	}
+	var translations map[int64][]*systemadminv1.BaseDictItemTranslation
+	translations, err = c.translationCase.DictItemTranslations(ctx, sources)
+	if err != nil {
+		return nil, err
+	}
 	resList := make([]*systemadminv1.BaseDictItem, 0, len(list))
 	for _, item := range list {
 		baseDictItem := c.mapper.ToDTO(item)
+		baseDictItem.Translations = translations[item.ID]
+		if translated := labels[item.ID]; translated != "" {
+			baseDictItem.Label = translated
+		}
 		resList = append(resList, baseDictItem)
 	}
 	return &systemadminv1.PageBaseDictItemResponse{BaseDictItems: resList, Total: int32(total)}, nil
@@ -72,40 +109,67 @@ func (c *BaseDictItemCase) GetBaseDictItem(ctx context.Context, id int64) (*syst
 		return nil, err
 	}
 	res := c.formMapper.ToDTO(baseDictItem)
+	var translations map[int64][]*systemadminv1.BaseDictItemTranslation
+	translations, err = c.translationCase.DictItemTranslations(ctx, map[int64]string{id: baseDictItem.Label})
+	if err != nil {
+		return nil, err
+	}
+	res.Translations = translations[id]
 	return res, nil
 }
 
 // CreateBaseDictItem 创建字典项
 func (c *BaseDictItemCase) CreateBaseDictItem(ctx context.Context, req *systemadminv1.BaseDictItemForm) error {
 	baseDictItem := c.formMapper.ToEntity(req)
-	err := c.Create(ctx, baseDictItem)
-	if err != nil {
-		// 命中字典项属性值唯一索引冲突时，返回稳定的业务冲突错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
-			return errorsx.UniqueConflict("同一字典的属性值重复", "base_dict_item", "", "unique_base_dict").WithCause(err)
+	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+		var err error
+		err = c.Create(ctx, baseDictItem)
+		if err != nil {
+			// 命中字典项属性值唯一索引冲突时，返回稳定的业务冲突错误。
+			if errorsx.IsMySQLDuplicateKey(err) {
+				return errorsx.UniqueConflict("同一字典的属性值重复", "base_dict_item", "", "unique_base_dict").WithCause(err)
+			}
+			return err
 		}
-		return err
-	}
-	return nil
+		return c.translationCase.SaveDictItemTranslations(ctx, baseDictItem.ID, baseDictItem.Label, req.GetTranslations())
+	})
 }
 
 // UpdateBaseDictItem 更新字典项
 func (c *BaseDictItemCase) UpdateBaseDictItem(ctx context.Context, req *systemadminv1.BaseDictItemForm) error {
 	baseDictItem := c.formMapper.ToEntity(req)
-	err := c.UpdateByID(ctx, baseDictItem)
-	if err != nil {
-		// 命中字典项属性值唯一索引冲突时，返回稳定的业务冲突错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
-			return errorsx.UniqueConflict("同一字典的属性值重复", "base_dict_item", "", "unique_base_dict").WithCause(err)
+	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+		current, err := c.FindByID(ctx, req.GetId())
+		if err != nil {
+			return err
 		}
-		return err
-	}
-	return nil
+		err = c.UpdateByID(ctx, baseDictItem)
+		if err != nil {
+			// 命中字典项属性值唯一索引冲突时，返回稳定的业务冲突错误。
+			if errorsx.IsMySQLDuplicateKey(err) {
+				return errorsx.UniqueConflict("同一字典的属性值重复", "base_dict_item", "", "unique_base_dict").WithCause(err)
+			}
+			return err
+		}
+		err = c.translationCase.MarkDictItemSourceChanged(ctx, current.ID, current.Label, baseDictItem.Label)
+		if err != nil {
+			return err
+		}
+		return c.translationCase.SaveDictItemTranslations(ctx, baseDictItem.ID, baseDictItem.Label, req.GetTranslations())
+	})
 }
 
 // DeleteBaseDictItem 删除字典项
 func (c *BaseDictItemCase) DeleteBaseDictItem(ctx context.Context, id string) error {
-	return c.DeleteByIDs(ctx, _string.ConvertStringToInt64Array(id))
+	ids := _string.ConvertStringToInt64Array(id)
+	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+		var err error
+		err = c.DeleteByIDs(ctx, ids)
+		if err != nil {
+			return err
+		}
+		return c.translationCase.DeleteDictItemTranslations(ctx, ids)
+	})
 }
 
 // SetBaseDictItemStatus 设置字典项状态

@@ -1,5 +1,5 @@
 <template>
-  <el-tooltip effect="dark" content="组件大小" placement="bottom" :show-after="200">
+  <el-tooltip effect="dark" :content="t('core.header.sizeSelect')" placement="bottom" :show-after="200">
     <el-dropdown trigger="click" @command="setAssemblySize">
       <i :class="'iconfont icon-contentright'" class="toolBar-icon"></i>
       <template #dropdown>
@@ -22,15 +22,17 @@
 import { computed } from "vue";
 import { useGlobalStore } from "@/stores/modules/global";
 import { AssemblySizeType } from "@/stores/interface";
+import { useLocaleStore } from "@/locales";
 
 const globalStore = useGlobalStore();
 const assemblySize = computed(() => globalStore.assemblySize);
+const { t } = useLocaleStore();
 
-const assemblySizeList = [
-  { label: "默认", value: "default" },
-  { label: "大型", value: "large" },
-  { label: "小型", value: "small" }
-];
+const assemblySizeList = computed(() => [
+  { label: t("core.header.size.default"), value: "default" },
+  { label: t("core.header.size.large"), value: "large" },
+  { label: t("core.header.size.small"), value: "small" }
+]);
 
 const setAssemblySize = (item: AssemblySizeType) => {
   if (assemblySize.value === item) return;

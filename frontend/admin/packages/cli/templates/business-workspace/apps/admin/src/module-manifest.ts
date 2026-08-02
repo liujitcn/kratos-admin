@@ -11,9 +11,7 @@ export interface AdminModuleManifestItem {
 }
 
 /** 当前宿主启用的管理端业务模块清单。 */
-export const adminModuleManifest = [
-__MODULE_MANIFEST__
-] satisfies AdminModuleManifestItem[];
+export const adminModuleManifest = [__MODULE_MANIFEST__] satisfies AdminModuleManifestItem[];
 
 /** 当前宿主需要扫描的业务模块包。 */
 export const adminModulePackages = adminModuleManifest.map(item => item.packageName);

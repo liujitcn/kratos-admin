@@ -35,8 +35,10 @@
     <template #footer>
       <slot name="footer">
         <div class="dialog-footer">
-          <el-button @click="handleCancel">{{ cancelText }}</el-button>
-          <el-button type="primary" :loading="confirmLoading" @click="handleConfirm">{{ confirmText }}</el-button>
+          <el-button @click="handleCancel">{{ cancelText || t("common.action.cancel") }}</el-button>
+          <el-button type="primary" :loading="confirmLoading" @click="handleConfirm">
+            {{ confirmText || t("common.action.confirm") }}
+          </el-button>
         </div>
       </slot>
     </template>
@@ -49,6 +51,9 @@ import type { FormRules } from "element-plus";
 import ProDialog from "@/components/Dialog/ProDialog.vue";
 import ProForm from "@/components/ProForm/index.vue";
 import type { ProFormField, ProFormInstance } from "@/components/ProForm/interface";
+import { useLocaleStore } from "@/locales";
+
+const { t } = useLocaleStore();
 
 /** 表单弹窗组件属性。 */
 interface FormDialogProps {
@@ -79,8 +84,8 @@ const props = withDefaults(defineProps<FormDialogProps>(), {
   labelWidth: "110px",
   gutter: 20,
   colSpan: 24,
-  confirmText: "确定",
-  cancelText: "取消",
+  confirmText: "",
+  cancelText: "",
   confirmLoading: false,
   destroyOnClose: false,
   closeOnClickModal: true,

@@ -17,14 +17,14 @@
     <!-- #endif -->
 
     <view v-if="showFallback" class="webview-empty">
-      <view class="webview-empty__title">链接无法打开</view>
+      <view class="webview-empty__title">{{ t('core.webview.openFailed') }}</view>
       <view class="webview-empty__desc">{{ emptyDesc }}</view>
     </view>
 
     <!-- #ifdef H5 -->
     <!-- X-Frame-Options 拒绝嵌入时浏览器仍可能触发 iframe load，始终保留外部打开入口。 -->
     <button v-if="isH5 && url && isIframeTimedOut" class="webview-open-button" @tap="openInBrowser">
-      新窗口打开
+      {{ t('common.action.openInNewWindow') }}
     </button>
     <!-- #endif -->
   </view>
@@ -33,20 +33,22 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
+import { useI18n } from '../../../locales'
 
 const url = ref('')
 const isH5 = ref(false)
 const isIframeLoaded = ref(false)
 const isIframeTimedOut = ref(false)
+const { t } = useI18n()
 
 const showFallback = computed(
   () => !url.value || (isH5.value && isIframeTimedOut.value && !isIframeLoaded.value),
 )
 const emptyDesc = computed(() => {
   if (!url.value) {
-    return '缺少有效链接地址'
+    return t('core.webview.invalidUrl')
   }
-  return '当前 H5 页面可能被目标站点限制嵌入'
+  return t('core.webview.embedBlocked')
 })
 
 onLoad((query) => {

@@ -13,9 +13,7 @@ export interface PageBaseLogRequest {
   /** 操作方法 */
   operation: string;
   /** 状态码 */
-  status_code?:
-    | number
-    | undefined;
+  status_code?: number | undefined;
   /** 当前页码 */
   page_num: number;
   /** 每一页的行数 */

@@ -8,12 +8,13 @@ import {
 } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import type { AiAction } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_message";
 import { AiMessageStatus, Terminal } from "@liujitcn/kratos-admin-system/rpc/base/v1/enum";
+import { t } from "@liujitcn/kratos-admin-core";
 import type { AiStreamPayload, AIFlowBlock, ChatMessageItem, ReplySourceTag } from "./types";
 
 const THINKING_MESSAGE_ID_PREFIX = "ai-thinking";
 const LOCAL_USER_MESSAGE_ID_PREFIX = "ai-user-local";
 const PENDING_STREAM_MESSAGE_ID = "pending";
-const THINKING_MESSAGE_CONTENT = "正在整理回复";
+const thinkingMessageContent = () => t("system.ai.chat.message.thinking");
 
 /** 生成流式消息分组键，确保同一轮回复只更新当前占位气泡。 */
 export function buildStreamMessageKey(sessionID: string, messageID: string) {
@@ -42,7 +43,7 @@ export function resolveTimestamp(timestamp?: { seconds?: number; nanos?: number 
 export function normalizeSession(session?: Partial<AiSession> | null): AiSession {
   return {
     id: String(session?.id ?? ""),
-    title: String(session?.title ?? "新对话"),
+    title: String(session?.title ?? t("system.ai.chat.value.newConversation")),
     summary: String(session?.summary ?? ""),
     updated_at: session?.updated_at,
     terminal: Number(session?.terminal ?? Terminal.TERMINAL_ADMIN)
@@ -60,16 +61,16 @@ export function resolveReplySourceTag(
   item: Pick<ChatMessageItem, "role" | "fallback" | "reply_source" | "model">
 ): ReplySourceTag | undefined {
   if (item.role === "user") return undefined;
-  if (item.fallback) return { text: "降级回复", tone: "warning" };
+  if (item.fallback) return { text: t("system.ai.chat.source.fallback"), tone: "warning" };
   switch (String(item.reply_source ?? "")) {
     case "network":
-      return { text: "网络数据", tone: "success" };
+      return { text: t("system.ai.chat.source.network"), tone: "success" };
     case "llm":
-      return { text: "模型回答", tone: "primary" };
+      return { text: t("system.ai.chat.source.model"), tone: "primary" };
     case "fallback":
-      return { text: "降级回复", tone: "warning" };
+      return { text: t("system.ai.chat.source.fallback"), tone: "warning" };
     default:
-      return item.model ? { text: "模型回答", tone: "primary" } : undefined;
+      return item.model ? { text: t("system.ai.chat.source.model"), tone: "primary" } : undefined;
   }
 }
 
@@ -236,7 +237,7 @@ export function createThinkingMessage(options?: { sessionID?: string; messageID?
       input_content: undefined,
       output_content: {
         kind: "text",
-        content: THINKING_MESSAGE_CONTENT,
+        content: thinkingMessageContent(),
         reply_source: "",
         model: "",
         fallback: false,
@@ -261,7 +262,7 @@ export function createThinkingMessage(options?: { sessionID?: string; messageID?
   message.progressState = "streaming";
   message.localOnly = true;
   message.streamKey = streamKey;
-  message.replySourceTag = { text: "思考中", tone: "info" };
+  message.replySourceTag = { text: t("system.ai.chat.status.thinking"), tone: "info" };
   return message;
 }
 
@@ -290,7 +291,7 @@ export function markAIMessageRegenerating(current: ChatMessageItem[], sessionID:
     if (String(item.id) !== messageID || item.role === "user") return item;
     return {
       ...item,
-      content: THINKING_MESSAGE_CONTENT,
+      content: thinkingMessageContent(),
       fallback: false,
       fallback_reason: "",
       token: normalizeToken(),
@@ -298,7 +299,7 @@ export function markAIMessageRegenerating(current: ChatMessageItem[], sessionID:
       first_token_ms: 0,
       duration_ms: 0,
       progressState: "streaming",
-      replySourceTag: { text: "思考中", tone: "info" },
+      replySourceTag: { text: t("system.ai.chat.status.thinking"), tone: "info" },
       status: AiMessageStatus.GENERATING_AMS,
       streamKey
     };
@@ -362,8 +363,8 @@ export function markThinkingMessageFailed(current: ChatMessageItem[], options?: 
       ...item,
       progressState: "failed",
       status: AiMessageStatus.FAILED_AMS,
-      content: "这次回复没有成功返回，你可以直接重试刚才的问题。",
-      replySourceTag: { text: "发送失败", tone: "warning" }
+      content: t("system.ai.chat.message.replyFailed"),
+      replySourceTag: { text: t("system.ai.chat.status.sendFailed"), tone: "warning" }
     };
   });
 }
@@ -379,13 +380,13 @@ export function appendStreamingDelta(current: ChatMessageItem[], payload: AiStre
   const streamKey = buildStreamMessageKey(String(payload.session_id ?? ""), String(payload.message_id ?? ""));
   return current.map<ChatMessageItem>(item => {
     if (item.streamKey !== streamKey || (!item.localOnly && item.role === "user")) return item;
-    const baseContent = item.content === THINKING_MESSAGE_CONTENT ? "" : item.content;
+    const baseContent = item.content === thinkingMessageContent() ? "" : item.content;
     const nextContent = `${baseContent}${payload.delta ?? ""}`;
     return {
       ...item,
       content: nextContent || item.content,
       progressState: "streaming",
-      replySourceTag: { text: "回答中", tone: "info" }
+      replySourceTag: { text: t("system.ai.chat.status.answering"), tone: "info" }
     };
   });
 }
@@ -401,8 +402,8 @@ export function markStreamingError(current: ChatMessageItem[], payload: AiStream
       ...item,
       progressState: "failed",
       status: AiMessageStatus.FAILED_AMS,
-      content: "这次回复没有成功返回，你可以直接重试刚才的问题。",
-      replySourceTag: { text: "发送失败", tone: "warning" }
+      content: t("system.ai.chat.message.replyFailed"),
+      replySourceTag: { text: t("system.ai.chat.status.sendFailed"), tone: "warning" }
     };
   });
 }

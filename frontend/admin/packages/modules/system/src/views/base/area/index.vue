@@ -17,7 +17,7 @@
     <FormDialog
       v-model="dialog.visible"
       ref="formDialogRef"
-      :title="dialog.title"
+      :title="t(dialog.titleKey)"
       width="640px"
       :model="formData"
       :fields="formFields"
@@ -44,6 +44,7 @@ import { defBaseAreaService } from "@liujitcn/kratos-admin-system/api/system/bas
 import type { TreeBaseAreaRequest, BaseArea, BaseAreaForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_area";
 
 import { normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
+import { t } from "@liujitcn/kratos-admin-core";
 
 defineOptions({
   name: "BaseArea",
@@ -55,7 +56,7 @@ const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
 const dialog = reactive({
-  title: "",
+  titleKey: "system.area.action.create",
   visible: false
 });
 
@@ -65,10 +66,27 @@ const formData = reactive<BaseAreaForm>({
   name: ""
 });
 
-const rules = reactive<FormRules>({
-  parent_id: [{ required: true, message: "父级区域不能为空", trigger: "change" }],
-  name: [{ required: true, message: "区域名称不能为空", trigger: "blur" }, { max: 50, message: "区域名称不能超过 50 个字符", trigger: "blur" }]
-});
+const rules = computed<FormRules>(() => ({
+  parent_id: [
+    {
+      required: true,
+      message: t("system.common.validation.requiredSelect", { field: t("system.area.field.parent") }),
+      trigger: "change"
+    }
+  ],
+  name: [
+    {
+      required: true,
+      message: t("system.common.validation.requiredInput", { field: t("system.area.field.name") }),
+      trigger: "blur"
+    },
+    {
+      max: 50,
+      message: t("system.common.validation.maxLength", { field: t("system.area.field.name"), max: 50 }),
+      trigger: "blur"
+    }
+  ]
+}));
 const parentIdFormOptions = ref<ProFormOption[]>([]);
 
 type GeneratedTreeOption = ProFormOption & {
@@ -85,34 +103,55 @@ function normalizeLazyTreeOptions(options: GeneratedTreeOption[] = []): ProFormO
 }
 
 /** 懒加载parentIdForm树形选项的子节点。 */
-async function loadParentIdFormTreeOptions(node: { level: number; value?: string | number; data?: { value?: string | number } }, resolve: (data: ProFormOption[]) => void) {
+async function loadParentIdFormTreeOptions(
+  node: { level: number; value?: string | number; data?: { value?: string | number } },
+  resolve: (data: ProFormOption[]) => void
+) {
   const parentId = node.level === 0 ? 0 : Number(node.data?.value ?? node.value ?? 0);
-  const response = await defBaseAreaService.OptionBaseArea({ "parent_id": parentId, lazy: true } as Parameters<typeof defBaseAreaService.OptionBaseArea>[0]);
+  const response = await defBaseAreaService.OptionBaseArea({ parent_id: parentId, lazy: true } as Parameters<
+    typeof defBaseAreaService.OptionBaseArea
+  >[0]);
   resolve(normalizeLazyTreeOptions((response.list ?? []) as GeneratedTreeOption[]));
 }
-
 
 void loadFormOptions();
 
 /** 行政区域表单字段配置。 */
 const formFields = computed<ProFormField[]>(() => [
-  { prop: "parent_id", label: "父级区域", component: "tree-select", options: parentIdFormOptions.value, props: { lazy: true, load: loadParentIdFormTreeOptions, placeholder: "请选择", filterable: true, style: { width: "100%" } } },
-  { prop: "name", label: "区域名称", component: "input", props: { placeholder: "请输入区域名称" } }
+  {
+    prop: "parent_id",
+    label: t("system.area.field.parent"),
+    component: "tree-select",
+    options: parentIdFormOptions.value,
+    props: {
+      lazy: true,
+      load: loadParentIdFormTreeOptions,
+      placeholder: t("common.placeholder.select"),
+      filterable: true,
+      style: { width: "100%" }
+    }
+  },
+  {
+    prop: "name",
+    label: t("system.area.field.name"),
+    component: "input",
+    props: { placeholder: t("system.common.validation.requiredInput", { field: t("system.area.field.name") }) }
+  }
 ]);
 
 /** 行政区域表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
-  { prop: "name", label: "区域名称", align: "left", search: { el: "input" } },
+  { prop: "name", label: t("system.area.field.name"), align: "left", search: { el: "input" } },
   {
     prop: "operation",
-    label: "操作",
+    label: t("system.common.field.operation"),
     width: 150,
     fixed: "right",
     cellType: "actions",
     actions: [
       {
-        label: "编辑",
+        label: t("common.action.edit"),
         type: "primary",
         link: true,
         icon: EditPen,
@@ -120,7 +159,7 @@ const columns = computed<ColumnProps[]>(() => [
         onClick: scope => handleOpenDialog((scope.row as BaseArea).id)
       },
       {
-        label: "删除",
+        label: t("common.action.delete"),
         type: "danger",
         link: true,
         icon: Delete,
@@ -132,23 +171,23 @@ const columns = computed<ColumnProps[]>(() => [
 ]);
 
 /** 行政区域顶部按钮配置。 */
-const headerActions: HeaderActionProps[] = [
+const headerActions = computed<HeaderActionProps[]>(() => [
   {
-    label: "新增",
+    label: t("common.action.create"),
     type: "success",
     icon: CirclePlus,
     hidden: () => !BUTTONS.value["base:area:create"],
     onClick: () => handleOpenDialog()
   },
   {
-    label: "删除",
+    label: t("common.action.delete"),
     type: "danger",
     icon: Delete,
     hidden: () => !BUTTONS.value["base:area:delete"],
     disabled: scope => !scope.selectedList.length,
     onClick: scope => handleDelete(scope.selectedList as BaseArea[])
   }
-];
+]);
 
 /**
  * 请求行政区域列表，并适配 ProTable 固定列表字段。
@@ -166,7 +205,7 @@ async function loadAreaChildren(row: BaseArea, _treeNode: unknown, resolve: (dat
     const data = await defBaseAreaService.TreeBaseArea({ parent_id: row.id, lazy: true });
     resolve(data.base_areas ?? []);
   } catch {
-    ElMessage.error("加载行政区域子节点失败");
+    ElMessage.error(t("system.common.message.loadChildrenFailed", { resource: t("system.area.resource") }));
     resolve([]);
   }
 }
@@ -179,8 +218,15 @@ function refreshTable() {
 }
 /** 加载表单选择项。 */
 async function loadFormOptions() {
-  const parentIdFormResponse = await defBaseAreaService.OptionBaseArea({ "parent_id": 0, lazy: true } as Parameters<typeof defBaseAreaService.OptionBaseArea>[0]);
-  parentIdFormOptions.value = [{ label: "顶级节点", value: 0 }, ...normalizeLazyTreeOptions((parentIdFormResponse.list ?? []) as GeneratedTreeOption[]).filter(option => Number(option.value) !== 0)];
+  const parentIdFormResponse = await defBaseAreaService.OptionBaseArea({ parent_id: 0, lazy: true } as Parameters<
+    typeof defBaseAreaService.OptionBaseArea
+  >[0]);
+  parentIdFormOptions.value = [
+    { label: t("system.area.value.root"), value: 0 },
+    ...normalizeLazyTreeOptions((parentIdFormResponse.list ?? []) as GeneratedTreeOption[]).filter(
+      option => Number(option.value) !== 0
+    )
+  ];
 }
 
 /**
@@ -189,7 +235,7 @@ async function loadFormOptions() {
 async function handleOpenDialog(id?: number) {
   resetForm();
   await loadFormOptions();
-  dialog.title = id ? "修改行政区域" : "新增行政区域";
+  dialog.titleKey = id ? "system.area.action.edit" : "system.area.action.create";
   dialog.visible = true;
   if (!id) return;
 
@@ -225,7 +271,11 @@ function handleSubmit() {
       ? defBaseAreaService.UpdateBaseArea({ id: payload.id, base_area: payload })
       : defBaseAreaService.CreateBaseArea({ base_area: payload });
     request.then(() => {
-      ElMessage.success(payload.id ? "修改行政区域成功" : "新增行政区域成功");
+      ElMessage.success(
+        t(payload.id ? "system.common.message.updateSuccess" : "system.common.message.createSuccess", {
+          resource: t("system.area.resource")
+        })
+      );
       handleCloseDialog();
       refreshTable();
     });
@@ -245,24 +295,24 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
     rowList.length ? rowList.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");
   if (!ids) {
-    ElMessage.warning("请勾选删除项");
+    ElMessage.warning(t("system.common.message.selectDeleteItem"));
     return;
   }
 
-  const confirmMessage = rowList.length === 1 ? "是否确定删除行政区域？" : "确认删除已选中的行政区域吗？";
-  ElMessageBox.confirm(confirmMessage, "警告", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
+  const confirmMessage = t(rowList.length === 1 ? "system.area.message.deleteSingle" : "system.area.message.deleteBatch");
+  ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
+    confirmButtonText: t("common.action.confirm"),
+    cancelButtonText: t("common.action.cancel"),
     type: "warning"
   }).then(
     () => {
       defBaseAreaService.DeleteBaseArea({ ids }).then(() => {
-        ElMessage.success("删除行政区域成功");
+        ElMessage.success(t("system.common.message.deleteSuccess", { resource: t("system.area.resource") }));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info("已取消删除行政区域");
+      ElMessage.info(t("system.common.dialog.cancelDelete", { resource: t("system.area.resource") }));
     }
   );
 }

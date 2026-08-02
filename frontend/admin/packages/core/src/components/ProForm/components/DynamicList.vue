@@ -1,16 +1,19 @@
 <template>
   <div class="dynamic-list">
     <div v-for="(item, index) in modelValue" :key="index" class="dynamic-list__item">
-      <el-input v-model="modelValue[index]" v-bind="inputProps" />
+      <el-input v-model="modelValue[index]" v-bind="resolvedInputProps" />
       <el-button :icon="Delete" circle type="danger" plain @click="handleRemove(index)" />
     </div>
-    <el-button :icon="Plus" type="primary" plain @click="handleAdd">添加</el-button>
+    <el-button :icon="Plus" type="primary" plain @click="handleAdd">{{ t("common.action.create") }}</el-button>
   </div>
 </template>
 
 <script setup lang="ts" name="DynamicList">
 import { computed } from "vue";
 import { Delete, Plus } from "@element-plus/icons-vue";
+import { useLocaleStore } from "@/locales";
+
+const { t } = useLocaleStore();
 
 /** 动态字符串列表组件属性。 */
 interface DynamicListProps {
@@ -20,8 +23,10 @@ interface DynamicListProps {
 
 const props = withDefaults(defineProps<DynamicListProps>(), {
   modelValue: () => [],
-  inputProps: () => ({ placeholder: "请输入内容" })
+  inputProps: () => ({})
 });
+
+const resolvedInputProps = computed(() => ({ placeholder: t("common.placeholder.inputContent"), ...props.inputProps }));
 
 const emit = defineEmits<{
   "update:modelValue": [value: string[]];

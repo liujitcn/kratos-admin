@@ -90,12 +90,7 @@ export function copyFirstMatchingCodeGenOption(column: CodeGenOptionCopyColumn, 
   const source = optionScopes
     .filter(scope => scope !== targetScope)
     .map(scope => getCodeGenOptionContainer(column, scope))
-    .find(
-      item =>
-        item.enabled &&
-        item.component === target.component &&
-        isCompleteCodeGenOptionConfig(item.option)
-    );
+    .find(item => item.enabled && item.component === target.component && isCompleteCodeGenOptionConfig(item.option));
   if (!source) return false;
   copyCodeGenOption(source, target);
   return true;

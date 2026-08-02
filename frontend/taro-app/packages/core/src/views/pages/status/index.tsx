@@ -7,18 +7,11 @@ import {
   navigateAppRoute,
 } from '../../../navigation'
 import type { BootstrapViewKey } from '../../../module'
-
-const stateTitles: Record<BootstrapViewKey, string> = {
-  BOOTSTRAP_LOADING: '正在加载',
-  FORBIDDEN: '暂无访问权限',
-  NOT_FOUND: '页面不存在',
-  OFFLINE: '网络不可用',
-  CONFIG_ERROR: '导航配置无效',
-  PAGE_UNAVAILABLE: '页面暂不可用',
-}
+import { useI18n } from '../../../locales'
 
 /** 启动与错误状态页。 */
 export default function StatusPage() {
+  const { t } = useI18n()
   const [state, setState] = useState<BootstrapViewKey>('BOOTSTRAP_LOADING')
   const [detail, setDetail] = useState('')
 
@@ -38,5 +31,6 @@ export default function StatusPage() {
       })
   })
 
-  return <BootstrapStatus title={stateTitles[state]} detail={detail} />
+  const title = state === 'BOOTSTRAP_LOADING' ? t('core.status.loading') : t(`core.status.${state}`)
+  return <BootstrapStatus title={title} detail={detail} />
 }

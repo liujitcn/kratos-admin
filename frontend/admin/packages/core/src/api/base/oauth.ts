@@ -43,7 +43,6 @@ export class OauthServiceImpl {
       headers: { Authorization: "no-auth" }
     });
   }
-
 }
 
 /** defOauthService 三方登录服务实例。 */
