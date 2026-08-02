@@ -132,7 +132,7 @@ migration/assets/
 
 ## 国际化
 
-后端支持 `zh-CN`、`en-US`、`ja-JP`。`core/pkg/locale` 负责规范化 `Accept-Language`，locale 中间件将语言区域写入请求上下文，并在响应边界本地化结构化错误。`internal/i18n/locales` 通过 `go:embed` 提供三语错误目录；动态菜单、字典和字典项的审核译文由 `v0.0.2` 翻译表按请求语言解析，缺少英语或日语时回退中文。
+后端支持 `zh-CN`、`en-US`、`ja-JP`。`core/pkg/locale` 负责规范化 `Accept-Language`，locale 中间件将语言区域写入请求上下文，并在响应边界本地化结构化错误。`internal/i18n/locales` 通过 `go:embed` 提供三语错误目录；动态菜单、字典和字典项的审核译文由 `v0.0.1` 翻译表按请求语言解析，缺少英语或日语时回退中文。
 
 ```bash
 make i18n-check
