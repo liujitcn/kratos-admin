@@ -113,7 +113,7 @@ async function sendRequest<T>(
         ...(accessToken ? { Authorization: accessToken } : {}),
       },
     })
-    const responseData = response.data as ErrorData
+    const responseData = response.data as ErrorData | null | undefined
     if (response.statusCode >= 200 && response.statusCode < 300 && !isAuthErrorResponse(responseData)) {
       return response.data as T
     }
@@ -129,7 +129,7 @@ async function sendRequest<T>(
       handleAuthExpiredByMode(authMode, requestUrl, responseData)
       throw response
     }
-    await Taro.showToast({ icon: 'none', title: responseData.message || '请求错误' })
+    await Taro.showToast({ icon: 'none', title: responseData?.message || '请求错误' })
     throw response
   } catch (error) {
     if (
@@ -243,7 +243,7 @@ async function promptRelogin(): Promise<void> {
 function handleAuthExpiredByMode(
   authMode: AuthMode,
   url: string,
-  responseData: ErrorData,
+  responseData: ErrorData | null | undefined,
 ): void {
   if (authMode === 'required' && !AUTH_EXPIRED_EXCLUDED_URL_SET.has(url)) {
     void promptRelogin()
@@ -251,7 +251,7 @@ function handleAuthExpiredByMode(
   }
   silentClearAuthData()
   if (authMode !== 'optional') {
-    void Taro.showToast({ icon: 'none', title: responseData.message || '请求错误' })
+    void Taro.showToast({ icon: 'none', title: responseData?.message || '请求错误' })
   }
 }
 

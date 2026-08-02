@@ -22,12 +22,12 @@ backend
 │   ├── cmd/server                    # 独立服务入口和内嵌 OpenAPI
 │   ├── config                        # 配置和数据库客户端装配
 │   ├── data                          # GORM 生成代码和队列适配
-│   ├── projectdocs                   # Backend 内嵌项目文档目录
+│   ├── docs                          # Backend 内嵌项目文档目录
 │   ├── server                        # HTTP、gRPC、MCP、中间件和模块注册
 │   └── service/{admin,app,base}      # Proto 服务实现
 ├── migration/assets                  # 内嵌版本化 SQL
 ├── module                            # Backend 宿主契约（迁移、用户、AI、运行时）
-├── app.go                            # 独立应用生命周期
+├── bootstrap.go                      # 独立应用生命周期
 ├── module.go                         # Backend Runtime 与模块装配
 ├── option.go                         # 数据库、迁移和文档装配选项
 ├── wire.go                           # Wire 声明

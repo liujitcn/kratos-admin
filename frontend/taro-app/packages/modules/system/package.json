@@ -21,6 +21,8 @@
       "import": "./dist/build.mjs",
       "default": "./dist/build.mjs"
     },
+    "./api/*": "./src/api/*",
+    "./rpc/*": "./src/rpc/*",
     "./views/*": "./src/views/*",
     "./package.json": "./package.json"
   },
