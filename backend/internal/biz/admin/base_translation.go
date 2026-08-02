@@ -12,8 +12,10 @@ import (
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	systemcommonv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/common/v1"
+	commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
 	coreLocale "github.com/liujitcn/kratos-admin/backend/core/pkg/locale"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/dto"
 	systemConfig "github.com/liujitcn/kratos-admin/backend/internal/config"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
@@ -29,17 +31,16 @@ import (
 
 const translationDraftMaxBytes = 2000
 
-var editableLocales = []string{coreLocale.EnUS, coreLocale.JaJP}
-
-// TranslationCase 统一管理动态菜单、字典和字典项翻译。
-type TranslationCase struct {
-	*BaseCase
+// BaseTranslationCase 统一管理动态菜单、字典和字典项翻译。
+type BaseTranslationCase struct {
+	*biz.BaseCase
 	draftConfig             systemConfig.TranslationDraftConfig
 	draftTranslator         translator.Translator
 	menuRepo                *data.BaseMenuRepository
 	dictRepo                *data.BaseDictRepository
 	dictItemRepo            *data.BaseDictItemRepository
 	configRepo              *data.BaseConfigRepository
+	languageRepo            *data.BaseLanguageRepository
 	menuTranslationRepo     *data.BaseMenuTranslationRepository
 	dictTranslationRepo     *data.BaseDictTranslationRepository
 	dictItemTranslationRepo *data.BaseDictItemTranslationRepository
@@ -47,21 +48,22 @@ type TranslationCase struct {
 	draftMu                 sync.Mutex
 }
 
-// NewTranslationCase 创建动态翻译业务实例。
-func NewTranslationCase(
-	baseCase *BaseCase,
+// NewBaseTranslationCase 创建动态翻译业务实例。
+func NewBaseTranslationCase(
+	baseCase *biz.BaseCase,
 	draftConfig systemConfig.TranslationDraftConfig,
 	draftTranslator translator.Translator,
 	menuRepo *data.BaseMenuRepository,
 	dictRepo *data.BaseDictRepository,
 	dictItemRepo *data.BaseDictItemRepository,
 	configRepo *data.BaseConfigRepository,
+	languageRepo *data.BaseLanguageRepository,
 	menuTranslationRepo *data.BaseMenuTranslationRepository,
 	dictTranslationRepo *data.BaseDictTranslationRepository,
 	dictItemTranslationRepo *data.BaseDictItemTranslationRepository,
 	configTranslationRepo *data.BaseConfigTranslationRepository,
-) *TranslationCase {
-	return &TranslationCase{
+) *BaseTranslationCase {
+	return &BaseTranslationCase{
 		BaseCase:                baseCase,
 		draftConfig:             draftConfig,
 		draftTranslator:         draftTranslator,
@@ -69,6 +71,7 @@ func NewTranslationCase(
 		dictRepo:                dictRepo,
 		dictItemRepo:            dictItemRepo,
 		configRepo:              configRepo,
+		languageRepo:            languageRepo,
 		menuTranslationRepo:     menuTranslationRepo,
 		dictTranslationRepo:     dictTranslationRepo,
 		dictItemTranslationRepo: dictItemTranslationRepo,
@@ -77,20 +80,25 @@ func NewTranslationCase(
 }
 
 // DraftEnabled 返回当前部署是否启用机器翻译草稿能力。
-func (c *TranslationCase) DraftEnabled() bool {
+func (c *BaseTranslationCase) DraftEnabled() bool {
 	return c.draftConfig.Enabled
 }
 
 // GenerateTranslationDraft 为单个已保存资源生成并保存机器翻译草稿。
-func (c *TranslationCase) GenerateTranslationDraft(ctx context.Context, req *systemadminv1.GenerateTranslationDraftRequest) (*systemadminv1.GenerateTranslationDraftResponse, error) {
+func (c *BaseTranslationCase) GenerateTranslationDraft(ctx context.Context, req *systemadminv1.GenerateTranslationDraftRequest) (*systemadminv1.GenerateTranslationDraftResponse, error) {
 	if !c.DraftEnabled() {
 		return nil, errorsx.PermissionDenied("机器翻译草稿功能未启用")
 	}
-	targetLocale, ok := editableLocale(req.GetTargetLocale())
-	if !ok {
-		return nil, errorsx.InvalidArgument("目标语言仅支持英语或日语")
+	locales, err := c.enabledEditableLocales(ctx)
+	if err != nil {
+		return nil, err
 	}
-	source, err := c.findTranslationDraftSource(ctx, req.GetResourceType(), req.GetResourceId(), req.GetField())
+	targetLocale, ok := editableLocale(locales, req.GetTargetLocale())
+	if !ok {
+		return nil, errorsx.InvalidArgument("目标语言必须是已启用的非主语言")
+	}
+	var source *dto.TranslationDraftSource
+	source, err = c.findTranslationDraftSource(ctx, req.GetResourceType(), req.GetResourceId(), req.GetField())
 	if err != nil {
 		return nil, err
 	}
@@ -110,12 +118,13 @@ func (c *TranslationCase) GenerateTranslationDraft(ctx context.Context, req *sys
 	}
 
 	startedAt := time.Now()
-	c.draftMu.Lock()
-	deadlineCtx, cancel := context.WithTimeout(ctx, 8*time.Second)
+	var primaryLocale string
+	primaryLocale, err = c.PrimaryLocale(ctx)
+	if err != nil {
+		return nil, err
+	}
 	var translated string
-	translated, err = backendI18n.TranslateProtected(deadlineCtx, c.draftTranslator, source.Text, coreLocale.ZhCN, targetLocale)
-	cancel()
-	c.draftMu.Unlock()
+	translated, err = c.translateText(ctx, source.Text, primaryLocale, targetLocale)
 	if err != nil {
 		log.Error("生成翻译草稿失败", "resource_type", source.ResourceType.String(), "resource_id", source.ResourceID, "locale", targetLocale, "duration", time.Since(startedAt), "error", err)
 		return nil, errorsx.Internal("生成翻译草稿失败").WithCause(err)
@@ -141,8 +150,92 @@ func (c *TranslationCase) GenerateTranslationDraft(ctx context.Context, req *sys
 	}, nil
 }
 
+// TranslateText 将指定源语言文本翻译为目标语言并返回结果。
+func (c *BaseTranslationCase) TranslateText(ctx context.Context, source, sourceLocale, targetLocale string) (string, error) {
+	if !c.DraftEnabled() {
+		return "", errorsx.PermissionDenied("机器翻译草稿功能未启用")
+	}
+	locales, err := c.enabledEditableLocales(ctx)
+	if err != nil {
+		return "", err
+	}
+	var primaryLocale string
+	primaryLocale, err = c.PrimaryLocale(ctx)
+	if err != nil {
+		return "", err
+	}
+	normalizedSourceLocale, ok := translationLocale(locales, primaryLocale, sourceLocale)
+	if !ok {
+		return "", errorsx.InvalidArgument("源语言必须是主语言或已启用语言")
+	}
+	var normalizedTargetLocale string
+	normalizedTargetLocale, ok = translationLocale(locales, primaryLocale, targetLocale)
+	if !ok {
+		return "", errorsx.InvalidArgument("目标语言必须是主语言或已启用语言")
+	}
+	if source == "" {
+		return "", errorsx.InvalidArgument("待翻译源文不能为空")
+	}
+	if len([]byte(source)) > translationDraftMaxBytes {
+		return "", errorsx.InvalidArgument("待翻译源文不能超过2000字节")
+	}
+	var translated string
+	translated, err = c.translateText(ctx, source, normalizedSourceLocale, normalizedTargetLocale)
+	if err != nil {
+		return "", errorsx.Internal("生成翻译草稿失败").WithCause(err)
+	}
+	return translated, nil
+}
+
+// GenerateDictTranslationDraft 从指定源语言生成字典机器译文并保存为草稿。
+func (c *BaseTranslationCase) GenerateDictTranslationDraft(ctx context.Context, dictID int64, source, sourceLocale, targetLocale, mainSource string) error {
+	locales, err := c.enabledEditableLocales(ctx)
+	if err != nil {
+		return err
+	}
+	var ok bool
+	targetLocale, ok = editableLocale(locales, targetLocale)
+	if !ok {
+		return errorsx.InvalidArgument("字典机器译文目标语言必须是已启用的非主语言")
+	}
+	sourceRecord := &dto.TranslationDraftSource{
+		ResourceType: systemadminv1.TranslationResourceType_TRANSLATION_RESOURCE_TYPE_DICT,
+		ResourceID:   dictID,
+	}
+	var reviewed bool
+	reviewed, err = c.hasReviewedTranslation(ctx, sourceRecord, targetLocale)
+	if err != nil {
+		return err
+	}
+	if reviewed {
+		return errorsx.Conflict("人工审核译文不允许被机器草稿覆盖")
+	}
+	startedAt := time.Now()
+	var translated string
+	translated, err = c.TranslateText(ctx, source, sourceLocale, targetLocale)
+	if err != nil {
+		log.Error("生成字典翻译草稿失败", "resource_id", dictID, "locale", targetLocale, "duration", time.Since(startedAt), "error", err)
+		return err
+	}
+	err = c.saveDictMachineDraft(ctx, dictID, targetLocale, translated, translationSourceHash(mainSource), time.Now())
+	if err != nil {
+		return err
+	}
+	log.Info("生成字典翻译草稿成功", "resource_id", dictID, "locale", targetLocale, "duration", time.Since(startedAt))
+	return nil
+}
+
+// translateText 串行调用翻译提供方，避免超出草稿接口的并发边界。
+func (c *BaseTranslationCase) translateText(ctx context.Context, source, sourceLocale, targetLocale string) (string, error) {
+	c.draftMu.Lock()
+	defer c.draftMu.Unlock()
+	deadlineCtx, cancel := context.WithTimeout(ctx, 8*time.Second)
+	defer cancel()
+	return backendI18n.TranslateProtected(deadlineCtx, c.draftTranslator, source, sourceLocale, targetLocale)
+}
+
 // findTranslationDraftSource 按资源类型从服务端读取允许外发的展示源文。
-func (c *TranslationCase) findTranslationDraftSource(ctx context.Context, resourceType systemadminv1.TranslationResourceType, resourceID int64, field systemadminv1.BaseConfigTranslationField) (*dto.TranslationDraftSource, error) {
+func (c *BaseTranslationCase) findTranslationDraftSource(ctx context.Context, resourceType systemadminv1.TranslationResourceType, resourceID int64, field systemadminv1.BaseConfigTranslationField) (*dto.TranslationDraftSource, error) {
 	source := &dto.TranslationDraftSource{ResourceType: resourceType, ResourceID: resourceID, Field: field}
 	var err error
 	switch resourceType {
@@ -187,7 +280,7 @@ func (c *TranslationCase) findTranslationDraftSource(ctx context.Context, resour
 }
 
 // hasReviewedTranslation 判断目标资源是否已有不可覆盖的人工译文。
-func (c *TranslationCase) hasReviewedTranslation(ctx context.Context, source *dto.TranslationDraftSource, localeValue string) (bool, error) {
+func (c *BaseTranslationCase) hasReviewedTranslation(ctx context.Context, source *dto.TranslationDraftSource, localeValue string) (bool, error) {
 	var status string
 	var err error
 	switch source.ResourceType {
@@ -231,7 +324,7 @@ func (c *TranslationCase) hasReviewedTranslation(ctx context.Context, source *dt
 }
 
 // saveMachineDraft 新增或更新可覆盖的机器翻译草稿。
-func (c *TranslationCase) saveMachineDraft(ctx context.Context, source *dto.TranslationDraftSource, localeValue, translated, sourceHash string, translatedAt time.Time) error {
+func (c *BaseTranslationCase) saveMachineDraft(ctx context.Context, source *dto.TranslationDraftSource, localeValue, translated, sourceHash string, translatedAt time.Time) error {
 	switch source.ResourceType {
 	case systemadminv1.TranslationResourceType_TRANSLATION_RESOURCE_TYPE_MENU:
 		return c.saveMenuMachineDraft(ctx, source.ResourceID, localeValue, translated, sourceHash, translatedAt)
@@ -247,7 +340,7 @@ func (c *TranslationCase) saveMachineDraft(ctx context.Context, source *dto.Tran
 }
 
 // saveConfigMachineDraft 保存系统配置机器翻译草稿。
-func (c *TranslationCase) saveConfigMachineDraft(ctx context.Context, configID int64, field systemadminv1.BaseConfigTranslationField, localeValue, translated, sourceHash string, translatedAt time.Time) error {
+func (c *BaseTranslationCase) saveConfigMachineDraft(ctx context.Context, configID int64, field systemadminv1.BaseConfigTranslationField, localeValue, translated, sourceHash string, translatedAt time.Time) error {
 	fieldValue, ok := configTranslationFieldValue(field)
 	if !ok {
 		return errorsx.InvalidArgument("系统配置翻译字段无效")
@@ -269,7 +362,7 @@ func (c *TranslationCase) saveConfigMachineDraft(ctx context.Context, configID i
 }
 
 // saveMenuMachineDraft 保存菜单机器翻译草稿。
-func (c *TranslationCase) saveMenuMachineDraft(ctx context.Context, menuID int64, localeValue, translated, sourceHash string, translatedAt time.Time) error {
+func (c *BaseTranslationCase) saveMenuMachineDraft(ctx context.Context, menuID int64, localeValue, translated, sourceHash string, translatedAt time.Time) error {
 	query := c.menuTranslationRepo.Query(ctx).BaseMenuTranslation
 	row, err := c.menuTranslationRepo.Find(ctx, repository.Where(query.MenuID.Eq(menuID)), repository.Where(query.Locale.Eq(localeValue)))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -287,7 +380,7 @@ func (c *TranslationCase) saveMenuMachineDraft(ctx context.Context, menuID int64
 }
 
 // saveDictMachineDraft 保存字典机器翻译草稿。
-func (c *TranslationCase) saveDictMachineDraft(ctx context.Context, dictID int64, localeValue, translated, sourceHash string, translatedAt time.Time) error {
+func (c *BaseTranslationCase) saveDictMachineDraft(ctx context.Context, dictID int64, localeValue, translated, sourceHash string, translatedAt time.Time) error {
 	query := c.dictTranslationRepo.Query(ctx).BaseDictTranslation
 	row, err := c.dictTranslationRepo.Find(ctx, repository.Where(query.DictID.Eq(dictID)), repository.Where(query.Locale.Eq(localeValue)))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -305,7 +398,7 @@ func (c *TranslationCase) saveDictMachineDraft(ctx context.Context, dictID int64
 }
 
 // saveDictItemMachineDraft 保存字典项机器翻译草稿。
-func (c *TranslationCase) saveDictItemMachineDraft(ctx context.Context, dictItemID int64, localeValue, translated, sourceHash string, translatedAt time.Time) error {
+func (c *BaseTranslationCase) saveDictItemMachineDraft(ctx context.Context, dictItemID int64, localeValue, translated, sourceHash string, translatedAt time.Time) error {
 	query := c.dictItemTranslationRepo.Query(ctx).BaseDictItemTranslation
 	row, err := c.dictItemTranslationRepo.Find(ctx, repository.Where(query.DictItemID.Eq(dictItemID)), repository.Where(query.Locale.Eq(localeValue)))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -323,10 +416,17 @@ func (c *TranslationCase) saveDictItemMachineDraft(ctx context.Context, dictItem
 }
 
 // ReviewedMenuTitles 批量查询当前语言已审核的菜单标题。
-func (c *TranslationCase) ReviewedMenuTitles(ctx context.Context, menuIDs []int64) (map[int64]string, error) {
+func (c *BaseTranslationCase) ReviewedMenuTitles(ctx context.Context, menuIDs []int64) (map[int64]string, error) {
 	result := make(map[int64]string)
 	localeValue := coreLocale.FromContext(ctx)
-	if localeValue == coreLocale.Default || len(menuIDs) == 0 {
+	if len(menuIDs) == 0 {
+		return result, nil
+	}
+	isPrimary, err := c.IsPrimaryLocale(ctx, localeValue)
+	if err != nil {
+		return nil, err
+	}
+	if isPrimary {
 		return result, nil
 	}
 	query := c.menuTranslationRepo.Query(ctx).BaseMenuTranslation
@@ -345,14 +445,19 @@ func (c *TranslationCase) ReviewedMenuTitles(ctx context.Context, menuIDs []int6
 }
 
 // MenuTranslations 批量查询菜单维护界面需要的完整翻译状态。
-func (c *TranslationCase) MenuTranslations(ctx context.Context, sources map[int64]string) (map[int64][]*systemadminv1.BaseMenuTranslation, error) {
+func (c *BaseTranslationCase) MenuTranslations(ctx context.Context, sources map[int64]string) (map[int64][]*systemadminv1.BaseMenuTranslation, error) {
 	result := make(map[int64][]*systemadminv1.BaseMenuTranslation, len(sources))
 	if len(sources) == 0 {
 		return result, nil
 	}
+	locales, err := c.enabledEditableLocales(ctx)
+	if err != nil {
+		return nil, err
+	}
 	ids := translationSourceIDs(sources)
 	query := c.menuTranslationRepo.Query(ctx).BaseMenuTranslation
-	rows, err := c.menuTranslationRepo.List(ctx, repository.Where(query.MenuID.In(ids...)))
+	var rows []*models.BaseMenuTranslation
+	rows, err = c.menuTranslationRepo.List(ctx, repository.Where(query.MenuID.In(ids...)))
 	if err != nil {
 		return nil, err
 	}
@@ -361,8 +466,8 @@ func (c *TranslationCase) MenuTranslations(ctx context.Context, sources map[int6
 		rowMap[dto.TranslationKey{ResourceID: row.MenuID, Locale: row.Locale}] = row
 	}
 	for resourceID, source := range sources {
-		translations := make([]*systemadminv1.BaseMenuTranslation, 0, len(editableLocales))
-		for _, localeValue := range editableLocales {
+		translations := make([]*systemadminv1.BaseMenuTranslation, 0, len(locales))
+		for _, localeValue := range locales {
 			row := rowMap[dto.TranslationKey{ResourceID: resourceID, Locale: localeValue}]
 			translations = append(translations, menuTranslationDTO(row, resourceID, localeValue, source))
 		}
@@ -372,11 +477,16 @@ func (c *TranslationCase) MenuTranslations(ctx context.Context, sources map[int6
 }
 
 // SaveMenuTranslations 将人工维护的菜单译文保存为已审核状态。
-func (c *TranslationCase) SaveMenuTranslations(ctx context.Context, menuID int64, source string, translations []*systemadminv1.BaseMenuTranslation) error {
+func (c *BaseTranslationCase) SaveMenuTranslations(ctx context.Context, menuID int64, source string, translations []*systemadminv1.BaseMenuTranslation) error {
 	if translations == nil {
 		return nil
 	}
 	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+	var locales []string
+	locales, err = c.enabledEditableLocales(ctx)
 	if err != nil {
 		return err
 	}
@@ -393,9 +503,9 @@ func (c *TranslationCase) SaveMenuTranslations(ctx context.Context, menuID int64
 	seen := make(map[string]struct{}, len(translations))
 	now := time.Now()
 	for _, translation := range translations {
-		localeValue, ok := editableLocale(translation.GetLocale())
+		localeValue, ok := editableLocale(locales, translation.GetLocale())
 		if !ok {
-			return errorsx.InvalidArgument("菜单翻译语言仅支持英语或日语")
+			return errorsx.InvalidArgument("菜单翻译语言必须是已启用的非主语言")
 		}
 		if _, duplicated := seen[localeValue]; duplicated {
 			return errorsx.Conflict("同一菜单语言不能重复")
@@ -438,11 +548,16 @@ func (c *TranslationCase) SaveMenuTranslations(ctx context.Context, menuID int64
 }
 
 // SaveGeneratedMenuTranslations 保存代码生成器提供的已审核译文，并保留已有人工审核内容。
-func (c *TranslationCase) SaveGeneratedMenuTranslations(ctx context.Context, menuID int64, source string, translations map[string]string) error {
+func (c *BaseTranslationCase) SaveGeneratedMenuTranslations(ctx context.Context, menuID int64, source string, translations map[string]string) error {
 	if len(translations) == 0 {
 		return nil
 	}
 	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+	var locales []string
+	locales, err = c.enabledEditableLocales(ctx)
 	if err != nil {
 		return err
 	}
@@ -457,7 +572,7 @@ func (c *TranslationCase) SaveGeneratedMenuTranslations(ctx context.Context, men
 		existing[row.Locale] = row
 	}
 	now := time.Now()
-	for _, localeValue := range editableLocales {
+	for _, localeValue := range locales {
 		title := translations[localeValue]
 		if title == "" {
 			continue
@@ -496,7 +611,7 @@ func (c *TranslationCase) SaveGeneratedMenuTranslations(ctx context.Context, men
 }
 
 // MarkMenuSourceChanged 将过期机器菜单译文标记为待处理。
-func (c *TranslationCase) MarkMenuSourceChanged(ctx context.Context, menuID int64, previousSource, currentSource string) error {
+func (c *BaseTranslationCase) MarkMenuSourceChanged(ctx context.Context, menuID int64, previousSource, currentSource string) error {
 	if previousSource == currentSource {
 		return nil
 	}
@@ -515,7 +630,7 @@ func (c *TranslationCase) MarkMenuSourceChanged(ctx context.Context, menuID int6
 }
 
 // DeleteMenuTranslations 删除菜单时同步软删除其翻译记录。
-func (c *TranslationCase) DeleteMenuTranslations(ctx context.Context, menuIDs []int64) error {
+func (c *BaseTranslationCase) DeleteMenuTranslations(ctx context.Context, menuIDs []int64) error {
 	if len(menuIDs) == 0 {
 		return nil
 	}
@@ -524,10 +639,17 @@ func (c *TranslationCase) DeleteMenuTranslations(ctx context.Context, menuIDs []
 }
 
 // ReviewedDictNames 批量查询当前语言已审核的字典名称。
-func (c *TranslationCase) ReviewedDictNames(ctx context.Context, dictIDs []int64) (map[int64]string, error) {
+func (c *BaseTranslationCase) ReviewedDictNames(ctx context.Context, dictIDs []int64) (map[int64]string, error) {
 	result := make(map[int64]string)
 	localeValue := coreLocale.FromContext(ctx)
-	if localeValue == coreLocale.Default || len(dictIDs) == 0 {
+	if len(dictIDs) == 0 {
+		return result, nil
+	}
+	isPrimary, err := c.IsPrimaryLocale(ctx, localeValue)
+	if err != nil {
+		return nil, err
+	}
+	if isPrimary {
 		return result, nil
 	}
 	query := c.dictTranslationRepo.Query(ctx).BaseDictTranslation
@@ -542,9 +664,16 @@ func (c *TranslationCase) ReviewedDictNames(ctx context.Context, dictIDs []int64
 }
 
 // ReviewedDictIDsByName 查询当前语言名称包含关键字的已审核字典编号。
-func (c *TranslationCase) ReviewedDictIDsByName(ctx context.Context, keyword string) ([]int64, error) {
+func (c *BaseTranslationCase) ReviewedDictIDsByName(ctx context.Context, keyword string) ([]int64, error) {
 	localeValue := coreLocale.FromContext(ctx)
-	if localeValue == coreLocale.Default || keyword == "" {
+	if keyword == "" {
+		return nil, nil
+	}
+	isPrimary, err := c.IsPrimaryLocale(ctx, localeValue)
+	if err != nil {
+		return nil, err
+	}
+	if isPrimary {
 		return nil, nil
 	}
 	query := c.dictTranslationRepo.Query(ctx).BaseDictTranslation
@@ -560,14 +689,19 @@ func (c *TranslationCase) ReviewedDictIDsByName(ctx context.Context, keyword str
 }
 
 // DictTranslations 批量查询字典维护界面需要的完整翻译状态。
-func (c *TranslationCase) DictTranslations(ctx context.Context, sources map[int64]string) (map[int64][]*systemadminv1.BaseDictTranslation, error) {
+func (c *BaseTranslationCase) DictTranslations(ctx context.Context, sources map[int64]string) (map[int64][]*systemadminv1.BaseDictTranslation, error) {
 	result := make(map[int64][]*systemadminv1.BaseDictTranslation, len(sources))
 	if len(sources) == 0 {
 		return result, nil
 	}
+	locales, err := c.enabledEditableLocales(ctx)
+	if err != nil {
+		return nil, err
+	}
 	ids := translationSourceIDs(sources)
 	query := c.dictTranslationRepo.Query(ctx).BaseDictTranslation
-	rows, err := c.dictTranslationRepo.List(ctx, repository.Where(query.DictID.In(ids...)))
+	var rows []*models.BaseDictTranslation
+	rows, err = c.dictTranslationRepo.List(ctx, repository.Where(query.DictID.In(ids...)))
 	if err != nil {
 		return nil, err
 	}
@@ -576,8 +710,8 @@ func (c *TranslationCase) DictTranslations(ctx context.Context, sources map[int6
 		rowMap[dto.TranslationKey{ResourceID: row.DictID, Locale: row.Locale}] = row
 	}
 	for resourceID, source := range sources {
-		translations := make([]*systemadminv1.BaseDictTranslation, 0, len(editableLocales))
-		for _, localeValue := range editableLocales {
+		translations := make([]*systemadminv1.BaseDictTranslation, 0, len(locales))
+		for _, localeValue := range locales {
 			row := rowMap[dto.TranslationKey{ResourceID: resourceID, Locale: localeValue}]
 			translations = append(translations, dictTranslationDTO(row, resourceID, localeValue, source))
 		}
@@ -587,11 +721,16 @@ func (c *TranslationCase) DictTranslations(ctx context.Context, sources map[int6
 }
 
 // SaveDictTranslations 将人工维护的字典译文保存为已审核状态。
-func (c *TranslationCase) SaveDictTranslations(ctx context.Context, dictID int64, source string, translations []*systemadminv1.BaseDictTranslation) error {
+func (c *BaseTranslationCase) SaveDictTranslations(ctx context.Context, dictID int64, source string, translations []*systemadminv1.BaseDictTranslation) error {
 	if translations == nil {
 		return nil
 	}
 	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+	var locales []string
+	locales, err = c.enabledEditableLocales(ctx)
 	if err != nil {
 		return err
 	}
@@ -608,9 +747,9 @@ func (c *TranslationCase) SaveDictTranslations(ctx context.Context, dictID int64
 	seen := make(map[string]struct{}, len(translations))
 	now := time.Now()
 	for _, translation := range translations {
-		localeValue, ok := editableLocale(translation.GetLocale())
+		localeValue, ok := editableLocale(locales, translation.GetLocale())
 		if !ok {
-			return errorsx.InvalidArgument("字典翻译语言仅支持英语或日语")
+			return errorsx.InvalidArgument("字典翻译语言必须是已启用的非主语言")
 		}
 		if _, duplicated := seen[localeValue]; duplicated {
 			return errorsx.Conflict("同一字典语言不能重复")
@@ -653,7 +792,7 @@ func (c *TranslationCase) SaveDictTranslations(ctx context.Context, dictID int64
 }
 
 // MarkDictSourceChanged 将过期机器字典译文标记为待处理。
-func (c *TranslationCase) MarkDictSourceChanged(ctx context.Context, dictID int64, previousSource, currentSource string) error {
+func (c *BaseTranslationCase) MarkDictSourceChanged(ctx context.Context, dictID int64, previousSource, currentSource string) error {
 	if previousSource == currentSource {
 		return nil
 	}
@@ -672,7 +811,7 @@ func (c *TranslationCase) MarkDictSourceChanged(ctx context.Context, dictID int6
 }
 
 // DeleteDictTranslations 删除字典时同步软删除其翻译记录。
-func (c *TranslationCase) DeleteDictTranslations(ctx context.Context, dictIDs []int64) error {
+func (c *BaseTranslationCase) DeleteDictTranslations(ctx context.Context, dictIDs []int64) error {
 	if len(dictIDs) == 0 {
 		return nil
 	}
@@ -681,10 +820,17 @@ func (c *TranslationCase) DeleteDictTranslations(ctx context.Context, dictIDs []
 }
 
 // ReviewedDictItemLabels 批量查询当前语言已审核的字典项标签。
-func (c *TranslationCase) ReviewedDictItemLabels(ctx context.Context, dictItemIDs []int64) (map[int64]string, error) {
+func (c *BaseTranslationCase) ReviewedDictItemLabels(ctx context.Context, dictItemIDs []int64) (map[int64]string, error) {
 	result := make(map[int64]string)
 	localeValue := coreLocale.FromContext(ctx)
-	if localeValue == coreLocale.Default || len(dictItemIDs) == 0 {
+	if len(dictItemIDs) == 0 {
+		return result, nil
+	}
+	isPrimary, err := c.IsPrimaryLocale(ctx, localeValue)
+	if err != nil {
+		return nil, err
+	}
+	if isPrimary {
 		return result, nil
 	}
 	query := c.dictItemTranslationRepo.Query(ctx).BaseDictItemTranslation
@@ -699,9 +845,16 @@ func (c *TranslationCase) ReviewedDictItemLabels(ctx context.Context, dictItemID
 }
 
 // ReviewedDictItemIDsByLabel 查询当前语言标签包含关键字的已审核字典项编号。
-func (c *TranslationCase) ReviewedDictItemIDsByLabel(ctx context.Context, keyword string) ([]int64, error) {
+func (c *BaseTranslationCase) ReviewedDictItemIDsByLabel(ctx context.Context, keyword string) ([]int64, error) {
 	localeValue := coreLocale.FromContext(ctx)
-	if localeValue == coreLocale.Default || keyword == "" {
+	if keyword == "" {
+		return nil, nil
+	}
+	isPrimary, err := c.IsPrimaryLocale(ctx, localeValue)
+	if err != nil {
+		return nil, err
+	}
+	if isPrimary {
 		return nil, nil
 	}
 	query := c.dictItemTranslationRepo.Query(ctx).BaseDictItemTranslation
@@ -717,14 +870,19 @@ func (c *TranslationCase) ReviewedDictItemIDsByLabel(ctx context.Context, keywor
 }
 
 // DictItemTranslations 批量查询字典项维护界面需要的完整翻译状态。
-func (c *TranslationCase) DictItemTranslations(ctx context.Context, sources map[int64]string) (map[int64][]*systemadminv1.BaseDictItemTranslation, error) {
+func (c *BaseTranslationCase) DictItemTranslations(ctx context.Context, sources map[int64]string) (map[int64][]*systemadminv1.BaseDictItemTranslation, error) {
 	result := make(map[int64][]*systemadminv1.BaseDictItemTranslation, len(sources))
 	if len(sources) == 0 {
 		return result, nil
 	}
+	locales, err := c.enabledEditableLocales(ctx)
+	if err != nil {
+		return nil, err
+	}
 	ids := translationSourceIDs(sources)
 	query := c.dictItemTranslationRepo.Query(ctx).BaseDictItemTranslation
-	rows, err := c.dictItemTranslationRepo.List(ctx, repository.Where(query.DictItemID.In(ids...)))
+	var rows []*models.BaseDictItemTranslation
+	rows, err = c.dictItemTranslationRepo.List(ctx, repository.Where(query.DictItemID.In(ids...)))
 	if err != nil {
 		return nil, err
 	}
@@ -733,8 +891,8 @@ func (c *TranslationCase) DictItemTranslations(ctx context.Context, sources map[
 		rowMap[dto.TranslationKey{ResourceID: row.DictItemID, Locale: row.Locale}] = row
 	}
 	for resourceID, source := range sources {
-		translations := make([]*systemadminv1.BaseDictItemTranslation, 0, len(editableLocales))
-		for _, localeValue := range editableLocales {
+		translations := make([]*systemadminv1.BaseDictItemTranslation, 0, len(locales))
+		for _, localeValue := range locales {
 			row := rowMap[dto.TranslationKey{ResourceID: resourceID, Locale: localeValue}]
 			translations = append(translations, dictItemTranslationDTO(row, resourceID, localeValue, source))
 		}
@@ -744,11 +902,16 @@ func (c *TranslationCase) DictItemTranslations(ctx context.Context, sources map[
 }
 
 // SaveDictItemTranslations 将人工维护的字典项译文保存为已审核状态。
-func (c *TranslationCase) SaveDictItemTranslations(ctx context.Context, dictItemID int64, source string, translations []*systemadminv1.BaseDictItemTranslation) error {
+func (c *BaseTranslationCase) SaveDictItemTranslations(ctx context.Context, dictItemID int64, source string, translations []*systemadminv1.BaseDictItemTranslation) error {
 	if translations == nil {
 		return nil
 	}
 	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+	var locales []string
+	locales, err = c.enabledEditableLocales(ctx)
 	if err != nil {
 		return err
 	}
@@ -765,9 +928,9 @@ func (c *TranslationCase) SaveDictItemTranslations(ctx context.Context, dictItem
 	seen := make(map[string]struct{}, len(translations))
 	now := time.Now()
 	for _, translation := range translations {
-		localeValue, ok := editableLocale(translation.GetLocale())
+		localeValue, ok := editableLocale(locales, translation.GetLocale())
 		if !ok {
-			return errorsx.InvalidArgument("字典项翻译语言仅支持英语或日语")
+			return errorsx.InvalidArgument("字典项翻译语言必须是已启用的非主语言")
 		}
 		if _, duplicated := seen[localeValue]; duplicated {
 			return errorsx.Conflict("同一字典项语言不能重复")
@@ -810,7 +973,7 @@ func (c *TranslationCase) SaveDictItemTranslations(ctx context.Context, dictItem
 }
 
 // MarkDictItemSourceChanged 将过期机器字典项译文标记为待处理。
-func (c *TranslationCase) MarkDictItemSourceChanged(ctx context.Context, dictItemID int64, previousSource, currentSource string) error {
+func (c *BaseTranslationCase) MarkDictItemSourceChanged(ctx context.Context, dictItemID int64, previousSource, currentSource string) error {
 	if previousSource == currentSource {
 		return nil
 	}
@@ -829,7 +992,7 @@ func (c *TranslationCase) MarkDictItemSourceChanged(ctx context.Context, dictIte
 }
 
 // DeleteDictItemTranslations 删除字典项时同步软删除其翻译记录。
-func (c *TranslationCase) DeleteDictItemTranslations(ctx context.Context, dictItemIDs []int64) error {
+func (c *BaseTranslationCase) DeleteDictItemTranslations(ctx context.Context, dictItemIDs []int64) error {
 	if len(dictItemIDs) == 0 {
 		return nil
 	}
@@ -838,10 +1001,17 @@ func (c *TranslationCase) DeleteDictItemTranslations(ctx context.Context, dictIt
 }
 
 // ReviewedConfigValues 批量查询当前语言已审核的文本配置值。
-func (c *TranslationCase) ReviewedConfigValues(ctx context.Context, configIDs []int64) (map[int64]string, error) {
+func (c *BaseTranslationCase) ReviewedConfigValues(ctx context.Context, configIDs []int64) (map[int64]string, error) {
 	result := make(map[int64]string)
 	localeValue := coreLocale.FromContext(ctx)
-	if localeValue == coreLocale.Default || len(configIDs) == 0 {
+	if len(configIDs) == 0 {
+		return result, nil
+	}
+	isPrimary, err := c.IsPrimaryLocale(ctx, localeValue)
+	if err != nil {
+		return nil, err
+	}
+	if isPrimary {
 		return result, nil
 	}
 	query := c.configTranslationRepo.Query(ctx).BaseConfigTranslation
@@ -856,10 +1026,17 @@ func (c *TranslationCase) ReviewedConfigValues(ctx context.Context, configIDs []
 }
 
 // ReviewedConfigNames 批量查询当前语言已审核的系统配置名称。
-func (c *TranslationCase) ReviewedConfigNames(ctx context.Context, configIDs []int64) (map[int64]string, error) {
+func (c *BaseTranslationCase) ReviewedConfigNames(ctx context.Context, configIDs []int64) (map[int64]string, error) {
 	result := make(map[int64]string)
 	localeValue := coreLocale.FromContext(ctx)
-	if localeValue == coreLocale.Default || len(configIDs) == 0 {
+	if len(configIDs) == 0 {
+		return result, nil
+	}
+	isPrimary, err := c.IsPrimaryLocale(ctx, localeValue)
+	if err != nil {
+		return nil, err
+	}
+	if isPrimary {
 		return result, nil
 	}
 	query := c.configTranslationRepo.Query(ctx).BaseConfigTranslation
@@ -874,9 +1051,16 @@ func (c *TranslationCase) ReviewedConfigNames(ctx context.Context, configIDs []i
 }
 
 // ReviewedConfigIDsByName 查询当前语言名称包含关键字的已审核系统配置编号。
-func (c *TranslationCase) ReviewedConfigIDsByName(ctx context.Context, keyword string) ([]int64, error) {
+func (c *BaseTranslationCase) ReviewedConfigIDsByName(ctx context.Context, keyword string) ([]int64, error) {
 	localeValue := coreLocale.FromContext(ctx)
-	if localeValue == coreLocale.Default || keyword == "" {
+	if keyword == "" {
+		return nil, nil
+	}
+	isPrimary, err := c.IsPrimaryLocale(ctx, localeValue)
+	if err != nil {
+		return nil, err
+	}
+	if isPrimary {
 		return nil, nil
 	}
 	query := c.configTranslationRepo.Query(ctx).BaseConfigTranslation
@@ -892,17 +1076,22 @@ func (c *TranslationCase) ReviewedConfigIDsByName(ctx context.Context, keyword s
 }
 
 // ConfigTranslations 批量查询系统配置维护界面的翻译状态。
-func (c *TranslationCase) ConfigTranslations(ctx context.Context, sources map[int64]dto.ConfigTranslationSource) (map[int64][]*systemadminv1.BaseConfigTranslation, error) {
+func (c *BaseTranslationCase) ConfigTranslations(ctx context.Context, sources map[int64]dto.ConfigTranslationSource) (map[int64][]*systemadminv1.BaseConfigTranslation, error) {
 	result := make(map[int64][]*systemadminv1.BaseConfigTranslation, len(sources))
 	if len(sources) == 0 {
 		return result, nil
+	}
+	locales, err := c.enabledEditableLocales(ctx)
+	if err != nil {
+		return nil, err
 	}
 	ids := make([]int64, 0, len(sources))
 	for configID := range sources {
 		ids = append(ids, configID)
 	}
 	query := c.configTranslationRepo.Query(ctx).BaseConfigTranslation
-	rows, err := c.configTranslationRepo.List(ctx, repository.Where(query.ConfigID.In(ids...)))
+	var rows []*models.BaseConfigTranslation
+	rows, err = c.configTranslationRepo.List(ctx, repository.Where(query.ConfigID.In(ids...)))
 	if err != nil {
 		return nil, err
 	}
@@ -915,14 +1104,14 @@ func (c *TranslationCase) ConfigTranslations(ctx context.Context, sources map[in
 		if isTranslatableConfigType(source.Type) {
 			fields = append(fields, systemadminv1.BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_VALUE)
 		}
-		translations := make([]*systemadminv1.BaseConfigTranslation, 0, len(editableLocales)*len(fields))
+		translations := make([]*systemadminv1.BaseConfigTranslation, 0, len(locales)*len(fields))
 		for _, field := range fields {
 			fieldValue, _ := configTranslationFieldValue(field)
 			sourceText := source.Name
 			if field == systemadminv1.BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_VALUE {
 				sourceText = source.Value
 			}
-			for _, localeValue := range editableLocales {
+			for _, localeValue := range locales {
 				row := rowMap[configTranslationKey(configID, localeValue, fieldValue)]
 				translations = append(translations, configTranslationDTO(row, configID, localeValue, field, sourceText))
 			}
@@ -933,11 +1122,16 @@ func (c *TranslationCase) ConfigTranslations(ctx context.Context, sources map[in
 }
 
 // SaveConfigTranslations 将人工维护的系统配置译文保存为已审核状态。
-func (c *TranslationCase) SaveConfigTranslations(ctx context.Context, configID int64, source dto.ConfigTranslationSource, translations []*systemadminv1.BaseConfigTranslation) error {
+func (c *BaseTranslationCase) SaveConfigTranslations(ctx context.Context, configID int64, source dto.ConfigTranslationSource, translations []*systemadminv1.BaseConfigTranslation) error {
 	if translations == nil {
 		return nil
 	}
 	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+	var locales []string
+	locales, err = c.enabledEditableLocales(ctx)
 	if err != nil {
 		return err
 	}
@@ -954,9 +1148,9 @@ func (c *TranslationCase) SaveConfigTranslations(ctx context.Context, configID i
 	seen := make(map[string]struct{}, len(translations))
 	now := time.Now()
 	for _, translation := range translations {
-		localeValue, ok := editableLocale(translation.GetLocale())
+		localeValue, ok := editableLocale(locales, translation.GetLocale())
 		if !ok {
-			return errorsx.InvalidArgument("系统配置翻译语言仅支持英语或日语")
+			return errorsx.InvalidArgument("系统配置翻译语言必须是已启用的非主语言")
 		}
 		fieldValue, ok := configTranslationFieldValue(translation.GetField())
 		if !ok || (fieldValue == "value" && !isTranslatableConfigType(source.Type)) {
@@ -1008,7 +1202,7 @@ func (c *TranslationCase) SaveConfigTranslations(ctx context.Context, configID i
 }
 
 // MarkConfigSourceChanged 将源文变化的系统配置译文标记为待处理。
-func (c *TranslationCase) MarkConfigSourceChanged(ctx context.Context, configID int64, previousSource, currentSource dto.ConfigTranslationSource) error {
+func (c *BaseTranslationCase) MarkConfigSourceChanged(ctx context.Context, configID int64, previousSource, currentSource dto.ConfigTranslationSource) error {
 	query := c.configTranslationRepo.Query(ctx).BaseConfigTranslation
 	rows, err := c.configTranslationRepo.List(ctx, repository.Where(query.ConfigID.Eq(configID)))
 	if err != nil {
@@ -1029,7 +1223,7 @@ func (c *TranslationCase) MarkConfigSourceChanged(ctx context.Context, configID 
 }
 
 // DeleteConfigTranslations 删除系统配置时同步软删除其翻译记录。
-func (c *TranslationCase) DeleteConfigTranslations(ctx context.Context, configIDs []int64) error {
+func (c *BaseTranslationCase) DeleteConfigTranslations(ctx context.Context, configIDs []int64) error {
 	if len(configIDs) == 0 {
 		return nil
 	}
@@ -1037,16 +1231,106 @@ func (c *TranslationCase) DeleteConfigTranslations(ctx context.Context, configID
 	return c.configTranslationRepo.Delete(ctx, repository.Where(query.ConfigID.In(configIDs...)))
 }
 
-// editableLocale 规范化并限制可维护的非默认语言。
-func editableLocale(value string) (string, bool) {
-	if !coreLocale.IsSupported(value) {
-		return "", false
+// PrimaryLocale 查询当前启用的主语言代码。
+func (c *BaseTranslationCase) PrimaryLocale(ctx context.Context) (string, error) {
+	query := c.languageRepo.Query(ctx).BaseLanguage
+	opts := []repository.QueryOption{
+		repository.Where(query.Status.Eq(int32(commonv1.Status_ENABLE))),
+		repository.Where(query.IsPrimary.Is(true)),
+		repository.Order(query.Sort.Asc()),
+		repository.Order(query.ID.Asc()),
 	}
-	normalized := coreLocale.Normalize(value)
-	return normalized, normalized != coreLocale.Default
+	rows, err := c.languageRepo.List(ctx, opts...)
+	if err != nil {
+		return "", err
+	}
+	if len(rows) > 0 {
+		return rows[0].LanguageCode, nil
+	}
+
+	// 存量环境未配置主语言时沿用第一种启用语言，保证升级期间仍可读写。
+	rows, err = c.languageRepo.List(ctx,
+		repository.Where(query.Status.Eq(int32(commonv1.Status_ENABLE))),
+		repository.Order(query.Sort.Asc()),
+		repository.Order(query.ID.Asc()),
+	)
+	if err != nil {
+		return "", err
+	}
+	if len(rows) > 0 {
+		return rows[0].LanguageCode, nil
+	}
+	return coreLocale.Default, nil
 }
 
-// translationSourceHash 计算原始中文源文的SHA-256。
+// IsPrimaryLocale 判断指定语言是否为当前主语言。
+func (c *BaseTranslationCase) IsPrimaryLocale(ctx context.Context, localeValue string) (bool, error) {
+	primaryLocale, err := c.PrimaryLocale(ctx)
+	if err != nil {
+		return false, err
+	}
+	return localeValue == primaryLocale, nil
+}
+
+// NormalizePrimaryText 将当前请求语言的输入文本转换为主语言文本。
+func (c *BaseTranslationCase) NormalizePrimaryText(ctx context.Context, source string) (string, string, string, error) {
+	sourceLocale := coreLocale.FromContext(ctx)
+	primaryLocale, err := c.PrimaryLocale(ctx)
+	if err != nil {
+		return "", "", "", err
+	}
+	if sourceLocale == primaryLocale {
+		return source, sourceLocale, primaryLocale, nil
+	}
+	translated, err := c.translateText(ctx, source, sourceLocale, primaryLocale)
+	if err != nil {
+		return "", "", "", errorsx.Internal("输入内容翻译为主语言失败").WithCause(err)
+	}
+	return translated, sourceLocale, primaryLocale, nil
+}
+
+// enabledEditableLocales 查询当前启用且非主语言的可维护语言代码。
+func (c *BaseTranslationCase) enabledEditableLocales(ctx context.Context) ([]string, error) {
+	query := c.languageRepo.Query(ctx).BaseLanguage
+	opts := make([]repository.QueryOption, 0, 4)
+	opts = append(opts, repository.Where(query.Status.Eq(int32(commonv1.Status_ENABLE))))
+	opts = append(opts, repository.Where(query.IsPrimary.Is(false)))
+	opts = append(opts, repository.Order(query.Sort.Asc()), repository.Order(query.ID.Asc()))
+	rows, err := c.languageRepo.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	locales := make([]string, 0, len(rows))
+	for _, row := range rows {
+		locales = append(locales, row.LanguageCode)
+	}
+	return locales, nil
+}
+
+// EditableLocales 查询当前启用且非主语言的语言代码，供其他业务触发翻译草稿使用。
+func (c *BaseTranslationCase) EditableLocales(ctx context.Context) ([]string, error) {
+	return c.enabledEditableLocales(ctx)
+}
+
+// editableLocale 在启用语言列表中查找可维护的非主语言。
+func editableLocale(locales []string, value string) (string, bool) {
+	for _, localeValue := range locales {
+		if localeValue == value {
+			return localeValue, true
+		}
+	}
+	return "", false
+}
+
+// translationLocale 校验主语言或启用的非主语言。
+func translationLocale(locales []string, primaryLocale, value string) (string, bool) {
+	if value == primaryLocale {
+		return value, true
+	}
+	return editableLocale(locales, value)
+}
+
+// translationSourceHash 计算主语言源文的SHA-256。
 func translationSourceHash(source string) string {
 	hash := sha256.Sum256([]byte(source))
 	return hex.EncodeToString(hash[:])
@@ -1107,7 +1391,7 @@ func configTranslationDTO(row *models.BaseConfigTranslation, resourceID int64, l
 	return &systemadminv1.BaseConfigTranslation{Id: row.ID, ConfigId: row.ConfigID, Locale: row.Locale, Field: configTranslationFieldEnum(row.Field), Text: row.Text, TranslationStatus: translationStatusDTO(row.TranslationStatus), SourceHash: row.SourceHash, SourceChanged: row.SourceHash != translationSourceHash(source), TranslationProvider: row.TranslationProvider, TranslatedAt: formatTranslationTime(row.TranslatedAt), ReviewedBy: row.ReviewedBy, ReviewedAt: formatTranslationTime(row.ReviewedAt), CreatedBy: row.CreatedBy, UpdatedBy: row.UpdatedBy, CreatedAt: formatTranslationTime(row.CreatedAt), UpdatedAt: formatTranslationTime(row.UpdatedAt), DeletedAt: int64(row.DeletedAt)}
 }
 
-// configTranslationSourceText 返回配置指定翻译字段的中文源文。
+// configTranslationSourceText 返回配置指定翻译字段的主语言源文。
 func configTranslationSourceText(config *models.BaseConfig, field systemadminv1.BaseConfigTranslationField) (string, error) {
 	switch field {
 	case systemadminv1.BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_NAME:

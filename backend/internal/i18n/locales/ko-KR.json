@@ -1,0 +1,695 @@
+{
+  "auth.user_password.new_pwd.required": {
+    "other": "새 비밀번호를 입력하세요."
+  },
+  "auth.user_password.old_pwd.required": {
+    "other": "원래 비밀번호를 입력하세요"
+  },
+  "auth.user_password.required": {
+    "other": "원래 비밀번호를 입력해주세요"
+  },
+  "base_area.name.length": {
+    "other": "지역 이름은 비워둘 수 없으며 50자를 초과할 수 없습니다."
+  },
+  "base_config.key.max_len": {
+    "other": "구성 키는 50자를 초과할 수 없습니다."
+  },
+  "base_config.key.required": {
+    "other": "시스템 구성 코드를 입력하세요."
+  },
+  "base_config.name.max_len": {
+    "other": "구성 이름은 50자를 초과할 수 없습니다."
+  },
+  "base_config.name.required": {
+    "other": "시스템 구성 이름을 입력하세요."
+  },
+  "base_config.site.required": {
+    "other": "시스템 구성 위치를 선택하세요."
+  },
+  "base_config.type.required": {
+    "other": "시스템 구성 유형을 선택하십시오."
+  },
+  "base_config.value.required": {
+    "other": "구성 값은 비워둘 수 없습니다."
+  },
+  "base_dept.name.length": {
+    "other": "부서 이름은 비워둘 수 없으며 255자를 초과할 수 없습니다."
+  },
+  "base_dept.name.max_len": {
+    "other": "부서 이름은 255자를 초과할 수 없습니다."
+  },
+  "base_dept.name.required": {
+    "other": "부서 이름은 비워둘 수 없습니다."
+  },
+  "base_dept.parent_id.non_negative": {
+    "other": "상위 부서는 0보다 작을 수 없습니다."
+  },
+  "base_dept.remark.max_len": {
+    "other": "메모는 500자를 초과할 수 없습니다."
+  },
+  "base_dept.sort.required": {
+    "other": "정렬은 0보다 커야 합니다."
+  },
+  "base_dept.tenant_id.required": {
+    "other": "속한 테넌트는 비워둘 수 없습니다."
+  },
+  "base_dict.code.length": {
+    "other": "사전 번호는 비워둘 수 없으며 50자를 초과할 수 없습니다."
+  },
+  "base_dict.code.max_len": {
+    "other": "사전 번호는 50자를 초과할 수 없습니다."
+  },
+  "base_dict.code.required": {
+    "other": "사전코드를 입력해주세요"
+  },
+  "base_dict.name.length": {
+    "other": "사전 이름은 비워 둘 수 없으며 50자를 초과할 수 없습니다."
+  },
+  "base_dict.name.max_len": {
+    "other": "사전 이름은 50자를 초과할 수 없습니다."
+  },
+  "base_dict.name.required": {
+    "other": "사전 이름을 입력해주세요"
+  },
+  "base_dict_item.dict_id.required": {
+    "other": "사전은 비워둘 수 없습니다."
+  },
+  "base_dict_item.label.length": {
+    "other": "사전 항목 레이블은 비워둘 수 없으며 100자를 초과할 수 없습니다."
+  },
+  "base_dict_item.label.max_len": {
+    "other": "사전 태그를 입력하세요(100자 이내)."
+  },
+  "base_dict_item.label.required": {
+    "other": "사전 태그를 입력하세요(100자 이내)."
+  },
+  "base_dict_item.sort.required": {
+    "other": "정렬은 0보다 커야 합니다."
+  },
+  "base_dict_item.tag_type.max_len": {
+    "other": "라벨 유형은 50자를 초과할 수 없습니다."
+  },
+  "base_dict_item.value.length": {
+    "other": "사전 항목 값은 비워둘 수 없으며 50자를 초과할 수 없습니다."
+  },
+  "base_dict_item.value.max_len": {
+    "other": "사전 값을 입력하세요(50자 이내)."
+  },
+  "base_dict_item.value.required": {
+    "other": "사전 값을 입력하세요(50자 이내)."
+  },
+  "base_dict_item_translation.label.max_len": {
+    "other": "사전 항목 번역 라벨은 100자를 초과할 수 없습니다."
+  },
+  "base_dict_item_translation.locale.supported": {
+    "other": "사전 항목 번역 언어 코드는 비워둘 수 없습니다."
+  },
+  "base_dict_translation.locale.supported": {
+    "other": "사전 번역 언어 코드는 비워둘 수 없습니다."
+  },
+  "base_dict_translation.name.max_len": {
+    "other": "사전 번역 이름은 50자를 초과할 수 없습니다."
+  },
+  "base_job.cron_expression.length": {
+    "other": "cron 표현식은 비워둘 수 없으며 50자를 초과할 수 없습니다."
+  },
+  "base_job.invoke_target.length": {
+    "other": "호출 대상은 비워둘 수 없으며 100자를 초과할 수 없습니다."
+  },
+  "base_job.name.length": {
+    "other": "작업 이름은 비워둘 수 없으며 50자를 초과할 수 없습니다."
+  },
+  "base_language.language_code.length": {
+    "other": "언어 코드는 비워둘 수 없으며 16자를 초과할 수 없습니다."
+  },
+  "base_language.language_name.length": {
+    "other": "언어 이름은 비워둘 수 없으며 50자를 초과할 수 없습니다."
+  },
+  "base_language.native_name.length": {
+    "other": "현지 언어 이름은 비워둘 수 없으며 50자를 초과할 수 없습니다."
+  },
+  "base_language.sort.required": {
+    "other": "정렬은 0보다 작을 수 없습니다."
+  },
+  "base_job_args.key.required": {
+    "other": "모든 매개변수를 키에 입력해야 합니다."
+  },
+  "base_menu.component.max_len": {
+    "other": "구성 요소 경로는 255자를 초과할 수 없습니다."
+  },
+  "base_menu.external.path_internal": {
+    "other": "외부 링크 경로는 내부 고유 경로를 사용해야 합니다."
+  },
+  "base_menu.folder.identity_empty": {
+    "other": "디렉터리에 경로 및 라우팅 이름을 채울 수 없습니다."
+  },
+  "base_menu.name.max_len": {
+    "other": "경로 이름은 255자를 초과할 수 없습니다."
+  },
+  "base_menu.name.menu_only": {
+    "other": "메뉴 유형만 경로명을 입력할 수 있습니다."
+  },
+  "base_menu.name.required": {
+    "other": "메뉴 유형에는 경로 이름을 입력해야 합니다."
+  },
+  "base_menu.path.length": {
+    "other": "경로는 1024자를 초과할 수 없습니다."
+  },
+  "base_menu.path.required": {
+    "other": "디렉터리가 아닌 메뉴의 경우 경로를 입력해야 합니다."
+  },
+  "base_menu.redirect.external": {
+    "other": "외부 링크는 전체 HTTP 주소를 입력해야 합니다."
+  },
+  "base_menu.redirect.max_len": {
+    "other": "리디렉션 주소는 1024자를 초과할 수 없습니다."
+  },
+  "base_menu.sort.required": {
+    "other": "정렬은 0보다 커야 합니다."
+  },
+  "base_menu.type.required": {
+    "other": "메뉴 유형은 비워둘 수 없습니다."
+  },
+  "base_menu_translation.locale.supported": {
+    "other": "메뉴 번역 언어 코드는 비워둘 수 없습니다."
+  },
+  "base_menu_translation.title.max_len": {
+    "other": "메뉴 번역 제목은 255자를 초과할 수 없습니다."
+  },
+  "base_post.code.max_len": {
+    "other": "직위 번호는 20자를 초과할 수 없습니다."
+  },
+  "base_post.code.required": {
+    "other": "포지션 번호를 입력해주세요"
+  },
+  "base_post.name.max_len": {
+    "other": "직위 이름은 30자를 초과할 수 없습니다."
+  },
+  "base_post.name.required": {
+    "other": "포지션명을 입력해주세요"
+  },
+  "base_post.remark.max_len": {
+    "other": "댓글은 500자를 초과할 수 없습니다."
+  },
+  "base_post.sort.required": {
+    "other": "정렬은 0보다 커야 합니다."
+  },
+  "base_post.tenant_id.required": {
+    "other": "임차인을 선택해주세요"
+  },
+  "base_role.code.max_len": {
+    "other": "문자 수는 20자를 초과할 수 없습니다."
+  },
+  "base_role.code.required": {
+    "other": "역할 코드를 입력하세요"
+  },
+  "base_role.data_scope.required": {
+    "other": "데이터 권한을 선택하세요."
+  },
+  "base_role.menus.required": {
+    "other": "메뉴권한을 선택해주세요"
+  },
+  "base_role.menus.unique": {
+    "other": "메뉴 권한은 반복될 수 없습니다."
+  },
+  "base_role.name.max_len": {
+    "other": "역할 이름은 30자를 초과할 수 없습니다."
+  },
+  "base_role.name.required": {
+    "other": "역할 이름을 입력하세요."
+  },
+  "base_role.remark.max_len": {
+    "other": "댓글은 500자를 초과할 수 없습니다."
+  },
+  "base_role.tenant_id.required": {
+    "other": "속한 테넌트는 비워둘 수 없습니다."
+  },
+  "base_tenant.code.length": {
+    "other": "테넌트 번호는 비워둘 수 없으며 50자를 초과할 수 없습니다."
+  },
+  "base_tenant.contact_name.max_len": {
+    "other": "연락처는 50자를 초과할 수 없습니다."
+  },
+  "base_tenant.contact_phone.format": {
+    "other": "정확한 연락처를 입력해주세요"
+  },
+  "base_tenant.contact_phone.max_len": {
+    "other": "연락처 번호는 20자를 초과할 수 없습니다."
+  },
+  "base_tenant.name.length": {
+    "other": "테넌트 이름은 비워둘 수 없으며 100자를 초과할 수 없습니다."
+  },
+  "base_tenant.name.max_len": {
+    "other": "테넌트 이름은 100자를 초과할 수 없습니다."
+  },
+  "base_tenant.name.required": {
+    "other": "테넌트 이름을 입력하세요."
+  },
+  "base_tenant.remark.max_len": {
+    "other": "메모는 500자를 초과할 수 없습니다."
+  },
+  "base_translation.resource_id.required": {
+    "other": "리소스 ID는 비워둘 수 없습니다."
+  },
+  "base_translation.resource_type.required": {
+    "other": "번역 리소스 유형을 선택하세요."
+  },
+  "base_translation.target_locale.supported": {
+    "other": "대상 언어 코드는 비워둘 수 없습니다."
+  },
+  "base_user.avatar.max_len": {
+    "other": "아바타는 1024자를 초과할 수 없습니다."
+  },
+  "base_user.dept_id.required": {
+    "other": "부서는 비워둘 수 없습니다."
+  },
+  "base_user.nick_name.max_len": {
+    "other": "사용자 닉네임은 30자를 초과할 수 없습니다."
+  },
+  "base_user.nick_name.required": {
+    "other": "사용자 닉네임은 비워둘 수 없습니다."
+  },
+  "base_user.phone.format": {
+    "other": "정확한 휴대폰 번호를 입력해주세요"
+  },
+  "base_user.phone.max_len": {
+    "other": "휴대폰 번호는 20자를 초과할 수 없습니다."
+  },
+  "base_user.pwd.required": {
+    "other": "비밀번호를 입력해주세요"
+  },
+  "base_user.remark.max_len": {
+    "other": "메모는 500자를 초과할 수 없습니다."
+  },
+  "base_user.reset_pwd.required": {
+    "other": "새 비밀번호를 입력하세요"
+  },
+  "base_user.role_id.required": {
+    "other": "역할은 비워둘 수 없습니다."
+  },
+  "base_user.tenant_id.required": {
+    "other": "속한 테넌트는 비워둘 수 없습니다."
+  },
+  "base_user.user_code.length": {
+    "other": "사용자 번호는 비워둘 수 없으며 30자를 초과할 수 없습니다."
+  },
+  "base_user.user_name.length": {
+    "other": "사용자 계정은 비워둘 수 없으며 50자를 초과할 수 없습니다."
+  },
+  "bind_oauth_session.captcha_code.required": {
+    "other": "인증 코드는 비워둘 수 없습니다."
+  },
+  "bind_oauth_session.captcha_id.required": {
+    "other": "인증 코드 ID는 비워둘 수 없습니다."
+  },
+  "bind_oauth_session.code.required": {
+    "other": "타사 인증 코드는 비워둘 수 없습니다."
+  },
+  "bind_oauth_session.provider.required": {
+    "other": "로그인 방법 식별자는 비워둘 수 없습니다."
+  },
+  "bind_oauth_session.tenant_code.required": {
+    "other": "테넌트 코드는 비워둘 수 없습니다."
+  },
+  "bind_oauth_session.user_name.required": {
+    "other": "사용자 이름은 비워둘 수 없습니다."
+  },
+  "code_gen_table.status.required": {
+    "other": "코드 생성 테이블 상태를 선택하세요."
+  },
+  "common.error.conflict": {
+    "other": "리소스 상태 충돌"
+  },
+  "common.error.internal": {
+    "other": "시스템 내부 오류"
+  },
+  "common.error.invalid_argument": {
+    "other": "요청 매개변수 오류"
+  },
+  "common.error.permission_denied": {
+    "other": "작업 권한 없음"
+  },
+  "common.error.resource_not_found": {
+    "other": "요청한 리소스가 존재하지 않습니다."
+  },
+  "common.error.unauthenticated": {
+    "other": "로그인 상태가 만료되었습니다. 다시 로그인해 주세요."
+  },
+  "common.validation.invalid": {
+    "other": "필드 {{.Field}}이 요구 사항을 충족하지 않습니다."
+  },
+  "common.validation.required": {
+    "other": "필드 {{.Field}}은 비워둘 수 없습니다."
+  },
+  "create_ai_session_branch.anchor_message_id.positive": {
+    "other": "분기 앵커 메시지 번호가 잘못되었습니다."
+  },
+  "create_ai_session_branch.source_session_id.positive": {
+    "other": "세션 번호가 잘못되었습니다."
+  },
+  "create_ai_session_branch.title.required": {
+    "other": "세션 제목은 비워둘 수 없습니다."
+  },
+  "create_base_menu.parent_id.required": {
+    "other": "신규 메뉴 추가 시 상위 메뉴를 선택해야 합니다."
+  },
+  "create_oauth_authorization.provider.required": {
+    "other": "로그인 방법 식별자는 비워둘 수 없습니다."
+  },
+  "create_oauth_authorization.redirect_url.required": {
+    "other": "로그인 페이지 주소는 비워둘 수 없습니다."
+  },
+  "create_oauth_binding_authorization.provider.required": {
+    "other": "로그인 방법 식별자는 비워둘 수 없습니다."
+  },
+  "create_oauth_binding_authorization.redirect_url.required": {
+    "other": "바인딩이 완료된 후에는 반송 주소를 비워둘 수 없습니다."
+  },
+  "create_oauth_session.code.required": {
+    "other": "타사 인증 코드는 비워둘 수 없습니다."
+  },
+  "create_oauth_session.provider.required": {
+    "other": "로그인 방법 식별자는 비워둘 수 없습니다."
+  },
+  "delete_ai_message.message_id.positive": {
+    "other": "메시지 번호가 잘못되었습니다."
+  },
+  "delete_ai_message.session_id.positive": {
+    "other": "세션 번호가 잘못되었습니다."
+  },
+  "delete_ai_session.id.positive": {
+    "other": "세션 번호가 잘못되었습니다."
+  },
+  "delete_base_config.id.required": {
+    "other": "구성 ID 목록은 비워둘 수 없습니다."
+  },
+  "delete_base_dept.id.required": {
+    "other": "부서 ID 목록은 비워둘 수 없습니다."
+  },
+  "delete_base_dict.id.required": {
+    "other": "사전 ID 목록은 비워둘 수 없습니다."
+  },
+  "delete_base_dict_item.id.required": {
+    "other": "사전 속성 ID 목록은 비워둘 수 없습니다."
+  },
+  "delete_base_language.id.required": {
+    "other": "언어 ID 목록은 비워둘 수 없습니다."
+  },
+  "delete_base_menu.id.required": {
+    "other": "메뉴 ID 목록은 비워둘 수 없습니다."
+  },
+  "delete_base_post.id.required": {
+    "other": "직위 ID 목록은 비워둘 수 없습니다."
+  },
+  "delete_base_role.id.required": {
+    "other": "역할 ID 목록은 비워둘 수 없습니다."
+  },
+  "delete_base_tenant.id.required": {
+    "other": "테넌트 ID 목록은 비워둘 수 없습니다."
+  },
+  "delete_base_user.id.required": {
+    "other": "사용자 ID 목록은 비워둘 수 없습니다."
+  },
+  "download_file.path.required": {
+    "other": "파일 경로는 비워둘 수 없습니다."
+  },
+  "exchange_oauth_ticket.ticket.required": {
+    "other": "3자 로그인 티켓은 비워둘 수 없습니다."
+  },
+  "field.business_module.length": {
+    "other": "비즈니스 모듈은 64자를 초과할 수 없습니다."
+  },
+  "field.business_module.pattern": {
+    "other": "비즈니스 모듈 형식이 잘못되었습니다."
+  },
+  "field.business_module.required": {
+    "other": "비즈니스 모듈은 비워둘 수 없습니다."
+  },
+  "field.comment.length": {
+    "other": "비즈니스 테이블 설명은 128자를 초과할 수 없습니다."
+  },
+  "field.name.length": {
+    "other": "비즈니스 테이블 이름은 128자를 초과할 수 없습니다."
+  },
+  "field.name.pattern": {
+    "other": "비즈니스 테이블 이름의 형식이 잘못되었습니다."
+  },
+  "field.name.required": {
+    "other": "비즈니스 테이블 이름은 비워둘 수 없습니다."
+  },
+  "field.page_type.length": {
+    "other": "페이지 유형은 32자를 초과할 수 없습니다."
+  },
+  "field.page_type.required": {
+    "other": "페이지 유형은 비워둘 수 없습니다."
+  },
+  "field.parent_column.length": {
+    "other": "트리 테이블 상위 노드 필드는 64자를 초과할 수 없습니다."
+  },
+  "field.parent_menu_id.required": {
+    "other": "상위 메뉴를 선택하세요."
+  },
+  "field.remark.length": {
+    "other": "댓글은 500자를 초과할 수 없습니다."
+  },
+  "field.tree_label_column.length": {
+    "other": "트리 노드 표시 필드는 64자를 초과할 수 없습니다."
+  },
+  "get_base_config.id.required": {
+    "other": "구성 ID는 비워둘 수 없습니다."
+  },
+  "get_base_dept.id.required": {
+    "other": "부서 ID는 비워둘 수 없습니다."
+  },
+  "get_base_dict.id.required": {
+    "other": "사전 ID는 비워둘 수 없습니다."
+  },
+  "get_base_dict_item.id.required": {
+    "other": "사전 속성 ID는 비워둘 수 없습니다."
+  },
+  "get_base_language.id.required": {
+    "other": "언어 ID는 비워둘 수 없습니다."
+  },
+  "get_base_post.id.required": {
+    "other": "직위 ID는 비워둘 수 없습니다."
+  },
+  "get_base_role.id.required": {
+    "other": "역할 ID는 비워둘 수 없습니다."
+  },
+  "get_base_tenant.id.required": {
+    "other": "테넌트 ID는 비워둘 수 없습니다."
+  },
+  "get_base_third_account_identifier.provider.required": {
+    "other": "로그인 방법 식별자는 비워둘 수 없습니다."
+  },
+  "get_base_third_account_identifier.user_id.required": {
+    "other": "사용자 ID는 비워둘 수 없습니다."
+  },
+  "get_base_user.id.required": {
+    "other": "사용자 ID는 비워둘 수 없습니다."
+  },
+  "get_code_gen_table.id.required": {
+    "other": "기본 키 ID는 비워둘 수 없습니다."
+  },
+  "get_code_gen_task.task_id.required": {
+    "other": "생성된 작업 ID는 비워둘 수 없습니다."
+  },
+  "get_config.site.required": {
+    "other": "위치는 비워둘 수 없습니다."
+  },
+  "handle_mcp.terminal.required": {
+    "other": "MCP 서비스 식별자는 비워둘 수 없습니다."
+  },
+  "handle_oauth_binding_callback.code.required_on_success": {
+    "other": "타사 인증 코드는 비워둘 수 없습니다."
+  },
+  "handle_oauth_binding_callback.provider.required": {
+    "other": "로그인 방법 식별자는 비워둘 수 없습니다."
+  },
+  "handle_oauth_binding_callback.state.required": {
+    "other": "승인 상태 코드는 비워둘 수 없습니다."
+  },
+  "handle_oauth_callback.code.required_on_success": {
+    "other": "타사 인증 코드는 비워둘 수 없습니다."
+  },
+  "handle_oauth_callback.provider.required": {
+    "other": "로그인 방법 식별자는 비워둘 수 없습니다."
+  },
+  "handle_oauth_callback.state.required": {
+    "other": "승인 상태 코드는 비워둘 수 없습니다."
+  },
+  "list_ai_message.session_id.positive": {
+    "other": "세션 번호가 잘못되었습니다."
+  },
+  "list_base_user.ids.positive": {
+    "other": "사용자 ID는 0보다 커야 합니다."
+  },
+  "list_code_gen_column.table_id.required": {
+    "other": "코드 생성 테이블 구성 ID는 비워둘 수 없습니다."
+  },
+  "list_code_gen_database_column.table_name.pattern": {
+    "other": "데이터베이스 테이블 이름 형식이 잘못되었습니다."
+  },
+  "list_code_gen_database_column.table_name.required": {
+    "other": "데이터베이스 테이블 이름은 비워둘 수 없습니다."
+  },
+  "list_code_gen_proto.table_id.required": {
+    "other": "코드 생성 테이블 구성 ID는 비워둘 수 없습니다."
+  },
+  "login.captcha_code.required": {
+    "other": "인증 코드는 비워둘 수 없습니다."
+  },
+  "login.captcha_id.required": {
+    "other": "인증 코드는 비워둘 수 없습니다."
+  },
+  "login.user_name.required": {
+    "other": "사용자 이름은 비워둘 수 없습니다."
+  },
+  "preview_code_gen.table_id.required": {
+    "other": "코드 생성 테이블 구성 ID는 비워둘 수 없습니다."
+  },
+  "refresh_token.required": {
+    "other": "새로 고침 토큰은 비워둘 수 없습니다."
+  },
+  "regenerate_ai_message.message_id.positive": {
+    "other": "메시지 번호가 잘못되었습니다."
+  },
+  "regenerate_ai_message.session_id.positive": {
+    "other": "세션 번호가 잘못되었습니다."
+  },
+  "reset_base_user_password.id.required": {
+    "other": "사용자 ID는 비워둘 수 없습니다."
+  },
+  "restore_code_gen.table_ids.positive": {
+    "other": "코드 생성 테이블 구성 ID는 0보다 커야 합니다."
+  },
+  "retry_ai_message.message_id.positive": {
+    "other": "메시지 번호가 잘못되었습니다."
+  },
+  "retry_ai_message.session_id.positive": {
+    "other": "세션 번호가 잘못되었습니다."
+  },
+  "save_code_gen_column.table_id.required": {
+    "other": "코드 생성 테이블 구성 ID는 비워둘 수 없습니다."
+  },
+  "save_code_gen_proto.table_id.required": {
+    "other": "코드 생성 테이블 구성 ID는 비워둘 수 없습니다."
+  },
+  "send_ai_message.session_id.positive": {
+    "other": "세션 번호가 잘못되었습니다."
+  },
+  "send_phone_code.phone.format": {
+    "other": "정확한 휴대폰 번호를 입력해주세요"
+  },
+  "send_phone_code.phone.required": {
+    "other": "휴대폰 번호를 입력해주세요"
+  },
+  "set_base_config_status.id.required": {
+    "other": "구성 ID는 비워둘 수 없습니다."
+  },
+  "set_base_dept_status.id.required": {
+    "other": "부서 ID는 비워둘 수 없습니다."
+  },
+  "set_base_dict_item_status.id.required": {
+    "other": "사전 속성 ID는 비워둘 수 없습니다."
+  },
+  "set_base_language_status.id.required": {
+    "other": "언어 ID는 비워둘 수 없습니다."
+  },
+  "set_base_dict_status.id.required": {
+    "other": "사전 ID는 비워둘 수 없습니다."
+  },
+  "set_base_menu_status.id.required": {
+    "other": "메뉴 ID는 비워둘 수 없습니다."
+  },
+  "set_base_menu_status.status.required": {
+    "other": "상태는 비워둘 수 없습니다."
+  },
+  "set_base_post_status.id.required": {
+    "other": "직위 ID는 비워둘 수 없습니다."
+  },
+  "set_base_role_menu.id.required": {
+    "other": "역할 ID는 비워둘 수 없습니다."
+  },
+  "set_base_role_status.id.required": {
+    "other": "역할 ID는 비워둘 수 없습니다."
+  },
+  "set_base_tenant_status.id.required": {
+    "other": "테넌트 ID는 비워둘 수 없습니다."
+  },
+  "set_base_user_app_role.role_code.required": {
+    "other": "애플리케이션 역할 코드는 비워둘 수 없습니다."
+  },
+  "set_base_user_app_role.user_id.required": {
+    "other": "사용자 ID는 비워둘 수 없습니다."
+  },
+  "set_base_user_status.id.required": {
+    "other": "사용자 ID는 비워둘 수 없습니다."
+  },
+  "start_code_gen_task.table_ids.positive": {
+    "other": "코드 생성 테이블 구성 ID는 0보다 커야 합니다."
+  },
+  "subscribe_sse.stream.required": {
+    "other": "SSE 스트림은 비워둘 수 없습니다."
+  },
+  "unbind_oauth_account.provider.required": {
+    "other": "로그인 방법 식별자는 비워둘 수 없습니다."
+  },
+  "update_ai_message.content.required": {
+    "other": "메시지 내용은 비워둘 수 없습니다."
+  },
+  "update_ai_message.message_id.positive": {
+    "other": "메시지 번호가 잘못되었습니다."
+  },
+  "update_ai_message.session_id.positive": {
+    "other": "세션 번호가 잘못되었습니다."
+  },
+  "update_ai_session.id.positive": {
+    "other": "세션 번호가 잘못되었습니다."
+  },
+  "update_ai_session.title.required": {
+    "other": "세션 제목은 비워둘 수 없습니다."
+  },
+  "update_base_config.id.required": {
+    "other": "구성 ID는 비워둘 수 없습니다."
+  },
+  "update_base_dept.id.required": {
+    "other": "부서 ID는 비워둘 수 없습니다."
+  },
+  "update_base_dict.id.required": {
+    "other": "사전 ID는 비워둘 수 없습니다."
+  },
+  "update_base_dict_item.id.required": {
+    "other": "사전 속성 ID는 비워둘 수 없습니다."
+  },
+  "update_base_post.id.required": {
+    "other": "직위 ID는 비워둘 수 없습니다."
+  },
+  "update_base_role.id.required": {
+    "other": "역할 ID는 비워둘 수 없습니다."
+  },
+  "update_base_tenant.id.required": {
+    "other": "테넌트 ID는 비워둘 수 없습니다."
+  },
+  "update_base_user.id.required": {
+    "other": "사용자 ID는 비워둘 수 없습니다."
+  },
+  "update_code_gen_table.id.required": {
+    "other": "기본 키 ID는 비워둘 수 없습니다."
+  },
+  "user_phone.code.required": {
+    "other": "인증코드를 입력해주세요"
+  },
+  "user_phone.phone.format": {
+    "other": "정확한 휴대폰 번호를 입력해주세요"
+  },
+  "user_phone.phone.required": {
+    "other": "휴대폰 번호를 입력해주세요"
+  },
+  "verify_captcha.captcha_code.required": {
+    "other": "인증 코드는 비워둘 수 없습니다."
+  },
+  "verify_captcha.captcha_id.required": {
+    "other": "인증 코드는 비워둘 수 없습니다."
+  }
+}

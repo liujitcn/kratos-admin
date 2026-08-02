@@ -16,6 +16,7 @@ inputs:
   - directory: .
     paths:
       - proto/base/v1/config.proto
+      - proto/base/v1/language.proto
       - proto/base/v1/file.proto
       - proto/base/v1/login.proto
       - proto/base/v1/oauth.proto

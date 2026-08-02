@@ -22,6 +22,7 @@ type Services struct {
 	BaseDept         *systemadmin.BaseDeptService
 	BaseDict         *systemadmin.BaseDictService
 	BaseJob          *systemadmin.BaseJobService
+	BaseLanguage     *systemadmin.BaseLanguageService
 	BaseLog          *systemadmin.BaseLogService
 	BaseMenu         *systemadmin.BaseMenuService
 	BasePost         *systemadmin.BasePostService
@@ -53,6 +54,7 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	systemadminv1.RegisterBaseDeptServiceServer(srv, s.BaseDept)
 	systemadminv1.RegisterBaseDictServiceServer(srv, s.BaseDict)
 	systemadminv1.RegisterBaseJobServiceServer(srv, s.BaseJob)
+	systemadminv1.RegisterBaseLanguageServiceServer(srv, s.BaseLanguage)
 	systemadminv1.RegisterBaseLogServiceServer(srv, s.BaseLog)
 	systemadminv1.RegisterBaseMenuServiceServer(srv, s.BaseMenu)
 	systemadminv1.RegisterBasePostServiceServer(srv, s.BasePost)
@@ -79,6 +81,7 @@ func (s Services) RegisterHTTP(srv *kratosHTTP.Server) {
 	systemadminv1.RegisterBaseDeptServiceHTTPServer(srv, s.BaseDept)
 	systemadminv1.RegisterBaseDictServiceHTTPServer(srv, s.BaseDict)
 	systemadminv1.RegisterBaseJobServiceHTTPServer(srv, s.BaseJob)
+	systemadminv1.RegisterBaseLanguageServiceHTTPServer(srv, s.BaseLanguage)
 	systemadminv1.RegisterBaseLogServiceHTTPServer(srv, s.BaseLog)
 	systemadminv1.RegisterBaseMenuServiceHTTPServer(srv, s.BaseMenu)
 	systemadminv1.RegisterBasePostServiceHTTPServer(srv, s.BasePost)
@@ -105,6 +108,7 @@ func (s Services) RegisterMCP(server *mcpserver.Server) {
 	systemadminv1.RegisterBaseDeptServiceMCPTools(mcpSrv, s.BaseDept)
 	systemadminv1.RegisterBaseDictServiceMCPTools(mcpSrv, s.BaseDict)
 	systemadminv1.RegisterBaseJobServiceMCPTools(mcpSrv, s.BaseJob)
+	systemadminv1.RegisterBaseLanguageServiceMCPTools(mcpSrv, s.BaseLanguage)
 	systemadminv1.RegisterBaseLogServiceMCPTools(mcpSrv, s.BaseLog)
 	systemadminv1.RegisterBaseMenuServiceMCPTools(mcpSrv, s.BaseMenu)
 	systemadminv1.RegisterBasePostServiceMCPTools(mcpSrv, s.BasePost)

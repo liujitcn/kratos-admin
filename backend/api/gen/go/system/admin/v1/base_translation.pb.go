@@ -189,7 +189,7 @@ type GenerateTranslationDraftRequest struct {
 	state         protoimpl.MessageState     `protogen:"open.v1"`
 	ResourceType  TranslationResourceType    `protobuf:"varint,1,opt,name=resource_type,json=resourceType,proto3,enum=system.admin.v1.TranslationResourceType" json:"resource_type,omitempty"` // 资源类型
 	ResourceId    int64                      `protobuf:"varint,2,opt,name=resource_id,json=resourceId,proto3" json:"resource_id,omitempty"`                                                    // 已保存资源ID
-	TargetLocale  string                     `protobuf:"bytes,3,opt,name=target_locale,json=targetLocale,proto3" json:"target_locale,omitempty"`                                               // 目标语言区域，仅支持en-US和ja-JP
+	TargetLocale  string                     `protobuf:"bytes,3,opt,name=target_locale,json=targetLocale,proto3" json:"target_locale,omitempty"`                                               // 目标语言代码
 	Field         BaseConfigTranslationField `protobuf:"varint,4,opt,name=field,proto3,enum=system.admin.v1.BaseConfigTranslationField" json:"field,omitempty"`                                // 系统配置翻译字段，配置资源必填
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -592,15 +592,15 @@ var File_system_admin_v1_base_translation_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_translation_proto_rawDesc = "" +
 	"\n" +
-	"&system/admin/v1/base_translation.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xb5\x05\n" +
+	"&system/admin/v1/base_translation.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\x8a\x05\n" +
 	"\x1fGenerateTranslationDraftRequest\x12\xbd\x01\n" +
 	"\rresource_type\x18\x01 \x01(\x0e2(.system.admin.v1.TranslationResourceTypeBn\xbaG\x0f\x92\x02\f资源类型\xbaHY\xba\x01Q\n" +
 	"'base_translation.resource_type.required\x12\x1b请选择翻译资源类型\x1a\tthis != 0\x82\x01\x02\x10\x01R\fresourceType\x12\x85\x01\n" +
 	"\vresource_id\x18\x02 \x01(\x03Bd\xbaG\x14\x92\x02\x11已保存资源ID\xbaHJ\xba\x01G\n" +
 	"%base_translation.resource_id.required\x12\x14资源ID不能为空\x1a\bthis > 0R\n" +
-	"resourceId\x12\xc9\x01\n" +
-	"\rtarget_locale\x18\x03 \x01(\tB\xa3\x01\xbaG.\x92\x02+目标语言区域，仅支持en-US和ja-JP\xbaHo\xba\x01l\n" +
-	"(base_translation.target_locale.supported\x12$目标语言仅支持英语或日语\x1a\x1athis in ['en-US', 'ja-JP']R\ftargetLocale\x12~\n" +
+	"resourceId\x12\x9e\x01\n" +
+	"\rtarget_locale\x18\x03 \x01(\tBy\xbaG\x15\x92\x02\x12目标语言代码\xbaH^\xba\x01[\n" +
+	"(base_translation.target_locale.supported\x12\x1e目标语言代码不能为空\x1a\x0fthis.size() > 0R\ftargetLocale\x12~\n" +
 	"\x05field\x18\x04 \x01(\x0e2+.system.admin.v1.BaseConfigTranslationFieldB;\xbaG0\x92\x02-系统配置翻译字段，配置资源必填\xbaH\x05\x82\x01\x02\x10\x01R\x05field\"\xb9\x05\n" +
 	" GenerateTranslationDraftResponse\x12a\n" +
 	"\rresource_type\x18\x01 \x01(\x0e2(.system.admin.v1.TranslationResourceTypeB\x12\xbaG\x0f\x92\x02\f资源类型R\fresourceType\x12/\n" +

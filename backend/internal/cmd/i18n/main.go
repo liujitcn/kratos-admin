@@ -27,7 +27,7 @@ func main() {
 		var result *backendI18n.CatalogCheckResult
 		result, err = backendI18n.CheckCatalogFiles(*root)
 		if err == nil {
-			fmt.Printf("国际化目录检查通过：Proto消息 %d 条，三语目录各 %d 条\n", result.SourceCount, result.LocaleCount)
+			fmt.Printf("国际化目录检查通过：Proto消息 %d 条，所有语言目录各 %d 条\n", result.SourceCount, result.LocaleCount)
 		}
 	case "draft":
 		var result *backendI18n.DraftResult
@@ -41,8 +41,7 @@ func main() {
 			result, err = backendI18n.DraftCatalogFiles(context.Background(), *root, provider, true)
 		}
 		if err == nil {
-			fmt.Printf("缺失草稿：zh-CN=%d en-US=%d ja-JP=%d，写入=%d\n",
-				result.MissingByLocale["zh-CN"], result.MissingByLocale["en-US"], result.MissingByLocale["ja-JP"], result.Written)
+			fmt.Printf("缺失草稿：%v，写入=%d\n", result.MissingByLocale, result.Written)
 		}
 	default:
 		err = fmt.Errorf("不支持的执行模式 %s", *mode)

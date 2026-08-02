@@ -229,7 +229,7 @@ type BaseConfigForm struct {
 	Type          v11.BaseConfigType       `protobuf:"varint,4,opt,name=type,proto3,enum=system.common.v1.BaseConfigType" json:"type,omitempty"` // 配置类型：1、文本，2、图片，3、富文本，4、字典，5、布尔
 	Key           string                   `protobuf:"bytes,5,opt,name=key,proto3" json:"key,omitempty"`                                         // 配置key
 	Value         string                   `protobuf:"bytes,6,opt,name=value,proto3" json:"value,omitempty"`                                     // 配置value
-	Translations  []*BaseConfigTranslation `protobuf:"bytes,7,rep,name=translations,proto3" json:"translations,omitempty"`                       // 配置名称及文本/富文本值的英日翻译
+	Translations  []*BaseConfigTranslation `protobuf:"bytes,7,rep,name=translations,proto3" json:"translations,omitempty"`                       // 配置名称及文本/富文本值的多语言翻译
 	Status        v12.Status               `protobuf:"varint,51,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`           // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -555,7 +555,7 @@ type BaseConfig struct {
 	Type          v11.BaseConfigType       `protobuf:"varint,4,opt,name=type,proto3,enum=system.common.v1.BaseConfigType" json:"type,omitempty"` // 配置类型：枚举【BaseConfigType】
 	Key           string                   `protobuf:"bytes,5,opt,name=key,proto3" json:"key,omitempty"`                                         // 配置key
 	Value         string                   `protobuf:"bytes,6,opt,name=value,proto3" json:"value,omitempty"`                                     // 配置value
-	Translations  []*BaseConfigTranslation `protobuf:"bytes,7,rep,name=translations,proto3" json:"translations,omitempty"`                       // 配置名称及文本/富文本值的英日翻译
+	Translations  []*BaseConfigTranslation `protobuf:"bytes,7,rep,name=translations,proto3" json:"translations,omitempty"`                       // 配置名称及文本/富文本值的多语言翻译
 	Status        v12.Status               `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`          // 状态：枚举【Status】
 	CreatedAt     string                   `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`          // 创建时间
 	UpdatedAt     string                   `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`          // 更新时间
@@ -686,7 +686,7 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"y\n" +
 	"\x14GetBaseConfigRequest\x12a\n" +
 	"\x02id\x18\x01 \x01(\x03BQ\xbaG\v\x92\x02\b配置ID\xbaH@\xba\x01=\n" +
-	"\x1bget_base_config.id.required\x12\x14配置ID不能为空\x1a\bthis > 0R\x02id\"\x87\t\n" +
+	"\x1bget_base_config.id.required\x12\x14配置ID不能为空\x1a\bthis > 0R\x02id\"\x8a\t\n" +
 	"\x0eBaseConfigForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12\xa4\x01\n" +
 	"\x04site\x18\x02 \x01(\x0e2\x17.base.v1.BaseConfigSiteBw\xbaG&\x92\x02#位置：枚举【BaseConfigSite】\xbaHK\xba\x01C\n" +
@@ -700,8 +700,8 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"\x18base_config.key.required\x12\x1b请输入系统配置编码\x1a\x0fthis.size() > 0\xba\x01P\n" +
 	"\x17base_config.key.max_len\x12\"配置key不能超过 50 个字符\x1a\x11this.size() <= 50R\x03key\x12q\n" +
 	"\x05value\x18\x06 \x01(\tB[\xbaG\x0e\x92\x02\v配置value\xbaHG\xba\x01D\n" +
-	"\x1abase_config.value.required\x12\x15配置值不能为空\x1a\x0fthis.size() > 0R\x05value\x12\x83\x01\n" +
-	"\ftranslations\x18\a \x03(\v2&.system.admin.v1.BaseConfigTranslationB7\xbaG4\x92\x021配置名称及文本/富文本值的英日翻译R\ftranslations\x12?\n" +
+	"\x1abase_config.value.required\x12\x15配置值不能为空\x1a\x0fthis.size() > 0R\x05value\x12\x86\x01\n" +
+	"\ftranslations\x18\a \x03(\v2&.system.admin.v1.BaseConfigTranslationB:\xbaG7\x92\x024配置名称及文本/富文本值的多语言翻译R\ftranslations\x12?\n" +
 	"\x06status\x183 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"{\n" +
 	"\x17CreateBaseConfigRequest\x12`\n" +
 	"\vbase_config\x18\x01 \x01(\v2\x1f.system.admin.v1.BaseConfigFormB\x1e\xbaG\x15\x92\x02\x12系统配置表单\xbaH\x03\xc8\x01\x01R\n" +
@@ -717,7 +717,7 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x03BX\xbaG\v\x92\x02\b配置ID\xbaHG\xba\x01D\n" +
 	"\"set_base_config_status.id.required\x12\x14配置ID不能为空\x1a\bthis > 0R\x02id\x12$\n" +
 	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\x1f\n" +
-	"\x1dRefreshBaseConfigCacheRequest\"\x9b\x05\n" +
+	"\x1dRefreshBaseConfigCacheRequest\"\x9e\x05\n" +
 	"\n" +
 	"BaseConfig\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12V\n" +
@@ -725,8 +725,8 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f配置名称R\x04name\x12e\n" +
 	"\x04type\x18\x04 \x01(\x0e2 .system.common.v1.BaseConfigTypeB/\xbaG,\x92\x02)配置类型：枚举【BaseConfigType】R\x04type\x12!\n" +
 	"\x03key\x18\x05 \x01(\tB\x0f\xbaG\f\x92\x02\t配置keyR\x03key\x12'\n" +
-	"\x05value\x18\x06 \x01(\tB\x11\xbaG\x0e\x92\x02\v配置valueR\x05value\x12\x83\x01\n" +
-	"\ftranslations\x18\a \x03(\v2&.system.admin.v1.BaseConfigTranslationB7\xbaG4\x92\x021配置名称及文本/富文本值的英日翻译R\ftranslations\x12L\n" +
+	"\x05value\x18\x06 \x01(\tB\x11\xbaG\x0e\x92\x02\v配置valueR\x05value\x12\x86\x01\n" +
+	"\ftranslations\x18\a \x03(\v2&.system.admin.v1.BaseConfigTranslationB:\xbaG7\x92\x024配置名称及文本/富文本值的多语言翻译R\ftranslations\x12L\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】R\x06status\x122\n" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +

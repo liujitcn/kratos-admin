@@ -1,0 +1,695 @@
+{
+  "auth.user_password.new_pwd.required": {
+    "other": "Veuillez saisir un nouveau mot de passe"
+  },
+  "auth.user_password.old_pwd.required": {
+    "other": "Veuillez saisir le mot de passe d'origine"
+  },
+  "auth.user_password.required": {
+    "other": "Veuillez saisir le mot de passe d'origine"
+  },
+  "base_area.name.length": {
+    "other": "Le nom de la région ne peut pas être vide et ne peut pas dépasser 50 caractères"
+  },
+  "base_config.key.max_len": {
+    "other": "La clé de configuration ne peut pas dépasser 50 caractères"
+  },
+  "base_config.key.required": {
+    "other": "Veuillez saisir le code de configuration du système"
+  },
+  "base_config.name.max_len": {
+    "other": "Le nom de la configuration ne peut pas dépasser 50 caractères"
+  },
+  "base_config.name.required": {
+    "other": "Veuillez saisir le nom de la configuration du système"
+  },
+  "base_config.site.required": {
+    "other": "Veuillez sélectionner l'emplacement de configuration du système"
+  },
+  "base_config.type.required": {
+    "other": "Veuillez sélectionner le type de configuration du système\nLa valeur de configuration"
+  },
+  "base_config.value.required": {
+    "other": "ne peut pas être vide"
+  },
+  "base_dept.name.length": {
+    "other": "Le nom du service ne peut pas être vide et ne peut pas dépasser 255 caractères"
+  },
+  "base_dept.name.max_len": {
+    "other": "Le nom du service ne peut pas dépasser 255 caractères"
+  },
+  "base_dept.name.required": {
+    "other": "Le nom du service ne peut pas être vide"
+  },
+  "base_dept.parent_id.non_negative": {
+    "other": "Le département supérieur ne peut pas être inférieur à 0"
+  },
+  "base_dept.remark.max_len": {
+    "other": "La note ne peut pas dépasser 500 caractères"
+  },
+  "base_dept.sort.required": {
+    "other": "Le tri doit être supérieur à 0"
+  },
+  "base_dept.tenant_id.required": {
+    "other": "Le locataire auquel il appartient ne peut pas être vide"
+  },
+  "base_dict.code.length": {
+    "other": "Le numéro de dictionnaire ne peut pas être vide et ne peut pas dépasser 50 caractères"
+  },
+  "base_dict.code.max_len": {
+    "other": "Le numéro de dictionnaire ne peut pas dépasser 50 caractères"
+  },
+  "base_dict.code.required": {
+    "other": "Veuillez saisir le code du dictionnaire"
+  },
+  "base_dict.name.length": {
+    "other": "Le nom du dictionnaire ne peut pas être vide et ne peut pas dépasser 50 caractères"
+  },
+  "base_dict.name.max_len": {
+    "other": "Le nom du dictionnaire ne peut pas dépasser 50 caractères"
+  },
+  "base_dict.name.required": {
+    "other": "Veuillez saisir le nom du dictionnaire"
+  },
+  "base_dict_item.dict_id.required": {
+    "other": "Le dictionnaire ne peut pas être vide"
+  },
+  "base_dict_item.label.length": {
+    "other": "L'étiquette de l'entrée du dictionnaire ne peut pas être vide et ne peut pas dépasser 100 caractères."
+  },
+  "base_dict_item.label.max_len": {
+    "other": "Veuillez saisir une balise de dictionnaire (pas plus de 100 caractères)"
+  },
+  "base_dict_item.label.required": {
+    "other": "Veuillez saisir une balise de dictionnaire (pas plus de 100 caractères)"
+  },
+  "base_dict_item.sort.required": {
+    "other": "Le tri doit être supérieur à 0"
+  },
+  "base_dict_item.tag_type.max_len": {
+    "other": "Le type d'étiquette ne peut pas dépasser 50 caractères"
+  },
+  "base_dict_item.value.length": {
+    "other": "La valeur de l'entrée du dictionnaire ne peut pas être vide et ne peut pas dépasser 50 caractères."
+  },
+  "base_dict_item.value.max_len": {
+    "other": "Veuillez saisir la valeur du dictionnaire (pas plus de 50 caractères)"
+  },
+  "base_dict_item.value.required": {
+    "other": "Veuillez saisir la valeur du dictionnaire (pas plus de 50 caractères)"
+  },
+  "base_dict_item_translation.label.max_len": {
+    "other": "L'étiquette de traduction de l'élément de dictionnaire ne peut pas dépasser 100 caractères."
+  },
+  "base_dict_item_translation.locale.supported": {
+    "other": "Le code de langue de traduction de l'élément de dictionnaire ne peut pas être vide"
+  },
+  "base_dict_translation.locale.supported": {
+    "other": "Le code de langue de traduction du dictionnaire ne peut pas être vide"
+  },
+  "base_dict_translation.name.max_len": {
+    "other": "Le nom de la traduction du dictionnaire ne peut pas dépasser 50 caractères"
+  },
+  "base_job.cron_expression.length": {
+    "other": "l'expression cron ne peut pas être vide et ne peut pas dépasser 50 caractères"
+  },
+  "base_job.invoke_target.length": {
+    "other": "La cible appelante ne peut pas être vide et ne peut pas dépasser 100 caractères"
+  },
+  "base_job.name.length": {
+    "other": "Le nom de la tâche ne peut pas être vide et ne peut pas dépasser 50 caractères"
+  },
+  "base_language.language_code.length": {
+    "other": "Le code de langue ne peut pas être vide et ne peut pas dépasser 16 caractères"
+  },
+  "base_language.language_name.length": {
+    "other": "Le nom de la langue ne peut pas être vide et ne peut pas dépasser 50 caractères"
+  },
+  "base_language.native_name.length": {
+    "other": "Le nom de la langue locale ne peut pas être vide et ne peut pas dépasser 50 caractères."
+  },
+  "base_language.sort.required": {
+    "other": "Le tri ne peut pas être inférieur à 0"
+  },
+  "base_job_args.key.required": {
+    "other": "Tous les paramètres doivent être renseignés"
+  },
+  "base_menu.component.max_len": {
+    "other": "Le chemin du composant ne peut pas dépasser 255 caractères"
+  },
+  "base_menu.external.path_internal": {
+    "other": "Le chemin du lien externe doit utiliser le chemin unique interne"
+  },
+  "base_menu.folder.identity_empty": {
+    "other": "Le répertoire ne peut pas renseigner le chemin et le nom du routage"
+  },
+  "base_menu.name.max_len": {
+    "other": "Le nom de l'itinéraire ne peut pas dépasser 255 caractères"
+  },
+  "base_menu.name.menu_only": {
+    "other": "Seul le type de menu peut renseigner le nom de l'itinéraire"
+  },
+  "base_menu.name.required": {
+    "other": "Le type de menu doit renseigner le nom de l'itinéraire"
+  },
+  "base_menu.path.length": {
+    "other": "Le chemin ne peut pas dépasser 1 024 caractères"
+  },
+  "base_menu.path.required": {
+    "other": "Le chemin doit être renseigné pour les menus hors répertoire"
+  },
+  "base_menu.redirect.external": {
+    "other": "Le lien externe doit renseigner l'adresse HTTP complète"
+  },
+  "base_menu.redirect.max_len": {
+    "other": "L'adresse de redirection ne peut pas dépasser 1 024 caractères"
+  },
+  "base_menu.sort.required": {
+    "other": "Le tri doit être supérieur à 0"
+  },
+  "base_menu.type.required": {
+    "other": "Le type de menu ne peut pas être vide"
+  },
+  "base_menu_translation.locale.supported": {
+    "other": "Le code de langue de traduction du menu ne peut pas être vide"
+  },
+  "base_menu_translation.title.max_len": {
+    "other": "Le titre de la traduction du menu ne peut pas dépasser 255 caractères"
+  },
+  "base_post.code.max_len": {
+    "other": "Le numéro de position ne peut pas dépasser 20 caractères"
+  },
+  "base_post.code.required": {
+    "other": "Veuillez saisir le numéro de poste"
+  },
+  "base_post.name.max_len": {
+    "other": "Le nom du poste ne peut pas dépasser 30 caractères"
+  },
+  "base_post.name.required": {
+    "other": "Veuillez saisir le nom du poste"
+  },
+  "base_post.remark.max_len": {
+    "other": "Le commentaire ne peut pas dépasser 500 caractères"
+  },
+  "base_post.sort.required": {
+    "other": "Le tri doit être supérieur à 0"
+  },
+  "base_post.tenant_id.required": {
+    "other": "Veuillez sélectionner le locataire"
+  },
+  "base_role.code.max_len": {
+    "other": "Le nombre de caractères ne peut pas dépasser 20 caractères"
+  },
+  "base_role.code.required": {
+    "other": "Veuillez saisir le code de rôle"
+  },
+  "base_role.data_scope.required": {
+    "other": "Veuillez sélectionner les autorisations de données"
+  },
+  "base_role.menus.required": {
+    "other": "Veuillez sélectionner les autorisations du menu"
+  },
+  "base_role.menus.unique": {
+    "other": "Les autorisations de menu ne peuvent pas être répétées"
+  },
+  "base_role.name.max_len": {
+    "other": "Le nom du rôle ne peut pas dépasser 30 caractères"
+  },
+  "base_role.name.required": {
+    "other": "Veuillez saisir le nom du rôle"
+  },
+  "base_role.remark.max_len": {
+    "other": "Le commentaire ne peut pas dépasser 500 caractères"
+  },
+  "base_role.tenant_id.required": {
+    "other": "Le locataire auquel il appartient ne peut pas être vide"
+  },
+  "base_tenant.code.length": {
+    "other": "Le numéro de locataire ne peut pas être vide et ne peut pas dépasser 50 caractères"
+  },
+  "base_tenant.contact_name.max_len": {
+    "other": "Le contact ne peut pas dépasser 50 caractères"
+  },
+  "base_tenant.contact_phone.format": {
+    "other": "Veuillez entrer le numéro de contact correct"
+  },
+  "base_tenant.contact_phone.max_len": {
+    "other": "Le numéro de contact ne peut pas dépasser 20 caractères"
+  },
+  "base_tenant.name.length": {
+    "other": "Le nom du locataire ne peut pas être vide et ne peut pas dépasser 100 caractères"
+  },
+  "base_tenant.name.max_len": {
+    "other": "Le nom du locataire ne peut pas dépasser 100 caractères"
+  },
+  "base_tenant.name.required": {
+    "other": "Veuillez saisir le nom du locataire"
+  },
+  "base_tenant.remark.max_len": {
+    "other": "La note ne peut pas dépasser 500 caractères"
+  },
+  "base_translation.resource_id.required": {
+    "other": "L'ID de ressource ne peut pas être vide"
+  },
+  "base_translation.resource_type.required": {
+    "other": "Veuillez sélectionner le type de ressource de traduction"
+  },
+  "base_translation.target_locale.supported": {
+    "other": "Le code de la langue cible ne peut pas être vide"
+  },
+  "base_user.avatar.max_len": {
+    "other": "L'avatar ne peut pas dépasser 1 024 caractères."
+  },
+  "base_user.dept_id.required": {
+    "other": "Le département ne peut pas être vide"
+  },
+  "base_user.nick_name.max_len": {
+    "other": "Le pseudo de l'utilisateur ne peut pas dépasser 30 caractères"
+  },
+  "base_user.nick_name.required": {
+    "other": "Le pseudo de l'utilisateur ne peut pas être vide"
+  },
+  "base_user.phone.format": {
+    "other": "Veuillez saisir le numéro de téléphone portable correct"
+  },
+  "base_user.phone.max_len": {
+    "other": "Le numéro de téléphone portable ne peut pas dépasser 20 caractères"
+  },
+  "base_user.pwd.required": {
+    "other": "Veuillez saisir le mot de passe"
+  },
+  "base_user.remark.max_len": {
+    "other": "La note ne peut pas dépasser 500 caractères"
+  },
+  "base_user.reset_pwd.required": {
+    "other": "Veuillez saisir un nouveau mot de passe"
+  },
+  "base_user.role_id.required": {
+    "other": "ne peut pas être vide"
+  },
+  "base_user.tenant_id.required": {
+    "other": "Le locataire auquel il appartient ne peut pas être vide"
+  },
+  "base_user.user_code.length": {
+    "other": "Le numéro d'utilisateur ne peut pas être vide et ne peut pas dépasser 30 caractères"
+  },
+  "base_user.user_name.length": {
+    "other": "Le compte utilisateur ne peut pas être vide et ne peut pas dépasser 50 caractères"
+  },
+  "bind_oauth_session.captcha_code.required": {
+    "other": "Le code de vérification ne peut pas être vide"
+  },
+  "bind_oauth_session.captcha_id.required": {
+    "other": "L'identifiant du code de vérification ne peut pas être vide"
+  },
+  "bind_oauth_session.code.required": {
+    "other": "Le code d'autorisation tiers ne peut pas être vide"
+  },
+  "bind_oauth_session.provider.required": {
+    "other": "L'identifiant de la méthode de connexion ne peut pas être vide"
+  },
+  "bind_oauth_session.tenant_code.required": {
+    "other": "Le code du locataire ne peut pas être vide"
+  },
+  "bind_oauth_session.user_name.required": {
+    "other": "Le nom d'utilisateur ne peut pas être vide"
+  },
+  "code_gen_table.status.required": {
+    "other": "Veuillez sélectionner l'état de la table de génération de code"
+  },
+  "common.error.conflict": {
+    "other": "Conflit d'état des ressources"
+  },
+  "common.error.internal": {
+    "other": "Erreur interne du système"
+  },
+  "common.error.invalid_argument": {
+    "other": "Erreur de paramètre de demande"
+  },
+  "common.error.permission_denied": {
+    "other": "Aucune autorisation d'opération"
+  },
+  "common.error.resource_not_found": {
+    "other": "La ressource demandée n'existe pas"
+  },
+  "common.error.unauthenticated": {
+    "other": "Le statut de connexion a expiré, veuillez vous reconnecter"
+  },
+  "common.validation.invalid": {
+    "other": "Le champ {{.Field}} ne répond pas aux exigences\nLe champ"
+  },
+  "common.validation.required": {
+    "other": "{{.Field}} ne peut pas être vide"
+  },
+  "create_ai_session_branch.anchor_message_id.positive": {
+    "other": "Le numéro du message d'ancrage de branche est illégal"
+  },
+  "create_ai_session_branch.source_session_id.positive": {
+    "other": "Le numéro de session n'est pas valide"
+  },
+  "create_ai_session_branch.title.required": {
+    "other": "Le titre de la session ne peut pas être vide"
+  },
+  "create_base_menu.parent_id.required": {
+    "other": "Lors de l'ajout d'un nouveau menu, vous devez sélectionner le menu de niveau supérieur"
+  },
+  "create_oauth_authorization.provider.required": {
+    "other": "L'identifiant de la méthode de connexion ne peut pas être vide"
+  },
+  "create_oauth_authorization.redirect_url.required": {
+    "other": "L'adresse de la page de connexion ne peut pas être vide"
+  },
+  "create_oauth_binding_authorization.provider.required": {
+    "other": "L'identifiant de la méthode de connexion ne peut pas être vide"
+  },
+  "create_oauth_binding_authorization.redirect_url.required": {
+    "other": "L'adresse de rebond ne peut pas être vide une fois la liaison terminée."
+  },
+  "create_oauth_session.code.required": {
+    "other": "Le code d'autorisation tiers ne peut pas être vide"
+  },
+  "create_oauth_session.provider.required": {
+    "other": "L'identifiant de la méthode de connexion ne peut pas être vide"
+  },
+  "delete_ai_message.message_id.positive": {
+    "other": "Le numéro de message est illégal"
+  },
+  "delete_ai_message.session_id.positive": {
+    "other": "Le numéro de session n'est pas valide"
+  },
+  "delete_ai_session.id.positive": {
+    "other": "Le numéro de session n'est pas valide"
+  },
+  "delete_base_config.id.required": {
+    "other": "La liste des ID de configuration ne peut pas être vide"
+  },
+  "delete_base_dept.id.required": {
+    "other": "La liste des numéros de service ne peut pas être vide"
+  },
+  "delete_base_dict.id.required": {
+    "other": "La liste des ID de dictionnaire ne peut pas être vide"
+  },
+  "delete_base_dict_item.id.required": {
+    "other": "La liste des ID d'attribut du dictionnaire ne peut pas être vide"
+  },
+  "delete_base_language.id.required": {
+    "other": "La liste des identifiants de langue ne peut pas être vide"
+  },
+  "delete_base_menu.id.required": {
+    "other": "La liste des identifiants de menu ne peut pas être vide"
+  },
+  "delete_base_post.id.required": {
+    "other": "La liste d'ID de position ne peut pas être vide"
+  },
+  "delete_base_role.id.required": {
+    "other": "La liste des ID de rôle ne peut pas être vide"
+  },
+  "delete_base_tenant.id.required": {
+    "other": "La liste d'ID de locataire ne peut pas être vide"
+  },
+  "delete_base_user.id.required": {
+    "other": "La liste des ID utilisateur ne peut pas être vide"
+  },
+  "download_file.path.required": {
+    "other": "Le chemin du fichier ne peut pas être vide"
+  },
+  "exchange_oauth_ticket.ticket.required": {
+    "other": "Le ticket de connexion à trois ne peut pas être vide"
+  },
+  "field.business_module.length": {
+    "other": "Le module métier ne peut pas dépasser 64 caractères"
+  },
+  "field.business_module.pattern": {
+    "other": "Le format du module métier est incorrect"
+  },
+  "field.business_module.required": {
+    "other": "Le module métier ne peut pas être vide"
+  },
+  "field.comment.length": {
+    "other": "La description de la table métier ne peut pas dépasser 128 caractères"
+  },
+  "field.name.length": {
+    "other": "Le nom de la table métier ne peut pas dépasser 128 caractères"
+  },
+  "field.name.pattern": {
+    "other": "Le format du nom de la table métier est incorrect"
+  },
+  "field.name.required": {
+    "other": "Le nom de la table métier ne peut pas être vide"
+  },
+  "field.page_type.length": {
+    "other": "Le type de page ne peut pas dépasser 32 caractères"
+  },
+  "field.page_type.required": {
+    "other": "Le type de page ne peut pas être vide"
+  },
+  "field.parent_column.length": {
+    "other": "Le champ du nœud parent de la table arborescente ne peut pas dépasser 64 caractères."
+  },
+  "field.parent_menu_id.required": {
+    "other": "Veuillez sélectionner un menu parent"
+  },
+  "field.remark.length": {
+    "other": "Le commentaire ne peut pas dépasser 500 caractères"
+  },
+  "field.tree_label_column.length": {
+    "other": "Le champ d'affichage du nœud de l'arborescence ne peut pas dépasser 64 caractères."
+  },
+  "get_base_config.id.required": {
+    "other": "L'ID de configuration ne peut pas être vide"
+  },
+  "get_base_dept.id.required": {
+    "other": "L'ID de service ne peut pas être vide"
+  },
+  "get_base_dict.id.required": {
+    "other": "L'ID du dictionnaire ne peut pas être vide"
+  },
+  "get_base_dict_item.id.required": {
+    "other": "L'ID d'attribut de dictionnaire ne peut pas être vide"
+  },
+  "get_base_language.id.required": {
+    "other": "L'ID de langue ne peut pas être vide"
+  },
+  "get_base_post.id.required": {
+    "other": "L'ID de position ne peut pas être vide"
+  },
+  "get_base_role.id.required": {
+    "other": "L'ID de rôle ne peut pas être vide"
+  },
+  "get_base_tenant.id.required": {
+    "other": "L'ID du locataire ne peut pas être vide"
+  },
+  "get_base_third_account_identifier.provider.required": {
+    "other": "L'identifiant de la méthode de connexion ne peut pas être vide"
+  },
+  "get_base_third_account_identifier.user_id.required": {
+    "other": "L'ID utilisateur ne peut pas être vide"
+  },
+  "get_base_user.id.required": {
+    "other": "L'ID utilisateur ne peut pas être vide"
+  },
+  "get_code_gen_table.id.required": {
+    "other": "L'ID de clé primaire ne peut pas être vide"
+  },
+  "get_code_gen_task.task_id.required": {
+    "other": "L'ID de tâche généré ne peut pas être vide"
+  },
+  "get_config.site.required": {
+    "other": "Le poste ne peut pas être vide"
+  },
+  "handle_mcp.terminal.required": {
+    "other": "L'identifiant du service MCP ne peut pas être vide"
+  },
+  "handle_oauth_binding_callback.code.required_on_success": {
+    "other": "Le code d'autorisation tiers ne peut pas être vide"
+  },
+  "handle_oauth_binding_callback.provider.required": {
+    "other": "L'identifiant de la méthode de connexion ne peut pas être vide"
+  },
+  "handle_oauth_binding_callback.state.required": {
+    "other": "Le code d'état d'autorisation ne peut pas être vide"
+  },
+  "handle_oauth_callback.code.required_on_success": {
+    "other": "Le code d'autorisation tiers ne peut pas être vide"
+  },
+  "handle_oauth_callback.provider.required": {
+    "other": "L'identifiant de la méthode de connexion ne peut pas être vide"
+  },
+  "handle_oauth_callback.state.required": {
+    "other": "Le code d'état d'autorisation ne peut pas être vide"
+  },
+  "list_ai_message.session_id.positive": {
+    "other": "Le numéro de session n'est pas valide"
+  },
+  "list_base_user.ids.positive": {
+    "other": "L'ID utilisateur doit être supérieur à 0"
+  },
+  "list_code_gen_column.table_id.required": {
+    "other": "L'ID de configuration de la table de génération de code ne peut pas être vide"
+  },
+  "list_code_gen_database_column.table_name.pattern": {
+    "other": "Le format du nom de la table de base de données est incorrect"
+  },
+  "list_code_gen_database_column.table_name.required": {
+    "other": "Le nom de la table de base de données ne peut pas être vide"
+  },
+  "list_code_gen_proto.table_id.required": {
+    "other": "L'ID de configuration de la table de génération de code ne peut pas être vide"
+  },
+  "login.captcha_code.required": {
+    "other": "Le code de vérification ne peut pas être vide"
+  },
+  "login.captcha_id.required": {
+    "other": "Le code de vérification ne peut pas être vide"
+  },
+  "login.user_name.required": {
+    "other": "Le nom d'utilisateur ne peut pas être vide"
+  },
+  "preview_code_gen.table_id.required": {
+    "other": "L'ID de configuration de la table de génération de code ne peut pas être vide"
+  },
+  "refresh_token.required": {
+    "other": "Le jeton d'actualisation ne peut pas être vide"
+  },
+  "regenerate_ai_message.message_id.positive": {
+    "other": "Le numéro de message est illégal"
+  },
+  "regenerate_ai_message.session_id.positive": {
+    "other": "Le numéro de session n'est pas valide"
+  },
+  "reset_base_user_password.id.required": {
+    "other": "L'ID utilisateur ne peut pas être vide"
+  },
+  "restore_code_gen.table_ids.positive": {
+    "other": "L'ID de configuration de la table de génération de code doit être supérieur à 0"
+  },
+  "retry_ai_message.message_id.positive": {
+    "other": "Le numéro de message est illégal"
+  },
+  "retry_ai_message.session_id.positive": {
+    "other": "Le numéro de session n'est pas valide"
+  },
+  "save_code_gen_column.table_id.required": {
+    "other": "L'ID de configuration de la table de génération de code ne peut pas être vide"
+  },
+  "save_code_gen_proto.table_id.required": {
+    "other": "L'ID de configuration de la table de génération de code ne peut pas être vide"
+  },
+  "send_ai_message.session_id.positive": {
+    "other": "Le numéro de session n'est pas valide"
+  },
+  "send_phone_code.phone.format": {
+    "other": "Veuillez saisir le numéro de téléphone portable correct"
+  },
+  "send_phone_code.phone.required": {
+    "other": "Veuillez saisir votre numéro de téléphone portable"
+  },
+  "set_base_config_status.id.required": {
+    "other": "L'ID de configuration ne peut pas être vide"
+  },
+  "set_base_dept_status.id.required": {
+    "other": "L'ID de service ne peut pas être vide"
+  },
+  "set_base_dict_item_status.id.required": {
+    "other": "L'ID d'attribut de dictionnaire ne peut pas être vide"
+  },
+  "set_base_language_status.id.required": {
+    "other": "L'ID de langue ne peut pas être vide"
+  },
+  "set_base_dict_status.id.required": {
+    "other": "L'ID du dictionnaire ne peut pas être vide"
+  },
+  "set_base_menu_status.id.required": {
+    "other": "L'ID du menu ne peut pas être vide\nLe statut"
+  },
+  "set_base_menu_status.status.required": {
+    "other": "ne peut pas être vide"
+  },
+  "set_base_post_status.id.required": {
+    "other": "L'ID de position ne peut pas être vide"
+  },
+  "set_base_role_menu.id.required": {
+    "other": "L'ID de rôle ne peut pas être vide"
+  },
+  "set_base_role_status.id.required": {
+    "other": "L'ID de rôle ne peut pas être vide"
+  },
+  "set_base_tenant_status.id.required": {
+    "other": "L'ID du locataire ne peut pas être vide"
+  },
+  "set_base_user_app_role.role_code.required": {
+    "other": "Le code de rôle de l'application ne peut pas être vide"
+  },
+  "set_base_user_app_role.user_id.required": {
+    "other": "L'ID utilisateur ne peut pas être vide"
+  },
+  "set_base_user_status.id.required": {
+    "other": "L'ID utilisateur ne peut pas être vide"
+  },
+  "start_code_gen_task.table_ids.positive": {
+    "other": "L'ID de configuration de la table de génération de code doit être supérieur à 0"
+  },
+  "subscribe_sse.stream.required": {
+    "other": "Le flux SSE ne peut pas être vide"
+  },
+  "unbind_oauth_account.provider.required": {
+    "other": "L'identifiant de la méthode de connexion ne peut pas être vide"
+  },
+  "update_ai_message.content.required": {
+    "other": "Le contenu du message ne peut pas être vide"
+  },
+  "update_ai_message.message_id.positive": {
+    "other": "Le numéro de message est illégal"
+  },
+  "update_ai_message.session_id.positive": {
+    "other": "Le numéro de session n'est pas valide"
+  },
+  "update_ai_session.id.positive": {
+    "other": "Le numéro de session n'est pas valide"
+  },
+  "update_ai_session.title.required": {
+    "other": "Le titre de la session ne peut pas être vide"
+  },
+  "update_base_config.id.required": {
+    "other": "L'ID de configuration ne peut pas être vide"
+  },
+  "update_base_dept.id.required": {
+    "other": "L'ID de service ne peut pas être vide"
+  },
+  "update_base_dict.id.required": {
+    "other": "L'ID du dictionnaire ne peut pas être vide"
+  },
+  "update_base_dict_item.id.required": {
+    "other": "L'ID d'attribut de dictionnaire ne peut pas être vide"
+  },
+  "update_base_post.id.required": {
+    "other": "L'ID de position ne peut pas être vide"
+  },
+  "update_base_role.id.required": {
+    "other": "L'ID de rôle ne peut pas être vide"
+  },
+  "update_base_tenant.id.required": {
+    "other": "L'ID du locataire ne peut pas être vide"
+  },
+  "update_base_user.id.required": {
+    "other": "L'ID utilisateur ne peut pas être vide"
+  },
+  "update_code_gen_table.id.required": {
+    "other": "L'ID de clé primaire ne peut pas être vide"
+  },
+  "user_phone.code.required": {
+    "other": "Veuillez saisir le code de vérification"
+  },
+  "user_phone.phone.format": {
+    "other": "Veuillez saisir le numéro de téléphone portable correct"
+  },
+  "user_phone.phone.required": {
+    "other": "Veuillez saisir votre numéro de téléphone portable"
+  },
+  "verify_captcha.captcha_code.required": {
+    "other": "Le code de vérification ne peut pas être vide"
+  },
+  "verify_captcha.captcha_id.required": {
+    "other": "Le code de vérification ne peut pas être vide"
+  }
+}

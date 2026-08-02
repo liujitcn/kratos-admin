@@ -6,7 +6,7 @@ import (
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz"
+	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/admin"
 
 	"github.com/go-kratos/kratos/v3/log"
 )
@@ -14,11 +14,11 @@ import (
 // BaseTranslationService 管理动态资源翻译草稿。
 type BaseTranslationService struct {
 	systemadminv1.UnimplementedBaseTranslationServiceServer
-	translationCase *biz.TranslationCase
+	translationCase *biz.BaseTranslationCase
 }
 
 // NewBaseTranslationService 创建动态资源翻译服务。
-func NewBaseTranslationService(translationCase *biz.TranslationCase) *BaseTranslationService {
+func NewBaseTranslationService(translationCase *biz.BaseTranslationCase) *BaseTranslationService {
 	return &BaseTranslationService{translationCase: translationCase}
 }
 

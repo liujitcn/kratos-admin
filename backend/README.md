@@ -132,7 +132,7 @@ migration/assets/
 
 ## 国际化
 
-后端支持 `zh-CN`、`en-US`、`ja-JP`。`core/pkg/locale` 负责规范化 `Accept-Language`，locale 中间件将语言区域写入请求上下文，并在响应边界本地化结构化错误。`internal/i18n/locales` 通过 `go:embed` 提供三语错误目录；动态菜单、字典和字典项的审核译文由 `v0.0.1` 翻译表按请求语言解析，缺少英语或日语时回退中文。
+后端支持 `zh-CN`、`zh-TW`、`en-US`、`ja-JP`、`ko-KR`、`fr-FR`、`es-ES`。`core/pkg/locale` 负责规范化 `Accept-Language`，locale 中间件将语言区域写入请求上下文，并在响应边界本地化结构化错误。`internal/i18n/locales` 通过 `go:embed` 提供七语错误目录；动态菜单、字典和字典项的审核译文由 `v0.0.1` 翻译表按请求语言解析，缺少当前语言译文时回退主语言。
 
 ```bash
 make i18n-check
@@ -140,7 +140,9 @@ make i18n-draft
 I18N_WRITE=1 make i18n-draft
 ```
 
-草稿命令的 Google V1 仅用于显式生成可审核的英语或日语草稿，不进入普通业务请求链路；关闭 Provider 不影响中文回退和已审核译文。
+草稿命令的 Google V1 仅用于显式生成可审核的非主语言草稿，不进入普通业务请求链路；`make i18n-locales` 支持在线和 `I18N_OFFLINE=1` 离线生成；关闭 Provider 不影响主语言回退和已审核译文。
+
+动态资源的主语言由 `base_language.is_primary` 配置。创建或更新菜单、字典、字典项和系统配置时，后端按请求 `Accept-Language` 将输入文本转换为主语言写入主表；请求语言不是主语言时，原文写入对应翻译表，其他已启用非主语言也只保存在翻译表。
 
 ## 项目文档
 

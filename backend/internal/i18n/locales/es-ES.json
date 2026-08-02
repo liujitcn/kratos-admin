@@ -1,0 +1,695 @@
+{
+  "auth.user_password.new_pwd.required": {
+    "other": "Por favor ingrese una nueva contraseña"
+  },
+  "auth.user_password.old_pwd.required": {
+    "other": "Por favor ingrese la contraseña original"
+  },
+  "auth.user_password.required": {
+    "other": "Por favor ingrese la contraseña original"
+  },
+  "base_area.name.length": {
+    "other": "El nombre de la región no puede estar vacío y no puede exceder los 50 caracteres"
+  },
+  "base_config.key.max_len": {
+    "other": "La clave de configuración no puede exceder los 50 caracteres"
+  },
+  "base_config.key.required": {
+    "other": "Por favor ingrese el código de configuración del sistema"
+  },
+  "base_config.name.max_len": {
+    "other": "El nombre de la configuración no puede exceder los 50 caracteres"
+  },
+  "base_config.name.required": {
+    "other": "Ingrese el nombre de configuración del sistema"
+  },
+  "base_config.site.required": {
+    "other": "Seleccione la ubicación de configuración del sistema"
+  },
+  "base_config.type.required": {
+    "other": "Seleccione el tipo de configuración del sistema"
+  },
+  "base_config.value.required": {
+    "other": "el valor de configuración no puede estar vacío"
+  },
+  "base_dept.name.length": {
+    "other": "El nombre del departamento no puede estar vacío y no puede exceder los 255 caracteres."
+  },
+  "base_dept.name.max_len": {
+    "other": "El nombre del departamento no puede exceder los 255 caracteres"
+  },
+  "base_dept.name.required": {
+    "other": "El nombre del departamento no puede estar vacío"
+  },
+  "base_dept.parent_id.non_negative": {
+    "other": "El departamento superior no puede ser menor que 0"
+  },
+  "base_dept.remark.max_len": {
+    "other": "La nota no puede exceder los 500 caracteres"
+  },
+  "base_dept.sort.required": {
+    "other": "La clasificación debe ser mayor que 0"
+  },
+  "base_dept.tenant_id.required": {
+    "other": "El inquilino al que pertenece no puede estar vacío"
+  },
+  "base_dict.code.length": {
+    "other": "El número del diccionario no puede estar vacío y no puede exceder los 50 caracteres"
+  },
+  "base_dict.code.max_len": {
+    "other": "El número del diccionario no puede exceder los 50 caracteres"
+  },
+  "base_dict.code.required": {
+    "other": "Por favor ingrese el código del diccionario"
+  },
+  "base_dict.name.length": {
+    "other": "El nombre del diccionario no puede estar vacío y no puede exceder los 50 caracteres."
+  },
+  "base_dict.name.max_len": {
+    "other": "El nombre del diccionario no puede exceder los 50 caracteres"
+  },
+  "base_dict.name.required": {
+    "other": "Por favor ingrese el nombre del diccionario"
+  },
+  "base_dict_item.dict_id.required": {
+    "other": "El diccionario no puede estar vacío"
+  },
+  "base_dict_item.label.length": {
+    "other": "La etiqueta de entrada del diccionario no puede estar vacía y no puede exceder los 100 caracteres"
+  },
+  "base_dict_item.label.max_len": {
+    "other": "Ingrese una etiqueta de diccionario (no más de 100 caracteres)"
+  },
+  "base_dict_item.label.required": {
+    "other": "Ingrese una etiqueta de diccionario (no más de 100 caracteres)"
+  },
+  "base_dict_item.sort.required": {
+    "other": "La clasificación debe ser mayor que 0"
+  },
+  "base_dict_item.tag_type.max_len": {
+    "other": "El tipo de etiqueta no puede exceder los 50 caracteres"
+  },
+  "base_dict_item.value.length": {
+    "other": "El valor de la entrada del diccionario no puede estar vacío y no puede exceder los 50 caracteres"
+  },
+  "base_dict_item.value.max_len": {
+    "other": "Ingrese el valor del diccionario (no más de 50 caracteres)"
+  },
+  "base_dict_item.value.required": {
+    "other": "Ingrese el valor del diccionario (no más de 50 caracteres)"
+  },
+  "base_dict_item_translation.label.max_len": {
+    "other": "La etiqueta de traducción del elemento del diccionario no puede exceder los 100 caracteres"
+  },
+  "base_dict_item_translation.locale.supported": {
+    "other": "El código de idioma de traducción del elemento del diccionario no puede estar vacío"
+  },
+  "base_dict_translation.locale.supported": {
+    "other": "El código de idioma de traducción del diccionario no puede estar vacío"
+  },
+  "base_dict_translation.name.max_len": {
+    "other": "El nombre de la traducción del diccionario no puede exceder los 50 caracteres"
+  },
+  "base_job.cron_expression.length": {
+    "other": "la expresión cron no puede estar vacía y no puede exceder los 50 caracteres"
+  },
+  "base_job.invoke_target.length": {
+    "other": "El destino de la llamada no puede estar vacío y no puede exceder los 100 caracteres."
+  },
+  "base_job.name.length": {
+    "other": "El nombre de la tarea no puede estar vacío y no puede exceder los 50 caracteres."
+  },
+  "base_language.language_code.length": {
+    "other": "El código de idioma no puede estar vacío y no puede exceder los 16 caracteres"
+  },
+  "base_language.language_name.length": {
+    "other": "El nombre del idioma no puede estar vacío y no puede exceder los 50 caracteres."
+  },
+  "base_language.native_name.length": {
+    "other": "El nombre del idioma local no puede estar vacío y no puede exceder los 50 caracteres."
+  },
+  "base_language.sort.required": {
+    "other": "La clasificación no puede ser menor que 0"
+  },
+  "base_job_args.key.required": {
+    "other": "Todos los parámetros deben completarse en clave"
+  },
+  "base_menu.component.max_len": {
+    "other": "La ruta del componente no puede exceder los 255 caracteres"
+  },
+  "base_menu.external.path_internal": {
+    "other": "La ruta del enlace externo debe utilizar la ruta única interna"
+  },
+  "base_menu.folder.identity_empty": {
+    "other": "El directorio no puede completar la ruta y el nombre de la ruta"
+  },
+  "base_menu.name.max_len": {
+    "other": "El nombre de la ruta no puede exceder los 255 caracteres"
+  },
+  "base_menu.name.menu_only": {
+    "other": "Solo el tipo de menú puede completar el nombre de la ruta"
+  },
+  "base_menu.name.required": {
+    "other": "El tipo de menú debe completar el nombre de la ruta."
+  },
+  "base_menu.path.length": {
+    "other": "La ruta no puede exceder los 1024 caracteres"
+  },
+  "base_menu.path.required": {
+    "other": "La ruta debe completarse para menús que no son de directorio"
+  },
+  "base_menu.redirect.external": {
+    "other": "El enlace externo debe completar la dirección HTTP completa"
+  },
+  "base_menu.redirect.max_len": {
+    "other": "La dirección de redireccionamiento no puede exceder los 1024 caracteres"
+  },
+  "base_menu.sort.required": {
+    "other": "La clasificación debe ser mayor que 0"
+  },
+  "base_menu.type.required": {
+    "other": "El tipo de menú no puede estar vacío"
+  },
+  "base_menu_translation.locale.supported": {
+    "other": "El código de idioma de traducción del menú no puede estar vacío"
+  },
+  "base_menu_translation.title.max_len": {
+    "other": "El título de traducción del menú no puede exceder los 255 caracteres."
+  },
+  "base_post.code.max_len": {
+    "other": "El número de posición no puede exceder los 20 caracteres"
+  },
+  "base_post.code.required": {
+    "other": "Por favor ingrese el número de posición"
+  },
+  "base_post.name.max_len": {
+    "other": "El nombre de la posición no puede exceder los 30 caracteres"
+  },
+  "base_post.name.required": {
+    "other": "Por favor ingrese el nombre del puesto"
+  },
+  "base_post.remark.max_len": {
+    "other": "El comentario no puede exceder los 500 caracteres."
+  },
+  "base_post.sort.required": {
+    "other": "La clasificación debe ser mayor que 0"
+  },
+  "base_post.tenant_id.required": {
+    "other": "Por favor seleccione el inquilino"
+  },
+  "base_role.code.max_len": {
+    "other": "El número de caracteres no puede exceder los 20 caracteres"
+  },
+  "base_role.code.required": {
+    "other": "Por favor ingrese el código de rol"
+  },
+  "base_role.data_scope.required": {
+    "other": "Por favor seleccione permisos de datos"
+  },
+  "base_role.menus.required": {
+    "other": "Por favor seleccione permisos de menú"
+  },
+  "base_role.menus.unique": {
+    "other": "Los permisos del menú no se pueden repetir"
+  },
+  "base_role.name.max_len": {
+    "other": "El nombre del rol no puede exceder los 30 caracteres"
+  },
+  "base_role.name.required": {
+    "other": "Por favor ingrese el nombre del rol"
+  },
+  "base_role.remark.max_len": {
+    "other": "El comentario no puede exceder los 500 caracteres."
+  },
+  "base_role.tenant_id.required": {
+    "other": "El inquilino al que pertenece no puede estar vacío"
+  },
+  "base_tenant.code.length": {
+    "other": "El número de inquilino no puede estar vacío y no puede exceder los 50 caracteres"
+  },
+  "base_tenant.contact_name.max_len": {
+    "other": "El contacto no puede exceder los 50 caracteres"
+  },
+  "base_tenant.contact_phone.format": {
+    "other": "Por favor ingrese el número de contacto correcto"
+  },
+  "base_tenant.contact_phone.max_len": {
+    "other": "El número de contacto no puede exceder los 20 caracteres"
+  },
+  "base_tenant.name.length": {
+    "other": "El nombre del inquilino no puede estar vacío y no puede exceder los 100 caracteres."
+  },
+  "base_tenant.name.max_len": {
+    "other": "El nombre del inquilino no puede exceder los 100 caracteres"
+  },
+  "base_tenant.name.required": {
+    "other": "Por favor ingrese el nombre del inquilino"
+  },
+  "base_tenant.remark.max_len": {
+    "other": "La nota no puede exceder los 500 caracteres"
+  },
+  "base_translation.resource_id.required": {
+    "other": "El ID de recurso no puede estar vacío"
+  },
+  "base_translation.resource_type.required": {
+    "other": "Seleccione el tipo de recurso de traducción."
+  },
+  "base_translation.target_locale.supported": {
+    "other": "El código del idioma de destino no puede estar vacío"
+  },
+  "base_user.avatar.max_len": {
+    "other": "El avatar no puede exceder los 1024 caracteres"
+  },
+  "base_user.dept_id.required": {
+    "other": "El departamento no puede estar vacío"
+  },
+  "base_user.nick_name.max_len": {
+    "other": "El apodo del usuario no puede exceder los 30 caracteres"
+  },
+  "base_user.nick_name.required": {
+    "other": "El apodo del usuario no puede estar vacío"
+  },
+  "base_user.phone.format": {
+    "other": "Ingrese el número de teléfono móvil correcto"
+  },
+  "base_user.phone.max_len": {
+    "other": "El número de teléfono móvil no puede exceder los 20 caracteres"
+  },
+  "base_user.pwd.required": {
+    "other": "Por favor ingrese la contraseña"
+  },
+  "base_user.remark.max_len": {
+    "other": "La nota no puede exceder los 500 caracteres"
+  },
+  "base_user.reset_pwd.required": {
+    "other": "Por favor ingrese una nueva contraseña"
+  },
+  "base_user.role_id.required": {
+    "other": "no puede estar vacío"
+  },
+  "base_user.tenant_id.required": {
+    "other": "El inquilino al que pertenece no puede estar vacío"
+  },
+  "base_user.user_code.length": {
+    "other": "El número de usuario no puede estar vacío y no puede exceder los 30 caracteres"
+  },
+  "base_user.user_name.length": {
+    "other": "La cuenta de usuario no puede estar vacía y no puede exceder los 50 caracteres"
+  },
+  "bind_oauth_session.captcha_code.required": {
+    "other": "El código de verificación no puede estar vacío"
+  },
+  "bind_oauth_session.captcha_id.required": {
+    "other": "El ID del código de verificación no puede estar vacío"
+  },
+  "bind_oauth_session.code.required": {
+    "other": "El código de autorización de terceros no puede estar vacío"
+  },
+  "bind_oauth_session.provider.required": {
+    "other": "El identificador del método de inicio de sesión no puede estar vacío"
+  },
+  "bind_oauth_session.tenant_code.required": {
+    "other": "El código de inquilino no puede estar vacío"
+  },
+  "bind_oauth_session.user_name.required": {
+    "other": "El nombre de usuario no puede estar vacío"
+  },
+  "code_gen_table.status.required": {
+    "other": "Seleccione el estado de la tabla de generación de códigos"
+  },
+  "common.error.conflict": {
+    "other": "Conflicto de estado de recurso"
+  },
+  "common.error.internal": {
+    "other": "Error interno del sistema"
+  },
+  "common.error.invalid_argument": {
+    "other": "Error de parámetro de solicitud"
+  },
+  "common.error.permission_denied": {
+    "other": "Sin permiso de operación"
+  },
+  "common.error.resource_not_found": {
+    "other": "El recurso solicitado no existe"
+  },
+  "common.error.unauthenticated": {
+    "other": "El estado de inicio de sesión ha caducado, inicie sesión nuevamente"
+  },
+  "common.validation.invalid": {
+    "other": "El campo {{.Field}} no cumple con los requisitos"
+  },
+  "common.validation.required": {
+    "other": "el campo {{.Field}} no puede estar vacío"
+  },
+  "create_ai_session_branch.anchor_message_id.positive": {
+    "other": "El número de mensaje de anclaje de sucursal es ilegal"
+  },
+  "create_ai_session_branch.source_session_id.positive": {
+    "other": "El número de sesión no es válido"
+  },
+  "create_ai_session_branch.title.required": {
+    "other": "El título de la sesión no puede estar vacío"
+  },
+  "create_base_menu.parent_id.required": {
+    "other": "Al agregar un nuevo menú, debe seleccionar el menú de nivel superior"
+  },
+  "create_oauth_authorization.provider.required": {
+    "other": "El identificador del método de inicio de sesión no puede estar vacío"
+  },
+  "create_oauth_authorization.redirect_url.required": {
+    "other": "La dirección de la página de inicio de sesión no puede estar vacía"
+  },
+  "create_oauth_binding_authorization.provider.required": {
+    "other": "El identificador del método de inicio de sesión no puede estar vacío"
+  },
+  "create_oauth_binding_authorization.redirect_url.required": {
+    "other": "La dirección de rebote no puede estar vacía una vez completado el enlace."
+  },
+  "create_oauth_session.code.required": {
+    "other": "El código de autorización de terceros no puede estar vacío"
+  },
+  "create_oauth_session.provider.required": {
+    "other": "El identificador del método de inicio de sesión no puede estar vacío"
+  },
+  "delete_ai_message.message_id.positive": {
+    "other": "El número de mensaje es ilegal"
+  },
+  "delete_ai_message.session_id.positive": {
+    "other": "El número de sesión no es válido"
+  },
+  "delete_ai_session.id.positive": {
+    "other": "El número de sesión no es válido"
+  },
+  "delete_base_config.id.required": {
+    "other": "La lista de ID de configuración no puede estar vacía"
+  },
+  "delete_base_dept.id.required": {
+    "other": "La lista de ID de departamento no puede estar vacía"
+  },
+  "delete_base_dict.id.required": {
+    "other": "La lista de ID del diccionario no puede estar vacía"
+  },
+  "delete_base_dict_item.id.required": {
+    "other": "La lista de ID de atributos del diccionario no puede estar vacía"
+  },
+  "delete_base_language.id.required": {
+    "other": "La lista de ID de idioma no puede estar vacía"
+  },
+  "delete_base_menu.id.required": {
+    "other": "La lista de ID del menú no puede estar vacía"
+  },
+  "delete_base_post.id.required": {
+    "other": "La lista de ID de posición no puede estar vacía"
+  },
+  "delete_base_role.id.required": {
+    "other": "La lista de ID de rol no puede estar vacía"
+  },
+  "delete_base_tenant.id.required": {
+    "other": "La lista de ID de inquilino no puede estar vacía"
+  },
+  "delete_base_user.id.required": {
+    "other": "La lista de ID de usuario no puede estar vacía"
+  },
+  "download_file.path.required": {
+    "other": "La ruta del archivo no puede estar vacía"
+  },
+  "exchange_oauth_ticket.ticket.required": {
+    "other": "El ticket de inicio de sesión de tres partes no puede estar vacío"
+  },
+  "field.business_module.length": {
+    "other": "El módulo empresarial no puede exceder los 64 caracteres"
+  },
+  "field.business_module.pattern": {
+    "other": "El formato del módulo empresarial es incorrecto"
+  },
+  "field.business_module.required": {
+    "other": "El módulo empresarial no puede estar vacío"
+  },
+  "field.comment.length": {
+    "other": "La descripción de la tabla comercial no puede exceder los 128 caracteres"
+  },
+  "field.name.length": {
+    "other": "El nombre de la tabla comercial no puede exceder los 128 caracteres."
+  },
+  "field.name.pattern": {
+    "other": "El formato del nombre de la tabla comercial es incorrecto"
+  },
+  "field.name.required": {
+    "other": "El nombre de la tabla comercial no puede estar vacío"
+  },
+  "field.page_type.length": {
+    "other": "El tipo de página no puede exceder los 32 caracteres"
+  },
+  "field.page_type.required": {
+    "other": "El tipo de página no puede estar vacío"
+  },
+  "field.parent_column.length": {
+    "other": "El campo del nodo principal de la tabla de árbol no puede exceder los 64 caracteres."
+  },
+  "field.parent_menu_id.required": {
+    "other": "Seleccione un menú principal"
+  },
+  "field.remark.length": {
+    "other": "El comentario no puede exceder los 500 caracteres."
+  },
+  "field.tree_label_column.length": {
+    "other": "El campo de visualización del nodo del árbol no puede exceder los 64 caracteres."
+  },
+  "get_base_config.id.required": {
+    "other": "El ID de configuración no puede estar vacío"
+  },
+  "get_base_dept.id.required": {
+    "other": "El ID de departamento no puede estar vacío"
+  },
+  "get_base_dict.id.required": {
+    "other": "El ID del diccionario no puede estar vacío"
+  },
+  "get_base_dict_item.id.required": {
+    "other": "El ID del atributo del diccionario no puede estar vacío"
+  },
+  "get_base_language.id.required": {
+    "other": "El ID de idioma no puede estar vacío"
+  },
+  "get_base_post.id.required": {
+    "other": "El ID de posición no puede estar vacío"
+  },
+  "get_base_role.id.required": {
+    "other": "El ID de rol no puede estar vacío"
+  },
+  "get_base_tenant.id.required": {
+    "other": "El ID del inquilino no puede estar vacío"
+  },
+  "get_base_third_account_identifier.provider.required": {
+    "other": "El identificador del método de inicio de sesión no puede estar vacío"
+  },
+  "get_base_third_account_identifier.user_id.required": {
+    "other": "El ID de usuario no puede estar vacío"
+  },
+  "get_base_user.id.required": {
+    "other": "El ID de usuario no puede estar vacío"
+  },
+  "get_code_gen_table.id.required": {
+    "other": "El ID de clave principal no puede estar vacío"
+  },
+  "get_code_gen_task.task_id.required": {
+    "other": "El ID de tarea generado no puede estar vacío"
+  },
+  "get_config.site.required": {
+    "other": "La posición no puede estar vacía"
+  },
+  "handle_mcp.terminal.required": {
+    "other": "El identificador del servicio MCP no puede estar vacío"
+  },
+  "handle_oauth_binding_callback.code.required_on_success": {
+    "other": "El código de autorización de terceros no puede estar vacío"
+  },
+  "handle_oauth_binding_callback.provider.required": {
+    "other": "El identificador del método de inicio de sesión no puede estar vacío"
+  },
+  "handle_oauth_binding_callback.state.required": {
+    "other": "El código de estado de autorización no puede estar vacío"
+  },
+  "handle_oauth_callback.code.required_on_success": {
+    "other": "El código de autorización de terceros no puede estar vacío"
+  },
+  "handle_oauth_callback.provider.required": {
+    "other": "El identificador del método de inicio de sesión no puede estar vacío"
+  },
+  "handle_oauth_callback.state.required": {
+    "other": "El código de estado de autorización no puede estar vacío"
+  },
+  "list_ai_message.session_id.positive": {
+    "other": "El número de sesión no es válido"
+  },
+  "list_base_user.ids.positive": {
+    "other": "El ID de usuario debe ser mayor que 0"
+  },
+  "list_code_gen_column.table_id.required": {
+    "other": "El ID de configuración de la tabla de generación de código no puede estar vacío"
+  },
+  "list_code_gen_database_column.table_name.pattern": {
+    "other": "El formato del nombre de la tabla de la base de datos es incorrecto"
+  },
+  "list_code_gen_database_column.table_name.required": {
+    "other": "El nombre de la tabla de la base de datos no puede estar vacío"
+  },
+  "list_code_gen_proto.table_id.required": {
+    "other": "El ID de configuración de la tabla de generación de código no puede estar vacío"
+  },
+  "login.captcha_code.required": {
+    "other": "El código de verificación no puede estar vacío"
+  },
+  "login.captcha_id.required": {
+    "other": "El código de verificación no puede estar vacío"
+  },
+  "login.user_name.required": {
+    "other": "El nombre de usuario no puede estar vacío"
+  },
+  "preview_code_gen.table_id.required": {
+    "other": "El ID de configuración de la tabla de generación de código no puede estar vacío"
+  },
+  "refresh_token.required": {
+    "other": "El token de actualización no puede estar vacío"
+  },
+  "regenerate_ai_message.message_id.positive": {
+    "other": "El número de mensaje es ilegal"
+  },
+  "regenerate_ai_message.session_id.positive": {
+    "other": "El número de sesión no es válido"
+  },
+  "reset_base_user_password.id.required": {
+    "other": "El ID de usuario no puede estar vacío"
+  },
+  "restore_code_gen.table_ids.positive": {
+    "other": "El ID de configuración de la tabla de generación de código debe ser mayor que 0"
+  },
+  "retry_ai_message.message_id.positive": {
+    "other": "El número de mensaje es ilegal"
+  },
+  "retry_ai_message.session_id.positive": {
+    "other": "El número de sesión no es válido"
+  },
+  "save_code_gen_column.table_id.required": {
+    "other": "El ID de configuración de la tabla de generación de código no puede estar vacío"
+  },
+  "save_code_gen_proto.table_id.required": {
+    "other": "El ID de configuración de la tabla de generación de código no puede estar vacío"
+  },
+  "send_ai_message.session_id.positive": {
+    "other": "El número de sesión no es válido"
+  },
+  "send_phone_code.phone.format": {
+    "other": "Ingrese el número de teléfono móvil correcto"
+  },
+  "send_phone_code.phone.required": {
+    "other": "Por favor ingresa tu número de teléfono móvil"
+  },
+  "set_base_config_status.id.required": {
+    "other": "El ID de configuración no puede estar vacío"
+  },
+  "set_base_dept_status.id.required": {
+    "other": "El ID de departamento no puede estar vacío"
+  },
+  "set_base_dict_item_status.id.required": {
+    "other": "El ID del atributo del diccionario no puede estar vacío"
+  },
+  "set_base_language_status.id.required": {
+    "other": "El ID de idioma no puede estar vacío"
+  },
+  "set_base_dict_status.id.required": {
+    "other": "El ID del diccionario no puede estar vacío"
+  },
+  "set_base_menu_status.id.required": {
+    "other": "El ID del menú no puede estar vacío\nEl estado"
+  },
+  "set_base_menu_status.status.required": {
+    "other": "no puede estar vacío"
+  },
+  "set_base_post_status.id.required": {
+    "other": "El ID de posición no puede estar vacío"
+  },
+  "set_base_role_menu.id.required": {
+    "other": "El ID de rol no puede estar vacío"
+  },
+  "set_base_role_status.id.required": {
+    "other": "El ID de rol no puede estar vacío"
+  },
+  "set_base_tenant_status.id.required": {
+    "other": "El ID del inquilino no puede estar vacío"
+  },
+  "set_base_user_app_role.role_code.required": {
+    "other": "El código de rol de la aplicación no puede estar vacío"
+  },
+  "set_base_user_app_role.user_id.required": {
+    "other": "El ID de usuario no puede estar vacío"
+  },
+  "set_base_user_status.id.required": {
+    "other": "El ID de usuario no puede estar vacío"
+  },
+  "start_code_gen_task.table_ids.positive": {
+    "other": "El ID de configuración de la tabla de generación de código debe ser mayor que 0"
+  },
+  "subscribe_sse.stream.required": {
+    "other": "La transmisión SSE no puede estar vacía"
+  },
+  "unbind_oauth_account.provider.required": {
+    "other": "El identificador del método de inicio de sesión no puede estar vacío"
+  },
+  "update_ai_message.content.required": {
+    "other": "El contenido del mensaje no puede estar vacío"
+  },
+  "update_ai_message.message_id.positive": {
+    "other": "El número de mensaje es ilegal"
+  },
+  "update_ai_message.session_id.positive": {
+    "other": "El número de sesión no es válido"
+  },
+  "update_ai_session.id.positive": {
+    "other": "El número de sesión no es válido"
+  },
+  "update_ai_session.title.required": {
+    "other": "El título de la sesión no puede estar vacío"
+  },
+  "update_base_config.id.required": {
+    "other": "El ID de configuración no puede estar vacío"
+  },
+  "update_base_dept.id.required": {
+    "other": "El ID de departamento no puede estar vacío"
+  },
+  "update_base_dict.id.required": {
+    "other": "El ID del diccionario no puede estar vacío"
+  },
+  "update_base_dict_item.id.required": {
+    "other": "El ID del atributo del diccionario no puede estar vacío"
+  },
+  "update_base_post.id.required": {
+    "other": "El ID de posición no puede estar vacío"
+  },
+  "update_base_role.id.required": {
+    "other": "El ID de rol no puede estar vacío"
+  },
+  "update_base_tenant.id.required": {
+    "other": "El ID del inquilino no puede estar vacío"
+  },
+  "update_base_user.id.required": {
+    "other": "El ID de usuario no puede estar vacío"
+  },
+  "update_code_gen_table.id.required": {
+    "other": "El ID de clave principal no puede estar vacío"
+  },
+  "user_phone.code.required": {
+    "other": "Por favor ingresa el código de verificación"
+  },
+  "user_phone.phone.format": {
+    "other": "Ingrese el número de teléfono móvil correcto"
+  },
+  "user_phone.phone.required": {
+    "other": "Por favor ingresa tu número de teléfono móvil"
+  },
+  "verify_captcha.captcha_code.required": {
+    "other": "El código de verificación no puede estar vacío"
+  },
+  "verify_captcha.captcha_id.required": {
+    "other": "El código de verificación no puede estar vacío"
+  }
+}

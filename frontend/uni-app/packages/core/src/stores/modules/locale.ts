@@ -2,9 +2,10 @@ import { defineStore } from 'pinia'
 import { computed } from 'vue'
 import {
   getCurrentLocale,
+  getLanguageOptions,
+  getSupportedLocales,
   localeState,
   setCurrentLocale,
-  SUPPORTED_LOCALES,
   type SupportedLocale,
 } from '../../locales'
 
@@ -20,7 +21,8 @@ export const useLocaleStore = defineStore('locale', () => {
   return {
     locale,
     currentLocale: getCurrentLocale,
-    supportedLocales: SUPPORTED_LOCALES,
+    languageOptions: computed(() => getLanguageOptions()),
+    supportedLocales: computed(() => getSupportedLocales()),
     setLocale,
   }
 })

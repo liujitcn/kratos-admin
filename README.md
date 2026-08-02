@@ -11,7 +11,7 @@
 - 管理端代码生成配置、预览、生成进度和还原。
 - 构建期收集当前项目、宿主项目和外部模块的 README/docs，并在管理端统一查看。
 - 可挂载的 Go Core 模块，以及管理端、应用端的独立 workspace、模块协议和脚手架。
-- 管理端、uni-app、Taro 和后端错误目录的 `zh-CN`、`en-US`、`ja-JP` 三语国际化；动态菜单、字典和代码生成也支持三语。
+- 管理端、uni-app、Taro 和后端错误目录支持 `zh-CN`、`zh-TW`、`en-US`、`ja-JP`、`ko-KR`、`fr-FR`、`es-ES` 七种语言；动态菜单、字典和代码生成同步支持全部非主语言。
 
 仓库不包含商城、订单、支付或推荐等业务模块。
 
@@ -114,7 +114,9 @@ pnpm build:mp-weixin
 
 ## 国际化
 
-全端支持 `zh-CN`、`en-US`、`ja-JP`。管理端语言偏好保存为 `kratos-admin:locale`，uni-app 和 Taro 保存为 `kratos-app:locale`；所有 HTTP、刷新令牌、fetch、SSE、uni.request 和 Taro.request 请求都会发送规范化的 `Accept-Language`。固定文案由各 workspace 的 core/System JSON 语言包维护，动态菜单和字典由后端翻译表按请求语言解析，缺少英语或日语时回退中文。
+全端支持 `zh-CN`、`zh-TW`、`en-US`、`ja-JP`、`ko-KR`、`fr-FR`、`es-ES`。管理端语言偏好保存为 `kratos-admin:locale`，uni-app 和 Taro 保存为 `kratos-app:locale`；所有 HTTP、刷新令牌、fetch、SSE、uni.request 和 Taro.request 请求都会发送规范化的 `Accept-Language`。固定文案由各 workspace 的 core/System JSON 语言包维护，动态菜单和字典由后端翻译表按请求语言解析，缺少当前语言译文时回退主语言。
+
+动态资源的主语言由 `base_language.is_primary` 配置。创建或更新菜单、字典、字典项和系统配置时，后端按请求 `Accept-Language` 将输入文本转换为主语言写入主表；请求语言不是主语言时，原文写入对应翻译表，其他已启用非主语言也只保存在翻译表。
 
 后端错误目录检查与草稿命令：
 
@@ -124,7 +126,7 @@ make -C backend i18n-draft
 I18N_WRITE=1 make -C backend i18n-draft
 ```
 
-机器翻译仅生成可审核的英语或日语草稿，不参与正常业务读取；Provider 不可用时不影响已审核译文和中文回退。
+`make -C backend i18n-locales` 生成繁体中文、韩语、法语和西班牙语语言包及迁移数据；在线生成使用 Google V1，离线环境可加 `I18N_OFFLINE=1` 使用内置术语表。机器翻译仅生成可审核草稿，不参与正常业务读取；Provider 不可用时不影响已审核译文和主语言回退。
 
 ## 发布
 

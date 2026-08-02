@@ -14,6 +14,7 @@ import (
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
+	coreLocale "github.com/liujitcn/kratos-admin/backend/core/pkg/locale"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
@@ -32,7 +33,7 @@ type BaseMenuCase struct {
 	*data.BaseMenuRepository
 	baseRoleRepo    *data.BaseRoleRepository
 	casbinRuleCase  *CasbinRuleCase
-	translationCase *biz.TranslationCase
+	translationCase *BaseTranslationCase
 	formMapper      *_mapper.CopierMapper[systemadminv1.BaseMenuForm, models.BaseMenu]
 	mapper          *_mapper.CopierMapper[systemadminv1.BaseMenu, models.BaseMenu]
 	routerMapper    *_mapper.CopierMapper[systemadminv1.RouteItem, models.BaseMenu]
@@ -45,7 +46,7 @@ func NewBaseMenuCase(
 	baseMenuRepo *data.BaseMenuRepository,
 	baseRoleRepo *data.BaseRoleRepository,
 	casbinRuleCase *CasbinRuleCase,
-	translationCase *biz.TranslationCase,
+	translationCase *BaseTranslationCase,
 ) *BaseMenuCase {
 	formMapper := _mapper.NewCopierMapper[systemadminv1.BaseMenuForm, models.BaseMenu]()
 	formMapper.AppendConverters(_mapper.NewJSONTypeConverter[*systemadminv1.BaseMenuMeta]().NewConverterPair())
@@ -144,11 +145,6 @@ func (c *BaseMenuCase) TreeBaseMenu(ctx context.Context, req *systemadminv1.Tree
 	if req.GetLazy() {
 		parentID = req.GetParentId()
 	}
-	var titles map[int64]string
-	titles, err = c.reviewedMenuTitles(ctx, list)
-	if err != nil {
-		return nil, err
-	}
 	sources := make(map[int64]string, len(list))
 	for _, item := range list {
 		form := c.formMapper.ToDTO(item)
@@ -159,7 +155,7 @@ func (c *BaseMenuCase) TreeBaseMenu(ctx context.Context, req *systemadminv1.Tree
 	if err != nil {
 		return nil, err
 	}
-	return &systemadminv1.TreeBaseMenuResponse{BaseMenus: c.buildBaseMenuTree(list, parentID, req.GetLazy(), hasChildren, titles, translations)}, nil
+	return &systemadminv1.TreeBaseMenuResponse{BaseMenus: c.buildBaseMenuTree(list, parentID, req.GetLazy(), hasChildren, translations)}, nil
 }
 
 // GetBaseMenu 获取菜单
@@ -181,22 +177,40 @@ func (c *BaseMenuCase) GetBaseMenu(ctx context.Context, id int64) (*systemadminv
 
 // CreateBaseMenu 创建菜单
 func (c *BaseMenuCase) CreateBaseMenu(ctx context.Context, req *systemadminv1.BaseMenuForm) error {
+	sourceText := req.GetMeta().GetTitle()
+	primaryText, sourceLocale, primaryLocale, err := c.translationCase.NormalizePrimaryText(ctx, sourceText)
+	if err != nil {
+		return err
+	}
+	if req.Meta != nil {
+		req.Meta.Title = primaryText
+	}
+	translations := appendMenuSourceTranslation(req.GetTranslations(), sourceLocale, primaryLocale, sourceText)
 	baseMenu := c.formMapper.ToEntity(req)
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		var err error
 		err = c.createBaseMenu(ctx, baseMenu)
 		if err != nil {
 			return err
 		}
-		return c.translationCase.SaveMenuTranslations(ctx, baseMenu.ID, req.GetMeta().GetTitle(), req.GetTranslations())
+		return c.translationCase.SaveMenuTranslations(ctx, baseMenu.ID, primaryText, translations)
 	})
 }
 
 // UpdateBaseMenu 更新菜单
 func (c *BaseMenuCase) UpdateBaseMenu(ctx context.Context, req *systemadminv1.BaseMenuForm) error {
+	sourceText := req.GetMeta().GetTitle()
+	primaryText, sourceLocale, primaryLocale, err := c.translationCase.NormalizePrimaryText(ctx, sourceText)
+	if err != nil {
+		return err
+	}
+	if req.Meta != nil {
+		req.Meta.Title = primaryText
+	}
+	translations := appendMenuSourceTranslation(req.GetTranslations(), sourceLocale, primaryLocale, sourceText)
 	baseMenu := c.formMapper.ToEntity(req)
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		currentMenu, err := c.FindByID(ctx, req.GetId())
+		var currentMenu *models.BaseMenu
+		currentMenu, err = c.FindByID(ctx, req.GetId())
 		if err != nil {
 			return err
 		}
@@ -227,16 +241,39 @@ func (c *BaseMenuCase) UpdateBaseMenu(ctx context.Context, req *systemadminv1.Ba
 			return err
 		}
 		currentForm := c.formMapper.ToDTO(currentMenu)
-		err = c.translationCase.MarkMenuSourceChanged(ctx, currentMenu.ID, currentForm.GetMeta().GetTitle(), req.GetMeta().GetTitle())
+		err = c.translationCase.MarkMenuSourceChanged(ctx, currentMenu.ID, currentForm.GetMeta().GetTitle(), primaryText)
 		if err != nil {
 			return err
 		}
-		err = c.translationCase.SaveMenuTranslations(ctx, currentMenu.ID, req.GetMeta().GetTitle(), req.GetTranslations())
+		err = c.translationCase.SaveMenuTranslations(ctx, currentMenu.ID, primaryText, translations)
 		if err != nil {
 			return err
 		}
 		return c.casbinRuleCase.RebuildCasbinRuleByMenuID(ctx, baseMenu.ID)
 	})
+}
+
+// appendMenuSourceTranslation 保留当前请求语言的原始菜单标题。
+func appendMenuSourceTranslation(translations []*systemadminv1.BaseMenuTranslation, sourceLocale, primaryLocale, source string) []*systemadminv1.BaseMenuTranslation {
+	if sourceLocale == primaryLocale {
+		return translations
+	}
+	result := make([]*systemadminv1.BaseMenuTranslation, 0, len(translations)+1)
+	added := false
+	for _, translation := range translations {
+		if coreLocale.IsSupported(translation.GetLocale()) && coreLocale.Normalize(translation.GetLocale()) == sourceLocale {
+			if !added {
+				result = append(result, &systemadminv1.BaseMenuTranslation{Locale: sourceLocale, Title: source})
+				added = true
+			}
+			continue
+		}
+		result = append(result, translation)
+	}
+	if !added {
+		result = append(result, &systemadminv1.BaseMenuTranslation{Locale: sourceLocale, Title: source})
+	}
+	return result
 }
 
 // DeleteBaseMenu 删除菜单
@@ -484,7 +521,6 @@ func (c *BaseMenuCase) buildBaseMenuTree(
 	parentID int64,
 	lazy bool,
 	hasChildren map[int64]struct{},
-	titles map[int64]string,
 	translations map[int64][]*systemadminv1.BaseMenuTranslation,
 ) []*systemadminv1.BaseMenu {
 	res := make([]*systemadminv1.BaseMenu, 0)
@@ -495,12 +531,9 @@ func (c *BaseMenuCase) buildBaseMenuTree(
 		}
 		menu := c.mapper.ToDTO(item)
 		menu.Translations = translations[item.ID]
-		if title := titles[item.ID]; title != "" && menu.GetMeta() != nil {
-			menu.Meta.Title = title
-		}
 		_, menu.HasChildren = hasChildren[item.ID]
 		if !lazy {
-			menu.Children = c.buildBaseMenuTree(menuList, item.ID, false, hasChildren, titles, translations)
+			menu.Children = c.buildBaseMenuTree(menuList, item.ID, false, hasChildren, translations)
 		}
 		res = append(res, menu)
 	}

@@ -14,11 +14,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { Languages } from "@lucide/vue";
-import { SUPPORTED_LOCALES, type SupportedLocale, useLocaleStore } from "@/locales";
+import { type SupportedLocale, useLocaleStore } from "@/locales";
 
-const { locale, setLocale, t } = useLocaleStore();
+const { locale, setLocale, languageOptions, t } = useLocaleStore();
 const localeOptions = computed(() => {
-  return SUPPORTED_LOCALES.map(value => ({ value, label: t(`common.language.${value}`) }));
+  return languageOptions.value.map(item => ({ value: item.language_code, label: item.language_name }));
 });
 
 /** 切换管理端语言并刷新动态本地化数据。 */

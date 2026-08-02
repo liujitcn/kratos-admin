@@ -47,7 +47,7 @@ message GenerateTranslationDraftRequest {
 
   int64 resource_id = 2 [(gnostic.openapi.v3.property) = {description: "已保存资源ID"}, (buf.validate.field).cel = {id: "base_translation.resource_id.required" message: "资源ID不能为空" expression: "this > 0"}]; // 已保存资源ID
 
-  string target_locale = 3 [(gnostic.openapi.v3.property) = {description: "目标语言区域，仅支持en-US和ja-JP"}, (buf.validate.field).cel = {id: "base_translation.target_locale.supported" message: "目标语言仅支持英语或日语" expression: "this in ['en-US', 'ja-JP']"}]; // 目标语言区域，仅支持en-US和ja-JP
+  string target_locale = 3 [(gnostic.openapi.v3.property) = {description: "目标语言代码"}, (buf.validate.field).cel = {id: "base_translation.target_locale.supported" message: "目标语言代码不能为空" expression: "this.size() > 0"}]; // 目标语言代码
 
   BaseConfigTranslationField field = 4 [(gnostic.openapi.v3.property) = {description: "系统配置翻译字段，配置资源必填"}, (buf.validate.field).enum = {defined_only: true}]; // 系统配置翻译字段，配置资源必填
 }

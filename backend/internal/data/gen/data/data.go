@@ -29,6 +29,7 @@ func Models() []interface{} {
 		new(models.BaseDictTranslation),
 		new(models.BaseJob),
 		new(models.BaseJobLog),
+		new(models.BaseLanguage),
 		new(models.BaseLog),
 		new(models.BaseMenu),
 		new(models.BaseMenuTranslation),

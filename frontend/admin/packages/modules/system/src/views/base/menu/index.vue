@@ -68,6 +68,7 @@ import type {
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import SelectIcon from "@liujitcn/kratos-admin-core/components/SelectIcon/index.vue";
 import { defBaseMenuService } from "@liujitcn/kratos-admin-system/api/system/base_menu";
+import { loadEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
 import { defBaseApiService } from "@liujitcn/kratos-admin-system/api/system/base_api";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import type { BaseApi } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_api";
@@ -293,9 +294,7 @@ function renderMenuTitleCell(scope: RenderScope<BaseMenu>) {
   return h(DynamicTranslationCell, {
     source: row.meta?.title ?? "",
     translations: row.translations,
-    textField: "title",
-    editable: BUTTONS.value["base:menu:update"],
-    onEdit: () => handleOpenDialog(undefined, row.id)
+    textField: "title"
   });
 }
 
@@ -963,7 +962,7 @@ function buildMenuOptions(menuList: BaseMenu[] = []) {
 /** 根据菜单类型清理无效字段，避免提交脏数据。 */
 function buildSubmitPayload(): BaseMenuForm {
   const payload = normalizeMenuForm(formData);
-  payload.translations = serializeDynamicTranslations(translationValues.value, "title") as BaseMenuTranslation[];
+  payload.translations = serializeDynamicTranslations(translationValues.value, "title") as unknown as BaseMenuTranslation[];
   // 一级菜单在表单中保持空白，提交时仍按接口约定传回根节点标识。
   if (payload.id > 0 && payload.parent_id === undefined) payload.parent_id = 0;
   payload.meta.params = (payload.meta.params ?? []).filter(item => item.key || item.value);
@@ -1054,6 +1053,7 @@ function filterMenuTree(menuList: BaseMenu[], keywordMap: Record<string, string>
 
 /** 请求菜单表格数据，并按搜索条件过滤树形结构。 */
 async function requestMenuTable(params: Record<string, string>) {
+  await loadEnabledBaseLanguages();
   const data = await defBaseMenuService.TreeBaseMenu({});
   const keywordMap = {
     title: params.title ?? "",
@@ -1076,6 +1076,7 @@ function refreshTable() {
  * parentMenu 为新增时的固定父节点，menuId 为编辑时的菜单 ID。
  */
 async function handleOpenDialog(parentMenu?: BaseMenu, menuId?: number) {
+  await loadEnabledBaseLanguages();
   await loadDialogResources();
   dialog.parentLocked = Boolean(parentMenu || menuId);
   dialog.editing = Boolean(menuId);

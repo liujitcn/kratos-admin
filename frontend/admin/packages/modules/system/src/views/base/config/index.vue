@@ -96,6 +96,7 @@ import UploadImg from "@liujitcn/kratos-admin-core/components/Upload/Img.vue";
 import WangEditor from "@liujitcn/kratos-admin-core/components/WangEditor/index.vue";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBaseConfigService } from "@liujitcn/kratos-admin-system/api/system/base_config";
+import { loadEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
 import type {
   BaseConfig,
   BaseConfigForm,
@@ -110,7 +111,7 @@ import { t } from "@liujitcn/kratos-admin-core";
 import { useConfigStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import DynamicTranslationEditor from "@liujitcn/kratos-admin-system/components/DynamicTranslationEditor.vue";
 import DynamicTranslationCell from "@liujitcn/kratos-admin-system/components/DynamicTranslationCell.vue";
-import type { DynamicTranslationValue } from "@liujitcn/kratos-admin-system/components/dynamicTranslation";
+import { getEditableLanguageOptions, type DynamicTranslationValue } from "@liujitcn/kratos-admin-system/components/dynamicTranslation";
 import {
   BaseConfigTranslationField,
   TranslationResourceType,
@@ -147,13 +148,13 @@ const formData = reactive<BaseConfigForm>({
   value: "",
   /** 状态 */
   status: Status.ENABLE,
-  /** 配置英日翻译 */
+  /** 配置全部非主语言翻译。 */
   translations: []
 });
 
 /** 将配置翻译记录转换为编辑器值，缺少记录时保留可编辑的空行。 */
 function normalizeConfigTranslations(field: BaseConfigTranslationField): DynamicTranslationValue[] {
-  return (['en-US', 'ja-JP'] as const).map(locale => {
+  return getEditableLanguageOptions().map(item => item.value).map(locale => {
     const record = formData.translations?.find(item => item.locale === locale && item.field === field);
     return {
       id: record?.id ?? 0,
@@ -425,9 +426,7 @@ function renderConfigNameCell(row: BaseConfig) {
     translations: (row.translations ?? []).filter(
       item => item.field === BaseConfigTranslationField.BASE_CONFIG_TRANSLATION_FIELD_NAME
     ),
-    textField: "text",
-    editable: BUTTONS.value["base:config:update"],
-    onEdit: () => handleOpenDialog(row.id)
+    textField: "text"
   });
 }
 
@@ -520,6 +519,7 @@ const headerActions = computed<HeaderActionProps[]>(() => [
  * 请求系统配置列表，并由 ProTable 统一维护分页与搜索参数。
  */
 async function requestBaseConfigTable(params: PageBaseConfigRequest) {
+  await loadEnabledBaseLanguages();
   const data = await defBaseConfigService.PageBaseConfig(buildPageRequest(params));
   return { data: { list: data.base_configs ?? [], total: data.total } };
 }
@@ -534,15 +534,14 @@ function refreshTable() {
 /**
  * 打开系统配置弹窗。
  */
-function handleOpenDialog(configId?: number) {
+async function handleOpenDialog(configId?: number) {
+  await loadEnabledBaseLanguages();
   resetForm();
   dialog.titleKey = configId ? "system.common.action.editResource" : "system.common.action.createResource";
   dialog.visible = true;
   if (!configId) return;
 
-  defBaseConfigService.GetBaseConfig({ id: configId }).then(data => {
-    Object.assign(formData, data);
-  });
+  Object.assign(formData, await defBaseConfigService.GetBaseConfig({ id: configId }));
 }
 
 /**

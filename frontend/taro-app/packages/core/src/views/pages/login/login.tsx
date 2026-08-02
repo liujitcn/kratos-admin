@@ -15,8 +15,8 @@ import type {
 } from './components/types'
 import './login.scss'
 import {
-  SUPPORTED_LOCALES,
   t as translate,
+  useLocaleStore,
   useI18n,
   type SupportedLocale,
 } from '../../../locales'
@@ -75,6 +75,7 @@ async function resolveMiniCaptchaImage(payload: string, captchaId: string): Prom
 /** 账号和微信授权登录页。 */
 export default function LoginPage() {
   const { locale, setLocale, t } = useI18n()
+  const languageOptions = useLocaleStore((state) => state.languageOptions)
   const settings = useSettingStore((state) => state.data)
   const loadSettings = useSettingStore((state) => state.loadData)
   const userStore = useUserStore.getState()
@@ -442,10 +443,10 @@ export default function LoginPage() {
       <Picker
         className='login-locale'
         mode='selector'
-        range={SUPPORTED_LOCALES.map((item) => t(`common.language.${item}`))}
-        value={Math.max(0, SUPPORTED_LOCALES.indexOf(locale))}
+        range={languageOptions.map((item) => item.language_name)}
+        value={Math.max(0, languageOptions.findIndex((item) => item.language_code === locale))}
         onChange={(event) => {
-          const nextLocale = SUPPORTED_LOCALES[Number(event.detail.value)] as SupportedLocale | undefined
+          const nextLocale = languageOptions[Number(event.detail.value)]?.language_code as SupportedLocale | undefined
           if (nextLocale) void setLocale(nextLocale)
         }}
       >

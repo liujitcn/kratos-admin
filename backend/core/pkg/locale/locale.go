@@ -11,6 +11,14 @@ import (
 const (
 	// ZhCN 表示简体中文语言区域。
 	ZhCN = "zh-CN"
+	// ZhTW 表示繁体中文语言区域。
+	ZhTW = "zh-TW"
+	// KoKR 表示韩语语言区域。
+	KoKR = "ko-KR"
+	// FrFR 表示法语语言区域。
+	FrFR = "fr-FR"
+	// EsES 表示西班牙语语言区域。
+	EsES = "es-ES"
 	// EnUS 表示美式英语语言区域。
 	EnUS = "en-US"
 	// JaJP 表示日语语言区域。
@@ -20,8 +28,8 @@ const (
 )
 
 var (
-	supportedLocales = []string{ZhCN, EnUS, JaJP}
-	supportedTags    = []language.Tag{language.SimplifiedChinese, language.AmericanEnglish, language.Japanese}
+	supportedLocales = []string{ZhCN, ZhTW, EnUS, JaJP, KoKR, FrFR, EsES}
+	supportedTags    = []language.Tag{language.SimplifiedChinese, language.TraditionalChinese, language.AmericanEnglish, language.Japanese, language.Korean, language.French, language.Spanish}
 	matcher          = language.NewMatcher(supportedTags)
 )
 
@@ -30,6 +38,11 @@ type contextKey struct{}
 // Supported 返回支持的语言区域副本。
 func Supported() []string {
 	return append([]string(nil), supportedLocales...)
+}
+
+// NonDefault 返回除项目回退语言之外的区域副本。
+func NonDefault() []string {
+	return append([]string(nil), supportedLocales[1:]...)
 }
 
 // IsSupported 判断语言区域是否属于项目白名单。
@@ -78,7 +91,7 @@ func FromContext(ctx context.Context) string {
 	return Normalize(value)
 }
 
-// normalize 解析单个语言区域，并区分未知值与默认语言。
+// normalize 解析单个语言区域，并区分未知值与项目回退语言。
 func normalize(value string) (string, bool) {
 	value = strings.ReplaceAll(strings.TrimSpace(value), "_", "-")
 	if value == "" {

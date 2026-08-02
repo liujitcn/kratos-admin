@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package base.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// 语言公共服务。
+service LanguageService {
+  // 查询当前支持的语言和主语言。
+  rpc GetLanguage(GetLanguageRequest) returns (GetLanguageResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/base/language"
+    };
+  }
+}
+
+// 查询语言请求参数。
+message GetLanguageRequest {}
+
+// 支持的语言。
+message LanguageItem {
+  string language_code = 1 [(gnostic.openapi.v3.property) = {description: "标准语言代码"}]; // 标准语言代码
+
+  string language_name = 2 [(gnostic.openapi.v3.property) = {description: "语言名称"}]; // 语言名称
+
+  string native_name = 3 [(gnostic.openapi.v3.property) = {description: "本地语言名称"}]; // 本地语言名称
+
+  int32 sort = 4 [(gnostic.openapi.v3.property) = {description: "排序，值越小越靠前"}]; // 排序，值越小越靠前
+}
+
+// 当前支持的语言查询结果。
+message GetLanguageResponse {
+  repeated LanguageItem languages = 1 [(gnostic.openapi.v3.property) = {description: "当前支持的语言列表"}]; // 当前支持的语言列表
+
+  string primary_language_code = 2 [(gnostic.openapi.v3.property) = {description: "主语言代码"}]; // 主语言代码
+}

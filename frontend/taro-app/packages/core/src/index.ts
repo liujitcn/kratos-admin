@@ -4,6 +4,10 @@ import { defineKratosTaroModule } from './module'
 import coreEnUS from './locales/en-US.json'
 import coreJaJP from './locales/ja-JP.json'
 import coreZhCN from './locales/zh-CN.json'
+import coreZhTW from './locales/zh-TW.json'
+import coreKoKR from './locales/ko-KR.json'
+import coreFrFR from './locales/fr-FR.json'
+import coreEsES from './locales/es-ES.json'
 
 /** core 内置模块。 */
 export const coreModule = defineKratosTaroModule({
@@ -29,6 +33,10 @@ export const coreModule = defineKratosTaroModule({
   },
   messages: {
     'zh-CN': coreZhCN,
+    'zh-TW': coreZhTW,
+    'ko-KR': coreKoKR,
+    'fr-FR': coreFrFR,
+    'es-ES': coreEsES,
     'en-US': coreEnUS,
     'ja-JP': coreJaJP,
   },

@@ -119,6 +119,18 @@
   "base_job.name.length": {
     "other": "Task name cannot be empty and cannot exceed 50 characters"
   },
+  "base_language.language_code.length": {
+    "other": "Language code cannot be empty and cannot exceed 16 characters"
+  },
+  "base_language.language_name.length": {
+    "other": "Language name cannot be empty and cannot exceed 50 characters"
+  },
+  "base_language.native_name.length": {
+    "other": "Native language name cannot be empty and cannot exceed 50 characters"
+  },
+  "base_language.sort.required": {
+    "other": "Sort cannot be less than 0"
+  },
   "base_job_args.key.required": {
     "other": "All parameters must be filled in key"
   },
@@ -380,6 +392,9 @@
   "delete_base_dict_item.id.required": {
     "other": "Dictionary attribute ID list cannot be empty"
   },
+  "delete_base_language.id.required": {
+    "other": "Language ID list cannot be empty"
+  },
   "delete_base_menu.id.required": {
     "other": "Menu ID list cannot be empty"
   },
@@ -451,6 +466,9 @@
   },
   "get_base_dict_item.id.required": {
     "other": "Dictionary attribute ID cannot be empty"
+  },
+  "get_base_language.id.required": {
+    "other": "Language ID cannot be empty"
   },
   "get_base_post.id.required": {
     "other": "Position ID cannot be empty"
@@ -574,6 +592,9 @@
   },
   "set_base_dict_item_status.id.required": {
     "other": "Dictionary attribute ID cannot be empty"
+  },
+  "set_base_language_status.id.required": {
+    "other": "Language ID cannot be empty"
   },
   "set_base_dict_status.id.required": {
     "other": "Dictionary ID cannot be empty"

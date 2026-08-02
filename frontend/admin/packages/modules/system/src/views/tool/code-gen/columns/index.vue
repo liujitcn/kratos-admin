@@ -543,6 +543,7 @@ import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.v
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { useTabsStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { defBaseDictService } from "@liujitcn/kratos-admin-system/api/system/base_dict";
+import { loadEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
 import { defCodeGenColumnService } from "@liujitcn/kratos-admin-system/api/system/code_gen_column";
 import { defCodeGenTableService } from "@liujitcn/kratos-admin-system/api/system/code_gen_table";
 import type { OptionBaseDictResponse_BaseDict } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dict";
@@ -556,6 +557,7 @@ import type {
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_column";
 import type { CodeGenDatabaseTable, CodeGenTableForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_table";
 import CodeGenLocaleEditor from "../components/CodeGenLocaleEditor.vue";
+import { getEditableLanguageOptions } from "@liujitcn/kratos-admin-system/components/dynamicTranslation";
 import {
   copyCodeGenOptionToEmptyMatches,
   copyFirstMatchingCodeGenOption,
@@ -1204,9 +1206,9 @@ function codeGenScopeLabel(scope: CodeGenOptionScope) {
   return t(`system.codegen.column.scope.${scope}`);
 }
 
-/** 判断字段是否缺少英语或日语描述。 */
+/** 判断字段是否缺少任一非主语言描述。 */
 function hasMissingColumnLocales(column: CodeGenColumnView) {
-  return ["en-US", "ja-JP"].some(locale => !column.i18n_config?.get(locale)?.comment);
+  return getEditableLanguageOptions().some(item => !column.i18n_config?.get(item.value)?.comment);
 }
 
 /** 判断组件是否依赖选择数据源。 */
@@ -1269,6 +1271,7 @@ function syncOptionKind(config: CodeGenOptionContainer, scope: CodeGenOptionScop
 
 onMounted(() => {
   syncWorkspaceTitle();
+  void loadEnabledBaseLanguages();
   void handleQuery();
 });
 

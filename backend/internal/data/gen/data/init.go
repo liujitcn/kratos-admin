@@ -23,6 +23,7 @@ var RepositoryProviderSet = wire.NewSet(
 	NewBaseDictTranslationRepository,
 	NewBaseJobRepository,
 	NewBaseJobLogRepository,
+	NewBaseLanguageRepository,
 	NewBaseLogRepository,
 	NewBaseMenuRepository,
 	NewBaseMenuTranslationRepository,

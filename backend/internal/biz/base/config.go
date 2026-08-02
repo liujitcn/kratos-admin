@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
 	coreLocale "github.com/liujitcn/kratos-admin/backend/core/pkg/locale"
 	systemConfig "github.com/liujitcn/kratos-admin/backend/internal/config"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
@@ -23,14 +24,16 @@ import (
 type ConfigCase struct {
 	*data.BaseConfigRepository
 	configTranslationRepo *data.BaseConfigTranslationRepository
+	languageRepo          *data.BaseLanguageRepository
 	draftConfig           systemConfig.TranslationDraftConfig
 }
 
 // NewConfigCase 创建配置业务实例。
-func NewConfigCase(baseConfigRepo *data.BaseConfigRepository, configTranslationRepo *data.BaseConfigTranslationRepository, draftConfig systemConfig.TranslationDraftConfig) *ConfigCase {
+func NewConfigCase(baseConfigRepo *data.BaseConfigRepository, configTranslationRepo *data.BaseConfigTranslationRepository, languageRepo *data.BaseLanguageRepository, draftConfig systemConfig.TranslationDraftConfig) *ConfigCase {
 	return &ConfigCase{
 		BaseConfigRepository:  baseConfigRepo,
 		configTranslationRepo: configTranslationRepo,
+		languageRepo:          languageRepo,
 		draftConfig:           draftConfig,
 	}
 }
@@ -96,7 +99,16 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 // localizeRuntimeConfigValues 将当前语言已审核的文本配置值覆盖到运行时结果。
 func (c *ConfigCase) localizeRuntimeConfigValues(ctx context.Context, configs []*basev1.ConfigItem) ([]*basev1.ConfigItem, error) {
 	localeValue := coreLocale.FromContext(ctx)
-	if localeValue == coreLocale.Default || len(configs) == 0 {
+	if len(configs) == 0 {
+		return configs, nil
+	}
+	var err error
+	var primaryLocale string
+	primaryLocale, err = c.primaryLocale(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if localeValue == primaryLocale {
 		return configs, nil
 	}
 	configIDs := make([]int64, 0, len(configs))
@@ -126,6 +138,36 @@ func (c *ConfigCase) localizeRuntimeConfigValues(ctx context.Context, configs []
 		localized = append(localized, &copyItem)
 	}
 	return localized, nil
+}
+
+// primaryLocale 查询当前启用的主语言代码。
+func (c *ConfigCase) primaryLocale(ctx context.Context) (string, error) {
+	query := c.languageRepo.Query(ctx).BaseLanguage
+	opts := []repository.QueryOption{
+		repository.Where(query.Status.Eq(int32(commonv1.Status_ENABLE))),
+		repository.Where(query.IsPrimary.Is(true)),
+		repository.Order(query.Sort.Asc()),
+		repository.Order(query.ID.Asc()),
+	}
+	rows, err := c.languageRepo.List(ctx, opts...)
+	if err != nil {
+		return "", err
+	}
+	if len(rows) > 0 {
+		return rows[0].LanguageCode, nil
+	}
+	rows, err = c.languageRepo.List(ctx,
+		repository.Where(query.Status.Eq(int32(commonv1.Status_ENABLE))),
+		repository.Order(query.Sort.Asc()),
+		repository.Order(query.ID.Asc()),
+	)
+	if err != nil {
+		return "", err
+	}
+	if len(rows) > 0 {
+		return rows[0].LanguageCode, nil
+	}
+	return coreLocale.Default, nil
 }
 
 // runtimeConfigIDsPresent 判断缓存是否包含配置主键，旧缓存不满足时回源刷新。

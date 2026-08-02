@@ -101,7 +101,7 @@ export interface BaseDictForm {
   code: string;
   /** 字典名称 */
   name: string;
-  /** 非默认语言翻译 */
+  /** 非主语言翻译 */
   translations: BaseDictTranslation[];
   /** 状态 */
   status: Status;
@@ -127,7 +127,7 @@ export interface BaseDictItemForm {
   tag_type: string;
   /** 排序 */
   sort: number;
-  /** 非默认语言翻译 */
+  /** 非主语言翻译 */
   translations: BaseDictItemTranslation[];
   /** 状态 */
   status: Status;
@@ -193,7 +193,7 @@ export interface BaseDict {
   code: string;
   /** 字典名称 */
   name: string;
-  /** 非默认语言翻译 */
+  /** 非主语言翻译 */
   translations: BaseDictTranslation[];
   /** 状态 */
   status: Status;
@@ -217,7 +217,7 @@ export interface BaseDictItem {
   tag_type: string;
   /** 排序 */
   sort: number;
-  /** 非默认语言翻译 */
+  /** 非主语言翻译 */
   translations: BaseDictItemTranslation[];
   /** 状态 */
   status: Status;
@@ -233,7 +233,7 @@ export interface BaseDictTranslation {
   id: number;
   /** 字典ID */
   dict_id: number;
-  /** 语言区域 */
+  /** 语言代码 */
   locale: string;
   /** 字典名称 */
   name: string;
@@ -269,7 +269,7 @@ export interface BaseDictItemTranslation {
   id: number;
   /** 字典项ID */
   dict_item_id: number;
-  /** 语言区域 */
+  /** 语言代码 */
   locale: string;
   /** 字典项标签 */
   label: string;

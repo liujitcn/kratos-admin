@@ -37,6 +37,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { t } from "@liujitcn/kratos-admin-core";
+import { loadEnabledBaseLanguages, useEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
 import type { CodeGenLocaleConfig } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
 
 /** 代码生成多语言编辑器属性。 */
@@ -61,10 +62,14 @@ const emit = defineEmits<{
   "update:modelValue": [value: Map<string, CodeGenLocaleConfig>];
 }>();
 
-const editableLocales = computed(() => [
-  { value: "en-US", label: t("common.language.en-US") },
-  { value: "ja-JP", label: t("common.language.ja-JP") }
-]);
+const { languages } = useEnabledBaseLanguages();
+void loadEnabledBaseLanguages();
+
+const editableLocales = computed(() =>
+  languages.value
+    .filter(item => !item.is_primary)
+    .map(item => ({ value: item.language_code, label: item.native_name || item.language_name || item.language_code }))
+);
 
 const missingLocales = computed(() =>
   editableLocales.value.filter(locale => !hasComment(locale.value)).map(locale => locale.label)

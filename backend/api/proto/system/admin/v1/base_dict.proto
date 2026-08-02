@@ -200,7 +200,7 @@ message BaseDictForm {
 
   string name = 3 [(gnostic.openapi.v3.property) = {description: "字典名称"}, (buf.validate.field).cel = {id: "base_dict.name.required" message: "请输入字典名称" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "base_dict.name.max_len" message: "字典名称不能超过 50 个字符" expression: "this.size() <= 50"}]; // 字典名称
 
-  repeated BaseDictTranslation translations = 4 [(gnostic.openapi.v3.property) = {description: "非默认语言翻译"}]; // 非默认语言翻译
+  repeated BaseDictTranslation translations = 4 [(gnostic.openapi.v3.property) = {description: "非主语言翻译"}]; // 非主语言翻译
 
   .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
 }
@@ -224,7 +224,7 @@ message BaseDictItemForm {
 
   int32 sort = 6 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).cel = {id: "base_dict_item.sort.required" message: "排序必须大于 0" expression: "this > 0"}]; // 排序
 
-  repeated BaseDictItemTranslation translations = 7 [(gnostic.openapi.v3.property) = {description: "非默认语言翻译"}]; // 非默认语言翻译
+  repeated BaseDictItemTranslation translations = 7 [(gnostic.openapi.v3.property) = {description: "非主语言翻译"}]; // 非主语言翻译
 
   .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
 }
@@ -285,7 +285,7 @@ message BaseDict {
 
   string name = 3 [(gnostic.openapi.v3.property) = {description: "字典名称"}, (buf.validate.field).cel = {id: "base_dict.name.length" message: "字典名称不能为空且不超过 50 个字符" expression: "this.size() > 0 && this.size() <= 50"}]; // 字典名称
 
-  repeated BaseDictTranslation translations = 4 [(gnostic.openapi.v3.property) = {description: "非默认语言翻译"}]; // 非默认语言翻译
+  repeated BaseDictTranslation translations = 4 [(gnostic.openapi.v3.property) = {description: "非主语言翻译"}]; // 非主语言翻译
 
   .common.v1.Status status = 101 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
 
@@ -308,7 +308,7 @@ message BaseDictItem {
 
   int32 sort = 6 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).cel = {id: "base_dict_item.sort.required" message: "排序必须大于 0" expression: "this > 0"}]; // 排序
 
-  repeated BaseDictItemTranslation translations = 7 [(gnostic.openapi.v3.property) = {description: "非默认语言翻译"}]; // 非默认语言翻译
+  repeated BaseDictItemTranslation translations = 7 [(gnostic.openapi.v3.property) = {description: "非主语言翻译"}]; // 非主语言翻译
 
   .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
 
@@ -323,7 +323,7 @@ message BaseDictTranslation {
 
   int64 dict_id = 2 [(gnostic.openapi.v3.property) = {description: "字典ID"}]; // 字典ID
 
-  string locale = 3 [(gnostic.openapi.v3.property) = {description: "语言区域"}, (buf.validate.field).cel = {id: "base_dict_translation.locale.supported" message: "字典翻译语言仅支持英语或日语" expression: "this in ['en-US', 'ja-JP']"}]; // 语言区域
+  string locale = 3 [(gnostic.openapi.v3.property) = {description: "语言代码"}, (buf.validate.field).cel = {id: "base_dict_translation.locale.supported" message: "字典翻译语言代码不能为空" expression: "this.size() > 0"}]; // 语言代码
 
   string name = 4 [(gnostic.openapi.v3.property) = {description: "字典名称"}, (buf.validate.field).cel = {id: "base_dict_translation.name.max_len" message: "字典翻译名称不能超过50个字符" expression: "this.size() <= 50"}]; // 字典名称
 
@@ -358,7 +358,7 @@ message BaseDictItemTranslation {
 
   int64 dict_item_id = 2 [(gnostic.openapi.v3.property) = {description: "字典项ID"}]; // 字典项ID
 
-  string locale = 3 [(gnostic.openapi.v3.property) = {description: "语言区域"}, (buf.validate.field).cel = {id: "base_dict_item_translation.locale.supported" message: "字典项翻译语言仅支持英语或日语" expression: "this in ['en-US', 'ja-JP']"}]; // 语言区域
+  string locale = 3 [(gnostic.openapi.v3.property) = {description: "语言代码"}, (buf.validate.field).cel = {id: "base_dict_item_translation.locale.supported" message: "字典项翻译语言代码不能为空" expression: "this.size() > 0"}]; // 语言代码
 
   string label = 4 [(gnostic.openapi.v3.property) = {description: "字典项标签"}, (buf.validate.field).cel = {id: "base_dict_item_translation.label.max_len" message: "字典项翻译标签不能超过100个字符" expression: "this.size() <= 100"}]; // 字典项标签
 

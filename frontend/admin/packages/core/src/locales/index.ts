@@ -6,12 +6,17 @@ import dayjs from "dayjs";
 import "dayjs/locale/en";
 import "dayjs/locale/ja";
 import "dayjs/locale/zh-cn";
+import "dayjs/locale/zh-tw";
+import "dayjs/locale/ko";
+import "dayjs/locale/fr";
+import "dayjs/locale/es";
 import { computed, readonly, ref } from "vue";
 import { createI18n } from "vue-i18n";
 import type { AdminModule } from "@/modules";
+import type { GetLanguageResponse } from "@/rpc/base/v1/language";
 
 /** 管理端支持的语言区域。 */
-export const SUPPORTED_LOCALES = ["zh-CN", "en-US", "ja-JP"] as const;
+export const SUPPORTED_LOCALES = ["zh-CN", "zh-TW", "en-US", "ja-JP", "ko-KR", "fr-FR", "es-ES"] as const;
 /** 管理端支持的语言区域类型。 */
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 /** 单个模块的扁平语言包。 */
@@ -19,10 +24,23 @@ export type LocaleMessages = Record<string, string>;
 /** 翻译插值参数。 */
 export type LocaleParams = Record<string, string | number>;
 
+/** 运行时语言选项。 */
+export interface LocaleOption {
+  /** 标准语言代码。 */
+  language_code: SupportedLocale;
+  /** 语言名称。 */
+  language_name: string;
+  /** 本地语言名称。 */
+  native_name: string;
+  /** 排序值。 */
+  sort: number;
+}
+
 export const DEFAULT_LOCALE: SupportedLocale = "zh-CN";
 export const LOCALE_STORAGE_KEY = "kratos-admin:locale";
 
 const mutableLocale = ref<SupportedLocale>(DEFAULT_LOCALE);
+const mutableLanguageOptions = ref<LocaleOption[]>([]);
 const localeChangeHandlers = new Set<() => void | Promise<void>>();
 
 /** 管理端 Vue I18n 实例。 */
@@ -43,10 +61,27 @@ export function normalizeLocale(value?: string): SupportedLocale {
     .toLowerCase();
   if (normalized.startsWith("ja")) return "ja-JP";
   if (normalized.startsWith("en")) return "en-US";
+  if (normalized.startsWith("zh-tw") || normalized.startsWith("zh-hk") || normalized.startsWith("zh-mo")) return "zh-TW";
+  if (normalized.startsWith("ko")) return "ko-KR";
+  if (normalized.startsWith("fr")) return "fr-FR";
+  if (normalized.startsWith("es")) return "es-ES";
   return DEFAULT_LOCALE;
 }
 
-/** 注册模块语言包并校验三语键、占位符和命名空间。 */
+/** 将接口或系统语言代码解析为已打包的语言区域。 */
+function parseSupportedLocale(value?: string): SupportedLocale | undefined {
+  const normalized = String(value ?? "").replace("_", "-").toLowerCase();
+  if (normalized.startsWith("zh-tw") || normalized.startsWith("zh-hk") || normalized.startsWith("zh-mo")) return "zh-TW";
+  if (normalized.startsWith("zh")) return "zh-CN";
+  if (normalized.startsWith("en")) return "en-US";
+  if (normalized.startsWith("ja")) return "ja-JP";
+  if (normalized.startsWith("ko")) return "ko-KR";
+  if (normalized.startsWith("fr")) return "fr-FR";
+  if (normalized.startsWith("es")) return "es-ES";
+  return undefined;
+}
+
+/** 注册模块语言包并校验七语键、占位符和命名空间。 */
 export function registerLocaleMessages(modules: AdminModule[]): void {
   const merged = new Map<SupportedLocale, LocaleMessages>(SUPPORTED_LOCALES.map(locale => [locale, {}]));
 
@@ -84,6 +119,37 @@ export function initializeLocale(): SupportedLocale {
   return mutableLocale.value;
 }
 
+/** 应用后端语言配置，并在当前语言不可用时回退到接口主语言。 */
+export function applyLanguageConfig(response: GetLanguageResponse): void {
+  const options = response.languages.reduce<LocaleOption[]>((items, item) => {
+    const languageCode = parseSupportedLocale(item.language_code);
+    if (!languageCode || items.some((option) => option.language_code === languageCode)) return items;
+    items.push({
+      language_code: languageCode,
+      language_name: item.language_name || t(`common.language.${languageCode}`),
+      native_name: item.native_name || item.language_name || languageCode,
+      sort: item.sort,
+    });
+    return items;
+  }, []);
+  mutableLanguageOptions.value = options.length ? options.sort((left, right) => left.sort - right.sort) : getFallbackLanguageOptions();
+  const availableLocales = getSupportedLocales();
+  const primaryLocale = parseSupportedLocale(response.primary_language_code);
+  if (!availableLocales.includes(mutableLocale.value)) {
+    applyLocale(primaryLocale && availableLocales.includes(primaryLocale) ? primaryLocale : availableLocales[0] ?? DEFAULT_LOCALE);
+  }
+}
+
+/** 获取当前接口配置的语言选项。 */
+export function getLanguageOptions(): LocaleOption[] {
+  return mutableLanguageOptions.value.length ? mutableLanguageOptions.value : getFallbackLanguageOptions();
+}
+
+/** 获取当前可切换的语言区域。 */
+export function getSupportedLocales(): SupportedLocale[] {
+  return getLanguageOptions().map((item) => item.language_code);
+}
+
 /** 获取当前规范语言区域。 */
 export function getCurrentLocale(): SupportedLocale {
   return mutableLocale.value;
@@ -97,6 +163,7 @@ export function getLocaleRequestHeaders(): Record<"Accept-Language", SupportedLo
 /** 切换语言并刷新动态本地化数据。 */
 export async function setCurrentLocale(value: SupportedLocale): Promise<void> {
   const locale = normalizeLocale(value);
+  if (!getSupportedLocales().includes(locale)) return;
   if (locale === mutableLocale.value) return;
   applyLocale(locale);
   window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
@@ -118,16 +185,27 @@ export function t(key: string, params: LocaleParams = {}): string {
 export function useLocaleStore() {
   return {
     locale: readonly(mutableLocale),
-    localeIndex: computed(() => Math.max(0, SUPPORTED_LOCALES.indexOf(mutableLocale.value))),
+    localeIndex: computed(() => Math.max(0, getSupportedLocales().indexOf(mutableLocale.value))),
+    languageOptions: computed(() => getLanguageOptions()),
+    supportedLocales: computed(() => getSupportedLocales()),
     setLocale: setCurrentLocale,
     t
   };
 }
 
+function getFallbackLanguageOptions(): LocaleOption[] {
+  return SUPPORTED_LOCALES.map((languageCode, sort) => ({
+    language_code: languageCode,
+    language_name: t(`common.language.${languageCode}`),
+    native_name: languageCode,
+    sort,
+  }));
+}
+
 function applyLocale(locale: SupportedLocale): void {
   mutableLocale.value = locale;
   adminI18n.global.locale.value = locale;
-  dayjs.locale({ "zh-CN": "zh-cn", "en-US": "en", "ja-JP": "ja" }[locale]);
+  dayjs.locale({ "zh-CN": "zh-cn", "zh-TW": "zh-tw", "en-US": "en", "ja-JP": "ja", "ko-KR": "ko", "fr-FR": "fr", "es-ES": "es" }[locale]);
   document.documentElement.lang = locale;
 }
 

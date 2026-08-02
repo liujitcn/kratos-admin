@@ -42,7 +42,7 @@ type DraftResult struct {
 	Written         int
 }
 
-// CheckCatalogFiles 扫描 Proto、Go 源码和三语目录并校验完整性。
+// CheckCatalogFiles 扫描 Proto、Go 源码和七语目录并校验完整性。
 func CheckCatalogFiles(backendRoot string) (*CatalogCheckResult, error) {
 	sources, explicitKeys, err := collectCatalogSources(backendRoot)
 	if err != nil {
@@ -84,7 +84,7 @@ func CheckCatalogFiles(backendRoot string) (*CatalogCheckResult, error) {
 	return &CatalogCheckResult{SourceCount: len(sources), LocaleCount: len(referenceKeys)}, nil
 }
 
-// DraftCatalogFiles 报告或补齐错误目录中缺失的英日译文。
+// DraftCatalogFiles 报告或补齐错误目录中缺失的非中文译文。
 func DraftCatalogFiles(ctx context.Context, backendRoot string, provider translator.Translator, write bool) (*DraftResult, error) {
 	sources, _, err := collectCatalogSources(backendRoot)
 	if err != nil {
@@ -105,7 +105,7 @@ func DraftCatalogFiles(ctx context.Context, backendRoot string, provider transla
 		}
 	}
 	translations := make(map[string]string)
-	for _, localeValue := range []string{coreLocale.EnUS, coreLocale.JaJP} {
+	for _, localeValue := range coreLocale.NonDefault() {
 		for key, source := range sources {
 			if _, ok := catalogs[localeValue][key]; ok {
 				continue

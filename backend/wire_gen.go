@@ -117,10 +117,13 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	aiMessageService := base.NewAiMessageService(aiMessageCase)
 	baseConfigRepository := data.NewBaseConfigRepository(dataData)
 	baseConfigTranslationRepository := data.NewBaseConfigTranslationRepository(dataData)
+	baseLanguageRepository := data.NewBaseLanguageRepository(dataData)
 	appInfo := config.GetAppInfo(context)
 	translationDraftConfig := config.NewTranslationDraftConfig(appInfo)
-	configCase := biz2.NewConfigCase(baseConfigRepository, baseConfigTranslationRepository, translationDraftConfig)
+	configCase := biz2.NewConfigCase(baseConfigRepository, baseConfigTranslationRepository, baseLanguageRepository, translationDraftConfig)
 	configService := base.NewConfigService(configCase)
+	languageCase := biz2.NewLanguageCase(baseLanguageRepository)
+	languageService := base.NewLanguageService(languageCase)
 	configv1Oss, err := config.ParseOSS(context)
 	if err != nil {
 		cleanup4()
@@ -200,6 +203,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 		AiTool:    aiToolService,
 		AiMessage: aiMessageService,
 		Config:    configService,
+		Language:  languageService,
 		File:      fileService,
 		Login:     loginService,
 		Oauth:     oauthService,
@@ -240,8 +244,8 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	baseMenuTranslationRepository := data.NewBaseMenuTranslationRepository(dataData)
 	baseDictTranslationRepository := data.NewBaseDictTranslationRepository(dataData)
 	baseDictItemTranslationRepository := data.NewBaseDictItemTranslationRepository(dataData)
-	translationCase := biz.NewTranslationCase(baseCase, translationDraftConfig, translator, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository, baseMenuTranslationRepository, baseDictTranslationRepository, baseDictItemTranslationRepository, baseConfigTranslationRepository)
-	baseMenuCase := biz3.NewBaseMenuCase(baseCase, transaction, baseMenuRepository, baseRoleRepository, casbinRuleCase, translationCase)
+	baseTranslationCase := biz3.NewBaseTranslationCase(baseCase, translationDraftConfig, translator, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository, baseLanguageRepository, baseMenuTranslationRepository, baseDictTranslationRepository, baseDictItemTranslationRepository, baseConfigTranslationRepository)
+	baseMenuCase := biz3.NewBaseMenuCase(baseCase, transaction, baseMenuRepository, baseRoleRepository, casbinRuleCase, baseTranslationCase)
 	bizBaseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseDeptRepository, basePostRepository, bizBaseRoleCase, bizBaseDeptCase, baseMenuCase, baseRoleCase, userEvents)
 	baseTenantCase := biz3.NewBaseTenantCase(baseCase, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, casbinRuleRepository, casbinRuleCase, userEvents)
 	authCase := biz3.NewAuthCase(baseCase, bizBaseUserCase, bizBaseRoleCase, bizBaseDeptCase, baseTenantCase, baseMenuCase, fileCase)
@@ -250,11 +254,11 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	baseAreaRepository := data.NewBaseAreaRepository(dataData)
 	baseAreaCase := biz3.NewBaseAreaCase(baseCase, baseAreaRepository)
 	baseAreaService := admin.NewBaseAreaService(baseAreaCase)
-	baseConfigCase := biz3.NewBaseConfigCase(baseCase, baseConfigRepository, translationCase)
+	baseConfigCase := biz3.NewBaseConfigCase(baseCase, baseConfigRepository, baseTranslationCase)
 	baseConfigService := admin.NewBaseConfigService(baseConfigCase)
 	baseDeptService := admin.NewBaseDeptService(bizBaseDeptCase)
-	baseDictItemCase := biz3.NewBaseDictItemCase(baseCase, transaction, baseDictRepository, baseDictItemRepository, translationCase)
-	baseDictCase := biz3.NewBaseDictCase(baseCase, transaction, baseDictRepository, baseDictItemCase, translationCase)
+	baseDictItemCase := biz3.NewBaseDictItemCase(baseCase, transaction, baseDictRepository, baseDictItemRepository, baseTranslationCase)
+	baseDictCase := biz3.NewBaseDictCase(baseCase, transaction, baseDictRepository, baseDictItemCase, baseTranslationCase)
 	baseDictService := admin.NewBaseDictService(baseDictCase, baseDictItemCase)
 	baseJobRepository := data.NewBaseJobRepository(dataData)
 	baseJobLogRepository := data.NewBaseJobLogRepository(dataData)
@@ -263,6 +267,8 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	cronServer := job.NewCronServer(baseJobRepository, taskRegistry)
 	baseJobCase := biz3.NewBaseJobCase(baseCase, baseJobRepository, baseJobLogCase, cronServer)
 	baseJobService := admin.NewBaseJobService(baseJobCase, baseJobLogCase)
+	baseLanguageCase := biz3.NewBaseLanguageCase(baseCase, transaction, baseLanguageRepository)
+	baseLanguageService := admin.NewBaseLanguageService(baseLanguageCase)
 	baseLogRepository := data.NewBaseLogRepository(dataData)
 	baseLogCase := biz3.NewBaseLogCase(baseCase, baseLogRepository)
 	baseLogService := admin.NewBaseLogService(baseLogCase)
@@ -272,7 +278,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	baseRoleService := admin.NewBaseRoleService(bizBaseRoleCase)
 	baseTenantService := admin.NewBaseTenantService(baseTenantCase)
 	baseThirdAccountService := admin.NewBaseThirdAccountService(baseThirdAccountCase)
-	baseTranslationService := admin.NewBaseTranslationService(translationCase)
+	baseTranslationService := admin.NewBaseTranslationService(baseTranslationCase)
 	baseUserService := admin.NewBaseUserService(bizBaseUserCase)
 	codeGenTableRepository := data.NewCodeGenTableRepository(dataData)
 	codeGenColumnRepository := data.NewCodeGenColumnRepository(dataData)
@@ -307,6 +313,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 		BaseDept:         baseDeptService,
 		BaseDict:         baseDictService,
 		BaseJob:          baseJobService,
+		BaseLanguage:     baseLanguageService,
 		BaseLog:          baseLogService,
 		BaseMenu:         baseMenuService,
 		BasePost:         basePostService,
@@ -328,9 +335,9 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	bizBaseAreaCase := biz4.NewBaseAreaCase(baseCase, baseAreaRepository)
 	appBaseAreaService := app.NewBaseAreaService(bizBaseAreaCase)
 	bizBaseDictItemCase := biz4.NewBaseDictItemCase(baseCase, baseDictRepository, baseDictItemRepository)
-	bizBaseDictCase := biz4.NewBaseDictCase(baseCase, baseDictRepository, bizBaseDictItemCase, translationCase)
+	bizBaseDictCase := biz4.NewBaseDictCase(baseCase, baseDictRepository, bizBaseDictItemCase, baseTranslationCase)
 	appBaseDictService := app.NewBaseDictService(bizBaseDictCase)
-	bizBaseMenuCase := biz4.NewBaseMenuCase(baseCase, baseMenuRepository, translationCase)
+	bizBaseMenuCase := biz4.NewBaseMenuCase(baseCase, baseMenuRepository, baseTranslationCase)
 	appBaseMenuService := app.NewBaseMenuService(bizBaseMenuCase)
 	appServices := app2.Services{
 		Auth:     appAuthService,
@@ -449,10 +456,13 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 	aiMessageService := base.NewAiMessageService(aiMessageCase)
 	baseConfigRepository := data.NewBaseConfigRepository(dataData)
 	baseConfigTranslationRepository := data.NewBaseConfigTranslationRepository(dataData)
+	baseLanguageRepository := data.NewBaseLanguageRepository(dataData)
 	appInfo := config.GetAppInfo(context)
 	translationDraftConfig := config.NewTranslationDraftConfig(appInfo)
-	configCase := biz2.NewConfigCase(baseConfigRepository, baseConfigTranslationRepository, translationDraftConfig)
+	configCase := biz2.NewConfigCase(baseConfigRepository, baseConfigTranslationRepository, baseLanguageRepository, translationDraftConfig)
 	configService := base.NewConfigService(configCase)
+	languageCase := biz2.NewLanguageCase(baseLanguageRepository)
+	languageService := base.NewLanguageService(languageCase)
 	configv1Oss, err := config.ParseOSS(context)
 	if err != nil {
 		cleanup4()
@@ -532,6 +542,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 		AiTool:    aiToolService,
 		AiMessage: aiMessageService,
 		Config:    configService,
+		Language:  languageService,
 		File:      fileService,
 		Login:     loginService,
 		Oauth:     oauthService,
@@ -572,8 +583,8 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 	baseMenuTranslationRepository := data.NewBaseMenuTranslationRepository(dataData)
 	baseDictTranslationRepository := data.NewBaseDictTranslationRepository(dataData)
 	baseDictItemTranslationRepository := data.NewBaseDictItemTranslationRepository(dataData)
-	translationCase := biz.NewTranslationCase(baseCase, translationDraftConfig, translator, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository, baseMenuTranslationRepository, baseDictTranslationRepository, baseDictItemTranslationRepository, baseConfigTranslationRepository)
-	baseMenuCase := biz3.NewBaseMenuCase(baseCase, transaction, baseMenuRepository, baseRoleRepository, casbinRuleCase, translationCase)
+	baseTranslationCase := biz3.NewBaseTranslationCase(baseCase, translationDraftConfig, translator, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository, baseLanguageRepository, baseMenuTranslationRepository, baseDictTranslationRepository, baseDictItemTranslationRepository, baseConfigTranslationRepository)
+	baseMenuCase := biz3.NewBaseMenuCase(baseCase, transaction, baseMenuRepository, baseRoleRepository, casbinRuleCase, baseTranslationCase)
 	bizBaseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseDeptRepository, basePostRepository, bizBaseRoleCase, bizBaseDeptCase, baseMenuCase, baseRoleCase, userEvents)
 	baseTenantCase := biz3.NewBaseTenantCase(baseCase, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, casbinRuleRepository, casbinRuleCase, userEvents)
 	authCase := biz3.NewAuthCase(baseCase, bizBaseUserCase, bizBaseRoleCase, bizBaseDeptCase, baseTenantCase, baseMenuCase, fileCase)
@@ -582,11 +593,11 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 	baseAreaRepository := data.NewBaseAreaRepository(dataData)
 	baseAreaCase := biz3.NewBaseAreaCase(baseCase, baseAreaRepository)
 	baseAreaService := admin.NewBaseAreaService(baseAreaCase)
-	baseConfigCase := biz3.NewBaseConfigCase(baseCase, baseConfigRepository, translationCase)
+	baseConfigCase := biz3.NewBaseConfigCase(baseCase, baseConfigRepository, baseTranslationCase)
 	baseConfigService := admin.NewBaseConfigService(baseConfigCase)
 	baseDeptService := admin.NewBaseDeptService(bizBaseDeptCase)
-	baseDictItemCase := biz3.NewBaseDictItemCase(baseCase, transaction, baseDictRepository, baseDictItemRepository, translationCase)
-	baseDictCase := biz3.NewBaseDictCase(baseCase, transaction, baseDictRepository, baseDictItemCase, translationCase)
+	baseDictItemCase := biz3.NewBaseDictItemCase(baseCase, transaction, baseDictRepository, baseDictItemRepository, baseTranslationCase)
+	baseDictCase := biz3.NewBaseDictCase(baseCase, transaction, baseDictRepository, baseDictItemCase, baseTranslationCase)
 	baseDictService := admin.NewBaseDictService(baseDictCase, baseDictItemCase)
 	baseJobRepository := data.NewBaseJobRepository(dataData)
 	baseJobLogRepository := data.NewBaseJobLogRepository(dataData)
@@ -595,6 +606,8 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 	cronServer := job.NewCronServer(baseJobRepository, taskRegistry)
 	baseJobCase := biz3.NewBaseJobCase(baseCase, baseJobRepository, baseJobLogCase, cronServer)
 	baseJobService := admin.NewBaseJobService(baseJobCase, baseJobLogCase)
+	baseLanguageCase := biz3.NewBaseLanguageCase(baseCase, transaction, baseLanguageRepository)
+	baseLanguageService := admin.NewBaseLanguageService(baseLanguageCase)
 	baseLogRepository := data.NewBaseLogRepository(dataData)
 	baseLogCase := biz3.NewBaseLogCase(baseCase, baseLogRepository)
 	baseLogService := admin.NewBaseLogService(baseLogCase)
@@ -604,7 +617,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 	baseRoleService := admin.NewBaseRoleService(bizBaseRoleCase)
 	baseTenantService := admin.NewBaseTenantService(baseTenantCase)
 	baseThirdAccountService := admin.NewBaseThirdAccountService(baseThirdAccountCase)
-	baseTranslationService := admin.NewBaseTranslationService(translationCase)
+	baseTranslationService := admin.NewBaseTranslationService(baseTranslationCase)
 	baseUserService := admin.NewBaseUserService(bizBaseUserCase)
 	codeGenTableRepository := data.NewCodeGenTableRepository(dataData)
 	codeGenColumnRepository := data.NewCodeGenColumnRepository(dataData)
@@ -639,6 +652,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 		BaseDept:         baseDeptService,
 		BaseDict:         baseDictService,
 		BaseJob:          baseJobService,
+		BaseLanguage:     baseLanguageService,
 		BaseLog:          baseLogService,
 		BaseMenu:         baseMenuService,
 		BasePost:         basePostService,
@@ -660,9 +674,9 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 	bizBaseAreaCase := biz4.NewBaseAreaCase(baseCase, baseAreaRepository)
 	appBaseAreaService := app.NewBaseAreaService(bizBaseAreaCase)
 	bizBaseDictItemCase := biz4.NewBaseDictItemCase(baseCase, baseDictRepository, baseDictItemRepository)
-	bizBaseDictCase := biz4.NewBaseDictCase(baseCase, baseDictRepository, bizBaseDictItemCase, translationCase)
+	bizBaseDictCase := biz4.NewBaseDictCase(baseCase, baseDictRepository, bizBaseDictItemCase, baseTranslationCase)
 	appBaseDictService := app.NewBaseDictService(bizBaseDictCase)
-	bizBaseMenuCase := biz4.NewBaseMenuCase(baseCase, baseMenuRepository, translationCase)
+	bizBaseMenuCase := biz4.NewBaseMenuCase(baseCase, baseMenuRepository, baseTranslationCase)
 	appBaseMenuService := app.NewBaseMenuService(bizBaseMenuCase)
 	appServices := app2.Services{
 		Auth:     appAuthService,

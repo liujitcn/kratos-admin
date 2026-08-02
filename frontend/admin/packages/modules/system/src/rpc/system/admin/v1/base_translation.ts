@@ -36,7 +36,7 @@ export interface GenerateTranslationDraftRequest {
   resource_type: TranslationResourceType;
   /** 已保存资源ID */
   resource_id: number;
-  /** 目标语言区域，仅支持en-US和ja-JP */
+  /** 目标语言代码 */
   target_locale: string;
   /** 系统配置翻译字段，配置资源必填 */
   field: BaseConfigTranslationField;

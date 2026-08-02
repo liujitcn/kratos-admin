@@ -12,7 +12,6 @@ import (
 // ProviderSet 汇总业务层依赖注入提供者。
 var ProviderSet = wire.NewSet(
 	NewBaseCase,
-	NewTranslationCase,
 	oss.NewOSS,
 	queue.NewQueue,
 	cache.NewCache,

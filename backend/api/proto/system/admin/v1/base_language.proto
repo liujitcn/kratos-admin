@@ -1,0 +1,159 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "common/v1/enum.proto";
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// Admin语言管理服务
+service BaseLanguageService {
+  // 查询启用语言选项
+  rpc OptionBaseLanguage(OptionBaseLanguageRequest) returns (OptionBaseLanguageResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/language/option"
+    };
+  }
+
+  // 查询语言分页列表
+  rpc PageBaseLanguage(PageBaseLanguageRequest) returns (PageBaseLanguageResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/language"
+    };
+  }
+
+  // 查询语言详情
+  rpc GetBaseLanguage(GetBaseLanguageRequest) returns (BaseLanguageForm) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/language/{id}"
+    };
+  }
+
+  // 创建语言
+  rpc CreateBaseLanguage(CreateBaseLanguageRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/base/language"
+      body: "base_language"
+    };
+  }
+
+  // 更新语言
+  rpc UpdateBaseLanguage(UpdateBaseLanguageRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/language/{base_language.id}"
+      body: "base_language"
+    };
+  }
+
+  // 删除语言
+  rpc DeleteBaseLanguage(DeleteBaseLanguageRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/admin/base/language/{id}"
+    };
+  }
+
+  // 设置语言状态
+  rpc SetBaseLanguageStatus(SetBaseLanguageStatusRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/language/{id}/status"
+      body: "*"
+    };
+  }
+}
+
+// 语言选项查询条件
+message OptionBaseLanguageRequest {
+  optional bool enabled_only = 1 [(gnostic.openapi.v3.property) = {description: "是否只返回启用语言"}]; // 是否只返回启用语言
+}
+
+// 语言选项响应
+message OptionBaseLanguageResponse {
+  repeated BaseLanguage base_languages = 1 [(gnostic.openapi.v3.property) = {description: "语言选项"}]; // 语言选项
+}
+
+// 语言分页查询条件
+message PageBaseLanguageRequest {
+  string language_name = 1 [(gnostic.openapi.v3.property) = {description: "语言名称"}]; // 语言名称
+
+  string language_code = 2 [(gnostic.openapi.v3.property) = {description: "语言代码"}]; // 语言代码
+
+  optional .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "启用状态"}]; // 启用状态
+
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}]; // 当前页码
+
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页数量", default: {number: 10}}]; // 每页数量
+}
+
+// 语言分页响应
+message PageBaseLanguageResponse {
+  repeated BaseLanguage base_languages = 1 [(gnostic.openapi.v3.property) = {description: "语言列表"}]; // 语言列表
+
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 语言详情查询条件
+message GetBaseLanguageRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "语言ID"}, (buf.validate.field).cel = {id: "get_base_language.id.required" message: "语言ID不能为空" expression: "this > 0"}]; // 语言ID
+}
+
+// 语言表单
+message BaseLanguageForm {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "语言ID"}]; // 语言ID
+
+  string language_code = 2 [(gnostic.openapi.v3.property) = {description: "标准语言代码"}, (buf.validate.field).cel = {id: "base_language.language_code.length" message: "语言代码不能为空且不超过 16 个字符" expression: "this.size() > 0 && this.size() <= 16"}]; // 标准语言代码
+
+  string language_name = 3 [(gnostic.openapi.v3.property) = {description: "语言名称"}, (buf.validate.field).cel = {id: "base_language.language_name.length" message: "语言名称不能为空且不超过 50 个字符" expression: "this.size() > 0 && this.size() <= 50"}]; // 语言名称
+
+  string native_name = 4 [(gnostic.openapi.v3.property) = {description: "本地语言名称"}, (buf.validate.field).cel = {id: "base_language.native_name.length" message: "本地语言名称不能为空且不超过 50 个字符" expression: "this.size() > 0 && this.size() <= 50"}]; // 本地语言名称
+
+  int32 sort = 5 [(gnostic.openapi.v3.property) = {description: "排序，值越小越靠前"}, (buf.validate.field).cel = {id: "base_language.sort.required" message: "排序不能小于 0" expression: "this >= 0"}]; // 排序，值越小越靠前
+
+  bool is_primary = 6 [(gnostic.openapi.v3.property) = {description: "是否主语言"}]; // 是否主语言
+
+  .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "启用状态"}, (buf.validate.field).enum = {defined_only: true}]; // 启用状态
+}
+
+// 语言
+message BaseLanguage {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "语言ID"}]; // 语言ID
+
+  string language_code = 2 [(gnostic.openapi.v3.property) = {description: "标准语言代码"}]; // 标准语言代码
+
+  string language_name = 3 [(gnostic.openapi.v3.property) = {description: "语言名称"}]; // 语言名称
+
+  string native_name = 4 [(gnostic.openapi.v3.property) = {description: "本地语言名称"}]; // 本地语言名称
+
+  int32 sort = 5 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
+
+  bool is_primary = 6 [(gnostic.openapi.v3.property) = {description: "是否主语言"}]; // 是否主语言
+
+  .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "启用状态"}]; // 启用状态
+
+  string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+
+  string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+}
+
+// 创建语言请求参数
+message CreateBaseLanguageRequest {
+  BaseLanguageForm base_language = 1 [(gnostic.openapi.v3.property) = {description: "语言表单"}, (buf.validate.field).required = true]; // 语言表单
+}
+
+// 更新语言请求参数
+message UpdateBaseLanguageRequest {
+  BaseLanguageForm base_language = 1 [(gnostic.openapi.v3.property) = {description: "语言表单"}, (buf.validate.field).required = true]; // 语言表单
+}
+
+// 删除语言请求参数
+message DeleteBaseLanguageRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "语言ID列表"}, (buf.validate.field).cel = {id: "delete_base_language.id.required" message: "语言ID列表不能为空" expression: "this.size() > 0"}]; // 语言ID列表
+}
+
+// 设置语言状态请求参数
+message SetBaseLanguageStatusRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "语言ID"}, (buf.validate.field).cel = {id: "set_base_language_status.id.required" message: "语言ID不能为空" expression: "this > 0"}]; // 语言ID
+
+  .common.v1.Status status = 2 [(gnostic.openapi.v3.property) = {description: "启用状态"}, (buf.validate.field).enum = {defined_only: true}]; // 启用状态
+}

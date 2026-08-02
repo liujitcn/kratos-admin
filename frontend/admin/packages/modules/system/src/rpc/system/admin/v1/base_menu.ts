@@ -71,7 +71,7 @@ export interface BaseMenuForm {
     | undefined;
   /** 分配的API列表 */
   api: string[];
-  /** 非默认语言翻译 */
+  /** 非主语言翻译 */
   translations: BaseMenuTranslation[];
   /** 排序 */
   sort: number;
@@ -125,7 +125,7 @@ export interface BaseMenu {
   meta:
     | BaseMenuMeta
     | undefined;
-  /** 非默认语言翻译 */
+  /** 非主语言翻译 */
   translations: BaseMenuTranslation[];
   /** 排序 */
   sort: number;
@@ -201,7 +201,7 @@ export interface BaseMenuTranslation {
   id: number;
   /** 菜单ID */
   menu_id: number;
-  /** 语言区域 */
+  /** 语言代码 */
   locale: string;
   /** 菜单标题 */
   title: string;

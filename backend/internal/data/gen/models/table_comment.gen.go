@@ -70,6 +70,11 @@ func (*BaseJobLog) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*BaseLanguage) TableComment() string {
+	return "语言信息"
+}
+
+// TableComment 返回表注释。
 func (*BaseLog) TableComment() string {
 	return "系统日志信息"
 }

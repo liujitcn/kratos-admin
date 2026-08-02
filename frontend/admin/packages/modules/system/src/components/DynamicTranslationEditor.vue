@@ -2,7 +2,7 @@
   <div class="translation-editor">
     <div v-for="item in localValues" :key="item.locale" class="translation-editor__row">
       <div class="translation-editor__heading">
-        <span>{{ t(`common.language.${item.locale}`) }}</span>
+        <span>{{ getLanguageLabel(item.locale) }}</span>
         <el-tag :type="statusTagType(item)" effect="light" size="small">{{ statusLabel(item) }}</el-tag>
       </div>
       <div class="translation-editor__control">
@@ -12,12 +12,12 @@
           :type="multiline ? 'textarea' : 'text'"
           :rows="multiline ? 6 : undefined"
           show-word-limit
-          :placeholder="t('system.translation.placeholder.text', { language: t(`common.language.${item.locale}`) })"
+          :placeholder="t('system.translation.placeholder.text', { language: getLanguageLabel(item.locale) })"
           @update:model-value="value => updateText(item.locale, value)"
         />
         <el-tooltip
           v-if="draftEnabled && resourceId > 0"
-          :content="t('system.translation.action.generateDraft', { language: t(`common.language.${item.locale}`) })"
+          :content="t('system.translation.action.generateDraft', { language: getLanguageLabel(item.locale) })"
         >
           <el-button
             :icon="MagicStick"
@@ -48,7 +48,7 @@ import {
   TranslationResourceType,
   TranslationStatus
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
-import type { DynamicTranslationValue } from "./dynamicTranslation";
+import { getLanguageLabel, type DynamicTranslationValue } from "./dynamicTranslation";
 
 /** DynamicTranslationEditorProps 动态翻译编辑器属性。 */
 interface DynamicTranslationEditorProps {
@@ -111,7 +111,7 @@ async function generateDraft(locale: DynamicTranslationValue["locale"]) {
     );
     localValues.value = values;
     emit("update:modelValue", values);
-    ElMessage.success(t("system.translation.message.draftSuccess", { language: t(`common.language.${locale}`) }));
+    ElMessage.success(t("system.translation.message.draftSuccess", { language: getLanguageLabel(locale) }));
   } finally {
     loadingLocale.value = "";
   }

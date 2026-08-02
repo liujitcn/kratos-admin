@@ -13,7 +13,7 @@ import (
 	"golang.org/x/text/language"
 )
 
-// localeFiles 嵌入三语后端错误目录，供 Catalog 启动时读取。
+// localeFiles 嵌入七语后端错误目录，供 Catalog 启动时读取。
 //
 //go:embed locales/*.json
 var localeFiles embed.FS
@@ -48,7 +48,7 @@ func (c *Catalog) Localize(localeValue, messageKey string, messageArgs map[strin
 	return fallbackMessage(fallback)
 }
 
-// mustLoadCatalog 加载嵌入式三语错误目录，目录损坏属于启动期不可恢复错误。
+// mustLoadCatalog 加载嵌入式七语错误目录，目录损坏属于启动期不可恢复错误。
 func mustLoadCatalog() *Catalog {
 	bundle := goi18n.NewBundle(language.SimplifiedChinese)
 	bundle.RegisterUnmarshalFunc("json", json.Unmarshal)

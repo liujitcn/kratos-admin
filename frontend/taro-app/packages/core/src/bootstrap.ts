@@ -8,7 +8,8 @@ import {
   startUserStoreEventBridge,
   useUserStore,
  useSettingStore } from './stores'
-import { initializeLocale, registerLocaleChangeHandler, registerLocaleMessages } from './locales'
+import { applyLanguageConfig, initializeLocale, registerLocaleChangeHandler, registerLocaleMessages } from './locales'
+import { defLanguageService } from './api/base/language'
 
 /** Taro 应用启动参数。 */
 export interface KratosTaroBootstrapOptions {
@@ -23,6 +24,14 @@ export function bootstrapKratosTaroApp(options: KratosTaroBootstrapOptions): voi
   registerKratosTaroModules(options.modules)
   registerLocaleMessages(options.modules)
   initializeLocale()
+  void defLanguageService
+    .GetLanguage({})
+    .then((response) => {
+      applyLanguageConfig(response)
+    })
+    .catch(() => {
+      // 语言公共接口失败时继续使用静态语言包和系统语言。
+    })
   if (bootstrapped) return
   bootstrapped = true
   registerLocaleChangeHandler(initializeAppNavigation)

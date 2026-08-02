@@ -14,6 +14,7 @@ const SESSION_URL = "/v1/base/session";
 const TOKEN_URL = "/v1/base/token";
 const CAPTCHA_URL = "/v1/base/captcha";
 const CONFIG_URL = "/v1/base/config";
+const LANGUAGE_URL = "/v1/base/language";
 const PASSWORD_PUBLIC_KEY_URL = "/v1/base/password-public-key";
 const OAUTH_PROVIDER_URL = "/v1/base/oauth/provider";
 const OAUTH_AUTHORIZATION_URL = "/v1/base/oauth/authorization";
@@ -27,6 +28,7 @@ const NO_AUTH_URL_SET = new Set([
   TOKEN_URL,
   CAPTCHA_URL,
   CONFIG_URL,
+  LANGUAGE_URL,
   PASSWORD_PUBLIC_KEY_URL,
   OAUTH_PROVIDER_URL,
   OAUTH_AUTHORIZATION_URL,
@@ -40,6 +42,7 @@ const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set([
   TOKEN_URL,
   CAPTCHA_URL,
   CONFIG_URL,
+  LANGUAGE_URL,
   PASSWORD_PUBLIC_KEY_URL,
   OAUTH_PROVIDER_URL,
   OAUTH_AUTHORIZATION_URL,

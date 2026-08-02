@@ -8,7 +8,7 @@ import defaultLogo from '../../../static/images/logo_icon.png'
 import { homeTabPage } from '../../../utils/navigation'
 import { PASSWORD_CRYPTO_SCENE, encryptPassword } from '../../../utils/passwordCrypto'
 import { navigateAppRoute } from '../../../navigation'
-import { SUPPORTED_LOCALES, useI18n, type SupportedLocale } from '../../../locales'
+import { getLanguageOptions, useI18n, type SupportedLocale } from '../../../locales'
 
 // go-captcha-uni 仅在 H5 端使用，小程序端不支持 defineAsyncComponent，需按平台裁剪。
 // #ifdef H5
@@ -18,8 +18,14 @@ const GoCaptchaUni = defineAsyncComponent(() => import('go-captcha-uni'))
 const userStore = useUserStore()
 const settingStore = useSettingStore()
 const { locale, setLocale, t } = useI18n()
-const localeLabels = computed(() => SUPPORTED_LOCALES.map((item) => t(`common.language.${item}`)))
-const localeIndex = computed(() => Math.max(0, SUPPORTED_LOCALES.indexOf(locale.value)))
+const localeOptions = computed(() => getLanguageOptions())
+const localeLabels = computed(() => localeOptions.value.map((item) => item.language_name))
+const localeIndex = computed(() =>
+  Math.max(
+    0,
+    localeOptions.value.findIndex((item) => item.language_code === locale.value),
+  ),
+)
 const wechatMiniProvider = 'wechatmini'
 const loginSettingsReady = ref(false)
 let loginSettingsPromise: Promise<boolean> | undefined
@@ -44,7 +50,9 @@ watch(locale, () => void uni.setNavigationBarTitle({ title: t('common.action.log
 
 /** 切换登录页语言。 */
 const onLocaleChange = (event: { detail: { value: string | number } }) => {
-  const nextLocale = SUPPORTED_LOCALES[Number(event.detail.value)] as SupportedLocale | undefined
+  const nextLocale = localeOptions.value[Number(event.detail.value)]?.language_code as
+    | SupportedLocale
+    | undefined
   if (nextLocale) void setLocale(nextLocale)
 }
 

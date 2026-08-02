@@ -1,8 +1,10 @@
 import { TranslationStatus } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
+import { getEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
 
 /** DynamicTranslationValue 动态资源单语言翻译编辑状态。 */
 export interface DynamicTranslationValue {
-  locale: "en-US" | "ja-JP";
+  /** 语言代码。 */
+  locale: string;
   text: string;
   translation_status: TranslationStatus;
   source_changed: boolean;
@@ -26,12 +28,34 @@ export interface DynamicTranslationRecord extends Omit<DynamicTranslationValue, 
   label?: string;
 }
 
-/** normalizeDynamicTranslations 将后端翻译记录补齐为英语和日语编辑状态。 */
+/** DynamicLanguageOption 动态翻译编辑器显示的语言选项。 */
+export interface DynamicLanguageOption {
+  /** 语言代码。 */
+  value: string;
+  /** 语言显示名称。 */
+  label: string;
+}
+
+/** 返回语言管理中启用且非主语言的翻译语言选项。 */
+export function getEditableLanguageOptions(): DynamicLanguageOption[] {
+  return getEnabledBaseLanguages()
+    .filter(item => !item.is_primary)
+    .map(item => ({ value: item.language_code, label: item.native_name || item.language_name || item.language_code }));
+}
+
+/** 返回语言管理中的语言显示名称。 */
+export function getLanguageLabel(locale: string): string {
+  const language = getEnabledBaseLanguages().find(item => item.language_code === locale);
+  return language?.native_name || language?.language_name || locale;
+}
+
+/** normalizeDynamicTranslations 将后端翻译记录补齐为全部非主语言编辑状态。 */
 export function normalizeDynamicTranslations(
   records: DynamicTranslationRecord[] | undefined,
-  textField: "title" | "name" | "label"
+  textField: "title" | "name" | "label",
+  locales: string[] = getEditableLanguageOptions().map(item => item.value)
 ): DynamicTranslationValue[] {
-  return (["en-US", "ja-JP"] as const).map(locale => {
+  return locales.map(locale => {
     const record = records?.find(item => item.locale === locale);
     return {
       id: record?.id ?? 0,
@@ -57,6 +81,6 @@ export function normalizeDynamicTranslations(
 export function serializeDynamicTranslations(
   values: DynamicTranslationValue[],
   textField: "title" | "name" | "label"
-): DynamicTranslationRecord[] {
-  return values.map(({ text, ...value }) => ({ ...value, [textField]: text }));
+): Array<{ locale: string; [key: string]: string }> {
+  return values.map(({ locale, text }) => ({ locale, [textField]: text }));
 }

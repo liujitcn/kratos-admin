@@ -1348,6 +1348,156 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/language:
+        get:
+            tags:
+                - BaseLanguageService
+            description: 查询语言分页列表
+            operationId: BaseLanguageService_PageBaseLanguage
+            parameters:
+                - name: language_name
+                  in: query
+                  schema:
+                    type: string
+                - name: language_code
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - UNKNOWN
+                        - ENABLE
+                        - DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseLanguageResponse'
+        post:
+            tags:
+                - BaseLanguageService
+            description: 创建语言
+            operationId: BaseLanguageService_CreateBaseLanguage
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseLanguageForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/language/option:
+        get:
+            tags:
+                - BaseLanguageService
+            description: 查询启用语言选项
+            operationId: BaseLanguageService_OptionBaseLanguage
+            parameters:
+                - name: enabled_only
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OptionBaseLanguageResponse'
+    /api/v1/admin/base/language/{base_language.id}:
+        put:
+            tags:
+                - BaseLanguageService
+            description: 更新语言
+            operationId: BaseLanguageService_UpdateBaseLanguage
+            parameters:
+                - name: base_language.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseLanguageForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/language/{id}:
+        get:
+            tags:
+                - BaseLanguageService
+            description: 查询语言详情
+            operationId: BaseLanguageService_GetBaseLanguage
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseLanguageForm'
+        delete:
+            tags:
+                - BaseLanguageService
+            description: 删除语言
+            operationId: BaseLanguageService_DeleteBaseLanguage
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/language/{id}/status:
+        put:
+            tags:
+                - BaseLanguageService
+            description: 设置语言状态
+            operationId: BaseLanguageService_SetBaseLanguageStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseLanguageStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/log:
         get:
             tags:
@@ -3106,6 +3256,19 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.MultiUploadFileResponse'
+    /api/v1/base/language:
+        get:
+            tags:
+                - LanguageService
+            description: 查询当前支持的语言和主语言。
+            operationId: LanguageService_GetLanguage
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.GetLanguageResponse'
     /api/v1/base/oauth/authorization:
         post:
             tags:
@@ -3919,6 +4082,18 @@ components:
                         $ref: '#/components/schemas/base.v1.ConfigItem'
                     description: 系统配置列表
             description: 系统配置查询结果
+        base.v1.GetLanguageResponse:
+            type: object
+            properties:
+                languages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.LanguageItem'
+                    description: 当前支持的语言列表
+                primary_language_code:
+                    type: string
+                    description: 主语言代码
+            description: 当前支持的语言查询结果。
         base.v1.HandleMcpRequest:
             type: object
             properties:
@@ -3934,6 +4109,23 @@ components:
             type: object
             properties: {}
             description: 三方登录回调结果
+        base.v1.LanguageItem:
+            type: object
+            properties:
+                language_code:
+                    type: string
+                    description: 标准语言代码
+                language_name:
+                    type: string
+                    description: 语言名称
+                native_name:
+                    type: string
+                    description: 本地语言名称
+                sort:
+                    type: integer
+                    description: 排序，值越小越靠前
+                    format: int32
+            description: 支持的语言。
         base.v1.ListAiMessageResponse:
             type: object
             properties:
@@ -4519,7 +4711,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseConfigTranslation'
-                    description: 配置名称及文本/富文本值的英日翻译
+                    description: 配置名称及文本/富文本值的多语言翻译
                 status:
                     enum:
                         - UNKNOWN
@@ -4574,7 +4766,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseConfigTranslation'
-                    description: 配置名称及文本/富文本值的英日翻译
+                    description: 配置名称及文本/富文本值的多语言翻译
                 status:
                     enum:
                         - UNKNOWN
@@ -4742,7 +4934,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseDictTranslation'
-                    description: 非默认语言翻译
+                    description: 非主语言翻译
                 status:
                     enum:
                         - UNKNOWN
@@ -4774,7 +4966,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseDictTranslation'
-                    description: 非默认语言翻译
+                    description: 非主语言翻译
                 status:
                     enum:
                         - UNKNOWN
@@ -4810,7 +5002,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseDictItemTranslation'
-                    description: 非默认语言翻译
+                    description: 非主语言翻译
                 status:
                     enum:
                         - UNKNOWN
@@ -4852,7 +5044,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseDictItemTranslation'
-                    description: 非默认语言翻译
+                    description: 非主语言翻译
                 status:
                     enum:
                         - UNKNOWN
@@ -4873,7 +5065,7 @@ components:
                     description: 字典项ID
                 locale:
                     type: string
-                    description: 语言区域
+                    description: 语言代码
                 label:
                     type: string
                     description: 字典项标签
@@ -4931,7 +5123,7 @@ components:
                     description: 字典ID
                 locale:
                     type: string
-                    description: 语言区域
+                    description: 语言代码
                 name:
                     type: string
                     description: 字典名称
@@ -5090,6 +5282,74 @@ components:
                     type: string
                     description: 执行时间
             description: 定时任务日志
+        system.admin.v1.BaseLanguage:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 语言ID
+                language_code:
+                    type: string
+                    description: 标准语言代码
+                language_name:
+                    type: string
+                    description: 语言名称
+                native_name:
+                    type: string
+                    description: 本地语言名称
+                sort:
+                    type: integer
+                    description: 排序
+                    format: int32
+                is_primary:
+                    type: boolean
+                    description: 是否主语言
+                status:
+                    enum:
+                        - UNKNOWN
+                        - ENABLE
+                        - DISABLE
+                    type: string
+                    description: 启用状态
+                    format: enum
+                created_at:
+                    type: string
+                    description: 创建时间
+                updated_at:
+                    type: string
+                    description: 更新时间
+            description: 语言
+        system.admin.v1.BaseLanguageForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 语言ID
+                language_code:
+                    type: string
+                    description: 标准语言代码
+                language_name:
+                    type: string
+                    description: 语言名称
+                native_name:
+                    type: string
+                    description: 本地语言名称
+                sort:
+                    type: integer
+                    description: 排序，值越小越靠前
+                    format: int32
+                is_primary:
+                    type: boolean
+                    description: 是否主语言
+                status:
+                    enum:
+                        - UNKNOWN
+                        - ENABLE
+                        - DISABLE
+                    type: string
+                    description: 启用状态
+                    format: enum
+            description: 语言表单
         system.admin.v1.BaseLog:
             type: object
             properties:
@@ -5210,7 +5470,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseMenuTranslation'
-                    description: 非默认语言翻译
+                    description: 非主语言翻译
                 sort:
                     type: integer
                     description: 排序
@@ -5296,7 +5556,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseMenuTranslation'
-                    description: 非默认语言翻译
+                    description: 非主语言翻译
                 sort:
                     type: integer
                     description: 排序
@@ -5363,7 +5623,7 @@ components:
                     description: 菜单ID
                 locale:
                     type: string
-                    description: 语言区域
+                    description: 语言代码
                 title:
                     type: string
                     description: 菜单标题
@@ -6377,7 +6637,7 @@ components:
                     description: 已保存资源ID
                 target_locale:
                     type: string
-                    description: 目标语言区域，仅支持en-US和ja-JP
+                    description: 目标语言代码
                 field:
                     enum:
                         - BASE_CONFIG_TRANSLATION_FIELD_UNSPECIFIED
@@ -6537,6 +6797,15 @@ components:
                     type: string
                     description: 标签类型，用于前端样式展示（如success、warning等）
             description: 字典项
+        system.admin.v1.OptionBaseLanguageResponse:
+            type: object
+            properties:
+                base_languages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseLanguage'
+                    description: 语言选项
+            description: 语言选项响应
         system.admin.v1.OptionOpenApiServiceResponse:
             type: object
             properties:
@@ -6624,6 +6893,19 @@ components:
                     description: 总数
                     format: int32
             description: 定时任务分页响应
+        system.admin.v1.PageBaseLanguageResponse:
+            type: object
+            properties:
+                base_languages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseLanguage'
+                    description: 语言列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 语言分页响应
         system.admin.v1.PageBaseLogResponse:
             type: object
             properties:
@@ -7023,6 +7305,21 @@ components:
                     description: 状态
                     format: int32
             description: 设置定时任务状态请求参数
+        system.admin.v1.SetBaseLanguageStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 语言ID
+                status:
+                    enum:
+                        - UNKNOWN
+                        - ENABLE
+                        - DISABLE
+                    type: string
+                    description: 启用状态
+                    format: enum
+            description: 设置语言状态请求参数
         system.admin.v1.SetBaseMenuStatusRequest:
             type: object
             properties:
@@ -7409,17 +7706,19 @@ tags:
     - name: BaseDeptService
       description: Admin部门服务
     - name: BaseDictService
-      description: App字典服务
-    - name: BaseDictService
       description: Admin字典服务
+    - name: BaseDictService
+      description: App字典服务
     - name: BaseJobService
       description: Admin定时任务服务
+    - name: BaseLanguageService
+      description: Admin语言管理服务
     - name: BaseLogService
       description: Admin日志服务
     - name: BaseMenuService
-      description: Admin菜单管理服务
-    - name: BaseMenuService
       description: App菜单服务
+    - name: BaseMenuService
+      description: Admin菜单管理服务
     - name: BaseMigrationService
       description: 数据库迁移服务
     - name: BasePostService
@@ -7444,6 +7743,8 @@ tags:
       description: Base系统配置公共服务
     - name: FileService
       description: Base文件服务
+    - name: LanguageService
+      description: 语言公共服务。
     - name: LoginService
       description: Base登录公共服务
     - name: McpService

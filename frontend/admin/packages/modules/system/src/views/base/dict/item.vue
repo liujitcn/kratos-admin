@@ -65,6 +65,7 @@ import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBaseDictService } from "@liujitcn/kratos-admin-system/api/system/base_dict";
+import { loadEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
 import type {
   BaseDictItem,
   BaseDictItemForm,
@@ -113,7 +114,7 @@ const formData = reactive<BaseDictItemForm>({
   value: "",
   /** 字典项标签 */
   label: "",
-  /** 非默认语言翻译 */
+  /** 非主语言翻译 */
   translations: [],
   /** 标签类型 */
   tag_type: "",
@@ -210,9 +211,7 @@ function renderDictItemLabelCell(scope: RenderScope<BaseDictItem>) {
   return h(DynamicTranslationCell, {
     source: row.label,
     translations: row.translations,
-    textField: "label",
-    editable: BUTTONS.value["base:dict-item:update"],
-    onEdit: () => handleOpenDialog(row.id)
+    textField: "label"
   });
 }
 
@@ -312,6 +311,7 @@ watch(
  * 请求字典项分页列表，并补充当前路由上的字典 ID。
  */
 async function requestBaseDictItemTable(params: PageBaseDictItemRequest) {
+  await loadEnabledBaseLanguages();
   const data = await defBaseDictService.PageBaseDictItem({ ...buildPageRequest(params), dict_id: dictId.value });
   return { data: { list: data.base_dict_items ?? [], total: data.total } };
 }
@@ -326,16 +326,16 @@ function refreshTable() {
 /**
  * 打开字典项编辑弹窗。
  */
-function handleOpenDialog(dictItemId?: number) {
+async function handleOpenDialog(dictItemId?: number) {
+  await loadEnabledBaseLanguages();
   resetForm();
   dialog.editing = Boolean(dictItemId);
   dialog.visible = true;
   if (!dictItemId) return;
 
-  defBaseDictService.GetBaseDictItem({ id: dictItemId }).then(data => {
-    Object.assign(formData, data);
-    translationValues.value = normalizeDynamicTranslations(data.translations as DynamicTranslationRecord[], "label");
-  });
+  const data = await defBaseDictService.GetBaseDictItem({ id: dictItemId });
+  Object.assign(formData, data);
+  translationValues.value = normalizeDynamicTranslations(data.translations as DynamicTranslationRecord[], "label");
 }
 
 /**
@@ -372,7 +372,7 @@ function handleSubmit() {
 
     formData.dict_id = dictId.value;
     const submitData = JSON.parse(JSON.stringify(formData)) as BaseDictItemForm;
-    submitData.translations = serializeDynamicTranslations(translationValues.value, "label") as BaseDictItemTranslation[];
+    submitData.translations = serializeDynamicTranslations(translationValues.value, "label") as unknown as BaseDictItemTranslation[];
     const request = submitData.id
       ? defBaseDictService.UpdateBaseDictItem({ base_dict_item: submitData })
       : defBaseDictService.CreateBaseDictItem({ base_dict_item: submitData });

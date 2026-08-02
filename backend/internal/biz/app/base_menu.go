@@ -5,6 +5,7 @@ import (
 
 	systemappv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
+	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/admin"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -17,12 +18,12 @@ import (
 type BaseMenuCase struct {
 	*biz.BaseCase
 	*data.BaseMenuRepository
-	translationCase *biz.TranslationCase
+	translationCase *adminbiz.BaseTranslationCase
 	mapper          *mapper.CopierMapper[systemappv1.BaseMenu, models.BaseMenu]
 }
 
 // NewBaseMenuCase 创建移动端菜单业务处理对象。
-func NewBaseMenuCase(baseCase *biz.BaseCase, baseMenuRepo *data.BaseMenuRepository, translationCase *biz.TranslationCase) *BaseMenuCase {
+func NewBaseMenuCase(baseCase *biz.BaseCase, baseMenuRepo *data.BaseMenuRepository, translationCase *adminbiz.BaseTranslationCase) *BaseMenuCase {
 	menuMapper := mapper.NewCopierMapper[systemappv1.BaseMenu, models.BaseMenu]()
 	menuMapper.AppendConverters(mapper.NewJSONTypeConverter[*systemappv1.BaseMenuMeta]().NewConverterPair())
 	return &BaseMenuCase{

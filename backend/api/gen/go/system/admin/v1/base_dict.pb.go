@@ -420,7 +420,7 @@ type BaseDictForm struct {
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                 // 字典ID
 	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                              // 字典编号
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                              // 字典名称
-	Translations  []*BaseDictTranslation `protobuf:"bytes,4,rep,name=translations,proto3" json:"translations,omitempty"`              // 非默认语言翻译
+	Translations  []*BaseDictTranslation `protobuf:"bytes,4,rep,name=translations,proto3" json:"translations,omitempty"`              // 非主语言翻译
 	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -545,7 +545,7 @@ type BaseDictItemForm struct {
 	Label         string                     `protobuf:"bytes,4,opt,name=label,proto3" json:"label,omitempty"`                            // 字典项标签
 	TagType       string                     `protobuf:"bytes,5,opt,name=tag_type,json=tagType,proto3" json:"tag_type,omitempty"`         // 标签类型，用于前端样式展示（如success、warning等）
 	Sort          int32                      `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                             // 排序
-	Translations  []*BaseDictItemTranslation `protobuf:"bytes,7,rep,name=translations,proto3" json:"translations,omitempty"`              // 非默认语言翻译
+	Translations  []*BaseDictItemTranslation `protobuf:"bytes,7,rep,name=translations,proto3" json:"translations,omitempty"`              // 非主语言翻译
 	Status        v1.Status                  `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1019,7 +1019,7 @@ type BaseDict struct {
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                 // 字典ID
 	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                              // 字典编号
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                              // 字典名称
-	Translations  []*BaseDictTranslation `protobuf:"bytes,4,rep,name=translations,proto3" json:"translations,omitempty"`              // 非默认语言翻译
+	Translations  []*BaseDictTranslation `protobuf:"bytes,4,rep,name=translations,proto3" json:"translations,omitempty"`              // 非主语言翻译
 	Status        v1.Status              `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // 创建时间
 	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"` // 更新时间
@@ -1115,7 +1115,7 @@ type BaseDictItem struct {
 	Label         string                     `protobuf:"bytes,4,opt,name=label,proto3" json:"label,omitempty"`                            // 字典项标签
 	TagType       string                     `protobuf:"bytes,5,opt,name=tag_type,json=tagType,proto3" json:"tag_type,omitempty"`         // 标签类型，用于前端样式展示（如success、warning等）
 	Sort          int32                      `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                             // 排序
-	Translations  []*BaseDictItemTranslation `protobuf:"bytes,7,rep,name=translations,proto3" json:"translations,omitempty"`              // 非默认语言翻译
+	Translations  []*BaseDictItemTranslation `protobuf:"bytes,7,rep,name=translations,proto3" json:"translations,omitempty"`              // 非主语言翻译
 	Status        v1.Status                  `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	CreatedAt     string                     `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // 创建时间
 	UpdatedAt     string                     `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"` // 更新时间
@@ -1228,7 +1228,7 @@ type BaseDictTranslation struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
 	Id                  int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                                               // 主键ID
 	DictId              int64                  `protobuf:"varint,2,opt,name=dict_id,json=dictId,proto3" json:"dict_id,omitempty"`                                                                         // 字典ID
-	Locale              string                 `protobuf:"bytes,3,opt,name=locale,proto3" json:"locale,omitempty"`                                                                                        // 语言区域
+	Locale              string                 `protobuf:"bytes,3,opt,name=locale,proto3" json:"locale,omitempty"`                                                                                        // 语言代码
 	Name                string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`                                                                                            // 字典名称
 	TranslationStatus   TranslationStatus      `protobuf:"varint,5,opt,name=translation_status,json=translationStatus,proto3,enum=system.admin.v1.TranslationStatus" json:"translation_status,omitempty"` // 翻译状态
 	SourceHash          string                 `protobuf:"bytes,6,opt,name=source_hash,json=sourceHash,proto3" json:"source_hash,omitempty"`                                                              // 中文源文SHA-256
@@ -1393,7 +1393,7 @@ type BaseDictItemTranslation struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
 	Id                  int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                                               // 主键ID
 	DictItemId          int64                  `protobuf:"varint,2,opt,name=dict_item_id,json=dictItemId,proto3" json:"dict_item_id,omitempty"`                                                           // 字典项ID
-	Locale              string                 `protobuf:"bytes,3,opt,name=locale,proto3" json:"locale,omitempty"`                                                                                        // 语言区域
+	Locale              string                 `protobuf:"bytes,3,opt,name=locale,proto3" json:"locale,omitempty"`                                                                                        // 语言代码
 	Label               string                 `protobuf:"bytes,4,opt,name=label,proto3" json:"label,omitempty"`                                                                                          // 字典项标签
 	TranslationStatus   TranslationStatus      `protobuf:"varint,5,opt,name=translation_status,json=translationStatus,proto3,enum=system.admin.v1.TranslationStatus" json:"translation_status,omitempty"` // 翻译状态
 	SourceHash          string                 `protobuf:"bytes,6,opt,name=source_hash,json=sourceHash,proto3" json:"source_hash,omitempty"`                                                              // 中文源文SHA-256
@@ -1715,7 +1715,7 @@ const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"u\n" +
 	"\x12GetBaseDictRequest\x12_\n" +
 	"\x02id\x18\x01 \x01(\x03BO\xbaG\v\x92\x02\b字典ID\xbaH>\xba\x01;\n" +
-	"\x19get_base_dict.id.required\x12\x14字典ID不能为空\x1a\bthis > 0R\x02id\"\xe4\x04\n" +
+	"\x19get_base_dict.id.required\x12\x14字典ID不能为空\x1a\bthis > 0R\x02id\"\xe1\x04\n" +
 	"\fBaseDictForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b字典IDR\x02id\x12\xc4\x01\n" +
 	"\x04code\x18\x02 \x01(\tB\xaf\x01\xbaG\x0f\x92\x02\f字典编号\xbaH\x99\x01\xba\x01A\n" +
@@ -1723,12 +1723,12 @@ const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"\x16base_dict.code.max_len\x12%字典编号不能超过 50 个字符\x1a\x11this.size() <= 50R\x04code\x12\xc4\x01\n" +
 	"\x04name\x18\x03 \x01(\tB\xaf\x01\xbaG\x0f\x92\x02\f字典名称\xbaH\x99\x01\xba\x01A\n" +
 	"\x17base_dict.name.required\x12\x15请输入字典名称\x1a\x0fthis.size() > 0\xba\x01R\n" +
-	"\x16base_dict.name.max_len\x12%字典名称不能超过 50 个字符\x1a\x11this.size() <= 50R\x04name\x12e\n" +
-	"\ftranslations\x18\x04 \x03(\v2$.system.admin.v1.BaseDictTranslationB\x1b\xbaG\x18\x92\x02\x15非默认语言翻译R\ftranslations\x12?\n" +
+	"\x16base_dict.name.max_len\x12%字典名称不能超过 50 个字符\x1a\x11this.size() <= 50R\x04name\x12b\n" +
+	"\ftranslations\x18\x04 \x03(\v2$.system.admin.v1.BaseDictTranslationB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\ftranslations\x12?\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\x8a\x01\n" +
 	"\x16GetBaseDictItemRequest\x12p\n" +
 	"\x02id\x18\x01 \x01(\x03B`\xbaG\x11\x92\x02\x0e字典属性ID\xbaHI\xba\x01F\n" +
-	"\x1eget_base_dict_item.id.required\x12\x1a字典属性ID不能为空\x1a\bthis > 0R\x02id\"\xac\b\n" +
+	"\x1eget_base_dict_item.id.required\x12\x1a字典属性ID不能为空\x1a\bthis > 0R\x02id\"\xa9\b\n" +
 	"\x10BaseDictItemForm\x12!\n" +
 	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v字典项IDR\x02id\x12'\n" +
 	"\adict_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b字典IDR\x06dictId\x12\xf0\x01\n" +
@@ -1741,8 +1741,8 @@ const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"\btag_type\x18\x05 \x01(\tB\xab\x01\xbaGG\x92\x02D标签类型，用于前端样式展示（如success、warning等）\xbaH^\xba\x01[\n" +
 	"\x1fbase_dict_item.tag_type.max_len\x12%标签类型不能超过 50 个字符\x1a\x11this.size() <= 50R\atagType\x12d\n" +
 	"\x04sort\x18\x06 \x01(\x05BP\xbaG\t\x92\x02\x06排序\xbaHA\xba\x01>\n" +
-	"\x1cbase_dict_item.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x12i\n" +
-	"\ftranslations\x18\a \x03(\v2(.system.admin.v1.BaseDictItemTranslationB\x1b\xbaG\x18\x92\x02\x15非默认语言翻译R\ftranslations\x12?\n" +
+	"\x1cbase_dict_item.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x12f\n" +
+	"\ftranslations\x18\a \x03(\v2(.system.admin.v1.BaseDictItemTranslationB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\ftranslations\x12?\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"m\n" +
 	"\x15CreateBaseDictRequest\x12T\n" +
 	"\tbase_dict\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseDictFormB\x18\xbaG\x0f\x92\x02\f字典表单\xbaH\x03\xc8\x01\x01R\bbaseDict\"\x84\x01\n" +
@@ -1767,19 +1767,19 @@ const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"\x18SetBaseDictStatusRequest\x12f\n" +
 	"\x02id\x18\x01 \x01(\x03BV\xbaG\v\x92\x02\b字典ID\xbaHE\xba\x01B\n" +
 	" set_base_dict_status.id.required\x12\x14字典ID不能为空\x1a\bthis > 0R\x02id\x12$\n" +
-	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xf2\x04\n" +
+	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xef\x04\n" +
 	"\bBaseDict\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b字典IDR\x02id\x12\x9d\x01\n" +
 	"\x04code\x18\x02 \x01(\tB\x88\x01\xbaG\x0f\x92\x02\f字典编号\xbaHs\xba\x01p\n" +
 	"\x15base_dict.code.length\x121字典编号不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\x04code\x12\x9d\x01\n" +
 	"\x04name\x18\x03 \x01(\tB\x88\x01\xbaG\x0f\x92\x02\f字典名称\xbaHs\xba\x01p\n" +
-	"\x15base_dict.name.length\x121字典名称不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\x04name\x12e\n" +
-	"\ftranslations\x18\x04 \x03(\v2$.system.admin.v1.BaseDictTranslationB\x1b\xbaG\x18\x92\x02\x15非默认语言翻译R\ftranslations\x127\n" +
+	"\x15base_dict.name.length\x121字典名称不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\x04name\x12b\n" +
+	"\ftranslations\x18\x04 \x03(\v2$.system.admin.v1.BaseDictTranslationB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\ftranslations\x127\n" +
 	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x122\n" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xb3\b\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xb0\b\n" +
 	"\fBaseDictItem\x12!\n" +
 	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v字典项IDR\x02id\x12l\n" +
 	"\adict_id\x18\x02 \x01(\x03BS\xbaG\v\x92\x02\b字典ID\xbaHB\xba\x01?\n" +
@@ -1791,18 +1791,18 @@ const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"\btag_type\x18\x05 \x01(\tB\xab\x01\xbaGG\x92\x02D标签类型，用于前端样式展示（如success、warning等）\xbaH^\xba\x01[\n" +
 	"\x1fbase_dict_item.tag_type.max_len\x12%标签类型不能超过 50 个字符\x1a\x11this.size() <= 50R\atagType\x12d\n" +
 	"\x04sort\x18\x06 \x01(\x05BP\xbaG\t\x92\x02\x06排序\xbaHA\xba\x01>\n" +
-	"\x1cbase_dict_item.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x12i\n" +
-	"\ftranslations\x18\a \x03(\v2(.system.admin.v1.BaseDictItemTranslationB\x1b\xbaG\x18\x92\x02\x15非默认语言翻译R\ftranslations\x127\n" +
+	"\x1cbase_dict_item.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x12f\n" +
+	"\ftranslations\x18\a \x03(\v2(.system.admin.v1.BaseDictItemTranslationB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\ftranslations\x127\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x122\n" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xfb\b\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xe9\b\n" +
 	"\x13BaseDictTranslation\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12'\n" +
-	"\adict_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b字典IDR\x06dictId\x12\xa1\x01\n" +
-	"\x06locale\x18\x03 \x01(\tB\x88\x01\xbaG\x0f\x92\x02\f语言区域\xbaHs\xba\x01p\n" +
-	"&base_dict_translation.locale.supported\x12*字典翻译语言仅支持英语或日语\x1a\x1athis in ['en-US', 'ja-JP']R\x06locale\x12\x8e\x01\n" +
+	"\adict_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b字典IDR\x06dictId\x12\x8f\x01\n" +
+	"\x06locale\x18\x03 \x01(\tBw\xbaG\x0f\x92\x02\f语言代码\xbaHb\xba\x01_\n" +
+	"&base_dict_translation.locale.supported\x12$字典翻译语言代码不能为空\x1a\x0fthis.size() > 0R\x06locale\x12\x8e\x01\n" +
 	"\x04name\x18\x04 \x01(\tBz\xbaG\x0f\x92\x02\f字典名称\xbaHe\xba\x01b\n" +
 	"\"base_dict_translation.name.max_len\x12)字典翻译名称不能超过50个字符\x1a\x11this.size() <= 50R\x04name\x12e\n" +
 	"\x12translation_status\x18\x05 \x01(\x0e2\".system.admin.v1.TranslationStatusB\x12\xbaG\x0f\x92\x02\f翻译状态R\x11translationStatus\x12:\n" +
@@ -1825,13 +1825,13 @@ const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"updated_at\x18\x0e \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x121\n" +
 	"\n" +
 	"deleted_at\x18\x0f \x01(\x04B\x12\xbaG\x0f\x92\x02\f删除时间R\tdeletedAt\x12H\n" +
-	"\x0esource_changed\x18\x10 \x01(\bB!\xbaG\x1e\x92\x02\x1b中文源文是否已变化R\rsourceChanged\"\xa4\t\n" +
+	"\x0esource_changed\x18\x10 \x01(\bB!\xbaG\x1e\x92\x02\x1b中文源文是否已变化R\rsourceChanged\"\x92\t\n" +
 	"\x17BaseDictItemTranslation\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x123\n" +
 	"\fdict_item_id\x18\x02 \x01(\x03B\x11\xbaG\x0e\x92\x02\v字典项IDR\n" +
-	"dictItemId\x12\xa9\x01\n" +
-	"\x06locale\x18\x03 \x01(\tB\x90\x01\xbaG\x0f\x92\x02\f语言区域\xbaH{\xba\x01x\n" +
-	"+base_dict_item_translation.locale.supported\x12-字典项翻译语言仅支持英语或日语\x1a\x1athis in ['en-US', 'ja-JP']R\x06locale\x12\x9f\x01\n" +
+	"dictItemId\x12\x97\x01\n" +
+	"\x06locale\x18\x03 \x01(\tB\x7f\xbaG\x0f\x92\x02\f语言代码\xbaHj\xba\x01g\n" +
+	"+base_dict_item_translation.locale.supported\x12'字典项翻译语言代码不能为空\x1a\x0fthis.size() > 0R\x06locale\x12\x9f\x01\n" +
 	"\x05label\x18\x04 \x01(\tB\x88\x01\xbaG\x12\x92\x02\x0f字典项标签\xbaHp\xba\x01m\n" +
 	"(base_dict_item_translation.label.max_len\x12-字典项翻译标签不能超过100个字符\x1a\x12this.size() <= 100R\x05label\x12e\n" +
 	"\x12translation_status\x18\x05 \x01(\x0e2\".system.admin.v1.TranslationStatusB\x12\xbaG\x0f\x92\x02\f翻译状态R\x11translationStatus\x12:\n" +

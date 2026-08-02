@@ -7,6 +7,10 @@ import Ai from "./components/Ai.vue";
 import enUS from "./locales/en-US.json";
 import jaJP from "./locales/ja-JP.json";
 import zhCN from "./locales/zh-CN.json";
+import zhTW from "./locales/zh-TW.json";
+import koKR from "./locales/ko-KR.json";
+import frFR from "./locales/fr-FR.json";
+import esES from "./locales/es-ES.json";
 
 const viewModules = import.meta.glob<{ default: Component }>("./views/**/*.vue");
 
@@ -21,6 +25,10 @@ export const systemAdminModule = defineAdminModule({
   },
   messages: {
     "zh-CN": zhCN,
+    "zh-TW": zhTW,
+    "ko-KR": koKR,
+    "fr-FR": frFR,
+    "es-ES": esES,
     "en-US": enUS,
     "ja-JP": jaJP
   }

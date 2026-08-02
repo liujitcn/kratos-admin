@@ -148,7 +148,7 @@ message BaseMenuForm {
 
   repeated string api = 9 [(gnostic.openapi.v3.property) = {description: "分配的API列表"}]; // 分配的API列表
 
-  repeated BaseMenuTranslation translations = 10 [(gnostic.openapi.v3.property) = {description: "非默认语言翻译"}]; // 非默认语言翻译
+  repeated BaseMenuTranslation translations = 10 [(gnostic.openapi.v3.property) = {description: "非主语言翻译"}]; // 非主语言翻译
 
   int32 sort = 50 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).cel = {id: "base_menu.sort.required" message: "排序必须大于 0" expression: "this > 0"}]; // 排序
 
@@ -201,7 +201,7 @@ message BaseMenu {
 
   BaseMenuMeta meta = 8 [(gnostic.openapi.v3.property) = {description: "路由元信息"}]; // 路由元信息
 
-  repeated BaseMenuTranslation translations = 10 [(gnostic.openapi.v3.property) = {description: "非默认语言翻译"}]; // 非默认语言翻译
+  repeated BaseMenuTranslation translations = 10 [(gnostic.openapi.v3.property) = {description: "非主语言翻译"}]; // 非主语言翻译
 
   int32 sort = 9 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
 
@@ -261,7 +261,7 @@ message BaseMenuTranslation {
 
   int64 menu_id = 2 [(gnostic.openapi.v3.property) = {description: "菜单ID"}]; // 菜单ID
 
-  string locale = 3 [(gnostic.openapi.v3.property) = {description: "语言区域"}, (buf.validate.field).cel = {id: "base_menu_translation.locale.supported" message: "菜单翻译语言仅支持英语或日语" expression: "this in ['en-US', 'ja-JP']"}]; // 语言区域
+  string locale = 3 [(gnostic.openapi.v3.property) = {description: "语言代码"}, (buf.validate.field).cel = {id: "base_menu_translation.locale.supported" message: "菜单翻译语言代码不能为空" expression: "this.size() > 0"}]; // 语言代码
 
   string title = 4 [(gnostic.openapi.v3.property) = {description: "菜单标题"}, (buf.validate.field).cel = {id: "base_menu_translation.title.max_len" message: "菜单翻译标题不能超过255个字符" expression: "this.size() <= 255"}]; // 菜单标题
 

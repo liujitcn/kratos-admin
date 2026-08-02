@@ -22,12 +22,13 @@ import { useConfigStore } from "@/stores/modules/config";
 import { kratosAdminModule } from "./modules/kratosAdmin";
 import { registerAdminModules } from "./modules";
 import type { AdminModule } from "./modules";
-import { adminI18n, initializeLocale, registerLocaleChangeHandler, registerLocaleMessages, t } from "./locales";
+import { adminI18n, applyLanguageConfig, initializeLocale, registerLocaleChangeHandler, registerLocaleMessages, t } from "./locales";
 import { useAuthStore } from "@/stores/modules/auth";
 import { useDictStore } from "@/stores/modules/dict";
 import { useTabsStore } from "@/stores/modules/tabs";
 import { useUserStore } from "@/stores/modules/user";
 import { getRouteMetaTitle } from "@/utils";
+import { defLanguageService } from "./api/base/language";
 
 /**
  * 管理端启动参数。
@@ -47,6 +48,11 @@ export async function bootstrapAdminApp(options: AdminBootstrapOptions = {}) {
   registerAdminModules(modules);
   registerLocaleMessages(modules);
   initializeLocale();
+  try {
+    applyLanguageConfig(await defLanguageService.GetLanguage({}));
+  } catch {
+    // 语言公共接口失败时继续使用静态语言包和系统语言。
+  }
 
   const app = createApp(App);
 

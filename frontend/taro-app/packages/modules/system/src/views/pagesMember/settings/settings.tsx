@@ -2,7 +2,7 @@ import { Button, Picker, Text, View } from '@tarojs/components'
 import Taro, { useLoad } from '@tarojs/taro'
 import { useEffect, useMemo, useState } from 'react'
 import {
-  SUPPORTED_LOCALES,
+  useLocaleStore,
   navigateToLogin,
   type SupportedLocale,
   useI18n,
@@ -13,15 +13,13 @@ import './settings.scss'
 /** 应用设置页。 */
 export default function SettingsPage() {
   const { locale, setLocale, t } = useI18n()
+  const languageOptions = useLocaleStore((state) => state.languageOptions)
   const [logoutLoading, setLogoutLoading] = useState(false)
   const authenticated = useUserStore((state) => state.isAuthenticated())
   const ensureAuthenticated = useUserStore((state) => state.ensureAuthenticated)
   const logout = useUserStore((state) => state.logout)
-  const localeLabels = useMemo(
-    () => SUPPORTED_LOCALES.map((item) => t(`common.language.${item}`)),
-    [locale, t],
-  )
-  const localeIndex = Math.max(0, SUPPORTED_LOCALES.indexOf(locale))
+  const localeLabels = useMemo(() => languageOptions.map((item) => item.language_name), [languageOptions])
+  const localeIndex = Math.max(0, languageOptions.findIndex((item) => item.language_code === locale))
 
   useEffect(() => {
     void Taro.setNavigationBarTitle({ title: t('system.settings.title') })
@@ -70,7 +68,7 @@ export default function SettingsPage() {
           range={localeLabels}
           value={localeIndex}
           onChange={(event) => {
-            const nextLocale = SUPPORTED_LOCALES[Number(event.detail.value)] as
+            const nextLocale = languageOptions[Number(event.detail.value)]?.language_code as
               | SupportedLocale
               | undefined
             if (nextLocale) void setLocale(nextLocale)

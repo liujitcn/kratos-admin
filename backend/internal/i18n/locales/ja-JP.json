@@ -119,6 +119,18 @@
   "base_job.name.length": {
     "other": "タスク名は空にすることはできず、50 文字を超えることはできません"
   },
+  "base_language.language_code.length": {
+    "other": "言語コードは空にすることはできず、16 文字を超えることはできません"
+  },
+  "base_language.language_name.length": {
+    "other": "言語名は空にすることはできず、50 文字を超えることはできません"
+  },
+  "base_language.native_name.length": {
+    "other": "ローカル言語名は空にすることはできず、50 文字を超えることはできません"
+  },
+  "base_language.sort.required": {
+    "other": "並び順を 0 未満にすることはできません"
+  },
   "base_job_args.key.required": {
     "other": "すべてのパラメータをキーに入力する必要があります"
   },
@@ -380,6 +392,9 @@
   "delete_base_dict_item.id.required": {
     "other": "ディクショナリ属性 ID リストを空にすることはできません"
   },
+  "delete_base_language.id.required": {
+    "other": "言語 ID リストを空にすることはできません"
+  },
   "delete_base_menu.id.required": {
     "other": "メニュー ID リストを空にすることはできません"
   },
@@ -451,6 +466,9 @@
   },
   "get_base_dict_item.id.required": {
     "other": "ディクショナリ属性 ID を空にすることはできません"
+  },
+  "get_base_language.id.required": {
+    "other": "言語 ID を空にすることはできません"
   },
   "get_base_post.id.required": {
     "other": "ポジション ID を空にすることはできません"
@@ -574,6 +592,9 @@
   },
   "set_base_dict_item_status.id.required": {
     "other": "ディクショナリ属性 ID を空にすることはできません"
+  },
+  "set_base_language_status.id.required": {
+    "other": "言語 ID を空にすることはできません"
   },
   "set_base_dict_status.id.required": {
     "other": "辞書 ID を空にすることはできません"

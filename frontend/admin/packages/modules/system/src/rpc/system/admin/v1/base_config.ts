@@ -67,7 +67,7 @@ export interface BaseConfigForm {
   key: string;
   /** 配置value */
   value: string;
-  /** 配置名称及文本/富文本值的英日翻译 */
+  /** 配置名称及文本/富文本值的多语言翻译 */
   translations: BaseConfigTranslation[];
   /** 状态 */
   status: Status;
@@ -117,7 +117,7 @@ export interface BaseConfig {
   key: string;
   /** 配置value */
   value: string;
-  /** 配置名称及文本/富文本值的英日翻译 */
+  /** 配置名称及文本/富文本值的多语言翻译 */
   translations: BaseConfigTranslation[];
   /** 状态：枚举【Status】 */
   status: Status;

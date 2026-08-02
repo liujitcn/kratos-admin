@@ -5,6 +5,7 @@ import (
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
+	coreLocale "github.com/liujitcn/kratos-admin/backend/core/pkg/locale"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -21,13 +22,13 @@ type BaseDictItemCase struct {
 	tx           data.Transaction
 	baseDictRepo *data.BaseDictRepository
 	*data.BaseDictItemRepository
-	translationCase *biz.TranslationCase
+	translationCase *BaseTranslationCase
 	formMapper      *mapper.CopierMapper[systemadminv1.BaseDictItemForm, models.BaseDictItem]
 	mapper          *mapper.CopierMapper[systemadminv1.BaseDictItem, models.BaseDictItem]
 }
 
 // NewBaseDictItemCase 创建字典项业务实例
-func NewBaseDictItemCase(baseCase *biz.BaseCase, tx data.Transaction, baseDictRepo *data.BaseDictRepository, baseDictItemRepo *data.BaseDictItemRepository, translationCase *biz.TranslationCase) *BaseDictItemCase {
+func NewBaseDictItemCase(baseCase *biz.BaseCase, tx data.Transaction, baseDictRepo *data.BaseDictRepository, baseDictItemRepo *data.BaseDictItemRepository, translationCase *BaseTranslationCase) *BaseDictItemCase {
 	return &BaseDictItemCase{
 		BaseCase:               baseCase,
 		tx:                     tx,
@@ -74,16 +75,9 @@ func (c *BaseDictItemCase) PageBaseDictItem(ctx context.Context, req *systemadmi
 	if err != nil {
 		return nil, err
 	}
-	itemIDs := make([]int64, 0, len(list))
 	sources := make(map[int64]string, len(list))
 	for _, item := range list {
-		itemIDs = append(itemIDs, item.ID)
 		sources[item.ID] = item.Label
-	}
-	var labels map[int64]string
-	labels, err = c.translationCase.ReviewedDictItemLabels(ctx, itemIDs)
-	if err != nil {
-		return nil, err
 	}
 	var translations map[int64][]*systemadminv1.BaseDictItemTranslation
 	translations, err = c.translationCase.DictItemTranslations(ctx, sources)
@@ -94,9 +88,6 @@ func (c *BaseDictItemCase) PageBaseDictItem(ctx context.Context, req *systemadmi
 	for _, item := range list {
 		baseDictItem := c.mapper.ToDTO(item)
 		baseDictItem.Translations = translations[item.ID]
-		if translated := labels[item.ID]; translated != "" {
-			baseDictItem.Label = translated
-		}
 		resList = append(resList, baseDictItem)
 	}
 	return &systemadminv1.PageBaseDictItemResponse{BaseDictItems: resList, Total: int32(total)}, nil
@@ -120,9 +111,17 @@ func (c *BaseDictItemCase) GetBaseDictItem(ctx context.Context, id int64) (*syst
 
 // CreateBaseDictItem 创建字典项
 func (c *BaseDictItemCase) CreateBaseDictItem(ctx context.Context, req *systemadminv1.BaseDictItemForm) error {
+	var err error
+	sourceText := req.GetLabel()
+	var primaryText, sourceLocale, primaryLocale string
+	primaryText, sourceLocale, primaryLocale, err = c.translationCase.NormalizePrimaryText(ctx, sourceText)
+	if err != nil {
+		return err
+	}
+	req.Label = primaryText
+	translations := appendDictItemSourceTranslation(req.GetTranslations(), sourceLocale, primaryLocale, sourceText)
 	baseDictItem := c.formMapper.ToEntity(req)
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		var err error
 		err = c.Create(ctx, baseDictItem)
 		if err != nil {
 			// 命中字典项属性值唯一索引冲突时，返回稳定的业务冲突错误。
@@ -131,15 +130,25 @@ func (c *BaseDictItemCase) CreateBaseDictItem(ctx context.Context, req *systemad
 			}
 			return err
 		}
-		return c.translationCase.SaveDictItemTranslations(ctx, baseDictItem.ID, baseDictItem.Label, req.GetTranslations())
+		return c.translationCase.SaveDictItemTranslations(ctx, baseDictItem.ID, baseDictItem.Label, translations)
 	})
 }
 
 // UpdateBaseDictItem 更新字典项
 func (c *BaseDictItemCase) UpdateBaseDictItem(ctx context.Context, req *systemadminv1.BaseDictItemForm) error {
+	var err error
+	sourceText := req.GetLabel()
+	var primaryText, sourceLocale, primaryLocale string
+	primaryText, sourceLocale, primaryLocale, err = c.translationCase.NormalizePrimaryText(ctx, sourceText)
+	if err != nil {
+		return err
+	}
+	req.Label = primaryText
+	translations := appendDictItemSourceTranslation(req.GetTranslations(), sourceLocale, primaryLocale, sourceText)
 	baseDictItem := c.formMapper.ToEntity(req)
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		current, err := c.FindByID(ctx, req.GetId())
+		var current *models.BaseDictItem
+		current, err = c.FindByID(ctx, req.GetId())
 		if err != nil {
 			return err
 		}
@@ -155,7 +164,7 @@ func (c *BaseDictItemCase) UpdateBaseDictItem(ctx context.Context, req *systemad
 		if err != nil {
 			return err
 		}
-		return c.translationCase.SaveDictItemTranslations(ctx, baseDictItem.ID, baseDictItem.Label, req.GetTranslations())
+		return c.translationCase.SaveDictItemTranslations(ctx, baseDictItem.ID, baseDictItem.Label, translations)
 	})
 }
 
@@ -178,4 +187,27 @@ func (c *BaseDictItemCase) SetBaseDictItemStatus(ctx context.Context, req *syste
 		ID:     req.GetId(),
 		Status: req.GetStatus(),
 	})
+}
+
+// appendDictItemSourceTranslation 保留当前请求语言的原始字典项标签。
+func appendDictItemSourceTranslation(translations []*systemadminv1.BaseDictItemTranslation, sourceLocale, primaryLocale, source string) []*systemadminv1.BaseDictItemTranslation {
+	if sourceLocale == primaryLocale {
+		return translations
+	}
+	result := make([]*systemadminv1.BaseDictItemTranslation, 0, len(translations)+1)
+	added := false
+	for _, translation := range translations {
+		if coreLocale.IsSupported(translation.GetLocale()) && coreLocale.Normalize(translation.GetLocale()) == sourceLocale {
+			if !added {
+				result = append(result, &systemadminv1.BaseDictItemTranslation{Locale: sourceLocale, Label: source})
+				added = true
+			}
+			continue
+		}
+		result = append(result, translation)
+	}
+	if !added {
+		result = append(result, &systemadminv1.BaseDictItemTranslation{Locale: sourceLocale, Label: source})
+	}
+	return result
 }

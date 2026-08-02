@@ -10,26 +10,15 @@
   >
     <template #reference>
       <span class="dynamic-translation-cell">
-        <span class="dynamic-translation-cell__source">{{ source || "--" }}</span>
-        <el-tooltip v-if="editable" :content="t('common.action.edit')" placement="top">
-          <el-button
-            class="dynamic-translation-cell__edit"
-            type="primary"
-            text
-            size="small"
-            :icon="EditPen"
-            :aria-label="t('common.action.edit')"
-            @click.stop="emit('edit')"
-          />
-        </el-tooltip>
+        <span class="dynamic-translation-cell__source">{{ displaySource || "--" }}</span>
       </span>
     </template>
 
     <div class="dynamic-translation-cell__rows">
       <div v-for="item in translationRows" :key="item.locale" class="dynamic-translation-cell__row">
-        <span class="dynamic-translation-cell__language">{{ t(`common.language.${item.locale}`) }}</span>
+        <span class="dynamic-translation-cell__language">{{ getLanguageLabel(item.locale) }}</span>
         <span class="dynamic-translation-cell__text">{{ item.text || t('system.common.value.none') }}</span>
-        <el-tag v-if="showStatus" :type="statusTagType(item)" effect="light" size="small">
+        <el-tag v-if="showStatus && !item.isSource" :type="statusTagType(item)" effect="light" size="small">
           {{ statusLabel(item) }}
         </el-tag>
       </div>
@@ -39,9 +28,10 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { EditPen } from "@element-plus/icons-vue";
-import { t } from "@liujitcn/kratos-admin-core";
+import { t, useLocaleStore } from "@liujitcn/kratos-admin-core";
+import { useEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
 import { TranslationStatus } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
+import { getLanguageLabel } from "./dynamicTranslation";
 
 /** DynamicTranslationCellRecord 描述列表翻译预览所需的最小记录结构。 */
 export interface DynamicTranslationCellRecord {
@@ -63,37 +53,52 @@ export interface DynamicTranslationCellRecord {
 
 /** DynamicTranslationCellProps 动态翻译列表单元格属性。 */
 interface DynamicTranslationCellProps {
-  /** 中文源文。 */
+  /** 资源源文。 */
   source: string;
-  /** 英语和日语翻译记录。 */
+  /** 非主语言翻译记录。 */
   translations?: DynamicTranslationCellRecord[];
+  /** 源文所属语言，仅用于语言配置尚未加载时的回退。 */
+  sourceLocale?: string;
   /** 从翻译记录中读取的文本字段。 */
   textField?: "text" | "name" | "label" | "title";
-  /** 是否显示直接编辑按钮。 */
-  editable?: boolean;
   /** 是否显示翻译状态标签。 */
   showStatus?: boolean;
 }
 
 const props = withDefaults(defineProps<DynamicTranslationCellProps>(), {
   translations: () => [],
+  sourceLocale: "zh-CN",
   textField: "text",
-  editable: false,
   showStatus: true
 });
 
-const emit = defineEmits<{ edit: [] }>();
+const { locale } = useLocaleStore();
+const { languages } = useEnabledBaseLanguages();
+const primaryLocale = computed(() => languages.value.find(item => item.is_primary)?.language_code ?? props.sourceLocale ?? "zh-CN");
+
+const displaySource = computed(() => {
+  if (locale.value === primaryLocale.value) return props.source;
+  const record = props.translations.find(item => item.locale === locale.value);
+  if (record?.translation_status !== TranslationStatus.TRANSLATION_STATUS_REVIEWED) return props.source;
+  return getTranslationText(record) || props.source;
+});
 
 const translationRows = computed(() =>
-  (["en-US", "ja-JP"] as const).map(locale => {
-    const record = props.translations.find(item => item.locale === locale);
-    return {
-      locale,
-      text: record ? getTranslationText(record) : "",
-      translation_status: record?.translation_status ?? TranslationStatus.TRANSLATION_STATUS_PENDING,
-      source_changed: record?.source_changed ?? false
-    };
-  })
+  languages.value
+    .filter(item => item.language_code !== locale.value)
+    .map(item => {
+      const itemLocale = item.language_code;
+      const isSource = itemLocale === primaryLocale.value;
+      const record = props.translations.find(item => item.locale === itemLocale);
+      const text = isSource ? props.source : record ? getTranslationText(record) : "";
+      return {
+        locale: itemLocale,
+        text,
+        isSource,
+        translation_status: record?.translation_status,
+        source_changed: record?.source_changed ?? false
+      };
+    })
 );
 
 /** getTranslationText 读取当前资源对应的翻译字段。 */
@@ -109,7 +114,7 @@ function statusLabel(item: (typeof translationRows.value)[number]) {
       [TranslationStatus.TRANSLATION_STATUS_PENDING]: "pending",
       [TranslationStatus.TRANSLATION_STATUS_MACHINE]: "machine",
       [TranslationStatus.TRANSLATION_STATUS_REVIEWED]: "reviewed"
-    }[item.translation_status] ?? "pending";
+    }[item.translation_status ?? TranslationStatus.TRANSLATION_STATUS_PENDING] ?? "pending";
   return t(`system.translation.status.${statusKey}`);
 }
 
@@ -137,10 +142,6 @@ function statusTagType(item: (typeof translationRows.value)[number]) {
   white-space: nowrap;
 }
 
-.dynamic-translation-cell__edit {
-  flex: none;
-  margin-left: 2px;
-}
 </style>
 
 <style>

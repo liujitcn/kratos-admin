@@ -18,6 +18,7 @@ type Services struct {
 	AiTool    *baseService.AiToolService
 	AiMessage *baseService.AiMessageService
 	Config    *baseService.ConfigService
+	Language  *baseService.LanguageService
 	File      *baseService.FileService
 	Login     *baseService.LoginService
 	Oauth     *baseService.OauthService
@@ -36,6 +37,7 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	basev1.RegisterAiToolServiceServer(srv, s.AiTool)
 	basev1.RegisterAiMessageServiceServer(srv, s.AiMessage)
 	basev1.RegisterConfigServiceServer(srv, s.Config)
+	basev1.RegisterLanguageServiceServer(srv, s.Language)
 	basev1.RegisterFileServiceServer(srv, s.File)
 	basev1.RegisterLoginServiceServer(srv, s.Login)
 	basev1.RegisterOauthServiceServer(srv, s.Oauth)
@@ -50,6 +52,7 @@ func (s Services) RegisterHTTP(srv *kratosHTTP.Server) {
 	// AI 助手消息发送使用直连 SSE，避免占用工作台共用 /events 流。
 	baseService.RegisterAiMessageServiceHTTPServer(srv, s.AiMessage)
 	basev1.RegisterConfigServiceHTTPServer(srv, s.Config)
+	basev1.RegisterLanguageServiceHTTPServer(srv, s.Language)
 	// 文件上传需要兼容 uni.uploadFile 的 multipart/form-data 请求，使用自定义 HTTP 适配器。
 	baseService.RegisterFileServiceHTTPServer(srv, s.File)
 	basev1.RegisterLoginServiceHTTPServer(srv, s.Login)
@@ -67,6 +70,7 @@ func (s Services) RegisterMCP(server *mcpserver.Server) {
 	basev1.RegisterAiToolServiceMCPTools(mcpSrv, s.AiTool)
 	basev1.RegisterAiMessageServiceMCPTools(mcpSrv, s.AiMessage)
 	basev1.RegisterConfigServiceMCPTools(mcpSrv, s.Config)
+	basev1.RegisterLanguageServiceMCPTools(mcpSrv, s.Language)
 	basev1.RegisterFileServiceMCPTools(mcpSrv, s.File)
 	basev1.RegisterLoginServiceMCPTools(mcpSrv, s.Login)
 }

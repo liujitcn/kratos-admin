@@ -3,14 +3,20 @@ import { useUserStore } from '@liujitcn/kratos-uni-app-core/stores'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import { navigateToLogin } from '@liujitcn/kratos-uni-app-core/utils/navigation'
-import { SUPPORTED_LOCALES, useI18n, type SupportedLocale } from '@liujitcn/kratos-uni-app-core'
+import { getLanguageOptions, useI18n, type SupportedLocale } from '@liujitcn/kratos-uni-app-core'
 import { computed, watch } from 'vue'
 
 const userStore = useUserStore()
 const { locale, setLocale, t } = useI18n()
 const logoutLoading = ref(false)
-const localeLabels = computed(() => SUPPORTED_LOCALES.map((item) => t(`common.language.${item}`)))
-const localeIndex = computed(() => Math.max(0, SUPPORTED_LOCALES.indexOf(locale.value)))
+const localeOptions = computed(() => getLanguageOptions())
+const localeLabels = computed(() => localeOptions.value.map((item) => item.language_name))
+const localeIndex = computed(() =>
+  Math.max(
+    0,
+    localeOptions.value.findIndex((item) => item.language_code === locale.value),
+  ),
+)
 
 watch(locale, () => void uni.setNavigationBarTitle({ title: t('system.settings.title') }), {
   immediate: true,
@@ -18,7 +24,9 @@ watch(locale, () => void uni.setNavigationBarTitle({ title: t('system.settings.t
 
 /** 处理语言选择并刷新动态本地化数据。 */
 const onLocaleChange = (event: { detail: { value: string | number } }) => {
-  const nextLocale = SUPPORTED_LOCALES[Number(event.detail.value)] as SupportedLocale | undefined
+  const nextLocale = localeOptions.value[Number(event.detail.value)]?.language_code as
+    | SupportedLocale
+    | undefined
   if (nextLocale) void setLocale(nextLocale)
 }
 

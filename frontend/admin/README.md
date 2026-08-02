@@ -82,9 +82,9 @@ pnpm build:package
 
 ## 国际化
 
-管理端支持 `zh-CN`、`en-US`、`ja-JP`。core 与 System 模块分别维护自己的 JSON 语言包，模块注册时校验三语 key 和占位符集合；登录页和顶部工具栏共用 locale store，切换语言不刷新页面，并保留当前路由、查询参数和未提交表单。
+管理端支持 `zh-CN`、`zh-TW`、`en-US`、`ja-JP`、`ko-KR`、`fr-FR`、`es-ES`。core 与 System 模块分别维护自己的 JSON 语言包，模块注册时校验七语 key 和占位符集合；登录页和顶部工具栏共用 locale store，切换语言不刷新页面，并保留当前路由、查询参数和未提交表单。
 
-语言偏好保存为 `kratos-admin:locale`。Axios、刷新令牌、原生 fetch、SSE 和 Swagger 请求统一发送 `Accept-Language`；动态菜单和字典由后端按 locale 返回，缺少英语或日语时回退中文。新增模块应在 `src/locales/{zh-CN,en-US,ja-JP}.json` 提供同名 key，并通过 `messages` 注册语言包。
+语言偏好保存为 `kratos-admin:locale`。Axios、刷新令牌、原生 fetch、SSE 和 Swagger 请求统一发送 `Accept-Language`；动态菜单和字典由后端按 locale 返回，缺少当前语言译文时回退主语言。新增模块应在 `src/locales/{zh-CN,zh-TW,en-US,ja-JP,ko-KR,fr-FR,es-ES}.json` 提供同名 key，并通过 `messages` 注册语言包。
 
 API 按 Proto 一级领域组织为 `api/base`、`api/system` 等目录；RPC 保留 `rpc/base/v1`、`rpc/system/admin/v1` 等完整 Proto 层级。RPC 类型按真实消费者归属放置：core 保留登录、菜单、用户信息和启动期能力所需服务类型；System 自包含系统管理、个人中心、AI 及其依赖类型。修改 Proto 后在 `backend` 执行 `make ts`，命令会按两份 Buf 配置分别清理并生成 core 与 System 的 RPC；服务端契约尚未完成细粒度拆分时，同一生成文件可能暂时包含当前包未调用的方法，不手写生成文件。
 

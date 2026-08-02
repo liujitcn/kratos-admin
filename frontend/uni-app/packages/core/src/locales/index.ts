@@ -4,9 +4,18 @@
  */
 import { readonly, ref } from 'vue'
 import type { KratosAppModule } from '../module'
+import type { GetLanguageResponse } from '../rpc/base/v1/language'
 
 /** 移动端支持的语言区域。 */
-export const SUPPORTED_LOCALES = ['zh-CN', 'en-US', 'ja-JP'] as const
+export const SUPPORTED_LOCALES = [
+  'zh-CN',
+  'zh-TW',
+  'en-US',
+  'ja-JP',
+  'ko-KR',
+  'fr-FR',
+  'es-ES',
+] as const
 /** 移动端支持的语言区域类型。 */
 export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number]
 /** 单个模块的扁平语言包。 */
@@ -14,11 +23,24 @@ export type LocaleMessages = Record<string, string>
 /** 翻译插值参数。 */
 export type LocaleParams = Record<string, string | number>
 
+/** 运行时语言选项。 */
+export interface LocaleOption {
+  /** 标准语言代码。 */
+  language_code: SupportedLocale
+  /** 语言名称。 */
+  language_name: string
+  /** 本地语言名称。 */
+  native_name: string
+  /** 排序值。 */
+  sort: number
+}
+
 const DEFAULT_LOCALE: SupportedLocale = 'zh-CN'
 const LOCALE_STORAGE_KEY = 'kratos-app:locale'
 const localeMessages = new Map<SupportedLocale, LocaleMessages>()
 const localeChangeHandlers = new Set<() => void | Promise<void>>()
 const mutableLocaleState = ref<SupportedLocale>(DEFAULT_LOCALE)
+const mutableLanguageOptions = ref<LocaleOption[]>([])
 
 /** 响应式当前语言区域。 */
 export const localeState = readonly(mutableLocaleState)
@@ -30,7 +52,36 @@ export function normalizeLocale(value?: string): SupportedLocale {
     .toLowerCase()
   if (normalized.startsWith('ja')) return 'ja-JP'
   if (normalized.startsWith('en')) return 'en-US'
+  if (
+    normalized.startsWith('zh-tw') ||
+    normalized.startsWith('zh-hk') ||
+    normalized.startsWith('zh-mo')
+  )
+    return 'zh-TW'
+  if (normalized.startsWith('ko')) return 'ko-KR'
+  if (normalized.startsWith('fr')) return 'fr-FR'
+  if (normalized.startsWith('es')) return 'es-ES'
   return DEFAULT_LOCALE
+}
+
+/** 将接口或系统语言代码解析为已打包的语言区域。 */
+function parseSupportedLocale(value?: string): SupportedLocale | undefined {
+  const normalized = String(value || '')
+    .replace('_', '-')
+    .toLowerCase()
+  if (
+    normalized.startsWith('zh-tw') ||
+    normalized.startsWith('zh-hk') ||
+    normalized.startsWith('zh-mo')
+  )
+    return 'zh-TW'
+  if (normalized.startsWith('zh')) return 'zh-CN'
+  if (normalized.startsWith('ja')) return 'ja-JP'
+  if (normalized.startsWith('en')) return 'en-US'
+  if (normalized.startsWith('ko')) return 'ko-KR'
+  if (normalized.startsWith('fr')) return 'fr-FR'
+  if (normalized.startsWith('es')) return 'es-ES'
+  return undefined
 }
 
 /** 初始化持久化语言偏好。 */
@@ -42,7 +93,47 @@ export function initializeLocale(): SupportedLocale {
   return mutableLocaleState.value
 }
 
-/** 注册所有模块贡献的语言包并校验三语键集合。 */
+/** 应用后端语言配置，并在当前语言不可用时回退到接口主语言。 */
+export function applyLanguageConfig(response: GetLanguageResponse): void {
+  const options = response.languages.reduce<LocaleOption[]>((items, item) => {
+    const languageCode = parseSupportedLocale(item.language_code)
+    if (!languageCode || items.some((option) => option.language_code === languageCode)) return items
+    items.push({
+      language_code: languageCode,
+      language_name: item.language_name || t(`common.language.${languageCode}`),
+      native_name: item.native_name || item.language_name || languageCode,
+      sort: item.sort,
+    })
+    return items
+  }, [])
+  mutableLanguageOptions.value = options.length
+    ? options.sort((left, right) => left.sort - right.sort)
+    : getFallbackLanguageOptions()
+  const availableLocales = getSupportedLocales()
+  const primaryLocale = parseSupportedLocale(response.primary_language_code)
+  if (!availableLocales.includes(mutableLocaleState.value)) {
+    const locale =
+      primaryLocale && availableLocales.includes(primaryLocale)
+        ? primaryLocale
+        : (availableLocales[0] ?? DEFAULT_LOCALE)
+    mutableLocaleState.value = locale
+    if (typeof uni.setLocale === 'function') uni.setLocale(locale)
+  }
+}
+
+/** 获取当前接口配置的语言选项。 */
+export function getLanguageOptions(): LocaleOption[] {
+  return mutableLanguageOptions.value.length
+    ? mutableLanguageOptions.value
+    : getFallbackLanguageOptions()
+}
+
+/** 获取当前可切换的语言区域。 */
+export function getSupportedLocales(): SupportedLocale[] {
+  return getLanguageOptions().map((item) => item.language_code)
+}
+
+/** 注册所有模块贡献的语言包并校验七语键集合。 */
 export function registerLocaleMessages(modules: KratosAppModule[]): void {
   localeMessages.clear()
   SUPPORTED_LOCALES.forEach((locale) => localeMessages.set(locale, {}))
@@ -88,6 +179,7 @@ export function getLocaleRequestHeaders(): Record<'Accept-Language', SupportedLo
 /** 切换当前语言并通知需要刷新动态本地化数据的模块。 */
 export async function setCurrentLocale(value: SupportedLocale): Promise<void> {
   const locale = normalizeLocale(value)
+  if (!getSupportedLocales().includes(locale)) return
   if (locale === mutableLocaleState.value) return
   mutableLocaleState.value = locale
   uni.setStorageSync(LOCALE_STORAGE_KEY, locale)
@@ -131,4 +223,13 @@ function assertLocalePlaceholders(
   if (placeholders(message).join('\u0000') !== placeholders(sourceMessage).join('\u0000')) {
     throw new Error(`${moduleName} 的 ${key} 占位符集合不一致`)
   }
+}
+
+function getFallbackLanguageOptions(): LocaleOption[] {
+  return SUPPORTED_LOCALES.map((languageCode, sort) => ({
+    language_code: languageCode,
+    language_name: t(`common.language.${languageCode}`),
+    native_name: languageCode,
+    sort,
+  }))
 }

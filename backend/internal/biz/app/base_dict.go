@@ -7,6 +7,7 @@ import (
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
+	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 
@@ -21,13 +22,13 @@ type BaseDictCase struct {
 	*biz.BaseCase
 	*data.BaseDictRepository
 	baseDictItemCase *BaseDictItemCase
-	translationCase  *biz.TranslationCase
+	translationCase  *adminbiz.BaseTranslationCase
 	dictMapper       *mapper.CopierMapper[systemappv1.BaseDictForm, models.BaseDict]
 	itemMapper       *mapper.CopierMapper[systemappv1.BaseDictForm_DictItem, models.BaseDictItem]
 }
 
 // NewBaseDictCase 创建字典业务处理对象
-func NewBaseDictCase(baseCase *biz.BaseCase, baseDictRepo *data.BaseDictRepository, baseDictItemCase *BaseDictItemCase, translationCase *biz.TranslationCase) *BaseDictCase {
+func NewBaseDictCase(baseCase *biz.BaseCase, baseDictRepo *data.BaseDictRepository, baseDictItemCase *BaseDictItemCase, translationCase *adminbiz.BaseTranslationCase) *BaseDictCase {
 	return &BaseDictCase{
 		BaseCase:           baseCase,
 		BaseDictRepository: baseDictRepo,

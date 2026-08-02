@@ -49,6 +49,7 @@ import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBaseDictService } from "@liujitcn/kratos-admin-system/api/system/base_dict";
+import { loadEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
 import type { BaseDict, BaseDictForm, PageBaseDictRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dict";
 import router, { navigateTo } from "@liujitcn/kratos-admin-core/navigation";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
@@ -89,7 +90,7 @@ const formData = reactive<BaseDictForm>({
   code: "",
   /** 字典名称 */
   name: "",
-  /** 非默认语言翻译 */
+  /** 非主语言翻译 */
   translations: [],
   /** 状态 */
   status: Status.ENABLE
@@ -150,9 +151,7 @@ function renderDictNameCell(scope: RenderScope<BaseDict>) {
   return h(DynamicTranslationCell, {
     source: row.name,
     translations: row.translations,
-    textField: "name",
-    editable: BUTTONS.value["base:dict:update"],
-    onEdit: () => handleOpenDialog(row.id)
+    textField: "name"
   });
 }
 
@@ -244,6 +243,7 @@ const headerActions = computed<HeaderActionProps[]>(() => [
  * 请求字典列表，并由 ProTable 统一管理分页搜索。
  */
 async function requestBaseDictTable(params: PageBaseDictRequest) {
+  await loadEnabledBaseLanguages();
   const data = await defBaseDictService.PageBaseDict(buildPageRequest(params));
   return { data: { list: data.base_dicts ?? [], total: data.total } };
 }
@@ -258,16 +258,16 @@ function refreshTable() {
 /**
  * 打开字典编辑弹窗。
  */
-function handleOpenDialog(dictId?: number) {
+async function handleOpenDialog(dictId?: number) {
+  await loadEnabledBaseLanguages();
   resetForm();
   dialog.editing = Boolean(dictId);
   dialog.visible = true;
   if (!dictId) return;
 
-  defBaseDictService.GetBaseDict({ id: dictId }).then(data => {
-    Object.assign(formData, data);
-    translationValues.value = normalizeDynamicTranslations(data.translations as DynamicTranslationRecord[], "name");
-  });
+  const data = await defBaseDictService.GetBaseDict({ id: dictId });
+  Object.assign(formData, data);
+  translationValues.value = normalizeDynamicTranslations(data.translations as DynamicTranslationRecord[], "name");
 }
 
 /**
@@ -300,7 +300,7 @@ function handleSubmit() {
     if (!isValid) return;
 
     const submitData = JSON.parse(JSON.stringify(formData)) as BaseDictForm;
-    submitData.translations = serializeDynamicTranslations(translationValues.value, "name") as BaseDictTranslation[];
+    submitData.translations = serializeDynamicTranslations(translationValues.value, "name") as unknown as BaseDictTranslation[];
     const request = submitData.id
       ? defBaseDictService.UpdateBaseDict({ base_dict: submitData })
       : defBaseDictService.CreateBaseDict({ base_dict: submitData });

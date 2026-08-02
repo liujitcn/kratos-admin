@@ -31,6 +31,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		BaseDictTranslation:     newBaseDictTranslation(db, opts...),
 		BaseJob:                 newBaseJob(db, opts...),
 		BaseJobLog:              newBaseJobLog(db, opts...),
+		BaseLanguage:            newBaseLanguage(db, opts...),
 		BaseLog:                 newBaseLog(db, opts...),
 		BaseMenu:                newBaseMenu(db, opts...),
 		BaseMenuTranslation:     newBaseMenuTranslation(db, opts...),
@@ -63,6 +64,7 @@ type Query struct {
 	BaseDictTranslation     baseDictTranslation
 	BaseJob                 baseJob
 	BaseJobLog              baseJobLog
+	BaseLanguage            baseLanguage
 	BaseLog                 baseLog
 	BaseMenu                baseMenu
 	BaseMenuTranslation     baseMenuTranslation
@@ -96,6 +98,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		BaseDictTranslation:     q.BaseDictTranslation.clone(db),
 		BaseJob:                 q.BaseJob.clone(db),
 		BaseJobLog:              q.BaseJobLog.clone(db),
+		BaseLanguage:            q.BaseLanguage.clone(db),
 		BaseLog:                 q.BaseLog.clone(db),
 		BaseMenu:                q.BaseMenu.clone(db),
 		BaseMenuTranslation:     q.BaseMenuTranslation.clone(db),
@@ -136,6 +139,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		BaseDictTranslation:     q.BaseDictTranslation.replaceDB(db),
 		BaseJob:                 q.BaseJob.replaceDB(db),
 		BaseJobLog:              q.BaseJobLog.replaceDB(db),
+		BaseLanguage:            q.BaseLanguage.replaceDB(db),
 		BaseLog:                 q.BaseLog.replaceDB(db),
 		BaseMenu:                q.BaseMenu.replaceDB(db),
 		BaseMenuTranslation:     q.BaseMenuTranslation.replaceDB(db),
@@ -166,6 +170,7 @@ type queryCtx struct {
 	BaseDictTranslation     *baseDictTranslationDo
 	BaseJob                 *baseJobDo
 	BaseJobLog              *baseJobLogDo
+	BaseLanguage            *baseLanguageDo
 	BaseLog                 *baseLogDo
 	BaseMenu                *baseMenuDo
 	BaseMenuTranslation     *baseMenuTranslationDo
@@ -196,6 +201,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		BaseDictTranslation:     q.BaseDictTranslation.WithContext(ctx),
 		BaseJob:                 q.BaseJob.WithContext(ctx),
 		BaseJobLog:              q.BaseJobLog.WithContext(ctx),
+		BaseLanguage:            q.BaseLanguage.WithContext(ctx),
 		BaseLog:                 q.BaseLog.WithContext(ctx),
 		BaseMenu:                q.BaseMenu.WithContext(ctx),
 		BaseMenuTranslation:     q.BaseMenuTranslation.WithContext(ctx),

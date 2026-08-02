@@ -80,7 +80,7 @@ func RenderGeneratedMenuSQL(table *Table, columns []*CodeGenColumn, methods []*P
 	return builder.String()
 }
 
-// writeMenuTranslationSQL 写入菜单英语和日语译文，已有记录一律保留。
+// writeMenuTranslationSQL 写入启用的非主语言菜单译文，已有记录一律保留。
 func writeMenuTranslationSQL(builder *strings.Builder, menuIDExpression string, spec CodeGenMenuSpec) {
 	for _, localeValue := range RequiredTranslationLocales() {
 		title := spec.Translations[localeValue]
@@ -99,7 +99,9 @@ func writeMenuTranslationSQL(builder *strings.Builder, menuIDExpression string, 
 		builder.WriteString(", 256), '', NULL, 0, CURRENT_TIMESTAMP, 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0\n")
 		builder.WriteString("WHERE ")
 		builder.WriteString(menuIDExpression)
-		builder.WriteString(" IS NOT NULL AND NOT EXISTS (SELECT 1 FROM `base_menu_translation` WHERE `menu_id` = ")
+		builder.WriteString(" IS NOT NULL AND EXISTS (SELECT 1 FROM `base_language` WHERE `language_code` = ")
+		builder.WriteString(sqlString(localeValue))
+		builder.WriteString(" AND `is_primary` = 0 AND `status` = 1 AND `deleted_at` = 0) AND NOT EXISTS (SELECT 1 FROM `base_menu_translation` WHERE `menu_id` = ")
 		builder.WriteString(menuIDExpression)
 		builder.WriteString(" AND `locale` = ")
 		builder.WriteString(sqlString(localeValue))

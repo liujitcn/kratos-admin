@@ -1,9 +1,15 @@
 import type { Pinia } from 'pinia'
 import type { App, Component } from 'vue'
 import { registerKratosAppModules, type KratosAppModule } from './module'
-import { initializeLocale, registerLocaleChangeHandler, registerLocaleMessages } from './locales'
+import {
+  applyLanguageConfig,
+  initializeLocale,
+  registerLocaleChangeHandler,
+  registerLocaleMessages,
+} from './locales'
 import { initializeAppNavigation } from './navigation'
 import { useSettingStore } from './stores'
+import { defLanguageService } from './api/base/language'
 
 /** uni-app 启动参数。 */
 export interface KratosAppBootstrapOptions {
@@ -22,6 +28,14 @@ export function bootstrapKratosApp(options: KratosAppBootstrapOptions) {
   registerKratosAppModules(options.modules)
   registerLocaleMessages(options.modules)
   initializeLocale()
+  void defLanguageService
+    .GetLanguage({})
+    .then((response) => {
+      applyLanguageConfig(response)
+    })
+    .catch(() => {
+      // 语言公共接口失败时继续使用静态语言包和系统语言。
+    })
   registerLocaleChangeHandler(initializeAppNavigation)
   registerLocaleChangeHandler(() => useSettingStore(options.pinia).loadData())
   const app = options.createSSRApp(options.app)
