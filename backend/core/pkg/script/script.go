@@ -1,4 +1,3 @@
-// Package script 管理服务启动前执行的具名基础设施脚本。
 package script
 
 import (

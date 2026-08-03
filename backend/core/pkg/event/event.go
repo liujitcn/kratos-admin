@@ -1,4 +1,3 @@
-// Package event 提供类型安全的进程内发布订阅能力。
 package event
 
 import (

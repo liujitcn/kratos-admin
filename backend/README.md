@@ -18,13 +18,13 @@ backend
 │   └── pkg/{errorsx,projectdoc}      # 公共错误与文档能力
 ├── internal
 │   ├── agent                         # Eino Agent 适配
-│   ├── biz/{admin,app,base,event,job}
+│   ├── biz/{system/admin/v1,system/app/v1,base/v1,event,job}
 │   ├── cmd/server                    # 独立服务入口和内嵌 OpenAPI
 │   ├── config                        # 配置和数据库客户端装配
 │   ├── data                          # GORM 生成代码和队列适配
 │   ├── docs                          # Backend 内嵌项目文档目录
 │   ├── server                        # HTTP、gRPC、MCP、中间件和模块注册
-│   └── service/{admin,app,base}      # Proto 服务实现
+│   └── service/{system/admin/v1,system/app/v1,base/v1} # Proto 服务实现
 ├── migration/assets                  # 内嵌版本化 SQL
 ├── module                            # Backend 宿主契约（迁移、用户、AI、运行时）
 ├── bootstrap.go                      # 独立应用生命周期
@@ -134,7 +134,7 @@ migration/assets/
 
 后端支持的语言由 `internal/i18n/locales` 自动发现。`core/pkg/locale` 负责规范化 `Accept-Language`，locale 中间件将语言区域写入请求上下文，并在响应边界本地化结构化错误；动态菜单、字典和字典项的审核译文由版本化翻译表按请求语言解析，缺少当前语言译文时回退主语言。
 
-新增语言时，在 `internal/i18n/locales` 增加错误目录，并同步三个前端 workspace 的语言包和代码生成语言目录，然后从仓库根目录执行 `make i18n-sync`。脚本生成 `core/pkg/locale/manifest.json` 和前端注册产物，不需要修改 Go/TypeScript 源码。若新部署需要默认插入语言记录，执行 `make i18n-sync I18N_MIGRATION_VERSION=vX.Y.Z` 生成版本化迁移；`base_language` 的启用状态、排序和主语言标记仍由数据库维护。
+新增语言时，在 `internal/i18n/locales` 和三个前端 workspace 的六个语言包目录增加同名 JSON，并在代码生成 `catalog.json` 中增加同名数据，然后从仓库根目录执行 `make i18n-sync`。脚本生成 `core/pkg/locale/manifest.json` 和前端注册产物，不需要修改 Go/TypeScript 源码。若新部署需要默认插入语言记录，执行 `make i18n-sync I18N_MIGRATION_VERSION=vX.Y.Z` 生成版本化迁移；`base_language` 的启用状态、排序和主语言标记仍由数据库维护。具体文件清单见 [国际化语言扩展指南](../docs/国际化语言扩展指南.md)。
 
 ```bash
 make i18n-sync
@@ -143,7 +143,7 @@ make i18n-draft
 I18N_WRITE=1 make i18n-draft
 ```
 
-草稿命令的 Google V1 仅用于显式生成可审核的非主语言草稿，不进入普通业务请求链路；`make i18n-locales` 支持在线和 `I18N_OFFLINE=1` 离线生成；关闭 Provider 不影响主语言回退和已审核译文。
+草稿命令的 Google V1 仅用于显式生成可审核的非主语言草稿，不进入普通业务请求链路；`make i18n-locales` 是可选的批量语言包和动态翻译草稿生成器，支持在线和 `I18N_OFFLINE=1` 离线生成；关闭 Provider 不影响主语言回退和已审核译文。
 
 动态资源的主语言由 `base_language.is_primary` 配置。创建或更新菜单、字典、字典项和系统配置时，后端按请求 `Accept-Language` 将输入文本转换为主语言写入主表；请求语言不是主语言时，原文写入对应翻译表，其他已启用非主语言也只保存在翻译表。
 

@@ -12,10 +12,3 @@ var ModuleProviderSet = wire.NewSet(
 	NewAgentToolsReady,
 	NewGRPCMiddleware,
 )
-
-// ProviderSet 汇总 Backend 独立传输服务提供者。
-var ProviderSet = wire.NewSet(
-	ModuleProviderSet,
-	NewGRPCServer,
-	NewHTTPServer,
-)

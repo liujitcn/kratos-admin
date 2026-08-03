@@ -49,12 +49,6 @@ plugins:
     opt:
       - paths=source_relative # use relative paths
 
-  # 使用go-grpc插件生成gRPC服务代码
-#  - local: protoc-gen-go-service
-#    out: ../service_tmp
-#    opt:
-#      - paths=source_relative # 使用相对路径
-
   # 使用go-grpc插件生成 Agent Tool 代码
   - local: protoc-gen-go-agent-tool
     out: gen/go

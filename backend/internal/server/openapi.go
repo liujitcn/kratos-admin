@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	coreOpenAPI "github.com/liujitcn/kratos-admin/backend/core/pkg/openapi"
-	adminBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/admin"
+	adminBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/cmd/server/assets"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-kit/bootstrap"

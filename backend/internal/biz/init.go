@@ -9,9 +9,13 @@ import (
 	"github.com/liujitcn/kratos-kit/queue"
 )
 
-// ProviderSet 汇总业务层依赖注入提供者。
+// ProviderSet 汇总公共业务层依赖注入提供者。
 var ProviderSet = wire.NewSet(
 	NewBaseCase,
+)
+
+// InfrastructureProviderSet 汇总公共业务依赖的基础设施提供者。
+var InfrastructureProviderSet = wire.NewSet(
 	oss.NewOSS,
 	queue.NewQueue,
 	cache.NewCache,

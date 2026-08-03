@@ -1,4 +1,3 @@
-// Package sse 提供模块无关的 SSE 流注册与 JSON 发布能力。
 package sse
 
 import (

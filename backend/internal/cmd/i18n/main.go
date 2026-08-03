@@ -1,4 +1,3 @@
-// Package main 提供后端国际化目录检查和草稿补齐命令。
 package main
 
 import (

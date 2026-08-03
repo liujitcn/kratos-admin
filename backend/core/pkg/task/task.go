@@ -1,4 +1,3 @@
-// Package task 提供模块无关的任务注册、执行和 Cron 调度能力。
 package task
 
 import (

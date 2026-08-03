@@ -1,4 +1,3 @@
-// Package localgrpc 提供与生成 gRPC 客户端兼容的进程内调用连接。
 package localgrpc
 
 import (

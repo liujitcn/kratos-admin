@@ -6,7 +6,7 @@ logger:
 
   zap:
     level: "debug"
-    filepath: "./data/logs"
+    filepath: "./logs"
     max_size: 1
     max_age: 30
     max_backups: 5

@@ -1,6 +1,6 @@
 # Eino Agent 适配层
 
-`internal/agent` 隔离 CloudWeGo Eino 细节，供 `internal/biz/base/ai` 使用。它不负责会话落库、终端权限和前端协议，这些仍属于业务运行时。
+`internal/agent` 隔离 CloudWeGo Eino 细节，供 `internal/biz/base/v1/ai` 使用。它不负责会话落库、终端权限和前端协议，这些仍属于业务运行时。
 
 ## 子包
 
@@ -17,7 +17,7 @@
 
 ## 对话链路
 
-1. `biz/base/ai.Runtime` 组装历史、附件、提示词和候选工具。
+1. `biz/base/v1/ai.Runtime` 组装历史、附件、提示词和候选工具。
 2. `message` 转成 Eino `AgenticMessage`。
 3. `adk.Runner` 创建 ChatModelAgent，挂载 Callback 和 Middleware。
 4. `ToolFilterHandler` 在模型调用前只保留本轮允许的工具。
@@ -30,7 +30,7 @@
 
 ## 直接工具调用
 
-`biz/base/ai.Runtime.InvokeTool` 按终端取工具并交给 `tool.ExecuteCall`。执行前必须确认工具在本轮启用列表中；失败统一通过 `middleware.MarshalToolError` 返回稳定 JSON。Agent 循环和直接调用使用同一套工具开关与错误格式。
+`biz/base/v1/ai.Runtime.InvokeTool` 按终端取工具并交给 `tool.ExecuteCall`。执行前必须确认工具在本轮启用列表中；失败统一通过 `middleware.MarshalToolError` 返回稳定 JSON。Agent 循环和直接调用使用同一套工具开关与错误格式。
 
 ## 结构化任务
 
@@ -49,6 +49,6 @@
 ## 边界
 
 - 新的 Eino import、模型厂商选项和 Agent Middleware 优先收敛到本目录。
-- 业务工具筛选、数据库状态、终端权限和会话事务保留在 `internal/biz/base/ai`。
+- 业务工具筛选、数据库状态、终端权限和会话事务保留在 `internal/biz/base/v1/ai`。
 - 工具由生成代码或明确的运行时适配器提供，不在此复制 Proto 服务逻辑。
 - 更换 Agent 框架时可按同样的 model/message/tool/runner/workflow 边界增加平行适配，不改变上层会话协议。

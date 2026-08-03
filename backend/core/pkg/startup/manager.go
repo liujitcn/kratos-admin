@@ -1,4 +1,3 @@
-// Package startup 管理服务启动前的初始化钩子及其清理工作。
 package startup
 
 import (

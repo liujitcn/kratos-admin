@@ -1,4 +1,3 @@
-// Package openapi 管理当前进程启用的 OpenAPI 文档。
 package openapi
 
 import (

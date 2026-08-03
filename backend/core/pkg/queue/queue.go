@@ -1,4 +1,3 @@
-// Package queue 提供队列生命周期、结构化消息发布和解码能力。
 package queue
 
 import (

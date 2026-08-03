@@ -1,4 +1,3 @@
-// Package health 提供存活检查和可扩展就绪检查。
 package health
 
 import (

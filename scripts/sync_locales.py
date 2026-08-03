@@ -34,7 +34,7 @@ FRONTEND_GENERATED_FILES = {
 }
 
 BACKEND_MANIFEST = ROOT / "backend/core/pkg/locale/manifest.json"
-CODEGEN_CATALOG = ROOT / "backend/internal/biz/admin/codegen/locales/catalog.json"
+CODEGEN_CATALOG = ROOT / "backend/internal/biz/system/admin/v1/codegen/locales/catalog.json"
 DAYJS_LOCALE_DIRECTORY = ROOT / "frontend/admin/packages/core/node_modules/dayjs/locale"
 ELEMENT_LOCALE_DIRECTORY = ROOT / "frontend/admin/packages/core/node_modules/element-plus/es/locale/lang"
 MIGRATION_VERSION_PATTERN = re.compile(r"^v\d+\.\d+\.\d+$")

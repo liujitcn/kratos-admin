@@ -12,22 +12,23 @@ import (
 	coreSSE "github.com/liujitcn/kratos-admin/backend/core/pkg/sse"
 	einoModel "github.com/liujitcn/kratos-admin/backend/internal/agent/model"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
-	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/admin"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
+	basebiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/v1/ai"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/event"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/job"
+	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/v1"
+	admincodegen "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/v1/codegen"
+	appbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/app/v1"
 	systemConfig "github.com/liujitcn/kratos-admin/backend/internal/config"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/docs"
 	"github.com/liujitcn/kratos-admin/backend/internal/server"
-	adminserver "github.com/liujitcn/kratos-admin/backend/internal/server/admin"
-	appserver "github.com/liujitcn/kratos-admin/backend/internal/server/app"
-	baseserver "github.com/liujitcn/kratos-admin/backend/internal/server/base"
+	baseserver "github.com/liujitcn/kratos-admin/backend/internal/server/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware"
-	adminservice "github.com/liujitcn/kratos-admin/backend/internal/service/admin"
-	appservice "github.com/liujitcn/kratos-admin/backend/internal/service/app"
-	baseservice "github.com/liujitcn/kratos-admin/backend/internal/service/base"
+	adminserver "github.com/liujitcn/kratos-admin/backend/internal/server/system/admin/v1"
+	appserver "github.com/liujitcn/kratos-admin/backend/internal/server/system/app/v1"
+	service "github.com/liujitcn/kratos-admin/backend/internal/service"
 	backendmodule "github.com/liujitcn/kratos-admin/backend/module"
 	gormmigration "github.com/liujitcn/kratos-kit/database/gorm/migration"
 )
@@ -149,17 +150,24 @@ func registerModuleExtensions(modules server.Modules, aiRuntime *ai.Runtime, use
 // repositoryProviderSet 只装配仓储，数据库客户端统一由配置层完成多数据源和迁移初始化。
 var repositoryProviderSet = data.RepositoryProviderSet
 
+var migrationProviderSet = wire.NewSet(
+	gormmigration.NewRegistry,
+	gormmigration.NewRunner,
+	gormmigration.NewReady,
+)
+
 var moduleCommonProviderSet = wire.NewSet(
 	event.NewUserEvents,
 	job.ProviderSet,
 	coreSSE.NewRegistry,
 	coreSSE.NewPublisher,
-	wire.NewSet(
-		gormmigration.NewRegistry,
-		gormmigration.NewRunner,
-		gormmigration.NewReady,
-	),
+	migrationProviderSet,
 	biz.ProviderSet,
+	biz.InfrastructureProviderSet,
+	basebiz.ProviderSet,
+	adminbiz.ProviderSet,
+	appbiz.ProviderSet,
+	admincodegen.ProviderSet,
 	einoModel.NewResponsesClient,
 	ai.NewRuntime,
 	systemConfig.ProviderSet,
@@ -167,9 +175,7 @@ var moduleCommonProviderSet = wire.NewSet(
 	middleware.ProviderSet,
 	newAdditionalProjectDocuments,
 	newProjectDocumentCatalog,
-	adminservice.ProviderSet,
-	appservice.ProviderSet,
-	baseservice.ProviderSet,
+	service.ProviderSet,
 	baseserver.ProviderSet,
 	adminserver.ProviderSet,
 	appserver.ProviderSet,

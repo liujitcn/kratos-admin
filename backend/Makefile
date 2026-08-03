@@ -39,7 +39,6 @@ plugin:
 	@go install github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v3@latest
 	@go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
 	@go install github.com/envoyproxy/protoc-gen-validate@latest
-	@go install github.com/liujitcn/kratos-kit/cmd/protoc-gen-go-service@latest
 	@if [ -d ../../kratos-kit/cmd/protoc-gen-go-agent-tool ]; then \
 		cd ../../kratos-kit/cmd/protoc-gen-go-agent-tool && go install .; \
 	else \
@@ -99,7 +98,7 @@ i18n-draft:
 
 # 使用 OpenCC 和 Google V1 生成新增语言的语言包和迁移数据
 i18n-locales:
-	@python3 ../scripts/generate_zh_tw.py --write --machine $(if $(strip $(I18N_LOCALE)),--locale "$(I18N_LOCALE)",) $(if $(strip $(I18N_MIGRATION_VERSION)),--migration-version "$(I18N_MIGRATION_VERSION)",) $(if $(filter 1 true,$(I18N_OFFLINE)),--offline)
+	@python3 ../scripts/generate_locale_drafts.py --write --machine $(if $(strip $(I18N_LOCALE)),--locale "$(I18N_LOCALE)",) $(if $(strip $(I18N_MIGRATION_VERSION)),--migration-version "$(I18N_MIGRATION_VERSION)",) $(if $(filter 1 true,$(I18N_OFFLINE)),--offline)
 
 # 保留繁体中文命令别名
 i18n-zh-tw: i18n-locales

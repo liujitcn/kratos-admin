@@ -23,7 +23,7 @@
 | `frontend/admin` | 管理端 workspace，包含默认宿主、core、System 和 CLI。 | [frontend/admin/README.md](frontend/admin/README.md) |
 | `frontend/uni-app` | uni-app workspace，包含默认宿主、core、system 和 CLI。 | [frontend/uni-app/README.md](frontend/uni-app/README.md) |
 | `frontend/taro-app` | React/Taro workspace，包含默认宿主、core、UI、system 和 CLI。 | [frontend/taro-app/README.md](frontend/taro-app/README.md) |
-| `docs` | 当前架构和专题说明。 | [docs/系统总体设计.md](docs/系统总体设计.md) |
+| `docs` | 当前架构、操作流程和专题说明。 | [docs/README.md](docs/README.md) |
 
 ## 环境
 
@@ -116,7 +116,7 @@ pnpm build:mp-weixin
 
 语言包定义系统能够渲染的语言集合，`base_language` 表只负责运行时启用状态、名称、排序和主语言配置。管理端语言偏好保存为 `kratos-admin:locale`，uni-app 和 Taro 保存为 `kratos-app:locale`；所有 HTTP、刷新令牌、fetch、SSE、uni.request 和 Taro.request 请求都会发送规范化的 `Accept-Language`。固定文案由各 workspace 的 core/System JSON 语言包维护，动态菜单和字典由后端翻译表按请求语言解析，缺少当前语言译文时回退主语言。
 
-新增语言不需要修改 Go、TypeScript 或模块注册代码：在后端错误目录、三个 workspace 的 core/System 语言包和代码生成语言目录中增加同名语言文件或数据，然后执行 `make i18n-sync`。脚本会校验语言集合、语言键和占位符，并生成后端 manifest、六个前端注册文件、Element Plus 和 Day.js 映射。语言名称、排序、启用状态和主语言由 `base_language` 数据库记录提供；`common.language.*` 只作为离线回退，不需要为新增语言修改已有语言包。需要把语言加入新部署数据库时，再执行 `make i18n-sync I18N_MIGRATION_VERSION=vX.Y.Z`，提交脚本生成的版本化 `base_language` 迁移；已有数据库的启用状态不会被迁移覆盖。
+新增语言不需要修改 Go、TypeScript 或模块注册代码：在后端错误目录和三个 workspace 的六个前端语言包目录中增加同名 JSON，并在代码生成 `catalog.json` 中增加同名数据，然后执行 `make i18n-sync`。脚本会校验语言集合、语言键和占位符，并生成后端 manifest、六个前端注册文件、Element Plus 和 Day.js 映射。语言名称、排序、启用状态和主语言由 `base_language` 数据库记录提供；`common.language.*` 用于编译期离线显示和生成语言迁移的初始名称。新增语言的完整文件清单和迁移流程见 [国际化语言扩展指南](docs/国际化语言扩展指南.md)。需要把语言加入新部署数据库时，再执行 `make i18n-sync I18N_MIGRATION_VERSION=vX.Y.Z`，提交脚本生成的版本化 `base_language` 迁移；已有数据库的启用状态不会被迁移覆盖。
 
 动态资源的主语言由 `base_language.is_primary` 配置。创建或更新菜单、字典、字典项和系统配置时，后端按请求 `Accept-Language` 将输入文本转换为主语言写入主表；请求语言不是主语言时，原文写入对应翻译表，其他已启用非主语言也只保存在翻译表。
 
@@ -129,7 +129,7 @@ make -C backend i18n-draft
 I18N_WRITE=1 make -C backend i18n-draft
 ```
 
-`make -C backend i18n-locales` 默认生成现有语言包及迁移数据；新增语言可通过 `I18N_LOCALE=de-DE I18N_MIGRATION_VERSION=vX.Y.Z make -C backend i18n-locales` 指定，避免修改已发布迁移。在线生成使用 Google V1，离线环境可加 `I18N_OFFLINE=1` 使用内置术语表。机器翻译仅生成可审核草稿，不参与正常业务读取；Provider 不可用时不影响已审核译文和主语言回退。
+`make -C backend i18n-locales` 是可选的批量语言包/动态翻译草稿生成器；新增语言可通过 `I18N_LOCALE=de-DE I18N_MIGRATION_VERSION=vX.Y.Z make -C backend i18n-locales` 指定，并在提交前审核生成文件，避免修改已发布迁移。在线生成使用 Google V1，离线环境可加 `I18N_OFFLINE=1` 使用内置术语表。机器翻译仅生成可审核草稿，不参与正常业务读取；Provider 不可用时不影响已审核译文和主语言回退。
 
 ## 发布
 
@@ -172,3 +172,5 @@ make -C frontend publish
 | 登录和密码 | [docs/登录与密码加密流程.md](docs/登录与密码加密流程.md) |
 | AI 助手 | [docs/AI助手设计.md](docs/AI助手设计.md) |
 | 管理端组件 | [docs/前端组件清单.md](docs/前端组件清单.md) |
+| 国际化设计 | [docs/国际化最终方案.md](docs/国际化最终方案.md) |
+| 新增语言 | [docs/国际化语言扩展指南.md](docs/国际化语言扩展指南.md) |

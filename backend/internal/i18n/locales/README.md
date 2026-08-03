@@ -12,4 +12,6 @@
 | `fr-FR.json` | 法语错误消息目录。 | `Catalog.Localize` 按 `Accept-Language` 请求头选择。 |
 | `es-ES.json` | 西班牙语错误消息目录。 | `Catalog.Localize` 按 `Accept-Language` 请求头选择。 |
 
-这些文件必须保持标准 JSON，不能写 `//` 或 `/* ... */` 注释。修改后执行 `make i18n-sync` 和 `go run ./internal/cmd/i18n -mode check -root backend`，检查所有语言的键集合和占位符。
+这些文件必须保持标准 JSON，不能写 `//` 或 `/* ... */` 注释。修改后从仓库根目录执行 `make i18n-sync` 和 `make -C backend i18n-check`，检查所有语言的键集合和占位符。
+
+新增语言的完整文件清单见[国际化语言扩展指南](../../../../docs/国际化语言扩展指南.md)。

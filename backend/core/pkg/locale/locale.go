@@ -1,4 +1,3 @@
-// Package locale 提供项目统一的语言区域解析与上下文传递能力。
 package locale
 
 import (

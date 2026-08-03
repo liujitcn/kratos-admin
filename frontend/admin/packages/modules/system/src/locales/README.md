@@ -26,3 +26,5 @@
 语言包由生成的 `generated.ts` 传入 `systemAdminModule.messages`，由 core 的 `registerLocaleMessages` 校验语言键集合、命名空间和占位符后注册到 Vue I18n；业务代码统一使用 `t('system....')` 或 `useLocaleStore()` 读取。
 
 语言键必须使用 `system.` 命名空间；语言包保持标准 JSON，不在文件内写注释。
+
+新增语言的完整文件清单和迁移流程见[国际化语言扩展指南](../../../../../../docs/国际化语言扩展指南.md)。

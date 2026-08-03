@@ -1,4 +1,3 @@
-// Package i18n 提供后端错误消息目录与本地化能力。
 package i18n
 
 import (

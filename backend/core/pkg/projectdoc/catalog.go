@@ -1,4 +1,3 @@
-// Package projectdoc 提供可由 Backend 及外部模块共同贡献的项目文档目录。
 package projectdoc
 
 import (

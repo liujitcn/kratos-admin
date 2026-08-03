@@ -1,4 +1,3 @@
-// Package static 提供模块无关的静态资源与单页应用挂载能力。
 package static
 
 import (
