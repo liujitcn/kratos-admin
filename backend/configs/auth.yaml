@@ -21,6 +21,7 @@ authn:
         - "/base.v1.OauthService/CreateOauthSession"
         - "/base.v1.OauthService/BindOauthSession"
         - "/base.v1.OauthService/HandleOauthBindingCallback"
+        - "/base.v1.LanguageService/OptionLanguage"
     optional_auth:
       prefix:
       regex:

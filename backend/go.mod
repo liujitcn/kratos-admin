@@ -2,9 +2,6 @@ module github.com/liujitcn/kratos-admin/backend
 
 go 1.26.3
 
-// 本地构建直接引用当前工作树中的 core 语言区域实现。
-replace github.com/liujitcn/kratos-admin/backend/core => ./core
-
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260415201107-50325440f8f2.1
 	buf.build/go/protovalidate v1.2.0
@@ -22,7 +19,7 @@ require (
 	github.com/liujitcn/go-utils/http v0.0.5
 	github.com/liujitcn/go-utils/translator v0.0.1
 	github.com/liujitcn/gorm-kit v0.0.32
-	github.com/liujitcn/kratos-admin/backend/core v0.0.5
+	github.com/liujitcn/kratos-admin/backend/core v0.0.6
 	github.com/liujitcn/kratos-kit v0.0.64
 	github.com/liujitcn/kratos-kit/ai/eino v0.0.6
 	github.com/liujitcn/kratos-kit/api v0.0.24

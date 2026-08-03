@@ -60,6 +60,12 @@ func NewBaseLanguageServiceAgentTools(baseLanguageServiceServer BaseLanguageServ
 		return nil, err
 	}
 	ts = append(ts, setBaseLanguageStatusTool)
+	var setBaseLanguagePrimaryTool tool.InvokableTool
+	setBaseLanguagePrimaryTool, err = NewBaseLanguageServiceSetBaseLanguagePrimaryAgentTool(baseLanguageServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, setBaseLanguagePrimaryTool)
 	return ts, nil
 }
 
@@ -157,6 +163,20 @@ func NewBaseLanguageServiceSetBaseLanguageStatusAgentTool(baseLanguageServiceSer
 				req = &SetBaseLanguageStatusRequest{}
 			}
 			return baseLanguageServiceServer.SetBaseLanguageStatus(ctx, req)
+		},
+	)
+}
+
+// NewBaseLanguageServiceSetBaseLanguagePrimaryAgentTool 创建设置主语言的 Agent Tool。
+func NewBaseLanguageServiceSetBaseLanguagePrimaryAgentTool(baseLanguageServiceServer BaseLanguageServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetBaseLanguagePrimaryRequest, *emptypb.Empty](
+		"system_admin_v1_base_language_service_set_base_language_primary",
+		"设置主语言",
+		func(ctx context.Context, req *SetBaseLanguagePrimaryRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &SetBaseLanguagePrimaryRequest{}
+			}
+			return baseLanguageServiceServer.SetBaseLanguagePrimary(ctx, req)
 		},
 	)
 }

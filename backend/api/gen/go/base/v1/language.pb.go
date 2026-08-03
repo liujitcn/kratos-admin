@@ -24,27 +24,27 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 查询语言请求参数。
-type GetLanguageRequest struct {
+// 查询语言选项请求参数。
+type OptionLanguageRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetLanguageRequest) Reset() {
-	*x = GetLanguageRequest{}
+func (x *OptionLanguageRequest) Reset() {
+	*x = OptionLanguageRequest{}
 	mi := &file_base_v1_language_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetLanguageRequest) String() string {
+func (x *OptionLanguageRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetLanguageRequest) ProtoMessage() {}
+func (*OptionLanguageRequest) ProtoMessage() {}
 
-func (x *GetLanguageRequest) ProtoReflect() protoreflect.Message {
+func (x *OptionLanguageRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_base_v1_language_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -56,18 +56,16 @@ func (x *GetLanguageRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetLanguageRequest.ProtoReflect.Descriptor instead.
-func (*GetLanguageRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use OptionLanguageRequest.ProtoReflect.Descriptor instead.
+func (*OptionLanguageRequest) Descriptor() ([]byte, []int) {
 	return file_base_v1_language_proto_rawDescGZIP(), []int{0}
 }
 
-// 支持的语言。
+// 语言选择项。
 type LanguageItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	LanguageCode  string                 `protobuf:"bytes,1,opt,name=language_code,json=languageCode,proto3" json:"language_code,omitempty"` // 标准语言代码
-	LanguageName  string                 `protobuf:"bytes,2,opt,name=language_name,json=languageName,proto3" json:"language_name,omitempty"` // 语言名称
-	NativeName    string                 `protobuf:"bytes,3,opt,name=native_name,json=nativeName,proto3" json:"native_name,omitempty"`       // 本地语言名称
-	Sort          int32                  `protobuf:"varint,4,opt,name=sort,proto3" json:"sort,omitempty"`                                    // 排序，值越小越靠前
+	NativeName    string                 `protobuf:"bytes,2,opt,name=native_name,json=nativeName,proto3" json:"native_name,omitempty"`       // 本地语言名称
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -109,13 +107,6 @@ func (x *LanguageItem) GetLanguageCode() string {
 	return ""
 }
 
-func (x *LanguageItem) GetLanguageName() string {
-	if x != nil {
-		return x.LanguageName
-	}
-	return ""
-}
-
 func (x *LanguageItem) GetNativeName() string {
 	if x != nil {
 		return x.NativeName
@@ -123,36 +114,28 @@ func (x *LanguageItem) GetNativeName() string {
 	return ""
 }
 
-func (x *LanguageItem) GetSort() int32 {
-	if x != nil {
-		return x.Sort
-	}
-	return 0
+// 当前支持的语言选项查询结果。
+type OptionLanguageResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Languages     []*LanguageItem        `protobuf:"bytes,1,rep,name=languages,proto3" json:"languages,omitempty"` // 当前支持的语言列表
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
-// 当前支持的语言查询结果。
-type GetLanguageResponse struct {
-	state               protoimpl.MessageState `protogen:"open.v1"`
-	Languages           []*LanguageItem        `protobuf:"bytes,1,rep,name=languages,proto3" json:"languages,omitempty"`                                                  // 当前支持的语言列表
-	PrimaryLanguageCode string                 `protobuf:"bytes,2,opt,name=primary_language_code,json=primaryLanguageCode,proto3" json:"primary_language_code,omitempty"` // 主语言代码
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
-}
-
-func (x *GetLanguageResponse) Reset() {
-	*x = GetLanguageResponse{}
+func (x *OptionLanguageResponse) Reset() {
+	*x = OptionLanguageResponse{}
 	mi := &file_base_v1_language_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetLanguageResponse) String() string {
+func (x *OptionLanguageResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetLanguageResponse) ProtoMessage() {}
+func (*OptionLanguageResponse) ProtoMessage() {}
 
-func (x *GetLanguageResponse) ProtoReflect() protoreflect.Message {
+func (x *OptionLanguageResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_base_v1_language_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -164,42 +147,32 @@ func (x *GetLanguageResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetLanguageResponse.ProtoReflect.Descriptor instead.
-func (*GetLanguageResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use OptionLanguageResponse.ProtoReflect.Descriptor instead.
+func (*OptionLanguageResponse) Descriptor() ([]byte, []int) {
 	return file_base_v1_language_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *GetLanguageResponse) GetLanguages() []*LanguageItem {
+func (x *OptionLanguageResponse) GetLanguages() []*LanguageItem {
 	if x != nil {
 		return x.Languages
 	}
 	return nil
 }
 
-func (x *GetLanguageResponse) GetPrimaryLanguageCode() string {
-	if x != nil {
-		return x.PrimaryLanguageCode
-	}
-	return ""
-}
-
 var File_base_v1_language_proto protoreflect.FileDescriptor
 
 const file_base_v1_language_proto_rawDesc = "" +
 	"\n" +
-	"\x16base/v1/language.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\x14\n" +
-	"\x12GetLanguageRequest\"\xf8\x01\n" +
+	"\x16base/v1/language.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\x17\n" +
+	"\x15OptionLanguageRequest\"\x88\x01\n" +
 	"\fLanguageItem\x12=\n" +
-	"\rlanguage_code\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12标准语言代码R\flanguageCode\x127\n" +
-	"\rlanguage_name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f语言名称R\flanguageName\x129\n" +
-	"\vnative_name\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12本地语言名称R\n" +
-	"nativeName\x125\n" +
-	"\x04sort\x18\x04 \x01(\x05B!\xbaG\x1e\x92\x02\x1b排序，值越小越靠前R\x04sort\"\xb8\x01\n" +
-	"\x13GetLanguageResponse\x12V\n" +
-	"\tlanguages\x18\x01 \x03(\v2\x15.base.v1.LanguageItemB!\xbaG\x1e\x92\x02\x1b当前支持的语言列表R\tlanguages\x12I\n" +
-	"\x15primary_language_code\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f主语言代码R\x13primaryLanguageCode2z\n" +
-	"\x0fLanguageService\x12g\n" +
-	"\vGetLanguage\x12\x1b.base.v1.GetLanguageRequest\x1a\x1c.base.v1.GetLanguageResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/api/v1/base/languageB\x9d\x01\n" +
+	"\rlanguage_code\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12标准语言代码R\flanguageCode\x129\n" +
+	"\vnative_name\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12本地语言名称R\n" +
+	"nativeName\"p\n" +
+	"\x16OptionLanguageResponse\x12V\n" +
+	"\tlanguages\x18\x01 \x03(\v2\x15.base.v1.LanguageItemB!\xbaG\x1e\x92\x02\x1b当前支持的语言列表R\tlanguages2\x83\x01\n" +
+	"\x0fLanguageService\x12p\n" +
+	"\x0eOptionLanguage\x12\x1e.base.v1.OptionLanguageRequest\x1a\x1f.base.v1.OptionLanguageResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/api/v1/base/languageB\x9d\x01\n" +
 	"\vcom.base.v1B\rLanguageProtoP\x01ZBgithub.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1;basev1\xa2\x02\x03BXX\xaa\x02\aBase.V1\xca\x02\aBase\\V1\xe2\x02\x13Base\\V1\\GPBMetadata\xea\x02\bBase::V1b\x06proto3"
 
 var (
@@ -216,14 +189,14 @@ func file_base_v1_language_proto_rawDescGZIP() []byte {
 
 var file_base_v1_language_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_base_v1_language_proto_goTypes = []any{
-	(*GetLanguageRequest)(nil),  // 0: base.v1.GetLanguageRequest
-	(*LanguageItem)(nil),        // 1: base.v1.LanguageItem
-	(*GetLanguageResponse)(nil), // 2: base.v1.GetLanguageResponse
+	(*OptionLanguageRequest)(nil),  // 0: base.v1.OptionLanguageRequest
+	(*LanguageItem)(nil),           // 1: base.v1.LanguageItem
+	(*OptionLanguageResponse)(nil), // 2: base.v1.OptionLanguageResponse
 }
 var file_base_v1_language_proto_depIdxs = []int32{
-	1, // 0: base.v1.GetLanguageResponse.languages:type_name -> base.v1.LanguageItem
-	0, // 1: base.v1.LanguageService.GetLanguage:input_type -> base.v1.GetLanguageRequest
-	2, // 2: base.v1.LanguageService.GetLanguage:output_type -> base.v1.GetLanguageResponse
+	1, // 0: base.v1.OptionLanguageResponse.languages:type_name -> base.v1.LanguageItem
+	0, // 1: base.v1.LanguageService.OptionLanguage:input_type -> base.v1.OptionLanguageRequest
+	2, // 2: base.v1.LanguageService.OptionLanguage:output_type -> base.v1.OptionLanguageResponse
 	2, // [2:3] is the sub-list for method output_type
 	1, // [1:2] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name

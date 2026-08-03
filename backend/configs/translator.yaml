@@ -1,5 +1,5 @@
 translator:
-  enabled: false
+  enabled: true
   type: google
   timeout: 8s
   google:

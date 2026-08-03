@@ -61,6 +61,14 @@ service BaseLanguageService {
       body: "*"
     };
   }
+
+  // 设置主语言
+  rpc SetBaseLanguagePrimary(SetBaseLanguagePrimaryRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/language/{id}/primary"
+      body: "*"
+    };
+  }
 }
 
 // 语言选项查询条件
@@ -110,7 +118,7 @@ message BaseLanguageForm {
 
   int32 sort = 5 [(gnostic.openapi.v3.property) = {description: "排序，值越小越靠前"}, (buf.validate.field).cel = {id: "base_language.sort.required" message: "排序不能小于 0" expression: "this >= 0"}]; // 排序，值越小越靠前
 
-  bool is_primary = 6 [(gnostic.openapi.v3.property) = {description: "是否主语言"}]; // 是否主语言
+  reserved 6;
 
   .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "启用状态"}, (buf.validate.field).enum = {defined_only: true}]; // 启用状态
 }
@@ -156,4 +164,9 @@ message SetBaseLanguageStatusRequest {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "语言ID"}, (buf.validate.field).cel = {id: "set_base_language_status.id.required" message: "语言ID不能为空" expression: "this > 0"}]; // 语言ID
 
   .common.v1.Status status = 2 [(gnostic.openapi.v3.property) = {description: "启用状态"}, (buf.validate.field).enum = {defined_only: true}]; // 启用状态
+}
+
+// 设置主语言请求参数
+message SetBaseLanguagePrimaryRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "语言ID"}, (buf.validate.field).cel = {id: "set_base_language_primary.id.required" message: "语言ID不能为空" expression: "this > 0"}]; // 语言ID
 }

@@ -10,7 +10,7 @@ const userStore = useUserStore()
 const { locale, setLocale, t } = useI18n()
 const logoutLoading = ref(false)
 const localeOptions = computed(() => getLanguageOptions())
-const localeLabels = computed(() => localeOptions.value.map((item) => item.language_name))
+const localeLabels = computed(() => localeOptions.value.map((item) => item.native_name))
 const localeIndex = computed(() =>
   Math.max(
     0,

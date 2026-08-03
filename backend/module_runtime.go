@@ -66,9 +66,10 @@ func (r *Runtime) ProjectDocuments() []projectdoc.Document {
 	return r.projectDocumentCase.ProjectDocuments()
 }
 
-// Tasks 返回扩展模块贡献的静态任务。
+// Tasks 返回 Backend 内置和扩展模块贡献的任务执行器。
 func (r *Runtime) Tasks() []coreTask.Task {
-	return core.Modules(r.modules).Tasks()
+	tasks := core.Modules(r.modules).Tasks()
+	return append(tasks, r.translationTask.Task())
 }
 
 // QueueConsumers 返回扩展模块贡献的队列消费者。

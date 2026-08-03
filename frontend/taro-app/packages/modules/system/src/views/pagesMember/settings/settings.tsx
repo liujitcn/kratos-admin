@@ -18,7 +18,7 @@ export default function SettingsPage() {
   const authenticated = useUserStore((state) => state.isAuthenticated())
   const ensureAuthenticated = useUserStore((state) => state.ensureAuthenticated)
   const logout = useUserStore((state) => state.logout)
-  const localeLabels = useMemo(() => languageOptions.map((item) => item.language_name), [languageOptions])
+  const localeLabels = useMemo(() => languageOptions.map((item) => item.native_name), [languageOptions])
   const localeIndex = Math.max(0, languageOptions.findIndex((item) => item.language_code === locale))
 
   useEffect(() => {

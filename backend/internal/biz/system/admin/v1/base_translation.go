@@ -71,6 +71,11 @@ func (c *BaseTranslationCase) DraftEnabled() bool {
 	return c.draftConfig.Enabled
 }
 
+// CanTranslateConfigValue 判断系统配置值是否属于允许机器翻译的文本类型。
+func (c *BaseTranslationCase) CanTranslateConfigValue(configType int32) bool {
+	return isTranslatableConfigType(configType)
+}
+
 // GenerateTranslationDraft 为单个已保存资源生成并保存机器翻译草稿。
 func (c *BaseTranslationCase) GenerateTranslationDraft(ctx context.Context, req *systemadminv1.GenerateTranslationDraftRequest) (*systemadminv1.GenerateTranslationDraftResponse, error) {
 	if !c.DraftEnabled() {

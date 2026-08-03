@@ -92,3 +92,13 @@ func (s *BaseLanguageService) SetBaseLanguageStatus(ctx context.Context, req *sy
 	}
 	return new(emptypb.Empty), nil
 }
+
+// SetBaseLanguagePrimary 设置主语言。
+func (s *BaseLanguageService) SetBaseLanguagePrimary(ctx context.Context, req *systemadminv1.SetBaseLanguagePrimaryRequest) (*emptypb.Empty, error) {
+	err := s.baseLanguageCase.SetBaseLanguagePrimary(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("SetBaseLanguagePrimary %v", err))
+		return nil, errorsx.WrapInternal(err, "设置主语言失败")
+	}
+	return new(emptypb.Empty), nil
+}

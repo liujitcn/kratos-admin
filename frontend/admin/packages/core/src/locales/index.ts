@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 import { computed, readonly, ref } from "vue";
 import { createI18n } from "vue-i18n";
 import type { AdminModule } from "@/modules";
-import type { GetLanguageResponse } from "@/rpc/base/v1/language";
+import type { OptionLanguageResponse } from "@/rpc/base/v1/language";
 import {
   DAYJS_LOCALE_MAP,
   DEFAULT_LOCALE as GENERATED_DEFAULT_LOCALE,
@@ -43,7 +43,6 @@ export const adminI18n = createI18n({
   legacy: false,
   locale: DEFAULT_LOCALE,
   fallbackLocale: DEFAULT_LOCALE,
-  flatJson: true,
   messages: {},
   missingWarn: false,
   fallbackWarn: false
@@ -104,7 +103,7 @@ export function initializeLocale(): SupportedLocale {
 }
 
 /** 应用后端语言配置，并在当前语言不可用时回退到接口第一项。 */
-export function applyLanguageConfig(response: GetLanguageResponse): void {
+export function applyLanguageConfig(response: OptionLanguageResponse): void {
   const options = response.languages.reduce<LocaleOption[]>((items, item) => {
     const languageCode = parseSupportedLocale(item.language_code);
     if (!languageCode || items.some((option) => option.language_code === languageCode)) return items;

@@ -24,6 +24,7 @@ const OperationBaseLanguageServiceDeleteBaseLanguage = "/system.admin.v1.BaseLan
 const OperationBaseLanguageServiceGetBaseLanguage = "/system.admin.v1.BaseLanguageService/GetBaseLanguage"
 const OperationBaseLanguageServiceOptionBaseLanguage = "/system.admin.v1.BaseLanguageService/OptionBaseLanguage"
 const OperationBaseLanguageServicePageBaseLanguage = "/system.admin.v1.BaseLanguageService/PageBaseLanguage"
+const OperationBaseLanguageServiceSetBaseLanguagePrimary = "/system.admin.v1.BaseLanguageService/SetBaseLanguagePrimary"
 const OperationBaseLanguageServiceSetBaseLanguageStatus = "/system.admin.v1.BaseLanguageService/SetBaseLanguageStatus"
 const OperationBaseLanguageServiceUpdateBaseLanguage = "/system.admin.v1.BaseLanguageService/UpdateBaseLanguage"
 
@@ -38,6 +39,8 @@ type BaseLanguageServiceHTTPServer interface {
 	OptionBaseLanguage(context.Context, *OptionBaseLanguageRequest) (*OptionBaseLanguageResponse, error)
 	// PageBaseLanguage 查询语言分页列表
 	PageBaseLanguage(context.Context, *PageBaseLanguageRequest) (*PageBaseLanguageResponse, error)
+	// SetBaseLanguagePrimary 设置主语言
+	SetBaseLanguagePrimary(context.Context, *SetBaseLanguagePrimaryRequest) (*emptypb.Empty, error)
 	// SetBaseLanguageStatus 设置语言状态
 	SetBaseLanguageStatus(context.Context, *SetBaseLanguageStatusRequest) (*emptypb.Empty, error)
 	// UpdateBaseLanguage 更新语言
@@ -53,6 +56,7 @@ func RegisterBaseLanguageServiceHTTPServer(s *http.Server, srv BaseLanguageServi
 	r.Handle("PUT", "/api/v1/admin/base/language/{base_language.id}", _BaseLanguageService_UpdateBaseLanguage0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/base/language/{id}", _BaseLanguageService_DeleteBaseLanguage0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/language/{id}/status", _BaseLanguageService_SetBaseLanguageStatus0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/admin/base/language/{id}/primary", _BaseLanguageService_SetBaseLanguagePrimary0_HTTP_Handler(srv))
 }
 
 func _BaseLanguageService_OptionBaseLanguage0_HTTP_Handler(srv BaseLanguageServiceHTTPServer) func(ctx http.Context) error {
@@ -206,6 +210,28 @@ func _BaseLanguageService_SetBaseLanguageStatus0_HTTP_Handler(srv BaseLanguageSe
 	}
 }
 
+func _BaseLanguageService_SetBaseLanguagePrimary0_HTTP_Handler(srv BaseLanguageServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetBaseLanguagePrimaryRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseLanguageServiceSetBaseLanguagePrimary)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetBaseLanguagePrimary(ctx, req.(*SetBaseLanguagePrimaryRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BaseLanguageServiceHTTPClient interface {
 	// CreateBaseLanguage 创建语言
 	CreateBaseLanguage(ctx context.Context, req *CreateBaseLanguageRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -217,6 +243,8 @@ type BaseLanguageServiceHTTPClient interface {
 	OptionBaseLanguage(ctx context.Context, req *OptionBaseLanguageRequest, opts ...http.CallOption) (rsp *OptionBaseLanguageResponse, err error)
 	// PageBaseLanguage 查询语言分页列表
 	PageBaseLanguage(ctx context.Context, req *PageBaseLanguageRequest, opts ...http.CallOption) (rsp *PageBaseLanguageResponse, err error)
+	// SetBaseLanguagePrimary 设置主语言
+	SetBaseLanguagePrimary(ctx context.Context, req *SetBaseLanguagePrimaryRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// SetBaseLanguageStatus 设置语言状态
 	SetBaseLanguageStatus(ctx context.Context, req *SetBaseLanguageStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// UpdateBaseLanguage 更新语言
@@ -311,6 +339,24 @@ func (c *BaseLanguageServiceHTTPClientImpl) PageBaseLanguage(ctx context.Context
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// SetBaseLanguagePrimary 设置主语言
+func (c *BaseLanguageServiceHTTPClientImpl) SetBaseLanguagePrimary(ctx context.Context, in *SetBaseLanguagePrimaryRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/api/v1/admin/base/language/{id}/primary"
+	path := http.BuildPath(pattern, in)
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.ContentType("application/protojson"),
+		http.Operation(OperationBaseLanguageServiceSetBaseLanguagePrimary),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

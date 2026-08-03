@@ -1476,6 +1476,28 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/language/{id}/primary:
+        put:
+            tags:
+                - BaseLanguageService
+            description: 设置主语言
+            operationId: BaseLanguageService_SetBaseLanguagePrimary
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseLanguagePrimaryRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/language/{id}/status:
         put:
             tags:
@@ -3260,15 +3282,15 @@ paths:
         get:
             tags:
                 - LanguageService
-            description: 查询当前支持的语言和主语言。
-            operationId: LanguageService_GetLanguage
+            description: 查询当前支持的语言选项。
+            operationId: LanguageService_OptionLanguage
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/base.v1.GetLanguageResponse'
+                                $ref: '#/components/schemas/base.v1.OptionLanguageResponse'
     /api/v1/base/oauth/authorization:
         post:
             tags:
@@ -4082,18 +4104,6 @@ components:
                         $ref: '#/components/schemas/base.v1.ConfigItem'
                     description: 系统配置列表
             description: 系统配置查询结果
-        base.v1.GetLanguageResponse:
-            type: object
-            properties:
-                languages:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/base.v1.LanguageItem'
-                    description: 当前支持的语言列表
-                primary_language_code:
-                    type: string
-                    description: 主语言代码
-            description: 当前支持的语言查询结果。
         base.v1.HandleMcpRequest:
             type: object
             properties:
@@ -4115,17 +4125,10 @@ components:
                 language_code:
                     type: string
                     description: 标准语言代码
-                language_name:
-                    type: string
-                    description: 语言名称
                 native_name:
                     type: string
                     description: 本地语言名称
-                sort:
-                    type: integer
-                    description: 排序，值越小越靠前
-                    format: int32
-            description: 支持的语言。
+            description: 语言选择项。
         base.v1.ListAiMessageResponse:
             type: object
             properties:
@@ -4241,6 +4244,15 @@ components:
                     type: string
                     description: 登录方式标识
             description: 三方登录方式信息
+        base.v1.OptionLanguageResponse:
+            type: object
+            properties:
+                languages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.LanguageItem'
+                    description: 当前支持的语言列表
+            description: 当前支持的语言选项查询结果。
         base.v1.PasswordPublicKeyResponse:
             type: object
             properties:
@@ -5338,9 +5350,6 @@ components:
                     type: integer
                     description: 排序，值越小越靠前
                     format: int32
-                is_primary:
-                    type: boolean
-                    description: 是否主语言
                 status:
                     enum:
                         - UNKNOWN
@@ -7305,6 +7314,13 @@ components:
                     description: 状态
                     format: int32
             description: 设置定时任务状态请求参数
+        system.admin.v1.SetBaseLanguagePrimaryRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 语言ID
+            description: 设置主语言请求参数
         system.admin.v1.SetBaseLanguageStatusRequest:
             type: object
             properties:

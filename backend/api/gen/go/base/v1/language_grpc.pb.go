@@ -20,7 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	LanguageService_GetLanguage_FullMethodName = "/base.v1.LanguageService/GetLanguage"
+	LanguageService_OptionLanguage_FullMethodName = "/base.v1.LanguageService/OptionLanguage"
 )
 
 // LanguageServiceClient is the client API for LanguageService service.
@@ -29,8 +29,8 @@ const (
 //
 // 语言公共服务。
 type LanguageServiceClient interface {
-	// 查询当前支持的语言和主语言。
-	GetLanguage(ctx context.Context, in *GetLanguageRequest, opts ...grpc.CallOption) (*GetLanguageResponse, error)
+	// 查询当前支持的语言选项。
+	OptionLanguage(ctx context.Context, in *OptionLanguageRequest, opts ...grpc.CallOption) (*OptionLanguageResponse, error)
 }
 
 type languageServiceClient struct {
@@ -41,10 +41,10 @@ func NewLanguageServiceClient(cc grpc.ClientConnInterface) LanguageServiceClient
 	return &languageServiceClient{cc}
 }
 
-func (c *languageServiceClient) GetLanguage(ctx context.Context, in *GetLanguageRequest, opts ...grpc.CallOption) (*GetLanguageResponse, error) {
+func (c *languageServiceClient) OptionLanguage(ctx context.Context, in *OptionLanguageRequest, opts ...grpc.CallOption) (*OptionLanguageResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetLanguageResponse)
-	err := c.cc.Invoke(ctx, LanguageService_GetLanguage_FullMethodName, in, out, cOpts...)
+	out := new(OptionLanguageResponse)
+	err := c.cc.Invoke(ctx, LanguageService_OptionLanguage_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -57,8 +57,8 @@ func (c *languageServiceClient) GetLanguage(ctx context.Context, in *GetLanguage
 //
 // 语言公共服务。
 type LanguageServiceServer interface {
-	// 查询当前支持的语言和主语言。
-	GetLanguage(context.Context, *GetLanguageRequest) (*GetLanguageResponse, error)
+	// 查询当前支持的语言选项。
+	OptionLanguage(context.Context, *OptionLanguageRequest) (*OptionLanguageResponse, error)
 	mustEmbedUnimplementedLanguageServiceServer()
 }
 
@@ -69,8 +69,8 @@ type LanguageServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedLanguageServiceServer struct{}
 
-func (UnimplementedLanguageServiceServer) GetLanguage(context.Context, *GetLanguageRequest) (*GetLanguageResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetLanguage not implemented")
+func (UnimplementedLanguageServiceServer) OptionLanguage(context.Context, *OptionLanguageRequest) (*OptionLanguageResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method OptionLanguage not implemented")
 }
 func (UnimplementedLanguageServiceServer) mustEmbedUnimplementedLanguageServiceServer() {}
 func (UnimplementedLanguageServiceServer) testEmbeddedByValue()                         {}
@@ -93,20 +93,20 @@ func RegisterLanguageServiceServer(s grpc.ServiceRegistrar, srv LanguageServiceS
 	s.RegisterService(&LanguageService_ServiceDesc, srv)
 }
 
-func _LanguageService_GetLanguage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetLanguageRequest)
+func _LanguageService_OptionLanguage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OptionLanguageRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(LanguageServiceServer).GetLanguage(ctx, in)
+		return srv.(LanguageServiceServer).OptionLanguage(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: LanguageService_GetLanguage_FullMethodName,
+		FullMethod: LanguageService_OptionLanguage_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LanguageServiceServer).GetLanguage(ctx, req.(*GetLanguageRequest))
+		return srv.(LanguageServiceServer).OptionLanguage(ctx, req.(*OptionLanguageRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -119,8 +119,8 @@ var LanguageService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*LanguageServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetLanguage",
-			Handler:    _LanguageService_GetLanguage_Handler,
+			MethodName: "OptionLanguage",
+			Handler:    _LanguageService_OptionLanguage_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

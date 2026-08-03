@@ -14,22 +14,22 @@ import (
 
 // RegisterLanguageServiceMCPTools 注册语言公共服务的 MCP Tool。
 func RegisterLanguageServiceMCPTools(mcpServer *mcp.Server, languageServiceServer LanguageServiceServer) {
-	RegisterLanguageServiceGetLanguageMCPTool(mcpServer, languageServiceServer)
+	RegisterLanguageServiceOptionLanguageMCPTool(mcpServer, languageServiceServer)
 }
 
-// RegisterLanguageServiceGetLanguageMCPTool 注册查询当前支持的语言和主语言的 MCP Tool。
-func RegisterLanguageServiceGetLanguageMCPTool(mcpServer *mcp.Server, languageServiceServer LanguageServiceServer) {
-	mcp.AddTool[*GetLanguageRequest, *GetLanguageResponse](
+// RegisterLanguageServiceOptionLanguageMCPTool 注册查询当前支持的语言选项的 MCP Tool。
+func RegisterLanguageServiceOptionLanguageMCPTool(mcpServer *mcp.Server, languageServiceServer LanguageServiceServer) {
+	mcp.AddTool[*OptionLanguageRequest, *OptionLanguageResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "base_v1_language_service_get_language",
-			Description: "查询当前支持的语言和主语言。",
+			Name:        "base_v1_language_service_option_language",
+			Description: "查询当前支持的语言选项。",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetLanguageRequest) (*mcp.CallToolResult, *GetLanguageResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionLanguageRequest) (*mcp.CallToolResult, *OptionLanguageResponse, error) {
 			if input == nil {
-				input = &GetLanguageRequest{}
+				input = &OptionLanguageRequest{}
 			}
-			reply, err := languageServiceServer.GetLanguage(ctx, input)
+			reply, err := languageServiceServer.OptionLanguage(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

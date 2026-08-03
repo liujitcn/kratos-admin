@@ -5,10 +5,9 @@
 import Taro from '@tarojs/taro'
 import { create } from 'zustand'
 import type { KratosTaroModule } from '../module'
-import type { GetLanguageResponse } from '../rpc/base/v1/language'
+import type { OptionLanguageResponse } from '../rpc/base/v1/language'
 import {
   DEFAULT_LOCALE as GENERATED_DEFAULT_LOCALE,
-  LOCALE_MESSAGES,
   SUPPORTED_LOCALES as GENERATED_SUPPORTED_LOCALES,
   type GeneratedLocale,
 } from './generated'
@@ -26,12 +25,8 @@ export type LocaleParams = Record<string, string | number>
 export interface LocaleOption {
   /** 标准语言代码。 */
   language_code: SupportedLocale
-  /** 语言名称。 */
-  language_name: string
   /** 本地语言名称。 */
   native_name: string
-  /** 排序值。 */
-  sort: number
 }
 
 /** Taro 语言状态。 */
@@ -78,28 +73,23 @@ export function initializeLocale(): SupportedLocale {
   return locale
 }
 
-/** 应用后端语言配置，并在当前语言不可用时回退到接口主语言。 */
-export function applyLanguageConfig(response: GetLanguageResponse): void {
+/** 应用后端语言配置，并在当前语言不可用时回退到接口第一项。 */
+export function applyLanguageConfig(response: OptionLanguageResponse): void {
   const options = response.languages.reduce<LocaleOption[]>((items, item) => {
     const languageCode = parseSupportedLocale(item.language_code)
     if (!languageCode || items.some((option) => option.language_code === languageCode)) return items
     items.push({
       language_code: languageCode,
-      language_name: item.language_name || fallbackLanguageName(languageCode),
-      native_name: item.native_name || item.language_name || languageCode,
-      sort: item.sort,
+      native_name: item.native_name || languageCode,
     })
     return items
   }, [])
-  const languageOptions = options.length ? options.sort((left, right) => left.sort - right.sort) : getFallbackLanguageOptions()
+  const languageOptions = options.length ? options : getFallbackLanguageOptions()
   const supportedLocales = languageOptions.map((item) => item.language_code)
-  const primaryLocale = parseSupportedLocale(response.primary_language_code)
   const currentLocale = getCurrentLocale()
   const locale = supportedLocales.includes(currentLocale)
     ? currentLocale
-    : primaryLocale && supportedLocales.includes(primaryLocale)
-      ? primaryLocale
-      : supportedLocales[0] ?? DEFAULT_LOCALE
+    : supportedLocales[0] ?? DEFAULT_LOCALE
   useLocaleStore.setState({ locale, languageOptions, supportedLocales })
   if (locale !== currentLocale) Taro.setStorageSync(LOCALE_STORAGE_KEY, locale)
 }
@@ -205,19 +195,20 @@ function requiredLocaleKeys(messages: LocaleMessages): string[] {
 }
 
 function getFallbackLanguageOptions(): LocaleOption[] {
-  return SUPPORTED_LOCALES.map((languageCode, sort) => ({
+  return SUPPORTED_LOCALES.map((languageCode) => ({
     language_code: languageCode,
-    language_name: fallbackLanguageName(languageCode),
-    native_name: languageCode,
-    sort,
+    native_name: fallbackNativeLanguageName(languageCode),
   }))
 }
 
-function fallbackLanguageName(languageCode: SupportedLocale): string {
-  const key = `common.language.${languageCode}`
-  const messages = LOCALE_MESSAGES as Record<string, Record<string, string>>
-  const currentMessage = messages[getCurrentLocale()]?.[key]
-  const defaultMessage = messages[DEFAULT_LOCALE]?.[key]
-  const anyMessage = Object.values(messages).map((item) => item[key]).find(Boolean)
-  return currentMessage || defaultMessage || anyMessage || languageCode
+function fallbackNativeLanguageName(languageCode: SupportedLocale): string {
+  return {
+    'zh-CN': '简体中文',
+    'zh-TW': '繁體中文',
+    'en-US': 'English',
+    'ja-JP': '日本語',
+    'ko-KR': '한국어',
+    'fr-FR': 'Français',
+    'es-ES': 'Español',
+  }[languageCode]
 }

@@ -62,8 +62,6 @@ export interface BaseLanguageForm {
   native_name: string;
   /** 排序，值越小越靠前 */
   sort: number;
-  /** 是否主语言 */
-  is_primary: boolean;
   /** 启用状态 */
   status: Status;
 }
@@ -116,6 +114,12 @@ export interface SetBaseLanguageStatusRequest {
   status: Status;
 }
 
+/** 设置主语言请求参数 */
+export interface SetBaseLanguagePrimaryRequest {
+  /** 语言ID */
+  id: number;
+}
+
 /** Admin语言管理服务 */
 export interface BaseLanguageService {
   /** 查询启用语言选项 */
@@ -132,4 +136,6 @@ export interface BaseLanguageService {
   DeleteBaseLanguage(request: DeleteBaseLanguageRequest): Promise<Empty>;
   /** 设置语言状态 */
   SetBaseLanguageStatus(request: SetBaseLanguageStatusRequest): Promise<Empty>;
+  /** 设置主语言 */
+  SetBaseLanguagePrimary(request: SetBaseLanguagePrimaryRequest): Promise<Empty>;
 }

@@ -1,5 +1,4 @@
 import service from "@liujitcn/kratos-admin-core/request";
-import { defLanguageService } from "@liujitcn/kratos-admin-core";
 import { readonly, shallowRef } from "vue";
 import {
 	type BaseLanguage,
@@ -12,10 +11,10 @@ import {
   type OptionBaseLanguageResponse,
   type PageBaseLanguageRequest,
   type PageBaseLanguageResponse,
+  type SetBaseLanguagePrimaryRequest,
   type SetBaseLanguageStatusRequest,
   type UpdateBaseLanguageRequest
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_language";
-import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import type { Empty } from "@liujitcn/kratos-admin-system/rpc/google/protobuf/empty";
 
 const BASE_LANGUAGE_URL = "/v1/admin/base/language";
@@ -82,6 +81,15 @@ export class BaseLanguageServiceImpl implements BaseLanguageService {
       data: request
     });
   }
+
+  /** 设置主语言。 */
+  SetBaseLanguagePrimary(request: SetBaseLanguagePrimaryRequest): Promise<Empty> {
+    return service<SetBaseLanguagePrimaryRequest, Empty>({
+      url: `${BASE_LANGUAGE_URL}/${request.id}/primary`,
+      method: "put",
+      data: request
+    });
+  }
 }
 
 export const defBaseLanguageService = new BaseLanguageServiceImpl();
@@ -97,20 +105,10 @@ export async function loadEnabledBaseLanguages(force = false): Promise<BaseLangu
   if (enabledBaseLanguagesRequest) return enabledBaseLanguagesRequest;
   if (!force && enabledBaseLanguages.value.length) return enabledBaseLanguages.value;
 
-  enabledBaseLanguagesRequest = defLanguageService
-    .GetLanguage({})
+  enabledBaseLanguagesRequest = defBaseLanguageService
+    .OptionBaseLanguage({ enabled_only: true })
     .then(response => {
-      const languages = (response.languages ?? []).map(item => ({
-        id: 0,
-        language_code: item.language_code,
-        language_name: item.language_name,
-        native_name: item.native_name,
-        sort: item.sort,
-        is_primary: item.language_code === response.primary_language_code,
-        status: Status.ENABLE,
-        created_at: "",
-        updated_at: ""
-      }));
+      const languages = response.base_languages ?? [];
       enabledBaseLanguages.value = languages;
       return languages;
     })

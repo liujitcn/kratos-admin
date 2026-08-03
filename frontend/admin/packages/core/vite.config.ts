@@ -43,6 +43,7 @@ export function defineAdminViteConfig(options: AdminViteConfigOptions = {}) {
       packageRoot: coreRoot,
       sourceRoot: coreSourceRoot
     };
+    const dayjsLocaleDependencies = readDayjsLocaleDependencies(coreSourceRoot);
     const modulePackages = (options.modulePackages ?? []).map(packageName => ({
       packageName,
       ...resolvePackageSource(root, packageName)
@@ -87,6 +88,7 @@ export function defineAdminViteConfig(options: AdminViteConfigOptions = {}) {
           "@liujitcn/kratos-admin-core > dayjs/plugin/localeData.js",
           "@liujitcn/kratos-admin-core > dayjs/plugin/weekOfYear.js",
           "@liujitcn/kratos-admin-core > dayjs/plugin/weekYear.js",
+          ...dayjsLocaleDependencies,
           "@liujitcn/kratos-admin-core > dompurify",
           "@liujitcn/kratos-admin-core > highlight.js",
           "@liujitcn/kratos-admin-core > md-editor-v3",
@@ -171,6 +173,16 @@ function readPackageInfo(root: string) {
   const packageJson = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
   const { dependencies = {}, devDependencies = {}, name = "admin-app", version = "0.0.0" } = packageJson;
   return { dependencies, devDependencies, name, version };
+}
+
+/** 从生成的语言注册文件读取 Day.js locale 预构建入口。 */
+function readDayjsLocaleDependencies(sourceRoot: string): string[] {
+  const generatedPath = resolve(sourceRoot, "locales/generated.ts");
+  if (!existsSync(generatedPath)) return [];
+  const generatedSource = readFileSync(generatedPath, "utf8");
+  return [...generatedSource.matchAll(/import "dayjs\/locale\/([^"]+)"/g)].map(
+    match => `@liujitcn/kratos-admin-core > dayjs/locale/${match[1]}`
+  );
 }
 
 /** 解析业务模块在当前宿主中的源码目录。 */

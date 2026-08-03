@@ -29,7 +29,7 @@ export function bootstrapKratosApp(options: KratosAppBootstrapOptions) {
   registerLocaleMessages(options.modules)
   initializeLocale()
   void defLanguageService
-    .GetLanguage({})
+    .OptionLanguage({})
     .then((response) => {
       applyLanguageConfig(response)
     })

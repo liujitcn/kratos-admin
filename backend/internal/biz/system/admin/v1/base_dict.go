@@ -216,30 +216,7 @@ func (c *BaseDictCase) CreateBaseDict(ctx context.Context, req *systemadminv1.Ba
 	if err != nil {
 		return err
 	}
-	if !c.translationCase.DraftEnabled() {
-		return nil
-	}
-
-	manualLocales := make(map[string]struct{}, len(translations))
-	for _, translation := range translations {
-		if translation.GetName() != "" {
-			manualLocales[translation.GetLocale()] = struct{}{}
-		}
-	}
-	var locales []string
-	locales, err = c.translationCase.EditableLocales(ctx)
-	if err != nil {
-		return err
-	}
-	for _, localeValue := range locales {
-		if _, ok := manualLocales[localeValue]; ok {
-			continue
-		}
-		err = c.translationCase.GenerateDictTranslationDraft(ctx, baseDict.ID, sourceText, sourceLocale, localeValue, baseDict.Name)
-		if err != nil {
-			return err
-		}
-	}
+	// 机器译文由后台定时任务异步生成，避免外部翻译服务影响字典主流程。
 	return nil
 }
 

@@ -22,11 +22,11 @@ func NewLanguageService(languageCase *biz.LanguageCase) *LanguageService {
 	return &LanguageService{languageCase: languageCase}
 }
 
-// GetLanguage 查询当前支持的语言和主语言。
-func (s *LanguageService) GetLanguage(ctx context.Context, req *basev1.GetLanguageRequest) (*basev1.GetLanguageResponse, error) {
-	resp, err := s.languageCase.GetLanguage(ctx, req)
+// OptionLanguage 查询当前支持的语言选项。
+func (s *LanguageService) OptionLanguage(ctx context.Context, req *basev1.OptionLanguageRequest) (*basev1.OptionLanguageResponse, error) {
+	resp, err := s.languageCase.OptionLanguage(ctx, req)
 	if err != nil {
-		log.Error(fmt.Sprintf("GetLanguage %v", err))
+		log.Error(fmt.Sprintf("OptionLanguage %v", err))
 		return nil, errorsx.WrapInternal(err, "查询语言失败")
 	}
 	return resp, nil

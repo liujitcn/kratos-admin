@@ -97,7 +97,7 @@ export default function LoginPage() {
   const [miniForm, setMiniForm] = useState(emptyLoginForm)
   const [miniPassword, setMiniPassword] = useState('')
 
-  const currentLanguageName = languageOptions.find((item) => item.language_code === locale)?.language_name || locale
+  const currentLanguageName = languageOptions.find((item) => item.language_code === locale)?.native_name || locale
   const mainTitle = settings?.get('mainTitle') || t('core.home.mainTitle')
   const subTitle = settings?.get('subTitle') || t('core.login.defaultSubTitle')
   const appLogo = settings?.get('appLogo') || defaultLogo
@@ -444,7 +444,7 @@ export default function LoginPage() {
       <Picker
         className='login-locale'
         mode='selector'
-        range={languageOptions.map((item) => item.language_name)}
+        range={languageOptions.map((item) => item.native_name)}
         value={Math.max(0, languageOptions.findIndex((item) => item.language_code === locale))}
         onChange={(event) => {
           const nextLocale = languageOptions[Number(event.detail.value)]?.language_code as SupportedLocale | undefined

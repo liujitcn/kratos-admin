@@ -18,40 +18,40 @@ var _ = new(context.Context)
 
 const _ = http.SupportPackageIsVersion3
 
-const OperationLanguageServiceGetLanguage = "/base.v1.LanguageService/GetLanguage"
+const OperationLanguageServiceOptionLanguage = "/base.v1.LanguageService/OptionLanguage"
 
 type LanguageServiceHTTPServer interface {
-	// GetLanguage 查询当前支持的语言和主语言。
-	GetLanguage(context.Context, *GetLanguageRequest) (*GetLanguageResponse, error)
+	// OptionLanguage 查询当前支持的语言选项。
+	OptionLanguage(context.Context, *OptionLanguageRequest) (*OptionLanguageResponse, error)
 }
 
 func RegisterLanguageServiceHTTPServer(s *http.Server, srv LanguageServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/base/language", _LanguageService_GetLanguage0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/base/language", _LanguageService_OptionLanguage0_HTTP_Handler(srv))
 }
 
-func _LanguageService_GetLanguage0_HTTP_Handler(srv LanguageServiceHTTPServer) func(ctx http.Context) error {
+func _LanguageService_OptionLanguage0_HTTP_Handler(srv LanguageServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in GetLanguageRequest
+		var in OptionLanguageRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationLanguageServiceGetLanguage)
+		http.SetOperation(ctx, OperationLanguageServiceOptionLanguage)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetLanguage(ctx, req.(*GetLanguageRequest))
+			return srv.OptionLanguage(ctx, req.(*OptionLanguageRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*GetLanguageResponse)
+		reply := out.(*OptionLanguageResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
 type LanguageServiceHTTPClient interface {
-	// GetLanguage 查询当前支持的语言和主语言。
-	GetLanguage(ctx context.Context, req *GetLanguageRequest, opts ...http.CallOption) (rsp *GetLanguageResponse, err error)
+	// OptionLanguage 查询当前支持的语言选项。
+	OptionLanguage(ctx context.Context, req *OptionLanguageRequest, opts ...http.CallOption) (rsp *OptionLanguageResponse, err error)
 }
 
 type LanguageServiceHTTPClientImpl struct {
@@ -62,14 +62,14 @@ func NewLanguageServiceHTTPClient(client *http.Client) LanguageServiceHTTPClient
 	return &LanguageServiceHTTPClientImpl{client}
 }
 
-// GetLanguage 查询当前支持的语言和主语言。
-func (c *LanguageServiceHTTPClientImpl) GetLanguage(ctx context.Context, in *GetLanguageRequest, opts ...http.CallOption) (*GetLanguageResponse, error) {
-	var out GetLanguageResponse
+// OptionLanguage 查询当前支持的语言选项。
+func (c *LanguageServiceHTTPClientImpl) OptionLanguage(ctx context.Context, in *OptionLanguageRequest, opts ...http.CallOption) (*OptionLanguageResponse, error) {
+	var out OptionLanguageResponse
 	pattern := "/api/v1/base/language"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
-		http.Operation(OperationLanguageServiceGetLanguage),
+		http.Operation(OperationLanguageServiceOptionLanguage),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

@@ -30,6 +30,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/service/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/service/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/service/system/app/v1"
+	admin3 "github.com/liujitcn/kratos-admin/backend/internal/task/system/admin"
 	"github.com/liujitcn/kratos-kit/bootstrap"
 	"github.com/liujitcn/kratos-kit/cache"
 	"github.com/liujitcn/kratos-kit/database/gorm"
@@ -356,6 +357,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	modules := newModules(services, adminServices, appServices, additionalModules)
 	httpMiddlewares := server.NewHTTPMiddleware(context, authenticator, baseUserRepository, engine, userToken, authentication_Jwt)
 	grpcMiddlewares := server.NewGRPCMiddleware(context, authenticator, baseUserRepository, engine, userToken, authentication_Jwt)
+	baseTranslationTask := admin3.NewBaseTranslationTask(baseTranslationCase, baseMenuRepository, baseMenuTranslationRepository, baseDictRepository, baseDictTranslationRepository, baseDictItemRepository, baseDictItemTranslationRepository, baseConfigRepository, baseConfigTranslationRepository)
 	mcpToolsReady := server.NewMCPToolsReady(mcpServer, modules)
 	agentToolsReady, err := server.NewAgentToolsReady(runtime, modules)
 	if err != nil {
@@ -373,7 +375,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 		cleanup()
 		return nil, nil, err
 	}
-	kratosadminRuntime, err := newRuntime(modules, httpMiddlewares, grpcMiddlewares, cronServer, openapiRegistry, baseConfigCase, projectDocumentCase, runtime, userEvents, mcpToolsReady, agentToolsReady, openAPIReady)
+	kratosadminRuntime, err := newRuntime(modules, httpMiddlewares, grpcMiddlewares, cronServer, taskRegistry, baseTranslationTask, openapiRegistry, baseConfigCase, projectDocumentCase, runtime, userEvents, mcpToolsReady, agentToolsReady, openAPIReady)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -703,6 +705,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 	modules := newModules(services, adminServices, appServices, additionalModules)
 	httpMiddlewares := server.NewHTTPMiddleware(context, authenticator, baseUserRepository, engine, userToken, authentication_Jwt)
 	grpcMiddlewares := server.NewGRPCMiddleware(context, authenticator, baseUserRepository, engine, userToken, authentication_Jwt)
+	baseTranslationTask := admin3.NewBaseTranslationTask(baseTranslationCase, baseMenuRepository, baseMenuTranslationRepository, baseDictRepository, baseDictTranslationRepository, baseDictItemRepository, baseDictItemTranslationRepository, baseConfigRepository, baseConfigTranslationRepository)
 	mcpToolsReady := server.NewMCPToolsReady(mcpServer, modules)
 	agentToolsReady, err := server.NewAgentToolsReady(runtime, modules)
 	if err != nil {
@@ -720,7 +723,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 		cleanup()
 		return nil, nil, err
 	}
-	kratosadminRuntime, err := newRuntime(modules, httpMiddlewares, grpcMiddlewares, cronServer, openapiRegistry, baseConfigCase, projectDocumentCase, runtime, userEvents, mcpToolsReady, agentToolsReady, openAPIReady)
+	kratosadminRuntime, err := newRuntime(modules, httpMiddlewares, grpcMiddlewares, cronServer, taskRegistry, baseTranslationTask, openapiRegistry, baseConfigCase, projectDocumentCase, runtime, userEvents, mcpToolsReady, agentToolsReady, openAPIReady)
 	if err != nil {
 		cleanup4()
 		cleanup3()

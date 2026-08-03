@@ -40,7 +40,7 @@ func NewApp(ctx *bootstrap.Context, optionValues ...Option) (*kratos.App, func()
 	)
 }
 
-// newStandaloneRuntime 收集扩展模块仅在独立部署形态下需要落地的运行时贡献。
+// newStandaloneRuntime 收集 Backend 仅在独立部署形态下需要落地的运行时贡献。
 func newStandaloneRuntime(
 	ctx *bootstrap.Context,
 	runtime *Runtime,
@@ -54,10 +54,6 @@ func newStandaloneRuntime(
 	modules.SetSSEPublisher(ssePublisher)
 	modules.SetSSERegistry(sseRegistry)
 	var err error
-	err = taskRegistry.Register(modules.Tasks()...)
-	if err != nil {
-		return nil, nil, fmt.Errorf("注册扩展模块任务: %w", err)
-	}
 	err = sseRegistry.Register(modules.SSEStreams()...)
 	if err != nil {
 		return nil, nil, fmt.Errorf("注册扩展模块 SSE 流: %w", err)

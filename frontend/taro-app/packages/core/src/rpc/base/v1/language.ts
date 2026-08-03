@@ -6,32 +6,26 @@
 
 /* eslint-disable */
 
-/** 查询语言请求参数。 */
-export interface GetLanguageRequest {
+/** 查询语言选项请求参数。 */
+export interface OptionLanguageRequest {
 }
 
-/** 支持的语言。 */
+/** 语言选择项。 */
 export interface LanguageItem {
   /** 标准语言代码 */
   language_code: string;
-  /** 语言名称 */
-  language_name: string;
   /** 本地语言名称 */
   native_name: string;
-  /** 排序，值越小越靠前 */
-  sort: number;
 }
 
-/** 当前支持的语言查询结果。 */
-export interface GetLanguageResponse {
+/** 当前支持的语言选项查询结果。 */
+export interface OptionLanguageResponse {
   /** 当前支持的语言列表 */
   languages: LanguageItem[];
-  /** 主语言代码 */
-  primary_language_code: string;
 }
 
 /** 语言公共服务。 */
 export interface LanguageService {
-  /** 查询当前支持的语言和主语言。 */
-  GetLanguage(request: GetLanguageRequest): Promise<GetLanguageResponse>;
+  /** 查询当前支持的语言选项。 */
+  OptionLanguage(request: OptionLanguageRequest): Promise<OptionLanguageResponse>;
 }

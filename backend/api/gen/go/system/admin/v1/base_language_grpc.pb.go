@@ -21,13 +21,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BaseLanguageService_OptionBaseLanguage_FullMethodName    = "/system.admin.v1.BaseLanguageService/OptionBaseLanguage"
-	BaseLanguageService_PageBaseLanguage_FullMethodName      = "/system.admin.v1.BaseLanguageService/PageBaseLanguage"
-	BaseLanguageService_GetBaseLanguage_FullMethodName       = "/system.admin.v1.BaseLanguageService/GetBaseLanguage"
-	BaseLanguageService_CreateBaseLanguage_FullMethodName    = "/system.admin.v1.BaseLanguageService/CreateBaseLanguage"
-	BaseLanguageService_UpdateBaseLanguage_FullMethodName    = "/system.admin.v1.BaseLanguageService/UpdateBaseLanguage"
-	BaseLanguageService_DeleteBaseLanguage_FullMethodName    = "/system.admin.v1.BaseLanguageService/DeleteBaseLanguage"
-	BaseLanguageService_SetBaseLanguageStatus_FullMethodName = "/system.admin.v1.BaseLanguageService/SetBaseLanguageStatus"
+	BaseLanguageService_OptionBaseLanguage_FullMethodName     = "/system.admin.v1.BaseLanguageService/OptionBaseLanguage"
+	BaseLanguageService_PageBaseLanguage_FullMethodName       = "/system.admin.v1.BaseLanguageService/PageBaseLanguage"
+	BaseLanguageService_GetBaseLanguage_FullMethodName        = "/system.admin.v1.BaseLanguageService/GetBaseLanguage"
+	BaseLanguageService_CreateBaseLanguage_FullMethodName     = "/system.admin.v1.BaseLanguageService/CreateBaseLanguage"
+	BaseLanguageService_UpdateBaseLanguage_FullMethodName     = "/system.admin.v1.BaseLanguageService/UpdateBaseLanguage"
+	BaseLanguageService_DeleteBaseLanguage_FullMethodName     = "/system.admin.v1.BaseLanguageService/DeleteBaseLanguage"
+	BaseLanguageService_SetBaseLanguageStatus_FullMethodName  = "/system.admin.v1.BaseLanguageService/SetBaseLanguageStatus"
+	BaseLanguageService_SetBaseLanguagePrimary_FullMethodName = "/system.admin.v1.BaseLanguageService/SetBaseLanguagePrimary"
 )
 
 // BaseLanguageServiceClient is the client API for BaseLanguageService service.
@@ -50,6 +51,8 @@ type BaseLanguageServiceClient interface {
 	DeleteBaseLanguage(ctx context.Context, in *DeleteBaseLanguageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 设置语言状态
 	SetBaseLanguageStatus(ctx context.Context, in *SetBaseLanguageStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 设置主语言
+	SetBaseLanguagePrimary(ctx context.Context, in *SetBaseLanguagePrimaryRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type baseLanguageServiceClient struct {
@@ -130,6 +133,16 @@ func (c *baseLanguageServiceClient) SetBaseLanguageStatus(ctx context.Context, i
 	return out, nil
 }
 
+func (c *baseLanguageServiceClient) SetBaseLanguagePrimary(ctx context.Context, in *SetBaseLanguagePrimaryRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, BaseLanguageService_SetBaseLanguagePrimary_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BaseLanguageServiceServer is the server API for BaseLanguageService service.
 // All implementations must embed UnimplementedBaseLanguageServiceServer
 // for forward compatibility.
@@ -150,6 +163,8 @@ type BaseLanguageServiceServer interface {
 	DeleteBaseLanguage(context.Context, *DeleteBaseLanguageRequest) (*emptypb.Empty, error)
 	// 设置语言状态
 	SetBaseLanguageStatus(context.Context, *SetBaseLanguageStatusRequest) (*emptypb.Empty, error)
+	// 设置主语言
+	SetBaseLanguagePrimary(context.Context, *SetBaseLanguagePrimaryRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBaseLanguageServiceServer()
 }
 
@@ -180,6 +195,9 @@ func (UnimplementedBaseLanguageServiceServer) DeleteBaseLanguage(context.Context
 }
 func (UnimplementedBaseLanguageServiceServer) SetBaseLanguageStatus(context.Context, *SetBaseLanguageStatusRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetBaseLanguageStatus not implemented")
+}
+func (UnimplementedBaseLanguageServiceServer) SetBaseLanguagePrimary(context.Context, *SetBaseLanguagePrimaryRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetBaseLanguagePrimary not implemented")
 }
 func (UnimplementedBaseLanguageServiceServer) mustEmbedUnimplementedBaseLanguageServiceServer() {}
 func (UnimplementedBaseLanguageServiceServer) testEmbeddedByValue()                             {}
@@ -328,6 +346,24 @@ func _BaseLanguageService_SetBaseLanguageStatus_Handler(srv interface{}, ctx con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BaseLanguageService_SetBaseLanguagePrimary_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetBaseLanguagePrimaryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BaseLanguageServiceServer).SetBaseLanguagePrimary(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BaseLanguageService_SetBaseLanguagePrimary_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BaseLanguageServiceServer).SetBaseLanguagePrimary(ctx, req.(*SetBaseLanguagePrimaryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BaseLanguageService_ServiceDesc is the grpc.ServiceDesc for BaseLanguageService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -362,6 +398,10 @@ var BaseLanguageService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetBaseLanguageStatus",
 			Handler:    _BaseLanguageService_SetBaseLanguageStatus_Handler,
+		},
+		{
+			MethodName: "SetBaseLanguagePrimary",
+			Handler:    _BaseLanguageService_SetBaseLanguagePrimary_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

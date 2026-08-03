@@ -25,7 +25,7 @@ export function bootstrapKratosTaroApp(options: KratosTaroBootstrapOptions): voi
   registerLocaleMessages(options.modules)
   initializeLocale()
   void defLanguageService
-    .GetLanguage({})
+    .OptionLanguage({})
     .then((response) => {
       applyLanguageConfig(response)
     })

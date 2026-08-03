@@ -96,50 +96,42 @@ func (c *BaseLanguageCase) CreateBaseLanguage(ctx context.Context, req *systemad
 	if !coreLocale.IsSupported(item.LanguageCode) {
 		return errorsx.InvalidArgument("语言代码必须是系统支持的语言")
 	}
-	if item.IsPrimary && item.Status == int32(commonv1.Status_DISABLE) {
-		return errorsx.ProtectedResourceConflict("主语言不能禁用", "base_language")
-	}
-	if item.IsPrimary {
-		return c.tx.Transaction(ctx, func(ctx context.Context) error {
-			if err := c.clearPrimaryLanguage(ctx, 0); err != nil {
-				return err
-			}
-			return c.createLanguage(ctx, item)
-		})
-	}
+	item.IsPrimary = false
 	return c.createLanguage(ctx, item)
 }
 
 // UpdateBaseLanguage 更新语言。
 func (c *BaseLanguageCase) UpdateBaseLanguage(ctx context.Context, req *systemadminv1.BaseLanguageForm) error {
-	current, err := c.FindByID(ctx, req.GetId())
-	if err != nil {
-		return err
+	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+		current, err := c.findBaseLanguageForUpdate(ctx, req.GetId())
+		if err != nil {
+			return err
+		}
+		if !coreLocale.IsSupported(req.GetLanguageCode()) {
+			return errorsx.InvalidArgument("语言代码必须是系统支持的语言")
+		}
+		if current.IsPrimary && req.GetStatus() == commonv1.Status_DISABLE {
+			return errorsx.ProtectedResourceConflict("主语言不能禁用", "base_language")
+		}
+		if current.IsPrimary && req.GetLanguageCode() != current.LanguageCode {
+			return errorsx.ProtectedResourceConflict("主语言代码不允许修改", "base_language")
+		}
+		item := c.formMapper.ToEntity(req)
+		item.ID = current.ID
+		item.LanguageCode = current.LanguageCode
+		item.IsPrimary = current.IsPrimary
+		return c.updateLanguage(ctx, item)
+	})
+}
+
+// findBaseLanguageForUpdate 查询并锁定待修改的语言记录。
+func (c *BaseLanguageCase) findBaseLanguageForUpdate(ctx context.Context, id int64) (*models.BaseLanguage, error) {
+	query := c.Query(ctx).BaseLanguage
+	opts := []repository.QueryOption{
+		repository.Where(query.ID.Eq(id)),
+		repository.Clauses(clause.Locking{Strength: "UPDATE"}),
 	}
-	if !coreLocale.IsSupported(req.GetLanguageCode()) {
-		return errorsx.InvalidArgument("语言代码必须是系统支持的语言")
-	}
-	if req.GetIsPrimary() && req.GetStatus() == commonv1.Status_DISABLE {
-		return errorsx.ProtectedResourceConflict("主语言不能禁用", "base_language")
-	}
-	if current.IsPrimary && (!req.GetIsPrimary() || req.GetStatus() == commonv1.Status_DISABLE) {
-		return errorsx.ProtectedResourceConflict("主语言不能取消主语言标记或禁用", "base_language")
-	}
-	if current.IsPrimary && req.GetLanguageCode() != current.LanguageCode {
-		return errorsx.ProtectedResourceConflict("主语言代码不允许修改", "base_language")
-	}
-	item := c.formMapper.ToEntity(req)
-	item.ID = current.ID
-	item.LanguageCode = current.LanguageCode
-	if item.IsPrimary {
-		return c.tx.Transaction(ctx, func(ctx context.Context) error {
-			if err = c.clearPrimaryLanguage(ctx, current.ID); err != nil {
-				return err
-			}
-			return c.updateLanguage(ctx, item)
-		})
-	}
-	return c.updateLanguage(ctx, item)
+	return c.Find(ctx, opts...)
 }
 
 // DeleteBaseLanguage 删除语言。
@@ -148,28 +140,55 @@ func (c *BaseLanguageCase) DeleteBaseLanguage(ctx context.Context, ids string) e
 	if len(idList) == 0 {
 		return nil
 	}
-	for _, id := range idList {
-		item, err := c.FindByID(ctx, id)
-		if err != nil {
-			return err
+	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+		for _, id := range idList {
+			item, err := c.findBaseLanguageForUpdate(ctx, id)
+			if err != nil {
+				return err
+			}
+			if item.IsPrimary {
+				return errorsx.ProtectedResourceConflict("主语言不允许删除", "base_language")
+			}
 		}
-		if item.IsPrimary {
-			return errorsx.ProtectedResourceConflict("主语言不允许删除", "base_language")
-		}
-	}
-	return c.DeleteByIDs(ctx, idList)
+		return c.DeleteByIDs(ctx, idList)
+	})
 }
 
 // SetBaseLanguageStatus 设置语言启用状态。
 func (c *BaseLanguageCase) SetBaseLanguageStatus(ctx context.Context, req *systemadminv1.SetBaseLanguageStatusRequest) error {
-	item, err := c.FindByID(ctx, req.GetId())
-	if err != nil {
-		return err
-	}
-	if item.IsPrimary && req.GetStatus() == commonv1.Status_DISABLE {
-		return errorsx.ProtectedResourceConflict("主语言不允许禁用", "base_language")
-	}
-	return c.UpdateByID(ctx, &models.BaseLanguage{ID: item.ID, Status: int32(req.GetStatus())})
+	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+		item, err := c.findBaseLanguageForUpdate(ctx, req.GetId())
+		if err != nil {
+			return err
+		}
+		if item.IsPrimary && req.GetStatus() == commonv1.Status_DISABLE {
+			return errorsx.ProtectedResourceConflict("主语言不允许禁用", "base_language")
+		}
+		return c.UpdateByID(ctx, &models.BaseLanguage{ID: item.ID, Status: int32(req.GetStatus())})
+	})
+}
+
+// SetBaseLanguagePrimary 设置主语言并清除其他主语言标记。
+func (c *BaseLanguageCase) SetBaseLanguagePrimary(ctx context.Context, req *systemadminv1.SetBaseLanguagePrimaryRequest) error {
+	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+		var err error
+		err = c.clearPrimaryLanguage(ctx, req.GetId())
+		if err != nil {
+			return err
+		}
+		var item *models.BaseLanguage
+		item, err = c.findBaseLanguageForUpdate(ctx, req.GetId())
+		if err != nil {
+			return err
+		}
+		if item.Status != int32(commonv1.Status_ENABLE) {
+			return errorsx.ProtectedResourceConflict("禁用语言不能设为主语言", "base_language")
+		}
+		if item.IsPrimary {
+			return nil
+		}
+		return c.UpdateByID(ctx, &models.BaseLanguage{ID: item.ID, IsPrimary: true})
+	})
 }
 
 // createLanguage 创建语言并将数据库唯一冲突转换为稳定业务错误。
@@ -196,18 +215,15 @@ func (c *BaseLanguageCase) updateLanguage(ctx context.Context, item *models.Base
 
 // clearPrimaryLanguage 在事务中清除其他语言的主语言标记。
 func (c *BaseLanguageCase) clearPrimaryLanguage(ctx context.Context, keepID int64) error {
-	query := c.Query(ctx).BaseLanguage
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.IsPrimary.Is(true)))
-	opts = append(opts, repository.Clauses(clause.Locking{Strength: "UPDATE"}))
-	if keepID > 0 {
-		opts = append(opts, repository.Where(query.ID.Neq(keepID)))
-	}
+	opts := []repository.QueryOption{repository.Clauses(clause.Locking{Strength: "UPDATE"})}
 	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return err
 	}
 	for _, item := range list {
+		if item.ID == keepID || !item.IsPrimary {
+			continue
+		}
 		item.IsPrimary = false
 		if err = c.UpdateByID(ctx, item); err != nil {
 			return err

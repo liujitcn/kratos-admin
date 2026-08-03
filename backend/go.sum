@@ -627,6 +627,8 @@ github.com/liujitcn/go-utils/translator/volc v0.0.1 h1:jFPjsQoBKLOJdyZmn/ZZYDqPO
 github.com/liujitcn/go-utils/translator/volc v0.0.1/go.mod h1:Fg9pLdQ0pq3aQvXTp9whsXobl3Bb/3sAApEd+UvRskk=
 github.com/liujitcn/gorm-kit v0.0.32 h1:1cc1L87oKgXk0kpXSO56WyocdHBMmbf8rfE/W4dYzNc=
 github.com/liujitcn/gorm-kit v0.0.32/go.mod h1:PaVfftsXRJp4CU0Hb80YWU/V4/WayzTh6iH9SxeT5SE=
+github.com/liujitcn/kratos-admin/backend/core v0.0.6 h1:1drtoueVe3svieJ4txpP7mYgpInVr4kClFRzjDkEHhQ=
+github.com/liujitcn/kratos-admin/backend/core v0.0.6/go.mod h1:6559DZyB4ltecsSU3hupQgeEoamvVDwJY+bOoTXwdwc=
 github.com/liujitcn/kratos-kit v0.0.64 h1:lTfpiJB/HfoNwYSkci21QJhTAbFUsVi2Iy+mW4QMXoE=
 github.com/liujitcn/kratos-kit v0.0.64/go.mod h1:+hrPAQYIEb8d/b1O9dqNbtDhaDaaT2+b+zAE0HLW1+I=
 github.com/liujitcn/kratos-kit/ai/eino v0.0.6 h1:WQo9lynN3fTQB0tTrsoW5qOg4+Nd37OqnV/zgJQJlcU=

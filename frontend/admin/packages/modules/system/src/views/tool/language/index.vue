@@ -51,7 +51,6 @@ const formData = reactive<BaseLanguageForm>({
   language_name: "",
   native_name: "",
   sort: 100,
-  is_primary: false,
   status: Status.ENABLE
 });
 
@@ -81,7 +80,6 @@ const formFields = computed<ProFormField[]>(() => [
   { prop: "language_name", label: t("system.language.field.name"), component: "input", props: { placeholder: t("system.language.placeholder.name") } },
   { prop: "native_name", label: t("system.language.field.nativeName"), component: "input", props: { placeholder: t("system.language.placeholder.nativeName") } },
   { prop: "sort", label: t("system.language.field.sort"), component: "input-number", props: { min: 0, controlsPosition: "right", style: { width: "100%" } } },
-  { prop: "is_primary", label: t("system.language.field.primary"), component: "switch" },
   { prop: "status", label: t("system.language.field.status"), component: "radio-group", options: statusOptions.value }
 ]);
 
@@ -99,7 +97,7 @@ const columns = computed<ColumnProps[]>(() => [
       inactiveValue: false,
       activeText: t("common.status.enabled"),
       inactiveText: t("common.status.disabled"),
-      disabled: () => !BUTTONS.value["base:language:update"],
+      disabled: () => !BUTTONS.value["base:language:primary"],
       beforeChange: scope => handleBeforeSetPrimary(scope.row as BaseLanguage)
     }
   },
@@ -163,7 +161,7 @@ function handleCloseDialog() {
 function resetForm() {
   formDialogRef.value?.resetFields();
   formDialogRef.value?.clearValidate();
-  Object.assign(formData, { id: 0, language_code: "", language_name: "", native_name: "", sort: 100, is_primary: false, status: Status.ENABLE });
+  Object.assign(formData, { id: 0, language_code: "", language_name: "", native_name: "", sort: 100, status: Status.ENABLE });
 }
 
 /** 提交语言表单。 */
@@ -215,12 +213,7 @@ function handleBeforeSetPrimary(row: BaseLanguage) {
   ).then(
     () =>
       defBaseLanguageService
-        .UpdateBaseLanguage({
-          base_language: {
-            ...row,
-            is_primary: true
-          }
-        })
+        .SetBaseLanguagePrimary({ id: row.id })
         .then(() => {
           invalidateEnabledBaseLanguages();
           proTable.value?.getTableList();

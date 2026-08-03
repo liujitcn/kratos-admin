@@ -10,6 +10,7 @@ import (
 	coreOpenAPI "github.com/liujitcn/kratos-admin/backend/core/pkg/openapi"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/projectdoc"
 	coreSSE "github.com/liujitcn/kratos-admin/backend/core/pkg/sse"
+	coreTask "github.com/liujitcn/kratos-admin/backend/core/pkg/task"
 	einoModel "github.com/liujitcn/kratos-admin/backend/internal/agent/model"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	basebiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base/v1"
@@ -29,6 +30,7 @@ import (
 	adminserver "github.com/liujitcn/kratos-admin/backend/internal/server/system/admin/v1"
 	appserver "github.com/liujitcn/kratos-admin/backend/internal/server/system/app/v1"
 	service "github.com/liujitcn/kratos-admin/backend/internal/service"
+	backendtask "github.com/liujitcn/kratos-admin/backend/internal/task"
 	backendmodule "github.com/liujitcn/kratos-admin/backend/module"
 	gormmigration "github.com/liujitcn/kratos-kit/database/gorm/migration"
 )
@@ -81,6 +83,8 @@ func newRuntime(
 	httpMiddlewares server.HTTPMiddlewares,
 	grpcMiddlewares server.GRPCMiddlewares,
 	cronServer *job.CronServer,
+	taskRegistry *coreTask.Registry,
+	translationTask *backendtask.BaseTranslationTask,
 	openAPIRegistry *coreOpenAPI.Registry,
 	baseConfigCase *adminbiz.BaseConfigCase,
 	projectDocumentCase *adminbiz.ProjectDocumentCase,
@@ -111,15 +115,21 @@ func newRuntime(
 			return nil, fmt.Errorf("通知扩展模块运行时就绪: %w", err)
 		}
 	}
-	return &Runtime{
+	runtime := &Runtime{
 		modules:             modules,
 		clientConn:          clientConn,
 		httpMiddlewares:     httpMiddlewares,
 		grpcMiddlewares:     grpcMiddlewares,
 		cronServer:          cronServer,
+		translationTask:     translationTask,
 		openAPIRegistry:     openAPIRegistry,
 		projectDocumentCase: projectDocumentCase,
-	}, nil
+	}
+	err = taskRegistry.Register(runtime.Tasks()...)
+	if err != nil {
+		return nil, fmt.Errorf("注册 Backend 任务: %w", err)
+	}
+	return runtime, nil
 }
 
 // registerModuleExtensions 注册扩展模块贡献的 AI 固定流程和用户事件订阅者。
@@ -168,6 +178,7 @@ var moduleCommonProviderSet = wire.NewSet(
 	adminbiz.ProviderSet,
 	appbiz.ProviderSet,
 	admincodegen.ProviderSet,
+	backendtask.ProviderSet,
 	einoModel.NewResponsesClient,
 	ai.NewRuntime,
 	systemConfig.ProviderSet,

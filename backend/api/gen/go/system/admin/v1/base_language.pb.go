@@ -300,7 +300,6 @@ type BaseLanguageForm struct {
 	LanguageName  string                 `protobuf:"bytes,3,opt,name=language_name,json=languageName,proto3" json:"language_name,omitempty"` // 语言名称
 	NativeName    string                 `protobuf:"bytes,4,opt,name=native_name,json=nativeName,proto3" json:"native_name,omitempty"`       // 本地语言名称
 	Sort          int32                  `protobuf:"varint,5,opt,name=sort,proto3" json:"sort,omitempty"`                                    // 排序，值越小越靠前
-	IsPrimary     bool                   `protobuf:"varint,6,opt,name=is_primary,json=isPrimary,proto3" json:"is_primary,omitempty"`         // 是否主语言
 	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`        // 启用状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -369,13 +368,6 @@ func (x *BaseLanguageForm) GetSort() int32 {
 		return x.Sort
 	}
 	return 0
-}
-
-func (x *BaseLanguageForm) GetIsPrimary() bool {
-	if x != nil {
-		return x.IsPrimary
-	}
-	return false
 }
 
 func (x *BaseLanguageForm) GetStatus() v1.Status {
@@ -682,6 +674,51 @@ func (x *SetBaseLanguageStatusRequest) GetStatus() v1.Status {
 	return v1.Status(0)
 }
 
+// 设置主语言请求参数
+type SetBaseLanguagePrimaryRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 语言ID
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetBaseLanguagePrimaryRequest) Reset() {
+	*x = SetBaseLanguagePrimaryRequest{}
+	mi := &file_system_admin_v1_base_language_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetBaseLanguagePrimaryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetBaseLanguagePrimaryRequest) ProtoMessage() {}
+
+func (x *SetBaseLanguagePrimaryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_language_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetBaseLanguagePrimaryRequest.ProtoReflect.Descriptor instead.
+func (*SetBaseLanguagePrimaryRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_language_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *SetBaseLanguagePrimaryRequest) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
 var File_system_admin_v1_base_language_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_language_proto_rawDesc = "" +
@@ -704,7 +741,7 @@ const file_system_admin_v1_base_language_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"}\n" +
 	"\x16GetBaseLanguageRequest\x12c\n" +
 	"\x02id\x18\x01 \x01(\x03BS\xbaG\v\x92\x02\b语言ID\xbaHB\xba\x01?\n" +
-	"\x1dget_base_language.id.required\x12\x14语言ID不能为空\x1a\bthis > 0R\x02id\"\xf4\x06\n" +
+	"\x1dget_base_language.id.required\x12\x14语言ID不能为空\x1a\bthis > 0R\x02id\"\xc4\x06\n" +
 	"\x10BaseLanguageForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b语言IDR\x02id\x12\xc2\x01\n" +
 	"\rlanguage_code\x18\x02 \x01(\tB\x9c\x01\xbaG\x15\x92\x02\x12标准语言代码\xbaH\x80\x01\xba\x01}\n" +
@@ -715,10 +752,8 @@ const file_system_admin_v1_base_language_proto_rawDesc = "" +
 	" base_language.native_name.length\x127本地语言名称不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\n" +
 	"nativeName\x12y\n" +
 	"\x04sort\x18\x05 \x01(\x05Be\xbaG\x1e\x92\x02\x1b排序，值越小越靠前\xbaHA\xba\x01>\n" +
-	"\x1bbase_language.sort.required\x12\x14排序不能小于 0\x1a\tthis >= 0R\x04sort\x124\n" +
-	"\n" +
-	"is_primary\x18\x06 \x01(\bB\x15\xbaG\x12\x92\x02\x0f是否主语言R\tisPrimary\x12E\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x1a\xbaG\x0f\x92\x02\f启用状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xe0\x03\n" +
+	"\x1bbase_language.sort.required\x12\x14排序不能小于 0\x1a\tthis >= 0R\x04sort\x12E\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x1a\xbaG\x0f\x92\x02\f启用状态\xbaH\x05\x82\x01\x02\x10\x01R\x06statusJ\x04\b\x06\x10\a\"\xe0\x03\n" +
 	"\fBaseLanguage\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b语言IDR\x02id\x12=\n" +
 	"\rlanguage_code\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12标准语言代码R\flanguageCode\x127\n" +
@@ -743,7 +778,10 @@ const file_system_admin_v1_base_language_proto_rawDesc = "" +
 	"\x1cSetBaseLanguageStatusRequest\x12j\n" +
 	"\x02id\x18\x01 \x01(\x03BZ\xbaG\v\x92\x02\b语言ID\xbaHI\xba\x01F\n" +
 	"$set_base_language_status.id.required\x12\x14语言ID不能为空\x1a\bthis > 0R\x02id\x12E\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x1a\xbaG\x0f\x92\x02\f启用状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status2\x95\b\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x1a\xbaG\x0f\x92\x02\f启用状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\x8c\x01\n" +
+	"\x1dSetBaseLanguagePrimaryRequest\x12k\n" +
+	"\x02id\x18\x01 \x01(\x03B[\xbaG\v\x92\x02\b语言ID\xbaHJ\xba\x01G\n" +
+	"%set_base_language_primary.id.required\x12\x14语言ID不能为空\x1a\bthis > 0R\x02id2\xad\t\n" +
 	"\x13BaseLanguageService\x12\x99\x01\n" +
 	"\x12OptionBaseLanguage\x12*.system.admin.v1.OptionBaseLanguageRequest\x1a+.system.admin.v1.OptionBaseLanguageResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1/admin/base/language/option\x12\x8c\x01\n" +
 	"\x10PageBaseLanguage\x12(.system.admin.v1.PageBaseLanguageRequest\x1a).system.admin.v1.PageBaseLanguageResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/admin/base/language\x12\x87\x01\n" +
@@ -751,7 +789,8 @@ const file_system_admin_v1_base_language_proto_rawDesc = "" +
 	"\x12CreateBaseLanguage\x12*.system.admin.v1.CreateBaseLanguageRequest\x1a\x16.google.protobuf.Empty\"2\x82\xd3\xe4\x93\x02,:\rbase_language\"\x1b/api/v1/admin/base/language\x12\x9f\x01\n" +
 	"\x12UpdateBaseLanguage\x12*.system.admin.v1.UpdateBaseLanguageRequest\x1a\x16.google.protobuf.Empty\"E\x82\xd3\xe4\x93\x02?:\rbase_language\x1a./api/v1/admin/base/language/{base_language.id}\x12\x82\x01\n" +
 	"\x12DeleteBaseLanguage\x12*.system.admin.v1.DeleteBaseLanguageRequest\x1a\x16.google.protobuf.Empty\"(\x82\xd3\xe4\x93\x02\"* /api/v1/admin/base/language/{id}\x12\x92\x01\n" +
-	"\x15SetBaseLanguageStatus\x12-.system.admin.v1.SetBaseLanguageStatusRequest\x1a\x16.google.protobuf.Empty\"2\x82\xd3\xe4\x93\x02,:\x01*\x1a'/api/v1/admin/base/language/{id}/statusB\xd3\x01\n" +
+	"\x15SetBaseLanguageStatus\x12-.system.admin.v1.SetBaseLanguageStatusRequest\x1a\x16.google.protobuf.Empty\"2\x82\xd3\xe4\x93\x02,:\x01*\x1a'/api/v1/admin/base/language/{id}/status\x12\x95\x01\n" +
+	"\x16SetBaseLanguagePrimary\x12..system.admin.v1.SetBaseLanguagePrimaryRequest\x1a\x16.google.protobuf.Empty\"3\x82\xd3\xe4\x93\x02-:\x01*\x1a(/api/v1/admin/base/language/{id}/primaryB\xd3\x01\n" +
 	"\x13com.system.admin.v1B\x11BaseLanguageProtoP\x01ZKgithub.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1;adminv1\xa2\x02\x03SAX\xaa\x02\x0fSystem.Admin.V1\xca\x02\x0fSystem\\Admin\\V1\xe2\x02\x1bSystem\\Admin\\V1\\GPBMetadata\xea\x02\x11System::Admin::V1b\x06proto3"
 
 var (
@@ -766,31 +805,32 @@ func file_system_admin_v1_base_language_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_base_language_proto_rawDescData
 }
 
-var file_system_admin_v1_base_language_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_system_admin_v1_base_language_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_system_admin_v1_base_language_proto_goTypes = []any{
-	(*OptionBaseLanguageRequest)(nil),    // 0: system.admin.v1.OptionBaseLanguageRequest
-	(*OptionBaseLanguageResponse)(nil),   // 1: system.admin.v1.OptionBaseLanguageResponse
-	(*PageBaseLanguageRequest)(nil),      // 2: system.admin.v1.PageBaseLanguageRequest
-	(*PageBaseLanguageResponse)(nil),     // 3: system.admin.v1.PageBaseLanguageResponse
-	(*GetBaseLanguageRequest)(nil),       // 4: system.admin.v1.GetBaseLanguageRequest
-	(*BaseLanguageForm)(nil),             // 5: system.admin.v1.BaseLanguageForm
-	(*BaseLanguage)(nil),                 // 6: system.admin.v1.BaseLanguage
-	(*CreateBaseLanguageRequest)(nil),    // 7: system.admin.v1.CreateBaseLanguageRequest
-	(*UpdateBaseLanguageRequest)(nil),    // 8: system.admin.v1.UpdateBaseLanguageRequest
-	(*DeleteBaseLanguageRequest)(nil),    // 9: system.admin.v1.DeleteBaseLanguageRequest
-	(*SetBaseLanguageStatusRequest)(nil), // 10: system.admin.v1.SetBaseLanguageStatusRequest
-	(v1.Status)(0),                       // 11: common.v1.Status
-	(*emptypb.Empty)(nil),                // 12: google.protobuf.Empty
+	(*OptionBaseLanguageRequest)(nil),     // 0: system.admin.v1.OptionBaseLanguageRequest
+	(*OptionBaseLanguageResponse)(nil),    // 1: system.admin.v1.OptionBaseLanguageResponse
+	(*PageBaseLanguageRequest)(nil),       // 2: system.admin.v1.PageBaseLanguageRequest
+	(*PageBaseLanguageResponse)(nil),      // 3: system.admin.v1.PageBaseLanguageResponse
+	(*GetBaseLanguageRequest)(nil),        // 4: system.admin.v1.GetBaseLanguageRequest
+	(*BaseLanguageForm)(nil),              // 5: system.admin.v1.BaseLanguageForm
+	(*BaseLanguage)(nil),                  // 6: system.admin.v1.BaseLanguage
+	(*CreateBaseLanguageRequest)(nil),     // 7: system.admin.v1.CreateBaseLanguageRequest
+	(*UpdateBaseLanguageRequest)(nil),     // 8: system.admin.v1.UpdateBaseLanguageRequest
+	(*DeleteBaseLanguageRequest)(nil),     // 9: system.admin.v1.DeleteBaseLanguageRequest
+	(*SetBaseLanguageStatusRequest)(nil),  // 10: system.admin.v1.SetBaseLanguageStatusRequest
+	(*SetBaseLanguagePrimaryRequest)(nil), // 11: system.admin.v1.SetBaseLanguagePrimaryRequest
+	(v1.Status)(0),                        // 12: common.v1.Status
+	(*emptypb.Empty)(nil),                 // 13: google.protobuf.Empty
 }
 var file_system_admin_v1_base_language_proto_depIdxs = []int32{
 	6,  // 0: system.admin.v1.OptionBaseLanguageResponse.base_languages:type_name -> system.admin.v1.BaseLanguage
-	11, // 1: system.admin.v1.PageBaseLanguageRequest.status:type_name -> common.v1.Status
+	12, // 1: system.admin.v1.PageBaseLanguageRequest.status:type_name -> common.v1.Status
 	6,  // 2: system.admin.v1.PageBaseLanguageResponse.base_languages:type_name -> system.admin.v1.BaseLanguage
-	11, // 3: system.admin.v1.BaseLanguageForm.status:type_name -> common.v1.Status
-	11, // 4: system.admin.v1.BaseLanguage.status:type_name -> common.v1.Status
+	12, // 3: system.admin.v1.BaseLanguageForm.status:type_name -> common.v1.Status
+	12, // 4: system.admin.v1.BaseLanguage.status:type_name -> common.v1.Status
 	5,  // 5: system.admin.v1.CreateBaseLanguageRequest.base_language:type_name -> system.admin.v1.BaseLanguageForm
 	5,  // 6: system.admin.v1.UpdateBaseLanguageRequest.base_language:type_name -> system.admin.v1.BaseLanguageForm
-	11, // 7: system.admin.v1.SetBaseLanguageStatusRequest.status:type_name -> common.v1.Status
+	12, // 7: system.admin.v1.SetBaseLanguageStatusRequest.status:type_name -> common.v1.Status
 	0,  // 8: system.admin.v1.BaseLanguageService.OptionBaseLanguage:input_type -> system.admin.v1.OptionBaseLanguageRequest
 	2,  // 9: system.admin.v1.BaseLanguageService.PageBaseLanguage:input_type -> system.admin.v1.PageBaseLanguageRequest
 	4,  // 10: system.admin.v1.BaseLanguageService.GetBaseLanguage:input_type -> system.admin.v1.GetBaseLanguageRequest
@@ -798,15 +838,17 @@ var file_system_admin_v1_base_language_proto_depIdxs = []int32{
 	8,  // 12: system.admin.v1.BaseLanguageService.UpdateBaseLanguage:input_type -> system.admin.v1.UpdateBaseLanguageRequest
 	9,  // 13: system.admin.v1.BaseLanguageService.DeleteBaseLanguage:input_type -> system.admin.v1.DeleteBaseLanguageRequest
 	10, // 14: system.admin.v1.BaseLanguageService.SetBaseLanguageStatus:input_type -> system.admin.v1.SetBaseLanguageStatusRequest
-	1,  // 15: system.admin.v1.BaseLanguageService.OptionBaseLanguage:output_type -> system.admin.v1.OptionBaseLanguageResponse
-	3,  // 16: system.admin.v1.BaseLanguageService.PageBaseLanguage:output_type -> system.admin.v1.PageBaseLanguageResponse
-	5,  // 17: system.admin.v1.BaseLanguageService.GetBaseLanguage:output_type -> system.admin.v1.BaseLanguageForm
-	12, // 18: system.admin.v1.BaseLanguageService.CreateBaseLanguage:output_type -> google.protobuf.Empty
-	12, // 19: system.admin.v1.BaseLanguageService.UpdateBaseLanguage:output_type -> google.protobuf.Empty
-	12, // 20: system.admin.v1.BaseLanguageService.DeleteBaseLanguage:output_type -> google.protobuf.Empty
-	12, // 21: system.admin.v1.BaseLanguageService.SetBaseLanguageStatus:output_type -> google.protobuf.Empty
-	15, // [15:22] is the sub-list for method output_type
-	8,  // [8:15] is the sub-list for method input_type
+	11, // 15: system.admin.v1.BaseLanguageService.SetBaseLanguagePrimary:input_type -> system.admin.v1.SetBaseLanguagePrimaryRequest
+	1,  // 16: system.admin.v1.BaseLanguageService.OptionBaseLanguage:output_type -> system.admin.v1.OptionBaseLanguageResponse
+	3,  // 17: system.admin.v1.BaseLanguageService.PageBaseLanguage:output_type -> system.admin.v1.PageBaseLanguageResponse
+	5,  // 18: system.admin.v1.BaseLanguageService.GetBaseLanguage:output_type -> system.admin.v1.BaseLanguageForm
+	13, // 19: system.admin.v1.BaseLanguageService.CreateBaseLanguage:output_type -> google.protobuf.Empty
+	13, // 20: system.admin.v1.BaseLanguageService.UpdateBaseLanguage:output_type -> google.protobuf.Empty
+	13, // 21: system.admin.v1.BaseLanguageService.DeleteBaseLanguage:output_type -> google.protobuf.Empty
+	13, // 22: system.admin.v1.BaseLanguageService.SetBaseLanguageStatus:output_type -> google.protobuf.Empty
+	13, // 23: system.admin.v1.BaseLanguageService.SetBaseLanguagePrimary:output_type -> google.protobuf.Empty
+	16, // [16:24] is the sub-list for method output_type
+	8,  // [8:16] is the sub-list for method input_type
 	8,  // [8:8] is the sub-list for extension type_name
 	8,  // [8:8] is the sub-list for extension extendee
 	0,  // [0:8] is the sub-list for field type_name
@@ -825,7 +867,7 @@ func file_system_admin_v1_base_language_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_base_language_proto_rawDesc), len(file_system_admin_v1_base_language_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

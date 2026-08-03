@@ -49,7 +49,7 @@ export async function bootstrapAdminApp(options: AdminBootstrapOptions = {}) {
   registerLocaleMessages(modules);
   initializeLocale();
   try {
-    applyLanguageConfig(await defLanguageService.GetLanguage({}));
+    applyLanguageConfig(await defLanguageService.OptionLanguage({}));
   } catch {
     // 语言公共接口失败时继续使用静态语言包和系统语言。
   }

@@ -20,8 +20,8 @@ func NewLanguageCase(baseLanguageRepo *data.BaseLanguageRepository) *LanguageCas
 	return &LanguageCase{BaseLanguageRepository: baseLanguageRepo}
 }
 
-// GetLanguage 查询当前支持的语言和主语言。
-func (c *LanguageCase) GetLanguage(ctx context.Context, _ *basev1.GetLanguageRequest) (*basev1.GetLanguageResponse, error) {
+// OptionLanguage 查询当前支持的语言选项。
+func (c *LanguageCase) OptionLanguage(ctx context.Context, _ *basev1.OptionLanguageRequest) (*basev1.OptionLanguageResponse, error) {
 	query := c.Query(ctx).BaseLanguage
 	opts := []repository.QueryOption{
 		repository.Where(query.Status.Eq(_const.STATUS_ENABLE)),
@@ -34,23 +34,13 @@ func (c *LanguageCase) GetLanguage(ctx context.Context, _ *basev1.GetLanguageReq
 	}
 
 	languages := make([]*basev1.LanguageItem, 0, len(list))
-	primaryLanguageCode := ""
 	for _, item := range list {
 		languages = append(languages, &basev1.LanguageItem{
 			LanguageCode: item.LanguageCode,
-			LanguageName: item.LanguageName,
 			NativeName:   item.NativeName,
-			Sort:         item.Sort,
 		})
-		if item.IsPrimary && primaryLanguageCode == "" {
-			primaryLanguageCode = item.LanguageCode
-		}
 	}
-	if primaryLanguageCode == "" && len(languages) > 0 {
-		primaryLanguageCode = languages[0].LanguageCode
-	}
-	return &basev1.GetLanguageResponse{
-		Languages:           languages,
-		PrimaryLanguageCode: primaryLanguageCode,
+	return &basev1.OptionLanguageResponse{
+		Languages: languages,
 	}, nil
 }

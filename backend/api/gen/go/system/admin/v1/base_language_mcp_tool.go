@@ -22,6 +22,7 @@ func RegisterBaseLanguageServiceMCPTools(mcpServer *mcp.Server, baseLanguageServ
 	RegisterBaseLanguageServiceUpdateBaseLanguageMCPTool(mcpServer, baseLanguageServiceServer)
 	RegisterBaseLanguageServiceDeleteBaseLanguageMCPTool(mcpServer, baseLanguageServiceServer)
 	RegisterBaseLanguageServiceSetBaseLanguageStatusMCPTool(mcpServer, baseLanguageServiceServer)
+	RegisterBaseLanguageServiceSetBaseLanguagePrimaryMCPTool(mcpServer, baseLanguageServiceServer)
 }
 
 // RegisterBaseLanguageServiceOptionBaseLanguageMCPTool 注册查询启用语言选项的 MCP Tool。
@@ -163,6 +164,27 @@ func RegisterBaseLanguageServiceSetBaseLanguageStatusMCPTool(mcpServer *mcp.Serv
 				input = &SetBaseLanguageStatusRequest{}
 			}
 			reply, err := baseLanguageServiceServer.SetBaseLanguageStatus(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterBaseLanguageServiceSetBaseLanguagePrimaryMCPTool 注册设置主语言的 MCP Tool。
+func RegisterBaseLanguageServiceSetBaseLanguagePrimaryMCPTool(mcpServer *mcp.Server, baseLanguageServiceServer BaseLanguageServiceServer) {
+	mcp.AddTool[*SetBaseLanguagePrimaryRequest, *emptypb.Empty](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_base_language_service_set_base_language_primary",
+			Description: "设置主语言",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseLanguagePrimaryRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
+			if input == nil {
+				input = &SetBaseLanguagePrimaryRequest{}
+			}
+			reply, err := baseLanguageServiceServer.SetBaseLanguagePrimary(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

@@ -7,6 +7,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/job"
 	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/server"
+	backendtask "github.com/liujitcn/kratos-admin/backend/internal/task"
 	"github.com/liujitcn/kratos-kit/bootstrap"
 	"google.golang.org/grpc"
 )
@@ -27,6 +28,7 @@ type Runtime struct {
 	httpMiddlewares     server.HTTPMiddlewares
 	grpcMiddlewares     server.GRPCMiddlewares
 	cronServer          *job.CronServer
+	translationTask     *backendtask.BaseTranslationTask
 	openAPIRegistry     *coreOpenAPI.Registry
 	projectDocumentCase *adminbiz.ProjectDocumentCase
 }

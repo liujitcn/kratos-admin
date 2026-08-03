@@ -17,25 +17,25 @@ import (
 func NewLanguageServiceAgentTools(languageServiceServer LanguageServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var getLanguageTool tool.InvokableTool
-	getLanguageTool, err = NewLanguageServiceGetLanguageAgentTool(languageServiceServer)
+	var optionLanguageTool tool.InvokableTool
+	optionLanguageTool, err = NewLanguageServiceOptionLanguageAgentTool(languageServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, getLanguageTool)
+	ts = append(ts, optionLanguageTool)
 	return ts, nil
 }
 
-// NewLanguageServiceGetLanguageAgentTool 创建查询当前支持的语言和主语言的 Agent Tool。
-func NewLanguageServiceGetLanguageAgentTool(languageServiceServer LanguageServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*GetLanguageRequest, *GetLanguageResponse](
-		"base_v1_language_service_get_language",
-		"查询当前支持的语言和主语言。",
-		func(ctx context.Context, req *GetLanguageRequest) (*GetLanguageResponse, error) {
+// NewLanguageServiceOptionLanguageAgentTool 创建查询当前支持的语言选项的 Agent Tool。
+func NewLanguageServiceOptionLanguageAgentTool(languageServiceServer LanguageServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*OptionLanguageRequest, *OptionLanguageResponse](
+		"base_v1_language_service_option_language",
+		"查询当前支持的语言选项。",
+		func(ctx context.Context, req *OptionLanguageRequest) (*OptionLanguageResponse, error) {
 			if req == nil {
-				req = &GetLanguageRequest{}
+				req = &OptionLanguageRequest{}
 			}
-			return languageServiceServer.GetLanguage(ctx, req)
+			return languageServiceServer.OptionLanguage(ctx, req)
 		},
 	)
 }
