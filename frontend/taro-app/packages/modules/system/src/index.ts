@@ -1,13 +1,7 @@
-// System 语言包随 systemModule 注册，供 Taro System 页面、个人中心和 AI 功能使用。
+// System 语言包由同步脚本生成并注册，供 Taro System 页面、个人中心和 AI 功能使用。
 import { defineKratosTaroModule } from '@liujitcn/kratos-taro-app-core'
 import { systemPages } from './pages'
-import enUS from './locales/en-US.json'
-import jaJP from './locales/ja-JP.json'
-import zhCN from './locales/zh-CN.json'
-import zhTW from './locales/zh-TW.json'
-import koKR from './locales/ko-KR.json'
-import frFR from './locales/fr-FR.json'
-import esES from './locales/es-ES.json'
+import { LOCALE_MESSAGES } from './locales/generated'
 
 /** system 业务模块。 */
 export const systemModule = defineKratosTaroModule({
@@ -19,13 +13,5 @@ export const systemModule = defineKratosTaroModule({
     SETTINGS: 'pagesMember/settings/settings',
     AI: 'pagesMember/ai/index',
   },
-  messages: {
-    'zh-CN': zhCN,
-    'zh-TW': zhTW,
-    'ko-KR': koKR,
-    'fr-FR': frFR,
-    'es-ES': esES,
-    'en-US': enUS,
-    'ja-JP': jaJP,
-  },
+  messages: LOCALE_MESSAGES,
 })

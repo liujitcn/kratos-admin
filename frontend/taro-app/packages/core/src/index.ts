@@ -1,13 +1,7 @@
-// Core 语言包在本文件的 coreModule 中注册，供 Taro 公共页面、请求工具和业务模块复用。
+// Core 语言包由同步脚本生成并在本文件的 coreModule 中注册，供 Taro 公共页面、请求工具和业务模块复用。
 import { corePages } from './pages'
 import { defineKratosTaroModule } from './module'
-import coreEnUS from './locales/en-US.json'
-import coreJaJP from './locales/ja-JP.json'
-import coreZhCN from './locales/zh-CN.json'
-import coreZhTW from './locales/zh-TW.json'
-import coreKoKR from './locales/ko-KR.json'
-import coreFrFR from './locales/fr-FR.json'
-import coreEsES from './locales/es-ES.json'
+import { LOCALE_MESSAGES } from './locales/generated'
 
 /** core 内置模块。 */
 export const coreModule = defineKratosTaroModule({
@@ -31,15 +25,7 @@ export const coreModule = defineKratosTaroModule({
     USER_DEFAULT: 'static/tabs/user_default.png',
     USER_SELECTED: 'static/tabs/user_selected.png',
   },
-  messages: {
-    'zh-CN': coreZhCN,
-    'zh-TW': coreZhTW,
-    'ko-KR': coreKoKR,
-    'fr-FR': coreFrFR,
-    'es-ES': coreEsES,
-    'en-US': coreEnUS,
-    'ja-JP': coreJaJP,
-  },
+  messages: LOCALE_MESSAGES,
 })
 
 export * from './module'

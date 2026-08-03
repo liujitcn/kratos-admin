@@ -69,9 +69,9 @@ pnpm build:mp-weixin
 
 ## 国际化
 
-Taro 支持 `zh-CN`、`zh-TW`、`en-US`、`ja-JP`、`ko-KR`、`fr-FR`、`es-ES`。core 和 System 包分别提供七语 JSON 语言包，模块注册时校验 key 与占位符集合；登录、首页、状态页、WebView、个人中心、设置、资料和 AI 页面都通过 `t(key)` 使用固定文案。语言偏好保存为 `kratos-app:locale`，切换后不改变稳定路由和业务字段。
+Taro 支持的语言由 core 和 System JSON 语言包自动发现，模块注册时校验 key 与占位符集合；登录、首页、状态页、WebView、个人中心、设置、资料和 AI 页面都通过 `t(key)` 使用固定文案。语言偏好保存为 `kratos-app:locale`，切换后不改变稳定路由和业务字段。
 
-所有 `Taro.request`、文件上传和 SSE 请求统一发送 `Accept-Language`。动态菜单沿用后端解析后的标题，缺少当前语言译文时回退主语言；新增业务模块应同时提供七个 locale 文件并通过 `messages` 注册。
+所有 `Taro.request`、文件上传和 SSE 请求统一发送 `Accept-Language`。动态菜单沿用后端解析后的标题，缺少当前语言译文时回退主语言；新增语言只需增加各模块同名 locale 文件并执行仓库根目录的 `make i18n-sync`。
 
 ## RPC 生成
 

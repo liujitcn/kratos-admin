@@ -3,46 +3,80 @@ package locale
 
 import (
 	"context"
+	_ "embed"
+	"encoding/json"
+	"fmt"
 	"strings"
 
 	"golang.org/x/text/language"
 )
 
-const (
-	// ZhCN 表示简体中文语言区域。
-	ZhCN = "zh-CN"
-	// ZhTW 表示繁体中文语言区域。
-	ZhTW = "zh-TW"
-	// KoKR 表示韩语语言区域。
-	KoKR = "ko-KR"
-	// FrFR 表示法语语言区域。
-	FrFR = "fr-FR"
-	// EsES 表示西班牙语语言区域。
-	EsES = "es-ES"
-	// EnUS 表示美式英语语言区域。
-	EnUS = "en-US"
-	// JaJP 表示日语语言区域。
-	JaJP = "ja-JP"
-	// Default 表示项目默认语言区域。
-	Default = ZhCN
+var (
+	// Default 表示编译期语言包的默认回退区域，由 manifest 提供。
+	Default          string
+	supportedLocales []string
+	supportedTags    []language.Tag
+	matcher          language.Matcher
 )
 
-var (
-	supportedLocales = []string{ZhCN, ZhTW, EnUS, JaJP, KoKR, FrFR, EsES}
-	supportedTags    = []language.Tag{language.SimplifiedChinese, language.TraditionalChinese, language.AmericanEnglish, language.Japanese, language.Korean, language.French, language.Spanish}
-	matcher          = language.NewMatcher(supportedTags)
-)
+//go:embed manifest.json
+var localeManifest []byte
+
+type localeManifestConfig struct {
+	Default string   `json:"default"`
+	Locales []string `json:"locales"`
+}
+
+func init() {
+	var config localeManifestConfig
+	var err error
+	err = json.Unmarshal(localeManifest, &config)
+	if err != nil {
+		panic(fmt.Errorf("解析语言 manifest: %w", err))
+	}
+	if config.Default == "" {
+		panic(fmt.Errorf("语言 manifest 缺少默认语言"))
+	}
+	Default = config.Default
+	seen := make(map[string]struct{}, len(config.Locales))
+	for _, value := range config.Locales {
+		if value == "" {
+			panic(fmt.Errorf("语言 manifest 包含空语言代码"))
+		}
+		if _, ok := seen[value]; ok {
+			panic(fmt.Errorf("语言 manifest 包含重复语言代码 %s", value))
+		}
+		var tag language.Tag
+		tag, err = language.Parse(value)
+		if err != nil {
+			panic(fmt.Errorf("解析语言代码 %s: %w", value, err))
+		}
+		seen[value] = struct{}{}
+		supportedLocales = append(supportedLocales, value)
+		supportedTags = append(supportedTags, tag)
+	}
+	if _, ok := seen[Default]; !ok {
+		panic(fmt.Errorf("语言 manifest 缺少默认语言 %s", Default))
+	}
+	matcher = language.NewMatcher(supportedTags)
+}
 
 type contextKey struct{}
 
-// Supported 返回支持的语言区域副本。
+// Supported 返回编译期语言包白名单副本；运行时启用列表由 base_language 提供。
 func Supported() []string {
 	return append([]string(nil), supportedLocales...)
 }
 
 // NonDefault 返回除项目回退语言之外的区域副本。
 func NonDefault() []string {
-	return append([]string(nil), supportedLocales[1:]...)
+	locales := make([]string, 0, len(supportedLocales)-1)
+	for _, value := range supportedLocales {
+		if value != Default {
+			locales = append(locales, value)
+		}
+	}
+	return locales
 }
 
 // IsSupported 判断语言区域是否属于项目白名单。

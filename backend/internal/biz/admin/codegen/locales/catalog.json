@@ -1,0 +1,268 @@
+{
+  "zh-CN": {
+    "menu": {
+      "default": "{resource}",
+      "create": "新增{resource}",
+      "update": "编辑{resource}",
+      "delete": "删除{resource}",
+      "status": "设置{field}"
+    },
+    "resource": {
+      "placeholder.input": "请输入{field}",
+      "placeholder.select": "请选择{field}",
+      "validation.required": "{field}不能为空",
+      "validation.maxLength": "{field}不能超过 {max} 个字符",
+      "title.create": "新增{resource}",
+      "title.edit": "编辑{resource}",
+      "message.createSuccess": "新增{resource}成功",
+      "message.updateSuccess": "修改{resource}成功",
+      "message.deleteSuccess": "删除{resource}成功",
+      "message.deleteCanceled": "已取消删除{resource}",
+      "message.selectDelete": "请勾选删除项",
+      "message.statusSuccess": "{action}成功",
+      "dialog.deleteSingle": "是否确定删除{resource}？",
+      "dialog.deleteBatch": "确认删除已选中的{resource}吗？",
+      "dialog.confirmStatus": "是否确定{action}{resource}？",
+      "status.enabled": "启用",
+      "status.disabled": "禁用",
+      "value.topLevel": "顶级节点"
+    },
+    "passwordStrength": "强度提示",
+    "static": {
+      "启用": "启用",
+      "禁用": "禁用",
+      "是": "是",
+      "否": "否",
+      "男": "男",
+      "女": "女"
+    }
+  },
+  "zh-TW": {
+    "menu": {
+      "default": "{resource}",
+      "create": "新增{resource}",
+      "update": "編輯{resource}",
+      "delete": "刪除{resource}",
+      "status": "設定{field}"
+    },
+    "resource": {
+      "placeholder.input": "請輸入{field}",
+      "placeholder.select": "請選擇{field}",
+      "validation.required": "{field}不能為空",
+      "validation.maxLength": "{field}不能超過 {max} 個字元",
+      "title.create": "新增{resource}",
+      "title.edit": "編輯{resource}",
+      "message.createSuccess": "新增{resource}成功",
+      "message.updateSuccess": "修改{resource}成功",
+      "message.deleteSuccess": "刪除{resource}成功",
+      "message.deleteCanceled": "已取消刪除{resource}",
+      "message.selectDelete": "請勾選刪除項目",
+      "message.statusSuccess": "{action}成功",
+      "dialog.deleteSingle": "是否確定刪除{resource}？",
+      "dialog.deleteBatch": "確認刪除已選取的{resource}嗎？",
+      "dialog.confirmStatus": "是否確定{action}{resource}？",
+      "status.enabled": "啟用",
+      "status.disabled": "停用",
+      "value.topLevel": "頂級節點"
+    },
+    "passwordStrength": "強度提示",
+    "static": {
+      "啟用": "啟用",
+      "禁用": "停用",
+      "是": "是",
+      "否": "否",
+      "男": "男",
+      "女": "女"
+    }
+  },
+  "en-US": {
+    "menu": {
+      "default": "{resource}",
+      "create": "Create {resource}",
+      "update": "Edit {resource}",
+      "delete": "Delete {resource}",
+      "status": "Set {field}"
+    },
+    "resource": {
+      "placeholder.input": "Enter {field}",
+      "placeholder.select": "Select {field}",
+      "validation.required": "{field} is required",
+      "validation.maxLength": "{field} cannot exceed {max} characters",
+      "title.create": "Create {resource}",
+      "title.edit": "Edit {resource}",
+      "message.createSuccess": "{resource} created",
+      "message.updateSuccess": "{resource} updated",
+      "message.deleteSuccess": "{resource} deleted",
+      "message.deleteCanceled": "Deletion canceled",
+      "message.selectDelete": "Select records to delete",
+      "message.statusSuccess": "{action} succeeded",
+      "dialog.deleteSingle": "Delete this {resource}?",
+      "dialog.deleteBatch": "Delete the selected {resource} records?",
+      "dialog.confirmStatus": "{action} this {resource}?",
+      "status.enabled": "Enable",
+      "status.disabled": "Disable",
+      "value.topLevel": "Top level"
+    },
+    "passwordStrength": "Password strength",
+    "static": {
+      "启用": "Enabled",
+      "禁用": "Disabled",
+      "是": "Yes",
+      "否": "No",
+      "男": "Male",
+      "女": "Female"
+    }
+  },
+  "ja-JP": {
+    "menu": {
+      "default": "{resource}",
+      "create": "{resource}を新規作成",
+      "update": "{resource}を編集",
+      "delete": "{resource}を削除",
+      "status": "{field}を設定"
+    },
+    "resource": {
+      "placeholder.input": "{field}を入力してください",
+      "placeholder.select": "{field}を選択してください",
+      "validation.required": "{field}は必須です",
+      "validation.maxLength": "{field}は {max} 文字以内で入力してください",
+      "title.create": "{resource}を新規作成",
+      "title.edit": "{resource}を編集",
+      "message.createSuccess": "{resource}を作成しました",
+      "message.updateSuccess": "{resource}を更新しました",
+      "message.deleteSuccess": "{resource}を削除しました",
+      "message.deleteCanceled": "削除をキャンセルしました",
+      "message.selectDelete": "削除する項目を選択してください",
+      "message.statusSuccess": "{action}しました",
+      "dialog.deleteSingle": "{resource}を削除しますか？",
+      "dialog.deleteBatch": "選択した{resource}を削除しますか？",
+      "dialog.confirmStatus": "{resource}を{action}しますか？",
+      "status.enabled": "有効化",
+      "status.disabled": "無効化",
+      "value.topLevel": "最上位ノード"
+    },
+    "passwordStrength": "パスワード強度",
+    "static": {
+      "启用": "有効",
+      "禁用": "無効",
+      "是": "はい",
+      "否": "いいえ",
+      "男": "男性",
+      "女": "女性"
+    }
+  },
+  "ko-KR": {
+    "menu": {
+      "default": "{resource}",
+      "create": "{resource} 생성",
+      "update": "{resource} 편집",
+      "delete": "{resource} 삭제",
+      "status": "{field} 설정"
+    },
+    "resource": {
+      "placeholder.input": "{field} 입력",
+      "placeholder.select": "{field} 선택",
+      "validation.required": "{field}은(는) 필수입니다",
+      "validation.maxLength": "{field}은(는) {max}자를 초과할 수 없습니다",
+      "title.create": "{resource} 생성",
+      "title.edit": "{resource} 편집",
+      "message.createSuccess": "{resource} 생성 성공",
+      "message.updateSuccess": "{resource} 수정 성공",
+      "message.deleteSuccess": "{resource} 삭제 성공",
+      "message.deleteCanceled": "삭제가 취소되었습니다",
+      "message.selectDelete": "삭제할 항목을 선택하세요",
+      "message.statusSuccess": "{action} 성공",
+      "dialog.deleteSingle": "이 {resource}을(를) 삭제하시겠습니까?",
+      "dialog.deleteBatch": "선택한 {resource}을(를) 삭제하시겠습니까?",
+      "dialog.confirmStatus": "{resource}을(를) {action}하시겠습니까?",
+      "status.enabled": "사용",
+      "status.disabled": "사용 안 함",
+      "value.topLevel": "최상위 노드"
+    },
+    "passwordStrength": "비밀번호 강도",
+    "static": {
+      "启用": "사용",
+      "禁用": "사용 안 함",
+      "是": "예",
+      "否": "아니요",
+      "男": "남성",
+      "女": "여성"
+    }
+  },
+  "fr-FR": {
+    "menu": {
+      "default": "{resource}",
+      "create": "Créer {resource}",
+      "update": "Modifier {resource}",
+      "delete": "Supprimer {resource}",
+      "status": "Définir {field}"
+    },
+    "resource": {
+      "placeholder.input": "Saisissez {field}",
+      "placeholder.select": "Sélectionnez {field}",
+      "validation.required": "{field} est obligatoire",
+      "validation.maxLength": "{field} ne peut pas dépasser {max} caractères",
+      "title.create": "Créer {resource}",
+      "title.edit": "Modifier {resource}",
+      "message.createSuccess": "{resource} créé",
+      "message.updateSuccess": "{resource} modifié",
+      "message.deleteSuccess": "{resource} supprimé",
+      "message.deleteCanceled": "Suppression annulée",
+      "message.selectDelete": "Sélectionnez les éléments à supprimer",
+      "message.statusSuccess": "{action} réussi",
+      "dialog.deleteSingle": "Supprimer ce {resource} ?",
+      "dialog.deleteBatch": "Supprimer les {resource} sélectionnés ?",
+      "dialog.confirmStatus": "{action} ce {resource} ?",
+      "status.enabled": "Activer",
+      "status.disabled": "Désactiver",
+      "value.topLevel": "Niveau supérieur"
+    },
+    "passwordStrength": "Force du mot de passe",
+    "static": {
+      "启用": "Activé",
+      "禁用": "Désactivé",
+      "是": "Oui",
+      "否": "Non",
+      "男": "Homme",
+      "女": "Femme"
+    }
+  },
+  "es-ES": {
+    "menu": {
+      "default": "{resource}",
+      "create": "Crear {resource}",
+      "update": "Editar {resource}",
+      "delete": "Eliminar {resource}",
+      "status": "Establecer {field}"
+    },
+    "resource": {
+      "placeholder.input": "Introduzca {field}",
+      "placeholder.select": "Seleccione {field}",
+      "validation.required": "{field} es obligatorio",
+      "validation.maxLength": "{field} no puede superar {max} caracteres",
+      "title.create": "Crear {resource}",
+      "title.edit": "Editar {resource}",
+      "message.createSuccess": "{resource} creado",
+      "message.updateSuccess": "{resource} actualizado",
+      "message.deleteSuccess": "{resource} eliminado",
+      "message.deleteCanceled": "Eliminación cancelada",
+      "message.selectDelete": "Seleccione los elementos que desea eliminar",
+      "message.statusSuccess": "{action} correctamente",
+      "dialog.deleteSingle": "¿Eliminar este {resource}?",
+      "dialog.deleteBatch": "¿Eliminar los {resource} seleccionados?",
+      "dialog.confirmStatus": "¿{action} este {resource}?",
+      "status.enabled": "Activar",
+      "status.disabled": "Desactivar",
+      "value.topLevel": "Nivel superior"
+    },
+    "passwordStrength": "Fortaleza de la contraseña",
+    "static": {
+      "启用": "Activado",
+      "禁用": "Desactivado",
+      "是": "Sí",
+      "否": "No",
+      "男": "Hombre",
+      "女": "Mujer"
+    }
+  }
+}

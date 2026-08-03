@@ -79,14 +79,6 @@ export function defineAdminViteConfig(options: AdminViteConfigOptions = {}) {
       optimizeDeps: {
         include: [
           "@liujitcn/kratos-admin-core > dayjs",
-          // Day.js locale 是 CommonJS，必须与核心实例一起预构建，避免开发环境丢失 dayjs.locale。
-          "@liujitcn/kratos-admin-core > dayjs/locale/en",
-          "@liujitcn/kratos-admin-core > dayjs/locale/ja",
-          "@liujitcn/kratos-admin-core > dayjs/locale/zh-cn",
-          "@liujitcn/kratos-admin-core > dayjs/locale/zh-tw",
-          "@liujitcn/kratos-admin-core > dayjs/locale/ko",
-          "@liujitcn/kratos-admin-core > dayjs/locale/fr",
-          "@liujitcn/kratos-admin-core > dayjs/locale/es",
           "@liujitcn/kratos-admin-core > dayjs/plugin/advancedFormat.js",
           "@liujitcn/kratos-admin-core > dayjs/plugin/customParseFormat.js",
           "@liujitcn/kratos-admin-core > dayjs/plugin/dayOfYear.js",

@@ -87,7 +87,6 @@ const formFields = computed<ProFormField[]>(() => [
 
 const columns = computed<ColumnProps[]>(() => [
   { prop: "native_name", label: t("system.language.field.nativeName"), minWidth: 130 },
-  { type: "index", label: t("system.common.field.index"), width: 70 },
   { prop: "language_name", label: t("system.language.field.name"), minWidth: 130, search: { el: "input" } },
   { prop: "language_code", label: t("system.language.field.code"), minWidth: 120, search: { el: "input" } },
   {
@@ -100,7 +99,7 @@ const columns = computed<ColumnProps[]>(() => [
       inactiveValue: false,
       activeText: t("common.status.enabled"),
       inactiveText: t("common.status.disabled"),
-      disabled: () => !BUTTONS.value["tool:language:update"],
+      disabled: () => !BUTTONS.value["base:language:update"],
       beforeChange: scope => handleBeforeSetPrimary(scope.row as BaseLanguage)
     }
   },
@@ -115,7 +114,7 @@ const columns = computed<ColumnProps[]>(() => [
       inactiveValue: Status.DISABLE,
       activeText: t("common.status.enabled"),
       inactiveText: t("common.status.disabled"),
-      disabled: () => !BUTTONS.value["tool:language:status"],
+      disabled: () => !BUTTONS.value["base:language:status"],
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseLanguage)
     }
   },
@@ -128,15 +127,15 @@ const columns = computed<ColumnProps[]>(() => [
     fixed: "right",
     cellType: "actions",
     actions: [
-      { label: t("common.action.edit"), type: "primary", link: true, icon: EditPen, hidden: () => !BUTTONS.value["tool:language:update"], onClick: scope => handleOpenDialog((scope.row as BaseLanguage).id) },
-      { label: t("common.action.delete"), type: "danger", link: true, icon: Delete, hidden: () => !BUTTONS.value["tool:language:delete"], onClick: scope => handleDelete(scope.row as BaseLanguage) }
+      { label: t("common.action.edit"), type: "primary", link: true, icon: EditPen, hidden: () => !BUTTONS.value["base:language:update"], onClick: scope => handleOpenDialog((scope.row as BaseLanguage).id) },
+      { label: t("common.action.delete"), type: "danger", link: true, icon: Delete, hidden: () => !BUTTONS.value["base:language:delete"], onClick: scope => handleDelete(scope.row as BaseLanguage) }
     ]
   }
 ]);
 
 const headerActions = computed<HeaderActionProps[]>(() => [
-  { label: t("common.action.create"), type: "success", icon: CirclePlus, hidden: () => !BUTTONS.value["tool:language:create"], onClick: () => handleOpenDialog() },
-  { label: t("common.action.delete"), type: "danger", icon: Delete, hidden: () => !BUTTONS.value["tool:language:delete"], disabled: scope => !scope.selectedList.length, onClick: scope => handleDelete(scope.selectedList as BaseLanguage[]) }
+  { label: t("common.action.create"), type: "success", icon: CirclePlus, hidden: () => !BUTTONS.value["base:language:create"], onClick: () => handleOpenDialog() },
+  { label: t("common.action.delete"), type: "danger", icon: Delete, hidden: () => !BUTTONS.value["base:language:delete"], disabled: scope => !scope.selectedList.length, onClick: scope => handleDelete(scope.selectedList as BaseLanguage[]) }
 ]);
 
 /** 请求语言分页列表。 */

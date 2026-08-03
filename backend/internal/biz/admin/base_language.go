@@ -14,6 +14,7 @@ import (
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
+	"gorm.io/gorm/clause"
 )
 
 // BaseLanguageCase 语言管理业务实例。
@@ -196,8 +197,9 @@ func (c *BaseLanguageCase) updateLanguage(ctx context.Context, item *models.Base
 // clearPrimaryLanguage 在事务中清除其他语言的主语言标记。
 func (c *BaseLanguageCase) clearPrimaryLanguage(ctx context.Context, keepID int64) error {
 	query := c.Query(ctx).BaseLanguage
-	opts := make([]repository.QueryOption, 0, 1)
+	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(query.IsPrimary.Is(true)))
+	opts = append(opts, repository.Clauses(clause.Locking{Strength: "UPDATE"}))
 	if keepID > 0 {
 		opts = append(opts, repository.Where(query.ID.Neq(keepID)))
 	}

@@ -14,7 +14,7 @@ INSERT IGNORE INTO `base_language` (`id`, `language_code`, `language_name`, `nat
 INSERT IGNORE INTO `base_language` (`id`, `language_code`, `language_name`, `native_name`, `sort`, `is_primary`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (60, 'es-ES', '西班牙语', 'Español', 60, 0, 1, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
 INSERT IGNORE INTO `base_language` (`id`, `language_code`, `language_name`, `native_name`, `sort`, `is_primary`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (70, 'fr-FR', '法语', 'Français', 70, 0, 1, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
 
-INSERT IGNORE INTO `base_menu` (`id`, `parent_id`, `type`, `path`, `name`, `component`, `redirect`, `meta`, `api`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (20011, 200, 2, 'base/language', 'BaseLanguage', 'system/tool/language/index', '', '{"icon": "Language", "title": "语言管理", "hidden": false, "keep_alive": true, "always_show": false}', '["/system.admin.v1.BaseLanguageService/OptionBaseLanguage", "/system.admin.v1.BaseLanguageService/PageBaseLanguage", "/system.admin.v1.BaseLanguageService/GetBaseLanguage", "/system.admin.v1.BaseLanguageService/CreateBaseLanguage", "/system.admin.v1.BaseLanguageService/UpdateBaseLanguage", "/system.admin.v1.BaseLanguageService/DeleteBaseLanguage", "/system.admin.v1.BaseLanguageService/SetBaseLanguageStatus"]', 185, 1, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
+INSERT IGNORE INTO `base_menu` (`id`, `parent_id`, `type`, `path`, `name`, `component`, `redirect`, `meta`, `api`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (20011, 200, 2, 'base/language', 'BaseLanguage', 'system/tool/language/index', '', '{"icon": "Reading", "title": "语言管理", "hidden": false, "keep_alive": true, "always_show": false}', '["/system.admin.v1.BaseLanguageService/OptionBaseLanguage", "/system.admin.v1.BaseLanguageService/PageBaseLanguage", "/system.admin.v1.BaseLanguageService/GetBaseLanguage", "/system.admin.v1.BaseLanguageService/CreateBaseLanguage", "/system.admin.v1.BaseLanguageService/UpdateBaseLanguage", "/system.admin.v1.BaseLanguageService/DeleteBaseLanguage", "/system.admin.v1.BaseLanguageService/SetBaseLanguageStatus"]', 185, 1, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
 INSERT IGNORE INTO `base_menu` (`id`, `parent_id`, `type`, `path`, `name`, `component`, `redirect`, `meta`, `api`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (2001101, 20011, 3, 'base:language:create', '', '', '', '{"title": "新增语言"}', '["/system.admin.v1.BaseLanguageService/CreateBaseLanguage"]', 1, 1, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
 INSERT IGNORE INTO `base_menu` (`id`, `parent_id`, `type`, `path`, `name`, `component`, `redirect`, `meta`, `api`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (2001102, 20011, 3, 'base:language:delete', '', '', '', '{"title": "删除语言"}', '["/system.admin.v1.BaseLanguageService/DeleteBaseLanguage"]', 2, 1, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
 INSERT IGNORE INTO `base_menu` (`id`, `parent_id`, `type`, `path`, `name`, `component`, `redirect`, `meta`, `api`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (2001103, 20011, 3, 'base:language:update', '', '', '', '{"title": "编辑语言"}', '["/system.admin.v1.BaseLanguageService/GetBaseLanguage", "/system.admin.v1.BaseLanguageService/UpdateBaseLanguage"]', 3, 1, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0);
@@ -200,6 +200,11 @@ WHERE `id` IN (2000103, 2000203, 2000303)
   AND JSON_VALID(`api`)
   AND NOT JSON_CONTAINS(`api`, JSON_QUOTE('/system.admin.v1.BaseTranslationService/GenerateTranslationDraft'));
 
+UPDATE `base_menu`
+SET `meta` = JSON_SET(`meta`, '$.icon', 'Reading')
+WHERE `id` = 20011
+  AND JSON_UNQUOTE(JSON_EXTRACT(`meta`, '$.icon')) = 'Language';
+
 INSERT IGNORE INTO `base_role` (`id`, `tenant_id`, `name`, `code`, `data_scope`, `menus`, `status`, `remark`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (1, 1, '超级管理员', 'super', 1, '[]', 1, '超级管理员拥有对系统的最高权限', 1, 1, '2026-07-18 13:51:31', '2026-07-22 12:20:07', 0);
 INSERT IGNORE INTO `base_role` (`id`, `tenant_id`, `name`, `code`, `data_scope`, `menus`, `status`, `remark`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (2, 1, '租户管理员', 'tenant', 1, '[100, 10005, 300, 30002, 3000201, 3000202, 3000203, 3000204, 3000205, 30003, 3000301, 3000302, 3000303, 3000304, 3000305, 30004, 3000401, 3000402, 3000403, 3000404, 30005, 3000501, 3000502, 3000503, 3000504]', 1, '默认租户管理员权限模板，可由默认租户维护', 1, 1, '2026-07-23 14:07:56', '2026-07-24 20:07:13', 0);
 INSERT IGNORE INTO `base_role` (`id`, `tenant_id`, `name`, `code`, `data_scope`, `menus`, `status`, `remark`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (3, 1, '管理员', 'admin', 1, '[100, 10004, 10005, 200, 20002, 2000205, 20003, 2000301, 2000302, 2000303, 2000304, 20004, 2000403, 2000405, 20008, 2000801, 2000802, 2000803, 20005, 2000501, 2000502, 2000503, 2000504, 20010, 300, 30001, 3000101, 3000102, 3000103, 3000104, 30002, 3000201, 3000202, 3000203, 3000204, 3000205, 30003, 3000301, 3000302, 3000303, 3000304, 3000305, 30004, 3000401, 3000402, 3000403, 3000404, 30005, 3000501, 3000502, 3000503, 3000504]', 1, '系统管理员拥有对整个系统的管理权限', 1, 1, '2026-07-25 02:53:55', '2026-07-26 23:06:49', 0);
@@ -208,7 +213,7 @@ INSERT IGNORE INTO `base_role` (`id`, `tenant_id`, `name`, `code`, `data_scope`,
 
 UPDATE `base_role`
 SET `menus` = JSON_ARRAY_APPEND(`menus`, '$', 20011, '$', 2001101, '$', 2001102, '$', 2001103, '$', 2001104), `updated_at` = CURRENT_TIMESTAMP
-WHERE `id` = 3
+WHERE `code` = 'admin'
   AND JSON_VALID(`menus`)
   AND NOT JSON_CONTAINS(`menus`, '20011');
 

@@ -1,5 +1,5 @@
 # Makefile 常用目标：初始化工具、生成代码、格式化代码、启动服务
-.PHONY: help init plugin cli fmt lint i18n-check i18n-draft i18n-locales i18n-zh-tw gorm-gen wire api openapi ts ts-app ts-taro-app project-docs gen run build docker-build
+.PHONY: help init plugin cli fmt lint i18n-sync i18n-check i18n-draft i18n-locales i18n-zh-tw gorm-gen wire api openapi ts ts-app ts-taro-app project-docs gen run build docker-build
 
 IMAGE ?= backend
 TAG ?= latest
@@ -24,6 +24,8 @@ GORM_GEN_DATABASE ?=
 GORM_TABLE ?=
 I18N_WRITE ?= 0
 I18N_OFFLINE ?= 0
+I18N_MIGRATION_VERSION ?=
+I18N_LOCALE ?=
 
 # 初始化开发环境
 init: plugin cli
@@ -83,7 +85,11 @@ lint:
 	@PATH="$(GO_BIN_DIR):$$PATH" golangci-lint run ./...
 	@echo "==> golangci-lint 静态检查完成"
 
-# 检查 Proto 消息键和后端七语错误目录完整性
+# 同步语言包清单和前端注册产物
+i18n-sync:
+	@python3 ../scripts/sync_locales.py --write $(if $(strip $(I18N_MIGRATION_VERSION)),--migration-version "$(I18N_MIGRATION_VERSION)",)
+
+# 检查 Proto 消息键和后端语言目录完整性
 i18n-check:
 	@go run ./internal/cmd/i18n -mode check
 
@@ -93,7 +99,7 @@ i18n-draft:
 
 # 使用 OpenCC 和 Google V1 生成新增语言的语言包和迁移数据
 i18n-locales:
-	@python3 ../scripts/generate_zh_tw.py --write --machine $(if $(filter 1 true,$(I18N_OFFLINE)),--offline)
+	@python3 ../scripts/generate_zh_tw.py --write --machine $(if $(strip $(I18N_LOCALE)),--locale "$(I18N_LOCALE)",) $(if $(strip $(I18N_MIGRATION_VERSION)),--migration-version "$(I18N_MIGRATION_VERSION)",) $(if $(filter 1 true,$(I18N_OFFLINE)),--offline)
 
 # 保留繁体中文命令别名
 i18n-zh-tw: i18n-locales

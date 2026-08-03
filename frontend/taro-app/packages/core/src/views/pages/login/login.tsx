@@ -97,6 +97,7 @@ export default function LoginPage() {
   const [miniForm, setMiniForm] = useState(emptyLoginForm)
   const [miniPassword, setMiniPassword] = useState('')
 
+  const currentLanguageName = languageOptions.find((item) => item.language_code === locale)?.language_name || locale
   const mainTitle = settings?.get('mainTitle') || t('core.home.mainTitle')
   const subTitle = settings?.get('subTitle') || t('core.login.defaultSubTitle')
   const appLogo = settings?.get('appLogo') || defaultLogo
@@ -450,7 +451,7 @@ export default function LoginPage() {
           if (nextLocale) void setLocale(nextLocale)
         }}
       >
-        <View className='login-locale__value'>{t(`common.language.${locale}`)}</View>
+        <View className='login-locale__value'>{currentLanguageName}</View>
       </Picker>
       <View className='login-hero'>
         <View className='login-logo-shell'>

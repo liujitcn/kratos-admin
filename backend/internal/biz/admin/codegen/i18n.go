@@ -90,7 +90,7 @@ func FrontendLocaleMessages(table *Table, columns []*CodeGenColumn, localeValue 
 	return messages
 }
 
-// newFrontendLocalePreviewFiles 创建七语语言包的结构化合并预览。
+// newFrontendLocalePreviewFiles 创建语言包的结构化合并预览。
 func (c *renderer) newFrontendLocalePreviewFiles(table *Table, columns []*CodeGenColumn) []*systemadminv1.CodeGenPreviewFile {
 	target := ProtoTargetForTable(table)
 	files := make([]*systemadminv1.CodeGenPreviewFile, 0, len(GeneratedFrontendLocales()))
@@ -144,208 +144,26 @@ func LocalizedColumnComment(column *CodeGenColumn, localeValue string) string {
 func GeneratedMenuTranslations(table *Table, column *CodeGenColumn, action string) map[string]string {
 	translations := make(map[string]string, len(RequiredTranslationLocales()))
 	for _, localeValue := range RequiredTranslationLocales() {
+		catalog := codegenCatalog(localeValue)
 		resource := localizedTableComment(table, localeValue)
-		title := resource
-		switch action {
-		case "create":
-			title = "Create " + resource
-			if localeValue == coreLocale.JaJP {
-				title = resource + "を新規作成"
-			} else if localeValue == coreLocale.ZhTW {
-				title = "新增" + resource
-			} else if localeValue == coreLocale.KoKR {
-				title = resource + " 생성"
-			} else if localeValue == coreLocale.FrFR {
-				title = "Créer " + resource
-			} else if localeValue == coreLocale.EsES {
-				title = "Crear " + resource
-			}
-		case "update":
-			title = "Edit " + resource
-			if localeValue == coreLocale.JaJP {
-				title = resource + "を編集"
-			} else if localeValue == coreLocale.ZhTW {
-				title = "編輯" + resource
-			} else if localeValue == coreLocale.KoKR {
-				title = resource + " 편집"
-			} else if localeValue == coreLocale.FrFR {
-				title = "Modifier " + resource
-			} else if localeValue == coreLocale.EsES {
-				title = "Editar " + resource
-			}
-		case "delete":
-			title = "Delete " + resource
-			if localeValue == coreLocale.JaJP {
-				title = resource + "を削除"
-			} else if localeValue == coreLocale.ZhTW {
-				title = "刪除" + resource
-			} else if localeValue == coreLocale.KoKR {
-				title = resource + " 삭제"
-			} else if localeValue == coreLocale.FrFR {
-				title = "Supprimer " + resource
-			} else if localeValue == coreLocale.EsES {
-				title = "Eliminar " + resource
-			}
-		case "status":
-			fieldName := localizedColumnComment(column, localeValue)
-			title = "Set " + fieldName
-			if localeValue == coreLocale.JaJP {
-				title = fieldName + "を設定"
-			} else if localeValue == coreLocale.ZhTW {
-				title = "設定" + fieldName
-			} else if localeValue == coreLocale.KoKR {
-				title = fieldName + " 설정"
-			} else if localeValue == coreLocale.FrFR {
-				title = "Définir " + fieldName
-			} else if localeValue == coreLocale.EsES {
-				title = "Establecer " + fieldName
-			}
+		values := map[string]string{"resource": resource}
+		if action == "status" {
+			values["field"] = localizedColumnComment(column, localeValue)
 		}
-		translations[localeValue] = title
+		template := catalog.Menu[action]
+		if template == "" {
+			template = catalog.Menu["default"]
+		}
+		translations[localeValue] = renderCodegenTemplate(template, values)
 	}
 	return translations
 }
 
 func localizedResourceMessages(prefix string, resource string, localeValue string) map[string]string {
-	messages := map[string]string{
-		prefix + ".placeholder.input":      "请输入{field}",
-		prefix + ".placeholder.select":     "请选择{field}",
-		prefix + ".validation.required":    "{field}不能为空",
-		prefix + ".validation.maxLength":   "{field}不能超过 {max} 个字符",
-		prefix + ".title.create":           "新增" + resource,
-		prefix + ".title.edit":             "编辑" + resource,
-		prefix + ".message.createSuccess":  "新增" + resource + "成功",
-		prefix + ".message.updateSuccess":  "修改" + resource + "成功",
-		prefix + ".message.deleteSuccess":  "删除" + resource + "成功",
-		prefix + ".message.deleteCanceled": "已取消删除" + resource,
-		prefix + ".message.selectDelete":   "请勾选删除项",
-		prefix + ".message.statusSuccess":  "{action}成功",
-		prefix + ".dialog.deleteSingle":    "是否确定删除" + resource + "？",
-		prefix + ".dialog.deleteBatch":     "确认删除已选中的" + resource + "吗？",
-		prefix + ".dialog.confirmStatus":   "是否确定{action}" + resource + "？",
-		prefix + ".status.enabled":         "启用",
-		prefix + ".status.disabled":        "禁用",
-		prefix + ".value.topLevel":         "顶级节点",
-	}
-	if localeValue == coreLocale.EnUS {
-		messages[prefix+".placeholder.input"] = "Enter {field}"
-		messages[prefix+".placeholder.select"] = "Select {field}"
-		messages[prefix+".validation.required"] = "{field} is required"
-		messages[prefix+".validation.maxLength"] = "{field} cannot exceed {max} characters"
-		messages[prefix+".title.create"] = "Create " + resource
-		messages[prefix+".title.edit"] = "Edit " + resource
-		messages[prefix+".message.createSuccess"] = resource + " created"
-		messages[prefix+".message.updateSuccess"] = resource + " updated"
-		messages[prefix+".message.deleteSuccess"] = resource + " deleted"
-		messages[prefix+".message.deleteCanceled"] = "Deletion canceled"
-		messages[prefix+".message.selectDelete"] = "Select records to delete"
-		messages[prefix+".message.statusSuccess"] = "{action} succeeded"
-		messages[prefix+".dialog.deleteSingle"] = "Delete this " + resource + "?"
-		messages[prefix+".dialog.deleteBatch"] = "Delete the selected " + resource + " records?"
-		messages[prefix+".dialog.confirmStatus"] = "{action} this " + resource + "?"
-		messages[prefix+".status.enabled"] = "Enable"
-		messages[prefix+".status.disabled"] = "Disable"
-		messages[prefix+".value.topLevel"] = "Top level"
-	}
-	if localeValue == coreLocale.JaJP {
-		messages[prefix+".placeholder.input"] = "{field}を入力してください"
-		messages[prefix+".placeholder.select"] = "{field}を選択してください"
-		messages[prefix+".validation.required"] = "{field}は必須です"
-		messages[prefix+".validation.maxLength"] = "{field}は {max} 文字以内で入力してください"
-		messages[prefix+".title.create"] = resource + "を新規作成"
-		messages[prefix+".title.edit"] = resource + "を編集"
-		messages[prefix+".message.createSuccess"] = resource + "を作成しました"
-		messages[prefix+".message.updateSuccess"] = resource + "を更新しました"
-		messages[prefix+".message.deleteSuccess"] = resource + "を削除しました"
-		messages[prefix+".message.deleteCanceled"] = "削除をキャンセルしました"
-		messages[prefix+".message.selectDelete"] = "削除する項目を選択してください"
-		messages[prefix+".message.statusSuccess"] = "{action}しました"
-		messages[prefix+".dialog.deleteSingle"] = resource + "を削除しますか？"
-		messages[prefix+".dialog.deleteBatch"] = "選択した" + resource + "を削除しますか？"
-		messages[prefix+".dialog.confirmStatus"] = resource + "を{action}しますか？"
-		messages[prefix+".status.enabled"] = "有効化"
-		messages[prefix+".status.disabled"] = "無効化"
-		messages[prefix+".value.topLevel"] = "最上位ノード"
-	}
-	if localeValue == coreLocale.ZhTW {
-		messages[prefix+".placeholder.input"] = "請輸入{field}"
-		messages[prefix+".placeholder.select"] = "請選擇{field}"
-		messages[prefix+".validation.required"] = "{field}不能為空"
-		messages[prefix+".validation.maxLength"] = "{field}不能超過 {max} 個字元"
-		messages[prefix+".title.create"] = "新增" + resource
-		messages[prefix+".title.edit"] = "編輯" + resource
-		messages[prefix+".message.createSuccess"] = "新增" + resource + "成功"
-		messages[prefix+".message.updateSuccess"] = "修改" + resource + "成功"
-		messages[prefix+".message.deleteSuccess"] = "刪除" + resource + "成功"
-		messages[prefix+".message.deleteCanceled"] = "已取消刪除" + resource
-		messages[prefix+".message.selectDelete"] = "請勾選刪除項目"
-		messages[prefix+".message.statusSuccess"] = "{action}成功"
-		messages[prefix+".dialog.deleteSingle"] = "是否確定刪除" + resource + "？"
-		messages[prefix+".dialog.deleteBatch"] = "確認刪除已選取的" + resource + "嗎？"
-		messages[prefix+".dialog.confirmStatus"] = "是否確定{action}" + resource + "？"
-		messages[prefix+".status.enabled"] = "啟用"
-		messages[prefix+".status.disabled"] = "停用"
-		messages[prefix+".value.topLevel"] = "頂級節點"
-	}
-	if localeValue == coreLocale.KoKR {
-		messages[prefix+".placeholder.input"] = "{field} 입력"
-		messages[prefix+".placeholder.select"] = "{field} 선택"
-		messages[prefix+".validation.required"] = "{field}은(는) 필수입니다"
-		messages[prefix+".validation.maxLength"] = "{field}은(는) {max}자를 초과할 수 없습니다"
-		messages[prefix+".title.create"] = resource + " 생성"
-		messages[prefix+".title.edit"] = resource + " 편집"
-		messages[prefix+".message.createSuccess"] = resource + " 생성 성공"
-		messages[prefix+".message.updateSuccess"] = resource + " 수정 성공"
-		messages[prefix+".message.deleteSuccess"] = resource + " 삭제 성공"
-		messages[prefix+".message.deleteCanceled"] = "삭제가 취소되었습니다"
-		messages[prefix+".message.selectDelete"] = "삭제할 항목을 선택하세요"
-		messages[prefix+".message.statusSuccess"] = "{action} 성공"
-		messages[prefix+".dialog.deleteSingle"] = "이 " + resource + "을(를) 삭제하시겠습니까?"
-		messages[prefix+".dialog.deleteBatch"] = "선택한 " + resource + "을(를) 삭제하시겠습니까?"
-		messages[prefix+".dialog.confirmStatus"] = resource + "을(를) {action}하시겠습니까?"
-		messages[prefix+".status.enabled"] = "사용"
-		messages[prefix+".status.disabled"] = "사용 안 함"
-		messages[prefix+".value.topLevel"] = "최상위 노드"
-	}
-	if localeValue == coreLocale.FrFR {
-		messages[prefix+".placeholder.input"] = "Saisissez {field}"
-		messages[prefix+".placeholder.select"] = "Sélectionnez {field}"
-		messages[prefix+".validation.required"] = "{field} est obligatoire"
-		messages[prefix+".validation.maxLength"] = "{field} ne peut pas dépasser {max} caractères"
-		messages[prefix+".title.create"] = "Créer " + resource
-		messages[prefix+".title.edit"] = "Modifier " + resource
-		messages[prefix+".message.createSuccess"] = resource + " créé"
-		messages[prefix+".message.updateSuccess"] = resource + " modifié"
-		messages[prefix+".message.deleteSuccess"] = resource + " supprimé"
-		messages[prefix+".message.deleteCanceled"] = "Suppression annulée"
-		messages[prefix+".message.selectDelete"] = "Sélectionnez les éléments à supprimer"
-		messages[prefix+".message.statusSuccess"] = "{action} réussi"
-		messages[prefix+".dialog.deleteSingle"] = "Supprimer ce " + resource + " ?"
-		messages[prefix+".dialog.deleteBatch"] = "Supprimer les " + resource + " sélectionnés ?"
-		messages[prefix+".dialog.confirmStatus"] = "{action} ce " + resource + " ?"
-		messages[prefix+".status.enabled"] = "Activer"
-		messages[prefix+".status.disabled"] = "Désactiver"
-		messages[prefix+".value.topLevel"] = "Niveau supérieur"
-	}
-	if localeValue == coreLocale.EsES {
-		messages[prefix+".placeholder.input"] = "Introduzca {field}"
-		messages[prefix+".placeholder.select"] = "Seleccione {field}"
-		messages[prefix+".validation.required"] = "{field} es obligatorio"
-		messages[prefix+".validation.maxLength"] = "{field} no puede superar {max} caracteres"
-		messages[prefix+".title.create"] = "Crear " + resource
-		messages[prefix+".title.edit"] = "Editar " + resource
-		messages[prefix+".message.createSuccess"] = resource + " creado"
-		messages[prefix+".message.updateSuccess"] = resource + " actualizado"
-		messages[prefix+".message.deleteSuccess"] = resource + " eliminado"
-		messages[prefix+".message.deleteCanceled"] = "Eliminación cancelada"
-		messages[prefix+".message.selectDelete"] = "Seleccione los elementos que desea eliminar"
-		messages[prefix+".message.statusSuccess"] = "{action} correctamente"
-		messages[prefix+".dialog.deleteSingle"] = "¿Eliminar este " + resource + "?"
-		messages[prefix+".dialog.deleteBatch"] = "¿Eliminar los " + resource + " seleccionados?"
-		messages[prefix+".dialog.confirmStatus"] = "¿{action} este " + resource + "?"
-		messages[prefix+".status.enabled"] = "Activar"
-		messages[prefix+".status.disabled"] = "Desactivar"
-		messages[prefix+".value.topLevel"] = "Nivel superior"
+	catalog := codegenCatalog(localeValue)
+	messages := make(map[string]string, len(catalog.Resource))
+	for key, template := range catalog.Resource {
+		messages[prefix+"."+key] = renderCodegenTemplate(template, map[string]string{"resource": resource})
 	}
 	return messages
 }
@@ -379,22 +197,11 @@ func localizedColumnComment(column *CodeGenColumn, localeValue string) string {
 }
 
 func localizedPasswordStrength(localeValue string) string {
-	switch localeValue {
-	case coreLocale.EnUS:
-		return "Password strength"
-	case coreLocale.JaJP:
-		return "パスワード強度"
-	case coreLocale.ZhTW:
-		return "強度提示"
-	case coreLocale.KoKR:
-		return "비밀번호 강도"
-	case coreLocale.FrFR:
-		return "Force du mot de passe"
-	case coreLocale.EsES:
-		return "Fortaleza de la contraseña"
-	default:
-		return "强度提示"
+	catalog := codegenCatalog(localeValue)
+	if catalog.PasswordStrength != "" {
+		return catalog.PasswordStrength
 	}
+	return codegenCatalog(coreLocale.Default).PasswordStrength
 }
 
 // frontendStaticOptionLocaleKey 返回静态选项值对应的稳定语言键。
@@ -416,15 +223,7 @@ func parseCodeGenStaticOptions(option CodeGenColumnOptionConfig) []CodeGenStatic
 }
 
 func localizedGeneratedStaticLabel(label string, localeValue string) string {
-	translations := map[string]map[string]string{
-		"启用": {coreLocale.ZhTW: "啟用", coreLocale.EnUS: "Enabled", coreLocale.JaJP: "有効", coreLocale.KoKR: "사용", coreLocale.FrFR: "Activé", coreLocale.EsES: "Activado"},
-		"禁用": {coreLocale.ZhTW: "停用", coreLocale.EnUS: "Disabled", coreLocale.JaJP: "無効", coreLocale.KoKR: "사용 안 함", coreLocale.FrFR: "Désactivé", coreLocale.EsES: "Desactivado"},
-		"是":  {coreLocale.ZhTW: "是", coreLocale.EnUS: "Yes", coreLocale.JaJP: "はい", coreLocale.KoKR: "예", coreLocale.FrFR: "Oui", coreLocale.EsES: "Sí"},
-		"否":  {coreLocale.ZhTW: "否", coreLocale.EnUS: "No", coreLocale.JaJP: "いいえ", coreLocale.KoKR: "아니요", coreLocale.FrFR: "Non", coreLocale.EsES: "No"},
-		"男":  {coreLocale.ZhTW: "男", coreLocale.EnUS: "Male", coreLocale.JaJP: "男性", coreLocale.KoKR: "남성", coreLocale.FrFR: "Homme", coreLocale.EsES: "Hombre"},
-		"女":  {coreLocale.ZhTW: "女", coreLocale.EnUS: "Female", coreLocale.JaJP: "女性", coreLocale.KoKR: "여성", coreLocale.FrFR: "Femme", coreLocale.EsES: "Mujer"},
-	}
-	if translated := translations[label][localeValue]; translated != "" {
+	if translated := codegenCatalog(localeValue).Static[label]; translated != "" {
 		return translated
 	}
 	return label

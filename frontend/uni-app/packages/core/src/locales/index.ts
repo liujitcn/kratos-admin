@@ -5,19 +5,17 @@
 import { readonly, ref } from 'vue'
 import type { KratosAppModule } from '../module'
 import type { GetLanguageResponse } from '../rpc/base/v1/language'
+import {
+  DEFAULT_LOCALE as GENERATED_DEFAULT_LOCALE,
+  LOCALE_MESSAGES,
+  SUPPORTED_LOCALES as GENERATED_SUPPORTED_LOCALES,
+  type GeneratedLocale,
+} from './generated'
 
-/** 移动端支持的语言区域。 */
-export const SUPPORTED_LOCALES = [
-  'zh-CN',
-  'zh-TW',
-  'en-US',
-  'ja-JP',
-  'ko-KR',
-  'fr-FR',
-  'es-ES',
-] as const
+/** 移动端已打包的语言区域；运行时可切换列表由 base_language 接口决定。 */
+export const SUPPORTED_LOCALES = GENERATED_SUPPORTED_LOCALES
 /** 移动端支持的语言区域类型。 */
-export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number]
+export type SupportedLocale = GeneratedLocale
 /** 单个模块的扁平语言包。 */
 export type LocaleMessages = Record<string, string>
 /** 翻译插值参数。 */
@@ -35,7 +33,7 @@ export interface LocaleOption {
   sort: number
 }
 
-const DEFAULT_LOCALE: SupportedLocale = 'zh-CN'
+const DEFAULT_LOCALE: SupportedLocale = GENERATED_DEFAULT_LOCALE
 const LOCALE_STORAGE_KEY = 'kratos-app:locale'
 const localeMessages = new Map<SupportedLocale, LocaleMessages>()
 const localeChangeHandlers = new Set<() => void | Promise<void>>()
@@ -47,21 +45,7 @@ export const localeState = readonly(mutableLocaleState)
 
 /** 规范化语言区域到应用白名单。 */
 export function normalizeLocale(value?: string): SupportedLocale {
-  const normalized = String(value || '')
-    .replace('_', '-')
-    .toLowerCase()
-  if (normalized.startsWith('ja')) return 'ja-JP'
-  if (normalized.startsWith('en')) return 'en-US'
-  if (
-    normalized.startsWith('zh-tw') ||
-    normalized.startsWith('zh-hk') ||
-    normalized.startsWith('zh-mo')
-  )
-    return 'zh-TW'
-  if (normalized.startsWith('ko')) return 'ko-KR'
-  if (normalized.startsWith('fr')) return 'fr-FR'
-  if (normalized.startsWith('es')) return 'es-ES'
-  return DEFAULT_LOCALE
+  return parseSupportedLocale(value) ?? DEFAULT_LOCALE
 }
 
 /** 将接口或系统语言代码解析为已打包的语言区域。 */
@@ -69,19 +53,13 @@ function parseSupportedLocale(value?: string): SupportedLocale | undefined {
   const normalized = String(value || '')
     .replace('_', '-')
     .toLowerCase()
-  if (
-    normalized.startsWith('zh-tw') ||
-    normalized.startsWith('zh-hk') ||
-    normalized.startsWith('zh-mo')
-  )
-    return 'zh-TW'
-  if (normalized.startsWith('zh')) return 'zh-CN'
-  if (normalized.startsWith('ja')) return 'ja-JP'
-  if (normalized.startsWith('en')) return 'en-US'
-  if (normalized.startsWith('ko')) return 'ko-KR'
-  if (normalized.startsWith('fr')) return 'fr-FR'
-  if (normalized.startsWith('es')) return 'es-ES'
-  return undefined
+  if (!normalized) return undefined
+  const alias =
+    normalized.startsWith('zh-hk') || normalized.startsWith('zh-mo') ? 'zh-tw' : normalized
+  const exact = SUPPORTED_LOCALES.find((locale) => locale.toLowerCase() === alias)
+  if (exact) return exact
+  const language = alias.split('-', 1)[0]
+  return SUPPORTED_LOCALES.find((locale) => locale.toLowerCase().split('-', 1)[0] === language)
 }
 
 /** 初始化持久化语言偏好。 */
@@ -100,7 +78,7 @@ export function applyLanguageConfig(response: GetLanguageResponse): void {
     if (!languageCode || items.some((option) => option.language_code === languageCode)) return items
     items.push({
       language_code: languageCode,
-      language_name: item.language_name || t(`common.language.${languageCode}`),
+      language_name: item.language_name || fallbackLanguageName(languageCode),
       native_name: item.native_name || item.language_name || languageCode,
       sort: item.sort,
     })
@@ -133,21 +111,21 @@ export function getSupportedLocales(): SupportedLocale[] {
   return getLanguageOptions().map((item) => item.language_code)
 }
 
-/** 注册所有模块贡献的语言包并校验七语键集合。 */
+/** 注册所有模块贡献的语言包并校验语言键集合。 */
 export function registerLocaleMessages(modules: KratosAppModule[]): void {
   localeMessages.clear()
   SUPPORTED_LOCALES.forEach((locale) => localeMessages.set(locale, {}))
   modules.forEach((module) => {
-    const expectedKeys = Object.keys(module.messages?.[DEFAULT_LOCALE] || {}).sort()
+    const expectedKeys = requiredLocaleKeys(module.messages?.[DEFAULT_LOCALE] || {})
     SUPPORTED_LOCALES.forEach((locale) => {
       const messages = module.messages?.[locale]
       if (!messages) throw new Error(`${module.name} 缺少 ${locale} 语言包`)
-      const keys = Object.keys(messages).sort()
+      const keys = requiredLocaleKeys(messages)
       if (keys.join('\u0000') !== expectedKeys.join('\u0000')) {
         throw new Error(`${module.name} 的 ${locale} 语言包键集合不一致`)
       }
       const target = localeMessages.get(locale) as LocaleMessages
-      keys.forEach((key) => {
+      Object.keys(messages).forEach((key) => {
         if (!key.startsWith('common.') && !key.startsWith('core.') && !key.startsWith('system.')) {
           throw new Error(`${module.name} 的语言键命名空间无效: ${key}`)
         }
@@ -225,11 +203,28 @@ function assertLocalePlaceholders(
   }
 }
 
+function requiredLocaleKeys(messages: LocaleMessages): string[] {
+  return Object.keys(messages)
+    .filter((key) => !key.startsWith('common.language.'))
+    .sort()
+}
+
 function getFallbackLanguageOptions(): LocaleOption[] {
   return SUPPORTED_LOCALES.map((languageCode, sort) => ({
     language_code: languageCode,
-    language_name: t(`common.language.${languageCode}`),
+    language_name: fallbackLanguageName(languageCode),
     native_name: languageCode,
     sort,
   }))
+}
+
+function fallbackLanguageName(languageCode: SupportedLocale): string {
+  const key = `common.language.${languageCode}`
+  const messages = LOCALE_MESSAGES as Record<string, Record<string, string>>
+  const currentMessage = messages[getCurrentLocale()]?.[key]
+  const defaultMessage = messages[DEFAULT_LOCALE]?.[key]
+  const anyMessage = Object.values(messages)
+    .map((item) => item[key])
+    .find(Boolean)
+  return currentMessage || defaultMessage || anyMessage || languageCode
 }

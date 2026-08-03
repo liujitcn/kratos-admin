@@ -1,14 +1,8 @@
 import { corePages } from './pages'
 import type { LocaleMessages, SupportedLocale } from './locales'
 
-// Core 语言包随 coreModule 注册，供 uni-app 公共页面、请求工具和基础组件使用。
-import coreEnUS from './locales/en-US.json'
-import coreJaJP from './locales/ja-JP.json'
-import coreZhCN from './locales/zh-CN.json'
-import coreZhTW from './locales/zh-TW.json'
-import coreKoKR from './locales/ko-KR.json'
-import coreFrFR from './locales/fr-FR.json'
-import coreEsES from './locales/es-ES.json'
+// Core 语言包由同步脚本生成并注册，供 uni-app 公共页面、请求工具和基础组件使用。
+import { LOCALE_MESSAGES } from './locales/generated'
 
 /** bootstrap 可见状态键。 */
 export type BootstrapViewKey =
@@ -94,13 +88,5 @@ export const coreModule = defineKratosAppModule({
     USER_DEFAULT: 'static/tabs/user_default.png',
     USER_SELECTED: 'static/tabs/user_selected.png',
   },
-  messages: {
-    'zh-CN': coreZhCN,
-    'zh-TW': coreZhTW,
-    'ko-KR': coreKoKR,
-    'fr-FR': coreFrFR,
-    'es-ES': coreEsES,
-    'en-US': coreEnUS,
-    'ja-JP': coreJaJP,
-  },
+  messages: LOCALE_MESSAGES,
 })

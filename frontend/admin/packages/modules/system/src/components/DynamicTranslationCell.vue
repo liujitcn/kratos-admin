@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { t, useLocaleStore } from "@liujitcn/kratos-admin-core";
+import { DEFAULT_LOCALE, t, useLocaleStore } from "@liujitcn/kratos-admin-core";
 import { useEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
 import { TranslationStatus } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
 import { getLanguageLabel } from "./dynamicTranslation";
@@ -67,14 +67,14 @@ interface DynamicTranslationCellProps {
 
 const props = withDefaults(defineProps<DynamicTranslationCellProps>(), {
   translations: () => [],
-  sourceLocale: "zh-CN",
+  sourceLocale: DEFAULT_LOCALE,
   textField: "text",
   showStatus: true
 });
 
 const { locale } = useLocaleStore();
 const { languages } = useEnabledBaseLanguages();
-const primaryLocale = computed(() => languages.value.find(item => item.is_primary)?.language_code ?? props.sourceLocale ?? "zh-CN");
+const primaryLocale = computed(() => languages.value.find(item => item.is_primary)?.language_code ?? props.sourceLocale);
 
 const displaySource = computed(() => {
   if (locale.value === primaryLocale.value) return props.source;

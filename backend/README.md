@@ -132,9 +132,12 @@ migration/assets/
 
 ## 国际化
 
-后端支持 `zh-CN`、`zh-TW`、`en-US`、`ja-JP`、`ko-KR`、`fr-FR`、`es-ES`。`core/pkg/locale` 负责规范化 `Accept-Language`，locale 中间件将语言区域写入请求上下文，并在响应边界本地化结构化错误。`internal/i18n/locales` 通过 `go:embed` 提供七语错误目录；动态菜单、字典和字典项的审核译文由 `v0.0.1` 翻译表按请求语言解析，缺少当前语言译文时回退主语言。
+后端支持的语言由 `internal/i18n/locales` 自动发现。`core/pkg/locale` 负责规范化 `Accept-Language`，locale 中间件将语言区域写入请求上下文，并在响应边界本地化结构化错误；动态菜单、字典和字典项的审核译文由版本化翻译表按请求语言解析，缺少当前语言译文时回退主语言。
+
+新增语言时，在 `internal/i18n/locales` 增加错误目录，并同步三个前端 workspace 的语言包和代码生成语言目录，然后从仓库根目录执行 `make i18n-sync`。脚本生成 `core/pkg/locale/manifest.json` 和前端注册产物，不需要修改 Go/TypeScript 源码。若新部署需要默认插入语言记录，执行 `make i18n-sync I18N_MIGRATION_VERSION=vX.Y.Z` 生成版本化迁移；`base_language` 的启用状态、排序和主语言标记仍由数据库维护。
 
 ```bash
+make i18n-sync
 make i18n-check
 make i18n-draft
 I18N_WRITE=1 make i18n-draft

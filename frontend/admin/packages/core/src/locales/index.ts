@@ -3,22 +3,22 @@
  * 各语言 JSON 由对应模块定义文件导入，不能在 JSON 文件内添加注释。
  */
 import dayjs from "dayjs";
-import "dayjs/locale/en";
-import "dayjs/locale/ja";
-import "dayjs/locale/zh-cn";
-import "dayjs/locale/zh-tw";
-import "dayjs/locale/ko";
-import "dayjs/locale/fr";
-import "dayjs/locale/es";
 import { computed, readonly, ref } from "vue";
 import { createI18n } from "vue-i18n";
 import type { AdminModule } from "@/modules";
 import type { GetLanguageResponse } from "@/rpc/base/v1/language";
+import {
+  DAYJS_LOCALE_MAP,
+  DEFAULT_LOCALE as GENERATED_DEFAULT_LOCALE,
+  LOCALE_MESSAGES,
+  SUPPORTED_LOCALES as GENERATED_SUPPORTED_LOCALES,
+  type GeneratedLocale,
+} from "./generated";
 
-/** 管理端支持的语言区域。 */
-export const SUPPORTED_LOCALES = ["zh-CN", "zh-TW", "en-US", "ja-JP", "ko-KR", "fr-FR", "es-ES"] as const;
+/** 管理端已打包的语言区域；运行时可切换列表由 base_language 接口决定。 */
+export const SUPPORTED_LOCALES = GENERATED_SUPPORTED_LOCALES;
 /** 管理端支持的语言区域类型。 */
-export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
+export type SupportedLocale = GeneratedLocale;
 /** 单个模块的扁平语言包。 */
 export type LocaleMessages = Record<string, string>;
 /** 翻译插值参数。 */
@@ -36,7 +36,7 @@ export interface LocaleOption {
   sort: number;
 }
 
-export const DEFAULT_LOCALE: SupportedLocale = "zh-CN";
+export const DEFAULT_LOCALE: SupportedLocale = GENERATED_DEFAULT_LOCALE;
 export const LOCALE_STORAGE_KEY = "kratos-admin:locale";
 
 const mutableLocale = ref<SupportedLocale>(DEFAULT_LOCALE);
@@ -56,48 +56,37 @@ export const adminI18n = createI18n({
 
 /** 规范化任意语言输入到管理端白名单。 */
 export function normalizeLocale(value?: string): SupportedLocale {
-  const normalized = String(value ?? "")
-    .replace("_", "-")
-    .toLowerCase();
-  if (normalized.startsWith("ja")) return "ja-JP";
-  if (normalized.startsWith("en")) return "en-US";
-  if (normalized.startsWith("zh-tw") || normalized.startsWith("zh-hk") || normalized.startsWith("zh-mo")) return "zh-TW";
-  if (normalized.startsWith("ko")) return "ko-KR";
-  if (normalized.startsWith("fr")) return "fr-FR";
-  if (normalized.startsWith("es")) return "es-ES";
-  return DEFAULT_LOCALE;
+  return parseSupportedLocale(value) ?? DEFAULT_LOCALE;
 }
 
 /** 将接口或系统语言代码解析为已打包的语言区域。 */
 function parseSupportedLocale(value?: string): SupportedLocale | undefined {
   const normalized = String(value ?? "").replace("_", "-").toLowerCase();
-  if (normalized.startsWith("zh-tw") || normalized.startsWith("zh-hk") || normalized.startsWith("zh-mo")) return "zh-TW";
-  if (normalized.startsWith("zh")) return "zh-CN";
-  if (normalized.startsWith("en")) return "en-US";
-  if (normalized.startsWith("ja")) return "ja-JP";
-  if (normalized.startsWith("ko")) return "ko-KR";
-  if (normalized.startsWith("fr")) return "fr-FR";
-  if (normalized.startsWith("es")) return "es-ES";
-  return undefined;
+  if (!normalized) return undefined;
+  const alias = normalized.startsWith("zh-hk") || normalized.startsWith("zh-mo") ? "zh-tw" : normalized;
+  const exact = SUPPORTED_LOCALES.find(locale => locale.toLowerCase() === alias);
+  if (exact) return exact;
+  const language = alias.split("-", 1)[0];
+  return SUPPORTED_LOCALES.find(locale => locale.toLowerCase().split("-", 1)[0] === language);
 }
 
-/** 注册模块语言包并校验七语键、占位符和命名空间。 */
+/** 注册模块语言包并校验语言键、占位符和命名空间。 */
 export function registerLocaleMessages(modules: AdminModule[]): void {
   const merged = new Map<SupportedLocale, LocaleMessages>(SUPPORTED_LOCALES.map(locale => [locale, {}]));
 
   modules.forEach(module => {
     if (!module.messages) return;
-    const expectedKeys = Object.keys(module.messages[DEFAULT_LOCALE] ?? {}).sort();
+    const expectedKeys = requiredLocaleKeys(module.messages[DEFAULT_LOCALE] ?? {});
     SUPPORTED_LOCALES.forEach(locale => {
       const messages = module.messages?.[locale];
       if (!messages) throw new Error(`${module.name} 缺少 ${locale} 语言包`);
-      const keys = Object.keys(messages).sort();
+      const keys = requiredLocaleKeys(messages);
       if (keys.join("\u0000") !== expectedKeys.join("\u0000")) {
         throw new Error(`${module.name} 的 ${locale} 语言包键集合不一致`);
       }
 
       const target = merged.get(locale) as LocaleMessages;
-      keys.forEach(key => {
+      Object.keys(messages).forEach(key => {
         assertLocaleKeyNamespace(module.name, key);
         if (Object.prototype.hasOwnProperty.call(target, key)) {
           throw new Error(`${locale} 语言键重复: ${key}`);
@@ -126,7 +115,7 @@ export function applyLanguageConfig(response: GetLanguageResponse): void {
     if (!languageCode || items.some((option) => option.language_code === languageCode)) return items;
     items.push({
       language_code: languageCode,
-      language_name: item.language_name || t(`common.language.${languageCode}`),
+      language_name: item.language_name || fallbackLanguageName(languageCode),
       native_name: item.native_name || item.language_name || languageCode,
       sort: item.sort,
     });
@@ -194,18 +183,30 @@ export function useLocaleStore() {
 }
 
 function getFallbackLanguageOptions(): LocaleOption[] {
-  return SUPPORTED_LOCALES.map((languageCode, sort) => ({
-    language_code: languageCode,
-    language_name: t(`common.language.${languageCode}`),
-    native_name: languageCode,
-    sort,
-  }));
+  return SUPPORTED_LOCALES.map((languageCode, sort) => {
+    return {
+      language_code: languageCode,
+      language_name: fallbackLanguageName(languageCode),
+      native_name: languageCode,
+      sort,
+    };
+  });
+}
+
+function fallbackLanguageName(languageCode: SupportedLocale): string {
+  const key = `common.language.${languageCode}`;
+  const messages = LOCALE_MESSAGES as Record<string, Record<string, string>>;
+  const currentMessage = messages[getCurrentLocale()]?.[key];
+  const defaultMessage = messages[DEFAULT_LOCALE]?.[key];
+  const anyMessage = Object.values(messages).map(item => item[key]).find(Boolean);
+  return currentMessage || defaultMessage || anyMessage || languageCode;
 }
 
 function applyLocale(locale: SupportedLocale): void {
   mutableLocale.value = locale;
   adminI18n.global.locale.value = locale;
-  dayjs.locale({ "zh-CN": "zh-cn", "zh-TW": "zh-tw", "en-US": "en", "ja-JP": "ja", "ko-KR": "ko", "fr-FR": "fr", "es-ES": "es" }[locale]);
+  const dayjsLocale = DAYJS_LOCALE_MAP[locale];
+  if (dayjsLocale) dayjs.locale(dayjsLocale);
   document.documentElement.lang = locale;
 }
 
@@ -213,6 +214,12 @@ function assertLocaleKeyNamespace(moduleName: string, key: string): void {
   const valid =
     moduleName === "kratos-admin" ? key.startsWith("common.") || key.startsWith("core.") : key.startsWith(`${moduleName}.`);
   if (!valid) throw new Error(`${moduleName} 的语言键命名空间无效: ${key}`);
+}
+
+function requiredLocaleKeys(messages: LocaleMessages): string[] {
+  return Object.keys(messages)
+    .filter(key => !key.startsWith("common.language."))
+    .sort();
 }
 
 function assertLocalePlaceholders(moduleName: string, key: string, message: string, sourceMessage: string): void {

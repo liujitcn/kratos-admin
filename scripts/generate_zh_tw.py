@@ -27,8 +27,7 @@ JSON_SOURCES = [
     ROOT / "frontend/taro-app/packages/core/src/locales/zh-CN.json",
     ROOT / "frontend/taro-app/packages/modules/system/src/locales/zh-CN.json",
 ]
-TARGET_LOCALES = ("zh-TW", "ko-KR", "fr-FR", "es-ES")
-MACHINE_LOCALES = ("ko-KR", "fr-FR", "es-ES")
+DEFAULT_TARGET_LOCALES = ("zh-TW", "ko-KR", "fr-FR", "es-ES")
 FALLBACK_TRANSLATIONS = {
     "es": {
         "Please enter": "Introduzca",
@@ -101,6 +100,7 @@ FALLBACK_TRANSLATIONS = {
 PROTECTED_PATTERN = re.compile(
     r"(?s)```.*?```|`[^`]+`|\{\{[^{}]+\}\}|\$\{[^{}]+\}|\{[A-Za-z_][A-Za-z0-9_.-]*\}|%[sdv]|</?[^>]+>|https?://[^\s<>()]+|/(?:api|events|mcp|v[0-9]+)/[A-Za-z0-9_./:{}-]+"
 )
+MIGRATION_VERSION_PATTERN = re.compile(r"^v\d+\.\d+\.\d+$")
 ENTRY_PATTERN = re.compile(r"__KRATOS_ENTRY_(\d{4})__")
 TOKEN_PATTERN = re.compile(r"__KRATOS_TOKEN_(\d{4})__")
 PLACEHOLDER_PATTERN = re.compile(r"\{\{[^{}]+\}\}|\$\{[^{}]+\}|\{[A-Za-z_][A-Za-z0-9_.-]*\}|%[sdv]")
@@ -354,9 +354,9 @@ def replace_translation(line: str, locale: str, translated: str) -> str:
     return f"{prefix}, '{locale}', '{escaped}'{remainder[suffix_index + 1:]}"
 
 
-def generate_sql(locale: str, converter, machine: bool, offline: bool, write: bool) -> None:
+def generate_sql(locale: str, converter, machine: bool, offline: bool, write: bool, sql_directory: Path) -> None:
     source = SQL_DIR / "translation.en-US.up.sql"
-    target = SQL_DIR / f"translation.{locale}.up.sql"
+    target = sql_directory / f"translation.{locale}.up.sql"
     menu_titles = parse_menu_titles(SQL_DIR / "default_data.up.sql")
     lines = source.read_text(encoding="utf-8").splitlines()
     values = [source_text(line, menu_titles) if locale == "zh-TW" else extract_translation(line) for line in lines]
@@ -377,23 +377,42 @@ def generate_sql(locale: str, converter, machine: bool, offline: bool, write: bo
         target.write_text("\n".join(generated) + "\n", encoding="utf-8")
 
 
+def render_translation_description(locale: str) -> str:
+    return (
+        f"由 `scripts/generate_zh_tw.py` 生成的 {locale} 动态资源翻译草稿。\n\n"
+        "提交前应完成人工审核；迁移只使用已审核的固定文本，不在运行时调用翻译服务。\n"
+    )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--write", action="store_true", help="写入所有新增语言文件")
     parser.add_argument("--machine", action="store_true", help="使用 Google V1 生成韩法西草稿")
     parser.add_argument("--offline", action="store_true", help="使用内置术语表离线生成机器翻译草稿")
-    parser.add_argument("--locale", dest="locales", action="append", choices=TARGET_LOCALES, help="只生成指定语言，可重复传入")
+    parser.add_argument("--locale", dest="locales", action="append", help="只生成指定语言，可重复传入")
+    parser.add_argument("--migration-version", help="将翻译 SQL 写入指定版本目录，例如 v0.0.3")
     args = parser.parse_args()
-    locales = tuple(args.locales or TARGET_LOCALES)
+    locales = tuple(args.locales or DEFAULT_TARGET_LOCALES)
+    sql_directory = SQL_DIR
+    if args.migration_version:
+        if not MIGRATION_VERSION_PATTERN.fullmatch(args.migration_version):
+            raise SystemExit("迁移版本必须是 vX.Y.Z 格式")
+        sql_directory = ROOT / "backend/migration/assets" / args.migration_version / "mysql"
+        if args.write:
+            sql_directory.mkdir(parents=True, exist_ok=True)
     converter = load_opencc() if "zh-TW" in locales else None
     for locale in locales:
         if locale != "zh-TW" and not args.machine and not args.offline:
             raise SystemExit("生成韩语、法语和西班牙语需要显式传入 --machine 或 --offline")
         for source in JSON_SOURCES:
             generate_json(source, locale, converter, args.machine, args.offline, args.write)
-        generate_sql(locale, converter, args.machine, args.offline, args.write)
+        generate_sql(locale, converter, args.machine, args.offline, args.write, sql_directory)
+        if args.migration_version and args.write:
+            (sql_directory / f"translation.{locale}.description.md").write_text(
+                render_translation_description(locale), encoding="utf-8"
+            )
     action = "已生成" if args.write else "可生成"
-    print(f"{action} zh-TW、ko-KR、fr-FR、es-ES 语言包和迁移数据")
+    print(f"{action} {', '.join(locales)} 语言包和迁移数据")
     return 0
 
 

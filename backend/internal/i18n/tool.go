@@ -42,7 +42,7 @@ type DraftResult struct {
 	Written         int
 }
 
-// CheckCatalogFiles 扫描 Proto、Go 源码和七语目录并校验完整性。
+// CheckCatalogFiles 扫描 Proto、Go 源码和全部语言目录并校验完整性。
 func CheckCatalogFiles(backendRoot string) (*CatalogCheckResult, error) {
 	sources, explicitKeys, err := collectCatalogSources(backendRoot)
 	if err != nil {
@@ -53,11 +53,11 @@ func CheckCatalogFiles(backendRoot string) (*CatalogCheckResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	zhCatalog := catalogs[coreLocale.ZhCN]
+	zhCatalog := catalogs[coreLocale.Default]
 	for key, source := range sources {
 		message, ok := zhCatalog[key]
 		if !ok {
-			return nil, fmt.Errorf("zh-CN 缺少消息键 %s", key)
+			return nil, fmt.Errorf("%s 缺少消息键 %s", coreLocale.Default, key)
 		}
 		if message.Other != source {
 			return nil, fmt.Errorf("zh-CN 消息键 %s 与 Proto 源文不一致", key)
@@ -97,10 +97,10 @@ func DraftCatalogFiles(ctx context.Context, backendRoot string, provider transla
 	}
 	result := &DraftResult{MissingByLocale: make(map[string]int)}
 	for key, source := range sources {
-		if _, ok := catalogs[coreLocale.ZhCN][key]; !ok {
-			result.MissingByLocale[coreLocale.ZhCN]++
+		if _, ok := catalogs[coreLocale.Default][key]; !ok {
+			result.MissingByLocale[coreLocale.Default]++
 			if write {
-				catalogs[coreLocale.ZhCN][key] = CatalogMessage{Other: source}
+				catalogs[coreLocale.Default][key] = CatalogMessage{Other: source}
 			}
 		}
 	}
@@ -117,7 +117,7 @@ func DraftCatalogFiles(ctx context.Context, backendRoot string, provider transla
 			cacheKey := localeValue + "\x00" + source
 			translated := translations[cacheKey]
 			if translated == "" {
-				translated, err = TranslateProtected(ctx, provider, source, coreLocale.ZhCN, localeValue)
+				translated, err = TranslateProtected(ctx, provider, source, coreLocale.Default, localeValue)
 				if err != nil {
 					return nil, fmt.Errorf("翻译消息键 %s 到 %s: %w", key, localeValue, err)
 				}
