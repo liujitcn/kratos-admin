@@ -19,37 +19,60 @@ var _ = new(context.Context)
 
 const _ = http.SupportPackageIsVersion3
 
-const OperationBaseTranslationServiceGenerateTranslationDraft = "/system.admin.v1.BaseTranslationService/GenerateTranslationDraft"
+const OperationBaseTranslationServiceGenerateBaseTranslationDraft = "/system.admin.v1.BaseTranslationService/GenerateBaseTranslationDraft"
+const OperationBaseTranslationServiceListBaseTranslation = "/system.admin.v1.BaseTranslationService/ListBaseTranslation"
 const OperationBaseTranslationServiceUpdateBaseTranslation = "/system.admin.v1.BaseTranslationService/UpdateBaseTranslation"
 
 type BaseTranslationServiceHTTPServer interface {
-	// GenerateTranslationDraft 资源生成机器翻译。
-	GenerateTranslationDraft(context.Context, *GenerateTranslationDraftRequest) (*GenerateTranslationDraftResponse, error)
-	// UpdateBaseTranslation 修改单个翻译信息；文本为空时生成并保存机器译文。
+	// GenerateBaseTranslationDraft 资源生成机器翻译。
+	GenerateBaseTranslationDraft(context.Context, *GenerateBaseTranslationDraftRequest) (*GenerateBaseTranslationDraftResponse, error)
+	// ListBaseTranslation 查询国际化翻译信息列表
+	ListBaseTranslation(context.Context, *ListBaseTranslationRequest) (*ListBaseTranslationResponse, error)
+	// UpdateBaseTranslation 修改国际化翻译信息
 	UpdateBaseTranslation(context.Context, *UpdateBaseTranslationRequest) (*emptypb.Empty, error)
 }
 
 func RegisterBaseTranslationServiceHTTPServer(s *http.Server, srv BaseTranslationServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("POST", "/api/v1/admin/base/translation/draft", _BaseTranslationService_GenerateTranslationDraft0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/post", _BaseTranslationService_ListBaseTranslation0_HTTP_Handler(srv))
+	r.Handle("POST", "/api/v1/admin/base/translation/draft", _BaseTranslationService_GenerateBaseTranslationDraft0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/translation/{id}", _BaseTranslationService_UpdateBaseTranslation0_HTTP_Handler(srv))
 }
 
-func _BaseTranslationService_GenerateTranslationDraft0_HTTP_Handler(srv BaseTranslationServiceHTTPServer) func(ctx http.Context) error {
+func _BaseTranslationService_ListBaseTranslation0_HTTP_Handler(srv BaseTranslationServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in GenerateTranslationDraftRequest
-		if err := ctx.Bind(&in); err != nil {
+		var in ListBaseTranslationRequest
+		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseTranslationServiceGenerateTranslationDraft)
+		http.SetOperation(ctx, OperationBaseTranslationServiceListBaseTranslation)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GenerateTranslationDraft(ctx, req.(*GenerateTranslationDraftRequest))
+			return srv.ListBaseTranslation(ctx, req.(*ListBaseTranslationRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*GenerateTranslationDraftResponse)
+		reply := out.(*ListBaseTranslationResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _BaseTranslationService_GenerateBaseTranslationDraft0_HTTP_Handler(srv BaseTranslationServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GenerateBaseTranslationDraftRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseTranslationServiceGenerateBaseTranslationDraft)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GenerateBaseTranslationDraft(ctx, req.(*GenerateBaseTranslationDraftRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GenerateBaseTranslationDraftResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -77,9 +100,11 @@ func _BaseTranslationService_UpdateBaseTranslation0_HTTP_Handler(srv BaseTransla
 }
 
 type BaseTranslationServiceHTTPClient interface {
-	// GenerateTranslationDraft 资源生成机器翻译。
-	GenerateTranslationDraft(ctx context.Context, req *GenerateTranslationDraftRequest, opts ...http.CallOption) (rsp *GenerateTranslationDraftResponse, err error)
-	// UpdateBaseTranslation 修改单个翻译信息；文本为空时生成并保存机器译文。
+	// GenerateBaseTranslationDraft 资源生成机器翻译。
+	GenerateBaseTranslationDraft(ctx context.Context, req *GenerateBaseTranslationDraftRequest, opts ...http.CallOption) (rsp *GenerateBaseTranslationDraftResponse, err error)
+	// ListBaseTranslation 查询国际化翻译信息列表
+	ListBaseTranslation(ctx context.Context, req *ListBaseTranslationRequest, opts ...http.CallOption) (rsp *ListBaseTranslationResponse, err error)
+	// UpdateBaseTranslation 修改国际化翻译信息
 	UpdateBaseTranslation(ctx context.Context, req *UpdateBaseTranslationRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
@@ -91,15 +116,15 @@ func NewBaseTranslationServiceHTTPClient(client *http.Client) BaseTranslationSer
 	return &BaseTranslationServiceHTTPClientImpl{client}
 }
 
-// GenerateTranslationDraft 资源生成机器翻译。
-func (c *BaseTranslationServiceHTTPClientImpl) GenerateTranslationDraft(ctx context.Context, in *GenerateTranslationDraftRequest, opts ...http.CallOption) (*GenerateTranslationDraftResponse, error) {
-	var out GenerateTranslationDraftResponse
+// GenerateBaseTranslationDraft 资源生成机器翻译。
+func (c *BaseTranslationServiceHTTPClientImpl) GenerateBaseTranslationDraft(ctx context.Context, in *GenerateBaseTranslationDraftRequest, opts ...http.CallOption) (*GenerateBaseTranslationDraftResponse, error) {
+	var out GenerateBaseTranslationDraftResponse
 	pattern := "/api/v1/admin/base/translation/draft"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
 		http.ContentType("application/protojson"),
-		http.Operation(OperationBaseTranslationServiceGenerateTranslationDraft),
+		http.Operation(OperationBaseTranslationServiceGenerateBaseTranslationDraft),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
@@ -109,7 +134,24 @@ func (c *BaseTranslationServiceHTTPClientImpl) GenerateTranslationDraft(ctx cont
 	return &out, nil
 }
 
-// UpdateBaseTranslation 修改单个翻译信息；文本为空时生成并保存机器译文。
+// ListBaseTranslation 查询国际化翻译信息列表
+func (c *BaseTranslationServiceHTTPClientImpl) ListBaseTranslation(ctx context.Context, in *ListBaseTranslationRequest, opts ...http.CallOption) (*ListBaseTranslationResponse, error) {
+	var out ListBaseTranslationResponse
+	pattern := "/api/v1/admin/base/post"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationBaseTranslationServiceListBaseTranslation),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// UpdateBaseTranslation 修改国际化翻译信息
 func (c *BaseTranslationServiceHTTPClientImpl) UpdateBaseTranslation(ctx context.Context, in *UpdateBaseTranslationRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
 	pattern := "/api/v1/admin/base/translation/{id}"

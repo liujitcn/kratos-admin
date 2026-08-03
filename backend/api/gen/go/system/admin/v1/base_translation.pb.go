@@ -27,8 +27,106 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 国际化翻译信息列表请求参数
+type ListBaseTranslationRequest struct {
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	TargetType    v1.TranslationTargetType `protobuf:"varint,2,opt,name=target_type,json=targetType,proto3,enum=system.common.v1.TranslationTargetType" json:"target_type,omitempty"` // 翻译目标类型
+	TargetId      int64                    `protobuf:"varint,3,opt,name=target_id,json=targetId,proto3" json:"target_id,omitempty"`                                                   // 目标资源ID
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListBaseTranslationRequest) Reset() {
+	*x = ListBaseTranslationRequest{}
+	mi := &file_system_admin_v1_base_translation_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBaseTranslationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBaseTranslationRequest) ProtoMessage() {}
+
+func (x *ListBaseTranslationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_translation_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBaseTranslationRequest.ProtoReflect.Descriptor instead.
+func (*ListBaseTranslationRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_translation_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *ListBaseTranslationRequest) GetTargetType() v1.TranslationTargetType {
+	if x != nil {
+		return x.TargetType
+	}
+	return v1.TranslationTargetType(0)
+}
+
+func (x *ListBaseTranslationRequest) GetTargetId() int64 {
+	if x != nil {
+		return x.TargetId
+	}
+	return 0
+}
+
+// 国际化翻译信息列表响应
+type ListBaseTranslationResponse struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	BaseTranslations []*BaseTranslation     `protobuf:"bytes,1,rep,name=base_translations,json=baseTranslations,proto3" json:"base_translations,omitempty"` // 列表数据
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *ListBaseTranslationResponse) Reset() {
+	*x = ListBaseTranslationResponse{}
+	mi := &file_system_admin_v1_base_translation_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListBaseTranslationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListBaseTranslationResponse) ProtoMessage() {}
+
+func (x *ListBaseTranslationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_translation_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListBaseTranslationResponse.ProtoReflect.Descriptor instead.
+func (*ListBaseTranslationResponse) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_translation_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ListBaseTranslationResponse) GetBaseTranslations() []*BaseTranslation {
+	if x != nil {
+		return x.BaseTranslations
+	}
+	return nil
+}
+
 // 生成翻译草稿请求。
-type GenerateTranslationDraftRequest struct {
+type GenerateBaseTranslationDraftRequest struct {
 	state         protoimpl.MessageState   `protogen:"open.v1"`
 	TargetType    v1.TranslationTargetType `protobuf:"varint,1,opt,name=target_type,json=targetType,proto3,enum=system.common.v1.TranslationTargetType" json:"target_type,omitempty"` // 翻译目标类型
 	Locale        string                   `protobuf:"bytes,2,opt,name=locale,proto3" json:"locale,omitempty"`                                                                        // 语言区域
@@ -37,21 +135,21 @@ type GenerateTranslationDraftRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GenerateTranslationDraftRequest) Reset() {
-	*x = GenerateTranslationDraftRequest{}
-	mi := &file_system_admin_v1_base_translation_proto_msgTypes[0]
+func (x *GenerateBaseTranslationDraftRequest) Reset() {
+	*x = GenerateBaseTranslationDraftRequest{}
+	mi := &file_system_admin_v1_base_translation_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GenerateTranslationDraftRequest) String() string {
+func (x *GenerateBaseTranslationDraftRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GenerateTranslationDraftRequest) ProtoMessage() {}
+func (*GenerateBaseTranslationDraftRequest) ProtoMessage() {}
 
-func (x *GenerateTranslationDraftRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_translation_proto_msgTypes[0]
+func (x *GenerateBaseTranslationDraftRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_translation_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -62,26 +160,26 @@ func (x *GenerateTranslationDraftRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GenerateTranslationDraftRequest.ProtoReflect.Descriptor instead.
-func (*GenerateTranslationDraftRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_translation_proto_rawDescGZIP(), []int{0}
+// Deprecated: Use GenerateBaseTranslationDraftRequest.ProtoReflect.Descriptor instead.
+func (*GenerateBaseTranslationDraftRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_translation_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *GenerateTranslationDraftRequest) GetTargetType() v1.TranslationTargetType {
+func (x *GenerateBaseTranslationDraftRequest) GetTargetType() v1.TranslationTargetType {
 	if x != nil {
 		return x.TargetType
 	}
 	return v1.TranslationTargetType(0)
 }
 
-func (x *GenerateTranslationDraftRequest) GetLocale() string {
+func (x *GenerateBaseTranslationDraftRequest) GetLocale() string {
 	if x != nil {
 		return x.Locale
 	}
 	return ""
 }
 
-func (x *GenerateTranslationDraftRequest) GetName() string {
+func (x *GenerateBaseTranslationDraftRequest) GetName() string {
 	if x != nil {
 		return x.Name
 	}
@@ -89,7 +187,7 @@ func (x *GenerateTranslationDraftRequest) GetName() string {
 }
 
 // 生成翻译草稿响应。
-type GenerateTranslationDraftResponse struct {
+type GenerateBaseTranslationDraftResponse struct {
 	state         protoimpl.MessageState   `protogen:"open.v1"`
 	TargetType    v1.TranslationTargetType `protobuf:"varint,1,opt,name=target_type,json=targetType,proto3,enum=system.common.v1.TranslationTargetType" json:"target_type,omitempty"` // 翻译目标类型
 	Locale        string                   `protobuf:"bytes,2,opt,name=locale,proto3" json:"locale,omitempty"`                                                                        // 语言区域
@@ -98,21 +196,21 @@ type GenerateTranslationDraftResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GenerateTranslationDraftResponse) Reset() {
-	*x = GenerateTranslationDraftResponse{}
-	mi := &file_system_admin_v1_base_translation_proto_msgTypes[1]
+func (x *GenerateBaseTranslationDraftResponse) Reset() {
+	*x = GenerateBaseTranslationDraftResponse{}
+	mi := &file_system_admin_v1_base_translation_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GenerateTranslationDraftResponse) String() string {
+func (x *GenerateBaseTranslationDraftResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GenerateTranslationDraftResponse) ProtoMessage() {}
+func (*GenerateBaseTranslationDraftResponse) ProtoMessage() {}
 
-func (x *GenerateTranslationDraftResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_translation_proto_msgTypes[1]
+func (x *GenerateBaseTranslationDraftResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_translation_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -123,26 +221,26 @@ func (x *GenerateTranslationDraftResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GenerateTranslationDraftResponse.ProtoReflect.Descriptor instead.
-func (*GenerateTranslationDraftResponse) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_translation_proto_rawDescGZIP(), []int{1}
+// Deprecated: Use GenerateBaseTranslationDraftResponse.ProtoReflect.Descriptor instead.
+func (*GenerateBaseTranslationDraftResponse) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_translation_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *GenerateTranslationDraftResponse) GetTargetType() v1.TranslationTargetType {
+func (x *GenerateBaseTranslationDraftResponse) GetTargetType() v1.TranslationTargetType {
 	if x != nil {
 		return x.TargetType
 	}
 	return v1.TranslationTargetType(0)
 }
 
-func (x *GenerateTranslationDraftResponse) GetLocale() string {
+func (x *GenerateBaseTranslationDraftResponse) GetLocale() string {
 	if x != nil {
 		return x.Locale
 	}
 	return ""
 }
 
-func (x *GenerateTranslationDraftResponse) GetTranslation() string {
+func (x *GenerateBaseTranslationDraftResponse) GetTranslation() string {
 	if x != nil {
 		return x.Translation
 	}
@@ -160,7 +258,7 @@ type UpdateBaseTranslationRequest struct {
 
 func (x *UpdateBaseTranslationRequest) Reset() {
 	*x = UpdateBaseTranslationRequest{}
-	mi := &file_system_admin_v1_base_translation_proto_msgTypes[2]
+	mi := &file_system_admin_v1_base_translation_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -172,7 +270,7 @@ func (x *UpdateBaseTranslationRequest) String() string {
 func (*UpdateBaseTranslationRequest) ProtoMessage() {}
 
 func (x *UpdateBaseTranslationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_translation_proto_msgTypes[2]
+	mi := &file_system_admin_v1_base_translation_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -185,7 +283,7 @@ func (x *UpdateBaseTranslationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateBaseTranslationRequest.ProtoReflect.Descriptor instead.
 func (*UpdateBaseTranslationRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_translation_proto_rawDescGZIP(), []int{2}
+	return file_system_admin_v1_base_translation_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *UpdateBaseTranslationRequest) GetId() int64 {
@@ -202,7 +300,7 @@ func (x *UpdateBaseTranslationRequest) GetName() string {
 	return ""
 }
 
-// 系统配置单语言翻译
+// 国际化翻译信息
 type BaseTranslation struct {
 	state         protoimpl.MessageState   `protogen:"open.v1"`
 	Id            int64                    `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                               // 翻译记录ID
@@ -216,7 +314,7 @@ type BaseTranslation struct {
 
 func (x *BaseTranslation) Reset() {
 	*x = BaseTranslation{}
-	mi := &file_system_admin_v1_base_translation_proto_msgTypes[3]
+	mi := &file_system_admin_v1_base_translation_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -228,7 +326,7 @@ func (x *BaseTranslation) String() string {
 func (*BaseTranslation) ProtoMessage() {}
 
 func (x *BaseTranslation) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_translation_proto_msgTypes[3]
+	mi := &file_system_admin_v1_base_translation_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -241,7 +339,7 @@ func (x *BaseTranslation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseTranslation.ProtoReflect.Descriptor instead.
 func (*BaseTranslation) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_translation_proto_rawDescGZIP(), []int{3}
+	return file_system_admin_v1_base_translation_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *BaseTranslation) GetId() int64 {
@@ -290,7 +388,7 @@ type CodeGenLocaleConfig struct {
 
 func (x *CodeGenLocaleConfig) Reset() {
 	*x = CodeGenLocaleConfig{}
-	mi := &file_system_admin_v1_base_translation_proto_msgTypes[4]
+	mi := &file_system_admin_v1_base_translation_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -302,7 +400,7 @@ func (x *CodeGenLocaleConfig) String() string {
 func (*CodeGenLocaleConfig) ProtoMessage() {}
 
 func (x *CodeGenLocaleConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_translation_proto_msgTypes[4]
+	mi := &file_system_admin_v1_base_translation_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -315,7 +413,7 @@ func (x *CodeGenLocaleConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CodeGenLocaleConfig.ProtoReflect.Descriptor instead.
 func (*CodeGenLocaleConfig) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_translation_proto_rawDescGZIP(), []int{4}
+	return file_system_admin_v1_base_translation_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *CodeGenLocaleConfig) GetComment() string {
@@ -336,13 +434,19 @@ var File_system_admin_v1_base_translation_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_translation_proto_rawDesc = "" +
 	"\n" +
-	"&system/admin/v1/base_translation.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bsystem/common/v1/enum.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xf8\x01\n" +
-	"\x1fGenerateTranslationDraftRequest\x12\x80\x01\n" +
+	"&system/admin/v1/base_translation.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bsystem/common/v1/enum.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xcc\x01\n" +
+	"\x1aListBaseTranslationRequest\x12\x80\x01\n" +
+	"\vtarget_type\x18\x02 \x01(\x0e2'.system.common.v1.TranslationTargetTypeB6\xbaG3\x92\x020目标类型：枚举【TranslationTargetType】R\n" +
+	"targetType\x12+\n" +
+	"\ttarget_id\x18\x03 \x01(\x03B\x0e\xbaG\v\x92\x02\b目标IDR\btargetId\"\x80\x01\n" +
+	"\x1bListBaseTranslationResponse\x12a\n" +
+	"\x11base_translations\x18\x01 \x03(\v2 .system.admin.v1.BaseTranslationB\x12\xbaG\x0f\x92\x02\f列表数据R\x10baseTranslations\"\xfc\x01\n" +
+	"#GenerateBaseTranslationDraftRequest\x12\x80\x01\n" +
 	"\vtarget_type\x18\x01 \x01(\x0e2'.system.common.v1.TranslationTargetTypeB6\xbaG3\x92\x020目标类型：枚举【TranslationTargetType】R\n" +
 	"targetType\x12*\n" +
 	"\x06locale\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f语言区域R\x06locale\x12&\n" +
-	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f翻译文本R\x04name\"\x87\x02\n" +
-	" GenerateTranslationDraftResponse\x12\x80\x01\n" +
+	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f翻译文本R\x04name\"\x8b\x02\n" +
+	"$GenerateBaseTranslationDraftResponse\x12\x80\x01\n" +
 	"\vtarget_type\x18\x01 \x01(\x0e2'.system.common.v1.TranslationTargetTypeB6\xbaG3\x92\x020目标类型：枚举【TranslationTargetType】R\n" +
 	"targetType\x12*\n" +
 	"\x06locale\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f语言区域R\x06locale\x124\n" +
@@ -360,9 +464,10 @@ const file_system_admin_v1_base_translation_proto_rawDesc = "" +
 	"\x04name\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f翻译文本R\x04name\"\x8c\x01\n" +
 	"\x13CodeGenLocaleConfig\x125\n" +
 	"\acomment\x18\x01 \x01(\tB\x1b\xbaG\x18\x92\x02\x15业务或字段描述R\acomment\x12>\n" +
-	"\x11left_tree_comment\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f左树描述R\x0fleftTreeComment2\xdc\x02\n" +
-	"\x16BaseTranslationService\x12\xb0\x01\n" +
-	"\x18GenerateTranslationDraft\x120.system.admin.v1.GenerateTranslationDraftRequest\x1a1.system.admin.v1.GenerateTranslationDraftResponse\"/\x82\xd3\xe4\x93\x02):\x01*\"$/api/v1/admin/base/translation/draft\x12\x8e\x01\n" +
+	"\x11left_tree_comment\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f左树描述R\x0fleftTreeComment2\xfc\x03\n" +
+	"\x16BaseTranslationService\x12\x91\x01\n" +
+	"\x13ListBaseTranslation\x12+.system.admin.v1.ListBaseTranslationRequest\x1a,.system.admin.v1.ListBaseTranslationResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/base/post\x12\xbc\x01\n" +
+	"\x1cGenerateBaseTranslationDraft\x124.system.admin.v1.GenerateBaseTranslationDraftRequest\x1a5.system.admin.v1.GenerateBaseTranslationDraftResponse\"/\x82\xd3\xe4\x93\x02):\x01*\"$/api/v1/admin/base/translation/draft\x12\x8e\x01\n" +
 	"\x15UpdateBaseTranslation\x12-.system.admin.v1.UpdateBaseTranslationRequest\x1a\x16.google.protobuf.Empty\".\x82\xd3\xe4\x93\x02(:\x01*\x1a#/api/v1/admin/base/translation/{id}B\xd6\x01\n" +
 	"\x13com.system.admin.v1B\x14BaseTranslationProtoP\x01ZKgithub.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1;adminv1\xa2\x02\x03SAX\xaa\x02\x0fSystem.Admin.V1\xca\x02\x0fSystem\\Admin\\V1\xe2\x02\x1bSystem\\Admin\\V1\\GPBMetadata\xea\x02\x11System::Admin::V1b\x06proto3"
 
@@ -378,29 +483,35 @@ func file_system_admin_v1_base_translation_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_base_translation_proto_rawDescData
 }
 
-var file_system_admin_v1_base_translation_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_system_admin_v1_base_translation_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_system_admin_v1_base_translation_proto_goTypes = []any{
-	(*GenerateTranslationDraftRequest)(nil),  // 0: system.admin.v1.GenerateTranslationDraftRequest
-	(*GenerateTranslationDraftResponse)(nil), // 1: system.admin.v1.GenerateTranslationDraftResponse
-	(*UpdateBaseTranslationRequest)(nil),     // 2: system.admin.v1.UpdateBaseTranslationRequest
-	(*BaseTranslation)(nil),                  // 3: system.admin.v1.BaseTranslation
-	(*CodeGenLocaleConfig)(nil),              // 4: system.admin.v1.CodeGenLocaleConfig
-	(v1.TranslationTargetType)(0),            // 5: system.common.v1.TranslationTargetType
-	(*emptypb.Empty)(nil),                    // 6: google.protobuf.Empty
+	(*ListBaseTranslationRequest)(nil),           // 0: system.admin.v1.ListBaseTranslationRequest
+	(*ListBaseTranslationResponse)(nil),          // 1: system.admin.v1.ListBaseTranslationResponse
+	(*GenerateBaseTranslationDraftRequest)(nil),  // 2: system.admin.v1.GenerateBaseTranslationDraftRequest
+	(*GenerateBaseTranslationDraftResponse)(nil), // 3: system.admin.v1.GenerateBaseTranslationDraftResponse
+	(*UpdateBaseTranslationRequest)(nil),         // 4: system.admin.v1.UpdateBaseTranslationRequest
+	(*BaseTranslation)(nil),                      // 5: system.admin.v1.BaseTranslation
+	(*CodeGenLocaleConfig)(nil),                  // 6: system.admin.v1.CodeGenLocaleConfig
+	(v1.TranslationTargetType)(0),                // 7: system.common.v1.TranslationTargetType
+	(*emptypb.Empty)(nil),                        // 8: google.protobuf.Empty
 }
 var file_system_admin_v1_base_translation_proto_depIdxs = []int32{
-	5, // 0: system.admin.v1.GenerateTranslationDraftRequest.target_type:type_name -> system.common.v1.TranslationTargetType
-	5, // 1: system.admin.v1.GenerateTranslationDraftResponse.target_type:type_name -> system.common.v1.TranslationTargetType
-	5, // 2: system.admin.v1.BaseTranslation.target_type:type_name -> system.common.v1.TranslationTargetType
-	0, // 3: system.admin.v1.BaseTranslationService.GenerateTranslationDraft:input_type -> system.admin.v1.GenerateTranslationDraftRequest
-	2, // 4: system.admin.v1.BaseTranslationService.UpdateBaseTranslation:input_type -> system.admin.v1.UpdateBaseTranslationRequest
-	1, // 5: system.admin.v1.BaseTranslationService.GenerateTranslationDraft:output_type -> system.admin.v1.GenerateTranslationDraftResponse
-	6, // 6: system.admin.v1.BaseTranslationService.UpdateBaseTranslation:output_type -> google.protobuf.Empty
-	5, // [5:7] is the sub-list for method output_type
-	3, // [3:5] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	7, // 0: system.admin.v1.ListBaseTranslationRequest.target_type:type_name -> system.common.v1.TranslationTargetType
+	5, // 1: system.admin.v1.ListBaseTranslationResponse.base_translations:type_name -> system.admin.v1.BaseTranslation
+	7, // 2: system.admin.v1.GenerateBaseTranslationDraftRequest.target_type:type_name -> system.common.v1.TranslationTargetType
+	7, // 3: system.admin.v1.GenerateBaseTranslationDraftResponse.target_type:type_name -> system.common.v1.TranslationTargetType
+	7, // 4: system.admin.v1.BaseTranslation.target_type:type_name -> system.common.v1.TranslationTargetType
+	0, // 5: system.admin.v1.BaseTranslationService.ListBaseTranslation:input_type -> system.admin.v1.ListBaseTranslationRequest
+	2, // 6: system.admin.v1.BaseTranslationService.GenerateBaseTranslationDraft:input_type -> system.admin.v1.GenerateBaseTranslationDraftRequest
+	4, // 7: system.admin.v1.BaseTranslationService.UpdateBaseTranslation:input_type -> system.admin.v1.UpdateBaseTranslationRequest
+	1, // 8: system.admin.v1.BaseTranslationService.ListBaseTranslation:output_type -> system.admin.v1.ListBaseTranslationResponse
+	3, // 9: system.admin.v1.BaseTranslationService.GenerateBaseTranslationDraft:output_type -> system.admin.v1.GenerateBaseTranslationDraftResponse
+	8, // 10: system.admin.v1.BaseTranslationService.UpdateBaseTranslation:output_type -> google.protobuf.Empty
+	8, // [8:11] is the sub-list for method output_type
+	5, // [5:8] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_translation_proto_init() }
@@ -414,7 +525,7 @@ func file_system_admin_v1_base_translation_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_base_translation_proto_rawDesc), len(file_system_admin_v1_base_translation_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

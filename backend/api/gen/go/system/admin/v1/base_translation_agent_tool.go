@@ -18,12 +18,18 @@ import (
 func NewBaseTranslationServiceAgentTools(baseTranslationServiceServer BaseTranslationServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var generateTranslationDraftTool tool.InvokableTool
-	generateTranslationDraftTool, err = NewBaseTranslationServiceGenerateTranslationDraftAgentTool(baseTranslationServiceServer)
+	var listBaseTranslationTool tool.InvokableTool
+	listBaseTranslationTool, err = NewBaseTranslationServiceListBaseTranslationAgentTool(baseTranslationServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, generateTranslationDraftTool)
+	ts = append(ts, listBaseTranslationTool)
+	var generateBaseTranslationDraftTool tool.InvokableTool
+	generateBaseTranslationDraftTool, err = NewBaseTranslationServiceGenerateBaseTranslationDraftAgentTool(baseTranslationServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, generateBaseTranslationDraftTool)
 	var updateBaseTranslationTool tool.InvokableTool
 	updateBaseTranslationTool, err = NewBaseTranslationServiceUpdateBaseTranslationAgentTool(baseTranslationServiceServer)
 	if err != nil {
@@ -33,25 +39,39 @@ func NewBaseTranslationServiceAgentTools(baseTranslationServiceServer BaseTransl
 	return ts, nil
 }
 
-// NewBaseTranslationServiceGenerateTranslationDraftAgentTool 创建资源生成机器翻译的 Agent Tool。
-func NewBaseTranslationServiceGenerateTranslationDraftAgentTool(baseTranslationServiceServer BaseTranslationServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*GenerateTranslationDraftRequest, *GenerateTranslationDraftResponse](
-		"system_admin_v1_base_translation_service_generate_translation_draft",
-		"资源生成机器翻译。",
-		func(ctx context.Context, req *GenerateTranslationDraftRequest) (*GenerateTranslationDraftResponse, error) {
+// NewBaseTranslationServiceListBaseTranslationAgentTool 创建查询国际化翻译信息列表的 Agent Tool。
+func NewBaseTranslationServiceListBaseTranslationAgentTool(baseTranslationServiceServer BaseTranslationServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListBaseTranslationRequest, *ListBaseTranslationResponse](
+		"system_admin_v1_base_translation_service_list_base_translation",
+		"查询国际化翻译信息列表",
+		func(ctx context.Context, req *ListBaseTranslationRequest) (*ListBaseTranslationResponse, error) {
 			if req == nil {
-				req = &GenerateTranslationDraftRequest{}
+				req = &ListBaseTranslationRequest{}
 			}
-			return baseTranslationServiceServer.GenerateTranslationDraft(ctx, req)
+			return baseTranslationServiceServer.ListBaseTranslation(ctx, req)
 		},
 	)
 }
 
-// NewBaseTranslationServiceUpdateBaseTranslationAgentTool 创建修改单个翻译信息；文本为空时生成并保存机器译文的 Agent Tool。
+// NewBaseTranslationServiceGenerateBaseTranslationDraftAgentTool 创建资源生成机器翻译的 Agent Tool。
+func NewBaseTranslationServiceGenerateBaseTranslationDraftAgentTool(baseTranslationServiceServer BaseTranslationServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GenerateBaseTranslationDraftRequest, *GenerateBaseTranslationDraftResponse](
+		"system_admin_v1_base_translation_service_generate_base_translation_draft",
+		"资源生成机器翻译。",
+		func(ctx context.Context, req *GenerateBaseTranslationDraftRequest) (*GenerateBaseTranslationDraftResponse, error) {
+			if req == nil {
+				req = &GenerateBaseTranslationDraftRequest{}
+			}
+			return baseTranslationServiceServer.GenerateBaseTranslationDraft(ctx, req)
+		},
+	)
+}
+
+// NewBaseTranslationServiceUpdateBaseTranslationAgentTool 创建修改国际化翻译信息的 Agent Tool。
 func NewBaseTranslationServiceUpdateBaseTranslationAgentTool(baseTranslationServiceServer BaseTranslationServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*UpdateBaseTranslationRequest, *emptypb.Empty](
 		"system_admin_v1_base_translation_service_update_base_translation",
-		"修改单个翻译信息；文本为空时生成并保存机器译文。",
+		"修改国际化翻译信息",
 		func(ctx context.Context, req *UpdateBaseTranslationRequest) (*emptypb.Empty, error) {
 			if req == nil {
 				req = &UpdateBaseTranslationRequest{}
