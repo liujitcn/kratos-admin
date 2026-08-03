@@ -30,11 +30,6 @@ func (*BaseConfig) TableComment() string {
 }
 
 // TableComment 返回表注释。
-func (*BaseConfigTranslation) TableComment() string {
-	return "系统配置翻译"
-}
-
-// TableComment 返回表注释。
 func (*BaseDept) TableComment() string {
 	return "部门信息"
 }
@@ -47,16 +42,6 @@ func (*BaseDict) TableComment() string {
 // TableComment 返回表注释。
 func (*BaseDictItem) TableComment() string {
 	return "字典属性信息"
-}
-
-// TableComment 返回表注释。
-func (*BaseDictItemTranslation) TableComment() string {
-	return "字典项翻译"
-}
-
-// TableComment 返回表注释。
-func (*BaseDictTranslation) TableComment() string {
-	return "字典翻译"
 }
 
 // TableComment 返回表注释。
@@ -85,11 +70,6 @@ func (*BaseMenu) TableComment() string {
 }
 
 // TableComment 返回表注释。
-func (*BaseMenuTranslation) TableComment() string {
-	return "菜单翻译"
-}
-
-// TableComment 返回表注释。
 func (*BaseMigration) TableComment() string {
 	return "数据库迁移记录"
 }
@@ -112,6 +92,11 @@ func (*BaseTenant) TableComment() string {
 // TableComment 返回表注释。
 func (*BaseThirdAccount) TableComment() string {
 	return "用户三方登录账号"
+}
+
+// TableComment 返回表注释。
+func (*BaseTranslation) TableComment() string {
+	return "国际化翻译信息"
 }
 
 // TableComment 返回表注释。

@@ -10,6 +10,7 @@ import (
 	context "context"
 
 	http "github.com/go-kratos/kratos/v3/transport/http"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -19,15 +20,19 @@ var _ = new(context.Context)
 const _ = http.SupportPackageIsVersion3
 
 const OperationBaseTranslationServiceGenerateTranslationDraft = "/system.admin.v1.BaseTranslationService/GenerateTranslationDraft"
+const OperationBaseTranslationServiceUpdateBaseTranslation = "/system.admin.v1.BaseTranslationService/UpdateBaseTranslation"
 
 type BaseTranslationServiceHTTPServer interface {
-	// GenerateTranslationDraft 为单个已保存资源生成机器翻译草稿
+	// GenerateTranslationDraft 资源生成机器翻译。
 	GenerateTranslationDraft(context.Context, *GenerateTranslationDraftRequest) (*GenerateTranslationDraftResponse, error)
+	// UpdateBaseTranslation 修改单个翻译信息；文本为空时生成并保存机器译文。
+	UpdateBaseTranslation(context.Context, *UpdateBaseTranslationRequest) (*emptypb.Empty, error)
 }
 
 func RegisterBaseTranslationServiceHTTPServer(s *http.Server, srv BaseTranslationServiceHTTPServer) {
 	r := s.Route("/")
 	r.Handle("POST", "/api/v1/admin/base/translation/draft", _BaseTranslationService_GenerateTranslationDraft0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/admin/base/translation/{id}", _BaseTranslationService_UpdateBaseTranslation0_HTTP_Handler(srv))
 }
 
 func _BaseTranslationService_GenerateTranslationDraft0_HTTP_Handler(srv BaseTranslationServiceHTTPServer) func(ctx http.Context) error {
@@ -49,9 +54,33 @@ func _BaseTranslationService_GenerateTranslationDraft0_HTTP_Handler(srv BaseTran
 	}
 }
 
+func _BaseTranslationService_UpdateBaseTranslation0_HTTP_Handler(srv BaseTranslationServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in UpdateBaseTranslationRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseTranslationServiceUpdateBaseTranslation)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.UpdateBaseTranslation(ctx, req.(*UpdateBaseTranslationRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BaseTranslationServiceHTTPClient interface {
-	// GenerateTranslationDraft 为单个已保存资源生成机器翻译草稿
+	// GenerateTranslationDraft 资源生成机器翻译。
 	GenerateTranslationDraft(ctx context.Context, req *GenerateTranslationDraftRequest, opts ...http.CallOption) (rsp *GenerateTranslationDraftResponse, err error)
+	// UpdateBaseTranslation 修改单个翻译信息；文本为空时生成并保存机器译文。
+	UpdateBaseTranslation(ctx context.Context, req *UpdateBaseTranslationRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type BaseTranslationServiceHTTPClientImpl struct {
@@ -62,7 +91,7 @@ func NewBaseTranslationServiceHTTPClient(client *http.Client) BaseTranslationSer
 	return &BaseTranslationServiceHTTPClientImpl{client}
 }
 
-// GenerateTranslationDraft 为单个已保存资源生成机器翻译草稿
+// GenerateTranslationDraft 资源生成机器翻译。
 func (c *BaseTranslationServiceHTTPClientImpl) GenerateTranslationDraft(ctx context.Context, in *GenerateTranslationDraftRequest, opts ...http.CallOption) (*GenerateTranslationDraftResponse, error) {
 	var out GenerateTranslationDraftResponse
 	pattern := "/api/v1/admin/base/translation/draft"
@@ -74,6 +103,24 @@ func (c *BaseTranslationServiceHTTPClientImpl) GenerateTranslationDraft(ctx cont
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// UpdateBaseTranslation 修改单个翻译信息；文本为空时生成并保存机器译文。
+func (c *BaseTranslationServiceHTTPClientImpl) UpdateBaseTranslation(ctx context.Context, in *UpdateBaseTranslationRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/api/v1/admin/base/translation/{id}"
+	path := http.BuildPath(pattern, in)
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.ContentType("application/protojson"),
+		http.Operation(OperationBaseTranslationServiceUpdateBaseTranslation),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

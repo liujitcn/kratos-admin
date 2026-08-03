@@ -11,9 +11,10 @@ import (
 
 	tool "github.com/cloudwego/eino/components/tool"
 	utils "github.com/cloudwego/eino/components/tool/utils"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-// NewBaseTranslationServiceAgentTools 创建Admin翻译草稿服务的 Agent Tool。
+// NewBaseTranslationServiceAgentTools 创建国际化翻译信息服务的 Agent Tool。
 func NewBaseTranslationServiceAgentTools(baseTranslationServiceServer BaseTranslationServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
@@ -23,19 +24,39 @@ func NewBaseTranslationServiceAgentTools(baseTranslationServiceServer BaseTransl
 		return nil, err
 	}
 	ts = append(ts, generateTranslationDraftTool)
+	var updateBaseTranslationTool tool.InvokableTool
+	updateBaseTranslationTool, err = NewBaseTranslationServiceUpdateBaseTranslationAgentTool(baseTranslationServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, updateBaseTranslationTool)
 	return ts, nil
 }
 
-// NewBaseTranslationServiceGenerateTranslationDraftAgentTool 创建为单个已保存资源生成机器翻译草稿的 Agent Tool。
+// NewBaseTranslationServiceGenerateTranslationDraftAgentTool 创建资源生成机器翻译的 Agent Tool。
 func NewBaseTranslationServiceGenerateTranslationDraftAgentTool(baseTranslationServiceServer BaseTranslationServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*GenerateTranslationDraftRequest, *GenerateTranslationDraftResponse](
 		"system_admin_v1_base_translation_service_generate_translation_draft",
-		"为单个已保存资源生成机器翻译草稿",
+		"资源生成机器翻译。",
 		func(ctx context.Context, req *GenerateTranslationDraftRequest) (*GenerateTranslationDraftResponse, error) {
 			if req == nil {
 				req = &GenerateTranslationDraftRequest{}
 			}
 			return baseTranslationServiceServer.GenerateTranslationDraft(ctx, req)
+		},
+	)
+}
+
+// NewBaseTranslationServiceUpdateBaseTranslationAgentTool 创建修改单个翻译信息；文本为空时生成并保存机器译文的 Agent Tool。
+func NewBaseTranslationServiceUpdateBaseTranslationAgentTool(baseTranslationServiceServer BaseTranslationServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateBaseTranslationRequest, *emptypb.Empty](
+		"system_admin_v1_base_translation_service_update_base_translation",
+		"修改单个翻译信息；文本为空时生成并保存机器译文。",
+		func(ctx context.Context, req *UpdateBaseTranslationRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &UpdateBaseTranslationRequest{}
+			}
+			return baseTranslationServiceServer.UpdateBaseTranslation(ctx, req)
 		},
 	)
 }

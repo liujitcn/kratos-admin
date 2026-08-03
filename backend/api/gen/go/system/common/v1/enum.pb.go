@@ -349,6 +349,66 @@ func (CodeGenTableStatus) EnumDescriptor() ([]byte, []int) {
 	return file_system_common_v1_enum_proto_rawDescGZIP(), []int{5}
 }
 
+// 统一翻译表目标类型，和 base_translation.target_type 的值一一对应。
+type TranslationTargetType int32
+
+const (
+	TranslationTargetType_UNKNOWN_TTT TranslationTargetType = 0
+	// 字典名称。
+	TranslationTargetType_BASE_DICT_TTT TranslationTargetType = 1
+	// 菜单标题。
+	TranslationTargetType_BASE_MENU_TTT TranslationTargetType = 2
+	// 字典项标签。
+	TranslationTargetType_BASE_DICT_ITEM_TTT TranslationTargetType = 3
+	// 系统配置值。
+	TranslationTargetType_BASE_CONFIG_VALUE_TTT TranslationTargetType = 4
+)
+
+// Enum value maps for TranslationTargetType.
+var (
+	TranslationTargetType_name = map[int32]string{
+		0: "UNKNOWN_TTT",
+		1: "BASE_DICT_TTT",
+		2: "BASE_MENU_TTT",
+		3: "BASE_DICT_ITEM_TTT",
+		4: "BASE_CONFIG_VALUE_TTT",
+	}
+	TranslationTargetType_value = map[string]int32{
+		"UNKNOWN_TTT":           0,
+		"BASE_DICT_TTT":         1,
+		"BASE_MENU_TTT":         2,
+		"BASE_DICT_ITEM_TTT":    3,
+		"BASE_CONFIG_VALUE_TTT": 4,
+	}
+)
+
+func (x TranslationTargetType) Enum() *TranslationTargetType {
+	p := new(TranslationTargetType)
+	*p = x
+	return p
+}
+
+func (x TranslationTargetType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (TranslationTargetType) Descriptor() protoreflect.EnumDescriptor {
+	return file_system_common_v1_enum_proto_enumTypes[6].Descriptor()
+}
+
+func (TranslationTargetType) Type() protoreflect.EnumType {
+	return &file_system_common_v1_enum_proto_enumTypes[6]
+}
+
+func (x TranslationTargetType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use TranslationTargetType.Descriptor instead.
+func (TranslationTargetType) EnumDescriptor() ([]byte, []int) {
+	return file_system_common_v1_enum_proto_rawDescGZIP(), []int{6}
+}
+
 var File_system_common_v1_enum_proto protoreflect.FileDescriptor
 
 const file_system_common_v1_enum_proto_rawDesc = "" +
@@ -391,7 +451,13 @@ const file_system_common_v1_enum_proto_rawDesc = "" +
 	"\n" +
 	"DRAFT_CGTS\x10\x01\x12\x12\n" +
 	"\x0eGENERATED_CGTS\x10\x02\x12\x11\n" +
-	"\rDISABLED_CGTS\x10\x03B\xd2\x01\n" +
+	"\rDISABLED_CGTS\x10\x03*\x81\x01\n" +
+	"\x15TranslationTargetType\x12\x0f\n" +
+	"\vUNKNOWN_TTT\x10\x00\x12\x11\n" +
+	"\rBASE_DICT_TTT\x10\x01\x12\x11\n" +
+	"\rBASE_MENU_TTT\x10\x02\x12\x16\n" +
+	"\x12BASE_DICT_ITEM_TTT\x10\x03\x12\x19\n" +
+	"\x15BASE_CONFIG_VALUE_TTT\x10\x04B\xd2\x01\n" +
 	"\x14com.system.common.v1B\tEnumProtoP\x01ZMgithub.com/liujitcn/kratos-admin/backend/api/gen/go/system/common/v1;commonv1\xa2\x02\x03SCX\xaa\x02\x10System.Common.V1\xca\x02\x10System\\Common\\V1\xe2\x02\x1cSystem\\Common\\V1\\GPBMetadata\xea\x02\x12System::Common::V1b\x06proto3"
 
 var (
@@ -406,14 +472,15 @@ func file_system_common_v1_enum_proto_rawDescGZIP() []byte {
 	return file_system_common_v1_enum_proto_rawDescData
 }
 
-var file_system_common_v1_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
+var file_system_common_v1_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
 var file_system_common_v1_enum_proto_goTypes = []any{
-	(BaseConfigType)(0),     // 0: system.common.v1.BaseConfigType
-	(BaseJobLogStatus)(0),   // 1: system.common.v1.BaseJobLogStatus
-	(BaseMenuType)(0),       // 2: system.common.v1.BaseMenuType
-	(BaseRoleDataScope)(0),  // 3: system.common.v1.BaseRoleDataScope
-	(BaseUserGender)(0),     // 4: system.common.v1.BaseUserGender
-	(CodeGenTableStatus)(0), // 5: system.common.v1.CodeGenTableStatus
+	(BaseConfigType)(0),        // 0: system.common.v1.BaseConfigType
+	(BaseJobLogStatus)(0),      // 1: system.common.v1.BaseJobLogStatus
+	(BaseMenuType)(0),          // 2: system.common.v1.BaseMenuType
+	(BaseRoleDataScope)(0),     // 3: system.common.v1.BaseRoleDataScope
+	(BaseUserGender)(0),        // 4: system.common.v1.BaseUserGender
+	(CodeGenTableStatus)(0),    // 5: system.common.v1.CodeGenTableStatus
+	(TranslationTargetType)(0), // 6: system.common.v1.TranslationTargetType
 }
 var file_system_common_v1_enum_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -433,7 +500,7 @@ func file_system_common_v1_enum_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_common_v1_enum_proto_rawDesc), len(file_system_common_v1_enum_proto_rawDesc)),
-			NumEnums:      6,
+			NumEnums:      7,
 			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   0,

@@ -10,26 +10,49 @@ import (
 	context "context"
 
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-// RegisterBaseTranslationServiceMCPTools 注册Admin翻译草稿服务的 MCP Tool。
+// RegisterBaseTranslationServiceMCPTools 注册国际化翻译信息服务的 MCP Tool。
 func RegisterBaseTranslationServiceMCPTools(mcpServer *mcp.Server, baseTranslationServiceServer BaseTranslationServiceServer) {
 	RegisterBaseTranslationServiceGenerateTranslationDraftMCPTool(mcpServer, baseTranslationServiceServer)
+	RegisterBaseTranslationServiceUpdateBaseTranslationMCPTool(mcpServer, baseTranslationServiceServer)
 }
 
-// RegisterBaseTranslationServiceGenerateTranslationDraftMCPTool 注册为单个已保存资源生成机器翻译草稿的 MCP Tool。
+// RegisterBaseTranslationServiceGenerateTranslationDraftMCPTool 注册资源生成机器翻译的 MCP Tool。
 func RegisterBaseTranslationServiceGenerateTranslationDraftMCPTool(mcpServer *mcp.Server, baseTranslationServiceServer BaseTranslationServiceServer) {
 	mcp.AddTool[*GenerateTranslationDraftRequest, *GenerateTranslationDraftResponse](
 		mcpServer,
 		&mcp.Tool{
 			Name:        "system_admin_v1_base_translation_service_generate_translation_draft",
-			Description: "为单个已保存资源生成机器翻译草稿",
+			Description: "资源生成机器翻译。",
 		},
 		func(ctx context.Context, request *mcp.CallToolRequest, input *GenerateTranslationDraftRequest) (*mcp.CallToolResult, *GenerateTranslationDraftResponse, error) {
 			if input == nil {
 				input = &GenerateTranslationDraftRequest{}
 			}
 			reply, err := baseTranslationServiceServer.GenerateTranslationDraft(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterBaseTranslationServiceUpdateBaseTranslationMCPTool 注册修改单个翻译信息；文本为空时生成并保存机器译文的 MCP Tool。
+func RegisterBaseTranslationServiceUpdateBaseTranslationMCPTool(mcpServer *mcp.Server, baseTranslationServiceServer BaseTranslationServiceServer) {
+	mcp.AddTool[*UpdateBaseTranslationRequest, *emptypb.Empty](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_base_translation_service_update_base_translation",
+			Description: "修改单个翻译信息；文本为空时生成并保存机器译文。",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseTranslationRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
+			if input == nil {
+				input = &UpdateBaseTranslationRequest{}
+			}
+			reply, err := baseTranslationServiceServer.UpdateBaseTranslation(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

@@ -12,6 +12,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -21,16 +22,19 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	BaseTranslationService_GenerateTranslationDraft_FullMethodName = "/system.admin.v1.BaseTranslationService/GenerateTranslationDraft"
+	BaseTranslationService_UpdateBaseTranslation_FullMethodName    = "/system.admin.v1.BaseTranslationService/UpdateBaseTranslation"
 )
 
 // BaseTranslationServiceClient is the client API for BaseTranslationService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// Admin翻译草稿服务
+// 国际化翻译信息服务。
 type BaseTranslationServiceClient interface {
-	// 为单个已保存资源生成机器翻译草稿
+	// 资源生成机器翻译。
 	GenerateTranslationDraft(ctx context.Context, in *GenerateTranslationDraftRequest, opts ...grpc.CallOption) (*GenerateTranslationDraftResponse, error)
+	// 修改单个翻译信息；文本为空时生成并保存机器译文。
+	UpdateBaseTranslation(ctx context.Context, in *UpdateBaseTranslationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type baseTranslationServiceClient struct {
@@ -51,14 +55,26 @@ func (c *baseTranslationServiceClient) GenerateTranslationDraft(ctx context.Cont
 	return out, nil
 }
 
+func (c *baseTranslationServiceClient) UpdateBaseTranslation(ctx context.Context, in *UpdateBaseTranslationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, BaseTranslationService_UpdateBaseTranslation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BaseTranslationServiceServer is the server API for BaseTranslationService service.
 // All implementations must embed UnimplementedBaseTranslationServiceServer
 // for forward compatibility.
 //
-// Admin翻译草稿服务
+// 国际化翻译信息服务。
 type BaseTranslationServiceServer interface {
-	// 为单个已保存资源生成机器翻译草稿
+	// 资源生成机器翻译。
 	GenerateTranslationDraft(context.Context, *GenerateTranslationDraftRequest) (*GenerateTranslationDraftResponse, error)
+	// 修改单个翻译信息；文本为空时生成并保存机器译文。
+	UpdateBaseTranslation(context.Context, *UpdateBaseTranslationRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBaseTranslationServiceServer()
 }
 
@@ -71,6 +87,9 @@ type UnimplementedBaseTranslationServiceServer struct{}
 
 func (UnimplementedBaseTranslationServiceServer) GenerateTranslationDraft(context.Context, *GenerateTranslationDraftRequest) (*GenerateTranslationDraftResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GenerateTranslationDraft not implemented")
+}
+func (UnimplementedBaseTranslationServiceServer) UpdateBaseTranslation(context.Context, *UpdateBaseTranslationRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateBaseTranslation not implemented")
 }
 func (UnimplementedBaseTranslationServiceServer) mustEmbedUnimplementedBaseTranslationServiceServer() {
 }
@@ -112,6 +131,24 @@ func _BaseTranslationService_GenerateTranslationDraft_Handler(srv interface{}, c
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BaseTranslationService_UpdateBaseTranslation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateBaseTranslationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BaseTranslationServiceServer).UpdateBaseTranslation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BaseTranslationService_UpdateBaseTranslation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BaseTranslationServiceServer).UpdateBaseTranslation(ctx, req.(*UpdateBaseTranslationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BaseTranslationService_ServiceDesc is the grpc.ServiceDesc for BaseTranslationService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -122,6 +159,10 @@ var BaseTranslationService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GenerateTranslationDraft",
 			Handler:    _BaseTranslationService_GenerateTranslationDraft_Handler,
+		},
+		{
+			MethodName: "UpdateBaseTranslation",
+			Handler:    _BaseTranslationService_UpdateBaseTranslation_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

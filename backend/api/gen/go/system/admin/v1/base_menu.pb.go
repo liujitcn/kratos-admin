@@ -244,7 +244,7 @@ type BaseMenuForm struct {
 	Redirect      string                 `protobuf:"bytes,7,opt,name=redirect,proto3" json:"redirect,omitempty"`                             // 目录跳转路由或外链地址
 	Meta          *BaseMenuMeta          `protobuf:"bytes,8,opt,name=meta,proto3" json:"meta,omitempty"`                                     // 路由元信息
 	Api           []string               `protobuf:"bytes,9,rep,name=api,proto3" json:"api,omitempty"`                                       // 分配的API列表
-	Translations  []*BaseMenuTranslation `protobuf:"bytes,10,rep,name=translations,proto3" json:"translations,omitempty"`                    // 非主语言翻译
+	Translations  []*BaseTranslation     `protobuf:"bytes,10,rep,name=translations,proto3" json:"translations,omitempty"`                    // 非主语言翻译
 	Sort          int32                  `protobuf:"varint,50,opt,name=sort,proto3" json:"sort,omitempty"`                                   // 排序
 	Status        v11.Status             `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`        // 状态
 	unknownFields protoimpl.UnknownFields
@@ -344,7 +344,7 @@ func (x *BaseMenuForm) GetApi() []string {
 	return nil
 }
 
-func (x *BaseMenuForm) GetTranslations() []*BaseMenuTranslation {
+func (x *BaseMenuForm) GetTranslations() []*BaseTranslation {
 	if x != nil {
 		return x.Translations
 	}
@@ -564,7 +564,7 @@ type BaseMenu struct {
 	Component     string                 `protobuf:"bytes,6,opt,name=component,proto3" json:"component,omitempty"`                           // 组件路径
 	Redirect      string                 `protobuf:"bytes,7,opt,name=redirect,proto3" json:"redirect,omitempty"`                             // 重定向地址
 	Meta          *BaseMenuMeta          `protobuf:"bytes,8,opt,name=meta,proto3" json:"meta,omitempty"`                                     // 路由元信息
-	Translations  []*BaseMenuTranslation `protobuf:"bytes,10,rep,name=translations,proto3" json:"translations,omitempty"`                    // 非主语言翻译
+	Translations  []*BaseTranslation     `protobuf:"bytes,10,rep,name=translations,proto3" json:"translations,omitempty"`                    // 非主语言翻译
 	Sort          int32                  `protobuf:"varint,9,opt,name=sort,proto3" json:"sort,omitempty"`                                    // 排序
 	Status        v11.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`        // 状态
 	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`        // 创建时间
@@ -661,7 +661,7 @@ func (x *BaseMenu) GetMeta() *BaseMenuMeta {
 	return nil
 }
 
-func (x *BaseMenu) GetTranslations() []*BaseMenuTranslation {
+func (x *BaseMenu) GetTranslations() []*BaseTranslation {
 	if x != nil {
 		return x.Translations
 	}
@@ -941,171 +941,6 @@ func (x *BaseMenuParams) GetValue() string {
 	return ""
 }
 
-// 菜单翻译
-type BaseMenuTranslation struct {
-	state               protoimpl.MessageState `protogen:"open.v1"`
-	Id                  int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                                               // 主键ID
-	MenuId              int64                  `protobuf:"varint,2,opt,name=menu_id,json=menuId,proto3" json:"menu_id,omitempty"`                                                                         // 菜单ID
-	Locale              string                 `protobuf:"bytes,3,opt,name=locale,proto3" json:"locale,omitempty"`                                                                                        // 语言代码
-	Title               string                 `protobuf:"bytes,4,opt,name=title,proto3" json:"title,omitempty"`                                                                                          // 菜单标题
-	TranslationStatus   TranslationStatus      `protobuf:"varint,5,opt,name=translation_status,json=translationStatus,proto3,enum=system.admin.v1.TranslationStatus" json:"translation_status,omitempty"` // 翻译状态
-	SourceHash          string                 `protobuf:"bytes,6,opt,name=source_hash,json=sourceHash,proto3" json:"source_hash,omitempty"`                                                              // 中文源文SHA-256
-	TranslationProvider string                 `protobuf:"bytes,7,opt,name=translation_provider,json=translationProvider,proto3" json:"translation_provider,omitempty"`                                   // 机器翻译提供方
-	TranslatedAt        string                 `protobuf:"bytes,8,opt,name=translated_at,json=translatedAt,proto3" json:"translated_at,omitempty"`                                                        // 最近机器翻译时间
-	ReviewedBy          int64                  `protobuf:"varint,9,opt,name=reviewed_by,json=reviewedBy,proto3" json:"reviewed_by,omitempty"`                                                             // 审核人ID
-	ReviewedAt          string                 `protobuf:"bytes,10,opt,name=reviewed_at,json=reviewedAt,proto3" json:"reviewed_at,omitempty"`                                                             // 审核时间
-	CreatedBy           int64                  `protobuf:"varint,11,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`                                                               // 创建人ID
-	UpdatedBy           int64                  `protobuf:"varint,12,opt,name=updated_by,json=updatedBy,proto3" json:"updated_by,omitempty"`                                                               // 更新人ID
-	CreatedAt           string                 `protobuf:"bytes,13,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                                                // 创建时间
-	UpdatedAt           string                 `protobuf:"bytes,14,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                                                // 更新时间
-	DeletedAt           uint64                 `protobuf:"varint,15,opt,name=deleted_at,json=deletedAt,proto3" json:"deleted_at,omitempty"`                                                               // 删除时间
-	SourceChanged       bool                   `protobuf:"varint,16,opt,name=source_changed,json=sourceChanged,proto3" json:"source_changed,omitempty"`                                                   // 中文源文是否已变化
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
-}
-
-func (x *BaseMenuTranslation) Reset() {
-	*x = BaseMenuTranslation{}
-	mi := &file_system_admin_v1_base_menu_proto_msgTypes[13]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BaseMenuTranslation) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BaseMenuTranslation) ProtoMessage() {}
-
-func (x *BaseMenuTranslation) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_menu_proto_msgTypes[13]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use BaseMenuTranslation.ProtoReflect.Descriptor instead.
-func (*BaseMenuTranslation) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_menu_proto_rawDescGZIP(), []int{13}
-}
-
-func (x *BaseMenuTranslation) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *BaseMenuTranslation) GetMenuId() int64 {
-	if x != nil {
-		return x.MenuId
-	}
-	return 0
-}
-
-func (x *BaseMenuTranslation) GetLocale() string {
-	if x != nil {
-		return x.Locale
-	}
-	return ""
-}
-
-func (x *BaseMenuTranslation) GetTitle() string {
-	if x != nil {
-		return x.Title
-	}
-	return ""
-}
-
-func (x *BaseMenuTranslation) GetTranslationStatus() TranslationStatus {
-	if x != nil {
-		return x.TranslationStatus
-	}
-	return TranslationStatus_TRANSLATION_STATUS_UNSPECIFIED
-}
-
-func (x *BaseMenuTranslation) GetSourceHash() string {
-	if x != nil {
-		return x.SourceHash
-	}
-	return ""
-}
-
-func (x *BaseMenuTranslation) GetTranslationProvider() string {
-	if x != nil {
-		return x.TranslationProvider
-	}
-	return ""
-}
-
-func (x *BaseMenuTranslation) GetTranslatedAt() string {
-	if x != nil {
-		return x.TranslatedAt
-	}
-	return ""
-}
-
-func (x *BaseMenuTranslation) GetReviewedBy() int64 {
-	if x != nil {
-		return x.ReviewedBy
-	}
-	return 0
-}
-
-func (x *BaseMenuTranslation) GetReviewedAt() string {
-	if x != nil {
-		return x.ReviewedAt
-	}
-	return ""
-}
-
-func (x *BaseMenuTranslation) GetCreatedBy() int64 {
-	if x != nil {
-		return x.CreatedBy
-	}
-	return 0
-}
-
-func (x *BaseMenuTranslation) GetUpdatedBy() int64 {
-	if x != nil {
-		return x.UpdatedBy
-	}
-	return 0
-}
-
-func (x *BaseMenuTranslation) GetCreatedAt() string {
-	if x != nil {
-		return x.CreatedAt
-	}
-	return ""
-}
-
-func (x *BaseMenuTranslation) GetUpdatedAt() string {
-	if x != nil {
-		return x.UpdatedAt
-	}
-	return ""
-}
-
-func (x *BaseMenuTranslation) GetDeletedAt() uint64 {
-	if x != nil {
-		return x.DeletedAt
-	}
-	return 0
-}
-
-func (x *BaseMenuTranslation) GetSourceChanged() bool {
-	if x != nil {
-		return x.SourceChanged
-	}
-	return false
-}
-
 var File_system_admin_v1_base_menu_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_menu_proto_rawDesc = "" +
@@ -1130,7 +965,7 @@ const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\n" +
 	"base_menus\x18\x01 \x03(\v2\x19.system.admin.v1.BaseMenuB\x0f\xbaG\f\x92\x02\t菜单树R\tbaseMenus\"4\n" +
 	"\x12GetBaseMenuRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\"\xb7\x10\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\"\xb3\x10\n" +
 	"\fBaseMenuForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\x126\n" +
 	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDH\x00R\bparentId\x88\x01\x01\x12\x8f\x01\n" +
@@ -1145,9 +980,9 @@ const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\bredirect\x18\a \x01(\tB\x8a\x01\xbaG$\x92\x02!目录跳转路由或外链地址\xbaH`\xba\x01]\n" +
 	"\x1abase_menu.redirect.max_len\x12*重定向地址不能超过 1024 个字符\x1a\x13this.size() <= 1024R\bredirect\x12H\n" +
 	"\x04meta\x18\b \x01(\v2\x1d.system.admin.v1.BaseMenuMetaB\x15\xbaG\x12\x92\x02\x0f路由元信息R\x04meta\x12*\n" +
-	"\x03api\x18\t \x03(\tB\x18\xbaG\x15\x92\x02\x12分配的API列表R\x03api\x12b\n" +
+	"\x03api\x18\t \x03(\tB\x18\xbaG\x15\x92\x02\x12分配的API列表R\x03api\x12^\n" +
 	"\ftranslations\x18\n" +
-	" \x03(\v2$.system.admin.v1.BaseMenuTranslationB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\ftranslations\x12_\n" +
+	" \x03(\v2 .system.admin.v1.BaseTranslationB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\ftranslations\x12_\n" +
 	"\x04sort\x182 \x01(\x05BK\xbaG\t\x92\x02\x06排序\xbaH<\xba\x019\n" +
 	"\x17base_menu.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x12?\n" +
 	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status:\xe0\x05\xbaH\xdc\x05\x1ad\n" +
@@ -1171,7 +1006,7 @@ const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x03BV\xbaG\v\x92\x02\b菜单ID\xbaHE\xba\x01B\n" +
 	" set_base_menu_status.id.required\x12\x14菜单ID不能为空\x1a\bthis > 0R\x02id\x12o\n" +
 	"\x06status\x18\x02 \x01(\x05BW\xbaG\t\x92\x02\x06状态\xbaHH\xba\x01E\n" +
-	"$set_base_menu_status.status.required\x12\x12状态不能为空\x1a\tthis != 0R\x06status\"\xac\a\n" +
+	"$set_base_menu_status.status.required\x12\x12状态不能为空\x1a\tthis != 0R\x06status\"\xa8\a\n" +
 	"\bBaseMenu\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\x121\n" +
 	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDR\bparentId\x12F\n" +
@@ -1180,9 +1015,9 @@ const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\x04name\x18\x05 \x01(\tBi\xbaGf\x92\x02c路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。R\x04name\x120\n" +
 	"\tcomponent\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f组件路径R\tcomponent\x121\n" +
 	"\bredirect\x18\a \x01(\tB\x15\xbaG\x12\x92\x02\x0f重定向地址R\bredirect\x12H\n" +
-	"\x04meta\x18\b \x01(\v2\x1d.system.admin.v1.BaseMenuMetaB\x15\xbaG\x12\x92\x02\x0f路由元信息R\x04meta\x12b\n" +
+	"\x04meta\x18\b \x01(\v2\x1d.system.admin.v1.BaseMenuMetaB\x15\xbaG\x12\x92\x02\x0f路由元信息R\x04meta\x12^\n" +
 	"\ftranslations\x18\n" +
-	" \x03(\v2$.system.admin.v1.BaseMenuTranslationB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\ftranslations\x12 \n" +
+	" \x03(\v2 .system.admin.v1.BaseTranslationB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\ftranslations\x12 \n" +
 	"\x04sort\x18\t \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x127\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x122\n" +
 	"\n" +
@@ -1219,35 +1054,7 @@ const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\x0e_selected_icon\"\\\n" +
 	"\x0eBaseMenuParams\x12!\n" +
 	"\x03key\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t参数keyR\x03key\x12'\n" +
-	"\x05value\x18\x02 \x01(\tB\x11\xbaG\x0e\x92\x02\v参数valueR\x05value\"\xee\b\n" +
-	"\x13BaseMenuTranslation\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12'\n" +
-	"\amenu_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x06menuId\x12\x8f\x01\n" +
-	"\x06locale\x18\x03 \x01(\tBw\xbaG\x0f\x92\x02\f语言代码\xbaHb\xba\x01_\n" +
-	"&base_menu_translation.locale.supported\x12$菜单翻译语言代码不能为空\x1a\x0fthis.size() > 0R\x06locale\x12\x93\x01\n" +
-	"\x05title\x18\x04 \x01(\tB}\xbaG\x0f\x92\x02\f菜单标题\xbaHh\xba\x01e\n" +
-	"#base_menu_translation.title.max_len\x12*菜单翻译标题不能超过255个字符\x1a\x12this.size() <= 255R\x05title\x12e\n" +
-	"\x12translation_status\x18\x05 \x01(\x0e2\".system.admin.v1.TranslationStatusB\x12\xbaG\x0f\x92\x02\f翻译状态R\x11translationStatus\x12:\n" +
-	"\vsource_hash\x18\x06 \x01(\tB\x19\xbaG\x16\x92\x02\x13中文源文SHA-256R\n" +
-	"sourceHash\x12N\n" +
-	"\x14translation_provider\x18\a \x01(\tB\x1b\xbaG\x18\x92\x02\x15机器翻译提供方R\x13translationProvider\x12C\n" +
-	"\rtranslated_at\x18\b \x01(\tB\x1e\xbaG\x1b\x92\x02\x18最近机器翻译时间R\ftranslatedAt\x122\n" +
-	"\vreviewed_by\x18\t \x01(\x03B\x11\xbaG\x0e\x92\x02\v审核人IDR\n" +
-	"reviewedBy\x123\n" +
-	"\vreviewed_at\x18\n" +
-	" \x01(\tB\x12\xbaG\x0f\x92\x02\f审核时间R\n" +
-	"reviewedAt\x120\n" +
-	"\n" +
-	"created_by\x18\v \x01(\x03B\x11\xbaG\x0e\x92\x02\v创建人IDR\tcreatedBy\x120\n" +
-	"\n" +
-	"updated_by\x18\f \x01(\x03B\x11\xbaG\x0e\x92\x02\v更新人IDR\tupdatedBy\x121\n" +
-	"\n" +
-	"created_at\x18\r \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x121\n" +
-	"\n" +
-	"updated_at\x18\x0e \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x121\n" +
-	"\n" +
-	"deleted_at\x18\x0f \x01(\x04B\x12\xbaG\x0f\x92\x02\f删除时间R\tdeletedAt\x12H\n" +
-	"\x0esource_changed\x18\x10 \x01(\bB!\xbaG\x1e\x92\x02\x1b中文源文是否已变化R\rsourceChanged2\x9c\a\n" +
+	"\x05value\x18\x02 \x01(\tB\x11\xbaG\x0e\x92\x02\v参数valueR\x05value2\x9c\a\n" +
 	"\x0fBaseMenuService\x12\x7f\n" +
 	"\x0eOptionBaseMenu\x12&.system.admin.v1.OptionBaseMenuRequest\x1a\x1d.common.v1.TreeOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/menu/option\x12\x81\x01\n" +
 	"\fTreeBaseMenu\x12$.system.admin.v1.TreeBaseMenuRequest\x1a%.system.admin.v1.TreeBaseMenuResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/menu/tree\x12w\n" +
@@ -1270,7 +1077,7 @@ func file_system_admin_v1_base_menu_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_base_menu_proto_rawDescData
 }
 
-var file_system_admin_v1_base_menu_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_system_admin_v1_base_menu_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_system_admin_v1_base_menu_proto_goTypes = []any{
 	(*OptionBaseMenuRequest)(nil),    // 0: system.admin.v1.OptionBaseMenuRequest
 	(*TreeBaseMenuRequest)(nil),      // 1: system.admin.v1.TreeBaseMenuRequest
@@ -1285,48 +1092,46 @@ var file_system_admin_v1_base_menu_proto_goTypes = []any{
 	(*BaseMenuMeta)(nil),             // 10: system.admin.v1.BaseMenuMeta
 	(*BaseMenuAppMeta)(nil),          // 11: system.admin.v1.BaseMenuAppMeta
 	(*BaseMenuParams)(nil),           // 12: system.admin.v1.BaseMenuParams
-	(*BaseMenuTranslation)(nil),      // 13: system.admin.v1.BaseMenuTranslation
-	(v1.BaseMenuType)(0),             // 14: system.common.v1.BaseMenuType
+	(v1.BaseMenuType)(0),             // 13: system.common.v1.BaseMenuType
+	(*BaseTranslation)(nil),          // 14: system.admin.v1.BaseTranslation
 	(v11.Status)(0),                  // 15: common.v1.Status
-	(TranslationStatus)(0),           // 16: system.admin.v1.TranslationStatus
-	(*v11.TreeOptionResponse)(nil),   // 17: common.v1.TreeOptionResponse
-	(*emptypb.Empty)(nil),            // 18: google.protobuf.Empty
+	(*v11.TreeOptionResponse)(nil),   // 16: common.v1.TreeOptionResponse
+	(*emptypb.Empty)(nil),            // 17: google.protobuf.Empty
 }
 var file_system_admin_v1_base_menu_proto_depIdxs = []int32{
 	9,  // 0: system.admin.v1.TreeBaseMenuResponse.base_menus:type_name -> system.admin.v1.BaseMenu
-	14, // 1: system.admin.v1.BaseMenuForm.type:type_name -> system.common.v1.BaseMenuType
+	13, // 1: system.admin.v1.BaseMenuForm.type:type_name -> system.common.v1.BaseMenuType
 	10, // 2: system.admin.v1.BaseMenuForm.meta:type_name -> system.admin.v1.BaseMenuMeta
-	13, // 3: system.admin.v1.BaseMenuForm.translations:type_name -> system.admin.v1.BaseMenuTranslation
+	14, // 3: system.admin.v1.BaseMenuForm.translations:type_name -> system.admin.v1.BaseTranslation
 	15, // 4: system.admin.v1.BaseMenuForm.status:type_name -> common.v1.Status
 	4,  // 5: system.admin.v1.CreateBaseMenuRequest.base_menu:type_name -> system.admin.v1.BaseMenuForm
 	4,  // 6: system.admin.v1.UpdateBaseMenuRequest.base_menu:type_name -> system.admin.v1.BaseMenuForm
-	14, // 7: system.admin.v1.BaseMenu.type:type_name -> system.common.v1.BaseMenuType
+	13, // 7: system.admin.v1.BaseMenu.type:type_name -> system.common.v1.BaseMenuType
 	10, // 8: system.admin.v1.BaseMenu.meta:type_name -> system.admin.v1.BaseMenuMeta
-	13, // 9: system.admin.v1.BaseMenu.translations:type_name -> system.admin.v1.BaseMenuTranslation
+	14, // 9: system.admin.v1.BaseMenu.translations:type_name -> system.admin.v1.BaseTranslation
 	15, // 10: system.admin.v1.BaseMenu.status:type_name -> common.v1.Status
 	9,  // 11: system.admin.v1.BaseMenu.children:type_name -> system.admin.v1.BaseMenu
 	12, // 12: system.admin.v1.BaseMenuMeta.params:type_name -> system.admin.v1.BaseMenuParams
 	11, // 13: system.admin.v1.BaseMenuMeta.app:type_name -> system.admin.v1.BaseMenuAppMeta
-	16, // 14: system.admin.v1.BaseMenuTranslation.translation_status:type_name -> system.admin.v1.TranslationStatus
-	0,  // 15: system.admin.v1.BaseMenuService.OptionBaseMenu:input_type -> system.admin.v1.OptionBaseMenuRequest
-	1,  // 16: system.admin.v1.BaseMenuService.TreeBaseMenu:input_type -> system.admin.v1.TreeBaseMenuRequest
-	3,  // 17: system.admin.v1.BaseMenuService.GetBaseMenu:input_type -> system.admin.v1.GetBaseMenuRequest
-	5,  // 18: system.admin.v1.BaseMenuService.CreateBaseMenu:input_type -> system.admin.v1.CreateBaseMenuRequest
-	6,  // 19: system.admin.v1.BaseMenuService.UpdateBaseMenu:input_type -> system.admin.v1.UpdateBaseMenuRequest
-	7,  // 20: system.admin.v1.BaseMenuService.DeleteBaseMenu:input_type -> system.admin.v1.DeleteBaseMenuRequest
-	8,  // 21: system.admin.v1.BaseMenuService.SetBaseMenuStatus:input_type -> system.admin.v1.SetBaseMenuStatusRequest
-	17, // 22: system.admin.v1.BaseMenuService.OptionBaseMenu:output_type -> common.v1.TreeOptionResponse
-	2,  // 23: system.admin.v1.BaseMenuService.TreeBaseMenu:output_type -> system.admin.v1.TreeBaseMenuResponse
-	4,  // 24: system.admin.v1.BaseMenuService.GetBaseMenu:output_type -> system.admin.v1.BaseMenuForm
-	18, // 25: system.admin.v1.BaseMenuService.CreateBaseMenu:output_type -> google.protobuf.Empty
-	18, // 26: system.admin.v1.BaseMenuService.UpdateBaseMenu:output_type -> google.protobuf.Empty
-	18, // 27: system.admin.v1.BaseMenuService.DeleteBaseMenu:output_type -> google.protobuf.Empty
-	18, // 28: system.admin.v1.BaseMenuService.SetBaseMenuStatus:output_type -> google.protobuf.Empty
-	22, // [22:29] is the sub-list for method output_type
-	15, // [15:22] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	0,  // 14: system.admin.v1.BaseMenuService.OptionBaseMenu:input_type -> system.admin.v1.OptionBaseMenuRequest
+	1,  // 15: system.admin.v1.BaseMenuService.TreeBaseMenu:input_type -> system.admin.v1.TreeBaseMenuRequest
+	3,  // 16: system.admin.v1.BaseMenuService.GetBaseMenu:input_type -> system.admin.v1.GetBaseMenuRequest
+	5,  // 17: system.admin.v1.BaseMenuService.CreateBaseMenu:input_type -> system.admin.v1.CreateBaseMenuRequest
+	6,  // 18: system.admin.v1.BaseMenuService.UpdateBaseMenu:input_type -> system.admin.v1.UpdateBaseMenuRequest
+	7,  // 19: system.admin.v1.BaseMenuService.DeleteBaseMenu:input_type -> system.admin.v1.DeleteBaseMenuRequest
+	8,  // 20: system.admin.v1.BaseMenuService.SetBaseMenuStatus:input_type -> system.admin.v1.SetBaseMenuStatusRequest
+	16, // 21: system.admin.v1.BaseMenuService.OptionBaseMenu:output_type -> common.v1.TreeOptionResponse
+	2,  // 22: system.admin.v1.BaseMenuService.TreeBaseMenu:output_type -> system.admin.v1.TreeBaseMenuResponse
+	4,  // 23: system.admin.v1.BaseMenuService.GetBaseMenu:output_type -> system.admin.v1.BaseMenuForm
+	17, // 24: system.admin.v1.BaseMenuService.CreateBaseMenu:output_type -> google.protobuf.Empty
+	17, // 25: system.admin.v1.BaseMenuService.UpdateBaseMenu:output_type -> google.protobuf.Empty
+	17, // 26: system.admin.v1.BaseMenuService.DeleteBaseMenu:output_type -> google.protobuf.Empty
+	17, // 27: system.admin.v1.BaseMenuService.SetBaseMenuStatus:output_type -> google.protobuf.Empty
+	21, // [21:28] is the sub-list for method output_type
+	14, // [14:21] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_menu_proto_init() }
@@ -1346,7 +1151,7 @@ func file_system_admin_v1_base_menu_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_base_menu_proto_rawDesc), len(file_system_admin_v1_base_menu_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   14,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
