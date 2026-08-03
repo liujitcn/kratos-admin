@@ -354,31 +354,27 @@ type TranslationTargetType int32
 
 const (
 	TranslationTargetType_UNKNOWN_TTT TranslationTargetType = 0
-	// 字典名称。
-	TranslationTargetType_BASE_DICT_TTT TranslationTargetType = 1
-	// 菜单标题。
-	TranslationTargetType_BASE_MENU_TTT TranslationTargetType = 2
-	// 字典项标签。
-	TranslationTargetType_BASE_DICT_ITEM_TTT TranslationTargetType = 3
 	// 系统配置值。
-	TranslationTargetType_BASE_CONFIG_VALUE_TTT TranslationTargetType = 4
+	TranslationTargetType_BASE_CONFIG_VALUE_TTT TranslationTargetType = 1
+	// 字典项标签。
+	TranslationTargetType_BASE_DICT_ITEM_TTT TranslationTargetType = 2
+	// 菜单标题。
+	TranslationTargetType_BASE_MENU_TTT TranslationTargetType = 3
 )
 
 // Enum value maps for TranslationTargetType.
 var (
 	TranslationTargetType_name = map[int32]string{
 		0: "UNKNOWN_TTT",
-		1: "BASE_DICT_TTT",
-		2: "BASE_MENU_TTT",
-		3: "BASE_DICT_ITEM_TTT",
-		4: "BASE_CONFIG_VALUE_TTT",
+		1: "BASE_CONFIG_VALUE_TTT",
+		2: "BASE_DICT_ITEM_TTT",
+		3: "BASE_MENU_TTT",
 	}
 	TranslationTargetType_value = map[string]int32{
 		"UNKNOWN_TTT":           0,
-		"BASE_DICT_TTT":         1,
-		"BASE_MENU_TTT":         2,
-		"BASE_DICT_ITEM_TTT":    3,
-		"BASE_CONFIG_VALUE_TTT": 4,
+		"BASE_CONFIG_VALUE_TTT": 1,
+		"BASE_DICT_ITEM_TTT":    2,
+		"BASE_MENU_TTT":         3,
 	}
 )
 
@@ -451,13 +447,12 @@ const file_system_common_v1_enum_proto_rawDesc = "" +
 	"\n" +
 	"DRAFT_CGTS\x10\x01\x12\x12\n" +
 	"\x0eGENERATED_CGTS\x10\x02\x12\x11\n" +
-	"\rDISABLED_CGTS\x10\x03*\x81\x01\n" +
+	"\rDISABLED_CGTS\x10\x03*n\n" +
 	"\x15TranslationTargetType\x12\x0f\n" +
-	"\vUNKNOWN_TTT\x10\x00\x12\x11\n" +
-	"\rBASE_DICT_TTT\x10\x01\x12\x11\n" +
-	"\rBASE_MENU_TTT\x10\x02\x12\x16\n" +
-	"\x12BASE_DICT_ITEM_TTT\x10\x03\x12\x19\n" +
-	"\x15BASE_CONFIG_VALUE_TTT\x10\x04B\xd2\x01\n" +
+	"\vUNKNOWN_TTT\x10\x00\x12\x19\n" +
+	"\x15BASE_CONFIG_VALUE_TTT\x10\x01\x12\x16\n" +
+	"\x12BASE_DICT_ITEM_TTT\x10\x02\x12\x11\n" +
+	"\rBASE_MENU_TTT\x10\x03B\xd2\x01\n" +
 	"\x14com.system.common.v1B\tEnumProtoP\x01ZMgithub.com/liujitcn/kratos-admin/backend/api/gen/go/system/common/v1;commonv1\xa2\x02\x03SCX\xaa\x02\x10System.Common.V1\xca\x02\x10System\\Common\\V1\xe2\x02\x1cSystem\\Common\\V1\\GPBMetadata\xea\x02\x12System::Common::V1b\x06proto3"
 
 var (

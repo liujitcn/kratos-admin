@@ -56,12 +56,10 @@ enum CodeGenTableStatus {
 // 统一翻译表目标类型，和 base_translation.target_type 的值一一对应。
 enum TranslationTargetType {
   UNKNOWN_TTT = 0;
-  // 字典名称。
-  BASE_DICT_TTT = 1;
-  // 菜单标题。
-  BASE_MENU_TTT = 2;
-  // 字典项标签。
-  BASE_DICT_ITEM_TTT = 3;
   // 系统配置值。
-  BASE_CONFIG_VALUE_TTT = 4;
+  BASE_CONFIG_VALUE_TTT = 1;
+  // 字典项标签。
+  BASE_DICT_ITEM_TTT = 2;
+  // 菜单标题。
+  BASE_MENU_TTT = 3;
 }

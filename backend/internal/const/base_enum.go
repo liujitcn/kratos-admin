@@ -74,3 +74,12 @@ const (
 	// BASE_USER_GENDER_GIRL 表示用户性别为女。
 	BASE_USER_GENDER_GIRL = int32(systemcommonv1.BaseUserGender_GIRL)
 )
+
+const (
+	// 系统配置值
+	BASE_CONFIG_VALUE_TTT = int32(systemcommonv1.TranslationTargetType_BASE_CONFIG_VALUE_TTT)
+	// BASE_DICT_ITEM_TTT 字典项标签。
+	BASE_DICT_ITEM_TTT = int32(systemcommonv1.TranslationTargetType_BASE_DICT_ITEM_TTT)
+	// BASE_MENU_TTT 菜单标题。
+	BASE_MENU_TTT = int32(systemcommonv1.TranslationTargetType_BASE_MENU_TTT)
+)
