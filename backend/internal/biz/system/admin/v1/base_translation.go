@@ -131,10 +131,15 @@ func (c *BaseTranslationCase) GenerateTranslationDraft(ctx context.Context, req 
 		Translation:         translated,
 		TranslationStatus:   systemadminv1.TranslationStatus_TRANSLATION_STATUS_MACHINE,
 		SourceHash:          sourceHash,
-		TranslationProvider: _const.TRANSLATION_PROVIDER_GOOGLE_V1,
+		TranslationProvider: c.TranslationProvider(),
 		TranslatedAt:        formatTranslationTime(now),
 		Field:               source.Field,
 	}, nil
+}
+
+// TranslationProvider 返回当前配置选择的翻译 Provider 名称。
+func (c *BaseTranslationCase) TranslationProvider() string {
+	return c.draftConfig.Provider
 }
 
 // TranslateText 将指定源语言文本翻译为目标语言并返回结果。
@@ -366,7 +371,7 @@ func (c *BaseTranslationCase) NormalizePrimaryText(ctx context.Context, source s
 func (c *BaseTranslationCase) translateText(ctx context.Context, source, sourceLocale, targetLocale string) (string, error) {
 	c.draftMu.Lock()
 	defer c.draftMu.Unlock()
-	deadlineCtx, cancel := context.WithTimeout(ctx, 8*time.Second)
+	deadlineCtx, cancel := context.WithTimeout(ctx, c.draftConfig.Timeout)
 	defer cancel()
 	return backendI18n.TranslateProtected(deadlineCtx, c.draftTranslator, source, sourceLocale, targetLocale)
 }

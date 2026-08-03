@@ -38,6 +38,15 @@ func ParseOSS(ctx *bootstrap.Context) (*bootstrapConfigv1.Oss, error) {
 	return cfg.GetOss(), nil
 }
 
+// ParseTranslator 解析机器翻译配置。
+func ParseTranslator(ctx *bootstrap.Context) *bootstrapConfigv1.Translator {
+	cfg := ctx.GetConfig()
+	if cfg == nil || cfg.GetTranslator() == nil {
+		return &bootstrapConfigv1.Translator{}
+	}
+	return cfg.GetTranslator()
+}
+
 // ParseData 解析数据源配置。
 func ParseData(ctx *bootstrap.Context) (*bootstrapConfigv1.Data, error) {
 	cfg := ctx.GetConfig()

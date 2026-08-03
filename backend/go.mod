@@ -16,17 +16,16 @@ require (
 	github.com/google/jsonschema-go v0.4.3
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
-	github.com/liujitcn/go-utils v0.0.33
+	github.com/liujitcn/go-utils v0.0.35
 	github.com/liujitcn/go-utils/crypto v0.0.11
 	github.com/liujitcn/go-utils/geoip v0.0.4
 	github.com/liujitcn/go-utils/http v0.0.5
 	github.com/liujitcn/go-utils/translator v0.0.1
-	github.com/liujitcn/go-utils/translator/google v0.0.1
 	github.com/liujitcn/gorm-kit v0.0.32
 	github.com/liujitcn/kratos-admin/backend/core v0.0.5
-	github.com/liujitcn/kratos-kit v0.0.63
+	github.com/liujitcn/kratos-kit v0.0.64
 	github.com/liujitcn/kratos-kit/ai/eino v0.0.6
-	github.com/liujitcn/kratos-kit/api v0.0.23
+	github.com/liujitcn/kratos-kit/api v0.0.24
 	github.com/liujitcn/kratos-kit/auth v0.0.23
 	github.com/liujitcn/kratos-kit/auth/authn v0.0.21
 	github.com/liujitcn/kratos-kit/auth/authn/engine/jwt v0.0.16
@@ -37,6 +36,7 @@ require (
 	github.com/liujitcn/kratos-kit/bootstrap v0.0.18
 	github.com/liujitcn/kratos-kit/cache v0.0.16
 	github.com/liujitcn/kratos-kit/captcha v0.0.19
+	github.com/liujitcn/kratos-kit/config v0.0.22
 	github.com/liujitcn/kratos-kit/database/gorm v0.0.38
 	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.15
 	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.11
@@ -47,6 +47,7 @@ require (
 	github.com/liujitcn/kratos-kit/queue v0.0.22
 	github.com/liujitcn/kratos-kit/rpc v0.0.19
 	github.com/liujitcn/kratos-kit/swagger-ui v0.0.11
+	github.com/liujitcn/kratos-kit/translator v0.0.1
 	github.com/liujitcn/kratos-kit/transport/cron v0.0.11
 	github.com/liujitcn/kratos-kit/transport/mcp v0.0.12
 	github.com/liujitcn/kratos-kit/transport/sse v0.0.9
@@ -80,7 +81,17 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.10.0 // indirect
 	github.com/ClickHouse/ch-go v0.61.5 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.30.0 // indirect
+	github.com/alibabacloud-go/alibabacloud-gateway-spi v0.0.5 // indirect
+	github.com/alibabacloud-go/alimt-20190107 v1.0.0 // indirect
+	github.com/alibabacloud-go/darabonba-openapi/v2 v2.1.15 // indirect
+	github.com/alibabacloud-go/debug v1.0.1 // indirect
+	github.com/alibabacloud-go/endpoint-util v1.1.0 // indirect
+	github.com/alibabacloud-go/openapi-util v0.1.0 // indirect
+	github.com/alibabacloud-go/tea v1.4.0 // indirect
+	github.com/alibabacloud-go/tea-utils v1.3.1 // indirect
+	github.com/alibabacloud-go/tea-utils/v2 v2.0.7 // indirect
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible // indirect
+	github.com/aliyun/credentials-go v1.4.5 // indirect
 	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.43.2 // indirect
@@ -112,8 +123,10 @@ require (
 	github.com/bytedance/sonic/loader v0.5.0 // indirect
 	github.com/casbin/casbin/v2 v2.135.0 // indirect
 	github.com/casbin/govaluate v1.3.0 // indirect
+	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/clbanning/mxj/v2 v2.7.0 // indirect
 	github.com/clipperhouse/displaywidth v0.10.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.6.0 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
@@ -164,8 +177,11 @@ require (
 	github.com/klauspost/cpuid/v2 v2.2.11 // indirect
 	github.com/klauspost/crc32 v1.3.0 // indirect
 	github.com/lithammer/shortuuid/v4 v4.2.0 // indirect
+	github.com/liujitcn/go-utils/translator/alibaba v0.0.1 // indirect
+	github.com/liujitcn/go-utils/translator/baidu v0.0.2 // indirect
+	github.com/liujitcn/go-utils/translator/google v0.0.2 // indirect
+	github.com/liujitcn/go-utils/translator/volc v0.0.1 // indirect
 	github.com/liujitcn/kratos-kit/broker v0.0.8 // indirect
-	github.com/liujitcn/kratos-kit/config v0.0.21 // indirect
 	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.16 // indirect
 	github.com/liujitcn/kratos-kit/locker v0.0.13 // indirect
 	github.com/liujitcn/kratos-kit/logger v0.0.27 // indirect
@@ -221,8 +237,10 @@ require (
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/tinylib/msgp v1.6.1 // indirect
+	github.com/tjfoc/gmsm v1.4.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/vearutop/statigz v1.5.0 // indirect
+	github.com/volcengine/volc-sdk-golang v1.0.253 // indirect
 	github.com/wenlng/go-captcha-assets v1.0.7 // indirect
 	github.com/wenlng/go-captcha/v2 v2.0.5 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
@@ -262,6 +280,7 @@ require (
 	google.golang.org/genproto v0.0.0-20260128011058-8636f8732409 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260526163538-3dc84a4a5aaa // indirect
 	gopkg.in/cenkalti/backoff.v1 v1.1.0 // indirect
+	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gorm.io/datatypes v1.2.4 // indirect
 	gorm.io/driver/clickhouse v0.7.0 // indirect

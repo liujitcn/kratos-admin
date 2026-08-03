@@ -387,9 +387,20 @@ func isBatchMergeableFile(path string) bool {
 	if strings.HasSuffix(path, ".proto") {
 		return true
 	}
-	return strings.HasPrefix(path, "backend/internal/service/") && (strings.HasSuffix(path, ".go") || strings.HasSuffix(path, ".ts")) ||
+	return isCurrentBackendModuleFile(path, "backend/internal/service") && (strings.HasSuffix(path, ".go") || strings.HasSuffix(path, ".ts")) ||
+		isCurrentBackendModuleFile(path, "backend/internal/biz") && strings.HasSuffix(path, ".go") ||
 		strings.HasPrefix(path, "frontend/admin/packages/modules/") && strings.Contains(path, "/src/api/") && strings.HasSuffix(path, ".ts") ||
 		strings.HasPrefix(path, "frontend/admin/packages/modules/") && strings.Contains(path, "/src/views/") && strings.HasSuffix(path, ".vue") ||
 		strings.HasPrefix(path, "frontend/admin/packages/modules/") && strings.Contains(path, "/src/locales/") && strings.HasSuffix(path, ".json") ||
-		strings.HasPrefix(path, "backend/internal/server/") && strings.HasSuffix(path, ".go")
+		isCurrentBackendModuleFile(path, "backend/internal/server") && strings.HasSuffix(path, ".go")
+}
+
+// isCurrentBackendModuleFile 判断路径是否属于当前 admin/v1 后端模块目录。
+func isCurrentBackendModuleFile(path string, root string) bool {
+	relative := strings.TrimPrefix(path, root+"/")
+	if relative == path {
+		return false
+	}
+	parts := strings.Split(relative, "/")
+	return len(parts) >= 4 && parts[1] == "admin" && parts[2] == "v1"
 }

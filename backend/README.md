@@ -143,7 +143,7 @@ make i18n-draft
 I18N_WRITE=1 make i18n-draft
 ```
 
-草稿命令的 Google V1 仅用于显式生成可审核的非主语言草稿，不进入普通业务请求链路；`make i18n-locales` 是可选的批量语言包和动态翻译草稿生成器，支持在线和 `I18N_OFFLINE=1` 离线生成；关闭 Provider 不影响主语言回退和已审核译文。
+草稿命令读取 `configs/translator.yaml` 选择翻译 Provider，仅用于显式生成可审核的非主语言草稿，不进入普通业务请求链路；`make i18n-locales` 是可选的批量语言包和动态翻译草稿生成器，支持在线和 `I18N_OFFLINE=1` 离线生成；关闭 Provider 不影响主语言回退和已审核译文。
 
 动态资源的主语言由 `base_language.is_primary` 配置。创建或更新菜单、字典、字典项和系统配置时，后端按请求 `Accept-Language` 将输入文本转换为主语言写入主表；请求语言不是主语言时，原文写入对应翻译表，其他已启用非主语言也只保存在翻译表。
 

@@ -16,6 +16,7 @@ import (
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/kratos-kit/sdk"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/liujitcn/gorm-kit/repository"
 )
@@ -131,11 +132,11 @@ func (c *ConfigCase) localizeRuntimeConfigValues(ctx context.Context, configs []
 	}
 	localized := make([]*basev1.ConfigItem, 0, len(configs))
 	for _, item := range configs {
-		copyItem := *item
+		copyItem := proto.Clone(item).(*basev1.ConfigItem)
 		if translated := values[item.GetId()]; translated != "" {
 			copyItem.Value = translated
 		}
-		localized = append(localized, &copyItem)
+		localized = append(localized, copyItem)
 	}
 	return localized, nil
 }

@@ -92,11 +92,11 @@ i18n-sync:
 i18n-check:
 	@go run ./internal/cmd/i18n -mode check
 
-# 报告错误目录缺失草稿；I18N_WRITE=1 时使用 Google V1 只补缺失项
+# 报告错误目录缺失草稿；I18N_WRITE=1 时按 configs/translator.yaml 选择 Provider
 i18n-draft:
 	@go run ./internal/cmd/i18n -mode draft $(if $(filter 1 true,$(I18N_WRITE)),-write)
 
-# 使用 OpenCC 和 Google V1 生成新增语言的语言包和迁移数据
+# 使用 OpenCC 和独立的 Google V1 脚本生成新增语言的语言包和迁移数据
 i18n-locales:
 	@python3 ../scripts/generate_locale_drafts.py --write --machine $(if $(strip $(I18N_LOCALE)),--locale "$(I18N_LOCALE)",) $(if $(strip $(I18N_MIGRATION_VERSION)),--migration-version "$(I18N_MIGRATION_VERSION)",) $(if $(filter 1 true,$(I18N_OFFLINE)),--offline)
 

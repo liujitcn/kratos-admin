@@ -291,7 +291,7 @@ func (c *BaseDictTranslationCase) saveMachineDraft(ctx context.Context, dictID i
 	query := c.dictTranslationRepo.Query(ctx).BaseDictTranslation
 	row, err := c.dictTranslationRepo.Find(ctx, repository.Where(query.DictID.Eq(dictID)), repository.Where(query.Locale.Eq(localeValue)))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return c.dictTranslationRepo.Create(ctx, &models.BaseDictTranslation{DictID: dictID, Locale: localeValue, Name: translated, TranslationStatus: _const.TRANSLATION_STATUS_MACHINE, SourceHash: sourceHash, TranslationProvider: _const.TRANSLATION_PROVIDER_GOOGLE_V1, TranslatedAt: translatedAt})
+		return c.dictTranslationRepo.Create(ctx, &models.BaseDictTranslation{DictID: dictID, Locale: localeValue, Name: translated, TranslationStatus: _const.TRANSLATION_STATUS_MACHINE, SourceHash: sourceHash, TranslationProvider: c.translationCase.TranslationProvider(), TranslatedAt: translatedAt})
 	}
 	if err != nil {
 		return err
@@ -299,7 +299,7 @@ func (c *BaseDictTranslationCase) saveMachineDraft(ctx context.Context, dictID i
 	row.Name = translated
 	row.TranslationStatus = _const.TRANSLATION_STATUS_MACHINE
 	row.SourceHash = sourceHash
-	row.TranslationProvider = _const.TRANSLATION_PROVIDER_GOOGLE_V1
+	row.TranslationProvider = c.translationCase.TranslationProvider()
 	row.TranslatedAt = translatedAt
 	return c.dictTranslationRepo.UpdateByID(ctx, row)
 }

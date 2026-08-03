@@ -202,10 +202,7 @@ func (c *renderer) externalTargetTable(table *Table, target string, methods []*P
 		}
 	}
 	protoPath := c.defaultTargetProtoPath(table, target)
-	protoTarget, ok := ProtoTargetForProtoPath(protoPath)
-	if !ok {
-		protoTarget = ProtoTargetForTable(table)
-	}
+	protoTarget, _ := ProtoTargetForProtoPath(protoPath)
 	return &Table{
 		TableName_:     stringcase.ToSnakeCase(target),
 		TableComment:   businessName,

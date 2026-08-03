@@ -129,7 +129,7 @@ make -C backend i18n-draft
 I18N_WRITE=1 make -C backend i18n-draft
 ```
 
-`make -C backend i18n-locales` 是可选的批量语言包/动态翻译草稿生成器；新增语言可通过 `I18N_LOCALE=de-DE I18N_MIGRATION_VERSION=vX.Y.Z make -C backend i18n-locales` 指定，并在提交前审核生成文件，避免修改已发布迁移。在线生成使用 Google V1，离线环境可加 `I18N_OFFLINE=1` 使用内置术语表。机器翻译仅生成可审核草稿，不参与正常业务读取；Provider 不可用时不影响已审核译文和主语言回退。
+`make -C backend i18n-locales` 是可选的批量语言包/动态翻译草稿生成器；新增语言可通过 `I18N_LOCALE=de-DE I18N_MIGRATION_VERSION=vX.Y.Z make -C backend i18n-locales` 指定，并在提交前审核生成文件，避免修改已发布迁移。该脚本在线模式使用独立的 Google V1 请求，离线环境可加 `I18N_OFFLINE=1` 使用内置术语表；服务运行时和 `i18n-draft` 则读取 `backend/configs/translator.yaml` 选择 Provider。机器翻译仅生成可审核草稿，不参与正常业务读取；Provider 不可用时不影响已审核译文和主语言回退。
 
 ## 发布
 

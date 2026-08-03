@@ -1,0 +1,6 @@
+translator:
+  enabled: false
+  type: google
+  timeout: 8s
+  google:
+    version: v1

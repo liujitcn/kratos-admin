@@ -18,7 +18,7 @@ import { type SupportedLocale, useLocaleStore } from "@/locales";
 
 const { locale, setLocale, languageOptions, t } = useLocaleStore();
 const localeOptions = computed(() => {
-  return languageOptions.value.map(item => ({ value: item.language_code, label: item.language_name }));
+  return languageOptions.value.map(item => ({ value: item.language_code, label: item.native_name }));
 });
 
 /** 切换管理端语言并刷新动态本地化数据。 */

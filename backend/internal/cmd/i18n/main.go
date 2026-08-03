@@ -4,13 +4,12 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"net/http"
 	"os"
-	"time"
+	"path/filepath"
 
+	systemConfig "github.com/liujitcn/kratos-admin/backend/internal/config"
 	backendI18n "github.com/liujitcn/kratos-admin/backend/internal/i18n"
-
-	googleTranslator "github.com/liujitcn/go-utils/translator/google"
+	kitConfig "github.com/liujitcn/kratos-kit/config"
 )
 
 // main 执行错误目录检查或缺失草稿生成。
@@ -18,7 +17,11 @@ func main() {
 	mode := flag.String("mode", "check", "执行模式：check 或 draft")
 	write := flag.Bool("write", false, "写入缺失草稿；未设置时只报告且不联网")
 	root := flag.String("root", ".", "backend 根目录")
+	configPath := flag.String("config", "", "配置目录；默认使用 backend 根目录下的 configs")
 	flag.Parse()
+	if *configPath == "" {
+		*configPath = filepath.Join(*root, "configs")
+	}
 
 	var err error
 	switch *mode {
@@ -33,10 +36,18 @@ func main() {
 		if !*write {
 			result, err = backendI18n.DraftCatalogFiles(context.Background(), *root, nil, false)
 		} else {
-			provider := googleTranslator.NewTranslator(
-				googleTranslator.WithVersion("v1"),
-				googleTranslator.WithHTTPClient(&http.Client{Timeout: 8 * time.Second}),
-			)
+			err = kitConfig.LoadBootstrapConfig(*configPath)
+			if err != nil {
+				break
+			}
+			translationConfig := kitConfig.GetBootstrapConfig().GetTranslator()
+			draftConfig := systemConfig.NewTranslationDraftConfig(translationConfig, nil)
+			var providerErr error
+			provider, providerErr := systemConfig.NewDraftTranslator(translationConfig, draftConfig)
+			if providerErr != nil {
+				err = providerErr
+				break
+			}
 			result, err = backendI18n.DraftCatalogFiles(context.Background(), *root, provider, true)
 		}
 		if err == nil {

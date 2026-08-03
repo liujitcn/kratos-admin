@@ -299,7 +299,7 @@ func (c *BaseMenuTranslationCase) saveMachineDraft(ctx context.Context, menuID i
 	query := c.menuTranslationRepo.Query(ctx).BaseMenuTranslation
 	row, err := c.menuTranslationRepo.Find(ctx, repository.Where(query.MenuID.Eq(menuID)), repository.Where(query.Locale.Eq(localeValue)))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return c.menuTranslationRepo.Create(ctx, &models.BaseMenuTranslation{MenuID: menuID, Locale: localeValue, Title: translated, TranslationStatus: _const.TRANSLATION_STATUS_MACHINE, SourceHash: sourceHash, TranslationProvider: _const.TRANSLATION_PROVIDER_GOOGLE_V1, TranslatedAt: translatedAt})
+		return c.menuTranslationRepo.Create(ctx, &models.BaseMenuTranslation{MenuID: menuID, Locale: localeValue, Title: translated, TranslationStatus: _const.TRANSLATION_STATUS_MACHINE, SourceHash: sourceHash, TranslationProvider: c.translationCase.TranslationProvider(), TranslatedAt: translatedAt})
 	}
 	if err != nil {
 		return err
@@ -307,7 +307,7 @@ func (c *BaseMenuTranslationCase) saveMachineDraft(ctx context.Context, menuID i
 	row.Title = translated
 	row.TranslationStatus = _const.TRANSLATION_STATUS_MACHINE
 	row.SourceHash = sourceHash
-	row.TranslationProvider = _const.TRANSLATION_PROVIDER_GOOGLE_V1
+	row.TranslationProvider = c.translationCase.TranslationProvider()
 	row.TranslatedAt = translatedAt
 	return c.menuTranslationRepo.UpdateByID(ctx, row)
 }

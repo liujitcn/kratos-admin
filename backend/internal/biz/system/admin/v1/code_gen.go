@@ -2063,9 +2063,7 @@ func codeGenWorkspacePaths() (map[string]struct{}, error) {
 	roots := []string{
 		filepath.Join(rootPath, "backend"),
 		filepath.Join(rootPath, "frontend/admin/packages/core/src/rpc"),
-		filepath.Join(rootPath, "frontend/admin/packages/modules/system/src/api"),
-		filepath.Join(rootPath, "frontend/admin/packages/modules/system/src/rpc"),
-		filepath.Join(rootPath, "frontend/admin/packages/modules/system/src/views"),
+		filepath.Join(rootPath, "frontend/admin/packages/modules"),
 	}
 	for _, root := range roots {
 		err = filepath.WalkDir(root, func(path string, entry fs.DirEntry, walkErr error) error {
@@ -2098,12 +2096,15 @@ func codeGenWorkspacePaths() (map[string]struct{}, error) {
 
 // isCodeGenWorkspaceFile 判断文件是否属于生成命令可能改写的源代码产物。
 func isCodeGenWorkspaceFile(path string) bool {
-	if filepath.Base(path) == "openapi.yaml" && strings.Contains(filepath.ToSlash(path), "/backend/internal/server/assets/") {
+	normalizedPath := "/" + strings.TrimPrefix(filepath.ToSlash(path), "/")
+	if filepath.Base(path) == "openapi.yaml" && strings.Contains(normalizedPath, "/backend/internal/cmd/server/assets/") {
 		return true
 	}
 	switch filepath.Ext(path) {
 	case ".go", ".proto", ".ts", ".vue":
 		return true
+	case ".json":
+		return strings.Contains(normalizedPath, "/frontend/admin/packages/modules/") && strings.Contains(normalizedPath, "/src/locales/")
 	default:
 		return false
 	}

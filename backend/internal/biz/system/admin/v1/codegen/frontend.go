@@ -21,9 +21,12 @@ func FrontendPageComponentPath(path string) string {
 	path = filepath.ToSlash(filepath.Clean(path))
 	prefix := "frontend/admin/packages/modules/"
 	relativePath := strings.TrimPrefix(path, prefix)
-	parts := strings.Split(relativePath, "/src/views/")
-	if len(parts) != 2 || relativePath == path {
-		return strings.TrimSuffix(strings.TrimPrefix(path, "frontend/admin/src/views/"), "/index.vue")
+	if relativePath == path {
+		return ""
+	}
+	parts := strings.SplitN(relativePath, "/src/views/", 2)
+	if len(parts) != 2 || parts[0] == "" || !strings.HasSuffix(parts[1], "/index.vue") && parts[1] != "index.vue" {
+		return ""
 	}
 	return strings.TrimSuffix(parts[0]+"/"+parts[1], "/index.vue")
 }
@@ -1755,7 +1758,7 @@ func frontendRPCImportPath(protoPath string) string {
 	relativePath := strings.TrimPrefix(protoPath, "backend/api/proto/")
 	target, ok := ProtoTargetForProtoPath(protoPath)
 	if !ok {
-		return "@/rpc/" + strings.TrimSuffix(relativePath, filepath.Ext(relativePath))
+		return ""
 	}
 	return target.FrontendPackageName + "/rpc/" + strings.TrimSuffix(relativePath, filepath.Ext(relativePath))
 }

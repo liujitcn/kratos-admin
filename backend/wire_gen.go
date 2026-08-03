@@ -118,8 +118,9 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	baseConfigRepository := data.NewBaseConfigRepository(dataData)
 	baseConfigTranslationRepository := data.NewBaseConfigTranslationRepository(dataData)
 	baseLanguageRepository := data.NewBaseLanguageRepository(dataData)
+	translator := config.ParseTranslator(context)
 	appInfo := config.GetAppInfo(context)
-	translationDraftConfig := config.NewTranslationDraftConfig(appInfo)
+	translationDraftConfig := config.NewTranslationDraftConfig(translator, appInfo)
 	configCase := biz2.NewConfigCase(baseConfigRepository, baseConfigTranslationRepository, baseLanguageRepository, translationDraftConfig)
 	configService := base.NewConfigService(configCase)
 	languageCase := biz2.NewLanguageCase(baseLanguageRepository)
@@ -240,11 +241,18 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	}
 	bizBaseRoleCase := biz3.NewBaseRoleCase(baseCase, transaction, baseRoleRepository, baseTenantRepository, casbinRuleCase)
 	bizBaseDeptCase := biz3.NewBaseDeptCase(baseCase, baseDeptRepository)
-	translator := config.NewDraftTranslator()
+	translatorTranslator, err := config.NewDraftTranslator(translator, translationDraftConfig)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	baseMenuTranslationRepository := data.NewBaseMenuTranslationRepository(dataData)
 	baseDictTranslationRepository := data.NewBaseDictTranslationRepository(dataData)
 	baseDictItemTranslationRepository := data.NewBaseDictItemTranslationRepository(dataData)
-	baseTranslationCase := biz3.NewBaseTranslationCase(baseCase, translationDraftConfig, translator, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository, baseLanguageRepository, baseMenuTranslationRepository, baseDictTranslationRepository, baseDictItemTranslationRepository, baseConfigTranslationRepository)
+	baseTranslationCase := biz3.NewBaseTranslationCase(baseCase, translationDraftConfig, translatorTranslator, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository, baseLanguageRepository, baseMenuTranslationRepository, baseDictTranslationRepository, baseDictItemTranslationRepository, baseConfigTranslationRepository)
 	baseMenuCase := biz3.NewBaseMenuCase(baseCase, transaction, baseMenuRepository, baseRoleRepository, casbinRuleCase, baseTranslationCase)
 	bizBaseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseDeptRepository, basePostRepository, bizBaseRoleCase, bizBaseDeptCase, baseMenuCase, baseRoleCase, userEvents)
 	baseTenantCase := biz3.NewBaseTenantCase(baseCase, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, casbinRuleRepository, casbinRuleCase, userEvents)
@@ -457,8 +465,9 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 	baseConfigRepository := data.NewBaseConfigRepository(dataData)
 	baseConfigTranslationRepository := data.NewBaseConfigTranslationRepository(dataData)
 	baseLanguageRepository := data.NewBaseLanguageRepository(dataData)
+	translator := config.ParseTranslator(context)
 	appInfo := config.GetAppInfo(context)
-	translationDraftConfig := config.NewTranslationDraftConfig(appInfo)
+	translationDraftConfig := config.NewTranslationDraftConfig(translator, appInfo)
 	configCase := biz2.NewConfigCase(baseConfigRepository, baseConfigTranslationRepository, baseLanguageRepository, translationDraftConfig)
 	configService := base.NewConfigService(configCase)
 	languageCase := biz2.NewLanguageCase(baseLanguageRepository)
@@ -579,11 +588,18 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 	}
 	bizBaseRoleCase := biz3.NewBaseRoleCase(baseCase, transaction, baseRoleRepository, baseTenantRepository, casbinRuleCase)
 	bizBaseDeptCase := biz3.NewBaseDeptCase(baseCase, baseDeptRepository)
-	translator := config.NewDraftTranslator()
+	translatorTranslator, err := config.NewDraftTranslator(translator, translationDraftConfig)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	baseMenuTranslationRepository := data.NewBaseMenuTranslationRepository(dataData)
 	baseDictTranslationRepository := data.NewBaseDictTranslationRepository(dataData)
 	baseDictItemTranslationRepository := data.NewBaseDictItemTranslationRepository(dataData)
-	baseTranslationCase := biz3.NewBaseTranslationCase(baseCase, translationDraftConfig, translator, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository, baseLanguageRepository, baseMenuTranslationRepository, baseDictTranslationRepository, baseDictItemTranslationRepository, baseConfigTranslationRepository)
+	baseTranslationCase := biz3.NewBaseTranslationCase(baseCase, translationDraftConfig, translatorTranslator, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository, baseLanguageRepository, baseMenuTranslationRepository, baseDictTranslationRepository, baseDictItemTranslationRepository, baseConfigTranslationRepository)
 	baseMenuCase := biz3.NewBaseMenuCase(baseCase, transaction, baseMenuRepository, baseRoleRepository, casbinRuleCase, baseTranslationCase)
 	bizBaseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseDeptRepository, basePostRepository, bizBaseRoleCase, bizBaseDeptCase, baseMenuCase, baseRoleCase, userEvents)
 	baseTenantCase := biz3.NewBaseTenantCase(baseCase, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, casbinRuleRepository, casbinRuleCase, userEvents)

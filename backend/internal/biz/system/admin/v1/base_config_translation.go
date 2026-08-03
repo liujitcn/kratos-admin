@@ -316,7 +316,7 @@ func (c *BaseConfigTranslationCase) saveMachineDraft(ctx context.Context, config
 	query := c.configTranslationRepo.Query(ctx).BaseConfigTranslation
 	row, err := c.configTranslationRepo.Find(ctx, repository.Where(query.ConfigID.Eq(configID)), repository.Where(query.Locale.Eq(localeValue)), repository.Where(query.Field.Eq(fieldValue)))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return c.configTranslationRepo.Create(ctx, &models.BaseConfigTranslation{ConfigID: configID, Locale: localeValue, Field: fieldValue, Text: translated, TranslationStatus: _const.TRANSLATION_STATUS_MACHINE, SourceHash: sourceHash, TranslationProvider: _const.TRANSLATION_PROVIDER_GOOGLE_V1, TranslatedAt: translatedAt})
+		return c.configTranslationRepo.Create(ctx, &models.BaseConfigTranslation{ConfigID: configID, Locale: localeValue, Field: fieldValue, Text: translated, TranslationStatus: _const.TRANSLATION_STATUS_MACHINE, SourceHash: sourceHash, TranslationProvider: c.translationCase.TranslationProvider(), TranslatedAt: translatedAt})
 	}
 	if err != nil {
 		return err
@@ -324,7 +324,7 @@ func (c *BaseConfigTranslationCase) saveMachineDraft(ctx context.Context, config
 	row.Text = translated
 	row.TranslationStatus = _const.TRANSLATION_STATUS_MACHINE
 	row.SourceHash = sourceHash
-	row.TranslationProvider = _const.TRANSLATION_PROVIDER_GOOGLE_V1
+	row.TranslationProvider = c.translationCase.TranslationProvider()
 	row.TranslatedAt = translatedAt
 	return c.configTranslationRepo.UpdateByID(ctx, row)
 }
