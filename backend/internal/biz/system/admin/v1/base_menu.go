@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 
 	_mapper "github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
@@ -29,12 +30,12 @@ type BaseMenuCase struct {
 	*biz.BaseCase
 	tx data.Transaction
 	*data.BaseMenuRepository
-	baseRoleRepo    *data.BaseRoleRepository
-	casbinRuleCase  *CasbinRuleCase
-	translationCase *BaseTranslationCase
-	formMapper      *_mapper.CopierMapper[systemadminv1.BaseMenuForm, models.BaseMenu]
-	mapper          *_mapper.CopierMapper[systemadminv1.BaseMenu, models.BaseMenu]
-	routerMapper    *_mapper.CopierMapper[systemadminv1.RouteItem, models.BaseMenu]
+	baseRoleRepo        *data.BaseRoleRepository
+	casbinRuleCase      *CasbinRuleCase
+	baseTranslationCase *BaseTranslationCase
+	formMapper          *_mapper.CopierMapper[systemadminv1.BaseMenuForm, models.BaseMenu]
+	mapper              *_mapper.CopierMapper[systemadminv1.BaseMenu, models.BaseMenu]
+	routerMapper        *_mapper.CopierMapper[systemadminv1.RouteItem, models.BaseMenu]
 }
 
 // NewBaseMenuCase 创建菜单业务实例
@@ -44,7 +45,7 @@ func NewBaseMenuCase(
 	baseMenuRepo *data.BaseMenuRepository,
 	baseRoleRepo *data.BaseRoleRepository,
 	casbinRuleCase *CasbinRuleCase,
-	translationCase *BaseTranslationCase,
+	baseTranslationCase *BaseTranslationCase,
 ) *BaseMenuCase {
 	formMapper := _mapper.NewCopierMapper[systemadminv1.BaseMenuForm, models.BaseMenu]()
 	formMapper.AppendConverters(_mapper.NewJSONTypeConverter[*systemadminv1.BaseMenuMeta]().NewConverterPair())
@@ -53,15 +54,15 @@ func NewBaseMenuCase(
 	routerMapper := _mapper.NewCopierMapper[systemadminv1.RouteItem, models.BaseMenu]()
 	routerMapper.AppendConverters(_mapper.NewJSONTypeConverter[*systemadminv1.RouteMeta]().NewConverterPair())
 	return &BaseMenuCase{
-		BaseCase:           baseCase,
-		tx:                 tx,
-		BaseMenuRepository: baseMenuRepo,
-		baseRoleRepo:       baseRoleRepo,
-		casbinRuleCase:     casbinRuleCase,
-		translationCase:    translationCase,
-		formMapper:         formMapper,
-		mapper:             mapper,
-		routerMapper:       routerMapper,
+		BaseCase:            baseCase,
+		tx:                  tx,
+		BaseMenuRepository:  baseMenuRepo,
+		baseRoleRepo:        baseRoleRepo,
+		casbinRuleCase:      casbinRuleCase,
+		baseTranslationCase: baseTranslationCase,
+		formMapper:          formMapper,
+		mapper:              mapper,
+		routerMapper:        routerMapper,
 	}
 }
 
@@ -147,7 +148,7 @@ func (c *BaseMenuCase) TreeBaseMenu(ctx context.Context, req *systemadminv1.Tree
 	for _, item := range list {
 		sources[item.ID] = c.mapper.ToDTO(item).GetMeta().GetTitle()
 	}
-	translations, err := c.translationCase.MenuTranslations(ctx, sources)
+	translations, err := c.baseTranslationCase.GetBaseTranslationMapByTargetType(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, translationSourceIDs(sources))
 	if err != nil {
 		return nil, err
 	}
@@ -161,9 +162,8 @@ func (c *BaseMenuCase) GetBaseMenu(ctx context.Context, id int64) (*systemadminv
 		return nil, err
 	}
 	form := c.formMapper.ToDTO(baseMenu)
-	sources := map[int64]string{id: form.GetMeta().GetTitle()}
 	var translations map[int64][]*systemadminv1.BaseTranslation
-	translations, err = c.translationCase.MenuTranslations(ctx, sources)
+	translations, err = c.baseTranslationCase.GetBaseTranslationMapByTargetType(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, []int64{id})
 	if err != nil {
 		return nil, err
 	}
@@ -173,42 +173,22 @@ func (c *BaseMenuCase) GetBaseMenu(ctx context.Context, id int64) (*systemadminv
 
 // CreateBaseMenu 创建菜单
 func (c *BaseMenuCase) CreateBaseMenu(ctx context.Context, req *systemadminv1.BaseMenuForm) error {
-	sourceText := req.GetMeta().GetTitle()
-	primaryText, sourceLocale, primaryLocale, err := c.translationCase.NormalizePrimaryText(ctx, sourceText)
-	if err != nil {
-		return err
-	}
-	if req.Meta != nil {
-		req.Meta.Title = primaryText
-	}
-	translations := appendMenuSourceTranslation(req.GetTranslations(), sourceLocale, primaryLocale, sourceText)
 	baseMenu := c.formMapper.ToEntity(req)
+	var err error
 	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		err = c.createBaseMenu(ctx, baseMenu)
 		if err != nil {
 			return err
 		}
-		return c.translationCase.SaveMenuTranslations(ctx, baseMenu.ID, primaryText, translations)
+		return c.saveBaseTranslation(ctx, req, baseMenu)
 	})
-	if err != nil {
-		return err
-	}
-	c.translationCase.EnqueueTranslation(systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, baseMenu.ID)
-	return nil
+	return err
 }
 
 // UpdateBaseMenu 更新菜单
 func (c *BaseMenuCase) UpdateBaseMenu(ctx context.Context, req *systemadminv1.BaseMenuForm) error {
-	sourceText := req.GetMeta().GetTitle()
-	primaryText, sourceLocale, primaryLocale, err := c.translationCase.NormalizePrimaryText(ctx, sourceText)
-	if err != nil {
-		return err
-	}
-	if req.Meta != nil {
-		req.Meta.Title = primaryText
-	}
-	translations := appendMenuSourceTranslation(req.GetTranslations(), sourceLocale, primaryLocale, sourceText)
 	baseMenu := c.formMapper.ToEntity(req)
+	var err error
 	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		var currentMenu *models.BaseMenu
 		currentMenu, err = c.FindByID(ctx, req.GetId())
@@ -241,40 +221,13 @@ func (c *BaseMenuCase) UpdateBaseMenu(ctx context.Context, req *systemadminv1.Ba
 		if err = c.UpdateByID(ctx, baseMenu); err != nil {
 			return err
 		}
-		err = c.translationCase.SaveMenuTranslations(ctx, currentMenu.ID, primaryText, translations)
+		err = c.saveBaseTranslation(ctx, req, baseMenu)
 		if err != nil {
 			return err
 		}
 		return c.casbinRuleCase.RebuildCasbinRuleByMenuID(ctx, baseMenu.ID)
 	})
-	if err != nil {
-		return err
-	}
-	c.translationCase.EnqueueTranslation(systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, baseMenu.ID)
-	return nil
-}
-
-// appendMenuSourceTranslation 保留当前请求语言的原始菜单标题。
-func appendMenuSourceTranslation(translations []*systemadminv1.BaseTranslation, sourceLocale, primaryLocale, source string) []*systemadminv1.BaseTranslation {
-	if sourceLocale == primaryLocale {
-		return translations
-	}
-	result := make([]*systemadminv1.BaseTranslation, 0, len(translations)+1)
-	added := false
-	for _, translation := range translations {
-		if coreLocale.IsSupported(translation.GetLocale()) && coreLocale.Normalize(translation.GetLocale()) == sourceLocale {
-			if !added {
-				result = append(result, &systemadminv1.BaseTranslation{TargetType: systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, Locale: sourceLocale, Name: source})
-				added = true
-			}
-			continue
-		}
-		result = append(result, translation)
-	}
-	if !added {
-		result = append(result, &systemadminv1.BaseTranslation{TargetType: systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, Locale: sourceLocale, Name: source})
-	}
-	return result
+	return err
 }
 
 // DeleteBaseMenu 删除菜单
@@ -307,7 +260,7 @@ func (c *BaseMenuCase) DeleteBaseMenu(ctx context.Context, id string) error {
 		if err = c.DeleteByIDs(ctx, ids); err != nil {
 			return err
 		}
-		if err = c.translationCase.DeleteMenuTranslations(ctx, ids); err != nil {
+		if err = c.baseTranslationCase.DeleteBaseTranslation(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, ids); err != nil {
 			return err
 		}
 		return c.casbinRuleCase.DeleteCasbinRuleByMenuIDs(ctx, ids)
@@ -490,11 +443,88 @@ func (c *BaseMenuCase) translatedMenuTitles(ctx context.Context, menuList []*mod
 	for _, item := range menuList {
 		menuIDs = append(menuIDs, item.ID)
 	}
-	titles, err := c.translationCase.TranslatedMenuTitles(ctx, menuIDs)
+	titles, err := c.baseTranslationCase.GetBaseTranslationNameMapByLocale(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, coreLocale.FromContext(ctx), menuIDs)
 	if err != nil {
 		return nil, err
 	}
 	return titles, nil
+}
+
+// SaveGeneratedMenuTranslations 保存代码生成器提供的菜单译文，不覆盖已有非空内容。
+func (c *BaseMenuCase) SaveGeneratedMenuTranslations(ctx context.Context, menuID int64, _ string, translations map[string]string) error {
+	if menuID <= 0 || len(translations) == 0 {
+		return nil
+	}
+	locales, err := c.baseTranslationCase.languageCase.EditableLocales(ctx)
+	if err != nil {
+		return err
+	}
+	allowed := make(map[string]struct{}, len(locales))
+	for _, locale := range locales {
+		allowed[locale] = struct{}{}
+	}
+	query := c.baseTranslationCase.Query(ctx).BaseTranslation
+	rows, err := c.baseTranslationCase.List(ctx,
+		repository.Where(query.TargetType.Eq(int32(systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU))),
+		repository.Where(query.TargetID.Eq(menuID)),
+	)
+	if err != nil {
+		return err
+	}
+	existing := make(map[string]*models.BaseTranslation, len(rows))
+	for _, row := range rows {
+		existing[row.Locale] = row
+	}
+	for locale, text := range translations {
+		if text == "" {
+			continue
+		}
+		if _, ok := allowed[locale]; !ok {
+			continue
+		}
+		row := existing[locale]
+		if row != nil && row.Name != "" {
+			continue
+		}
+		if row == nil {
+			if err = c.baseTranslationCase.Create(ctx, &models.BaseTranslation{TargetType: int32(systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU), TargetID: menuID, Locale: locale, Name: text}); err != nil {
+				return err
+			}
+			continue
+		}
+		row.Name = text
+		if err = c.baseTranslationCase.UpdateByID(ctx, row); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// saveBaseTranslation 保存菜单标题翻译并同步菜单元信息中的主标题。
+func (c *BaseMenuCase) saveBaseTranslation(ctx context.Context, req *systemadminv1.BaseMenuForm, entity *models.BaseMenu) error {
+	sourceTitle := req.GetMeta().GetTitle()
+	return c.baseTranslationCase.SaveBaseTranslation(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, entity.ID, sourceTitle, req.GetTranslations(), func(ctx context.Context, title string) error {
+		var metadata map[string]any
+		err := json.Unmarshal([]byte(entity.Meta), &metadata)
+		if err != nil {
+			return err
+		}
+		metadata["title"] = title
+		payload, err := json.Marshal(metadata)
+		if err != nil {
+			return err
+		}
+		return c.UpdateByID(ctx, &models.BaseMenu{ID: entity.ID, Meta: string(payload)})
+	})
+}
+
+// translationSourceIDs 提取翻译查询使用的资源编号。
+func translationSourceIDs(sources map[int64]string) []int64 {
+	ids := make([]int64, 0, len(sources))
+	for id := range sources {
+		ids = append(ids, id)
+	}
+	return ids
 }
 
 // buildRouteTree 构建菜单路由树。

@@ -137,23 +137,21 @@ async function loadTranslations() {
     translationRows.value = rows;
     const missingRows = rows.filter(row => !row.text);
     if (missingRows.length === 0) return;
-    const sourceLocale = languages.value.find(item => item.is_primary)?.language_code || "";
-    if (!sourceLocale || !props.source) return;
+    if (!props.source) return;
+    const draft = await defBaseTranslationService.DraftBaseTranslation({ source: props.source });
+    const translations = new Map(draft.translations.map(item => [item.locale, item.translation]));
     const results = await Promise.allSettled(
       missingRows.map(async row => {
-        const draft = await defBaseTranslationService.DraftBaseTranslation({
-          source: props.source,
-          source_locale: sourceLocale,
-          target_locale: row.locale
-        });
+        const translation = translations.get(row.locale);
+        if (!translation) throw new Error("translation not found");
         await defBaseTranslationService.UpdateBaseTranslation({
           id: row.id,
           target_type: targetType,
           target_id: targetId,
           locale: row.locale,
-          name: draft.translation
+          name: translation
         });
-        return { row, text: draft.translation };
+        return { row, text: translation };
       })
     );
     for (const result of results) {

@@ -3,7 +3,9 @@ package biz
 import (
 	"context"
 
+	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	systemappv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
+	coreLocale "github.com/liujitcn/kratos-admin/backend/core/pkg/locale"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/v1"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
@@ -66,7 +68,7 @@ func (c *BaseMenuCase) ListBaseMenu(ctx context.Context) ([]*systemappv1.BaseMen
 		}
 	}
 	var titles map[int64]string
-	titles, err = c.translationCase.TranslatedMenuTitles(ctx, menuIDs)
+	titles, err = c.translationCase.GetBaseTranslationNameMapByLocale(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, coreLocale.FromContext(ctx), menuIDs)
 	if err != nil {
 		return nil, err
 	}

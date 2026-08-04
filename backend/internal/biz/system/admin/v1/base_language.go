@@ -8,6 +8,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
 	coreLocale "github.com/liujitcn/kratos-admin/backend/core/pkg/locale"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/v1/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 
@@ -35,6 +36,85 @@ func NewBaseLanguageCase(baseCase *biz.BaseCase, tx data.Transaction, baseLangua
 		formMapper:             mapper.NewCopierMapper[systemadminv1.BaseLanguageForm, models.BaseLanguage](),
 		mapper:                 mapper.NewCopierMapper[systemadminv1.BaseLanguage, models.BaseLanguage](),
 	}
+}
+
+// Locales 查询启用语言及其主语言、当前语言状态。
+func (c *BaseLanguageCase) Locales(ctx context.Context) ([]*dto.LocaleInfo, error) {
+	localeValue := coreLocale.FromContext(ctx)
+	query := c.Query(ctx).BaseLanguage
+	opts := []repository.QueryOption{
+		repository.Where(query.Status.Eq(int32(commonv1.Status_ENABLE))),
+		repository.Order(query.Sort.Asc()),
+		repository.Order(query.ID.Asc()),
+	}
+	rows, err := c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	primaryIndex := -1
+	for index, row := range rows {
+		if row.IsPrimary {
+			primaryIndex = index
+			break
+		}
+	}
+	if primaryIndex < 0 && len(rows) > 0 {
+		primaryIndex = 0
+	}
+
+	locales := make([]*dto.LocaleInfo, 0, len(rows))
+	for index, row := range rows {
+		locales = append(locales, &dto.LocaleInfo{
+			Locale:    row.LanguageCode,
+			IsPrimary: index == primaryIndex,
+			IsCurrent: row.LanguageCode == localeValue,
+		})
+	}
+	return locales, nil
+}
+
+// PrimaryLocale 查询当前启用的主语言代码。
+func (c *BaseLanguageCase) PrimaryLocale(ctx context.Context) (string, error) {
+	locales, err := c.Locales(ctx)
+	if err != nil {
+		return "", err
+	}
+	for _, locale := range locales {
+		if locale.IsPrimary {
+			return locale.Locale, nil
+		}
+	}
+	return coreLocale.Default, nil
+}
+
+// IsPrimaryLocale 判断指定语言是否为当前主语言。
+func (c *BaseLanguageCase) IsPrimaryLocale(ctx context.Context, localeValue string) (bool, error) {
+	locales, err := c.Locales(ctx)
+	if err != nil {
+		return false, err
+	}
+	for _, locale := range locales {
+		if locale.Locale == localeValue {
+			return locale.IsPrimary, nil
+		}
+	}
+	return localeValue == coreLocale.Default && len(locales) == 0, nil
+}
+
+// EditableLocales 查询当前启用且非主语言的语言代码，供翻译业务使用。
+func (c *BaseLanguageCase) EditableLocales(ctx context.Context) ([]string, error) {
+	locales, err := c.Locales(ctx)
+	if err != nil {
+		return nil, err
+	}
+	editableLocales := make([]string, 0, len(locales))
+	for _, locale := range locales {
+		if !locale.IsPrimary {
+			editableLocales = append(editableLocales, locale.Locale)
+		}
+	}
+	return editableLocales, nil
 }
 
 // OptionBaseLanguage 查询语言选项。

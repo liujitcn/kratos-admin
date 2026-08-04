@@ -57,17 +57,6 @@ func ParseData(ctx *bootstrap.Context) (*bootstrapConfigv1.Data, error) {
 	return cfg.GetData(), nil
 }
 
-// ParseDatabase 解析默认数据库配置，兼容单库和命名多数据源配置。
-func ParseDatabase(cfg *bootstrapConfigv1.Data) *bootstrapConfigv1.Data_Database {
-	if cfg == nil {
-		return nil
-	}
-	if database := cfg.GetDatabase(); database != nil {
-		return database
-	}
-	return cfg.GetDatabases()[gormmigration.DefaultTarget]
-}
-
 // NewDatabaseClient 创建全部数据库客户端并执行全部迁移贡献者。
 func NewDatabaseClient(
 	cfg *bootstrapConfigv1.Data,

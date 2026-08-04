@@ -27,18 +27,18 @@ export enum TranslationTargetType {
 export interface DraftBaseTranslationRequest {
   /** 待翻译文本 */
   source: string;
-  /** 源语言区域，为空时使用主语言 */
-  source_locale: string;
-  /** 目标语言区域 */
-  target_locale: string;
 }
 
 /** 翻译单个文本响应。 */
 export interface DraftBaseTranslationResponse {
-  /** 源语言区域 */
-  source_locale: string;
+  /** 翻译结果 */
+  translations: DraftBaseTranslationItem[];
+}
+
+/** 翻译单个文本响应。 */
+export interface DraftBaseTranslationItem {
   /** 目标语言区域 */
-  target_locale: string;
+  locale: string;
   /** 翻译文本 */
   translation: string;
 }
@@ -53,7 +53,7 @@ export interface UpdateBaseTranslationRequest {
   target_id: number;
   /** 目标语言区域，新增翻译时使用 */
   locale: string;
-  /** 翻译文本，留空时自动翻译 */
+  /** 翻译文本 */
   name: string;
 }
 

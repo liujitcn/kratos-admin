@@ -4790,11 +4790,16 @@ components:
                 value:
                     type: string
                     description: 配置value
-                translations:
+                name_translations:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseTranslation'
-                    description: 配置名称及文本/富文本配置值的多语言翻译
+                    description: 配置名称多语言翻
+                value_translations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseTranslation'
+                    description: 配置value文本/富文本配置值的多语言翻译
                 status:
                     enum:
                         - UNKNOWN
@@ -6424,31 +6429,31 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.CodeGenTaskStep'
                     description: 生成步骤列表
             description: 单个生成对象任务进度
+        system.admin.v1.DraftBaseTranslationItem:
+            type: object
+            properties:
+                locale:
+                    type: string
+                    description: 目标语言区域
+                translation:
+                    type: string
+                    description: 翻译文本
+            description: 翻译单个文本响应。
         system.admin.v1.DraftBaseTranslationRequest:
             type: object
             properties:
                 source:
                     type: string
                     description: 待翻译文本
-                source_locale:
-                    type: string
-                    description: 源语言区域，为空时使用主语言
-                target_locale:
-                    type: string
-                    description: 目标语言区域
             description: 翻译单个文本请求。
         system.admin.v1.DraftBaseTranslationResponse:
             type: object
             properties:
-                source_locale:
-                    type: string
-                    description: 源语言区域
-                target_locale:
-                    type: string
-                    description: 目标语言区域
-                translation:
-                    type: string
-                    description: 翻译文本
+                translations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.DraftBaseTranslationItem'
+                    description: 翻译结果
             description: 翻译单个文本响应。
         system.admin.v1.ExecuteBaseJobRequest:
             type: object
@@ -7276,7 +7281,7 @@ components:
                     description: 目标语言区域，新增翻译时使用
                 name:
                     type: string
-                    description: 翻译文本，留空时自动翻译
+                    description: 翻译文本
             description: 修改单个翻译信息请求。
         system.admin.v1.UserInfoForm:
             type: object

@@ -44,7 +44,7 @@ import (
 // Injectors from wire.go:
 
 // initModule 生成 Backend 模块内部依赖装配代码。
-func initModule(context *bootstrap.Context, additionalModules AdditionalModules, configuredDocuments projectdoc.ConfiguredDocuments, arg []gorm.ClientOption, arg2 []migration.Contributor) (*Runtime, func(), error) {
+func initModule(context *bootstrap.Context, additionalModules AdditionalModules, configuredDocuments projectdoc.ConfiguredDocuments, arg []gorm.ClientOption, arg2 migration.AdditionalMigrations) (*Runtime, func(), error) {
 	configv1Data, err := config.ParseData(context)
 	if err != nil {
 		return nil, nil, err
@@ -120,9 +120,15 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	baseTranslationRepository := data.NewBaseTranslationRepository(dataData)
 	baseLanguageRepository := data.NewBaseLanguageRepository(dataData)
 	translator := config.ParseTranslator(context)
-	appInfo := config.GetAppInfo(context)
-	translationDraftConfig := config.NewTranslationDraftConfig(translator, appInfo)
-	configCase := biz2.NewConfigCase(baseConfigRepository, baseTranslationRepository, baseLanguageRepository, translationDraftConfig)
+	translatorTranslator, err := config.NewDraftTranslator(translator)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	configCase := biz2.NewConfigCase(baseConfigRepository, baseTranslationRepository, baseLanguageRepository, translatorTranslator)
 	configService := base.NewConfigService(configCase)
 	languageCase := biz2.NewLanguageCase(baseLanguageRepository)
 	languageService := base.NewLanguageService(languageCase)
@@ -242,15 +248,8 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	}
 	bizBaseRoleCase := biz3.NewBaseRoleCase(baseCase, transaction, baseRoleRepository, baseTenantRepository, casbinRuleCase)
 	bizBaseDeptCase := biz3.NewBaseDeptCase(baseCase, baseDeptRepository)
-	translatorTranslator, err := config.NewDraftTranslator(translator, translationDraftConfig)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	baseTranslationCase := biz3.NewBaseTranslationCase(baseCase, translationDraftConfig, translatorTranslator, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository, baseLanguageRepository, baseTranslationRepository)
+	baseLanguageCase := biz3.NewBaseLanguageCase(baseCase, transaction, baseLanguageRepository)
+	baseTranslationCase := biz3.NewBaseTranslationCase(baseCase, baseTranslationRepository, baseLanguageCase, translatorTranslator, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository)
 	baseMenuCase := biz3.NewBaseMenuCase(baseCase, transaction, baseMenuRepository, baseRoleRepository, casbinRuleCase, baseTranslationCase)
 	bizBaseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseDeptRepository, basePostRepository, bizBaseRoleCase, bizBaseDeptCase, baseMenuCase, baseRoleCase, userEvents)
 	baseTenantCase := biz3.NewBaseTenantCase(baseCase, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, casbinRuleRepository, casbinRuleCase, userEvents)
@@ -260,7 +259,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	baseAreaRepository := data.NewBaseAreaRepository(dataData)
 	baseAreaCase := biz3.NewBaseAreaCase(baseCase, baseAreaRepository)
 	baseAreaService := admin.NewBaseAreaService(baseAreaCase)
-	baseConfigCase := biz3.NewBaseConfigCase(baseCase, baseConfigRepository, baseTranslationCase)
+	baseConfigCase := biz3.NewBaseConfigCase(baseCase, transaction, baseConfigRepository, baseTranslationCase)
 	baseConfigService := admin.NewBaseConfigService(baseConfigCase)
 	baseDeptService := admin.NewBaseDeptService(bizBaseDeptCase)
 	baseDictItemCase := biz3.NewBaseDictItemCase(baseCase, transaction, baseDictRepository, baseDictItemRepository, baseTranslationCase)
@@ -273,7 +272,6 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	cronServer := job.NewCronServer(baseJobRepository, taskRegistry)
 	baseJobCase := biz3.NewBaseJobCase(baseCase, baseJobRepository, baseJobLogCase, cronServer)
 	baseJobService := admin.NewBaseJobService(baseJobCase, baseJobLogCase)
-	baseLanguageCase := biz3.NewBaseLanguageCase(baseCase, transaction, baseLanguageRepository)
 	baseLanguageService := admin.NewBaseLanguageService(baseLanguageCase)
 	baseLogRepository := data.NewBaseLogRepository(dataData)
 	baseLogCase := biz3.NewBaseLogCase(baseCase, baseLogRepository)
@@ -354,7 +352,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	modules := newModules(services, adminServices, appServices, additionalModules)
 	httpMiddlewares := server.NewHTTPMiddleware(context, authenticator, baseUserRepository, engine, userToken, authentication_Jwt)
 	grpcMiddlewares := server.NewGRPCMiddleware(context, authenticator, baseUserRepository, engine, userToken, authentication_Jwt)
-	baseTranslationTask := admin3.NewBaseTranslationTask(baseTranslationCase, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository)
+	v := admin3.NewBaseTranslationTask(baseTranslationCase, baseLanguageCase, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository)
 	mcpToolsReady := server.NewMCPToolsReady(mcpServer, modules)
 	agentToolsReady, err := server.NewAgentToolsReady(runtime, modules)
 	if err != nil {
@@ -372,7 +370,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 		cleanup()
 		return nil, nil, err
 	}
-	kratosadminRuntime, err := newRuntime(modules, httpMiddlewares, grpcMiddlewares, cronServer, taskRegistry, baseTranslationTask, openapiRegistry, baseConfigCase, projectDocumentCase, runtime, userEvents, mcpToolsReady, agentToolsReady, openAPIReady)
+	kratosadminRuntime, err := newRuntime(modules, httpMiddlewares, grpcMiddlewares, cronServer, taskRegistry, v, openapiRegistry, baseConfigCase, projectDocumentCase, runtime, userEvents, mcpToolsReady, agentToolsReady, openAPIReady)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -389,7 +387,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 }
 
 // initApp 生成 Backend 独立应用内部依赖装配代码。
-func initApp(context *bootstrap.Context, additionalModules AdditionalModules, configuredDocuments projectdoc.ConfiguredDocuments, arg []gorm.ClientOption, arg2 []migration.Contributor) (*kratos.App, func(), error) {
+func initApp(context *bootstrap.Context, additionalModules AdditionalModules, configuredDocuments projectdoc.ConfiguredDocuments, arg []gorm.ClientOption, arg2 migration.AdditionalMigrations) (*kratos.App, func(), error) {
 	configv1Data, err := config.ParseData(context)
 	if err != nil {
 		return nil, nil, err
@@ -465,9 +463,15 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 	baseTranslationRepository := data.NewBaseTranslationRepository(dataData)
 	baseLanguageRepository := data.NewBaseLanguageRepository(dataData)
 	translator := config.ParseTranslator(context)
-	appInfo := config.GetAppInfo(context)
-	translationDraftConfig := config.NewTranslationDraftConfig(translator, appInfo)
-	configCase := biz2.NewConfigCase(baseConfigRepository, baseTranslationRepository, baseLanguageRepository, translationDraftConfig)
+	translatorTranslator, err := config.NewDraftTranslator(translator)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	configCase := biz2.NewConfigCase(baseConfigRepository, baseTranslationRepository, baseLanguageRepository, translatorTranslator)
 	configService := base.NewConfigService(configCase)
 	languageCase := biz2.NewLanguageCase(baseLanguageRepository)
 	languageService := base.NewLanguageService(languageCase)
@@ -587,15 +591,8 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 	}
 	bizBaseRoleCase := biz3.NewBaseRoleCase(baseCase, transaction, baseRoleRepository, baseTenantRepository, casbinRuleCase)
 	bizBaseDeptCase := biz3.NewBaseDeptCase(baseCase, baseDeptRepository)
-	translatorTranslator, err := config.NewDraftTranslator(translator, translationDraftConfig)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	baseTranslationCase := biz3.NewBaseTranslationCase(baseCase, translationDraftConfig, translatorTranslator, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository, baseLanguageRepository, baseTranslationRepository)
+	baseLanguageCase := biz3.NewBaseLanguageCase(baseCase, transaction, baseLanguageRepository)
+	baseTranslationCase := biz3.NewBaseTranslationCase(baseCase, baseTranslationRepository, baseLanguageCase, translatorTranslator, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository)
 	baseMenuCase := biz3.NewBaseMenuCase(baseCase, transaction, baseMenuRepository, baseRoleRepository, casbinRuleCase, baseTranslationCase)
 	bizBaseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseDeptRepository, basePostRepository, bizBaseRoleCase, bizBaseDeptCase, baseMenuCase, baseRoleCase, userEvents)
 	baseTenantCase := biz3.NewBaseTenantCase(baseCase, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, casbinRuleRepository, casbinRuleCase, userEvents)
@@ -605,7 +602,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 	baseAreaRepository := data.NewBaseAreaRepository(dataData)
 	baseAreaCase := biz3.NewBaseAreaCase(baseCase, baseAreaRepository)
 	baseAreaService := admin.NewBaseAreaService(baseAreaCase)
-	baseConfigCase := biz3.NewBaseConfigCase(baseCase, baseConfigRepository, baseTranslationCase)
+	baseConfigCase := biz3.NewBaseConfigCase(baseCase, transaction, baseConfigRepository, baseTranslationCase)
 	baseConfigService := admin.NewBaseConfigService(baseConfigCase)
 	baseDeptService := admin.NewBaseDeptService(bizBaseDeptCase)
 	baseDictItemCase := biz3.NewBaseDictItemCase(baseCase, transaction, baseDictRepository, baseDictItemRepository, baseTranslationCase)
@@ -618,7 +615,6 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 	cronServer := job.NewCronServer(baseJobRepository, taskRegistry)
 	baseJobCase := biz3.NewBaseJobCase(baseCase, baseJobRepository, baseJobLogCase, cronServer)
 	baseJobService := admin.NewBaseJobService(baseJobCase, baseJobLogCase)
-	baseLanguageCase := biz3.NewBaseLanguageCase(baseCase, transaction, baseLanguageRepository)
 	baseLanguageService := admin.NewBaseLanguageService(baseLanguageCase)
 	baseLogRepository := data.NewBaseLogRepository(dataData)
 	baseLogCase := biz3.NewBaseLogCase(baseCase, baseLogRepository)
@@ -699,7 +695,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 	modules := newModules(services, adminServices, appServices, additionalModules)
 	httpMiddlewares := server.NewHTTPMiddleware(context, authenticator, baseUserRepository, engine, userToken, authentication_Jwt)
 	grpcMiddlewares := server.NewGRPCMiddleware(context, authenticator, baseUserRepository, engine, userToken, authentication_Jwt)
-	baseTranslationTask := admin3.NewBaseTranslationTask(baseTranslationCase, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository)
+	v := admin3.NewBaseTranslationTask(baseTranslationCase, baseLanguageCase, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository)
 	mcpToolsReady := server.NewMCPToolsReady(mcpServer, modules)
 	agentToolsReady, err := server.NewAgentToolsReady(runtime, modules)
 	if err != nil {
@@ -717,7 +713,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 		cleanup()
 		return nil, nil, err
 	}
-	kratosadminRuntime, err := newRuntime(modules, httpMiddlewares, grpcMiddlewares, cronServer, taskRegistry, baseTranslationTask, openapiRegistry, baseConfigCase, projectDocumentCase, runtime, userEvents, mcpToolsReady, agentToolsReady, openAPIReady)
+	kratosadminRuntime, err := newRuntime(modules, httpMiddlewares, grpcMiddlewares, cronServer, taskRegistry, v, openapiRegistry, baseConfigCase, projectDocumentCase, runtime, userEvents, mcpToolsReady, agentToolsReady, openAPIReady)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -742,6 +738,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 		cleanup()
 		return nil, nil, err
 	}
+	appInfo := config.GetAppInfo(context)
 	httpServer, err := server.NewHTTPServer(context, appInfo, httpMiddlewares, modules, openapiRegistry, authenticator, userToken, mcpToolsReady, agentToolsReady, openAPIReady)
 	if err != nil {
 		cleanup5()

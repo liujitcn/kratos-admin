@@ -21,16 +21,6 @@ type TranslationQueueMessage struct {
 	TargetID   int64                               `json:"target_id"`
 }
 
-// ConfigTranslationSource 描述系统配置翻译所需的源文。
-type ConfigTranslationSource struct {
-	// Name 是系统配置名称源文。
-	Name string
-	// Value 是系统配置值源文。
-	Value string
-	// Type 是系统配置类型。
-	Type int32
-}
-
 // MenuMetadata 承载菜单 JSON 元信息中需要国际化的字段。
 type MenuMetadata struct {
 	Title string `json:"title"`

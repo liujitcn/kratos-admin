@@ -6,11 +6,13 @@ import (
 
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 
+	coreLocale "github.com/liujitcn/kratos-admin/backend/core/pkg/locale"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 
+	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	systemappv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
 
 	"github.com/liujitcn/go-utils/mapper"
@@ -62,7 +64,7 @@ func (c *BaseDictCase) GetBaseDict(ctx context.Context, code string) (*systemapp
 		dictItemMap[item.DictID] = append(dictItemMap[item.DictID], item)
 	}
 	var dictNames map[int64]string
-	dictNames, err = c.translationCase.TranslatedDictNames(ctx, []int64{baseDict.ID})
+	dictNames, err = c.translationCase.GetBaseTranslationNameMapByLocale(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT, coreLocale.FromContext(ctx), []int64{baseDict.ID})
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +73,7 @@ func (c *BaseDictCase) GetBaseDict(ctx context.Context, code string) (*systemapp
 		dictItemIDs = append(dictItemIDs, item.ID)
 	}
 	var dictItemLabels map[int64]string
-	dictItemLabels, err = c.translationCase.TranslatedDictItemLabels(ctx, dictItemIDs)
+	dictItemLabels, err = c.translationCase.GetBaseTranslationNameMapByLocale(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM, coreLocale.FromContext(ctx), dictItemIDs)
 	if err != nil {
 		return nil, err
 	}

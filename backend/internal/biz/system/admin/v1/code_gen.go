@@ -987,7 +987,7 @@ func (c *CodeGenCase) syncGeneratedMenus(ctx context.Context, table *codegen.Tab
 	if err != nil {
 		return err
 	}
-	if err = c.baseMenuCase.translationCase.SaveGeneratedMenuTranslations(ctx, pageMenu.ID, pageSpec.SourceTitle, pageSpec.Translations); err != nil {
+	if err = c.baseMenuCase.SaveGeneratedMenuTranslations(ctx, pageMenu.ID, pageSpec.SourceTitle, pageSpec.Translations); err != nil {
 		return err
 	}
 	for _, buttonSpec := range buttonSpecs {
@@ -997,7 +997,7 @@ func (c *CodeGenCase) syncGeneratedMenus(ctx context.Context, table *codegen.Tab
 		if err != nil {
 			return err
 		}
-		if err = c.baseMenuCase.translationCase.SaveGeneratedMenuTranslations(ctx, buttonMenu.ID, buttonSpec.SourceTitle, buttonSpec.Translations); err != nil {
+		if err = c.baseMenuCase.SaveGeneratedMenuTranslations(ctx, buttonMenu.ID, buttonSpec.SourceTitle, buttonSpec.Translations); err != nil {
 			return err
 		}
 	}

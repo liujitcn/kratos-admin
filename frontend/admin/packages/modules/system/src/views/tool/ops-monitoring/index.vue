@@ -1,885 +1,870 @@
 <template>
-  <div v-loading="loading" class="app-container ops-monitoring-page">
-    <section class="ops-hero">
-      <div class="ops-hero__content">
-        <span class="ops-eyebrow"
-          ><el-icon><Monitor /></el-icon> OPERATIONS CENTER</span
+  <div class="app-container ops-monitoring-page">
+    <section class="ops-page-head">
+      <div>
+        <div class="ops-breadcrumb">开发工具 <span>/</span> 运维监控</div>
+        <h1>运维监控</h1>
+        <p>生产环境 · API 网关与基础设施运行概览</p>
+      </div>
+      <div class="ops-page-meta">
+        <el-tag type="warning" effect="plain">演示数据 · 待接入指标接口</el-tag>
+        <span>当前窗口：近 15 分钟</span>
+        <span>最后采样 10:42:18</span>
+      </div>
+    </section>
+
+    <section class="ops-kpi-grid" aria-label="核心指标">
+      <el-card v-for="item in kpiItems" :key="item.label" class="ops-kpi-card" shadow="never">
+        <span class="ops-kpi-label">{{ item.label }}</span>
+        <strong class="ops-kpi-value">{{ item.value }}</strong>
+        <span class="ops-kpi-foot" :class="item.tone"
+          >{{ item.change }} <em>{{ item.context }}</em></span
         >
-        <h1>项目运维监控</h1>
-        <p>基于当前项目构建期采集的数据，查看文档覆盖、模块状态和服务探针。</p>
-      </div>
-      <div class="ops-hero__actions">
-        <el-button :icon="Refresh" :loading="loading" @click="loadOverview">刷新采集</el-button>
-        <el-button type="primary" :icon="Reading" @click="openProjectDocuments">查看项目文档</el-button>
-      </div>
+        <i class="ops-kpi-rule" :style="{ backgroundColor: item.color }" />
+      </el-card>
     </section>
 
-    <section class="ops-status-band" aria-live="polite">
-      <div class="ops-status-band__main">
-        <span class="status-dot" :class="`is-${collectionStatus}`" />
-        <strong>{{ collectionStatusLabel }}</strong>
-        <span class="ops-status-band__muted">{{ lastRefreshLabel }}</span>
-      </div>
-      <div class="ops-status-band__source">数据源 <code>ProjectDocumentService</code></div>
-    </section>
-
-    <section class="metric-grid" aria-label="采集概览">
-      <article class="metric-card">
-        <div class="metric-card__icon is-blue"><FolderOpened /></div>
-        <div>
-          <span class="metric-card__label">项目数量</span>
-          <strong class="metric-card__value">{{ projectCount }}</strong>
-          <span class="metric-card__hint">已注册项目文档源</span>
-        </div>
-      </article>
-      <article class="metric-card">
-        <div class="metric-card__icon is-green"><Document /></div>
-        <div>
-          <span class="metric-card__label">采集文档</span>
-          <strong class="metric-card__value">{{ documentCount }}</strong>
-          <span class="metric-card__hint">Markdown 文档条目</span>
-        </div>
-      </article>
-      <article class="metric-card">
-        <div class="metric-card__icon is-purple"><Connection /></div>
-        <div>
-          <span class="metric-card__label">目录节点</span>
-          <strong class="metric-card__value">{{ directoryCount }}</strong>
-          <span class="metric-card__hint">可追踪模块目录</span>
-        </div>
-      </article>
-      <article class="metric-card">
-        <div class="metric-card__icon is-orange"><Promotion /></div>
-        <div>
-          <span class="metric-card__label">最近采集</span>
-          <strong class="metric-card__value metric-card__value--date">{{ latestDocumentLabel }}</strong>
-          <span class="metric-card__hint">{{ latestDocumentPath || "等待文档数据" }}</span>
-        </div>
-      </article>
-    </section>
-
-    <section class="ops-grid ops-grid--primary">
-      <el-card class="ops-card health-card" shadow="never">
+    <section class="ops-primary-grid">
+      <el-card class="ops-panel ops-trend-panel" shadow="never">
         <template #header>
-          <div class="ops-card__header">
+          <div class="ops-section-head">
             <div>
-              <span class="ops-section-label">SERVICE HEALTH</span>
-              <h2>服务探针</h2>
-              <p>优先读取当前部署暴露的存活与就绪端点。</p>
+              <h2>请求量与延迟趋势</h2>
+              <p>每 1 分钟聚合 · 近 15 分钟</p>
             </div>
-            <el-tag :type="healthSummaryType" effect="plain">{{ healthSummaryLabel }}</el-tag>
+            <el-tag size="small" type="info" effect="plain">静态示例</el-tag>
           </div>
         </template>
-        <div class="probe-list">
-          <div v-for="probe in probes" :key="probe.path" class="probe-row">
-            <div class="probe-row__name">
-              <span class="status-dot" :class="`is-${probe.status}`" />
-              <strong>{{ probe.name }}</strong>
-              <code>{{ probe.path }}</code>
+        <div class="ops-legend">
+          <span><i class="ops-legend-mark is-teal" />QPS</span>
+          <span><i class="ops-legend-mark is-amber" />P95 延迟</span>
+        </div>
+        <div class="ops-trend-row">
+          <span class="ops-trend-label">QPS</span>
+          <div class="ops-trend-bars" aria-label="QPS 趋势，从 92 req/s 上升到 128.4 req/s">
+            <i v-for="(point, index) in qpsTrend" :key="`qps-${index}`" class="is-teal" :style="{ height: `${point}%` }" />
+          </div>
+          <strong>128.4<small>req/s</small></strong>
+        </div>
+        <div class="ops-trend-row">
+          <span class="ops-trend-label">P95</span>
+          <div class="ops-trend-bars" aria-label="P95 延迟趋势，从 182 ms 上升到 246 ms">
+            <i
+              v-for="(point, index) in latencyTrend"
+              :key="`latency-${index}`"
+              class="is-amber"
+              :style="{ height: `${point}%` }"
+            />
+          </div>
+          <strong>246<small>ms</small></strong>
+        </div>
+        <div class="ops-time-axis"><span>10:28</span><span>10:32</span><span>10:37</span><span>10:42</span></div>
+      </el-card>
+
+      <el-card class="ops-panel" shadow="never">
+        <template #header>
+          <div class="ops-section-head">
+            <div>
+              <h2>服务可用性</h2>
+              <p>探针与依赖连接状态</p>
             </div>
-            <span class="probe-row__message">{{ probe.message }}</span>
+            <el-tag type="success" effect="plain">3 / 3 在线</el-tag>
+          </div>
+        </template>
+        <div class="ops-summary-list">
+          <div v-for="item in availabilityItems" :key="item.label" class="ops-summary-row">
+            <span>{{ item.label }}</span>
+            <strong :class="`is-${item.tone}`"><i />{{ item.value }}</strong>
           </div>
         </div>
       </el-card>
+    </section>
 
-      <el-card class="ops-card coverage-card" shadow="never">
-        <template #header>
-          <div class="ops-card__header">
-            <div>
-              <span class="ops-section-label">PROJECT COVERAGE</span>
-              <h2>项目覆盖</h2>
-              <p>按当前文档树识别的主要运行模块。</p>
-            </div>
-            <el-button link type="primary" @click="openProjectDocuments">打开目录</el-button>
-          </div>
-        </template>
-        <div class="module-list">
-          <div v-for="module in modules" :key="module.key" class="module-row">
-            <div class="module-row__identity">
-              <span class="module-row__mark"><component :is="module.icon" /></span>
+    <section class="ops-storage-section">
+      <div class="ops-section-title">
+        <h2>数据存储</h2>
+        <span>连接、性能、容量</span>
+      </div>
+      <div class="ops-storage-grid">
+        <el-card v-for="item in storageItems" :key="item.name" class="ops-storage-card" shadow="never">
+          <div class="ops-storage-head">
+            <div class="ops-storage-name">
+              <span class="ops-storage-mark" :style="{ backgroundColor: item.color }">{{ item.shortName }}</span>
               <div>
-                <strong>{{ module.name }}</strong>
-                <span>{{ module.description }}</span>
+                <h3>{{ item.name }}</h3>
+                <code>{{ item.address }}</code>
               </div>
             </div>
-            <div class="module-row__meta">
-              <strong>{{ module.documentCount }}</strong>
-              <span>份文档</span>
+            <el-tag type="success" size="small" effect="plain">正常</el-tag>
+          </div>
+          <div class="ops-storage-metrics">
+            <div v-for="metric in item.metrics" :key="metric.label">
+              <strong>{{ metric.value }}</strong
+              ><span>{{ metric.label }}</span>
             </div>
           </div>
-        </div>
-      </el-card>
+          <div class="ops-capacity">
+            <span>{{ item.capacityLabel }}</span
+            ><el-progress :percentage="item.capacity" :show-text="false" :color="item.color" /><span>{{ item.capacity }}%</span>
+          </div>
+        </el-card>
+      </div>
     </section>
 
-    <section class="ops-grid ops-grid--secondary">
-      <el-card class="ops-card activity-card" shadow="never">
+    <section class="ops-secondary-grid">
+      <el-card class="ops-panel" shadow="never">
         <template #header>
-          <div class="ops-card__header">
+          <div class="ops-section-head">
             <div>
-              <span class="ops-section-label">RECENT COLLECTIONS</span>
-              <h2>最近采集</h2>
-              <p>按更新时间排序，帮助定位最近发生变化的文档。</p>
+              <h2>接口与响应</h2>
+              <p>按请求量排序 · 近 15 分钟</p>
             </div>
-            <el-tag type="info" effect="plain">{{ recentDocuments.length }} 条</el-tag>
+            <span class="ops-muted">4 个接口</span>
           </div>
         </template>
-        <el-table v-if="recentDocuments.length" :data="recentDocuments" size="small" class="collection-table">
-          <el-table-column label="文档" min-width="260">
-            <template #default="{ row }">
-              <div class="document-cell">
-                <Document class="document-cell__icon" />
-                <span :title="row.path">{{ row.path }}</span>
-              </div>
-            </template>
+        <el-table :data="endpointItems" size="small" class="ops-table">
+          <el-table-column label="接口" min-width="230">
+            <template #default="{ row }"
+              ><code class="ops-route">{{ row.route }}</code></template
+            >
           </el-table-column>
-          <el-table-column prop="projectName" label="项目" width="120" />
-          <el-table-column label="更新时间" width="170" align="right">
-            <template #default="{ row }">{{ formatDocumentDate(row.updated_at) }}</template>
+          <el-table-column prop="qps" label="QPS" width="75" />
+          <el-table-column prop="latency" label="P95" width="85" />
+          <el-table-column prop="errorRate" label="错误率" width="85" />
+          <el-table-column label="状态" width="85" align="right">
+            <template #default="{ row }"
+              ><el-tag :type="row.status === '正常' ? 'success' : 'warning'" size="small" effect="plain">{{
+                row.status
+              }}</el-tag></template
+            >
           </el-table-column>
         </el-table>
-        <el-empty v-else :image-size="64" description="暂无已采集文档" />
       </el-card>
 
-      <el-card class="ops-card environment-card" shadow="never">
+      <el-card class="ops-panel" shadow="never">
         <template #header>
-          <div class="ops-card__header">
+          <div class="ops-section-head">
             <div>
-              <span class="ops-section-label">RUNTIME CONTEXT</span>
-              <h2>运行上下文</h2>
-              <p>来自当前项目 README 的环境声明。</p>
+              <h2>实例资源</h2>
+              <p>当前值 / 最近采样</p>
             </div>
-            <el-button link type="primary" @click="openApiDocuments">API 文档</el-button>
+            <span class="ops-muted">3 个实例</span>
           </div>
         </template>
-        <div class="environment-list">
-          <div v-for="item in environmentItems" :key="item.label" class="environment-row">
-            <span class="environment-row__label">{{ item.label }}</span>
-            <div class="environment-row__value">
-              <strong>{{ item.value }}</strong>
-              <span>{{ item.detail }}</span>
+        <div class="ops-node-list">
+          <div v-for="node in nodeItems" :key="node.name" class="ops-node-row">
+            <code>{{ node.name }}</code>
+            <div class="ops-node-meters">
+              <div v-for="metric in node.metrics" :key="metric.label" class="ops-meter">
+                <span>{{ metric.label }}</span
+                ><el-progress :percentage="metric.value" :show-text="false" :color="metric.color" /><strong
+                  >{{ metric.value }}%</strong
+                >
+              </div>
             </div>
-            <el-tag size="small" :type="item.available ? 'success' : 'info'" effect="plain">
-              {{ item.available ? "已采集" : "未声明" }}
-            </el-tag>
           </div>
-        </div>
-        <div class="environment-note">
-          <Warning />
-          运行时请求、错误和任务指标请结合系统日志与后端健康端点判断。
-          <el-button link type="primary" @click="openSystemLogs">查看系统日志</el-button>
         </div>
       </el-card>
     </section>
+
+    <el-card class="ops-panel ops-alert-panel" shadow="never">
+      <template #header>
+        <div class="ops-section-head">
+          <div>
+            <h2>告警事件</h2>
+            <p>需要运维关注的近期事件</p>
+          </div>
+          <el-tag type="warning" effect="plain">未解决 2</el-tag>
+        </div>
+      </template>
+      <div class="ops-alert-list">
+        <div v-for="alert in alertItems" :key="alert.title" class="ops-alert-row">
+          <i :class="`is-${alert.tone}`" />
+          <div>
+            <strong>{{ alert.title }}</strong
+            ><span>{{ alert.detail }}</span>
+          </div>
+          <time>{{ alert.time }}</time>
+        </div>
+      </div>
+    </el-card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
-import { useRouter } from "vue-router";
-import { Connection, Document, FolderOpened, Monitor, Promotion, Reading, Refresh, Warning } from "@element-plus/icons-vue";
-import { defProjectDocumentService } from "@liujitcn/kratos-admin-system/api/system/project_document";
-import type {
-  ProjectDocumentDirectory,
-  ProjectDocumentListItem,
-  ProjectDocumentProject
-} from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/project_document";
-
 defineOptions({
   name: "OpsMonitoring",
   inheritAttrs: false
 });
 
-/** 服务探针状态。 */
-type ProbeStatus = "checking" | "healthy" | "unavailable";
-
-/** 项目服务探针。 */
-interface ProbeState {
-  /** 探针名称。 */
-  name: string;
-  /** 探针路径。 */
-  path: string;
-  /** 当前探针状态。 */
-  status: ProbeStatus;
-  /** 状态说明。 */
-  message: string;
-}
-
-/** 页面展示的项目模块摘要。 */
-interface ModuleSummary {
-  /** 模块稳定标识。 */
-  key: string;
-  /** 模块名称。 */
-  name: string;
-  /** 模块说明。 */
-  description: string;
-  /** 模块图标。 */
-  icon: typeof Connection;
-  /** 模块文档数量。 */
-  documentCount: number;
-}
-
-/** 运行上下文展示项。 */
-interface EnvironmentItem {
-  /** 展示名称。 */
+/** 核心运维指标。 */
+interface KpiItem {
+  /** 指标名称。 */
   label: string;
-  /** 采集到的值。 */
+  /** 当前指标值。 */
   value: string;
-  /** 补充说明。 */
-  detail: string;
-  /** 是否从项目资料中识别到。 */
-  available: boolean;
+  /** 环比变化。 */
+  change: string;
+  /** 变化上下文。 */
+  context: string;
+  /** 变化颜色语义。 */
+  tone: "is-up" | "is-down";
+  /** 指标强调色。 */
+  color: string;
 }
 
-/** 展示用的文档行。 */
-interface RecentDocument extends ProjectDocumentListItem {
-  /** 所属项目名称。 */
-  projectName: string;
+/** 接口响应摘要。 */
+interface EndpointItem {
+  /** HTTP 路径。 */
+  route: string;
+  /** 每秒请求数。 */
+  qps: string;
+  /** P95 响应延迟。 */
+  latency: string;
+  /** 请求错误率。 */
+  errorRate: string;
+  /** 当前健康状态。 */
+  status: "正常" | "关注";
 }
 
-const router = useRouter();
-const loading = ref(false);
-const collectionReady = ref(false);
-const lastRefreshAt = ref("");
-const projects = ref<ProjectDocumentProject[]>([]);
-const rootReadme = ref("");
-const probes = ref<ProbeState[]>([
-  { name: "存活检查", path: "/healthz", status: "checking", message: "检测中" },
-  { name: "就绪检查", path: "/readyz", status: "checking", message: "检测中" }
-]);
+/** 实例资源指标。 */
+interface NodeItem {
+  /** 实例名称。 */
+  name: string;
+  /** CPU 与内存指标。 */
+  metrics: Array<{ label: string; value: number; color: string }>;
+}
 
-const allDocuments = computed<RecentDocument[]>(() => {
-  const documents: RecentDocument[] = [];
-  projects.value.forEach(project => {
-    collectProjectDocuments(project.documents, project.name, documents);
-    collectDirectories(project.directories, project.name, documents);
-  });
-  return documents.sort((left, right) => right.updated_at.localeCompare(left.updated_at));
-});
-const recentDocuments = computed(() => allDocuments.value.slice(0, 8));
-const projectCount = computed(() => projects.value.length);
-const documentCount = computed(() => allDocuments.value.length);
-const directoryCount = computed(() =>
-  projects.value.reduce((count, project) => count + countDirectories(project.directories), 0)
-);
-const latestDocument = computed(() => allDocuments.value[0]);
-const latestDocumentPath = computed(() => latestDocument.value?.path ?? "");
-const latestDocumentLabel = computed(() => (latestDocument.value ? formatDocumentDate(latestDocument.value.updated_at) : "--"));
-const collectionStatus = computed(() => (collectionReady.value ? "healthy" : "unavailable"));
-const collectionStatusLabel = computed(() => (collectionReady.value ? "采集服务正常" : "采集服务不可用"));
-const lastRefreshLabel = computed(() =>
-  lastRefreshAt.value ? `最近刷新 ${formatDocumentDate(lastRefreshAt.value)}` : "等待刷新"
-);
-const healthSummary = computed(() => {
-  const healthyCount = probes.value.filter(probe => probe.status === "healthy").length;
-  const checkingCount = probes.value.filter(probe => probe.status === "checking").length;
-  return { healthyCount, checkingCount };
-});
-const healthSummaryType = computed(() => {
-  if (healthSummary.value.checkingCount) return "info";
-  return healthSummary.value.healthyCount === probes.value.length ? "success" : "warning";
-});
-const healthSummaryLabel = computed(() => {
-  if (healthSummary.value.checkingCount) return "检测中";
-  if (healthSummary.value.healthyCount === probes.value.length) return "探针正常";
-  if (healthSummary.value.healthyCount) return "部分可用";
-  return "待接入";
-});
-const modules = computed<ModuleSummary[]>(() => {
-  const definitions = [
-    { key: "backend", name: "Backend", description: "Go + Kratos 服务、Proto、迁移", icon: Connection },
-    { key: "admin", name: "Admin", description: "Vue 管理后台与 System 模块", icon: Monitor },
-    { key: "uni-app", name: "uni-app", description: "应用端 H5 与微信小程序", icon: Promotion },
-    { key: "taro-app", name: "Taro", description: "React / Taro 应用底座", icon: Reading },
-    { key: "docs", name: "Docs", description: "架构、流程与专题说明", icon: Document }
-  ] as const;
+const kpiItems: KpiItem[] = [
+  {
+    label: "请求吞吐 QPS",
+    value: "128.4 req/s",
+    change: "↗ 12.6%",
+    context: "较上一周期",
+    tone: "is-up",
+    color: "var(--el-color-primary)"
+  },
+  {
+    label: "P95 延迟",
+    value: "246 ms",
+    change: "↗ 8 ms",
+    context: "较上一周期",
+    tone: "is-down",
+    color: "var(--el-color-warning)"
+  },
+  {
+    label: "错误率",
+    value: "0.18%",
+    change: "↓ 0.04%",
+    context: "5xx 占比 0.12%",
+    tone: "is-up",
+    color: "var(--el-color-danger)"
+  },
+  { label: "可用性", value: "99.98%", change: "稳定", context: "过去 30 天", tone: "is-up", color: "var(--el-color-success)" }
+];
 
-  return definitions.map(definition => ({
-    ...definition,
-    documentCount: allDocuments.value.filter(
-      document => document.path === `${definition.key}/README.md` || document.path.startsWith(`${definition.key}/`)
-    ).length
-  }));
-});
-const environmentItems = computed<EnvironmentItem[]>(() => {
-  const content = rootReadme.value;
-  const backendAddress = readEnvironmentValue(content, "后端 HTTP") || "http://localhost:7001";
-  const grpcAddress = readEnvironmentValue(content, "后端 gRPC") || "localhost:6001";
-  return [
-    { label: "Backend HTTP", value: backendAddress, detail: "服务端默认 HTTP 地址", available: content.includes("后端 HTTP") },
-    { label: "Backend gRPC", value: grpcAddress, detail: "服务端默认 gRPC 地址", available: content.includes("后端 gRPC") },
-    { label: "MySQL", value: "已声明", detail: "默认运行依赖", available: content.includes("MySQL") },
-    { label: "Redis", value: "已声明", detail: "默认运行依赖", available: content.includes("Redis") }
-  ];
-});
+const qpsTrend = [43, 51, 47, 58, 55, 67, 63, 77, 71, 87, 81, 91];
+const latencyTrend = [51, 46, 56, 48, 62, 55, 66, 61, 73, 69, 78, 82];
 
-/** 加载项目文档目录和根 README。 */
-async function loadOverview() {
-  loading.value = true;
-  probes.value = probes.value.map(probe => ({ ...probe, status: "checking", message: "检测中" }));
-  try {
-    const response = await defProjectDocumentService.TreeProjectDocument({});
-    projects.value = response.projects ?? [];
-    collectionReady.value = true;
-    lastRefreshAt.value = new Date().toISOString();
-    const readme = allDocuments.value.find(document => document.path === "README.md");
-    if (readme) {
-      const detail = await defProjectDocumentService.GetProjectDocument({ id: readme.id });
-      rootReadme.value = detail.content;
-    }
-    await Promise.all(probes.value.map(checkProbe));
-  } catch {
-    collectionReady.value = false;
-    ElMessage.error("项目采集信息加载失败");
-  } finally {
-    loading.value = false;
+const availabilityItems = [
+  { label: "HTTP / HTTPS", value: "正常", tone: "ok" },
+  { label: "实例在线", value: "3 / 3", tone: "ok" },
+  { label: "MySQL 连接", value: "正常", tone: "ok" },
+  { label: "Redis 连接", value: "正常", tone: "ok" },
+  { label: "后台任务", value: "1 项延迟", tone: "warn" }
+];
+
+const storageItems = [
+  {
+    name: "MySQL · primary",
+    shortName: "SQL",
+    address: "mysql-prod-01:3306",
+    color: "var(--el-color-primary)",
+    capacityLabel: "连接池",
+    capacity: 24,
+    metrics: [
+      { value: "48 / 200", label: "活跃连接" },
+      { value: "18 ms", label: "查询 P95" },
+      { value: "3", label: "慢查询 / 15m" }
+    ]
+  },
+  {
+    name: "Redis · cache",
+    shortName: "RED",
+    address: "redis-prod-01:6379",
+    color: "var(--el-color-success)",
+    capacityLabel: "内存",
+    capacity: 26,
+    metrics: [
+      { value: "98.7%", label: "缓存命中率" },
+      { value: "1,245/s", label: "命令 OPS" },
+      { value: "2.1 / 8 GB", label: "内存使用" }
+    ]
   }
-}
+];
 
-/** 检查单个后端健康探针。 */
-async function checkProbe(probe: ProbeState) {
-  try {
-    const response = await fetch(probe.path, { credentials: "include" });
-    probe.status = response.status === 204 || response.ok ? "healthy" : "unavailable";
-    probe.message = probe.status === "healthy" ? "响应正常" : `HTTP ${response.status}`;
-  } catch {
-    probe.status = "unavailable";
-    probe.message = "当前页面未接入后端探针";
+const endpointItems: EndpointItem[] = [
+  { route: "/api/auth/profile", qps: "64.2", latency: "182 ms", errorRate: "0.02%", status: "正常" },
+  { route: "/api/project-doc/tree", qps: "31.4", latency: "284 ms", errorRate: "0.42%", status: "关注" },
+  { route: "/api/ai/chat", qps: "18.7", latency: "612 ms", errorRate: "1.80%", status: "关注" },
+  { route: "/api/base/menu/list", qps: "13.9", latency: "144 ms", errorRate: "0.00%", status: "正常" }
+];
+
+const nodeItems: NodeItem[] = [
+  {
+    name: "backend-01",
+    metrics: [
+      { label: "CPU", value: 42, color: "var(--el-color-primary)" },
+      { label: "内存", value: 63, color: "var(--el-color-success)" }
+    ]
+  },
+  {
+    name: "backend-02",
+    metrics: [
+      { label: "CPU", value: 68, color: "var(--el-color-warning)" },
+      { label: "内存", value: 71, color: "var(--el-color-warning)" }
+    ]
+  },
+  {
+    name: "worker-01",
+    metrics: [
+      { label: "CPU", value: 29, color: "var(--el-color-primary)" },
+      { label: "内存", value: 48, color: "var(--el-color-success)" }
+    ]
   }
-}
+];
 
-/** 递归收集项目根目录下的文档。 */
-function collectProjectDocuments(items: ProjectDocumentListItem[], projectName: string, target: RecentDocument[]) {
-  items.forEach(item => target.push({ ...item, projectName }));
-}
-
-/** 递归收集目录下的文档。 */
-function collectDirectories(directories: ProjectDocumentDirectory[], projectName: string, target: RecentDocument[]) {
-  directories.forEach(directory => {
-    collectProjectDocuments(directory.documents, projectName, target);
-    collectDirectories(directory.directories, projectName, target);
-  });
-}
-
-/** 计算项目文档目录数量。 */
-function countDirectories(directories: ProjectDocumentDirectory[]): number {
-  return directories.reduce((count, directory) => count + 1 + countDirectories(directory.directories), 0);
-}
-
-/** 从 README 的环境表中读取地址值。 */
-function readEnvironmentValue(content: string, label: string) {
-  const line = content.split("\n").find(item => item.includes(`| ${label} |`));
-  return line?.split("|")[2]?.trim() ?? "";
-}
-
-/** 格式化文档时间。 */
-function formatDocumentDate(value: string) {
-  if (!value) return "--";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("zh-CN", {
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit"
-  }).format(date);
-}
-
-/** 打开项目文档页面。 */
-function openProjectDocuments() {
-  void router.push("/project-doc");
-}
-
-/** 打开 API 文档页面。 */
-function openApiDocuments() {
-  void router.push("/api-doc");
-}
-
-/** 打开系统日志页面。 */
-function openSystemLogs() {
-  void router.push("/base/log");
-}
-
-onMounted(() => {
-  void loadOverview();
-});
+const alertItems = [
+  { title: "AI Chat P95 延迟超过 500 ms", detail: "/api/ai/chat · 当前 612 ms", time: "2 分钟前", tone: "warn" },
+  { title: "定时任务 queue-retry 延迟执行", detail: "worker-01 · 延迟 3 分钟", time: "8 分钟前", tone: "warn" },
+  { title: "MySQL 慢查询告警已恢复", detail: "持续 4 分钟 · 峰值 1.2 s", time: "18 分钟前", tone: "ok" }
+];
 </script>
 
 <style scoped lang="scss">
 .ops-monitoring-page {
+  --ops-card-bg: var(--admin-page-card-bg);
+  --ops-card-border: var(--admin-page-card-border);
+  --ops-text-primary: var(--admin-page-text-primary);
+  --ops-text-secondary: var(--admin-page-text-secondary);
+  --ops-text-placeholder: var(--admin-page-text-placeholder);
+
   box-sizing: border-box;
   min-height: 100%;
   padding: 24px;
+  color: var(--ops-text-primary);
   background: var(--el-bg-color-page);
 }
-
-.ops-hero,
-.ops-status-band,
-.metric-card,
-.ops-card {
-  border: 1px solid var(--admin-page-card-border);
-  border-radius: var(--admin-page-radius);
-  background: var(--admin-page-card-bg);
-  box-shadow: var(--admin-page-shadow);
+.ops-page-head,
+.ops-primary-grid,
+.ops-secondary-grid,
+.ops-storage-grid {
+  min-width: 0;
 }
-
-.ops-hero {
+.ops-page-head {
   display: flex;
+  gap: 24px;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 24px;
-  padding: 28px 30px;
+  margin-bottom: 22px;
 }
-
-.ops-hero__content {
-  min-width: 0;
-}
-
-.ops-eyebrow,
-.ops-section-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--el-color-primary);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-}
-
-.ops-hero h1,
-.ops-card h2 {
-  margin: 8px 0 0;
-  color: var(--admin-page-text-primary);
-  font-weight: 650;
-}
-
-.ops-hero h1 {
-  font-size: 28px;
-  line-height: 1.25;
-}
-
-.ops-hero p,
-.ops-card__header p {
-  margin: 8px 0 0;
-  color: var(--admin-page-text-secondary);
-  font-size: 13px;
-}
-
-.ops-hero__actions {
+.ops-breadcrumb {
   display: flex;
-  flex-shrink: 0;
-  gap: 10px;
-}
-
-.ops-status-band {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-top: 14px;
-  padding: 12px 16px;
-  box-shadow: none;
-}
-
-.ops-status-band__main,
-.ops-status-band__source {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  min-width: 0;
-  color: var(--admin-page-text-secondary);
+  gap: 7px;
+  margin-bottom: 9px;
   font-size: 12px;
+  color: var(--ops-text-placeholder);
 }
-
-.ops-status-band__main strong {
-  color: var(--admin-page-text-primary);
+.ops-breadcrumb span {
+  color: var(--el-border-color);
 }
-
-.ops-status-band__muted {
-  color: var(--admin-page-text-placeholder);
+.ops-page-head h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 650;
+  line-height: 1.2;
+  color: var(--ops-text-primary);
 }
-
-code {
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: var(--admin-page-card-bg-muted);
-  color: var(--admin-page-text-secondary);
-  font-family: var(--el-font-family-monospace);
-  font-size: 11px;
+.ops-page-head p {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--ops-text-secondary);
 }
-
-.status-dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  flex: 0 0 8px;
-  border-radius: 50%;
-  background: var(--el-color-info);
-}
-
-.status-dot.is-healthy {
-  background: var(--el-color-success);
-}
-
-.status-dot.is-checking {
-  background: var(--el-color-warning);
-}
-
-.status-dot.is-unavailable {
-  background: var(--el-color-danger);
-}
-
-.metric-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-  margin-top: 14px;
-}
-
-.metric-card {
+.ops-page-meta {
   display: flex;
-  align-items: flex-start;
-  gap: 13px;
-  min-width: 0;
-  padding: 18px;
-  box-shadow: none;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+  font-size: 12px;
+  color: var(--ops-text-placeholder);
 }
-
-.metric-card__icon {
+.ops-kpi-grid,
+.ops-primary-grid,
+.ops-storage-grid,
+.ops-secondary-grid {
   display: grid;
-  width: 34px;
-  height: 34px;
-  flex: 0 0 34px;
-  place-items: center;
-  border-radius: 8px;
+  gap: 14px;
 }
-
-.metric-card__icon.is-blue {
-  background: var(--admin-page-accent-soft-bg);
-  color: var(--el-color-primary);
+.ops-kpi-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 24px;
 }
-
-.metric-card__icon.is-green {
-  background: var(--el-color-success-light-9);
+.ops-kpi-card,
+.ops-panel,
+.ops-storage-card,
+.ops-alert-panel {
+  background: var(--ops-card-bg);
+  border: 1px solid var(--ops-card-border);
+  border-radius: var(--admin-page-radius);
+  box-shadow: var(--admin-page-shadow);
+}
+.ops-kpi-card {
+  position: relative;
+  min-width: 0;
+  padding: 15px 16px 18px;
+}
+.ops-kpi-card :deep(.el-card__body),
+.ops-panel :deep(.el-card__body),
+.ops-storage-card :deep(.el-card__body),
+.ops-alert-panel :deep(.el-card__body) {
+  padding: 0;
+}
+.ops-kpi-label {
+  display: block;
+  font-size: 12px;
+  color: var(--ops-text-secondary);
+}
+.ops-kpi-value {
+  display: block;
+  margin: 5px 0 4px;
+  font-size: 22px;
+  font-weight: 650;
+  line-height: 1.2;
+  color: var(--ops-text-primary);
+}
+.ops-kpi-foot {
+  display: flex;
+  gap: 7px;
+  font-size: 11px;
+  color: var(--ops-text-placeholder);
+}
+.ops-kpi-foot em {
+  font-style: normal;
+}
+.ops-kpi-foot.is-up {
   color: var(--el-color-success);
 }
-
-.metric-card__icon.is-purple {
-  background: var(--el-color-info-light-9);
-  color: var(--el-color-info);
+.ops-kpi-foot.is-down {
+  color: var(--el-color-danger);
 }
-
-.metric-card__icon.is-orange {
-  background: var(--el-color-warning-light-9);
-  color: var(--el-color-warning);
+.ops-kpi-foot.is-up em,
+.ops-kpi-foot.is-down em {
+  color: var(--ops-text-placeholder);
 }
-
-.metric-card__label,
-.metric-card__hint {
-  display: block;
-  color: var(--admin-page-text-secondary);
-  font-size: 12px;
+.ops-kpi-rule {
+  position: absolute;
+  right: 16px;
+  bottom: 10px;
+  left: 16px;
+  height: 2px;
+  border-radius: 2px;
+  opacity: 0.65;
 }
-
-.metric-card__value {
-  display: block;
-  margin: 4px 0;
-  color: var(--admin-page-text-primary);
-  font-size: 24px;
-  line-height: 1.15;
+.ops-primary-grid {
+  grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.85fr);
+  margin-bottom: 24px;
 }
-
-.metric-card__value--date {
-  font-size: 19px;
+.ops-panel :deep(.el-card__header),
+.ops-storage-card :deep(.el-card__header),
+.ops-alert-panel :deep(.el-card__header) {
+  padding: 16px 18px 13px;
+  border-bottom: 1px solid var(--el-border-color-lighter);
 }
-
-.metric-card__hint {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.ops-panel :deep(.el-card__body),
+.ops-storage-card :deep(.el-card__body),
+.ops-alert-panel :deep(.el-card__body) {
+  padding: 0 18px 18px;
 }
-
-.ops-grid {
-  display: grid;
-  gap: 14px;
-  margin-top: 14px;
-}
-
-.ops-grid--primary {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-}
-
-.ops-grid--secondary {
-  grid-template-columns: minmax(0, 1.15fr) minmax(360px, 0.85fr);
-}
-
-.ops-card {
-  min-width: 0;
-  overflow: hidden;
-  box-shadow: none;
-}
-
-.ops-card :deep(.el-card__header) {
-  padding: 18px 20px 14px;
-  border-bottom-color: var(--admin-page-divider);
-}
-
-.ops-card :deep(.el-card__body) {
-  padding: 0 20px 20px;
-}
-
-.ops-card__header {
+.ops-section-head,
+.ops-section-title {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.ops-card h2 {
-  font-size: 17px;
-}
-
-.probe-list,
-.module-list,
-.environment-list {
-  display: flex;
-  flex-direction: column;
-}
-
-.probe-row,
-.module-row,
-.environment-row {
-  display: flex;
+  gap: 12px;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  min-height: 58px;
-  border-bottom: 1px solid var(--admin-page-divider);
 }
-
-.probe-row:last-child,
-.module-row:last-child,
-.environment-row:last-child {
+.ops-section-head h2,
+.ops-section-title h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--ops-text-primary);
+}
+.ops-section-head p {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: var(--ops-text-placeholder);
+}
+.ops-muted,
+.ops-section-title > span {
+  font-size: 11px;
+  color: var(--ops-text-placeholder);
+}
+.ops-legend {
+  display: flex;
+  gap: 16px;
+  margin: 17px 0 10px;
+  font-size: 11px;
+  color: var(--ops-text-secondary);
+}
+.ops-legend span {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+.ops-legend-mark {
+  width: 15px;
+  height: 3px;
+  border-radius: 3px;
+}
+.ops-legend-mark.is-teal,
+.ops-trend-bars i.is-teal {
+  background: var(--el-color-primary);
+}
+.ops-legend-mark.is-amber,
+.ops-trend-bars i.is-amber {
+  background: var(--el-color-warning);
+}
+.ops-trend-row {
+  display: grid;
+  grid-template-columns: 55px minmax(0, 1fr) 67px;
+  gap: 10px;
+  align-items: end;
+  margin-bottom: 13px;
+}
+.ops-trend-label {
+  font-size: 12px;
+  color: var(--ops-text-secondary);
+}
+.ops-trend-bars {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(4px, 1fr));
+  gap: 5px;
+  align-items: end;
+  height: 105px;
+  padding: 0 2px;
+  border-bottom: 1px solid var(--el-border-color-lighter);
+}
+.ops-trend-bars i {
+  display: block;
+  min-height: 4px;
+  border-radius: 3px 3px 0 0;
+  opacity: 0.8;
+}
+.ops-trend-bars i:last-child {
+  opacity: 1;
+}
+.ops-trend-row > strong {
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--ops-text-primary);
+  text-align: right;
+}
+.ops-trend-row > strong small {
+  display: block;
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--ops-text-placeholder);
+}
+.ops-time-axis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin: -5px 77px 0 65px;
+  font-size: 10px;
+  color: var(--ops-text-placeholder);
+}
+.ops-time-axis span:nth-child(2),
+.ops-time-axis span:nth-child(3) {
+  text-align: center;
+}
+.ops-time-axis span:last-child {
+  text-align: right;
+}
+.ops-summary-list {
+  margin-top: 5px;
+}
+.ops-summary-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 40px;
+  font-size: 12px;
+  color: var(--ops-text-secondary);
+  border-bottom: 1px solid var(--el-border-color-lighter);
+}
+.ops-summary-row:last-child {
   border-bottom: 0;
 }
-
-.probe-row__name,
-.module-row__identity {
-  display: flex;
+.ops-summary-row strong {
+  display: inline-flex;
+  gap: 6px;
   align-items: center;
-  gap: 9px;
-  min-width: 0;
-}
-
-.probe-row__name strong,
-.module-row__identity strong,
-.environment-row__value strong {
-  color: var(--admin-page-text-primary);
-  font-size: 13px;
-}
-
-.probe-row__name code {
-  margin-left: 3px;
-}
-
-.probe-row__message,
-.module-row__identity span,
-.module-row__meta span,
-.environment-row__value span {
-  color: var(--admin-page-text-secondary);
   font-size: 12px;
+  font-weight: 500;
 }
-
-.probe-row__message {
-  flex-shrink: 0;
+.ops-summary-row strong i {
+  width: 7px;
+  height: 7px;
+  background: currentColor;
+  border-radius: 50%;
 }
-
-.module-row__mark {
-  display: grid;
-  width: 30px;
-  height: 30px;
-  flex: 0 0 30px;
-  place-items: center;
-  border: 1px solid var(--admin-page-accent-soft-border);
-  border-radius: 7px;
-  background: var(--admin-page-accent-soft-bg);
-  color: var(--admin-page-accent-soft-text);
+.ops-summary-row strong.is-ok {
+  color: var(--el-color-success);
 }
-
-.module-row__identity > div,
-.environment-row__value {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.module-row__identity span,
-.environment-row__value span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.module-row__meta {
-  display: flex;
-  align-items: baseline;
-  flex-shrink: 0;
-  gap: 5px;
-}
-
-.module-row__meta strong {
-  color: var(--admin-page-text-primary);
-  font-size: 16px;
-}
-
-.collection-table {
-  width: 100%;
-}
-
-.collection-table :deep(.el-table__inner-wrapper::before) {
-  display: none;
-}
-
-.document-cell {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-
-.document-cell span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.document-cell__icon {
-  flex: 0 0 auto;
-  color: var(--el-color-primary);
-}
-
-.environment-row {
-  min-height: 62px;
-}
-
-.environment-row__label {
-  width: 94px;
-  flex: 0 0 94px;
-  color: var(--admin-page-text-secondary);
-  font-size: 12px;
-}
-
-.environment-row__value {
-  flex: 1;
-}
-
-.environment-row__value strong {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.environment-note {
-  display: flex;
-  align-items: flex-start;
-  gap: 7px;
-  margin-top: 14px;
-  padding: 10px 12px;
-  border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: var(--admin-page-radius);
-  background: var(--admin-page-card-bg-soft);
-  color: var(--admin-page-text-secondary);
-  font-size: 12px;
-  line-height: 1.6;
-}
-
-.environment-note > svg {
-  flex: 0 0 auto;
-  margin-top: 2px;
+.ops-summary-row strong.is-warn {
   color: var(--el-color-warning);
 }
-
-.environment-note .el-button {
-  flex: 0 0 auto;
-  margin: -2px 0 0 auto;
+.ops-storage-section {
+  margin-bottom: 24px;
+}
+.ops-section-title {
+  margin-bottom: 12px;
+}
+.ops-storage-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.ops-storage-card {
+  min-width: 0;
+  padding: 17px 18px;
+}
+.ops-storage-head {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+.ops-storage-name {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  min-width: 0;
+}
+.ops-storage-mark {
+  display: grid;
+  flex: 0 0 28px;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  font-size: 9px;
+  font-weight: 600;
+  color: #ffffff;
+  border-radius: 6px;
+}
+.ops-storage-name h3 {
+  margin: 0 0 2px;
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--ops-text-primary);
+}
+.ops-storage-name code,
+.ops-route {
+  font-family: var(--el-font-family-monospace);
+  font-size: 11px;
+  color: var(--ops-text-secondary);
+}
+.ops-storage-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.ops-storage-metrics > div {
+  min-width: 0;
+  padding-right: 10px;
+  border-right: 1px solid var(--el-border-color-lighter);
+}
+.ops-storage-metrics > div:last-child {
+  padding-right: 0;
+  border-right: 0;
+}
+.ops-storage-metrics strong {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--ops-text-primary);
+}
+.ops-storage-metrics span {
+  font-size: 11px;
+  color: var(--ops-text-placeholder);
+}
+.ops-capacity {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  margin-top: 16px;
+  font-size: 11px;
+  color: var(--ops-text-placeholder);
+}
+.ops-capacity :deep(.el-progress-bar__outer),
+.ops-meter :deep(.el-progress-bar__outer) {
+  background: var(--el-fill-color-light);
+}
+.ops-secondary-grid {
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.9fr);
+  margin-bottom: 24px;
+}
+.ops-table :deep(.el-table__inner-wrapper::before) {
+  display: none;
+}
+.ops-table :deep(.el-table__header-wrapper th.el-table__cell),
+.ops-table :deep(.el-table__body-wrapper td.el-table__cell) {
+  background: transparent;
+}
+.ops-table :deep(.el-table__header-wrapper th.el-table__cell) {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--ops-text-placeholder);
+}
+.ops-table :deep(.el-table__body-wrapper td.el-table__cell) {
+  font-size: 12px;
+  color: var(--ops-text-secondary);
+}
+.ops-table :deep(.el-table__row:hover > td.el-table__cell) {
+  background: var(--el-fill-color-light);
+}
+.ops-node-list {
+  display: grid;
+  gap: 16px;
+  padding-top: 3px;
+}
+.ops-node-row {
+  display: grid;
+  grid-template-columns: 95px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+.ops-node-row > code {
+  font-family: var(--el-font-family-monospace);
+  font-size: 11px;
+  color: var(--ops-text-secondary);
+}
+.ops-node-meters {
+  display: grid;
+  gap: 7px;
+}
+.ops-meter {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 35px;
+  gap: 7px;
+  align-items: center;
+  font-size: 10px;
+  color: var(--ops-text-placeholder);
+}
+.ops-meter strong {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ops-text-secondary);
+  text-align: right;
+}
+.ops-alert-panel {
+  margin-bottom: 0;
+}
+.ops-alert-list {
+  display: grid;
+}
+.ops-alert-row {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: start;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--el-border-color-lighter);
+}
+.ops-alert-row:last-child {
+  border-bottom: 0;
+}
+.ops-alert-row > i {
+  width: 7px;
+  height: 7px;
+  margin-top: 5px;
+  background: currentColor;
+  border-radius: 50%;
+}
+.ops-alert-row > i.is-warn {
+  color: var(--el-color-warning);
+}
+.ops-alert-row > i.is-ok {
+  color: var(--el-color-success);
+}
+.ops-alert-row strong,
+.ops-alert-row span {
+  display: block;
+}
+.ops-alert-row strong {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ops-text-primary);
+}
+.ops-alert-row span,
+.ops-alert-row time {
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--ops-text-placeholder);
+}
+.ops-alert-row time {
+  white-space: nowrap;
 }
 
-@media (max-width: 1100px) {
-  .metric-grid {
+@media (width <= 1100px) {
+  .ops-kpi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
-  .ops-grid--secondary {
-    grid-template-columns: minmax(0, 1fr);
+  .ops-primary-grid,
+  .ops-secondary-grid {
+    grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 760px) {
+@media (width <= 680px) {
   .ops-monitoring-page {
-    padding: 14px;
+    padding: 16px;
   }
-
-  .ops-hero {
-    align-items: flex-start;
+  .ops-page-head {
     flex-direction: column;
-    padding: 22px 20px;
-  }
-
-  .ops-hero__actions {
-    width: 100%;
-  }
-
-  .ops-hero__actions .el-button {
-    flex: 1;
-  }
-
-  .ops-status-band {
+    gap: 13px;
     align-items: flex-start;
-    flex-direction: column;
-    gap: 8px;
   }
-
-  .ops-grid--primary {
-    grid-template-columns: minmax(0, 1fr);
+  .ops-page-meta {
+    justify-content: flex-start;
   }
-}
-
-@media (max-width: 520px) {
-  .metric-grid {
-    grid-template-columns: minmax(0, 1fr);
+  .ops-kpi-grid,
+  .ops-storage-grid {
+    grid-template-columns: 1fr;
   }
-
-  .ops-card :deep(.el-card__header),
-  .ops-card :deep(.el-card__body) {
-    padding-right: 14px;
-    padding-left: 14px;
+  .ops-trend-row {
+    grid-template-columns: 45px minmax(0, 1fr) 61px;
+    gap: 7px;
   }
-
-  .ops-card__header {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 8px;
+  .ops-trend-bars {
+    gap: 3px;
   }
-
-  .probe-row,
-  .module-row,
-  .environment-row {
-    align-items: flex-start;
-    flex-wrap: wrap;
-    padding: 12px 0;
+  .ops-time-axis {
+    margin-right: 69px;
+    margin-left: 52px;
   }
-
-  .probe-row__message {
-    width: 100%;
-    padding-left: 17px;
+  .ops-node-row {
+    grid-template-columns: 82px minmax(0, 1fr);
+    gap: 7px;
   }
-
-  .environment-note {
-    flex-wrap: wrap;
+  .ops-alert-row {
+    grid-template-columns: 8px minmax(0, 1fr);
   }
-
-  .environment-note .el-button {
-    margin-left: 20px;
+  .ops-alert-row time {
+    grid-column: 2;
+    margin-top: -5px;
   }
 }
 </style>

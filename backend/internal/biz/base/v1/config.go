@@ -9,12 +9,12 @@ import (
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
 	coreLocale "github.com/liujitcn/kratos-admin/backend/core/pkg/locale"
-	systemConfig "github.com/liujitcn/kratos-admin/backend/internal/config"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 
 	"github.com/go-kratos/kratos/v3/log"
+	"github.com/liujitcn/go-utils/translator"
 	"github.com/liujitcn/kratos-kit/sdk"
 	"google.golang.org/protobuf/proto"
 
@@ -26,16 +26,16 @@ type ConfigCase struct {
 	*data.BaseConfigRepository
 	translationRepo *data.BaseTranslationRepository
 	languageRepo    *data.BaseLanguageRepository
-	draftConfig     systemConfig.TranslationDraftConfig
+	draftTranslator translator.Translator
 }
 
 // NewConfigCase 创建配置业务实例。
-func NewConfigCase(baseConfigRepo *data.BaseConfigRepository, translationRepo *data.BaseTranslationRepository, languageRepo *data.BaseLanguageRepository, draftConfig systemConfig.TranslationDraftConfig) *ConfigCase {
+func NewConfigCase(baseConfigRepo *data.BaseConfigRepository, translationRepo *data.BaseTranslationRepository, languageRepo *data.BaseLanguageRepository, draftTranslator translator.Translator) *ConfigCase {
 	return &ConfigCase{
 		BaseConfigRepository: baseConfigRepo,
 		translationRepo:      translationRepo,
 		languageRepo:         languageRepo,
-		draftConfig:          draftConfig,
+		draftTranslator:      draftTranslator,
 	}
 }
 
@@ -54,7 +54,7 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 			if err != nil {
 				return nil, err
 			}
-			return &basev1.GetConfigResponse{Configs: appendI18nRuntimeConfig(localized, c.draftConfig.Enabled)}, nil
+			return &basev1.GetConfigResponse{Configs: appendI18nRuntimeConfig(localized, c.draftTranslator != nil)}, nil
 		}
 	}
 
@@ -82,7 +82,7 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 		return nil, err
 	}
 	response := &basev1.GetConfigResponse{
-		Configs: appendI18nRuntimeConfig(localized, c.draftConfig.Enabled),
+		Configs: appendI18nRuntimeConfig(localized, c.draftTranslator != nil),
 	}
 	var payload []byte
 	payload, err = json.Marshal(configs)

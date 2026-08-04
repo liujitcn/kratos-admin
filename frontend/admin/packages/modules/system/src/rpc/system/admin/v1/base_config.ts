@@ -82,8 +82,10 @@ export interface BaseConfigForm {
   key: string;
   /** 配置value */
   value: string;
-  /** 配置名称及文本/富文本配置值的多语言翻译 */
-  translations: BaseTranslation[];
+  /** 配置名称多语言翻 */
+  name_translations: BaseTranslation[];
+  /** 配置value文本/富文本配置值的多语言翻译 */
+  value_translations: BaseTranslation[];
   /** 状态 */
   status: Status;
 }

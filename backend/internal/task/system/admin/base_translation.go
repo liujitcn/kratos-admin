@@ -27,6 +27,7 @@ const (
 // BaseTranslationTask 执行菜单、字典、字典项和系统配置的机器翻译任务。
 type BaseTranslationTask struct {
 	translationCase *adminbiz.BaseTranslationCase
+	languageCase    *adminbiz.BaseLanguageCase
 	menuRepo        *data.BaseMenuRepository
 	dictRepo        *data.BaseDictRepository
 	dictItemRepo    *data.BaseDictItemRepository
@@ -37,6 +38,7 @@ type BaseTranslationTask struct {
 // NewBaseTranslationTask 创建统一机器翻译任务执行器。
 func NewBaseTranslationTask(
 	translationCase *adminbiz.BaseTranslationCase,
+	languageCase *adminbiz.BaseLanguageCase,
 	menuRepo *data.BaseMenuRepository,
 	dictRepo *data.BaseDictRepository,
 	dictItemRepo *data.BaseDictItemRepository,
@@ -44,6 +46,7 @@ func NewBaseTranslationTask(
 ) *BaseTranslationTask {
 	task := &BaseTranslationTask{
 		translationCase: translationCase,
+		languageCase:    languageCase,
 		menuRepo:        menuRepo,
 		dictRepo:        dictRepo,
 		dictItemRepo:    dictItemRepo,
@@ -70,7 +73,7 @@ func (t *BaseTranslationTask) ExecContext(ctx context.Context, _ map[string]stri
 	if !t.translationCase.DraftEnabled() {
 		return []string{"机器翻译功能未启用"}, nil
 	}
-	locales, err := t.translationCase.EditableLocales(ctx)
+	locales, err := t.languageCase.EditableLocales(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +156,7 @@ func (t *BaseTranslationTask) consumeTranslation(message queueData.Message) erro
 func (t *BaseTranslationTask) translateResource(ctx context.Context, targetType systemadminv1.TranslationTargetType, targetID int64) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	locales, err := t.translationCase.EditableLocales(ctx)
+	locales, err := t.languageCase.EditableLocales(ctx)
 	if err != nil {
 		return err
 	}

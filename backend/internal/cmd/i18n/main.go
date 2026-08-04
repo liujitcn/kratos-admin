@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	systemConfig "github.com/liujitcn/kratos-admin/backend/internal/config"
+	config "github.com/liujitcn/kratos-admin/backend/internal/config"
 	backendI18n "github.com/liujitcn/kratos-admin/backend/internal/i18n"
 	kitConfig "github.com/liujitcn/kratos-kit/config"
 )
@@ -41,9 +41,8 @@ func main() {
 				break
 			}
 			translationConfig := kitConfig.GetBootstrapConfig().GetTranslator()
-			draftConfig := systemConfig.NewTranslationDraftConfig(translationConfig, nil)
 			var providerErr error
-			provider, providerErr := systemConfig.NewDraftTranslator(translationConfig, draftConfig)
+			provider, providerErr := config.NewDraftTranslator(translationConfig)
 			if providerErr != nil {
 				err = providerErr
 				break

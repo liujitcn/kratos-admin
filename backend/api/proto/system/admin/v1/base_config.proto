@@ -132,7 +132,9 @@ message BaseConfigForm {
 
   string value = 6 [(gnostic.openapi.v3.property) = {description: "配置value"}, (buf.validate.field).cel = {id: "system.admin.base.config.entity.value.required" message: "配置值不能为空" expression: "this.size() > 0"}]; // 配置value
 
-  repeated BaseTranslation translations = 7 [(gnostic.openapi.v3.property) = {description: "配置名称及文本/富文本配置值的多语言翻译"}]; // 配置名称及文本/富文本配置值的多语言翻译
+  repeated BaseTranslation name_translations = 7 [(gnostic.openapi.v3.property) = {description: "配置名称多语言翻"}]; // 配置名称多语言翻
+
+  repeated BaseTranslation value_translations = 8 [(gnostic.openapi.v3.property) = {description: "配置value文本/富文本配置值的多语言翻译"}]; // 配置value文本/富文本配置值的多语言翻译
 
   .common.v1.Status status = 51 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
 }

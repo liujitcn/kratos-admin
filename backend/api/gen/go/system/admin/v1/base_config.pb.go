@@ -286,17 +286,18 @@ func (x *GetBaseConfigRequest) GetId() int64 {
 
 // 系统配置表单
 type BaseConfigForm struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                         // 配置ID
-	Site          v1.BaseConfigSite      `protobuf:"varint,2,opt,name=site,proto3,enum=base.v1.BaseConfigSite" json:"site,omitempty"`         // 位置：枚举【BaseConfigSite】
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                      // 配置名称
-	Type          BaseConfigType         `protobuf:"varint,4,opt,name=type,proto3,enum=system.admin.v1.BaseConfigType" json:"type,omitempty"` // 配置类型：1、文本，2、图片，3、富文本，4、字典，5、布尔
-	Key           string                 `protobuf:"bytes,5,opt,name=key,proto3" json:"key,omitempty"`                                        // 配置key
-	Value         string                 `protobuf:"bytes,6,opt,name=value,proto3" json:"value,omitempty"`                                    // 配置value
-	Translations  []*BaseTranslation     `protobuf:"bytes,7,rep,name=translations,proto3" json:"translations,omitempty"`                      // 配置名称及文本/富文本配置值的多语言翻译
-	Status        v11.Status             `protobuf:"varint,51,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`          // 状态
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Id                int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                       // 配置ID
+	Site              v1.BaseConfigSite      `protobuf:"varint,2,opt,name=site,proto3,enum=base.v1.BaseConfigSite" json:"site,omitempty"`                       // 位置：枚举【BaseConfigSite】
+	Name              string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                                    // 配置名称
+	Type              BaseConfigType         `protobuf:"varint,4,opt,name=type,proto3,enum=system.admin.v1.BaseConfigType" json:"type,omitempty"`               // 配置类型：1、文本，2、图片，3、富文本，4、字典，5、布尔
+	Key               string                 `protobuf:"bytes,5,opt,name=key,proto3" json:"key,omitempty"`                                                      // 配置key
+	Value             string                 `protobuf:"bytes,6,opt,name=value,proto3" json:"value,omitempty"`                                                  // 配置value
+	NameTranslations  []*BaseTranslation     `protobuf:"bytes,7,rep,name=name_translations,json=nameTranslations,proto3" json:"name_translations,omitempty"`    // 配置名称多语言翻
+	ValueTranslations []*BaseTranslation     `protobuf:"bytes,8,rep,name=value_translations,json=valueTranslations,proto3" json:"value_translations,omitempty"` // 配置value文本/富文本配置值的多语言翻译
+	Status            v11.Status             `protobuf:"varint,51,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                        // 状态
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *BaseConfigForm) Reset() {
@@ -371,9 +372,16 @@ func (x *BaseConfigForm) GetValue() string {
 	return ""
 }
 
-func (x *BaseConfigForm) GetTranslations() []*BaseTranslation {
+func (x *BaseConfigForm) GetNameTranslations() []*BaseTranslation {
 	if x != nil {
-		return x.Translations
+		return x.NameTranslations
+	}
+	return nil
+}
+
+func (x *BaseConfigForm) GetValueTranslations() []*BaseTranslation {
+	if x != nil {
+		return x.ValueTranslations
 	}
 	return nil
 }
@@ -750,8 +758,7 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x86\x01\n" +
 	"\x14GetBaseConfigRequest\x12n\n" +
 	"\x02id\x18\x01 \x01(\x03B^\xbaG\v\x92\x02\b配置ID\xbaHM\xba\x01J\n" +
-	"(system.admin.base.config.get.id.required\x12\x14配置ID不能为空\x1a\bthis > 0R\x02id\"\x9d\n" +
-	"\n" +
+	"(system.admin.base.config.get.id.required\x12\x14配置ID不能为空\x1a\bthis > 0R\x02id\"\x93\v\n" +
 	"\x0eBaseConfigForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12\xb9\x01\n" +
 	"\x04site\x18\x02 \x01(\x0e2\x17.base.v1.BaseConfigSiteB\x8b\x01\xbaG&\x92\x02#位置：枚举【BaseConfigSite】\xbaH_\xba\x01W\n" +
@@ -765,8 +772,9 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	",system.admin.base.config.entity.key.required\x12\x1b请输入系统配置编码\x1a\x0fthis.size() > 0\xba\x01g\n" +
 	".system.admin.base.config.entity.key.max_length\x12\"配置key不能超过 50 个字符\x1a\x11this.size() <= 50R\x03key\x12\x85\x01\n" +
 	"\x05value\x18\x06 \x01(\tBo\xbaG\x0e\x92\x02\v配置value\xbaH[\xba\x01X\n" +
-	".system.admin.base.config.entity.value.required\x12\x15配置值不能为空\x1a\x0fthis.size() > 0R\x05value\x12\x86\x01\n" +
-	"\ftranslations\x18\a \x03(\v2 .system.admin.v1.BaseTranslationB@\xbaG=\x92\x02:配置名称及文本/富文本配置值的多语言翻译R\ftranslations\x12?\n" +
+	".system.admin.base.config.entity.value.required\x12\x15配置值不能为空\x1a\x0fthis.size() > 0R\x05value\x12m\n" +
+	"\x11name_translations\x18\a \x03(\v2 .system.admin.v1.BaseTranslationB\x1e\xbaG\x1b\x92\x02\x18配置名称多语言翻R\x10nameTranslations\x12\x8d\x01\n" +
+	"\x12value_translations\x18\b \x03(\v2 .system.admin.v1.BaseTranslationB<\xbaG9\x92\x026配置value文本/富文本配置值的多语言翻译R\x11valueTranslations\x12?\n" +
 	"\x06status\x183 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"{\n" +
 	"\x17CreateBaseConfigRequest\x12`\n" +
 	"\vbase_config\x18\x01 \x01(\v2\x1f.system.admin.v1.BaseConfigFormB\x1e\xbaG\x15\x92\x02\x12系统配置表单\xbaH\x03\xc8\x01\x01R\n" +
@@ -852,33 +860,34 @@ var file_system_admin_v1_base_config_proto_depIdxs = []int32{
 	10, // 3: system.admin.v1.PageBaseConfigResponse.base_configs:type_name -> system.admin.v1.BaseConfig
 	11, // 4: system.admin.v1.BaseConfigForm.site:type_name -> base.v1.BaseConfigSite
 	0,  // 5: system.admin.v1.BaseConfigForm.type:type_name -> system.admin.v1.BaseConfigType
-	13, // 6: system.admin.v1.BaseConfigForm.translations:type_name -> system.admin.v1.BaseTranslation
-	12, // 7: system.admin.v1.BaseConfigForm.status:type_name -> common.v1.Status
-	4,  // 8: system.admin.v1.CreateBaseConfigRequest.base_config:type_name -> system.admin.v1.BaseConfigForm
-	4,  // 9: system.admin.v1.UpdateBaseConfigRequest.base_config:type_name -> system.admin.v1.BaseConfigForm
-	11, // 10: system.admin.v1.BaseConfig.site:type_name -> base.v1.BaseConfigSite
-	0,  // 11: system.admin.v1.BaseConfig.type:type_name -> system.admin.v1.BaseConfigType
-	12, // 12: system.admin.v1.BaseConfig.status:type_name -> common.v1.Status
-	13, // 13: system.admin.v1.BaseConfig.translations:type_name -> system.admin.v1.BaseTranslation
-	9,  // 14: system.admin.v1.BaseConfigService.RefreshBaseConfigCache:input_type -> system.admin.v1.RefreshBaseConfigCacheRequest
-	1,  // 15: system.admin.v1.BaseConfigService.PageBaseConfig:input_type -> system.admin.v1.PageBaseConfigRequest
-	3,  // 16: system.admin.v1.BaseConfigService.GetBaseConfig:input_type -> system.admin.v1.GetBaseConfigRequest
-	5,  // 17: system.admin.v1.BaseConfigService.CreateBaseConfig:input_type -> system.admin.v1.CreateBaseConfigRequest
-	6,  // 18: system.admin.v1.BaseConfigService.UpdateBaseConfig:input_type -> system.admin.v1.UpdateBaseConfigRequest
-	7,  // 19: system.admin.v1.BaseConfigService.DeleteBaseConfig:input_type -> system.admin.v1.DeleteBaseConfigRequest
-	8,  // 20: system.admin.v1.BaseConfigService.SetBaseConfigStatus:input_type -> system.admin.v1.SetBaseConfigStatusRequest
-	14, // 21: system.admin.v1.BaseConfigService.RefreshBaseConfigCache:output_type -> google.protobuf.Empty
-	2,  // 22: system.admin.v1.BaseConfigService.PageBaseConfig:output_type -> system.admin.v1.PageBaseConfigResponse
-	4,  // 23: system.admin.v1.BaseConfigService.GetBaseConfig:output_type -> system.admin.v1.BaseConfigForm
-	14, // 24: system.admin.v1.BaseConfigService.CreateBaseConfig:output_type -> google.protobuf.Empty
-	14, // 25: system.admin.v1.BaseConfigService.UpdateBaseConfig:output_type -> google.protobuf.Empty
-	14, // 26: system.admin.v1.BaseConfigService.DeleteBaseConfig:output_type -> google.protobuf.Empty
-	14, // 27: system.admin.v1.BaseConfigService.SetBaseConfigStatus:output_type -> google.protobuf.Empty
-	21, // [21:28] is the sub-list for method output_type
-	14, // [14:21] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	13, // 6: system.admin.v1.BaseConfigForm.name_translations:type_name -> system.admin.v1.BaseTranslation
+	13, // 7: system.admin.v1.BaseConfigForm.value_translations:type_name -> system.admin.v1.BaseTranslation
+	12, // 8: system.admin.v1.BaseConfigForm.status:type_name -> common.v1.Status
+	4,  // 9: system.admin.v1.CreateBaseConfigRequest.base_config:type_name -> system.admin.v1.BaseConfigForm
+	4,  // 10: system.admin.v1.UpdateBaseConfigRequest.base_config:type_name -> system.admin.v1.BaseConfigForm
+	11, // 11: system.admin.v1.BaseConfig.site:type_name -> base.v1.BaseConfigSite
+	0,  // 12: system.admin.v1.BaseConfig.type:type_name -> system.admin.v1.BaseConfigType
+	12, // 13: system.admin.v1.BaseConfig.status:type_name -> common.v1.Status
+	13, // 14: system.admin.v1.BaseConfig.translations:type_name -> system.admin.v1.BaseTranslation
+	9,  // 15: system.admin.v1.BaseConfigService.RefreshBaseConfigCache:input_type -> system.admin.v1.RefreshBaseConfigCacheRequest
+	1,  // 16: system.admin.v1.BaseConfigService.PageBaseConfig:input_type -> system.admin.v1.PageBaseConfigRequest
+	3,  // 17: system.admin.v1.BaseConfigService.GetBaseConfig:input_type -> system.admin.v1.GetBaseConfigRequest
+	5,  // 18: system.admin.v1.BaseConfigService.CreateBaseConfig:input_type -> system.admin.v1.CreateBaseConfigRequest
+	6,  // 19: system.admin.v1.BaseConfigService.UpdateBaseConfig:input_type -> system.admin.v1.UpdateBaseConfigRequest
+	7,  // 20: system.admin.v1.BaseConfigService.DeleteBaseConfig:input_type -> system.admin.v1.DeleteBaseConfigRequest
+	8,  // 21: system.admin.v1.BaseConfigService.SetBaseConfigStatus:input_type -> system.admin.v1.SetBaseConfigStatusRequest
+	14, // 22: system.admin.v1.BaseConfigService.RefreshBaseConfigCache:output_type -> google.protobuf.Empty
+	2,  // 23: system.admin.v1.BaseConfigService.PageBaseConfig:output_type -> system.admin.v1.PageBaseConfigResponse
+	4,  // 24: system.admin.v1.BaseConfigService.GetBaseConfig:output_type -> system.admin.v1.BaseConfigForm
+	14, // 25: system.admin.v1.BaseConfigService.CreateBaseConfig:output_type -> google.protobuf.Empty
+	14, // 26: system.admin.v1.BaseConfigService.UpdateBaseConfig:output_type -> google.protobuf.Empty
+	14, // 27: system.admin.v1.BaseConfigService.DeleteBaseConfig:output_type -> google.protobuf.Empty
+	14, // 28: system.admin.v1.BaseConfigService.SetBaseConfigStatus:output_type -> google.protobuf.Empty
+	22, // [22:29] is the sub-list for method output_type
+	15, // [15:22] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_config_proto_init() }

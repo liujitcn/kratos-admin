@@ -49,7 +49,6 @@ import { computed, ref, watch } from "vue";
 import { ElMessage } from "element-plus";
 import { Promotion } from "@element-plus/icons-vue";
 import { t } from "@liujitcn/kratos-admin-core";
-import { loadEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
 import { defBaseTranslationService } from "@liujitcn/kratos-admin-system/api/system/base_translation";
 import { getLanguageLabel, type DynamicTranslationValue } from "./dynamicTranslation";
 
@@ -97,31 +96,10 @@ async function handleBatchTranslate() {
   if (!canTranslate.value || translating.value) return;
   translating.value = true;
   try {
-    const sourceLocale = await resolveSourceLocale();
-    if (!sourceLocale) {
-      ElMessage.warning(t("system.base.translation.message.batch_translate_no_language"));
-      return;
-    }
-
     const pending = localValues.value.filter(item => !item.text);
-    const results = await Promise.allSettled(
-      pending.map(item =>
-        defBaseTranslationService.DraftBaseTranslation({
-          source: props.source,
-          source_locale: sourceLocale,
-          target_locale: item.locale
-        })
-      )
-    );
-    const translations = new Map<string, string>();
-    let failed = 0;
-    results.forEach((result, index) => {
-      if (result.status === "fulfilled") {
-        translations.set(pending[index].locale, result.value.translation);
-      } else {
-        failed += 1;
-      }
-    });
+    const response = await defBaseTranslationService.DraftBaseTranslation({ source: props.source });
+    const translations = new Map(response.translations.map(item => [item.locale, item.translation]));
+    const failed = pending.filter(item => !translations.has(item.locale)).length;
     if (translations.size) {
       const values = localValues.value.map(item => {
         const translation = translations.get(item.locale);
@@ -153,17 +131,10 @@ async function handleTranslate(locale: string) {
   if (!item || item.text || !props.source || translating.value || translatingLocale.value) return;
   translatingLocale.value = locale;
   try {
-    const sourceLocale = await resolveSourceLocale();
-    if (!sourceLocale) {
-      ElMessage.warning(t("system.base.translation.message.batch_translate_no_language"));
-      return;
-    }
-    const response = await defBaseTranslationService.DraftBaseTranslation({
-      source: props.source,
-      source_locale: sourceLocale,
-      target_locale: locale
-    });
-    const values = localValues.value.map(value => (value.locale === locale ? { ...value, text: response.translation } : value));
+    const response = await defBaseTranslationService.DraftBaseTranslation({ source: props.source });
+    const translation = response.translations.find(item => item.locale === locale)?.translation;
+    if (!translation) throw new Error("translation not found");
+    const values = localValues.value.map(value => (value.locale === locale ? { ...value, text: translation } : value));
     localValues.value = values;
     emit("update:modelValue", values);
     ElMessage.success(t("system.base.translation.message.translate_success", { language: getLanguageLabel(locale) }));
@@ -172,12 +143,6 @@ async function handleTranslate(locale: string) {
   } finally {
     translatingLocale.value = "";
   }
-}
-
-/** resolveSourceLocale 读取批量翻译所需的主语言代码。 */
-async function resolveSourceLocale(): Promise<string> {
-  const languages = await loadEnabledBaseLanguages();
-  return props.sourceLocale || languages.find(item => item.is_primary)?.language_code || languages[0]?.language_code || "";
 }
 
 </script>

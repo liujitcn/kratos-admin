@@ -17,7 +17,7 @@ require (
 	github.com/liujitcn/go-utils/crypto v0.0.11
 	github.com/liujitcn/go-utils/geoip v0.0.4
 	github.com/liujitcn/go-utils/http v0.0.5
-	github.com/liujitcn/go-utils/translator v0.0.1
+	github.com/liujitcn/go-utils/translator v0.0.2
 	github.com/liujitcn/gorm-kit v0.0.32
 	github.com/liujitcn/kratos-admin/backend/core v0.0.6
 	github.com/liujitcn/kratos-kit v0.0.64
@@ -44,7 +44,7 @@ require (
 	github.com/liujitcn/kratos-kit/queue v0.0.22
 	github.com/liujitcn/kratos-kit/rpc v0.0.19
 	github.com/liujitcn/kratos-kit/swagger-ui v0.0.11
-	github.com/liujitcn/kratos-kit/translator v0.0.1
+	github.com/liujitcn/kratos-kit/translator v0.0.2
 	github.com/liujitcn/kratos-kit/transport/cron v0.0.11
 	github.com/liujitcn/kratos-kit/transport/mcp v0.0.12
 	github.com/liujitcn/kratos-kit/transport/sse v0.0.9
@@ -120,7 +120,7 @@ require (
 	github.com/bytedance/sonic/loader v0.5.0 // indirect
 	github.com/casbin/casbin/v2 v2.135.0 // indirect
 	github.com/casbin/govaluate v1.3.0 // indirect
-	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
+	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/clbanning/mxj/v2 v2.7.0 // indirect

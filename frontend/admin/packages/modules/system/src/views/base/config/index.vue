@@ -150,16 +150,21 @@ const formData = reactive<BaseConfigFormState>({
   value: "",
   /** 状态 */
   status: Status.ENABLE,
-  /** 配置全部非主语言翻译。 */
-  translations: []
+  /** 配置名称非主语言翻译。 */
+  name_translations: [],
+  /** 配置文本或富文本值的非主语言翻译。 */
+  value_translations: []
 });
 
 /** 将配置值翻译记录转换为编辑器值，缺少记录时保留可编辑的空行。 */
 function normalizeConfigTranslations(targetType: TranslationTargetType): DynamicTranslationValue[] {
+  const records = targetType === TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME
+    ? formData.name_translations
+    : formData.value_translations;
   return getEditableLanguageOptions()
     .map(item => item.value)
     .map(locale => {
-      const record = formData.translations?.find(item => item.locale === locale && item.target_type === targetType);
+      const record = records?.find(item => item.locale === locale);
       return {
         id: record?.id ?? 0,
         locale,
@@ -170,7 +175,6 @@ function normalizeConfigTranslations(targetType: TranslationTargetType): Dynamic
 
 /** 保存指定目标类型的编辑器值，并保留其他字段的翻译。 */
 function updateConfigTranslations(targetType: TranslationTargetType, values: DynamicTranslationValue[]) {
-  const remaining = (formData.translations ?? []).filter(item => item.target_type !== targetType);
   const next = values.map(
     item =>
       ({
@@ -180,7 +184,11 @@ function updateConfigTranslations(targetType: TranslationTargetType, values: Dyn
         name: item.text
       }) as BaseTranslation
   );
-  formData.translations = [...remaining, ...next];
+  if (targetType === TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME) {
+    formData.name_translations = next;
+  } else {
+    formData.value_translations = next;
+  }
 }
 
 const nameTranslationValues = computed<DynamicTranslationValue[]>({
@@ -569,7 +577,8 @@ function resetForm() {
   formData.type = undefined;
   formData.key = "";
   formData.value = "";
-  formData.translations = [];
+  formData.name_translations = [];
+  formData.value_translations = [];
   formData.status = Status.ENABLE;
 }
 

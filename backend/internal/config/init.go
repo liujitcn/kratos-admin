@@ -8,7 +8,6 @@ import (
 var ProviderSet = wire.NewSet(
 	GetAppInfo,
 	ParseTranslator,
-	NewTranslationDraftConfig,
 	NewDraftTranslator,
 	ParseAIModel,
 	ParseOSS,
