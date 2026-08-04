@@ -20,7 +20,7 @@ export class BaseTranslationServiceImpl implements BaseTranslationService {
     });
   }
 
-  /** UpdateBaseTranslation 修改单条翻译信息，空文本时自动生成译文。 */
+  /** UpdateBaseTranslation 修改单条翻译信息，空文本时清理已有译文。 */
   UpdateBaseTranslation(request: UpdateBaseTranslationRequest): Promise<Empty> {
     return service<UpdateBaseTranslationRequest, Empty>({
       url: BASE_TRANSLATION_URL,

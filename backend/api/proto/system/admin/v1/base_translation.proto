@@ -78,10 +78,13 @@ message UpdateBaseTranslationRequest {
 
   string locale = 4 [(gnostic.openapi.v3.property) = {description: "目标语言区域，新增翻译时使用"}]; // 目标语言区域，新增翻译时使用
 
-  string name = 5 [
-    (gnostic.openapi.v3.property) = {description: "翻译文本"},
-    (buf.validate.field).cel = {id: "system.admin.base.translation.update.name.required" message: "翻译文本不能为空" expression: "this.size() > 0"}
-  ]; // 翻译文本
+  string name = 5 [(gnostic.openapi.v3.property) = {description: "翻译文本"}]; // 翻译文本，更新时允许为空以清除译文
+
+  option (buf.validate.message).cel = {
+    id: "system.admin.base.translation.update.name.required"
+    message: "新增翻译文本不能为空"
+    expression: "this.id > 0 || this.name.size() > 0"
+  };
 }
 
 

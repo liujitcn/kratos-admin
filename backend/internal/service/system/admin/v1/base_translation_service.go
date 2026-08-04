@@ -33,7 +33,7 @@ func (s *BaseTranslationService) DraftBaseTranslation(ctx context.Context, req *
 	return response, nil
 }
 
-// UpdateBaseTranslation 修改或新增单个翻译信息，空文本时由系统补充机器译文。
+// UpdateBaseTranslation 修改或新增单个翻译信息，空文本时清理已有译文。
 func (s *BaseTranslationService) UpdateBaseTranslation(ctx context.Context, req *systemadminv1.UpdateBaseTranslationRequest) (*emptypb.Empty, error) {
 	err := s.translationCase.UpdateBaseTranslation(ctx, req)
 	if err != nil {

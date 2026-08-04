@@ -27,6 +27,8 @@ export enum TranslationTargetType {
 export interface DraftBaseTranslationRequest {
   /** 待翻译文本 */
   source: string;
+  /** 源文本语言区域，未填写时使用主语言 */
+  source_locale: string;
 }
 
 /** 翻译单个文本响应。 */
@@ -53,7 +55,7 @@ export interface UpdateBaseTranslationRequest {
   target_id: number;
   /** 目标语言区域，新增翻译时使用 */
   locale: string;
-  /** 翻译文本 */
+  /** 翻译文本，更新时允许为空以清除译文 */
   name: string;
 }
 

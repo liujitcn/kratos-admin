@@ -2,9 +2,12 @@ package admin
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"sync"
 
+	"github.com/liujitcn/go-utils/translator"
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	coreQueue "github.com/liujitcn/kratos-admin/backend/core/pkg/queue"
 	coreTask "github.com/liujitcn/kratos-admin/backend/core/pkg/task"
@@ -12,12 +15,18 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/v1/dto"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	backendI18n "github.com/liujitcn/kratos-admin/backend/internal/i18n"
 
 	kratosErrors "github.com/go-kratos/kratos/v3/errors"
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/gorm-kit/repository"
+	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
 	queueData "github.com/liujitcn/kratos-kit/queue/data"
+	"gorm.io/gorm"
 )
+
+const translationDraftMaxBytes = 2000
 
 const (
 	// BaseTranslationTaskName 是统一机器翻译任务的稳定调用目标。
@@ -28,6 +37,7 @@ const (
 type BaseTranslationTask struct {
 	translationCase *adminbiz.BaseTranslationCase
 	languageCase    *adminbiz.BaseLanguageCase
+	draftTranslator translator.Translator
 	menuRepo        *data.BaseMenuRepository
 	dictRepo        *data.BaseDictRepository
 	dictItemRepo    *data.BaseDictItemRepository
@@ -39,6 +49,7 @@ type BaseTranslationTask struct {
 func NewBaseTranslationTask(
 	translationCase *adminbiz.BaseTranslationCase,
 	languageCase *adminbiz.BaseLanguageCase,
+	draftTranslator translator.Translator,
 	menuRepo *data.BaseMenuRepository,
 	dictRepo *data.BaseDictRepository,
 	dictItemRepo *data.BaseDictItemRepository,
@@ -47,6 +58,7 @@ func NewBaseTranslationTask(
 	task := &BaseTranslationTask{
 		translationCase: translationCase,
 		languageCase:    languageCase,
+		draftTranslator: draftTranslator,
 		menuRepo:        menuRepo,
 		dictRepo:        dictRepo,
 		dictItemRepo:    dictItemRepo,
@@ -70,13 +82,14 @@ func (t *BaseTranslationTask) Exec(_ map[string]string) ([]string, error) {
 func (t *BaseTranslationTask) ExecContext(ctx context.Context, _ map[string]string) ([]string, error) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	if !t.translationCase.DraftEnabled() {
+	if t.draftTranslator == nil {
 		return []string{"机器翻译功能未启用"}, nil
 	}
-	locales, err := t.languageCase.EditableLocales(ctx)
+	locales, primaryLocale, _, err := t.languageCase.Locales(ctx)
 	if err != nil {
 		return nil, err
 	}
+	locales = editableLocales(locales, primaryLocale)
 	if len(locales) == 0 {
 		return []string{"没有启用的目标语言"}, nil
 	}
@@ -126,7 +139,7 @@ func (t *BaseTranslationTask) ExecContext(ctx context.Context, _ map[string]stri
 	configValueIDs := make([]int64, 0, len(configs))
 	for _, config := range configs {
 		configNameIDs = append(configNameIDs, config.ID)
-		if t.translationCase.CanTranslateConfigValue(config.Type) {
+		if isTranslatableConfigType(config.Type) {
 			configValueIDs = append(configValueIDs, config.ID)
 		}
 	}
@@ -149,6 +162,13 @@ func (t *BaseTranslationTask) consumeTranslation(message queueData.Message) erro
 	if request == nil || request.TargetID <= 0 {
 		return nil
 	}
+	if request.SourceLocale != "" && request.TargetLocale != "" {
+		err = t.translateOne(context.Background(), request.TargetType, request.TargetID, request.SourceLocale, request.TargetLocale)
+		if err != nil && ignoreTranslationClientError(err) != nil {
+			return err
+		}
+		return nil
+	}
 	return t.translateResource(context.Background(), request.TargetType, request.TargetID)
 }
 
@@ -156,21 +176,22 @@ func (t *BaseTranslationTask) consumeTranslation(message queueData.Message) erro
 func (t *BaseTranslationTask) translateResource(ctx context.Context, targetType systemadminv1.TranslationTargetType, targetID int64) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	locales, err := t.languageCase.EditableLocales(ctx)
+	locales, primaryLocale, _, err := t.languageCase.Locales(ctx)
 	if err != nil {
 		return err
 	}
+	locales = editableLocales(locales, primaryLocale)
 	if targetType == systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE {
 		config, findErr := t.configRepo.FindByID(ctx, targetID)
 		if findErr != nil {
 			return ignoreTranslationClientError(findErr)
 		}
-		if !t.translationCase.CanTranslateConfigValue(config.Type) {
+		if !isTranslatableConfigType(config.Type) {
 			return nil
 		}
 	}
 	for _, localeValue := range locales {
-		err = t.translationCase.TranslateResource(ctx, targetType, targetID, localeValue)
+		err = t.translateOne(ctx, targetType, targetID, primaryLocale, localeValue)
 		if err != nil && ignoreTranslationClientError(err) != nil {
 			return err
 		}
@@ -178,12 +199,63 @@ func (t *BaseTranslationTask) translateResource(ctx context.Context, targetType 
 	return nil
 }
 
+// translateOne 为单个资源生成指定语言的机器译文，不覆盖已有非空内容。
+func (t *BaseTranslationTask) translateOne(ctx context.Context, targetType systemadminv1.TranslationTargetType, targetID int64, sourceLocale string, targetLocale string) error {
+	if t.draftTranslator == nil {
+		return errorsx.PermissionDenied("机器翻译功能未启用")
+	}
+	if targetID <= 0 {
+		return errorsx.InvalidArgument("目标资源ID不能为空")
+	}
+	locales, primaryLocale, _, err := t.languageCase.Locales(ctx)
+	if err != nil {
+		return err
+	}
+	if sourceLocale == "" {
+		sourceLocale = primaryLocale
+	}
+	if !containsLocale(locales, sourceLocale) || !containsLocale(locales, targetLocale) || sourceLocale == targetLocale {
+		return errorsx.InvalidArgument("源语言和目标语言必须是不同的已启用语言")
+	}
+	source, err := t.translationSource(ctx, targetType, targetID)
+	if err != nil {
+		return err
+	}
+	if source.Text == "" {
+		return errorsx.InvalidArgument("待翻译源文不能为空")
+	}
+	if len([]byte(source.Text)) > translationDraftMaxBytes {
+		return errorsx.InvalidArgument("待翻译源文不能超过2000字节")
+	}
+	query := t.translationCase.Query(ctx).BaseTranslation
+	row, findErr := t.translationCase.Find(ctx,
+		repository.Where(query.TargetType.Eq(int32(targetType))),
+		repository.Where(query.TargetID.Eq(targetID)),
+		repository.Where(query.Locale.Eq(targetLocale)),
+	)
+	if findErr == nil && row.Name != "" {
+		return errorsx.Conflict("已有非空译文，不允许被机器翻译覆盖")
+	}
+	if findErr != nil && !errors.Is(findErr, gorm.ErrRecordNotFound) {
+		return findErr
+	}
+	translated, err := backendI18n.TranslateProtected(ctx, t.draftTranslator, source.Text, sourceLocale, targetLocale)
+	if err != nil {
+		return errorsx.Internal("生成翻译失败").WithCause(err)
+	}
+	if errors.Is(findErr, gorm.ErrRecordNotFound) {
+		return t.translationCase.Create(ctx, &models.BaseTranslation{TargetType: int32(targetType), TargetID: targetID, Locale: targetLocale, Name: translated})
+	}
+	row.Name = translated
+	return t.translationCase.UpdateByID(ctx, row)
+}
+
 // translateIDs 批量调用统一翻译入口并统计结果。
 func (t *BaseTranslationTask) translateIDs(ctx context.Context, targetType systemadminv1.TranslationTargetType, targetIDs []int64, locales []string, resourceName string, translatedCount, failedCount *int, firstErr *error) {
 	var err error
 	for _, targetID := range targetIDs {
 		for _, localeValue := range locales {
-			err = t.translationCase.TranslateResource(ctx, targetType, targetID, localeValue)
+			err = t.translateOne(ctx, targetType, targetID, "", localeValue)
 			if err == nil {
 				*translatedCount = *translatedCount + 1
 				continue
@@ -210,4 +282,83 @@ func ignoreTranslationClientError(err error) error {
 		return nil
 	}
 	return err
+}
+
+// translationSource 读取允许外发的资源源文。
+func (t *BaseTranslationTask) translationSource(ctx context.Context, targetType systemadminv1.TranslationTargetType, targetID int64) (*dto.TranslationDraftSource, error) {
+	source := &dto.TranslationDraftSource{TargetType: targetType, TargetID: targetID}
+	var err error
+	switch targetType {
+	case systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU:
+		menu, findErr := t.menuRepo.FindByID(ctx, targetID)
+		err = findErr
+		if err == nil {
+			var metadata dto.MenuMetadata
+			err = json.Unmarshal([]byte(menu.Meta), &metadata)
+			if err == nil {
+				source.Text = metadata.Title
+			}
+		}
+	case systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT:
+		dict, findErr := t.dictRepo.FindByID(ctx, targetID)
+		err = findErr
+		if err == nil {
+			source.Text = dict.Name
+		}
+	case systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM:
+		item, findErr := t.dictItemRepo.FindByID(ctx, targetID)
+		err = findErr
+		if err == nil {
+			source.Text = item.Label
+		}
+	case systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME,
+		systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE:
+		config, findErr := t.configRepo.FindByID(ctx, targetID)
+		err = findErr
+		if err == nil {
+			if targetType == systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE && !isTranslatableConfigType(config.Type) {
+				return nil, errorsx.InvalidArgument("图片、字典和布尔配置值不支持翻译")
+			}
+			if targetType == systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME {
+				source.Text = config.Name
+			} else {
+				source.Text = config.Value
+			}
+		}
+	default:
+		return nil, errorsx.InvalidArgument("翻译目标类型无效")
+	}
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, errorsx.ResourceNotFound("待翻译资源不存在").WithCause(err)
+	}
+	if err != nil {
+		return nil, errorsx.Internal("读取待翻译资源失败").WithCause(err)
+	}
+	return source, nil
+}
+
+// containsLocale 判断语言代码是否位于启用语言列表中。
+func containsLocale(locales []string, value string) bool {
+	for _, locale := range locales {
+		if locale == value {
+			return true
+		}
+	}
+	return false
+}
+
+// isTranslatableConfigType 判断配置值是否支持机器翻译。
+func isTranslatableConfigType(configType int32) bool {
+	return configType == int32(systemadminv1.BaseConfigType_BASE_CONFIG_TYPE_TEXT) || configType == int32(systemadminv1.BaseConfigType_BASE_CONFIG_TYPE_RICH_TEXT)
+}
+
+// editableLocales 从启用语言中排除主语言，返回可编辑的目标语言。
+func editableLocales(locales []string, primaryLocale string) []string {
+	result := make([]string, 0, len(locales))
+	for _, locale := range locales {
+		if locale != primaryLocale {
+			result = append(result, locale)
+		}
+	}
+	return result
 }

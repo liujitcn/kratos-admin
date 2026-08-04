@@ -34,7 +34,7 @@ import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
-import { t } from "@liujitcn/kratos-admin-core";
+import { applyLanguageConfig, defLanguageService, t } from "@liujitcn/kratos-admin-core";
 import { defBaseLanguageService, invalidateEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
 import type { BaseLanguage, BaseLanguageForm, PageBaseLanguageRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_language";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
@@ -174,6 +174,7 @@ function handleSubmit() {
       : defBaseLanguageService.CreateBaseLanguage({ base_language: payload });
     request.then(() => {
       invalidateEnabledBaseLanguages();
+      void refreshAdminLanguageConfig();
       ElMessage.success(t(payload.id ? "common.message.update_success" : "common.message.create_success", { resource: t("system.base.language.resource") }));
       handleCloseDialog();
       proTable.value?.getTableList();
@@ -197,6 +198,7 @@ function handleBeforeSetStatus(row: BaseLanguage) {
         .SetBaseLanguageStatus({ id: row.id, status: row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE })
         .then(() => {
           invalidateEnabledBaseLanguages();
+          void refreshAdminLanguageConfig();
           return true;
         }),
     () => false
@@ -216,6 +218,7 @@ function handleBeforeSetPrimary(row: BaseLanguage) {
         .SetBaseLanguagePrimary({ id: row.id })
         .then(() => {
           invalidateEnabledBaseLanguages();
+          void refreshAdminLanguageConfig();
           proTable.value?.getTableList();
           return true;
         }),
@@ -241,8 +244,18 @@ function handleDelete(selected?: BaseLanguage | BaseLanguage[] | number | string
     cancelButtonText: t("common.action.cancel")
   }).then(() => defBaseLanguageService.DeleteBaseLanguage({ id: ids })).then(() => {
     invalidateEnabledBaseLanguages();
+    void refreshAdminLanguageConfig();
     ElMessage.success(t("common.message.delete_success", { resource: t("system.base.language.resource") }));
     proTable.value?.getTableList();
   });
+}
+
+/** refreshAdminLanguageConfig 刷新核心语言切换器的运行时配置。 */
+async function refreshAdminLanguageConfig() {
+  try {
+    applyLanguageConfig(await defLanguageService.OptionLanguage({}));
+  } catch {
+    // 语言管理操作成功但公共语言查询失败时，保留当前切换器配置。
+  }
 }
 </script>

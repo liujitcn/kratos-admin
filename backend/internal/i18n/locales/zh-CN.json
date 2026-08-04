@@ -260,6 +260,9 @@
   "system.admin.base.translation.update.target.required": {
     "other": "翻译记录ID或目标信息不能为空"
   },
+  "system.admin.base.translation.update.name.required": {
+    "other": "新增翻译文本不能为空"
+  },
   "system.admin.base.translation.entity.target_id.required": {
     "other": "资源ID不能为空"
   },

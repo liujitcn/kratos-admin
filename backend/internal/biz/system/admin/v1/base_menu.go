@@ -455,13 +455,15 @@ func (c *BaseMenuCase) SaveGeneratedMenuTranslations(ctx context.Context, menuID
 	if menuID <= 0 || len(translations) == 0 {
 		return nil
 	}
-	locales, err := c.baseTranslationCase.languageCase.EditableLocales(ctx)
+	locales, primaryLocale, _, err := c.baseTranslationCase.languageCase.Locales(ctx)
 	if err != nil {
 		return err
 	}
 	allowed := make(map[string]struct{}, len(locales))
 	for _, locale := range locales {
-		allowed[locale] = struct{}{}
+		if locale != primaryLocale {
+			allowed[locale] = struct{}{}
+		}
 	}
 	query := c.baseTranslationCase.Query(ctx).BaseTranslation
 	rows, err := c.baseTranslationCase.List(ctx,

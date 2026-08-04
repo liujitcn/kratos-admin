@@ -74,7 +74,7 @@ const emit = defineEmits<{ "update:modelValue": [value: DynamicTranslationValue[
 const localValues = ref<DynamicTranslationValue[]>([]);
 const translating = ref(false);
 const translatingLocale = ref("");
-const canTranslate = computed(() => Boolean(props.source) && localValues.value.some(item => !item.text));
+const canTranslate = computed(() => Boolean(props.source) && localValues.value.some(item => !item.text && item.locale !== props.sourceLocale));
 
 watch(
   () => props.modelValue,
@@ -96,8 +96,8 @@ async function handleBatchTranslate() {
   if (!canTranslate.value || translating.value) return;
   translating.value = true;
   try {
-    const pending = localValues.value.filter(item => !item.text);
-    const response = await defBaseTranslationService.DraftBaseTranslation({ source: props.source });
+    const pending = localValues.value.filter(item => !item.text && item.locale !== props.sourceLocale);
+    const response = await defBaseTranslationService.DraftBaseTranslation({ source: props.source, source_locale: props.sourceLocale || "" });
     const translations = new Map(response.translations.map(item => [item.locale, item.translation]));
     const failed = pending.filter(item => !translations.has(item.locale)).length;
     if (translations.size) {
@@ -128,10 +128,10 @@ async function handleBatchTranslate() {
 /** handleTranslate 翻译指定语言的单个输入框。 */
 async function handleTranslate(locale: string) {
   const item = localValues.value.find(value => value.locale === locale);
-  if (!item || item.text || !props.source || translating.value || translatingLocale.value) return;
+  if (!item || item.text || item.locale === props.sourceLocale || !props.source || translating.value || translatingLocale.value) return;
   translatingLocale.value = locale;
   try {
-    const response = await defBaseTranslationService.DraftBaseTranslation({ source: props.source });
+    const response = await defBaseTranslationService.DraftBaseTranslation({ source: props.source, source_locale: props.sourceLocale || "" });
     const translation = response.translations.find(item => item.locale === locale)?.translation;
     if (!translation) throw new Error("translation not found");
     const values = localValues.value.map(value => (value.locale === locale ? { ...value, text: translation } : value));

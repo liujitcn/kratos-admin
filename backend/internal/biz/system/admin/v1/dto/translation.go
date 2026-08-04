@@ -17,8 +17,10 @@ type TranslationDraftSource struct {
 
 // TranslationQueueMessage 描述一次动态资源机器翻译队列消息。
 type TranslationQueueMessage struct {
-	TargetType systemadminv1.TranslationTargetType `json:"target_type"`
-	TargetID   int64                               `json:"target_id"`
+	TargetType   systemadminv1.TranslationTargetType `json:"target_type"`
+	TargetID     int64                               `json:"target_id"`
+	SourceLocale string                              `json:"source_locale"`
+	TargetLocale string                              `json:"target_locale"`
 }
 
 // MenuMetadata 承载菜单 JSON 元信息中需要国际化的字段。

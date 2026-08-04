@@ -260,6 +260,9 @@
   "system.admin.base.translation.update.target.required": {
     "other": "El ID del registro de traducción o la información de destino no pueden estar vacíos"
   },
+  "system.admin.base.translation.update.name.required": {
+    "other": "El texto de la nueva traducción no puede estar vacío"
+  },
   "system.admin.base.translation.entity.target_id.required": {
     "other": "Resource ID Sin puede estar vacío"
   },

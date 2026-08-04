@@ -44,7 +44,7 @@ import (
 // Injectors from wire.go:
 
 // initModule 生成 Backend 模块内部依赖装配代码。
-func initModule(context *bootstrap.Context, additionalModules AdditionalModules, configuredDocuments projectdoc.ConfiguredDocuments, arg []gorm.ClientOption, arg2 migration.AdditionalMigrations) (*Runtime, func(), error) {
+func initModule(context *bootstrap.Context, additionalModules AdditionalModules, configuredDocuments projectdoc.ConfiguredDocuments, arg []gorm.ClientOption, arg2 []migration.Contributor) (*Runtime, func(), error) {
 	configv1Data, err := config.ParseData(context)
 	if err != nil {
 		return nil, nil, err
@@ -352,7 +352,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	modules := newModules(services, adminServices, appServices, additionalModules)
 	httpMiddlewares := server.NewHTTPMiddleware(context, authenticator, baseUserRepository, engine, userToken, authentication_Jwt)
 	grpcMiddlewares := server.NewGRPCMiddleware(context, authenticator, baseUserRepository, engine, userToken, authentication_Jwt)
-	v := admin3.NewBaseTranslationTask(baseTranslationCase, baseLanguageCase, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository)
+	baseTranslationTask := admin3.NewBaseTranslationTask(baseTranslationCase, baseLanguageCase, translatorTranslator, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository)
 	mcpToolsReady := server.NewMCPToolsReady(mcpServer, modules)
 	agentToolsReady, err := server.NewAgentToolsReady(runtime, modules)
 	if err != nil {
@@ -370,7 +370,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 		cleanup()
 		return nil, nil, err
 	}
-	kratosadminRuntime, err := newRuntime(modules, httpMiddlewares, grpcMiddlewares, cronServer, taskRegistry, v, openapiRegistry, baseConfigCase, projectDocumentCase, runtime, userEvents, mcpToolsReady, agentToolsReady, openAPIReady)
+	kratosadminRuntime, err := newRuntime(modules, httpMiddlewares, grpcMiddlewares, cronServer, taskRegistry, baseTranslationTask, openapiRegistry, baseConfigCase, projectDocumentCase, runtime, userEvents, mcpToolsReady, agentToolsReady, openAPIReady)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -387,7 +387,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 }
 
 // initApp 生成 Backend 独立应用内部依赖装配代码。
-func initApp(context *bootstrap.Context, additionalModules AdditionalModules, configuredDocuments projectdoc.ConfiguredDocuments, arg []gorm.ClientOption, arg2 migration.AdditionalMigrations) (*kratos.App, func(), error) {
+func initApp(context *bootstrap.Context, additionalModules AdditionalModules, configuredDocuments projectdoc.ConfiguredDocuments, arg []gorm.ClientOption, arg2 []migration.Contributor) (*kratos.App, func(), error) {
 	configv1Data, err := config.ParseData(context)
 	if err != nil {
 		return nil, nil, err
@@ -695,7 +695,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 	modules := newModules(services, adminServices, appServices, additionalModules)
 	httpMiddlewares := server.NewHTTPMiddleware(context, authenticator, baseUserRepository, engine, userToken, authentication_Jwt)
 	grpcMiddlewares := server.NewGRPCMiddleware(context, authenticator, baseUserRepository, engine, userToken, authentication_Jwt)
-	v := admin3.NewBaseTranslationTask(baseTranslationCase, baseLanguageCase, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository)
+	baseTranslationTask := admin3.NewBaseTranslationTask(baseTranslationCase, baseLanguageCase, translatorTranslator, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository)
 	mcpToolsReady := server.NewMCPToolsReady(mcpServer, modules)
 	agentToolsReady, err := server.NewAgentToolsReady(runtime, modules)
 	if err != nil {
@@ -713,7 +713,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 		cleanup()
 		return nil, nil, err
 	}
-	kratosadminRuntime, err := newRuntime(modules, httpMiddlewares, grpcMiddlewares, cronServer, taskRegistry, v, openapiRegistry, baseConfigCase, projectDocumentCase, runtime, userEvents, mcpToolsReady, agentToolsReady, openAPIReady)
+	kratosadminRuntime, err := newRuntime(modules, httpMiddlewares, grpcMiddlewares, cronServer, taskRegistry, baseTranslationTask, openapiRegistry, baseConfigCase, projectDocumentCase, runtime, userEvents, mcpToolsReady, agentToolsReady, openAPIReady)
 	if err != nil {
 		cleanup4()
 		cleanup3()

@@ -260,6 +260,9 @@
   "system.admin.base.translation.update.target.required": {
     "other": "번역 레코드 ID 또는 대상 정보를 입력하세요"
   },
+  "system.admin.base.translation.update.name.required": {
+    "other": "새 번역 텍스트를 비워 둘 수 없습니다"
+  },
   "system.admin.base.translation.entity.target_id.required": {
     "other": "Resource ID cannot be empty"
   },
