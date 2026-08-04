@@ -6445,9 +6445,6 @@ components:
                 source:
                     type: string
                     description: 待翻译文本
-                source_locale:
-                    type: string
-                    description: 源文本语言区域
             description: 翻译单个文本请求。
         system.admin.v1.DraftBaseTranslationResponse:
             type: object

@@ -312,10 +312,10 @@
     "other": "User account cannot be empty and cannot exceed 50 characters"
   },
   "base.oauth.bind_session.captcha_code.required": {
-    "other": "Verification code cannot be empty"
+    "other": "認証コードを入力してください"
   },
   "base.oauth.bind_session.captcha_id.required": {
-    "other": "Verification code ID cannot be empty"
+    "other": "認証コードIDを入力してください"
   },
   "base.oauth.bind_session.code.required": {
     "other": "The third-party authorization code cannot be empty"
@@ -323,38 +323,41 @@
   "base.oauth.bind_session.provider.required": {
     "other": "Login method identifier cannot be empty"
   },
+  "base.oauth.bind_session.password.required": {
+    "other": "パスワードを空にすることはできません"
+  },
   "base.oauth.bind_session.tenant_code.required": {
-    "other": "Tenant code cannot be empty"
+    "other": "テナントコードを入力してください"
   },
   "base.oauth.bind_session.user_name.required": {
-    "other": "Username cannot be empty"
+    "other": "ユーザー名を入力してください"
   },
   "system.admin.code.gen.table.entity.status.required": {
     "other": "Please select a code generation table status"
   },
   "common.error.conflict": {
-    "other": "The resource state conflicts with this operation"
+    "other": "リソースの状態がこの操作と競合しています"
   },
   "common.error.internal": {
-    "other": "An internal error occurred"
+    "other": "内部エラーが発生しました"
   },
   "common.error.invalid_argument": {
-    "other": "The request parameters are invalid"
+    "other": "リクエストパラメータが無効です"
   },
   "common.error.permission_denied": {
-    "other": "You do not have permission to perform this operation"
+    "other": "この操作を実行する権限がありません"
   },
   "common.error.resource_not_found": {
-    "other": "The requested resource was not found"
+    "other": "指定されたリソースが見つかりません"
   },
   "common.error.unauthenticated": {
-    "other": "Your session has expired. Please sign in again"
+    "other": "セッションの有効期限が切れました。再度ログインしてください"
   },
   "common.validation.invalid": {
-    "other": "Field {{.Field}} is invalid"
+    "other": "フィールド{{.Field}}が無効です"
   },
   "common.validation.required": {
-    "other": "Field {{.Field}} is required"
+    "other": "フィールド{{.Field}}は必須です"
   },
   "base.ai.session.create_branch.anchor_message_id.positive": {
     "other": "Branch anchor message number is illegal"
@@ -552,13 +555,16 @@
     "other": "Code generation table configuration ID cannot be empty"
   },
   "base.login.login.captcha_code.required": {
-    "other": "Verification code cannot be empty"
+    "other": "認証コードを入力してください"
   },
   "base.login.login.captcha_id.required": {
-    "other": "Verification code cannot be empty"
+    "other": "認証コードIDを入力してください"
+  },
+  "base.login.login.password.required": {
+    "other": "パスワードを空にすることはできません"
   },
   "base.login.login.user_name.required": {
-    "other": "Username cannot be empty"
+    "other": "ユーザー名を入力してください"
   },
   "system.admin.code.gen.preview.table_id.required": {
     "other": "Code generation table configuration ID cannot be empty"

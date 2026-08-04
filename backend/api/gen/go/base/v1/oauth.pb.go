@@ -1124,7 +1124,7 @@ const file_base_v1_oauth_proto_rawDesc = "" +
 	"\bprovider\x18\x01 \x01(\tB|\xbaG\x15\x92\x02\x12登录方式标识\xbaHa\xba\x01^\n" +
 	"+base.oauth.create_session.provider.required\x12\x1e登录方式标识不能为空\x1a\x0fthis.size() > 0R\bprovider\x12\x86\x01\n" +
 	"\x04code\x18\x02 \x01(\tBr\xbaG\x12\x92\x02\x0f三方授权码\xbaHZ\xba\x01W\n" +
-	"'base.oauth.create_session.code.required\x12\x1b三方授权码不能为空\x1a\x0fthis.size() > 0R\x04code\"\xca\a\n" +
+	"'base.oauth.create_session.code.required\x12\x1b三方授权码不能为空\x1a\x0fthis.size() > 0R\x04code\"\x9e\b\n" +
 	"\x17BindOauthSessionRequest\x12\x96\x01\n" +
 	"\bprovider\x18\x01 \x01(\tBz\xbaG\x15\x92\x02\x12登录方式标识\xbaH_\xba\x01\\\n" +
 	")base.oauth.bind_session.provider.required\x12\x1e登录方式标识不能为空\x1a\x0fthis.size() > 0R\bprovider\x12\x84\x01\n" +
@@ -1134,13 +1134,14 @@ const file_base_v1_oauth_proto_rawDesc = "" +
 	",base.oauth.bind_session.tenant_code.required\x12\x18租户编码不能为空\x1a\x0fthis.size() > 0R\n" +
 	"tenantCode\x12\x86\x01\n" +
 	"\tuser_name\x18\x04 \x01(\tBi\xbaG\f\x92\x02\t用户名\xbaHW\xba\x01T\n" +
-	"*base.oauth.bind_session.user_name.required\x12\x15用户名不能为空\x1a\x0fthis.size() > 0R\buserName\x12O\n" +
-	"\bpassword\x18\x05 \x01(\v2\x19.common.v1.PasswordCryptoB\x18\xbaG\x0f\x92\x02\f用户密码\xbaH\x03\xc8\x01\x01R\bpassword\x12\x8f\x01\n" +
+	"*base.oauth.bind_session.user_name.required\x12\x15用户名不能为空\x1a\x0fthis.size() > 0R\buserName\x12I\n" +
+	"\bpassword\x18\x05 \x01(\v2\x19.common.v1.PasswordCryptoB\x12\xbaG\x0f\x92\x02\f用户密码R\bpassword\x12\x8f\x01\n" +
 	"\fcaptcha_code\x18\x06 \x01(\tBl\xbaG\f\x92\x02\t验证码\xbaHZ\xba\x01W\n" +
 	"-base.oauth.bind_session.captcha_code.required\x12\x15验证码不能为空\x1a\x0fthis.size() > 0R\vcaptchaCode\x12\x8d\x01\n" +
 	"\n" +
 	"captcha_id\x18\a \x01(\tBn\xbaG\x0e\x92\x02\v验证码Id\xbaHZ\xba\x01W\n" +
-	"+base.oauth.bind_session.captcha_id.required\x12\x17验证码Id不能为空\x1a\x0fthis.size() > 0R\tcaptchaId\"\xb8\a\n" +
+	"+base.oauth.bind_session.captcha_id.required\x12\x17验证码Id不能为空\x1a\x0fthis.size() > 0R\tcaptchaId:X\xbaHU\x1aS\n" +
+	")base.oauth.bind_session.password.required\x12\x12密码不能为空\x1a\x12has(this.password)\"\xb8\a\n" +
 	"\x1aCreateOauthSessionResponse\x12t\n" +
 	"\faccess_token\x18\x01 \x01(\tBQ\xbaGN\x92\x02K访问令牌，必选项。授权服务器颁发的访问令牌字符串。R\vaccessToken\x12\xbc\x02\n" +
 	"\rrefresh_token\x18\x02 \x01(\tB\x96\x02\xbaG\x92\x02\x92\x02\x8e\x02更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。R\frefreshToken\x12\xb4\x01\n" +

@@ -761,18 +761,19 @@ const file_base_v1_login_proto_rawDesc = "" +
 	"\n" +
 	"token_type\x18\x03 \x01(\tB\x94\x01\xbaG\x90\x01\x8a\x02\b\x1a\x06Bearer\x92\x02\x81\x01令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。R\ttokenType\x12\xdc\x01\n" +
 	"\n" +
-	"expires_in\x18\x04 \x01(\x03B\xbc\x01\xbaG\xb8\x01\x92\x02\xb4\x01令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。R\texpiresIn\"\xa7\x04\n" +
+	"expires_in\x18\x04 \x01(\x03B\xbc\x01\xbaG\xb8\x01\x92\x02\xb4\x01令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。R\texpiresIn\"\xf4\x04\n" +
 	"\fLoginRequest\x123\n" +
 	"\vtenant_code\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户编码R\n" +
 	"tenantCode\x12\x7f\n" +
 	"\tuser_name\x18\x02 \x01(\tBb\xbaG\f\x92\x02\t用户名\xbaHP\xba\x01M\n" +
-	"#base.login.login.user_name.required\x12\x15用户名不能为空\x1a\x0fthis.size() > 0R\buserName\x12O\n" +
-	"\bpassword\x18\x03 \x01(\v2\x19.common.v1.PasswordCryptoB\x18\xbaG\x0f\x92\x02\f用户密码\xbaH\x03\xc8\x01\x01R\bpassword\x12\x88\x01\n" +
+	"#base.login.login.user_name.required\x12\x15用户名不能为空\x1a\x0fthis.size() > 0R\buserName\x12I\n" +
+	"\bpassword\x18\x03 \x01(\v2\x19.common.v1.PasswordCryptoB\x12\xbaG\x0f\x92\x02\f用户密码R\bpassword\x12\x88\x01\n" +
 	"\fcaptcha_code\x18\x04 \x01(\tBe\xbaG\f\x92\x02\t验证码\xbaHS\xba\x01P\n" +
 	"&base.login.login.captcha_code.required\x12\x15验证码不能为空\x1a\x0fthis.size() > 0R\vcaptchaCode\x12\x84\x01\n" +
 	"\n" +
 	"captcha_id\x18\x05 \x01(\tBe\xbaG\x0e\x92\x02\v验证码Id\xbaHQ\xba\x01N\n" +
-	"$base.login.login.captcha_id.required\x12\x15验证码不能为空\x1a\x0fthis.size() > 0R\tcaptchaId\"\xda\x06\n" +
+	"$base.login.login.captcha_id.required\x12\x15验证码不能为空\x1a\x0fthis.size() > 0R\tcaptchaId:Q\xbaHN\x1aL\n" +
+	"\"base.login.login.password.required\x12\x12密码不能为空\x1a\x12has(this.password)\"\xda\x06\n" +
 	"\rLoginResponse\x12t\n" +
 	"\faccess_token\x18\x01 \x01(\tBQ\xbaGN\x92\x02K访问令牌，必选项。授权服务器颁发的访问令牌字符串。R\vaccessToken\x12\xbc\x02\n" +
 	"\rrefresh_token\x18\x02 \x01(\tB\x96\x02\xbaG\x92\x02\x92\x02\x8e\x02更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。R\frefreshToken\x12\xb4\x01\n" +

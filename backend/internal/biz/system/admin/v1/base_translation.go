@@ -79,13 +79,7 @@ func (c *BaseTranslationCase) DraftBaseTranslation(ctx context.Context, req *sys
 	if primaryLocale == "" {
 		primaryLocale = coreLocale.Default
 	}
-	sourceLocale := req.GetSourceLocale()
-	if sourceLocale == "" {
-		sourceLocale = primaryLocale
-	}
-	if !isTranslationLocale(locales, primaryLocale, sourceLocale) {
-		return nil, errorsx.InvalidArgument("源语言必须是主语言或已启用语言")
-	}
+	sourceLocale := coreLocale.FromContext(ctx)
 
 	c.draftMu.Lock()
 	defer c.draftMu.Unlock()
@@ -447,11 +441,6 @@ func containsEditableLocale(locales []string, primaryLocale, locale string) bool
 		}
 	}
 	return false
-}
-
-// isTranslationLocale 判断语言是否为主语言或启用语言。
-func isTranslationLocale(locales []string, primaryLocale, locale string) bool {
-	return locale == primaryLocale || containsEditableLocale(locales, primaryLocale, locale)
 }
 
 func (c *BaseTranslationCase) DeleteBaseTranslation(ctx context.Context, targetType systemadminv1.TranslationTargetType, targetId []int64) error {

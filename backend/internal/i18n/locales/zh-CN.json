@@ -323,6 +323,9 @@
   "base.oauth.bind_session.provider.required": {
     "other": "登录方式标识不能为空"
   },
+  "base.oauth.bind_session.password.required": {
+    "other": "密码不能为空"
+  },
   "base.oauth.bind_session.tenant_code.required": {
     "other": "租户编码不能为空"
   },
@@ -556,6 +559,9 @@
   },
   "base.login.login.captcha_id.required": {
     "other": "验证码不能为空"
+  },
+  "base.login.login.password.required": {
+    "other": "密码不能为空"
   },
   "base.login.login.user_name.required": {
     "other": "用户名不能为空"

@@ -312,10 +312,10 @@
     "other": "User account cannot be empty and cannot exceed 50 characters"
   },
   "base.oauth.bind_session.captcha_code.required": {
-    "other": "Verification code cannot be empty"
+    "other": "인증 코드를 입력하세요"
   },
   "base.oauth.bind_session.captcha_id.required": {
-    "other": "Verification code ID cannot be empty"
+    "other": "인증 코드 ID를 입력하세요"
   },
   "base.oauth.bind_session.code.required": {
     "other": "The third-party authorization code cannot be empty"
@@ -323,38 +323,41 @@
   "base.oauth.bind_session.provider.required": {
     "other": "Login method identifier cannot be empty"
   },
+  "base.oauth.bind_session.password.required": {
+    "other": "비밀번호는 비워둘 수 없습니다."
+  },
   "base.oauth.bind_session.tenant_code.required": {
-    "other": "Tenant code cannot be empty"
+    "other": "테넌트 코드를 입력하세요"
   },
   "base.oauth.bind_session.user_name.required": {
-    "other": "Username cannot be empty"
+    "other": "사용자 이름을 입력하세요"
   },
   "system.admin.code.gen.table.entity.status.required": {
     "other": "Please select a code generation table status"
   },
   "common.error.conflict": {
-    "other": "The resource state conflicts with this operation"
+    "other": "리소스 상태가 이 작업과 충돌합니다"
   },
   "common.error.internal": {
-    "other": "An internal error occurred"
+    "other": "내부 오류가 발생했습니다"
   },
   "common.error.invalid_argument": {
-    "other": "The request parameters are invalid"
+    "other": "요청 매개변수가 올바르지 않습니다"
   },
   "common.error.permission_denied": {
-    "other": "You do not have permission to perform this operation"
+    "other": "이 작업을 수행할 권한이 없습니다"
   },
   "common.error.resource_not_found": {
-    "other": "The requested resource was not found"
+    "other": "요청한 리소스를 찾을 수 없습니다"
   },
   "common.error.unauthenticated": {
-    "other": "Your session has expired. Please sign in again"
+    "other": "세션이 만료되었습니다. 다시 로그인하세요"
   },
   "common.validation.invalid": {
-    "other": "Field {{.Field}} is invalid"
+    "other": "필드 {{.Field}}이(가) 올바르지 않습니다"
   },
   "common.validation.required": {
-    "other": "Field {{.Field}} is required"
+    "other": "필드 {{.Field}}은(는) 필수입니다"
   },
   "base.ai.session.create_branch.anchor_message_id.positive": {
     "other": "Branch anchor message number is illegal"
@@ -552,13 +555,16 @@
     "other": "Code generation table configuration ID cannot be empty"
   },
   "base.login.login.captcha_code.required": {
-    "other": "Verification code cannot be empty"
+    "other": "인증 코드를 입력하세요"
   },
   "base.login.login.captcha_id.required": {
-    "other": "Verification code cannot be empty"
+    "other": "인증 코드 ID를 입력하세요"
+  },
+  "base.login.login.password.required": {
+    "other": "비밀번호는 비워둘 수 없습니다."
   },
   "base.login.login.user_name.required": {
-    "other": "Username cannot be empty"
+    "other": "사용자 이름을 입력하세요"
   },
   "system.admin.code.gen.preview.table_id.required": {
     "other": "Code generation table configuration ID cannot be empty"

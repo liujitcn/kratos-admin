@@ -323,6 +323,9 @@
   "base.oauth.bind_session.provider.required": {
     "other": "Login method identifier cannot be empty"
   },
+  "base.oauth.bind_session.password.required": {
+    "other": "Password cannot be empty"
+  },
   "base.oauth.bind_session.tenant_code.required": {
     "other": "Tenant code cannot be empty"
   },
@@ -556,6 +559,9 @@
   },
   "base.login.login.captcha_id.required": {
     "other": "Verification code cannot be empty"
+  },
+  "base.login.login.password.required": {
+    "other": "Password cannot be empty"
   },
   "base.login.login.user_name.required": {
     "other": "Username cannot be empty"

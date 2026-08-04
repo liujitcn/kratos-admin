@@ -312,10 +312,10 @@
     "other": "User account cannot be empty and cannot exceed 50 characters"
   },
   "base.oauth.bind_session.captcha_code.required": {
-    "other": "Verification code cannot be empty"
+    "other": "Le code de vérification ne peut pas être vide"
   },
   "base.oauth.bind_session.captcha_id.required": {
-    "other": "Verification code ID cannot be empty"
+    "other": "L’identifiant du code de vérification ne peut pas être vide"
   },
   "base.oauth.bind_session.code.required": {
     "other": "The third-party authorization code cannot be empty"
@@ -323,38 +323,41 @@
   "base.oauth.bind_session.provider.required": {
     "other": "Login method identifier cannot be empty"
   },
+  "base.oauth.bind_session.password.required": {
+    "other": "Le mot de passe ne peut pas être vide"
+  },
   "base.oauth.bind_session.tenant_code.required": {
-    "other": "Tenant code cannot be empty"
+    "other": "Le code du locataire ne peut pas être vide"
   },
   "base.oauth.bind_session.user_name.required": {
-    "other": "Username cannot be empty"
+    "other": "Le nom d’utilisateur ne peut pas être vide"
   },
   "system.admin.code.gen.table.entity.status.required": {
     "other": "Please select a code generation table status"
   },
   "common.error.conflict": {
-    "other": "The resource state conflicts with this operation"
+    "other": "L’état de la ressource est en conflit avec cette opération"
   },
   "common.error.internal": {
-    "other": "An internal error occurred"
+    "other": "Une erreur interne s’est produite"
   },
   "common.error.invalid_argument": {
-    "other": "The request parameters are invalid"
+    "other": "Les paramètres de la requête sont invalides"
   },
   "common.error.permission_denied": {
-    "other": "You do not have permission to perform this operation"
+    "other": "Vous n’avez pas l’autorisation d’effectuer cette opération"
   },
   "common.error.resource_not_found": {
-    "other": "The requested resource was not found"
+    "other": "La ressource demandée est introuvable"
   },
   "common.error.unauthenticated": {
-    "other": "Your session has expired. Please sign in again"
+    "other": "Votre session a expiré. Veuillez vous reconnecter"
   },
   "common.validation.invalid": {
-    "other": "Field {{.Field}} is invalid"
+    "other": "Le champ {{.Field}} est invalide"
   },
   "common.validation.required": {
-    "other": "Field {{.Field}} is required"
+    "other": "Le champ {{.Field}} est obligatoire"
   },
   "base.ai.session.create_branch.anchor_message_id.positive": {
     "other": "Branch anchor message number is illegal"
@@ -552,13 +555,16 @@
     "other": "Code generation table configuration ID cannot be empty"
   },
   "base.login.login.captcha_code.required": {
-    "other": "Verification code cannot be empty"
+    "other": "Le code de vérification ne peut pas être vide"
   },
   "base.login.login.captcha_id.required": {
-    "other": "Verification code cannot be empty"
+    "other": "L’identifiant du code de vérification ne peut pas être vide"
+  },
+  "base.login.login.password.required": {
+    "other": "Le mot de passe ne peut pas être vide"
   },
   "base.login.login.user_name.required": {
-    "other": "Username cannot be empty"
+    "other": "Le nom d’utilisateur ne peut pas être vide"
   },
   "system.admin.code.gen.preview.table_id.required": {
     "other": "Code generation table configuration ID cannot be empty"

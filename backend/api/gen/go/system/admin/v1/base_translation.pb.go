@@ -94,8 +94,7 @@ func (TranslationTargetType) EnumDescriptor() ([]byte, []int) {
 // 翻译单个文本请求。
 type DraftBaseTranslationRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Source        string                 `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty"`                                 // 待翻译文本
-	SourceLocale  string                 `protobuf:"bytes,2,opt,name=source_locale,json=sourceLocale,proto3" json:"source_locale,omitempty"` // 源文本语言区域，未填写时使用主语言
+	Source        string                 `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty"` // 待翻译文本
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -133,13 +132,6 @@ func (*DraftBaseTranslationRequest) Descriptor() ([]byte, []int) {
 func (x *DraftBaseTranslationRequest) GetSource() string {
 	if x != nil {
 		return x.Source
-	}
-	return ""
-}
-
-func (x *DraftBaseTranslationRequest) GetSourceLocale() string {
-	if x != nil {
-		return x.SourceLocale
 	}
 	return ""
 }
@@ -453,11 +445,10 @@ var File_system_admin_v1_base_translation_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_translation_proto_rawDesc = "" +
 	"\n" +
-	"&system/admin/v1/base_translation.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xf8\x01\n" +
+	"&system/admin/v1/base_translation.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xb6\x01\n" +
 	"\x1bDraftBaseTranslationRequest\x12\x96\x01\n" +
 	"\x06source\x18\x01 \x01(\tB~\xbaG\x12\x92\x02\x0f待翻译文本\xbaHf\xba\x01c\n" +
-	"3system.admin.base.translation.draft.source.required\x12\x1b待翻译文本不能为空\x1a\x0fthis.size() > 0R\x06source\x12@\n" +
-	"\rsource_locale\x18\x02 \x01(\tB\x1b\xbaG\x18\x92\x02\x15源文本语言区域R\fsourceLocale\"\x81\x01\n" +
+	"3system.admin.base.translation.draft.source.required\x12\x1b待翻译文本不能为空\x1a\x0fthis.size() > 0R\x06source\"\x81\x01\n" +
 	"\x1cDraftBaseTranslationResponse\x12a\n" +
 	"\ftranslations\x18\x01 \x03(\v2).system.admin.v1.DraftBaseTranslationItemB\x12\xbaG\x0f\x92\x02\f翻译结果R\ftranslations\"\x82\x01\n" +
 	"\x18DraftBaseTranslationItem\x120\n" +

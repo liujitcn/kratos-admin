@@ -312,10 +312,10 @@
     "other": "usuario account Sin puede estar vacío and Sin puede superar 50 characters"
   },
   "base.oauth.bind_session.captcha_code.required": {
-    "other": "Verification code Sin puede estar vacío"
+    "other": "El código de verificación no puede estar vacío"
   },
   "base.oauth.bind_session.captcha_id.required": {
-    "other": "Verification code ID Sin puede estar vacío"
+    "other": "El ID del código de verificación no puede estar vacío"
   },
   "base.oauth.bind_session.code.required": {
     "other": "The third-party authorization code Sin puede estar vacío"
@@ -323,38 +323,41 @@
   "base.oauth.bind_session.provider.required": {
     "other": "Login method identifier Sin puede estar vacío"
   },
+  "base.oauth.bind_session.password.required": {
+    "other": "La contraseña no puede estar vacía"
+  },
   "base.oauth.bind_session.tenant_code.required": {
-    "other": "Tenant code Sin puede estar vacío"
+    "other": "El código del inquilino no puede estar vacío"
   },
   "base.oauth.bind_session.user_name.required": {
-    "other": "nombre de usuario Sin puede estar vacío"
+    "other": "El nombre de usuario no puede estar vacío"
   },
   "system.admin.code.gen.table.entity.status.required": {
     "other": "Seleccione a code generation table status"
   },
   "common.error.conflict": {
-    "other": "The resource state conflicts with this operation"
+    "other": "El estado del recurso entra en conflicto con esta operación"
   },
   "common.error.internal": {
-    "other": "An internal error occurred"
+    "other": "Se produjo un error interno"
   },
   "common.error.invalid_argument": {
-    "other": "The request parameters are invalid"
+    "other": "Los parámetros de la solicitud no son válidos"
   },
   "common.error.permission_denied": {
-    "other": "You do Sin have permission to perform this operation"
+    "other": "No tienes permiso para realizar esta operación"
   },
   "common.error.resource_not_found": {
-    "other": "The requested resource was Sin found"
+    "other": "No se encontró el recurso solicitado"
   },
   "common.error.unauthenticated": {
-    "other": "Your session has expired. Por favor sign in again"
+    "other": "Tu sesión ha caducado. Vuelve a iniciar sesión"
   },
   "common.validation.invalid": {
-    "other": "Field {{.Field}} is invalid"
+    "other": "El campo {{.Field}} no es válido"
   },
   "common.validation.required": {
-    "other": "Field {{.Field}} es obligatorio"
+    "other": "El campo {{.Field}} es obligatorio"
   },
   "base.ai.session.create_branch.anchor_message_id.positive": {
     "other": "Branch anchor message number is illegal"
@@ -552,13 +555,16 @@
     "other": "Code generation table configuración ID Sin puede estar vacío"
   },
   "base.login.login.captcha_code.required": {
-    "other": "Verification code Sin puede estar vacío"
+    "other": "El código de verificación no puede estar vacío"
   },
   "base.login.login.captcha_id.required": {
-    "other": "Verification code Sin puede estar vacío"
+    "other": "El ID del código de verificación no puede estar vacío"
+  },
+  "base.login.login.password.required": {
+    "other": "La contraseña no puede estar vacía"
   },
   "base.login.login.user_name.required": {
-    "other": "nombre de usuario Sin puede estar vacío"
+    "other": "El nombre de usuario no puede estar vacío"
   },
   "system.admin.code.gen.preview.table_id.required": {
     "other": "Code generation table configuración ID Sin puede estar vacío"

@@ -138,7 +138,7 @@ async function loadTranslations() {
     const missingRows = rows.filter(row => !row.text);
     if (missingRows.length === 0) return;
     if (!props.source) return;
-    const draft = await defBaseTranslationService.DraftBaseTranslation({ source: props.source, source_locale: "" });
+    const draft = await defBaseTranslationService.DraftBaseTranslation({ source: props.source });
     const translations = new Map(draft.translations.map(item => [item.locale, item.translation]));
     const results = await Promise.allSettled(
       missingRows.map(async row => {

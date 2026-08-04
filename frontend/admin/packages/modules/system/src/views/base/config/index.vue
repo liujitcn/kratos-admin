@@ -61,7 +61,6 @@
         <DynamicTranslationEditor
           v-model="nameTranslationValues"
           :source="formData.name"
-          :source-locale="formData.id > 0 ? undefined : locale"
           :maxlength="100"
         />
       </template>
@@ -69,7 +68,6 @@
         <DynamicTranslationEditor
           v-model="valueTranslationValues"
           :source="formData.value"
-          :source-locale="formData.id > 0 ? undefined : locale"
           :maxlength="10000"
           multiline
         />
@@ -104,7 +102,7 @@ import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { BaseConfigType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_config";
 import { TranslationTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
-import { t, useLocaleStore } from "@liujitcn/kratos-admin-core";
+import { t } from "@liujitcn/kratos-admin-core";
 import DynamicTranslationEditor from "@liujitcn/kratos-admin-system/components/DynamicTranslationEditor.vue";
 import DynamicTranslationCell from "@liujitcn/kratos-admin-system/components/DynamicTranslationCell.vue";
 import {
@@ -126,7 +124,6 @@ defineOptions({
 });
 
 const { BUTTONS } = useAuthButtons();
-const { locale } = useLocaleStore();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 

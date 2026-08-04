@@ -34,7 +34,6 @@
         <DynamicTranslationEditor
           v-model="translationValues"
           :source="formData.meta.title"
-          :source-locale="formData.id > 0 ? undefined : locale"
           :maxlength="100"
         />
       </template>
@@ -81,7 +80,7 @@ import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { BaseMenuType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/common";
 import { TranslationTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
 import { normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
-import { t, useLocaleStore } from "@liujitcn/kratos-admin-core";
+import { t } from "@liujitcn/kratos-admin-core";
 import DynamicTranslationEditor from "@liujitcn/kratos-admin-system/components/DynamicTranslationEditor.vue";
 import DynamicTranslationCell from "@liujitcn/kratos-admin-system/components/DynamicTranslationCell.vue";
 import {
@@ -107,7 +106,6 @@ type MenuFormState = Omit<BaseMenuForm, "meta"> & {
 };
 
 const { BUTTONS } = useAuthButtons();
-const { locale } = useLocaleStore();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const menuOptions = ref<ProFormOption[]>([]);
