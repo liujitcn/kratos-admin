@@ -1,7 +1,7 @@
 <template>
   <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" size="large">
     <el-form-item prop="tenant_code">
-      <el-input v-model="loginForm.tenant_code" :placeholder="t('core.login.tenantCode')">
+      <el-input v-model="loginForm.tenant_code" :placeholder="t('core.login.tenant_code')">
         <template #prefix>
           <el-icon class="el-input__icon">
             <office-building />
@@ -10,7 +10,7 @@
       </el-input>
     </el-form-item>
     <el-form-item prop="user_name">
-      <el-input v-model="loginForm.user_name" :placeholder="t('core.login.userName')">
+      <el-input v-model="loginForm.user_name" :placeholder="t('core.login.user_name')">
         <template #prefix>
           <el-icon class="el-input__icon">
             <user />
@@ -51,7 +51,7 @@
           class="captcha-image"
           :style="{ width: captchaImageWidth }"
           :src="captcha_base64"
-          :alt="t('core.login.captchaAlt')"
+          :alt="t('core.login.captcha_alt')"
           @load="handleCaptchaImageLoad"
           @click="getCaptcha"
         />
@@ -73,7 +73,7 @@
   </div>
   <div v-if="oauthProviders.length" class="oauth-login">
     <div class="oauth-divider">
-      <span>{{ t("core.login.otherMethods") }}</span>
+      <span>{{ t("core.login.other_methods") }}</span>
     </div>
     <div class="oauth-provider-list">
       <el-tooltip
@@ -170,8 +170,8 @@ const captchaImageWidth = ref(`${defaultCaptchaImageWidth}px`);
 const behaviorDialogVisible = ref(false);
 const behaviorLoading = ref(false);
 const loginRules = computed(() => ({
-  tenant_code: [{ required: true, message: t("core.login.tenantCode"), trigger: "blur" }],
-  user_name: [{ required: true, message: t("core.login.userName"), trigger: "blur" }],
+  tenant_code: [{ required: true, message: t("core.login.tenant_code"), trigger: "blur" }],
+  user_name: [{ required: true, message: t("core.login.user_name"), trigger: "blur" }],
   password: [{ required: true, message: t("core.login.password"), trigger: "blur" }],
   captcha_code: [{ required: true, message: t("core.login.captcha"), trigger: "blur" }]
 }));
@@ -296,7 +296,7 @@ const slideCaptchaConfig = computed(() => ({
   verticalPadding: 0,
   horizontalPadding: 0,
   iconSize: 20,
-  title: t("core.login.behaviorPuzzle")
+  title: t("core.login.behavior_puzzle")
 }));
 const clickCaptchaConfig = computed(() => ({
   width: behaviorCaptchaDisplayWidth,
@@ -306,10 +306,10 @@ const clickCaptchaConfig = computed(() => ({
   showTheme: false,
   verticalPadding: 0,
   horizontalPadding: 0,
-  buttonText: t("core.login.behaviorConfirm"),
+  buttonText: t("core.login.behavior_confirm"),
   iconSize: 20,
   dotSize: 20,
-  title: t("core.login.behaviorClick")
+  title: t("core.login.behavior_click")
 }));
 const rotateCaptchaConfig = computed(() => ({
   width: behaviorCaptchaDisplayWidth,
@@ -319,7 +319,7 @@ const rotateCaptchaConfig = computed(() => ({
   verticalPadding: 0,
   horizontalPadding: 0,
   iconSize: 20,
-  title: t("core.login.behaviorRotate")
+  title: t("core.login.behavior_rotate")
 }));
 const slideCaptchaEvents = {
   refresh: () => getCaptcha(),
@@ -526,7 +526,7 @@ const verifyCaptchaToken = async (captchaCode: string) => {
 const submitLogin = async (captchaToken: string) => {
   loading.value = true;
   try {
-    const password = await encryptPassword(loginForm.password, PASSWORD_CRYPTO_SCENE.LOGIN);
+    const password = await encryptPassword(loginForm.password, PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_LOGIN);
     const loginRequest: LoginRequest = {
       tenant_code: loginForm.tenant_code,
       user_name: loginForm.user_name,

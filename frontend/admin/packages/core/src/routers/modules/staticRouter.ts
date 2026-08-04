@@ -57,7 +57,7 @@ export const errorRouter = [
     component: createAdminStaticViewLoader(ADMIN_STATIC_VIEWS.NOT_FOUND),
     meta: {
       title: "",
-      titleKey: "core.route.notFound"
+      titleKey: "core.route.not_found"
     }
   },
   {
@@ -66,7 +66,7 @@ export const errorRouter = [
     component: createAdminStaticViewLoader(ADMIN_STATIC_VIEWS.SERVER_ERROR),
     meta: {
       title: "",
-      titleKey: "core.route.serverError"
+      titleKey: "core.route.server_error"
     }
   },
   // Resolve refresh page, route warnings

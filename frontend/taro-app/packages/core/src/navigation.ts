@@ -150,7 +150,7 @@ const defaultMenuTitleKeys: Record<string, string> = {
   AppProtocol: 'core.navigation.protocol',
   AppProfile: 'system.profile.title',
   AppSettings: 'system.settings.title',
-  AppAi: 'system.ai.chatTitle',
+  AppAi: 'system.ai.chat_title',
 }
 
 function localizedDefaultAppMenus(): AppMenu[] {
@@ -278,15 +278,15 @@ function readCachedMenus(cacheKey: string): AppMenu[] | undefined {
 
 function normalizeMenuResponse(response: unknown): AppMenu[] {
   if (Array.isArray(response)) return response.map(normalizeMenu)
-  if (!response || typeof response !== 'object') throw new Error(t('core.navigation.error.responseObject'))
+  if (!response || typeof response !== 'object') throw new Error(t('core.navigation.error.response_object'))
   const record = response as Record<string, unknown>
   const list = record.items ?? record.list ?? record.data
-  if (!Array.isArray(list)) throw new Error(t('core.navigation.error.listMissing'))
+  if (!Array.isArray(list)) throw new Error(t('core.navigation.error.list_missing'))
   return list.map(normalizeMenu)
 }
 
 function normalizeMenu(value: unknown): AppMenu {
-  if (!value || typeof value !== 'object') throw new Error(t('core.navigation.error.itemObject'))
+  if (!value || typeof value !== 'object') throw new Error(t('core.navigation.error.item_object'))
   const item = value as Record<string, unknown>
   const meta = (item.meta ?? {}) as Record<string, unknown>
   const app = (meta.app ?? item.app ?? {}) as Record<string, unknown>
@@ -321,13 +321,13 @@ function validateMenus(nextMenus: AppMenu[]): void {
       throw new Error(t('core.navigation.error.identity'))
     }
     if (!menu.name.startsWith('App')) {
-      throw new Error(t('core.navigation.error.namePrefix', { name: menu.name }))
+      throw new Error(t('core.navigation.error.name_prefix', { name: menu.name }))
     }
     if (!['PUBLIC', 'GUEST_ONLY', 'AUTHENTICATED'].includes(menu.access)) {
       throw new Error(t('core.navigation.error.access', { access: menu.access }))
     }
     if (!resolveStaticView(menu.viewKey)) {
-      throw new Error(t('core.navigation.error.viewKey', { viewKey: menu.viewKey }))
+      throw new Error(t('core.navigation.error.view_key', { viewKey: menu.viewKey }))
     }
     if (ids.has(menu.id) || names.has(menu.name) || paths.has(menu.path)) {
       throw new Error(t('core.navigation.error.unique'))
@@ -339,23 +339,23 @@ function validateMenus(nextMenus: AppMenu[]): void {
   const menuMap = new Map(nextMenus.map((menu) => [menu.id, menu]))
   for (const menu of nextMenus) {
     if (menu.parentId === undefined) {
-      throw new Error(t('core.navigation.error.parentMissing', { name: menu.name }))
+      throw new Error(t('core.navigation.error.parent_missing', { name: menu.name }))
     }
     if (menu.parentId === APP_MENU_ROOT_ID) {
-      if (!menu.inTabBar) throw new Error(t('core.navigation.error.rootTab', { name: menu.name }))
+      if (!menu.inTabBar) throw new Error(t('core.navigation.error.root_tab', { name: menu.name }))
       continue
     }
-    if (menu.inTabBar) throw new Error(t('core.navigation.error.childTab', { name: menu.name }))
+    if (menu.inTabBar) throw new Error(t('core.navigation.error.child_tab', { name: menu.name }))
     const visited = new Set<number>([menu.id])
     let parentId = menu.parentId
     while (parentId !== APP_MENU_ROOT_ID) {
       if (visited.has(parentId)) throw new Error(t('core.navigation.error.cycle', { name: menu.name }))
       visited.add(parentId)
       const parent = menuMap.get(parentId)
-      if (!parent?.parentId) throw new Error(t('core.navigation.error.parentNotFound', { name: menu.name }))
+      if (!parent?.parentId) throw new Error(t('core.navigation.error.parent_not_found', { name: menu.name }))
       parentId = parent.parentId
     }
   }
   const tabCount = nextMenus.filter((menu) => menu.parentId === APP_MENU_ROOT_ID).length
-  if (tabCount === 1 || tabCount > 5) throw new Error(t('core.navigation.error.tabCount'))
+  if (tabCount === 1 || tabCount > 5) throw new Error(t('core.navigation.error.tab_count'))
 }

@@ -13,7 +13,6 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v11 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/common/v1"
 	v1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -27,6 +26,67 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
+
+// 角色数据范围。
+type BaseRoleDataScope int32
+
+const (
+	// 未指定角色数据范围。
+	BaseRoleDataScope_BASE_ROLE_DATA_SCOPE_UNSPECIFIED BaseRoleDataScope = 0
+	// 全部数据。
+	BaseRoleDataScope_BASE_ROLE_DATA_SCOPE_ALL BaseRoleDataScope = 1
+	// 部门及子部门数据。
+	BaseRoleDataScope_BASE_ROLE_DATA_SCOPE_DEPT_AND_CHILDREN BaseRoleDataScope = 2
+	// 本部门数据。
+	BaseRoleDataScope_BASE_ROLE_DATA_SCOPE_SELF_DEPT BaseRoleDataScope = 3
+	// 本人数据。
+	BaseRoleDataScope_BASE_ROLE_DATA_SCOPE_SELF_USER BaseRoleDataScope = 4
+)
+
+// Enum value maps for BaseRoleDataScope.
+var (
+	BaseRoleDataScope_name = map[int32]string{
+		0: "BASE_ROLE_DATA_SCOPE_UNSPECIFIED",
+		1: "BASE_ROLE_DATA_SCOPE_ALL",
+		2: "BASE_ROLE_DATA_SCOPE_DEPT_AND_CHILDREN",
+		3: "BASE_ROLE_DATA_SCOPE_SELF_DEPT",
+		4: "BASE_ROLE_DATA_SCOPE_SELF_USER",
+	}
+	BaseRoleDataScope_value = map[string]int32{
+		"BASE_ROLE_DATA_SCOPE_UNSPECIFIED":       0,
+		"BASE_ROLE_DATA_SCOPE_ALL":               1,
+		"BASE_ROLE_DATA_SCOPE_DEPT_AND_CHILDREN": 2,
+		"BASE_ROLE_DATA_SCOPE_SELF_DEPT":         3,
+		"BASE_ROLE_DATA_SCOPE_SELF_USER":         4,
+	}
+)
+
+func (x BaseRoleDataScope) Enum() *BaseRoleDataScope {
+	p := new(BaseRoleDataScope)
+	*p = x
+	return p
+}
+
+func (x BaseRoleDataScope) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (BaseRoleDataScope) Descriptor() protoreflect.EnumDescriptor {
+	return file_system_admin_v1_base_role_proto_enumTypes[0].Descriptor()
+}
+
+func (BaseRoleDataScope) Type() protoreflect.EnumType {
+	return &file_system_admin_v1_base_role_proto_enumTypes[0]
+}
+
+func (x BaseRoleDataScope) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use BaseRoleDataScope.Descriptor instead.
+func (BaseRoleDataScope) EnumDescriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_role_proto_rawDescGZIP(), []int{0}
+}
 
 // 角色选项查询条件
 type OptionBaseRoleRequest struct {
@@ -259,14 +319,14 @@ func (x *GetBaseRoleRequest) GetId() int64 {
 // 角色表单
 type BaseRoleForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                        // 角色ID
-	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                                            // 租户ID
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                                                     // 角色名称
-	Code          string                 `protobuf:"bytes,4,opt,name=code,proto3" json:"code,omitempty"`                                                                     // 角色编号
-	DataScope     v11.BaseRoleDataScope  `protobuf:"varint,5,opt,name=data_scope,json=dataScope,proto3,enum=system.common.v1.BaseRoleDataScope" json:"data_scope,omitempty"` // 数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据
-	Menus         []int64                `protobuf:"varint,6,rep,packed,name=menus,proto3" json:"menus,omitempty"`                                                           // 分配的菜单列表
-	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                        // 状态
-	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                                                               // 备注
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                       // 角色ID
+	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                                           // 租户ID
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                                                    // 角色名称
+	Code          string                 `protobuf:"bytes,4,opt,name=code,proto3" json:"code,omitempty"`                                                                    // 角色编号
+	DataScope     BaseRoleDataScope      `protobuf:"varint,5,opt,name=data_scope,json=dataScope,proto3,enum=system.admin.v1.BaseRoleDataScope" json:"data_scope,omitempty"` // 数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据
+	Menus         []int64                `protobuf:"varint,6,rep,packed,name=menus,proto3" json:"menus,omitempty"`                                                          // 分配的菜单列表
+	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                       // 状态
+	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                                                              // 备注
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -329,11 +389,11 @@ func (x *BaseRoleForm) GetCode() string {
 	return ""
 }
 
-func (x *BaseRoleForm) GetDataScope() v11.BaseRoleDataScope {
+func (x *BaseRoleForm) GetDataScope() BaseRoleDataScope {
 	if x != nil {
 		return x.DataScope
 	}
-	return v11.BaseRoleDataScope(0)
+	return BaseRoleDataScope_BASE_ROLE_DATA_SCOPE_UNSPECIFIED
 }
 
 func (x *BaseRoleForm) GetMenus() []int64 {
@@ -601,17 +661,17 @@ func (x *SetBaseRoleStatusRequest) GetStatus() int32 {
 // 角色
 type BaseRole struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                        // 角色ID
-	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                                            // 租户ID
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                                                     // 角色名称
-	Code          string                 `protobuf:"bytes,4,opt,name=code,proto3" json:"code,omitempty"`                                                                     // 角色编号
-	DataScope     v11.BaseRoleDataScope  `protobuf:"varint,5,opt,name=data_scope,json=dataScope,proto3,enum=system.common.v1.BaseRoleDataScope" json:"data_scope,omitempty"` // 数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据
-	Menus         []int64                `protobuf:"varint,6,rep,packed,name=menus,proto3" json:"menus,omitempty"`                                                           // 分配的菜单列表
-	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                        // 状态
-	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                                                               // 备注
-	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                        // 创建时间
-	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                        // 更新时间
-	IsProtected   bool                   `protobuf:"varint,300,opt,name=is_protected,json=isProtected,proto3" json:"is_protected,omitempty"`                                 // 是否禁止通过角色管理操作
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                       // 角色ID
+	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                                           // 租户ID
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                                                    // 角色名称
+	Code          string                 `protobuf:"bytes,4,opt,name=code,proto3" json:"code,omitempty"`                                                                    // 角色编号
+	DataScope     BaseRoleDataScope      `protobuf:"varint,5,opt,name=data_scope,json=dataScope,proto3,enum=system.admin.v1.BaseRoleDataScope" json:"data_scope,omitempty"` // 数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据
+	Menus         []int64                `protobuf:"varint,6,rep,packed,name=menus,proto3" json:"menus,omitempty"`                                                          // 分配的菜单列表
+	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                       // 状态
+	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                                                              // 备注
+	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                       // 创建时间
+	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                       // 更新时间
+	IsProtected   bool                   `protobuf:"varint,300,opt,name=is_protected,json=isProtected,proto3" json:"is_protected,omitempty"`                                // 是否禁止通过角色管理操作
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -674,11 +734,11 @@ func (x *BaseRole) GetCode() string {
 	return ""
 }
 
-func (x *BaseRole) GetDataScope() v11.BaseRoleDataScope {
+func (x *BaseRole) GetDataScope() BaseRoleDataScope {
 	if x != nil {
 		return x.DataScope
 	}
-	return v11.BaseRoleDataScope(0)
+	return BaseRoleDataScope_BASE_ROLE_DATA_SCOPE_UNSPECIFIED
 }
 
 func (x *BaseRole) GetMenus() []int64 {
@@ -727,7 +787,7 @@ var File_system_admin_v1_base_role_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_role_proto_rawDesc = "" +
 	"\n" +
-	"\x1fsystem/admin/v1/base_role.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1bsystem/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"W\n" +
+	"\x1fsystem/admin/v1/base_role.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"W\n" +
 	"\x15OptionBaseRoleRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01B\f\n" +
 	"\n" +
@@ -745,55 +805,56 @@ const file_system_admin_v1_base_role_proto_rawDesc = "" +
 	"\x14PageBaseRoleResponse\x12L\n" +
 	"\n" +
 	"base_roles\x18\x01 \x03(\v2\x19.system.admin.v1.BaseRoleB\x12\xbaG\x0f\x92\x02\f分页数据R\tbaseRoles\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"u\n" +
-	"\x12GetBaseRoleRequest\x12_\n" +
-	"\x02id\x18\x01 \x01(\x03BO\xbaG\v\x92\x02\b角色ID\xbaH>\xba\x01;\n" +
-	"\x19get_base_role.id.required\x12\x14角色ID不能为空\x1a\bthis > 0R\x02id\"\x9c\t\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x82\x01\n" +
+	"\x12GetBaseRoleRequest\x12l\n" +
+	"\x02id\x18\x01 \x01(\x03B\\\xbaG\v\x92\x02\b角色ID\xbaHK\xba\x01H\n" +
+	"&system.admin.base.role.get.id.required\x12\x14角色ID不能为空\x1a\bthis > 0R\x02id\"\xda\n" +
+	"\n" +
 	"\fBaseRoleForm\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b角色IDR\x02id\x12s\n" +
-	"\ttenant_id\x18\x02 \x01(\x03BV\xbaG\v\x92\x02\b租户ID\xbaHE\xba\x01B\n" +
-	"\x1cbase_role.tenant_id.required\x12\x18所属租户不能为空\x1a\bthis > 0R\btenantId\x12\xc4\x01\n" +
-	"\x04name\x18\x03 \x01(\tB\xaf\x01\xbaG\x0f\x92\x02\f角色名称\xbaH\x99\x01\xba\x01A\n" +
-	"\x17base_role.name.required\x12\x15请输入角色名称\x1a\x0fthis.size() > 0\xba\x01R\n" +
-	"\x16base_role.name.max_len\x12%角色名称不能超过 30 个字符\x1a\x11this.size() <= 30R\x04name\x12\xc4\x01\n" +
-	"\x04code\x18\x04 \x01(\tB\xaf\x01\xbaG\x0f\x92\x02\f角色编号\xbaH\x99\x01\xba\x01A\n" +
-	"\x17base_role.code.required\x12\x15请输入角色编码\x1a\x0fthis.size() > 0\xba\x01R\n" +
-	"\x16base_role.code.max_len\x12%角色编号不能超过 20 个字符\x1a\x11this.size() <= 20R\x04code\x12\xe9\x01\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b角色IDR\x02id\x12\x87\x01\n" +
+	"\ttenant_id\x18\x02 \x01(\x03Bj\xbaG\v\x92\x02\b租户ID\xbaHY\xba\x01V\n" +
+	"0system.admin.base.role.entity.tenant_id.required\x12\x18所属租户不能为空\x1a\bthis > 0R\btenantId\x12\xef\x01\n" +
+	"\x04name\x18\x03 \x01(\tB\xda\x01\xbaG\x0f\x92\x02\f角色名称\xbaH\xc4\x01\xba\x01U\n" +
+	"+system.admin.base.role.entity.name.required\x12\x15请输入角色名称\x1a\x0fthis.size() > 0\xba\x01i\n" +
+	"-system.admin.base.role.entity.name.max_length\x12%角色名称不能超过 30 个字符\x1a\x11this.size() <= 30R\x04name\x12\xef\x01\n" +
+	"\x04code\x18\x04 \x01(\tB\xda\x01\xbaG\x0f\x92\x02\f角色编号\xbaH\xc4\x01\xba\x01U\n" +
+	"+system.admin.base.role.entity.code.required\x12\x15请输入角色编码\x1a\x0fthis.size() > 0\xba\x01i\n" +
+	"-system.admin.base.role.entity.code.max_length\x12%角色编号不能超过 20 个字符\x1a\x11this.size() <= 20R\x04code\x12\xfc\x01\n" +
 	"\n" +
-	"data_scope\x18\x05 \x01(\x0e2#.system.common.v1.BaseRoleDataScopeB\xa4\x01\xbaGU\x92\x02R数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据\xbaHI\xba\x01A\n" +
-	"\x1dbase_role.data_scope.required\x12\x15请选择数据权限\x1a\tthis != 0\x82\x01\x02\x10\x01R\tdataScope\x12\xbf\x01\n" +
-	"\x05menus\x18\x06 \x03(\x03B\xa8\x01\xbaG\x18\x92\x02\x15分配的菜单列表\xbaH\x89\x01\xba\x01B\n" +
-	"\x18base_role.menus.required\x12\x15请选择菜单权限\x1a\x0fthis.size() > 0\xba\x01A\n" +
-	"\x16base_role.menus.unique\x12\x18菜单权限不能重复\x1a\rthis.unique()R\x05menus\x12?\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12z\n" +
-	"\x06remark\x18e \x01(\tBb\xbaG\t\x92\x02\x06备注\xbaHS\xba\x01P\n" +
-	"\x18base_role.remark.max_len\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remark\"m\n" +
+	"data_scope\x18\x05 \x01(\x0e2\".system.admin.v1.BaseRoleDataScopeB\xb8\x01\xbaGU\x92\x02R数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据\xbaH]\xba\x01U\n" +
+	"1system.admin.base.role.entity.data_scope.required\x12\x15请选择数据权限\x1a\tthis != 0\x82\x01\x02\x10\x01R\tdataScope\x12\xe7\x01\n" +
+	"\x05menus\x18\x06 \x03(\x03B\xd0\x01\xbaG\x18\x92\x02\x15分配的菜单列表\xbaH\xb1\x01\xba\x01V\n" +
+	",system.admin.base.role.entity.menus.required\x12\x15请选择菜单权限\x1a\x0fthis.size() > 0\xba\x01U\n" +
+	"*system.admin.base.role.entity.menus.unique\x12\x18菜单权限不能重复\x1a\rthis.unique()R\x05menus\x12?\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12\x91\x01\n" +
+	"\x06remark\x18e \x01(\tBy\xbaG\t\x92\x02\x06备注\xbaHj\xba\x01g\n" +
+	"/system.admin.base.role.entity.remark.max_length\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remark\"m\n" +
 	"\x15CreateBaseRoleRequest\x12T\n" +
-	"\tbase_role\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseRoleFormB\x18\xbaG\x0f\x92\x02\f角色表单\xbaH\x03\xc8\x01\x01R\bbaseRole\"\xbf\x01\n" +
+	"\tbase_role\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseRoleFormB\x18\xbaG\x0f\x92\x02\f角色表单\xbaH\x03\xc8\x01\x01R\bbaseRole\"\xcc\x01\n" +
 	"\x15UpdateBaseRoleRequest\x12T\n" +
-	"\tbase_role\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseRoleFormB\x18\xbaG\x0f\x92\x02\f角色表单\xbaH\x03\xc8\x01\x01R\bbaseRole:P\xbaHM\x1aK\n" +
-	"\x1cupdate_base_role.id.required\x12\x14角色ID不能为空\x1a\x15this.base_role.id > 0\"\x8e\x01\n" +
-	"\x15DeleteBaseRoleRequest\x12u\n" +
-	"\x02id\x18\x01 \x01(\tBe\xbaG\x11\x92\x02\x0e角色ID列表\xbaHN\xba\x01K\n" +
-	"\x1cdelete_base_role.id.required\x12\x1a角色ID列表不能为空\x1a\x0fthis.size() > 0R\x02id\"\xc0\x02\n" +
-	"\x16SetBaseRoleMenuRequest\x12d\n" +
-	"\x02id\x18\x01 \x01(\x03BT\xbaG\v\x92\x02\b角色ID\xbaHC\xba\x01@\n" +
-	"\x1eset_base_role_menu.id.required\x12\x14角色ID不能为空\x1a\bthis > 0R\x02id\x12\xbf\x01\n" +
-	"\x05menus\x18\x02 \x03(\x03B\xa8\x01\xbaG\x18\x92\x02\x15分配的菜单列表\xbaH\x89\x01\xba\x01B\n" +
-	"\x18base_role.menus.required\x12\x15请选择菜单权限\x1a\x0fthis.size() > 0\xba\x01A\n" +
-	"\x16base_role.menus.unique\x12\x18菜单权限不能重复\x1a\rthis.unique()R\x05menus\"\xa8\x01\n" +
-	"\x18SetBaseRoleStatusRequest\x12f\n" +
-	"\x02id\x18\x01 \x01(\x03BV\xbaG\v\x92\x02\b角色ID\xbaHE\xba\x01B\n" +
-	" set_base_role_status.id.required\x12\x14角色ID不能为空\x1a\bthis > 0R\x02id\x12$\n" +
-	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xd8\x05\n" +
+	"\tbase_role\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseRoleFormB\x18\xbaG\x0f\x92\x02\f角色表单\xbaH\x03\xc8\x01\x01R\bbaseRole:]\xbaHZ\x1aX\n" +
+	")system.admin.base.role.update.id.required\x12\x14角色ID不能为空\x1a\x15this.base_role.id > 0\"\x9c\x01\n" +
+	"\x15DeleteBaseRoleRequest\x12\x82\x01\n" +
+	"\x02id\x18\x01 \x01(\tBr\xbaG\x11\x92\x02\x0e角色ID列表\xbaH[\xba\x01X\n" +
+	")system.admin.base.role.delete.id.required\x12\x1a角色ID列表不能为空\x1a\x0fthis.size() > 0R\x02id\"\xf5\x02\n" +
+	"\x16SetBaseRoleMenuRequest\x12q\n" +
+	"\x02id\x18\x01 \x01(\x03Ba\xbaG\v\x92\x02\b角色ID\xbaHP\xba\x01M\n" +
+	"+system.admin.base.role.set_menu.id.required\x12\x14角色ID不能为空\x1a\bthis > 0R\x02id\x12\xe7\x01\n" +
+	"\x05menus\x18\x02 \x03(\x03B\xd0\x01\xbaG\x18\x92\x02\x15分配的菜单列表\xbaH\xb1\x01\xba\x01V\n" +
+	",system.admin.base.role.entity.menus.required\x12\x15请选择菜单权限\x1a\x0fthis.size() > 0\xba\x01U\n" +
+	"*system.admin.base.role.entity.menus.unique\x12\x18菜单权限不能重复\x1a\rthis.unique()R\x05menus\"\xb5\x01\n" +
+	"\x18SetBaseRoleStatusRequest\x12s\n" +
+	"\x02id\x18\x01 \x01(\x03Bc\xbaG\v\x92\x02\b角色ID\xbaHR\xba\x01O\n" +
+	"-system.admin.base.role.set_status.id.required\x12\x14角色ID不能为空\x1a\bthis > 0R\x02id\x12$\n" +
+	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xec\x05\n" +
 	"\bBaseRole\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b角色IDR\x02id\x12s\n" +
-	"\ttenant_id\x18\x02 \x01(\x03BV\xbaG\v\x92\x02\b租户ID\xbaHE\xba\x01B\n" +
-	"\x1cbase_role.tenant_id.required\x12\x18所属租户不能为空\x1a\bthis > 0R\btenantId\x12&\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b角色IDR\x02id\x12\x87\x01\n" +
+	"\ttenant_id\x18\x02 \x01(\x03Bj\xbaG\v\x92\x02\b租户ID\xbaHY\xba\x01V\n" +
+	"0system.admin.base.role.entity.tenant_id.required\x12\x18所属租户不能为空\x1a\bthis > 0R\btenantId\x12&\n" +
 	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f角色名称R\x04name\x12&\n" +
-	"\x04code\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f角色编号R\x04code\x12\x9c\x01\n" +
+	"\x04code\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f角色编号R\x04code\x12\x9b\x01\n" +
 	"\n" +
-	"data_scope\x18\x05 \x01(\x0e2#.system.common.v1.BaseRoleDataScopeBX\xbaGU\x92\x02R数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据R\tdataScope\x121\n" +
+	"data_scope\x18\x05 \x01(\x0e2\".system.admin.v1.BaseRoleDataScopeBX\xbaGU\x92\x02R数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据R\tdataScope\x121\n" +
 	"\x05menus\x18\x06 \x03(\x03B\x1b\xbaG\x18\x92\x02\x15分配的菜单列表R\x05menus\x127\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x12$\n" +
 	"\x06remark\x18e \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remark\x122\n" +
@@ -801,7 +862,13 @@ const file_system_admin_v1_base_role_proto_rawDesc = "" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12N\n" +
-	"\fis_protected\x18\xac\x02 \x01(\bB*\xbaG'\x92\x02$是否禁止通过角色管理操作R\visProtected2\x9c\b\n" +
+	"\fis_protected\x18\xac\x02 \x01(\bB*\xbaG'\x92\x02$是否禁止通过角色管理操作R\visProtected*\xcb\x01\n" +
+	"\x11BaseRoleDataScope\x12$\n" +
+	" BASE_ROLE_DATA_SCOPE_UNSPECIFIED\x10\x00\x12\x1c\n" +
+	"\x18BASE_ROLE_DATA_SCOPE_ALL\x10\x01\x12*\n" +
+	"&BASE_ROLE_DATA_SCOPE_DEPT_AND_CHILDREN\x10\x02\x12\"\n" +
+	"\x1eBASE_ROLE_DATA_SCOPE_SELF_DEPT\x10\x03\x12\"\n" +
+	"\x1eBASE_ROLE_DATA_SCOPE_SELF_USER\x10\x042\x9c\b\n" +
 	"\x0fBaseRoleService\x12\x81\x01\n" +
 	"\x0eOptionBaseRole\x12&.system.admin.v1.OptionBaseRoleRequest\x1a\x1f.common.v1.SelectOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/role/option\x12|\n" +
 	"\fPageBaseRole\x12$.system.admin.v1.PageBaseRoleRequest\x1a%.system.admin.v1.PageBaseRoleResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/base/role\x12w\n" +
@@ -825,44 +892,45 @@ func file_system_admin_v1_base_role_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_base_role_proto_rawDescData
 }
 
+var file_system_admin_v1_base_role_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_system_admin_v1_base_role_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_system_admin_v1_base_role_proto_goTypes = []any{
-	(*OptionBaseRoleRequest)(nil),    // 0: system.admin.v1.OptionBaseRoleRequest
-	(*PageBaseRoleRequest)(nil),      // 1: system.admin.v1.PageBaseRoleRequest
-	(*PageBaseRoleResponse)(nil),     // 2: system.admin.v1.PageBaseRoleResponse
-	(*GetBaseRoleRequest)(nil),       // 3: system.admin.v1.GetBaseRoleRequest
-	(*BaseRoleForm)(nil),             // 4: system.admin.v1.BaseRoleForm
-	(*CreateBaseRoleRequest)(nil),    // 5: system.admin.v1.CreateBaseRoleRequest
-	(*UpdateBaseRoleRequest)(nil),    // 6: system.admin.v1.UpdateBaseRoleRequest
-	(*DeleteBaseRoleRequest)(nil),    // 7: system.admin.v1.DeleteBaseRoleRequest
-	(*SetBaseRoleMenuRequest)(nil),   // 8: system.admin.v1.SetBaseRoleMenuRequest
-	(*SetBaseRoleStatusRequest)(nil), // 9: system.admin.v1.SetBaseRoleStatusRequest
-	(*BaseRole)(nil),                 // 10: system.admin.v1.BaseRole
-	(v1.Status)(0),                   // 11: common.v1.Status
-	(v11.BaseRoleDataScope)(0),       // 12: system.common.v1.BaseRoleDataScope
+	(BaseRoleDataScope)(0),           // 0: system.admin.v1.BaseRoleDataScope
+	(*OptionBaseRoleRequest)(nil),    // 1: system.admin.v1.OptionBaseRoleRequest
+	(*PageBaseRoleRequest)(nil),      // 2: system.admin.v1.PageBaseRoleRequest
+	(*PageBaseRoleResponse)(nil),     // 3: system.admin.v1.PageBaseRoleResponse
+	(*GetBaseRoleRequest)(nil),       // 4: system.admin.v1.GetBaseRoleRequest
+	(*BaseRoleForm)(nil),             // 5: system.admin.v1.BaseRoleForm
+	(*CreateBaseRoleRequest)(nil),    // 6: system.admin.v1.CreateBaseRoleRequest
+	(*UpdateBaseRoleRequest)(nil),    // 7: system.admin.v1.UpdateBaseRoleRequest
+	(*DeleteBaseRoleRequest)(nil),    // 8: system.admin.v1.DeleteBaseRoleRequest
+	(*SetBaseRoleMenuRequest)(nil),   // 9: system.admin.v1.SetBaseRoleMenuRequest
+	(*SetBaseRoleStatusRequest)(nil), // 10: system.admin.v1.SetBaseRoleStatusRequest
+	(*BaseRole)(nil),                 // 11: system.admin.v1.BaseRole
+	(v1.Status)(0),                   // 12: common.v1.Status
 	(*v1.SelectOptionResponse)(nil),  // 13: common.v1.SelectOptionResponse
 	(*emptypb.Empty)(nil),            // 14: google.protobuf.Empty
 }
 var file_system_admin_v1_base_role_proto_depIdxs = []int32{
-	11, // 0: system.admin.v1.PageBaseRoleRequest.status:type_name -> common.v1.Status
-	10, // 1: system.admin.v1.PageBaseRoleResponse.base_roles:type_name -> system.admin.v1.BaseRole
-	12, // 2: system.admin.v1.BaseRoleForm.data_scope:type_name -> system.common.v1.BaseRoleDataScope
-	11, // 3: system.admin.v1.BaseRoleForm.status:type_name -> common.v1.Status
-	4,  // 4: system.admin.v1.CreateBaseRoleRequest.base_role:type_name -> system.admin.v1.BaseRoleForm
-	4,  // 5: system.admin.v1.UpdateBaseRoleRequest.base_role:type_name -> system.admin.v1.BaseRoleForm
-	12, // 6: system.admin.v1.BaseRole.data_scope:type_name -> system.common.v1.BaseRoleDataScope
-	11, // 7: system.admin.v1.BaseRole.status:type_name -> common.v1.Status
-	0,  // 8: system.admin.v1.BaseRoleService.OptionBaseRole:input_type -> system.admin.v1.OptionBaseRoleRequest
-	1,  // 9: system.admin.v1.BaseRoleService.PageBaseRole:input_type -> system.admin.v1.PageBaseRoleRequest
-	3,  // 10: system.admin.v1.BaseRoleService.GetBaseRole:input_type -> system.admin.v1.GetBaseRoleRequest
-	5,  // 11: system.admin.v1.BaseRoleService.CreateBaseRole:input_type -> system.admin.v1.CreateBaseRoleRequest
-	6,  // 12: system.admin.v1.BaseRoleService.UpdateBaseRole:input_type -> system.admin.v1.UpdateBaseRoleRequest
-	7,  // 13: system.admin.v1.BaseRoleService.DeleteBaseRole:input_type -> system.admin.v1.DeleteBaseRoleRequest
-	9,  // 14: system.admin.v1.BaseRoleService.SetBaseRoleStatus:input_type -> system.admin.v1.SetBaseRoleStatusRequest
-	8,  // 15: system.admin.v1.BaseRoleService.SetBaseRoleMenu:input_type -> system.admin.v1.SetBaseRoleMenuRequest
+	12, // 0: system.admin.v1.PageBaseRoleRequest.status:type_name -> common.v1.Status
+	11, // 1: system.admin.v1.PageBaseRoleResponse.base_roles:type_name -> system.admin.v1.BaseRole
+	0,  // 2: system.admin.v1.BaseRoleForm.data_scope:type_name -> system.admin.v1.BaseRoleDataScope
+	12, // 3: system.admin.v1.BaseRoleForm.status:type_name -> common.v1.Status
+	5,  // 4: system.admin.v1.CreateBaseRoleRequest.base_role:type_name -> system.admin.v1.BaseRoleForm
+	5,  // 5: system.admin.v1.UpdateBaseRoleRequest.base_role:type_name -> system.admin.v1.BaseRoleForm
+	0,  // 6: system.admin.v1.BaseRole.data_scope:type_name -> system.admin.v1.BaseRoleDataScope
+	12, // 7: system.admin.v1.BaseRole.status:type_name -> common.v1.Status
+	1,  // 8: system.admin.v1.BaseRoleService.OptionBaseRole:input_type -> system.admin.v1.OptionBaseRoleRequest
+	2,  // 9: system.admin.v1.BaseRoleService.PageBaseRole:input_type -> system.admin.v1.PageBaseRoleRequest
+	4,  // 10: system.admin.v1.BaseRoleService.GetBaseRole:input_type -> system.admin.v1.GetBaseRoleRequest
+	6,  // 11: system.admin.v1.BaseRoleService.CreateBaseRole:input_type -> system.admin.v1.CreateBaseRoleRequest
+	7,  // 12: system.admin.v1.BaseRoleService.UpdateBaseRole:input_type -> system.admin.v1.UpdateBaseRoleRequest
+	8,  // 13: system.admin.v1.BaseRoleService.DeleteBaseRole:input_type -> system.admin.v1.DeleteBaseRoleRequest
+	10, // 14: system.admin.v1.BaseRoleService.SetBaseRoleStatus:input_type -> system.admin.v1.SetBaseRoleStatusRequest
+	9,  // 15: system.admin.v1.BaseRoleService.SetBaseRoleMenu:input_type -> system.admin.v1.SetBaseRoleMenuRequest
 	13, // 16: system.admin.v1.BaseRoleService.OptionBaseRole:output_type -> common.v1.SelectOptionResponse
-	2,  // 17: system.admin.v1.BaseRoleService.PageBaseRole:output_type -> system.admin.v1.PageBaseRoleResponse
-	4,  // 18: system.admin.v1.BaseRoleService.GetBaseRole:output_type -> system.admin.v1.BaseRoleForm
+	3,  // 17: system.admin.v1.BaseRoleService.PageBaseRole:output_type -> system.admin.v1.PageBaseRoleResponse
+	5,  // 18: system.admin.v1.BaseRoleService.GetBaseRole:output_type -> system.admin.v1.BaseRoleForm
 	14, // 19: system.admin.v1.BaseRoleService.CreateBaseRole:output_type -> google.protobuf.Empty
 	14, // 20: system.admin.v1.BaseRoleService.UpdateBaseRole:output_type -> google.protobuf.Empty
 	14, // 21: system.admin.v1.BaseRoleService.DeleteBaseRole:output_type -> google.protobuf.Empty
@@ -887,13 +955,14 @@ func file_system_admin_v1_base_role_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_base_role_proto_rawDesc), len(file_system_admin_v1_base_role_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_system_admin_v1_base_role_proto_goTypes,
 		DependencyIndexes: file_system_admin_v1_base_role_proto_depIdxs,
+		EnumInfos:         file_system_admin_v1_base_role_proto_enumTypes,
 		MessageInfos:      file_system_admin_v1_base_role_proto_msgTypes,
 	}.Build()
 	File_system_admin_v1_base_role_proto = out.File

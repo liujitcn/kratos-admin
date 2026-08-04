@@ -1,13 +1,13 @@
 import { defConfigService } from '../../api/base/config'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { BaseConfigSite } from '../../rpc/base/v1/enum'
+import { BaseConfigSite } from '../../rpc/base/v1/config'
 import { t } from '../../locales'
 
 const REQUIRED_APP_CONFIGS = [
   { key: 'serviceProtocol', nameKey: 'core.protocol.service' },
   { key: 'privacyProtocol', nameKey: 'core.protocol.privacy' },
-  { key: 'captchaType', nameKey: 'core.login.captchaTypeName' },
+  { key: 'captchaType', nameKey: 'core.login.captcha_type_name' },
 ] as const
 
 export const useSettingStore = defineStore('setting', () => {
@@ -27,7 +27,7 @@ export const useSettingStore = defineStore('setting', () => {
 
     const request = (async () => {
       const res = await defConfigService.GetConfig({
-        site: BaseConfigSite.APP,
+        site: BaseConfigSite.BASE_CONFIG_SITE_APP,
       })
       const nextData = new Map<string, string>()
       res.configs.forEach((item) => {

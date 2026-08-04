@@ -84,14 +84,14 @@ function formatSessionTime(session: AiSession) {
       <input
         class="session-search-input"
         confirm-type="search"
-        :placeholder="t('system.ai.searchSession')"
+        :placeholder="t('system.ai.search_session')"
         placeholder-class="session-search-placeholder"
         :value="keyword"
         @input="handleKeywordInput"
       />
     </view>
     <scroll-view class="session-list" scroll-y :show-scrollbar="false">
-      <view v-if="loading" class="session-empty">{{ t('system.ai.loadSessions') }}</view>
+      <view v-if="loading" class="session-empty">{{ t('system.ai.load_sessions') }}</view>
       <view
         v-for="session in sessions"
         :key="session.id"
@@ -105,7 +105,7 @@ function formatSessionTime(session: AiSession) {
             <view class="session-title">{{ session.title }}</view>
             <view class="session-time">{{ formatSessionTime(session) }}</view>
           </view>
-          <view class="session-summary">{{ session.summary || t('system.ai.noSummary') }}</view>
+          <view class="session-summary">{{ session.summary || t('system.ai.no_summary') }}</view>
         </view>
         <button class="session-more" hover-class="none" @tap.stop="emit('action', session, $event)">
           <view></view>
@@ -114,7 +114,7 @@ function formatSessionTime(session: AiSession) {
         </button>
       </view>
       <view v-if="!loading && !sessions.length" class="session-empty">{{
-        t('system.ai.noMatchingSessions')
+        t('system.ai.no_matching_sessions')
       }}</view>
     </scroll-view>
   </view>

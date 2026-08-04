@@ -83,10 +83,10 @@ var File_base_v1_sse_proto protoreflect.FileDescriptor
 
 const file_base_v1_sse_proto_rawDesc = "" +
 	"\n" +
-	"\x11base/v1/sse.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xd1\x01\n" +
-	"\x13SubscribeSseRequest\x12t\n" +
-	"\x06stream\x18\x01 \x01(\tB\\\xbaG\x0f\x92\x02\fSSE流标识\xbaHG\xba\x01D\n" +
-	"\x1dsubscribe_sse.stream.required\x12\x12SSE流不能为空\x1a\x0fthis.size() > 0R\x06stream\x125\n" +
+	"\x11base/v1/sse.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xd6\x01\n" +
+	"\x13SubscribeSseRequest\x12y\n" +
+	"\x06stream\x18\x01 \x01(\tBa\xbaG\x0f\x92\x02\fSSE流标识\xbaHL\xba\x01I\n" +
+	"\"base.sse.subscribe.stream.required\x12\x12SSE流不能为空\x1a\x0fthis.size() > 0R\x06stream\x125\n" +
 	"\n" +
 	"channel_id\x18\x02 \x01(\tB\x11\xbaG\x0e\x92\x02\vSSE通道IDH\x00R\tchannelId\x88\x01\x01B\r\n" +
 	"\v_channel_id2l\n" +

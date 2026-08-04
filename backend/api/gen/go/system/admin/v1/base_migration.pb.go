@@ -28,8 +28,8 @@ const (
 type PageBaseMigrationRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	DataSource    string                 `protobuf:"bytes,1,opt,name=data_source,json=dataSource,proto3" json:"data_source,omitempty"` // 数据源
-	Version       *string                `protobuf:"bytes,2,opt,name=version,proto3,oneof" json:"version,omitempty"`                   // 迁移版本
-	Module        *string                `protobuf:"bytes,4,opt,name=module,proto3,oneof" json:"module,omitempty"`                     // 迁移模块
+	Module        *string                `protobuf:"bytes,2,opt,name=module,proto3,oneof" json:"module,omitempty"`                     // 迁移模块
+	Version       *string                `protobuf:"bytes,3,opt,name=version,proto3,oneof" json:"version,omitempty"`                   // 迁移版本
 	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`       // 当前页码
 	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`    // 每一页的行数
 	unknownFields protoimpl.UnknownFields
@@ -73,16 +73,16 @@ func (x *PageBaseMigrationRequest) GetDataSource() string {
 	return ""
 }
 
-func (x *PageBaseMigrationRequest) GetVersion() string {
-	if x != nil && x.Version != nil {
-		return *x.Version
+func (x *PageBaseMigrationRequest) GetModule() string {
+	if x != nil && x.Module != nil {
+		return *x.Module
 	}
 	return ""
 }
 
-func (x *PageBaseMigrationRequest) GetModule() string {
-	if x != nil && x.Module != nil {
-		return *x.Module
+func (x *PageBaseMigrationRequest) GetVersion() string {
+	if x != nil && x.Version != nil {
+		return *x.Version
 	}
 	return ""
 }
@@ -105,10 +105,10 @@ func (x *PageBaseMigrationRequest) GetPageSize() int64 {
 type BaseMigrationListItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                  // 主键
-	DataSource    string                 `protobuf:"bytes,2,opt,name=data_source,json=dataSource,proto3" json:"data_source,omitempty"` // 数据源
-	Version       string                 `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`                         // 迁移版本
-	CreatedAt     string                 `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`    // 创建时间
-	Module        string                 `protobuf:"bytes,6,opt,name=module,proto3" json:"module,omitempty"`                           // 迁移模块
+	Module        string                 `protobuf:"bytes,2,opt,name=module,proto3" json:"module,omitempty"`                           // 迁移模块
+	DataSource    string                 `protobuf:"bytes,3,opt,name=data_source,json=dataSource,proto3" json:"data_source,omitempty"` // 数据源
+	Version       string                 `protobuf:"bytes,4,opt,name=version,proto3" json:"version,omitempty"`                         // 迁移版本
+	CreatedAt     string                 `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`    // 创建时间
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -150,6 +150,13 @@ func (x *BaseMigrationListItem) GetId() int64 {
 	return 0
 }
 
+func (x *BaseMigrationListItem) GetModule() string {
+	if x != nil {
+		return x.Module
+	}
+	return ""
+}
+
 func (x *BaseMigrationListItem) GetDataSource() string {
 	if x != nil {
 		return x.DataSource
@@ -167,13 +174,6 @@ func (x *BaseMigrationListItem) GetVersion() string {
 func (x *BaseMigrationListItem) GetCreatedAt() string {
 	if x != nil {
 		return x.CreatedAt
-	}
-	return ""
-}
-
-func (x *BaseMigrationListItem) GetModule() string {
-	if x != nil {
-		return x.Module
 	}
 	return ""
 }
@@ -280,13 +280,13 @@ func (x *GetBaseMigrationRequest) GetId() int64 {
 type BaseMigration struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                  // 主键
-	DataSource    string                 `protobuf:"bytes,2,opt,name=data_source,json=dataSource,proto3" json:"data_source,omitempty"` // 数据源
-	Version       string                 `protobuf:"bytes,3,opt,name=version,proto3" json:"version,omitempty"`                         // 迁移版本
-	UpSql         string                 `protobuf:"bytes,4,opt,name=up_sql,json=upSql,proto3" json:"up_sql,omitempty"`                // 升级脚本
-	DownSql       string                 `protobuf:"bytes,5,opt,name=down_sql,json=downSql,proto3" json:"down_sql,omitempty"`          // 回退脚本
-	Description   string                 `protobuf:"bytes,6,opt,name=description,proto3" json:"description,omitempty"`                 // 升级描述
-	CreatedAt     string                 `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`    // 创建时间
-	Module        string                 `protobuf:"bytes,9,opt,name=module,proto3" json:"module,omitempty"`                           // 迁移模块
+	Module        string                 `protobuf:"bytes,2,opt,name=module,proto3" json:"module,omitempty"`                           // 迁移模块
+	DataSource    string                 `protobuf:"bytes,3,opt,name=data_source,json=dataSource,proto3" json:"data_source,omitempty"` // 数据源
+	Version       string                 `protobuf:"bytes,4,opt,name=version,proto3" json:"version,omitempty"`                         // 迁移版本
+	UpSql         string                 `protobuf:"bytes,5,opt,name=up_sql,json=upSql,proto3" json:"up_sql,omitempty"`                // 升级脚本
+	DownSql       string                 `protobuf:"bytes,6,opt,name=down_sql,json=downSql,proto3" json:"down_sql,omitempty"`          // 回退脚本
+	Description   string                 `protobuf:"bytes,7,opt,name=description,proto3" json:"description,omitempty"`                 // 升级描述
+	CreatedAt     string                 `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`    // 创建时间
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -326,6 +326,13 @@ func (x *BaseMigration) GetId() int64 {
 		return x.Id
 	}
 	return 0
+}
+
+func (x *BaseMigration) GetModule() string {
+	if x != nil {
+		return x.Module
+	}
+	return ""
 }
 
 func (x *BaseMigration) GetDataSource() string {
@@ -370,52 +377,45 @@ func (x *BaseMigration) GetCreatedAt() string {
 	return ""
 }
 
-func (x *BaseMigration) GetModule() string {
-	if x != nil {
-		return x.Module
-	}
-	return ""
-}
-
 var File_system_admin_v1_base_migration_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_migration_proto_rawDesc = "" +
 	"\n" +
-	"$system/admin/v1/base_migration.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xcb\x02\n" +
+	"$system/admin/v1/base_migration.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xc5\x02\n" +
 	"\x18PageBaseMigrationRequest\x120\n" +
 	"\vdata_source\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t数据源R\n" +
-	"dataSource\x121\n" +
-	"\aversion\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f迁移版本H\x00R\aversion\x88\x01\x01\x12/\n" +
-	"\x06module\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f迁移模块H\x01R\x06module\x88\x01\x01\x129\n" +
+	"dataSource\x12/\n" +
+	"\x06module\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f迁移模块H\x00R\x06module\x88\x01\x01\x121\n" +
+	"\aversion\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f迁移版本H\x01R\aversion\x88\x01\x01\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
-	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\n" +
+	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
+	"\a_moduleB\n" +
 	"\n" +
-	"\b_versionB\t\n" +
-	"\a_moduleJ\x04\b\x03\x10\x04\"\xfa\x01\n" +
+	"\b_version\"\xf4\x01\n" +
 	"\x15BaseMigrationListItem\x12\x1c\n" +
-	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06主键R\x02id\x120\n" +
-	"\vdata_source\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t数据源R\n" +
+	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06主键R\x02id\x12*\n" +
+	"\x06module\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f迁移模块R\x06module\x120\n" +
+	"\vdata_source\x18\x03 \x01(\tB\x0f\xbaG\f\x92\x02\t数据源R\n" +
 	"dataSource\x12,\n" +
-	"\aversion\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f迁移版本R\aversion\x121\n" +
+	"\aversion\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f迁移版本R\aversion\x121\n" +
 	"\n" +
-	"created_at\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x12*\n" +
-	"\x06module\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f迁移模块R\x06moduleJ\x04\b\x05\x10\x06\"\xaa\x01\n" +
+	"created_at\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\"\xaa\x01\n" +
 	"\x19PageBaseMigrationResponse\x12i\n" +
 	"\x0fbase_migrations\x18\x01 \x03(\v2&.system.admin.v1.BaseMigrationListItemB\x18\xbaG\x15\x92\x02\x12迁移记录列表R\x0ebaseMigrations\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"7\n" +
 	"\x17GetBaseMigrationRequest\x12\x1c\n" +
-	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06主键R\x02id\"\x82\x03\n" +
+	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06主键R\x02id\"\xfc\x02\n" +
 	"\rBaseMigration\x12\x1c\n" +
-	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06主键R\x02id\x120\n" +
-	"\vdata_source\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t数据源R\n" +
+	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06主键R\x02id\x12*\n" +
+	"\x06module\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f迁移模块R\x06module\x120\n" +
+	"\vdata_source\x18\x03 \x01(\tB\x0f\xbaG\f\x92\x02\t数据源R\n" +
 	"dataSource\x12,\n" +
-	"\aversion\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f迁移版本R\aversion\x12)\n" +
-	"\x06up_sql\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f升级脚本R\x05upSql\x12-\n" +
-	"\bdown_sql\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f回退脚本R\adownSql\x124\n" +
-	"\vdescription\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f升级描述R\vdescription\x121\n" +
+	"\aversion\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f迁移版本R\aversion\x12)\n" +
+	"\x06up_sql\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f升级脚本R\x05upSql\x12-\n" +
+	"\bdown_sql\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f回退脚本R\adownSql\x124\n" +
+	"\vdescription\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f升级描述R\vdescription\x121\n" +
 	"\n" +
-	"created_at\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x12*\n" +
-	"\x06module\x18\t \x01(\tB\x12\xbaG\x0f\x92\x02\f迁移模块R\x06moduleJ\x04\b\b\x10\t2\xb3\x02\n" +
+	"created_at\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt2\xb3\x02\n" +
 	"\x14BaseMigrationService\x12\x90\x01\n" +
 	"\x11PageBaseMigration\x12).system.admin.v1.PageBaseMigrationRequest\x1a*.system.admin.v1.PageBaseMigrationResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base-migration\x12\x87\x01\n" +
 	"\x10GetBaseMigration\x12(.system.admin.v1.GetBaseMigrationRequest\x1a\x1e.system.admin.v1.BaseMigration\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/admin/base-migration/{id}B\xd4\x01\n" +

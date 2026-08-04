@@ -352,7 +352,7 @@ func (c *renderer) renderProtoField(column *CodeGenColumn, fieldNo int32, option
 			expression = fmt.Sprintf("this.size() > 0 && this.size() <= %d", column.DbLength)
 			message = fmt.Sprintf("%s不能为空且不超过 %d 个字符", comment, column.DbLength)
 		}
-		validation = fmt.Sprintf(", (buf.validate.field).cel = {id: %q message: %q expression: %q}", "field."+column.Name+".length", message, expression)
+		validation = fmt.Sprintf(", (buf.validate.field).cel = {id: %q message: %q expression: %q}", "system.admin.code.gen.table.field."+column.Name+".length", message, expression)
 	}
 	return fmt.Sprintf("  %s%s %s = %d [(gnostic.openapi.v3.property) = {description: %q}%s]; // %s\n\n", prefix, protoType, column.Name, fieldNo, comment, validation, comment)
 }

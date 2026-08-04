@@ -1,695 +1,710 @@
 {
-  "auth.user_password.new_pwd.required": {
-    "other": "新しいパスワードを入力してください"
+  "system.admin.auth.entity.user.password.new_pwd.required": {
+    "other": "Please enter new password"
   },
-  "auth.user_password.old_pwd.required": {
-    "other": "元のパスワードを入力してください"
+  "system.admin.auth.entity.user.password.old_pwd.required": {
+    "other": "Please enter the original password"
   },
-  "auth.user_password.required": {
-    "other": "元のパスワードを入力してください"
+  "system.admin.auth.update.user_password.required": {
+    "other": "Please enter the original password"
   },
-  "base_area.name.length": {
-    "other": "ゾーン名は空にすることはできず、50 文字を超えることはできません"
+  "system.admin.base.area.entity.name.length": {
+    "other": "Zone name cannot be empty and cannot exceed 50 characters"
   },
-  "base_config.key.max_len": {
-    "other": "構成キーは 50 文字を超えることはできません"
+  "system.admin.base.config.entity.key.max_length": {
+    "other": "Configuration key cannot exceed 50 characters"
   },
-  "base_config.key.required": {
-    "other": "システム構成コードを入力してください"
+  "system.admin.base.config.entity.key.required": {
+    "other": "Please enter the system configuration code"
   },
-  "base_config.name.max_len": {
-    "other": "構成名は 50 文字を超えることはできません"
+  "system.admin.base.config.entity.name.max_length": {
+    "other": "Configuration name cannot exceed 50 characters"
   },
-  "base_config.name.required": {
-    "other": "システム構成名を入力してください"
+  "system.admin.base.config.entity.name.required": {
+    "other": "Please enter the system configuration name"
   },
-  "base_config.site.required": {
-    "other": "システム構成の場所を選択してください"
+  "system.admin.base.config.entity.site.required": {
+    "other": "Please select a system configuration location"
   },
-  "base_config.type.required": {
-    "other": "システム構成タイプを選択してください"
+  "system.admin.base.config.entity.type.required": {
+    "other": "Please select system configuration type"
   },
-  "base_config.value.required": {
-    "other": "構成値を空にすることはできません"
+  "system.admin.base.config.entity.value.required": {
+    "other": "Configuration value cannot be empty"
   },
-  "base_dept.name.length": {
-    "other": "部門名は空にすることはできず、255 文字を超えることはできません"
+  "system.admin.base.dept.entity.name.length": {
+    "other": "Department name cannot be empty and cannot exceed 255 characters"
   },
-  "base_dept.name.max_len": {
-    "other": "部署名は 255 文字を超えることはできません"
+  "system.admin.base.dept.entity.name.max_length": {
+    "other": "Department name cannot exceed 255 characters"
   },
-  "base_dept.name.required": {
-    "other": "部署名を空にすることはできません"
+  "system.admin.base.dept.entity.name.required": {
+    "other": "Department name cannot be empty"
   },
-  "base_dept.parent_id.non_negative": {
-    "other": "親部門を 0 未満にすることはできません"
+  "system.admin.base.dept.entity.parent_id.non_negative": {
+    "other": "The parent department cannot be less than 0"
   },
-  "base_dept.remark.max_len": {
-    "other": "コメントは 500 文字を超えることはできません"
+  "system.admin.base.dept.entity.remark.max_length": {
+    "other": "Comments cannot exceed 500 characters"
   },
-  "base_dept.sort.required": {
-    "other": "並べ替えは 0 より大きくなければなりません"
+  "system.admin.base.dept.entity.sort.required": {
+    "other": "Sort must be greater than 0"
   },
-  "base_dept.tenant_id.required": {
-    "other": "テナントを空にすることはできません"
+  "system.admin.base.dept.entity.tenant_id.required": {
+    "other": "The tenant cannot be empty"
   },
-  "base_dict.code.length": {
-    "other": "辞書番号を空にすることはできず、50 文字を超えることはできません"
+  "system.admin.base.dict.entity.code.length": {
+    "other": "Dictionary number cannot be empty and cannot exceed 50 characters"
   },
-  "base_dict.code.max_len": {
-    "other": "辞書番号は 50 文字を超えることはできません"
+  "system.admin.base.dict.entity.code.max_length": {
+    "other": "Dictionary number cannot exceed 50 characters"
   },
-  "base_dict.code.required": {
-    "other": "辞書コードを入力してください"
+  "system.admin.base.dict.entity.code.required": {
+    "other": "Please enter the dictionary code"
   },
-  "base_dict.name.length": {
-    "other": "辞書名は空にすることはできず、50 文字を超えることはできません"
+  "system.admin.base.dict.entity.name.length": {
+    "other": "Dictionary name cannot be empty and cannot exceed 50 characters"
   },
-  "base_dict.name.max_len": {
-    "other": "辞書名は 50 文字を超えることはできません"
+  "system.admin.base.dict.entity.name.max_length": {
+    "other": "Dictionary name cannot exceed 50 characters"
   },
-  "base_dict.name.required": {
-    "other": "辞書名を入力してください"
+  "system.admin.base.dict.entity.name.required": {
+    "other": "Please enter a dictionary name"
   },
-  "base_dict_item.dict_id.required": {
-    "other": "辞書を空にすることはできません"
+  "system.admin.base.dict.entity.item.dict_id.required": {
+    "other": "Dictionary cannot be empty"
   },
-  "base_dict_item.label.length": {
-    "other": "辞書項目ラベルは空にすることはできず、100 文字を超えることはできません"
+  "system.admin.base.dict.entity.item.label.length": {
+    "other": "Dictionary item label cannot be empty and cannot exceed 100 characters"
   },
-  "base_dict_item.label.max_len": {
-    "other": "辞書ラベルを​​入力してください(100文字以内)"
+  "system.admin.base.dict.entity.item.label.max_length": {
+    "other": "Please enter a dictionary label (no more than 100 characters)"
   },
-  "base_dict_item.label.required": {
-    "other": "辞書ラベルを​​入力してください(100文字以内)"
+  "system.admin.base.dict.entity.item.label.required": {
+    "other": "Please enter a dictionary label (no more than 100 characters)"
   },
-  "base_dict_item.sort.required": {
-    "other": "並べ替えは 0 より大きくなければなりません"
+  "system.admin.base.dict.entity.item.sort.required": {
+    "other": "Sort must be greater than 0"
   },
-  "base_dict_item.tag_type.max_len": {
-    "other": "ラベルの種類は 50 文字を超えることはできません"
+  "system.admin.base.dict.entity.item.tag_type.max_length": {
+    "other": "Label type cannot exceed 50 characters"
   },
-  "base_dict_item.value.length": {
-    "other": "ディクショナリ項目の値は空にすることはできず、50 文字を超えることはできません"
+  "system.admin.base.dict.entity.item.value.length": {
+    "other": "Dictionary item value cannot be empty and cannot exceed 50 characters"
   },
-  "base_dict_item.value.max_len": {
-    "other": "辞書の値を入力してください (50 文字以内)"
+  "system.admin.base.dict.entity.item.value.max_length": {
+    "other": "Please enter a dictionary value (no more than 50 characters)"
   },
-  "base_dict_item.value.required": {
-    "other": "辞書の値を入力してください (50 文字以内)"
+  "system.admin.base.dict.entity.item.value.required": {
+    "other": "Please enter a dictionary value (no more than 50 characters)"
   },
-  "base_dict_item_translation.label.max_len": {
-    "other": "辞書項目の翻訳ラベルは 100 文字を超えることはできません"
+  "system.admin.base.translation.draft.source.required": {
+    "other": "翻訳元テキストは空にできません"
   },
-  "base_dict_item_translation.locale.supported": {
-    "other": "辞書項目の翻訳言語は英語または日本語のみをサポートします"
+  "system.admin.base.translation.draft.target_locale.required": {
+    "other": "対象ロケールは空にできません"
   },
-  "base_dict_translation.locale.supported": {
-    "other": "辞書の翻訳言語は英語または日本語のみをサポートします"
+  "system.admin.base.translation.entity.dict_item_translation.label.max_length": {
+    "other": "Dictionary item translation labels cannot exceed 100 characters"
   },
-  "base_dict_translation.name.max_len": {
-    "other": "辞書の翻訳名は 50 文字を超えることはできません"
+  "system.admin.base.translation.entity.dict_item_translation.locale.supported": {
+    "other": "Dictionary item translation language only supports English or Japanese"
   },
-  "base_job.cron_expression.length": {
-    "other": "cron 式は空にすることはできず、50 文字を超えることはできません"
+  "system.admin.base.translation.entity.dict_translation.locale.supported": {
+    "other": "Dictionary translation language only supports English or Japanese"
   },
-  "base_job.invoke_target.length": {
-    "other": "呼び出しターゲットを空にすることはできず、100 文字を超えることはできません"
+  "system.admin.base.translation.entity.dict_translation.name.max_length": {
+    "other": "Dictionary translation names cannot exceed 50 characters"
   },
-  "base_job.name.length": {
-    "other": "タスク名は空にすることはできず、50 文字を超えることはできません"
+  "system.admin.base.job.entity.cron_expression.length": {
+    "other": "cron expression cannot be empty and cannot exceed 50 characters"
   },
-  "base_language.language_code.length": {
-    "other": "言語コードは空にすることはできず、16 文字を超えることはできません"
+  "system.admin.base.job.entity.invoke_target.length": {
+    "other": "The call target cannot be empty and cannot exceed 100 characters"
   },
-  "base_language.language_name.length": {
-    "other": "言語名は空にすることはできず、50 文字を超えることはできません"
+  "system.admin.base.job.entity.name.length": {
+    "other": "Task name cannot be empty and cannot exceed 50 characters"
   },
-  "base_language.native_name.length": {
-    "other": "ローカル言語名は空にすることはできず、50 文字を超えることはできません"
+  "system.admin.base.language.entity.language_code.length": {
+    "other": "Language code cannot be empty and cannot exceed 16 characters"
   },
-  "base_language.sort.required": {
-    "other": "並び順を 0 未満にすることはできません"
+  "system.admin.base.language.entity.language_name.length": {
+    "other": "Language name cannot be empty and cannot exceed 50 characters"
   },
-  "base_job_args.key.required": {
-    "other": "すべてのパラメータをキーに入力する必要があります"
+  "system.admin.base.language.entity.native_name.length": {
+    "other": "Native language name cannot be empty and cannot exceed 50 characters"
   },
-  "base_menu.component.max_len": {
-    "other": "コンポーネントのパスは 255 文字を超えることはできません"
+  "system.admin.base.language.entity.sort.required": {
+    "other": "Sort cannot be less than 0"
   },
-  "base_menu.external.path_internal": {
-    "other": "外部リンク パスは内部の一意のパスを使用する必要があります"
+  "system.admin.base.job.entity.args.key.required": {
+    "other": "All parameters must be filled in key"
   },
-  "base_menu.folder.identity_empty": {
-    "other": "ディレクトリにパスとルーティング名を入力できません"
+  "system.admin.base.menu.entity.component.max_length": {
+    "other": "Component path cannot exceed 255 characters"
   },
-  "base_menu.name.max_len": {
-    "other": "ルート名は 255 文字を超えることはできません"
+  "system.admin.base.menu.entity.external.path_internal": {
+    "other": "External link paths must use internal unique paths"
   },
-  "base_menu.name.menu_only": {
-    "other": "ルート名を入力できるのはメニュータイプのみです"
+  "system.admin.base.menu.entity.folder.identity_empty": {
+    "other": "The directory cannot fill in the path and routing name"
   },
-  "base_menu.name.required": {
-    "other": "メニュータイプにはルート名を入力する必要があります"
+  "system.admin.base.menu.entity.name.max_length": {
+    "other": "Route name cannot exceed 255 characters"
   },
-  "base_menu.path.length": {
-    "other": "パスは 1024 文字を超えることはできません"
+  "system.admin.base.menu.entity.name.menu_only": {
+    "other": "Only the menu type can fill in the route name"
   },
-  "base_menu.path.required": {
-    "other": "ディレクトリ以外のメニューにはパスを入力する必要があります"
+  "system.admin.base.menu.entity.name.required": {
+    "other": "The menu type must fill in the route name"
   },
-  "base_menu.redirect.external": {
-    "other": "外部リンクには完全な HTTP アドレスを入力する必要があります"
+  "system.admin.base.menu.entity.path.length": {
+    "other": "Path cannot exceed 1024 characters"
   },
-  "base_menu.redirect.max_len": {
-    "other": "リダイレクトアドレスは1024文字を超えることはできません"
+  "system.admin.base.menu.entity.path.required": {
+    "other": "Non-directory menu must fill in the path"
   },
-  "base_menu.sort.required": {
-    "other": "並べ替えは 0 より大きくなければなりません"
+  "system.admin.base.menu.entity.redirect.external": {
+    "other": "External links must fill in the complete HTTP address"
   },
-  "base_menu.type.required": {
-    "other": "メニュータイプを空にすることはできません"
+  "system.admin.base.menu.entity.redirect.max_length": {
+    "other": "Redirect address cannot exceed 1024 characters"
   },
-  "base_menu_translation.locale.supported": {
-    "other": "メニューの翻訳言語は英語または日本語のみをサポートしています"
+  "system.admin.base.menu.entity.sort.required": {
+    "other": "Sort must be greater than 0"
   },
-  "base_menu_translation.title.max_len": {
-    "other": "メニュー翻訳のタイトルは 255 文字を超えることはできません"
+  "system.admin.base.menu.entity.type.required": {
+    "other": "Menu type cannot be empty"
   },
-  "base_post.code.max_len": {
-    "other": "位置番号は 20 文字を超えることはできません"
+  "system.admin.base.translation.entity.menu_translation.locale.supported": {
+    "other": "Menu translation language only supports English or Japanese"
   },
-  "base_post.code.required": {
-    "other": "ポジション番号を入力してください"
+  "system.admin.base.translation.entity.menu_translation.title.max_length": {
+    "other": "Menu translation title cannot exceed 255 characters"
   },
-  "base_post.name.max_len": {
-    "other": "役職名は 30 文字を超えることはできません"
+  "system.admin.base.post.entity.code.max_length": {
+    "other": "Position number cannot exceed 20 characters"
   },
-  "base_post.name.required": {
-    "other": "役職名を入力してください"
+  "system.admin.base.post.entity.code.required": {
+    "other": "Please enter the position number"
   },
-  "base_post.remark.max_len": {
-    "other": "コメントは 500 文字を超えることはできません"
+  "system.admin.base.post.entity.name.max_length": {
+    "other": "Job title cannot exceed 30 characters"
   },
-  "base_post.sort.required": {
-    "other": "並べ替えは 0 より大きくなければなりません"
+  "system.admin.base.post.entity.name.required": {
+    "other": "Please enter the position name"
   },
-  "base_post.tenant_id.required": {
-    "other": "テナントを選択してください"
+  "system.admin.base.post.entity.remark.max_length": {
+    "other": "Comments cannot exceed 500 characters"
   },
-  "base_role.code.max_len": {
-    "other": "ロール番号は 20 文字を超えることはできません"
+  "system.admin.base.post.entity.sort.required": {
+    "other": "Sort must be greater than 0"
   },
-  "base_role.code.required": {
-    "other": "役割コードを入力してください"
+  "system.admin.base.post.entity.tenant_id.required": {
+    "other": "Please select your tenant"
   },
-  "base_role.data_scope.required": {
-    "other": "データ権限を選択してください"
+  "system.admin.base.role.entity.code.max_length": {
+    "other": "Role number cannot exceed 20 characters"
   },
-  "base_role.menus.required": {
-    "other": "メニューの権限を選択してください"
+  "system.admin.base.role.entity.code.required": {
+    "other": "Please enter the role code"
   },
-  "base_role.menus.unique": {
-    "other": "メニュー権限を繰り返すことはできません"
+  "system.admin.base.role.entity.data_scope.required": {
+    "other": "Please select data permissions"
   },
-  "base_role.name.max_len": {
-    "other": "キャラクター名は30文字を超えることはできません"
+  "system.admin.base.role.entity.menus.required": {
+    "other": "Please select menu permissions"
   },
-  "base_role.name.required": {
-    "other": "ロール名を入力してください"
+  "system.admin.base.role.entity.menus.unique": {
+    "other": "Menu permissions cannot be repeated"
   },
-  "base_role.remark.max_len": {
-    "other": "コメントは 500 文字を超えることはできません"
+  "system.admin.base.role.entity.name.max_length": {
+    "other": "Character name cannot exceed 30 characters"
   },
-  "base_role.tenant_id.required": {
-    "other": "テナントを空にすることはできません"
+  "system.admin.base.role.entity.name.required": {
+    "other": "Please enter a role name"
   },
-  "base_tenant.code.length": {
-    "other": "テナント番号は空にすることはできず、50 文字を超えることはできません"
+  "system.admin.base.role.entity.remark.max_length": {
+    "other": "Comments cannot exceed 500 characters"
   },
-  "base_tenant.contact_name.max_len": {
-    "other": "連絡先は 50 文字を超えることはできません"
+  "system.admin.base.role.entity.tenant_id.required": {
+    "other": "The tenant cannot be empty"
   },
-  "base_tenant.contact_phone.format": {
-    "other": "正しい連絡先番号を入力してください"
+  "system.admin.base.tenant.entity.code.length": {
+    "other": "Tenant number cannot be empty and cannot exceed 50 characters"
   },
-  "base_tenant.contact_phone.max_len": {
-    "other": "連絡先番号は 20 文字を超えることはできません"
+  "system.admin.base.tenant.entity.contact_name.max_length": {
+    "other": "Contact cannot exceed 50 characters"
   },
-  "base_tenant.name.length": {
-    "other": "テナント名は空にすることはできず、100 文字を超えることはできません"
+  "system.admin.base.tenant.entity.contact_phone.format": {
+    "other": "Please enter the correct contact number"
   },
-  "base_tenant.name.max_len": {
-    "other": "テナント名は 100 文字を超えることはできません"
+  "system.admin.base.tenant.entity.contact_phone.max_length": {
+    "other": "Contact number cannot exceed 20 characters"
   },
-  "base_tenant.name.required": {
-    "other": "テナント名を入力してください"
+  "system.admin.base.tenant.entity.name.length": {
+    "other": "Tenant name cannot be empty and cannot exceed 100 characters"
   },
-  "base_tenant.remark.max_len": {
-    "other": "コメントは 500 文字を超えることはできません"
+  "system.admin.base.tenant.entity.name.max_length": {
+    "other": "Tenant name cannot exceed 100 characters"
   },
-  "base_translation.resource_id.required": {
-    "other": "リソース ID を空にすることはできません"
+  "system.admin.base.tenant.entity.name.required": {
+    "other": "Please enter tenant name"
   },
-  "base_translation.resource_type.required": {
-    "other": "翻訳リソースのタイプを選択してください"
+  "system.admin.base.tenant.entity.remark.max_length": {
+    "other": "Comments cannot exceed 500 characters"
   },
-  "base_translation.target_locale.supported": {
-    "other": "ターゲット言語は英語または日本語のみをサポートします"
+  "system.admin.base.translation.update.id.required": {
+    "other": "Translation record ID cannot be empty"
   },
-  "base_user.avatar.max_len": {
-    "other": "アバターは 1024 文字を超えることはできません"
+  "system.admin.base.translation.update.target.required": {
+    "other": "翻訳レコードIDまたは対象情報を指定してください"
   },
-  "base_user.dept_id.required": {
-    "other": "部門を空にすることはできません"
+  "system.admin.base.translation.entity.target_id.required": {
+    "other": "Resource ID cannot be empty"
   },
-  "base_user.nick_name.max_len": {
-    "other": "ユーザーのニックネームは 30 文字を超えることはできません"
+  "system.admin.base.translation.entity.target_type.required": {
+    "other": "Please select a translation resource type"
   },
-  "base_user.nick_name.required": {
-    "other": "ユーザーニックネームを空にすることはできません"
+  "system.admin.base.translation.entity.target_locale.supported": {
+    "other": "Target language only supports English or Japanese"
   },
-  "base_user.phone.format": {
-    "other": "正しい携帯電話番号を入力してください"
+  "system.admin.base.user.entity.avatar.max_length": {
+    "other": "Avatar cannot exceed 1024 characters"
   },
-  "base_user.phone.max_len": {
-    "other": "携帯電話番号は 20 文字を超えることはできません"
+  "system.admin.base.user.entity.dept_id.required": {
+    "other": "Department cannot be empty"
   },
-  "base_user.pwd.required": {
-    "other": "パスワードを入力してください"
+  "system.admin.base.user.entity.nick_name.max_length": {
+    "other": "User nickname cannot exceed 30 characters"
   },
-  "base_user.remark.max_len": {
-    "other": "コメントは 500 文字を超えることはできません"
+  "system.admin.base.user.entity.nick_name.required": {
+    "other": "User nickname cannot be empty"
   },
-  "base_user.reset_pwd.required": {
-    "other": "新しいパスワードを入力してください"
+  "system.admin.base.user.entity.phone.format": {
+    "other": "Please enter the correct mobile phone number"
   },
-  "base_user.role_id.required": {
-    "other": "役割を空にすることはできません"
+  "system.admin.base.user.entity.phone.max_length": {
+    "other": "Mobile phone number cannot exceed 20 characters"
   },
-  "base_user.tenant_id.required": {
-    "other": "テナントを空にすることはできません"
+  "system.admin.base.user.create.pwd.required": {
+    "other": "Please enter password"
   },
-  "base_user.user_code.length": {
-    "other": "ユーザー ID は空にすることはできず、30 文字を超えることはできません"
+  "system.admin.base.user.entity.remark.max_length": {
+    "other": "Comments cannot exceed 500 characters"
   },
-  "base_user.user_name.length": {
-    "other": "ユーザーアカウントを空にすることはできず、50 文字を超えることはできません"
+  "system.admin.base.user.reset_password.reset_pwd.required": {
+    "other": "Please enter new password"
   },
-  "bind_oauth_session.captcha_code.required": {
-    "other": "確認コードを空にすることはできません"
+  "system.admin.base.user.entity.role_id.required": {
+    "other": "Role cannot be empty"
   },
-  "bind_oauth_session.captcha_id.required": {
-    "other": "確認コード ID を空にすることはできません"
+  "system.admin.base.user.entity.tenant_id.required": {
+    "other": "The tenant cannot be empty"
   },
-  "bind_oauth_session.code.required": {
-    "other": "サードパーティ認証コードを空にすることはできません"
+  "system.admin.base.user.entity.user_code.length": {
+    "other": "User ID cannot be empty and cannot exceed 30 characters"
   },
-  "bind_oauth_session.provider.required": {
-    "other": "ログイン方法識別子を空にすることはできません"
+  "system.admin.base.user.entity.user_name.length": {
+    "other": "User account cannot be empty and cannot exceed 50 characters"
   },
-  "bind_oauth_session.tenant_code.required": {
-    "other": "テナント コードを空にすることはできません"
+  "base.oauth.bind_session.captcha_code.required": {
+    "other": "Verification code cannot be empty"
   },
-  "bind_oauth_session.user_name.required": {
-    "other": "ユーザー名を空にすることはできません"
+  "base.oauth.bind_session.captcha_id.required": {
+    "other": "Verification code ID cannot be empty"
   },
-  "code_gen_table.status.required": {
-    "other": "コード生成テーブルのステータスを選択してください"
+  "base.oauth.bind_session.code.required": {
+    "other": "The third-party authorization code cannot be empty"
+  },
+  "base.oauth.bind_session.provider.required": {
+    "other": "Login method identifier cannot be empty"
+  },
+  "base.oauth.bind_session.tenant_code.required": {
+    "other": "Tenant code cannot be empty"
+  },
+  "base.oauth.bind_session.user_name.required": {
+    "other": "Username cannot be empty"
+  },
+  "system.admin.code.gen.table.entity.status.required": {
+    "other": "Please select a code generation table status"
   },
   "common.error.conflict": {
-    "other": "リソースの状態がこの操作と競合しています"
+    "other": "The resource state conflicts with this operation"
   },
   "common.error.internal": {
-    "other": "内部エラーが発生しました"
+    "other": "An internal error occurred"
   },
   "common.error.invalid_argument": {
-    "other": "リクエストパラメータが正しくありません"
+    "other": "The request parameters are invalid"
   },
   "common.error.permission_denied": {
-    "other": "この操作を行う権限がありません"
+    "other": "You do not have permission to perform this operation"
   },
   "common.error.resource_not_found": {
-    "other": "指定されたリソースが見つかりません"
+    "other": "The requested resource was not found"
   },
   "common.error.unauthenticated": {
-    "other": "セッションの有効期限が切れました。もう一度ログインしてください"
+    "other": "Your session has expired. Please sign in again"
   },
   "common.validation.invalid": {
-    "other": "フィールド {{.Field}} が正しくありません"
+    "other": "Field {{.Field}} is invalid"
   },
   "common.validation.required": {
-    "other": "フィールド {{.Field}} は必須です"
+    "other": "Field {{.Field}} is required"
   },
-  "create_ai_session_branch.anchor_message_id.positive": {
-    "other": "ブランチアンカーメッセージ番号が不正です"
+  "base.ai.session.create_branch.anchor_message_id.positive": {
+    "other": "Branch anchor message number is illegal"
   },
-  "create_ai_session_branch.source_session_id.positive": {
-    "other": "セッション番号が無効です"
+  "base.ai.session.create_branch.source_session_id.positive": {
+    "other": "The session number is invalid"
   },
-  "create_ai_session_branch.title.required": {
-    "other": "セッションタイトルを空にすることはできません"
+  "base.ai.session.create_branch.title.required": {
+    "other": "Session title cannot be empty"
   },
-  "create_base_menu.parent_id.required": {
-    "other": "新しいメニューを追加するには、上位レベルのメニューを選択する必要があります"
+  "system.admin.base.menu.create.parent_id.required": {
+    "other": "To add a new menu, you must select the upper-level menu"
   },
-  "create_oauth_authorization.provider.required": {
-    "other": "ログイン方法識別子を空にすることはできません"
+  "base.oauth.create_authorization.provider.required": {
+    "other": "Login method identifier cannot be empty"
   },
-  "create_oauth_authorization.redirect_url.required": {
-    "other": "ログインページのアドレスを空にすることはできません"
+  "base.oauth.create_authorization.redirect_url.required": {
+    "other": "Login page address cannot be empty"
   },
-  "create_oauth_binding_authorization.provider.required": {
-    "other": "ログイン方法識別子を空にすることはできません"
+  "base.oauth.create_binding_authorization.provider.required": {
+    "other": "Login method identifier cannot be empty"
   },
-  "create_oauth_binding_authorization.redirect_url.required": {
-    "other": "バインディングが完了した後は、バウンス アドレスを空にすることはできません。"
+  "base.oauth.create_binding_authorization.redirect_url.required": {
+    "other": "After the binding is completed, the bounce address cannot be empty."
   },
-  "create_oauth_session.code.required": {
-    "other": "サードパーティ認証コードを空にすることはできません"
+  "base.oauth.create_session.code.required": {
+    "other": "The third-party authorization code cannot be empty"
   },
-  "create_oauth_session.provider.required": {
-    "other": "ログイン方法識別子を空にすることはできません"
+  "base.oauth.create_session.provider.required": {
+    "other": "Login method identifier cannot be empty"
   },
-  "delete_ai_message.message_id.positive": {
-    "other": "メッセージ番号が無効です"
+  "base.ai.message.delete.message_id.positive": {
+    "other": "The message number is invalid"
   },
-  "delete_ai_message.session_id.positive": {
-    "other": "セッション番号が無効です"
+  "base.ai.message.delete.session_id.positive": {
+    "other": "The session number is invalid"
   },
-  "delete_ai_session.id.positive": {
-    "other": "セッション番号が無効です"
+  "base.ai.session.delete.id.positive": {
+    "other": "The session number is invalid"
   },
-  "delete_base_config.id.required": {
-    "other": "構成 ID リストを空にすることはできません"
+  "system.admin.base.config.delete.id.required": {
+    "other": "Configuration ID list cannot be empty"
   },
-  "delete_base_dept.id.required": {
-    "other": "部門 ID リストを空にすることはできません"
+  "system.admin.base.dept.delete.id.required": {
+    "other": "Department ID list cannot be empty"
   },
-  "delete_base_dict.id.required": {
-    "other": "辞書 ID リストを空にすることはできません"
+  "system.admin.base.dict.delete.id.required": {
+    "other": "Dictionary ID list cannot be empty"
   },
-  "delete_base_dict_item.id.required": {
-    "other": "ディクショナリ属性 ID リストを空にすることはできません"
+  "system.admin.base.dict.delete_item.id.required": {
+    "other": "Dictionary attribute ID list cannot be empty"
   },
-  "delete_base_language.id.required": {
-    "other": "言語 ID リストを空にすることはできません"
+  "system.admin.base.language.delete.id.required": {
+    "other": "Language ID list cannot be empty"
   },
-  "delete_base_menu.id.required": {
-    "other": "メニュー ID リストを空にすることはできません"
+  "system.admin.base.menu.delete.id.required": {
+    "other": "Menu ID list cannot be empty"
   },
-  "delete_base_post.id.required": {
-    "other": "位置 ID リストを空にすることはできません"
+  "system.admin.base.post.delete.id.required": {
+    "other": "The position ID list cannot be empty"
   },
-  "delete_base_role.id.required": {
-    "other": "ロール ID リストを空にすることはできません"
+  "system.admin.base.role.delete.id.required": {
+    "other": "Role ID list cannot be empty"
   },
-  "delete_base_tenant.id.required": {
-    "other": "テナント ID リストを空にすることはできません"
+  "system.admin.base.tenant.delete.id.required": {
+    "other": "Tenant ID list cannot be empty"
   },
-  "delete_base_user.id.required": {
-    "other": "ユーザー ID リストを空にすることはできません"
+  "system.admin.base.user.delete.id.required": {
+    "other": "User ID list cannot be empty"
   },
-  "download_file.path.required": {
-    "other": "ファイルパスを空にすることはできません"
+  "base.file.download.path.required": {
+    "other": "File path cannot be empty"
   },
-  "exchange_oauth_ticket.ticket.required": {
-    "other": "サードパーティのログインチケットを空にすることはできません"
+  "base.oauth.exchange_ticket.ticket.required": {
+    "other": "The third-party login ticket cannot be empty"
   },
-  "field.business_module.length": {
-    "other": "ビジネスモジュールは64文字を超えることはできません"
+  "system.admin.code.gen.table.field.business_module.length": {
+    "other": "Business module cannot exceed 64 characters"
   },
-  "field.business_module.pattern": {
-    "other": "ビジネスモジュールの形式が正しくありません"
+  "system.admin.code.gen.table.field.business_module.pattern": {
+    "other": "Business module format is incorrect"
   },
-  "field.business_module.required": {
-    "other": "ビジネスモジュールを空にすることはできません"
+  "system.admin.code.gen.table.field.business_module.required": {
+    "other": "Business module cannot be empty"
   },
-  "field.comment.length": {
-    "other": "ビジネス テーブルの説明は 128 文字を超えることはできません"
+  "system.admin.code.gen.table.field.comment.length": {
+    "other": "Business table description cannot exceed 128 characters"
   },
-  "field.name.length": {
-    "other": "ビジネステーブル名は128文字を超えることはできません"
+  "system.admin.code.gen.table.field.name.length": {
+    "other": "Business table name cannot exceed 128 characters"
   },
-  "field.name.pattern": {
-    "other": "ビジネステーブル名の形式が正しくありません"
+  "system.admin.code.gen.table.field.name.pattern": {
+    "other": "Business table name format is incorrect"
   },
-  "field.name.required": {
-    "other": "ビジネステーブル名を空にすることはできません"
+  "system.admin.code.gen.table.field.name.required": {
+    "other": "Business table name cannot be empty"
   },
-  "field.page_type.length": {
-    "other": "ページタイプは32文字を超えることはできません"
+  "system.admin.code.gen.table.field.page_type.length": {
+    "other": "Page type cannot exceed 32 characters"
   },
-  "field.page_type.required": {
-    "other": "ページタイプを空にすることはできません"
+  "system.admin.code.gen.table.field.page_type.required": {
+    "other": "Page type cannot be empty"
   },
-  "field.parent_column.length": {
-    "other": "ツリー テーブルの親ノード フィールドは 64 文字を超えることはできません。"
+  "system.admin.code.gen.table.field.parent_column.length": {
+    "other": "The tree table parent node field cannot exceed 64 characters."
   },
-  "field.parent_menu_id.required": {
-    "other": "親メニューを選択してください"
+  "system.admin.code.gen.table.field.parent_menu_id.required": {
+    "other": "Please select a parent menu"
   },
-  "field.remark.length": {
-    "other": "コメントは 500 文字を超えることはできません"
+  "system.admin.code.gen.table.field.remark.length": {
+    "other": "Comments cannot exceed 500 characters"
   },
-  "field.tree_label_column.length": {
-    "other": "ツリー ノードの表示フィールドは 64 文字を超えることはできません"
+  "system.admin.code.gen.table.field.tree_label_column.length": {
+    "other": "The tree node display field cannot exceed 64 characters"
   },
-  "get_base_config.id.required": {
-    "other": "構成 ID を空にすることはできません"
+  "system.admin.base.config.get.id.required": {
+    "other": "Configuration ID cannot be empty"
   },
-  "get_base_dept.id.required": {
-    "other": "部門 ID を空にすることはできません"
+  "system.admin.base.dept.get.id.required": {
+    "other": "Department ID cannot be empty"
   },
-  "get_base_dict.id.required": {
-    "other": "辞書 ID を空にすることはできません"
+  "system.admin.base.dict.get.id.required": {
+    "other": "Dictionary ID cannot be empty"
   },
-  "get_base_dict_item.id.required": {
-    "other": "ディクショナリ属性 ID を空にすることはできません"
+  "system.admin.base.dict.get_item.id.required": {
+    "other": "Dictionary attribute ID cannot be empty"
   },
-  "get_base_language.id.required": {
-    "other": "言語 ID を空にすることはできません"
+  "system.admin.base.language.get.id.required": {
+    "other": "Language ID cannot be empty"
   },
-  "get_base_post.id.required": {
-    "other": "ポジション ID を空にすることはできません"
+  "system.admin.base.post.get.id.required": {
+    "other": "Position ID cannot be empty"
   },
-  "get_base_role.id.required": {
-    "other": "ロール ID を空にすることはできません"
+  "system.admin.base.role.get.id.required": {
+    "other": "Role ID cannot be empty"
   },
-  "get_base_tenant.id.required": {
-    "other": "テナント ID を空にすることはできません"
+  "system.admin.base.tenant.get.id.required": {
+    "other": "Tenant ID cannot be empty"
   },
-  "get_base_third_account_identifier.provider.required": {
-    "other": "ログイン方法識別子を空にすることはできません"
+  "system.admin.base.third.account.get_identifier.provider.required": {
+    "other": "Login method identifier cannot be empty"
   },
-  "get_base_third_account_identifier.user_id.required": {
-    "other": "ユーザーIDを空にすることはできません"
+  "system.admin.base.third.account.get_identifier.user_id.required": {
+    "other": "User ID cannot be empty"
   },
-  "get_base_user.id.required": {
-    "other": "ユーザーIDを空にすることはできません"
+  "system.admin.base.user.get.id.required": {
+    "other": "User ID cannot be empty"
   },
-  "get_code_gen_table.id.required": {
-    "other": "主キー ID を空にすることはできません"
+  "system.admin.code.gen.table.get.id.required": {
+    "other": "Primary key ID cannot be empty"
   },
-  "get_code_gen_task.task_id.required": {
-    "other": "生成タスク ID を空にすることはできません"
+  "system.admin.code.gen.get_task.task_id.required": {
+    "other": "Generate task ID cannot be empty"
   },
-  "get_config.site.required": {
-    "other": "場所を空にすることはできません"
+  "base.config.get.site.required": {
+    "other": "Location cannot be empty"
   },
-  "handle_mcp.terminal.required": {
-    "other": "MCP サービス ID を空にすることはできません"
+  "base.mcp.handle.terminal.required": {
+    "other": "MCP service identifier cannot be empty"
   },
-  "handle_oauth_binding_callback.code.required_on_success": {
-    "other": "サードパーティ認証コードを空にすることはできません"
+  "base.oauth.handle_binding_callback.code.required_on_success": {
+    "other": "The third-party authorization code cannot be empty"
   },
-  "handle_oauth_binding_callback.provider.required": {
-    "other": "ログイン方法識別子を空にすることはできません"
+  "base.oauth.handle_binding_callback.provider.required": {
+    "other": "Login method identifier cannot be empty"
   },
-  "handle_oauth_binding_callback.state.required": {
-    "other": "認可ステータスコードを空にすることはできません"
+  "base.oauth.handle_binding_callback.state.required": {
+    "other": "Authorization status code cannot be empty"
   },
-  "handle_oauth_callback.code.required_on_success": {
-    "other": "サードパーティ認証コードを空にすることはできません"
+  "base.oauth.handle_callback.code.required_on_success": {
+    "other": "The third-party authorization code cannot be empty"
   },
-  "handle_oauth_callback.provider.required": {
-    "other": "ログイン方法識別子を空にすることはできません"
+  "base.oauth.handle_callback.provider.required": {
+    "other": "Login method identifier cannot be empty"
   },
-  "handle_oauth_callback.state.required": {
-    "other": "認可ステータスコードを空にすることはできません"
+  "base.oauth.handle_callback.state.required": {
+    "other": "Authorization status code cannot be empty"
   },
-  "list_ai_message.session_id.positive": {
-    "other": "セッション番号が無効です"
+  "base.ai.session.list_message.session_id.positive": {
+    "other": "The session number is invalid"
   },
-  "list_base_user.ids.positive": {
-    "other": "ユーザー ID は 0 より大きくなければなりません"
+  "system.admin.base.user.list.ids.positive": {
+    "other": "User ID must be greater than 0"
   },
-  "list_code_gen_column.table_id.required": {
-    "other": "コード生成テーブル構成 ID を空にすることはできません"
+  "system.admin.code.gen.column.list.table_id.required": {
+    "other": "Code generation table configuration ID cannot be empty"
   },
-  "list_code_gen_database_column.table_name.pattern": {
-    "other": "データベーステーブル名の形式が正しくありません"
+  "system.admin.code.gen.column.list_gen_database_column.table_name.pattern": {
+    "other": "Database table name format is incorrect"
   },
-  "list_code_gen_database_column.table_name.required": {
-    "other": "データベーステーブル名を空にすることはできません"
+  "system.admin.code.gen.column.list_gen_database_column.table_name.required": {
+    "other": "Database table name cannot be empty"
   },
-  "list_code_gen_proto.table_id.required": {
-    "other": "コード生成テーブル構成 ID を空にすることはできません"
+  "system.admin.code.gen.proto.list.table_id.required": {
+    "other": "Code generation table configuration ID cannot be empty"
   },
-  "login.captcha_code.required": {
-    "other": "確認コードを空にすることはできません"
+  "base.login.login.captcha_code.required": {
+    "other": "Verification code cannot be empty"
   },
-  "login.captcha_id.required": {
-    "other": "確認コードを空にすることはできません"
+  "base.login.login.captcha_id.required": {
+    "other": "Verification code cannot be empty"
   },
-  "login.user_name.required": {
-    "other": "ユーザー名を空にすることはできません"
+  "base.login.login.user_name.required": {
+    "other": "Username cannot be empty"
   },
-  "preview_code_gen.table_id.required": {
-    "other": "コード生成テーブル構成 ID を空にすることはできません"
+  "system.admin.code.gen.preview.table_id.required": {
+    "other": "Code generation table configuration ID cannot be empty"
   },
-  "refresh_token.required": {
-    "other": "リフレッシュトークンを空にすることはできません"
+  "base.login.refresh_token.required": {
+    "other": "Refresh token cannot be empty"
   },
-  "regenerate_ai_message.message_id.positive": {
-    "other": "メッセージ番号が無効です"
+  "base.ai.message.regenerate.message_id.positive": {
+    "other": "The message number is invalid"
   },
-  "regenerate_ai_message.session_id.positive": {
-    "other": "セッション番号が無効です"
+  "base.ai.message.regenerate.session_id.positive": {
+    "other": "The session number is invalid"
   },
-  "reset_base_user_password.id.required": {
-    "other": "ユーザーIDを空にすることはできません"
+  "system.admin.base.user.reset_password.id.required": {
+    "other": "User ID cannot be empty"
   },
-  "restore_code_gen.table_ids.positive": {
-    "other": "コード生成テーブル構成 ID は 0 より大きくなければなりません"
+  "system.admin.code.gen.restore.table_ids.positive": {
+    "other": "Code generation table configuration ID must be greater than 0"
   },
-  "retry_ai_message.message_id.positive": {
-    "other": "メッセージ番号が無効です"
+  "base.ai.message.retry.message_id.positive": {
+    "other": "The message number is invalid"
   },
-  "retry_ai_message.session_id.positive": {
-    "other": "セッション番号が無効です"
+  "base.ai.message.retry.session_id.positive": {
+    "other": "The session number is invalid"
   },
-  "save_code_gen_column.table_id.required": {
-    "other": "コード生成テーブル構成 ID を空にすることはできません"
+  "system.admin.code.gen.column.save.table_id.required": {
+    "other": "Code generation table configuration ID cannot be empty"
   },
-  "save_code_gen_proto.table_id.required": {
-    "other": "コード生成テーブル構成 ID を空にすることはできません"
+  "system.admin.code.gen.proto.save.table_id.required": {
+    "other": "Code generation table configuration ID cannot be empty"
   },
-  "send_ai_message.session_id.positive": {
-    "other": "セッション番号が無効です"
+  "base.ai.message.send.session_id.positive": {
+    "other": "The session number is invalid"
   },
-  "send_phone_code.phone.format": {
-    "other": "正しい携帯電話番号を入力してください"
+  "system.admin.auth.send_phone_code.phone.format": {
+    "other": "Please enter the correct mobile phone number"
   },
-  "send_phone_code.phone.required": {
-    "other": "携帯電話番号を入力してください"
+  "system.admin.auth.send_phone_code.phone.required": {
+    "other": "Please enter mobile phone number"
   },
-  "set_base_config_status.id.required": {
-    "other": "構成 ID を空にすることはできません"
+  "system.admin.base.config.set_status.id.required": {
+    "other": "Configuration ID cannot be empty"
   },
-  "set_base_dept_status.id.required": {
-    "other": "部門 ID を空にすることはできません"
+  "system.admin.base.dept.set_status.id.required": {
+    "other": "Department ID cannot be empty"
   },
-  "set_base_dict_item_status.id.required": {
-    "other": "ディクショナリ属性 ID を空にすることはできません"
+  "system.admin.base.dict.set_item_status.id.required": {
+    "other": "Dictionary attribute ID cannot be empty"
   },
-  "set_base_language_status.id.required": {
-    "other": "言語 ID を空にすることはできません"
+  "system.admin.base.language.set_status.id.required": {
+    "other": "Language ID cannot be empty"
   },
-  "set_base_dict_status.id.required": {
-    "other": "辞書 ID を空にすることはできません"
+  "system.admin.base.language.set_primary.id.required": {
+    "other": "Language ID cannot be empty"
   },
-  "set_base_menu_status.id.required": {
-    "other": "メニュー ID を空にすることはできません"
+  "system.admin.base.dict.set_status.id.required": {
+    "other": "Dictionary ID cannot be empty"
   },
-  "set_base_menu_status.status.required": {
-    "other": "ステータスを空にすることはできません"
+  "system.admin.base.menu.set_status.id.required": {
+    "other": "Menu ID cannot be empty"
   },
-  "set_base_post_status.id.required": {
-    "other": "ポジション ID を空にすることはできません"
+  "system.admin.base.menu.set_status.status.required": {
+    "other": "Status cannot be empty"
   },
-  "set_base_role_menu.id.required": {
-    "other": "ロール ID を空にすることはできません"
+  "system.admin.base.post.set_status.id.required": {
+    "other": "Position ID cannot be empty"
   },
-  "set_base_role_status.id.required": {
-    "other": "ロール ID を空にすることはできません"
+  "system.admin.base.role.set_menu.id.required": {
+    "other": "Role ID cannot be empty"
   },
-  "set_base_tenant_status.id.required": {
-    "other": "テナント ID を空にすることはできません"
+  "system.admin.base.role.set_status.id.required": {
+    "other": "Role ID cannot be empty"
   },
-  "set_base_user_app_role.role_code.required": {
-    "other": "アプリケーション側のロール コードを空にすることはできません"
+  "system.admin.base.tenant.set_status.id.required": {
+    "other": "Tenant ID cannot be empty"
   },
-  "set_base_user_app_role.user_id.required": {
-    "other": "ユーザーIDを空にすることはできません"
+  "system.admin.base.user.set_app_role.role_code.required": {
+    "other": "The application-side role code cannot be empty"
   },
-  "set_base_user_status.id.required": {
-    "other": "ユーザーIDを空にすることはできません"
+  "system.admin.base.user.set_app_role.user_id.required": {
+    "other": "User ID cannot be empty"
   },
-  "start_code_gen_task.table_ids.positive": {
-    "other": "コード生成テーブル構成 ID は 0 より大きくなければなりません"
+  "system.admin.base.user.set_status.id.required": {
+    "other": "User ID cannot be empty"
   },
-  "subscribe_sse.stream.required": {
-    "other": "SSE ストリームを空にすることはできません"
+  "system.admin.code.gen.start_task.table_ids.positive": {
+    "other": "Code generation table configuration ID must be greater than 0"
   },
-  "unbind_oauth_account.provider.required": {
-    "other": "ログイン方法識別子を空にすることはできません"
+  "base.sse.subscribe.stream.required": {
+    "other": "SSE stream cannot be empty"
   },
-  "update_ai_message.content.required": {
-    "other": "メッセージの内容を空にすることはできません"
+  "base.oauth.unbind_account.provider.required": {
+    "other": "Login method identifier cannot be empty"
   },
-  "update_ai_message.message_id.positive": {
-    "other": "メッセージ番号が無効です"
+  "base.ai.message.update.content.required": {
+    "other": "Message content cannot be empty"
   },
-  "update_ai_message.session_id.positive": {
-    "other": "セッション番号が無効です"
+  "base.ai.message.update.message_id.positive": {
+    "other": "The message number is invalid"
   },
-  "update_ai_session.id.positive": {
-    "other": "セッション番号が無効です"
+  "base.ai.message.update.session_id.positive": {
+    "other": "The session number is invalid"
   },
-  "update_ai_session.title.required": {
-    "other": "セッションタイトルを空にすることはできません"
+  "base.ai.session.update.id.positive": {
+    "other": "The session number is invalid"
   },
-  "update_base_config.id.required": {
-    "other": "構成 ID を空にすることはできません"
+  "base.ai.session.update.title.required": {
+    "other": "Session title cannot be empty"
   },
-  "update_base_dept.id.required": {
-    "other": "部門 ID を空にすることはできません"
+  "system.admin.base.config.update.id.required": {
+    "other": "Configuration ID cannot be empty"
   },
-  "update_base_dict.id.required": {
-    "other": "辞書 ID を空にすることはできません"
+  "system.admin.base.dept.update.id.required": {
+    "other": "Department ID cannot be empty"
   },
-  "update_base_dict_item.id.required": {
-    "other": "ディクショナリ属性 ID を空にすることはできません"
+  "system.admin.base.dict.update.id.required": {
+    "other": "Dictionary ID cannot be empty"
   },
-  "update_base_post.id.required": {
-    "other": "ポジション ID を空にすることはできません"
+  "system.admin.base.dict.update_item.id.required": {
+    "other": "Dictionary attribute ID cannot be empty"
   },
-  "update_base_role.id.required": {
-    "other": "ロール ID を空にすることはできません"
+  "system.admin.base.post.update.id.required": {
+    "other": "Position ID cannot be empty"
   },
-  "update_base_tenant.id.required": {
-    "other": "テナント ID を空にすることはできません"
+  "system.admin.base.role.update.id.required": {
+    "other": "Role ID cannot be empty"
   },
-  "update_base_user.id.required": {
-    "other": "ユーザーIDを空にすることはできません"
+  "system.admin.base.tenant.update.id.required": {
+    "other": "Tenant ID cannot be empty"
   },
-  "update_code_gen_table.id.required": {
-    "other": "主キー ID を空にすることはできません"
+  "system.admin.base.user.update.id.required": {
+    "other": "User ID cannot be empty"
   },
-  "user_phone.code.required": {
-    "other": "確認コードを入力してください"
+  "system.admin.code.gen.table.update.id.required": {
+    "other": "Primary key ID cannot be empty"
   },
-  "user_phone.phone.format": {
-    "other": "正しい携帯電話番号を入力してください"
+  "system.admin.auth.user_phone.code.required": {
+    "other": "Please enter the verification code"
   },
-  "user_phone.phone.required": {
-    "other": "携帯電話番号を入力してください"
+  "system.admin.auth.user_phone.phone.format": {
+    "other": "Please enter the correct mobile phone number"
   },
-  "verify_captcha.captcha_code.required": {
-    "other": "確認コードを空にすることはできません"
+  "system.admin.auth.user_phone.phone.required": {
+    "other": "Please enter mobile phone number"
   },
-  "verify_captcha.captcha_id.required": {
-    "other": "確認コードを空にすることはできません"
+  "base.login.verify_captcha.captcha_code.required": {
+    "other": "Verification code cannot be empty"
+  },
+  "base.login.verify_captcha.captcha_id.required": {
+    "other": "Verification code cannot be empty"
   }
 }

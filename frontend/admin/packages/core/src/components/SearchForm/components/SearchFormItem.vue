@@ -155,8 +155,8 @@ const placeholder = computed(() => {
   if (["datetimerange", "daterange", "monthrange"].includes(search?.props?.type) || search?.props?.isRange) {
     return {
       rangeSeparator: search?.props?.rangeSeparator ?? "-",
-      startPlaceholder: search?.props?.startPlaceholder ?? t("common.field.startTime"),
-      endPlaceholder: search?.props?.endPlaceholder ?? t("common.field.endTime")
+      startPlaceholder: search?.props?.startPlaceholder ?? t("common.field.start_time"),
+      endPlaceholder: search?.props?.endPlaceholder ?? t("common.field.end_time")
     };
   }
   const placeholder =

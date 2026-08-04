@@ -1,5 +1,5 @@
 import { defLoginService } from "@/api/base/login";
-import { PasswordCryptoScene } from "@/rpc/base/v1/enum";
+import { PasswordCryptoScene } from "@/rpc/base/v1/login";
 import type { PasswordCrypto } from "@/rpc/common/v1/types";
 import { t } from "@/locales";
 
@@ -34,7 +34,7 @@ function arrayBufferToBase64(buffer: ArrayBuffer) {
 function getSubtleCrypto() {
   const cryptoApi = globalThis.crypto;
   if (!cryptoApi?.subtle) {
-    throw new Error(t("core.password.cryptoUnsupported"));
+    throw new Error(t("core.password.crypto_unsupported"));
   }
   return cryptoApi;
 }

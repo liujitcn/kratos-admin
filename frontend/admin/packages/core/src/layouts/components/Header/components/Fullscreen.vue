@@ -14,7 +14,7 @@ import { useLocaleStore } from "@/locales";
 
 const isFullscreen = ref(screenfull.isFullscreen);
 const { t } = useLocaleStore();
-const fullscreenTooltip = computed(() => (isFullscreen.value ? t("core.header.fullscreenExit") : t("core.header.fullscreen")));
+const fullscreenTooltip = computed(() => (isFullscreen.value ? t("core.header.fullscreen_exit") : t("core.header.fullscreen")));
 
 onMounted(() => {
   screenfull.on("change", () => {
@@ -24,7 +24,7 @@ onMounted(() => {
 });
 
 const handleFullScreen = () => {
-  if (!screenfull.isEnabled) ElMessage.warning(t("core.header.fullscreenUnsupported"));
+  if (!screenfull.isEnabled) ElMessage.warning(t("core.header.fullscreen_unsupported"));
   screenfull.toggle();
 };
 </script>

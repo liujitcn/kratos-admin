@@ -19,17 +19,17 @@
         </div>
         <div class="avatar-copy">
           <strong>{{ t("system.profile.account.field.avatar") }}</strong>
-          <p>{{ t("system.profile.account.message.avatarHint") }}</p>
+          <p>{{ t("system.profile.account.message.avatar_hint") }}</p>
         </div>
       </div>
 
       <div class="detail-grid">
         <div class="detail-item">
-          <span class="detail-label">{{ t("system.profile.account.field.userName") }}</span>
+          <span class="detail-label">{{ t("system.profile.account.field.user_name") }}</span>
           <span class="detail-value">{{ profile.user_name || "--" }}</span>
         </div>
         <div class="detail-item">
-          <span class="detail-label">{{ t("system.profile.account.field.nickName") }}</span>
+          <span class="detail-label">{{ t("system.profile.account.field.nick_name") }}</span>
           <span class="detail-value">{{ profile.nick_name || "--" }}</span>
         </div>
         <div class="detail-item">
@@ -49,7 +49,7 @@
           <span class="detail-value">{{ profile.dept_name || "--" }}</span>
         </div>
         <div class="detail-item detail-item--wide">
-          <span class="detail-label">{{ t("system.common.field.createdAt") }}</span>
+          <span class="detail-label">{{ t("common.field.created_at") }}</span>
           <span class="detail-value">{{ profile.created_at || "--" }}</span>
         </div>
       </div>
@@ -111,9 +111,9 @@ const accountForm = reactive<Pick<UserProfileForm, "nick_name" | "gender">>({
 const accountFormFields = computed<ProFormField[]>(() => [
   {
     prop: "nick_name",
-    label: t("system.profile.account.field.nickName"),
+    label: t("system.profile.account.field.nick_name"),
     component: "input",
-    props: { placeholder: t("system.profile.account.placeholder.nickName") }
+    props: { placeholder: t("system.profile.account.placeholder.nick_name") }
   },
   {
     prop: "gender",
@@ -182,10 +182,10 @@ async function handleFileChange(event: Event) {
         avatar: uploadResult.url
       }
     });
-    ElMessage.success(t("system.profile.account.message.avatarUpdated"));
+    ElMessage.success(t("system.profile.account.message.avatar_updated"));
     emit("refreshed");
   } catch (_error) {
-    ElMessage.error(t("system.profile.account.message.avatarUploadFailed"));
+    ElMessage.error(t("system.profile.account.message.avatar_upload_failed"));
   } finally {
     target.value = "";
   }

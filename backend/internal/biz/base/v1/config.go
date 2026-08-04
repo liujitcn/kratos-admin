@@ -24,18 +24,18 @@ import (
 // ConfigCase 处理基础配置查询业务。
 type ConfigCase struct {
 	*data.BaseConfigRepository
-	configTranslationRepo *data.BaseConfigTranslationRepository
-	languageRepo          *data.BaseLanguageRepository
-	draftConfig           systemConfig.TranslationDraftConfig
+	translationRepo *data.BaseTranslationRepository
+	languageRepo    *data.BaseLanguageRepository
+	draftConfig     systemConfig.TranslationDraftConfig
 }
 
 // NewConfigCase 创建配置业务实例。
-func NewConfigCase(baseConfigRepo *data.BaseConfigRepository, configTranslationRepo *data.BaseConfigTranslationRepository, languageRepo *data.BaseLanguageRepository, draftConfig systemConfig.TranslationDraftConfig) *ConfigCase {
+func NewConfigCase(baseConfigRepo *data.BaseConfigRepository, translationRepo *data.BaseTranslationRepository, languageRepo *data.BaseLanguageRepository, draftConfig systemConfig.TranslationDraftConfig) *ConfigCase {
 	return &ConfigCase{
-		BaseConfigRepository:  baseConfigRepo,
-		configTranslationRepo: configTranslationRepo,
-		languageRepo:          languageRepo,
-		draftConfig:           draftConfig,
+		BaseConfigRepository: baseConfigRepo,
+		translationRepo:      translationRepo,
+		languageRepo:         languageRepo,
+		draftConfig:          draftConfig,
 	}
 }
 
@@ -97,7 +97,7 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 	return response, nil
 }
 
-// localizeRuntimeConfigValues 将当前语言已审核的文本配置值覆盖到运行时结果。
+// localizeRuntimeConfigValues 将当前语言已有的文本配置值覆盖到运行时结果。
 func (c *ConfigCase) localizeRuntimeConfigValues(ctx context.Context, configs []*basev1.ConfigItem) ([]*basev1.ConfigItem, error) {
 	localeValue := coreLocale.FromContext(ctx)
 	if len(configs) == 0 {
@@ -121,14 +121,14 @@ func (c *ConfigCase) localizeRuntimeConfigValues(ctx context.Context, configs []
 	if len(configIDs) == 0 {
 		return configs, nil
 	}
-	query := c.configTranslationRepo.Query(ctx).BaseConfigTranslation
-	rows, err := c.configTranslationRepo.List(ctx, repository.Where(query.ConfigID.In(configIDs...)), repository.Where(query.Locale.Eq(localeValue)), repository.Where(query.Field.Eq("value")), repository.Where(query.TranslationStatus.Eq(_const.TRANSLATION_STATUS_REVIEWED)))
+	query := c.translationRepo.Query(ctx).BaseTranslation
+	rows, err := c.translationRepo.List(ctx, repository.Where(query.TargetType.Eq(int32(_const.TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE))), repository.Where(query.TargetID.In(configIDs...)), repository.Where(query.Locale.Eq(localeValue)))
 	if err != nil {
 		return nil, err
 	}
 	values := make(map[int64]string, len(rows))
 	for _, row := range rows {
-		values[row.ConfigID] = row.Text
+		values[row.TargetID] = row.Name
 	}
 	localized := make([]*basev1.ConfigItem, 0, len(configs))
 	for _, item := range configs {

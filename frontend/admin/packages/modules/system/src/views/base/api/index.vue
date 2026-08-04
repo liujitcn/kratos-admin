@@ -3,34 +3,34 @@
   <div class="table-box">
     <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestBaseApiTable" />
 
-    <el-drawer v-model="detailDrawer.visible" :title="t('system.api.title.detail')" size="70%" @close="handleCloseDetail">
+    <el-drawer v-model="detailDrawer.visible" :title="t('system.base.api.title.detail')" size="70%" @close="handleCloseDetail">
       <el-descriptions v-if="detailData" :column="1" border>
-        <el-descriptions-item :label="t('system.api.field.toolName')">{{ detailData.tool_name }}</el-descriptions-item>
-        <el-descriptions-item :label="t('system.api.field.toolPrompts')">
+        <el-descriptions-item :label="t('system.base.api.field.tool_name')">{{ detailData.tool_name }}</el-descriptions-item>
+        <el-descriptions-item :label="t('system.base.api.field.tool_prompts')">
           <div class="tool-prompts">
             <el-tag v-for="prompt in detailToolPrompts" :key="prompt" effect="plain">{{ prompt }}</el-tag>
             <span v-if="!detailToolPrompts.length">--</span>
           </div>
         </el-descriptions-item>
-        <el-descriptions-item :label="t('system.api.field.serviceName')">{{ detailData.service_name }}</el-descriptions-item>
-        <el-descriptions-item :label="t('system.api.field.serviceDescription')">{{
+        <el-descriptions-item :label="t('system.base.api.field.service_name')">{{ detailData.service_name }}</el-descriptions-item>
+        <el-descriptions-item :label="t('system.base.api.field.service_description')">{{
           detailData.service_desc
         }}</el-descriptions-item>
-        <el-descriptions-item :label="t('system.api.field.description')">{{ detailData.desc }}</el-descriptions-item>
-        <el-descriptions-item :label="t('system.api.field.operation')">{{ detailData.operation }}</el-descriptions-item>
-        <el-descriptions-item :label="t('system.api.field.method')">{{ detailData.method }}</el-descriptions-item>
-        <el-descriptions-item :label="t('system.api.field.path')">{{ detailData.path }}</el-descriptions-item>
-        <el-descriptions-item :label="t('system.api.field.mcpTool')">{{
+        <el-descriptions-item :label="t('system.base.api.field.description')">{{ detailData.desc }}</el-descriptions-item>
+        <el-descriptions-item :label="t('system.base.api.field.operation')">{{ detailData.operation }}</el-descriptions-item>
+        <el-descriptions-item :label="t('system.base.api.field.method')">{{ detailData.method }}</el-descriptions-item>
+        <el-descriptions-item :label="t('system.base.api.field.path')">{{ detailData.path }}</el-descriptions-item>
+        <el-descriptions-item :label="t('system.base.api.field.mcp_tool')">{{
           formatStatus(detailData.mcp_status)
         }}</el-descriptions-item>
-        <el-descriptions-item :label="t('system.api.field.agentTool')">{{
+        <el-descriptions-item :label="t('system.base.api.field.agent_tool')">{{
           formatStatus(detailData.agent_status)
         }}</el-descriptions-item>
       </el-descriptions>
 
       <div v-if="detailDoc" class="api-doc">
         <section class="api-doc-section">
-          <div class="api-doc-title">{{ t("system.api.section.parameters") }}</div>
+          <div class="api-doc-title">{{ t("system.base.api.section.parameters") }}</div>
           <el-table
             v-if="detailParameters.length > 0"
             :data="detailParameters"
@@ -38,26 +38,26 @@
             default-expand-all
             :tree-props="{ children: 'children' }"
           >
-            <el-table-column prop="path" :label="t('system.api.doc.field.name')" min-width="220" />
-            <el-table-column prop="in" :label="t('system.api.doc.field.location')" width="90" />
-            <el-table-column :label="t('system.api.doc.field.type')" min-width="180">
+            <el-table-column prop="path" :label="t('system.base.api.doc.field.name')" min-width="220" />
+            <el-table-column prop="in" :label="t('system.base.api.doc.field.location')" width="90" />
+            <el-table-column :label="t('system.base.api.doc.field.type')" min-width="180">
               <template #default="{ row }">{{ formatSchemaType(row) }}</template>
             </el-table-column>
-            <el-table-column :label="t('system.api.doc.field.required')" width="80" align="center">
-              <template #default="{ row }">{{ t(row.required ? "system.common.value.yes" : "system.common.value.no") }}</template>
+            <el-table-column :label="t('system.base.api.doc.field.required')" width="80" align="center">
+              <template #default="{ row }">{{ t(row.required ? "common.value.yes" : "common.value.no") }}</template>
             </el-table-column>
             <el-table-column
               prop="description"
-              :label="t('system.api.doc.field.description')"
+              :label="t('system.base.api.doc.field.description')"
               min-width="240"
               show-overflow-tooltip
             />
           </el-table>
-          <el-empty v-else :description="t('system.api.message.noParameters')" :image-size="72" />
+          <el-empty v-else :description="t('system.base.api.message.no_parameters')" :image-size="72" />
         </section>
 
         <section class="api-doc-section">
-          <div class="api-doc-title">{{ t("system.api.section.requestBody") }}</div>
+          <div class="api-doc-title">{{ t("system.base.api.section.request_body") }}</div>
           <el-table
             v-if="requestBodyRows.length > 0"
             :data="requestBodyRows"
@@ -65,25 +65,25 @@
             default-expand-all
             :tree-props="{ children: 'children' }"
           >
-            <el-table-column prop="path" :label="t('system.api.doc.field.name')" min-width="220" />
-            <el-table-column :label="t('system.api.doc.field.type')" min-width="180">
+            <el-table-column prop="path" :label="t('system.base.api.doc.field.name')" min-width="220" />
+            <el-table-column :label="t('system.base.api.doc.field.type')" min-width="180">
               <template #default="{ row }">{{ formatSchemaType(row) }}</template>
             </el-table-column>
-            <el-table-column :label="t('system.api.doc.field.required')" width="80" align="center">
-              <template #default="{ row }">{{ t(row.required ? "system.common.value.yes" : "system.common.value.no") }}</template>
+            <el-table-column :label="t('system.base.api.doc.field.required')" width="80" align="center">
+              <template #default="{ row }">{{ t(row.required ? "common.value.yes" : "common.value.no") }}</template>
             </el-table-column>
             <el-table-column
               prop="description"
-              :label="t('system.api.doc.field.description')"
+              :label="t('system.base.api.doc.field.description')"
               min-width="240"
               show-overflow-tooltip
             />
           </el-table>
-          <el-empty v-else :description="t('system.api.message.noRequestBody')" :image-size="72" />
+          <el-empty v-else :description="t('system.base.api.message.no_request_body')" :image-size="72" />
         </section>
 
         <section class="api-doc-section">
-          <div class="api-doc-title">{{ t("system.api.section.responses") }}</div>
+          <div class="api-doc-title">{{ t("system.base.api.section.responses") }}</div>
           <el-collapse v-if="detailResponses.length > 0">
             <el-collapse-item v-for="response in detailResponses" :key="response.status" :name="response.status">
               <template #title>
@@ -96,21 +96,21 @@
                 default-expand-all
                 :tree-props="{ children: 'children' }"
               >
-                <el-table-column prop="path" :label="t('system.api.doc.field.name')" min-width="220" />
-                <el-table-column :label="t('system.api.doc.field.type')" min-width="180">
+                <el-table-column prop="path" :label="t('system.base.api.doc.field.name')" min-width="220" />
+                <el-table-column :label="t('system.base.api.doc.field.type')" min-width="180">
                   <template #default="{ row }">{{ formatSchemaType(row) }}</template>
                 </el-table-column>
                 <el-table-column
                   prop="description"
-                  :label="t('system.api.doc.field.description')"
+                  :label="t('system.base.api.doc.field.description')"
                   min-width="240"
                   show-overflow-tooltip
                 />
               </el-table>
-              <el-empty v-else :description="t('system.api.message.noResponseBody')" :image-size="72" />
+              <el-empty v-else :description="t('system.base.api.message.no_response_body')" :image-size="72" />
             </el-collapse-item>
           </el-collapse>
-          <el-empty v-else :description="t('system.api.message.noResponses')" :image-size="72" />
+          <el-empty v-else :description="t('system.base.api.message.no_responses')" :image-size="72" />
         </section>
       </div>
     </el-drawer>
@@ -118,7 +118,7 @@
     <FormDialog
       v-model="editDialog.visible"
       ref="editDialogRef"
-      :title="t('system.api.title.edit')"
+      :title="t('system.base.api.title.edit')"
       width="760px"
       :model="editForm"
       :fields="editFields"
@@ -188,19 +188,19 @@ const detailToolPrompts = computed(() => detailData.value?.tool_prompts ?? []);
 const editFields = computed<ProFormField[]>(() => [
   {
     prop: "tool_name",
-    label: t("system.api.field.toolName"),
+    label: t("system.base.api.field.tool_name"),
     component: "input",
     props: { disabled: true }
   },
   {
     prop: "tool_prompts",
-    label: t("system.api.field.toolPrompts"),
+    label: t("system.base.api.field.tool_prompts"),
     component: "dynamic-list",
-    props: { inputProps: { placeholder: t("system.api.placeholder.toolPrompt") } }
+    props: { inputProps: { placeholder: t("system.base.api.placeholder.tool_prompt") } }
   },
   {
     prop: "mcp_status",
-    label: t("system.api.field.mcpStatus"),
+    label: t("system.base.api.field.mcp_status"),
     component: "switch",
     props: {
       activeValue: Status.ENABLE,
@@ -211,7 +211,7 @@ const editFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "agent_status",
-    label: t("system.api.field.agentStatus"),
+    label: t("system.base.api.field.agent_status"),
     component: "switch",
     props: {
       activeValue: Status.ENABLE,
@@ -229,23 +229,23 @@ const statusOptions = computed(() => [
 
 /** API 表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
-  { prop: "tool_name", label: t("system.api.field.toolName"), minWidth: 260, search: { el: "input" } },
+  { prop: "tool_name", label: t("system.base.api.field.tool_name"), minWidth: 260, search: { el: "input" } },
   {
     prop: "tool_prompts",
-    label: t("system.api.field.toolPrompts"),
+    label: t("system.base.api.field.tool_prompts"),
     minWidth: 240,
     search: { el: "input", key: "tool_prompt" },
     render: scope => formatToolPrompts((scope.row as BaseApi).tool_prompts)
   },
-  { prop: "service_name", label: t("system.api.field.serviceName"), minWidth: 180, search: { el: "input" } },
-  { prop: "service_desc", label: t("system.api.field.serviceDescription"), minWidth: 180, search: { el: "input" } },
-  { prop: "desc", label: t("system.api.field.description"), minWidth: 180, search: { el: "input" } },
-  { prop: "operation", label: t("system.api.field.operation"), minWidth: 260, search: { el: "input" } },
-  { prop: "method", label: t("system.api.field.method"), width: 110, search: { el: "input" } },
-  { prop: "path", label: t("system.api.field.path"), minWidth: 260, search: { el: "input" } },
+  { prop: "service_name", label: t("system.base.api.field.service_name"), minWidth: 180, search: { el: "input" } },
+  { prop: "service_desc", label: t("system.base.api.field.service_description"), minWidth: 180, search: { el: "input" } },
+  { prop: "desc", label: t("system.base.api.field.description"), minWidth: 180, search: { el: "input" } },
+  { prop: "operation", label: t("system.base.api.field.operation"), minWidth: 260, search: { el: "input" } },
+  { prop: "method", label: t("system.base.api.field.method"), width: 110, search: { el: "input" } },
+  { prop: "path", label: t("system.base.api.field.path"), minWidth: 260, search: { el: "input" } },
   {
     prop: "mcp_status",
-    label: t("system.api.field.mcpStatus"),
+    label: t("system.base.api.field.mcp_status"),
     width: 120,
     enum: statusOptions.value,
     search: { el: "select" },
@@ -261,7 +261,7 @@ const columns = computed<ColumnProps[]>(() => [
   },
   {
     prop: "agent_status",
-    label: t("system.api.field.agentStatus"),
+    label: t("system.base.api.field.agent_status"),
     width: 130,
     enum: statusOptions.value,
     search: { el: "select" },
@@ -277,7 +277,7 @@ const columns = computed<ColumnProps[]>(() => [
   },
   {
     prop: "operation",
-    label: t("system.common.field.action"),
+    label: t("common.field.action"),
     width: 210,
     fixed: "right",
     cellType: "actions",
@@ -375,7 +375,7 @@ async function handleSubmitEdit() {
     mcp_status: editForm.mcp_status,
     agent_status: editForm.agent_status
   });
-  ElMessage.success(t("system.api.message.saveSuccess"));
+  ElMessage.success(t("system.base.api.message.save_success"));
   handleCloseEditDialog();
   refreshTable();
 }
@@ -388,13 +388,13 @@ async function handleBeforeSetMcpStatus(row: BaseApi) {
   const action = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
   const apiName = row.desc || row.operation || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(t("system.api.message.confirmMcpStatus", { action, api: apiName }), t("common.title.notice"), {
+    await ElMessageBox.confirm(t("system.base.api.message.confirm_mcp_status", { action, api: apiName }), t("common.title.notice"), {
       confirmButtonText: t("common.action.confirm"),
       cancelButtonText: t("common.action.cancel"),
       type: "warning"
     });
     await defBaseApiService.SetBaseApiMcpStatus({ id: row.id, mcp_status: nextStatus });
-    ElMessage.success(t("system.common.message.statusSuccess", { action }));
+    ElMessage.success(t("common.message.status_success", { action }));
     refreshTable();
     return true;
   } catch {
@@ -410,13 +410,13 @@ async function handleBeforeSetAgentStatus(row: BaseApi) {
   const action = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
   const apiName = row.desc || row.operation || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(t("system.api.message.confirmAgentStatus", { action, api: apiName }), t("common.title.notice"), {
+    await ElMessageBox.confirm(t("system.base.api.message.confirm_agent_status", { action, api: apiName }), t("common.title.notice"), {
       confirmButtonText: t("common.action.confirm"),
       cancelButtonText: t("common.action.cancel"),
       type: "warning"
     });
     await defBaseApiService.SetBaseApiAgentStatus({ id: row.id, agent_status: nextStatus });
-    ElMessage.success(t("system.common.message.statusSuccess", { action }));
+    ElMessage.success(t("common.message.status_success", { action }));
     refreshTable();
     return true;
   } catch {
@@ -438,7 +438,7 @@ function formatToolPrompts(prompts: string[]) {
 function formatStatus(status: Status) {
   if (status === Status.ENABLE) return t("common.status.enabled");
   if (status === Status.DISABLE) return t("common.status.disabled");
-  return t("system.common.value.unknown");
+  return t("common.value.unknown");
 }
 
 /**

@@ -22,7 +22,7 @@
         <div class="file-card__main">
           <el-icon class="file-card__icon"><Document /></el-icon>
           <div class="file-card__meta">
-            <div class="file-card__name">{{ file.name || t("core.upload.unnamedFile") }}</div>
+            <div class="file-card__name">{{ file.name || t("core.upload.unnamed_file") }}</div>
             <div class="file-card__url">{{ file.url }}</div>
           </div>
         </div>
@@ -82,7 +82,7 @@ type UploadRequestError = Parameters<NonNullable<UploadRequestOptions["onError"]
 
 /** 兼容 Element Plus 上传组件要求的错误对象结构。 */
 function buildUploadError(error: unknown): UploadRequestError {
-  const uploadError = error instanceof Error ? error : new Error(t("core.upload.fileFailed"));
+  const uploadError = error instanceof Error ? error : new Error(t("core.upload.file_failed"));
   return Object.assign(uploadError, {
     status: 500,
     method: "POST",
@@ -110,7 +110,7 @@ const beforeUpload: UploadProps["beforeUpload"] = rawFile => {
   if (!fileTypeValid) {
     ElNotification({
       title: t("common.title.warning"),
-      message: t("core.upload.fileFormatInvalid"),
+      message: t("core.upload.file_format_invalid"),
       type: "warning"
     });
   }
@@ -118,7 +118,7 @@ const beforeUpload: UploadProps["beforeUpload"] = rawFile => {
   if (!fileSizeValid) {
     ElNotification({
       title: t("common.title.warning"),
-      message: t("core.upload.fileSizeExceeded", { size: props.fileSize }),
+      message: t("core.upload.file_size_exceeded", { size: props.fileSize }),
       type: "warning"
     });
   }
@@ -151,7 +151,7 @@ const uploadSuccess = (response: FileInfo | undefined) => {
   formItemContext?.prop && formContext?.validateField([formItemContext.prop as string]);
   ElNotification({
     title: t("common.title.notice"),
-    message: t("core.upload.fileSuccess"),
+    message: t("core.upload.file_success"),
     type: "success"
   });
 };
@@ -160,7 +160,7 @@ const uploadSuccess = (response: FileInfo | undefined) => {
 const uploadError = () => {
   ElNotification({
     title: t("common.title.warning"),
-    message: t("core.upload.fileFailed"),
+    message: t("core.upload.file_failed"),
     type: "error"
   });
 };
@@ -169,7 +169,7 @@ const uploadError = () => {
 function handleExceed() {
   ElNotification({
     title: t("common.title.warning"),
-    message: t("core.upload.limitExceeded", { limit: props.limit }),
+    message: t("core.upload.limit_exceeded", { limit: props.limit }),
     type: "warning"
   });
 }

@@ -70,7 +70,7 @@ func (c *BaseDictCase) OptionBaseDict(ctx context.Context) (*systemadminv1.Optio
 		dictIDs = append(dictIDs, item.ID)
 	}
 	var dictNames map[int64]string
-	dictNames, err = c.translationCase.ReviewedDictNames(ctx, dictIDs)
+	dictNames, err = c.translationCase.TranslatedDictNames(ctx, dictIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (c *BaseDictCase) OptionBaseDict(ctx context.Context) (*systemadminv1.Optio
 		dictItemIDs = append(dictItemIDs, item.ID)
 	}
 	var dictItemLabels map[int64]string
-	dictItemLabels, err = c.translationCase.ReviewedDictItemLabels(ctx, dictItemIDs)
+	dictItemLabels, err = c.translationCase.TranslatedDictItemLabels(ctx, dictItemIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +130,7 @@ func (c *BaseDictCase) PageBaseDict(ctx context.Context, req *systemadminv1.Page
 	var err error
 	if req.GetName() != "" {
 		var translatedIDs []int64
-		translatedIDs, err = c.translationCase.ReviewedDictIDsByName(ctx, req.GetName())
+		translatedIDs, err = c.translationCase.TranslatedDictIDsByName(ctx, req.GetName())
 		if err != nil {
 			return nil, err
 		}
@@ -152,16 +152,16 @@ func (c *BaseDictCase) PageBaseDict(ctx context.Context, req *systemadminv1.Page
 	if err != nil {
 		return nil, err
 	}
+	resList := make([]*systemadminv1.BaseDict, 0, len(list))
 	sources := make(map[int64]string, len(list))
 	for _, item := range list {
 		sources[item.ID] = item.Name
 	}
-	var translations map[int64][]*systemadminv1.BaseDictTranslation
+	var translations map[int64][]*systemadminv1.BaseTranslation
 	translations, err = c.translationCase.DictTranslations(ctx, sources)
 	if err != nil {
 		return nil, err
 	}
-	resList := make([]*systemadminv1.BaseDict, 0, len(list))
 	for _, item := range list {
 		baseDict := c.mapper.ToDTO(item)
 		baseDict.Translations = translations[item.ID]
@@ -177,7 +177,7 @@ func (c *BaseDictCase) GetBaseDict(ctx context.Context, id int64) (*systemadminv
 		return nil, err
 	}
 	res := c.formMapper.ToDTO(baseDict)
-	var translations map[int64][]*systemadminv1.BaseDictTranslation
+	var translations map[int64][]*systemadminv1.BaseTranslation
 	translations, err = c.translationCase.DictTranslations(ctx, map[int64]string{id: baseDict.Name})
 	if err != nil {
 		return nil, err
@@ -216,7 +216,7 @@ func (c *BaseDictCase) CreateBaseDict(ctx context.Context, req *systemadminv1.Ba
 	if err != nil {
 		return err
 	}
-	// 机器译文由后台定时任务异步生成，避免外部翻译服务影响字典主流程。
+	c.translationCase.EnqueueTranslation(systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT, baseDict.ID)
 	return nil
 }
 
@@ -232,9 +232,8 @@ func (c *BaseDictCase) UpdateBaseDict(ctx context.Context, req *systemadminv1.Ba
 	req.Name = primaryText
 	translations := appendDictSourceTranslation(req.GetTranslations(), sourceLocale, primaryLocale, sourceText)
 	baseDict := c.formMapper.ToEntity(req)
-	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		var current *models.BaseDict
-		current, err = c.FindByID(ctx, req.GetId())
+	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
+		_, err = c.FindByID(ctx, req.GetId())
 		if err != nil {
 			return err
 		}
@@ -246,12 +245,13 @@ func (c *BaseDictCase) UpdateBaseDict(ctx context.Context, req *systemadminv1.Ba
 			}
 			return err
 		}
-		err = c.translationCase.MarkDictSourceChanged(ctx, current.ID, current.Name, baseDict.Name)
-		if err != nil {
-			return err
-		}
 		return c.translationCase.SaveDictTranslations(ctx, baseDict.ID, baseDict.Name, translations)
 	})
+	if err != nil {
+		return err
+	}
+	c.translationCase.EnqueueTranslation(systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT, baseDict.ID)
+	return nil
 }
 
 // DeleteBaseDict 删除字典
@@ -289,16 +289,16 @@ func (c *BaseDictCase) SetBaseDictStatus(ctx context.Context, req *systemadminv1
 }
 
 // appendDictSourceTranslation 保留当前请求语言的原始字典名称。
-func appendDictSourceTranslation(translations []*systemadminv1.BaseDictTranslation, sourceLocale, primaryLocale, source string) []*systemadminv1.BaseDictTranslation {
+func appendDictSourceTranslation(translations []*systemadminv1.BaseTranslation, sourceLocale, primaryLocale, source string) []*systemadminv1.BaseTranslation {
 	if sourceLocale == primaryLocale {
 		return translations
 	}
-	result := make([]*systemadminv1.BaseDictTranslation, 0, len(translations)+1)
+	result := make([]*systemadminv1.BaseTranslation, 0, len(translations)+1)
 	added := false
 	for _, translation := range translations {
 		if coreLocale.IsSupported(translation.GetLocale()) && coreLocale.Normalize(translation.GetLocale()) == sourceLocale {
 			if !added {
-				result = append(result, &systemadminv1.BaseDictTranslation{Locale: sourceLocale, Name: source})
+				result = append(result, &systemadminv1.BaseTranslation{TargetType: systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT, Locale: sourceLocale, Name: source})
 				added = true
 			}
 			continue
@@ -306,7 +306,7 @@ func appendDictSourceTranslation(translations []*systemadminv1.BaseDictTranslati
 		result = append(result, translation)
 	}
 	if !added {
-		result = append(result, &systemadminv1.BaseDictTranslation{Locale: sourceLocale, Name: source})
+		result = append(result, &systemadminv1.BaseTranslation{TargetType: systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT, Locale: sourceLocale, Name: source})
 	}
 	return result
 }

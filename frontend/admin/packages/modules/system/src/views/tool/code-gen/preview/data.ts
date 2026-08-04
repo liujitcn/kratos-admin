@@ -84,7 +84,7 @@ export function createCodeGenLeftTreeOptions(config?: CodeGenLeftTreeConfig): Pr
     inactive_value: "",
     lazy: config.lazy
   };
-  return createCodeGenPreviewOptions(config.label_column || t("system.codegen.preview.value.category"), option, new Map());
+  return createCodeGenPreviewOptions(config.label_column || t("system.code.gen.preview.value.category"), option, new Map());
 }
 
 /** 创建页面列表所需的模拟业务记录。 */
@@ -217,7 +217,7 @@ function createCodeGenPreviewOptions(
     });
   }
   return Array.from({ length: 4 }, (_, optionIndex) => ({
-    label: t("system.codegen.preview.value.option", { source: sourceLabel, index: optionIndex + 1 }),
+    label: t("system.code.gen.preview.value.option", { source: sourceLabel, index: optionIndex + 1 }),
     value: `${sourceLabel}-${optionIndex + 1}`
   }));
 }

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+// 系统管理公共类型。
+
+// 菜单类型。
+enum BaseMenuType {
+  // 未指定菜单类型。
+  BASE_MENU_TYPE_UNSPECIFIED = 0;
+  // 目录。
+  BASE_MENU_TYPE_FOLDER = 1;
+  // 菜单。
+  BASE_MENU_TYPE_MENU = 2;
+  // 按钮。
+  BASE_MENU_TYPE_BUTTON = 3;
+  // 外部链接。
+  BASE_MENU_TYPE_EXT_LINK = 4;
+}

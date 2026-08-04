@@ -31,7 +31,7 @@
                 class="agent-icon-button"
                 type="button"
                 :disabled="sending || uploading"
-                :aria-label="t('system.ai.chat.action.uploadAttachment')"
+                :aria-label="t('system.ai.chat.action.upload_attachment')"
               >
                 <el-icon :class="{ 'is-loading': uploading }">
                   <Loading v-if="uploading" />
@@ -40,10 +40,10 @@
               </button>
             </template>
             <div class="agent-popover-card">
-              <div class="agent-popover-title">{{ t("system.ai.chat.action.uploadAttachment") }}</div>
-              <div class="agent-popover-desc">{{ t("system.ai.chat.message.attachmentHint") }}</div>
+              <div class="agent-popover-title">{{ t("system.ai.chat.action.upload_attachment") }}</div>
+              <div class="agent-popover-desc">{{ t("system.ai.chat.message.attachment_hint") }}</div>
               <button class="agent-popover-action" type="button" :disabled="sending || uploading" @click="handleSelectAttachment">
-                {{ uploading ? t("system.ai.chat.status.uploading") : t("system.ai.chat.action.selectLocalFile") }}
+                {{ uploading ? t("system.ai.chat.status.uploading") : t("system.ai.chat.action.select_local_file") }}
               </button>
             </div>
           </el-popover>
@@ -55,7 +55,7 @@
       <template #action-list>
         <div class="agent-sender-actions">
           <el-tooltip
-            :content="recording ? t('system.ai.chat.action.stopVoiceInput') : t('system.ai.chat.action.voiceInput')"
+            :content="recording ? t('system.ai.chat.action.stop_voice_input') : t('system.ai.chat.action.voice_input')"
             placement="top"
           >
             <button
@@ -64,7 +64,7 @@
               type="button"
               :disabled="sending"
               :aria-pressed="recording"
-              :aria-label="recording ? t('system.ai.chat.action.stopVoiceInput') : t('system.ai.chat.action.voiceInput')"
+              :aria-label="recording ? t('system.ai.chat.action.stop_voice_input') : t('system.ai.chat.action.voice_input')"
               @click="handleToggleRecord"
             >
               <el-icon :class="{ 'is-loading': recording }">
@@ -164,12 +164,12 @@ const {
 });
 
 const actionHintText = computed(() => {
-  if (recording.value) return t("system.ai.chat.status.recognizingVoice");
-  if (uploading.value) return t("system.ai.chat.status.uploadingAttachments");
+  if (recording.value) return t("system.ai.chat.status.recognizing_voice");
+  if (uploading.value) return t("system.ai.chat.status.uploading_attachments");
   if (selectedAttachments.value.length) {
-    return t("system.ai.chat.value.selectedAttachments", { count: selectedAttachments.value.length });
+    return t("system.ai.chat.value.selected_attachments", { count: selectedAttachments.value.length });
   }
-  return t("system.ai.chat.value.attachmentsAvailable");
+  return t("system.ai.chat.value.attachments_available");
 });
 
 const attachmentItems = computed<FilesCardProps[]>(() =>
@@ -196,7 +196,7 @@ function handleSubmit() {
   if (!trimmedText && selectedAttachments.value.length === 0) return;
 
   emit("submit", {
-    text: trimmedText || t("system.ai.chat.value.analyzeAttachments"),
+    text: trimmedText || t("system.ai.chat.value.analyze_attachments"),
     attachments: [...selectedAttachments.value]
   });
   inputText.value = "";
@@ -275,12 +275,12 @@ function matchCumulativeRecordCandidate(text: string, candidate: string) {
 
 /** 根据浏览器语音识别错误类型生成用户可理解的提示。 */
 function resolveRecordErrorMessage(error: RecordError) {
-  if (error.code === -1) return t("system.ai.chat.message.voiceUnsupported");
+  if (error.code === -1) return t("system.ai.chat.message.voice_unsupported");
   const errorName = error.error ?? "";
   if (["not-allowed", "service-not-allowed", "permission-denied"].includes(errorName)) {
-    return t("system.ai.chat.message.microphoneDenied");
+    return t("system.ai.chat.message.microphone_denied");
   }
-  return t("system.ai.chat.message.voiceFailed");
+  return t("system.ai.chat.message.voice_failed");
 }
 
 /** 同步输入器内部文本，保证发送按钮禁用态能实时响应。 */
@@ -327,10 +327,10 @@ async function uploadAttachments(files: File[]) {
     });
     selectedAttachments.value = Array.from(attachmentMap.values());
     if (response?.files?.length) {
-      ElMessage.success(t("system.ai.chat.message.attachmentsUploaded", { count: response.files.length }));
+      ElMessage.success(t("system.ai.chat.message.attachments_uploaded", { count: response.files.length }));
     }
   } catch {
-    ElMessage.error(t("system.ai.chat.message.attachmentUploadFailed"));
+    ElMessage.error(t("system.ai.chat.message.attachment_upload_failed"));
   } finally {
     uploading.value = false;
     resetFileInput();
@@ -341,22 +341,22 @@ async function uploadAttachments(files: File[]) {
 function filterUploadFiles(files: File[]) {
   const remainingCount = maxAttachmentCount - selectedAttachments.value.length;
   if (remainingCount <= 0) {
-    ElMessage.warning(t("system.ai.chat.message.attachmentLimit", { count: maxAttachmentCount }));
+    ElMessage.warning(t("system.ai.chat.message.attachment_limit", { count: maxAttachmentCount }));
     return [];
   }
   const validFiles = files.filter(file => {
     if (!isAcceptedAttachmentFile(file)) {
-      ElMessage.warning(t("system.ai.chat.message.attachmentUnsupported", { name: file.name }));
+      ElMessage.warning(t("system.ai.chat.message.attachment_unsupported", { name: file.name }));
       return false;
     }
     if (file.size > maxAttachmentSize) {
-      ElMessage.warning(t("system.ai.chat.message.attachmentTooLarge", { name: file.name, size: maxAttachmentSizeMB }));
+      ElMessage.warning(t("system.ai.chat.message.attachment_too_large", { name: file.name, size: maxAttachmentSizeMB }));
       return false;
     }
     return true;
   });
   if (validFiles.length > remainingCount) {
-    ElMessage.warning(t("system.ai.chat.message.attachmentRemaining", { count: remainingCount }));
+    ElMessage.warning(t("system.ai.chat.message.attachment_remaining", { count: remainingCount }));
   }
   return validFiles.slice(0, remainingCount);
 }

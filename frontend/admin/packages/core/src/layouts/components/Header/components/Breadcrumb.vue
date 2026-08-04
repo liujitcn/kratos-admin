@@ -27,7 +27,7 @@ import { ArrowRight } from "@element-plus/icons-vue";
 import { useAuthStore } from "@/stores/modules/auth";
 import { useGlobalStore } from "@/stores/modules/global";
 import type { RouteItem } from "@/rpc/system/admin/v1/auth";
-import { BaseMenuType } from "@/rpc/system/common/v1/enum";
+import { BaseMenuType } from "@/rpc/system/admin/v1/common";
 import { getRouteMetaIcon, getRouteMetaTitle, getRouteTarget, isExternalPath } from "@/utils";
 import { useLocaleStore } from "@/locales";
 
@@ -45,7 +45,7 @@ const breadcrumbList = computed(() => {
       {
         path: HOME_URL,
         name: "home",
-        type: BaseMenuType.MENU,
+        type: BaseMenuType.BASE_MENU_TYPE_MENU,
         meta: { icon: "HomeFilled", title: t("core.layout.home"), params: [] },
         children: []
       },

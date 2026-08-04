@@ -56,7 +56,7 @@ const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
 const dialog = reactive({
-  titleKey: "system.area.action.create",
+  titleKey: "system.base.area.action.create",
   visible: false
 });
 
@@ -70,19 +70,19 @@ const rules = computed<FormRules>(() => ({
   parent_id: [
     {
       required: true,
-      message: t("system.common.validation.requiredSelect", { field: t("system.area.field.parent") }),
+      message: t("common.validation.required_select", { field: t("system.base.area.field.parent") }),
       trigger: "change"
     }
   ],
   name: [
     {
       required: true,
-      message: t("system.common.validation.requiredInput", { field: t("system.area.field.name") }),
+      message: t("common.validation.required_input", { field: t("system.base.area.field.name") }),
       trigger: "blur"
     },
     {
       max: 50,
-      message: t("system.common.validation.maxLength", { field: t("system.area.field.name"), max: 50 }),
+      message: t("common.validation.max_length", { field: t("system.base.area.field.name"), max: 50 }),
       trigger: "blur"
     }
   ]
@@ -120,7 +120,7 @@ void loadFormOptions();
 const formFields = computed<ProFormField[]>(() => [
   {
     prop: "parent_id",
-    label: t("system.area.field.parent"),
+    label: t("system.base.area.field.parent"),
     component: "tree-select",
     options: parentIdFormOptions.value,
     props: {
@@ -133,19 +133,19 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "name",
-    label: t("system.area.field.name"),
+    label: t("system.base.area.field.name"),
     component: "input",
-    props: { placeholder: t("system.common.validation.requiredInput", { field: t("system.area.field.name") }) }
+    props: { placeholder: t("common.validation.required_input", { field: t("system.base.area.field.name") }) }
   }
 ]);
 
 /** 行政区域表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
-  { prop: "name", label: t("system.area.field.name"), align: "left", search: { el: "input" } },
+  { prop: "name", label: t("system.base.area.field.name"), align: "left", search: { el: "input" } },
   {
     prop: "operation",
-    label: t("system.common.field.operation"),
+    label: t("common.field.operation"),
     width: 150,
     fixed: "right",
     cellType: "actions",
@@ -205,7 +205,7 @@ async function loadAreaChildren(row: BaseArea, _treeNode: unknown, resolve: (dat
     const data = await defBaseAreaService.TreeBaseArea({ parent_id: row.id, lazy: true });
     resolve(data.base_areas ?? []);
   } catch {
-    ElMessage.error(t("system.common.message.loadChildrenFailed", { resource: t("system.area.resource") }));
+    ElMessage.error(t("common.message.load_children_failed", { resource: t("system.base.area.resource") }));
     resolve([]);
   }
 }
@@ -222,7 +222,7 @@ async function loadFormOptions() {
     typeof defBaseAreaService.OptionBaseArea
   >[0]);
   parentIdFormOptions.value = [
-    { label: t("system.area.value.root"), value: 0 },
+    { label: t("system.base.area.value.root"), value: 0 },
     ...normalizeLazyTreeOptions((parentIdFormResponse.list ?? []) as GeneratedTreeOption[]).filter(
       option => Number(option.value) !== 0
     )
@@ -235,7 +235,7 @@ async function loadFormOptions() {
 async function handleOpenDialog(id?: number) {
   resetForm();
   await loadFormOptions();
-  dialog.titleKey = id ? "system.area.action.edit" : "system.area.action.create";
+  dialog.titleKey = id ? "system.base.area.action.edit" : "system.base.area.action.create";
   dialog.visible = true;
   if (!id) return;
 
@@ -272,8 +272,8 @@ function handleSubmit() {
       : defBaseAreaService.CreateBaseArea({ base_area: payload });
     request.then(() => {
       ElMessage.success(
-        t(payload.id ? "system.common.message.updateSuccess" : "system.common.message.createSuccess", {
-          resource: t("system.area.resource")
+        t(payload.id ? "common.message.update_success" : "common.message.create_success", {
+          resource: t("system.base.area.resource")
         })
       );
       handleCloseDialog();
@@ -295,11 +295,11 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
     rowList.length ? rowList.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");
   if (!ids) {
-    ElMessage.warning(t("system.common.message.selectDeleteItem"));
+    ElMessage.warning(t("common.message.select_delete_item"));
     return;
   }
 
-  const confirmMessage = t(rowList.length === 1 ? "system.area.message.deleteSingle" : "system.area.message.deleteBatch");
+  const confirmMessage = t(rowList.length === 1 ? "system.base.area.message.delete_single" : "system.base.area.message.delete_batch");
   ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
     confirmButtonText: t("common.action.confirm"),
     cancelButtonText: t("common.action.cancel"),
@@ -307,12 +307,12 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   }).then(
     () => {
       defBaseAreaService.DeleteBaseArea({ ids }).then(() => {
-        ElMessage.success(t("system.common.message.deleteSuccess", { resource: t("system.area.resource") }));
+        ElMessage.success(t("common.message.delete_success", { resource: t("system.base.area.resource") }));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info(t("system.common.dialog.cancelDelete", { resource: t("system.area.resource") }));
+      ElMessage.info(t("common.dialog.cancel_delete", { resource: t("system.base.area.resource") }));
     }
   );
 }

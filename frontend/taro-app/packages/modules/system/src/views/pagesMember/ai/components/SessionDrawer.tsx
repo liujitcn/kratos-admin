@@ -58,14 +58,14 @@ export default function SessionDrawer(props: SessionDrawerProps) {
           <Input
             className='session-search-input'
             confirmType='search'
-            placeholder={t('system.ai.searchSession')}
+            placeholder={t('system.ai.search_session')}
             placeholderClass='session-search-placeholder'
             value={props.keyword}
             onInput={(event) => props.onKeywordChange(event.detail.value)}
           />
         </View>
         <ScrollView className='session-list' scrollY showScrollbar={false}>
-          {props.loading ? <View className='session-empty'>{t('system.ai.loadSessions')}</View> : null}
+          {props.loading ? <View className='session-empty'>{t('system.ai.load_sessions')}</View> : null}
           {props.sessions.map((session) => (
             <View
               key={session.id}
@@ -78,7 +78,7 @@ export default function SessionDrawer(props: SessionDrawerProps) {
                   <View className='session-title'>{session.title}</View>
                   <View className='session-time'>{formatSessionTime(session)}</View>
                 </View>
-                <View className='session-summary'>{session.summary || t('system.ai.noSummary')}</View>
+                <View className='session-summary'>{session.summary || t('system.ai.no_summary')}</View>
               </View>
               <Button
                 className='session-more'
@@ -93,7 +93,7 @@ export default function SessionDrawer(props: SessionDrawerProps) {
             </View>
           ))}
           {!props.loading && !props.sessions.length ? (
-            <View className='session-empty'>{t('system.ai.noMatchingSessions')}</View>
+            <View className='session-empty'>{t('system.ai.no_matching_sessions')}</View>
           ) : null}
         </ScrollView>
       </View>

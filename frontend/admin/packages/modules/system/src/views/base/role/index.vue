@@ -12,7 +12,7 @@
     <FormDialog
       v-model="dialog.visible"
       ref="formDialogRef"
-      :title="t(dialog.editing ? 'system.role.action.edit' : 'system.role.action.create')"
+      :title="t(dialog.editing ? 'system.base.role.action.edit' : 'system.base.role.action.create')"
       width="500px"
       :model="formData"
       :fields="formFields"
@@ -24,11 +24,11 @@
 
     <el-drawer
       v-model="assignPermDialogVisible"
-      :title="t('system.role.title.assignPermission', { name: checkedBaseRole.name || '' })"
+      :title="t('system.base.role.title.assign_permission', { name: checkedBaseRole.name || '' })"
       size="500"
     >
       <div class="perm-toolbar">
-        <el-input v-model="permKeywords" clearable class="perm-search" :placeholder="t('system.role.placeholder.menuPermission')">
+        <el-input v-model="permKeywords" clearable class="perm-search" :placeholder="t('system.base.role.placeholder.menu_permission')">
           <template #prefix>
             <Search />
           </template>
@@ -36,21 +36,21 @@
 
         <div class="perm-toolbar__actions">
           <div class="perm-toolbar__group">
-            <span class="perm-toolbar__label">{{ t("system.role.field.treeOperation") }}</span>
+            <span class="perm-toolbar__label">{{ t("system.base.role.field.tree_operation") }}</span>
             <el-button type="primary" size="small" plain class="perm-toolbar__button" @click="togglePermTree">
               <template #icon>
                 <Switch />
               </template>
-              {{ t(isExpanded ? "system.role.action.collapseNodes" : "system.role.action.expandNodes") }}
+              {{ t(isExpanded ? "system.base.role.action.collapse_nodes" : "system.base.role.action.expand_nodes") }}
             </el-button>
           </div>
           <div class="perm-toolbar__group perm-toolbar__group--linkage">
-            <span class="perm-toolbar__label">{{ t("system.role.field.selectionMode") }}</span>
+            <span class="perm-toolbar__label">{{ t("system.base.role.field.selection_mode") }}</span>
             <el-checkbox v-model="parentChildLinked" @change="handelParentChildLinkedChange">{{
-              t("system.role.field.parentChildLinked")
+              t("system.base.role.field.parent_child_linked")
             }}</el-checkbox>
             <el-tooltip placement="bottom">
-              <template #content>{{ t("system.role.message.parentChildLinkedTip") }}</template>
+              <template #content>{{ t("system.base.role.message.parent_child_linked_tip") }}</template>
               <el-icon class="perm-linkage__icon">
                 <QuestionFilled />
               </el-icon>
@@ -164,52 +164,52 @@ const rules = computed(() => ({
   tenant_id: [
     {
       required: true,
-      message: t("system.common.validation.requiredSelect", { field: t("system.role.field.tenant") }),
+      message: t("common.validation.required_select", { field: t("system.base.role.field.tenant") }),
       trigger: "change"
     }
   ],
   name: [
     {
       required: true,
-      message: t("system.common.validation.requiredInput", { field: t("system.role.field.name") }),
+      message: t("common.validation.required_input", { field: t("system.base.role.field.name") }),
       trigger: "blur"
     },
     {
       max: 30,
-      message: t("system.common.validation.maxLength", { field: t("system.role.field.name"), max: 30 }),
+      message: t("common.validation.max_length", { field: t("system.base.role.field.name"), max: 30 }),
       trigger: "blur"
     }
   ],
   code: [
     {
       required: true,
-      message: t("system.common.validation.requiredInput", { field: t("system.role.field.code") }),
+      message: t("common.validation.required_input", { field: t("system.base.role.field.code") }),
       trigger: "blur"
     },
     {
       max: 20,
-      message: t("system.common.validation.maxLength", { field: t("system.role.field.code"), max: 20 }),
+      message: t("common.validation.max_length", { field: t("system.base.role.field.code"), max: 20 }),
       trigger: "blur"
     }
   ],
   data_scope: [
     {
       required: true,
-      message: t("system.common.validation.requiredSelect", { field: t("system.role.field.dataScope") }),
+      message: t("common.validation.required_select", { field: t("system.base.role.field.data_scope") }),
       trigger: "change"
     }
   ],
   menus: [
     {
       required: true,
-      message: t("system.common.validation.requiredSelect", { field: t("system.role.field.menuPermission") }),
+      message: t("common.validation.required_select", { field: t("system.base.role.field.menu_permission") }),
       trigger: "change"
     },
     {
       validator: (_rule: unknown, value: unknown, callback: (error?: Error) => void) => {
         const menuIds = Array.isArray(value) ? value : [];
         if (new Set(menuIds).size !== menuIds.length) {
-          callback(new Error(t("system.role.validation.menuDuplicate")));
+          callback(new Error(t("system.base.role.validation.menu_duplicate")));
           return;
         }
         callback();
@@ -220,14 +220,14 @@ const rules = computed(() => ({
   status: [
     {
       required: true,
-      message: t("system.common.validation.requiredSelect", { field: t("system.common.field.status") }),
+      message: t("common.validation.required_select", { field: t("common.field.status") }),
       trigger: "change"
     }
   ],
   remark: [
     {
       max: 500,
-      message: t("system.common.validation.maxLength", { field: t("system.common.field.remark"), max: 500 }),
+      message: t("common.validation.max_length", { field: t("common.field.remark"), max: 500 }),
       trigger: "blur"
     }
   ]
@@ -246,10 +246,10 @@ const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAUL
 const formFields = computed<ProFormField[]>(() => [
   {
     prop: "tenant_id",
-    label: t("system.role.field.tenant"),
+    label: t("system.base.role.field.tenant"),
     component: "select",
     props: {
-      placeholder: t("system.role.placeholder.tenant"),
+      placeholder: t("system.base.role.placeholder.tenant"),
       filterable: true,
       disabled: Boolean(formData.id),
       onChange: handleFormTenantChange
@@ -259,20 +259,20 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "name",
-    label: t("system.role.field.name"),
+    label: t("system.base.role.field.name"),
     component: "input",
-    props: { placeholder: t("system.role.placeholder.name") }
+    props: { placeholder: t("system.base.role.placeholder.name") }
   },
   {
     prop: "code",
-    label: t("system.role.field.code"),
+    label: t("system.base.role.field.code"),
     component: "input",
-    props: { placeholder: t("system.role.placeholder.code"), disabled: Boolean(formData.id && formData.code === "tenant") }
+    props: { placeholder: t("system.base.role.placeholder.code"), disabled: Boolean(formData.id && formData.code === "tenant") }
   },
-  { prop: "data_scope", label: t("system.role.field.dataScope"), component: "dict", props: { code: "base_role_data_scope" } },
+  { prop: "data_scope", label: t("system.base.role.field.data_scope"), component: "dict", props: { code: "base_role_data_scope" } },
   {
     prop: "menus",
-    label: t("system.role.field.menuPermission"),
+    label: t("system.base.role.field.menu_permission"),
     component: "tree-select",
     options: menuPermOptions.value as unknown as ProFormOption[],
     props: {
@@ -287,13 +287,13 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "remark",
-    label: t("system.common.field.remark"),
+    label: t("common.field.remark"),
     component: "textarea",
-    props: { placeholder: t("system.common.placeholder.remark") }
+    props: { placeholder: t("common.placeholder.remark") }
   },
   {
     prop: "status",
-    label: t("system.common.field.status"),
+    label: t("common.field.status"),
     component: "radio-group",
     options: statusOptions.value,
     props: { disabled: isRoleProtected(formData.code) }
@@ -307,7 +307,7 @@ const columns = computed<ColumnProps[]>(() => [
     ? ([
         {
           prop: "tenant_id",
-          label: t("system.role.field.tenantShort"),
+          label: t("system.base.role.field.tenant_short"),
           minWidth: 140,
           showOverflowTooltip: true,
           search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 1 },
@@ -315,19 +315,19 @@ const columns = computed<ColumnProps[]>(() => [
         }
       ] satisfies ColumnProps[])
     : []),
-  { prop: "name", label: t("system.role.field.name"), minWidth: 140, search: { el: "input" } },
-  { prop: "code", label: t("system.role.field.code"), minWidth: 160, search: { el: "input" } },
+  { prop: "name", label: t("system.base.role.field.name"), minWidth: 140, search: { el: "input" } },
+  { prop: "code", label: t("system.base.role.field.code"), minWidth: 160, search: { el: "input" } },
   {
     prop: "data_scope",
-    label: t("system.role.field.dataScope"),
+    label: t("system.base.role.field.data_scope"),
     minWidth: 120,
     dictCode: "base_role_data_scope",
     search: { el: "select" }
   },
-  { prop: "remark", label: t("system.common.field.remark"), minWidth: 160 },
+  { prop: "remark", label: t("common.field.remark"), minWidth: 160 },
   {
     prop: "status",
-    label: t("system.common.field.status"),
+    label: t("common.field.status"),
     minWidth: 100,
     search: { el: "select" },
     cellType: "status",
@@ -340,17 +340,17 @@ const columns = computed<ColumnProps[]>(() => [
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseRole)
     }
   },
-  { prop: "created_at", label: t("system.common.field.createdAt"), minWidth: 180 },
-  { prop: "updated_at", label: t("system.common.field.updatedAt"), minWidth: 180 },
+  { prop: "created_at", label: t("common.field.created_at"), minWidth: 180 },
+  { prop: "updated_at", label: t("common.field.updated_at"), minWidth: 180 },
   {
     prop: "operation",
-    label: t("system.common.field.action"),
+    label: t("common.field.action"),
     width: 280,
     fixed: "right",
     cellType: "actions",
     actions: [
       {
-        label: t("system.role.action.assignPermission"),
+        label: t("system.base.role.action.assign_permission"),
         type: "primary",
         link: true,
         icon: Position,
@@ -504,7 +504,7 @@ function handleSubmit() {
       ? defBaseRoleService.UpdateBaseRole({ base_role: submitData })
       : defBaseRoleService.CreateBaseRole({ base_role: submitData });
     request.then(() => {
-      ElMessage.success(t(submitData.id ? "system.role.message.updateSuccess" : "system.role.message.createSuccess"));
+      ElMessage.success(t(submitData.id ? "system.base.role.message.update_success" : "system.base.role.message.create_success"));
       handleCloseDialog();
       refreshTable();
     });
@@ -538,7 +538,7 @@ function canDeleteRole(row?: BaseRole) {
  */
 async function handleBeforeSetStatus(row: BaseRole) {
   if (!canChangeRoleStatus(row)) {
-    ElMessage.warning(t("system.role.message.protectedStatus"));
+    ElMessage.warning(t("system.base.role.message.protected_status"));
     return false;
   }
 
@@ -546,13 +546,13 @@ async function handleBeforeSetStatus(row: BaseRole) {
   const action = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
   const roleName = row.name || row.code || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(t("system.role.message.confirmStatus", { action, name: roleName }), t("common.title.notice"), {
+    await ElMessageBox.confirm(t("system.base.role.message.confirm_status", { action, name: roleName }), t("common.title.notice"), {
       confirmButtonText: t("common.action.confirm"),
       cancelButtonText: t("common.action.cancel"),
       type: "warning"
     });
     await defBaseRoleService.SetBaseRoleStatus({ id: row.id, status: nextStatus });
-    ElMessage.success(t("system.common.message.statusSuccess", { action }));
+    ElMessage.success(t("common.message.status_success", { action }));
     refreshTable();
     return true;
   } catch {
@@ -570,7 +570,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
       ? [selected as BaseRole]
       : [];
   if (roleList.some(role => !canDeleteRole(role))) {
-    ElMessage.warning(t("system.role.message.protectedDelete"));
+    ElMessage.warning(t("system.base.role.message.protected_delete"));
     return;
   }
 
@@ -578,15 +578,15 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
     roleList.length ? roleList.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");
   if (!roleIds) {
-    ElMessage.warning(t("system.common.message.selectDeleteItem"));
+    ElMessage.warning(t("common.message.select_delete_item"));
     return;
   }
 
   const confirmMessage = roleList.length
     ? roleList.length === 1
-      ? t("system.role.message.confirmDeleteSingle", { name: roleList[0].name || roleList[0].code || `ID:${roleList[0].id}` })
-      : t("system.role.message.confirmDeleteBatch", { count: roleList.length })
-    : t("system.role.message.confirmDeleteSelected");
+      ? t("system.base.role.message.confirm_delete_single", { name: roleList[0].name || roleList[0].code || `ID:${roleList[0].id}` })
+      : t("system.base.role.message.confirm_delete_batch", { count: roleList.length })
+    : t("system.base.role.message.confirm_delete_selected");
 
   ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
     confirmButtonText: t("common.action.confirm"),
@@ -595,12 +595,12 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   }).then(
     () => {
       defBaseRoleService.DeleteBaseRole({ id: roleIds }).then(() => {
-        ElMessage.success(t("system.role.message.deleteSuccess"));
+        ElMessage.success(t("system.base.role.message.delete_success"));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info(t("system.role.message.deleteCanceled"));
+      ElMessage.info(t("system.base.role.message.delete_canceled"));
     }
   );
 }
@@ -611,7 +611,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
 async function handleOpenAssignPermDialog(row: BaseRole) {
   if (!row.id) return;
   if (!canManageRole(row)) {
-    ElMessage.warning(t("system.role.message.protectedPermission"));
+    ElMessage.warning(t("system.base.role.message.protected_permission"));
     return;
   }
   checkedBaseRole.value = { id: row.id, name: row.name };
@@ -632,15 +632,15 @@ function handleAssignPermSubmit() {
   const checkedNodes = (permTreeRef.value?.getCheckedNodes(false, true) as Array<{ value: number }> | undefined) ?? [];
   const checkedMenuIds = checkedNodes.map(node => Number(node.value));
   if (!checkedMenuIds.length) {
-    ElMessage.warning(t("system.common.validation.requiredSelect", { field: t("system.role.field.menuPermission") }));
+    ElMessage.warning(t("common.validation.required_select", { field: t("system.base.role.field.menu_permission") }));
     return;
   }
   if (new Set(checkedMenuIds).size !== checkedMenuIds.length) {
-    ElMessage.warning(t("system.role.validation.menuDuplicate"));
+    ElMessage.warning(t("system.base.role.validation.menu_duplicate"));
     return;
   }
   defBaseRoleService.SetBaseRoleMenu({ id: roleId, menus: checkedMenuIds }).then(() => {
-    ElMessage.success(t("system.role.message.assignSuccess"));
+    ElMessage.success(t("system.base.role.message.assign_success"));
     assignPermDialogVisible.value = false;
     refreshTable();
   });

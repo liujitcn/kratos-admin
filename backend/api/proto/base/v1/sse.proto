@@ -19,7 +19,7 @@ service SseService {
 
 // SSE订阅请求参数
 message SubscribeSseRequest {
-  string stream = 1 [(gnostic.openapi.v3.property) = {description: "SSE流标识"}, (buf.validate.field).cel = {id: "subscribe_sse.stream.required" message: "SSE流不能为空" expression: "this.size() > 0"}]; // SSE流标识
+  string stream = 1 [(gnostic.openapi.v3.property) = {description: "SSE流标识"}, (buf.validate.field).cel = {id: "base.sse.subscribe.stream.required" message: "SSE流不能为空" expression: "this.size() > 0"}]; // SSE流标识
 
   optional string channel_id = 2 [(gnostic.openapi.v3.property) = {description: "SSE通道ID"}]; // SSE通道ID
 }

@@ -1,9 +1,9 @@
 <template>
   <div v-loading="loading" class="table-box project-doc-page">
     <main class="project-doc-shell">
-      <aside class="document-navigation" :aria-label="t('system.projectDoc.title.navigation')">
+      <aside class="document-navigation" :aria-label="t('system.project.document.title.navigation')">
         <header class="navigation-header">
-          <el-input v-model="keyword" clearable :placeholder="t('system.projectDoc.placeholder.search')" :prefix-icon="Search" />
+          <el-input v-model="keyword" clearable :placeholder="t('system.project.document.placeholder.search')" :prefix-icon="Search" />
           <span class="document-count">{{ filteredDocumentCount }} / {{ documents.length }}</span>
         </header>
 
@@ -29,9 +29,9 @@
               </span>
             </template>
           </el-tree>
-          <el-empty v-if="filteredDocumentCount === 0" :description="t('system.projectDoc.message.noMatch')" :image-size="72" />
+          <el-empty v-if="filteredDocumentCount === 0" :description="t('system.project.document.message.no_match')" :image-size="72" />
         </div>
-        <el-empty v-else :description="t('system.projectDoc.message.empty')" :image-size="72" />
+        <el-empty v-else :description="t('system.project.document.message.empty')" :image-size="72" />
       </aside>
 
       <section class="document-reader">
@@ -48,7 +48,7 @@
               </div>
             </div>
             <time v-if="selectedDocumentUpdatedAt" :datetime="selectedDocumentUpdatedAt" :title="selectedDocumentUpdatedAt">
-              {{ t("system.projectDoc.value.updatedAt", { time: formatDocumentUpdatedAt(selectedDocumentUpdatedAt) }) }}
+              {{ t("system.project.document.value.updated_at", { time: formatDocumentUpdatedAt(selectedDocumentUpdatedAt) }) }}
             </time>
           </header>
           <div ref="readerScrollRef" v-loading="detailLoading" class="reader-scroll">
@@ -62,7 +62,7 @@
             </div>
           </div>
         </template>
-        <el-empty v-else :description="t('system.projectDoc.message.select')" />
+        <el-empty v-else :description="t('system.project.document.message.select')" />
       </section>
     </main>
   </div>
@@ -231,7 +231,7 @@ function handleMarkdownClick(event: MouseEvent) {
   const documentPath = resolveDocumentPath(selectedDocument.value.path, linkPath);
   const linkedDocument = documentPathIndex.value.get(`${selectedDocument.value.project_key}\0${documentPath}`);
   if (!linkedDocument) {
-    ElMessage.warning(t("system.projectDoc.message.uncollected", { path: documentPath }));
+    ElMessage.warning(t("system.project.document.message.uncollected", { path: documentPath }));
     return;
   }
   void selectDocument(linkedDocument.id, decodeURIComponent(rawAnchor));

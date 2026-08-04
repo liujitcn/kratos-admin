@@ -7,7 +7,16 @@
 /* eslint-disable */
 import type { Status } from "../../../common/v1/enum";
 import type { Empty } from "../../../google/protobuf/empty";
-import type { BaseJobLogStatus } from "../../common/v1/enum";
+
+/** 定时任务日志状态。 */
+export enum BaseJobLogStatus {
+  /** BASE_JOB_LOG_STATUS_UNSPECIFIED - 未指定定时任务日志状态。 */
+  BASE_JOB_LOG_STATUS_UNSPECIFIED = 0,
+  /** BASE_JOB_LOG_STATUS_SUCCESS - 成功。 */
+  BASE_JOB_LOG_STATUS_SUCCESS = 1,
+  /** BASE_JOB_LOG_STATUS_FAIL - 失败。 */
+  BASE_JOB_LOG_STATUS_FAIL = 2,
+}
 
 /** 定时任务分页查询条件 */
 export interface PageBaseJobRequest {

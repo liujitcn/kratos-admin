@@ -111,14 +111,14 @@ const beforeUpload: UploadProps["beforeUpload"] = rawFile => {
   if (!imgType)
     ElNotification({
       title: t("common.title.warning"),
-      message: t("core.upload.imageFormatInvalid"),
+      message: t("core.upload.image_format_invalid"),
       type: "warning"
     });
   if (!imgSize)
     setTimeout(() => {
       ElNotification({
         title: t("common.title.warning"),
-        message: t("core.upload.imageSizeExceeded", { size: props.fileSize }),
+        message: t("core.upload.image_size_exceeded", { size: props.fileSize }),
         type: "warning"
       });
     }, 0);
@@ -157,7 +157,7 @@ const uploadSuccess = (response: FileInfo | undefined, uploadFile: UploadFile) =
   formItemContext?.prop && formContext?.validateField([formItemContext.prop as string]);
   ElNotification({
     title: t("common.title.notice"),
-    message: t("core.upload.imageSuccess"),
+    message: t("core.upload.image_success"),
     type: "success"
   });
 };
@@ -177,7 +177,7 @@ const handleRemove = (file: UploadFile) => {
 const uploadError = () => {
   ElNotification({
     title: t("common.title.warning"),
-    message: t("core.upload.imageFailed"),
+    message: t("core.upload.image_failed"),
     type: "error"
   });
 };
@@ -188,7 +188,7 @@ const uploadError = () => {
 const handleExceed = () => {
   ElNotification({
     title: t("common.title.warning"),
-    message: t("core.upload.imageLimitExceeded", { limit: props.limit }),
+    message: t("core.upload.image_limit_exceeded", { limit: props.limit }),
     type: "warning"
   });
 };

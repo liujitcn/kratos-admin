@@ -15,45 +15,23 @@ import (
 
 // RegisterBaseTranslationServiceMCPTools 注册国际化翻译信息服务的 MCP Tool。
 func RegisterBaseTranslationServiceMCPTools(mcpServer *mcp.Server, baseTranslationServiceServer BaseTranslationServiceServer) {
-	RegisterBaseTranslationServiceListBaseTranslationMCPTool(mcpServer, baseTranslationServiceServer)
-	RegisterBaseTranslationServiceGenerateBaseTranslationDraftMCPTool(mcpServer, baseTranslationServiceServer)
+	RegisterBaseTranslationServiceDraftBaseTranslationMCPTool(mcpServer, baseTranslationServiceServer)
 	RegisterBaseTranslationServiceUpdateBaseTranslationMCPTool(mcpServer, baseTranslationServiceServer)
 }
 
-// RegisterBaseTranslationServiceListBaseTranslationMCPTool 注册查询国际化翻译信息列表的 MCP Tool。
-func RegisterBaseTranslationServiceListBaseTranslationMCPTool(mcpServer *mcp.Server, baseTranslationServiceServer BaseTranslationServiceServer) {
-	mcp.AddTool[*ListBaseTranslationRequest, *ListBaseTranslationResponse](
+// RegisterBaseTranslationServiceDraftBaseTranslationMCPTool 注册翻译单个文本的 MCP Tool。
+func RegisterBaseTranslationServiceDraftBaseTranslationMCPTool(mcpServer *mcp.Server, baseTranslationServiceServer BaseTranslationServiceServer) {
+	mcp.AddTool[*DraftBaseTranslationRequest, *DraftBaseTranslationResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "system_admin_v1_base_translation_service_list_base_translation",
-			Description: "查询国际化翻译信息列表",
+			Name:        "system_admin_v1_base_translation_service_draft_base_translation",
+			Description: "翻译单个文本。",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListBaseTranslationRequest) (*mcp.CallToolResult, *ListBaseTranslationResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *DraftBaseTranslationRequest) (*mcp.CallToolResult, *DraftBaseTranslationResponse, error) {
 			if input == nil {
-				input = &ListBaseTranslationRequest{}
+				input = &DraftBaseTranslationRequest{}
 			}
-			reply, err := baseTranslationServiceServer.ListBaseTranslation(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterBaseTranslationServiceGenerateBaseTranslationDraftMCPTool 注册资源生成机器翻译的 MCP Tool。
-func RegisterBaseTranslationServiceGenerateBaseTranslationDraftMCPTool(mcpServer *mcp.Server, baseTranslationServiceServer BaseTranslationServiceServer) {
-	mcp.AddTool[*GenerateBaseTranslationDraftRequest, *GenerateBaseTranslationDraftResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_translation_service_generate_base_translation_draft",
-			Description: "资源生成机器翻译。",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GenerateBaseTranslationDraftRequest) (*mcp.CallToolResult, *GenerateBaseTranslationDraftResponse, error) {
-			if input == nil {
-				input = &GenerateBaseTranslationDraftRequest{}
-			}
-			reply, err := baseTranslationServiceServer.GenerateBaseTranslationDraft(ctx, input)
+			reply, err := baseTranslationServiceServer.DraftBaseTranslation(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

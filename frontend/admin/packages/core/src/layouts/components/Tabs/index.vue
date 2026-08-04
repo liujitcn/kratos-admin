@@ -27,16 +27,24 @@ import { TabsPaneContext, TabPaneName } from "element-plus";
 import { getRouteMetaAffix, getRouteMetaFull, getRouteMetaIcon, getRouteMetaKeepAlive, getRouteMetaTitle } from "@/utils";
 import MoreButton from "./components/MoreButton.vue";
 import { getAdminTabPath } from "@/modules";
+import { useLocaleStore } from "@/locales";
 
 const route = useRoute();
 const router = useRouter();
 const tabStore = useTabsStore();
 const authStore = useAuthStore();
 const globalStore = useGlobalStore();
+const { locale, t } = useLocaleStore();
 
 const tabsMenuValue = ref(getAdminTabPath(route));
 const tabsMenuList = computed(() => tabStore.tabsMenuList);
 const tabsIcon = computed(() => globalStore.tabsIcon);
+
+/** 获取当前路由标签标题，兼容静态路由的多语言标题键。 */
+const getCurrentRouteTitle = () => {
+  const titleKey = typeof route.meta.titleKey === "string" ? route.meta.titleKey : "";
+  return titleKey ? t(titleKey) : String(route.meta.title ?? "");
+};
 
 onMounted(() => {
   tabsDrop();
@@ -52,7 +60,7 @@ watch(
     tabsMenuValue.value = tabPath;
     const tabsParams = {
       icon: route.meta.icon as string,
-      title: route.meta.title as string,
+      title: getCurrentRouteTitle(),
       path: tabPath,
       name: route.name as string,
       close: !route.meta.affix,
@@ -62,6 +70,12 @@ watch(
   },
   { immediate: true }
 );
+
+watch(locale, () => {
+  const currentTabPath = getAdminTabPath(route);
+  const currentTab = tabStore.tabsMenuList.find(item => item.path === currentTabPath);
+  if (currentTab && route.meta.titleKey) currentTab.title = getCurrentRouteTitle();
+});
 
 // 初始化固定标签
 const initTabs = () => {

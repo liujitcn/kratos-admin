@@ -52,14 +52,14 @@ export default function ProtocolPage() {
       .loadData()
       .then(() => {
         const protocol = settingStore.getData(key)
-        if (!protocol) throw new Error(t('core.protocol.notConfigured', { title }))
+        if (!protocol) throw new Error(t('core.protocol.not_configured', { title }))
         void Taro.setNavigationBarTitle({ title })
         setContent(decorateProtocolContent(protocol))
       })
       .catch(async (error: unknown) => {
         await Taro.showToast({
           icon: 'none',
-          title: error instanceof Error ? error.message : t('core.protocol.loadFailed'),
+          title: error instanceof Error ? error.message : t('core.protocol.load_failed'),
         })
         setTimeout(() => void Taro.navigateBack(), 300)
       })

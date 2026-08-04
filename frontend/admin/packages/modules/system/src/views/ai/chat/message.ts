@@ -7,7 +7,8 @@ import {
   type AiToken
 } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import type { AiAction } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_message";
-import { AiMessageStatus, Terminal } from "@liujitcn/kratos-admin-system/rpc/base/v1/enum";
+import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
+import { Terminal } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
 import { t } from "@liujitcn/kratos-admin-core";
 import type { AiStreamPayload, AIFlowBlock, ChatMessageItem, ReplySourceTag } from "./types";
 
@@ -43,7 +44,7 @@ export function resolveTimestamp(timestamp?: { seconds?: number; nanos?: number 
 export function normalizeSession(session?: Partial<AiSession> | null): AiSession {
   return {
     id: String(session?.id ?? ""),
-    title: String(session?.title ?? t("system.ai.chat.value.newConversation")),
+    title: String(session?.title ?? t("system.ai.chat.value.new_conversation")),
     summary: String(session?.summary ?? ""),
     updated_at: session?.updated_at,
     terminal: Number(session?.terminal ?? Terminal.TERMINAL_ADMIN)
@@ -169,17 +170,17 @@ export function mapMessageItem(message: AiMessage, role: "user" | "ai"): ChatMes
     step: role === "ai" ? outputContent.step : "",
     blocksJson: role === "ai" ? outputContent.blocks_json : "",
     blocks: role === "ai" ? markFlowBlocksDisabled(parseFlowBlocks(outputContent.blocks_json), String(message.id ?? "")) : [],
-    status: Number(message.status ?? AiMessageStatus.SUCCESS_AMS),
+    status: Number(message.status ?? AiMessageStatus.AI_MESSAGE_STATUS_SUCCESS),
     token: normalizeToken(message.token),
     tools: Array.isArray(message.tools) ? message.tools : [],
     variant: role === "user" ? "filled" : "borderless",
     shape: "corner",
     progressState:
-      message.status === AiMessageStatus.GENERATING_AMS
+      message.status === AiMessageStatus.AI_MESSAGE_STATUS_GENERATING
         ? role === "user"
           ? "idle"
           : "streaming"
-        : message.status === AiMessageStatus.FAILED_AMS
+        : message.status === AiMessageStatus.AI_MESSAGE_STATUS_FAILED
           ? "failed"
           : "idle",
     maxWidth: role === "user" ? "380px" : "100%"
@@ -210,7 +211,7 @@ export function createLocalUserMessage(payload: { text: string; attachments: AiA
         seconds: Math.floor(now.getTime() / 1000),
         nanos: (now.getTime() % 1000) * 1_000_000
       },
-      status: AiMessageStatus.GENERATING_AMS,
+      status: AiMessageStatus.AI_MESSAGE_STATUS_GENERATING,
       token: normalizeToken(),
       tools: [],
       first_token_ms: 0,
@@ -251,7 +252,7 @@ export function createThinkingMessage(options?: { sessionID?: string; messageID?
         seconds: Math.floor(now.getTime() / 1000),
         nanos: (now.getTime() % 1000) * 1_000_000
       },
-      status: AiMessageStatus.GENERATING_AMS,
+      status: AiMessageStatus.AI_MESSAGE_STATUS_GENERATING,
       token: normalizeToken(),
       tools: [],
       first_token_ms: 0,
@@ -300,7 +301,7 @@ export function markAIMessageRegenerating(current: ChatMessageItem[], sessionID:
       duration_ms: 0,
       progressState: "streaming",
       replySourceTag: { text: t("system.ai.chat.status.thinking"), tone: "info" },
-      status: AiMessageStatus.GENERATING_AMS,
+      status: AiMessageStatus.AI_MESSAGE_STATUS_GENERATING,
       streamKey
     };
   });
@@ -355,16 +356,16 @@ export function markThinkingMessageFailed(current: ChatMessageItem[], options?: 
       return {
         ...item,
         progressState: "failed",
-        status: AiMessageStatus.FAILED_AMS
+        status: AiMessageStatus.AI_MESSAGE_STATUS_FAILED
       };
     }
     if (item.progressState !== "streaming") return item;
     return {
       ...item,
       progressState: "failed",
-      status: AiMessageStatus.FAILED_AMS,
-      content: t("system.ai.chat.message.replyFailed"),
-      replySourceTag: { text: t("system.ai.chat.status.sendFailed"), tone: "warning" }
+      status: AiMessageStatus.AI_MESSAGE_STATUS_FAILED,
+      content: t("system.ai.chat.message.reply_failed"),
+      replySourceTag: { text: t("system.ai.chat.status.send_failed"), tone: "warning" }
     };
   });
 }
@@ -401,9 +402,9 @@ export function markStreamingError(current: ChatMessageItem[], payload: AiStream
     return {
       ...item,
       progressState: "failed",
-      status: AiMessageStatus.FAILED_AMS,
-      content: t("system.ai.chat.message.replyFailed"),
-      replySourceTag: { text: t("system.ai.chat.status.sendFailed"), tone: "warning" }
+      status: AiMessageStatus.AI_MESSAGE_STATUS_FAILED,
+      content: t("system.ai.chat.message.reply_failed"),
+      replySourceTag: { text: t("system.ai.chat.status.send_failed"), tone: "warning" }
     };
   });
 }

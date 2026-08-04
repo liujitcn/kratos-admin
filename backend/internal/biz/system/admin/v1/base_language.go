@@ -97,7 +97,13 @@ func (c *BaseLanguageCase) CreateBaseLanguage(ctx context.Context, req *systemad
 		return errorsx.InvalidArgument("语言代码必须是系统支持的语言")
 	}
 	item.IsPrimary = false
-	return c.createLanguage(ctx, item)
+	if err := c.Create(ctx, item); err != nil {
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return errorsx.UniqueConflict("语言代码重复", "base_language", "language_code", "unique_base_language").WithCause(err)
+		}
+		return err
+	}
+	return nil
 }
 
 // UpdateBaseLanguage 更新语言。
@@ -120,18 +126,14 @@ func (c *BaseLanguageCase) UpdateBaseLanguage(ctx context.Context, req *systemad
 		item.ID = current.ID
 		item.LanguageCode = current.LanguageCode
 		item.IsPrimary = current.IsPrimary
-		return c.updateLanguage(ctx, item)
+		if err = c.UpdateByID(ctx, item); err != nil {
+			if errorsx.IsMySQLDuplicateKey(err) {
+				return errorsx.UniqueConflict("语言代码重复", "base_language", "language_code", "unique_base_language").WithCause(err)
+			}
+			return err
+		}
+		return nil
 	})
-}
-
-// findBaseLanguageForUpdate 查询并锁定待修改的语言记录。
-func (c *BaseLanguageCase) findBaseLanguageForUpdate(ctx context.Context, id int64) (*models.BaseLanguage, error) {
-	query := c.Query(ctx).BaseLanguage
-	opts := []repository.QueryOption{
-		repository.Where(query.ID.Eq(id)),
-		repository.Clauses(clause.Locking{Strength: "UPDATE"}),
-	}
-	return c.Find(ctx, opts...)
 }
 
 // DeleteBaseLanguage 删除语言。
@@ -191,26 +193,14 @@ func (c *BaseLanguageCase) SetBaseLanguagePrimary(ctx context.Context, req *syst
 	})
 }
 
-// createLanguage 创建语言并将数据库唯一冲突转换为稳定业务错误。
-func (c *BaseLanguageCase) createLanguage(ctx context.Context, item *models.BaseLanguage) error {
-	if err := c.Create(ctx, item); err != nil {
-		if errorsx.IsMySQLDuplicateKey(err) {
-			return errorsx.UniqueConflict("语言代码重复", "base_language", "language_code", "unique_base_language").WithCause(err)
-		}
-		return err
+// findBaseLanguageForUpdate 查询并锁定待修改的语言记录。
+func (c *BaseLanguageCase) findBaseLanguageForUpdate(ctx context.Context, id int64) (*models.BaseLanguage, error) {
+	query := c.Query(ctx).BaseLanguage
+	opts := []repository.QueryOption{
+		repository.Where(query.ID.Eq(id)),
+		repository.Clauses(clause.Locking{Strength: "UPDATE"}),
 	}
-	return nil
-}
-
-// updateLanguage 更新语言并将数据库唯一冲突转换为稳定业务错误。
-func (c *BaseLanguageCase) updateLanguage(ctx context.Context, item *models.BaseLanguage) error {
-	if err := c.UpdateByID(ctx, item); err != nil {
-		if errorsx.IsMySQLDuplicateKey(err) {
-			return errorsx.UniqueConflict("语言代码重复", "base_language", "language_code", "unique_base_language").WithCause(err)
-		}
-		return err
-	}
-	return nil
+	return c.Find(ctx, opts...)
 }
 
 // clearPrimaryLanguage 在事务中清除其他语言的主语言标记。

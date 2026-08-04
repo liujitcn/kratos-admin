@@ -48,7 +48,7 @@ type ChunkedRequestTask = Promise<Taro.request.SuccessCallbackResult<ArrayBuffer
 
 /** 从 direct stream 错误响应中提取后端业务提示。 */
 async function resolveStreamErrorMessage(response: Response): Promise<string> {
-  const fallbackMessage = t('system.ai.requestFailedWithStatus', { status: response.status })
+  const fallbackMessage = t('system.ai.request_failed_with_status', { status: response.status })
   const contentType = response.headers.get('Content-Type') ?? ''
   if (contentType.includes('application/json')) {
     try {
@@ -93,7 +93,7 @@ export async function SendAiMessageStream(
   // direct stream 不经过 uni.request 拦截器，需要在这里补齐登录失效处理。
   if (response.status === 401 || response.status === 403) {
     handleAuthExpired('required')
-    throw new Error(t('core.auth.sessionExpired'))
+    throw new Error(t('core.auth.session_expired'))
   }
   if (!response.ok) {
     throw new Error(await resolveStreamErrorMessage(response))
@@ -141,7 +141,7 @@ export function StreamAiMessageByChunkedRequest(
           }
           if (res.statusCode === 401 || res.statusCode === 403) {
             handleAuthExpired('required')
-            reject(new Error(t('core.auth.sessionExpired')))
+            reject(new Error(t('core.auth.session_expired')))
             return
           }
           if (res.statusCode < 200 || res.statusCode >= 300) {
@@ -172,7 +172,7 @@ export function StreamAiMessageByChunkedRequest(
 
       if (typeof requestTask.onChunkReceived !== 'function') {
         requestTask.abort()
-        reject(new Error(t('system.ai.streamUnsupported')))
+        reject(new Error(t('system.ai.stream_unsupported')))
         return
       }
 
@@ -274,7 +274,7 @@ export const defAiMessageService = new AiMessageServiceImpl()
 function resolveChunkedStreamErrorMessage(
   response: Taro.request.SuccessCallbackResult<ArrayBuffer>,
 ) {
-  const fallbackMessage = t('system.ai.requestFailedWithStatus', { status: response.statusCode })
+  const fallbackMessage = t('system.ai.request_failed_with_status', { status: response.statusCode })
   const text = decodeChunkedResponseData(response.data).trim()
   if (!text) {
     return fallbackMessage

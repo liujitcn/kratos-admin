@@ -51,7 +51,7 @@ export default function MyPage() {
             <View className='my-meta'>
               <View className='my-nickname'>{profile.nick_name}</View>
               <View className='my-extra' onClick={() => navigateAppRoute('app/profile')}>
-                <Text className='my-update'>{t('system.profile.avatarUpdate')}</Text>
+                <Text className='my-update'>{t('system.profile.avatar_update')}</Text>
               </View>
             </View>
           </View>
@@ -62,10 +62,10 @@ export default function MyPage() {
             </View>
             <View className='my-meta'>
               <View className='my-nickname' onClick={() => navigateToLogin()}>
-                {t('system.profile.notLoggedIn')}
+                {t('system.profile.not_logged_in')}
               </View>
               <View className='my-extra'>
-                <Text className='my-tips'>{t('system.profile.loginPrompt')}</Text>
+                <Text className='my-tips'>{t('system.profile.login_prompt')}</Text>
               </View>
             </View>
           </View>
@@ -78,10 +78,10 @@ export default function MyPage() {
       <View className='my-ai-entry' onClick={() => openAuthenticatedPage('app/ai')}>
         <View className='my-ai-entry__icon'>AI</View>
         <View className='my-ai-entry__content'>
-          <View className='my-ai-entry__title'>{t('system.settings.aiTitle')}</View>
-          <View className='my-ai-entry__desc'>{t('system.settings.aiDescription')}</View>
+          <View className='my-ai-entry__title'>{t('system.settings.ai_title')}</View>
+          <View className='my-ai-entry__desc'>{t('system.settings.ai_description')}</View>
         </View>
-        <View className='my-ai-entry__action'>{t('system.settings.goAsk')}</View>
+        <View className='my-ai-entry__action'>{t('system.settings.go_ask')}</View>
       </View>
     </ScrollView>
   )

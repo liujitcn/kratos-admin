@@ -5,101 +5,70 @@
 // source: system/admin/v1/base_translation.proto
 
 /* eslint-disable */
+import type { Empty } from "../../../google/protobuf/empty";
 
-/** 翻译状态 */
-export enum TranslationStatus {
-  TRANSLATION_STATUS_UNSPECIFIED = 0,
-  TRANSLATION_STATUS_PENDING = 1,
-  TRANSLATION_STATUS_MACHINE = 2,
-  TRANSLATION_STATUS_REVIEWED = 3,
+/** 统一翻译表目标类型，和 base_translation.target_type 的值一一对应。 */
+export enum TranslationTargetType {
+  /** TRANSLATION_TARGET_TYPE_UNSPECIFIED - 未指定统一翻译表目标类型。 */
+  TRANSLATION_TARGET_TYPE_UNSPECIFIED = 0,
+  /** TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE - 系统配置值。 */
+  TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE = 1,
+  /** TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME - 系统配置名称。 */
+  TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME = 2,
+  /** TRANSLATION_TARGET_TYPE_BASE_DICT - 字典名称。 */
+  TRANSLATION_TARGET_TYPE_BASE_DICT = 3,
+  /** TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM - 字典项标签。 */
+  TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM = 4,
+  /** TRANSLATION_TARGET_TYPE_BASE_MENU - 菜单标题。 */
+  TRANSLATION_TARGET_TYPE_BASE_MENU = 5,
 }
 
-/** 翻译资源类型 */
-export enum TranslationResourceType {
-  TRANSLATION_RESOURCE_TYPE_UNSPECIFIED = 0,
-  TRANSLATION_RESOURCE_TYPE_MENU = 1,
-  TRANSLATION_RESOURCE_TYPE_DICT = 2,
-  TRANSLATION_RESOURCE_TYPE_DICT_ITEM = 3,
-  TRANSLATION_RESOURCE_TYPE_CONFIG = 4,
-}
-
-/** 系统配置翻译字段 */
-export enum BaseConfigTranslationField {
-  BASE_CONFIG_TRANSLATION_FIELD_UNSPECIFIED = 0,
-  BASE_CONFIG_TRANSLATION_FIELD_NAME = 1,
-  BASE_CONFIG_TRANSLATION_FIELD_VALUE = 2,
-}
-
-/** 生成翻译草稿请求 */
-export interface GenerateTranslationDraftRequest {
-  /** 资源类型 */
-  resource_type: TranslationResourceType;
-  /** 已保存资源ID */
-  resource_id: number;
-  /** 目标语言代码 */
+/** 翻译单个文本请求。 */
+export interface DraftBaseTranslationRequest {
+  /** 待翻译文本 */
+  source: string;
+  /** 源语言区域，为空时使用主语言 */
+  source_locale: string;
+  /** 目标语言区域 */
   target_locale: string;
-  /** 系统配置翻译字段，配置资源必填 */
-  field: BaseConfigTranslationField;
 }
 
-/** 生成翻译草稿响应 */
-export interface GenerateTranslationDraftResponse {
-  /** 资源类型 */
-  resource_type: TranslationResourceType;
-  /** 资源ID */
-  resource_id: number;
-  /** 语言区域 */
-  locale: string;
-  /** 机器翻译草稿 */
+/** 翻译单个文本响应。 */
+export interface DraftBaseTranslationResponse {
+  /** 源语言区域 */
+  source_locale: string;
+  /** 目标语言区域 */
+  target_locale: string;
+  /** 翻译文本 */
   translation: string;
-  /** 翻译状态 */
-  translation_status: TranslationStatus;
-  /** 中文源文SHA-256 */
-  source_hash: string;
-  /** 机器翻译提供方 */
-  translation_provider: string;
-  /** 最近机器翻译时间 */
-  translated_at: string;
-  /** 系统配置翻译字段 */
-  field: BaseConfigTranslationField;
 }
 
-/** 系统配置单语言翻译 */
-export interface BaseConfigTranslation {
+/** 修改单个翻译信息请求。 */
+export interface UpdateBaseTranslationRequest {
+  /** 翻译记录ID，新增翻译时可不填写 */
+  id: number;
+  /** 翻译目标类型，新增翻译时使用 */
+  target_type: TranslationTargetType;
+  /** 目标资源ID，新增翻译时使用 */
+  target_id: number;
+  /** 目标语言区域，新增翻译时使用 */
+  locale: string;
+  /** 翻译文本，留空时自动翻译 */
+  name: string;
+}
+
+/** 国际化翻译信息 */
+export interface BaseTranslation {
   /** 翻译记录ID */
   id: number;
-  /** 系统配置ID */
-  config_id: number;
+  /** 翻译目标类型 */
+  target_type: TranslationTargetType;
+  /** 目标资源ID */
+  target_id: number;
   /** 语言区域 */
   locale: string;
-  /** 翻译字段：name或value */
-  field: BaseConfigTranslationField;
   /** 翻译文本 */
-  text: string;
-  /** 翻译审核状态 */
-  translation_status: TranslationStatus;
-  /** 中文源文SHA-256 */
-  source_hash: string;
-  /** 中文源文是否已变化 */
-  source_changed: boolean;
-  /** 机器翻译提供方 */
-  translation_provider: string;
-  /** 最近机器翻译时间 */
-  translated_at: string;
-  /** 审核人ID */
-  reviewed_by: number;
-  /** 审核时间 */
-  reviewed_at: string;
-  /** 创建人ID */
-  created_by: number;
-  /** 更新人ID */
-  updated_by: number;
-  /** 创建时间 */
-  created_at: string;
-  /** 更新时间 */
-  updated_at: string;
-  /** 删除时间 */
-  deleted_at: number;
+  name: string;
 }
 
 /** 代码生成单语言国际化配置 */
@@ -110,8 +79,10 @@ export interface CodeGenLocaleConfig {
   left_tree_comment: string;
 }
 
-/** Admin翻译草稿服务 */
+/** 国际化翻译信息服务。 */
 export interface BaseTranslationService {
-  /** 为单个已保存资源生成机器翻译草稿 */
-  GenerateTranslationDraft(request: GenerateTranslationDraftRequest): Promise<GenerateTranslationDraftResponse>;
+  /** 翻译单个文本。 */
+  DraftBaseTranslation(request: DraftBaseTranslationRequest): Promise<DraftBaseTranslationResponse>;
+  /** 修改国际化翻译信息 */
+  UpdateBaseTranslation(request: UpdateBaseTranslationRequest): Promise<Empty>;
 }

@@ -5,16 +5,16 @@
         <pre class="code-preview">{{ row.content || row.message }}</pre>
       </template>
     </el-table-column>
-    <el-table-column prop="path" :label="t('system.codegen.preview.field.path')" min-width="320" show-overflow-tooltip />
-    <el-table-column prop="action" :label="t('system.codegen.preview.field.action')" width="100" />
-    <el-table-column :label="t('system.codegen.table.field.status')" width="100" align="center">
+    <el-table-column prop="path" :label="t('system.code.gen.preview.field.path')" min-width="320" show-overflow-tooltip />
+    <el-table-column prop="action" :label="t('system.code.gen.preview.field.action')" width="100" />
+    <el-table-column :label="t('system.code.gen.table.field.status')" width="100" align="center">
       <template #default="{ row }">
         <el-tag :type="row.exists ? 'info' : 'success'" effect="plain">
-          {{ t(row.exists ? "system.codegen.preview.status.exists" : "system.codegen.preview.status.pendingCreate") }}
+          {{ t(row.exists ? "system.code.gen.preview.status.exists" : "system.code.gen.preview.status.pending_create") }}
         </el-tag>
       </template>
     </el-table-column>
-    <el-table-column prop="message" :label="t('system.codegen.preview.field.message')" min-width="220" show-overflow-tooltip />
+    <el-table-column prop="message" :label="t('system.code.gen.preview.field.message')" min-width="220" show-overflow-tooltip />
   </el-table>
 </template>
 

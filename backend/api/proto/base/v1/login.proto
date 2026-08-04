@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package base.v1;
 
-import "base/v1/enum.proto";
 import "common/v1/types.proto";
 import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
@@ -57,6 +56,20 @@ service LoginService {
   }
 }
 
+// 密码加密场景枚举。
+enum PasswordCryptoScene {
+  // 未指定密码加密场景。
+  PASSWORD_CRYPTO_SCENE_UNSPECIFIED = 0;
+  // 登录密码加密场景。
+  PASSWORD_CRYPTO_SCENE_LOGIN = 1;
+  // 新增后台用户密码加密场景。
+  PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER = 2;
+  // 重置后台用户密码加密场景。
+  PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD = 3;
+  // 个人修改密码加密场景。
+  PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD = 4;
+}
+
 // 验证码获取条件
 message CaptchaRequest {
   string type = 1 [(gnostic.openapi.v3.property) = {description: "验证码类型，random 表示随机选择当前支持的验证码类型"}]; // 验证码类型，random 表示随机选择当前支持的验证码类型
@@ -64,7 +77,7 @@ message CaptchaRequest {
 
 // 密码临时公钥获取条件
 message PasswordPublicKeyRequest {
-  .base.v1.PasswordCryptoScene scene = 1 [(gnostic.openapi.v3.property) = {description: "使用场景"}]; // 使用场景
+  PasswordCryptoScene scene = 1 [(gnostic.openapi.v3.property) = {description: "使用场景"}]; // 使用场景
 }
 
 // 登出请求条件
@@ -81,9 +94,9 @@ message CaptchaResponse {
 
 // 验证码预校验请求
 message VerifyCaptchaRequest {
-  string captcha_id = 1 [(gnostic.openapi.v3.property) = {description: "验证码ID"}, (buf.validate.field).cel = {id: "verify_captcha.captcha_id.required" message: "验证码不能为空" expression: "this.size() > 0"}]; // 验证码ID
+  string captcha_id = 1 [(gnostic.openapi.v3.property) = {description: "验证码ID"}, (buf.validate.field).cel = {id: "base.login.verify_captcha.captcha_id.required" message: "验证码不能为空" expression: "this.size() > 0"}]; // 验证码ID
 
-  string captcha_code = 2 [(gnostic.openapi.v3.property) = {description: "验证码答案"}, (buf.validate.field).cel = {id: "verify_captcha.captcha_code.required" message: "验证码不能为空" expression: "this.size() > 0"}]; // 验证码答案
+  string captcha_code = 2 [(gnostic.openapi.v3.property) = {description: "验证码答案"}, (buf.validate.field).cel = {id: "base.login.verify_captcha.captcha_code.required" message: "验证码不能为空" expression: "this.size() > 0"}]; // 验证码答案
 }
 
 // 验证码预校验响应
@@ -108,7 +121,7 @@ message PasswordPublicKeyResponse {
 
 // 刷新令牌请求参数
 message RefreshTokenRequest {
-  string refresh_token = 1 [(gnostic.openapi.v3.property) = {description: "更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。"}, (buf.validate.field).cel = {id: "refresh_token.required" message: "刷新令牌不能为空" expression: "this.size() > 0"}]; // 更新令牌，用来获取下一次的访问令牌，必选项。
+  string refresh_token = 1 [(gnostic.openapi.v3.property) = {description: "更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。"}, (buf.validate.field).cel = {id: "base.login.refresh_token.required" message: "刷新令牌不能为空" expression: "this.size() > 0"}]; // 更新令牌，用来获取下一次的访问令牌，必选项。
 }
 
 // 刷新令牌响应
@@ -129,13 +142,13 @@ message RefreshTokenResponse {
 message LoginRequest {
   string tenant_code = 1 [(gnostic.openapi.v3.property) = {description: "租户编码"}]; // 租户编码
 
-  string user_name = 2 [(gnostic.openapi.v3.property) = {description: "用户名"}, (buf.validate.field).cel = {id: "login.user_name.required" message: "用户名不能为空" expression: "this.size() > 0"}]; // 用户名，必选项。
+  string user_name = 2 [(gnostic.openapi.v3.property) = {description: "用户名"}, (buf.validate.field).cel = {id: "base.login.login.user_name.required" message: "用户名不能为空" expression: "this.size() > 0"}]; // 用户名，必选项。
 
   .common.v1.PasswordCrypto password = 3 [(gnostic.openapi.v3.property) = {description: "用户密码"}, (buf.validate.field).required = true]; // 用户的密码，必选项。
 
-  string captcha_code = 4 [(gnostic.openapi.v3.property) = {description: "验证码"}, (buf.validate.field).cel = {id: "login.captcha_code.required" message: "验证码不能为空" expression: "this.size() > 0"}]; // 验证码
+  string captcha_code = 4 [(gnostic.openapi.v3.property) = {description: "验证码"}, (buf.validate.field).cel = {id: "base.login.login.captcha_code.required" message: "验证码不能为空" expression: "this.size() > 0"}]; // 验证码
 
-  string captcha_id = 5 [(gnostic.openapi.v3.property) = {description: "验证码Id"}, (buf.validate.field).cel = {id: "login.captcha_id.required" message: "验证码不能为空" expression: "this.size() > 0"}]; // 验证码Id
+  string captcha_id = 5 [(gnostic.openapi.v3.property) = {description: "验证码Id"}, (buf.validate.field).cel = {id: "base.login.login.captcha_id.required" message: "验证码不能为空" expression: "this.size() > 0"}]; // 验证码Id
 }
 
 // 登录响应

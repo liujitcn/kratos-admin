@@ -4,7 +4,7 @@
       <div class="select-filter-item-title">
         <span>{{ item.title }} ：</span>
       </div>
-      <span v-if="!item.options.length" class="select-filter-notData">{{ t("common.message.noData") }}</span>
+      <span v-if="!item.options.length" class="select-filter-notData">{{ t("common.message.no_data") }}</span>
       <el-scrollbar>
         <ul class="select-filter-list">
           <li

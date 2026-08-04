@@ -1,5 +1,5 @@
 <template>
-  <el-tooltip effect="dark" :content="t('core.header.sizeSelect')" placement="bottom" :show-after="200">
+  <el-tooltip effect="dark" :content="t('core.header.size_select')" placement="bottom" :show-after="200">
     <el-dropdown trigger="click" @command="setAssemblySize">
       <i :class="'iconfont icon-contentright'" class="toolBar-icon"></i>
       <template #dropdown>

@@ -1,7 +1,7 @@
 <template>
   <ProDialog
     :model-value="modelValue"
-    :title="t('system.codegen.progress.title')"
+    :title="t('system.code.gen.progress.title')"
     width="min(1080px, 94vw)"
     top="4vh"
     :close-on-click-modal="false"
@@ -14,7 +14,7 @@
           <div>
             <strong>{{ task.message }}</strong>
             <span v-if="task.current_table_name">
-              {{ t("system.codegen.progress.value.current", { table: task.current_table_name }) }}
+              {{ t("system.code.gen.progress.value.current", { table: task.current_table_name }) }}
             </span>
           </div>
           <el-tag :type="statusMeta(task.status).type" effect="plain">{{ statusMeta(task.status).label }}</el-tag>
@@ -26,11 +26,11 @@
         />
         <div class="task-meta">
           <span>{{
-            t("system.codegen.progress.value.steps", { completed: task.completed_steps, total: task.total_steps })
+            t("system.code.gen.progress.value.steps", { completed: task.completed_steps, total: task.total_steps })
           }}</span>
-          <span>{{ t("system.codegen.progress.value.createdAt", { time: formatTime(task.created_at) }) }}</span>
+          <span>{{ t("system.code.gen.progress.value.created_at", { time: formatTime(task.created_at) }) }}</span>
           <span v-if="task.finished_at">{{
-            t("system.codegen.progress.value.finishedAt", { time: formatTime(task.finished_at) })
+            t("system.code.gen.progress.value.finished_at", { time: formatTime(task.finished_at) })
           }}</span>
         </div>
 
@@ -47,17 +47,17 @@
             </template>
             <div v-if="table.message" class="table-message">
               <span>{{ table.message }}</span>
-              <el-tooltip :content="t('system.codegen.progress.action.copyError')" placement="top">
+              <el-tooltip :content="t('system.code.gen.progress.action.copy_error')" placement="top">
                 <el-button
                   :icon="CopyDocument"
                   link
-                  :aria-label="t('system.codegen.progress.action.copyError')"
+                  :aria-label="t('system.code.gen.progress.action.copy_error')"
                   @click.stop="copyMessage(table.message)"
                 />
               </el-tooltip>
             </div>
             <el-table :data="table.steps" row-key="id" size="small" border>
-              <el-table-column :label="t('system.codegen.table.field.status')" width="86" align="center">
+              <el-table-column :label="t('system.code.gen.table.field.status')" width="86" align="center">
                 <template #default="{ row }">
                   <el-icon :class="{ 'is-loading': row.status === CodeGenTaskStepStatus.CODE_GEN_TASK_STEP_STATUS_RUNNING }">
                     <Loading v-if="row.status === CodeGenTaskStepStatus.CODE_GEN_TASK_STEP_STATUS_RUNNING" />
@@ -68,20 +68,20 @@
                   </el-icon>
                 </template>
               </el-table-column>
-              <el-table-column prop="label" :label="t('system.codegen.progress.field.step')" min-width="130" />
+              <el-table-column prop="label" :label="t('system.code.gen.progress.field.step')" min-width="130" />
               <el-table-column
                 prop="path"
-                :label="t('system.codegen.preview.field.path')"
+                :label="t('system.code.gen.preview.field.path')"
                 min-width="260"
                 show-overflow-tooltip
               />
               <el-table-column
                 prop="message"
-                :label="t('system.codegen.progress.field.result')"
+                :label="t('system.code.gen.progress.field.result')"
                 min-width="180"
                 show-overflow-tooltip
               />
-              <el-table-column :label="t('system.codegen.progress.field.output')" width="90" align="center">
+              <el-table-column :label="t('system.code.gen.progress.field.output')" width="90" align="center">
                 <template #default="{ row }">
                   <el-button v-if="row.output" :icon="Document" link @click="showOutput(row.label, row.output)" />
                 </template>
@@ -93,11 +93,11 @@
       <el-result
         v-else-if="errorMessage"
         icon="error"
-        :title="t('system.codegen.progress.message.unavailableTitle')"
+        :title="t('system.code.gen.progress.message.unavailable_title')"
         :sub-title="errorMessage"
       >
         <template #extra>
-          <el-button type="primary" @click="startTracking">{{ t("system.codegen.progress.action.reload") }}</el-button>
+          <el-button type="primary" @click="startTracking">{{ t("system.code.gen.progress.action.reload") }}</el-button>
         </template>
       </el-result>
     </div>
@@ -192,7 +192,7 @@ function applyTask(latest: CodeGenTask) {
 function markUnavailable() {
   stopTracking();
   task.value = undefined;
-  errorMessage.value = t("system.codegen.progress.message.unavailable");
+  errorMessage.value = t("system.code.gen.progress.message.unavailable");
   emit("unavailable");
 }
 
@@ -207,12 +207,12 @@ function stopTracking() {
 /** 返回状态标签配置。 */
 function statusMeta(status: CodeGenTaskStatus): StatusMeta {
   if (status === CodeGenTaskStatus.CODE_GEN_TASK_STATUS_RUNNING)
-    return { label: t("system.codegen.progress.status.running"), type: "warning" };
+    return { label: t("system.code.gen.progress.status.running"), type: "warning" };
   if (status === CodeGenTaskStatus.CODE_GEN_TASK_STATUS_SUCCEEDED)
-    return { label: t("system.codegen.progress.status.succeeded"), type: "success" };
+    return { label: t("system.code.gen.progress.status.succeeded"), type: "success" };
   if (status === CodeGenTaskStatus.CODE_GEN_TASK_STATUS_FAILED)
-    return { label: t("system.codegen.progress.status.failed"), type: "danger" };
-  return { label: t("system.codegen.progress.status.pending"), type: "info" };
+    return { label: t("system.code.gen.progress.status.failed"), type: "danger" };
+  return { label: t("system.code.gen.progress.status.pending"), type: "info" };
 }
 
 /** 返回进度条状态。 */
@@ -251,9 +251,9 @@ function showOutput(title: string, output: string) {
 async function copyMessage(message: string) {
   try {
     await navigator.clipboard.writeText(message);
-    ElMessage.success(t("system.codegen.progress.message.copied"));
+    ElMessage.success(t("system.code.gen.progress.message.copied"));
   } catch {
-    ElMessage.error(t("system.codegen.progress.message.copyFailed"));
+    ElMessage.error(t("system.code.gen.progress.message.copy_failed"));
   }
 }
 

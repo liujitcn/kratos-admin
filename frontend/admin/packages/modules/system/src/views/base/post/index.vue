@@ -12,7 +12,7 @@
     <FormDialog
       v-model="dialog.visible"
       ref="formDialogRef"
-      :title="t(dialog.titleKey, { resource: t('system.post.resource') })"
+      :title="t(dialog.titleKey, { resource: t('system.base.post.resource') })"
       width="560px"
       :model="formData"
       :fields="formFields"
@@ -60,7 +60,7 @@ const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
 const dialog = reactive({
-  titleKey: "system.common.action.createResource",
+  titleKey: "common.action.create_resource",
   visible: false
 });
 const tenantOptions = ref<SelectOptionResponse_Option[]>([]);
@@ -88,46 +88,46 @@ const rules = computed(() => ({
   tenant_id: [
     {
       required: true,
-      message: t("system.common.validation.requiredSelect", { field: t("system.common.field.tenant") }),
+      message: t("common.validation.required_select", { field: t("common.field.tenant") }),
       trigger: "change"
     }
   ],
   name: [
     {
       required: true,
-      message: t("system.common.validation.requiredInput", { field: t("system.post.field.name") }),
+      message: t("common.validation.required_input", { field: t("system.base.post.field.name") }),
       trigger: "blur"
     },
     {
       max: 30,
-      message: t("system.common.validation.maxLength", { field: t("system.post.field.name"), max: 30 }),
+      message: t("common.validation.max_length", { field: t("system.base.post.field.name"), max: 30 }),
       trigger: "blur"
     }
   ],
   code: [
     {
       required: true,
-      message: t("system.common.validation.requiredInput", { field: t("system.post.field.code") }),
+      message: t("common.validation.required_input", { field: t("system.base.post.field.code") }),
       trigger: "blur"
     },
     {
       max: 20,
-      message: t("system.common.validation.maxLength", { field: t("system.post.field.code"), max: 20 }),
+      message: t("common.validation.max_length", { field: t("system.base.post.field.code"), max: 20 }),
       trigger: "blur"
     }
   ],
-  sort: [{ required: true, type: "number", min: 1, message: t("system.common.validation.sortPositive"), trigger: "blur" }],
+  sort: [{ required: true, type: "number", min: 1, message: t("common.validation.sort_positive"), trigger: "blur" }],
   status: [
     {
       required: true,
-      message: t("system.common.validation.requiredSelect", { field: t("system.common.field.status") }),
+      message: t("common.validation.required_select", { field: t("common.field.status") }),
       trigger: "change"
     }
   ],
   remark: [
     {
       max: 500,
-      message: t("system.common.validation.maxLength", { field: t("system.common.field.remark"), max: 500 }),
+      message: t("common.validation.max_length", { field: t("common.field.remark"), max: 500 }),
       trigger: "blur"
     }
   ]
@@ -140,10 +140,10 @@ const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAUL
 const formFields = computed<ProFormField[]>(() => [
   {
     prop: "tenant_id",
-    label: t("system.common.field.tenant"),
+    label: t("common.field.tenant"),
     component: "select",
     props: {
-      placeholder: t("system.common.validation.requiredSelect", { field: t("system.common.field.tenant") }),
+      placeholder: t("common.validation.required_select", { field: t("common.field.tenant") }),
       filterable: true,
       disabled: Boolean(formData.id)
     },
@@ -152,28 +152,28 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "name",
-    label: t("system.post.field.name"),
+    label: t("system.base.post.field.name"),
     component: "input",
-    props: { placeholder: t("system.common.validation.requiredInput", { field: t("system.post.field.name") }) }
+    props: { placeholder: t("common.validation.required_input", { field: t("system.base.post.field.name") }) }
   },
   {
     prop: "code",
-    label: t("system.post.field.code"),
+    label: t("system.base.post.field.code"),
     component: "input",
-    props: { placeholder: t("system.common.validation.requiredInput", { field: t("system.post.field.code") }) }
+    props: { placeholder: t("common.validation.required_input", { field: t("system.base.post.field.code") }) }
   },
   {
     prop: "sort",
-    label: t("system.common.field.sort"),
+    label: t("common.field.sort"),
     component: "input-number",
     props: { min: 1, precision: 0, step: 1, controlsPosition: "right", style: { width: "100%" } }
   },
-  { prop: "status", label: t("system.common.field.status"), component: "radio-group", options: statusOptions.value },
+  { prop: "status", label: t("common.field.status"), component: "radio-group", options: statusOptions.value },
   {
     prop: "remark",
-    label: t("system.common.field.remark"),
+    label: t("common.field.remark"),
     component: "textarea",
-    props: { placeholder: t("system.common.placeholder.remark") }
+    props: { placeholder: t("common.placeholder.remark") }
   }
 ]);
 
@@ -184,7 +184,7 @@ const columns = computed<ColumnProps[]>(() => [
     ? ([
         {
           prop: "tenant_id",
-          label: t("system.common.field.tenant"),
+          label: t("common.field.tenant"),
           minWidth: 140,
           showOverflowTooltip: true,
           search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 1 },
@@ -192,12 +192,12 @@ const columns = computed<ColumnProps[]>(() => [
         }
       ] satisfies ColumnProps[])
     : []),
-  { prop: "name", label: t("system.post.field.name"), minWidth: 140, search: { el: "input" } },
-  { prop: "code", label: t("system.post.field.code"), minWidth: 140, search: { el: "input" } },
-  { prop: "sort", label: t("system.common.field.sort"), minWidth: 90, align: "right" },
+  { prop: "name", label: t("system.base.post.field.name"), minWidth: 140, search: { el: "input" } },
+  { prop: "code", label: t("system.base.post.field.code"), minWidth: 140, search: { el: "input" } },
+  { prop: "sort", label: t("common.field.sort"), minWidth: 90, align: "right" },
   {
     prop: "status",
-    label: t("system.common.field.status"),
+    label: t("common.field.status"),
     minWidth: 100,
     search: { el: "select" },
     cellType: "status",
@@ -210,12 +210,12 @@ const columns = computed<ColumnProps[]>(() => [
       beforeChange: scope => handleBeforeSetStatus(scope.row as BasePost)
     }
   },
-  { prop: "remark", label: t("system.common.field.remark"), minWidth: 160 },
-  { prop: "created_at", label: t("system.common.field.createdAt"), minWidth: 180 },
-  { prop: "updated_at", label: t("system.common.field.updatedAt"), minWidth: 180 },
+  { prop: "remark", label: t("common.field.remark"), minWidth: 160 },
+  { prop: "created_at", label: t("common.field.created_at"), minWidth: 180 },
+  { prop: "updated_at", label: t("common.field.updated_at"), minWidth: 180 },
   {
     prop: "operation",
-    label: t("system.common.field.operation"),
+    label: t("common.field.operation"),
     width: 180,
     fixed: "right",
     cellType: "actions",
@@ -285,7 +285,7 @@ async function loadTenantOptions() {
 async function handleOpenDialog(id?: number) {
   resetForm();
   await loadTenantOptions();
-  dialog.titleKey = id ? "system.common.action.editResource" : "system.common.action.createResource";
+  dialog.titleKey = id ? "common.action.edit_resource" : "common.action.create_resource";
   dialog.visible = true;
   if (id) Object.assign(formData, await defBasePostService.GetBasePost({ id }));
 }
@@ -319,8 +319,8 @@ function handleSubmit() {
       : defBasePostService.CreateBasePost({ base_post: submitData });
     request.then(() => {
       ElMessage.success(
-        t(submitData.id ? "system.common.message.updateSuccess" : "system.common.message.createSuccess", {
-          resource: t("system.post.resource")
+        t(submitData.id ? "common.message.update_success" : "common.message.create_success", {
+          resource: t("system.base.post.resource")
         })
       );
       handleCloseDialog();
@@ -335,10 +335,10 @@ async function handleBeforeSetStatus(row: BasePost) {
   const text = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
   try {
     await ElMessageBox.confirm(
-      t("system.common.dialog.statusChange", {
+      t("common.dialog.status_change", {
         action: text,
-        resource: t("system.post.resource"),
-        field: t("system.post.field.name"),
+        resource: t("system.base.post.resource"),
+        field: t("system.base.post.field.name"),
         value: row.name || row.code || `ID:${row.id}`
       }),
       t("common.title.notice"),
@@ -349,7 +349,7 @@ async function handleBeforeSetStatus(row: BasePost) {
       }
     );
     await defBasePostService.SetBasePostStatus({ id: row.id, status: nextStatus });
-    ElMessage.success(t("system.common.message.statusSuccess", { action: text }));
+    ElMessage.success(t("common.message.status_success", { action: text }));
     refreshTable();
     return true;
   } catch {
@@ -368,15 +368,15 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
     postList.length ? postList.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");
   if (!postIds) {
-    ElMessage.warning(t("system.common.message.selectDeleteItem"));
+    ElMessage.warning(t("common.message.select_delete_item"));
     return;
   }
   const confirmMessage =
     postList.length === 1
-      ? `${t("system.common.dialog.deleteSingle", { resource: t("system.post.resource") })}\n${t("system.common.dialog.resourceField", { field: t("system.post.field.name"), value: postList[0].name || postList[0].code || `ID:${postList[0].id}` })}`
+      ? `${t("common.dialog.delete_single", { resource: t("system.base.post.resource") })}\n${t("common.dialog.resource_field", { field: t("system.base.post.field.name"), value: postList[0].name || postList[0].code || `ID:${postList[0].id}` })}`
       : postList.length > 1
-        ? t("system.common.dialog.deleteBatch", { count: postList.length, unit: "", resource: t("system.post.resource") })
-        : t("system.common.dialog.deleteSelected", { resource: t("system.post.resource") });
+        ? t("common.dialog.delete_batch", { count: postList.length, unit: "", resource: t("system.base.post.resource") })
+        : t("common.dialog.delete_selected", { resource: t("system.base.post.resource") });
   ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
     confirmButtonText: t("common.action.confirm"),
     cancelButtonText: t("common.action.cancel"),
@@ -384,10 +384,10 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   }).then(
     () =>
       defBasePostService.DeleteBasePost({ id: postIds }).then(() => {
-        ElMessage.success(t("system.common.message.deleteSuccess", { resource: t("system.post.resource") }));
+        ElMessage.success(t("common.message.delete_success", { resource: t("system.base.post.resource") }));
         refreshTable();
       }),
-    () => ElMessage.info(t("system.common.dialog.cancelDelete", { resource: t("system.post.resource") }))
+    () => ElMessage.info(t("common.dialog.cancel_delete", { resource: t("system.base.post.resource") }))
   );
 }
 </script>

@@ -32,7 +32,7 @@ export default function SettingsPage() {
   const onLogout = async () => {
     if (logoutLoading) return
     const result = await Taro.showModal({
-      content: t('system.settings.logoutConfirm'),
+      content: t('system.settings.logout_confirm'),
       confirmColor: '#27BA9B',
     })
     if (!result.confirm) return
@@ -41,7 +41,7 @@ export default function SettingsPage() {
       await logout()
       await Taro.navigateBack()
     } catch {
-      await Taro.showToast({ icon: 'none', title: t('system.settings.logoutFailed') })
+      await Taro.showToast({ icon: 'none', title: t('system.settings.logout_failed') })
     } finally {
       setLogoutLoading(false)
     }

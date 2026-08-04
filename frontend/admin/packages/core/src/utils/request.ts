@@ -160,8 +160,8 @@ export function handleAuthExpired() {
   }
 
   isHandlingAuthExpired = true;
-  ElMessageBox.confirm(t("core.auth.sessionExpired"), t("common.title.notice"), {
-    confirmButtonText: t("core.auth.loginAgain"),
+  ElMessageBox.confirm(t("core.auth.session_expired"), t("common.title.notice"), {
+    confirmButtonText: t("core.auth.login_again"),
     cancelButtonText: t("common.action.cancel"),
     type: "warning",
     closeOnClickModal: false,
@@ -212,7 +212,7 @@ service.interceptors.response.use(
       return response.data;
     }
 
-    ElMessage.error(message || t("common.message.systemError"));
+    ElMessage.error(message || t("common.message.system_error"));
     return Promise.reject(new Error(message || "Error"));
   },
   async (error: AxiosError) => {
@@ -240,11 +240,11 @@ service.interceptors.response.use(
         if (message) {
           ElMessage.error(message);
         } else {
-          ElMessage.error(t("common.message.systemError"));
+          ElMessage.error(t("common.message.system_error"));
         }
       }
     } else if (!shouldSkipErrorMessage(requestConfig)) {
-      ElMessage.error(error.message || t("common.message.systemError"));
+      ElMessage.error(error.message || t("common.message.system_error"));
     }
     return Promise.reject(error.message);
   }
@@ -283,7 +283,7 @@ async function handleTokenRefresh(promptOnFailure = true) {
 async function refreshAccessToken() {
   const userStore = getUserStore();
   if (!userStore.refreshToken) {
-    return Promise.reject(new Error(t("core.auth.refreshTokenMissing")));
+    return Promise.reject(new Error(t("core.auth.refresh_token_missing")));
   }
 
   const response = await refreshService.post(

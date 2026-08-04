@@ -86,7 +86,7 @@ def validate_locale_sets(file_sets: dict[str, dict[str, Path]]) -> list[str]:
         missing = ", ".join(sorted(expected - set(catalog))) or "无"
         extra = ", ".join(sorted(set(catalog) - expected)) or "无"
         raise ValueError(f"代码生成器语言目录集合不一致，缺少: {missing}，多出: {extra}")
-    required_catalog_keys = {"menu", "resource", "passwordStrength", "static"}
+    required_catalog_keys = {"menu", "resource", "password_strength", "static"}
     for locale, value in catalog.items():
         if set(value) != required_catalog_keys:
             raise ValueError(f"代码生成器语言目录 {locale} 字段不完整")

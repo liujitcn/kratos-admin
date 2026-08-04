@@ -1,12 +1,12 @@
 import { create } from 'zustand'
 import { defConfigService } from '../api/base/config'
 import { t } from '../locales'
-import { BaseConfigSite } from '../rpc/base/v1/enum'
+import { BaseConfigSite } from '../rpc/base/v1/config'
 
 const REQUIRED_APP_CONFIGS = [
   { key: 'serviceProtocol', nameKey: 'core.login.service' },
   { key: 'privacyProtocol', nameKey: 'core.login.privacy' },
-  { key: 'captchaType', nameKey: 'core.login.captchaTypeName' },
+  { key: 'captchaType', nameKey: 'core.login.captcha_type_name' },
 ] as const
 
 /** 应用配置状态及操作。 */
@@ -27,7 +27,7 @@ export const useSettingStore = create<SettingStoreState>((set, get) => ({
   async loadData() {
     if (loading) return loading
     loading = (async () => {
-      const response = await defConfigService.GetConfig({ site: BaseConfigSite.APP })
+      const response = await defConfigService.GetConfig({ site: BaseConfigSite.BASE_CONFIG_SITE_APP })
       const nextData = new Map(response.configs.map((item) => [item.key, item.value]))
       const missing = REQUIRED_APP_CONFIGS.filter(({ key }) => !nextData.get(key))
       if (missing.length) {

@@ -160,13 +160,13 @@ const dialogVisible = ref(false);
 const activeTab = ref<CronSegmentKey>("second");
 
 const presetOptions = computed(() => [
-  { label: t("core.cron.preset.everyMinute"), value: "0 * * * * *" },
-  { label: t("core.cron.preset.everyFiveMinutes"), value: "0 */5 * * * *" },
-  { label: t("core.cron.preset.everyHour"), value: "0 0 * * * *" },
-  { label: t("core.cron.preset.dailyMidnight"), value: "0 0 0 * * *" },
-  { label: t("core.cron.preset.dailyEight"), value: "0 0 8 * * *" },
-  { label: t("core.cron.preset.monthlyFirst"), value: "0 0 0 1 * *" },
-  { label: t("core.cron.preset.nextYearDaily"), value: `0 0 0 * * ${currentYear + 1}` }
+  { label: t("core.cron.preset.every_minute"), value: "0 * * * * *" },
+  { label: t("core.cron.preset.every_five_minutes"), value: "0 */5 * * * *" },
+  { label: t("core.cron.preset.every_hour"), value: "0 0 * * * *" },
+  { label: t("core.cron.preset.daily_midnight"), value: "0 0 0 * * *" },
+  { label: t("core.cron.preset.daily_eight"), value: "0 0 8 * * *" },
+  { label: t("core.cron.preset.monthly_first"), value: "0 0 0 1 * *" },
+  { label: t("core.cron.preset.next_year_daily"), value: `0 0 0 * * ${currentYear + 1}` }
 ]);
 
 /** 创建单个 Cron 字段的默认编辑状态。 */
@@ -221,7 +221,7 @@ const expressionDescription = computed(() => {
     formatSegmentDescription("month", editorState.month),
     formatSegmentDescription("year", editorState.year)
   ].filter(Boolean);
-  return descriptionList.length ? descriptionList.join(t("core.cron.descriptionSeparator")) : t("core.cron.notConfigured");
+  return descriptionList.length ? descriptionList.join(t("core.cron.description_separator")) : t("core.cron.not_configured");
 });
 
 /** 打开 Cron 编辑弹窗，并按当前表达式回填编辑状态。 */
@@ -306,11 +306,11 @@ function formatSegmentDescription(segmentKey: CronSegmentKey, segment: CronSegme
       return segment.specific.length
         ? t("core.cron.description.specific", {
             segment: segmentName,
-            values: segment.specific.map(item => formatSpecificLabel(segmentKey, item)).join(t("core.cron.valueSeparator"))
+            values: segment.specific.map(item => formatSpecificLabel(segmentKey, item)).join(t("core.cron.value_separator"))
           })
         : t("core.cron.description.unspecified", { segment: segmentName });
     case "last":
-      return t("core.cron.lastDay");
+      return t("core.cron.last_day");
     case "weekday":
       return t("core.cron.description.weekday", { day: segment.weekday });
     default:
@@ -320,7 +320,7 @@ function formatSegmentDescription(segmentKey: CronSegmentKey, segment: CronSegme
 
 /** 格式化指定值模式下的单个展示值。 */
 function formatSpecificLabel(segmentKey: CronSegmentKey, value: number) {
-  return t("core.cron.valueWithUnit", { value, unit: t(`core.cron.unit.${segmentKey}`) });
+  return t("core.cron.value_with_unit", { value, unit: t(`core.cron.unit.${segmentKey}`) });
 }
 
 /**
@@ -468,7 +468,7 @@ const CronSegmentEditor = defineComponent({
       const unit = t(`core.cron.unit.${segmentProps.unitKey}`);
       return numberOptions.value.map(item => ({
         value: item,
-        label: t("core.cron.valueWithUnit", { value: item, unit })
+        label: t("core.cron.value_with_unit", { value: item, unit })
       }));
     });
 
@@ -499,7 +499,7 @@ const CronSegmentEditor = defineComponent({
         {segmentProps.supportsEvery && (
           <label class="segment-editor__row">
             {h(ElRadio, { modelValue: localState.mode, value: "every", onChange: () => handleModeChange("every") })}
-            <span>{t("core.cron.everyUnit", { unit: t(`core.cron.unit.${segmentProps.unitKey}`) })}</span>
+            <span>{t("core.cron.every_unit", { unit: t(`core.cron.unit.${segmentProps.unitKey}`) })}</span>
           </label>
         )}
 
@@ -544,7 +544,7 @@ const CronSegmentEditor = defineComponent({
               controlsPosition: "right",
               "onUpdate:modelValue": value => handleNumberChange("stepStart", Number(value))
             })}
-            <span>{t("core.cron.startEvery", { unit: t(`core.cron.unit.${segmentProps.unitKey}`) })}</span>
+            <span>{t("core.cron.start_every", { unit: t(`core.cron.unit.${segmentProps.unitKey}`) })}</span>
             {h(ElInputNumber, {
               modelValue: localState.stepValue,
               min: 1,
@@ -552,7 +552,7 @@ const CronSegmentEditor = defineComponent({
               controlsPosition: "right",
               "onUpdate:modelValue": value => handleNumberChange("stepValue", Number(value))
             })}
-            <span>{t("core.cron.runOnce", { unit: t(`core.cron.cycleUnit.${segmentProps.unitKey}`) })}</span>
+            <span>{t("core.cron.run_once", { unit: t(`core.cron.cycleUnit.${segmentProps.unitKey}`) })}</span>
           </label>
         )}
 
@@ -580,7 +580,7 @@ const CronSegmentEditor = defineComponent({
         {segmentProps.supportsLast && (
           <label class="segment-editor__row">
             {h(ElRadio, { modelValue: localState.mode, value: "last", onChange: () => handleModeChange("last") })}
-            <span>{t("core.cron.lastDay")}</span>
+            <span>{t("core.cron.last_day")}</span>
           </label>
         )}
 
@@ -588,7 +588,7 @@ const CronSegmentEditor = defineComponent({
           <label class="segment-editor__row">
             {h(ElRadio, { modelValue: localState.mode, value: "weekday", onChange: () => handleModeChange("weekday") })}
             <span>{t("core.cron.workday")}</span>
-            <span>{t("core.cron.thisMonth")}</span>
+            <span>{t("core.cron.this_month")}</span>
             {h(ElInputNumber, {
               modelValue: localState.weekday,
               min: segmentProps.min,
@@ -596,7 +596,7 @@ const CronSegmentEditor = defineComponent({
               controlsPosition: "right",
               "onUpdate:modelValue": value => handleNumberChange("weekday", Number(value))
             })}
-            <span>{t("core.cron.nearestWorkday")}</span>
+            <span>{t("core.cron.nearest_workday")}</span>
           </label>
         )}
       </div>

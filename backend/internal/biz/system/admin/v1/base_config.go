@@ -69,7 +69,7 @@ func (c *BaseConfigCase) PageBaseConfig(ctx context.Context, req *systemadminv1.
 	}
 	// 传入名称关键字时，按配置名称模糊匹配。
 	if req.GetName() != "" {
-		translatedIDs, err := c.translationCase.ReviewedConfigIDsByName(ctx, req.GetName())
+		translatedIDs, err := c.translationCase.TranslatedConfigIDsByName(ctx, req.GetName())
 		if err != nil {
 			return nil, err
 		}
@@ -96,16 +96,16 @@ func (c *BaseConfigCase) PageBaseConfig(ctx context.Context, req *systemadminv1.
 		return nil, err
 	}
 
+	resList := make([]*systemadminv1.BaseConfig, 0, len(list))
 	sources := make(map[int64]dto.ConfigTranslationSource, len(list))
 	for _, item := range list {
 		sources[item.ID] = dto.ConfigTranslationSource{Name: item.Name, Value: item.Value, Type: item.Type}
 	}
-	var translations map[int64][]*systemadminv1.BaseConfigTranslation
+	var translations map[int64][]*systemadminv1.BaseTranslation
 	translations, err = c.translationCase.ConfigTranslations(ctx, sources)
 	if err != nil {
 		return nil, err
 	}
-	resList := make([]*systemadminv1.BaseConfig, 0, len(list))
 	for _, item := range list {
 		baseConfig := c.mapper.ToDTO(item)
 		baseConfig.Translations = translations[item.ID]
@@ -125,7 +125,7 @@ func (c *BaseConfigCase) GetBaseConfig(ctx context.Context, id int64) (*systemad
 		return nil, err
 	}
 	res := c.formMapper.ToDTO(baseConfig)
-	var translations map[int64][]*systemadminv1.BaseConfigTranslation
+	var translations map[int64][]*systemadminv1.BaseTranslation
 	translations, err = c.translationCase.ConfigTranslations(ctx, map[int64]dto.ConfigTranslationSource{id: {Name: baseConfig.Name, Value: baseConfig.Value, Type: baseConfig.Type}})
 	if err != nil {
 		return nil, err
@@ -138,20 +138,23 @@ func (c *BaseConfigCase) GetBaseConfig(ctx context.Context, id int64) (*systemad
 func (c *BaseConfigCase) CreateBaseConfig(ctx context.Context, req *systemadminv1.BaseConfigForm) error {
 	nameSource := req.GetName()
 	valueSource := req.GetValue()
-	primaryName, sourceLocale, primaryLocale, err := c.translationCase.NormalizePrimaryText(ctx, nameSource)
+	var sourceLocale, primaryLocale string
+	var err error
+	var primaryName string
+	primaryName, sourceLocale, primaryLocale, err = c.translationCase.NormalizePrimaryText(ctx, nameSource)
 	if err != nil {
 		return err
 	}
 	primaryValue := req.GetValue()
 	if isTranslatableConfigType(int32(req.GetType())) {
-		primaryValue, _, _, err = c.translationCase.NormalizePrimaryText(ctx, valueSource)
+		primaryValue, sourceLocale, primaryLocale, err = c.translationCase.NormalizePrimaryText(ctx, valueSource)
 		if err != nil {
 			return err
 		}
 	}
 	req.Name = primaryName
 	req.Value = primaryValue
-	translations := appendConfigSourceTranslations(req.GetTranslations(), sourceLocale, primaryLocale, nameSource, valueSource, isTranslatableConfigType(int32(req.GetType())))
+	translations := appendConfigSourceTranslations(req.GetTranslations(), sourceLocale, primaryLocale, nameSource, valueSource, isTranslatableConfigType(int32(req.GetType())), true)
 	entity := c.formMapper.ToEntity(req)
 	err = c.Create(ctx, entity)
 	if err != nil {
@@ -169,6 +172,10 @@ func (c *BaseConfigCase) CreateBaseConfig(ctx context.Context, req *systemadminv
 	if err != nil {
 		return err
 	}
+	c.translationCase.EnqueueTranslation(systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, entity.ID)
+	if isTranslatableConfigType(entity.Type) {
+		c.translationCase.EnqueueTranslation(systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE, entity.ID)
+	}
 	return nil
 }
 
@@ -179,23 +186,25 @@ func (c *BaseConfigCase) UpdateBaseConfig(ctx context.Context, req *systemadminv
 		return err
 	}
 
-	nameSource := req.GetName()
+	nameSource := oldConfig.Name
 	valueSource := req.GetValue()
-	var primaryName, sourceLocale, primaryLocale string
-	primaryName, sourceLocale, primaryLocale, err = c.translationCase.NormalizePrimaryText(ctx, nameSource)
+	primaryName := oldConfig.Name
+	var primaryLocale string
+	primaryLocale, err = c.translationCase.PrimaryLocale(ctx)
 	if err != nil {
 		return err
 	}
+	sourceLocale := primaryLocale
 	primaryValue := req.GetValue()
 	if isTranslatableConfigType(int32(req.GetType())) {
-		primaryValue, _, _, err = c.translationCase.NormalizePrimaryText(ctx, valueSource)
+		primaryValue, sourceLocale, primaryLocale, err = c.translationCase.NormalizePrimaryText(ctx, valueSource)
 		if err != nil {
 			return err
 		}
 	}
 	req.Name = primaryName
 	req.Value = primaryValue
-	translations := appendConfigSourceTranslations(req.GetTranslations(), sourceLocale, primaryLocale, nameSource, valueSource, isTranslatableConfigType(int32(req.GetType())))
+	translations := appendConfigSourceTranslations(req.GetTranslations(), sourceLocale, primaryLocale, nameSource, valueSource, isTranslatableConfigType(int32(req.GetType())), false)
 	entity := c.formMapper.ToEntity(req)
 	err = c.UpdateByID(ctx, entity)
 	if err != nil {
@@ -203,10 +212,6 @@ func (c *BaseConfigCase) UpdateBaseConfig(ctx context.Context, req *systemadminv
 		if errorsx.IsMySQLDuplicateKey(err) {
 			return errorsx.UniqueConflict("同一位置的配置键重复", "base_config", "", "unique_base_config").WithCause(err)
 		}
-		return err
-	}
-	err = c.translationCase.MarkConfigSourceChanged(ctx, entity.ID, dto.ConfigTranslationSource{Name: oldConfig.Name, Value: oldConfig.Value, Type: oldConfig.Type}, dto.ConfigTranslationSource{Name: entity.Name, Value: entity.Value, Type: entity.Type})
-	if err != nil {
 		return err
 	}
 	err = c.translationCase.SaveConfigTranslations(ctx, entity.ID, dto.ConfigTranslationSource{Name: entity.Name, Value: entity.Value, Type: entity.Type}, translations)
@@ -224,15 +229,19 @@ func (c *BaseConfigCase) UpdateBaseConfig(ctx context.Context, req *systemadminv
 			return err
 		}
 	}
+	c.translationCase.EnqueueTranslation(systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, entity.ID)
+	if isTranslatableConfigType(entity.Type) {
+		c.translationCase.EnqueueTranslation(systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE, entity.ID)
+	}
 	return nil
 }
 
-// appendConfigSourceTranslations 保留当前请求语言的配置名称及可翻译配置值。
-func appendConfigSourceTranslations(translations []*systemadminv1.BaseConfigTranslation, sourceLocale, primaryLocale, sourceName, sourceValue string, translatableValue bool) []*systemadminv1.BaseConfigTranslation {
+// appendConfigSourceTranslations 保留当前请求语言的配置名称和值。
+func appendConfigSourceTranslations(translations []*systemadminv1.BaseTranslation, sourceLocale, primaryLocale, sourceName, sourceValue string, translatableValue, includeNameSource bool) []*systemadminv1.BaseTranslation {
 	if sourceLocale == primaryLocale {
 		return translations
 	}
-	result := make([]*systemadminv1.BaseConfigTranslation, 0, len(translations)+2)
+	result := make([]*systemadminv1.BaseTranslation, 0, len(translations)+1)
 	nameAdded := false
 	valueAdded := false
 	for _, translation := range translations {
@@ -240,24 +249,28 @@ func appendConfigSourceTranslations(translations []*systemadminv1.BaseConfigTran
 			result = append(result, translation)
 			continue
 		}
-		switch translation.GetField() {
-		case systemadminv1.BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_NAME:
+		switch translation.GetTargetType() {
+		case systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME:
+			if !includeNameSource {
+				result = append(result, translation)
+				continue
+			}
 			if !nameAdded {
-				result = append(result, &systemadminv1.BaseConfigTranslation{Locale: sourceLocale, Field: translation.GetField(), Text: sourceName})
+				result = append(result, &systemadminv1.BaseTranslation{TargetType: translation.GetTargetType(), Locale: sourceLocale, Name: sourceName})
 				nameAdded = true
 			}
-		case systemadminv1.BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_VALUE:
+		case systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE:
 			if translatableValue && !valueAdded {
-				result = append(result, &systemadminv1.BaseConfigTranslation{Locale: sourceLocale, Field: translation.GetField(), Text: sourceValue})
+				result = append(result, &systemadminv1.BaseTranslation{TargetType: translation.GetTargetType(), TargetId: translation.GetTargetId(), Locale: sourceLocale, Name: sourceValue})
 				valueAdded = true
 			}
 		}
 	}
-	if !nameAdded {
-		result = append(result, &systemadminv1.BaseConfigTranslation{Locale: sourceLocale, Field: systemadminv1.BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_NAME, Text: sourceName})
+	if includeNameSource && !nameAdded {
+		result = append(result, &systemadminv1.BaseTranslation{TargetType: systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, Locale: sourceLocale, Name: sourceName})
 	}
 	if translatableValue && !valueAdded {
-		result = append(result, &systemadminv1.BaseConfigTranslation{Locale: sourceLocale, Field: systemadminv1.BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_VALUE, Text: sourceValue})
+		result = append(result, &systemadminv1.BaseTranslation{TargetType: systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE, Locale: sourceLocale, Name: sourceValue})
 	}
 	return result
 }

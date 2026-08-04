@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package base.v1;
 
-import "base/v1/enum.proto";
 import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
@@ -17,9 +16,21 @@ service ConfigService {
   }
 }
 
+// 系统配置位置。
+enum BaseConfigSite {
+  // 未指定系统配置位置。
+  BASE_CONFIG_SITE_UNSPECIFIED = 0;
+  // 系统内使用。
+  BASE_CONFIG_SITE_SYSTEM = 1;
+  // 管理端。
+  BASE_CONFIG_SITE_ADMIN = 2;
+  // 移动端。
+  BASE_CONFIG_SITE_APP = 3;
+}
+
 // 获取系统配置条件
 message GetConfigRequest {
-  .base.v1.BaseConfigSite site = 2 [(gnostic.openapi.v3.property) = {description: "位置：枚举【BaseConfigSite】"}, (buf.validate.field).enum = {defined_only: true}, (buf.validate.field).cel = {id: "get_config.site.required" message: "位置不能为空" expression: "this != 0"}]; // 位置：枚举【BaseConfigSite】
+  BaseConfigSite site = 2 [(gnostic.openapi.v3.property) = {description: "位置：枚举【BaseConfigSite】"}, (buf.validate.field).enum = {defined_only: true}, (buf.validate.field).cel = {id: "base.config.get.site.required" message: "位置不能为空" expression: "this != 0"}]; // 位置：枚举【BaseConfigSite】
 }
 
 // 系统配置项

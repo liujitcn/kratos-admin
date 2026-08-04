@@ -6,7 +6,6 @@ import "gnostic/openapi/v3/annotations.proto";
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
-import "system/common/v1/enum.proto";
 import "system/admin/v1/base_translation.proto";
 
 // Admin代码生成表配置服务
@@ -56,6 +55,18 @@ service CodeGenTableService {
   }
 }
 
+// 代码生成表状态。
+enum CodeGenTableStatus {
+  // 未指定代码生成表状态。
+  CODE_GEN_TABLE_STATUS_UNSPECIFIED = 0;
+  // 草稿。
+  CODE_GEN_TABLE_STATUS_DRAFT = 1;
+  // 已生成。
+  CODE_GEN_TABLE_STATUS_GENERATED = 2;
+  // 停用。
+  CODE_GEN_TABLE_STATUS_DISABLED = 3;
+}
+
 // 代码生成表配置分页查询条件
 message PageCodeGenTableRequest {
   optional string name = 1 [(gnostic.openapi.v3.property) = {description: "业务表名"}]; // 业务表名
@@ -64,7 +75,7 @@ message PageCodeGenTableRequest {
 
   optional string page_type = 3 [(gnostic.openapi.v3.property) = {description: "页面类型"}]; // 页面类型
 
-  optional .system.common.v1.CodeGenTableStatus status = 4 [(gnostic.openapi.v3.property) = {description: "状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用"}]; // 状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用
+  optional CodeGenTableStatus status = 4 [(gnostic.openapi.v3.property) = {description: "状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用"}]; // 状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用
 
   int64 page_num = 101 [(gnostic.openapi.v3.property) = {
     description: "当前页码"
@@ -94,26 +105,26 @@ message ListCodeGenDatabaseTableResponse {
 
 // 代码生成表配置详情查询条件
 message GetCodeGenTableRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}, (buf.validate.field).cel = {id: "get_code_gen_table.id.required" message: "主键ID不能为空" expression: "this > 0"}]; // 主键ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}, (buf.validate.field).cel = {id: "system.admin.code.gen.table.get.id.required" message: "主键ID不能为空" expression: "this > 0"}]; // 主键ID
 }
 
 // 代码生成表配置表单
 message CodeGenTableForm {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}]; // 主键ID
 
-  string name = 2 [(gnostic.openapi.v3.property) = {description: "业务表名"}, (buf.validate.field).cel = {id: "field.name.required", message: "业务表名不能为空", expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "field.name.length", message: "业务表名不能超过 128 个字符", expression: "this.size() <= 128"}, (buf.validate.field).cel = {id: "field.name.pattern", message: "业务表名格式不正确", expression: "this.matches('^[a-z][a-z0-9_]*$')"}]; // 业务表名
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "业务表名"}, (buf.validate.field).cel = {id: "system.admin.code.gen.table.field.name.required", message: "业务表名不能为空", expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "system.admin.code.gen.table.field.name.length", message: "业务表名不能超过 128 个字符", expression: "this.size() <= 128"}, (buf.validate.field).cel = {id: "system.admin.code.gen.table.field.name.pattern", message: "业务表名格式不正确", expression: "this.matches('^[a-z][a-z0-9_]*$')"}]; // 业务表名
 
-  string comment = 3 [(gnostic.openapi.v3.property) = {description: "业务表描述"}, (buf.validate.field).cel = {id: "field.comment.length", message: "业务表描述不能超过 128 个字符", expression: "this.size() <= 128"}]; // 业务表描述
+  string comment = 3 [(gnostic.openapi.v3.property) = {description: "业务表描述"}, (buf.validate.field).cel = {id: "system.admin.code.gen.table.field.comment.length", message: "业务表描述不能超过 128 个字符", expression: "this.size() <= 128"}]; // 业务表描述
 
-  string business_module = 4 [(gnostic.openapi.v3.property) = {description: "业务模块"}, (buf.validate.field).cel = {id: "field.business_module.required", message: "业务模块不能为空", expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "field.business_module.length", message: "业务模块不能超过 64 个字符", expression: "this.size() <= 64"}, (buf.validate.field).cel = {id: "field.business_module.pattern", message: "业务模块格式不正确", expression: "this.matches('^[a-z][a-z0-9_]*$')"}]; // 业务模块
+  string business_module = 4 [(gnostic.openapi.v3.property) = {description: "业务模块"}, (buf.validate.field).cel = {id: "system.admin.code.gen.table.field.business_module.required", message: "业务模块不能为空", expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "system.admin.code.gen.table.field.business_module.length", message: "业务模块不能超过 64 个字符", expression: "this.size() <= 64"}, (buf.validate.field).cel = {id: "system.admin.code.gen.table.field.business_module.pattern", message: "业务模块格式不正确", expression: "this.matches('^[a-z][a-z0-9_]*$')"}]; // 业务模块
 
-  int64 parent_menu_id = 5 [(gnostic.openapi.v3.property) = {description: "父级菜单ID"}, (buf.validate.field).cel = {id: "field.parent_menu_id.required", message: "请选择父级菜单", expression: "this > 0"}]; // 父级菜单ID
+  int64 parent_menu_id = 5 [(gnostic.openapi.v3.property) = {description: "父级菜单ID"}, (buf.validate.field).cel = {id: "system.admin.code.gen.table.field.parent_menu_id.required", message: "请选择父级菜单", expression: "this > 0"}]; // 父级菜单ID
 
-  string page_type = 6 [(gnostic.openapi.v3.property) = {description: "页面类型：normal普通表格 tree树形表格 tree_lazy树形懒加载表格 left_tree左树右表"}, (buf.validate.field).cel = {id: "field.page_type.required", message: "页面类型不能为空", expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "field.page_type.length", message: "页面类型不能超过 32 个字符", expression: "this.size() <= 32"}]; // 页面类型：normal普通表格 tree树形表格 tree_lazy树形懒加载表格 left_tree左树右表
+  string page_type = 6 [(gnostic.openapi.v3.property) = {description: "页面类型：normal普通表格 tree树形表格 tree_lazy树形懒加载表格 left_tree左树右表"}, (buf.validate.field).cel = {id: "system.admin.code.gen.table.field.page_type.required", message: "页面类型不能为空", expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "system.admin.code.gen.table.field.page_type.length", message: "页面类型不能超过 32 个字符", expression: "this.size() <= 32"}]; // 页面类型：normal普通表格 tree树形表格 tree_lazy树形懒加载表格 left_tree左树右表
 
-  string parent_column = 7 [(gnostic.openapi.v3.property) = {description: "树形表格父节点字段"}, (buf.validate.field).cel = {id: "field.parent_column.length", message: "树形表格父节点字段不能超过 64 个字符", expression: "this.size() <= 64"}]; // 树形表格父节点字段
+  string parent_column = 7 [(gnostic.openapi.v3.property) = {description: "树形表格父节点字段"}, (buf.validate.field).cel = {id: "system.admin.code.gen.table.field.parent_column.length", message: "树形表格父节点字段不能超过 64 个字符", expression: "this.size() <= 64"}]; // 树形表格父节点字段
 
-  string tree_label_column = 8 [(gnostic.openapi.v3.property) = {description: "树节点显示字段"}, (buf.validate.field).cel = {id: "field.tree_label_column.length", message: "树节点显示字段不能超过 64 个字符", expression: "this.size() <= 64"}]; // 树节点显示字段
+  string tree_label_column = 8 [(gnostic.openapi.v3.property) = {description: "树节点显示字段"}, (buf.validate.field).cel = {id: "system.admin.code.gen.table.field.tree_label_column.length", message: "树节点显示字段不能超过 64 个字符", expression: "this.size() <= 64"}]; // 树节点显示字段
 
   CodeGenLeftTreeConfig left_tree_config = 9 [(gnostic.openapi.v3.property) = {description: "左树配置"}]; // 左树配置
 
@@ -123,9 +134,9 @@ message CodeGenTableForm {
 
   bool gen_sql = 12 [(gnostic.openapi.v3.property) = {description: "是否同步菜单和接口权限"}]; // 是否同步菜单和接口权限
 
-  .system.common.v1.CodeGenTableStatus status = 13 [(gnostic.openapi.v3.property) = {description: "状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用"}, (buf.validate.field).enum = {defined_only: true}, (buf.validate.field).cel = {id: "code_gen_table.status.required" message: "请选择代码生成表状态" expression: "this > 0"}]; // 状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用
+  CodeGenTableStatus status = 13 [(gnostic.openapi.v3.property) = {description: "状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用"}, (buf.validate.field).enum = {defined_only: true}, (buf.validate.field).cel = {id: "system.admin.code.gen.table.entity.status.required" message: "请选择代码生成表状态" expression: "this > 0"}]; // 状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用
 
-  string remark = 14 [(gnostic.openapi.v3.property) = {description: "备注"}, (buf.validate.field).cel = {id: "field.remark.length", message: "备注不能超过 500 个字符", expression: "this.size() <= 500"}]; // 备注
+  string remark = 14 [(gnostic.openapi.v3.property) = {description: "备注"}, (buf.validate.field).cel = {id: "system.admin.code.gen.table.field.remark.length", message: "备注不能超过 500 个字符", expression: "this.size() <= 500"}]; // 备注
 
   map<string, CodeGenLocaleConfig> i18n_config = 15 [(gnostic.openapi.v3.property) = {description: "按语言区域索引的表级国际化配置"}]; // 按语言区域索引的表级国际化配置
 }
@@ -137,7 +148,7 @@ message CreateCodeGenTableRequest {
 
 // 代码生成表配置更新条件
 message UpdateCodeGenTableRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}, (buf.validate.field).cel = {id: "update_code_gen_table.id.required" message: "主键ID不能为空" expression: "this > 0"}]; // 主键ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}, (buf.validate.field).cel = {id: "system.admin.code.gen.table.update.id.required" message: "主键ID不能为空" expression: "this > 0"}]; // 主键ID
 
   CodeGenTableForm code_gen_table = 2 [(gnostic.openapi.v3.property) = {description: "代码生成表配置表单"}, (buf.validate.field).required = true]; // 代码生成表配置表单
 }
@@ -169,7 +180,7 @@ message CodeGenTable {
 
   string page_type = 5 [(gnostic.openapi.v3.property) = {description: "页面类型"}]; // 页面类型
 
-  .system.common.v1.CodeGenTableStatus status = 6 [(gnostic.openapi.v3.property) = {description: "状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用"}]; // 状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用
+  CodeGenTableStatus status = 6 [(gnostic.openapi.v3.property) = {description: "状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用"}]; // 状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用
 
   string remark = 7 [(gnostic.openapi.v3.property) = {description: "备注"}]; // 备注
 

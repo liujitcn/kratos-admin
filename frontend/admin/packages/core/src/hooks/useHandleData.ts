@@ -17,7 +17,7 @@ export const useHandleData = (
   confirmType: HandleData.MessageType = "warning"
 ) => {
   return new Promise((resolve, reject) => {
-    ElMessageBox.confirm(t("core.data.confirmAction", { action: message }), t("common.title.warning"), {
+    ElMessageBox.confirm(t("core.data.confirm_action", { action: message }), t("common.title.warning"), {
       confirmButtonText: t("common.action.confirm"),
       cancelButtonText: t("common.action.cancel"),
       type: confirmType,
@@ -28,7 +28,7 @@ export const useHandleData = (
         if (!res) return reject(false);
         ElMessage({
           type: "success",
-          message: t("core.data.operationSuccess", { action: message })
+          message: t("core.data.operation_success", { action: message })
         });
         resolve(true);
       })

@@ -3,27 +3,27 @@
   <div v-loading="loading" class="table-box migration-page">
     <main class="migration-content">
       <el-form class="migration-filters" :model="filters" inline @submit.prevent="handleSearch">
-        <el-form-item :label="t('system.migration.field.module')">
+        <el-form-item :label="t('system.base.migration.field.module')">
           <el-input
             v-model="filters.module"
             clearable
-            :placeholder="t('system.migration.placeholder.module')"
+            :placeholder="t('system.base.migration.placeholder.module')"
             @keyup.enter="handleSearch"
           />
         </el-form-item>
-        <el-form-item :label="t('system.migration.field.dataSource')">
+        <el-form-item :label="t('system.base.migration.field.data_source')">
           <el-input
             v-model="filters.data_source"
             clearable
-            :placeholder="t('system.migration.placeholder.dataSource')"
+            :placeholder="t('system.base.migration.placeholder.data_source')"
             @keyup.enter="handleSearch"
           />
         </el-form-item>
-        <el-form-item :label="t('system.migration.field.version')">
+        <el-form-item :label="t('system.base.migration.field.version')">
           <el-input
             v-model="filters.version"
             clearable
-            :placeholder="t('system.migration.placeholder.version')"
+            :placeholder="t('system.base.migration.placeholder.version')"
             @keyup.enter="handleSearch"
           />
         </el-form-item>
@@ -33,11 +33,11 @@
         </el-form-item>
       </el-form>
 
-      <el-empty v-if="!loading && !histories.length" :description="t('system.migration.message.emptyHistory')" />
+      <el-empty v-if="!loading && !histories.length" :description="t('system.base.migration.message.empty_history')" />
 
-      <section v-else class="migration-workspace" :aria-label="t('system.migration.title.history')">
+      <section v-else class="migration-workspace" :aria-label="t('system.base.migration.title.history')">
         <aside class="migration-list-panel">
-          <div class="migration-list-scroll" role="listbox" :aria-label="t('system.migration.title.list')">
+          <div class="migration-list-scroll" role="listbox" :aria-label="t('system.base.migration.title.list')">
             <button
               v-for="history in histories"
               :key="history.id"
@@ -51,14 +51,14 @@
                 <strong>{{ history.version }}</strong>
               </div>
               <div class="migration-list-item__data-source">
-                {{ history.module || t("system.migration.value.defaultModule") }} · {{ history.data_source || "default" }}
+                {{ history.module || t("system.base.migration.value.default_module") }} · {{ history.data_source || "default" }}
               </div>
               <time :datetime="history.created_at">{{ formatDate(history.created_at) }}</time>
             </button>
           </div>
 
           <div v-if="pageable.total > pageable.page_size" class="migration-pagination">
-            <span class="migration-pagination__total">{{ t("system.migration.message.total", { total: pageable.total }) }}</span>
+            <span class="migration-pagination__total">{{ t("system.base.migration.message.total", { total: pageable.total }) }}</span>
             <el-pagination
               background
               small
@@ -80,7 +80,7 @@
             <header class="detail-header">
               <div class="detail-header__title">
                 <span class="detail-header__data-source">
-                  {{ selectedMigration.module || t("system.migration.value.defaultModule") }} ·
+                  {{ selectedMigration.module || t("system.base.migration.value.default_module") }} ·
                   {{ selectedMigration.data_source || "default" }}
                 </span>
                 <div class="detail-header__version">
@@ -97,7 +97,7 @@
                 <section v-if="selectedMigration.description" class="detail-section">
                   <div class="detail-section__title">
                     <el-icon><Document /></el-icon>
-                    <span>{{ t("system.migration.section.description") }}</span>
+                    <span>{{ t("system.base.migration.section.description") }}</span>
                   </div>
                   <MarkdownPreview
                     class="migration-markdown"
@@ -110,26 +110,26 @@
                 <section v-if="selectedMigration.up_sql || selectedMigration.down_sql" class="detail-section">
                   <div class="detail-section__title">
                     <el-icon><Files /></el-icon>
-                    <span>{{ t("system.migration.section.sql") }}</span>
+                    <span>{{ t("system.base.migration.section.sql") }}</span>
                   </div>
                   <el-collapse class="release-sql">
                     <el-collapse-item v-if="selectedMigration.up_sql" name="up">
                       <template #title>
                         <span class="sql-title">
                           <el-icon><DocumentAdd /></el-icon>
-                          <span>{{ t("system.migration.field.upScript") }}</span>
+                          <span>{{ t("system.base.migration.field.up_script") }}</span>
                           <code>up.sql</code>
                         </span>
                       </template>
                       <div class="sql-panel">
                         <pre class="sql-code"><code>{{ selectedMigration.up_sql }}</code></pre>
-                        <el-tooltip :content="t('system.migration.action.copyUpScript')" placement="top">
+                        <el-tooltip :content="t('system.base.migration.action.copy_up_script')" placement="top">
                           <el-button
                             class="sql-copy"
                             text
                             circle
                             :icon="CopyDocument"
-                            :aria-label="t('system.migration.action.copyUpScript')"
+                            :aria-label="t('system.base.migration.action.copy_up_script')"
                             @click.stop="copySql(selectedMigration.up_sql)"
                           />
                         </el-tooltip>
@@ -139,19 +139,19 @@
                       <template #title>
                         <span class="sql-title">
                           <el-icon><DocumentRemove /></el-icon>
-                          <span>{{ t("system.migration.field.downScript") }}</span>
+                          <span>{{ t("system.base.migration.field.down_script") }}</span>
                           <code>down.sql</code>
                         </span>
                       </template>
                       <div class="sql-panel">
                         <pre class="sql-code"><code>{{ selectedMigration.down_sql }}</code></pre>
-                        <el-tooltip :content="t('system.migration.action.copyDownScript')" placement="top">
+                        <el-tooltip :content="t('system.base.migration.action.copy_down_script')" placement="top">
                           <el-button
                             class="sql-copy"
                             text
                             circle
                             :icon="CopyDocument"
-                            :aria-label="t('system.migration.action.copyDownScript')"
+                            :aria-label="t('system.base.migration.action.copy_down_script')"
                             @click.stop="copySql(selectedMigration.down_sql)"
                           />
                         </el-tooltip>
@@ -162,12 +162,12 @@
 
                 <div v-if="!hasDetailContent" class="detail-empty">
                   <el-icon><Document /></el-icon>
-                  <span>{{ t("system.migration.message.emptyDetail") }}</span>
+                  <span>{{ t("system.base.migration.message.empty_detail") }}</span>
                 </div>
               </template>
             </div>
           </template>
-          <el-empty v-else :description="t('system.migration.message.selectRecord')" />
+          <el-empty v-else :description="t('system.base.migration.message.select_record')" />
         </section>
       </section>
     </main>
@@ -316,9 +316,9 @@ function handleCurrentPageChange(page: number) {
 async function copySql(sql: string) {
   try {
     await navigator.clipboard.writeText(sql);
-    ElMessage.success(t("system.migration.message.copySuccess"));
+    ElMessage.success(t("system.base.migration.message.copy_success"));
   } catch {
-    ElMessage.error(t("system.migration.message.copyFailed"));
+    ElMessage.error(t("system.base.migration.message.copy_failed"));
   }
 }
 

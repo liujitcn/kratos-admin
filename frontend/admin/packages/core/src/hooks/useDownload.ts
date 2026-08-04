@@ -19,7 +19,7 @@ export const useDownload = async (
   if (isNotify) {
     ElNotification({
       title: t("common.title.notice"),
-      message: t("core.download.largeFileNotice"),
+      message: t("core.download.large_file_notice"),
       type: "info",
       duration: 3000
     });

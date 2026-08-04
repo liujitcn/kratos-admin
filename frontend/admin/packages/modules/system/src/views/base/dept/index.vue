@@ -16,7 +16,7 @@
     <FormDialog
       v-model="dialog.visible"
       ref="formDialogRef"
-      :title="t(dialog.titleKey, { resource: t('system.dept.resource') })"
+      :title="t(dialog.titleKey, { resource: t('system.base.dept.resource') })"
       width="600px"
       :model="formData"
       :fields="formFields"
@@ -64,7 +64,7 @@ const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
 const dialog = reactive({
-  titleKey: "system.common.action.createResource",
+  titleKey: "common.action.create_resource",
   visible: false
 });
 
@@ -97,34 +97,34 @@ const rules = computed(() => ({
   tenant_id: [
     {
       required: true,
-      message: t("system.common.validation.requiredSelect", { field: t("system.common.field.tenant") }),
+      message: t("common.validation.required_select", { field: t("common.field.tenant") }),
       trigger: "change"
     }
   ],
   parent_id: [
     {
       required: true,
-      message: t("system.common.validation.requiredSelect", { field: t("system.dept.field.parent") }),
+      message: t("common.validation.required_select", { field: t("system.base.dept.field.parent") }),
       trigger: "change"
     }
   ],
   name: [
     {
       required: true,
-      message: t("system.common.validation.requiredInput", { field: t("system.dept.field.name") }),
+      message: t("common.validation.required_input", { field: t("system.base.dept.field.name") }),
       trigger: "blur"
     },
     {
       max: 255,
-      message: t("system.common.validation.maxLength", { field: t("system.dept.field.name"), max: 255 }),
+      message: t("common.validation.max_length", { field: t("system.base.dept.field.name"), max: 255 }),
       trigger: "blur"
     }
   ],
-  sort: [{ required: true, type: "number", min: 1, message: t("system.common.validation.sortPositive"), trigger: "blur" }],
+  sort: [{ required: true, type: "number", min: 1, message: t("common.validation.sort_positive"), trigger: "blur" }],
   status: [
     {
       required: true,
-      message: t("system.common.validation.requiredSelect", { field: t("system.common.field.status") }),
+      message: t("common.validation.required_select", { field: t("common.field.status") }),
       trigger: "change"
     }
   ]
@@ -137,10 +137,10 @@ const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAUL
 const formFields = computed<ProFormField[]>(() => [
   {
     prop: "tenant_id",
-    label: t("system.common.field.tenant"),
+    label: t("common.field.tenant"),
     component: "select",
     props: {
-      placeholder: t("system.common.validation.requiredSelect", { field: t("system.common.field.tenant") }),
+      placeholder: t("common.validation.required_select", { field: t("common.field.tenant") }),
       filterable: true,
       disabled: Boolean(formData.id),
       onChange: handleFormTenantChange
@@ -150,11 +150,11 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "parent_id",
-    label: t("system.dept.field.parent"),
+    label: t("system.base.dept.field.parent"),
     component: "tree-select",
     options: deptOptions.value,
     props: {
-      placeholder: t("system.common.validation.requiredSelect", { field: t("system.dept.field.parent") }),
+      placeholder: t("common.validation.required_select", { field: t("system.base.dept.field.parent") }),
       filterable: true,
       checkStrictly: true,
       renderAfterExpand: false,
@@ -163,23 +163,23 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "name",
-    label: t("system.dept.field.name"),
+    label: t("system.base.dept.field.name"),
     component: "input",
-    props: { placeholder: t("system.common.validation.requiredInput", { field: t("system.dept.field.name") }) }
+    props: { placeholder: t("common.validation.required_input", { field: t("system.base.dept.field.name") }) }
   },
   {
     prop: "sort",
-    label: t("system.common.field.sort"),
+    label: t("common.field.sort"),
     component: "input-number",
     props: { min: 1, precision: 0, step: 1, controlsPosition: "right", style: { width: "100%" } }
   },
   {
     prop: "remark",
-    label: t("system.common.field.remark"),
+    label: t("common.field.remark"),
     component: "textarea",
-    props: { placeholder: t("system.common.placeholder.remark") }
+    props: { placeholder: t("common.placeholder.remark") }
   },
-  { prop: "status", label: t("system.common.field.status"), component: "radio-group", options: statusOptions.value }
+  { prop: "status", label: t("common.field.status"), component: "radio-group", options: statusOptions.value }
 ]);
 
 /** 部门树表格列配置。 */
@@ -189,7 +189,7 @@ const columns = computed<ColumnProps[]>(() => [
     ? ([
         {
           prop: "tenant_id",
-          label: t("system.common.field.tenant"),
+          label: t("common.field.tenant"),
           minWidth: 140,
           showOverflowTooltip: true,
           search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 1 },
@@ -197,12 +197,12 @@ const columns = computed<ColumnProps[]>(() => [
         }
       ] satisfies ColumnProps[])
     : []),
-  { prop: "name", label: t("system.dept.field.name"), minWidth: 140, align: "left", search: { el: "input" } },
-  { prop: "remark", label: t("system.common.field.remark"), minWidth: 160, search: { el: "input" } },
-  { prop: "sort", label: t("system.common.field.sort"), minWidth: 90, align: "right" },
+  { prop: "name", label: t("system.base.dept.field.name"), minWidth: 140, align: "left", search: { el: "input" } },
+  { prop: "remark", label: t("common.field.remark"), minWidth: 160, search: { el: "input" } },
+  { prop: "sort", label: t("common.field.sort"), minWidth: 90, align: "right" },
   {
     prop: "status",
-    label: t("system.common.field.status"),
+    label: t("common.field.status"),
     minWidth: 100,
     search: { el: "select" },
     cellType: "status",
@@ -215,11 +215,11 @@ const columns = computed<ColumnProps[]>(() => [
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseDept)
     }
   },
-  { prop: "created_at", label: t("system.common.field.createdAt"), minWidth: 180 },
-  { prop: "updated_at", label: t("system.common.field.updatedAt"), minWidth: 180 },
+  { prop: "created_at", label: t("common.field.created_at"), minWidth: 180 },
+  { prop: "updated_at", label: t("common.field.updated_at"), minWidth: 180 },
   {
     prop: "operation",
-    label: t("system.common.field.operation"),
+    label: t("common.field.operation"),
     width: 220,
     fixed: "right",
     cellType: "actions",
@@ -332,7 +332,7 @@ function refreshTable() {
 async function loadDeptOptions() {
   // 默认租户未选择目标租户时仅保留顶级部门，避免混入其他租户的部门树。
   if (isDefaultTenant.value && !formData.tenant_id) {
-    deptOptions.value = [{ value: 0, label: t("system.dept.value.root"), disabled: false, has_children: true, children: [] }];
+    deptOptions.value = [{ value: 0, label: t("system.base.dept.value.root"), disabled: false, has_children: true, children: [] }];
     return;
   }
   const optionBaseDeptResponse = await defBaseDeptService.OptionBaseDept({
@@ -341,7 +341,7 @@ async function loadDeptOptions() {
   deptOptions.value = [
     {
       value: 0,
-      label: t("system.dept.value.root"),
+      label: t("system.base.dept.value.root"),
       disabled: false,
       has_children: true,
       children: optionBaseDeptResponse.list
@@ -373,7 +373,7 @@ async function handleOpenDialog(parent_id?: number, deptId?: number, tenantId?: 
   resetForm();
   await loadTenantOptions();
   if (deptId) {
-    dialog.titleKey = "system.common.action.editResource";
+    dialog.titleKey = "common.action.edit_resource";
     dialog.visible = true;
     defBaseDeptService.GetBaseDept({ id: deptId }).then(async data => {
       Object.assign(formData, data);
@@ -385,7 +385,7 @@ async function handleOpenDialog(parent_id?: number, deptId?: number, tenantId?: 
   // 从部门行新增子部门时，继承父部门租户并加载同租户上级部门树。
   formData.tenant_id = tenantId;
   await loadDeptOptions();
-  dialog.titleKey = "system.common.action.createResource";
+  dialog.titleKey = "common.action.create_resource";
   dialog.visible = true;
   formData.parent_id = parent_id ?? 0;
 }
@@ -427,8 +427,8 @@ function handleSubmit() {
       : defBaseDeptService.CreateBaseDept({ base_dept: submitData });
     request.then(() => {
       ElMessage.success(
-        t(submitData.id ? "system.common.message.updateSuccess" : "system.common.message.createSuccess", {
-          resource: t("system.dept.resource")
+        t(submitData.id ? "common.message.update_success" : "common.message.create_success", {
+          resource: t("system.base.dept.resource")
         })
       );
       handleCloseDialog();
@@ -446,10 +446,10 @@ async function handleBeforeSetStatus(row: BaseDept) {
   const deptName = row.name || `ID:${row.id}`;
   try {
     await ElMessageBox.confirm(
-      t("system.common.dialog.statusChange", {
+      t("common.dialog.status_change", {
         action: text,
-        resource: t("system.dept.resource"),
-        field: t("system.dept.field.name"),
+        resource: t("system.base.dept.resource"),
+        field: t("system.base.dept.field.name"),
         value: deptName
       }),
       t("common.title.notice"),
@@ -460,7 +460,7 @@ async function handleBeforeSetStatus(row: BaseDept) {
       }
     );
     await defBaseDeptService.SetBaseDeptStatus({ id: row.id, status: nextStatus });
-    ElMessage.success(t("system.common.message.statusSuccess", { action: text }));
+    ElMessage.success(t("common.message.status_success", { action: text }));
     refreshTable();
     return true;
   } catch {
@@ -481,15 +481,15 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
     deptList.length ? deptList.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");
   if (!deptIds) {
-    ElMessage.warning(t("system.common.message.selectDeleteItem"));
+    ElMessage.warning(t("common.message.select_delete_item"));
     return;
   }
 
   const confirmMessage = deptList.length
     ? deptList.length === 1
-      ? `${t("system.common.dialog.deleteSingle", { resource: t("system.dept.resource") })}\n${t("system.common.dialog.resourceField", { field: t("system.dept.field.name"), value: deptList[0].name || `ID:${deptList[0].id}` })}`
-      : t("system.common.dialog.deleteBatch", { count: deptList.length, unit: "", resource: t("system.dept.resource") })
-    : t("system.common.dialog.deleteSelected", { resource: t("system.dept.resource") });
+      ? `${t("common.dialog.delete_single", { resource: t("system.base.dept.resource") })}\n${t("common.dialog.resource_field", { field: t("system.base.dept.field.name"), value: deptList[0].name || `ID:${deptList[0].id}` })}`
+      : t("common.dialog.delete_batch", { count: deptList.length, unit: "", resource: t("system.base.dept.resource") })
+    : t("common.dialog.delete_selected", { resource: t("system.base.dept.resource") });
 
   ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
     confirmButtonText: t("common.action.confirm"),
@@ -498,12 +498,12 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   }).then(
     () => {
       defBaseDeptService.DeleteBaseDept({ id: deptIds }).then(() => {
-        ElMessage.success(t("system.common.message.deleteSuccess", { resource: t("system.dept.resource") }));
+        ElMessage.success(t("common.message.delete_success", { resource: t("system.base.dept.resource") }));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info(t("system.common.dialog.cancelDelete", { resource: t("system.dept.resource") }));
+      ElMessage.info(t("common.dialog.cancel_delete", { resource: t("system.base.dept.resource") }));
     }
   );
 }

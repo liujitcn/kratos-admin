@@ -1,5 +1,5 @@
 # Makefile 常用目标：初始化工具、生成代码、格式化代码、启动服务
-.PHONY: help init plugin cli fmt lint i18n-sync i18n-check i18n-draft i18n-locales i18n-zh-tw gorm-gen wire api openapi ts ts-app ts-taro-app project-docs gen run build docker-build
+.PHONY: help init plugin cli fmt lint i18n-sync i18n-check i18n-draft i18n-locales i18n-zh-tw gorm-gen wire api openapi ts ts-uni-app ts-taro-app project-docs gen run build docker-build
 
 IMAGE ?= backend
 TAG ?= latest
@@ -143,13 +143,13 @@ ts:
 	@echo "==> TypeScript RPC 代码生成完成"
 
 # 生成 uni-app 端 TypeScript RPC 代码
-ts-app:
+ts-uni-app:
 	@echo "==> 生成 uni-app TypeScript RPC 代码"
 	@test -n "$(TS_PROTO_BIN)" || (echo "protoc-gen-ts_proto not found. Run pnpm install in frontend/uni-app, or install ts-proto globally." && exit 1)
 	@cd api && \
-		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.app.typescript.gen.yaml --exclude-path proto/system/admin
+		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.uni-app.typescript.gen.yaml --exclude-path proto/system/admin
 	@cd api && \
-		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.app.core.typescript.gen.yaml --exclude-path proto/system/admin
+		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.uni-app.core.typescript.gen.yaml --exclude-path proto/system/admin
 	@echo "==> uni-app TypeScript RPC 代码生成完成"
 
 # 生成 Taro React 端 TypeScript RPC 代码
@@ -170,7 +170,7 @@ project-docs:
 	@echo "==> 项目文档收集完成"
 
 # 一键生成全部接口与文档产物（Go 代码 + OpenAPI 文档 + TypeScript 代码）
-gen: project-docs api openapi ts ts-app ts-taro-app gorm-gen wire fmt
+gen: project-docs api openapi ts ts-uni-app ts-taro-app gorm-gen wire fmt
 	@echo "==> 全部接口产物生成完成"
 
 # 启动应用

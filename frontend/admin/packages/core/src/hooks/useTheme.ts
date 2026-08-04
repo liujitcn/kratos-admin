@@ -30,7 +30,7 @@ export const useTheme = () => {
   const changePrimary = (val: string | null) => {
     if (!val) {
       val = DEFAULT_PRIMARY;
-      ElMessage({ type: "success", message: t("core.theme.primaryReset", { color: DEFAULT_PRIMARY }) });
+      ElMessage({ type: "success", message: t("core.theme.primary_reset", { color: DEFAULT_PRIMARY }) });
     }
     // 计算主题颜色变化
     document.documentElement.style.setProperty("--el-color-primary", val);

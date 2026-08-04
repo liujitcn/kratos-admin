@@ -35,14 +35,14 @@ export default function WelcomePanel(props: WelcomePanelProps) {
           <View className='ai-avatar__bow' />
           <View className='ai-avatar__spark' />
         </View>
-        <View className='welcome-bubble is-hello'>{t('system.ai.greetingHello')}</View>
+        <View className='welcome-bubble is-hello'>{t('system.ai.greeting_hello')}</View>
       </View>
       <View className='welcome-bubble is-intro'>{props.greetingMessage}</View>
       <View className='prompt-card'>
         <View className='prompt-card__head'>
           <View>
-            <View className='prompt-card__eyebrow'>{t('system.ai.quickActions')}</View>
-            <View className='prompt-card__title'>{t('system.ai.shortcutQuestion')}</View>
+            <View className='prompt-card__eyebrow'>{t('system.ai.quick_actions')}</View>
+            <View className='prompt-card__title'>{t('system.ai.shortcut_question')}</View>
           </View>
           {props.canRefresh ? (
             <Button className='prompt-refresh' hoverClass='none' onClick={props.onRefresh}>
@@ -52,7 +52,7 @@ export default function WelcomePanel(props: WelcomePanelProps) {
         </View>
         {props.loading ? <View className='prompt-loading'>{t('common.message.loading')}</View> : null}
         {!props.loading && !props.shortcuts.length ? (
-          <View className='prompt-loading'>{t('system.ai.noShortcuts')}</View>
+          <View className='prompt-loading'>{t('system.ai.no_shortcuts')}</View>
         ) : null}
         {!props.loading
           ? props.shortcuts.map((shortcut, index) => (
@@ -65,7 +65,7 @@ export default function WelcomePanel(props: WelcomePanelProps) {
                 <Text className='prompt-index'>{index + 1}</Text>
                 <View className='prompt-content'>
                   <Text className='prompt-text'>{shortcut.title}</Text>
-                  <Text className='prompt-meta'>{shortcut.group || t('system.ai.generalAssistant')}</Text>
+                  <Text className='prompt-meta'>{shortcut.group || t('system.ai.general_assistant')}</Text>
                 </View>
                 <ArrowRight size={20} color='#9aa0aa' />
               </Button>

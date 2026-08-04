@@ -7,7 +7,20 @@
 /* eslint-disable */
 import type { PasswordCrypto } from "../../common/v1/types";
 import type { Empty } from "../../google/protobuf/empty";
-import type { PasswordCryptoScene } from "./enum";
+
+/** 密码加密场景枚举。 */
+export enum PasswordCryptoScene {
+  /** PASSWORD_CRYPTO_SCENE_UNSPECIFIED - 未指定密码加密场景。 */
+  PASSWORD_CRYPTO_SCENE_UNSPECIFIED = 0,
+  /** PASSWORD_CRYPTO_SCENE_LOGIN - 登录密码加密场景。 */
+  PASSWORD_CRYPTO_SCENE_LOGIN = 1,
+  /** PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER - 新增后台用户密码加密场景。 */
+  PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER = 2,
+  /** PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD - 重置后台用户密码加密场景。 */
+  PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD = 3,
+  /** PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD - 个人修改密码加密场景。 */
+  PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD = 4,
+}
 
 /** 验证码获取条件 */
 export interface CaptchaRequest {

@@ -5,7 +5,16 @@
 // source: base/v1/ai_tool.proto
 
 /* eslint-disable */
-import type { Terminal } from "./enum";
+
+/** 终端类型。 */
+export enum Terminal {
+  /** TERMINAL_UNSPECIFIED - 未指定终端类型。 */
+  TERMINAL_UNSPECIFIED = 0,
+  /** TERMINAL_APP - 移动端。 */
+  TERMINAL_APP = 1,
+  /** TERMINAL_ADMIN - 管理端。 */
+  TERMINAL_ADMIN = 2,
+}
 
 /** AI 助手快捷入口列表查询条件 */
 export interface ListAiShortcutRequest {

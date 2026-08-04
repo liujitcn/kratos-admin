@@ -26,7 +26,7 @@
 
 ## RPC 生成
 - Buf 配置统一位于 `backend/api`，frontend 下不维护第二份生成模板。
-- uni-app RPC 统一执行 `pnpm generate:rpc` 或 `make -C backend ts-app`，分别生成 core 与 system 的 `src/rpc`。
+- uni-app RPC 统一执行 `pnpm generate:rpc` 或 `make -C backend ts-uni-app`，分别生成 core 与 system 的 `src/rpc`。
 - 生成产物只能通过项目命令更新，不手写或复制等价类型。
 
 ## 样式与多端兼容

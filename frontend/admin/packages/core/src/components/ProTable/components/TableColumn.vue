@@ -120,7 +120,7 @@ const renderImageCell = (item: ColumnProps, scope: RenderScope<any>) => {
       }
     },
     {
-      error: () => h(ElText, { type: "info", size: "small" }, () => t("common.message.noData"))
+      error: () => h(ElText, { type: "info", size: "small" }, () => t("common.message.no_data"))
     }
   );
 };

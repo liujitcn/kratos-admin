@@ -17,14 +17,14 @@
     <!-- #endif -->
 
     <view v-if="showFallback" class="webview-empty">
-      <view class="webview-empty__title">{{ t('core.webview.openFailed') }}</view>
+      <view class="webview-empty__title">{{ t('core.webview.open_failed') }}</view>
       <view class="webview-empty__desc">{{ emptyDesc }}</view>
     </view>
 
     <!-- #ifdef H5 -->
     <!-- X-Frame-Options 拒绝嵌入时浏览器仍可能触发 iframe load，始终保留外部打开入口。 -->
     <button v-if="isH5 && url && isIframeTimedOut" class="webview-open-button" @tap="openInBrowser">
-      {{ t('common.action.openInNewWindow') }}
+      {{ t('common.action.open_in_new_window') }}
     </button>
     <!-- #endif -->
   </view>
@@ -46,9 +46,9 @@ const showFallback = computed(
 )
 const emptyDesc = computed(() => {
   if (!url.value) {
-    return t('core.webview.invalidUrl')
+    return t('core.webview.invalid_url')
   }
-  return t('core.webview.embedBlocked')
+  return t('core.webview.embed_blocked')
 })
 
 onLoad((query) => {

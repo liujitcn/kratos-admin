@@ -66,7 +66,7 @@ func (c *BaseMenuCase) ListBaseMenu(ctx context.Context) ([]*systemappv1.BaseMen
 		}
 	}
 	var titles map[int64]string
-	titles, err = c.translationCase.ReviewedMenuTitles(ctx, menuIDs)
+	titles, err = c.translationCase.TranslatedMenuTitles(ctx, menuIDs)
 	if err != nil {
 		return nil, err
 	}

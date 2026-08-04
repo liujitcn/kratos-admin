@@ -224,7 +224,7 @@ export const http = <T>(options: HttpRequestOptions) => {
               // 其他错误 -> 根据后端错误信息轻提示
               void uni.showToast({
                 icon: 'none',
-                title: responseData.message || t('common.message.requestError'),
+                title: responseData.message || t('common.message.request_error'),
               })
               reject(res)
             }
@@ -233,7 +233,7 @@ export const http = <T>(options: HttpRequestOptions) => {
           fail(err) {
             void uni.showToast({
               icon: 'none',
-              title: t('common.message.networkError'),
+              title: t('common.message.network_error'),
             })
             reject(err)
           },
@@ -384,9 +384,9 @@ async function promptRelogin() {
   try {
     const modalRes = await uni.showModal({
       title: t('common.title.notice'),
-      content: t('core.auth.sessionExpired'),
+      content: t('core.auth.session_expired'),
       showCancel: false,
-      confirmText: t('core.auth.loginAgain'),
+      confirmText: t('core.auth.login_again'),
     })
 
     if (!modalRes.confirm) {
@@ -411,7 +411,7 @@ function handleAuthExpiredByMode(authMode: AuthMode, url: string, responseData: 
   if (authMode !== 'optional') {
     void uni.showToast({
       icon: 'none',
-      title: responseData.message || t('common.message.requestError'),
+      title: responseData.message || t('common.message.request_error'),
     })
   }
 }

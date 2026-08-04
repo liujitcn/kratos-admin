@@ -55,7 +55,7 @@ const loadProtocol = async (type?: string) => {
     await settingStore.loadData()
     const protocol = settingStore.getData(key)
     if (!protocol) {
-      throw new Error(t('core.protocol.notConfigured', { title }))
+      throw new Error(t('core.protocol.not_configured', { title }))
     }
 
     await uni.setNavigationBarTitle({ title })
@@ -63,7 +63,7 @@ const loadProtocol = async (type?: string) => {
   } catch (error) {
     await uni.showToast({
       icon: 'none',
-      title: error instanceof Error ? error.message : t('core.protocol.loadFailed'),
+      title: error instanceof Error ? error.message : t('core.protocol.load_failed'),
     })
     setTimeout(() => {
       uni.navigateBack()

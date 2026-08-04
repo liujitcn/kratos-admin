@@ -29,8 +29,8 @@ export default function WebViewPage() {
 
   const showFallback = !url || (isH5 && iframeTimedOut && !iframeLoaded)
   const emptyDescription = url
-    ? t('core.webview.embedBlocked')
-    : t('core.webview.invalidUrl')
+    ? t('core.webview.embed_blocked')
+    : t('core.webview.invalid_url')
 
   return (
     <View className='webview-container'>
@@ -43,7 +43,7 @@ export default function WebViewPage() {
       ) : null}
       {showFallback ? (
         <View className='webview-empty'>
-          <Text className='webview-empty__title'>{t('core.webview.openFailed')}</Text>
+          <Text className='webview-empty__title'>{t('core.webview.open_failed')}</Text>
           <Text className='webview-empty__desc'>{emptyDescription}</Text>
         </View>
       ) : null}
@@ -52,7 +52,7 @@ export default function WebViewPage() {
           className='webview-open-button'
           onClick={() => window.open(url, '_blank', 'noopener,noreferrer')}
         >
-          {t('common.action.openInNewWindow')}
+          {t('common.action.open_in_new_window')}
         </Button>
       ) : null}
     </View>

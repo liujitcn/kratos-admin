@@ -16,135 +16,6 @@ import (
 
 // --- 管理端 API 与页面模板渲染 ---
 
-// FrontendPageComponentPath 根据页面文件路径推导动态路由组件路径。
-func FrontendPageComponentPath(path string) string {
-	path = filepath.ToSlash(filepath.Clean(path))
-	prefix := "frontend/admin/packages/modules/"
-	relativePath := strings.TrimPrefix(path, prefix)
-	if relativePath == path {
-		return ""
-	}
-	parts := strings.SplitN(relativePath, "/src/views/", 2)
-	if len(parts) != 2 || parts[0] == "" || !strings.HasSuffix(parts[1], "/index.vue") && parts[1] != "index.vue" {
-		return ""
-	}
-	return strings.TrimSuffix(parts[0]+"/"+parts[1], "/index.vue")
-}
-
-// SafeRepoFilePath 返回仓库内安全文件路径。
-func SafeRepoFilePath(path string) (string, error) {
-	if path == "" {
-		return "", errorsx.InvalidArgument("文件路径不允许为空")
-	}
-	if filepath.IsAbs(path) {
-		return "", errorsx.InvalidArgument("文件路径不允许使用绝对路径")
-	}
-	cleanPath := filepath.Clean(path)
-	if cleanPath == "." || cleanPath == ".." || strings.HasPrefix(cleanPath, ".."+string(filepath.Separator)) {
-		return "", errorsx.InvalidArgument("文件路径不允许跳出仓库目录")
-	}
-
-	root, err := filepath.Abs(repoRoot())
-	if err != nil {
-		return "", err
-	}
-	fullPath := filepath.Join(root, cleanPath)
-	var relPath string
-	relPath, err = filepath.Rel(root, fullPath)
-	if err != nil {
-		return "", err
-	}
-	if relPath == ".." || strings.HasPrefix(relPath, ".."+string(filepath.Separator)) {
-		return "", errorsx.InvalidArgument("文件路径不允许跳出仓库目录")
-	}
-	return fullPath, nil
-}
-
-// BackendDir 返回当前仓库的后端目录。
-func BackendDir() string {
-	return filepath.Join(repoRoot(), "backend")
-}
-
-// BoolToInt32 转换布尔数据库值。
-func BoolToInt32(value bool) int32 {
-	if value {
-		return 1
-	}
-	return 0
-}
-
-// DefaultString 返回默认字符串。
-func DefaultString(value string, fallback string) string {
-	if value == "" {
-		return fallback
-	}
-	return value
-}
-
-// PermissionPrefix 返回页面权限前缀。
-func PermissionPrefix(table *Table) string {
-	if table.PermissionPrefix != "" {
-		return table.PermissionPrefix
-	}
-	return strings.ReplaceAll(strings.Trim(table.ModulePath, "/"), "/", ":") + ":" + stringcase.ToSnakeCase(table.EntityName)
-}
-
-// IsOptionProtoMethod 判断方法是否是选择项接口。
-func IsOptionProtoMethod(method *Proto) bool {
-	return method.APIKind == APIKindOption || method.APIKind == APIKindTree && (method.TriggerType == TriggerEntityOption || method.TriggerType == TriggerFieldOption || method.TriggerType == TriggerLeftTree)
-}
-
-// InferTSType 按数据库类型推断 TS 类型。
-func InferTSType(dbType string) string {
-	protoType := InferProtoType(dbType)
-	if protoType == "bool" {
-		return "boolean"
-	}
-	if protoType == "int64" || protoType == "int32" || protoType == "double" {
-		return "number"
-	}
-	return "string"
-}
-
-// InferGoType 按数据库类型推断 Go 类型。
-func InferGoType(dbType string) string {
-	if isBoolDBType(dbType) {
-		return "bool"
-	}
-	lowerType := strings.ToLower(dbType)
-	if strings.Contains(lowerType, "bigint") {
-		return "int64"
-	}
-	if isNumericDBType(lowerType) {
-		if strings.Contains(lowerType, "decimal") || strings.Contains(lowerType, "float") || strings.Contains(lowerType, "double") {
-			return "float64"
-		}
-		return "int32"
-	}
-	if isDateTimeDBType(lowerType) {
-		return "time.Time"
-	}
-	return "string"
-}
-
-// InferProtoType 按数据库类型推断 Proto 类型。
-func InferProtoType(dbType string) string {
-	lowerType := strings.ToLower(dbType)
-	if isBoolDBType(lowerType) {
-		return "bool"
-	}
-	if strings.Contains(lowerType, "bigint") {
-		return "int64"
-	}
-	if strings.Contains(lowerType, "int") {
-		return "int32"
-	}
-	if strings.Contains(lowerType, "decimal") || strings.Contains(lowerType, "float") || strings.Contains(lowerType, "double") {
-		return "double"
-	}
-	return "string"
-}
-
 // renderFrontendAPIFile 渲染前端 API 文件占位内容。
 func (c *renderer) renderFrontendAPIFile(table *Table, columns []*CodeGenColumn, methods []*Proto) string {
 	entity := table.EntityName
@@ -593,7 +464,7 @@ __CODEGEN_PASSWORD_UPDATE__
       ? def%sService.Update%s({ id: payload.id, %s: payload })
       : def%sService.Create%s({ %s: payload });
     request.then(() => {
-      ElMessage.success(t(payload.id ? localeKeyPrefix + ".message.updateSuccess" : localeKeyPrefix + ".message.createSuccess"));
+      ElMessage.success(t(payload.id ? localeKeyPrefix + ".message.update_success" : localeKeyPrefix + ".message.create_success"));
       handleCloseDialog();
       refreshTable();
     });
@@ -613,11 +484,11 @@ function handleDelete(selected?: number | string | Array<number | string> | %s |
     rowList.length ? rowList.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");
   if (!ids) {
-    ElMessage.warning(t(localeKeyPrefix + ".message.selectDelete"));
+    ElMessage.warning(t(localeKeyPrefix + ".message.select_delete"));
     return;
   }
 
-  const confirmMessage = t(rowList.length === 1 ? localeKeyPrefix + ".dialog.deleteSingle" : localeKeyPrefix + ".dialog.deleteBatch");
+  const confirmMessage = t(rowList.length === 1 ? localeKeyPrefix + ".dialog.delete_single" : localeKeyPrefix + ".dialog.delete_batch");
   ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
     confirmButtonText: t("common.action.confirm"),
     cancelButtonText: t("common.action.cancel"),
@@ -625,12 +496,12 @@ function handleDelete(selected?: number | string | Array<number | string> | %s |
   }).then(
     () => {
       def%sService.Delete%s({ ids }).then(() => {
-        ElMessage.success(t(localeKeyPrefix + ".message.deleteSuccess"));
+        ElMessage.success(t(localeKeyPrefix + ".message.delete_success"));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info(t(localeKeyPrefix + ".message.deleteCanceled"));
+      ElMessage.info(t(localeKeyPrefix + ".message.delete_canceled"));
     }
   );
 }
@@ -785,18 +656,6 @@ func (c *renderer) renderFrontendOpenDialogData(table *Table, columns []*CodeGen
   treeCreateState.lockTenant = parentId !== undefined;`
 	}
 	return content
-}
-
-// renderFrontendPasswordReset 返回编辑态清空密码字段的语句，避免回填后端密文。
-func renderFrontendPasswordReset(columns []*CodeGenColumn) string {
-	lines := make([]string, 0)
-	for _, column := range columns {
-		if column == nil || column.FormComponent != "password" {
-			continue
-		}
-		lines = append(lines, fmt.Sprintf("  formData[%q] = \"\";", column.Name))
-	}
-	return strings.Join(lines, "\n")
 }
 
 // renderFrontendPasswordUpdate 渲染编辑态删除密码字段的语句，避免空值覆盖原密码。
@@ -982,15 +841,6 @@ async function load%sChildren(row: %s, _treeNode: unknown, resolve: (data: %s[])
 	return content[:start] + requestFunction + content[end+1:]
 }
 
-// treePageRequestExpression 返回树形列表接口的请求参数表达式。
-func treePageRequestExpression(table *Table, method *Proto) string {
-	if table.PageType != PageTypeTreeLazy {
-		return "params"
-	}
-	parentColumn := DefaultString(method.ParentColumn, DefaultString(table.ParentColumn, "parent_id"))
-	return fmt.Sprintf("{ ...params, %q: params.%s ?? 0, lazy: true }", parentColumn, parentColumn)
-}
-
 // applyFrontendLeftTreePage 将普通分页模板调整为左树右表模板。
 func (c *renderer) applyFrontendLeftTreePage(content string, table *Table, methods []*Proto, frontendAPIImport string) string {
 	config := LeftTreeConfigFromTable(table)
@@ -1006,7 +856,7 @@ func (c *renderer) applyFrontendLeftTreePage(content string, table *Table, metho
 	content = strings.Replace(content, `  <div class="table-box">`, fmt.Sprintf(`  <div class="main-box">
     <TreeFilter
       label="name"
-      :title="t('%s.title.leftTree')"
+      :title="t('%s.title.left_tree')"
       :request-api="request%sTreeFilter"
       :default-value="treeFilterValue"
 %s
@@ -1146,7 +996,7 @@ func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn,
 		list = append(list, fmt.Sprintf(`  ...(isDefaultTenant.value
 	    ? ([{
 %s        prop: "tenant_id",
-        label: t(localeKeyPrefix + ".field.tenantId"),
+        label: t(localeKeyPrefix + ".field.tenant_id"),
         minWidth: 140,
         align: "left",
         showOverflowTooltip: true,
@@ -1214,11 +1064,6 @@ func (c *renderer) renderFrontendColumns(table *Table, columns []*CodeGenColumn,
 	return strings.Join(list, ",\n") + ","
 }
 
-// frontendFieldLocaleKey 返回生成字段的稳定语言键。
-func frontendFieldLocaleKey(table *Table, column *CodeGenColumn) string {
-	return FrontendLocaleKeyPrefix(table) + ".field." + stringcase.ToCamelCase(column.Name)
-}
-
 // resolveFrontendColumnAlign 返回代码生成页面列的默认对齐方式。
 func (c *renderer) resolveFrontendColumnAlign(column *CodeGenColumn, align string) string {
 	if align != "" {
@@ -1245,26 +1090,6 @@ func (c *renderer) resolveFrontendColumnAlign(column *CodeGenColumn, align strin
 		return "right"
 	}
 	return "left"
-}
-
-// renderFrontendFormStateType 渲染允许选择型字段暂未选择的表单编辑状态类型。
-func renderFrontendFormStateType(table *Table, columns []*CodeGenColumn) string {
-	optionalFields := make([]string, 0)
-	for _, column := range columns {
-		if (!generatedFormIncludesColumn(column) && column.IsPrimary != 1) || frontendDefaultValue(column) != "undefined" {
-			continue
-		}
-		optionalFields = append(optionalFields, fmt.Sprintf("%q", column.Name))
-	}
-	if len(optionalFields) == 0 {
-		return ""
-	}
-
-	entity := table.EntityName
-	fieldUnion := strings.Join(optionalFields, " | ")
-	return fmt.Sprintf(`/** %sFormState 表示%s表单编辑状态，选择型字段填写前允许为空。 */
-type %sFormState = Omit<%sForm, %s> & Partial<Pick<%sForm, %s>>;
-`, entity, table.BusinessName, entity, entity, fieldUnion, entity, fieldUnion)
 }
 
 // renderFrontendFormDefaults 渲染表单默认值。
@@ -1311,7 +1136,7 @@ func (c *renderer) renderFrontendRules(table *Table, columns []*CodeGenColumn) s
 		fieldKey := frontendFieldLocaleKey(table, column)
 		rules := fmt.Sprintf("{ required: true, message: t(localeKeyPrefix + \".validation.required\", { field: t(%q) }), trigger: %q }", fieldKey, trigger)
 		if isString && column.DbLength > 0 {
-			maxRule := fmt.Sprintf("{ max: %d, message: t(localeKeyPrefix + \".validation.maxLength\", { field: t(%q), max: %d }), trigger: %q }", column.DbLength, fieldKey, column.DbLength, trigger)
+			maxRule := fmt.Sprintf("{ max: %d, message: t(localeKeyPrefix + \".validation.max_length\", { field: t(%q), max: %d }), trigger: %q }", column.DbLength, fieldKey, column.DbLength, trigger)
 			if required {
 				rules += ", " + maxRule
 			} else {
@@ -1349,7 +1174,7 @@ func (c *renderer) renderFrontendFormFields(table *Table, columns []*CodeGenColu
 		}
 		fields = append(fields, c.renderFrontendFormField(table, column))
 		if column.FormComponent == "password" {
-			fields = append(fields, "  { prop: \"passwordStrength\", label: t(localeKeyPrefix + \".field.passwordStrength\"), component: \"slot\", slotName: \"passwordStrength\", visible: model => !model.id }")
+			fields = append(fields, "  { prop: \"passwordStrength\", label: t(localeKeyPrefix + \".field.password_strength\"), component: \"slot\", slotName: \"passwordStrength\", visible: model => !model.id }")
 		}
 	}
 	return strings.Join(fields, ",\n")
@@ -1419,14 +1244,6 @@ func (c *renderer) renderFrontendFormField(table *Table, column *CodeGenColumn) 
 		return fmt.Sprintf(`  { prop: "%s", label: %s, component: "date-picker", props: { %stype: "date", valueFormat: "YYYY-MM-DD", placeholder: t(localeKeyPrefix + ".placeholder.select", { field: %s }), style: { width: "100%%" } } }`, column.Name, label, disabled, label)
 	}
 	return fmt.Sprintf(`  { prop: "%s", label: %s, component: "%s", props: { %splaceholder: t(localeKeyPrefix + ".placeholder.input", { field: %s }) } }`, column.Name, label, component, disabled, label)
-}
-
-// frontendFormFieldDisabledPrefix 返回租户字段的编辑态禁用配置。
-func frontendFormFieldDisabledPrefix(column *CodeGenColumn) string {
-	if column == nil || column.Name != "tenant_id" {
-		return ""
-	}
-	return "disabled: Boolean(formData.id) || treeCreateState.lockTenant, "
 }
 
 // renderFrontendOptionState 渲染静态选项、数据表选项状态与加载方法。
@@ -1536,11 +1353,11 @@ async function %s(node: { level: number; value?: string | number; data?: { value
 			builder.WriteString(fmt.Sprintf("  const %sResponse = await %s.%s(%s as Parameters<typeof %s.%s>[0]);\n", variable, serviceName, method.MethodName, request, serviceName, method.MethodName))
 			if column.Name == DefaultString(method.ParentColumn, "parent_id") && (column.FormComponent == "tree-select" || column.ListComponent == "tree-select" || column.QueryComponent == "tree-select") {
 				if scope.name == "form" && scope.option.Kind == APIKindTree && scope.option.Lazy {
-					builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: t(localeKeyPrefix + \".value.topLevel\"), value: 0 }, ...normalizeLazyTreeOptions((%sResponse.list ?? []) as GeneratedTreeOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
+					builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: t(localeKeyPrefix + \".value.top_level\"), value: 0 }, ...normalizeLazyTreeOptions((%sResponse.list ?? []) as GeneratedTreeOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
 				} else if scope.option.Kind == APIKindTree {
-					builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: t(localeKeyPrefix + \".value.topLevel\"), value: 0 }, ...transformTreeOptionPaths((%sResponse.list ?? []) as ProFormOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
+					builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: t(localeKeyPrefix + \".value.top_level\"), value: 0 }, ...transformTreeOptionPaths((%sResponse.list ?? []) as ProFormOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
 				} else {
-					builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: t(localeKeyPrefix + \".value.topLevel\"), value: 0 }, ...((%sResponse.list ?? []) as ProFormOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
+					builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: t(localeKeyPrefix + \".value.top_level\"), value: 0 }, ...((%sResponse.list ?? []) as ProFormOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
 				}
 				continue
 			}
@@ -1642,13 +1459,13 @@ async function %s(row: %s) {
   const nextStatus = currentStatus === %s ? %s : %s;
   const text = t(nextStatus === %s ? "common.status.enabled" : "common.status.disabled");
   try {
-    await ElMessageBox.confirm(t(localeKeyPrefix + ".dialog.confirmStatus", { action: text }), t("common.title.notice"), {
+    await ElMessageBox.confirm(t(localeKeyPrefix + ".dialog.confirm_status", { action: text }), t("common.title.notice"), {
       confirmButtonText: t("common.action.confirm"),
       cancelButtonText: t("common.action.cancel"),
       type: "warning"
     });
     await def%sService.%s({ id: row.id, status: nextStatus as %sRequest["status"] });
-    ElMessage.success(t(localeKeyPrefix + ".message.statusSuccess", { action: text }));
+    ElMessage.success(t(localeKeyPrefix + ".message.status_success", { action: text }));
     refreshTable();
     return true;
   } catch {
@@ -1852,7 +1669,7 @@ func renderFrontendDateImport(columns []*CodeGenColumn) string {
 // renderFrontendColumn 渲染前端表格列配置。
 func renderFrontendColumn(localePrefix string, permissionPrefix string, entityName string, column *CodeGenColumn, statusMethod *Proto, statusColumnCount int, align string) string {
 	alignConfig := ""
-	label := fmt.Sprintf("t(%q)", localePrefix+".field."+stringcase.ToCamelCase(column.Name))
+	label := fmt.Sprintf("t(%q)", localePrefix+".field."+stringcase.ToSnakeCase(column.Name))
 	if align != "" {
 		alignConfig = fmt.Sprintf(`, align: %q`, align)
 	}
@@ -2339,4 +2156,187 @@ func legacyPluralProtoMethodName(entity string, methodName string) string {
 		}
 	}
 	return ""
+}
+
+// FrontendPageComponentPath 根据页面文件路径推导动态路由组件路径。
+func FrontendPageComponentPath(path string) string {
+	path = filepath.ToSlash(filepath.Clean(path))
+	prefix := "frontend/admin/packages/modules/"
+	relativePath := strings.TrimPrefix(path, prefix)
+	if relativePath == path {
+		return ""
+	}
+	parts := strings.SplitN(relativePath, "/src/views/", 2)
+	if len(parts) != 2 || parts[0] == "" || !strings.HasSuffix(parts[1], "/index.vue") && parts[1] != "index.vue" {
+		return ""
+	}
+	return strings.TrimSuffix(parts[0]+"/"+parts[1], "/index.vue")
+}
+
+// SafeRepoFilePath 返回仓库内安全文件路径。
+func SafeRepoFilePath(path string) (string, error) {
+	if path == "" {
+		return "", errorsx.InvalidArgument("文件路径不允许为空")
+	}
+	if filepath.IsAbs(path) {
+		return "", errorsx.InvalidArgument("文件路径不允许使用绝对路径")
+	}
+	cleanPath := filepath.Clean(path)
+	if cleanPath == "." || cleanPath == ".." || strings.HasPrefix(cleanPath, ".."+string(filepath.Separator)) {
+		return "", errorsx.InvalidArgument("文件路径不允许跳出仓库目录")
+	}
+
+	root, err := filepath.Abs(repoRoot())
+	if err != nil {
+		return "", err
+	}
+	fullPath := filepath.Join(root, cleanPath)
+	var relPath string
+	relPath, err = filepath.Rel(root, fullPath)
+	if err != nil {
+		return "", err
+	}
+	if relPath == ".." || strings.HasPrefix(relPath, ".."+string(filepath.Separator)) {
+		return "", errorsx.InvalidArgument("文件路径不允许跳出仓库目录")
+	}
+	return fullPath, nil
+}
+
+// BackendDir 返回当前仓库的后端目录。
+func BackendDir() string {
+	return filepath.Join(repoRoot(), "backend")
+}
+
+// BoolToInt32 转换布尔数据库值。
+func BoolToInt32(value bool) int32 {
+	if value {
+		return 1
+	}
+	return 0
+}
+
+// DefaultString 返回默认字符串。
+func DefaultString(value string, fallback string) string {
+	if value == "" {
+		return fallback
+	}
+	return value
+}
+
+// PermissionPrefix 返回页面权限前缀。
+func PermissionPrefix(table *Table) string {
+	if table.PermissionPrefix != "" {
+		return table.PermissionPrefix
+	}
+	return strings.ReplaceAll(strings.Trim(table.ModulePath, "/"), "/", ":") + ":" + stringcase.ToSnakeCase(table.EntityName)
+}
+
+// IsOptionProtoMethod 判断方法是否是选择项接口。
+func IsOptionProtoMethod(method *Proto) bool {
+	return method.APIKind == APIKindOption || method.APIKind == APIKindTree && (method.TriggerType == TriggerEntityOption || method.TriggerType == TriggerFieldOption || method.TriggerType == TriggerLeftTree)
+}
+
+// InferTSType 按数据库类型推断 TS 类型。
+func InferTSType(dbType string) string {
+	protoType := InferProtoType(dbType)
+	if protoType == "bool" {
+		return "boolean"
+	}
+	if protoType == "int64" || protoType == "int32" || protoType == "double" {
+		return "number"
+	}
+	return "string"
+}
+
+// InferGoType 按数据库类型推断 Go 类型。
+func InferGoType(dbType string) string {
+	if isBoolDBType(dbType) {
+		return "bool"
+	}
+	lowerType := strings.ToLower(dbType)
+	if strings.Contains(lowerType, "bigint") {
+		return "int64"
+	}
+	if isNumericDBType(lowerType) {
+		if strings.Contains(lowerType, "decimal") || strings.Contains(lowerType, "float") || strings.Contains(lowerType, "double") {
+			return "float64"
+		}
+		return "int32"
+	}
+	if isDateTimeDBType(lowerType) {
+		return "time.Time"
+	}
+	return "string"
+}
+
+// InferProtoType 按数据库类型推断 Proto 类型。
+func InferProtoType(dbType string) string {
+	lowerType := strings.ToLower(dbType)
+	if isBoolDBType(lowerType) {
+		return "bool"
+	}
+	if strings.Contains(lowerType, "bigint") {
+		return "int64"
+	}
+	if strings.Contains(lowerType, "int") {
+		return "int32"
+	}
+	if strings.Contains(lowerType, "decimal") || strings.Contains(lowerType, "float") || strings.Contains(lowerType, "double") {
+		return "double"
+	}
+	return "string"
+}
+
+// renderFrontendPasswordReset 返回编辑态清空密码字段的语句，避免回填后端密文。
+func renderFrontendPasswordReset(columns []*CodeGenColumn) string {
+	lines := make([]string, 0)
+	for _, column := range columns {
+		if column == nil || column.FormComponent != "password" {
+			continue
+		}
+		lines = append(lines, fmt.Sprintf("  formData[%q] = \"\";", column.Name))
+	}
+	return strings.Join(lines, "\n")
+}
+
+// treePageRequestExpression 返回树形列表接口的请求参数表达式。
+func treePageRequestExpression(table *Table, method *Proto) string {
+	if table.PageType != PageTypeTreeLazy {
+		return "params"
+	}
+	parentColumn := DefaultString(method.ParentColumn, DefaultString(table.ParentColumn, "parent_id"))
+	return fmt.Sprintf("{ ...params, %q: params.%s ?? 0, lazy: true }", parentColumn, parentColumn)
+}
+
+// frontendFieldLocaleKey 返回生成字段的稳定语言键。
+func frontendFieldLocaleKey(table *Table, column *CodeGenColumn) string {
+	return FrontendLocaleKeyPrefix(table) + ".field." + stringcase.ToSnakeCase(column.Name)
+}
+
+// renderFrontendFormStateType 渲染允许选择型字段暂未选择的表单编辑状态类型。
+func renderFrontendFormStateType(table *Table, columns []*CodeGenColumn) string {
+	optionalFields := make([]string, 0)
+	for _, column := range columns {
+		if (!generatedFormIncludesColumn(column) && column.IsPrimary != 1) || frontendDefaultValue(column) != "undefined" {
+			continue
+		}
+		optionalFields = append(optionalFields, fmt.Sprintf("%q", column.Name))
+	}
+	if len(optionalFields) == 0 {
+		return ""
+	}
+
+	entity := table.EntityName
+	fieldUnion := strings.Join(optionalFields, " | ")
+	return fmt.Sprintf(`/** %sFormState 表示%s表单编辑状态，选择型字段填写前允许为空。 */
+type %sFormState = Omit<%sForm, %s> & Partial<Pick<%sForm, %s>>;
+`, entity, table.BusinessName, entity, entity, fieldUnion, entity, fieldUnion)
+}
+
+// frontendFormFieldDisabledPrefix 返回租户字段的编辑态禁用配置。
+func frontendFormFieldDisabledPrefix(column *CodeGenColumn) string {
+	if column == nil || column.Name != "tenant_id" {
+		return ""
+	}
+	return "disabled: Boolean(formData.id) || treeCreateState.lockTenant, "
 }

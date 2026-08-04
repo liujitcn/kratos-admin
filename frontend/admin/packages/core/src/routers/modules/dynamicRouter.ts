@@ -6,7 +6,7 @@ import { ElNotification } from "element-plus";
 import { useUserStore } from "@/stores/modules/user";
 import { useAuthStore } from "@/stores/modules/auth";
 import type { RouteItem } from "@/rpc/system/admin/v1/auth";
-import { BaseMenuType } from "@/rpc/system/common/v1/enum";
+import { BaseMenuType } from "@/rpc/system/admin/v1/common";
 import { getRouteMetaFull } from "@/utils";
 import { ADMIN_STATIC_VIEWS, getAdminViewRegistry } from "../../modules";
 
@@ -122,8 +122,8 @@ export const initDynamicRouter = async () => {
     // 2.判断当前用户有没有菜单权限
     if (!authStore.authMenuListGet.length) {
       ElNotification({
-        title: t("core.auth.noPermission"),
-        message: t("core.auth.noMenuPermission"),
+        title: t("core.auth.no_permission"),
+        message: t("core.auth.no_menu_permission"),
         type: "warning",
         duration: 3000
       });
@@ -135,7 +135,7 @@ export const initDynamicRouter = async () => {
     // 3.添加动态路由
     const resolvedRouteItems = buildResolvedRouteItems(authStore.authMenuListGet);
     resolvedRouteItems.forEach(({ item, path, redirect }) => {
-      if (item.type === BaseMenuType.EXT_LINK) return;
+      if (item.type === BaseMenuType.BASE_MENU_TYPE_EXT_LINK) return;
       const routeRecord = createRouteRecord(item, path, redirect);
 
       if (typeof routeRecord.component === "string") {

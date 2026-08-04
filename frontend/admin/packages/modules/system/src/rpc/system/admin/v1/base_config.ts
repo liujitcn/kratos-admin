@@ -5,11 +5,26 @@
 // source: system/admin/v1/base_config.proto
 
 /* eslint-disable */
-import type { BaseConfigSite } from "../../../base/v1/enum";
+import type { BaseConfigSite } from "../../../base/v1/config";
 import type { Status } from "../../../common/v1/enum";
 import type { Empty } from "../../../google/protobuf/empty";
-import type { BaseConfigType } from "../../common/v1/enum";
-import type { BaseConfigTranslation } from "./base_translation";
+import type { BaseTranslation } from "./base_translation";
+
+/** 系统配置类型。 */
+export enum BaseConfigType {
+  /** BASE_CONFIG_TYPE_UNSPECIFIED - 未指定系统配置类型。 */
+  BASE_CONFIG_TYPE_UNSPECIFIED = 0,
+  /** BASE_CONFIG_TYPE_TEXT - 文本。 */
+  BASE_CONFIG_TYPE_TEXT = 1,
+  /** BASE_CONFIG_TYPE_IMAGE - 图片。 */
+  BASE_CONFIG_TYPE_IMAGE = 2,
+  /** BASE_CONFIG_TYPE_RICH_TEXT - 富文本。 */
+  BASE_CONFIG_TYPE_RICH_TEXT = 3,
+  /** BASE_CONFIG_TYPE_DICT - 字典。 */
+  BASE_CONFIG_TYPE_DICT = 4,
+  /** BASE_CONFIG_TYPE_BOOLEAN - 布尔。 */
+  BASE_CONFIG_TYPE_BOOLEAN = 5,
+}
 
 /** 系统配置分页查询条件 */
 export interface PageBaseConfigRequest {
@@ -67,8 +82,8 @@ export interface BaseConfigForm {
   key: string;
   /** 配置value */
   value: string;
-  /** 配置名称及文本/富文本值的多语言翻译 */
-  translations: BaseConfigTranslation[];
+  /** 配置名称及文本/富文本配置值的多语言翻译 */
+  translations: BaseTranslation[];
   /** 状态 */
   status: Status;
 }
@@ -117,14 +132,14 @@ export interface BaseConfig {
   key: string;
   /** 配置value */
   value: string;
-  /** 配置名称及文本/富文本值的多语言翻译 */
-  translations: BaseConfigTranslation[];
   /** 状态：枚举【Status】 */
   status: Status;
   /** 创建时间 */
   created_at: string;
   /** 更新时间 */
   updated_at: string;
+  /** 配置名称及文本/富文本配置值的多语言翻译 */
+  translations: BaseTranslation[];
 }
 
 /** Admin系统配置服务 */

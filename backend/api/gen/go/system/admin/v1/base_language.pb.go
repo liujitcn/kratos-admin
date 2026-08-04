@@ -738,22 +738,22 @@ const file_system_admin_v1_base_language_proto_rawDesc = "" +
 	"\a_status\"\x98\x01\n" +
 	"\x18PageBaseLanguageResponse\x12X\n" +
 	"\x0ebase_languages\x18\x01 \x03(\v2\x1d.system.admin.v1.BaseLanguageB\x12\xbaG\x0f\x92\x02\f语言列表R\rbaseLanguages\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"}\n" +
-	"\x16GetBaseLanguageRequest\x12c\n" +
-	"\x02id\x18\x01 \x01(\x03BS\xbaG\v\x92\x02\b语言ID\xbaHB\xba\x01?\n" +
-	"\x1dget_base_language.id.required\x12\x14语言ID不能为空\x1a\bthis > 0R\x02id\"\xc4\x06\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x8a\x01\n" +
+	"\x16GetBaseLanguageRequest\x12p\n" +
+	"\x02id\x18\x01 \x01(\x03B`\xbaG\v\x92\x02\b语言ID\xbaHO\xba\x01L\n" +
+	"*system.admin.base.language.get.id.required\x12\x14语言ID不能为空\x1a\bthis > 0R\x02id\"\x91\a\n" +
 	"\x10BaseLanguageForm\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b语言IDR\x02id\x12\xc2\x01\n" +
-	"\rlanguage_code\x18\x02 \x01(\tB\x9c\x01\xbaG\x15\x92\x02\x12标准语言代码\xbaH\x80\x01\xba\x01}\n" +
-	"\"base_language.language_code.length\x121语言代码不能为空且不超过 16 个字符\x1a$this.size() > 0 && this.size() <= 16R\flanguageCode\x12\xbc\x01\n" +
-	"\rlanguage_name\x18\x03 \x01(\tB\x96\x01\xbaG\x0f\x92\x02\f语言名称\xbaH\x80\x01\xba\x01}\n" +
-	"\"base_language.language_name.length\x121语言名称不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\flanguageName\x12\xc3\x01\n" +
-	"\vnative_name\x18\x04 \x01(\tB\xa1\x01\xbaG\x15\x92\x02\x12本地语言名称\xbaH\x85\x01\xba\x01\x81\x01\n" +
-	" base_language.native_name.length\x127本地语言名称不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\n" +
-	"nativeName\x12y\n" +
-	"\x04sort\x18\x05 \x01(\x05Be\xbaG\x1e\x92\x02\x1b排序，值越小越靠前\xbaHA\xba\x01>\n" +
-	"\x1bbase_language.sort.required\x12\x14排序不能小于 0\x1a\tthis >= 0R\x04sort\x12E\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x1a\xbaG\x0f\x92\x02\f启用状态\xbaH\x05\x82\x01\x02\x10\x01R\x06statusJ\x04\b\x06\x10\a\"\xe0\x03\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b语言IDR\x02id\x12\xd7\x01\n" +
+	"\rlanguage_code\x18\x02 \x01(\tB\xb1\x01\xbaG\x15\x92\x02\x12标准语言代码\xbaH\x95\x01\xba\x01\x91\x01\n" +
+	"6system.admin.base.language.entity.language_code.length\x121语言代码不能为空且不超过 16 个字符\x1a$this.size() > 0 && this.size() <= 16R\flanguageCode\x12\xd1\x01\n" +
+	"\rlanguage_name\x18\x03 \x01(\tB\xab\x01\xbaG\x0f\x92\x02\f语言名称\xbaH\x95\x01\xba\x01\x91\x01\n" +
+	"6system.admin.base.language.entity.language_name.length\x121语言名称不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\flanguageName\x12\xd7\x01\n" +
+	"\vnative_name\x18\x04 \x01(\tB\xb5\x01\xbaG\x15\x92\x02\x12本地语言名称\xbaH\x99\x01\xba\x01\x95\x01\n" +
+	"4system.admin.base.language.entity.native_name.length\x127本地语言名称不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\n" +
+	"nativeName\x12\x8d\x01\n" +
+	"\x04sort\x18\x05 \x01(\x05By\xbaG\x1e\x92\x02\x1b排序，值越小越靠前\xbaHU\xba\x01R\n" +
+	"/system.admin.base.language.entity.sort.required\x12\x14排序不能小于 0\x1a\tthis >= 0R\x04sort\x12E\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x1a\xbaG\x0f\x92\x02\f启用状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xe0\x03\n" +
 	"\fBaseLanguage\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b语言IDR\x02id\x12=\n" +
 	"\rlanguage_code\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12标准语言代码R\flanguageCode\x127\n" +
@@ -771,17 +771,17 @@ const file_system_admin_v1_base_language_proto_rawDesc = "" +
 	"\x19CreateBaseLanguageRequest\x12`\n" +
 	"\rbase_language\x18\x01 \x01(\v2!.system.admin.v1.BaseLanguageFormB\x18\xbaG\x0f\x92\x02\f语言表单\xbaH\x03\xc8\x01\x01R\fbaseLanguage\"}\n" +
 	"\x19UpdateBaseLanguageRequest\x12`\n" +
-	"\rbase_language\x18\x01 \x01(\v2!.system.admin.v1.BaseLanguageFormB\x18\xbaG\x0f\x92\x02\f语言表单\xbaH\x03\xc8\x01\x01R\fbaseLanguage\"\x96\x01\n" +
-	"\x19DeleteBaseLanguageRequest\x12y\n" +
-	"\x02id\x18\x01 \x01(\tBi\xbaG\x11\x92\x02\x0e语言ID列表\xbaHR\xba\x01O\n" +
-	" delete_base_language.id.required\x12\x1a语言ID列表不能为空\x1a\x0fthis.size() > 0R\x02id\"\xd1\x01\n" +
-	"\x1cSetBaseLanguageStatusRequest\x12j\n" +
-	"\x02id\x18\x01 \x01(\x03BZ\xbaG\v\x92\x02\b语言ID\xbaHI\xba\x01F\n" +
-	"$set_base_language_status.id.required\x12\x14语言ID不能为空\x1a\bthis > 0R\x02id\x12E\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x1a\xbaG\x0f\x92\x02\f启用状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\x8c\x01\n" +
-	"\x1dSetBaseLanguagePrimaryRequest\x12k\n" +
-	"\x02id\x18\x01 \x01(\x03B[\xbaG\v\x92\x02\b语言ID\xbaHJ\xba\x01G\n" +
-	"%set_base_language_primary.id.required\x12\x14语言ID不能为空\x1a\bthis > 0R\x02id2\xad\t\n" +
+	"\rbase_language\x18\x01 \x01(\v2!.system.admin.v1.BaseLanguageFormB\x18\xbaG\x0f\x92\x02\f语言表单\xbaH\x03\xc8\x01\x01R\fbaseLanguage\"\xa4\x01\n" +
+	"\x19DeleteBaseLanguageRequest\x12\x86\x01\n" +
+	"\x02id\x18\x01 \x01(\tBv\xbaG\x11\x92\x02\x0e语言ID列表\xbaH_\xba\x01\\\n" +
+	"-system.admin.base.language.delete.id.required\x12\x1a语言ID列表不能为空\x1a\x0fthis.size() > 0R\x02id\"\xde\x01\n" +
+	"\x1cSetBaseLanguageStatusRequest\x12w\n" +
+	"\x02id\x18\x01 \x01(\x03Bg\xbaG\v\x92\x02\b语言ID\xbaHV\xba\x01S\n" +
+	"1system.admin.base.language.set_status.id.required\x12\x14语言ID不能为空\x1a\bthis > 0R\x02id\x12E\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x1a\xbaG\x0f\x92\x02\f启用状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\x99\x01\n" +
+	"\x1dSetBaseLanguagePrimaryRequest\x12x\n" +
+	"\x02id\x18\x01 \x01(\x03Bh\xbaG\v\x92\x02\b语言ID\xbaHW\xba\x01T\n" +
+	"2system.admin.base.language.set_primary.id.required\x12\x14语言ID不能为空\x1a\bthis > 0R\x02id2\xad\t\n" +
 	"\x13BaseLanguageService\x12\x99\x01\n" +
 	"\x12OptionBaseLanguage\x12*.system.admin.v1.OptionBaseLanguageRequest\x1a+.system.admin.v1.OptionBaseLanguageResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1/admin/base/language/option\x12\x8c\x01\n" +
 	"\x10PageBaseLanguage\x12(.system.admin.v1.PageBaseLanguageRequest\x1a).system.admin.v1.PageBaseLanguageResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/admin/base/language\x12\x87\x01\n" +

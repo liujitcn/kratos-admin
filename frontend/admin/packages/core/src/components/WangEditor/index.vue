@@ -61,7 +61,7 @@ const props = withDefaults(defineProps<RichEditorProps>(), {
 const editorMenuConfig = props.editorConfig.MENU_CONF ?? {};
 const resolvedEditorConfig = computed(() => ({
   ...props.editorConfig,
-  placeholder: props.editorConfig.placeholder || t("common.placeholder.inputContent"),
+  placeholder: props.editorConfig.placeholder || t("common.placeholder.input_content"),
   MENU_CONF: editorMenuConfig
 }));
 

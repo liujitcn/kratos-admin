@@ -5,7 +5,6 @@ package system.admin.v1;
 import "common/v1/common.proto";
 import "common/v1/enum.proto";
 import "buf/validate/validate.proto";
-import "system/common/v1/enum.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
@@ -73,6 +72,20 @@ service BaseRoleService {
   }
 }
 
+// 角色数据范围。
+enum BaseRoleDataScope {
+  // 未指定角色数据范围。
+  BASE_ROLE_DATA_SCOPE_UNSPECIFIED = 0;
+  // 全部数据。
+  BASE_ROLE_DATA_SCOPE_ALL = 1;
+  // 部门及子部门数据。
+  BASE_ROLE_DATA_SCOPE_DEPT_AND_CHILDREN = 2;
+  // 本部门数据。
+  BASE_ROLE_DATA_SCOPE_SELF_DEPT = 3;
+  // 本人数据。
+  BASE_ROLE_DATA_SCOPE_SELF_USER = 4;
+}
+
 // 角色选项查询条件
 message OptionBaseRoleRequest {
   optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
@@ -108,26 +121,26 @@ message PageBaseRoleResponse {
 
 // 查询角色请求参数
 message GetBaseRoleRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "角色ID"}, (buf.validate.field).cel = {id: "get_base_role.id.required" message: "角色ID不能为空" expression: "this > 0"}]; // 角色ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "角色ID"}, (buf.validate.field).cel = {id: "system.admin.base.role.get.id.required" message: "角色ID不能为空" expression: "this > 0"}]; // 角色ID
 }
 
 // 角色表单
 message BaseRoleForm {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "角色ID"}]; // 角色ID
 
-  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}, (buf.validate.field).cel = {id: "base_role.tenant_id.required" message: "所属租户不能为空" expression: "this > 0"}]; // 租户ID
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}, (buf.validate.field).cel = {id: "system.admin.base.role.entity.tenant_id.required" message: "所属租户不能为空" expression: "this > 0"}]; // 租户ID
 
-  string name = 3 [(gnostic.openapi.v3.property) = {description: "角色名称"}, (buf.validate.field).cel = {id: "base_role.name.required" message: "请输入角色名称" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "base_role.name.max_len" message: "角色名称不能超过 30 个字符" expression: "this.size() <= 30"}]; // 角色名称
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "角色名称"}, (buf.validate.field).cel = {id: "system.admin.base.role.entity.name.required" message: "请输入角色名称" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "system.admin.base.role.entity.name.max_length" message: "角色名称不能超过 30 个字符" expression: "this.size() <= 30"}]; // 角色名称
 
-  string code = 4 [(gnostic.openapi.v3.property) = {description: "角色编号"}, (buf.validate.field).cel = {id: "base_role.code.required" message: "请输入角色编码" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "base_role.code.max_len" message: "角色编号不能超过 20 个字符" expression: "this.size() <= 20"}]; // 角色编号
+  string code = 4 [(gnostic.openapi.v3.property) = {description: "角色编号"}, (buf.validate.field).cel = {id: "system.admin.base.role.entity.code.required" message: "请输入角色编码" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "system.admin.base.role.entity.code.max_length" message: "角色编号不能超过 20 个字符" expression: "this.size() <= 20"}]; // 角色编号
 
-  .system.common.v1.BaseRoleDataScope data_scope = 5 [(gnostic.openapi.v3.property) = {description: "数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据"}, (buf.validate.field).enum = {defined_only: true}, (buf.validate.field).cel = {id: "base_role.data_scope.required" message: "请选择数据权限" expression: "this != 0"}]; // 数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据
+  BaseRoleDataScope data_scope = 5 [(gnostic.openapi.v3.property) = {description: "数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据"}, (buf.validate.field).enum = {defined_only: true}, (buf.validate.field).cel = {id: "system.admin.base.role.entity.data_scope.required" message: "请选择数据权限" expression: "this != 0"}]; // 数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据
 
-  repeated int64 menus = 6 [(gnostic.openapi.v3.property) = {description: "分配的菜单列表"}, (buf.validate.field).cel = {id: "base_role.menus.required" message: "请选择菜单权限" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "base_role.menus.unique" message: "菜单权限不能重复" expression: "this.unique()"}]; // 分配的菜单列表
+  repeated int64 menus = 6 [(gnostic.openapi.v3.property) = {description: "分配的菜单列表"}, (buf.validate.field).cel = {id: "system.admin.base.role.entity.menus.required" message: "请选择菜单权限" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "system.admin.base.role.entity.menus.unique" message: "菜单权限不能重复" expression: "this.unique()"}]; // 分配的菜单列表
 
   .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
 
-  string remark = 101 [(gnostic.openapi.v3.property) = {description: "备注"}, (buf.validate.field).cel = {id: "base_role.remark.max_len" message: "备注不能超过 500 个字符" expression: "this.size() <= 500"}]; // 备注
+  string remark = 101 [(gnostic.openapi.v3.property) = {description: "备注"}, (buf.validate.field).cel = {id: "system.admin.base.role.entity.remark.max_length" message: "备注不能超过 500 个字符" expression: "this.size() <= 500"}]; // 备注
 }
 
 // 创建角色请求参数
@@ -137,26 +150,26 @@ message CreateBaseRoleRequest {
 
 // 更新角色请求参数
 message UpdateBaseRoleRequest {
-  option (buf.validate.message).cel = {id: "update_base_role.id.required" message: "角色ID不能为空" expression: "this.base_role.id > 0"};
+  option (buf.validate.message).cel = {id: "system.admin.base.role.update.id.required" message: "角色ID不能为空" expression: "this.base_role.id > 0"};
 
   BaseRoleForm base_role = 1 [(gnostic.openapi.v3.property) = {description: "角色表单"}, (buf.validate.field).required = true]; // 角色表单
 }
 
 // 删除角色请求参数
 message DeleteBaseRoleRequest {
-  string id = 1 [(gnostic.openapi.v3.property) = {description: "角色ID列表"}, (buf.validate.field).cel = {id: "delete_base_role.id.required" message: "角色ID列表不能为空" expression: "this.size() > 0"}]; // 角色ID列表
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "角色ID列表"}, (buf.validate.field).cel = {id: "system.admin.base.role.delete.id.required" message: "角色ID列表不能为空" expression: "this.size() > 0"}]; // 角色ID列表
 }
 
 // 设置角色菜单权限请求参数
 message SetBaseRoleMenuRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "角色ID"}, (buf.validate.field).cel = {id: "set_base_role_menu.id.required" message: "角色ID不能为空" expression: "this > 0"}]; // 角色ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "角色ID"}, (buf.validate.field).cel = {id: "system.admin.base.role.set_menu.id.required" message: "角色ID不能为空" expression: "this > 0"}]; // 角色ID
 
-  repeated int64 menus = 2 [(gnostic.openapi.v3.property) = {description: "分配的菜单列表"}, (buf.validate.field).cel = {id: "base_role.menus.required" message: "请选择菜单权限" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "base_role.menus.unique" message: "菜单权限不能重复" expression: "this.unique()"}]; // 分配的菜单列表
+  repeated int64 menus = 2 [(gnostic.openapi.v3.property) = {description: "分配的菜单列表"}, (buf.validate.field).cel = {id: "system.admin.base.role.entity.menus.required" message: "请选择菜单权限" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "system.admin.base.role.entity.menus.unique" message: "菜单权限不能重复" expression: "this.unique()"}]; // 分配的菜单列表
 }
 
 // 设置角色状态请求参数
 message SetBaseRoleStatusRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "角色ID"}, (buf.validate.field).cel = {id: "set_base_role_status.id.required" message: "角色ID不能为空" expression: "this > 0"}]; // 角色ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "角色ID"}, (buf.validate.field).cel = {id: "system.admin.base.role.set_status.id.required" message: "角色ID不能为空" expression: "this > 0"}]; // 角色ID
 
   int32 status = 2 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
 }
@@ -165,13 +178,13 @@ message SetBaseRoleStatusRequest {
 message BaseRole {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "角色ID"}]; // 角色ID
 
-  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}, (buf.validate.field).cel = {id: "base_role.tenant_id.required" message: "所属租户不能为空" expression: "this > 0"}]; // 租户ID
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}, (buf.validate.field).cel = {id: "system.admin.base.role.entity.tenant_id.required" message: "所属租户不能为空" expression: "this > 0"}]; // 租户ID
 
   string name = 3 [(gnostic.openapi.v3.property) = {description: "角色名称"}]; // 角色名称
 
   string code = 4 [(gnostic.openapi.v3.property) = {description: "角色编号"}]; // 角色编号
 
-  .system.common.v1.BaseRoleDataScope data_scope = 5 [(gnostic.openapi.v3.property) = {description: "数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据"}]; // 数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据
+  BaseRoleDataScope data_scope = 5 [(gnostic.openapi.v3.property) = {description: "数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据"}]; // 数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据
 
   repeated int64 menus = 6 [(gnostic.openapi.v3.property) = {description: "分配的菜单列表"}]; // 分配的菜单列表
 

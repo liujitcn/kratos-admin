@@ -1,6 +1,6 @@
 import { isArray } from "@/utils/is";
 import type { RouteItem, RouteMeta } from "@/rpc/system/admin/v1/auth";
-import { BaseMenuType } from "@/rpc/system/common/v1/enum";
+import { BaseMenuType } from "@/rpc/system/admin/v1/common";
 import { t } from "@/locales";
 
 const mode = import.meta.env.VITE_ROUTER_MODE;
@@ -23,7 +23,7 @@ export function getRouteMetaIcon(meta?: RouteMeta) {
  * 获取菜单标题。
  */
 export function getRouteMetaTitle(meta?: RouteMeta) {
-  return meta?.title ?? t("core.layout.unnamedMenu");
+  return meta?.title ?? t("core.layout.unnamed_menu");
 }
 
 /**
@@ -199,7 +199,7 @@ export function isExternalPath(path?: string) {
 
 /** 获取菜单项实际跳转目标，外链优先使用 redirect。 */
 export function getRouteTarget(item: RouteItem): string {
-  if (item.type === BaseMenuType.EXT_LINK) return item.redirect || item.path || "";
+  if (item.type === BaseMenuType.BASE_MENU_TYPE_EXT_LINK) return item.redirect || item.path || "";
   return item.path ?? "";
 }
 

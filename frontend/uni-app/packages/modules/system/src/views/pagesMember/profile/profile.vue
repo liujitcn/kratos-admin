@@ -77,7 +77,7 @@ const onAvatarChange = async () => {
       const { path, size } = res.tempFiles[0]
       if (size > imgMaxSize.value) {
         await uni.showToast({
-          title: t('system.profile.photoLimit'),
+          title: t('system.profile.photo_limit'),
           icon: 'none',
           duration: 1500,
         })
@@ -101,7 +101,7 @@ const onAvatarChange = async () => {
       const { tempFilePath, size } = res.tempFiles[0]
       if (size > imgMaxSize.value) {
         await uni.showToast({
-          title: t('system.profile.photoLimit'),
+          title: t('system.profile.photo_limit'),
           icon: 'none',
           duration: 1500,
         })
@@ -125,9 +125,9 @@ const uploadAvatar = async (file: string) => {
     userInfo.value.avatar = fileInfo.url
     await defAuthService.UpdateUserProfile(userInfo.value)
     syncUserStoreProfile(userInfo.value)
-    await uni.showToast({ icon: 'success', title: t('system.profile.updateSuccess') })
+    await uni.showToast({ icon: 'success', title: t('system.profile.update_success') })
   } catch {
-    await uni.showToast({ icon: 'error', title: t('system.profile.avatarUploadFailed') })
+    await uni.showToast({ icon: 'error', title: t('system.profile.avatar_upload_failed') })
   }
 }
 
@@ -148,7 +148,7 @@ const onGetPhoneNumber: UniHelper.ButtonOnGetphonenumber = async (e) => {
   const res = await defAuthService.BindUserPhone({ code: e.detail.code || '' })
   userInfo.value.phone = res.phone
   syncUserStoreProfile(userInfo.value)
-  await uni.showToast({ icon: 'success', title: t('system.profile.phoneAuthorizationSuccess') })
+  await uni.showToast({ icon: 'success', title: t('system.profile.phone_authorization_success') })
 }
 
 // #endif
@@ -170,7 +170,7 @@ const onSubmit = async () => {
   })
   // 更新Store昵称
   syncUserStoreProfile(userInfo.value)
-  await uni.showToast({ icon: 'success', title: t('system.profile.saveSuccess') })
+  await uni.showToast({ icon: 'success', title: t('system.profile.save_success') })
   setTimeout(() => {
     uni.navigateBack()
   }, 400)
@@ -193,7 +193,7 @@ const onSubmit = async () => {
           mode="aspectFill"
         />
         <image v-else class="image" :src="defaultAvatar" mode="aspectFill"></image>
-        <text class="text">{{ t('system.profile.avatarChange') }}</text>
+        <text class="text">{{ t('system.profile.avatar_change') }}</text>
       </view>
     </view>
     <!-- 表单 -->
@@ -216,17 +216,17 @@ const onSubmit = async () => {
               open-type="getPhoneNumber"
               @getphonenumber="onGetPhoneNumber"
             >
-              {{ t('system.profile.phoneAuthorization') }}
+              {{ t('system.profile.phone_authorization') }}
             </button>
           </view>
         </view>
         <!-- #endif -->
         <view class="form-item">
-          <text class="label">{{ t('system.profile.nickName') }}</text>
+          <text class="label">{{ t('system.profile.nick_name') }}</text>
           <input
             class="input"
             type="text"
-            :placeholder="t('system.profile.nickNamePlaceholder')"
+            :placeholder="t('system.profile.nick_name_placeholder')"
             v-model="userInfo.nick_name"
           />
         </view>

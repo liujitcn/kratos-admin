@@ -26,6 +26,63 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// AI 助手消息状态。
+type AiMessageStatus int32
+
+const (
+	// 未指定 AI 助手消息状态。
+	AiMessageStatus_AI_MESSAGE_STATUS_UNSPECIFIED AiMessageStatus = 0
+	// 生成中。
+	AiMessageStatus_AI_MESSAGE_STATUS_GENERATING AiMessageStatus = 1
+	// 成功。
+	AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS AiMessageStatus = 2
+	// 失败。
+	AiMessageStatus_AI_MESSAGE_STATUS_FAILED AiMessageStatus = 3
+)
+
+// Enum value maps for AiMessageStatus.
+var (
+	AiMessageStatus_name = map[int32]string{
+		0: "AI_MESSAGE_STATUS_UNSPECIFIED",
+		1: "AI_MESSAGE_STATUS_GENERATING",
+		2: "AI_MESSAGE_STATUS_SUCCESS",
+		3: "AI_MESSAGE_STATUS_FAILED",
+	}
+	AiMessageStatus_value = map[string]int32{
+		"AI_MESSAGE_STATUS_UNSPECIFIED": 0,
+		"AI_MESSAGE_STATUS_GENERATING":  1,
+		"AI_MESSAGE_STATUS_SUCCESS":     2,
+		"AI_MESSAGE_STATUS_FAILED":      3,
+	}
+)
+
+func (x AiMessageStatus) Enum() *AiMessageStatus {
+	p := new(AiMessageStatus)
+	*p = x
+	return p
+}
+
+func (x AiMessageStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AiMessageStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_base_v1_ai_session_proto_enumTypes[0].Descriptor()
+}
+
+func (AiMessageStatus) Type() protoreflect.EnumType {
+	return &file_base_v1_ai_session_proto_enumTypes[0]
+}
+
+func (x AiMessageStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AiMessageStatus.Descriptor instead.
+func (AiMessageStatus) EnumDescriptor() ([]byte, []int) {
+	return file_base_v1_ai_session_proto_rawDescGZIP(), []int{0}
+}
+
 // AI 助手消息列表查询条件
 type ListAiMessageRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -158,7 +215,7 @@ func (x *ListAiSessionRequest) GetTerminal() Terminal {
 	if x != nil {
 		return x.Terminal
 	}
-	return Terminal_UNKNOWN_TERMINAL
+	return Terminal_TERMINAL_UNSPECIFIED
 }
 
 // AI 助手会话列表响应
@@ -256,7 +313,7 @@ func (x *CreateAiSessionRequest) GetTerminal() Terminal {
 	if x != nil {
 		return x.Terminal
 	}
-	return Terminal_UNKNOWN_TERMINAL
+	return Terminal_TERMINAL_UNSPECIFIED
 }
 
 // AI 助手会话创建响应
@@ -370,7 +427,7 @@ func (x *CreateAiSessionBranchRequest) GetTerminal() Terminal {
 	if x != nil {
 		return x.Terminal
 	}
-	return Terminal_UNKNOWN_TERMINAL
+	return Terminal_TERMINAL_UNSPECIFIED
 }
 
 // AI 助手分支会话创建响应
@@ -680,7 +737,7 @@ func (x *AiSession) GetTerminal() Terminal {
 	if x != nil {
 		return x.Terminal
 	}
-	return Terminal_UNKNOWN_TERMINAL
+	return Terminal_TERMINAL_UNSPECIFIED
 }
 
 // AI 助手消息
@@ -769,7 +826,7 @@ func (x *AiMessage) GetStatus() AiMessageStatus {
 	if x != nil {
 		return x.Status
 	}
-	return AiMessageStatus_UNKNOWN_AMS
+	return AiMessageStatus_AI_MESSAGE_STATUS_UNSPECIFIED
 }
 
 func (x *AiMessage) GetToken() *AiToken {
@@ -1112,11 +1169,11 @@ var File_base_v1_ai_session_proto protoreflect.FileDescriptor
 
 const file_base_v1_ai_session_proto_rawDesc = "" +
 	"\n" +
-	"\x18base/v1/ai_session.proto\x12\abase.v1\x1a\x15base/v1/ai_tool.proto\x1a\x12base/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa7\x01\n" +
-	"\x14ListAiMessageRequest\x12\x8e\x01\n" +
+	"\x18base/v1/ai_session.proto\x12\abase.v1\x1a\x15base/v1/ai_tool.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb4\x01\n" +
+	"\x14ListAiMessageRequest\x12\x9b\x01\n" +
 	"\n" +
-	"session_id\x18\x01 \x01(\tBo\xbaG\v\x92\x02\b会话ID\xbaH^\xba\x01[\n" +
-	"#list_ai_message.session_id.positive\x12\x15会话编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\tsessionId\"[\n" +
+	"session_id\x18\x01 \x01(\tB|\xbaG\v\x92\x02\b会话ID\xbaHk\xba\x01h\n" +
+	"0base.ai.session.list_message.session_id.positive\x12\x15会话编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\tsessionId\"[\n" +
 	"\x15ListAiMessageResponse\x12B\n" +
 	"\bmessages\x18\x01 \x03(\v2\x12.base.v1.AiMessageB\x12\xbaG\x0f\x92\x02\f消息列表R\bmessages\"p\n" +
 	"\x14ListAiSessionRequest\x12X\n" +
@@ -1127,28 +1184,28 @@ const file_base_v1_ai_session_proto_rawDesc = "" +
 	"\x05title\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f会话标题R\x05title\x12X\n" +
 	"\bterminal\x18\x02 \x01(\x0e2\x11.base.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"[\n" +
 	"\x17CreateAiSessionResponse\x12@\n" +
-	"\asession\x18\x01 \x01(\v2\x12.base.v1.AiSessionB\x12\xbaG\x0f\x92\x02\f会话信息R\asession\"\xff\x04\n" +
-	"\x1cCreateAiSessionBranchRequest\x12\xb2\x01\n" +
-	"\x11source_session_id\x18\x01 \x01(\tB\x85\x01\xbaG\x11\x92\x02\x0e来源会话ID\xbaHn\xba\x01k\n" +
-	"3create_ai_session_branch.source_session_id.positive\x12\x15会话编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\x0fsourceSessionId\x12\xc4\x01\n" +
-	"\x11anchor_message_id\x18\x02 \x01(\tB\x97\x01\xbaG\x17\x92\x02\x14分支锚点消息ID\xbaHz\xba\x01w\n" +
-	"3create_ai_session_branch.anchor_message_id.positive\x12!分支锚点消息编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\x0fanchorMessageId\x12\x88\x01\n" +
-	"\x05title\x18\x03 \x01(\tBr\xbaG\x15\x92\x02\x12分支会话标题\xbaHW\xba\x01T\n" +
-	"'create_ai_session_branch.title.required\x12\x18会话标题不能为空\x1a\x0fthis.size() > 0R\x05title\x12X\n" +
+	"\asession\x18\x01 \x01(\v2\x12.base.v1.AiSessionB\x12\xbaG\x0f\x92\x02\f会话信息R\asession\"\x8e\x05\n" +
+	"\x1cCreateAiSessionBranchRequest\x12\xb7\x01\n" +
+	"\x11source_session_id\x18\x01 \x01(\tB\x8a\x01\xbaG\x11\x92\x02\x0e来源会话ID\xbaHs\xba\x01p\n" +
+	"8base.ai.session.create_branch.source_session_id.positive\x12\x15会话编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\x0fsourceSessionId\x12\xc9\x01\n" +
+	"\x11anchor_message_id\x18\x02 \x01(\tB\x9c\x01\xbaG\x17\x92\x02\x14分支锚点消息ID\xbaH\x7f\xba\x01|\n" +
+	"8base.ai.session.create_branch.anchor_message_id.positive\x12!分支锚点消息编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\x0fanchorMessageId\x12\x8d\x01\n" +
+	"\x05title\x18\x03 \x01(\tBw\xbaG\x15\x92\x02\x12分支会话标题\xbaH\\\xba\x01Y\n" +
+	",base.ai.session.create_branch.title.required\x12\x18会话标题不能为空\x1a\x0fthis.size() > 0R\x05title\x12X\n" +
 	"\bterminal\x18\x04 \x01(\x0e2\x11.base.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"\xb1\x01\n" +
 	"\x1dCreateAiSessionBranchResponse\x12C\n" +
 	"\asession\x18\x01 \x01(\v2\x12.base.v1.AiSessionB\x15\xbaG\x12\x92\x02\x0f新会话信息R\asession\x12K\n" +
-	"\bmessages\x18\x02 \x03(\v2\x12.base.v1.AiMessageB\x1b\xbaG\x18\x92\x02\x15新会话消息列表R\bmessages\"\x90\x02\n" +
-	"\x16UpdateAiSessionRequest\x12y\n" +
-	"\x02id\x18\x01 \x01(\tBi\xbaG\v\x92\x02\b会话ID\xbaHX\xba\x01U\n" +
-	"\x1dupdate_ai_session.id.positive\x12\x15会话编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\x02id\x12{\n" +
-	"\x05title\x18\x02 \x01(\tBe\xbaG\x0f\x92\x02\f会话标题\xbaHP\xba\x01M\n" +
-	" update_ai_session.title.required\x12\x18会话标题不能为空\x1a\x0fthis.size() > 0R\x05title\"[\n" +
+	"\bmessages\x18\x02 \x03(\v2\x12.base.v1.AiMessageB\x1b\xbaG\x18\x92\x02\x15新会话消息列表R\bmessages\"\x9b\x02\n" +
+	"\x16UpdateAiSessionRequest\x12~\n" +
+	"\x02id\x18\x01 \x01(\tBn\xbaG\v\x92\x02\b会话ID\xbaH]\xba\x01Z\n" +
+	"\"base.ai.session.update.id.positive\x12\x15会话编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\x02id\x12\x80\x01\n" +
+	"\x05title\x18\x02 \x01(\tBj\xbaG\x0f\x92\x02\f会话标题\xbaHU\xba\x01R\n" +
+	"%base.ai.session.update.title.required\x12\x18会话标题不能为空\x1a\x0fthis.size() > 0R\x05title\"[\n" +
 	"\x17UpdateAiSessionResponse\x12@\n" +
-	"\asession\x18\x01 \x01(\v2\x12.base.v1.AiSessionB\x12\xbaG\x0f\x92\x02\f会话信息R\asession\"\x93\x01\n" +
-	"\x16DeleteAiSessionRequest\x12y\n" +
-	"\x02id\x18\x01 \x01(\tBi\xbaG\v\x92\x02\b会话ID\xbaHX\xba\x01U\n" +
-	"\x1ddelete_ai_session.id.positive\x12\x15会话编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\x02id\"\x19\n" +
+	"\asession\x18\x01 \x01(\v2\x12.base.v1.AiSessionB\x12\xbaG\x0f\x92\x02\f会话信息R\asession\"\x98\x01\n" +
+	"\x16DeleteAiSessionRequest\x12~\n" +
+	"\x02id\x18\x01 \x01(\tBn\xbaG\v\x92\x02\b会话ID\xbaH]\xba\x01Z\n" +
+	"\"base.ai.session.delete.id.positive\x12\x15会话编号不合法\x1a\x1dthis.matches('^[1-9][0-9]*$')R\x02id\"\x19\n" +
 	"\x17DeleteAiSessionResponse\"\xac\x02\n" +
 	"\tAiSession\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\x02id\x12(\n" +
@@ -1195,7 +1252,12 @@ const file_base_v1_ai_session_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f附件名称R\x04name\x12&\n" +
 	"\x04size\x18\x03 \x01(\x03B\x12\xbaG\x0f\x92\x02\f附件大小R\x04size\x12$\n" +
 	"\x03url\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f附件地址R\x03url\x125\n" +
-	"\tmime_type\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12附件 MIME 类型R\bmimeType2\xa7\x06\n" +
+	"\tmime_type\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12附件 MIME 类型R\bmimeType*\x93\x01\n" +
+	"\x0fAiMessageStatus\x12!\n" +
+	"\x1dAI_MESSAGE_STATUS_UNSPECIFIED\x10\x00\x12 \n" +
+	"\x1cAI_MESSAGE_STATUS_GENERATING\x10\x01\x12\x1d\n" +
+	"\x19AI_MESSAGE_STATUS_SUCCESS\x10\x02\x12\x1c\n" +
+	"\x18AI_MESSAGE_STATUS_FAILED\x10\x032\xa7\x06\n" +
 	"\x10AiSessionService\x12\x84\x01\n" +
 	"\rListAiMessage\x12\x1d.base.v1.ListAiMessageRequest\x1a\x1e.base.v1.ListAiMessageResponse\"4\x82\xd3\xe4\x93\x02.\x12,/api/v1/base/ai/session/{session_id}/message\x12o\n" +
 	"\rListAiSession\x12\x1d.base.v1.ListAiSessionRequest\x1a\x1e.base.v1.ListAiSessionResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/base/ai/session\x12x\n" +
@@ -1217,62 +1279,63 @@ func file_base_v1_ai_session_proto_rawDescGZIP() []byte {
 	return file_base_v1_ai_session_proto_rawDescData
 }
 
+var file_base_v1_ai_session_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_base_v1_ai_session_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_base_v1_ai_session_proto_goTypes = []any{
-	(*ListAiMessageRequest)(nil),          // 0: base.v1.ListAiMessageRequest
-	(*ListAiMessageResponse)(nil),         // 1: base.v1.ListAiMessageResponse
-	(*ListAiSessionRequest)(nil),          // 2: base.v1.ListAiSessionRequest
-	(*ListAiSessionResponse)(nil),         // 3: base.v1.ListAiSessionResponse
-	(*CreateAiSessionRequest)(nil),        // 4: base.v1.CreateAiSessionRequest
-	(*CreateAiSessionResponse)(nil),       // 5: base.v1.CreateAiSessionResponse
-	(*CreateAiSessionBranchRequest)(nil),  // 6: base.v1.CreateAiSessionBranchRequest
-	(*CreateAiSessionBranchResponse)(nil), // 7: base.v1.CreateAiSessionBranchResponse
-	(*UpdateAiSessionRequest)(nil),        // 8: base.v1.UpdateAiSessionRequest
-	(*UpdateAiSessionResponse)(nil),       // 9: base.v1.UpdateAiSessionResponse
-	(*DeleteAiSessionRequest)(nil),        // 10: base.v1.DeleteAiSessionRequest
-	(*DeleteAiSessionResponse)(nil),       // 11: base.v1.DeleteAiSessionResponse
-	(*AiSession)(nil),                     // 12: base.v1.AiSession
-	(*AiMessage)(nil),                     // 13: base.v1.AiMessage
-	(*AiInputContent)(nil),                // 14: base.v1.AiInputContent
-	(*AiOutputContent)(nil),               // 15: base.v1.AiOutputContent
-	(*AiToken)(nil),                       // 16: base.v1.AiToken
-	(*AiAttachment)(nil),                  // 17: base.v1.AiAttachment
-	(Terminal)(0),                         // 18: base.v1.Terminal
-	(*timestamppb.Timestamp)(nil),         // 19: google.protobuf.Timestamp
-	(AiMessageStatus)(0),                  // 20: base.v1.AiMessageStatus
+	(AiMessageStatus)(0),                  // 0: base.v1.AiMessageStatus
+	(*ListAiMessageRequest)(nil),          // 1: base.v1.ListAiMessageRequest
+	(*ListAiMessageResponse)(nil),         // 2: base.v1.ListAiMessageResponse
+	(*ListAiSessionRequest)(nil),          // 3: base.v1.ListAiSessionRequest
+	(*ListAiSessionResponse)(nil),         // 4: base.v1.ListAiSessionResponse
+	(*CreateAiSessionRequest)(nil),        // 5: base.v1.CreateAiSessionRequest
+	(*CreateAiSessionResponse)(nil),       // 6: base.v1.CreateAiSessionResponse
+	(*CreateAiSessionBranchRequest)(nil),  // 7: base.v1.CreateAiSessionBranchRequest
+	(*CreateAiSessionBranchResponse)(nil), // 8: base.v1.CreateAiSessionBranchResponse
+	(*UpdateAiSessionRequest)(nil),        // 9: base.v1.UpdateAiSessionRequest
+	(*UpdateAiSessionResponse)(nil),       // 10: base.v1.UpdateAiSessionResponse
+	(*DeleteAiSessionRequest)(nil),        // 11: base.v1.DeleteAiSessionRequest
+	(*DeleteAiSessionResponse)(nil),       // 12: base.v1.DeleteAiSessionResponse
+	(*AiSession)(nil),                     // 13: base.v1.AiSession
+	(*AiMessage)(nil),                     // 14: base.v1.AiMessage
+	(*AiInputContent)(nil),                // 15: base.v1.AiInputContent
+	(*AiOutputContent)(nil),               // 16: base.v1.AiOutputContent
+	(*AiToken)(nil),                       // 17: base.v1.AiToken
+	(*AiAttachment)(nil),                  // 18: base.v1.AiAttachment
+	(Terminal)(0),                         // 19: base.v1.Terminal
+	(*timestamppb.Timestamp)(nil),         // 20: google.protobuf.Timestamp
 	(*AiToolCall)(nil),                    // 21: base.v1.AiToolCall
 }
 var file_base_v1_ai_session_proto_depIdxs = []int32{
-	13, // 0: base.v1.ListAiMessageResponse.messages:type_name -> base.v1.AiMessage
-	18, // 1: base.v1.ListAiSessionRequest.terminal:type_name -> base.v1.Terminal
-	12, // 2: base.v1.ListAiSessionResponse.sessions:type_name -> base.v1.AiSession
-	18, // 3: base.v1.CreateAiSessionRequest.terminal:type_name -> base.v1.Terminal
-	12, // 4: base.v1.CreateAiSessionResponse.session:type_name -> base.v1.AiSession
-	18, // 5: base.v1.CreateAiSessionBranchRequest.terminal:type_name -> base.v1.Terminal
-	12, // 6: base.v1.CreateAiSessionBranchResponse.session:type_name -> base.v1.AiSession
-	13, // 7: base.v1.CreateAiSessionBranchResponse.messages:type_name -> base.v1.AiMessage
-	12, // 8: base.v1.UpdateAiSessionResponse.session:type_name -> base.v1.AiSession
-	19, // 9: base.v1.AiSession.updated_at:type_name -> google.protobuf.Timestamp
-	18, // 10: base.v1.AiSession.terminal:type_name -> base.v1.Terminal
-	14, // 11: base.v1.AiMessage.input_content:type_name -> base.v1.AiInputContent
-	15, // 12: base.v1.AiMessage.output_content:type_name -> base.v1.AiOutputContent
-	17, // 13: base.v1.AiMessage.attachments:type_name -> base.v1.AiAttachment
-	19, // 14: base.v1.AiMessage.created_at:type_name -> google.protobuf.Timestamp
-	20, // 15: base.v1.AiMessage.status:type_name -> base.v1.AiMessageStatus
-	16, // 16: base.v1.AiMessage.token:type_name -> base.v1.AiToken
+	14, // 0: base.v1.ListAiMessageResponse.messages:type_name -> base.v1.AiMessage
+	19, // 1: base.v1.ListAiSessionRequest.terminal:type_name -> base.v1.Terminal
+	13, // 2: base.v1.ListAiSessionResponse.sessions:type_name -> base.v1.AiSession
+	19, // 3: base.v1.CreateAiSessionRequest.terminal:type_name -> base.v1.Terminal
+	13, // 4: base.v1.CreateAiSessionResponse.session:type_name -> base.v1.AiSession
+	19, // 5: base.v1.CreateAiSessionBranchRequest.terminal:type_name -> base.v1.Terminal
+	13, // 6: base.v1.CreateAiSessionBranchResponse.session:type_name -> base.v1.AiSession
+	14, // 7: base.v1.CreateAiSessionBranchResponse.messages:type_name -> base.v1.AiMessage
+	13, // 8: base.v1.UpdateAiSessionResponse.session:type_name -> base.v1.AiSession
+	20, // 9: base.v1.AiSession.updated_at:type_name -> google.protobuf.Timestamp
+	19, // 10: base.v1.AiSession.terminal:type_name -> base.v1.Terminal
+	15, // 11: base.v1.AiMessage.input_content:type_name -> base.v1.AiInputContent
+	16, // 12: base.v1.AiMessage.output_content:type_name -> base.v1.AiOutputContent
+	18, // 13: base.v1.AiMessage.attachments:type_name -> base.v1.AiAttachment
+	20, // 14: base.v1.AiMessage.created_at:type_name -> google.protobuf.Timestamp
+	0,  // 15: base.v1.AiMessage.status:type_name -> base.v1.AiMessageStatus
+	17, // 16: base.v1.AiMessage.token:type_name -> base.v1.AiToken
 	21, // 17: base.v1.AiMessage.tools:type_name -> base.v1.AiToolCall
-	0,  // 18: base.v1.AiSessionService.ListAiMessage:input_type -> base.v1.ListAiMessageRequest
-	2,  // 19: base.v1.AiSessionService.ListAiSession:input_type -> base.v1.ListAiSessionRequest
-	4,  // 20: base.v1.AiSessionService.CreateAiSession:input_type -> base.v1.CreateAiSessionRequest
-	6,  // 21: base.v1.AiSessionService.CreateAiSessionBranch:input_type -> base.v1.CreateAiSessionBranchRequest
-	8,  // 22: base.v1.AiSessionService.UpdateAiSession:input_type -> base.v1.UpdateAiSessionRequest
-	10, // 23: base.v1.AiSessionService.DeleteAiSession:input_type -> base.v1.DeleteAiSessionRequest
-	1,  // 24: base.v1.AiSessionService.ListAiMessage:output_type -> base.v1.ListAiMessageResponse
-	3,  // 25: base.v1.AiSessionService.ListAiSession:output_type -> base.v1.ListAiSessionResponse
-	5,  // 26: base.v1.AiSessionService.CreateAiSession:output_type -> base.v1.CreateAiSessionResponse
-	7,  // 27: base.v1.AiSessionService.CreateAiSessionBranch:output_type -> base.v1.CreateAiSessionBranchResponse
-	9,  // 28: base.v1.AiSessionService.UpdateAiSession:output_type -> base.v1.UpdateAiSessionResponse
-	11, // 29: base.v1.AiSessionService.DeleteAiSession:output_type -> base.v1.DeleteAiSessionResponse
+	1,  // 18: base.v1.AiSessionService.ListAiMessage:input_type -> base.v1.ListAiMessageRequest
+	3,  // 19: base.v1.AiSessionService.ListAiSession:input_type -> base.v1.ListAiSessionRequest
+	5,  // 20: base.v1.AiSessionService.CreateAiSession:input_type -> base.v1.CreateAiSessionRequest
+	7,  // 21: base.v1.AiSessionService.CreateAiSessionBranch:input_type -> base.v1.CreateAiSessionBranchRequest
+	9,  // 22: base.v1.AiSessionService.UpdateAiSession:input_type -> base.v1.UpdateAiSessionRequest
+	11, // 23: base.v1.AiSessionService.DeleteAiSession:input_type -> base.v1.DeleteAiSessionRequest
+	2,  // 24: base.v1.AiSessionService.ListAiMessage:output_type -> base.v1.ListAiMessageResponse
+	4,  // 25: base.v1.AiSessionService.ListAiSession:output_type -> base.v1.ListAiSessionResponse
+	6,  // 26: base.v1.AiSessionService.CreateAiSession:output_type -> base.v1.CreateAiSessionResponse
+	8,  // 27: base.v1.AiSessionService.CreateAiSessionBranch:output_type -> base.v1.CreateAiSessionBranchResponse
+	10, // 28: base.v1.AiSessionService.UpdateAiSession:output_type -> base.v1.UpdateAiSessionResponse
+	12, // 29: base.v1.AiSessionService.DeleteAiSession:output_type -> base.v1.DeleteAiSessionResponse
 	24, // [24:30] is the sub-list for method output_type
 	18, // [18:24] is the sub-list for method input_type
 	18, // [18:18] is the sub-list for extension type_name
@@ -1286,19 +1349,19 @@ func file_base_v1_ai_session_proto_init() {
 		return
 	}
 	file_base_v1_ai_tool_proto_init()
-	file_base_v1_enum_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_base_v1_ai_session_proto_rawDesc), len(file_base_v1_ai_session_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_base_v1_ai_session_proto_goTypes,
 		DependencyIndexes: file_base_v1_ai_session_proto_depIdxs,
+		EnumInfos:         file_base_v1_ai_session_proto_enumTypes,
 		MessageInfos:      file_base_v1_ai_session_proto_msgTypes,
 	}.Build()
 	File_base_v1_ai_session_proto = out.File

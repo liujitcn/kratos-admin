@@ -6,7 +6,7 @@
     <FormDialog
       v-model="dialog.visible"
       ref="formDialogRef"
-      :title="t(dialog.editing ? 'system.job.action.edit' : 'system.job.action.create')"
+      :title="t(dialog.editing ? 'system.base.job.action.edit' : 'system.base.job.action.create')"
       width="1000px"
       :model="formData"
       :fields="formFields"
@@ -77,34 +77,34 @@ const rules = computed(() => ({
   name: [
     {
       required: true,
-      message: t("system.common.validation.requiredInput", { field: t("system.job.field.name") }),
+      message: t("common.validation.required_input", { field: t("system.base.job.field.name") }),
       trigger: "blur"
     },
-    { max: 50, message: t("system.common.validation.maxLength", { field: t("system.job.field.name"), max: 50 }), trigger: "blur" }
+    { max: 50, message: t("common.validation.max_length", { field: t("system.base.job.field.name"), max: 50 }), trigger: "blur" }
   ],
   cron_expression: [
     {
       required: true,
-      message: t("system.common.validation.requiredInput", { field: t("system.job.field.cron") }),
+      message: t("common.validation.required_input", { field: t("system.base.job.field.cron") }),
       trigger: "blur"
     },
-    { max: 50, message: t("system.common.validation.maxLength", { field: t("system.job.field.cron"), max: 50 }), trigger: "blur" }
+    { max: 50, message: t("common.validation.max_length", { field: t("system.base.job.field.cron"), max: 50 }), trigger: "blur" }
   ],
   invoke_target: [
     {
       required: true,
-      message: t("system.common.validation.requiredInput", { field: t("system.job.field.invokeTarget") }),
+      message: t("common.validation.required_input", { field: t("system.base.job.field.invoke_target") }),
       trigger: "blur"
     },
     {
       max: 100,
-      message: t("system.common.validation.maxLength", { field: t("system.job.field.invokeTarget"), max: 100 }),
+      message: t("common.validation.max_length", { field: t("system.base.job.field.invoke_target"), max: 100 }),
       trigger: "blur"
     }
   ],
   args: {
     validator: (rule: unknown, value: BaseJobArgs[], callback: (error?: Error) => void) => {
-      if (value.some(arg => !arg.key)) callback(new Error(t("system.job.validation.argKeyRequired")));
+      if (value.some(arg => !arg.key)) callback(new Error(t("system.base.job.validation.arg_key_required")));
       else callback();
     },
     trigger: "blur"
@@ -112,7 +112,7 @@ const rules = computed(() => ({
   status: [
     {
       required: true,
-      message: t("system.common.validation.requiredSelect", { field: t("system.common.field.status") }),
+      message: t("common.validation.required_select", { field: t("common.field.status") }),
       trigger: "blur"
     }
   ]
@@ -196,7 +196,7 @@ function renderOperationCell(scope: RenderScope<BaseJob>) {
           class: "job-action job-action--start",
           onClick: () => handleStart(row.id, row.name)
         },
-        () => t("system.job.action.start")
+        () => t("system.base.job.action.start")
       )
     );
   }
@@ -213,7 +213,7 @@ function renderOperationCell(scope: RenderScope<BaseJob>) {
           class: "job-action job-action--stop",
           onClick: () => handleStop(row.id, row.name)
         },
-        () => t("system.job.action.stop")
+        () => t("system.base.job.action.stop")
       )
     );
   }
@@ -230,7 +230,7 @@ function renderOperationCell(scope: RenderScope<BaseJob>) {
           class: "job-action job-action--exec",
           onClick: () => handleExec(row.id, row.name)
         },
-        () => t("system.job.action.execute")
+        () => t("system.base.job.action.execute")
       )
     );
   }
@@ -247,7 +247,7 @@ function renderOperationCell(scope: RenderScope<BaseJob>) {
           class: "job-action job-action--log",
           onClick: () => handleOpenBaseJob(row.id, row.name)
         },
-        () => t("system.job.action.log")
+        () => t("system.base.job.action.log")
       )
     );
   }
@@ -267,51 +267,51 @@ function renderOperationCell(scope: RenderScope<BaseJob>) {
 const formFields = computed<ProFormField[]>(() => [
   {
     prop: "name",
-    label: t("system.job.field.name"),
+    label: t("system.base.job.field.name"),
     component: "input",
-    props: { placeholder: t("system.job.placeholder.name") }
+    props: { placeholder: t("system.base.job.placeholder.name") }
   },
   {
     prop: "invoke_target",
-    label: t("system.job.field.invokeTarget"),
+    label: t("system.base.job.field.invoke_target"),
     component: "input",
-    props: { placeholder: t("system.job.placeholder.invokeTarget") }
+    props: { placeholder: t("system.base.job.placeholder.invoke_target") }
   },
   {
     prop: "cron_expression",
-    label: t("system.job.field.cron"),
+    label: t("system.base.job.field.cron"),
     component: "cron-expression",
     props: { placeholder: "0 0 0 * * *" }
   },
   {
     prop: "args",
-    label: t("system.job.field.args"),
+    label: t("system.base.job.field.args"),
     component: "kv-list",
     props: {
-      keyInputProps: { placeholder: t("system.job.field.argKey") },
-      valueInputProps: { placeholder: t("system.job.field.argValue") },
-      addText: t("system.job.action.addArg")
+      keyInputProps: { placeholder: t("system.base.job.field.arg_key") },
+      valueInputProps: { placeholder: t("system.base.job.field.arg_value") },
+      addText: t("system.base.job.action.add_arg")
     }
   },
-  { prop: "status", label: t("system.common.field.status"), component: "radio-group", options: statusOptions.value }
+  { prop: "status", label: t("common.field.status"), component: "radio-group", options: statusOptions.value }
 ]);
 
 /** 定时任务表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
-  { prop: "name", label: t("system.job.field.name"), minWidth: 140, search: { el: "input" } },
-  { prop: "invoke_target", label: t("system.job.field.invokeTarget"), minWidth: 180, search: { el: "input" } },
+  { prop: "name", label: t("system.base.job.field.name"), minWidth: 140, search: { el: "input" } },
+  { prop: "invoke_target", label: t("system.base.job.field.invoke_target"), minWidth: 180, search: { el: "input" } },
   {
     prop: "args",
-    label: t("system.job.field.argsShort"),
+    label: t("system.base.job.field.args_short"),
     minWidth: 140,
     render: scope => renderArgsCell(scope as unknown as RenderScope<BaseJob>)
   },
-  { prop: "cron_expression", label: t("system.job.field.cron"), minWidth: 150 },
-  { prop: "entry_id", label: t("system.job.field.entryId"), minWidth: 100, align: "right" },
+  { prop: "cron_expression", label: t("system.base.job.field.cron"), minWidth: 150 },
+  { prop: "entry_id", label: t("system.base.job.field.entry_id"), minWidth: 100, align: "right" },
   {
     prop: "status",
-    label: t("system.common.field.status"),
+    label: t("common.field.status"),
     minWidth: 100,
     search: { el: "select" },
     cellType: "status",
@@ -324,11 +324,11 @@ const columns = computed<ColumnProps[]>(() => [
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseJob)
     }
   },
-  { prop: "created_at", label: t("system.common.field.createdAt"), minWidth: 180 },
-  { prop: "updated_at", label: t("system.common.field.updatedAt"), minWidth: 180 },
+  { prop: "created_at", label: t("common.field.created_at"), minWidth: 180 },
+  { prop: "updated_at", label: t("common.field.updated_at"), minWidth: 180 },
   {
     prop: "operation",
-    label: t("system.common.field.action"),
+    label: t("common.field.action"),
     width: 380,
     fixed: "right",
     render: scope => renderOperationCell(scope as unknown as RenderScope<BaseJob>)
@@ -417,7 +417,7 @@ function handleSubmit() {
       ? defBaseJobService.UpdateBaseJob({ base_job: submitData })
       : defBaseJobService.CreateBaseJob({ base_job: submitData });
     request.then(() => {
-      ElMessage.success(t(submitData.id ? "system.job.message.updateSuccess" : "system.job.message.createSuccess"));
+      ElMessage.success(t(submitData.id ? "system.base.job.message.update_success" : "system.base.job.message.create_success"));
       handleCloseDialog();
       refreshTable();
     });
@@ -432,13 +432,13 @@ async function handleBeforeSetStatus(row: BaseJob) {
   const action = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
   const jobName = row.name || row.invoke_target || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(t("system.job.message.confirmStatus", { action, name: jobName }), t("common.title.notice"), {
+    await ElMessageBox.confirm(t("system.base.job.message.confirm_status", { action, name: jobName }), t("common.title.notice"), {
       confirmButtonText: t("common.action.confirm"),
       cancelButtonText: t("common.action.cancel"),
       type: "warning"
     });
     await defBaseJobService.SetBaseJobStatus({ id: row.id, status: nextStatus });
-    ElMessage.success(t("system.common.message.statusSuccess", { action }));
+    ElMessage.success(t("common.message.status_success", { action }));
     refreshTable();
     return true;
   } catch {
@@ -459,16 +459,16 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
     jobList.length ? jobList.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");
   if (!jobIds) {
-    ElMessage.warning(t("system.common.message.selectDeleteItem"));
+    ElMessage.warning(t("common.message.select_delete_item"));
     return;
   }
 
   const singleJobName = jobList[0]?.name || jobList[0]?.invoke_target || `ID:${jobList[0]?.id ?? ""}`;
   const confirmMessage = jobList.length
     ? jobList.length === 1
-      ? t("system.job.message.confirmDeleteSingle", { name: singleJobName })
-      : t("system.job.message.confirmDeleteBatch", { count: jobList.length })
-    : t("system.job.message.confirmDeleteSelected");
+      ? t("system.base.job.message.confirm_delete_single", { name: singleJobName })
+      : t("system.base.job.message.confirm_delete_batch", { count: jobList.length })
+    : t("system.base.job.message.confirm_delete_selected");
 
   ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
     confirmButtonText: t("common.action.confirm"),
@@ -477,12 +477,12 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   }).then(
     () => {
       defBaseJobService.DeleteBaseJob({ id: jobIds }).then(() => {
-        ElMessage.success(t("system.job.message.deleteSuccess"));
+        ElMessage.success(t("system.base.job.message.delete_success"));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info(t("system.job.message.deleteCanceled"));
+      ElMessage.info(t("system.base.job.message.delete_canceled"));
     }
   );
 }
@@ -491,19 +491,19 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
  * 启动定时任务。
  */
 function handleStart(id: number, name: string) {
-  ElMessageBox.confirm(t("system.job.message.confirmStart", { name }), t("common.title.warning"), {
+  ElMessageBox.confirm(t("system.base.job.message.confirm_start", { name }), t("common.title.warning"), {
     confirmButtonText: t("common.action.confirm"),
     cancelButtonText: t("common.action.cancel"),
     type: "warning"
   }).then(
     () => {
       defBaseJobService.StartBaseJob({ id }).then(() => {
-        ElMessage.success(t("system.job.message.startSuccess"));
+        ElMessage.success(t("system.base.job.message.start_success"));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info(t("system.job.message.startCanceled"));
+      ElMessage.info(t("system.base.job.message.start_canceled"));
     }
   );
 }
@@ -512,19 +512,19 @@ function handleStart(id: number, name: string) {
  * 停止定时任务。
  */
 function handleStop(id: number, name: string) {
-  ElMessageBox.confirm(t("system.job.message.confirmStop", { name }), t("common.title.warning"), {
+  ElMessageBox.confirm(t("system.base.job.message.confirm_stop", { name }), t("common.title.warning"), {
     confirmButtonText: t("common.action.confirm"),
     cancelButtonText: t("common.action.cancel"),
     type: "warning"
   }).then(
     () => {
       defBaseJobService.StopBaseJob({ id }).then(() => {
-        ElMessage.success(t("system.job.message.stopSuccess"));
+        ElMessage.success(t("system.base.job.message.stop_success"));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info(t("system.job.message.stopCanceled"));
+      ElMessage.info(t("system.base.job.message.stop_canceled"));
     }
   );
 }
@@ -533,19 +533,19 @@ function handleStop(id: number, name: string) {
  * 执行一次定时任务。
  */
 function handleExec(id: number, name: string) {
-  ElMessageBox.confirm(t("system.job.message.confirmExecute", { name }), t("common.title.warning"), {
+  ElMessageBox.confirm(t("system.base.job.message.confirm_execute", { name }), t("common.title.warning"), {
     confirmButtonText: t("common.action.confirm"),
     cancelButtonText: t("common.action.cancel"),
     type: "warning"
   }).then(
     () => {
       defBaseJobService.ExecuteBaseJob({ id }).then(() => {
-        ElMessage.success(t("system.job.message.executeSuccess"));
+        ElMessage.success(t("system.base.job.message.execute_success"));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info(t("system.job.message.executeCanceled"));
+      ElMessage.info(t("system.base.job.message.execute_canceled"));
     }
   );
 }
@@ -554,7 +554,7 @@ function handleExec(id: number, name: string) {
  * 打开定时任务日志页面。
  */
 function handleOpenBaseJob(id: number, name: string) {
-  navigateTo(router, "/base/job/log", { jobId: id, title: t("system.job.title.log", { name }) });
+  navigateTo(router, "/base/job/log", { jobId: id, title: t("system.base.job.title.log", { name }) });
 }
 </script>
 

@@ -126,12 +126,12 @@ var File_system_admin_v1_base_third_account_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_third_account_proto_rawDesc = "" +
 	"\n" +
-	"(system/admin/v1/base_third_account.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\"\xce\x02\n" +
-	"$GetBaseThirdAccountIdentifierRequest\x12\x81\x01\n" +
-	"\auser_id\x18\x01 \x01(\x03Bh\xbaG\v\x92\x02\b用户ID\xbaHW\xba\x01T\n" +
-	"2get_base_third_account_identifier.user_id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x06userId\x12\xa1\x01\n" +
-	"\bprovider\x18\x02 \x01(\tB\x84\x01\xbaG\x15\x92\x02\x12登录方式标识\xbaHi\xba\x01f\n" +
-	"3get_base_third_account_identifier.provider.required\x12\x1e登录方式标识不能为空\x1a\x0fthis.size() > 0R\bprovider\"g\n" +
+	"(system/admin/v1/base_third_account.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\"\xe8\x02\n" +
+	"$GetBaseThirdAccountIdentifierRequest\x12\x8e\x01\n" +
+	"\auser_id\x18\x01 \x01(\x03Bu\xbaG\v\x92\x02\b用户ID\xbaHd\xba\x01a\n" +
+	"?system.admin.base.third.account.get_identifier.user_id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x06userId\x12\xae\x01\n" +
+	"\bprovider\x18\x02 \x01(\tB\x91\x01\xbaG\x15\x92\x02\x12登录方式标识\xbaHv\xba\x01s\n" +
+	"@system.admin.base.third.account.get_identifier.provider.required\x12\x1e登录方式标识不能为空\x1a\x0fthis.size() > 0R\bprovider\"g\n" +
 	"%GetBaseThirdAccountIdentifierResponse\x12>\n" +
 	"\n" +
 	"identifier\x18\x01 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18三方账号唯一标识R\n" +

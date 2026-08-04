@@ -12,7 +12,7 @@
     <FormDialog
       v-model="dialog.visible"
       ref="formDialogRef"
-      :title="t(dialog.titleKey, { resource: t('system.tenant.resource') })"
+      :title="t(dialog.titleKey, { resource: t('system.base.tenant.resource') })"
       width="780px"
       :model="formData"
       :fields="formFields"
@@ -53,7 +53,7 @@ const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
 const dialog = reactive({
-  titleKey: "system.common.action.createResource",
+  titleKey: "common.action.create_resource",
   visible: false
 });
 
@@ -79,41 +79,41 @@ const rules = computed(() => ({
   name: [
     {
       required: true,
-      message: t("system.common.validation.requiredInput", { field: t("system.tenant.field.name") }),
+      message: t("common.validation.required_input", { field: t("system.base.tenant.field.name") }),
       trigger: "blur"
     },
     {
       max: 100,
-      message: t("system.common.validation.maxLength", { field: t("system.tenant.field.name"), max: 100 }),
+      message: t("common.validation.max_length", { field: t("system.base.tenant.field.name"), max: 100 }),
       trigger: "blur"
     }
   ],
   contact_name: [
     {
       max: 50,
-      message: t("system.common.validation.maxLength", { field: t("system.tenant.field.contactName"), max: 50 }),
+      message: t("common.validation.max_length", { field: t("system.base.tenant.field.contact_name"), max: 50 }),
       trigger: "blur"
     }
   ],
   contact_phone: [
     {
       max: 20,
-      message: t("system.common.validation.maxLength", { field: t("system.tenant.field.contactPhone"), max: 20 }),
+      message: t("common.validation.max_length", { field: t("system.base.tenant.field.contact_phone"), max: 20 }),
       trigger: "blur"
     },
-    { pattern: /^1[3-9]\d{9}$/, message: t("system.tenant.message.phoneInvalid"), trigger: "blur" }
+    { pattern: /^1[3-9]\d{9}$/, message: t("system.base.tenant.message.phone_invalid"), trigger: "blur" }
   ],
   status: [
     {
       required: true,
-      message: t("system.common.validation.requiredSelect", { field: t("system.common.field.status") }),
+      message: t("common.validation.required_select", { field: t("common.field.status") }),
       trigger: "change"
     }
   ],
   remark: [
     {
       max: 500,
-      message: t("system.common.validation.maxLength", { field: t("system.common.field.remark"), max: 500 }),
+      message: t("common.validation.max_length", { field: t("common.field.remark"), max: 500 }),
       trigger: "blur"
     }
   ]
@@ -128,35 +128,35 @@ const statusOptions = computed<ProFormOption[]>(() => [
 const formFields = computed<ProFormField[]>(() => [
   {
     prop: "code",
-    label: t("system.tenant.field.code"),
+    label: t("system.base.tenant.field.code"),
     component: "input",
     props: { disabled: true },
     visible: model => Boolean(model.id)
   },
   {
     prop: "name",
-    label: t("system.tenant.field.name"),
+    label: t("system.base.tenant.field.name"),
     component: "input",
-    props: { placeholder: t("system.common.validation.requiredInput", { field: t("system.tenant.field.name") }) }
+    props: { placeholder: t("common.validation.required_input", { field: t("system.base.tenant.field.name") }) }
   },
   {
     prop: "contact_name",
-    label: t("system.tenant.field.contactName"),
+    label: t("system.base.tenant.field.contact_name"),
     component: "input",
-    props: { placeholder: t("system.common.validation.requiredInput", { field: t("system.tenant.field.contactName") }) }
+    props: { placeholder: t("common.validation.required_input", { field: t("system.base.tenant.field.contact_name") }) }
   },
   {
     prop: "contact_phone",
-    label: t("system.tenant.field.contactPhone"),
+    label: t("system.base.tenant.field.contact_phone"),
     component: "input",
-    props: { placeholder: t("system.common.validation.requiredInput", { field: t("system.tenant.field.contactPhone") }) }
+    props: { placeholder: t("common.validation.required_input", { field: t("system.base.tenant.field.contact_phone") }) }
   },
-  { prop: "status", label: t("system.common.field.status"), component: "radio-group", options: statusOptions.value },
+  { prop: "status", label: t("common.field.status"), component: "radio-group", options: statusOptions.value },
   {
     prop: "remark",
-    label: t("system.common.field.remark"),
+    label: t("common.field.remark"),
     component: "textarea",
-    props: { placeholder: t("system.common.placeholder.remark"), rows: 3 },
+    props: { placeholder: t("common.placeholder.remark"), rows: 3 },
     colSpan: 24
   }
 ]);
@@ -164,13 +164,13 @@ const formFields = computed<ProFormField[]>(() => [
 /** 租户表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55, selectable: row => !isProtectedManagementTenant(row as BaseTenant) },
-  { prop: "code", label: t("system.tenant.field.code"), minWidth: 140, search: { el: "input", order: 1 } },
-  { prop: "name", label: t("system.tenant.field.name"), minWidth: 160, search: { el: "input", order: 2 } },
-  { prop: "contact_name", label: t("system.tenant.field.contactName"), minWidth: 120 },
-  { prop: "contact_phone", label: t("system.tenant.field.contactPhone"), minWidth: 140 },
+  { prop: "code", label: t("system.base.tenant.field.code"), minWidth: 140, search: { el: "input", order: 1 } },
+  { prop: "name", label: t("system.base.tenant.field.name"), minWidth: 160, search: { el: "input", order: 2 } },
+  { prop: "contact_name", label: t("system.base.tenant.field.contact_name"), minWidth: 120 },
+  { prop: "contact_phone", label: t("system.base.tenant.field.contact_phone"), minWidth: 140 },
   {
     prop: "status",
-    label: t("system.common.field.status"),
+    label: t("common.field.status"),
     minWidth: 100,
     search: { el: "select" },
     cellType: "status",
@@ -183,11 +183,11 @@ const columns = computed<ColumnProps[]>(() => [
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseTenant)
     }
   },
-  { prop: "created_at", label: t("system.common.field.createdAt"), minWidth: 180 },
-  { prop: "updated_at", label: t("system.common.field.updatedAt"), minWidth: 180 },
+  { prop: "created_at", label: t("common.field.created_at"), minWidth: 180 },
+  { prop: "updated_at", label: t("common.field.updated_at"), minWidth: 180 },
   {
     prop: "operation",
-    label: t("system.common.field.operation"),
+    label: t("common.field.operation"),
     width: 150,
     fixed: "right",
     cellType: "actions",
@@ -259,7 +259,7 @@ function isProtectedManagementTenant(row?: BaseTenant) {
  */
 async function handleOpenDialog(tenantId?: number) {
   resetForm();
-  dialog.titleKey = tenantId ? "system.common.action.editResource" : "system.common.action.createResource";
+  dialog.titleKey = tenantId ? "common.action.edit_resource" : "common.action.create_resource";
   dialog.visible = true;
   if (!tenantId) return;
 
@@ -303,8 +303,8 @@ function handleSubmit() {
       : defBaseTenantService.CreateBaseTenant({ base_tenant: submitData });
     request.then(() => {
       ElMessage.success(
-        t(submitData.id ? "system.common.message.updateSuccess" : "system.common.message.createSuccess", {
-          resource: t("system.tenant.resource")
+        t(submitData.id ? "common.message.update_success" : "common.message.create_success", {
+          resource: t("system.base.tenant.resource")
         })
       );
       handleCloseDialog();
@@ -318,7 +318,7 @@ function handleSubmit() {
  */
 async function handleBeforeSetStatus(row: BaseTenant) {
   if (isProtectedManagementTenant(row)) {
-    ElMessage.warning(t("system.tenant.message.protectedStatus"));
+    ElMessage.warning(t("system.base.tenant.message.protected_status"));
     return false;
   }
 
@@ -326,10 +326,10 @@ async function handleBeforeSetStatus(row: BaseTenant) {
   const text = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
   try {
     await ElMessageBox.confirm(
-      t("system.common.dialog.statusChange", {
+      t("common.dialog.status_change", {
         action: text,
-        resource: t("system.tenant.resource"),
-        field: t("system.tenant.field.name"),
+        resource: t("system.base.tenant.resource"),
+        field: t("system.base.tenant.field.name"),
         value: row.name || `ID:${row.id}`
       }),
       t("common.title.notice"),
@@ -340,7 +340,7 @@ async function handleBeforeSetStatus(row: BaseTenant) {
       }
     );
     await defBaseTenantService.SetBaseTenantStatus({ id: row.id, status: nextStatus });
-    ElMessage.success(t("system.common.message.statusSuccess", { action: text }));
+    ElMessage.success(t("common.message.status_success", { action: text }));
     refreshTable();
     return true;
   } catch {
@@ -358,7 +358,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
       ? [selected as BaseTenant]
       : [];
   if (tenantList.some(isProtectedManagementTenant)) {
-    ElMessage.warning(t("system.tenant.message.protectedDelete"));
+    ElMessage.warning(t("system.base.tenant.message.protected_delete"));
     return;
   }
 
@@ -368,15 +368,15 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
       : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");
   if (!tenantIds) {
-    ElMessage.warning(t("system.common.message.selectDeleteItem"));
+    ElMessage.warning(t("common.message.select_delete_item"));
     return;
   }
 
   const confirmMessage = tenantList.length
     ? tenantList.length === 1
-      ? `${t("system.common.dialog.deleteSingle", { resource: t("system.tenant.resource") })}\n${t("system.common.dialog.resourceField", { field: t("system.tenant.field.name"), value: tenantList[0].name || `ID:${tenantList[0].id}` })}`
-      : t("system.common.dialog.deleteBatch", { count: tenantList.length, unit: "", resource: t("system.tenant.resource") })
-    : t("system.common.dialog.deleteSelected", { resource: t("system.tenant.resource") });
+      ? `${t("common.dialog.delete_single", { resource: t("system.base.tenant.resource") })}\n${t("common.dialog.resource_field", { field: t("system.base.tenant.field.name"), value: tenantList[0].name || `ID:${tenantList[0].id}` })}`
+      : t("common.dialog.delete_batch", { count: tenantList.length, unit: "", resource: t("system.base.tenant.resource") })
+    : t("common.dialog.delete_selected", { resource: t("system.base.tenant.resource") });
 
   ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
     confirmButtonText: t("common.action.confirm"),
@@ -385,12 +385,12 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   }).then(
     () => {
       defBaseTenantService.DeleteBaseTenant({ id: tenantIds }).then(() => {
-        ElMessage.success(t("system.common.message.deleteSuccess", { resource: t("system.tenant.resource") }));
+        ElMessage.success(t("common.message.delete_success", { resource: t("system.base.tenant.resource") }));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info(t("system.common.dialog.cancelDelete", { resource: t("system.tenant.resource") }));
+      ElMessage.info(t("common.dialog.cancel_delete", { resource: t("system.base.tenant.resource") }));
     }
   );
 }

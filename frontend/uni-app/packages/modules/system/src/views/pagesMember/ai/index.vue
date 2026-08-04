@@ -7,7 +7,8 @@ import { defAiToolService } from '../../../api/base/ai_tool'
 import type { AiMessage } from '../../../rpc/base/v1/ai_session'
 import type { AiAttachment, AiSession } from '../../../rpc/base/v1/ai_session'
 import type { AiShortcut, AiToolCall } from '../../../rpc/base/v1/ai_tool'
-import { AiMessageStatus, Terminal } from '../../../rpc/base/v1/enum'
+import { AiMessageStatus } from '../../../rpc/base/v1/ai_session'
+import { Terminal } from '../../../rpc/base/v1/ai_tool'
 import { uploadFile } from '@liujitcn/kratos-uni-app-core/utils/file'
 import { formatSrc } from '@liujitcn/kratos-uni-app-core/utils/index'
 import Composer from './components/Composer.vue'
@@ -96,38 +97,38 @@ const createStarterShortcuts = (): AiShortcut[] => [
   {
     key: 'summarize',
     title: t('system.ai.prompt.summary'),
-    prompt: t('system.ai.prompt.summaryContent'),
+    prompt: t('system.ai.prompt.summary_content'),
     action: undefined,
     required_tools: [],
     sort: 1,
-    group: t('system.ai.textAssistant'),
+    group: t('system.ai.text_assistant'),
   },
   {
     key: 'rewrite',
     title: t('system.ai.prompt.optimize'),
-    prompt: t('system.ai.prompt.optimizeContent'),
+    prompt: t('system.ai.prompt.optimize_content'),
     action: undefined,
     required_tools: [],
     sort: 2,
-    group: t('system.ai.textAssistant'),
+    group: t('system.ai.text_assistant'),
   },
   {
     key: 'plan',
     title: t('system.ai.prompt.plan'),
-    prompt: t('system.ai.prompt.planContent'),
+    prompt: t('system.ai.prompt.plan_content'),
     action: undefined,
     required_tools: [],
     sort: 3,
-    group: t('system.ai.efficiencyAssistant'),
+    group: t('system.ai.efficiency_assistant'),
   },
   {
     key: 'ideas',
     title: t('system.ai.prompt.idea'),
-    prompt: t('system.ai.prompt.ideaContent'),
+    prompt: t('system.ai.prompt.idea_content'),
     action: undefined,
     required_tools: [],
     sort: 4,
-    group: t('system.ai.efficiencyAssistant'),
+    group: t('system.ai.efficiency_assistant'),
   },
 ]
 const starterShortcuts = ref<AiShortcut[]>(createStarterShortcuts())
@@ -177,7 +178,7 @@ const composerPlaceholder = computed(() => {
     return t('system.ai.recording')
   }
   if (uploadingAttachment.value) {
-    return t('system.ai.attachmentUploading')
+    return t('system.ai.attachment_uploading')
   }
   return hasMessages.value
     ? t('system.ai.placeholder.continue')
@@ -232,16 +233,16 @@ const createSession = async () => {
     sessionKeyword.value = ''
     showSessionDrawer.value = false
   } catch (error) {
-    showError(error, t('system.ai.createSessionFailed'))
+    showError(error, t('system.ai.create_session_failed'))
   }
 }
 
 const deleteSession = async (sessionID: string) => {
   const session = sessions.value.find((item) => item.id === sessionID)
   const result = await uni.showModal({
-    title: t('system.ai.deleteSession'),
-    content: t('system.ai.deleteSessionConfirm', {
-      title: session?.title || t('system.ai.currentSession'),
+    title: t('system.ai.delete_session'),
+    content: t('system.ai.delete_session_confirm', {
+      title: session?.title || t('system.ai.current_session'),
     }),
     confirmText: t('common.action.delete'),
     confirmColor: '#cf4444',
@@ -259,13 +260,13 @@ const deleteSession = async (sessionID: string) => {
       await ensureActiveSession()
     }
   } catch (error) {
-    showError(error, t('system.ai.deleteSessionFailed'))
+    showError(error, t('system.ai.delete_session_failed'))
   }
 }
 
 const handleSessionAction = (session: AiSession) => {
   uni.showActionSheet({
-    itemList: [t('system.ai.deleteSession')],
+    itemList: [t('system.ai.delete_session')],
     success: ({ tapIndex }) => {
       if (tapIndex === 0) {
         void deleteSession(session.id)
@@ -277,7 +278,7 @@ const handleSessionAction = (session: AiSession) => {
 const copyMessage = (item: ChatMessageItem) => {
   uni.setClipboardData({
     data: item.content,
-    success: () => uni.showToast({ icon: 'none', title: t('system.ai.copySuccess') }),
+    success: () => uni.showToast({ icon: 'none', title: t('system.ai.copy_success') }),
   })
 }
 
@@ -297,7 +298,7 @@ const deleteMessage = async (item: ChatMessageItem) => {
       (message) => message.messageID !== item.messageID,
     )
   } catch (error) {
-    showError(error, t('system.ai.deleteMessageFailed'))
+    showError(error, t('system.ai.delete_message_failed'))
   }
 }
 
@@ -316,7 +317,7 @@ const regenerateMessage = async (item: ChatMessageItem) => {
       upsertSession(normalizeSession(response.session))
     }
   } catch (error) {
-    showError(error, t('system.ai.regenerateFailed'))
+    showError(error, t('system.ai.regenerate_failed'))
   } finally {
     setSessionSending(activeSessionID.value, false)
   }
@@ -354,7 +355,7 @@ const handleSend = async () => {
   if (isSubmitDisabled.value) {
     return
   }
-  const text = inputText.value.trim() || t('system.ai.attachmentAnswer')
+  const text = inputText.value.trim() || t('system.ai.attachment_answer')
   inputText.value = ''
   const attachments = [...selectedAttachments.value]
   selectedAttachments.value = []
@@ -382,7 +383,7 @@ const handleToggleRecord = () => {
   isRecording.value = !isRecording.value
   uni.showToast({
     icon: 'none',
-    title: isRecording.value ? t('system.ai.recognizing') : t('system.ai.speechStopped'),
+    title: isRecording.value ? t('system.ai.recognizing') : t('system.ai.speech_stopped'),
   })
 }
 
@@ -393,7 +394,7 @@ const handleAttachment = () => {
   if (selectedAttachments.value.length >= MAX_ATTACHMENT_COUNT) {
     uni.showToast({
       icon: 'none',
-      title: t('system.ai.attachmentLimit', { count: MAX_ATTACHMENT_COUNT }),
+      title: t('system.ai.attachment_limit', { count: MAX_ATTACHMENT_COUNT }),
     })
     return
   }
@@ -414,7 +415,7 @@ const handleAttachment = () => {
         path,
         name:
           (tempFiles[index] as { name?: string } | undefined)?.name ||
-          t('system.ai.imageName', { index: index + 1 }),
+          t('system.ai.image_name', { index: index + 1 }),
         size: Number((tempFiles[index] as { size?: number } | undefined)?.size || 0),
       }))
       uploadingAttachment.value = true
@@ -432,7 +433,7 @@ const handleAttachment = () => {
           MAX_ATTACHMENT_COUNT,
         )
       } catch (error) {
-        showError(error, t('system.ai.uploadFailed'))
+        showError(error, t('system.ai.upload_failed'))
       } finally {
         uploadingAttachment.value = false
       }
@@ -469,7 +470,7 @@ async function loadAiShortcuts() {
       starterPromptGroupIndex.value = 0
     }
   } catch (error) {
-    showError(error, t('system.ai.loadShortcutsFailed'))
+    showError(error, t('system.ai.load_shortcuts_failed'))
   } finally {
     loadingShortcuts.value = false
   }
@@ -525,7 +526,7 @@ async function runAiTask(
     await chunkedTask.promise
     parser.flush()
     if (!task.finished && !task.aborted) {
-      throw new Error(t('system.ai.responseIncomplete'))
+      throw new Error(t('system.ai.response_incomplete'))
     }
     // #endif
 
@@ -550,7 +551,7 @@ async function runAiTask(
         signal: controller.signal,
       })
       if (!response.body) {
-        throw new Error(t('system.ai.streamEmpty'))
+        throw new Error(t('system.ai.stream_empty'))
       }
       await readAiEventStream(
         response.body,
@@ -558,7 +559,7 @@ async function runAiTask(
         controller.signal,
       )
       if (!task.finished && !task.aborted) {
-        throw new Error(t('system.ai.responseIncomplete'))
+        throw new Error(t('system.ai.response_incomplete'))
       }
       handledByStream = true
     }
@@ -568,7 +569,7 @@ async function runAiTask(
       const response = await defAiMessageService.SendAiMessage(request)
       const nextMessages = normalizeNonStreamMessages(response)
       if (!nextMessages.length) {
-        throw new Error(t('system.ai.responseEmpty'))
+        throw new Error(t('system.ai.response_empty'))
       }
       const success = hasSuccessfulAiMessages(nextMessages)
       messages.value[sessionID] = replacePendingMessages(
@@ -588,7 +589,7 @@ async function runAiTask(
     }
     messages.value[sessionID] = markThinkingMessageFailed(messages.value[sessionID] ?? [])
     scrollChatToBottom()
-    showError(error, t('system.ai.requestFailed'))
+    showError(error, t('system.ai.request_failed'))
   } finally {
     if (task && runningStreamTaskMap.get(sessionID) === task) {
       runningStreamTaskMap.delete(sessionID)
@@ -739,7 +740,7 @@ function normalizeNonStreamMessages(response: unknown) {
   }
   const errorEvent = [...events].reverse().find((item) => item.event === 'error')
   if (errorEvent) {
-    throw new Error(t('system.ai.requestFailed'))
+    throw new Error(t('system.ai.request_failed'))
   }
   return []
 }
@@ -799,7 +800,7 @@ async function ensureSessionsLoaded() {
       await loadMessages(sessionID)
     }
   } catch (error) {
-    showError(error, t('system.ai.loadSessionsFailed'))
+    showError(error, t('system.ai.load_sessions_failed'))
   } finally {
     loadingSessions.value = false
   }
@@ -823,7 +824,7 @@ async function ensureActiveSession() {
 
 async function createRemoteSession() {
   const response = await defAiSessionService.CreateAiSession({
-    title: t('system.ai.newSession'),
+    title: t('system.ai.new_session'),
     terminal: AI_TERMINAL,
   })
   const session = response.session ? normalizeSession(response.session) : undefined
@@ -853,7 +854,7 @@ async function loadMessages(sessionID: string) {
     if (loadingSessionID.value === sessionID) {
       messages.value[sessionID] = []
     }
-    showError(error, t('system.ai.loadMessagesFailed'))
+    showError(error, t('system.ai.load_messages_failed'))
   } finally {
     if (loadingSessionID.value === sessionID) {
       loadingSessionID.value = ''
@@ -864,7 +865,7 @@ async function loadMessages(sessionID: string) {
 function normalizeSession(session?: Partial<AiSession> | null): AiSession {
   return {
     id: String(session?.id ?? ''),
-    title: String(session?.title ?? t('system.ai.newSession')),
+    title: String(session?.title ?? t('system.ai.new_session')),
     summary: String(session?.summary ?? ''),
     updated_at: session?.updated_at,
     terminal: Number(session?.terminal ?? AI_TERMINAL),
@@ -904,7 +905,7 @@ function normalizeMessageList(list?: AiMessage[] | null) {
 }
 
 function hasSuccessfulAiMessages(list: ChatMessageItem[]) {
-  return list.some((item) => item.status === AiMessageStatus.SUCCESS_AMS)
+  return list.some((item) => item.status === AiMessageStatus.AI_MESSAGE_STATUS_SUCCESS)
 }
 
 function mapMessageItem(message: AiMessage, role: ChatRole): ChatMessageItem {
@@ -923,7 +924,7 @@ function mapMessageItem(message: AiMessage, role: ChatRole): ChatMessageItem {
     step: message.output_content?.step ?? '',
     blocks_json: message.output_content?.blocks_json ?? '',
   }
-  const status = Number(message.status ?? AiMessageStatus.SUCCESS_AMS)
+  const status = Number(message.status ?? AiMessageStatus.AI_MESSAGE_STATUS_SUCCESS)
   return {
     ...message,
     key: `${message.id}:${role}`,
@@ -963,7 +964,7 @@ function createLocalUserMessage(payload: { text: string; attachments: AiAttachme
         seconds: Math.floor(now / 1000),
         nanos: (now % 1000) * 1_000_000,
       },
-      status: AiMessageStatus.GENERATING_AMS,
+      status: AiMessageStatus.AI_MESSAGE_STATUS_GENERATING,
       token: { input: 0, output: 0, cache: 0, total: 0 },
       tools: [],
       first_token_ms: 0,
@@ -972,7 +973,7 @@ function createLocalUserMessage(payload: { text: string; attachments: AiAttachme
     'user',
   )
   message.localOnly = true
-  message.status = AiMessageStatus.GENERATING_AMS
+  message.status = AiMessageStatus.AI_MESSAGE_STATUS_GENERATING
   return message
 }
 
@@ -1001,7 +1002,7 @@ function createThinkingMessage(options?: { sessionID?: string; messageID?: strin
         seconds: Math.floor(now / 1000),
         nanos: (now % 1000) * 1_000_000,
       },
-      status: AiMessageStatus.GENERATING_AMS,
+      status: AiMessageStatus.AI_MESSAGE_STATUS_GENERATING,
       token: { input: 0, output: 0, cache: 0, total: 0 },
       tools: [],
       first_token_ms: 0,
@@ -1052,7 +1053,7 @@ function appendStreamingDelta(current: ChatMessageItem[], payload: AiStreamPaylo
     return {
       ...item,
       content: `${baseContent}${payload.delta}`,
-      status: AiMessageStatus.GENERATING_AMS,
+      status: AiMessageStatus.AI_MESSAGE_STATUS_GENERATING,
     }
   })
 }
@@ -1064,8 +1065,8 @@ function markThinkingMessageFailed(current: ChatMessageItem[]) {
     }
     return {
       ...item,
-      status: AiMessageStatus.FAILED_AMS,
-      content: item.role === 'ai' ? t('system.ai.failedResponse') : item.content,
+      status: AiMessageStatus.AI_MESSAGE_STATUS_FAILED,
+      content: item.role === 'ai' ? t('system.ai.failed_response') : item.content,
     }
   })
 }
@@ -1078,8 +1079,8 @@ function markStreamingError(current: ChatMessageItem[], payload: AiStreamPayload
     }
     return {
       ...item,
-      status: AiMessageStatus.FAILED_AMS,
-      content: t('system.ai.failedResponse'),
+      status: AiMessageStatus.AI_MESSAGE_STATUS_FAILED,
+      content: t('system.ai.failed_response'),
     }
   })
 }
@@ -1168,7 +1169,7 @@ function showError(error: unknown, fallback: string) {
       <button class="nav-back-button" hover-class="none" @tap="navigateBack">
         <uni-icons type="left" size="24" color="#111" />
       </button>
-      <view class="ai-navbar__title">{{ t('system.ai.chatTitle') }}</view>
+      <view class="ai-navbar__title">{{ t('system.ai.chat_title') }}</view>
       <button class="nav-menu-button" hover-class="none" @tap="toggleSessionDrawer">
         <uni-icons type="bars" size="24" color="#111" />
       </button>
@@ -1204,12 +1205,12 @@ function showError(error: unknown, fallback: string) {
             class="bubble"
             :class="[
               item.role === 'ai' ? 'ai-bubble' : 'user-bubble',
-              item.status === AiMessageStatus.GENERATING_AMS ? 'is-streaming' : '',
+              item.status === AiMessageStatus.AI_MESSAGE_STATUS_GENERATING ? 'is-streaming' : '',
             ]"
             @longpress="handleMessageAction(item)"
           >
             <view v-if="item.role === 'ai' && item.model" class="reply-meta">
-              <text class="reply-tag">{{ t('system.ai.modelReply') }}</text>
+              <text class="reply-tag">{{ t('system.ai.model_reply') }}</text>
               <text class="reply-model">{{ item.model }}</text>
             </view>
             <view class="bubble-content">{{ item.content }}</view>
@@ -1222,7 +1223,7 @@ function showError(error: unknown, fallback: string) {
               >
                 <view class="attachment-icon">{{
                   isImageAttachment(attachment)
-                    ? t('system.ai.imageAttachment')
+                    ? t('system.ai.image_attachment')
                     : t('system.ai.attachment')
                 }}</view>
                 <view class="attachment-info">
@@ -1232,13 +1233,15 @@ function showError(error: unknown, fallback: string) {
               </view>
             </view>
             <view v-if="item.tools.length" class="tool-row">{{
-              t('system.ai.toolCalled', { tools: formatTools(item.tools) })
+              t('system.ai.tool_called', { tools: formatTools(item.tools) })
             }}</view>
           </view>
         </view>
         <view id="chat-bottom" class="chat-bottom"></view>
       </view>
-      <view v-if="loadingSessionID" class="loading-session">{{ t('system.ai.loadMessages') }}</view>
+      <view v-if="loadingSessionID" class="loading-session">{{
+        t('system.ai.load_messages')
+      }}</view>
     </scroll-view>
 
     <Composer

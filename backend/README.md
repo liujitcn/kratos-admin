@@ -121,14 +121,14 @@ migration/assets/
 | `make -C core api` | Core 的 `common/v1` Go 协议代码。 |
 | `make openapi` | `internal/cmd/server/assets/openapi.yaml`。 |
 | `make ts` | 管理端 core 与 System 包的 TypeScript RPC。 |
-| `make ts-app` | uni-app core 与 system 包的 TypeScript RPC。 |
+| `make ts-uni-app` | uni-app core 与 system 包的 TypeScript RPC。 |
 | `make ts-taro-app` | Taro React core 与 system 包的 TypeScript RPC。 |
 | `make project-docs` | `internal/docs/assets/docs.json` 和 `internal/docs/docs.go`，收集三层范围内的 `README.md` 和 `docs` Markdown。 |
 | `make gorm-gen` | `internal/data/gen`。默认读取 `configs/data_local.yaml`，可用 `GORM_GEN_CONFIG`、`GORM_GEN_DATABASE`、`GORM_TABLE` 覆盖配置、数据源和表。 |
 | `make wire` | `wire_gen.go`。 |
 | `make gen` | 依次执行以上生成和 Go 格式化。 |
 
-所有前端 RPC 的 Buf 模板都归属 `api` 契约目录。`make ts` 生成管理端 RPC，`make ts-app` 生成 uni-app RPC，`make ts-taro-app` 生成 React/Taro RPC；每条命令分别输出到对应 workspace 的 core 与 system 包。生成产物不得手工修改。Proto 改动后至少重新执行 `make api openapi`，再按实际消费端运行对应 TypeScript 生成命令。
+所有前端 RPC 的 Buf 模板都归属 `api` 契约目录。`make ts` 生成管理端 RPC，`make ts-uni-app` 生成 uni-app RPC，`make ts-taro-app` 生成 React/Taro RPC；每条命令分别输出到对应 workspace 的 core 与 system 包。生成产物不得手工修改。Proto 改动后至少重新执行 `make api openapi`，再按实际消费端运行对应 TypeScript 生成命令。
 
 ## 国际化
 
@@ -143,7 +143,7 @@ make i18n-draft
 I18N_WRITE=1 make i18n-draft
 ```
 
-草稿命令读取 `configs/translator.yaml` 选择翻译 Provider，仅用于显式生成可审核的非主语言草稿，不进入普通业务请求链路；`make i18n-locales` 是可选的批量语言包和动态翻译草稿生成器，支持在线和 `I18N_OFFLINE=1` 离线生成；关闭 Provider 不影响主语言回退和已审核译文。
+草稿命令读取 `configs/translator.yaml` 选择翻译 Provider；管理端 Draft 接口接收单个文本并即时返回译文，不保存数据库，`make i18n-locales` 则是可选的批量语言包和动态翻译数据生成器，支持在线和 `I18N_OFFLINE=1` 离线生成；关闭 Provider 不影响主语言回退和已保存译文。
 
 动态资源的主语言由 `base_language.is_primary` 配置。创建或更新菜单、字典、字典项和系统配置时，后端按请求 `Accept-Language` 将输入文本转换为主语言写入主表；请求语言不是主语言时，原文写入对应翻译表，其他已启用非主语言也只保存在翻译表。
 

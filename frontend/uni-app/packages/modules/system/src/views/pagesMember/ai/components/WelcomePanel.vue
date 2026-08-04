@@ -38,15 +38,15 @@ const { t } = useI18n()
         <view class="ai-avatar__bow"></view>
         <view class="ai-avatar__spark"></view>
       </view>
-      <view class="welcome-bubble is-hello">{{ t('system.ai.greetingHello') }}</view>
+      <view class="welcome-bubble is-hello">{{ t('system.ai.greeting_hello') }}</view>
     </view>
     <view class="welcome-bubble is-intro">{{ greetingMessage }}</view>
 
     <view class="prompt-card">
       <view class="prompt-card__head">
         <view>
-          <view class="prompt-card__eyebrow">{{ t('system.ai.quickActions') }}</view>
-          <view class="prompt-card__title">{{ t('system.ai.shortcutQuestion') }}</view>
+          <view class="prompt-card__eyebrow">{{ t('system.ai.quick_actions') }}</view>
+          <view class="prompt-card__title">{{ t('system.ai.shortcut_question') }}</view>
         </view>
         <button v-if="canRefresh" class="prompt-refresh" hover-class="none" @tap="emit('refresh')">
           <text>{{ t('system.ai.refresh') }}</text>
@@ -55,7 +55,7 @@ const { t } = useI18n()
       </view>
       <view v-if="loading" class="prompt-loading">{{ t('common.message.loading') }}...</view>
       <view v-else-if="!shortcuts.length" class="prompt-loading">{{
-        t('system.ai.noShortcuts')
+        t('system.ai.no_shortcuts')
       }}</view>
       <template v-else>
         <button
@@ -68,7 +68,9 @@ const { t } = useI18n()
           <text class="prompt-index">{{ shortcutIndex + 1 }}</text>
           <view class="prompt-content">
             <text class="prompt-text">{{ shortcut.title }}</text>
-            <text class="prompt-meta">{{ shortcut.group || t('system.ai.generalAssistant') }}</text>
+            <text class="prompt-meta">{{
+              shortcut.group || t('system.ai.general_assistant')
+            }}</text>
           </view>
           <uni-icons type="right" size="20" color="#9aa0aa" />
         </button>

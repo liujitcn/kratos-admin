@@ -58,8 +58,11 @@ func FrontendLocaleKeyPrefix(table *Table) string {
 	if len(parts) > 0 && parts[0] == table.BusinessModule {
 		parts = parts[1:]
 	}
-	parts = append([]string{table.BusinessModule}, parts...)
-	return strings.Join(parts, ".")
+	pathParts := []string{frontendLocalePath(table.BusinessModule)}
+	for _, part := range parts {
+		pathParts = append(pathParts, frontendLocalePath(part))
+	}
+	return strings.Join(pathParts, ".")
 }
 
 // FrontendLocaleMessages 构建单个生成页面在指定语言下拥有的全部固定文案。
@@ -71,9 +74,9 @@ func FrontendLocaleMessages(table *Table, columns []*CodeGenColumn, localeValue 
 		if column == nil {
 			continue
 		}
-		messages[prefix+".field."+stringcase.ToCamelCase(column.Name)] = localizedColumnComment(column, localeValue)
+		messages[prefix+".field."+stringcase.ToSnakeCase(column.Name)] = localizedColumnComment(column, localeValue)
 		if column.FormComponent == "password" {
-			messages[prefix+".field.passwordStrength"] = localizedPasswordStrength(localeValue)
+			messages[prefix+".field.password_strength"] = localizedPasswordStrength(localeValue)
 		}
 		for _, option := range enabledCodeGenColumnOptions(column) {
 			if option.SourceType != OptionSourceStatic {
@@ -85,7 +88,7 @@ func FrontendLocaleMessages(table *Table, columns []*CodeGenColumn, localeValue 
 		}
 	}
 	if LeftTreeConfigFromTable(table).Enabled {
-		messages[prefix+".title.leftTree"] = localizedLeftTreeComment(table, localeValue)
+		messages[prefix+".title.left_tree"] = localizedLeftTreeComment(table, localeValue)
 	}
 	return messages
 }
@@ -211,7 +214,11 @@ func frontendStaticOptionLocaleKey(table *Table, column *CodeGenColumn, value an
 		content = []byte(fmt.Sprint(value))
 	}
 	digest := sha256.Sum256(content)
-	return FrontendLocaleKeyPrefix(table) + ".option." + stringcase.ToCamelCase(column.Name) + ".value" + hex.EncodeToString(digest[:6])
+	return FrontendLocaleKeyPrefix(table) + ".option." + stringcase.ToSnakeCase(column.Name) + ".value" + hex.EncodeToString(digest[:6])
+}
+
+func frontendLocalePath(value string) string {
+	return strings.ReplaceAll(stringcase.ToSnakeCase(value), "_", ".")
 }
 
 func parseCodeGenStaticOptions(option CodeGenColumnOptionConfig) []CodeGenStaticOption {

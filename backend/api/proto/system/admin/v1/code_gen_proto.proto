@@ -27,7 +27,7 @@ service CodeGenProtoService {
 
 // 代码生成Proto接口配置查询条件
 message ListCodeGenProtoRequest {
-  int64 table_id = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID"}, (buf.validate.field).cel = {id: "list_code_gen_proto.table_id.required" message: "代码生成表配置ID不能为空" expression: "this > 0"}]; // 代码生成表配置ID
+  int64 table_id = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID"}, (buf.validate.field).cel = {id: "system.admin.code.gen.proto.list.table_id.required" message: "代码生成表配置ID不能为空" expression: "this > 0"}]; // 代码生成表配置ID
 }
 
 // 代码生成Proto接口配置查询响应
@@ -37,7 +37,7 @@ message ListCodeGenProtoResponse {
 
 // 代码生成Proto接口配置保存条件
 message SaveCodeGenProtoRequest {
-  int64 table_id = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID"}, (buf.validate.field).cel = {id: "save_code_gen_proto.table_id.required" message: "代码生成表配置ID不能为空" expression: "this > 0"}]; // 代码生成表配置ID
+  int64 table_id = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID"}, (buf.validate.field).cel = {id: "system.admin.code.gen.proto.save.table_id.required" message: "代码生成表配置ID不能为空" expression: "this > 0"}]; // 代码生成表配置ID
 
   repeated CodeGenProto code_gen_protos = 2 [(gnostic.openapi.v3.property) = {description: "代码生成Proto接口配置列表"}]; // 代码生成Proto接口配置列表
 }

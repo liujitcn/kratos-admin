@@ -1,12 +1,6 @@
 package _const
 
 const (
-	// TRANSLATION_STATUS_PENDING 表示译文等待生成或复核。
-	TRANSLATION_STATUS_PENDING = "pending"
-	// TRANSLATION_STATUS_MACHINE 表示机器生成且尚未人工确认。
-	TRANSLATION_STATUS_MACHINE = "machine"
-	// TRANSLATION_STATUS_REVIEWED 表示译文已经人工确认。
-	TRANSLATION_STATUS_REVIEWED = "reviewed"
 	// I18N_TRANSLATION_DRAFT_CONFIG_KEY 表示翻译草稿开关配置键。
 	I18N_TRANSLATION_DRAFT_CONFIG_KEY = "i18n.translation_draft.enabled"
 	// I18N_TRANSLATION_DRAFT_ENV_KEY 表示翻译草稿开关环境变量。

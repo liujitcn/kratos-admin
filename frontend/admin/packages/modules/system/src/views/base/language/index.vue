@@ -12,7 +12,7 @@
     <FormDialog
       v-model="dialog.visible"
       ref="formDialogRef"
-      :title="t(dialog.editing ? 'system.language.action.edit' : 'system.language.action.create')"
+      :title="t(dialog.editing ? 'system.base.language.action.edit' : 'system.base.language.action.create')"
       width="620px"
       :model="formData"
       :fields="formFields"
@@ -56,18 +56,18 @@ const formData = reactive<BaseLanguageForm>({
 
 const rules = computed(() => ({
   language_code: [
-    { required: true, message: t("system.language.placeholder.code"), trigger: "blur" },
-    { max: 16, message: t("system.common.validation.maxLength", { field: t("system.language.field.code"), max: 16 }), trigger: "blur" }
+    { required: true, message: t("system.base.language.placeholder.code"), trigger: "blur" },
+    { max: 16, message: t("common.validation.max_length", { field: t("system.base.language.field.code"), max: 16 }), trigger: "blur" }
   ],
   language_name: [
-    { required: true, message: t("system.language.placeholder.name"), trigger: "blur" },
-    { max: 50, message: t("system.common.validation.maxLength", { field: t("system.language.field.name"), max: 50 }), trigger: "blur" }
+    { required: true, message: t("system.base.language.placeholder.name"), trigger: "blur" },
+    { max: 50, message: t("common.validation.max_length", { field: t("system.base.language.field.name"), max: 50 }), trigger: "blur" }
   ],
   native_name: [
-    { required: true, message: t("system.language.placeholder.nativeName"), trigger: "blur" },
-    { max: 50, message: t("system.common.validation.maxLength", { field: t("system.language.field.nativeName"), max: 50 }), trigger: "blur" }
+    { required: true, message: t("system.base.language.placeholder.native_name"), trigger: "blur" },
+    { max: 50, message: t("common.validation.max_length", { field: t("system.base.language.field.native_name"), max: 50 }), trigger: "blur" }
   ],
-  sort: [{ required: true, message: t("system.language.placeholder.sort"), trigger: "change" }]
+  sort: [{ required: true, message: t("system.base.language.placeholder.sort"), trigger: "change" }]
 }));
 
 const statusOptions = computed<ProFormOption[]>(() => [
@@ -76,20 +76,20 @@ const statusOptions = computed<ProFormOption[]>(() => [
 ]);
 
 const formFields = computed<ProFormField[]>(() => [
-  { prop: "language_code", label: t("system.language.field.code"), component: "input", props: { placeholder: t("system.language.placeholder.code"), disabled: dialog.editing } },
-  { prop: "language_name", label: t("system.language.field.name"), component: "input", props: { placeholder: t("system.language.placeholder.name") } },
-  { prop: "native_name", label: t("system.language.field.nativeName"), component: "input", props: { placeholder: t("system.language.placeholder.nativeName") } },
-  { prop: "sort", label: t("system.language.field.sort"), component: "input-number", props: { min: 0, controlsPosition: "right", style: { width: "100%" } } },
-  { prop: "status", label: t("system.language.field.status"), component: "radio-group", options: statusOptions.value }
+  { prop: "language_code", label: t("system.base.language.field.code"), component: "input", props: { placeholder: t("system.base.language.placeholder.code"), disabled: dialog.editing } },
+  { prop: "language_name", label: t("system.base.language.field.name"), component: "input", props: { placeholder: t("system.base.language.placeholder.name") } },
+  { prop: "native_name", label: t("system.base.language.field.native_name"), component: "input", props: { placeholder: t("system.base.language.placeholder.native_name") } },
+  { prop: "sort", label: t("system.base.language.field.sort"), component: "input-number", props: { min: 0, controlsPosition: "right", style: { width: "100%" } } },
+  { prop: "status", label: t("system.base.language.field.status"), component: "radio-group", options: statusOptions.value }
 ]);
 
 const columns = computed<ColumnProps[]>(() => [
-  { prop: "native_name", label: t("system.language.field.nativeName"), minWidth: 130 },
-  { prop: "language_name", label: t("system.language.field.name"), minWidth: 130, search: { el: "input" } },
-  { prop: "language_code", label: t("system.language.field.code"), minWidth: 120, search: { el: "input" } },
+  { prop: "native_name", label: t("system.base.language.field.native_name"), minWidth: 130 },
+  { prop: "language_name", label: t("system.base.language.field.name"), minWidth: 130, search: { el: "input" } },
+  { prop: "language_code", label: t("system.base.language.field.code"), minWidth: 120, search: { el: "input" } },
   {
     prop: "is_primary",
-    label: t("system.language.field.primary"),
+    label: t("system.base.language.field.primary"),
     minWidth: 100,
     cellType: "status",
     statusProps: {
@@ -103,7 +103,7 @@ const columns = computed<ColumnProps[]>(() => [
   },
   {
     prop: "status",
-    label: t("system.language.field.status"),
+    label: t("system.base.language.field.status"),
     minWidth: 100,
     search: { el: "select" },
     cellType: "status",
@@ -116,11 +116,11 @@ const columns = computed<ColumnProps[]>(() => [
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseLanguage)
     }
   },
-  { prop: "sort", label: t("system.language.field.sort"), width: 80 },
-  { prop: "created_at", label: t("system.common.field.createdAt"), minWidth: 180 },
+  { prop: "sort", label: t("system.base.language.field.sort"), width: 80 },
+  { prop: "created_at", label: t("common.field.created_at"), minWidth: 180 },
   {
     prop: "operation",
-    label: t("system.common.field.operation"),
+    label: t("common.field.operation"),
     width: 150,
     fixed: "right",
     cellType: "actions",
@@ -174,7 +174,7 @@ function handleSubmit() {
       : defBaseLanguageService.CreateBaseLanguage({ base_language: payload });
     request.then(() => {
       invalidateEnabledBaseLanguages();
-      ElMessage.success(t(payload.id ? "system.common.message.updateSuccess" : "system.common.message.createSuccess", { resource: t("system.language.resource") }));
+      ElMessage.success(t(payload.id ? "common.message.update_success" : "common.message.create_success", { resource: t("system.base.language.resource") }));
       handleCloseDialog();
       proTable.value?.getTableList();
     });
@@ -184,11 +184,11 @@ function handleSubmit() {
 /** 设置语言状态前保护主语言。 */
 function handleBeforeSetStatus(row: BaseLanguage) {
   if (row.is_primary && row.status === Status.ENABLE) {
-    ElMessage.warning(t("system.language.message.primaryCannotDisable"));
+    ElMessage.warning(t("system.base.language.message.primary_cannot_disable"));
     return Promise.resolve(false);
   }
   return ElMessageBox.confirm(
-    t("system.language.message.confirmStatus", { action: row.status === Status.ENABLE ? t("common.status.disabled") : t("common.status.enabled"), name: row.native_name }),
+    t("system.base.language.message.confirm_status", { action: row.status === Status.ENABLE ? t("common.status.disabled") : t("common.status.enabled"), name: row.native_name }),
     t("common.title.warning"),
     { type: "warning", confirmButtonText: t("common.action.confirm"), cancelButtonText: t("common.action.cancel") }
   ).then(
@@ -207,7 +207,7 @@ function handleBeforeSetStatus(row: BaseLanguage) {
 function handleBeforeSetPrimary(row: BaseLanguage) {
   if (row.is_primary) return Promise.resolve(false);
   return ElMessageBox.confirm(
-    t("system.language.message.confirmPrimary", { name: row.native_name }),
+    t("system.base.language.message.confirm_primary", { name: row.native_name }),
     t("common.title.warning"),
     { type: "warning", confirmButtonText: t("common.action.confirm"), cancelButtonText: t("common.action.cancel") }
   ).then(
@@ -227,21 +227,21 @@ function handleBeforeSetPrimary(row: BaseLanguage) {
 function handleDelete(selected?: BaseLanguage | BaseLanguage[] | number | string | Array<number | string>) {
   const rows = Array.isArray(selected) ? (selected.filter(item => typeof item === "object") as BaseLanguage[]) : selected && typeof selected === "object" ? [selected] : [];
   if (rows.some(item => item.is_primary)) {
-    ElMessage.warning(t("system.language.message.primaryCannotDelete"));
+    ElMessage.warning(t("system.base.language.message.primary_cannot_delete"));
     return;
   }
   const ids = (rows.length ? rows.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>)).join(",");
   if (!ids) {
-    ElMessage.warning(t("system.common.message.selectDeleteItem"));
+    ElMessage.warning(t("common.message.select_delete_item"));
     return;
   }
-  ElMessageBox.confirm(t("system.language.message.confirmDelete", { name: rows.length === 1 ? rows[0].native_name : ids }), t("common.title.warning"), {
+  ElMessageBox.confirm(t("system.base.language.message.confirm_delete", { name: rows.length === 1 ? rows[0].native_name : ids }), t("common.title.warning"), {
     type: "warning",
     confirmButtonText: t("common.action.confirm"),
     cancelButtonText: t("common.action.cancel")
   }).then(() => defBaseLanguageService.DeleteBaseLanguage({ id: ids })).then(() => {
     invalidateEnabledBaseLanguages();
-    ElMessage.success(t("system.common.message.deleteSuccess", { resource: t("system.language.resource") }));
+    ElMessage.success(t("common.message.delete_success", { resource: t("system.base.language.resource") }));
     proTable.value?.getTableList();
   });
 }

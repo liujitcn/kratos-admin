@@ -3,12 +3,12 @@
     <template v-if="isEmptyState">
       <div class="agent-chat-empty">
         <div class="agent-chat-empty__title">{{ welcomeTitle }}</div>
-        <div class="agent-chat-empty__desc">{{ t("system.ai.chat.welcomeDescription") }}</div>
+        <div class="agent-chat-empty__desc">{{ t("system.ai.chat.welcome_description") }}</div>
         <section v-if="hasShortcutPanel" class="agent-shortcuts">
           <div class="agent-shortcuts__head">
             <div>
               <div class="agent-shortcuts__eyebrow">{{ t("system.ai.chat.shortcut.eyebrow") }}</div>
-              <div class="agent-shortcuts__title">{{ t("system.ai.chat.shortcut.startTitle") }}</div>
+              <div class="agent-shortcuts__title">{{ t("system.ai.chat.shortcut.start_title") }}</div>
             </div>
             <div class="agent-shortcuts__actions">
               <span class="agent-shortcuts__count">{{ shortcutBatchLabel }}</span>
@@ -19,13 +19,13 @@
                 :disabled="sending"
                 @click="refreshShortcutBatch"
               >
-                <span>{{ t("system.ai.chat.action.refreshShortcuts") }}</span>
+                <span>{{ t("system.ai.chat.action.refresh_shortcuts") }}</span>
                 <el-icon><Refresh /></el-icon>
               </button>
             </div>
           </div>
           <div v-if="loadingShortcuts" class="agent-shortcuts__loading">
-            {{ t("system.ai.chat.message.loadingShortcuts") }}
+            {{ t("system.ai.chat.message.loading_shortcuts") }}
           </div>
           <div v-else class="agent-shortcuts__grid">
             <button
@@ -106,7 +106,7 @@
                       <button
                         class="agent-message-tool-copy"
                         type="button"
-                        :aria-label="t('system.ai.chat.action.copyRequest')"
+                        :aria-label="t('system.ai.chat.action.copy_request')"
                         @click.stop="handleCopyToolRequest(tool)"
                       >
                         <el-icon><CopyDocument /></el-icon>
@@ -134,10 +134,10 @@
                 }"
               >
                 <div v-if="isAIFailedMessage(item)" class="agent-message-error">
-                  <div class="agent-message-error__title">{{ t("system.ai.chat.message.serverError") }}</div>
+                  <div class="agent-message-error__title">{{ t("system.ai.chat.message.server_error") }}</div>
                   <div class="agent-message-error__content">{{ resolveAIErrorMessage(item) }}</div>
                   <el-collapse v-if="item.fallback_reason" class="agent-message-error__detail" accordion>
-                    <el-collapse-item :title="t('system.ai.chat.title.errorDetail')" :name="String(item.id)">
+                    <el-collapse-item :title="t('system.ai.chat.title.error_detail')" :name="String(item.id)">
                       <pre>{{ item.fallback_reason }}</pre>
                     </el-collapse-item>
                   </el-collapse>
@@ -146,7 +146,7 @@
                   <AiMarkdown :content="item.content" :streaming="item.progressState === 'streaming'" />
                   <slot name="flow-blocks" :message="item" :active-flow-message-id="activeFlowMessageID" />
                   <el-collapse v-if="item.fallback_reason" class="agent-message-error__detail" accordion>
-                    <el-collapse-item :title="t('system.ai.chat.title.errorDetail')" :name="String(item.id)">
+                    <el-collapse-item :title="t('system.ai.chat.title.error_detail')" :name="String(item.id)">
                       <pre>{{ item.fallback_reason }}</pre>
                     </el-collapse-item>
                   </el-collapse>
@@ -209,7 +209,7 @@
                     <button
                       class="agent-message-action agent-message-runtime-trigger"
                       type="button"
-                      :aria-label="t('system.ai.chat.action.viewRuntime')"
+                      :aria-label="t('system.ai.chat.action.view_runtime')"
                       :disabled="item.progressState === 'streaming'"
                     >
                       <el-icon><DataAnalysis /></el-icon>
@@ -222,30 +222,30 @@
                     <div v-if="resolveTokenTotal(item) > 0" class="agent-runtime-detail__section">
                       <div class="agent-runtime-detail__section-title">Token</div>
                       <div class="agent-runtime-detail__row">
-                        <span>{{ t("system.ai.chat.field.inputTokens") }}</span>
+                        <span>{{ t("system.ai.chat.field.input_tokens") }}</span>
                         <strong>{{ formatNumber(item.token?.input) }}</strong>
                       </div>
                       <div class="agent-runtime-detail__row">
-                        <span>{{ t("system.ai.chat.field.outputTokens") }}</span>
+                        <span>{{ t("system.ai.chat.field.output_tokens") }}</span>
                         <strong>{{ formatNumber(item.token?.output) }}</strong>
                       </div>
                       <div v-if="(item.token?.cache ?? 0) > 0" class="agent-runtime-detail__row">
-                        <span>{{ t("system.ai.chat.field.cacheTokens") }}</span>
+                        <span>{{ t("system.ai.chat.field.cache_tokens") }}</span>
                         <strong>{{ formatNumber(item.token?.cache) }}</strong>
                       </div>
                       <div class="agent-runtime-detail__row is-total">
-                        <span>{{ t("system.ai.chat.field.totalTokens") }}</span>
+                        <span>{{ t("system.ai.chat.field.total_tokens") }}</span>
                         <strong>{{ formatNumber(item.token?.total) }}</strong>
                       </div>
                     </div>
                     <div v-if="item.first_token_ms > 0 || item.duration_ms > 0" class="agent-runtime-detail__section">
                       <div class="agent-runtime-detail__section-title">{{ t("system.ai.chat.field.duration") }}</div>
                       <div v-if="item.first_token_ms > 0" class="agent-runtime-detail__row">
-                        <span>{{ t("system.ai.chat.field.firstToken") }}</span>
+                        <span>{{ t("system.ai.chat.field.first_token") }}</span>
                         <strong>{{ formatDurationMs(item.first_token_ms) }}</strong>
                       </div>
                       <div v-if="item.duration_ms > 0" class="agent-runtime-detail__row is-total">
-                        <span>{{ t("system.ai.chat.field.totalDuration") }}</span>
+                        <span>{{ t("system.ai.chat.field.total_duration") }}</span>
                         <strong>{{ formatDurationMs(item.duration_ms) }}</strong>
                       </div>
                     </div>
@@ -282,7 +282,7 @@
           <div class="agent-shortcuts__head">
             <div>
               <div class="agent-shortcuts__eyebrow">{{ t("system.ai.chat.shortcut.eyebrow") }}</div>
-              <div class="agent-shortcuts__title">{{ t("system.ai.chat.shortcut.continueTitle") }}</div>
+              <div class="agent-shortcuts__title">{{ t("system.ai.chat.shortcut.continue_title") }}</div>
             </div>
             <div class="agent-shortcuts__actions">
               <span class="agent-shortcuts__count">{{ shortcutBatchLabel }}</span>
@@ -293,13 +293,13 @@
                 :disabled="sending"
                 @click="refreshShortcutBatch"
               >
-                <span>{{ t("system.ai.chat.action.refreshShortcuts") }}</span>
+                <span>{{ t("system.ai.chat.action.refresh_shortcuts") }}</span>
                 <el-icon><Refresh /></el-icon>
               </button>
             </div>
           </div>
           <div v-if="loadingShortcuts" class="agent-shortcuts__loading">
-            {{ t("system.ai.chat.message.loadingShortcuts") }}
+            {{ t("system.ai.chat.message.loading_shortcuts") }}
           </div>
           <div v-else class="agent-shortcuts__grid">
             <button
@@ -337,7 +337,7 @@ import { getCurrentLocale, t } from "@liujitcn/kratos-admin-core";
 import type { AiAction } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_message";
 import { type AiAttachment, type AiSession } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import type { AiShortcut, AiToolCall } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
-import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/base/v1/enum";
+import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import XSender from "./XSender.vue";
 
 // AI Markdown 渲染器依赖较重，仅在真正出现助手消息时再加载。
@@ -543,7 +543,7 @@ const canRefreshShortcutBatch = computed(() => shortcutAllList.value.length > SH
 const shortcutBatchLabel = computed(() => {
   const total = shortcutAllList.value.length;
   if (props.loadingShortcuts && total === 0) return t("system.ai.chat.status.loading");
-  if (total <= SHORTCUT_BATCH_SIZE) return t("system.ai.chat.value.itemCount", { count: total });
+  if (total <= SHORTCUT_BATCH_SIZE) return t("system.ai.chat.value.item_count", { count: total });
   const pageIndex = shortcutBatchIndex.value % shortcutBatchCount.value;
   const start = pageIndex * SHORTCUT_BATCH_SIZE + 1;
   const end = Math.min(start + SHORTCUT_BATCH_SIZE - 1, total);
@@ -638,9 +638,9 @@ function resolveShortcutIcon(shortcut: AiShortcut) {
 
 /** 展示快捷入口的分组和工具依赖摘要，帮助运营判断动作上下文。 */
 function resolveShortcutMeta(shortcut: AiShortcut) {
-  const group = shortcut.group || t("system.ai.chat.value.generalAssistant");
+  const group = shortcut.group || t("system.ai.chat.value.general_assistant");
   const toolCount = shortcut.required_tools?.length ?? 0;
-  return toolCount > 0 ? t("system.ai.chat.value.shortcutTools", { group, count: toolCount }) : group;
+  return toolCount > 0 ? t("system.ai.chat.value.shortcut_tools", { group, count: toolCount }) : group;
 }
 
 /** 生成快捷入口对应的流程动作。 */
@@ -674,7 +674,7 @@ function parseActionPayload(payload?: string) {
 
 /** 根据消息角色返回可用操作。 */
 function resolveMessageActions(item: ChatMessageItem) {
-  if (item.progressState === "streaming" || item.status === AiMessageStatus.GENERATING_AMS) return [];
+  if (item.progressState === "streaming" || item.status === AiMessageStatus.AI_MESSAGE_STATUS_GENERATING) return [];
 
   const copyAction: MessageActionOption = {
     key: "copy" as const,
@@ -685,7 +685,7 @@ function resolveMessageActions(item: ChatMessageItem) {
   const editAction: MessageActionOption = { key: "edit" as const, label: t("common.action.edit"), icon: EditPen };
   if (item.role === "user") {
     const actions = isLastEditableUserMessage(item) ? [editAction, copyAction, deleteAction] : [copyAction, deleteAction];
-    if (item.status === AiMessageStatus.FAILED_AMS) {
+    if (item.status === AiMessageStatus.AI_MESSAGE_STATUS_FAILED) {
       return item.localOnly
         ? [{ key: "retry" as const, label: t("system.ai.chat.action.resend"), icon: Refresh }, copyAction, deleteAction]
         : [{ key: "retry" as const, label: t("system.ai.chat.action.resend"), icon: Refresh }, ...actions];
@@ -694,11 +694,11 @@ function resolveMessageActions(item: ChatMessageItem) {
   }
 
   const actions: MessageActionOption[] = [{ key: "retry" as const, label: t("system.ai.chat.action.regenerate"), icon: Refresh }];
-  if (item.status === AiMessageStatus.SUCCESS_AMS) {
-    actions.push({ key: "branch" as const, label: t("system.ai.chat.action.createBranch"), icon: BranchActionIcon });
+  if (item.status === AiMessageStatus.AI_MESSAGE_STATUS_SUCCESS) {
+    actions.push({ key: "branch" as const, label: t("system.ai.chat.action.create_branch"), icon: BranchActionIcon });
     actions.push({
       key: "speak" as const,
-      label: item.speaking ? t("system.ai.chat.action.stopSpeaking") : t("system.ai.chat.action.speak"),
+      label: item.speaking ? t("system.ai.chat.action.stop_speaking") : t("system.ai.chat.action.speak"),
       icon: SpeakActionIcon
     });
   }
@@ -707,13 +707,13 @@ function resolveMessageActions(item: ChatMessageItem) {
 
 /** 判断是否为需要渲染错误卡片的助手失败消息。 */
 function isAIFailedMessage(item: ChatMessageItem) {
-  return item.role !== "user" && item.status === AiMessageStatus.FAILED_AMS;
+  return item.role !== "user" && item.status === AiMessageStatus.AI_MESSAGE_STATUS_FAILED;
 }
 
 /** 返回助手错误摘要，优先展示服务端可读错误。 */
 function resolveAIErrorMessage(item: ChatMessageItem) {
   const content = String(item.content ?? "").trim();
-  return content || t("system.ai.chat.message.replyFailed");
+  return content || t("system.ai.chat.message.reply_failed");
 }
 
 /** 判断助手消息是否存在最终用量信息。 */
@@ -893,9 +893,9 @@ function formatToolArgumentValue(value: unknown) {
 async function handleCopyToolRequest(tool: AiToolCall) {
   try {
     await navigator.clipboard.writeText(formatToolRequest(tool));
-    ElMessage.success(t("system.ai.chat.message.requestCopied"));
+    ElMessage.success(t("system.ai.chat.message.request_copied"));
   } catch {
-    ElMessage.error(t("system.ai.chat.message.copyUnsupported"));
+    ElMessage.error(t("system.ai.chat.message.copy_unsupported"));
   }
 }
 
@@ -941,11 +941,11 @@ function submitMessageEdit(item: ChatMessageItem) {
   if (props.sending) return;
   const content = editingContent.value;
   if (content === "") {
-    ElMessage.warning(t("system.ai.chat.message.contentRequired"));
+    ElMessage.warning(t("system.ai.chat.message.content_required"));
     return;
   }
   if (content === String(item.content ?? "")) {
-    ElMessage.info(t("system.ai.chat.message.contentUnchanged"));
+    ElMessage.info(t("system.ai.chat.message.content_unchanged"));
     return;
   }
   emit("messageEdit", { item, content });
@@ -959,9 +959,9 @@ function shouldConfirmMessageAction(action: ChatMessageAction) {
 
 /** 返回消息操作确认文案，避免误删或误覆盖当前气泡。 */
 function resolveActionConfirmTitle(action: ChatMessageAction, item: ChatMessageItem) {
-  if (action === "delete") return t("system.ai.chat.dialog.confirmDeleteMessage");
-  if (item.role === "user") return t("system.ai.chat.dialog.confirmResendMessage");
-  return t("system.ai.chat.dialog.confirmRegenerateMessage");
+  if (action === "delete") return t("system.ai.chat.dialog.confirm_delete_message");
+  if (item.role === "user") return t("system.ai.chat.dialog.confirm_resend_message");
+  return t("system.ai.chat.dialog.confirm_regenerate_message");
 }
 
 /** 统一回复来源标签配色。 */

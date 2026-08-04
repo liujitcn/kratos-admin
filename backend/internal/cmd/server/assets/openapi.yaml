@@ -132,11 +132,11 @@ paths:
                   in: query
                   schema:
                     type: string
-                - name: version
+                - name: module
                   in: query
                   schema:
                     type: string
-                - name: module
+                - name: version
                   in: query
                   schema:
                     type: string
@@ -515,10 +515,10 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - UNKNOWN_BCS
-                        - SYSTEM
-                        - ADMIN
-                        - APP
+                        - BASE_CONFIG_SITE_UNSPECIFIED
+                        - BASE_CONFIG_SITE_SYSTEM
+                        - BASE_CONFIG_SITE_ADMIN
+                        - BASE_CONFIG_SITE_APP
                     type: string
                     format: enum
                 - name: name
@@ -529,12 +529,12 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - UNKNOWN_BCT
-                        - TEXT
-                        - IMAGE
-                        - RICH_TEXT
-                        - DICT
-                        - BOOLEAN
+                        - BASE_CONFIG_TYPE_UNSPECIFIED
+                        - BASE_CONFIG_TYPE_TEXT
+                        - BASE_CONFIG_TYPE_IMAGE
+                        - BASE_CONFIG_TYPE_RICH_TEXT
+                        - BASE_CONFIG_TYPE_DICT
+                        - BASE_CONFIG_TYPE_BOOLEAN
                     type: string
                     format: enum
                 - name: key
@@ -1166,9 +1166,9 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - UNKNOWN_BJLS
-                        - SUCCESS
-                        - FAIL
+                        - BASE_JOB_LOG_STATUS_UNSPECIFIED
+                        - BASE_JOB_LOG_STATUS_SUCCESS
+                        - BASE_JOB_LOG_STATUS_FAIL
                     type: string
                     format: enum
                 - name: execute_time
@@ -2198,17 +2198,33 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/v1/admin/base/translation/draft:
-        post:
+    /api/v1/admin/base/translation:
+        put:
             tags:
                 - BaseTranslationService
-            description: 为单个已保存资源生成机器翻译草稿
-            operationId: BaseTranslationService_GenerateTranslationDraft
+            description: 修改国际化翻译信息
+            operationId: BaseTranslationService_UpdateBaseTranslation
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/system.admin.v1.GenerateTranslationDraftRequest'
+                            $ref: '#/components/schemas/system.admin.v1.UpdateBaseTranslationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/translation/draft:
+        post:
+            tags:
+                - BaseTranslationService
+            description: 翻译单个文本。
+            operationId: BaseTranslationService_DraftBaseTranslation
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.DraftBaseTranslationRequest'
                 required: true
             responses:
                 "200":
@@ -2216,7 +2232,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/system.admin.v1.GenerateTranslationDraftResponse'
+                                $ref: '#/components/schemas/system.admin.v1.DraftBaseTranslationResponse'
     /api/v1/admin/base/user:
         get:
             tags:
@@ -2252,10 +2268,10 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - UNKNOWN_BUG
-                        - SECRET
-                        - BOY
-                        - GIRL
+                        - BASE_USER_GENDER_UNSPECIFIED
+                        - BASE_USER_GENDER_SECRET
+                        - BASE_USER_GENDER_MALE
+                        - BASE_USER_GENDER_FEMALE
                     type: string
                     format: enum
                 - name: status
@@ -2510,10 +2526,10 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - UNKNOWN_CGTS
-                        - DRAFT_CGTS
-                        - GENERATED_CGTS
-                        - DISABLED_CGTS
+                        - CODE_GEN_TABLE_STATUS_UNSPECIFIED
+                        - CODE_GEN_TABLE_STATUS_DRAFT
+                        - CODE_GEN_TABLE_STATUS_GENERATED
+                        - CODE_GEN_TABLE_STATUS_DISABLED
                     type: string
                     format: enum
                 - name: page_num
@@ -2880,7 +2896,7 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - UNKNOWN_TERMINAL
+                        - TERMINAL_UNSPECIFIED
                         - TERMINAL_APP
                         - TERMINAL_ADMIN
                     type: string
@@ -3145,7 +3161,7 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - UNKNOWN_TERMINAL
+                        - TERMINAL_UNSPECIFIED
                         - TERMINAL_APP
                         - TERMINAL_ADMIN
                     type: string
@@ -3205,10 +3221,10 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - UNKNOWN_BCS
-                        - SYSTEM
-                        - ADMIN
-                        - APP
+                        - BASE_CONFIG_SITE_UNSPECIFIED
+                        - BASE_CONFIG_SITE_SYSTEM
+                        - BASE_CONFIG_SITE_ADMIN
+                        - BASE_CONFIG_SITE_APP
                     type: string
                     format: enum
             responses:
@@ -3509,11 +3525,11 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - UNKNOWN_PCS
-                        - LOGIN
-                        - CREATE_BASE_USER
-                        - RESET_BASE_USER_PASSWORD
-                        - UPDATE_USER_PASSWORD
+                        - PASSWORD_CRYPTO_SCENE_UNSPECIFIED
+                        - PASSWORD_CRYPTO_SCENE_LOGIN
+                        - PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER
+                        - PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD
+                        - PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD
                     type: string
                     format: enum
             responses:
@@ -3719,10 +3735,10 @@ components:
                     format: date-time
                 status:
                     enum:
-                        - UNKNOWN_AMS
-                        - GENERATING_AMS
-                        - SUCCESS_AMS
-                        - FAILED_AMS
+                        - AI_MESSAGE_STATUS_UNSPECIFIED
+                        - AI_MESSAGE_STATUS_GENERATING
+                        - AI_MESSAGE_STATUS_SUCCESS
+                        - AI_MESSAGE_STATUS_FAILED
                     type: string
                     description: 消息生成状态：枚举【AiMessageStatus】
                     format: enum
@@ -3791,7 +3807,7 @@ components:
                     format: date-time
                 terminal:
                     enum:
-                        - UNKNOWN_TERMINAL
+                        - TERMINAL_UNSPECIFIED
                         - TERMINAL_APP
                         - TERMINAL_ADMIN
                     type: string
@@ -3947,7 +3963,7 @@ components:
                     description: 分支会话标题
                 terminal:
                     enum:
-                        - UNKNOWN_TERMINAL
+                        - TERMINAL_UNSPECIFIED
                         - TERMINAL_APP
                         - TERMINAL_ADMIN
                     type: string
@@ -3973,7 +3989,7 @@ components:
                     description: 会话标题
                 terminal:
                     enum:
-                        - UNKNOWN_TERMINAL
+                        - TERMINAL_UNSPECIFIED
                         - TERMINAL_APP
                         - TERMINAL_ADMIN
                     type: string
@@ -4692,10 +4708,10 @@ components:
                     description: 配置ID
                 site:
                     enum:
-                        - UNKNOWN_BCS
-                        - SYSTEM
-                        - ADMIN
-                        - APP
+                        - BASE_CONFIG_SITE_UNSPECIFIED
+                        - BASE_CONFIG_SITE_SYSTEM
+                        - BASE_CONFIG_SITE_ADMIN
+                        - BASE_CONFIG_SITE_APP
                     type: string
                     description: 位置：枚举【BaseConfigSite】
                     format: enum
@@ -4704,12 +4720,12 @@ components:
                     description: 配置名称
                 type:
                     enum:
-                        - UNKNOWN_BCT
-                        - TEXT
-                        - IMAGE
-                        - RICH_TEXT
-                        - DICT
-                        - BOOLEAN
+                        - BASE_CONFIG_TYPE_UNSPECIFIED
+                        - BASE_CONFIG_TYPE_TEXT
+                        - BASE_CONFIG_TYPE_IMAGE
+                        - BASE_CONFIG_TYPE_RICH_TEXT
+                        - BASE_CONFIG_TYPE_DICT
+                        - BASE_CONFIG_TYPE_BOOLEAN
                     type: string
                     description: 配置类型：枚举【BaseConfigType】
                     format: enum
@@ -4719,11 +4735,6 @@ components:
                 value:
                     type: string
                     description: 配置value
-                translations:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.BaseConfigTranslation'
-                    description: 配置名称及文本/富文本值的多语言翻译
                 status:
                     enum:
                         - UNKNOWN
@@ -4738,6 +4749,11 @@ components:
                 updated_at:
                     type: string
                     description: 更新时间
+                translations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseTranslation'
+                    description: 配置名称及文本/富文本配置值的多语言翻译
             description: 系统配置
         system.admin.v1.BaseConfigForm:
             type: object
@@ -4747,10 +4763,10 @@ components:
                     description: 配置ID
                 site:
                     enum:
-                        - UNKNOWN_BCS
-                        - SYSTEM
-                        - ADMIN
-                        - APP
+                        - BASE_CONFIG_SITE_UNSPECIFIED
+                        - BASE_CONFIG_SITE_SYSTEM
+                        - BASE_CONFIG_SITE_ADMIN
+                        - BASE_CONFIG_SITE_APP
                     type: string
                     description: 位置：枚举【BaseConfigSite】
                     format: enum
@@ -4759,12 +4775,12 @@ components:
                     description: 配置名称
                 type:
                     enum:
-                        - UNKNOWN_BCT
-                        - TEXT
-                        - IMAGE
-                        - RICH_TEXT
-                        - DICT
-                        - BOOLEAN
+                        - BASE_CONFIG_TYPE_UNSPECIFIED
+                        - BASE_CONFIG_TYPE_TEXT
+                        - BASE_CONFIG_TYPE_IMAGE
+                        - BASE_CONFIG_TYPE_RICH_TEXT
+                        - BASE_CONFIG_TYPE_DICT
+                        - BASE_CONFIG_TYPE_BOOLEAN
                     type: string
                     description: 配置类型：1、文本，2、图片，3、富文本，4、字典，5、布尔
                     format: enum
@@ -4777,8 +4793,8 @@ components:
                 translations:
                     type: array
                     items:
-                        $ref: '#/components/schemas/system.admin.v1.BaseConfigTranslation'
-                    description: 配置名称及文本/富文本值的多语言翻译
+                        $ref: '#/components/schemas/system.admin.v1.BaseTranslation'
+                    description: 配置名称及文本/富文本配置值的多语言翻译
                 status:
                     enum:
                         - UNKNOWN
@@ -4788,72 +4804,6 @@ components:
                     description: 状态
                     format: enum
             description: 系统配置表单
-        system.admin.v1.BaseConfigTranslation:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: 翻译记录ID
-                config_id:
-                    type: string
-                    description: 系统配置ID
-                locale:
-                    type: string
-                    description: 语言区域
-                field:
-                    enum:
-                        - BASE_CONFIG_TRANSLATION_FIELD_UNSPECIFIED
-                        - BASE_CONFIG_TRANSLATION_FIELD_NAME
-                        - BASE_CONFIG_TRANSLATION_FIELD_VALUE
-                    type: string
-                    description: 翻译字段：name或value
-                    format: enum
-                text:
-                    type: string
-                    description: 翻译文本
-                translation_status:
-                    enum:
-                        - TRANSLATION_STATUS_UNSPECIFIED
-                        - TRANSLATION_STATUS_PENDING
-                        - TRANSLATION_STATUS_MACHINE
-                        - TRANSLATION_STATUS_REVIEWED
-                    type: string
-                    description: 翻译审核状态
-                    format: enum
-                source_hash:
-                    type: string
-                    description: 中文源文SHA-256
-                source_changed:
-                    type: boolean
-                    description: 中文源文是否已变化
-                translation_provider:
-                    type: string
-                    description: 机器翻译提供方
-                translated_at:
-                    type: string
-                    description: 最近机器翻译时间
-                reviewed_by:
-                    type: string
-                    description: 审核人ID
-                reviewed_at:
-                    type: string
-                    description: 审核时间
-                created_by:
-                    type: string
-                    description: 创建人ID
-                updated_by:
-                    type: string
-                    description: 更新人ID
-                created_at:
-                    type: string
-                    description: 创建时间
-                updated_at:
-                    type: string
-                    description: 更新时间
-                deleted_at:
-                    type: string
-                    description: 删除时间
-            description: 系统配置单语言翻译
         system.admin.v1.BaseDept:
             type: object
             properties:
@@ -4942,11 +4892,6 @@ components:
                 name:
                     type: string
                     description: 字典名称
-                translations:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.BaseDictTranslation'
-                    description: 非主语言翻译
                 status:
                     enum:
                         - UNKNOWN
@@ -4961,6 +4906,11 @@ components:
                 updated_at:
                     type: string
                     description: 更新时间
+                translations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseTranslation'
+                    description: 非主语言翻译
             description: 字典
         system.admin.v1.BaseDictForm:
             type: object
@@ -4977,7 +4927,7 @@ components:
                 translations:
                     type: array
                     items:
-                        $ref: '#/components/schemas/system.admin.v1.BaseDictTranslation'
+                        $ref: '#/components/schemas/system.admin.v1.BaseTranslation'
                     description: 非主语言翻译
                 status:
                     enum:
@@ -5010,11 +4960,6 @@ components:
                     type: integer
                     description: 排序
                     format: int32
-                translations:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.BaseDictItemTranslation'
-                    description: 非主语言翻译
                 status:
                     enum:
                         - UNKNOWN
@@ -5029,6 +4974,11 @@ components:
                 updated_at:
                     type: string
                     description: 更新时间
+                translations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseTranslation'
+                    description: 非主语言翻译
             description: 字典项
         system.admin.v1.BaseDictItemForm:
             type: object
@@ -5055,7 +5005,7 @@ components:
                 translations:
                     type: array
                     items:
-                        $ref: '#/components/schemas/system.admin.v1.BaseDictItemTranslation'
+                        $ref: '#/components/schemas/system.admin.v1.BaseTranslation'
                     description: 非主语言翻译
                 status:
                     enum:
@@ -5066,122 +5016,6 @@ components:
                     description: 状态
                     format: enum
             description: 字典属性表单
-        system.admin.v1.BaseDictItemTranslation:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: 主键ID
-                dict_item_id:
-                    type: string
-                    description: 字典项ID
-                locale:
-                    type: string
-                    description: 语言代码
-                label:
-                    type: string
-                    description: 字典项标签
-                translation_status:
-                    enum:
-                        - TRANSLATION_STATUS_UNSPECIFIED
-                        - TRANSLATION_STATUS_PENDING
-                        - TRANSLATION_STATUS_MACHINE
-                        - TRANSLATION_STATUS_REVIEWED
-                    type: string
-                    description: 翻译状态
-                    format: enum
-                source_hash:
-                    type: string
-                    description: 中文源文SHA-256
-                translation_provider:
-                    type: string
-                    description: 机器翻译提供方
-                translated_at:
-                    type: string
-                    description: 最近机器翻译时间
-                reviewed_by:
-                    type: string
-                    description: 审核人ID
-                reviewed_at:
-                    type: string
-                    description: 审核时间
-                created_by:
-                    type: string
-                    description: 创建人ID
-                updated_by:
-                    type: string
-                    description: 更新人ID
-                created_at:
-                    type: string
-                    description: 创建时间
-                updated_at:
-                    type: string
-                    description: 更新时间
-                deleted_at:
-                    type: string
-                    description: 删除时间
-                source_changed:
-                    type: boolean
-                    description: 中文源文是否已变化
-            description: 字典项翻译
-        system.admin.v1.BaseDictTranslation:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: 主键ID
-                dict_id:
-                    type: string
-                    description: 字典ID
-                locale:
-                    type: string
-                    description: 语言代码
-                name:
-                    type: string
-                    description: 字典名称
-                translation_status:
-                    enum:
-                        - TRANSLATION_STATUS_UNSPECIFIED
-                        - TRANSLATION_STATUS_PENDING
-                        - TRANSLATION_STATUS_MACHINE
-                        - TRANSLATION_STATUS_REVIEWED
-                    type: string
-                    description: 翻译状态
-                    format: enum
-                source_hash:
-                    type: string
-                    description: 中文源文SHA-256
-                translation_provider:
-                    type: string
-                    description: 机器翻译提供方
-                translated_at:
-                    type: string
-                    description: 最近机器翻译时间
-                reviewed_by:
-                    type: string
-                    description: 审核人ID
-                reviewed_at:
-                    type: string
-                    description: 审核时间
-                created_by:
-                    type: string
-                    description: 创建人ID
-                updated_by:
-                    type: string
-                    description: 更新人ID
-                created_at:
-                    type: string
-                    description: 创建时间
-                updated_at:
-                    type: string
-                    description: 更新时间
-                deleted_at:
-                    type: string
-                    description: 删除时间
-                source_changed:
-                    type: boolean
-                    description: 中文源文是否已变化
-            description: 字典翻译
         system.admin.v1.BaseJob:
             type: object
             properties:
@@ -5281,9 +5115,9 @@ components:
                     description: 错误信息
                 status:
                     enum:
-                        - UNKNOWN_BJLS
-                        - SUCCESS
-                        - FAIL
+                        - BASE_JOB_LOG_STATUS_UNSPECIFIED
+                        - BASE_JOB_LOG_STATUS_SUCCESS
+                        - BASE_JOB_LOG_STATUS_FAIL
                     type: string
                     description: 状态：1、成功。2、失败。
                     format: enum
@@ -5453,11 +5287,11 @@ components:
                     description: 父级菜单ID
                 type:
                     enum:
-                        - UNKNOWN_MT
-                        - FOLDER
-                        - MENU
-                        - BUTTON
-                        - EXT_LINK
+                        - BASE_MENU_TYPE_UNSPECIFIED
+                        - BASE_MENU_TYPE_FOLDER
+                        - BASE_MENU_TYPE_MENU
+                        - BASE_MENU_TYPE_BUTTON
+                        - BASE_MENU_TYPE_EXT_LINK
                     type: string
                     description: 菜单类型
                     format: enum
@@ -5475,11 +5309,6 @@ components:
                     description: 重定向地址
                 meta:
                     $ref: '#/components/schemas/system.admin.v1.BaseMenuMeta'
-                translations:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.BaseMenuTranslation'
-                    description: 非主语言翻译
                 sort:
                     type: integer
                     description: 排序
@@ -5506,6 +5335,11 @@ components:
                 has_children:
                     type: boolean
                     description: 是否存在子节点
+                translations:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseTranslation'
+                    description: 非主语言翻译
             description: 菜单
         system.admin.v1.BaseMenuAppMeta:
             type: object
@@ -5534,11 +5368,11 @@ components:
                     description: 父级菜单ID
                 type:
                     enum:
-                        - UNKNOWN_MT
-                        - FOLDER
-                        - MENU
-                        - BUTTON
-                        - EXT_LINK
+                        - BASE_MENU_TYPE_UNSPECIFIED
+                        - BASE_MENU_TYPE_FOLDER
+                        - BASE_MENU_TYPE_MENU
+                        - BASE_MENU_TYPE_BUTTON
+                        - BASE_MENU_TYPE_EXT_LINK
                     type: string
                     description: 菜单类型
                     format: enum
@@ -5564,7 +5398,7 @@ components:
                 translations:
                     type: array
                     items:
-                        $ref: '#/components/schemas/system.admin.v1.BaseMenuTranslation'
+                        $ref: '#/components/schemas/system.admin.v1.BaseTranslation'
                     description: 非主语言翻译
                 sort:
                     type: integer
@@ -5621,70 +5455,15 @@ components:
                     type: string
                     description: 参数value
             description: 菜单参数
-        system.admin.v1.BaseMenuTranslation:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: 主键ID
-                menu_id:
-                    type: string
-                    description: 菜单ID
-                locale:
-                    type: string
-                    description: 语言代码
-                title:
-                    type: string
-                    description: 菜单标题
-                translation_status:
-                    enum:
-                        - TRANSLATION_STATUS_UNSPECIFIED
-                        - TRANSLATION_STATUS_PENDING
-                        - TRANSLATION_STATUS_MACHINE
-                        - TRANSLATION_STATUS_REVIEWED
-                    type: string
-                    description: 翻译状态
-                    format: enum
-                source_hash:
-                    type: string
-                    description: 中文源文SHA-256
-                translation_provider:
-                    type: string
-                    description: 机器翻译提供方
-                translated_at:
-                    type: string
-                    description: 最近机器翻译时间
-                reviewed_by:
-                    type: string
-                    description: 审核人ID
-                reviewed_at:
-                    type: string
-                    description: 审核时间
-                created_by:
-                    type: string
-                    description: 创建人ID
-                updated_by:
-                    type: string
-                    description: 更新人ID
-                created_at:
-                    type: string
-                    description: 创建时间
-                updated_at:
-                    type: string
-                    description: 更新时间
-                deleted_at:
-                    type: string
-                    description: 删除时间
-                source_changed:
-                    type: boolean
-                    description: 中文源文是否已变化
-            description: 菜单翻译
         system.admin.v1.BaseMigration:
             type: object
             properties:
                 id:
                     type: string
                     description: 主键
+                module:
+                    type: string
+                    description: 迁移模块
                 data_source:
                     type: string
                     description: 数据源
@@ -5703,9 +5482,6 @@ components:
                 created_at:
                     type: string
                     description: 创建时间
-                module:
-                    type: string
-                    description: 迁移模块
             description: 数据库迁移记录详情
         system.admin.v1.BaseMigrationListItem:
             type: object
@@ -5713,6 +5489,9 @@ components:
                 id:
                     type: string
                     description: 主键
+                module:
+                    type: string
+                    description: 迁移模块
                 data_source:
                     type: string
                     description: 数据源
@@ -5722,9 +5501,6 @@ components:
                 created_at:
                     type: string
                     description: 创建时间
-                module:
-                    type: string
-                    description: 迁移模块
             description: 数据库迁移记录列表项
         system.admin.v1.BasePost:
             type: object
@@ -5811,11 +5587,11 @@ components:
                     description: 角色编号
                 data_scope:
                     enum:
-                        - UNKNOWN_RDS
-                        - ALL
-                        - DEPT_AND_CHILDREN
-                        - SELF_DEPT
-                        - SELF_USER
+                        - BASE_ROLE_DATA_SCOPE_UNSPECIFIED
+                        - BASE_ROLE_DATA_SCOPE_ALL
+                        - BASE_ROLE_DATA_SCOPE_DEPT_AND_CHILDREN
+                        - BASE_ROLE_DATA_SCOPE_SELF_DEPT
+                        - BASE_ROLE_DATA_SCOPE_SELF_USER
                     type: string
                     description: 数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据
                     format: enum
@@ -5862,11 +5638,11 @@ components:
                     description: 角色编号
                 data_scope:
                     enum:
-                        - UNKNOWN_RDS
-                        - ALL
-                        - DEPT_AND_CHILDREN
-                        - SELF_DEPT
-                        - SELF_USER
+                        - BASE_ROLE_DATA_SCOPE_UNSPECIFIED
+                        - BASE_ROLE_DATA_SCOPE_ALL
+                        - BASE_ROLE_DATA_SCOPE_DEPT_AND_CHILDREN
+                        - BASE_ROLE_DATA_SCOPE_SELF_DEPT
+                        - BASE_ROLE_DATA_SCOPE_SELF_USER
                     type: string
                     description: 数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据
                     format: enum
@@ -5956,6 +5732,33 @@ components:
                     type: string
                     description: 备注
             description: 租户表单
+        system.admin.v1.BaseTranslation:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 主键ID
+                target_type:
+                    enum:
+                        - TRANSLATION_TARGET_TYPE_UNSPECIFIED
+                        - TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE
+                        - TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME
+                        - TRANSLATION_TARGET_TYPE_BASE_DICT
+                        - TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM
+                        - TRANSLATION_TARGET_TYPE_BASE_MENU
+                    type: string
+                    description: 目标类型：枚举【TranslationTargetType】
+                    format: enum
+                target_id:
+                    type: string
+                    description: 目标ID
+                locale:
+                    type: string
+                    description: 语言区域
+                name:
+                    type: string
+                    description: 翻译文本
+            description: 国际化翻译信息
         system.admin.v1.BaseUser:
             type: object
             properties:
@@ -5988,10 +5791,10 @@ components:
                     description: 手机号
                 gender:
                     enum:
-                        - UNKNOWN_BUG
-                        - SECRET
-                        - BOY
-                        - GIRL
+                        - BASE_USER_GENDER_UNSPECIFIED
+                        - BASE_USER_GENDER_SECRET
+                        - BASE_USER_GENDER_MALE
+                        - BASE_USER_GENDER_FEMALE
                     type: string
                     description: 性别
                     format: enum
@@ -6054,10 +5857,10 @@ components:
                     description: 头像
                 gender:
                     enum:
-                        - UNKNOWN_BUG
-                        - SECRET
-                        - BOY
-                        - GIRL
+                        - BASE_USER_GENDER_UNSPECIFIED
+                        - BASE_USER_GENDER_SECRET
+                        - BASE_USER_GENDER_MALE
+                        - BASE_USER_GENDER_FEMALE
                     type: string
                     description: 性别
                     format: enum
@@ -6429,10 +6232,10 @@ components:
                     description: 页面类型
                 status:
                     enum:
-                        - UNKNOWN_CGTS
-                        - DRAFT_CGTS
-                        - GENERATED_CGTS
-                        - DISABLED_CGTS
+                        - CODE_GEN_TABLE_STATUS_UNSPECIFIED
+                        - CODE_GEN_TABLE_STATUS_DRAFT
+                        - CODE_GEN_TABLE_STATUS_GENERATED
+                        - CODE_GEN_TABLE_STATUS_DISABLED
                     type: string
                     description: 状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用
                     format: enum
@@ -6494,10 +6297,10 @@ components:
                     description: 是否同步菜单和接口权限
                 status:
                     enum:
-                        - UNKNOWN_CGTS
-                        - DRAFT_CGTS
-                        - GENERATED_CGTS
-                        - DISABLED_CGTS
+                        - CODE_GEN_TABLE_STATUS_UNSPECIFIED
+                        - CODE_GEN_TABLE_STATUS_DRAFT
+                        - CODE_GEN_TABLE_STATUS_GENERATED
+                        - CODE_GEN_TABLE_STATUS_DISABLED
                     type: string
                     description: 状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用
                     format: enum
@@ -6621,6 +6424,32 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.CodeGenTaskStep'
                     description: 生成步骤列表
             description: 单个生成对象任务进度
+        system.admin.v1.DraftBaseTranslationRequest:
+            type: object
+            properties:
+                source:
+                    type: string
+                    description: 待翻译文本
+                source_locale:
+                    type: string
+                    description: 源语言区域，为空时使用主语言
+                target_locale:
+                    type: string
+                    description: 目标语言区域
+            description: 翻译单个文本请求。
+        system.admin.v1.DraftBaseTranslationResponse:
+            type: object
+            properties:
+                source_locale:
+                    type: string
+                    description: 源语言区域
+                target_locale:
+                    type: string
+                    description: 目标语言区域
+                translation:
+                    type: string
+                    description: 翻译文本
+            description: 翻译单个文本响应。
         system.admin.v1.ExecuteBaseJobRequest:
             type: object
             properties:
@@ -6628,83 +6457,6 @@ components:
                     type: string
                     description: 任务ID
             description: 执行任务请求参数
-        system.admin.v1.GenerateTranslationDraftRequest:
-            type: object
-            properties:
-                resource_type:
-                    enum:
-                        - TRANSLATION_RESOURCE_TYPE_UNSPECIFIED
-                        - TRANSLATION_RESOURCE_TYPE_MENU
-                        - TRANSLATION_RESOURCE_TYPE_DICT
-                        - TRANSLATION_RESOURCE_TYPE_DICT_ITEM
-                        - TRANSLATION_RESOURCE_TYPE_CONFIG
-                    type: string
-                    description: 资源类型
-                    format: enum
-                resource_id:
-                    type: string
-                    description: 已保存资源ID
-                target_locale:
-                    type: string
-                    description: 目标语言代码
-                field:
-                    enum:
-                        - BASE_CONFIG_TRANSLATION_FIELD_UNSPECIFIED
-                        - BASE_CONFIG_TRANSLATION_FIELD_NAME
-                        - BASE_CONFIG_TRANSLATION_FIELD_VALUE
-                    type: string
-                    description: 系统配置翻译字段，配置资源必填
-                    format: enum
-            description: 生成翻译草稿请求
-        system.admin.v1.GenerateTranslationDraftResponse:
-            type: object
-            properties:
-                resource_type:
-                    enum:
-                        - TRANSLATION_RESOURCE_TYPE_UNSPECIFIED
-                        - TRANSLATION_RESOURCE_TYPE_MENU
-                        - TRANSLATION_RESOURCE_TYPE_DICT
-                        - TRANSLATION_RESOURCE_TYPE_DICT_ITEM
-                        - TRANSLATION_RESOURCE_TYPE_CONFIG
-                    type: string
-                    description: 资源类型
-                    format: enum
-                resource_id:
-                    type: string
-                    description: 资源ID
-                locale:
-                    type: string
-                    description: 语言区域
-                translation:
-                    type: string
-                    description: 机器翻译草稿
-                translation_status:
-                    enum:
-                        - TRANSLATION_STATUS_UNSPECIFIED
-                        - TRANSLATION_STATUS_PENDING
-                        - TRANSLATION_STATUS_MACHINE
-                        - TRANSLATION_STATUS_REVIEWED
-                    type: string
-                    description: 翻译状态
-                    format: enum
-                source_hash:
-                    type: string
-                    description: 中文源文SHA-256
-                translation_provider:
-                    type: string
-                    description: 机器翻译提供方
-                translated_at:
-                    type: string
-                    description: 最近机器翻译时间
-                field:
-                    enum:
-                        - BASE_CONFIG_TRANSLATION_FIELD_UNSPECIFIED
-                        - BASE_CONFIG_TRANSLATION_FIELD_NAME
-                        - BASE_CONFIG_TRANSLATION_FIELD_VALUE
-                    type: string
-                    description: 系统配置翻译字段
-                    format: enum
-            description: 生成翻译草稿响应
         system.admin.v1.ListBaseUserResponse:
             type: object
             properties:
@@ -7144,11 +6896,11 @@ components:
                     $ref: '#/components/schemas/system.admin.v1.RouteMeta'
                 type:
                     enum:
-                        - UNKNOWN_MT
-                        - FOLDER
-                        - MENU
-                        - BUTTON
-                        - EXT_LINK
+                        - BASE_MENU_TYPE_UNSPECIFIED
+                        - BASE_MENU_TYPE_FOLDER
+                        - BASE_MENU_TYPE_MENU
+                        - BASE_MENU_TYPE_BUTTON
+                        - BASE_MENU_TYPE_EXT_LINK
                     type: string
                     description: 菜单类型
                     format: enum
@@ -7499,6 +7251,33 @@ components:
                     description: Agent工具状态：枚举【Status】
                     format: enum
             description: API更新条件
+        system.admin.v1.UpdateBaseTranslationRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 翻译记录ID，新增翻译时可不填写
+                target_type:
+                    enum:
+                        - TRANSLATION_TARGET_TYPE_UNSPECIFIED
+                        - TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE
+                        - TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME
+                        - TRANSLATION_TARGET_TYPE_BASE_DICT
+                        - TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM
+                        - TRANSLATION_TARGET_TYPE_BASE_MENU
+                    type: string
+                    description: 翻译目标类型，新增翻译时使用
+                    format: enum
+                target_id:
+                    type: string
+                    description: 目标资源ID，新增翻译时使用
+                locale:
+                    type: string
+                    description: 目标语言区域，新增翻译时使用
+                name:
+                    type: string
+                    description: 翻译文本，留空时自动翻译
+            description: 修改单个翻译信息请求。
         system.admin.v1.UserInfoForm:
             type: object
             properties:
@@ -7744,7 +7523,7 @@ tags:
     - name: BaseTenantService
       description: Admin租户管理服务
     - name: BaseTranslationService
-      description: Admin翻译草稿服务
+      description: 国际化翻译信息服务。
     - name: BaseUserService
       description: Admin用户管理服务
     - name: CodeGenColumnService

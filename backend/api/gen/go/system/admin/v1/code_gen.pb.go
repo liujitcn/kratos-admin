@@ -30,11 +30,16 @@ const (
 type CodeGenTaskStatus int32
 
 const (
-	CodeGenTaskStatus_CODE_GEN_TASK_STATUS_UNSPECIFIED CodeGenTaskStatus = 0 // 未指定
-	CodeGenTaskStatus_CODE_GEN_TASK_STATUS_PENDING     CodeGenTaskStatus = 1 // 等待执行
-	CodeGenTaskStatus_CODE_GEN_TASK_STATUS_RUNNING     CodeGenTaskStatus = 2 // 正在执行
-	CodeGenTaskStatus_CODE_GEN_TASK_STATUS_SUCCEEDED   CodeGenTaskStatus = 3 // 执行成功
-	CodeGenTaskStatus_CODE_GEN_TASK_STATUS_FAILED      CodeGenTaskStatus = 4 // 执行失败
+	// 未指定代码生成任务状态。
+	CodeGenTaskStatus_CODE_GEN_TASK_STATUS_UNSPECIFIED CodeGenTaskStatus = 0
+	// 等待执行。
+	CodeGenTaskStatus_CODE_GEN_TASK_STATUS_PENDING CodeGenTaskStatus = 1
+	// 正在执行。
+	CodeGenTaskStatus_CODE_GEN_TASK_STATUS_RUNNING CodeGenTaskStatus = 2
+	// 执行成功。
+	CodeGenTaskStatus_CODE_GEN_TASK_STATUS_SUCCEEDED CodeGenTaskStatus = 3
+	// 执行失败。
+	CodeGenTaskStatus_CODE_GEN_TASK_STATUS_FAILED CodeGenTaskStatus = 4
 )
 
 // Enum value maps for CodeGenTaskStatus.
@@ -86,12 +91,18 @@ func (CodeGenTaskStatus) EnumDescriptor() ([]byte, []int) {
 type CodeGenTaskStepStatus int32
 
 const (
-	CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_UNSPECIFIED CodeGenTaskStepStatus = 0 // 未指定
-	CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_PENDING     CodeGenTaskStepStatus = 1 // 等待执行
-	CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_RUNNING     CodeGenTaskStepStatus = 2 // 正在执行
-	CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_SUCCEEDED   CodeGenTaskStepStatus = 3 // 执行成功
-	CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_FAILED      CodeGenTaskStepStatus = 4 // 执行失败
-	CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_SKIPPED     CodeGenTaskStepStatus = 5 // 无需处理
+	// 未指定代码生成步骤状态。
+	CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_UNSPECIFIED CodeGenTaskStepStatus = 0
+	// 等待执行。
+	CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_PENDING CodeGenTaskStepStatus = 1
+	// 正在执行。
+	CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_RUNNING CodeGenTaskStepStatus = 2
+	// 执行成功。
+	CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_SUCCEEDED CodeGenTaskStepStatus = 3
+	// 执行失败。
+	CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_FAILED CodeGenTaskStepStatus = 4
+	// 无需处理。
+	CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_SKIPPED CodeGenTaskStepStatus = 5
 )
 
 // Enum value maps for CodeGenTaskStepStatus.
@@ -888,10 +899,10 @@ var File_system_admin_v1_code_gen_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_code_gen_proto_rawDesc = "" +
 	"\n" +
-	"\x1esystem/admin/v1/code_gen.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x9e\x01\n" +
-	"\x15GetCodeGenTaskRequest\x12\x84\x01\n" +
-	"\atask_id\x18\x01 \x01(\tBk\xbaG\x11\x92\x02\x0e生成任务ID\xbaHT\xba\x01Q\n" +
-	"\"get_code_gen_task.task_id.required\x12\x1a生成任务ID不能为空\x1a\x0fthis.size() > 0R\x06taskId\"\xcf\x04\n" +
+	"\x1esystem/admin/v1/code_gen.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xab\x01\n" +
+	"\x15GetCodeGenTaskRequest\x12\x91\x01\n" +
+	"\atask_id\x18\x01 \x01(\tBx\xbaG\x11\x92\x02\x0e生成任务ID\xbaHa\xba\x01^\n" +
+	"/system.admin.code.gen.get_task.task_id.required\x12\x1a生成任务ID不能为空\x1a\x0fthis.size() > 0R\x06taskId\"\xcf\x04\n" +
 	"\vCodeGenTask\x12-\n" +
 	"\atask_id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e生成任务IDR\x06taskId\x12N\n" +
 	"\x06status\x18\x02 \x01(\x0e2\".system.admin.v1.CodeGenTaskStatusB\x12\xbaG\x0f\x92\x02\f任务状态R\x06status\x123\n" +
@@ -904,23 +915,23 @@ const file_system_admin_v1_code_gen_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\b \x01(\tB\x18\xbaG\x15\x92\x02\x12任务创建时间R\tcreatedAt\x129\n" +
 	"\vfinished_at\x18\t \x01(\tB\x18\xbaG\x15\x92\x02\x12任务完成时间R\n" +
-	"finishedAt\"\x93\x02\n" +
-	"\x15PreviewCodeGenRequest\x12\x91\x01\n" +
-	"\btable_id\x18\x01 \x01(\x03Bv\xbaG\x1a\x92\x02\x17代码生成表配置ID\xbaHV\xba\x01S\n" +
-	"\"preview_code_gen.table_id.required\x12#代码生成表配置ID不能为空\x1a\bthis > 0R\atableId\x12f\n" +
+	"finishedAt\"\xa1\x02\n" +
+	"\x15PreviewCodeGenRequest\x12\x9f\x01\n" +
+	"\btable_id\x18\x01 \x01(\x03B\x83\x01\xbaG\x1a\x92\x02\x17代码生成表配置ID\xbaHc\xba\x01`\n" +
+	"/system.admin.code.gen.preview.table_id.required\x12#代码生成表配置ID不能为空\x1a\bthis > 0R\atableId\x12f\n" +
 	"\foutput_paths\x18\x02 \x01(\v2#.system.admin.v1.CodeGenOutputPathsB\x1e\xbaG\x1b\x92\x02\x18本次生成输出路径R\voutputPaths\"\xba\x02\n" +
 	"\x16PreviewCodeGenResponse\x12S\n" +
 	"\x05files\x18\x01 \x03(\v2#.system.admin.v1.CodeGenPreviewFileB\x18\xbaG\x15\x92\x02\x12预览文件列表R\x05files\x12f\n" +
 	"\foutput_paths\x18\x02 \x01(\v2#.system.admin.v1.CodeGenOutputPathsB\x1e\xbaG\x1b\x92\x02\x18本次生效输出路径R\voutputPaths\x12c\n" +
-	"\x14missing_translations\x18\x03 \x03(\tB0\xbaG-\x92\x02*正式生成前必须补齐的翻译配置R\x13missingTranslations\"\xd3\x01\n" +
-	"\x17StartCodeGenTaskRequest\x12\xb7\x01\n" +
-	"\ttable_ids\x18\x01 \x03(\x03B\x99\x01\xbaG \x92\x02\x1d代码生成表配置ID列表\xbaHs\xba\x01i\n" +
-	"&start_code_gen_task.table_ids.positive\x12%代码生成表配置ID必须大于 0\x1a\x18this.all(item, item > 0)\x92\x01\x04\b\x01\x18\x01R\btableIds\"I\n" +
+	"\x14missing_translations\x18\x03 \x03(\tB0\xbaG-\x92\x02*正式生成前必须补齐的翻译配置R\x13missingTranslations\"\xe1\x01\n" +
+	"\x17StartCodeGenTaskRequest\x12\xc5\x01\n" +
+	"\ttable_ids\x18\x01 \x03(\x03B\xa7\x01\xbaG \x92\x02\x1d代码生成表配置ID列表\xbaH\x80\x01\xba\x01v\n" +
+	"3system.admin.code.gen.start_task.table_ids.positive\x12%代码生成表配置ID必须大于 0\x1a\x18this.all(item, item > 0)\x92\x01\x04\b\x01\x18\x01R\btableIds\"I\n" +
 	"\x18StartCodeGenTaskResponse\x12-\n" +
-	"\atask_id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e生成任务IDR\x06taskId\"\xce\x01\n" +
-	"\x15RestoreCodeGenRequest\x12\xb4\x01\n" +
-	"\ttable_ids\x18\x01 \x03(\x03B\x96\x01\xbaG \x92\x02\x1d代码生成表配置ID列表\xbaHp\xba\x01f\n" +
-	"#restore_code_gen.table_ids.positive\x12%代码生成表配置ID必须大于 0\x1a\x18this.all(item, item > 0)\x92\x01\x04\b\x01\x18\x01R\btableIds\"\xdf\x02\n" +
+	"\atask_id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e生成任务IDR\x06taskId\"\xdb\x01\n" +
+	"\x15RestoreCodeGenRequest\x12\xc1\x01\n" +
+	"\ttable_ids\x18\x01 \x03(\x03B\xa3\x01\xbaG \x92\x02\x1d代码生成表配置ID列表\xbaH}\xba\x01s\n" +
+	"0system.admin.code.gen.restore.table_ids.positive\x12%代码生成表配置ID必须大于 0\x1a\x18this.all(item, item > 0)\x92\x01\x04\b\x01\x18\x01R\btableIds\"\xdf\x02\n" +
 	"\x0fCodeGenTaskStep\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b步骤IDR\x02id\x12(\n" +
 	"\x05label\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f步骤名称R\x05label\x12&\n" +

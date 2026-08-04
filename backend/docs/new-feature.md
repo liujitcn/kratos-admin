@@ -7,7 +7,7 @@
 1. 读取目标目录的 `AGENTS.md`，确认能力属于 `base`、`system.admin`、`system.app` 或新的外部模块。
 2. 有新表或字段时，先按 `configs/data.yaml` 连接开发库并实际调整表结构，再执行 `make gorm-gen`。
 3. 在 `api/proto` 定义接口、HTTP 路径、OpenAPI 描述和 `buf.validate`。
-4. 执行 `make api openapi`；按消费端执行 `make ts`、`make ts-app` 或 `make ts-taro-app`。
+4. 执行 `make api openapi`；按消费端执行 `make ts`、`make ts-uni-app` 或 `make ts-taro-app`。
 5. 实现 biz、service 和传输注册；依赖集合变化后执行 `make wire`。
 6. 实现管理端或应用端请求与页面，类型只使用生成 RPC。
 7. 同步版本化迁移中的默认数据、菜单、按钮和服务方法权限。
@@ -29,7 +29,7 @@ MySQL 默认数据源使用 `mysql` 直系文件；命名数据源放一级子�
 
 ```bash
 cd backend
-make api openapi ts ts-app ts-taro-app gorm-gen wire fmt
+make api openapi ts ts-uni-app ts-taro-app gorm-gen wire fmt
 # 或执行全部：make gen
 ```
 

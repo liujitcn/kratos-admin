@@ -43,7 +43,7 @@ service CodeGenService {
 
 // 查询代码生成任务条件
 message GetCodeGenTaskRequest {
-  string task_id = 1 [(gnostic.openapi.v3.property) = {description: "生成任务ID"}, (buf.validate.field).cel = {id: "get_code_gen_task.task_id.required" message: "生成任务ID不能为空" expression: "this.size() > 0"}]; // 生成任务ID
+  string task_id = 1 [(gnostic.openapi.v3.property) = {description: "生成任务ID"}, (buf.validate.field).cel = {id: "system.admin.code.gen.get_task.task_id.required" message: "生成任务ID不能为空" expression: "this.size() > 0"}]; // 生成任务ID
 }
 
 // 代码生成任务进度
@@ -69,7 +69,7 @@ message CodeGenTask {
 
 // 预览代码生成条件
 message PreviewCodeGenRequest {
-  int64 table_id = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID"}, (buf.validate.field).cel = {id: "preview_code_gen.table_id.required" message: "代码生成表配置ID不能为空" expression: "this > 0"}]; // 代码生成表配置ID
+  int64 table_id = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID"}, (buf.validate.field).cel = {id: "system.admin.code.gen.preview.table_id.required" message: "代码生成表配置ID不能为空" expression: "this > 0"}]; // 代码生成表配置ID
 
   CodeGenOutputPaths output_paths = 2 [(gnostic.openapi.v3.property) = {description: "本次生成输出路径"}]; // 本次生成输出路径
 }
@@ -85,26 +85,37 @@ message PreviewCodeGenResponse {
 
 // 代码生成任务状态
 enum CodeGenTaskStatus {
-  CODE_GEN_TASK_STATUS_UNSPECIFIED = 0; // 未指定
-  CODE_GEN_TASK_STATUS_PENDING = 1; // 等待执行
-  CODE_GEN_TASK_STATUS_RUNNING = 2; // 正在执行
-  CODE_GEN_TASK_STATUS_SUCCEEDED = 3; // 执行成功
-  CODE_GEN_TASK_STATUS_FAILED = 4; // 执行失败
+  // 未指定代码生成任务状态。
+  CODE_GEN_TASK_STATUS_UNSPECIFIED = 0;
+  // 等待执行。
+  CODE_GEN_TASK_STATUS_PENDING = 1;
+  // 正在执行。
+  CODE_GEN_TASK_STATUS_RUNNING = 2;
+  // 执行成功。
+  CODE_GEN_TASK_STATUS_SUCCEEDED = 3;
+  // 执行失败。
+  CODE_GEN_TASK_STATUS_FAILED = 4;
 }
 
 // 代码生成步骤状态
 enum CodeGenTaskStepStatus {
-  CODE_GEN_TASK_STEP_STATUS_UNSPECIFIED = 0; // 未指定
-  CODE_GEN_TASK_STEP_STATUS_PENDING = 1; // 等待执行
-  CODE_GEN_TASK_STEP_STATUS_RUNNING = 2; // 正在执行
-  CODE_GEN_TASK_STEP_STATUS_SUCCEEDED = 3; // 执行成功
-  CODE_GEN_TASK_STEP_STATUS_FAILED = 4; // 执行失败
-  CODE_GEN_TASK_STEP_STATUS_SKIPPED = 5; // 无需处理
+  // 未指定代码生成步骤状态。
+  CODE_GEN_TASK_STEP_STATUS_UNSPECIFIED = 0;
+  // 等待执行。
+  CODE_GEN_TASK_STEP_STATUS_PENDING = 1;
+  // 正在执行。
+  CODE_GEN_TASK_STEP_STATUS_RUNNING = 2;
+  // 执行成功。
+  CODE_GEN_TASK_STEP_STATUS_SUCCEEDED = 3;
+  // 执行失败。
+  CODE_GEN_TASK_STEP_STATUS_FAILED = 4;
+  // 无需处理。
+  CODE_GEN_TASK_STEP_STATUS_SKIPPED = 5;
 }
 
 // 启动代码生成任务条件
 message StartCodeGenTaskRequest {
-  repeated int64 table_ids = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID列表"}, (buf.validate.field).repeated = {min_items: 1, unique: true}, (buf.validate.field).cel = {id: "start_code_gen_task.table_ids.positive" message: "代码生成表配置ID必须大于 0" expression: "this.all(item, item > 0)"}]; // 代码生成表配置ID列表
+  repeated int64 table_ids = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID列表"}, (buf.validate.field).repeated = {min_items: 1, unique: true}, (buf.validate.field).cel = {id: "system.admin.code.gen.start_task.table_ids.positive" message: "代码生成表配置ID必须大于 0" expression: "this.all(item, item > 0)"}]; // 代码生成表配置ID列表
 }
 
 // 启动代码生成任务响应
@@ -114,7 +125,7 @@ message StartCodeGenTaskResponse {
 
 // 还原代码生成结果条件
 message RestoreCodeGenRequest {
-  repeated int64 table_ids = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID列表"}, (buf.validate.field).repeated = {min_items: 1, unique: true}, (buf.validate.field).cel = {id: "restore_code_gen.table_ids.positive" message: "代码生成表配置ID必须大于 0" expression: "this.all(item, item > 0)"}]; // 代码生成表配置ID列表
+  repeated int64 table_ids = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID列表"}, (buf.validate.field).repeated = {min_items: 1, unique: true}, (buf.validate.field).cel = {id: "system.admin.code.gen.restore.table_ids.positive" message: "代码生成表配置ID必须大于 0" expression: "this.all(item, item > 0)"}]; // 代码生成表配置ID列表
 }
 
 // 代码生成任务步骤

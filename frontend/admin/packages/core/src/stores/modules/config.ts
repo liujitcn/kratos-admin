@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { defConfigService } from "@/api/base/config";
-import { BaseConfigSite } from "@/rpc/base/v1/enum";
+import { BaseConfigSite } from "@/rpc/base/v1/config";
 import type { LoginCaptchaConfig, SiteConfigState, SiteDisplayConfig } from "@/stores/interface";
 import defaultLogoUrl from "@/assets/images/logo.svg";
 import defaultBackgroundUrl from "@/assets/images/login_left.png";
@@ -110,7 +110,7 @@ export const useConfigStore = defineStore("admin-config", {
      */
     async loadDisplayConfig() {
       const configResponse = await defConfigService.GetConfig({
-        site: BaseConfigSite.ADMIN
+        site: BaseConfigSite.BASE_CONFIG_SITE_ADMIN
       });
       const configMap = buildConfigMap(configResponse.configs ?? []);
 

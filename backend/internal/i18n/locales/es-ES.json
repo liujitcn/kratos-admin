@@ -1,695 +1,710 @@
 {
-  "auth.user_password.new_pwd.required": {
-    "other": "Por favor ingrese una nueva contraseña"
+  "system.admin.auth.entity.user.password.new_pwd.required": {
+    "other": "Introduzca new contraseña"
   },
-  "auth.user_password.old_pwd.required": {
-    "other": "Por favor ingrese la contraseña original"
+  "system.admin.auth.entity.user.password.old_pwd.required": {
+    "other": "Introduzca the original contraseña"
   },
-  "auth.user_password.required": {
-    "other": "Por favor ingrese la contraseña original"
+  "system.admin.auth.update.user_password.required": {
+    "other": "Introduzca the original contraseña"
   },
-  "base_area.name.length": {
-    "other": "El nombre de la región no puede estar vacío y no puede exceder los 50 caracteres"
+  "system.admin.base.area.entity.name.length": {
+    "other": "Zone nombre Sin puede estar vacío and Sin puede superar 50 characters"
   },
-  "base_config.key.max_len": {
-    "other": "La clave de configuración no puede exceder los 50 caracteres"
+  "system.admin.base.config.entity.key.max_length": {
+    "other": "configuración key Sin puede superar 50 characters"
   },
-  "base_config.key.required": {
-    "other": "Por favor ingrese el código de configuración del sistema"
+  "system.admin.base.config.entity.key.required": {
+    "other": "Introduzca the sistema configuración code"
   },
-  "base_config.name.max_len": {
-    "other": "El nombre de la configuración no puede exceder los 50 caracteres"
+  "system.admin.base.config.entity.name.max_length": {
+    "other": "configuración nombre Sin puede superar 50 characters"
   },
-  "base_config.name.required": {
-    "other": "Ingrese el nombre de configuración del sistema"
+  "system.admin.base.config.entity.name.required": {
+    "other": "Introduzca the sistema configuración nombre"
   },
-  "base_config.site.required": {
-    "other": "Seleccione la ubicación de configuración del sistema"
+  "system.admin.base.config.entity.site.required": {
+    "other": "Seleccione a sistema configuración location"
   },
-  "base_config.type.required": {
-    "other": "Seleccione el tipo de configuración del sistema"
+  "system.admin.base.config.entity.type.required": {
+    "other": "Seleccione sistema configuración tipo"
   },
-  "base_config.value.required": {
-    "other": "el valor de configuración no puede estar vacío"
+  "system.admin.base.config.entity.value.required": {
+    "other": "configuración valor Sin puede estar vacío"
   },
-  "base_dept.name.length": {
-    "other": "El nombre del departamento no puede estar vacío y no puede exceder los 255 caracteres."
+  "system.admin.base.dept.entity.name.length": {
+    "other": "Department nombre Sin puede estar vacío and Sin puede superar 255 characters"
   },
-  "base_dept.name.max_len": {
-    "other": "El nombre del departamento no puede exceder los 255 caracteres"
+  "system.admin.base.dept.entity.name.max_length": {
+    "other": "Department nombre Sin puede superar 255 characters"
   },
-  "base_dept.name.required": {
-    "other": "El nombre del departamento no puede estar vacío"
+  "system.admin.base.dept.entity.name.required": {
+    "other": "Department nombre Sin puede estar vacío"
   },
-  "base_dept.parent_id.non_negative": {
-    "other": "El departamento superior no puede ser menor que 0"
+  "system.admin.base.dept.entity.parent_id.non_negative": {
+    "other": "The parent department cannot be less than 0"
   },
-  "base_dept.remark.max_len": {
-    "other": "La nota no puede exceder los 500 caracteres"
+  "system.admin.base.dept.entity.remark.max_length": {
+    "other": "Comments Sin puede superar 500 characters"
   },
-  "base_dept.sort.required": {
-    "other": "La clasificación debe ser mayor que 0"
+  "system.admin.base.dept.entity.sort.required": {
+    "other": "Sort debe ser mayor que 0"
   },
-  "base_dept.tenant_id.required": {
-    "other": "El inquilino al que pertenece no puede estar vacío"
+  "system.admin.base.dept.entity.tenant_id.required": {
+    "other": "The tenant Sin puede estar vacío"
   },
-  "base_dict.code.length": {
-    "other": "El número del diccionario no puede estar vacío y no puede exceder los 50 caracteres"
+  "system.admin.base.dict.entity.code.length": {
+    "other": "Dictionary number Sin puede estar vacío and Sin puede superar 50 characters"
   },
-  "base_dict.code.max_len": {
-    "other": "El número del diccionario no puede exceder los 50 caracteres"
+  "system.admin.base.dict.entity.code.max_length": {
+    "other": "Dictionary number Sin puede superar 50 characters"
   },
-  "base_dict.code.required": {
-    "other": "Por favor ingrese el código del diccionario"
+  "system.admin.base.dict.entity.code.required": {
+    "other": "Introduzca the dictionary code"
   },
-  "base_dict.name.length": {
-    "other": "El nombre del diccionario no puede estar vacío y no puede exceder los 50 caracteres."
+  "system.admin.base.dict.entity.name.length": {
+    "other": "Dictionary nombre Sin puede estar vacío and Sin puede superar 50 characters"
   },
-  "base_dict.name.max_len": {
-    "other": "El nombre del diccionario no puede exceder los 50 caracteres"
+  "system.admin.base.dict.entity.name.max_length": {
+    "other": "Dictionary nombre Sin puede superar 50 characters"
   },
-  "base_dict.name.required": {
-    "other": "Por favor ingrese el nombre del diccionario"
+  "system.admin.base.dict.entity.name.required": {
+    "other": "Introduzca a dictionary nombre"
   },
-  "base_dict_item.dict_id.required": {
-    "other": "El diccionario no puede estar vacío"
+  "system.admin.base.dict.entity.item.dict_id.required": {
+    "other": "Dictionary Sin puede estar vacío"
   },
-  "base_dict_item.label.length": {
-    "other": "La etiqueta de entrada del diccionario no puede estar vacía y no puede exceder los 100 caracteres"
+  "system.admin.base.dict.entity.item.label.length": {
+    "other": "Dictionary item label Sin puede estar vacío and Sin puede superar 100 characters"
   },
-  "base_dict_item.label.max_len": {
-    "other": "Ingrese una etiqueta de diccionario (no más de 100 caracteres)"
+  "system.admin.base.dict.entity.item.label.max_length": {
+    "other": "Introduzca a dictionary label (Sin more than 100 characters)"
   },
-  "base_dict_item.label.required": {
-    "other": "Ingrese una etiqueta de diccionario (no más de 100 caracteres)"
+  "system.admin.base.dict.entity.item.label.required": {
+    "other": "Introduzca a dictionary label (Sin more than 100 characters)"
   },
-  "base_dict_item.sort.required": {
-    "other": "La clasificación debe ser mayor que 0"
+  "system.admin.base.dict.entity.item.sort.required": {
+    "other": "Sort debe ser mayor que 0"
   },
-  "base_dict_item.tag_type.max_len": {
-    "other": "El tipo de etiqueta no puede exceder los 50 caracteres"
+  "system.admin.base.dict.entity.item.tag_type.max_length": {
+    "other": "Label tipo Sin puede superar 50 characters"
   },
-  "base_dict_item.value.length": {
-    "other": "El valor de la entrada del diccionario no puede estar vacío y no puede exceder los 50 caracteres"
+  "system.admin.base.dict.entity.item.value.length": {
+    "other": "Dictionary item valor Sin puede estar vacío and Sin puede superar 50 characters"
   },
-  "base_dict_item.value.max_len": {
-    "other": "Ingrese el valor del diccionario (no más de 50 caracteres)"
+  "system.admin.base.dict.entity.item.value.max_length": {
+    "other": "Introduzca a dictionary valor (Sin more than 50 characters)"
   },
-  "base_dict_item.value.required": {
-    "other": "Ingrese el valor del diccionario (no más de 50 caracteres)"
+  "system.admin.base.dict.entity.item.value.required": {
+    "other": "Introduzca a dictionary valor (Sin more than 50 characters)"
   },
-  "base_dict_item_translation.label.max_len": {
-    "other": "La etiqueta de traducción del elemento del diccionario no puede exceder los 100 caracteres"
+  "system.admin.base.translation.draft.source.required": {
+    "other": "El texto de origen no puede estar vacío"
   },
-  "base_dict_item_translation.locale.supported": {
-    "other": "El código de idioma de traducción del elemento del diccionario no puede estar vacío"
+  "system.admin.base.translation.draft.target_locale.required": {
+    "other": "La configuración regional de destino no puede estar vacía"
   },
-  "base_dict_translation.locale.supported": {
-    "other": "El código de idioma de traducción del diccionario no puede estar vacío"
+  "system.admin.base.translation.entity.dict_item_translation.label.max_length": {
+    "other": "Dictionary item translation labels Sin puede superar 100 characters"
   },
-  "base_dict_translation.name.max_len": {
-    "other": "El nombre de la traducción del diccionario no puede exceder los 50 caracteres"
+  "system.admin.base.translation.entity.dict_item_translation.locale.supported": {
+    "other": "Dictionary item translation idioma only supports Inglés or Japonés"
   },
-  "base_job.cron_expression.length": {
-    "other": "la expresión cron no puede estar vacía y no puede exceder los 50 caracteres"
+  "system.admin.base.translation.entity.dict_translation.locale.supported": {
+    "other": "Dictionary translation idioma only supports Inglés or Japonés"
   },
-  "base_job.invoke_target.length": {
-    "other": "El destino de la llamada no puede estar vacío y no puede exceder los 100 caracteres."
+  "system.admin.base.translation.entity.dict_translation.name.max_length": {
+    "other": "Dictionary translation nombres Sin puede superar 50 characters"
   },
-  "base_job.name.length": {
-    "other": "El nombre de la tarea no puede estar vacío y no puede exceder los 50 caracteres."
+  "system.admin.base.job.entity.cron_expression.length": {
+    "other": "cron expression Sin puede estar vacío and Sin puede superar 50 characters"
   },
-  "base_language.language_code.length": {
-    "other": "El código de idioma no puede estar vacío y no puede exceder los 16 caracteres"
+  "system.admin.base.job.entity.invoke_target.length": {
+    "other": "The call target Sin puede estar vacío and Sin puede superar 100 characters"
   },
-  "base_language.language_name.length": {
-    "other": "El nombre del idioma no puede estar vacío y no puede exceder los 50 caracteres."
+  "system.admin.base.job.entity.name.length": {
+    "other": "Task nombre Sin puede estar vacío and Sin puede superar 50 characters"
   },
-  "base_language.native_name.length": {
-    "other": "El nombre del idioma local no puede estar vacío y no puede exceder los 50 caracteres."
+  "system.admin.base.language.entity.language_code.length": {
+    "other": "idioma code Sin puede estar vacío and Sin puede superar 16 characters"
   },
-  "base_language.sort.required": {
-    "other": "La clasificación no puede ser menor que 0"
+  "system.admin.base.language.entity.language_name.length": {
+    "other": "idioma nombre Sin puede estar vacío and Sin puede superar 50 characters"
   },
-  "base_job_args.key.required": {
-    "other": "Todos los parámetros deben completarse en clave"
+  "system.admin.base.language.entity.native_name.length": {
+    "other": "Native idioma nombre Sin puede estar vacío and Sin puede superar 50 characters"
   },
-  "base_menu.component.max_len": {
-    "other": "La ruta del componente no puede exceder los 255 caracteres"
+  "system.admin.base.language.entity.sort.required": {
+    "other": "Sort cannot be less than 0"
   },
-  "base_menu.external.path_internal": {
-    "other": "La ruta del enlace externo debe utilizar la ruta única interna"
+  "system.admin.base.job.entity.args.key.required": {
+    "other": "All parameters must be filled in key"
   },
-  "base_menu.folder.identity_empty": {
-    "other": "El directorio no puede completar la ruta y el nombre de la ruta"
+  "system.admin.base.menu.entity.component.max_length": {
+    "other": "Component path Sin puede superar 255 characters"
   },
-  "base_menu.name.max_len": {
-    "other": "El nombre de la ruta no puede exceder los 255 caracteres"
+  "system.admin.base.menu.entity.external.path_internal": {
+    "other": "External link paths must use internal unique paths"
   },
-  "base_menu.name.menu_only": {
-    "other": "Solo el tipo de menú puede completar el nombre de la ruta"
+  "system.admin.base.menu.entity.folder.identity_empty": {
+    "other": "The directory cannot fill in the path and routing nombre"
   },
-  "base_menu.name.required": {
-    "other": "El tipo de menú debe completar el nombre de la ruta."
+  "system.admin.base.menu.entity.name.max_length": {
+    "other": "Route nombre Sin puede superar 255 characters"
   },
-  "base_menu.path.length": {
-    "other": "La ruta no puede exceder los 1024 caracteres"
+  "system.admin.base.menu.entity.name.menu_only": {
+    "other": "Only the menú tipo can fill in the route nombre"
   },
-  "base_menu.path.required": {
-    "other": "La ruta debe completarse para menús que no son de directorio"
+  "system.admin.base.menu.entity.name.required": {
+    "other": "The menú tipo must fill in the route nombre"
   },
-  "base_menu.redirect.external": {
-    "other": "El enlace externo debe completar la dirección HTTP completa"
+  "system.admin.base.menu.entity.path.length": {
+    "other": "Path Sin puede superar 1024 characters"
   },
-  "base_menu.redirect.max_len": {
-    "other": "La dirección de redireccionamiento no puede exceder los 1024 caracteres"
+  "system.admin.base.menu.entity.path.required": {
+    "other": "Non-directory menú must fill in the path"
   },
-  "base_menu.sort.required": {
-    "other": "La clasificación debe ser mayor que 0"
+  "system.admin.base.menu.entity.redirect.external": {
+    "other": "External links must fill in the complete HTTP address"
   },
-  "base_menu.type.required": {
-    "other": "El tipo de menú no puede estar vacío"
+  "system.admin.base.menu.entity.redirect.max_length": {
+    "other": "Redirect address Sin puede superar 1024 characters"
   },
-  "base_menu_translation.locale.supported": {
-    "other": "El código de idioma de traducción del menú no puede estar vacío"
+  "system.admin.base.menu.entity.sort.required": {
+    "other": "Sort debe ser mayor que 0"
   },
-  "base_menu_translation.title.max_len": {
-    "other": "El título de traducción del menú no puede exceder los 255 caracteres."
+  "system.admin.base.menu.entity.type.required": {
+    "other": "menú tipo Sin puede estar vacío"
   },
-  "base_post.code.max_len": {
-    "other": "El número de posición no puede exceder los 20 caracteres"
+  "system.admin.base.translation.entity.menu_translation.locale.supported": {
+    "other": "menú translation idioma only supports Inglés or Japonés"
   },
-  "base_post.code.required": {
-    "other": "Por favor ingrese el número de posición"
+  "system.admin.base.translation.entity.menu_translation.title.max_length": {
+    "other": "menú translation title Sin puede superar 255 characters"
   },
-  "base_post.name.max_len": {
-    "other": "El nombre de la posición no puede exceder los 30 caracteres"
+  "system.admin.base.post.entity.code.max_length": {
+    "other": "Position number Sin puede superar 20 characters"
   },
-  "base_post.name.required": {
-    "other": "Por favor ingrese el nombre del puesto"
+  "system.admin.base.post.entity.code.required": {
+    "other": "Introduzca the position number"
   },
-  "base_post.remark.max_len": {
-    "other": "El comentario no puede exceder los 500 caracteres."
+  "system.admin.base.post.entity.name.max_length": {
+    "other": "Job title Sin puede superar 30 characters"
   },
-  "base_post.sort.required": {
-    "other": "La clasificación debe ser mayor que 0"
+  "system.admin.base.post.entity.name.required": {
+    "other": "Introduzca the position nombre"
   },
-  "base_post.tenant_id.required": {
-    "other": "Por favor seleccione el inquilino"
+  "system.admin.base.post.entity.remark.max_length": {
+    "other": "Comments Sin puede superar 500 characters"
   },
-  "base_role.code.max_len": {
-    "other": "El número de caracteres no puede exceder los 20 caracteres"
+  "system.admin.base.post.entity.sort.required": {
+    "other": "Sort debe ser mayor que 0"
   },
-  "base_role.code.required": {
-    "other": "Por favor ingrese el código de rol"
+  "system.admin.base.post.entity.tenant_id.required": {
+    "other": "Seleccione your tenant"
   },
-  "base_role.data_scope.required": {
-    "other": "Por favor seleccione permisos de datos"
+  "system.admin.base.role.entity.code.max_length": {
+    "other": "rol number Sin puede superar 20 characters"
   },
-  "base_role.menus.required": {
-    "other": "Por favor seleccione permisos de menú"
+  "system.admin.base.role.entity.code.required": {
+    "other": "Introduzca the rol code"
   },
-  "base_role.menus.unique": {
-    "other": "Los permisos del menú no se pueden repetir"
+  "system.admin.base.role.entity.data_scope.required": {
+    "other": "Seleccione datos permissions"
   },
-  "base_role.name.max_len": {
-    "other": "El nombre del rol no puede exceder los 30 caracteres"
+  "system.admin.base.role.entity.menus.required": {
+    "other": "Seleccione menú permissions"
   },
-  "base_role.name.required": {
-    "other": "Por favor ingrese el nombre del rol"
+  "system.admin.base.role.entity.menus.unique": {
+    "other": "menú permissions cannot be repeated"
   },
-  "base_role.remark.max_len": {
-    "other": "El comentario no puede exceder los 500 caracteres."
+  "system.admin.base.role.entity.name.max_length": {
+    "other": "Character nombre Sin puede superar 30 characters"
   },
-  "base_role.tenant_id.required": {
-    "other": "El inquilino al que pertenece no puede estar vacío"
+  "system.admin.base.role.entity.name.required": {
+    "other": "Introduzca a rol nombre"
   },
-  "base_tenant.code.length": {
-    "other": "El número de inquilino no puede estar vacío y no puede exceder los 50 caracteres"
+  "system.admin.base.role.entity.remark.max_length": {
+    "other": "Comments Sin puede superar 500 characters"
   },
-  "base_tenant.contact_name.max_len": {
-    "other": "El contacto no puede exceder los 50 caracteres"
+  "system.admin.base.role.entity.tenant_id.required": {
+    "other": "The tenant Sin puede estar vacío"
   },
-  "base_tenant.contact_phone.format": {
-    "other": "Por favor ingrese el número de contacto correcto"
+  "system.admin.base.tenant.entity.code.length": {
+    "other": "Tenant number Sin puede estar vacío and Sin puede superar 50 characters"
   },
-  "base_tenant.contact_phone.max_len": {
-    "other": "El número de contacto no puede exceder los 20 caracteres"
+  "system.admin.base.tenant.entity.contact_name.max_length": {
+    "other": "Contact Sin puede superar 50 characters"
   },
-  "base_tenant.name.length": {
-    "other": "El nombre del inquilino no puede estar vacío y no puede exceder los 100 caracteres."
+  "system.admin.base.tenant.entity.contact_phone.format": {
+    "other": "Introduzca the correct contact number"
   },
-  "base_tenant.name.max_len": {
-    "other": "El nombre del inquilino no puede exceder los 100 caracteres"
+  "system.admin.base.tenant.entity.contact_phone.max_length": {
+    "other": "Contact number Sin puede superar 20 characters"
   },
-  "base_tenant.name.required": {
-    "other": "Por favor ingrese el nombre del inquilino"
+  "system.admin.base.tenant.entity.name.length": {
+    "other": "Tenant nombre Sin puede estar vacío and Sin puede superar 100 characters"
   },
-  "base_tenant.remark.max_len": {
-    "other": "La nota no puede exceder los 500 caracteres"
+  "system.admin.base.tenant.entity.name.max_length": {
+    "other": "Tenant nombre Sin puede superar 100 characters"
   },
-  "base_translation.resource_id.required": {
-    "other": "El ID de recurso no puede estar vacío"
+  "system.admin.base.tenant.entity.name.required": {
+    "other": "Introduzca tenant nombre"
   },
-  "base_translation.resource_type.required": {
-    "other": "Seleccione el tipo de recurso de traducción."
+  "system.admin.base.tenant.entity.remark.max_length": {
+    "other": "Comments Sin puede superar 500 characters"
   },
-  "base_translation.target_locale.supported": {
-    "other": "El código del idioma de destino no puede estar vacío"
+  "system.admin.base.translation.update.id.required": {
+    "other": "Translation record ID Sin puede estar vacío"
   },
-  "base_user.avatar.max_len": {
-    "other": "El avatar no puede exceder los 1024 caracteres"
+  "system.admin.base.translation.update.target.required": {
+    "other": "El ID del registro de traducción o la información de destino no pueden estar vacíos"
   },
-  "base_user.dept_id.required": {
-    "other": "El departamento no puede estar vacío"
+  "system.admin.base.translation.entity.target_id.required": {
+    "other": "Resource ID Sin puede estar vacío"
   },
-  "base_user.nick_name.max_len": {
-    "other": "El apodo del usuario no puede exceder los 30 caracteres"
+  "system.admin.base.translation.entity.target_type.required": {
+    "other": "Seleccione a translation resource tipo"
   },
-  "base_user.nick_name.required": {
-    "other": "El apodo del usuario no puede estar vacío"
+  "system.admin.base.translation.entity.target_locale.supported": {
+    "other": "Target idioma only supports Inglés or Japonés"
   },
-  "base_user.phone.format": {
-    "other": "Ingrese el número de teléfono móvil correcto"
+  "system.admin.base.user.entity.avatar.max_length": {
+    "other": "Avatar Sin puede superar 1024 characters"
   },
-  "base_user.phone.max_len": {
-    "other": "El número de teléfono móvil no puede exceder los 20 caracteres"
+  "system.admin.base.user.entity.dept_id.required": {
+    "other": "Department Sin puede estar vacío"
   },
-  "base_user.pwd.required": {
-    "other": "Por favor ingrese la contraseña"
+  "system.admin.base.user.entity.nick_name.max_length": {
+    "other": "usuario nicknombre Sin puede superar 30 characters"
   },
-  "base_user.remark.max_len": {
-    "other": "La nota no puede exceder los 500 caracteres"
+  "system.admin.base.user.entity.nick_name.required": {
+    "other": "usuario nicknombre Sin puede estar vacío"
   },
-  "base_user.reset_pwd.required": {
-    "other": "Por favor ingrese una nueva contraseña"
+  "system.admin.base.user.entity.phone.format": {
+    "other": "Introduzca the correct mobile phone number"
   },
-  "base_user.role_id.required": {
-    "other": "no puede estar vacío"
+  "system.admin.base.user.entity.phone.max_length": {
+    "other": "Mobile phone number Sin puede superar 20 characters"
   },
-  "base_user.tenant_id.required": {
-    "other": "El inquilino al que pertenece no puede estar vacío"
+  "system.admin.base.user.create.pwd.required": {
+    "other": "Introduzca contraseña"
   },
-  "base_user.user_code.length": {
-    "other": "El número de usuario no puede estar vacío y no puede exceder los 30 caracteres"
+  "system.admin.base.user.entity.remark.max_length": {
+    "other": "Comments Sin puede superar 500 characters"
   },
-  "base_user.user_name.length": {
-    "other": "La cuenta de usuario no puede estar vacía y no puede exceder los 50 caracteres"
+  "system.admin.base.user.reset_password.reset_pwd.required": {
+    "other": "Introduzca new contraseña"
   },
-  "bind_oauth_session.captcha_code.required": {
-    "other": "El código de verificación no puede estar vacío"
+  "system.admin.base.user.entity.role_id.required": {
+    "other": "rol Sin puede estar vacío"
   },
-  "bind_oauth_session.captcha_id.required": {
-    "other": "El ID del código de verificación no puede estar vacío"
+  "system.admin.base.user.entity.tenant_id.required": {
+    "other": "The tenant Sin puede estar vacío"
   },
-  "bind_oauth_session.code.required": {
-    "other": "El código de autorización de terceros no puede estar vacío"
+  "system.admin.base.user.entity.user_code.length": {
+    "other": "usuario ID Sin puede estar vacío and Sin puede superar 30 characters"
   },
-  "bind_oauth_session.provider.required": {
-    "other": "El identificador del método de inicio de sesión no puede estar vacío"
+  "system.admin.base.user.entity.user_name.length": {
+    "other": "usuario account Sin puede estar vacío and Sin puede superar 50 characters"
   },
-  "bind_oauth_session.tenant_code.required": {
-    "other": "El código de inquilino no puede estar vacío"
+  "base.oauth.bind_session.captcha_code.required": {
+    "other": "Verification code Sin puede estar vacío"
   },
-  "bind_oauth_session.user_name.required": {
-    "other": "El nombre de usuario no puede estar vacío"
+  "base.oauth.bind_session.captcha_id.required": {
+    "other": "Verification code ID Sin puede estar vacío"
   },
-  "code_gen_table.status.required": {
-    "other": "Seleccione el estado de la tabla de generación de códigos"
+  "base.oauth.bind_session.code.required": {
+    "other": "The third-party authorization code Sin puede estar vacío"
+  },
+  "base.oauth.bind_session.provider.required": {
+    "other": "Login method identifier Sin puede estar vacío"
+  },
+  "base.oauth.bind_session.tenant_code.required": {
+    "other": "Tenant code Sin puede estar vacío"
+  },
+  "base.oauth.bind_session.user_name.required": {
+    "other": "nombre de usuario Sin puede estar vacío"
+  },
+  "system.admin.code.gen.table.entity.status.required": {
+    "other": "Seleccione a code generation table status"
   },
   "common.error.conflict": {
-    "other": "Conflicto de estado de recurso"
+    "other": "The resource state conflicts with this operation"
   },
   "common.error.internal": {
-    "other": "Error interno del sistema"
+    "other": "An internal error occurred"
   },
   "common.error.invalid_argument": {
-    "other": "Error de parámetro de solicitud"
+    "other": "The request parameters are invalid"
   },
   "common.error.permission_denied": {
-    "other": "Sin permiso de operación"
+    "other": "You do Sin have permission to perform this operation"
   },
   "common.error.resource_not_found": {
-    "other": "El recurso solicitado no existe"
+    "other": "The requested resource was Sin found"
   },
   "common.error.unauthenticated": {
-    "other": "El estado de inicio de sesión ha caducado, inicie sesión nuevamente"
+    "other": "Your session has expired. Por favor sign in again"
   },
   "common.validation.invalid": {
-    "other": "El campo {{.Field}} no cumple con los requisitos"
+    "other": "Field {{.Field}} is invalid"
   },
   "common.validation.required": {
-    "other": "el campo {{.Field}} no puede estar vacío"
+    "other": "Field {{.Field}} es obligatorio"
   },
-  "create_ai_session_branch.anchor_message_id.positive": {
-    "other": "El número de mensaje de anclaje de sucursal es ilegal"
+  "base.ai.session.create_branch.anchor_message_id.positive": {
+    "other": "Branch anchor message number is illegal"
   },
-  "create_ai_session_branch.source_session_id.positive": {
-    "other": "El número de sesión no es válido"
+  "base.ai.session.create_branch.source_session_id.positive": {
+    "other": "The session number is invalid"
   },
-  "create_ai_session_branch.title.required": {
-    "other": "El título de la sesión no puede estar vacío"
+  "base.ai.session.create_branch.title.required": {
+    "other": "Session title Sin puede estar vacío"
   },
-  "create_base_menu.parent_id.required": {
-    "other": "Al agregar un nuevo menú, debe seleccionar el menú de nivel superior"
+  "system.admin.base.menu.create.parent_id.required": {
+    "other": "To add a new menú, you must select the upper-level menú"
   },
-  "create_oauth_authorization.provider.required": {
-    "other": "El identificador del método de inicio de sesión no puede estar vacío"
+  "base.oauth.create_authorization.provider.required": {
+    "other": "Login method identifier Sin puede estar vacío"
   },
-  "create_oauth_authorization.redirect_url.required": {
-    "other": "La dirección de la página de inicio de sesión no puede estar vacía"
+  "base.oauth.create_authorization.redirect_url.required": {
+    "other": "Login página address Sin puede estar vacío"
   },
-  "create_oauth_binding_authorization.provider.required": {
-    "other": "El identificador del método de inicio de sesión no puede estar vacío"
+  "base.oauth.create_binding_authorization.provider.required": {
+    "other": "Login method identifier Sin puede estar vacío"
   },
-  "create_oauth_binding_authorization.redirect_url.required": {
-    "other": "La dirección de rebote no puede estar vacía una vez completado el enlace."
+  "base.oauth.create_binding_authorization.redirect_url.required": {
+    "other": "After the binding is completed, the bounce address Sin puede estar vacío."
   },
-  "create_oauth_session.code.required": {
-    "other": "El código de autorización de terceros no puede estar vacío"
+  "base.oauth.create_session.code.required": {
+    "other": "The third-party authorization code Sin puede estar vacío"
   },
-  "create_oauth_session.provider.required": {
-    "other": "El identificador del método de inicio de sesión no puede estar vacío"
+  "base.oauth.create_session.provider.required": {
+    "other": "Login method identifier Sin puede estar vacío"
   },
-  "delete_ai_message.message_id.positive": {
-    "other": "El número de mensaje es ilegal"
+  "base.ai.message.delete.message_id.positive": {
+    "other": "The message number is invalid"
   },
-  "delete_ai_message.session_id.positive": {
-    "other": "El número de sesión no es válido"
+  "base.ai.message.delete.session_id.positive": {
+    "other": "The session number is invalid"
   },
-  "delete_ai_session.id.positive": {
-    "other": "El número de sesión no es válido"
+  "base.ai.session.delete.id.positive": {
+    "other": "The session number is invalid"
   },
-  "delete_base_config.id.required": {
-    "other": "La lista de ID de configuración no puede estar vacía"
+  "system.admin.base.config.delete.id.required": {
+    "other": "configuración ID list Sin puede estar vacío"
   },
-  "delete_base_dept.id.required": {
-    "other": "La lista de ID de departamento no puede estar vacía"
+  "system.admin.base.dept.delete.id.required": {
+    "other": "Department ID list Sin puede estar vacío"
   },
-  "delete_base_dict.id.required": {
-    "other": "La lista de ID del diccionario no puede estar vacía"
+  "system.admin.base.dict.delete.id.required": {
+    "other": "Dictionary ID list Sin puede estar vacío"
   },
-  "delete_base_dict_item.id.required": {
-    "other": "La lista de ID de atributos del diccionario no puede estar vacía"
+  "system.admin.base.dict.delete_item.id.required": {
+    "other": "Dictionary attribute ID list Sin puede estar vacío"
   },
-  "delete_base_language.id.required": {
-    "other": "La lista de ID de idioma no puede estar vacía"
+  "system.admin.base.language.delete.id.required": {
+    "other": "idioma ID list Sin puede estar vacío"
   },
-  "delete_base_menu.id.required": {
-    "other": "La lista de ID del menú no puede estar vacía"
+  "system.admin.base.menu.delete.id.required": {
+    "other": "menú ID list Sin puede estar vacío"
   },
-  "delete_base_post.id.required": {
-    "other": "La lista de ID de posición no puede estar vacía"
+  "system.admin.base.post.delete.id.required": {
+    "other": "The position ID list Sin puede estar vacío"
   },
-  "delete_base_role.id.required": {
-    "other": "La lista de ID de rol no puede estar vacía"
+  "system.admin.base.role.delete.id.required": {
+    "other": "rol ID list Sin puede estar vacío"
   },
-  "delete_base_tenant.id.required": {
-    "other": "La lista de ID de inquilino no puede estar vacía"
+  "system.admin.base.tenant.delete.id.required": {
+    "other": "Tenant ID list Sin puede estar vacío"
   },
-  "delete_base_user.id.required": {
-    "other": "La lista de ID de usuario no puede estar vacía"
+  "system.admin.base.user.delete.id.required": {
+    "other": "usuario ID list Sin puede estar vacío"
   },
-  "download_file.path.required": {
-    "other": "La ruta del archivo no puede estar vacía"
+  "base.file.download.path.required": {
+    "other": "archivo path Sin puede estar vacío"
   },
-  "exchange_oauth_ticket.ticket.required": {
-    "other": "El ticket de inicio de sesión de tres partes no puede estar vacío"
+  "base.oauth.exchange_ticket.ticket.required": {
+    "other": "The third-party login ticket Sin puede estar vacío"
   },
-  "field.business_module.length": {
-    "other": "El módulo empresarial no puede exceder los 64 caracteres"
+  "system.admin.code.gen.table.field.business_module.length": {
+    "other": "Business module Sin puede superar 64 characters"
   },
-  "field.business_module.pattern": {
-    "other": "El formato del módulo empresarial es incorrecto"
+  "system.admin.code.gen.table.field.business_module.pattern": {
+    "other": "Business module format is incorrect"
   },
-  "field.business_module.required": {
-    "other": "El módulo empresarial no puede estar vacío"
+  "system.admin.code.gen.table.field.business_module.required": {
+    "other": "Business module Sin puede estar vacío"
   },
-  "field.comment.length": {
-    "other": "La descripción de la tabla comercial no puede exceder los 128 caracteres"
+  "system.admin.code.gen.table.field.comment.length": {
+    "other": "Business table description Sin puede superar 128 characters"
   },
-  "field.name.length": {
-    "other": "El nombre de la tabla comercial no puede exceder los 128 caracteres."
+  "system.admin.code.gen.table.field.name.length": {
+    "other": "Business table nombre Sin puede superar 128 characters"
   },
-  "field.name.pattern": {
-    "other": "El formato del nombre de la tabla comercial es incorrecto"
+  "system.admin.code.gen.table.field.name.pattern": {
+    "other": "Business table nombre format is incorrect"
   },
-  "field.name.required": {
-    "other": "El nombre de la tabla comercial no puede estar vacío"
+  "system.admin.code.gen.table.field.name.required": {
+    "other": "Business table nombre Sin puede estar vacío"
   },
-  "field.page_type.length": {
-    "other": "El tipo de página no puede exceder los 32 caracteres"
+  "system.admin.code.gen.table.field.page_type.length": {
+    "other": "página tipo Sin puede superar 32 characters"
   },
-  "field.page_type.required": {
-    "other": "El tipo de página no puede estar vacío"
+  "system.admin.code.gen.table.field.page_type.required": {
+    "other": "página tipo Sin puede estar vacío"
   },
-  "field.parent_column.length": {
-    "other": "El campo del nodo principal de la tabla de árbol no puede exceder los 64 caracteres."
+  "system.admin.code.gen.table.field.parent_column.length": {
+    "other": "The tree table parent node field Sin puede superar 64 characters."
   },
-  "field.parent_menu_id.required": {
-    "other": "Seleccione un menú principal"
+  "system.admin.code.gen.table.field.parent_menu_id.required": {
+    "other": "Seleccione a parent menú"
   },
-  "field.remark.length": {
-    "other": "El comentario no puede exceder los 500 caracteres."
+  "system.admin.code.gen.table.field.remark.length": {
+    "other": "Comments Sin puede superar 500 characters"
   },
-  "field.tree_label_column.length": {
-    "other": "El campo de visualización del nodo del árbol no puede exceder los 64 caracteres."
+  "system.admin.code.gen.table.field.tree_label_column.length": {
+    "other": "The tree node display field Sin puede superar 64 characters"
   },
-  "get_base_config.id.required": {
-    "other": "El ID de configuración no puede estar vacío"
+  "system.admin.base.config.get.id.required": {
+    "other": "configuración ID Sin puede estar vacío"
   },
-  "get_base_dept.id.required": {
-    "other": "El ID de departamento no puede estar vacío"
+  "system.admin.base.dept.get.id.required": {
+    "other": "Department ID Sin puede estar vacío"
   },
-  "get_base_dict.id.required": {
-    "other": "El ID del diccionario no puede estar vacío"
+  "system.admin.base.dict.get.id.required": {
+    "other": "Dictionary ID Sin puede estar vacío"
   },
-  "get_base_dict_item.id.required": {
-    "other": "El ID del atributo del diccionario no puede estar vacío"
+  "system.admin.base.dict.get_item.id.required": {
+    "other": "Dictionary attribute ID Sin puede estar vacío"
   },
-  "get_base_language.id.required": {
-    "other": "El ID de idioma no puede estar vacío"
+  "system.admin.base.language.get.id.required": {
+    "other": "idioma ID Sin puede estar vacío"
   },
-  "get_base_post.id.required": {
-    "other": "El ID de posición no puede estar vacío"
+  "system.admin.base.post.get.id.required": {
+    "other": "Position ID Sin puede estar vacío"
   },
-  "get_base_role.id.required": {
-    "other": "El ID de rol no puede estar vacío"
+  "system.admin.base.role.get.id.required": {
+    "other": "rol ID Sin puede estar vacío"
   },
-  "get_base_tenant.id.required": {
-    "other": "El ID del inquilino no puede estar vacío"
+  "system.admin.base.tenant.get.id.required": {
+    "other": "Tenant ID Sin puede estar vacío"
   },
-  "get_base_third_account_identifier.provider.required": {
-    "other": "El identificador del método de inicio de sesión no puede estar vacío"
+  "system.admin.base.third.account.get_identifier.provider.required": {
+    "other": "Login method identifier Sin puede estar vacío"
   },
-  "get_base_third_account_identifier.user_id.required": {
-    "other": "El ID de usuario no puede estar vacío"
+  "system.admin.base.third.account.get_identifier.user_id.required": {
+    "other": "usuario ID Sin puede estar vacío"
   },
-  "get_base_user.id.required": {
-    "other": "El ID de usuario no puede estar vacío"
+  "system.admin.base.user.get.id.required": {
+    "other": "usuario ID Sin puede estar vacío"
   },
-  "get_code_gen_table.id.required": {
-    "other": "El ID de clave principal no puede estar vacío"
+  "system.admin.code.gen.table.get.id.required": {
+    "other": "Primary key ID Sin puede estar vacío"
   },
-  "get_code_gen_task.task_id.required": {
-    "other": "El ID de tarea generado no puede estar vacío"
+  "system.admin.code.gen.get_task.task_id.required": {
+    "other": "Generate task ID Sin puede estar vacío"
   },
-  "get_config.site.required": {
-    "other": "La posición no puede estar vacía"
+  "base.config.get.site.required": {
+    "other": "Location Sin puede estar vacío"
   },
-  "handle_mcp.terminal.required": {
-    "other": "El identificador del servicio MCP no puede estar vacío"
+  "base.mcp.handle.terminal.required": {
+    "other": "MCP service identifier Sin puede estar vacío"
   },
-  "handle_oauth_binding_callback.code.required_on_success": {
-    "other": "El código de autorización de terceros no puede estar vacío"
+  "base.oauth.handle_binding_callback.code.required_on_success": {
+    "other": "The third-party authorization code Sin puede estar vacío"
   },
-  "handle_oauth_binding_callback.provider.required": {
-    "other": "El identificador del método de inicio de sesión no puede estar vacío"
+  "base.oauth.handle_binding_callback.provider.required": {
+    "other": "Login method identifier Sin puede estar vacío"
   },
-  "handle_oauth_binding_callback.state.required": {
-    "other": "El código de estado de autorización no puede estar vacío"
+  "base.oauth.handle_binding_callback.state.required": {
+    "other": "Authorization status code Sin puede estar vacío"
   },
-  "handle_oauth_callback.code.required_on_success": {
-    "other": "El código de autorización de terceros no puede estar vacío"
+  "base.oauth.handle_callback.code.required_on_success": {
+    "other": "The third-party authorization code Sin puede estar vacío"
   },
-  "handle_oauth_callback.provider.required": {
-    "other": "El identificador del método de inicio de sesión no puede estar vacío"
+  "base.oauth.handle_callback.provider.required": {
+    "other": "Login method identifier Sin puede estar vacío"
   },
-  "handle_oauth_callback.state.required": {
-    "other": "El código de estado de autorización no puede estar vacío"
+  "base.oauth.handle_callback.state.required": {
+    "other": "Authorization status code Sin puede estar vacío"
   },
-  "list_ai_message.session_id.positive": {
-    "other": "El número de sesión no es válido"
+  "base.ai.session.list_message.session_id.positive": {
+    "other": "The session number is invalid"
   },
-  "list_base_user.ids.positive": {
-    "other": "El ID de usuario debe ser mayor que 0"
+  "system.admin.base.user.list.ids.positive": {
+    "other": "usuario ID debe ser mayor que 0"
   },
-  "list_code_gen_column.table_id.required": {
-    "other": "El ID de configuración de la tabla de generación de código no puede estar vacío"
+  "system.admin.code.gen.column.list.table_id.required": {
+    "other": "Code generation table configuración ID Sin puede estar vacío"
   },
-  "list_code_gen_database_column.table_name.pattern": {
-    "other": "El formato del nombre de la tabla de la base de datos es incorrecto"
+  "system.admin.code.gen.column.list_gen_database_column.table_name.pattern": {
+    "other": "datosbase table nombre format is incorrect"
   },
-  "list_code_gen_database_column.table_name.required": {
-    "other": "El nombre de la tabla de la base de datos no puede estar vacío"
+  "system.admin.code.gen.column.list_gen_database_column.table_name.required": {
+    "other": "datosbase table nombre Sin puede estar vacío"
   },
-  "list_code_gen_proto.table_id.required": {
-    "other": "El ID de configuración de la tabla de generación de código no puede estar vacío"
+  "system.admin.code.gen.proto.list.table_id.required": {
+    "other": "Code generation table configuración ID Sin puede estar vacío"
   },
-  "login.captcha_code.required": {
-    "other": "El código de verificación no puede estar vacío"
+  "base.login.login.captcha_code.required": {
+    "other": "Verification code Sin puede estar vacío"
   },
-  "login.captcha_id.required": {
-    "other": "El código de verificación no puede estar vacío"
+  "base.login.login.captcha_id.required": {
+    "other": "Verification code Sin puede estar vacío"
   },
-  "login.user_name.required": {
-    "other": "El nombre de usuario no puede estar vacío"
+  "base.login.login.user_name.required": {
+    "other": "nombre de usuario Sin puede estar vacío"
   },
-  "preview_code_gen.table_id.required": {
-    "other": "El ID de configuración de la tabla de generación de código no puede estar vacío"
+  "system.admin.code.gen.preview.table_id.required": {
+    "other": "Code generation table configuración ID Sin puede estar vacío"
   },
-  "refresh_token.required": {
-    "other": "El token de actualización no puede estar vacío"
+  "base.login.refresh_token.required": {
+    "other": "Refresh token Sin puede estar vacío"
   },
-  "regenerate_ai_message.message_id.positive": {
-    "other": "El número de mensaje es ilegal"
+  "base.ai.message.regenerate.message_id.positive": {
+    "other": "The message number is invalid"
   },
-  "regenerate_ai_message.session_id.positive": {
-    "other": "El número de sesión no es válido"
+  "base.ai.message.regenerate.session_id.positive": {
+    "other": "The session number is invalid"
   },
-  "reset_base_user_password.id.required": {
-    "other": "El ID de usuario no puede estar vacío"
+  "system.admin.base.user.reset_password.id.required": {
+    "other": "usuario ID Sin puede estar vacío"
   },
-  "restore_code_gen.table_ids.positive": {
-    "other": "El ID de configuración de la tabla de generación de código debe ser mayor que 0"
+  "system.admin.code.gen.restore.table_ids.positive": {
+    "other": "Code generation table configuración ID debe ser mayor que 0"
   },
-  "retry_ai_message.message_id.positive": {
-    "other": "El número de mensaje es ilegal"
+  "base.ai.message.retry.message_id.positive": {
+    "other": "The message number is invalid"
   },
-  "retry_ai_message.session_id.positive": {
-    "other": "El número de sesión no es válido"
+  "base.ai.message.retry.session_id.positive": {
+    "other": "The session number is invalid"
   },
-  "save_code_gen_column.table_id.required": {
-    "other": "El ID de configuración de la tabla de generación de código no puede estar vacío"
+  "system.admin.code.gen.column.save.table_id.required": {
+    "other": "Code generation table configuración ID Sin puede estar vacío"
   },
-  "save_code_gen_proto.table_id.required": {
-    "other": "El ID de configuración de la tabla de generación de código no puede estar vacío"
+  "system.admin.code.gen.proto.save.table_id.required": {
+    "other": "Code generation table configuración ID Sin puede estar vacío"
   },
-  "send_ai_message.session_id.positive": {
-    "other": "El número de sesión no es válido"
+  "base.ai.message.send.session_id.positive": {
+    "other": "The session number is invalid"
   },
-  "send_phone_code.phone.format": {
-    "other": "Ingrese el número de teléfono móvil correcto"
+  "system.admin.auth.send_phone_code.phone.format": {
+    "other": "Introduzca the correct mobile phone number"
   },
-  "send_phone_code.phone.required": {
-    "other": "Por favor ingresa tu número de teléfono móvil"
+  "system.admin.auth.send_phone_code.phone.required": {
+    "other": "Introduzca mobile phone number"
   },
-  "set_base_config_status.id.required": {
-    "other": "El ID de configuración no puede estar vacío"
+  "system.admin.base.config.set_status.id.required": {
+    "other": "configuración ID Sin puede estar vacío"
   },
-  "set_base_dept_status.id.required": {
-    "other": "El ID de departamento no puede estar vacío"
+  "system.admin.base.dept.set_status.id.required": {
+    "other": "Department ID Sin puede estar vacío"
   },
-  "set_base_dict_item_status.id.required": {
-    "other": "El ID del atributo del diccionario no puede estar vacío"
+  "system.admin.base.dict.set_item_status.id.required": {
+    "other": "Dictionary attribute ID Sin puede estar vacío"
   },
-  "set_base_language_status.id.required": {
-    "other": "El ID de idioma no puede estar vacío"
+  "system.admin.base.language.set_status.id.required": {
+    "other": "idioma ID Sin puede estar vacío"
   },
-  "set_base_dict_status.id.required": {
-    "other": "El ID del diccionario no puede estar vacío"
+  "system.admin.base.language.set_primary.id.required": {
+    "other": "idioma ID Sin puede estar vacío"
   },
-  "set_base_menu_status.id.required": {
-    "other": "El ID del menú no puede estar vacío\nEl estado"
+  "system.admin.base.dict.set_status.id.required": {
+    "other": "Dictionary ID Sin puede estar vacío"
   },
-  "set_base_menu_status.status.required": {
-    "other": "no puede estar vacío"
+  "system.admin.base.menu.set_status.id.required": {
+    "other": "menú ID Sin puede estar vacío"
   },
-  "set_base_post_status.id.required": {
-    "other": "El ID de posición no puede estar vacío"
+  "system.admin.base.menu.set_status.status.required": {
+    "other": "Status Sin puede estar vacío"
   },
-  "set_base_role_menu.id.required": {
-    "other": "El ID de rol no puede estar vacío"
+  "system.admin.base.post.set_status.id.required": {
+    "other": "Position ID Sin puede estar vacío"
   },
-  "set_base_role_status.id.required": {
-    "other": "El ID de rol no puede estar vacío"
+  "system.admin.base.role.set_menu.id.required": {
+    "other": "rol ID Sin puede estar vacío"
   },
-  "set_base_tenant_status.id.required": {
-    "other": "El ID del inquilino no puede estar vacío"
+  "system.admin.base.role.set_status.id.required": {
+    "other": "rol ID Sin puede estar vacío"
   },
-  "set_base_user_app_role.role_code.required": {
-    "other": "El código de rol de la aplicación no puede estar vacío"
+  "system.admin.base.tenant.set_status.id.required": {
+    "other": "Tenant ID Sin puede estar vacío"
   },
-  "set_base_user_app_role.user_id.required": {
-    "other": "El ID de usuario no puede estar vacío"
+  "system.admin.base.user.set_app_role.role_code.required": {
+    "other": "The application-side rol code Sin puede estar vacío"
   },
-  "set_base_user_status.id.required": {
-    "other": "El ID de usuario no puede estar vacío"
+  "system.admin.base.user.set_app_role.user_id.required": {
+    "other": "usuario ID Sin puede estar vacío"
   },
-  "start_code_gen_task.table_ids.positive": {
-    "other": "El ID de configuración de la tabla de generación de código debe ser mayor que 0"
+  "system.admin.base.user.set_status.id.required": {
+    "other": "usuario ID Sin puede estar vacío"
   },
-  "subscribe_sse.stream.required": {
-    "other": "La transmisión SSE no puede estar vacía"
+  "system.admin.code.gen.start_task.table_ids.positive": {
+    "other": "Code generation table configuración ID debe ser mayor que 0"
   },
-  "unbind_oauth_account.provider.required": {
-    "other": "El identificador del método de inicio de sesión no puede estar vacío"
+  "base.sse.subscribe.stream.required": {
+    "other": "SSE stream Sin puede estar vacío"
   },
-  "update_ai_message.content.required": {
-    "other": "El contenido del mensaje no puede estar vacío"
+  "base.oauth.unbind_account.provider.required": {
+    "other": "Login method identifier Sin puede estar vacío"
   },
-  "update_ai_message.message_id.positive": {
-    "other": "El número de mensaje es ilegal"
+  "base.ai.message.update.content.required": {
+    "other": "Message content Sin puede estar vacío"
   },
-  "update_ai_message.session_id.positive": {
-    "other": "El número de sesión no es válido"
+  "base.ai.message.update.message_id.positive": {
+    "other": "The message number is invalid"
   },
-  "update_ai_session.id.positive": {
-    "other": "El número de sesión no es válido"
+  "base.ai.message.update.session_id.positive": {
+    "other": "The session number is invalid"
   },
-  "update_ai_session.title.required": {
-    "other": "El título de la sesión no puede estar vacío"
+  "base.ai.session.update.id.positive": {
+    "other": "The session number is invalid"
   },
-  "update_base_config.id.required": {
-    "other": "El ID de configuración no puede estar vacío"
+  "base.ai.session.update.title.required": {
+    "other": "Session title Sin puede estar vacío"
   },
-  "update_base_dept.id.required": {
-    "other": "El ID de departamento no puede estar vacío"
+  "system.admin.base.config.update.id.required": {
+    "other": "configuración ID Sin puede estar vacío"
   },
-  "update_base_dict.id.required": {
-    "other": "El ID del diccionario no puede estar vacío"
+  "system.admin.base.dept.update.id.required": {
+    "other": "Department ID Sin puede estar vacío"
   },
-  "update_base_dict_item.id.required": {
-    "other": "El ID del atributo del diccionario no puede estar vacío"
+  "system.admin.base.dict.update.id.required": {
+    "other": "Dictionary ID Sin puede estar vacío"
   },
-  "update_base_post.id.required": {
-    "other": "El ID de posición no puede estar vacío"
+  "system.admin.base.dict.update_item.id.required": {
+    "other": "Dictionary attribute ID Sin puede estar vacío"
   },
-  "update_base_role.id.required": {
-    "other": "El ID de rol no puede estar vacío"
+  "system.admin.base.post.update.id.required": {
+    "other": "Position ID Sin puede estar vacío"
   },
-  "update_base_tenant.id.required": {
-    "other": "El ID del inquilino no puede estar vacío"
+  "system.admin.base.role.update.id.required": {
+    "other": "rol ID Sin puede estar vacío"
   },
-  "update_base_user.id.required": {
-    "other": "El ID de usuario no puede estar vacío"
+  "system.admin.base.tenant.update.id.required": {
+    "other": "Tenant ID Sin puede estar vacío"
   },
-  "update_code_gen_table.id.required": {
-    "other": "El ID de clave principal no puede estar vacío"
+  "system.admin.base.user.update.id.required": {
+    "other": "usuario ID Sin puede estar vacío"
   },
-  "user_phone.code.required": {
-    "other": "Por favor ingresa el código de verificación"
+  "system.admin.code.gen.table.update.id.required": {
+    "other": "Primary key ID Sin puede estar vacío"
   },
-  "user_phone.phone.format": {
-    "other": "Ingrese el número de teléfono móvil correcto"
+  "system.admin.auth.user_phone.code.required": {
+    "other": "Introduzca the verification code"
   },
-  "user_phone.phone.required": {
-    "other": "Por favor ingresa tu número de teléfono móvil"
+  "system.admin.auth.user_phone.phone.format": {
+    "other": "Introduzca the correct mobile phone number"
   },
-  "verify_captcha.captcha_code.required": {
-    "other": "El código de verificación no puede estar vacío"
+  "system.admin.auth.user_phone.phone.required": {
+    "other": "Introduzca mobile phone number"
   },
-  "verify_captcha.captcha_id.required": {
-    "other": "El código de verificación no puede estar vacío"
+  "base.login.verify_captcha.captcha_code.required": {
+    "other": "Verification code Sin puede estar vacío"
+  },
+  "base.login.verify_captcha.captcha_id.required": {
+    "other": "Verification code Sin puede estar vacío"
   }
 }

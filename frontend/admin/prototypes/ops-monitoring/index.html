@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>运维监控 · Sub2API</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --page: #f3f6f8;
+        --surface: #ffffff;
+        --surface-soft: #f8fafb;
+        --line: #e4e9ee;
+        --line-strong: #d7dee5;
+        --text: #1f2933;
+        --muted: #7d8792;
+        --muted-strong: #5d6874;
+        --accent: #168f83;
+        --accent-soft: #e3f5f1;
+        --blue: #3979c7;
+        --blue-soft: #eaf2fc;
+        --green: #259862;
+        --green-soft: #e9f7ef;
+        --amber: #be7b1c;
+        --amber-soft: #fff4df;
+        --red: #d05763;
+        --red-soft: #fff0f1;
+        --shadow: 0 10px 24px rgb(15 23 42 / 5%);
+      }
+
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--page); color: var(--text); font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      button, select { font: inherit; }
+      button { cursor: pointer; }
+      .app { display: grid; min-height: 100vh; grid-template-columns: 228px minmax(0, 1fr); }
+      .sidebar { padding: 18px 13px; background: var(--surface); border-right: 1px solid var(--line); }
+      .brand { display: flex; align-items: center; gap: 10px; padding: 3px 11px 28px; font-size: 16px; font-weight: 750; letter-spacing: .01em; }
+      .brand-mark { display: grid; width: 31px; height: 31px; place-items: center; color: #fff; background: var(--accent); border-radius: 8px; font-weight: 800; }
+      .brand small { display: block; margin-top: 1px; color: var(--muted); font-size: 10px; font-weight: 500; letter-spacing: .06em; }
+      .nav { display: grid; gap: 5px; }
+      .nav-heading { padding: 15px 12px 6px; color: #a0a8b1; font-size: 10px; font-weight: 750; letter-spacing: .11em; text-transform: uppercase; }
+      .nav-item { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 9px 12px; color: #66717c; border-radius: 6px; }
+      .nav-item:hover { color: var(--accent); background: var(--surface-soft); }
+      .nav-item.active { color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+      .nav-icon { display: grid; width: 18px; height: 18px; place-items: center; flex: 0 0 18px; }
+      .nav-icon svg, .icon-button svg, .button-icon { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
+      .sidebar-footer { display: flex; align-items: center; gap: 9px; margin-top: 28px; padding: 14px 11px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; }
+      .sidebar-footer .pulse { width: 7px; height: 7px; background: var(--green); border-radius: 50%; box-shadow: 0 0 0 4px var(--green-soft); }
+      .shell { min-width: 0; }
+      .topbar { display: flex; height: 60px; align-items: center; justify-content: space-between; gap: 18px; padding: 0 26px; background: var(--surface); border-bottom: 1px solid var(--line); }
+      .crumbs { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13px; }
+      .crumbs strong { color: var(--text); font-weight: 650; }
+      .top-actions { display: flex; align-items: center; gap: 14px; color: var(--muted-strong); }
+      .top-action { display: inline-flex; align-items: center; gap: 6px; color: inherit; background: transparent; border: 0; }
+      .avatar { display: grid; width: 31px; height: 31px; place-items: center; color: #fff; background: #7086ad; border-radius: 50%; font-size: 12px; font-weight: 700; }
+      main { min-width: 0; padding: 22px 24px 34px; }
+      .page { max-width: 1540px; margin: 0 auto; }
+      .page-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+      .eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--accent); font-size: 10px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase; }
+      .eyebrow-dot { width: 7px; height: 7px; background: currentColor; border-radius: 50%; box-shadow: 0 0 0 4px var(--accent-soft); }
+      h1, h2, h3, p { margin: 0; }
+      h1 { margin-top: 7px; font-size: 25px; line-height: 1.2; letter-spacing: -.02em; }
+      h2 { font-size: 15px; line-height: 1.3; }
+      h3 { font-size: 13px; }
+      .page-heading p { margin-top: 7px; color: var(--muted-strong); font-size: 12px; }
+      .heading-tools { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px; }
+      .select-wrap { position: relative; }
+      .select-wrap select { min-width: 112px; height: 34px; padding: 0 29px 0 11px; color: var(--muted-strong); appearance: none; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 5px; outline: none; }
+      .select-wrap::after { position: absolute; top: 50%; right: 10px; width: 6px; height: 6px; content: ""; pointer-events: none; border-right: 1px solid var(--muted); border-bottom: 1px solid var(--muted); transform: translateY(-65%) rotate(45deg); }
+      .select-wrap select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+      .btn { display: inline-flex; height: 34px; align-items: center; justify-content: center; gap: 7px; padding: 0 11px; color: var(--muted-strong); background: var(--surface); border: 1px solid var(--line-strong); border-radius: 5px; }
+      .btn:hover { color: var(--accent); border-color: var(--accent); }
+      .btn-primary { color: #fff; background: var(--accent); border-color: var(--accent); }
+      .btn-primary:hover { color: #fff; background: #11766d; border-color: #11766d; }
+      .btn.icon-only { width: 34px; padding: 0; }
+      .auto-refresh { color: var(--green); background: var(--green-soft); border-color: transparent; font-size: 12px; font-weight: 650; }
+      .auto-refresh[aria-pressed="false"] { color: var(--muted); background: var(--surface-soft); border-color: var(--line); }
+      .status-line { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 18px; padding: 11px 14px; color: var(--muted-strong); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; box-shadow: var(--shadow); }
+      .status-main { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; }
+      .status-main .status-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; box-shadow: 0 0 0 4px var(--green-soft); }
+      .status-meta { display: flex; flex-wrap: wrap; gap: 18px; color: var(--muted); font-size: 11px; }
+      .metric-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+      .metric { min-width: 0; padding: 14px 15px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 5px 16px rgb(15 23 42 / 3%); }
+      .metric-label { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 11px; }
+      .metric-value { display: block; margin-top: 8px; overflow: hidden; color: var(--text); font-size: 22px; font-weight: 750; letter-spacing: -.02em; text-overflow: ellipsis; white-space: nowrap; }
+      .metric-context { display: block; margin-top: 4px; overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+      .metric-value.green { color: var(--green); }
+      .metric-value.amber { color: var(--amber); }
+      .metric-value.red { color: var(--red); }
+      .section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin: 26px 0 11px; }
+      .section-head p { margin-top: 4px; color: var(--muted); font-size: 11px; }
+      .section-note { color: var(--muted); font-size: 11px; }
+      .grid-main { display: grid; grid-template-columns: minmax(260px, .8fr) minmax(0, 1.2fr); gap: 12px; }
+      .panel { min-width: 0; padding: 17px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; box-shadow: var(--shadow); }
+      .panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+      .panel-head p { margin-top: 3px; color: var(--muted); font-size: 11px; }
+      .chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; color: var(--green); background: var(--green-soft); border-radius: 4px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+      .chip.amber { color: var(--amber); background: var(--amber-soft); }
+      .chip.red { color: var(--red); background: var(--red-soft); }
+      .health-body { display: grid; grid-template-columns: 148px minmax(0, 1fr); gap: 20px; align-items: center; margin-top: 17px; }
+      .ring { position: relative; width: 132px; height: 132px; margin: 0 auto; }
+      .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+      .ring-track { fill: none; stroke: #edf0f2; stroke-width: 12; }
+      .ring-value { fill: none; stroke: var(--green); stroke-linecap: round; stroke-width: 12; stroke-dasharray: 339.3; stroke-dashoffset: 13.6; }
+      .ring-label { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+      .ring-label strong { font-size: 31px; line-height: 1; }
+      .ring-label span { margin-top: 6px; color: var(--muted); font-size: 10px; }
+      .diagnosis { min-width: 0; }
+      .diagnosis-title { margin-bottom: 9px; color: var(--muted-strong); font-size: 11px; font-weight: 700; }
+      .diagnosis-item { display: grid; grid-template-columns: 8px minmax(0, 1fr); gap: 9px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+      .diagnosis-item:last-child { border-bottom: 0; }
+      .diagnosis-dot { width: 7px; height: 7px; margin-top: 5px; border-radius: 50%; }
+      .diagnosis-dot.green { background: var(--green); }
+      .diagnosis-dot.amber { background: var(--amber); }
+      .diagnosis-item strong { display: block; font-size: 11px; }
+      .diagnosis-item span { display: block; margin-top: 1px; color: var(--muted); font-size: 10px; }
+      .throughput-panel { display: flex; flex-direction: column; }
+      .chart-legend { display: flex; align-items: center; gap: 14px; color: var(--muted); font-size: 10px; }
+      .legend { display: inline-flex; align-items: center; gap: 5px; }
+      .legend i { width: 7px; height: 7px; border-radius: 50%; }
+      .legend i.blue { background: var(--blue); }
+      .legend i.teal { background: var(--accent); }
+      .chart { min-height: 190px; margin-top: 13px; }
+      .chart svg { width: 100%; height: 190px; overflow: visible; }
+      .chart-grid-line { stroke: var(--line); stroke-width: 1; }
+      .chart-axis { fill: var(--muted); font-size: 9px; }
+      .chart-line-blue { fill: none; stroke: var(--blue); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2.5; }
+      .chart-line-teal { fill: none; stroke: var(--accent); stroke-linecap: round; stroke-linejoin: round; stroke-width: 2.5; }
+      .chart-area { fill: var(--blue-soft); opacity: .65; }
+      .grid-secondary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+      .mini-chart { min-height: 260px; }
+      .mini-chart .chart { min-height: 180px; }
+      .mini-chart .chart svg { height: 180px; }
+      .histogram { display: flex; height: 152px; align-items: end; gap: 7px; margin-top: 20px; padding: 0 8px 22px; border-bottom: 1px solid var(--line-strong); }
+      .histogram span { position: relative; display: block; flex: 1; min-width: 10px; background: var(--blue); border-radius: 3px 3px 0 0; }
+      .histogram span::after { position: absolute; top: calc(100% + 8px); left: 50%; color: var(--muted); content: attr(data-label); font-size: 9px; transform: translateX(-50%); }
+      .histogram span:nth-child(1) { height: 42%; opacity: .44; }
+      .histogram span:nth-child(2) { height: 71%; opacity: .6; }
+      .histogram span:nth-child(3) { height: 100%; opacity: .8; }
+      .histogram span:nth-child(4) { height: 63%; opacity: .68; }
+      .histogram span:nth-child(5) { height: 36%; opacity: .52; }
+      .histogram span:nth-child(6) { height: 23%; opacity: .42; }
+      .error-list { display: grid; gap: 13px; margin-top: 20px; }
+      .error-row { display: grid; grid-template-columns: 92px minmax(0, 1fr) 42px; gap: 10px; align-items: center; color: var(--muted-strong); font-size: 10px; }
+      .error-bar { height: 8px; overflow: hidden; background: var(--surface-soft); border-radius: 2px; }
+      .error-bar i { display: block; height: 100%; background: var(--red); border-radius: inherit; }
+      .error-row:nth-child(2) .error-bar i { background: var(--amber); }
+      .error-row:nth-child(3) .error-bar i { background: var(--blue); }
+      .error-row:nth-child(4) .error-bar i { background: #8b7ac6; }
+      .error-row strong { color: var(--text); font-size: 11px; text-align: right; }
+      .table-panel { margin-top: 12px; }
+      .table-wrap { overflow-x: auto; margin-top: 11px; }
+      table { width: 100%; min-width: 700px; border-collapse: collapse; }
+      th, td { padding: 10px 9px; text-align: left; border-bottom: 1px solid var(--line); }
+      th { color: var(--muted); font-size: 10px; font-weight: 700; }
+      td { color: var(--muted-strong); font-size: 11px; }
+      tbody tr:last-child td { border-bottom: 0; }
+      td strong { color: var(--text); font-weight: 700; }
+      .severity { display: inline-flex; padding: 3px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; }
+      .severity.high { color: var(--red); background: var(--red-soft); }
+      .severity.medium { color: var(--amber); background: var(--amber-soft); }
+      .severity.low { color: var(--blue); background: var(--blue-soft); }
+      .state { display: inline-flex; align-items: center; gap: 5px; color: var(--green); font-size: 10px; font-weight: 700; }
+      .state::before { width: 6px; height: 6px; content: ""; background: currentColor; border-radius: 50%; }
+      .state.muted { color: var(--muted); }
+      .bottom-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 12px; margin-top: 12px; }
+      .availability { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; margin-top: 13px; }
+      .availability-item { padding: 11px; background: var(--surface-soft); border: 1px solid var(--line); border-radius: 5px; }
+      .availability-name { display: flex; align-items: center; justify-content: space-between; gap: 5px; font-size: 11px; font-weight: 700; }
+      .availability-meta { display: block; margin-top: 6px; color: var(--muted); font-size: 10px; }
+      .availability-meta strong { color: var(--green); font-size: 15px; }
+      .progress { height: 5px; margin-top: 8px; overflow: hidden; background: #e8edf0; border-radius: 3px; }
+      .progress i { display: block; height: 100%; background: var(--green); border-radius: inherit; }
+      .progress i.amber { background: var(--amber); }
+      .small-actions { display: flex; flex-wrap: wrap; gap: 7px; }
+      .small-btn { height: 28px; padding: 0 9px; color: var(--muted-strong); background: var(--surface); border: 1px solid var(--line-strong); border-radius: 4px; font-size: 10px; }
+      .small-btn:hover { color: var(--accent); border-color: var(--accent); }
+      .timestamp { color: var(--muted); font-size: 10px; }
+      .page.is-fullscreen { position: fixed; inset: 0; z-index: 10; max-width: none; padding: 18px 24px; overflow: auto; background: var(--page); }
+      .toast { position: fixed; right: 24px; bottom: 22px; z-index: 20; padding: 10px 13px; color: #fff; background: #26333d; border-radius: 5px; box-shadow: 0 10px 24px rgb(15 23 42 / 20%); opacity: 0; pointer-events: none; transform: translateY(8px); transition: .2s ease; }
+      .toast.show { opacity: 1; transform: translateY(0); }
+      @media (max-width: 1240px) { .metric-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .grid-secondary { grid-template-columns: repeat(2, minmax(0, 1fr)); } .bottom-grid { grid-template-columns: 1fr; } }
+      @media (max-width: 980px) { .app { grid-template-columns: 72px minmax(0, 1fr); } .brand { justify-content: center; padding-inline: 0; } .brand > div:last-child, .nav-heading, .nav-item > span:last-child, .sidebar-footer span:last-child { display: none; } .nav-item { justify-content: center; } .topbar { padding-inline: 17px; } main { padding-inline: 17px; } .grid-main { grid-template-columns: 1fr; } .health-body { grid-template-columns: 170px minmax(0, 1fr); } }
+      @media (max-width: 720px) { .topbar { height: auto; min-height: 58px; padding-block: 12px; } .top-actions .top-action span { display: none; } main { padding: 14px 11px 24px; } .page-heading { display: block; } .heading-tools { justify-content: flex-start; margin-top: 14px; } .metric-grid, .grid-secondary { grid-template-columns: 1fr; } .health-body { grid-template-columns: 1fr; } .availability { grid-template-columns: repeat(2, minmax(0, 1fr)); } .status-meta { gap: 10px; } h1 { font-size: 23px; } .panel { padding: 14px; } }
+      @media (max-width: 430px) { .app { display: block; } .sidebar { display: none; } .topbar { padding-inline: 13px; } .crumbs { font-size: 12px; } .select-wrap select { min-width: 98px; } .availability { grid-template-columns: 1fr; } .heading-tools .select-wrap, .heading-tools .select-wrap select { width: 100%; } .heading-tools { align-items: stretch; } .heading-tools .select-wrap { flex: 1 1 112px; } }
+    </style>
+  </head>
+  <body>
+    <div class="app" id="ops-app">
+      <aside class="sidebar" aria-label="主导航">
+        <div class="brand"><span class="brand-mark">S</span><div>Sub2API<small>ADMIN CONSOLE</small></div></div>
+        <nav class="nav">
+          <div class="nav-heading">工作台</div>
+          <div class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 13h6V4H4zM14 20h6v-9h-6zM14 4h6v3h-6zM4 20h6v-3H4z" /></svg></span><span>运营总览</span></div>
+          <div class="nav-item active"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" /></svg></span><span>运维监控</span></div>
+          <div class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16" /><circle cx="8" cy="5" r="2" /><circle cx="16" cy="12" r="2" /><circle cx="10" cy="19" r="2" /></svg></span><span>请求记录</span></div>
+          <div class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M12 4v8l5 3" /><circle cx="12" cy="12" r="8" /></svg></span><span>错误日志</span></div>
+          <div class="nav-heading">配置中心</div>
+          <div class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18" /><circle cx="12" cy="12" r="8" /></svg></span><span>告警管理</span></div>
+          <div class="nav-item"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 7h16v13H4zM7 7V4h10v3M8 12h8M8 16h5" /></svg></span><span>账号与渠道</span></div>
+        </nav>
+        <div class="sidebar-footer"><span class="pulse"></span><span>监控服务在线</span></div>
+      </aside>
+
+      <div class="shell">
+        <header class="topbar">
+          <div class="crumbs"><span>首页</span><span>/</span><strong>运维监控</strong></div>
+          <div class="top-actions"><button class="top-action" type="button" aria-label="通知"><svg class="button-icon" viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg><span>通知</span></button><button class="top-action" type="button" aria-label="设置"><svg class="button-icon" viewBox="0 0 24 24"><path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z" /><path d="m19.4 15 .1.1a2 2 0 0 1-2.8 2.8l-.1-.1a2 2 0 0 0-3.4 1.4v.2a2 2 0 0 1-4 0v-.2a2 2 0 0 0-3.4-1.4l-.1.1A2 2 0 0 1 3 15.1l.1-.1A2 2 0 0 0 1.7 11.6h-.2a2 2 0 0 1 0-4h.2A2 2 0 0 0 3.1 4.2L3 4.1A2 2 0 0 1 5.8 1.3l.1.1A2 2 0 0 0 9.3 0h.2a2 2 0 0 1 4 0v.2a2 2 0 0 0 3.4 1.4l.1-.1A2 2 0 0 1 19.8 4l-.1.1a2 2 0 0 0 1.4 3.4h.2a2 2 0 0 1 0 4h-.2a2 2 0 0 0-1.7 3.5Z" transform="translate(1.3 1.8) scale(.88)" /></svg><span>设置</span></button><span class="avatar">超</span></div>
+        </header>
+
+        <main>
+          <div class="page" id="ops-page">
+            <section class="page-heading" aria-labelledby="page-title">
+              <div><span class="eyebrow"><i class="eyebrow-dot"></i>Operations Center</span><h1 id="page-title">运维监控</h1><p>查看网关请求、上游依赖和告警状态，快速定位异常。</p></div>
+              <div class="heading-tools" aria-label="监控筛选器">
+                <div class="select-wrap"><select id="time-range" aria-label="时间范围"><option value="5m">近 5 分钟</option><option value="30m">近 30 分钟</option><option value="1h" selected>近 1 小时</option><option value="6h">近 6 小时</option><option value="24h">近 24 小时</option></select></div>
+                <div class="select-wrap"><select id="platform" aria-label="平台"><option value="all">全部平台</option><option value="openai">OpenAI</option><option value="anthropic">Anthropic</option><option value="gemini">Gemini</option><option value="grok">Grok</option></select></div>
+                <div class="select-wrap"><select id="group" aria-label="账号组"><option>全部账号组</option><option>生产主组</option><option>备用线路</option></select></div>
+                <button class="btn auto-refresh" id="auto-refresh" type="button" aria-pressed="true"><svg class="button-icon" viewBox="0 0 24 24"><path d="M20 11a8.1 8.1 0 0 0-14.8-4L3 10M3 5v5h5M4 13a8.1 8.1 0 0 0 14.8 4L21 14m0 5v-5h-5" /></svg><span>自动刷新 30s</span></button>
+                <button class="btn icon-only" id="refresh" type="button" aria-label="刷新数据" data-tooltip="刷新数据"><svg class="button-icon" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0 2 5" /><path d="M20 4v7h-7" /></svg></button>
+                <button class="btn icon-only" id="fullscreen" type="button" aria-label="全屏" data-tooltip="全屏查看"><svg class="button-icon" viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M21 16v5h-5" /></svg></button>
+              </div>
+            </section>
+
+            <div class="status-line"><div class="status-main"><i class="status-dot"></i><span>系统运行正常</span><span class="chip">健康评分 98.6</span></div><div class="status-meta"><span>数据源：Sub2API 网关</span><span>最近更新：<b id="last-updated">刚刚</b></span><span>时区：Asia/Shanghai</span></div></div>
+
+            <section class="metric-grid" aria-label="关键指标">
+              <div class="metric"><div class="metric-label"><span>请求总量</span><span class="chip">+8.4%</span></div><strong class="metric-value">1,248,620</strong><span class="metric-context">当前时间窗口</span></div>
+              <div class="metric"><div class="metric-label"><span>成功率</span><span class="chip">SLA</span></div><strong class="metric-value green">99.2%</strong><span class="metric-context">阈值 ≥ 99.0%</span></div>
+              <div class="metric"><div class="metric-label"><span>平均 QPS</span><span class="chip">实时</span></div><strong class="metric-value">20.8</strong><span class="metric-context">峰值 38.4</span></div>
+              <div class="metric"><div class="metric-label"><span>P95 延迟</span><span class="chip amber">关注</span></div><strong class="metric-value amber">742 ms</strong><span class="metric-context">P99 1,480 ms</span></div>
+              <div class="metric"><div class="metric-label"><span>请求错误率</span><span class="chip">正常</span></div><strong class="metric-value green">0.8%</strong><span class="metric-context">排除 429 / 529</span></div>
+              <div class="metric"><div class="metric-label"><span>Token 消耗</span><span class="chip">累计</span></div><strong class="metric-value">84.6M</strong><span class="metric-context">输入 62.1M · 输出 22.5M</span></div>
+            </section>
+
+            <div class="section-head"><div><span class="eyebrow">Service health</span><h2>服务健康</h2><p>综合请求质量、系统资源和依赖状态。</p></div><span class="section-note">阈值配置 · 最近 1 小时</span></div>
+            <section class="grid-main">
+              <article class="panel">
+                <div class="panel-head"><div><h2>健康评分</h2><p>根据当前窗口自动计算</p></div><span class="chip">Healthy</span></div>
+                <div class="health-body"><div class="ring" aria-label="健康评分 98.6"><svg viewBox="0 0 132 132"><circle class="ring-track" cx="66" cy="66" r="54" /><circle class="ring-value" cx="66" cy="66" r="54" /></svg><div class="ring-label"><strong>98.6</strong><span>/ 100</span></div></div><div class="diagnosis"><div class="diagnosis-title">自动诊断</div><div class="diagnosis-item"><i class="diagnosis-dot green"></i><div><strong>请求成功率稳定</strong><span>SLA 高于 99.0% 目标</span></div></div><div class="diagnosis-item"><i class="diagnosis-dot amber"></i><div><strong>P95 延迟接近阈值</strong><span>建议关注高峰时段上游响应</span></div></div><div class="diagnosis-item"><i class="diagnosis-dot green"></i><div><strong>依赖连接正常</strong><span>数据库、缓存均可访问</span></div></div></div></div>
+              </article>
+              <article class="panel throughput-panel"><div class="panel-head"><div><h2>请求吞吐</h2><p>QPS 与 TPS 实时趋势</p></div><div class="chart-legend"><span class="legend"><i class="blue"></i>QPS</span><span class="legend"><i class="teal"></i>TPS</span></div></div><div class="chart"><svg viewBox="0 0 720 190" preserveAspectRatio="none" aria-label="请求吞吐趋势图"><line class="chart-grid-line" x1="0" y1="24" x2="720" y2="24" /><line class="chart-grid-line" x1="0" y1="70" x2="720" y2="70" /><line class="chart-grid-line" x1="0" y1="116" x2="720" y2="116" /><line class="chart-grid-line" x1="0" y1="162" x2="720" y2="162" /><path class="chart-area" d="M0 144 L40 130 L80 136 L120 110 L160 119 L200 91 L240 108 L280 73 L320 84 L360 60 L400 75 L440 52 L480 66 L520 43 L560 58 L600 28 L640 48 L680 36 L720 43 L720 162 L0 162Z" /><polyline class="chart-line-blue" points="0,144 40,130 80,136 120,110 160,119 200,91 240,108 280,73 320,84 360,60 400,75 440,52 480,66 520,43 560,58 600,28 640,48 680,36 720,43" /><polyline class="chart-line-teal" points="0,154 40,144 80,150 120,125 160,135 200,114 240,121 280,100 320,106 360,91 400,96 440,82 480,91 520,74 560,86 600,65 640,78 680,68 720,73" /><text class="chart-axis" x="0" y="181">60 分钟前</text><text class="chart-axis" x="337" y="181">30 分钟前</text><text class="chart-axis" x="677" y="181">现在</text></svg></div></article>
+            </section>
+
+            <div class="section-head"><div><span class="eyebrow">Request analytics</span><h2>请求分析</h2><p>延迟分布、错误来源和失败趋势。</p></div><button class="small-btn" id="view-errors" type="button">查看错误明细</button></div>
+            <section class="grid-secondary">
+              <article class="panel mini-chart"><div class="panel-head"><div><h2>延迟分布</h2><p>请求耗时百分位</p></div><span class="chip amber">P95 742 ms</span></div><div class="histogram" aria-label="延迟分布柱状图"><span data-label="0-100"></span><span data-label="100-300"></span><span data-label="300-700"></span><span data-label="700-1k"></span><span data-label="1-2k"></span><span data-label="2k+"></span></div><div class="status-meta" style="margin-top: 18px"><span>中位数 <b>286 ms</b></span><span>均值 <b>391 ms</b></span></div></article>
+              <article class="panel mini-chart"><div class="panel-head"><div><h2>错误分布</h2><p>按来源统计</p></div><span class="chip">合计 9,984</span></div><div class="error-list"><div class="error-row"><span>上游错误</span><div class="error-bar"><i style="width: 74%"></i></div><strong>7,386</strong></div><div class="error-row"><span>请求错误</span><div class="error-bar"><i style="width: 42%"></i></div><strong>1,492</strong></div><div class="error-row"><span>限流响应</span><div class="error-bar"><i style="width: 28%"></i></div><strong>826</strong></div><div class="error-row"><span>内部异常</span><div class="error-bar"><i style="width: 12%"></i></div><strong>280</strong></div></div><div class="status-meta" style="margin-top: 24px"><span>错误率 <b class="metric-value red" style="display: inline; font-size: 13px">0.8%</b></span><span>较上一周期 <b>-0.12%</b></span></div></article>
+              <article class="panel mini-chart"><div class="panel-head"><div><h2>错误趋势</h2><p>请求与上游错误</p></div><div class="chart-legend"><span class="legend"><i style="background: var(--red)"></i>请求错误</span><span class="legend"><i style="background: var(--amber)"></i>上游错误</span></div></div><div class="chart"><svg viewBox="0 0 480 180" preserveAspectRatio="none" aria-label="错误趋势图"><line class="chart-grid-line" x1="0" y1="22" x2="480" y2="22" /><line class="chart-grid-line" x1="0" y1="70" x2="480" y2="70" /><line class="chart-grid-line" x1="0" y1="118" x2="480" y2="118" /><line class="chart-grid-line" x1="0" y1="162" x2="480" y2="162" /><polyline points="0,141 32,139 64,146 96,124 128,132 160,120 192,127 224,103 256,119 288,91 320,104 352,82 384,100 416,72 448,90 480,65" style="fill:none;stroke:var(--red);stroke-linecap:round;stroke-linejoin:round;stroke-width:2.5" /><polyline points="0,153 32,149 64,151 96,140 128,144 160,130 192,137 224,122 256,130 288,111 320,124 352,103 384,116 416,93 448,110 480,92" style="fill:none;stroke:var(--amber);stroke-linecap:round;stroke-linejoin:round;stroke-width:2.5" /><text class="chart-axis" x="0" y="177">60 分钟前</text><text class="chart-axis" x="420" y="177">现在</text></svg></div></article>
+            </section>
+
+            <section class="bottom-grid">
+              <article class="panel"><div class="panel-head"><div><h2>账号可用性</h2><p>各平台可用账号与限流状态</p></div><button class="small-btn" type="button">打开账号管理</button></div><div class="availability"><div class="availability-item"><div class="availability-name"><span>OpenAI</span><span class="state">在线</span></div><span class="availability-meta"><strong>18</strong> / 20 个可用</span><div class="progress"><i style="width: 90%"></i></div></div><div class="availability-item"><div class="availability-name"><span>Anthropic</span><span class="state">在线</span></div><span class="availability-meta"><strong>12</strong> / 14 个可用</span><div class="progress"><i style="width: 86%"></i></div></div><div class="availability-item"><div class="availability-name"><span>Gemini</span><span class="state">在线</span></div><span class="availability-meta"><strong>9</strong> / 10 个可用</span><div class="progress"><i style="width: 90%"></i></div></div><div class="availability-item"><div class="availability-name"><span>Grok</span><span class="state muted">观察</span></div><span class="availability-meta"><strong style="color: var(--amber)">4</strong> / 6 个可用</span><div class="progress"><i class="amber" style="width: 66%"></i></div></div></div></article>
+              <article class="panel"><div class="panel-head"><div><h2>实时并发</h2><p>当前请求、排队和限流</p></div><span class="chip">共 42</span></div><div class="availability" style="grid-template-columns: repeat(2, minmax(0, 1fr))"><div class="availability-item"><div class="availability-name"><span>进行中</span><span class="state">实时</span></div><span class="availability-meta"><strong>28</strong> 个请求</span></div><div class="availability-item"><div class="availability-name"><span>排队中</span><span class="state muted">稳定</span></div><span class="availability-meta"><strong>6</strong> 个请求</span></div><div class="availability-item"><div class="availability-name"><span>用户并发</span><span class="state muted">活跃</span></div><span class="availability-meta"><strong>17</strong> 位用户</span></div><div class="availability-item"><div class="availability-name"><span>限流响应</span><span class="state" style="color: var(--amber)">关注</span></div><span class="availability-meta"><strong style="color: var(--amber)">8</strong> 次 / 分钟</span></div></div></article>
+            </section>
+
+            <section class="panel table-panel"><div class="panel-head"><div><h2>最近告警事件</h2><p>需要处理的运行规则与通知状态。</p></div><div class="small-actions"><button class="small-btn" id="alert-rules" type="button">管理告警规则</button><button class="small-btn" type="button">查看全部</button></div></div><div class="table-wrap"><table><thead><tr><th>事件</th><th>指标</th><th>平台</th><th>级别</th><th>触发时间</th><th>状态</th><th>操作</th></tr></thead><tbody><tr><td><strong>P95 延迟升高</strong></td><td>ttft_p95_ms &gt; 700</td><td>OpenAI</td><td><span class="severity medium">中</span></td><td>14:35:42</td><td><span class="state">已恢复</span></td><td><button class="small-btn" type="button">查看</button></td></tr><tr><td><strong>上游错误率波动</strong></td><td>upstream_error_rate &gt; 2%</td><td>Gemini</td><td><span class="severity high">高</span></td><td>14:21:08</td><td><span class="state">处理中</span></td><td><button class="small-btn" type="button">处理</button></td></tr><tr><td><strong>备用线路可用账号减少</strong></td><td>available_accounts &lt; 5</td><td>Grok</td><td><span class="severity low">低</span></td><td>13:58:17</td><td><span class="state muted">已静默</span></td><td><button class="small-btn" type="button">查看</button></td></tr></tbody></table></div></section>
+          </div>
+        </main>
+      </div>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script>
+      const page = document.querySelector("#ops-page");
+      const toast = document.querySelector("#toast");
+      const updated = document.querySelector("#last-updated");
+      let toastTimer;
+      function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
+      }
+      function refreshPage() {
+        updated.textContent = "刚刚";
+        showToast("监控数据已刷新");
+      }
+      document.querySelector("#refresh").addEventListener("click", refreshPage);
+      document.querySelector("#time-range").addEventListener("change", event => showToast(`已切换到${event.target.selectedOptions[0].textContent}`));
+      document.querySelector("#platform").addEventListener("change", event => showToast(`平台筛选：${event.target.selectedOptions[0].textContent}`));
+      document.querySelector("#group").addEventListener("change", event => showToast(`账号组筛选：${event.target.selectedOptions[0].textContent}`));
+      document.querySelector("#auto-refresh").addEventListener("click", event => {
+        const button = event.currentTarget;
+        const active = button.getAttribute("aria-pressed") === "true";
+        button.setAttribute("aria-pressed", String(!active));
+        button.querySelector("span").textContent = active ? "自动刷新已暂停" : "自动刷新 30s";
+        showToast(active ? "自动刷新已暂停" : "自动刷新已开启");
+      });
+      document.querySelector("#fullscreen").addEventListener("click", event => {
+        const active = page.classList.toggle("is-fullscreen");
+        event.currentTarget.setAttribute("aria-label", active ? "退出全屏" : "全屏");
+        showToast(active ? "已进入全屏查看" : "已退出全屏查看");
+      });
+      document.querySelector("#view-errors").addEventListener("click", () => showToast("已定位到错误趋势与事件列表"));
+      document.querySelector("#alert-rules").addEventListener("click", () => showToast("告警规则管理已打开"));
+      document.querySelectorAll(".small-btn").forEach(button => button.addEventListener("click", () => { if (!button.id) showToast(`${button.textContent.trim()}已触发`); }));
+    </script>
+  </body>
+</html>

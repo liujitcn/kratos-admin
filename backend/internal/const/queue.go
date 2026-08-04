@@ -8,4 +8,6 @@ const (
 	LOG Queue = "log_queue"
 	// JOB_LOG 表示定时任务执行日志队列。
 	JOB_LOG Queue = "job_log_queue"
+	// TRANSLATION 表示动态资源机器翻译队列。
+	TRANSLATION Queue = "translation_queue"
 )

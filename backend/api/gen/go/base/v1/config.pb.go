@@ -25,6 +25,63 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 系统配置位置。
+type BaseConfigSite int32
+
+const (
+	// 未指定系统配置位置。
+	BaseConfigSite_BASE_CONFIG_SITE_UNSPECIFIED BaseConfigSite = 0
+	// 系统内使用。
+	BaseConfigSite_BASE_CONFIG_SITE_SYSTEM BaseConfigSite = 1
+	// 管理端。
+	BaseConfigSite_BASE_CONFIG_SITE_ADMIN BaseConfigSite = 2
+	// 移动端。
+	BaseConfigSite_BASE_CONFIG_SITE_APP BaseConfigSite = 3
+)
+
+// Enum value maps for BaseConfigSite.
+var (
+	BaseConfigSite_name = map[int32]string{
+		0: "BASE_CONFIG_SITE_UNSPECIFIED",
+		1: "BASE_CONFIG_SITE_SYSTEM",
+		2: "BASE_CONFIG_SITE_ADMIN",
+		3: "BASE_CONFIG_SITE_APP",
+	}
+	BaseConfigSite_value = map[string]int32{
+		"BASE_CONFIG_SITE_UNSPECIFIED": 0,
+		"BASE_CONFIG_SITE_SYSTEM":      1,
+		"BASE_CONFIG_SITE_ADMIN":       2,
+		"BASE_CONFIG_SITE_APP":         3,
+	}
+)
+
+func (x BaseConfigSite) Enum() *BaseConfigSite {
+	p := new(BaseConfigSite)
+	*p = x
+	return p
+}
+
+func (x BaseConfigSite) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (BaseConfigSite) Descriptor() protoreflect.EnumDescriptor {
+	return file_base_v1_config_proto_enumTypes[0].Descriptor()
+}
+
+func (BaseConfigSite) Type() protoreflect.EnumType {
+	return &file_base_v1_config_proto_enumTypes[0]
+}
+
+func (x BaseConfigSite) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use BaseConfigSite.Descriptor instead.
+func (BaseConfigSite) EnumDescriptor() ([]byte, []int) {
+	return file_base_v1_config_proto_rawDescGZIP(), []int{0}
+}
+
 // 获取系统配置条件
 type GetConfigRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -67,7 +124,7 @@ func (x *GetConfigRequest) GetSite() BaseConfigSite {
 	if x != nil {
 		return x.Site
 	}
-	return BaseConfigSite_UNKNOWN_BCS
+	return BaseConfigSite_BASE_CONFIG_SITE_UNSPECIFIED
 }
 
 // 系统配置项
@@ -180,17 +237,22 @@ var File_base_v1_config_proto protoreflect.FileDescriptor
 
 const file_base_v1_config_proto_rawDesc = "" +
 	"\n" +
-	"\x14base/v1/config.proto\x12\abase.v1\x1a\x12base/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xaf\x01\n" +
-	"\x10GetConfigRequest\x12\x9a\x01\n" +
-	"\x04site\x18\x02 \x01(\x0e2\x17.base.v1.BaseConfigSiteBm\xbaG&\x92\x02#位置：枚举【BaseConfigSite】\xbaHA\xba\x019\n" +
-	"\x18get_config.site.required\x12\x12位置不能为空\x1a\tthis != 0\x82\x01\x02\x10\x01R\x04site\"x\n" +
+	"\x14base/v1/config.proto\x12\abase.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xb4\x01\n" +
+	"\x10GetConfigRequest\x12\x9f\x01\n" +
+	"\x04site\x18\x02 \x01(\x0e2\x17.base.v1.BaseConfigSiteBr\xbaG&\x92\x02#位置：枚举【BaseConfigSite】\xbaHF\xba\x01>\n" +
+	"\x1dbase.config.get.site.required\x12\x12位置不能为空\x1a\tthis != 0\x82\x01\x02\x10\x01R\x04site\"x\n" +
 	"\n" +
 	"ConfigItem\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12!\n" +
 	"\x03key\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t配置keyR\x03key\x12'\n" +
 	"\x05value\x18\x03 \x01(\tB\x11\xbaG\x0e\x92\x02\v配置valueR\x05value\"\\\n" +
 	"\x11GetConfigResponse\x12G\n" +
-	"\aconfigs\x18\x01 \x03(\v2\x13.base.v1.ConfigItemB\x18\xbaG\x15\x92\x02\x12系统配置列表R\aconfigs2p\n" +
+	"\aconfigs\x18\x01 \x03(\v2\x13.base.v1.ConfigItemB\x18\xbaG\x15\x92\x02\x12系统配置列表R\aconfigs*\x85\x01\n" +
+	"\x0eBaseConfigSite\x12 \n" +
+	"\x1cBASE_CONFIG_SITE_UNSPECIFIED\x10\x00\x12\x1b\n" +
+	"\x17BASE_CONFIG_SITE_SYSTEM\x10\x01\x12\x1a\n" +
+	"\x16BASE_CONFIG_SITE_ADMIN\x10\x02\x12\x18\n" +
+	"\x14BASE_CONFIG_SITE_APP\x10\x032p\n" +
 	"\rConfigService\x12_\n" +
 	"\tGetConfig\x12\x19.base.v1.GetConfigRequest\x1a\x1a.base.v1.GetConfigResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/api/v1/base/configB\x9b\x01\n" +
 	"\vcom.base.v1B\vConfigProtoP\x01ZBgithub.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1;basev1\xa2\x02\x03BXX\xaa\x02\aBase.V1\xca\x02\aBase\\V1\xe2\x02\x13Base\\V1\\GPBMetadata\xea\x02\bBase::V1b\x06proto3"
@@ -207,18 +269,19 @@ func file_base_v1_config_proto_rawDescGZIP() []byte {
 	return file_base_v1_config_proto_rawDescData
 }
 
+var file_base_v1_config_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_base_v1_config_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_base_v1_config_proto_goTypes = []any{
-	(*GetConfigRequest)(nil),  // 0: base.v1.GetConfigRequest
-	(*ConfigItem)(nil),        // 1: base.v1.ConfigItem
-	(*GetConfigResponse)(nil), // 2: base.v1.GetConfigResponse
-	(BaseConfigSite)(0),       // 3: base.v1.BaseConfigSite
+	(BaseConfigSite)(0),       // 0: base.v1.BaseConfigSite
+	(*GetConfigRequest)(nil),  // 1: base.v1.GetConfigRequest
+	(*ConfigItem)(nil),        // 2: base.v1.ConfigItem
+	(*GetConfigResponse)(nil), // 3: base.v1.GetConfigResponse
 }
 var file_base_v1_config_proto_depIdxs = []int32{
-	3, // 0: base.v1.GetConfigRequest.site:type_name -> base.v1.BaseConfigSite
-	1, // 1: base.v1.GetConfigResponse.configs:type_name -> base.v1.ConfigItem
-	0, // 2: base.v1.ConfigService.GetConfig:input_type -> base.v1.GetConfigRequest
-	2, // 3: base.v1.ConfigService.GetConfig:output_type -> base.v1.GetConfigResponse
+	0, // 0: base.v1.GetConfigRequest.site:type_name -> base.v1.BaseConfigSite
+	2, // 1: base.v1.GetConfigResponse.configs:type_name -> base.v1.ConfigItem
+	1, // 2: base.v1.ConfigService.GetConfig:input_type -> base.v1.GetConfigRequest
+	3, // 3: base.v1.ConfigService.GetConfig:output_type -> base.v1.GetConfigResponse
 	3, // [3:4] is the sub-list for method output_type
 	2, // [2:3] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
@@ -231,19 +294,19 @@ func file_base_v1_config_proto_init() {
 	if File_base_v1_config_proto != nil {
 		return
 	}
-	file_base_v1_enum_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_base_v1_config_proto_rawDesc), len(file_base_v1_config_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_base_v1_config_proto_goTypes,
 		DependencyIndexes: file_base_v1_config_proto_depIdxs,
+		EnumInfos:         file_base_v1_config_proto_enumTypes,
 		MessageInfos:      file_base_v1_config_proto_msgTypes,
 	}.Build()
 	File_base_v1_config_proto = out.File

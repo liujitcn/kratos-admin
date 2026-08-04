@@ -126,7 +126,7 @@ func (c *AiSessionCase) CreateAiSessionBranch(ctx context.Context, req *basev1.C
 	messageOpts := make([]repository.QueryOption, 0, 6)
 	messageOpts = append(messageOpts, repository.Where(query.SessionID.Eq(sourceSession.ID)))
 	messageOpts = append(messageOpts, repository.Where(query.UserID.Eq(sourceSession.UserID)))
-	messageOpts = append(messageOpts, repository.Where(query.Status.Eq(int32(basev1.AiMessageStatus_SUCCESS_AMS))))
+	messageOpts = append(messageOpts, repository.Where(query.Status.Eq(int32(basev1.AiMessageStatus_AI_MESSAGE_STATUS_SUCCESS))))
 	messageOpts = append(messageOpts, repository.Where(query.CreatedAt.Lte(anchorMessage.CreatedAt)))
 	messageOpts = append(messageOpts, repository.Order(query.CreatedAt.Asc(), query.ID.Asc()))
 	var sourceMessages []*models.AiMessage

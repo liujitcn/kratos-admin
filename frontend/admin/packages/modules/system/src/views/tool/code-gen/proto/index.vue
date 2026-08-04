@@ -7,10 +7,10 @@
           <!-- 展示当前 Proto 配置对应的业务表。 -->
           <div class="code-gen-proto-toolbar__meta">
             <span class="code-gen-proto-toolbar__table-name" :title="formData.name">
-              {{ t("system.codegen.column.value.tableName", { name: formData.name }) }}
+              {{ t("system.code.gen.column.value.table_name", { name: formData.name }) }}
             </span>
             <span class="code-gen-proto-toolbar__table-comment" :title="formData.comment || '--'">
-              {{ t("system.codegen.column.value.tableComment", { comment: formData.comment || "--" }) }}
+              {{ t("system.code.gen.column.value.table_comment", { comment: formData.comment || "--" }) }}
             </span>
           </div>
           <el-button type="primary" :icon="Document" :disabled="!canEdit" @click="handleSaveProtoMethods()">
@@ -22,7 +22,7 @@
           <template #exists="{ row }">
             <div class="code-gen-proto-status">
               <el-tag :type="row.exists ? 'success' : 'warning'">
-                {{ t(row.exists ? "system.codegen.proto.status.exists" : "system.codegen.proto.status.missing") }}
+                {{ t(row.exists ? "system.code.gen.proto.status.exists" : "system.code.gen.proto.status.missing") }}
               </el-tag>
               <span class="code-gen-proto-cell__secondary" :title="row.message">{{ row.message }}</span>
             </div>
@@ -38,23 +38,23 @@
               </template>
               <div class="code-gen-proto-capability-popover">
                 <div class="code-gen-proto-capability-popover__item">
-                  <span>{{ t("system.codegen.proto.field.methodComment") }}</span>
+                  <span>{{ t("system.code.gen.proto.field.method_comment") }}</span>
                   <span class="code-gen-proto-capability-popover__value">{{ row.method_comment || "--" }}</span>
                 </div>
                 <div class="code-gen-proto-capability-popover__item">
-                  <span>{{ t("system.codegen.proto.field.methodName") }}</span>
+                  <span>{{ t("system.code.gen.proto.field.method_name") }}</span>
                   <code>{{ row.method_name || "--" }}</code>
                 </div>
                 <div class="code-gen-proto-capability-popover__item">
-                  <span>{{ t("system.codegen.proto.field.protoPath") }}</span>
+                  <span>{{ t("system.code.gen.proto.field.proto_path") }}</span>
                   <code class="code-gen-proto-capability-popover__path">{{ row.proto_file_path || "--" }}</code>
                 </div>
                 <div class="code-gen-proto-capability-popover__item">
-                  <span>{{ t("system.codegen.proto.field.serviceComment") }}</span>
+                  <span>{{ t("system.code.gen.proto.field.service_comment") }}</span>
                   <span class="code-gen-proto-capability-popover__value">{{ row.service_comment || "--" }}</span>
                 </div>
                 <div class="code-gen-proto-capability-popover__item">
-                  <span>{{ t("system.codegen.proto.field.serviceName") }}</span>
+                  <span>{{ t("system.code.gen.proto.field.service_name") }}</span>
                   <code>{{ row.service_name || "--" }}</code>
                 </div>
                 <pre class="code-gen-proto-capability-popover__preview"><code>{{ resolveProtoDefinition(row) }}</code></pre>
@@ -64,7 +64,7 @@
           <template #generate_when_missing="{ row }">
             <div class="code-gen-proto-generate">
               <el-checkbox v-model="row.generate_when_missing" :disabled="row.exists || !canEdit">
-                {{ t("system.codegen.proto.action.generateApi") }}
+                {{ t("system.code.gen.proto.action.generate_api") }}
               </el-checkbox>
               <el-button
                 v-if="showProtoConfigButton(row)"
@@ -75,13 +75,13 @@
                 :disabled="!canEdit"
                 @click="openProtoConfigDialog(row)"
               >
-                {{ t("system.codegen.proto.action.configure") }}
+                {{ t("system.code.gen.proto.action.configure") }}
               </el-button>
             </div>
           </template>
         </ProTable>
       </template>
-      <el-empty v-else :description="t('system.codegen.column.message.selectRecord')" />
+      <el-empty v-else :description="t('system.code.gen.column.message.select_record')" />
     </el-card>
 
     <ProDialog
@@ -104,7 +104,7 @@
             type="primary"
             :icon="Document"
             :disabled="!canEdit"
-            :aria-label="t('system.codegen.column.action.saveAndClose')"
+            :aria-label="t('system.code.gen.column.action.save_and_close')"
             @click="handleSaveProtoConfigDialog"
           >
             {{ t("common.action.save") }}
@@ -163,20 +163,20 @@ const loadingTargetColumns = reactive(new Set<string>());
 const formData = reactive<CodeGenTableForm>(createDefaultCodeGenTableForm());
 
 const triggerTypeLabelKeys: Record<string, string> = {
-  crud: "system.codegen.proto.trigger.crud",
-  page_tree: "system.codegen.proto.trigger.pageTree",
-  left_tree: "system.codegen.proto.trigger.leftTree",
-  entity_option: "system.codegen.proto.trigger.entityOption",
-  field_option: "system.codegen.proto.trigger.fieldOption",
-  field_status: "system.codegen.proto.trigger.fieldStatus"
+  crud: "system.code.gen.proto.trigger.crud",
+  page_tree: "system.code.gen.proto.trigger.page_tree",
+  left_tree: "system.code.gen.proto.trigger.left_tree",
+  entity_option: "system.code.gen.proto.trigger.entity_option",
+  field_option: "system.code.gen.proto.trigger.field_option",
+  field_status: "system.code.gen.proto.trigger.field_status"
 };
 
 const apiKindLabelKeys: Record<string, string> = {
-  crud: "system.codegen.proto.apiKind.crud",
-  list: "system.codegen.proto.apiKind.list",
-  option: "system.codegen.proto.apiKind.option",
-  tree: "system.codegen.proto.apiKind.tree",
-  status: "system.codegen.proto.apiKind.status"
+  crud: "system.code.gen.proto.api_kind.crud",
+  list: "system.code.gen.proto.api_kind.list",
+  option: "system.code.gen.proto.api_kind.option",
+  tree: "system.code.gen.proto.api_kind.tree",
+  status: "system.code.gen.proto.api_kind.status"
 };
 
 /** Proto 类型配置弹窗上下文。 */
@@ -203,25 +203,25 @@ const configDialog = reactive<CodeGenProtoConfigDialog>({
 const protoColumns = computed<ColumnProps[]>(() => [
   {
     prop: "trigger_type",
-    label: t("system.codegen.proto.field.triggerType"),
+    label: t("system.code.gen.proto.field.trigger_type"),
     minWidth: 150,
     render: scope => resolveTriggerTypeLabel(String(scope.row.trigger_type))
   },
   {
     prop: "api_kind",
-    label: t("system.codegen.proto.field.apiKind"),
+    label: t("system.code.gen.proto.field.api_kind"),
     minWidth: 150,
     render: scope => resolveAPIKindLabel(String(scope.row.api_kind))
   },
-  { prop: "proto_info", label: t("system.codegen.proto.field.capability"), minWidth: 290 },
-  { prop: "exists", label: t("system.codegen.table.field.status"), minWidth: 210 },
-  { prop: "generate_when_missing", label: t("system.codegen.proto.field.generateSetting"), minWidth: 230 }
+  { prop: "proto_info", label: t("system.code.gen.proto.field.capability"), minWidth: 290 },
+  { prop: "exists", label: t("system.code.gen.table.field.status"), minWidth: 210 },
+  { prop: "generate_when_missing", label: t("system.code.gen.proto.field.generate_setting"), minWidth: 230 }
 ]);
 
 /** 将 Proto 配置对象适配为 ProForm 所需的通用表单模型。 */
 const protoConfigFormModel = computed<Record<string, any>>(() => configDialog.config as Record<string, any>);
 const configDialogTitle = computed(() =>
-  t("system.codegen.proto.title.config", {
+  t("system.code.gen.proto.title.config", {
     method: configDialog.methodName,
     kind: resolveAPIKindLabel(configDialog.apiKind)
   })
@@ -231,61 +231,61 @@ const configDialogTitle = computed(() =>
 const protoConfigFields = computed<ProFormField[]>(() => [
   {
     prop: "parent_column",
-    label: t("system.codegen.proto.field.parentColumn"),
+    label: t("system.code.gen.proto.field.parent_column"),
     component: "select",
     options: () => configColumnOptions.value,
     props: () => ({
       loading: configDialogLoading.value,
       filterable: true,
       clearable: true,
-      placeholder: t("system.codegen.proto.placeholder.parentColumn")
+      placeholder: t("system.code.gen.proto.placeholder.parent_column")
     }),
     visible: () => configDialog.apiKind === "tree"
   },
   {
     prop: "label_column",
-    label: t("system.codegen.proto.field.labelColumn"),
+    label: t("system.code.gen.proto.field.label_column"),
     component: "select",
     options: () => configColumnOptions.value,
     props: () => ({
       loading: configDialogLoading.value,
       filterable: true,
       clearable: true,
-      placeholder: t("system.codegen.proto.placeholder.labelColumn")
+      placeholder: t("system.code.gen.proto.placeholder.label_column")
     }),
     visible: () => ["option", "tree"].includes(configDialog.apiKind)
   },
   {
     prop: "value_column",
-    label: t("system.codegen.proto.field.valueColumn"),
+    label: t("system.code.gen.proto.field.value_column"),
     component: "select",
     options: () => configColumnOptions.value,
     props: () => ({
       loading: configDialogLoading.value,
       filterable: true,
       clearable: true,
-      placeholder: t("system.codegen.proto.placeholder.valueColumn")
+      placeholder: t("system.code.gen.proto.placeholder.value_column")
     }),
     visible: () => ["option", "tree"].includes(configDialog.apiKind)
   },
   {
     prop: "lazy",
-    label: t("system.codegen.proto.field.loadMode"),
+    label: t("system.code.gen.proto.field.load_mode"),
     component: "checkbox",
-    checkboxLabel: t("system.codegen.column.value.lazyChildren"),
+    checkboxLabel: t("system.code.gen.column.value.lazy_children"),
     props: () => ({ disabled: configDialog.apiKind !== "tree" }),
     visible: () => configDialog.apiKind === "tree"
   },
   {
     prop: "status_column",
-    label: t("system.codegen.proto.field.statusColumn"),
+    label: t("system.code.gen.proto.field.status_column"),
     component: "select",
     options: () => configColumnOptions.value,
     props: () => ({
       loading: configDialogLoading.value,
       filterable: true,
       clearable: true,
-      placeholder: t("system.codegen.proto.placeholder.statusColumn")
+      placeholder: t("system.code.gen.proto.placeholder.status_column")
     }),
     visible: () => configDialog.apiKind === "status"
   }
@@ -349,8 +349,8 @@ async function handleQuery() {
 function syncWorkspaceTitle() {
   const tableTitle = formData.comment || formData.name;
   const title = tableTitle
-    ? t("system.codegen.proto.title.workspaceWithTable", { table: tableTitle })
-    : t("system.codegen.proto.title.workspace");
+    ? t("system.code.gen.proto.title.workspace_with_table", { table: tableTitle })
+    : t("system.code.gen.proto.title.workspace");
   tabsStore.setTabsTitle(title);
   document.title = `${title} - ${import.meta.env.VITE_GLOB_APP_TITLE}`;
 }
@@ -523,7 +523,7 @@ function validateProtoConfigs() {
     item => !item.exists && item.generate_when_missing && needsProtoConfig(item.api_kind) && !hasCompleteProtoConfig(item)
   );
   if (!row) return true;
-  ElMessage.warning(t("system.codegen.proto.message.configureFirst", { method: row.method_name }));
+  ElMessage.warning(t("system.code.gen.proto.message.configure_first", { method: row.method_name }));
   openProtoConfigDialog(row);
   return false;
 }
@@ -569,7 +569,7 @@ async function handleSaveProtoMethods(showMessage = true) {
     table_id: formData.id,
     code_gen_protos: codeGenProtos
   });
-  if (showMessage) ElMessage.success(t("system.codegen.proto.message.saveSuccess"));
+  if (showMessage) ElMessage.success(t("system.code.gen.proto.message.save_success"));
   // 路由切换前保留当前页签地址，避免误删目标页签。
   const currentPath = route.fullPath;
   await router.push("/code/gen/table");

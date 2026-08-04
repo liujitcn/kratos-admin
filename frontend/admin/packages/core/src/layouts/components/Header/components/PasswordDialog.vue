@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="dialogVisible" :title="t('core.layout.passwordChange')" width="500px" draggable>
+  <el-dialog v-model="dialogVisible" :title="t('core.layout.password_change')" width="500px" draggable>
     <span>This is Password</span>
     <template #footer>
       <span class="dialog-footer">

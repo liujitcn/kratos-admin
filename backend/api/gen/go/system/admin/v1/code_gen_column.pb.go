@@ -845,22 +845,22 @@ var File_system_admin_v1_code_gen_column_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_code_gen_column_proto_rawDesc = "" +
 	"\n" +
-	"%system/admin/v1/code_gen_column.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a&system/admin/v1/base_translation.proto\"\xb2\x01\n" +
-	"\x18ListCodeGenColumnRequest\x12\x95\x01\n" +
-	"\btable_id\x18\x01 \x01(\x03Bz\xbaG\x1a\x92\x02\x17代码生成表配置ID\xbaHZ\xba\x01W\n" +
-	"&list_code_gen_column.table_id.required\x12#代码生成表配置ID不能为空\x1a\bthis > 0R\atableId\"\x8b\x01\n" +
+	"%system/admin/v1/code_gen_column.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a&system/admin/v1/base_translation.proto\"\xc0\x01\n" +
+	"\x18ListCodeGenColumnRequest\x12\xa3\x01\n" +
+	"\btable_id\x18\x01 \x01(\x03B\x87\x01\xbaG\x1a\x92\x02\x17代码生成表配置ID\xbaHg\xba\x01d\n" +
+	"3system.admin.code.gen.column.list.table_id.required\x12#代码生成表配置ID不能为空\x1a\bthis > 0R\atableId\"\x8b\x01\n" +
 	"\x19ListCodeGenColumnResponse\x12n\n" +
-	"\x10code_gen_columns\x18\x01 \x03(\v2\x1e.system.admin.v1.CodeGenColumnB$\xbaG!\x92\x02\x1e代码生成字段配置列表R\x0ecodeGenColumns\"\xba\x02\n" +
-	" ListCodeGenDatabaseColumnRequest\x12\x95\x02\n" +
+	"\x10code_gen_columns\x18\x01 \x03(\v2\x1e.system.admin.v1.CodeGenColumnB$\xbaG!\x92\x02\x1e代码生成字段配置列表R\x0ecodeGenColumns\"\xeb\x02\n" +
+	" ListCodeGenDatabaseColumnRequest\x12\xc6\x02\n" +
 	"\n" +
-	"table_name\x18\x01 \x01(\tB\xf5\x01\xbaG\x12\x92\x02\x0f数据库表名\xbaH\xdc\x01\xba\x01a\n" +
-	"1list_code_gen_database_column.table_name.required\x12\x1b数据库表名不能为空\x1a\x0fthis.size() > 0\xba\x01u\n" +
-	"0list_code_gen_database_column.table_name.pattern\x12\x1e数据库表名格式不正确\x1a!this.matches('^[a-z][a-z0-9_]*$')R\ttableName\"\x82\x01\n" +
+	"table_name\x18\x01 \x01(\tB\xa6\x02\xbaG\x12\x92\x02\x0f数据库表名\xbaH\x8d\x02\xba\x01y\n" +
+	"Isystem.admin.code.gen.column.list_gen_database_column.table_name.required\x12\x1b数据库表名不能为空\x1a\x0fthis.size() > 0\xba\x01\x8d\x01\n" +
+	"Hsystem.admin.code.gen.column.list_gen_database_column.table_name.pattern\x12\x1e数据库表名格式不正确\x1a!this.matches('^[a-z][a-z0-9_]*$')R\ttableName\"\x82\x01\n" +
 	"!ListCodeGenDatabaseColumnResponse\x12]\n" +
-	"\acolumns\x18\x01 \x03(\v2&.system.admin.v1.CodeGenDatabaseColumnB\x1b\xbaG\x18\x92\x02\x15数据库字段列表R\acolumns\"\xa2\x02\n" +
-	"\x18SaveCodeGenColumnRequest\x12\x95\x01\n" +
-	"\btable_id\x18\x01 \x01(\x03Bz\xbaG\x1a\x92\x02\x17代码生成表配置ID\xbaHZ\xba\x01W\n" +
-	"&save_code_gen_column.table_id.required\x12#代码生成表配置ID不能为空\x1a\bthis > 0R\atableId\x12n\n" +
+	"\acolumns\x18\x01 \x03(\v2&.system.admin.v1.CodeGenDatabaseColumnB\x1b\xbaG\x18\x92\x02\x15数据库字段列表R\acolumns\"\xb0\x02\n" +
+	"\x18SaveCodeGenColumnRequest\x12\xa3\x01\n" +
+	"\btable_id\x18\x01 \x01(\x03B\x87\x01\xbaG\x1a\x92\x02\x17代码生成表配置ID\xbaHg\xba\x01d\n" +
+	"3system.admin.code.gen.column.save.table_id.required\x12#代码生成表配置ID不能为空\x1a\bthis > 0R\atableId\x12n\n" +
 	"\x10code_gen_columns\x18\x02 \x03(\v2\x1e.system.admin.v1.CodeGenColumnB$\xbaG!\x92\x02\x1e代码生成字段配置列表R\x0ecodeGenColumns\"\xe4\x02\n" +
 	"\x15CodeGenDatabaseColumn\x12,\n" +
 	"\x04name\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12数据库字段名R\x04name\x125\n" +

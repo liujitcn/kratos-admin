@@ -1,7 +1,7 @@
 <!-- 部门树 -->
 <template>
   <el-card shadow="never">
-    <el-input v-model="name" :placeholder="t('system.dept.field.name')" clearable>
+    <el-input v-model="name" :placeholder="t('system.base.dept.field.name')" clearable>
       <template #prefix>
         <el-icon><Search /></el-icon>
       </template>

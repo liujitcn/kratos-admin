@@ -6,8 +6,19 @@
 
 /* eslint-disable */
 import type { Empty } from "../../../google/protobuf/empty";
-import type { CodeGenTableStatus } from "../../common/v1/enum";
 import type { CodeGenLocaleConfig } from "./base_translation";
+
+/** 代码生成表状态。 */
+export enum CodeGenTableStatus {
+  /** CODE_GEN_TABLE_STATUS_UNSPECIFIED - 未指定代码生成表状态。 */
+  CODE_GEN_TABLE_STATUS_UNSPECIFIED = 0,
+  /** CODE_GEN_TABLE_STATUS_DRAFT - 草稿。 */
+  CODE_GEN_TABLE_STATUS_DRAFT = 1,
+  /** CODE_GEN_TABLE_STATUS_GENERATED - 已生成。 */
+  CODE_GEN_TABLE_STATUS_GENERATED = 2,
+  /** CODE_GEN_TABLE_STATUS_DISABLED - 停用。 */
+  CODE_GEN_TABLE_STATUS_DISABLED = 3,
+}
 
 /** 代码生成表配置分页查询条件 */
 export interface PageCodeGenTableRequest {

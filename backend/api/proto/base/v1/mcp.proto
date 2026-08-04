@@ -26,5 +26,5 @@ service McpService {
 
 // MCP请求参数
 message HandleMcpRequest {
-  string terminal = 1 [(gnostic.openapi.v3.property) = {description: "服务筛选关键字，必填，支持 app、admin 或任意服务关键字"}, (buf.validate.field).cel = {id: "handle_mcp.terminal.required" message: "MCP服务标识不能为空" expression: "this.size() > 0"}]; // 服务筛选关键字，必填，支持 app、admin 或任意服务关键字
+  string terminal = 1 [(gnostic.openapi.v3.property) = {description: "服务筛选关键字，必填，支持 app、admin 或任意服务关键字"}, (buf.validate.field).cel = {id: "base.mcp.handle.terminal.required" message: "MCP服务标识不能为空" expression: "this.size() > 0"}]; // 服务筛选关键字，必填，支持 app、admin 或任意服务关键字
 }

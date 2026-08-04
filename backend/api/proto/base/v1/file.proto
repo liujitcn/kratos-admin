@@ -58,7 +58,7 @@ message UploadFileInfo {
 // 下载文件请求参数
 message DownloadFileRequest {
   string name = 1 [(gnostic.openapi.v3.property) = {description: "文件名"}]; // 文件名
-  string path = 2 [(gnostic.openapi.v3.property) = {description: "文件路径"}, (buf.validate.field).cel = {id: "download_file.path.required" message: "文件路径不能为空" expression: "this.size() > 0"}]; // 文件路径
+  string path = 2 [(gnostic.openapi.v3.property) = {description: "文件路径"}, (buf.validate.field).cel = {id: "base.file.download.path.required" message: "文件路径不能为空" expression: "this.size() > 0"}]; // 文件路径
 }
 
 // File信息

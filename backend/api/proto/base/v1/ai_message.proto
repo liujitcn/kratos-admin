@@ -51,11 +51,11 @@ service AiMessageService {
 
 // AI 助手消息更新请求
 message UpdateAiMessageRequest {
-  string session_id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}, (buf.validate.field).cel = {id: "update_ai_message.session_id.positive" message: "会话编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 会话ID
+  string session_id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}, (buf.validate.field).cel = {id: "base.ai.message.update.session_id.positive" message: "会话编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 会话ID
 
-  string message_id = 2 [(gnostic.openapi.v3.property) = {description: "消息ID"}, (buf.validate.field).cel = {id: "update_ai_message.message_id.positive" message: "消息编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 消息ID
+  string message_id = 2 [(gnostic.openapi.v3.property) = {description: "消息ID"}, (buf.validate.field).cel = {id: "base.ai.message.update.message_id.positive" message: "消息编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 消息ID
 
-  string content = 3 [(gnostic.openapi.v3.property) = {description: "更新后的消息内容"}, (buf.validate.field).cel = {id: "update_ai_message.content.required" message: "消息内容不能为空" expression: "this.size() > 0"}]; // 更新后的消息内容
+  string content = 3 [(gnostic.openapi.v3.property) = {description: "更新后的消息内容"}, (buf.validate.field).cel = {id: "base.ai.message.update.content.required" message: "消息内容不能为空" expression: "this.size() > 0"}]; // 更新后的消息内容
 }
 
 // AI 助手消息发送响应
@@ -67,9 +67,9 @@ message SendAiMessageResponse {
 
 // AI 助手消息删除请求
 message DeleteAiMessageRequest {
-  string session_id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}, (buf.validate.field).cel = {id: "delete_ai_message.session_id.positive" message: "会话编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 会话ID
+  string session_id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}, (buf.validate.field).cel = {id: "base.ai.message.delete.session_id.positive" message: "会话编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 会话ID
 
-  string message_id = 2 [(gnostic.openapi.v3.property) = {description: "消息ID"}, (buf.validate.field).cel = {id: "delete_ai_message.message_id.positive" message: "消息编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 消息ID
+  string message_id = 2 [(gnostic.openapi.v3.property) = {description: "消息ID"}, (buf.validate.field).cel = {id: "base.ai.message.delete.message_id.positive" message: "消息编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 消息ID
 }
 
 // AI 助手消息删除响应
@@ -77,7 +77,7 @@ message DeleteAiMessageResponse {}
 
 // AI 助手消息发送请求
 message SendAiMessageRequest {
-  string session_id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}, (buf.validate.field).cel = {id: "send_ai_message.session_id.positive" message: "会话编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 会话ID
+  string session_id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}, (buf.validate.field).cel = {id: "base.ai.message.send.session_id.positive" message: "会话编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 会话ID
 
   string content = 2 [(gnostic.openapi.v3.property) = {description: "消息内容"}]; // 消息内容
 
@@ -88,16 +88,16 @@ message SendAiMessageRequest {
 
 // AI 助手失败消息重试请求
 message RetryAiUserMessageRequest {
-  string session_id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}, (buf.validate.field).cel = {id: "retry_ai_message.session_id.positive" message: "会话编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 会话ID
+  string session_id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}, (buf.validate.field).cel = {id: "base.ai.message.retry.session_id.positive" message: "会话编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 会话ID
 
-  string message_id = 2 [(gnostic.openapi.v3.property) = {description: "失败消息ID"}, (buf.validate.field).cel = {id: "retry_ai_message.message_id.positive" message: "消息编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 失败消息ID
+  string message_id = 2 [(gnostic.openapi.v3.property) = {description: "失败消息ID"}, (buf.validate.field).cel = {id: "base.ai.message.retry.message_id.positive" message: "消息编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 失败消息ID
 }
 
 // AI 助手输出重新生成请求
 message RegenerateAiMessageRequest {
-  string session_id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}, (buf.validate.field).cel = {id: "regenerate_ai_message.session_id.positive" message: "会话编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 会话ID
+  string session_id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}, (buf.validate.field).cel = {id: "base.ai.message.regenerate.session_id.positive" message: "会话编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 会话ID
 
-  string message_id = 2 [(gnostic.openapi.v3.property) = {description: "消息ID"}, (buf.validate.field).cel = {id: "regenerate_ai_message.message_id.positive" message: "消息编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 消息ID
+  string message_id = 2 [(gnostic.openapi.v3.property) = {description: "消息ID"}, (buf.validate.field).cel = {id: "base.ai.message.regenerate.message_id.positive" message: "消息编号不合法" expression: "this.matches('^[1-9][0-9]*$')"}]; // 消息ID
 }
 
 // AI 助手动作

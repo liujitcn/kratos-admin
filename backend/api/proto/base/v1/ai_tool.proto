@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package base.v1;
 
-import "base/v1/enum.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 
@@ -16,9 +15,19 @@ service AiToolService {
   }
 }
 
+// 终端类型。
+enum Terminal {
+  // 未指定终端类型。
+  TERMINAL_UNSPECIFIED = 0;
+  // 移动端。
+  TERMINAL_APP = 1;
+  // 管理端。
+  TERMINAL_ADMIN = 2;
+}
+
 // AI 助手快捷入口列表查询条件
 message ListAiShortcutRequest {
-  .base.v1.Terminal terminal = 1 [(gnostic.openapi.v3.property) = {description: "终端类型：枚举【Terminal】"}]; // 终端类型：枚举【Terminal】
+  Terminal terminal = 1 [(gnostic.openapi.v3.property) = {description: "终端类型：枚举【Terminal】"}]; // 终端类型：枚举【Terminal】
 }
 
 // AI 助手快捷入口列表响应

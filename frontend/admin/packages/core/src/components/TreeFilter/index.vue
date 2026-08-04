@@ -4,14 +4,14 @@
       {{ title }}
     </h4>
     <div class="search">
-      <el-input v-model="filterText" :placeholder="t('core.tree.filterPlaceholder')" clearable />
+      <el-input v-model="filterText" :placeholder="t('core.tree.filter_placeholder')" clearable />
       <el-dropdown trigger="click">
         <el-icon size="20"><More /></el-icon>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item v-if="!multiple" @click="resetSelected">{{ t("core.tree.resetSelection") }}</el-dropdown-item>
-            <el-dropdown-item @click="toggleTreeNodes(true)">{{ t("core.table.expandAll") }}</el-dropdown-item>
-            <el-dropdown-item @click="toggleTreeNodes(false)">{{ t("core.table.collapseAll") }}</el-dropdown-item>
+            <el-dropdown-item v-if="!multiple" @click="resetSelected">{{ t("core.tree.reset_selection") }}</el-dropdown-item>
+            <el-dropdown-item @click="toggleTreeNodes(true)">{{ t("core.table.expand_all") }}</el-dropdown-item>
+            <el-dropdown-item @click="toggleTreeNodes(false)">{{ t("core.table.collapse_all") }}</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>

@@ -63,7 +63,7 @@ const navigateToProfile = () => navigateAppRoute('app/profile')
             {{ profile.nick_name }}
           </view>
           <view class="extra" @tap="navigateToProfile">
-            <text class="update">{{ t('system.profile.avatarUpdate') }}</text>
+            <text class="update">{{ t('system.profile.avatar_update') }}</text>
           </view>
         </view>
       </view>
@@ -73,9 +73,11 @@ const navigateToProfile = () => navigateAppRoute('app/profile')
           <image class="avatar gray" mode="aspectFill" :src="defaultAvatar"></image>
         </view>
         <view class="meta">
-          <view @tap="navigateToLogin" class="nickname">{{ t('system.profile.notLoggedIn') }}</view>
+          <view @tap="navigateToLogin" class="nickname">{{
+            t('system.profile.not_logged_in')
+          }}</view>
           <view class="extra">
-            <text class="tips">{{ t('system.profile.loginPrompt') }}</text>
+            <text class="tips">{{ t('system.profile.login_prompt') }}</text>
           </view>
         </view>
       </view>
@@ -85,10 +87,10 @@ const navigateToProfile = () => navigateAppRoute('app/profile')
     <view class="ai-entry" @tap="navigateToAi">
       <view class="ai-entry__icon">AI</view>
       <view class="ai-entry__content">
-        <view class="ai-entry__title">{{ t('system.settings.aiTitle') }}</view>
-        <view class="ai-entry__desc">{{ t('system.settings.aiDescription') }}</view>
+        <view class="ai-entry__title">{{ t('system.settings.ai_title') }}</view>
+        <view class="ai-entry__desc">{{ t('system.settings.ai_description') }}</view>
       </view>
-      <view class="ai-entry__action">{{ t('system.settings.goAsk') }}</view>
+      <view class="ai-entry__action">{{ t('system.settings.go_ask') }}</view>
     </view>
   </scroll-view>
 </template>

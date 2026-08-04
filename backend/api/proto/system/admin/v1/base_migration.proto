@@ -22,11 +22,10 @@ service BaseMigrationService {
 message PageBaseMigrationRequest {
   string data_source = 1 [(gnostic.openapi.v3.property) = {description: "数据源"}]; // 数据源
 
-  optional string version = 2 [(gnostic.openapi.v3.property) = {description: "迁移版本"}]; // 迁移版本
+  optional string module = 2 [(gnostic.openapi.v3.property) = {description: "迁移模块"}]; // 迁移模块
 
-  reserved 3;
+  optional string version = 3 [(gnostic.openapi.v3.property) = {description: "迁移版本"}]; // 迁移版本
 
-  optional string module = 4 [(gnostic.openapi.v3.property) = {description: "迁移模块"}]; // 迁移模块
 
   int64 page_num = 101 [(gnostic.openapi.v3.property) = {
     description: "当前页码"
@@ -43,15 +42,14 @@ message PageBaseMigrationRequest {
 message BaseMigrationListItem {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键"}]; // 主键
 
-  string data_source = 2 [(gnostic.openapi.v3.property) = {description: "数据源"}]; // 数据源
+  string module = 2 [(gnostic.openapi.v3.property) = {description: "迁移模块"}]; // 迁移模块
 
-  string version = 3 [(gnostic.openapi.v3.property) = {description: "迁移版本"}]; // 迁移版本
+  string data_source = 3 [(gnostic.openapi.v3.property) = {description: "数据源"}]; // 数据源
 
-  string created_at = 4 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+  string version = 4 [(gnostic.openapi.v3.property) = {description: "迁移版本"}]; // 迁移版本
 
-  reserved 5;
+  string created_at = 5 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
 
-  string module = 6 [(gnostic.openapi.v3.property) = {description: "迁移模块"}]; // 迁移模块
 }
 
 // 数据库迁移记录分页响应
@@ -70,19 +68,18 @@ message GetBaseMigrationRequest {
 message BaseMigration {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键"}]; // 主键
 
-  string data_source = 2 [(gnostic.openapi.v3.property) = {description: "数据源"}]; // 数据源
+  string module = 2 [(gnostic.openapi.v3.property) = {description: "迁移模块"}]; // 迁移模块
 
-  string version = 3 [(gnostic.openapi.v3.property) = {description: "迁移版本"}]; // 迁移版本
+  string data_source = 3 [(gnostic.openapi.v3.property) = {description: "数据源"}]; // 数据源
 
-  string up_sql = 4 [(gnostic.openapi.v3.property) = {description: "升级脚本"}]; // 升级脚本
+  string version = 4 [(gnostic.openapi.v3.property) = {description: "迁移版本"}]; // 迁移版本
 
-  string down_sql = 5 [(gnostic.openapi.v3.property) = {description: "回退脚本"}]; // 回退脚本
+  string up_sql = 5 [(gnostic.openapi.v3.property) = {description: "升级脚本"}]; // 升级脚本
 
-  string description = 6 [(gnostic.openapi.v3.property) = {description: "升级描述"}]; // 升级描述
+  string down_sql = 6 [(gnostic.openapi.v3.property) = {description: "回退脚本"}]; // 回退脚本
 
-  string created_at = 7 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+  string description = 7 [(gnostic.openapi.v3.property) = {description: "升级描述"}]; // 升级描述
 
-  reserved 8;
+  string created_at = 8 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
 
-  string module = 9 [(gnostic.openapi.v3.property) = {description: "迁移模块"}]; // 迁移模块
 }

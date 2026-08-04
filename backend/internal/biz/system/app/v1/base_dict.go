@@ -62,7 +62,7 @@ func (c *BaseDictCase) GetBaseDict(ctx context.Context, code string) (*systemapp
 		dictItemMap[item.DictID] = append(dictItemMap[item.DictID], item)
 	}
 	var dictNames map[int64]string
-	dictNames, err = c.translationCase.ReviewedDictNames(ctx, []int64{baseDict.ID})
+	dictNames, err = c.translationCase.TranslatedDictNames(ctx, []int64{baseDict.ID})
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (c *BaseDictCase) GetBaseDict(ctx context.Context, code string) (*systemapp
 		dictItemIDs = append(dictItemIDs, item.ID)
 	}
 	var dictItemLabels map[int64]string
-	dictItemLabels, err = c.translationCase.ReviewedDictItemLabels(ctx, dictItemIDs)
+	dictItemLabels, err = c.translationCase.TranslatedDictItemLabels(ctx, dictItemIDs)
 	if err != nil {
 		return nil, err
 	}

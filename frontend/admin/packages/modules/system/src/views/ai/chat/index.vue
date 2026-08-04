@@ -14,12 +14,12 @@
       <button
         class="agent-session-collapsed__toggle"
         type="button"
-        :aria-label="t('system.ai.chat.action.expandSessions')"
+        :aria-label="t('system.ai.chat.action.expand_sessions')"
         @click="toggleSessionPanel"
       >
         <el-icon><DArrowRight /></el-icon>
       </button>
-      <span class="agent-session-collapsed__label">{{ t("system.ai.chat.title.recentConversations") }}</span>
+      <span class="agent-session-collapsed__label">{{ t("system.ai.chat.title.recent_conversations") }}</span>
     </div>
     <ChatPanel
       :active-session="activeSession"
@@ -57,7 +57,8 @@ import { defAiToolService } from "@liujitcn/kratos-admin-system/api/base/ai_tool
 import type { AiAction } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_message";
 import type { AiSession } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import type { AiShortcut } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
-import { AiMessageStatus, Terminal } from "@liujitcn/kratos-admin-system/rpc/base/v1/enum";
+import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
+import { Terminal } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
 import ChatPanel from "./components/ChatPanel.vue";
 import SessionPanel from "./components/SessionPanel.vue";
 import {
@@ -151,7 +152,7 @@ async function handleSessionAction(payload: { action: SessionAction; item: AiSes
     await handleDeleteSession(payload.item);
   } catch (error) {
     if (error === "cancel" || error === "close") {
-      ElMessage.info(t("system.ai.chat.message.actionCanceled"));
+      ElMessage.info(t("system.ai.chat.message.action_canceled"));
     }
   }
 }
@@ -162,7 +163,7 @@ async function handleCreateSession() {
   if (!sessionID) return;
   activeSessionID.value = sessionID;
   messages.value[sessionID] = [];
-  ElMessage.success(t("system.ai.chat.message.conversationCreated"));
+  ElMessage.success(t("system.ai.chat.message.conversation_created"));
 }
 
 /** 提交用户输入并同步消息流。 */
@@ -226,7 +227,7 @@ async function runAiStreamTask(sessionID: string, payload: SubmitPayload) {
     );
 
     if (!response.body) {
-      throw new Error(t("system.ai.chat.message.emptyStream"));
+      throw new Error(t("system.ai.chat.message.empty_stream"));
     }
     await readAiEventStream(
       response.body,
@@ -236,14 +237,14 @@ async function runAiStreamTask(sessionID: string, payload: SubmitPayload) {
       controller.signal
     );
     if (!task.finished && !controller.signal.aborted) {
-      throw new Error(t("system.ai.chat.message.incompleteStream"));
+      throw new Error(t("system.ai.chat.message.incomplete_stream"));
     }
   } catch (error) {
     if (controller.signal.aborted) return;
     messages.value[sessionID] = markThinkingMessageFailed(messages.value[sessionID] ?? [], {
       sessionID
     });
-    const message = error instanceof Error ? error.message : t("system.ai.chat.message.requestFailed");
+    const message = error instanceof Error ? error.message : t("system.ai.chat.message.request_failed");
     ElMessage.error(message);
   } finally {
     if (runningStreamTaskMap.get(sessionID) === task) {
@@ -305,10 +306,10 @@ async function handleEditMessage(payload: ChatMessageEditPayload) {
     const currentMessages = messages.value[sessionID] ?? [];
     messages.value[sessionID] = replacePendingMessages(currentMessages, normalizeMessageList(response.messages));
     if (response.session) upsertSession(normalizeSession(response.session));
-    ElMessage.success(t("system.ai.chat.message.updatedAndRegenerated"));
+    ElMessage.success(t("system.ai.chat.message.updated_and_regenerated"));
   } catch (error) {
     await loadMessages(sessionID, { force: true });
-    const message = error instanceof Error ? error.message : t("system.ai.chat.message.updateFailed");
+    const message = error instanceof Error ? error.message : t("system.ai.chat.message.update_failed");
     ElMessage.error(message);
   } finally {
     setSessionSending(sessionID, false);
@@ -319,9 +320,9 @@ async function handleEditMessage(payload: ChatMessageEditPayload) {
 async function handleCopyMessage(item: ChatMessageItem) {
   try {
     await navigator.clipboard.writeText(String(item.content ?? ""));
-    ElMessage.success(t("system.ai.chat.message.messageCopied"));
+    ElMessage.success(t("system.ai.chat.message.message_copied"));
   } catch {
-    ElMessage.error(t("system.ai.chat.message.copyUnsupported"));
+    ElMessage.error(t("system.ai.chat.message.copy_unsupported"));
   }
 }
 
@@ -338,7 +339,7 @@ async function handleDeleteMessage(item: ChatMessageItem) {
       if (item.role === "user") return !message.localOnly;
       return resolveMessageBubbleKey(message) !== messageKey;
     });
-    ElMessage.success(t("system.ai.chat.message.messageDeleted"));
+    ElMessage.success(t("system.ai.chat.message.message_deleted"));
     return;
   }
   await defAiMessageService.DeleteAiMessage({
@@ -346,7 +347,7 @@ async function handleDeleteMessage(item: ChatMessageItem) {
     message_id: String(item.id)
   });
   messages.value[sessionID] = (messages.value[sessionID] ?? []).filter(message => String(message.id) !== String(item.id));
-  ElMessage.success(t("system.ai.chat.message.messageDeleted"));
+  ElMessage.success(t("system.ai.chat.message.message_deleted"));
 }
 
 /** 重试失败的一轮消息，或重新生成助手输出。 */
@@ -359,7 +360,7 @@ async function handleRetryMessage(item: ChatMessageItem) {
     if (item.localOnly) {
       const payload = resolveLocalRetryPayload(item);
       if (!payload) {
-        ElMessage.warning(t("system.ai.chat.message.localRetryMissing"));
+        ElMessage.warning(t("system.ai.chat.message.local_retry_missing"));
         return;
       }
       messages.value[sessionID] = (messages.value[sessionID] ?? []).filter(message => !message.localOnly);
@@ -370,8 +371,8 @@ async function handleRetryMessage(item: ChatMessageItem) {
     }
     setSessionSending(sessionID, true);
     if (item.role === "user") {
-      if (item.status !== AiMessageStatus.FAILED_AMS) {
-        ElMessage.warning(t("system.ai.chat.message.retryFailedOnly"));
+      if (item.status !== AiMessageStatus.AI_MESSAGE_STATUS_FAILED) {
+        ElMessage.warning(t("system.ai.chat.message.retry_failed_only"));
         return;
       }
       response = await defAiMessageService.RetryAiUserMessage({
@@ -391,7 +392,7 @@ async function handleRetryMessage(item: ChatMessageItem) {
     ElMessage.success(item.role === "user" ? t("system.ai.chat.message.resent") : t("system.ai.chat.message.regenerated"));
   } catch (error) {
     if (item.role !== "user") await loadMessages(sessionID, { force: true });
-    const message = error instanceof Error ? error.message : t("system.ai.chat.message.regenerateFailed");
+    const message = error instanceof Error ? error.message : t("system.ai.chat.message.regenerate_failed");
     ElMessage.error(message);
   } finally {
     if (!item.localOnly) {
@@ -439,14 +440,14 @@ async function handleBranchMessage(item: ChatMessageItem) {
   upsertSession(branchSession);
   messages.value[branchSession.id] = normalizeMessageList(response.messages);
   activeSessionID.value = branchSession.id;
-  ElMessage.success(t("system.ai.chat.message.branchCreated"));
+  ElMessage.success(t("system.ai.chat.message.branch_created"));
 }
 
 /** 朗读或停止朗读当前助手输出。 */
 function handleSpeakMessage(item: ChatMessageItem) {
   if (item.role === "user") return;
   if (!window.speechSynthesis) {
-    ElMessage.warning(t("system.ai.chat.message.speechUnsupported"));
+    ElMessage.warning(t("system.ai.chat.message.speech_unsupported"));
     return;
   }
   const messageKey = resolveMessageBubbleKey(item);
@@ -672,29 +673,29 @@ async function loadMessages(sessionID: string, options?: { force?: boolean }) {
 /** 重命名当前会话。 */
 async function handleRenameSession(item: AiSession) {
   const { value } = await ElMessageBox.prompt(
-    t("system.ai.chat.dialog.renameDescription", { title: item.title }),
-    t("system.ai.chat.dialog.renameTitle"),
+    t("system.ai.chat.dialog.rename_description", { title: item.title }),
+    t("system.ai.chat.dialog.rename_title"),
     {
       confirmButtonText: t("common.action.confirm"),
       cancelButtonText: t("common.action.cancel"),
       inputValue: item.title,
       inputPattern: /\S+/,
-      inputErrorMessage: t("system.ai.chat.placeholder.conversationName")
+      inputErrorMessage: t("system.ai.chat.placeholder.conversation_name")
     }
   );
 
   const response = await defAiSessionService.UpdateAiSession({ id: item.id, title: value.trim() });
   upsertSession(normalizeSession(response.session));
-  ElMessage.success(t("system.ai.chat.message.conversationRenamed"));
+  ElMessage.success(t("system.ai.chat.message.conversation_renamed"));
 }
 
 /** 删除当前会话，并自动切换到剩余会话。 */
 async function handleDeleteSession(item: AiSession) {
   await ElMessageBox.confirm(
-    t("system.ai.chat.dialog.deleteDescription", { title: item.title }),
-    t("system.ai.chat.dialog.deleteTitle"),
+    t("system.ai.chat.dialog.delete_description", { title: item.title }),
+    t("system.ai.chat.dialog.delete_title"),
     {
-      confirmButtonText: t("system.ai.chat.action.confirmDeleteConversation"),
+      confirmButtonText: t("system.ai.chat.action.confirm_delete_conversation"),
       cancelButtonText: t("common.action.cancel"),
       type: "warning"
     }
@@ -711,7 +712,7 @@ async function handleDeleteSession(item: AiSession) {
   const nextSessionID = await ensureActiveSession();
   if (nextSessionID) await loadMessages(nextSessionID);
 
-  ElMessage.success(t("system.ai.chat.message.conversationDeleted"));
+  ElMessage.success(t("system.ai.chat.message.conversation_deleted"));
 }
 
 /** 保证当前存在可用会话；当列表为空时自动创建首个会话。 */
@@ -728,7 +729,7 @@ async function ensureActiveSession() {
 /** 创建新的助手会话，并同步到本地列表。 */
 async function createSession(options?: { title?: string }) {
   const response = await defAiSessionService.CreateAiSession({
-    title: options?.title || t("system.ai.chat.value.newConversation"),
+    title: options?.title || t("system.ai.chat.value.new_conversation"),
     terminal: Terminal.TERMINAL_ADMIN
   });
   const normalizedSession = normalizeSession(response.session);
@@ -738,11 +739,11 @@ async function createSession(options?: { title?: string }) {
 
 /** 使用当前消息内容生成一个易识别的分支会话标题。 */
 function buildBranchSessionTitle(item: ChatMessageItem) {
-  const content = String(item.input_content?.content || item.content || t("system.ai.chat.value.newConversation"))
+  const content = String(item.input_content?.content || item.content || t("system.ai.chat.value.new_conversation"))
     .replace(/\s+/g, " ")
     .trim();
-  return t("system.ai.chat.value.branchTitle", {
-    title: content.slice(0, 18) || t("system.ai.chat.value.newConversation")
+  return t("system.ai.chat.value.branch_title", {
+    title: content.slice(0, 18) || t("system.ai.chat.value.new_conversation")
   });
 }
 

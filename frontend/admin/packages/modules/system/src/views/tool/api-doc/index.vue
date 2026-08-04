@@ -15,7 +15,7 @@
             <span class="api-doc-page__document-key">{{ document.key }}</span>
           </button>
         </div>
-        <el-empty v-else :image-size="56" :description="t('system.apiDoc.message.empty')" />
+        <el-empty v-else :image-size="56" :description="t('system.base.api.doc.message.empty')" />
       </el-card>
       <el-card class="code-gen-sub-card api-doc-page__card" shadow="never">
         <div ref="swaggerRootRef" class="api-doc-page__swagger" />

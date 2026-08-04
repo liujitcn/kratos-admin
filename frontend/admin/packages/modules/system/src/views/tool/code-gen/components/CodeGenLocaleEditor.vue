@@ -2,7 +2,7 @@
   <div class="code-gen-locale-editor">
     <el-alert
       v-if="missingLocales.length"
-      :title="t('system.codegen.i18n.message.missing', { locales: missingLocales.join(', ') })"
+      :title="t('system.code.gen.i18n.message.missing', { locales: missingLocales.join(', ') })"
       type="warning"
       :closable="false"
       show-icon
@@ -11,22 +11,22 @@
       <div class="code-gen-locale-editor__locale">
         <span>{{ locale.label }}</span>
         <el-tag v-if="hasComment(locale.value)" size="small" type="success" effect="plain">
-          {{ t("system.codegen.i18n.status.complete") }}
+          {{ t("system.code.gen.i18n.status.complete") }}
         </el-tag>
         <el-tag v-else size="small" type="warning" effect="plain">
-          {{ t("system.codegen.i18n.status.missing") }}
+          {{ t("system.code.gen.i18n.status.missing") }}
         </el-tag>
       </div>
       <el-input
         :model-value="localeValue(locale.value).comment"
-        :placeholder="t('system.codegen.i18n.placeholder.comment', { source: sourceComment || '-' })"
+        :placeholder="t('system.code.gen.i18n.placeholder.comment', { source: sourceComment || '-' })"
         maxlength="255"
         @update:model-value="value => updateLocale(locale.value, 'comment', value)"
       />
       <el-input
         v-if="showLeftTreeComment"
         :model-value="localeValue(locale.value).left_tree_comment"
-        :placeholder="t('system.codegen.i18n.placeholder.leftTreeComment', { source: sourceLeftTreeComment || '-' })"
+        :placeholder="t('system.code.gen.i18n.placeholder.left_tree_comment', { source: sourceLeftTreeComment || '-' })"
         maxlength="255"
         @update:model-value="value => updateLocale(locale.value, 'left_tree_comment', value)"
       />

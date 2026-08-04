@@ -12,7 +12,7 @@
     <FormDialog
       v-model="dialog.visible"
       ref="formDialogRef"
-      :title="t(dialog.editing ? 'system.dictItem.action.edit' : 'system.dictItem.action.create')"
+      :title="t(dialog.editing ? 'system.base.dict.item.action.edit' : 'system.base.dict.item.action.create')"
       width="820px"
       :model="formData"
       :fields="formFields"
@@ -24,7 +24,7 @@
       <template #tagTypeField>
         <div class="dict-item-tag-type">
           <el-tag v-if="formData.tag_type" :type="formatTagType(formData.tag_type)" class="mr-2">
-            {{ formData.label || t("system.dictItem.value.tagPreview") }}
+            {{ formData.label || t("system.base.dict.item.value.tag_preview") }}
           </el-tag>
           <el-radio-group v-model="formData.tag_type">
             <el-radio value="success" border size="small">success</el-radio>
@@ -32,16 +32,15 @@
             <el-radio value="info" border size="small">info</el-radio>
             <el-radio value="primary" border size="small">primary</el-radio>
             <el-radio value="danger" border size="small">danger</el-radio>
-            <el-radio value="" border size="small">{{ t("system.dictItem.action.clearTag") }}</el-radio>
+            <el-radio value="" border size="small">{{ t("system.base.dict.item.action.clear_tag") }}</el-radio>
           </el-radio-group>
         </div>
       </template>
       <template #translations>
         <DynamicTranslationEditor
           v-model="translationValues"
-          :resource-id="formData.id"
-          :resource-type="TranslationResourceType.TRANSLATION_RESOURCE_TYPE_DICT_ITEM"
-          :draft-enabled="configStore.translationDraftEnabled"
+          :source="formData.label"
+          :source-locale="formData.id > 0 ? undefined : locale"
           :maxlength="100"
         />
       </template>
@@ -72,9 +71,9 @@ import type {
   PageBaseDictItemRequest
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dict";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
+import { TranslationTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
-import { t } from "@liujitcn/kratos-admin-core";
-import { useConfigStore } from "@liujitcn/kratos-admin-core/stores/runtime";
+import { t, useLocaleStore } from "@liujitcn/kratos-admin-core";
 import DynamicTranslationEditor from "@liujitcn/kratos-admin-system/components/DynamicTranslationEditor.vue";
 import DynamicTranslationCell from "@liujitcn/kratos-admin-system/components/DynamicTranslationCell.vue";
 import {
@@ -83,8 +82,6 @@ import {
   type DynamicTranslationRecord,
   type DynamicTranslationValue
 } from "@liujitcn/kratos-admin-system/components/dynamicTranslation";
-import { TranslationResourceType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
-import type { BaseDictItemTranslation } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dict";
 
 defineOptions({
   name: "BaseDictItem",
@@ -93,7 +90,7 @@ defineOptions({
 
 const route = useRoute();
 const { BUTTONS } = useAuthButtons();
-const configStore = useConfigStore();
+const { locale } = useLocaleStore();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const translationValues = ref<DynamicTranslationValue[]>(normalizeDynamicTranslations(undefined, "label"));
@@ -125,20 +122,20 @@ const formData = reactive<BaseDictItemForm>({
 });
 
 const rules = computed(() => ({
-  value: [{ required: true, max: 50, message: t("system.dictItem.validation.value"), trigger: "blur" }],
-  label: [{ required: true, max: 100, message: t("system.dictItem.validation.label"), trigger: "blur" }],
+  value: [{ required: true, max: 50, message: t("system.base.dict.item.validation.value"), trigger: "blur" }],
+  label: [{ required: true, max: 100, message: t("system.base.dict.item.validation.label"), trigger: "blur" }],
   tag_type: [
     {
       max: 50,
-      message: t("system.common.validation.maxLength", { field: t("system.dictItem.field.tagType"), max: 50 }),
+      message: t("common.validation.max_length", { field: t("system.base.dict.item.field.tag_type"), max: 50 }),
       trigger: "blur"
     }
   ],
-  sort: [{ required: true, message: t("system.common.validation.sortPositive"), trigger: "blur" }],
+  sort: [{ required: true, message: t("common.validation.sort_positive"), trigger: "blur" }],
   status: [
     {
       required: true,
-      message: t("system.common.validation.requiredSelect", { field: t("system.common.field.status") }),
+      message: t("common.validation.required_select", { field: t("common.field.status") }),
       trigger: "change"
     }
   ]
@@ -153,31 +150,31 @@ const statusOptions = computed<ProFormOption[]>(() => [
 const formFields = computed<ProFormField[]>(() => [
   {
     prop: "label",
-    label: t("system.dictItem.field.label"),
+    label: t("system.base.dict.item.field.label"),
     component: "input",
-    props: { placeholder: t("system.dictItem.placeholder.label") }
+    props: { placeholder: t("system.base.dict.item.placeholder.label") }
   },
   {
     prop: "value",
-    label: t("system.dictItem.field.value"),
+    label: t("system.base.dict.item.field.value"),
     component: "input",
-    props: { placeholder: t("system.dictItem.placeholder.value") }
+    props: { placeholder: t("system.base.dict.item.placeholder.value") }
   },
   {
     prop: "translations",
-    label: t("system.translation.field.translations"),
+    label: t("system.base.translation.field.translations"),
     component: "slot",
     slotName: "translations",
     colSpan: 24
   },
   {
     prop: "sort",
-    label: t("system.common.field.sort"),
+    label: t("common.field.sort"),
     component: "input-number",
     props: { min: 1, precision: 0, step: 1, controlsPosition: "right", style: { width: "100%" } }
   },
-  { prop: "status", label: t("system.common.field.status"), component: "radio-group", options: statusOptions.value },
-  { prop: "tag_type", label: t("system.dictItem.field.tagType"), component: "slot", slotName: "tagTypeField", colSpan: 24 }
+  { prop: "status", label: t("common.field.status"), component: "radio-group", options: statusOptions.value },
+  { prop: "tag_type", label: t("system.base.dict.item.field.tag_type"), component: "slot", slotName: "tagTypeField", colSpan: 24 }
 ]);
 
 /**
@@ -194,7 +191,7 @@ function formatTagType(tag_type: string) {
  * 渲染标签类型列，统一复用字典项标签的展示方式。
  */
 function renderTagTypeCell(scope: RenderScope<BaseDictItem>) {
-  if (!scope.row.tag_type) return t("system.common.value.none");
+  if (!scope.row.tag_type) return t("common.value.none");
   return h(
     ElTag,
     {
@@ -210,8 +207,9 @@ function renderDictItemLabelCell(scope: RenderScope<BaseDictItem>) {
   const row = scope.row;
   return h(DynamicTranslationCell, {
     source: row.label,
-    translations: row.translations,
-    textField: "label"
+    targetType: TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM,
+    targetId: row.id,
+    translations: row.translations
   });
 }
 
@@ -220,23 +218,23 @@ const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
   {
     prop: "label",
-    label: t("system.dictItem.field.label"),
+    label: t("system.base.dict.item.field.label"),
     minWidth: 140,
     search: { el: "input" },
     showOverflowTooltip: false,
     render: scope => renderDictItemLabelCell(scope as unknown as RenderScope<BaseDictItem>)
   },
-  { prop: "value", label: t("system.dictItem.field.value"), minWidth: 140 },
-  { prop: "sort", label: t("system.common.field.sort"), minWidth: 90, align: "right" },
+  { prop: "value", label: t("system.base.dict.item.field.value"), minWidth: 140 },
+  { prop: "sort", label: t("common.field.sort"), minWidth: 90, align: "right" },
   {
     prop: "tag_type",
-    label: t("system.dictItem.field.tagType"),
+    label: t("system.base.dict.item.field.tag_type"),
     minWidth: 120,
     render: scope => renderTagTypeCell(scope as unknown as RenderScope<BaseDictItem>)
   },
   {
     prop: "status",
-    label: t("system.common.field.status"),
+    label: t("common.field.status"),
     minWidth: 100,
     search: { el: "select" },
     cellType: "status",
@@ -249,11 +247,11 @@ const columns = computed<ColumnProps[]>(() => [
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseDictItem)
     }
   },
-  { prop: "created_at", label: t("system.common.field.createdAt"), minWidth: 180 },
-  { prop: "updated_at", label: t("system.common.field.updatedAt"), minWidth: 180 },
+  { prop: "created_at", label: t("common.field.created_at"), minWidth: 180 },
+  { prop: "updated_at", label: t("common.field.updated_at"), minWidth: 180 },
   {
     prop: "operation",
-    label: t("system.common.field.action"),
+    label: t("common.field.action"),
     width: 180,
     fixed: "right",
     cellType: "actions",
@@ -372,12 +370,18 @@ function handleSubmit() {
 
     formData.dict_id = dictId.value;
     const submitData = JSON.parse(JSON.stringify(formData)) as BaseDictItemForm;
-    submitData.translations = serializeDynamicTranslations(translationValues.value, "label") as unknown as BaseDictItemTranslation[];
+    submitData.translations = serializeDynamicTranslations(
+      translationValues.value,
+      TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM,
+      submitData.id
+    );
     const request = submitData.id
       ? defBaseDictService.UpdateBaseDictItem({ base_dict_item: submitData })
       : defBaseDictService.CreateBaseDictItem({ base_dict_item: submitData });
     request.then(() => {
-      ElMessage.success(t(submitData.id ? "system.dictItem.message.updateSuccess" : "system.dictItem.message.createSuccess"));
+      ElMessage.success(
+        t(submitData.id ? "system.base.dict.item.message.update_success" : "system.base.dict.item.message.create_success")
+      );
       handleCloseDialog();
       refreshTable();
     });
@@ -392,13 +396,17 @@ async function handleBeforeSetStatus(row: BaseDictItem) {
   const action = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
   const itemName = row.label || row.value || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(t("system.dictItem.message.confirmStatus", { action, name: itemName }), t("common.title.notice"), {
-      confirmButtonText: t("common.action.confirm"),
-      cancelButtonText: t("common.action.cancel"),
-      type: "warning"
-    });
+    await ElMessageBox.confirm(
+      t("system.base.dict.item.message.confirm_status", { action, name: itemName }),
+      t("common.title.notice"),
+      {
+        confirmButtonText: t("common.action.confirm"),
+        cancelButtonText: t("common.action.cancel"),
+        type: "warning"
+      }
+    );
     await defBaseDictService.SetBaseDictItemStatus({ id: row.id, status: nextStatus });
-    ElMessage.success(t("system.common.message.statusSuccess", { action }));
+    ElMessage.success(t("common.message.status_success", { action }));
     refreshTable();
     return true;
   } catch {
@@ -421,16 +429,16 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
       : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");
   if (!dictItemIds) {
-    ElMessage.warning(t("system.common.message.selectDeleteItem"));
+    ElMessage.warning(t("common.message.select_delete_item"));
     return;
   }
 
   const singleItemName = dictItemList[0]?.label || dictItemList[0]?.value || `ID:${dictItemList[0]?.id ?? ""}`;
   const confirmMessage = dictItemList.length
     ? dictItemList.length === 1
-      ? t("system.dictItem.message.confirmDeleteSingle", { name: singleItemName })
-      : t("system.dictItem.message.confirmDeleteBatch", { count: dictItemList.length })
-    : t("system.dictItem.message.confirmDeleteSelected");
+      ? t("system.base.dict.item.message.confirm_delete_single", { name: singleItemName })
+      : t("system.base.dict.item.message.confirm_delete_batch", { count: dictItemList.length })
+    : t("system.base.dict.item.message.confirm_delete_selected");
 
   ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
     confirmButtonText: t("common.action.confirm"),
@@ -439,12 +447,12 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   }).then(
     () => {
       defBaseDictService.DeleteBaseDictItem({ id: dictItemIds }).then(() => {
-        ElMessage.success(t("system.dictItem.message.deleteSuccess"));
+        ElMessage.success(t("system.base.dict.item.message.delete_success"));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info(t("system.dictItem.message.deleteCanceled"));
+      ElMessage.info(t("system.base.dict.item.message.delete_canceled"));
     }
   );
 }

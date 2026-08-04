@@ -16,15 +16,15 @@
 
 | 命名空间 | 文案范围 | 主要使用位置 |
 | --- | --- | --- |
-| `system.common.*` | System 页面共用的操作、字段、弹窗、状态和校验文案。 | `src/views/**` 下的列表页、表单和确认弹窗。 |
+| `common.*` | 跨页面复用的操作、字段、弹窗、状态和校验文案。 | `src/views/**` 下的列表页、表单和确认弹窗。 |
 | `system.ai.*` | AI 会话、消息流、重试和错误提示。 | `src/views/ai/**`、`src/api/base/ai_message.ts`。 |
 | `system.profile.*` | 个人资料、安全设置和用户中心导航。 | `src/views/profile/**`、`src/module.ts` 的用户菜单。 |
 | `system.base.*` | 区域、配置、部门、字典、岗位、角色、租户、用户等基础管理页面。 | `src/views/base/**`。 |
-| `system.codegen.*` | 代码生成配置、预览、列配置和多语言编辑。 | `src/views/tool/code-gen/**`。 |
+| `system.code.gen.*` | 代码生成配置、预览、列配置和多语言编辑。 | `src/views/tool/code-gen/**`。 |
 | `system.translation.*` | 动态翻译编辑、草稿生成和语言包状态。 | `src/components/DynamicTranslationEditor.vue`、代码生成语言编辑组件。 |
 
 语言包由生成的 `generated.ts` 传入 `systemAdminModule.messages`，由 core 的 `registerLocaleMessages` 校验语言键集合、命名空间和占位符后注册到 Vue I18n；业务代码统一使用 `t('system....')` 或 `useLocaleStore()` 读取。
 
-语言键必须使用 `system.` 命名空间；语言包保持标准 JSON，不在文件内写注释。
+语言键按文案归属使用 `common.` 或 `system.` 命名空间；语言包保持标准 JSON，不在文件内写注释。
 
 新增语言的完整文件清单和迁移流程见[国际化语言扩展指南](../../../../../../docs/国际化语言扩展指南.md)。

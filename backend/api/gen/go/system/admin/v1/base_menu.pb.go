@@ -13,8 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/common/v1"
-	v11 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
+	v1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -235,18 +234,18 @@ func (x *GetBaseMenuRequest) GetId() int64 {
 // 菜单表单
 type BaseMenuForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                        // 菜单ID
-	ParentId      *int64                 `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`      // 父级菜单ID
-	Type          v1.BaseMenuType        `protobuf:"varint,3,opt,name=type,proto3,enum=system.common.v1.BaseMenuType" json:"type,omitempty"` // 菜单类型
-	Path          string                 `protobuf:"bytes,4,opt,name=path,proto3" json:"path,omitempty"`                                     // 菜单路径、按钮权限标识或外链内部路径，目录可为空
-	Name          string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`                                     // 路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。
-	Component     string                 `protobuf:"bytes,6,opt,name=component,proto3" json:"component,omitempty"`                           // 组件路径
-	Redirect      string                 `protobuf:"bytes,7,opt,name=redirect,proto3" json:"redirect,omitempty"`                             // 目录跳转路由或外链地址
-	Meta          *BaseMenuMeta          `protobuf:"bytes,8,opt,name=meta,proto3" json:"meta,omitempty"`                                     // 路由元信息
-	Api           []string               `protobuf:"bytes,9,rep,name=api,proto3" json:"api,omitempty"`                                       // 分配的API列表
-	Translations  []*BaseTranslation     `protobuf:"bytes,10,rep,name=translations,proto3" json:"translations,omitempty"`                    // 非主语言翻译
-	Sort          int32                  `protobuf:"varint,50,opt,name=sort,proto3" json:"sort,omitempty"`                                   // 排序
-	Status        v11.Status             `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`        // 状态
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                       // 菜单ID
+	ParentId      *int64                 `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`     // 父级菜单ID
+	Type          BaseMenuType           `protobuf:"varint,3,opt,name=type,proto3,enum=system.admin.v1.BaseMenuType" json:"type,omitempty"` // 菜单类型
+	Path          string                 `protobuf:"bytes,4,opt,name=path,proto3" json:"path,omitempty"`                                    // 菜单路径、按钮权限标识或外链内部路径，目录可为空
+	Name          string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`                                    // 路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。
+	Component     string                 `protobuf:"bytes,6,opt,name=component,proto3" json:"component,omitempty"`                          // 组件路径
+	Redirect      string                 `protobuf:"bytes,7,opt,name=redirect,proto3" json:"redirect,omitempty"`                            // 目录跳转路由或外链地址
+	Meta          *BaseMenuMeta          `protobuf:"bytes,8,opt,name=meta,proto3" json:"meta,omitempty"`                                    // 路由元信息
+	Api           []string               `protobuf:"bytes,9,rep,name=api,proto3" json:"api,omitempty"`                                      // 分配的API列表
+	Translations  []*BaseTranslation     `protobuf:"bytes,10,rep,name=translations,proto3" json:"translations,omitempty"`                   // 非主语言翻译
+	Sort          int32                  `protobuf:"varint,50,opt,name=sort,proto3" json:"sort,omitempty"`                                  // 排序
+	Status        v1.Status              `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`       // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -295,11 +294,11 @@ func (x *BaseMenuForm) GetParentId() int64 {
 	return 0
 }
 
-func (x *BaseMenuForm) GetType() v1.BaseMenuType {
+func (x *BaseMenuForm) GetType() BaseMenuType {
 	if x != nil {
 		return x.Type
 	}
-	return v1.BaseMenuType(0)
+	return BaseMenuType_BASE_MENU_TYPE_UNSPECIFIED
 }
 
 func (x *BaseMenuForm) GetPath() string {
@@ -358,11 +357,11 @@ func (x *BaseMenuForm) GetSort() int32 {
 	return 0
 }
 
-func (x *BaseMenuForm) GetStatus() v11.Status {
+func (x *BaseMenuForm) GetStatus() v1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v11.Status(0)
+	return v1.Status(0)
 }
 
 // 创建菜单请求参数
@@ -558,19 +557,19 @@ type BaseMenu struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                        // 菜单ID
 	ParentId      int64                  `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`            // 父级菜单ID
-	Type          v1.BaseMenuType        `protobuf:"varint,3,opt,name=type,proto3,enum=system.common.v1.BaseMenuType" json:"type,omitempty"` // 菜单类型
+	Type          BaseMenuType           `protobuf:"varint,3,opt,name=type,proto3,enum=system.admin.v1.BaseMenuType" json:"type,omitempty"`  // 菜单类型
 	Path          string                 `protobuf:"bytes,4,opt,name=path,proto3" json:"path,omitempty"`                                     // 路由地址
 	Name          string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`                                     // 路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。
 	Component     string                 `protobuf:"bytes,6,opt,name=component,proto3" json:"component,omitempty"`                           // 组件路径
 	Redirect      string                 `protobuf:"bytes,7,opt,name=redirect,proto3" json:"redirect,omitempty"`                             // 重定向地址
 	Meta          *BaseMenuMeta          `protobuf:"bytes,8,opt,name=meta,proto3" json:"meta,omitempty"`                                     // 路由元信息
-	Translations  []*BaseTranslation     `protobuf:"bytes,10,rep,name=translations,proto3" json:"translations,omitempty"`                    // 非主语言翻译
 	Sort          int32                  `protobuf:"varint,9,opt,name=sort,proto3" json:"sort,omitempty"`                                    // 排序
-	Status        v11.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`        // 状态
+	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`        // 状态
 	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`        // 创建时间
 	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`        // 更新时间
 	Children      []*BaseMenu            `protobuf:"bytes,300,rep,name=children,proto3" json:"children,omitempty"`                           // 子菜单
 	HasChildren   bool                   `protobuf:"varint,301,opt,name=has_children,json=hasChildren,proto3" json:"has_children,omitempty"` // 是否存在子节点
+	Translations  []*BaseTranslation     `protobuf:"bytes,302,rep,name=translations,proto3" json:"translations,omitempty"`                   // 非主语言翻译
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -619,11 +618,11 @@ func (x *BaseMenu) GetParentId() int64 {
 	return 0
 }
 
-func (x *BaseMenu) GetType() v1.BaseMenuType {
+func (x *BaseMenu) GetType() BaseMenuType {
 	if x != nil {
 		return x.Type
 	}
-	return v1.BaseMenuType(0)
+	return BaseMenuType_BASE_MENU_TYPE_UNSPECIFIED
 }
 
 func (x *BaseMenu) GetPath() string {
@@ -661,13 +660,6 @@ func (x *BaseMenu) GetMeta() *BaseMenuMeta {
 	return nil
 }
 
-func (x *BaseMenu) GetTranslations() []*BaseTranslation {
-	if x != nil {
-		return x.Translations
-	}
-	return nil
-}
-
 func (x *BaseMenu) GetSort() int32 {
 	if x != nil {
 		return x.Sort
@@ -675,11 +667,11 @@ func (x *BaseMenu) GetSort() int32 {
 	return 0
 }
 
-func (x *BaseMenu) GetStatus() v11.Status {
+func (x *BaseMenu) GetStatus() v1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v11.Status(0)
+	return v1.Status(0)
 }
 
 func (x *BaseMenu) GetCreatedAt() string {
@@ -708,6 +700,13 @@ func (x *BaseMenu) GetHasChildren() bool {
 		return x.HasChildren
 	}
 	return false
+}
+
+func (x *BaseMenu) GetTranslations() []*BaseTranslation {
+	if x != nil {
+		return x.Translations
+	}
+	return nil
 }
 
 // 菜单元信息
@@ -945,7 +944,7 @@ var File_system_admin_v1_base_menu_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\n" +
-	"\x1fsystem/admin/v1/base_menu.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a\x1bsystem/common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1bbuf/validate/validate.proto\x1a&system/admin/v1/base_translation.proto\"\xd6\x01\n" +
+	"\x1fsystem/admin/v1/base_menu.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1bbuf/validate/validate.proto\x1a&system/admin/v1/base_translation.proto\x1a\x1csystem/admin/v1/common.proto\"\xd6\x01\n" +
 	"\x15OptionBaseMenuRequest\x126\n" +
 	"\tparent_id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDH\x00R\bparentId\x88\x01\x01\x122\n" +
 	"\arole_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e目标角色IDH\x01R\x06roleId\x88\x01\x01\x12.\n" +
@@ -965,59 +964,57 @@ const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\n" +
 	"base_menus\x18\x01 \x03(\v2\x19.system.admin.v1.BaseMenuB\x0f\xbaG\f\x92\x02\t菜单树R\tbaseMenus\"4\n" +
 	"\x12GetBaseMenuRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\"\xb3\x10\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\"\xad\x12\n" +
 	"\fBaseMenuForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\x126\n" +
-	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDH\x00R\bparentId\x88\x01\x01\x12\x8f\x01\n" +
-	"\x04type\x18\x03 \x01(\x0e2\x1e.system.common.v1.BaseMenuTypeB[\xbaG\x0f\x92\x02\f菜单类型\xbaHF\xba\x01>\n" +
-	"\x17base_menu.type.required\x12\x18菜单类型不能为空\x1a\tthis != 0\x82\x01\x02\x10\x01R\x04type\x12\xb8\x01\n" +
-	"\x04path\x18\x04 \x01(\tB\xa3\x01\xbaGK\x92\x02H菜单路径、按钮权限标识或外链内部路径，目录可为空\xbaHR\xba\x01O\n" +
-	"\x15base_menu.path.length\x12!路径不能超过 1024 个字符\x1a\x13this.size() <= 1024R\x04path\x12\xd8\x01\n" +
-	"\x04name\x18\x05 \x01(\tB\xc3\x01\xbaGf\x92\x02c路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。\xbaHW\xba\x01T\n" +
-	"\x16base_menu.name.max_len\x12&路由名称不能超过 255 个字符\x1a\x12this.size() <= 255R\x04name\x12\x8f\x01\n" +
-	"\tcomponent\x18\x06 \x01(\tBq\xbaG\x0f\x92\x02\f组件路径\xbaH\\\xba\x01Y\n" +
-	"\x1bbase_menu.component.max_len\x12&组件路径不能超过 255 个字符\x1a\x12this.size() <= 255R\tcomponent\x12\xa7\x01\n" +
-	"\bredirect\x18\a \x01(\tB\x8a\x01\xbaG$\x92\x02!目录跳转路由或外链地址\xbaH`\xba\x01]\n" +
-	"\x1abase_menu.redirect.max_len\x12*重定向地址不能超过 1024 个字符\x1a\x13this.size() <= 1024R\bredirect\x12H\n" +
+	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDH\x00R\bparentId\x88\x01\x01\x12\xa2\x01\n" +
+	"\x04type\x18\x03 \x01(\x0e2\x1d.system.admin.v1.BaseMenuTypeBo\xbaG\x0f\x92\x02\f菜单类型\xbaHZ\xba\x01R\n" +
+	"+system.admin.base.menu.entity.type.required\x12\x18菜单类型不能为空\x1a\tthis != 0\x82\x01\x02\x10\x01R\x04type\x12\xcc\x01\n" +
+	"\x04path\x18\x04 \x01(\tB\xb7\x01\xbaGK\x92\x02H菜单路径、按钮权限标识或外链内部路径，目录可为空\xbaHf\xba\x01c\n" +
+	")system.admin.base.menu.entity.path.length\x12!路径不能超过 1024 个字符\x1a\x13this.size() <= 1024R\x04path\x12\xef\x01\n" +
+	"\x04name\x18\x05 \x01(\tB\xda\x01\xbaGf\x92\x02c路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。\xbaHn\xba\x01k\n" +
+	"-system.admin.base.menu.entity.name.max_length\x12&路由名称不能超过 255 个字符\x1a\x12this.size() <= 255R\x04name\x12\xa7\x01\n" +
+	"\tcomponent\x18\x06 \x01(\tB\x88\x01\xbaG\x0f\x92\x02\f组件路径\xbaHs\xba\x01p\n" +
+	"2system.admin.base.menu.entity.component.max_length\x12&组件路径不能超过 255 个字符\x1a\x12this.size() <= 255R\tcomponent\x12\xbe\x01\n" +
+	"\bredirect\x18\a \x01(\tB\xa1\x01\xbaG$\x92\x02!目录跳转路由或外链地址\xbaHw\xba\x01t\n" +
+	"1system.admin.base.menu.entity.redirect.max_length\x12*重定向地址不能超过 1024 个字符\x1a\x13this.size() <= 1024R\bredirect\x12H\n" +
 	"\x04meta\x18\b \x01(\v2\x1d.system.admin.v1.BaseMenuMetaB\x15\xbaG\x12\x92\x02\x0f路由元信息R\x04meta\x12*\n" +
 	"\x03api\x18\t \x03(\tB\x18\xbaG\x15\x92\x02\x12分配的API列表R\x03api\x12^\n" +
 	"\ftranslations\x18\n" +
-	" \x03(\v2 .system.admin.v1.BaseTranslationB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\ftranslations\x12_\n" +
-	"\x04sort\x182 \x01(\x05BK\xbaG\t\x92\x02\x06排序\xbaH<\xba\x019\n" +
-	"\x17base_menu.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x12?\n" +
-	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status:\xe0\x05\xbaH\xdc\x05\x1ad\n" +
-	"\x17base_menu.path.required\x12!非目录菜单必须填写路径\x1a&this.type == 1 || this.path.size() > 0\x1ag\n" +
-	"\x17base_menu.name.required\x12$菜单类型必须填写路由名称\x1a&this.type != 2 || this.name.size() > 0\x1ao\n" +
-	"\x18base_menu.name.menu_only\x12*只有菜单类型可以填写路由名称\x1a'this.type == 2 || this.name.size() == 0\x1a\x80\x01\n" +
-	"\x1bbase_menu.redirect.external\x12'外链必须填写完整的 HTTP 地址\x1a8this.type != 4 || this.redirect.matches('^https?://.+$')\x1a\x8e\x01\n" +
-	"\x1fbase_menu.folder.identity_empty\x12'目录不能填写路径和路由名称\x1aBthis.type != 1 || (this.path.size() == 0 && this.name.size() == 0)\x1a\x85\x01\n" +
-	" base_menu.external.path_internal\x12*外链路径必须使用内部唯一路径\x1a5this.type != 4 || !this.path.matches('^https?://.*$')B\f\n" +
+	" \x03(\v2 .system.admin.v1.BaseTranslationB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\ftranslations\x12s\n" +
+	"\x04sort\x182 \x01(\x05B_\xbaG\t\x92\x02\x06排序\xbaHP\xba\x01M\n" +
+	"+system.admin.base.menu.entity.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x12?\n" +
+	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status:\xd9\x06\xbaH\xd5\x06\x1ax\n" +
+	"+system.admin.base.menu.entity.path.required\x12!非目录菜单必须填写路径\x1a&this.type == 1 || this.path.size() > 0\x1a{\n" +
+	"+system.admin.base.menu.entity.name.required\x12$菜单类型必须填写路由名称\x1a&this.type != 2 || this.name.size() > 0\x1a\x83\x01\n" +
+	",system.admin.base.menu.entity.name.menu_only\x12*只有菜单类型可以填写路由名称\x1a'this.type == 2 || this.name.size() == 0\x1a\x94\x01\n" +
+	"/system.admin.base.menu.entity.redirect.external\x12'外链必须填写完整的 HTTP 地址\x1a8this.type != 4 || this.redirect.matches('^https?://.+$')\x1a\xa2\x01\n" +
+	"3system.admin.base.menu.entity.folder.identity_empty\x12'目录不能填写路径和路由名称\x1aBthis.type != 1 || (this.path.size() == 0 && this.name.size() == 0)\x1a\x99\x01\n" +
+	"4system.admin.base.menu.entity.external.path_internal\x12*外链路径必须使用内部唯一路径\x1a5this.type != 4 || !this.path.matches('^https?://.*$')B\f\n" +
 	"\n" +
-	"_parent_id\"\x81\x02\n" +
+	"_parent_id\"\x8e\x02\n" +
 	"\x15CreateBaseMenuRequest\x12T\n" +
-	"\tbase_menu\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseMenuFormB\x18\xbaG\x0f\x92\x02\f菜单表单\xbaH\x03\xc8\x01\x01R\bbaseMenu:\x91\x01\xbaH\x8d\x01\x1a\x8a\x01\n" +
-	"#create_base_menu.parent_id.required\x12$新增菜单必须选择上级菜单\x1a=has(this.base_menu.parent_id) && this.base_menu.parent_id > 0\"m\n" +
+	"\tbase_menu\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseMenuFormB\x18\xbaG\x0f\x92\x02\f菜单表单\xbaH\x03\xc8\x01\x01R\bbaseMenu:\x9e\x01\xbaH\x9a\x01\x1a\x97\x01\n" +
+	"0system.admin.base.menu.create.parent_id.required\x12$新增菜单必须选择上级菜单\x1a=has(this.base_menu.parent_id) && this.base_menu.parent_id > 0\"m\n" +
 	"\x15UpdateBaseMenuRequest\x12T\n" +
-	"\tbase_menu\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseMenuFormB\x18\xbaG\x0f\x92\x02\f菜单表单\xbaH\x03\xc8\x01\x01R\bbaseMenu\"\x8e\x01\n" +
-	"\x15DeleteBaseMenuRequest\x12u\n" +
-	"\x02id\x18\x01 \x01(\tBe\xbaG\x11\x92\x02\x0e菜单ID列表\xbaHN\xba\x01K\n" +
-	"\x1cdelete_base_menu.id.required\x12\x1a菜单ID列表不能为空\x1a\x0fthis.size() > 0R\x02id\"\xf3\x01\n" +
-	"\x18SetBaseMenuStatusRequest\x12f\n" +
-	"\x02id\x18\x01 \x01(\x03BV\xbaG\v\x92\x02\b菜单ID\xbaHE\xba\x01B\n" +
-	" set_base_menu_status.id.required\x12\x14菜单ID不能为空\x1a\bthis > 0R\x02id\x12o\n" +
-	"\x06status\x18\x02 \x01(\x05BW\xbaG\t\x92\x02\x06状态\xbaHH\xba\x01E\n" +
-	"$set_base_menu_status.status.required\x12\x12状态不能为空\x1a\tthis != 0R\x06status\"\xa8\a\n" +
+	"\tbase_menu\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseMenuFormB\x18\xbaG\x0f\x92\x02\f菜单表单\xbaH\x03\xc8\x01\x01R\bbaseMenu\"\x9c\x01\n" +
+	"\x15DeleteBaseMenuRequest\x12\x82\x01\n" +
+	"\x02id\x18\x01 \x01(\tBr\xbaG\x11\x92\x02\x0e菜单ID列表\xbaH[\xba\x01X\n" +
+	")system.admin.base.menu.delete.id.required\x12\x1a菜单ID列表不能为空\x1a\x0fthis.size() > 0R\x02id\"\x8d\x02\n" +
+	"\x18SetBaseMenuStatusRequest\x12s\n" +
+	"\x02id\x18\x01 \x01(\x03Bc\xbaG\v\x92\x02\b菜单ID\xbaHR\xba\x01O\n" +
+	"-system.admin.base.menu.set_status.id.required\x12\x14菜单ID不能为空\x1a\bthis > 0R\x02id\x12|\n" +
+	"\x06status\x18\x02 \x01(\x05Bd\xbaG\t\x92\x02\x06状态\xbaHU\xba\x01R\n" +
+	"1system.admin.base.menu.set_status.status.required\x12\x12状态不能为空\x1a\tthis != 0R\x06status\"\xa8\a\n" +
 	"\bBaseMenu\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\x121\n" +
-	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDR\bparentId\x12F\n" +
-	"\x04type\x18\x03 \x01(\x0e2\x1e.system.common.v1.BaseMenuTypeB\x12\xbaG\x0f\x92\x02\f菜单类型R\x04type\x12&\n" +
+	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDR\bparentId\x12E\n" +
+	"\x04type\x18\x03 \x01(\x0e2\x1d.system.admin.v1.BaseMenuTypeB\x12\xbaG\x0f\x92\x02\f菜单类型R\x04type\x12&\n" +
 	"\x04path\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f路由地址R\x04path\x12}\n" +
 	"\x04name\x18\x05 \x01(\tBi\xbaGf\x92\x02c路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。R\x04name\x120\n" +
 	"\tcomponent\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f组件路径R\tcomponent\x121\n" +
 	"\bredirect\x18\a \x01(\tB\x15\xbaG\x12\x92\x02\x0f重定向地址R\bredirect\x12H\n" +
-	"\x04meta\x18\b \x01(\v2\x1d.system.admin.v1.BaseMenuMetaB\x15\xbaG\x12\x92\x02\x0f路由元信息R\x04meta\x12^\n" +
-	"\ftranslations\x18\n" +
-	" \x03(\v2 .system.admin.v1.BaseTranslationB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\ftranslations\x12 \n" +
+	"\x04meta\x18\b \x01(\v2\x1d.system.admin.v1.BaseMenuMetaB\x15\xbaG\x12\x92\x02\x0f路由元信息R\x04meta\x12 \n" +
 	"\x04sort\x18\t \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x127\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x122\n" +
 	"\n" +
@@ -1025,7 +1022,8 @@ const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12G\n" +
 	"\bchildren\x18\xac\x02 \x03(\v2\x19.system.admin.v1.BaseMenuB\x0f\xbaG\f\x92\x02\t子菜单R\bchildren\x12?\n" +
-	"\fhas_children\x18\xad\x02 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否存在子节点R\vhasChildren\"\xf3\x05\n" +
+	"\fhas_children\x18\xad\x02 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否存在子节点R\vhasChildren\x12_\n" +
+	"\ftranslations\x18\xae\x02 \x03(\v2 .system.admin.v1.BaseTranslationB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\ftranslations\"\xf3\x05\n" +
 	"\fBaseMenuMeta\x12(\n" +
 	"\x05title\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f菜单标题R\x05title\x12+\n" +
 	"\x04icon\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f菜单图标H\x00R\x04icon\x88\x01\x01\x12_\n" +
@@ -1092,25 +1090,25 @@ var file_system_admin_v1_base_menu_proto_goTypes = []any{
 	(*BaseMenuMeta)(nil),             // 10: system.admin.v1.BaseMenuMeta
 	(*BaseMenuAppMeta)(nil),          // 11: system.admin.v1.BaseMenuAppMeta
 	(*BaseMenuParams)(nil),           // 12: system.admin.v1.BaseMenuParams
-	(v1.BaseMenuType)(0),             // 13: system.common.v1.BaseMenuType
+	(BaseMenuType)(0),                // 13: system.admin.v1.BaseMenuType
 	(*BaseTranslation)(nil),          // 14: system.admin.v1.BaseTranslation
-	(v11.Status)(0),                  // 15: common.v1.Status
-	(*v11.TreeOptionResponse)(nil),   // 16: common.v1.TreeOptionResponse
+	(v1.Status)(0),                   // 15: common.v1.Status
+	(*v1.TreeOptionResponse)(nil),    // 16: common.v1.TreeOptionResponse
 	(*emptypb.Empty)(nil),            // 17: google.protobuf.Empty
 }
 var file_system_admin_v1_base_menu_proto_depIdxs = []int32{
 	9,  // 0: system.admin.v1.TreeBaseMenuResponse.base_menus:type_name -> system.admin.v1.BaseMenu
-	13, // 1: system.admin.v1.BaseMenuForm.type:type_name -> system.common.v1.BaseMenuType
+	13, // 1: system.admin.v1.BaseMenuForm.type:type_name -> system.admin.v1.BaseMenuType
 	10, // 2: system.admin.v1.BaseMenuForm.meta:type_name -> system.admin.v1.BaseMenuMeta
 	14, // 3: system.admin.v1.BaseMenuForm.translations:type_name -> system.admin.v1.BaseTranslation
 	15, // 4: system.admin.v1.BaseMenuForm.status:type_name -> common.v1.Status
 	4,  // 5: system.admin.v1.CreateBaseMenuRequest.base_menu:type_name -> system.admin.v1.BaseMenuForm
 	4,  // 6: system.admin.v1.UpdateBaseMenuRequest.base_menu:type_name -> system.admin.v1.BaseMenuForm
-	13, // 7: system.admin.v1.BaseMenu.type:type_name -> system.common.v1.BaseMenuType
+	13, // 7: system.admin.v1.BaseMenu.type:type_name -> system.admin.v1.BaseMenuType
 	10, // 8: system.admin.v1.BaseMenu.meta:type_name -> system.admin.v1.BaseMenuMeta
-	14, // 9: system.admin.v1.BaseMenu.translations:type_name -> system.admin.v1.BaseTranslation
-	15, // 10: system.admin.v1.BaseMenu.status:type_name -> common.v1.Status
-	9,  // 11: system.admin.v1.BaseMenu.children:type_name -> system.admin.v1.BaseMenu
+	15, // 9: system.admin.v1.BaseMenu.status:type_name -> common.v1.Status
+	9,  // 10: system.admin.v1.BaseMenu.children:type_name -> system.admin.v1.BaseMenu
+	14, // 11: system.admin.v1.BaseMenu.translations:type_name -> system.admin.v1.BaseTranslation
 	12, // 12: system.admin.v1.BaseMenuMeta.params:type_name -> system.admin.v1.BaseMenuParams
 	11, // 13: system.admin.v1.BaseMenuMeta.app:type_name -> system.admin.v1.BaseMenuAppMeta
 	0,  // 14: system.admin.v1.BaseMenuService.OptionBaseMenu:input_type -> system.admin.v1.OptionBaseMenuRequest
@@ -1140,6 +1138,7 @@ func file_system_admin_v1_base_menu_proto_init() {
 		return
 	}
 	file_system_admin_v1_base_translation_proto_init()
+	file_system_admin_v1_common_proto_init()
 	file_system_admin_v1_base_menu_proto_msgTypes[0].OneofWrappers = []any{}
 	file_system_admin_v1_base_menu_proto_msgTypes[1].OneofWrappers = []any{}
 	file_system_admin_v1_base_menu_proto_msgTypes[4].OneofWrappers = []any{}

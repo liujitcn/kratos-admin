@@ -72,7 +72,7 @@ export const useUserStore = defineStore("admin-user", {
     /** 刷新认证令牌 */
     async refreshAccessToken() {
       if (!this.refreshToken) {
-        return Promise.reject(new Error(t("core.auth.refreshTokenMissing")));
+        return Promise.reject(new Error(t("core.auth.refresh_token_missing")));
       }
 
       const data = await defLoginService.RefreshToken({ refresh_token: this.refreshToken });

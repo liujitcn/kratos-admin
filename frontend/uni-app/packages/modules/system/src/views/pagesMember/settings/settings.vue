@@ -46,7 +46,7 @@ const onLogout = () => {
   }
   // 模态弹窗
   uni.showModal({
-    content: t('system.settings.logoutConfirm'),
+    content: t('system.settings.logout_confirm'),
     confirmColor: '#27BA9B',
     success: async (res) => {
       if (!res.confirm) {
@@ -61,7 +61,7 @@ const onLogout = () => {
       } catch (error) {
         await uni.showToast({
           icon: 'none',
-          title: t('system.settings.logoutFailed'),
+          title: t('system.settings.logout_failed'),
         })
       } finally {
         logoutLoading.value = false

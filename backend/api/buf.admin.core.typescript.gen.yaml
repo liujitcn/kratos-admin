@@ -21,7 +21,6 @@ inputs:
       - proto/base/v1/oauth.proto
       - proto/base/v1/sse.proto
       - proto/system/admin/v1
-      - proto/system/common/v1/enum.proto
 
 plugins:
   - local: protoc-gen-ts_proto

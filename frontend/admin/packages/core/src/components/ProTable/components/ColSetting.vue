@@ -1,9 +1,9 @@
 <template>
   <!-- 列设置 -->
-  <el-drawer v-model="drawerVisible" :title="t('core.table.columnSetting')" size="450px">
+  <el-drawer v-model="drawerVisible" :title="t('core.table.column_setting')" size="450px">
     <div class="table-main">
       <el-table :data="colSetting" :border="true" row-key="prop" default-expand-all :tree-props="{ children: '_children' }">
-        <el-table-column prop="label" align="left" :label="t('core.table.columnName')" />
+        <el-table-column prop="label" align="left" :label="t('core.table.column_name')" />
         <el-table-column v-slot="scope" prop="isShow" align="center" :label="t('core.table.show')">
           <el-switch v-model="scope.row.isShow"></el-switch>
         </el-table-column>
@@ -13,7 +13,7 @@
         <template #empty>
           <div class="table-empty">
             <img src="@/assets/images/notData.png" alt="notData" />
-            <div>{{ t("core.table.noConfigurableColumns") }}</div>
+            <div>{{ t("core.table.no_configurable_columns") }}</div>
           </div>
         </template>
       </el-table>

@@ -21,7 +21,7 @@
   "scripts": {
     "build": "pnpm build:package",
     "build:package": "node ../../scripts/build-package.mjs .",
-    "test": "tsc -p tsconfig.test.json && node --test dist/test/tests/modules.test.js",
+    "test": "tsc -p tsconfig.test.json && node --test dist/test/tests/modules.test.js dist/test/tests/dict.test.js",
     "type:check": "vue-tsc --noEmit --skipLibCheck",
     "prepack": "pnpm build:package"
   },

@@ -233,7 +233,7 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 		return nil, errorsx.Unauthenticated("用户名或密码错误")
 	}
 	var password string
-	password, err = utils.DecryptPassword(req.GetPassword(), basev1.PasswordCryptoScene_LOGIN)
+	password, err = utils.DecryptPassword(req.GetPassword(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_LOGIN)
 	if err != nil {
 		return nil, errorsx.Unauthenticated("用户名或密码错误").WithCause(err)
 	}
@@ -267,7 +267,7 @@ func (c *LoginCase) FindUserByPassword(ctx context.Context, tenantCode string, u
 		return nil, errorsx.Unauthenticated("用户名或密码错误")
 	}
 	var password string
-	password, err = utils.DecryptPassword(encryptedPassword, basev1.PasswordCryptoScene_LOGIN)
+	password, err = utils.DecryptPassword(encryptedPassword, basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_LOGIN)
 	if err != nil {
 		return nil, errorsx.Unauthenticated("用户名或密码错误").WithCause(err)
 	}

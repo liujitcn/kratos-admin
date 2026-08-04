@@ -8,7 +8,20 @@
 import type { SelectOptionResponse } from "../../../common/v1/common";
 import type { Status } from "../../../common/v1/enum";
 import type { Empty } from "../../../google/protobuf/empty";
-import type { BaseRoleDataScope } from "../../common/v1/enum";
+
+/** 角色数据范围。 */
+export enum BaseRoleDataScope {
+  /** BASE_ROLE_DATA_SCOPE_UNSPECIFIED - 未指定角色数据范围。 */
+  BASE_ROLE_DATA_SCOPE_UNSPECIFIED = 0,
+  /** BASE_ROLE_DATA_SCOPE_ALL - 全部数据。 */
+  BASE_ROLE_DATA_SCOPE_ALL = 1,
+  /** BASE_ROLE_DATA_SCOPE_DEPT_AND_CHILDREN - 部门及子部门数据。 */
+  BASE_ROLE_DATA_SCOPE_DEPT_AND_CHILDREN = 2,
+  /** BASE_ROLE_DATA_SCOPE_SELF_DEPT - 本部门数据。 */
+  BASE_ROLE_DATA_SCOPE_SELF_DEPT = 3,
+  /** BASE_ROLE_DATA_SCOPE_SELF_USER - 本人数据。 */
+  BASE_ROLE_DATA_SCOPE_SELF_USER = 4,
+}
 
 /** 角色选项查询条件 */
 export interface OptionBaseRoleRequest {

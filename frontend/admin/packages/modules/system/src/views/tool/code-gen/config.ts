@@ -8,15 +8,15 @@ import type {
   CodeGenColumnQueryConfig
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_column";
 import type { CodeGenLeftTreeConfig, CodeGenTableForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_table";
-import { CodeGenTableStatus } from "@liujitcn/kratos-admin-system/rpc/system/common/v1/enum";
+import { CodeGenTableStatus } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_table";
 
 /** 代码生成表配置页面类型选项。 */
 export function codeGenPageTypeOptions(): ProFormOption[] {
   return [
-    { label: t("system.codegen.pageType.normal"), value: "normal" },
-    { label: t("system.codegen.pageType.tree"), value: "tree" },
-    { label: t("system.codegen.pageType.treeLazy"), value: "tree_lazy" },
-    { label: t("system.codegen.pageType.leftTree"), value: "left_tree" }
+    { label: t("system.code.gen.page_type.normal"), value: "normal" },
+    { label: t("system.code.gen.page_type.tree"), value: "tree" },
+    { label: t("system.code.gen.page_type.tree_lazy"), value: "tree_lazy" },
+    { label: t("system.code.gen.page_type.left_tree"), value: "left_tree" }
   ];
 }
 
@@ -28,70 +28,70 @@ export function isCodeGenTreePageType(pageType?: string) {
 /** 左树数据源类型选项。 */
 export function codeGenSourceTypeOptions(): ProFormOption[] {
   return [
-    { label: t("system.codegen.source.static"), value: "static" },
-    { label: t("system.codegen.source.dict"), value: "dict" },
-    { label: t("system.codegen.source.table"), value: "table" }
+    { label: t("system.code.gen.source.static"), value: "static" },
+    { label: t("system.code.gen.source.dict"), value: "dict" },
+    { label: t("system.code.gen.source.table"), value: "table" }
   ];
 }
 
 /** 查询操作符选项。 */
 export function codeGenQueryOperatorOptions(): ProFormOption[] {
   return [
-    { label: t("system.codegen.operator.eq"), value: "eq" },
-    { label: t("system.codegen.operator.like"), value: "like" },
-    { label: t("system.codegen.operator.between"), value: "between" }
+    { label: t("system.code.gen.operator.eq"), value: "eq" },
+    { label: t("system.code.gen.operator.like"), value: "like" },
+    { label: t("system.code.gen.operator.between"), value: "between" }
   ];
 }
 
 /** 查询组件选项。 */
 export function codeGenQueryComponentOptions(): ProFormOption[] {
   return [
-    { label: t("system.codegen.component.input"), value: "input" },
-    { label: t("system.codegen.component.inputNumber"), value: "input-number" },
-    { label: t("system.codegen.component.select"), value: "select" },
-    { label: t("system.codegen.component.treeSelect"), value: "tree-select" },
-    { label: t("system.codegen.component.datePicker"), value: "date-picker" }
+    { label: t("system.code.gen.component.input"), value: "input" },
+    { label: t("system.code.gen.component.input_number"), value: "input-number" },
+    { label: t("system.code.gen.component.select"), value: "select" },
+    { label: t("system.code.gen.component.tree_select"), value: "tree-select" },
+    { label: t("system.code.gen.component.date_picker"), value: "date-picker" }
   ];
 }
 
 /** 列表展示组件选项。 */
 export function codeGenListComponentOptions(): ProFormOption[] {
   return [
-    { label: t("system.codegen.component.text"), value: "text" },
-    { label: t("system.codegen.component.switch"), value: "switch" },
-    { label: t("system.codegen.component.selectShort"), value: "select" },
-    { label: t("system.codegen.component.tree"), value: "tree-select" },
-    { label: t("system.codegen.component.image"), value: "image" },
-    { label: t("system.codegen.component.money"), value: "money" },
-    { label: t("system.codegen.component.date"), value: "date" }
+    { label: t("system.code.gen.component.text"), value: "text" },
+    { label: t("system.code.gen.component.switch"), value: "switch" },
+    { label: t("system.code.gen.component.select_short"), value: "select" },
+    { label: t("system.code.gen.component.tree"), value: "tree-select" },
+    { label: t("system.code.gen.component.image"), value: "image" },
+    { label: t("system.code.gen.component.money"), value: "money" },
+    { label: t("system.code.gen.component.date"), value: "date" }
   ];
 }
 
 /** ProForm 全量组件类型对应的中文名称。 */
 const codeGenFormComponentLabelKeys: Record<ProFormComponentType, string> = {
-  input: "system.codegen.component.input",
-  password: "system.codegen.component.password",
-  textarea: "system.codegen.component.textarea",
-  "input-number": "system.codegen.component.inputNumber",
-  segmented: "system.codegen.component.segmented",
-  switch: "system.codegen.component.switch",
-  checkbox: "system.codegen.component.checkbox",
-  select: "system.codegen.component.select",
-  dict: "system.codegen.component.dict",
-  "radio-group": "system.codegen.component.radioGroup",
-  "checkbox-group": "system.codegen.component.checkboxGroup",
-  "tree-select": "system.codegen.component.treeSelect",
-  "date-picker": "system.codegen.component.datePicker",
-  "cron-expression": "system.codegen.component.cron",
-  transfer: "system.codegen.component.transfer",
-  "image-upload": "system.codegen.component.imageUpload",
-  "images-upload": "system.codegen.component.imagesUpload",
-  "file-upload": "system.codegen.component.fileUpload",
-  "files-upload": "system.codegen.component.filesUpload",
-  "rich-text": "system.codegen.component.richText",
-  "dynamic-list": "system.codegen.component.dynamicList",
-  "kv-list": "system.codegen.component.kvList",
-  slot: "system.codegen.component.slot"
+  input: "system.code.gen.component.input",
+  password: "system.code.gen.component.password",
+  textarea: "system.code.gen.component.textarea",
+  "input-number": "system.code.gen.component.input_number",
+  segmented: "system.code.gen.component.segmented",
+  switch: "system.code.gen.component.switch",
+  checkbox: "system.code.gen.component.checkbox",
+  select: "system.code.gen.component.select",
+  dict: "system.code.gen.component.dict",
+  "radio-group": "system.code.gen.component.radio_group",
+  "checkbox-group": "system.code.gen.component.checkbox_group",
+  "tree-select": "system.code.gen.component.tree_select",
+  "date-picker": "system.code.gen.component.date_picker",
+  "cron-expression": "system.code.gen.component.cron",
+  transfer: "system.code.gen.component.transfer",
+  "image-upload": "system.code.gen.component.image_upload",
+  "images-upload": "system.code.gen.component.images_upload",
+  "file-upload": "system.code.gen.component.file_upload",
+  "files-upload": "system.code.gen.component.files_upload",
+  "rich-text": "system.code.gen.component.rich_text",
+  "dynamic-list": "system.code.gen.component.dynamic_list",
+  "kv-list": "system.code.gen.component.kv_list",
+  slot: "system.code.gen.component.slot"
 };
 
 /** 表单录入组件选项，保持与 ProForm 支持类型完整一致。 */
@@ -105,40 +105,40 @@ export function codeGenFormComponentOptions(): ProFormOption[] {
 /** 代码生成表配置校验规则。 */
 export function codeGenTableRules(): FormRules {
   return {
-    name: [{ required: true, max: 128, message: t("system.codegen.validation.tableRequired"), trigger: "change" }],
+    name: [{ required: true, max: 128, message: t("system.code.gen.validation.table_required"), trigger: "change" }],
     business_module: [
       {
         required: true,
         max: 64,
         pattern: /^[a-z][a-z0-9_]*$/,
-        message: t("system.codegen.validation.moduleRequired"),
+        message: t("system.code.gen.validation.module_required"),
         trigger: "change"
       }
     ],
-    comment: [{ max: 128, message: t("system.codegen.validation.commentLength"), trigger: "blur" }],
+    comment: [{ max: 128, message: t("system.code.gen.validation.comment_length"), trigger: "blur" }],
     parent_menu_id: [
-      { required: true, type: "number", min: 1, message: t("system.codegen.validation.parentMenuRequired"), trigger: "change" }
+      { required: true, type: "number", min: 1, message: t("system.code.gen.validation.parent_menu_required"), trigger: "change" }
     ],
-    page_type: [{ required: true, max: 32, message: t("system.codegen.validation.pageTypeRequired"), trigger: "change" }],
-    parent_column: [{ required: true, max: 64, message: t("system.codegen.validation.parentColumnRequired"), trigger: "change" }],
+    page_type: [{ required: true, max: 32, message: t("system.code.gen.validation.page_type_required"), trigger: "change" }],
+    parent_column: [{ required: true, max: 64, message: t("system.code.gen.validation.parent_column_required"), trigger: "change" }],
     tree_label_column: [
-      { required: true, max: 64, message: t("system.codegen.validation.treeLabelRequired"), trigger: "change" }
+      { required: true, max: 64, message: t("system.code.gen.validation.tree_label_required"), trigger: "change" }
     ],
-    remark: [{ max: 500, message: t("system.codegen.validation.remarkLength"), trigger: "blur" }],
+    remark: [{ max: 500, message: t("system.code.gen.validation.remark_length"), trigger: "blur" }],
     "left_tree_config.table_name": [
-      { required: true, message: t("system.codegen.validation.leftTreeTableRequired"), trigger: "change" }
+      { required: true, message: t("system.code.gen.validation.left_tree_table_required"), trigger: "change" }
     ],
     "left_tree_config.filter_column": [
-      { required: true, message: t("system.codegen.validation.filterColumnRequired"), trigger: "change" }
+      { required: true, message: t("system.code.gen.validation.filter_column_required"), trigger: "change" }
     ],
     "left_tree_config.parent_column": [
-      { required: true, message: t("system.codegen.validation.leftTreeParentRequired"), trigger: ["blur", "change"] }
+      { required: true, message: t("system.code.gen.validation.left_tree_parent_required"), trigger: ["blur", "change"] }
     ],
     "left_tree_config.label_column": [
-      { required: true, message: t("system.codegen.validation.leftTreeLabelRequired"), trigger: ["blur", "change"] }
+      { required: true, message: t("system.code.gen.validation.left_tree_label_required"), trigger: ["blur", "change"] }
     ],
     "left_tree_config.value_column": [
-      { required: true, message: t("system.codegen.validation.leftTreeValueRequired"), trigger: ["blur", "change"] }
+      { required: true, message: t("system.code.gen.validation.left_tree_value_required"), trigger: ["blur", "change"] }
     ]
   };
 }
@@ -171,7 +171,7 @@ export function createDefaultCodeGenTableForm(): CodeGenTableForm {
     gen_frontend: true,
     gen_sql: true,
     parent_menu_id: 0,
-    status: CodeGenTableStatus.DRAFT_CGTS,
+    status: CodeGenTableStatus.CODE_GEN_TABLE_STATUS_DRAFT,
     remark: "",
     i18n_config: new Map()
   };

@@ -22,7 +22,7 @@ export type AiMessageStreamOptions = {
 
 /** 从 direct stream 错误响应中提取后端业务提示。 */
 async function resolveStreamErrorMessage(response: Response): Promise<string> {
-  const fallbackMessage = t("system.ai.requestFailedWithStatus", { status: response.status });
+  const fallbackMessage = t("system.ai.request_failed_with_status", { status: response.status });
   const contentType = response.headers.get("Content-Type") ?? "";
   if (contentType.includes("application/json")) {
     try {
@@ -60,7 +60,7 @@ export async function SendAiMessageStream(request: SendAiMessageRequest, options
   // direct stream 不经过 axios 响应拦截器，需要在这里补齐登录失效处理。
   if (response.status === 401 || response.status === 403) {
     handleAuthExpired();
-    throw new Error(t("core.auth.sessionExpired"));
+    throw new Error(t("core.auth.session_expired"));
   }
   if (!response.ok) {
     throw new Error(await resolveStreamErrorMessage(response));

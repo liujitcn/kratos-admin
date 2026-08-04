@@ -21,9 +21,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BaseTranslationService_ListBaseTranslation_FullMethodName          = "/system.admin.v1.BaseTranslationService/ListBaseTranslation"
-	BaseTranslationService_GenerateBaseTranslationDraft_FullMethodName = "/system.admin.v1.BaseTranslationService/GenerateBaseTranslationDraft"
-	BaseTranslationService_UpdateBaseTranslation_FullMethodName        = "/system.admin.v1.BaseTranslationService/UpdateBaseTranslation"
+	BaseTranslationService_DraftBaseTranslation_FullMethodName  = "/system.admin.v1.BaseTranslationService/DraftBaseTranslation"
+	BaseTranslationService_UpdateBaseTranslation_FullMethodName = "/system.admin.v1.BaseTranslationService/UpdateBaseTranslation"
 )
 
 // BaseTranslationServiceClient is the client API for BaseTranslationService service.
@@ -32,10 +31,8 @@ const (
 //
 // 国际化翻译信息服务。
 type BaseTranslationServiceClient interface {
-	// 查询国际化翻译信息列表
-	ListBaseTranslation(ctx context.Context, in *ListBaseTranslationRequest, opts ...grpc.CallOption) (*ListBaseTranslationResponse, error)
-	// 资源生成机器翻译。
-	GenerateBaseTranslationDraft(ctx context.Context, in *GenerateBaseTranslationDraftRequest, opts ...grpc.CallOption) (*GenerateBaseTranslationDraftResponse, error)
+	// 翻译单个文本。
+	DraftBaseTranslation(ctx context.Context, in *DraftBaseTranslationRequest, opts ...grpc.CallOption) (*DraftBaseTranslationResponse, error)
 	// 修改国际化翻译信息
 	UpdateBaseTranslation(ctx context.Context, in *UpdateBaseTranslationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -48,20 +45,10 @@ func NewBaseTranslationServiceClient(cc grpc.ClientConnInterface) BaseTranslatio
 	return &baseTranslationServiceClient{cc}
 }
 
-func (c *baseTranslationServiceClient) ListBaseTranslation(ctx context.Context, in *ListBaseTranslationRequest, opts ...grpc.CallOption) (*ListBaseTranslationResponse, error) {
+func (c *baseTranslationServiceClient) DraftBaseTranslation(ctx context.Context, in *DraftBaseTranslationRequest, opts ...grpc.CallOption) (*DraftBaseTranslationResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListBaseTranslationResponse)
-	err := c.cc.Invoke(ctx, BaseTranslationService_ListBaseTranslation_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *baseTranslationServiceClient) GenerateBaseTranslationDraft(ctx context.Context, in *GenerateBaseTranslationDraftRequest, opts ...grpc.CallOption) (*GenerateBaseTranslationDraftResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GenerateBaseTranslationDraftResponse)
-	err := c.cc.Invoke(ctx, BaseTranslationService_GenerateBaseTranslationDraft_FullMethodName, in, out, cOpts...)
+	out := new(DraftBaseTranslationResponse)
+	err := c.cc.Invoke(ctx, BaseTranslationService_DraftBaseTranslation_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -84,10 +71,8 @@ func (c *baseTranslationServiceClient) UpdateBaseTranslation(ctx context.Context
 //
 // 国际化翻译信息服务。
 type BaseTranslationServiceServer interface {
-	// 查询国际化翻译信息列表
-	ListBaseTranslation(context.Context, *ListBaseTranslationRequest) (*ListBaseTranslationResponse, error)
-	// 资源生成机器翻译。
-	GenerateBaseTranslationDraft(context.Context, *GenerateBaseTranslationDraftRequest) (*GenerateBaseTranslationDraftResponse, error)
+	// 翻译单个文本。
+	DraftBaseTranslation(context.Context, *DraftBaseTranslationRequest) (*DraftBaseTranslationResponse, error)
 	// 修改国际化翻译信息
 	UpdateBaseTranslation(context.Context, *UpdateBaseTranslationRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBaseTranslationServiceServer()
@@ -100,11 +85,8 @@ type BaseTranslationServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseTranslationServiceServer struct{}
 
-func (UnimplementedBaseTranslationServiceServer) ListBaseTranslation(context.Context, *ListBaseTranslationRequest) (*ListBaseTranslationResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListBaseTranslation not implemented")
-}
-func (UnimplementedBaseTranslationServiceServer) GenerateBaseTranslationDraft(context.Context, *GenerateBaseTranslationDraftRequest) (*GenerateBaseTranslationDraftResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GenerateBaseTranslationDraft not implemented")
+func (UnimplementedBaseTranslationServiceServer) DraftBaseTranslation(context.Context, *DraftBaseTranslationRequest) (*DraftBaseTranslationResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DraftBaseTranslation not implemented")
 }
 func (UnimplementedBaseTranslationServiceServer) UpdateBaseTranslation(context.Context, *UpdateBaseTranslationRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateBaseTranslation not implemented")
@@ -131,38 +113,20 @@ func RegisterBaseTranslationServiceServer(s grpc.ServiceRegistrar, srv BaseTrans
 	s.RegisterService(&BaseTranslationService_ServiceDesc, srv)
 }
 
-func _BaseTranslationService_ListBaseTranslation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListBaseTranslationRequest)
+func _BaseTranslationService_DraftBaseTranslation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DraftBaseTranslationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BaseTranslationServiceServer).ListBaseTranslation(ctx, in)
+		return srv.(BaseTranslationServiceServer).DraftBaseTranslation(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BaseTranslationService_ListBaseTranslation_FullMethodName,
+		FullMethod: BaseTranslationService_DraftBaseTranslation_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseTranslationServiceServer).ListBaseTranslation(ctx, req.(*ListBaseTranslationRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _BaseTranslationService_GenerateBaseTranslationDraft_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GenerateBaseTranslationDraftRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BaseTranslationServiceServer).GenerateBaseTranslationDraft(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: BaseTranslationService_GenerateBaseTranslationDraft_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseTranslationServiceServer).GenerateBaseTranslationDraft(ctx, req.(*GenerateBaseTranslationDraftRequest))
+		return srv.(BaseTranslationServiceServer).DraftBaseTranslation(ctx, req.(*DraftBaseTranslationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -193,12 +157,8 @@ var BaseTranslationService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*BaseTranslationServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ListBaseTranslation",
-			Handler:    _BaseTranslationService_ListBaseTranslation_Handler,
-		},
-		{
-			MethodName: "GenerateBaseTranslationDraft",
-			Handler:    _BaseTranslationService_GenerateBaseTranslationDraft_Handler,
+			MethodName: "DraftBaseTranslation",
+			Handler:    _BaseTranslationService_DraftBaseTranslation_Handler,
 		},
 		{
 			MethodName: "UpdateBaseTranslation",

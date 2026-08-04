@@ -68,13 +68,13 @@
           <PasswordStrength :password="String(previewFormModel[passwordFieldName])" />
         </template>
         <template #codeGenPreviewSlot="{ field }">
-          <el-input v-model="previewFormModel[field.prop]" :placeholder="t('system.codegen.preview.placeholder.customSlot')">
-            <template #append>{{ t("system.codegen.preview.value.custom") }}</template>
+          <el-input v-model="previewFormModel[field.prop]" :placeholder="t('system.code.gen.preview.placeholder.custom_slot')">
+            <template #append>{{ t("system.code.gen.preview.value.custom") }}</template>
           </el-input>
         </template>
       </FormDialog>
     </template>
-    <el-empty v-else-if="!loading" :description="t('system.codegen.preview.message.emptyPage')" />
+    <el-empty v-else-if="!loading" :description="t('system.code.gen.preview.message.empty_page')" />
   </div>
 </template>
 
@@ -150,8 +150,8 @@ const dialog = reactive({
 
 /** 模拟数据新增或编辑弹窗标题。 */
 const dialogTitle = computed(() =>
-  t(dialog.editing ? "system.codegen.preview.title.edit" : "system.codegen.preview.title.create", {
-    resource: snapshot.value?.table.comment || t("system.codegen.preview.value.data")
+  t(dialog.editing ? "system.code.gen.preview.title.edit" : "system.code.gen.preview.title.create", {
+    resource: snapshot.value?.table.comment || t("system.code.gen.preview.value.data")
   })
 );
 
@@ -195,7 +195,7 @@ const leftTreeTitle = computed(
     snapshot.value?.table.left_tree_config?.comment ||
     leftTreeTableComment.value ||
     snapshot.value?.table.left_tree_config?.table_name ||
-    t("system.codegen.preview.title.categoryList")
+    t("system.code.gen.preview.title.category_list")
 );
 
 /** 当前实体已经存在或已经选择生成的 Proto 维护能力。 */
@@ -318,11 +318,11 @@ const formFields = computed<ProFormField[]>(() => {
           ...(isTreeParent ? { disabled: Boolean(previewFormModel[primaryColumn.value]) } : {})
         },
         options,
-        checkboxLabel: component === "checkbox" ? t("system.codegen.preview.value.enableField", { field: label }) : undefined,
+        checkboxLabel: component === "checkbox" ? t("system.code.gen.preview.value.enable_field", { field: label }) : undefined,
         slotName: component === "slot" ? "codeGenPreviewSlot" : undefined,
         visible: component === "password" ? model => !model[primaryColumn.value] : undefined,
         rules: column.form_config?.required
-          ? [{ required: true, message: t("system.codegen.preview.validation.required", { field: label }) }]
+          ? [{ required: true, message: t("system.code.gen.preview.validation.required", { field: label }) }]
           : undefined,
         colSpan: resolvePreviewColSpan(component)
       };
@@ -331,7 +331,7 @@ const formFields = computed<ProFormField[]>(() => {
         field,
         {
           prop: "passwordStrength",
-          label: t("system.codegen.preview.field.passwordStrength"),
+          label: t("system.code.gen.preview.field.password_strength"),
           component: "slot",
           slotName: "passwordStrength",
           visible: model => !model[primaryColumn.value]
@@ -344,7 +344,7 @@ const formFields = computed<ProFormField[]>(() => {
 const treeParentOptions = computed<ProFormOption[]>(() => {
   if (!snapshot.value?.table.parent_column || (pageType.value !== "tree" && pageType.value !== "tree_lazy")) return [];
   const treeRows = buildCodeGenPreviewTree(mockRows.value, primaryColumn.value, snapshot.value.table.parent_column);
-  return [{ label: t("system.codegen.preview.value.topLevel"), value: 0 }, ...mapPreviewRowsToOptions(treeRows)];
+  return [{ label: t("system.code.gen.preview.value.top_level"), value: 0 }, ...mapPreviewRowsToOptions(treeRows)];
 });
 
 // 路由生成对象变化时重新载入对应预览。
@@ -503,8 +503,8 @@ function handleSubmit() {
     }
     const successMessage = t(
       editingRowKey.value !== undefined
-        ? "system.codegen.preview.message.updateSuccess"
-        : "system.codegen.preview.message.createSuccess"
+        ? "system.code.gen.preview.message.update_success"
+        : "system.code.gen.preview.message.create_success"
     );
     handleCloseDialog();
     await nextTick();
@@ -516,13 +516,13 @@ function handleSubmit() {
 /** 删除一条或多条模拟记录。 */
 async function handleDelete(rows: CodeGenPreviewRow[]) {
   if (!rows.length) {
-    ElMessage.warning(t("system.common.message.selectDeleteItem"));
+    ElMessage.warning(t("common.message.select_delete_item"));
     return;
   }
   try {
     await ElMessageBox.confirm(
-      t("system.codegen.preview.dialog.confirmDelete", { count: rows.length }),
-      t("system.codegen.preview.title.deleteConfirm"),
+      t("system.code.gen.preview.dialog.confirm_delete", { count: rows.length }),
+      t("system.code.gen.preview.title.delete_confirm"),
       {
         confirmButtonText: t("common.action.confirm"),
         cancelButtonText: t("common.action.cancel"),
@@ -536,7 +536,7 @@ async function handleDelete(rows: CodeGenPreviewRow[]) {
   mockRows.value = mockRows.value.filter(row => !keys.has(String(row[primaryColumn.value])));
   await nextTick();
   refreshTable();
-  ElMessage.success(t("system.codegen.preview.message.deleteSuccess"));
+  ElMessage.success(t("system.code.gen.preview.message.delete_success"));
 }
 
 /** 创建当前页面类型使用的完整模拟数据。 */
@@ -547,7 +547,7 @@ function createMockRows() {
 
 /** 同步预览页签和浏览器标题。 */
 function syncWorkspaceTitle() {
-  const title = snapshot.value?.table.comment || snapshot.value?.table.name || t("system.codegen.preview.title.dataList");
+  const title = snapshot.value?.table.comment || snapshot.value?.table.name || t("system.code.gen.preview.title.data_list");
   tabsStore.setTabsTitle(title);
   document.title = `${title} - ${import.meta.env.VITE_GLOB_APP_TITLE}`;
 }
@@ -688,26 +688,26 @@ function createPreviewFormProps(
   switch (component) {
     case "input":
       return {
-        placeholder: t("system.codegen.preview.placeholder.input", { field: label }),
+        placeholder: t("system.code.gen.preview.placeholder.input", { field: label }),
         clearable: true,
         style: fullWidthStyle
       };
     case "password":
       return {
-        placeholder: t("system.codegen.preview.placeholder.input", { field: label }),
+        placeholder: t("system.code.gen.preview.placeholder.input", { field: label }),
         clearable: true,
         showPassword: true,
         style: fullWidthStyle
       };
     case "textarea":
-      return { placeholder: t("system.codegen.preview.placeholder.input", { field: label }), rows: 4 };
+      return { placeholder: t("system.code.gen.preview.placeholder.input", { field: label }), rows: 4 };
     case "input-number":
       return { min: 0, controlsPosition: "right", style: fullWidthStyle };
     case "segmented":
       return { block: true };
     case "select":
       return {
-        placeholder: t("system.codegen.preview.placeholder.select", { field: label }),
+        placeholder: t("system.code.gen.preview.placeholder.select", { field: label }),
         clearable: true,
         filterable: true,
         checkStrictly: true,
@@ -715,7 +715,7 @@ function createPreviewFormProps(
       };
     case "tree-select":
       return {
-        placeholder: t("system.codegen.preview.placeholder.select", { field: label }),
+        placeholder: t("system.code.gen.preview.placeholder.select", { field: label }),
         clearable: true,
         filterable: true,
         checkStrictly: true,
@@ -725,22 +725,22 @@ function createPreviewFormProps(
     case "date-picker":
       return {
         type: "datetime",
-        placeholder: t("system.codegen.preview.placeholder.select", { field: label }),
+        placeholder: t("system.code.gen.preview.placeholder.select", { field: label }),
         style: fullWidthStyle
       };
     case "transfer":
-      return { titles: [t("system.codegen.preview.value.available"), t("system.codegen.preview.value.selected")] };
+      return { titles: [t("system.code.gen.preview.value.available"), t("system.code.gen.preview.value.selected")] };
     case "image-upload":
     case "images-upload":
     case "file-upload":
     case "files-upload":
       return { disabled: true };
     case "dynamic-list":
-      return { inputProps: { placeholder: t("system.codegen.preview.placeholder.input", { field: label }) } };
+      return { inputProps: { placeholder: t("system.code.gen.preview.placeholder.input", { field: label }) } };
     case "kv-list":
       return {
-        keyInputProps: { placeholder: t("system.codegen.preview.value.key") },
-        valueInputProps: { placeholder: t("system.codegen.preview.value.value") }
+        keyInputProps: { placeholder: t("system.code.gen.preview.value.key") },
+        valueInputProps: { placeholder: t("system.code.gen.preview.value.value") }
       };
     default:
       return option?.source_value ? { placeholder: option.source_value } : {};
@@ -758,9 +758,9 @@ function createPreviewSearchProps(column: CodeGenColumn) {
   const props: Record<string, any> = { clearable: true, style: { width: "100%" } };
   if (column.query_config?.component === "date-picker") {
     props.type = column.query_config.operator === "between" ? "datetimerange" : "datetime";
-    props.rangeSeparator = t("system.codegen.preview.value.rangeSeparator");
-    props.startPlaceholder = t("system.common.placeholder.startDate");
-    props.endPlaceholder = t("system.common.placeholder.endDate");
+    props.rangeSeparator = t("system.code.gen.preview.value.range_separator");
+    props.startPlaceholder = t("common.placeholder.start_date");
+    props.endPlaceholder = t("common.placeholder.end_date");
   }
   if (column.query_config?.component === "tree-select") {
     props.checkStrictly = true;

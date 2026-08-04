@@ -8,8 +8,8 @@
 import type { TreeOptionResponse } from "../../../common/v1/common";
 import type { Status } from "../../../common/v1/enum";
 import type { Empty } from "../../../google/protobuf/empty";
-import type { BaseMenuType } from "../../common/v1/enum";
-import type { TranslationStatus } from "./base_translation";
+import type { BaseTranslation } from "./base_translation";
+import type { BaseMenuType } from "./common";
 
 /** 菜单选项查询条件 */
 export interface OptionBaseMenuRequest {
@@ -72,7 +72,7 @@ export interface BaseMenuForm {
   /** 分配的API列表 */
   api: string[];
   /** 非主语言翻译 */
-  translations: BaseMenuTranslation[];
+  translations: BaseTranslation[];
   /** 排序 */
   sort: number;
   /** 状态 */
@@ -125,8 +125,6 @@ export interface BaseMenu {
   meta:
     | BaseMenuMeta
     | undefined;
-  /** 非主语言翻译 */
-  translations: BaseMenuTranslation[];
   /** 排序 */
   sort: number;
   /** 状态 */
@@ -139,6 +137,8 @@ export interface BaseMenu {
   children: BaseMenu[];
   /** 是否存在子节点 */
   has_children: boolean;
+  /** 非主语言翻译 */
+  translations: BaseTranslation[];
 }
 
 /** 菜单元信息 */
@@ -193,42 +193,6 @@ export interface BaseMenuParams {
   key: string;
   /** 参数value */
   value: string;
-}
-
-/** 菜单翻译 */
-export interface BaseMenuTranslation {
-  /** 主键ID */
-  id: number;
-  /** 菜单ID */
-  menu_id: number;
-  /** 语言代码 */
-  locale: string;
-  /** 菜单标题 */
-  title: string;
-  /** 翻译状态 */
-  translation_status: TranslationStatus;
-  /** 中文源文SHA-256 */
-  source_hash: string;
-  /** 机器翻译提供方 */
-  translation_provider: string;
-  /** 最近机器翻译时间 */
-  translated_at: string;
-  /** 审核人ID */
-  reviewed_by: number;
-  /** 审核时间 */
-  reviewed_at: string;
-  /** 创建人ID */
-  created_by: number;
-  /** 更新人ID */
-  updated_by: number;
-  /** 创建时间 */
-  created_at: string;
-  /** 更新时间 */
-  updated_at: string;
-  /** 删除时间 */
-  deleted_at: number;
-  /** 中文源文是否已变化 */
-  source_changed: boolean;
 }
 
 /** Admin菜单管理服务 */

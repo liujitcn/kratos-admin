@@ -1,13 +1,13 @@
 <template>
   <div class="search-menu">
-    <el-tooltip effect="dark" :content="t('core.header.menuSearch')" placement="bottom" :show-after="200">
+    <el-tooltip effect="dark" :content="t('core.header.menu_search')" placement="bottom" :show-after="200">
       <i :class="'iconfont icon-sousuo'" class="toolBar-icon" @click="handleOpen"></i>
     </el-tooltip>
     <el-dialog class="search-dialog" v-model="isShowSearch" :width="600" :show-close="false" top="10vh">
       <el-input
         v-model="searchMenu"
         ref="menuInputRef"
-        :placeholder="t('core.header.menuSearchPlaceholder')"
+        :placeholder="t('core.header.menu_search_placeholder')"
         size="large"
         clearable
         :prefix-icon="Search"
@@ -29,7 +29,7 @@
           <i :class="'iconfont icon-huiche'" class="menu-enter" @click="handleOpen"></i>
         </div>
       </div>
-      <el-empty v-else class="mt20 mb20" :image-size="100" :description="t('core.header.menuSearchEmpty')" />
+      <el-empty v-else class="mt20 mb20" :image-size="100" :description="t('core.header.menu_search_empty')" />
     </el-dialog>
   </div>
 </template>

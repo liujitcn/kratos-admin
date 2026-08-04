@@ -7,7 +7,7 @@
 /* eslint-disable */
 import type { Status } from "../../../common/v1/enum";
 import type { Empty } from "../../../google/protobuf/empty";
-import type { TranslationStatus } from "./base_translation";
+import type { BaseTranslation } from "./base_translation";
 
 /** 字典选项查询条件 */
 export interface OptionBaseDictRequest {
@@ -102,7 +102,7 @@ export interface BaseDictForm {
   /** 字典名称 */
   name: string;
   /** 非主语言翻译 */
-  translations: BaseDictTranslation[];
+  translations: BaseTranslation[];
   /** 状态 */
   status: Status;
 }
@@ -128,7 +128,7 @@ export interface BaseDictItemForm {
   /** 排序 */
   sort: number;
   /** 非主语言翻译 */
-  translations: BaseDictItemTranslation[];
+  translations: BaseTranslation[];
   /** 状态 */
   status: Status;
 }
@@ -193,14 +193,14 @@ export interface BaseDict {
   code: string;
   /** 字典名称 */
   name: string;
-  /** 非主语言翻译 */
-  translations: BaseDictTranslation[];
   /** 状态 */
   status: Status;
   /** 创建时间 */
   created_at: string;
   /** 更新时间 */
   updated_at: string;
+  /** 非主语言翻译 */
+  translations: BaseTranslation[];
 }
 
 /** 字典项 */
@@ -217,86 +217,14 @@ export interface BaseDictItem {
   tag_type: string;
   /** 排序 */
   sort: number;
-  /** 非主语言翻译 */
-  translations: BaseDictItemTranslation[];
   /** 状态 */
   status: Status;
   /** 创建时间 */
   created_at: string;
   /** 更新时间 */
   updated_at: string;
-}
-
-/** 字典翻译 */
-export interface BaseDictTranslation {
-  /** 主键ID */
-  id: number;
-  /** 字典ID */
-  dict_id: number;
-  /** 语言代码 */
-  locale: string;
-  /** 字典名称 */
-  name: string;
-  /** 翻译状态 */
-  translation_status: TranslationStatus;
-  /** 中文源文SHA-256 */
-  source_hash: string;
-  /** 机器翻译提供方 */
-  translation_provider: string;
-  /** 最近机器翻译时间 */
-  translated_at: string;
-  /** 审核人ID */
-  reviewed_by: number;
-  /** 审核时间 */
-  reviewed_at: string;
-  /** 创建人ID */
-  created_by: number;
-  /** 更新人ID */
-  updated_by: number;
-  /** 创建时间 */
-  created_at: string;
-  /** 更新时间 */
-  updated_at: string;
-  /** 删除时间 */
-  deleted_at: number;
-  /** 中文源文是否已变化 */
-  source_changed: boolean;
-}
-
-/** 字典项翻译 */
-export interface BaseDictItemTranslation {
-  /** 主键ID */
-  id: number;
-  /** 字典项ID */
-  dict_item_id: number;
-  /** 语言代码 */
-  locale: string;
-  /** 字典项标签 */
-  label: string;
-  /** 翻译状态 */
-  translation_status: TranslationStatus;
-  /** 中文源文SHA-256 */
-  source_hash: string;
-  /** 机器翻译提供方 */
-  translation_provider: string;
-  /** 最近机器翻译时间 */
-  translated_at: string;
-  /** 审核人ID */
-  reviewed_by: number;
-  /** 审核时间 */
-  reviewed_at: string;
-  /** 创建人ID */
-  created_by: number;
-  /** 更新人ID */
-  updated_by: number;
-  /** 创建时间 */
-  created_at: string;
-  /** 更新时间 */
-  updated_at: string;
-  /** 删除时间 */
-  deleted_at: number;
-  /** 中文源文是否已变化 */
-  source_changed: boolean;
+  /** 非主语言翻译 */
+  translations: BaseTranslation[];
 }
 
 /** Admin字典服务 */

@@ -12,7 +12,7 @@ type BaseTranslation struct {
 	TargetType int32  `gorm:"column:target_type;type:tinyint;not null;uniqueIndex:unique_base_translation,priority:1;comment:目标类型：枚举【TranslationTargetType】" json:"target_type"` // 目标类型：枚举【TranslationTargetType】
 	TargetID   int64  `gorm:"column:target_id;type:bigint;not null;uniqueIndex:unique_base_translation,priority:2;comment:目标ID" json:"target_id"`                                // 目标ID
 	Locale     string `gorm:"column:locale;type:varchar(16);not null;uniqueIndex:unique_base_translation,priority:3;comment:语言区域" json:"locale"`                                 // 语言区域
-	Name       string `gorm:"column:name;type:text;not null;comment:翻译文本" json:"name"`                                                                                           // 翻译文本
+	Name       string `gorm:"column:name;type:text;comment:翻译文本" json:"name"`                                                                                                    // 翻译文本
 }
 
 // TableName BaseTranslation's table name

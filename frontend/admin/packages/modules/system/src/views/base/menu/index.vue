@@ -2,7 +2,7 @@
   <div class="table-box">
     <ProTable
       ref="proTable"
-      :title="t('system.menu.title.list')"
+      :title="t('system.base.menu.title.list')"
       row-key="id"
       :indent="20"
       :columns="columns"
@@ -16,7 +16,7 @@
     <FormDialog
       v-model="dialog.visible"
       ref="formDialogRef"
-      :title="t(dialog.editing ? 'system.menu.action.edit' : 'system.menu.action.create')"
+      :title="t(dialog.editing ? 'system.base.menu.action.edit' : 'system.base.menu.action.create')"
       width="1180px"
       :model="formData"
       :fields="formFields"
@@ -27,15 +27,14 @@
       @close="handleCloseDialog"
     >
       <template #menuIcon>
-        <SelectIcon v-model:icon-value="menuIconValue" :placeholder="t('system.menu.placeholder.icon')" />
+        <SelectIcon v-model:icon-value="menuIconValue" :placeholder="t('system.base.menu.placeholder.icon')" />
       </template>
 
       <template #translations>
         <DynamicTranslationEditor
           v-model="translationValues"
-          :resource-id="formData.id"
-          :resource-type="TranslationResourceType.TRANSLATION_RESOURCE_TYPE_MENU"
-          :draft-enabled="configStore.translationDraftEnabled"
+          :source="formData.meta.title"
+          :source-locale="formData.id > 0 ? undefined : locale"
           :maxlength="100"
         />
       </template>
@@ -43,9 +42,9 @@
       <template #apiTransferItem="slotScope">
         <el-popover effect="light" trigger="hover" placement="top" width="auto">
           <template #default>
-            <div>{{ t("system.api.field.operation") }}：{{ slotScope.option.operation }}</div>
-            <div>{{ t("system.api.field.method") }}：{{ slotScope.option.method }}</div>
-            <div>{{ t("system.api.field.path") }}：{{ slotScope.option.path }}</div>
+            <div>{{ t("system.base.api.field.operation") }}：{{ slotScope.option.operation }}</div>
+            <div>{{ t("system.base.api.field.method") }}：{{ slotScope.option.method }}</div>
+            <div>{{ t("system.base.api.field.path") }}：{{ slotScope.option.path }}</div>
           </template>
           <template #reference>{{ slotScope.option.label }}</template>
         </el-popover>
@@ -79,10 +78,10 @@ import type {
   BaseMenuMeta
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_menu";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
-import { BaseMenuType } from "@liujitcn/kratos-admin-system/rpc/system/common/v1/enum";
+import { BaseMenuType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/common";
+import { TranslationTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
 import { normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
-import { t } from "@liujitcn/kratos-admin-core";
-import { useConfigStore } from "@liujitcn/kratos-admin-core/stores/runtime";
+import { t, useLocaleStore } from "@liujitcn/kratos-admin-core";
 import DynamicTranslationEditor from "@liujitcn/kratos-admin-system/components/DynamicTranslationEditor.vue";
 import DynamicTranslationCell from "@liujitcn/kratos-admin-system/components/DynamicTranslationCell.vue";
 import {
@@ -91,8 +90,6 @@ import {
   type DynamicTranslationRecord,
   type DynamicTranslationValue
 } from "@liujitcn/kratos-admin-system/components/dynamicTranslation";
-import { TranslationResourceType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
-import type { BaseMenuTranslation } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_menu";
 
 defineOptions({
   name: "BaseMenu",
@@ -110,7 +107,7 @@ type MenuFormState = Omit<BaseMenuForm, "meta"> & {
 };
 
 const { BUTTONS } = useAuthButtons();
-const configStore = useConfigStore();
+const { locale } = useLocaleStore();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const menuOptions = ref<ProFormOption[]>([]);
@@ -122,7 +119,7 @@ const translationValues = ref<DynamicTranslationValue[]>(normalizeDynamicTransla
 const dialog = reactive({
   editing: false,
   visible: false,
-  parentType: BaseMenuType.UNKNOWN_MT,
+  parentType: BaseMenuType.BASE_MENU_TYPE_UNSPECIFIED,
   parentLocked: true
 });
 
@@ -156,7 +153,7 @@ function createDefaultMenuForm(): MenuFormState {
   return {
     id: 0,
     parent_id: undefined,
-    type: BaseMenuType.FOLDER,
+    type: BaseMenuType.BASE_MENU_TYPE_FOLDER,
     path: "",
     name: "",
     component: "",
@@ -180,10 +177,10 @@ const menuIconValue = computed({
 });
 
 const menuTypeOptions = computed<ProFormOption[]>(() => [
-  { label: t("system.menu.type.folder"), value: BaseMenuType.FOLDER },
-  { label: t("system.menu.type.menu"), value: BaseMenuType.MENU },
-  { label: t("system.menu.type.button"), value: BaseMenuType.BUTTON },
-  { label: t("system.menu.type.external"), value: BaseMenuType.EXT_LINK }
+  { label: t("system.base.menu.type.folder"), value: BaseMenuType.BASE_MENU_TYPE_FOLDER },
+  { label: t("system.base.menu.type.menu"), value: BaseMenuType.BASE_MENU_TYPE_MENU },
+  { label: t("system.base.menu.type.button"), value: BaseMenuType.BASE_MENU_TYPE_BUTTON },
+  { label: t("system.base.menu.type.external"), value: BaseMenuType.BASE_MENU_TYPE_EXT_LINK }
 ]);
 
 /** 判断父节点是否属于固定移动端菜单树。 */
@@ -209,8 +206,8 @@ function getMenuLevel(menuId: number) {
 function canCreateChild(menu: BaseMenu) {
   const level = getMenuLevel(menu.id);
   if (menu.id === APP_MENU_ROOT_ID || isAppMenu(menu.parent_id)) return level >= 1 && level < 4;
-  if (menu.type === BaseMenuType.FOLDER) return level === 1 || level === 2;
-  if (menu.type === BaseMenuType.MENU) return level === 2 || level === 3;
+  if (menu.type === BaseMenuType.BASE_MENU_TYPE_FOLDER) return level === 1 || level === 2;
+  if (menu.type === BaseMenuType.BASE_MENU_TYPE_MENU) return level === 2 || level === 3;
   return false;
 }
 
@@ -218,17 +215,24 @@ function canCreateChild(menu: BaseMenu) {
 const availableMenuTypeOptions = computed(() => {
   const parentLevel = getMenuLevel(formData.parent_id ?? 0);
 
-  if (formData.id === APP_MENU_ROOT_ID) return menuTypeOptions.value.filter(item => item.value === BaseMenuType.FOLDER);
-  if (isAppMenu(formData.parent_id)) return menuTypeOptions.value.filter(item => item.value === BaseMenuType.MENU);
-  if (formData.id > 0 && parentLevel === 0) return menuTypeOptions.value.filter(item => item.value === BaseMenuType.FOLDER);
-  if (dialog.parentType === BaseMenuType.FOLDER && parentLevel === 1)
+  if (formData.id === APP_MENU_ROOT_ID)
+    return menuTypeOptions.value.filter(item => item.value === BaseMenuType.BASE_MENU_TYPE_FOLDER);
+  if (isAppMenu(formData.parent_id)) return menuTypeOptions.value.filter(item => item.value === BaseMenuType.BASE_MENU_TYPE_MENU);
+  if (formData.id > 0 && parentLevel === 0)
+    return menuTypeOptions.value.filter(item => item.value === BaseMenuType.BASE_MENU_TYPE_FOLDER);
+  if (dialog.parentType === BaseMenuType.BASE_MENU_TYPE_FOLDER && parentLevel === 1)
     return menuTypeOptions.value.filter(
-      item => item.value === BaseMenuType.FOLDER || item.value === BaseMenuType.MENU || item.value === BaseMenuType.EXT_LINK
+      item =>
+        item.value === BaseMenuType.BASE_MENU_TYPE_FOLDER ||
+        item.value === BaseMenuType.BASE_MENU_TYPE_MENU ||
+        item.value === BaseMenuType.BASE_MENU_TYPE_EXT_LINK
     );
-  if (dialog.parentType === BaseMenuType.FOLDER && parentLevel === 2)
-    return menuTypeOptions.value.filter(item => item.value === BaseMenuType.MENU || item.value === BaseMenuType.EXT_LINK);
-  if (dialog.parentType === BaseMenuType.MENU && (parentLevel === 2 || parentLevel === 3))
-    return menuTypeOptions.value.filter(item => item.value === BaseMenuType.BUTTON);
+  if (dialog.parentType === BaseMenuType.BASE_MENU_TYPE_FOLDER && parentLevel === 2)
+    return menuTypeOptions.value.filter(
+      item => item.value === BaseMenuType.BASE_MENU_TYPE_MENU || item.value === BaseMenuType.BASE_MENU_TYPE_EXT_LINK
+    );
+  if (dialog.parentType === BaseMenuType.BASE_MENU_TYPE_MENU && (parentLevel === 2 || parentLevel === 3))
+    return menuTypeOptions.value.filter(item => item.value === BaseMenuType.BASE_MENU_TYPE_BUTTON);
   return [];
 });
 
@@ -241,9 +245,9 @@ watch(
     } else if (formData.id === 0) {
       formData.meta.app = undefined;
     }
-    dialog.parentType = parentMenuTypeMap.value.get(formData.parent_id ?? 0) ?? BaseMenuType.UNKNOWN_MT;
+    dialog.parentType = parentMenuTypeMap.value.get(formData.parent_id ?? 0) ?? BaseMenuType.BASE_MENU_TYPE_UNSPECIFIED;
     if (formData.id > 0 || availableMenuTypeOptions.value.some(item => item.value === formData.type)) return;
-    formData.type = (availableMenuTypeOptions.value[0]?.value as BaseMenuType) ?? BaseMenuType.UNKNOWN_MT;
+    formData.type = (availableMenuTypeOptions.value[0]?.value as BaseMenuType) ?? BaseMenuType.BASE_MENU_TYPE_UNSPECIFIED;
   }
 );
 
@@ -253,9 +257,9 @@ const statusOptions = computed<ProFormOption[]>(() => [
 ]);
 
 const appAccessOptions = computed<ProFormOption[]>(() => [
-  { label: t("system.menu.access.public"), value: "PUBLIC" },
-  { label: t("system.menu.access.guest"), value: "GUEST_ONLY" },
-  { label: t("system.menu.access.authenticated"), value: "AUTHENTICATED" }
+  { label: t("system.base.menu.access.public"), value: "PUBLIC" },
+  { label: t("system.base.menu.access.guest"), value: "GUEST_ONLY" },
+  { label: t("system.base.menu.access.authenticated"), value: "AUTHENTICATED" }
 ]);
 
 /**
@@ -284,7 +288,7 @@ function renderMenuIconCell(scope: RenderScope<BaseMenu>) {
 function renderHiddenCell(scope: RenderScope<BaseMenu>) {
   const isHidden = Boolean(scope.row.meta?.hidden);
   return h(ElTag, { type: isHidden ? "info" : "success" }, () =>
-    t(isHidden ? "system.menu.status.hidden" : "system.menu.status.visible")
+    t(isHidden ? "system.base.menu.status.hidden" : "system.base.menu.status.visible")
   );
 }
 
@@ -293,8 +297,9 @@ function renderMenuTitleCell(scope: RenderScope<BaseMenu>) {
   const row = scope.row;
   return h(DynamicTranslationCell, {
     source: row.meta?.title ?? "",
-    translations: row.translations,
-    textField: "title"
+    targetType: TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_MENU,
+    targetId: row.id,
+    translations: row.translations
   });
 }
 
@@ -310,28 +315,28 @@ const columns = computed<ColumnProps[]>(() => [
   },
   {
     prop: "meta.title",
-    label: t("system.menu.field.name"),
+    label: t("system.base.menu.field.name"),
     minWidth: 220,
     align: "left",
     search: { el: "input", key: "title" },
     showOverflowTooltip: false,
     render: scope => renderMenuTitleCell(scope as unknown as RenderScope<BaseMenu>)
   },
-  { prop: "type", label: t("system.menu.field.type"), minWidth: 120, dictCode: "base_menu_type", search: { el: "select" } },
+  { prop: "type", label: t("system.base.menu.field.type"), minWidth: 120, dictCode: "base_menu_type", search: { el: "select" } },
   {
     prop: "meta.icon",
-    label: t("system.menu.field.icon"),
+    label: t("system.base.menu.field.icon"),
     width: 90,
     render: scope => renderMenuIconCell(scope as unknown as RenderScope<BaseMenu>)
   },
-  { prop: "path", label: t("system.menu.field.pathOrPermission"), minWidth: 260, search: { el: "input" } },
-  { prop: "name", label: t("system.menu.field.routeName"), minWidth: 180, search: { el: "input" } },
-  { prop: "component", label: t("system.menu.field.component"), minWidth: 260 },
-  { prop: "redirect", label: t("system.menu.field.redirect"), minWidth: 220 },
-  { prop: "sort", label: t("system.common.field.sort"), minWidth: 80, align: "right" },
+  { prop: "path", label: t("system.base.menu.field.path_or_permission"), minWidth: 260, search: { el: "input" } },
+  { prop: "name", label: t("system.base.menu.field.route_name"), minWidth: 180, search: { el: "input" } },
+  { prop: "component", label: t("system.base.menu.field.component"), minWidth: 260 },
+  { prop: "redirect", label: t("system.base.menu.field.redirect"), minWidth: 220 },
+  { prop: "sort", label: t("common.field.sort"), minWidth: 80, align: "right" },
   {
     prop: "status",
-    label: t("system.common.field.status"),
+    label: t("common.field.status"),
     width: 100,
     dictCode: "status",
     search: { el: "select" },
@@ -347,15 +352,15 @@ const columns = computed<ColumnProps[]>(() => [
   },
   {
     prop: "meta.hidden",
-    label: t("system.menu.field.displayStatus"),
+    label: t("system.base.menu.field.display_status"),
     width: 100,
     render: scope => renderHiddenCell(scope as unknown as RenderScope<BaseMenu>)
   },
-  { prop: "created_at", label: t("system.common.field.createdAt"), minWidth: 180 },
-  { prop: "updated_at", label: t("system.common.field.updatedAt"), minWidth: 180 },
+  { prop: "created_at", label: t("common.field.created_at"), minWidth: 180 },
+  { prop: "updated_at", label: t("common.field.updated_at"), minWidth: 180 },
   {
     prop: "operation",
-    label: t("system.common.field.action"),
+    label: t("common.field.action"),
     width: 220,
     fixed: "right",
     cellType: "actions",
@@ -423,7 +428,7 @@ const transferData = computed<ProFormOption[]>(() => {
 const formFields = computed<ProFormField[]>(() => [
   {
     prop: "parent_id",
-    label: t("system.menu.field.parent"),
+    label: t("system.base.menu.field.parent"),
     component: "tree-select",
     options: menuOptions.value,
     props: () => ({
@@ -432,14 +437,14 @@ const formFields = computed<ProFormField[]>(() => [
       checkStrictly: true,
       clearable: false,
       filterable: true,
-      placeholder: t("system.menu.placeholder.parent"),
+      placeholder: t("system.base.menu.placeholder.parent"),
       disabled: dialog.parentLocked,
       style: { width: "100%" }
     })
   },
   {
     prop: "type",
-    label: t("system.menu.field.type"),
+    label: t("system.base.menu.field.type"),
     component: "radio-group",
     options: availableMenuTypeOptions.value,
     props: model => ({
@@ -448,20 +453,24 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "meta.title",
-    label: t(formData.type === BaseMenuType.BUTTON ? "system.menu.field.buttonName" : "system.menu.field.title"),
+    label: t(
+      formData.type === BaseMenuType.BASE_MENU_TYPE_BUTTON ? "system.base.menu.field.button_name" : "system.base.menu.field.title"
+    ),
     component: "input",
     itemProps: {
       required: true
     },
     props: () => ({
       placeholder: t(
-        formData.type === BaseMenuType.BUTTON ? "system.menu.placeholder.buttonName" : "system.menu.placeholder.title"
+        formData.type === BaseMenuType.BASE_MENU_TYPE_BUTTON
+          ? "system.base.menu.placeholder.button_name"
+          : "system.base.menu.placeholder.title"
       )
     })
   },
   {
     prop: "translations",
-    label: t("system.translation.field.translations"),
+    label: t("system.base.translation.field.translations"),
     component: "slot",
     slotName: "translations",
     colSpan: 24
@@ -472,12 +481,12 @@ const formFields = computed<ProFormField[]>(() => [
     component: "input",
     labelTooltip: getPathFieldTooltip(),
     itemProps: model => ({
-      required: model.type !== BaseMenuType.FOLDER
+      required: model.type !== BaseMenuType.BASE_MENU_TYPE_FOLDER
     }),
     props: () => ({
       placeholder: getPathFieldPlaceholder()
     }),
-    visible: model => model.type !== BaseMenuType.FOLDER
+    visible: model => model.type !== BaseMenuType.BASE_MENU_TYPE_FOLDER
   },
   {
     prop: "redirect",
@@ -485,117 +494,121 @@ const formFields = computed<ProFormField[]>(() => [
     component: "input",
     props: () => ({ placeholder: getRedirectFieldPlaceholder() }),
     itemProps: model => ({
-      required: model.type === BaseMenuType.EXT_LINK
+      required: model.type === BaseMenuType.BASE_MENU_TYPE_EXT_LINK
     }),
-    visible: model => model.type === BaseMenuType.FOLDER || model.type === BaseMenuType.EXT_LINK
+    visible: model => model.type === BaseMenuType.BASE_MENU_TYPE_FOLDER || model.type === BaseMenuType.BASE_MENU_TYPE_EXT_LINK
   },
   {
     prop: "meta.icon",
-    label: t("system.menu.field.icon"),
+    label: t("system.base.menu.field.icon"),
     component: "slot",
     slotName: "menuIcon",
     itemProps: model => ({
-      required: model.type !== BaseMenuType.BUTTON
+      required: model.type !== BaseMenuType.BASE_MENU_TYPE_BUTTON
     }),
-    visible: model => !isAppMenu(model.parent_id) && model.type !== BaseMenuType.BUTTON
+    visible: model => !isAppMenu(model.parent_id) && model.type !== BaseMenuType.BASE_MENU_TYPE_BUTTON
   },
   {
     prop: "meta.icon",
-    label: t("system.menu.field.defaultIcon"),
+    label: t("system.base.menu.field.default_icon"),
     component: "input",
-    labelTooltip: t("system.menu.tooltip.mobileIcon"),
+    labelTooltip: t("system.base.menu.tooltip.mobile_icon"),
     itemProps: model => ({
       required: Boolean(model.meta?.app?.in_tab_bar)
     }),
-    props: { placeholder: t("system.menu.placeholder.defaultIcon") },
+    props: { placeholder: t("system.base.menu.placeholder.default_icon") },
     visible: model => isAppMenu(model.parent_id)
   },
   {
     prop: "name",
-    label: t(isAppMenu(formData.parent_id) ? "system.menu.field.logicalName" : "system.menu.field.routeName"),
+    label: t(isAppMenu(formData.parent_id) ? "system.base.menu.field.logical_name" : "system.base.menu.field.route_name"),
     component: "input",
-    labelTooltip: isAppMenu(formData.parent_id) ? t("system.menu.tooltip.logicalName") : t("system.menu.tooltip.routeName"),
+    labelTooltip: isAppMenu(formData.parent_id)
+      ? t("system.base.menu.tooltip.logical_name")
+      : t("system.base.menu.tooltip.route_name"),
     itemProps: model => ({
-      required: model.type === BaseMenuType.MENU
+      required: model.type === BaseMenuType.BASE_MENU_TYPE_MENU
     }),
     props: () => ({
       placeholder: isAppMenu(formData.parent_id)
-        ? t("system.menu.placeholder.logicalName")
-        : t("system.menu.placeholder.routeName")
+        ? t("system.base.menu.placeholder.logical_name")
+        : t("system.base.menu.placeholder.route_name")
     }),
-    visible: model => model.type === BaseMenuType.MENU
+    visible: model => model.type === BaseMenuType.BASE_MENU_TYPE_MENU
   },
   {
     prop: "meta.app.view_key",
-    label: t("system.menu.field.viewKey"),
+    label: t("system.base.menu.field.view_key"),
     component: "input",
-    labelTooltip: t("system.menu.tooltip.viewKey"),
+    labelTooltip: t("system.base.menu.tooltip.view_key"),
     itemProps: { required: true },
-    props: { placeholder: t("system.menu.placeholder.viewKey") },
+    props: { placeholder: t("system.base.menu.placeholder.view_key") },
     visible: model => isAppMenu(model.parent_id)
   },
   {
     prop: "meta.app.access",
-    label: t("system.menu.field.access"),
+    label: t("system.base.menu.field.access"),
     component: "select",
     options: appAccessOptions.value,
     itemProps: { required: true },
     props: {
       clearable: false,
-      placeholder: t("system.menu.placeholder.access")
+      placeholder: t("system.base.menu.placeholder.access")
     },
     visible: model => isAppMenu(model.parent_id)
   },
   {
     prop: "meta.app.selected_icon",
-    label: t("system.menu.field.selectedIcon"),
+    label: t("system.base.menu.field.selected_icon"),
     component: "input",
-    labelTooltip: t("system.menu.tooltip.mobileIcon"),
+    labelTooltip: t("system.base.menu.tooltip.mobile_icon"),
     itemProps: { required: true },
-    props: { placeholder: t("system.menu.placeholder.selectedIcon") },
+    props: { placeholder: t("system.base.menu.placeholder.selected_icon") },
     visible: model => isAppTab(model.parent_id)
   },
   {
     prop: "component",
-    label: t("system.menu.field.component"),
+    label: t("system.base.menu.field.component"),
     component: "input",
-    labelTooltip: t("system.menu.tooltip.component"),
+    labelTooltip: t("system.base.menu.tooltip.component"),
     itemProps: model => ({
-      required: model.type === BaseMenuType.MENU && !isAppMenu(model.parent_id)
+      required: model.type === BaseMenuType.BASE_MENU_TYPE_MENU && !isAppMenu(model.parent_id)
     }),
     props: { placeholder: "system/base/user/index" },
-    visible: model => model.type === BaseMenuType.MENU && !isAppMenu(model.parent_id)
+    visible: model => model.type === BaseMenuType.BASE_MENU_TYPE_MENU && !isAppMenu(model.parent_id)
   },
   {
     prop: "meta.hidden",
-    label: t("system.menu.field.hidden"),
+    label: t("system.base.menu.field.hidden"),
     component: "switch",
     props: {
       inlinePrompt: true,
-      activeText: t("system.common.value.yes"),
-      inactiveText: t("system.common.value.no"),
+      activeText: t("common.value.yes"),
+      inactiveText: t("common.value.no"),
       activeValue: true,
       inactiveValue: false
     },
-    visible: model => !isAppMenu(model.parent_id) && model.type !== BaseMenuType.BUTTON
+    visible: model => !isAppMenu(model.parent_id) && model.type !== BaseMenuType.BASE_MENU_TYPE_BUTTON
   },
   {
     prop: "meta.always_show",
-    label: t("system.menu.field.alwaysShow"),
+    label: t("system.base.menu.field.always_show"),
     component: "switch",
-    labelTooltip: t("system.menu.tooltip.alwaysShow"),
+    labelTooltip: t("system.base.menu.tooltip.always_show"),
     props: {
       inlinePrompt: true,
-      activeText: t("system.common.value.yes"),
-      inactiveText: t("system.common.value.no"),
+      activeText: t("common.value.yes"),
+      inactiveText: t("common.value.no"),
       activeValue: true,
       inactiveValue: false
     },
-    visible: model => !isAppMenu(model.parent_id) && (model.type === BaseMenuType.FOLDER || model.type === BaseMenuType.MENU)
+    visible: model =>
+      !isAppMenu(model.parent_id) &&
+      (model.type === BaseMenuType.BASE_MENU_TYPE_FOLDER || model.type === BaseMenuType.BASE_MENU_TYPE_MENU)
   },
   {
     prop: "meta.keep_alive",
-    label: t("system.menu.field.keepAlive"),
+    label: t("system.base.menu.field.keep_alive"),
     component: "switch",
     props: {
       inlinePrompt: true,
@@ -604,11 +617,11 @@ const formFields = computed<ProFormField[]>(() => [
       activeValue: true,
       inactiveValue: false
     },
-    visible: model => !isAppMenu(model.parent_id) && model.type === BaseMenuType.MENU
+    visible: model => !isAppMenu(model.parent_id) && model.type === BaseMenuType.BASE_MENU_TYPE_MENU
   },
   {
     prop: "meta.full",
-    label: t("system.menu.field.fullscreen"),
+    label: t("system.base.menu.field.fullscreen"),
     component: "switch",
     props: {
       inlinePrompt: true,
@@ -617,11 +630,11 @@ const formFields = computed<ProFormField[]>(() => [
       activeValue: true,
       inactiveValue: false
     },
-    visible: model => !isAppMenu(model.parent_id) && model.type === BaseMenuType.MENU
+    visible: model => !isAppMenu(model.parent_id) && model.type === BaseMenuType.BASE_MENU_TYPE_MENU
   },
   {
     prop: "meta.affix",
-    label: t("system.menu.field.affix"),
+    label: t("system.base.menu.field.affix"),
     component: "switch",
     props: {
       inlinePrompt: true,
@@ -630,39 +643,42 @@ const formFields = computed<ProFormField[]>(() => [
       activeValue: true,
       inactiveValue: false
     },
-    visible: model => !isAppMenu(model.parent_id) && model.type === BaseMenuType.MENU
+    visible: model => !isAppMenu(model.parent_id) && model.type === BaseMenuType.BASE_MENU_TYPE_MENU
   },
   {
     prop: "meta.params",
-    label: t("system.menu.field.routeParams"),
+    label: t("system.base.menu.field.route_params"),
     component: "kv-list",
-    labelTooltip: t("system.menu.tooltip.routeParams"),
+    labelTooltip: t("system.base.menu.tooltip.route_params"),
     props: {
-      addText: t("system.menu.action.addRouteParam"),
-      keyInputProps: { placeholder: t("common.field.parameterName") },
-      valueInputProps: { placeholder: t("common.field.parameterValue") }
+      addText: t("system.base.menu.action.add_route_param"),
+      keyInputProps: { placeholder: t("common.field.parameter_name") },
+      valueInputProps: { placeholder: t("common.field.parameter_value") }
     },
     itemProps: {
       class: "menu-form__params"
     },
-    visible: model => !isAppMenu(model.parent_id) && model.type === BaseMenuType.MENU
+    visible: model => !isAppMenu(model.parent_id) && model.type === BaseMenuType.BASE_MENU_TYPE_MENU
   },
   {
     prop: "api",
-    label: t("system.menu.field.apiList"),
+    label: t("system.base.menu.field.api_list"),
     component: "transfer",
     slotName: "apiTransferItem",
     options: transferData.value,
     props: {
       filterable: true,
-      titles: [t("system.menu.value.availableApi"), t("system.menu.value.selectedApi")]
+      titles: [t("system.base.menu.value.available_api"), t("system.base.menu.value.selected_api")]
     },
-    visible: model => model.id === APP_MENU_ROOT_ID || model.type === BaseMenuType.MENU || model.type === BaseMenuType.BUTTON,
+    visible: model =>
+      model.id === APP_MENU_ROOT_ID ||
+      model.type === BaseMenuType.BASE_MENU_TYPE_MENU ||
+      model.type === BaseMenuType.BASE_MENU_TYPE_BUTTON,
     colSpan: 24
   },
   {
     prop: "sort",
-    label: t("system.common.field.sort"),
+    label: t("common.field.sort"),
     component: "input-number",
     itemProps: {
       required: true
@@ -677,7 +693,7 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "status",
-    label: t("system.common.field.status"),
+    label: t("common.field.status"),
     component: "radio-group",
     itemProps: {
       required: true
@@ -689,11 +705,11 @@ const formFields = computed<ProFormField[]>(() => [
 const rules = computed<FormRules>(() => ({
   parent_id: formData.id
     ? []
-    : [{ required: true, type: "number", min: 1, message: t("system.menu.placeholder.parent"), trigger: "change" }],
+    : [{ required: true, type: "number", min: 1, message: t("system.base.menu.placeholder.parent"), trigger: "change" }],
   type: [
     {
       required: true,
-      message: t("system.common.validation.requiredSelect", { field: t("system.menu.field.type") }),
+      message: t("common.validation.required_select", { field: t("system.base.menu.field.type") }),
       trigger: "change"
     }
   ],
@@ -703,7 +719,11 @@ const rules = computed<FormRules>(() => ({
         if (value) return callback();
         callback(
           new Error(
-            t(formData.type === BaseMenuType.BUTTON ? "system.menu.placeholder.buttonName" : "system.menu.placeholder.title")
+            t(
+              formData.type === BaseMenuType.BASE_MENU_TYPE_BUTTON
+                ? "system.base.menu.placeholder.button_name"
+                : "system.base.menu.placeholder.title"
+            )
           )
         );
       },
@@ -713,11 +733,13 @@ const rules = computed<FormRules>(() => ({
   "meta.icon": [
     {
       validator: (_rule, value, callback) => {
-        if (formData.type === BaseMenuType.BUTTON) return callback();
+        if (formData.type === BaseMenuType.BASE_MENU_TYPE_BUTTON) return callback();
         if (isAppMenu(formData.parent_id) && !isAppTab(formData.parent_id)) return callback();
         if (value) return callback();
         callback(
-          new Error(t(isAppMenu(formData.parent_id) ? "system.menu.validation.defaultIcon" : "system.menu.placeholder.icon"))
+          new Error(
+            t(isAppMenu(formData.parent_id) ? "system.base.menu.validation.default_icon" : "system.base.menu.placeholder.icon")
+          )
         );
       },
       trigger: "change"
@@ -727,7 +749,7 @@ const rules = computed<FormRules>(() => ({
     {
       validator: (_rule, value, callback) => {
         if (!isAppMenu(formData.parent_id) || value) return callback();
-        callback(new Error(t("system.menu.validation.viewKey")));
+        callback(new Error(t("system.base.menu.validation.view_key")));
       },
       trigger: "blur"
     }
@@ -736,7 +758,7 @@ const rules = computed<FormRules>(() => ({
     {
       validator: (_rule, value, callback) => {
         if (!isAppMenu(formData.parent_id) || value) return callback();
-        callback(new Error(t("system.menu.placeholder.access")));
+        callback(new Error(t("system.base.menu.placeholder.access")));
       },
       trigger: "change"
     }
@@ -745,7 +767,7 @@ const rules = computed<FormRules>(() => ({
     {
       validator: (_rule, value, callback) => {
         if (!isAppTab(formData.parent_id) || value) return callback();
-        callback(new Error(t("system.menu.validation.selectedIcon")));
+        callback(new Error(t("system.base.menu.validation.selected_icon")));
       },
       trigger: "blur"
     }
@@ -753,23 +775,29 @@ const rules = computed<FormRules>(() => ({
   path: [
     {
       max: 1024,
-      message: t("system.common.validation.maxLength", { field: t("system.menu.field.path"), max: 1024 }),
+      message: t("common.validation.max_length", { field: t("system.base.menu.field.path"), max: 1024 }),
       trigger: "blur"
     },
     {
       validator: (_rule, value, callback) => {
-        if (formData.type === BaseMenuType.FOLDER) return callback();
+        if (formData.type === BaseMenuType.BASE_MENU_TYPE_FOLDER) return callback();
         if (!value) {
-          if (formData.type === BaseMenuType.BUTTON) return callback(new Error(t("system.menu.validation.permission")));
-          if (formData.type === BaseMenuType.EXT_LINK) return callback(new Error(t("system.menu.validation.externalUrl")));
+          if (formData.type === BaseMenuType.BASE_MENU_TYPE_BUTTON)
+            return callback(new Error(t("system.base.menu.validation.permission")));
+          if (formData.type === BaseMenuType.BASE_MENU_TYPE_EXT_LINK)
+            return callback(new Error(t("system.base.menu.validation.external_url")));
           return callback(
             new Error(
-              t(isAppMenu(formData.parent_id) ? "system.menu.validation.logicalPath" : "system.menu.validation.routePath")
+              t(
+                isAppMenu(formData.parent_id)
+                  ? "system.base.menu.validation.logical_path"
+                  : "system.base.menu.validation.route_path"
+              )
             )
           );
         }
         if (isAppMenu(formData.parent_id) && !String(value).startsWith("app/")) {
-          return callback(new Error(t("system.menu.validation.appPathPrefix")));
+          return callback(new Error(t("system.base.menu.validation.app_path_prefix")));
         }
         callback();
       },
@@ -779,14 +807,14 @@ const rules = computed<FormRules>(() => ({
   redirect: [
     {
       max: 1024,
-      message: t("system.common.validation.maxLength", { field: t("system.menu.field.redirect"), max: 1024 }),
+      message: t("common.validation.max_length", { field: t("system.base.menu.field.redirect"), max: 1024 }),
       trigger: "blur"
     },
     {
       validator: (_rule, value, callback) => {
-        if (formData.type !== BaseMenuType.EXT_LINK) return callback();
+        if (formData.type !== BaseMenuType.BASE_MENU_TYPE_EXT_LINK) return callback();
         if (/^https?:\/\/\S+$/.test(value)) return callback();
-        callback(new Error(t("system.menu.validation.httpUrl")));
+        callback(new Error(t("system.base.menu.validation.http_url")));
       },
       trigger: "blur"
     }
@@ -794,20 +822,24 @@ const rules = computed<FormRules>(() => ({
   name: [
     {
       max: 255,
-      message: t("system.common.validation.maxLength", { field: t("system.menu.field.routeName"), max: 255 }),
+      message: t("common.validation.max_length", { field: t("system.base.menu.field.route_name"), max: 255 }),
       trigger: "blur"
     },
     {
       validator: (_rule, value, callback) => {
-        if (formData.type !== BaseMenuType.MENU) return callback();
+        if (formData.type !== BaseMenuType.BASE_MENU_TYPE_MENU) return callback();
         if (!value)
           return callback(
             new Error(
-              t(isAppMenu(formData.parent_id) ? "system.menu.validation.logicalName" : "system.menu.placeholder.routeName")
+              t(
+                isAppMenu(formData.parent_id)
+                  ? "system.base.menu.validation.logical_name"
+                  : "system.base.menu.placeholder.route_name"
+              )
             )
           );
         if (isAppMenu(formData.parent_id) && !String(value).startsWith("App")) {
-          return callback(new Error(t("system.menu.validation.appNamePrefix")));
+          return callback(new Error(t("system.base.menu.validation.app_name_prefix")));
         }
         callback();
       },
@@ -817,23 +849,23 @@ const rules = computed<FormRules>(() => ({
   component: [
     {
       max: 255,
-      message: t("system.common.validation.maxLength", { field: t("system.menu.field.component"), max: 255 }),
+      message: t("common.validation.max_length", { field: t("system.base.menu.field.component"), max: 255 }),
       trigger: "blur"
     },
     {
       validator: (_rule, value, callback) => {
-        if (formData.type !== BaseMenuType.MENU || isAppMenu(formData.parent_id)) return callback();
+        if (formData.type !== BaseMenuType.BASE_MENU_TYPE_MENU || isAppMenu(formData.parent_id)) return callback();
         if (value) return callback();
-        callback(new Error(t("system.menu.validation.component")));
+        callback(new Error(t("system.base.menu.validation.component")));
       },
       trigger: "blur"
     }
   ],
-  sort: [{ required: true, type: "number", min: 1, message: t("system.common.validation.sortPositive"), trigger: "blur" }],
+  sort: [{ required: true, type: "number", min: 1, message: t("common.validation.sort_positive"), trigger: "blur" }],
   status: [
     {
       required: true,
-      message: t("system.common.validation.requiredSelect", { field: t("system.common.field.status") }),
+      message: t("common.validation.required_select", { field: t("common.field.status") }),
       trigger: "change"
     }
   ]
@@ -841,38 +873,44 @@ const rules = computed<FormRules>(() => ({
 
 /** 计算当前路径字段文案。 */
 function getPathFieldLabel() {
-  if (isAppMenu(formData.parent_id)) return t("system.menu.field.logicalPath");
-  if (formData.type === BaseMenuType.BUTTON) return t("system.menu.field.permission");
-  if (formData.type === BaseMenuType.EXT_LINK) return t("system.menu.field.internalPath");
-  return t("system.menu.field.path");
+  if (isAppMenu(formData.parent_id)) return t("system.base.menu.field.logical_path");
+  if (formData.type === BaseMenuType.BASE_MENU_TYPE_BUTTON) return t("system.base.menu.field.permission");
+  if (formData.type === BaseMenuType.BASE_MENU_TYPE_EXT_LINK) return t("system.base.menu.field.internal_path");
+  return t("system.base.menu.field.path");
 }
 
 /** 计算当前路径字段占位文案。 */
 function getPathFieldPlaceholder() {
-  if (isAppMenu(formData.parent_id)) return t("system.menu.placeholder.logicalPath");
-  if (formData.type === BaseMenuType.BUTTON) return t("system.menu.placeholder.permission");
-  if (formData.type === BaseMenuType.EXT_LINK) return "external/baidu";
-  if (formData.type === BaseMenuType.FOLDER) return "base";
+  if (isAppMenu(formData.parent_id)) return t("system.base.menu.placeholder.logical_path");
+  if (formData.type === BaseMenuType.BASE_MENU_TYPE_BUTTON) return t("system.base.menu.placeholder.permission");
+  if (formData.type === BaseMenuType.BASE_MENU_TYPE_EXT_LINK) return "external/baidu";
+  if (formData.type === BaseMenuType.BASE_MENU_TYPE_FOLDER) return "base";
   return "user";
 }
 
 /** 计算当前路径字段提示文案。 */
 function getPathFieldTooltip() {
-  if (isAppMenu(formData.parent_id)) return t("system.menu.tooltip.logicalPath");
-  if (formData.type === BaseMenuType.BUTTON) return t("system.menu.tooltip.permission");
-  if (formData.type === BaseMenuType.EXT_LINK) return t("system.menu.tooltip.internalPath");
-  if (formData.type === BaseMenuType.FOLDER) return t("system.menu.tooltip.folderPath");
-  return t("system.menu.tooltip.routePath");
+  if (isAppMenu(formData.parent_id)) return t("system.base.menu.tooltip.logical_path");
+  if (formData.type === BaseMenuType.BASE_MENU_TYPE_BUTTON) return t("system.base.menu.tooltip.permission");
+  if (formData.type === BaseMenuType.BASE_MENU_TYPE_EXT_LINK) return t("system.base.menu.tooltip.internal_path");
+  if (formData.type === BaseMenuType.BASE_MENU_TYPE_FOLDER) return t("system.base.menu.tooltip.folder_path");
+  return t("system.base.menu.tooltip.route_path");
 }
 
 /** 计算重定向字段文案。 */
 function getRedirectFieldLabel() {
-  return t(formData.type === BaseMenuType.EXT_LINK ? "system.menu.field.externalUrl" : "system.menu.field.redirectRoute");
+  return t(
+    formData.type === BaseMenuType.BASE_MENU_TYPE_EXT_LINK
+      ? "system.base.menu.field.external_url"
+      : "system.base.menu.field.redirect_route"
+  );
 }
 
 /** 计算重定向字段占位文案。 */
 function getRedirectFieldPlaceholder() {
-  return formData.type === BaseMenuType.EXT_LINK ? "https://www.example.com/" : t("system.menu.placeholder.redirectRoute");
+  return formData.type === BaseMenuType.BASE_MENU_TYPE_EXT_LINK
+    ? "https://www.example.com/"
+    : t("system.base.menu.placeholder.redirect_route");
 }
 
 /** 判断当前图标是否为 Element Plus 图标。 */
@@ -929,7 +967,7 @@ function normalizeMenuForm(data?: Partial<BaseMenuForm>): MenuFormState {
     ...defaultForm,
     ...data,
     parent_id: parentId,
-    type: data?.type ?? BaseMenuType.FOLDER,
+    type: data?.type ?? BaseMenuType.BASE_MENU_TYPE_FOLDER,
     status: data?.status ?? Status.ENABLE,
     api: normalizeMenuApiSelection(data?.api),
     sort: data?.sort ?? 1,
@@ -943,7 +981,7 @@ function buildMenuOptions(menuList: BaseMenu[] = []) {
   const mobileIds = new Set<number>([APP_MENU_ROOT_ID]);
   const convert = (list: BaseMenu[]): ProFormOption[] =>
     list
-      .filter(item => item.type === BaseMenuType.FOLDER || item.type === BaseMenuType.MENU)
+      .filter(item => item.type === BaseMenuType.BASE_MENU_TYPE_FOLDER || item.type === BaseMenuType.BASE_MENU_TYPE_MENU)
       .map(item => {
         typeMap.set(item.id, item.type);
         if (mobileIds.has(item.parent_id ?? 0)) mobileIds.add(item.id);
@@ -962,7 +1000,11 @@ function buildMenuOptions(menuList: BaseMenu[] = []) {
 /** 根据菜单类型清理无效字段，避免提交脏数据。 */
 function buildSubmitPayload(): BaseMenuForm {
   const payload = normalizeMenuForm(formData);
-  payload.translations = serializeDynamicTranslations(translationValues.value, "title") as unknown as BaseMenuTranslation[];
+  payload.translations = serializeDynamicTranslations(
+    translationValues.value,
+    TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_MENU,
+    payload.id
+  );
   // 一级菜单在表单中保持空白，提交时仍按接口约定传回根节点标识。
   if (payload.id > 0 && payload.parent_id === undefined) payload.parent_id = 0;
   payload.meta.params = (payload.meta.params ?? []).filter(item => item.key || item.value);
@@ -981,7 +1023,7 @@ function buildSubmitPayload(): BaseMenuForm {
     if (!payload.meta.app.in_tab_bar) payload.meta.app.selected_icon = undefined;
   }
 
-  if (payload.type === BaseMenuType.BUTTON) {
+  if (payload.type === BaseMenuType.BASE_MENU_TYPE_BUTTON) {
     payload.name = "";
     payload.component = "";
     payload.redirect = "";
@@ -994,7 +1036,7 @@ function buildSubmitPayload(): BaseMenuForm {
     payload.meta.params = [];
   }
 
-  if (payload.type === BaseMenuType.FOLDER) {
+  if (payload.type === BaseMenuType.BASE_MENU_TYPE_FOLDER) {
     payload.path = "";
     payload.name = "";
     payload.component = "Layout";
@@ -1005,7 +1047,7 @@ function buildSubmitPayload(): BaseMenuForm {
     payload.meta.params = [];
   }
 
-  if (payload.type === BaseMenuType.EXT_LINK) {
+  if (payload.type === BaseMenuType.BASE_MENU_TYPE_EXT_LINK) {
     payload.name = "";
     payload.component = "";
     payload.api = [];
@@ -1080,7 +1122,7 @@ async function handleOpenDialog(parentMenu?: BaseMenu, menuId?: number) {
   await loadDialogResources();
   dialog.parentLocked = Boolean(parentMenu || menuId);
   dialog.editing = Boolean(menuId);
-  dialog.parentType = parentMenu?.type ?? BaseMenuType.UNKNOWN_MT;
+  dialog.parentType = parentMenu?.type ?? BaseMenuType.BASE_MENU_TYPE_UNSPECIFIED;
   resetForm(menuId ? undefined : { parent_id: parentMenu?.id });
   dialog.visible = true;
 
@@ -1094,7 +1136,7 @@ async function handleOpenDialog(parentMenu?: BaseMenu, menuId?: number) {
 /** 关闭菜单弹窗并显式重置表单与校验状态。 */
 function handleCloseDialog() {
   dialog.visible = false;
-  dialog.parentType = BaseMenuType.UNKNOWN_MT;
+  dialog.parentType = BaseMenuType.BASE_MENU_TYPE_UNSPECIFIED;
   dialog.parentLocked = true;
   resetForm();
 }
@@ -1115,10 +1157,10 @@ async function handleSubmit() {
   const payload = buildSubmitPayload();
   if (payload.id > 0) {
     await defBaseMenuService.UpdateBaseMenu({ base_menu: payload });
-    ElMessage.success(t("system.menu.message.updateSuccess"));
+    ElMessage.success(t("system.base.menu.message.update_success"));
   } else {
     await defBaseMenuService.CreateBaseMenu({ base_menu: payload });
-    ElMessage.success(t("system.menu.message.createSuccess"));
+    ElMessage.success(t("system.base.menu.message.create_success"));
   }
 
   handleCloseDialog();
@@ -1133,13 +1175,17 @@ async function handleBeforeSetStatus(row: BaseMenu) {
   const action = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
   const menuName = row.meta?.title || row.name || row.path || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(t("system.menu.message.confirmStatus", { action, name: menuName }), t("common.title.notice"), {
-      confirmButtonText: t("common.action.confirm"),
-      cancelButtonText: t("common.action.cancel"),
-      type: "warning"
-    });
+    await ElMessageBox.confirm(
+      t("system.base.menu.message.confirm_status", { action, name: menuName }),
+      t("common.title.notice"),
+      {
+        confirmButtonText: t("common.action.confirm"),
+        cancelButtonText: t("common.action.cancel"),
+        type: "warning"
+      }
+    );
     await defBaseMenuService.SetBaseMenuStatus({ id: row.id, status: nextStatus });
-    ElMessage.success(t("system.common.message.statusSuccess", { action }));
+    ElMessage.success(t("common.message.status_success", { action }));
     refreshTable();
     return true;
   } catch {
@@ -1157,23 +1203,23 @@ function handleDeleteMenu(selected?: number | string | Array<number | string> | 
       ? [selected as BaseMenu]
       : [];
   if (menuList.some(item => item.parent_id === 0 || item.id === APP_MENU_ROOT_ID)) {
-    ElMessage.warning(t("system.menu.message.protectedDelete"));
+    ElMessage.warning(t("system.base.menu.message.protected_delete"));
     return;
   }
   const menuIds = (
     menuList.length ? menuList.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");
   if (!menuIds) {
-    ElMessage.warning(t("system.common.message.selectDeleteItem"));
+    ElMessage.warning(t("common.message.select_delete_item"));
     return;
   }
 
   const singleMenuName = menuList[0]?.meta?.title || menuList[0]?.name || menuList[0]?.path || `ID:${menuList[0]?.id ?? ""}`;
   const confirmMessage = menuList.length
     ? menuList.length === 1
-      ? t("system.menu.message.confirmDeleteSingle", { name: singleMenuName })
-      : t("system.menu.message.confirmDeleteBatch", { count: menuList.length })
-    : t("system.menu.message.confirmDeleteSelected");
+      ? t("system.base.menu.message.confirm_delete_single", { name: singleMenuName })
+      : t("system.base.menu.message.confirm_delete_batch", { count: menuList.length })
+    : t("system.base.menu.message.confirm_delete_selected");
 
   ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
     confirmButtonText: t("common.action.confirm"),
@@ -1182,12 +1228,12 @@ function handleDeleteMenu(selected?: number | string | Array<number | string> | 
   }).then(
     () => {
       defBaseMenuService.DeleteBaseMenu({ id: menuIds }).then(() => {
-        ElMessage.success(t("system.menu.message.deleteSuccess"));
+        ElMessage.success(t("system.base.menu.message.delete_success"));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info(t("system.menu.message.deleteCanceled"));
+      ElMessage.info(t("system.base.menu.message.delete_canceled"));
     }
   );
 }

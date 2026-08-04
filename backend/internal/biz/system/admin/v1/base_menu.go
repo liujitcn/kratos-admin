@@ -3,8 +3,6 @@ package biz
 import (
 	"context"
 
-	systemcommonv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/common/v1"
-
 	_mapper "github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
@@ -103,7 +101,7 @@ func (c *BaseMenuCase) OptionBaseMenu(ctx context.Context, req *systemadminv1.Op
 		parentID = req.GetParentId()
 	}
 	var titles map[int64]string
-	titles, err = c.reviewedMenuTitles(ctx, list)
+	titles, err = c.translatedMenuTitles(ctx, list)
 	if err != nil {
 		return nil, err
 	}
@@ -147,11 +145,9 @@ func (c *BaseMenuCase) TreeBaseMenu(ctx context.Context, req *systemadminv1.Tree
 	}
 	sources := make(map[int64]string, len(list))
 	for _, item := range list {
-		form := c.formMapper.ToDTO(item)
-		sources[item.ID] = form.GetMeta().GetTitle()
+		sources[item.ID] = c.mapper.ToDTO(item).GetMeta().GetTitle()
 	}
-	var translations map[int64][]*systemadminv1.BaseMenuTranslation
-	translations, err = c.translationCase.MenuTranslations(ctx, sources)
+	translations, err := c.translationCase.MenuTranslations(ctx, sources)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +162,7 @@ func (c *BaseMenuCase) GetBaseMenu(ctx context.Context, id int64) (*systemadminv
 	}
 	form := c.formMapper.ToDTO(baseMenu)
 	sources := map[int64]string{id: form.GetMeta().GetTitle()}
-	var translations map[int64][]*systemadminv1.BaseMenuTranslation
+	var translations map[int64][]*systemadminv1.BaseTranslation
 	translations, err = c.translationCase.MenuTranslations(ctx, sources)
 	if err != nil {
 		return nil, err
@@ -187,13 +183,18 @@ func (c *BaseMenuCase) CreateBaseMenu(ctx context.Context, req *systemadminv1.Ba
 	}
 	translations := appendMenuSourceTranslation(req.GetTranslations(), sourceLocale, primaryLocale, sourceText)
 	baseMenu := c.formMapper.ToEntity(req)
-	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		err = c.createBaseMenu(ctx, baseMenu)
 		if err != nil {
 			return err
 		}
 		return c.translationCase.SaveMenuTranslations(ctx, baseMenu.ID, primaryText, translations)
 	})
+	if err != nil {
+		return err
+	}
+	c.translationCase.EnqueueTranslation(systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, baseMenu.ID)
+	return nil
 }
 
 // UpdateBaseMenu 更新菜单
@@ -208,7 +209,7 @@ func (c *BaseMenuCase) UpdateBaseMenu(ctx context.Context, req *systemadminv1.Ba
 	}
 	translations := appendMenuSourceTranslation(req.GetTranslations(), sourceLocale, primaryLocale, sourceText)
 	baseMenu := c.formMapper.ToEntity(req)
-	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		var currentMenu *models.BaseMenu
 		currentMenu, err = c.FindByID(ctx, req.GetId())
 		if err != nil {
@@ -216,7 +217,7 @@ func (c *BaseMenuCase) UpdateBaseMenu(ctx context.Context, req *systemadminv1.Ba
 		}
 		// 一级菜单属于初始化固定资源，只允许修改展示配置，不能改变编号、父级和类型。
 		if currentMenu.ParentID == 0 {
-			if req.GetParentId() != 0 || req.GetType() != systemcommonv1.BaseMenuType_FOLDER {
+			if req.GetParentId() != 0 || req.GetType() != systemadminv1.BaseMenuType_BASE_MENU_TYPE_FOLDER {
 				return errorsx.ProtectedResourceConflict("一级菜单的父级和类型不允许修改", "base_menu")
 			}
 		} else {
@@ -240,30 +241,30 @@ func (c *BaseMenuCase) UpdateBaseMenu(ctx context.Context, req *systemadminv1.Ba
 		if err = c.UpdateByID(ctx, baseMenu); err != nil {
 			return err
 		}
-		currentForm := c.formMapper.ToDTO(currentMenu)
-		err = c.translationCase.MarkMenuSourceChanged(ctx, currentMenu.ID, currentForm.GetMeta().GetTitle(), primaryText)
-		if err != nil {
-			return err
-		}
 		err = c.translationCase.SaveMenuTranslations(ctx, currentMenu.ID, primaryText, translations)
 		if err != nil {
 			return err
 		}
 		return c.casbinRuleCase.RebuildCasbinRuleByMenuID(ctx, baseMenu.ID)
 	})
+	if err != nil {
+		return err
+	}
+	c.translationCase.EnqueueTranslation(systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, baseMenu.ID)
+	return nil
 }
 
 // appendMenuSourceTranslation 保留当前请求语言的原始菜单标题。
-func appendMenuSourceTranslation(translations []*systemadminv1.BaseMenuTranslation, sourceLocale, primaryLocale, source string) []*systemadminv1.BaseMenuTranslation {
+func appendMenuSourceTranslation(translations []*systemadminv1.BaseTranslation, sourceLocale, primaryLocale, source string) []*systemadminv1.BaseTranslation {
 	if sourceLocale == primaryLocale {
 		return translations
 	}
-	result := make([]*systemadminv1.BaseMenuTranslation, 0, len(translations)+1)
+	result := make([]*systemadminv1.BaseTranslation, 0, len(translations)+1)
 	added := false
 	for _, translation := range translations {
 		if coreLocale.IsSupported(translation.GetLocale()) && coreLocale.Normalize(translation.GetLocale()) == sourceLocale {
 			if !added {
-				result = append(result, &systemadminv1.BaseMenuTranslation{Locale: sourceLocale, Title: source})
+				result = append(result, &systemadminv1.BaseTranslation{TargetType: systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, Locale: sourceLocale, Name: source})
 				added = true
 			}
 			continue
@@ -271,7 +272,7 @@ func appendMenuSourceTranslation(translations []*systemadminv1.BaseMenuTranslati
 		result = append(result, translation)
 	}
 	if !added {
-		result = append(result, &systemadminv1.BaseMenuTranslation{Locale: sourceLocale, Title: source})
+		result = append(result, &systemadminv1.BaseTranslation{TargetType: systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, Locale: sourceLocale, Name: source})
 	}
 	return result
 }
@@ -483,13 +484,13 @@ func (c *BaseMenuCase) listSubtreeIDs(ctx context.Context, rootID int64) ([]int6
 	return ids, nil
 }
 
-// reviewedMenuTitles 查询菜单集合在当前语言下可展示的审核译文。
-func (c *BaseMenuCase) reviewedMenuTitles(ctx context.Context, menuList []*models.BaseMenu) (map[int64]string, error) {
+// translatedMenuTitles 查询菜单集合在当前语言下可展示的非空译文。
+func (c *BaseMenuCase) translatedMenuTitles(ctx context.Context, menuList []*models.BaseMenu) (map[int64]string, error) {
 	menuIDs := make([]int64, 0, len(menuList))
 	for _, item := range menuList {
 		menuIDs = append(menuIDs, item.ID)
 	}
-	titles, err := c.translationCase.ReviewedMenuTitles(ctx, menuIDs)
+	titles, err := c.translationCase.TranslatedMenuTitles(ctx, menuIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -521,7 +522,7 @@ func (c *BaseMenuCase) buildBaseMenuTree(
 	parentID int64,
 	lazy bool,
 	hasChildren map[int64]struct{},
-	translations map[int64][]*systemadminv1.BaseMenuTranslation,
+	translations map[int64][]*systemadminv1.BaseTranslation,
 ) []*systemadminv1.BaseMenu {
 	res := make([]*systemadminv1.BaseMenu, 0)
 	for _, item := range menuList {
@@ -555,7 +556,7 @@ func (c *BaseMenuCase) buildBaseMenuOption(
 			continue
 		}
 		// 按钮和外链不能承载子菜单，不提供为父级菜单选项。
-		if item.Type != int32(systemcommonv1.BaseMenuType_FOLDER) && item.Type != int32(systemcommonv1.BaseMenuType_MENU) {
+		if item.Type != int32(systemadminv1.BaseMenuType_BASE_MENU_TYPE_FOLDER) && item.Type != int32(systemadminv1.BaseMenuType_BASE_MENU_TYPE_MENU) {
 			continue
 		}
 
@@ -602,8 +603,8 @@ func (c *BaseMenuCase) listBaseMenuParentIDsWithChildren(
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Where(query.ParentID.In(parentIDs...)))
 	opts = append(opts, repository.Where(query.Type.In(
-		int32(systemcommonv1.BaseMenuType_FOLDER),
-		int32(systemcommonv1.BaseMenuType_MENU),
+		int32(systemadminv1.BaseMenuType_BASE_MENU_TYPE_FOLDER),
+		int32(systemadminv1.BaseMenuType_BASE_MENU_TYPE_MENU),
 	)))
 	if !isSuperRole {
 		opts = append(opts, repository.Where(query.ID.In(allowedMenuIDs...)))

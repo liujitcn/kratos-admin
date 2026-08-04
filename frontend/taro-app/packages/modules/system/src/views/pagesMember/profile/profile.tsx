@@ -72,9 +72,9 @@ export default function ProfilePage() {
       await defAuthService.UpdateUserProfile(nextProfile)
       setUserInfo(nextProfile)
       await useUserStore.getState().getUserProfile()
-      await Taro.showToast({ icon: 'success', title: t('system.profile.updateSuccess') })
+      await Taro.showToast({ icon: 'success', title: t('system.profile.update_success') })
     } catch {
-      await Taro.showToast({ icon: 'error', title: t('system.profile.avatarUploadFailed') })
+      await Taro.showToast({ icon: 'error', title: t('system.profile.avatar_upload_failed') })
     }
   }
 
@@ -87,7 +87,7 @@ export default function ProfilePage() {
     const file = selected.tempFiles[0]
     const filePath = 'tempFilePath' in file ? file.tempFilePath : file.path
     if (file.size > IMG_MAX_SIZE) {
-      await Taro.showToast({ title: t('system.profile.photoLimit'), icon: 'none', duration: 1500 })
+      await Taro.showToast({ title: t('system.profile.photo_limit'), icon: 'none', duration: 1500 })
       return
     }
     await uploadAvatar(filePath)
@@ -98,14 +98,14 @@ export default function ProfilePage() {
     const response = await defAuthService.BindUserPhone({ code: event.detail.code || '' })
     setUserInfo((current) => ({ ...current, phone: response.phone }))
     await useUserStore.getState().getUserProfile()
-    await Taro.showToast({ icon: 'success', title: t('system.profile.phoneAuthorizationSuccess') })
+    await Taro.showToast({ icon: 'success', title: t('system.profile.phone_authorization_success') })
   }
 
   const onSubmit = async () => {
     if (!requireAuth()) return
     await defAuthService.UpdateUserProfile(userInfo)
     await useUserStore.getState().getUserProfile()
-    await Taro.showToast({ icon: 'success', title: t('system.profile.saveSuccess') })
+    await Taro.showToast({ icon: 'success', title: t('system.profile.save_success') })
     setTimeout(() => void Taro.navigateBack(), 400)
   }
 
@@ -118,7 +118,7 @@ export default function ProfilePage() {
       <View className='profile-avatar'>
         <View className='profile-avatar__content' onClick={() => void onAvatarChange()}>
           <Image className='profile-avatar__image' src={userInfo.avatar ? formatSrc(userInfo.avatar) : defaultAvatar} mode='aspectFill' />
-          <Text className='profile-avatar__text'>{t('system.profile.avatarChange')}</Text>
+          <Text className='profile-avatar__text'>{t('system.profile.avatar_change')}</Text>
         </View>
       </View>
       <View className='profile-form'>
@@ -136,14 +136,14 @@ export default function ProfilePage() {
                 {userInfo.phone ? (
                   <Text className='profile-account'>{userInfo.phone}</Text>
                 ) : (
-                  <Button className='profile-auth-button' openType='getPhoneNumber' onGetPhoneNumber={onGetPhoneNumber}>{t('system.profile.phoneAuthorization')}</Button>
+                  <Button className='profile-auth-button' openType='getPhoneNumber' onGetPhoneNumber={onGetPhoneNumber}>{t('system.profile.phone_authorization')}</Button>
                 )}
               </View>
             </View>
           ) : null}
           <View className='profile-form__item'>
-            <Text className='profile-label'>{t('system.profile.nickName')}</Text>
-            <Input className='profile-input' placeholder={t('system.profile.nickNamePlaceholder')} value={userInfo.nick_name} onInput={(event) => setUserInfo((current) => ({ ...current, nick_name: event.detail.value }))} />
+            <Text className='profile-label'>{t('system.profile.nick_name')}</Text>
+            <Input className='profile-input' placeholder={t('system.profile.nick_name_placeholder')} value={userInfo.nick_name} onInput={(event) => setUserInfo((current) => ({ ...current, nick_name: event.detail.value }))} />
           </View>
           <View className='profile-form__item'>
             <Text className='profile-label'>{t('system.profile.gender')}</Text>

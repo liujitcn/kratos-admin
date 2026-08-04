@@ -52,8 +52,8 @@
     </div>
     <div class="theme-item">
       <span>
-        {{ t("core.theme.asideInverted") }}
-        <el-tooltip effect="dark" :content="t('core.theme.asideInvertedTip')" placement="top">
+        {{ t("core.theme.aside_inverted") }}
+        <el-tooltip effect="dark" :content="t('core.theme.aside_inverted_tip')" placement="top">
           <el-icon><QuestionFilled /></el-icon>
         </el-tooltip>
       </span>
@@ -61,8 +61,8 @@
     </div>
     <div class="theme-item mb50">
       <span>
-        {{ t("core.theme.headerInverted") }}
-        <el-tooltip effect="dark" :content="t('core.theme.headerInvertedTip')" placement="top">
+        {{ t("core.theme.header_inverted") }}
+        <el-tooltip effect="dark" :content="t('core.theme.header_inverted_tip')" placement="top">
           <el-icon><QuestionFilled /></el-icon>
         </el-tooltip>
       </span>
@@ -97,7 +97,7 @@
       {{ t("core.theme.interface") }}
     </el-divider>
     <div class="theme-item">
-      <span>{{ t("core.theme.menuCollapse") }}</span>
+      <span>{{ t("core.theme.menu_collapse") }}</span>
       <el-switch v-model="isCollapse" />
     </div>
     <div class="theme-item">
@@ -113,7 +113,7 @@
       <el-switch v-model="breadcrumb" />
     </div>
     <div class="theme-item">
-      <span>{{ t("core.theme.breadcrumbIcon") }}</span>
+      <span>{{ t("core.theme.breadcrumb_icon") }}</span>
       <el-switch v-model="breadcrumbIcon" />
     </div>
     <div class="theme-item">
@@ -121,7 +121,7 @@
       <el-switch v-model="tabs" />
     </div>
     <div class="theme-item">
-      <span>{{ t("core.theme.tabsIcon") }}</span>
+      <span>{{ t("core.theme.tabs_icon") }}</span>
       <el-switch v-model="tabsIcon" />
     </div>
     <div class="theme-item">

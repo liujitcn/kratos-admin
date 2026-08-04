@@ -26,7 +26,7 @@ packages/core
 └── package.json
 ```
 
-`src/rpc` 是生成产物，只能通过 workspace 根目录的 `pnpm generate:rpc` 更新；该命令委托 backend 的 `make ts-app` 和 `backend/api/buf.app.typescript.gen.yaml` 生成。
+`src/rpc` 是生成产物，只能通过 workspace 根目录的 `pnpm generate:rpc` 更新；该命令委托 backend 的 `make ts-uni-app` 和 `backend/api/buf.uni-app.typescript.gen.yaml` 生成。
 
 ## 功能
 

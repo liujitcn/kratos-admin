@@ -299,67 +299,113 @@ def generate_json(source: Path, locale: str, converter, machine: bool, offline: 
         target.write_text(json.dumps(target_data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
-def parse_menu_titles(default_data: Path) -> dict[int, str]:
-    titles: dict[int, str] = {}
-    pattern = re.compile(r"INSERT IGNORE INTO `base_menu` .*?VALUES \((\d+),.*?, '(\{.*\})', '\[.*\]'.*\);$")
+def parse_sql_values(line: str) -> list[str | None] | None:
+    """解析 INSERT 语句中的值，兼容文本中的逗号、单引号和反斜杠。"""
+    values_match = re.search(r"VALUES \((.*)\);$", line)
+    if not values_match:
+        return None
+    values: list[str | None] = []
+    current: list[str] = []
+    quoted = False
+    escaped = False
+    for char in values_match.group(1):
+        if quoted:
+            if escaped:
+                current.append(char)
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == "'":
+                quoted = False
+            else:
+                current.append(char)
+            continue
+        if char == "'":
+            quoted = True
+        elif char == ",":
+            value = "".join(current).strip()
+            values.append(None if value.upper() == "NULL" else value)
+            current = []
+        else:
+            current.append(char)
+    value = "".join(current).strip()
+    values.append(None if value.upper() == "NULL" else value)
+    return values
+
+
+def translation_record(line: str) -> tuple[int, int, str, str] | None:
+    """读取统一翻译表 INSERT，返回目标类型、资源编号、语言和文本。"""
+    table_match = re.search(r"INSERT IGNORE INTO `([^`]+)`", line)
+    values = parse_sql_values(line)
+    if not table_match or table_match.group(1) != "base_translation" or not values or len(values) < 4:
+        return None
+    try:
+        return int(values[0] or 0), int(values[1] or 0), str(values[2] or ""), str(values[3] or "")
+    except (TypeError, ValueError):
+        return None
+
+
+def parse_primary_translation_sources(default_data: Path) -> dict[tuple[int, int], str]:
+    """从主数据 SQL 提取统一翻译表各目标类型对应的简体中文源文。"""
+    sources: dict[tuple[int, int], str] = {}
     for line in default_data.read_text(encoding="utf-8").splitlines():
-        match = pattern.match(line)
-        if not match:
+        table_match = re.search(r"INSERT IGNORE INTO `([^`]+)`", line)
+        values = parse_sql_values(line)
+        if not table_match or not values:
             continue
+        table = table_match.group(1)
         try:
-            metadata = json.loads(match.group(2).replace('\\"', '"'))
-        except json.JSONDecodeError:
+            resource_id = int(values[0] or 0)
+        except (TypeError, ValueError):
             continue
-        if isinstance(metadata.get("title"), str):
-            titles[int(match.group(1))] = metadata["title"]
-    return titles
-
-
-def source_text(line: str, menu_titles: dict[int, str]) -> str:
-    menu_id = re.search(r"WHERE `id` = (\d+)", line)
-    if menu_id:
-        return menu_titles.get(int(menu_id.group(1)), "")
-    literal = re.search(r"SHA2\('((?:[^'\\]|\\.)*)', 256\)", line)
-    return literal.group(1).replace("\\'", "'") if literal else ""
+        if table == "base_config" and len(values) > 5:
+            sources[(1, resource_id)] = str(values[5] or "")
+            sources[(2, resource_id)] = str(values[2] or "")
+        elif table == "base_dict" and len(values) > 2:
+            sources[(3, resource_id)] = str(values[2] or "")
+        elif table == "base_dict_item" and len(values) > 3:
+            sources[(4, resource_id)] = str(values[3] or "")
+        elif table == "base_menu" and len(values) > 7:
+            try:
+                metadata = json.loads(str(values[7] or ""))
+            except json.JSONDecodeError:
+                continue
+            if isinstance(metadata, dict) and isinstance(metadata.get("title"), str):
+                sources[(5, resource_id)] = metadata["title"]
+    return sources
 
 
 def extract_translation(line: str, locale: str = "en-US") -> str:
-    marker = f", '{locale}', "
-    if marker not in line:
-        return ""
-    remainder = line.split(marker, 1)[1]
-    suffix_index = remainder.find("', 'reviewed'")
-    if suffix_index < 0:
-        return ""
-    if "base_config_translation" in line:
-        field_end = remainder.find(", '")
-        return remainder[field_end + 3 : suffix_index] if field_end >= 0 else ""
-    return remainder[1:suffix_index]
+    record = translation_record(line)
+    return record[3] if record and record[2] == locale else ""
 
 
 def replace_translation(line: str, locale: str, translated: str) -> str:
-    marker = ", 'en-US', "
-    if marker not in line:
+    if "INSERT IGNORE INTO" not in line:
         return line.replace("en-US", locale)
-    prefix, remainder = line.split(marker, 1)
-    suffix_index = remainder.find("', 'reviewed'")
-    if suffix_index < 0:
+    record = translation_record(line)
+    if not record:
         return line
-    escaped = translated.replace("'", "\\'")
-    if "base_config_translation" in line:
-        field_end = remainder.find(", '")
-        if field_end < 0:
-            return line
-        return f"{prefix}, '{locale}', {remainder[:field_end]}, '{escaped}'{remainder[suffix_index + 1:]}"
-    return f"{prefix}, '{locale}', '{escaped}'{remainder[suffix_index + 1:]}"
+    target_type, target_id, _, _ = record
+    escaped = translated.replace("\\", "\\\\").replace("'", "\\'")
+    return (
+        "INSERT IGNORE INTO `base_translation` (`target_type`, `target_id`, `locale`, `name`) "
+        f"VALUES ({target_type}, {target_id}, '{locale}', '{escaped}');"
+    )
 
 
 def generate_sql(locale: str, converter, machine: bool, offline: bool, write: bool, sql_directory: Path) -> None:
     source = SQL_DIR / "translation.en-US.up.sql"
     target = sql_directory / f"translation.{locale}.up.sql"
-    menu_titles = parse_menu_titles(SQL_DIR / "default_data.up.sql")
+    primary_sources = parse_primary_translation_sources(SQL_DIR / "default_data.up.sql")
     lines = source.read_text(encoding="utf-8").splitlines()
-    values = [source_text(line, menu_titles) if locale == "zh-TW" else extract_translation(line) for line in lines]
+    values = []
+    for line in lines:
+        record = translation_record(line)
+        if locale == "zh-TW" and record:
+            values.append(primary_sources.get((record[0], record[1]), ""))
+        else:
+            values.append(extract_translation(line))
     translated = (
         values
         if locale == "zh-TW"
@@ -380,7 +426,7 @@ def generate_sql(locale: str, converter, machine: bool, offline: bool, write: bo
 def render_translation_description(locale: str) -> str:
     return (
         f"由 `scripts/generate_locale_drafts.py` 生成的 {locale} 动态资源翻译草稿。\n\n"
-        "提交前应完成人工审核；迁移只使用已审核的固定文本，不在运行时调用翻译服务。\n"
+        "迁移只写入非空固定译文，已有统一表记录不会被覆盖；运行时仅在记录为空时补充机器译文。\n"
     )
 
 
@@ -390,7 +436,7 @@ def main() -> int:
     parser.add_argument("--machine", action="store_true", help="使用 Google V1 生成韩法西草稿")
     parser.add_argument("--offline", action="store_true", help="使用内置术语表离线生成机器翻译草稿")
     parser.add_argument("--locale", dest="locales", action="append", help="只生成指定语言，可重复传入")
-    parser.add_argument("--migration-version", help="将翻译 SQL 写入指定版本目录，例如 v0.0.3")
+    parser.add_argument("--migration-version", help="将按语言拆分的翻译 SQL 写入指定版本目录，例如 vX.Y.Z")
     args = parser.parse_args()
     locales = tuple(args.locales or DEFAULT_TARGET_LOCALES)
     sql_directory = SQL_DIR

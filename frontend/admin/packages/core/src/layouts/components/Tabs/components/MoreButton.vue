@@ -12,19 +12,19 @@
           <el-icon><FullScreen /></el-icon>{{ t("core.tabs.maximize") }}
         </el-dropdown-item>
         <el-dropdown-item divided @click="closeCurrentTab">
-          <el-icon><Remove /></el-icon>{{ t("core.tabs.closeCurrent") }}
+          <el-icon><Remove /></el-icon>{{ t("core.tabs.close_current") }}
         </el-dropdown-item>
         <el-dropdown-item @click="tabStore.closeTabsOnSide(currentTabPath, 'left')">
-          <el-icon><DArrowLeft /></el-icon>{{ t("core.tabs.closeLeft") }}
+          <el-icon><DArrowLeft /></el-icon>{{ t("core.tabs.close_left") }}
         </el-dropdown-item>
         <el-dropdown-item @click="tabStore.closeTabsOnSide(currentTabPath, 'right')">
-          <el-icon><DArrowRight /></el-icon>{{ t("core.tabs.closeRight") }}
+          <el-icon><DArrowRight /></el-icon>{{ t("core.tabs.close_right") }}
         </el-dropdown-item>
         <el-dropdown-item divided @click="tabStore.closeMultipleTab(currentTabPath)">
-          <el-icon><CircleClose /></el-icon>{{ t("core.tabs.closeOther") }}
+          <el-icon><CircleClose /></el-icon>{{ t("core.tabs.close_other") }}
         </el-dropdown-item>
         <el-dropdown-item @click="closeAllTab">
-          <el-icon><FolderDelete /></el-icon>{{ t("core.tabs.closeAll") }}
+          <el-icon><FolderDelete /></el-icon>{{ t("core.tabs.close_all") }}
         </el-dropdown-item>
       </el-dropdown-menu>
     </template>

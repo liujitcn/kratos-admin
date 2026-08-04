@@ -128,7 +128,7 @@ func (c *AuthCase) TreeUserMenu(ctx context.Context) (*systemadminv1.TreeRouteRe
 	}
 
 	var titles map[int64]string
-	titles, err = c.baseMenuCase.reviewedMenuTitles(ctx, menuList)
+	titles, err = c.baseMenuCase.translatedMenuTitles(ctx, menuList)
 	if err != nil {
 		return nil, errorsx.Internal("获取用户菜单失败").WithCause(err)
 	}
@@ -280,12 +280,12 @@ func (c *AuthCase) UpdateUserPassword(ctx context.Context, req *systemadminv1.Us
 		return err
 	}
 	var oldPwd string
-	oldPwd, err = utils.DecryptPassword(req.GetOldPwd(), basev1.PasswordCryptoScene_UPDATE_USER_PASSWORD)
+	oldPwd, err = utils.DecryptPassword(req.GetOldPwd(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD)
 	if err != nil {
 		return err
 	}
 	var newPwd string
-	newPwd, err = utils.DecryptPassword(req.GetNewPwd(), basev1.PasswordCryptoScene_UPDATE_USER_PASSWORD)
+	newPwd, err = utils.DecryptPassword(req.GetNewPwd(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD)
 	if err != nil {
 		return err
 	}

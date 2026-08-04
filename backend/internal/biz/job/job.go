@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	systemcommonv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/common/v1"
+	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	coreTask "github.com/liujitcn/kratos-admin/backend/core/pkg/task"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -19,7 +19,7 @@ type ExecJob struct {
 	JobID        int64             // 任务ID
 	Args         map[string]string // 任务参数
 	InvokeTarget coreTask.TaskExec
-	Status       systemcommonv1.BaseJobLogStatus
+	Status       systemadminv1.BaseJobLogStatus
 	ErrMsg       string
 }
 
@@ -57,10 +57,10 @@ func (e *ExecJob) Execute() (err error) {
 		}
 
 		if err != nil {
-			e.Status = systemcommonv1.BaseJobLogStatus(_const.BASE_JOB_LOG_STATUS_FAIL)
+			e.Status = systemadminv1.BaseJobLogStatus(_const.BASE_JOB_LOG_STATUS_FAIL)
 			e.ErrMsg = err.Error()
 		} else {
-			e.Status = systemcommonv1.BaseJobLogStatus(_const.BASE_JOB_LOG_STATUS_SUCCESS)
+			e.Status = systemadminv1.BaseJobLogStatus(_const.BASE_JOB_LOG_STATUS_SUCCESS)
 			e.ErrMsg = ""
 		}
 		baseJobLog.Output = strings.Join(ret, "<br/>")

@@ -37,6 +37,8 @@
 
 ## proto 与 HTTP 路径
 - package 带版本号并与目录对齐（`system.admin.v1`、`shop.app.v1` 等）；Go import 用真实包名别名（`shopadminv1` 等）；TS import 带 `/v1/` 层级。
-- HTTP 路径遵循 RESTful，格式 `/api/v1/{terminal}/{module}/{resource}`；迁移旧接口用 `additional_bindings` 暂留旧路径。
+- HTTP 路径遵循 RESTful，格式 `/api/v1/{terminal}/{module}/{resource}`；本仓库不保留旧接口兼容路径，路径修改时同步更新 Proto、权限脚本和前端请求。
+- service、message、field、enum 和 HTTP 路径均不做向后兼容；每次契约修改都必须同步所有调用方、数据库数据、权限脚本和生成产物，禁止使用 `additional_bindings`、`allow_alias` 等兼容手段。协议确需为同一 RPC 映射多个 HTTP 方法时，`additional_bindings` 只按协议语义使用。
 - 字段与命名细则见 [docs/api.md](docs/api.md)，新增或修改 proto 字段前必须先读
 - proto 的 `google.api.http`、对应版本目录 `up.sql` 的 `base_api.path`、前端请求地址三处必须一致，禁止只改其中一处。
+- 枚举归属按实际调用方决定：只被一个业务 Proto 文件使用的 enum，放在该文件中，紧随对应 service 定义并与 message 同级；同一 package 跨多个业务文件使用、且不属于单一业务核心的共享类型，放在该 package 的 `common.proto`；同一端多个业务文件使用但有明确核心 service/message 归属的 enum，放在主文件，其他文件显式 import；同时被 `system.admin.v1` 和 `system.app.v1` 使用的 enum，才放入更上层 shared enum 文件。Proto 不支持在 service 体内直接声明 enum，不得为了“放在 service 下”改成非法嵌套结构。

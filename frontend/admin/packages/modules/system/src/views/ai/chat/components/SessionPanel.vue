@@ -2,20 +2,20 @@
   <aside class="agent-session-panel">
     <el-input
       :model-value="keyword"
-      :placeholder="t('system.ai.chat.placeholder.searchConversation')"
+      :placeholder="t('system.ai.chat.placeholder.search_conversation')"
       clearable
       :prefix-icon="Search"
       @update:model-value="handleKeywordUpdate"
     />
     <div class="agent-divider"></div>
     <div class="agent-panel-header">
-      <div class="agent-panel-title">{{ t("system.ai.chat.title.recentConversations") }}</div>
+      <div class="agent-panel-title">{{ t("system.ai.chat.title.recent_conversations") }}</div>
       <div class="agent-panel-actions">
-        <el-tooltip :content="t('system.ai.chat.action.collapseSessions')" placement="top">
+        <el-tooltip :content="t('system.ai.chat.action.collapse_sessions')" placement="top">
           <button
             class="agent-panel-icon"
             type="button"
-            :aria-label="t('system.ai.chat.action.collapseSessions')"
+            :aria-label="t('system.ai.chat.action.collapse_sessions')"
             @click="$emit('toggleCollapse')"
           >
             <el-icon><DArrowLeft /></el-icon>
@@ -24,7 +24,7 @@
         <button
           class="agent-panel-create"
           type="button"
-          :aria-label="t('system.ai.chat.action.newConversation')"
+          :aria-label="t('system.ai.chat.action.new_conversation')"
           @click="handleCreateSession"
         >
           <el-icon><Plus /></el-icon>
@@ -58,7 +58,7 @@
           @click.stop
           @command="command => handleMenuCommand(command, item)"
         >
-          <button class="agent-session-more" type="button" :aria-label="t('system.ai.chat.action.conversationMenu')">
+          <button class="agent-session-more" type="button" :aria-label="t('system.ai.chat.action.conversation_menu')">
             <el-icon><MoreFilled /></el-icon>
           </button>
           <template #dropdown>

@@ -144,7 +144,7 @@ async function sendRequest<T>(
     }
     await Taro.showToast({
       icon: 'none',
-      title: responseData?.message || t('common.message.requestError'),
+      title: responseData?.message || t('common.message.request_error'),
     })
     throw response
   } catch (error) {
@@ -155,7 +155,7 @@ async function sendRequest<T>(
     ) {
       throw error
     }
-    await Taro.showToast({ icon: 'none', title: t('common.message.networkError') })
+    await Taro.showToast({ icon: 'none', title: t('common.message.network_error') })
     throw error
   }
 }
@@ -241,9 +241,9 @@ async function promptRelogin(): Promise<void> {
   try {
     const modal = await Taro.showModal({
       title: t('common.title.notice'),
-      content: t('core.auth.sessionExpired'),
+      content: t('core.auth.session_expired'),
       showCancel: false,
-      confirmText: t('core.auth.loginAgain'),
+      confirmText: t('core.auth.login_again'),
     })
     if (!modal.confirm) return
     await new Promise((resolve) => setTimeout(resolve, 80))
@@ -269,7 +269,7 @@ function handleAuthExpiredByMode(
   if (authMode !== 'optional') {
     void Taro.showToast({
       icon: 'none',
-      title: responseData?.message || t('common.message.requestError'),
+      title: responseData?.message || t('common.message.request_error'),
     })
   }
 }

@@ -22,10 +22,10 @@ const (
 )
 
 var passwordCryptoSceneSet = map[basev1.PasswordCryptoScene]struct{}{
-	basev1.PasswordCryptoScene_LOGIN:                    {},
-	basev1.PasswordCryptoScene_CREATE_BASE_USER:         {},
-	basev1.PasswordCryptoScene_RESET_BASE_USER_PASSWORD: {},
-	basev1.PasswordCryptoScene_UPDATE_USER_PASSWORD:     {},
+	basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_LOGIN:                    {},
+	basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER:         {},
+	basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD: {},
+	basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD:     {},
 }
 
 type passwordCryptoKeyRecord struct {

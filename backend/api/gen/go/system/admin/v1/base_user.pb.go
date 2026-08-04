@@ -13,8 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/common/v1"
-	v11 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
+	v1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -28,6 +27,63 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
+
+// 用户性别。
+type BaseUserGender int32
+
+const (
+	// 未指定用户性别。
+	BaseUserGender_BASE_USER_GENDER_UNSPECIFIED BaseUserGender = 0
+	// 保密。
+	BaseUserGender_BASE_USER_GENDER_SECRET BaseUserGender = 1
+	// 男。
+	BaseUserGender_BASE_USER_GENDER_MALE BaseUserGender = 2
+	// 女。
+	BaseUserGender_BASE_USER_GENDER_FEMALE BaseUserGender = 3
+)
+
+// Enum value maps for BaseUserGender.
+var (
+	BaseUserGender_name = map[int32]string{
+		0: "BASE_USER_GENDER_UNSPECIFIED",
+		1: "BASE_USER_GENDER_SECRET",
+		2: "BASE_USER_GENDER_MALE",
+		3: "BASE_USER_GENDER_FEMALE",
+	}
+	BaseUserGender_value = map[string]int32{
+		"BASE_USER_GENDER_UNSPECIFIED": 0,
+		"BASE_USER_GENDER_SECRET":      1,
+		"BASE_USER_GENDER_MALE":        2,
+		"BASE_USER_GENDER_FEMALE":      3,
+	}
+)
+
+func (x BaseUserGender) Enum() *BaseUserGender {
+	p := new(BaseUserGender)
+	*p = x
+	return p
+}
+
+func (x BaseUserGender) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (BaseUserGender) Descriptor() protoreflect.EnumDescriptor {
+	return file_system_admin_v1_base_user_proto_enumTypes[0].Descriptor()
+}
+
+func (BaseUserGender) Type() protoreflect.EnumType {
+	return &file_system_admin_v1_base_user_proto_enumTypes[0]
+}
+
+func (x BaseUserGender) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use BaseUserGender.Descriptor instead.
+func (BaseUserGender) EnumDescriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_user_proto_rawDescGZIP(), []int{0}
+}
 
 // 用户选项查询条件
 type OptionBaseUserRequest struct {
@@ -175,16 +231,16 @@ func (x *ListBaseUserResponse) GetBaseUsers() []*BaseUser {
 // 用户分页查询条件
 type PageBaseUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserCode      string                 `protobuf:"bytes,1,opt,name=user_code,json=userCode,proto3" json:"user_code,omitempty"`                         // 用户编号
-	UserName      string                 `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                         // 用户账号
-	NickName      string                 `protobuf:"bytes,3,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                         // 用户昵称
-	TenantId      *int64                 `protobuf:"varint,4,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                  // 租户ID
-	DeptId        *int64                 `protobuf:"varint,5,opt,name=dept_id,json=deptId,proto3,oneof" json:"dept_id,omitempty"`                        // 部门ID
-	Phone         string                 `protobuf:"bytes,6,opt,name=phone,proto3" json:"phone,omitempty"`                                               // 手机号
-	Gender        *v1.BaseUserGender     `protobuf:"varint,7,opt,name=gender,proto3,enum=system.common.v1.BaseUserGender,oneof" json:"gender,omitempty"` // 性别
-	Status        *v11.Status            `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`              // 状态
-	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                         // 当前页码
-	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                      // 每一页的行数
+	UserCode      string                 `protobuf:"bytes,1,opt,name=user_code,json=userCode,proto3" json:"user_code,omitempty"`                        // 用户编号
+	UserName      string                 `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                        // 用户账号
+	NickName      string                 `protobuf:"bytes,3,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                        // 用户昵称
+	TenantId      *int64                 `protobuf:"varint,4,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                 // 租户ID
+	DeptId        *int64                 `protobuf:"varint,5,opt,name=dept_id,json=deptId,proto3,oneof" json:"dept_id,omitempty"`                       // 部门ID
+	Phone         string                 `protobuf:"bytes,6,opt,name=phone,proto3" json:"phone,omitempty"`                                              // 手机号
+	Gender        *BaseUserGender        `protobuf:"varint,7,opt,name=gender,proto3,enum=system.admin.v1.BaseUserGender,oneof" json:"gender,omitempty"` // 性别
+	Status        *v1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`             // 状态
+	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                        // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                     // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -261,18 +317,18 @@ func (x *PageBaseUserRequest) GetPhone() string {
 	return ""
 }
 
-func (x *PageBaseUserRequest) GetGender() v1.BaseUserGender {
+func (x *PageBaseUserRequest) GetGender() BaseUserGender {
 	if x != nil && x.Gender != nil {
 		return *x.Gender
 	}
-	return v1.BaseUserGender(0)
+	return BaseUserGender_BASE_USER_GENDER_UNSPECIFIED
 }
 
-func (x *PageBaseUserRequest) GetStatus() v11.Status {
+func (x *PageBaseUserRequest) GetStatus() v1.Status {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
-	return v11.Status(0)
+	return v1.Status(0)
 }
 
 func (x *PageBaseUserRequest) GetPageNum() int64 {
@@ -578,22 +634,22 @@ func (x *SetBaseUserStatusRequest) GetStatus() int32 {
 // 用户
 type BaseUser struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                              // 用户ID
-	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                  // 租户ID
-	UserName      string                 `protobuf:"bytes,3,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                   // 用户账号
-	UserCode      string                 `protobuf:"bytes,11,opt,name=user_code,json=userCode,proto3" json:"user_code,omitempty"`                  // 用户编号
-	NickName      string                 `protobuf:"bytes,4,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                   // 用户昵称
-	RoleId        int64                  `protobuf:"varint,5,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`                        // 角色ID
-	DeptId        int64                  `protobuf:"varint,6,opt,name=dept_id,json=deptId,proto3" json:"dept_id,omitempty"`                        // 部门ID
-	PostId        int64                  `protobuf:"varint,7,opt,name=post_id,json=postId,proto3" json:"post_id,omitempty"`                        // 岗位ID
-	Phone         string                 `protobuf:"bytes,8,opt,name=phone,proto3" json:"phone,omitempty"`                                         // 手机号
-	Gender        v1.BaseUserGender      `protobuf:"varint,9,opt,name=gender,proto3,enum=system.common.v1.BaseUserGender" json:"gender,omitempty"` // 性别
-	Avatar        string                 `protobuf:"bytes,10,opt,name=avatar,proto3" json:"avatar,omitempty"`                                      // 头像
-	Status        v11.Status             `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`              // 用户状态
-	Remark        string                 `protobuf:"bytes,102,opt,name=remark,proto3" json:"remark,omitempty"`                                     // 备注名
-	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`              // 创建时间
-	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`              // 更新时间
-	IsProtected   bool                   `protobuf:"varint,300,opt,name=is_protected,json=isProtected,proto3" json:"is_protected,omitempty"`       // 是否禁止通过用户管理操作
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                             // 用户ID
+	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                 // 租户ID
+	UserName      string                 `protobuf:"bytes,3,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                  // 用户账号
+	UserCode      string                 `protobuf:"bytes,11,opt,name=user_code,json=userCode,proto3" json:"user_code,omitempty"`                 // 用户编号
+	NickName      string                 `protobuf:"bytes,4,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                  // 用户昵称
+	RoleId        int64                  `protobuf:"varint,5,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`                       // 角色ID
+	DeptId        int64                  `protobuf:"varint,6,opt,name=dept_id,json=deptId,proto3" json:"dept_id,omitempty"`                       // 部门ID
+	PostId        int64                  `protobuf:"varint,7,opt,name=post_id,json=postId,proto3" json:"post_id,omitempty"`                       // 岗位ID
+	Phone         string                 `protobuf:"bytes,8,opt,name=phone,proto3" json:"phone,omitempty"`                                        // 手机号
+	Gender        BaseUserGender         `protobuf:"varint,9,opt,name=gender,proto3,enum=system.admin.v1.BaseUserGender" json:"gender,omitempty"` // 性别
+	Avatar        string                 `protobuf:"bytes,10,opt,name=avatar,proto3" json:"avatar,omitempty"`                                     // 头像
+	Status        v1.Status              `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`             // 用户状态
+	Remark        string                 `protobuf:"bytes,102,opt,name=remark,proto3" json:"remark,omitempty"`                                    // 备注名
+	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`             // 创建时间
+	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`             // 更新时间
+	IsProtected   bool                   `protobuf:"varint,300,opt,name=is_protected,json=isProtected,proto3" json:"is_protected,omitempty"`      // 是否禁止通过用户管理操作
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -691,11 +747,11 @@ func (x *BaseUser) GetPhone() string {
 	return ""
 }
 
-func (x *BaseUser) GetGender() v1.BaseUserGender {
+func (x *BaseUser) GetGender() BaseUserGender {
 	if x != nil {
 		return x.Gender
 	}
-	return v1.BaseUserGender(0)
+	return BaseUserGender_BASE_USER_GENDER_UNSPECIFIED
 }
 
 func (x *BaseUser) GetAvatar() string {
@@ -705,11 +761,11 @@ func (x *BaseUser) GetAvatar() string {
 	return ""
 }
 
-func (x *BaseUser) GetStatus() v11.Status {
+func (x *BaseUser) GetStatus() v1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v11.Status(0)
+	return v1.Status(0)
 }
 
 func (x *BaseUser) GetRemark() string {
@@ -743,20 +799,20 @@ func (x *BaseUser) GetIsProtected() bool {
 // 用户表单
 type BaseUserForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                              // 用户ID
-	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                  // 租户ID
-	UserName      string                 `protobuf:"bytes,3,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                   // 用户账号
-	UserCode      string                 `protobuf:"bytes,12,opt,name=user_code,json=userCode,proto3" json:"user_code,omitempty"`                  // 用户编号
-	NickName      string                 `protobuf:"bytes,4,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                   // 用户昵称
-	RoleId        int64                  `protobuf:"varint,5,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`                        // 角色ID
-	DeptId        int64                  `protobuf:"varint,6,opt,name=dept_id,json=deptId,proto3" json:"dept_id,omitempty"`                        // 部门ID
-	PostId        int64                  `protobuf:"varint,10,opt,name=post_id,json=postId,proto3" json:"post_id,omitempty"`                       // 岗位ID
-	Phone         string                 `protobuf:"bytes,7,opt,name=phone,proto3" json:"phone,omitempty"`                                         // 手机号
-	Avatar        string                 `protobuf:"bytes,8,opt,name=avatar,proto3" json:"avatar,omitempty"`                                       // 头像
-	Gender        v1.BaseUserGender      `protobuf:"varint,9,opt,name=gender,proto3,enum=system.common.v1.BaseUserGender" json:"gender,omitempty"` // 性别
-	Pwd           *v11.PasswordCrypto    `protobuf:"bytes,300,opt,name=pwd,proto3" json:"pwd,omitempty"`                                           // 密码
-	Status        v11.Status             `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`              // 用户状态
-	Remark        string                 `protobuf:"bytes,102,opt,name=remark,proto3" json:"remark,omitempty"`                                     // 备注名
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                             // 用户ID
+	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                 // 租户ID
+	UserName      string                 `protobuf:"bytes,3,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                  // 用户账号
+	UserCode      string                 `protobuf:"bytes,12,opt,name=user_code,json=userCode,proto3" json:"user_code,omitempty"`                 // 用户编号
+	NickName      string                 `protobuf:"bytes,4,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                  // 用户昵称
+	RoleId        int64                  `protobuf:"varint,5,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`                       // 角色ID
+	DeptId        int64                  `protobuf:"varint,6,opt,name=dept_id,json=deptId,proto3" json:"dept_id,omitempty"`                       // 部门ID
+	PostId        int64                  `protobuf:"varint,10,opt,name=post_id,json=postId,proto3" json:"post_id,omitempty"`                      // 岗位ID
+	Phone         string                 `protobuf:"bytes,7,opt,name=phone,proto3" json:"phone,omitempty"`                                        // 手机号
+	Avatar        string                 `protobuf:"bytes,8,opt,name=avatar,proto3" json:"avatar,omitempty"`                                      // 头像
+	Gender        BaseUserGender         `protobuf:"varint,9,opt,name=gender,proto3,enum=system.admin.v1.BaseUserGender" json:"gender,omitempty"` // 性别
+	Pwd           *v1.PasswordCrypto     `protobuf:"bytes,300,opt,name=pwd,proto3" json:"pwd,omitempty"`                                          // 密码
+	Status        v1.Status              `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`             // 用户状态
+	Remark        string                 `protobuf:"bytes,102,opt,name=remark,proto3" json:"remark,omitempty"`                                    // 备注名
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -861,25 +917,25 @@ func (x *BaseUserForm) GetAvatar() string {
 	return ""
 }
 
-func (x *BaseUserForm) GetGender() v1.BaseUserGender {
+func (x *BaseUserForm) GetGender() BaseUserGender {
 	if x != nil {
 		return x.Gender
 	}
-	return v1.BaseUserGender(0)
+	return BaseUserGender_BASE_USER_GENDER_UNSPECIFIED
 }
 
-func (x *BaseUserForm) GetPwd() *v11.PasswordCrypto {
+func (x *BaseUserForm) GetPwd() *v1.PasswordCrypto {
 	if x != nil {
 		return x.Pwd
 	}
 	return nil
 }
 
-func (x *BaseUserForm) GetStatus() v11.Status {
+func (x *BaseUserForm) GetStatus() v1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v11.Status(0)
+	return v1.Status(0)
 }
 
 func (x *BaseUserForm) GetRemark() string {
@@ -893,7 +949,7 @@ func (x *BaseUserForm) GetRemark() string {
 type ResetBaseUserPasswordRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`  // 用户ID
-	Pwd           *v11.PasswordCrypto    `protobuf:"bytes,2,opt,name=pwd,proto3" json:"pwd,omitempty"` // 密码
+	Pwd           *v1.PasswordCrypto     `protobuf:"bytes,2,opt,name=pwd,proto3" json:"pwd,omitempty"` // 密码
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -935,7 +991,7 @@ func (x *ResetBaseUserPasswordRequest) GetId() int64 {
 	return 0
 }
 
-func (x *ResetBaseUserPasswordRequest) GetPwd() *v11.PasswordCrypto {
+func (x *ResetBaseUserPasswordRequest) GetPwd() *v1.PasswordCrypto {
 	if x != nil {
 		return x.Pwd
 	}
@@ -1001,7 +1057,7 @@ type SummaryBaseUserRequest struct {
 	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                            // 租户ID
 	StartAt       *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_at,json=startAt,proto3" json:"start_at,omitempty"`                                      // 开始时间
 	EndAt         *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_at,json=endAt,proto3" json:"end_at,omitempty"`                                            // 结束时间
-	TimeType      v11.AnalyticsTimeType  `protobuf:"varint,4,opt,name=time_type,json=timeType,proto3,enum=common.v1.AnalyticsTimeType" json:"time_type,omitempty"` // 统计时间类型
+	TimeType      v1.AnalyticsTimeType   `protobuf:"varint,4,opt,name=time_type,json=timeType,proto3,enum=common.v1.AnalyticsTimeType" json:"time_type,omitempty"` // 统计时间类型
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1057,11 +1113,11 @@ func (x *SummaryBaseUserRequest) GetEndAt() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *SummaryBaseUserRequest) GetTimeType() v11.AnalyticsTimeType {
+func (x *SummaryBaseUserRequest) GetTimeType() v1.AnalyticsTimeType {
 	if x != nil {
 		return x.TimeType
 	}
-	return v11.AnalyticsTimeType(0)
+	return v1.AnalyticsTimeType(0)
 }
 
 // 用户注册汇总响应
@@ -1174,26 +1230,26 @@ var File_system_admin_v1_base_user_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\n" +
-	"\x1fsystem/admin/v1/base_user.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x19common/v1/analytics.proto\x1a\x14common/v1/enum.proto\x1a\x1bsystem/common/v1/enum.proto\x1a\x15common/v1/types.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bbuf/validate/validate.proto\"\x82\x01\n" +
+	"\x1fsystem/admin/v1/base_user.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x19common/v1/analytics.proto\x1a\x14common/v1/enum.proto\x1a\x15common/v1/types.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bbuf/validate/validate.proto\"\x82\x01\n" +
 	"\x15OptionBaseUserRequest\x12)\n" +
 	"\akeyword\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t关键字R\akeyword\x120\n" +
 	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01B\f\n" +
 	"\n" +
-	"_tenant_id\"\x99\x01\n" +
-	"\x13ListBaseUserRequest\x12\x81\x01\n" +
-	"\x03ids\x18\x01 \x03(\x03Bo\xbaG\x11\x92\x02\x0e用户ID列表\xbaHX\xba\x01N\n" +
-	"\x1blist_base_user.ids.positive\x12\x15用户ID必须大于0\x1a\x18this.all(item, item > 0)\x92\x01\x04\b\x01\x18\x01R\x03ids\"d\n" +
+	"_tenant_id\"\xa6\x01\n" +
+	"\x13ListBaseUserRequest\x12\x8e\x01\n" +
+	"\x03ids\x18\x01 \x03(\x03B|\xbaG\x11\x92\x02\x0e用户ID列表\xbaHe\xba\x01[\n" +
+	"(system.admin.base.user.list.ids.positive\x12\x15用户ID必须大于0\x1a\x18this.all(item, item > 0)\x92\x01\x04\b\x01\x18\x01R\x03ids\"d\n" +
 	"\x14ListBaseUserResponse\x12L\n" +
 	"\n" +
-	"base_users\x18\x01 \x03(\v2\x19.system.admin.v1.BaseUserB\x12\xbaG\x0f\x92\x02\f用户列表R\tbaseUsers\"\xe8\x04\n" +
+	"base_users\x18\x01 \x03(\v2\x19.system.admin.v1.BaseUserB\x12\xbaG\x0f\x92\x02\f用户列表R\tbaseUsers\"\xe7\x04\n" +
 	"\x13PageBaseUserRequest\x12/\n" +
 	"\tuser_code\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\buserCode\x12/\n" +
 	"\tuser_name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x12/\n" +
 	"\tnick_name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户昵称R\bnickName\x120\n" +
 	"\ttenant_id\x18\x04 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12,\n" +
 	"\adept_id\x18\x05 \x01(\x03B\x0e\xbaG\v\x92\x02\b部门IDH\x01R\x06deptId\x88\x01\x01\x12%\n" +
-	"\x05phone\x18\x06 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12K\n" +
-	"\x06gender\x18\a \x01(\x0e2 .system.common.v1.BaseUserGenderB\f\xbaG\t\x92\x02\x06性别H\x02R\x06gender\x88\x01\x01\x12<\n" +
+	"\x05phone\x18\x06 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12J\n" +
+	"\x06gender\x18\a \x01(\x0e2\x1f.system.admin.v1.BaseUserGenderB\f\xbaG\t\x92\x02\x06性别H\x02R\x06gender\x88\x01\x01\x12<\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x03R\x06status\x88\x01\x01\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
 	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\f\n" +
@@ -1206,26 +1262,26 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\x14PageBaseUserResponse\x12L\n" +
 	"\n" +
 	"base_users\x18\x01 \x03(\v2\x19.system.admin.v1.BaseUserB\x12\xbaG\x0f\x92\x02\f分页数据R\tbaseUsers\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"u\n" +
-	"\x12GetBaseUserRequest\x12_\n" +
-	"\x02id\x18\x01 \x01(\x03BO\xbaG\v\x92\x02\b用户ID\xbaH>\xba\x01;\n" +
-	"\x19get_base_user.id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x02id\"\xce\x01\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x82\x01\n" +
+	"\x12GetBaseUserRequest\x12l\n" +
+	"\x02id\x18\x01 \x01(\x03B\\\xbaG\v\x92\x02\b用户ID\xbaHK\xba\x01H\n" +
+	"&system.admin.base.user.get.id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x02id\"\xe2\x01\n" +
 	"\x15CreateBaseUserRequest\x12T\n" +
-	"\tbase_user\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseUserFormB\x18\xbaG\x0f\x92\x02\f用户表单\xbaH\x03\xc8\x01\x01R\bbaseUser:_\xbaH\\\x1aZ\n" +
-	"\x16base_user.pwd.required\x12\x0f请输入密码\x1a/!has(this.base_user) || has(this.base_user.pwd)\"\xbf\x01\n" +
+	"\tbase_user\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseUserFormB\x18\xbaG\x0f\x92\x02\f用户表单\xbaH\x03\xc8\x01\x01R\bbaseUser:s\xbaHp\x1an\n" +
+	"*system.admin.base.user.create.pwd.required\x12\x0f请输入密码\x1a/!has(this.base_user) || has(this.base_user.pwd)\"\xcc\x01\n" +
 	"\x15UpdateBaseUserRequest\x12T\n" +
-	"\tbase_user\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseUserFormB\x18\xbaG\x0f\x92\x02\f用户表单\xbaH\x03\xc8\x01\x01R\bbaseUser:P\xbaHM\x1aK\n" +
-	"\x1cupdate_base_user.id.required\x12\x14用户ID不能为空\x1a\x15this.base_user.id > 0\"\x8e\x01\n" +
-	"\x15DeleteBaseUserRequest\x12u\n" +
-	"\x02id\x18\x01 \x01(\tBe\xbaG\x11\x92\x02\x0e用户ID列表\xbaHN\xba\x01K\n" +
-	"\x1cdelete_base_user.id.required\x12\x1a用户ID列表不能为空\x1a\x0fthis.size() > 0R\x02id\"\xa8\x01\n" +
-	"\x18SetBaseUserStatusRequest\x12f\n" +
-	"\x02id\x18\x01 \x01(\x03BV\xbaG\v\x92\x02\b用户ID\xbaHE\xba\x01B\n" +
-	" set_base_user_status.id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x02id\x12$\n" +
-	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xe6\x06\n" +
-	"\bBaseUser\x12j\n" +
-	"\x02id\x18\x01 \x01(\x03BZ\xbaG\v\x92\x02\b用户ID\xbaHI\xba\x01F\n" +
-	"$reset_base_user_password.id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x02id\x12+\n" +
+	"\tbase_user\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseUserFormB\x18\xbaG\x0f\x92\x02\f用户表单\xbaH\x03\xc8\x01\x01R\bbaseUser:]\xbaHZ\x1aX\n" +
+	")system.admin.base.user.update.id.required\x12\x14用户ID不能为空\x1a\x15this.base_user.id > 0\"\x9c\x01\n" +
+	"\x15DeleteBaseUserRequest\x12\x82\x01\n" +
+	"\x02id\x18\x01 \x01(\tBr\xbaG\x11\x92\x02\x0e用户ID列表\xbaH[\xba\x01X\n" +
+	")system.admin.base.user.delete.id.required\x12\x1a用户ID列表不能为空\x1a\x0fthis.size() > 0R\x02id\"\xb5\x01\n" +
+	"\x18SetBaseUserStatusRequest\x12s\n" +
+	"\x02id\x18\x01 \x01(\x03Bc\xbaG\v\x92\x02\b用户ID\xbaHR\xba\x01O\n" +
+	"-system.admin.base.user.set_status.id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x02id\x12$\n" +
+	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xf2\x06\n" +
+	"\bBaseUser\x12w\n" +
+	"\x02id\x18\x01 \x01(\x03Bg\xbaG\v\x92\x02\b用户ID\xbaHV\xba\x01S\n" +
+	"1system.admin.base.user.reset_password.id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x02id\x12+\n" +
 	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12/\n" +
 	"\tuser_name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x12/\n" +
 	"\tuser_code\x18\v \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\buserCode\x12/\n" +
@@ -1233,8 +1289,8 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\arole_id\x18\x05 \x01(\x03B\x0e\xbaG\v\x92\x02\b角色IDR\x06roleId\x12'\n" +
 	"\adept_id\x18\x06 \x01(\x03B\x0e\xbaG\v\x92\x02\b部门IDR\x06deptId\x12'\n" +
 	"\apost_id\x18\a \x01(\x03B\x0e\xbaG\v\x92\x02\b岗位IDR\x06postId\x12%\n" +
-	"\x05phone\x18\b \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12F\n" +
-	"\x06gender\x18\t \x01(\x0e2 .system.common.v1.BaseUserGenderB\f\xbaG\t\x92\x02\x06性别R\x06gender\x12$\n" +
+	"\x05phone\x18\b \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12E\n" +
+	"\x06gender\x18\t \x01(\x0e2\x1f.system.admin.v1.BaseUserGenderB\f\xbaG\t\x92\x02\x06性别R\x06gender\x12$\n" +
 	"\x06avatar\x18\n" +
 	" \x01(\tB\f\xbaG\t\x92\x02\x06头像R\x06avatar\x12=\n" +
 	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\x12\xbaG\x0f\x92\x02\f用户状态R\x06status\x12'\n" +
@@ -1243,43 +1299,43 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12N\n" +
-	"\fis_protected\x18\xac\x02 \x01(\bB*\xbaG'\x92\x02$是否禁止通过用户管理操作R\visProtected\"\x96\r\n" +
+	"\fis_protected\x18\xac\x02 \x01(\bB*\xbaG'\x92\x02$是否禁止通过用户管理操作R\visProtected\"\x85\x0f\n" +
 	"\fBaseUserForm\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x12s\n" +
-	"\ttenant_id\x18\x02 \x01(\x03BV\xbaG\v\x92\x02\b租户ID\xbaHE\xba\x01B\n" +
-	"\x1cbase_user.tenant_id.required\x12\x18所属租户不能为空\x1a\bthis > 0R\btenantId\x12\xab\x01\n" +
-	"\tuser_name\x18\x03 \x01(\tB\x8d\x01\xbaG\x0f\x92\x02\f用户账号\xbaHx\xba\x01u\n" +
-	"\x1abase_user.user_name.length\x121用户账号不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\buserName\x12\xab\x01\n" +
-	"\tuser_code\x18\f \x01(\tB\x8d\x01\xbaG\x0f\x92\x02\f用户编号\xbaHx\xba\x01u\n" +
-	"\x1abase_user.user_code.length\x121用户编号不能为空且不超过 30 个字符\x1a$this.size() > 0 && this.size() <= 30R\buserCode\x12\xda\x01\n" +
-	"\tnick_name\x18\x04 \x01(\tB\xbc\x01\xbaG\x0f\x92\x02\f用户昵称\xbaH\xa6\x01\xba\x01I\n" +
-	"\x1cbase_user.nick_name.required\x12\x18用户昵称不能为空\x1a\x0fthis.size() > 0\xba\x01W\n" +
-	"\x1bbase_user.nick_name.max_len\x12%用户昵称不能超过 30 个字符\x1a\x11this.size() <= 30R\bnickName\x12g\n" +
-	"\arole_id\x18\x05 \x01(\x03BN\xbaG\v\x92\x02\b角色ID\xbaH=\xba\x01:\n" +
-	"\x1abase_user.role_id.required\x12\x12角色不能为空\x1a\bthis > 0R\x06roleId\x12g\n" +
-	"\adept_id\x18\x06 \x01(\x03BN\xbaG\v\x92\x02\b部门ID\xbaH=\xba\x01:\n" +
-	"\x1abase_user.dept_id.required\x12\x12部门不能为空\x1a\bthis > 0R\x06deptId\x12'\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x12\x87\x01\n" +
+	"\ttenant_id\x18\x02 \x01(\x03Bj\xbaG\v\x92\x02\b租户ID\xbaHY\xba\x01V\n" +
+	"0system.admin.base.user.entity.tenant_id.required\x12\x18所属租户不能为空\x1a\bthis > 0R\btenantId\x12\xc1\x01\n" +
+	"\tuser_name\x18\x03 \x01(\tB\xa3\x01\xbaG\x0f\x92\x02\f用户账号\xbaH\x8d\x01\xba\x01\x89\x01\n" +
+	".system.admin.base.user.entity.user_name.length\x121用户账号不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\buserName\x12\xc1\x01\n" +
+	"\tuser_code\x18\f \x01(\tB\xa3\x01\xbaG\x0f\x92\x02\f用户编号\xbaH\x8d\x01\xba\x01\x89\x01\n" +
+	".system.admin.base.user.entity.user_code.length\x121用户编号不能为空且不超过 30 个字符\x1a$this.size() > 0 && this.size() <= 30R\buserCode\x12\x85\x02\n" +
+	"\tnick_name\x18\x04 \x01(\tB\xe7\x01\xbaG\x0f\x92\x02\f用户昵称\xbaH\xd1\x01\xba\x01]\n" +
+	"0system.admin.base.user.entity.nick_name.required\x12\x18用户昵称不能为空\x1a\x0fthis.size() > 0\xba\x01n\n" +
+	"2system.admin.base.user.entity.nick_name.max_length\x12%用户昵称不能超过 30 个字符\x1a\x11this.size() <= 30R\bnickName\x12{\n" +
+	"\arole_id\x18\x05 \x01(\x03Bb\xbaG\v\x92\x02\b角色ID\xbaHQ\xba\x01N\n" +
+	".system.admin.base.user.entity.role_id.required\x12\x12角色不能为空\x1a\bthis > 0R\x06roleId\x12{\n" +
+	"\adept_id\x18\x06 \x01(\x03Bb\xbaG\v\x92\x02\b部门ID\xbaHQ\xba\x01N\n" +
+	".system.admin.base.user.entity.dept_id.required\x12\x12部门不能为空\x1a\bthis > 0R\x06deptId\x12'\n" +
 	"\apost_id\x18\n" +
-	" \x01(\x03B\x0e\xbaG\v\x92\x02\b岗位IDR\x06postId\x12\xec\x01\n" +
-	"\x05phone\x18\a \x01(\tB\xd5\x01\xbaG\f\x92\x02\t手机号\xbaH\xc2\x01\xba\x01P\n" +
-	"\x17base_user.phone.max_len\x12\"手机号不能超过 20 个字符\x1a\x11this.size() <= 20\xba\x01l\n" +
-	"\x16base_user.phone.format\x12\x1e请输入正确的手机号码\x1a2this.size() == 0 || this.matches('^1[3-9]\\\\d{9}$')R\x05phone\x12|\n" +
-	"\x06avatar\x18\b \x01(\tBd\xbaG\t\x92\x02\x06头像\xbaHU\xba\x01R\n" +
-	"\x18base_user.avatar.max_len\x12!头像不能超过 1024 个字符\x1a\x13this.size() <= 1024R\x06avatar\x12N\n" +
-	"\x06gender\x18\t \x01(\x0e2 .system.common.v1.BaseUserGenderB\x14\xbaG\t\x92\x02\x06性别\xbaH\x05\x82\x01\x02\x10\x01R\x06gender\x12:\n" +
+	" \x01(\x03B\x0e\xbaG\v\x92\x02\b岗位IDR\x06postId\x12\x98\x02\n" +
+	"\x05phone\x18\a \x01(\tB\x81\x02\xbaG\f\x92\x02\t手机号\xbaH\xee\x01\xba\x01g\n" +
+	".system.admin.base.user.entity.phone.max_length\x12\"手机号不能超过 20 个字符\x1a\x11this.size() <= 20\xba\x01\x80\x01\n" +
+	"*system.admin.base.user.entity.phone.format\x12\x1e请输入正确的手机号码\x1a2this.size() == 0 || this.matches('^1[3-9]\\\\d{9}$')R\x05phone\x12\x93\x01\n" +
+	"\x06avatar\x18\b \x01(\tB{\xbaG\t\x92\x02\x06头像\xbaHl\xba\x01i\n" +
+	"/system.admin.base.user.entity.avatar.max_length\x12!头像不能超过 1024 个字符\x1a\x13this.size() <= 1024R\x06avatar\x12M\n" +
+	"\x06gender\x18\t \x01(\x0e2\x1f.system.admin.v1.BaseUserGenderB\x14\xbaG\t\x92\x02\x06性别\xbaH\x05\x82\x01\x02\x10\x01R\x06gender\x12:\n" +
 	"\x03pwd\x18\xac\x02 \x01(\v2\x19.common.v1.PasswordCryptoB\f\xbaG\t\x92\x02\x06密码R\x03pwd\x12E\n" +
-	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\x1a\xbaG\x0f\x92\x02\f用户状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12}\n" +
-	"\x06remark\x18f \x01(\tBe\xbaG\f\x92\x02\t备注名\xbaHS\xba\x01P\n" +
-	"\x18base_user.remark.max_len\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remark\"\xc1\x01\n" +
+	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\x1a\xbaG\x0f\x92\x02\f用户状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12\x94\x01\n" +
+	"\x06remark\x18f \x01(\tB|\xbaG\f\x92\x02\t备注名\xbaHj\xba\x01g\n" +
+	"/system.admin.base.user.entity.remark.max_length\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remark\"\xdd\x01\n" +
 	"\x1cResetBaseUserPasswordRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x129\n" +
-	"\x03pwd\x18\x02 \x01(\v2\x19.common.v1.PasswordCryptoB\f\xbaG\t\x92\x02\x06密码R\x03pwd:F\xbaHC\x1aA\n" +
-	"\x1cbase_user.reset_pwd.required\x12\x12请输入新密码\x1a\rhas(this.pwd)\"\xb4\x02\n" +
-	"\x19SetBaseUserAppRoleRequest\x12v\n" +
-	"\auser_id\x18\x01 \x01(\x03B]\xbaG\v\x92\x02\b用户ID\xbaHL\xba\x01I\n" +
-	"'set_base_user_app_role.user_id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x06userId\x12\x9e\x01\n" +
-	"\trole_code\x18\x02 \x01(\tB\x80\x01\xbaG\x18\x92\x02\x15应用端角色编码\xbaHb\xba\x01_\n" +
-	")set_base_user_app_role.role_code.required\x12!应用端角色编码不能为空\x1a\x0fthis.size() > 0R\broleCode\"\xd3\x02\n" +
+	"\x03pwd\x18\x02 \x01(\v2\x19.common.v1.PasswordCryptoB\f\xbaG\t\x92\x02\x06密码R\x03pwd:b\xbaH_\x1a]\n" +
+	"8system.admin.base.user.reset_password.reset_pwd.required\x12\x12请输入新密码\x1a\rhas(this.pwd)\"\xcf\x02\n" +
+	"\x19SetBaseUserAppRoleRequest\x12\x83\x01\n" +
+	"\auser_id\x18\x01 \x01(\x03Bj\xbaG\v\x92\x02\b用户ID\xbaHY\xba\x01V\n" +
+	"4system.admin.base.user.set_app_role.user_id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x06userId\x12\xab\x01\n" +
+	"\trole_code\x18\x02 \x01(\tB\x8d\x01\xbaG\x18\x92\x02\x15应用端角色编码\xbaHo\xba\x01l\n" +
+	"6system.admin.base.user.set_app_role.role_code.required\x12!应用端角色编码不能为空\x1a\x0fthis.size() > 0R\broleCode\"\xd3\x02\n" +
 	"\x16SummaryBaseUserRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12O\n" +
 	"\bstart_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampB\x18\xbaG\x0f\x92\x02\f开始时间\xbaH\x03\xc8\x01\x01R\astartAt\x12K\n" +
@@ -1292,7 +1348,12 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\tsummaries\x18\x02 \x03(\v2$.system.admin.v1.BaseUserSummaryItemB\x18\xbaG\x15\x92\x02\x12用户分组汇总R\tsummaries\"b\n" +
 	"\x13BaseUserSummaryItem\x12$\n" +
 	"\x03key\x18\x01 \x01(\x03B\x12\xbaG\x0f\x92\x02\f分组序号R\x03key\x12%\n" +
-	"\x05count\x18\x02 \x01(\x03B\x0f\xbaG\f\x92\x02\t用户数R\x05count2\xf0\n" +
+	"\x05count\x18\x02 \x01(\x03B\x0f\xbaG\f\x92\x02\t用户数R\x05count*\x87\x01\n" +
+	"\x0eBaseUserGender\x12 \n" +
+	"\x1cBASE_USER_GENDER_UNSPECIFIED\x10\x00\x12\x1b\n" +
+	"\x17BASE_USER_GENDER_SECRET\x10\x01\x12\x19\n" +
+	"\x15BASE_USER_GENDER_MALE\x10\x02\x12\x1b\n" +
+	"\x17BASE_USER_GENDER_FEMALE\x10\x032\xf0\n" +
 	"\n" +
 	"\x0fBaseUserService\x12\x81\x01\n" +
 	"\x0eOptionBaseUser\x12&.system.admin.v1.OptionBaseUserRequest\x1a\x1f.common.v1.SelectOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/user/option\x12\x81\x01\n" +
@@ -1320,72 +1381,73 @@ func file_system_admin_v1_base_user_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_base_user_proto_rawDescData
 }
 
+var file_system_admin_v1_base_user_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_system_admin_v1_base_user_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_system_admin_v1_base_user_proto_goTypes = []any{
-	(*OptionBaseUserRequest)(nil),        // 0: system.admin.v1.OptionBaseUserRequest
-	(*ListBaseUserRequest)(nil),          // 1: system.admin.v1.ListBaseUserRequest
-	(*ListBaseUserResponse)(nil),         // 2: system.admin.v1.ListBaseUserResponse
-	(*PageBaseUserRequest)(nil),          // 3: system.admin.v1.PageBaseUserRequest
-	(*PageBaseUserResponse)(nil),         // 4: system.admin.v1.PageBaseUserResponse
-	(*GetBaseUserRequest)(nil),           // 5: system.admin.v1.GetBaseUserRequest
-	(*CreateBaseUserRequest)(nil),        // 6: system.admin.v1.CreateBaseUserRequest
-	(*UpdateBaseUserRequest)(nil),        // 7: system.admin.v1.UpdateBaseUserRequest
-	(*DeleteBaseUserRequest)(nil),        // 8: system.admin.v1.DeleteBaseUserRequest
-	(*SetBaseUserStatusRequest)(nil),     // 9: system.admin.v1.SetBaseUserStatusRequest
-	(*BaseUser)(nil),                     // 10: system.admin.v1.BaseUser
-	(*BaseUserForm)(nil),                 // 11: system.admin.v1.BaseUserForm
-	(*ResetBaseUserPasswordRequest)(nil), // 12: system.admin.v1.ResetBaseUserPasswordRequest
-	(*SetBaseUserAppRoleRequest)(nil),    // 13: system.admin.v1.SetBaseUserAppRoleRequest
-	(*SummaryBaseUserRequest)(nil),       // 14: system.admin.v1.SummaryBaseUserRequest
-	(*SummaryBaseUserResponse)(nil),      // 15: system.admin.v1.SummaryBaseUserResponse
-	(*BaseUserSummaryItem)(nil),          // 16: system.admin.v1.BaseUserSummaryItem
-	(v1.BaseUserGender)(0),               // 17: system.common.v1.BaseUserGender
-	(v11.Status)(0),                      // 18: common.v1.Status
-	(*v11.PasswordCrypto)(nil),           // 19: common.v1.PasswordCrypto
+	(BaseUserGender)(0),                  // 0: system.admin.v1.BaseUserGender
+	(*OptionBaseUserRequest)(nil),        // 1: system.admin.v1.OptionBaseUserRequest
+	(*ListBaseUserRequest)(nil),          // 2: system.admin.v1.ListBaseUserRequest
+	(*ListBaseUserResponse)(nil),         // 3: system.admin.v1.ListBaseUserResponse
+	(*PageBaseUserRequest)(nil),          // 4: system.admin.v1.PageBaseUserRequest
+	(*PageBaseUserResponse)(nil),         // 5: system.admin.v1.PageBaseUserResponse
+	(*GetBaseUserRequest)(nil),           // 6: system.admin.v1.GetBaseUserRequest
+	(*CreateBaseUserRequest)(nil),        // 7: system.admin.v1.CreateBaseUserRequest
+	(*UpdateBaseUserRequest)(nil),        // 8: system.admin.v1.UpdateBaseUserRequest
+	(*DeleteBaseUserRequest)(nil),        // 9: system.admin.v1.DeleteBaseUserRequest
+	(*SetBaseUserStatusRequest)(nil),     // 10: system.admin.v1.SetBaseUserStatusRequest
+	(*BaseUser)(nil),                     // 11: system.admin.v1.BaseUser
+	(*BaseUserForm)(nil),                 // 12: system.admin.v1.BaseUserForm
+	(*ResetBaseUserPasswordRequest)(nil), // 13: system.admin.v1.ResetBaseUserPasswordRequest
+	(*SetBaseUserAppRoleRequest)(nil),    // 14: system.admin.v1.SetBaseUserAppRoleRequest
+	(*SummaryBaseUserRequest)(nil),       // 15: system.admin.v1.SummaryBaseUserRequest
+	(*SummaryBaseUserResponse)(nil),      // 16: system.admin.v1.SummaryBaseUserResponse
+	(*BaseUserSummaryItem)(nil),          // 17: system.admin.v1.BaseUserSummaryItem
+	(v1.Status)(0),                       // 18: common.v1.Status
+	(*v1.PasswordCrypto)(nil),            // 19: common.v1.PasswordCrypto
 	(*timestamppb.Timestamp)(nil),        // 20: google.protobuf.Timestamp
-	(v11.AnalyticsTimeType)(0),           // 21: common.v1.AnalyticsTimeType
-	(*v11.SelectOptionResponse)(nil),     // 22: common.v1.SelectOptionResponse
+	(v1.AnalyticsTimeType)(0),            // 21: common.v1.AnalyticsTimeType
+	(*v1.SelectOptionResponse)(nil),      // 22: common.v1.SelectOptionResponse
 	(*emptypb.Empty)(nil),                // 23: google.protobuf.Empty
 }
 var file_system_admin_v1_base_user_proto_depIdxs = []int32{
-	10, // 0: system.admin.v1.ListBaseUserResponse.base_users:type_name -> system.admin.v1.BaseUser
-	17, // 1: system.admin.v1.PageBaseUserRequest.gender:type_name -> system.common.v1.BaseUserGender
+	11, // 0: system.admin.v1.ListBaseUserResponse.base_users:type_name -> system.admin.v1.BaseUser
+	0,  // 1: system.admin.v1.PageBaseUserRequest.gender:type_name -> system.admin.v1.BaseUserGender
 	18, // 2: system.admin.v1.PageBaseUserRequest.status:type_name -> common.v1.Status
-	10, // 3: system.admin.v1.PageBaseUserResponse.base_users:type_name -> system.admin.v1.BaseUser
-	11, // 4: system.admin.v1.CreateBaseUserRequest.base_user:type_name -> system.admin.v1.BaseUserForm
-	11, // 5: system.admin.v1.UpdateBaseUserRequest.base_user:type_name -> system.admin.v1.BaseUserForm
-	17, // 6: system.admin.v1.BaseUser.gender:type_name -> system.common.v1.BaseUserGender
+	11, // 3: system.admin.v1.PageBaseUserResponse.base_users:type_name -> system.admin.v1.BaseUser
+	12, // 4: system.admin.v1.CreateBaseUserRequest.base_user:type_name -> system.admin.v1.BaseUserForm
+	12, // 5: system.admin.v1.UpdateBaseUserRequest.base_user:type_name -> system.admin.v1.BaseUserForm
+	0,  // 6: system.admin.v1.BaseUser.gender:type_name -> system.admin.v1.BaseUserGender
 	18, // 7: system.admin.v1.BaseUser.status:type_name -> common.v1.Status
-	17, // 8: system.admin.v1.BaseUserForm.gender:type_name -> system.common.v1.BaseUserGender
+	0,  // 8: system.admin.v1.BaseUserForm.gender:type_name -> system.admin.v1.BaseUserGender
 	19, // 9: system.admin.v1.BaseUserForm.pwd:type_name -> common.v1.PasswordCrypto
 	18, // 10: system.admin.v1.BaseUserForm.status:type_name -> common.v1.Status
 	19, // 11: system.admin.v1.ResetBaseUserPasswordRequest.pwd:type_name -> common.v1.PasswordCrypto
 	20, // 12: system.admin.v1.SummaryBaseUserRequest.start_at:type_name -> google.protobuf.Timestamp
 	20, // 13: system.admin.v1.SummaryBaseUserRequest.end_at:type_name -> google.protobuf.Timestamp
 	21, // 14: system.admin.v1.SummaryBaseUserRequest.time_type:type_name -> common.v1.AnalyticsTimeType
-	16, // 15: system.admin.v1.SummaryBaseUserResponse.summaries:type_name -> system.admin.v1.BaseUserSummaryItem
-	0,  // 16: system.admin.v1.BaseUserService.OptionBaseUser:input_type -> system.admin.v1.OptionBaseUserRequest
-	1,  // 17: system.admin.v1.BaseUserService.ListBaseUser:input_type -> system.admin.v1.ListBaseUserRequest
-	3,  // 18: system.admin.v1.BaseUserService.PageBaseUser:input_type -> system.admin.v1.PageBaseUserRequest
-	5,  // 19: system.admin.v1.BaseUserService.GetBaseUser:input_type -> system.admin.v1.GetBaseUserRequest
-	6,  // 20: system.admin.v1.BaseUserService.CreateBaseUser:input_type -> system.admin.v1.CreateBaseUserRequest
-	7,  // 21: system.admin.v1.BaseUserService.UpdateBaseUser:input_type -> system.admin.v1.UpdateBaseUserRequest
-	8,  // 22: system.admin.v1.BaseUserService.DeleteBaseUser:input_type -> system.admin.v1.DeleteBaseUserRequest
-	9,  // 23: system.admin.v1.BaseUserService.SetBaseUserStatus:input_type -> system.admin.v1.SetBaseUserStatusRequest
-	12, // 24: system.admin.v1.BaseUserService.ResetBaseUserPassword:input_type -> system.admin.v1.ResetBaseUserPasswordRequest
-	13, // 25: system.admin.v1.BaseUserService.SetBaseUserAppRole:input_type -> system.admin.v1.SetBaseUserAppRoleRequest
-	14, // 26: system.admin.v1.BaseUserService.SummaryBaseUser:input_type -> system.admin.v1.SummaryBaseUserRequest
+	17, // 15: system.admin.v1.SummaryBaseUserResponse.summaries:type_name -> system.admin.v1.BaseUserSummaryItem
+	1,  // 16: system.admin.v1.BaseUserService.OptionBaseUser:input_type -> system.admin.v1.OptionBaseUserRequest
+	2,  // 17: system.admin.v1.BaseUserService.ListBaseUser:input_type -> system.admin.v1.ListBaseUserRequest
+	4,  // 18: system.admin.v1.BaseUserService.PageBaseUser:input_type -> system.admin.v1.PageBaseUserRequest
+	6,  // 19: system.admin.v1.BaseUserService.GetBaseUser:input_type -> system.admin.v1.GetBaseUserRequest
+	7,  // 20: system.admin.v1.BaseUserService.CreateBaseUser:input_type -> system.admin.v1.CreateBaseUserRequest
+	8,  // 21: system.admin.v1.BaseUserService.UpdateBaseUser:input_type -> system.admin.v1.UpdateBaseUserRequest
+	9,  // 22: system.admin.v1.BaseUserService.DeleteBaseUser:input_type -> system.admin.v1.DeleteBaseUserRequest
+	10, // 23: system.admin.v1.BaseUserService.SetBaseUserStatus:input_type -> system.admin.v1.SetBaseUserStatusRequest
+	13, // 24: system.admin.v1.BaseUserService.ResetBaseUserPassword:input_type -> system.admin.v1.ResetBaseUserPasswordRequest
+	14, // 25: system.admin.v1.BaseUserService.SetBaseUserAppRole:input_type -> system.admin.v1.SetBaseUserAppRoleRequest
+	15, // 26: system.admin.v1.BaseUserService.SummaryBaseUser:input_type -> system.admin.v1.SummaryBaseUserRequest
 	22, // 27: system.admin.v1.BaseUserService.OptionBaseUser:output_type -> common.v1.SelectOptionResponse
-	2,  // 28: system.admin.v1.BaseUserService.ListBaseUser:output_type -> system.admin.v1.ListBaseUserResponse
-	4,  // 29: system.admin.v1.BaseUserService.PageBaseUser:output_type -> system.admin.v1.PageBaseUserResponse
-	11, // 30: system.admin.v1.BaseUserService.GetBaseUser:output_type -> system.admin.v1.BaseUserForm
+	3,  // 28: system.admin.v1.BaseUserService.ListBaseUser:output_type -> system.admin.v1.ListBaseUserResponse
+	5,  // 29: system.admin.v1.BaseUserService.PageBaseUser:output_type -> system.admin.v1.PageBaseUserResponse
+	12, // 30: system.admin.v1.BaseUserService.GetBaseUser:output_type -> system.admin.v1.BaseUserForm
 	23, // 31: system.admin.v1.BaseUserService.CreateBaseUser:output_type -> google.protobuf.Empty
 	23, // 32: system.admin.v1.BaseUserService.UpdateBaseUser:output_type -> google.protobuf.Empty
 	23, // 33: system.admin.v1.BaseUserService.DeleteBaseUser:output_type -> google.protobuf.Empty
 	23, // 34: system.admin.v1.BaseUserService.SetBaseUserStatus:output_type -> google.protobuf.Empty
 	23, // 35: system.admin.v1.BaseUserService.ResetBaseUserPassword:output_type -> google.protobuf.Empty
 	23, // 36: system.admin.v1.BaseUserService.SetBaseUserAppRole:output_type -> google.protobuf.Empty
-	15, // 37: system.admin.v1.BaseUserService.SummaryBaseUser:output_type -> system.admin.v1.SummaryBaseUserResponse
+	16, // 37: system.admin.v1.BaseUserService.SummaryBaseUser:output_type -> system.admin.v1.SummaryBaseUserResponse
 	27, // [27:38] is the sub-list for method output_type
 	16, // [16:27] is the sub-list for method input_type
 	16, // [16:16] is the sub-list for extension type_name
@@ -1406,13 +1468,14 @@ func file_system_admin_v1_base_user_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_base_user_proto_rawDesc), len(file_system_admin_v1_base_user_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_system_admin_v1_base_user_proto_goTypes,
 		DependencyIndexes: file_system_admin_v1_base_user_proto_depIdxs,
+		EnumInfos:         file_system_admin_v1_base_user_proto_enumTypes,
 		MessageInfos:      file_system_admin_v1_base_user_proto_msgTypes,
 	}.Build()
 	File_system_admin_v1_base_user_proto = out.File

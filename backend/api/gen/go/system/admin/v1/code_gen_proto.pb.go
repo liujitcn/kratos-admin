@@ -492,15 +492,15 @@ var File_system_admin_v1_code_gen_proto_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_code_gen_proto_proto_rawDesc = "" +
 	"\n" +
-	"$system/admin/v1/code_gen_proto.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xb0\x01\n" +
-	"\x17ListCodeGenProtoRequest\x12\x94\x01\n" +
-	"\btable_id\x18\x01 \x01(\x03By\xbaG\x1a\x92\x02\x17代码生成表配置ID\xbaHY\xba\x01V\n" +
-	"%list_code_gen_proto.table_id.required\x12#代码生成表配置ID不能为空\x1a\bthis > 0R\atableId\"\x91\x01\n" +
+	"$system/admin/v1/code_gen_proto.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xbe\x01\n" +
+	"\x17ListCodeGenProtoRequest\x12\xa2\x01\n" +
+	"\btable_id\x18\x01 \x01(\x03B\x86\x01\xbaG\x1a\x92\x02\x17代码生成表配置ID\xbaHf\xba\x01c\n" +
+	"2system.admin.code.gen.proto.list.table_id.required\x12#代码生成表配置ID不能为空\x1a\bthis > 0R\atableId\"\x91\x01\n" +
 	"\x18ListCodeGenProtoResponse\x12u\n" +
-	"\x0fcode_gen_protos\x18\x01 \x03(\v2\".system.admin.v1.CodeGenProtoCheckB)\xbaG&\x92\x02#代码生成Proto接口检查列表R\rcodeGenProtos\"\xa2\x02\n" +
-	"\x17SaveCodeGenProtoRequest\x12\x94\x01\n" +
-	"\btable_id\x18\x01 \x01(\x03By\xbaG\x1a\x92\x02\x17代码生成表配置ID\xbaHY\xba\x01V\n" +
-	"%save_code_gen_proto.table_id.required\x12#代码生成表配置ID不能为空\x1a\bthis > 0R\atableId\x12p\n" +
+	"\x0fcode_gen_protos\x18\x01 \x03(\v2\".system.admin.v1.CodeGenProtoCheckB)\xbaG&\x92\x02#代码生成Proto接口检查列表R\rcodeGenProtos\"\xb0\x02\n" +
+	"\x17SaveCodeGenProtoRequest\x12\xa2\x01\n" +
+	"\btable_id\x18\x01 \x01(\x03B\x86\x01\xbaG\x1a\x92\x02\x17代码生成表配置ID\xbaHf\xba\x01c\n" +
+	"2system.admin.code.gen.proto.save.table_id.required\x12#代码生成表配置ID不能为空\x1a\bthis > 0R\atableId\x12p\n" +
 	"\x0fcode_gen_protos\x18\x02 \x03(\v2\x1d.system.admin.v1.CodeGenProtoB)\xbaG&\x92\x02#代码生成Proto接口配置列表R\rcodeGenProtos\"\x98\x03\n" +
 	"\fCodeGenProto\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x128\n" +

@@ -7,7 +7,7 @@
             <h3>{{ t("system.profile.password.title") }}</h3>
             <p>{{ t("system.profile.password.description") }}</p>
           </div>
-          <el-tag type="warning" effect="plain">{{ t("system.profile.password.value.strongRecommended") }}</el-tag>
+          <el-tag type="warning" effect="plain">{{ t("system.profile.password.value.strong_recommended") }}</el-tag>
         </div>
       </template>
       <div class="password-layout">
@@ -30,18 +30,18 @@
         <div class="password-tips">
           <div class="tip-card">
             <span class="tip-badge">01</span>
-            <strong>{{ t("system.profile.password.tip.uniqueTitle") }}</strong>
-            <p>{{ t("system.profile.password.tip.uniqueDescription") }}</p>
+            <strong>{{ t("system.profile.password.tip.unique_title") }}</strong>
+            <p>{{ t("system.profile.password.tip.unique_description") }}</p>
           </div>
           <div class="tip-card">
             <span class="tip-badge">02</span>
-            <strong>{{ t("system.profile.password.tip.strengthTitle") }}</strong>
-            <p>{{ t("system.profile.password.tip.strengthDescription") }}</p>
+            <strong>{{ t("system.profile.password.tip.strength_title") }}</strong>
+            <p>{{ t("system.profile.password.tip.strength_description") }}</p>
           </div>
           <div class="tip-card">
             <span class="tip-badge">03</span>
-            <strong>{{ t("system.profile.password.tip.recordTitle") }}</strong>
-            <p>{{ t("system.profile.password.tip.recordDescription") }}</p>
+            <strong>{{ t("system.profile.password.tip.record_title") }}</strong>
+            <p>{{ t("system.profile.password.tip.record_description") }}</p>
           </div>
         </div>
       </div>
@@ -90,31 +90,31 @@ const passwordForm = reactive<UserPasswordFormState>({
 const passwordFormFields = computed<ProFormField[]>(() => [
   {
     prop: "old_pwd",
-    label: t("system.profile.password.field.oldPassword"),
+    label: t("system.profile.password.field.old_password"),
     component: "password",
-    props: { placeholder: t("system.profile.password.placeholder.oldPassword") }
+    props: { placeholder: t("system.profile.password.placeholder.old_password") }
   },
   {
     prop: "new_pwd",
-    label: t("system.profile.password.field.newPassword"),
+    label: t("system.profile.password.field.new_password"),
     component: "password",
-    props: { placeholder: t("system.profile.password.placeholder.newPassword") }
+    props: { placeholder: t("system.profile.password.placeholder.new_password") }
   },
   {
     prop: "confirm_pwd",
-    label: t("system.profile.password.field.confirmPassword"),
+    label: t("system.profile.password.field.confirm_password"),
     component: "password",
-    props: { placeholder: t("system.profile.password.placeholder.confirmPassword") }
+    props: { placeholder: t("system.profile.password.placeholder.confirm_password") }
   }
 ]);
 
 const passwordFormRules = computed(() => ({
-  old_pwd: [{ required: true, message: t("system.profile.password.placeholder.oldPassword"), trigger: "blur" }],
+  old_pwd: [{ required: true, message: t("system.profile.password.placeholder.old_password"), trigger: "blur" }],
   new_pwd: [
-    { required: true, message: t("system.profile.password.placeholder.newPassword"), trigger: "blur" },
+    { required: true, message: t("system.profile.password.placeholder.new_password"), trigger: "blur" },
     { validator: validatePasswordStrength, trigger: "blur" }
   ],
-  confirm_pwd: [{ required: true, message: t("system.profile.password.placeholder.confirmPassword"), trigger: "blur" }]
+  confirm_pwd: [{ required: true, message: t("system.profile.password.placeholder.confirm_password"), trigger: "blur" }]
 }));
 
 /** 统一计算当前新密码强度，供展示和提交校验复用。 */
@@ -128,14 +128,14 @@ async function handleSubmitPassword() {
     return;
   }
   if (!passwordStrength.value.isValid) {
-    ElMessage.error(t("system.profile.password.message.strengthInsufficient"));
+    ElMessage.error(t("system.profile.password.message.strength_insufficient"));
     return;
   }
 
   submitLoading.value = true;
   try {
-    const oldPwd = await encryptPassword(passwordForm.old_pwd, PASSWORD_CRYPTO_SCENE.UPDATE_USER_PASSWORD);
-    const newPwd = await encryptPassword(passwordForm.new_pwd, PASSWORD_CRYPTO_SCENE.UPDATE_USER_PASSWORD);
+    const oldPwd = await encryptPassword(passwordForm.old_pwd, PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD);
+    const newPwd = await encryptPassword(passwordForm.new_pwd, PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD);
     const userPassword: UserPasswordForm = {
       old_pwd: oldPwd,
       new_pwd: newPwd

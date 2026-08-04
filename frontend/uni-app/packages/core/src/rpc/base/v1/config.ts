@@ -5,7 +5,18 @@
 // source: base/v1/config.proto
 
 /* eslint-disable */
-import type { BaseConfigSite } from "./enum";
+
+/** 系统配置位置。 */
+export enum BaseConfigSite {
+  /** BASE_CONFIG_SITE_UNSPECIFIED - 未指定系统配置位置。 */
+  BASE_CONFIG_SITE_UNSPECIFIED = 0,
+  /** BASE_CONFIG_SITE_SYSTEM - 系统内使用。 */
+  BASE_CONFIG_SITE_SYSTEM = 1,
+  /** BASE_CONFIG_SITE_ADMIN - 管理端。 */
+  BASE_CONFIG_SITE_ADMIN = 2,
+  /** BASE_CONFIG_SITE_APP - 移动端。 */
+  BASE_CONFIG_SITE_APP = 3,
+}
 
 /** 获取系统配置条件 */
 export interface GetConfigRequest {

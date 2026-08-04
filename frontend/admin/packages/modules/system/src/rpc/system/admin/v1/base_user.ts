@@ -11,7 +11,18 @@ import type { Status } from "../../../common/v1/enum";
 import type { PasswordCrypto } from "../../../common/v1/types";
 import type { Empty } from "../../../google/protobuf/empty";
 import type { Timestamp } from "../../../google/protobuf/timestamp";
-import type { BaseUserGender } from "../../common/v1/enum";
+
+/** 用户性别。 */
+export enum BaseUserGender {
+  /** BASE_USER_GENDER_UNSPECIFIED - 未指定用户性别。 */
+  BASE_USER_GENDER_UNSPECIFIED = 0,
+  /** BASE_USER_GENDER_SECRET - 保密。 */
+  BASE_USER_GENDER_SECRET = 1,
+  /** BASE_USER_GENDER_MALE - 男。 */
+  BASE_USER_GENDER_MALE = 2,
+  /** BASE_USER_GENDER_FEMALE - 女。 */
+  BASE_USER_GENDER_FEMALE = 3,
+}
 
 /** 用户选项查询条件 */
 export interface OptionBaseUserRequest {

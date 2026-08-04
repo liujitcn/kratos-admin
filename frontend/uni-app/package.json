@@ -10,7 +10,7 @@
     "build:h5": "turbo run build:h5 --filter=@liujitcn/kratos-uni-app",
     "build:mp-weixin": "turbo run build:mp-weixin --filter=@liujitcn/kratos-uni-app",
     "build:packages": "turbo run build --concurrency=1 --filter=@liujitcn/kratos-uni-app-core --filter=@liujitcn/kratos-uni-app-system --filter=@liujitcn/kratos-uni-app-cli",
-    "generate:rpc": "make -C ../../backend ts-app",
+    "generate:rpc": "make -C ../../backend ts-uni-app",
     "check:exports": "pnpm run prepare:modules && node scripts/check-package-exports.mjs",
     "test": "pnpm run prepare:modules && node --test packages/core/test/*.test.mjs packages/cli/test/*.test.mjs",
     "lint": "eslint . --fix",

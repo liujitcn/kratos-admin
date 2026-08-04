@@ -33,7 +33,7 @@
         <slot name="toolButton">
           <el-tooltip
             v-if="showTreeToggleButton"
-            :content="isTreeExpanded ? t('core.table.collapseAll') : t('core.table.expandAll')"
+            :content="isTreeExpanded ? t('core.table.collapse_all') : t('core.table.expand_all')"
             placement="top"
           >
             <el-button class="tool-button" :icon="isTreeExpanded ? Fold : Expand" circle @click="toggleTreeExpand" />
@@ -41,12 +41,12 @@
           <el-tooltip v-if="showToolButton('refresh')" :content="t('core.table.refresh')" placement="top">
             <el-button class="tool-button" :icon="Refresh" circle @click="handleToolRefresh" />
           </el-tooltip>
-          <el-tooltip v-if="showToolButton('setting') && columns.length" :content="t('core.table.columnSetting')" placement="top">
+          <el-tooltip v-if="showToolButton('setting') && columns.length" :content="t('core.table.column_setting')" placement="top">
             <el-button class="tool-button" :icon="Operation" circle @click="openColSetting" />
           </el-tooltip>
           <el-tooltip
             v-if="showToolButton('search') && searchColumns?.length"
-            :content="isShowSearch ? t('core.table.hideSearch') : t('core.table.showSearch')"
+            :content="isShowSearch ? t('core.table.hide_search') : t('core.table.show_search')"
             placement="top"
           >
             <el-button class="tool-button" :icon="Search" circle @click="isShowSearch = !isShowSearch" />
@@ -108,7 +108,7 @@
         <div class="table-empty">
           <slot name="empty">
             <img src="@/assets/images/notData.png" alt="notData" />
-            <div>{{ t("common.message.noData") }}</div>
+            <div>{{ t("common.message.no_data") }}</div>
           </slot>
         </div>
       </template>

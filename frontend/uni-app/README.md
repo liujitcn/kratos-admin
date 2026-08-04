@@ -149,7 +149,7 @@ uni-app 与 admin 一样，由 backend API 契约目录统一维护 Buf 生成�
 ```bash
 pnpm generate:rpc
 # 等价于
-make -C ../../backend ts-app
+make -C ../../backend ts-uni-app
 ```
 
 命令分别清理并生成 `packages/core/src/rpc` 和 `packages/modules/system/src/rpc`。frontend 不保存第二份 Buf 配置；RPC 文件是生成产物，不得手工修改。

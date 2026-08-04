@@ -42,6 +42,7 @@ import { ref, watch } from "vue";
 import { useDictStore } from "@/stores/modules/dict";
 import type { OptionBaseDictResponse_BaseDictItem } from "@/rpc/system/admin/v1/base_dict";
 import { useLocaleStore } from "@/locales";
+import { normalizeDictValue, normalizeDictValues, type DictOptionValue } from "./value";
 
 const { t } = useLocaleStore();
 
@@ -50,7 +51,7 @@ type DictType = "select" | "radio" | "checkbox";
 /** 字典值转换后的目标类型。 */
 type DictCodeType = "string" | "number";
 /** 字典组件对外绑定值类型。 */
-type DictValue = string | number;
+type DictValue = DictOptionValue;
 
 /** 字典组件属性。 */
 interface DictProps {
@@ -82,6 +83,7 @@ const dictStore = useDictStore();
 const options = ref<Array<{ label: string; value: DictValue }>>([]);
 const selectedSingleValue = ref<DictValue | undefined>();
 const selectedMultiValue = ref<DictValue[]>([]);
+const optionsLoaded = ref(false);
 
 /**
  * 同步外部传入值到组件内部值。
@@ -107,24 +109,35 @@ function convertDictValue(dictItem: OptionBaseDictResponse_BaseDictItem): DictVa
  */
 async function loadOptions() {
   // 按当前字典编码兜底刷新，避免持久化旧缓存里缺少该字典导致下拉无数据。
+  optionsLoaded.value = false;
   const dictList = await dictStore.ensureDictionary(props.code);
 
   options.value = dictList.map(dictItem => ({
     label: dictItem.label,
     value: convertDictValue(dictItem)
   }));
+  optionsLoaded.value = true;
 }
 
 /**
  * 校验当前值是否仍在可选项内，避免字典切换后残留无效值。
  */
 function ensureSelectedValueValid() {
-  if (props.type === "checkbox") return;
-  if (selectedSingleValue.value === undefined || selectedSingleValue.value === null || selectedSingleValue.value === "") return;
-  const matched = options.value.some(option => option.value === selectedSingleValue.value);
-  if (matched) return;
-  selectedSingleValue.value = undefined;
-  emit("update:modelValue", undefined);
+  const availableValues = options.value.map(option => option.value);
+  if (props.type === "checkbox") {
+    const normalizedValues = normalizeDictValues(selectedMultiValue.value, availableValues);
+    if (normalizedValues.length === selectedMultiValue.value.length) return;
+    selectedMultiValue.value = normalizedValues;
+    emit("update:modelValue", normalizedValues);
+    return;
+  }
+  const normalizedValue = normalizeDictValue(
+    selectedSingleValue.value,
+    availableValues
+  );
+  if (normalizedValue === selectedSingleValue.value) return;
+  selectedSingleValue.value = normalizedValue;
+  emit("update:modelValue", normalizedValue);
 }
 
 /**
@@ -145,6 +158,7 @@ watch(
   () => props.modelValue,
   modelValue => {
     syncSelectedValue(modelValue);
+    if (optionsLoaded.value) ensureSelectedValueValid();
   },
   { immediate: true }
 );

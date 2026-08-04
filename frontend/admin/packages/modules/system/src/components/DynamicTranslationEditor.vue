@@ -1,75 +1,81 @@
 <template>
   <div class="translation-editor">
+    <div class="translation-editor__toolbar">
+      <el-button
+        type="primary"
+        size="small"
+        :icon="Promotion"
+        :loading="translating"
+        :disabled="!canTranslate"
+        @click="handleBatchTranslate"
+      >
+        {{ t("system.base.translation.action.batch_translate") }}
+      </el-button>
+    </div>
     <div v-for="item in localValues" :key="item.locale" class="translation-editor__row">
       <div class="translation-editor__heading">
         <span>{{ getLanguageLabel(item.locale) }}</span>
-        <el-tag :type="statusTagType(item)" effect="light" size="small">{{ statusLabel(item) }}</el-tag>
       </div>
-      <div class="translation-editor__control">
+      <div class="translation-editor__control" :class="{ 'translation-editor__control--multiline': multiline }">
         <el-input
           :model-value="item.text"
           :maxlength="maxlength"
           :type="multiline ? 'textarea' : 'text'"
           :rows="multiline ? 6 : undefined"
+          :disabled="translating || translatingLocale === item.locale"
           show-word-limit
-          :placeholder="t('system.translation.placeholder.text', { language: getLanguageLabel(item.locale) })"
+          :placeholder="t('system.base.translation.placeholder.text', { language: getLanguageLabel(item.locale) })"
           @update:model-value="value => updateText(item.locale, value)"
         />
-        <el-tooltip
-          v-if="draftEnabled && resourceId > 0"
-          :content="t('system.translation.action.generateDraft', { language: getLanguageLabel(item.locale) })"
+        <el-button
+          class="translation-editor__translate"
+          link
+          type="primary"
+          size="small"
+          :icon="Promotion"
+          :loading="translatingLocale === item.locale"
+          :disabled="!props.source || Boolean(item.text) || translating || Boolean(translatingLocale)"
+          @click="handleTranslate(item.locale)"
         >
-          <el-button
-            :icon="MagicStick"
-            :loading="loadingLocale === item.locale"
-            :disabled="item.translation_status === TranslationStatus.TRANSLATION_STATUS_REVIEWED && !item.source_changed"
-            @click="generateDraft(item.locale)"
-          />
-        </el-tooltip>
+          {{ t("system.base.translation.action.translate") }}
+        </el-button>
       </div>
     </div>
-    <el-alert
-      v-if="resourceId === 0 && draftEnabled"
-      :title="t('system.translation.message.saveBeforeDraft')"
-      type="info"
-      :closable="false"
-      show-icon
-    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import { MagicStick } from "@element-plus/icons-vue";
+import { computed, ref, watch } from "vue";
+import { ElMessage } from "element-plus";
+import { Promotion } from "@element-plus/icons-vue";
 import { t } from "@liujitcn/kratos-admin-core";
+import { loadEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
 import { defBaseTranslationService } from "@liujitcn/kratos-admin-system/api/system/base_translation";
-import {
-  BaseConfigTranslationField,
-  TranslationResourceType,
-  TranslationStatus
-} from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
 import { getLanguageLabel, type DynamicTranslationValue } from "./dynamicTranslation";
 
 /** DynamicTranslationEditorProps 动态翻译编辑器属性。 */
 interface DynamicTranslationEditorProps {
   modelValue: DynamicTranslationValue[];
-  resourceId: number;
-  resourceType: TranslationResourceType;
-  field?: BaseConfigTranslationField;
-  draftEnabled?: boolean;
+  /** 主语言源文本。 */
+  source?: string;
+  /** 主语言代码，未传入时从启用语言中读取。 */
+  sourceLocale?: string;
   maxlength?: number;
   multiline?: boolean;
 }
 
 const props = withDefaults(defineProps<DynamicTranslationEditorProps>(), {
-  draftEnabled: false,
+  source: "",
+  sourceLocale: "",
   maxlength: 100,
   multiline: false
 });
 
 const emit = defineEmits<{ "update:modelValue": [value: DynamicTranslationValue[]] }>();
 const localValues = ref<DynamicTranslationValue[]>([]);
-const loadingLocale = ref("");
+const translating = ref(false);
+const translatingLocale = ref("");
+const canTranslate = computed(() => Boolean(props.source) && localValues.value.some(item => !item.text));
 
 watch(
   () => props.modelValue,
@@ -86,56 +92,94 @@ function updateText(locale: DynamicTranslationValue["locale"], text: string) {
   emit("update:modelValue", values);
 }
 
-/** generateDraft 为指定目标语言生成机器翻译草稿。 */
-async function generateDraft(locale: DynamicTranslationValue["locale"]) {
-  loadingLocale.value = locale;
+/** handleBatchTranslate 批量翻译当前仍为空的语言输入框。 */
+async function handleBatchTranslate() {
+  if (!canTranslate.value || translating.value) return;
+  translating.value = true;
   try {
-    const response = await defBaseTranslationService.GenerateTranslationDraft({
-      resource_type: props.resourceType,
-      resource_id: props.resourceId,
-      target_locale: locale,
-      field: props.field ?? BaseConfigTranslationField.BASE_CONFIG_TRANSLATION_FIELD_UNSPECIFIED
-    });
-    const values = localValues.value.map(item =>
-      item.locale === locale
-        ? {
-            ...item,
-            text: response.translation,
-            translation_status: response.translation_status,
-            source_changed: false,
-            source_hash: response.source_hash,
-            translation_provider: response.translation_provider,
-            translated_at: response.translated_at
-          }
-        : item
+    const sourceLocale = await resolveSourceLocale();
+    if (!sourceLocale) {
+      ElMessage.warning(t("system.base.translation.message.batch_translate_no_language"));
+      return;
+    }
+
+    const pending = localValues.value.filter(item => !item.text);
+    const results = await Promise.allSettled(
+      pending.map(item =>
+        defBaseTranslationService.DraftBaseTranslation({
+          source: props.source,
+          source_locale: sourceLocale,
+          target_locale: item.locale
+        })
+      )
     );
-    localValues.value = values;
-    emit("update:modelValue", values);
-    ElMessage.success(t("system.translation.message.draftSuccess", { language: getLanguageLabel(locale) }));
+    const translations = new Map<string, string>();
+    let failed = 0;
+    results.forEach((result, index) => {
+      if (result.status === "fulfilled") {
+        translations.set(pending[index].locale, result.value.translation);
+      } else {
+        failed += 1;
+      }
+    });
+    if (translations.size) {
+      const values = localValues.value.map(item => {
+        const translation = translations.get(item.locale);
+        return translation === undefined ? item : { ...item, text: translation };
+      });
+      localValues.value = values;
+      emit("update:modelValue", values);
+    }
+    if (failed) {
+      ElMessage.warning(
+        t("system.base.translation.message.batch_translate_partial", {
+          success: translations.size,
+          failed
+        })
+      );
+    } else {
+      ElMessage.success(t("system.base.translation.message.batch_translate_success", { count: translations.size }));
+    }
+  } catch {
+    ElMessage.error(t("system.base.translation.message.batch_translate_failed"));
   } finally {
-    loadingLocale.value = "";
+    translating.value = false;
   }
 }
 
-/** statusLabel 返回当前翻译审核状态文案。 */
-function statusLabel(item: DynamicTranslationValue) {
-  if (item.source_changed) return t("system.translation.status.sourceChanged");
-  const statusKey =
-    {
-      [TranslationStatus.TRANSLATION_STATUS_PENDING]: "pending",
-      [TranslationStatus.TRANSLATION_STATUS_MACHINE]: "machine",
-      [TranslationStatus.TRANSLATION_STATUS_REVIEWED]: "reviewed"
-    }[item.translation_status] ?? "pending";
-  return t(`system.translation.status.${statusKey}`);
+/** handleTranslate 翻译指定语言的单个输入框。 */
+async function handleTranslate(locale: string) {
+  const item = localValues.value.find(value => value.locale === locale);
+  if (!item || item.text || !props.source || translating.value || translatingLocale.value) return;
+  translatingLocale.value = locale;
+  try {
+    const sourceLocale = await resolveSourceLocale();
+    if (!sourceLocale) {
+      ElMessage.warning(t("system.base.translation.message.batch_translate_no_language"));
+      return;
+    }
+    const response = await defBaseTranslationService.DraftBaseTranslation({
+      source: props.source,
+      source_locale: sourceLocale,
+      target_locale: locale
+    });
+    const values = localValues.value.map(value => (value.locale === locale ? { ...value, text: response.translation } : value));
+    localValues.value = values;
+    emit("update:modelValue", values);
+    ElMessage.success(t("system.base.translation.message.translate_success", { language: getLanguageLabel(locale) }));
+  } catch {
+    ElMessage.error(t("system.base.translation.message.translate_failed", { language: getLanguageLabel(locale) }));
+  } finally {
+    translatingLocale.value = "";
+  }
 }
 
-/** statusTagType 返回当前翻译审核状态对应的标签样式。 */
-function statusTagType(item: DynamicTranslationValue) {
-  if (item.source_changed) return "warning";
-  if (item.translation_status === TranslationStatus.TRANSLATION_STATUS_REVIEWED) return "success";
-  if (item.translation_status === TranslationStatus.TRANSLATION_STATUS_MACHINE) return "primary";
-  return "info";
+/** resolveSourceLocale 读取批量翻译所需的主语言代码。 */
+async function resolveSourceLocale(): Promise<string> {
+  const languages = await loadEnabledBaseLanguages();
+  return props.sourceLocale || languages.find(item => item.is_primary)?.language_code || languages[0]?.language_code || "";
 }
+
 </script>
 
 <style scoped>
@@ -144,6 +188,10 @@ function statusTagType(item: DynamicTranslationValue) {
   flex-direction: column;
   gap: 14px;
   width: 100%;
+}
+.translation-editor__toolbar {
+  display: flex;
+  justify-content: flex-end;
 }
 .translation-editor__row {
   display: flex;
@@ -157,10 +205,30 @@ function statusTagType(item: DynamicTranslationValue) {
   align-items: center;
 }
 .translation-editor__heading {
-  justify-content: space-between;
   color: var(--el-text-color-regular);
+}
+.translation-editor__control {
+  position: relative;
+  width: 100%;
 }
 .translation-editor__control :deep(.el-input) {
   flex: 1;
+}
+.translation-editor__control--multiline :deep(.el-textarea__inner) {
+  padding-right: 78px;
+}
+.translation-editor__control:not(.translation-editor__control--multiline) :deep(.el-input__suffix) {
+  padding-right: 78px;
+}
+.translation-editor__translate {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+}
+.translation-editor__control--multiline .translation-editor__translate {
+  top: 8px;
+  transform: none;
 }
 </style>

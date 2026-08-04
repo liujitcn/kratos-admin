@@ -6,8 +6,19 @@
 
 /* eslint-disable */
 import type { Timestamp } from "../../google/protobuf/timestamp";
-import type { AiToolCall } from "./ai_tool";
-import type { AiMessageStatus, Terminal } from "./enum";
+import type { AiToolCall, Terminal } from "./ai_tool";
+
+/** AI 助手消息状态。 */
+export enum AiMessageStatus {
+  /** AI_MESSAGE_STATUS_UNSPECIFIED - 未指定 AI 助手消息状态。 */
+  AI_MESSAGE_STATUS_UNSPECIFIED = 0,
+  /** AI_MESSAGE_STATUS_GENERATING - 生成中。 */
+  AI_MESSAGE_STATUS_GENERATING = 1,
+  /** AI_MESSAGE_STATUS_SUCCESS - 成功。 */
+  AI_MESSAGE_STATUS_SUCCESS = 2,
+  /** AI_MESSAGE_STATUS_FAILED - 失败。 */
+  AI_MESSAGE_STATUS_FAILED = 3,
+}
 
 /** AI 助手消息列表查询条件 */
 export interface ListAiMessageRequest {

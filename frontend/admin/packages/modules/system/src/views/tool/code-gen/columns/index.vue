@@ -5,17 +5,17 @@
       <div v-if="formData.id" class="code-gen-column-pane">
         <div class="code-gen-toolbar code-gen-column-toolbar">
           <div class="code-gen-column-toolbar__meta">
-            <strong>{{ t("system.codegen.column.title.databaseFields") }}</strong>
+            <strong>{{ t("system.code.gen.column.title.database_fields") }}</strong>
             <!-- 展示当前字段配置对应的业务表。 -->
             <span class="code-gen-column-toolbar__table-name" :title="formData.name">
-              {{ t("system.codegen.column.value.tableName", { name: formData.name }) }}
+              {{ t("system.code.gen.column.value.table_name", { name: formData.name }) }}
             </span>
             <span class="code-gen-column-toolbar__table-comment" :title="formData.comment || '--'">
-              {{ t("system.codegen.column.value.tableComment", { comment: formData.comment || "--" }) }}
+              {{ t("system.code.gen.column.value.table_comment", { comment: formData.comment || "--" }) }}
             </span>
-            <span>{{ t("system.codegen.column.value.queryCount", { count: enabledSummary.query }) }}</span>
-            <span>{{ t("system.codegen.column.value.listCount", { count: enabledSummary.list }) }}</span>
-            <span>{{ t("system.codegen.column.value.formCount", { count: enabledSummary.form }) }}</span>
+            <span>{{ t("system.code.gen.column.value.query_count", { count: enabledSummary.query }) }}</span>
+            <span>{{ t("system.code.gen.column.value.list_count", { count: enabledSummary.list }) }}</span>
+            <span>{{ t("system.code.gen.column.value.form_count", { count: enabledSummary.form }) }}</span>
           </div>
           <div class="code-gen-column-toolbar__actions">
             <el-button type="primary" :icon="Document" :disabled="!canEdit" @click="handleSaveColumns()">
@@ -31,9 +31,9 @@
             border
             stripe
             table-layout="fixed"
-            :empty-text="t('system.codegen.column.message.empty')"
+            :empty-text="t('system.code.gen.column.message.empty')"
           >
-            <el-table-column :label="t('system.codegen.column.field.databaseColumn')" min-width="320" fixed="left">
+            <el-table-column :label="t('system.code.gen.column.field.database_column')" min-width="320" fixed="left">
               <template #default="{ row, $index }">
                 <div class="code-gen-field-cell">
                   <el-popover trigger="hover" placement="right-start" :width="320" :show-after="250">
@@ -49,7 +49,7 @@
                       </div>
                       <div class="code-gen-field-popover__types">
                         <div>
-                          <span>{{ t("system.codegen.column.value.database") }}</span
+                          <span>{{ t("system.code.gen.column.value.database") }}</span
                           ><b>{{ row.db_type || "--" }}</b>
                         </div>
                         <div>
@@ -64,14 +64,14 @@
                       </div>
                       <div class="code-gen-field-popover__flags">
                         <el-tag v-if="row.is_primary" size="small" type="danger" effect="plain">
-                          {{ t("system.codegen.column.value.primaryKey") }}
+                          {{ t("system.code.gen.column.value.primary_key") }}
                         </el-tag>
                         <el-tag v-if="row.is_auto_increment" size="small" type="warning" effect="plain">
-                          {{ t("system.codegen.column.value.autoIncrement") }}
+                          {{ t("system.code.gen.column.value.auto_increment") }}
                         </el-tag>
                         <el-tag size="small" :type="row.is_nullable ? 'info' : 'success'" effect="plain">
                           {{
-                            t(row.is_nullable ? "system.codegen.column.value.nullable" : "system.codegen.column.value.notNull")
+                            t(row.is_nullable ? "system.code.gen.column.value.nullable" : "system.code.gen.column.value.not_null")
                           }}
                         </el-tag>
                       </div>
@@ -79,14 +79,14 @@
                   </el-popover>
                   <div class="code-gen-field-order">
                     <span class="code-gen-field-order__index">{{ $index + 1 }}</span>
-                    <el-tooltip :content="t('system.codegen.column.tooltip.drag')" placement="top">
+                    <el-tooltip :content="t('system.code.gen.column.tooltip.drag')" placement="top">
                       <el-button
                         text
                         size="small"
                         :icon="List"
                         :disabled="!canEdit"
                         class="code-gen-field-order__drag"
-                        :aria-label="t('system.codegen.column.tooltip.dragAria')"
+                        :aria-label="t('system.code.gen.column.tooltip.drag_aria')"
                       />
                     </el-tooltip>
                   </div>
@@ -94,14 +94,14 @@
               </template>
             </el-table-column>
 
-            <el-table-column :label="t('system.codegen.column.field.comment')" min-width="360">
+            <el-table-column :label="t('system.code.gen.column.field.comment')" min-width="360">
               <template #default="{ row }">
                 <div class="code-gen-comment-editor">
                   <el-input
                     v-model="row.comment"
                     :disabled="!canEdit"
                     maxlength="255"
-                    :placeholder="t('system.codegen.column.placeholder.comment')"
+                    :placeholder="t('system.code.gen.column.placeholder.comment')"
                   />
                   <el-popover placement="right-start" :width="400" trigger="click">
                     <template #reference>
@@ -109,7 +109,7 @@
                         :icon="ChatLineSquare"
                         circle
                         :type="hasMissingColumnLocales(row) ? 'warning' : 'success'"
-                        :aria-label="t('system.codegen.i18n.action.editColumn')"
+                        :aria-label="t('system.code.gen.i18n.action.edit_column')"
                       />
                     </template>
                     <CodeGenLocaleEditor
@@ -122,20 +122,20 @@
               </template>
             </el-table-column>
 
-            <el-table-column :label="t('system.codegen.column.field.query')" min-width="440">
+            <el-table-column :label="t('system.code.gen.column.field.query')" min-width="440">
               <template #default="{ row }">
                 <div class="code-gen-config-cell">
                   <el-switch
                     v-model="row.query_config.enabled"
                     :disabled="!canEdit"
                     inline-prompt
-                    :active-text="t('system.codegen.value.on')"
-                    :inactive-text="t('system.codegen.value.off')"
+                    :active-text="t('system.code.gen.value.on')"
+                    :inactive-text="t('system.code.gen.value.off')"
                   />
                   <el-select
                     v-model="row.query_config.operator"
                     :disabled="!canEdit || !row.query_config.enabled"
-                    :placeholder="t('system.codegen.column.placeholder.queryOperator')"
+                    :placeholder="t('system.code.gen.column.placeholder.query_operator')"
                   >
                     <el-option
                       v-for="item in queryOperatorOptions"
@@ -147,7 +147,7 @@
                   <el-select
                     v-model="row.query_config.component"
                     :disabled="!canEdit || !row.query_config.enabled"
-                    :placeholder="t('system.codegen.column.placeholder.queryComponent')"
+                    :placeholder="t('system.code.gen.column.placeholder.query_component')"
                     @change="handleComponentChange(row, 'query')"
                   >
                     <el-option
@@ -169,27 +169,27 @@
                       :disabled="!canEdit"
                       @click="openOptionDialog(row, 'query')"
                     >
-                      {{ t("system.codegen.column.action.options") }}
+                      {{ t("system.code.gen.column.action.options") }}
                     </el-button>
                   </el-tooltip>
                 </div>
               </template>
             </el-table-column>
 
-            <el-table-column :label="t('system.codegen.column.field.list')" min-width="420">
+            <el-table-column :label="t('system.code.gen.column.field.list')" min-width="420">
               <template #default="{ row }">
                 <div class="code-gen-config-cell">
                   <el-switch
                     v-model="row.list_config.enabled"
                     :disabled="!canEdit"
                     inline-prompt
-                    :active-text="t('system.codegen.value.on')"
-                    :inactive-text="t('system.codegen.value.off')"
+                    :active-text="t('system.code.gen.value.on')"
+                    :inactive-text="t('system.code.gen.value.off')"
                   />
                   <el-select
                     v-model="row.list_config.component"
                     :disabled="!canEdit || !row.list_config.enabled"
-                    :placeholder="t('system.codegen.column.placeholder.listComponent')"
+                    :placeholder="t('system.code.gen.column.placeholder.list_component')"
                     @change="handleComponentChange(row, 'list')"
                   >
                     <el-option
@@ -211,28 +211,28 @@
                       :disabled="!canEdit"
                       @click="openOptionDialog(row, 'list')"
                     >
-                      {{ t("system.codegen.column.action.options") }}
+                      {{ t("system.code.gen.column.action.options") }}
                     </el-button>
                   </el-tooltip>
                 </div>
               </template>
             </el-table-column>
 
-            <el-table-column :label="t('system.codegen.column.field.form')" min-width="440">
+            <el-table-column :label="t('system.code.gen.column.field.form')" min-width="440">
               <template #default="{ row }">
                 <div class="code-gen-config-cell">
                   <el-switch
                     v-model="row.form_config.enabled"
                     :disabled="!canEdit"
                     inline-prompt
-                    :active-text="t('system.codegen.value.on')"
-                    :inactive-text="t('system.codegen.value.off')"
+                    :active-text="t('system.code.gen.value.on')"
+                    :inactive-text="t('system.code.gen.value.off')"
                     @change="handleFormEnabledChange(row)"
                   />
                   <el-select
                     v-model="row.form_config.component"
                     :disabled="!canEdit || !row.form_config.enabled"
-                    :placeholder="t('system.codegen.column.placeholder.formComponent')"
+                    :placeholder="t('system.code.gen.column.placeholder.form_component')"
                     @change="handleComponentChange(row, 'form')"
                   >
                     <el-option
@@ -243,7 +243,7 @@
                     />
                   </el-select>
                   <el-checkbox v-model="row.form_config.required" :disabled="!canEdit || !row.form_config.enabled">{{
-                    t("system.codegen.column.value.required")
+                    t("system.code.gen.column.value.required")
                   }}</el-checkbox>
                   <el-tooltip
                     v-if="shouldShowOptionEntry(row.form_config, 'form')"
@@ -257,7 +257,7 @@
                       :disabled="!canEdit"
                       @click="openOptionDialog(row, 'form')"
                     >
-                      {{ t("system.codegen.column.action.options") }}
+                      {{ t("system.code.gen.column.action.options") }}
                     </el-button>
                   </el-tooltip>
                 </div>
@@ -266,7 +266,7 @@
           </el-table>
         </div>
       </div>
-      <el-empty v-else :description="t('system.codegen.column.message.selectRecord')" />
+      <el-empty v-else :description="t('system.code.gen.column.message.select_record')" />
     </el-card>
 
     <ProDialog
@@ -287,7 +287,7 @@
             type="primary"
             :icon="Document"
             :disabled="!canEdit"
-            :aria-label="t('system.codegen.column.action.saveAndClose')"
+            :aria-label="t('system.code.gen.column.action.save_and_close')"
             @click="handleSaveOptionDialog"
           >
             {{ t("common.action.save") }}
@@ -297,16 +297,16 @@
 
       <div v-if="optionDialog.option" class="code-gen-option-dialog">
         <div v-if="optionDialog.formConfig" class="code-gen-popover-form__row">
-          <span class="code-gen-popover-form__label">{{ t("system.codegen.column.field.selectionMode") }}</span>
+          <span class="code-gen-popover-form__label">{{ t("system.code.gen.column.field.selection_mode") }}</span>
           <el-radio-group v-model="optionDialog.formConfig.multiple" :disabled="!canEdit">
-            <el-radio-button :value="false">{{ t("system.codegen.column.value.single") }}</el-radio-button>
+            <el-radio-button :value="false">{{ t("system.code.gen.column.value.single") }}</el-radio-button>
             <el-tooltip
-              :content="t('system.codegen.column.tooltip.multipleJsonOnly')"
+              :content="t('system.code.gen.column.tooltip.multiple_json_only')"
               :disabled="optionDialog.isJSONColumn"
               placement="top"
             >
               <el-radio-button :value="true" :disabled="!optionDialog.isJSONColumn">
-                {{ t("system.codegen.column.value.multiple") }}
+                {{ t("system.code.gen.column.value.multiple") }}
               </el-radio-button>
             </el-tooltip>
           </el-radio-group>
@@ -318,26 +318,26 @@
           "
           class="code-gen-popover-form__row"
         >
-          <span class="code-gen-popover-form__label">{{ t("system.codegen.column.field.source") }}</span>
+          <span class="code-gen-popover-form__label">{{ t("system.code.gen.column.field.source") }}</span>
           <el-select
             v-model="optionDialog.option.source_type"
             :disabled="!canEdit"
             clearable
-            :placeholder="t('system.codegen.column.placeholder.source')"
+            :placeholder="t('system.code.gen.column.placeholder.source')"
             @change="handleOptionSourceTypeChange"
           >
             <el-option v-for="item in sourceTypeOptions" :key="String(item.value)" :label="item.label" :value="item.value" />
           </el-select>
         </div>
         <div v-if="optionDialog.option.source_type === 'dict'" class="code-gen-popover-form__row">
-          <span class="code-gen-popover-form__label">{{ t("system.codegen.column.field.dictionary") }}</span>
+          <span class="code-gen-popover-form__label">{{ t("system.code.gen.column.field.dictionary") }}</span>
           <el-select
             v-model="optionDialog.option.source_value"
             :disabled="!canEdit"
             :loading="loadingDictionaries"
             filterable
             clearable
-            :placeholder="t('system.codegen.column.placeholder.dictionary')"
+            :placeholder="t('system.code.gen.column.placeholder.dictionary')"
             @change="handleOptionSourceValueChange"
           >
             <el-option
@@ -350,12 +350,12 @@
         </div>
         <template v-if="optionDialog.option.kind === 'switch' && optionDialog.option.source_value">
           <div class="code-gen-popover-form__row">
-            <span class="code-gen-popover-form__label">{{ t("system.codegen.column.field.activeValue") }}</span>
+            <span class="code-gen-popover-form__label">{{ t("system.code.gen.column.field.active_value") }}</span>
             <el-select
               v-model="optionDialog.option.active_value"
               :disabled="!canEdit"
               filterable
-              :placeholder="t('system.codegen.column.placeholder.activeValue')"
+              :placeholder="t('system.code.gen.column.placeholder.active_value')"
             >
               <el-option
                 v-for="item in dictionaryItemsForEditor"
@@ -367,12 +367,12 @@
             </el-select>
           </div>
           <div class="code-gen-popover-form__row">
-            <span class="code-gen-popover-form__label">{{ t("system.codegen.column.field.inactiveValue") }}</span>
+            <span class="code-gen-popover-form__label">{{ t("system.code.gen.column.field.inactive_value") }}</span>
             <el-select
               v-model="optionDialog.option.inactive_value"
               :disabled="!canEdit"
               filterable
-              :placeholder="t('system.codegen.column.placeholder.inactiveValue')"
+              :placeholder="t('system.code.gen.column.placeholder.inactive_value')"
             >
               <el-option
                 v-for="item in dictionaryItemsForEditor"
@@ -385,14 +385,14 @@
           </div>
         </template>
         <div v-else-if="optionDialog.option.source_type === 'table'" class="code-gen-popover-form__row">
-          <span class="code-gen-popover-form__label">{{ t("system.codegen.column.field.dataTable") }}</span>
+          <span class="code-gen-popover-form__label">{{ t("system.code.gen.column.field.data_table") }}</span>
           <el-select
             v-model="optionDialog.option.source_value"
             :disabled="!canEdit"
             :loading="loadingDatabaseTables"
             filterable
             clearable
-            :placeholder="t('system.codegen.column.placeholder.dataTable')"
+            :placeholder="t('system.code.gen.column.placeholder.data_table')"
             @change="handleOptionSourceValueChange"
           >
             <el-option
@@ -405,14 +405,14 @@
         </div>
         <template v-if="optionDialog.option.source_type === 'table'">
           <div v-if="optionDialog.option.kind === 'tree'" class="code-gen-popover-form__row">
-            <span class="code-gen-popover-form__label">{{ t("system.codegen.column.field.treeParent") }}</span>
+            <span class="code-gen-popover-form__label">{{ t("system.code.gen.column.field.tree_parent") }}</span>
             <el-select
               v-model="optionDialog.option.parent_field"
               :disabled="!canEdit || !optionDialog.option.source_value"
               :loading="loadingDatabaseColumns.has(optionDialog.option.source_value)"
               filterable
               clearable
-              :placeholder="t('system.codegen.column.placeholder.treeParent')"
+              :placeholder="t('system.code.gen.column.placeholder.tree_parent')"
             >
               <el-option
                 v-for="item in databaseColumnsForEditor"
@@ -423,9 +423,9 @@
             </el-select>
           </div>
           <div v-if="optionDialog.option.kind === 'tree'" class="code-gen-popover-form__row">
-            <span class="code-gen-popover-form__label">{{ t("system.codegen.column.field.loadMode") }}</span>
+            <span class="code-gen-popover-form__label">{{ t("system.code.gen.column.field.load_mode") }}</span>
             <el-checkbox v-model="optionDialog.option.lazy" :disabled="!canEdit">
-              {{ t("system.codegen.column.value.lazyChildren") }}
+              {{ t("system.code.gen.column.value.lazy_children") }}
             </el-checkbox>
           </div>
           <div class="code-gen-popover-form__row">
@@ -433,8 +433,8 @@
               {{
                 t(
                   optionDialog.option.kind === "tree"
-                    ? "system.codegen.column.field.treeLabel"
-                    : "system.codegen.column.field.labelField"
+                    ? "system.code.gen.column.field.tree_label"
+                    : "system.code.gen.column.field.label_field"
                 )
               }}
             </span>
@@ -447,8 +447,8 @@
               :placeholder="
                 t(
                   optionDialog.option.kind === 'tree'
-                    ? 'system.codegen.column.placeholder.treeLabel'
-                    : 'system.codegen.column.placeholder.labelField'
+                    ? 'system.code.gen.column.placeholder.tree_label'
+                    : 'system.code.gen.column.placeholder.label_field'
                 )
               "
             >
@@ -465,8 +465,8 @@
               {{
                 t(
                   optionDialog.option.kind === "tree"
-                    ? "system.codegen.column.field.treeValue"
-                    : "system.codegen.column.field.valueField"
+                    ? "system.code.gen.column.field.tree_value"
+                    : "system.code.gen.column.field.value_field"
                 )
               }}
             </span>
@@ -479,8 +479,8 @@
               :placeholder="
                 t(
                   optionDialog.option.kind === 'tree'
-                    ? 'system.codegen.column.placeholder.treeValue'
-                    : 'system.codegen.column.placeholder.valueField'
+                    ? 'system.code.gen.column.placeholder.tree_value'
+                    : 'system.code.gen.column.placeholder.value_field'
                 )
               "
             >
@@ -495,7 +495,7 @@
         </template>
         <div v-if="optionDialog.option.source_type === 'static'" class="code-gen-static-options">
           <div class="code-gen-static-options__header">
-            <span class="code-gen-popover-form__label">{{ t("system.codegen.column.field.staticData") }}</span>
+            <span class="code-gen-popover-form__label">{{ t("system.code.gen.column.field.static_data") }}</span>
             <el-button size="small" :icon="Plus" :disabled="!canEdit" @click="addStaticOption">
               {{ t("common.action.create") }}
             </el-button>
@@ -505,28 +505,28 @@
               <el-input
                 v-model="item.label"
                 :disabled="!canEdit"
-                :placeholder="t('system.codegen.column.placeholder.optionLabel')"
+                :placeholder="t('system.code.gen.column.placeholder.option_label')"
                 @input="syncStaticOptions"
               />
               <el-input
                 :model-value="String(item.value)"
                 :disabled="!canEdit"
-                :placeholder="t('system.codegen.column.placeholder.optionValue')"
+                :placeholder="t('system.code.gen.column.placeholder.option_value')"
                 @update:model-value="updateStaticOptionValue(item, $event)"
               />
-              <el-tooltip :content="t('system.codegen.column.action.deleteStatic')" placement="top">
+              <el-tooltip :content="t('system.code.gen.column.action.delete_static')" placement="top">
                 <el-button
                   :icon="Delete"
                   :disabled="!canEdit"
                   circle
                   text
-                  :aria-label="t('system.codegen.column.action.deleteStatic')"
+                  :aria-label="t('system.code.gen.column.action.delete_static')"
                   @click="removeStaticOption(index)"
                 />
               </el-tooltip>
             </div>
           </div>
-          <el-empty v-else :image-size="48" :description="t('system.codegen.column.message.emptyStatic')" />
+          <el-empty v-else :image-size="48" :description="t('system.code.gen.column.message.empty_static')" />
         </div>
       </div>
     </ProDialog>
@@ -681,7 +681,7 @@ const listComponentOptions = computed(() => codeGenListComponentOptions());
 const formComponentOptions = computed(() => codeGenFormComponentOptions());
 const sourceTypeOptions = computed(() => codeGenSourceTypeOptions());
 const optionDialogTitle = computed(() =>
-  t("system.codegen.column.title.options", {
+  t("system.code.gen.column.title.options", {
     scope: codeGenScopeLabel(optionDialog.scope),
     column: optionDialog.columnName
   })
@@ -739,8 +739,8 @@ async function handleQuery() {
 function syncWorkspaceTitle() {
   const tableTitle = formData.comment || formData.name;
   const title = tableTitle
-    ? t("system.codegen.column.title.workspaceWithTable", { table: tableTitle })
-    : t("system.codegen.column.title.workspace");
+    ? t("system.code.gen.column.title.workspace_with_table", { table: tableTitle })
+    : t("system.code.gen.column.title.workspace");
   tabsStore.setTabsTitle(title);
   document.title = `${title} - ${import.meta.env.VITE_GLOB_APP_TITLE}`;
 }
@@ -751,7 +751,7 @@ async function handleSaveColumns(showMessage = true) {
   syncColumnSorts();
   columns.value.forEach(syncColumnOptionKinds);
   if (columns.value.some(item => !item.name || !item.db_type)) {
-    ElMessage.warning(t("system.codegen.column.message.nameAndTypeRequired"));
+    ElMessage.warning(t("system.code.gen.column.message.name_and_type_required"));
     return false;
   }
   const optionIssue = findCodeGenColumnOptionIssue(columns.value);
@@ -764,14 +764,14 @@ async function handleSaveColumns(showMessage = true) {
   if (consistencyIssue) {
     try {
       await ElMessageBox.confirm(
-        t("system.codegen.column.dialog.inconsistentSource", {
+        t("system.code.gen.column.dialog.inconsistent_source", {
           column: consistencyIssue.columnName,
           scopes: consistencyIssue.scopes
         }),
-        t("system.codegen.column.title.optionWarning"),
+        t("system.code.gen.column.title.option_warning"),
         {
-          confirmButtonText: t("system.codegen.column.action.continueSave"),
-          cancelButtonText: t("system.codegen.column.action.backToEdit"),
+          confirmButtonText: t("system.code.gen.column.action.continue_save"),
+          cancelButtonText: t("system.code.gen.column.action.back_to_edit"),
           type: "warning"
         }
       );
@@ -787,7 +787,7 @@ async function handleSaveColumns(showMessage = true) {
       sort: index + 1
     }))
   });
-  if (showMessage) ElMessage.success(t("common.message.operationSuccess"));
+  if (showMessage) ElMessage.success(t("common.message.operation_success"));
   // 路由切换前保留当前页签地址，避免误删目标页签。
   const currentPath = route.fullPath;
   await router.push("/code/gen/table");
@@ -1123,7 +1123,7 @@ function findCodeGenColumnOptionConsistencyIssue(items: CodeGenColumnView[]): Co
     if (entries.every(([, config]) => codeGenOptionSourceSignature(config.option) === firstSignature)) continue;
     return {
       columnName: column.name,
-      scopes: entries.map(([label]) => label).join(t("system.codegen.preview.value.listSeparator"))
+      scopes: entries.map(([label]) => label).join(t("system.code.gen.preview.value.list_separator"))
     };
   }
 }
@@ -1153,33 +1153,33 @@ function getCodeGenOptionValidationMessage(columnName: string, scope: string, op
     option.lazy
   );
   const args = { column: columnName, scope };
-  if (!option.kind) return hasSourceFields ? t("system.codegen.column.validation.optionComponentMissing", args) : "";
+  if (!option.kind) return hasSourceFields ? t("system.code.gen.column.validation.option_component_missing", args) : "";
   if (option.kind === "switch") {
     if (option.source_type !== "dict" || !option.source_value || !option.active_value || !option.inactive_value) {
-      return t("system.codegen.column.validation.switchIncomplete", args);
+      return t("system.code.gen.column.validation.switch_incomplete", args);
     }
-    if (option.active_value === option.inactive_value) return t("system.codegen.column.validation.switchValuesSame", args);
+    if (option.active_value === option.inactive_value) return t("system.code.gen.column.validation.switch_values_same", args);
     return "";
   }
-  if (option.active_value || option.inactive_value) return t("system.codegen.column.validation.switchValuesUnsupported", args);
-  if (option.lazy && option.kind !== "tree") return t("system.codegen.column.validation.lazyTreeOnly", args);
+  if (option.active_value || option.inactive_value) return t("system.code.gen.column.validation.switch_values_unsupported", args);
+  if (option.lazy && option.kind !== "tree") return t("system.code.gen.column.validation.lazy_tree_only", args);
   if (option.kind === "tree" && option.source_type !== "table") {
-    return t("system.codegen.column.validation.treeTableOnly", args);
+    return t("system.code.gen.column.validation.tree_table_only", args);
   }
   if (!new Set(["static", "dict", "table"]).has(option.source_type) || !option.source_value) {
-    return t("system.codegen.column.validation.sourceIncomplete", args);
+    return t("system.code.gen.column.validation.source_incomplete", args);
   }
   if (option.source_type === "static") {
     const options = parseCodeGenStaticOptions(option.source_value);
     if (!options.length || options.some(item => item.label === "" || item.value === "")) {
-      return t("system.codegen.column.validation.staticIncomplete", args);
+      return t("system.code.gen.column.validation.static_incomplete", args);
     }
   }
   if (
     option.source_type === "table" &&
     (!option.label_field || !option.value_field || (option.kind === "tree" && !option.parent_field))
   ) {
-    return t("system.codegen.column.validation.tableFieldsIncomplete", args);
+    return t("system.code.gen.column.validation.table_fields_incomplete", args);
   }
   return "";
 }
@@ -1197,13 +1197,13 @@ function hasOptionConfig(option: CodeGenColumnOptionConfig) {
 /** 返回选项入口的当前状态提示。 */
 function optionEntryTip(option: CodeGenColumnOptionConfig) {
   return t(
-    hasOptionConfig(option) ? "system.codegen.column.tooltip.optionConfigured" : "system.codegen.column.tooltip.configureOption"
+    hasOptionConfig(option) ? "system.code.gen.column.tooltip.option_configured" : "system.code.gen.column.tooltip.configure_option"
   );
 }
 
 /** 返回配置范围的当前语言名称。 */
 function codeGenScopeLabel(scope: CodeGenOptionScope) {
-  return t(`system.codegen.column.scope.${scope}`);
+  return t(`system.code.gen.column.scope.${scope}`);
 }
 
 /** 判断字段是否缺少任一非主语言描述。 */

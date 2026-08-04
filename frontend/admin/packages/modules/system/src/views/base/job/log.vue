@@ -2,28 +2,28 @@
   <div class="table-box">
     <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestBaseJobLogTable" />
 
-    <ProDialog v-model="dialog.visible" :title="t('system.jobLog.title.detail')" width="1200px" @close="handleCloseDialog">
+    <ProDialog v-model="dialog.visible" :title="t('system.base.job.log.title.detail')" width="1200px" @close="handleCloseDialog">
       <div class="detail-container">
-        <el-descriptions :title="t('system.jobLog.section.basic')" border :column="2">
-          <el-descriptions-item :label="t('system.common.field.status')">
+        <el-descriptions :title="t('system.base.job.log.section.basic')" border :column="2">
+          <el-descriptions-item :label="t('common.field.status')">
             <DictLabel v-model="detail.status" code="base_job_log_status" />
           </el-descriptions-item>
-          <el-descriptions-item :label="t('system.jobLog.field.processTime')">{{ detail.process_time }}</el-descriptions-item>
-          <el-descriptions-item :label="t('system.jobLog.field.executeTime')">{{ detail.execute_time }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.base.job.log.field.process_time')">{{ detail.process_time }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.base.job.log.field.execute_time')">{{ detail.execute_time }}</el-descriptions-item>
         </el-descriptions>
 
-        <el-descriptions :title="t('system.jobLog.section.execution')" border :column="1" class="mt-4">
-          <el-descriptions-item :label="t('system.jobLog.field.input')">
+        <el-descriptions :title="t('system.base.job.log.section.execution')" border :column="1" class="mt-4">
+          <el-descriptions-item :label="t('system.base.job.log.field.input')">
             <pre class="code-block">{{ formatJson(detail.input) }}</pre>
           </el-descriptions-item>
-          <el-descriptions-item :label="t('system.jobLog.field.output')">
+          <el-descriptions-item :label="t('system.base.job.log.field.output')">
             <pre class="code-block">{{ formatJson(detail.output) }}</pre>
           </el-descriptions-item>
         </el-descriptions>
 
         <el-alert
-          v-if="detail.status === BaseJobLogStatus.FAIL"
-          :title="t('system.jobLog.field.error')"
+          v-if="detail.status === BaseJobLogStatus.BASE_JOB_LOG_STATUS_FAIL"
+          :title="t('system.base.job.log.field.error')"
           type="error"
           :description="detail.error"
           class="mt-4"
@@ -49,7 +49,7 @@ import { defBaseJobService } from "@liujitcn/kratos-admin-system/api/system/base
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
 import { formatJson } from "@liujitcn/kratos-admin-core/format";
 import type { BaseJobLog, PageBaseJobLogRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_job";
-import { BaseJobLogStatus } from "@liujitcn/kratos-admin-system/rpc/system/common/v1/enum";
+import { BaseJobLogStatus } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_job";
 import { t } from "@liujitcn/kratos-admin-core";
 
 defineOptions({
@@ -79,7 +79,7 @@ function createDefaultDetail(): BaseJobLog {
     /** 错误信息 */
     error: "",
     /** 状态 */
-    status: BaseJobLogStatus.UNKNOWN_BJLS,
+    status: BaseJobLogStatus.BASE_JOB_LOG_STATUS_UNSPECIFIED,
     /** 消耗时间 */
     process_time: "",
     /** 执行时间 */
@@ -93,14 +93,14 @@ const detail = reactive<BaseJobLog>(createDefaultDetail());
 const columns = computed<ColumnProps[]>(() => [
   {
     prop: "status",
-    label: t("system.common.field.status"),
+    label: t("common.field.status"),
     minWidth: 120,
     dictCode: "base_job_log_status",
     search: { el: "select" }
   },
   {
     prop: "execute_time",
-    label: t("system.jobLog.field.executeTime"),
+    label: t("system.base.job.log.field.execute_time"),
     minWidth: 180,
     search: {
       el: "date-picker",
@@ -109,16 +109,16 @@ const columns = computed<ColumnProps[]>(() => [
         editable: false,
         class: "!w-[240px]",
         rangeSeparator: "~",
-        startPlaceholder: t("system.common.placeholder.startDate"),
-        endPlaceholder: t("system.common.placeholder.endDate"),
+        startPlaceholder: t("common.placeholder.start_date"),
+        endPlaceholder: t("common.placeholder.end_date"),
         valueFormat: "YYYY-MM-DD"
       }
     }
   },
-  { prop: "process_time", label: t("system.jobLog.field.processTimeMs"), minWidth: 130, align: "right" },
+  { prop: "process_time", label: t("system.base.job.log.field.process_time_ms"), minWidth: 130, align: "right" },
   {
     prop: "detailAction",
-    label: t("system.common.field.action"),
+    label: t("common.field.action"),
     width: 100,
     fixed: "right",
     cellType: "actions",

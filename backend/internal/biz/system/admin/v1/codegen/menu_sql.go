@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 )
 
@@ -87,25 +88,27 @@ func writeMenuTranslationSQL(builder *strings.Builder, menuIDExpression string, 
 		if title == "" {
 			continue
 		}
-		builder.WriteString("INSERT INTO `base_menu_translation` (`menu_id`, `locale`, `title`, `translation_status`, `source_hash`, `translation_provider`, `translated_at`, `reviewed_by`, `reviewed_at`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`)\n")
+		builder.WriteString("INSERT IGNORE INTO `base_translation` (`target_type`, `target_id`, `locale`, `name`)\n")
 		builder.WriteString("SELECT ")
+		builder.WriteString(strconv.FormatInt(int64(_const.TRANSLATION_TARGET_TYPE_BASE_MENU), 10))
+		builder.WriteString(", ")
 		builder.WriteString(menuIDExpression)
 		builder.WriteString(", ")
 		builder.WriteString(sqlString(localeValue))
 		builder.WriteString(", ")
 		builder.WriteString(sqlString(title))
-		builder.WriteString(", 'reviewed', SHA2(")
-		builder.WriteString(sqlString(spec.SourceTitle))
-		builder.WriteString(", 256), '', NULL, 0, CURRENT_TIMESTAMP, 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0\n")
+		builder.WriteString("\n")
 		builder.WriteString("WHERE ")
 		builder.WriteString(menuIDExpression)
 		builder.WriteString(" IS NOT NULL AND EXISTS (SELECT 1 FROM `base_language` WHERE `language_code` = ")
 		builder.WriteString(sqlString(localeValue))
-		builder.WriteString(" AND `is_primary` = 0 AND `status` = 1 AND `deleted_at` = 0) AND NOT EXISTS (SELECT 1 FROM `base_menu_translation` WHERE `menu_id` = ")
+		builder.WriteString(" AND `is_primary` = 0 AND `status` = 1 AND `deleted_at` = 0) AND NOT EXISTS (SELECT 1 FROM `base_translation` WHERE `target_type` = ")
+		builder.WriteString(strconv.FormatInt(int64(_const.TRANSLATION_TARGET_TYPE_BASE_MENU), 10))
+		builder.WriteString(" AND `target_id` = ")
 		builder.WriteString(menuIDExpression)
 		builder.WriteString(" AND `locale` = ")
 		builder.WriteString(sqlString(localeValue))
-		builder.WriteString(" AND `deleted_at` = 0);\n")
+		builder.WriteString(");\n")
 	}
 }
 

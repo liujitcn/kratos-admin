@@ -79,6 +79,7 @@ const listeningWindow = useDebounceFn(() => {
   if (!isCollapse.value && screenWidth.value < 1200) globalStore.setGlobalState("isCollapse", true);
   if (isCollapse.value && screenWidth.value > 1200) globalStore.setGlobalState("isCollapse", false);
 }, 100);
+listeningWindow();
 window.addEventListener("resize", listeningWindow, false);
 onBeforeUnmount(() => {
   window.removeEventListener("resize", listeningWindow);

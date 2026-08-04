@@ -15,7 +15,7 @@ export class FileServiceImpl {
   /** 上传多个浏览器文件。 */
   async MultiUploadFile(files: File[], fileType: string): Promise<MultiUploadFileResponse> {
     if (process.env.TARO_ENV !== 'h5') {
-      throw new Error(t('core.file.temporaryPathRequired'))
+      throw new Error(t('core.file.temporary_path_required'))
     }
     const paths = files.map((file) => URL.createObjectURL(file))
     try {
@@ -28,7 +28,7 @@ export class FileServiceImpl {
   /** 上传单个浏览器文件。 */
   async UploadFile(file: File, fileType: string): Promise<FileInfo> {
     if (process.env.TARO_ENV !== 'h5') {
-      throw new Error(t('core.file.temporaryPathRequired'))
+      throw new Error(t('core.file.temporary_path_required'))
     }
     const path = URL.createObjectURL(file)
     try {
@@ -53,7 +53,7 @@ export class FileServiceImpl {
         'source-client': 'miniapp',
       },
     })
-    if (response.statusCode !== 200) throw new Error(t('core.file.downloadFailed'))
+    if (response.statusCode !== 200) throw new Error(t('core.file.download_failed'))
     await Taro.openDocument({ filePath: response.tempFilePath, showMenu: true })
   }
 }

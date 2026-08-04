@@ -661,56 +661,56 @@ const file_system_admin_v1_base_tenant_proto_rawDesc = "" +
 	"\a_status\"\x90\x01\n" +
 	"\x16PageBaseTenantResponse\x12R\n" +
 	"\fbase_tenants\x18\x01 \x03(\v2\x1b.system.admin.v1.BaseTenantB\x12\xbaG\x0f\x92\x02\f分页数据R\vbaseTenants\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"y\n" +
-	"\x14GetBaseTenantRequest\x12a\n" +
-	"\x02id\x18\x01 \x01(\x03BQ\xbaG\v\x92\x02\b租户ID\xbaH@\xba\x01=\n" +
-	"\x1bget_base_tenant.id.required\x12\x14租户ID不能为空\x1a\bthis > 0R\x02id\"u\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x86\x01\n" +
+	"\x14GetBaseTenantRequest\x12n\n" +
+	"\x02id\x18\x01 \x01(\x03B^\xbaG\v\x92\x02\b租户ID\xbaHM\xba\x01J\n" +
+	"(system.admin.base.tenant.get.id.required\x12\x14租户ID不能为空\x1a\bthis > 0R\x02id\"u\n" +
 	"\x17CreateBaseTenantRequest\x12Z\n" +
 	"\vbase_tenant\x18\x01 \x01(\v2\x1f.system.admin.v1.BaseTenantFormB\x18\xbaG\x0f\x92\x02\f租户表单\xbaH\x03\xc8\x01\x01R\n" +
-	"baseTenant\"\xcb\x01\n" +
+	"baseTenant\"\xd8\x01\n" +
 	"\x17UpdateBaseTenantRequest\x12Z\n" +
 	"\vbase_tenant\x18\x01 \x01(\v2\x1f.system.admin.v1.BaseTenantFormB\x18\xbaG\x0f\x92\x02\f租户表单\xbaH\x03\xc8\x01\x01R\n" +
-	"baseTenant:T\xbaHQ\x1aO\n" +
-	"\x1eupdate_base_tenant.id.required\x12\x14租户ID不能为空\x1a\x17this.base_tenant.id > 0\"\x92\x01\n" +
-	"\x17DeleteBaseTenantRequest\x12w\n" +
-	"\x02id\x18\x01 \x01(\tBg\xbaG\x11\x92\x02\x0e租户ID列表\xbaHP\xba\x01M\n" +
-	"\x1edelete_base_tenant.id.required\x12\x1a租户ID列表不能为空\x1a\x0fthis.size() > 0R\x02id\"\xac\x01\n" +
-	"\x1aSetBaseTenantStatusRequest\x12h\n" +
-	"\x02id\x18\x01 \x01(\x03BX\xbaG\v\x92\x02\b租户ID\xbaHG\xba\x01D\n" +
-	"\"set_base_tenant_status.id.required\x12\x14租户ID不能为空\x1a\bthis > 0R\x02id\x12$\n" +
-	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xba\a\n" +
+	"baseTenant:a\xbaH^\x1a\\\n" +
+	"+system.admin.base.tenant.update.id.required\x12\x14租户ID不能为空\x1a\x17this.base_tenant.id > 0\"\xa0\x01\n" +
+	"\x17DeleteBaseTenantRequest\x12\x84\x01\n" +
+	"\x02id\x18\x01 \x01(\tBt\xbaG\x11\x92\x02\x0e租户ID列表\xbaH]\xba\x01Z\n" +
+	"+system.admin.base.tenant.delete.id.required\x12\x1a租户ID列表不能为空\x1a\x0fthis.size() > 0R\x02id\"\xb9\x01\n" +
+	"\x1aSetBaseTenantStatusRequest\x12u\n" +
+	"\x02id\x18\x01 \x01(\x03Be\xbaG\v\x92\x02\b租户ID\xbaHT\xba\x01Q\n" +
+	"/system.admin.base.tenant.set_status.id.required\x12\x14租户ID不能为空\x1a\bthis > 0R\x02id\x12$\n" +
+	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\x96\b\n" +
 	"\n" +
 	"BaseTenant\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\x02id\x12\x9f\x01\n" +
-	"\x04code\x18\x02 \x01(\tB\x8a\x01\xbaG\x0f\x92\x02\f租户编号\xbaHu\xba\x01r\n" +
-	"\x17base_tenant.code.length\x121租户编号不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\x04code\x12\xa1\x01\n" +
-	"\x04name\x18\x03 \x01(\tB\x8c\x01\xbaG\x0f\x92\x02\f租户名称\xbaHw\xba\x01t\n" +
-	"\x17base_tenant.name.length\x122租户名称不能为空且不超过 100 个字符\x1a%this.size() > 0 && this.size() <= 100R\x04name\x12\x91\x01\n" +
-	"\fcontact_name\x18\x04 \x01(\tBn\xbaG\f\x92\x02\t联系人\xbaH\\\xba\x01Y\n" +
-	" base_tenant.contact_name.max_len\x12\"联系人不能超过 50 个字符\x1a\x11this.size() <= 50R\vcontactName\x12\x9a\x01\n" +
-	"\rcontact_phone\x18\x05 \x01(\tBu\xbaG\x0f\x92\x02\f联系电话\xbaH`\xba\x01]\n" +
-	"!base_tenant.contact_phone.max_len\x12%联系电话不能超过 20 个字符\x1a\x11this.size() <= 20R\fcontactPhone\x127\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\x02id\x12\xb5\x01\n" +
+	"\x04code\x18\x02 \x01(\tB\xa0\x01\xbaG\x0f\x92\x02\f租户编号\xbaH\x8a\x01\xba\x01\x86\x01\n" +
+	"+system.admin.base.tenant.entity.code.length\x121租户编号不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\x04code\x12\xb7\x01\n" +
+	"\x04name\x18\x03 \x01(\tB\xa2\x01\xbaG\x0f\x92\x02\f租户名称\xbaH\x8c\x01\xba\x01\x88\x01\n" +
+	"+system.admin.base.tenant.entity.name.length\x122租户名称不能为空且不超过 100 个字符\x1a%this.size() > 0 && this.size() <= 100R\x04name\x12\xa9\x01\n" +
+	"\fcontact_name\x18\x04 \x01(\tB\x85\x01\xbaG\f\x92\x02\t联系人\xbaHs\xba\x01p\n" +
+	"7system.admin.base.tenant.entity.contact_name.max_length\x12\"联系人不能超过 50 个字符\x1a\x11this.size() <= 50R\vcontactName\x12\xb2\x01\n" +
+	"\rcontact_phone\x18\x05 \x01(\tB\x8c\x01\xbaG\x0f\x92\x02\f联系电话\xbaHw\xba\x01t\n" +
+	"8system.admin.base.tenant.entity.contact_phone.max_length\x12%联系电话不能超过 20 个字符\x1a\x11this.size() <= 20R\fcontactPhone\x127\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x12$\n" +
 	"\x06remark\x18e \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remark\x122\n" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12N\n" +
-	"\fis_protected\x18\xac\x02 \x01(\bB*\xbaG'\x92\x02$是否禁止通过租户管理操作R\visProtected\"\x98\a\n" +
+	"\fis_protected\x18\xac\x02 \x01(\bB*\xbaG'\x92\x02$是否禁止通过租户管理操作R\visProtected\"\x9f\b\n" +
 	"\x0eBaseTenantForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\x02id\x12&\n" +
-	"\x04code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户编号R\x04code\x12\xca\x01\n" +
-	"\x04name\x18\x03 \x01(\tB\xb5\x01\xbaG\x0f\x92\x02\f租户名称\xbaH\x9f\x01\xba\x01C\n" +
-	"\x19base_tenant.name.required\x12\x15请输入租户名称\x1a\x0fthis.size() > 0\xba\x01V\n" +
-	"\x18base_tenant.name.max_len\x12&租户名称不能超过 100 个字符\x1a\x12this.size() <= 100R\x04name\x12\x91\x01\n" +
-	"\fcontact_name\x18\x04 \x01(\tBn\xbaG\f\x92\x02\t联系人\xbaH\\\xba\x01Y\n" +
-	" base_tenant.contact_name.max_len\x12\"联系人不能超过 50 个字符\x1a\x11this.size() <= 50R\vcontactName\x12\x95\x02\n" +
-	"\rcontact_phone\x18\x05 \x01(\tB\xef\x01\xbaG\x0f\x92\x02\f联系电话\xbaH\xd9\x01\xba\x01]\n" +
-	"!base_tenant.contact_phone.max_len\x12%联系电话不能超过 20 个字符\x1a\x11this.size() <= 20\xba\x01v\n" +
-	" base_tenant.contact_phone.format\x12\x1e请输入正确的联系电话\x1a2this.size() == 0 || this.matches('^1[3-9]\\\\d{9}$')R\fcontactPhone\x12<\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x12|\n" +
-	"\x06remark\x18e \x01(\tBd\xbaG\t\x92\x02\x06备注\xbaHU\xba\x01R\n" +
-	"\x1abase_tenant.remark.max_len\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remarkB\t\n" +
+	"\x04code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户编号R\x04code\x12\xf5\x01\n" +
+	"\x04name\x18\x03 \x01(\tB\xe0\x01\xbaG\x0f\x92\x02\f租户名称\xbaH\xca\x01\xba\x01W\n" +
+	"-system.admin.base.tenant.entity.name.required\x12\x15请输入租户名称\x1a\x0fthis.size() > 0\xba\x01m\n" +
+	"/system.admin.base.tenant.entity.name.max_length\x12&租户名称不能超过 100 个字符\x1a\x12this.size() <= 100R\x04name\x12\xa9\x01\n" +
+	"\fcontact_name\x18\x04 \x01(\tB\x85\x01\xbaG\f\x92\x02\t联系人\xbaHs\xba\x01p\n" +
+	"7system.admin.base.tenant.entity.contact_name.max_length\x12\"联系人不能超过 50 个字符\x1a\x11this.size() <= 50R\vcontactName\x12\xc1\x02\n" +
+	"\rcontact_phone\x18\x05 \x01(\tB\x9b\x02\xbaG\x0f\x92\x02\f联系电话\xbaH\x85\x02\xba\x01t\n" +
+	"8system.admin.base.tenant.entity.contact_phone.max_length\x12%联系电话不能超过 20 个字符\x1a\x11this.size() <= 20\xba\x01\x8a\x01\n" +
+	"4system.admin.base.tenant.entity.contact_phone.format\x12\x1e请输入正确的联系电话\x1a2this.size() == 0 || this.matches('^1[3-9]\\\\d{9}$')R\fcontactPhone\x12<\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x12\x93\x01\n" +
+	"\x06remark\x18e \x01(\tB{\xbaG\t\x92\x02\x06备注\xbaHl\xba\x01i\n" +
+	"1system.admin.base.tenant.entity.remark.max_length\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remarkB\t\n" +
 	"\a_status2\xd1\a\n" +
 	"\x11BaseTenantService\x12\x87\x01\n" +
 	"\x10OptionBaseTenant\x12(.system.admin.v1.OptionBaseTenantRequest\x1a\x1f.common.v1.SelectOptionResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /api/v1/admin/base/tenant/option\x12\x84\x01\n" +

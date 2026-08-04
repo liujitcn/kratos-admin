@@ -6,16 +6,16 @@
           <h3>{{ t("system.profile.security.title") }}</h3>
           <p>{{ t("system.profile.security.description") }}</p>
         </div>
-        <el-tag effect="plain" type="success">{{ t("system.profile.security.value.accountNormal") }}</el-tag>
+        <el-tag effect="plain" type="success">{{ t("system.profile.security.value.account_normal") }}</el-tag>
       </div>
       <div class="security-list">
         <div class="security-item">
           <div class="security-item__content">
-            <strong>{{ t("system.profile.security.field.loginPassword") }}</strong>
-            <p>{{ t("system.profile.security.message.passwordHint") }}</p>
+            <strong>{{ t("system.profile.security.field.login_password") }}</strong>
+            <p>{{ t("system.profile.security.message.password_hint") }}</p>
           </div>
           <el-button type="primary" plain @click="emit('switchTab', 'password')">
-            {{ t("system.profile.security.action.changePassword") }}
+            {{ t("system.profile.security.action.change_password") }}
           </el-button>
         </div>
         <div class="security-item">
@@ -24,7 +24,7 @@
             <p>{{ mobileTip }}</p>
           </div>
           <el-button plain @click="openPhoneDialog">
-            {{ profile.phone ? t("system.profile.security.action.changePhone") : t("system.profile.security.action.bindNow") }}
+            {{ profile.phone ? t("system.profile.security.action.change_phone") : t("system.profile.security.action.bind_now") }}
           </el-button>
         </div>
         <div v-for="item in oauthBindings" :key="item.provider" class="security-item">
@@ -38,7 +38,7 @@
               <strong>{{ oauthName(item) }}</strong>
               <p>
                 {{
-                  item.bound ? t("system.profile.security.message.oauthBound") : t("system.profile.security.message.oauthUnbound")
+                  item.bound ? t("system.profile.security.message.oauth_bound") : t("system.profile.security.message.oauth_unbound")
                 }}
               </p>
             </div>
@@ -70,11 +70,11 @@
       </template>
       <div class="status-grid">
         <div class="status-item">
-          <span>{{ t("system.profile.security.field.phoneVerification") }}</span>
+          <span>{{ t("system.profile.security.field.phone_verification") }}</span>
           <strong>{{ profile.phone ? t("common.status.enabled") : t("common.status.disabled") }}</strong>
         </div>
         <div class="status-item">
-          <span>{{ t("system.profile.security.field.profileCompletion") }}</span>
+          <span>{{ t("system.profile.security.field.profile_completion") }}</span>
           <strong>{{ profileCompletion }}</strong>
         </div>
       </div>
@@ -82,7 +82,7 @@
 
     <ProDialog
       v-model="phoneDialogVisible"
-      :title="t('system.profile.security.dialog.bindPhone')"
+      :title="t('system.profile.security.dialog.bind_phone')"
       :width="520"
       @closed="handleDialogClosed"
     >
@@ -93,8 +93,8 @@
               <el-button :disabled="countdown > 0" @click="handleSendCode">
                 {{
                   countdown > 0
-                    ? t("system.profile.security.action.retryAfter", { seconds: countdown })
-                    : t("system.profile.security.action.sendCode")
+                    ? t("system.profile.security.action.retry_after", { seconds: countdown })
+                    : t("system.profile.security.action.send_code")
                 }}
               </el-button>
             </template>
@@ -167,7 +167,7 @@ const sendPhoneCodeForm = reactive<SendPhoneCodeRequest>({
 const phoneFormFields = computed<ProFormField[]>(() => [
   {
     prop: "phone",
-    label: t("system.profile.security.field.phoneNumber"),
+    label: t("system.profile.security.field.phone_number"),
     component: "input",
     props: { placeholder: t("system.profile.security.placeholder.phone") }
   },
@@ -190,8 +190,8 @@ const phoneFormRules = computed(() => ({
 /** 根据当前绑定状态输出手机号说明文案。 */
 const mobileTip = computed(() => {
   return props.profile.phone
-    ? t("system.profile.security.message.phoneBound", { phone: props.profile.phone })
-    : t("system.profile.security.message.phoneUnbound");
+    ? t("system.profile.security.message.phone_bound", { phone: props.profile.phone })
+    : t("system.profile.security.message.phone_unbound");
 });
 
 /** 根据关键资料估算当前资料完成度。 */
@@ -228,7 +228,7 @@ async function consumeOauthBindingResult() {
   if (typeof bindError === "string" && bindError) {
     ElMessage.error(bindError);
   } else if (bindSuccess === "1") {
-    ElMessage.success(t("system.profile.security.message.oauthBindSuccess"));
+    ElMessage.success(t("system.profile.security.message.oauth_bind_success"));
   } else {
     return;
   }
@@ -263,7 +263,7 @@ async function handleBindOauth(binding: SecurityOauthBinding) {
 /** 解绑三方账号并刷新绑定状态。 */
 async function handleUnbindOauth(binding: SecurityOauthBinding) {
   await ElMessageBox.confirm(
-    t("system.profile.security.dialog.confirmUnbind", { provider: oauthName(binding) }),
+    t("system.profile.security.dialog.confirm_unbind", { provider: oauthName(binding) }),
     t("common.title.warning"),
     {
       type: "warning",
@@ -274,7 +274,7 @@ async function handleUnbindOauth(binding: SecurityOauthBinding) {
   oauthLoadingProvider.value = binding.provider;
   try {
     await defProfileOauthService.UnbindOauthAccount({ provider: binding.provider });
-    ElMessage.success(t("system.profile.security.message.oauthUnbindSuccess"));
+    ElMessage.success(t("system.profile.security.message.oauth_unbind_success"));
     await loadOauthBindings();
   } finally {
     oauthLoadingProvider.value = "";
@@ -301,7 +301,7 @@ async function handleSendCode() {
 
   sendPhoneCodeForm.phone = phoneForm.phone;
   await defProfileAuthService.SendPhoneCode(sendPhoneCodeForm);
-  ElMessage.success(t("system.profile.security.message.codeSent"));
+  ElMessage.success(t("system.profile.security.message.code_sent"));
   startCountdown();
 }
 
@@ -312,7 +312,7 @@ async function handleSubmitPhone() {
   submitLoading.value = true;
   try {
     await defProfileAuthService.UpdateUserPhone({ user_phone: phoneForm });
-    ElMessage.success(t("system.profile.security.message.phoneUpdated"));
+    ElMessage.success(t("system.profile.security.message.phone_updated"));
     phoneDialogVisible.value = false;
     emit("refreshed");
   } finally {

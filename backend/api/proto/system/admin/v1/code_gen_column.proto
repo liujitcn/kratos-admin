@@ -35,7 +35,7 @@ service CodeGenColumnService {
 
 // 代码生成字段配置查询条件
 message ListCodeGenColumnRequest {
-  int64 table_id = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID"}, (buf.validate.field).cel = {id: "list_code_gen_column.table_id.required" message: "代码生成表配置ID不能为空" expression: "this > 0"}]; // 代码生成表配置ID
+  int64 table_id = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID"}, (buf.validate.field).cel = {id: "system.admin.code.gen.column.list.table_id.required" message: "代码生成表配置ID不能为空" expression: "this > 0"}]; // 代码生成表配置ID
 }
 
 // 代码生成字段配置查询响应
@@ -45,7 +45,7 @@ message ListCodeGenColumnResponse {
 
 // 数据库表字段列表查询条件
 message ListCodeGenDatabaseColumnRequest {
-  string table_name = 1 [(gnostic.openapi.v3.property) = {description: "数据库表名"}, (buf.validate.field).cel = {id: "list_code_gen_database_column.table_name.required" message: "数据库表名不能为空" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "list_code_gen_database_column.table_name.pattern" message: "数据库表名格式不正确" expression: "this.matches('^[a-z][a-z0-9_]*$')"}]; // 数据库表名
+  string table_name = 1 [(gnostic.openapi.v3.property) = {description: "数据库表名"}, (buf.validate.field).cel = {id: "system.admin.code.gen.column.list_gen_database_column.table_name.required" message: "数据库表名不能为空" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "system.admin.code.gen.column.list_gen_database_column.table_name.pattern" message: "数据库表名格式不正确" expression: "this.matches('^[a-z][a-z0-9_]*$')"}]; // 数据库表名
 }
 
 // 数据库表字段列表响应
@@ -55,7 +55,7 @@ message ListCodeGenDatabaseColumnResponse {
 
 // 代码生成字段配置保存条件
 message SaveCodeGenColumnRequest {
-  int64 table_id = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID"}, (buf.validate.field).cel = {id: "save_code_gen_column.table_id.required" message: "代码生成表配置ID不能为空" expression: "this > 0"}]; // 代码生成表配置ID
+  int64 table_id = 1 [(gnostic.openapi.v3.property) = {description: "代码生成表配置ID"}, (buf.validate.field).cel = {id: "system.admin.code.gen.column.save.table_id.required" message: "代码生成表配置ID不能为空" expression: "this > 0"}]; // 代码生成表配置ID
 
   repeated CodeGenColumn code_gen_columns = 2 [(gnostic.openapi.v3.property) = {description: "代码生成字段配置列表"}]; // 代码生成字段配置列表
 }

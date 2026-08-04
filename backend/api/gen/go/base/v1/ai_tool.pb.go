@@ -24,6 +24,59 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 终端类型。
+type Terminal int32
+
+const (
+	// 未指定终端类型。
+	Terminal_TERMINAL_UNSPECIFIED Terminal = 0
+	// 移动端。
+	Terminal_TERMINAL_APP Terminal = 1
+	// 管理端。
+	Terminal_TERMINAL_ADMIN Terminal = 2
+)
+
+// Enum value maps for Terminal.
+var (
+	Terminal_name = map[int32]string{
+		0: "TERMINAL_UNSPECIFIED",
+		1: "TERMINAL_APP",
+		2: "TERMINAL_ADMIN",
+	}
+	Terminal_value = map[string]int32{
+		"TERMINAL_UNSPECIFIED": 0,
+		"TERMINAL_APP":         1,
+		"TERMINAL_ADMIN":       2,
+	}
+)
+
+func (x Terminal) Enum() *Terminal {
+	p := new(Terminal)
+	*p = x
+	return p
+}
+
+func (x Terminal) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Terminal) Descriptor() protoreflect.EnumDescriptor {
+	return file_base_v1_ai_tool_proto_enumTypes[0].Descriptor()
+}
+
+func (Terminal) Type() protoreflect.EnumType {
+	return &file_base_v1_ai_tool_proto_enumTypes[0]
+}
+
+func (x Terminal) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Terminal.Descriptor instead.
+func (Terminal) EnumDescriptor() ([]byte, []int) {
+	return file_base_v1_ai_tool_proto_rawDescGZIP(), []int{0}
+}
+
 // AI 助手快捷入口列表查询条件
 type ListAiShortcutRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -66,7 +119,7 @@ func (x *ListAiShortcutRequest) GetTerminal() Terminal {
 	if x != nil {
 		return x.Terminal
 	}
-	return Terminal_UNKNOWN_TERMINAL
+	return Terminal_TERMINAL_UNSPECIFIED
 }
 
 // AI 助手快捷入口列表响应
@@ -365,7 +418,7 @@ var File_base_v1_ai_tool_proto protoreflect.FileDescriptor
 
 const file_base_v1_ai_tool_proto_rawDesc = "" +
 	"\n" +
-	"\x15base/v1/ai_tool.proto\x12\abase.v1\x1a\x12base/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"q\n" +
+	"\x15base/v1/ai_tool.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"q\n" +
 	"\x15ListAiShortcutRequest\x12X\n" +
 	"\bterminal\x18\x01 \x01(\x0e2\x11.base.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"e\n" +
 	"\x16ListAiShortcutResponse\x12K\n" +
@@ -391,7 +444,11 @@ const file_base_v1_ai_tool_proto_rawDesc = "" +
 	"\x05title\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12工具展示名称R\x05title\x120\n" +
 	"\x06status\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12工具调用状态R\x06status\x122\n" +
 	"\x05input\x18\x05 \x01(\tB\x1c\xbaG\x19\x92\x02\x16工具原始入参JSONR\x05input\x124\n" +
-	"\x06output\x18\x06 \x01(\tB\x1c\xbaG\x19\x92\x02\x16工具原始出参JSONR\x06output2\x84\x01\n" +
+	"\x06output\x18\x06 \x01(\tB\x1c\xbaG\x19\x92\x02\x16工具原始出参JSONR\x06output*J\n" +
+	"\bTerminal\x12\x18\n" +
+	"\x14TERMINAL_UNSPECIFIED\x10\x00\x12\x10\n" +
+	"\fTERMINAL_APP\x10\x01\x12\x12\n" +
+	"\x0eTERMINAL_ADMIN\x10\x022\x84\x01\n" +
 	"\rAiToolService\x12s\n" +
 	"\x0eListAiShortcut\x12\x1e.base.v1.ListAiShortcutRequest\x1a\x1f.base.v1.ListAiShortcutResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/v1/base/ai/shortcutB\x9b\x01\n" +
 	"\vcom.base.v1B\vAiToolProtoP\x01ZBgithub.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1;basev1\xa2\x02\x03BXX\xaa\x02\aBase.V1\xca\x02\aBase\\V1\xe2\x02\x13Base\\V1\\GPBMetadata\xea\x02\bBase::V1b\x06proto3"
@@ -408,21 +465,22 @@ func file_base_v1_ai_tool_proto_rawDescGZIP() []byte {
 	return file_base_v1_ai_tool_proto_rawDescData
 }
 
+var file_base_v1_ai_tool_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_base_v1_ai_tool_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_base_v1_ai_tool_proto_goTypes = []any{
-	(*ListAiShortcutRequest)(nil),  // 0: base.v1.ListAiShortcutRequest
-	(*ListAiShortcutResponse)(nil), // 1: base.v1.ListAiShortcutResponse
-	(*AiShortcut)(nil),             // 2: base.v1.AiShortcut
-	(*AiShortcutAction)(nil),       // 3: base.v1.AiShortcutAction
-	(*AiToolCall)(nil),             // 4: base.v1.AiToolCall
-	(Terminal)(0),                  // 5: base.v1.Terminal
+	(Terminal)(0),                  // 0: base.v1.Terminal
+	(*ListAiShortcutRequest)(nil),  // 1: base.v1.ListAiShortcutRequest
+	(*ListAiShortcutResponse)(nil), // 2: base.v1.ListAiShortcutResponse
+	(*AiShortcut)(nil),             // 3: base.v1.AiShortcut
+	(*AiShortcutAction)(nil),       // 4: base.v1.AiShortcutAction
+	(*AiToolCall)(nil),             // 5: base.v1.AiToolCall
 }
 var file_base_v1_ai_tool_proto_depIdxs = []int32{
-	5, // 0: base.v1.ListAiShortcutRequest.terminal:type_name -> base.v1.Terminal
-	2, // 1: base.v1.ListAiShortcutResponse.shortcuts:type_name -> base.v1.AiShortcut
-	3, // 2: base.v1.AiShortcut.action:type_name -> base.v1.AiShortcutAction
-	0, // 3: base.v1.AiToolService.ListAiShortcut:input_type -> base.v1.ListAiShortcutRequest
-	1, // 4: base.v1.AiToolService.ListAiShortcut:output_type -> base.v1.ListAiShortcutResponse
+	0, // 0: base.v1.ListAiShortcutRequest.terminal:type_name -> base.v1.Terminal
+	3, // 1: base.v1.ListAiShortcutResponse.shortcuts:type_name -> base.v1.AiShortcut
+	4, // 2: base.v1.AiShortcut.action:type_name -> base.v1.AiShortcutAction
+	1, // 3: base.v1.AiToolService.ListAiShortcut:input_type -> base.v1.ListAiShortcutRequest
+	2, // 4: base.v1.AiToolService.ListAiShortcut:output_type -> base.v1.ListAiShortcutResponse
 	4, // [4:5] is the sub-list for method output_type
 	3, // [3:4] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
@@ -435,19 +493,19 @@ func file_base_v1_ai_tool_proto_init() {
 	if File_base_v1_ai_tool_proto != nil {
 		return
 	}
-	file_base_v1_enum_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_base_v1_ai_tool_proto_rawDesc), len(file_base_v1_ai_tool_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_base_v1_ai_tool_proto_goTypes,
 		DependencyIndexes: file_base_v1_ai_tool_proto_depIdxs,
+		EnumInfos:         file_base_v1_ai_tool_proto_enumTypes,
 		MessageInfos:      file_base_v1_ai_tool_proto_msgTypes,
 	}.Build()
 	File_base_v1_ai_tool_proto = out.File

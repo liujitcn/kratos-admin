@@ -10,8 +10,8 @@ export default function HomePage() {
   const { t } = useI18n()
   const settings = useSettingStore((state) => state.data)
   const loadData = useSettingStore((state) => state.loadData)
-  const mainTitle = settings?.get('mainTitle') || t('core.home.mainTitle')
-  const subTitle = settings?.get('subTitle') || t('core.home.subTitle')
+  const mainTitle = settings?.get('mainTitle') || t('core.home.main_title')
+  const subTitle = settings?.get('subTitle') || t('core.home.sub_title')
   const appLogo = settings?.get('appLogo') || defaultLogo
   useLoad(() => {
     void loadData().catch(() => undefined)
@@ -20,13 +20,13 @@ export default function HomePage() {
   const stack = [
     [t('core.home.framework'), 'Taro + React 18'],
     [t('core.home.language'), 'TypeScript'],
-    [t('core.home.stateManagement'), 'Zustand'],
-    [t('core.home.styleSolution'), 'Sass + px'],
+    [t('core.home.state_management'), 'Zustand'],
+    [t('core.home.style_solution'), 'Sass + px'],
   ]
   const demos = [
-    [t('core.home.crossPlatform'), t('core.home.crossPlatformDescription')],
-    [t('core.home.accountCapability'), t('core.home.accountCapabilityDescription')],
-    [t('core.home.staticHome'), t('core.home.staticHomeDescription')],
+    [t('core.home.cross_platform'), t('core.home.cross_platform_description')],
+    [t('core.home.account_capability'), t('core.home.account_capability_description')],
+    [t('core.home.static_home'), t('core.home.static_home_description')],
   ]
 
   return (
@@ -44,7 +44,7 @@ export default function HomePage() {
       </View>
 
       <View className='home-section'>
-        <Text className='home-section__title'>{t('core.home.techStack')}</Text>
+        <Text className='home-section__title'>{t('core.home.tech_stack')}</Text>
         <View className='home-info-list'>
           {stack.map(([label, value]) => (
             <View className='home-info-row' key={label}>
@@ -56,7 +56,7 @@ export default function HomePage() {
       </View>
 
       <View className='home-section'>
-        <Text className='home-section__title'>{t('core.home.demoScope')}</Text>
+        <Text className='home-section__title'>{t('core.home.demo_scope')}</Text>
         <View className='home-demo-list'>
           {demos.map(([title, description], index) => (
             <View className='home-demo-item' key={title}>

@@ -12,7 +12,7 @@
     <FormDialog
       v-model="dialog.visible"
       ref="formDialogRef"
-      :title="t(dialog.titleKey, { resource: t('system.config.resource') })"
+      :title="t(dialog.titleKey, { resource: t('system.base.config.resource') })"
       width="1200px"
       :model="formData"
       :fields="formFields"
@@ -24,7 +24,7 @@
       <template #textValue>
         <el-input
           v-model="formData.value"
-          :placeholder="t('system.common.validation.requiredInput', { field: t('system.config.field.value') })"
+          :placeholder="t('common.validation.required_input', { field: t('system.base.config.field.value') })"
         />
       </template>
       <template #imageValue>
@@ -39,12 +39,12 @@
           v-model="formData.value"
           :code="dictValueCode"
           code-type="string"
-          :placeholder="t('system.common.validation.requiredSelect', { field: t('system.config.field.value') })"
+          :placeholder="t('common.validation.required_select', { field: t('system.base.config.field.value') })"
         />
         <el-input
           v-else
           v-model="formData.value"
-          :placeholder="t('system.common.validation.requiredInput', { field: t('system.config.field.value') })"
+          :placeholder="t('common.validation.required_input', { field: t('system.base.config.field.value') })"
         />
       </template>
       <template #booleanValue>
@@ -60,20 +60,16 @@
       <template #nameTranslations>
         <DynamicTranslationEditor
           v-model="nameTranslationValues"
-          :resource-id="formData.id"
-          :resource-type="TranslationResourceType.TRANSLATION_RESOURCE_TYPE_CONFIG"
-          :field="BaseConfigTranslationField.BASE_CONFIG_TRANSLATION_FIELD_NAME"
-          :draft-enabled="configStore.translationDraftEnabled"
+          :source="formData.name"
+          :source-locale="formData.id > 0 ? undefined : locale"
           :maxlength="100"
         />
       </template>
       <template #valueTranslations>
         <DynamicTranslationEditor
           v-model="valueTranslationValues"
-          :resource-id="formData.id"
-          :resource-type="TranslationResourceType.TRANSLATION_RESOURCE_TYPE_CONFIG"
-          :field="BaseConfigTranslationField.BASE_CONFIG_TRANSLATION_FIELD_VALUE"
-          :draft-enabled="configStore.translationDraftEnabled"
+          :source="formData.value"
+          :source-locale="formData.id > 0 ? undefined : locale"
           :maxlength="10000"
           multiline
         />
@@ -102,21 +98,27 @@ import type {
   BaseConfigForm,
   PageBaseConfigRequest
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_config";
-import type { BaseConfigTranslation } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
-import { BaseConfigSite } from "@liujitcn/kratos-admin-system/rpc/base/v1/enum";
+import type { BaseTranslation } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
+import { BaseConfigSite } from "@liujitcn/kratos-admin-system/rpc/base/v1/config";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
-import { BaseConfigType } from "@liujitcn/kratos-admin-system/rpc/system/common/v1/enum";
+import { BaseConfigType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_config";
+import { TranslationTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
-import { t } from "@liujitcn/kratos-admin-core";
-import { useConfigStore } from "@liujitcn/kratos-admin-core/stores/runtime";
+import { t, useLocaleStore } from "@liujitcn/kratos-admin-core";
 import DynamicTranslationEditor from "@liujitcn/kratos-admin-system/components/DynamicTranslationEditor.vue";
 import DynamicTranslationCell from "@liujitcn/kratos-admin-system/components/DynamicTranslationCell.vue";
-import { getEditableLanguageOptions, type DynamicTranslationValue } from "@liujitcn/kratos-admin-system/components/dynamicTranslation";
 import {
-  BaseConfigTranslationField,
-  TranslationResourceType,
-  TranslationStatus
-} from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
+  getEditableLanguageOptions,
+  type DynamicTranslationValue
+} from "@liujitcn/kratos-admin-system/components/dynamicTranslation";
+
+/** 系统配置编辑表单状态，新增时枚举字段保持为空，避免把未知值 0 显示为下拉文本。 */
+type BaseConfigFormState = Omit<BaseConfigForm, "site" | "type"> & {
+  /** 配置位置。 */
+  site?: BaseConfigSite;
+  /** 配置类型。 */
+  type?: BaseConfigType;
+};
 
 defineOptions({
   name: "BaseConfig",
@@ -124,24 +126,24 @@ defineOptions({
 });
 
 const { BUTTONS } = useAuthButtons();
-const configStore = useConfigStore();
+const { locale } = useLocaleStore();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
 const dialog = reactive({
-  titleKey: "system.common.action.createResource",
+  titleKey: "common.action.create_resource",
   visible: false
 });
 
-const formData = reactive<BaseConfigForm>({
+const formData = reactive<BaseConfigFormState>({
   /** 配置ID */
   id: 0,
   /** 位置：枚举【BaseConfigSite】 */
-  site: BaseConfigSite.UNKNOWN_BCS,
+  site: undefined,
   /** 配置名称 */
   name: "",
   /** 配置类型：枚举【BaseConfigType】 */
-  type: BaseConfigType.UNKNOWN_BCT,
+  type: undefined,
   /** 配置key */
   key: "",
   /** 配置value */
@@ -152,104 +154,95 @@ const formData = reactive<BaseConfigForm>({
   translations: []
 });
 
-/** 将配置翻译记录转换为编辑器值，缺少记录时保留可编辑的空行。 */
-function normalizeConfigTranslations(field: BaseConfigTranslationField): DynamicTranslationValue[] {
-  return getEditableLanguageOptions().map(item => item.value).map(locale => {
-    const record = formData.translations?.find(item => item.locale === locale && item.field === field);
-    return {
-      id: record?.id ?? 0,
-      locale,
-      text: record?.text ?? "",
-      translation_status: record?.translation_status ?? TranslationStatus.TRANSLATION_STATUS_PENDING,
-      source_changed: record?.source_changed ?? false,
-      source_hash: record?.source_hash ?? "",
-      translation_provider: record?.translation_provider ?? "",
-      translated_at: record?.translated_at ?? "",
-      reviewed_by: record?.reviewed_by ?? 0,
-      reviewed_at: record?.reviewed_at ?? "",
-      created_by: record?.created_by ?? 0,
-      updated_by: record?.updated_by ?? 0,
-      created_at: record?.created_at ?? "",
-      updated_at: record?.updated_at ?? "",
-      deleted_at: record?.deleted_at ?? 0
-    };
-  });
+/** 将配置值翻译记录转换为编辑器值，缺少记录时保留可编辑的空行。 */
+function normalizeConfigTranslations(targetType: TranslationTargetType): DynamicTranslationValue[] {
+  return getEditableLanguageOptions()
+    .map(item => item.value)
+    .map(locale => {
+      const record = formData.translations?.find(item => item.locale === locale && item.target_type === targetType);
+      return {
+        id: record?.id ?? 0,
+        locale,
+        text: record?.name ?? ""
+      };
+    });
 }
 
-/** 保存指定字段的编辑器值，并保留另一字段的翻译。 */
-function updateConfigTranslations(field: BaseConfigTranslationField, values: DynamicTranslationValue[]) {
-  const remaining = (formData.translations ?? []).filter(item => item.field !== field);
-  const next = values.map(item =>
-    ({
-      ...item,
-      config_id: formData.id,
-      field,
-      text: item.text
-    }) as BaseConfigTranslation
+/** 保存指定目标类型的编辑器值，并保留其他字段的翻译。 */
+function updateConfigTranslations(targetType: TranslationTargetType, values: DynamicTranslationValue[]) {
+  const remaining = (formData.translations ?? []).filter(item => item.target_type !== targetType);
+  const next = values.map(
+    item =>
+      ({
+        ...item,
+        target_type: targetType,
+        target_id: formData.id,
+        name: item.text
+      }) as BaseTranslation
   );
   formData.translations = [...remaining, ...next];
 }
 
 const nameTranslationValues = computed<DynamicTranslationValue[]>({
-  get: () => normalizeConfigTranslations(BaseConfigTranslationField.BASE_CONFIG_TRANSLATION_FIELD_NAME),
-  set: values => updateConfigTranslations(BaseConfigTranslationField.BASE_CONFIG_TRANSLATION_FIELD_NAME, values)
+  get: () => normalizeConfigTranslations(TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME),
+  set: values => updateConfigTranslations(TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, values)
 });
 
 const valueTranslationValues = computed<DynamicTranslationValue[]>({
-  get: () => normalizeConfigTranslations(BaseConfigTranslationField.BASE_CONFIG_TRANSLATION_FIELD_VALUE),
-  set: values => updateConfigTranslations(BaseConfigTranslationField.BASE_CONFIG_TRANSLATION_FIELD_VALUE, values)
+  get: () => normalizeConfigTranslations(TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE),
+  set: values => updateConfigTranslations(TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE, values)
 });
 
 const rules = computed(() => ({
   site: [
     {
       required: true,
-      message: t("system.common.validation.requiredSelect", { field: t("system.config.field.site") }),
+      message: t("common.validation.required_select", { field: t("system.base.config.field.site") }),
       trigger: "change"
     }
   ],
   name: [
     {
       required: true,
-      message: t("system.common.validation.requiredInput", { field: t("system.config.field.name") }),
+      message: t("common.validation.required_input", { field: t("system.base.config.field.name") }),
       trigger: "blur"
     },
     {
       max: 50,
-      message: t("system.common.validation.maxLength", { field: t("system.config.field.name"), max: 50 }),
+      message: t("common.validation.max_length", { field: t("system.base.config.field.name"), max: 50 }),
       trigger: "blur"
     }
   ],
   type: [
     {
       required: true,
-      message: t("system.common.validation.requiredSelect", { field: t("system.config.field.type") }),
+      message: t("common.validation.required_select", { field: t("system.base.config.field.type") }),
       trigger: "change"
     }
   ],
   key: [
     {
       required: true,
-      message: t("system.common.validation.requiredInput", { field: t("system.config.field.key") }),
+      message: t("common.validation.required_input", { field: t("system.base.config.field.key") }),
       trigger: "blur"
     },
     {
       max: 50,
-      message: t("system.common.validation.maxLength", { field: t("system.config.field.key"), max: 50 }),
+      message: t("common.validation.max_length", { field: t("system.base.config.field.key"), max: 50 }),
       trigger: "blur"
     }
   ],
   value: [
     {
       required: true,
-      message: t("system.common.validation.requiredInput", { field: t("system.config.field.value") }),
+      message: t("common.validation.required_input", { field: t("system.base.config.field.value") }),
       trigger: "blur"
     }
   ],
   status: [
     {
       required: true,
-      message: t("system.common.validation.requiredSelect", { field: t("system.common.field.status") }),
+      message: t("common.validation.required_select", { field: t("common.field.status") }),
       trigger: "change"
     }
   ]
@@ -272,111 +265,124 @@ const dictValueCode = computed(() => BASE_CONFIG_DICT_CODE_MAP[formData.key] ?? 
 const formFields = computed<ProFormField[]>(() => [
   {
     prop: "name",
-    label: t("system.config.field.name"),
+    label: t("system.base.config.field.name"),
     component: "input",
     props: {
-      placeholder: t("system.common.validation.requiredInput", { field: t("system.config.field.name") }),
+      placeholder: t("common.validation.required_input", { field: t("system.base.config.field.name") }),
       disabled: formData.id > 0
     }
   },
   {
     prop: "site",
-    label: t("system.config.field.site"),
+    label: t("system.base.config.field.site"),
     component: "dict",
     props: { code: "base_config_site", disabled: formData.id > 0 }
   },
   {
     prop: "key",
-    label: t("system.config.field.key"),
+    label: t("system.base.config.field.key"),
     component: "input",
     props: {
-      placeholder: t("system.common.validation.requiredInput", { field: t("system.config.field.key") }),
+      placeholder: t("common.validation.required_input", { field: t("system.base.config.field.key") }),
       disabled: formData.id > 0
     }
   },
   {
     prop: "type",
-    label: t("system.config.field.type"),
+    label: t("system.base.config.field.type"),
     component: "dict",
     props: { code: "base_config_type", disabled: formData.id > 0 }
   },
   {
     prop: "value",
-    label: t("system.config.field.value"),
+    label: t("system.base.config.field.value"),
     component: "slot",
     slotName: "textValue",
-    visible: model => model.type == BaseConfigType.TEXT
+    visible: model => model.type == BaseConfigType.BASE_CONFIG_TYPE_TEXT
   },
   {
     prop: "value",
-    label: t("system.config.field.value"),
+    label: t("system.base.config.field.value"),
     component: "slot",
     slotName: "imageValue",
-    visible: model => model.type == BaseConfigType.IMAGE
+    visible: model => model.type == BaseConfigType.BASE_CONFIG_TYPE_IMAGE
   },
   {
     prop: "value",
-    label: t("system.config.field.value"),
+    label: t("system.base.config.field.value"),
     component: "slot",
     slotName: "richTextValue",
-    visible: model => model.type == BaseConfigType.RICH_TEXT,
+    visible: model => model.type == BaseConfigType.BASE_CONFIG_TYPE_RICH_TEXT,
     colSpan: 24
   },
   {
     prop: "value",
-    label: t("system.config.field.value"),
+    label: t("system.base.config.field.value"),
     component: "slot",
     slotName: "dictValue",
-    visible: model => model.type == BaseConfigType.DICT
+    visible: model => model.type == BaseConfigType.BASE_CONFIG_TYPE_DICT
   },
   {
     prop: "value",
-    label: t("system.config.field.value"),
+    label: t("system.base.config.field.value"),
     component: "slot",
     slotName: "booleanValue",
-    visible: model => model.type == BaseConfigType.BOOLEAN
+    visible: model => model.type == BaseConfigType.BASE_CONFIG_TYPE_BOOLEAN
   },
   {
     prop: "translations",
-    label: t("system.translation.field.nameTranslations"),
+    label: t("system.base.translation.field.name_translations"),
     component: "slot",
     slotName: "nameTranslations",
     colSpan: 24
   },
   {
     prop: "translations",
-    label: t("system.translation.field.valueTranslations"),
+    label: t("system.base.translation.field.value_translations"),
     component: "slot",
     slotName: "valueTranslations",
-    visible: model => model.type == BaseConfigType.TEXT || model.type == BaseConfigType.RICH_TEXT,
+    visible: model =>
+      model.type == BaseConfigType.BASE_CONFIG_TYPE_TEXT || model.type == BaseConfigType.BASE_CONFIG_TYPE_RICH_TEXT,
     colSpan: 24
   },
-  { prop: "status", label: t("system.common.field.status"), component: "radio-group", options: statusOptions.value }
+  { prop: "status", label: t("common.field.status"), component: "radio-group", options: statusOptions.value }
 ]);
 
 /** 系统配置表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
-  { prop: "site", label: t("system.config.field.site"), minWidth: 120, dictCode: "base_config_site", search: { el: "select" } },
+  {
+    prop: "site",
+    label: t("system.base.config.field.site"),
+    minWidth: 120,
+    dictCode: "base_config_site",
+    search: { el: "select" }
+  },
   {
     prop: "name",
-    label: t("system.config.field.name"),
+    label: t("system.base.config.field.name"),
     minWidth: 140,
     search: { el: "input" },
     showOverflowTooltip: false,
     render: scope => renderConfigNameCell(scope.row as BaseConfig)
   },
-  { prop: "type", label: t("system.config.field.type"), minWidth: 120, dictCode: "base_config_type", search: { el: "select" } },
+  {
+    prop: "type",
+    label: t("system.base.config.field.type"),
+    minWidth: 120,
+    dictCode: "base_config_type",
+    search: { el: "select" }
+  },
   {
     prop: "key",
-    label: t("system.config.field.key"),
+    label: t("system.base.config.field.key"),
     minWidth: 160,
     search: { el: "input" },
     render: scope => renderConfigKeyCell(scope.row as BaseConfig)
   },
   {
     prop: "status",
-    label: t("system.common.field.status"),
+    label: t("common.field.status"),
     minWidth: 100,
     search: { el: "select" },
     cellType: "status",
@@ -389,11 +395,11 @@ const columns = computed<ColumnProps[]>(() => [
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseConfig)
     }
   },
-  { prop: "created_at", label: t("system.common.field.createdAt"), minWidth: 180 },
-  { prop: "updated_at", label: t("system.common.field.updatedAt"), minWidth: 180 },
+  { prop: "created_at", label: t("common.field.created_at"), minWidth: 180 },
+  { prop: "updated_at", label: t("common.field.updated_at"), minWidth: 180 },
   {
     prop: "operation",
-    label: t("system.common.field.operation"),
+    label: t("common.field.operation"),
     width: 150,
     fixed: "right",
     cellType: "actions",
@@ -419,14 +425,13 @@ const columns = computed<ColumnProps[]>(() => [
   }
 ]);
 
-/** 渲染系统配置名称翻译预览，并复用当前页面的编辑弹窗。 */
+/** 渲染系统配置名称翻译预览。 */
 function renderConfigNameCell(row: BaseConfig) {
   return h(DynamicTranslationCell, {
     source: row.name,
-    translations: (row.translations ?? []).filter(
-      item => item.field === BaseConfigTranslationField.BASE_CONFIG_TRANSLATION_FIELD_NAME
-    ),
-    textField: "text"
+    targetType: TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME,
+    targetId: row.id,
+    translations: row.translations
   });
 }
 
@@ -454,7 +459,7 @@ function renderConfigKeyCell(row: BaseConfig) {
  * 根据配置类型渲染悬停预览内容。
  */
 function renderConfigValuePreview(row: BaseConfig) {
-  if (row.type === BaseConfigType.IMAGE) {
+  if (row.type === BaseConfigType.BASE_CONFIG_TYPE_IMAGE) {
     return row.value
       ? h(ElImage, {
           src: row.value,
@@ -463,15 +468,15 @@ function renderConfigValuePreview(row: BaseConfig) {
           fit: "contain",
           style: { width: "180px", height: "120px", borderRadius: "4px" }
         })
-      : h("span", { class: "config-value-preview" }, t("system.config.message.imageMissing"));
+      : h("span", { class: "config-value-preview" }, t("system.base.config.message.image_missing"));
   }
 
-  if (row.type === BaseConfigType.BOOLEAN) {
+  if (row.type === BaseConfigType.BASE_CONFIG_TYPE_BOOLEAN) {
     const value = row.value === "true" ? "true" : "false";
     return h(ElTag, { type: value === "true" ? "success" : "info" }, () => value);
   }
 
-  if (row.type === BaseConfigType.DICT && BASE_CONFIG_DICT_CODE_MAP[row.key]) {
+  if (row.type === BaseConfigType.BASE_CONFIG_TYPE_DICT && BASE_CONFIG_DICT_CODE_MAP[row.key]) {
     return h(DictLabel, {
       code: BASE_CONFIG_DICT_CODE_MAP[row.key],
       modelValue: row.value,
@@ -479,14 +484,14 @@ function renderConfigValuePreview(row: BaseConfig) {
     });
   }
 
-  if (row.type === BaseConfigType.RICH_TEXT) {
+  if (row.type === BaseConfigType.BASE_CONFIG_TYPE_RICH_TEXT) {
     return row.value
       ? h("div", { class: "config-rich-text-preview", innerHTML: row.value })
-      : h("span", { class: "config-value-preview" }, t("system.config.message.richTextMissing"));
+      : h("span", { class: "config-value-preview" }, t("system.base.config.message.rich_text_missing"));
   }
 
   const value = row.value;
-  return h("span", { class: "config-value-preview" }, value || t("system.config.message.valueMissing"));
+  return h("span", { class: "config-value-preview" }, value || t("system.base.config.message.value_missing"));
 }
 
 /** 系统配置顶部按钮配置。 */
@@ -507,7 +512,7 @@ const headerActions = computed<HeaderActionProps[]>(() => [
     onClick: scope => handleDelete(scope.selectedList as BaseConfig[])
   },
   {
-    label: t("system.common.action.refreshCache"),
+    label: t("common.action.refresh_cache"),
     type: "primary",
     icon: RefreshLeft,
     hidden: () => !BUTTONS.value["base:config:refresh"],
@@ -537,7 +542,7 @@ function refreshTable() {
 async function handleOpenDialog(configId?: number) {
   await loadEnabledBaseLanguages();
   resetForm();
-  dialog.titleKey = configId ? "system.common.action.editResource" : "system.common.action.createResource";
+  dialog.titleKey = configId ? "common.action.edit_resource" : "common.action.create_resource";
   dialog.visible = true;
   if (!configId) return;
 
@@ -559,9 +564,9 @@ function resetForm() {
   formDialogRef.value?.resetFields();
   formDialogRef.value?.clearValidate();
   formData.id = 0;
-  formData.site = BaseConfigSite.UNKNOWN_BCS;
+  formData.site = undefined;
   formData.name = "";
-  formData.type = BaseConfigType.UNKNOWN_BCT;
+  formData.type = undefined;
   formData.key = "";
   formData.value = "";
   formData.translations = [];
@@ -572,7 +577,7 @@ function resetForm() {
  * 提交系统配置表单。
  */
 function handleSubmit() {
-  if (formData.type === BaseConfigType.BOOLEAN) {
+  if (formData.type === BaseConfigType.BASE_CONFIG_TYPE_BOOLEAN) {
     formData.value = formData.value === "true" ? "true" : "false";
   }
   formDialogRef.value?.validate()?.then(valid => {
@@ -584,8 +589,8 @@ function handleSubmit() {
       : defBaseConfigService.CreateBaseConfig({ base_config: submitData });
     request.then(() => {
       ElMessage.success(
-        t(submitData.id ? "system.common.message.updateSuccess" : "system.common.message.createSuccess", {
-          resource: t("system.config.resource")
+        t(submitData.id ? "common.message.update_success" : "common.message.create_success", {
+          resource: t("system.base.config.resource")
         })
       );
       handleCloseDialog();
@@ -599,7 +604,7 @@ function handleSubmit() {
  */
 const handleRefreshCache = useDebounceFn(() => {
   defBaseConfigService.RefreshBaseConfigCache({}).then(() => {
-    ElMessage.success(t("system.common.message.refreshSuccess"));
+    ElMessage.success(t("common.message.refresh_success"));
   });
 }, 1000);
 
@@ -612,10 +617,10 @@ async function handleBeforeSetStatus(row: BaseConfig) {
   const configName = row.name || row.key || `ID:${row.id}`;
   try {
     await ElMessageBox.confirm(
-      t("system.common.dialog.statusChange", {
+      t("common.dialog.status_change", {
         action: text,
-        resource: t("system.config.resource"),
-        field: t("system.config.field.name"),
+        resource: t("system.base.config.resource"),
+        field: t("system.base.config.field.name"),
         value: configName
       }),
       t("common.title.notice"),
@@ -626,7 +631,7 @@ async function handleBeforeSetStatus(row: BaseConfig) {
       }
     );
     await defBaseConfigService.SetBaseConfigStatus({ id: row.id, status: nextStatus });
-    ElMessage.success(t("system.common.message.statusSuccess", { action: text }));
+    ElMessage.success(t("common.message.status_success", { action: text }));
     refreshTable();
     return true;
   } catch {
@@ -649,15 +654,15 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
       : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");
   if (!configIds) {
-    ElMessage.warning(t("system.common.message.selectDeleteItem"));
+    ElMessage.warning(t("common.message.select_delete_item"));
     return;
   }
 
   const confirmMessage = configList.length
     ? configList.length === 1
-      ? `${t("system.common.dialog.deleteSingle", { resource: t("system.config.resource") })}\n${t("system.common.dialog.resourceField", { field: t("system.config.field.name"), value: configList[0].name || configList[0].key || `ID:${configList[0].id}` })}`
-      : t("system.common.dialog.deleteBatch", { count: configList.length, unit: "", resource: t("system.config.resource") })
-    : t("system.common.dialog.deleteSelected", { resource: t("system.config.resource") });
+      ? `${t("common.dialog.delete_single", { resource: t("system.base.config.resource") })}\n${t("common.dialog.resource_field", { field: t("system.base.config.field.name"), value: configList[0].name || configList[0].key || `ID:${configList[0].id}` })}`
+      : t("common.dialog.delete_batch", { count: configList.length, unit: "", resource: t("system.base.config.resource") })
+    : t("common.dialog.delete_selected", { resource: t("system.base.config.resource") });
 
   ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
     confirmButtonText: t("common.action.confirm"),
@@ -666,12 +671,12 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   }).then(
     () => {
       defBaseConfigService.DeleteBaseConfig({ id: configIds }).then(() => {
-        ElMessage.success(t("system.common.message.deleteSuccess", { resource: t("system.config.resource") }));
+        ElMessage.success(t("common.message.delete_success", { resource: t("system.base.config.resource") }));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info(t("system.common.dialog.cancelDelete", { resource: t("system.config.resource") }));
+      ElMessage.info(t("common.dialog.cancel_delete", { resource: t("system.base.config.resource") }));
     }
   );
 }

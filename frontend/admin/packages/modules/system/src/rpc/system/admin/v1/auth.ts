@@ -7,7 +7,7 @@
 /* eslint-disable */
 import type { PasswordCrypto, StringValues } from "../../../common/v1/types";
 import type { Empty } from "../../../google/protobuf/empty";
-import type { BaseMenuType } from "../../common/v1/enum";
+import type { BaseMenuType } from "./common";
 
 /** 登录用户菜单树查询参数 */
 export interface TreeUserMenuRequest {

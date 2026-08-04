@@ -4,18 +4,19 @@ import (
 	"context"
 	"fmt"
 	"sync"
-	"time"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	coreQueue "github.com/liujitcn/kratos-admin/backend/core/pkg/queue"
 	coreTask "github.com/liujitcn/kratos-admin/backend/core/pkg/task"
 	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/v1/dto"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
-	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 
+	kratosErrors "github.com/go-kratos/kratos/v3/errors"
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/gorm-kit/repository"
+	queueData "github.com/liujitcn/kratos-kit/queue/data"
 )
 
 const (
@@ -23,43 +24,33 @@ const (
 	BaseTranslationTaskName = "system.admin.BaseTranslation"
 )
 
-// BaseTranslationTask 执行菜单、字典、字典项和系统配置的机器翻译草稿任务。
+// BaseTranslationTask 执行菜单、字典、字典项和系统配置的机器翻译任务。
 type BaseTranslationTask struct {
-	translationCase         *adminbiz.BaseTranslationCase
-	menuRepo                *data.BaseMenuRepository
-	menuTranslationRepo     *data.BaseMenuTranslationRepository
-	dictRepo                *data.BaseDictRepository
-	dictTranslationRepo     *data.BaseDictTranslationRepository
-	dictItemRepo            *data.BaseDictItemRepository
-	dictItemTranslationRepo *data.BaseDictItemTranslationRepository
-	configRepo              *data.BaseConfigRepository
-	configTranslationRepo   *data.BaseConfigTranslationRepository
-	mu                      sync.Mutex
+	translationCase *adminbiz.BaseTranslationCase
+	menuRepo        *data.BaseMenuRepository
+	dictRepo        *data.BaseDictRepository
+	dictItemRepo    *data.BaseDictItemRepository
+	configRepo      *data.BaseConfigRepository
+	mu              sync.Mutex
 }
 
 // NewBaseTranslationTask 创建统一机器翻译任务执行器。
 func NewBaseTranslationTask(
 	translationCase *adminbiz.BaseTranslationCase,
 	menuRepo *data.BaseMenuRepository,
-	menuTranslationRepo *data.BaseMenuTranslationRepository,
 	dictRepo *data.BaseDictRepository,
-	dictTranslationRepo *data.BaseDictTranslationRepository,
 	dictItemRepo *data.BaseDictItemRepository,
-	dictItemTranslationRepo *data.BaseDictItemTranslationRepository,
 	configRepo *data.BaseConfigRepository,
-	configTranslationRepo *data.BaseConfigTranslationRepository,
 ) *BaseTranslationTask {
-	return &BaseTranslationTask{
-		translationCase:         translationCase,
-		menuRepo:                menuRepo,
-		menuTranslationRepo:     menuTranslationRepo,
-		dictRepo:                dictRepo,
-		dictTranslationRepo:     dictTranslationRepo,
-		dictItemRepo:            dictItemRepo,
-		dictItemTranslationRepo: dictItemTranslationRepo,
-		configRepo:              configRepo,
-		configTranslationRepo:   configTranslationRepo,
+	task := &BaseTranslationTask{
+		translationCase: translationCase,
+		menuRepo:        menuRepo,
+		dictRepo:        dictRepo,
+		dictItemRepo:    dictItemRepo,
+		configRepo:      configRepo,
 	}
+	translationCase.RegisterQueueConsumer(_const.TRANSLATION, task.consumeTranslation)
+	return task
 }
 
 // Task 返回交由 base_job 统一调度的任务定义。
@@ -72,12 +63,12 @@ func (t *BaseTranslationTask) Exec(_ map[string]string) ([]string, error) {
 	return t.ExecContext(context.Background(), nil)
 }
 
-// ExecContext 执行统一机器翻译任务并保留服务生命周期上下文。
+// ExecContext 扫描所有资源并补齐缺失的机器译文。
 func (t *BaseTranslationTask) ExecContext(ctx context.Context, _ map[string]string) ([]string, error) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if !t.translationCase.DraftEnabled() {
-		return []string{"机器翻译草稿功能未启用"}, nil
+		return []string{"机器翻译功能未启用"}, nil
 	}
 	locales, err := t.translationCase.EditableLocales(ctx)
 	if err != nil {
@@ -90,22 +81,54 @@ func (t *BaseTranslationTask) ExecContext(ctx context.Context, _ map[string]stri
 	translatedCount := 0
 	failedCount := 0
 	var firstErr error
-	err = t.translateMenus(ctx, locales, &translatedCount, &failedCount, &firstErr)
+	menuQuery := t.menuRepo.Query(ctx).BaseMenu
+	menus, err := t.menuRepo.List(ctx, repository.Order(menuQuery.ID.Asc()))
 	if err != nil {
 		return nil, err
 	}
-	err = t.translateDicts(ctx, locales, &translatedCount, &failedCount, &firstErr)
+	menuIDs := make([]int64, 0, len(menus))
+	for _, menu := range menus {
+		menuIDs = append(menuIDs, menu.ID)
+	}
+	t.translateIDs(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, menuIDs, locales, "菜单", &translatedCount, &failedCount, &firstErr)
+
+	dictQuery := t.dictRepo.Query(ctx).BaseDict
+	dicts, err := t.dictRepo.List(ctx, repository.Order(dictQuery.ID.Asc()))
 	if err != nil {
 		return nil, err
 	}
-	err = t.translateDictItems(ctx, locales, &translatedCount, &failedCount, &firstErr)
+	dictIDs := make([]int64, 0, len(dicts))
+	for _, dict := range dicts {
+		dictIDs = append(dictIDs, dict.ID)
+	}
+	t.translateIDs(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT, dictIDs, locales, "字典", &translatedCount, &failedCount, &firstErr)
+
+	dictItemQuery := t.dictItemRepo.Query(ctx).BaseDictItem
+	dictItems, err := t.dictItemRepo.List(ctx, repository.Order(dictItemQuery.ID.Asc()))
 	if err != nil {
 		return nil, err
 	}
-	err = t.translateConfigs(ctx, locales, &translatedCount, &failedCount, &firstErr)
+	dictItemIDs := make([]int64, 0, len(dictItems))
+	for _, item := range dictItems {
+		dictItemIDs = append(dictItemIDs, item.ID)
+	}
+	t.translateIDs(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM, dictItemIDs, locales, "字典项", &translatedCount, &failedCount, &firstErr)
+
+	configQuery := t.configRepo.Query(ctx).BaseConfig
+	configs, err := t.configRepo.List(ctx, repository.Order(configQuery.ID.Asc()))
 	if err != nil {
 		return nil, err
 	}
+	configNameIDs := make([]int64, 0, len(configs))
+	configValueIDs := make([]int64, 0, len(configs))
+	for _, config := range configs {
+		configNameIDs = append(configNameIDs, config.ID)
+		if t.translationCase.CanTranslateConfigValue(config.Type) {
+			configValueIDs = append(configValueIDs, config.ID)
+		}
+	}
+	t.translateIDs(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, configNameIDs, locales, "系统配置名称", &translatedCount, &failedCount, &firstErr)
+	t.translateIDs(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE, configValueIDs, locales, "系统配置值", &translatedCount, &failedCount, &firstErr)
 
 	output := []string{fmt.Sprintf("生成机器译文 %d 条", translatedCount)}
 	if failedCount > 0 {
@@ -114,228 +137,74 @@ func (t *BaseTranslationTask) ExecContext(ctx context.Context, _ map[string]stri
 	return output, nil
 }
 
-// translateMenus 扫描缺失或待处理的菜单译文。
-func (t *BaseTranslationTask) translateMenus(ctx context.Context, locales []string, translatedCount, failedCount *int, firstErr *error) error {
-	query := t.menuRepo.Query(ctx).BaseMenu
-	menus, err := t.menuRepo.List(ctx, repository.Order(query.ID.Asc()))
+// consumeTranslation 消费新增或更新资源的机器翻译消息。
+func (t *BaseTranslationTask) consumeTranslation(message queueData.Message) error {
+	request, err := coreQueue.Decode[dto.TranslationQueueMessage](message)
+	if err != nil {
+		return fmt.Errorf("解析机器翻译队列消息失败: %w", err)
+	}
+	if request == nil || request.TargetID <= 0 {
+		return nil
+	}
+	return t.translateResource(context.Background(), request.TargetType, request.TargetID)
+}
+
+// translateResource 为单个翻译目标生成所有启用语言的机器译文。
+func (t *BaseTranslationTask) translateResource(ctx context.Context, targetType systemadminv1.TranslationTargetType, targetID int64) error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	locales, err := t.translationCase.EditableLocales(ctx)
 	if err != nil {
 		return err
 	}
-	translationQuery := t.menuTranslationRepo.Query(ctx).BaseMenuTranslation
-	rows, err := t.menuTranslationRepo.List(ctx, repository.Order(translationQuery.ID.Asc()))
-	if err != nil {
-		return err
-	}
-	rowMap := make(map[dto.TranslationKey]*models.BaseMenuTranslation, len(rows))
-	for _, row := range rows {
-		rowMap[dto.TranslationKey{ResourceID: row.MenuID, Locale: row.Locale}] = row
-	}
-	for _, menu := range menus {
-		if menu.Meta == "" {
-			continue
+	if targetType == systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE {
+		config, findErr := t.configRepo.FindByID(ctx, targetID)
+		if findErr != nil {
+			return ignoreTranslationClientError(findErr)
 		}
-		for _, localeValue := range locales {
-			row := rowMap[dto.TranslationKey{ResourceID: menu.ID, Locale: localeValue}]
-			if !menuTranslationNeedsDraft(row) {
-				continue
-			}
-			err = t.generateDraft(ctx, systemadminv1.TranslationResourceType_TRANSLATION_RESOURCE_TYPE_MENU, menu.ID, systemadminv1.BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_UNSPECIFIED, localeValue)
-			if err != nil {
-				*failedCount = *failedCount + 1
-				if *firstErr == nil {
-					*firstErr = err
-				}
-				log.Error("菜单翻译任务执行失败", "resource_id", menu.ID, "locale", localeValue, "error", err)
-				continue
-			}
-			*translatedCount = *translatedCount + 1
+		if !t.translationCase.CanTranslateConfigValue(config.Type) {
+			return nil
+		}
+	}
+	for _, localeValue := range locales {
+		err = t.translationCase.TranslateResource(ctx, targetType, targetID, localeValue)
+		if err != nil && ignoreTranslationClientError(err) != nil {
+			return err
 		}
 	}
 	return nil
 }
 
-// translateDicts 扫描缺失或待处理的字典译文。
-func (t *BaseTranslationTask) translateDicts(ctx context.Context, locales []string, translatedCount, failedCount *int, firstErr *error) error {
-	query := t.dictRepo.Query(ctx).BaseDict
-	dicts, err := t.dictRepo.List(ctx, repository.Order(query.ID.Asc()))
-	if err != nil {
-		return err
-	}
-	translationQuery := t.dictTranslationRepo.Query(ctx).BaseDictTranslation
-	rows, err := t.dictTranslationRepo.List(ctx, repository.Order(translationQuery.ID.Asc()))
-	if err != nil {
-		return err
-	}
-	rowMap := make(map[dto.TranslationKey]*models.BaseDictTranslation, len(rows))
-	for _, row := range rows {
-		rowMap[dto.TranslationKey{ResourceID: row.DictID, Locale: row.Locale}] = row
-	}
-	for _, dict := range dicts {
-		if dict.Name == "" {
-			continue
-		}
+// translateIDs 批量调用统一翻译入口并统计结果。
+func (t *BaseTranslationTask) translateIDs(ctx context.Context, targetType systemadminv1.TranslationTargetType, targetIDs []int64, locales []string, resourceName string, translatedCount, failedCount *int, firstErr *error) {
+	var err error
+	for _, targetID := range targetIDs {
 		for _, localeValue := range locales {
-			row := rowMap[dto.TranslationKey{ResourceID: dict.ID, Locale: localeValue}]
-			if !dictTranslationNeedsDraft(row) {
-				continue
-			}
-			err = t.generateDraft(ctx, systemadminv1.TranslationResourceType_TRANSLATION_RESOURCE_TYPE_DICT, dict.ID, systemadminv1.BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_UNSPECIFIED, localeValue)
-			if err != nil {
-				*failedCount = *failedCount + 1
-				if *firstErr == nil {
-					*firstErr = err
-				}
-				log.Error("字典翻译任务执行失败", "resource_id", dict.ID, "locale", localeValue, "error", err)
-				continue
-			}
-			*translatedCount = *translatedCount + 1
-		}
-	}
-	return nil
-}
-
-// translateDictItems 扫描缺失或待处理的字典项译文。
-func (t *BaseTranslationTask) translateDictItems(ctx context.Context, locales []string, translatedCount, failedCount *int, firstErr *error) error {
-	query := t.dictItemRepo.Query(ctx).BaseDictItem
-	items, err := t.dictItemRepo.List(ctx, repository.Order(query.ID.Asc()))
-	if err != nil {
-		return err
-	}
-	translationQuery := t.dictItemTranslationRepo.Query(ctx).BaseDictItemTranslation
-	rows, err := t.dictItemTranslationRepo.List(ctx, repository.Order(translationQuery.ID.Asc()))
-	if err != nil {
-		return err
-	}
-	rowMap := make(map[dto.TranslationKey]*models.BaseDictItemTranslation, len(rows))
-	for _, row := range rows {
-		rowMap[dto.TranslationKey{ResourceID: row.DictItemID, Locale: row.Locale}] = row
-	}
-	for _, item := range items {
-		if item.Label == "" {
-			continue
-		}
-		for _, localeValue := range locales {
-			row := rowMap[dto.TranslationKey{ResourceID: item.ID, Locale: localeValue}]
-			if !dictItemTranslationNeedsDraft(row) {
-				continue
-			}
-			err = t.generateDraft(ctx, systemadminv1.TranslationResourceType_TRANSLATION_RESOURCE_TYPE_DICT_ITEM, item.ID, systemadminv1.BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_UNSPECIFIED, localeValue)
-			if err != nil {
-				*failedCount = *failedCount + 1
-				if *firstErr == nil {
-					*firstErr = err
-				}
-				log.Error("字典项翻译任务执行失败", "resource_id", item.ID, "locale", localeValue, "error", err)
-				continue
-			}
-			*translatedCount = *translatedCount + 1
-		}
-	}
-	return nil
-}
-
-// translateConfigs 扫描缺失或待处理的系统配置名称和值译文。
-func (t *BaseTranslationTask) translateConfigs(ctx context.Context, locales []string, translatedCount, failedCount *int, firstErr *error) error {
-	query := t.configRepo.Query(ctx).BaseConfig
-	configs, err := t.configRepo.List(ctx, repository.Order(query.ID.Asc()))
-	if err != nil {
-		return err
-	}
-	translationQuery := t.configTranslationRepo.Query(ctx).BaseConfigTranslation
-	rows, err := t.configTranslationRepo.List(ctx, repository.Order(translationQuery.ID.Asc()))
-	if err != nil {
-		return err
-	}
-	rowMap := make(map[int64]map[string]*models.BaseConfigTranslation, len(rows))
-	for _, row := range rows {
-		if rowMap[row.ConfigID] == nil {
-			rowMap[row.ConfigID] = make(map[string]*models.BaseConfigTranslation)
-		}
-		rowMap[row.ConfigID][row.Locale+"\x00"+row.Field] = row
-	}
-	for _, config := range configs {
-		fields := []systemadminv1.BaseConfigTranslationField{systemadminv1.BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_NAME}
-		if t.translationCase.CanTranslateConfigValue(config.Type) {
-			fields = append(fields, systemadminv1.BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_VALUE)
-		}
-		for _, field := range fields {
-			fieldValue := "name"
-			source := config.Name
-			if field == systemadminv1.BaseConfigTranslationField_BASE_CONFIG_TRANSLATION_FIELD_VALUE {
-				fieldValue = "value"
-				source = config.Value
-			}
-			if source == "" {
-				continue
-			}
-			for _, localeValue := range locales {
-				row := rowMap[config.ID][localeValue+"\x00"+fieldValue]
-				if !configTranslationNeedsDraft(row) {
-					continue
-				}
-				err = t.generateDraft(ctx, systemadminv1.TranslationResourceType_TRANSLATION_RESOURCE_TYPE_CONFIG, config.ID, field, localeValue)
-				if err != nil {
-					*failedCount = *failedCount + 1
-					if *firstErr == nil {
-						*firstErr = err
-					}
-					log.Error("系统配置翻译任务执行失败", "resource_id", config.ID, "field", fieldValue, "locale", localeValue, "error", err)
-					continue
-				}
+			err = t.translationCase.TranslateResource(ctx, targetType, targetID, localeValue)
+			if err == nil {
 				*translatedCount = *translatedCount + 1
+				continue
 			}
+			if ignoreTranslationClientError(err) == nil {
+				continue
+			}
+			*failedCount = *failedCount + 1
+			if *firstErr == nil {
+				*firstErr = err
+			}
+			log.Error("机器翻译任务执行失败", "target", resourceName, "target_id", targetID, "locale", localeValue, "error", err)
 		}
 	}
-	return nil
 }
 
-// generateDraft 调用统一翻译业务入口生成单条机器译文草稿。
-func (t *BaseTranslationTask) generateDraft(ctx context.Context, resourceType systemadminv1.TranslationResourceType, resourceID int64, field systemadminv1.BaseConfigTranslationField, localeValue string) error {
-	_, err := t.translationCase.GenerateTranslationDraft(ctx, &systemadminv1.GenerateTranslationDraftRequest{
-		ResourceType: resourceType,
-		ResourceId:   resourceID,
-		TargetLocale: localeValue,
-		Field:        field,
-	})
+// ignoreTranslationClientError 将资源不存在、参数无效和已有译文视为无需重试。
+func ignoreTranslationClientError(err error) error {
+	if err == nil {
+		return nil
+	}
+	structured := kratosErrors.FromError(err)
+	if structured != nil && structured.Code < 500 {
+		return nil
+	}
 	return err
-}
-
-// translationNeedsDraft 判断译文记录是否允许机器任务生成或覆盖。
-func translationNeedsDraft(status string, reviewedBy int64, reviewedAt time.Time) bool {
-	if reviewedBy != 0 || !reviewedAt.IsZero() {
-		return false
-	}
-	return status == "" || status == _const.TRANSLATION_STATUS_PENDING
-}
-
-// menuTranslationNeedsDraft 判断菜单翻译记录是否允许机器任务处理。
-func menuTranslationNeedsDraft(row *models.BaseMenuTranslation) bool {
-	if row == nil {
-		return true
-	}
-	return translationNeedsDraft(row.TranslationStatus, row.ReviewedBy, row.ReviewedAt)
-}
-
-// dictTranslationNeedsDraft 判断字典翻译记录是否允许机器任务处理。
-func dictTranslationNeedsDraft(row *models.BaseDictTranslation) bool {
-	if row == nil {
-		return true
-	}
-	return translationNeedsDraft(row.TranslationStatus, row.ReviewedBy, row.ReviewedAt)
-}
-
-// dictItemTranslationNeedsDraft 判断字典项翻译记录是否允许机器任务处理。
-func dictItemTranslationNeedsDraft(row *models.BaseDictItemTranslation) bool {
-	if row == nil {
-		return true
-	}
-	return translationNeedsDraft(row.TranslationStatus, row.ReviewedBy, row.ReviewedAt)
-}
-
-// configTranslationNeedsDraft 判断系统配置翻译记录是否允许机器任务处理。
-func configTranslationNeedsDraft(row *models.BaseConfigTranslation) bool {
-	if row == nil {
-		return true
-	}
-	return translationNeedsDraft(row.TranslationStatus, row.ReviewedBy, row.ReviewedAt)
 }

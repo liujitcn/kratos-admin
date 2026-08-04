@@ -10,12 +10,12 @@
 export interface PageBaseMigrationRequest {
   /** 数据源 */
   data_source: string;
-  /** 迁移版本 */
-  version?:
-    | string
-    | undefined;
   /** 迁移模块 */
   module?:
+    | string
+    | undefined;
+  /** 迁移版本 */
+  version?:
     | string
     | undefined;
   /** 当前页码 */
@@ -28,14 +28,14 @@ export interface PageBaseMigrationRequest {
 export interface BaseMigrationListItem {
   /** 主键 */
   id: number;
+  /** 迁移模块 */
+  module: string;
   /** 数据源 */
   data_source: string;
   /** 迁移版本 */
   version: string;
   /** 创建时间 */
   created_at: string;
-  /** 迁移模块 */
-  module: string;
 }
 
 /** 数据库迁移记录分页响应 */
@@ -56,6 +56,8 @@ export interface GetBaseMigrationRequest {
 export interface BaseMigration {
   /** 主键 */
   id: number;
+  /** 迁移模块 */
+  module: string;
   /** 数据源 */
   data_source: string;
   /** 迁移版本 */
@@ -68,8 +70,6 @@ export interface BaseMigration {
   description: string;
   /** 创建时间 */
   created_at: string;
-  /** 迁移模块 */
-  module: string;
 }
 
 /** 数据库迁移服务 */

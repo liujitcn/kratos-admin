@@ -31,10 +31,10 @@ const loginSettingsReady = ref(false)
 let loginSettingsPromise: Promise<boolean> | undefined
 
 const configuredMainTitle = computed(
-  () => settingStore.getData('mainTitle') || t('core.home.mainTitle'),
+  () => settingStore.getData('mainTitle') || t('core.home.main_title'),
 )
 const configuredSubTitle = computed(
-  () => settingStore.getData('subTitle') || t('core.login.defaultSubTitle'),
+  () => settingStore.getData('subTitle') || t('core.login.default_sub_title'),
 )
 const configuredAppLogo = computed(() => settingStore.getData('appLogo') || defaultLogo)
 const showTenantCode = computed(() => settingStore.getData('showTenantCode') !== 'false')
@@ -121,7 +121,7 @@ const resolveMiniCaptchaImage = (payload: string, captchaId: string) => {
       data: payload.slice(commaIndex + 1),
       encoding: 'base64',
       success: () => resolve(filePath),
-      fail: () => reject(new Error(t('core.login.captchaWriteFailed'))),
+      fail: () => reject(new Error(t('core.login.captcha_write_failed'))),
     })
   })
 }
@@ -137,7 +137,7 @@ const refreshMiniCaptcha = async () => {
     miniForm.captcha_id = captcha.captcha_id
     miniForm.captcha_code = ''
   } catch {
-    await uni.showToast({ icon: 'none', title: t('core.login.captchaLoadFailed') })
+    await uni.showToast({ icon: 'none', title: t('core.login.captcha_load_failed') })
   }
 }
 
@@ -171,7 +171,7 @@ const wxLogin = async () => {
   try {
     loginCode = (await wx.login()).code
   } catch {
-    await uni.showToast({ icon: 'none', title: t('core.login.wechatFailed') })
+    await uni.showToast({ icon: 'none', title: t('core.login.wechat_failed') })
     loading.value = false
     return
   }
@@ -188,7 +188,7 @@ const wxLogin = async () => {
     await loginSuccess()
   } catch (error) {
     if (!isWechatUnboundError(error)) {
-      await uni.showToast({ icon: 'none', title: t('core.login.wechatFailed') })
+      await uni.showToast({ icon: 'none', title: t('core.login.wechat_failed') })
       return
     }
     miniBinding.value = true
@@ -207,7 +207,7 @@ const bindMiniAccount = async () => {
     return
   }
   if (!miniForm.user_name || !miniPasswordValue.value) {
-    await uni.showToast({ icon: 'none', title: t('core.login.userNamePassword') })
+    await uni.showToast({ icon: 'none', title: t('core.login.user_name_password') })
     return
   }
   if (!miniForm.captcha_id || !miniForm.captcha_code) {
@@ -216,7 +216,10 @@ const bindMiniAccount = async () => {
   }
   loading.value = true
   try {
-    const password = await encryptPassword(miniPasswordValue.value, PASSWORD_CRYPTO_SCENE.LOGIN)
+    const password = await encryptPassword(
+      miniPasswordValue.value,
+      PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_LOGIN,
+    )
     const code = (await wx.login()).code
     await userStore.bindOauthSession({
       provider: wechatMiniProvider,
@@ -338,7 +341,7 @@ const behaviorCaptchaConfig = computed(() => {
       verticalPadding: 0,
       horizontalPadding: 0,
       iconSize: 20,
-      title: t('core.login.behaviorRotate'),
+      title: t('core.login.behavior_rotate'),
     }
   }
   return {
@@ -354,8 +357,8 @@ const behaviorCaptchaConfig = computed(() => {
     dotSize: 20,
     title:
       currentCaptchaType.value === 'click'
-        ? t('core.login.behaviorClick')
-        : t('core.login.behaviorPuzzle'),
+        ? t('core.login.behavior_click')
+        : t('core.login.behavior_puzzle'),
   }
 })
 const behaviorCaptchaTheme = {
@@ -377,11 +380,11 @@ const behaviorCaptchaTheme = {
 const getCaptcha = async () => {
   const requestedCaptchaType = configuredCaptchaType.value
   if (!requestedCaptchaType) {
-    throw new Error(t('core.login.captchaTypeMissing'))
+    throw new Error(t('core.login.captcha_type_missing'))
   }
   const data = await defLoginService.Captcha({ type: requestedCaptchaType })
   if (!data.type) {
-    throw new Error(t('core.login.captchaTypeResponseMissing'))
+    throw new Error(t('core.login.captcha_type_response_missing'))
   }
   currentCaptchaType.value = data.type
   if (!isBehaviorCaptcha.value) {
@@ -405,7 +408,7 @@ const refreshCaptcha = async () => {
     behaviorDialogVisible.value = false
     await uni.showToast({
       icon: 'none',
-      title: error instanceof Error ? error.message : t('core.login.captchaLoadFailed'),
+      title: error instanceof Error ? error.message : t('core.login.captcha_load_failed'),
     })
     return false
   }
@@ -473,7 +476,7 @@ const validateLoginForm = async () => {
   if (!form.value.user_name) {
     await uni.showToast({
       icon: 'none',
-      title: t('core.login.userName'),
+      title: t('core.login.user_name'),
     })
     return false
   }
@@ -503,7 +506,10 @@ const verifyCaptchaToken = async (captchaCode: string) => {
 }
 // 执行真正的账号登录流程。
 const submitLogin = async (captchaCode: string) => {
-  const password = await encryptPassword(passwordValue.value, PASSWORD_CRYPTO_SCENE.LOGIN)
+  const password = await encryptPassword(
+    passwordValue.value,
+    PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_LOGIN,
+  )
   return userStore.login({
     ...form.value,
     tenant_code: showTenantCode.value ? form.value.tenant_code : '0000',
@@ -591,7 +597,7 @@ const onSubmit = async () => {
 const loginSuccess = async () => {
   await userStore.getUserProfile()
   // 成功提示
-  await uni.showToast({ icon: 'success', title: t('core.login.loginSuccess') })
+  await uni.showToast({ icon: 'success', title: t('core.login.login_success') })
   setTimeout(() => {
     const lastRoute = uni.getStorageSync('lastRoute') || homeTabPage
     if (lastRoute.startsWith(homeTabPage)) {
@@ -610,7 +616,7 @@ const checkedAgreePrivacy = async () => {
   }
 
   if (!settingStore.getData('serviceProtocol') || !settingStore.getData('privacyProtocol')) {
-    await uni.showToast({ icon: 'none', title: t('core.login.protocolMissing') })
+    await uni.showToast({ icon: 'none', title: t('core.login.protocol_missing') })
     return false
   }
 
@@ -623,7 +629,7 @@ const checkedAgreePrivacy = async () => {
   return new Promise<boolean>((resolve) => {
     uni.showModal({
       title: t('common.title.notice'),
-      content: t('core.login.protocolPrompt'),
+      content: t('core.login.protocol_prompt'),
       confirmText: t('common.action.confirm'),
       cancelText: t('common.action.cancel'),
       success: ({ confirm }) => {
@@ -654,7 +660,7 @@ const loadLoginSettings = () => {
       // #ifdef H5
       const captchaType = configuredCaptchaType.value
       if (!captchaType) {
-        throw new Error(t('core.login.captchaTypeMissing'))
+        throw new Error(t('core.login.captcha_type_missing'))
       }
       currentCaptchaType.value = captchaType
       await loadPageCaptcha()
@@ -667,7 +673,7 @@ const loadLoginSettings = () => {
     } catch (error) {
       await uni.showToast({
         icon: 'none',
-        title: error instanceof Error ? error.message : t('core.protocol.loadFailed'),
+        title: error instanceof Error ? error.message : t('core.protocol.load_failed'),
       })
       loginSettingsPromise = undefined
       return false
@@ -722,7 +728,7 @@ onLoad(() => {
           class="login-input"
           type="text"
           confirm-type="next"
-          :placeholder="t('core.login.userNameMobile')"
+          :placeholder="t('core.login.user_name_mobile')"
           @confirm="onSubmit"
         />
         <input
@@ -760,7 +766,7 @@ onLoad(() => {
         <view v-if="behaviorDialogVisible" class="login-behavior-mask">
           <view class="login-behavior-panel">
             <view v-if="behaviorLoading" class="login-behavior-loading">{{
-              t('core.login.behaviorLoading')
+              t('core.login.behavior_loading')
             }}</view>
             <GoCaptchaUni
               :type="currentCaptchaType"
@@ -787,7 +793,7 @@ onLoad(() => {
           {{ t('core.login.wechat') }}
         </button>
         <view v-else class="login-form">
-          <view class="login-bind-tip">{{ t('core.login.wechatBindTip') }}</view>
+          <view class="login-bind-tip">{{ t('core.login.wechat_bind_tip') }}</view>
           <input
             v-if="showTenantCode"
             v-model="miniForm.tenant_code"
@@ -799,7 +805,7 @@ onLoad(() => {
             v-model="miniForm.user_name"
             class="login-input"
             type="text"
-            :placeholder="t('core.login.userNameMobile')"
+            :placeholder="t('core.login.user_name_mobile')"
           />
           <input
             v-model="miniPasswordValue"
@@ -825,7 +831,7 @@ onLoad(() => {
             :loading="loading"
             @tap="bindMiniAccount"
           >
-            {{ t('core.login.bindWechat') }}
+            {{ t('core.login.bind_wechat') }}
           </button>
         </view>
         <!-- #endif -->
@@ -833,11 +839,11 @@ onLoad(() => {
       <view class="login-tips" :class="{ animate__shakeY: isAgreePrivacyShakeY }">
         <view class="login-agreement" @tap="toggleAgreePrivacy">
           <view class="login-agree-icon" :class="{ checked: isAgreePrivacy }"></view>
-          <text class="login-agree-desc">{{ t('core.login.agreePrefix') }}</text>
+          <text class="login-agree-desc">{{ t('core.login.agree_prefix') }}</text>
           <text class="login-agree-link" @tap.stop="onOpenServiceProtocol">{{
             t('core.login.service')
           }}</text>
-          <text class="login-agree-separator">{{ t('core.login.agreeSeparator') }}</text>
+          <text class="login-agree-separator">{{ t('core.login.agree_separator') }}</text>
           <text class="login-agree-link" @tap.stop="onOpenPrivacyContract">{{
             t('core.login.privacy')
           }}</text>

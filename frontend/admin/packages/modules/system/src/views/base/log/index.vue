@@ -2,83 +2,83 @@
   <div class="table-box">
     <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestBaseLogTable" />
 
-    <ProDialog v-model="dialog.visible" :title="t('system.log.title.detail')" width="1500px" @close="handleCloseDialog">
+    <ProDialog v-model="dialog.visible" :title="t('system.base.log.title.detail')" width="1500px" @close="handleCloseDialog">
       <div class="detail-container">
-        <el-descriptions :title="t('system.log.section.basic')" border :column="2">
-          <el-descriptions-item :label="t('system.log.field.result')">
+        <el-descriptions :title="t('system.base.log.section.basic')" border :column="2">
+          <el-descriptions-item :label="t('system.base.log.field.result')">
             <el-tag :type="detail.is_success ? 'success' : 'danger'" effect="light">
-              {{ t(detail.is_success ? "system.log.status.success" : "system.log.status.failed") }}
+              {{ t(detail.is_success ? "system.base.log.status.success" : "system.base.log.status.failed") }}
             </el-tag>
           </el-descriptions-item>
-          <el-descriptions-item :label="t('system.log.field.statusCode')">
+          <el-descriptions-item :label="t('system.base.log.field.status_code')">
             <el-tag :type="statusCodeColor" effect="light">{{ detail.status_code || "--" }}</el-tag>
           </el-descriptions-item>
-          <el-descriptions-item :label="t('system.log.field.costTime')">{{ detail.cost_time || "--" }}</el-descriptions-item>
-          <el-descriptions-item :label="t('system.log.field.requestTime')">{{
+          <el-descriptions-item :label="t('system.base.log.field.cost_time')">{{ detail.cost_time || "--" }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.base.log.field.request_time')">{{
             detail.request_time || "--"
           }}</el-descriptions-item>
         </el-descriptions>
 
         <el-descriptions
-          :title="t('system.log.section.request')"
+          :title="t('system.base.log.section.request')"
           border
           :column="2"
           direction="vertical"
           class="mt-4 compact-descriptions"
         >
-          <el-descriptions-item :label="t('system.log.field.requestId')">{{ detail.request_id || "--" }}</el-descriptions-item>
-          <el-descriptions-item :label="t('system.log.field.operation')">
+          <el-descriptions-item :label="t('system.base.log.field.request_id')">{{ detail.request_id || "--" }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.base.log.field.operation')">
             <el-tag effect="plain">{{ detail.operation || "--" }}</el-tag>
           </el-descriptions-item>
-          <el-descriptions-item :label="t('system.log.field.method')">
+          <el-descriptions-item :label="t('system.base.log.field.method')">
             <el-tag effect="plain">{{ detail.method || "--" }}</el-tag>
           </el-descriptions-item>
-          <el-descriptions-item :label="t('system.log.field.path')">{{ detail.path || "--" }}</el-descriptions-item>
-          <el-descriptions-item v-if="detail.request_uri" :label="t('system.log.field.requestUri')" :span="2">{{
+          <el-descriptions-item :label="t('system.base.log.field.path')">{{ detail.path || "--" }}</el-descriptions-item>
+          <el-descriptions-item v-if="detail.request_uri" :label="t('system.base.log.field.request_uri')" :span="2">{{
             detail.request_uri
           }}</el-descriptions-item>
-          <el-descriptions-item v-if="detail.referer" :label="t('system.log.field.referer')" :span="2">{{
+          <el-descriptions-item v-if="detail.referer" :label="t('system.base.log.field.referer')" :span="2">{{
             detail.referer
           }}</el-descriptions-item>
-          <el-descriptions-item :label="t('system.log.field.requestHeader')" :span="2">
+          <el-descriptions-item :label="t('system.base.log.field.request_header')" :span="2">
             <pre class="code-block">{{ formatPayload(detail.request_header) }}</pre>
           </el-descriptions-item>
-          <el-descriptions-item :label="t('system.log.field.requestBody')" :span="2">
+          <el-descriptions-item :label="t('system.base.log.field.request_body')" :span="2">
             <pre class="code-block">{{ formatPayload(detail.request_body) }}</pre>
           </el-descriptions-item>
-          <el-descriptions-item :label="t('system.log.field.requestResult')" :span="2">
+          <el-descriptions-item :label="t('system.base.log.field.request_result')" :span="2">
             <pre class="code-block">{{ formatPayload(detail.response) }}</pre>
           </el-descriptions-item>
         </el-descriptions>
 
-        <el-descriptions :title="t('system.log.section.user')" border :column="2" class="mt-4">
-          <el-descriptions-item :label="t('system.log.field.userId')">{{ detail.user_id || "--" }}</el-descriptions-item>
-          <el-descriptions-item :label="t('system.log.field.userName')">{{ detail.user_name || "--" }}</el-descriptions-item>
-          <el-descriptions-item :label="t('system.log.field.clientIp')">{{ detail.client_ip || "--" }}</el-descriptions-item>
-          <el-descriptions-item :label="t('system.log.field.location')">{{ detail.location || "--" }}</el-descriptions-item>
+        <el-descriptions :title="t('system.base.log.section.user')" border :column="2" class="mt-4">
+          <el-descriptions-item :label="t('system.base.log.field.user_id')">{{ detail.user_id || "--" }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.base.log.field.user_name')">{{ detail.user_name || "--" }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.base.log.field.client_ip')">{{ detail.client_ip || "--" }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.base.log.field.location')">{{ detail.location || "--" }}</el-descriptions-item>
         </el-descriptions>
 
         <el-descriptions
-          :title="t('system.log.section.client')"
+          :title="t('system.base.log.section.client')"
           border
           :column="2"
           direction="vertical"
           class="mt-4 compact-descriptions"
         >
-          <el-descriptions-item :label="t('system.log.field.browser')">
+          <el-descriptions-item :label="t('system.base.log.field.browser')">
             {{ [detail.browser_name, detail.browser_version].filter(Boolean).join(" ") || "--" }}
           </el-descriptions-item>
-          <el-descriptions-item :label="t('system.log.field.os')">
+          <el-descriptions-item :label="t('system.base.log.field.os')">
             {{ [detail.os_name, detail.os_version].filter(Boolean).join(" ") || "--" }}
           </el-descriptions-item>
-          <el-descriptions-item :label="t('system.log.field.clientName')">{{ detail.client_name || "--" }}</el-descriptions-item>
-          <el-descriptions-item :label="t('system.log.field.clientId')">{{ detail.client_id || "--" }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.base.log.field.client_name')">{{ detail.client_name || "--" }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.base.log.field.client_id')">{{ detail.client_id || "--" }}</el-descriptions-item>
           <el-descriptions-item label="User Agent" :span="2">{{ detail.user_agent || "--" }}</el-descriptions-item>
         </el-descriptions>
 
         <el-alert
           v-if="!detail.is_success"
-          :title="t('system.log.field.reason')"
+          :title="t('system.base.log.field.reason')"
           type="error"
           :description="detail.reason"
           class="mt-4"
@@ -220,19 +220,19 @@ function formatPayload(value: string): string {
 const columns = computed<ColumnProps[]>(() => [
   {
     prop: "operation",
-    label: t("system.log.field.operation"),
+    label: t("system.base.log.field.operation"),
     minWidth: 240,
     search: { el: "input" }
   },
   {
     prop: "status_code",
-    label: t("system.log.field.statusCode"),
+    label: t("system.base.log.field.status_code"),
     minWidth: 100,
     search: { el: "input-number", props: { min: 0, controlsPosition: "right" } }
   },
   {
     prop: "request_time",
-    label: t("system.log.field.requestTime"),
+    label: t("system.base.log.field.request_time"),
     minWidth: 140,
     search: {
       el: "date-picker",
@@ -241,21 +241,21 @@ const columns = computed<ColumnProps[]>(() => [
         editable: false,
         class: "!w-[240px]",
         rangeSeparator: "~",
-        startPlaceholder: t("system.common.placeholder.startDate"),
-        endPlaceholder: t("system.common.placeholder.endDate"),
+        startPlaceholder: t("common.placeholder.start_date"),
+        endPlaceholder: t("common.placeholder.end_date"),
         valueFormat: "YYYY-MM-DD"
       }
     }
   },
-  { prop: "user_name", label: t("system.log.field.userName"), minWidth: 80 },
-  { prop: "client_ip", label: t("system.log.field.clientIp"), minWidth: 80 },
-  { prop: "location", label: t("system.log.field.location"), minWidth: 80 },
-  { prop: "browser_name", label: t("system.log.field.browser"), minWidth: 80 },
-  { prop: "os_name", label: t("system.log.field.os"), minWidth: 80 },
-  { prop: "cost_time", label: t("system.log.field.costTime"), minWidth: 100, align: "right" },
+  { prop: "user_name", label: t("system.base.log.field.user_name"), minWidth: 80 },
+  { prop: "client_ip", label: t("system.base.log.field.client_ip"), minWidth: 80 },
+  { prop: "location", label: t("system.base.log.field.location"), minWidth: 80 },
+  { prop: "browser_name", label: t("system.base.log.field.browser"), minWidth: 80 },
+  { prop: "os_name", label: t("system.base.log.field.os"), minWidth: 80 },
+  { prop: "cost_time", label: t("system.base.log.field.cost_time"), minWidth: 100, align: "right" },
   {
     prop: "detailAction",
-    label: t("system.common.field.action"),
+    label: t("common.field.action"),
     width: 100,
     fixed: "right",
     cellType: "actions",

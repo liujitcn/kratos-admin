@@ -5,21 +5,12 @@ package system.admin.v1;
 import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
-import "system/common/v1/enum.proto";
 import "google/protobuf/empty.proto";
 
 // 国际化翻译信息服务。
 service BaseTranslationService {
-
-  // 查询国际化翻译信息列表
-  rpc ListBaseTranslation(ListBaseTranslationRequest) returns (ListBaseTranslationResponse) {
-    option (google.api.http) = {
-      get: "/api/v1/admin/base/post"
-    };
-  }
-
-  // 资源生成机器翻译。
-  rpc GenerateBaseTranslationDraft(GenerateBaseTranslationDraftRequest) returns (GenerateBaseTranslationDraftResponse) {
+  // 翻译单个文本。
+  rpc DraftBaseTranslation(DraftBaseTranslationRequest) returns (DraftBaseTranslationResponse) {
     option (google.api.http) = {
       post: "/api/v1/admin/base/translation/draft"
       body: "*"
@@ -29,50 +20,72 @@ service BaseTranslationService {
   // 修改国际化翻译信息
   rpc UpdateBaseTranslation(UpdateBaseTranslationRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      put: "/api/v1/admin/base/translation/{id}"
+      put: "/api/v1/admin/base/translation"
       body: "*"
     };
   }
 }
 
-// 国际化翻译信息列表请求参数
-message ListBaseTranslationRequest {
-  .system.common.v1.TranslationTargetType target_type = 2 [(gnostic.openapi.v3.property) = {description: "目标类型：枚举【TranslationTargetType】"}]; // 翻译目标类型
-  int64 target_id = 3 [(gnostic.openapi.v3.property) = {description: "目标ID"}]; // 目标资源ID
+// 统一翻译表目标类型，和 base_translation.target_type 的值一一对应。
+enum TranslationTargetType {
+  // 未指定统一翻译表目标类型。
+  TRANSLATION_TARGET_TYPE_UNSPECIFIED = 0;
+  // 系统配置值。
+  TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE = 1;
+  // 系统配置名称。
+  TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME = 2;
+  // 字典名称。
+  TRANSLATION_TARGET_TYPE_BASE_DICT = 3;
+  // 字典项标签。
+  TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM = 4;
+  // 菜单标题。
+  TRANSLATION_TARGET_TYPE_BASE_MENU = 5;
 }
 
-// 国际化翻译信息列表响应
-message ListBaseTranslationResponse {
-  repeated BaseTranslation base_translations = 1 [(gnostic.openapi.v3.property) = {description: "列表数据"}]; // 列表数据
+// 翻译单个文本请求。
+message DraftBaseTranslationRequest {
+  string source = 1 [
+    (gnostic.openapi.v3.property) = {description: "待翻译文本"},
+    (buf.validate.field).cel = {id: "system.admin.base.translation.draft.source.required" message: "待翻译文本不能为空" expression: "this.size() > 0"}
+  ]; // 待翻译文本
+  string source_locale = 2 [(gnostic.openapi.v3.property) = {description: "源语言区域，为空时使用主语言"}]; // 源语言区域，为空时使用主语言
+  string target_locale = 3 [
+    (gnostic.openapi.v3.property) = {description: "目标语言区域"},
+    (buf.validate.field).cel = {id: "system.admin.base.translation.draft.target_locale.required" message: "目标语言区域不能为空" expression: "this.size() > 0"}
+  ]; // 目标语言区域
 }
 
-// 生成翻译草稿请求。
-message GenerateBaseTranslationDraftRequest {
-  .system.common.v1.TranslationTargetType target_type = 1 [(gnostic.openapi.v3.property) = {description: "目标类型：枚举【TranslationTargetType】"}]; // 翻译目标类型
-  string locale = 2 [(gnostic.openapi.v3.property) = {description: "语言区域"}]; // 语言区域
-  string name = 3 [(gnostic.openapi.v3.property) = {description: "翻译文本"}]; // 翻译文本
-}
-
-// 生成翻译草稿响应。
-message GenerateBaseTranslationDraftResponse {
-  .system.common.v1.TranslationTargetType target_type = 1 [(gnostic.openapi.v3.property) = {description: "目标类型：枚举【TranslationTargetType】"}]; // 翻译目标类型
-  string locale = 2 [(gnostic.openapi.v3.property) = {description: "语言区域"}]; // 语言区域
+// 翻译单个文本响应。
+message DraftBaseTranslationResponse {
+  string source_locale = 1 [(gnostic.openapi.v3.property) = {description: "源语言区域"}]; // 源语言区域
+  string target_locale = 2 [(gnostic.openapi.v3.property) = {description: "目标语言区域"}]; // 目标语言区域
   string translation = 3 [(gnostic.openapi.v3.property) = {description: "翻译文本"}]; // 翻译文本
-
 }
 
 // 修改单个翻译信息请求。
 message UpdateBaseTranslationRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "翻译记录ID"}, (buf.validate.field).cel = {id: "base_translation.id.required" message: "翻译记录ID不能为空" expression: "this > 0"}]; // 翻译记录ID
+  option (buf.validate.message).cel = {
+    id: "system.admin.base.translation.update.target.required"
+    message: "翻译记录ID或目标信息不能为空"
+    expression: "this.id > 0 || (this.target_type != 0 && this.target_id > 0 && this.locale.size() > 0)"
+  };
 
-  string name = 2 [(gnostic.openapi.v3.property) = {description: "翻译文本，留空时自动翻译"}]; // 翻译文本，留空时自动翻译
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "翻译记录ID，新增翻译时可不填写"}]; // 翻译记录ID，新增翻译时可不填写
+
+  TranslationTargetType target_type = 2 [(gnostic.openapi.v3.property) = {description: "翻译目标类型，新增翻译时使用"}, (buf.validate.field).enum = {defined_only: true}]; // 翻译目标类型，新增翻译时使用
+
+  int64 target_id = 3 [(gnostic.openapi.v3.property) = {description: "目标资源ID，新增翻译时使用"}]; // 目标资源ID，新增翻译时使用
+
+  string locale = 4 [(gnostic.openapi.v3.property) = {description: "目标语言区域，新增翻译时使用"}]; // 目标语言区域，新增翻译时使用
+
+  string name = 5 [(gnostic.openapi.v3.property) = {description: "翻译文本，留空时自动翻译"}]; // 翻译文本，留空时自动翻译
 }
 
 
 // 国际化翻译信息
 message BaseTranslation {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}]; // 翻译记录ID
-  .system.common.v1.TranslationTargetType target_type = 2 [(gnostic.openapi.v3.property) = {description: "目标类型：枚举【TranslationTargetType】"}]; // 翻译目标类型
+  TranslationTargetType target_type = 2 [(gnostic.openapi.v3.property) = {description: "目标类型：枚举【TranslationTargetType】"}]; // 翻译目标类型
   int64 target_id = 3 [(gnostic.openapi.v3.property) = {description: "目标ID"}]; // 目标资源ID
   string locale = 4 [(gnostic.openapi.v3.property) = {description: "语言区域"}]; // 语言区域
   string name = 5 [(gnostic.openapi.v3.property) = {description: "翻译文本"}]; // 翻译文本

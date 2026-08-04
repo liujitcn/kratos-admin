@@ -41,8 +41,8 @@ const props = withDefaults(defineProps<KvListProps>(), {
   addButtonProps: () => ({})
 });
 
-const resolvedKeyInputProps = computed(() => ({ placeholder: t("common.field.parameterName"), ...props.keyInputProps }));
-const resolvedValueInputProps = computed(() => ({ placeholder: t("common.field.parameterValue"), ...props.valueInputProps }));
+const resolvedKeyInputProps = computed(() => ({ placeholder: t("common.field.parameter_name"), ...props.keyInputProps }));
+const resolvedValueInputProps = computed(() => ({ placeholder: t("common.field.parameter_value"), ...props.valueInputProps }));
 
 const emit = defineEmits<{
   "update:modelValue": [value: KvItem[]];

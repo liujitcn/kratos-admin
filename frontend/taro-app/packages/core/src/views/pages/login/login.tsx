@@ -66,7 +66,7 @@ async function resolveMiniCaptchaImage(payload: string, captchaId: string): Prom
       data: payload.slice(commaIndex + 1),
       encoding: 'base64',
       success: () => resolve(),
-      fail: () => reject(new Error(translate('core.login.captchaWriteFailed'))),
+      fail: () => reject(new Error(translate('core.login.captcha_write_failed'))),
     })
   })
   return filePath
@@ -98,8 +98,8 @@ export default function LoginPage() {
   const [miniPassword, setMiniPassword] = useState('')
 
   const currentLanguageName = languageOptions.find((item) => item.language_code === locale)?.native_name || locale
-  const mainTitle = settings?.get('mainTitle') || t('core.home.mainTitle')
-  const subTitle = settings?.get('subTitle') || t('core.login.defaultSubTitle')
+  const mainTitle = settings?.get('mainTitle') || t('core.home.main_title')
+  const subTitle = settings?.get('subTitle') || t('core.login.default_sub_title')
   const appLogo = settings?.get('appLogo') || defaultLogo
   const showTenantCode = settings?.get('showTenantCode') !== 'false'
   const configuredCaptchaType = settings?.get('captchaType') || ''
@@ -119,7 +119,7 @@ export default function LoginPage() {
         verticalPadding: 0,
         horizontalPadding: 0,
         iconSize: 20,
-        title: t('core.login.behaviorRotate'),
+        title: t('core.login.behavior_rotate'),
       }
     }
     return {
@@ -133,7 +133,7 @@ export default function LoginPage() {
       buttonText: t('common.action.confirm'),
       iconSize: 20,
       dotSize: 20,
-      title: captchaType === 'click' ? t('core.login.behaviorClick') : t('core.login.behaviorPuzzle'),
+      title: captchaType === 'click' ? t('core.login.behavior_click') : t('core.login.behavior_puzzle'),
     }
   }, [
     behaviorData.thumbHeight,
@@ -156,9 +156,9 @@ export default function LoginPage() {
   }
 
   const refreshCaptcha = async (requestedType = captchaType || configuredCaptchaType) => {
-    if (!requestedType) throw new Error(t('core.login.captchaTypeMissing'))
+    if (!requestedType) throw new Error(t('core.login.captcha_type_missing'))
     const data = await defLoginService.Captcha({ type: requestedType })
-    if (!data.type) throw new Error(t('core.login.captchaTypeResponseMissing'))
+    if (!data.type) throw new Error(t('core.login.captcha_type_response_missing'))
     setCaptchaType(data.type)
     setForm((current) => ({ ...current, captcha_id: data.captcha_id, captcha_code: '' }))
     if (!behaviorCaptchaTypes.has(data.type)) {
@@ -201,7 +201,7 @@ export default function LoginPage() {
         captcha_code: '',
       }))
     } catch {
-      await Taro.showToast({ icon: 'none', title: t('core.login.captchaLoadFailed') })
+      await Taro.showToast({ icon: 'none', title: t('core.login.captcha_load_failed') })
     }
   }
 
@@ -213,7 +213,7 @@ export default function LoginPage() {
         await loadSettings()
         const nextCaptchaType = useSettingStore.getState().getData('captchaType')
         if (process.env.TARO_ENV === 'h5') {
-          if (!nextCaptchaType) throw new Error(t('core.login.captchaTypeMissing'))
+          if (!nextCaptchaType) throw new Error(t('core.login.captcha_type_missing'))
           setCaptchaType(nextCaptchaType)
           if (!behaviorCaptchaTypes.has(nextCaptchaType)) await refreshCaptcha(nextCaptchaType)
         } else {
@@ -224,7 +224,7 @@ export default function LoginPage() {
       } catch (error) {
         await Taro.showToast({
           icon: 'none',
-          title: error instanceof Error ? error.message : t('core.protocol.loadFailed'),
+          title: error instanceof Error ? error.message : t('core.protocol.load_failed'),
         })
         settingsPromise.current = undefined
         return false
@@ -241,7 +241,7 @@ export default function LoginPage() {
     if (!(await loadLoginSettings())) return false
     const currentSettings = useSettingStore.getState()
     if (!currentSettings.getData('serviceProtocol') || !currentSettings.getData('privacyProtocol')) {
-      await Taro.showToast({ icon: 'none', title: t('core.login.protocolMissing') })
+      await Taro.showToast({ icon: 'none', title: t('core.login.protocol_missing') })
       return false
     }
     if (agreed) return true
@@ -249,7 +249,7 @@ export default function LoginPage() {
     setTimeout(() => setShake(false), 500)
     const result = await Taro.showModal({
       title: t('common.title.notice'),
-      content: t('core.login.protocolPrompt'),
+      content: t('core.login.protocol_prompt'),
       confirmText: t('common.action.confirm'),
       cancelText: t('common.action.cancel'),
     })
@@ -260,7 +260,7 @@ export default function LoginPage() {
   /** 完成用户资料加载并恢复登录前页面。 */
   const loginSuccess = async () => {
     await userStore.getUserProfile()
-    await Taro.showToast({ icon: 'success', title: t('core.login.loginSuccess') })
+    await Taro.showToast({ icon: 'success', title: t('core.login.login_success') })
     await new Promise<void>((resolve) => setTimeout(resolve, 500))
     await restoreLoginRedirect()
   }
@@ -269,7 +269,7 @@ export default function LoginPage() {
     if (!(await loadLoginSettings())) return false
     const validations: Array<[boolean, string]> = [
       [!showTenantCode || Boolean(form.tenant_code), t('core.login.tenant')],
-      [Boolean(form.user_name), t('core.login.userName')],
+      [Boolean(form.user_name), t('core.login.user_name')],
       [Boolean(password), t('core.login.password')],
       [isBehaviorCaptcha || Boolean(form.captcha_code), t('core.login.captcha')],
     ]
@@ -282,7 +282,7 @@ export default function LoginPage() {
   }
 
   const submitLogin = async (captchaCode: string) => {
-    const encrypted = await encryptPassword(password, PASSWORD_CRYPTO_SCENE.LOGIN)
+    const encrypted = await encryptPassword(password, PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_LOGIN)
     await userStore.login({
       ...form,
       tenant_code: showTenantCode ? form.tenant_code : '0000',
@@ -310,7 +310,7 @@ export default function LoginPage() {
     } catch (error) {
       await refreshCaptcha().catch(() => undefined)
       if (error instanceof Error) {
-        await Taro.showToast({ icon: 'none', title: error.message || t('core.login.loginFailed') })
+        await Taro.showToast({ icon: 'none', title: error.message || t('core.login.login_failed') })
       }
     } finally {
       setLoading(false)
@@ -371,7 +371,7 @@ export default function LoginPage() {
         setMiniBinding(true)
         await refreshMiniCaptcha()
       } else {
-        await Taro.showToast({ icon: 'none', title: t('core.login.wechatFailed') })
+        await Taro.showToast({ icon: 'none', title: t('core.login.wechat_failed') })
       }
     } finally {
       setLoading(false)
@@ -382,7 +382,7 @@ export default function LoginPage() {
     if (loading || !(await checkedAgreePrivacy())) return
     const failed = [
       [showTenantCode && !miniForm.tenant_code, t('core.login.tenant')],
-      [!miniForm.user_name || !miniPassword, t('core.login.userNamePassword')],
+      [!miniForm.user_name || !miniPassword, t('core.login.user_name_password')],
       [!miniForm.captcha_id || !miniForm.captcha_code, t('core.login.captcha')],
     ].find(([invalid]) => invalid)
     if (failed) {
@@ -391,7 +391,7 @@ export default function LoginPage() {
     }
     setLoading(true)
     try {
-      const encrypted = await encryptPassword(miniPassword, PASSWORD_CRYPTO_SCENE.LOGIN)
+      const encrypted = await encryptPassword(miniPassword, PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_LOGIN)
       const code = (await Taro.login()).code
       await userStore.bindOauthSession({
         provider: wechatMiniProvider,
@@ -415,7 +415,7 @@ export default function LoginPage() {
     <View className={`login-tips${shake ? ' login-tips--shake' : ''}`}>
       <View className='login-agreement' onClick={() => setAgreed((value) => !value)}>
         <View className={`login-agree-icon${agreed ? ' checked' : ''}`} />
-        <Text className='login-agree-desc'>{t('core.login.agreePrefix')}</Text>
+        <Text className='login-agree-desc'>{t('core.login.agree_prefix')}</Text>
         <Text
           className='login-agree-link'
           onClick={(event) => {
@@ -425,7 +425,7 @@ export default function LoginPage() {
         >
           {t('core.login.service')}
         </Text>
-        <Text className='login-agree-separator'>{t('core.login.agreeSeparator')}</Text>
+        <Text className='login-agree-separator'>{t('core.login.agree_separator')}</Text>
         <Text
           className='login-agree-link'
           onClick={(event) => {
@@ -468,7 +468,7 @@ export default function LoginPage() {
             {showTenantCode ? (
               <Input className='login-input' placeholder={t('core.login.tenant')} value={form.tenant_code} onInput={(event) => updateForm('tenant_code', event.detail.value)} />
             ) : null}
-            <Input className='login-input' placeholder={t('core.login.userNameMobile')} value={form.user_name} onInput={(event) => updateForm('user_name', event.detail.value)} />
+            <Input className='login-input' placeholder={t('core.login.user_name_mobile')} value={form.user_name} onInput={(event) => updateForm('user_name', event.detail.value)} />
             <Input className='login-input' password placeholder={t('core.login.password')} value={password} onInput={(event) => setPassword(event.detail.value)} onConfirm={() => void onSubmit()} />
             {!isBehaviorCaptcha ? (
               <View className='captcha-row'>
@@ -483,7 +483,7 @@ export default function LoginPage() {
             {behaviorVisible ? (
               <View className='login-behavior-mask'>
                 <View className='login-behavior-panel'>
-                  {behaviorLoading ? <View className='login-behavior-loading'>{t('core.login.behaviorLoading')}</View> : null}
+                  {behaviorLoading ? <View className='login-behavior-loading'>{t('core.login.behavior_loading')}</View> : null}
                   <BehaviorCaptcha type={captchaType} data={behaviorData} config={behaviorConfig} onConfirm={(value, reset) => void verifyBehaviorCaptcha(value, reset)} onRefresh={() => void refreshCaptcha()} onClose={() => setBehaviorVisible(false)} />
                 </View>
               </View>
@@ -495,16 +495,16 @@ export default function LoginPage() {
           </Button>
         ) : (
           <View className='login-form'>
-            <View className='login-bind-tip'>{t('core.login.wechatBindTip')}</View>
+            <View className='login-bind-tip'>{t('core.login.wechat_bind_tip')}</View>
             {showTenantCode ? <Input className='login-input' placeholder={t('core.login.tenant')} value={miniForm.tenant_code} onInput={(event) => updateMiniForm('tenant_code', event.detail.value)} /> : null}
-            <Input className='login-input' placeholder={t('core.login.userNameMobile')} value={miniForm.user_name} onInput={(event) => updateMiniForm('user_name', event.detail.value)} />
+            <Input className='login-input' placeholder={t('core.login.user_name_mobile')} value={miniForm.user_name} onInput={(event) => updateMiniForm('user_name', event.detail.value)} />
             <Input className='login-input' password placeholder={t('core.login.password')} value={miniPassword} onInput={(event) => setMiniPassword(event.detail.value)} />
             <View className='captcha-row'>
               <Input className='login-input captcha-input' placeholder={t('core.login.captcha')} value={miniForm.captcha_code} onInput={(event) => updateMiniForm('captcha_code', event.detail.value)} />
               <View className='captcha-divider' />
               <View className='captcha-trigger' onClick={() => void refreshMiniCaptcha()}><Image className='captcha-image' src={miniCaptchaImage} mode='aspectFit' /></View>
             </View>
-            <Button className='login-button login-button-primary' loading={loading} onClick={() => void bindMiniAccount()}>{t('core.login.bindWechat')}</Button>
+            <Button className='login-button login-button-primary' loading={loading} onClick={() => void bindMiniAccount()}>{t('core.login.bind_wechat')}</Button>
           </View>
         )}
         {agreement}

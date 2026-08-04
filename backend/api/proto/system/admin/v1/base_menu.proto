@@ -4,12 +4,12 @@ package system.admin.v1;
 
 import "common/v1/common.proto";
 import "common/v1/enum.proto";
-import "system/common/v1/enum.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "buf/validate/validate.proto";
 import "system/admin/v1/base_translation.proto";
+import "system/admin/v1/common.proto";
 
 // Admin菜单管理服务
 service BaseMenuService {
@@ -95,37 +95,37 @@ message GetBaseMenuRequest {
 // 菜单表单
 message BaseMenuForm {
   option (buf.validate.message).cel = {
-    id: "base_menu.path.required"
+    id: "system.admin.base.menu.entity.path.required"
     message: "非目录菜单必须填写路径"
     expression: "this.type == 1 || this.path.size() > 0"
   };
 
   option (buf.validate.message).cel = {
-    id: "base_menu.name.required"
+    id: "system.admin.base.menu.entity.name.required"
     message: "菜单类型必须填写路由名称"
     expression: "this.type != 2 || this.name.size() > 0"
   };
 
   option (buf.validate.message).cel = {
-    id: "base_menu.name.menu_only"
+    id: "system.admin.base.menu.entity.name.menu_only"
     message: "只有菜单类型可以填写路由名称"
     expression: "this.type == 2 || this.name.size() == 0"
   };
 
   option (buf.validate.message).cel = {
-    id: "base_menu.redirect.external"
+    id: "system.admin.base.menu.entity.redirect.external"
     message: "外链必须填写完整的 HTTP 地址"
     expression: "this.type != 4 || this.redirect.matches('^https?://.+$')"
   };
 
   option (buf.validate.message).cel = {
-    id: "base_menu.folder.identity_empty"
+    id: "system.admin.base.menu.entity.folder.identity_empty"
     message: "目录不能填写路径和路由名称"
     expression: "this.type != 1 || (this.path.size() == 0 && this.name.size() == 0)"
   };
 
   option (buf.validate.message).cel = {
-    id: "base_menu.external.path_internal"
+    id: "system.admin.base.menu.entity.external.path_internal"
     message: "外链路径必须使用内部唯一路径"
     expression: "this.type != 4 || !this.path.matches('^https?://.*$')"
   };
@@ -134,15 +134,15 @@ message BaseMenuForm {
 
   optional int64 parent_id = 2 [(gnostic.openapi.v3.property) = {description: "父级菜单ID"}]; // 父级菜单ID
 
-  .system.common.v1.BaseMenuType type = 3 [(gnostic.openapi.v3.property) = {description: "菜单类型"}, (buf.validate.field).enum = {defined_only: true}, (buf.validate.field).cel = {id: "base_menu.type.required" message: "菜单类型不能为空" expression: "this != 0"}]; // 菜单类型
+  BaseMenuType type = 3 [(gnostic.openapi.v3.property) = {description: "菜单类型"}, (buf.validate.field).enum = {defined_only: true}, (buf.validate.field).cel = {id: "system.admin.base.menu.entity.type.required" message: "菜单类型不能为空" expression: "this != 0"}]; // 菜单类型
 
-  string path = 4 [(gnostic.openapi.v3.property) = {description: "菜单路径、按钮权限标识或外链内部路径，目录可为空"}, (buf.validate.field).cel = {id: "base_menu.path.length" message: "路径不能超过 1024 个字符" expression: "this.size() <= 1024"}]; // 菜单路径、按钮权限标识或外链内部路径，目录可为空
+  string path = 4 [(gnostic.openapi.v3.property) = {description: "菜单路径、按钮权限标识或外链内部路径，目录可为空"}, (buf.validate.field).cel = {id: "system.admin.base.menu.entity.path.length" message: "路径不能超过 1024 个字符" expression: "this.size() <= 1024"}]; // 菜单路径、按钮权限标识或外链内部路径，目录可为空
 
-  string name = 5 [(gnostic.openapi.v3.property) = {description: "路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。"}, (buf.validate.field).cel = {id: "base_menu.name.max_len" message: "路由名称不能超过 255 个字符" expression: "this.size() <= 255"}]; // 路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。
+  string name = 5 [(gnostic.openapi.v3.property) = {description: "路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。"}, (buf.validate.field).cel = {id: "system.admin.base.menu.entity.name.max_length" message: "路由名称不能超过 255 个字符" expression: "this.size() <= 255"}]; // 路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。
 
-  string component = 6 [(gnostic.openapi.v3.property) = {description: "组件路径"}, (buf.validate.field).cel = {id: "base_menu.component.max_len" message: "组件路径不能超过 255 个字符" expression: "this.size() <= 255"}]; // 组件路径
+  string component = 6 [(gnostic.openapi.v3.property) = {description: "组件路径"}, (buf.validate.field).cel = {id: "system.admin.base.menu.entity.component.max_length" message: "组件路径不能超过 255 个字符" expression: "this.size() <= 255"}]; // 组件路径
 
-  string redirect = 7 [(gnostic.openapi.v3.property) = {description: "目录跳转路由或外链地址"}, (buf.validate.field).cel = {id: "base_menu.redirect.max_len" message: "重定向地址不能超过 1024 个字符" expression: "this.size() <= 1024"}]; // 目录跳转路由或外链地址
+  string redirect = 7 [(gnostic.openapi.v3.property) = {description: "目录跳转路由或外链地址"}, (buf.validate.field).cel = {id: "system.admin.base.menu.entity.redirect.max_length" message: "重定向地址不能超过 1024 个字符" expression: "this.size() <= 1024"}]; // 目录跳转路由或外链地址
 
   BaseMenuMeta meta = 8 [(gnostic.openapi.v3.property) = {description: "路由元信息"}]; // 路由元信息
 
@@ -150,7 +150,7 @@ message BaseMenuForm {
 
   repeated BaseTranslation translations = 10 [(gnostic.openapi.v3.property) = {description: "非主语言翻译"}]; // 非主语言翻译
 
-  int32 sort = 50 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).cel = {id: "base_menu.sort.required" message: "排序必须大于 0" expression: "this > 0"}]; // 排序
+  int32 sort = 50 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).cel = {id: "system.admin.base.menu.entity.sort.required" message: "排序必须大于 0" expression: "this > 0"}]; // 排序
 
   .common.v1.Status status = 101 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
 }
@@ -158,7 +158,7 @@ message BaseMenuForm {
 // 创建菜单请求参数
 message CreateBaseMenuRequest {
   option (buf.validate.message).cel = {
-    id: "create_base_menu.parent_id.required"
+    id: "system.admin.base.menu.create.parent_id.required"
     message: "新增菜单必须选择上级菜单"
     expression: "has(this.base_menu.parent_id) && this.base_menu.parent_id > 0"
   };
@@ -173,14 +173,14 @@ message UpdateBaseMenuRequest {
 
 // 删除菜单请求参数
 message DeleteBaseMenuRequest {
-  string id = 1 [(gnostic.openapi.v3.property) = {description: "菜单ID列表"}, (buf.validate.field).cel = {id: "delete_base_menu.id.required" message: "菜单ID列表不能为空" expression: "this.size() > 0"}]; // 菜单ID列表
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "菜单ID列表"}, (buf.validate.field).cel = {id: "system.admin.base.menu.delete.id.required" message: "菜单ID列表不能为空" expression: "this.size() > 0"}]; // 菜单ID列表
 }
 
 // 设置菜单状态请求参数
 message SetBaseMenuStatusRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "菜单ID"}, (buf.validate.field).cel = {id: "set_base_menu_status.id.required" message: "菜单ID不能为空" expression: "this > 0"}]; // 菜单ID
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "菜单ID"}, (buf.validate.field).cel = {id: "system.admin.base.menu.set_status.id.required" message: "菜单ID不能为空" expression: "this > 0"}]; // 菜单ID
 
-  int32 status = 2 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).cel = {id: "set_base_menu_status.status.required" message: "状态不能为空" expression: "this != 0"}]; // 状态
+  int32 status = 2 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).cel = {id: "system.admin.base.menu.set_status.status.required" message: "状态不能为空" expression: "this != 0"}]; // 状态
 }
 
 // 菜单
@@ -189,7 +189,7 @@ message BaseMenu {
 
   int64 parent_id = 2 [(gnostic.openapi.v3.property) = {description: "父级菜单ID"}]; // 父级菜单ID
 
-  .system.common.v1.BaseMenuType type = 3 [(gnostic.openapi.v3.property) = {description: "菜单类型"}]; // 菜单类型
+  BaseMenuType type = 3 [(gnostic.openapi.v3.property) = {description: "菜单类型"}]; // 菜单类型
 
   string path = 4 [(gnostic.openapi.v3.property) = {description: "路由地址"}]; // 路由地址
 
@@ -200,8 +200,6 @@ message BaseMenu {
   string redirect = 7 [(gnostic.openapi.v3.property) = {description: "重定向地址"}]; // 重定向地址
 
   BaseMenuMeta meta = 8 [(gnostic.openapi.v3.property) = {description: "路由元信息"}]; // 路由元信息
-
-  repeated BaseTranslation translations = 10 [(gnostic.openapi.v3.property) = {description: "非主语言翻译"}]; // 非主语言翻译
 
   int32 sort = 9 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
 
@@ -214,6 +212,8 @@ message BaseMenu {
   repeated BaseMenu children = 300 [(gnostic.openapi.v3.property) = {description: "子菜单"}]; // 子菜单
 
   bool has_children = 301 [(gnostic.openapi.v3.property) = {description: "是否存在子节点"}]; // 是否存在子节点
+
+  repeated BaseTranslation translations = 302 [(gnostic.openapi.v3.property) = {description: "非主语言翻译"}]; // 非主语言翻译
 }
 
 // 菜单元信息

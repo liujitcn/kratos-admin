@@ -26,7 +26,7 @@ const props = withDefaults(defineProps<DynamicListProps>(), {
   inputProps: () => ({})
 });
 
-const resolvedInputProps = computed(() => ({ placeholder: t("common.placeholder.inputContent"), ...props.inputProps }));
+const resolvedInputProps = computed(() => ({ placeholder: t("common.placeholder.input_content"), ...props.inputProps }));
 
 const emit = defineEmits<{
   "update:modelValue": [value: string[]];

@@ -18,7 +18,7 @@ export async function uploadFile(fileType: string, filePath: string): Promise<Fi
       ...(token ? { Authorization: token } : {}),
     },
   })
-  if (response.statusCode !== 200) throw new Error(t('core.file.uploadFailed'))
+  if (response.statusCode !== 200) throw new Error(t('core.file.upload_failed'))
   return JSON.parse(response.data) as FileInfo
 }
 

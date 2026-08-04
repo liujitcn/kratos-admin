@@ -13,7 +13,7 @@ import (
 type codegenLocaleCatalog struct {
 	Menu             map[string]string `json:"menu"`
 	Resource         map[string]string `json:"resource"`
-	PasswordStrength string            `json:"passwordStrength"`
+	PasswordStrength string            `json:"password_strength"`
 	Static           map[string]string `json:"static"`
 }
 

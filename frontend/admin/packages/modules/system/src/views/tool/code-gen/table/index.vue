@@ -82,7 +82,8 @@ import type {
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_table";
 import type { BaseMenu } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_menu";
 import type { OptionBaseDictResponse_BaseDictItem } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dict";
-import { BaseMenuType, CodeGenTableStatus } from "@liujitcn/kratos-admin-system/rpc/system/common/v1/enum";
+import { BaseMenuType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/common";
+import { CodeGenTableStatus } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_table";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
 import CodeGenProgressDialog from "../components/CodeGenProgressDialog.vue";
@@ -118,7 +119,7 @@ type CodeGenTableFormState = Omit<CodeGenTableForm, "parent_menu_id"> & {
 const codeGenTaskStorageKey = "code-gen-progress-task-id";
 const codeGenProgressDialogVisibleStorageKey = "code-gen-progress-dialog-visible";
 const codeGenProgressSelectedTableIdsStorageKey = "code-gen-progress-selected-table-ids";
-const codeGenStatusDisabled = CodeGenTableStatus.DISABLED_CGTS;
+const codeGenStatusDisabled = CodeGenTableStatus.CODE_GEN_TABLE_STATUS_DISABLED;
 
 const { BUTTONS } = useAuthButtons();
 const router = useRouter();
@@ -143,7 +144,7 @@ const progressSelectedTableIds = ref<Array<string | number>>(readProgressSelecte
 const dialog = reactive({ editing: false, visible: false });
 
 const formData = reactive<CodeGenTableFormState>({ ...createDefaultCodeGenTableForm(), parent_menu_id: undefined });
-const dialogTitle = computed(() => t(dialog.editing ? "system.codegen.table.title.edit" : "system.codegen.table.title.create"));
+const dialogTitle = computed(() => t(dialog.editing ? "system.code.gen.table.title.edit" : "system.code.gen.table.title.create"));
 const tableRules = computed(() => codeGenTableRules());
 const pageTypeOptions = computed(() => codeGenPageTypeOptions());
 
@@ -169,7 +170,7 @@ const businessModuleOptions = computed<ProFormOption[]>(() => {
   const options: ProFormOption[] = businessModuleItems.value.map(item => ({ label: item.label, value: item.value }));
   if (formData.business_module && !options.some(item => item.value === formData.business_module)) {
     options.push({
-      label: t("system.codegen.table.value.disabledModule", { module: formData.business_module }),
+      label: t("system.code.gen.table.value.disabled_module", { module: formData.business_module }),
       value: formData.business_module,
       disabled: true
     });
@@ -188,13 +189,13 @@ const formFields = computed<ProFormField[]>(() => [
   // 标签提示与当前生成器的实际读写逻辑保持一致，方便配置时判断影响范围。
   {
     prop: "name",
-    label: t("system.codegen.table.field.name"),
+    label: t("system.code.gen.table.field.name"),
     component: "select",
     options: databaseTableOptions.value,
     colSpan: 24,
-    labelTooltip: t("system.codegen.table.tooltip.name"),
+    labelTooltip: t("system.code.gen.table.tooltip.name"),
     props: {
-      placeholder: t("system.codegen.table.placeholder.databaseTable"),
+      placeholder: t("system.code.gen.table.placeholder.database_table"),
       clearable: true,
       filterable: true,
       style: { width: "100%" },
@@ -203,36 +204,36 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "comment",
-    label: t("system.codegen.table.field.comment"),
+    label: t("system.code.gen.table.field.comment"),
     component: "input",
     colSpan: 24,
-    labelTooltip: t("system.codegen.table.tooltip.comment"),
-    props: { placeholder: t("system.codegen.table.placeholder.comment") }
+    labelTooltip: t("system.code.gen.table.tooltip.comment"),
+    props: { placeholder: t("system.code.gen.table.placeholder.comment") }
   },
   {
     prop: "i18n_config",
-    label: t("system.codegen.i18n.field.translations"),
+    label: t("system.code.gen.i18n.field.translations"),
     component: "slot",
     slotName: "tableI18nConfig",
     colSpan: 24,
-    labelTooltip: t("system.codegen.i18n.tooltip.table")
+    labelTooltip: t("system.code.gen.i18n.tooltip.table")
   },
   {
     prop: "business_module",
-    label: t("system.codegen.table.field.businessModule"),
+    label: t("system.code.gen.table.field.business_module"),
     component: "select",
     options: businessModuleOptions.value,
-    labelTooltip: t("system.codegen.table.tooltip.businessModule"),
-    props: { placeholder: t("system.codegen.table.placeholder.businessModule"), filterable: true, style: { width: "100%" } }
+    labelTooltip: t("system.code.gen.table.tooltip.business_module"),
+    props: { placeholder: t("system.code.gen.table.placeholder.business_module"), filterable: true, style: { width: "100%" } }
   },
   {
     prop: "parent_menu_id",
-    label: t("system.codegen.table.field.parentMenu"),
+    label: t("system.code.gen.table.field.parent_menu"),
     component: "tree-select",
     options: parentMenuOptions.value,
-    labelTooltip: t("system.codegen.table.tooltip.parentMenu"),
+    labelTooltip: t("system.code.gen.table.tooltip.parent_menu"),
     props: {
-      placeholder: t("system.codegen.table.placeholder.parentMenu"),
+      placeholder: t("system.code.gen.table.placeholder.parent_menu"),
       clearable: true,
       filterable: true,
       checkStrictly: true,
@@ -242,20 +243,20 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "page_type",
-    label: t("system.codegen.table.field.pageType"),
+    label: t("system.code.gen.table.field.page_type"),
     component: "segmented",
     options: pageTypeOptions.value,
-    labelTooltip: t("system.codegen.table.tooltip.pageType"),
+    labelTooltip: t("system.code.gen.table.tooltip.page_type"),
     props: { onChange: handlePageTypeChange }
   },
   {
     prop: "parent_column",
-    label: t("system.codegen.table.field.parentColumn"),
+    label: t("system.code.gen.table.field.parent_column"),
     component: "select",
     options: databaseColumnOptions.value,
-    labelTooltip: t("system.codegen.table.tooltip.parentColumn"),
+    labelTooltip: t("system.code.gen.table.tooltip.parent_column"),
     props: {
-      placeholder: t("system.codegen.table.placeholder.parentColumn"),
+      placeholder: t("system.code.gen.table.placeholder.parent_column"),
       clearable: true,
       filterable: true,
       style: { width: "100%" }
@@ -264,12 +265,12 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "tree_label_column",
-    label: t("system.codegen.table.field.treeLabelColumn"),
+    label: t("system.code.gen.table.field.tree_label_column"),
     component: "select",
     options: databaseColumnOptions.value,
-    labelTooltip: t("system.codegen.table.tooltip.treeLabelColumn"),
+    labelTooltip: t("system.code.gen.table.tooltip.tree_label_column"),
     props: {
-      placeholder: t("system.codegen.table.placeholder.treeLabelColumn"),
+      placeholder: t("system.code.gen.table.placeholder.tree_label_column"),
       clearable: true,
       filterable: true,
       style: { width: "100%" }
@@ -278,12 +279,12 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "left_tree_config.table_name",
-    label: t("system.codegen.table.field.leftTreeTable"),
+    label: t("system.code.gen.table.field.left_tree_table"),
     component: "select",
     options: leftTreeTableOptions.value,
-    labelTooltip: t("system.codegen.table.tooltip.leftTreeTable"),
+    labelTooltip: t("system.code.gen.table.tooltip.left_tree_table"),
     props: {
-      placeholder: t("system.codegen.table.placeholder.leftTreeTable"),
+      placeholder: t("system.code.gen.table.placeholder.left_tree_table"),
       clearable: true,
       filterable: true,
       style: { width: "100%" },
@@ -293,20 +294,20 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "left_tree_config.comment",
-    label: t("system.codegen.table.field.leftTreeComment"),
+    label: t("system.code.gen.table.field.left_tree_comment"),
     component: "input",
-    labelTooltip: t("system.codegen.table.tooltip.leftTreeComment"),
-    props: { placeholder: t("system.codegen.table.placeholder.leftTreeComment") },
+    labelTooltip: t("system.code.gen.table.tooltip.left_tree_comment"),
+    props: { placeholder: t("system.code.gen.table.placeholder.left_tree_comment") },
     visible: model => model.page_type === "left_tree"
   },
   {
     prop: "left_tree_config.filter_column",
-    label: t("system.codegen.table.field.filterColumn"),
-    labelTooltip: t("system.codegen.table.tooltip.filterColumn"),
+    label: t("system.code.gen.table.field.filter_column"),
+    labelTooltip: t("system.code.gen.table.tooltip.filter_column"),
     component: "select",
     options: databaseColumnOptions.value,
     props: {
-      placeholder: t("system.codegen.table.placeholder.filterColumn"),
+      placeholder: t("system.code.gen.table.placeholder.filter_column"),
       clearable: true,
       filterable: true,
       style: { width: "100%" }
@@ -315,12 +316,12 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "left_tree_config.parent_column",
-    label: t("system.codegen.table.field.leftTreeParentColumn"),
+    label: t("system.code.gen.table.field.left_tree_parent_column"),
     component: "select",
     options: leftTreeColumnOptions.value,
-    labelTooltip: t("system.codegen.table.tooltip.leftTreeParentColumn"),
+    labelTooltip: t("system.code.gen.table.tooltip.left_tree_parent_column"),
     props: {
-      placeholder: t("system.codegen.table.placeholder.leftTreeParentColumn"),
+      placeholder: t("system.code.gen.table.placeholder.left_tree_parent_column"),
       clearable: true,
       filterable: true,
       style: { width: "100%" }
@@ -329,12 +330,12 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "left_tree_config.label_column",
-    label: t("system.codegen.table.field.leftTreeLabelColumn"),
+    label: t("system.code.gen.table.field.left_tree_label_column"),
     component: "select",
     options: leftTreeColumnOptions.value,
-    labelTooltip: t("system.codegen.table.tooltip.leftTreeLabelColumn"),
+    labelTooltip: t("system.code.gen.table.tooltip.left_tree_label_column"),
     props: {
-      placeholder: t("system.codegen.table.placeholder.leftTreeLabelColumn"),
+      placeholder: t("system.code.gen.table.placeholder.left_tree_label_column"),
       clearable: true,
       filterable: true,
       style: { width: "100%" }
@@ -343,12 +344,12 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "left_tree_config.value_column",
-    label: t("system.codegen.table.field.leftTreeValueColumn"),
+    label: t("system.code.gen.table.field.left_tree_value_column"),
     component: "select",
     options: leftTreeColumnOptions.value,
-    labelTooltip: t("system.codegen.table.tooltip.leftTreeValueColumn"),
+    labelTooltip: t("system.code.gen.table.tooltip.left_tree_value_column"),
     props: {
-      placeholder: t("system.codegen.table.placeholder.leftTreeValueColumn"),
+      placeholder: t("system.code.gen.table.placeholder.left_tree_value_column"),
       clearable: true,
       filterable: true,
       style: { width: "100%" }
@@ -357,64 +358,64 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "left_tree_config.lazy",
-    label: t("system.codegen.table.field.leftTreeLazy"),
+    label: t("system.code.gen.table.field.left_tree_lazy"),
     component: "switch",
-    labelTooltip: t("system.codegen.table.tooltip.leftTreeLazy"),
-    props: { activeText: t("system.codegen.value.lazy"), inactiveText: t("system.codegen.value.eager") },
+    labelTooltip: t("system.code.gen.table.tooltip.left_tree_lazy"),
+    props: { activeText: t("system.code.gen.value.lazy"), inactiveText: t("system.code.gen.value.eager") },
     visible: model => model.page_type === "left_tree"
   },
   {
     prop: "gen_backend",
-    label: t("system.codegen.table.field.genBackend"),
+    label: t("system.code.gen.table.field.gen_backend"),
     component: "switch",
-    labelTooltip: t("system.codegen.table.tooltip.genBackend"),
+    labelTooltip: t("system.code.gen.table.tooltip.gen_backend"),
     // 三个生成开关始终从新行开始并排展示。
     rowBreakBefore: true,
     colSpan: 8,
-    props: { activeText: t("system.codegen.value.generate"), inactiveText: t("system.codegen.value.skip") }
+    props: { activeText: t("system.code.gen.value.generate"), inactiveText: t("system.code.gen.value.skip") }
   },
   {
     prop: "gen_frontend",
-    label: t("system.codegen.table.field.genFrontend"),
+    label: t("system.code.gen.table.field.gen_frontend"),
     component: "switch",
-    labelTooltip: t("system.codegen.table.tooltip.genFrontend"),
+    labelTooltip: t("system.code.gen.table.tooltip.gen_frontend"),
     colSpan: 8,
-    props: { activeText: t("system.codegen.value.generate"), inactiveText: t("system.codegen.value.skip") }
+    props: { activeText: t("system.code.gen.value.generate"), inactiveText: t("system.code.gen.value.skip") }
   },
   {
     prop: "gen_sql",
-    label: t("system.codegen.table.field.genSql"),
+    label: t("system.code.gen.table.field.gen_sql"),
     component: "switch",
     colSpan: 8,
-    labelTooltip: t("system.codegen.table.tooltip.genSql"),
-    props: { activeText: t("system.codegen.value.generate"), inactiveText: t("system.codegen.value.skip") }
+    labelTooltip: t("system.code.gen.table.tooltip.gen_sql"),
+    props: { activeText: t("system.code.gen.value.generate"), inactiveText: t("system.code.gen.value.skip") }
   },
   {
     prop: "status",
-    label: t("system.codegen.table.field.status"),
+    label: t("system.code.gen.table.field.status"),
     component: "dict",
     colSpan: 24,
     props: { code: "code_gen_table_status", codeType: "number", type: "radio" },
-    labelTooltip: t("system.codegen.table.tooltip.status")
+    labelTooltip: t("system.code.gen.table.tooltip.status")
   },
   {
     prop: "remark",
-    label: t("system.codegen.table.field.remark"),
+    label: t("system.code.gen.table.field.remark"),
     component: "textarea",
     colSpan: 24,
-    labelTooltip: t("system.codegen.table.tooltip.remark"),
-    props: { placeholder: t("system.codegen.table.placeholder.remark"), rows: 3 }
+    labelTooltip: t("system.code.gen.table.tooltip.remark"),
+    props: { placeholder: t("system.code.gen.table.placeholder.remark"), rows: 3 }
   }
 ]);
 
 /** 代码生成表配置列表列。 */
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
-  { prop: "name", label: t("system.codegen.table.field.name"), minWidth: 160, search: { el: "input" } },
-  { prop: "comment", label: t("system.codegen.table.field.comment"), minWidth: 160, showOverflowTooltip: true },
+  { prop: "name", label: t("system.code.gen.table.field.name"), minWidth: 160, search: { el: "input" } },
+  { prop: "comment", label: t("system.code.gen.table.field.comment"), minWidth: 160, showOverflowTooltip: true },
   {
     prop: "business_module",
-    label: t("system.codegen.table.field.businessModule"),
+    label: t("system.code.gen.table.field.business_module"),
     minWidth: 140,
     dictCode: "business_module",
     dictValueType: "string",
@@ -422,20 +423,20 @@ const columns = computed<ColumnProps[]>(() => [
   },
   {
     prop: "page_type",
-    label: t("system.codegen.table.field.pageType"),
+    label: t("system.code.gen.table.field.page_type"),
     minWidth: 120,
     enum: pageTypeOptions.value,
     search: { el: "select" }
   },
   {
     prop: "status",
-    label: t("system.codegen.table.field.status"),
+    label: t("system.code.gen.table.field.status"),
     width: 100,
     dictCode: "code_gen_table_status",
     search: { el: "select" }
   },
-  { prop: "remark", label: t("system.codegen.table.field.remark"), minWidth: 180, showOverflowTooltip: true },
-  { prop: "created_at", label: t("system.codegen.table.field.createdAt"), minWidth: 180 },
+  { prop: "remark", label: t("system.code.gen.table.field.remark"), minWidth: 180, showOverflowTooltip: true },
+  { prop: "created_at", label: t("system.code.gen.table.field.created_at"), minWidth: 180 },
   {
     prop: "operation",
     label: t("common.field.operation"),
@@ -444,7 +445,7 @@ const columns = computed<ColumnProps[]>(() => [
     cellType: "actions",
     actions: [
       {
-        label: t("system.codegen.table.action.columns"),
+        label: t("system.code.gen.table.action.columns"),
         type: "success",
         link: true,
         icon: SetUp,
@@ -452,7 +453,7 @@ const columns = computed<ColumnProps[]>(() => [
         onClick: scope => handleOpenColumnConfig((scope.row as CodeGenTable).id)
       },
       {
-        label: t("system.codegen.table.action.proto"),
+        label: t("system.code.gen.table.action.proto"),
         type: "warning",
         link: true,
         icon: Connection,
@@ -460,7 +461,7 @@ const columns = computed<ColumnProps[]>(() => [
         onClick: scope => handleOpenProtoConfig((scope.row as CodeGenTable).id)
       },
       {
-        label: t("system.codegen.table.action.pagePreview"),
+        label: t("system.code.gen.table.action.page_preview"),
         type: "primary",
         link: true,
         icon: View,
@@ -468,7 +469,7 @@ const columns = computed<ColumnProps[]>(() => [
         onClick: scope => handleOpenPreview((scope.row as CodeGenTable).id)
       },
       {
-        label: t("system.codegen.table.action.codePreview"),
+        label: t("system.code.gen.table.action.code_preview"),
         type: "primary",
         link: true,
         icon: Document,
@@ -476,7 +477,7 @@ const columns = computed<ColumnProps[]>(() => [
         onClick: scope => handleOpenCodePreview((scope.row as CodeGenTable).id)
       },
       {
-        label: t("system.codegen.action.generate"),
+        label: t("system.code.gen.action.generate"),
         type: "success",
         link: true,
         icon: Promotion,
@@ -485,7 +486,7 @@ const columns = computed<ColumnProps[]>(() => [
         onClick: scope => handleGenerate(scope.row as CodeGenTable)
       },
       {
-        label: t("system.codegen.action.restore"),
+        label: t("system.code.gen.action.restore"),
         type: "warning",
         link: true,
         icon: RefreshRight,
@@ -538,7 +539,7 @@ const headerActions = computed<HeaderActionProps[]>(() => [
     onClick: () => handleOpenDialog()
   },
   {
-    label: t("system.codegen.action.batchGenerate"),
+    label: t("system.code.gen.action.batch_generate"),
     type: "primary",
     icon: Promotion,
     hidden: () => !BUTTONS.value["tool:code-gen-table:generate"],
@@ -546,7 +547,7 @@ const headerActions = computed<HeaderActionProps[]>(() => [
     onClick: scope => handleGenerate(scope.selectedList as CodeGenTable[])
   },
   {
-    label: t("system.codegen.action.batchRestore"),
+    label: t("system.code.gen.action.batch_restore"),
     type: "warning",
     icon: RefreshRight,
     hidden: () => !BUTTONS.value["tool:code-gen-table:restore"],
@@ -554,7 +555,7 @@ const headerActions = computed<HeaderActionProps[]>(() => [
     onClick: scope => handleRestore(scope.selectedList as CodeGenTable[])
   },
   {
-    label: t("system.codegen.action.recentTask"),
+    label: t("system.code.gen.action.recent_task"),
     icon: Clock,
     hidden: () => !BUTTONS.value["tool:code-gen-table:generate"],
     disabled: () => !progressTaskAvailable.value,
@@ -579,18 +580,18 @@ async function handleOpenCodePreview(tableId: number) {
 async function handleGenerate(selected: CodeGenGenerateTarget) {
   const tables = Array.isArray(selected) ? selected : [selected];
   if (!tables.length) {
-    ElMessage.warning(t("system.codegen.table.message.selectGenerate"));
+    ElMessage.warning(t("system.code.gen.table.message.select_generate"));
     return;
   }
   const disabledTable = tables.find(table => table.status === codeGenStatusDisabled);
   if (disabledTable) {
-    ElMessage.warning(t("system.codegen.table.message.disabled", { name: disabledTable.name }));
+    ElMessage.warning(t("system.code.gen.table.message.disabled", { name: disabledTable.name }));
     return;
   }
   const message =
     tables.length === 1
-      ? t("system.codegen.table.dialog.generateOne", { name: tables[0].name })
-      : t("system.codegen.table.dialog.generateBatch", { count: tables.length });
+      ? t("system.code.gen.table.dialog.generate_one", { name: tables[0].name })
+      : t("system.code.gen.table.dialog.generate_batch", { count: tables.length });
   try {
     await ElMessageBox.confirm(message, t("common.title.notice"), {
       confirmButtonText: t("common.action.confirm"),
@@ -622,16 +623,16 @@ async function handleRestore(selected: CodeGenRestoreTarget) {
   const tables = Array.isArray(selected) ? selected : [selected];
   const restorableTables = tables.filter(table => table.restore_available);
   if (!restorableTables.length) {
-    ElMessage.warning(t("system.codegen.table.message.selectRestore"));
+    ElMessage.warning(t("system.code.gen.table.message.select_restore"));
     return;
   }
   const message =
     restorableTables.length === 1
-      ? t("system.codegen.table.dialog.restoreOne", { name: restorableTables[0].name })
-      : t("system.codegen.table.dialog.restoreBatch", { count: restorableTables.length });
+      ? t("system.code.gen.table.dialog.restore_one", { name: restorableTables[0].name })
+      : t("system.code.gen.table.dialog.restore_batch", { count: restorableTables.length });
   try {
     await ElMessageBox.confirm(message, t("common.title.warning"), {
-      confirmButtonText: t("system.codegen.action.confirmRestore"),
+      confirmButtonText: t("system.code.gen.action.confirm_restore"),
       cancelButtonText: t("common.action.cancel"),
       type: "warning"
     });
@@ -639,7 +640,7 @@ async function handleRestore(selected: CodeGenRestoreTarget) {
     return;
   }
   await defCodeGenService.RestoreCodeGen({ table_ids: restorableTables.map(table => table.id) });
-  ElMessage.success(t("system.codegen.table.message.restoreSuccess"));
+  ElMessage.success(t("system.code.gen.table.message.restore_success"));
   progressSelectedTableIds.value = [];
   proTable.value?.clearSelection();
   refreshTable();
@@ -801,10 +802,10 @@ async function handleSubmit() {
   try {
     if (formData.id) {
       await defCodeGenTableService.UpdateCodeGenTable({ id: formData.id, code_gen_table: payload });
-      ElMessage.success(t("system.codegen.table.message.updateSuccess"));
+      ElMessage.success(t("system.code.gen.table.message.update_success"));
     } else {
       await defCodeGenTableService.CreateCodeGenTable({ code_gen_table: payload });
-      ElMessage.success(t("system.codegen.table.message.createSuccess"));
+      ElMessage.success(t("system.code.gen.table.message.create_success"));
     }
     handleCloseDialog();
     refreshTable();
@@ -824,13 +825,13 @@ async function handleDelete(selected?: CodeGenDeleteTarget) {
     tableList.length ? tableList.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");
   if (!tableIds) {
-    ElMessage.warning(t("system.codegen.table.message.selectDelete"));
+    ElMessage.warning(t("system.code.gen.table.message.select_delete"));
     return;
   }
   const confirmMessage =
     tableList.length === 1
-      ? t("system.codegen.table.dialog.deleteOne", { name: tableList[0].name })
-      : t("system.codegen.table.dialog.deleteBatch", { count: tableList.length });
+      ? t("system.code.gen.table.dialog.delete_one", { name: tableList[0].name })
+      : t("system.code.gen.table.dialog.delete_batch", { count: tableList.length });
   try {
     await ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
       confirmButtonText: t("common.action.confirm"),
@@ -838,11 +839,11 @@ async function handleDelete(selected?: CodeGenDeleteTarget) {
       type: "warning"
     });
   } catch {
-    ElMessage.info(t("system.codegen.table.message.deleteCanceled"));
+    ElMessage.info(t("system.code.gen.table.message.delete_canceled"));
     return;
   }
   await defCodeGenTableService.DeleteCodeGenTable({ ids: tableIds });
-  ElMessage.success(t("system.codegen.table.message.deleteSuccess"));
+  ElMessage.success(t("system.code.gen.table.message.delete_success"));
   refreshTable();
 }
 
@@ -884,7 +885,7 @@ function resolveDefaultColumn(columns: CodeGenDatabaseColumn[], columnName: stri
 /** 转换菜单树为 ProForm 树形选择项。 */
 function convertMenuOptions(options: BaseMenu[]): ProFormOption[] {
   return options
-    .filter(item => item.type === BaseMenuType.FOLDER)
+    .filter(item => item.type === BaseMenuType.BASE_MENU_TYPE_FOLDER)
     .map(item => ({
       label: item.meta?.title || item.name || item.path,
       value: item.id,

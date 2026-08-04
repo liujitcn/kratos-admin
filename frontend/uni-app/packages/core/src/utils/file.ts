@@ -22,7 +22,7 @@ export const uploadFile = async (fileType: string, filePath: string): Promise<Fi
   if (res.statusCode === 200) {
     return JSON.parse(res.data) as FileInfo
   } else {
-    throw new Error(t('core.file.uploadFailed'))
+    throw new Error(t('core.file.upload_failed'))
   }
 }
 
@@ -58,7 +58,7 @@ export const multiUploadFile = async (fileType: string, files: any): Promise<Fil
     const data = JSON.parse(res.data) as MultiUploadFileResponse
     return data.files
   } else {
-    await uni.showToast({ icon: 'error', title: t('core.file.uploadFailed') })
+    await uni.showToast({ icon: 'error', title: t('core.file.upload_failed') })
     return []
   }
 }

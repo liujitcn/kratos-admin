@@ -110,7 +110,7 @@ pnpm build:h5
 pnpm build:mp-weixin
 ```
 
-`backend/api/gen`、`backend/internal/data/gen`、`backend/internal/docs/assets/docs.json`、`backend/internal/docs/docs.go`、各前端包的 `src/rpc`、OpenAPI 及 `wire_gen.go` 都是生成产物，不得手工修改。所有前端 RPC 的 Buf 配置统一位于 `backend/api`，分别通过 `make -C backend ts`、`make -C backend ts-app` 和 `make -C backend ts-taro-app` 生成。
+`backend/api/gen`、`backend/internal/data/gen`、`backend/internal/docs/assets/docs.json`、`backend/internal/docs/docs.go`、各前端包的 `src/rpc`、OpenAPI 及 `wire_gen.go` 都是生成产物，不得手工修改。所有前端 RPC 的 Buf 配置统一位于 `backend/api`，分别通过 `make -C backend ts`、`make -C backend ts-uni-app` 和 `make -C backend ts-taro-app` 生成。
 
 ## 国际化
 
@@ -118,7 +118,7 @@ pnpm build:mp-weixin
 
 新增语言不需要修改 Go、TypeScript 或模块注册代码：在后端错误目录和三个 workspace 的六个前端语言包目录中增加同名 JSON，并在代码生成 `catalog.json` 中增加同名数据，然后执行 `make i18n-sync`。脚本会校验语言集合、语言键和占位符，并生成后端 manifest、六个前端注册文件、Element Plus 和 Day.js 映射。语言名称、排序、启用状态和主语言由 `base_language` 数据库记录提供；`common.language.*` 用于编译期离线显示和生成语言迁移的初始名称。新增语言的完整文件清单和迁移流程见 [国际化语言扩展指南](docs/国际化语言扩展指南.md)。需要把语言加入新部署数据库时，再执行 `make i18n-sync I18N_MIGRATION_VERSION=vX.Y.Z`，提交脚本生成的版本化 `base_language` 迁移；已有数据库的启用状态不会被迁移覆盖。
 
-动态资源的主语言由 `base_language.is_primary` 配置。创建或更新菜单、字典、字典项和系统配置时，后端按请求 `Accept-Language` 将输入文本转换为主语言写入主表；请求语言不是主语言时，原文写入对应翻译表，其他已启用非主语言也只保存在翻译表。
+动态资源的主语言由 `base_language.is_primary` 配置。创建或更新菜单、字典、字典项和系统配置时，后端按请求 `Accept-Language` 将输入文本转换为主语言写入主表；请求语言不是主语言时，原文写入对应翻译表，其他已启用非主语言也只保存在翻译表。系统配置名称、菜单标题、字典名称和字典项标签支持在管理端点击名称打开翻译弹窗，文本/富文本配置值支持运行时翻译回退。
 
 后端错误目录检查与草稿命令：
 
@@ -129,7 +129,7 @@ make -C backend i18n-draft
 I18N_WRITE=1 make -C backend i18n-draft
 ```
 
-`make -C backend i18n-locales` 是可选的批量语言包/动态翻译草稿生成器；新增语言可通过 `I18N_LOCALE=de-DE I18N_MIGRATION_VERSION=vX.Y.Z make -C backend i18n-locales` 指定，并在提交前审核生成文件，避免修改已发布迁移。该脚本在线模式使用独立的 Google V1 请求，离线环境可加 `I18N_OFFLINE=1` 使用内置术语表；服务运行时和 `i18n-draft` 则读取 `backend/configs/translator.yaml` 选择 Provider。机器翻译仅生成可审核草稿，不参与正常业务读取；Provider 不可用时不影响已审核译文和主语言回退。
+`make -C backend i18n-locales` 是可选的批量语言包/动态翻译生成器；新增语言可通过 `I18N_LOCALE=de-DE I18N_MIGRATION_VERSION=vX.Y.Z make -C backend i18n-locales` 指定，并在提交前审核生成文件，避免修改已发布迁移。该脚本在线模式使用独立的 Google V1 请求，离线环境可加 `I18N_OFFLINE=1` 使用内置术语表；服务运行时和 `i18n-draft` 则读取 `backend/configs/translator.yaml` 选择 Provider。管理端翻译表单可对有内容的主语言文本执行单个或批量即时翻译，Draft 接口只返回译文、不写入数据库；运行时创建或更新资源后会异步补齐空译文，提交空文本时仍按原有保存逻辑补齐；已有非空译文不覆盖。Provider 不可用时不影响已有译文和主语言回退。
 
 ## 发布
 

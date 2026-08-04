@@ -4,7 +4,7 @@
     <TreeFilter
       :key="`dept-filter-${selectedTenantId ?? 0}`"
       label="name"
-      :title="t('system.user.title.departmentList')"
+      :title="t('system.base.user.title.department_list')"
       :request-api="requestDeptTreeFilter"
       :show-all="false"
       :default-value="deptFilterValue"
@@ -26,7 +26,7 @@
     <FormDialog
       v-model="dialog.visible"
       ref="formDialogRef"
-      :title="t(dialog.editing ? 'system.user.action.edit' : 'system.user.action.create')"
+      :title="t(dialog.editing ? 'system.base.user.action.edit' : 'system.base.user.action.create')"
       width="800px"
       :model="formData"
       :fields="formFields"
@@ -43,7 +43,7 @@
     <FormDialog
       v-model="resetPwdDialog.visible"
       ref="resetPwdFormDialogRef"
-      :title="t('system.user.title.resetPassword', { name: resetPwdTargetName })"
+      :title="t('system.base.user.title.reset_password', { name: resetPwdTargetName })"
       width="520px"
       :model="resetPwdForm"
       :fields="resetPwdFields"
@@ -182,65 +182,65 @@ const rules = computed(() => ({
   tenant_id: [
     {
       required: true,
-      message: t("system.common.validation.requiredSelect", { field: t("system.user.field.tenant") }),
+      message: t("common.validation.required_select", { field: t("system.base.user.field.tenant") }),
       trigger: "change"
     }
   ],
   user_name: [
     {
       required: true,
-      message: t("system.common.validation.requiredInput", { field: t("system.user.field.userName") }),
+      message: t("common.validation.required_input", { field: t("system.base.user.field.user_name") }),
       trigger: "blur"
     },
     {
       max: 50,
-      message: t("system.common.validation.maxLength", { field: t("system.user.field.userName"), max: 50 }),
+      message: t("common.validation.max_length", { field: t("system.base.user.field.user_name"), max: 50 }),
       trigger: "blur"
     }
   ],
   user_code: [
     {
       required: true,
-      message: t("system.common.validation.requiredInput", { field: t("system.user.field.userCode") }),
+      message: t("common.validation.required_input", { field: t("system.base.user.field.user_code") }),
       trigger: "blur"
     },
     {
       max: 30,
-      message: t("system.common.validation.maxLength", { field: t("system.user.field.userCode"), max: 30 }),
+      message: t("common.validation.max_length", { field: t("system.base.user.field.user_code"), max: 30 }),
       trigger: "blur"
     }
   ],
   nick_name: [
     {
       required: true,
-      message: t("system.common.validation.requiredInput", { field: t("system.user.field.nickName") }),
+      message: t("common.validation.required_input", { field: t("system.base.user.field.nick_name") }),
       trigger: "blur"
     },
     {
       max: 30,
-      message: t("system.common.validation.maxLength", { field: t("system.user.field.nickName"), max: 30 }),
+      message: t("common.validation.max_length", { field: t("system.base.user.field.nick_name"), max: 30 }),
       trigger: "blur"
     }
   ],
   dept_id: [
     {
       required: true,
-      message: t("system.common.validation.requiredSelect", { field: t("system.user.field.department") }),
+      message: t("common.validation.required_select", { field: t("system.base.user.field.department") }),
       trigger: "change"
     }
   ],
   role_id: [
     {
       required: true,
-      message: t("system.common.validation.requiredSelect", { field: t("system.user.field.role") }),
+      message: t("common.validation.required_select", { field: t("system.base.user.field.role") }),
       trigger: "change"
     }
   ],
   phone: [
-    { max: 20, message: t("system.common.validation.maxLength", { field: t("common.field.phone"), max: 20 }), trigger: "blur" },
+    { max: 20, message: t("common.validation.max_length", { field: t("common.field.phone"), max: 20 }), trigger: "blur" },
     {
       pattern: /^1[3-9]\d{9}$/,
-      message: t("common.validation.phoneInvalid"),
+      message: t("common.validation.phone_invalid"),
       trigger: "blur"
     }
   ],
@@ -251,21 +251,21 @@ const rules = computed(() => ({
   status: [
     {
       required: true,
-      message: t("system.common.validation.requiredSelect", { field: t("system.common.field.status") }),
+      message: t("common.validation.required_select", { field: t("common.field.status") }),
       trigger: "change"
     }
   ],
   remark: [
     {
       max: 500,
-      message: t("system.common.validation.maxLength", { field: t("system.common.field.remark"), max: 500 }),
+      message: t("common.validation.max_length", { field: t("common.field.remark"), max: 500 }),
       trigger: "blur"
     }
   ]
 }));
 const resetPwdRules = computed(() => ({
   pwd: [
-    { required: true, message: t("system.user.placeholder.newPassword"), trigger: "blur" },
+    { required: true, message: t("system.base.user.placeholder.new_password"), trigger: "blur" },
     { validator: validatePasswordField, trigger: "blur" }
   ]
 }));
@@ -281,13 +281,13 @@ const statusOptions = computed<ProFormOption[]>(() => [
 const resetPwdFields = computed<ProFormField[]>(() => [
   {
     prop: "pwd",
-    label: t("system.user.field.newPassword"),
+    label: t("system.base.user.field.new_password"),
     component: "password",
-    props: { placeholder: t("system.user.placeholder.newPassword"), showPassword: true }
+    props: { placeholder: t("system.base.user.placeholder.new_password"), showPassword: true }
   },
   {
     prop: "resetPwdStrength",
-    label: t("system.user.field.passwordStrength"),
+    label: t("system.base.user.field.password_strength"),
     component: "slot",
     slotName: "resetPwdStrength"
   }
@@ -309,10 +309,10 @@ const isSuperEditUser = computed(() => Boolean(formData.id && formData.user_name
 const formFields = computed<ProFormField[]>(() => [
   {
     prop: "tenant_id",
-    label: t("system.user.field.tenant"),
+    label: t("system.base.user.field.tenant"),
     component: "select",
     props: {
-      placeholder: t("system.user.placeholder.tenant"),
+      placeholder: t("system.base.user.placeholder.tenant"),
       filterable: true,
       disabled: Boolean(formData.id),
       onChange: handleFormTenantChange
@@ -322,36 +322,36 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "user_name",
-    label: t("system.user.field.userName"),
+    label: t("system.base.user.field.user_name"),
     component: "input",
-    props: { placeholder: t("system.user.placeholder.userName"), disabled: Boolean(formData.id) }
+    props: { placeholder: t("system.base.user.placeholder.user_name"), disabled: Boolean(formData.id) }
   },
   {
     prop: "user_code",
-    label: t("system.user.field.userCode"),
+    label: t("system.base.user.field.user_code"),
     component: "input",
-    props: { placeholder: t("system.user.placeholder.userCode"), disabled: Boolean(formData.id) }
+    props: { placeholder: t("system.base.user.placeholder.user_code"), disabled: Boolean(formData.id) }
   },
   {
     prop: "nick_name",
-    label: t("system.user.field.nickName"),
+    label: t("system.base.user.field.nick_name"),
     component: "input",
-    props: { placeholder: t("system.user.placeholder.nickName") }
+    props: { placeholder: t("system.base.user.placeholder.nick_name") }
   },
   {
     prop: "role_id",
-    label: t("system.user.field.role"),
+    label: t("system.base.user.field.role"),
     component: "select",
     options: baseRoleOptions.value.map(item => ({ label: item.label, value: item.value, disabled: item.disabled })),
     props: { placeholder: t("common.placeholder.select"), disabled: isProtectedUserRole.value }
   },
   {
     prop: "dept_id",
-    label: t("system.user.field.department"),
+    label: t("system.base.user.field.department"),
     component: "tree-select",
     options: basedDeptOptions.value as unknown as ProFormOption[],
     props: {
-      placeholder: t("system.user.placeholder.department"),
+      placeholder: t("system.base.user.placeholder.department"),
       filterable: true,
       checkStrictly: true,
       renderAfterExpand: false,
@@ -360,44 +360,44 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "post_id",
-    label: t("system.user.field.post"),
+    label: t("system.base.user.field.post"),
     component: "select",
     options: basePostOptions.value.map(item => ({ label: item.label, value: item.value, disabled: item.disabled })),
-    props: { placeholder: t("system.user.placeholder.post"), clearable: true, filterable: true }
+    props: { placeholder: t("system.base.user.placeholder.post"), clearable: true, filterable: true }
   },
   {
     prop: "phone",
     label: t("common.field.phone"),
     component: "input",
-    props: { placeholder: t("common.validation.phoneRequired") }
+    props: { placeholder: t("common.validation.phone_required") }
   },
   {
     prop: "pwd",
-    label: t("system.user.field.password"),
+    label: t("system.base.user.field.password"),
     component: "password",
-    props: { placeholder: t("system.user.placeholder.password"), showPassword: true },
+    props: { placeholder: t("system.base.user.placeholder.password"), showPassword: true },
     visible: model => !model.id
   },
   {
     prop: "passwordStrength",
-    label: t("system.user.field.passwordStrength"),
+    label: t("system.base.user.field.password_strength"),
     component: "slot",
     slotName: "passwordStrength",
     visible: model => !model.id
   },
-  { prop: "gender", label: t("system.user.field.gender"), component: "dict", props: { code: "base_user_gender" } },
+  { prop: "gender", label: t("system.base.user.field.gender"), component: "dict", props: { code: "base_user_gender" } },
   {
     prop: "status",
-    label: t("system.common.field.status"),
+    label: t("common.field.status"),
     component: "radio-group",
     options: statusOptions.value,
     props: { disabled: isSuperEditUser.value }
   },
   {
     prop: "remark",
-    label: t("system.common.field.remark"),
+    label: t("common.field.remark"),
     component: "textarea",
-    props: { placeholder: t("system.common.placeholder.remark") }
+    props: { placeholder: t("common.placeholder.remark") }
   }
 ]);
 
@@ -408,7 +408,7 @@ const columns = computed<ColumnProps[]>(() => [
     ? ([
         {
           prop: "tenant_id",
-          label: t("system.user.field.tenantShort"),
+          label: t("system.base.user.field.tenant_short"),
           minWidth: 140,
           showOverflowTooltip: true,
           search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 1 },
@@ -416,22 +416,22 @@ const columns = computed<ColumnProps[]>(() => [
         }
       ] satisfies ColumnProps[])
     : []),
-  { prop: "user_name", label: t("system.user.field.userName"), minWidth: 140, search: { el: "input" } },
-  { prop: "user_code", label: t("system.user.field.userCode"), minWidth: 140, search: { el: "input" } },
-  { prop: "nick_name", label: t("system.user.field.nickNameShort"), minWidth: 100, search: { el: "input" } },
-  { prop: "role_id", label: t("system.user.field.role"), minWidth: 140, enum: requestRoleOptions },
+  { prop: "user_name", label: t("system.base.user.field.user_name"), minWidth: 140, search: { el: "input" } },
+  { prop: "user_code", label: t("system.base.user.field.user_code"), minWidth: 140, search: { el: "input" } },
+  { prop: "nick_name", label: t("system.base.user.field.nick_name_short"), minWidth: 100, search: { el: "input" } },
+  { prop: "role_id", label: t("system.base.user.field.role"), minWidth: 140, enum: requestRoleOptions },
   {
     prop: "dept_id",
-    label: t("system.user.field.departmentShort"),
+    label: t("system.base.user.field.department_short"),
     minWidth: 180,
     showOverflowTooltip: true,
     enum: requestDeptOptions
   },
-  { prop: "post_id", label: t("system.user.field.postShort"), minWidth: 120, enum: requestPostOptions },
+  { prop: "post_id", label: t("system.base.user.field.post_short"), minWidth: 120, enum: requestPostOptions },
   { prop: "phone", label: t("common.field.phone"), minWidth: 130, search: { el: "input" } },
   {
     prop: "gender",
-    label: t("system.user.field.gender"),
+    label: t("system.base.user.field.gender"),
     minWidth: 90,
     align: "center",
     dictCode: "base_user_gender",
@@ -439,7 +439,7 @@ const columns = computed<ColumnProps[]>(() => [
   },
   {
     prop: "status",
-    label: t("system.common.field.status"),
+    label: t("common.field.status"),
     minWidth: 100,
     search: { el: "select" },
     cellType: "status",
@@ -452,18 +452,18 @@ const columns = computed<ColumnProps[]>(() => [
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseUser)
     }
   },
-  { prop: "remark", label: t("system.common.field.remark"), minWidth: 160 },
-  { prop: "created_at", label: t("system.common.field.createdAt"), minWidth: 180 },
-  { prop: "updated_at", label: t("system.common.field.updatedAt"), minWidth: 180 },
+  { prop: "remark", label: t("common.field.remark"), minWidth: 160 },
+  { prop: "created_at", label: t("common.field.created_at"), minWidth: 180 },
+  { prop: "updated_at", label: t("common.field.updated_at"), minWidth: 180 },
   {
     prop: "operation",
-    label: t("system.common.field.action"),
+    label: t("common.field.action"),
     width: 260,
     fixed: "right",
     cellType: "actions",
     actions: [
       {
-        label: t("system.user.action.resetPassword"),
+        label: t("system.base.user.action.reset_password"),
         type: "primary",
         link: true,
         icon: RefreshLeft,
@@ -730,9 +730,9 @@ async function handleConfirmResetPassword() {
   resetPwdFormDialogRef.value?.validate()?.then(async valid => {
     if (!valid) return;
 
-    const pwd = await encryptPassword(resetPwdForm.pwd, PASSWORD_CRYPTO_SCENE.RESET_BASE_USER_PASSWORD);
+    const pwd = await encryptPassword(resetPwdForm.pwd, PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD);
     defBaseUserService.ResetBaseUserPassword({ id: resetPwdForm.id, pwd }).then(() => {
-      ElMessage.success(t("system.user.message.resetPasswordSuccess", { name: resetPwdTargetName.value }));
+      ElMessage.success(t("system.base.user.message.reset_password_success", { name: resetPwdTargetName.value }));
       handleCloseResetPasswordDialog();
     });
   });
@@ -748,13 +748,13 @@ const handleSubmit = useDebounceFn(() => {
     const submitData = JSON.parse(JSON.stringify(formData)) as BaseUserFormState;
     const baseUser = {
       ...submitData,
-      pwd: submitData.id ? undefined : await encryptPassword(submitData.pwd, PASSWORD_CRYPTO_SCENE.CREATE_BASE_USER)
+      pwd: submitData.id ? undefined : await encryptPassword(submitData.pwd, PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER)
     } as BaseUserForm;
     const request = submitData.id
       ? defBaseUserService.UpdateBaseUser({ base_user: baseUser })
       : defBaseUserService.CreateBaseUser({ base_user: baseUser });
     request.then(() => {
-      ElMessage.success(t(submitData.id ? "system.user.message.updateSuccess" : "system.user.message.createSuccess"));
+      ElMessage.success(t(submitData.id ? "system.base.user.message.update_success" : "system.base.user.message.create_success"));
       handleCloseDialog();
       refreshTable();
     });
@@ -766,7 +766,7 @@ const handleSubmit = useDebounceFn(() => {
  */
 async function handleBeforeSetStatus(row: BaseUser) {
   if (isProtectedManagementUser(row)) {
-    ElMessage.warning(t("system.user.message.protectedAccount"));
+    ElMessage.warning(t("system.base.user.message.protected_account"));
     return false;
   }
 
@@ -774,13 +774,13 @@ async function handleBeforeSetStatus(row: BaseUser) {
   const action = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
   const userName = row.nick_name || row.user_name || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(t("system.user.message.confirmStatus", { action, name: userName }), t("common.title.notice"), {
+    await ElMessageBox.confirm(t("system.base.user.message.confirm_status", { action, name: userName }), t("common.title.notice"), {
       confirmButtonText: t("common.action.confirm"),
       cancelButtonText: t("common.action.cancel"),
       type: "warning"
     });
     await defBaseUserService.SetBaseUserStatus({ id: row.id, status: nextStatus });
-    ElMessage.success(t("system.common.message.statusSuccess", { action }));
+    ElMessage.success(t("common.message.status_success", { action }));
     refreshTable();
     return true;
   } catch {
@@ -798,24 +798,24 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
       ? [selected]
       : [];
   if (userList.some(isProtectedManagementUser)) {
-    ElMessage.warning(t("system.user.message.protectedAccount"));
+    ElMessage.warning(t("system.base.user.message.protected_account"));
     return;
   }
   const userIds = normalizeSelectedIds(
     userList.length ? userList.map(item => item.id) : (selected as number | string | Array<number | string> | undefined)
   ).join(",");
   if (!userIds) {
-    ElMessage.warning(t("system.common.message.selectDeleteItem"));
+    ElMessage.warning(t("common.message.select_delete_item"));
     return;
   }
 
   const confirmMessage = userList.length
     ? userList.length === 1
-      ? t("system.user.message.confirmDeleteSingle", {
+      ? t("system.base.user.message.confirm_delete_single", {
           name: userList[0].nick_name || userList[0].user_name || `ID:${userList[0].id}`
         })
-      : t("system.user.message.confirmDeleteBatch", { count: userList.length })
-    : t("system.user.message.confirmDeleteSelected");
+      : t("system.base.user.message.confirm_delete_batch", { count: userList.length })
+    : t("system.base.user.message.confirm_delete_selected");
 
   ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
     confirmButtonText: t("common.action.confirm"),
@@ -824,12 +824,12 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   }).then(
     () => {
       defBaseUserService.DeleteBaseUser({ id: userIds }).then(() => {
-        ElMessage.success(t("system.user.message.deleteSuccess"));
+        ElMessage.success(t("system.base.user.message.delete_success"));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info(t("system.user.message.deleteCanceled"));
+      ElMessage.info(t("system.base.user.message.delete_canceled"));
     }
   );
 }

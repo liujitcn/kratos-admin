@@ -5,17 +5,17 @@
       <div v-if="BUTTONS['tool:code-gen-table:generate']" class="code-gen-toolbar">
         <div class="code-gen-code-preview-actions">
           <el-button :icon="Clock" :disabled="!progressTaskAvailable" @click="handleOpenProgress">
-            {{ t("system.codegen.action.recentTask") }}
+            {{ t("system.code.gen.action.recent_task") }}
           </el-button>
           <el-button :icon="Promotion" type="primary" :loading="generating" @click="handleGenerate">
-            {{ t("system.codegen.action.generate") }}
+            {{ t("system.code.gen.action.generate") }}
           </el-button>
         </div>
       </div>
 
       <el-alert v-if="previewError" class="code-gen-code-preview-alert" :title="previewError" type="warning" :closable="false" />
       <CodePreviewPane v-if="loading || files.length" class="code-gen-code-preview-table" :files="files" :loading="loading" />
-      <el-empty v-else class="code-gen-code-preview-empty" :description="t('system.codegen.preview.message.emptyFiles')" />
+      <el-empty v-else class="code-gen-code-preview-empty" :description="t('system.code.gen.preview.message.empty_files')" />
     </el-card>
 
     <CodeGenProgressDialog
@@ -39,7 +39,7 @@ import { defCodeGenService } from "@liujitcn/kratos-admin-system/api/system/code
 import { defCodeGenTableService } from "@liujitcn/kratos-admin-system/api/system/code_gen_table";
 import type { CodeGenPreviewFile } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen";
 import type { CodeGenTableForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_table";
-import { CodeGenTableStatus } from "@liujitcn/kratos-admin-system/rpc/system/common/v1/enum";
+import { CodeGenTableStatus } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_table";
 import CodeGenProgressDialog from "../components/CodeGenProgressDialog.vue";
 import CodePreviewPane from "../components/CodePreviewPane.vue";
 
@@ -51,7 +51,7 @@ defineOptions({
 const codeGenTaskStorageKey = "code-gen-progress-task-id";
 const codeGenProgressDialogVisibleStorageKey = "code-gen-progress-dialog-visible";
 const codeGenProgressSelectedTableIdsStorageKey = "code-gen-progress-selected-table-ids";
-const codeGenStatusDisabled = CodeGenTableStatus.DISABLED_CGTS;
+const codeGenStatusDisabled = CodeGenTableStatus.CODE_GEN_TABLE_STATUS_DISABLED;
 
 const route = useRoute();
 const tabsStore = useTabsStore();
@@ -78,7 +78,7 @@ const tableId = computed(() => {
 });
 
 /** 当前代码预览页标题。 */
-const pageTitle = computed(() => table.value?.comment || table.value?.name || t("system.codegen.preview.title.code"));
+const pageTitle = computed(() => table.value?.comment || table.value?.name || t("system.code.gen.preview.title.code"));
 
 // 路由生成对象变化时重新载入对应代码预览。
 watch(
@@ -105,14 +105,14 @@ async function loadCodePreview() {
       files.value = preview.files ?? [];
       missingTranslations.value = preview.missing_translations ?? [];
       if (missingTranslations.value.length) {
-        previewError.value = t("system.codegen.preview.message.missingTranslations", {
-          items: missingTranslations.value.join(t("system.codegen.preview.value.listSeparator"))
+        previewError.value = t("system.code.gen.preview.message.missing_translations", {
+          items: missingTranslations.value.join(t("system.code.gen.preview.value.list_separator"))
         });
       }
-      if (!files.value.length && !previewError.value) previewError.value = t("system.codegen.preview.message.noPreviewFiles");
+      if (!files.value.length && !previewError.value) previewError.value = t("system.code.gen.preview.message.no_preview_files");
     } catch {
       // 预览错误在页面内转成可操作提示，避免全局错误弹窗只显示“系统出错”。
-      previewError.value = t("system.codegen.preview.message.loadFailed");
+      previewError.value = t("system.code.gen.preview.message.load_failed");
     }
     syncWorkspaceTitle();
   } finally {
@@ -122,7 +122,7 @@ async function loadCodePreview() {
 
 /** 同步代码预览页签和浏览器标题。 */
 function syncWorkspaceTitle() {
-  const title = t("system.codegen.preview.title.workspace", { table: pageTitle.value });
+  const title = t("system.code.gen.preview.title.workspace", { table: pageTitle.value });
   tabsStore.setTabsTitle(title);
   document.title = `${title} - ${import.meta.env.VITE_GLOB_APP_TITLE}`;
 }
@@ -131,12 +131,12 @@ function syncWorkspaceTitle() {
 async function handleGenerate() {
   if (!table.value) return;
   if (table.value.status === codeGenStatusDisabled) {
-    ElMessage.warning(t("system.codegen.table.message.disabled", { name: table.value.name }));
+    ElMessage.warning(t("system.code.gen.table.message.disabled", { name: table.value.name }));
     return;
   }
   try {
     await ElMessageBox.confirm(
-      t("system.codegen.table.dialog.generateOne", { name: table.value.name }),
+      t("system.code.gen.table.dialog.generate_one", { name: table.value.name }),
       t("common.title.notice"),
       {
         confirmButtonText: t("common.action.confirm"),

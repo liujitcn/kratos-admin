@@ -69,17 +69,17 @@ const profileTabs = computed<ProfileTabOption[]>(() => [
   {
     value: "account",
     label: t("system.profile.account.title"),
-    description: t("system.profile.account.navDescription")
+    description: t("system.profile.account.nav_description")
   },
   {
     value: "security",
     label: t("system.profile.security.title"),
-    description: t("system.profile.security.navDescription")
+    description: t("system.profile.security.nav_description")
   },
   {
     value: "password",
     label: t("system.profile.password.title"),
-    description: t("system.profile.password.navDescription")
+    description: t("system.profile.password.nav_description")
   }
 ]);
 const userProfileForm = reactive<UserProfileForm>({

@@ -1,13 +1,13 @@
 <template>
   <el-dialog
     v-model="dialogVisible"
-    :title="t('core.upload.batchAdd', { resource: parameter.title })"
+    :title="t('core.upload.batch_add', { resource: parameter.title })"
     :destroy-on-close="true"
     width="580px"
     draggable
   >
     <el-form class="drawer-multiColumn-form" label-width="100px">
-      <el-form-item :label="t('core.upload.templateDownload')">
+      <el-form-item :label="t('core.upload.template_download')">
         <el-button type="primary" :icon="Download" @click="downloadTemp">{{ t("common.action.download") }}</el-button>
       </el-form-item>
       <el-form-item :label="t('core.upload.file')">
@@ -30,17 +30,17 @@
               <upload-filled />
             </el-icon>
             <div class="el-upload__text">
-              {{ t("core.upload.dragOrClick") }}<em>{{ t("core.upload.click") }}</em>
+              {{ t("core.upload.drag_or_click") }}<em>{{ t("core.upload.click") }}</em>
             </div>
           </slot>
           <template #tip>
             <slot name="tip">
-              <div class="el-upload__tip">{{ t("core.upload.excelFormat", { size: parameter.fileSize ?? 5 }) }}</div>
+              <div class="el-upload__tip">{{ t("core.upload.excel_format", { size: parameter.fileSize ?? 5 }) }}</div>
             </slot>
           </template>
         </el-upload>
       </el-form-item>
-      <el-form-item :label="t('core.upload.dataCover')">
+      <el-form-item :label="t('core.upload.data_cover')">
         <el-switch v-model="isCover" />
       </el-form-item>
     </el-form>
@@ -111,14 +111,14 @@ const beforeExcelUpload = (file: UploadRawFile) => {
   if (!isExcel)
     ElNotification({
       title: t("common.title.warning"),
-      message: t("core.upload.fileFormatInvalid"),
+      message: t("core.upload.file_format_invalid"),
       type: "warning"
     });
   if (!fileSize)
     setTimeout(() => {
       ElNotification({
         title: t("common.title.warning"),
-        message: t("core.upload.fileSizeExceeded", { size: parameter.value.fileSize ?? 5 }),
+        message: t("core.upload.file_size_exceeded", { size: parameter.value.fileSize ?? 5 }),
         type: "warning"
       });
     }, 0);
@@ -129,7 +129,7 @@ const beforeExcelUpload = (file: UploadRawFile) => {
 const handleExceed = () => {
   ElNotification({
     title: t("common.title.warning"),
-    message: t("core.upload.singleFileOnly"),
+    message: t("core.upload.single_file_only"),
     type: "warning"
   });
 };
@@ -138,7 +138,7 @@ const handleExceed = () => {
 const excelUploadError = () => {
   ElNotification({
     title: t("common.title.warning"),
-    message: t("core.upload.batchFailed", { resource: parameter.value.title }),
+    message: t("core.upload.batch_failed", { resource: parameter.value.title }),
     type: "error"
   });
 };
@@ -147,7 +147,7 @@ const excelUploadError = () => {
 const excelUploadSuccess = () => {
   ElNotification({
     title: t("common.title.notice"),
-    message: t("core.upload.batchSuccess", { resource: parameter.value.title }),
+    message: t("core.upload.batch_success", { resource: parameter.value.title }),
     type: "success"
   });
 };

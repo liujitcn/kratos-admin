@@ -7,8 +7,8 @@ import { useI18n } from '../../../locales'
 
 const settingStore = useSettingStore()
 const { t } = useI18n()
-const mainTitle = computed(() => settingStore.getData('mainTitle') || t('core.home.mainTitle'))
-const subTitle = computed(() => settingStore.getData('subTitle') || t('core.home.subTitle'))
+const mainTitle = computed(() => settingStore.getData('mainTitle') || t('core.home.main_title'))
+const subTitle = computed(() => settingStore.getData('subTitle') || t('core.home.sub_title'))
 const appLogo = computed(() => settingStore.getData('appLogo') || defaultLogo)
 
 onLoad(() => {
@@ -27,7 +27,7 @@ onLoad(() => {
     </view>
 
     <view class="section">
-      <text class="section-title">{{ t('core.home.techStack') }}</text>
+      <text class="section-title">{{ t('core.home.tech_stack') }}</text>
       <view class="info-list">
         <view class="info-row">
           <text class="info-label">{{ t('core.home.framework') }}</text>
@@ -38,38 +38,38 @@ onLoad(() => {
           <text class="info-value">TypeScript</text>
         </view>
         <view class="info-row">
-          <text class="info-label">{{ t('core.home.stateManagement') }}</text>
+          <text class="info-label">{{ t('core.home.state_management') }}</text>
           <text class="info-value">Pinia</text>
         </view>
         <view class="info-row">
-          <text class="info-label">{{ t('core.home.styleSolution') }}</text>
+          <text class="info-label">{{ t('core.home.style_solution') }}</text>
           <text class="info-value">Sass + rpx</text>
         </view>
       </view>
     </view>
 
     <view class="section">
-      <text class="section-title">{{ t('core.home.demoScope') }}</text>
+      <text class="section-title">{{ t('core.home.demo_scope') }}</text>
       <view class="demo-list">
         <view class="demo-item">
           <view class="demo-dot">1</view>
           <view class="demo-copy">
-            <text class="demo-title">{{ t('core.home.crossPlatform') }}</text>
-            <text class="demo-desc">{{ t('core.home.crossPlatformDescription') }}</text>
+            <text class="demo-title">{{ t('core.home.cross_platform') }}</text>
+            <text class="demo-desc">{{ t('core.home.cross_platform_description') }}</text>
           </view>
         </view>
         <view class="demo-item">
           <view class="demo-dot">2</view>
           <view class="demo-copy">
-            <text class="demo-title">{{ t('core.home.accountCapability') }}</text>
-            <text class="demo-desc">{{ t('core.home.accountCapabilityDescription') }}</text>
+            <text class="demo-title">{{ t('core.home.account_capability') }}</text>
+            <text class="demo-desc">{{ t('core.home.account_capability_description') }}</text>
           </view>
         </view>
         <view class="demo-item">
           <view class="demo-dot">3</view>
           <view class="demo-copy">
-            <text class="demo-title">{{ t('core.home.staticHome') }}</text>
-            <text class="demo-desc">{{ t('core.home.staticHomeDescription') }}</text>
+            <text class="demo-title">{{ t('core.home.static_home') }}</text>
+            <text class="demo-desc">{{ t('core.home.static_home_description') }}</text>
           </view>
         </view>
       </view>
