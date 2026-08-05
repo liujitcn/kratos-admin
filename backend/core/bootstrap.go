@@ -461,7 +461,10 @@ func newHTTPServer(
 	}()
 	health.RegisterHTTP(server, healthRegistry)
 	if cfg.GetServer().GetHttp().GetEnableSwagger() && len(openAPIRegistry.Documents()) > 0 {
-		openapi.RegisterHTTP(server, openAPIRegistry, opts.openAPIOptions)
+		err = openapi.RegisterHTTP(server, openAPIRegistry, opts.openAPIOptions)
+		if err != nil {
+			return nil, fmt.Errorf("注册 OpenAPI 文档: %w", err)
+		}
 	}
 	if configuredSSEServer != nil && sseInProcess(cfg) {
 		path := normalizeHTTPPath(cfg.GetServer().GetSse().GetPath(), "/events")

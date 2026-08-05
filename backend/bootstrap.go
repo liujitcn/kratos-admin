@@ -16,6 +16,7 @@ import (
 	coreSSE "github.com/liujitcn/kratos-admin/backend/core/pkg/sse"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/startup"
 	coreTask "github.com/liujitcn/kratos-admin/backend/core/pkg/task"
+	_ "github.com/liujitcn/kratos-admin/backend/internal/i18n/locales"
 	"github.com/liujitcn/kratos-admin/backend/internal/server"
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	"github.com/liujitcn/kratos-kit/bootstrap"

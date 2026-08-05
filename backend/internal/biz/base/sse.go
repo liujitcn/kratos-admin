@@ -9,7 +9,7 @@ import (
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
 	coreSSE "github.com/liujitcn/kratos-admin/backend/core/pkg/sse"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/v1/codegen"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"

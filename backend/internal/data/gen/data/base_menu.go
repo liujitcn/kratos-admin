@@ -9,6 +9,7 @@ import (
 
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	query "github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 )
@@ -16,17 +17,17 @@ import (
 // BaseMenuRepository 定义 菜单信息 的基础仓储能力。
 type BaseMenuRepository struct {
 	repository.BaseRepository[models.BaseMenu]
-	*Data
+	queryProvider QueryProvider
 }
 
 // NewBaseMenuRepository 创建 BaseMenu 基础仓储实例。
-func NewBaseMenuRepository(data *Data) *BaseMenuRepository {
+func NewBaseMenuRepository(queryProvider QueryProvider) *BaseMenuRepository {
 	base := repository.NewBaseRepository[models.BaseMenu](
 		func(ctx context.Context) gen.Dao {
-			return new(data.Query(ctx).BaseMenu.WithContext(ctx).DO)
+			return new(queryProvider.Query(ctx).BaseMenu.WithContext(ctx).DO)
 		},
 		func(ctx context.Context) field.Int64 {
-			return data.Query(ctx).BaseMenu.ID
+			return queryProvider.Query(ctx).BaseMenu.ID
 		},
 		func(entity *models.BaseMenu) int64 {
 			return entity.ID
@@ -34,6 +35,11 @@ func NewBaseMenuRepository(data *Data) *BaseMenuRepository {
 	)
 	return &BaseMenuRepository{
 		BaseRepository: base,
-		Data:           data,
+		queryProvider:  queryProvider,
 	}
+}
+
+// Query 返回当前上下文对应的查询入口。
+func (r *BaseMenuRepository) Query(ctx context.Context) *query.Query {
+	return r.queryProvider.Query(ctx)
 }

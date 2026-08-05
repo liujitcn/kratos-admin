@@ -2,7 +2,7 @@
 
 `backend/core` 是独立 Go module，提供不依赖业务 Proto、数据库模型和具体服务实现的 Kratos 宿主运行时、公共协议和可复用错误包。业务模块负责接口和实现，Core 负责统一装配生命周期、可选运行能力和项目文档收集。
 
-Core 不创建数据库客户端，也不负责数据库迁移；`pkg/errorsx` 仅依赖 GORM 和 MySQL 的错误类型，用于在不同上层项目中统一分类底层数据库错误。
+Core 不创建数据库客户端，也不负责数据库迁移；`pkg/errorsx` 仅依赖 GORM 和 MySQL 的错误类型，用于在不同上层项目中统一分类底层数据库错误。语言区域和错误目录由宿主配置，Core 不内嵌具体项目的语言文件。
 
 模块路径：
 
@@ -37,6 +37,8 @@ app, cleanup, err := core.NewApp(ctx, core.WithModules(orderModule))
 | 包 | 已实现能力 |
 | --- | --- |
 | `pkg/errorsx` | Kratos 结构化业务错误、冲突 metadata、GORM `ErrRecordNotFound` 和 MySQL 唯一键错误分类。 |
+| `pkg/i18n` | 接收宿主语言文件系统的消息目录、结构化错误本地化和受保护文本翻译。 |
+| `pkg/locale` | 接收宿主语言 manifest，规范化语言区域、解析 `Accept-Language` 和传递请求上下文语言。 |
 | `pkg/projectdoc` | 项目文档目录解析、稳定文档标识和文档贡献类型。 |
 | `pkg/event` | 类型安全的进程内发布订阅。 |
 | `pkg/health` | `/healthz` 和可扩展 readiness 检查。 |
@@ -48,6 +50,8 @@ app, cleanup, err := core.NewApp(ctx, core.WithModules(orderModule))
 | `pkg/startup` | 启动钩子、失败回滚和反向清理。 |
 | `pkg/static` | 静态目录和 SPA fallback。 |
 | `pkg/task` | 具名任务、Cron 调度、立即执行、panic 恢复和观察器。 |
+
+宿主必须在启动期调用 `pkg/locale.Configure` 提供自己的语言 manifest，再将同一批语言文件系统传给 `pkg/i18n.NewCatalog`。Core 不假设默认语言、语言集合或错误词条。
 
 ## 模块可选接口
 

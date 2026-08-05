@@ -12,8 +12,8 @@ import (
 	commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
-	baseBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/v1/utils"
+	baseBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 

@@ -7261,7 +7261,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: 翻译记录ID，新增翻译时可不填写
+                    description: 翻译记录ID，大于零时优先按ID更新；ID不存在时根据目标信息更新或新增
                 target_type:
                     enum:
                         - TRANSLATION_TARGET_TYPE_UNSPECIFIED
@@ -7271,14 +7271,14 @@ components:
                         - TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM
                         - TRANSLATION_TARGET_TYPE_BASE_MENU
                     type: string
-                    description: 翻译目标类型，新增翻译时使用
+                    description: 翻译目标类型，ID为零时用于查询或新增
                     format: enum
                 target_id:
                     type: string
-                    description: 目标资源ID，新增翻译时使用
+                    description: 目标资源ID，ID为零时用于查询或新增
                 locale:
                     type: string
-                    description: 目标语言区域，新增翻译时使用
+                    description: 目标语言区域，ID为零时用于查询或新增
                 name:
                     type: string
                     description: 翻译文本

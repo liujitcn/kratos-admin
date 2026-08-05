@@ -300,7 +300,7 @@ function formatSegmentDescription(segmentKey: CronSegmentKey, segment: CronSegme
         start: segment.stepStart,
         unit,
         step: segment.stepValue,
-        cycleUnit: t(`core.cron.cycleUnit.${segmentKey}`)
+        cycleUnit: t(`core.cron.cycle_unit.${segmentKey}`)
       });
     case "specific":
       return segment.specific.length
@@ -552,7 +552,7 @@ const CronSegmentEditor = defineComponent({
               controlsPosition: "right",
               "onUpdate:modelValue": value => handleNumberChange("stepValue", Number(value))
             })}
-            <span>{t("core.cron.run_once", { unit: t(`core.cron.cycleUnit.${segmentProps.unitKey}`) })}</span>
+            <span>{t("core.cron.run_once", { unit: t(`core.cron.cycle_unit.${segmentProps.unitKey}`) })}</span>
           </label>
         )}
 

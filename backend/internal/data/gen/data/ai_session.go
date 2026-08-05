@@ -9,6 +9,7 @@ import (
 
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	query "github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 )
@@ -16,17 +17,17 @@ import (
 // AiSessionRepository 定义 AI助手会话表 的基础仓储能力。
 type AiSessionRepository struct {
 	repository.BaseRepository[models.AiSession]
-	*Data
+	queryProvider QueryProvider
 }
 
 // NewAiSessionRepository 创建 AiSession 基础仓储实例。
-func NewAiSessionRepository(data *Data) *AiSessionRepository {
+func NewAiSessionRepository(queryProvider QueryProvider) *AiSessionRepository {
 	base := repository.NewBaseRepository[models.AiSession](
 		func(ctx context.Context) gen.Dao {
-			return new(data.Query(ctx).AiSession.WithContext(ctx).DO)
+			return new(queryProvider.Query(ctx).AiSession.WithContext(ctx).DO)
 		},
 		func(ctx context.Context) field.Int64 {
-			return data.Query(ctx).AiSession.ID
+			return queryProvider.Query(ctx).AiSession.ID
 		},
 		func(entity *models.AiSession) int64 {
 			return entity.ID
@@ -34,6 +35,11 @@ func NewAiSessionRepository(data *Data) *AiSessionRepository {
 	)
 	return &AiSessionRepository{
 		BaseRepository: base,
-		Data:           data,
+		queryProvider:  queryProvider,
 	}
+}
+
+// Query 返回当前上下文对应的查询入口。
+func (r *AiSessionRepository) Query(ctx context.Context) *query.Query {
+	return r.queryProvider.Query(ctx)
 }

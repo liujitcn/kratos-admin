@@ -14,7 +14,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 
 	systemappv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/app/v1/utils"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/app/utils"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/go-utils/mapper"

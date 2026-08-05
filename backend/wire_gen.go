@@ -13,13 +13,13 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/task"
 	"github.com/liujitcn/kratos-admin/backend/internal/agent/model"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
-	biz2 "github.com/liujitcn/kratos-admin/backend/internal/biz/base/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/v1/ai"
+	biz2 "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/event"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/job"
-	biz3 "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/v1/codegen"
-	biz4 "github.com/liujitcn/kratos-admin/backend/internal/biz/system/app/v1"
+	biz3 "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
+	biz4 "github.com/liujitcn/kratos-admin/backend/internal/biz/system/app"
 	"github.com/liujitcn/kratos-admin/backend/internal/config"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/server"
@@ -39,6 +39,8 @@ import (
 	"github.com/liujitcn/kratos-kit/oss"
 	"github.com/liujitcn/kratos-kit/pprof"
 	"github.com/liujitcn/kratos-kit/queue"
+
+	_ "github.com/liujitcn/kratos-admin/backend/internal/i18n/locales"
 )
 
 // Injectors from wire.go:
@@ -140,7 +142,14 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 		cleanup()
 		return nil, nil, err
 	}
-	ossOSS := oss.NewOSS(configv1Oss)
+	ossOSS, err := oss.NewOSS(configv1Oss)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	fileCase := biz2.NewFileCase(ossOSS)
 	fileService := base.NewFileService(fileCase)
 	authentication_Jwt := config.ParseAuthnJWT(context)
@@ -249,7 +258,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	bizBaseRoleCase := biz3.NewBaseRoleCase(baseCase, transaction, baseRoleRepository, baseTenantRepository, casbinRuleCase)
 	bizBaseDeptCase := biz3.NewBaseDeptCase(baseCase, baseDeptRepository)
 	baseLanguageCase := biz3.NewBaseLanguageCase(baseCase, transaction, baseLanguageRepository)
-	baseTranslationCase := biz3.NewBaseTranslationCase(baseCase, baseTranslationRepository, baseLanguageCase, translatorTranslator, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository)
+	baseTranslationCase := biz3.NewBaseTranslationCase(baseCase, transaction, baseTranslationRepository, baseLanguageCase, translatorTranslator)
 	baseMenuCase := biz3.NewBaseMenuCase(baseCase, transaction, baseMenuRepository, baseRoleRepository, casbinRuleCase, baseTranslationCase)
 	bizBaseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseDeptRepository, basePostRepository, bizBaseRoleCase, bizBaseDeptCase, baseMenuCase, baseRoleCase, userEvents)
 	baseTenantCase := biz3.NewBaseTenantCase(baseCase, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, casbinRuleRepository, casbinRuleCase, userEvents)
@@ -483,7 +492,14 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 		cleanup()
 		return nil, nil, err
 	}
-	ossOSS := oss.NewOSS(configv1Oss)
+	ossOSS, err := oss.NewOSS(configv1Oss)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	fileCase := biz2.NewFileCase(ossOSS)
 	fileService := base.NewFileService(fileCase)
 	authentication_Jwt := config.ParseAuthnJWT(context)
@@ -592,7 +608,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 	bizBaseRoleCase := biz3.NewBaseRoleCase(baseCase, transaction, baseRoleRepository, baseTenantRepository, casbinRuleCase)
 	bizBaseDeptCase := biz3.NewBaseDeptCase(baseCase, baseDeptRepository)
 	baseLanguageCase := biz3.NewBaseLanguageCase(baseCase, transaction, baseLanguageRepository)
-	baseTranslationCase := biz3.NewBaseTranslationCase(baseCase, baseTranslationRepository, baseLanguageCase, translatorTranslator, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository)
+	baseTranslationCase := biz3.NewBaseTranslationCase(baseCase, transaction, baseTranslationRepository, baseLanguageCase, translatorTranslator)
 	baseMenuCase := biz3.NewBaseMenuCase(baseCase, transaction, baseMenuRepository, baseRoleRepository, casbinRuleCase, baseTranslationCase)
 	bizBaseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseDeptRepository, basePostRepository, bizBaseRoleCase, bizBaseDeptCase, baseMenuCase, baseRoleCase, userEvents)
 	baseTenantCase := biz3.NewBaseTenantCase(baseCase, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, casbinRuleRepository, casbinRuleCase, userEvents)

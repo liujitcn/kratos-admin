@@ -9,11 +9,12 @@ require (
 	github.com/liujitcn/kratos-kit/api v0.0.23
 	github.com/liujitcn/kratos-kit/bootstrap v0.0.18
 	github.com/liujitcn/kratos-kit/queue v0.0.22
-	github.com/liujitcn/kratos-kit/rpc v0.0.19
-	github.com/liujitcn/kratos-kit/swagger-ui v0.0.11
+	github.com/liujitcn/kratos-kit/rpc v0.0.20
+	github.com/liujitcn/kratos-kit/swagger-ui v0.0.12
 	github.com/liujitcn/kratos-kit/transport/cron v0.0.11
 	github.com/liujitcn/kratos-kit/transport/mcp v0.0.12
-	github.com/liujitcn/kratos-kit/transport/sse v0.0.9
+	github.com/liujitcn/kratos-kit/transport/sse v0.0.10
+	github.com/nicksnyder/go-i18n/v2 v2.6.1
 	golang.org/x/text v0.37.0
 	google.golang.org/grpc v1.83.0
 	google.golang.org/protobuf v1.36.12-0.20260120151049-f2248ac996af

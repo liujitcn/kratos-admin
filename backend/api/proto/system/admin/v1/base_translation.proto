@@ -66,25 +66,19 @@ message DraftBaseTranslationItem {
 message UpdateBaseTranslationRequest {
   option (buf.validate.message).cel = {
     id: "system.admin.base.translation.update.target.required"
-    message: "翻译记录ID或目标信息不能为空"
-    expression: "this.id > 0 || (this.target_type != 0 && this.target_id > 0 && this.locale.size() > 0)"
+    message: "ID为零时必须提供完整目标信息"
+    expression: "this.id >= 0 && (this.id > 0 || (this.target_type != 0 && this.target_id > 0 && this.locale.size() > 0))"
   };
 
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "翻译记录ID，新增翻译时可不填写"}]; // 翻译记录ID，新增翻译时可不填写
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "翻译记录ID，大于零时优先按ID更新；ID不存在时根据目标信息更新或新增"}]; // 翻译记录ID，大于零时优先按ID更新；ID不存在时根据目标信息更新或新增
 
-  TranslationTargetType target_type = 2 [(gnostic.openapi.v3.property) = {description: "翻译目标类型，新增翻译时使用"}, (buf.validate.field).enum = {defined_only: true}]; // 翻译目标类型，新增翻译时使用
+  TranslationTargetType target_type = 2 [(gnostic.openapi.v3.property) = {description: "翻译目标类型，ID为零时用于查询或新增"}, (buf.validate.field).enum = {defined_only: true}]; // 翻译目标类型，ID为零时用于查询或新增
 
-  int64 target_id = 3 [(gnostic.openapi.v3.property) = {description: "目标资源ID，新增翻译时使用"}]; // 目标资源ID，新增翻译时使用
+  int64 target_id = 3 [(gnostic.openapi.v3.property) = {description: "目标资源ID，ID为零时用于查询或新增"}]; // 目标资源ID，ID为零时用于查询或新增
 
-  string locale = 4 [(gnostic.openapi.v3.property) = {description: "目标语言区域，新增翻译时使用"}]; // 目标语言区域，新增翻译时使用
+  string locale = 4 [(gnostic.openapi.v3.property) = {description: "目标语言区域，ID为零时用于查询或新增"}]; // 目标语言区域，ID为零时用于查询或新增
 
-  string name = 5 [(gnostic.openapi.v3.property) = {description: "翻译文本"}]; // 翻译文本，更新时允许为空以清除译文
-
-  option (buf.validate.message).cel = {
-    id: "system.admin.base.translation.update.name.required"
-    message: "新增翻译文本不能为空"
-    expression: "this.id > 0 || this.name.size() > 0"
-  };
+  string name = 5 [(gnostic.openapi.v3.property) = {description: "翻译文本"}]; // 翻译文本
 }
 
 

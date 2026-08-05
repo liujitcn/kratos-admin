@@ -6,7 +6,7 @@ import (
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/v1"
+	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -33,7 +33,7 @@ func (s *BaseTranslationService) DraftBaseTranslation(ctx context.Context, req *
 	return response, nil
 }
 
-// UpdateBaseTranslation 修改或新增单个翻译信息，空文本时清理已有译文。
+// UpdateBaseTranslation 修改或新增单个翻译信息。
 func (s *BaseTranslationService) UpdateBaseTranslation(ctx context.Context, req *systemadminv1.UpdateBaseTranslationRequest) (*emptypb.Empty, error) {
 	err := s.translationCase.UpdateBaseTranslation(ctx, req)
 	if err != nil {

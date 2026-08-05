@@ -8,6 +8,8 @@ cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMT
 filippo.io/edwards25519 v1.2.0 h1:crnVqOiS4jqYleHd9vaKZ+HKtHfllngJIiOpNpoJsjo=
 filippo.io/edwards25519 v1.2.0/go.mod h1:xzAOLCNug/yB62zG1bQ8uziwrIqIuxhctzJT18Q77mc=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
+github.com/BurntSushi/toml v1.6.0 h1:dRaEfpa2VI55EwlIW72hMRHdWouJeRF7TPYhI+AUQjk=
+github.com/BurntSushi/toml v1.6.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
 github.com/andybalholm/brotli v1.1.1 h1:PR2pgnyFznKEugtsUo0xLdDop5SKXd5Qf5ysW+7XdTA=
 github.com/andybalholm/brotli v1.1.1/go.mod h1:05ib4cKhjx3OQYUY22hTVd34Bc8upXjOLL2rKwwZBoA=
 github.com/antlr4-go/antlr/v4 v4.13.1 h1:SqQKkuVZ+zWkMMNkjy5FZe5mr5WURWnlpmOuzYWrPrQ=
@@ -154,10 +156,10 @@ github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.13 h1:Bj/Dh2KUD8hJaI9ojH/Cn
 github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.13/go.mod h1:Zf4TMbzzjGjiyL+ZrC6coBeG4pZlGyQt48TlCtQGFxY=
 github.com/liujitcn/kratos-kit/registry v0.0.20 h1:zVNxpu/Lqz3rkkVn8wPp2ZtAr1AHk5oFgzBq4tgrv3Y=
 github.com/liujitcn/kratos-kit/registry v0.0.20/go.mod h1:N+gu1glMyEZqSx5wi5w5vIlpNDsAHYtoNghrNszT0Cg=
-github.com/liujitcn/kratos-kit/rpc v0.0.19 h1:KNotzHsXUGa8Y7tETrKhXq24IW7+j66gHPdB4UBwvRc=
-github.com/liujitcn/kratos-kit/rpc v0.0.19/go.mod h1:Lq4gCnR9CFeIeerRlKjuuywOitYsTIffNtB2W9amcG0=
-github.com/liujitcn/kratos-kit/swagger-ui v0.0.11 h1:dhBtGKVpNbEvowQgWDy3ccNiwB3yOqD3DNPNDIdShGA=
-github.com/liujitcn/kratos-kit/swagger-ui v0.0.11/go.mod h1:hJg5CswiozmDdRSgYJ7IJdYod9jUg4UnJL3pQ1KT/ME=
+github.com/liujitcn/kratos-kit/rpc v0.0.20 h1:jVItvzwmBioQlNLxM+PrkHbOT4vC+EgsIELsUYtfjrE=
+github.com/liujitcn/kratos-kit/rpc v0.0.20/go.mod h1:Lq4gCnR9CFeIeerRlKjuuywOitYsTIffNtB2W9amcG0=
+github.com/liujitcn/kratos-kit/swagger-ui v0.0.12 h1:sAQBH2/OAn+5u25QSdvIEmb1O+/vBVPgql8j51H/HHA=
+github.com/liujitcn/kratos-kit/swagger-ui v0.0.12/go.mod h1:hJg5CswiozmDdRSgYJ7IJdYod9jUg4UnJL3pQ1KT/ME=
 github.com/liujitcn/kratos-kit/tracer v0.0.14 h1:Bkn29ApY+8cD5tjo5olpuppvg9wT4sO29Tgd+YKS1sg=
 github.com/liujitcn/kratos-kit/tracer v0.0.14/go.mod h1:M81wRFPZnpCJTPcHW/AKU+yZMXZVDH+fnDIGySGvQCA=
 github.com/liujitcn/kratos-kit/tracing v0.0.8 h1:q09TMcBbMoB+YLDYkTGRyuCNjHc8gadggtFjac9abCI=
@@ -170,8 +172,8 @@ github.com/liujitcn/kratos-kit/transport/keepalive v0.0.10 h1:8NgakvKNtcLo1DFCEm
 github.com/liujitcn/kratos-kit/transport/keepalive v0.0.10/go.mod h1:697/E1yC9Nmo3+grrAXuWzyNC3kY3BBnnYZwG4eS7O8=
 github.com/liujitcn/kratos-kit/transport/mcp v0.0.12 h1:k4FiiBOQOIAlMdhmN+qogvGdXjUTkGqMCHq1p7MPAEw=
 github.com/liujitcn/kratos-kit/transport/mcp v0.0.12/go.mod h1:4NmtSjkkG84RRYizLOaW3FvaUcNwmpsithiGL3+qiE8=
-github.com/liujitcn/kratos-kit/transport/sse v0.0.9 h1:k/dOdcvXVPD8UZn/qDw7MUuN4AH77B4XMEY4X/SmKbA=
-github.com/liujitcn/kratos-kit/transport/sse v0.0.9/go.mod h1:Hjgys0b7viwz0p8qta2vNwVWeVOg/w/4sVL3EsADp68=
+github.com/liujitcn/kratos-kit/transport/sse v0.0.10 h1:xA8GyKNN4uS69EpmCZopy3nIiHzyVDywl42N/HykiS0=
+github.com/liujitcn/kratos-kit/transport/sse v0.0.10/go.mod h1:Hjgys0b7viwz0p8qta2vNwVWeVOg/w/4sVL3EsADp68=
 github.com/liujitcn/kratos-kit/utils v0.0.17 h1:EnoGxrKo3dVddtfr2GULtXVydnAHMQeBt+nO6nU96ws=
 github.com/liujitcn/kratos-kit/utils v0.0.17/go.mod h1:/j8JkRZVDIklsHigRZLCTt0p2beScZxgRSWWtQKSQTE=
 github.com/mattn/go-colorable v0.1.14 h1:9A9LHSqF/7dyVVX6g0U9cwm9pG3kP9gSzcuIPHPsaIE=
@@ -192,6 +194,8 @@ github.com/modern-go/reflect2 v1.0.3-0.20250322232337-35a7c28c31ee h1:W5t00kpgFd
 github.com/modern-go/reflect2 v1.0.3-0.20250322232337-35a7c28c31ee/go.mod h1:yWuevngMOJpCy52FWWMvUC8ws7m/LJsjYzDa0/r8luk=
 github.com/mvrilo/go-redoc v0.1.5 h1:07yjAjUNXXEkC/pd2Yl6DAVjmhMussJsNeOuAAR/8TA=
 github.com/mvrilo/go-redoc v0.1.5/go.mod h1:Yn92/dqIpYGSl8g2xz1Xq36AO9ENjIsPLbVtz9nVhz8=
+github.com/nicksnyder/go-i18n/v2 v2.6.1 h1:JDEJraFsQE17Dut9HFDHzCoAWGEQJom5s0TRd17NIEQ=
+github.com/nicksnyder/go-i18n/v2 v2.6.1/go.mod h1:Vee0/9RD3Quc/NmwEjzzD7VTZ+Ir7QbXocrkhOzmUKA=
 github.com/olekukonko/cat v0.0.0-20250911104152-50322a0618f6 h1:zrbMGy9YXpIeTnGj4EljqMiZsIcE09mmF8XsD5AYOJc=
 github.com/olekukonko/cat v0.0.0-20250911104152-50322a0618f6/go.mod h1:rEKTHC9roVVicUIfZK7DYrdIoM0EOr8mK1Hj5s3JjH0=
 github.com/olekukonko/errors v1.2.0 h1:10Zcn4GeV59t/EGqJc8fUjtFT/FuUh5bTMzZ1XwmCRo=

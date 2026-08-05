@@ -9,54 +9,43 @@ import (
 	"github.com/liujitcn/gorm-kit/repository"
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
+	coreI18n "github.com/liujitcn/kratos-admin/backend/core/pkg/i18n"
 	coreLocale "github.com/liujitcn/kratos-admin/backend/core/pkg/locale"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/v1/dto"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	translationQueue "github.com/liujitcn/kratos-admin/backend/internal/data/queue"
-	backendI18n "github.com/liujitcn/kratos-admin/backend/internal/i18n"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"gorm.io/gorm"
 )
 
-const translationDraftMaxBytes = 2000
-
 // BaseTranslationCase 统一管理所有资源的翻译能力。
 type BaseTranslationCase struct {
 	*biz.BaseCase
+	tx data.Transaction
 	*data.BaseTranslationRepository
-	languageCase     *BaseLanguageCase
-	draftTranslator  translator.Translator
-	baseMenuRepo     *data.BaseMenuRepository
-	baseDictRepo     *data.BaseDictRepository
-	baseDictItemRepo *data.BaseDictItemRepository
-	baseConfigRepo   *data.BaseConfigRepository
-	draftMu          sync.Mutex
+	languageCase    *BaseLanguageCase
+	draftTranslator translator.Translator
+	draftMu         sync.Mutex
 }
 
 // NewBaseTranslationCase 创建动态翻译业务实例。
 func NewBaseTranslationCase(
 	baseCase *biz.BaseCase,
+	tx data.Transaction,
 	baseTranslationRepository *data.BaseTranslationRepository,
 	languageCase *BaseLanguageCase,
 	draftTranslator translator.Translator,
-	baseMenuRepo *data.BaseMenuRepository,
-	baseDictRepo *data.BaseDictRepository,
-	baseDictItemRepo *data.BaseDictItemRepository,
-	baseConfigRepo *data.BaseConfigRepository,
 ) *BaseTranslationCase {
 	translationCase := &BaseTranslationCase{
 		BaseCase:                  baseCase,
+		tx:                        tx,
 		BaseTranslationRepository: baseTranslationRepository,
 		languageCase:              languageCase,
 		draftTranslator:           draftTranslator,
-		baseMenuRepo:              baseMenuRepo,
-		baseDictRepo:              baseDictRepo,
-		baseDictItemRepo:          baseDictItemRepo,
-		baseConfigRepo:            baseConfigRepo,
 	}
 	return translationCase
 }
@@ -68,9 +57,6 @@ func (c *BaseTranslationCase) DraftBaseTranslation(ctx context.Context, req *sys
 	}
 	if req.GetSource() == "" {
 		return nil, errorsx.InvalidArgument("待翻译源文不能为空")
-	}
-	if len([]byte(req.GetSource())) > translationDraftMaxBytes {
-		return nil, errorsx.InvalidArgument("待翻译源文不能超过2000字节")
 	}
 	locales, primaryLocale, _, err := c.languageCase.Locales(ctx)
 	if err != nil {
@@ -88,7 +74,7 @@ func (c *BaseTranslationCase) DraftBaseTranslation(ctx context.Context, req *sys
 		if locale == primaryLocale || locale == sourceLocale {
 			continue
 		}
-		translated, translateErr := backendI18n.TranslateProtected(ctx, c.draftTranslator, req.GetSource(), sourceLocale, locale)
+		translated, translateErr := coreI18n.TranslateProtected(ctx, c.draftTranslator, req.GetSource(), sourceLocale, locale)
 		if translateErr != nil {
 			return nil, errorsx.Internal("生成翻译草稿失败").WithCause(translateErr)
 		}
@@ -97,76 +83,40 @@ func (c *BaseTranslationCase) DraftBaseTranslation(ctx context.Context, req *sys
 	return &systemadminv1.DraftBaseTranslationResponse{Translations: translations}, nil
 }
 
-// UpdateBaseTranslation 修改或新增单个翻译信息；文本为空时清理已有译文。
+// UpdateBaseTranslation 优先按 ID 更新，未找到时按目标信息更新或新增翻译记录。
 func (c *BaseTranslationCase) UpdateBaseTranslation(ctx context.Context, req *systemadminv1.UpdateBaseTranslationRequest) error {
-	if len([]byte(req.GetName())) > translationDraftMaxBytes {
-		return errorsx.InvalidArgument("翻译文本不能超过2000字节")
-	}
-	query := c.Query(ctx).BaseTranslation
 	var err error
 	var row *models.BaseTranslation
-	targetType := req.GetTargetType()
-	targetID := req.GetTargetId()
-	locale := req.GetLocale()
 	if req.GetId() > 0 {
-		row, err = c.Find(ctx, repository.Where(query.ID.Eq(req.GetId())))
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return errorsx.ResourceNotFound("翻译记录不存在").WithCause(err)
+		row, err = c.FindByID(ctx, req.GetId())
+		if err == nil {
+			row.Name = req.GetName()
+			return c.UpdateByID(ctx, row)
 		}
-		if err != nil {
-			return err
-		}
-		targetType = systemadminv1.TranslationTargetType(row.TargetType)
-		targetID = row.TargetID
-		locale = row.Locale
-		if req.GetTargetType() != systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_UNSPECIFIED && req.GetTargetType() != targetType {
-			return errorsx.InvalidArgument("翻译目标类型与记录不匹配")
-		}
-		if req.GetTargetId() > 0 && req.GetTargetId() != targetID {
-			return errorsx.InvalidArgument("翻译目标资源与记录不匹配")
-		}
-		if req.GetLocale() != "" && req.GetLocale() != locale {
-			return errorsx.InvalidArgument("翻译语言与记录不匹配")
-		}
-	}
-	if !isTranslationTargetType(targetType) {
-		return errorsx.InvalidArgument("翻译目标类型无效")
-	}
-	if targetID <= 0 {
-		return errorsx.InvalidArgument("目标资源ID不能为空")
-	}
-	locales, primaryLocale, _, err := c.languageCase.Locales(ctx)
-	if err != nil {
-		return err
-	}
-	if !containsEditableLocale(locales, primaryLocale, locale) {
-		return errorsx.InvalidArgument("翻译语言必须是已启用的非主语言")
-	}
-	if err = c.validateTranslationTarget(ctx, targetType, targetID); err != nil {
-		return err
-	}
-	if row == nil {
-		row, err = c.Find(ctx,
-			repository.Where(query.TargetType.Eq(int32(targetType))),
-			repository.Where(query.TargetID.Eq(targetID)),
-			repository.Where(query.Locale.Eq(locale)),
-		)
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			row = nil
-			err = nil
-		}
-		if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return err
 		}
 	}
-	if row == nil {
-		if req.GetName() == "" {
-			return errorsx.InvalidArgument("新增翻译文本不能为空")
-		}
-		return c.Create(ctx, &models.BaseTranslation{TargetType: int32(targetType), TargetID: targetID, Locale: locale, Name: req.GetName()})
+
+	query := c.Query(ctx).BaseTranslation
+	opts := make([]repository.QueryOption, 0, 3)
+	opts = append(opts, repository.Where(query.TargetType.Eq(int32(req.GetTargetType()))))
+	opts = append(opts, repository.Where(query.TargetID.Eq(req.GetTargetId())))
+	opts = append(opts, repository.Where(query.Locale.Eq(req.GetLocale())))
+	row, err = c.Find(ctx, opts...)
+	if err == nil {
+		row.Name = req.GetName()
+		return c.UpdateByID(ctx, row)
 	}
-	row.Name = req.GetName()
-	return c.UpdateByID(ctx, row)
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+	return c.Create(ctx, &models.BaseTranslation{
+		TargetType: int32(req.GetTargetType()),
+		TargetID:   req.GetTargetId(),
+		Locale:     req.GetLocale(),
+		Name:       req.GetName(),
+	})
 }
 
 // GetTargetIdsByName 根据当前语言和名称关键字获取资源 ID。
@@ -312,9 +262,6 @@ func (c *BaseTranslationCase) SaveBaseTranslation(ctx context.Context, targetTyp
 			if _, duplicated := seen[localeValue]; duplicated {
 				return errorsx.Conflict("同一资源语言不能重复")
 			}
-			if len([]byte(translation.GetName())) > translationDraftMaxBytes {
-				return errorsx.InvalidArgument("翻译文本不能超过2000字节")
-			}
 			seen[localeValue] = struct{}{}
 			values[localeValue] = translation.GetName()
 		}
@@ -356,7 +303,7 @@ func (c *BaseTranslationCase) SaveBaseTranslation(ctx context.Context, targetTyp
 	if updateMain == nil {
 		err = save(ctx)
 	} else {
-		err = c.BaseTranslationRepository.Transaction(ctx, save)
+		err = c.tx.Transaction(ctx, save)
 	}
 	if err != nil || c.draftTranslator == nil || targetId <= 0 {
 		return err
@@ -385,62 +332,6 @@ func (c *BaseTranslationCase) SaveBaseTranslation(ctx context.Context, targetTyp
 		}
 	}
 	return nil
-}
-
-// validateTranslationTarget 校验翻译目标类型、资源存在性和可翻译配置值类型。
-func (c *BaseTranslationCase) validateTranslationTarget(ctx context.Context, targetType systemadminv1.TranslationTargetType, targetID int64) error {
-	var err error
-	switch targetType {
-	case systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU:
-		_, err = c.baseMenuRepo.FindByID(ctx, targetID)
-	case systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT:
-		_, err = c.baseDictRepo.FindByID(ctx, targetID)
-	case systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM:
-		_, err = c.baseDictItemRepo.FindByID(ctx, targetID)
-	case systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME,
-		systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE:
-		config, findErr := c.baseConfigRepo.FindByID(ctx, targetID)
-		err = findErr
-		if err == nil && targetType == systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE && !isTranslatableConfigType(config.Type) {
-			return errorsx.InvalidArgument("图片、字典和布尔配置值不支持翻译")
-		}
-	default:
-		return errorsx.InvalidArgument("翻译目标类型无效")
-	}
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return errorsx.ResourceNotFound("翻译目标资源不存在").WithCause(err)
-	}
-	if err != nil {
-		return errorsx.Internal("查询翻译目标资源失败").WithCause(err)
-	}
-	return nil
-}
-
-// isTranslationTargetType 判断统一翻译表目标类型是否有效。
-func isTranslationTargetType(targetType systemadminv1.TranslationTargetType) bool {
-	switch targetType {
-	case systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE,
-		systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME,
-		systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT,
-		systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM,
-		systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU:
-		return true
-	default:
-		return false
-	}
-}
-
-// containsEditableLocale 判断语言是否为启用的非主语言。
-func containsEditableLocale(locales []string, primaryLocale, locale string) bool {
-	if locale == "" || locale == primaryLocale {
-		return false
-	}
-	for _, item := range locales {
-		if item == locale {
-			return true
-		}
-	}
-	return false
 }
 
 func (c *BaseTranslationCase) DeleteBaseTranslation(ctx context.Context, targetType systemadminv1.TranslationTargetType, targetId []int64) error {

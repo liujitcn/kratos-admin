@@ -9,6 +9,7 @@ import (
 
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	query "github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 )
@@ -16,17 +17,17 @@ import (
 // CodeGenColumnRepository 定义 代码生成字段配置表 的基础仓储能力。
 type CodeGenColumnRepository struct {
 	repository.BaseRepository[models.CodeGenColumn]
-	*Data
+	queryProvider QueryProvider
 }
 
 // NewCodeGenColumnRepository 创建 CodeGenColumn 基础仓储实例。
-func NewCodeGenColumnRepository(data *Data) *CodeGenColumnRepository {
+func NewCodeGenColumnRepository(queryProvider QueryProvider) *CodeGenColumnRepository {
 	base := repository.NewBaseRepository[models.CodeGenColumn](
 		func(ctx context.Context) gen.Dao {
-			return new(data.Query(ctx).CodeGenColumn.WithContext(ctx).DO)
+			return new(queryProvider.Query(ctx).CodeGenColumn.WithContext(ctx).DO)
 		},
 		func(ctx context.Context) field.Int64 {
-			return data.Query(ctx).CodeGenColumn.ID
+			return queryProvider.Query(ctx).CodeGenColumn.ID
 		},
 		func(entity *models.CodeGenColumn) int64 {
 			return entity.ID
@@ -34,6 +35,11 @@ func NewCodeGenColumnRepository(data *Data) *CodeGenColumnRepository {
 	)
 	return &CodeGenColumnRepository{
 		BaseRepository: base,
-		Data:           data,
+		queryProvider:  queryProvider,
 	}
+}
+
+// Query 返回当前上下文对应的查询入口。
+func (r *CodeGenColumnRepository) Query(ctx context.Context) *query.Query {
+	return r.queryProvider.Query(ctx)
 }

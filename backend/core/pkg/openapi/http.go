@@ -1,6 +1,7 @@
 package openapi
 
 import (
+	"fmt"
 	stdhttp "net/http"
 	"strings"
 
@@ -24,7 +25,7 @@ type HTTPOptions struct {
 }
 
 // RegisterHTTP 为注册表中的每份文档挂载原文接口和独立 Swagger UI。
-func RegisterHTTP(server *kratosHTTP.Server, registry *Registry, opts HTTPOptions) {
+func RegisterHTTP(server *kratosHTTP.Server, registry *Registry, opts HTTPOptions) error {
 	documentPath := normalizePath(opts.DocumentPath, defaultDocumentPath)
 	swaggerPath := normalizePath(opts.SwaggerPath, defaultSwaggerPath)
 	authorizer := opts.Authorizer
@@ -32,21 +33,29 @@ func RegisterHTTP(server *kratosHTTP.Server, registry *Registry, opts HTTPOption
 		authorizer = func(*stdhttp.Request) bool { return true }
 	}
 
+	var err error
 	for _, document := range registry.Documents() {
 		rawPath := documentPath + "/" + document.Key
-		swaggerUI.RegisterOpenAPIServerWithOption(
+		err = swaggerUI.RegisterOpenAPIServerWithOption(
 			server,
 			swaggerUI.WithOpenAPIPath(rawPath),
 			swaggerUI.WithMemoryData(document.Data, "yaml"),
 			swaggerUI.WithOpenAPIAuthorizer(authorizer),
 		)
-		swaggerUI.RegisterSwaggerUIServerWithOption(
+		if err != nil {
+			return fmt.Errorf("注册 OpenAPI 文档: %w", err)
+		}
+		err = swaggerUI.RegisterSwaggerUIServerWithOption(
 			server,
 			swaggerUI.WithTitle(document.Name),
 			swaggerUI.WithBasePath(swaggerPath+"/"+document.Key+"/"),
 			swaggerUI.WithRemoteFileURL(rawPath),
 		)
+		if err != nil {
+			return fmt.Errorf("注册 Swagger UI: %w", err)
+		}
 	}
+	return nil
 }
 
 // normalizePath 将自定义 HTTP 路径规范化为带前导斜杠的路由前缀。

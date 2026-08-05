@@ -237,11 +237,11 @@ func (x *DraftBaseTranslationItem) GetTranslation() string {
 // 修改单个翻译信息请求。
 type UpdateBaseTranslationRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                              // 翻译记录ID，新增翻译时可不填写
-	TargetType    TranslationTargetType  `protobuf:"varint,2,opt,name=target_type,json=targetType,proto3,enum=system.admin.v1.TranslationTargetType" json:"target_type,omitempty"` // 翻译目标类型，新增翻译时使用
-	TargetId      int64                  `protobuf:"varint,3,opt,name=target_id,json=targetId,proto3" json:"target_id,omitempty"`                                                  // 目标资源ID，新增翻译时使用
-	Locale        string                 `protobuf:"bytes,4,opt,name=locale,proto3" json:"locale,omitempty"`                                                                       // 目标语言区域，新增翻译时使用
-	Name          string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`                                                                           // 翻译文本，更新时允许为空以清除译文
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                              // 翻译记录ID，大于零时优先按ID更新；ID不存在时根据目标信息更新或新增
+	TargetType    TranslationTargetType  `protobuf:"varint,2,opt,name=target_type,json=targetType,proto3,enum=system.admin.v1.TranslationTargetType" json:"target_type,omitempty"` // 翻译目标类型，ID为零时用于查询或新增
+	TargetId      int64                  `protobuf:"varint,3,opt,name=target_id,json=targetId,proto3" json:"target_id,omitempty"`                                                  // 目标资源ID，ID为零时用于查询或新增
+	Locale        string                 `protobuf:"bytes,4,opt,name=locale,proto3" json:"locale,omitempty"`                                                                       // 目标语言区域，ID为零时用于查询或新增
+	Name          string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`                                                                           // 翻译文本
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -453,16 +453,15 @@ const file_system_admin_v1_base_translation_proto_rawDesc = "" +
 	"\ftranslations\x18\x01 \x03(\v2).system.admin.v1.DraftBaseTranslationItemB\x12\xbaG\x0f\x92\x02\f翻译结果R\ftranslations\"\x82\x01\n" +
 	"\x18DraftBaseTranslationItem\x120\n" +
 	"\x06locale\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12目标语言区域R\x06locale\x124\n" +
-	"\vtranslation\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f翻译文本R\vtranslation\"\xe1\x05\n" +
-	"\x1cUpdateBaseTranslationRequest\x12B\n" +
-	"\x02id\x18\x01 \x01(\x03B2\xbaG/\x92\x02,翻译记录ID，新增翻译时可不填写R\x02id\x12\x81\x01\n" +
-	"\vtarget_type\x18\x02 \x01(\x0e2&.system.admin.v1.TranslationTargetTypeB8\xbaG-\x92\x02*翻译目标类型，新增翻译时使用\xbaH\x05\x82\x01\x02\x10\x01R\n" +
-	"targetType\x12I\n" +
-	"\ttarget_id\x18\x03 \x01(\x03B,\xbaG)\x92\x02&目标资源ID，新增翻译时使用R\btargetId\x12H\n" +
-	"\x06locale\x18\x04 \x01(\tB0\xbaG-\x92\x02*目标语言区域，新增翻译时使用R\x06locale\x12&\n" +
-	"\x04name\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f翻译文本R\x04name:\xbb\x02\xbaH\xb7\x02\x1a\xb9\x01\n" +
-	"4system.admin.base.translation.update.target.required\x12)翻译记录ID或目标信息不能为空\x1aVthis.id > 0 || (this.target_type != 0 && this.target_id > 0 && this.locale.size() > 0)\x1ay\n" +
-	"2system.admin.base.translation.update.name.required\x12\x1e新增翻译文本不能为空\x1a#this.id > 0 || this.name.size() > 0\"\xb3\x02\n" +
+	"\vtranslation\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f翻译文本R\vtranslation\"\xcd\x05\n" +
+	"\x1cUpdateBaseTranslationRequest\x12v\n" +
+	"\x02id\x18\x01 \x01(\x03Bf\xbaGc\x92\x02`翻译记录ID，大于零时优先按ID更新；ID不存在时根据目标信息更新或新增R\x02id\x12\x8c\x01\n" +
+	"\vtarget_type\x18\x02 \x01(\x0e2&.system.admin.v1.TranslationTargetTypeBC\xbaG8\x92\x025翻译目标类型，ID为零时用于查询或新增\xbaH\x05\x82\x01\x02\x10\x01R\n" +
+	"targetType\x12T\n" +
+	"\ttarget_id\x18\x03 \x01(\x03B7\xbaG4\x92\x021目标资源ID，ID为零时用于查询或新增R\btargetId\x12S\n" +
+	"\x06locale\x18\x04 \x01(\tB;\xbaG8\x92\x025目标语言区域，ID为零时用于查询或新增R\x06locale\x12&\n" +
+	"\x04name\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f翻译文本R\x04name:\xd2\x01\xbaH\xce\x01\x1a\xcb\x01\n" +
+	"4system.admin.base.translation.update.target.required\x12)ID为零时必须提供完整目标信息\x1ahthis.id >= 0 && (this.id > 0 || (this.target_type != 0 && this.target_id > 0 && this.locale.size() > 0))\"\xb3\x02\n" +
 	"\x0fBaseTranslation\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12\x7f\n" +
 	"\vtarget_type\x18\x02 \x01(\x0e2&.system.admin.v1.TranslationTargetTypeB6\xbaG3\x92\x020目标类型：枚举【TranslationTargetType】R\n" +

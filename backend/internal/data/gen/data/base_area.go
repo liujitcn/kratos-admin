@@ -9,6 +9,7 @@ import (
 
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	query "github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 )
@@ -16,17 +17,17 @@ import (
 // BaseAreaRepository 定义 行政区域信息 的基础仓储能力。
 type BaseAreaRepository struct {
 	repository.BaseRepository[models.BaseArea]
-	*Data
+	queryProvider QueryProvider
 }
 
 // NewBaseAreaRepository 创建 BaseArea 基础仓储实例。
-func NewBaseAreaRepository(data *Data) *BaseAreaRepository {
+func NewBaseAreaRepository(queryProvider QueryProvider) *BaseAreaRepository {
 	base := repository.NewBaseRepository[models.BaseArea](
 		func(ctx context.Context) gen.Dao {
-			return new(data.Query(ctx).BaseArea.WithContext(ctx).DO)
+			return new(queryProvider.Query(ctx).BaseArea.WithContext(ctx).DO)
 		},
 		func(ctx context.Context) field.Int64 {
-			return data.Query(ctx).BaseArea.ID
+			return queryProvider.Query(ctx).BaseArea.ID
 		},
 		func(entity *models.BaseArea) int64 {
 			return entity.ID
@@ -34,6 +35,11 @@ func NewBaseAreaRepository(data *Data) *BaseAreaRepository {
 	)
 	return &BaseAreaRepository{
 		BaseRepository: base,
-		Data:           data,
+		queryProvider:  queryProvider,
 	}
+}
+
+// Query 返回当前上下文对应的查询入口。
+func (r *BaseAreaRepository) Query(ctx context.Context) *query.Query {
+	return r.queryProvider.Query(ctx)
 }

@@ -9,6 +9,7 @@ import (
 
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	query "github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 )
@@ -16,17 +17,17 @@ import (
 // CasbinRuleRepository 定义 Casbin权限信息 的基础仓储能力。
 type CasbinRuleRepository struct {
 	repository.BaseRepository[models.CasbinRule]
-	*Data
+	queryProvider QueryProvider
 }
 
 // NewCasbinRuleRepository 创建 CasbinRule 基础仓储实例。
-func NewCasbinRuleRepository(data *Data) *CasbinRuleRepository {
+func NewCasbinRuleRepository(queryProvider QueryProvider) *CasbinRuleRepository {
 	base := repository.NewBaseRepository[models.CasbinRule](
 		func(ctx context.Context) gen.Dao {
-			return new(data.Query(ctx).CasbinRule.WithContext(ctx).DO)
+			return new(queryProvider.Query(ctx).CasbinRule.WithContext(ctx).DO)
 		},
 		func(ctx context.Context) field.Int64 {
-			return data.Query(ctx).CasbinRule.ID
+			return queryProvider.Query(ctx).CasbinRule.ID
 		},
 		func(entity *models.CasbinRule) int64 {
 			return entity.ID
@@ -34,6 +35,11 @@ func NewCasbinRuleRepository(data *Data) *CasbinRuleRepository {
 	)
 	return &CasbinRuleRepository{
 		BaseRepository: base,
-		Data:           data,
+		queryProvider:  queryProvider,
 	}
+}
+
+// Query 返回当前上下文对应的查询入口。
+func (r *CasbinRuleRepository) Query(ctx context.Context) *query.Query {
+	return r.queryProvider.Query(ctx)
 }

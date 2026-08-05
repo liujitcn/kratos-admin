@@ -1,315 +1,279 @@
 {
   "system.admin.auth.entity.user.password.new_pwd.required": {
-    "other": "Please enter new password"
+    "other": "Veuillez saisir un nouveau mot de passe"
   },
   "system.admin.auth.entity.user.password.old_pwd.required": {
-    "other": "Please enter the original password"
+    "other": "Veuillez saisir l’ancien mot de passe"
   },
   "system.admin.auth.update.user_password.required": {
-    "other": "Please enter the original password"
+    "other": "Veuillez saisir l’ancien mot de passe"
   },
   "system.admin.base.area.entity.name.length": {
-    "other": "Zone name cannot be empty and cannot exceed 50 characters"
+    "other": "Le nom de la zone ne peut pas être vide et ne doit pas dépasser 50 caractères"
   },
   "system.admin.base.config.entity.key.max_length": {
-    "other": "Configuration key cannot exceed 50 characters"
+    "other": "La clé de configuration ne doit pas dépasser 50 caractères"
   },
   "system.admin.base.config.entity.key.required": {
-    "other": "Please enter the system configuration code"
+    "other": "Veuillez saisir le code de configuration système"
   },
   "system.admin.base.config.entity.name.max_length": {
-    "other": "Configuration name cannot exceed 50 characters"
+    "other": "Le nom de configuration ne doit pas dépasser 50 caractères"
   },
   "system.admin.base.config.entity.name.required": {
-    "other": "Please enter the system configuration name"
+    "other": "Veuillez saisir le nom de la configuration système"
   },
   "system.admin.base.config.entity.site.required": {
-    "other": "Please select a system configuration location"
+    "other": "Veuillez sélectionner l’emplacement de configuration système"
   },
   "system.admin.base.config.entity.type.required": {
-    "other": "Please select system configuration type"
+    "other": "Veuillez sélectionner le type de configuration système"
   },
   "system.admin.base.config.entity.value.required": {
-    "other": "Configuration value cannot be empty"
+    "other": "La valeur de configuration ne peut pas être vide"
   },
   "system.admin.base.dept.entity.name.length": {
-    "other": "Department name cannot be empty and cannot exceed 255 characters"
+    "other": "Le nom du département ne peut pas être vide et ne doit pas dépasser 255 caractères"
   },
   "system.admin.base.dept.entity.name.max_length": {
-    "other": "Department name cannot exceed 255 characters"
+    "other": "Le nom du département ne doit pas dépasser 255 caractères"
   },
   "system.admin.base.dept.entity.name.required": {
-    "other": "Department name cannot be empty"
+    "other": "Le nom du département ne peut pas être vide"
   },
   "system.admin.base.dept.entity.parent_id.non_negative": {
-    "other": "The parent department cannot be less than 0"
+    "other": "Le département parent ne peut pas être inférieur à 0"
   },
   "system.admin.base.dept.entity.remark.max_length": {
-    "other": "Comments cannot exceed 500 characters"
+    "other": "Les commentaires ne doivent pas dépasser 500 caractères"
   },
   "system.admin.base.dept.entity.sort.required": {
-    "other": "Sort must be greater than 0"
+    "other": "Le tri doit être supérieur à 0"
   },
   "system.admin.base.dept.entity.tenant_id.required": {
-    "other": "The tenant cannot be empty"
+    "other": "Le locataire ne peut pas être vide"
   },
   "system.admin.base.dict.entity.code.length": {
-    "other": "Dictionary number cannot be empty and cannot exceed 50 characters"
+    "other": "Le numéro du dictionnaire ne peut pas être vide et ne doit pas dépasser 50 caractères"
   },
   "system.admin.base.dict.entity.code.max_length": {
-    "other": "Dictionary number cannot exceed 50 characters"
+    "other": "Le numéro du dictionnaire ne doit pas dépasser 50 caractères"
   },
   "system.admin.base.dict.entity.code.required": {
-    "other": "Please enter the dictionary code"
+    "other": "Veuillez saisir le code du dictionnaire"
   },
   "system.admin.base.dict.entity.name.length": {
-    "other": "Dictionary name cannot be empty and cannot exceed 50 characters"
+    "other": "Le nom du dictionnaire ne peut pas être vide et ne doit pas dépasser 50 caractères"
   },
   "system.admin.base.dict.entity.name.max_length": {
-    "other": "Dictionary name cannot exceed 50 characters"
+    "other": "Le nom du dictionnaire ne doit pas dépasser 50 caractères"
   },
   "system.admin.base.dict.entity.name.required": {
-    "other": "Please enter a dictionary name"
+    "other": "Veuillez saisir un nom de dictionnaire"
   },
   "system.admin.base.dict.entity.item.dict_id.required": {
-    "other": "Dictionary cannot be empty"
+    "other": "Le dictionnaire ne peut pas être vide"
   },
   "system.admin.base.dict.entity.item.label.length": {
-    "other": "Dictionary item label cannot be empty and cannot exceed 100 characters"
+    "other": "L’étiquette de l’élément du dictionnaire ne peut pas être vide et ne doit pas dépasser 100 caractères"
   },
   "system.admin.base.dict.entity.item.label.max_length": {
-    "other": "Please enter a dictionary label (no more than 100 characters)"
+    "other": "Veuillez saisir une étiquette de dictionnaire (100 caractères maximum)"
   },
   "system.admin.base.dict.entity.item.label.required": {
-    "other": "Please enter a dictionary label (no more than 100 characters)"
+    "other": "Veuillez saisir une étiquette de dictionnaire (100 caractères maximum)"
   },
   "system.admin.base.dict.entity.item.sort.required": {
-    "other": "Sort must be greater than 0"
+    "other": "Le tri doit être supérieur à 0"
   },
   "system.admin.base.dict.entity.item.tag_type.max_length": {
-    "other": "Label type cannot exceed 50 characters"
+    "other": "Le type d’étiquette ne doit pas dépasser 50 caractères"
   },
   "system.admin.base.dict.entity.item.value.length": {
-    "other": "Dictionary item value cannot be empty and cannot exceed 50 characters"
+    "other": "La valeur de l’élément du dictionnaire ne peut pas être vide et ne doit pas dépasser 50 caractères"
   },
   "system.admin.base.dict.entity.item.value.max_length": {
-    "other": "Please enter a dictionary value (no more than 50 characters)"
+    "other": "Veuillez saisir une valeur de dictionnaire (50 caractères maximum)"
   },
   "system.admin.base.dict.entity.item.value.required": {
-    "other": "Please enter a dictionary value (no more than 50 characters)"
+    "other": "Veuillez saisir une valeur de dictionnaire (50 caractères maximum)"
   },
   "system.admin.base.translation.draft.source.required": {
     "other": "Le texte source ne peut pas être vide"
   },
-  "system.admin.base.translation.draft.target_locale.required": {
-    "other": "La langue cible ne peut pas être vide"
-  },
-  "system.admin.base.translation.entity.dict_item_translation.label.max_length": {
-    "other": "Dictionary item translation labels cannot exceed 100 characters"
-  },
-  "system.admin.base.translation.entity.dict_item_translation.locale.supported": {
-    "other": "Dictionary item translation language only supports English or Japanese"
-  },
-  "system.admin.base.translation.entity.dict_translation.locale.supported": {
-    "other": "Dictionary translation language only supports English or Japanese"
-  },
-  "system.admin.base.translation.entity.dict_translation.name.max_length": {
-    "other": "Dictionary translation names cannot exceed 50 characters"
-  },
   "system.admin.base.job.entity.cron_expression.length": {
-    "other": "cron expression cannot be empty and cannot exceed 50 characters"
+    "other": "L’expression cron ne peut pas être vide et ne doit pas dépasser 50 caractères"
   },
   "system.admin.base.job.entity.invoke_target.length": {
-    "other": "The call target cannot be empty and cannot exceed 100 characters"
+    "other": "La cible d’appel ne peut pas être vide et ne doit pas dépasser 100 caractères"
   },
   "system.admin.base.job.entity.name.length": {
-    "other": "Task name cannot be empty and cannot exceed 50 characters"
+    "other": "Le nom de la tâche ne peut pas être vide et ne doit pas dépasser 50 caractères"
   },
   "system.admin.base.language.entity.language_code.length": {
-    "other": "Language code cannot be empty and cannot exceed 16 characters"
+    "other": "Le code de langue ne peut pas être vide et ne doit pas dépasser 16 caractères"
   },
   "system.admin.base.language.entity.language_name.length": {
-    "other": "Language name cannot be empty and cannot exceed 50 characters"
+    "other": "Le nom de la langue ne peut pas être vide et ne doit pas dépasser 50 caractères"
   },
   "system.admin.base.language.entity.native_name.length": {
-    "other": "Native language name cannot be empty and cannot exceed 50 characters"
+    "other": "Le nom natif ne peut pas être vide et ne doit pas dépasser 50 caractères"
   },
   "system.admin.base.language.entity.sort.required": {
-    "other": "Sort cannot be less than 0"
+    "other": "Le tri ne peut pas être inférieur à 0"
   },
   "system.admin.base.job.entity.args.key.required": {
-    "other": "All parameters must be filled in key"
+    "other": "Tous les paramètres doivent comporter une clé"
   },
   "system.admin.base.menu.entity.component.max_length": {
-    "other": "Component path cannot exceed 255 characters"
+    "other": "Le chemin du composant ne doit pas dépasser 255 caractères"
   },
   "system.admin.base.menu.entity.external.path_internal": {
-    "other": "External link paths must use internal unique paths"
+    "other": "Les chemins de liens externes doivent utiliser des chemins internes uniques"
   },
   "system.admin.base.menu.entity.folder.identity_empty": {
-    "other": "The directory cannot fill in the path and routing name"
+    "other": "Le répertoire ne peut pas renseigner le chemin ni le nom de route"
   },
   "system.admin.base.menu.entity.name.max_length": {
-    "other": "Route name cannot exceed 255 characters"
+    "other": "Le nom de route ne doit pas dépasser 255 caractères"
   },
   "system.admin.base.menu.entity.name.menu_only": {
-    "other": "Only the menu type can fill in the route name"
+    "other": "Seul le type menu peut renseigner le nom de route"
   },
   "system.admin.base.menu.entity.name.required": {
-    "other": "The menu type must fill in the route name"
+    "other": "Le type de menu doit renseigner le nom de route"
   },
   "system.admin.base.menu.entity.path.length": {
-    "other": "Path cannot exceed 1024 characters"
+    "other": "Le chemin ne doit pas dépasser 1024 caractères"
   },
   "system.admin.base.menu.entity.path.required": {
-    "other": "Non-directory menu must fill in the path"
+    "other": "Un menu qui n’est pas un répertoire doit renseigner le chemin"
   },
   "system.admin.base.menu.entity.redirect.external": {
-    "other": "External links must fill in the complete HTTP address"
+    "other": "Les liens externes doivent renseigner l’adresse HTTP complète"
   },
   "system.admin.base.menu.entity.redirect.max_length": {
-    "other": "Redirect address cannot exceed 1024 characters"
+    "other": "L’adresse de redirection ne doit pas dépasser 1024 caractères"
   },
   "system.admin.base.menu.entity.sort.required": {
-    "other": "Sort must be greater than 0"
+    "other": "Le tri doit être supérieur à 0"
   },
   "system.admin.base.menu.entity.type.required": {
-    "other": "Menu type cannot be empty"
-  },
-  "system.admin.base.translation.entity.menu_translation.locale.supported": {
-    "other": "Menu translation language only supports English or Japanese"
-  },
-  "system.admin.base.translation.entity.menu_translation.title.max_length": {
-    "other": "Menu translation title cannot exceed 255 characters"
+    "other": "Le type de menu ne peut pas être vide"
   },
   "system.admin.base.post.entity.code.max_length": {
-    "other": "Position number cannot exceed 20 characters"
+    "other": "Le numéro du poste ne doit pas dépasser 20 caractères"
   },
   "system.admin.base.post.entity.code.required": {
-    "other": "Please enter the position number"
+    "other": "Veuillez saisir le numéro du poste"
   },
   "system.admin.base.post.entity.name.max_length": {
-    "other": "Job title cannot exceed 30 characters"
+    "other": "L’intitulé du poste ne doit pas dépasser 30 caractères"
   },
   "system.admin.base.post.entity.name.required": {
-    "other": "Please enter the position name"
+    "other": "Veuillez saisir le nom du poste"
   },
   "system.admin.base.post.entity.remark.max_length": {
-    "other": "Comments cannot exceed 500 characters"
+    "other": "Les commentaires ne doit pas dépasser 500 caractères"
   },
   "system.admin.base.post.entity.sort.required": {
-    "other": "Sort must be greater than 0"
+    "other": "Le tri doit être supérieur à 0"
   },
   "system.admin.base.post.entity.tenant_id.required": {
-    "other": "Please select your tenant"
+    "other": "Veuillez sélectionner votre locataire"
   },
   "system.admin.base.role.entity.code.max_length": {
-    "other": "Role number cannot exceed 20 characters"
+    "other": "Le numéro du rôle ne doit pas dépasser 20 caractères"
   },
   "system.admin.base.role.entity.code.required": {
-    "other": "Please enter the role code"
+    "other": "Veuillez saisir le code du rôle"
   },
   "system.admin.base.role.entity.data_scope.required": {
-    "other": "Please select data permissions"
+    "other": "Veuillez sélectionner les autorisations de données"
   },
   "system.admin.base.role.entity.menus.required": {
-    "other": "Please select menu permissions"
+    "other": "Veuillez sélectionner les autorisations de menu"
   },
   "system.admin.base.role.entity.menus.unique": {
-    "other": "Menu permissions cannot be repeated"
+    "other": "Autorisations de menu ne peuvent pas être répétées"
   },
   "system.admin.base.role.entity.name.max_length": {
-    "other": "Character name cannot exceed 30 characters"
+    "other": "Le nom du rôle ne doit pas dépasser 30 caractères"
   },
   "system.admin.base.role.entity.name.required": {
-    "other": "Please enter a role name"
+    "other": "Veuillez saisir un nom de rôle"
   },
   "system.admin.base.role.entity.remark.max_length": {
-    "other": "Comments cannot exceed 500 characters"
+    "other": "Les commentaires ne doit pas dépasser 500 caractères"
   },
   "system.admin.base.role.entity.tenant_id.required": {
-    "other": "The tenant cannot be empty"
+    "other": "Le locataire ne peut pas être vide"
   },
   "system.admin.base.tenant.entity.code.length": {
-    "other": "Tenant number cannot be empty and cannot exceed 50 characters"
+    "other": "Le numéro du locataire ne peut pas être vide et ne doit pas dépasser 50 caractères"
   },
   "system.admin.base.tenant.entity.contact_name.max_length": {
-    "other": "Contact cannot exceed 50 characters"
+    "other": "Contact ne doit pas dépasser 50 caractères"
   },
   "system.admin.base.tenant.entity.contact_phone.format": {
-    "other": "Please enter the correct contact number"
+    "other": "Veuillez saisir un numéro de contact valide"
   },
   "system.admin.base.tenant.entity.contact_phone.max_length": {
-    "other": "Contact number cannot exceed 20 characters"
+    "other": "Le numéro de contact ne doit pas dépasser 20 caractères"
   },
   "system.admin.base.tenant.entity.name.length": {
-    "other": "Tenant name cannot be empty and cannot exceed 100 characters"
+    "other": "Le nom du locataire ne peut pas être vide et ne doit pas dépasser 100 caractères"
   },
   "system.admin.base.tenant.entity.name.max_length": {
-    "other": "Tenant name cannot exceed 100 characters"
+    "other": "Le nom du locataire ne doit pas dépasser 100 caractères"
   },
   "system.admin.base.tenant.entity.name.required": {
-    "other": "Please enter tenant name"
+    "other": "Veuillez saisir le nom du locataire"
   },
   "system.admin.base.tenant.entity.remark.max_length": {
-    "other": "Comments cannot exceed 500 characters"
-  },
-  "system.admin.base.translation.update.id.required": {
-    "other": "Translation record ID cannot be empty"
+    "other": "Les commentaires ne doit pas dépasser 500 caractères"
   },
   "system.admin.base.translation.update.target.required": {
-    "other": "L’identifiant de l’enregistrement de traduction ou les informations de la cible ne peuvent pas être vides"
-  },
-  "system.admin.base.translation.update.name.required": {
-    "other": "Le texte de la nouvelle traduction ne peut pas être vide"
-  },
-  "system.admin.base.translation.entity.target_id.required": {
-    "other": "Resource ID cannot be empty"
-  },
-  "system.admin.base.translation.entity.target_type.required": {
-    "other": "Please select a translation resource type"
-  },
-  "system.admin.base.translation.entity.target_locale.supported": {
-    "other": "Target language only supports English or Japanese"
+    "other": "Les informations cibles complètes sont requises lorsque l’identifiant est zéro"
   },
   "system.admin.base.user.entity.avatar.max_length": {
-    "other": "Avatar cannot exceed 1024 characters"
+    "other": "Avatar ne doit pas dépasser 1024 caractères"
   },
   "system.admin.base.user.entity.dept_id.required": {
-    "other": "Department cannot be empty"
+    "other": "Le département ne peut pas être vide"
   },
   "system.admin.base.user.entity.nick_name.max_length": {
-    "other": "User nickname cannot exceed 30 characters"
+    "other": "Le pseudonyme utilisateur ne doit pas dépasser 30 caractères"
   },
   "system.admin.base.user.entity.nick_name.required": {
-    "other": "User nickname cannot be empty"
+    "other": "Le pseudonyme utilisateur ne peut pas être vide"
   },
   "system.admin.base.user.entity.phone.format": {
-    "other": "Please enter the correct mobile phone number"
+    "other": "Veuillez saisir un numéro de mobile valide"
   },
   "system.admin.base.user.entity.phone.max_length": {
-    "other": "Mobile phone number cannot exceed 20 characters"
+    "other": "Le numéro de mobile ne doit pas dépasser 20 caractères"
   },
   "system.admin.base.user.create.pwd.required": {
-    "other": "Please enter password"
+    "other": "Veuillez saisir le mot de passe"
   },
   "system.admin.base.user.entity.remark.max_length": {
-    "other": "Comments cannot exceed 500 characters"
+    "other": "Les commentaires ne doit pas dépasser 500 caractères"
   },
   "system.admin.base.user.reset_password.reset_pwd.required": {
-    "other": "Please enter new password"
+    "other": "Veuillez saisir un nouveau mot de passe"
   },
   "system.admin.base.user.entity.role_id.required": {
-    "other": "Role cannot be empty"
+    "other": "Le rôle ne peut pas être vide"
   },
   "system.admin.base.user.entity.tenant_id.required": {
-    "other": "The tenant cannot be empty"
+    "other": "Le locataire ne peut pas être vide"
   },
   "system.admin.base.user.entity.user_code.length": {
-    "other": "User ID cannot be empty and cannot exceed 30 characters"
+    "other": "L’identifiant utilisateur ne peut pas être vide et ne doit pas dépasser 30 caractères"
   },
   "system.admin.base.user.entity.user_name.length": {
-    "other": "User account cannot be empty and cannot exceed 50 characters"
+    "other": "Le compte utilisateur ne peut pas être vide et ne doit pas dépasser 50 caractères"
   },
   "base.oauth.bind_session.captcha_code.required": {
     "other": "Le code de vérification ne peut pas être vide"
@@ -318,10 +282,10 @@
     "other": "L’identifiant du code de vérification ne peut pas être vide"
   },
   "base.oauth.bind_session.code.required": {
-    "other": "The third-party authorization code cannot be empty"
+    "other": "Le code d’autorisation tiers ne peut pas être vide"
   },
   "base.oauth.bind_session.provider.required": {
-    "other": "Login method identifier cannot be empty"
+    "other": "L’identifiant de la méthode de connexion ne peut pas être vide"
   },
   "base.oauth.bind_session.password.required": {
     "other": "Le mot de passe ne peut pas être vide"
@@ -333,7 +297,7 @@
     "other": "Le nom d’utilisateur ne peut pas être vide"
   },
   "system.admin.code.gen.table.entity.status.required": {
-    "other": "Please select a code generation table status"
+    "other": "Veuillez sélectionner le statut de la table de génération de code"
   },
   "common.error.conflict": {
     "other": "L’état de la ressource est en conflit avec cette opération"
@@ -360,199 +324,199 @@
     "other": "Le champ {{.Field}} est obligatoire"
   },
   "base.ai.session.create_branch.anchor_message_id.positive": {
-    "other": "Branch anchor message number is illegal"
+    "other": "Le numéro du message d’ancrage de la branche est invalide"
   },
   "base.ai.session.create_branch.source_session_id.positive": {
-    "other": "The session number is invalid"
+    "other": "Le numéro de session est invalide"
   },
   "base.ai.session.create_branch.title.required": {
-    "other": "Session title cannot be empty"
+    "other": "Le titre de session ne peut pas être vide"
   },
   "system.admin.base.menu.create.parent_id.required": {
-    "other": "To add a new menu, you must select the upper-level menu"
+    "other": "Pour ajouter un menu, vous devez sélectionner le menu parent"
   },
   "base.oauth.create_authorization.provider.required": {
-    "other": "Login method identifier cannot be empty"
+    "other": "L’identifiant de la méthode de connexion ne peut pas être vide"
   },
   "base.oauth.create_authorization.redirect_url.required": {
-    "other": "Login page address cannot be empty"
+    "other": "L’adresse de la page de connexion ne peut pas être vide"
   },
   "base.oauth.create_binding_authorization.provider.required": {
-    "other": "Login method identifier cannot be empty"
+    "other": "L’identifiant de la méthode de connexion ne peut pas être vide"
   },
   "base.oauth.create_binding_authorization.redirect_url.required": {
-    "other": "After the binding is completed, the bounce address cannot be empty."
+    "other": "L’adresse de retour après la liaison ne peut pas être vide"
   },
   "base.oauth.create_session.code.required": {
-    "other": "The third-party authorization code cannot be empty"
+    "other": "Le code d’autorisation tiers ne peut pas être vide"
   },
   "base.oauth.create_session.provider.required": {
-    "other": "Login method identifier cannot be empty"
+    "other": "L’identifiant de la méthode de connexion ne peut pas être vide"
   },
   "base.ai.message.delete.message_id.positive": {
-    "other": "The message number is invalid"
+    "other": "Le numéro du message est invalide"
   },
   "base.ai.message.delete.session_id.positive": {
-    "other": "The session number is invalid"
+    "other": "Le numéro de session est invalide"
   },
   "base.ai.session.delete.id.positive": {
-    "other": "The session number is invalid"
+    "other": "Le numéro de session est invalide"
   },
   "system.admin.base.config.delete.id.required": {
-    "other": "Configuration ID list cannot be empty"
+    "other": "La liste des identifiants de configuration ne peut pas être vide"
   },
   "system.admin.base.dept.delete.id.required": {
-    "other": "Department ID list cannot be empty"
+    "other": "La liste des identifiants du département ne peut pas être vide"
   },
   "system.admin.base.dict.delete.id.required": {
-    "other": "Dictionary ID list cannot be empty"
+    "other": "La liste des identifiants du dictionnaire ne peut pas être vide"
   },
   "system.admin.base.dict.delete_item.id.required": {
-    "other": "Dictionary attribute ID list cannot be empty"
+    "other": "La liste des identifiants des attributs du dictionnaire ne peut pas être vide"
   },
   "system.admin.base.language.delete.id.required": {
-    "other": "Language ID list cannot be empty"
+    "other": "La liste des identifiants de langue ne peut pas être vide"
   },
   "system.admin.base.menu.delete.id.required": {
-    "other": "Menu ID list cannot be empty"
+    "other": "La liste des identifiants du menu ne peut pas être vide"
   },
   "system.admin.base.post.delete.id.required": {
-    "other": "The position ID list cannot be empty"
+    "other": "La liste des identifiants du poste ne peut pas être vide"
   },
   "system.admin.base.role.delete.id.required": {
-    "other": "Role ID list cannot be empty"
+    "other": "La liste des identifiants du rôle ne peut pas être vide"
   },
   "system.admin.base.tenant.delete.id.required": {
-    "other": "Tenant ID list cannot be empty"
+    "other": "La liste des identifiants du locataire ne peut pas être vide"
   },
   "system.admin.base.user.delete.id.required": {
-    "other": "User ID list cannot be empty"
+    "other": "La liste des identifiants utilisateur ne peut pas être vide"
   },
   "base.file.download.path.required": {
-    "other": "File path cannot be empty"
+    "other": "Le chemin du fichier ne peut pas être vide"
   },
   "base.oauth.exchange_ticket.ticket.required": {
-    "other": "The third-party login ticket cannot be empty"
+    "other": "Le ticket de connexion tiers ne peut pas être vide"
   },
   "system.admin.code.gen.table.field.business_module.length": {
-    "other": "Business module cannot exceed 64 characters"
+    "other": "Le module métier ne doit pas dépasser 64 caractères"
   },
   "system.admin.code.gen.table.field.business_module.pattern": {
-    "other": "Business module format is incorrect"
+    "other": "Le module métier a un format incorrect"
   },
   "system.admin.code.gen.table.field.business_module.required": {
-    "other": "Business module cannot be empty"
+    "other": "Le module métier ne peut pas être vide"
   },
   "system.admin.code.gen.table.field.comment.length": {
-    "other": "Business table description cannot exceed 128 characters"
+    "other": "La description de la table métier ne doit pas dépasser 128 caractères"
   },
   "system.admin.code.gen.table.field.name.length": {
-    "other": "Business table name cannot exceed 128 characters"
+    "other": "Le nom de la table métier ne doit pas dépasser 128 caractères"
   },
   "system.admin.code.gen.table.field.name.pattern": {
-    "other": "Business table name format is incorrect"
+    "other": "Le nom de la table métier a un format incorrect"
   },
   "system.admin.code.gen.table.field.name.required": {
-    "other": "Business table name cannot be empty"
+    "other": "Le nom de la table métier ne peut pas être vide"
   },
   "system.admin.code.gen.table.field.page_type.length": {
-    "other": "Page type cannot exceed 32 characters"
+    "other": "Le type de page ne doit pas dépasser 32 caractères"
   },
   "system.admin.code.gen.table.field.page_type.required": {
-    "other": "Page type cannot be empty"
+    "other": "Le type de page ne peut pas être vide"
   },
   "system.admin.code.gen.table.field.parent_column.length": {
-    "other": "The tree table parent node field cannot exceed 64 characters."
+    "other": "Le champ parent de la table arborescente ne doit pas dépasser 64 caractères."
   },
   "system.admin.code.gen.table.field.parent_menu_id.required": {
-    "other": "Please select a parent menu"
+    "other": "Veuillez sélectionner un menu parent"
   },
   "system.admin.code.gen.table.field.remark.length": {
-    "other": "Comments cannot exceed 500 characters"
+    "other": "Les commentaires ne doivent pas dépasser 500 caractères"
   },
   "system.admin.code.gen.table.field.tree_label_column.length": {
-    "other": "The tree node display field cannot exceed 64 characters"
+    "other": "Le champ d’affichage du nœud ne doit pas dépasser 64 caractères"
   },
   "system.admin.base.config.get.id.required": {
-    "other": "Configuration ID cannot be empty"
+    "other": "L’identifiant de configuration ne peut pas être vide"
   },
   "system.admin.base.dept.get.id.required": {
-    "other": "Department ID cannot be empty"
+    "other": "L’identifiant du département ne peut pas être vide"
   },
   "system.admin.base.dict.get.id.required": {
-    "other": "Dictionary ID cannot be empty"
+    "other": "L’identifiant du dictionnaire ne peut pas être vide"
   },
   "system.admin.base.dict.get_item.id.required": {
-    "other": "Dictionary attribute ID cannot be empty"
+    "other": "L’identifiant de l’attribut du dictionnaire ne peut pas être vide"
   },
   "system.admin.base.language.get.id.required": {
-    "other": "Language ID cannot be empty"
+    "other": "L’identifiant de langue ne peut pas être vide"
   },
   "system.admin.base.post.get.id.required": {
-    "other": "Position ID cannot be empty"
+    "other": "L’identifiant du poste ne peut pas être vide"
   },
   "system.admin.base.role.get.id.required": {
-    "other": "Role ID cannot be empty"
+    "other": "L’identifiant du rôle ne peut pas être vide"
   },
   "system.admin.base.tenant.get.id.required": {
-    "other": "Tenant ID cannot be empty"
+    "other": "L’identifiant du locataire ne peut pas être vide"
   },
   "system.admin.base.third.account.get_identifier.provider.required": {
-    "other": "Login method identifier cannot be empty"
+    "other": "L’identifiant de la méthode de connexion ne peut pas être vide"
   },
   "system.admin.base.third.account.get_identifier.user_id.required": {
-    "other": "User ID cannot be empty"
+    "other": "L’identifiant utilisateur ne peut pas être vide"
   },
   "system.admin.base.user.get.id.required": {
-    "other": "User ID cannot be empty"
+    "other": "L’identifiant utilisateur ne peut pas être vide"
   },
   "system.admin.code.gen.table.get.id.required": {
-    "other": "Primary key ID cannot be empty"
+    "other": "L’identifiant de clé primaire ne peut pas être vide"
   },
   "system.admin.code.gen.get_task.task_id.required": {
-    "other": "Generate task ID cannot be empty"
+    "other": "L’identifiant de tâche de génération ne peut pas être vide"
   },
   "base.config.get.site.required": {
-    "other": "Location cannot be empty"
+    "other": "L’emplacement ne peut pas être vide"
   },
   "base.mcp.handle.terminal.required": {
-    "other": "MCP service identifier cannot be empty"
+    "other": "L’identifiant du service MCP ne peut pas être vide"
   },
   "base.oauth.handle_binding_callback.code.required_on_success": {
-    "other": "The third-party authorization code cannot be empty"
+    "other": "Le code d’autorisation tiers ne peut pas être vide"
   },
   "base.oauth.handle_binding_callback.provider.required": {
-    "other": "Login method identifier cannot be empty"
+    "other": "L’identifiant de la méthode de connexion ne peut pas être vide"
   },
   "base.oauth.handle_binding_callback.state.required": {
-    "other": "Authorization status code cannot be empty"
+    "other": "Le code d’état d’autorisation ne peut pas être vide"
   },
   "base.oauth.handle_callback.code.required_on_success": {
-    "other": "The third-party authorization code cannot be empty"
+    "other": "Le code d’autorisation tiers ne peut pas être vide"
   },
   "base.oauth.handle_callback.provider.required": {
-    "other": "Login method identifier cannot be empty"
+    "other": "L’identifiant de la méthode de connexion ne peut pas être vide"
   },
   "base.oauth.handle_callback.state.required": {
-    "other": "Authorization status code cannot be empty"
+    "other": "Le code d’état d’autorisation ne peut pas être vide"
   },
   "base.ai.session.list_message.session_id.positive": {
-    "other": "The session number is invalid"
+    "other": "Le numéro de session est invalide"
   },
   "system.admin.base.user.list.ids.positive": {
-    "other": "User ID must be greater than 0"
+    "other": "L’identifiant utilisateur doit être supérieur à 0"
   },
   "system.admin.code.gen.column.list.table_id.required": {
-    "other": "Code generation table configuration ID cannot be empty"
+    "other": "L’identifiant de configuration de génération de code ne peut pas être vide"
   },
   "system.admin.code.gen.column.list_gen_database_column.table_name.pattern": {
-    "other": "Database table name format is incorrect"
+    "other": "Le nom de la table de base de données a un format incorrect"
   },
   "system.admin.code.gen.column.list_gen_database_column.table_name.required": {
-    "other": "Database table name cannot be empty"
+    "other": "Le nom de la table de base de données ne peut pas être vide"
   },
   "system.admin.code.gen.proto.list.table_id.required": {
-    "other": "Code generation table configuration ID cannot be empty"
+    "other": "L’identifiant de configuration de génération de code ne peut pas être vide"
   },
   "base.login.login.captcha_code.required": {
     "other": "Le code de vérification ne peut pas être vide"
@@ -567,153 +531,153 @@
     "other": "Le nom d’utilisateur ne peut pas être vide"
   },
   "system.admin.code.gen.preview.table_id.required": {
-    "other": "Code generation table configuration ID cannot be empty"
+    "other": "L’identifiant de configuration de génération de code ne peut pas être vide"
   },
   "base.login.refresh_token.required": {
-    "other": "Refresh token cannot be empty"
+    "other": "Le jeton d’actualisation ne peut pas être vide"
   },
   "base.ai.message.regenerate.message_id.positive": {
-    "other": "The message number is invalid"
+    "other": "Le numéro du message est invalide"
   },
   "base.ai.message.regenerate.session_id.positive": {
-    "other": "The session number is invalid"
+    "other": "Le numéro de session est invalide"
   },
   "system.admin.base.user.reset_password.id.required": {
-    "other": "User ID cannot be empty"
+    "other": "L’identifiant utilisateur ne peut pas être vide"
   },
   "system.admin.code.gen.restore.table_ids.positive": {
-    "other": "Code generation table configuration ID must be greater than 0"
+    "other": "L’identifiant de configuration de génération de code doit être supérieur à 0"
   },
   "base.ai.message.retry.message_id.positive": {
-    "other": "The message number is invalid"
+    "other": "Le numéro du message est invalide"
   },
   "base.ai.message.retry.session_id.positive": {
-    "other": "The session number is invalid"
+    "other": "Le numéro de session est invalide"
   },
   "system.admin.code.gen.column.save.table_id.required": {
-    "other": "Code generation table configuration ID cannot be empty"
+    "other": "L’identifiant de configuration de génération de code ne peut pas être vide"
   },
   "system.admin.code.gen.proto.save.table_id.required": {
-    "other": "Code generation table configuration ID cannot be empty"
+    "other": "L’identifiant de configuration de génération de code ne peut pas être vide"
   },
   "base.ai.message.send.session_id.positive": {
-    "other": "The session number is invalid"
+    "other": "Le numéro de session est invalide"
   },
   "system.admin.auth.send_phone_code.phone.format": {
-    "other": "Please enter the correct mobile phone number"
+    "other": "Veuillez saisir un numéro de mobile valide"
   },
   "system.admin.auth.send_phone_code.phone.required": {
-    "other": "Please enter mobile phone number"
+    "other": "Veuillez saisir le numéro de mobile"
   },
   "system.admin.base.config.set_status.id.required": {
-    "other": "Configuration ID cannot be empty"
+    "other": "L’identifiant de configuration ne peut pas être vide"
   },
   "system.admin.base.dept.set_status.id.required": {
-    "other": "Department ID cannot be empty"
+    "other": "L’identifiant du département ne peut pas être vide"
   },
   "system.admin.base.dict.set_item_status.id.required": {
-    "other": "Dictionary attribute ID cannot be empty"
+    "other": "L’identifiant de l’attribut du dictionnaire ne peut pas être vide"
   },
   "system.admin.base.language.set_status.id.required": {
-    "other": "Language ID cannot be empty"
+    "other": "L’identifiant de langue ne peut pas être vide"
   },
   "system.admin.base.language.set_primary.id.required": {
-    "other": "Language ID cannot be empty"
+    "other": "L’identifiant de langue ne peut pas être vide"
   },
   "system.admin.base.dict.set_status.id.required": {
-    "other": "Dictionary ID cannot be empty"
+    "other": "L’identifiant du dictionnaire ne peut pas être vide"
   },
   "system.admin.base.menu.set_status.id.required": {
-    "other": "Menu ID cannot be empty"
+    "other": "L’identifiant du menu ne peut pas être vide"
   },
   "system.admin.base.menu.set_status.status.required": {
-    "other": "Status cannot be empty"
+    "other": "Le statut ne peut pas être vide"
   },
   "system.admin.base.post.set_status.id.required": {
-    "other": "Position ID cannot be empty"
+    "other": "L’identifiant du poste ne peut pas être vide"
   },
   "system.admin.base.role.set_menu.id.required": {
-    "other": "Role ID cannot be empty"
+    "other": "L’identifiant du rôle ne peut pas être vide"
   },
   "system.admin.base.role.set_status.id.required": {
-    "other": "Role ID cannot be empty"
+    "other": "L’identifiant du rôle ne peut pas être vide"
   },
   "system.admin.base.tenant.set_status.id.required": {
-    "other": "Tenant ID cannot be empty"
+    "other": "L’identifiant du locataire ne peut pas être vide"
   },
   "system.admin.base.user.set_app_role.role_code.required": {
-    "other": "The application-side role code cannot be empty"
+    "other": "Le code de rôle côté application ne peut pas être vide"
   },
   "system.admin.base.user.set_app_role.user_id.required": {
-    "other": "User ID cannot be empty"
+    "other": "L’identifiant utilisateur ne peut pas être vide"
   },
   "system.admin.base.user.set_status.id.required": {
-    "other": "User ID cannot be empty"
+    "other": "L’identifiant utilisateur ne peut pas être vide"
   },
   "system.admin.code.gen.start_task.table_ids.positive": {
-    "other": "Code generation table configuration ID must be greater than 0"
+    "other": "L’identifiant de configuration de génération de code doit être supérieur à 0"
   },
   "base.sse.subscribe.stream.required": {
-    "other": "SSE stream cannot be empty"
+    "other": "Le flux SSE ne peut pas être vide"
   },
   "base.oauth.unbind_account.provider.required": {
-    "other": "Login method identifier cannot be empty"
+    "other": "L’identifiant de la méthode de connexion ne peut pas être vide"
   },
   "base.ai.message.update.content.required": {
-    "other": "Message content cannot be empty"
+    "other": "Le contenu du message ne peut pas être vide"
   },
   "base.ai.message.update.message_id.positive": {
-    "other": "The message number is invalid"
+    "other": "Le numéro du message est invalide"
   },
   "base.ai.message.update.session_id.positive": {
-    "other": "The session number is invalid"
+    "other": "Le numéro de session est invalide"
   },
   "base.ai.session.update.id.positive": {
-    "other": "The session number is invalid"
+    "other": "Le numéro de session est invalide"
   },
   "base.ai.session.update.title.required": {
-    "other": "Session title cannot be empty"
+    "other": "Le titre de session ne peut pas être vide"
   },
   "system.admin.base.config.update.id.required": {
-    "other": "Configuration ID cannot be empty"
+    "other": "L’identifiant de configuration ne peut pas être vide"
   },
   "system.admin.base.dept.update.id.required": {
-    "other": "Department ID cannot be empty"
+    "other": "L’identifiant du département ne peut pas être vide"
   },
   "system.admin.base.dict.update.id.required": {
-    "other": "Dictionary ID cannot be empty"
+    "other": "L’identifiant du dictionnaire ne peut pas être vide"
   },
   "system.admin.base.dict.update_item.id.required": {
-    "other": "Dictionary attribute ID cannot be empty"
+    "other": "L’identifiant de l’attribut du dictionnaire ne peut pas être vide"
   },
   "system.admin.base.post.update.id.required": {
-    "other": "Position ID cannot be empty"
+    "other": "L’identifiant du poste ne peut pas être vide"
   },
   "system.admin.base.role.update.id.required": {
-    "other": "Role ID cannot be empty"
+    "other": "L’identifiant du rôle ne peut pas être vide"
   },
   "system.admin.base.tenant.update.id.required": {
-    "other": "Tenant ID cannot be empty"
+    "other": "L’identifiant du locataire ne peut pas être vide"
   },
   "system.admin.base.user.update.id.required": {
-    "other": "User ID cannot be empty"
+    "other": "L’identifiant utilisateur ne peut pas être vide"
   },
   "system.admin.code.gen.table.update.id.required": {
-    "other": "Primary key ID cannot be empty"
+    "other": "L’identifiant de clé primaire ne peut pas être vide"
   },
   "system.admin.auth.user_phone.code.required": {
-    "other": "Please enter the verification code"
+    "other": "Veuillez saisir le code de vérification"
   },
   "system.admin.auth.user_phone.phone.format": {
-    "other": "Please enter the correct mobile phone number"
+    "other": "Veuillez saisir un numéro de mobile valide"
   },
   "system.admin.auth.user_phone.phone.required": {
-    "other": "Please enter mobile phone number"
+    "other": "Veuillez saisir le numéro de mobile"
   },
   "base.login.verify_captcha.captcha_code.required": {
-    "other": "Verification code cannot be empty"
+    "other": "Le code de vérification ne peut pas être vide"
   },
   "base.login.verify_captcha.captcha_id.required": {
-    "other": "Verification code cannot be empty"
+    "other": "Le code de vérification ne peut pas être vide"
   }
 }

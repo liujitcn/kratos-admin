@@ -9,6 +9,7 @@ import (
 
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	query "github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 )
@@ -16,17 +17,17 @@ import (
 // BaseThirdAccountRepository 定义 用户三方登录账号 的基础仓储能力。
 type BaseThirdAccountRepository struct {
 	repository.BaseRepository[models.BaseThirdAccount]
-	*Data
+	queryProvider QueryProvider
 }
 
 // NewBaseThirdAccountRepository 创建 BaseThirdAccount 基础仓储实例。
-func NewBaseThirdAccountRepository(data *Data) *BaseThirdAccountRepository {
+func NewBaseThirdAccountRepository(queryProvider QueryProvider) *BaseThirdAccountRepository {
 	base := repository.NewBaseRepository[models.BaseThirdAccount](
 		func(ctx context.Context) gen.Dao {
-			return new(data.Query(ctx).BaseThirdAccount.WithContext(ctx).DO)
+			return new(queryProvider.Query(ctx).BaseThirdAccount.WithContext(ctx).DO)
 		},
 		func(ctx context.Context) field.Int64 {
-			return data.Query(ctx).BaseThirdAccount.ID
+			return queryProvider.Query(ctx).BaseThirdAccount.ID
 		},
 		func(entity *models.BaseThirdAccount) int64 {
 			return entity.ID
@@ -34,6 +35,11 @@ func NewBaseThirdAccountRepository(data *Data) *BaseThirdAccountRepository {
 	)
 	return &BaseThirdAccountRepository{
 		BaseRepository: base,
-		Data:           data,
+		queryProvider:  queryProvider,
 	}
+}
+
+// Query 返回当前上下文对应的查询入口。
+func (r *BaseThirdAccountRepository) Query(ctx context.Context) *query.Query {
+	return r.queryProvider.Query(ctx)
 }

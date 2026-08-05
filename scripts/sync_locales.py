@@ -33,8 +33,8 @@ FRONTEND_GENERATED_FILES = {
     "taro-system": ROOT / "frontend/taro-app/packages/modules/system/src/locales/generated.ts",
 }
 
-BACKEND_MANIFEST = ROOT / "backend/core/pkg/locale/manifest.json"
-CODEGEN_CATALOG = ROOT / "backend/internal/biz/system/admin/v1/codegen/locales/catalog.json"
+BACKEND_MANIFEST = ROOT / "backend/internal/i18n/locales/manifest.json"
+CODEGEN_CATALOG = ROOT / "backend/internal/biz/system/admin/codegen/locales/catalog.json"
 DAYJS_LOCALE_DIRECTORY = ROOT / "frontend/admin/packages/core/node_modules/dayjs/locale"
 ELEMENT_LOCALE_DIRECTORY = ROOT / "frontend/admin/packages/core/node_modules/element-plus/es/locale/lang"
 MIGRATION_VERSION_PATTERN = re.compile(r"^v\d+\.\d+\.\d+$")
@@ -42,7 +42,11 @@ LOCALE_CODE_PATTERN = re.compile(r"^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$")
 
 
 def locale_files(directory: Path) -> dict[str, Path]:
-    files = {path.stem: path for path in directory.glob("*.json")}
+    files = {
+        path.stem: path
+        for path in directory.glob("*.json")
+        if path.name != "manifest.json"
+    }
     if not files:
         raise ValueError(f"语言目录为空: {directory}")
     for locale, path in files.items():

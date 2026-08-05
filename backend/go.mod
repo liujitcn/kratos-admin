@@ -39,22 +39,20 @@ require (
 	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.11
 	github.com/liujitcn/kratos-kit/logger/zap v0.0.14
 	github.com/liujitcn/kratos-kit/oauth v0.0.8
-	github.com/liujitcn/kratos-kit/oss v0.0.14
+	github.com/liujitcn/kratos-kit/oss v0.0.15
 	github.com/liujitcn/kratos-kit/pprof v0.0.12
 	github.com/liujitcn/kratos-kit/queue v0.0.22
-	github.com/liujitcn/kratos-kit/rpc v0.0.19
-	github.com/liujitcn/kratos-kit/swagger-ui v0.0.11
-	github.com/liujitcn/kratos-kit/translator v0.0.2
+	github.com/liujitcn/kratos-kit/rpc v0.0.20
+	github.com/liujitcn/kratos-kit/swagger-ui v0.0.12
+	github.com/liujitcn/kratos-kit/translator v0.0.3
 	github.com/liujitcn/kratos-kit/transport/cron v0.0.11
 	github.com/liujitcn/kratos-kit/transport/mcp v0.0.12
-	github.com/liujitcn/kratos-kit/transport/sse v0.0.9
+	github.com/liujitcn/kratos-kit/transport/sse v0.0.10
 	github.com/liujitcn/kratos-kit/utils v0.0.17
 	github.com/mileusna/useragent v1.3.5
 	github.com/modelcontextprotocol/go-sdk v1.6.0
-	github.com/nicksnyder/go-i18n/v2 v2.6.1
 	github.com/openai/openai-go/v3 v3.35.0
 	github.com/robfig/cron/v3 v3.0.1
-	golang.org/x/text v0.37.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20260526163538-3dc84a4a5aaa
 	google.golang.org/grpc v1.83.0
 	google.golang.org/protobuf v1.36.12-0.20260120151049-f2248ac996af
@@ -64,6 +62,8 @@ require (
 	gorm.io/plugin/dbresolver v1.6.2
 	gorm.io/plugin/soft_delete v1.2.1
 )
+
+replace github.com/liujitcn/kratos-admin/backend/core v0.0.6 => ./core
 
 require (
 	cel.dev/expr v0.25.2 // indirect
@@ -202,6 +202,7 @@ require (
 	github.com/mojocn/base64Captcha v1.3.8 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/mvrilo/go-redoc v0.1.5 // indirect
+	github.com/nicksnyder/go-i18n/v2 v2.6.1 // indirect
 	github.com/nikolalohinski/gonja v1.5.3 // indirect
 	github.com/olekukonko/cat v0.0.0-20250911104152-50322a0618f6 // indirect
 	github.com/olekukonko/errors v1.2.0 // indirect
@@ -271,6 +272,7 @@ require (
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.45.0 // indirect
+	golang.org/x/text v0.37.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 	golang.org/x/tools v0.44.0 // indirect
 	google.golang.org/api v0.269.0 // indirect

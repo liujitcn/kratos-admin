@@ -3,8 +3,8 @@ package middleware
 import (
 	"context"
 
+	coreI18n "github.com/liujitcn/kratos-admin/backend/core/pkg/i18n"
 	coreLocale "github.com/liujitcn/kratos-admin/backend/core/pkg/locale"
-	"github.com/liujitcn/kratos-admin/backend/internal/i18n"
 
 	kratosMiddleware "github.com/go-kratos/kratos/v3/middleware"
 	"github.com/go-kratos/kratos/v3/transport"
@@ -21,7 +21,7 @@ func NewLocaleMiddleware() kratosMiddleware.Middleware {
 			ctx = coreLocale.WithContext(ctx, localeValue)
 			reply, err := handler(ctx, req)
 			if err != nil {
-				return nil, i18n.LocalizeError(localeValue, err)
+				return nil, coreI18n.LocalizeError(defaultCatalog, localeValue, err)
 			}
 			return reply, nil
 		}

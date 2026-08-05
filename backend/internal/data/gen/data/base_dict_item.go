@@ -9,6 +9,7 @@ import (
 
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	query "github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 )
@@ -16,17 +17,17 @@ import (
 // BaseDictItemRepository 定义 字典属性信息 的基础仓储能力。
 type BaseDictItemRepository struct {
 	repository.BaseRepository[models.BaseDictItem]
-	*Data
+	queryProvider QueryProvider
 }
 
 // NewBaseDictItemRepository 创建 BaseDictItem 基础仓储实例。
-func NewBaseDictItemRepository(data *Data) *BaseDictItemRepository {
+func NewBaseDictItemRepository(queryProvider QueryProvider) *BaseDictItemRepository {
 	base := repository.NewBaseRepository[models.BaseDictItem](
 		func(ctx context.Context) gen.Dao {
-			return new(data.Query(ctx).BaseDictItem.WithContext(ctx).DO)
+			return new(queryProvider.Query(ctx).BaseDictItem.WithContext(ctx).DO)
 		},
 		func(ctx context.Context) field.Int64 {
-			return data.Query(ctx).BaseDictItem.ID
+			return queryProvider.Query(ctx).BaseDictItem.ID
 		},
 		func(entity *models.BaseDictItem) int64 {
 			return entity.ID
@@ -34,6 +35,11 @@ func NewBaseDictItemRepository(data *Data) *BaseDictItemRepository {
 	)
 	return &BaseDictItemRepository{
 		BaseRepository: base,
-		Data:           data,
+		queryProvider:  queryProvider,
 	}
+}
+
+// Query 返回当前上下文对应的查询入口。
+func (r *BaseDictItemRepository) Query(ctx context.Context) *query.Query {
+	return r.queryProvider.Query(ctx)
 }

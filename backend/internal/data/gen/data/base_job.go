@@ -9,6 +9,7 @@ import (
 
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	query "github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 )
@@ -16,17 +17,17 @@ import (
 // BaseJobRepository 定义 定时任务信息 的基础仓储能力。
 type BaseJobRepository struct {
 	repository.BaseRepository[models.BaseJob]
-	*Data
+	queryProvider QueryProvider
 }
 
 // NewBaseJobRepository 创建 BaseJob 基础仓储实例。
-func NewBaseJobRepository(data *Data) *BaseJobRepository {
+func NewBaseJobRepository(queryProvider QueryProvider) *BaseJobRepository {
 	base := repository.NewBaseRepository[models.BaseJob](
 		func(ctx context.Context) gen.Dao {
-			return new(data.Query(ctx).BaseJob.WithContext(ctx).DO)
+			return new(queryProvider.Query(ctx).BaseJob.WithContext(ctx).DO)
 		},
 		func(ctx context.Context) field.Int64 {
-			return data.Query(ctx).BaseJob.ID
+			return queryProvider.Query(ctx).BaseJob.ID
 		},
 		func(entity *models.BaseJob) int64 {
 			return entity.ID
@@ -34,6 +35,11 @@ func NewBaseJobRepository(data *Data) *BaseJobRepository {
 	)
 	return &BaseJobRepository{
 		BaseRepository: base,
-		Data:           data,
+		queryProvider:  queryProvider,
 	}
+}
+
+// Query 返回当前上下文对应的查询入口。
+func (r *BaseJobRepository) Query(ctx context.Context) *query.Query {
+	return r.queryProvider.Query(ctx)
 }

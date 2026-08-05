@@ -9,6 +9,7 @@ import (
 
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	query "github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 )
@@ -16,17 +17,17 @@ import (
 // BaseLanguageRepository 定义 语言信息 的基础仓储能力。
 type BaseLanguageRepository struct {
 	repository.BaseRepository[models.BaseLanguage]
-	*Data
+	queryProvider QueryProvider
 }
 
 // NewBaseLanguageRepository 创建 BaseLanguage 基础仓储实例。
-func NewBaseLanguageRepository(data *Data) *BaseLanguageRepository {
+func NewBaseLanguageRepository(queryProvider QueryProvider) *BaseLanguageRepository {
 	base := repository.NewBaseRepository[models.BaseLanguage](
 		func(ctx context.Context) gen.Dao {
-			return new(data.Query(ctx).BaseLanguage.WithContext(ctx).DO)
+			return new(queryProvider.Query(ctx).BaseLanguage.WithContext(ctx).DO)
 		},
 		func(ctx context.Context) field.Int64 {
-			return data.Query(ctx).BaseLanguage.ID
+			return queryProvider.Query(ctx).BaseLanguage.ID
 		},
 		func(entity *models.BaseLanguage) int64 {
 			return entity.ID
@@ -34,6 +35,11 @@ func NewBaseLanguageRepository(data *Data) *BaseLanguageRepository {
 	)
 	return &BaseLanguageRepository{
 		BaseRepository: base,
-		Data:           data,
+		queryProvider:  queryProvider,
 	}
+}
+
+// Query 返回当前上下文对应的查询入口。
+func (r *BaseLanguageRepository) Query(ctx context.Context) *query.Query {
+	return r.queryProvider.Query(ctx)
 }

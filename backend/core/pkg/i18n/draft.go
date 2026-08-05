@@ -5,9 +5,13 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-
-	"github.com/liujitcn/go-utils/translator"
 )
+
+// Translator 表示能够将单段文本翻译到目标语言的提供方。
+type Translator interface {
+	// Translate 将源文从源语言翻译为目标语言。
+	Translate(ctx context.Context, source, sourceLocale, targetLocale string) (string, error)
+}
 
 var (
 	protectedTextPattern  = regexp.MustCompile("(?s)```.*?```|`[^`]+`|\\{\\{[^{}]+\\}\\}|\\$\\{[^{}]+\\}|\\{[A-Za-z_][A-Za-z0-9_.-]*\\}|%[sdv]|</?[^>]+>|https?://[^\\s<>()]+|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}|/(?:api|events|mcp|v[0-9]+)/[A-Za-z0-9_./:{}-]+|(?i:kratos-admin)")
@@ -15,7 +19,7 @@ var (
 )
 
 // TranslateProtected 使用稳定哨兵保护结构化片段后调用单文本翻译器。
-func TranslateProtected(ctx context.Context, provider translator.Translator, source, sourceLocale, targetLocale string) (string, error) {
+func TranslateProtected(ctx context.Context, provider Translator, source, sourceLocale, targetLocale string) (string, error) {
 	if provider == nil {
 		return "", fmt.Errorf("翻译草稿提供方未配置")
 	}

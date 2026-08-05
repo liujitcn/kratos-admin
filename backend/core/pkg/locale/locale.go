@@ -2,8 +2,6 @@ package locale
 
 import (
 	"context"
-	_ "embed"
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -11,53 +9,55 @@ import (
 )
 
 var (
-	// Default 表示编译期语言包的默认回退区域，由 manifest 提供。
+	// Default 表示宿主配置的默认回退区域。
 	Default          string
 	supportedLocales []string
 	supportedTags    []language.Tag
 	matcher          language.Matcher
 )
 
-//go:embed manifest.json
-var localeManifest []byte
-
-type localeManifestConfig struct {
-	Default string   `json:"default"`
-	Locales []string `json:"locales"`
+// Config 表示宿主提供的编译期语言区域配置。
+type Config struct {
+	// Default 表示宿主的默认回退语言。
+	Default string
+	// Supported 表示宿主编译期支持的语言集合。
+	Supported []string
 }
 
-func init() {
-	var config localeManifestConfig
-	var err error
-	err = json.Unmarshal(localeManifest, &config)
-	if err != nil {
-		panic(fmt.Errorf("解析语言 manifest: %w", err))
-	}
+// Configure 配置当前宿主可用的编译期语言区域。
+func Configure(config Config) error {
 	if config.Default == "" {
-		panic(fmt.Errorf("语言 manifest 缺少默认语言"))
+		return fmt.Errorf("语言配置缺少默认语言")
 	}
-	Default = config.Default
-	seen := make(map[string]struct{}, len(config.Locales))
-	for _, value := range config.Locales {
+	if len(config.Supported) == 0 {
+		return fmt.Errorf("语言配置缺少支持语言")
+	}
+	seen := make(map[string]struct{}, len(config.Supported))
+	tags := make([]language.Tag, 0, len(config.Supported))
+	var err error
+	for _, value := range config.Supported {
 		if value == "" {
-			panic(fmt.Errorf("语言 manifest 包含空语言代码"))
+			return fmt.Errorf("语言配置包含空语言代码")
 		}
 		if _, ok := seen[value]; ok {
-			panic(fmt.Errorf("语言 manifest 包含重复语言代码 %s", value))
+			return fmt.Errorf("语言配置包含重复语言代码 %s", value)
 		}
 		var tag language.Tag
 		tag, err = language.Parse(value)
 		if err != nil {
-			panic(fmt.Errorf("解析语言代码 %s: %w", value, err))
+			return fmt.Errorf("解析语言代码 %s: %w", value, err)
 		}
 		seen[value] = struct{}{}
-		supportedLocales = append(supportedLocales, value)
-		supportedTags = append(supportedTags, tag)
+		tags = append(tags, tag)
 	}
-	if _, ok := seen[Default]; !ok {
-		panic(fmt.Errorf("语言 manifest 缺少默认语言 %s", Default))
+	if _, ok := seen[config.Default]; !ok {
+		return fmt.Errorf("语言配置缺少默认语言 %s", config.Default)
 	}
-	matcher = language.NewMatcher(supportedTags)
+	Default = config.Default
+	supportedLocales = append([]string(nil), config.Supported...)
+	supportedTags = tags
+	matcher = language.NewMatcher(tags)
+	return nil
 }
 
 type contextKey struct{}
@@ -69,6 +69,9 @@ func Supported() []string {
 
 // NonDefault 返回除项目回退语言之外的区域副本。
 func NonDefault() []string {
+	if len(supportedLocales) == 0 {
+		return nil
+	}
 	locales := make([]string, 0, len(supportedLocales)-1)
 	for _, value := range supportedLocales {
 		if value != Default {
@@ -95,6 +98,9 @@ func Normalize(value string) string {
 
 // ResolveAcceptLanguage 按请求头权重解析首个受支持语言区域。
 func ResolveAcceptLanguage(value string) string {
+	if len(supportedLocales) == 0 {
+		return Default
+	}
 	value = strings.ReplaceAll(strings.TrimSpace(value), "_", "-")
 	if value == "" {
 		return Default
@@ -126,6 +132,9 @@ func FromContext(ctx context.Context) string {
 
 // normalize 解析单个语言区域，并区分未知值与项目回退语言。
 func normalize(value string) (string, bool) {
+	if len(supportedLocales) == 0 {
+		return "", false
+	}
 	value = strings.ReplaceAll(strings.TrimSpace(value), "_", "-")
 	if value == "" {
 		return "", false

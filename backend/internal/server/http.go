@@ -123,12 +123,15 @@ func NewHTTPServer(
 	if cfg.GetServer().GetHttp().GetEnableSwagger() {
 		authorizer := newOpenAPIAuthorizer(authenticator, userToken)
 		for _, document := range openAPIRegistry.Documents() {
-			swaggerUI.RegisterOpenAPIServerWithOption(
+			err = swaggerUI.RegisterOpenAPIServerWithOption(
 				srv,
 				swaggerUI.WithOpenAPIPath(swaggerUI.DefaultOpenAPIPath+"/"+document.Key),
 				swaggerUI.WithMemoryData(document.Data, "yaml"),
 				swaggerUI.WithOpenAPIAuthorizer(authorizer),
 			)
+			if err != nil {
+				return nil, fmt.Errorf("注册 OpenAPI 文档: %w", err)
+			}
 		}
 	}
 

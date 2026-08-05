@@ -56,6 +56,12 @@ type contextTxKey struct{}
 
 var txQueryKey = contextTxKey{}
 
+// QueryProvider 定义按上下文获取查询入口的能力。
+type QueryProvider interface {
+	Query(context.Context) *query.Query
+}
+
+// Data 定义当前数据源的查询与事务实现。
 type Data struct {
 	query *query.Query
 }

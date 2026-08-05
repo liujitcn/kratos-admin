@@ -4,7 +4,7 @@ import (
 	"context"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/v1/ai"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 )
 
 // AiToolCase 管理 AI 助手工具能力。

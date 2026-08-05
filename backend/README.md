@@ -18,7 +18,7 @@ backend
 │   └── pkg/{errorsx,projectdoc}      # 公共错误与文档能力
 ├── internal
 │   ├── agent                         # Eino Agent 适配
-│   ├── biz/{system/admin/v1,system/app/v1,base/v1,event,job}
+│   ├── biz/{system/admin,system/app,base,event,job}
 │   ├── cmd/server                    # 独立服务入口和内嵌 OpenAPI
 │   ├── config                        # 配置和数据库客户端装配
 │   ├── data                          # GORM 生成代码和队列适配
@@ -134,7 +134,7 @@ migration/assets/
 
 后端支持的语言由 `internal/i18n/locales` 自动发现。`core/pkg/locale` 负责规范化 `Accept-Language`，locale 中间件将语言区域写入请求上下文，并在响应边界本地化结构化错误；动态菜单、字典和字典项的审核译文由版本化翻译表按请求语言解析，缺少当前语言译文时回退主语言。
 
-新增语言时，在 `internal/i18n/locales` 和三个前端 workspace 的六个语言包目录增加同名 JSON，并在代码生成 `catalog.json` 中增加同名数据，然后从仓库根目录执行 `make i18n-sync`。脚本生成 `core/pkg/locale/manifest.json` 和前端注册产物，不需要修改 Go/TypeScript 源码。若新部署需要默认插入语言记录，执行 `make i18n-sync I18N_MIGRATION_VERSION=vX.Y.Z` 生成版本化迁移；`base_language` 的启用状态、排序和主语言标记仍由数据库维护。具体文件清单见 [国际化语言扩展指南](../docs/国际化语言扩展指南.md)。
+新增语言时，在 `internal/i18n/locales` 和三个前端 workspace 的六个语言包目录增加同名 JSON，并在代码生成 `catalog.json` 中增加同名数据，然后从仓库根目录执行 `make i18n-sync`。脚本生成 `internal/i18n/locales/manifest.json` 和前端注册产物；`core/pkg/locale`、`core/pkg/i18n` 只提供共享机制，不内嵌 Admin 语言数据。若新部署需要默认插入语言记录，执行 `make i18n-sync I18N_MIGRATION_VERSION=vX.Y.Z` 生成版本化迁移；`base_language` 的启用状态、排序和主语言标记仍由数据库维护。具体文件清单见 [国际化语言扩展指南](../docs/国际化语言扩展指南.md)。
 
 ```bash
 make i18n-sync

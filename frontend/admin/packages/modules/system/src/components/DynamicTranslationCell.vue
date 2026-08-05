@@ -22,8 +22,6 @@
           <el-input
             v-if="row.editing"
             v-model="row.text"
-            :maxlength="2000"
-            show-word-limit
             :placeholder="t('system.base.translation.placeholder.text', { language: getLanguageLabel(row.locale) })"
           />
           <span v-else class="dynamic-translation-dialog__text">

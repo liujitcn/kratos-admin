@@ -9,6 +9,7 @@ import (
 
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	query "github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 )
@@ -16,17 +17,17 @@ import (
 // BaseMigrationRepository 定义 数据库迁移记录 的基础仓储能力。
 type BaseMigrationRepository struct {
 	repository.BaseRepository[models.BaseMigration]
-	*Data
+	queryProvider QueryProvider
 }
 
 // NewBaseMigrationRepository 创建 BaseMigration 基础仓储实例。
-func NewBaseMigrationRepository(data *Data) *BaseMigrationRepository {
+func NewBaseMigrationRepository(queryProvider QueryProvider) *BaseMigrationRepository {
 	base := repository.NewBaseRepository[models.BaseMigration](
 		func(ctx context.Context) gen.Dao {
-			return new(data.Query(ctx).BaseMigration.WithContext(ctx).DO)
+			return new(queryProvider.Query(ctx).BaseMigration.WithContext(ctx).DO)
 		},
 		func(ctx context.Context) field.Int64 {
-			return data.Query(ctx).BaseMigration.ID
+			return queryProvider.Query(ctx).BaseMigration.ID
 		},
 		func(entity *models.BaseMigration) int64 {
 			return entity.ID
@@ -34,6 +35,11 @@ func NewBaseMigrationRepository(data *Data) *BaseMigrationRepository {
 	)
 	return &BaseMigrationRepository{
 		BaseRepository: base,
-		Data:           data,
+		queryProvider:  queryProvider,
 	}
+}
+
+// Query 返回当前上下文对应的查询入口。
+func (r *BaseMigrationRepository) Query(ctx context.Context) *query.Query {
+	return r.queryProvider.Query(ctx)
 }

@@ -9,6 +9,7 @@ import (
 
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	query "github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 )
@@ -16,17 +17,17 @@ import (
 // BaseRoleRepository 定义 角色信息 的基础仓储能力。
 type BaseRoleRepository struct {
 	repository.BaseRepository[models.BaseRole]
-	*Data
+	queryProvider QueryProvider
 }
 
 // NewBaseRoleRepository 创建 BaseRole 基础仓储实例。
-func NewBaseRoleRepository(data *Data) *BaseRoleRepository {
+func NewBaseRoleRepository(queryProvider QueryProvider) *BaseRoleRepository {
 	base := repository.NewBaseRepository[models.BaseRole](
 		func(ctx context.Context) gen.Dao {
-			return new(data.Query(ctx).BaseRole.WithContext(ctx).DO)
+			return new(queryProvider.Query(ctx).BaseRole.WithContext(ctx).DO)
 		},
 		func(ctx context.Context) field.Int64 {
-			return data.Query(ctx).BaseRole.ID
+			return queryProvider.Query(ctx).BaseRole.ID
 		},
 		func(entity *models.BaseRole) int64 {
 			return entity.ID
@@ -34,6 +35,11 @@ func NewBaseRoleRepository(data *Data) *BaseRoleRepository {
 	)
 	return &BaseRoleRepository{
 		BaseRepository: base,
-		Data:           data,
+		queryProvider:  queryProvider,
 	}
+}
+
+// Query 返回当前上下文对应的查询入口。
+func (r *BaseRoleRepository) Query(ctx context.Context) *query.Query {
+	return r.queryProvider.Query(ctx)
 }

@@ -101,6 +101,7 @@ func (c *BaseMenuCase) OptionBaseMenu(ctx context.Context, req *systemadminv1.Op
 	if req.GetLazy() {
 		parentID = req.GetParentId()
 	}
+
 	var titles map[int64]string
 	titles, err = c.translatedMenuTitles(ctx, list)
 	if err != nil {
@@ -144,11 +145,12 @@ func (c *BaseMenuCase) TreeBaseMenu(ctx context.Context, req *systemadminv1.Tree
 	if req.GetLazy() {
 		parentID = req.GetParentId()
 	}
-	sources := make(map[int64]string, len(list))
+	targetIds := make([]int64, len(list))
 	for _, item := range list {
-		sources[item.ID] = c.mapper.ToDTO(item).GetMeta().GetTitle()
+		targetIds = append(targetIds, item.ID)
 	}
-	translations, err := c.baseTranslationCase.GetBaseTranslationMapByTargetType(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, translationSourceIDs(sources))
+	var translations map[int64][]*systemadminv1.BaseTranslation
+	translations, err = c.baseTranslationCase.GetBaseTranslationMapByTargetType(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, targetIds)
 	if err != nil {
 		return nil, err
 	}
@@ -267,6 +269,80 @@ func (c *BaseMenuCase) DeleteBaseMenu(ctx context.Context, id string) error {
 	})
 }
 
+// SetBaseMenuStatus 设置菜单状态
+func (c *BaseMenuCase) SetBaseMenuStatus(ctx context.Context, req *systemadminv1.SetBaseMenuStatusRequest) error {
+	return c.UpdateByID(ctx, &models.BaseMenu{
+		ID:     req.GetId(),
+		Status: req.GetStatus(),
+	})
+}
+
+// SaveGeneratedMenuTranslations 保存代码生成器提供的菜单译文，不覆盖已有非空内容。
+func (c *BaseMenuCase) SaveGeneratedMenuTranslations(ctx context.Context, menuID int64, _ string, translations map[string]string) error {
+	if menuID <= 0 || len(translations) == 0 {
+		return nil
+	}
+	locales, primaryLocale, _, err := c.baseTranslationCase.languageCase.Locales(ctx)
+	if err != nil {
+		return err
+	}
+	allowed := make(map[string]struct{}, len(locales))
+	for _, locale := range locales {
+		if locale != primaryLocale {
+			allowed[locale] = struct{}{}
+		}
+	}
+	query := c.baseTranslationCase.Query(ctx).BaseTranslation
+	var rows []*models.BaseTranslation
+	rows, err = c.baseTranslationCase.List(ctx,
+		repository.Where(query.TargetType.Eq(int32(systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU))),
+		repository.Where(query.TargetID.Eq(menuID)),
+	)
+	if err != nil {
+		return err
+	}
+	existing := make(map[string]*models.BaseTranslation, len(rows))
+	for _, row := range rows {
+		existing[row.Locale] = row
+	}
+	for locale, text := range translations {
+		if text == "" {
+			continue
+		}
+		if _, ok := allowed[locale]; !ok {
+			continue
+		}
+		row := existing[locale]
+		if row != nil && row.Name != "" {
+			continue
+		}
+		if row == nil {
+			if err = c.baseTranslationCase.Create(ctx, &models.BaseTranslation{TargetType: int32(systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU), TargetID: menuID, Locale: locale, Name: text}); err != nil {
+				return err
+			}
+			continue
+		}
+		row.Name = text
+		if err = c.baseTranslationCase.UpdateByID(ctx, row); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// createBaseMenu 校验父级并按层级编号规则创建菜单。
+func (c *BaseMenuCase) createBaseMenu(ctx context.Context, baseMenu *models.BaseMenu) error {
+	menuID, err := c.allocateBaseMenuID(ctx, baseMenu.ParentID, baseMenu.Type)
+	if err != nil {
+		return err
+	}
+	baseMenu.ID = menuID
+	if err = c.validateBaseMenuIdentity(ctx, baseMenu, 0); err != nil {
+		return err
+	}
+	return c.Create(ctx, baseMenu)
+}
+
 // allocateBaseMenuID 锁定父节点后，从当前层级的01到99中分配首个可用菜单编号。
 func (c *BaseMenuCase) allocateBaseMenuID(ctx context.Context, parentID int64, menuType int32) (int64, error) {
 	query := c.Query(ctx).BaseMenu
@@ -299,27 +375,6 @@ func (c *BaseMenuCase) allocateBaseMenuID(ctx context.Context, parentID int64, m
 		}
 	}
 	return 0, errorsx.StateConflict("当前父级菜单的子编号01-99已用完", "base_menu", "range_exhausted", "available_id")
-}
-
-// SetBaseMenuStatus 设置菜单状态
-func (c *BaseMenuCase) SetBaseMenuStatus(ctx context.Context, req *systemadminv1.SetBaseMenuStatusRequest) error {
-	return c.UpdateByID(ctx, &models.BaseMenu{
-		ID:     req.GetId(),
-		Status: req.GetStatus(),
-	})
-}
-
-// createBaseMenu 校验父级并按层级编号规则创建菜单。
-func (c *BaseMenuCase) createBaseMenu(ctx context.Context, baseMenu *models.BaseMenu) error {
-	menuID, err := c.allocateBaseMenuID(ctx, baseMenu.ParentID, baseMenu.Type)
-	if err != nil {
-		return err
-	}
-	baseMenu.ID = menuID
-	if err = c.validateBaseMenuIdentity(ctx, baseMenu, 0); err != nil {
-		return err
-	}
-	return c.Create(ctx, baseMenu)
 }
 
 // validateBaseMenuIdentity 校验菜单路径和路由名称的唯一性。
@@ -437,71 +492,6 @@ func (c *BaseMenuCase) listSubtreeIDs(ctx context.Context, rootID int64) ([]int6
 	return ids, nil
 }
 
-// translatedMenuTitles 查询菜单集合在当前语言下可展示的非空译文。
-func (c *BaseMenuCase) translatedMenuTitles(ctx context.Context, menuList []*models.BaseMenu) (map[int64]string, error) {
-	menuIDs := make([]int64, 0, len(menuList))
-	for _, item := range menuList {
-		menuIDs = append(menuIDs, item.ID)
-	}
-	titles, err := c.baseTranslationCase.GetBaseTranslationNameMapByLocale(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, coreLocale.FromContext(ctx), menuIDs)
-	if err != nil {
-		return nil, err
-	}
-	return titles, nil
-}
-
-// SaveGeneratedMenuTranslations 保存代码生成器提供的菜单译文，不覆盖已有非空内容。
-func (c *BaseMenuCase) SaveGeneratedMenuTranslations(ctx context.Context, menuID int64, _ string, translations map[string]string) error {
-	if menuID <= 0 || len(translations) == 0 {
-		return nil
-	}
-	locales, primaryLocale, _, err := c.baseTranslationCase.languageCase.Locales(ctx)
-	if err != nil {
-		return err
-	}
-	allowed := make(map[string]struct{}, len(locales))
-	for _, locale := range locales {
-		if locale != primaryLocale {
-			allowed[locale] = struct{}{}
-		}
-	}
-	query := c.baseTranslationCase.Query(ctx).BaseTranslation
-	rows, err := c.baseTranslationCase.List(ctx,
-		repository.Where(query.TargetType.Eq(int32(systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU))),
-		repository.Where(query.TargetID.Eq(menuID)),
-	)
-	if err != nil {
-		return err
-	}
-	existing := make(map[string]*models.BaseTranslation, len(rows))
-	for _, row := range rows {
-		existing[row.Locale] = row
-	}
-	for locale, text := range translations {
-		if text == "" {
-			continue
-		}
-		if _, ok := allowed[locale]; !ok {
-			continue
-		}
-		row := existing[locale]
-		if row != nil && row.Name != "" {
-			continue
-		}
-		if row == nil {
-			if err = c.baseTranslationCase.Create(ctx, &models.BaseTranslation{TargetType: int32(systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU), TargetID: menuID, Locale: locale, Name: text}); err != nil {
-				return err
-			}
-			continue
-		}
-		row.Name = text
-		if err = c.baseTranslationCase.UpdateByID(ctx, row); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 // saveBaseTranslation 保存菜单标题翻译并同步菜单元信息中的主标题。
 func (c *BaseMenuCase) saveBaseTranslation(ctx context.Context, req *systemadminv1.BaseMenuForm, entity *models.BaseMenu) error {
 	sourceTitle := req.GetMeta().GetTitle()
@@ -512,21 +502,13 @@ func (c *BaseMenuCase) saveBaseTranslation(ctx context.Context, req *systemadmin
 			return err
 		}
 		metadata["title"] = title
-		payload, err := json.Marshal(metadata)
+		var payload []byte
+		payload, err = json.Marshal(metadata)
 		if err != nil {
 			return err
 		}
 		return c.UpdateByID(ctx, &models.BaseMenu{ID: entity.ID, Meta: string(payload)})
 	})
-}
-
-// translationSourceIDs 提取翻译查询使用的资源编号。
-func translationSourceIDs(sources map[int64]string) []int64 {
-	ids := make([]int64, 0, len(sources))
-	for id := range sources {
-		ids = append(ids, id)
-	}
-	return ids
 }
 
 // buildRouteTree 构建菜单路由树。
@@ -649,6 +631,14 @@ func (c *BaseMenuCase) listBaseMenuParentIDsWithChildren(
 		hasChildren[item.ParentID] = struct{}{}
 	}
 	return hasChildren, nil
+}
+
+func (c *BaseMenuCase) translatedMenuTitles(ctx context.Context, list []*models.BaseMenu) (map[int64]string, error) {
+	targetIds := make([]int64, 0, len(list))
+	for _, item := range list {
+		targetIds = append(targetIds, item.ID)
+	}
+	return c.baseTranslationCase.GetBaseTranslationNameMapByLocale(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, coreLocale.FromContext(ctx), targetIds)
 }
 
 // validateBaseMenuChild 校验父节点能否承载指定类型的下级菜单。

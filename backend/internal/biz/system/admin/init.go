@@ -2,7 +2,7 @@ package biz
 
 import "github.com/google/wire"
 
-// ProviderSet 汇总 system.admin.v1 业务依赖注入提供者。
+// ProviderSet 汇总 system.admin 业务依赖注入提供者。
 var ProviderSet = wire.NewSet(
 	NewAuthCase,
 	NewBaseAPICase,

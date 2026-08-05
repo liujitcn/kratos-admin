@@ -9,6 +9,7 @@ import (
 
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	query "github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 )
@@ -16,17 +17,17 @@ import (
 // BaseConfigRepository 定义 参数配置 的基础仓储能力。
 type BaseConfigRepository struct {
 	repository.BaseRepository[models.BaseConfig]
-	*Data
+	queryProvider QueryProvider
 }
 
 // NewBaseConfigRepository 创建 BaseConfig 基础仓储实例。
-func NewBaseConfigRepository(data *Data) *BaseConfigRepository {
+func NewBaseConfigRepository(queryProvider QueryProvider) *BaseConfigRepository {
 	base := repository.NewBaseRepository[models.BaseConfig](
 		func(ctx context.Context) gen.Dao {
-			return new(data.Query(ctx).BaseConfig.WithContext(ctx).DO)
+			return new(queryProvider.Query(ctx).BaseConfig.WithContext(ctx).DO)
 		},
 		func(ctx context.Context) field.Int64 {
-			return data.Query(ctx).BaseConfig.ID
+			return queryProvider.Query(ctx).BaseConfig.ID
 		},
 		func(entity *models.BaseConfig) int64 {
 			return entity.ID
@@ -34,6 +35,11 @@ func NewBaseConfigRepository(data *Data) *BaseConfigRepository {
 	)
 	return &BaseConfigRepository{
 		BaseRepository: base,
-		Data:           data,
+		queryProvider:  queryProvider,
 	}
+}
+
+// Query 返回当前上下文对应的查询入口。
+func (r *BaseConfigRepository) Query(ctx context.Context) *query.Query {
+	return r.queryProvider.Query(ctx)
 }

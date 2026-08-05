@@ -9,6 +9,7 @@ import (
 
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	query "github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 )
@@ -16,17 +17,17 @@ import (
 // BaseLogRepository 定义 系统日志信息 的基础仓储能力。
 type BaseLogRepository struct {
 	repository.BaseRepository[models.BaseLog]
-	*Data
+	queryProvider QueryProvider
 }
 
 // NewBaseLogRepository 创建 BaseLog 基础仓储实例。
-func NewBaseLogRepository(data *Data) *BaseLogRepository {
+func NewBaseLogRepository(queryProvider QueryProvider) *BaseLogRepository {
 	base := repository.NewBaseRepository[models.BaseLog](
 		func(ctx context.Context) gen.Dao {
-			return new(data.Query(ctx).BaseLog.WithContext(ctx).DO)
+			return new(queryProvider.Query(ctx).BaseLog.WithContext(ctx).DO)
 		},
 		func(ctx context.Context) field.Int64 {
-			return data.Query(ctx).BaseLog.ID
+			return queryProvider.Query(ctx).BaseLog.ID
 		},
 		func(entity *models.BaseLog) int64 {
 			return entity.ID
@@ -34,6 +35,11 @@ func NewBaseLogRepository(data *Data) *BaseLogRepository {
 	)
 	return &BaseLogRepository{
 		BaseRepository: base,
-		Data:           data,
+		queryProvider:  queryProvider,
 	}
+}
+
+// Query 返回当前上下文对应的查询入口。
+func (r *BaseLogRepository) Query(ctx context.Context) *query.Query {
+	return r.queryProvider.Query(ctx)
 }

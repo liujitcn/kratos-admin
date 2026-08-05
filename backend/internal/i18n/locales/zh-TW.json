@@ -101,21 +101,6 @@
   "system.admin.base.translation.draft.source.required": {
     "other": "待翻譯文字不能為空"
   },
-  "system.admin.base.translation.draft.target_locale.required": {
-    "other": "目標語言區域不能為空"
-  },
-  "system.admin.base.translation.entity.dict_item_translation.label.max_length": {
-    "other": "字典項翻譯標籤不能超過100個字元"
-  },
-  "system.admin.base.translation.entity.dict_item_translation.locale.supported": {
-    "other": "字典項翻譯語言程式碼不能為空"
-  },
-  "system.admin.base.translation.entity.dict_translation.locale.supported": {
-    "other": "字典翻譯語言程式碼不能為空"
-  },
-  "system.admin.base.translation.entity.dict_translation.name.max_length": {
-    "other": "字典翻譯名稱不能超過50個字元"
-  },
   "system.admin.base.job.entity.cron_expression.length": {
     "other": "cron表示式不能為空且不超過 50 個字元"
   },
@@ -175,12 +160,6 @@
   },
   "system.admin.base.menu.entity.type.required": {
     "other": "選單型別不能為空"
-  },
-  "system.admin.base.translation.entity.menu_translation.locale.supported": {
-    "other": "選單翻譯語言程式碼不能為空"
-  },
-  "system.admin.base.translation.entity.menu_translation.title.max_length": {
-    "other": "選單翻譯標題不能超過255個字元"
   },
   "system.admin.base.post.entity.code.max_length": {
     "other": "崗位編號不能超過 20 個字元"
@@ -254,23 +233,8 @@
   "system.admin.base.tenant.entity.remark.max_length": {
     "other": "備註不能超過 500 個字元"
   },
-  "system.admin.base.translation.update.id.required": {
-    "other": "翻譯記錄ID不能為空"
-  },
   "system.admin.base.translation.update.target.required": {
-    "other": "翻譯記錄ID或目標資訊不能為空"
-  },
-  "system.admin.base.translation.update.name.required": {
-    "other": "新增翻譯文字不能為空"
-  },
-  "system.admin.base.translation.entity.target_id.required": {
-    "other": "資源ID不能為空"
-  },
-  "system.admin.base.translation.entity.target_type.required": {
-    "other": "請選擇翻譯資源型別"
-  },
-  "system.admin.base.translation.entity.target_locale.supported": {
-    "other": "目標語言程式碼不能為空"
+    "other": "ID為零時必須提供完整目標資訊"
   },
   "system.admin.base.user.entity.avatar.max_length": {
     "other": "頭像不能超過 1024 個字元"
@@ -315,7 +279,7 @@
     "other": "驗證碼不能為空"
   },
   "base.oauth.bind_session.captcha_id.required": {
-    "other": "驗證碼Id不能為空"
+    "other": "驗證碼 ID 不能為空"
   },
   "base.oauth.bind_session.code.required": {
     "other": "三方授權碼不能為空"

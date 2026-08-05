@@ -11,5 +11,5 @@ func NewDraftTranslator(cfg *bootstrapConfigv1.Translator) (translator.Translato
 	if cfg == nil || !cfg.GetEnabled() {
 		return nil, nil
 	}
-	return kitTranslator.NewTranslatorWithError(cfg)
+	return kitTranslator.NewTranslator(cfg)
 }

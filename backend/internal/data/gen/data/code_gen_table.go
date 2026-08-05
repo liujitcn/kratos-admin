@@ -9,6 +9,7 @@ import (
 
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	query "github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 )
@@ -16,17 +17,17 @@ import (
 // CodeGenTableRepository 定义 代码生成对象表 的基础仓储能力。
 type CodeGenTableRepository struct {
 	repository.BaseRepository[models.CodeGenTable]
-	*Data
+	queryProvider QueryProvider
 }
 
 // NewCodeGenTableRepository 创建 CodeGenTable 基础仓储实例。
-func NewCodeGenTableRepository(data *Data) *CodeGenTableRepository {
+func NewCodeGenTableRepository(queryProvider QueryProvider) *CodeGenTableRepository {
 	base := repository.NewBaseRepository[models.CodeGenTable](
 		func(ctx context.Context) gen.Dao {
-			return new(data.Query(ctx).CodeGenTable.WithContext(ctx).DO)
+			return new(queryProvider.Query(ctx).CodeGenTable.WithContext(ctx).DO)
 		},
 		func(ctx context.Context) field.Int64 {
-			return data.Query(ctx).CodeGenTable.ID
+			return queryProvider.Query(ctx).CodeGenTable.ID
 		},
 		func(entity *models.CodeGenTable) int64 {
 			return entity.ID
@@ -34,6 +35,11 @@ func NewCodeGenTableRepository(data *Data) *CodeGenTableRepository {
 	)
 	return &CodeGenTableRepository{
 		BaseRepository: base,
-		Data:           data,
+		queryProvider:  queryProvider,
 	}
+}
+
+// Query 返回当前上下文对应的查询入口。
+func (r *CodeGenTableRepository) Query(ctx context.Context) *query.Query {
+	return r.queryProvider.Query(ctx)
 }

@@ -3,26 +3,24 @@ package i18n
 import (
 	"encoding/json"
 
+	"github.com/go-kratos/kratos/v3/errors"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	coreLocale "github.com/liujitcn/kratos-admin/backend/core/pkg/locale"
-
-	kratosErrors "github.com/go-kratos/kratos/v3/errors"
 )
 
 // LocalizeError 将结构化错误消息本地化，同时保持 code、reason 和 cause 不变。
-func LocalizeError(ctxLocale string, err error) error {
+func LocalizeError(catalog *Catalog, localeValue string, err error) error {
 	if err == nil {
 		return nil
 	}
-	structured := kratosErrors.FromError(err)
+	structured := errors.FromError(err)
 	structured = normalizeStructuredError(structured)
 	messageKey := structured.Metadata[errorsx.METADATA_KEY_MESSAGE_KEY]
 	if messageKey == "" {
 		messageKey = defaultMessageKey(structured.Reason)
 	}
 	messageArgs := decodeMessageArgs(structured.Metadata[errorsx.METADATA_KEY_MESSAGE_ARGS])
-	localized := DefaultCatalog().Localize(coreLocale.Normalize(ctxLocale), messageKey, messageArgs, structured.Message)
-	result := kratosErrors.Clone(structured)
+	localized := catalog.Localize(localeValue, messageKey, messageArgs, structured.Message)
+	result := errors.Clone(structured)
 	result.Message = localized
 	metadata := make(map[string]string, len(result.Metadata)+2)
 	for key, value := range result.Metadata {
@@ -36,8 +34,8 @@ func LocalizeError(ctxLocale string, err error) error {
 }
 
 // normalizeStructuredError 将外部中间件错误收敛到项目冻结的六类 reason。
-func normalizeStructuredError(err *kratosErrors.Error) *kratosErrors.Error {
-	result := kratosErrors.Clone(err)
+func normalizeStructuredError(err *errors.Error) *errors.Error {
+	result := errors.Clone(err)
 	switch result.Reason {
 	case errorsx.ReasonInvalidArgument, errorsx.ReasonUnauthenticated, errorsx.ReasonPermissionDenied,
 		errorsx.ReasonResourceNotFound, errorsx.ReasonConflict, errorsx.ReasonInternalError:

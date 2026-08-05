@@ -9,6 +9,7 @@ import (
 
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	query "github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 )
@@ -16,17 +17,17 @@ import (
 // BaseTranslationRepository 定义 国际化翻译信息 的基础仓储能力。
 type BaseTranslationRepository struct {
 	repository.BaseRepository[models.BaseTranslation]
-	*Data
+	queryProvider QueryProvider
 }
 
 // NewBaseTranslationRepository 创建 BaseTranslation 基础仓储实例。
-func NewBaseTranslationRepository(data *Data) *BaseTranslationRepository {
+func NewBaseTranslationRepository(queryProvider QueryProvider) *BaseTranslationRepository {
 	base := repository.NewBaseRepository[models.BaseTranslation](
 		func(ctx context.Context) gen.Dao {
-			return new(data.Query(ctx).BaseTranslation.WithContext(ctx).DO)
+			return new(queryProvider.Query(ctx).BaseTranslation.WithContext(ctx).DO)
 		},
 		func(ctx context.Context) field.Int64 {
-			return data.Query(ctx).BaseTranslation.ID
+			return queryProvider.Query(ctx).BaseTranslation.ID
 		},
 		func(entity *models.BaseTranslation) int64 {
 			return entity.ID
@@ -34,6 +35,11 @@ func NewBaseTranslationRepository(data *Data) *BaseTranslationRepository {
 	)
 	return &BaseTranslationRepository{
 		BaseRepository: base,
-		Data:           data,
+		queryProvider:  queryProvider,
 	}
+}
+
+// Query 返回当前上下文对应的查询入口。
+func (r *BaseTranslationRepository) Query(ctx context.Context) *query.Query {
+	return r.queryProvider.Query(ctx)
 }

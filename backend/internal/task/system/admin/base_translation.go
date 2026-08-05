@@ -9,14 +9,14 @@ import (
 
 	"github.com/liujitcn/go-utils/translator"
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	coreI18n "github.com/liujitcn/kratos-admin/backend/core/pkg/i18n"
 	coreQueue "github.com/liujitcn/kratos-admin/backend/core/pkg/queue"
 	coreTask "github.com/liujitcn/kratos-admin/backend/core/pkg/task"
-	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/v1/dto"
+	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	backendI18n "github.com/liujitcn/kratos-admin/backend/internal/i18n"
 
 	kratosErrors "github.com/go-kratos/kratos/v3/errors"
 	"github.com/go-kratos/kratos/v3/log"
@@ -25,8 +25,6 @@ import (
 	queueData "github.com/liujitcn/kratos-kit/queue/data"
 	"gorm.io/gorm"
 )
-
-const translationDraftMaxBytes = 2000
 
 const (
 	// BaseTranslationTaskName 是统一机器翻译任务的稳定调用目标。
@@ -224,9 +222,6 @@ func (t *BaseTranslationTask) translateOne(ctx context.Context, targetType syste
 	if source.Text == "" {
 		return errorsx.InvalidArgument("待翻译源文不能为空")
 	}
-	if len([]byte(source.Text)) > translationDraftMaxBytes {
-		return errorsx.InvalidArgument("待翻译源文不能超过2000字节")
-	}
 	query := t.translationCase.Query(ctx).BaseTranslation
 	row, findErr := t.translationCase.Find(ctx,
 		repository.Where(query.TargetType.Eq(int32(targetType))),
@@ -239,7 +234,7 @@ func (t *BaseTranslationTask) translateOne(ctx context.Context, targetType syste
 	if findErr != nil && !errors.Is(findErr, gorm.ErrRecordNotFound) {
 		return findErr
 	}
-	translated, err := backendI18n.TranslateProtected(ctx, t.draftTranslator, source.Text, sourceLocale, targetLocale)
+	translated, err := coreI18n.TranslateProtected(ctx, t.draftTranslator, source.Text, sourceLocale, targetLocale)
 	if err != nil {
 		return errorsx.Internal("生成翻译失败").WithCause(err)
 	}

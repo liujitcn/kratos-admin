@@ -6,7 +6,7 @@ import (
 
 	systemappv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/app/v1"
+	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/app"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/protobuf/types/known/emptypb"

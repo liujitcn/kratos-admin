@@ -5,7 +5,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/localgrpc"
 	coreOpenAPI "github.com/liujitcn/kratos-admin/backend/core/pkg/openapi"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/job"
-	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/v1"
+	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/server"
 	backendtask "github.com/liujitcn/kratos-admin/backend/internal/task"
 	"github.com/liujitcn/kratos-kit/bootstrap"

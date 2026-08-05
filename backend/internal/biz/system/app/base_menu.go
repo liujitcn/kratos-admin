@@ -7,7 +7,7 @@ import (
 	systemappv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
 	coreLocale "github.com/liujitcn/kratos-admin/backend/core/pkg/locale"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
-	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/v1"
+	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"

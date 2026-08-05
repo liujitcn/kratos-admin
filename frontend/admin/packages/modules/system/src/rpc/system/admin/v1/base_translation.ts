@@ -45,15 +45,15 @@ export interface DraftBaseTranslationItem {
 
 /** 修改单个翻译信息请求。 */
 export interface UpdateBaseTranslationRequest {
-  /** 翻译记录ID，新增翻译时可不填写 */
+  /** 翻译记录ID，大于零时优先按ID更新；ID不存在时根据目标信息更新或新增 */
   id: number;
-  /** 翻译目标类型，新增翻译时使用 */
+  /** 翻译目标类型，ID为零时用于查询或新增 */
   target_type: TranslationTargetType;
-  /** 目标资源ID，新增翻译时使用 */
+  /** 目标资源ID，ID为零时用于查询或新增 */
   target_id: number;
-  /** 目标语言区域，新增翻译时使用 */
+  /** 目标语言区域，ID为零时用于查询或新增 */
   locale: string;
-  /** 翻译文本，更新时允许为空以清除译文 */
+  /** 翻译文本 */
   name: string;
 }
 

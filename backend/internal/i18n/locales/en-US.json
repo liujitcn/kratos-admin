@@ -101,21 +101,6 @@
   "system.admin.base.translation.draft.source.required": {
     "other": "Source text cannot be empty"
   },
-  "system.admin.base.translation.draft.target_locale.required": {
-    "other": "Target locale cannot be empty"
-  },
-  "system.admin.base.translation.entity.dict_item_translation.label.max_length": {
-    "other": "Dictionary item translation labels cannot exceed 100 characters"
-  },
-  "system.admin.base.translation.entity.dict_item_translation.locale.supported": {
-    "other": "Dictionary item translation language only supports English or Japanese"
-  },
-  "system.admin.base.translation.entity.dict_translation.locale.supported": {
-    "other": "Dictionary translation language only supports English or Japanese"
-  },
-  "system.admin.base.translation.entity.dict_translation.name.max_length": {
-    "other": "Dictionary translation names cannot exceed 50 characters"
-  },
   "system.admin.base.job.entity.cron_expression.length": {
     "other": "cron expression cannot be empty and cannot exceed 50 characters"
   },
@@ -175,12 +160,6 @@
   },
   "system.admin.base.menu.entity.type.required": {
     "other": "Menu type cannot be empty"
-  },
-  "system.admin.base.translation.entity.menu_translation.locale.supported": {
-    "other": "Menu translation language only supports English or Japanese"
-  },
-  "system.admin.base.translation.entity.menu_translation.title.max_length": {
-    "other": "Menu translation title cannot exceed 255 characters"
   },
   "system.admin.base.post.entity.code.max_length": {
     "other": "Position number cannot exceed 20 characters"
@@ -254,23 +233,8 @@
   "system.admin.base.tenant.entity.remark.max_length": {
     "other": "Comments cannot exceed 500 characters"
   },
-  "system.admin.base.translation.update.id.required": {
-    "other": "Translation record ID cannot be empty"
-  },
   "system.admin.base.translation.update.target.required": {
-    "other": "Translation record ID or target information cannot be empty"
-  },
-  "system.admin.base.translation.update.name.required": {
-    "other": "New translation text cannot be empty"
-  },
-  "system.admin.base.translation.entity.target_id.required": {
-    "other": "Resource ID cannot be empty"
-  },
-  "system.admin.base.translation.entity.target_type.required": {
-    "other": "Please select a translation resource type"
-  },
-  "system.admin.base.translation.entity.target_locale.supported": {
-    "other": "Target language only supports English or Japanese"
+    "other": "Complete target information is required when the ID is zero"
   },
   "system.admin.base.user.entity.avatar.max_length": {
     "other": "Avatar cannot exceed 1024 characters"

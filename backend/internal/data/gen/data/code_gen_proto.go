@@ -9,6 +9,7 @@ import (
 
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	query "github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 )
@@ -16,17 +17,17 @@ import (
 // CodeGenProtoRepository 定义 代码生成Proto接口配置表 的基础仓储能力。
 type CodeGenProtoRepository struct {
 	repository.BaseRepository[models.CodeGenProto]
-	*Data
+	queryProvider QueryProvider
 }
 
 // NewCodeGenProtoRepository 创建 CodeGenProto 基础仓储实例。
-func NewCodeGenProtoRepository(data *Data) *CodeGenProtoRepository {
+func NewCodeGenProtoRepository(queryProvider QueryProvider) *CodeGenProtoRepository {
 	base := repository.NewBaseRepository[models.CodeGenProto](
 		func(ctx context.Context) gen.Dao {
-			return new(data.Query(ctx).CodeGenProto.WithContext(ctx).DO)
+			return new(queryProvider.Query(ctx).CodeGenProto.WithContext(ctx).DO)
 		},
 		func(ctx context.Context) field.Int64 {
-			return data.Query(ctx).CodeGenProto.ID
+			return queryProvider.Query(ctx).CodeGenProto.ID
 		},
 		func(entity *models.CodeGenProto) int64 {
 			return entity.ID
@@ -34,6 +35,11 @@ func NewCodeGenProtoRepository(data *Data) *CodeGenProtoRepository {
 	)
 	return &CodeGenProtoRepository{
 		BaseRepository: base,
-		Data:           data,
+		queryProvider:  queryProvider,
 	}
+}
+
+// Query 返回当前上下文对应的查询入口。
+func (r *CodeGenProtoRepository) Query(ctx context.Context) *query.Query {
+	return r.queryProvider.Query(ctx)
 }

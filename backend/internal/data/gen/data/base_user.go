@@ -9,6 +9,7 @@ import (
 
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	query "github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 )
@@ -16,17 +17,17 @@ import (
 // BaseUserRepository 定义 用户信息 的基础仓储能力。
 type BaseUserRepository struct {
 	repository.BaseRepository[models.BaseUser]
-	*Data
+	queryProvider QueryProvider
 }
 
 // NewBaseUserRepository 创建 BaseUser 基础仓储实例。
-func NewBaseUserRepository(data *Data) *BaseUserRepository {
+func NewBaseUserRepository(queryProvider QueryProvider) *BaseUserRepository {
 	base := repository.NewBaseRepository[models.BaseUser](
 		func(ctx context.Context) gen.Dao {
-			return new(data.Query(ctx).BaseUser.WithContext(ctx).DO)
+			return new(queryProvider.Query(ctx).BaseUser.WithContext(ctx).DO)
 		},
 		func(ctx context.Context) field.Int64 {
-			return data.Query(ctx).BaseUser.ID
+			return queryProvider.Query(ctx).BaseUser.ID
 		},
 		func(entity *models.BaseUser) int64 {
 			return entity.ID
@@ -34,6 +35,11 @@ func NewBaseUserRepository(data *Data) *BaseUserRepository {
 	)
 	return &BaseUserRepository{
 		BaseRepository: base,
-		Data:           data,
+		queryProvider:  queryProvider,
 	}
+}
+
+// Query 返回当前上下文对应的查询入口。
+func (r *BaseUserRepository) Query(ctx context.Context) *query.Query {
+	return r.queryProvider.Query(ctx)
 }

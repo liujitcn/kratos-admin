@@ -9,6 +9,7 @@ import (
 
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	query "github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 )
@@ -16,17 +17,17 @@ import (
 // AiMessageRepository 定义 AI助手消息表 的基础仓储能力。
 type AiMessageRepository struct {
 	repository.BaseRepository[models.AiMessage]
-	*Data
+	queryProvider QueryProvider
 }
 
 // NewAiMessageRepository 创建 AiMessage 基础仓储实例。
-func NewAiMessageRepository(data *Data) *AiMessageRepository {
+func NewAiMessageRepository(queryProvider QueryProvider) *AiMessageRepository {
 	base := repository.NewBaseRepository[models.AiMessage](
 		func(ctx context.Context) gen.Dao {
-			return new(data.Query(ctx).AiMessage.WithContext(ctx).DO)
+			return new(queryProvider.Query(ctx).AiMessage.WithContext(ctx).DO)
 		},
 		func(ctx context.Context) field.Int64 {
-			return data.Query(ctx).AiMessage.ID
+			return queryProvider.Query(ctx).AiMessage.ID
 		},
 		func(entity *models.AiMessage) int64 {
 			return entity.ID
@@ -34,6 +35,11 @@ func NewAiMessageRepository(data *Data) *AiMessageRepository {
 	)
 	return &AiMessageRepository{
 		BaseRepository: base,
-		Data:           data,
+		queryProvider:  queryProvider,
 	}
+}
+
+// Query 返回当前上下文对应的查询入口。
+func (r *AiMessageRepository) Query(ctx context.Context) *query.Query {
+	return r.queryProvider.Query(ctx)
 }

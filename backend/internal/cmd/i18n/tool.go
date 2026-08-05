@@ -1,4 +1,4 @@
-package i18n
+package main
 
 import (
 	"context"
@@ -15,9 +15,9 @@ import (
 	"strconv"
 	"strings"
 
+	coreI18n "github.com/liujitcn/kratos-admin/backend/core/pkg/i18n"
 	coreLocale "github.com/liujitcn/kratos-admin/backend/core/pkg/locale"
-
-	"github.com/liujitcn/go-utils/translator"
+	_ "github.com/liujitcn/kratos-admin/backend/internal/i18n/locales"
 )
 
 var (
@@ -68,6 +68,24 @@ func CheckCatalogFiles(backendRoot string) (*CatalogCheckResult, error) {
 			return nil, fmt.Errorf("zh-CN 缺少 Go 显式消息键 %s", key)
 		}
 	}
+	usedKeys := make(map[string]struct{}, len(sources)+len(explicitKeys)+len(runtimeMessageKeys()))
+	for key := range sources {
+		usedKeys[key] = struct{}{}
+	}
+	for key := range explicitKeys {
+		usedKeys[key] = struct{}{}
+	}
+	for key := range runtimeMessageKeys() {
+		if _, ok := zhCatalog[key]; !ok {
+			return nil, fmt.Errorf("zh-CN 缺少运行时消息键 %s", key)
+		}
+		usedKeys[key] = struct{}{}
+	}
+	for key := range zhCatalog {
+		if _, ok := usedKeys[key]; !ok {
+			return nil, fmt.Errorf("zh-CN 包含未使用的消息键 %s", key)
+		}
+	}
 	referenceKeys := sortedCatalogKeys(zhCatalog)
 	for _, localeValue := range coreLocale.Supported() {
 		catalog := catalogs[localeValue]
@@ -85,7 +103,7 @@ func CheckCatalogFiles(backendRoot string) (*CatalogCheckResult, error) {
 }
 
 // DraftCatalogFiles 报告或补齐错误目录中缺失的非中文译文。
-func DraftCatalogFiles(ctx context.Context, backendRoot string, provider translator.Translator, write bool) (*DraftResult, error) {
+func DraftCatalogFiles(ctx context.Context, backendRoot string, provider coreI18n.Translator, write bool) (*DraftResult, error) {
 	sources, _, err := collectCatalogSources(backendRoot)
 	if err != nil {
 		return nil, err
@@ -117,7 +135,7 @@ func DraftCatalogFiles(ctx context.Context, backendRoot string, provider transla
 			cacheKey := localeValue + "\x00" + source
 			translated := translations[cacheKey]
 			if translated == "" {
-				translated, err = TranslateProtected(ctx, provider, source, coreLocale.Default, localeValue)
+				translated, err = coreI18n.TranslateProtected(ctx, provider, source, coreLocale.Default, localeValue)
 				if err != nil {
 					return nil, fmt.Errorf("翻译消息键 %s 到 %s: %w", key, localeValue, err)
 				}
@@ -304,4 +322,17 @@ func messagePlaceholders(message string) []string {
 	}
 	slices.Sort(placeholders)
 	return placeholders
+}
+
+// runtimeMessageKeys 返回不直接来自 Proto 或 Go 显式声明的运行时消息键。
+func runtimeMessageKeys() map[string]struct{} {
+	return map[string]struct{}{
+		"common.error.conflict":           {},
+		"common.error.internal":           {},
+		"common.error.permission_denied":  {},
+		"common.error.resource_not_found": {},
+		"common.error.unauthenticated":    {},
+		"common.validation.invalid":       {},
+		"common.validation.required":      {},
+	}
 }

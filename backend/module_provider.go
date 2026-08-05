@@ -13,13 +13,13 @@ import (
 	coreTask "github.com/liujitcn/kratos-admin/backend/core/pkg/task"
 	einoModel "github.com/liujitcn/kratos-admin/backend/internal/agent/model"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
-	basebiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/v1/ai"
+	basebiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/event"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/job"
-	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/v1"
-	admincodegen "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/v1/codegen"
-	appbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/app/v1"
+	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	admincodegen "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
+	appbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/app"
 	systemConfig "github.com/liujitcn/kratos-admin/backend/internal/config"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
@@ -158,7 +158,10 @@ func registerModuleExtensions(modules server.Modules, aiRuntime *ai.Runtime, use
 }
 
 // repositoryProviderSet 只装配仓储，数据库客户端统一由配置层完成多数据源和迁移初始化。
-var repositoryProviderSet = data.RepositoryProviderSet
+var repositoryProviderSet = wire.NewSet(
+	data.RepositoryProviderSet,
+	wire.Bind(new(data.QueryProvider), new(*data.Data)),
+)
 
 var migrationProviderSet = wire.NewSet(
 	gormmigration.NewRegistry,

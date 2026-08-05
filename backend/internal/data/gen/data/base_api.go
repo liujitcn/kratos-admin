@@ -9,6 +9,7 @@ import (
 
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	query "github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 )
@@ -16,17 +17,17 @@ import (
 // BaseAPIRepository 定义 API信息 的基础仓储能力。
 type BaseAPIRepository struct {
 	repository.BaseRepository[models.BaseAPI]
-	*Data
+	queryProvider QueryProvider
 }
 
 // NewBaseAPIRepository 创建 BaseAPI 基础仓储实例。
-func NewBaseAPIRepository(data *Data) *BaseAPIRepository {
+func NewBaseAPIRepository(queryProvider QueryProvider) *BaseAPIRepository {
 	base := repository.NewBaseRepository[models.BaseAPI](
 		func(ctx context.Context) gen.Dao {
-			return new(data.Query(ctx).BaseAPI.WithContext(ctx).DO)
+			return new(queryProvider.Query(ctx).BaseAPI.WithContext(ctx).DO)
 		},
 		func(ctx context.Context) field.Int64 {
-			return data.Query(ctx).BaseAPI.ID
+			return queryProvider.Query(ctx).BaseAPI.ID
 		},
 		func(entity *models.BaseAPI) int64 {
 			return entity.ID
@@ -34,6 +35,11 @@ func NewBaseAPIRepository(data *Data) *BaseAPIRepository {
 	)
 	return &BaseAPIRepository{
 		BaseRepository: base,
-		Data:           data,
+		queryProvider:  queryProvider,
 	}
+}
+
+// Query 返回当前上下文对应的查询入口。
+func (r *BaseAPIRepository) Query(ctx context.Context) *query.Query {
+	return r.queryProvider.Query(ctx)
 }

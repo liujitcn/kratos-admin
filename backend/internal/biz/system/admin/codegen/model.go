@@ -43,7 +43,7 @@ func ProtoTargetForBusinessModule(module string) (ProtoTarget, bool) {
 		GoAlias:                 strings.ReplaceAll(module, "_", "") + "adminv1",
 		GoImportPath:            "github.com/liujitcn/kratos-admin/backend/api/gen/go/" + module + "/admin/v1",
 		ServiceImportAlias:      strings.ReplaceAll(module, "_", "") + "admin",
-		BackendBizDirectory:     "backend/internal/biz/" + module + "/admin/v1",
+		BackendBizDirectory:     "backend/internal/biz/" + module + "/admin",
 		BackendModuleDirectory:  "backend/internal/service/" + module + "/admin/v1",
 		ModuleRegisterPath:      "backend/internal/server/" + module + "/admin/v1/register.go",
 		FrontendPackageName:     "@liujitcn/kratos-admin-" + module,

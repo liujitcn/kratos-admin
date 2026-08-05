@@ -395,12 +395,15 @@ func isBatchMergeableFile(path string) bool {
 		isCurrentBackendModuleFile(path, "backend/internal/server") && strings.HasSuffix(path, ".go")
 }
 
-// isCurrentBackendModuleFile 判断路径是否属于当前 admin/v1 后端模块目录。
+// isCurrentBackendModuleFile 判断路径是否属于当前 admin 后端模块目录。
 func isCurrentBackendModuleFile(path string, root string) bool {
 	relative := strings.TrimPrefix(path, root+"/")
 	if relative == path {
 		return false
 	}
 	parts := strings.Split(relative, "/")
+	if root == "backend/internal/biz" {
+		return len(parts) >= 3 && parts[1] == "admin"
+	}
 	return len(parts) >= 4 && parts[1] == "admin" && parts[2] == "v1"
 }
