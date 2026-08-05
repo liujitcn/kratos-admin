@@ -7,10 +7,6 @@
 | `zh-CN.json` | System 模块简体中文固定 UI 默认语言包，也是所有语言键集合和占位符校验基准。 | 管理端固定文案默认语言及缺失翻译回退。 |
 | `zh-TW.json` | System 模块繁体中文语言包。 | 管理端切换为繁体中文时由 Vue I18n 使用。 |
 | `en-US.json` | System 模块英文语言包。 | 管理端切换为英文时由 Vue I18n 使用。 |
-| `ja-JP.json` | System 模块日文语言包。 | 管理端切换为日文时由 Vue I18n 使用。 |
-| `ko-KR.json` | System 模块韩语语言包。 | 管理端切换为韩语时由 Vue I18n 使用。 |
-| `fr-FR.json` | System 模块法语语言包。 | 管理端切换为法语时由 Vue I18n 使用。 |
-| `es-ES.json` | System 模块西班牙语语言包。 | 管理端切换为西班牙语时由 Vue I18n 使用。 |
 
 ## 命名空间与使用位置
 

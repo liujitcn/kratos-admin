@@ -27,7 +27,7 @@ JSON_SOURCES = [
     ROOT / "frontend/taro-app/packages/core/src/locales/zh-CN.json",
     ROOT / "frontend/taro-app/packages/modules/system/src/locales/zh-CN.json",
 ]
-DEFAULT_TARGET_LOCALES = ("zh-TW", "ja-JP", "ko-KR", "fr-FR", "es-ES")
+DEFAULT_TARGET_LOCALES = ("zh-TW",)
 FALLBACK_TRANSLATIONS = {
     "ja": {
         "Language Management": "言語管理",
@@ -896,7 +896,7 @@ def render_translation_description(locale: str) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--write", action="store_true", help="写入所有新增语言文件")
-    parser.add_argument("--machine", action="store_true", help="使用 Google V1 生成日、韩、法、西语草稿")
+    parser.add_argument("--machine", action="store_true", help="使用 Google V1 生成指定语言草稿")
     parser.add_argument("--offline", action="store_true", help="使用内置术语表离线生成机器翻译草稿")
     parser.add_argument("--sql-only", action="store_true", help="只生成动态翻译迁移，不改写固定语言包")
     parser.add_argument("--locale", dest="locales", action="append", help="只生成指定语言，可重复传入")
@@ -913,7 +913,7 @@ def main() -> int:
     converter = load_opencc() if "zh-TW" in locales else None
     for locale in locales:
         if locale != "zh-TW" and not args.machine and not args.offline:
-            raise SystemExit("生成日语、韩语、法语和西班牙语需要显式传入 --machine 或 --offline")
+            raise SystemExit("生成指定的非繁体语言需要显式传入 --machine 或 --offline")
         if not args.sql_only:
             for source in JSON_SOURCES:
                 generate_json(source, locale, converter, args.machine, args.offline, args.write)

@@ -8,10 +8,6 @@
 | `zh-CN.json` | 中文基准目录；Proto 校验消息和 Go 显式消息键必须先在这里定义。 | `CheckCatalogFiles` 校验源文与消息键，未找到目标语言时作为默认回退。 |
 | `zh-TW.json` | 繁体中文错误消息目录。 | `Catalog.Localize` 按 `Accept-Language` 请求头选择。 |
 | `en-US.json` | 英文错误消息目录，与中文保持完全相同的消息键和占位符。 | `Catalog.Localize` 按 `Accept-Language` 请求头选择。 |
-| `ja-JP.json` | 日文错误消息目录，与中文保持完全相同的消息键和占位符。 | `Catalog.Localize` 按 `Accept-Language` 请求头选择。 |
-| `ko-KR.json` | 韩语错误消息目录。 | `Catalog.Localize` 按 `Accept-Language` 请求头选择。 |
-| `fr-FR.json` | 法语错误消息目录。 | `Catalog.Localize` 按 `Accept-Language` 请求头选择。 |
-| `es-ES.json` | 西班牙语错误消息目录。 | `Catalog.Localize` 按 `Accept-Language` 请求头选择。 |
 
 这些 JSON 文件必须保持标准 JSON，不能写 `//` 或 `/* ... */` 注释。修改后从仓库根目录执行 `make i18n-sync` 和 `make -C backend i18n-check`，检查所有语言的键集合和占位符。
 
