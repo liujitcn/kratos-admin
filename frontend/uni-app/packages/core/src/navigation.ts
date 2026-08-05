@@ -140,6 +140,8 @@ let adapter: AppNavigationAdapter = {
   list: () => defBaseMenuService.ListBaseMenu(),
 }
 
+const nativeTabViewKeys = ['HOME', 'PROFILE_HOME']
+
 /** 替换导航远端适配器，供宿主接入自定义契约。 */
 export function setAppNavigationAdapter(nextAdapter: AppNavigationAdapter): void {
   adapter = nextAdapter
@@ -209,29 +211,65 @@ export function navigateAppRoute(rawRoute: string, options: { replace?: boolean 
     .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
     .join('&')
   const url = `/${resolved.physicalRoute}${query ? `?${query}` : ''}`
-  if (resolved.menu.inTabBar) {
-    navigateTabRoute(url)
-    return
-  }
   if (options.replace) {
     uni.reLaunch({ url })
+    return
+  }
+  if (resolved.menu.inTabBar) {
+    navigateTabRoute(url)
     return
   }
   uni.navigateTo({ url, fail: () => uni.reLaunch({ url }) })
 }
 
-/** 切换 tab 页面，避免当前页重复跳转和并发重建页面栈。 */
+/** 切换 tab 页面，优先复用已有页面，避免重建页面栈产生空白帧。 */
 function navigateTabRoute(url: string): void {
-  const targetRoute = url.slice(1).split('?', 1)[0]
+  const targetRoute = url.slice(1).split('?', 1)[0].replace(/^\/+/, '')
   const pages = getCurrentPages()
-  const currentPage = pages[pages.length - 1]
-  if (currentPage?.route === targetRoute || tabNavigationTarget) return
+  const currentIndex = pages.length - 1
+  const currentRoute = pages[currentIndex]?.route?.replace(/^\/+/, '')
+  if (currentRoute === targetRoute || tabNavigationTarget) return
 
   tabNavigationTarget = targetRoute
   const release = () => {
     if (tabNavigationTarget === targetRoute) tabNavigationTarget = undefined
   }
-  uni.reLaunch({ url, success: release, fail: release, complete: release })
+  if (nativeTabViewKeys.some((viewKey) => resolveStaticView(viewKey) === targetRoute)) {
+    uni.switchTab({
+      url,
+      success: release,
+      fail: () => navigateTabRouteInStack(url, targetRoute, pages, currentIndex, release),
+    })
+    return
+  }
+  navigateTabRouteInStack(url, targetRoute, pages, currentIndex, release)
+}
+
+/** 在没有原生 tab 路由的动态菜单上复用页面栈。 */
+function navigateTabRouteInStack(
+  url: string,
+  targetRoute: string,
+  pages: ReturnType<typeof getCurrentPages>,
+  currentIndex: number,
+  release: () => void,
+): void {
+  const targetIndex = pages.findIndex((page) => page.route?.replace(/^\/+/, '') === targetRoute)
+  if (targetIndex >= 0 && targetIndex < currentIndex) {
+    uni.navigateBack({
+      delta: currentIndex - targetIndex,
+      success: release,
+      fail: release,
+      complete: release,
+    })
+    return
+  }
+  uni.navigateTo({
+    url,
+    success: release,
+    fail: () => {
+      uni.reLaunch({ url, success: release, fail: release, complete: release })
+    },
+  })
 }
 
 /** 获取导航响应式状态。 */

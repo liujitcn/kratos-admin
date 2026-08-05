@@ -1,4 +1,4 @@
-import Taro from '@tarojs/taro'
+import Taro, { getCurrentPages } from '@tarojs/taro'
 import { create } from 'zustand'
 import { defBaseMenuService } from './api/base/menu'
 import { resolveStaticView } from './module'
@@ -153,6 +153,9 @@ const defaultMenuTitleKeys: Record<string, string> = {
   AppAi: 'system.ai.chat_title',
 }
 
+let tabNavigationTarget: string | undefined
+const nativeTabViewKeys = ['HOME', 'PROFILE_HOME']
+
 function localizedDefaultAppMenus(): AppMenu[] {
   return defaultAppMenus.map((menu) => ({
     ...menu,
@@ -242,11 +245,54 @@ export function navigateAppRoute(
     .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
     .join('&')
   const url = `/${resolved.physicalRoute}${query ? `?${query}` : ''}`
-  if (options.replace || resolved.menu.inTabBar) {
+  if (options.replace) {
     void Taro.reLaunch({ url })
     return
   }
+  if (resolved.menu.inTabBar) {
+    navigateTabRoute(url)
+    return
+  }
   void Taro.navigateTo({ url, fail: () => void Taro.reLaunch({ url }) })
+}
+
+/** 切换 tab 页面，优先复用已有页面，避免重建页面栈产生空白帧。 */
+function navigateTabRoute(url: string): void {
+  const targetRoute = url.slice(1).split('?', 1)[0].replace(/^\/+/, '')
+  const pages = getCurrentPages()
+  const currentIndex = pages.length - 1
+  const currentRoute = pages[currentIndex]?.route?.replace(/^\/+/, '')
+  if (currentRoute === targetRoute || tabNavigationTarget) return
+
+  tabNavigationTarget = targetRoute
+  const release = () => {
+    if (tabNavigationTarget === targetRoute) tabNavigationTarget = undefined
+  }
+  if (nativeTabViewKeys.some((viewKey) => resolveStaticView(viewKey) === targetRoute)) {
+    void Taro.switchTab({ url }).then(release).catch(() => {
+      navigateTabRouteInStack(url, targetRoute, pages, currentIndex, release)
+    })
+    return
+  }
+  navigateTabRouteInStack(url, targetRoute, pages, currentIndex, release)
+}
+
+/** 在没有原生 tab 路由的动态菜单上复用页面栈。 */
+function navigateTabRouteInStack(
+  url: string,
+  targetRoute: string,
+  pages: ReturnType<typeof getCurrentPages>,
+  currentIndex: number,
+  release: () => void,
+): void {
+  const targetIndex = pages.findIndex((page) => page.route?.replace(/^\/+/, '') === targetRoute)
+  const navigation =
+    targetIndex >= 0 && targetIndex < currentIndex
+      ? Taro.navigateBack({ delta: currentIndex - targetIndex })
+      : Taro.navigateTo({ url })
+  void navigation.then(release).catch(() => {
+    void Taro.reLaunch({ url }).then(release, release)
+  })
 }
 
 /** 打开可替换的状态视图。 */

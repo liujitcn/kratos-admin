@@ -112,7 +112,7 @@ uni-app 支持的语言由 core 和 System JSON 语言包自动发现，模块�
 
 所有 `uni.request`、文件上传和 SSE 请求统一发送 `Accept-Language`。动态菜单沿用后端解析后的标题，缺少当前语言译文时回退主语言；新增语言需要同步后端错误目录、三个 workspace 的六个前端语言包目录和代码生成 `catalog.json`，再执行仓库根目录的 `make i18n-sync`。具体流程见 [国际化语言扩展指南](../../docs/国际化语言扩展指南.md)。
 
-项目不配置原生 `tabBar`。页面 wrapper 统一挂载 `KratosTabBar`，tab 路由使用 `reLaunch`，普通页面优先使用 `navigateTo`；下级页面会沿父级关系归属并高亮对应 tab。因此接口内容变化后可以调整菜单层级、逻辑路径和 `viewKey`，无需把每个业务路由写死在宿主。
+页面 wrapper 统一挂载自绘 `KratosTabBar`；固定首页和我的页同时注册为隐藏的原生 tab 路由，切换时使用 `switchTab` 保持微信原生效果，动态扩展 tab 再复用页面栈。普通页面优先使用 `navigateTo`，下级页面会沿父级关系归属并高亮对应 tab。因此接口内容变化后可以调整菜单层级、逻辑路径和 `viewKey`，无需把每个业务路由写死在宿主。
 
 ## 开发与构建
 

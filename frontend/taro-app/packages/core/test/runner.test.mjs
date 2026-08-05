@@ -42,6 +42,7 @@ test('runner 扫描页面、应用后注册覆盖并在构建后恢复宿主', (
     assert.match(generatedConfig, /pages\/index\/index/)
     assert.match(generatedConfig, /"root": "pagesMember"/)
     assert.match(generatedConfig, /"orders\/detail"/)
+    assert.match(generatedConfig, /"custom": true/)
     assert.match(snapshot.homeWrapper, /@fixture\/two\/views\/pages\/override\/index\.tsx/)
     assert.match(snapshot.homeWrapper, /KratosPageFrame/)
     assert.match(snapshot.homeWrapper, /navigationBarTitleText="second"/)
@@ -174,7 +175,7 @@ function createRunnerFixture() {
   write(appConfigFile, originalAppConfig)
   write(
     resolve(inputDir, 'app.config.base.json'),
-    '{"pages":["pages/bootstrap/index"],"window":{}}\n',
+    '{"pages":["pages/bootstrap/index"],"window":{},"tabBar":{"custom":true,"list":[{"pagePath":"pages/index/index","text":""},{"pagePath":"pages/my/my","text":""}]}}\n',
   )
   write(
     resolve(inputDir, 'module-manifest.ts'),

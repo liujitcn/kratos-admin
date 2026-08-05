@@ -45,6 +45,8 @@ core 不依赖 UI 或业务模块；system 只通过 core 和 UI 的公开 expor
 - 合并各模块 `src/static` 到宿主，宿主已有文件优先，模块同名文件后注册优先。
 - 构建退出后恢复原始 `app.config.ts` 并删除临时文件。
 
+页面 wrapper 统一挂载自绘 `KratosTabBar`；固定首页和我的页同时注册为隐藏的原生 tab 路由，切换时使用 `switchTab` 保持微信原生效果，动态扩展 tab 再复用页面栈。普通页面优先使用 `navigateTo`，下级页面会沿父级关系归属并高亮对应 tab。
+
 异常退出后，下次命令会根据 `.kratos-taro-app-pages-state.json` 自动恢复。H5 和微信小程序开发进程可以同时持有同一份页面装配事务；所有进程退出后，runner 才恢复宿主文件。两个目标的默认产物目录分别是 `dist/h5` 和 `dist/mp-weixin`。
 
 ## 开发与构建

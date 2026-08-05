@@ -6,5 +6,12 @@
     "navigationBarTitleText": "",
     "navigationBarTextStyle": "black",
     "backgroundColor": "#f8f8f8"
+  },
+  "tabBar": {
+    "custom": true,
+    "list": [
+      { "pagePath": "pages/index/index", "text": "" },
+      { "pagePath": "pages/my/my", "text": "" }
+    ]
   }
 }

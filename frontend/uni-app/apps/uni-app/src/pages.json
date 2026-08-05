@@ -64,6 +64,13 @@
     "navigationBarBackgroundColor": "#F8F8F8",
     "backgroundColor": "#F8F8F8"
   },
+  "tabBar": {
+    "custom": true,
+    "list": [
+      { "pagePath": "pages/index/index", "text": "" },
+      { "pagePath": "pages/my/my", "text": "" }
+    ]
+  },
   "subPackages": [
     {
       "root": "pagesMember",
