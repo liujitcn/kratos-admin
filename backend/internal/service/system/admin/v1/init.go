@@ -25,5 +25,6 @@ var ProviderSet = wire.NewSet(
 	NewCodeGenProtoService,
 	NewCodeGenTableService,
 	NewBaseMigrationService,
+	NewOpsMonitoringService,
 	NewProjectDocumentService,
 )

@@ -307,6 +307,9 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	codeGenProtoService := admin.NewCodeGenProtoService(codeGenProtoCase)
 	codeGenTableService := admin.NewCodeGenTableService(codeGenTableCase)
 	baseMigrationService := admin.NewBaseMigrationService(baseMigrationCase)
+	appInfo := config.GetAppInfo(context)
+	opsMonitoringCase := biz3.NewOpsMonitoringCase(appInfo, configv1Data, client, baseLogRepository)
+	opsMonitoringService := admin.NewOpsMonitoringService(opsMonitoringCase)
 	additionalDocuments := newAdditionalProjectDocuments(additionalModules, configuredDocuments)
 	catalog, err := newProjectDocumentCatalog(additionalDocuments)
 	if err != nil {
@@ -340,6 +343,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 		CodeGenProto:     codeGenProtoService,
 		CodeGenTable:     codeGenTableService,
 		BaseMigration:    baseMigrationService,
+		OpsMonitoring:    opsMonitoringService,
 		ProjectDocument:  projectDocumentService,
 	}
 	baseUserCase2 := biz4.NewBaseUserCase(baseCase, baseUserRepository)
@@ -361,7 +365,7 @@ func initModule(context *bootstrap.Context, additionalModules AdditionalModules,
 	modules := newModules(services, adminServices, appServices, additionalModules)
 	httpMiddlewares := server.NewHTTPMiddleware(context, authenticator, baseUserRepository, engine, userToken, authentication_Jwt)
 	grpcMiddlewares := server.NewGRPCMiddleware(context, authenticator, baseUserRepository, engine, userToken, authentication_Jwt)
-	baseTranslationTask := admin3.NewBaseTranslationTask(baseTranslationCase, baseLanguageCase, translatorTranslator, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository)
+	baseTranslationTask := admin3.NewBaseTranslationTask(baseTranslationCase, translatorTranslator, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository)
 	mcpToolsReady := server.NewMCPToolsReady(mcpServer, modules)
 	agentToolsReady, err := server.NewAgentToolsReady(runtime, modules)
 	if err != nil {
@@ -657,6 +661,9 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 	codeGenProtoService := admin.NewCodeGenProtoService(codeGenProtoCase)
 	codeGenTableService := admin.NewCodeGenTableService(codeGenTableCase)
 	baseMigrationService := admin.NewBaseMigrationService(baseMigrationCase)
+	appInfo := config.GetAppInfo(context)
+	opsMonitoringCase := biz3.NewOpsMonitoringCase(appInfo, configv1Data, client, baseLogRepository)
+	opsMonitoringService := admin.NewOpsMonitoringService(opsMonitoringCase)
 	additionalDocuments := newAdditionalProjectDocuments(additionalModules, configuredDocuments)
 	catalog, err := newProjectDocumentCatalog(additionalDocuments)
 	if err != nil {
@@ -690,6 +697,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 		CodeGenProto:     codeGenProtoService,
 		CodeGenTable:     codeGenTableService,
 		BaseMigration:    baseMigrationService,
+		OpsMonitoring:    opsMonitoringService,
 		ProjectDocument:  projectDocumentService,
 	}
 	baseUserCase2 := biz4.NewBaseUserCase(baseCase, baseUserRepository)
@@ -711,7 +719,7 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 	modules := newModules(services, adminServices, appServices, additionalModules)
 	httpMiddlewares := server.NewHTTPMiddleware(context, authenticator, baseUserRepository, engine, userToken, authentication_Jwt)
 	grpcMiddlewares := server.NewGRPCMiddleware(context, authenticator, baseUserRepository, engine, userToken, authentication_Jwt)
-	baseTranslationTask := admin3.NewBaseTranslationTask(baseTranslationCase, baseLanguageCase, translatorTranslator, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository)
+	baseTranslationTask := admin3.NewBaseTranslationTask(baseTranslationCase, translatorTranslator, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository)
 	mcpToolsReady := server.NewMCPToolsReady(mcpServer, modules)
 	agentToolsReady, err := server.NewAgentToolsReady(runtime, modules)
 	if err != nil {
@@ -754,7 +762,6 @@ func initApp(context *bootstrap.Context, additionalModules AdditionalModules, co
 		cleanup()
 		return nil, nil, err
 	}
-	appInfo := config.GetAppInfo(context)
 	httpServer, err := server.NewHTTPServer(context, appInfo, httpMiddlewares, modules, openapiRegistry, authenticator, userToken, mcpToolsReady, agentToolsReady, openAPIReady)
 	if err != nil {
 		cleanup5()

@@ -8,6 +8,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
 	coreLocale "github.com/liujitcn/kratos-admin/backend/core/pkg/locale"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 
@@ -193,9 +194,8 @@ func (c *BaseLanguageCase) SetBaseLanguagePrimary(ctx context.Context, req *syst
 	})
 }
 
-// Locales 查询启用语言及其主语言、当前语言状态。
-func (c *BaseLanguageCase) Locales(ctx context.Context) ([]string, string, bool, error) {
-	localeValue := coreLocale.FromContext(ctx)
+// LocaleState 查询当前请求对应的运行时语言状态。
+func (c *BaseLanguageCase) LocaleState(ctx context.Context) (*dto.LocaleState, error) {
 	query := c.Query(ctx).BaseLanguage
 	opts := []repository.QueryOption{
 		repository.Where(query.Status.Eq(int32(commonv1.Status_ENABLE))),
@@ -204,18 +204,27 @@ func (c *BaseLanguageCase) Locales(ctx context.Context) ([]string, string, bool,
 	}
 	list, err := c.List(ctx, opts...)
 	if err != nil {
-		return nil, "", false, err
+		return nil, err
 	}
 
-	var primaryLocale string
-	locales := make([]string, 0, len(list))
+	state := &dto.LocaleState{
+		Current: coreLocale.FromContext(ctx),
+		Enabled: make([]string, 0, len(list)),
+	}
 	for _, item := range list {
-		locales = append(locales, item.LanguageCode)
+		state.Enabled = append(state.Enabled, item.LanguageCode)
 		if item.IsPrimary {
-			primaryLocale = item.LanguageCode
+			state.Primary = item.LanguageCode
 		}
 	}
-	return locales, primaryLocale, primaryLocale == localeValue, nil
+	if state.Primary == "" {
+		if len(state.Enabled) > 0 {
+			state.Primary = state.Enabled[0]
+		} else {
+			state.Primary = coreLocale.Default
+		}
+	}
+	return state, nil
 }
 
 // findBaseLanguageForUpdate 查询并锁定待修改的语言记录。

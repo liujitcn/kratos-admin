@@ -1,6 +1,8 @@
 package errorsx
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	stderrs "errors"
 
@@ -52,32 +54,47 @@ const (
 
 // InvalidArgument 构造请求参数错误。
 func InvalidArgument(message string) *kratosErrors.Error {
-	return kratosErrors.New(400, ReasonInvalidArgument, message)
+	return newStructuredError(400, ReasonInvalidArgument, message)
 }
 
 // Unauthenticated 构造认证失败错误。
 func Unauthenticated(message string) *kratosErrors.Error {
-	return kratosErrors.New(401, ReasonUnauthenticated, message)
+	return newStructuredError(401, ReasonUnauthenticated, message)
 }
 
 // PermissionDenied 构造权限不足错误。
 func PermissionDenied(message string) *kratosErrors.Error {
-	return kratosErrors.New(403, ReasonPermissionDenied, message)
+	return newStructuredError(403, ReasonPermissionDenied, message)
 }
 
 // ResourceNotFound 构造资源不存在错误。
 func ResourceNotFound(message string) *kratosErrors.Error {
-	return kratosErrors.New(404, ReasonResourceNotFound, message)
+	return newStructuredError(404, ReasonResourceNotFound, message)
 }
 
 // Conflict 构造状态冲突错误。
 func Conflict(message string) *kratosErrors.Error {
-	return kratosErrors.New(409, ReasonConflict, message)
+	return newStructuredError(409, ReasonConflict, message)
 }
 
 // Internal 构造内部错误。
 func Internal(message string) *kratosErrors.Error {
-	return kratosErrors.New(500, ReasonInternalError, message)
+	return newStructuredError(500, ReasonInternalError, message)
+}
+
+// MessageKey 返回由固定源文生成的兼容消息键。
+func MessageKey(message string) string {
+	digest := sha256.Sum256([]byte(message))
+	return "legacy.error." + hex.EncodeToString(digest[:8])
+}
+
+// newStructuredError 构造携带兼容消息键的结构化错误。
+func newStructuredError(code int, reason, message string) *kratosErrors.Error {
+	structuredErr := kratosErrors.New(code, reason, message)
+	if message == "" {
+		return structuredErr
+	}
+	return WithMessageKey(structuredErr, MessageKey(message), nil)
 }
 
 // WithMessageKey 为结构化错误补充稳定消息键和命名参数。

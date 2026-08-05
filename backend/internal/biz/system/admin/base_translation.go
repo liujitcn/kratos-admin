@@ -10,7 +10,6 @@ import (
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
 	coreI18n "github.com/liujitcn/kratos-admin/backend/core/pkg/i18n"
-	coreLocale "github.com/liujitcn/kratos-admin/backend/core/pkg/locale"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
@@ -50,6 +49,11 @@ func NewBaseTranslationCase(
 	return translationCase
 }
 
+// LocaleState 查询动态翻译使用的运行时语言状态。
+func (c *BaseTranslationCase) LocaleState(ctx context.Context) (*dto.LocaleState, error) {
+	return c.languageCase.LocaleState(ctx)
+}
+
 // DraftBaseTranslation 翻译请求中的单个文本，不保存翻译结果。
 func (c *BaseTranslationCase) DraftBaseTranslation(ctx context.Context, req *systemadminv1.DraftBaseTranslationRequest) (*systemadminv1.DraftBaseTranslationResponse, error) {
 	if c.draftTranslator == nil {
@@ -58,23 +62,17 @@ func (c *BaseTranslationCase) DraftBaseTranslation(ctx context.Context, req *sys
 	if req.GetSource() == "" {
 		return nil, errorsx.InvalidArgument("待翻译源文不能为空")
 	}
-	locales, primaryLocale, _, err := c.languageCase.Locales(ctx)
+	state, err := c.LocaleState(ctx)
 	if err != nil {
 		return nil, err
 	}
-	if primaryLocale == "" {
-		primaryLocale = coreLocale.Default
-	}
-	sourceLocale := coreLocale.FromContext(ctx)
 
 	c.draftMu.Lock()
 	defer c.draftMu.Unlock()
+	locales := state.EditableLocales()
 	translations := make([]*systemadminv1.DraftBaseTranslationItem, 0, len(locales))
 	for _, locale := range locales {
-		if locale == primaryLocale || locale == sourceLocale {
-			continue
-		}
-		translated, translateErr := coreI18n.TranslateProtected(ctx, c.draftTranslator, req.GetSource(), sourceLocale, locale)
+		translated, translateErr := coreI18n.TranslateProtected(ctx, c.draftTranslator, req.GetSource(), state.Primary, locale)
 		if translateErr != nil {
 			return nil, errorsx.Internal("生成翻译草稿失败").WithCause(translateErr)
 		}
@@ -85,17 +83,26 @@ func (c *BaseTranslationCase) DraftBaseTranslation(ctx context.Context, req *sys
 
 // UpdateBaseTranslation 优先按 ID 更新，未找到时按目标信息更新或新增翻译记录。
 func (c *BaseTranslationCase) UpdateBaseTranslation(ctx context.Context, req *systemadminv1.UpdateBaseTranslationRequest) error {
-	var err error
+	state, err := c.LocaleState(ctx)
+	if err != nil {
+		return err
+	}
 	var row *models.BaseTranslation
 	if req.GetId() > 0 {
 		row, err = c.FindByID(ctx, req.GetId())
 		if err == nil {
+			if !state.IsEditable(row.Locale) {
+				return errorsx.InvalidArgument("翻译语言必须是已启用的非主语言")
+			}
 			row.Name = req.GetName()
 			return c.UpdateByID(ctx, row)
 		}
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return err
 		}
+	}
+	if !state.IsEditable(req.GetLocale()) {
+		return errorsx.InvalidArgument("翻译语言必须是已启用的非主语言")
 	}
 
 	query := c.Query(ctx).BaseTranslation
@@ -125,14 +132,14 @@ func (c *BaseTranslationCase) GetTargetIdsByName(ctx context.Context, targetType
 		return nil, nil
 	}
 
-	localeValue := coreLocale.FromContext(ctx)
-	locales, _, currentLocaleIsPrimary, err := c.languageCase.Locales(ctx)
+	state, err := c.LocaleState(ctx)
 	if err != nil {
 		return nil, err
 	}
-	if currentLocaleIsPrimary || (len(locales) == 0 && localeValue == coreLocale.Default) {
+	if state.IsCurrentPrimary() || !state.IsEnabled(state.Current) {
 		return nil, nil
 	}
+	localeValue := state.Current
 
 	query := c.Query(ctx).BaseTranslation
 	var rows []*models.BaseTranslation
@@ -184,13 +191,21 @@ func (c *BaseTranslationCase) GetBaseTranslationNameMapByLocale(ctx context.Cont
 	if len(targetIds) == 0 {
 		return result, nil
 	}
+	state, err := c.LocaleState(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if locale == state.Primary || !state.IsEnabled(locale) {
+		return result, nil
+	}
 	query := c.Query(ctx).BaseTranslation
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Where(query.TargetType.Eq(int32(targetType))))
 	opts = append(opts, repository.Where(query.Locale.Eq(locale)))
 	opts = append(opts, repository.Where(query.TargetID.In(targetIds...)))
 
-	list, err := c.List(ctx, opts...)
+	var list []*models.BaseTranslation
+	list, err = c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -202,32 +217,13 @@ func (c *BaseTranslationCase) GetBaseTranslationNameMapByLocale(ctx context.Cont
 	return result, nil
 }
 
-// SaveBaseTranslation 保存翻译信息，并在没有有效译文时投递机器翻译任务。
-func (c *BaseTranslationCase) SaveBaseTranslation(ctx context.Context, targetType systemadminv1.TranslationTargetType, targetId int64, currentText string, translations []*systemadminv1.BaseTranslation, updateMain func(context.Context, string) error) error {
+// SaveBaseTranslation 保存主语言源文对应的翻译信息，并为缺失译文投递机器翻译任务。
+func (c *BaseTranslationCase) SaveBaseTranslation(ctx context.Context, targetType systemadminv1.TranslationTargetType, targetId int64, primaryText string, translations []*systemadminv1.BaseTranslation, updateMain func(context.Context, string) error) error {
 	var err error
-	var locales []string
-	var primaryLocale string
-	locales, primaryLocale, _, err = c.languageCase.Locales(ctx)
+	var state *dto.LocaleState
+	state, err = c.LocaleState(ctx)
 	if err != nil {
 		return err
-	}
-	currentLocale := coreLocale.FromContext(ctx)
-	currentLocaleFound := false
-	isPrimary := len(locales) == 0 && currentLocale == coreLocale.Default
-	for _, locale := range locales {
-		if locale == currentLocale {
-			currentLocaleFound = true
-			isPrimary = locale == primaryLocale
-		}
-	}
-	editableLocales := make(map[string]struct{}, len(locales))
-	for _, locale := range locales {
-		if locale != primaryLocale {
-			editableLocales[locale] = struct{}{}
-		}
-	}
-	if !currentLocaleFound && (len(locales) > 0 || currentLocale != coreLocale.Default) {
-		return errorsx.InvalidArgument("当前语言必须是已启用的非主语言")
 	}
 
 	save := func(txCtx context.Context) error {
@@ -245,28 +241,21 @@ func (c *BaseTranslationCase) SaveBaseTranslation(ctx context.Context, targetTyp
 			existing[item.Locale] = item
 		}
 
-		values := make(map[string]string, len(translations)+1)
+		values := make(map[string]string, len(translations))
 		seen := make(map[string]struct{}, len(translations))
 		for _, translation := range translations {
 			if translation.GetTargetType() != targetType {
 				return errorsx.InvalidArgument("翻译目标类型无效")
 			}
 			localeValue := translation.GetLocale()
-			if _, ok := editableLocales[localeValue]; !ok {
+			if !state.IsEditable(localeValue) {
 				return errorsx.InvalidArgument("翻译语言必须是已启用的非主语言")
-			}
-			if !isPrimary && localeValue == currentLocale {
-				values[localeValue] = currentText
-				continue
 			}
 			if _, duplicated := seen[localeValue]; duplicated {
 				return errorsx.Conflict("同一资源语言不能重复")
 			}
 			seen[localeValue] = struct{}{}
 			values[localeValue] = translation.GetName()
-		}
-		if !isPrimary {
-			values[currentLocale] = currentText
 		}
 		for localeValue, text := range values {
 			row := existing[localeValue]
@@ -293,8 +282,8 @@ func (c *BaseTranslationCase) SaveBaseTranslation(ctx context.Context, targetTyp
 				return err
 			}
 		}
-		if !isPrimary && updateMain != nil {
-			if err = updateMain(txCtx, currentText); err != nil {
+		if updateMain != nil {
+			if err = updateMain(txCtx, primaryText); err != nil {
 				return err
 			}
 		}
@@ -308,32 +297,72 @@ func (c *BaseTranslationCase) SaveBaseTranslation(ctx context.Context, targetTyp
 	if err != nil || c.draftTranslator == nil || targetId <= 0 {
 		return err
 	}
-	hasUsefulTranslation := false
+	translationNames := make(map[string]string, len(translations))
 	for _, translation := range translations {
-		if translation.GetName() != "" {
-			hasUsefulTranslation = true
-			break
-		}
+		translationNames[translation.GetLocale()] = translation.GetName()
 	}
-	if hasUsefulTranslation {
-		return nil
-	}
-	for _, locale := range locales {
-		if locale == currentLocale || locale == primaryLocale {
+	for _, locale := range state.EditableLocales() {
+		if translationNames[locale] != "" {
 			continue
 		}
 		if ok := translationQueue.AddQueue(_const.TRANSLATION, &dto.TranslationQueueMessage{
 			TargetType:   targetType,
 			TargetID:     targetId,
-			SourceLocale: currentLocale,
+			SourceText:   primaryText,
+			SourceLocale: state.Primary,
 			TargetLocale: locale,
 		}); !ok {
-			log.Warn("投递机器翻译队列失败", "target_type", targetType.String(), "target_id", targetId, "source_locale", currentLocale, "target_locale", locale)
+			log.Warn("投递机器翻译队列失败", "target_type", targetType.String(), "target_id", targetId, "source_locale", state.Primary, "target_locale", locale)
 		}
 	}
 	return nil
 }
 
+// SaveGeneratedTranslations 保存代码生成器提供的非主语言译文，不覆盖已有非空内容。
+func (c *BaseTranslationCase) SaveGeneratedTranslations(ctx context.Context, targetType systemadminv1.TranslationTargetType, targetID int64, translations map[string]string) error {
+	if targetID <= 0 || len(translations) == 0 {
+		return nil
+	}
+	state, err := c.LocaleState(ctx)
+	if err != nil {
+		return err
+	}
+	query := c.Query(ctx).BaseTranslation
+	var rows []*models.BaseTranslation
+	rows, err = c.List(ctx,
+		repository.Where(query.TargetType.Eq(int32(targetType))),
+		repository.Where(query.TargetID.Eq(targetID)),
+	)
+	if err != nil {
+		return err
+	}
+	existing := make(map[string]*models.BaseTranslation, len(rows))
+	for _, row := range rows {
+		existing[row.Locale] = row
+	}
+	for locale, text := range translations {
+		if text == "" || !state.IsEditable(locale) {
+			continue
+		}
+		row := existing[locale]
+		if row != nil && row.Name != "" {
+			continue
+		}
+		if row == nil {
+			if err = c.Create(ctx, &models.BaseTranslation{TargetType: int32(targetType), TargetID: targetID, Locale: locale, Name: text}); err != nil {
+				return err
+			}
+			continue
+		}
+		row.Name = text
+		if err = c.UpdateByID(ctx, row); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// DeleteBaseTranslation 删除翻译信息。
 func (c *BaseTranslationCase) DeleteBaseTranslation(ctx context.Context, targetType systemadminv1.TranslationTargetType, targetId []int64) error {
 	if len(targetId) == 0 {
 		return nil

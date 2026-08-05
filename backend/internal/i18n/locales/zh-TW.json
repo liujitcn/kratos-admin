@@ -679,5 +679,20 @@
   },
   "base.login.verify_captcha.captcha_id.required": {
     "other": "驗證碼不能為空"
-  }
+  },
+  "base.login.captcha.invalid": { "other": "驗證碼錯誤" },
+  "base.login.credentials.invalid": { "other": "使用者名稱或密碼錯誤" },
+  "base.login.tenant.disabled": { "other": "租戶已停用" },
+  "base.login.account.disabled": { "other": "帳號已停用" },
+  "base.login.role.disabled": { "other": "角色已停用" },
+  "base.login.department.disabled": { "other": "部門已停用" },
+  "base.login.login.failed": { "other": "登入失敗" },
+  "base.login.logout.failed": { "other": "登出失敗" },
+  "base.login.refresh.failed": { "other": "更新驗證令牌失敗" },
+  "base.login.captcha.verify_failed": { "other": "驗證碼校驗失敗" },
+  "base.ai.message.not_found": { "other": "找不到訊息" },
+  "base.ai.runtime.uninitialized": { "other": "AI 助手執行環境未初始化" },
+  "base.oauth.login_method.unsupported": { "other": "不支援此登入方式" },
+  "base.oauth.state.invalid": { "other": "第三方登入狀態已失效" },
+  "base.file.upload.failed": { "other": "檔案上傳失敗" }
 }

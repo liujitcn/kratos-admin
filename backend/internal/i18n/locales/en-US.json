@@ -679,5 +679,20 @@
   },
   "base.login.verify_captcha.captcha_id.required": {
     "other": "Verification code cannot be empty"
-  }
+  },
+  "base.login.captcha.invalid": { "other": "Verification code is incorrect" },
+  "base.login.credentials.invalid": { "other": "Incorrect username or password" },
+  "base.login.tenant.disabled": { "other": "Tenant is disabled" },
+  "base.login.account.disabled": { "other": "Account is disabled" },
+  "base.login.role.disabled": { "other": "Role is disabled" },
+  "base.login.department.disabled": { "other": "Department is disabled" },
+  "base.login.login.failed": { "other": "Login failed" },
+  "base.login.logout.failed": { "other": "Logout failed" },
+  "base.login.refresh.failed": { "other": "Failed to refresh the authentication token" },
+  "base.login.captcha.verify_failed": { "other": "Verification code validation failed" },
+  "base.ai.message.not_found": { "other": "Message not found" },
+  "base.ai.runtime.uninitialized": { "other": "The AI assistant runtime is not initialized" },
+  "base.oauth.login_method.unsupported": { "other": "The login method is not supported" },
+  "base.oauth.state.invalid": { "other": "The third-party login state has expired" },
+  "base.file.upload.failed": { "other": "File upload failed" }
 }

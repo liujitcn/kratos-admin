@@ -19,6 +19,7 @@ type TranslationDraftSource struct {
 type TranslationQueueMessage struct {
 	TargetType   systemadminv1.TranslationTargetType `json:"target_type"`
 	TargetID     int64                               `json:"target_id"`
+	SourceText   string                              `json:"source_text"`
 	SourceLocale string                              `json:"source_locale"`
 	TargetLocale string                              `json:"target_locale"`
 }

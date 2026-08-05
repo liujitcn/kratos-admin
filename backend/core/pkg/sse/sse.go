@@ -76,8 +76,11 @@ type Publisher struct {
 	server *sseServer.Server
 }
 
-// NewPublisher 创建 SSE JSON 发布器。
+// NewPublisher 创建 SSE JSON 发布器，服务未启用时返回 nil。
 func NewPublisher(server *sseServer.Server) *Publisher {
+	if server == nil {
+		return nil
+	}
 	return &Publisher{server: server}
 }
 

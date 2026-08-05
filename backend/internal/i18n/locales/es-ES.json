@@ -679,5 +679,20 @@
   },
   "base.login.verify_captcha.captcha_id.required": {
     "other": "El código de verificación no puede estar vacío"
-  }
+  },
+  "base.login.captcha.invalid": { "other": "El código de verificación es incorrecto" },
+  "base.login.credentials.invalid": { "other": "Nombre de usuario o contraseña incorrectos" },
+  "base.login.tenant.disabled": { "other": "El inquilino está deshabilitado" },
+  "base.login.account.disabled": { "other": "La cuenta está deshabilitada" },
+  "base.login.role.disabled": { "other": "El rol está deshabilitado" },
+  "base.login.department.disabled": { "other": "El departamento está deshabilitado" },
+  "base.login.login.failed": { "other": "Error al iniciar sesión" },
+  "base.login.logout.failed": { "other": "Error al cerrar sesión" },
+  "base.login.refresh.failed": { "other": "Error al actualizar el token de autenticación" },
+  "base.login.captcha.verify_failed": { "other": "Error al verificar el código" },
+  "base.ai.message.not_found": { "other": "No se encontró el mensaje" },
+  "base.ai.runtime.uninitialized": { "other": "El entorno de ejecución del asistente de IA no está inicializado" },
+  "base.oauth.login_method.unsupported": { "other": "Método de inicio de sesión no compatible" },
+  "base.oauth.state.invalid": { "other": "El estado del inicio de sesión de terceros ha caducado" },
+  "base.file.upload.failed": { "other": "Error al cargar el archivo" }
 }

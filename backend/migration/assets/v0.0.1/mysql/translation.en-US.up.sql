@@ -156,6 +156,13 @@ INSERT IGNORE INTO `base_translation` (`target_type`, `target_id`, `locale`, `na
 INSERT IGNORE INTO `base_translation` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 3000502, 'en-US', 'Delete Position');
 INSERT IGNORE INTO `base_translation` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 3000503, 'en-US', 'Edit Position');
 INSERT IGNORE INTO `base_translation` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 3000504, 'en-US', 'Change Position Status');
+INSERT IGNORE INTO `base_translation` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 20011, 'en-US', 'Language Management');
+INSERT IGNORE INTO `base_translation` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 2001101, 'en-US', 'Add Language');
+INSERT IGNORE INTO `base_translation` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 2001102, 'en-US', 'Delete Language');
+INSERT IGNORE INTO `base_translation` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 2001103, 'en-US', 'Edit Language');
+INSERT IGNORE INTO `base_translation` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 2001104, 'en-US', 'Change Language Status');
+INSERT IGNORE INTO `base_translation` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 2001105, 'en-US', 'Set Primary Language');
+INSERT IGNORE INTO `base_translation` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 95008, 'en-US', 'Operations Monitoring');
 INSERT IGNORE INTO `base_translation` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 950, 'en-US', 'Development Tools');
 INSERT IGNORE INTO `base_translation` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 95001, 'en-US', 'Code Generation');
 INSERT IGNORE INTO `base_translation` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 9500101, 'en-US', 'Create Code Generation Table Configuration');

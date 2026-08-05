@@ -679,5 +679,20 @@
   },
   "base.login.verify_captcha.captcha_id.required": {
     "other": "Le code de vérification ne peut pas être vide"
-  }
+  },
+  "base.login.captcha.invalid": { "other": "Le code de vérification est incorrect" },
+  "base.login.credentials.invalid": { "other": "Nom d’utilisateur ou mot de passe incorrect" },
+  "base.login.tenant.disabled": { "other": "Le locataire est désactivé" },
+  "base.login.account.disabled": { "other": "Le compte est désactivé" },
+  "base.login.role.disabled": { "other": "Le rôle est désactivé" },
+  "base.login.department.disabled": { "other": "Le département est désactivé" },
+  "base.login.login.failed": { "other": "Échec de la connexion" },
+  "base.login.logout.failed": { "other": "Échec de la déconnexion" },
+  "base.login.refresh.failed": { "other": "Échec du renouvellement du jeton d’authentification" },
+  "base.login.captcha.verify_failed": { "other": "Échec de la vérification du code" },
+  "base.ai.message.not_found": { "other": "Message introuvable" },
+  "base.ai.runtime.uninitialized": { "other": "L’environnement d’exécution de l’assistant IA n’est pas initialisé" },
+  "base.oauth.login_method.unsupported": { "other": "Mode de connexion non pris en charge" },
+  "base.oauth.state.invalid": { "other": "L’état de connexion tierce a expiré" },
+  "base.file.upload.failed": { "other": "Échec du téléversement du fichier" }
 }

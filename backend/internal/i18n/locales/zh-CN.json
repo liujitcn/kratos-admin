@@ -679,5 +679,20 @@
   },
   "base.login.verify_captcha.captcha_id.required": {
     "other": "验证码不能为空"
-  }
+  },
+  "base.login.captcha.invalid": { "other": "验证码错误" },
+  "base.login.credentials.invalid": { "other": "用户名或密码错误" },
+  "base.login.tenant.disabled": { "other": "租户已被禁用" },
+  "base.login.account.disabled": { "other": "账号已被禁用" },
+  "base.login.role.disabled": { "other": "角色已被禁用" },
+  "base.login.department.disabled": { "other": "部门已被禁用" },
+  "base.login.login.failed": { "other": "登录失败" },
+  "base.login.logout.failed": { "other": "退出登录失败" },
+  "base.login.refresh.failed": { "other": "刷新认证令牌失败" },
+  "base.login.captcha.verify_failed": { "other": "验证码校验失败" },
+  "base.ai.message.not_found": { "other": "消息不存在" },
+  "base.ai.runtime.uninitialized": { "other": "AI助手运行时未初始化" },
+  "base.oauth.login_method.unsupported": { "other": "登录方式不支持" },
+  "base.oauth.state.invalid": { "other": "三方登录状态已失效" },
+  "base.file.upload.failed": { "other": "文件上传失败" }
 }

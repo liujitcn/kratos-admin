@@ -2761,6 +2761,115 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.CodeGenTask'
+    /api/v1/admin/ops-monitoring/alerts:
+        get:
+            tags:
+                - OpsMonitoringService
+            description: 查询窗口内告警事件。
+            operationId: OpsMonitoringService_GetOpsAlerts
+            parameters:
+                - name: window_minutes
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OpsAlertsResponse'
+    /api/v1/admin/ops-monitoring/endpoints:
+        get:
+            tags:
+                - OpsMonitoringService
+            description: 查询接口请求摘要。
+            operationId: OpsMonitoringService_GetOpsEndpoints
+            parameters:
+                - name: window_minutes
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OpsEndpointsResponse'
+    /api/v1/admin/ops-monitoring/nodes:
+        get:
+            tags:
+                - OpsMonitoringService
+            description: 查询实例资源状态。
+            operationId: OpsMonitoringService_GetOpsNodes
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OpsNodesResponse'
+    /api/v1/admin/ops-monitoring/runtime:
+        get:
+            tags:
+                - OpsMonitoringService
+            description: 查询当前进程运行信息。
+            operationId: OpsMonitoringService_GetOpsRuntime
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OpsRuntime'
+    /api/v1/admin/ops-monitoring/services:
+        get:
+            tags:
+                - OpsMonitoringService
+            description: 查询服务和外部依赖状态。
+            operationId: OpsMonitoringService_GetOpsServices
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OpsServicesResponse'
+    /api/v1/admin/ops-monitoring/storage:
+        get:
+            tags:
+                - OpsMonitoringService
+            description: 查询数据库和缓存状态。
+            operationId: OpsMonitoringService_GetOpsStorage
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OpsStorageResponse'
+    /api/v1/admin/ops-monitoring/traffic:
+        get:
+            tags:
+                - OpsMonitoringService
+            description: 查询请求流量与延迟趋势。
+            operationId: OpsMonitoringService_GetOpsTraffic
+            parameters:
+                - name: window_minutes
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OpsTrafficResponse'
     /api/v1/admin/project-document/tree:
         get:
             tags:
@@ -6517,6 +6626,296 @@ components:
                     type: string
                     description: OpenAPI文档名称
             description: OpenAPI业务服务选项
+        system.admin.v1.OpsAlert:
+            type: object
+            properties:
+                title:
+                    type: string
+                    description: 告警标题
+                detail:
+                    type: string
+                    description: 告警详情
+                at:
+                    type: string
+                    description: 告警时间，RFC3339格式
+                status:
+                    type: string
+                    description: 告警状态
+            description: 告警事件。
+        system.admin.v1.OpsAlertsResponse:
+            type: object
+            properties:
+                collected_at:
+                    type: string
+                    description: 采集时间，RFC3339格式
+                window_minutes:
+                    type: integer
+                    description: 统计窗口，单位分钟
+                    format: int32
+                alerts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.OpsAlert'
+                    description: 近期告警事件
+            description: 告警响应。
+        system.admin.v1.OpsEndpoint:
+            type: object
+            properties:
+                route:
+                    type: string
+                    description: 接口路径
+                qps:
+                    type: number
+                    description: 每秒请求数
+                    format: double
+                p95_latency_ms:
+                    type: number
+                    description: P95响应延迟，单位毫秒
+                    format: double
+                error_rate:
+                    type: number
+                    description: 错误率，百分比
+                    format: double
+                status:
+                    type: string
+                    description: 接口状态
+            description: 接口请求摘要。
+        system.admin.v1.OpsEndpointsResponse:
+            type: object
+            properties:
+                collected_at:
+                    type: string
+                    description: 采集时间，RFC3339格式
+                window_minutes:
+                    type: integer
+                    description: 统计窗口，单位分钟
+                    format: int32
+                endpoints:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.OpsEndpoint'
+                    description: 接口请求摘要
+            description: 接口摘要响应。
+        system.admin.v1.OpsMetric:
+            type: object
+            properties:
+                label:
+                    type: string
+                    description: 指标名称
+                value:
+                    type: string
+                    description: 指标值
+            description: 存储或实例指标。
+        system.admin.v1.OpsNode:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 实例名称
+                metrics:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.OpsNodeMetric'
+                    description: 实例资源指标
+            description: 实例资源状态。
+        system.admin.v1.OpsNodeMetric:
+            type: object
+            properties:
+                label:
+                    type: string
+                    description: 指标名称
+                value:
+                    type: number
+                    description: 指标使用百分比
+                    format: double
+            description: 实例资源指标。
+        system.admin.v1.OpsNodesResponse:
+            type: object
+            properties:
+                collected_at:
+                    type: string
+                    description: 采集时间，RFC3339格式
+                nodes:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.OpsNode'
+                    description: 实例资源状态
+            description: 实例状态响应。
+        system.admin.v1.OpsRuntime:
+            type: object
+            properties:
+                service_name:
+                    type: string
+                    description: 服务名称
+                version:
+                    type: string
+                    description: 服务版本
+                hostname:
+                    type: string
+                    description: 主机名
+                environment:
+                    type: string
+                    description: 运行环境
+                go_version:
+                    type: string
+                    description: Go运行时版本
+                os:
+                    type: string
+                    description: 操作系统
+                arch:
+                    type: string
+                    description: 系统架构
+                start_time:
+                    type: string
+                    description: 启动时间，RFC3339格式
+                uptime_seconds:
+                    type: string
+                    description: 运行时长，单位秒
+                goroutines:
+                    type: string
+                    description: 当前协程数量
+                memory_alloc_bytes:
+                    type: string
+                    description: 当前堆内存，单位字节
+                memory_sys_bytes:
+                    type: string
+                    description: 进程向系统申请的内存，单位字节
+            description: 当前进程运行信息。
+        system.admin.v1.OpsServiceStatus:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 服务名称
+                address:
+                    type: string
+                    description: 服务地址
+                status:
+                    type: string
+                    description: 状态：正常、未配置或异常
+                message:
+                    type: string
+                    description: 状态说明
+                latency_ms:
+                    type: string
+                    description: 探测耗时，单位毫秒
+            description: 服务或外部依赖状态。
+        system.admin.v1.OpsServicesResponse:
+            type: object
+            properties:
+                collected_at:
+                    type: string
+                    description: 采集时间，RFC3339格式
+                services:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.OpsServiceStatus'
+                    description: 服务依赖状态
+            description: 服务状态响应。
+        system.admin.v1.OpsStorage:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 存储名称
+                short_name:
+                    type: string
+                    description: 存储简称
+                address:
+                    type: string
+                    description: 存储地址
+                status:
+                    type: string
+                    description: 状态：正常、未配置或异常
+                metrics:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.OpsMetric'
+                    description: 存储指标
+                capacity_label:
+                    type: string
+                    description: 容量指标名称
+                capacity:
+                    type: number
+                    description: 容量使用百分比
+                    format: double
+            description: 数据存储状态。
+        system.admin.v1.OpsStorageResponse:
+            type: object
+            properties:
+                collected_at:
+                    type: string
+                    description: 采集时间，RFC3339格式
+                storage:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.OpsStorage'
+                    description: 数据存储状态
+            description: 存储状态响应。
+        system.admin.v1.OpsTraffic:
+            type: object
+            properties:
+                qps:
+                    type: number
+                    description: 每秒请求数
+                    format: double
+                p95_latency_ms:
+                    type: number
+                    description: P95响应延迟，单位毫秒
+                    format: double
+                error_rate:
+                    type: number
+                    description: 错误率，百分比
+                    format: double
+                availability:
+                    type: number
+                    description: 可用性，百分比
+                    format: double
+                request_count:
+                    type: string
+                    description: 窗口内请求数
+            description: 请求流量摘要。
+        system.admin.v1.OpsTrafficPoint:
+            type: object
+            properties:
+                at:
+                    type: string
+                    description: 时间点，RFC3339格式
+                qps:
+                    type: number
+                    description: 时间点每秒请求数
+                    format: double
+                p95_latency_ms:
+                    type: number
+                    description: 时间点P95延迟，单位毫秒
+                    format: double
+                qps_percent:
+                    type: number
+                    description: QPS柱状图比例
+                    format: double
+                latency_percent:
+                    type: number
+                    description: 延迟柱状图比例
+                    format: double
+            description: 请求流量趋势点。
+        system.admin.v1.OpsTrafficResponse:
+            type: object
+            properties:
+                collected_at:
+                    type: string
+                    description: 采集时间，RFC3339格式
+                window_minutes:
+                    type: integer
+                    description: 统计窗口，单位分钟
+                    format: int32
+                traffic:
+                    $ref: '#/components/schemas/system.admin.v1.OpsTraffic'
+                points:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.OpsTrafficPoint'
+                    description: 请求流量趋势
+            description: 流量响应。
         system.admin.v1.OptionBaseApiResponse:
             type: object
             properties:
@@ -7506,9 +7905,9 @@ tags:
     - name: BaseDeptService
       description: Admin部门服务
     - name: BaseDictService
-      description: Admin字典服务
-    - name: BaseDictService
       description: App字典服务
+    - name: BaseDictService
+      description: Admin字典服务
     - name: BaseJobService
       description: Admin定时任务服务
     - name: BaseLanguageService
@@ -7551,6 +7950,8 @@ tags:
       description: Base MCP服务
     - name: OauthService
       description: Base三方登录公共服务
+    - name: OpsMonitoringService
+      description: 运维监控服务。
     - name: ProjectDocumentService
       description: 项目文档服务
     - name: SseService

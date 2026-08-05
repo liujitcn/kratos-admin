@@ -27,9 +27,42 @@ JSON_SOURCES = [
     ROOT / "frontend/taro-app/packages/core/src/locales/zh-CN.json",
     ROOT / "frontend/taro-app/packages/modules/system/src/locales/zh-CN.json",
 ]
-DEFAULT_TARGET_LOCALES = ("zh-TW", "ko-KR", "fr-FR", "es-ES")
+DEFAULT_TARGET_LOCALES = ("zh-TW", "ja-JP", "ko-KR", "fr-FR", "es-ES")
 FALLBACK_TRANSLATIONS = {
+    "ja": {
+        "Language Management": "言語管理",
+        "Add Language": "言語を追加",
+        "Delete Language": "言語を削除",
+        "Edit Language": "言語を編集",
+        "Change Language Status": "言語ステータスを変更",
+        "Set Primary Language": "主言語を設定",
+        "Operations Monitoring": "運用監視",
+    },
+    "ko": {
+        "Language Management": "언어 관리",
+        "Add Language": "언어 추가",
+        "Delete Language": "언어 삭제",
+        "Edit Language": "언어 편집",
+        "Change Language Status": "언어 상태 변경",
+        "Set Primary Language": "기본 언어 설정",
+        "Operations Monitoring": "운영 모니터링",
+    },
+    "fr": {
+        "Language Management": "Gestion des langues",
+        "Add Language": "Ajouter une langue",
+        "Delete Language": "Supprimer une langue",
+        "Edit Language": "Modifier une langue",
+        "Change Language Status": "Modifier le statut de la langue",
+        "Set Primary Language": "Définir la langue principale",
+        "Operations Monitoring": "Surveillance des opérations",
+    },
     "es": {
+        "Language Management": "Gestión de idiomas",
+        "Add Language": "Añadir idioma",
+        "Delete Language": "Eliminar idioma",
+        "Change Language Status": "Cambiar el estado del idioma",
+        "Set Primary Language": "Establecer idioma principal",
+        "Operations Monitoring": "Supervisión operativa",
         "Please enter": "Introduzca",
         "Please select": "Seleccione",
         "Please upload": "Cargue",
@@ -97,6 +130,440 @@ FALLBACK_TRANSLATIONS = {
         " not ": " no ",
     },
 }
+
+# 迁移脚本以 default_data.up.sql 的中文主数据为源；网络不可用时使用这组固定译文。
+SQL_FIXED_TRANSLATIONS = {
+    "ja": {
+        "Copyright © 2025 - 2030 Admin All Rights Reserved.": "著作権 © 2025 - 2030 Admin All Rights Reserved.",
+        "Admin 管理系统": "Admin 管理システム",
+        "应用框架示例": "アプリケーションフレームワークの例",
+        "保留通用导航与个人中心体验": "共通ナビゲーションと個人センターの体験を維持",
+        "<h2>隐私政策</h2><p>感谢您使用本应用。我们重视并保护您的个人信息，仅在提供账号登录、应用功能和客户服务所必需的范围内处理相关信息。</p><h3>一、信息使用</h3><p>我们会按照法律法规和本协议约定使用您的信息，不会将其用于无关目的。</p><h3>二、您的权利</h3><p>您可以依法查询、更正、删除个人信息，或通过应用内公布的渠道联系我们。</p>": "<h2>プライバシーポリシー</h2><p>本アプリをご利用いただきありがとうございます。お客様の個人情報を尊重して保護し、アカウントへのログイン、アプリ機能、カスタマーサービスの提供に必要な範囲でのみ取り扱います。</p><h3>1. 情報の利用</h3><p>適用される法令および本ポリシーに従って情報を利用し、関係のない目的には使用しません。</p><h3>2. お客様の権利</h3><p>法令に従って個人情報の確認、訂正、削除を行うか、アプリに掲載された窓口からお問い合わせいただけます。</p>",
+        "<h2>服务条款</h2><p>欢迎使用本应用。使用本应用前，请您阅读并理解本协议。您开始使用应用服务，即表示同意遵守本协议及相关规则。</p><h3>一、服务使用</h3><p>请您依法、合规并按照页面提示使用各项功能，不得利用本应用从事违法或损害他人权益的活动。</p><h3>二、协议变更</h3><p>我们会根据业务和法律法规变化更新本协议，并在应用内向您展示更新后的内容。</p>": "<h2>利用規約</h2><p>本アプリへようこそ。ご利用前に本規約と関連ルールをお読みいただき、内容をご理解ください。アプリサービスを利用することで、本規約に同意したものとみなされます。</p><h3>1. サービスの利用</h3><p>各機能を法令に従い、ページの案内に沿って適切にご利用ください。本アプリを違法行為や他者の権利を侵害する行為に利用してはなりません。</p><h3>2. 規約の変更</h3><p>事業や法令の変更に応じて本規約を更新し、更新内容をアプリ内に表示します。</p>",
+        "Copyright": "著作権",
+        "ICP备案号": "ICP登録番号",
+        "系统名称": "システム名",
+        "水印": "透かし",
+        "背景图": "背景画像",
+        "登录验证码类型": "ログインCAPTCHAの種類",
+        "主标题": "メインタイトル",
+        "副标题": "サブタイトル",
+        "应用LOGO": "アプリケーションロゴ",
+        "隐私协议": "プライバシーポリシー",
+        "服务条款": "利用規約",
+        "微信未绑定自动注册": "未連携WeChatユーザーの自動登録",
+        "登录显示租户编号": "ログイン時にテナント番号を表示",
+        "状态": "ステータス",
+        "系统配置位置": "システム設定の場所",
+        "系统配置类型": "システム設定の種類",
+        "验证码类型": "CAPTCHAの種類",
+        "定时任务日志状态": "スケジュールジョブログのステータス",
+        "菜单类型": "メニューの種類",
+        "用户角色数据范围": "ユーザーロールのデータ範囲",
+        "业务模块": "業務モジュール",
+        "代码生成表状态": "コード生成テーブルのステータス",
+        "用户性别": "ユーザーの性別",
+        "启用": "有効",
+        "禁用": "無効",
+        "系统内置": "システム組み込み",
+        "管理端": "管理画面",
+        "应用端": "アプリ側",
+        "文本": "テキスト",
+        "图片": "画像",
+        "富文本": "リッチテキスト",
+        "字典": "辞書",
+        "布尔": "ブール値",
+        "随机验证码": "ランダムCAPTCHA",
+        "数字验证码": "数字CAPTCHA",
+        "字符串验证码": "文字列CAPTCHA",
+        "算术验证码": "算術CAPTCHA",
+        "中文验证码": "中国語CAPTCHA",
+        "滑动拼图验证码": "スライダーパズルCAPTCHA",
+        "点击文字验证码": "クリック文字CAPTCHA",
+        "旋转验证码": "回転CAPTCHA",
+        "成功": "成功",
+        "失败": "失敗",
+        "目录": "ディレクトリ",
+        "菜单": "メニュー",
+        "按钮": "ボタン",
+        "外部链接": "外部リンク",
+        "全部数据": "すべてのデータ",
+        "部门及子部门数据": "部門と子部門のデータ",
+        "本部门数据": "現在の部門のデータ",
+        "本人数据": "自分のデータ",
+        "系统管理": "システム管理",
+        "草稿": "下書き",
+        "已生成": "生成済み",
+        "停用": "停止",
+        "保密": "機密",
+        "男": "男性",
+        "女": "女性",
+    },
+    "ko": {
+        "Copyright © 2025 - 2030 Admin All Rights Reserved.": "저작권 © 2025 - 2030 Admin 판권 소유.",
+        "Admin 管理系统": "Admin 관리 시스템",
+        "应用框架示例": "애플리케이션 프레임워크 예제",
+        "保留通用导航与个人中心体验": "공통 탐색과 개인 센터 경험 유지",
+        "<h2>隐私政策</h2><p>感谢您使用本应用。我们重视并保护您的个人信息，仅在提供账号登录、应用功能和客户服务所必需的范围内处理相关信息。</p><h3>一、信息使用</h3><p>我们会按照法律法规和本协议约定使用您的信息，不会将其用于无关目的。</p><h3>二、您的权利</h3><p>您可以依法查询、更正、删除个人信息，或通过应用内公布的渠道联系我们。</p>": "<h2>개인정보 보호정책</h2><p>애플리케이션을 이용해 주셔서 감사합니다. 개인정보를 소중히 보호하며 계정 로그인, 애플리케이션 기능과 고객 지원에 필요한 범위에서만 처리합니다.</p><h3>1. 정보 이용</h3><p>관련 법령과 본 정책에 따라 정보를 이용하며 관련 없는 목적으로 사용하지 않습니다.</p><h3>2. 이용자의 권리</h3><p>법률에 따라 개인정보를 조회, 정정 또는 삭제하거나 애플리케이션에 공개된 채널로 문의할 수 있습니다.</p>",
+        "<h2>服务条款</h2><p>欢迎使用本应用。使用本应用前，请您阅读并理解本协议。您开始使用应用服务，即表示同意遵守本协议及相关规则。</p><h3>一、服务使用</h3><p>请您依法、合规并按照页面提示使用各项功能，不得利用本应用从事违法或损害他人权益的活动。</p><h3>二、协议变更</h3><p>我们会根据业务和法律法规变化更新本协议，并在应用内向您展示更新后的内容。</p>": "<h2>서비스 약관</h2><p>애플리케이션에 오신 것을 환영합니다. 사용하기 전에 본 약관과 관련 규칙을 읽고 이해해 주세요. 애플리케이션 서비스를 이용하면 본 약관에 동의한 것으로 봅니다.</p><h3>1. 서비스 이용</h3><p>각 기능을 법령과 페이지 안내에 따라 적법하게 이용해야 하며, 불법 행위나 타인의 권리를 침해하는 활동에 사용할 수 없습니다.</p><h3>2. 약관 변경</h3><p>사업 및 법령의 변경에 따라 약관을 업데이트하고 변경된 내용을 애플리케이션에 표시합니다.</p>",
+        "Copyright": "저작권",
+        "ICP备案号": "ICP 등록 번호",
+        "系统名称": "시스템 이름",
+        "水印": "워터마크",
+        "背景图": "배경 이미지",
+        "登录验证码类型": "로그인 CAPTCHA 유형",
+        "主标题": "기본 제목",
+        "副标题": "부제목",
+        "应用LOGO": "애플리케이션 로고",
+        "隐私协议": "개인정보 보호정책",
+        "服务条款": "서비스 약관",
+        "微信未绑定自动注册": "연결되지 않은 WeChat 사용자 자동 등록",
+        "登录显示租户编号": "로그인 시 테넌트 번호 표시",
+        "状态": "상태",
+        "系统配置位置": "시스템 설정 위치",
+        "系统配置类型": "시스템 설정 유형",
+        "验证码类型": "CAPTCHA 유형",
+        "定时任务日志状态": "예약 작업 로그 상태",
+        "菜单类型": "메뉴 유형",
+        "用户角色数据范围": "사용자 역할 데이터 범위",
+        "业务模块": "비즈니스 모듈",
+        "代码生成表状态": "코드 생성 테이블 상태",
+        "用户性别": "사용자 성별",
+        "启用": "활성화",
+        "禁用": "비활성화",
+        "系统内置": "시스템 기본 제공",
+        "管理端": "관리자 콘솔",
+        "应用端": "애플리케이션",
+        "文本": "텍스트",
+        "图片": "이미지",
+        "富文本": "서식 있는 텍스트",
+        "字典": "사전",
+        "布尔": "부울",
+        "随机验证码": "무작위 CAPTCHA",
+        "数字验证码": "숫자 CAPTCHA",
+        "字符串验证码": "문자열 CAPTCHA",
+        "算术验证码": "산술 CAPTCHA",
+        "中文验证码": "중국어 CAPTCHA",
+        "滑动拼图验证码": "슬라이더 퍼즐 CAPTCHA",
+        "点击文字验证码": "텍스트 클릭 CAPTCHA",
+        "旋转验证码": "회전 CAPTCHA",
+        "成功": "성공",
+        "失败": "실패",
+        "目录": "디렉터리",
+        "菜单": "메뉴",
+        "按钮": "버튼",
+        "外部链接": "외부 링크",
+        "全部数据": "모든 데이터",
+        "部门及子部门数据": "부서 및 하위 부서 데이터",
+        "本部门数据": "현재 부서 데이터",
+        "本人数据": "개인 데이터",
+        "系统管理": "시스템 관리",
+        "草稿": "초안",
+        "已生成": "생성됨",
+        "停用": "비활성화",
+        "保密": "기밀",
+        "男": "남성",
+        "女": "여성",
+    },
+    "fr": {
+        "Copyright © 2025 - 2030 Admin All Rights Reserved.": "Droits d’auteur © 2025 - 2030 Admin. Tous droits réservés.",
+        "Admin 管理系统": "Système d’administration Admin",
+        "应用框架示例": "Exemple de framework applicatif",
+        "保留通用导航与个人中心体验": "Conserver l’expérience de navigation commune et du centre personnel",
+        "<h2>隐私政策</h2><p>感谢您使用本应用。我们重视并保护您的个人信息，仅在提供账号登录、应用功能和客户服务所必需的范围内处理相关信息。</p><h3>一、信息使用</h3><p>我们会按照法律法规和本协议约定使用您的信息，不会将其用于无关目的。</p><h3>二、您的权利</h3><p>您可以依法查询、更正、删除个人信息，或通过应用内公布的渠道联系我们。</p>": "<h2>Politique de confidentialité</h2><p>Merci d’utiliser cette application. Nous respectons et protégeons vos données personnelles et ne les traitons que dans la mesure nécessaire à la connexion au compte, aux fonctionnalités de l’application et au service client.</p><h3>I. Utilisation des informations</h3><p>Nous utilisons vos informations conformément aux lois applicables et à cette politique, et ne les utilisons pas à des fins étrangères.</p><h3>II. Vos droits</h3><p>Vous pouvez consulter, rectifier ou supprimer vos données personnelles conformément à la loi, ou nous contacter via les canaux publiés dans l’application.</p>",
+        "<h2>服务条款</h2><p>欢迎使用本应用。使用本应用前，请您阅读并理解本协议。您开始使用应用服务，即表示同意遵守本协议及相关规则。</p><h3>一、服务使用</h3><p>请您依法、合规并按照页面提示使用各项功能，不得利用本应用从事违法或损害他人权益的活动。</p><h3>二、协议变更</h3><p>我们会根据业务和法律法规变化更新本协议，并在应用内向您展示更新后的内容。</p>": "<h2>Conditions d’utilisation</h2><p>Bienvenue dans cette application. Veuillez lire et comprendre le présent accord et les règles associées avant de l’utiliser. L’utilisation des services de l’application vaut acceptation de ces conditions.</p><h3>I. Utilisation du service</h3><p>Utilisez chaque fonctionnalité légalement et conformément aux indications de la page. Il est interdit d’utiliser cette application pour des activités illégales ou portant atteinte aux droits d’autrui.</p><h3>II. Modification de l’accord</h3><p>Nous pouvons mettre à jour cet accord selon l’évolution de l’activité et de la réglementation, puis afficher la version mise à jour dans l’application.</p>",
+        "Copyright": "Droits d’auteur",
+        "ICP备案号": "Numéro d’enregistrement ICP",
+        "系统名称": "Nom du système",
+        "水印": "Filigrane",
+        "背景图": "Image d’arrière-plan",
+        "登录验证码类型": "Type de CAPTCHA de connexion",
+        "主标题": "Titre principal",
+        "副标题": "Sous-titre",
+        "应用LOGO": "Logo de l’application",
+        "隐私协议": "Politique de confidentialité",
+        "服务条款": "Conditions d’utilisation",
+        "微信未绑定自动注册": "Inscription automatique des utilisateurs WeChat non liés",
+        "登录显示租户编号": "Afficher le numéro du locataire à la connexion",
+        "状态": "Statut",
+        "系统配置位置": "Emplacement de la configuration système",
+        "系统配置类型": "Type de configuration système",
+        "验证码类型": "Type de CAPTCHA",
+        "定时任务日志状态": "Statut des journaux des tâches planifiées",
+        "菜单类型": "Type de menu",
+        "用户角色数据范围": "Périmètre des données du rôle utilisateur",
+        "业务模块": "Module métier",
+        "代码生成表状态": "Statut de la table de génération de code",
+        "用户性别": "Sexe de l’utilisateur",
+        "启用": "Activé",
+        "禁用": "Désactivé",
+        "系统内置": "Intégré au système",
+        "管理端": "Console d’administration",
+        "应用端": "Application",
+        "文本": "Texte",
+        "图片": "Image",
+        "富文本": "Texte enrichi",
+        "字典": "Dictionnaire",
+        "布尔": "Booléen",
+        "随机验证码": "CAPTCHA aléatoire",
+        "数字验证码": "CAPTCHA numérique",
+        "字符串验证码": "CAPTCHA alphanumérique",
+        "算术验证码": "CAPTCHA arithmétique",
+        "中文验证码": "CAPTCHA chinois",
+        "滑动拼图验证码": "CAPTCHA puzzle coulissant",
+        "点击文字验证码": "CAPTCHA de texte cliquable",
+        "旋转验证码": "CAPTCHA de rotation",
+        "成功": "Réussi",
+        "失败": "Échec",
+        "目录": "Répertoire",
+        "菜单": "Menu",
+        "按钮": "Bouton",
+        "外部链接": "Lien externe",
+        "全部数据": "Toutes les données",
+        "部门及子部门数据": "Données du service et des sous-services",
+        "本部门数据": "Données du service actuel",
+        "本人数据": "Données personnelles",
+        "系统管理": "Gestion du système",
+        "草稿": "Brouillon",
+        "已生成": "Généré",
+        "停用": "Désactivé",
+        "保密": "Confidentiel",
+        "男": "Homme",
+        "女": "Femme",
+    },
+    "es": {
+        "Copyright © 2025 - 2030 Admin All Rights Reserved.": "Copyright © 2025 - 2030 Admin. Todos los derechos reservados.",
+        "Admin 管理系统": "Sistema de administración Admin",
+        "应用框架示例": "Ejemplo de framework de aplicación",
+        "保留通用导航与个人中心体验": "Mantener la experiencia de navegación común y centro personal",
+        "<h2>隐私政策</h2><p>感谢您使用本应用。我们重视并保护您的个人信息，仅在提供账号登录、应用功能和客户服务所必需的范围内处理相关信息。</p><h3>一、信息使用</h3><p>我们会按照法律法规和本协议约定使用您的信息，不会将其用于无关目的。</p><h3>二、您的权利</h3><p>您可以依法查询、更正、删除个人信息，或通过应用内公布的渠道联系我们。</p>": "<h2>Política de privacidad</h2><p>Gracias por utilizar esta aplicación. Valoramos y protegemos tus datos personales y solo los tratamos cuando es necesario para el inicio de sesión, las funciones de la aplicación y la atención al cliente.</p><h3>I. Uso de la información</h3><p>Utilizamos tus datos conforme a la legislación aplicable y a esta política, y no los destinamos a fines ajenos.</p><h3>II. Tus derechos</h3><p>Puedes consultar, corregir o eliminar tus datos personales conforme a la ley, o contactarnos mediante los canales publicados en la aplicación.</p>",
+        "<h2>服务条款</h2><p>欢迎使用本应用。使用本应用前，请您阅读并理解本协议。您开始使用应用服务，即表示同意遵守本协议及相关规则。</p><h3>一、服务使用</h3><p>请您依法、合规并按照页面提示使用各项功能，不得利用本应用从事违法或损害他人权益的活动。</p><h3>二、协议变更</h3><p>我们会根据业务和法律法规变化更新本协议，并在应用内向您展示更新后的内容。</p>": "<h2>Términos del servicio</h2><p>Te damos la bienvenida a esta aplicación. Lee y comprende este acuerdo y sus reglas antes de utilizarla. Al usar los servicios de la aplicación aceptas cumplirlos.</p><h3>I. Uso del servicio</h3><p>Utiliza cada función de forma legal y conforme a las indicaciones de la página. No uses esta aplicación para actividades ilegales o que infrinjan los derechos de otras personas.</p><h3>II. Cambios del acuerdo</h3><p>Podemos actualizar este acuerdo según los cambios del negocio y de la legislación, y mostraremos la versión actualizada en la aplicación.</p>",
+        "Copyright": "Copyright",
+        "ICP备案号": "Número de registro ICP",
+        "系统名称": "Nombre del sistema",
+        "水印": "Marca de agua",
+        "背景图": "Imagen de fondo",
+        "登录验证码类型": "Tipo de CAPTCHA de inicio de sesión",
+        "主标题": "Título principal",
+        "副标题": "Subtítulo",
+        "应用LOGO": "Logotipo de la aplicación",
+        "隐私协议": "Política de privacidad",
+        "服务条款": "Términos del servicio",
+        "微信未绑定自动注册": "Registro automático de usuarios de WeChat no vinculados",
+        "登录显示租户编号": "Mostrar el código del inquilino al iniciar sesión",
+        "状态": "Estado",
+        "系统配置位置": "Ubicación de la configuración del sistema",
+        "系统配置类型": "Tipo de configuración del sistema",
+        "验证码类型": "Tipo de CAPTCHA",
+        "定时任务日志状态": "Estado del registro de tareas programadas",
+        "菜单类型": "Tipo de menú",
+        "用户角色数据范围": "Ámbito de datos del rol de usuario",
+        "业务模块": "Módulo empresarial",
+        "代码生成表状态": "Estado de la tabla de generación de código",
+        "用户性别": "Sexo del usuario",
+        "启用": "Habilitado",
+        "禁用": "Deshabilitado",
+        "系统内置": "Integrado en el sistema",
+        "管理端": "Consola de administración",
+        "应用端": "Aplicación",
+        "文本": "Texto",
+        "图片": "Imagen",
+        "富文本": "Texto enriquecido",
+        "字典": "Diccionario",
+        "布尔": "Booleano",
+        "随机验证码": "CAPTCHA aleatorio",
+        "数字验证码": "CAPTCHA numérico",
+        "字符串验证码": "CAPTCHA de texto",
+        "算术验证码": "CAPTCHA aritmético",
+        "中文验证码": "CAPTCHA chino",
+        "滑动拼图验证码": "CAPTCHA de rompecabezas deslizante",
+        "点击文字验证码": "CAPTCHA de texto por clic",
+        "旋转验证码": "CAPTCHA de rotación",
+        "成功": "Éxito",
+        "失败": "Error",
+        "目录": "Directorio",
+        "菜单": "Menú",
+        "按钮": "Botón",
+        "外部链接": "Enlace externo",
+        "全部数据": "Todos los datos",
+        "部门及子部门数据": "Datos del departamento y subdepartamentos",
+        "本部门数据": "Datos del departamento actual",
+        "本人数据": "Datos personales",
+        "系统管理": "Gestión del sistema",
+        "草稿": "Borrador",
+        "已生成": "Generado",
+        "停用": "Deshabilitado",
+        "保密": "Confidencial",
+        "男": "Hombre",
+        "女": "Mujer",
+    },
+}
+
+SQL_MENU_CATEGORIES = {
+    "ja": {
+        "首页": "ホーム", "AI助手": "AIアシスタント", "个人信息": "プロフィール", "系统管理": "システム管理",
+        "菜单管理": "メニュー管理", "字典管理": "辞書管理", "字典属性": "辞書項目", "字典数据": "辞書データ",
+        "系统配置": "システム設定", "定时任务": "スケジュールタスク", "定时任务日志": "スケジュールジョブログ",
+        "API管理": "API管理", "区域管理": "地域管理", "系统日志": "システムログ", "升级历史": "アップグレード履歴",
+        "语言管理": "言語管理", "用户管理": "ユーザー管理", "租户管理": "テナント管理", "角色管理": "ロール管理",
+        "部门管理": "部門管理", "岗位管理": "役職管理", "开发工具": "開発ツール", "代码生成": "コード生成",
+        "移动端": "モバイルアプリ", "我的": "マイアカウント", "设置": "設定", "AI 助手": "AIアシスタント",
+        "运维监控": "運用監視", "代码生成字段配置": "コード生成フィールド設定", "代码生成Proto配置": "コード生成Proto設定",
+        "代码生成页面预览": "コード生成ページプレビュー", "代码生成代码预览": "生成コードプレビュー", "API文档": "APIドキュメント",
+        "项目文档": "プロジェクトドキュメント", "登录": "ログイン", "协议详情": "規約の詳細",
+    },
+    "ko": {
+        "首页": "홈", "AI助手": "AI 어시스턴트", "个人信息": "개인 정보", "系统管理": "시스템 관리",
+        "菜单管理": "메뉴 관리", "字典管理": "사전 관리", "字典属性": "사전 항목", "字典数据": "사전 데이터",
+        "系统配置": "시스템 설정", "定时任务": "예약 작업", "定时任务日志": "예약 작업 로그", "API管理": "API 관리",
+        "区域管理": "지역 관리", "系统日志": "시스템 로그", "升级历史": "업그레이드 기록", "语言管理": "언어 관리",
+        "用户管理": "사용자 관리", "租户管理": "테넌트 관리", "角色管理": "역할 관리", "部门管理": "부서 관리",
+        "岗位管理": "직위 관리", "开发工具": "개발 도구", "代码生成": "코드 생성", "移动端": "모바일 앱",
+        "我的": "내 계정", "设置": "설정", "AI 助手": "AI 어시스턴트",
+        "运维监控": "운영 모니터링", "代码生成字段配置": "코드 생성 필드 설정", "代码生成Proto配置": "코드 생성 Proto 설정",
+        "代码生成页面预览": "코드 생성 페이지 미리 보기", "代码生成代码预览": "생성 코드 미리 보기", "API文档": "API 문서",
+        "项目文档": "프로젝트 문서", "登录": "로그인", "协议详情": "약관 상세",
+    },
+    "fr": {
+        "首页": "Accueil", "AI助手": "Assistant IA", "个人信息": "Profil", "系统管理": "Gestion du système",
+        "菜单管理": "Gestion des menus", "字典管理": "Gestion des dictionnaires", "字典属性": "Éléments du dictionnaire",
+        "字典数据": "Données du dictionnaire", "系统配置": "Configuration système", "定时任务": "Tâches planifiées",
+        "定时任务日志": "Journaux des tâches planifiées", "API管理": "Gestion des API", "区域管理": "Gestion des régions",
+        "系统日志": "Journaux système", "升级历史": "Historique des mises à niveau", "语言管理": "Gestion des langues",
+        "用户管理": "Gestion des utilisateurs", "租户管理": "Gestion des locataires", "角色管理": "Gestion des rôles",
+        "部门管理": "Gestion des services", "岗位管理": "Gestion des postes", "开发工具": "Outils de développement",
+        "代码生成": "Génération de code", "移动端": "Application mobile", "我的": "Mon compte", "设置": "Paramètres",
+        "AI 助手": "Assistant IA",
+        "运维监控": "Surveillance des opérations", "代码生成字段配置": "Configuration des champs de génération de code",
+        "代码生成Proto配置": "Configuration Proto de génération de code", "代码生成页面预览": "Aperçu de la page générée",
+        "代码生成代码预览": "Aperçu du code généré", "API文档": "Documentation API", "项目文档": "Documentation du projet",
+        "登录": "Connexion", "协议详情": "Détails des conditions",
+    },
+    "es": {
+        "首页": "Inicio", "AI助手": "Asistente de IA", "个人信息": "Perfil", "系统管理": "Gestión del sistema",
+        "菜单管理": "Gestión de menús", "字典管理": "Gestión de diccionarios", "字典属性": "Elementos del diccionario",
+        "字典数据": "Datos del diccionario", "系统配置": "Configuración del sistema", "定时任务": "Tareas programadas",
+        "定时任务日志": "Registros de tareas programadas", "API管理": "Gestión de API", "区域管理": "Gestión de regiones",
+        "系统日志": "Registros del sistema", "升级历史": "Historial de actualizaciones", "语言管理": "Gestión de idiomas",
+        "用户管理": "Gestión de usuarios", "租户管理": "Gestión de inquilinos", "角色管理": "Gestión de roles",
+        "部门管理": "Gestión de departamentos", "岗位管理": "Gestión de puestos", "开发工具": "Herramientas de desarrollo",
+        "代码生成": "Generación de código", "移动端": "Aplicación móvil", "我的": "Mi cuenta", "设置": "Configuración",
+        "AI 助手": "Asistente de IA",
+        "运维监控": "Supervisión operativa", "代码生成字段配置": "Configuración de campos de generación de código",
+        "代码生成Proto配置": "Configuración Proto de generación de código", "代码生成页面预览": "Vista previa de la página generada",
+        "代码生成代码预览": "Vista previa del código generado", "API文档": "Documentación de API", "项目文档": "Documentación del proyecto",
+        "登录": "Iniciar sesión", "协议详情": "Detalles de los términos",
+    },
+}
+
+SQL_MENU_NOUNS = {
+    "ja": {
+        "菜单": "メニュー", "字典": "辞書", "字典数据": "辞書データ", "配置": "設定", "定时任务": "スケジュールタスク",
+        "区域": "地域", "日志": "ログ", "定时任务日志": "スケジュールジョブログ", "API": "API", "租户": "テナント", "用户": "ユーザー", "角色": "ロール",
+        "部门": "部門", "岗位": "役職", "语言": "言語", "代码生成表配置": "コード生成テーブル設定",
+        "代码生成字段配置": "コード生成フィールド設定", "代码生成Proto配置": "コード生成Proto設定", "代码生成页面": "コード生成ページ",
+        "代码生成文件": "コード生成ファイル", "代码生成结果": "コード生成結果", "API文档": "APIドキュメント", "项目文档": "プロジェクトドキュメント",
+    },
+    "ko": {
+        "菜单": "메뉴", "字典": "사전", "字典数据": "사전 데이터", "配置": "설정", "定时任务": "예약 작업", "区域": "지역",
+        "日志": "로그", "定时任务日志": "예약 작업 로그", "API": "API", "租户": "테넌트", "用户": "사용자", "角色": "역할", "部门": "부서", "岗位": "직위",
+        "语言": "언어", "代码生成表配置": "코드 생성 테이블 설정", "代码生成字段配置": "코드 생성 필드 설정",
+        "代码生成Proto配置": "코드 생성 Proto 설정", "代码生成页面": "코드 생성 페이지", "代码生成文件": "코드 생성 파일",
+        "代码生成结果": "코드 생성 결과", "API文档": "API 문서", "项目文档": "프로젝트 문서",
+    },
+    "fr": {
+        "菜单": "menu", "字典": "dictionnaire", "字典数据": "données du dictionnaire", "配置": "configuration",
+        "定时任务": "tâche planifiée", "区域": "région", "日志": "journal", "定时任务日志": "journaux des tâches planifiées", "API": "API", "租户": "locataire",
+        "用户": "utilisateur", "角色": "rôle", "部门": "service", "岗位": "poste", "语言": "langue",
+        "代码生成表配置": "configuration de table de génération de code", "代码生成字段配置": "configuration de champ de génération de code",
+        "代码生成Proto配置": "configuration Proto de génération de code", "代码生成页面": "page de génération de code",
+        "代码生成文件": "fichiers générés", "代码生成结果": "résultats de génération de code", "API文档": "documentation API",
+        "项目文档": "documentation du projet",
+    },
+    "es": {
+        "菜单": "menú", "字典": "diccionario", "字典数据": "datos del diccionario", "配置": "configuración",
+        "定时任务": "tarea programada", "区域": "región", "日志": "registro", "定时任务日志": "registros de tareas programadas", "API": "API", "租户": "inquilino",
+        "用户": "usuario", "角色": "rol", "部门": "departamento", "岗位": "puesto", "语言": "idioma",
+        "代码生成表配置": "configuración de tabla de generación de código", "代码生成字段配置": "configuración de campo de generación de código",
+        "代码生成Proto配置": "configuración Proto de generación de código", "代码生成页面": "página de generación de código",
+        "代码生成文件": "archivos generados", "代码生成结果": "resultados de generación de código", "API文档": "documentación de API",
+        "项目文档": "documentación del proyecto",
+    },
+}
+
+
+def translate_sql_menu(text: str, target: str) -> str:
+    """按中文菜单源文生成稳定的菜单译文。"""
+    categories = SQL_MENU_CATEGORIES[target]
+    nouns = SQL_MENU_NOUNS[target]
+    if text in categories:
+        return categories[text]
+    special = {
+        "查询API详情": {"ja": "API詳細を表示", "ko": "API 상세 조회", "fr": "Voir les détails de l’API", "es": "Ver detalles de API"},
+        "设置API MCP工具状态": {"ja": "API MCPツールの状態を設定", "ko": "API MCP 도구 상태 설정", "fr": "Définir l’état de l’outil MCP de l’API", "es": "Configurar el estado de la herramienta MCP de API"},
+        "设置API Agent工具状态": {"ja": "API Agentツールの状態を設定", "ko": "API Agent 도구 상태 설정", "fr": "Définir l’état de l’outil Agent de l’API", "es": "Configurar el estado de la herramienta Agent de API"},
+        "编辑API配置": {"ja": "API設定を編集", "ko": "API 설정 편집", "fr": "Modifier la configuration de l’API", "es": "Editar la configuración de API"},
+        "刷新配置缓存": {"ja": "設定キャッシュを更新", "ko": "설정 캐시 새로 고침", "fr": "Actualiser le cache de configuration", "es": "Actualizar la caché de configuración"},
+        "设置主语言": {"ja": "主言語を設定", "ko": "기본 언어 설정", "fr": "Définir la langue principale", "es": "Establecer el idioma principal"},
+        "分配角色权限": {"ja": "ロール権限を割り当て", "ko": "역할 권한 할당", "fr": "Attribuer les autorisations du rôle", "es": "Asignar permisos de rol"},
+        "重置用户密码": {"ja": "ユーザーパスワードをリセット", "ko": "사용자 비밀번호 재설정", "fr": "Réinitialiser le mot de passe utilisateur", "es": "Restablecer la contraseña del usuario"},
+        "预览代码生成页面": {"ja": "コード生成ページをプレビュー", "ko": "코드 생성 페이지 미리 보기", "fr": "Prévisualiser la page générée", "es": "Previsualizar la página generada"},
+        "预览代码生成文件": {"ja": "コード生成ファイルをプレビュー", "ko": "코드 생성 파일 미리 보기", "fr": "Prévisualiser les fichiers générés", "es": "Previsualizar los archivos generados"},
+        "执行代码生成": {"ja": "コード生成を実行", "ko": "코드 생성 실행", "fr": "Exécuter la génération de code", "es": "Ejecutar la generación de código"},
+        "还原代码生成结果": {"ja": "コード生成結果を復元", "ko": "코드 생성 결과 복원", "fr": "Restaurer les résultats de génération", "es": "Restaurar los resultados de generación"},
+        "维护代码生成字段配置": {"ja": "コード生成フィールド設定を保守", "ko": "코드 생성 필드 설정 관리", "fr": "Maintenir la configuration des champs de génération", "es": "Mantener la configuración de campos de generación"},
+        "维护代码生成Proto配置": {"ja": "コード生成Proto設定を保守", "ko": "코드 생성 Proto 설정 관리", "fr": "Maintenir la configuration Proto de génération", "es": "Mantener la configuración Proto de generación"},
+        "查询定时任务日志详情": {"ja": "スケジュールジョブログの詳細を表示", "ko": "예약 작업 로그 상세 조회", "fr": "Voir les détails des journaux des tâches planifiées", "es": "Ver detalles de los registros de tareas programadas"},
+    }
+    if text in special:
+        return special[text][target]
+    if text.startswith("新增"):
+        noun = nouns.get(text[2:])
+        if noun:
+            return {"ja": f"{noun}を追加", "ko": f"{noun} 추가", "fr": f"Ajouter {noun}", "es": f"Añadir {noun}"}[target]
+    if text.startswith("删除"):
+        noun = nouns.get(text[2:])
+        if noun:
+            return {"ja": f"{noun}を削除", "ko": f"{noun} 삭제", "fr": f"Supprimer {noun}", "es": f"Eliminar {noun}"}[target]
+    if text.startswith("编辑"):
+        noun = nouns.get(text[2:])
+        if noun:
+            return {"ja": f"{noun}を編集", "ko": f"{noun} 편집", "fr": f"Modifier {noun}", "es": f"Editar {noun}"}[target]
+    if text.startswith("修改") and text.endswith("状态"):
+        noun = nouns.get(text[2:-2])
+        if noun:
+            return {"ja": f"{noun}のステータスを変更", "ko": f"{noun} 상태 변경", "fr": f"Modifier le statut de {noun}", "es": f"Cambiar el estado de {noun}"}[target]
+    if text.startswith("启动"):
+        noun = nouns.get(text[2:])
+        if noun:
+            return {"ja": f"{noun}を開始", "ko": f"{noun} 시작", "fr": f"Démarrer {noun}", "es": f"Iniciar {noun}"}[target]
+    if text.startswith("停止"):
+        noun = nouns.get(text[2:])
+        if noun:
+            return {"ja": f"{noun}を停止", "ko": f"{noun} 중지", "fr": f"Arrêter {noun}", "es": f"Detener {noun}"}[target]
+    if text.startswith("执行"):
+        noun = nouns.get(text[2:])
+        if noun:
+            return {"ja": f"{noun}を実行", "ko": f"{noun} 실행", "fr": f"Exécuter {noun}", "es": f"Ejecutar {noun}"}[target]
+    if text.startswith("查询") and text.endswith("详情"):
+        noun = nouns.get(text[2:-2])
+        if noun:
+            return {"ja": f"{noun}の詳細を表示", "ko": f"{noun} 상세 조회", "fr": f"Voir les détails de {noun}", "es": f"Ver detalles de {noun}"}[target]
+    return text
+
+
+def fallback_sql_translate(text: str, target: str) -> str:
+    """翻译 SQL 固定数据，优先完整短语，再处理菜单规则。"""
+    fixed = SQL_FIXED_TRANSLATIONS[target]
+    if text in fixed:
+        return fixed[text]
+    if text in SQL_MENU_CATEGORIES[target] or text in SQL_MENU_NOUNS[target]:
+        return translate_sql_menu(text, target)
+    if text.startswith(("首页", "AI助手", "个人信息", "系统", "菜单", "字典", "新增", "删除", "编辑", "修改", "启动", "停止", "执行", "查询", "设置", "刷新", "重置", "维护", "预览", "还原", "分配")):
+        translated = translate_sql_menu(text, target)
+        if translated != text:
+            return translated
+    return fallback_translate(text, target)
 PROTECTED_PATTERN = re.compile(
     r"(?s)```.*?```|`[^`]+`|\{\{[^{}]+\}\}|\$\{[^{}]+\}|\{[A-Za-z_][A-Za-z0-9_.-]*\}|%[sdv]|</?[^>]+>|https?://[^\s<>()]+|/(?:api|events|mcp|v[0-9]+)/[A-Za-z0-9_./:{}-]+"
 )
@@ -278,20 +745,14 @@ def generate_json(source: Path, locale: str, converter, machine: bool, offline: 
     if locale == "zh-TW":
         target_data = convert_value(source_data, converter)
     else:
-        english_source = source.with_name("en-US.json")
-        english_data = json.loads(english_source.read_text(encoding="utf-8"))
-        if offline:
-            source_data = english_data
         source_values: list[str] = []
-        fallback_values: list[str] = []
         collect_strings(source_data, source_values)
-        collect_strings(english_data, fallback_values)
         translated = (
-            translate_batch(source_values, "en" if offline else "zh-CN", locale.split("-")[0], offline)
+            translate_batch(source_values, "zh-CN", locale.split("-")[0], offline)
             if machine or offline
             else source_values
         )
-        translated = [value or fallback_values[index] for index, value in enumerate(translated)]
+        translated = [value or source_values[index] for index, value in enumerate(translated)]
         iterator = iter(translated)
         target_data = replace_strings(source_data, lambda: next(iterator))
     target = source.with_name(f"{locale}.json")
@@ -402,14 +863,16 @@ def generate_sql(locale: str, converter, machine: bool, offline: bool, write: bo
     values = []
     for line in lines:
         record = translation_record(line)
-        if locale == "zh-TW" and record:
+        if record:
             values.append(primary_sources.get((record[0], record[1]), ""))
         else:
-            values.append(extract_translation(line))
+            values.append("")
     translated = (
         values
         if locale == "zh-TW"
-        else translate_batch(values, "en", locale.split("-")[0], offline)
+        else [fallback_sql_translate(value, locale.split("-")[0]) for value in values]
+        if offline
+        else translate_batch(values, "zh-CN", locale.split("-")[0], False)
         if machine or offline
         else values
     )
@@ -433,8 +896,9 @@ def render_translation_description(locale: str) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--write", action="store_true", help="写入所有新增语言文件")
-    parser.add_argument("--machine", action="store_true", help="使用 Google V1 生成韩法西草稿")
+    parser.add_argument("--machine", action="store_true", help="使用 Google V1 生成日、韩、法、西语草稿")
     parser.add_argument("--offline", action="store_true", help="使用内置术语表离线生成机器翻译草稿")
+    parser.add_argument("--sql-only", action="store_true", help="只生成动态翻译迁移，不改写固定语言包")
     parser.add_argument("--locale", dest="locales", action="append", help="只生成指定语言，可重复传入")
     parser.add_argument("--migration-version", help="将按语言拆分的翻译 SQL 写入指定版本目录，例如 vX.Y.Z")
     args = parser.parse_args()
@@ -449,16 +913,18 @@ def main() -> int:
     converter = load_opencc() if "zh-TW" in locales else None
     for locale in locales:
         if locale != "zh-TW" and not args.machine and not args.offline:
-            raise SystemExit("生成韩语、法语和西班牙语需要显式传入 --machine 或 --offline")
-        for source in JSON_SOURCES:
-            generate_json(source, locale, converter, args.machine, args.offline, args.write)
+            raise SystemExit("生成日语、韩语、法语和西班牙语需要显式传入 --machine 或 --offline")
+        if not args.sql_only:
+            for source in JSON_SOURCES:
+                generate_json(source, locale, converter, args.machine, args.offline, args.write)
         generate_sql(locale, converter, args.machine, args.offline, args.write, sql_directory)
         if args.migration_version and args.write:
             (sql_directory / f"translation.{locale}.description.md").write_text(
                 render_translation_description(locale), encoding="utf-8"
             )
     action = "已生成" if args.write else "可生成"
-    print(f"{action} {', '.join(locales)} 语言包和迁移数据")
+    artifact = "迁移数据" if args.sql_only else "语言包和迁移数据"
+    print(f"{action} {', '.join(locales)} {artifact}")
     return 0
 
 

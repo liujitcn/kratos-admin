@@ -2,6 +2,7 @@ package i18n
 
 import (
 	"encoding/json"
+	"strings"
 
 	"github.com/go-kratos/kratos/v3/errors"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
@@ -17,6 +18,12 @@ func LocalizeError(catalog *Catalog, localeValue string, err error) error {
 	messageKey := structured.Metadata[errorsx.METADATA_KEY_MESSAGE_KEY]
 	if messageKey == "" {
 		messageKey = defaultMessageKey(structured.Reason)
+	} else if strings.HasPrefix(messageKey, "legacy.error.") && !catalog.HasMessage(messageKey) {
+		if sourceKey, ok := catalog.KeyForSource(structured.Message); ok {
+			messageKey = sourceKey
+		} else {
+			messageKey = defaultMessageKey(structured.Reason)
+		}
 	}
 	messageArgs := decodeMessageArgs(structured.Metadata[errorsx.METADATA_KEY_MESSAGE_ARGS])
 	localized := catalog.Localize(localeValue, messageKey, messageArgs, structured.Message)

@@ -679,5 +679,20 @@
   },
   "base.login.verify_captcha.captcha_id.required": {
     "other": "認証コードは空にできません"
-  }
+  },
+  "base.login.captcha.invalid": { "other": "認証コードが正しくありません" },
+  "base.login.credentials.invalid": { "other": "ユーザー名またはパスワードが正しくありません" },
+  "base.login.tenant.disabled": { "other": "テナントは無効です" },
+  "base.login.account.disabled": { "other": "アカウントは無効です" },
+  "base.login.role.disabled": { "other": "ロールは無効です" },
+  "base.login.department.disabled": { "other": "部門は無効です" },
+  "base.login.login.failed": { "other": "ログインに失敗しました" },
+  "base.login.logout.failed": { "other": "ログアウトに失敗しました" },
+  "base.login.refresh.failed": { "other": "認証トークンの更新に失敗しました" },
+  "base.login.captcha.verify_failed": { "other": "認証コードの検証に失敗しました" },
+  "base.ai.message.not_found": { "other": "メッセージが見つかりません" },
+  "base.ai.runtime.uninitialized": { "other": "AIアシスタントのランタイムが初期化されていません" },
+  "base.oauth.login_method.unsupported": { "other": "ログイン方式はサポートされていません" },
+  "base.oauth.state.invalid": { "other": "サードパーティログインの状態が期限切れです" },
+  "base.file.upload.failed": { "other": "ファイルのアップロードに失敗しました" }
 }

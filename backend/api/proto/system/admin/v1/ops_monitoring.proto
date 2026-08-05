@@ -1,0 +1,210 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// 运维监控服务。
+service OpsMonitoringService {
+  // 查询当前进程运行信息。
+  rpc GetOpsRuntime(GetOpsRuntimeRequest) returns (OpsRuntime) {
+    option (google.api.http) = {get: "/api/v1/admin/ops-monitoring/runtime"};
+  }
+
+  // 查询请求流量与延迟趋势。
+  rpc GetOpsTraffic(GetOpsTrafficRequest) returns (OpsTrafficResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/ops-monitoring/traffic"};
+  }
+
+  // 查询服务和外部依赖状态。
+  rpc GetOpsServices(GetOpsServicesRequest) returns (OpsServicesResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/ops-monitoring/services"};
+  }
+
+  // 查询数据库和缓存状态。
+  rpc GetOpsStorage(GetOpsStorageRequest) returns (OpsStorageResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/ops-monitoring/storage"};
+  }
+
+  // 查询接口请求摘要。
+  rpc GetOpsEndpoints(GetOpsEndpointsRequest) returns (OpsEndpointsResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/ops-monitoring/endpoints"};
+  }
+
+  // 查询实例资源状态。
+  rpc GetOpsNodes(GetOpsNodesRequest) returns (OpsNodesResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/ops-monitoring/nodes"};
+  }
+
+  // 查询窗口内告警事件。
+  rpc GetOpsAlerts(GetOpsAlertsRequest) returns (OpsAlertsResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/ops-monitoring/alerts"};
+  }
+}
+
+// 运行信息查询条件。
+message GetOpsRuntimeRequest {}
+
+// 流量查询条件。
+message GetOpsTrafficRequest {
+  int32 window_minutes = 1 [
+    (gnostic.openapi.v3.property) = {description: "统计窗口，单位分钟"},
+    (buf.validate.field).int32 = {gte: 1, lte: 60}
+  ]; // 统计窗口，单位分钟
+}
+
+// 服务状态查询条件。
+message GetOpsServicesRequest {}
+
+// 存储状态查询条件。
+message GetOpsStorageRequest {}
+
+// 接口查询条件。
+message GetOpsEndpointsRequest {
+  int32 window_minutes = 1 [
+    (gnostic.openapi.v3.property) = {description: "统计窗口，单位分钟"},
+    (buf.validate.field).int32 = {gte: 1, lte: 60}
+  ]; // 统计窗口，单位分钟
+}
+
+// 实例查询条件。
+message GetOpsNodesRequest {}
+
+// 告警查询条件。
+message GetOpsAlertsRequest {
+  int32 window_minutes = 1 [
+    (gnostic.openapi.v3.property) = {description: "统计窗口，单位分钟"},
+    (buf.validate.field).int32 = {gte: 1, lte: 60}
+  ]; // 统计窗口，单位分钟
+}
+
+// 流量响应。
+message OpsTrafficResponse {
+  string collected_at = 1 [(gnostic.openapi.v3.property) = {description: "采集时间，RFC3339格式"}]; // 采集时间，RFC3339格式
+  int32 window_minutes = 2 [(gnostic.openapi.v3.property) = {description: "统计窗口，单位分钟"}]; // 统计窗口，单位分钟
+  OpsTraffic traffic = 3 [(gnostic.openapi.v3.property) = {description: "请求流量摘要"}]; // 请求流量摘要
+  repeated OpsTrafficPoint points = 4 [(gnostic.openapi.v3.property) = {description: "请求流量趋势"}]; // 请求流量趋势
+}
+
+// 服务状态响应。
+message OpsServicesResponse {
+  string collected_at = 1 [(gnostic.openapi.v3.property) = {description: "采集时间，RFC3339格式"}]; // 采集时间，RFC3339格式
+  repeated OpsServiceStatus services = 2 [(gnostic.openapi.v3.property) = {description: "服务依赖状态"}]; // 服务依赖状态
+}
+
+// 存储状态响应。
+message OpsStorageResponse {
+  string collected_at = 1 [(gnostic.openapi.v3.property) = {description: "采集时间，RFC3339格式"}]; // 采集时间，RFC3339格式
+  repeated OpsStorage storage = 2 [(gnostic.openapi.v3.property) = {description: "数据存储状态"}]; // 数据存储状态
+}
+
+// 接口摘要响应。
+message OpsEndpointsResponse {
+  string collected_at = 1 [(gnostic.openapi.v3.property) = {description: "采集时间，RFC3339格式"}]; // 采集时间，RFC3339格式
+  int32 window_minutes = 2 [(gnostic.openapi.v3.property) = {description: "统计窗口，单位分钟"}]; // 统计窗口，单位分钟
+  repeated OpsEndpoint endpoints = 3 [(gnostic.openapi.v3.property) = {description: "接口请求摘要"}]; // 接口请求摘要
+}
+
+// 实例状态响应。
+message OpsNodesResponse {
+  string collected_at = 1 [(gnostic.openapi.v3.property) = {description: "采集时间，RFC3339格式"}]; // 采集时间，RFC3339格式
+  repeated OpsNode nodes = 2 [(gnostic.openapi.v3.property) = {description: "实例资源状态"}]; // 实例资源状态
+}
+
+// 告警响应。
+message OpsAlertsResponse {
+  string collected_at = 1 [(gnostic.openapi.v3.property) = {description: "采集时间，RFC3339格式"}]; // 采集时间，RFC3339格式
+  int32 window_minutes = 2 [(gnostic.openapi.v3.property) = {description: "统计窗口，单位分钟"}]; // 统计窗口，单位分钟
+  repeated OpsAlert alerts = 3 [(gnostic.openapi.v3.property) = {description: "近期告警事件"}]; // 近期告警事件
+}
+
+// 当前进程运行信息。
+message OpsRuntime {
+  string service_name = 1 [(gnostic.openapi.v3.property) = {description: "服务名称"}]; // 服务名称
+  string version = 2 [(gnostic.openapi.v3.property) = {description: "服务版本"}]; // 服务版本
+  string hostname = 3 [(gnostic.openapi.v3.property) = {description: "主机名"}]; // 主机名
+  string environment = 4 [(gnostic.openapi.v3.property) = {description: "运行环境"}]; // 运行环境
+  string go_version = 5 [(gnostic.openapi.v3.property) = {description: "Go运行时版本"}]; // Go运行时版本
+  string os = 6 [(gnostic.openapi.v3.property) = {description: "操作系统"}]; // 操作系统
+  string arch = 7 [(gnostic.openapi.v3.property) = {description: "系统架构"}]; // 系统架构
+  string start_time = 8 [(gnostic.openapi.v3.property) = {description: "启动时间，RFC3339格式"}]; // 启动时间，RFC3339格式
+  int64 uptime_seconds = 9 [(gnostic.openapi.v3.property) = {description: "运行时长，单位秒"}]; // 运行时长，单位秒
+  uint64 goroutines = 10 [(gnostic.openapi.v3.property) = {description: "当前协程数量"}]; // 当前协程数量
+  uint64 memory_alloc_bytes = 11 [(gnostic.openapi.v3.property) = {description: "当前堆内存，单位字节"}]; // 当前堆内存，单位字节
+  uint64 memory_sys_bytes = 12 [(gnostic.openapi.v3.property) = {description: "进程向系统申请的内存，单位字节"}]; // 进程向系统申请的内存，单位字节
+}
+
+// 请求流量摘要。
+message OpsTraffic {
+  double qps = 1 [(gnostic.openapi.v3.property) = {description: "每秒请求数"}]; // 每秒请求数
+  double p95_latency_ms = 2 [(gnostic.openapi.v3.property) = {description: "P95响应延迟，单位毫秒"}]; // P95响应延迟，单位毫秒
+  double error_rate = 3 [(gnostic.openapi.v3.property) = {description: "错误率，百分比"}]; // 错误率，百分比
+  double availability = 4 [(gnostic.openapi.v3.property) = {description: "可用性，百分比"}]; // 可用性，百分比
+  int64 request_count = 5 [(gnostic.openapi.v3.property) = {description: "窗口内请求数"}]; // 窗口内请求数
+}
+
+// 请求流量趋势点。
+message OpsTrafficPoint {
+  string at = 1 [(gnostic.openapi.v3.property) = {description: "时间点，RFC3339格式"}]; // 时间点，RFC3339格式
+  double qps = 2 [(gnostic.openapi.v3.property) = {description: "时间点每秒请求数"}]; // 时间点每秒请求数
+  double p95_latency_ms = 3 [(gnostic.openapi.v3.property) = {description: "时间点P95延迟，单位毫秒"}]; // 时间点P95延迟，单位毫秒
+  double qps_percent = 4 [(gnostic.openapi.v3.property) = {description: "QPS柱状图比例"}]; // QPS柱状图比例
+  double latency_percent = 5 [(gnostic.openapi.v3.property) = {description: "延迟柱状图比例"}]; // 延迟柱状图比例
+}
+
+// 服务或外部依赖状态。
+message OpsServiceStatus {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "服务名称"}]; // 服务名称
+  string address = 2 [(gnostic.openapi.v3.property) = {description: "服务地址"}]; // 服务地址
+  string status = 3 [(gnostic.openapi.v3.property) = {description: "状态：正常、未配置或异常"}]; // 状态：正常、未配置或异常
+  string message = 4 [(gnostic.openapi.v3.property) = {description: "状态说明"}]; // 状态说明
+  int64 latency_ms = 5 [(gnostic.openapi.v3.property) = {description: "探测耗时，单位毫秒"}]; // 探测耗时，单位毫秒
+}
+
+// 数据存储状态。
+message OpsStorage {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "存储名称"}]; // 存储名称
+  string short_name = 2 [(gnostic.openapi.v3.property) = {description: "存储简称"}]; // 存储简称
+  string address = 3 [(gnostic.openapi.v3.property) = {description: "存储地址"}]; // 存储地址
+  string status = 4 [(gnostic.openapi.v3.property) = {description: "状态：正常、未配置或异常"}]; // 状态：正常、未配置或异常
+  repeated OpsMetric metrics = 5 [(gnostic.openapi.v3.property) = {description: "存储指标"}]; // 存储指标
+  string capacity_label = 6 [(gnostic.openapi.v3.property) = {description: "容量指标名称"}]; // 容量指标名称
+  double capacity = 7 [(gnostic.openapi.v3.property) = {description: "容量使用百分比"}]; // 容量使用百分比
+}
+
+// 存储或实例指标。
+message OpsMetric {
+  string label = 1 [(gnostic.openapi.v3.property) = {description: "指标名称"}]; // 指标名称
+  string value = 2 [(gnostic.openapi.v3.property) = {description: "指标值"}]; // 指标值
+}
+
+// 接口请求摘要。
+message OpsEndpoint {
+  string route = 1 [(gnostic.openapi.v3.property) = {description: "接口路径"}]; // 接口路径
+  double qps = 2 [(gnostic.openapi.v3.property) = {description: "每秒请求数"}]; // 每秒请求数
+  double p95_latency_ms = 3 [(gnostic.openapi.v3.property) = {description: "P95响应延迟，单位毫秒"}]; // P95响应延迟，单位毫秒
+  double error_rate = 4 [(gnostic.openapi.v3.property) = {description: "错误率，百分比"}]; // 错误率，百分比
+  string status = 5 [(gnostic.openapi.v3.property) = {description: "接口状态"}]; // 接口状态
+}
+
+// 实例资源状态。
+message OpsNode {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "实例名称"}]; // 实例名称
+  repeated OpsNodeMetric metrics = 2 [(gnostic.openapi.v3.property) = {description: "实例资源指标"}]; // 实例资源指标
+}
+
+// 实例资源指标。
+message OpsNodeMetric {
+  string label = 1 [(gnostic.openapi.v3.property) = {description: "指标名称"}]; // 指标名称
+  double value = 2 [(gnostic.openapi.v3.property) = {description: "指标使用百分比"}]; // 指标使用百分比
+}
+
+// 告警事件。
+message OpsAlert {
+  string title = 1 [(gnostic.openapi.v3.property) = {description: "告警标题"}]; // 告警标题
+  string detail = 2 [(gnostic.openapi.v3.property) = {description: "告警详情"}]; // 告警详情
+  string at = 3 [(gnostic.openapi.v3.property) = {description: "告警时间，RFC3339格式"}]; // 告警时间，RFC3339格式
+  string status = 4 [(gnostic.openapi.v3.property) = {description: "告警状态"}]; // 告警状态
+}

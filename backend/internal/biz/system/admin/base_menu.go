@@ -279,55 +279,7 @@ func (c *BaseMenuCase) SetBaseMenuStatus(ctx context.Context, req *systemadminv1
 
 // SaveGeneratedMenuTranslations 保存代码生成器提供的菜单译文，不覆盖已有非空内容。
 func (c *BaseMenuCase) SaveGeneratedMenuTranslations(ctx context.Context, menuID int64, _ string, translations map[string]string) error {
-	if menuID <= 0 || len(translations) == 0 {
-		return nil
-	}
-	locales, primaryLocale, _, err := c.baseTranslationCase.languageCase.Locales(ctx)
-	if err != nil {
-		return err
-	}
-	allowed := make(map[string]struct{}, len(locales))
-	for _, locale := range locales {
-		if locale != primaryLocale {
-			allowed[locale] = struct{}{}
-		}
-	}
-	query := c.baseTranslationCase.Query(ctx).BaseTranslation
-	var rows []*models.BaseTranslation
-	rows, err = c.baseTranslationCase.List(ctx,
-		repository.Where(query.TargetType.Eq(int32(systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU))),
-		repository.Where(query.TargetID.Eq(menuID)),
-	)
-	if err != nil {
-		return err
-	}
-	existing := make(map[string]*models.BaseTranslation, len(rows))
-	for _, row := range rows {
-		existing[row.Locale] = row
-	}
-	for locale, text := range translations {
-		if text == "" {
-			continue
-		}
-		if _, ok := allowed[locale]; !ok {
-			continue
-		}
-		row := existing[locale]
-		if row != nil && row.Name != "" {
-			continue
-		}
-		if row == nil {
-			if err = c.baseTranslationCase.Create(ctx, &models.BaseTranslation{TargetType: int32(systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU), TargetID: menuID, Locale: locale, Name: text}); err != nil {
-				return err
-			}
-			continue
-		}
-		row.Name = text
-		if err = c.baseTranslationCase.UpdateByID(ctx, row); err != nil {
-			return err
-		}
-	}
-	return nil
+	return c.baseTranslationCase.SaveGeneratedTranslations(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, menuID, translations)
 }
 
 // createBaseMenu 校验父级并按层级编号规则创建菜单。

@@ -2,18 +2,20 @@
   <div class="app-container ops-monitoring-page">
     <section class="ops-page-head">
       <div>
-        <div class="ops-breadcrumb">开发工具 <span>/</span> 运维监控</div>
-        <h1>运维监控</h1>
-        <p>生产环境 · API 网关与基础设施运行概览</p>
+        <div class="ops-breadcrumb">{{ t("system.ops_monitoring.breadcrumb") }}</div>
+        <h1>{{ t("system.ops_monitoring.title") }}</h1>
+        <p>{{ runtimeDescription }}</p>
       </div>
       <div class="ops-page-meta">
-        <el-tag type="warning" effect="plain">演示数据 · 待接入指标接口</el-tag>
-        <span>当前窗口：近 15 分钟</span>
-        <span>最后采样 10:42:18</span>
+        <el-tag :type="loading ? 'info' : 'success'" effect="plain">
+          {{ loading ? t("system.ops_monitoring.collecting") : t("system.ops_monitoring.realtime") }}
+        </el-tag>
+        <span>{{ t("system.ops_monitoring.window", { minutes: windowMinutes }) }}</span>
+        <span>{{ t("system.ops_monitoring.last_sample", { time: formatDateTime(lastCollectedAt) }) }}</span>
       </div>
     </section>
 
-    <section class="ops-kpi-grid" aria-label="核心指标">
+    <section class="ops-kpi-grid" :aria-label="t('system.ops_monitoring.core_metrics')">
       <el-card v-for="item in kpiItems" :key="item.label" class="ops-kpi-card" shadow="never">
         <span class="ops-kpi-label">{{ item.label }}</span>
         <strong class="ops-kpi-value">{{ item.value }}</strong>
@@ -29,26 +31,36 @@
         <template #header>
           <div class="ops-section-head">
             <div>
-              <h2>请求量与延迟趋势</h2>
-              <p>每 1 分钟聚合 · 近 15 分钟</p>
+              <h2>{{ t("system.ops_monitoring.request_latency_trend") }}</h2>
+              <p>{{ t("system.ops_monitoring.aggregation", { minutes: windowMinutes }) }}</p>
             </div>
-            <el-tag size="small" type="info" effect="plain">静态示例</el-tag>
+            <el-tag size="small" type="success" effect="plain">{{ t("system.ops_monitoring.realtime") }}</el-tag>
           </div>
         </template>
         <div class="ops-legend">
           <span><i class="ops-legend-mark is-teal" />QPS</span>
-          <span><i class="ops-legend-mark is-amber" />P95 延迟</span>
+          <span><i class="ops-legend-mark is-amber" />{{ t("system.ops_monitoring.p95_latency") }}</span>
         </div>
         <div class="ops-trend-row">
           <span class="ops-trend-label">QPS</span>
-          <div class="ops-trend-bars" aria-label="QPS 趋势，从 92 req/s 上升到 128.4 req/s">
+          <div
+            class="ops-trend-bars"
+            :aria-label="
+              t('system.ops_monitoring.qps_trend', { value: `${formatNumber(trafficSummary?.qps)} req/s` })
+            "
+          >
             <i v-for="(point, index) in qpsTrend" :key="`qps-${index}`" class="is-teal" :style="{ height: `${point}%` }" />
           </div>
-          <strong>128.4<small>req/s</small></strong>
+          <strong>{{ formatNumber(trafficSummary?.qps) }}<small>req/s</small></strong>
         </div>
         <div class="ops-trend-row">
           <span class="ops-trend-label">P95</span>
-          <div class="ops-trend-bars" aria-label="P95 延迟趋势，从 182 ms 上升到 246 ms">
+          <div
+            class="ops-trend-bars"
+            :aria-label="
+              t('system.ops_monitoring.p95_trend', { value: `${formatNumber(trafficSummary?.p95_latency_ms)} ms` })
+            "
+          >
             <i
               v-for="(point, index) in latencyTrend"
               :key="`latency-${index}`"
@@ -56,19 +68,21 @@
               :style="{ height: `${point}%` }"
             />
           </div>
-          <strong>246<small>ms</small></strong>
+          <strong>{{ formatNumber(trafficSummary?.p95_latency_ms) }}<small>ms</small></strong>
         </div>
-        <div class="ops-time-axis"><span>10:28</span><span>10:32</span><span>10:37</span><span>10:42</span></div>
+        <div class="ops-time-axis"><span v-for="point in trendAxis" :key="point">{{ point }}</span></div>
       </el-card>
 
       <el-card class="ops-panel" shadow="never">
         <template #header>
           <div class="ops-section-head">
             <div>
-              <h2>服务可用性</h2>
-              <p>探针与依赖连接状态</p>
+              <h2>{{ t("system.ops_monitoring.service_availability") }}</h2>
+              <p>{{ t("system.ops_monitoring.service_dependency") }}</p>
             </div>
-            <el-tag type="success" effect="plain">3 / 3 在线</el-tag>
+            <el-tag :type="onlineCount === serviceCount ? 'success' : 'warning'" effect="plain">
+              {{ t("system.ops_monitoring.online", { online: onlineCount, total: serviceCount }) }}
+            </el-tag>
           </div>
         </template>
         <div class="ops-summary-list">
@@ -82,8 +96,8 @@
 
     <section class="ops-storage-section">
       <div class="ops-section-title">
-        <h2>数据存储</h2>
-        <span>连接、性能、容量</span>
+        <h2>{{ t("system.ops_monitoring.data_storage") }}</h2>
+        <span>{{ t("system.ops_monitoring.storage_summary") }}</span>
       </div>
       <div class="ops-storage-grid">
         <el-card v-for="item in storageItems" :key="item.name" class="ops-storage-card" shadow="never">
@@ -95,7 +109,7 @@
                 <code>{{ item.address }}</code>
               </div>
             </div>
-            <el-tag type="success" size="small" effect="plain">正常</el-tag>
+            <el-tag :type="item.status === '正常' ? 'success' : 'warning'" size="small" effect="plain">{{ item.statusLabel }}</el-tag>
           </div>
           <div class="ops-storage-metrics">
             <div v-for="metric in item.metrics" :key="metric.label">
@@ -116,26 +130,24 @@
         <template #header>
           <div class="ops-section-head">
             <div>
-              <h2>接口与响应</h2>
-              <p>按请求量排序 · 近 15 分钟</p>
+              <h2>{{ t("system.ops_monitoring.interface_response") }}</h2>
+              <p>{{ t("system.ops_monitoring.sort_recent", { minutes: windowMinutes }) }}</p>
             </div>
-            <span class="ops-muted">4 个接口</span>
+            <span class="ops-muted">{{ t("system.ops_monitoring.endpoint_count", { count: endpointItems.length }) }}</span>
           </div>
         </template>
         <el-table :data="endpointItems" size="small" class="ops-table">
-          <el-table-column label="接口" min-width="230">
+          <el-table-column :label="t('system.ops_monitoring.endpoint')" min-width="230">
             <template #default="{ row }"
               ><code class="ops-route">{{ row.route }}</code></template
             >
           </el-table-column>
           <el-table-column prop="qps" label="QPS" width="75" />
           <el-table-column prop="latency" label="P95" width="85" />
-          <el-table-column prop="errorRate" label="错误率" width="85" />
-          <el-table-column label="状态" width="85" align="right">
+          <el-table-column prop="errorRate" :label="t('system.ops_monitoring.error_rate')" width="85" />
+          <el-table-column :label="t('system.ops_monitoring.status.label')" width="85" align="right">
             <template #default="{ row }"
-              ><el-tag :type="row.status === '正常' ? 'success' : 'warning'" size="small" effect="plain">{{
-                row.status
-              }}</el-tag></template
+              ><el-tag :type="row.healthy ? 'success' : 'warning'" size="small" effect="plain">{{ row.status }}</el-tag></template
             >
           </el-table-column>
         </el-table>
@@ -145,10 +157,10 @@
         <template #header>
           <div class="ops-section-head">
             <div>
-              <h2>实例资源</h2>
-              <p>当前值 / 最近采样</p>
+              <h2>{{ t("system.ops_monitoring.instance_resources") }}</h2>
+              <p>{{ t("system.ops_monitoring.current_recent_sample") }}</p>
             </div>
-            <span class="ops-muted">3 个实例</span>
+            <span class="ops-muted">{{ t("system.ops_monitoring.instance_count", { count: nodeItems.length }) }}</span>
           </div>
         </template>
         <div class="ops-node-list">
@@ -171,10 +183,10 @@
       <template #header>
         <div class="ops-section-head">
           <div>
-            <h2>告警事件</h2>
-            <p>需要运维关注的近期事件</p>
+            <h2>{{ t("system.ops_monitoring.alert_events") }}</h2>
+            <p>{{ t("system.ops_monitoring.alert_attention") }}</p>
           </div>
-          <el-tag type="warning" effect="plain">未解决 2</el-tag>
+          <el-tag type="warning" effect="plain">{{ t("system.ops_monitoring.unresolved", { count: alertItems.length }) }}</el-tag>
         </div>
       </template>
       <div class="ops-alert-list">
@@ -184,7 +196,7 @@
             <strong>{{ alert.title }}</strong
             ><span>{{ alert.detail }}</span>
           </div>
-          <time>{{ alert.time }}</time>
+          <time>{{ formatRelativeTime(alert.at) }}</time>
         </div>
       </div>
     </el-card>
@@ -192,6 +204,30 @@
 </template>
 
 <script setup lang="ts">
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { defOpsMonitoringService } from "@liujitcn/kratos-admin-system/api/system/ops_monitoring";
+import {
+  subscribeOpsMonitoringNodes,
+  subscribeOpsMonitoringServices,
+  subscribeOpsMonitoringStorage,
+  subscribeOpsMonitoringTraffic,
+  type OpsMonitoringSseStop
+} from "@liujitcn/kratos-admin-system/api/system/ops_monitoring_sse";
+import { getCurrentLocale, t } from "@liujitcn/kratos-admin-core";
+import type {
+  OpsAlert,
+  OpsEndpoint,
+  OpsNode,
+  OpsRuntime,
+  OpsAlertsResponse,
+  OpsEndpointsResponse,
+  OpsServicesResponse,
+  OpsStorage,
+  OpsStorageResponse,
+  OpsTrafficResponse,
+  OpsNodesResponse
+} from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/ops_monitoring";
+
 defineOptions({
   name: "OpsMonitoring",
   inheritAttrs: false
@@ -224,7 +260,9 @@ interface EndpointItem {
   /** 请求错误率。 */
   errorRate: string;
   /** 当前健康状态。 */
-  status: "正常" | "关注";
+  status: string;
+  /** 是否为正常状态。 */
+  healthy: boolean;
 }
 
 /** 实例资源指标。 */
@@ -235,110 +273,253 @@ interface NodeItem {
   metrics: Array<{ label: string; value: number; color: string }>;
 }
 
-const kpiItems: KpiItem[] = [
+/** 服务依赖摘要。 */
+interface AvailabilityItem {
+  /** 服务名称。 */
+  label: string;
+  /** 当前状态。 */
+  value: string;
+  /** 状态颜色。 */
+  tone: "ok" | "warn";
+}
+
+const loading = ref(false);
+const runtime = ref<OpsRuntime>();
+const traffic = ref<OpsTrafficResponse>();
+const services = ref<OpsServicesResponse>();
+const storage = ref<OpsStorageResponse>();
+const endpoints = ref<OpsEndpointsResponse>();
+const nodes = ref<OpsNodesResponse>();
+const alerts = ref<OpsAlertsResponse>();
+const windowMinutes = ref(15);
+const lastCollectedAt = ref("");
+const trafficSummary = computed(() => traffic.value?.traffic);
+const runtimeDescription = computed(() => {
+  if (!runtime.value) return t("system.ops_monitoring.runtime_unavailable");
+  const environment = runtime.value.environment || t("system.ops_monitoring.unknown");
+  const service = runtime.value.service_name || t("system.ops_monitoring.unknown");
+  return t("system.ops_monitoring.runtime_description", { environment, service });
+});
+
+const kpiItems = computed<KpiItem[]>(() => [
   {
-    label: "请求吞吐 QPS",
-    value: "128.4 req/s",
-    change: "↗ 12.6%",
-    context: "较上一周期",
+    label: t("system.ops_monitoring.kpi.throughput"),
+    value: `${formatNumber(trafficSummary.value?.qps)} req/s`,
+    change: t("system.ops_monitoring.realtime"),
+    context: t("system.ops_monitoring.kpi.current_window"),
     tone: "is-up",
     color: "var(--el-color-primary)"
   },
   {
-    label: "P95 延迟",
-    value: "246 ms",
-    change: "↗ 8 ms",
-    context: "较上一周期",
+    label: t("system.ops_monitoring.kpi.p95_latency"),
+    value: `${formatNumber(trafficSummary.value?.p95_latency_ms)} ms`,
+    change: t("system.ops_monitoring.realtime"),
+    context: t("system.ops_monitoring.kpi.current_window"),
     tone: "is-down",
     color: "var(--el-color-warning)"
   },
   {
-    label: "错误率",
-    value: "0.18%",
-    change: "↓ 0.04%",
-    context: "5xx 占比 0.12%",
+    label: t("system.ops_monitoring.kpi.error_rate"),
+    value: `${formatNumber(trafficSummary.value?.error_rate)}%`,
+    change: t("system.ops_monitoring.realtime"),
+    context: t("system.ops_monitoring.kpi.current_window"),
     tone: "is-up",
     color: "var(--el-color-danger)"
   },
-  { label: "可用性", value: "99.98%", change: "稳定", context: "过去 30 天", tone: "is-up", color: "var(--el-color-success)" }
-];
-
-const qpsTrend = [43, 51, 47, 58, 55, 67, 63, 77, 71, 87, 81, 91];
-const latencyTrend = [51, 46, 56, 48, 62, 55, 66, 61, 73, 69, 78, 82];
-
-const availabilityItems = [
-  { label: "HTTP / HTTPS", value: "正常", tone: "ok" },
-  { label: "实例在线", value: "3 / 3", tone: "ok" },
-  { label: "MySQL 连接", value: "正常", tone: "ok" },
-  { label: "Redis 连接", value: "正常", tone: "ok" },
-  { label: "后台任务", value: "1 项延迟", tone: "warn" }
-];
-
-const storageItems = [
   {
-    name: "MySQL · primary",
-    shortName: "SQL",
-    address: "mysql-prod-01:3306",
-    color: "var(--el-color-primary)",
-    capacityLabel: "连接池",
-    capacity: 24,
-    metrics: [
-      { value: "48 / 200", label: "活跃连接" },
-      { value: "18 ms", label: "查询 P95" },
-      { value: "3", label: "慢查询 / 15m" }
-    ]
-  },
-  {
-    name: "Redis · cache",
-    shortName: "RED",
-    address: "redis-prod-01:6379",
-    color: "var(--el-color-success)",
-    capacityLabel: "内存",
-    capacity: 26,
-    metrics: [
-      { value: "98.7%", label: "缓存命中率" },
-      { value: "1,245/s", label: "命令 OPS" },
-      { value: "2.1 / 8 GB", label: "内存使用" }
-    ]
+    label: t("system.ops_monitoring.kpi.availability"),
+    value: `${formatNumber(trafficSummary.value?.availability)}%`,
+    change: t("system.ops_monitoring.realtime"),
+    context: t("system.ops_monitoring.kpi.current_window"),
+    tone: "is-up",
+    color: "var(--el-color-success)"
   }
-];
+]);
 
-const endpointItems: EndpointItem[] = [
-  { route: "/api/auth/profile", qps: "64.2", latency: "182 ms", errorRate: "0.02%", status: "正常" },
-  { route: "/api/project-doc/tree", qps: "31.4", latency: "284 ms", errorRate: "0.42%", status: "关注" },
-  { route: "/api/ai/chat", qps: "18.7", latency: "612 ms", errorRate: "1.80%", status: "关注" },
-  { route: "/api/base/menu/list", qps: "13.9", latency: "144 ms", errorRate: "0.00%", status: "正常" }
-];
+const qpsTrend = computed(() => normalizeTrend(traffic.value?.points.map(point => point.qps_percent)));
+const latencyTrend = computed(() => normalizeTrend(traffic.value?.points.map(point => point.latency_percent)));
+const trendAxis = computed(() => (traffic.value?.points ?? []).filter((_, index, list) => index === 0 || index === list.length - 1).map(point => formatClock(point.at)));
 
-const nodeItems: NodeItem[] = [
-  {
-    name: "backend-01",
-    metrics: [
-      { label: "CPU", value: 42, color: "var(--el-color-primary)" },
-      { label: "内存", value: 63, color: "var(--el-color-success)" }
-    ]
-  },
-  {
-    name: "backend-02",
-    metrics: [
-      { label: "CPU", value: 68, color: "var(--el-color-warning)" },
-      { label: "内存", value: 71, color: "var(--el-color-warning)" }
-    ]
-  },
-  {
-    name: "worker-01",
-    metrics: [
-      { label: "CPU", value: 29, color: "var(--el-color-primary)" },
-      { label: "内存", value: 48, color: "var(--el-color-success)" }
-    ]
-  }
-];
+const availabilityItems = computed<AvailabilityItem[]>(() =>
+  (services.value?.services ?? []).map(service => ({
+    label: service.name,
+    value: translateStatus(service.status),
+    tone: service.status === "正常" ? "ok" : "warn"
+  }))
+);
 
-const alertItems = [
-  { title: "AI Chat P95 延迟超过 500 ms", detail: "/api/ai/chat · 当前 612 ms", time: "2 分钟前", tone: "warn" },
-  { title: "定时任务 queue-retry 延迟执行", detail: "worker-01 · 延迟 3 分钟", time: "8 分钟前", tone: "warn" },
-  { title: "MySQL 慢查询告警已恢复", detail: "持续 4 分钟 · 峰值 1.2 s", time: "18 分钟前", tone: "ok" }
-];
+const storageItems = computed(() => (storage.value?.storage ?? []).map(item => mapStorage(item)));
+const endpointItems = computed<EndpointItem[]>(() => (endpoints.value?.endpoints ?? []).map(mapEndpoint));
+const nodeItems = computed<NodeItem[]>(() => (nodes.value?.nodes ?? []).map(mapNode));
+const alertItems = computed(() => (alerts.value?.alerts ?? []).map(mapAlert));
+const serviceCount = computed(() => availabilityItems.value.length);
+const onlineCount = computed(() => availabilityItems.value.filter(item => item.tone === "ok").length);
+
+let sseStops: OpsMonitoringSseStop[] = [];
+
+async function loadMonitoring() {
+  loading.value = true;
+  const results = await Promise.allSettled([
+    defOpsMonitoringService.GetOpsRuntime({}),
+    defOpsMonitoringService.GetOpsTraffic({ window_minutes: windowMinutes.value }),
+    defOpsMonitoringService.GetOpsServices({}),
+    defOpsMonitoringService.GetOpsStorage({}),
+    defOpsMonitoringService.GetOpsEndpoints({ window_minutes: windowMinutes.value }),
+    defOpsMonitoringService.GetOpsNodes({}),
+    defOpsMonitoringService.GetOpsAlerts({ window_minutes: windowMinutes.value })
+  ]);
+  const [runtimeResult, trafficResult, servicesResult, storageResult, endpointsResult, nodesResult, alertsResult] = results;
+  if (runtimeResult.status === "fulfilled") runtime.value = runtimeResult.value;
+  if (trafficResult.status === "fulfilled") setTraffic(trafficResult.value);
+  if (servicesResult.status === "fulfilled") setServices(servicesResult.value);
+  if (storageResult.status === "fulfilled") setStorage(storageResult.value);
+  if (endpointsResult.status === "fulfilled") setEndpoints(endpointsResult.value);
+  if (nodesResult.status === "fulfilled") setNodes(nodesResult.value);
+  if (alertsResult.status === "fulfilled") setAlerts(alertsResult.value);
+  loading.value = false;
+}
+
+function setTraffic(value: OpsTrafficResponse) {
+  traffic.value = value;
+  windowMinutes.value = value.window_minutes || windowMinutes.value;
+  updateCollectedAt(value.collected_at);
+}
+
+function setServices(value: OpsServicesResponse) {
+  services.value = value;
+  updateCollectedAt(value.collected_at);
+}
+
+function setStorage(value: OpsStorageResponse) {
+  storage.value = value;
+  updateCollectedAt(value.collected_at);
+}
+
+function setEndpoints(value: OpsEndpointsResponse) {
+  endpoints.value = value;
+  updateCollectedAt(value.collected_at);
+}
+
+function setNodes(value: OpsNodesResponse) {
+  nodes.value = value;
+  updateCollectedAt(value.collected_at);
+}
+
+function setAlerts(value: OpsAlertsResponse) {
+  alerts.value = value;
+  updateCollectedAt(value.collected_at);
+}
+
+function updateCollectedAt(value?: string) {
+  if (value) lastCollectedAt.value = value;
+}
+
+function subscribeRealtime() {
+  sseStops = [
+    subscribeOpsMonitoringTraffic(setTraffic),
+    subscribeOpsMonitoringServices(setServices),
+    subscribeOpsMonitoringStorage(setStorage),
+    subscribeOpsMonitoringNodes(setNodes)
+  ];
+}
+
+function stopRealtime() {
+  sseStops.forEach(stop => stop());
+  sseStops = [];
+}
+
+function formatNumber(value?: number) {
+  if (value === undefined || Number.isNaN(value)) return "--";
+  return new Intl.NumberFormat(getCurrentLocale(), { maximumFractionDigits: 2 }).format(value);
+}
+
+function formatDateTime(value?: string) {
+  if (!value) return "--";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "--";
+  return new Intl.DateTimeFormat(getCurrentLocale(), { dateStyle: "short", timeStyle: "medium" }).format(date);
+}
+
+function formatClock(value?: string) {
+  if (!value) return "--:--";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "--:--";
+  return new Intl.DateTimeFormat(getCurrentLocale(), { hour: "2-digit", minute: "2-digit" }).format(date);
+}
+
+function formatRelativeTime(value?: string) {
+  if (!value) return "--";
+  const timestamp = new Date(value).getTime();
+  if (Number.isNaN(timestamp)) return "--";
+  const minutes = Math.max(0, Math.round((Date.now() - timestamp) / 60000));
+  if (minutes < 1) return t("system.ops_monitoring.just_now");
+  if (minutes < 60) return t("system.ops_monitoring.minutes_ago", { count: minutes });
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return t("system.ops_monitoring.hours_ago", { count: hours });
+  return t("system.ops_monitoring.days_ago", { count: Math.round(hours / 24) });
+}
+
+function normalizeTrend(values?: number[]) {
+  return values?.length ? values.map(value => Math.max(0, Math.min(value, 100))) : [0, 0, 0, 0];
+}
+
+function translateStatus(status?: string) {
+  if (status === "正常") return t("system.ops_monitoring.status.normal");
+  if (status === "未配置") return t("system.ops_monitoring.status.unconfigured");
+  if (status === "异常") return t("system.ops_monitoring.status.error");
+  if (status === "关注") return t("system.ops_monitoring.status.attention");
+  return status || t("system.ops_monitoring.unknown");
+}
+
+function mapStorage(item: OpsStorage) {
+  return {
+    ...item,
+    color: item.status === "正常" ? "var(--el-color-success)" : "var(--el-color-warning)",
+    statusLabel: translateStatus(item.status),
+    shortName: item.short_name || item.name,
+    capacityLabel: item.capacity_label || t("system.ops_monitoring.capacity"),
+    capacity: Math.max(0, Math.min(item.capacity || 0, 100)),
+    metrics: item.metrics ?? []
+  };
+}
+
+function mapEndpoint(endpoint: OpsEndpoint): EndpointItem {
+  return {
+    route: endpoint.route,
+    qps: formatNumber(endpoint.qps),
+    latency: `${formatNumber(endpoint.p95_latency_ms)} ms`,
+    errorRate: `${formatNumber(endpoint.error_rate)}%`,
+    status: translateStatus(endpoint.status),
+    healthy: endpoint.status === "正常"
+  };
+}
+
+function mapNode(node: OpsNode): NodeItem {
+  return {
+    name: node.name,
+    metrics: (node.metrics ?? []).map(metric => ({
+      label: metric.label,
+      value: Math.max(0, Math.min(metric.value, 100)),
+      color: metric.value >= 70 ? "var(--el-color-warning)" : "var(--el-color-primary)"
+    }))
+  };
+}
+
+function mapAlert(alert: OpsAlert) {
+  return {
+    title: alert.title,
+    detail: alert.detail,
+    at: alert.at,
+    tone: alert.status === "正常" ? "ok" : "warn"
+  };
+}
+
+onMounted(async () => {
+  await loadMonitoring();
+  subscribeRealtime();
+});
+
+onBeforeUnmount(stopRealtime);
 </script>
 
 <style scoped lang="scss">

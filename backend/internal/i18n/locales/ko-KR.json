@@ -679,5 +679,20 @@
   },
   "base.login.verify_captcha.captcha_id.required": {
     "other": "인증 코드는 비워 둘 수 없습니다."
-  }
+  },
+  "base.login.captcha.invalid": { "other": "인증 코드가 올바르지 않습니다" },
+  "base.login.credentials.invalid": { "other": "사용자 이름 또는 비밀번호가 올바르지 않습니다" },
+  "base.login.tenant.disabled": { "other": "테넌트가 비활성화되었습니다" },
+  "base.login.account.disabled": { "other": "계정이 비활성화되었습니다" },
+  "base.login.role.disabled": { "other": "역할이 비활성화되었습니다" },
+  "base.login.department.disabled": { "other": "부서가 비활성화되었습니다" },
+  "base.login.login.failed": { "other": "로그인에 실패했습니다" },
+  "base.login.logout.failed": { "other": "로그아웃에 실패했습니다" },
+  "base.login.refresh.failed": { "other": "인증 토큰을 새로 고치지 못했습니다" },
+  "base.login.captcha.verify_failed": { "other": "인증 코드 확인에 실패했습니다" },
+  "base.ai.message.not_found": { "other": "메시지를 찾을 수 없습니다" },
+  "base.ai.runtime.uninitialized": { "other": "AI 어시스턴트 런타임이 초기화되지 않았습니다" },
+  "base.oauth.login_method.unsupported": { "other": "지원되지 않는 로그인 방식입니다" },
+  "base.oauth.state.invalid": { "other": "타사 로그인 상태가 만료되었습니다" },
+  "base.file.upload.failed": { "other": "파일 업로드에 실패했습니다" }
 }

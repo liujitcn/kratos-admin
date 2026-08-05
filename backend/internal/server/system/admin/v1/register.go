@@ -1,7 +1,11 @@
 package admin
 
 import (
+	"context"
+
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	coreSSE "github.com/liujitcn/kratos-admin/backend/core/pkg/sse"
+	"github.com/liujitcn/kratos-admin/backend/core/pkg/startup"
 	host "github.com/liujitcn/kratos-admin/backend/internal/server"
 	systemadmin "github.com/liujitcn/kratos-admin/backend/internal/service/system/admin/v1"
 
@@ -35,6 +39,7 @@ type Services struct {
 	CodeGenProto     *systemadmin.CodeGenProtoService
 	CodeGenTable     *systemadmin.CodeGenTableService
 	BaseMigration    *systemadmin.BaseMigrationService
+	OpsMonitoring    *systemadmin.OpsMonitoringService
 	ProjectDocument  *systemadmin.ProjectDocumentService
 }
 
@@ -67,6 +72,7 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	systemadminv1.RegisterCodeGenProtoServiceServer(srv, s.CodeGenProto)
 	systemadminv1.RegisterCodeGenTableServiceServer(srv, s.CodeGenTable)
 	systemadminv1.RegisterBaseMigrationServiceServer(srv, s.BaseMigration)
+	systemadminv1.RegisterOpsMonitoringServiceServer(srv, s.OpsMonitoring)
 	systemadminv1.RegisterProjectDocumentServiceServer(srv, s.ProjectDocument)
 }
 
@@ -93,6 +99,7 @@ func (s Services) RegisterHTTP(srv *kratosHTTP.Server) {
 	systemadminv1.RegisterCodeGenProtoServiceHTTPServer(srv, s.CodeGenProto)
 	systemadminv1.RegisterCodeGenTableServiceHTTPServer(srv, s.CodeGenTable)
 	systemadminv1.RegisterBaseMigrationServiceHTTPServer(srv, s.BaseMigration)
+	systemadminv1.RegisterOpsMonitoringServiceHTTPServer(srv, s.OpsMonitoring)
 	systemadminv1.RegisterProjectDocumentServiceHTTPServer(srv, s.ProjectDocument)
 }
 
@@ -128,5 +135,35 @@ func (s Services) RegisterMCP(server *mcpserver.Server) {
 	systemadminv1.RegisterCodeGenProtoServiceMCPTools(mcpSrv, s.CodeGenProto)
 	systemadminv1.RegisterCodeGenTableServiceMCPTools(mcpSrv, s.CodeGenTable)
 	systemadminv1.RegisterBaseMigrationServiceMCPTools(mcpSrv, s.BaseMigration)
+	systemadminv1.RegisterOpsMonitoringServiceMCPTools(mcpSrv, s.OpsMonitoring)
 	systemadminv1.RegisterProjectDocumentServiceMCPTools(mcpSrv, s.ProjectDocument)
+}
+
+// SSEStreams 返回 system.admin 提供的 SSE 流定义。
+func (s Services) SSEStreams() []coreSSE.Stream {
+	if s.OpsMonitoring == nil {
+		return nil
+	}
+	return []coreSSE.Stream{systemadmin.NewOpsMonitoringSSEStream()}
+}
+
+// SetSSEPublisher 注入 system.admin 的 SSE 发布器。
+func (s Services) SetSSEPublisher(publisher *coreSSE.Publisher) {
+	if s.OpsMonitoring != nil {
+		s.OpsMonitoring.SetSSEPublisher(publisher)
+	}
+}
+
+// StartupHooks 返回 system.admin 的启动与清理钩子。
+func (s Services) StartupHooks() []startup.Hook {
+	if s.OpsMonitoring == nil {
+		return nil
+	}
+	return []startup.Hook{{
+		Name: "system.admin.ops-monitoring-sse",
+		Start: func(ctx context.Context) error {
+			return s.OpsMonitoring.StartOpsMonitoringStream(ctx)
+		},
+		Stop: s.OpsMonitoring.StopOpsMonitoringStream,
+	}}
 }
