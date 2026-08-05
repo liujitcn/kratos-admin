@@ -1,7 +1,7 @@
 {
   "name": "@liujitcn/kratos-admin-system",
   "private": false,
-  "version": "0.0.24",
+  "version": "0.0.25",
   "type": "module",
   "description": "kratos-admin system management module",
   "license": "MIT",
