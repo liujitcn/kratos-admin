@@ -122,7 +122,6 @@
       width="760px"
       :model="editForm"
       :fields="editFields"
-      label-width="120px"
       @confirm="handleSubmitEdit"
       @close="handleCloseEditDialog"
     />

@@ -87,11 +87,7 @@ test('扫描模块页面、合并静态资源并在结束时恢复宿主文件',
     )
     assert.match(
       readFileSync(resolve(hostRoot, 'src/pages/index/index.vue'), 'utf8'),
-      /const Page = KratosPage as Component/,
-    )
-    assert.match(
-      readFileSync(resolve(hostRoot, 'src/pages/index/index.vue'), 'utf8'),
-      /<Page v-bind="\$attrs" \/>/,
+      /<KratosPage v-bind="\$attrs" \/>/,
     )
     assert.ok(existsSync(transactionFile))
     assert.ok(existsSync(hostStaticFile))
@@ -101,6 +97,35 @@ test('扫描模块页面、合并静态资源并在结束时恢复宿主文件',
     assert.ok(existsSync(hostStaticFile))
     assert.ok(!existsSync(generatedStaticFile))
     assert.ok(!existsSync(transactionFile))
+  } finally {
+    fixture.dispose()
+  }
+})
+
+test('宿主已声明模块页面时不重复追加路由', async () => {
+  const fixture = await createViteFixture({
+    original:
+      JSON.stringify({
+        pages: [
+          { path: 'pages/bootstrap/index' },
+          { path: 'pages/index/index' },
+          { path: 'pages/login/login' },
+        ],
+        subPackages: [{ root: 'pagesMember', pages: [{ path: 'ai/index' }] }],
+      }) + '\n',
+  })
+
+  try {
+    const generated = JSON.parse(readFileSync(fixture.pagesFile, 'utf8'))
+    const routes = [
+      ...generated.pages.map((page) => page.path),
+      ...generated.subPackages.flatMap((group) =>
+        group.pages.map((page) => `${group.root}/${page.path}`),
+      ),
+    ]
+    assert.equal(routes.length, new Set(routes).size)
+    assert.ok(routes.includes('pages/status/index'))
+    assert.ok(routes.includes('pagesMember/profile/profile'))
   } finally {
     fixture.dispose()
   }
@@ -239,7 +264,7 @@ async function createViteFixture(options = {}) {
   const transactionFile = resolve(hostRoot, '.kratos-uni-app-pages-state.json')
   const hostStaticFile = resolve(inputDir, 'static/host.txt')
   const generatedStaticFile = resolve(inputDir, 'static/tabs/home_default.png')
-  const original = '{"pages":[]}\n'
+  const original = options.original ?? '{"pages":[]}\n'
   mkdirSync(dirname(hostStaticFile), { recursive: true })
   mkdirSync(resolve(hostRoot, 'node_modules/@liujitcn'), { recursive: true })
   writeFileSync(resolve(hostRoot, 'package.json'), '{"type":"module"}\n')

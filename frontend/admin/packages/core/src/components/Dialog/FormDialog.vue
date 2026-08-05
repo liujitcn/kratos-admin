@@ -81,7 +81,7 @@ const props = withDefaults(defineProps<FormDialogProps>(), {
   width: "500px",
   top: "8vh",
   rules: () => ({}),
-  labelWidth: "110px",
+  labelWidth: "",
   gutter: 20,
   colSpan: 24,
   confirmText: "",

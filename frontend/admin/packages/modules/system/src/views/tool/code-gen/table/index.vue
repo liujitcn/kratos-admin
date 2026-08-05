@@ -21,7 +21,6 @@
       :fields="formFields"
       :rules="tableRules"
       :confirm-loading="saving"
-      label-width="116px"
       :gutter="16"
       :col-span="12"
       @confirm="handleSubmit"

@@ -48,6 +48,8 @@ message DraftBaseTranslationRequest {
     (gnostic.openapi.v3.property) = {description: "待翻译文本"},
     (buf.validate.field).cel = {id: "system.admin.base.translation.draft.source.required" message: "待翻译文本不能为空" expression: "this.size() > 0"}
   ]; // 待翻译文本
+
+  optional string locale = 2 [(gnostic.openapi.v3.property) = {description: "目标语言区域，不传时翻译所有启用的非主语言"}]; // 目标语言区域，不传时翻译所有启用的非主语言
 }
 
 // 翻译单个文本响应。

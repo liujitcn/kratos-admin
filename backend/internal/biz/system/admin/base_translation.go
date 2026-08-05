@@ -66,15 +66,22 @@ func (c *BaseTranslationCase) DraftBaseTranslation(ctx context.Context, req *sys
 	if err != nil {
 		return nil, err
 	}
+	locales := state.EditableLocales()
+	if locale := req.GetLocale(); locale != "" {
+		if !state.IsEditable(locale) {
+			return nil, errorsx.InvalidArgument("翻译语言必须是已启用的非主语言")
+		}
+		locales = []string{locale}
+	}
 
 	c.draftMu.Lock()
 	defer c.draftMu.Unlock()
-	locales := state.EditableLocales()
 	translations := make([]*systemadminv1.DraftBaseTranslationItem, 0, len(locales))
 	for _, locale := range locales {
-		translated, translateErr := coreI18n.TranslateProtected(ctx, c.draftTranslator, req.GetSource(), state.Primary, locale)
-		if translateErr != nil {
-			return nil, errorsx.Internal("生成翻译草稿失败").WithCause(translateErr)
+		var translated string
+		translated, err = coreI18n.TranslateProtected(ctx, c.draftTranslator, req.GetSource(), state.Primary, locale)
+		if err != nil {
+			return nil, errorsx.Internal("生成翻译草稿失败").WithCause(err)
 		}
 		translations = append(translations, &systemadminv1.DraftBaseTranslationItem{Locale: locale, Translation: translated})
 	}

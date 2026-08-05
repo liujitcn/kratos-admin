@@ -145,7 +145,7 @@ func (c *BaseMenuCase) TreeBaseMenu(ctx context.Context, req *systemadminv1.Tree
 	if req.GetLazy() {
 		parentID = req.GetParentId()
 	}
-	targetIds := make([]int64, len(list))
+	targetIds := make([]int64, 0, len(list))
 	for _, item := range list {
 		targetIds = append(targetIds, item.ID)
 	}

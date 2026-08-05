@@ -269,12 +269,17 @@
 .login-agreement {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   justify-content: center;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   gap: 6px;
-  white-space: nowrap;
+  box-sizing: border-box;
 }
 
 .login-agree-icon {
+  flex: 0 0 auto;
   width: 26px;
   height: 26px;
   margin-right: 2px;
@@ -291,13 +296,15 @@
 }
 
 .login-agree-link {
+  min-width: 0;
   color: #28bb9c;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
 .login-agree-desc,
 .login-agree-separator {
-  white-space: nowrap;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .login-agree-desc {

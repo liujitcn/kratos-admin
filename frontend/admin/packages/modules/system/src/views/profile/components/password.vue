@@ -17,7 +17,6 @@
             :model="passwordForm"
             :fields="passwordFormFields"
             :rules="passwordFormRules"
-            label-width="96px"
           />
           <PasswordStrength :password="passwordForm.new_pwd" class="password-form-wrap__strength" />
           <div class="password-footer">

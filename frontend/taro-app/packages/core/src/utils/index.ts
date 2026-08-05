@@ -1,4 +1,4 @@
-const configuredStaticUrl = process.env.KRATOS_TARO_STATIC_URL || ''
+const configuredStaticUrl = process.env.VITE_APP_STATIC_URL || ''
 
 /** 日期格式化函数。 */
 export function formatDate(date: Date, format = 'YYYY-MM-DD HH:mm:ss'): string {

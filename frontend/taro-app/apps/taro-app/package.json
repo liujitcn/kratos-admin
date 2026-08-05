@@ -6,7 +6,7 @@
   "scripts": {
     "dev:h5": "node ../../packages/core/dist/runner.mjs --type h5 --watch --mode development",
     "dev:mp-weixin": "node ../../packages/core/dist/runner.mjs --type weapp --watch --mode development",
-    "build:h5": "KRATOS_TARO_OUTPUT_ROOT=../../../../backend/data/taro-app KRATOS_TARO_PUBLIC_PATH=/taro-app/ node ../../packages/core/dist/runner.mjs --type h5 --mode production",
+    "build:h5": "KRATOS_TARO_OUTPUT_ROOT=../../../../backend/data/taro-app node ../../packages/core/dist/runner.mjs --type h5 --mode production",
     "build:mp-weixin": "node ../../packages/core/dist/runner.mjs --type weapp --mode production",
     "tsc": "trap 'status=$?; node ../../packages/core/dist/runner.mjs --type h5 --mode development --cleanup-only; exit $status' EXIT; node ../../packages/core/dist/runner.mjs --type h5 --mode development --prepare-only && tsc --noEmit -p tsconfig.json"
   },

@@ -14,12 +14,12 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
 	github.com/liujitcn/go-utils v0.0.35
-	github.com/liujitcn/go-utils/crypto v0.0.11
+	github.com/liujitcn/go-utils/crypto v0.0.12
 	github.com/liujitcn/go-utils/geoip v0.0.4
 	github.com/liujitcn/go-utils/http v0.0.5
 	github.com/liujitcn/go-utils/translator v0.0.2
 	github.com/liujitcn/gorm-kit v0.0.32
-	github.com/liujitcn/kratos-admin/backend/core v0.0.6
+	github.com/liujitcn/kratos-admin/backend/core v0.0.8
 	github.com/liujitcn/kratos-kit v0.0.64
 	github.com/liujitcn/kratos-kit/ai/eino v0.0.6
 	github.com/liujitcn/kratos-kit/api v0.0.24
@@ -43,7 +43,7 @@ require (
 	github.com/liujitcn/kratos-kit/pprof v0.0.12
 	github.com/liujitcn/kratos-kit/queue v0.0.22
 	github.com/liujitcn/kratos-kit/rpc v0.0.20
-	github.com/liujitcn/kratos-kit/swagger-ui v0.0.12
+	github.com/liujitcn/kratos-kit/swagger-ui v0.0.13
 	github.com/liujitcn/kratos-kit/translator v0.0.3
 	github.com/liujitcn/kratos-kit/transport/cron v0.0.11
 	github.com/liujitcn/kratos-kit/transport/mcp v0.0.12
@@ -52,6 +52,7 @@ require (
 	github.com/mileusna/useragent v1.3.5
 	github.com/modelcontextprotocol/go-sdk v1.6.0
 	github.com/openai/openai-go/v3 v3.35.0
+	github.com/redis/go-redis/v9 v9.19.0
 	github.com/robfig/cron/v3 v3.0.1
 	google.golang.org/genproto/googleapis/api v0.0.0-20260526163538-3dc84a4a5aaa
 	google.golang.org/grpc v1.83.0
@@ -62,8 +63,6 @@ require (
 	gorm.io/plugin/dbresolver v1.6.2
 	gorm.io/plugin/soft_delete v1.2.1
 )
-
-replace github.com/liujitcn/kratos-admin/backend/core v0.0.6 => ./core
 
 require (
 	cel.dev/expr v0.25.2 // indirect
@@ -220,7 +219,6 @@ require (
 	github.com/prometheus/procfs v0.20.1 // indirect
 	github.com/redis/go-redis/extra/rediscmd/v9 v9.19.0 // indirect
 	github.com/redis/go-redis/extra/redisotel/v9 v9.19.0 // indirect
-	github.com/redis/go-redis/v9 v9.19.0 // indirect
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/segmentio/encoding v0.5.4 // indirect

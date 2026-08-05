@@ -15,4 +15,6 @@ pnpm dlx @liujitcn/kratos-taro-app-cli create customer-app --with @acme/customer
 
 本地模块包含运行时入口、页面清单和构建期入口。模块页面由 core runner 在构建期间装配到私有宿主，不需要提交生成的页面包装器。
 
+脚手架会在 workspace 根目录生成四套环境文件，使用与 uni-app 一致的 `VITE_APP_PORT`、`VITE_APP_BASE_PATH`、`VITE_APP_BASE_API`、`VITE_APP_API_URL`、`VITE_APP_STATIC_API`、`VITE_APP_STATIC_URL` 变量。
+
 JavaScript 调用方也可以直接使用 `scaffoldKratosTaroApp(target, options)`。

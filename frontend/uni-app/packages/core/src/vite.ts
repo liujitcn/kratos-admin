@@ -582,6 +582,7 @@ function scanViews(root: string): Array<{ route: string; source: string }> {
 function appendPage(manifest: PagesManifest, page: ScannedPage): void {
   const [first, ...rest] = page.route.split('/')
   if (!first.startsWith('pages') || first === 'pages') {
+    if (manifest.pages.some((item) => normalizeRoute(item.path) === page.route)) return
     manifest.pages.push({ path: page.route, style: page.style })
     return
   }
@@ -591,22 +592,22 @@ function appendPage(manifest: PagesManifest, page: ScannedPage): void {
     subPackage = { root: first, pages: [] }
     manifest.subPackages.push(subPackage)
   }
+  if (subPackage.pages.some((item) => normalizeRoute(`${first}/${item.path}`) === page.route))
+    return
   subPackage.pages.push({ path: rest.join('/'), style: page.style })
 }
 
 function createPageWrapper(page: ScannedPage): string {
   const source = page.source.replace(/\\/g, '/')
   return `<script setup lang="ts">
-import type { Component } from 'vue'
 import KratosPage from ${JSON.stringify(source)}
 import KratosTabBar from '@liujitcn/kratos-uni-app-core/components/KratosTabBar.vue'
 
 defineOptions({ inheritAttrs: false })
-const Page = KratosPage as Component
 </script>
 
 <template>
-  <Page v-bind="$attrs" />
+  <KratosPage v-bind="$attrs" />
   <KratosTabBar route=${JSON.stringify(page.route)} />
 </template>
 `

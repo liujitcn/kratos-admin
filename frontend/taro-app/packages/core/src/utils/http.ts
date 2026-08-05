@@ -12,8 +12,8 @@ import {
 import { saveCurrentRoute } from './navigation'
 import { getLocaleRequestHeaders, t } from '../locales'
 
-const apiBasePath = process.env.KRATOS_TARO_API_BASE || '/api'
-const apiTargetUrl = process.env.KRATOS_TARO_API_URL || ''
+const apiBasePath = process.env.VITE_APP_BASE_API || '/api'
+const apiTargetUrl = process.env.VITE_APP_API_URL || ''
 const normalizedApiBasePath = apiBasePath.startsWith('/') ? apiBasePath : `/${apiBasePath}`
 const requestOrigin = process.env.TARO_ENV === 'h5' ? '' : apiTargetUrl.replace(/\/$/, '')
 /** 请求基础地址。 */

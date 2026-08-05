@@ -58,7 +58,6 @@
         top="4vh"
         :model="previewFormModel"
         :fields="formFields"
-        label-width="116px"
         :gutter="20"
         :col-span="12"
         @confirm="handleSubmit"

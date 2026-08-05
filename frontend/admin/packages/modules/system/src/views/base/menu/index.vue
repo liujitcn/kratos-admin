@@ -21,7 +21,6 @@
       :model="formData"
       :fields="formFields"
       :rules="rules"
-      label-width="120px"
       :col-span="12"
       @confirm="handleSubmit"
       @close="handleCloseDialog"

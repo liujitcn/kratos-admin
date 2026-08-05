@@ -135,6 +135,7 @@ const createDefaultMenus = (): AppMenu[] => [
 
 const menus = ref<AppMenu[]>([])
 const ready = ref(false)
+let tabNavigationTarget: string | undefined
 let adapter: AppNavigationAdapter = {
   list: () => defBaseMenuService.ListBaseMenu(),
 }
@@ -208,11 +209,29 @@ export function navigateAppRoute(rawRoute: string, options: { replace?: boolean 
     .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
     .join('&')
   const url = `/${resolved.physicalRoute}${query ? `?${query}` : ''}`
-  if (options.replace || resolved.menu.inTabBar) {
+  if (resolved.menu.inTabBar) {
+    navigateTabRoute(url)
+    return
+  }
+  if (options.replace) {
     uni.reLaunch({ url })
     return
   }
   uni.navigateTo({ url, fail: () => uni.reLaunch({ url }) })
+}
+
+/** 切换 tab 页面，避免当前页重复跳转和并发重建页面栈。 */
+function navigateTabRoute(url: string): void {
+  const targetRoute = url.slice(1).split('?', 1)[0]
+  const pages = getCurrentPages()
+  const currentPage = pages[pages.length - 1]
+  if (currentPage?.route === targetRoute || tabNavigationTarget) return
+
+  tabNavigationTarget = targetRoute
+  const release = () => {
+    if (tabNavigationTarget === targetRoute) tabNavigationTarget = undefined
+  }
+  uni.reLaunch({ url, success: release, fail: release, complete: release })
 }
 
 /** 获取导航响应式状态。 */

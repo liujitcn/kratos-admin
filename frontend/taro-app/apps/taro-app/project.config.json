@@ -2,7 +2,7 @@
   "miniprogramRoot": "./dist/mp-weixin",
   "projectname": "kratos-taro-app",
   "description": "Kratos Taro React application",
-  "appid": "wx80073bcc341e31fb",
+  "appid": "wx3fe0d8a39051f39a",
   "setting": {
     "urlCheck": false,
     "es6": false,

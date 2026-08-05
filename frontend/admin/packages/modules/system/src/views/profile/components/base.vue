@@ -61,7 +61,7 @@
       :width="520"
       @closed="handleDialogClosed"
     >
-      <ProForm ref="accountFormRef" :model="accountForm" :fields="accountFormFields" label-width="96px" />
+      <ProForm ref="accountFormRef" :model="accountForm" :fields="accountFormFields" />
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="accountDialogVisible = false">{{ t("common.action.cancel") }}</el-button>

@@ -129,7 +129,7 @@ async function handleTranslate(locale: string) {
   if (!item || item.text || item.locale === currentLocale.value || !props.source || translating.value || translatingLocale.value) return;
   translatingLocale.value = locale;
   try {
-    const response = await defBaseTranslationService.DraftBaseTranslation({ source: props.source });
+    const response = await defBaseTranslationService.DraftBaseTranslation({ source: props.source, locale });
     const translation = response.translations.find(item => item.locale === locale)?.translation;
     if (!translation) throw new Error("translation not found");
     const values = localValues.value.map(value => (value.locale === locale ? { ...value, text: translation } : value));

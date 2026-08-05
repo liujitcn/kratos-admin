@@ -61,7 +61,8 @@ pnpm build:mp-weixin
 - H5 开发地址默认是 `http://localhost:5002`，`/api` 和 `/events` 代理到 `http://localhost:7001`。
 - H5 生产产物写入 `backend/data/taro-app`，访问地址是 `/taro-app/`。
 - 微信小程序开发和生产产物统一写入 `apps/taro-app/dist/mp-weixin`，微信开发者工具可直接导入该目录。
-- `KRATOS_TARO_API_URL` 配置后端地址；`KRATOS_TARO_API_BASE`、`KRATOS_TARO_STATIC_URL`、`KRATOS_TARO_PUBLIC_PATH` 可分别覆盖 API 前缀、静态资源地址和 H5 公共路径。
+- 环境文件位于 workspace 根目录，变量名与 uni-app 保持一致：`VITE_APP_PORT`、`VITE_APP_BASE_PATH`、`VITE_APP_BASE_API`、`VITE_APP_API_URL`、`VITE_APP_STATIC_API`、`VITE_APP_STATIC_URL`。H5 会在基础模式文件上叠加 `.env.development-h5` 或 `.env.production-h5`。
+- `KRATOS_TARO_OUTPUT_ROOT` 仅用于覆盖构建输出目录，不属于 API 环境变量。
 
 设计稿宽度为 750。迁移自 uni-app 的 `rpx` 直接写作 Taro 设计稿 `px`；必须保持物理像素的原 `px` 使用 Taro 不转换写法。
 

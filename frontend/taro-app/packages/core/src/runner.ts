@@ -109,7 +109,17 @@ async function main(): Promise<void> {
   process.once('SIGTERM', () => handleSignal('SIGTERM'))
 
   try {
-    const args = ['exec', 'taro', 'build', '--type', options.type, '--mode', options.mode]
+    const args = [
+      'exec',
+      'taro',
+      'build',
+      '--type',
+      options.type,
+      '--mode',
+      options.mode,
+      '--env-prefix',
+      'VITE_APP_,TARO_APP_',
+    ]
     if (options.watch) args.push('--watch')
     child = spawn(process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm', args, {
       cwd: hostRoot,

@@ -31,7 +31,6 @@
       :model="formData"
       :fields="formFields"
       :rules="rules"
-      label-width="90px"
       @confirm="handleSubmit"
       @close="handleCloseDialog"
     >
@@ -48,7 +47,6 @@
       :model="resetPwdForm"
       :fields="resetPwdFields"
       :rules="resetPwdRules"
-      label-width="90px"
       @confirm="handleConfirmResetPassword"
       @close="handleCloseResetPasswordDialog"
     >

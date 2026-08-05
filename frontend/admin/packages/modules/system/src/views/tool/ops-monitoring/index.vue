@@ -1,11 +1,6 @@
 <template>
   <div class="app-container ops-monitoring-page">
     <section class="ops-page-head">
-      <div>
-        <div class="ops-breadcrumb">{{ t("system.ops_monitoring.breadcrumb") }}</div>
-        <h1>{{ t("system.ops_monitoring.title") }}</h1>
-        <p>{{ runtimeDescription }}</p>
-      </div>
       <div class="ops-page-meta">
         <el-tag :type="loading ? 'info' : 'success'" effect="plain">
           {{ loading ? t("system.ops_monitoring.collecting") : t("system.ops_monitoring.realtime") }}
@@ -41,36 +36,60 @@
           <span><i class="ops-legend-mark is-teal" />QPS</span>
           <span><i class="ops-legend-mark is-amber" />{{ t("system.ops_monitoring.p95_latency") }}</span>
         </div>
-        <div class="ops-trend-row">
-          <span class="ops-trend-label">QPS</span>
-          <div
-            class="ops-trend-bars"
-            :aria-label="
-              t('system.ops_monitoring.qps_trend', { value: `${formatNumber(trafficSummary?.qps)} req/s` })
-            "
-          >
-            <i v-for="(point, index) in qpsTrend" :key="`qps-${index}`" class="is-teal" :style="{ height: `${point}%` }" />
+        <div class="ops-trend-plot-row">
+          <div class="ops-trend-chart-shell">
+            <div class="ops-trend-scale is-left" aria-hidden="true">
+              <span>{{ formatNumber(trendChart.qpsMax) }}<small>req/s</small></span>
+              <span>0</span>
+            </div>
+            <svg
+              class="ops-trend-chart"
+              viewBox="0 0 1000 220"
+              preserveAspectRatio="none"
+              role="img"
+              :aria-label="trendAriaLabel"
+            >
+              <line
+                v-for="line in trendGridLines"
+                :key="`trend-grid-${line}`"
+                class="ops-trend-grid-line"
+                x1="0"
+                :y1="line"
+                x2="1000"
+                :y2="line"
+              />
+              <polygon v-if="qpsArea" :points="qpsArea" class="ops-trend-area is-teal" />
+              <polygon v-if="latencyArea" :points="latencyArea" class="ops-trend-area is-amber" />
+              <polyline v-if="qpsLine" :points="qpsLine" class="ops-trend-line is-teal" />
+              <polyline v-if="latencyLine" :points="latencyLine" class="ops-trend-line is-amber" />
+              <g v-for="point in trendPoints" :key="`trend-point-${point.index}`">
+                <circle :cx="point.x" :cy="point.qpsY" r="4" class="ops-trend-point is-teal">
+                  <title>{{ formatTrendPoint(point) }}</title>
+                </circle>
+                <circle :cx="point.x" :cy="point.latencyY" r="4" class="ops-trend-point is-amber">
+                  <title>{{ formatTrendPoint(point) }}</title>
+                </circle>
+              </g>
+            </svg>
+            <div class="ops-trend-scale is-right" aria-hidden="true">
+              <span>{{ formatNumber(trendChart.latencyMax) }}<small>ms</small></span>
+              <span>0</span>
+            </div>
           </div>
-          <strong>{{ formatNumber(trafficSummary?.qps) }}<small>req/s</small></strong>
-        </div>
-        <div class="ops-trend-row">
-          <span class="ops-trend-label">P95</span>
-          <div
-            class="ops-trend-bars"
-            :aria-label="
-              t('system.ops_monitoring.p95_trend', { value: `${formatNumber(trafficSummary?.p95_latency_ms)} ms` })
-            "
-          >
-            <i
-              v-for="(point, index) in latencyTrend"
-              :key="`latency-${index}`"
-              class="is-amber"
-              :style="{ height: `${point}%` }"
-            />
+          <div class="ops-trend-current" aria-hidden="true">
+            <div>
+              <span class="is-teal">QPS</span>
+              <strong>{{ formatNumber(trafficSummary?.qps) }}<small>req/s</small></strong>
+            </div>
+            <div>
+              <span class="is-amber">P95</span>
+              <strong>{{ formatNumber(trafficSummary?.p95_latency_ms) }}<small>ms</small></strong>
+            </div>
           </div>
-          <strong>{{ formatNumber(trafficSummary?.p95_latency_ms) }}<small>ms</small></strong>
         </div>
-        <div class="ops-time-axis"><span v-for="point in trendAxis" :key="point">{{ point }}</span></div>
+        <div class="ops-time-axis">
+          <span v-for="point in trendAxis" :key="point">{{ point }}</span>
+        </div>
       </el-card>
 
       <el-card class="ops-panel" shadow="never">
@@ -109,7 +128,9 @@
                 <code>{{ item.address }}</code>
               </div>
             </div>
-            <el-tag :type="item.status === '正常' ? 'success' : 'warning'" size="small" effect="plain">{{ item.statusLabel }}</el-tag>
+            <el-tag :type="item.status === '正常' ? 'success' : 'warning'" size="small" effect="plain">{{
+              item.statusLabel
+            }}</el-tag>
           </div>
           <div class="ops-storage-metrics">
             <div v-for="metric in item.metrics" :key="metric.label">
@@ -218,7 +239,6 @@ import type {
   OpsAlert,
   OpsEndpoint,
   OpsNode,
-  OpsRuntime,
   OpsAlertsResponse,
   OpsEndpointsResponse,
   OpsServicesResponse,
@@ -269,8 +289,36 @@ interface EndpointItem {
 interface NodeItem {
   /** 实例名称。 */
   name: string;
-  /** CPU 与内存指标。 */
+  /** 实例资源指标。 */
   metrics: Array<{ label: string; value: number; color: string }>;
+}
+
+/** 折线图中的流量趋势点。 */
+interface TrendPoint {
+  /** 点在图表中的序号。 */
+  index: number;
+  /** 时间标签。 */
+  time: string;
+  /** 每秒请求数。 */
+  qps: number;
+  /** P95 响应延迟。 */
+  latency: number;
+  /** 横坐标。 */
+  x: number;
+  /** QPS 折线纵坐标。 */
+  qpsY: number;
+  /** P95 折线纵坐标。 */
+  latencyY: number;
+}
+
+/** 折线图数据和双 Y 轴刻度。 */
+interface TrendChart {
+  /** 折线图数据点。 */
+  points: TrendPoint[];
+  /** QPS 轴最大值。 */
+  qpsMax: number;
+  /** P95 轴最大值。 */
+  latencyMax: number;
 }
 
 /** 服务依赖摘要。 */
@@ -284,7 +332,6 @@ interface AvailabilityItem {
 }
 
 const loading = ref(false);
-const runtime = ref<OpsRuntime>();
 const traffic = ref<OpsTrafficResponse>();
 const services = ref<OpsServicesResponse>();
 const storage = ref<OpsStorageResponse>();
@@ -293,13 +340,8 @@ const nodes = ref<OpsNodesResponse>();
 const alerts = ref<OpsAlertsResponse>();
 const windowMinutes = ref(15);
 const lastCollectedAt = ref("");
+const trendGridLines = [16, 62, 108, 154, 198];
 const trafficSummary = computed(() => traffic.value?.traffic);
-const runtimeDescription = computed(() => {
-  if (!runtime.value) return t("system.ops_monitoring.runtime_unavailable");
-  const environment = runtime.value.environment || t("system.ops_monitoring.unknown");
-  const service = runtime.value.service_name || t("system.ops_monitoring.unknown");
-  return t("system.ops_monitoring.runtime_description", { environment, service });
-});
 
 const kpiItems = computed<KpiItem[]>(() => [
   {
@@ -336,9 +378,50 @@ const kpiItems = computed<KpiItem[]>(() => [
   }
 ]);
 
-const qpsTrend = computed(() => normalizeTrend(traffic.value?.points.map(point => point.qps_percent)));
-const latencyTrend = computed(() => normalizeTrend(traffic.value?.points.map(point => point.latency_percent)));
-const trendAxis = computed(() => (traffic.value?.points ?? []).filter((_, index, list) => index === 0 || index === list.length - 1).map(point => formatClock(point.at)));
+const trendChart = computed<TrendChart>(() => {
+  const source = traffic.value?.points ?? [];
+  const rawPoints = source.length
+    ? source.map(point => ({
+        at: point.at,
+        qps: Math.max(0, Number.isFinite(point.qps) ? point.qps : 0),
+        latency: Math.max(0, Number.isFinite(point.p95_latency_ms) ? point.p95_latency_ms : 0)
+      }))
+    : Array.from({ length: 4 }, () => ({ at: "", qps: 0, latency: 0 }));
+  const qpsMax = Math.max(...rawPoints.map(point => point.qps), 0);
+  const latencyMax = Math.max(...rawPoints.map(point => point.latency), 0);
+  const plotHeight = 198 - 16;
+
+  return {
+    qpsMax,
+    latencyMax,
+    points: rawPoints.map((point, index) => ({
+      index,
+      time: formatClock(point.at),
+      qps: point.qps,
+      latency: point.latency,
+      x: rawPoints.length === 1 ? 500 : (index / (rawPoints.length - 1)) * 1000,
+      qpsY: 198 - (qpsMax ? (point.qps / qpsMax) * plotHeight : 0),
+      latencyY: 198 - (latencyMax ? (point.latency / latencyMax) * plotHeight : 0)
+    }))
+  };
+});
+const trendPoints = computed(() => trendChart.value.points);
+const qpsLine = computed(() => trendPoints.value.map(point => `${point.x},${point.qpsY}`).join(" "));
+const latencyLine = computed(() => trendPoints.value.map(point => `${point.x},${point.latencyY}`).join(" "));
+const qpsArea = computed(() => (qpsLine.value ? `${qpsLine.value} 1000,198 0,198` : ""));
+const latencyArea = computed(() => (latencyLine.value ? `${latencyLine.value} 1000,198 0,198` : ""));
+const trendAriaLabel = computed(
+  () =>
+    `${t("system.ops_monitoring.qps_trend", { value: `${formatNumber(trafficSummary.value?.qps)} req/s` })}; ${t(
+      "system.ops_monitoring.p95_trend",
+      { value: `${formatNumber(trafficSummary.value?.p95_latency_ms)} ms` }
+    )}`
+);
+const trendAxis = computed(() => {
+  if (!traffic.value?.points.length) return [];
+  const lastIndex = trendPoints.value.length - 1;
+  return Array.from(new Set([0, Math.floor(lastIndex / 2), lastIndex])).map(index => trendPoints.value[index].time);
+});
 
 const availabilityItems = computed<AvailabilityItem[]>(() =>
   (services.value?.services ?? []).map(service => ({
@@ -360,7 +443,6 @@ let sseStops: OpsMonitoringSseStop[] = [];
 async function loadMonitoring() {
   loading.value = true;
   const results = await Promise.allSettled([
-    defOpsMonitoringService.GetOpsRuntime({}),
     defOpsMonitoringService.GetOpsTraffic({ window_minutes: windowMinutes.value }),
     defOpsMonitoringService.GetOpsServices({}),
     defOpsMonitoringService.GetOpsStorage({}),
@@ -368,8 +450,7 @@ async function loadMonitoring() {
     defOpsMonitoringService.GetOpsNodes({}),
     defOpsMonitoringService.GetOpsAlerts({ window_minutes: windowMinutes.value })
   ]);
-  const [runtimeResult, trafficResult, servicesResult, storageResult, endpointsResult, nodesResult, alertsResult] = results;
-  if (runtimeResult.status === "fulfilled") runtime.value = runtimeResult.value;
+  const [trafficResult, servicesResult, storageResult, endpointsResult, nodesResult, alertsResult] = results;
   if (trafficResult.status === "fulfilled") setTraffic(trafficResult.value);
   if (servicesResult.status === "fulfilled") setServices(servicesResult.value);
   if (storageResult.status === "fulfilled") setStorage(storageResult.value);
@@ -447,6 +528,11 @@ function formatClock(value?: string) {
   return new Intl.DateTimeFormat(getCurrentLocale(), { hour: "2-digit", minute: "2-digit" }).format(date);
 }
 
+/** 格式化折线图悬浮提示内容。 */
+function formatTrendPoint(point: TrendPoint) {
+  return `${point.time || "--:--"} / QPS ${formatNumber(point.qps)} req/s / P95 ${formatNumber(point.latency)} ms`;
+}
+
 function formatRelativeTime(value?: string) {
   if (!value) return "--";
   const timestamp = new Date(value).getTime();
@@ -457,10 +543,6 @@ function formatRelativeTime(value?: string) {
   const hours = Math.round(minutes / 60);
   if (hours < 24) return t("system.ops_monitoring.hours_ago", { count: hours });
   return t("system.ops_monitoring.days_ago", { count: Math.round(hours / 24) });
-}
-
-function normalizeTrend(values?: number[]) {
-  return values?.length ? values.map(value => Math.max(0, Math.min(value, 100))) : [0, 0, 0, 0];
 }
 
 function translateStatus(status?: string) {
@@ -532,7 +614,7 @@ onBeforeUnmount(stopRealtime);
 
   box-sizing: border-box;
   min-height: 100%;
-  padding: 24px;
+  padding: 0;
   color: var(--ops-text-primary);
   background: var(--el-bg-color-page);
 }
@@ -549,34 +631,13 @@ onBeforeUnmount(stopRealtime);
   justify-content: space-between;
   margin-bottom: 22px;
 }
-.ops-breadcrumb {
-  display: flex;
-  gap: 7px;
-  margin-bottom: 9px;
-  font-size: 12px;
-  color: var(--ops-text-placeholder);
-}
-.ops-breadcrumb span {
-  color: var(--el-border-color);
-}
-.ops-page-head h1 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 650;
-  line-height: 1.2;
-  color: var(--ops-text-primary);
-}
-.ops-page-head p {
-  margin: 8px 0 0;
-  font-size: 13px;
-  color: var(--ops-text-secondary);
-}
 .ops-page-meta {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   align-items: center;
   justify-content: flex-end;
+  margin-left: auto;
   font-size: 12px;
   color: var(--ops-text-placeholder);
 }
@@ -708,68 +769,130 @@ onBeforeUnmount(stopRealtime);
   height: 3px;
   border-radius: 3px;
 }
-.ops-legend-mark.is-teal,
-.ops-trend-bars i.is-teal {
+.ops-legend-mark.is-teal {
   background: var(--el-color-primary);
 }
-.ops-legend-mark.is-amber,
-.ops-trend-bars i.is-amber {
+.ops-legend-mark.is-amber {
   background: var(--el-color-warning);
 }
-.ops-trend-row {
+.ops-trend-plot-row {
   display: grid;
-  grid-template-columns: 55px minmax(0, 1fr) 67px;
+  grid-template-columns: minmax(0, 1fr) 72px;
   gap: 10px;
-  align-items: end;
-  margin-bottom: 13px;
+  align-items: stretch;
 }
-.ops-trend-label {
-  font-size: 12px;
-  color: var(--ops-text-secondary);
-}
-.ops-trend-bars {
+.ops-trend-chart-shell {
   display: grid;
-  grid-template-columns: repeat(12, minmax(4px, 1fr));
-  gap: 5px;
-  align-items: end;
-  height: 105px;
-  padding: 0 2px;
-  border-bottom: 1px solid var(--el-border-color-lighter);
+  grid-template-columns: 54px minmax(0, 1fr) 48px;
+  gap: 8px;
+  min-width: 0;
+  min-height: 220px;
 }
-.ops-trend-bars i {
+.ops-trend-scale {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+  padding: 4px 0 18px;
+  font-size: 10px;
+  line-height: 1.2;
+  color: var(--ops-text-placeholder);
+}
+.ops-trend-scale span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ops-trend-scale small {
+  font-size: 9px;
+  color: var(--ops-text-placeholder);
+}
+.ops-trend-scale.is-right {
+  text-align: left;
+}
+.ops-trend-chart {
   display: block;
-  min-height: 4px;
-  border-radius: 3px 3px 0 0;
-  opacity: 0.8;
+  width: 100%;
+  height: 220px;
+  overflow: visible;
 }
-.ops-trend-bars i:last-child {
-  opacity: 1;
+.ops-trend-grid-line {
+  stroke: var(--el-border-color-lighter);
+  stroke-dasharray: 4 5;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
 }
-.ops-trend-row > strong {
+.ops-trend-area {
+  opacity: 0.08;
+}
+.ops-trend-area.is-teal {
+  fill: var(--el-color-primary);
+}
+.ops-trend-area.is-amber {
+  fill: var(--el-color-warning);
+}
+.ops-trend-line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+}
+.ops-trend-line.is-teal,
+.ops-trend-point.is-teal {
+  stroke: var(--el-color-primary);
+}
+.ops-trend-line.is-amber,
+.ops-trend-point.is-amber {
+  stroke: var(--el-color-warning);
+}
+.ops-trend-point {
+  fill: var(--ops-card-bg);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+.ops-trend-current {
+  display: grid;
+  align-content: center;
+  gap: 22px;
+  min-width: 0;
+}
+.ops-trend-current > div {
+  min-width: 0;
+}
+.ops-trend-current span {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 10px;
+  font-weight: 550;
+}
+.ops-trend-current span.is-teal {
+  color: var(--el-color-primary);
+}
+.ops-trend-current span.is-amber {
+  color: var(--el-color-warning);
+}
+.ops-trend-current strong {
+  display: block;
+  overflow: hidden;
   font-size: 14px;
   font-weight: 650;
   color: var(--ops-text-primary);
-  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.ops-trend-row > strong small {
-  display: block;
-  font-size: 10px;
+.ops-trend-current small {
+  margin-left: 3px;
+  font-size: 9px;
   font-weight: 400;
   color: var(--ops-text-placeholder);
 }
 .ops-time-axis {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  margin: -5px 77px 0 65px;
+  display: flex;
+  justify-content: space-between;
+  margin: -1px 80px 0 62px;
   font-size: 10px;
   color: var(--ops-text-placeholder);
-}
-.ops-time-axis span:nth-child(2),
-.ops-time-axis span:nth-child(3) {
-  text-align: center;
-}
-.ops-time-axis span:last-child {
-  text-align: right;
 }
 .ops-summary-list {
   margin-top: 5px;
@@ -1010,9 +1133,6 @@ onBeforeUnmount(stopRealtime);
 }
 
 @media (width <= 680px) {
-  .ops-monitoring-page {
-    padding: 16px;
-  }
   .ops-page-head {
     flex-direction: column;
     gap: 13px;
@@ -1020,21 +1140,25 @@ onBeforeUnmount(stopRealtime);
   }
   .ops-page-meta {
     justify-content: flex-start;
+    margin-left: 0;
   }
   .ops-kpi-grid,
   .ops-storage-grid {
     grid-template-columns: 1fr;
   }
-  .ops-trend-row {
-    grid-template-columns: 45px minmax(0, 1fr) 61px;
-    gap: 7px;
+  .ops-trend-plot-row {
+    grid-template-columns: 1fr;
+    gap: 14px;
   }
-  .ops-trend-bars {
-    gap: 3px;
+  .ops-trend-current {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--el-border-color-lighter);
   }
   .ops-time-axis {
-    margin-right: 69px;
-    margin-left: 52px;
+    margin-right: 56px;
+    margin-left: 54px;
   }
   .ops-node-row {
     grid-template-columns: 82px minmax(0, 1fr);

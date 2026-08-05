@@ -1,5 +1,5 @@
 <template>
-  <el-link class="dynamic-translation-cell" type="primary" :underline="false" @click="openDialog">
+  <el-link class="dynamic-translation-cell" type="primary" underline="never" @click="openDialog">
     <span class="dynamic-translation-cell__source">{{ displaySource || "--" }}</span>
   </el-link>
 
@@ -45,10 +45,6 @@
         </template>
       </el-table-column>
     </el-table>
-
-    <template #footer>
-      <el-button @click="dialogVisible = false">{{ t("common.action.cancel") }}</el-button>
-    </template>
   </ProDialog>
 </template>
 

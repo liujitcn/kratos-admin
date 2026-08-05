@@ -1,23 +1,39 @@
 import { resolve } from 'node:path'
 import { defineConfig, type UserConfigExport } from '@tarojs/cli'
+import { dotenvParse } from '@tarojs/helper'
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin'
 import devConfig from './dev'
 import prodConfig from './prod'
 
+const workspaceRoot = resolve(__dirname, '../../..')
 const h5RootFontScript = `!function(n){function f(){var e=n.document.documentElement,w=e.clientWidth||n.innerWidth||375,x=w>960?375:w;e.style.fontSize=20*x/375+"px"}n.addEventListener("resize",function(){f();setTimeout(f,500)}),f()}(window);`
 
+function resolveEnv(mode: string, platform: string): Record<string, string> {
+  const baseEnv = dotenvParse(workspaceRoot, 'VITE_APP_', mode)
+  const platformEnv =
+    platform === 'h5' ? dotenvParse(workspaceRoot, 'VITE_APP_', `${mode}-${platform}`) : {}
+  const shellEnv = Object.fromEntries(
+    Object.entries(process.env).filter(([key]) => key.startsWith('VITE_APP_')),
+  ) as Record<string, string>
+  return { ...baseEnv, ...platformEnv, ...shellEnv }
+}
+
 export default defineConfig<'webpack5'>(async (merge) => {
+  const mode = process.env.NODE_ENV || 'production'
+  const platform = process.env.TARO_ENV || ''
+  const env = resolveEnv(mode, platform)
   const outputRoot =
     process.env.KRATOS_TARO_OUTPUT_ROOT ||
-    (process.env.TARO_ENV === 'h5'
+    (platform === 'h5'
       ? 'dist/h5'
-      : process.env.TARO_ENV === 'weapp'
+      : platform === 'weapp'
         ? 'dist/mp-weixin'
         : 'dist')
-  const publicPath = process.env.KRATOS_TARO_PUBLIC_PATH || '/'
-  const apiBasePath = process.env.KRATOS_TARO_API_BASE || '/api'
-  const apiTargetUrl = process.env.KRATOS_TARO_API_URL || 'http://192.168.60.52:7001'
-  const staticUrl = process.env.KRATOS_TARO_STATIC_URL || apiTargetUrl
+  const publicPath = env.VITE_APP_BASE_PATH ?? '/'
+  const apiBasePath = env.VITE_APP_BASE_API ?? '/api'
+  const apiTargetUrl = env.VITE_APP_API_URL ?? 'http://127.0.0.1:7001'
+  const staticApi = env.VITE_APP_STATIC_API ?? ''
+  const staticUrl = env.VITE_APP_STATIC_URL ?? apiTargetUrl
   const packageRoots = [
     resolve(__dirname, '../../../packages/core/src'),
     resolve(__dirname, '../../../packages/ui/src'),
@@ -54,10 +70,12 @@ export default defineConfig<'webpack5'>(async (merge) => {
       options: {},
     },
     defineConstants: {
-      'process.env.KRATOS_TARO_API_BASE': JSON.stringify(apiBasePath),
-      'process.env.KRATOS_TARO_API_URL': JSON.stringify(apiTargetUrl),
-      'process.env.KRATOS_TARO_PUBLIC_PATH': JSON.stringify(publicPath),
-      'process.env.KRATOS_TARO_STATIC_URL': JSON.stringify(staticUrl),
+      'process.env.VITE_APP_PORT': JSON.stringify(env.VITE_APP_PORT ?? ''),
+      'process.env.VITE_APP_BASE_PATH': JSON.stringify(publicPath),
+      'process.env.VITE_APP_BASE_API': JSON.stringify(apiBasePath),
+      'process.env.VITE_APP_API_URL': JSON.stringify(apiTargetUrl),
+      'process.env.VITE_APP_STATIC_API': JSON.stringify(staticApi),
+      'process.env.VITE_APP_STATIC_URL': JSON.stringify(staticUrl),
     },
     alias: {
       '@liujitcn/kratos-taro-app-core/static': resolve(__dirname, '../src/static'),
@@ -100,15 +118,15 @@ export default defineConfig<'webpack5'>(async (merge) => {
         mode: 'hash',
       },
       devServer: {
-        port: 5002,
+        port: Number(env.VITE_APP_PORT || 5002),
         host: '0.0.0.0',
         proxy: {
-          '/api': {
-            target: process.env.KRATOS_TARO_API_URL || 'http://localhost:7001',
+          [apiBasePath || '/api']: {
+            target: apiTargetUrl || 'http://localhost:7001',
             changeOrigin: true,
           },
           '/events': {
-            target: process.env.KRATOS_TARO_API_URL || 'http://localhost:7001',
+            target: apiTargetUrl || 'http://localhost:7001',
             changeOrigin: true,
           },
         },

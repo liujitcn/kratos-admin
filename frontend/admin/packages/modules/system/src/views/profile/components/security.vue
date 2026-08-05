@@ -86,7 +86,7 @@
       :width="520"
       @closed="handleDialogClosed"
     >
-      <ProForm ref="phoneFormRef" :model="phoneForm" :fields="phoneFormFields" :rules="phoneFormRules" label-width="96px">
+      <ProForm ref="phoneFormRef" :model="phoneForm" :fields="phoneFormFields" :rules="phoneFormRules">
         <template #mobileCodeInput>
           <el-input v-model="phoneForm.code" :placeholder="t('system.profile.security.placeholder.code')">
             <template #append>

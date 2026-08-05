@@ -34,17 +34,17 @@ test('模块注册使用后注册优先级并隔离列表变更', async () => {
 
     assert.equal(runtime.resolveStaticView('HOME'), 'pages/second/index')
     assert.equal(runtime.resolveModuleIcon('https://cdn.example/icon.png'), 'https://cdn.example/icon.png')
-    process.env.KRATOS_TARO_PUBLIC_PATH = '/app/'
+    process.env.VITE_APP_BASE_PATH = '/app/'
     assert.equal(runtime.resolveModuleIcon('HOME'), '/app/static/second.png')
     assert.equal(runtime.resolveBundledAsset('static/images/logo.png'), '/app/static/images/logo.png')
     assert.equal(runtime.resolveBundledAsset('https://cdn.example.com/logo.png'), 'https://cdn.example.com/logo.png')
-    delete process.env.KRATOS_TARO_PUBLIC_PATH
+    delete process.env.VITE_APP_BASE_PATH
 
     const registered = runtime.getRegisteredKratosTaroModules()
     registered.length = 0
     assert.equal(runtime.getRegisteredKratosTaroModules().length, 2)
   } finally {
-    delete process.env.KRATOS_TARO_PUBLIC_PATH
+    delete process.env.VITE_APP_BASE_PATH
     rmSync(root, { recursive: true, force: true })
   }
 })

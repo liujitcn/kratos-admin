@@ -310,6 +310,8 @@
 
 /* el-dialog */
 .el-dialog {
+  box-sizing: border-box;
+  max-width: calc(100vw - 32px);
   padding: 0;
   margin-top: 8vh;
   .el-dialog__header {

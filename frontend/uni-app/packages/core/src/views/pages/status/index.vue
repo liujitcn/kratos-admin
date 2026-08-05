@@ -13,18 +13,19 @@ const stateTitle = computed(() =>
   state.value === 'BOOTSTRAP_LOADING' ? t('core.status.loading') : t(`core.status.${state.value}`),
 )
 
-onLoad(async (options) => {
+onLoad((options) => {
   state.value = (options?.state as BootstrapViewKey | undefined) ?? 'BOOTSTRAP_LOADING'
   detail.value = options?.detail ? decodeURIComponent(options.detail) : ''
   if (options?.bootstrap !== '1') return
-  try {
-    await initializeAppNavigation()
-    navigateAppRoute(options?.route ? decodeURIComponent(options.route) : 'app/home', {
-      replace: true,
+  void initializeAppNavigation()
+    .then(() => {
+      navigateAppRoute(options?.route ? decodeURIComponent(options.route) : 'app/home', {
+        replace: true,
+      })
     })
-  } catch (error) {
-    launchAppStatus('CONFIG_ERROR', error instanceof Error ? error.message : String(error))
-  }
+    .catch((error) => {
+      launchAppStatus('CONFIG_ERROR', error instanceof Error ? error.message : String(error))
+    })
 })
 </script>
 

@@ -3,7 +3,7 @@
     <el-row :gutter="gutter">
       <template v-for="field in visibleFields" :key="field.prop">
         <span v-if="field.rowBreakBefore" class="pro-form__row-break" aria-hidden="true" />
-        <el-col :span="field.colSpan ?? colSpan">
+        <el-col :span="field.colSpan ?? colSpan" :xs="24">
           <el-form-item :label="field.label" :prop="field.prop" :rules="field.rules" v-bind="resolveFieldItemProps(field)">
             <template v-if="field.labelTooltip" #label>
               <div class="pro-form__label">
@@ -47,7 +47,7 @@ interface ProFormProps {
 
 const props = withDefaults(defineProps<ProFormProps>(), {
   rules: () => ({}),
-  labelWidth: "110px",
+  labelWidth: "",
   gutter: 20,
   colSpan: 24
 });

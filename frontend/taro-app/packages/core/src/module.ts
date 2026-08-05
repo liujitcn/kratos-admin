@@ -62,6 +62,6 @@ export function resolveModuleIcon(icon: string | undefined): string | undefined 
 /** 解析随应用打包的静态资源路径。 */
 export function resolveBundledAsset(source: string): string {
   if (/^(?:https?:|data:)/.test(source)) return source
-  const base = process.env.KRATOS_TARO_PUBLIC_PATH || '/'
+  const base = process.env.VITE_APP_BASE_PATH || '/'
   return `${base.replace(/\/?$/, '/')}${source.replace(/^\/+/, '')}`
 }

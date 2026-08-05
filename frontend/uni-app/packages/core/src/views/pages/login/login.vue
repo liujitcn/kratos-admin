@@ -1155,16 +1155,22 @@ onLoad(() => {
   .login-agreement {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     justify-content: center;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     gap: 6rpx;
-    white-space: nowrap;
+    box-sizing: border-box;
   }
 
   .login-agree-separator {
-    white-space: nowrap;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   .login-agree-icon {
+    flex: 0 0 auto;
     width: 26rpx;
     height: 26rpx;
     margin-right: 2rpx;
@@ -1181,13 +1187,15 @@ onLoad(() => {
   }
 
   .login-agree-link {
-    white-space: nowrap;
+    min-width: 0;
+    overflow-wrap: anywhere;
     color: #28bb9c;
   }
 
   .login-agree-desc {
+    min-width: 0;
+    overflow-wrap: anywhere;
     color: #9ca3af;
-    white-space: nowrap;
   }
 }
 </style>

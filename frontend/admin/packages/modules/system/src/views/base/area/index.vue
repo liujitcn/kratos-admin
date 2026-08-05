@@ -22,7 +22,6 @@
       :model="formData"
       :fields="formFields"
       :rules="rules"
-      label-width="100px"
       @confirm="handleSubmit"
       @close="handleCloseDialog"
     />

@@ -761,13 +761,16 @@ watch(
   height: auto;
   min-height: 24px;
   margin-bottom: 6px;
+  align-items: flex-start;
 }
 
 :global(.behavior-captcha-dialog .go-captcha .gc-header span),
 :global(.behavior-captcha-dialog .go-captcha .gc-header .gc-text) {
+  min-width: 0;
   font-size: 14px;
   line-height: 22px;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 :global(.behavior-captcha-dialog .go-captcha .gc-body) {
