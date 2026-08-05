@@ -3,6 +3,8 @@ import type { RouteItem, RouteMeta } from "@/rpc/system/admin/v1/auth";
 import { BaseMenuType } from "@/rpc/system/admin/v1/common";
 import { t } from "@/locales";
 
+export { getRouteMenuKey } from "./menuKey";
+
 const mode = import.meta.env.VITE_ROUTER_MODE;
 
 /** 树形或枚举数据字段映射配置。 */
@@ -201,22 +203,6 @@ export function isExternalPath(path?: string) {
 export function getRouteTarget(item: RouteItem): string {
   if (item.type === BaseMenuType.BASE_MENU_TYPE_EXT_LINK) return item.redirect || item.path || "";
   return item.path ?? "";
-}
-
-/** 获取菜单节点的首个可跳转子路径。 */
-function getFirstRoutePath(item: RouteItem): string {
-  if (item.path) return item.path;
-  for (const child of item.children ?? []) {
-    const path = getFirstRoutePath(child);
-    if (path) return path;
-  }
-  return "";
-}
-
-/** 获取菜单节点在 Element Plus 菜单树中的稳定索引。 */
-export function getRouteMenuKey(item: RouteItem): string {
-  if (item.path) return item.path;
-  return `folder:${getFirstRoutePath(item) || getRouteMetaTitle(item.meta)}`;
 }
 
 /** 判断路由路径是否匹配菜单路径，兼容动态参数。 */
