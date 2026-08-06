@@ -15,7 +15,8 @@
       v-model="dialog.visible"
       ref="formDialogRef"
       :title="dialogTitle"
-      width="min(920px, calc(100vw - 32px))"
+      width="920px"
+      label-width="240px"
       top="4vh"
       :model="formData"
       :fields="formFields"
@@ -936,7 +937,6 @@ function ensureLeftTreeConfig() {
 /* 固定操作列表头与普通表头使用同一主题背景，并保持行内操作单行展示。 */
 :deep(.code-gen-table) {
   --el-table-header-bg-color: var(--el-fill-color-light);
-
   td.el-table-fixed-column--right .cell {
     white-space: nowrap;
   }

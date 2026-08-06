@@ -16,8 +16,10 @@
     <FormDialog
       v-model="dialog.visible"
       ref="formDialogRef"
+      class="menu-form-dialog"
       :title="t(dialog.editing ? 'system.base.menu.action.edit' : 'system.base.menu.action.create')"
       width="1180px"
+      label-width="180px"
       :model="formData"
       :fields="formFields"
       :rules="rules"
@@ -1239,6 +1241,9 @@ function handleDeleteMenu(selected?: number | string | Array<number | string> | 
 <style scoped lang="scss">
 .table-box {
   height: 100%;
+}
+:global(.menu-form-dialog .el-form-item__label) {
+  white-space: nowrap;
 }
 :deep(.menu-form__params .el-form-item__content) {
   align-items: flex-start;

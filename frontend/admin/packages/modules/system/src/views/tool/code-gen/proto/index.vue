@@ -87,7 +87,7 @@
     <ProDialog
       v-model="configDialog.visible"
       :title="configDialogTitle"
-      width="min(520px, calc(100vw - 32px))"
+      width="520px"
       destroy-on-close
       :show-close="false"
       :close-on-click-modal="false"
@@ -599,7 +599,6 @@ onMounted(() => {
   border-radius: var(--admin-page-radius);
   box-shadow: var(--admin-page-shadow);
 }
-
 .code-gen-config-dialog__header {
   display: flex;
   gap: 12px;
@@ -607,7 +606,6 @@ onMounted(() => {
   justify-content: space-between;
   width: 100%;
 }
-
 :deep(.code-gen-toolbar) {
   display: flex;
   flex-wrap: wrap;
@@ -667,6 +665,7 @@ onMounted(() => {
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
+
   /* 多行单元格与列标题保持居中，避免文本继承居中而 Flex 子项贴左。 */
   justify-content: center;
   min-width: 0;
@@ -693,14 +692,14 @@ onMounted(() => {
   flex-direction: column;
   gap: 2px;
   min-width: 0;
-  cursor: pointer;
   text-align: left;
+  cursor: pointer;
 }
 .code-gen-proto-capability-trigger__comment {
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
   color: var(--admin-page-text-primary);
+  white-space: nowrap;
 }
 .code-gen-proto-capability-popover {
   display: flex;
@@ -709,8 +708,8 @@ onMounted(() => {
 }
 .code-gen-proto-capability-popover__preview {
   max-width: 100%;
-  margin: 0;
   padding: 10px;
+  margin: 0;
   overflow-x: auto;
   font-size: 12px;
   line-height: 18px;
@@ -730,8 +729,8 @@ onMounted(() => {
 }
 .code-gen-proto-capability-popover__item code {
   min-width: 0;
-  overflow-wrap: anywhere;
   color: var(--admin-page-text-primary);
+  overflow-wrap: anywhere;
 }
 .code-gen-proto-capability-popover__item .code-gen-proto-capability-popover__path {
   display: block;
@@ -742,8 +741,8 @@ onMounted(() => {
 }
 .code-gen-proto-capability-popover__value {
   min-width: 0;
-  overflow-wrap: anywhere;
   color: var(--admin-page-text-primary);
+  overflow-wrap: anywhere;
 }
 .code-gen-proto-config-form :deep(.el-select) {
   width: 100%;

@@ -8,6 +8,7 @@
     :title="displaySource"
     width="760px"
     append-to-body
+    :show-footer="false"
     :destroy-on-close="true"
     @closed="handleDialogClosed"
   >
@@ -29,7 +30,7 @@
           </span>
         </template>
       </el-table-column>
-      <el-table-column :label="t('common.field.operation')" width="150" fixed="right">
+      <el-table-column :label="t('common.field.operation')" width="200" fixed="right">
         <template #default="{ row }">
           <el-button v-if="!row.editing" link type="primary" :icon="EditPen" @click="startEdit(row)">
             {{ t("common.action.edit") }}
@@ -235,7 +236,6 @@ function handleDialogClosed() {
   min-width: 0;
   max-width: 100%;
 }
-
 .dynamic-translation-cell__source {
   min-width: 0;
   overflow: hidden;

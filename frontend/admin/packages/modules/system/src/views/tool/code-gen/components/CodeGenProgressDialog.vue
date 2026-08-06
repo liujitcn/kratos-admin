@@ -2,7 +2,7 @@
   <ProDialog
     :model-value="modelValue"
     :title="t('system.code.gen.progress.title')"
-    width="min(1080px, 94vw)"
+    width="1080px"
     top="4vh"
     :close-on-click-modal="false"
     :show-footer="false"
@@ -287,7 +287,6 @@ onBeforeUnmount(stopTracking);
 .progress-dialog {
   min-height: 220px;
 }
-
 .task-heading,
 .table-heading,
 .task-meta {
@@ -295,40 +294,33 @@ onBeforeUnmount(stopTracking);
   gap: 12px;
   align-items: center;
 }
-
 .task-heading {
   justify-content: space-between;
   margin-bottom: 14px;
 }
-
 .task-heading > div {
   display: flex;
   gap: 12px;
   align-items: baseline;
 }
-
 .task-meta {
   flex-wrap: wrap;
   justify-content: space-between;
   margin: 10px 0 18px;
-  color: var(--el-text-color-secondary);
   font-size: 13px;
+  color: var(--el-text-color-secondary);
 }
-
 .table-progress-list {
   max-height: 54vh;
   overflow: auto;
 }
-
 .table-heading {
   width: 100%;
   padding-right: 16px;
 }
-
 .table-heading strong {
   margin-right: auto;
 }
-
 .table-message {
   display: flex;
   gap: 6px;
@@ -336,11 +328,10 @@ onBeforeUnmount(stopTracking);
   margin: 0 0 10px;
   color: var(--el-text-color-secondary);
 }
-
 .table-message span {
   min-width: 0;
+  overflow-wrap: break-word;
   white-space: pre-wrap;
-  word-break: break-word;
 }
 </style>
 

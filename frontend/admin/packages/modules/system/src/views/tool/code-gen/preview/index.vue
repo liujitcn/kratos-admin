@@ -54,7 +54,7 @@
         v-model="dialog.visible"
         ref="formDialogRef"
         :title="dialogTitle"
-        width="min(920px, calc(100vw - 32px))"
+        width="920px"
         top="4vh"
         :model="previewFormModel"
         :fields="formFields"
@@ -837,32 +837,29 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100%;
   min-width: 0;
+  height: 100%;
   min-height: 0;
   overflow: hidden;
 }
-
 .code-gen-page-preview__table,
 .code-gen-left-tree-preview {
   min-width: 0;
   min-height: 0;
   overflow: hidden;
 }
-
 .code-gen-left-tree-preview__table {
   min-width: 0;
   min-height: 0;
 }
-
 :deep(.code-gen-page-preview-table) {
   --el-table-header-bg-color: var(--el-fill-color-light);
 }
 
 @media (width <= 768px) {
   :deep(.el-dialog .el-col-12) {
-    max-width: 100%;
     flex: 0 0 100%;
+    max-width: 100%;
   }
 }
 </style>

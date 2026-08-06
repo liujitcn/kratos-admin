@@ -272,7 +272,7 @@
     <ProDialog
       v-model="optionDialog.visible"
       :title="optionDialogTitle"
-      width="min(560px, calc(100vw - 32px))"
+      width="560px"
       destroy-on-close
       :show-close="false"
       :close-on-click-modal="false"
@@ -1287,7 +1287,6 @@ onBeforeUnmount(() => {
   border-radius: var(--admin-page-radius);
   box-shadow: var(--admin-page-shadow);
 }
-
 :deep(.code-gen-toolbar) {
   display: flex;
   flex-wrap: wrap;
@@ -1296,13 +1295,11 @@ onBeforeUnmount(() => {
   justify-content: flex-end;
   margin-bottom: 14px;
 }
-
 .code-gen-column-pane {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
-
 .code-gen-column-toolbar {
   justify-content: space-between;
   padding: 12px 14px;
@@ -1310,7 +1307,6 @@ onBeforeUnmount(() => {
   border: 1px solid var(--admin-page-card-border-soft);
   border-radius: var(--admin-page-radius);
 }
-
 .code-gen-column-toolbar__meta {
   display: flex;
   flex-wrap: wrap;
@@ -1319,54 +1315,45 @@ onBeforeUnmount(() => {
   min-width: 0;
   color: var(--admin-page-text-secondary);
 }
-
 .code-gen-column-toolbar__meta strong {
   font-size: 14px;
   color: var(--admin-page-text-primary);
 }
-
 .code-gen-column-toolbar__meta span {
   padding: 3px 8px;
   overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 12px;
   line-height: 18px;
-  text-overflow: ellipsis;
   white-space: nowrap;
   background: var(--admin-page-card-bg);
   border: 1px solid var(--admin-page-card-border-soft);
   border-radius: 999px;
 }
-
 .code-gen-column-toolbar__table-name {
   max-width: 220px;
 }
-
 .code-gen-column-toolbar__table-comment {
   max-width: 280px;
 }
-
 .code-gen-column-toolbar__actions {
   display: flex;
-  gap: 8px;
   flex-shrink: 0;
+  gap: 8px;
   margin-left: auto;
 }
-
 .code-gen-column-table {
   overflow: hidden;
   border-radius: var(--admin-page-radius);
 }
-
 :deep(.code-gen-column-table .el-table__header th) {
   color: var(--admin-page-text-secondary);
   background: var(--admin-page-card-bg-soft);
 }
-
 :deep(.code-gen-column-table .el-table__cell) {
   padding: 8px 0;
   vertical-align: middle;
 }
-
 .code-gen-field-cell,
 .code-gen-field-trigger,
 .code-gen-field-order {
@@ -1375,48 +1362,39 @@ onBeforeUnmount(() => {
   align-items: center;
   min-width: 0;
 }
-
 .code-gen-field-cell {
   justify-content: space-between;
 }
-
 .code-gen-field-trigger {
   flex: 1;
   min-height: 28px;
   cursor: help;
 }
-
 .code-gen-field-order {
-  gap: 4px;
   flex-shrink: 0;
+  gap: 4px;
 }
-
 .code-gen-field-order__index {
   min-width: 18px;
   font-size: 12px;
   color: var(--admin-page-text-secondary);
   text-align: right;
 }
-
 .code-gen-field-order__drag {
   width: 24px;
   height: 24px;
   padding: 0;
   cursor: grab;
 }
-
 .code-gen-field-order__drag:active {
   cursor: grabbing;
 }
-
 :deep(.code-gen-column-sortable-ghost > td) {
   background: var(--admin-page-card-bg-soft);
 }
-
 :deep(.code-gen-column-sortable-chosen > td) {
   background: var(--admin-page-card-bg-soft);
 }
-
 .code-gen-config-cell,
 .code-gen-comment-editor,
 .code-gen-static-options__header,
@@ -1426,54 +1404,45 @@ onBeforeUnmount(() => {
   gap: 8px;
   align-items: center;
 }
-
 .code-gen-comment-editor {
   flex-wrap: nowrap;
 }
-
 .code-gen-comment-editor .el-input {
   min-width: 0;
 }
-
 .code-gen-field-trigger__name {
   flex-shrink: 0;
   max-width: 135px;
   overflow: hidden;
+  text-overflow: ellipsis;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   font-size: 13px;
   font-weight: 700;
   color: var(--admin-page-text-primary);
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 .code-gen-field-popover {
   display: grid;
   gap: 12px;
 }
-
 .code-gen-field-popover__header {
   display: grid;
   gap: 3px;
 }
-
 .code-gen-field-popover__header strong,
 .code-gen-field-popover__types b {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   color: var(--admin-page-text-primary);
 }
-
 .code-gen-field-popover__header span {
   font-size: 12px;
   color: var(--admin-page-text-secondary);
 }
-
 .code-gen-field-popover__types {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 7px 12px;
 }
-
 .code-gen-field-popover__types div {
   display: grid;
   grid-template-columns: 52px minmax(0, 1fr);
@@ -1482,40 +1451,33 @@ onBeforeUnmount(() => {
   min-width: 0;
   font-size: 12px;
 }
-
 .code-gen-field-popover__types span {
   color: var(--admin-page-text-secondary);
 }
-
 .code-gen-field-popover__types b {
   overflow: hidden;
-  font-size: 12px;
   text-overflow: ellipsis;
+  font-size: 12px;
   white-space: nowrap;
 }
-
 .code-gen-field-popover__flags {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   align-items: center;
-  flex-wrap: wrap;
 }
-
 .code-gen-config-cell .el-select {
   width: 124px;
 }
-
 .code-gen-config-cell .el-checkbox {
   margin-right: 0;
 }
-
 .code-gen-option-dialog,
 .code-gen-static-options,
 .code-gen-static-options__list {
   display: grid;
   gap: 10px;
 }
-
 .code-gen-config-dialog__header {
   display: flex;
   gap: 12px;
@@ -1523,41 +1485,34 @@ onBeforeUnmount(() => {
   justify-content: space-between;
   width: 100%;
 }
-
 .code-gen-popover-form__row {
   display: grid;
   grid-template-columns: 92px minmax(0, 1fr);
   gap: 10px;
   align-items: center;
 }
-
 .code-gen-popover-form__label {
   font-size: 12px;
   color: var(--admin-page-text-secondary);
 }
-
 .code-gen-static-options {
   padding-top: 2px;
 }
-
 .code-gen-static-options__header {
   justify-content: space-between;
 }
-
 .code-gen-static-options__item {
   flex-wrap: nowrap;
 }
-
 .code-gen-static-options__item .el-input {
   min-width: 0;
 }
 
 @media (width <= 900px) {
   .code-gen-column-toolbar {
-    align-items: flex-start;
     flex-direction: column;
+    align-items: flex-start;
   }
-
   .code-gen-column-toolbar__actions {
     margin-left: 0;
   }

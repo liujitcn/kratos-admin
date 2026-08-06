@@ -1,6 +1,12 @@
 <template>
-  <el-tooltip v-if="aiRoute" effect="dark" content="AI助手" placement="bottom" :show-after="200">
-    <button class="ai" type="button" aria-label="打开AI助手" @click="openAi">
+  <el-tooltip
+    v-if="aiRoute"
+    effect="dark"
+    :content="t('system.ai.chat.title.assistant')"
+    placement="bottom"
+    :show-after="200"
+  >
+    <button class="ai" type="button" :aria-label="t('system.ai.chat.action.open_assistant')" @click="openAi">
       <el-icon><ChatDotRound /></el-icon>
     </button>
   </el-tooltip>
@@ -10,6 +16,7 @@
 import { ChatDotRound } from "@element-plus/icons-vue";
 import { computed } from "vue";
 import { useRouter } from "vue-router";
+import { t } from "@liujitcn/kratos-admin-core";
 import { useAuthStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { navigateTo } from "@liujitcn/kratos-admin-core/navigation";
 

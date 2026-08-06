@@ -15,6 +15,7 @@ import type { AiStreamPayload, AIFlowBlock, ChatMessageItem, ReplySourceTag } fr
 const THINKING_MESSAGE_ID_PREFIX = "ai-thinking";
 const LOCAL_USER_MESSAGE_ID_PREFIX = "ai-user-local";
 const PENDING_STREAM_MESSAGE_ID = "pending";
+const DEFAULT_SESSION_TITLES = new Set(["新对话", "新對話", "New conversation"]);
 const thinkingMessageContent = () => t("system.ai.chat.message.thinking");
 
 /** 生成流式消息分组键，确保同一轮回复只更新当前占位气泡。 */
@@ -44,11 +45,20 @@ export function resolveTimestamp(timestamp?: { seconds?: number; nanos?: number 
 export function normalizeSession(session?: Partial<AiSession> | null): AiSession {
   return {
     id: String(session?.id ?? ""),
-    title: String(session?.title ?? t("system.ai.chat.value.new_conversation")),
-    summary: String(session?.summary ?? ""),
+    title: resolveSessionText(session?.title, true),
+    summary: resolveSessionText(session?.summary, false),
     updated_at: session?.updated_at,
     terminal: Number(session?.terminal ?? Terminal.TERMINAL_ADMIN)
   };
+}
+
+/** 将服务端生成的默认会话文案切换到当前语言，兼容历史数据。 */
+function resolveSessionText(value: unknown, fallbackWhenEmpty: boolean) {
+  const text = String(value ?? "");
+  if ((fallbackWhenEmpty && !text) || DEFAULT_SESSION_TITLES.has(text)) {
+    return t("system.ai.chat.value.new_conversation");
+  }
+  return text;
 }
 
 /** 将会话列表收敛成可安全渲染的数组。 */

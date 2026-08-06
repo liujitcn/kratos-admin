@@ -5,7 +5,7 @@
         <el-icon v-if="getRouteMetaIcon(subItem.meta)">
           <component :is="getRouteMetaIcon(subItem.meta)"></component>
         </el-icon>
-        <span class="sle">{{ getRouteMetaTitle(subItem.meta) }}</span>
+        <MenuTitle :title="getRouteMetaTitle(subItem.meta)" />
       </template>
       <SubMenu :menu-list="getSubMenuChildren(subItem)" />
     </el-sub-menu>
@@ -14,7 +14,7 @@
         <component :is="getRouteMetaIcon(getMenuItem(subItem).meta)"></component>
       </el-icon>
       <template #title>
-        <span class="sle">{{ getRouteMetaTitle(getMenuItem(subItem).meta) }}</span>
+        <MenuTitle :title="getRouteMetaTitle(getMenuItem(subItem).meta)" />
       </template>
     </el-menu-item>
   </template>
@@ -23,6 +23,7 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
 import type { RouteItem } from "@/rpc/system/admin/v1/auth";
+import MenuTitle from "./MenuTitle.vue";
 import {
   getRouteTarget,
   getRouteMenuKey,

@@ -6,7 +6,7 @@
     width="580px"
     draggable
   >
-    <el-form class="drawer-multiColumn-form" label-width="100px">
+    <el-form class="drawer-multiColumn-form" label-width="180px">
       <el-form-item :label="t('core.upload.template_download')">
         <el-button type="primary" :icon="Download" @click="downloadTemp">{{ t("common.action.download") }}</el-button>
       </el-form-item>

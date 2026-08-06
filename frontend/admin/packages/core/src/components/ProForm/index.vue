@@ -1,5 +1,5 @@
 <template>
-  <el-form ref="formRef" :model="model" :rules="formRules" :label-width="labelWidth" v-bind="$attrs">
+  <el-form class="pro-form" ref="formRef" :model="model" :rules="formRules" :label-width="labelWidth" v-bind="$attrs">
     <el-row :gutter="gutter">
       <template v-for="field in visibleFields" :key="field.prop">
         <span v-if="field.rowBreakBefore" class="pro-form__row-break" aria-hidden="true" />
@@ -47,7 +47,7 @@ interface ProFormProps {
 
 const props = withDefaults(defineProps<ProFormProps>(), {
   rules: () => ({}),
-  labelWidth: "",
+  labelWidth: "180px",
   gutter: 20,
   colSpan: 24
 });
@@ -107,6 +107,9 @@ defineExpose({
 .pro-form__row-break {
   flex: 0 0 100%;
   height: 0;
+}
+:global(.pro-form .el-form-item__label) {
+  white-space: nowrap;
 }
 .pro-form__label {
   display: inline-flex;
