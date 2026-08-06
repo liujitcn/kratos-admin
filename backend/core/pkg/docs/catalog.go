@@ -1,4 +1,4 @@
-package projectdoc
+package docs
 
 import (
 	"bytes"

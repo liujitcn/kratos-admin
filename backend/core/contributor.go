@@ -5,7 +5,6 @@ import (
 	kratosTransport "github.com/go-kratos/kratos/v3/transport"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/health"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/openapi"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/projectdoc"
 	coreQueue "github.com/liujitcn/kratos-admin/backend/core/pkg/queue"
 	"github.com/liujitcn/kratos-admin/backend/core/pkg/script"
 	coreSSE "github.com/liujitcn/kratos-admin/backend/core/pkg/sse"
@@ -41,7 +40,7 @@ type OpenAPIContributor interface {
 // ProjectDocumentContributor 表示可贡献项目文档的模块。
 type ProjectDocumentContributor interface {
 	// ProjectDocuments 返回模块提供的项目文档。
-	ProjectDocuments() []projectdoc.Document
+	ProjectDocuments() []docs.Document
 }
 
 // TaskContributor 表示可贡献具名任务的模块。
@@ -151,8 +150,8 @@ func (modules Modules) OpenAPIDocuments() []openapi.Document {
 }
 
 // ProjectDocuments 汇总全部外部模块贡献的项目文档。
-func (modules Modules) ProjectDocuments() []projectdoc.Document {
-	documents := make([]projectdoc.Document, 0)
+func (modules Modules) ProjectDocuments() []docs.Document {
+	documents := make([]docs.Document, 0)
 	for _, module := range modules {
 		contributor, ok := module.(ProjectDocumentContributor)
 		if !ok {
