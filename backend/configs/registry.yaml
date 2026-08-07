@@ -1,18 +1,12 @@
 registry:
-  type: "etcd"
+  type: "consul"
 
   consul:
-    address: "localhost:8500"
+    address: "127.0.0.1:8500"
     scheme: "http"
-    heartbeat: false
+    token: ""
+    # Admin 包含 scheduler 等非 TCP Endpoint，由注册器 TTL 心跳统一维护服务状态。
     health_check: false
-    health_check_interval: 5
-
-  etcd:
-    endpoints:
-      - 127.0.0.1:2379
-    username: root
-    password: "112233"
 
   zookeeper:
     endpoints:
