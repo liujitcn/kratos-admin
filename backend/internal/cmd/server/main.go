@@ -33,7 +33,7 @@ import (
 	_ "github.com/liujitcn/kratos-kit/logger/zap"
 	//_ "github.com/liujitcn/kratos-kit/logger/zerolog"
 	//_ "github.com/liujitcn/kratos-kit/registry/consul"
-	//_ "github.com/liujitcn/kratos-kit/registry/etcd"
+	_ "github.com/liujitcn/kratos-kit/registry/etcd"
 	//_ "github.com/liujitcn/kratos-kit/registry/eureka"
 	//_ "github.com/liujitcn/kratos-kit/registry/kubernetes"
 	//_ "github.com/liujitcn/kratos-kit/registry/nacos"

@@ -1,5 +1,5 @@
 registry:
-  type: ""
+  type: "etcd"
 
   consul:
     address: "localhost:8500"
@@ -11,12 +11,10 @@ registry:
   etcd:
     endpoints:
       - 127.0.0.1:2379
-    name_space: /Service
-    max_retry: 5
-    ttl: 10s
+    username: root
+    password: "112233"
 
   zookeeper:
     endpoints:
       - "localhost:8500"
     timeout: 10s
-
