@@ -15,7 +15,7 @@ managed:
     - module: 'buf.build/gnostic/gnostic'
     - module: 'buf.build/gogo/protobuf'
     - module: 'buf.build/bufbuild/protovalidate'
-    - module: 'buf.build/liujitcn/kratos-admin-core'
+    - module: 'buf.build/liujitcn/kratos-core'
 
   override:
     - file_option: go_package_prefix

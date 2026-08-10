@@ -9,7 +9,7 @@ package adminv1
 import (
 	context "context"
 
-	v1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
+	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )

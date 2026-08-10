@@ -12,7 +12,7 @@ modules:
       use:
         - FILE
 deps:
-  - 'buf.build/liujitcn/kratos-admin-core'
+  - 'buf.build/liujitcn/kratos-core'
   - 'buf.build/googleapis/googleapis'
   - 'buf.build/kratos/apis'
   - 'buf.build/gnostic/gnostic'
