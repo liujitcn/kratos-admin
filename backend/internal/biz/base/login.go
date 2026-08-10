@@ -8,15 +8,15 @@ import (
 	"math/rand/v2"
 	"time"
 
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz"
-	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
+	"github.com/liujitcn/kratos-core/pkg/biz"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	coreconst "github.com/liujitcn/kratos-core/pkg/const"
 
 	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/go-utils/id"
@@ -93,14 +93,14 @@ func (c *LoginCase) Captcha(ctx context.Context, req *basev1.CaptchaRequest) (*b
 	}
 
 	var challenge *captcha.Challenge
-	challenge, err = captcha.NewCaptcha(c.Cache,
+	challenge, err = captcha.NewCaptcha(c.GetCache(),
 		captcha.WithDriverType(driverType),
 		captcha.WithKeyPrefix(loginCaptchaKeyPrefix),
 	).Generate(ctx)
 	if err != nil {
 		return nil, errorsx.Internal("生成验证码失败").WithCause(err)
 	}
-	err = c.Cache.Set(loginCaptchaTypeKey(challenge.ID), string(driverType), captcha.DefaultConfig().Expire)
+	err = c.GetCache().Set(loginCaptchaTypeKey(challenge.ID), string(driverType), captcha.DefaultConfig().Expire)
 	if err != nil {
 		return nil, errorsx.Internal("验证码类型保存失败").WithCause(err)
 	}
@@ -118,7 +118,7 @@ func (c *LoginCase) VerifyCaptcha(ctx context.Context, req *basev1.VerifyCaptcha
 	if !ok {
 		return nil, errorsx.InvalidArgument("验证码错误")
 	}
-	matched, err := captcha.NewCaptcha(c.Cache,
+	matched, err := captcha.NewCaptcha(c.GetCache(),
 		captcha.WithDriverType(driverType),
 		captcha.WithKeyPrefix(loginCaptchaKeyPrefix),
 	).Verify(ctx, req.GetCaptchaId(), req.GetCaptchaCode())
@@ -131,7 +131,7 @@ func (c *LoginCase) VerifyCaptcha(ctx context.Context, req *basev1.VerifyCaptcha
 	}
 
 	token := id.NewGUIDv4NoHyphen()
-	err = c.Cache.Set(loginCaptchaTokenKey(req.GetCaptchaId(), token), req.GetCaptchaId(), loginCaptchaTokenExpire)
+	err = c.GetCache().Set(loginCaptchaTokenKey(req.GetCaptchaId(), token), req.GetCaptchaId(), loginCaptchaTokenExpire)
 	if err != nil {
 		return nil, errorsx.Internal("验证码令牌保存失败").WithCause(err)
 	}
@@ -158,7 +158,7 @@ func (c *LoginCase) Logout(ctx context.Context, req *basev1.LogoutRequest) error
 		return errorsx.Internal("退出登录失败").WithCause(err)
 	}
 	if refreshToken != "" {
-		err = c.Cache.Del(refreshTokenAuthKey(refreshToken))
+		err = c.GetCache().Del(refreshTokenAuthKey(refreshToken))
 		if err != nil {
 			return errorsx.Internal("退出登录失败").WithCause(err)
 		}
@@ -219,7 +219,7 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 	if err != nil {
 		return nil, errorsx.Unauthenticated("用户名或密码错误")
 	}
-	if baseTenant.Status != _const.STATUS_ENABLE {
+	if baseTenant.Status != coreconst.Status_STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("租户已被禁用")
 	}
 
@@ -253,7 +253,7 @@ func (c *LoginCase) FindUserByPassword(ctx context.Context, tenantCode string, u
 	}
 	var baseTenant *models.BaseTenant
 	baseTenant, err = c.findTenantByCode(ctx, tenantCode)
-	if err != nil || baseTenant.Status != _const.STATUS_ENABLE {
+	if err != nil || baseTenant.Status != coreconst.Status_STATUS_ENABLE {
 		return nil, errorsx.Unauthenticated("用户名或密码错误")
 	}
 
@@ -308,7 +308,7 @@ func (c *LoginCase) IssueUserToken(ctx context.Context, user *models.BaseUser) (
 // buildAuthInfo 查询用户关联状态并构造认证载荷。
 func (c *LoginCase) buildAuthInfo(ctx context.Context, user *models.BaseUser) (*authData.UserTokenPayload, error) {
 	// 用户被停用时，不允许签发新的登录令牌。
-	if user.Status != _const.STATUS_ENABLE {
+	if user.Status != coreconst.Status_STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("账号已被禁用")
 	}
 
@@ -318,7 +318,7 @@ func (c *LoginCase) buildAuthInfo(ctx context.Context, user *models.BaseUser) (*
 		return nil, errorsx.Internal("登录失败").WithCause(err)
 	}
 	// 角色被停用时，不允许继续登录后台。
-	if role.Status != _const.STATUS_ENABLE {
+	if role.Status != coreconst.Status_STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("角色已被禁用")
 	}
 
@@ -329,7 +329,7 @@ func (c *LoginCase) buildAuthInfo(ctx context.Context, user *models.BaseUser) (*
 		return nil, errorsx.Internal("登录失败").WithCause(err)
 	}
 	// 部门被停用时，不允许继续登录后台。
-	if dept.Status != _const.STATUS_ENABLE {
+	if dept.Status != coreconst.Status_STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("部门已被禁用")
 	}
 
@@ -339,7 +339,7 @@ func (c *LoginCase) buildAuthInfo(ctx context.Context, user *models.BaseUser) (*
 		return nil, errorsx.Internal("登录失败").WithCause(err)
 	}
 	// 租户被停用时，不允许继续登录后台。
-	if baseTenant.Status != _const.STATUS_ENABLE {
+	if baseTenant.Status != coreconst.Status_STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("租户已被禁用")
 	}
 
@@ -376,12 +376,12 @@ func (c *LoginCase) setRefreshTokenAuth(refreshToken string, authInfo *authData.
 	if err != nil {
 		return errorsx.Internal("保存刷新认证信息失败").WithCause(err)
 	}
-	return c.Cache.Set(refreshTokenAuthKey(refreshToken), string(payload), time.Duration(c.userToken.GetRefreshTokenExpires())*time.Second)
+	return c.GetCache().Set(refreshTokenAuthKey(refreshToken), string(payload), time.Duration(c.userToken.GetRefreshTokenExpires())*time.Second)
 }
 
 // getAuthInfoByRefreshToken 根据刷新令牌读取认证信息。
 func (c *LoginCase) getAuthInfoByRefreshToken(refreshToken string) (*authData.UserTokenPayload, error) {
-	payload, err := c.Cache.Get(refreshTokenAuthKey(refreshToken))
+	payload, err := c.GetCache().Get(refreshTokenAuthKey(refreshToken))
 	if err != nil {
 		return nil, errorsx.Unauthenticated("刷新认证令牌失败").WithCause(err)
 	}
@@ -406,7 +406,7 @@ func (c *LoginCase) verifyLoginCaptcha(ctx context.Context, captchaID, captchaCo
 	if !ok {
 		return errorsx.InvalidArgument("验证码错误")
 	}
-	matched, err := captcha.NewCaptcha(c.Cache,
+	matched, err := captcha.NewCaptcha(c.GetCache(),
 		captcha.WithDriverType(driverType),
 		captcha.WithKeyPrefix(loginCaptchaKeyPrefix),
 	).Verify(ctx, captchaID, captchaCode)
@@ -431,11 +431,11 @@ func (c *LoginCase) verifyLoginCaptcha(ctx context.Context, captchaID, captchaCo
 // consumeLoginCaptchaToken 校验并消费验证码预校验签发的一次性令牌。
 func (c *LoginCase) consumeLoginCaptchaToken(captchaID, token string) (bool, error) {
 	key := loginCaptchaTokenKey(captchaID, token)
-	value, err := c.Cache.Get(key)
+	value, err := c.GetCache().Get(key)
 	if err != nil || value != captchaID {
 		return false, nil
 	}
-	err = c.Cache.Del(key)
+	err = c.GetCache().Del(key)
 	if err != nil {
 		return false, errorsx.Internal("验证码令牌消费失败").WithCause(err)
 	}
@@ -444,7 +444,7 @@ func (c *LoginCase) consumeLoginCaptchaToken(captchaID, token string) (bool, err
 
 // captchaDriverTypeByID 根据验证码 ID 查询生成时保存的校验驱动类型。
 func (c *LoginCase) captchaDriverTypeByID(captchaID string) (captcha.DriverType, bool) {
-	captchaType, err := c.Cache.Get(loginCaptchaTypeKey(captchaID))
+	captchaType, err := c.GetCache().Get(loginCaptchaTypeKey(captchaID))
 	if err != nil {
 		return captcha.DriverDigit, false
 	}
@@ -495,7 +495,7 @@ func (c *LoginCase) randomCaptchaDriverType(ctx context.Context) (captcha.Driver
 	dictQuery := c.baseDictRepo.Query(ctx).BaseDict
 	dictOpts := make([]repository.QueryOption, 0, 2)
 	dictOpts = append(dictOpts, repository.Where(dictQuery.Code.Eq(loginCaptchaTypeDictCode)))
-	dictOpts = append(dictOpts, repository.Where(dictQuery.Status.Eq(_const.STATUS_ENABLE)))
+	dictOpts = append(dictOpts, repository.Where(dictQuery.Status.Eq(coreconst.Status_STATUS_ENABLE)))
 	dict, err := c.baseDictRepo.Find(ctx, dictOpts...)
 	if err != nil {
 		return captcha.DriverDigit, err
@@ -504,7 +504,7 @@ func (c *LoginCase) randomCaptchaDriverType(ctx context.Context) (captcha.Driver
 	itemQuery := c.baseDictItemRepo.Query(ctx).BaseDictItem
 	itemOpts := make([]repository.QueryOption, 0, 2)
 	itemOpts = append(itemOpts, repository.Where(itemQuery.DictID.Eq(dict.ID)))
-	itemOpts = append(itemOpts, repository.Where(itemQuery.Status.Eq(_const.STATUS_ENABLE)))
+	itemOpts = append(itemOpts, repository.Where(itemQuery.Status.Eq(coreconst.Status_STATUS_ENABLE)))
 	var items []*models.BaseDictItem
 	items, err = c.baseDictItemRepo.List(ctx, itemOpts...)
 	if err != nil {

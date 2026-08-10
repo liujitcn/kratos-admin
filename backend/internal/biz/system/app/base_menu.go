@@ -5,12 +5,13 @@ import (
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	systemappv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
-	coreLocale "github.com/liujitcn/kratos-admin/backend/core/pkg/locale"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-core/pkg/biz"
+	coreconst "github.com/liujitcn/kratos-core/pkg/const"
+	coreLocale "github.com/liujitcn/kratos-core/pkg/locale"
 
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repository"
@@ -48,7 +49,7 @@ func (c *BaseMenuCase) ListBaseMenu(ctx context.Context) ([]*systemappv1.BaseMen
 		opts := make([]repository.QueryOption, 0, 4)
 		opts = append(opts, repository.Where(query.ParentID.In(parentIDs...)))
 		opts = append(opts, repository.Where(query.Type.Eq(_const.BASE_MENU_TYPE_MENU)))
-		opts = append(opts, repository.Where(query.Status.Eq(_const.STATUS_ENABLE)))
+		opts = append(opts, repository.Where(query.Status.Eq(coreconst.Status_STATUS_ENABLE)))
 		opts = append(opts, repository.Order(query.Sort.Asc(), query.ID.Asc()))
 		var children []*models.BaseMenu
 		children, err = c.List(ctx, opts...)

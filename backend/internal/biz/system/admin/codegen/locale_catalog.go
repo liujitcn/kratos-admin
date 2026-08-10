@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
-	coreLocale "github.com/liujitcn/kratos-admin/backend/core/pkg/locale"
 	_ "github.com/liujitcn/kratos-admin/backend/internal/i18n/locales"
+	coreLocale "github.com/liujitcn/kratos-core/pkg/locale"
 )
 
 // codegenLocaleCatalog 描述代码生成器使用的单语言模板和术语。

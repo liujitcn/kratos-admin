@@ -161,7 +161,7 @@ function createDefaultMenuForm(): MenuFormState {
     api: [],
     translations: [],
     sort: 1,
-    status: Status.ENABLE
+    status: Status.STATUS_ENABLE
   };
 }
 
@@ -251,8 +251,8 @@ watch(
 );
 
 const statusOptions = computed<ProFormOption[]>(() => [
-  { label: t("common.status.enabled"), value: Status.ENABLE },
-  { label: t("common.status.disabled"), value: Status.DISABLE }
+  { label: t("common.status.enabled"), value: Status.STATUS_ENABLE },
+  { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }
 ]);
 
 const appAccessOptions = computed<ProFormOption[]>(() => [
@@ -341,8 +341,8 @@ const columns = computed<ColumnProps[]>(() => [
     search: { el: "select" },
     cellType: "status",
     statusProps: {
-      activeValue: Status.ENABLE,
-      inactiveValue: Status.DISABLE,
+      activeValue: Status.STATUS_ENABLE,
+      inactiveValue: Status.STATUS_DISABLE,
       activeText: t("common.status.enabled"),
       inactiveText: t("common.status.disabled"),
       disabled: () => !BUTTONS.value["base:menu:status"],
@@ -967,7 +967,7 @@ function normalizeMenuForm(data?: Partial<BaseMenuForm>): MenuFormState {
     ...data,
     parent_id: parentId,
     type: data?.type ?? BaseMenuType.BASE_MENU_TYPE_FOLDER,
-    status: data?.status ?? Status.ENABLE,
+    status: data?.status ?? Status.STATUS_ENABLE,
     api: normalizeMenuApiSelection(data?.api),
     sort: data?.sort ?? 1,
     meta: normalizedMeta
@@ -1170,8 +1170,8 @@ async function handleSubmit() {
  * 在菜单状态切换前先完成确认与接口调用，避免首屏渲染触发误操作。
  */
 async function handleBeforeSetStatus(row: BaseMenu) {
-  const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
-  const action = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
+  const nextStatus = row.status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE;
+  const action = t(nextStatus === Status.STATUS_ENABLE ? "common.status.enabled" : "common.status.disabled");
   const menuName = row.meta?.title || row.name || row.path || `ID:${row.id}`;
   try {
     await ElMessageBox.confirm(

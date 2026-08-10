@@ -15,15 +15,14 @@ import (
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	basebiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/event"
-	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-core/pkg/biz"
+	coreconst "github.com/liujitcn/kratos-core/pkg/const"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 )
@@ -39,7 +38,6 @@ type BaseUserCase struct {
 	baseDeptCase    *BaseDeptCase
 	baseMenuCase    *BaseMenuCase
 	defaultRoleCase *basebiz.BaseRoleCase
-	userEvents      *event.UserEvents
 	formMapper      *mapper.CopierMapper[systemadminv1.BaseUserForm, models.BaseUser]
 	mapper          *mapper.CopierMapper[systemadminv1.BaseUser, models.BaseUser]
 }
@@ -55,7 +53,6 @@ func NewBaseUserCase(
 	baseDeptCase *BaseDeptCase,
 	baseMenuCase *BaseMenuCase,
 	defaultRoleCase *basebiz.BaseRoleCase,
-	userEvents *event.UserEvents,
 ) *BaseUserCase {
 	return &BaseUserCase{
 		BaseCase:           baseCase,
@@ -67,7 +64,6 @@ func NewBaseUserCase(
 		baseDeptCase:       baseDeptCase,
 		baseMenuCase:       baseMenuCase,
 		defaultRoleCase:    defaultRoleCase,
-		userEvents:         userEvents,
 		formMapper:         mapper.NewCopierMapper[systemadminv1.BaseUserForm, models.BaseUser](),
 		mapper:             mapper.NewCopierMapper[systemadminv1.BaseUser, models.BaseUser](),
 	}
@@ -287,7 +283,7 @@ func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *systemadminv1.Page
 			return nil, errorsx.Internal("查询用户角色失败").WithCause(err)
 		}
 		for _, baseRole := range baseRoles {
-			if _const.IsDefaultBaseRole(baseRole.Code) {
+			if coreconst.IsDefaultBaseRole(baseRole.Code) {
 				protectedRoleIDs[baseRole.ID] = struct{}{}
 			}
 		}
@@ -320,7 +316,7 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *systemadminv1.Ba
 	if err != nil {
 		return errorsx.ResourceNotFound("用户角色不存在").WithCause(err)
 	}
-	if _const.IsDefaultBaseRole(baseRole.Code) {
+	if coreconst.IsDefaultBaseRole(baseRole.Code) {
 		return errorsx.ProtectedResourceConflict("创建用户失败，不能选择内置角色", "base_user")
 	}
 	var baseDept *models.BaseDept
@@ -362,7 +358,7 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *systemadminv1.Ba
 		err = c.Create(ctx, baseUser)
 		if err != nil {
 			// 命中用户账号或用户编号唯一索引冲突时，返回稳定的业务冲突错误。
-			if errorsx.IsMySQLDuplicateKey(err) {
+			if errorsx.IsDuplicateKey(err) {
 				return errorsx.UniqueConflict("同一租户的用户账号或用户编号重复", "base_user", "", "unique_base_user").WithCause(err)
 			}
 			return err
@@ -372,8 +368,6 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *systemadminv1.Ba
 	if err != nil {
 		return err
 	}
-	// 用户写库成功后，通知已装配模块处理用户资料变更。
-	c.userEvents.PublishUserChanged(baseUser.ID)
 	return nil
 }
 
@@ -400,7 +394,7 @@ func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *systemadminv1.Ba
 	if err != nil {
 		return errorsx.ResourceNotFound("用户角色不存在").WithCause(err)
 	}
-	if _const.IsDefaultBaseRole(newBaseRole.Code) {
+	if coreconst.IsDefaultBaseRole(newBaseRole.Code) {
 		return errorsx.ProtectedResourceConflict("更新用户失败，不能选择内置角色", "base_user")
 	}
 	if newBaseRole.TenantID != oldBaseUser.TenantID {
@@ -428,7 +422,7 @@ func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *systemadminv1.Ba
 		err = c.UpdateByID(ctx, baseUser)
 		if err != nil {
 			// 命中用户账号或用户编号唯一索引冲突时，返回稳定的业务冲突错误。
-			if errorsx.IsMySQLDuplicateKey(err) {
+			if errorsx.IsDuplicateKey(err) {
 				return errorsx.UniqueConflict("同一租户的用户账号或用户编号重复", "base_user", "", "unique_base_user").WithCause(err)
 			}
 			return err
@@ -438,8 +432,6 @@ func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *systemadminv1.Ba
 	if err != nil {
 		return err
 	}
-	// 用户更新成功后，通知已装配模块处理用户资料变更。
-	c.userEvents.PublishUserChanged(baseUser.ID)
 	return nil
 }
 
@@ -470,8 +462,6 @@ func (c *BaseUserCase) DeleteBaseUser(ctx context.Context, id string) error {
 	if err != nil {
 		return err
 	}
-	// 用户删除成功后，通知已装配模块清理关联用户数据。
-	c.userEvents.PublishUsersDeleted(visibleIDs)
 	return nil
 }
 
@@ -490,8 +480,6 @@ func (c *BaseUserCase) SetBaseUserStatus(ctx context.Context, req *systemadminv1
 	if err != nil {
 		return err
 	}
-	// 用户状态变更成功后，通知已装配模块处理用户资料变更。
-	c.userEvents.PublishUserChanged(baseUser.ID)
 	return nil
 }
 
@@ -530,7 +518,7 @@ func (c *BaseUserCase) ResetBaseUserPassword(ctx context.Context, req *systemadm
 
 // SetBaseUserAppRole 将基础用户切换到允许的应用端内置角色。
 func (c *BaseUserCase) SetBaseUserAppRole(ctx context.Context, userID int64, roleCode string) error {
-	if roleCode != _const.BASE_ROLE_CODE_USER && roleCode != _const.BASE_ROLE_CODE_AUTHUSER {
+	if roleCode != coreconst.BASE_ROLE_CODE_USER && roleCode != coreconst.BASE_ROLE_CODE_AUTHUSER {
 		return errorsx.InvalidArgument("不允许设置应用端用户角色")
 	}
 	ctx = baseUserGRPCContext(ctx)
@@ -542,7 +530,6 @@ func (c *BaseUserCase) SetBaseUserAppRole(ctx context.Context, userID int64, rol
 	if err != nil {
 		return err
 	}
-	c.userEvents.PublishUserChanged(userID)
 	return nil
 }
 
@@ -562,7 +549,7 @@ func (c *BaseUserCase) validateUserManagementTarget(ctx context.Context, baseUse
 		return errorsx.Internal("校验用户角色失败").WithCause(err)
 	}
 	// super 和 tenant 管理员只能通过个人中心维护自身资料与密码。
-	if _const.IsDefaultBaseRole(baseRole.Code) {
+	if coreconst.IsDefaultBaseRole(baseRole.Code) {
 		return errorsx.ProtectedResourceConflict("操作用户失败，内置管理员账号只能通过个人中心修改", "base_user")
 	}
 	return nil
@@ -591,7 +578,7 @@ func (c *BaseUserCase) validateBasePost(ctx context.Context, postID int64, tenan
 	if basePost.TenantID != tenantID {
 		return nil, errorsx.InvalidArgument("用户岗位与所属租户不一致")
 	}
-	if basePost.Status != _const.STATUS_ENABLE && basePost.ID != oldPostID {
+	if basePost.Status != coreconst.Status_STATUS_ENABLE && basePost.ID != oldPostID {
 		return nil, errorsx.PermissionDenied("岗位已被禁用，不能选择")
 	}
 	return basePost, nil

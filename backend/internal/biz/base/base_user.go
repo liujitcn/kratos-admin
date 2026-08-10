@@ -4,11 +4,9 @@ import (
 	"context"
 	"errors"
 
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
-	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
 
-	"github.com/liujitcn/gorm-kit/repository"
 	"gorm.io/gorm"
 )
 
@@ -22,14 +20,6 @@ func NewBaseUserCase(baseUserRepo *data.BaseUserRepository) *BaseUserCase {
 	return &BaseUserCase{
 		BaseUserRepository: baseUserRepo,
 	}
-}
-
-// FindByUserName 按用户名查询基础用户。
-func (c *BaseUserCase) FindByUserName(ctx context.Context, userName string) (*models.BaseUser, error) {
-	query := c.Query(ctx).BaseUser
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.UserName.Eq(userName)))
-	return c.Find(ctx, opts...)
 }
 
 // FindUserNameByID 按用户编号查询展示名称。

@@ -69,7 +69,7 @@ const formData = reactive<BaseJobForm>({
   /** cron表达式 */
   cron_expression: "",
   /** 状态 */
-  status: Status.ENABLE
+  status: Status.STATUS_ENABLE
 });
 
 const rules = computed(() => ({
@@ -118,8 +118,8 @@ const rules = computed(() => ({
 }));
 
 const statusOptions = computed<ProFormOption[]>(() => [
-  { label: t("common.status.enabled"), value: Status.ENABLE },
-  { label: t("common.status.disabled"), value: Status.DISABLE }
+  { label: t("common.status.enabled"), value: Status.STATUS_ENABLE },
+  { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }
 ]);
 
 /**
@@ -183,7 +183,7 @@ function renderOperationCell(scope: RenderScope<BaseJob>) {
     );
   }
 
-  if (row.status === Status.ENABLE && (row.entry_id === undefined || row.entry_id === 0) && BUTTONS.value["base:job:start"]) {
+  if (row.status === Status.STATUS_ENABLE && (row.entry_id === undefined || row.entry_id === 0) && BUTTONS.value["base:job:start"]) {
     actionNodes.push(
       h(
         ElButton,
@@ -200,7 +200,7 @@ function renderOperationCell(scope: RenderScope<BaseJob>) {
     );
   }
 
-  if (row.status === Status.ENABLE && row.entry_id > 0 && BUTTONS.value["base:job:stop"]) {
+  if (row.status === Status.STATUS_ENABLE && row.entry_id > 0 && BUTTONS.value["base:job:stop"]) {
     actionNodes.push(
       h(
         ElButton,
@@ -217,7 +217,7 @@ function renderOperationCell(scope: RenderScope<BaseJob>) {
     );
   }
 
-  if (row.status === Status.ENABLE && (row.entry_id === undefined || row.entry_id === 0) && BUTTONS.value["base:job:exec"]) {
+  if (row.status === Status.STATUS_ENABLE && (row.entry_id === undefined || row.entry_id === 0) && BUTTONS.value["base:job:exec"]) {
     actionNodes.push(
       h(
         ElButton,
@@ -315,8 +315,8 @@ const columns = computed<ColumnProps[]>(() => [
     search: { el: "select" },
     cellType: "status",
     statusProps: {
-      activeValue: Status.ENABLE,
-      inactiveValue: Status.DISABLE,
+      activeValue: Status.STATUS_ENABLE,
+      inactiveValue: Status.STATUS_DISABLE,
       activeText: t("common.status.enabled"),
       inactiveText: t("common.status.disabled"),
       disabled: scope => (scope.row as BaseJob).entry_id === 0 || !BUTTONS.value["base:job:status"],
@@ -401,7 +401,7 @@ function resetForm() {
   formData.invoke_target = "";
   formData.args = [];
   formData.cron_expression = "";
-  formData.status = Status.ENABLE;
+  formData.status = Status.STATUS_ENABLE;
 }
 
 /**
@@ -427,8 +427,8 @@ function handleSubmit() {
  * 在定时任务状态切换前先完成确认与接口调用，避免首屏渲染触发误操作。
  */
 async function handleBeforeSetStatus(row: BaseJob) {
-  const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
-  const action = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
+  const nextStatus = row.status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE;
+  const action = t(nextStatus === Status.STATUS_ENABLE ? "common.status.enabled" : "common.status.disabled");
   const jobName = row.name || row.invoke_target || `ID:${row.id}`;
   try {
     await ElMessageBox.confirm(t("system.base.job.message.confirm_status", { action, name: jobName }), t("common.title.notice"), {

@@ -14,14 +14,15 @@ import (
 	"sync"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	coreBiz "github.com/liujitcn/kratos-admin/backend/internal/biz"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	adminmigration "github.com/liujitcn/kratos-admin/backend/migration"
+	coreBiz "github.com/liujitcn/kratos-core/pkg/biz"
+	coreconst "github.com/liujitcn/kratos-core/pkg/const"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
 
 	"github.com/liujitcn/go-utils/stringcase"
 	"github.com/liujitcn/gorm-kit/repository"
@@ -1027,12 +1028,12 @@ func (c *CodeGenCase) disableStaleGeneratedStatusMenus(ctx context.Context, page
 		if menu.Path != statusPathPrefix && !strings.HasPrefix(menu.Path, statusPathPrefix+":") && !strings.Contains(menu.API, statusAPIPrefix) {
 			continue
 		}
-		if menu.Status == _const.STATUS_DISABLE && menu.API == "[]" {
+		if menu.Status == coreconst.Status_STATUS_DISABLE && menu.API == "[]" {
 			continue
 		}
 		if err = c.baseMenuCase.Update(
 			ctx,
-			&models.BaseMenu{ID: menu.ID, Status: _const.STATUS_DISABLE, API: "[]"},
+			&models.BaseMenu{ID: menu.ID, Status: coreconst.Status_STATUS_DISABLE, API: "[]"},
 			repository.Where(query.ID.Eq(menu.ID)),
 			repository.Select(query.Status, query.API),
 		); err != nil {
@@ -1872,7 +1873,7 @@ func (c *CodeGenCase) removeGeneratedMenus(ctx context.Context, table *codegen.T
 	if childCount > 0 {
 		err = c.baseMenuCase.Update(
 			ctx,
-			&models.BaseMenu{ID: menus[0].ID, Status: _const.STATUS_DISABLE, API: "[]"},
+			&models.BaseMenu{ID: menus[0].ID, Status: coreconst.Status_STATUS_DISABLE, API: "[]"},
 			repository.Where(query.ID.Eq(menus[0].ID)),
 			repository.Select(query.Status, query.API),
 		)
@@ -2066,6 +2067,12 @@ func codeGenWorkspacePaths() (map[string]struct{}, error) {
 		filepath.Join(rootPath, "frontend/admin/packages/modules"),
 	}
 	for _, root := range roots {
+		if _, err = os.Stat(root); os.IsNotExist(err) {
+			continue
+		}
+		if err != nil {
+			return nil, err
+		}
 		err = filepath.WalkDir(root, func(path string, entry fs.DirEntry, walkErr error) error {
 			if walkErr != nil {
 				return walkErr
@@ -2097,9 +2104,6 @@ func codeGenWorkspacePaths() (map[string]struct{}, error) {
 // isCodeGenWorkspaceFile 判断文件是否属于生成命令可能改写的源代码产物。
 func isCodeGenWorkspaceFile(path string) bool {
 	normalizedPath := "/" + strings.TrimPrefix(filepath.ToSlash(path), "/")
-	if filepath.Base(path) == "openapi.yaml" && strings.Contains(normalizedPath, "/backend/internal/cmd/server/assets/") {
-		return true
-	}
 	switch filepath.Ext(path) {
 	case ".go", ".proto", ".ts", ".vue":
 		return true

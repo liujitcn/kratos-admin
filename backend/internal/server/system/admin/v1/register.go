@@ -4,13 +4,11 @@ import (
 	"context"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	coreSSE "github.com/liujitcn/kratos-admin/backend/core/pkg/sse"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/startup"
-	host "github.com/liujitcn/kratos-admin/backend/internal/server"
 	systemadmin "github.com/liujitcn/kratos-admin/backend/internal/service/system/admin/v1"
+	coreDocs "github.com/liujitcn/kratos-core/pkg/docs"
+	coreModule "github.com/liujitcn/kratos-core/pkg/module"
 
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
-	"github.com/google/wire"
 	mcpserver "github.com/liujitcn/kratos-kit/transport/mcp"
 	"google.golang.org/grpc"
 )
@@ -43,10 +41,7 @@ type Services struct {
 	ProjectDocument  *systemadmin.ProjectDocumentService
 }
 
-var _ host.Module = Services{}
-
-// ProviderSet 汇总 system.admin.v1 传输模块依赖注入提供者。
-var ProviderSet = wire.NewSet(wire.Struct(new(Services), "*"))
+var _ coreModule.ProjectDocumentRegistryAware = Services{}
 
 // RegisterGRPC 注册 system.admin.v1 的 gRPC 服务。
 func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
@@ -140,30 +135,31 @@ func (s Services) RegisterMCP(server *mcpserver.Server) {
 }
 
 // SSEStreams 返回 system.admin 提供的 SSE 流定义。
-func (s Services) SSEStreams() []coreSSE.Stream {
+func (s Services) SSEStreams() []coreModule.SSEStream {
 	if s.OpsMonitoring == nil {
 		return nil
 	}
-	return []coreSSE.Stream{systemadmin.NewOpsMonitoringSSEStream()}
-}
-
-// SetSSEPublisher 注入 system.admin 的 SSE 发布器。
-func (s Services) SetSSEPublisher(publisher *coreSSE.Publisher) {
-	if s.OpsMonitoring != nil {
-		s.OpsMonitoring.SetSSEPublisher(publisher)
-	}
+	return []coreModule.SSEStream{systemadmin.NewOpsMonitoringSSEStream()}
 }
 
 // StartupHooks 返回 system.admin 的启动与清理钩子。
-func (s Services) StartupHooks() []startup.Hook {
+func (s Services) StartupHooks() []coreModule.StartupHook {
 	if s.OpsMonitoring == nil {
 		return nil
 	}
-	return []startup.Hook{{
+	return []coreModule.StartupHook{{
 		Name: "system.admin.ops-monitoring-sse",
 		Start: func(ctx context.Context) error {
 			return s.OpsMonitoring.StartOpsMonitoringStream(ctx)
 		},
 		Stop: s.OpsMonitoring.StopOpsMonitoringStream,
 	}}
+}
+
+// SetProjectDocumentRegistry 接收 Core 项目文档注册表并转交文档查询业务。
+func (s Services) SetProjectDocumentRegistry(registry *coreDocs.Registry) {
+	if s.ProjectDocument == nil {
+		return
+	}
+	s.ProjectDocument.SetProjectDocumentRegistry(registry)
 }

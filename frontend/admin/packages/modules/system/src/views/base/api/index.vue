@@ -172,8 +172,8 @@ const editForm = reactive({
   id: 0,
   tool_name: "",
   tool_prompts: [] as string[],
-  mcp_status: Status.ENABLE,
-  agent_status: Status.ENABLE
+  mcp_status: Status.STATUS_ENABLE,
+  agent_status: Status.STATUS_ENABLE
 });
 
 const requestBodyRows = computed(() => schemaRows(detailDoc.value?.request_body));
@@ -202,8 +202,8 @@ const editFields = computed<ProFormField[]>(() => [
     label: t("system.base.api.field.mcp_status"),
     component: "switch",
     props: {
-      activeValue: Status.ENABLE,
-      inactiveValue: Status.DISABLE,
+      activeValue: Status.STATUS_ENABLE,
+      inactiveValue: Status.STATUS_DISABLE,
       activeText: t("common.status.enabled"),
       inactiveText: t("common.status.disabled")
     }
@@ -213,8 +213,8 @@ const editFields = computed<ProFormField[]>(() => [
     label: t("system.base.api.field.agent_status"),
     component: "switch",
     props: {
-      activeValue: Status.ENABLE,
-      inactiveValue: Status.DISABLE,
+      activeValue: Status.STATUS_ENABLE,
+      inactiveValue: Status.STATUS_DISABLE,
       activeText: t("common.status.enabled"),
       inactiveText: t("common.status.disabled")
     }
@@ -222,8 +222,8 @@ const editFields = computed<ProFormField[]>(() => [
 ]);
 
 const statusOptions = computed(() => [
-  { label: t("common.status.enabled"), value: Status.ENABLE },
-  { label: t("common.status.disabled"), value: Status.DISABLE }
+  { label: t("common.status.enabled"), value: Status.STATUS_ENABLE },
+  { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }
 ]);
 
 /** API 表格列配置。 */
@@ -250,8 +250,8 @@ const columns = computed<ColumnProps[]>(() => [
     search: { el: "select" },
     cellType: "status",
     statusProps: {
-      activeValue: Status.ENABLE,
-      inactiveValue: Status.DISABLE,
+      activeValue: Status.STATUS_ENABLE,
+      inactiveValue: Status.STATUS_DISABLE,
       activeText: t("common.status.enabled"),
       inactiveText: t("common.status.disabled"),
       disabled: () => !BUTTONS.value["base:api:mcp-status"],
@@ -266,8 +266,8 @@ const columns = computed<ColumnProps[]>(() => [
     search: { el: "select" },
     cellType: "status",
     statusProps: {
-      activeValue: Status.ENABLE,
-      inactiveValue: Status.DISABLE,
+      activeValue: Status.STATUS_ENABLE,
+      inactiveValue: Status.STATUS_DISABLE,
       activeText: t("common.status.enabled"),
       inactiveText: t("common.status.disabled"),
       disabled: () => !BUTTONS.value["base:api:agent-status"],
@@ -358,8 +358,8 @@ function handleCloseEditDialog() {
   editForm.id = 0;
   editForm.tool_name = "";
   editForm.tool_prompts = [];
-  editForm.mcp_status = Status.ENABLE;
-  editForm.agent_status = Status.ENABLE;
+  editForm.mcp_status = Status.STATUS_ENABLE;
+  editForm.agent_status = Status.STATUS_ENABLE;
   editDialogRef.value?.clearValidate();
 }
 
@@ -383,8 +383,8 @@ async function handleSubmitEdit() {
  * MCP 工具状态切换前进行二次确认，并调用状态接口完成持久化。
  */
 async function handleBeforeSetMcpStatus(row: BaseApi) {
-  const nextStatus = row.mcp_status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
-  const action = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
+  const nextStatus = row.mcp_status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE;
+  const action = t(nextStatus === Status.STATUS_ENABLE ? "common.status.enabled" : "common.status.disabled");
   const apiName = row.desc || row.operation || `ID:${row.id}`;
   try {
     await ElMessageBox.confirm(t("system.base.api.message.confirm_mcp_status", { action, api: apiName }), t("common.title.notice"), {
@@ -405,8 +405,8 @@ async function handleBeforeSetMcpStatus(row: BaseApi) {
  * Agent 工具状态切换前进行二次确认，并调用状态接口完成持久化。
  */
 async function handleBeforeSetAgentStatus(row: BaseApi) {
-  const nextStatus = row.agent_status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
-  const action = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
+  const nextStatus = row.agent_status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE;
+  const action = t(nextStatus === Status.STATUS_ENABLE ? "common.status.enabled" : "common.status.disabled");
   const apiName = row.desc || row.operation || `ID:${row.id}`;
   try {
     await ElMessageBox.confirm(t("system.base.api.message.confirm_agent_status", { action, api: apiName }), t("common.title.notice"), {
@@ -435,8 +435,8 @@ function formatToolPrompts(prompts: string[]) {
  * 格式化 API 工具状态。
  */
 function formatStatus(status: Status) {
-  if (status === Status.ENABLE) return t("common.status.enabled");
-  if (status === Status.DISABLE) return t("common.status.disabled");
+  if (status === Status.STATUS_ENABLE) return t("common.status.enabled");
+  if (status === Status.STATUS_DISABLE) return t("common.status.disabled");
   return t("common.value.unknown");
 }
 

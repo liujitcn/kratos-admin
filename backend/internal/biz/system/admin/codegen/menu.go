@@ -6,6 +6,7 @@ import (
 
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	coreconst "github.com/liujitcn/kratos-core/pkg/const"
 )
 
 // MenuSpecs 构建页面菜单及页面实际使用的按钮权限定义。
@@ -44,7 +45,7 @@ func MenuSpecs(table *Table, columns []*CodeGenColumn, methods []*Proto, resourc
 		}),
 		API:    marshalJSON(pageAPIs),
 		Sort:   100,
-		Status: _const.STATUS_ENABLE,
+		Status: coreconst.Status_STATUS_ENABLE,
 	}
 
 	permission := PermissionPrefix(table)
@@ -134,7 +135,7 @@ func newButtonMenuSpec(path string, title string, translations map[string]string
 			Meta:   marshalJSON(map[string]string{"title": title}),
 			API:    marshalJSON(apis),
 			Sort:   sort,
-			Status: _const.STATUS_ENABLE,
+			Status: coreconst.Status_STATUS_ENABLE,
 		},
 		SourceTitle:  title,
 		Translations: translations,

@@ -7,8 +7,8 @@ import (
 	"time"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	coreSSE "github.com/liujitcn/kratos-admin/backend/core/pkg/sse"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	coreSSE "github.com/liujitcn/kratos-core/pkg/module"
 
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/proto"
@@ -49,7 +49,7 @@ type CodeGenSSEStream struct {
 	manager *Manager
 }
 
-var _ coreSSE.Stream = (*CodeGenSSEStream)(nil)
+var _ coreSSE.SSEStream = (*CodeGenSSEStream)(nil)
 
 // NewCodeGenSSEStream 创建代码生成任务 SSE 流声明。
 func NewCodeGenSSEStream(manager *Manager) *CodeGenSSEStream {

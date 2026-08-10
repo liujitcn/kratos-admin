@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	coreconst "github.com/liujitcn/kratos-core/pkg/const"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
 
 	_set "github.com/liujitcn/go-utils/set"
 	_string "github.com/liujitcn/go-utils/string"
@@ -20,7 +20,6 @@ import (
 // CasbinRuleCase 权限规则业务实例
 type CasbinRuleCase struct {
 	*data.CasbinRuleRepository
-	tx             data.Transaction
 	baseMenuRepo   *data.BaseMenuRepository
 	baseRoleRepo   *data.BaseRoleRepository
 	baseTenantRepo *data.BaseTenantRepository
@@ -31,7 +30,6 @@ type CasbinRuleCase struct {
 // NewCasbinRuleCase 创建权限规则业务实例。
 func NewCasbinRuleCase(
 	casbinRuleRepo *data.CasbinRuleRepository,
-	tx data.Transaction,
 	baseMenuRepo *data.BaseMenuRepository,
 	baseRoleRepo *data.BaseRoleRepository,
 	baseTenantRepo *data.BaseTenantRepository,
@@ -44,67 +42,12 @@ func NewCasbinRuleCase(
 	}
 	return &CasbinRuleCase{
 		CasbinRuleRepository: casbinRuleRepo,
-		tx:                   tx,
 		baseMenuRepo:         baseMenuRepo,
 		baseRoleRepo:         baseRoleRepo,
 		baseTenantRepo:       baseTenantRepo,
 		baseAPICase:          baseAPICase,
 		policyWriter:         policyWriter,
 	}, nil
-}
-
-// RebuildAllCasbinRules 按全部角色、菜单和接口重新初始化 Casbin 规则与内存策略。
-//
-// 该方法仅在服务启动时调用，必须位于 OpenAPI 接口同步和租户管理员菜单同步之后。它会以当前
-// 数据库数据覆盖 casbin_rule 表，并在规则写入成功后加载 Casbin 内存策略。
-func (c *CasbinRuleCase) RebuildAllCasbinRules(ctx context.Context) error {
-	baseRoleList, err := c.baseRoleRepo.List(ctx)
-	if err != nil {
-		return err
-	}
-	var baseTenantList []*models.BaseTenant
-	baseTenantList, err = c.baseTenantRepo.List(ctx)
-	if err != nil {
-		return err
-	}
-
-	// 仅查询角色实际关联的菜单，减少无关菜单参与规则构建。
-	menuIDSet := make(map[int64]struct{})
-	for _, item := range baseRoleList {
-		for _, menuID := range _string.ConvertJsonStringToInt64Array(item.Menus) {
-			menuIDSet[menuID] = struct{}{}
-		}
-	}
-	menuIDs := make([]int64, 0, len(menuIDSet))
-	for menuID := range menuIDSet {
-		menuIDs = append(menuIDs, menuID)
-	}
-	var baseMenuList []*models.BaseMenu
-	baseMenuList, err = c.baseMenuRepo.ListByIDs(ctx, menuIDs)
-	if err != nil {
-		return err
-	}
-	var baseAPIList []*models.BaseAPI
-	baseAPIList, err = c.baseAPICase.List(ctx)
-	if err != nil {
-		return err
-	}
-
-	// 根据读取到的角色、租户、菜单和 API 数据构造完整规则快照。
-	casbinRuleList := buildCasbinRuleList(baseRoleList, baseTenantList, baseMenuList, baseAPIList)
-	query := c.Query(ctx).CasbinRule
-	// 策略完全根据当前角色、菜单和接口重建，清空表并重置自增 ID 后重新生成。
-	if err = query.WithContext(ctx).UnderlyingDB().Exec("TRUNCATE TABLE `casbin_rule`").Error; err != nil { //nolint:forbidigo // TRUNCATE 重置自增 ID，gorm/gen 无法表达
-		return err
-	}
-	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
-		return c.BatchCreate(ctx, casbinRuleList)
-	})
-	if err != nil {
-		return err
-	}
-	// 数据库规则提交后再刷新内存策略，确保鉴权引擎看到完整且一致的规则集合。
-	return c.RebuildPolicyRule(ctx)
 }
 
 // RebuildPolicyRule 重建内存权限策略。
@@ -119,7 +62,7 @@ func (c *CasbinRuleCase) RebuildPolicyRule(ctx context.Context) error {
 		policyRule = append(policyRule, casbin.PolicyRule{
 			PType: "p",
 			V0:    databaseGorm.DefaultTenantCode,
-			V1:    _const.BASE_ROLE_CODE_SUPER,
+			V1:    coreconst.BASE_ROLE_CODE_SUPER,
 			V2:    item.Operation,
 			V3:    item.Method,
 			V4:    "*",
@@ -232,15 +175,6 @@ func (c *CasbinRuleCase) RebuildCasbinRuleByRole(ctx context.Context, baseRole *
 	return c.RebuildPolicyRule(ctx)
 }
 
-// RebuildCasbinRuleByTenantRole 按指定租户和角色模板重建权限规则。
-func (c *CasbinRuleCase) RebuildCasbinRuleByTenantRole(ctx context.Context, tenantCode string, baseRole *models.BaseRole) error {
-	err := c.rebuildCasbinRuleByTenantRole(ctx, tenantCode, baseRole)
-	if err != nil {
-		return err
-	}
-	return c.RebuildPolicyRule(ctx)
-}
-
 // rebuildCasbinRuleByRole 按角色重建数据库权限规则。
 func (c *CasbinRuleCase) rebuildCasbinRuleByRole(ctx context.Context, baseRole *models.BaseRole) error {
 	baseTenant, err := c.baseTenantRepo.FindByID(ctx, baseRole.TenantID)
@@ -312,55 +246,4 @@ func (c *CasbinRuleCase) rebuildCasbinRuleByTenantRole(ctx context.Context, tena
 		}
 	}
 	return nil
-}
-
-// buildCasbinRuleList 根据角色菜单、租户和接口关联构造去重后的 Casbin 策略。
-func buildCasbinRuleList(baseRoleList []*models.BaseRole, baseTenantList []*models.BaseTenant, baseMenuList []*models.BaseMenu, baseAPIList []*models.BaseAPI) []*models.CasbinRule {
-	tenantCodeByID := make(map[int64]string, len(baseTenantList))
-	for _, item := range baseTenantList {
-		tenantCodeByID[item.ID] = item.Code
-	}
-	menuOperationsByID := make(map[int64][]string, len(baseMenuList))
-	for _, item := range baseMenuList {
-		menuOperationsByID[item.ID] = _string.ConvertJsonStringToStringArray(item.API)
-	}
-	apiByOperation := make(map[string]*models.BaseAPI, len(baseAPIList))
-	for _, item := range baseAPIList {
-		if _, ok := apiByOperation[item.Operation]; !ok {
-			apiByOperation[item.Operation] = item
-		}
-	}
-
-	rules := make([]*models.CasbinRule, 0)
-	ruleSet := make(map[string]struct{})
-	for _, baseRole := range baseRoleList {
-		tenantCode, ok := tenantCodeByID[baseRole.TenantID]
-		// 角色所属租户不存在时，不生成无效策略。
-		if !ok {
-			continue
-		}
-		for _, menuID := range _string.ConvertJsonStringToInt64Array(baseRole.Menus) {
-			for _, operation := range menuOperationsByID[menuID] {
-				baseAPI, ok := apiByOperation[operation]
-				// 菜单关联的接口已失效时，不生成无效策略。
-				if !ok {
-					continue
-				}
-				ruleKey := tenantCode + "\x00" + baseRole.Code + "\x00" + baseAPI.Operation + "\x00" + baseAPI.Method
-				if _, ok = ruleSet[ruleKey]; ok {
-					continue
-				}
-				ruleSet[ruleKey] = struct{}{}
-				rules = append(rules, &models.CasbinRule{
-					Ptype: "p",
-					V0:    tenantCode,
-					V1:    baseRole.Code,
-					V2:    baseAPI.Operation,
-					V3:    baseAPI.Method,
-					V4:    "*",
-				})
-			}
-		}
-	}
-	return rules
 }

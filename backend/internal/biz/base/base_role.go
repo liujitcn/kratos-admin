@@ -3,11 +3,11 @@ package biz
 import (
 	"context"
 
-	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 
 	"github.com/liujitcn/gorm-kit/repository"
+	coreconst "github.com/liujitcn/kratos-core/pkg/const"
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 )
 
@@ -30,7 +30,7 @@ func NewBaseRoleCase(
 
 // FindDefaultUser 查询默认租户的普通用户角色。
 func (c *BaseRoleCase) FindDefaultUser(ctx context.Context) (*models.BaseRole, error) {
-	return c.FindDefaultByCode(ctx, _const.BASE_ROLE_CODE_USER)
+	return c.FindDefaultByCode(ctx, coreconst.BASE_ROLE_CODE_USER)
 }
 
 // FindDefaultByCode 按编码查询默认租户的基础角色。

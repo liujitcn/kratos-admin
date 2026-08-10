@@ -9,13 +9,13 @@ import (
 	"time"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-core/pkg/biz"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/gorm-kit/repository"
@@ -277,7 +277,7 @@ func (c *AiMessageCase) ToolConfigs(ctx context.Context, terminal string, names 
 	promptsByName := make(map[string][]string, len(filteredNames))
 	for _, item := range list {
 		totalByName[item.ToolName]++
-		if item.AgentStatus == int32(commonv1.Status_ENABLE) {
+		if item.AgentStatus == int32(commonv1.Status_STATUS_ENABLE) {
 			enabledByName[item.ToolName]++
 		}
 		if len(promptsByName[item.ToolName]) == 0 {

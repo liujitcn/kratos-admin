@@ -64,8 +64,8 @@ const dialog = reactive({
 });
 const tenantOptions = ref<SelectOptionResponse_Option[]>([]);
 const statusOptions = computed<ProFormOption[]>(() => [
-  { label: t("common.status.enabled"), value: Status.ENABLE },
-  { label: t("common.status.disabled"), value: Status.DISABLE }
+  { label: t("common.status.enabled"), value: Status.STATUS_ENABLE },
+  { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }
 ]);
 const formData = reactive<BasePostFormState>({
   /** 岗位ID。 */
@@ -79,7 +79,7 @@ const formData = reactive<BasePostFormState>({
   /** 显示顺序。 */
   sort: 1,
   /** 状态。 */
-  status: Status.ENABLE,
+  status: Status.STATUS_ENABLE,
   /** 备注。 */
   remark: ""
 });
@@ -201,8 +201,8 @@ const columns = computed<ColumnProps[]>(() => [
     search: { el: "select" },
     cellType: "status",
     statusProps: {
-      activeValue: Status.ENABLE,
-      inactiveValue: Status.DISABLE,
+      activeValue: Status.STATUS_ENABLE,
+      inactiveValue: Status.STATUS_DISABLE,
       activeText: t("common.status.enabled"),
       inactiveText: t("common.status.disabled"),
       disabled: () => !BUTTONS.value["base:post:status"],
@@ -304,7 +304,7 @@ function resetForm() {
   formData.name = "";
   formData.code = "";
   formData.sort = 1;
-  formData.status = Status.ENABLE;
+  formData.status = Status.STATUS_ENABLE;
   formData.remark = "";
 }
 
@@ -330,8 +330,8 @@ function handleSubmit() {
 
 /** 在岗位状态切换前确认并提交。 */
 async function handleBeforeSetStatus(row: BasePost) {
-  const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
-  const text = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
+  const nextStatus = row.status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE;
+  const text = t(nextStatus === Status.STATUS_ENABLE ? "common.status.enabled" : "common.status.disabled");
   try {
     await ElMessageBox.confirm(
       t("common.dialog.status_change", {

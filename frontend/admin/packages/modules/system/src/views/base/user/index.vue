@@ -166,7 +166,7 @@ const formData = reactive<BaseUserFormState>({
   /** 头像 */
   avatar: "",
   /** 用户状态 */
-  status: Status.ENABLE,
+  status: Status.STATUS_ENABLE,
   /** 备注名 */
   remark: ""
 });
@@ -273,8 +273,8 @@ const baseRoleOptions = ref<SelectOptionResponse_Option[]>([]);
 const basePostOptions = ref<SelectOptionResponse_Option[]>([]);
 const tenantOptions = ref<SelectOptionResponse_Option[]>([]);
 const statusOptions = computed<ProFormOption[]>(() => [
-  { label: t("common.status.enabled"), value: Status.ENABLE },
-  { label: t("common.status.disabled"), value: Status.DISABLE }
+  { label: t("common.status.enabled"), value: Status.STATUS_ENABLE },
+  { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }
 ]);
 const resetPwdFields = computed<ProFormField[]>(() => [
   {
@@ -442,8 +442,8 @@ const columns = computed<ColumnProps[]>(() => [
     search: { el: "select" },
     cellType: "status",
     statusProps: {
-      activeValue: Status.ENABLE,
-      inactiveValue: Status.DISABLE,
+      activeValue: Status.STATUS_ENABLE,
+      inactiveValue: Status.STATUS_DISABLE,
       activeText: t("common.status.enabled"),
       inactiveText: t("common.status.disabled"),
       disabled: scope => isProtectedManagementUser(scope.row as BaseUser) || !BUTTONS.value["base:user:status"],
@@ -690,7 +690,7 @@ function resetForm() {
   formData.pwd = "";
   formData.gender = 3;
   formData.avatar = "";
-  formData.status = Status.ENABLE;
+  formData.status = Status.STATUS_ENABLE;
   formData.remark = "";
   baseRoleOptions.value = [];
   basePostOptions.value = [];
@@ -768,8 +768,8 @@ async function handleBeforeSetStatus(row: BaseUser) {
     return false;
   }
 
-  const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
-  const action = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
+  const nextStatus = row.status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE;
+  const action = t(nextStatus === Status.STATUS_ENABLE ? "common.status.enabled" : "common.status.disabled");
   const userName = row.nick_name || row.user_name || `ID:${row.id}`;
   try {
     await ElMessageBox.confirm(t("system.base.user.message.confirm_status", { action, name: userName }), t("common.title.notice"), {

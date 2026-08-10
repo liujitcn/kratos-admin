@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/dto"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"

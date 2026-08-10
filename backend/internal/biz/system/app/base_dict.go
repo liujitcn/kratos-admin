@@ -4,13 +4,12 @@ import (
 	"context"
 	"sort"
 
-	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
-
-	coreLocale "github.com/liujitcn/kratos-admin/backend/core/pkg/locale"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-core/pkg/biz"
+	coreconst "github.com/liujitcn/kratos-core/pkg/const"
+	coreLocale "github.com/liujitcn/kratos-core/pkg/locale"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	systemappv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
@@ -47,7 +46,7 @@ func (c *BaseDictCase) GetBaseDict(ctx context.Context, code string) (*systemapp
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
 	opts = append(opts, repository.Where(query.Code.Eq(code)))
-	opts = append(opts, repository.Where(query.Status.Eq(_const.STATUS_ENABLE)))
+	opts = append(opts, repository.Where(query.Status.Eq(coreconst.Status_STATUS_ENABLE)))
 	baseDict, err := c.Find(ctx, opts...)
 	if err != nil {
 		return nil, err

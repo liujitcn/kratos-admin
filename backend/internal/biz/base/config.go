@@ -7,18 +7,19 @@ import (
 	"strconv"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
-	coreLocale "github.com/liujitcn/kratos-admin/backend/core/pkg/locale"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	coreconst "github.com/liujitcn/kratos-core/pkg/const"
+	coreLocale "github.com/liujitcn/kratos-core/pkg/locale"
 
 	"github.com/go-kratos/kratos/v3/log"
-	"github.com/liujitcn/go-utils/translator"
 	"github.com/liujitcn/kratos-kit/sdk"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/liujitcn/gorm-kit/repository"
+	coreI18n "github.com/liujitcn/kratos-core/pkg/i18n"
 )
 
 // ConfigCase 处理基础配置查询业务。
@@ -26,11 +27,11 @@ type ConfigCase struct {
 	*data.BaseConfigRepository
 	translationRepo *data.BaseTranslationRepository
 	languageRepo    *data.BaseLanguageRepository
-	draftTranslator translator.Translator
+	draftTranslator coreI18n.Translator
 }
 
 // NewConfigCase 创建配置业务实例。
-func NewConfigCase(baseConfigRepo *data.BaseConfigRepository, translationRepo *data.BaseTranslationRepository, languageRepo *data.BaseLanguageRepository, draftTranslator translator.Translator) *ConfigCase {
+func NewConfigCase(baseConfigRepo *data.BaseConfigRepository, translationRepo *data.BaseTranslationRepository, languageRepo *data.BaseLanguageRepository, draftTranslator coreI18n.Translator) *ConfigCase {
 	return &ConfigCase{
 		BaseConfigRepository: baseConfigRepo,
 		translationRepo:      translationRepo,
@@ -61,7 +62,7 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 	query := c.Query(ctx).BaseConfig
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Where(query.Site.Eq(site)))
-	opts = append(opts, repository.Where(query.Status.Eq(_const.STATUS_ENABLE)))
+	opts = append(opts, repository.Where(query.Status.Eq(coreconst.Status_STATUS_ENABLE)))
 	opts = append(opts, repository.Order(query.ID.Asc()))
 	var list []*models.BaseConfig
 	list, err = c.List(ctx, opts...)
@@ -145,7 +146,7 @@ func (c *ConfigCase) localizeRuntimeConfigValues(ctx context.Context, configs []
 func (c *ConfigCase) primaryLocale(ctx context.Context) (string, error) {
 	query := c.languageRepo.Query(ctx).BaseLanguage
 	opts := []repository.QueryOption{
-		repository.Where(query.Status.Eq(int32(commonv1.Status_ENABLE))),
+		repository.Where(query.Status.Eq(int32(commonv1.Status_STATUS_ENABLE))),
 		repository.Where(query.IsPrimary.Is(true)),
 		repository.Order(query.Sort.Asc()),
 		repository.Order(query.ID.Asc()),
@@ -158,7 +159,7 @@ func (c *ConfigCase) primaryLocale(ctx context.Context) (string, error) {
 		return rows[0].LanguageCode, nil
 	}
 	rows, err = c.languageRepo.List(ctx,
-		repository.Where(query.Status.Eq(int32(commonv1.Status_ENABLE))),
+		repository.Where(query.Status.Eq(int32(commonv1.Status_STATUS_ENABLE))),
 		repository.Order(query.Sort.Asc()),
 		repository.Order(query.ID.Asc()),
 	)

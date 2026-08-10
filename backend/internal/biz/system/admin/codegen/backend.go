@@ -305,7 +305,7 @@ func renderBackendErrorImport(tree bool) string {
 	if !tree {
 		return ""
 	}
-	return `"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"`
+	return `"github.com/liujitcn/kratos-core/pkg/errorsx"`
 }
 
 // renderBackendJSONImport 判断生成业务文件是否需要 JSON 标准库导入。
@@ -527,10 +527,10 @@ func renderBackendFormMultipleEntityAssignments(columns []*CodeGenColumn, entity
 func renderGoCommonImport(methods []*Proto) string {
 	for _, method := range methods {
 		if method.APIKind == APIKindOption {
-			return "\tcommonv1 \"github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1\""
+			return "\tcommonv1 \"github.com/liujitcn/kratos-core/api/gen/go/common/v1\""
 		}
 		if method.APIKind == APIKindTree && (method.TriggerType == TriggerEntityOption || method.TriggerType == TriggerFieldOption || method.TriggerType == TriggerLeftTree) {
-			return "\tcommonv1 \"github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1\""
+			return "\tcommonv1 \"github.com/liujitcn/kratos-core/api/gen/go/common/v1\""
 		}
 	}
 	return ""

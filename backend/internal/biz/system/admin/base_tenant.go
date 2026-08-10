@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strconv"
 
@@ -11,17 +10,16 @@ import (
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
-	"gorm.io/gorm"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/event"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-core/pkg/biz"
+	coreconst "github.com/liujitcn/kratos-core/pkg/const"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
 )
 
 const (
@@ -45,7 +43,6 @@ type BaseTenantCase struct {
 	baseUserRepo   *data.BaseUserRepository
 	casbinRuleRepo *data.CasbinRuleRepository
 	casbinRuleCase *CasbinRuleCase
-	userEvents     *event.UserEvents
 	formMapper     *mapper.CopierMapper[systemadminv1.BaseTenantForm, models.BaseTenant]
 	mapper         *mapper.CopierMapper[systemadminv1.BaseTenant, models.BaseTenant]
 }
@@ -60,7 +57,6 @@ func NewBaseTenantCase(
 	baseUserRepo *data.BaseUserRepository,
 	casbinRuleRepo *data.CasbinRuleRepository,
 	casbinRuleCase *CasbinRuleCase,
-	userEvents *event.UserEvents,
 ) *BaseTenantCase {
 	return &BaseTenantCase{
 		BaseCase:             baseCase,
@@ -71,7 +67,6 @@ func NewBaseTenantCase(
 		baseUserRepo:         baseUserRepo,
 		casbinRuleRepo:       casbinRuleRepo,
 		casbinRuleCase:       casbinRuleCase,
-		userEvents:           userEvents,
 		formMapper:           mapper.NewCopierMapper[systemadminv1.BaseTenantForm, models.BaseTenant](),
 		mapper:               mapper.NewCopierMapper[systemadminv1.BaseTenant, models.BaseTenant](),
 	}
@@ -85,66 +80,12 @@ func (c *BaseTenantCase) FindDefault(ctx context.Context) (*models.BaseTenant, e
 	return c.Find(ctx, opts...)
 }
 
-// SyncTenantRoleMenus 将默认租户管理员角色菜单同步到所有普通租户的角色副本。
-//
-// 该方法仅在服务启动时调用，必须位于 OpenAPI 接口同步之后、全量 Casbin 规则重建之前。
-// 默认租户或角色模板尚未初始化时返回 nil，使首次导入初始化数据前的启动流程保持幂等。
-func (c *BaseTenantCase) SyncTenantRoleMenus(ctx context.Context) error {
-	defaultTenant, err := c.FindDefault(ctx)
-	// 首次启动尚未导入初始化数据时没有默认租户，等待后续启动再同步。
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil
-	}
-	if err != nil {
-		return errorsx.Internal("查询默认租户失败").WithCause(err)
-	}
-
-	query := c.baseRoleRepo.Query(ctx).BaseRole
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.TenantID.Eq(defaultTenant.ID)))
-	opts = append(opts, repository.Where(query.Code.Eq(_const.BASE_ROLE_CODE_TENANT)))
-	var templateRole *models.BaseRole
-	templateRole, err = c.baseRoleRepo.Find(ctx, opts...)
-	// 初始化数据尚未写入租户角色模板时无需执行同步。
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil
-	}
-	if err != nil {
-		return err
-	}
-
-	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		allRoleOpts := make([]repository.QueryOption, 0, 1)
-		allRoleOpts = append(allRoleOpts, repository.Where(query.Code.Eq(_const.BASE_ROLE_CODE_TENANT)))
-		var baseRoleList []*models.BaseRole
-		baseRoleList, err = c.baseRoleRepo.List(ctx, allRoleOpts...)
-		if err != nil {
-			return err
-		}
-		for _, item := range baseRoleList {
-			// 默认租户模板和已同步副本无需重复写入。
-			if item.ID == templateRole.ID || item.Menus == templateRole.Menus {
-				continue
-			}
-			err = c.baseRoleRepo.UpdateByID(ctx, &models.BaseRole{
-				ID:       item.ID,
-				TenantID: item.TenantID,
-				Menus:    templateRole.Menus,
-			})
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	})
-}
-
 // OptionBaseTenant 查询租户选项。
 func (c *BaseTenantCase) OptionBaseTenant(ctx context.Context, req *systemadminv1.OptionBaseTenantRequest) (*commonv1.SelectOptionResponse, error) {
 	query := c.Query(ctx).BaseTenant
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
-	opts = append(opts, repository.Where(query.Status.Eq(_const.STATUS_ENABLE)))
+	opts = append(opts, repository.Where(query.Status.Eq(coreconst.Status_STATUS_ENABLE)))
 	if req.GetKeyword() != "" {
 		opts = append(opts, repository.Where(query.Name.Like("%"+req.GetKeyword()+"%")))
 	}
@@ -218,12 +159,12 @@ func (c *BaseTenantCase) CreateBaseTenant(ctx context.Context, req *systemadminv
 		baseTenant.Code = code
 		// 未指定状态时，新租户默认启用，避免初始化完成后仍无法登录。
 		if baseTenant.Status == 0 {
-			baseTenant.Status = _const.STATUS_ENABLE
+			baseTenant.Status = coreconst.Status_STATUS_ENABLE
 		}
 		err = c.Create(ctx, baseTenant)
 		if err != nil {
 			// 命中租户编号唯一索引冲突时，返回稳定的业务冲突错误。
-			if errorsx.IsMySQLDuplicateKey(err) {
+			if errorsx.IsDuplicateKey(err) {
 				return errorsx.UniqueConflict("租户编号重复", "base_tenant", "code", "unique_base_tenant").WithCause(err)
 			}
 			return err
@@ -248,7 +189,7 @@ func (c *BaseTenantCase) UpdateBaseTenant(ctx context.Context, req *systemadminv
 	baseTenant.Code = oldBaseTenant.Code
 	err = c.UpdateByID(ctx, baseTenant)
 	if err != nil {
-		if errorsx.IsMySQLDuplicateKey(err) {
+		if errorsx.IsDuplicateKey(err) {
 			return errorsx.UniqueConflict("租户编号重复", "base_tenant", "code", "unique_base_tenant").WithCause(err)
 		}
 		return err
@@ -281,9 +222,8 @@ func (c *BaseTenantCase) DeleteBaseTenant(ctx context.Context, id string) error 
 		tenantCodes = append(tenantCodes, item.Code)
 	}
 
-	var deletedUserIDs []int64
 	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
-		deletedUserIDs, err = c.deleteTenantData(ctx, tenantIDs, tenantCodes)
+		err = c.deleteTenantData(ctx, tenantIDs, tenantCodes)
 		if err != nil {
 			return err
 		}
@@ -292,8 +232,6 @@ func (c *BaseTenantCase) DeleteBaseTenant(ctx context.Context, id string) error 
 	if err != nil {
 		return err
 	}
-	// 数据库事务提交后，通知已装配模块清理租户关联用户数据。
-	c.userEvents.PublishUsersDeleted(deletedUserIDs)
 	return c.casbinRuleCase.RebuildPolicyRule(ctx)
 }
 
@@ -349,7 +287,7 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 		ParentID: 0,
 		Name:     baseTenantDefaultDeptName,
 		Sort:     baseTenantDefaultDeptSort,
-		Status:   _const.STATUS_ENABLE,
+		Status:   coreconst.Status_STATUS_ENABLE,
 		Remark:   "租户默认部门",
 	}
 	err := c.baseDeptRepo.Create(ctx, baseDept)
@@ -372,7 +310,7 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 	roleQuery := c.baseRoleRepo.Query(ctx).BaseRole
 	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(roleQuery.TenantID.Eq(defaultTenant.ID)))
-	opts = append(opts, repository.Where(roleQuery.Code.Eq(_const.BASE_ROLE_CODE_TENANT)))
+	opts = append(opts, repository.Where(roleQuery.Code.Eq(coreconst.BASE_ROLE_CODE_TENANT)))
 	var defaultRole *models.BaseRole
 	defaultRole, err = c.baseRoleRepo.Find(ctx, opts...)
 	if err != nil {
@@ -391,7 +329,7 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 	err = c.baseRoleRepo.Create(ctx, baseRole)
 	if err != nil {
 		// 命中角色编码唯一索引冲突时，返回稳定的业务冲突错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
+		if errorsx.IsDuplicateKey(err) {
 			return errorsx.UniqueConflict("同一租户的角色编码重复", "base_role", "", "unique_base_role").WithCause(err)
 		}
 		return errorsx.Internal("初始化租户管理员角色失败").WithCause(err)
@@ -413,13 +351,13 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 		Phone:    baseTenant.ContactPhone,
 		Password: password,
 		Gender:   _const.BASE_USER_GENDER_SECRET,
-		Status:   _const.STATUS_ENABLE,
+		Status:   coreconst.Status_STATUS_ENABLE,
 		Remark:   "租户默认管理员",
 	}
 	err = c.baseUserRepo.Create(ctx, baseUser)
 	if err != nil {
 		// 命中用户账号或用户编号唯一索引冲突时，返回稳定的业务冲突错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
+		if errorsx.IsDuplicateKey(err) {
 			return errorsx.UniqueConflict("同一租户的用户账号或用户编号重复", "base_user", "", "unique_base_user").WithCause(err)
 		}
 		return errorsx.Internal("初始化租户管理员账号失败").WithCause(err)
@@ -432,13 +370,13 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 }
 
 // deleteTenantData 清理租户下全部用户、角色、部门和权限规则。
-func (c *BaseTenantCase) deleteTenantData(ctx context.Context, tenantIDs []int64, tenantCodes []string) ([]int64, error) {
+func (c *BaseTenantCase) deleteTenantData(ctx context.Context, tenantIDs []int64, tenantCodes []string) error {
 	casbinRuleQuery := c.casbinRuleRepo.Query(ctx).CasbinRule
 	casbinRuleOpts := make([]repository.QueryOption, 0, 1)
 	casbinRuleOpts = append(casbinRuleOpts, repository.Where(casbinRuleQuery.V0.In(tenantCodes...)))
 	err := c.casbinRuleRepo.Delete(ctx, casbinRuleOpts...)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	userQuery := c.baseUserRepo.Query(ctx).BaseUser
@@ -447,7 +385,7 @@ func (c *BaseTenantCase) deleteTenantData(ctx context.Context, tenantIDs []int64
 	var users []*models.BaseUser
 	users, err = c.baseUserRepo.List(ctx, userOpts...)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	userIDs := make([]int64, 0, len(users))
 	for _, item := range users {
@@ -455,7 +393,7 @@ func (c *BaseTenantCase) deleteTenantData(ctx context.Context, tenantIDs []int64
 	}
 	err = c.baseUserRepo.DeleteByIDs(ctx, userIDs)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	roleQuery := c.baseRoleRepo.Query(ctx).BaseRole
@@ -463,7 +401,7 @@ func (c *BaseTenantCase) deleteTenantData(ctx context.Context, tenantIDs []int64
 	roleOpts = append(roleOpts, repository.Where(roleQuery.TenantID.In(tenantIDs...)))
 	err = c.baseRoleRepo.Delete(ctx, roleOpts...)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	deptQuery := c.baseDeptRepo.Query(ctx).BaseDept
@@ -471,9 +409,9 @@ func (c *BaseTenantCase) deleteTenantData(ctx context.Context, tenantIDs []int64
 	deptOpts = append(deptOpts, repository.Where(deptQuery.TenantID.In(tenantIDs...)))
 	err = c.baseDeptRepo.Delete(ctx, deptOpts...)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return userIDs, nil
+	return nil
 }
 
 // validateBaseTenantManagementTarget 校验目标租户是否允许通过租户管理接口操作。

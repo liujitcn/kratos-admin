@@ -8,10 +8,20 @@
 
 /** 状态 */
 export enum Status {
-  /** UNKNOWN - 未知状态 */
-  UNKNOWN = 0,
-  /** ENABLE - 启用 */
-  ENABLE = 1,
-  /** DISABLE - 禁用 */
-  DISABLE = 2,
+  /** STATUS_UNSPECIFIED - 未知状态 */
+  STATUS_UNSPECIFIED = 0,
+  /** STATUS_ENABLE - 启用 */
+  STATUS_ENABLE = 1,
+  /** STATUS_DISABLE - 禁用 */
+  STATUS_DISABLE = 2,
+}
+
+/** 定时任务日志状态 */
+export enum BaseJobLogStatus {
+  /** BASE_JOB_LOG_STATUS_UNSPECIFIED - 未指定定时任务日志状态 */
+  BASE_JOB_LOG_STATUS_UNSPECIFIED = 0,
+  /** BASE_JOB_LOG_STATUS_SUCCESS - 成功 */
+  BASE_JOB_LOG_STATUS_SUCCESS = 1,
+  /** BASE_JOB_LOG_STATUS_FAIL - 失败 */
+  BASE_JOB_LOG_STATUS_FAIL = 2,
 }

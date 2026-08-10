@@ -6,12 +6,10 @@ import (
 	"fmt"
 	"time"
 
-	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
-
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/event"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-core/pkg/biz"
+	coreconst "github.com/liujitcn/kratos-core/pkg/const"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
 
 	systemappv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/app/utils"
@@ -33,7 +31,6 @@ type AuthCase struct {
 	*biz.BaseCase
 	baseUserCase  *BaseUserCase
 	oauthManager  *kitOauth.Manager
-	userEvents    *event.UserEvents
 	profileMapper *mapper.CopierMapper[
 		systemappv1.UserProfileForm,
 		models.BaseUser,
@@ -45,13 +42,11 @@ func NewAuthCase(
 	baseCase *biz.BaseCase,
 	baseUserCase *BaseUserCase,
 	oauthManager *kitOauth.Manager,
-	userEvents *event.UserEvents,
 ) *AuthCase {
 	return &AuthCase{
 		BaseCase:     baseCase,
 		baseUserCase: baseUserCase,
 		oauthManager: oauthManager,
-		userEvents:   userEvents,
 		profileMapper: mapper.NewCopierMapper[
 			systemappv1.UserProfileForm,
 			models.BaseUser,
@@ -72,7 +67,7 @@ func (c *AuthCase) GetUserProfile(ctx context.Context) (*systemappv1.UserProfile
 		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
 	// 用户被停用时，不允许继续获取个人信息。
-	if user.Status != _const.STATUS_ENABLE {
+	if user.Status != coreconst.Status_STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("账号已被禁用")
 	}
 
@@ -105,9 +100,6 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *systemappv1.UserP
 	if err = c.baseUserCase.UpdateByID(ctx, baseUser); err != nil {
 		return errorsx.Internal("修改个人中心用户信息失败").WithCause(err)
 	}
-	// 用户资料写库成功后，通知已装配模块处理用户资料变更。
-	c.userEvents.PublishUserChanged(authInfo.UserId)
-
 	// 删除被替换的旧头像文件
 	oss := sdk.Runtime.GetOSS()
 	// OSS 可用时，尝试清理被替换掉的历史头像文件。
@@ -194,9 +186,6 @@ func (c *AuthCase) BindUserPhone(ctx context.Context, req *systemappv1.BindUserP
 	if err = c.baseUserCase.UpdateByID(ctx, user); err != nil {
 		return nil, errorsx.Internal("手机号授权失败").WithCause(err)
 	}
-	// 手机号绑定成功后，通知已装配模块处理用户资料变更。
-	c.userEvents.PublishUserChanged(authInfo.UserId)
-
 	return &systemappv1.BindUserPhoneResponse{
 		Phone: _string.DesensitizePhone(user.Phone),
 	}, nil

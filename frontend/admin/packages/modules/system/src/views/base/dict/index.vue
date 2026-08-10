@@ -86,7 +86,7 @@ const formData = reactive<BaseDictForm>({
   /** 非主语言翻译 */
   translations: [],
   /** 状态 */
-  status: Status.ENABLE
+  status: Status.STATUS_ENABLE
 });
 
 const rules = computed(() => ({
@@ -116,8 +116,8 @@ const rules = computed(() => ({
 }));
 
 const statusOptions = computed<ProFormOption[]>(() => [
-  { label: t("common.status.enabled"), value: Status.ENABLE },
-  { label: t("common.status.disabled"), value: Status.DISABLE }
+  { label: t("common.status.enabled"), value: Status.STATUS_ENABLE },
+  { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }
 ]);
 
 /** 字典表单字段配置。 */
@@ -168,8 +168,8 @@ const columns = computed<ColumnProps[]>(() => [
     search: { el: "select" },
     cellType: "status",
     statusProps: {
-      activeValue: Status.ENABLE,
-      inactiveValue: Status.DISABLE,
+      activeValue: Status.STATUS_ENABLE,
+      inactiveValue: Status.STATUS_DISABLE,
       activeText: t("common.status.enabled"),
       inactiveText: t("common.status.disabled"),
       disabled: () => !BUTTONS.value["base:dict:status"],
@@ -282,7 +282,7 @@ function resetForm() {
   formData.code = "";
   formData.name = "";
   formData.translations = [];
-  formData.status = Status.ENABLE;
+  formData.status = Status.STATUS_ENABLE;
   translationValues.value = normalizeDynamicTranslations(undefined, "name");
 }
 
@@ -314,8 +314,8 @@ function handleSubmit() {
  * 在字典状态切换前先完成确认与接口调用，避免首屏渲染触发误操作。
  */
 async function handleBeforeSetStatus(row: BaseDict) {
-  const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
-  const action = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
+  const nextStatus = row.status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE;
+  const action = t(nextStatus === Status.STATUS_ENABLE ? "common.status.enabled" : "common.status.disabled");
   const dictName = row.name || row.code || String(row.id);
   try {
     await ElMessageBox.confirm(

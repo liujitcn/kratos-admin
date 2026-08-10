@@ -7,15 +7,14 @@ import (
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	coreSSE "github.com/liujitcn/kratos-admin/backend/core/pkg/sse"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
-	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
+	coreconst "github.com/liujitcn/kratos-core/pkg/const"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	coreSSE "github.com/liujitcn/kratos-core/pkg/sse"
 
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
 	authnEngine "github.com/liujitcn/kratos-kit/auth/authn/engine"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
-	"github.com/liujitcn/kratos-kit/bootstrap"
 	sseServer "github.com/liujitcn/kratos-kit/transport/sse"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -26,11 +25,12 @@ type SseCase struct {
 	userToken     *authData.UserToken
 	sse           *sseServer.Server
 	streams       *coreSSE.Registry
+	publisher     *coreSSE.Publisher
+	progress      *codegen.Manager
 }
 
 // NewSseCase 创建 SSE 业务实例。
 func NewSseCase(
-	ctx *bootstrap.Context,
 	authenticator authnEngine.Authenticator,
 	userToken *authData.UserToken,
 	sse *sseServer.Server,
@@ -43,19 +43,20 @@ func NewSseCase(
 		userToken:     userToken,
 		sse:           sse,
 		streams:       streams,
+		publisher:     publisher,
+		progress:      progress,
 	}
-	cfg := ctx.GetConfig()
-	// 未启用 HTTP 服务时，不创建 SSE HTTP 处理器。
-	if cfg == nil || cfg.Server == nil || cfg.Server.Http == nil {
-		return handler, nil
+	if streams != nil && progress != nil {
+		err := streams.Register(codegen.NewCodeGenSSEStream(progress))
+		if err != nil {
+			return nil, err
+		}
 	}
-	err := streams.Register(codegen.NewCodeGenSSEStream(progress))
-	if err != nil {
-		return nil, err
+	if publisher != nil && progress != nil {
+		progress.SetPublisher(func(ctx context.Context, taskID string, task *systemadminv1.CodeGenTask) {
+			publisher.TryPublishJSON(ctx, codegen.StreamID(taskID), codegen.SSEEventCodeGenProgress, task)
+		})
 	}
-	progress.SetPublisher(func(ctx context.Context, taskID string, task *systemadminv1.CodeGenTask) {
-		publisher.TryPublishJSON(ctx, codegen.StreamID(taskID), codegen.SSEEventCodeGenProgress, task)
-	})
 	return handler, nil
 }
 
@@ -98,7 +99,7 @@ func (h *SseCase) authorizeRequest(r *http.Request) (*authData.UserTokenPayload,
 		return nil, false
 	}
 	// 工作台只面向管理后台，应用端用户令牌不能订阅后台刷新流。
-	if userToken.RoleCode == _const.BASE_ROLE_CODE_USER || userToken.RoleCode == _const.BASE_ROLE_CODE_AUTHUSER {
+	if userToken.RoleCode == coreconst.BASE_ROLE_CODE_USER || userToken.RoleCode == coreconst.BASE_ROLE_CODE_AUTHUSER {
 		return nil, false
 	}
 	return userToken, true
@@ -106,6 +107,9 @@ func (h *SseCase) authorizeRequest(r *http.Request) (*authData.UserTokenPayload,
 
 // authenticatorFromRequest 从 SSE 请求中解析并校验后台登录用户。
 func (h *SseCase) authenticatorFromRequest(r *http.Request) (*authData.UserTokenPayload, error) {
+	if h == nil || h.authenticator == nil || h.userToken == nil {
+		return nil, errorsx.Unauthenticated("SSE认证未配置")
+	}
 	token := r.Header.Get(authnEngine.HeaderAuthorize)
 	if token == "" {
 		return nil, errorsx.Unauthenticated("SSE访问令牌为空")

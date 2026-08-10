@@ -2,12 +2,10 @@ package app
 
 import (
 	systemappv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
-	einoTool "github.com/liujitcn/kratos-admin/backend/internal/agent/tool"
-	host "github.com/liujitcn/kratos-admin/backend/internal/server"
 	systemapp "github.com/liujitcn/kratos-admin/backend/internal/service/system/app/v1"
+	einoTool "github.com/liujitcn/kratos-core/pkg/agent/tool"
 
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
-	"github.com/google/wire"
 	mcpserver "github.com/liujitcn/kratos-kit/transport/mcp"
 	"google.golang.org/grpc"
 )
@@ -19,11 +17,6 @@ type Services struct {
 	BaseDict *systemapp.BaseDictService
 	BaseMenu *systemapp.BaseMenuService
 }
-
-var _ host.Module = Services{}
-
-// ProviderSet 汇总 system.app.v1 传输模块依赖注入提供者。
-var ProviderSet = wire.NewSet(wire.Struct(new(Services), "*"))
 
 // RegisterGRPC 注册 system.app.v1 的 gRPC 服务。
 func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {

@@ -11,13 +11,14 @@ import (
 	"gorm.io/gorm/clause"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	coreLocale "github.com/liujitcn/kratos-admin/backend/core/pkg/locale"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-core/pkg/biz"
+	coreconst "github.com/liujitcn/kratos-core/pkg/const"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	coreLocale "github.com/liujitcn/kratos-core/pkg/locale"
 )
 
 const (
@@ -385,20 +386,20 @@ func (c *BaseMenuCase) listAssignableMenuIDs(ctx context.Context, targetRoleID i
 		query := c.baseRoleRepo.Query(ctx).BaseRole
 		opts := make([]repository.QueryOption, 0, 2)
 		opts = append(opts, repository.Where(query.TenantID.Eq(targetRole.TenantID)))
-		opts = append(opts, repository.Where(query.Code.Eq(_const.BASE_ROLE_CODE_TENANT)))
+		opts = append(opts, repository.Where(query.Code.Eq(coreconst.BASE_ROLE_CODE_TENANT)))
 		var tenantBaseRole *models.BaseRole
 		tenantBaseRole, err = c.baseRoleRepo.Find(ctx, opts...)
 		if err != nil {
 			return nil, false, errorsx.Internal("查询租户最大权限失败").WithCause(err)
 		}
 		// 租户内置管理员角色停用时，不能再作为权限上限来源。
-		if tenantBaseRole.Status != _const.STATUS_ENABLE {
+		if tenantBaseRole.Status != coreconst.Status_STATUS_ENABLE {
 			return nil, false, errorsx.PermissionDenied("租户管理员角色已被禁用")
 		}
 		return _string.ConvertJsonStringToInt64Array(tenantBaseRole.Menus), false, nil
 	}
 	// 超级管理员拥有完整菜单管理权限，不需要按角色菜单裁剪。
-	if authInfo.RoleCode == _const.BASE_ROLE_CODE_SUPER {
+	if authInfo.RoleCode == coreconst.BASE_ROLE_CODE_SUPER {
 		return nil, true, nil
 	}
 
@@ -408,7 +409,7 @@ func (c *BaseMenuCase) listAssignableMenuIDs(ctx context.Context, targetRoleID i
 		return nil, false, errorsx.Internal("查询当前角色权限失败").WithCause(err)
 	}
 	// 当前角色已停用时，不允许继续作为菜单权限上限来源。
-	if baseRole.Status != _const.STATUS_ENABLE {
+	if baseRole.Status != coreconst.Status_STATUS_ENABLE {
 		return nil, false, errorsx.PermissionDenied("角色已被禁用")
 	}
 	return _string.ConvertJsonStringToInt64Array(baseRole.Menus), false, nil

@@ -1,6 +1,6 @@
 package admin
 
-import coreSSE "github.com/liujitcn/kratos-admin/backend/core/pkg/sse"
+import coreSSE "github.com/liujitcn/kratos-core/pkg/module"
 
 const (
 	// OpsMonitoringSSEStreamID 表示运维监控实时数据流。
@@ -18,7 +18,7 @@ const (
 // OpsMonitoringSSEStream 声明运维监控固定 SSE 流。
 type OpsMonitoringSSEStream struct{}
 
-var _ coreSSE.Stream = (*OpsMonitoringSSEStream)(nil)
+var _ coreSSE.SSEStream = (*OpsMonitoringSSEStream)(nil)
 
 // NewOpsMonitoringSSEStream 创建运维监控 SSE 流声明。
 func NewOpsMonitoringSSEStream() *OpsMonitoringSSEStream {

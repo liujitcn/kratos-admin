@@ -5,9 +5,9 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/liujitcn/gorm-kit/repository"
@@ -41,7 +41,7 @@ func (c *BaseThirdAccountCase) CreateBinding(ctx context.Context, userID int64, 
 		Identifier: identifier,
 	})
 	if err != nil {
-		if errorsx.IsMySQLDuplicateKey(err) {
+		if errorsx.IsDuplicateKey(err) {
 			message := "三方账号绑定关系已存在"
 			constraint := ""
 			var mysqlErr *mysql.MySQLError

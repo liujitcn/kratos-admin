@@ -1,8 +1,8 @@
 package biz
 
 import (
-	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
+	"github.com/liujitcn/kratos-core/pkg/biz"
 )
 
 // BaseRoleCase 基础角色业务处理对象

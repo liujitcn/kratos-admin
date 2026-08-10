@@ -50,7 +50,7 @@ const formData = reactive<BaseLanguageForm>({
   language_name: "",
   native_name: "",
   sort: 100,
-  status: Status.ENABLE
+  status: Status.STATUS_ENABLE
 });
 
 const rules = computed(() => ({
@@ -70,8 +70,8 @@ const rules = computed(() => ({
 }));
 
 const statusOptions = computed<ProFormOption[]>(() => [
-  { label: t("common.status.enabled"), value: Status.ENABLE },
-  { label: t("common.status.disabled"), value: Status.DISABLE }
+  { label: t("common.status.enabled"), value: Status.STATUS_ENABLE },
+  { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }
 ]);
 
 const formFields = computed<ProFormField[]>(() => [
@@ -107,8 +107,8 @@ const columns = computed<ColumnProps[]>(() => [
     search: { el: "select" },
     cellType: "status",
     statusProps: {
-      activeValue: Status.ENABLE,
-      inactiveValue: Status.DISABLE,
+      activeValue: Status.STATUS_ENABLE,
+      inactiveValue: Status.STATUS_DISABLE,
       activeText: t("common.status.enabled"),
       inactiveText: t("common.status.disabled"),
       disabled: () => !BUTTONS.value["base:language:status"],
@@ -160,7 +160,7 @@ function handleCloseDialog() {
 function resetForm() {
   formDialogRef.value?.resetFields();
   formDialogRef.value?.clearValidate();
-  Object.assign(formData, { id: 0, language_code: "", language_name: "", native_name: "", sort: 100, status: Status.ENABLE });
+  Object.assign(formData, { id: 0, language_code: "", language_name: "", native_name: "", sort: 100, status: Status.STATUS_ENABLE });
 }
 
 /** 提交语言表单。 */
@@ -183,18 +183,18 @@ function handleSubmit() {
 
 /** 设置语言状态前保护主语言。 */
 function handleBeforeSetStatus(row: BaseLanguage) {
-  if (row.is_primary && row.status === Status.ENABLE) {
+  if (row.is_primary && row.status === Status.STATUS_ENABLE) {
     ElMessage.warning(t("system.base.language.message.primary_cannot_disable"));
     return Promise.resolve(false);
   }
   return ElMessageBox.confirm(
-    t("system.base.language.message.confirm_status", { action: row.status === Status.ENABLE ? t("common.status.disabled") : t("common.status.enabled"), name: row.native_name }),
+    t("system.base.language.message.confirm_status", { action: row.status === Status.STATUS_ENABLE ? t("common.status.disabled") : t("common.status.enabled"), name: row.native_name }),
     t("common.title.warning"),
     { type: "warning", confirmButtonText: t("common.action.confirm"), cancelButtonText: t("common.action.cancel") }
   ).then(
     () =>
       defBaseLanguageService
-        .SetBaseLanguageStatus({ id: row.id, status: row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE })
+        .SetBaseLanguageStatus({ id: row.id, status: row.status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE })
         .then(() => {
           invalidateEnabledBaseLanguages();
           void refreshAdminLanguageConfig();

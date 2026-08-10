@@ -5,11 +5,12 @@ import (
 	"regexp"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	coreconst "github.com/liujitcn/kratos-core/pkg/const"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
@@ -159,12 +160,12 @@ func (c *CodeGenTableCase) ValidateBusinessModule(ctx context.Context, module st
 		return errorsx.InvalidArgument("业务模块格式不正确")
 	}
 	dictQuery := c.baseDictRepo.Query(ctx).BaseDict
-	dict, err := c.baseDictRepo.Find(ctx, repository.Where(dictQuery.Code.Eq("business_module")), repository.Where(dictQuery.Status.Eq(_const.STATUS_ENABLE)))
+	dict, err := c.baseDictRepo.Find(ctx, repository.Where(dictQuery.Code.Eq("business_module")), repository.Where(dictQuery.Status.Eq(coreconst.Status_STATUS_ENABLE)))
 	if err != nil {
 		return errorsx.InvalidArgument("业务模块字典不存在").WithCause(err)
 	}
 	itemQuery := c.baseDictItemRepo.Query(ctx).BaseDictItem
-	_, err = c.baseDictItemRepo.Find(ctx, repository.Where(itemQuery.DictID.Eq(dict.ID)), repository.Where(itemQuery.Value.Eq(module)), repository.Where(itemQuery.Status.Eq(_const.STATUS_ENABLE)))
+	_, err = c.baseDictItemRepo.Find(ctx, repository.Where(itemQuery.DictID.Eq(dict.ID)), repository.Where(itemQuery.Value.Eq(module)), repository.Where(itemQuery.Status.Eq(coreconst.Status_STATUS_ENABLE)))
 	if err != nil {
 		return errorsx.InvalidArgument("请选择启用的业务模块").WithCause(err)
 	}
@@ -180,7 +181,7 @@ func (c *CodeGenTableCase) CreateCodeGenTable(ctx context.Context, req *systemad
 	item.ID = 0
 	err = c.Create(ctx, item)
 	if err != nil {
-		if errorsx.IsMySQLDuplicateKey(err) {
+		if errorsx.IsDuplicateKey(err) {
 			return errorsx.UniqueConflict("业务表已被代码生成表配置选择", "code_gen_table", "", "unique_code_gen_table").WithCause(err)
 		}
 		return err
@@ -216,7 +217,7 @@ func (c *CodeGenTableCase) UpdateCodeGenTable(ctx context.Context, id int64, req
 	))
 	err = c.Update(ctx, item, opts...)
 	if err != nil {
-		if errorsx.IsMySQLDuplicateKey(err) {
+		if errorsx.IsDuplicateKey(err) {
 			return errorsx.UniqueConflict("业务表已被代码生成表配置选择", "code_gen_table", "", "unique_code_gen_table").WithCause(err)
 		}
 		return err

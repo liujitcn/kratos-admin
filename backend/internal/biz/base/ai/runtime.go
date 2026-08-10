@@ -8,11 +8,11 @@ import (
 	"strings"
 	"unicode"
 
-	einoADK "github.com/liujitcn/kratos-admin/backend/internal/agent/adk"
-	einoCallback "github.com/liujitcn/kratos-admin/backend/internal/agent/callback"
-	einoMessage "github.com/liujitcn/kratos-admin/backend/internal/agent/message"
-	einoModel "github.com/liujitcn/kratos-admin/backend/internal/agent/model"
-	einoTool "github.com/liujitcn/kratos-admin/backend/internal/agent/tool"
+	einoADK "github.com/liujitcn/kratos-core/pkg/agent/adk"
+	einoCallback "github.com/liujitcn/kratos-core/pkg/agent/callback"
+	einoMessage "github.com/liujitcn/kratos-core/pkg/agent/message"
+	einoModel "github.com/liujitcn/kratos-core/pkg/agent/model"
+	einoTool "github.com/liujitcn/kratos-core/pkg/agent/tool"
 )
 
 const (
@@ -51,19 +51,7 @@ type Runtime struct {
 func NewRuntime(client *einoModel.ResponsesClient) *Runtime {
 	return &Runtime{
 		client: client,
-		fixedFlows: fixedFlowRegistry{
-			flowNames: make(map[string]struct{}),
-		},
 	}
-}
-
-// SetTerminalTools 设置不同终端 AI 助手可执行的 Eino 工具列表。
-func (r *Runtime) SetTerminalTools(adminValues []einoTool.Invokable, appValues []einoTool.Invokable) {
-	if r == nil {
-		return
-	}
-	r.adminTools = append([]einoTool.Invokable(nil), adminValues...)
-	r.appTools = append([]einoTool.Invokable(nil), appValues...)
 }
 
 // SetToolAccessChecker 设置 Agent 工具启用状态检查器。

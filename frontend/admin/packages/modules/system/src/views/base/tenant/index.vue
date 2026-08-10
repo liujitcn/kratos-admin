@@ -68,7 +68,7 @@ const formData = reactive<BaseTenantForm>({
   /** 联系电话 */
   contact_phone: "",
   /** 状态 */
-  status: Status.ENABLE,
+  status: Status.STATUS_ENABLE,
   /** 备注 */
   remark: ""
 });
@@ -119,8 +119,8 @@ const rules = computed(() => ({
 }));
 
 const statusOptions = computed<ProFormOption[]>(() => [
-  { label: t("common.status.enabled"), value: Status.ENABLE },
-  { label: t("common.status.disabled"), value: Status.DISABLE }
+  { label: t("common.status.enabled"), value: Status.STATUS_ENABLE },
+  { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }
 ]);
 
 /** 租户表单字段配置。 */
@@ -174,8 +174,8 @@ const columns = computed<ColumnProps[]>(() => [
     search: { el: "select" },
     cellType: "status",
     statusProps: {
-      activeValue: Status.ENABLE,
-      inactiveValue: Status.DISABLE,
+      activeValue: Status.STATUS_ENABLE,
+      inactiveValue: Status.STATUS_DISABLE,
       activeText: t("common.status.enabled"),
       inactiveText: t("common.status.disabled"),
       disabled: scope => isProtectedManagementTenant(scope.row as BaseTenant) || !BUTTONS.value["base:tenant:status"],
@@ -285,7 +285,7 @@ function resetForm() {
   formData.name = "";
   formData.contact_name = "";
   formData.contact_phone = "";
-  formData.status = Status.ENABLE;
+  formData.status = Status.STATUS_ENABLE;
   formData.remark = "";
 }
 
@@ -321,8 +321,8 @@ async function handleBeforeSetStatus(row: BaseTenant) {
     return false;
   }
 
-  const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
-  const text = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
+  const nextStatus = row.status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE;
+  const text = t(nextStatus === Status.STATUS_ENABLE ? "common.status.enabled" : "common.status.disabled");
   try {
     await ElMessageBox.confirm(
       t("common.dialog.status_change", {

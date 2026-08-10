@@ -5,9 +5,9 @@ import (
 
 	"github.com/liujitcn/go-utils/mapper"
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-core/pkg/biz"
 
 	"github.com/liujitcn/gorm-kit/repository"
 	gormmigration "github.com/liujitcn/kratos-kit/database/gorm/migration"

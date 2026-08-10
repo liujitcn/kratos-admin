@@ -217,18 +217,18 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     format: enum
                 - name: agent_status
                   in: query
                   schema:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     format: enum
                 - name: openapi_service_code
@@ -545,9 +545,9 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     format: enum
                 - name: page_num
@@ -839,9 +839,9 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     format: enum
                 - name: page_num
@@ -893,9 +893,9 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     format: enum
                 - name: page_num
@@ -1116,9 +1116,9 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     format: enum
                 - name: page_num
@@ -1367,9 +1367,9 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     format: enum
                 - name: page_num
@@ -1741,9 +1741,9 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     format: enum
                 - name: page_num
@@ -1895,9 +1895,9 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     format: enum
                 - name: page_num
@@ -2067,9 +2067,9 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     format: enum
                 - name: page_num
@@ -2278,9 +2278,9 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     format: enum
                 - name: page_num
@@ -4679,17 +4679,17 @@ components:
                     description: 请求地址
                 mcp_status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: MCP工具状态：枚举【Status】
                     format: enum
                 agent_status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: Agent工具状态：枚举【Status】
                     format: enum
@@ -4846,9 +4846,9 @@ components:
                     description: 配置value
                 status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: 状态：枚举【Status】
                     format: enum
@@ -4911,9 +4911,9 @@ components:
                     description: 配置value文本/富文本配置值的多语言翻译
                 status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: 状态
                     format: enum
@@ -4939,9 +4939,9 @@ components:
                     format: int32
                 status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: 状态
                     format: enum
@@ -4984,9 +4984,9 @@ components:
                     format: int32
                 status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: 状态
                     format: enum
@@ -5008,9 +5008,9 @@ components:
                     description: 字典名称
                 status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: 状态
                     format: enum
@@ -5045,9 +5045,9 @@ components:
                     description: 非主语言翻译
                 status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: 状态
                     format: enum
@@ -5076,9 +5076,9 @@ components:
                     format: int32
                 status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: 状态
                     format: enum
@@ -5123,9 +5123,9 @@ components:
                     description: 非主语言翻译
                 status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: 状态
                     format: enum
@@ -5156,9 +5156,9 @@ components:
                     format: int32
                 status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: 状态
                     format: enum
@@ -5201,9 +5201,9 @@ components:
                     description: cron表达式
                 status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: 状态
                     format: enum
@@ -5266,9 +5266,9 @@ components:
                     description: 是否主语言
                 status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: 启用状态
                     format: enum
@@ -5300,9 +5300,9 @@ components:
                     format: int32
                 status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: 启用状态
                     format: enum
@@ -5429,9 +5429,9 @@ components:
                     format: int32
                 status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: 状态
                     format: enum
@@ -5520,9 +5520,9 @@ components:
                     format: int32
                 status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: 状态
                     format: enum
@@ -5637,9 +5637,9 @@ components:
                     format: int32
                 status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: 状态
                     format: enum
@@ -5674,9 +5674,9 @@ components:
                     format: int32
                 status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: 状态
                     format: enum
@@ -5716,9 +5716,9 @@ components:
                     description: 分配的菜单列表
                 status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: 状态
                     format: enum
@@ -5767,9 +5767,9 @@ components:
                     description: 分配的菜单列表
                 status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: 状态
                     format: enum
@@ -5797,9 +5797,9 @@ components:
                     description: 联系电话
                 status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: 状态
                     format: enum
@@ -5836,9 +5836,9 @@ components:
                     description: 联系电话
                 status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: 状态
                     format: enum
@@ -5917,9 +5917,9 @@ components:
                     description: 头像
                 status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: 用户状态
                     format: enum
@@ -5982,9 +5982,9 @@ components:
                     $ref: '#/components/schemas/common.v1.PasswordCrypto'
                 status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: 用户状态
                     format: enum
@@ -7396,9 +7396,9 @@ components:
                     description: API ID
                 agent_status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: Agent工具状态：枚举【Status】
                     format: enum
@@ -7411,9 +7411,9 @@ components:
                     description: API ID
                 mcp_status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: MCP工具状态：枚举【Status】
                     format: enum
@@ -7488,9 +7488,9 @@ components:
                     description: 语言ID
                 status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: 启用状态
                     format: enum
@@ -7643,17 +7643,17 @@ components:
                     description: Agent/MCP工具提示词，作为工具描述覆盖、候选命中和目录展示依据
                 mcp_status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: MCP工具状态：枚举【Status】
                     format: enum
                 agent_status:
                     enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
                     type: string
                     description: Agent工具状态：枚举【Status】
                     format: enum

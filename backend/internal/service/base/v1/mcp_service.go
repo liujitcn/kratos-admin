@@ -5,10 +5,11 @@ import (
 	"fmt"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
+	mcpserver "github.com/liujitcn/kratos-kit/transport/mcp"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -26,6 +27,14 @@ func NewMcpService(
 		mcpCase: mcpCase,
 	}
 	return &ss
+}
+
+// RegisterMCP 将 MCP 请求处理器绑定到宿主服务。
+func (s *McpService) RegisterMCP(server *mcpserver.Server) {
+	if s == nil || s.mcpCase == nil {
+		return
+	}
+	s.mcpCase.RegisterMCP(server)
 }
 
 // HandleMcp 处理 MCP Streamable HTTP 请求。

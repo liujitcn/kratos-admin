@@ -4,13 +4,13 @@ import (
 	"context"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	coreLocale "github.com/liujitcn/kratos-admin/backend/core/pkg/locale"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-core/pkg/biz"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	coreLocale "github.com/liujitcn/kratos-core/pkg/locale"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
@@ -43,7 +43,7 @@ func (c *BaseLanguageCase) OptionBaseLanguage(ctx context.Context, req *systemad
 	query := c.Query(ctx).BaseLanguage
 	opts := make([]repository.QueryOption, 0, 2)
 	if req.GetEnabledOnly() {
-		opts = append(opts, repository.Where(query.Status.Eq(int32(commonv1.Status_ENABLE))))
+		opts = append(opts, repository.Where(query.Status.Eq(int32(commonv1.Status_STATUS_ENABLE))))
 	}
 	opts = append(opts, repository.Order(query.Sort.Asc()), repository.Order(query.ID.Asc()))
 	list, err := c.List(ctx, opts...)
@@ -99,7 +99,7 @@ func (c *BaseLanguageCase) CreateBaseLanguage(ctx context.Context, req *systemad
 	}
 	item.IsPrimary = false
 	if err := c.Create(ctx, item); err != nil {
-		if errorsx.IsMySQLDuplicateKey(err) {
+		if errorsx.IsDuplicateKey(err) {
 			return errorsx.UniqueConflict("语言代码重复", "base_language", "language_code", "unique_base_language").WithCause(err)
 		}
 		return err
@@ -117,7 +117,7 @@ func (c *BaseLanguageCase) UpdateBaseLanguage(ctx context.Context, req *systemad
 		if !coreLocale.IsSupported(req.GetLanguageCode()) {
 			return errorsx.InvalidArgument("语言代码必须是系统支持的语言")
 		}
-		if current.IsPrimary && req.GetStatus() == commonv1.Status_DISABLE {
+		if current.IsPrimary && req.GetStatus() == commonv1.Status_STATUS_DISABLE {
 			return errorsx.ProtectedResourceConflict("主语言不能禁用", "base_language")
 		}
 		if current.IsPrimary && req.GetLanguageCode() != current.LanguageCode {
@@ -128,7 +128,7 @@ func (c *BaseLanguageCase) UpdateBaseLanguage(ctx context.Context, req *systemad
 		item.LanguageCode = current.LanguageCode
 		item.IsPrimary = current.IsPrimary
 		if err = c.UpdateByID(ctx, item); err != nil {
-			if errorsx.IsMySQLDuplicateKey(err) {
+			if errorsx.IsDuplicateKey(err) {
 				return errorsx.UniqueConflict("语言代码重复", "base_language", "language_code", "unique_base_language").WithCause(err)
 			}
 			return err
@@ -164,7 +164,7 @@ func (c *BaseLanguageCase) SetBaseLanguageStatus(ctx context.Context, req *syste
 		if err != nil {
 			return err
 		}
-		if item.IsPrimary && req.GetStatus() == commonv1.Status_DISABLE {
+		if item.IsPrimary && req.GetStatus() == commonv1.Status_STATUS_DISABLE {
 			return errorsx.ProtectedResourceConflict("主语言不允许禁用", "base_language")
 		}
 		return c.UpdateByID(ctx, &models.BaseLanguage{ID: item.ID, Status: int32(req.GetStatus())})
@@ -184,7 +184,7 @@ func (c *BaseLanguageCase) SetBaseLanguagePrimary(ctx context.Context, req *syst
 		if err != nil {
 			return err
 		}
-		if item.Status != int32(commonv1.Status_ENABLE) {
+		if item.Status != int32(commonv1.Status_STATUS_ENABLE) {
 			return errorsx.ProtectedResourceConflict("禁用语言不能设为主语言", "base_language")
 		}
 		if item.IsPrimary {
@@ -198,7 +198,7 @@ func (c *BaseLanguageCase) SetBaseLanguagePrimary(ctx context.Context, req *syst
 func (c *BaseLanguageCase) LocaleState(ctx context.Context) (*dto.LocaleState, error) {
 	query := c.Query(ctx).BaseLanguage
 	opts := []repository.QueryOption{
-		repository.Where(query.Status.Eq(int32(commonv1.Status_ENABLE))),
+		repository.Where(query.Status.Eq(int32(commonv1.Status_STATUS_ENABLE))),
 		repository.Order(query.Sort.Asc()),
 		repository.Order(query.ID.Asc()),
 	}

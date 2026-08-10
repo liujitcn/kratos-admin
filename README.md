@@ -112,6 +112,8 @@ pnpm build:mp-weixin
 
 `backend/api/gen`、`backend/internal/data/gen`、`backend/internal/docs/assets/docs.json`、`backend/internal/docs/docs.go`、各前端包的 `src/rpc`、OpenAPI 及 `wire_gen.go` 都是生成产物，不得手工修改。所有前端 RPC 的 Buf 配置统一位于 `backend/api`，分别通过 `make -C backend ts`、`make -C backend ts-uni-app` 和 `make -C backend ts-taro-app` 生成。
 
+`make -C backend gen` 在当前工作区没有 `wire.go` 时会跳过 Wire 依赖注入生成；配置 `WIRE_DIR` 指向包含 `wire.go` 的目录后即可恢复该阶段。
+
 ## 国际化
 
 语言包定义系统能够渲染的语言集合，`base_language` 表只负责运行时启用状态、名称、排序和主语言配置。管理端语言偏好保存为 `kratos-admin:locale`，uni-app 和 Taro 保存为 `kratos-app:locale`；所有 HTTP、刷新令牌、fetch、SSE、uni.request 和 Taro.request 请求都会发送规范化的 `Accept-Language`。固定文案由各 workspace 的 core/System JSON 语言包维护，动态菜单和字典由后端翻译表按请求语言解析，缺少当前语言译文时回退主语言。

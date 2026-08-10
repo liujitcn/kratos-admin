@@ -1,34 +1,45 @@
 package biz
 
 import (
+	"sync"
+
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/projectdoc"
+	"github.com/liujitcn/kratos-core/pkg/docs"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
 )
 
-// ProjectDocumentCase 提供多项目文档目录查询业务。
+// ProjectDocumentCase 提供 Core 项目文档注册表到接口模型的转换。
 type ProjectDocumentCase struct {
-	catalog *projectdoc.Catalog
+	mu       sync.RWMutex
+	registry *docs.Registry
 }
 
-// NewProjectDocumentCase 创建多项目文档目录查询业务实例。
-func NewProjectDocumentCase(catalog *projectdoc.Catalog) *ProjectDocumentCase {
-	return &ProjectDocumentCase{catalog: catalog}
+// NewProjectDocumentCase 创建项目文档查询业务实例。
+func NewProjectDocumentCase() *ProjectDocumentCase {
+	return &ProjectDocumentCase{}
 }
 
-// TreeProjectDocument 查询全部项目文档树。
+// SetProjectDocumentRegistry 接收 Core 汇总后的项目文档注册表。
+func (c *ProjectDocumentCase) SetProjectDocumentRegistry(registry *docs.Registry) {
+	c.mu.Lock()
+	c.registry = registry
+	c.mu.Unlock()
+}
+
+// TreeProjectDocument 查询 Core 已注册项目文档树。
 func (c *ProjectDocumentCase) TreeProjectDocument() *systemadminv1.TreeProjectDocumentResponse {
-	catalogProjects := c.catalog.Projects()
-	projects := make([]*systemadminv1.ProjectDocumentProject, 0, len(catalogProjects))
-	for _, project := range catalogProjects {
+	registry := c.registrySnapshot()
+	coreProjects := registry.Projects()
+	projects := make([]*systemadminv1.ProjectDocumentProject, 0, len(coreProjects))
+	for _, project := range coreProjects {
 		projects = append(projects, mapProjectDocumentProject(project))
 	}
 	return &systemadminv1.TreeProjectDocumentResponse{Projects: projects}
 }
 
-// GetProjectDocument 按稳定 ID 查询项目文档详情。
+// GetProjectDocument 按稳定 ID 查询 Core 已注册项目文档详情。
 func (c *ProjectDocumentCase) GetProjectDocument(id string) (*systemadminv1.ProjectDocument, error) {
-	document, exists := c.catalog.Get(id)
+	document, exists := c.registrySnapshot().Get(id)
 	if !exists {
 		return nil, errorsx.ResourceNotFound("项目文档不存在")
 	}
@@ -41,33 +52,45 @@ func (c *ProjectDocumentCase) GetProjectDocument(id string) (*systemadminv1.Proj
 	}, nil
 }
 
-// ProjectDocuments 返回可继续向外部宿主贡献的项目文档。
-func (c *ProjectDocumentCase) ProjectDocuments() []projectdoc.Document {
-	return c.catalog.Documents()
-}
-
-// mapProjectDocumentProject 将领域项目目录转换为接口项目目录。
-func mapProjectDocumentProject(project projectdoc.Project) *systemadminv1.ProjectDocumentProject {
-	return &systemadminv1.ProjectDocumentProject{
-		Key:         project.Key,
-		Name:        project.Name,
-		Documents:   mapProjectDocumentListItems(project.Documents),
-		Directories: mapProjectDocumentDirectories(project.Directories),
+// registrySnapshot 返回当前 Core 文档注册表，空注册表用于兼容启动早期查询。
+func (c *ProjectDocumentCase) registrySnapshot() *docs.Registry {
+	c.mu.RLock()
+	registry := c.registry
+	c.mu.RUnlock()
+	if registry != nil {
+		return registry
 	}
+	return &docs.Registry{}
 }
 
-// mapProjectDocumentDirectory 递归转换领域文档目录。
-func mapProjectDocumentDirectory(directory projectdoc.Directory) *systemadminv1.ProjectDocumentDirectory {
-	return &systemadminv1.ProjectDocumentDirectory{
-		Name:        directory.Name,
-		Path:        directory.Path,
-		Documents:   mapProjectDocumentListItems(directory.Documents),
-		Directories: mapProjectDocumentDirectories(directory.Directories),
+// mapProjectDocumentProject 将 Core 项目目录转换为接口项目目录。
+func mapProjectDocumentProject(project docs.Project) *systemadminv1.ProjectDocumentProject {
+	item := &systemadminv1.ProjectDocumentProject{
+		Key:       project.Key,
+		Name:      project.Name,
+		Documents: mapProjectDocumentListItems(project.Documents),
 	}
+	for _, directory := range project.Directories {
+		item.Directories = append(item.Directories, mapProjectDocumentDirectory(directory))
+	}
+	return item
 }
 
-// mapProjectDocumentListItems 转换文档目录项集合。
-func mapProjectDocumentListItems(documents []projectdoc.Document) []*systemadminv1.ProjectDocumentListItem {
+// mapProjectDocumentDirectory 递归转换 Core 文档目录。
+func mapProjectDocumentDirectory(directory docs.Directory) *systemadminv1.ProjectDocumentDirectory {
+	item := &systemadminv1.ProjectDocumentDirectory{
+		Name:      directory.Name,
+		Path:      directory.Path,
+		Documents: mapProjectDocumentListItems(directory.Documents),
+	}
+	for _, child := range directory.Directories {
+		item.Directories = append(item.Directories, mapProjectDocumentDirectory(child))
+	}
+	return item
+}
+
+// mapProjectDocumentListItems 转换 Core 文档摘要集合。
+func mapProjectDocumentListItems(documents []docs.DocumentListItem) []*systemadminv1.ProjectDocumentListItem {
 	items := make([]*systemadminv1.ProjectDocumentListItem, 0, len(documents))
 	for _, document := range documents {
 		items = append(items, &systemadminv1.ProjectDocumentListItem{
@@ -75,15 +98,6 @@ func mapProjectDocumentListItems(documents []projectdoc.Document) []*systemadmin
 			Path:      document.Path,
 			UpdatedAt: document.UpdatedAt,
 		})
-	}
-	return items
-}
-
-// mapProjectDocumentDirectories 转换递归文档目录集合。
-func mapProjectDocumentDirectories(directories []projectdoc.Directory) []*systemadminv1.ProjectDocumentDirectory {
-	items := make([]*systemadminv1.ProjectDocumentDirectory, 0, len(directories))
-	for _, directory := range directories {
-		items = append(items, mapProjectDocumentDirectory(directory))
 	}
 	return items
 }

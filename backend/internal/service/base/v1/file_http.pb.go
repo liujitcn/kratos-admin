@@ -10,10 +10,9 @@ import (
 	"strings"
 	"time"
 
-	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
-
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
+	coreconst "github.com/liujitcn/kratos-core/pkg/const"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/go-kratos/kratos/v3/transport/http"
@@ -168,7 +167,7 @@ func convertUploadFileInfo(multipartFile multipart.File, fileType, contentType, 
 	if err != nil {
 		return nil, err
 	}
-	filePath := fmt.Sprintf("/%s", _const.BASE_PATH)
+	filePath := fmt.Sprintf("/%s", coreconst.BASE_PATH)
 	if len(fileType) != 0 {
 		filePath += "/" + fileType
 	}

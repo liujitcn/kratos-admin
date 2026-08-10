@@ -2,16 +2,13 @@ package biz
 
 import (
 	"fmt"
-	"slices"
 	"strings"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
-	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/kratos-kit/oss"
-	"github.com/liujitcn/kratos-kit/sdk"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
@@ -24,7 +21,6 @@ type FileCase struct {
 func NewFileCase(
 	oss oss.OSS,
 ) *FileCase {
-	sdk.Runtime.SetOSS(oss)
 	return &FileCase{
 		OSS: oss,
 	}
@@ -101,30 +97,6 @@ func (c *FileCase) DownloadFile(req *basev1.DownloadFileRequest) (*wrapperspb.By
 		return nil, errorsx.Internal("文件下载失败").WithCause(err)
 	}
 	return &wrapperspb.BytesValue{Value: fileByte}, nil
-}
-
-// MultiDeleteFileByString 按字符串数组配置删除历史文件。
-func (c *FileCase) MultiDeleteFileByString(oldFile string, newFile []string) {
-	c.MultiDeleteFile(_string.ConvertJsonStringToStringArray(oldFile), newFile)
-}
-
-// MultiDeleteFile 批量删除不再使用的旧文件。
-func (c *FileCase) MultiDeleteFile(oldFile, newFile []string) {
-	for _, item := range oldFile {
-		// 新文件列表为空或未包含旧文件时，删除当前旧文件。
-		if len(newFile) == 0 || !slices.Contains(newFile, item) {
-			err := validateFilePath(item)
-			if err != nil {
-				log.Error(fmt.Sprintf("MultiDeleteFile %v", err))
-				continue
-			}
-			err = c.OSS.DeleteFile(item)
-			// 单个旧文件删除失败时，只记录日志继续处理剩余文件。
-			if err != nil {
-				log.Error(fmt.Sprintf("MultiDeleteFile %v", err))
-			}
-		}
-	}
 }
 
 // validateFilePath 校验文件路径不能逃逸对象存储根目录。

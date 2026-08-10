@@ -71,8 +71,8 @@ const deptOptions = ref<TreeOptionResponse_Option[]>([]);
 const tenantOptions = ref<SelectOptionResponse_Option[]>([]);
 const currentTenantId = ref<number | undefined>();
 const statusOptions = computed<ProFormOption[]>(() => [
-  { label: t("common.status.enabled"), value: Status.ENABLE },
-  { label: t("common.status.disabled"), value: Status.DISABLE }
+  { label: t("common.status.enabled"), value: Status.STATUS_ENABLE },
+  { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }
 ]);
 
 const formData = reactive<BaseDeptFormState>({
@@ -87,7 +87,7 @@ const formData = reactive<BaseDeptFormState>({
   /** 排序 */
   sort: 1,
   /** 菜单状态 */
-  status: Status.ENABLE,
+  status: Status.STATUS_ENABLE,
   /** 备注 */
   remark: ""
 });
@@ -206,8 +206,8 @@ const columns = computed<ColumnProps[]>(() => [
     search: { el: "select" },
     cellType: "status",
     statusProps: {
-      activeValue: Status.ENABLE,
-      inactiveValue: Status.DISABLE,
+      activeValue: Status.STATUS_ENABLE,
+      inactiveValue: Status.STATUS_DISABLE,
       activeText: t("common.status.enabled"),
       inactiveText: t("common.status.disabled"),
       disabled: () => !BUTTONS.value["base:dept:status"],
@@ -408,7 +408,7 @@ function resetForm() {
   formData.parent_id = 0;
   formData.name = "";
   formData.sort = 1;
-  formData.status = Status.ENABLE;
+  formData.status = Status.STATUS_ENABLE;
   formData.remark = "";
   deptOptions.value = [];
 }
@@ -440,8 +440,8 @@ function handleSubmit() {
  * 在部门状态切换前先完成确认与接口调用，避免首屏渲染触发误操作。
  */
 async function handleBeforeSetStatus(row: BaseDept) {
-  const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
-  const text = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
+  const nextStatus = row.status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE;
+  const text = t(nextStatus === Status.STATUS_ENABLE ? "common.status.enabled" : "common.status.disabled");
   const deptName = row.name || `ID:${row.id}`;
   try {
     await ElMessageBox.confirm(

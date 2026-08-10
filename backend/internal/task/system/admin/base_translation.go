@@ -9,20 +9,17 @@ import (
 
 	"github.com/liujitcn/go-utils/translator"
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	coreI18n "github.com/liujitcn/kratos-admin/backend/core/pkg/i18n"
-	coreQueue "github.com/liujitcn/kratos-admin/backend/core/pkg/queue"
-	coreTask "github.com/liujitcn/kratos-admin/backend/core/pkg/task"
 	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
-	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	coreI18n "github.com/liujitcn/kratos-core/pkg/i18n"
+	coreModule "github.com/liujitcn/kratos-core/pkg/module"
 
 	kratosErrors "github.com/go-kratos/kratos/v3/errors"
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/gorm-kit/repository"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	queueData "github.com/liujitcn/kratos-kit/queue/data"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
 	"gorm.io/gorm"
 )
 
@@ -75,13 +72,12 @@ func NewBaseTranslationTask(
 		dictItemRepo:    dictItemRepo,
 		configRepo:      configRepo,
 	}
-	translationCase.RegisterQueueConsumer(_const.TRANSLATION, task.consumeTranslation)
 	return task
 }
 
 // Task 返回交由 base_job 统一调度的任务定义。
-func (t *BaseTranslationTask) Task() coreTask.Task {
-	return coreTask.Task{Name: BaseTranslationTaskName, Exec: t}
+func (t *BaseTranslationTask) Task() coreModule.Task {
+	return coreModule.Task{Name: BaseTranslationTaskName, Exec: t}
 }
 
 // Exec 兼容不带上下文的任务执行接口。
@@ -184,66 +180,6 @@ func (t *BaseTranslationTask) loadTranslationIndex(ctx context.Context) (transla
 		index.set(row)
 	}
 	return index, nil
-}
-
-// consumeTranslation 消费新增或更新资源的机器翻译消息。
-func (t *BaseTranslationTask) consumeTranslation(message queueData.Message) error {
-	request, err := coreQueue.Decode[dto.TranslationQueueMessage](message)
-	if err != nil {
-		return fmt.Errorf("解析机器翻译队列消息失败: %w", err)
-	}
-	if request == nil || request.TargetID <= 0 {
-		return nil
-	}
-	if request.SourceLocale != "" && request.TargetLocale != "" {
-		err = t.translateOne(context.Background(), request.TargetType, request.TargetID, request.SourceLocale, request.TargetLocale, request.SourceText)
-		if err != nil && ignoreTranslationClientError(err) != nil {
-			return err
-		}
-		return nil
-	}
-	return t.translateResource(context.Background(), request.TargetType, request.TargetID, request.SourceText)
-}
-
-// translateResource 为单个翻译目标生成所有启用语言的机器译文。
-func (t *BaseTranslationTask) translateResource(ctx context.Context, targetType systemadminv1.TranslationTargetType, targetID int64, sourceText string) error {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-	state, err := t.translationCase.LocaleState(ctx)
-	if err != nil {
-		return err
-	}
-	locales := state.EditableLocales()
-	if targetType == systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE && sourceText == "" {
-		config, findErr := t.configRepo.FindByID(ctx, targetID)
-		if findErr != nil {
-			return ignoreTranslationClientError(findErr)
-		}
-		if !isTranslatableConfigType(config.Type) {
-			return nil
-		}
-	}
-	var translations translationIndex
-	translations, err = t.loadTranslationIndex(ctx)
-	if err != nil {
-		return err
-	}
-	for _, localeValue := range locales {
-		err = t.translateOneWithState(ctx, state, translations, targetType, targetID, state.Primary, localeValue, sourceText)
-		if err != nil && ignoreTranslationClientError(err) != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// translateOne 为单个资源生成指定语言的机器译文，不覆盖已有非空内容。
-func (t *BaseTranslationTask) translateOne(ctx context.Context, targetType systemadminv1.TranslationTargetType, targetID int64, sourceLocale string, targetLocale string, sourceText string) error {
-	state, err := t.translationCase.LocaleState(ctx)
-	if err != nil {
-		return err
-	}
-	return t.translateOneWithState(ctx, state, nil, targetType, targetID, sourceLocale, targetLocale, sourceText)
 }
 
 // translateOneWithState 使用已读取的语言状态生成单个资源译文。

@@ -5,19 +5,15 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/liujitcn/go-utils/translator"
 	"github.com/liujitcn/gorm-kit/repository"
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	coreI18n "github.com/liujitcn/kratos-admin/backend/core/pkg/i18n"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
-	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	translationQueue "github.com/liujitcn/kratos-admin/backend/internal/data/queue"
+	"github.com/liujitcn/kratos-core/pkg/biz"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	coreI18n "github.com/liujitcn/kratos-core/pkg/i18n"
 
-	"github.com/go-kratos/kratos/v3/log"
 	"gorm.io/gorm"
 )
 
@@ -27,7 +23,7 @@ type BaseTranslationCase struct {
 	tx data.Transaction
 	*data.BaseTranslationRepository
 	languageCase    *BaseLanguageCase
-	draftTranslator translator.Translator
+	draftTranslator coreI18n.Translator
 	draftMu         sync.Mutex
 }
 
@@ -37,7 +33,7 @@ func NewBaseTranslationCase(
 	tx data.Transaction,
 	baseTranslationRepository *data.BaseTranslationRepository,
 	languageCase *BaseLanguageCase,
-	draftTranslator translator.Translator,
+	draftTranslator coreI18n.Translator,
 ) *BaseTranslationCase {
 	translationCase := &BaseTranslationCase{
 		BaseCase:                  baseCase,
@@ -224,7 +220,7 @@ func (c *BaseTranslationCase) GetBaseTranslationNameMapByLocale(ctx context.Cont
 	return result, nil
 }
 
-// SaveBaseTranslation 保存主语言源文对应的翻译信息，并为缺失译文投递机器翻译任务。
+// SaveBaseTranslation 保存主语言源文对应的翻译信息，缺失译文由定时任务统一补齐。
 func (c *BaseTranslationCase) SaveBaseTranslation(ctx context.Context, targetType systemadminv1.TranslationTargetType, targetId int64, primaryText string, translations []*systemadminv1.BaseTranslation, updateMain func(context.Context, string) error) error {
 	var err error
 	var state *dto.LocaleState
@@ -301,28 +297,7 @@ func (c *BaseTranslationCase) SaveBaseTranslation(ctx context.Context, targetTyp
 	} else {
 		err = c.tx.Transaction(ctx, save)
 	}
-	if err != nil || c.draftTranslator == nil || targetId <= 0 {
-		return err
-	}
-	translationNames := make(map[string]string, len(translations))
-	for _, translation := range translations {
-		translationNames[translation.GetLocale()] = translation.GetName()
-	}
-	for _, locale := range state.EditableLocales() {
-		if translationNames[locale] != "" {
-			continue
-		}
-		if ok := translationQueue.AddQueue(_const.TRANSLATION, &dto.TranslationQueueMessage{
-			TargetType:   targetType,
-			TargetID:     targetId,
-			SourceText:   primaryText,
-			SourceLocale: state.Primary,
-			TargetLocale: locale,
-		}); !ok {
-			log.Warn("投递机器翻译队列失败", "target_type", targetType.String(), "target_id", targetId, "source_locale", state.Primary, "target_locale", locale)
-		}
-	}
-	return nil
+	return err
 }
 
 // SaveGeneratedTranslations 保存代码生成器提供的非主语言译文，不覆盖已有非空内容。

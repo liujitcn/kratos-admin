@@ -7,9 +7,9 @@ import (
 	"time"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	coreSSE "github.com/liujitcn/kratos-admin/backend/core/pkg/sse"
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	coreSSE "github.com/liujitcn/kratos-core/pkg/sse"
 
 	"github.com/go-kratos/kratos/v3/log"
 )
@@ -24,8 +24,8 @@ type OpsMonitoringService struct {
 }
 
 // NewOpsMonitoringService 创建运维监控服务。
-func NewOpsMonitoringService(opsMonitoringCase *biz.OpsMonitoringCase) *OpsMonitoringService {
-	return &OpsMonitoringService{opsMonitoringCase: opsMonitoringCase}
+func NewOpsMonitoringService(opsMonitoringCase *biz.OpsMonitoringCase, publisher *coreSSE.Publisher) *OpsMonitoringService {
+	return &OpsMonitoringService{opsMonitoringCase: opsMonitoringCase, publisher: publisher}
 }
 
 // GetOpsRuntime 查询当前进程运行信息。
@@ -76,13 +76,6 @@ func (s *OpsMonitoringService) GetOpsAlerts(ctx context.Context, req *systemadmi
 		return nil, wrapOpsMonitoringError(err, "查询告警监控失败")
 	}
 	return alerts, nil
-}
-
-// SetSSEPublisher 设置运维监控实时事件发布器。
-func (s *OpsMonitoringService) SetSSEPublisher(publisher *coreSSE.Publisher) {
-	s.publisherMu.Lock()
-	s.publisher = publisher
-	s.publisherMu.Unlock()
 }
 
 // StartOpsMonitoringStream 启动运维监控实时事件发布循环。

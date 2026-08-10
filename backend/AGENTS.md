@@ -28,7 +28,7 @@
 
 ## 错误处理
 - 顶层 `reason` 只用 6 类冻结集合：`INVALID_ARGUMENT / UNAUTHENTICATED / PERMISSION_DENIED / RESOURCE_NOT_FOUND / CONFLICT / INTERNAL_ERROR`，未经确认禁止新增。
-- 对外业务错误必须用 `github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx` 构造，禁止直接返回 `errors.New/fmt.Errorf`；repo 层返原始错误，biz 层负责分类与 `message/metadata/cause`，service 层只 `log.Errorf("方法名 %v", err)` 并以 `errorsx.WrapInternal(err, "xxx失败")` 兜底透传。
+- 对外业务错误必须用 `github.com/liujitcn/kratos-core/pkg/errorsx` 构造，禁止直接返回 `errors.New/fmt.Errorf`；repo 层返原始错误，biz 层负责分类与 `message/metadata/cause`，service 层只 `log.Errorf("方法名 %v", err)` 并以 `errorsx.WrapInternal(err, "xxx失败")` 兜底透传。
 - 场景映射、errorsx 方法、metadata 键等细则见 [docs/errors.md](docs/errors.md)，修改错误处理相关代码前必须先读。
 
 ## 数据库命名

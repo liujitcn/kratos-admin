@@ -2,11 +2,9 @@ package base
 
 import (
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	host "github.com/liujitcn/kratos-admin/backend/internal/server"
 	baseService "github.com/liujitcn/kratos-admin/backend/internal/service/base/v1"
 
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
-	"github.com/google/wire"
 	mcpserver "github.com/liujitcn/kratos-kit/transport/mcp"
 	"google.golang.org/grpc"
 )
@@ -24,11 +22,6 @@ type Services struct {
 	Mcp       *baseService.McpService
 	Sse       *baseService.SseService
 }
-
-var _ host.Module = Services{}
-
-// ProviderSet 汇总 base.v1 传输模块依赖注入提供者。
-var ProviderSet = wire.NewSet(wire.Struct(new(Services), "*"))
 
 // RegisterGRPC 注册 base.v1 的 gRPC 服务。
 func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {

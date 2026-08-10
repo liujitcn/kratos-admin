@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	coreLocale "github.com/liujitcn/kratos-admin/backend/core/pkg/locale"
+	coreLocale "github.com/liujitcn/kratos-core/pkg/locale"
 
 	"github.com/liujitcn/go-utils/stringcase"
 )
@@ -131,16 +131,6 @@ func mergeFrontendLocaleMessages(content string, prefix string, owned map[string
 		messages[key] = value
 	}
 	return renderFrontendLocaleMessages(messages)
-}
-
-// LocalizedTableComment 返回指定语言的业务名称。
-func LocalizedTableComment(table *Table, localeValue string) string {
-	return localizedTableComment(table, localeValue)
-}
-
-// LocalizedColumnComment 返回指定语言的字段名称。
-func LocalizedColumnComment(column *CodeGenColumn, localeValue string) string {
-	return localizedColumnComment(column, localeValue)
 }
 
 // GeneratedMenuTranslations 返回页面或按钮菜单的非主语言标题。

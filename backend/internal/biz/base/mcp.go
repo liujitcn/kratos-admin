@@ -9,10 +9,10 @@ import (
 	"strings"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
@@ -40,8 +40,8 @@ type McpCase struct {
 	handlerPath string
 }
 
-// NewMcpCase 创建 MCP 业务实例，并挂载工具过滤中间件。
-func NewMcpCase(ctx *bootstrap.Context, baseAPIRepo *data.BaseAPIRepository, mcpSrv *mcpserver.Server) (*McpCase, error) {
+// NewMcpCase 创建 MCP 业务实例。
+func NewMcpCase(ctx *bootstrap.Context, baseAPIRepo *data.BaseAPIRepository) (*McpCase, error) {
 	h := &McpCase{
 		baseAPIRepo: baseAPIRepo,
 	}
@@ -55,17 +55,20 @@ func NewMcpCase(ctx *bootstrap.Context, baseAPIRepo *data.BaseAPIRepository, mcp
 	if cfg.Server.Mcp != nil && cfg.Server.Mcp.GetPath() != "" {
 		h.handlerPath = cfg.Server.Mcp.GetPath()
 	}
+	return h, nil
+}
 
+// RegisterMCP 将 MCP 过滤器和 HTTP 处理器绑定到宿主服务。
+func (h *McpCase) RegisterMCP(mcpSrv *mcpserver.Server) {
+	if h == nil || mcpSrv == nil {
+		return
+	}
 	mcpSrv.MCPServer().AddReceivingMiddleware(h.filterToolsMiddleware)
 	handler, err := mcpSrv.HTTPHandler()
 	if err != nil {
-		return nil, err
+		panic(fmt.Sprintf("创建 MCP HTTP 处理器失败: %v", err))
 	}
 	h.Handler = handler
-	if h.Handler == nil {
-		return nil, nil
-	}
-	return h, nil
 }
 
 // HandleMcp 处理 MCP Streamable HTTP 请求。
@@ -201,13 +204,16 @@ func (h *McpCase) filterToolCall(ctx context.Context, req mcp.Request, next mcp.
 
 // findEnabledBaseAPI 查询当前工具是否允许调用。
 func (h *McpCase) findEnabledBaseAPI(ctx context.Context, req mcp.Request, toolName string) (*models.BaseAPI, error) {
+	if h == nil || h.baseAPIRepo == nil {
+		return nil, errorsx.Internal("MCP权限仓储未初始化")
+	}
 	terminal := mcpTerminal(ctx, req)
 	if !matchMcpToolPrefix(terminal, toolName) {
 		return nil, nil
 	}
 	query := h.baseAPIRepo.Query(ctx).BaseAPI
 	opts := make([]repository.QueryOption, 0, 3)
-	opts = append(opts, repository.Where(query.McpStatus.Eq(int32(commonv1.Status_ENABLE))))
+	opts = append(opts, repository.Where(query.McpStatus.Eq(int32(commonv1.Status_STATUS_ENABLE))))
 	opts = append(opts, repository.Where(query.ToolName.Eq(toolName)))
 	opts = append(opts, repository.Limit(1))
 	list, err := h.baseAPIRepo.List(ctx, opts...)

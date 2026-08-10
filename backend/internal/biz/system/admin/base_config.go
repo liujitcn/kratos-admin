@@ -8,10 +8,11 @@ import (
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-core/pkg/biz"
+	coreconst "github.com/liujitcn/kratos-core/pkg/const"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
@@ -147,7 +148,7 @@ func (c *BaseConfigCase) CreateBaseConfig(ctx context.Context, req *systemadminv
 	err := c.Create(ctx, entity)
 	if err != nil {
 		// 命中配置键唯一索引冲突时，返回稳定的业务冲突错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
+		if errorsx.IsDuplicateKey(err) {
 			return errorsx.UniqueConflict("同一位置的配置键重复", "base_config", "", "unique_base_config").WithCause(err)
 		}
 		return err
@@ -174,7 +175,7 @@ func (c *BaseConfigCase) UpdateBaseConfig(ctx context.Context, req *systemadminv
 	err = c.UpdateByID(ctx, entity)
 	if err != nil {
 		// 命中配置键唯一索引冲突时，返回稳定的业务冲突错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
+		if errorsx.IsDuplicateKey(err) {
 			return errorsx.UniqueConflict("同一位置的配置键重复", "base_config", "", "unique_base_config").WithCause(err)
 		}
 		return err
@@ -287,7 +288,7 @@ func (c *BaseConfigCase) refreshBaseConfigSite(ctx context.Context, site int32) 
 	query := c.Query(ctx).BaseConfig
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Where(query.Site.Eq(site)))
-	opts = append(opts, repository.Where(query.Status.Eq(_const.STATUS_ENABLE)))
+	opts = append(opts, repository.Where(query.Status.Eq(coreconst.Status_STATUS_ENABLE)))
 	opts = append(opts, repository.Order(query.ID.Asc()))
 	list, err := c.List(ctx, opts...)
 	if err != nil {

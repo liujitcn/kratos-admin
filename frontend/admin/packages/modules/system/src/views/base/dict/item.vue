@@ -115,7 +115,7 @@ const formData = reactive<BaseDictItemForm>({
   /** 排序 */
   sort: 1,
   /** 状态 */
-  status: Status.ENABLE
+  status: Status.STATUS_ENABLE
 });
 
 const rules = computed(() => ({
@@ -139,8 +139,8 @@ const rules = computed(() => ({
 }));
 
 const statusOptions = computed<ProFormOption[]>(() => [
-  { label: t("common.status.enabled"), value: Status.ENABLE },
-  { label: t("common.status.disabled"), value: Status.DISABLE }
+  { label: t("common.status.enabled"), value: Status.STATUS_ENABLE },
+  { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }
 ]);
 
 /** 字典项表单字段配置。 */
@@ -236,8 +236,8 @@ const columns = computed<ColumnProps[]>(() => [
     search: { el: "select" },
     cellType: "status",
     statusProps: {
-      activeValue: Status.ENABLE,
-      inactiveValue: Status.DISABLE,
+      activeValue: Status.STATUS_ENABLE,
+      inactiveValue: Status.STATUS_DISABLE,
       activeText: t("common.status.enabled"),
       inactiveText: t("common.status.disabled"),
       disabled: () => !BUTTONS.value["base:dict-item:status"],
@@ -354,7 +354,7 @@ function resetForm() {
   formData.translations = [];
   formData.tag_type = "";
   formData.sort = 1;
-  formData.status = Status.ENABLE;
+  formData.status = Status.STATUS_ENABLE;
   translationValues.value = normalizeDynamicTranslations(undefined, "label");
 }
 
@@ -389,8 +389,8 @@ function handleSubmit() {
  * 在字典项状态切换前先完成确认与接口调用，避免首屏渲染触发误操作。
  */
 async function handleBeforeSetStatus(row: BaseDictItem) {
-  const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
-  const action = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
+  const nextStatus = row.status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE;
+  const action = t(nextStatus === Status.STATUS_ENABLE ? "common.status.enabled" : "common.status.disabled");
   const itemName = row.label || row.value || `ID:${row.id}`;
   try {
     await ElMessageBox.confirm(

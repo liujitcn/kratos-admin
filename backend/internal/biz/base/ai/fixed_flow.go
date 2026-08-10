@@ -2,65 +2,26 @@ package ai
 
 import (
 	"context"
-	"fmt"
 	"sync"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	backendmodule "github.com/liujitcn/kratos-admin/backend/module"
+	coremodule "github.com/liujitcn/kratos-core/pkg/module"
 )
 
 // FixedFlowProvider 是宿主 AI 固定流程契约的内部实现别名。
-type FixedFlowProvider = backendmodule.AIFixedFlowProvider
+type FixedFlowProvider = coremodule.AIFixedFlowProvider
 
 // fixedFlowRegistry 聚合当前组合根显式启用的固定流程提供者。
 type fixedFlowRegistry struct {
 	mu        sync.RWMutex
-	providers []backendmodule.AIFixedFlowProvider
-	flowNames map[string]struct{}
-}
-
-// RegisterFixedFlow 注册模块固定流程提供者，并拒绝重复流程标识。
-func (r *Runtime) RegisterFixedFlow(provider backendmodule.AIFixedFlowProvider) error {
-	if r == nil {
-		return fmt.Errorf("AI助手运行时未初始化")
-	}
-	if provider == nil {
-		return fmt.Errorf("固定流程提供者不能为空")
-	}
-	flowNames := provider.FlowNames()
-	if len(flowNames) == 0 {
-		return fmt.Errorf("固定流程提供者未声明流程")
-	}
-
-	r.fixedFlows.mu.Lock()
-	defer r.fixedFlows.mu.Unlock()
-	if r.fixedFlows.flowNames == nil {
-		r.fixedFlows.flowNames = make(map[string]struct{})
-	}
-	registered := make(map[string]struct{}, len(flowNames))
-	for _, name := range flowNames {
-		if name == "" {
-			return fmt.Errorf("固定流程标识不能为空")
-		}
-		if _, exists := r.fixedFlows.flowNames[name]; exists {
-			return fmt.Errorf("固定流程标识重复: %s", name)
-		}
-		if _, exists := registered[name]; exists {
-			return fmt.Errorf("固定流程标识重复: %s", name)
-		}
-		registered[name] = struct{}{}
-	}
-	for name := range registered {
-		r.fixedFlows.flowNames[name] = struct{}{}
-	}
-	r.fixedFlows.providers = append(r.fixedFlows.providers, provider)
-	return nil
+	providers []coremodule.AIFixedFlowProvider
 }
 
 // GenerateFixedFlowReply 由已启用模块依次尝试处理固定流程请求。
 func (r *Runtime) GenerateFixedFlowReply(ctx context.Context, terminal int32, content string, action *basev1.AiAction) (*Response, bool, error) {
+	coreAction := toCoreAIAction(action)
 	for _, provider := range r.fixedFlowProviders() {
-		reply, handled, err := provider.GenerateFixedFlowReply(ctx, r, terminal, content, action)
+		reply, handled, err := provider.GenerateFixedFlowReply(ctx, r, terminal, content, coreAction)
 		if handled || err != nil {
 			return reply, handled, err
 		}
@@ -82,13 +43,15 @@ func (r *Runtime) IsFixedFlowEntryAction(terminal int32, flow string, actionType
 func (r *Runtime) FixedFlowShortcuts(terminal int32, enabledTools map[string]bool) []*basev1.AiShortcut {
 	shortcuts := make([]*basev1.AiShortcut, 0)
 	for _, provider := range r.fixedFlowProviders() {
-		shortcuts = append(shortcuts, provider.FixedFlowShortcuts(terminal, enabledTools)...)
+		for _, shortcut := range provider.FixedFlowShortcuts(terminal, enabledTools) {
+			shortcuts = append(shortcuts, toProtoAIShortcut(shortcut))
+		}
 	}
 	return shortcuts
 }
 
 // fixedFlowProviders 返回注册表快照，避免调用模块代码时持有锁。
-func (r *Runtime) fixedFlowProviders() []backendmodule.AIFixedFlowProvider {
+func (r *Runtime) fixedFlowProviders() []coremodule.AIFixedFlowProvider {
 	if r == nil {
 		return nil
 	}
@@ -96,4 +59,44 @@ func (r *Runtime) fixedFlowProviders() []backendmodule.AIFixedFlowProvider {
 	providers := append([]FixedFlowProvider(nil), r.fixedFlows.providers...)
 	r.fixedFlows.mu.RUnlock()
 	return providers
+}
+
+// toCoreAIAction 将接口层动作转换为 Core 的模块契约。
+func toCoreAIAction(action *basev1.AiAction) *coremodule.AIAction {
+	if action == nil {
+		return nil
+	}
+	return &coremodule.AIAction{
+		Flow:            action.GetFlow(),
+		Step:            action.GetStep(),
+		Type:            action.GetType(),
+		PayloadJSON:     action.GetPayloadJson(),
+		SourceMessageID: action.GetSourceMessageId(),
+		ActionID:        action.GetActionId(),
+		FlowVersion:     action.GetFlowVersion(),
+	}
+}
+
+// toProtoAIShortcut 将 Core 模块快捷入口转换为接口层对象。
+func toProtoAIShortcut(shortcut *coremodule.AIShortcut) *basev1.AiShortcut {
+	if shortcut == nil {
+		return nil
+	}
+	result := &basev1.AiShortcut{
+		Key:           shortcut.Key,
+		Title:         shortcut.Title,
+		Prompt:        shortcut.Prompt,
+		RequiredTools: append([]string(nil), shortcut.RequiredTools...),
+		Sort:          shortcut.Sort,
+		Group:         shortcut.Group,
+	}
+	if shortcut.Action != nil {
+		result.Action = &basev1.AiShortcutAction{
+			Flow:        shortcut.Action.Flow,
+			Step:        shortcut.Action.Step,
+			Type:        shortcut.Action.Type,
+			PayloadJson: shortcut.Action.PayloadJSON,
+		}
+	}
+	return result
 }

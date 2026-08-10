@@ -4,12 +4,12 @@ import (
 	"context"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz"
-	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-core/pkg/biz"
+	coreconst "github.com/liujitcn/kratos-core/pkg/const"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
@@ -64,7 +64,7 @@ func (c *BaseRoleCase) OptionBaseRole(ctx context.Context, req *systemadminv1.Op
 	options := make([]*commonv1.SelectOptionResponse_Option, 0, len(list))
 	for _, item := range list {
 		var disabled bool
-		if _const.IsDefaultBaseRole(item.Code) {
+		if coreconst.IsDefaultBaseRole(item.Code) {
 			disabled = true
 		}
 
@@ -147,13 +147,13 @@ func (c *BaseRoleCase) CreateBaseRole(ctx context.Context, req *systemadminv1.Ba
 		err = c.Create(ctx, baseRole)
 		if err != nil {
 			// 命中角色编码唯一索引冲突时，返回稳定的业务冲突错误。
-			if errorsx.IsMySQLDuplicateKey(err) {
+			if errorsx.IsDuplicateKey(err) {
 				return errorsx.UniqueConflict("同一租户的角色编码重复", "base_role", "", "unique_base_role").WithCause(err)
 			}
 			return err
 		}
 		// 创建默认 tenant 模板后，将菜单重新同步到普通租户副本。
-		if baseRole.Code == _const.BASE_ROLE_CODE_TENANT {
+		if baseRole.Code == coreconst.BASE_ROLE_CODE_TENANT {
 			return c.syncTenantRoleMenus(ctx, baseRole)
 		}
 		return c.casbinRuleCase.RebuildCasbinRuleByRole(ctx, baseRole)
@@ -171,13 +171,13 @@ func (c *BaseRoleCase) UpdateBaseRole(ctx context.Context, req *systemadminv1.Ba
 		return err
 	}
 	// tenant 模板允许修改资料，但角色编码必须保持不变。
-	if oldBaseRole.Code == _const.BASE_ROLE_CODE_TENANT && req.GetCode() != oldBaseRole.Code {
+	if oldBaseRole.Code == coreconst.BASE_ROLE_CODE_TENANT && req.GetCode() != oldBaseRole.Code {
 		return errorsx.ProtectedResourceConflict("更新角色失败，不能修改内置角色编码", "base_role")
 	}
-	if oldBaseRole.Code != _const.BASE_ROLE_CODE_TENANT && _const.IsDefaultBaseRole(req.GetCode()) {
+	if oldBaseRole.Code != coreconst.BASE_ROLE_CODE_TENANT && coreconst.IsDefaultBaseRole(req.GetCode()) {
 		return errorsx.ProtectedResourceConflict("更新角色失败，不能使用内置角色编码", "base_role")
 	}
-	if _const.IsBaseRoleStatusProtected(oldBaseRole.Code) && req.GetStatus() != 0 && int32(req.GetStatus()) != oldBaseRole.Status {
+	if coreconst.IsBaseRoleStatusProtected(oldBaseRole.Code) && req.GetStatus() != 0 && int32(req.GetStatus()) != oldBaseRole.Status {
 		return errorsx.ProtectedResourceConflict("更新角色失败，不能修改默认角色状态", "base_role")
 	}
 	err = c.validateAssignableMenus(ctx, oldBaseRole.TenantID, req.GetMenus())
@@ -192,13 +192,13 @@ func (c *BaseRoleCase) UpdateBaseRole(ctx context.Context, req *systemadminv1.Ba
 		err = c.UpdateByID(ctx, baseRole)
 		if err != nil {
 			// 命中角色编码唯一索引冲突时，返回稳定的业务冲突错误。
-			if errorsx.IsMySQLDuplicateKey(err) {
+			if errorsx.IsDuplicateKey(err) {
 				return errorsx.UniqueConflict("同一租户的角色编码重复", "base_role", "", "unique_base_role").WithCause(err)
 			}
 			return err
 		}
 		// 默认 tenant 模板通过编辑表单保存菜单后，同步所有普通租户副本。
-		if baseRole.Code == _const.BASE_ROLE_CODE_TENANT {
+		if baseRole.Code == coreconst.BASE_ROLE_CODE_TENANT {
 			return c.syncTenantRoleMenus(ctx, baseRole)
 		}
 		return c.casbinRuleCase.RebuildCasbinRuleByRole(ctx, baseRole)
@@ -222,7 +222,7 @@ func (c *BaseRoleCase) DeleteBaseRole(ctx context.Context, id string) error {
 			return errorsx.ResourceNotFound("删除角色失败，角色不存在")
 		}
 		// admin、authuser、user 固定角色与状态保护使用同一保护集合，不允许删除。
-		if _const.IsBaseRoleStatusProtected(baseRole.Code) {
+		if coreconst.IsBaseRoleStatusProtected(baseRole.Code) {
 			return errorsx.ProtectedResourceConflict("删除角色失败，不能删除默认角色", "base_role")
 		}
 		err = c.validateBaseRoleManagementTarget(ctx, baseRole)
@@ -245,7 +245,7 @@ func (c *BaseRoleCase) SetBaseRoleStatus(ctx context.Context, req *systemadminv1
 	if err != nil {
 		return err
 	}
-	if _const.IsBaseRoleStatusProtected(baseRole.Code) {
+	if coreconst.IsBaseRoleStatusProtected(baseRole.Code) {
 		return errorsx.ProtectedResourceConflict("操作角色失败，不能修改默认角色状态", "base_role")
 	}
 	err = c.validateBaseRoleManagementTarget(ctx, baseRole)
@@ -285,7 +285,7 @@ func (c *BaseRoleCase) SetBaseRoleMenu(ctx context.Context, req *systemadminv1.S
 		}
 		baseRole.Code = oldBaseRole.Code
 		// 默认租户的租户管理员角色是权限模板，变更后同步所有租户副本。
-		if oldBaseRole.Code == _const.BASE_ROLE_CODE_TENANT {
+		if oldBaseRole.Code == coreconst.BASE_ROLE_CODE_TENANT {
 			return c.syncTenantRoleMenus(ctx, baseRole)
 		}
 		return c.casbinRuleCase.RebuildCasbinRuleByRole(ctx, baseRole)
@@ -295,10 +295,10 @@ func (c *BaseRoleCase) SetBaseRoleMenu(ctx context.Context, req *systemadminv1.S
 // validateBaseRoleManagementTarget 校验当前登录租户是否允许操作目标角色。
 func (c *BaseRoleCase) validateBaseRoleManagementTarget(ctx context.Context, baseRole *models.BaseRole) error {
 	// super 始终由系统维护，任何租户都不能通过角色管理操作。
-	if baseRole.Code == _const.BASE_ROLE_CODE_SUPER {
+	if baseRole.Code == coreconst.BASE_ROLE_CODE_SUPER {
 		return errorsx.ProtectedResourceConflict("操作角色失败，不能操作内置角色", "base_role")
 	}
-	if baseRole.Code != _const.BASE_ROLE_CODE_TENANT {
+	if baseRole.Code != coreconst.BASE_ROLE_CODE_TENANT {
 		return nil
 	}
 	authInfo, err := c.GetAuthInfo(ctx)
@@ -314,11 +314,11 @@ func (c *BaseRoleCase) validateBaseRoleManagementTarget(ctx context.Context, bas
 
 // validateCreateBaseRole 校验当前登录租户是否允许创建目标角色编码。
 func (c *BaseRoleCase) validateCreateBaseRole(ctx context.Context, baseRole *models.BaseRole) error {
-	if !_const.IsDefaultBaseRole(baseRole.Code) {
+	if !coreconst.IsDefaultBaseRole(baseRole.Code) {
 		return nil
 	}
 	// super 始终由系统初始化维护，不允许通过角色管理创建。
-	if baseRole.Code == _const.BASE_ROLE_CODE_SUPER {
+	if baseRole.Code == coreconst.BASE_ROLE_CODE_SUPER {
 		return errorsx.ProtectedResourceConflict("创建角色失败，不能使用内置角色编码", "base_role")
 	}
 	authInfo, err := c.GetAuthInfo(ctx)
@@ -345,14 +345,14 @@ func (c *BaseRoleCase) validateAssignableMenus(ctx context.Context, targetTenant
 		query := c.Query(ctx).BaseRole
 		opts := make([]repository.QueryOption, 0, 2)
 		opts = append(opts, repository.Where(query.TenantID.Eq(targetTenantID)))
-		opts = append(opts, repository.Where(query.Code.Eq(_const.BASE_ROLE_CODE_TENANT)))
+		opts = append(opts, repository.Where(query.Code.Eq(coreconst.BASE_ROLE_CODE_TENANT)))
 		allowedBaseRole, err = c.Find(ctx, opts...)
 		if err != nil {
 			return errorsx.Internal("查询租户最大权限失败").WithCause(err)
 		}
 	} else {
 		// 超级管理员维护默认租户角色时拥有完整菜单分配权限。
-		if authInfo.RoleCode == _const.BASE_ROLE_CODE_SUPER {
+		if authInfo.RoleCode == coreconst.BASE_ROLE_CODE_SUPER {
 			return nil
 		}
 		allowedBaseRole, err = c.FindByID(ctx, authInfo.RoleId)
@@ -361,7 +361,7 @@ func (c *BaseRoleCase) validateAssignableMenus(ctx context.Context, targetTenant
 		}
 	}
 	// 权限上限角色已停用时，不允许继续分配其他角色权限。
-	if allowedBaseRole.Status != _const.STATUS_ENABLE {
+	if allowedBaseRole.Status != coreconst.Status_STATUS_ENABLE {
 		return errorsx.PermissionDenied("角色已被禁用")
 	}
 
@@ -383,7 +383,7 @@ func (c *BaseRoleCase) validateAssignableMenus(ctx context.Context, targetTenant
 func (c *BaseRoleCase) syncTenantRoleMenus(ctx context.Context, templateRole *models.BaseRole) error {
 	query := c.Query(ctx).BaseRole
 	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.Code.Eq(_const.BASE_ROLE_CODE_TENANT)))
+	opts = append(opts, repository.Where(query.Code.Eq(coreconst.BASE_ROLE_CODE_TENANT)))
 	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return err
@@ -411,9 +411,9 @@ func (c *BaseRoleCase) syncTenantRoleMenus(ctx context.Context, templateRole *mo
 
 // isBaseRoleProtected 判断目标角色是否禁止当前账号通过角色管理操作。
 func isBaseRoleProtected(authInfo *authData.UserTokenPayload, baseRole *models.BaseRole) bool {
-	if baseRole.Code == _const.BASE_ROLE_CODE_SUPER {
+	if baseRole.Code == coreconst.BASE_ROLE_CODE_SUPER {
 		return true
 	}
-	return baseRole.Code == _const.BASE_ROLE_CODE_TENANT &&
+	return baseRole.Code == coreconst.BASE_ROLE_CODE_TENANT &&
 		(authInfo == nil || authInfo.TenantCode != databaseGorm.DefaultTenantCode || baseRole.TenantID != authInfo.TenantId)
 }

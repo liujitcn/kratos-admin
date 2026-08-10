@@ -4,18 +4,14 @@ import (
 	"context"
 	"strconv"
 
-	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
-
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	coreQueue "github.com/liujitcn/kratos-admin/backend/core/pkg/queue"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-core/pkg/biz"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_time "github.com/liujitcn/go-utils/time"
 	"github.com/liujitcn/gorm-kit/repository"
-	queueData "github.com/liujitcn/kratos-kit/queue/data"
 )
 
 // BaseJobLogCase 任务日志业务实例
@@ -33,8 +29,6 @@ func NewBaseJobLogCase(baseCase *biz.BaseCase, baseJobLogRepo *data.BaseJobLogRe
 		mapper:               mapper.NewCopierMapper[systemadminv1.BaseJobLog, models.BaseJobLog](),
 	}
 
-	// 注册定时任务日志队列
-	c.RegisterQueueConsumer(_const.JOB_LOG, c.saveJobLog)
 	return c
 }
 
@@ -90,17 +84,4 @@ func (c *BaseJobLogCase) toBaseJobLog(item *models.BaseJobLog) *systemadminv1.Ba
 	baseJobLog := c.mapper.ToDTO(item)
 	baseJobLog.ProcessTime = strconv.FormatInt(int64(item.ProcessTime), 10)
 	return baseJobLog
-}
-
-// saveJobLog 保存任务日志队列消息。
-func (c *BaseJobLogCase) saveJobLog(message queueData.Message) error {
-	baseJobLog, err := coreQueue.Decode[models.BaseJobLog](message)
-	if err != nil {
-		return err
-	}
-	// 队列消息里没有有效任务日志实体时，直接忽略当前消息。
-	if baseJobLog == nil {
-		return nil
-	}
-	return c.Create(context.TODO(), baseJobLog)
 }

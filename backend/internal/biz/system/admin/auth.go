@@ -9,13 +9,14 @@ import (
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	baseBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-core/pkg/biz"
+	coreconst "github.com/liujitcn/kratos-core/pkg/const"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/go-utils/crypto"
@@ -90,7 +91,7 @@ func (c *AuthCase) TreeUserMenu(ctx context.Context) (*systemadminv1.TreeRouteRe
 		return nil, errorsx.Internal("获取用户菜单失败").WithCause(err)
 	}
 	// 角色被停用时，不允许继续获取菜单。
-	if baseRole.Status != _const.STATUS_ENABLE {
+	if baseRole.Status != coreconst.Status_STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("角色已被禁用")
 	}
 
@@ -103,7 +104,7 @@ func (c *AuthCase) TreeUserMenu(ctx context.Context) (*systemadminv1.TreeRouteRe
 
 	opts := make([]repository.QueryOption, 0, 5)
 	opts = append(opts, repository.Order(query.Sort.Asc()), repository.Order(query.ID.Asc()))
-	opts = append(opts, repository.Where(query.Status.Eq(_const.STATUS_ENABLE)))
+	opts = append(opts, repository.Where(query.Status.Eq(coreconst.Status_STATUS_ENABLE)))
 	opts = append(opts, repository.Where(query.Type.In(
 		_const.BASE_MENU_TYPE_FOLDER,
 		_const.BASE_MENU_TYPE_MENU,
@@ -112,7 +113,7 @@ func (c *AuthCase) TreeUserMenu(ctx context.Context) (*systemadminv1.TreeRouteRe
 	// 移动端菜单树只承载应用端页面和接口权限，不参与管理后台动态路由。
 	opts = append(opts, repository.Where(query.ID.NotIn(appMenuIDs...)))
 	// 非超级管理员仅允许查看角色菜单里配置过的菜单。
-	if baseRole.Code != _const.BASE_ROLE_CODE_SUPER {
+	if baseRole.Code != coreconst.BASE_ROLE_CODE_SUPER {
 		ids := _string.ConvertJsonStringToInt64Array(baseRole.Menus)
 		// 角色未配置任何菜单时，直接返回空菜单树。
 		if len(ids) == 0 {
@@ -149,7 +150,7 @@ func (c *AuthCase) ListUserButton(ctx context.Context) (*commonv1.StringValues, 
 		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
 	// 用户被停用时，不允许继续获取按钮权限。
-	if baseUser.Status != _const.STATUS_ENABLE {
+	if baseUser.Status != coreconst.Status_STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("账号已被禁用")
 	}
 
@@ -163,10 +164,10 @@ func (c *AuthCase) ListUserButton(ctx context.Context) (*commonv1.StringValues, 
 	query := c.baseMenuCase.Query(ctx).BaseMenu
 
 	opts := make([]repository.QueryOption, 0, 4)
-	opts = append(opts, repository.Where(query.Status.Eq(_const.STATUS_ENABLE)))
+	opts = append(opts, repository.Where(query.Status.Eq(coreconst.Status_STATUS_ENABLE)))
 	opts = append(opts, repository.Where(query.Type.In(_const.BASE_MENU_TYPE_BUTTON)))
 	// 非超级管理员仅允许查看角色菜单里配置过的按钮。
-	if baseRole.Code != _const.BASE_ROLE_CODE_SUPER {
+	if baseRole.Code != coreconst.BASE_ROLE_CODE_SUPER {
 		ids := _string.ConvertJsonStringToInt64Array(baseRole.Menus)
 		// 角色未配置任何按钮时，直接返回空按钮集。
 		if len(ids) == 0 {
@@ -204,7 +205,7 @@ func (c *AuthCase) GetUserInfo(ctx context.Context) (*systemadminv1.UserInfoForm
 		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
 	// 用户被停用时，不允许继续访问后台信息。
-	if baseUser.Status != _const.STATUS_ENABLE {
+	if baseUser.Status != coreconst.Status_STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("账号已被禁用")
 	}
 
@@ -251,7 +252,7 @@ func (c *AuthCase) GetUserProfile(ctx context.Context) (*systemadminv1.UserProfi
 		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
 	// 用户被停用时，不允许继续获取个人资料。
-	if baseUser.Status != _const.STATUS_ENABLE {
+	if baseUser.Status != coreconst.Status_STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("账号已被禁用")
 	}
 

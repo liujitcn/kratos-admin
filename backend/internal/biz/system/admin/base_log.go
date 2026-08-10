@@ -4,18 +4,14 @@ import (
 	"context"
 	"time"
 
-	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
-
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	coreQueue "github.com/liujitcn/kratos-admin/backend/core/pkg/queue"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-core/pkg/biz"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_time "github.com/liujitcn/go-utils/time"
 	"github.com/liujitcn/gorm-kit/repository"
-	queueData "github.com/liujitcn/kratos-kit/queue/data"
 )
 
 // BaseLogCase 日志业务实例
@@ -33,8 +29,6 @@ func NewBaseLogCase(baseCase *biz.BaseCase, baseLogRepo *data.BaseLogRepository)
 		mapper:            mapper.NewCopierMapper[systemadminv1.BaseLog, models.BaseLog](),
 	}
 
-	// 注册日志队列
-	c.RegisterQueueConsumer(_const.LOG, c.saveLog)
 	return c
 }
 
@@ -94,17 +88,4 @@ func (c *BaseLogCase) toBaseLog(item *models.BaseLog) *systemadminv1.BaseLog {
 	baseLog := c.mapper.ToDTO(item)
 	baseLog.CostTime = costTime.String()
 	return baseLog
-}
-
-// saveLog 保存日志队列消息
-func (c *BaseLogCase) saveLog(message queueData.Message) error {
-	baseLog, err := coreQueue.Decode[models.BaseLog](message)
-	if err != nil {
-		return err
-	}
-	// 队列消息里没有有效日志实体时，直接忽略当前消息。
-	if baseLog == nil {
-		return nil
-	}
-	return c.Create(context.TODO(), baseLog)
 }

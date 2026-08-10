@@ -5,11 +5,11 @@ import (
 	"sort"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/core/pkg/errorsx"
-	coreLocale "github.com/liujitcn/kratos-admin/backend/core/pkg/locale"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-core/pkg/biz"
+	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	coreLocale "github.com/liujitcn/kratos-core/pkg/locale"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
@@ -192,7 +192,7 @@ func (c *BaseDictCase) CreateBaseDict(ctx context.Context, req *systemadminv1.Ba
 	err := c.Create(ctx, baseDict)
 	if err != nil {
 		// 命中字典编码唯一索引冲突时，返回稳定的业务冲突错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
+		if errorsx.IsDuplicateKey(err) {
 			return errorsx.UniqueConflict("字典编码重复", "base_dict", "code", "unique_base_dict").WithCause(err)
 		}
 		return err
@@ -206,7 +206,7 @@ func (c *BaseDictCase) UpdateBaseDict(ctx context.Context, req *systemadminv1.Ba
 	err := c.UpdateByID(ctx, baseDict)
 	if err != nil {
 		// 命中字典编码唯一索引冲突时，返回稳定的业务冲突错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
+		if errorsx.IsDuplicateKey(err) {
 			return errorsx.UniqueConflict("字典编码重复", "base_dict", "code", "unique_base_dict").WithCause(err)
 		}
 		return err

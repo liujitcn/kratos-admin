@@ -135,8 +135,8 @@ const dialog = reactive({
 const menuPermOptions = ref<TreeOptionResponse_Option[]>([]);
 const tenantOptions = ref<SelectOptionResponse_Option[]>([]);
 const statusOptions = computed<ProFormOption[]>(() => [
-  { label: t("common.status.enabled"), value: Status.ENABLE },
-  { label: t("common.status.disabled"), value: Status.DISABLE }
+  { label: t("common.status.enabled"), value: Status.STATUS_ENABLE },
+  { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }
 ]);
 const protectedRoleCodes = new Set(["admin", "authuser", "user"]);
 
@@ -154,7 +154,7 @@ const formData = reactive<BaseRoleFormState>({
   /** 分配的菜单列表 */
   menus: [],
   /** 状态 */
-  status: Status.ENABLE,
+  status: Status.STATUS_ENABLE,
   /** 备注 */
   remark: ""
 });
@@ -331,8 +331,8 @@ const columns = computed<ColumnProps[]>(() => [
     search: { el: "select" },
     cellType: "status",
     statusProps: {
-      activeValue: Status.ENABLE,
-      inactiveValue: Status.DISABLE,
+      activeValue: Status.STATUS_ENABLE,
+      inactiveValue: Status.STATUS_DISABLE,
       activeText: t("common.status.enabled"),
       inactiveText: t("common.status.disabled"),
       disabled: scope => !canChangeRoleStatus(scope.row as BaseRole) || !BUTTONS.value["base:role:status"],
@@ -479,7 +479,7 @@ function resetForm() {
   formData.code = "";
   formData.data_scope = 1;
   formData.menus = [];
-  formData.status = Status.ENABLE;
+  formData.status = Status.STATUS_ENABLE;
   formData.remark = "";
   menuPermOptions.value = [];
 }
@@ -541,8 +541,8 @@ async function handleBeforeSetStatus(row: BaseRole) {
     return false;
   }
 
-  const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
-  const action = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
+  const nextStatus = row.status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE;
+  const action = t(nextStatus === Status.STATUS_ENABLE ? "common.status.enabled" : "common.status.disabled");
   const roleName = row.name || row.code || `ID:${row.id}`;
   try {
     await ElMessageBox.confirm(t("system.base.role.message.confirm_status", { action, name: roleName }), t("common.title.notice"), {

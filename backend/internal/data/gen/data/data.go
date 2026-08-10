@@ -47,7 +47,7 @@ func Models() []interface{} {
 func NewClient(cfg *configv1.Data_Database) (*databaseGorm.Client, func(), error) {
 	return databaseGorm.NewGormClient(
 		cfg,
-		databaseGorm.WithName("default"),
+		databaseGorm.WithName(databaseGorm.DefaultClientName),
 		databaseGorm.WithMigrateModels(Models()...),
 	)
 }

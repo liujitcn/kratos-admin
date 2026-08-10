@@ -5,19 +5,17 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-core/pkg/biz"
 
-	commonv1 "github.com/liujitcn/kratos-admin/backend/core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 
 	"github.com/liujitcn/go-utils/mapper"
-	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 )
 
 var tree *commonv1.AppTreeOptionResponse
-var codeMap map[string]string
 var lock sync.RWMutex
 
 // BaseAreaCase 行政区域业务处理对象
@@ -56,35 +54,6 @@ func (c *BaseAreaCase) TreeBaseArea(ctx context.Context) (*commonv1.AppTreeOptio
 		}
 	}
 	return tree, nil
-}
-
-// GetAddressListByCode 将行政区划编码字符串转换为地址名称列表。
-func (c *BaseAreaCase) GetAddressListByCode(ctx context.Context, code string) []string {
-	lock.RLock()
-	defer lock.RUnlock()
-	res := make([]string, 0)
-	// 编码映射尚未初始化时，先懒加载全部区域编码。
-	if codeMap == nil {
-		// 懒加载编码映射，减少重复查询
-		list, err := c.List(ctx)
-		if err != nil {
-			return res
-		}
-		codeMap = make(map[string]string)
-		for _, item := range list {
-			codeMap[strconv.FormatInt(item.ID, 10)] = item.Name
-		}
-	}
-	codeList := _string.ConvertJsonStringToStringArray(code)
-	for _, item := range codeList {
-		// 命中编码映射时，返回对应的区域名称。
-		if v, ok := codeMap[item]; ok {
-			res = append(res, v)
-		} else {
-			res = append(res, item)
-		}
-	}
-	return res
 }
 
 // 递归构建行政区域树

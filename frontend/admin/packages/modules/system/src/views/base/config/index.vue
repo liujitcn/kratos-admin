@@ -145,7 +145,7 @@ const formData = reactive<BaseConfigFormState>({
   /** 配置value */
   value: "",
   /** 状态 */
-  status: Status.ENABLE,
+  status: Status.STATUS_ENABLE,
   /** 配置名称非主语言翻译。 */
   name_translations: [],
   /** 配置文本或富文本值的非主语言翻译。 */
@@ -253,8 +253,8 @@ const rules = computed(() => ({
 }));
 
 const statusOptions = computed<ProFormOption[]>(() => [
-  { label: t("common.status.enabled"), value: Status.ENABLE },
-  { label: t("common.status.disabled"), value: Status.DISABLE }
+  { label: t("common.status.enabled"), value: Status.STATUS_ENABLE },
+  { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }
 ]);
 
 /** 字典类系统配置与字典编码的映射关系。 */
@@ -391,8 +391,8 @@ const columns = computed<ColumnProps[]>(() => [
     search: { el: "select" },
     cellType: "status",
     statusProps: {
-      activeValue: Status.ENABLE,
-      inactiveValue: Status.DISABLE,
+      activeValue: Status.STATUS_ENABLE,
+      inactiveValue: Status.STATUS_DISABLE,
       activeText: t("common.status.enabled"),
       inactiveText: t("common.status.disabled"),
       disabled: () => !BUTTONS.value["base:config:status"],
@@ -575,7 +575,7 @@ function resetForm() {
   formData.value = "";
   formData.name_translations = [];
   formData.value_translations = [];
-  formData.status = Status.ENABLE;
+  formData.status = Status.STATUS_ENABLE;
 }
 
 /**
@@ -617,8 +617,8 @@ const handleRefreshCache = useDebounceFn(() => {
  * 在系统配置状态切换前先完成确认与接口调用，避免首屏渲染触发误操作。
  */
 async function handleBeforeSetStatus(row: BaseConfig) {
-  const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
-  const text = t(nextStatus === Status.ENABLE ? "common.status.enabled" : "common.status.disabled");
+  const nextStatus = row.status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE;
+  const text = t(nextStatus === Status.STATUS_ENABLE ? "common.status.enabled" : "common.status.disabled");
   const configName = row.name || row.key || `ID:${row.id}`;
   try {
     await ElMessageBox.confirm(

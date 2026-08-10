@@ -3,7 +3,7 @@ package ai
 import (
 	"context"
 
-	backendmodule "github.com/liujitcn/kratos-admin/backend/module"
+	coremodule "github.com/liujitcn/kratos-core/pkg/module"
 )
 
 const (
@@ -61,16 +61,16 @@ type Attachment struct {
 }
 
 // Response 是宿主 AI 契约的内部实现别名。
-type Response = backendmodule.AIResponse
+type Response = coremodule.AIResponse
 
 // TokenUsage 是宿主 AI 契约的内部实现别名。
-type TokenUsage = backendmodule.AITokenUsage
+type TokenUsage = coremodule.AITokenUsage
 
 // ToolUsage 是宿主 AI 契约的内部实现别名。
-type ToolUsage = backendmodule.AIToolUsage
+type ToolUsage = coremodule.AIToolUsage
 
 // ToolInvokeResult 是宿主 AI 契约的内部实现别名。
-type ToolInvokeResult = backendmodule.AIToolInvokeResult
+type ToolInvokeResult = coremodule.AIToolInvokeResult
 
 // ToolAccessChecker 判断 Agent 工具是否允许在当前终端暴露。
 type ToolAccessChecker interface {

@@ -6,6 +6,7 @@ TAG ?= latest
 DOCKERFILE ?= Dockerfile
 BINARY ?= bin/server
 PROJECT_DOCS_BIN ?= project-docs
+WIRE_DIR ?= .
 GO_BIN_DIR ?= $(or $(shell go env GOBIN),$(shell go env GOPATH)/bin)
 TS_PROTO_BIN ?= $(or \
 	$(shell command -v protoc-gen-ts_proto 2>/dev/null), \
@@ -112,10 +113,14 @@ gorm-gen:
 
 # 生成 wire 依赖注入代码
 wire: project-docs
-	@echo "==> 生成 wire 依赖注入代码"
-	@PATH="$(GO_BIN_DIR):$$PATH" wire .
-	@PATH="$(GO_BIN_DIR):$$PATH" goimports -w wire.go wire_gen.go
-	@echo "==> wire 依赖注入代码生成完成"
+	@if [ ! -f "$(WIRE_DIR)/wire.go" ]; then \
+		echo "==> 未找到 $(WIRE_DIR)/wire.go，跳过 wire 依赖注入代码生成"; \
+	else \
+		echo "==> 生成 wire 依赖注入代码"; \
+		cd "$(WIRE_DIR)" && PATH="$(GO_BIN_DIR):$$PATH" wire . && \
+		PATH="$(GO_BIN_DIR):$$PATH" goimports -w wire.go wire_gen.go && \
+		echo "==> wire 依赖注入代码生成完成"; \
+	fi
 
 # 生成 Backend protobuf Go 代码
 api:
