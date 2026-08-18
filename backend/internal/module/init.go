@@ -25,6 +25,7 @@ import (
 
 var ProviderSet = wire.NewSet(
 	NewModuleResources,
+	NewQueueConsumers,
 	ParseAIModel,
 	ParseAdminAgentTools,
 	ParseAppAgentTools,

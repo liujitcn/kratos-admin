@@ -1,6 +1,6 @@
 {
   "name": "@liujitcn/kratos-admin-cli",
-  "version": "0.0.26",
+  "version": "0.0.27",
   "type": "module",
   "description": "Create pnpm workspace projects for kratos-admin business modules",
   "license": "MIT",

@@ -25,7 +25,8 @@ GORM_GEN_BIN ?= $(or \
 )
 GORM_GEN_CONFIG ?= configs/data_local.yaml
 GORM_GEN_DATABASE ?=
-GORM_TABLE ?=
+# 仅生成本仓库使用的表；新增业务表时同步补充此列表。
+GORM_TABLE ?= ai_message,ai_session,base_api,base_api_i18n,base_area,base_config,base_dept,base_dict,base_dict_item,base_i18n,base_job,base_job_log,base_language,base_log,base_menu,base_migration,base_post,base_role,base_tenant,base_third_account,base_user,casbin_rule,code_gen_column,code_gen_proto,code_gen_table
 I18N_OFFLINE ?= 0
 I18N_MIGRATION_VERSION ?=
 I18N_LOCALE ?=
@@ -136,13 +137,14 @@ gorm-gen: fmt
 	@echo "==> 生成 GORM 代码"
 	@test -x "$(GORM_GEN_BIN)" || (echo "gorm-gen not found. Run make cli first." && exit 1)
 	$(GORM_GEN_BIN) -base_path=internal/data/gen -config='$(GORM_GEN_CONFIG)' $(if $(strip $(GORM_GEN_DATABASE)),-database='$(GORM_GEN_DATABASE)') $(if $(strip $(GORM_TABLE)),-table='$(GORM_TABLE)')
+	# gorm/gen 会将 i18n 转为 I18N，项目现有生成代码统一使用 I18n。
 	@for file in internal/data/gen/models/base_i18n.gen.go internal/data/gen/models/base_api_i18n.gen.go internal/data/gen/models/table_comment.gen.go internal/data/gen/query/base_i18n.gen.go internal/data/gen/query/base_api_i18n.gen.go internal/data/gen/query/gen.go internal/data/gen/data/base_i18n.go internal/data/gen/data/base_api_i18n.go internal/data/gen/data/data.go internal/data/gen/data/init.go; do \
 		perl -pi -e 's/BaseAPII18N/BaseAPII18n/g; s/baseAPII18N/baseAPII18n/g; s/BaseI18N/BaseI18n/g; s/baseI18N/baseI18n/g' "$$file"; \
 	done
 	@echo "==> GORM 代码生成完成"
 
 # 生成 wire 依赖注入代码
-wire: project-docs
+wire:
 	@if [ ! -f "$(WIRE_DIR)/wire.go" ]; then \
 		echo "==> 未找到 $(WIRE_DIR)/wire.go，跳过 wire 依赖注入代码生成"; \
 	else \

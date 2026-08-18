@@ -45,6 +45,11 @@ func (*BaseDict) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*BaseDictItem) TableComment() string {
+	return "字典属性信息"
+}
+
+// TableComment 返回表注释。
 func (*BaseI18n) TableComment() string {
 	return "国际化翻译信息"
 }

@@ -1,6 +1,7 @@
 package module
 
 import (
+	"io/fs"
 	"testing/fstest"
 
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
@@ -13,17 +14,66 @@ import (
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 )
 
+type resource struct {
+	projectKey  string
+	projectName string
+	models      module.Models
+	docs        fs.FS
+	i18n        fs.FS
+	openAPI     fs.FS
+	migrations  module.Migrations
+}
+
+// ProjectKey 返回 Admin 项目的稳定标识。
+func (r *resource) ProjectKey() string {
+	return r.projectKey
+}
+
+// ProjectName 返回 Admin 项目的展示名称。
+func (r *resource) ProjectName() string {
+	return r.projectName
+}
+
+// Models 返回 Admin 数据库自动迁移所需的模型。
+func (r *resource) Models() module.Models {
+	return r.models
+}
+
+// Docs 返回 Admin 项目文档文件系统。
+func (r *resource) Docs() fs.FS {
+	return r.docs
+}
+
+// I18n 返回 Admin 项目语言文件系统。
+func (r *resource) I18n() fs.FS {
+	return r.i18n
+}
+
+// OpenAPI 返回 Admin OpenAPI 文件系统。
+func (r *resource) OpenAPI() fs.FS {
+	return r.openAPI
+}
+
+// Migrations 返回 Admin 数据库迁移资源。
+func (r *resource) Migrations() module.Migrations {
+	return r.migrations
+}
+
+var _ module.Resource = (*resource)(nil)
+
 // NewModuleResources 创建 Admin 在业务对象构建前提供给 Core 的静态资源。
 func NewModuleResources() module.Resources {
 	return module.Resources{
-		ProjectKey:  _const.Project,
-		ProjectName: _const.Name,
-		Models:      map[string][]interface{}{databaseGorm.DefaultClientName: adminData.Models()},
-		OpenAPI:     openapi.Assets(),
-		Docs:        fstest.MapFS{"docs.json": &fstest.MapFile{Data: docs.DocsData}},
-		Migrations: []module.Migration{
-			{Name: migration.ModuleName, FS: migration.Assets(), Path: "."},
+		&resource{
+			projectKey:  _const.Project,
+			projectName: _const.Name,
+			models:      module.Models{databaseGorm.DefaultClientName: adminData.Models()},
+			openAPI:     openapi.Assets(),
+			docs:        fstest.MapFS{"docs.json": &fstest.MapFile{Data: docs.DocsData}},
+			migrations: module.Migrations{
+				{Name: migration.ModuleName, FS: migration.Assets(), Path: "."},
+			},
+			i18n: i18n.Assets(),
 		},
-		I18n: i18n.Assets(),
 	}
 }

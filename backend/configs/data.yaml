@@ -17,3 +17,8 @@ data:
       - 127.0.0.1:6379
     password: "112233"
     db: 1
+
+
+  queue:
+    memory:
+      pool_size: 1000

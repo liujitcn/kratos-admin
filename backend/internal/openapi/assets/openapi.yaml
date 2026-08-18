@@ -2201,9 +2201,9 @@ paths:
     /api/v1/admin/base/translation:
         put:
             tags:
-                - BaseI18nService
+                - BaseI18NService
             description: 修改国际化翻译信息
-            operationId: BaseI18nService_UpdateBaseTranslation
+            operationId: BaseI18NService_UpdateBaseTranslation
             requestBody:
                 content:
                     application/json:
@@ -2217,9 +2217,9 @@ paths:
     /api/v1/admin/base/translation/draft:
         post:
             tags:
-                - BaseI18nService
+                - BaseI18NService
             description: 翻译单个文本。
-            operationId: BaseI18nService_DraftBaseTranslation
+            operationId: BaseI18NService_DraftBaseTranslation
             requestBody:
                 content:
                     application/json:
@@ -7934,7 +7934,7 @@ tags:
       description: App字典服务
     - name: BaseDictService
       description: Admin字典服务
-    - name: BaseI18nService
+    - name: BaseI18NService
       description: 国际化翻译信息服务。
     - name: BaseJobService
       description: Admin定时任务服务

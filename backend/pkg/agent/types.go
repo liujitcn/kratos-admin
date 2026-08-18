@@ -12,7 +12,6 @@ const (
 
 	// KindText 表示普通文本消息类型。
 	KindText = "text"
-
 )
 
 // Message 表示写入 AI 助手上下文的历史消息。

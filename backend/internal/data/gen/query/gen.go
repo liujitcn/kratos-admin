@@ -47,7 +47,8 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 }
 
 type Query struct {
-	db               *gorm.DB
+	db *gorm.DB
+
 	AiMessage        aiMessage
 	AiSession        aiSession
 	BaseAPI          baseAPI
