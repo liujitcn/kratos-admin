@@ -11,6 +11,7 @@
   "common.language.en-US": "English",
   "common.language.zh-CN": "简体中文",
   "common.language.zh-TW": "Traditional Chinese",
+  "common.language.ja-JP": "Japanese",
   "common.message.loading": "Loading",
   "common.message.network_error": "Network error. Check your connection and try again.",
   "common.message.request_error": "Request failed",

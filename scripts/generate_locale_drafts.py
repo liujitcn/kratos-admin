@@ -19,7 +19,7 @@ from typing import Any, Callable
 ROOT = Path(__file__).resolve().parents[1]
 SQL_DIR = ROOT / "backend/migration/assets/v0.0.1/mysql"
 JSON_SOURCES = [
-    ROOT / "backend/internal/i18n/locales/zh-CN.json",
+    ROOT / "backend/internal/i18n/assets/zh-CN.json",
     ROOT / "frontend/admin/packages/core/src/locales/zh-CN.json",
     ROOT / "frontend/admin/packages/modules/system/src/locales/zh-CN.json",
     ROOT / "frontend/uni-app/packages/core/src/locales/zh-CN.json",
@@ -494,8 +494,10 @@ SQL_MENU_NOUNS = {
 
 def translate_sql_menu(text: str, target: str) -> str:
     """按中文菜单源文生成稳定的菜单译文。"""
-    categories = SQL_MENU_CATEGORIES[target]
-    nouns = SQL_MENU_NOUNS[target]
+    if target not in SQL_MENU_CATEGORIES:
+        return fallback_translate(text, target)
+    categories = SQL_MENU_CATEGORIES.get(target, {})
+    nouns = SQL_MENU_NOUNS.get(target, {})
     if text in categories:
         return categories[text]
     special = {
@@ -554,10 +556,10 @@ def translate_sql_menu(text: str, target: str) -> str:
 
 def fallback_sql_translate(text: str, target: str) -> str:
     """翻译 SQL 固定数据，优先完整短语，再处理菜单规则。"""
-    fixed = SQL_FIXED_TRANSLATIONS[target]
+    fixed = SQL_FIXED_TRANSLATIONS.get(target, {})
     if text in fixed:
         return fixed[text]
-    if text in SQL_MENU_CATEGORIES[target] or text in SQL_MENU_NOUNS[target]:
+    if text in SQL_MENU_CATEGORIES.get(target, {}) or text in SQL_MENU_NOUNS.get(target, {}):
         return translate_sql_menu(text, target)
     if text.startswith(("首页", "AI助手", "个人信息", "系统", "菜单", "字典", "新增", "删除", "编辑", "修改", "启动", "停止", "执行", "查询", "设置", "刷新", "重置", "维护", "预览", "还原", "分配")):
         translated = translate_sql_menu(text, target)
@@ -798,7 +800,7 @@ def translation_record(line: str) -> tuple[int, int, str, str] | None:
     """读取统一翻译表 INSERT，返回目标类型、资源编号、语言和文本。"""
     table_match = re.search(r"INSERT IGNORE INTO `([^`]+)`", line)
     values = parse_sql_values(line)
-    if not table_match or table_match.group(1) != "base_translation" or not values or len(values) < 4:
+    if not table_match or table_match.group(1) != "base_i18n" or not values or len(values) < 4:
         return None
     try:
         return int(values[0] or 0), int(values[1] or 0), str(values[2] or ""), str(values[3] or "")
@@ -850,7 +852,7 @@ def replace_translation(line: str, locale: str, translated: str) -> str:
     target_type, target_id, _, _ = record
     escaped = translated.replace("\\", "\\\\").replace("'", "\\'")
     return (
-        "INSERT IGNORE INTO `base_translation` (`target_type`, `target_id`, `locale`, `name`) "
+        "INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) "
         f"VALUES ({target_type}, {target_id}, '{locale}', '{escaped}');"
     )
 
@@ -893,16 +895,29 @@ def render_translation_description(locale: str) -> str:
     )
 
 
+def parse_locales(values: list[str] | None) -> tuple[str, ...]:
+    """解析逗号分隔的语言列表，并保留命令行传入顺序。"""
+    if not values:
+        return DEFAULT_TARGET_LOCALES
+    locales: list[str] = []
+    for value in values:
+        for locale in value.split(","):
+            locale = locale.strip()
+            if locale and locale not in locales:
+                locales.append(locale)
+    return tuple(locales)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--write", action="store_true", help="写入所有新增语言文件")
     parser.add_argument("--machine", action="store_true", help="使用 Google V1 生成指定语言草稿")
     parser.add_argument("--offline", action="store_true", help="使用内置术语表离线生成机器翻译草稿")
     parser.add_argument("--sql-only", action="store_true", help="只生成动态翻译迁移，不改写固定语言包")
-    parser.add_argument("--locale", dest="locales", action="append", help="只生成指定语言，可重复传入")
+    parser.add_argument("--locale", dest="locales", action="append", help="只生成指定语言，使用逗号分隔，可重复传入")
     parser.add_argument("--migration-version", help="将按语言拆分的翻译 SQL 写入指定版本目录，例如 vX.Y.Z")
     args = parser.parse_args()
-    locales = tuple(args.locales or DEFAULT_TARGET_LOCALES)
+    locales = parse_locales(args.locales)
     sql_directory = SQL_DIR
     if args.migration_version:
         if not MIGRATION_VERSION_PATTERN.fullmatch(args.migration_version):

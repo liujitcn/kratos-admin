@@ -354,11 +354,13 @@ func (x *ProjectDocumentDirectory) GetDirectories() []*ProjectDocumentDirectory 
 // 项目文档
 type ProjectDocument struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                                      // 项目文档ID
-	ProjectKey    string                 `protobuf:"bytes,2,opt,name=project_key,json=projectKey,proto3" json:"project_key,omitempty"`    // 与OpenAPI文档一致的项目标识
-	ProjectName   string                 `protobuf:"bytes,3,opt,name=project_name,json=projectName,proto3" json:"project_name,omitempty"` // 与OpenAPI文档一致的项目名称
-	Path          string                 `protobuf:"bytes,4,opt,name=path,proto3" json:"path,omitempty"`                                  // 项目内相对路径
-	Content       string                 `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"`                            // Markdown文档内容
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`                                                                                   // 项目文档ID
+	ProjectKey    string                 `protobuf:"bytes,2,opt,name=project_key,json=projectKey,proto3" json:"project_key,omitempty"`                                                 // 与OpenAPI文档一致的项目标识
+	ProjectName   string                 `protobuf:"bytes,3,opt,name=project_name,json=projectName,proto3" json:"project_name,omitempty"`                                              // 与OpenAPI文档一致的项目名称
+	Path          string                 `protobuf:"bytes,4,opt,name=path,proto3" json:"path,omitempty"`                                                                               // 项目内相对路径
+	Content       string                 `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"`                                                                         // Markdown文档内容
+	Locale        map[string]string      `protobuf:"bytes,6,rep,name=locale,proto3" json:"locale,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // 按语言标识索引的Markdown翻译内容
+	UpdatedAt     string                 `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                                    // Markdown文件更新时间，RFC3339格式
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -428,6 +430,20 @@ func (x *ProjectDocument) GetContent() string {
 	return ""
 }
 
+func (x *ProjectDocument) GetLocale() map[string]string {
+	if x != nil {
+		return x.Locale
+	}
+	return nil
+}
+
+func (x *ProjectDocument) GetUpdatedAt() string {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return ""
+}
+
 var File_system_admin_v1_project_document_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_project_document_proto_rawDesc = "" +
@@ -452,14 +468,20 @@ const file_system_admin_v1_project_document_proto_rawDesc = "" +
 	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f目录名称R\x04name\x125\n" +
 	"\x04path\x18\x02 \x01(\tB!\xbaG\x1e\x92\x02\x1b项目内相对目录路径R\x04path\x12f\n" +
 	"\tdocuments\x18\x03 \x03(\v2(.system.admin.v1.ProjectDocumentListItemB\x1e\xbaG\x1b\x92\x02\x18当前目录下的文档R\tdocuments\x12n\n" +
-	"\vdirectories\x18\x04 \x03(\v2).system.admin.v1.ProjectDocumentDirectoryB!\xbaG\x1e\x92\x02\x1b当前目录下的子目录R\vdirectories\"\xbc\x02\n" +
+	"\vdirectories\x18\x04 \x03(\v2).system.admin.v1.ProjectDocumentDirectoryB!\xbaG\x1e\x92\x02\x1b当前目录下的子目录R\vdirectories\"\xc2\x04\n" +
 	"\x0fProjectDocument\x12$\n" +
 	"\x02id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e项目文档IDR\x02id\x12L\n" +
 	"\vproject_key\x18\x02 \x01(\tB+\xbaG(\x92\x02%与OpenAPI文档一致的项目标识R\n" +
 	"projectKey\x12N\n" +
 	"\fproject_name\x18\x03 \x01(\tB+\xbaG(\x92\x02%与OpenAPI文档一致的项目名称R\vprojectName\x12/\n" +
 	"\x04path\x18\x04 \x01(\tB\x1b\xbaG\x18\x92\x02\x15项目内相对路径R\x04path\x124\n" +
-	"\acontent\x18\x05 \x01(\tB\x1a\xbaG\x17\x92\x02\x14Markdown文档内容R\acontent2\xca\x02\n" +
+	"\acontent\x18\x05 \x01(\tB\x1a\xbaG\x17\x92\x02\x14Markdown文档内容R\acontent\x12x\n" +
+	"\x06locale\x18\x06 \x03(\v2,.system.admin.v1.ProjectDocument.LocaleEntryB2\xbaG/\x92\x02,按语言标识索引的Markdown翻译内容R\x06locale\x12O\n" +
+	"\n" +
+	"updated_at\x18\a \x01(\tB0\xbaG-\x92\x02*Markdown文件更新时间，RFC3339格式R\tupdatedAt\x1a9\n" +
+	"\vLocaleEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x012\xca\x02\n" +
 	"\x16ProjectDocumentService\x12\x9d\x01\n" +
 	"\x13TreeProjectDocument\x12+.system.admin.v1.TreeProjectDocumentRequest\x1a,.system.admin.v1.TreeProjectDocumentResponse\"+\x82\xd3\xe4\x93\x02%\x12#/api/v1/admin/project-document/tree\x12\x8f\x01\n" +
 	"\x12GetProjectDocument\x12*.system.admin.v1.GetProjectDocumentRequest\x1a .system.admin.v1.ProjectDocument\"+\x82\xd3\xe4\x93\x02%\x12#/api/v1/admin/project-document/{id}B\xd6\x01\n" +
@@ -477,7 +499,7 @@ func file_system_admin_v1_project_document_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_project_document_proto_rawDescData
 }
 
-var file_system_admin_v1_project_document_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_system_admin_v1_project_document_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_system_admin_v1_project_document_proto_goTypes = []any{
 	(*TreeProjectDocumentRequest)(nil),  // 0: system.admin.v1.TreeProjectDocumentRequest
 	(*TreeProjectDocumentResponse)(nil), // 1: system.admin.v1.TreeProjectDocumentResponse
@@ -486,6 +508,7 @@ var file_system_admin_v1_project_document_proto_goTypes = []any{
 	(*ProjectDocumentProject)(nil),      // 4: system.admin.v1.ProjectDocumentProject
 	(*ProjectDocumentDirectory)(nil),    // 5: system.admin.v1.ProjectDocumentDirectory
 	(*ProjectDocument)(nil),             // 6: system.admin.v1.ProjectDocument
+	nil,                                 // 7: system.admin.v1.ProjectDocument.LocaleEntry
 }
 var file_system_admin_v1_project_document_proto_depIdxs = []int32{
 	4, // 0: system.admin.v1.TreeProjectDocumentResponse.projects:type_name -> system.admin.v1.ProjectDocumentProject
@@ -493,15 +516,16 @@ var file_system_admin_v1_project_document_proto_depIdxs = []int32{
 	5, // 2: system.admin.v1.ProjectDocumentProject.directories:type_name -> system.admin.v1.ProjectDocumentDirectory
 	3, // 3: system.admin.v1.ProjectDocumentDirectory.documents:type_name -> system.admin.v1.ProjectDocumentListItem
 	5, // 4: system.admin.v1.ProjectDocumentDirectory.directories:type_name -> system.admin.v1.ProjectDocumentDirectory
-	0, // 5: system.admin.v1.ProjectDocumentService.TreeProjectDocument:input_type -> system.admin.v1.TreeProjectDocumentRequest
-	2, // 6: system.admin.v1.ProjectDocumentService.GetProjectDocument:input_type -> system.admin.v1.GetProjectDocumentRequest
-	1, // 7: system.admin.v1.ProjectDocumentService.TreeProjectDocument:output_type -> system.admin.v1.TreeProjectDocumentResponse
-	6, // 8: system.admin.v1.ProjectDocumentService.GetProjectDocument:output_type -> system.admin.v1.ProjectDocument
-	7, // [7:9] is the sub-list for method output_type
-	5, // [5:7] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	7, // 5: system.admin.v1.ProjectDocument.locale:type_name -> system.admin.v1.ProjectDocument.LocaleEntry
+	0, // 6: system.admin.v1.ProjectDocumentService.TreeProjectDocument:input_type -> system.admin.v1.TreeProjectDocumentRequest
+	2, // 7: system.admin.v1.ProjectDocumentService.GetProjectDocument:input_type -> system.admin.v1.GetProjectDocumentRequest
+	1, // 8: system.admin.v1.ProjectDocumentService.TreeProjectDocument:output_type -> system.admin.v1.TreeProjectDocumentResponse
+	6, // 9: system.admin.v1.ProjectDocumentService.GetProjectDocument:output_type -> system.admin.v1.ProjectDocument
+	8, // [8:10] is the sub-list for method output_type
+	6, // [6:8] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_project_document_proto_init() }
@@ -515,7 +539,7 @@ func file_system_admin_v1_project_document_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_project_document_proto_rawDesc), len(file_system_admin_v1_project_document_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

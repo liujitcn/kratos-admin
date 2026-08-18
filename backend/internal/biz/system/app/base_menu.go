@@ -9,9 +9,8 @@ import (
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	"github.com/liujitcn/kratos-core/pkg/biz"
-	coreconst "github.com/liujitcn/kratos-core/pkg/const"
-	coreLocale "github.com/liujitcn/kratos-core/pkg/locale"
+	"github.com/liujitcn/kratos-core/biz"
+	coreconst "github.com/liujitcn/kratos-core/const"
 
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repository"
@@ -49,7 +48,7 @@ func (c *BaseMenuCase) ListBaseMenu(ctx context.Context) ([]*systemappv1.BaseMen
 		opts := make([]repository.QueryOption, 0, 4)
 		opts = append(opts, repository.Where(query.ParentID.In(parentIDs...)))
 		opts = append(opts, repository.Where(query.Type.Eq(_const.BASE_MENU_TYPE_MENU)))
-		opts = append(opts, repository.Where(query.Status.Eq(coreconst.Status_STATUS_ENABLE)))
+		opts = append(opts, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
 		opts = append(opts, repository.Order(query.Sort.Asc(), query.ID.Asc()))
 		var children []*models.BaseMenu
 		children, err = c.List(ctx, opts...)
@@ -69,7 +68,7 @@ func (c *BaseMenuCase) ListBaseMenu(ctx context.Context) ([]*systemappv1.BaseMen
 		}
 	}
 	var titles map[int64]string
-	titles, err = c.translationCase.GetBaseTranslationNameMapByLocale(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, coreLocale.FromContext(ctx), menuIDs)
+	titles, err = c.translationCase.GetBaseTranslationNameMapByLocale(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, biz.LocaleFromContext(ctx), menuIDs)
 	if err != nil {
 		return nil, err
 	}

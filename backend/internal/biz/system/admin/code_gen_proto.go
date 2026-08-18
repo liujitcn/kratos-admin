@@ -9,11 +9,13 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/go-utils/stringcase"
 	"github.com/liujitcn/gorm-kit/repository"
+	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 const (
@@ -38,6 +40,7 @@ type codeGenProtoConfigField struct {
 
 // CodeGenProtoCase 管理代码生成 Proto 接口配置。
 type CodeGenProtoCase struct {
+	*biz.BaseCase
 	*data.CodeGenProtoRepository
 	tx                data.Transaction
 	baseAPIRepo       *data.BaseAPIRepository
@@ -49,6 +52,7 @@ type CodeGenProtoCase struct {
 
 // NewCodeGenProtoCase 创建代码生成 Proto 接口业务实例。
 func NewCodeGenProtoCase(
+	baseCase *biz.BaseCase,
 	codeGenProtoRepo *data.CodeGenProtoRepository,
 	tx data.Transaction,
 	baseAPIRepo *data.BaseAPIRepository,
@@ -74,6 +78,7 @@ func NewCodeGenProtoCase(
 	tableMapper := mapper.NewCopierMapper[systemadminv1.CodeGenTableForm, models.CodeGenTable]()
 	tableMapper.AppendConverters(mapper.NewJSONTypeConverter[*systemadminv1.CodeGenLeftTreeConfig]().NewConverterPair())
 	return &CodeGenProtoCase{
+		BaseCase:               baseCase,
 		CodeGenProtoRepository: codeGenProtoRepo,
 		tx:                     tx,
 		baseAPIRepo:            baseAPIRepo,
@@ -368,7 +373,8 @@ func (c *CodeGenProtoCase) codeGenProtoBusinessNames(ctx context.Context, table 
 		tableNameList = append(tableNameList, tableName)
 	}
 	if len(tableNames) > 0 {
-		err = c.codeGenColumnCase.dbClient.DB.WithContext(ctx).
+		database := c.GormClients[databaseGorm.DefaultClientName]
+		err = database.DB.WithContext(ctx).
 			Table("information_schema.tables").
 			Select("table_name, table_comment").
 			Where("table_schema = DATABASE()").

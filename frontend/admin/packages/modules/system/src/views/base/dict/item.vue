@@ -69,7 +69,7 @@ import type {
   PageBaseDictItemRequest
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dict";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
-import { TranslationTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
+import { TranslationTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
 import DynamicTranslationEditor from "@liujitcn/kratos-admin-system/components/DynamicTranslationEditor.vue";

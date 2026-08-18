@@ -1,12 +1,9 @@
 package admin
 
 import (
-	"context"
-
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	einoTool "github.com/liujitcn/kratos-admin/backend/internal/biz/agent/tool"
 	systemadmin "github.com/liujitcn/kratos-admin/backend/internal/service/system/admin/v1"
-	coreDocs "github.com/liujitcn/kratos-core/pkg/docs"
-	coreModule "github.com/liujitcn/kratos-core/pkg/module"
 
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
 	mcpserver "github.com/liujitcn/kratos-kit/transport/mcp"
@@ -30,7 +27,7 @@ type Services struct {
 	BaseRole         *systemadmin.BaseRoleService
 	BaseTenant       *systemadmin.BaseTenantService
 	BaseThirdAccount *systemadmin.BaseThirdAccountService
-	BaseTranslation  *systemadmin.BaseTranslationService
+	BaseI18n         *systemadmin.BaseI18nService
 	BaseUser         *systemadmin.BaseUserService
 	CodeGen          *systemadmin.CodeGenService
 	CodeGenColumn    *systemadmin.CodeGenColumnService
@@ -40,8 +37,6 @@ type Services struct {
 	OpsMonitoring    *systemadmin.OpsMonitoringService
 	ProjectDocument  *systemadmin.ProjectDocumentService
 }
-
-var _ coreModule.ProjectDocumentRegistryAware = Services{}
 
 // RegisterGRPC 注册 system.admin.v1 的 gRPC 服务。
 func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
@@ -60,7 +55,7 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	systemadminv1.RegisterBaseRoleServiceServer(srv, s.BaseRole)
 	systemadminv1.RegisterBaseTenantServiceServer(srv, s.BaseTenant)
 	systemadminv1.RegisterBaseThirdAccountServiceServer(srv, s.BaseThirdAccount)
-	systemadminv1.RegisterBaseTranslationServiceServer(srv, s.BaseTranslation)
+	systemadminv1.RegisterBaseI18nServiceServer(srv, s.BaseI18n)
 	systemadminv1.RegisterBaseUserServiceServer(srv, s.BaseUser)
 	systemadminv1.RegisterCodeGenServiceServer(srv, s.CodeGen)
 	systemadminv1.RegisterCodeGenColumnServiceServer(srv, s.CodeGenColumn)
@@ -87,7 +82,7 @@ func (s Services) RegisterHTTP(srv *kratosHTTP.Server) {
 	systemadminv1.RegisterBasePostServiceHTTPServer(srv, s.BasePost)
 	systemadminv1.RegisterBaseRoleServiceHTTPServer(srv, s.BaseRole)
 	systemadminv1.RegisterBaseTenantServiceHTTPServer(srv, s.BaseTenant)
-	systemadminv1.RegisterBaseTranslationServiceHTTPServer(srv, s.BaseTranslation)
+	systemadminv1.RegisterBaseI18nServiceHTTPServer(srv, s.BaseI18n)
 	systemadminv1.RegisterBaseUserServiceHTTPServer(srv, s.BaseUser)
 	systemadminv1.RegisterCodeGenServiceHTTPServer(srv, s.CodeGen)
 	systemadminv1.RegisterCodeGenColumnServiceHTTPServer(srv, s.CodeGenColumn)
@@ -114,7 +109,7 @@ func (s Services) RegisterMCP(server *mcpserver.Server) {
 	systemadminv1.RegisterBaseMenuServiceMCPTools(mcpSrv, s.BaseMenu)
 	systemadminv1.RegisterBasePostServiceMCPTools(mcpSrv, s.BasePost)
 	systemadminv1.RegisterBaseRoleServiceMCPTools(mcpSrv, s.BaseRole)
-	systemadminv1.RegisterBaseTranslationServiceMCPTools(mcpSrv, s.BaseTranslation)
+	systemadminv1.RegisterBaseI18nServiceMCPTools(mcpSrv, s.BaseI18n)
 	// 角色切换仅开放 gRPC，MCP 显式注册其余用户管理方法。
 	systemadminv1.RegisterBaseUserServiceOptionBaseUserMCPTool(mcpSrv, s.BaseUser)
 	systemadminv1.RegisterBaseUserServiceListBaseUserMCPTool(mcpSrv, s.BaseUser)
@@ -134,32 +129,78 @@ func (s Services) RegisterMCP(server *mcpserver.Server) {
 	systemadminv1.RegisterProjectDocumentServiceMCPTools(mcpSrv, s.ProjectDocument)
 }
 
-// SSEStreams 返回 system.admin 提供的 SSE 流定义。
-func (s Services) SSEStreams() []coreModule.SSEStream {
-	if s.OpsMonitoring == nil {
-		return nil
-	}
-	return []coreModule.SSEStream{systemadmin.NewOpsMonitoringSSEStream()}
-}
-
-// StartupHooks 返回 system.admin 的启动与清理钩子。
-func (s Services) StartupHooks() []coreModule.StartupHook {
-	if s.OpsMonitoring == nil {
-		return nil
-	}
-	return []coreModule.StartupHook{{
-		Name: "system.admin.ops-monitoring-sse",
-		Start: func(ctx context.Context) error {
-			return s.OpsMonitoring.StartOpsMonitoringStream(ctx)
+// AgentTools 创建 system.admin.v1 的管理端 AI 助手工具。
+func (s Services) AgentTools() ([]einoTool.Invokable, error) {
+	builders := []func() ([]einoTool.Invokable, error){
+		func() ([]einoTool.Invokable, error) { return systemadminv1.NewAuthServiceAgentTools(s.Auth) },
+		func() ([]einoTool.Invokable, error) { return systemadminv1.NewBaseApiServiceAgentTools(s.BaseAPI) },
+		func() ([]einoTool.Invokable, error) {
+			return systemadminv1.NewBaseAreaServiceAgentTools(s.BaseArea)
 		},
-		Stop: s.OpsMonitoring.StopOpsMonitoringStream,
-	}}
-}
-
-// SetProjectDocumentRegistry 接收 Core 项目文档注册表并转交文档查询业务。
-func (s Services) SetProjectDocumentRegistry(registry *coreDocs.Registry) {
-	if s.ProjectDocument == nil {
-		return
+		func() ([]einoTool.Invokable, error) {
+			return systemadminv1.NewBaseConfigServiceAgentTools(s.BaseConfig)
+		},
+		func() ([]einoTool.Invokable, error) {
+			return systemadminv1.NewBaseDeptServiceAgentTools(s.BaseDept)
+		},
+		func() ([]einoTool.Invokable, error) {
+			return systemadminv1.NewBaseDictServiceAgentTools(s.BaseDict)
+		},
+		func() ([]einoTool.Invokable, error) { return systemadminv1.NewBaseJobServiceAgentTools(s.BaseJob) },
+		func() ([]einoTool.Invokable, error) {
+			return systemadminv1.NewBaseLanguageServiceAgentTools(s.BaseLanguage)
+		},
+		func() ([]einoTool.Invokable, error) { return systemadminv1.NewBaseLogServiceAgentTools(s.BaseLog) },
+		func() ([]einoTool.Invokable, error) {
+			return systemadminv1.NewBaseMenuServiceAgentTools(s.BaseMenu)
+		},
+		func() ([]einoTool.Invokable, error) {
+			return systemadminv1.NewBasePostServiceAgentTools(s.BasePost)
+		},
+		func() ([]einoTool.Invokable, error) {
+			return systemadminv1.NewBaseRoleServiceAgentTools(s.BaseRole)
+		},
+		func() ([]einoTool.Invokable, error) {
+			return systemadminv1.NewBaseTenantServiceAgentTools(s.BaseTenant)
+		},
+		func() ([]einoTool.Invokable, error) {
+			return systemadminv1.NewBaseThirdAccountServiceAgentTools(s.BaseThirdAccount)
+		},
+		func() ([]einoTool.Invokable, error) {
+			return systemadminv1.NewBaseI18nServiceAgentTools(s.BaseI18n)
+		},
+		func() ([]einoTool.Invokable, error) {
+			return systemadminv1.NewBaseUserServiceAgentTools(s.BaseUser)
+		},
+		func() ([]einoTool.Invokable, error) { return systemadminv1.NewCodeGenServiceAgentTools(s.CodeGen) },
+		func() ([]einoTool.Invokable, error) {
+			return systemadminv1.NewCodeGenColumnServiceAgentTools(s.CodeGenColumn)
+		},
+		func() ([]einoTool.Invokable, error) {
+			return systemadminv1.NewCodeGenProtoServiceAgentTools(s.CodeGenProto)
+		},
+		func() ([]einoTool.Invokable, error) {
+			return systemadminv1.NewCodeGenTableServiceAgentTools(s.CodeGenTable)
+		},
+		func() ([]einoTool.Invokable, error) {
+			return systemadminv1.NewBaseMigrationServiceAgentTools(s.BaseMigration)
+		},
+		func() ([]einoTool.Invokable, error) {
+			return systemadminv1.NewOpsMonitoringServiceAgentTools(s.OpsMonitoring)
+		},
+		func() ([]einoTool.Invokable, error) {
+			return systemadminv1.NewProjectDocumentServiceAgentTools(s.ProjectDocument)
+		},
 	}
-	s.ProjectDocument.SetProjectDocumentRegistry(registry)
+	tools := make([]einoTool.Invokable, 0)
+	var err error
+	for _, build := range builders {
+		var values []einoTool.Invokable
+		values, err = build()
+		if err != nil {
+			return nil, err
+		}
+		tools = append(tools, values...)
+	}
+	return tools, nil
 }

@@ -243,7 +243,7 @@ type BaseMenuForm struct {
 	Redirect      string                 `protobuf:"bytes,7,opt,name=redirect,proto3" json:"redirect,omitempty"`                            // 目录跳转路由或外链地址
 	Meta          *BaseMenuMeta          `protobuf:"bytes,8,opt,name=meta,proto3" json:"meta,omitempty"`                                    // 路由元信息
 	Api           []string               `protobuf:"bytes,9,rep,name=api,proto3" json:"api,omitempty"`                                      // 分配的API列表
-	Translations  []*BaseTranslation     `protobuf:"bytes,10,rep,name=translations,proto3" json:"translations,omitempty"`                   // 非主语言翻译
+	Translations  []*BaseI18n            `protobuf:"bytes,10,rep,name=translations,proto3" json:"translations,omitempty"`                   // 非主语言翻译
 	Sort          int32                  `protobuf:"varint,50,opt,name=sort,proto3" json:"sort,omitempty"`                                  // 排序
 	Status        v1.Status              `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`       // 状态
 	unknownFields protoimpl.UnknownFields
@@ -343,7 +343,7 @@ func (x *BaseMenuForm) GetApi() []string {
 	return nil
 }
 
-func (x *BaseMenuForm) GetTranslations() []*BaseTranslation {
+func (x *BaseMenuForm) GetTranslations() []*BaseI18n {
 	if x != nil {
 		return x.Translations
 	}
@@ -569,7 +569,7 @@ type BaseMenu struct {
 	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`        // 更新时间
 	Children      []*BaseMenu            `protobuf:"bytes,300,rep,name=children,proto3" json:"children,omitempty"`                           // 子菜单
 	HasChildren   bool                   `protobuf:"varint,301,opt,name=has_children,json=hasChildren,proto3" json:"has_children,omitempty"` // 是否存在子节点
-	Translations  []*BaseTranslation     `protobuf:"bytes,302,rep,name=translations,proto3" json:"translations,omitempty"`                   // 非主语言翻译
+	Translations  []*BaseI18n            `protobuf:"bytes,302,rep,name=translations,proto3" json:"translations,omitempty"`                   // 非主语言翻译
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -702,7 +702,7 @@ func (x *BaseMenu) GetHasChildren() bool {
 	return false
 }
 
-func (x *BaseMenu) GetTranslations() []*BaseTranslation {
+func (x *BaseMenu) GetTranslations() []*BaseI18n {
 	if x != nil {
 		return x.Translations
 	}
@@ -944,7 +944,7 @@ var File_system_admin_v1_base_menu_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\n" +
-	"\x1fsystem/admin/v1/base_menu.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1bbuf/validate/validate.proto\x1a&system/admin/v1/base_translation.proto\x1a\x1csystem/admin/v1/common.proto\"\xd6\x01\n" +
+	"\x1fsystem/admin/v1/base_menu.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1fsystem/admin/v1/base_i18n.proto\x1a\x1csystem/admin/v1/common.proto\"\xd6\x01\n" +
 	"\x15OptionBaseMenuRequest\x126\n" +
 	"\tparent_id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDH\x00R\bparentId\x88\x01\x01\x122\n" +
 	"\arole_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e目标角色IDH\x01R\x06roleId\x88\x01\x01\x12.\n" +
@@ -964,7 +964,7 @@ const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\n" +
 	"base_menus\x18\x01 \x03(\v2\x19.system.admin.v1.BaseMenuB\x0f\xbaG\f\x92\x02\t菜单树R\tbaseMenus\"4\n" +
 	"\x12GetBaseMenuRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\"\xad\x12\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\"\xa6\x12\n" +
 	"\fBaseMenuForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\x126\n" +
 	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDH\x00R\bparentId\x88\x01\x01\x12\xa2\x01\n" +
@@ -979,9 +979,9 @@ const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\bredirect\x18\a \x01(\tB\xa1\x01\xbaG$\x92\x02!目录跳转路由或外链地址\xbaHw\xba\x01t\n" +
 	"1system.admin.base.menu.entity.redirect.max_length\x12*重定向地址不能超过 1024 个字符\x1a\x13this.size() <= 1024R\bredirect\x12H\n" +
 	"\x04meta\x18\b \x01(\v2\x1d.system.admin.v1.BaseMenuMetaB\x15\xbaG\x12\x92\x02\x0f路由元信息R\x04meta\x12*\n" +
-	"\x03api\x18\t \x03(\tB\x18\xbaG\x15\x92\x02\x12分配的API列表R\x03api\x12^\n" +
+	"\x03api\x18\t \x03(\tB\x18\xbaG\x15\x92\x02\x12分配的API列表R\x03api\x12W\n" +
 	"\ftranslations\x18\n" +
-	" \x03(\v2 .system.admin.v1.BaseTranslationB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\ftranslations\x12s\n" +
+	" \x03(\v2\x19.system.admin.v1.BaseI18nB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\ftranslations\x12s\n" +
 	"\x04sort\x182 \x01(\x05B_\xbaG\t\x92\x02\x06排序\xbaHP\xba\x01M\n" +
 	"+system.admin.base.menu.entity.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x12?\n" +
 	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status:\xd9\x06\xbaH\xd5\x06\x1ax\n" +
@@ -1005,7 +1005,7 @@ const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x03Bc\xbaG\v\x92\x02\b菜单ID\xbaHR\xba\x01O\n" +
 	"-system.admin.base.menu.set_status.id.required\x12\x14菜单ID不能为空\x1a\bthis > 0R\x02id\x12|\n" +
 	"\x06status\x18\x02 \x01(\x05Bd\xbaG\t\x92\x02\x06状态\xbaHU\xba\x01R\n" +
-	"1system.admin.base.menu.set_status.status.required\x12\x12状态不能为空\x1a\tthis != 0R\x06status\"\xa8\a\n" +
+	"1system.admin.base.menu.set_status.status.required\x12\x12状态不能为空\x1a\tthis != 0R\x06status\"\xa1\a\n" +
 	"\bBaseMenu\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\x121\n" +
 	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDR\bparentId\x12E\n" +
@@ -1022,8 +1022,8 @@ const file_system_admin_v1_base_menu_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12G\n" +
 	"\bchildren\x18\xac\x02 \x03(\v2\x19.system.admin.v1.BaseMenuB\x0f\xbaG\f\x92\x02\t子菜单R\bchildren\x12?\n" +
-	"\fhas_children\x18\xad\x02 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否存在子节点R\vhasChildren\x12_\n" +
-	"\ftranslations\x18\xae\x02 \x03(\v2 .system.admin.v1.BaseTranslationB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\ftranslations\"\xf3\x05\n" +
+	"\fhas_children\x18\xad\x02 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否存在子节点R\vhasChildren\x12X\n" +
+	"\ftranslations\x18\xae\x02 \x03(\v2\x19.system.admin.v1.BaseI18nB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\ftranslations\"\xf3\x05\n" +
 	"\fBaseMenuMeta\x12(\n" +
 	"\x05title\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f菜单标题R\x05title\x12+\n" +
 	"\x04icon\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f菜单图标H\x00R\x04icon\x88\x01\x01\x12_\n" +
@@ -1091,7 +1091,7 @@ var file_system_admin_v1_base_menu_proto_goTypes = []any{
 	(*BaseMenuAppMeta)(nil),          // 11: system.admin.v1.BaseMenuAppMeta
 	(*BaseMenuParams)(nil),           // 12: system.admin.v1.BaseMenuParams
 	(BaseMenuType)(0),                // 13: system.admin.v1.BaseMenuType
-	(*BaseTranslation)(nil),          // 14: system.admin.v1.BaseTranslation
+	(*BaseI18n)(nil),                 // 14: system.admin.v1.BaseI18n
 	(v1.Status)(0),                   // 15: common.v1.Status
 	(*v1.TreeOptionResponse)(nil),    // 16: common.v1.TreeOptionResponse
 	(*emptypb.Empty)(nil),            // 17: google.protobuf.Empty
@@ -1100,7 +1100,7 @@ var file_system_admin_v1_base_menu_proto_depIdxs = []int32{
 	9,  // 0: system.admin.v1.TreeBaseMenuResponse.base_menus:type_name -> system.admin.v1.BaseMenu
 	13, // 1: system.admin.v1.BaseMenuForm.type:type_name -> system.admin.v1.BaseMenuType
 	10, // 2: system.admin.v1.BaseMenuForm.meta:type_name -> system.admin.v1.BaseMenuMeta
-	14, // 3: system.admin.v1.BaseMenuForm.translations:type_name -> system.admin.v1.BaseTranslation
+	14, // 3: system.admin.v1.BaseMenuForm.translations:type_name -> system.admin.v1.BaseI18n
 	15, // 4: system.admin.v1.BaseMenuForm.status:type_name -> common.v1.Status
 	4,  // 5: system.admin.v1.CreateBaseMenuRequest.base_menu:type_name -> system.admin.v1.BaseMenuForm
 	4,  // 6: system.admin.v1.UpdateBaseMenuRequest.base_menu:type_name -> system.admin.v1.BaseMenuForm
@@ -1108,7 +1108,7 @@ var file_system_admin_v1_base_menu_proto_depIdxs = []int32{
 	10, // 8: system.admin.v1.BaseMenu.meta:type_name -> system.admin.v1.BaseMenuMeta
 	15, // 9: system.admin.v1.BaseMenu.status:type_name -> common.v1.Status
 	9,  // 10: system.admin.v1.BaseMenu.children:type_name -> system.admin.v1.BaseMenu
-	14, // 11: system.admin.v1.BaseMenu.translations:type_name -> system.admin.v1.BaseTranslation
+	14, // 11: system.admin.v1.BaseMenu.translations:type_name -> system.admin.v1.BaseI18n
 	12, // 12: system.admin.v1.BaseMenuMeta.params:type_name -> system.admin.v1.BaseMenuParams
 	11, // 13: system.admin.v1.BaseMenuMeta.app:type_name -> system.admin.v1.BaseMenuAppMeta
 	0,  // 14: system.admin.v1.BaseMenuService.OptionBaseMenu:input_type -> system.admin.v1.OptionBaseMenuRequest
@@ -1137,7 +1137,7 @@ func file_system_admin_v1_base_menu_proto_init() {
 	if File_system_admin_v1_base_menu_proto != nil {
 		return
 	}
-	file_system_admin_v1_base_translation_proto_init()
+	file_system_admin_v1_base_i18n_proto_init()
 	file_system_admin_v1_common_proto_init()
 	file_system_admin_v1_base_menu_proto_msgTypes[0].OneofWrappers = []any{}
 	file_system_admin_v1_base_menu_proto_msgTypes[1].OneofWrappers = []any{}

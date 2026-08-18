@@ -9,29 +9,42 @@ import (
 	"strings"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	coreLocale "github.com/liujitcn/kratos-core/pkg/locale"
 
 	"github.com/liujitcn/go-utils/stringcase"
 )
 
+// LocaleState 描述代码生成使用的数据库语言状态。
+type LocaleState struct {
+	// Enabled 是数据库中启用的语言。
+	Enabled []string
+	// Primary 是数据库中的主语言。
+	Primary string
+}
+
 // RequiredTranslationLocales 返回代码生成正式写入所需的非主语言。
-func RequiredTranslationLocales() []string {
-	return coreLocale.NonDefault()
+func RequiredTranslationLocales(state LocaleState) []string {
+	result := make([]string, 0, len(state.Enabled))
+	for _, localeValue := range state.Enabled {
+		if localeValue != state.Primary {
+			result = append(result, localeValue)
+		}
+	}
+	return result
 }
 
 // GeneratedFrontendLocales 返回生成页面需要同步的全部语言区域。
-func GeneratedFrontendLocales() []string {
-	return coreLocale.Supported()
+func GeneratedFrontendLocales(state LocaleState) []string {
+	return append([]string(nil), state.Enabled...)
 }
 
 // MissingTranslationFields 返回正式生成前尚未填写的表级和字段级翻译。
-func MissingTranslationFields(table *Table, columns []*CodeGenColumn) []string {
+func MissingTranslationFields(table *Table, columns []*CodeGenColumn, state LocaleState) []string {
 	if table == nil {
 		return []string{"表配置"}
 	}
 	missing := make([]string, 0)
 	leftTreeEnabled := LeftTreeConfigFromTable(table).Enabled
-	for _, localeValue := range RequiredTranslationLocales() {
+	for _, localeValue := range RequiredTranslationLocales(state) {
 		config := table.I18NConfig[localeValue]
 		if config.Comment == "" {
 			missing = append(missing, fmt.Sprintf("表描述（%s）", localeValue))
@@ -66,40 +79,40 @@ func FrontendLocaleKeyPrefix(table *Table) string {
 }
 
 // FrontendLocaleMessages 构建单个生成页面在指定语言下拥有的全部固定文案。
-func FrontendLocaleMessages(table *Table, columns []*CodeGenColumn, localeValue string) map[string]string {
+func FrontendLocaleMessages(table *Table, columns []*CodeGenColumn, localeValue string, primaryLocale string) map[string]string {
 	prefix := FrontendLocaleKeyPrefix(table)
-	resource := localizedTableComment(table, localeValue)
-	messages := localizedResourceMessages(prefix, resource, localeValue)
+	resource := localizedTableComment(table, localeValue, primaryLocale)
+	messages := localizedResourceMessages(prefix, resource, localeValue, primaryLocale)
 	for _, column := range columns {
 		if column == nil {
 			continue
 		}
-		messages[prefix+".field."+stringcase.ToSnakeCase(column.Name)] = localizedColumnComment(column, localeValue)
+		messages[prefix+".field."+stringcase.ToSnakeCase(column.Name)] = localizedColumnComment(column, localeValue, primaryLocale)
 		if column.FormComponent == "password" {
-			messages[prefix+".field.password_strength"] = localizedPasswordStrength(localeValue)
+			messages[prefix+".field.password_strength"] = localizedPasswordStrength(localeValue, primaryLocale)
 		}
 		for _, option := range enabledCodeGenColumnOptions(column) {
 			if option.SourceType != OptionSourceStatic {
 				continue
 			}
 			for _, item := range parseCodeGenStaticOptions(option) {
-				messages[frontendStaticOptionLocaleKey(table, column, item.Value)] = localizedGeneratedStaticLabel(item.Label, localeValue)
+				messages[frontendStaticOptionLocaleKey(table, column, item.Value)] = localizedGeneratedStaticLabel(item.Label, localeValue, primaryLocale)
 			}
 		}
 	}
 	if LeftTreeConfigFromTable(table).Enabled {
-		messages[prefix+".title.left_tree"] = localizedLeftTreeComment(table, localeValue)
+		messages[prefix+".title.left_tree"] = localizedLeftTreeComment(table, localeValue, primaryLocale)
 	}
 	return messages
 }
 
 // newFrontendLocalePreviewFiles 创建语言包的结构化合并预览。
-func (c *renderer) newFrontendLocalePreviewFiles(table *Table, columns []*CodeGenColumn) []*systemadminv1.CodeGenPreviewFile {
+func (c *renderer) newFrontendLocalePreviewFiles(table *Table, columns []*CodeGenColumn, state LocaleState) []*systemadminv1.CodeGenPreviewFile {
 	target := ProtoTargetForTable(table)
-	files := make([]*systemadminv1.CodeGenPreviewFile, 0, len(GeneratedFrontendLocales()))
-	for _, localeValue := range GeneratedFrontendLocales() {
+	files := make([]*systemadminv1.CodeGenPreviewFile, 0, len(GeneratedFrontendLocales(state)))
+	for _, localeValue := range GeneratedFrontendLocales(state) {
 		path := target.FrontendLocaleFilePath(localeValue)
-		messages := FrontendLocaleMessages(table, columns, localeValue)
+		messages := FrontendLocaleMessages(table, columns, localeValue, state.Primary)
 		files = append(files, c.newMergedFrontendLocalePreviewFile(path, FrontendLocaleKeyPrefix(table), messages))
 	}
 	return files
@@ -134,14 +147,14 @@ func mergeFrontendLocaleMessages(content string, prefix string, owned map[string
 }
 
 // GeneratedMenuTranslations 返回页面或按钮菜单的非主语言标题。
-func GeneratedMenuTranslations(table *Table, column *CodeGenColumn, action string) map[string]string {
-	translations := make(map[string]string, len(RequiredTranslationLocales()))
-	for _, localeValue := range RequiredTranslationLocales() {
-		catalog := codegenCatalog(localeValue)
-		resource := localizedTableComment(table, localeValue)
+func GeneratedMenuTranslations(table *Table, column *CodeGenColumn, action string, state LocaleState) map[string]string {
+	translations := make(map[string]string, len(RequiredTranslationLocales(state)))
+	for _, localeValue := range RequiredTranslationLocales(state) {
+		catalog := codegenCatalog(localeValue, state.Primary)
+		resource := localizedTableComment(table, localeValue, state.Primary)
 		values := map[string]string{"resource": resource}
 		if action == "status" {
-			values["field"] = localizedColumnComment(column, localeValue)
+			values["field"] = localizedColumnComment(column, localeValue, state.Primary)
 		}
 		template := catalog.Menu[action]
 		if template == "" {
@@ -152,8 +165,8 @@ func GeneratedMenuTranslations(table *Table, column *CodeGenColumn, action strin
 	return translations
 }
 
-func localizedResourceMessages(prefix string, resource string, localeValue string) map[string]string {
-	catalog := codegenCatalog(localeValue)
+func localizedResourceMessages(prefix string, resource string, localeValue string, primaryLocale string) map[string]string {
+	catalog := codegenCatalog(localeValue, primaryLocale)
 	messages := make(map[string]string, len(catalog.Resource))
 	for key, template := range catalog.Resource {
 		messages[prefix+"."+key] = renderCodegenTemplate(template, map[string]string{"resource": resource})
@@ -161,40 +174,40 @@ func localizedResourceMessages(prefix string, resource string, localeValue strin
 	return messages
 }
 
-func localizedTableComment(table *Table, localeValue string) string {
+func localizedTableComment(table *Table, localeValue string, primaryLocale string) string {
 	if table == nil {
 		return ""
 	}
-	if localeValue == coreLocale.Default {
+	if localeValue == primaryLocale {
 		return DefaultString(table.TableComment, table.BusinessName)
 	}
 	return DefaultString(table.I18NConfig[localeValue].Comment, DefaultString(table.TableComment, table.BusinessName))
 }
 
-func localizedLeftTreeComment(table *Table, localeValue string) string {
+func localizedLeftTreeComment(table *Table, localeValue string, primaryLocale string) string {
 	config := LeftTreeConfigFromTable(table)
-	if localeValue == coreLocale.Default {
-		return DefaultString(config.Comment, localizedTableComment(table, localeValue))
+	if localeValue == primaryLocale {
+		return DefaultString(config.Comment, localizedTableComment(table, localeValue, primaryLocale))
 	}
-	return DefaultString(table.I18NConfig[localeValue].LeftTreeComment, DefaultString(config.Comment, localizedTableComment(table, localeValue)))
+	return DefaultString(table.I18NConfig[localeValue].LeftTreeComment, DefaultString(config.Comment, localizedTableComment(table, localeValue, primaryLocale)))
 }
 
-func localizedColumnComment(column *CodeGenColumn, localeValue string) string {
+func localizedColumnComment(column *CodeGenColumn, localeValue string, primaryLocale string) string {
 	if column == nil {
 		return ""
 	}
-	if localeValue == coreLocale.Default {
+	if localeValue == primaryLocale {
 		return DefaultString(column.Comment, column.Name)
 	}
 	return DefaultString(column.I18NConfig[localeValue].Comment, DefaultString(column.Comment, column.Name))
 }
 
-func localizedPasswordStrength(localeValue string) string {
-	catalog := codegenCatalog(localeValue)
+func localizedPasswordStrength(localeValue string, primaryLocale string) string {
+	catalog := codegenCatalog(localeValue, primaryLocale)
 	if catalog.PasswordStrength != "" {
 		return catalog.PasswordStrength
 	}
-	return codegenCatalog(coreLocale.Default).PasswordStrength
+	return codegenCatalog(primaryLocale, primaryLocale).PasswordStrength
 }
 
 // frontendStaticOptionLocaleKey 返回静态选项值对应的稳定语言键。
@@ -219,8 +232,8 @@ func parseCodeGenStaticOptions(option CodeGenColumnOptionConfig) []CodeGenStatic
 	return options
 }
 
-func localizedGeneratedStaticLabel(label string, localeValue string) string {
-	if translated := codegenCatalog(localeValue).Static[label]; translated != "" {
+func localizedGeneratedStaticLabel(label string, localeValue string, primaryLocale string) string {
+	if translated := codegenCatalog(localeValue, primaryLocale).Static[label]; translated != "" {
 		return translated
 	}
 	return label

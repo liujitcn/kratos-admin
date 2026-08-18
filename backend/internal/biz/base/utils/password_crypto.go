@@ -8,11 +8,11 @@ import (
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/google/uuid"
 	utilscrypto "github.com/liujitcn/go-utils/crypto"
-	"github.com/liujitcn/kratos-kit/sdk"
+	"github.com/liujitcn/kratos-kit/cache"
 )
 
 const (
@@ -36,13 +36,9 @@ type passwordCryptoKeyRecord struct {
 }
 
 // GeneratePasswordPublicKey 生成密码加密使用的临时公钥。
-func GeneratePasswordPublicKey(scene basev1.PasswordCryptoScene) (*basev1.PasswordPublicKeyResponse, error) {
+func GeneratePasswordPublicKey(cacheClient cache.Cache, scene basev1.PasswordCryptoScene) (*basev1.PasswordPublicKeyResponse, error) {
 	if _, ok := passwordCryptoSceneSet[scene]; !ok {
 		return nil, errorsx.InvalidArgument("密码加密场景不支持")
-	}
-	cache := sdk.Runtime.GetCache()
-	if cache == nil {
-		return nil, errorsx.Internal("密码加密缓存不可用")
 	}
 
 	rsaCrypto, err := utilscrypto.NewRSACrypto(2048)
@@ -78,7 +74,7 @@ func GeneratePasswordPublicKey(scene basev1.PasswordCryptoScene) (*basev1.Passwo
 	if err != nil {
 		return nil, errorsx.Internal("生成密码临时密钥失败").WithCause(err)
 	}
-	err = cache.Set(makePasswordCryptoCacheKey(keyID), string(recordBytes), passwordCryptoTTL)
+	err = cacheClient.Set(makePasswordCryptoCacheKey(keyID), string(recordBytes), passwordCryptoTTL)
 	if err != nil {
 		return nil, errorsx.Internal("生成密码临时密钥失败").WithCause(err)
 	}
@@ -93,7 +89,7 @@ func GeneratePasswordPublicKey(scene basev1.PasswordCryptoScene) (*basev1.Passwo
 }
 
 // DecryptPassword 解密密码密文字段并返回原始密码。
-func DecryptPassword(password *commonv1.PasswordCrypto, scene basev1.PasswordCryptoScene) (string, error) {
+func DecryptPassword(cacheClient cache.Cache, password *commonv1.PasswordCrypto, scene basev1.PasswordCryptoScene) (string, error) {
 	if _, ok := passwordCryptoSceneSet[scene]; !ok {
 		return "", errorsx.InvalidArgument("密码加密场景不支持")
 	}
@@ -111,17 +107,11 @@ func DecryptPassword(password *commonv1.PasswordCrypto, scene basev1.PasswordCry
 		return "", errorsx.InvalidArgument("密码加密算法不支持")
 	}
 
-	cache := sdk.Runtime.GetCache()
-	if cache == nil {
-		return "", errorsx.Internal("密码加密缓存不可用")
-	}
 	cacheKey := makePasswordCryptoCacheKey(password.GetKeyId())
-	recordText, err := cache.Get(cacheKey)
+	recordText, err := cacheClient.GetDel(cacheKey)
 	if err != nil || recordText == "" {
 		return "", errorsx.InvalidArgument("密码密钥已过期，请重新提交")
 	}
-	// 临时密钥一次性使用，读取后立即删除，避免同一密文被重放。
-	_ = cache.Del(cacheKey)
 
 	var record passwordCryptoKeyRecord
 	err = json.Unmarshal([]byte(recordText), &record)

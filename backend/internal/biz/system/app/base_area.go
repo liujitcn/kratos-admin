@@ -2,21 +2,20 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 	"strconv"
-	"sync"
 
+	"github.com/go-kratos/kratos/v3/log"
+	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	"github.com/liujitcn/kratos-core/pkg/biz"
+	"github.com/liujitcn/kratos-core/biz"
 
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repository"
 )
-
-var tree *commonv1.AppTreeOptionResponse
-var lock sync.RWMutex
 
 // BaseAreaCase 行政区域业务处理对象
 type BaseAreaCase struct {
@@ -39,21 +38,41 @@ func NewBaseAreaCase(
 
 // TreeBaseArea 查询行政区域树形列表
 func (c *BaseAreaCase) TreeBaseArea(ctx context.Context) (*commonv1.AppTreeOptionResponse, error) {
-	lock.RLock()
-	defer lock.RUnlock()
-	// 树缓存尚未初始化时，从数据库加载并构建整棵区域树。
-	if tree == nil {
-		// 首次访问时从数据库加载并缓存，避免重复构树
-		query := c.Query(ctx).BaseArea
-		list, err := c.List(ctx, repository.Order(query.ID.Asc()))
-		if err != nil {
-			return nil, err
-		}
-		tree = &commonv1.AppTreeOptionResponse{
-			List: c.buildTree(list, 0),
+	var err error
+	if c.Cache != nil {
+		var cached string
+		cached, err = c.Cache.Get(_const.BASE_AREA_CACHE_KEY)
+		if err == nil {
+			response := &commonv1.AppTreeOptionResponse{}
+			err = json.Unmarshal([]byte(cached), response)
+			if err == nil {
+				return response, nil
+			}
 		}
 	}
-	return tree, nil
+
+	query := c.Query(ctx).BaseArea
+	var list []*models.BaseArea
+	list, err = c.List(ctx, repository.Order(query.ID.Asc()))
+	if err != nil {
+		return nil, err
+	}
+	response := &commonv1.AppTreeOptionResponse{
+		List: c.buildTree(list, 0),
+	}
+	if c.Cache != nil {
+		var payload []byte
+		payload, err = json.Marshal(response)
+		if err != nil {
+			log.Error("MarshalBaseAreaCache", "error", err)
+		} else {
+			err = c.Cache.Set(_const.BASE_AREA_CACHE_KEY, string(payload), _const.BASE_AREA_CACHE_EXPIRE)
+			if err != nil {
+				log.Error("SetBaseAreaCache", "error", err)
+			}
+		}
+	}
+	return response, nil
 }
 
 // 递归构建行政区域树

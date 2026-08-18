@@ -1,11 +1,13 @@
 /* 此文件由 scripts/sync_locales.py 生成，请勿手工修改。 */
 import localeZhCn from './zh-CN.json'
 import localeEnUs from './en-US.json'
+import localeJaJp from './ja-JP.json'
 import localeZhTw from './zh-TW.json'
 
 export const LOCALE_MESSAGES = {
   'zh-CN': localeZhCn,
   'en-US': localeEnUs,
+  'ja-JP': localeJaJp,
   'zh-TW': localeZhTw,
 } as const satisfies Record<string, Record<string, string>>
 

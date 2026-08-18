@@ -6,7 +6,7 @@ import "gnostic/openapi/v3/annotations.proto";
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
-import "system/admin/v1/base_translation.proto";
+import "system/admin/v1/base_i18n.proto";
 
 // Admin代码生成表配置服务
 service CodeGenTableService {

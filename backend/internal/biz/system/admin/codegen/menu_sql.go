@@ -32,21 +32,9 @@ type generatedMigrationVersion struct {
 	width     int
 }
 
-// GeneratedMenuSQLPath 返回代码生成菜单 SQL 文件路径。
-func GeneratedMenuSQLPath(table *Table) string {
-	if table == nil {
-		return ""
-	}
-	path, err := nextGeneratedMenuSQLPath("")
-	if err != nil {
-		return ""
-	}
-	return path
-}
-
 // RenderGeneratedMenuSQL 渲染当前代码生成对象的菜单和按钮权限脚本。
-func RenderGeneratedMenuSQL(table *Table, columns []*CodeGenColumn, methods []*Proto, resourcePath string, tableComment string) string {
-	pageSpec, buttonSpecs := MenuSpecs(table, columns, methods, resourcePath, tableComment)
+func RenderGeneratedMenuSQL(table *Table, columns []*CodeGenColumn, methods []*Proto, resourcePath string, tableComment string, localeState LocaleState) string {
+	pageSpec, buttonSpecs := MenuSpecs(table, columns, methods, resourcePath, tableComment, localeState)
 	page := pageSpec.Menu
 	var builder strings.Builder
 	builder.WriteString("-- 代码生成菜单权限脚本，请勿手工修改。\n")
@@ -62,7 +50,7 @@ func RenderGeneratedMenuSQL(table *Table, columns []*CodeGenColumn, methods []*P
 	builder.WriteString(" OR `component` = ")
 	builder.WriteString(sqlString(page.Component))
 	builder.WriteString(") ORDER BY `id` LIMIT 1);\n")
-	writeMenuTranslationSQL(&builder, "@codegen_page_menu_id", pageSpec)
+	writeMenuTranslationSQL(&builder, "@codegen_page_menu_id", pageSpec, localeState)
 	for index, buttonSpec := range buttonSpecs {
 		button := buttonSpec.Menu
 		varName := fmt.Sprintf("@codegen_button_menu_id_%d", index+1)
@@ -74,7 +62,7 @@ func RenderGeneratedMenuSQL(table *Table, columns []*CodeGenColumn, methods []*P
 		builder.WriteString(" OR `api` = ")
 		builder.WriteString(sqlString(button.API))
 		builder.WriteString(") ORDER BY `id` LIMIT 1);\n")
-		writeMenuTranslationSQL(&builder, varName, buttonSpec)
+		writeMenuTranslationSQL(&builder, varName, buttonSpec, localeState)
 	}
 	writeStaleStatusMenuSQL(&builder, table, buttonSpecs)
 	builder.WriteString("\n-- 代码生成菜单权限脚本结束。\n")
@@ -82,13 +70,13 @@ func RenderGeneratedMenuSQL(table *Table, columns []*CodeGenColumn, methods []*P
 }
 
 // writeMenuTranslationSQL 写入启用的非主语言菜单译文，已有记录一律保留。
-func writeMenuTranslationSQL(builder *strings.Builder, menuIDExpression string, spec CodeGenMenuSpec) {
-	for _, localeValue := range RequiredTranslationLocales() {
+func writeMenuTranslationSQL(builder *strings.Builder, menuIDExpression string, spec CodeGenMenuSpec, localeState LocaleState) {
+	for _, localeValue := range RequiredTranslationLocales(localeState) {
 		title := spec.Translations[localeValue]
 		if title == "" {
 			continue
 		}
-		builder.WriteString("INSERT IGNORE INTO `base_translation` (`target_type`, `target_id`, `locale`, `name`)\n")
+		builder.WriteString("INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`)\n")
 		builder.WriteString("SELECT ")
 		builder.WriteString(strconv.FormatInt(int64(_const.TRANSLATION_TARGET_TYPE_BASE_MENU), 10))
 		builder.WriteString(", ")
@@ -102,7 +90,7 @@ func writeMenuTranslationSQL(builder *strings.Builder, menuIDExpression string, 
 		builder.WriteString(menuIDExpression)
 		builder.WriteString(" IS NOT NULL AND EXISTS (SELECT 1 FROM `base_language` WHERE `language_code` = ")
 		builder.WriteString(sqlString(localeValue))
-		builder.WriteString(" AND `is_primary` = 0 AND `status` = 1 AND `deleted_at` = 0) AND NOT EXISTS (SELECT 1 FROM `base_translation` WHERE `target_type` = ")
+		builder.WriteString(" AND `is_primary` = 0 AND `status` = 1 AND `deleted_at` = 0) AND NOT EXISTS (SELECT 1 FROM `base_i18n` WHERE `target_type` = ")
 		builder.WriteString(strconv.FormatInt(int64(_const.TRANSLATION_TARGET_TYPE_BASE_MENU), 10))
 		builder.WriteString(" AND `target_id` = ")
 		builder.WriteString(menuIDExpression)
@@ -162,11 +150,6 @@ func (c *renderer) newGeneratedMenuSQLPreviewFile(table *Table, content string) 
 		Exists:  true,
 		Message: fmt.Sprintf("将更新 %s 中的菜单和按钮权限 SQL", path),
 	}
-}
-
-// mergeGeneratedMenuSQL 在迁移脚本中替换或追加指定表的菜单权限片段。
-func mergeGeneratedMenuSQL(existing string, table *Table, content string) (string, error) {
-	return mergeGeneratedMenuSQLAtPath(existing, table, content, GeneratedMenuSQLPath(table))
 }
 
 // mergeGeneratedMenuSQLAtPath 在指定迁移脚本中替换或追加指定表的菜单权限片段。

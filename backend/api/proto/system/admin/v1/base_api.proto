@@ -234,7 +234,7 @@ message OptionOpenApiServiceRequest {
 
 // OpenAPI业务服务选项响应
 message OptionOpenApiServiceResponse {
-  repeated OpenApiServiceOption list = 1 [(gnostic.openapi.v3.property) = {description: "OpenAPI文档选项列表"}]; // OpenAPI文档选项列表
+  repeated OpenApiServiceOption list = 1 [(gnostic.openapi.v3.property) = {description: "OpenAPI文档列表"}]; // OpenAPI文档列表
 }
 
 // OpenAPI业务服务选项
@@ -242,4 +242,13 @@ message OpenApiServiceOption {
   string key = 1 [(gnostic.openapi.v3.property) = {description: "OpenAPI文档key"}]; // OpenAPI文档key
 
   string name = 2 [(gnostic.openapi.v3.property) = {description: "OpenAPI文档名称"}]; // OpenAPI文档名称
+
+  repeated OpenApiServiceOperation operations = 3 [(gnostic.openapi.v3.property) = {description: "OpenAPI接口列表"}]; // OpenAPI接口列表
+}
+
+// OpenAPI业务服务接口
+message OpenApiServiceOperation {
+  string path = 1 [(gnostic.openapi.v3.property) = {description: "HTTP请求路径"}]; // HTTP请求路径
+
+  string method = 2 [(gnostic.openapi.v3.property) = {description: "HTTP请求方法"}]; // HTTP请求方法
 }

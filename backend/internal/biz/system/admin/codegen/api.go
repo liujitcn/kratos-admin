@@ -19,8 +19,9 @@ func PrepareGeneration(
 	methods []*Proto,
 	requestedPaths *systemadminv1.CodeGenOutputPaths,
 	tableComment string,
+	localeState LocaleState,
 ) (*Generation, error) {
-	return PrepareGenerationWithMigrationVersion(table, columns, methods, requestedPaths, tableComment, "")
+	return PrepareGenerationWithMigrationVersion(table, columns, methods, requestedPaths, tableComment, "", localeState)
 }
 
 // PrepareGenerationWithMigrationVersion 按数据库迁移版本准备代码生成内容。
@@ -31,8 +32,9 @@ func PrepareGenerationWithMigrationVersion(
 	requestedPaths *systemadminv1.CodeGenOutputPaths,
 	tableComment string,
 	migrationVersion string,
+	localeState LocaleState,
 ) (*Generation, error) {
-	return prepareGenerationWithRenderer(table, columns, methods, requestedPaths, &renderer{
+	return prepareGenerationWithRenderer(table, columns, methods, requestedPaths, localeState, &renderer{
 		tableComment:     tableComment,
 		migrationVersion: migrationVersion,
 	})
@@ -44,6 +46,7 @@ func prepareGenerationWithRenderer(
 	columns []*CodeGenColumn,
 	methods []*Proto,
 	requestedPaths *systemadminv1.CodeGenOutputPaths,
+	localeState LocaleState,
 	renderer *renderer,
 ) (*Generation, error) {
 	outputPaths, err := renderer.resolveCodeGenOutputPaths(table, requestedPaths)
@@ -60,7 +63,7 @@ func prepareGenerationWithRenderer(
 		Table:            generationTable,
 		GeneratedMethods: generatedMethods,
 		OutputPaths:      outputPaths,
-		Files:            renderer.buildPreviewFiles(generationTable, columns, generationMethods, outputPaths),
+		Files:            renderer.buildPreviewFiles(generationTable, columns, generationMethods, outputPaths, localeState),
 	}, nil
 }
 

@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	"github.com/liujitcn/kratos-core/pkg/biz"
-	coreconst "github.com/liujitcn/kratos-core/pkg/const"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/biz"
+	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	systemappv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/app/utils"
@@ -19,7 +19,6 @@ import (
 	_string "github.com/liujitcn/go-utils/string"
 	kitOauth "github.com/liujitcn/kratos-kit/oauth"
 	"github.com/liujitcn/kratos-kit/oauth/provider"
-	"github.com/liujitcn/kratos-kit/sdk"
 	"gorm.io/gorm"
 )
 
@@ -67,7 +66,7 @@ func (c *AuthCase) GetUserProfile(ctx context.Context) (*systemappv1.UserProfile
 		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
 	// 用户被停用时，不允许继续获取个人信息。
-	if user.Status != coreconst.Status_STATUS_ENABLE {
+	if user.Status != coreconst.STATUS_STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("账号已被禁用")
 	}
 
@@ -101,7 +100,7 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *systemappv1.UserP
 		return errorsx.Internal("修改个人中心用户信息失败").WithCause(err)
 	}
 	// 删除被替换的旧头像文件
-	oss := sdk.Runtime.GetOSS()
+	oss := c.OSS
 	// OSS 可用时，尝试清理被替换掉的历史头像文件。
 	if oss != nil {
 		// 新头像为空或发生变更时，旧头像文件需要尝试删除。
@@ -123,7 +122,7 @@ func (c *AuthCase) BindUserPhone(ctx context.Context, req *systemappv1.BindUserP
 	}
 
 	var accessToken string
-	accessToken, err = sdk.Runtime.GetCache().Get(CACHE_KEY_WX_ACCESS_TOKEN)
+	accessToken, err = c.Cache.Get(CACHE_KEY_WX_ACCESS_TOKEN)
 	// 本地缓存未命中 access token 时，回源微信重新获取。
 	if err != nil {
 		var oauthProvider provider.OAuth
@@ -144,7 +143,7 @@ func (c *AuthCase) BindUserPhone(ctx context.Context, req *systemappv1.BindUserP
 			cacheTTL = time.Duration(token.ExpiresIn) * time.Second
 		}
 		// 新 access token 缓存失败时，只记录日志不影响主流程。
-		err = sdk.Runtime.GetCache().Set(CACHE_KEY_WX_ACCESS_TOKEN, accessToken, cacheTTL)
+		err = c.Cache.Set(CACHE_KEY_WX_ACCESS_TOKEN, accessToken, cacheTTL)
 		if err != nil {
 			log.Error(fmt.Sprintf("SetWxAccessTokenCache %v", err))
 		}

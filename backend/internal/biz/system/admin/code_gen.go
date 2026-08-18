@@ -20,9 +20,9 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	adminmigration "github.com/liujitcn/kratos-admin/backend/migration"
-	coreBiz "github.com/liujitcn/kratos-core/pkg/biz"
-	coreconst "github.com/liujitcn/kratos-core/pkg/const"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/biz"
+	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/liujitcn/go-utils/stringcase"
 	"github.com/liujitcn/gorm-kit/repository"
@@ -56,6 +56,7 @@ type codeGenCommandResult struct {
 type codeGenBatchContext struct {
 	plan           *codegen.BatchGeneration
 	columnsByTable map[int64][]*codegen.CodeGenColumn
+	localeState    codegen.LocaleState
 }
 
 // codeGenFileSnapshot 保存生成事务开始前的单个文件状态。
@@ -114,7 +115,7 @@ type codeGenRestoreTransaction struct {
 
 // CodeGenCase 管理代码预览、批量生成与任务进度。
 type CodeGenCase struct {
-	*coreBiz.BaseCase
+	*biz.BaseCase
 	tx                data.Transaction
 	baseAPICase       *BaseAPICase
 	codeGenTableCase  *CodeGenTableCase
@@ -122,13 +123,13 @@ type CodeGenCase struct {
 	codeGenProtoCase  *CodeGenProtoCase
 	baseMenuCase      *BaseMenuCase
 	baseMigrationCase *BaseMigrationCase
-	databaseClient    *databaseGorm.Client
+	baseLanguageCase  *BaseLanguageCase
 	progressManager   *codegen.Manager
 }
 
 // NewCodeGenCase 创建代码生成执行业务实例。
 func NewCodeGenCase(
-	baseCase *coreBiz.BaseCase,
+	baseCase *biz.BaseCase,
 	tx data.Transaction,
 	baseAPICase *BaseAPICase,
 	codeGenTableCase *CodeGenTableCase,
@@ -136,7 +137,7 @@ func NewCodeGenCase(
 	codeGenProtoCase *CodeGenProtoCase,
 	baseMenuCase *BaseMenuCase,
 	baseMigrationCase *BaseMigrationCase,
-	databaseClient *databaseGorm.Client,
+	baseLanguageCase *BaseLanguageCase,
 	progressManager *codegen.Manager,
 ) *CodeGenCase {
 	return &CodeGenCase{
@@ -148,7 +149,7 @@ func NewCodeGenCase(
 		codeGenProtoCase:  codeGenProtoCase,
 		baseMenuCase:      baseMenuCase,
 		baseMigrationCase: baseMigrationCase,
-		databaseClient:    databaseClient,
+		baseLanguageCase:  baseLanguageCase,
 		progressManager:   progressManager,
 	}
 }
@@ -172,6 +173,10 @@ func (c *CodeGenCase) PreviewCodeGen(ctx context.Context, tableID int64, request
 	if err != nil {
 		return nil, err
 	}
+	localeState, err := c.baseLanguageCase.LocaleState(ctx)
+	if err != nil {
+		return nil, err
+	}
 	var migrationVersion string
 	migrationVersion, err = c.latestMigrationVersion(ctx)
 	if err != nil {
@@ -185,6 +190,7 @@ func (c *CodeGenCase) PreviewCodeGen(ctx context.Context, tableID int64, request
 		requestedPaths,
 		table.TableComment,
 		migrationVersion,
+		codegen.LocaleState{Enabled: localeState.Enabled, Primary: localeState.Primary},
 	)
 	if err != nil {
 		return nil, err
@@ -201,8 +207,17 @@ func (c *CodeGenCase) PreviewCodeGen(ctx context.Context, tableID int64, request
 	return &systemadminv1.PreviewCodeGenResponse{
 		Files:               generation.Files,
 		OutputPaths:         generation.OutputPaths,
-		MissingTranslations: codegen.MissingTranslationFields(table, columns),
+		MissingTranslations: codegen.MissingTranslationFields(table, columns, codegen.LocaleState{Enabled: localeState.Enabled, Primary: localeState.Primary}),
 	}, nil
+}
+
+// codeGenLocaleState 查询代码生成使用的数据库语言状态。
+func (c *CodeGenCase) codeGenLocaleState(ctx context.Context) (codegen.LocaleState, error) {
+	state, err := c.baseLanguageCase.LocaleState(ctx)
+	if err != nil {
+		return codegen.LocaleState{}, err
+	}
+	return codegen.LocaleState{Enabled: state.Enabled, Primary: state.Primary}, nil
 }
 
 // StartCodeGenTask 校验生成对象并创建后台批量任务。
@@ -309,7 +324,8 @@ func (c *CodeGenCase) RestoreCodeGen(ctx context.Context, tableIDs []int64) erro
 
 // latestMigrationVersion 查询代码生成使用的最近一次已记录迁移版本。
 func (c *CodeGenCase) latestMigrationVersion(ctx context.Context) (string, error) {
-	return c.baseMigrationCase.LatestVersion(ctx, adminmigration.ModuleName, c.databaseClient.Name())
+	database := c.GormClients[databaseGorm.DefaultClientName]
+	return c.baseMigrationCase.LatestVersion(ctx, adminmigration.ModuleName, database.Name())
 }
 
 // runCodeGenTask 串行执行批量任务并汇总最终状态。
@@ -347,6 +363,7 @@ func (c *CodeGenCase) runCodeGenTask(
 			batch.columnsByTable[tableID],
 			generation.GeneratedMethods,
 			codegen.FrontendPageComponentPath(generation.OutputPaths.GetFrontendPageFilePath()),
+			batch.localeState,
 		)
 		if err != nil {
 			c.failCodeGenTask(ctx, taskID, tableIDs, err)
@@ -377,7 +394,7 @@ func (c *CodeGenCase) runCodeGenTask(
 				continue
 			}
 			reporters[tableID].updateStep(txCtx, codegen.MenuStepID, systemadminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_RUNNING, "正在同步", "")
-			err = c.syncGeneratedMenus(txCtx, generation.Table, batch.columnsByTable[tableID], generation.GeneratedMethods, codegen.FrontendPageComponentPath(generation.OutputPaths.GetFrontendPageFilePath()))
+			err = c.syncGeneratedMenus(txCtx, generation.Table, batch.columnsByTable[tableID], generation.GeneratedMethods, codegen.FrontendPageComponentPath(generation.OutputPaths.GetFrontendPageFilePath()), batch.localeState)
 			if err != nil {
 				return err
 			}
@@ -388,6 +405,7 @@ func (c *CodeGenCase) runCodeGenTask(
 				batch.columnsByTable[tableID],
 				generation.GeneratedMethods,
 				codegen.FrontendPageComponentPath(generation.OutputPaths.GetFrontendPageFilePath()),
+				batch.localeState,
 			)
 			if err != nil {
 				return err
@@ -477,6 +495,11 @@ func (c *CodeGenCase) prepareCodeGenBatch(ctx context.Context, tableIDs []int64)
 	if err != nil {
 		return nil, err
 	}
+	var localeState codegen.LocaleState
+	localeState, err = c.codeGenLocaleState(ctx)
+	if err != nil {
+		return nil, err
+	}
 	for _, tableID := range tableIDs {
 		if tableID <= 0 {
 			return nil, errorsx.InvalidArgument("代码生成表配置ID不能为空")
@@ -492,7 +515,7 @@ func (c *CodeGenCase) prepareCodeGenBatch(ctx context.Context, tableIDs []int64)
 		if err != nil {
 			return nil, err
 		}
-		missingTranslations := codegen.MissingTranslationFields(table, columns)
+		missingTranslations := codegen.MissingTranslationFields(table, columns, localeState)
 		if len(missingTranslations) > 0 {
 			return nil, errorsx.InvalidArgument("正式生成前请补齐翻译配置：" + strings.Join(missingTranslations, "、"))
 		}
@@ -509,6 +532,7 @@ func (c *CodeGenCase) prepareCodeGenBatch(ctx context.Context, tableIDs []int64)
 			Methods:          protos,
 			TableComment:     table.TableComment,
 			MigrationVersion: migrationVersion,
+			LocaleState:      localeState,
 		})
 		columnsByTable[tableID] = columns
 	}
@@ -538,7 +562,7 @@ func (c *CodeGenCase) prepareCodeGenBatch(ctx context.Context, tableIDs []int64)
 			return nil, err
 		}
 	}
-	return &codeGenBatchContext{plan: plan, columnsByTable: columnsByTable}, nil
+	return &codeGenBatchContext{plan: plan, columnsByTable: columnsByTable, localeState: localeState}, nil
 }
 
 // validateGeneratedBaseAPIs 按 base_api 中的 HTTP 路由校验生成接口冲突。
@@ -982,8 +1006,8 @@ func (c *CodeGenCase) validateCodeGenParentMenu(ctx context.Context, parentMenuI
 }
 
 // syncGeneratedMenus 在当前事务中幂等同步生成页面及按钮权限菜单。
-func (c *CodeGenCase) syncGeneratedMenus(ctx context.Context, table *codegen.Table, columns []*codegen.CodeGenColumn, methods []*codegen.Proto, resourcePath string) error {
-	pageSpec, buttonSpecs := codegen.MenuSpecs(table, columns, methods, resourcePath, table.TableComment)
+func (c *CodeGenCase) syncGeneratedMenus(ctx context.Context, table *codegen.Table, columns []*codegen.CodeGenColumn, methods []*codegen.Proto, resourcePath string, localeState codegen.LocaleState) error {
+	pageSpec, buttonSpecs := codegen.MenuSpecs(table, columns, methods, resourcePath, table.TableComment, localeState)
 	pageMenu, err := c.upsertGeneratedPageMenu(ctx, pageSpec)
 	if err != nil {
 		return err
@@ -1028,12 +1052,12 @@ func (c *CodeGenCase) disableStaleGeneratedStatusMenus(ctx context.Context, page
 		if menu.Path != statusPathPrefix && !strings.HasPrefix(menu.Path, statusPathPrefix+":") && !strings.Contains(menu.API, statusAPIPrefix) {
 			continue
 		}
-		if menu.Status == coreconst.Status_STATUS_DISABLE && menu.API == "[]" {
+		if menu.Status == coreconst.STATUS_STATUS_DISABLE && menu.API == "[]" {
 			continue
 		}
 		if err = c.baseMenuCase.Update(
 			ctx,
-			&models.BaseMenu{ID: menu.ID, Status: coreconst.Status_STATUS_DISABLE, API: "[]"},
+			&models.BaseMenu{ID: menu.ID, Status: coreconst.STATUS_STATUS_DISABLE, API: "[]"},
 			repository.Where(query.ID.Eq(menu.ID)),
 			repository.Select(query.Status, query.API),
 		); err != nil {
@@ -1676,8 +1700,8 @@ func SaveCodeGenRestoreManifests(manifests map[int64]*codeGenRestoreManifest) er
 }
 
 // listGeneratedMenus 查询当前代码生成对象关联的页面和按钮菜单。
-func (c *CodeGenCase) listGeneratedMenus(ctx context.Context, table *codegen.Table, columns []*codegen.CodeGenColumn, methods []*codegen.Proto, resourcePath string) ([]*models.BaseMenu, error) {
-	pageSpec, buttonSpecs := codegen.MenuSpecs(table, columns, methods, resourcePath, table.TableComment)
+func (c *CodeGenCase) listGeneratedMenus(ctx context.Context, table *codegen.Table, columns []*codegen.CodeGenColumn, methods []*codegen.Proto, resourcePath string, localeState codegen.LocaleState) ([]*models.BaseMenu, error) {
+	pageSpec, buttonSpecs := codegen.MenuSpecs(table, columns, methods, resourcePath, table.TableComment, localeState)
 	query := c.baseMenuCase.Query(ctx).BaseMenu
 	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(query.Type.Eq(_const.BASE_MENU_TYPE_MENU)))
@@ -1724,13 +1748,18 @@ func (c *CodeGenCase) restoreCodeGenTable(ctx context.Context, tableID int64, ma
 	if err != nil {
 		return err
 	}
+	var localeState codegen.LocaleState
+	localeState, err = c.codeGenLocaleState(ctx)
+	if err != nil {
+		return err
+	}
 	var generation *codegen.Generation
-	generation, err = codegen.PrepareGeneration(table, columns, protos, nil, table.TableComment)
+	generation, err = codegen.PrepareGeneration(table, columns, protos, nil, table.TableComment, localeState)
 	if err != nil {
 		return err
 	}
 	if manifest.Version == 1 && codegen.ShouldSyncMenus(generation.Table, generation.GeneratedMethods) {
-		err = c.removeGeneratedMenus(ctx, generation.Table, columns, generation.GeneratedMethods, codegen.FrontendPageComponentPath(generation.OutputPaths.GetFrontendPageFilePath()))
+		err = c.removeGeneratedMenus(ctx, generation.Table, columns, generation.GeneratedMethods, codegen.FrontendPageComponentPath(generation.OutputPaths.GetFrontendPageFilePath()), localeState)
 		if err != nil {
 			return err
 		}
@@ -1849,8 +1878,8 @@ func (c *CodeGenCase) restoreGeneratedMenus(ctx context.Context, manifest *codeG
 }
 
 // removeGeneratedMenus 删除代码生成对象产生的页面和按钮权限。
-func (c *CodeGenCase) removeGeneratedMenus(ctx context.Context, table *codegen.Table, columns []*codegen.CodeGenColumn, methods []*codegen.Proto, resourcePath string) error {
-	menus, err := c.listGeneratedMenus(ctx, table, columns, methods, resourcePath)
+func (c *CodeGenCase) removeGeneratedMenus(ctx context.Context, table *codegen.Table, columns []*codegen.CodeGenColumn, methods []*codegen.Proto, resourcePath string, localeState codegen.LocaleState) error {
+	menus, err := c.listGeneratedMenus(ctx, table, columns, methods, resourcePath, localeState)
 	if err != nil || len(menus) == 0 {
 		return err
 	}
@@ -1873,7 +1902,7 @@ func (c *CodeGenCase) removeGeneratedMenus(ctx context.Context, table *codegen.T
 	if childCount > 0 {
 		err = c.baseMenuCase.Update(
 			ctx,
-			&models.BaseMenu{ID: menus[0].ID, Status: coreconst.Status_STATUS_DISABLE, API: "[]"},
+			&models.BaseMenu{ID: menus[0].ID, Status: coreconst.STATUS_STATUS_DISABLE, API: "[]"},
 			repository.Where(query.ID.Eq(menus[0].ID)),
 			repository.Select(query.Status, query.API),
 		)

@@ -5,25 +5,21 @@ import (
 	"strings"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
-	"github.com/liujitcn/kratos-kit/oss"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 // FileCase 处理文件上传下载业务。
 type FileCase struct {
-	oss.OSS
+	*biz.BaseCase
 }
 
 // NewFileCase 创建文件业务实例。
-func NewFileCase(
-	oss oss.OSS,
-) *FileCase {
-	return &FileCase{
-		OSS: oss,
-	}
+func NewFileCase(baseCase *biz.BaseCase) *FileCase {
+	return &FileCase{BaseCase: baseCase}
 }
 
 // DeleteFile 删除单个旧文件。
@@ -53,7 +49,7 @@ func (c *FileCase) MultiUploadFile(req *basev1.MultiUploadFileRequest) (*basev1.
 			return nil, err
 		}
 		var url string
-		url, err = c.UploadByByte(item.GetName(), item.GetPath(), item.GetContent())
+		url, err = c.OSS.UploadByByte(item.GetName(), item.GetPath(), item.GetContent())
 		if err != nil {
 			return nil, errorsx.Internal("文件上传失败").WithCause(err)
 		}
@@ -74,7 +70,7 @@ func (c *FileCase) UploadFile(req *basev1.UploadFileRequest) (*basev1.FileInfo, 
 		return nil, err
 	}
 	var url string
-	url, err = c.UploadByByte(file.GetName(), file.GetPath(), file.GetContent())
+	url, err = c.OSS.UploadByByte(file.GetName(), file.GetPath(), file.GetContent())
 	if err != nil {
 		return nil, errorsx.Internal("文件上传失败").WithCause(err)
 	}
@@ -92,7 +88,7 @@ func (c *FileCase) DownloadFile(req *basev1.DownloadFileRequest) (*wrapperspb.By
 		return nil, err
 	}
 	var fileByte []byte
-	fileByte, err = c.GetFileByte(req.GetPath())
+	fileByte, err = c.OSS.GetFileByte(req.GetPath())
 	if err != nil {
 		return nil, errorsx.Internal("文件下载失败").WithCause(err)
 	}

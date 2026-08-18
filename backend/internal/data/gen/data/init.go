@@ -6,18 +6,20 @@ package data
 
 import "github.com/google/wire"
 
-// RepositoryProviderSet 定义不包含数据库客户端的数据访问依赖注入提供者集合。
-var RepositoryProviderSet = wire.NewSet(
+// ProviderSet 定义 data 包的数据访问依赖注入提供者集合，数据库客户端由外部提供。
+var ProviderSet = wire.NewSet(
 	NewData,
 	NewTransaction,
 	NewAiMessageRepository,
 	NewAiSessionRepository,
 	NewBaseAPIRepository,
+	NewBaseAPII18nRepository,
 	NewBaseAreaRepository,
 	NewBaseConfigRepository,
 	NewBaseDeptRepository,
 	NewBaseDictRepository,
 	NewBaseDictItemRepository,
+	NewBaseI18nRepository,
 	NewBaseJobRepository,
 	NewBaseJobLogRepository,
 	NewBaseLanguageRepository,
@@ -28,16 +30,9 @@ var RepositoryProviderSet = wire.NewSet(
 	NewBaseRoleRepository,
 	NewBaseTenantRepository,
 	NewBaseThirdAccountRepository,
-	NewBaseTranslationRepository,
 	NewBaseUserRepository,
 	NewCasbinRuleRepository,
 	NewCodeGenColumnRepository,
 	NewCodeGenProtoRepository,
 	NewCodeGenTableRepository,
-)
-
-// ProviderSet 定义包含数据库客户端的完整 data 包依赖注入提供者集合。
-var ProviderSet = wire.NewSet(
-	NewClient,
-	RepositoryProviderSet,
 )

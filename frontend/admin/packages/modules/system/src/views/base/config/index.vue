@@ -95,11 +95,11 @@ import type {
   BaseConfigForm,
   PageBaseConfigRequest
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_config";
-import type { BaseTranslation } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
+import type { BaseI18n } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { BaseConfigSite } from "@liujitcn/kratos-admin-system/rpc/base/v1/config";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { BaseConfigType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_config";
-import { TranslationTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
+import { TranslationTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
 import DynamicTranslationEditor from "@liujitcn/kratos-admin-system/components/DynamicTranslationEditor.vue";
@@ -178,7 +178,7 @@ function updateConfigTranslations(targetType: TranslationTargetType, values: Dyn
         target_type: targetType,
         target_id: formData.id,
         name: item.text
-      }) as BaseTranslation
+      }) as BaseI18n
   );
   if (targetType === TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME) {
     formData.name_translations = next;

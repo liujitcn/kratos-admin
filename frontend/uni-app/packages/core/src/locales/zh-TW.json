@@ -11,6 +11,7 @@
   "common.language.en-US": "English",
   "common.language.zh-CN": "簡體中文",
   "common.language.zh-TW": "繁體中文",
+  "common.language.ja-JP": "日語",
   "common.message.loading": "正在載入",
   "common.message.network_error": "網路錯誤，換個網路試試",
   "common.message.request_error": "請求錯誤",

@@ -107,18 +107,21 @@
     <div v-loading="behaviorLoading" class="behavior-captcha-body">
       <GoCaptchaSlide
         v-if="currentCaptchaType === 'slide'"
+        :key="loginForm.captcha_id"
         :config="slideCaptchaConfig"
         :data="behaviorCaptchaData"
         :events="slideCaptchaEvents"
       />
       <GoCaptchaClick
         v-else-if="currentCaptchaType === 'click'"
+        :key="loginForm.captcha_id"
         :config="clickCaptchaConfig"
         :data="behaviorCaptchaData"
         :events="clickCaptchaEvents"
       />
       <GoCaptchaRotate
         v-else-if="currentCaptchaType === 'rotate'"
+        :key="loginForm.captcha_id"
         :config="rotateCaptchaConfig"
         :data="behaviorCaptchaData"
         :events="rotateCaptchaEvents"

@@ -20,6 +20,11 @@ func (*BaseAPI) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*BaseAPII18n) TableComment() string {
+	return "API国际化信息"
+}
+
+// TableComment 返回表注释。
 func (*BaseArea) TableComment() string {
 	return "行政区域信息"
 }
@@ -40,8 +45,8 @@ func (*BaseDict) TableComment() string {
 }
 
 // TableComment 返回表注释。
-func (*BaseDictItem) TableComment() string {
-	return "字典属性信息"
+func (*BaseI18n) TableComment() string {
+	return "国际化翻译信息"
 }
 
 // TableComment 返回表注释。
@@ -92,11 +97,6 @@ func (*BaseTenant) TableComment() string {
 // TableComment 返回表注释。
 func (*BaseThirdAccount) TableComment() string {
 	return "用户三方登录账号"
-}
-
-// TableComment 返回表注释。
-func (*BaseTranslation) TableComment() string {
-	return "国际化翻译信息"
 }
 
 // TableComment 返回表注释。

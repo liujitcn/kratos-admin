@@ -5,24 +5,28 @@ import (
 
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-core/biz"
 
 	"github.com/liujitcn/gorm-kit/repository"
-	coreconst "github.com/liujitcn/kratos-core/pkg/const"
+	coreconst "github.com/liujitcn/kratos-core/const"
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 // BaseRoleCase 处理基础角色业务。
 type BaseRoleCase struct {
+	*biz.BaseCase
 	*data.BaseRoleRepository
 	baseTenantRepo *data.BaseTenantRepository
 }
 
 // NewBaseRoleCase 创建基础角色业务实例。
 func NewBaseRoleCase(
+	baseCase *biz.BaseCase,
 	baseRoleRepo *data.BaseRoleRepository,
 	baseTenantRepo *data.BaseTenantRepository,
 ) *BaseRoleCase {
 	return &BaseRoleCase{
+		BaseCase:           baseCase,
 		BaseRoleRepository: baseRoleRepo,
 		baseTenantRepo:     baseTenantRepo,
 	}

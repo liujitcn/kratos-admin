@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/liujitcn/go-utils/stringcase"
 )
@@ -1610,17 +1610,6 @@ func pluralize(value string) string {
 		return strings.TrimSuffix(value, "y") + "ies"
 	}
 	return value + "s"
-}
-
-// statusAPIColumns 返回启用状态接口的字段。
-func statusAPIColumns(columns []*CodeGenColumn) []*CodeGenColumn {
-	list := make([]*CodeGenColumn, 0)
-	for _, column := range columns {
-		if column.IsStatusField == 1 && column.StatusGenerateAPI == 1 {
-			list = append(list, column)
-		}
-	}
-	return list
 }
 
 // findStatusColumn 根据字段名查找状态字段。

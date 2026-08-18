@@ -15,7 +15,7 @@ DEFAULT_LOCALE = "zh-CN"
 LANGUAGE_LABEL_PREFIX = "common.language."
 
 LOCALE_DIRECTORIES = {
-    "backend": ROOT / "backend/internal/i18n/locales",
+    "backend": ROOT / "backend/internal/i18n/assets",
     "admin-core": ROOT / "frontend/admin/packages/core/src/locales",
     "admin-system": ROOT / "frontend/admin/packages/modules/system/src/locales",
     "uni-core": ROOT / "frontend/uni-app/packages/core/src/locales",
@@ -33,7 +33,6 @@ FRONTEND_GENERATED_FILES = {
     "taro-system": ROOT / "frontend/taro-app/packages/modules/system/src/locales/generated.ts",
 }
 
-BACKEND_MANIFEST = ROOT / "backend/internal/i18n/locales/manifest.json"
 CODEGEN_CATALOG = ROOT / "backend/internal/biz/system/admin/codegen/locales/catalog.json"
 DAYJS_LOCALE_DIRECTORY = ROOT / "frontend/admin/packages/core/node_modules/dayjs/locale"
 ELEMENT_LOCALE_DIRECTORY = ROOT / "frontend/admin/packages/core/node_modules/element-plus/es/locale/lang"
@@ -45,7 +44,6 @@ def locale_files(directory: Path) -> dict[str, Path]:
     files = {
         path.stem: path
         for path in directory.glob("*.json")
-        if path.name != "manifest.json"
     }
     if not files:
         raise ValueError(f"语言目录为空: {directory}")
@@ -245,10 +243,6 @@ def render_frontend_generated(locales: list[str], include_dayjs: bool, use_doubl
     return "\n".join(lines) + "\n"
 
 
-def render_backend_manifest(locales: list[str]) -> str:
-    return json.dumps({"default": DEFAULT_LOCALE, "locales": locales}, ensure_ascii=False, indent=2) + "\n"
-
-
 def ensure_content(path: Path, content: str, write: bool) -> None:
     current = path.read_text(encoding="utf-8") if path.exists() else ""
     if current == content:
@@ -259,7 +253,7 @@ def ensure_content(path: Path, content: str, write: bool) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="同步语言包清单和前端注册产物")
+    parser = argparse.ArgumentParser(description="同步语言包集合和前端注册产物")
     parser.add_argument("--write", action="store_true", help="写入生成产物；默认只检查")
     parser.add_argument(
         "--migration-version",
@@ -271,7 +265,6 @@ def main() -> int:
         file_sets = {name: locale_files(directory) for name, directory in LOCALE_DIRECTORIES.items()}
         locales = validate_locale_sets(file_sets)
         metadata = language_metadata(file_sets, locales)
-        ensure_content(BACKEND_MANIFEST, render_backend_manifest(locales), args.write)
         for name, path in FRONTEND_GENERATED_FILES.items():
             ensure_content(path, render_frontend_generated(locales, name == "admin-core", name == "admin-core"), args.write)
         if args.migration_version:

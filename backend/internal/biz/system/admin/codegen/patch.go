@@ -844,80 +844,6 @@ func insertGoStructSelectorField(content string, structName string, packageName 
 	return validGoPatch(content, insertGoLines(content, offset, line))
 }
 
-// insertGoFuncSelectorParameter 在同包类型参数中按类型名插入函数参数。
-func insertGoFuncSelectorParameter(content string, functionName string, packageName string, typeName string, line string) string {
-	file, fileSet, err := parseGoSource(content)
-	if err != nil {
-		return content
-	}
-	function := findGoFuncDecl(file, functionName)
-	if function == nil || function.Type.Params == nil {
-		return content
-	}
-	offset := fileSet.Position(function.Type.Params.Closing).Offset
-	for _, field := range function.Type.Params.List {
-		selector := goSelectorType(field.Type)
-		if selector == nil || selector.Sel == nil {
-			continue
-		}
-		identifier, ok := selector.X.(*ast.Ident)
-		if !ok || identifier.Name != packageName {
-			continue
-		}
-		if strings.Compare(goServiceEntitySortKey(selector.Sel.Name), goServiceEntitySortKey(typeName)) > 0 {
-			offset = fileSet.Position(field.Pos()).Offset
-			break
-		}
-		offset = fileSet.Position(field.End()).Offset
-	}
-	return validGoPatch(content, insertGoLines(content, offset, line))
-}
-
-// insertGoCompositeLiteralField 在管理端字段分组内按字段名插入结构体字面量成员。
-func insertGoCompositeLiteralField(content string, functionName string, typeName string, fieldName string, line string) string {
-	file, fileSet, err := parseGoSource(content)
-	if err != nil {
-		return content
-	}
-	function := findGoFuncDecl(file, functionName)
-	if function == nil {
-		return content
-	}
-	var literal *ast.CompositeLit
-	ast.Inspect(function.Body, func(node ast.Node) bool {
-		candidate, ok := node.(*ast.CompositeLit)
-		if !ok {
-			return true
-		}
-		identifier, ok := candidate.Type.(*ast.Ident)
-		if ok && identifier.Name == typeName {
-			literal = candidate
-			return false
-		}
-		return true
-	})
-	if literal == nil {
-		return content
-	}
-	offset := fileSet.Position(literal.Rbrace).Offset
-	for _, element := range literal.Elts {
-		keyValue, ok := element.(*ast.KeyValueExpr)
-		if !ok {
-			continue
-		}
-		identifier, ok := keyValue.Key.(*ast.Ident)
-		if !ok || !strings.HasPrefix(identifier.Name, "admin") {
-			continue
-		}
-		if strings.Compare(goServiceFieldEntitySortKey(identifier.Name), goServiceFieldEntitySortKey(fieldName)) > 0 {
-			offset = fileSet.Position(element.Pos()).Offset
-			break
-		}
-		offset = fileSet.Position(element.End()).Offset
-	}
-	return validGoPatch(content, insertGoLines(content, offset, line))
-}
-
 // insertGoPackageCall 在函数内相同包的调用分组中按函数名插入调用。
 func insertGoPackageCall(content string, functionName string, packageName string, callName string, line string) string {
 	file, fileSet, err := parseGoSource(content)
@@ -981,11 +907,6 @@ func goProviderEntitySortKey(providerName string) string {
 // goServiceEntitySortKey 返回服务类型对应的实体排序键。
 func goServiceEntitySortKey(typeName string) string {
 	return stringcase.ToSnakeCase(strings.TrimSuffix(typeName, "Service"))
-}
-
-// goServiceFieldEntitySortKey 返回管理端服务字段对应的实体排序键。
-func goServiceFieldEntitySortKey(fieldName string) string {
-	return stringcase.ToSnakeCase(strings.TrimPrefix(fieldName, "admin"))
 }
 
 // goRegistrationEntitySortKey 返回服务注册调用对应的实体排序键。
@@ -1090,66 +1011,6 @@ func findGoStructType(file *ast.File, name string) *ast.StructType {
 	return nil
 }
 
-// goFuncSelectorParamName 返回函数参数中指定包类型对应的参数名。
-func goFuncSelectorParamName(content string, functionName string, packageName string, typeName string) string {
-	file, _, err := parseGoSource(content)
-	if err != nil {
-		return ""
-	}
-	function := findGoFuncDecl(file, functionName)
-	if function == nil || function.Type.Params == nil {
-		return ""
-	}
-	for _, field := range function.Type.Params.List {
-		selector := goSelectorType(field.Type)
-		if selector == nil || !strings.EqualFold(selector.Sel.Name, typeName) {
-			continue
-		}
-		identifier, ok := selector.X.(*ast.Ident)
-		if !ok || identifier.Name != packageName || len(field.Names) == 0 {
-			continue
-		}
-		return field.Names[0].Name
-	}
-	return ""
-}
-
-// goCompositeKeyExists 判断结构体字面量是否已包含指定字段。
-func goCompositeKeyExists(literal *ast.CompositeLit, fieldName string) bool {
-	for _, element := range literal.Elts {
-		keyValue, isKeyValue := element.(*ast.KeyValueExpr)
-		if !isKeyValue {
-			continue
-		}
-		identifier, isIdentifier := keyValue.Key.(*ast.Ident)
-		if isIdentifier && strings.EqualFold(identifier.Name, fieldName) {
-			return true
-		}
-	}
-	return false
-}
-
-// insertBeforeGoFuncReturn 在函数最终返回前插入代码。
-func insertBeforeGoFuncReturn(content string, functionName string, line string) string {
-	file, fileSet, err := parseGoSource(content)
-	if err != nil {
-		return content
-	}
-	function := findGoFuncDecl(file, functionName)
-	if function == nil {
-		return content
-	}
-	for index := len(function.Body.List) - 1; index >= 0; index-- {
-		statement, ok := function.Body.List[index].(*ast.ReturnStmt)
-		if !ok {
-			continue
-		}
-		patched := insertGoLines(content, fileSet.Position(statement.Pos()).Offset, line)
-		return validGoPatch(content, patched)
-	}
-	return content
-}
-
 // findGoFuncDecl 查找指定 Go 函数。
 func findGoFuncDecl(file *ast.File, name string) *ast.FuncDecl {
 	for _, declaration := range file.Decls {
@@ -1237,7 +1098,7 @@ func ensureGeneratedGoImports(content string, methodContent string) string {
 		{marker: "json.", importLine: `"encoding/json"`, importPath: "encoding/json"},
 		{marker: "fmt.", importLine: `"fmt"`, importPath: "fmt"},
 		{marker: "commonv1.", importLine: `commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"`, importPath: "github.com/liujitcn/kratos-core/api/gen/go/common/v1"},
-		{marker: "errorsx.", importLine: `"github.com/liujitcn/kratos-core/pkg/errorsx"`, importPath: "github.com/liujitcn/kratos-core/pkg/errorsx"},
+		{marker: "errorsx.", importLine: `"github.com/liujitcn/kratos-core/errorsx"`, importPath: "github.com/liujitcn/kratos-core/errorsx"},
 		{marker: "models.", importLine: `"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"`, importPath: "github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"},
 		{marker: "mapper.", importLine: `"github.com/liujitcn/go-utils/mapper"`, importPath: "github.com/liujitcn/go-utils/mapper"},
 		{marker: "_string.", importLine: `_string "github.com/liujitcn/go-utils/string"`, importPath: "github.com/liujitcn/go-utils/string"},

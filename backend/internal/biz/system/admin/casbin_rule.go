@@ -6,8 +6,8 @@ import (
 
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	coreconst "github.com/liujitcn/kratos-core/pkg/const"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	_set "github.com/liujitcn/go-utils/set"
 	_string "github.com/liujitcn/go-utils/string"
@@ -50,23 +50,15 @@ func NewCasbinRuleCase(
 	}, nil
 }
 
-// RebuildPolicyRule 重建内存权限策略。
+// RebuildPolicyRule 重建内存中的 Casbin 策略。
 func (c *CasbinRuleCase) RebuildPolicyRule(ctx context.Context) error {
-	policyRule := make([]casbin.PolicyRule, 0)
-	// 查询全部 API，默认给 super 配置。
+	policyRules := make([]casbin.PolicyRule, 0)
 	baseAPIList, err := c.baseAPICase.List(ctx)
 	if err != nil {
 		return err
 	}
 	for _, item := range baseAPIList {
-		policyRule = append(policyRule, casbin.PolicyRule{
-			PType: "p",
-			V0:    databaseGorm.DefaultTenantCode,
-			V1:    coreconst.BASE_ROLE_CODE_SUPER,
-			V2:    item.Operation,
-			V3:    item.Method,
-			V4:    "*",
-		})
+		policyRules = append(policyRules, casbin.PolicyRule{PType: "p", V0: databaseGorm.DefaultTenantCode, V1: coreconst.BASE_ROLE_CODE_SUPER, V2: item.Operation, V3: item.Method, V4: "*"})
 	}
 	var casbinRuleList []*models.CasbinRule
 	casbinRuleList, err = c.List(ctx)
@@ -74,23 +66,12 @@ func (c *CasbinRuleCase) RebuildPolicyRule(ctx context.Context) error {
 		return err
 	}
 	for _, item := range casbinRuleList {
-		// 旧版本策略缺少租户或项目占位字段时会被 Casbin 识别为 4 段规则，启动阶段直接跳过等待角色权限重建修复。
 		if item.Ptype == "" || item.V0 == "" || item.V1 == "" || item.V2 == "" || item.V3 == "" || item.V4 == "" {
 			continue
 		}
-		policyRule = append(policyRule, casbin.PolicyRule{
-			PType: item.Ptype,
-			V0:    item.V0,
-			V1:    item.V1,
-			V2:    item.V2,
-			V3:    item.V3,
-			V4:    item.V4,
-		})
+		policyRules = append(policyRules, casbin.PolicyRule{PType: item.Ptype, V0: item.V0, V1: item.V1, V2: item.V2, V3: item.V3, V4: item.V4})
 	}
-	policyMap := make(authzEngine.PolicyMap)
-	policyMap["policies"] = policyRule
-	roleMap := make(authzEngine.RoleMap)
-	return c.policyWriter.SetPolicies(ctx, policyMap, roleMap)
+	return c.policyWriter.SetPolicies(ctx, authzEngine.PolicyMap{"policies": policyRules}, authzEngine.RoleMap{})
 }
 
 // DeleteCasbinRuleByMenuIDs 按菜单批量删除角色权限

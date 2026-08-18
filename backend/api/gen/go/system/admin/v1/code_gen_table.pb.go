@@ -931,7 +931,7 @@ var File_system_admin_v1_code_gen_table_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\n" +
-	"$system/admin/v1/code_gen_table.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a&system/admin/v1/base_translation.proto\"\x81\x04\n" +
+	"$system/admin/v1/code_gen_table.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fsystem/admin/v1/base_i18n.proto\"\x81\x04\n" +
 	"\x17PageCodeGenTableRequest\x12+\n" +
 	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f业务表名H\x00R\x04name\x88\x01\x01\x12@\n" +
 	"\x0fbusiness_module\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f业务模块H\x01R\x0ebusinessModule\x88\x01\x01\x124\n" +
@@ -1113,7 +1113,7 @@ func file_system_admin_v1_code_gen_table_proto_init() {
 	if File_system_admin_v1_code_gen_table_proto != nil {
 		return
 	}
-	file_system_admin_v1_base_translation_proto_init()
+	file_system_admin_v1_base_i18n_proto_init()
 	file_system_admin_v1_code_gen_table_proto_msgTypes[0].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

@@ -7,9 +7,8 @@ import (
 	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	"github.com/liujitcn/kratos-core/pkg/biz"
-	coreconst "github.com/liujitcn/kratos-core/pkg/const"
-	coreLocale "github.com/liujitcn/kratos-core/pkg/locale"
+	"github.com/liujitcn/kratos-core/biz"
+	coreconst "github.com/liujitcn/kratos-core/const"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	systemappv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
@@ -46,7 +45,7 @@ func (c *BaseDictCase) GetBaseDict(ctx context.Context, code string) (*systemapp
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
 	opts = append(opts, repository.Where(query.Code.Eq(code)))
-	opts = append(opts, repository.Where(query.Status.Eq(coreconst.Status_STATUS_ENABLE)))
+	opts = append(opts, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
 	baseDict, err := c.Find(ctx, opts...)
 	if err != nil {
 		return nil, err
@@ -63,7 +62,7 @@ func (c *BaseDictCase) GetBaseDict(ctx context.Context, code string) (*systemapp
 		dictItemMap[item.DictID] = append(dictItemMap[item.DictID], item)
 	}
 	var dictNames map[int64]string
-	dictNames, err = c.translationCase.GetBaseTranslationNameMapByLocale(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT, coreLocale.FromContext(ctx), []int64{baseDict.ID})
+	dictNames, err = c.translationCase.GetBaseTranslationNameMapByLocale(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT, biz.LocaleFromContext(ctx), []int64{baseDict.ID})
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +71,7 @@ func (c *BaseDictCase) GetBaseDict(ctx context.Context, code string) (*systemapp
 		dictItemIDs = append(dictItemIDs, item.ID)
 	}
 	var dictItemLabels map[int64]string
-	dictItemLabels, err = c.translationCase.GetBaseTranslationNameMapByLocale(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM, coreLocale.FromContext(ctx), dictItemIDs)
+	dictItemLabels, err = c.translationCase.GetBaseTranslationNameMapByLocale(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM, biz.LocaleFromContext(ctx), dictItemIDs)
 	if err != nil {
 		return nil, err
 	}

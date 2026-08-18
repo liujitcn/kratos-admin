@@ -7,7 +7,8 @@ import (
 
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/liujitcn/gorm-kit/repository"
@@ -15,12 +16,14 @@ import (
 
 // BaseThirdAccountCase 处理用户三方登录账号绑定业务。
 type BaseThirdAccountCase struct {
+	*biz.BaseCase
 	*data.BaseThirdAccountRepository
 }
 
 // NewBaseThirdAccountCase 创建用户三方登录账号绑定业务实例。
-func NewBaseThirdAccountCase(baseThirdAccountRepo *data.BaseThirdAccountRepository) *BaseThirdAccountCase {
+func NewBaseThirdAccountCase(baseCase *biz.BaseCase, baseThirdAccountRepo *data.BaseThirdAccountRepository) *BaseThirdAccountCase {
 	return &BaseThirdAccountCase{
+		BaseCase:                   baseCase,
 		BaseThirdAccountRepository: baseThirdAccountRepo,
 	}
 }

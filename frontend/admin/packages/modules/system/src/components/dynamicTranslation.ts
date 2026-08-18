@@ -1,5 +1,5 @@
 import { getEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
-import type { TranslationTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
+import type { TranslationTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 
 /** DynamicTranslationValue 动态资源单语言翻译编辑状态。 */
 export interface DynamicTranslationValue {

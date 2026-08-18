@@ -21,11 +21,13 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		AiMessage:        newAiMessage(db, opts...),
 		AiSession:        newAiSession(db, opts...),
 		BaseAPI:          newBaseAPI(db, opts...),
+		BaseAPII18n:      newBaseAPII18n(db, opts...),
 		BaseArea:         newBaseArea(db, opts...),
 		BaseConfig:       newBaseConfig(db, opts...),
 		BaseDept:         newBaseDept(db, opts...),
 		BaseDict:         newBaseDict(db, opts...),
 		BaseDictItem:     newBaseDictItem(db, opts...),
+		BaseI18n:         newBaseI18n(db, opts...),
 		BaseJob:          newBaseJob(db, opts...),
 		BaseJobLog:       newBaseJobLog(db, opts...),
 		BaseLanguage:     newBaseLanguage(db, opts...),
@@ -36,7 +38,6 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		BaseRole:         newBaseRole(db, opts...),
 		BaseTenant:       newBaseTenant(db, opts...),
 		BaseThirdAccount: newBaseThirdAccount(db, opts...),
-		BaseTranslation:  newBaseTranslation(db, opts...),
 		BaseUser:         newBaseUser(db, opts...),
 		CasbinRule:       newCasbinRule(db, opts...),
 		CodeGenColumn:    newCodeGenColumn(db, opts...),
@@ -46,16 +47,17 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 }
 
 type Query struct {
-	db *gorm.DB
-
+	db               *gorm.DB
 	AiMessage        aiMessage
 	AiSession        aiSession
 	BaseAPI          baseAPI
+	BaseAPII18n      baseAPII18n
 	BaseArea         baseArea
 	BaseConfig       baseConfig
 	BaseDept         baseDept
 	BaseDict         baseDict
 	BaseDictItem     baseDictItem
+	BaseI18n         baseI18n
 	BaseJob          baseJob
 	BaseJobLog       baseJobLog
 	BaseLanguage     baseLanguage
@@ -66,7 +68,6 @@ type Query struct {
 	BaseRole         baseRole
 	BaseTenant       baseTenant
 	BaseThirdAccount baseThirdAccount
-	BaseTranslation  baseTranslation
 	BaseUser         baseUser
 	CasbinRule       casbinRule
 	CodeGenColumn    codeGenColumn
@@ -82,11 +83,13 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		AiMessage:        q.AiMessage.clone(db),
 		AiSession:        q.AiSession.clone(db),
 		BaseAPI:          q.BaseAPI.clone(db),
+		BaseAPII18n:      q.BaseAPII18n.clone(db),
 		BaseArea:         q.BaseArea.clone(db),
 		BaseConfig:       q.BaseConfig.clone(db),
 		BaseDept:         q.BaseDept.clone(db),
 		BaseDict:         q.BaseDict.clone(db),
 		BaseDictItem:     q.BaseDictItem.clone(db),
+		BaseI18n:         q.BaseI18n.clone(db),
 		BaseJob:          q.BaseJob.clone(db),
 		BaseJobLog:       q.BaseJobLog.clone(db),
 		BaseLanguage:     q.BaseLanguage.clone(db),
@@ -97,7 +100,6 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		BaseRole:         q.BaseRole.clone(db),
 		BaseTenant:       q.BaseTenant.clone(db),
 		BaseThirdAccount: q.BaseThirdAccount.clone(db),
-		BaseTranslation:  q.BaseTranslation.clone(db),
 		BaseUser:         q.BaseUser.clone(db),
 		CasbinRule:       q.CasbinRule.clone(db),
 		CodeGenColumn:    q.CodeGenColumn.clone(db),
@@ -120,11 +122,13 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		AiMessage:        q.AiMessage.replaceDB(db),
 		AiSession:        q.AiSession.replaceDB(db),
 		BaseAPI:          q.BaseAPI.replaceDB(db),
+		BaseAPII18n:      q.BaseAPII18n.replaceDB(db),
 		BaseArea:         q.BaseArea.replaceDB(db),
 		BaseConfig:       q.BaseConfig.replaceDB(db),
 		BaseDept:         q.BaseDept.replaceDB(db),
 		BaseDict:         q.BaseDict.replaceDB(db),
 		BaseDictItem:     q.BaseDictItem.replaceDB(db),
+		BaseI18n:         q.BaseI18n.replaceDB(db),
 		BaseJob:          q.BaseJob.replaceDB(db),
 		BaseJobLog:       q.BaseJobLog.replaceDB(db),
 		BaseLanguage:     q.BaseLanguage.replaceDB(db),
@@ -135,7 +139,6 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		BaseRole:         q.BaseRole.replaceDB(db),
 		BaseTenant:       q.BaseTenant.replaceDB(db),
 		BaseThirdAccount: q.BaseThirdAccount.replaceDB(db),
-		BaseTranslation:  q.BaseTranslation.replaceDB(db),
 		BaseUser:         q.BaseUser.replaceDB(db),
 		CasbinRule:       q.CasbinRule.replaceDB(db),
 		CodeGenColumn:    q.CodeGenColumn.replaceDB(db),
@@ -148,11 +151,13 @@ type queryCtx struct {
 	AiMessage        *aiMessageDo
 	AiSession        *aiSessionDo
 	BaseAPI          *baseAPIDo
+	BaseAPII18n      *baseAPII18nDo
 	BaseArea         *baseAreaDo
 	BaseConfig       *baseConfigDo
 	BaseDept         *baseDeptDo
 	BaseDict         *baseDictDo
 	BaseDictItem     *baseDictItemDo
+	BaseI18n         *baseI18nDo
 	BaseJob          *baseJobDo
 	BaseJobLog       *baseJobLogDo
 	BaseLanguage     *baseLanguageDo
@@ -163,7 +168,6 @@ type queryCtx struct {
 	BaseRole         *baseRoleDo
 	BaseTenant       *baseTenantDo
 	BaseThirdAccount *baseThirdAccountDo
-	BaseTranslation  *baseTranslationDo
 	BaseUser         *baseUserDo
 	CasbinRule       *casbinRuleDo
 	CodeGenColumn    *codeGenColumnDo
@@ -176,11 +180,13 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		AiMessage:        q.AiMessage.WithContext(ctx),
 		AiSession:        q.AiSession.WithContext(ctx),
 		BaseAPI:          q.BaseAPI.WithContext(ctx),
+		BaseAPII18n:      q.BaseAPII18n.WithContext(ctx),
 		BaseArea:         q.BaseArea.WithContext(ctx),
 		BaseConfig:       q.BaseConfig.WithContext(ctx),
 		BaseDept:         q.BaseDept.WithContext(ctx),
 		BaseDict:         q.BaseDict.WithContext(ctx),
 		BaseDictItem:     q.BaseDictItem.WithContext(ctx),
+		BaseI18n:         q.BaseI18n.WithContext(ctx),
 		BaseJob:          q.BaseJob.WithContext(ctx),
 		BaseJobLog:       q.BaseJobLog.WithContext(ctx),
 		BaseLanguage:     q.BaseLanguage.WithContext(ctx),
@@ -191,7 +197,6 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		BaseRole:         q.BaseRole.WithContext(ctx),
 		BaseTenant:       q.BaseTenant.WithContext(ctx),
 		BaseThirdAccount: q.BaseThirdAccount.WithContext(ctx),
-		BaseTranslation:  q.BaseTranslation.WithContext(ctx),
 		BaseUser:         q.BaseUser.WithContext(ctx),
 		CasbinRule:       q.CasbinRule.WithContext(ctx),
 		CodeGenColumn:    q.CodeGenColumn.WithContext(ctx),

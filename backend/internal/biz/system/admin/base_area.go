@@ -4,12 +4,13 @@ import (
 	"context"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	"github.com/liujitcn/kratos-core/pkg/biz"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
@@ -110,14 +111,22 @@ func (c *BaseAreaCase) GetBaseArea(ctx context.Context, id int64) (*systemadminv
 // CreateBaseArea 创建行政区域。
 func (c *BaseAreaCase) CreateBaseArea(ctx context.Context, req *systemadminv1.BaseAreaForm) error {
 	baseArea := c.formMapper.ToEntity(req)
-	return c.Create(ctx, baseArea)
+	err := c.Create(ctx, baseArea)
+	if err != nil {
+		return err
+	}
+	return c.invalidateBaseAreaCache()
 }
 
 // UpdateBaseArea 更新行政区域。
 func (c *BaseAreaCase) UpdateBaseArea(ctx context.Context, id int64, req *systemadminv1.BaseAreaForm) error {
 	baseArea := c.formMapper.ToEntity(req)
 	baseArea.ID = id
-	return c.UpdateByID(ctx, baseArea)
+	err := c.UpdateByID(ctx, baseArea)
+	if err != nil {
+		return err
+	}
+	return c.invalidateBaseAreaCache()
 }
 
 // DeleteBaseArea 删除行政区域。
@@ -127,8 +136,10 @@ func (c *BaseAreaCase) DeleteBaseArea(ctx context.Context, ids string) error {
 		return nil
 	}
 	query := c.Query(ctx).BaseArea
+	var err error
 	for _, parentID := range idList {
-		count, err := c.Count(ctx, repository.Where(query.ParentID.Eq(parentID)))
+		var count int64
+		count, err = c.Count(ctx, repository.Where(query.ParentID.Eq(parentID)))
 		if err != nil {
 			return err
 		}
@@ -136,7 +147,19 @@ func (c *BaseAreaCase) DeleteBaseArea(ctx context.Context, ids string) error {
 			return errorsx.HasChildrenConflict("删除行政区域失败，下面有行政区域", "base_area", "base_area")
 		}
 	}
-	return c.DeleteByIDs(ctx, idList)
+	err = c.DeleteByIDs(ctx, idList)
+	if err != nil {
+		return err
+	}
+	return c.invalidateBaseAreaCache()
+}
+
+// invalidateBaseAreaCache 删除行政区域树缓存，确保管理端变更对应用端立即可见。
+func (c *BaseAreaCase) invalidateBaseAreaCache() error {
+	if c.Cache == nil {
+		return nil
+	}
+	return c.Cache.Del(_const.BASE_AREA_CACHE_KEY)
 }
 
 // buildOptionBaseAreaOption 构建行政区域树形选择。

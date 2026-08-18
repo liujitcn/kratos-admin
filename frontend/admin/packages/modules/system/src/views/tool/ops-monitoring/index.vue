@@ -225,15 +225,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref } from "vue";
 import { defOpsMonitoringService } from "@liujitcn/kratos-admin-system/api/system/ops_monitoring";
-import {
-  subscribeOpsMonitoringNodes,
-  subscribeOpsMonitoringServices,
-  subscribeOpsMonitoringStorage,
-  subscribeOpsMonitoringTraffic,
-  type OpsMonitoringSseStop
-} from "@liujitcn/kratos-admin-system/api/system/ops_monitoring_sse";
 import { getCurrentLocale, t } from "@liujitcn/kratos-admin-core";
 import type {
   OpsAlert,
@@ -438,7 +431,9 @@ const alertItems = computed(() => (alerts.value?.alerts ?? []).map(mapAlert));
 const serviceCount = computed(() => availabilityItems.value.length);
 const onlineCount = computed(() => availabilityItems.value.filter(item => item.tone === "ok").length);
 
-let sseStops: OpsMonitoringSseStop[] = [];
+let monitoringTimer: number | undefined;
+let monitoringActive = false;
+let monitoringRun = 0;
 
 async function loadMonitoring() {
   loading.value = true;
@@ -495,18 +490,23 @@ function updateCollectedAt(value?: string) {
   if (value) lastCollectedAt.value = value;
 }
 
-function subscribeRealtime() {
-  sseStops = [
-    subscribeOpsMonitoringTraffic(setTraffic),
-    subscribeOpsMonitoringServices(setServices),
-    subscribeOpsMonitoringStorage(setStorage),
-    subscribeOpsMonitoringNodes(setNodes)
-  ];
+async function startMonitoring() {
+  if (monitoringActive) return;
+  monitoringActive = true;
+  const run = ++monitoringRun;
+  await loadMonitoring();
+  if (!monitoringActive || run !== monitoringRun) return;
+  monitoringTimer = window.setInterval(() => {
+    if (!loading.value) void loadMonitoring();
+  }, 5000);
 }
 
-function stopRealtime() {
-  sseStops.forEach(stop => stop());
-  sseStops = [];
+function stopMonitoring() {
+  monitoringActive = false;
+  monitoringRun += 1;
+  if (monitoringTimer === undefined) return;
+  window.clearInterval(monitoringTimer);
+  monitoringTimer = undefined;
 }
 
 function formatNumber(value?: number) {
@@ -596,12 +596,10 @@ function mapAlert(alert: OpsAlert) {
   };
 }
 
-onMounted(async () => {
-  await loadMonitoring();
-  subscribeRealtime();
-});
-
-onBeforeUnmount(stopRealtime);
+onMounted(startMonitoring);
+onActivated(startMonitoring);
+onDeactivated(stopMonitoring);
+onBeforeUnmount(stopMonitoring);
 </script>
 
 <style scoped lang="scss">

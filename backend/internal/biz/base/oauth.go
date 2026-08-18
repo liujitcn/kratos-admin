@@ -18,9 +18,9 @@ import (
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	"github.com/liujitcn/kratos-core/pkg/biz"
-	coreconst "github.com/liujitcn/kratos-core/pkg/const"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/biz"
+	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	kratosErrors "github.com/go-kratos/kratos/v3/errors"
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
@@ -42,13 +42,13 @@ var oauthLoginTicketLocks [oauthLoginTicketLockShardCount]sync.Mutex
 type OauthCase struct {
 	*biz.BaseCase
 	tx                   data.Transaction
-	oauthManager         *kitOauth.Manager
 	baseThirdAccountCase *BaseThirdAccountCase
 	baseUserCase         *BaseUserCase
 	baseRoleCase         *BaseRoleCase
 	baseDeptCase         *BaseDeptCase
 	loginCase            *LoginCase
 	configCase           *ConfigCase
+	oauthManager         *kitOauth.Manager
 }
 
 // oauthLoginTicketPayload 表示三方登录一次性票据缓存的令牌信息。
@@ -63,24 +63,24 @@ type oauthLoginTicketPayload struct {
 func NewOauthCase(
 	baseCase *biz.BaseCase,
 	tx data.Transaction,
-	oauthManager *kitOauth.Manager,
 	baseThirdAccountCase *BaseThirdAccountCase,
 	baseUserCase *BaseUserCase,
 	baseRoleCase *BaseRoleCase,
 	baseDeptCase *BaseDeptCase,
 	loginCase *LoginCase,
 	configCase *ConfigCase,
+	oauthManager *kitOauth.Manager,
 ) *OauthCase {
 	return &OauthCase{
 		BaseCase:             baseCase,
 		tx:                   tx,
-		oauthManager:         oauthManager,
 		baseThirdAccountCase: baseThirdAccountCase,
 		baseUserCase:         baseUserCase,
 		baseRoleCase:         baseRoleCase,
 		baseDeptCase:         baseDeptCase,
 		loginCase:            loginCase,
 		configCase:           configCase,
+		oauthManager:         oauthManager,
 	}
 }
 
@@ -147,7 +147,7 @@ func (c *OauthCase) CreateOauthAuthorization(ctx context.Context, req *basev1.Cr
 	}
 	var state string
 	var pkce provider.PKCEChallenge
-	state, pkce, err = kitOauth.NewStateWithPKCE(c.GetCache(), kitOauth.StatePayload{
+	state, pkce, err = kitOauth.NewStateWithPKCE(c.Cache, kitOauth.StatePayload{
 		Provider:    oauthType,
 		Scene:       oauthSceneAdminLogin,
 		RedirectURL: redirectURL,
@@ -186,7 +186,7 @@ func (c *OauthCase) CreateOauthBindingAuthorization(ctx context.Context, req *ba
 	}
 	var state string
 	var pkce provider.PKCEChallenge
-	state, pkce, err = kitOauth.NewStateWithPKCE(c.GetCache(), kitOauth.StatePayload{
+	state, pkce, err = kitOauth.NewStateWithPKCE(c.Cache, kitOauth.StatePayload{
 		Provider:    oauthType,
 		Scene:       oauthSceneAdminBind,
 		RedirectURL: safeRedirectURL,
@@ -303,7 +303,7 @@ func (c *OauthCase) BindOauthSession(ctx context.Context, req *basev1.BindOauthS
 
 // HandleOauthCallback 处理三方登录回调并跳回管理端登录页。
 func (c *OauthCase) HandleOauthCallback(ctx context.Context, req *basev1.HandleOauthCallbackRequest) (*basev1.HandleOauthCallbackResponse, error) {
-	payload, err := kitOauth.VerifyState(c.GetCache(), req.GetState())
+	payload, err := kitOauth.VerifyState(c.Cache, req.GetState())
 	if err != nil {
 		return nil, errorsx.InvalidArgument("三方登录状态已失效")
 	}
@@ -357,7 +357,7 @@ func (c *OauthCase) HandleOauthCallback(ctx context.Context, req *basev1.HandleO
 
 // HandleOauthBindingCallback 处理个人中心三方账号绑定回调。
 func (c *OauthCase) HandleOauthBindingCallback(ctx context.Context, req *basev1.HandleOauthBindingCallbackRequest) error {
-	payload, err := kitOauth.VerifyState(c.GetCache(), req.GetState())
+	payload, err := kitOauth.VerifyState(c.Cache, req.GetState())
 	if err != nil {
 		return errorsx.InvalidArgument("三方账号绑定状态已失效")
 	}
@@ -445,7 +445,7 @@ func (c *OauthCase) createWechatMiniUser(ctx context.Context, openID string) (*m
 		RoleID:   defaultRole.ID,
 		DeptID:   defaultDept.ID,
 		Gender:   _const.BASE_USER_GENDER_SECRET,
-		Status:   coreconst.Status_STATUS_ENABLE,
+		Status:   coreconst.STATUS_STATUS_ENABLE,
 		Remark:   "自动注册用户",
 	}
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
@@ -552,7 +552,9 @@ func (c *OauthCase) handleOauthBindingCallback(ctx context.Context, payload *kit
 
 // fetchOauthIdentifier 通过授权码读取三方账号唯一标识。
 func (c *OauthCase) fetchOauthIdentifier(ctx context.Context, oauthType kitOauth.Type, code string, pkce provider.PKCEChallenge) (string, error) {
-	oauthProvider, err := c.oauthManager.Get(oauthType)
+	var err error
+	var oauthProvider provider.OAuth
+	oauthProvider, err = c.oauthManager.Get(oauthType)
 	if err != nil {
 		return "", errorsx.InvalidArgument("登录方式不支持").WithCause(err)
 	}
@@ -585,7 +587,7 @@ func (c *OauthCase) createOauthLoginTicket(loginRes *basev1.LoginResponse) (stri
 		return "", errorsx.Internal("三方登录票据创建失败").WithCause(err)
 	}
 	ticket := id.NewGUIDv7NoHyphen()
-	err = c.GetCache().Set(oauthLoginTicketKey(ticket), string(body), oauthLoginTicketExpire)
+	err = c.Cache.Set(oauthLoginTicketKey(ticket), string(body), oauthLoginTicketExpire)
 	if err != nil {
 		return "", errorsx.Internal("三方登录票据创建失败").WithCause(err)
 	}
@@ -599,11 +601,11 @@ func (c *OauthCase) consumeOauthLoginTicket(ticket string) (string, error) {
 	defer lock.Unlock()
 
 	cacheKey := oauthLoginTicketKey(ticket)
-	value, err := c.GetCache().Get(cacheKey)
+	value, err := c.Cache.Get(cacheKey)
 	if err != nil {
 		return "", errorsx.Unauthenticated("三方登录票据已失效").WithCause(err)
 	}
-	err = c.GetCache().Del(cacheKey)
+	err = c.Cache.Del(cacheKey)
 	if err != nil {
 		return "", errorsx.Internal("三方登录票据消费失败").WithCause(err)
 	}

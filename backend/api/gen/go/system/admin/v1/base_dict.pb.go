@@ -420,7 +420,7 @@ type BaseDictForm struct {
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                 // 字典ID
 	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                              // 字典编号
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                              // 字典名称
-	Translations  []*BaseTranslation     `protobuf:"bytes,7,rep,name=translations,proto3" json:"translations,omitempty"`              // 非主语言翻译
+	Translations  []*BaseI18n            `protobuf:"bytes,7,rep,name=translations,proto3" json:"translations,omitempty"`              // 非主语言翻译
 	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -477,7 +477,7 @@ func (x *BaseDictForm) GetName() string {
 	return ""
 }
 
-func (x *BaseDictForm) GetTranslations() []*BaseTranslation {
+func (x *BaseDictForm) GetTranslations() []*BaseI18n {
 	if x != nil {
 		return x.Translations
 	}
@@ -545,7 +545,7 @@ type BaseDictItemForm struct {
 	Label         string                 `protobuf:"bytes,4,opt,name=label,proto3" json:"label,omitempty"`                            // 字典项标签
 	TagType       string                 `protobuf:"bytes,5,opt,name=tag_type,json=tagType,proto3" json:"tag_type,omitempty"`         // 标签类型，用于前端样式展示（如success、warning等）
 	Sort          int32                  `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                             // 排序
-	Translations  []*BaseTranslation     `protobuf:"bytes,7,rep,name=translations,proto3" json:"translations,omitempty"`              // 非主语言翻译
+	Translations  []*BaseI18n            `protobuf:"bytes,7,rep,name=translations,proto3" json:"translations,omitempty"`              // 非主语言翻译
 	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -623,7 +623,7 @@ func (x *BaseDictItemForm) GetSort() int32 {
 	return 0
 }
 
-func (x *BaseDictItemForm) GetTranslations() []*BaseTranslation {
+func (x *BaseDictItemForm) GetTranslations() []*BaseI18n {
 	if x != nil {
 		return x.Translations
 	}
@@ -1022,7 +1022,7 @@ type BaseDict struct {
 	Status        v1.Status              `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // 创建时间
 	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"` // 更新时间
-	Translations  []*BaseTranslation     `protobuf:"bytes,202,rep,name=translations,proto3" json:"translations,omitempty"`            // 非主语言翻译
+	Translations  []*BaseI18n            `protobuf:"bytes,202,rep,name=translations,proto3" json:"translations,omitempty"`            // 非主语言翻译
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1099,7 +1099,7 @@ func (x *BaseDict) GetUpdatedAt() string {
 	return ""
 }
 
-func (x *BaseDict) GetTranslations() []*BaseTranslation {
+func (x *BaseDict) GetTranslations() []*BaseI18n {
 	if x != nil {
 		return x.Translations
 	}
@@ -1118,7 +1118,7 @@ type BaseDictItem struct {
 	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // 创建时间
 	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"` // 更新时间
-	Translations  []*BaseTranslation     `protobuf:"bytes,202,rep,name=translations,proto3" json:"translations,omitempty"`            // 非主语言翻译
+	Translations  []*BaseI18n            `protobuf:"bytes,202,rep,name=translations,proto3" json:"translations,omitempty"`            // 非主语言翻译
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1216,7 +1216,7 @@ func (x *BaseDictItem) GetUpdatedAt() string {
 	return ""
 }
 
-func (x *BaseDictItem) GetTranslations() []*BaseTranslation {
+func (x *BaseDictItem) GetTranslations() []*BaseI18n {
 	if x != nil {
 		return x.Translations
 	}
@@ -1349,7 +1349,7 @@ var File_system_admin_v1_base_dict_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"\n" +
-	"\x1fsystem/admin/v1/base_dict.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a&system/admin/v1/base_translation.proto\"\x17\n" +
+	"\x1fsystem/admin/v1/base_dict.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fsystem/admin/v1/base_i18n.proto\"\x17\n" +
 	"\x15OptionBaseDictRequest\"\x8a\x04\n" +
 	"\x16OptionBaseDictResponse\x12c\n" +
 	"\n" +
@@ -1385,7 +1385,7 @@ const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x82\x01\n" +
 	"\x12GetBaseDictRequest\x12l\n" +
 	"\x02id\x18\x01 \x01(\x03B\\\xbaG\v\x92\x02\b字典ID\xbaHK\xba\x01H\n" +
-	"&system.admin.base.dict.get.id.required\x12\x14字典ID不能为空\x1a\bthis > 0R\x02id\"\xb3\x05\n" +
+	"&system.admin.base.dict.get.id.required\x12\x14字典ID不能为空\x1a\bthis > 0R\x02id\"\xac\x05\n" +
 	"\fBaseDictForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b字典IDR\x02id\x12\xef\x01\n" +
 	"\x04code\x18\x02 \x01(\tB\xda\x01\xbaG\x0f\x92\x02\f字典编号\xbaH\xc4\x01\xba\x01U\n" +
@@ -1393,12 +1393,12 @@ const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"-system.admin.base.dict.entity.code.max_length\x12%字典编号不能超过 50 个字符\x1a\x11this.size() <= 50R\x04code\x12\xef\x01\n" +
 	"\x04name\x18\x03 \x01(\tB\xda\x01\xbaG\x0f\x92\x02\f字典名称\xbaH\xc4\x01\xba\x01U\n" +
 	"+system.admin.base.dict.entity.name.required\x12\x15请输入字典名称\x1a\x0fthis.size() > 0\xba\x01i\n" +
-	"-system.admin.base.dict.entity.name.max_length\x12%字典名称不能超过 50 个字符\x1a\x11this.size() <= 50R\x04name\x12^\n" +
-	"\ftranslations\x18\a \x03(\v2 .system.admin.v1.BaseTranslationB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\ftranslations\x12?\n" +
+	"-system.admin.base.dict.entity.name.max_length\x12%字典名称不能超过 50 个字符\x1a\x11this.size() <= 50R\x04name\x12W\n" +
+	"\ftranslations\x18\a \x03(\v2\x19.system.admin.v1.BaseI18nB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\ftranslations\x12?\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\x97\x01\n" +
 	"\x16GetBaseDictItemRequest\x12}\n" +
 	"\x02id\x18\x01 \x01(\x03Bm\xbaG\x11\x92\x02\x0e字典属性ID\xbaHV\xba\x01S\n" +
-	"+system.admin.base.dict.get_item.id.required\x12\x1a字典属性ID不能为空\x1a\bthis > 0R\x02id\"\xa2\t\n" +
+	"+system.admin.base.dict.get_item.id.required\x12\x1a字典属性ID不能为空\x1a\bthis > 0R\x02id\"\x9b\t\n" +
 	"\x10BaseDictItemForm\x12!\n" +
 	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v字典项IDR\x02id\x12'\n" +
 	"\adict_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b字典IDR\x06dictId\x12\x9b\x02\n" +
@@ -1411,8 +1411,8 @@ const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"\btag_type\x18\x05 \x01(\tB\xc2\x01\xbaGG\x92\x02D标签类型，用于前端样式展示（如success、warning等）\xbaHu\xba\x01r\n" +
 	"6system.admin.base.dict.entity.item.tag_type.max_length\x12%标签类型不能超过 50 个字符\x1a\x11this.size() <= 50R\atagType\x12x\n" +
 	"\x04sort\x18\x06 \x01(\x05Bd\xbaG\t\x92\x02\x06排序\xbaHU\xba\x01R\n" +
-	"0system.admin.base.dict.entity.item.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x12^\n" +
-	"\ftranslations\x18\a \x03(\v2 .system.admin.v1.BaseTranslationB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\ftranslations\x12?\n" +
+	"0system.admin.base.dict.entity.item.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x12W\n" +
+	"\ftranslations\x18\a \x03(\v2\x19.system.admin.v1.BaseI18nB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\ftranslations\x12?\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"m\n" +
 	"\x15CreateBaseDictRequest\x12T\n" +
 	"\tbase_dict\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseDictFormB\x18\xbaG\x0f\x92\x02\f字典表单\xbaH\x03\xc8\x01\x01R\bbaseDict\"\x84\x01\n" +
@@ -1437,7 +1437,7 @@ const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"\x18SetBaseDictStatusRequest\x12s\n" +
 	"\x02id\x18\x01 \x01(\x03Bc\xbaG\v\x92\x02\b字典ID\xbaHR\xba\x01O\n" +
 	"-system.admin.base.dict.set_status.id.required\x12\x14字典ID不能为空\x1a\bthis > 0R\x02id\x12$\n" +
-	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\x98\x05\n" +
+	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\x91\x05\n" +
 	"\bBaseDict\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b字典IDR\x02id\x12\xb3\x01\n" +
 	"\x04code\x18\x02 \x01(\tB\x9e\x01\xbaG\x0f\x92\x02\f字典编号\xbaH\x88\x01\xba\x01\x84\x01\n" +
@@ -1448,8 +1448,8 @@ const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12_\n" +
-	"\ftranslations\x18\xca\x01 \x03(\v2 .system.admin.v1.BaseTranslationB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\ftranslations\"\x95\t\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12X\n" +
+	"\ftranslations\x18\xca\x01 \x03(\v2\x19.system.admin.v1.BaseI18nB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\ftranslations\"\x8e\t\n" +
 	"\fBaseDictItem\x12!\n" +
 	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v字典项IDR\x02id\x12\x80\x01\n" +
 	"\adict_id\x18\x02 \x01(\x03Bg\xbaG\v\x92\x02\b字典ID\xbaHV\xba\x01S\n" +
@@ -1466,8 +1466,8 @@ const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12_\n" +
-	"\ftranslations\x18\xca\x01 \x03(\v2 .system.admin.v1.BaseTranslationB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\ftranslations2\x8e\x0e\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12X\n" +
+	"\ftranslations\x18\xca\x01 \x03(\v2\x19.system.admin.v1.BaseI18nB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\ftranslations2\x8e\x0e\n" +
 	"\x0fBaseDictService\x12\x89\x01\n" +
 	"\x0eOptionBaseDict\x12&.system.admin.v1.OptionBaseDictRequest\x1a'.system.admin.v1.OptionBaseDictResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/dict/option\x12|\n" +
 	"\fPageBaseDict\x12$.system.admin.v1.PageBaseDictRequest\x1a%.system.admin.v1.PageBaseDictResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/base/dict\x12\x8d\x01\n" +
@@ -1521,7 +1521,7 @@ var file_system_admin_v1_base_dict_proto_goTypes = []any{
 	(*OptionBaseDictResponse_BaseDictItem)(nil), // 20: system.admin.v1.OptionBaseDictResponse.BaseDictItem
 	(*OptionBaseDictResponse_BaseDict)(nil),     // 21: system.admin.v1.OptionBaseDictResponse.BaseDict
 	(v1.Status)(0),                              // 22: common.v1.Status
-	(*BaseTranslation)(nil),                     // 23: system.admin.v1.BaseTranslation
+	(*BaseI18n)(nil),                            // 23: system.admin.v1.BaseI18n
 	(*emptypb.Empty)(nil),                       // 24: google.protobuf.Empty
 }
 var file_system_admin_v1_base_dict_proto_depIdxs = []int32{
@@ -1530,18 +1530,18 @@ var file_system_admin_v1_base_dict_proto_depIdxs = []int32{
 	18, // 2: system.admin.v1.PageBaseDictResponse.base_dicts:type_name -> system.admin.v1.BaseDict
 	22, // 3: system.admin.v1.PageBaseDictItemRequest.status:type_name -> common.v1.Status
 	19, // 4: system.admin.v1.PageBaseDictItemResponse.base_dict_items:type_name -> system.admin.v1.BaseDictItem
-	23, // 5: system.admin.v1.BaseDictForm.translations:type_name -> system.admin.v1.BaseTranslation
+	23, // 5: system.admin.v1.BaseDictForm.translations:type_name -> system.admin.v1.BaseI18n
 	22, // 6: system.admin.v1.BaseDictForm.status:type_name -> common.v1.Status
-	23, // 7: system.admin.v1.BaseDictItemForm.translations:type_name -> system.admin.v1.BaseTranslation
+	23, // 7: system.admin.v1.BaseDictItemForm.translations:type_name -> system.admin.v1.BaseI18n
 	22, // 8: system.admin.v1.BaseDictItemForm.status:type_name -> common.v1.Status
 	7,  // 9: system.admin.v1.CreateBaseDictRequest.base_dict:type_name -> system.admin.v1.BaseDictForm
 	9,  // 10: system.admin.v1.CreateBaseDictItemRequest.base_dict_item:type_name -> system.admin.v1.BaseDictItemForm
 	7,  // 11: system.admin.v1.UpdateBaseDictRequest.base_dict:type_name -> system.admin.v1.BaseDictForm
 	9,  // 12: system.admin.v1.UpdateBaseDictItemRequest.base_dict_item:type_name -> system.admin.v1.BaseDictItemForm
 	22, // 13: system.admin.v1.BaseDict.status:type_name -> common.v1.Status
-	23, // 14: system.admin.v1.BaseDict.translations:type_name -> system.admin.v1.BaseTranslation
+	23, // 14: system.admin.v1.BaseDict.translations:type_name -> system.admin.v1.BaseI18n
 	22, // 15: system.admin.v1.BaseDictItem.status:type_name -> common.v1.Status
-	23, // 16: system.admin.v1.BaseDictItem.translations:type_name -> system.admin.v1.BaseTranslation
+	23, // 16: system.admin.v1.BaseDictItem.translations:type_name -> system.admin.v1.BaseI18n
 	20, // 17: system.admin.v1.OptionBaseDictResponse.BaseDict.items:type_name -> system.admin.v1.OptionBaseDictResponse.BaseDictItem
 	0,  // 18: system.admin.v1.BaseDictService.OptionBaseDict:input_type -> system.admin.v1.OptionBaseDictRequest
 	2,  // 19: system.admin.v1.BaseDictService.PageBaseDict:input_type -> system.admin.v1.PageBaseDictRequest
@@ -1581,7 +1581,7 @@ func file_system_admin_v1_base_dict_proto_init() {
 	if File_system_admin_v1_base_dict_proto != nil {
 		return
 	}
-	file_system_admin_v1_base_translation_proto_init()
+	file_system_admin_v1_base_i18n_proto_init()
 	file_system_admin_v1_base_dict_proto_msgTypes[2].OneofWrappers = []any{}
 	file_system_admin_v1_base_dict_proto_msgTypes[4].OneofWrappers = []any{}
 	type x struct{}

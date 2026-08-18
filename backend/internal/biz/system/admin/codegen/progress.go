@@ -6,11 +6,8 @@ import (
 	"sync"
 	"time"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
-	coreSSE "github.com/liujitcn/kratos-core/pkg/module"
-
 	"github.com/google/uuid"
+	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -23,14 +20,14 @@ const (
 	SSEEventCodeGenProgress = "codegen.progress"
 )
 
-// Publisher 将最新任务快照推送给订阅者。
-type Publisher func(context.Context, string, *systemadminv1.CodeGenTask)
+// Publisher 发布 SSE 结构化事件。
+type Publisher func(ctx context.Context, streamID, eventID string, payload any)
 
 // Manager 管理不落库的代码生成任务进度。
 type Manager struct {
-	mu        sync.RWMutex          // 任务和发布器读写锁
+	mu        sync.RWMutex          // 任务读写锁
 	tasks     map[string]*taskEntry // 按任务 ID 保存的内存快照
-	publisher Publisher             // SSE 快照发布方法
+	publisher Publisher             // SSE 事件发布能力
 }
 
 // taskEntry 保存任务所属用户和任务快照。
@@ -41,47 +38,21 @@ type taskEntry struct {
 
 // NewManager 创建代码生成任务进度管理器。
 func NewManager() *Manager {
-	return &Manager{tasks: make(map[string]*taskEntry)}
+	return &Manager{
+		tasks: make(map[string]*taskEntry),
+	}
 }
 
-// CodeGenSSEStream 解析代码生成任务 SSE 订阅请求。
-type CodeGenSSEStream struct {
-	manager *Manager
-}
-
-var _ coreSSE.SSEStream = (*CodeGenSSEStream)(nil)
-
-// NewCodeGenSSEStream 创建代码生成任务 SSE 流声明。
-func NewCodeGenSSEStream(manager *Manager) *CodeGenSSEStream {
-	return &CodeGenSSEStream{manager: manager}
+// SetPublisher 设置代码生成任务的 SSE 发布能力。
+func (m *Manager) SetPublisher(publisher Publisher) {
+	m.mu.Lock()
+	m.publisher = publisher
+	m.mu.Unlock()
 }
 
 // StreamID 返回指定代码生成任务的 SSE 流标识。
 func StreamID(taskID string) string {
 	return fmt.Sprintf("%s:%s", SSEStreamCodeGen, taskID)
-}
-
-// ID 返回代码生成 SSE 流标识。
-func (s *CodeGenSSEStream) ID() string {
-	return SSEStreamCodeGen
-}
-
-// Resolve 校验任务归属后返回隔离的传输流标识。
-func (s *CodeGenSSEStream) Resolve(channelID string, userID int64) (string, error) {
-	if channelID == "" {
-		return "", errorsx.InvalidArgument("代码生成任务ID不能为空")
-	}
-	if !s.manager.IsOwner(channelID, userID) {
-		return "", errorsx.PermissionDenied("无权订阅代码生成任务")
-	}
-	return StreamID(channelID), nil
-}
-
-// SetPublisher 设置任务快照发布方法。
-func (m *Manager) SetPublisher(publisher Publisher) {
-	m.mu.Lock()
-	m.publisher = publisher
-	m.mu.Unlock()
 }
 
 // Create 创建等待执行的代码生成任务，同一用户同时只允许一个活跃任务。
@@ -244,7 +215,7 @@ func (m *Manager) update(ctx context.Context, taskID string, update func(*system
 
 	// SSE 发布可能阻塞或触发网络 IO，必须在释放任务锁后执行。
 	if publisher != nil {
-		publisher(ctx, taskID, task)
+		publisher(ctx, StreamID(taskID), SSEEventCodeGenProgress, task)
 	}
 }
 

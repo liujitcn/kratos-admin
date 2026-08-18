@@ -305,7 +305,7 @@ func renderBackendErrorImport(tree bool) string {
 	if !tree {
 		return ""
 	}
-	return `"github.com/liujitcn/kratos-core/pkg/errorsx"`
+	return `"github.com/liujitcn/kratos-core/errorsx"`
 }
 
 // renderBackendJSONImport 判断生成业务文件是否需要 JSON 标准库导入。

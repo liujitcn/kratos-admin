@@ -7,7 +7,7 @@
 /* eslint-disable */
 import type { Status } from "../../../common/v1/enum";
 import type { Empty } from "../../../google/protobuf/empty";
-import type { BaseTranslation } from "./base_translation";
+import type { BaseI18n } from "./base_i18n";
 
 /** 字典选项查询条件 */
 export interface OptionBaseDictRequest {
@@ -102,7 +102,7 @@ export interface BaseDictForm {
   /** 字典名称 */
   name: string;
   /** 非主语言翻译 */
-  translations: BaseTranslation[];
+  translations: BaseI18n[];
   /** 状态 */
   status: Status;
 }
@@ -128,7 +128,7 @@ export interface BaseDictItemForm {
   /** 排序 */
   sort: number;
   /** 非主语言翻译 */
-  translations: BaseTranslation[];
+  translations: BaseI18n[];
   /** 状态 */
   status: Status;
 }
@@ -200,7 +200,7 @@ export interface BaseDict {
   /** 更新时间 */
   updated_at: string;
   /** 非主语言翻译 */
-  translations: BaseTranslation[];
+  translations: BaseI18n[];
 }
 
 /** 字典项 */
@@ -224,7 +224,7 @@ export interface BaseDictItem {
   /** 更新时间 */
   updated_at: string;
   /** 非主语言翻译 */
-  translations: BaseTranslation[];
+  translations: BaseI18n[];
 }
 
 /** Admin字典服务 */

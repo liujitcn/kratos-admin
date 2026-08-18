@@ -18,7 +18,7 @@ var ProviderSet = wire.NewSet(
 	NewBaseRoleService,
 	NewBaseTenantService,
 	NewBaseThirdAccountService,
-	NewBaseTranslationService,
+	NewBaseI18nService,
 	NewBaseUserService,
 	NewCodeGenService,
 	NewCodeGenColumnService,

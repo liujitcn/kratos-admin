@@ -14,8 +14,8 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	"github.com/liujitcn/kratos-core/biz"
 
-	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/liujitcn/kratos-kit/utils"
 	"github.com/redis/go-redis/v9"
@@ -29,23 +29,17 @@ const (
 
 // OpsMonitoringCase 提供当前服务运行状态和访问日志聚合能力。
 type OpsMonitoringCase struct {
-	appInfo           *bootstrapConfigv1.AppInfo
-	dataConfig        *bootstrapConfigv1.Data
-	database          *databaseGorm.Client
+	*biz.BaseCase
 	baseLogRepository *data.BaseLogRepository
 }
 
 // NewOpsMonitoringCase 创建运维监控业务实例。
 func NewOpsMonitoringCase(
-	appInfo *bootstrapConfigv1.AppInfo,
-	dataConfig *bootstrapConfigv1.Data,
-	database *databaseGorm.Client,
+	baseCase *biz.BaseCase,
 	baseLogRepository *data.BaseLogRepository,
 ) *OpsMonitoringCase {
 	return &OpsMonitoringCase{
-		appInfo:           appInfo,
-		dataConfig:        dataConfig,
-		database:          database,
+		BaseCase:          baseCase,
 		baseLogRepository: baseLogRepository,
 	}
 }
@@ -138,7 +132,8 @@ func (c *OpsMonitoringCase) loadLogs(ctx context.Context, start time.Time) ([]dt
 func (c *OpsMonitoringCase) runtimeInfo(now time.Time) *systemadminv1.OpsRuntime {
 	var memory runtime.MemStats
 	runtime.ReadMemStats(&memory)
-	startTime := c.appInfo.GetStartTime()
+	appInfo := c.GetAppInfo()
+	startTime := appInfo.GetStartTime()
 	uptimeSeconds := int64(0)
 	startAt := now
 	if startTime != nil {
@@ -149,10 +144,10 @@ func (c *OpsMonitoringCase) runtimeInfo(now time.Time) *systemadminv1.OpsRuntime
 		}
 	}
 	return &systemadminv1.OpsRuntime{
-		ServiceName:      firstNonEmpty(c.appInfo.GetName(), c.appInfo.GetAppId()),
-		Version:          c.appInfo.GetVersion(),
-		Hostname:         firstNonEmpty(c.appInfo.GetHostname(), hostname()),
-		Environment:      c.appInfo.GetEnvironment(),
+		ServiceName:      firstNonEmpty(appInfo.GetName(), appInfo.GetAppId()),
+		Version:          appInfo.GetVersion(),
+		Hostname:         firstNonEmpty(appInfo.GetHostname(), hostname()),
+		Environment:      appInfo.GetEnvironment(),
 		GoVersion:        runtime.Version(),
 		Os:               runtime.GOOS,
 		Arch:             runtime.GOARCH,
@@ -166,8 +161,9 @@ func (c *OpsMonitoringCase) runtimeInfo(now time.Time) *systemadminv1.OpsRuntime
 
 // collectDependencies 采集数据库和 Redis 的连接状态与连接池信息。
 func (c *OpsMonitoringCase) collectDependencies(ctx context.Context) ([]*systemadminv1.OpsServiceStatus, []*systemadminv1.OpsStorage) {
+	appInfo := c.GetAppInfo()
 	services := []*systemadminv1.OpsServiceStatus{
-		{Name: "Backend API", Address: c.appInfo.GetAppId(), Status: "正常", Message: "监控服务响应正常"},
+		{Name: "Backend API", Address: appInfo.GetAppId(), Status: "正常", Message: "监控服务响应正常"},
 	}
 	storage := make([]*systemadminv1.OpsStorage, 0, 2)
 	databaseService, databaseStorage := c.databaseStatus(ctx)
@@ -185,13 +181,12 @@ func (c *OpsMonitoringCase) collectDependencies(ctx context.Context) ([]*systema
 
 // databaseStatus 检查数据库连接并读取连接池统计。
 func (c *OpsMonitoringCase) databaseStatus(ctx context.Context) (*systemadminv1.OpsServiceStatus, *systemadminv1.OpsStorage) {
-	if c.dataConfig == nil {
-		return &systemadminv1.OpsServiceStatus{Name: "MySQL", Status: "未配置", Message: "未配置默认数据库"}, nil
+	dataConfig := c.GetConfig().GetData()
+	config := dataConfig.GetDatabase()
+	if config == nil {
+		config = dataConfig.GetDatabases()[databaseGorm.DefaultClientName]
 	}
-	config := c.dataConfig.GetDatabase()
-	if config == nil || c.database == nil {
-		return &systemadminv1.OpsServiceStatus{Name: "MySQL", Status: "未配置", Message: "未配置默认数据库"}, nil
-	}
+	database := c.GormClients[databaseGorm.DefaultClientName]
 	address := databaseAddress(config.GetDriver(), config.GetSource())
 	service := &systemadminv1.OpsServiceStatus{Name: "MySQL", Address: address, Status: "异常"}
 	storage := &systemadminv1.OpsStorage{
@@ -201,7 +196,7 @@ func (c *OpsMonitoringCase) databaseStatus(ctx context.Context) (*systemadminv1.
 		Status:        "异常",
 		CapacityLabel: "连接池",
 	}
-	sqlDB, err := c.database.DB.DB()
+	sqlDB, err := database.DB.DB()
 	if err != nil {
 		service.Message = err.Error()
 		storage.Metrics = []*systemadminv1.OpsMetric{{Label: "连接池", Value: "不可用"}}
@@ -236,10 +231,11 @@ func (c *OpsMonitoringCase) databaseStatus(ctx context.Context) (*systemadminv1.
 
 // redisStatus 检查 Redis 配置和连接状态。
 func (c *OpsMonitoringCase) redisStatus(ctx context.Context) (*systemadminv1.OpsServiceStatus, *systemadminv1.OpsStorage) {
-	if c.dataConfig == nil {
+	dataConfig := c.GetConfig().GetData()
+	if dataConfig == nil {
 		return &systemadminv1.OpsServiceStatus{Name: "Redis", Status: "未配置", Message: "未配置 Redis"}, nil
 	}
-	config := c.dataConfig.GetRedis()
+	config := dataConfig.GetRedis()
 	if config == nil || len(config.GetAddr()) == 0 {
 		return &systemadminv1.OpsServiceStatus{Name: "Redis", Status: "未配置", Message: "未配置 Redis"}, nil
 	}

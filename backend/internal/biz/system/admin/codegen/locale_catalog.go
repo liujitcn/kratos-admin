@@ -5,9 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-
-	_ "github.com/liujitcn/kratos-admin/backend/internal/i18n/locales"
-	coreLocale "github.com/liujitcn/kratos-core/pkg/locale"
 )
 
 // codegenLocaleCatalog 描述代码生成器使用的单语言模板和术语。
@@ -29,21 +26,15 @@ func loadCodegenLocaleCatalogs() map[string]codegenLocaleCatalog {
 	if err := json.Unmarshal(codegenLocaleCatalogFile, &catalogs); err != nil {
 		panic(fmt.Errorf("解析代码生成器语言目录: %w", err))
 	}
-	for _, localeValue := range coreLocale.Supported() {
-		catalog, ok := catalogs[localeValue]
-		if !ok || catalog.Menu == nil || catalog.Resource == nil {
-			panic(fmt.Errorf("代码生成器语言目录缺少 %s", localeValue))
-		}
-	}
 	return catalogs
 }
 
 // codegenCatalog 返回指定语言目录，未知语言回退默认语言。
-func codegenCatalog(localeValue string) codegenLocaleCatalog {
+func codegenCatalog(localeValue string, fallbackLocale string) codegenLocaleCatalog {
 	if catalog, ok := codegenLocaleCatalogs[localeValue]; ok {
 		return catalog
 	}
-	return codegenLocaleCatalogs[coreLocale.Default]
+	return codegenLocaleCatalogs[fallbackLocale]
 }
 
 // renderCodegenTemplate 替换代码生成器模板中的稳定占位符。

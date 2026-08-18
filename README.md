@@ -10,7 +10,7 @@
 - AI 会话、流式消息、附件、工具调用、重试、再生成和分支会话。
 - 管理端代码生成配置、预览、生成进度和还原。
 - 构建期收集当前项目、宿主项目和外部模块的 README/docs，并在管理端统一查看。
-- 可挂载的 Go Core 模块，以及管理端、应用端的独立 workspace、模块协议和脚手架。
+- 可挂载的 Go Core 模块；后端实现 `module.Module`，通过 `Resources` 提供静态资源，并由启动入口交给 Core 统一注册协议服务。
 - 管理端、uni-app、Taro 和后端错误目录的语言集合由语言包自动发现；动态菜单、字典和代码生成同步支持所有已注册语言。
 
 仓库不包含商城、订单、支付或推荐等业务模块。
@@ -19,7 +19,7 @@
 
 | 目录 | 说明 | 文档 |
 | --- | --- | --- |
-| `backend` | Kratos 服务、Proto、GORM、迁移和 Core 运行时。 | [backend/README.md](backend/README.md) |
+| `backend` | Kratos 服务、Proto、GORM、迁移和 Core 宿主组合。 | [backend/README.md](backend/README.md) |
 | `frontend/admin` | 管理端 workspace，包含默认宿主、core、System 和 CLI。 | [frontend/admin/README.md](frontend/admin/README.md) |
 | `frontend/uni-app` | uni-app workspace，包含默认宿主、core、system 和 CLI。 | [frontend/uni-app/README.md](frontend/uni-app/README.md) |
 | `frontend/taro-app` | React/Taro workspace，包含默认宿主、core、UI、system 和 CLI。 | [frontend/taro-app/README.md](frontend/taro-app/README.md) |
@@ -82,10 +82,10 @@ uni-app 和 Taro H5 默认分别使用 `5004` 与 `5002`，可以同时启动。
 ## 生成与检查
 
 ```bash
-make -C backend project-docs
+make i18n-docs
 make -C backend gen
 cd backend && go test ./...
-make -C backend i18n-check
+make i18n-check
 
 cd frontend/admin
 pnpm check:exports
@@ -110,28 +110,40 @@ pnpm build:h5
 pnpm build:mp-weixin
 ```
 
+`I18N_LOCALES` 使用逗号分隔的 BCP 47 语言代码列表（默认 `en-US,zh-TW,ja-JP`），统一控制项目文档和 OpenAPI 的目标语言。`make i18n-docs` 先由 Go 命令收集 Markdown，再由本地 `kratos-kit/cmd/i18n/project_docs.py` 补充缺失语言；`make i18n-openapi` 生成 OpenAPI 多语言 YAML。无本地 Kit 源码时，已安装的 Go 命令仍可完成文档收集，但不能代替 Python 翻译脚本。离线生成使用 `I18N_OFFLINE=1 make i18n`。
+
 `backend/api/gen`、`backend/internal/data/gen`、`backend/internal/docs/assets/docs.json`、`backend/internal/docs/docs.go`、各前端包的 `src/rpc`、OpenAPI 及 `wire_gen.go` 都是生成产物，不得手工修改。所有前端 RPC 的 Buf 配置统一位于 `backend/api`，分别通过 `make -C backend ts`、`make -C backend ts-uni-app` 和 `make -C backend ts-taro-app` 生成。
 
-`make -C backend gen` 在当前工作区没有 `wire.go` 时会跳过 Wire 依赖注入生成；配置 `WIRE_DIR` 指向包含 `wire.go` 的目录后即可恢复该阶段。
+`make -C backend gen` 默认使用 `backend/internal/cmd/server/wire.go` 生成 Admin 模块依赖；如需调整组合根位置，可通过 `WIRE_DIR` 指定包含 `wire.go` 的目录。
+
+`make i18n-openapi` 会在生成 `openapi.yaml` 后同步生成 `openapi.en-US.yaml`、`openapi.zh-TW.yaml` 和 `openapi.ja-JP.yaml`。默认资源来自后端错误目录和管理端 Core 语言包；外部资源可通过 `OPENAPI_I18N_CONTENT="语言=路径"` 传入。未命中的文案默认自动翻译：英文和日语使用 Google V1，繁体中文使用 OpenCC；设置 `I18N_AUTO_TRANSLATE=0` 可关闭自动翻译。无网络环境使用 `I18N_OFFLINE=1 make i18n-openapi`。
 
 ## 国际化
 
 语言包定义系统能够渲染的语言集合，`base_language` 表只负责运行时启用状态、名称、排序和主语言配置。管理端语言偏好保存为 `kratos-admin:locale`，uni-app 和 Taro 保存为 `kratos-app:locale`；所有 HTTP、刷新令牌、fetch、SSE、uni.request 和 Taro.request 请求都会发送规范化的 `Accept-Language`。固定文案由各 workspace 的 core/System JSON 语言包维护，动态菜单和字典由后端翻译表按请求语言解析，缺少当前语言译文时回退主语言。
 
-新增语言不需要修改 Go、TypeScript 或模块注册代码：在后端错误目录和三个 workspace 的六个前端语言包目录中增加同名 JSON，并在代码生成 `catalog.json` 中增加同名数据，然后执行 `make i18n-sync`。脚本会校验语言集合、语言键和占位符，并生成后端 manifest、六个前端注册文件、Element Plus 和 Day.js 映射。语言名称、排序、启用状态和主语言由 `base_language` 数据库记录提供；`common.language.*` 用于编译期离线显示和生成语言迁移的初始名称。新增语言的完整文件清单和迁移流程见 [国际化语言扩展指南](docs/国际化语言扩展指南.md)。需要把语言加入新部署数据库时，再执行 `make i18n-sync I18N_MIGRATION_VERSION=vX.Y.Z`，提交脚本生成的版本化 `base_language` 迁移；已有数据库的启用状态不会被迁移覆盖。
+新增语言不需要修改 Go、TypeScript 或模块注册代码：在后端错误目录和三个 workspace 的六个前端语言包目录中增加同名 JSON，并在代码生成 `catalog.json` 中增加同名数据，然后执行 `make i18n-sync`。脚本会校验语言集合、语言键和占位符，并生成六个前端注册文件、Element Plus 和 Day.js 映射。语言名称、排序、启用状态和主语言由 `base_language` 数据库记录提供；`common.language.*` 用于编译期离线显示和生成语言迁移的初始名称。新增语言的完整文件清单和迁移流程见 [国际化语言扩展指南](docs/国际化语言扩展指南.md)。需要把语言加入新部署数据库时，再执行 `make i18n-sync I18N_MIGRATION_VERSION=vX.Y.Z`，提交脚本生成的版本化 `base_language` 迁移；已有数据库的启用状态不会被迁移覆盖。
 
 动态资源的主语言由 `base_language.is_primary` 配置。创建或更新菜单、字典、字典项和系统配置时，后端按请求 `Accept-Language` 将输入文本转换为主语言写入主表；请求语言不是主语言时，原文写入对应翻译表，其他已启用非主语言也只保存在翻译表。系统配置名称、菜单标题、字典名称和字典项标签支持在管理端点击名称打开翻译弹窗，文本/富文本配置值支持运行时翻译回退。
 
-后端错误目录检查与草稿命令：
+国际化常用命令：
 
 ```bash
+make i18n-check
 make i18n-sync
-make -C backend i18n-check
-make -C backend i18n-draft
-I18N_WRITE=1 make -C backend i18n-draft
+make i18n-docs
+make i18n-openapi
+make i18n
 ```
 
-`make -C backend i18n-locales` 是可选的批量语言包/动态翻译生成器；新增语言可通过 `I18N_LOCALE=de-DE I18N_MIGRATION_VERSION=vX.Y.Z make -C backend i18n-locales` 指定，并在提交前审核生成文件，避免修改已发布迁移。该脚本在线模式使用独立的 Google V1 请求，离线环境可加 `I18N_OFFLINE=1` 使用内置术语表；服务运行时和 `i18n-draft` 则读取 `backend/configs/translator.yaml` 选择 Provider。管理端翻译表单可对有内容的主语言文本执行单个或批量即时翻译，Draft 接口只返回译文、不写入数据库；运行时创建或更新资源后会异步补齐空译文，提交空文本时仍按原有保存逻辑补齐；已有非空译文不覆盖。Provider 不可用时不影响已有译文和主语言回退。
+新增语言直接写入当前 `v0.0.1` 迁移：
+
+```bash
+I18N_LOCALE=ja-JP make i18n-locale
+I18N_LOCALE=de-DE I18N_OFFLINE=1 make i18n-locale
+```
+
+在线模式使用 Google V1，离线模式使用内置术语表和 OpenCC。生成后应审核 JSON 与 SQL；已有数据库的语言启用状态不会被覆盖。运行时翻译表单仍可对动态资源执行即时翻译，已有非空译文不会覆盖。
 
 ## 发布
 
@@ -152,7 +164,7 @@ I18N_WRITE=1 make -C backend i18n-draft
 make tag VERSION=0.0.18
 ```
 
-`make tag` 会先执行 `make -C backend project-docs` 刷新内嵌项目文档，再由发布脚本将文档和版本更新一起提交。脚本要求当前分支为远程默认分支且与 `origin` 同步，执行后端测试和前端打包，然后推送 `vX.Y.Z`、`backend/vX.Y.Z`、`npm/vX.Y.Z`。`npm/vX.Y.Z` 触发 `.github/workflows/publish-npm.yml`，通过 npm Trusted Publishing 发布以上 10 个包；三个默认宿主均为私有包，不参与发布。本机需要可用的 `git`、`gh` 和 GitHub 登录态。
+`make tag` 会先执行 `make i18n-docs` 刷新内嵌项目文档，再由发布脚本将文档和版本更新一起提交。脚本要求当前分支为远程默认分支且与 `origin` 同步，执行后端测试和前端打包，然后推送 `vX.Y.Z`、`backend/vX.Y.Z`、`npm/vX.Y.Z`。`npm/vX.Y.Z` 触发 `.github/workflows/publish-npm.yml`，通过 npm Trusted Publishing 发布以上 10 个包；三个默认宿主均为私有包，不参与发布。本机需要可用的 `git`、`gh` 和 GitHub 登录态。
 
 只做本地 npm 发布时：
 

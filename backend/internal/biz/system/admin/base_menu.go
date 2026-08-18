@@ -15,10 +15,9 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	"github.com/liujitcn/kratos-core/pkg/biz"
-	coreconst "github.com/liujitcn/kratos-core/pkg/const"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
-	coreLocale "github.com/liujitcn/kratos-core/pkg/locale"
+	"github.com/liujitcn/kratos-core/biz"
+	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/errorsx"
 )
 
 const (
@@ -150,7 +149,7 @@ func (c *BaseMenuCase) TreeBaseMenu(ctx context.Context, req *systemadminv1.Tree
 	for _, item := range list {
 		targetIds = append(targetIds, item.ID)
 	}
-	var translations map[int64][]*systemadminv1.BaseTranslation
+	var translations map[int64][]*systemadminv1.BaseI18n
 	translations, err = c.baseTranslationCase.GetBaseTranslationMapByTargetType(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, targetIds)
 	if err != nil {
 		return nil, err
@@ -165,7 +164,7 @@ func (c *BaseMenuCase) GetBaseMenu(ctx context.Context, id int64) (*systemadminv
 		return nil, err
 	}
 	form := c.formMapper.ToDTO(baseMenu)
-	var translations map[int64][]*systemadminv1.BaseTranslation
+	var translations map[int64][]*systemadminv1.BaseI18n
 	translations, err = c.baseTranslationCase.GetBaseTranslationMapByTargetType(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, []int64{id})
 	if err != nil {
 		return nil, err
@@ -393,7 +392,7 @@ func (c *BaseMenuCase) listAssignableMenuIDs(ctx context.Context, targetRoleID i
 			return nil, false, errorsx.Internal("查询租户最大权限失败").WithCause(err)
 		}
 		// 租户内置管理员角色停用时，不能再作为权限上限来源。
-		if tenantBaseRole.Status != coreconst.Status_STATUS_ENABLE {
+		if tenantBaseRole.Status != coreconst.STATUS_STATUS_ENABLE {
 			return nil, false, errorsx.PermissionDenied("租户管理员角色已被禁用")
 		}
 		return _string.ConvertJsonStringToInt64Array(tenantBaseRole.Menus), false, nil
@@ -409,7 +408,7 @@ func (c *BaseMenuCase) listAssignableMenuIDs(ctx context.Context, targetRoleID i
 		return nil, false, errorsx.Internal("查询当前角色权限失败").WithCause(err)
 	}
 	// 当前角色已停用时，不允许继续作为菜单权限上限来源。
-	if baseRole.Status != coreconst.Status_STATUS_ENABLE {
+	if baseRole.Status != coreconst.STATUS_STATUS_ENABLE {
 		return nil, false, errorsx.PermissionDenied("角色已被禁用")
 	}
 	return _string.ConvertJsonStringToInt64Array(baseRole.Menus), false, nil
@@ -489,7 +488,7 @@ func (c *BaseMenuCase) buildBaseMenuTree(
 	parentID int64,
 	lazy bool,
 	hasChildren map[int64]struct{},
-	translations map[int64][]*systemadminv1.BaseTranslation,
+	translations map[int64][]*systemadminv1.BaseI18n,
 ) []*systemadminv1.BaseMenu {
 	res := make([]*systemadminv1.BaseMenu, 0)
 	for _, item := range menuList {
@@ -591,7 +590,7 @@ func (c *BaseMenuCase) translatedMenuTitles(ctx context.Context, list []*models.
 	for _, item := range list {
 		targetIds = append(targetIds, item.ID)
 	}
-	return c.baseTranslationCase.GetBaseTranslationNameMapByLocale(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, coreLocale.FromContext(ctx), targetIds)
+	return c.baseTranslationCase.GetBaseTranslationNameMapByLocale(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, biz.LocaleFromContext(ctx), targetIds)
 }
 
 // validateBaseMenuChild 校验父节点能否承载指定类型的下级菜单。

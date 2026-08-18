@@ -8,7 +8,7 @@
 import type { TreeOptionResponse } from "../../../common/v1/common";
 import type { Status } from "../../../common/v1/enum";
 import type { Empty } from "../../../google/protobuf/empty";
-import type { BaseTranslation } from "./base_translation";
+import type { BaseI18n } from "./base_i18n";
 import type { BaseMenuType } from "./common";
 
 /** 菜单选项查询条件 */
@@ -72,7 +72,7 @@ export interface BaseMenuForm {
   /** 分配的API列表 */
   api: string[];
   /** 非主语言翻译 */
-  translations: BaseTranslation[];
+  translations: BaseI18n[];
   /** 排序 */
   sort: number;
   /** 状态 */
@@ -138,7 +138,7 @@ export interface BaseMenu {
   /** 是否存在子节点 */
   has_children: boolean;
   /** 非主语言翻译 */
-  translations: BaseTranslation[];
+  translations: BaseI18n[];
 }
 
 /** 菜单元信息 */

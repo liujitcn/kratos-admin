@@ -10,33 +10,30 @@ import (
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	coreconst "github.com/liujitcn/kratos-core/pkg/const"
-	coreLocale "github.com/liujitcn/kratos-core/pkg/locale"
+	"github.com/liujitcn/kratos-core/biz"
+	coreconst "github.com/liujitcn/kratos-core/const"
 
 	"github.com/go-kratos/kratos/v3/log"
-	"github.com/liujitcn/kratos-kit/sdk"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/liujitcn/gorm-kit/repository"
-	coreI18n "github.com/liujitcn/kratos-core/pkg/i18n"
 )
 
 // ConfigCase 处理基础配置查询业务。
 type ConfigCase struct {
+	*biz.BaseCase
 	*data.BaseConfigRepository
-	translationRepo *data.BaseTranslationRepository
+	translationRepo *data.BaseI18nRepository
 	languageRepo    *data.BaseLanguageRepository
-	draftTranslator coreI18n.Translator
 }
 
 // NewConfigCase 创建配置业务实例。
-func NewConfigCase(baseConfigRepo *data.BaseConfigRepository, translationRepo *data.BaseTranslationRepository, languageRepo *data.BaseLanguageRepository, draftTranslator coreI18n.Translator) *ConfigCase {
+func NewConfigCase(baseCase *biz.BaseCase, baseConfigRepo *data.BaseConfigRepository, translationRepo *data.BaseI18nRepository, languageRepo *data.BaseLanguageRepository) *ConfigCase {
 	return &ConfigCase{
+		BaseCase:             baseCase,
 		BaseConfigRepository: baseConfigRepo,
 		translationRepo:      translationRepo,
 		languageRepo:         languageRepo,
-		draftTranslator:      draftTranslator,
 	}
 }
 
@@ -45,7 +42,7 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 	site := int32(req.GetSite())
 	var cached string
 	var err error
-	cached, err = sdk.Runtime.GetCache().Get(_const.BaseConfigCacheKey(site))
+	cached, err = c.Cache.Get(_const.BaseConfigCacheKey(site))
 	if err == nil {
 		configs := make([]*basev1.ConfigItem, 0)
 		err = json.Unmarshal([]byte(cached), &configs)
@@ -55,14 +52,14 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 			if err != nil {
 				return nil, err
 			}
-			return &basev1.GetConfigResponse{Configs: appendI18nRuntimeConfig(localized, c.draftTranslator != nil)}, nil
+			return &basev1.GetConfigResponse{Configs: appendI18nRuntimeConfig(localized, c.Translator != nil)}, nil
 		}
 	}
 
 	query := c.Query(ctx).BaseConfig
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Where(query.Site.Eq(site)))
-	opts = append(opts, repository.Where(query.Status.Eq(coreconst.Status_STATUS_ENABLE)))
+	opts = append(opts, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
 	opts = append(opts, repository.Order(query.ID.Asc()))
 	var list []*models.BaseConfig
 	list, err = c.List(ctx, opts...)
@@ -83,7 +80,7 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 		return nil, err
 	}
 	response := &basev1.GetConfigResponse{
-		Configs: appendI18nRuntimeConfig(localized, c.draftTranslator != nil),
+		Configs: appendI18nRuntimeConfig(localized, c.Translator != nil),
 	}
 	var payload []byte
 	payload, err = json.Marshal(configs)
@@ -91,7 +88,7 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 		log.Error(fmt.Sprintf("MarshalBaseConfigCache %v", err))
 		return response, nil
 	}
-	err = sdk.Runtime.GetCache().Set(_const.BaseConfigCacheKey(site), string(payload), _const.BASE_CONFIG_CACHE_EXPIRE)
+	err = c.Cache.Set(_const.BaseConfigCacheKey(site), string(payload), _const.BASE_CONFIG_CACHE_EXPIRE)
 	if err != nil {
 		log.Error(fmt.Sprintf("SetBaseConfigCache %v", err))
 	}
@@ -100,7 +97,7 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 
 // localizeRuntimeConfigValues 将当前语言已有的文本配置值覆盖到运行时结果。
 func (c *ConfigCase) localizeRuntimeConfigValues(ctx context.Context, configs []*basev1.ConfigItem) ([]*basev1.ConfigItem, error) {
-	localeValue := coreLocale.FromContext(ctx)
+	localeValue := biz.LocaleFromContext(ctx)
 	if len(configs) == 0 {
 		return configs, nil
 	}
@@ -122,7 +119,7 @@ func (c *ConfigCase) localizeRuntimeConfigValues(ctx context.Context, configs []
 	if len(configIDs) == 0 {
 		return configs, nil
 	}
-	query := c.translationRepo.Query(ctx).BaseTranslation
+	query := c.translationRepo.Query(ctx).BaseI18n
 	rows, err := c.translationRepo.List(ctx, repository.Where(query.TargetType.Eq(int32(_const.TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE))), repository.Where(query.TargetID.In(configIDs...)), repository.Where(query.Locale.Eq(localeValue)))
 	if err != nil {
 		return nil, err
@@ -146,7 +143,7 @@ func (c *ConfigCase) localizeRuntimeConfigValues(ctx context.Context, configs []
 func (c *ConfigCase) primaryLocale(ctx context.Context) (string, error) {
 	query := c.languageRepo.Query(ctx).BaseLanguage
 	opts := []repository.QueryOption{
-		repository.Where(query.Status.Eq(int32(commonv1.Status_STATUS_ENABLE))),
+		repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)),
 		repository.Where(query.IsPrimary.Is(true)),
 		repository.Order(query.Sort.Asc()),
 		repository.Order(query.ID.Asc()),
@@ -159,7 +156,7 @@ func (c *ConfigCase) primaryLocale(ctx context.Context) (string, error) {
 		return rows[0].LanguageCode, nil
 	}
 	rows, err = c.languageRepo.List(ctx,
-		repository.Where(query.Status.Eq(int32(commonv1.Status_STATUS_ENABLE))),
+		repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)),
 		repository.Order(query.Sort.Asc()),
 		repository.Order(query.ID.Asc()),
 	)
@@ -169,7 +166,7 @@ func (c *ConfigCase) primaryLocale(ctx context.Context) (string, error) {
 	if len(rows) > 0 {
 		return rows[0].LanguageCode, nil
 	}
-	return coreLocale.Default, nil
+	return "", nil
 }
 
 // runtimeConfigIDsPresent 判断缓存是否包含配置主键，旧缓存不满足时回源刷新。

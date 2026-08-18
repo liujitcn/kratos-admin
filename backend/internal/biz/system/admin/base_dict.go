@@ -7,9 +7,8 @@ import (
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	"github.com/liujitcn/kratos-core/pkg/biz"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
-	coreLocale "github.com/liujitcn/kratos-core/pkg/locale"
+	"github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
@@ -70,7 +69,7 @@ func (c *BaseDictCase) OptionBaseDict(ctx context.Context) (*systemadminv1.Optio
 		dictIDs = append(dictIDs, item.ID)
 	}
 	var dictNames map[int64]string
-	dictNames, err = c.baseTranslationCase.GetBaseTranslationNameMapByLocale(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT, coreLocale.FromContext(ctx), dictIDs)
+	dictNames, err = c.baseTranslationCase.GetBaseTranslationNameMapByLocale(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT, biz.LocaleFromContext(ctx), dictIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +78,7 @@ func (c *BaseDictCase) OptionBaseDict(ctx context.Context) (*systemadminv1.Optio
 		dictItemIDs = append(dictItemIDs, item.ID)
 	}
 	var dictItemLabels map[int64]string
-	dictItemLabels, err = c.baseTranslationCase.GetBaseTranslationNameMapByLocale(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM, coreLocale.FromContext(ctx), dictItemIDs)
+	dictItemLabels, err = c.baseTranslationCase.GetBaseTranslationNameMapByLocale(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM, biz.LocaleFromContext(ctx), dictItemIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +156,7 @@ func (c *BaseDictCase) PageBaseDict(ctx context.Context, req *systemadminv1.Page
 	for _, item := range list {
 		targetIds = append(targetIds, item.ID)
 	}
-	var translations map[int64][]*systemadminv1.BaseTranslation
+	var translations map[int64][]*systemadminv1.BaseI18n
 	translations, err = c.baseTranslationCase.GetBaseTranslationMapByTargetType(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT, targetIds)
 	if err != nil {
 		return nil, err
@@ -177,7 +176,7 @@ func (c *BaseDictCase) GetBaseDict(ctx context.Context, id int64) (*systemadminv
 		return nil, err
 	}
 	res := c.formMapper.ToDTO(baseDict)
-	var translations map[int64][]*systemadminv1.BaseTranslation
+	var translations map[int64][]*systemadminv1.BaseI18n
 	translations, err = c.baseTranslationCase.GetBaseTranslationMapByTargetType(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT, []int64{id})
 	if err != nil {
 		return nil, err

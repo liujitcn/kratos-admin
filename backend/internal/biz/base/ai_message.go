@@ -13,13 +13,11 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	"github.com/liujitcn/kratos-core/pkg/biz"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/gorm-kit/repository"
-	"github.com/liujitcn/kratos-kit/sdk"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/gorm"
 )
@@ -32,7 +30,6 @@ type AiMessageCase struct {
 	tx            data.Transaction
 	aiMessageRepo *data.AiMessageRepository
 	aiSessionCase *AiSessionCase
-	baseAPIRepo   *data.BaseAPIRepository
 	baseUserCase  *BaseUserCase
 	aiRuntime     *ai.Runtime
 }
@@ -43,7 +40,6 @@ func NewAiMessageCase(
 	tx data.Transaction,
 	aiMessageRepo *data.AiMessageRepository,
 	aiSessionCase *AiSessionCase,
-	baseAPIRepo *data.BaseAPIRepository,
 	baseUserCase *BaseUserCase,
 	aiRuntime *ai.Runtime,
 ) *AiMessageCase {
@@ -52,12 +48,8 @@ func NewAiMessageCase(
 		tx:            tx,
 		aiMessageRepo: aiMessageRepo,
 		aiSessionCase: aiSessionCase,
-		baseAPIRepo:   baseAPIRepo,
 		baseUserCase:  baseUserCase,
 		aiRuntime:     aiRuntime,
-	}
-	if aiRuntime != nil {
-		aiRuntime.SetToolAccessChecker(c)
 	}
 	return c
 }
@@ -249,53 +241,6 @@ func (c *AiMessageCase) ToDTO(model *models.AiMessage) *basev1.AiMessage {
 	return toAiMessageDTO(model)
 }
 
-// ToolConfigs 查询当前终端允许暴露给 Agent 的工具配置。
-func (c *AiMessageCase) ToolConfigs(ctx context.Context, terminal string, names []string) (map[string]ai.ToolConfig, error) {
-	result := make(map[string]ai.ToolConfig)
-	if c == nil || c.baseAPIRepo == nil || len(names) == 0 {
-		return result, nil
-	}
-	filteredNames := make([]string, 0, len(names))
-	for _, name := range names {
-		if !matchToolTerminal(terminal, name) {
-			continue
-		}
-		filteredNames = append(filteredNames, name)
-	}
-	if len(filteredNames) == 0 {
-		return result, nil
-	}
-	query := c.baseAPIRepo.Query(ctx).BaseAPI
-	opts := make([]repository.QueryOption, 0, 3)
-	opts = append(opts, repository.Where(query.ToolName.In(filteredNames...)))
-	list, err := c.baseAPIRepo.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-	totalByName := make(map[string]int, len(filteredNames))
-	enabledByName := make(map[string]int, len(filteredNames))
-	promptsByName := make(map[string][]string, len(filteredNames))
-	for _, item := range list {
-		totalByName[item.ToolName]++
-		if item.AgentStatus == int32(commonv1.Status_STATUS_ENABLE) {
-			enabledByName[item.ToolName]++
-		}
-		if len(promptsByName[item.ToolName]) == 0 {
-			promptsByName[item.ToolName] = parseToolPrompts(item.ToolPrompts)
-		}
-	}
-	for _, name := range filteredNames {
-		if totalByName[name] == 0 {
-			continue
-		}
-		result[name] = ai.ToolConfig{
-			Enabled: totalByName[name] == enabledByName[name],
-			Prompts: promptsByName[name],
-		}
-	}
-	return result, nil
-}
-
 // prepareNewAiMessage 校验请求并创建生成中的消息记录。
 func (c *AiMessageCase) prepareNewAiMessage(ctx context.Context, req *basev1.SendAiMessageRequest) (*models.AiSession, *models.AiMessage, string, []*basev1.AiAttachment, []ai.Attachment, []ai.Message, string, error) {
 	session, err := c.aiSessionCase.FindCurrentUserSessionByRawID(ctx, req.GetSessionId())
@@ -429,7 +374,7 @@ func (c *AiMessageCase) buildAiAttachments(ctx context.Context, attachments []*b
 	if len(attachments) == 0 {
 		return []ai.Attachment{}, nil
 	}
-	ossClient := sdk.Runtime.GetOSS()
+	ossClient := c.OSS
 	result := make([]ai.Attachment, 0, len(attachments))
 	if ossClient == nil {
 		for _, item := range attachments {
@@ -501,9 +446,9 @@ func (c *AiMessageCase) generateAiReply(
 	history []ai.Message,
 	onDelta func(string),
 ) (*ai.Response, error) {
-	var err error
-	var handled bool
 	var flowReply *ai.Response
+	var handled bool
+	var err error
 	if c.aiRuntime != nil {
 		flowReply, handled, err = c.aiRuntime.GenerateFixedFlowReply(ctx, session.Terminal, content, action)
 	}
@@ -539,7 +484,6 @@ func (c *AiMessageCase) generateAiReply(
 		}
 		return c.buildAiFallbackResponse(content, attachments, err), nil
 	}
-
 	err = errorsx.Internal("AI助手运行时未初始化")
 	return c.buildAiFallbackResponse(content, attachments, err), err
 }
@@ -770,26 +714,6 @@ func (c *AiMessageCase) ensureLastAiMessage(ctx context.Context, sessionID int64
 		return errorsx.StateConflict("只能编辑最后一条消息", "ai_message", strconv.FormatInt(messageID, 10), strconv.FormatInt(lastMessage.ID, 10))
 	}
 	return nil
-}
-
-// parseToolPrompts 解析工具提示词 JSON。
-func parseToolPrompts(value string) []string {
-	if value == "" {
-		return nil
-	}
-	var prompts []string
-	err := json.Unmarshal([]byte(value), &prompts)
-	if err != nil {
-		return nil
-	}
-	values := make([]string, 0, len(prompts))
-	for _, item := range prompts {
-		if item == "" {
-			continue
-		}
-		values = append(values, item)
-	}
-	return values
 }
 
 // toAiMessageDTO 转换消息模型到接口对象。

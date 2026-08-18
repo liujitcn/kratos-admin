@@ -11,7 +11,8 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repository"
@@ -22,8 +23,8 @@ var codeGenDatabaseTableNamePattern = regexp.MustCompile(`^[a-z][a-z0-9_]*$`)
 
 // CodeGenColumnCase 管理代码生成字段元数据与生成配置。
 type CodeGenColumnCase struct {
+	*biz.BaseCase
 	*data.CodeGenColumnRepository
-	dbClient         *databaseGorm.Client
 	tx               data.Transaction
 	baseDictRepo     *data.BaseDictRepository
 	codeGenTableRepo *data.CodeGenTableRepository
@@ -38,8 +39,8 @@ type codeGenColumnDefaultSource struct {
 
 // NewCodeGenColumnCase 创建代码生成字段业务实例。
 func NewCodeGenColumnCase(
+	baseCase *biz.BaseCase,
 	codeGenColumnRepo *data.CodeGenColumnRepository,
-	dbClient *databaseGorm.Client,
 	tx data.Transaction,
 	baseDictRepo *data.BaseDictRepository,
 	codeGenTableRepo *data.CodeGenTableRepository,
@@ -50,8 +51,8 @@ func NewCodeGenColumnCase(
 	columnMapper.AppendConverters(mapper.NewJSONTypeConverter[*systemadminv1.CodeGenColumnFormConfig]().NewConverterPair())
 	columnMapper.AppendConverters(mapper.NewJSONTypeConverter[map[string]*systemadminv1.CodeGenLocaleConfig]().NewConverterPair())
 	return &CodeGenColumnCase{
+		BaseCase:                baseCase,
 		CodeGenColumnRepository: codeGenColumnRepo,
-		dbClient:                dbClient,
 		tx:                      tx,
 		baseDictRepo:            baseDictRepo,
 		codeGenTableRepo:        codeGenTableRepo,
@@ -252,9 +253,10 @@ func (c *CodeGenColumnCase) listDatabaseColumns(ctx context.Context, tableName s
 	if !codeGenDatabaseTableNamePattern.MatchString(tableName) {
 		return nil, errorsx.InvalidArgument("数据库表名格式不正确")
 	}
+	database := c.GormClients[databaseGorm.DefaultClientName]
 	var columns []dto.CodeGenDatabaseColumn
 	// information_schema 没有业务生成模型，表名经白名单校验后使用参数化查询读取字段元数据。
-	err := c.dbClient.DB.WithContext(ctx).
+	err := database.DB.WithContext(ctx).
 		Table("information_schema.columns").
 		Select("column_name, column_comment, data_type, column_type, column_key, is_nullable, extra, ordinal_position, character_maximum_length, numeric_precision, numeric_scale, column_default").
 		Where("table_schema = DATABASE()").
@@ -327,8 +329,9 @@ func (c *CodeGenColumnCase) listCodeGenColumnDefaultSources(ctx context.Context,
 
 // listCodeGenOptionTables 查询用于匹配字段关联关系的数据库表名。
 func (c *CodeGenColumnCase) listCodeGenOptionTables(ctx context.Context) ([]dto.CodeGenDatabaseTable, error) {
+	database := c.GormClients[databaseGorm.DefaultClientName]
 	var tableInfos []dto.CodeGenDatabaseTable
-	err := c.dbClient.DB.WithContext(ctx).
+	err := database.DB.WithContext(ctx).
 		Table("information_schema.tables").
 		Select("table_name, table_comment").
 		Where("table_schema = DATABASE()").

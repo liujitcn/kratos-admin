@@ -10,21 +10,32 @@ import (
 
 // InputContentPayload 表示 AI 助手用户输入内容 JSON 结构。
 type InputContentPayload struct {
-	Kind    string `json:"kind"`
+	// Kind 输入内容类型。
+	Kind string `json:"kind"`
+	// Content 输入正文。
 	Content string `json:"content"`
 }
 
 // OutputContentPayload 表示 AI 助手输出内容 JSON 结构。
 type OutputContentPayload struct {
-	Kind           string `json:"kind"`
-	Content        string `json:"content"`
-	ReplySource    string `json:"reply_source"`
-	Model          string `json:"model"`
-	Fallback       bool   `json:"fallback"`
+	// Kind 输出内容类型。
+	Kind string `json:"kind"`
+	// Content 输出正文。
+	Content string `json:"content"`
+	// ReplySource 回复来源。
+	ReplySource string `json:"reply_source"`
+	// Model 使用的模型名称。
+	Model string `json:"model"`
+	// Fallback 表示是否使用降级回复。
+	Fallback bool `json:"fallback"`
+	// FallbackReason 记录降级原因。
 	FallbackReason string `json:"fallback_reason"`
-	Flow           string `json:"flow"`
-	Step           string `json:"step"`
-	BlocksJSON     string `json:"blocks_json"`
+	// Flow 固定流程标识。
+	Flow string `json:"flow"`
+	// Step 固定流程步骤。
+	Step string `json:"step"`
+	// BlocksJSON 结构化内容 JSON。
+	BlocksJSON string `json:"blocks_json"`
 }
 
 // BuildUserContent 生成用户消息落库正文。

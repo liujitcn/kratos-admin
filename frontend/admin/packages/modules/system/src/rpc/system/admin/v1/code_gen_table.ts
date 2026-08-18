@@ -6,7 +6,7 @@
 
 /* eslint-disable */
 import type { Empty } from "../../../google/protobuf/empty";
-import type { CodeGenLocaleConfig } from "./base_translation";
+import type { CodeGenLocaleConfig } from "./base_i18n";
 
 /** 代码生成表状态。 */
 export enum CodeGenTableStatus {

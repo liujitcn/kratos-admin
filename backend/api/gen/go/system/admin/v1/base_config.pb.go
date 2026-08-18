@@ -293,8 +293,8 @@ type BaseConfigForm struct {
 	Type              BaseConfigType         `protobuf:"varint,4,opt,name=type,proto3,enum=system.admin.v1.BaseConfigType" json:"type,omitempty"`               // 配置类型：1、文本，2、图片，3、富文本，4、字典，5、布尔
 	Key               string                 `protobuf:"bytes,5,opt,name=key,proto3" json:"key,omitempty"`                                                      // 配置key
 	Value             string                 `protobuf:"bytes,6,opt,name=value,proto3" json:"value,omitempty"`                                                  // 配置value
-	NameTranslations  []*BaseTranslation     `protobuf:"bytes,7,rep,name=name_translations,json=nameTranslations,proto3" json:"name_translations,omitempty"`    // 配置名称多语言翻
-	ValueTranslations []*BaseTranslation     `protobuf:"bytes,8,rep,name=value_translations,json=valueTranslations,proto3" json:"value_translations,omitempty"` // 配置value文本/富文本配置值的多语言翻译
+	NameTranslations  []*BaseI18n            `protobuf:"bytes,7,rep,name=name_translations,json=nameTranslations,proto3" json:"name_translations,omitempty"`    // 配置名称多语言翻
+	ValueTranslations []*BaseI18n            `protobuf:"bytes,8,rep,name=value_translations,json=valueTranslations,proto3" json:"value_translations,omitempty"` // 配置value文本/富文本配置值的多语言翻译
 	Status            v11.Status             `protobuf:"varint,51,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                        // 状态
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
@@ -372,14 +372,14 @@ func (x *BaseConfigForm) GetValue() string {
 	return ""
 }
 
-func (x *BaseConfigForm) GetNameTranslations() []*BaseTranslation {
+func (x *BaseConfigForm) GetNameTranslations() []*BaseI18n {
 	if x != nil {
 		return x.NameTranslations
 	}
 	return nil
 }
 
-func (x *BaseConfigForm) GetValueTranslations() []*BaseTranslation {
+func (x *BaseConfigForm) GetValueTranslations() []*BaseI18n {
 	if x != nil {
 		return x.ValueTranslations
 	}
@@ -630,7 +630,7 @@ type BaseConfig struct {
 	Status        v11.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`         // 状态：枚举【Status】
 	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`         // 创建时间
 	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`         // 更新时间
-	Translations  []*BaseTranslation     `protobuf:"bytes,202,rep,name=translations,proto3" json:"translations,omitempty"`                    // 配置名称及文本/富文本配置值的多语言翻译
+	Translations  []*BaseI18n            `protobuf:"bytes,202,rep,name=translations,proto3" json:"translations,omitempty"`                    // 配置名称及文本/富文本配置值的多语言翻译
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -728,7 +728,7 @@ func (x *BaseConfig) GetUpdatedAt() string {
 	return ""
 }
 
-func (x *BaseConfig) GetTranslations() []*BaseTranslation {
+func (x *BaseConfig) GetTranslations() []*BaseI18n {
 	if x != nil {
 		return x.Translations
 	}
@@ -739,7 +739,7 @@ var File_system_admin_v1_base_config_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"\n" +
-	"!system/admin/v1/base_config.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x14base/v1/config.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a&system/admin/v1/base_translation.proto\"\xb3\x04\n" +
+	"!system/admin/v1/base_config.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x14base/v1/config.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fsystem/admin/v1/base_i18n.proto\"\xb3\x04\n" +
 	"\x15PageBaseConfigRequest\x12[\n" +
 	"\x04site\x18\x02 \x01(\x0e2\x17.base.v1.BaseConfigSiteB)\xbaG&\x92\x02#位置：枚举【BaseConfigSite】H\x00R\x04site\x88\x01\x01\x12+\n" +
 	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f配置名称H\x01R\x04name\x88\x01\x01\x12i\n" +
@@ -758,7 +758,7 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x86\x01\n" +
 	"\x14GetBaseConfigRequest\x12n\n" +
 	"\x02id\x18\x01 \x01(\x03B^\xbaG\v\x92\x02\b配置ID\xbaHM\xba\x01J\n" +
-	"(system.admin.base.config.get.id.required\x12\x14配置ID不能为空\x1a\bthis > 0R\x02id\"\x93\v\n" +
+	"(system.admin.base.config.get.id.required\x12\x14配置ID不能为空\x1a\bthis > 0R\x02id\"\x85\v\n" +
 	"\x0eBaseConfigForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12\xb9\x01\n" +
 	"\x04site\x18\x02 \x01(\x0e2\x17.base.v1.BaseConfigSiteB\x8b\x01\xbaG&\x92\x02#位置：枚举【BaseConfigSite】\xbaH_\xba\x01W\n" +
@@ -772,9 +772,9 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	",system.admin.base.config.entity.key.required\x12\x1b请输入系统配置编码\x1a\x0fthis.size() > 0\xba\x01g\n" +
 	".system.admin.base.config.entity.key.max_length\x12\"配置key不能超过 50 个字符\x1a\x11this.size() <= 50R\x03key\x12\x85\x01\n" +
 	"\x05value\x18\x06 \x01(\tBo\xbaG\x0e\x92\x02\v配置value\xbaH[\xba\x01X\n" +
-	".system.admin.base.config.entity.value.required\x12\x15配置值不能为空\x1a\x0fthis.size() > 0R\x05value\x12m\n" +
-	"\x11name_translations\x18\a \x03(\v2 .system.admin.v1.BaseTranslationB\x1e\xbaG\x1b\x92\x02\x18配置名称多语言翻R\x10nameTranslations\x12\x8d\x01\n" +
-	"\x12value_translations\x18\b \x03(\v2 .system.admin.v1.BaseTranslationB<\xbaG9\x92\x026配置value文本/富文本配置值的多语言翻译R\x11valueTranslations\x12?\n" +
+	".system.admin.base.config.entity.value.required\x12\x15配置值不能为空\x1a\x0fthis.size() > 0R\x05value\x12f\n" +
+	"\x11name_translations\x18\a \x03(\v2\x19.system.admin.v1.BaseI18nB\x1e\xbaG\x1b\x92\x02\x18配置名称多语言翻R\x10nameTranslations\x12\x86\x01\n" +
+	"\x12value_translations\x18\b \x03(\v2\x19.system.admin.v1.BaseI18nB<\xbaG9\x92\x026配置value文本/富文本配置值的多语言翻译R\x11valueTranslations\x12?\n" +
 	"\x06status\x183 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"{\n" +
 	"\x17CreateBaseConfigRequest\x12`\n" +
 	"\vbase_config\x18\x01 \x01(\v2\x1f.system.admin.v1.BaseConfigFormB\x1e\xbaG\x15\x92\x02\x12系统配置表单\xbaH\x03\xc8\x01\x01R\n" +
@@ -790,7 +790,7 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x03Be\xbaG\v\x92\x02\b配置ID\xbaHT\xba\x01Q\n" +
 	"/system.admin.base.config.set_status.id.required\x12\x14配置ID不能为空\x1a\bthis > 0R\x02id\x12$\n" +
 	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\x1f\n" +
-	"\x1dRefreshBaseConfigCacheRequest\"\x9e\x05\n" +
+	"\x1dRefreshBaseConfigCacheRequest\"\x97\x05\n" +
 	"\n" +
 	"BaseConfig\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12V\n" +
@@ -803,8 +803,8 @@ const file_system_admin_v1_base_config_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12\x87\x01\n" +
-	"\ftranslations\x18\xca\x01 \x03(\v2 .system.admin.v1.BaseTranslationB@\xbaG=\x92\x02:配置名称及文本/富文本配置值的多语言翻译R\ftranslations*\xc2\x01\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12\x80\x01\n" +
+	"\ftranslations\x18\xca\x01 \x03(\v2\x19.system.admin.v1.BaseI18nB@\xbaG=\x92\x02:配置名称及文本/富文本配置值的多语言翻译R\ftranslations*\xc2\x01\n" +
 	"\x0eBaseConfigType\x12 \n" +
 	"\x1cBASE_CONFIG_TYPE_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15BASE_CONFIG_TYPE_TEXT\x10\x01\x12\x1a\n" +
@@ -850,7 +850,7 @@ var file_system_admin_v1_base_config_proto_goTypes = []any{
 	(*BaseConfig)(nil),                    // 10: system.admin.v1.BaseConfig
 	(v1.BaseConfigSite)(0),                // 11: base.v1.BaseConfigSite
 	(v11.Status)(0),                       // 12: common.v1.Status
-	(*BaseTranslation)(nil),               // 13: system.admin.v1.BaseTranslation
+	(*BaseI18n)(nil),                      // 13: system.admin.v1.BaseI18n
 	(*emptypb.Empty)(nil),                 // 14: google.protobuf.Empty
 }
 var file_system_admin_v1_base_config_proto_depIdxs = []int32{
@@ -860,15 +860,15 @@ var file_system_admin_v1_base_config_proto_depIdxs = []int32{
 	10, // 3: system.admin.v1.PageBaseConfigResponse.base_configs:type_name -> system.admin.v1.BaseConfig
 	11, // 4: system.admin.v1.BaseConfigForm.site:type_name -> base.v1.BaseConfigSite
 	0,  // 5: system.admin.v1.BaseConfigForm.type:type_name -> system.admin.v1.BaseConfigType
-	13, // 6: system.admin.v1.BaseConfigForm.name_translations:type_name -> system.admin.v1.BaseTranslation
-	13, // 7: system.admin.v1.BaseConfigForm.value_translations:type_name -> system.admin.v1.BaseTranslation
+	13, // 6: system.admin.v1.BaseConfigForm.name_translations:type_name -> system.admin.v1.BaseI18n
+	13, // 7: system.admin.v1.BaseConfigForm.value_translations:type_name -> system.admin.v1.BaseI18n
 	12, // 8: system.admin.v1.BaseConfigForm.status:type_name -> common.v1.Status
 	4,  // 9: system.admin.v1.CreateBaseConfigRequest.base_config:type_name -> system.admin.v1.BaseConfigForm
 	4,  // 10: system.admin.v1.UpdateBaseConfigRequest.base_config:type_name -> system.admin.v1.BaseConfigForm
 	11, // 11: system.admin.v1.BaseConfig.site:type_name -> base.v1.BaseConfigSite
 	0,  // 12: system.admin.v1.BaseConfig.type:type_name -> system.admin.v1.BaseConfigType
 	12, // 13: system.admin.v1.BaseConfig.status:type_name -> common.v1.Status
-	13, // 14: system.admin.v1.BaseConfig.translations:type_name -> system.admin.v1.BaseTranslation
+	13, // 14: system.admin.v1.BaseConfig.translations:type_name -> system.admin.v1.BaseI18n
 	9,  // 15: system.admin.v1.BaseConfigService.RefreshBaseConfigCache:input_type -> system.admin.v1.RefreshBaseConfigCacheRequest
 	1,  // 16: system.admin.v1.BaseConfigService.PageBaseConfig:input_type -> system.admin.v1.PageBaseConfigRequest
 	3,  // 17: system.admin.v1.BaseConfigService.GetBaseConfig:input_type -> system.admin.v1.GetBaseConfigRequest
@@ -895,7 +895,7 @@ func file_system_admin_v1_base_config_proto_init() {
 	if File_system_admin_v1_base_config_proto != nil {
 		return
 	}
-	file_system_admin_v1_base_translation_proto_init()
+	file_system_admin_v1_base_i18n_proto_init()
 	file_system_admin_v1_base_config_proto_msgTypes[0].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

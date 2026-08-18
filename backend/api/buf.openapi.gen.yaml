@@ -20,7 +20,7 @@ plugins:
   # generate openapi v3 yaml doc
   - local: protoc-gen-openapi
     strategy: all
-    out: ../internal/cmd/server/assets
+    out: ../internal/openapi/assets
     opt:
       - naming=proto # 命名约定。使用"proto"则直接从proto文件传递名称。默认为：json
       - depth=2 # 循环消息的递归深度，默认为：2

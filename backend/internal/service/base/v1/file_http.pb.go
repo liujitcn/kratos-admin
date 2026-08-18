@@ -11,8 +11,8 @@ import (
 	"time"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	coreconst "github.com/liujitcn/kratos-core/pkg/const"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/go-kratos/kratos/v3/transport/http"

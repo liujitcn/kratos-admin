@@ -68,6 +68,15 @@ export interface ProjectDocument {
   path: string;
   /** Markdown文档内容 */
   content: string;
+  /** 按语言标识索引的Markdown翻译内容 */
+  locale: Map<string, string>;
+  /** Markdown文件更新时间，RFC3339格式 */
+  updated_at: string;
+}
+
+export interface ProjectDocument_LocaleEntry {
+  key: string;
+  value: string;
 }
 
 /** 项目文档服务 */

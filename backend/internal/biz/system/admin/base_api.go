@@ -3,123 +3,47 @@ package biz
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"regexp"
-	"sort"
 	"strings"
-
-	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	"github.com/liujitcn/kratos-core/pkg/biz"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
-	coreOpenAPI "github.com/liujitcn/kratos-core/pkg/openapi"
+	"github.com/liujitcn/kratos-core/biz"
+	coreopenapi "github.com/liujitcn/kratos-core/resource/openapi"
+	openapidto "github.com/liujitcn/kratos-core/resource/openapi/dto"
+	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repository"
-	"gopkg.in/yaml.v3"
 	"gorm.io/gen"
+	"gorm.io/gen/field"
 )
-
-const (
-	baseAPIDocJSONMediaType = "application/json"
-	baseAPIDocMaxDepth      = 8
-)
-
-// OpenAPI 描述 OpenAPI 文档结构。
-type OpenAPI struct {
-	Paths      map[string]PathItem `yaml:"paths"`
-	Components Components          `yaml:"components"`
-}
-
-// PathItem 描述单个路径的请求方法。
-type PathItem struct {
-	Get    *Operation `yaml:"get,omitempty"`
-	Post   *Operation `yaml:"post,omitempty"`
-	Put    *Operation `yaml:"put,omitempty"`
-	Delete *Operation `yaml:"delete,omitempty"`
-}
-
-// Operation 描述单个接口操作项。
-type Operation struct {
-	Summary     string              `yaml:"summary"`
-	Description string              `yaml:"description"`
-	OperationID string              `yaml:"operationId"`
-	Parameters  []Parameter         `yaml:"parameters"`
-	RequestBody *RequestBody        `yaml:"requestBody"`
-	Responses   map[string]Response `yaml:"responses"`
-}
-
-// Components 描述 OpenAPI 组件定义。
-type Components struct {
-	Schemas map[string]Schema `yaml:"schemas"`
-}
-
-// Parameter 描述 OpenAPI 请求参数。
-type Parameter struct {
-	Name        string `yaml:"name"`
-	In          string `yaml:"in"`
-	Description string `yaml:"description"`
-	Required    bool   `yaml:"required"`
-	Schema      Schema `yaml:"schema"`
-}
-
-// RequestBody 描述 OpenAPI 请求体。
-type RequestBody struct {
-	Description string               `yaml:"description"`
-	Required    bool                 `yaml:"required"`
-	Content     map[string]MediaType `yaml:"content"`
-}
-
-// Response 描述 OpenAPI 响应。
-type Response struct {
-	Description string               `yaml:"description"`
-	Content     map[string]MediaType `yaml:"content"`
-}
-
-// MediaType 描述 OpenAPI 媒体类型。
-type MediaType struct {
-	Schema Schema `yaml:"schema"`
-}
-
-// Schema 描述 OpenAPI Schema。
-type Schema struct {
-	Ref         string            `yaml:"$ref"`
-	Type        string            `yaml:"type"`
-	Format      string            `yaml:"format"`
-	Description string            `yaml:"description"`
-	Enum        []string          `yaml:"enum"`
-	Required    []string          `yaml:"required"`
-	Properties  map[string]Schema `yaml:"properties"`
-	Items       *Schema           `yaml:"items"`
-}
 
 // BaseAPICase 接口业务实例
 type BaseAPICase struct {
 	*biz.BaseCase
 	*data.BaseAPIRepository
+	baseAPII18nRepo *data.BaseAPII18nRepository
 	mapper          *mapper.CopierMapper[systemadminv1.BaseApi, models.BaseAPI]
-	jwtCfg          *bootstrapConfigv1.Authentication_Jwt
-	openAPIRegistry *coreOpenAPI.Registry
+	openAPI         *coreopenapi.OpenAPI
 }
 
 // NewBaseAPICase 创建接口业务实例
 func NewBaseAPICase(
 	baseCase *biz.BaseCase,
+	openAPI *coreopenapi.OpenAPI,
 	baseAPIRepo *data.BaseAPIRepository,
-	jwtCfg *bootstrapConfigv1.Authentication_Jwt,
-	openAPIRegistry *coreOpenAPI.Registry,
+	baseAPII18nRepo *data.BaseAPII18nRepository,
 ) *BaseAPICase {
 	baseAPIMapper := mapper.NewCopierMapper[systemadminv1.BaseApi, models.BaseAPI]()
 	baseAPIMapper.AppendConverters(mapper.NewJSONTypeConverter[[]string]().NewConverterPair())
 	return &BaseAPICase{
 		BaseCase:          baseCase,
 		BaseAPIRepository: baseAPIRepo,
+		baseAPII18nRepo:   baseAPII18nRepo,
 		mapper:            baseAPIMapper,
-		jwtCfg:            jwtCfg,
-		openAPIRegistry:   openAPIRegistry,
+		openAPI:           openAPI,
 	}
 }
 
@@ -132,18 +56,24 @@ func (c *BaseAPICase) OptionBaseAPI(ctx context.Context, _ *systemadminv1.Option
 	if err != nil {
 		return nil, err
 	}
+	var translations map[string]*models.BaseAPII18n
+	translations, err = c.baseAPII18nMap(ctx, list)
+	if err != nil {
+		return nil, err
+	}
 
 	baseAPIs := make([]*systemadminv1.BaseApi, 0, len(list))
+	jwtCfg := c.GetConfig().GetAuthn().GetJwt()
 	for _, item := range list {
 		// 命中免 token 或可选鉴权规则的接口，不再返回给菜单管理页面。
-		if c.jwtCfg != nil {
-			isNoTokenOperation := matchAuthWhiteList(c.jwtCfg.GetWhiteList(), item.Operation) ||
-				matchAuthWhiteList(c.jwtCfg.GetOptionalAuth(), item.Operation)
+		if jwtCfg != nil {
+			isNoTokenOperation := matchAuthWhiteList(jwtCfg.GetWhiteList(), item.Operation) ||
+				matchAuthWhiteList(jwtCfg.GetOptionalAuth(), item.Operation)
 			if isNoTokenOperation {
 				continue
 			}
 		}
-		baseAPI := c.toBaseAPIDTO(item)
+		baseAPI := c.toBaseAPIDTO(ctx, item, translations[item.Operation])
 		baseAPIs = append(baseAPIs, baseAPI)
 	}
 
@@ -155,6 +85,9 @@ func (c *BaseAPICase) PageBaseAPI(ctx context.Context, req *systemadminv1.PageBa
 	query := c.Query(ctx).BaseAPI
 	opts := make([]repository.QueryOption, 0, 10)
 	opts = append(opts, repository.Order(query.ID.Desc()))
+	var list []*models.BaseAPI
+	var total int64
+	var err error
 	// 传入工具名时，按工具名模糊匹配。
 	if req.GetToolName() != "" {
 		opts = append(opts, repository.Where(query.ToolName.Like("%"+req.GetToolName()+"%")))
@@ -165,11 +98,31 @@ func (c *BaseAPICase) PageBaseAPI(ctx context.Context, req *systemadminv1.PageBa
 	}
 	// 传入服务描述关键字时，按服务描述模糊匹配。
 	if req.GetServiceDesc() != "" {
-		opts = append(opts, repository.Where(query.ServiceDesc.Like("%"+req.GetServiceDesc()+"%")))
+		serviceDescCondition := query.ServiceDesc.Like("%" + req.GetServiceDesc() + "%")
+		i18nQuery := c.baseAPII18nRepo.Query(ctx).BaseAPII18n
+		var translatedOperations []string
+		translatedOperations, err = c.translatedOperations(ctx, i18nQuery.ServiceDesc.Like("%"+req.GetServiceDesc()+"%"))
+		if err != nil {
+			return nil, err
+		}
+		if len(translatedOperations) > 0 {
+			serviceDescCondition = field.Or(serviceDescCondition, query.Operation.In(translatedOperations...))
+		}
+		opts = append(opts, repository.Where(serviceDescCondition))
 	}
 	// 传入描述关键字时，按接口描述模糊匹配。
 	if req.GetDesc() != "" {
-		opts = append(opts, repository.Where(query.Desc.Like("%"+req.GetDesc()+"%")))
+		descCondition := query.Desc.Like("%" + req.GetDesc() + "%")
+		i18nQuery := c.baseAPII18nRepo.Query(ctx).BaseAPII18n
+		var translatedOperations []string
+		translatedOperations, err = c.translatedOperations(ctx, i18nQuery.Desc.Like("%"+req.GetDesc()+"%"))
+		if err != nil {
+			return nil, err
+		}
+		if len(translatedOperations) > 0 {
+			descCondition = field.Or(descCondition, query.Operation.In(translatedOperations...))
+		}
+		opts = append(opts, repository.Where(descCondition))
 	}
 	// 传入操作方法关键字时，按操作方法模糊匹配。
 	if req.GetOperation() != "" {
@@ -189,16 +142,20 @@ func (c *BaseAPICase) PageBaseAPI(ctx context.Context, req *systemadminv1.PageBa
 	if req.AgentStatus != nil {
 		opts = append(opts, repository.Where(query.AgentStatus.Eq(int32(req.GetAgentStatus()))))
 	}
-	var list []*models.BaseAPI
-	var total int64
-	var err error
+	var translations map[string]*models.BaseAPII18n
 	if req.GetToolPrompt() != "" || req.GetOpenapiServiceCode() != "" {
 		list, err = c.List(ctx, opts...)
 		if err != nil {
 			return nil, err
 		}
-		list = filterBaseAPIsByToolPrompt(list, req.GetToolPrompt())
-		list = c.filterBaseAPIsByOpenAPIService(list, req.GetOpenapiServiceCode())
+		if req.GetToolPrompt() != "" {
+			translations, err = c.baseAPII18nMap(ctx, list)
+			if err != nil {
+				return nil, err
+			}
+			list = filterBaseAPIsByToolPrompt(list, req.GetToolPrompt(), translations)
+		}
+		list = c.filterBaseAPIsByOpenAPIService(ctx, list, req.GetOpenapiServiceCode())
 		total = int64(len(list))
 		list = pageBaseAPIRecords(list, req.GetPageNum(), req.GetPageSize())
 	} else {
@@ -207,10 +164,16 @@ func (c *BaseAPICase) PageBaseAPI(ctx context.Context, req *systemadminv1.PageBa
 			return nil, err
 		}
 	}
+	if translations == nil {
+		translations, err = c.baseAPII18nMap(ctx, list)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	baseAPIs := make([]*systemadminv1.BaseApi, 0, len(list))
 	for _, item := range list {
-		baseAPI := c.toBaseAPIDTO(item)
+		baseAPI := c.toBaseAPIDTO(ctx, item, translations[item.Operation])
 		baseAPIs = append(baseAPIs, baseAPI)
 	}
 
@@ -231,55 +194,47 @@ func (c *BaseAPICase) GetBaseAPI(ctx context.Context, id int64) (*systemadminv1.
 		return nil, err
 	}
 
-	return c.toBaseAPIDTO(baseAPI), nil
+	var translations map[string]*models.BaseAPII18n
+	translations, err = c.baseAPII18nMap(ctx, []*models.BaseAPI{baseAPI})
+	if err != nil {
+		return nil, err
+	}
+	return c.toBaseAPIDTO(ctx, baseAPI, translations[baseAPI.Operation]), nil
 }
 
 // GetBaseAPIDoc 查询接口 OpenAPI 文档
 func (c *BaseAPICase) GetBaseAPIDoc(ctx context.Context, id int64) (*systemadminv1.BaseApiDoc, error) {
 	query := c.Query(ctx).BaseAPI
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.ID.Eq(id)))
-
-	baseAPI, err := c.Find(ctx, opts...)
+	baseAPI, err := c.Find(ctx, repository.Where(query.ID.Eq(id)))
 	if err != nil {
 		return nil, err
 	}
-
-	document, found := c.openAPIRegistry.DocumentByOperation(baseAPI.Path, baseAPI.Method)
-	if !found {
-		return nil, errorsx.Internal("查询API文档失败").WithCause(fmt.Errorf("openapi document not found: %s %s", baseAPI.Method, baseAPI.Path))
-	}
-	var api *OpenAPI
-	api, err = ParseOpenAPI(document.Data)
+	coreDocument, err := c.openAPI.GetOperation(ctx, baseAPI.Path, baseAPI.Method)
 	if err != nil {
 		return nil, err
 	}
-	operation := api.Operation(baseAPI.Path, baseAPI.Method)
-	if operation == nil {
-		return nil, errorsx.Internal("查询API文档失败").WithCause(fmt.Errorf("openapi operation not found: %s %s", baseAPI.Method, baseAPI.Path))
-	}
-
-	return &systemadminv1.BaseApiDoc{
-		Id:          baseAPI.ID,
-		Summary:     operation.Summary,
-		Description: operation.Description,
-		Parameters:  buildBaseAPIDocParameters(api, operation.Parameters),
-		RequestBody: buildBaseAPIDocRequestBody(api, operation.RequestBody),
-		Responses:   buildBaseAPIDocResponses(api, operation.Responses),
-	}, nil
+	return mapBaseAPIDoc(baseAPI.ID, coreDocument), nil
 }
 
 // OptionOpenAPIService 查询 OpenAPI 文档选项。
-func (c *BaseAPICase) OptionOpenAPIService(_ context.Context, req *systemadminv1.OptionOpenApiServiceRequest) (*systemadminv1.OptionOpenApiServiceResponse, error) {
-	documents := c.openAPIRegistry.Documents()
-	options := make([]*systemadminv1.OpenApiServiceOption, 0, len(documents))
-	for _, document := range documents {
-		if req.GetServiceCode() != "" && document.Key != req.GetServiceCode() {
-			continue
+func (c *BaseAPICase) OptionOpenAPIService(ctx context.Context, req *systemadminv1.OptionOpenApiServiceRequest) (*systemadminv1.OptionOpenApiServiceResponse, error) {
+	services, err := c.openAPI.Services(ctx, req.GetServiceCode())
+	if err != nil {
+		return nil, err
+	}
+	options := make([]*systemadminv1.OpenApiServiceOption, 0, len(services))
+	for _, service := range services {
+		operations := make([]*systemadminv1.OpenApiServiceOperation, 0, len(service.Operations))
+		for _, operation := range service.Operations {
+			operations = append(operations, &systemadminv1.OpenApiServiceOperation{
+				Path:   operation.Path,
+				Method: operation.Method,
+			})
 		}
 		options = append(options, &systemadminv1.OpenApiServiceOption{
-			Key:  document.Key,
-			Name: document.Name,
+			Key:        service.Key,
+			Name:       service.Name,
+			Operations: operations,
 		})
 	}
 	return &systemadminv1.OptionOpenApiServiceResponse{List: options}, nil
@@ -342,9 +297,20 @@ func (c *BaseAPICase) SetBaseAPIMcpStatus(ctx context.Context, req *systemadminv
 }
 
 // toBaseAPIDTO 转换接口数据并补充所属 OpenAPI 文档信息。
-func (c *BaseAPICase) toBaseAPIDTO(item *models.BaseAPI) *systemadminv1.BaseApi {
+func (c *BaseAPICase) toBaseAPIDTO(ctx context.Context, item *models.BaseAPI, translation *models.BaseAPII18n) *systemadminv1.BaseApi {
 	baseAPI := c.mapper.ToDTO(item)
-	document, found := c.openAPIRegistry.DocumentByOperation(item.Path, item.Method)
+	if translation != nil {
+		if translation.ToolPrompts != "" {
+			baseAPI.ToolPrompts = parseToolPrompts(translation.ToolPrompts)
+		}
+		if translation.ServiceDesc != "" {
+			baseAPI.ServiceDesc = translation.ServiceDesc
+		}
+		if translation.Desc != "" {
+			baseAPI.Desc = translation.Desc
+		}
+	}
+	document, found := c.openAPI.Service(ctx, item.Path, item.Method)
 	if found {
 		baseAPI.OpenapiServiceCode = document.Key
 		baseAPI.OpenapiServiceName = document.Name
@@ -353,13 +319,13 @@ func (c *BaseAPICase) toBaseAPIDTO(item *models.BaseAPI) *systemadminv1.BaseApi 
 }
 
 // filterBaseAPIsByOpenAPIService 按 OpenAPI 文档 key 过滤接口列表。
-func (c *BaseAPICase) filterBaseAPIsByOpenAPIService(list []*models.BaseAPI, serviceCode string) []*models.BaseAPI {
+func (c *BaseAPICase) filterBaseAPIsByOpenAPIService(ctx context.Context, list []*models.BaseAPI, serviceCode string) []*models.BaseAPI {
 	if serviceCode == "" {
 		return list
 	}
 	values := make([]*models.BaseAPI, 0, len(list))
 	for _, item := range list {
-		document, found := c.openAPIRegistry.DocumentByOperation(item.Path, item.Method)
+		document, found := c.openAPI.Service(ctx, item.Path, item.Method)
 		if found && document.Key == serviceCode {
 			values = append(values, item)
 		}
@@ -367,47 +333,8 @@ func (c *BaseAPICase) filterBaseAPIsByOpenAPIService(list []*models.BaseAPI, ser
 	return values
 }
 
-// Operation 按精确的 HTTP path 和 method 查询 OpenAPI 操作定义。
-//
-// 未找到路径、文档为空或 method 不在当前权限同步支持的 GET、POST、PUT、DELETE 范围时返回 nil。
-func (api *OpenAPI) Operation(path, method string) *Operation {
-	if api == nil {
-		return nil
-	}
-	item, ok := api.Paths[path]
-	if !ok {
-		return nil
-	}
-	// HTTP 方法决定同一路径下需要返回的操作定义。
-	switch method {
-	case "GET":
-		return item.Get
-	case "POST":
-		return item.Post
-	case "PUT":
-		return item.Put
-	case "DELETE":
-		return item.Delete
-	default:
-		return nil
-	}
-}
-
-// ParseOpenAPI 解析 OpenAPI YAML 文档。
-//
-// 该方法只做 YAML 解码并完整保留 paths、tags 与 schemas，业务层可同时复用同一份文档
-// 生成权限数据和展示接口文档。
-func ParseOpenAPI(openAPIData []byte) (*OpenAPI, error) {
-	var api OpenAPI
-	err := yaml.Unmarshal(openAPIData, &api)
-	if err != nil {
-		return nil, err
-	}
-	return &api, nil
-}
-
 // filterBaseAPIsByToolPrompt 按工具提示词内容过滤接口列表。
-func filterBaseAPIsByToolPrompt(list []*models.BaseAPI, keyword string) []*models.BaseAPI {
+func filterBaseAPIsByToolPrompt(list []*models.BaseAPI, keyword string, translations map[string]*models.BaseAPII18n) []*models.BaseAPI {
 	if keyword == "" {
 		return list
 	}
@@ -416,16 +343,83 @@ func filterBaseAPIsByToolPrompt(list []*models.BaseAPI, keyword string) []*model
 		if item == nil {
 			continue
 		}
-		prompts := parseToolPrompts(item.ToolPrompts)
-		for _, prompt := range prompts {
-			if !strings.Contains(prompt, keyword) {
-				continue
+		matched := false
+		for _, prompt := range parseToolPrompts(item.ToolPrompts) {
+			if strings.Contains(prompt, keyword) {
+				matched = true
+				break
 			}
+		}
+		if !matched {
+			translation := translations[item.Operation]
+			if translation != nil {
+				for _, prompt := range parseToolPrompts(translation.ToolPrompts) {
+					if strings.Contains(prompt, keyword) {
+						matched = true
+						break
+					}
+				}
+			}
+		}
+		if matched {
 			values = append(values, item)
-			break
 		}
 	}
 	return values
+}
+
+// baseAPII18nMap 查询当前语言对应的 API 翻译信息。
+func (c *BaseAPICase) baseAPII18nMap(ctx context.Context, list []*models.BaseAPI) (map[string]*models.BaseAPII18n, error) {
+	translations := make(map[string]*models.BaseAPII18n)
+	operations := make([]string, 0, len(list))
+	seen := make(map[string]struct{}, len(list))
+	for _, item := range list {
+		if item.Operation == "" {
+			continue
+		}
+		if _, ok := seen[item.Operation]; ok {
+			continue
+		}
+		seen[item.Operation] = struct{}{}
+		operations = append(operations, item.Operation)
+	}
+	locale := biz.LocaleFromContext(ctx)
+	if locale == "" || len(operations) == 0 {
+		return translations, nil
+	}
+	query := c.baseAPII18nRepo.Query(ctx).BaseAPII18n
+	rows, err := c.baseAPII18nRepo.List(ctx,
+		repository.Where(query.Operation.In(operations...)),
+		repository.Where(query.Locale.Eq(locale)),
+	)
+	if err != nil {
+		return nil, err
+	}
+	for _, row := range rows {
+		translations[row.Operation] = row
+	}
+	return translations, nil
+}
+
+// translatedOperations 查询当前语言中匹配字段关键字的 API 操作名。
+func (c *BaseAPICase) translatedOperations(ctx context.Context, condition gen.Condition) ([]string, error) {
+	locale := biz.LocaleFromContext(ctx)
+	if locale == "" {
+		return nil, nil
+	}
+	query := c.baseAPII18nRepo.Query(ctx).BaseAPII18n
+	rows, err := c.baseAPII18nRepo.List(ctx,
+		repository.Where(query.Locale.Eq(locale)),
+		repository.Where(condition),
+	)
+	if err != nil {
+		return nil, err
+	}
+	operations := make([]string, 0, len(rows))
+	for _, row := range rows {
+		operations = append(operations, row.Operation)
+	}
+	return operations, nil
 }
 
 // pageBaseAPIRecords 对 Go 侧过滤后的接口列表进行分页。
@@ -451,10 +445,9 @@ func pageBaseAPIRecords(list []*models.BaseAPI, pageNum, pageSize int64) []*mode
 func normalizeToolPrompts(prompts []string) []string {
 	values := make([]string, 0, len(prompts))
 	for _, item := range prompts {
-		if item == "" {
-			continue
+		if item != "" {
+			values = append(values, item)
 		}
-		values = append(values, item)
 	}
 	return values
 }
@@ -481,179 +474,83 @@ func parseToolPrompts(value string) []string {
 	return prompts
 }
 
-// buildBaseAPIDocParameters 构建请求参数文档。
-func buildBaseAPIDocParameters(api *OpenAPI, parameters []Parameter) []*systemadminv1.BaseApiDocSchema {
-	items := make([]*systemadminv1.BaseApiDocSchema, 0, len(parameters))
-	for _, parameter := range parameters {
-		item := buildBaseAPIDocSchema(api, parameter.Name, parameter.Name, parameter.In, parameter.Required, parameter.Schema, 0)
-		if parameter.Description != "" {
-			item.Description = parameter.Description
-		}
-		items = append(items, item)
-	}
-	return items
-}
-
-// buildBaseAPIDocSchema 展开 OpenAPI Schema 为前端可直接渲染的字段树。
-func buildBaseAPIDocSchema(api *OpenAPI, name, path, in string, required bool, schema Schema, depth int) *systemadminv1.BaseApiDocSchema {
-	schema, refName := dereferenceBaseAPIDocSchema(api, schema)
-	item := &systemadminv1.BaseApiDocSchema{
-		Name:        name,
-		Path:        path,
-		In:          in,
-		Type:        schema.Type,
-		Format:      schema.Format,
-		Required:    required,
-		Description: schema.Description,
-		Ref:         refName,
-		Enum:        schema.Enum,
-	}
-	if item.Type == "" {
-		item.Type = inferBaseAPIDocSchemaType(schema)
-	}
-	if depth >= baseAPIDocMaxDepth {
-		return item
-	}
-	if schema.Items != nil {
-		child := buildBaseAPIDocSchema(api, name+"[]", path+"[]", in, false, *schema.Items, depth+1)
-		item.Children = []*systemadminv1.BaseApiDocSchema{child}
-	}
-	if len(schema.Properties) > 0 {
-		requiredFields := make(map[string]bool, len(schema.Required))
-		for _, field := range schema.Required {
-			requiredFields[field] = true
-		}
-		item.Children = make([]*systemadminv1.BaseApiDocSchema, 0, len(schema.Properties))
-		fieldNames := make([]string, 0, len(schema.Properties))
-		for fieldName := range schema.Properties {
-			fieldNames = append(fieldNames, fieldName)
-		}
-		sort.Strings(fieldNames)
-		for _, fieldName := range fieldNames {
-			fieldSchema := schema.Properties[fieldName]
-			fieldPath := fieldName
-			if path != "" {
-				fieldPath = path + "." + fieldName
-			}
-			item.Children = append(item.Children, buildBaseAPIDocSchema(api, fieldName, fieldPath, in, requiredFields[fieldName], fieldSchema, depth+1))
-		}
-	}
-	return item
-}
-
-// dereferenceBaseAPIDocSchema 解析本地组件引用。
-func dereferenceBaseAPIDocSchema(api *OpenAPI, schema Schema) (Schema, string) {
-	refName := strings.TrimPrefix(schema.Ref, "#/components/schemas/")
-	if refName == "" || api == nil {
-		return schema, refName
-	}
-	refSchema, ok := api.Components.Schemas[refName]
-	if !ok {
-		return schema, refName
-	}
-	if refSchema.Description == "" {
-		refSchema.Description = schema.Description
-	}
-	return refSchema, refName
-}
-
-// inferBaseAPIDocSchemaType 推断缺省 Schema 类型。
-func inferBaseAPIDocSchemaType(schema Schema) string {
-	if len(schema.Properties) > 0 {
-		return "object"
-	}
-	if schema.Items != nil {
-		return "array"
-	}
-	if schema.Ref != "" {
-		return "object"
-	}
-	return "string"
-}
-
-// buildBaseAPIDocRequestBody 构建请求体文档。
-func buildBaseAPIDocRequestBody(api *OpenAPI, requestBody *RequestBody) *systemadminv1.BaseApiDocSchema {
-	if requestBody == nil {
+// mapBaseAPIDoc 将 Core OpenAPI 文档转换为 Admin 接口响应。
+func mapBaseAPIDoc(id int64, document *openapidto.OpenAPIOperationDocument) *systemadminv1.BaseApiDoc {
+	if document == nil {
 		return nil
 	}
-	schema := selectBaseAPIDocContentSchema(requestBody.Content)
+	parameters := make([]*systemadminv1.BaseApiDocSchema, 0, len(document.Parameters))
+	for _, parameter := range document.Parameters {
+		parameters = append(parameters, mapBaseAPIDocSchema(parameter))
+	}
+	responses := make([]*systemadminv1.BaseApiDocResponse, 0, len(document.Responses))
+	for _, response := range document.Responses {
+		responses = append(responses, &systemadminv1.BaseApiDocResponse{
+			Status:      response.Status,
+			Description: response.Description,
+			Body:        mapBaseAPIDocSchema(response.Body),
+		})
+	}
+	return &systemadminv1.BaseApiDoc{
+		Id:          id,
+		Summary:     document.Summary,
+		Description: document.Description,
+		Parameters:  parameters,
+		RequestBody: mapBaseAPIDocSchema(document.RequestBody),
+		Responses:   responses,
+	}
+}
+
+// mapBaseAPIDocSchema 将 Core OpenAPI 字段结构转换为 Admin 接口字段结构。
+func mapBaseAPIDocSchema(schema *openapidto.OpenAPISchema) *systemadminv1.BaseApiDocSchema {
 	if schema == nil {
 		return nil
 	}
-	item := buildBaseAPIDocSchema(api, "body", "body", "body", requestBody.Required, *schema, 0)
-	if requestBody.Description != "" {
-		item.Description = requestBody.Description
+	children := make([]*systemadminv1.BaseApiDocSchema, 0, len(schema.Children))
+	for _, child := range schema.Children {
+		children = append(children, mapBaseAPIDocSchema(child))
 	}
-	return item
-}
-
-// selectBaseAPIDocContentSchema 选择可展示的 JSON Schema。
-func selectBaseAPIDocContentSchema(content map[string]MediaType) *Schema {
-	if len(content) == 0 {
-		return nil
+	return &systemadminv1.BaseApiDocSchema{
+		Name:        schema.Name,
+		Path:        schema.Path,
+		In:          schema.In,
+		Type:        schema.Type,
+		Format:      schema.Format,
+		Required:    schema.Required,
+		Description: schema.Description,
+		Ref:         schema.Ref,
+		Enum:        append([]string(nil), schema.Enum...),
+		Children:    children,
 	}
-	if media, ok := content[baseAPIDocJSONMediaType]; ok {
-		return &media.Schema
-	}
-	for _, media := range content {
-		return &media.Schema
-	}
-	return nil
-}
-
-// buildBaseAPIDocResponses 构建响应文档。
-func buildBaseAPIDocResponses(api *OpenAPI, responses map[string]Response) []*systemadminv1.BaseApiDocResponse {
-	items := make([]*systemadminv1.BaseApiDocResponse, 0, len(responses))
-	statuses := make([]string, 0, len(responses))
-	for status := range responses {
-		statuses = append(statuses, status)
-	}
-	sort.Strings(statuses)
-	for _, status := range statuses {
-		response := responses[status]
-		schema := selectBaseAPIDocContentSchema(response.Content)
-		item := &systemadminv1.BaseApiDocResponse{
-			Status:      status,
-			Description: response.Description,
-		}
-		if schema != nil {
-			item.Body = buildBaseAPIDocSchema(api, "body", "body", "body", false, *schema, 0)
-		}
-		items = append(items, item)
-	}
-	return items
 }
 
 // matchAuthWhiteList 按认证白名单规则匹配当前接口操作名。
 func matchAuthWhiteList(whiteList *bootstrapConfigv1.Authentication_Jwt_WhiteList, operation string) bool {
-	// 白名单配置为空时，当前规则无需参与匹配。
 	if whiteList == nil {
 		return false
 	}
 	for _, prefix := range whiteList.GetPrefix() {
-		// 前缀规则命中时，直接判定为免 token 接口。
 		if strings.HasPrefix(operation, prefix) {
 			return true
 		}
 	}
+	var err error
 	for _, regexValue := range whiteList.GetRegex() {
-		regex, err := regexp.Compile(regexValue)
+		var regex *regexp.Regexp
+		regex, err = regexp.Compile(regexValue)
 		if err != nil {
 			continue
 		}
-		// 正则完整命中当前操作名时，按白名单处理。
 		if regex.FindString(operation) == operation {
 			return true
 		}
 	}
 	for _, path := range whiteList.GetPath() {
-		// Path 精确匹配命中时，按白名单处理。
 		if path == operation {
 			return true
 		}
 	}
 	for _, item := range whiteList.GetMatch() {
-		// Match 精确匹配命中时，按白名单处理。
 		if item == operation {
 			return true
 		}

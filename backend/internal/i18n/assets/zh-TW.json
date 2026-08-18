@@ -299,30 +299,6 @@
   "system.admin.code.gen.table.entity.status.required": {
     "other": "請選擇程式碼生成表狀態"
   },
-  "common.error.conflict": {
-    "other": "資源狀態衝突"
-  },
-  "common.error.internal": {
-    "other": "系統內部錯誤"
-  },
-  "common.error.invalid_argument": {
-    "other": "請求引數錯誤"
-  },
-  "common.error.permission_denied": {
-    "other": "沒有操作許可權"
-  },
-  "common.error.resource_not_found": {
-    "other": "請求的資源不存在"
-  },
-  "common.error.unauthenticated": {
-    "other": "登入狀態已失效，請重新登入"
-  },
-  "common.validation.invalid": {
-    "other": "欄位 {{.Field}} 不符合要求"
-  },
-  "common.validation.required": {
-    "other": "欄位 {{.Field}} 不能為空"
-  },
   "base.ai.session.create_branch.anchor_message_id.positive": {
     "other": "分支錨點訊息編號不合法"
   },

@@ -10,14 +10,13 @@ import (
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	"github.com/liujitcn/kratos-core/pkg/biz"
-	coreconst "github.com/liujitcn/kratos-core/pkg/const"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/biz"
+	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
-	"github.com/liujitcn/kratos-kit/sdk"
 	"gorm.io/gen/field"
 )
 
@@ -102,7 +101,7 @@ func (c *BaseConfigCase) PageBaseConfig(ctx context.Context, req *systemadminv1.
 	for _, item := range list {
 		targetIds = append(targetIds, item.ID)
 	}
-	var translations map[int64][]*systemadminv1.BaseTranslation
+	var translations map[int64][]*systemadminv1.BaseI18n
 	translations, err = c.baseTranslationCase.GetBaseTranslationMapByTargetType(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, targetIds)
 	if err != nil {
 		return nil, err
@@ -126,7 +125,7 @@ func (c *BaseConfigCase) GetBaseConfig(ctx context.Context, id int64) (*systemad
 		return nil, err
 	}
 	res := c.formMapper.ToDTO(baseConfig)
-	var nameTranslations, valueTranslations map[int64][]*systemadminv1.BaseTranslation
+	var nameTranslations, valueTranslations map[int64][]*systemadminv1.BaseI18n
 	nameTranslations, err = c.baseTranslationCase.GetBaseTranslationMapByTargetType(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, []int64{id})
 	if err != nil {
 		return nil, err
@@ -288,7 +287,7 @@ func (c *BaseConfigCase) refreshBaseConfigSite(ctx context.Context, site int32) 
 	query := c.Query(ctx).BaseConfig
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Where(query.Site.Eq(site)))
-	opts = append(opts, repository.Where(query.Status.Eq(coreconst.Status_STATUS_ENABLE)))
+	opts = append(opts, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
 	opts = append(opts, repository.Order(query.ID.Asc()))
 	list, err := c.List(ctx, opts...)
 	if err != nil {
@@ -308,7 +307,7 @@ func (c *BaseConfigCase) refreshBaseConfigSite(ctx context.Context, site int32) 
 	if err != nil {
 		return err
 	}
-	return sdk.Runtime.GetCache().Set(_const.BaseConfigCacheKey(site), string(payload), _const.BASE_CONFIG_CACHE_EXPIRE)
+	return c.Cache.Set(_const.BaseConfigCacheKey(site), string(payload), _const.BASE_CONFIG_CACHE_EXPIRE)
 }
 
 // isTranslatableConfigType 判断配置值是否支持机器翻译和动态译文。

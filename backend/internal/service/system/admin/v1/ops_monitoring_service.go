@@ -3,13 +3,10 @@ package admin
 import (
 	"context"
 	"fmt"
-	"sync"
-	"time"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
-	coreSSE "github.com/liujitcn/kratos-core/pkg/sse"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
 )
@@ -18,14 +15,11 @@ import (
 type OpsMonitoringService struct {
 	systemadminv1.UnimplementedOpsMonitoringServiceServer
 	opsMonitoringCase *biz.OpsMonitoringCase
-	publisherMu       sync.RWMutex
-	publisher         *coreSSE.Publisher
-	streamCancel      context.CancelFunc
 }
 
 // NewOpsMonitoringService 创建运维监控服务。
-func NewOpsMonitoringService(opsMonitoringCase *biz.OpsMonitoringCase, publisher *coreSSE.Publisher) *OpsMonitoringService {
-	return &OpsMonitoringService{opsMonitoringCase: opsMonitoringCase, publisher: publisher}
+func NewOpsMonitoringService(opsMonitoringCase *biz.OpsMonitoringCase) *OpsMonitoringService {
+	return &OpsMonitoringService{opsMonitoringCase: opsMonitoringCase}
 }
 
 // GetOpsRuntime 查询当前进程运行信息。
@@ -76,66 +70,6 @@ func (s *OpsMonitoringService) GetOpsAlerts(ctx context.Context, req *systemadmi
 		return nil, wrapOpsMonitoringError(err, "查询告警监控失败")
 	}
 	return alerts, nil
-}
-
-// StartOpsMonitoringStream 启动运维监控实时事件发布循环。
-func (s *OpsMonitoringService) StartOpsMonitoringStream(ctx context.Context) error {
-	s.publisherMu.Lock()
-	if s.publisher == nil || s.streamCancel != nil {
-		s.publisherMu.Unlock()
-		return nil
-	}
-	streamCtx, cancel := context.WithCancel(ctx)
-	s.streamCancel = cancel
-	s.publisherMu.Unlock()
-	go s.publishOpsMonitoringStream(streamCtx)
-	return nil
-}
-
-// StopOpsMonitoringStream 停止运维监控实时事件发布循环。
-func (s *OpsMonitoringService) StopOpsMonitoringStream(context.Context) error {
-	s.publisherMu.Lock()
-	cancel := s.streamCancel
-	s.streamCancel = nil
-	s.publisherMu.Unlock()
-	if cancel != nil {
-		cancel()
-	}
-	return nil
-}
-
-// publishOpsMonitoringStream 定时发布局部监控卡片数据。
-func (s *OpsMonitoringService) publishOpsMonitoringStream(ctx context.Context) {
-	ticker := time.NewTicker(5 * time.Second)
-	defer ticker.Stop()
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-ticker.C:
-			s.publishOpsMonitoringSnapshot(ctx)
-		}
-	}
-}
-
-// publishOpsMonitoringSnapshot 发布一次局部监控卡片数据。
-func (s *OpsMonitoringService) publishOpsMonitoringSnapshot(ctx context.Context) {
-	s.publisherMu.RLock()
-	publisher := s.publisher
-	s.publisherMu.RUnlock()
-	if publisher == nil {
-		return
-	}
-	traffic, err := s.opsMonitoringCase.GetOpsTraffic(ctx, &systemadminv1.GetOpsTrafficRequest{WindowMinutes: 15})
-	if err == nil {
-		publisher.TryPublishJSON(ctx, OpsMonitoringSSEStreamID, OpsMonitoringSSETraffic, traffic)
-	}
-	services := s.opsMonitoringCase.GetOpsServices(ctx, &systemadminv1.GetOpsServicesRequest{})
-	publisher.TryPublishJSON(ctx, OpsMonitoringSSEStreamID, OpsMonitoringSSEServices, services)
-	storage := s.opsMonitoringCase.GetOpsStorage(ctx, &systemadminv1.GetOpsStorageRequest{})
-	publisher.TryPublishJSON(ctx, OpsMonitoringSSEStreamID, OpsMonitoringSSEStorage, storage)
-	nodes := s.opsMonitoringCase.GetOpsNodes(ctx, &systemadminv1.GetOpsNodesRequest{})
-	publisher.TryPublishJSON(ctx, OpsMonitoringSSEStreamID, OpsMonitoringSSENodes, nodes)
 }
 
 // wrapOpsMonitoringError 统一封装监控查询错误。

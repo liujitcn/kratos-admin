@@ -6,8 +6,8 @@ import (
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	"github.com/liujitcn/kratos-core/pkg/biz"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
@@ -79,7 +79,7 @@ func (c *BaseDictItemCase) PageBaseDictItem(ctx context.Context, req *systemadmi
 	for _, item := range list {
 		targetIds = append(targetIds, item.ID)
 	}
-	var translations map[int64][]*systemadminv1.BaseTranslation
+	var translations map[int64][]*systemadminv1.BaseI18n
 	translations, err = c.baseTranslationCase.GetBaseTranslationMapByTargetType(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM, targetIds)
 	if err != nil {
 		return nil, err
@@ -99,7 +99,7 @@ func (c *BaseDictItemCase) GetBaseDictItem(ctx context.Context, id int64) (*syst
 		return nil, err
 	}
 	res := c.formMapper.ToDTO(baseDictItem)
-	var translations map[int64][]*systemadminv1.BaseTranslation
+	var translations map[int64][]*systemadminv1.BaseI18n
 	translations, err = c.baseTranslationCase.GetBaseTranslationMapByTargetType(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM, []int64{id})
 	if err != nil {
 		return nil, err

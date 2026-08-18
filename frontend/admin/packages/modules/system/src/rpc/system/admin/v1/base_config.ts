@@ -8,7 +8,7 @@
 import type { BaseConfigSite } from "../../../base/v1/config";
 import type { Status } from "../../../common/v1/enum";
 import type { Empty } from "../../../google/protobuf/empty";
-import type { BaseTranslation } from "./base_translation";
+import type { BaseI18n } from "./base_i18n";
 
 /** 系统配置类型。 */
 export enum BaseConfigType {
@@ -83,9 +83,9 @@ export interface BaseConfigForm {
   /** 配置value */
   value: string;
   /** 配置名称多语言翻 */
-  name_translations: BaseTranslation[];
+  name_translations: BaseI18n[];
   /** 配置value文本/富文本配置值的多语言翻译 */
-  value_translations: BaseTranslation[];
+  value_translations: BaseI18n[];
   /** 状态 */
   status: Status;
 }
@@ -141,7 +141,7 @@ export interface BaseConfig {
   /** 更新时间 */
   updated_at: string;
   /** 配置名称及文本/富文本配置值的多语言翻译 */
-  translations: BaseTranslation[];
+  translations: BaseI18n[];
 }
 
 /** Admin系统配置服务 */

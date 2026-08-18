@@ -5,19 +5,22 @@ import (
 	"errors"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	"gorm.io/gorm"
 )
 
 // BaseUserCase 处理基础用户业务。
 type BaseUserCase struct {
+	*biz.BaseCase
 	*data.BaseUserRepository
 }
 
 // NewBaseUserCase 创建基础用户业务实例。
-func NewBaseUserCase(baseUserRepo *data.BaseUserRepository) *BaseUserCase {
+func NewBaseUserCase(baseCase *biz.BaseCase, baseUserRepo *data.BaseUserRepository) *BaseUserCase {
 	return &BaseUserCase{
+		BaseCase:           baseCase,
 		BaseUserRepository: baseUserRepo,
 	}
 }

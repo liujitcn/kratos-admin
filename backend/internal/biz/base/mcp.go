@@ -9,15 +9,16 @@ import (
 	"strings"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/biz"
+	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/liujitcn/gorm-kit/repository"
-	"github.com/liujitcn/kratos-kit/bootstrap"
 	mcpserver "github.com/liujitcn/kratos-kit/transport/mcp"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -34,6 +35,7 @@ type mcpTerminalContextKey struct{}
 
 // McpCase 处理 MCP 公共业务。
 type McpCase struct {
+	*biz.BaseCase
 	http.Handler
 
 	baseAPIRepo *data.BaseAPIRepository
@@ -41,11 +43,12 @@ type McpCase struct {
 }
 
 // NewMcpCase 创建 MCP 业务实例。
-func NewMcpCase(ctx *bootstrap.Context, baseAPIRepo *data.BaseAPIRepository) (*McpCase, error) {
+func NewMcpCase(baseCase *biz.BaseCase, baseAPIRepo *data.BaseAPIRepository) (*McpCase, error) {
 	h := &McpCase{
+		BaseCase:    baseCase,
 		baseAPIRepo: baseAPIRepo,
 	}
-	cfg := ctx.GetConfig()
+	cfg := baseCase.GetConfig()
 	// 未启用 HTTP 服务时，不创建 MCP HTTP 处理器。
 	if cfg == nil || cfg.Server == nil || cfg.Server.Http == nil {
 		return h, nil
@@ -95,6 +98,48 @@ func (h *McpCase) HandleMcp(ctx context.Context, req *basev1.HandleMcpRequest) (
 	clonedRequest.URL = &urlCopy
 	h.Handler.ServeHTTP(w, clonedRequest)
 	return &emptypb.Empty{}, nil
+}
+
+// ToolConfigs 查询当前终端允许暴露给 Agent 的工具配置。
+func (h *McpCase) ToolConfigs(ctx context.Context, terminal string, names []string) (map[string]ai.ToolConfig, error) {
+	result := make(map[string]ai.ToolConfig)
+	if len(names) == 0 {
+		return result, nil
+	}
+	filteredNames := make([]string, 0, len(names))
+	for _, name := range names {
+		if matchToolTerminal(terminal, name) {
+			filteredNames = append(filteredNames, name)
+		}
+	}
+	if len(filteredNames) == 0 {
+		return result, nil
+	}
+	query := h.baseAPIRepo.Query(ctx).BaseAPI
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.ToolName.In(filteredNames...)))
+	list, err := h.baseAPIRepo.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	totalByName := make(map[string]int, len(filteredNames))
+	enabledByName := make(map[string]int, len(filteredNames))
+	promptsByName := make(map[string][]string, len(filteredNames))
+	for _, item := range list {
+		totalByName[item.ToolName]++
+		if item.AgentStatus == coreconst.STATUS_STATUS_ENABLE {
+			enabledByName[item.ToolName]++
+		}
+		if len(promptsByName[item.ToolName]) == 0 {
+			promptsByName[item.ToolName] = parseToolPrompts(item.ToolPrompts)
+		}
+	}
+	for _, name := range filteredNames {
+		if totalByName[name] > 0 {
+			result[name] = ai.ToolConfig{Enabled: totalByName[name] == enabledByName[name], Prompts: promptsByName[name]}
+		}
+	}
+	return result, nil
 }
 
 // filterToolsMiddleware 在官方 MCP SDK 接收链路中校验工具调用权限。
@@ -213,7 +258,7 @@ func (h *McpCase) findEnabledBaseAPI(ctx context.Context, req mcp.Request, toolN
 	}
 	query := h.baseAPIRepo.Query(ctx).BaseAPI
 	opts := make([]repository.QueryOption, 0, 3)
-	opts = append(opts, repository.Where(query.McpStatus.Eq(int32(commonv1.Status_STATUS_ENABLE))))
+	opts = append(opts, repository.Where(query.McpStatus.Eq(coreconst.STATUS_STATUS_ENABLE)))
 	opts = append(opts, repository.Where(query.ToolName.Eq(toolName)))
 	opts = append(opts, repository.Limit(1))
 	list, err := h.baseAPIRepo.List(ctx, opts...)
@@ -225,22 +270,26 @@ func (h *McpCase) findEnabledBaseAPI(ctx context.Context, req mcp.Request, toolN
 
 // toolPromptsDescription 将多条工具提示词合并为运行时工具描述。
 func toolPromptsDescription(value string) string {
+	return strings.Join(parseToolPrompts(value), "\n")
+}
+
+// parseToolPrompts 解析工具提示词 JSON 并过滤空值。
+func parseToolPrompts(value string) []string {
 	if value == "" {
-		return ""
+		return nil
 	}
 	var prompts []string
 	err := json.Unmarshal([]byte(value), &prompts)
 	if err != nil {
-		return ""
+		return nil
 	}
 	values := make([]string, 0, len(prompts))
 	for _, item := range prompts {
-		if item == "" {
-			continue
+		if item != "" {
+			values = append(values, item)
 		}
-		values = append(values, item)
 	}
-	return strings.Join(values, "\n")
+	return values
 }
 
 // matchMcpToolPrefix 判断工具名是否匹配当前终端。

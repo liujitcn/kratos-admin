@@ -1,11 +1,10 @@
 package app
 
 import (
-	systemappv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
-	systemapp "github.com/liujitcn/kratos-admin/backend/internal/service/system/app/v1"
-	einoTool "github.com/liujitcn/kratos-core/pkg/agent/tool"
-
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
+	systemappv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
+	einoTool "github.com/liujitcn/kratos-admin/backend/internal/biz/agent/tool"
+	systemapp "github.com/liujitcn/kratos-admin/backend/internal/service/system/app/v1"
 	mcpserver "github.com/liujitcn/kratos-kit/transport/mcp"
 	"google.golang.org/grpc"
 )

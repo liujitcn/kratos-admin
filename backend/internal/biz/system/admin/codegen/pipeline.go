@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/liujitcn/go-utils/stringcase"
 )
@@ -243,7 +243,7 @@ func (c *renderer) applyCodeGenOutputPaths(table *Table, methods []*Proto, paths
 }
 
 // buildPreviewFiles 按后端、前端顺序构建本轮全部预览文件。
-func (c *renderer) buildPreviewFiles(table *Table, columns []*CodeGenColumn, methods []*Proto, paths *systemadminv1.CodeGenOutputPaths) []*systemadminv1.CodeGenPreviewFile {
+func (c *renderer) buildPreviewFiles(table *Table, columns []*CodeGenColumn, methods []*Proto, paths *systemadminv1.CodeGenOutputPaths, localeState LocaleState) []*systemadminv1.CodeGenPreviewFile {
 	generatedMethods := c.generatedProtoMethods(table, columns, methods)
 	frontendMethods := c.frontendProtoMethods(table, columns, methods)
 	files := make([]*systemadminv1.CodeGenPreviewFile, 0, 9)
@@ -288,7 +288,7 @@ func (c *renderer) buildPreviewFiles(table *Table, columns []*CodeGenColumn, met
 			files = append(files, pageFile)
 		}
 		files = append(files, c.newExternalTargetFrontendPreviewFiles(table, frontendMethods)...)
-		files = append(files, c.newFrontendLocalePreviewFiles(table, columns)...)
+		files = append(files, c.newFrontendLocalePreviewFiles(table, columns, localeState)...)
 	}
 	if ShouldSyncMenus(table, generatedMethods) {
 		sqlFile := c.newGeneratedMenuSQLPreviewFile(table, RenderGeneratedMenuSQL(
@@ -297,6 +297,7 @@ func (c *renderer) buildPreviewFiles(table *Table, columns []*CodeGenColumn, met
 			generatedMethods,
 			FrontendPageComponentPath(paths.GetFrontendPageFilePath()),
 			table.TableComment,
+			localeState,
 		))
 		files = append(files, sqlFile)
 	}

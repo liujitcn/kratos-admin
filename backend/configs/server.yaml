@@ -39,10 +39,11 @@ server:
       enable_circuit_breaker: false
 
   mcp:
-    transport: TRANSPORT_IN_PROCESS
+    transport: IN_PROCESS
     path: /mcp
 
   sse:
+    transport: IN_PROCESS
     path: /events
     codec: json
     timeout: 10s

@@ -7,19 +7,18 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/liujitcn/go-utils/translator"
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	coreI18n "github.com/liujitcn/kratos-core/pkg/i18n"
-	coreModule "github.com/liujitcn/kratos-core/pkg/module"
 
 	kratosErrors "github.com/go-kratos/kratos/v3/errors"
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/gorm-kit/repository"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/errorsx"
+	"github.com/liujitcn/kratos-kit/transport/cron"
+	cronTransport "github.com/liujitcn/kratos-kit/transport/cron"
 	"gorm.io/gorm"
 )
 
@@ -28,10 +27,11 @@ const (
 	BaseTranslationTaskName = "system.admin.BaseTranslation"
 )
 
+var _ cron.TaskExec = (*BaseTranslationTask)(nil)
+
 // BaseTranslationTask 执行菜单、字典、字典项和系统配置的机器翻译任务。
 type BaseTranslationTask struct {
 	translationCase *adminbiz.BaseTranslationCase
-	draftTranslator translator.Translator
 	menuRepo        *data.BaseMenuRepository
 	dictRepo        *data.BaseDictRepository
 	dictItemRepo    *data.BaseDictItemRepository
@@ -39,17 +39,17 @@ type BaseTranslationTask struct {
 	mu              sync.Mutex
 }
 
-type translationIndex map[systemadminv1.TranslationTargetType]map[dto.TranslationKey]*models.BaseTranslation
+type translationIndex map[systemadminv1.TranslationTargetType]map[dto.TranslationKey]*models.BaseI18n
 
-func (i translationIndex) get(targetType systemadminv1.TranslationTargetType, targetID int64, locale string) *models.BaseTranslation {
+func (i translationIndex) get(targetType systemadminv1.TranslationTargetType, targetID int64, locale string) *models.BaseI18n {
 	return i[targetType][dto.TranslationKey{TargetID: targetID, Locale: locale}]
 }
 
-func (i translationIndex) set(row *models.BaseTranslation) {
+func (i translationIndex) set(row *models.BaseI18n) {
 	targetType := systemadminv1.TranslationTargetType(row.TargetType)
 	rows := i[targetType]
 	if rows == nil {
-		rows = make(map[dto.TranslationKey]*models.BaseTranslation)
+		rows = make(map[dto.TranslationKey]*models.BaseI18n)
 		i[targetType] = rows
 	}
 	rows[dto.TranslationKey{TargetID: row.TargetID, Locale: row.Locale}] = row
@@ -58,7 +58,6 @@ func (i translationIndex) set(row *models.BaseTranslation) {
 // NewBaseTranslationTask 创建统一机器翻译任务执行器。
 func NewBaseTranslationTask(
 	translationCase *adminbiz.BaseTranslationCase,
-	draftTranslator translator.Translator,
 	menuRepo *data.BaseMenuRepository,
 	dictRepo *data.BaseDictRepository,
 	dictItemRepo *data.BaseDictItemRepository,
@@ -66,7 +65,6 @@ func NewBaseTranslationTask(
 ) *BaseTranslationTask {
 	task := &BaseTranslationTask{
 		translationCase: translationCase,
-		draftTranslator: draftTranslator,
 		menuRepo:        menuRepo,
 		dictRepo:        dictRepo,
 		dictItemRepo:    dictItemRepo,
@@ -76,20 +74,15 @@ func NewBaseTranslationTask(
 }
 
 // Task 返回交由 base_job 统一调度的任务定义。
-func (t *BaseTranslationTask) Task() coreModule.Task {
-	return coreModule.Task{Name: BaseTranslationTaskName, Exec: t}
+func (t *BaseTranslationTask) Task() cronTransport.Task {
+	return cronTransport.Task{Name: BaseTranslationTaskName, Exec: t}
 }
 
-// Exec 兼容不带上下文的任务执行接口。
-func (t *BaseTranslationTask) Exec(_ map[string]string) ([]string, error) {
-	return t.ExecContext(context.Background(), nil)
-}
-
-// ExecContext 扫描所有资源并补齐缺失的机器译文。
-func (t *BaseTranslationTask) ExecContext(ctx context.Context, _ map[string]string) ([]string, error) {
+// Exec 扫描所有资源并补齐缺失的机器译文。
+func (t *BaseTranslationTask) Exec(ctx context.Context, _ map[string]string) ([]string, error) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	if t.draftTranslator == nil {
+	if t.translationCase.Translator == nil {
 		return []string{"机器翻译功能未启用"}, nil
 	}
 	state, err := t.translationCase.LocaleState(ctx)
@@ -170,7 +163,7 @@ func (t *BaseTranslationTask) ExecContext(ctx context.Context, _ map[string]stri
 }
 
 func (t *BaseTranslationTask) loadTranslationIndex(ctx context.Context) (translationIndex, error) {
-	query := t.translationCase.Query(ctx).BaseTranslation
+	query := t.translationCase.Query(ctx).BaseI18n
 	rows, err := t.translationCase.List(ctx, repository.Order(query.ID.Asc()))
 	if err != nil {
 		return nil, err
@@ -184,7 +177,7 @@ func (t *BaseTranslationTask) loadTranslationIndex(ctx context.Context) (transla
 
 // translateOneWithState 使用已读取的语言状态生成单个资源译文。
 func (t *BaseTranslationTask) translateOneWithState(ctx context.Context, state *dto.LocaleState, translations translationIndex, targetType systemadminv1.TranslationTargetType, targetID int64, sourceLocale string, targetLocale string, sourceText string) error {
-	if t.draftTranslator == nil {
+	if t.translationCase.Translator == nil {
 		return errorsx.PermissionDenied("机器翻译功能未启用")
 	}
 	if targetID <= 0 {
@@ -197,9 +190,9 @@ func (t *BaseTranslationTask) translateOneWithState(ctx context.Context, state *
 		return errorsx.InvalidArgument("源语言和目标语言必须是不同的已启用语言")
 	}
 	var err error
-	var row *models.BaseTranslation
+	var row *models.BaseI18n
 	if translations == nil {
-		query := t.translationCase.Query(ctx).BaseTranslation
+		query := t.translationCase.Query(ctx).BaseI18n
 		row, err = t.translationCase.Find(ctx,
 			repository.Where(query.TargetType.Eq(int32(targetType))),
 			repository.Where(query.TargetID.Eq(targetID)),
@@ -226,12 +219,12 @@ func (t *BaseTranslationTask) translateOneWithState(ctx context.Context, state *
 		return errorsx.InvalidArgument("待翻译源文不能为空")
 	}
 	var translated string
-	translated, err = coreI18n.TranslateProtected(ctx, t.draftTranslator, sourceText, sourceLocale, targetLocale)
+	translated, err = t.translationCase.TranslateText(ctx, sourceText, sourceLocale, targetLocale)
 	if err != nil {
 		return errorsx.Internal("生成翻译失败").WithCause(err)
 	}
 	if row == nil {
-		row = &models.BaseTranslation{TargetType: int32(targetType), TargetID: targetID, Locale: targetLocale, Name: translated}
+		row = &models.BaseI18n{TargetType: int32(targetType), TargetID: targetID, Locale: targetLocale, Name: translated}
 		if err = t.translationCase.Create(ctx, row); err != nil {
 			return err
 		}

@@ -6,11 +6,11 @@ import (
 
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	coreconst "github.com/liujitcn/kratos-core/pkg/const"
+	coreconst "github.com/liujitcn/kratos-core/const"
 )
 
 // MenuSpecs 构建页面菜单及页面实际使用的按钮权限定义。
-func MenuSpecs(table *Table, columns []*CodeGenColumn, methods []*Proto, resourcePath string, tableComment string) (CodeGenMenuSpec, []CodeGenMenuSpec) {
+func MenuSpecs(table *Table, columns []*CodeGenColumn, methods []*Proto, resourcePath string, tableComment string, localeState LocaleState) (CodeGenMenuSpec, []CodeGenMenuSpec) {
 	listMethodName := "Page" + table.EntityName
 	if isTreePageType(table.PageType) {
 		listMethodName = "Tree" + table.EntityName
@@ -45,7 +45,7 @@ func MenuSpecs(table *Table, columns []*CodeGenColumn, methods []*Proto, resourc
 		}),
 		API:    marshalJSON(pageAPIs),
 		Sort:   100,
-		Status: coreconst.Status_STATUS_ENABLE,
+		Status: coreconst.STATUS_STATUS_ENABLE,
 	}
 
 	permission := PermissionPrefix(table)
@@ -54,7 +54,7 @@ func MenuSpecs(table *Table, columns []*CodeGenColumn, methods []*Proto, resourc
 		buttonSpecs = append(buttonSpecs, newButtonMenuSpec(
 			permission+":create",
 			"新增"+table.BusinessName,
-			GeneratedMenuTranslations(table, nil, "create"),
+			GeneratedMenuTranslations(table, nil, "create", localeState),
 			int32(len(buttonSpecs)+1),
 			GeneratedRPCPath(table, createMethod),
 		))
@@ -65,7 +65,7 @@ func MenuSpecs(table *Table, columns []*CodeGenColumn, methods []*Proto, resourc
 		buttonSpecs = append(buttonSpecs, newButtonMenuSpec(
 			permission+":update",
 			"编辑"+table.BusinessName,
-			GeneratedMenuTranslations(table, nil, "update"),
+			GeneratedMenuTranslations(table, nil, "update", localeState),
 			int32(len(buttonSpecs)+1),
 			GeneratedRPCPath(table, getMethod),
 			GeneratedRPCPath(table, updateMethod),
@@ -75,7 +75,7 @@ func MenuSpecs(table *Table, columns []*CodeGenColumn, methods []*Proto, resourc
 		buttonSpecs = append(buttonSpecs, newButtonMenuSpec(
 			permission+":delete",
 			"删除"+table.BusinessName,
-			GeneratedMenuTranslations(table, nil, "delete"),
+			GeneratedMenuTranslations(table, nil, "delete", localeState),
 			int32(len(buttonSpecs)+1),
 			GeneratedRPCPath(table, deleteMethod),
 		))
@@ -89,7 +89,7 @@ func MenuSpecs(table *Table, columns []*CodeGenColumn, methods []*Proto, resourc
 		buttonSpecs = append(buttonSpecs, newButtonMenuSpec(
 			statusPermissionPath(permission, column.Name, len(statusColumnList)),
 			"设置"+DefaultString(column.Comment, column.Name),
-			GeneratedMenuTranslations(table, column, "status"),
+			GeneratedMenuTranslations(table, column, "status", localeState),
 			int32(len(buttonSpecs)+1),
 			GeneratedRPCPath(table, method),
 		))
@@ -98,7 +98,7 @@ func MenuSpecs(table *Table, columns []*CodeGenColumn, methods []*Proto, resourc
 	return CodeGenMenuSpec{
 		Menu:         pageMenu,
 		SourceTitle:  pageTitle,
-		Translations: GeneratedMenuTranslations(table, nil, ""),
+		Translations: GeneratedMenuTranslations(table, nil, "", localeState),
 	}, buttonSpecs
 }
 
@@ -135,7 +135,7 @@ func newButtonMenuSpec(path string, title string, translations map[string]string
 			Meta:   marshalJSON(map[string]string{"title": title}),
 			API:    marshalJSON(apis),
 			Sort:   sort,
-			Status: coreconst.Status_STATUS_ENABLE,
+			Status: coreconst.STATUS_STATUS_ENABLE,
 		},
 		SourceTitle:  title,
 		Translations: translations,

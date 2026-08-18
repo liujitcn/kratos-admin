@@ -7,9 +7,9 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	"github.com/liujitcn/kratos-core/pkg/biz"
-	coreconst "github.com/liujitcn/kratos-core/pkg/const"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/biz"
+	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
@@ -361,7 +361,7 @@ func (c *BaseRoleCase) validateAssignableMenus(ctx context.Context, targetTenant
 		}
 	}
 	// 权限上限角色已停用时，不允许继续分配其他角色权限。
-	if allowedBaseRole.Status != coreconst.Status_STATUS_ENABLE {
+	if allowedBaseRole.Status != coreconst.STATUS_STATUS_ENABLE {
 		return errorsx.PermissionDenied("角色已被禁用")
 	}
 

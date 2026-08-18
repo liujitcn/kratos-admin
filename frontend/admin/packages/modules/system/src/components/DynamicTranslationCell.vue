@@ -56,9 +56,9 @@ import { Check, Close, EditPen } from "@element-plus/icons-vue";
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import { t, useLocaleStore } from "@liujitcn/kratos-admin-core";
 import { loadEnabledBaseLanguages, useEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
-import { defBaseTranslationService } from "@liujitcn/kratos-admin-system/api/system/base_translation";
-import type { BaseTranslation } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
-import { TranslationTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
+import { defBaseI18nService } from "@liujitcn/kratos-admin-system/api/system/base_i18n";
+import type { BaseI18n } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
+import { TranslationTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { getLanguageLabel } from "./dynamicTranslation";
 
 /** DynamicTranslationCellProps 动态翻译列表单元格属性。 */
@@ -70,7 +70,7 @@ interface DynamicTranslationCellProps {
   /** 目标资源编号。 */
   targetId?: number;
   /** 资源列表返回的非主语言翻译。 */
-  translations?: BaseTranslation[];
+  translations?: BaseI18n[];
 }
 
 const props = defineProps<DynamicTranslationCellProps>();
@@ -133,13 +133,13 @@ async function loadTranslations() {
     const missingRows = rows.filter(row => !row.text);
     if (missingRows.length === 0) return;
     if (!props.source) return;
-    const draft = await defBaseTranslationService.DraftBaseTranslation({ source: props.source });
+    const draft = await defBaseI18nService.DraftBaseTranslation({ source: props.source });
     const translations = new Map(draft.translations.map(item => [item.locale, item.translation]));
     const results = await Promise.allSettled(
       missingRows.map(async row => {
         const translation = translations.get(row.locale);
         if (!translation) throw new Error("translation not found");
-        await defBaseTranslationService.UpdateBaseTranslation({
+        await defBaseI18nService.UpdateBaseTranslation({
           id: row.id,
           target_type: targetType,
           target_id: targetId,
@@ -204,7 +204,7 @@ async function saveTranslation(row: DynamicTranslationRow) {
   }
   row.saving = true;
   try {
-    await defBaseTranslationService.UpdateBaseTranslation({
+    await defBaseI18nService.UpdateBaseTranslation({
       id: row.id,
       target_type: targetType,
       target_id: targetId,

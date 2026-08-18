@@ -1,12 +1,15 @@
-# Makefile 常用目标：初始化工具、生成代码、格式化代码、启动服务
-.PHONY: help init plugin cli fmt lint i18n-sync i18n-check i18n-draft i18n-locales i18n-zh-tw gorm-gen wire api openapi ts ts-uni-app ts-taro-app project-docs gen run build docker-build
+# Makefile 常用目标：初始化工具、国际化、生成代码、格式化代码、启动服务
+.PHONY: help init plugin cli fmt lint i18n i18n-sync i18n-check i18n-locale i18n-docs i18n-openapi gorm-gen wire api openapi ts ts-uni-app ts-taro-app project-docs gen run build docker-build
 
 IMAGE ?= backend
 TAG ?= latest
 DOCKERFILE ?= Dockerfile
 BINARY ?= bin/server
 PROJECT_DOCS_BIN ?= project-docs
-WIRE_DIR ?= .
+PROJECT_DOCS_PYTHON ?= python3
+PROJECT_DOCS_SOURCE_DIR ?= $(CURDIR)/../../kratos-kit
+PROJECT_DOCS_TRANSLATE_SCRIPT ?= $(PROJECT_DOCS_SOURCE_DIR)/cmd/i18n/project_docs.py
+WIRE_DIR ?= internal/cmd/server
 GO_BIN_DIR ?= $(or $(shell go env GOBIN),$(shell go env GOPATH)/bin)
 TS_PROTO_BIN ?= $(or \
 	$(shell command -v protoc-gen-ts_proto 2>/dev/null), \
@@ -23,10 +26,15 @@ GORM_GEN_BIN ?= $(or \
 GORM_GEN_CONFIG ?= configs/data_local.yaml
 GORM_GEN_DATABASE ?=
 GORM_TABLE ?=
-I18N_WRITE ?= 0
 I18N_OFFLINE ?= 0
 I18N_MIGRATION_VERSION ?=
 I18N_LOCALE ?=
+I18N_SOURCE_LOCALE ?= zh-CN
+I18N_LOCALES ?= en-US,zh-TW,ja-JP
+OPENAPI_INPUT ?= internal/openapi/assets/openapi.yaml
+OPENAPI_OUTPUT_DIR ?= internal/openapi/assets
+OPENAPI_I18N_CONTENT ?= internal/i18n/assets ../frontend/admin/packages/core/src/locales
+I18N_AUTO_TRANSLATE ?= 1
 
 # 初始化开发环境
 init: plugin cli
@@ -85,30 +93,52 @@ lint:
 	@PATH="$(GO_BIN_DIR):$$PATH" golangci-lint run ./...
 	@echo "==> golangci-lint 静态检查完成"
 
-# 同步语言包清单和前端注册产物
+# 执行 backend 内的常规国际化生成链路
+i18n: i18n-sync i18n-docs i18n-openapi
+
+# 只检查语言包、语言集合和已提交的注册生成物
+i18n-check:
+	@python3 ../scripts/sync_locales.py
+
+# 同步语言包集合、前端注册文件和代码生成语言目录
 i18n-sync:
 	@python3 ../scripts/sync_locales.py --write $(if $(strip $(I18N_MIGRATION_VERSION)),--migration-version "$(I18N_MIGRATION_VERSION)",)
 
-# 检查 Proto 消息键和后端语言目录完整性
-i18n-check:
-	@go run ./internal/cmd/i18n -mode check
+# 生成指定语言的固定语言包和动态翻译 SQL
+i18n-locale:
+	@test -n "$(I18N_LOCALE)" || (echo "请指定 I18N_LOCALE，例如 make i18n-locale I18N_LOCALE=ja-JP" && exit 1)
+	@python3 ../scripts/generate_locale_drafts.py \
+		--write \
+		--machine \
+		--locale "$(I18N_LOCALE)" \
+		$(if $(strip $(I18N_MIGRATION_VERSION)),--migration-version "$(I18N_MIGRATION_VERSION)",) \
+		$(if $(filter 1 true,$(I18N_OFFLINE)),--offline,)
 
-# 报告错误目录缺失草稿；I18N_WRITE=1 时按 configs/translator.yaml 选择 Provider
-i18n-draft:
-	@go run ./internal/cmd/i18n -mode draft $(if $(filter 1 true,$(I18N_WRITE)),-write)
+# 收集项目 Markdown 文档，并补充缺失的语言版本
+i18n-docs: project-docs
+	@if [ ! -f "$(PROJECT_DOCS_TRANSLATE_SCRIPT)" ]; then \
+		echo "未找到项目文档翻译脚本: $(PROJECT_DOCS_TRANSLATE_SCRIPT)"; \
+		echo "请检出 kratos-kit 源码，或设置 PROJECT_DOCS_TRANSLATE_SCRIPT 指向 cmd/i18n/project_docs.py"; \
+		exit 1; \
+	fi
+	@"$(PROJECT_DOCS_PYTHON)" "$(PROJECT_DOCS_TRANSLATE_SCRIPT)" \
+		--root "$(CURDIR)/.." \
+		--output "$(CURDIR)/internal/docs" \
+		--source-locale "$(I18N_SOURCE_LOCALE)" \
+		--locales "$(I18N_LOCALES)" \
+		$(if $(filter 1 true,$(I18N_OFFLINE)),--offline,)
 
-# 使用 OpenCC 和独立的 Google V1 脚本生成新增语言的语言包和迁移数据
-i18n-locales:
-	@python3 ../scripts/generate_locale_drafts.py --write --machine $(if $(strip $(I18N_LOCALE)),--locale "$(I18N_LOCALE)",) $(if $(strip $(I18N_MIGRATION_VERSION)),--migration-version "$(I18N_MIGRATION_VERSION)",) $(if $(filter 1 true,$(I18N_OFFLINE)),--offline)
-
-# 保留繁体中文命令别名
-i18n-zh-tw: i18n-locales
+# 生成 OpenAPI 多语言 YAML
+i18n-openapi: openapi
 
 # 生成 GORM 代码
-gorm-gen:
+gorm-gen: fmt
 	@echo "==> 生成 GORM 代码"
 	@test -x "$(GORM_GEN_BIN)" || (echo "gorm-gen not found. Run make cli first." && exit 1)
 	$(GORM_GEN_BIN) -base_path=internal/data/gen -config='$(GORM_GEN_CONFIG)' $(if $(strip $(GORM_GEN_DATABASE)),-database='$(GORM_GEN_DATABASE)') $(if $(strip $(GORM_TABLE)),-table='$(GORM_TABLE)')
+	@for file in internal/data/gen/models/base_i18n.gen.go internal/data/gen/models/base_api_i18n.gen.go internal/data/gen/models/table_comment.gen.go internal/data/gen/query/base_i18n.gen.go internal/data/gen/query/base_api_i18n.gen.go internal/data/gen/query/gen.go internal/data/gen/data/base_i18n.go internal/data/gen/data/base_api_i18n.go internal/data/gen/data/data.go internal/data/gen/data/init.go; do \
+		perl -pi -e 's/BaseAPII18N/BaseAPII18n/g; s/baseAPII18N/baseAPII18n/g; s/BaseI18N/BaseI18n/g; s/baseI18N/baseI18n/g' "$$file"; \
+	done
 	@echo "==> GORM 代码生成完成"
 
 # 生成 wire 依赖注入代码
@@ -128,6 +158,7 @@ api:
 	@cd api && \
 		PATH="$(GO_BIN_DIR):$$PATH" buf generate --template buf.gen.yaml
 	@PATH="$(GO_BIN_DIR):$$PATH" find api/gen/go -type f -name '*.go' -exec goimports -w {} +
+	@find api/gen/go -type f -name '*.go' -exec perl -pi -e 's/BaseI18N/BaseI18n/g; s/baseI18N/baseI18n/g' {} +
 	@echo "==> protobuf Go 代码生成完成"
 
 # 生成 OpenAPI v3 文档
@@ -135,7 +166,16 @@ openapi:
 	@echo "==> 生成 OpenAPI v3 文档"
 	@cd api && \
 		PATH="$(GO_BIN_DIR):$$PATH" buf generate --template buf.openapi.gen.yaml
-	@echo "==> OpenAPI v3 文档生成完成"
+	@python3 ../scripts/generate_openapi_locales.py \
+		--input "$(OPENAPI_INPUT)" \
+		--output-dir "$(OPENAPI_OUTPUT_DIR)" \
+		--source-locale "$(I18N_SOURCE_LOCALE)" \
+		--locale "$(I18N_LOCALES)" \
+		$(foreach content,$(OPENAPI_I18N_CONTENT),--i18n-content "$(content)") \
+		$(if $(filter 1 true,$(I18N_AUTO_TRANSLATE)),--auto-translate,) \
+		$(if $(filter 1 true,$(I18N_OFFLINE)),--offline,)
+	@find "$(OPENAPI_OUTPUT_DIR)" -type f -name '*.yaml' -exec perl -pi -e 's/BaseI18N/BaseI18n/g; s/baseI18N/baseI18n/g' {} +
+	@echo "==> OpenAPI v3 文档及国际化文档生成完成"
 
 # 生成 TypeScript 代码
 ts:
@@ -167,11 +207,17 @@ ts-taro-app:
 		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.taro-app.core.typescript.gen.yaml --exclude-path proto/system/admin
 	@echo "==> Taro React TypeScript RPC 代码生成完成"
 
-# 收集当前项目约定范围内的 README 与 docs Markdown
+# 只收集当前项目约定范围内的 README 与 docs Markdown
 project-docs:
 	@echo "==> 收集项目文档"
-	@command -v "$(PROJECT_DOCS_BIN)" >/dev/null 2>&1 || (echo "project-docs not found. Run make cli first." && exit 1)
-	@cd .. && "$(PROJECT_DOCS_BIN)"
+	@if [ -d "$(PROJECT_DOCS_SOURCE_DIR)/cmd/project-docs" ]; then \
+		cd "$(PROJECT_DOCS_SOURCE_DIR)/cmd/project-docs" && go run . --root "$(CURDIR)/.." --output "$(CURDIR)/internal/docs"; \
+	elif command -v "$(PROJECT_DOCS_BIN)" >/dev/null 2>&1; then \
+		cd "$(CURDIR)/.." && "$(PROJECT_DOCS_BIN)" --output "$(CURDIR)/internal/docs"; \
+	else \
+		echo "project-docs not found. Run make cli first or set PROJECT_DOCS_BIN."; \
+		exit 1; \
+	fi
 	@echo "==> 项目文档收集完成"
 
 # 一键生成全部接口与文档产物（Go 代码 + OpenAPI 文档 + TypeScript 代码）
@@ -179,11 +225,11 @@ gen: project-docs api openapi ts ts-uni-app ts-taro-app gorm-gen wire fmt
 	@echo "==> 全部接口产物生成完成"
 
 # 启动应用
-run: project-docs api openapi
+run: project-docs api openapi wire
 	@go run ./internal/cmd/server --conf ./configs
 
 # 构建 Linux 可执行文件，供 Docker 镜像直接打包
-build: project-docs
+build: project-docs wire
 	@mkdir -p $(dir $(BINARY))
 	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(BINARY) ./internal/cmd/server
 

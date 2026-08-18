@@ -20,6 +20,8 @@ type BatchGenerationInput struct {
 	TableComment string
 	// MigrationVersion 是数据库最近一次成功迁移版本。
 	MigrationVersion string
+	// LocaleState 是数据库语言状态。
+	LocaleState LocaleState
 }
 
 // BatchFileRef 标识单个表在批次文件中的来源步骤。
@@ -83,6 +85,7 @@ func PrepareBatchGeneration(inputs []BatchGenerationInput) (*BatchGeneration, er
 			nil,
 			input.TableComment,
 			input.MigrationVersion,
+			input.LocaleState,
 		)
 		if err != nil {
 			return nil, err
@@ -103,7 +106,7 @@ func PrepareBatchGeneration(inputs []BatchGenerationInput) (*BatchGeneration, er
 	batch := &BatchGeneration{Generations: make([]*Generation, 0, len(orderedInputs))}
 	filesByPath := make(map[string]*BatchFile)
 	for _, input := range orderedInputs {
-		generation, err := prepareGenerationWithRenderer(input.Table, input.Columns, input.Methods, nil, &renderer{
+		generation, err := prepareGenerationWithRenderer(input.Table, input.Columns, input.Methods, nil, input.LocaleState, &renderer{
 			tableComment:     input.TableComment,
 			migrationVersion: input.MigrationVersion,
 			readFile:         overlay.readFile,

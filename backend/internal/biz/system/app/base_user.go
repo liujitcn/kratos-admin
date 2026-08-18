@@ -5,7 +5,7 @@ import (
 
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	"github.com/liujitcn/kratos-core/pkg/biz"
+	"github.com/liujitcn/kratos-core/biz"
 
 	"github.com/liujitcn/gorm-kit/repository"
 )

@@ -845,7 +845,7 @@ var File_system_admin_v1_code_gen_column_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_code_gen_column_proto_rawDesc = "" +
 	"\n" +
-	"%system/admin/v1/code_gen_column.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a&system/admin/v1/base_translation.proto\"\xc0\x01\n" +
+	"%system/admin/v1/code_gen_column.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fsystem/admin/v1/base_i18n.proto\"\xc0\x01\n" +
 	"\x18ListCodeGenColumnRequest\x12\xa3\x01\n" +
 	"\btable_id\x18\x01 \x01(\x03B\x87\x01\xbaG\x1a\x92\x02\x17代码生成表配置ID\xbaHg\xba\x01d\n" +
 	"3system.admin.code.gen.column.list.table_id.required\x12#代码生成表配置ID不能为空\x1a\bthis > 0R\atableId\"\x8b\x01\n" +
@@ -995,7 +995,7 @@ func file_system_admin_v1_code_gen_column_proto_init() {
 	if File_system_admin_v1_code_gen_column_proto != nil {
 		return
 	}
-	file_system_admin_v1_base_translation_proto_init()
+	file_system_admin_v1_base_i18n_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

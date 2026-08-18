@@ -1020,7 +1020,7 @@ func (x *OptionOpenApiServiceRequest) GetServiceCode() string {
 // OpenAPI业务服务选项响应
 type OptionOpenApiServiceResponse struct {
 	state         protoimpl.MessageState  `protogen:"open.v1"`
-	List          []*OpenApiServiceOption `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // OpenAPI文档选项列表
+	List          []*OpenApiServiceOption `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // OpenAPI文档列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1064,9 +1064,10 @@ func (x *OptionOpenApiServiceResponse) GetList() []*OpenApiServiceOption {
 
 // OpenAPI业务服务选项
 type OpenApiServiceOption struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`   // OpenAPI文档key
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"` // OpenAPI文档名称
+	state         protoimpl.MessageState     `protogen:"open.v1"`
+	Key           string                     `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`               // OpenAPI文档key
+	Name          string                     `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`             // OpenAPI文档名称
+	Operations    []*OpenApiServiceOperation `protobuf:"bytes,3,rep,name=operations,proto3" json:"operations,omitempty"` // OpenAPI接口列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1111,6 +1112,66 @@ func (x *OpenApiServiceOption) GetKey() string {
 func (x *OpenApiServiceOption) GetName() string {
 	if x != nil {
 		return x.Name
+	}
+	return ""
+}
+
+func (x *OpenApiServiceOption) GetOperations() []*OpenApiServiceOperation {
+	if x != nil {
+		return x.Operations
+	}
+	return nil
+}
+
+// OpenAPI业务服务接口
+type OpenApiServiceOperation struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Path          string                 `protobuf:"bytes,1,opt,name=path,proto3" json:"path,omitempty"`     // HTTP请求路径
+	Method        string                 `protobuf:"bytes,2,opt,name=method,proto3" json:"method,omitempty"` // HTTP请求方法
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OpenApiServiceOperation) Reset() {
+	*x = OpenApiServiceOperation{}
+	mi := &file_system_admin_v1_base_api_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OpenApiServiceOperation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OpenApiServiceOperation) ProtoMessage() {}
+
+func (x *OpenApiServiceOperation) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_api_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OpenApiServiceOperation.ProtoReflect.Descriptor instead.
+func (*OpenApiServiceOperation) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_api_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *OpenApiServiceOperation) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *OpenApiServiceOperation) GetMethod() string {
+	if x != nil {
+		return x.Method
 	}
 	return ""
 }
@@ -1218,12 +1279,18 @@ const file_system_admin_v1_base_api_proto_rawDesc = "" +
 	"\x04body\x18\x03 \x01(\v2!.system.admin.v1.BaseApiDocSchemaB\x0f\xbaG\f\x92\x02\t响应体R\x04body\"n\n" +
 	"\x1bOptionOpenApiServiceRequest\x12>\n" +
 	"\fservice_code\x18\x01 \x01(\tB\x16\xbaG\x13\x92\x02\x10OpenAPI文档keyH\x00R\vserviceCode\x88\x01\x01B\x0f\n" +
-	"\r_service_code\"z\n" +
-	"\x1cOptionOpenApiServiceResponse\x12Z\n" +
-	"\x04list\x18\x01 \x03(\v2%.system.admin.v1.OpenApiServiceOptionB\x1f\xbaG\x1c\x92\x02\x19OpenAPI文档选项列表R\x04list\"o\n" +
+	"\r_service_code\"t\n" +
+	"\x1cOptionOpenApiServiceResponse\x12T\n" +
+	"\x04list\x18\x01 \x03(\v2%.system.admin.v1.OpenApiServiceOptionB\x19\xbaG\x16\x92\x02\x13OpenAPI文档列表R\x04list\"\xd4\x01\n" +
 	"\x14OpenApiServiceOption\x12(\n" +
 	"\x03key\x18\x01 \x01(\tB\x16\xbaG\x13\x92\x02\x10OpenAPI文档keyR\x03key\x12-\n" +
-	"\x04name\x18\x02 \x01(\tB\x19\xbaG\x16\x92\x02\x13OpenAPI文档名称R\x04name2\xcc\b\n" +
+	"\x04name\x18\x02 \x01(\tB\x19\xbaG\x16\x92\x02\x13OpenAPI文档名称R\x04name\x12c\n" +
+	"\n" +
+	"operations\x18\x03 \x03(\v2(.system.admin.v1.OpenApiServiceOperationB\x19\xbaG\x16\x92\x02\x13OpenAPI接口列表R\n" +
+	"operations\"u\n" +
+	"\x17OpenApiServiceOperation\x12*\n" +
+	"\x04path\x18\x01 \x01(\tB\x16\xbaG\x13\x92\x02\x10HTTP请求路径R\x04path\x12.\n" +
+	"\x06method\x18\x02 \x01(\tB\x16\xbaG\x13\x92\x02\x10HTTP请求方法R\x06method2\xcc\b\n" +
 	"\x0eBaseApiService\x12\x85\x01\n" +
 	"\rOptionBaseApi\x12%.system.admin.v1.OptionBaseApiRequest\x1a&.system.admin.v1.OptionBaseApiResponse\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/api/v1/admin/base/api/option\x12x\n" +
 	"\vPageBaseApi\x12#.system.admin.v1.PageBaseApiRequest\x1a$.system.admin.v1.PageBaseApiResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/v1/admin/base/api\x12o\n" +
@@ -1248,7 +1315,7 @@ func file_system_admin_v1_base_api_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_base_api_proto_rawDescData
 }
 
-var file_system_admin_v1_base_api_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_system_admin_v1_base_api_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_system_admin_v1_base_api_proto_goTypes = []any{
 	(*OptionBaseApiRequest)(nil),         // 0: system.admin.v1.OptionBaseApiRequest
 	(*OptionBaseApiResponse)(nil),        // 1: system.admin.v1.OptionBaseApiResponse
@@ -1266,47 +1333,49 @@ var file_system_admin_v1_base_api_proto_goTypes = []any{
 	(*OptionOpenApiServiceRequest)(nil),  // 13: system.admin.v1.OptionOpenApiServiceRequest
 	(*OptionOpenApiServiceResponse)(nil), // 14: system.admin.v1.OptionOpenApiServiceResponse
 	(*OpenApiServiceOption)(nil),         // 15: system.admin.v1.OpenApiServiceOption
-	(v1.Status)(0),                       // 16: common.v1.Status
-	(*emptypb.Empty)(nil),                // 17: google.protobuf.Empty
+	(*OpenApiServiceOperation)(nil),      // 16: system.admin.v1.OpenApiServiceOperation
+	(v1.Status)(0),                       // 17: common.v1.Status
+	(*emptypb.Empty)(nil),                // 18: google.protobuf.Empty
 }
 var file_system_admin_v1_base_api_proto_depIdxs = []int32{
 	5,  // 0: system.admin.v1.OptionBaseApiResponse.base_apis:type_name -> system.admin.v1.BaseApi
-	16, // 1: system.admin.v1.PageBaseApiRequest.mcp_status:type_name -> common.v1.Status
-	16, // 2: system.admin.v1.PageBaseApiRequest.agent_status:type_name -> common.v1.Status
+	17, // 1: system.admin.v1.PageBaseApiRequest.mcp_status:type_name -> common.v1.Status
+	17, // 2: system.admin.v1.PageBaseApiRequest.agent_status:type_name -> common.v1.Status
 	5,  // 3: system.admin.v1.PageBaseApiResponse.base_apis:type_name -> system.admin.v1.BaseApi
-	16, // 4: system.admin.v1.BaseApi.mcp_status:type_name -> common.v1.Status
-	16, // 5: system.admin.v1.BaseApi.agent_status:type_name -> common.v1.Status
+	17, // 4: system.admin.v1.BaseApi.mcp_status:type_name -> common.v1.Status
+	17, // 5: system.admin.v1.BaseApi.agent_status:type_name -> common.v1.Status
 	11, // 6: system.admin.v1.BaseApiDoc.parameters:type_name -> system.admin.v1.BaseApiDocSchema
 	11, // 7: system.admin.v1.BaseApiDoc.request_body:type_name -> system.admin.v1.BaseApiDocSchema
 	12, // 8: system.admin.v1.BaseApiDoc.responses:type_name -> system.admin.v1.BaseApiDocResponse
-	16, // 9: system.admin.v1.UpdateBaseApiRequest.mcp_status:type_name -> common.v1.Status
-	16, // 10: system.admin.v1.UpdateBaseApiRequest.agent_status:type_name -> common.v1.Status
-	16, // 11: system.admin.v1.SetBaseApiAgentStatusRequest.agent_status:type_name -> common.v1.Status
-	16, // 12: system.admin.v1.SetBaseApiMcpStatusRequest.mcp_status:type_name -> common.v1.Status
+	17, // 9: system.admin.v1.UpdateBaseApiRequest.mcp_status:type_name -> common.v1.Status
+	17, // 10: system.admin.v1.UpdateBaseApiRequest.agent_status:type_name -> common.v1.Status
+	17, // 11: system.admin.v1.SetBaseApiAgentStatusRequest.agent_status:type_name -> common.v1.Status
+	17, // 12: system.admin.v1.SetBaseApiMcpStatusRequest.mcp_status:type_name -> common.v1.Status
 	11, // 13: system.admin.v1.BaseApiDocSchema.children:type_name -> system.admin.v1.BaseApiDocSchema
 	11, // 14: system.admin.v1.BaseApiDocResponse.body:type_name -> system.admin.v1.BaseApiDocSchema
 	15, // 15: system.admin.v1.OptionOpenApiServiceResponse.list:type_name -> system.admin.v1.OpenApiServiceOption
-	0,  // 16: system.admin.v1.BaseApiService.OptionBaseApi:input_type -> system.admin.v1.OptionBaseApiRequest
-	2,  // 17: system.admin.v1.BaseApiService.PageBaseApi:input_type -> system.admin.v1.PageBaseApiRequest
-	4,  // 18: system.admin.v1.BaseApiService.GetBaseApi:input_type -> system.admin.v1.GetBaseApiRequest
-	6,  // 19: system.admin.v1.BaseApiService.GetBaseApiDoc:input_type -> system.admin.v1.GetBaseApiDocRequest
-	8,  // 20: system.admin.v1.BaseApiService.UpdateBaseApi:input_type -> system.admin.v1.UpdateBaseApiRequest
-	9,  // 21: system.admin.v1.BaseApiService.SetBaseApiAgentStatus:input_type -> system.admin.v1.SetBaseApiAgentStatusRequest
-	10, // 22: system.admin.v1.BaseApiService.SetBaseApiMcpStatus:input_type -> system.admin.v1.SetBaseApiMcpStatusRequest
-	13, // 23: system.admin.v1.BaseApiService.OptionOpenApiService:input_type -> system.admin.v1.OptionOpenApiServiceRequest
-	1,  // 24: system.admin.v1.BaseApiService.OptionBaseApi:output_type -> system.admin.v1.OptionBaseApiResponse
-	3,  // 25: system.admin.v1.BaseApiService.PageBaseApi:output_type -> system.admin.v1.PageBaseApiResponse
-	5,  // 26: system.admin.v1.BaseApiService.GetBaseApi:output_type -> system.admin.v1.BaseApi
-	7,  // 27: system.admin.v1.BaseApiService.GetBaseApiDoc:output_type -> system.admin.v1.BaseApiDoc
-	17, // 28: system.admin.v1.BaseApiService.UpdateBaseApi:output_type -> google.protobuf.Empty
-	17, // 29: system.admin.v1.BaseApiService.SetBaseApiAgentStatus:output_type -> google.protobuf.Empty
-	17, // 30: system.admin.v1.BaseApiService.SetBaseApiMcpStatus:output_type -> google.protobuf.Empty
-	14, // 31: system.admin.v1.BaseApiService.OptionOpenApiService:output_type -> system.admin.v1.OptionOpenApiServiceResponse
-	24, // [24:32] is the sub-list for method output_type
-	16, // [16:24] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	16, // 16: system.admin.v1.OpenApiServiceOption.operations:type_name -> system.admin.v1.OpenApiServiceOperation
+	0,  // 17: system.admin.v1.BaseApiService.OptionBaseApi:input_type -> system.admin.v1.OptionBaseApiRequest
+	2,  // 18: system.admin.v1.BaseApiService.PageBaseApi:input_type -> system.admin.v1.PageBaseApiRequest
+	4,  // 19: system.admin.v1.BaseApiService.GetBaseApi:input_type -> system.admin.v1.GetBaseApiRequest
+	6,  // 20: system.admin.v1.BaseApiService.GetBaseApiDoc:input_type -> system.admin.v1.GetBaseApiDocRequest
+	8,  // 21: system.admin.v1.BaseApiService.UpdateBaseApi:input_type -> system.admin.v1.UpdateBaseApiRequest
+	9,  // 22: system.admin.v1.BaseApiService.SetBaseApiAgentStatus:input_type -> system.admin.v1.SetBaseApiAgentStatusRequest
+	10, // 23: system.admin.v1.BaseApiService.SetBaseApiMcpStatus:input_type -> system.admin.v1.SetBaseApiMcpStatusRequest
+	13, // 24: system.admin.v1.BaseApiService.OptionOpenApiService:input_type -> system.admin.v1.OptionOpenApiServiceRequest
+	1,  // 25: system.admin.v1.BaseApiService.OptionBaseApi:output_type -> system.admin.v1.OptionBaseApiResponse
+	3,  // 26: system.admin.v1.BaseApiService.PageBaseApi:output_type -> system.admin.v1.PageBaseApiResponse
+	5,  // 27: system.admin.v1.BaseApiService.GetBaseApi:output_type -> system.admin.v1.BaseApi
+	7,  // 28: system.admin.v1.BaseApiService.GetBaseApiDoc:output_type -> system.admin.v1.BaseApiDoc
+	18, // 29: system.admin.v1.BaseApiService.UpdateBaseApi:output_type -> google.protobuf.Empty
+	18, // 30: system.admin.v1.BaseApiService.SetBaseApiAgentStatus:output_type -> google.protobuf.Empty
+	18, // 31: system.admin.v1.BaseApiService.SetBaseApiMcpStatus:output_type -> google.protobuf.Empty
+	14, // 32: system.admin.v1.BaseApiService.OptionOpenApiService:output_type -> system.admin.v1.OptionOpenApiServiceResponse
+	25, // [25:33] is the sub-list for method output_type
+	17, // [17:25] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_api_proto_init() }
@@ -1322,7 +1391,7 @@ func file_system_admin_v1_base_api_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_base_api_proto_rawDesc), len(file_system_admin_v1_base_api_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   16,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

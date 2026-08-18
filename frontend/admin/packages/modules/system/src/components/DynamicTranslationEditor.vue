@@ -49,7 +49,7 @@ import { computed, ref, watch } from "vue";
 import { ElMessage } from "element-plus";
 import { Promotion } from "@element-plus/icons-vue";
 import { t, useLocaleStore } from "@liujitcn/kratos-admin-core";
-import { defBaseTranslationService } from "@liujitcn/kratos-admin-system/api/system/base_translation";
+import { defBaseI18nService } from "@liujitcn/kratos-admin-system/api/system/base_i18n";
 import { getLanguageLabel, type DynamicTranslationValue } from "./dynamicTranslation";
 
 /** DynamicTranslationEditorProps 动态翻译编辑器属性。 */
@@ -95,7 +95,7 @@ async function handleBatchTranslate() {
   translating.value = true;
   try {
     const pending = localValues.value.filter(item => !item.text && item.locale !== currentLocale.value);
-    const response = await defBaseTranslationService.DraftBaseTranslation({ source: props.source });
+    const response = await defBaseI18nService.DraftBaseTranslation({ source: props.source });
     const translations = new Map(response.translations.map(item => [item.locale, item.translation]));
     const failed = pending.filter(item => !translations.has(item.locale)).length;
     if (translations.size) {
@@ -129,7 +129,7 @@ async function handleTranslate(locale: string) {
   if (!item || item.text || item.locale === currentLocale.value || !props.source || translating.value || translatingLocale.value) return;
   translatingLocale.value = locale;
   try {
-    const response = await defBaseTranslationService.DraftBaseTranslation({ source: props.source, locale });
+    const response = await defBaseI18nService.DraftBaseTranslation({ source: props.source, locale });
     const translation = response.translations.find(item => item.locale === locale)?.translation;
     if (!translation) throw new Error("translation not found");
     const values = localValues.value.map(value => (value.locale === locale ? { ...value, text: translation } : value));

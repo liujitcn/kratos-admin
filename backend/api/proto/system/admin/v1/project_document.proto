@@ -80,4 +80,8 @@ message ProjectDocument {
   string path = 4 [(gnostic.openapi.v3.property) = {description: "项目内相对路径"}]; // 项目内相对路径
 
   string content = 5 [(gnostic.openapi.v3.property) = {description: "Markdown文档内容"}]; // Markdown文档内容
+
+  map<string, string> locale = 6 [(gnostic.openapi.v3.property) = {description: "按语言标识索引的Markdown翻译内容"}]; // 按语言标识索引的Markdown翻译内容
+
+  string updated_at = 7 [(gnostic.openapi.v3.property) = {description: "Markdown文件更新时间，RFC3339格式"}]; // Markdown文件更新时间，RFC3339格式
 }

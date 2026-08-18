@@ -14,16 +14,15 @@ import (
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	"github.com/liujitcn/kratos-core/pkg/biz"
-	coreconst "github.com/liujitcn/kratos-core/pkg/const"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/biz"
+	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
-	"github.com/liujitcn/kratos-kit/sdk"
 	"gorm.io/gorm"
 )
 
@@ -91,7 +90,7 @@ func (c *AuthCase) TreeUserMenu(ctx context.Context) (*systemadminv1.TreeRouteRe
 		return nil, errorsx.Internal("获取用户菜单失败").WithCause(err)
 	}
 	// 角色被停用时，不允许继续获取菜单。
-	if baseRole.Status != coreconst.Status_STATUS_ENABLE {
+	if baseRole.Status != coreconst.STATUS_STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("角色已被禁用")
 	}
 
@@ -104,7 +103,7 @@ func (c *AuthCase) TreeUserMenu(ctx context.Context) (*systemadminv1.TreeRouteRe
 
 	opts := make([]repository.QueryOption, 0, 5)
 	opts = append(opts, repository.Order(query.Sort.Asc()), repository.Order(query.ID.Asc()))
-	opts = append(opts, repository.Where(query.Status.Eq(coreconst.Status_STATUS_ENABLE)))
+	opts = append(opts, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
 	opts = append(opts, repository.Where(query.Type.In(
 		_const.BASE_MENU_TYPE_FOLDER,
 		_const.BASE_MENU_TYPE_MENU,
@@ -150,7 +149,7 @@ func (c *AuthCase) ListUserButton(ctx context.Context) (*commonv1.StringValues, 
 		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
 	// 用户被停用时，不允许继续获取按钮权限。
-	if baseUser.Status != coreconst.Status_STATUS_ENABLE {
+	if baseUser.Status != coreconst.STATUS_STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("账号已被禁用")
 	}
 
@@ -164,7 +163,7 @@ func (c *AuthCase) ListUserButton(ctx context.Context) (*commonv1.StringValues, 
 	query := c.baseMenuCase.Query(ctx).BaseMenu
 
 	opts := make([]repository.QueryOption, 0, 4)
-	opts = append(opts, repository.Where(query.Status.Eq(coreconst.Status_STATUS_ENABLE)))
+	opts = append(opts, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
 	opts = append(opts, repository.Where(query.Type.In(_const.BASE_MENU_TYPE_BUTTON)))
 	// 非超级管理员仅允许查看角色菜单里配置过的按钮。
 	if baseRole.Code != coreconst.BASE_ROLE_CODE_SUPER {
@@ -205,7 +204,7 @@ func (c *AuthCase) GetUserInfo(ctx context.Context) (*systemadminv1.UserInfoForm
 		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
 	// 用户被停用时，不允许继续访问后台信息。
-	if baseUser.Status != coreconst.Status_STATUS_ENABLE {
+	if baseUser.Status != coreconst.STATUS_STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("账号已被禁用")
 	}
 
@@ -252,7 +251,7 @@ func (c *AuthCase) GetUserProfile(ctx context.Context) (*systemadminv1.UserProfi
 		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
 	// 用户被停用时，不允许继续获取个人资料。
-	if baseUser.Status != coreconst.Status_STATUS_ENABLE {
+	if baseUser.Status != coreconst.STATUS_STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("账号已被禁用")
 	}
 
@@ -281,12 +280,12 @@ func (c *AuthCase) UpdateUserPassword(ctx context.Context, req *systemadminv1.Us
 		return err
 	}
 	var oldPwd string
-	oldPwd, err = utils.DecryptPassword(req.GetOldPwd(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD)
+	oldPwd, err = utils.DecryptPassword(c.Cache, req.GetOldPwd(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD)
 	if err != nil {
 		return err
 	}
 	var newPwd string
-	newPwd, err = utils.DecryptPassword(req.GetNewPwd(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD)
+	newPwd, err = utils.DecryptPassword(c.Cache, req.GetNewPwd(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD)
 	if err != nil {
 		return err
 	}
@@ -322,7 +321,7 @@ func (c *AuthCase) UpdateUserPhone(ctx context.Context, req *systemadminv1.UserP
 	}
 	cacheKey := c.makeUpdatePhoneCodeCacheKey(authInfo.UserId, req.GetPhone())
 	var cacheCode string
-	cacheCode, err = sdk.Runtime.GetCache().Get(cacheKey)
+	cacheCode, err = c.Cache.Get(cacheKey)
 	// 验证码不存在或已过期时，直接返回业务错误。
 	if err != nil || cacheCode == "" {
 		return errorsx.InvalidArgument("验证码已过期")
@@ -355,7 +354,7 @@ func (c *AuthCase) UpdateUserPhone(ctx context.Context, req *systemadminv1.UserP
 		return errorsx.Internal("修改手机号失败").WithCause(err)
 	}
 
-	err = sdk.Runtime.GetCache().Del(cacheKey)
+	err = c.Cache.Del(cacheKey)
 	// 验证码缓存删除失败时，只记录日志不影响主流程。
 	if err != nil {
 		log.Error(fmt.Sprintf("删除修改手机号验证码缓存失败 %v", err))
@@ -414,7 +413,7 @@ func (c *AuthCase) SendPhoneCode(ctx context.Context, req *systemadminv1.SendPho
 	}
 
 	code := fmt.Sprintf("%06d", rand.IntN(1000000))
-	err = sdk.Runtime.GetCache().Set(c.makeUpdatePhoneCodeCacheKey(authInfo.UserId, req.GetPhone()), code, 5*time.Minute)
+	err = c.Cache.Set(c.makeUpdatePhoneCodeCacheKey(authInfo.UserId, req.GetPhone()), code, 5*time.Minute)
 	if err != nil {
 		return errorsx.Internal("发送验证码失败").WithCause(err)
 	}

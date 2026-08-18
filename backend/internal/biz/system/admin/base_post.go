@@ -7,9 +7,9 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	"github.com/liujitcn/kratos-core/pkg/biz"
-	coreconst "github.com/liujitcn/kratos-core/pkg/const"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/biz"
+	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
@@ -63,7 +63,7 @@ func (c *BasePostCase) OptionBasePost(ctx context.Context, req *systemadminv1.Op
 		options = append(options, &commonv1.SelectOptionResponse_Option{
 			Label:    item.Name,
 			Value:    item.ID,
-			Disabled: item.Status != coreconst.Status_STATUS_ENABLE,
+			Disabled: item.Status != coreconst.STATUS_STATUS_ENABLE,
 		})
 	}
 	return &commonv1.SelectOptionResponse{List: options}, nil
@@ -117,7 +117,7 @@ func (c *BasePostCase) CreateBasePost(ctx context.Context, req *systemadminv1.Ba
 	}
 	basePost.TenantID = tenantID
 	if basePost.Status == 0 {
-		basePost.Status = coreconst.Status_STATUS_ENABLE
+		basePost.Status = coreconst.STATUS_STATUS_ENABLE
 	}
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
 		err = c.Create(ctx, basePost)
@@ -193,7 +193,7 @@ func (c *BasePostCase) SetBasePostStatus(ctx context.Context, req *systemadminv1
 	if err != nil {
 		return err
 	}
-	if req.GetStatus() != coreconst.Status_STATUS_ENABLE && req.GetStatus() != coreconst.Status_STATUS_DISABLE {
+	if req.GetStatus() != coreconst.STATUS_STATUS_ENABLE && req.GetStatus() != coreconst.STATUS_STATUS_DISABLE {
 		return errorsx.InvalidArgument("岗位状态无效")
 	}
 	if basePost.Status == req.GetStatus() {

@@ -6,10 +6,10 @@ package data
 
 import (
 	"context"
+	"errors"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
-	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 )
 
@@ -19,11 +19,13 @@ func Models() []interface{} {
 		new(models.AiMessage),
 		new(models.AiSession),
 		new(models.BaseAPI),
+		new(models.BaseAPII18n),
 		new(models.BaseArea),
 		new(models.BaseConfig),
 		new(models.BaseDept),
 		new(models.BaseDict),
 		new(models.BaseDictItem),
+		new(models.BaseI18n),
 		new(models.BaseJob),
 		new(models.BaseJobLog),
 		new(models.BaseLanguage),
@@ -34,22 +36,12 @@ func Models() []interface{} {
 		new(models.BaseRole),
 		new(models.BaseTenant),
 		new(models.BaseThirdAccount),
-		new(models.BaseTranslation),
 		new(models.BaseUser),
 		new(models.CasbinRule),
 		new(models.CodeGenColumn),
 		new(models.CodeGenProto),
 		new(models.CodeGenTable),
 	}
-}
-
-// NewClient 创建绑定当前数据源模型范围的 GORM 客户端。
-func NewClient(cfg *configv1.Data_Database) (*databaseGorm.Client, func(), error) {
-	return databaseGorm.NewGormClient(
-		cfg,
-		databaseGorm.WithName(databaseGorm.DefaultClientName),
-		databaseGorm.WithMigrateModels(Models()...),
-	)
 }
 
 type contextTxKey struct{}
@@ -67,11 +59,19 @@ type Data struct {
 }
 
 // NewData 初始化数据访问对象，并构建默认查询入口。
-func NewData(c *databaseGorm.Client) *Data {
-	d := &Data{
-		query: query.Use(c.DB),
+func NewData(databases map[string]*databaseGorm.Client) (*Data, error) {
+	if len(databases) == 0 {
+		return nil, errors.New("数据库客户端映射不能为空")
 	}
-	return d
+	defaultClient, ok := databases[databaseGorm.DefaultClientName]
+	if !ok || defaultClient == nil || defaultClient.DB == nil {
+		return nil, errors.New("默认数据库客户端不存在")
+	}
+	client := defaultClient
+	d := &Data{
+		query: query.Use(client.DB),
+	}
+	return d, nil
 }
 
 // Transaction 定义事务执行能力，便于业务层按接口依赖。

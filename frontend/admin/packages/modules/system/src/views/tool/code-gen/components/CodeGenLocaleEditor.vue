@@ -38,7 +38,7 @@
 import { computed } from "vue";
 import { t } from "@liujitcn/kratos-admin-core";
 import { loadEnabledBaseLanguages, useEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
-import type { CodeGenLocaleConfig } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
+import type { CodeGenLocaleConfig } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 
 /** 代码生成多语言编辑器属性。 */
 interface CodeGenLocaleEditorProps {

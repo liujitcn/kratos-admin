@@ -17,9 +17,9 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	"github.com/liujitcn/kratos-core/pkg/biz"
-	coreconst "github.com/liujitcn/kratos-core/pkg/const"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/biz"
+	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/errorsx"
 )
 
 const (
@@ -85,7 +85,7 @@ func (c *BaseTenantCase) OptionBaseTenant(ctx context.Context, req *systemadminv
 	query := c.Query(ctx).BaseTenant
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
-	opts = append(opts, repository.Where(query.Status.Eq(coreconst.Status_STATUS_ENABLE)))
+	opts = append(opts, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
 	if req.GetKeyword() != "" {
 		opts = append(opts, repository.Where(query.Name.Like("%"+req.GetKeyword()+"%")))
 	}
@@ -159,7 +159,7 @@ func (c *BaseTenantCase) CreateBaseTenant(ctx context.Context, req *systemadminv
 		baseTenant.Code = code
 		// 未指定状态时，新租户默认启用，避免初始化完成后仍无法登录。
 		if baseTenant.Status == 0 {
-			baseTenant.Status = coreconst.Status_STATUS_ENABLE
+			baseTenant.Status = coreconst.STATUS_STATUS_ENABLE
 		}
 		err = c.Create(ctx, baseTenant)
 		if err != nil {
@@ -287,7 +287,7 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 		ParentID: 0,
 		Name:     baseTenantDefaultDeptName,
 		Sort:     baseTenantDefaultDeptSort,
-		Status:   coreconst.Status_STATUS_ENABLE,
+		Status:   coreconst.STATUS_STATUS_ENABLE,
 		Remark:   "租户默认部门",
 	}
 	err := c.baseDeptRepo.Create(ctx, baseDept)
@@ -351,7 +351,7 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 		Phone:    baseTenant.ContactPhone,
 		Password: password,
 		Gender:   _const.BASE_USER_GENDER_SECRET,
-		Status:   coreconst.Status_STATUS_ENABLE,
+		Status:   coreconst.STATUS_STATUS_ENABLE,
 		Remark:   "租户默认管理员",
 	}
 	err = c.baseUserRepo.Create(ctx, baseUser)

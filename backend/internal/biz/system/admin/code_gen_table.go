@@ -9,8 +9,9 @@ import (
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	coreconst "github.com/liujitcn/kratos-core/pkg/const"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/biz"
+	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
@@ -27,8 +28,8 @@ const (
 
 // CodeGenTableCase 管理代码生成表配置。
 type CodeGenTableCase struct {
+	*biz.BaseCase
 	*data.CodeGenTableRepository
-	dbClient          *databaseGorm.Client // 数据库元数据客户端
 	tx                data.Transaction
 	baseDictRepo      *data.BaseDictRepository
 	baseDictItemRepo  *data.BaseDictItemRepository
@@ -41,8 +42,8 @@ type CodeGenTableCase struct {
 
 // NewCodeGenTableCase 创建代码生成表配置业务实例。
 func NewCodeGenTableCase(
+	baseCase *biz.BaseCase,
 	codeGenTableRepo *data.CodeGenTableRepository,
-	dbClient *databaseGorm.Client,
 	tx data.Transaction,
 	baseDictRepo *data.BaseDictRepository,
 	baseDictItemRepo *data.BaseDictItemRepository,
@@ -69,8 +70,8 @@ func NewCodeGenTableCase(
 	tableMapper := mapper.NewCopierMapper[systemadminv1.CodeGenTable, models.CodeGenTable]()
 	tableMapper.AppendConverters(mapper.NewJSONTypeConverter[map[string]*systemadminv1.CodeGenLocaleConfig]().NewConverterPair())
 	return &CodeGenTableCase{
+		BaseCase:               baseCase,
 		CodeGenTableRepository: codeGenTableRepo,
-		dbClient:               dbClient,
 		tx:                     tx,
 		baseDictRepo:           baseDictRepo,
 		baseDictItemRepo:       baseDictItemRepo,
@@ -160,12 +161,12 @@ func (c *CodeGenTableCase) ValidateBusinessModule(ctx context.Context, module st
 		return errorsx.InvalidArgument("业务模块格式不正确")
 	}
 	dictQuery := c.baseDictRepo.Query(ctx).BaseDict
-	dict, err := c.baseDictRepo.Find(ctx, repository.Where(dictQuery.Code.Eq("business_module")), repository.Where(dictQuery.Status.Eq(coreconst.Status_STATUS_ENABLE)))
+	dict, err := c.baseDictRepo.Find(ctx, repository.Where(dictQuery.Code.Eq("business_module")), repository.Where(dictQuery.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
 	if err != nil {
 		return errorsx.InvalidArgument("业务模块字典不存在").WithCause(err)
 	}
 	itemQuery := c.baseDictItemRepo.Query(ctx).BaseDictItem
-	_, err = c.baseDictItemRepo.Find(ctx, repository.Where(itemQuery.DictID.Eq(dict.ID)), repository.Where(itemQuery.Value.Eq(module)), repository.Where(itemQuery.Status.Eq(coreconst.Status_STATUS_ENABLE)))
+	_, err = c.baseDictItemRepo.Find(ctx, repository.Where(itemQuery.DictID.Eq(dict.ID)), repository.Where(itemQuery.Value.Eq(module)), repository.Where(itemQuery.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
 	if err != nil {
 		return errorsx.InvalidArgument("请选择启用的业务模块").WithCause(err)
 	}
@@ -246,7 +247,8 @@ func (c *CodeGenTableCase) DeleteCodeGenTable(ctx context.Context, ids string) e
 
 // listDatabaseTables 查询当前数据库的表名与表描述，可按表名缩小范围。
 func (c *CodeGenTableCase) listDatabaseTables(ctx context.Context, tableNames []string) ([]dto.CodeGenDatabaseTable, error) {
-	query := c.dbClient.DB.WithContext(ctx).
+	database := c.GormClients[databaseGorm.DefaultClientName]
+	query := database.DB.WithContext(ctx).
 		Table("information_schema.tables").
 		Select("table_name, table_comment").
 		Where("table_schema = DATABASE()").

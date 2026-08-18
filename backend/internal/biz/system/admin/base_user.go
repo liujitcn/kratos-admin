@@ -20,9 +20,9 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	"github.com/liujitcn/kratos-core/pkg/biz"
-	coreconst "github.com/liujitcn/kratos-core/pkg/const"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/biz"
+	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/errorsx"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 )
@@ -340,7 +340,7 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *systemadminv1.Ba
 	if req.GetPwd() == nil {
 		passwordStr = utils.GetDefaultPassword(req.GetUserName(), req.GetPhone())
 	} else {
-		passwordStr, err = utils.DecryptPassword(req.GetPwd(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER)
+		passwordStr, err = utils.DecryptPassword(c.Cache, req.GetPwd(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER)
 		if err != nil {
 			return err
 		}
@@ -499,7 +499,7 @@ func (c *BaseUserCase) ResetBaseUserPassword(ctx context.Context, req *systemadm
 	if req.GetPwd() == nil {
 		passwordStr = utils.GetDefaultPassword(baseUser.UserName, baseUser.Phone)
 	} else {
-		passwordStr, err = utils.DecryptPassword(req.GetPwd(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD)
+		passwordStr, err = utils.DecryptPassword(c.Cache, req.GetPwd(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD)
 		if err != nil {
 			return err
 		}
@@ -578,7 +578,7 @@ func (c *BaseUserCase) validateBasePost(ctx context.Context, postID int64, tenan
 	if basePost.TenantID != tenantID {
 		return nil, errorsx.InvalidArgument("用户岗位与所属租户不一致")
 	}
-	if basePost.Status != coreconst.Status_STATUS_ENABLE && basePost.ID != oldPostID {
+	if basePost.Status != coreconst.STATUS_STATUS_ENABLE && basePost.ID != oldPostID {
 		return nil, errorsx.PermissionDenied("岗位已被禁用，不能选择")
 	}
 	return basePost, nil

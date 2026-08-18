@@ -2,19 +2,21 @@ package biz
 
 import (
 	"context"
+	"strings"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	"github.com/liujitcn/kratos-core/pkg/biz"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
-	coreLocale "github.com/liujitcn/kratos-core/pkg/locale"
+	"github.com/liujitcn/kratos-core/biz"
+	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
+	"golang.org/x/text/language"
 	"gorm.io/gorm/clause"
 )
 
@@ -43,7 +45,7 @@ func (c *BaseLanguageCase) OptionBaseLanguage(ctx context.Context, req *systemad
 	query := c.Query(ctx).BaseLanguage
 	opts := make([]repository.QueryOption, 0, 2)
 	if req.GetEnabledOnly() {
-		opts = append(opts, repository.Where(query.Status.Eq(int32(commonv1.Status_STATUS_ENABLE))))
+		opts = append(opts, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
 	}
 	opts = append(opts, repository.Order(query.Sort.Asc()), repository.Order(query.ID.Asc()))
 	list, err := c.List(ctx, opts...)
@@ -94,8 +96,8 @@ func (c *BaseLanguageCase) GetBaseLanguage(ctx context.Context, id int64) (*syst
 // CreateBaseLanguage 创建语言。
 func (c *BaseLanguageCase) CreateBaseLanguage(ctx context.Context, req *systemadminv1.BaseLanguageForm) error {
 	item := c.formMapper.ToEntity(req)
-	if !coreLocale.IsSupported(item.LanguageCode) {
-		return errorsx.InvalidArgument("语言代码必须是系统支持的语言")
+	if _, err := language.Parse(item.LanguageCode); err != nil {
+		return errorsx.InvalidArgument("语言代码必须是有效的语言代码").WithCause(err)
 	}
 	item.IsPrimary = false
 	if err := c.Create(ctx, item); err != nil {
@@ -114,8 +116,8 @@ func (c *BaseLanguageCase) UpdateBaseLanguage(ctx context.Context, req *systemad
 		if err != nil {
 			return err
 		}
-		if !coreLocale.IsSupported(req.GetLanguageCode()) {
-			return errorsx.InvalidArgument("语言代码必须是系统支持的语言")
+		if _, err = language.Parse(req.GetLanguageCode()); err != nil {
+			return errorsx.InvalidArgument("语言代码必须是有效的语言代码").WithCause(err)
 		}
 		if current.IsPrimary && req.GetStatus() == commonv1.Status_STATUS_DISABLE {
 			return errorsx.ProtectedResourceConflict("主语言不能禁用", "base_language")
@@ -184,7 +186,7 @@ func (c *BaseLanguageCase) SetBaseLanguagePrimary(ctx context.Context, req *syst
 		if err != nil {
 			return err
 		}
-		if item.Status != int32(commonv1.Status_STATUS_ENABLE) {
+		if item.Status != coreconst.STATUS_STATUS_ENABLE {
 			return errorsx.ProtectedResourceConflict("禁用语言不能设为主语言", "base_language")
 		}
 		if item.IsPrimary {
@@ -198,7 +200,7 @@ func (c *BaseLanguageCase) SetBaseLanguagePrimary(ctx context.Context, req *syst
 func (c *BaseLanguageCase) LocaleState(ctx context.Context) (*dto.LocaleState, error) {
 	query := c.Query(ctx).BaseLanguage
 	opts := []repository.QueryOption{
-		repository.Where(query.Status.Eq(int32(commonv1.Status_STATUS_ENABLE))),
+		repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)),
 		repository.Order(query.Sort.Asc()),
 		repository.Order(query.ID.Asc()),
 	}
@@ -208,7 +210,7 @@ func (c *BaseLanguageCase) LocaleState(ctx context.Context) (*dto.LocaleState, e
 	}
 
 	state := &dto.LocaleState{
-		Current: coreLocale.FromContext(ctx),
+		Current: biz.LocaleFromContext(ctx),
 		Enabled: make([]string, 0, len(list)),
 	}
 	for _, item := range list {
@@ -220,11 +222,59 @@ func (c *BaseLanguageCase) LocaleState(ctx context.Context) (*dto.LocaleState, e
 	if state.Primary == "" {
 		if len(state.Enabled) > 0 {
 			state.Primary = state.Enabled[0]
-		} else {
-			state.Primary = coreLocale.Default
 		}
 	}
 	return state, nil
+}
+
+// ResolveLocale 根据请求语言头和启用语言配置解析当前语言与主语言。
+func (c *BaseLanguageCase) ResolveLocale(ctx context.Context, acceptLanguage string) (string, string, error) {
+	query := c.Query(ctx).BaseLanguage
+	opts := []repository.QueryOption{
+		repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)),
+		repository.Order(query.Sort.Asc()),
+		repository.Order(query.ID.Asc()),
+	}
+	list, err := c.List(ctx, opts...)
+	if err != nil {
+		return "", "", err
+	}
+	if len(list) == 0 {
+		return "", "", nil
+	}
+	primary := list[0].LanguageCode
+	locales := make([]string, 0, len(list))
+	for _, item := range list {
+		locales = append(locales, item.LanguageCode)
+		if item.IsPrimary {
+			primary = item.LanguageCode
+		}
+	}
+	acceptLanguage = strings.ReplaceAll(strings.TrimSpace(acceptLanguage), "_", "-")
+	if acceptLanguage == "" {
+		return primary, primary, nil
+	}
+	var tags []language.Tag
+	var parseErr error
+	tags, _, parseErr = language.ParseAcceptLanguage(acceptLanguage)
+	if parseErr != nil || len(tags) == 0 {
+		return primary, primary, nil
+	}
+	enabledTags := make([]language.Tag, 0, len(locales))
+	for _, localeValue := range locales {
+		var tag language.Tag
+		tag, parseErr = language.Parse(localeValue)
+		if parseErr != nil {
+			return "", "", parseErr
+		}
+		enabledTags = append(enabledTags, tag)
+	}
+	matched, index, confidence := language.NewMatcher(enabledTags).Match(tags...)
+	if confidence == language.No {
+		return primary, primary, nil
+	}
+	_ = matched
+	return locales[index], primary, nil
 }
 
 // findBaseLanguageForUpdate 查询并锁定待修改的语言记录。

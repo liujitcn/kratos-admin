@@ -17,7 +17,7 @@
 ## 代码约束
 - DTO、VO、查询结果承载结构、聚合分组键等数据承载类型统一放对应模块 `dto` 目录，禁止定义在 Case 文件中。
 - 优先复用 `kratos-kit`、`go-utils`、`gorm-kit` 及其子模块的已有能力；新增本地实现前必须先检查这三个库，确认无合适方案且现有能力明显不适用时才允许新增，并保持风格一致。
-- Case 依赖：仅当前 Case 的主 Repo 和 `*biz.BaseCase` 允许匿名嵌入；其他 Repo 必须具名字段，例如 `baseUserRepo *data.BaseUserRepo`。
+- Case 依赖：所有 Case 必须匿名嵌入 `*biz.BaseCase`，由构造函数通过 `baseCase *biz.BaseCase` 注入并初始化；除当前 Case 的主 Repo 外，其他 Repo 必须具名字段，例如 `baseUserRepo *data.BaseUserRepo`。
 - DTO 与 models 转换优先使用 `mapper` 包工具方法，不在业务代码写冗余类型转换。
 
 ## 数据库查询
@@ -28,7 +28,7 @@
 
 ## 错误处理
 - 顶层 `reason` 只用 6 类冻结集合：`INVALID_ARGUMENT / UNAUTHENTICATED / PERMISSION_DENIED / RESOURCE_NOT_FOUND / CONFLICT / INTERNAL_ERROR`，未经确认禁止新增。
-- 对外业务错误必须用 `github.com/liujitcn/kratos-core/pkg/errorsx` 构造，禁止直接返回 `errors.New/fmt.Errorf`；repo 层返原始错误，biz 层负责分类与 `message/metadata/cause`，service 层只 `log.Errorf("方法名 %v", err)` 并以 `errorsx.WrapInternal(err, "xxx失败")` 兜底透传。
+- 对外业务错误必须用 `github.com/liujitcn/kratos-core/errorsx` 构造，禁止直接返回 `errors.New/fmt.Errorf`；repo 层返原始错误，biz 层负责分类与 `message/metadata/cause`，service 层只 `log.Errorf("方法名 %v", err)` 并以 `errorsx.WrapInternal(err, "xxx失败")` 兜底透传。
 - 场景映射、errorsx 方法、metadata 键等细则见 [docs/errors.md](docs/errors.md)，修改错误处理相关代码前必须先读。
 
 ## 数据库命名

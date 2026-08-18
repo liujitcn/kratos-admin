@@ -208,7 +208,7 @@ export interface OptionOpenApiServiceRequest {
 
 /** OpenAPI业务服务选项响应 */
 export interface OptionOpenApiServiceResponse {
-  /** OpenAPI文档选项列表 */
+  /** OpenAPI文档列表 */
   list: OpenApiServiceOption[];
 }
 
@@ -218,6 +218,16 @@ export interface OpenApiServiceOption {
   key: string;
   /** OpenAPI文档名称 */
   name: string;
+  /** OpenAPI接口列表 */
+  operations: OpenApiServiceOperation[];
+}
+
+/** OpenAPI业务服务接口 */
+export interface OpenApiServiceOperation {
+  /** HTTP请求路径 */
+  path: string;
+  /** HTTP请求方法 */
+  method: string;
 }
 
 /** AdminAPI服务 */

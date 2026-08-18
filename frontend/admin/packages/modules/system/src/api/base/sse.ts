@@ -74,9 +74,10 @@ export class SseServiceImpl {
 
   /** 构建 SSE 订阅地址。 */
   private buildSubscribeURL(request: SubscribeSseRequest) {
-    const url = new URL(`${SSE_URL}/${request.stream}`, window.location.origin);
+    const url = new URL(SSE_URL, window.location.origin);
+    url.searchParams.set("stream", request.stream);
     if (request.channel_id) {
-      url.searchParams.set("channel_id", request.channel_id);
+      url.searchParams.set("channel", request.channel_id);
     }
     return url.toString();
   }

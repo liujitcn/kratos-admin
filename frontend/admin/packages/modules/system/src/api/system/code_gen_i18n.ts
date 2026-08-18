@@ -1,4 +1,4 @@
-import type { CodeGenLocaleConfig } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
+import type { CodeGenLocaleConfig } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 
 /** 代码生成国际化配置的 JSON 兼容形态。 */
 type CodeGenLocaleConfigRecord = Record<string, CodeGenLocaleConfig>;

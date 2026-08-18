@@ -79,7 +79,7 @@ import type {
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_menu";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { BaseMenuType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/common";
-import { TranslationTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_translation";
+import { TranslationTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
 import DynamicTranslationEditor from "@liujitcn/kratos-admin-system/components/DynamicTranslationEditor.vue";

@@ -51,7 +51,7 @@ func (s Services) RegisterHTTP(srv *kratosHTTP.Server) {
 	basev1.RegisterOauthServiceHTTPServer(srv, s.Oauth)
 	// MCP 需要保留 Streamable HTTP 的原始请求体和流式响应，使用自定义 HTTP 适配器。
 	baseService.RegisterMcpServiceHTTPServer(srv, s.Mcp)
-	// SSE 需要直接写入事件流响应，使用自定义 HTTP 适配器避免默认 JSON 响应。
+	// SSE 订阅保留 Base 协议兼容路由，统一运行时由 Core SSE 服务承载。
 	baseService.RegisterSseServiceHTTPServer(srv, s.Sse)
 }
 

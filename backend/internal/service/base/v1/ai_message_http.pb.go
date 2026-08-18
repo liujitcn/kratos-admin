@@ -9,7 +9,7 @@ import (
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/dto"
-	"github.com/liujitcn/kratos-core/pkg/errorsx"
+	"github.com/liujitcn/kratos-core/errorsx"
 
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
 )
