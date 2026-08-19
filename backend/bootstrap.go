@@ -7,14 +7,14 @@ import (
 	"github.com/google/wire"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	adminModule "github.com/liujitcn/kratos-admin/backend/internal/module"
-	coreBiz "github.com/liujitcn/kratos-core/biz"
-	coreJob "github.com/liujitcn/kratos-core/job"
-	coreModule "github.com/liujitcn/kratos-core/module"
-	coreQueue "github.com/liujitcn/kratos-core/queue"
-	coreDocs "github.com/liujitcn/kratos-core/resource/docs"
-	coreI18n "github.com/liujitcn/kratos-core/resource/i18n"
-	coreOpenAPI "github.com/liujitcn/kratos-core/resource/openapi"
-	coreSSE "github.com/liujitcn/kratos-core/sse"
+	"github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/job"
+	"github.com/liujitcn/kratos-core/module"
+	"github.com/liujitcn/kratos-core/queue"
+	"github.com/liujitcn/kratos-core/resource/docs"
+	"github.com/liujitcn/kratos-core/resource/i18n"
+	"github.com/liujitcn/kratos-core/resource/openapi"
+	"github.com/liujitcn/kratos-core/sse"
 	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	authzEngine "github.com/liujitcn/kratos-kit/auth/authz/engine"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
@@ -22,19 +22,19 @@ import (
 )
 
 // AdminResources 表示 Admin 提供的静态资源集合。
-type AdminResources coreModule.Resources
+type AdminResources module.Resources
 
 // AdminModules 表示 Admin 提供的协议模块集合。
-type AdminModules coreModule.Modules
+type AdminModules module.Modules
 
 // AdminTasks 表示 Admin 提供的定时任务集合。
-type AdminTasks coreJob.Tasks
+type AdminTasks job.Tasks
 
 // AdminStreams 表示 Admin 提供的 SSE 业务流集合。
-type AdminStreams coreSSE.Streams
+type AdminStreams sse.Streams
 
 // AdminConsumers 表示 Admin 提供的队列消费者集合。
-type AdminConsumers coreQueue.Consumers
+type AdminConsumers queue.Consumers
 
 // ProviderSet 提供可被外部 Core 宿主复用的 Backend 业务、模块和运行时能力。
 //
@@ -61,14 +61,14 @@ func NewModuleResources() AdminResources {
 func NewModules(
 	config *configv1.Bootstrap,
 	databases map[string]*databaseGorm.Client,
-	baseCase *coreBiz.BaseCase,
+	baseCase *biz.BaseCase,
 	authorizer authzEngine.Engine,
 	userToken *authData.UserToken,
-	jobRuntime *coreJob.Job,
-	sseRuntime *coreSSE.SSE,
-	docsRuntime *coreDocs.Docs,
-	catalog *coreI18n.I18n,
-	openAPIRuntime *coreOpenAPI.OpenAPI,
+	jobRuntime *job.Job,
+	sseRuntime *sse.SSE,
+	docsRuntime *docs.Docs,
+	catalog *i18n.I18n,
+	openAPIRuntime *openapi.OpenAPI,
 ) (AdminModules, func(), error) {
 	if runtimeLogErr := logstream.InitializeRuntimeLogging(); runtimeLogErr != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "启动运行日志采集失败: %v\n", runtimeLogErr)
@@ -80,7 +80,7 @@ func NewModules(
 // NewTasks 创建 Backend 提供给 Core 调度器的定时任务集合。
 func NewTasks(
 	databases map[string]*databaseGorm.Client,
-	baseCase *coreBiz.BaseCase,
+	baseCase *biz.BaseCase,
 ) (AdminTasks, func(), error) {
 	tasks, cleanup, err := adminModule.BuildTasks(databases, baseCase)
 	return AdminTasks(tasks), cleanup, err
@@ -89,7 +89,7 @@ func NewTasks(
 // NewStreams 创建 Backend 提供给 Core SSE 服务的业务流集合。
 func NewStreams(
 	databases map[string]*databaseGorm.Client,
-	baseCase *coreBiz.BaseCase,
+	baseCase *biz.BaseCase,
 ) (AdminStreams, func(), error) {
 	streams, cleanup, err := adminModule.BuildStreams(databases, baseCase)
 	return AdminStreams(streams), cleanup, err

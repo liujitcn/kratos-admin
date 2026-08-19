@@ -61,6 +61,7 @@ certs/
 web/
 service_tmp/
 /backend/data/
+/backend/runtime/
 /gorse/data/
 
 .pnpm-store/

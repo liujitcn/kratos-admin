@@ -5,8 +5,17 @@
 bin
 !bin/
 !bin/server
+configs/*_local.yaml
+data/*
+!data/admin
+!data/admin/**
+!data/uni-app
+!data/uni-app/**
+!data/taro-app
+!data/taro-app/**
 tmp
 dist
+runtime
 node_modules
 coverage
 *.log

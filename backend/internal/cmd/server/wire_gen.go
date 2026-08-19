@@ -8,31 +8,14 @@ package main
 
 import (
 	"github.com/go-kratos/kratos/v3"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
-	biz3 "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
-	biz4 "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
-	sse2 "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/sse"
-	biz5 "github.com/liujitcn/kratos-admin/backend/internal/biz/system/app"
-	data2 "github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
-	"github.com/liujitcn/kratos-admin/backend/internal/module"
-	base2 "github.com/liujitcn/kratos-admin/backend/internal/server/base/v1"
-	admin3 "github.com/liujitcn/kratos-admin/backend/internal/server/system/admin/v1"
-	app2 "github.com/liujitcn/kratos-admin/backend/internal/server/system/app/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/service/base/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/service/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/service/system/app/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/task"
-	admin2 "github.com/liujitcn/kratos-admin/backend/internal/task/system/admin"
+	"github.com/liujitcn/kratos-admin/backend"
 	kratoscore "github.com/liujitcn/kratos-core"
 	biz2 "github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/config"
 	"github.com/liujitcn/kratos-core/data"
 	"github.com/liujitcn/kratos-core/job"
 	"github.com/liujitcn/kratos-core/mcp"
-	module2 "github.com/liujitcn/kratos-core/module"
+	"github.com/liujitcn/kratos-core/module"
 	queue2 "github.com/liujitcn/kratos-core/queue"
 	"github.com/liujitcn/kratos-core/resource"
 	"github.com/liujitcn/kratos-core/resource/biz"
@@ -58,7 +41,7 @@ import (
 
 // Injectors from wire.go:
 
-// NewApp 通过 Core 根 ProviderSet 注入并创建应用。
+// NewApp 通过 Core、Admin 和宿主 ProviderSet 注入并创建应用。
 func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	configv1Bootstrap, err := config.ParseBootstrap(ctx)
 	if err != nil {
@@ -68,19 +51,20 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	resources := module.NewModuleResources()
-	models := module2.NewModels(resources)
+	adminResources := backend.NewModuleResources()
+	resources := provideResources(adminResources)
+	models := module.NewModels(resources)
 	v2, cleanup, err := data.NewClients(v, models)
 	if err != nil {
 		return nil, nil, err
 	}
-	migrations := module2.NewMigrations(resources)
+	migrations := module.NewMigrations(resources)
 	migrationMigration, err := migration.NewMigration(ctx, v2, migrations)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	openAPI := module2.NewOpenAPIFromResources(resources)
+	openAPI := module.NewOpenAPIFromResources(resources)
 	registry, err := openapi.NewRegistry(openAPI)
 	if err != nil {
 		cleanup()
@@ -141,7 +125,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	userToken := biz2.NewUserToken(authentication_Jwt, cacheCache, authenticator)
-	moduleI18n := module2.NewI18nFromResources(resources)
+	moduleI18n := module.NewI18nFromResources(resources)
 	i18nI18n, err := i18n.NewCatalog(moduleI18n)
 	if err != nil {
 		cleanup2()
@@ -202,86 +186,19 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	baseCase, cleanup4 := biz2.NewBaseCase(ctx, pprofPprof, cacheCache, queueQueue, ossOSS, translatorTranslator, v2)
-	data3, err := data2.NewData(v2)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	transaction := data2.NewTransaction(data3)
-	aiSessionRepository := data2.NewAiSessionRepository(data3)
-	aiMessageRepository := data2.NewAiMessageRepository(data3)
-	aiSessionCase := biz3.NewAiSessionCase(baseCase, transaction, aiSessionRepository, aiMessageRepository)
-	dataBaseUserRepository := data2.NewBaseUserRepository(data3)
-	baseUserCase := biz3.NewBaseUserCase(baseCase, dataBaseUserRepository)
-	ai_Model, err := module.ParseAIModel(configv1Bootstrap)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	responsesClient := model.NewResponsesClient(ai_Model)
-	dataBaseAPIRepository := data2.NewBaseAPIRepository(data3)
-	mcpCase, err := biz3.NewMcpCase(baseCase, dataBaseAPIRepository)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	baseDeptRepository := data2.NewBaseDeptRepository(data3)
-	basePostRepository := data2.NewBasePostRepository(data3)
-	dataBaseRoleRepository := data2.NewBaseRoleRepository(data3)
-	dataBaseTenantRepository := data2.NewBaseTenantRepository(data3)
-	dataCasbinRuleRepository := data2.NewCasbinRuleRepository(data3)
-	dataBaseMenuRepository := data2.NewBaseMenuRepository(data3)
-	openapiOpenAPI := openapi.NewOpenAPI(registry)
-	dataBaseAPII18NRepository := data2.NewBaseAPII18NRepository(data3)
-	bizBaseAPICase := biz4.NewBaseAPICase(baseCase, openapiOpenAPI, i18nI18n, dataBaseAPIRepository, dataBaseAPII18NRepository)
-	bizCasbinRuleCase, err := biz4.NewCasbinRuleCase(dataCasbinRuleRepository, dataBaseMenuRepository, dataBaseRoleRepository, dataBaseTenantRepository, bizBaseAPICase, engine)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	baseRoleCase := biz4.NewBaseRoleCase(baseCase, transaction, dataBaseRoleRepository, dataBaseTenantRepository, bizCasbinRuleCase)
-	baseDeptCase := biz4.NewBaseDeptCase(baseCase, baseDeptRepository)
-	baseI18NRepository := data2.NewBaseI18NRepository(data3)
-	baseLanguageRepository := data2.NewBaseLanguageRepository(data3)
-	baseLanguageCase := biz4.NewBaseLanguageCase(baseCase, transaction, baseLanguageRepository)
-	baseTranslationCase := biz4.NewBaseTranslationCase(baseCase, transaction, baseI18NRepository, baseLanguageCase)
-	baseMenuCase := biz4.NewBaseMenuCase(baseCase, transaction, dataBaseMenuRepository, dataBaseRoleRepository, bizCasbinRuleCase, baseTranslationCase)
-	bizBaseRoleCase := biz3.NewBaseRoleCase(baseCase, dataBaseRoleRepository, dataBaseTenantRepository)
-	bizBaseUserCase := biz4.NewBaseUserCase(baseCase, transaction, dataBaseUserRepository, baseDeptRepository, basePostRepository, baseRoleCase, baseDeptCase, baseMenuCase, bizBaseRoleCase)
-	bizBaseTenantCase := biz4.NewBaseTenantCase(baseCase, transaction, dataBaseTenantRepository, baseDeptRepository, dataBaseRoleRepository, dataBaseUserRepository, dataCasbinRuleRepository, bizCasbinRuleCase)
-	fileCase := biz3.NewFileCase(baseCase)
-	authCase := biz4.NewAuthCase(baseCase, bizBaseUserCase, baseRoleCase, baseDeptCase, bizBaseTenantCase, baseMenuCase, fileCase)
-	authService := admin.NewAuthService(authCase)
-	baseApiService := admin.NewBaseApiService(bizBaseAPICase)
-	baseAreaRepository := data2.NewBaseAreaRepository(data3)
-	baseAreaCase := biz4.NewBaseAreaCase(baseCase, baseAreaRepository)
-	baseAreaService := admin.NewBaseAreaService(baseAreaCase)
-	baseConfigRepository := data2.NewBaseConfigRepository(data3)
-	baseConfigCase := biz4.NewBaseConfigCase(baseCase, transaction, baseConfigRepository, baseTranslationCase)
-	baseConfigService := admin.NewBaseConfigService(baseConfigCase)
-	baseDeptService := admin.NewBaseDeptService(baseDeptCase)
-	baseDictRepository := data2.NewBaseDictRepository(data3)
-	baseDictItemRepository := data2.NewBaseDictItemRepository(data3)
-	baseDictItemCase := biz4.NewBaseDictItemCase(baseCase, transaction, baseDictRepository, baseDictItemRepository, baseTranslationCase)
-	baseDictCase := biz4.NewBaseDictCase(baseCase, transaction, baseDictRepository, baseDictItemCase, baseTranslationCase)
-	baseDictService := admin.NewBaseDictService(baseDictCase, baseDictItemCase)
 	baseJobRepository := data.NewBaseJobRepository(dataData)
-	baseTranslationTask := admin2.NewBaseTranslationTask(baseTranslationCase, dataBaseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository)
-	tasks := task.NewTask(baseTranslationTask)
+	adminTasks, cleanup5, err := backend.NewTasks(v2, baseCase)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	tasks := provideTasks(adminTasks)
 	jobRegistry, err := job.NewRegistry(tasks)
 	if err != nil {
+		cleanup5()
 		cleanup4()
 		cleanup3()
 		cleanup2()
@@ -290,50 +207,9 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	scheduler := job.NewScheduler(baseJobRepository, jobRegistry)
 	jobJob := job.NewJob(scheduler)
-	dataBaseJobRepository := data2.NewBaseJobRepository(data3)
-	baseJobLogRepository := data2.NewBaseJobLogRepository(data3)
-	baseJobLogCase := biz4.NewBaseJobLogCase(baseCase, baseJobLogRepository)
-	baseJobCase := biz4.NewBaseJobCase(baseCase, jobJob, dataBaseJobRepository, baseJobLogCase)
-	baseJobService := admin.NewBaseJobService(baseJobCase, baseJobLogCase)
-	baseLanguageService := admin.NewBaseLanguageService(baseLanguageCase)
-	baseLogRepository := data2.NewBaseLogRepository(data3)
-	baseLogCase := biz4.NewBaseLogCase(baseCase, baseLogRepository)
-	baseLogService := admin.NewBaseLogService(baseLogCase)
-	baseMenuService := admin.NewBaseMenuService(baseMenuCase)
-	basePostCase := biz4.NewBasePostCase(baseCase, transaction, basePostRepository, dataBaseUserRepository)
-	basePostService := admin.NewBasePostService(basePostCase)
-	baseRoleService := admin.NewBaseRoleService(baseRoleCase)
-	baseTenantService := admin.NewBaseTenantService(bizBaseTenantCase)
-	baseThirdAccountRepository := data2.NewBaseThirdAccountRepository(data3)
-	baseThirdAccountCase := biz3.NewBaseThirdAccountCase(baseCase, baseThirdAccountRepository)
-	baseThirdAccountService := admin.NewBaseThirdAccountService(baseThirdAccountCase)
-	baseI18nService := admin.NewBaseI18nService(baseTranslationCase)
-	baseUserService := admin.NewBaseUserService(bizBaseUserCase)
-	codeGenTableRepository := data2.NewCodeGenTableRepository(data3)
-	codeGenColumnRepository := data2.NewCodeGenColumnRepository(data3)
-	codeGenColumnCase := biz4.NewCodeGenColumnCase(baseCase, codeGenColumnRepository, transaction, baseDictRepository, codeGenTableRepository)
-	codeGenProtoRepository := data2.NewCodeGenProtoRepository(data3)
-	codeGenProtoCase := biz4.NewCodeGenProtoCase(baseCase, codeGenProtoRepository, transaction, dataBaseAPIRepository, codeGenTableRepository, codeGenColumnCase)
-	codeGenTableCase := biz4.NewCodeGenTableCase(baseCase, codeGenTableRepository, transaction, baseDictRepository, baseDictItemRepository, baseMenuCase, codeGenColumnCase, codeGenProtoCase)
-	baseMigrationRepository := data2.NewBaseMigrationRepository(data3)
-	baseMigrationCase := biz4.NewBaseMigrationCase(baseCase, baseMigrationRepository)
-	manager := codegen.NewManager()
-	codeGenCase := biz4.NewCodeGenCase(baseCase, transaction, bizBaseAPICase, codeGenTableCase, codeGenColumnCase, codeGenProtoCase, baseMenuCase, baseMigrationCase, baseLanguageCase, manager)
-	codeGenService := admin.NewCodeGenService(codeGenCase)
-	codeGenColumnService := admin.NewCodeGenColumnService(codeGenColumnCase)
-	codeGenProtoService := admin.NewCodeGenProtoService(codeGenProtoCase)
-	codeGenTableService := admin.NewCodeGenTableService(codeGenTableCase)
-	baseMigrationService := admin.NewBaseMigrationService(baseMigrationCase)
-	opsMonitoringCase := biz4.NewOpsMonitoringCase(baseCase, baseLogRepository)
-	opsMonitoringService := admin.NewOpsMonitoringService(opsMonitoringCase)
-	hub := logstream.DefaultHub()
 	sseRegistry := sse.NewRegistry()
 	streamIDResolver := sse.NewStreamResolver(sseRegistry, authenticator, userToken)
-	sseCodegen := sse2.NewCodegen(manager)
-	opsMonitoring := sse2.NewOpsMonitoring(opsMonitoringCase)
-	runtimeConsole := sse2.NewRuntimeConsole(hub)
-	streams, cleanup5 := sse2.NewStreams(sseCodegen, opsMonitoring, runtimeConsole)
-	sseServer, cleanup6, err := sse.NewServer(ctx, streamIDResolver, streams, sseRegistry)
+	adminStreams, cleanup6, err := backend.NewStreams(v2, baseCase)
 	if err != nil {
 		cleanup5()
 		cleanup4()
@@ -342,10 +218,9 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	sseSSE, cleanup7 := sse.NewSSE(authenticator, userToken, sseRegistry, sseServer)
-	runtimeLogCase, err := biz4.NewRuntimeLogCase(baseCase, hub, sseSSE)
+	streams := provideStreams(adminStreams)
+	sseServer, cleanup7, err := sse.NewServer(ctx, streamIDResolver, streams, sseRegistry)
 	if err != nil {
-		cleanup7()
 		cleanup6()
 		cleanup5()
 		cleanup4()
@@ -354,10 +229,11 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	runtimeLogService := admin.NewRuntimeLogService(runtimeLogCase)
-	moduleDocs := module2.NewDocsFromResources(resources)
+	sseSSE, cleanup8 := sse.NewSSE(authenticator, userToken, sseRegistry, sseServer)
+	moduleDocs := module.NewDocsFromResources(resources)
 	docsRegistry, err := docs.NewRegistry(moduleDocs)
 	if err != nil {
+		cleanup8()
 		cleanup7()
 		cleanup6()
 		cleanup5()
@@ -368,35 +244,10 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	docsDocs := docs.NewDocs(docsRegistry)
-	projectDocumentService := admin.NewProjectDocumentService(docsDocs, i18nI18n)
-	services := admin3.Services{
-		Auth:             authService,
-		BaseAPI:          baseApiService,
-		BaseArea:         baseAreaService,
-		BaseConfig:       baseConfigService,
-		BaseDept:         baseDeptService,
-		BaseDict:         baseDictService,
-		BaseJob:          baseJobService,
-		BaseLanguage:     baseLanguageService,
-		BaseLog:          baseLogService,
-		BaseMenu:         baseMenuService,
-		BasePost:         basePostService,
-		BaseRole:         baseRoleService,
-		BaseTenant:       baseTenantService,
-		BaseThirdAccount: baseThirdAccountService,
-		BaseI18n:         baseI18nService,
-		BaseUser:         baseUserService,
-		CodeGen:          codeGenService,
-		CodeGenColumn:    codeGenColumnService,
-		CodeGenProto:     codeGenProtoService,
-		CodeGenTable:     codeGenTableService,
-		BaseMigration:    baseMigrationService,
-		OpsMonitoring:    opsMonitoringService,
-		RuntimeLog:       runtimeLogService,
-		ProjectDocument:  projectDocumentService,
-	}
-	adminTools, err := module.ParseAdminAgentTools(services)
+	openapiOpenAPI := openapi.NewOpenAPI(registry)
+	adminModules, cleanup9, err := backend.NewModules(configv1Bootstrap, v2, baseCase, engine, userToken, jobJob, sseSSE, docsDocs, i18nI18n, openapiOpenAPI)
 	if err != nil {
+		cleanup8()
 		cleanup7()
 		cleanup6()
 		cleanup5()
@@ -406,110 +257,11 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	baseUserCase2 := biz5.NewBaseUserCase(baseCase, dataBaseUserRepository)
-	oauthManager, err := module.ParseOAuthManager(configv1Bootstrap)
+	modules := provideModules(adminModules)
+	mcpServer, cleanup10, err := mcp.NewServer(ctx, modules)
 	if err != nil {
-		cleanup7()
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	bizAuthCase := biz5.NewAuthCase(baseCase, baseUserCase2, oauthManager)
-	appAuthService := app.NewAuthService(bizAuthCase)
-	bizBaseAreaCase := biz5.NewBaseAreaCase(baseCase, baseAreaRepository)
-	appBaseAreaService := app.NewBaseAreaService(bizBaseAreaCase)
-	bizBaseDictItemCase := biz5.NewBaseDictItemCase(baseCase, baseDictRepository, baseDictItemRepository)
-	bizBaseDictCase := biz5.NewBaseDictCase(baseCase, baseDictRepository, bizBaseDictItemCase, baseTranslationCase)
-	appBaseDictService := app.NewBaseDictService(bizBaseDictCase)
-	bizBaseMenuCase := biz5.NewBaseMenuCase(baseCase, dataBaseMenuRepository, baseTranslationCase)
-	appBaseMenuService := app.NewBaseMenuService(bizBaseMenuCase)
-	appServices := app2.Services{
-		Auth:     appAuthService,
-		BaseArea: appBaseAreaService,
-		BaseDict: appBaseDictService,
-		BaseMenu: appBaseMenuService,
-	}
-	appTools, err := module.ParseAppAgentTools(appServices)
-	if err != nil {
-		cleanup7()
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	runtime := ai.NewRuntime(responsesClient, mcpCase, adminTools, appTools)
-	aiMessageCase := biz3.NewAiMessageCase(baseCase, transaction, aiMessageRepository, aiSessionCase, baseUserCase, runtime)
-	aiSessionService := base.NewAiSessionService(aiSessionCase, aiMessageCase)
-	aiToolCase := biz3.NewAiToolCase(baseCase, runtime)
-	aiToolService := base.NewAiToolService(aiToolCase)
-	aiMessageService := base.NewAiMessageService(aiMessageCase)
-	configCase := biz3.NewConfigCase(baseCase, baseConfigRepository, baseI18NRepository, baseLanguageRepository)
-	configService := base.NewConfigService(configCase)
-	languageCase := biz3.NewLanguageCase(baseCase, baseLanguageRepository)
-	languageService := base.NewLanguageService(languageCase)
-	fileService := base.NewFileService(fileCase)
-	bizBaseDeptCase := biz3.NewBaseDeptCase(baseCase, baseDeptRepository)
-	loginCase := biz3.NewLoginCase(baseCase, bizBaseDeptCase, bizBaseRoleCase, baseUserCase, dataBaseTenantRepository, baseDictRepository, baseDictItemRepository, userToken)
-	loginService := base.NewLoginService(loginCase)
-	oauthCase := biz3.NewOauthCase(baseCase, transaction, baseThirdAccountCase, baseUserCase, bizBaseRoleCase, bizBaseDeptCase, loginCase, configCase, oauthManager)
-	oauthService := base.NewOauthService(oauthCase)
-	mcpService := base.NewMcpService(mcpCase)
-	sseCase := biz3.NewSseCase(baseCase, sseSSE)
-	sseService := base.NewSseService(sseCase)
-	baseServices := &base2.Services{
-		AiSession: aiSessionService,
-		AiTool:    aiToolService,
-		AiMessage: aiMessageService,
-		Config:    configService,
-		Language:  languageService,
-		File:      fileService,
-		Login:     loginService,
-		Oauth:     oauthService,
-		Mcp:       mcpService,
-		Sse:       sseService,
-	}
-	adminServices := &admin3.Services{
-		Auth:             authService,
-		BaseAPI:          baseApiService,
-		BaseArea:         baseAreaService,
-		BaseConfig:       baseConfigService,
-		BaseDept:         baseDeptService,
-		BaseDict:         baseDictService,
-		BaseJob:          baseJobService,
-		BaseLanguage:     baseLanguageService,
-		BaseLog:          baseLogService,
-		BaseMenu:         baseMenuService,
-		BasePost:         basePostService,
-		BaseRole:         baseRoleService,
-		BaseTenant:       baseTenantService,
-		BaseThirdAccount: baseThirdAccountService,
-		BaseI18n:         baseI18nService,
-		BaseUser:         baseUserService,
-		CodeGen:          codeGenService,
-		CodeGenColumn:    codeGenColumnService,
-		CodeGenProto:     codeGenProtoService,
-		CodeGenTable:     codeGenTableService,
-		BaseMigration:    baseMigrationService,
-		OpsMonitoring:    opsMonitoringService,
-		RuntimeLog:       runtimeLogService,
-		ProjectDocument:  projectDocumentService,
-	}
-	services2 := &app2.Services{
-		Auth:     appAuthService,
-		BaseArea: appBaseAreaService,
-		BaseDict: appBaseDictService,
-		BaseMenu: appBaseMenuService,
-	}
-	modules := module.NewModules(baseServices, adminServices, services2)
-	mcpServer, cleanup8, err := mcp.NewServer(ctx, modules)
-	if err != nil {
+		cleanup9()
+		cleanup8()
 		cleanup7()
 		cleanup6()
 		cleanup5()
@@ -521,6 +273,8 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	transportServer, err := server.NewHTTPServer(ctx, appInfo, httpMiddlewares, modules, authenticator, userToken, registry, mcpServer, sseServer)
 	if err != nil {
+		cleanup10()
+		cleanup9()
 		cleanup8()
 		cleanup7()
 		cleanup6()
@@ -534,6 +288,8 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	grpcMiddlewares := server.NewGRPCMiddleware(ctx, authenticator, baseUserRepository, engine, userToken, authentication_Jwt, cacheCache, i18nI18n)
 	grpcServer, err := server.NewGRPCServer(ctx, grpcMiddlewares, modules)
 	if err != nil {
+		cleanup10()
+		cleanup9()
 		cleanup8()
 		cleanup7()
 		cleanup6()
@@ -544,11 +300,14 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	dataBaseJobLogRepository := data.NewBaseJobLogRepository(dataData)
-	dataBaseLogRepository := data.NewBaseLogRepository(dataData)
-	consumers := module.NewQueueConsumers()
-	queueServer, err := queue2.NewServer(queueQueue, dataBaseJobLogRepository, dataBaseLogRepository, consumers)
+	baseJobLogRepository := data.NewBaseJobLogRepository(dataData)
+	baseLogRepository := data.NewBaseLogRepository(dataData)
+	adminConsumers := backend.NewQueueConsumers()
+	consumers := provideConsumers(adminConsumers)
+	queueServer, err := queue2.NewServer(queueQueue, baseJobLogRepository, baseLogRepository, consumers)
 	if err != nil {
+		cleanup10()
+		cleanup9()
 		cleanup8()
 		cleanup7()
 		cleanup6()
@@ -560,8 +319,10 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	jobServer := job.NewServer(scheduler)
-	kratosApp := kratoscore.NewApp(ctx, syncResult, transportServer, grpcServer, mcpServer, sseServer, queueServer, jobServer)
-	return kratosApp, func() {
+	app := kratoscore.NewApp(ctx, syncResult, transportServer, grpcServer, mcpServer, sseServer, queueServer, jobServer)
+	return app, func() {
+		cleanup10()
+		cleanup9()
 		cleanup8()
 		cleanup7()
 		cleanup6()

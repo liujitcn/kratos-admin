@@ -121,14 +121,41 @@ make build GOOS=darwin GOARCH=arm64 BINARY=bin/server-darwin-arm64
 
 解压发布包后，可通过 `./bin/server --conf ./configs` 启动。打包前应检查 `configs` 内的数据库、Redis、JWT 和其他部署配置，不要直接发布本地凭据。
 
-仓库当前不内置 Dockerfile；宿主项目提供 Dockerfile 后，可执行：
+仓库内置的 `docker-build` 会先验证 Docker CLI 和 Docker daemon，然后依次构建管理后台、uni-app H5、Taro H5、Linux 后端程序和最终镜像：
 
 ```bash
 make docker-build \
-  DOCKERFILE=/path/to/Dockerfile \
   IMAGE=kratos-admin \
   TAG=v1.0.0
 ```
+
+默认生成 `linux/amd64` 镜像。构建 ARM64 镜像时同时指定 Go 和 Docker 平台：
+
+```bash
+make docker-build GOARCH=arm64 DOCKER_PLATFORM=linux/arm64
+```
+
+镜像把三端静态站点保存在只读种子目录，容器启动时将其合并到 `/app/data`。本地 OSS 上传的图片、附件及其他运行期文件也位于 `/app/data`，因此部署时应将整个目录绑定到宿主机；启动脚本只覆盖镜像提供的站点文件，不会清空已有上传目录。
+
+本地构建完成后使用 `docker-run` 启动容器：
+
+```bash
+make docker-run IMAGE=kratos-admin TAG=v1.0.0
+```
+
+该命令默认使用桥接网络并发布宿主机 `7001`、`6001` 端口。首次运行会把 `configs/*.yaml` 初始化到宿主机 `runtime/configs`，将 MySQL、Redis、Consul 等容器主动连接的本机地址改为 `host.docker.internal`，再只读映射到 `/app/configs`；OAuth 浏览器回调地址保持不变。宿主机修改 `runtime/configs` 中的 YAML 后重启容器即可生效，不需要重建镜像。
+
+宿主机 `data` 映射到 `/app/data`。数据、配置、网络和发布端口可以通过 `DOCKER_DATA_DIR`、`DOCKER_CONFIG_DIR`、`DOCKER_NETWORK`、`DOCKER_HTTP_PORT`、`DOCKER_GRPC_PORT` 覆盖。删除 `runtime/configs` 后再次执行 `make docker-run` 可以按当前 `configs` 重新初始化运行配置。
+
+停止本地服务但保留容器和宿主机数据：
+
+```bash
+make docker-stop IMAGE=kratos-admin TAG=v1.0.0
+```
+
+之后再次执行 `make docker-run` 会自动清理已停止的同名容器并重新创建。
+
+镜像本身不会包含 `configs/*_local.yaml`、历史上传文件、代码生成恢复文件或运行日志。`docker-run` 挂载宿主机配置目录后，本地配置文件只在运行期对容器可见。
 
 ## 常用参数
 
@@ -140,6 +167,18 @@ make docker-build \
 | `GOOS` / `GOARCH` | `linux` / `amd64` | 构建目标平台。 |
 | `BINARY` | `bin/server` | 可执行文件输出路径。 |
 | `ARCHIVE` | `dist/backend-<os>-<arch>.tar.gz` | 发布压缩包输出路径。 |
+| `DOCKER` | `docker` | Docker 命令路径或名称。 |
+| `DOCKERFILE` | `Dockerfile` | Dockerfile 路径。 |
+| `DOCKER_PLATFORM` | `linux/<GOARCH>` | 镜像目标平台。 |
+| `IMAGE` / `TAG` | `backend` / `latest` | Docker 镜像名称和标签。 |
+| `CONTAINER_NAME` | `kratos-admin` | 本地运行的容器名称。 |
+| `DOCKER_NETWORK` | `bridge` | 容器网络。 |
+| `DOCKER_HTTP_PORT` | `7001` | 映射到容器 `7001` 的宿主机 HTTP 端口。 |
+| `DOCKER_GRPC_PORT` | `6001` | 映射到容器 `6001` 的宿主机 gRPC 端口。 |
+| `DOCKER_DATA_DIR` | `backend/data` | 映射到 `/app/data` 的宿主机目录。 |
+| `DOCKER_CONFIG_SOURCE_DIR` | `backend/configs` | 首次初始化 Docker 运行配置的源目录。 |
+| `DOCKER_CONFIG_DIR` | `backend/runtime/configs` | 只读映射到 `/app/configs` 的宿主机运行配置目录。 |
+| `DOCKER_RUN_ARGS` | 空 | 传给 `docker run` 的其他参数。 |
 | `PUBLIC_WIRE_DIR` | `internal/module` | 公共入口使用的内部 `wire.go` 所在目录。 |
 | `WIRE_DIR` | `internal/cmd/server` | 独立入口 `wire.go` 所在目录。 |
 | `GORM_GEN_CONFIG` | `configs/data_local.yaml` | GORM 生成使用的数据源配置。 |
@@ -167,4 +206,4 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 
 `backend.NewModules` 初始化的是宿主进程级运行日志采集器；外部项目按上述方式接入 Backend 后，其自身以及其他已注册模块写入 stdout/stderr 的日志也会进入运行日志实时控制台，历史日志文件则按宿主的日志配置读取。
 
-外部模块接入 AI 时使用 `pkg/agent.NewRuntime` 创建运行时，通过 `RuntimeConfig.AdminTools/AppTools` 或 `Runtime.RegisterTool` 注册 Eino `InvokableTool`；简单结构化工具优先使用 `pkg/agent.InferTool` 自动生成参数 schema。需要权限控制时实现 `ToolAccessChecker`，不接入权限系统则保持 `Checker` 为 `nil`。
+外部模块接入 AI 时使用 `pkg/agent.NewRuntime` 创建运行时，通过 `RuntimeConfig.AdminTools/AppTools` 或 `Runtime.RegisterTool` 注册 Eino `InvokableTool`；简单结构化工具优先使用 `pkg/agent.InferTool` 自动生成参数 schema。评论审核、内容提取等固定流程可以组合 `NewChatClient`、`NewStructuredRunner`、`SchemaFor` 和多模态 Part 构造函数，不需要引用 `internal` 包。需要权限控制时实现 `ToolAccessChecker`，不接入权限系统则保持 `Checker` 为 `nil`。

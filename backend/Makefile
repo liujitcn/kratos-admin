@@ -11,7 +11,7 @@
 .PHONY: help init plugin cli fmt lint test check \
 	gorm-gen api openapi ts ts-admin ts-uni-app ts-taro-app project-docs public-wire wire gen \
 	i18n i18n-check i18n-sync i18n-locale i18n-docs i18n-openapi \
-	run run-only build package docker-build
+	run run-only build package docker-check docker-config docker-build docker-run docker-stop
 
 # ===== 运行与构建参数 =====
 
@@ -32,11 +32,21 @@ DIST_DIR ?= dist
 PACKAGE_NAME ?= backend-$(GOOS)-$(GOARCH)
 ARCHIVE ?= $(DIST_DIR)/$(PACKAGE_NAME).tar.gz
 
-# Docker 镜像参数；仓库未内置 Dockerfile 时必须通过 DOCKERFILE 指定。
+# Docker 镜像参数。
+DOCKER ?= docker
 DOCKERFILE ?= Dockerfile
+DOCKER_PLATFORM ?= linux/$(GOARCH)
 IMAGE ?= backend
 TAG ?= latest
 DOCKER_BUILD_ARGS ?=
+CONTAINER_NAME ?= kratos-admin
+DOCKER_NETWORK ?= bridge
+DOCKER_HTTP_PORT ?= 7001
+DOCKER_GRPC_PORT ?= 6001
+DOCKER_DATA_DIR ?= $(CURDIR)/data
+DOCKER_CONFIG_SOURCE_DIR ?= $(CURDIR)/configs
+DOCKER_CONFIG_DIR ?= $(CURDIR)/runtime/configs
+DOCKER_RUN_ARGS ?=
 
 # ===== 工具路径参数 =====
 
@@ -327,12 +337,73 @@ package:
 	@tar -czf "$(ARCHIVE)" "$(BINARY)" configs
 	@echo "==> 发布压缩包已生成: $(ARCHIVE)"
 
-# 使用指定 Dockerfile 构建后端镜像
-docker-build:
+# 检查 Docker 命令和服务端是否可用
+docker-check:
+	@command -v "$(DOCKER)" >/dev/null 2>&1 || (echo "未找到 Docker 命令: $(DOCKER)" && exit 1)
+	@"$(DOCKER)" info >/dev/null 2>&1 || (echo "Docker 服务不可用，请确认 Docker Desktop 或 Docker daemon 已启动" && exit 1)
+	@echo "==> Docker 可用: $$("$(DOCKER)" version --format 'client={{.Client.Version}} server={{.Server.Version}}')"
+
+# 初始化可由宿主机修改的容器运行配置
+docker-config:
+	@test -d "$(DOCKER_CONFIG_SOURCE_DIR)" || (echo "未找到源配置目录: $(DOCKER_CONFIG_SOURCE_DIR)" && exit 1)
+	@if [ ! -d "$(DOCKER_CONFIG_DIR)" ]; then \
+		mkdir -p "$(DOCKER_CONFIG_DIR)"; \
+		cp "$(DOCKER_CONFIG_SOURCE_DIR)"/*.yaml "$(DOCKER_CONFIG_DIR)/"; \
+		for config_file in data.yaml data_local.yaml logger.yaml pprof.yaml registry.yaml; do \
+			if [ -f "$(DOCKER_CONFIG_DIR)/$$config_file" ]; then \
+				perl -pi -e 's/127\.0\.0\.1/host.docker.internal/g; s/localhost/host.docker.internal/g' "$(DOCKER_CONFIG_DIR)/$$config_file"; \
+			fi; \
+		done; \
+		echo "==> Docker 运行配置已初始化: $(DOCKER_CONFIG_DIR)"; \
+	fi
+
+# 构建三端静态资源、后端程序和 Docker 镜像
+docker-build: docker-check
 	@test -f "$(DOCKERFILE)" || (echo "未找到 Dockerfile: $(DOCKERFILE)，请通过 DOCKERFILE 指定有效文件" && exit 1)
-	@$(MAKE) build
-	@docker build $(DOCKER_BUILD_ARGS) -f "$(DOCKERFILE)" -t "$(IMAGE):$(TAG)" .
+	@$(MAKE) -C ../frontend build-all
+	@$(MAKE) build GOOS=linux GOARCH="$(GOARCH)"
+	@"$(DOCKER)" build $(DOCKER_BUILD_ARGS) --platform "$(DOCKER_PLATFORM)" -f "$(DOCKERFILE)" -t "$(IMAGE):$(TAG)" .
 	@echo "==> Docker 镜像已生成: $(IMAGE):$(TAG)"
+
+# 使用宿主机数据和配置目录启动容器
+docker-run: docker-check docker-config
+	@"$(DOCKER)" image inspect "$(IMAGE):$(TAG)" >/dev/null 2>&1 || (echo "未找到 Docker 镜像: $(IMAGE):$(TAG)，请先执行 make docker-build" && exit 1)
+	@test -d "$(DOCKER_CONFIG_DIR)" || (echo "未找到宿主机配置目录: $(DOCKER_CONFIG_DIR)" && exit 1)
+	@mkdir -p "$(DOCKER_DATA_DIR)"
+	@if "$(DOCKER)" container inspect "$(CONTAINER_NAME)" >/dev/null 2>&1; then \
+		container_status=$$("$(DOCKER)" container inspect -f '{{.State.Status}}' "$(CONTAINER_NAME)"); \
+		if [ "$$container_status" = "running" ]; then \
+			echo "容器正在运行: $(CONTAINER_NAME)，请先执行 make docker-stop"; \
+			exit 1; \
+		fi; \
+		"$(DOCKER)" container rm "$(CONTAINER_NAME)" >/dev/null; \
+		echo "==> 已移除已停止容器: $(CONTAINER_NAME)"; \
+	fi
+	@"$(DOCKER)" run -d \
+		--name "$(CONTAINER_NAME)" \
+		--restart unless-stopped \
+		--network "$(DOCKER_NETWORK)" \
+		--add-host "host.docker.internal:host-gateway" \
+		-p "$(DOCKER_HTTP_PORT):7001" \
+		-p "$(DOCKER_GRPC_PORT):6001" \
+		-v "$(abspath $(DOCKER_DATA_DIR)):/app/data" \
+		-v "$(abspath $(DOCKER_CONFIG_DIR)):/app/configs:ro" \
+		$(DOCKER_RUN_ARGS) \
+		"$(IMAGE):$(TAG)"
+	@echo "==> Docker 容器已启动: $(CONTAINER_NAME)"
+	@echo "==> HTTP: http://127.0.0.1:$(DOCKER_HTTP_PORT)"
+	@echo "==> gRPC: 127.0.0.1:$(DOCKER_GRPC_PORT)"
+
+# 停止本地 Docker 容器并保留容器数据
+docker-stop: docker-check
+	@if ! "$(DOCKER)" container inspect "$(CONTAINER_NAME)" >/dev/null 2>&1; then \
+		echo "容器不存在: $(CONTAINER_NAME)"; \
+	elif [ "$$("$(DOCKER)" container inspect -f '{{.State.Status}}' "$(CONTAINER_NAME)")" != "running" ]; then \
+		echo "容器已停止: $(CONTAINER_NAME)"; \
+	else \
+		"$(DOCKER)" stop "$(CONTAINER_NAME)"; \
+		echo "==> Docker 容器已停止: $(CONTAINER_NAME)"; \
+	fi
 
 # ===== 帮助 =====
 
@@ -371,11 +442,22 @@ help:
 	@printf "  %-20s %s\n" "I18N_LOCALES" "目标语言，当前: $(I18N_LOCALES)"
 	@printf "  %-20s %s\n" "I18N_OFFLINE" "设为 1 时离线生成"
 	@printf "  %-20s %s\n" "IMAGE / TAG" "Docker 镜像，当前: $(IMAGE):$(TAG)"
+	@printf "  %-20s %s\n" "DOCKER_PLATFORM" "Docker 平台，当前: $(DOCKER_PLATFORM)"
+	@printf "  %-20s %s\n" "CONTAINER_NAME" "Docker 容器名，当前: $(CONTAINER_NAME)"
+	@printf "  %-20s %s\n" "DOCKER_NETWORK" "Docker 网络，当前: $(DOCKER_NETWORK)"
+	@printf "  %-20s %s\n" "DOCKER_HTTP_PORT" "宿主机 HTTP 端口，当前: $(DOCKER_HTTP_PORT)"
+	@printf "  %-20s %s\n" "DOCKER_GRPC_PORT" "宿主机 gRPC 端口，当前: $(DOCKER_GRPC_PORT)"
+	@printf "  %-20s %s\n" "DOCKER_DATA_DIR" "宿主机数据目录，当前: $(DOCKER_DATA_DIR)"
+	@printf "  %-20s %s\n" "DOCKER_CONFIG_SOURCE_DIR" "Docker 配置源目录，当前: $(DOCKER_CONFIG_SOURCE_DIR)"
+	@printf "  %-20s %s\n" "DOCKER_CONFIG_DIR" "宿主机配置目录，当前: $(DOCKER_CONFIG_DIR)"
 	@echo ""
 	@echo "示例:"
 	@echo "  make run-only CONF=./configs RUN_ARGS='--help'"
 	@echo "  make build GOOS=darwin GOARCH=arm64 BINARY=bin/server-darwin-arm64"
 	@echo "  make package GOOS=linux GOARCH=arm64"
-	@echo "  make docker-build DOCKERFILE=/path/to/Dockerfile IMAGE=kratos-admin TAG=v1.0.0"
+	@echo "  make docker-build IMAGE=kratos-admin TAG=v1.0.0"
+	@echo "  make docker-build GOARCH=arm64 DOCKER_PLATFORM=linux/arm64"
+	@echo "  make docker-run IMAGE=kratos-admin TAG=v1.0.0"
+	@echo "  make docker-stop IMAGE=kratos-admin TAG=v1.0.0"
 
 .DEFAULT_GOAL := help

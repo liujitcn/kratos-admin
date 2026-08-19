@@ -15,6 +15,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	sse2 "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/sse"
 	biz4 "github.com/liujitcn/kratos-admin/backend/internal/biz/system/app"
+	"github.com/liujitcn/kratos-admin/backend/internal/config"
 	data2 "github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	base2 "github.com/liujitcn/kratos-admin/backend/internal/server/base/v1"
 	admin2 "github.com/liujitcn/kratos-admin/backend/internal/server/system/admin/v1"
@@ -40,8 +41,8 @@ import (
 
 // Injectors from wire.go:
 
-// BuildModules 通过 Admin 内部 ProviderSet 装配协议服务。
-func BuildModules(config *configv1.Bootstrap, databases map[string]*gorm.Client, baseCase *biz.BaseCase, authorizer engine.Engine, userToken *data.UserToken, jobRuntime *job.Job, sseRuntime *sse.SSE, docsRuntime *docs.Docs, catalog *i18n.I18n, openAPIRuntime *openapi.OpenAPI) (module.Modules, func(), error) {
+// BuildModules 通过 Admin 内部依赖装配协议服务。
+func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client, baseCase *biz.BaseCase, authorizer engine.Engine, userToken *data.UserToken, jobRuntime *job.Job, sseRuntime *sse.SSE, docsRuntime *docs.Docs, catalog *i18n.I18n, openAPIRuntime *openapi.OpenAPI) (module.Modules, func(), error) {
 	dataData, err := data2.NewData(databases)
 	if err != nil {
 		return nil, nil, err
@@ -52,7 +53,7 @@ func BuildModules(config *configv1.Bootstrap, databases map[string]*gorm.Client,
 	aiSessionCase := biz2.NewAiSessionCase(baseCase, transaction, aiSessionRepository, aiMessageRepository)
 	baseUserRepository := data2.NewBaseUserRepository(dataData)
 	baseUserCase := biz2.NewBaseUserCase(baseCase, baseUserRepository)
-	ai_Model, err := ParseAIModel(config)
+	ai_Model, err := config.ParseAIModel(config2)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -174,7 +175,7 @@ func BuildModules(config *configv1.Bootstrap, databases map[string]*gorm.Client,
 		return nil, nil, err
 	}
 	baseUserCase2 := biz4.NewBaseUserCase(baseCase, baseUserRepository)
-	oauthManager, err := ParseOAuthManager(config)
+	oauthManager, err := config.ParseOAuthManager(config2)
 	if err != nil {
 		return nil, nil, err
 	}

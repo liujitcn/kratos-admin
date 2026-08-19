@@ -36,3 +36,21 @@ runtime.RegisterTool("admin", anotherTool)
 
 不接入权限系统时 `Checker` 保持 `nil`；需要按终端控制工具时实现
 `agent.ToolAccessChecker`。
+
+## 结构化输出
+
+评论审核、内容提取等业务可以复用公共聊天客户端和结构化运行器，不需要引用
+`internal/biz/agent`：
+
+```go
+client := agent.NewChatClient(modelConfig)
+runner := agent.NewStructuredRunner(client)
+schema, err := agent.SchemaFor[ReviewResult]()
+if err != nil {
+	return err
+}
+err = runner.Generate(ctx, instruction, []*agent.Part{
+	agent.TextPart(content),
+	agent.ImageURLPart(imageURL),
+}, schema, &result)
+```

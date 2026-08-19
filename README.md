@@ -32,6 +32,7 @@
 - Node.js `^20.19.0` 或 `>=22.12.0`。
 - pnpm 版本以各 workspace 的 `packageManager` 为准：管理端 `10.33.4`，uni-app 与 Taro 应用端 `10.13.1`。
 - MySQL 和 Redis；默认连接见 `backend/configs/data.yaml`。
+- Docker 部署需要可用的 Docker CLI 与 Docker daemon。
 - Buf、protoc 插件、Wire 和 gorm-gen 只在重新生成代码时需要，可通过 `make -C backend init` 安装。
 
 直接执行 `make` 或 `make help` 查看仓库级命令；Backend 和 Frontend 的完整目标分别使用 `make -C backend help`、`make -C frontend help` 查看。
@@ -95,6 +96,16 @@ make -C frontend build-all
 `make check` 按 Backend、管理端模块边界、管理后台、uni-app、Taro 的顺序执行检查。`build-all` 构建管理后台及两个应用端的 H5 宿主；生成全部 npm 发布包使用 `make -C frontend package`，微信小程序仍分别执行各 workspace 的 `pnpm build:mp-weixin`。
 
 后端默认通过 `make -C backend build` 构建 `linux/amd64` 二进制，通过 `make -C backend package` 生成包含 `bin/server` 和 `configs` 的发布压缩包；目标平台可使用 `GOOS`、`GOARCH` 覆盖。
+
+Docker 镜像通过现有 Backend 命令构建：
+
+```bash
+make -C backend docker-build IMAGE=kratos-admin TAG=latest
+make -C backend docker-run IMAGE=kratos-admin TAG=latest
+make -C backend docker-stop IMAGE=kratos-admin TAG=latest
+```
+
+构建命令先检查 Docker，再构建管理后台、uni-app H5、Taro H5 和 Linux 后端程序。运行命令发布宿主机 `7001/6001` 端口，将 `backend/data` 映射到 `/app/data`，并首次初始化可在宿主机修改的 `backend/runtime/configs` 后映射到 `/app/configs`。三端静态站点随镜像发布，启动时合并到 `/app/data`，已有上传文件不会被清空。完整构建参数和运行示例见 [Backend 构建与打包](backend/README.md#构建与打包)。
 
 `I18N_LOCALES` 使用逗号分隔的 BCP 47 语言代码列表（默认 `en-US,zh-TW,ja-JP`），统一控制项目文档和 OpenAPI 的目标语言。`make i18n-docs` 由仓库内 `scripts/project_docs.py` 按三段路径范围收集 README 与 docs Markdown，再生成 `docs.json` 和 `docs.<locale>.json`；对应的 `README.en-US.md`、`guide.ja-JP.md` 等语言源文件存在时直接使用，否则才执行机器翻译。语言目录只本地化文档正文和显示文件名，`README.md` 显示名、目录名称及稳定路径保持不变。如需使用外部实现，可通过 `PROJECT_DOCS_SCRIPT` 覆盖脚本路径。`make i18n-openapi` 生成 OpenAPI 多语言 YAML。离线生成使用 `I18N_OFFLINE=1 make i18n`。
 
