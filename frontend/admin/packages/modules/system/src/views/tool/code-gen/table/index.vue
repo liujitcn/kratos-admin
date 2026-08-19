@@ -588,6 +588,38 @@ async function handleGenerate(selected: CodeGenGenerateTarget) {
     ElMessage.warning(t("system.code.gen.table.message.disabled", { name: disabledTable.name }));
     return;
   }
+  generating.value = true;
+  let missingTranslations: string[] = [];
+  try {
+    const previewEntries = await Promise.all(
+      tables.map(async table => ({
+        table,
+        preview: await defCodeGenService.PreviewCodeGen({ table_id: table.id, output_paths: undefined })
+      }))
+    );
+    missingTranslations = previewEntries.flatMap(({ table, preview }) =>
+      (preview.missing_translations ?? []).map(item => (tables.length === 1 ? item : `${table.name}: ${item}`))
+    );
+  } finally {
+    generating.value = false;
+  }
+  if (missingTranslations.length) {
+    try {
+      await ElMessageBox.alert(
+        t("system.code.gen.preview.message.missing_translations", {
+          items: missingTranslations.join(t("system.code.gen.preview.value.list_separator"))
+        }),
+        t("common.title.warning"),
+        {
+          confirmButtonText: t("common.action.close"),
+          type: "warning"
+        }
+      );
+    } catch {
+      // 关闭提示框与点击关闭按钮语义一致。
+    }
+    return;
+  }
   const message =
     tables.length === 1
       ? t("system.code.gen.table.dialog.generate_one", { name: tables[0].name })

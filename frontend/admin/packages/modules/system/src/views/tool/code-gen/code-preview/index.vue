@@ -134,6 +134,23 @@ async function handleGenerate() {
     ElMessage.warning(t("system.code.gen.table.message.disabled", { name: table.value.name }));
     return;
   }
+  if (missingTranslations.value.length) {
+    try {
+      await ElMessageBox.alert(
+        t("system.code.gen.preview.message.missing_translations", {
+          items: missingTranslations.value.join(t("system.code.gen.preview.value.list_separator"))
+        }),
+        t("common.title.warning"),
+        {
+          confirmButtonText: t("common.action.close"),
+          type: "warning"
+        }
+      );
+    } catch {
+      // 关闭提示框与点击关闭按钮语义一致。
+    }
+    return;
+  }
   try {
     await ElMessageBox.confirm(
       t("system.code.gen.table.dialog.generate_one", { name: table.value.name }),

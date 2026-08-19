@@ -31,6 +31,8 @@ plugins:
       - buf.validate
       - gnostic.openapi.v3
       - google.api
+      # 下载接口返回 google.api.HttpBody，管理端通过 Axios blob 请求，不生成该服务客户端定义。
+      - system.admin.v1.RuntimeLogService
     strategy: all
     opt:
       - outputSchema=false # 生成模式 (const, no-file-descriptor, true, false)

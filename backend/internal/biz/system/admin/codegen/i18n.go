@@ -53,7 +53,11 @@ func MissingTranslationFields(table *Table, columns []*CodeGenColumn, state Loca
 			missing = append(missing, fmt.Sprintf("左树描述（%s）", localeValue))
 		}
 		for _, column := range columns {
-			if column != nil && column.I18NConfig[localeValue].Comment == "" {
+			// 主键和软删除字段不在字段配置页展示，不能要求用户补齐不可编辑内容。
+			if column == nil || column.IsPrimary == 1 || column.Name == "deleted_at" {
+				continue
+			}
+			if column.I18NConfig[localeValue].Comment == "" {
 				missing = append(missing, fmt.Sprintf("字段 %s（%s）", column.Name, localeValue))
 			}
 		}

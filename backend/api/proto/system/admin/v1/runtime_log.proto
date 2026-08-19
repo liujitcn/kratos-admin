@@ -1,0 +1,127 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/api/httpbody.proto";
+
+// 运行日志服务。
+service RuntimeLogService {
+  // 查询可访问的历史日志文件。
+  rpc ListRuntimeLogFiles(ListRuntimeLogFilesRequest) returns (ListRuntimeLogFilesResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/runtime-log/files"};
+  }
+
+  // 分页读取历史日志文件内容。
+  rpc ReadRuntimeLogFile(ReadRuntimeLogFileRequest) returns (ReadRuntimeLogFileResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/runtime-log/files/{file_id}"};
+  }
+
+  // 创建当前用户的实时控制台频道。
+  rpc OpenRuntimeConsole(OpenRuntimeConsoleRequest) returns (OpenRuntimeConsoleResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/runtime-log/console"
+      body: "*"
+    };
+  }
+
+  // 下载历史日志原文件。
+  rpc DownloadRuntimeLogFile(DownloadRuntimeLogFileRequest) returns (google.api.HttpBody) {
+    option (google.api.http) = {get: "/api/v1/admin/runtime-log/files/{file_id}/download"};
+  }
+}
+
+// 历史日志文件列表查询条件。
+message ListRuntimeLogFilesRequest {}
+
+// 历史日志文件列表响应。
+message ListRuntimeLogFilesResponse {
+  repeated RuntimeLogFile files = 1 [(gnostic.openapi.v3.property) = {description: "历史日志文件列表"}]; // 历史日志文件列表
+}
+
+// 历史日志文件信息。
+message RuntimeLogFile {
+  string file_id = 1 [(gnostic.openapi.v3.property) = {description: "服务端签发的日志文件标识"}]; // 服务端签发的日志文件标识
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "日志文件名称"}]; // 日志文件名称
+  int64 size_bytes = 3 [(gnostic.openapi.v3.property) = {description: "日志文件大小，单位字节"}]; // 日志文件大小，单位字节
+  string modified_at = 4 [(gnostic.openapi.v3.property) = {description: "最后修改时间，RFC3339格式"}]; // 最后修改时间，RFC3339格式
+  bool is_compressed = 5 [(gnostic.openapi.v3.property) = {description: "是否为Gzip压缩文件"}]; // 是否为Gzip压缩文件
+  bool is_active = 6 [(gnostic.openapi.v3.property) = {description: "是否为当前活动日志文件"}]; // 是否为当前活动日志文件
+}
+
+// 历史日志文件读取条件。
+message ReadRuntimeLogFileRequest {
+  string file_id = 1 [
+    (gnostic.openapi.v3.property) = {description: "服务端签发的日志文件标识"},
+    (buf.validate.field).string = {min_len: 1, max_len: 512}
+  ]; // 服务端签发的日志文件标识
+  string cursor = 2 [
+    (gnostic.openapi.v3.property) = {description: "向更早日志翻页的不透明游标，留空时从文件尾部读取"},
+    (buf.validate.field).string = {max_len: 2048}
+  ]; // 向更早日志翻页的不透明游标，留空时从文件尾部读取
+  int32 limit = 3 [
+    (gnostic.openapi.v3.property) = {description: "单次读取条数，0使用默认值，最大500"},
+    (buf.validate.field).int32 = {gte: 0, lte: 500}
+  ]; // 单次读取条数，0使用默认值，最大500
+  string keyword = 4 [
+    (gnostic.openapi.v3.property) = {description: "日志内容搜索关键字"},
+    (buf.validate.field).string = {max_len: 128}
+  ]; // 日志内容搜索关键字
+  repeated string levels = 5 [
+    (gnostic.openapi.v3.property) = {description: "日志级别筛选列表"},
+    (buf.validate.field).repeated = {max_items: 8, unique: true}
+  ]; // 日志级别筛选列表
+}
+
+// 历史日志文件读取响应。
+message ReadRuntimeLogFileResponse {
+  repeated RuntimeLogEntry entries = 1 [(gnostic.openapi.v3.property) = {description: "按时间正序排列的日志条目"}]; // 按时间正序排列的日志条目
+  string next_cursor = 2 [(gnostic.openapi.v3.property) = {description: "继续读取更早日志的不透明游标"}]; // 继续读取更早日志的不透明游标
+  bool has_more = 3 [(gnostic.openapi.v3.property) = {description: "是否还有更早日志"}]; // 是否还有更早日志
+  bool file_changed = 4 [(gnostic.openapi.v3.property) = {description: "读取期间日志文件是否已滚动或截断"}]; // 读取期间日志文件是否已滚动或截断
+}
+
+// 实时或历史日志条目。
+message RuntimeLogEntry {
+  string sequence = 1 [(gnostic.openapi.v3.property) = {description: "当前进程内的日志序号，历史文件日志为空"}]; // 当前进程内的日志序号，历史文件日志为空
+  string timestamp = 2 [(gnostic.openapi.v3.property) = {description: "日志时间"}]; // 日志时间
+  string level = 3 [(gnostic.openapi.v3.property) = {description: "日志级别"}]; // 日志级别
+  string source = 4 [(gnostic.openapi.v3.property) = {description: "日志来源"}]; // 日志来源
+  string message = 5 [(gnostic.openapi.v3.property) = {description: "日志消息"}]; // 日志消息
+  string line = 6 [(gnostic.openapi.v3.property) = {description: "可直接展示的纯文本日志行"}]; // 可直接展示的纯文本日志行
+  bool is_truncated = 7 [(gnostic.openapi.v3.property) = {description: "日志行是否因长度限制被截断"}]; // 日志行是否因长度限制被截断
+}
+
+// 实时控制台开启条件。
+message OpenRuntimeConsoleRequest {
+  int32 backlog_limit = 1 [
+    (gnostic.openapi.v3.property) = {description: "首次返回的最近日志条数，0使用默认值，最大500"},
+    (buf.validate.field).int32 = {gte: 0, lte: 500}
+  ]; // 首次返回的最近日志条数，0使用默认值，最大500
+}
+
+// 实时控制台开启响应。
+message OpenRuntimeConsoleResponse {
+  string stream = 1 [(gnostic.openapi.v3.property) = {description: "SSE业务流标识"}]; // SSE业务流标识
+  string channel_id = 2 [(gnostic.openapi.v3.property) = {description: "当前用户专属SSE频道标识"}]; // 当前用户专属SSE频道标识
+  string expires_at = 3 [(gnostic.openapi.v3.property) = {description: "频道过期时间，RFC3339格式"}]; // 频道过期时间，RFC3339格式
+  string instance_id = 4 [(gnostic.openapi.v3.property) = {description: "当前服务实例标识"}]; // 当前服务实例标识
+  string latest_sequence = 5 [(gnostic.openapi.v3.property) = {description: "当前进程最新日志序号"}]; // 当前进程最新日志序号
+  repeated RuntimeLogEntry entries = 6 [(gnostic.openapi.v3.property) = {description: "当前进程最近日志"}]; // 当前进程最近日志
+}
+
+// 实时控制台丢失消息提示。
+message RuntimeLogGap {
+  int32 dropped_count = 1 [(gnostic.openapi.v3.property) = {description: "本次丢弃的日志条数"}]; // 本次丢弃的日志条数
+  string latest_sequence = 2 [(gnostic.openapi.v3.property) = {description: "发生丢弃时的最新日志序号"}]; // 发生丢弃时的最新日志序号
+}
+
+// 历史日志文件下载条件。
+message DownloadRuntimeLogFileRequest {
+  string file_id = 1 [
+    (gnostic.openapi.v3.property) = {description: "服务端签发的日志文件标识"},
+    (buf.validate.field).string = {min_len: 1, max_len: 512}
+  ]; // 服务端签发的日志文件标识
+}

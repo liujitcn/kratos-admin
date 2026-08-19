@@ -376,6 +376,7 @@ func (c *CodeGenColumnCase) mergeSavedCodeGenColumn(column *systemadminv1.CodeGe
 	savedColumn := c.mapper.ToDTO(saved)
 	column.Id = savedColumn.GetId()
 	column.Comment = savedColumn.GetComment()
+	column.I18NConfig = savedColumn.GetI18NConfig()
 	column.QueryConfig = savedColumn.GetQueryConfig()
 	column.ListConfig = savedColumn.GetListConfig()
 	column.FormConfig = savedColumn.GetFormConfig()
