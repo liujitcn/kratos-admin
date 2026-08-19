@@ -44,7 +44,9 @@ message ProjectDocumentListItem {
 
   string path = 2 [(gnostic.openapi.v3.property) = {description: "项目内相对路径"}]; // 项目内相对路径
 
-  string updated_at = 3 [(gnostic.openapi.v3.property) = {description: "Markdown文件更新时间，RFC3339格式"}]; // Markdown文件更新时间，RFC3339格式
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "当前语言下的文档显示文件名"}]; // 当前语言下的文档显示文件名
+
+  string updated_at = 4 [(gnostic.openapi.v3.property) = {description: "Markdown文件更新时间，RFC3339格式"}]; // Markdown文件更新时间，RFC3339格式
 }
 
 // 项目文档树
@@ -79,9 +81,9 @@ message ProjectDocument {
 
   string path = 4 [(gnostic.openapi.v3.property) = {description: "项目内相对路径"}]; // 项目内相对路径
 
-  string content = 5 [(gnostic.openapi.v3.property) = {description: "Markdown文档内容"}]; // Markdown文档内容
+  string name = 5 [(gnostic.openapi.v3.property) = {description: "当前语言下的文档显示文件名"}]; // 当前语言下的文档显示文件名
 
-  map<string, string> locale = 6 [(gnostic.openapi.v3.property) = {description: "按语言标识索引的Markdown翻译内容"}]; // 按语言标识索引的Markdown翻译内容
+  string content = 6 [(gnostic.openapi.v3.property) = {description: "Markdown文档内容"}]; // Markdown文档内容
 
   string updated_at = 7 [(gnostic.openapi.v3.property) = {description: "Markdown文件更新时间，RFC3339格式"}]; // Markdown文件更新时间，RFC3339格式
 }
