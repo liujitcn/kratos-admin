@@ -132,9 +132,9 @@ message BaseConfigForm {
 
   string value = 6 [(gnostic.openapi.v3.property) = {description: "配置value"}, (buf.validate.field).cel = {id: "system.admin.base.config.entity.value.required" message: "配置值不能为空" expression: "this.size() > 0"}]; // 配置value
 
-  repeated BaseI18n name_translations = 7 [(gnostic.openapi.v3.property) = {description: "配置名称多语言翻"}]; // 配置名称多语言翻
+  repeated BaseI18n name_i18ns = 7 [(gnostic.openapi.v3.property) = {description: "配置名称多语言翻"}]; // 配置名称多语言翻
 
-  repeated BaseI18n value_translations = 8 [(gnostic.openapi.v3.property) = {description: "配置value文本/富文本配置值的多语言翻译"}]; // 配置value文本/富文本配置值的多语言翻译
+  repeated BaseI18n value_i18ns = 8 [(gnostic.openapi.v3.property) = {description: "配置value文本/富文本配置值的多语言翻译"}]; // 配置value文本/富文本配置值的多语言翻译
 
   .common.v1.Status status = 51 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
 }
@@ -186,5 +186,5 @@ message BaseConfig {
 
   string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
 
-  repeated BaseI18n translations = 202 [(gnostic.openapi.v3.property) = {description: "配置名称及文本/富文本配置值的多语言翻译"}]; // 配置名称及文本/富文本配置值的多语言翻译
+  repeated BaseI18n i18ns = 202 [(gnostic.openapi.v3.property) = {description: "配置名称及文本/富文本配置值的多语言翻译"}]; // 配置名称及文本/富文本配置值的多语言翻译
 }

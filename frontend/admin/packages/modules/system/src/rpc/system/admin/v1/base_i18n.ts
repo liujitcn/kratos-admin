@@ -8,23 +8,23 @@
 import type { Empty } from "../../../google/protobuf/empty";
 
 /** 统一翻译表目标类型，和 base_i18n.target_type 的值一一对应。 */
-export enum TranslationTargetType {
-  /** TRANSLATION_TARGET_TYPE_UNSPECIFIED - 未指定统一翻译表目标类型。 */
-  TRANSLATION_TARGET_TYPE_UNSPECIFIED = 0,
-  /** TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE - 系统配置值。 */
-  TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE = 1,
-  /** TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME - 系统配置名称。 */
-  TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME = 2,
-  /** TRANSLATION_TARGET_TYPE_BASE_DICT - 字典名称。 */
-  TRANSLATION_TARGET_TYPE_BASE_DICT = 3,
-  /** TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM - 字典项标签。 */
-  TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM = 4,
-  /** TRANSLATION_TARGET_TYPE_BASE_MENU - 菜单标题。 */
-  TRANSLATION_TARGET_TYPE_BASE_MENU = 5,
+export enum I18nTargetType {
+  /** I18N_TARGET_TYPE_UNSPECIFIED - 未指定统一翻译表目标类型。 */
+  I18N_TARGET_TYPE_UNSPECIFIED = 0,
+  /** I18N_TARGET_TYPE_BASE_CONFIG_VALUE - 系统配置值。 */
+  I18N_TARGET_TYPE_BASE_CONFIG_VALUE = 1,
+  /** I18N_TARGET_TYPE_BASE_CONFIG_NAME - 系统配置名称。 */
+  I18N_TARGET_TYPE_BASE_CONFIG_NAME = 2,
+  /** I18N_TARGET_TYPE_BASE_DICT - 字典名称。 */
+  I18N_TARGET_TYPE_BASE_DICT = 3,
+  /** I18N_TARGET_TYPE_BASE_DICT_ITEM - 字典项标签。 */
+  I18N_TARGET_TYPE_BASE_DICT_ITEM = 4,
+  /** I18N_TARGET_TYPE_BASE_MENU - 菜单标题。 */
+  I18N_TARGET_TYPE_BASE_MENU = 5,
 }
 
 /** 翻译单个文本请求。 */
-export interface DraftBaseTranslationRequest {
+export interface DraftBaseI18nRequest {
   /** 待翻译文本 */
   source: string;
   /** 目标语言区域，不传时翻译所有启用的非主语言 */
@@ -32,25 +32,25 @@ export interface DraftBaseTranslationRequest {
 }
 
 /** 翻译单个文本响应。 */
-export interface DraftBaseTranslationResponse {
+export interface DraftBaseI18nResponse {
   /** 翻译结果 */
-  translations: DraftBaseTranslationItem[];
+  i18ns: DraftBaseI18nItem[];
 }
 
 /** 翻译单个文本响应。 */
-export interface DraftBaseTranslationItem {
+export interface DraftBaseI18nItem {
   /** 目标语言区域 */
   locale: string;
   /** 翻译文本 */
-  translation: string;
+  i18n: string;
 }
 
 /** 修改单个翻译信息请求。 */
-export interface UpdateBaseTranslationRequest {
+export interface UpdateBaseI18nRequest {
   /** 翻译记录ID，大于零时优先按ID更新；ID不存在时根据目标信息更新或新增 */
   id: number;
   /** 翻译目标类型，ID为零时用于查询或新增 */
-  target_type: TranslationTargetType;
+  target_type: I18nTargetType;
   /** 目标资源ID，ID为零时用于查询或新增 */
   target_id: number;
   /** 目标语言区域，ID为零时用于查询或新增 */
@@ -64,7 +64,7 @@ export interface BaseI18n {
   /** 翻译记录ID */
   id: number;
   /** 翻译目标类型 */
-  target_type: TranslationTargetType;
+  target_type: I18nTargetType;
   /** 目标资源ID */
   target_id: number;
   /** 语言区域 */
@@ -84,7 +84,7 @@ export interface CodeGenLocaleConfig {
 /** 国际化翻译信息服务。 */
 export interface BaseI18nService {
   /** 翻译单个文本。 */
-  DraftBaseTranslation(request: DraftBaseTranslationRequest): Promise<DraftBaseTranslationResponse>;
+  DraftBaseI18n(request: DraftBaseI18nRequest): Promise<DraftBaseI18nResponse>;
   /** 修改国际化翻译信息 */
-  UpdateBaseTranslation(request: UpdateBaseTranslationRequest): Promise<Empty>;
+  UpdateBaseI18n(request: UpdateBaseI18nRequest): Promise<Empty>;
 }

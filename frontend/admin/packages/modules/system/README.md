@@ -35,7 +35,7 @@ packages/modules/system
 | `src/module.ts`         | 注册 System 页面、AI 顶部入口、个人中心菜单和路由行为。 |
 | `src/ai.ts`             | 定义 AI 流程卡片扩展名称、类型和读取入口。              |
 | `src/components/Ai.vue`                   | System 提供的 AI 顶部工具入口。                              |
-| `src/components/DynamicTranslationCell.vue` | 翻译资源列表单元格，悬停预览当前语言之外的内容。              |
+| `src/components/DynamicI18nCell.vue` | 翻译资源列表单元格，悬停预览当前语言之外的内容。              |
 | `src/rpc/**/*.ts`       | System 页面与 API 自包含的 RPC 类型。                   |
 | `src/typings/*.d.ts`    | 声明 System 页面使用的 Markdown 和 Swagger 模块。       |
 | `package.json`          | 声明依赖以及公开的模块入口、API 和 RPC 子路径。         |

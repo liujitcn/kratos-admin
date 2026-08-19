@@ -1,17 +1,17 @@
 import { getEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
-import type { TranslationTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
+import type { I18nTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 
-/** DynamicTranslationValue 动态资源单语言翻译编辑状态。 */
-export interface DynamicTranslationValue {
+/** DynamicI18nValue 动态资源单语言翻译编辑状态。 */
+export interface DynamicI18nValue {
   /** 语言代码。 */
   locale: string;
   text: string;
   id: number;
 }
 
-/** DynamicTranslationRecord 描述三类动态资源翻译共有字段。 */
-export interface DynamicTranslationRecord extends Omit<DynamicTranslationValue, "text"> {
-  target_type?: TranslationTargetType;
+/** DynamicI18nRecord 描述三类动态资源翻译共有字段。 */
+export interface DynamicI18nRecord extends Omit<DynamicI18nValue, "text"> {
+  target_type?: I18nTargetType;
   target_id?: number;
   name?: string;
   /** 兼容旧接口缓存中的字段名。 */
@@ -40,12 +40,12 @@ export function getLanguageLabel(locale: string): string {
   return language?.native_name || language?.language_name || locale;
 }
 
-/** normalizeDynamicTranslations 将后端翻译记录补齐为全部非主语言编辑状态。 */
-export function normalizeDynamicTranslations(
-  records: DynamicTranslationRecord[] | undefined,
+/** normalizeDynamicI18ns 将后端翻译记录补齐为全部非主语言编辑状态。 */
+export function normalizeDynamicI18ns(
+  records: DynamicI18nRecord[] | undefined,
   _textField: "title" | "name" | "label",
   locales: string[] = getEditableLanguageOptions().map(item => item.value)
-): DynamicTranslationValue[] {
+): DynamicI18nValue[] {
   return locales.map(locale => {
     const record = records?.find(item => item.locale === locale);
     return {
@@ -56,11 +56,11 @@ export function normalizeDynamicTranslations(
   });
 }
 
-/** serializeDynamicTranslations 将编辑状态转换回后端资源翻译结构。 */
-export function serializeDynamicTranslations(
-  values: DynamicTranslationValue[],
-  targetType: TranslationTargetType,
+/** serializeDynamicI18ns 将编辑状态转换回后端资源翻译结构。 */
+export function serializeDynamicI18ns(
+  values: DynamicI18nValue[],
+  targetType: I18nTargetType,
   targetId: number
-): Array<{ id: number; target_type: TranslationTargetType; target_id: number; locale: string; name: string }> {
+): Array<{ id: number; target_type: I18nTargetType; target_id: number; locale: string; name: string }> {
   return values.map(({ id, locale, text }) => ({ id, target_type: targetType, target_id: targetId, locale, name: text }));
 }

@@ -20,9 +20,9 @@
       @confirm="handleSubmit"
       @close="handleCloseDialog"
     >
-      <template #translations>
-        <DynamicTranslationEditor
-          v-model="translationValues"
+      <template #i18ns>
+        <DynamicI18nEditor
+          v-model="i18nValues"
           :source="formData.name"
           :maxlength="50"
         />
@@ -50,17 +50,17 @@ import { loadEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/syst
 import type { BaseDict, BaseDictForm, PageBaseDictRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dict";
 import router, { navigateTo } from "@liujitcn/kratos-admin-core/navigation";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
-import { TranslationTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
+import { I18nTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
-import DynamicTranslationEditor from "@liujitcn/kratos-admin-system/components/DynamicTranslationEditor.vue";
-import DynamicTranslationCell from "@liujitcn/kratos-admin-system/components/DynamicTranslationCell.vue";
+import DynamicI18nEditor from "@liujitcn/kratos-admin-system/components/DynamicI18nEditor.vue";
+import DynamicI18nCell from "@liujitcn/kratos-admin-system/components/DynamicI18nCell.vue";
 import {
-  normalizeDynamicTranslations,
-  serializeDynamicTranslations,
-  type DynamicTranslationRecord,
-  type DynamicTranslationValue
-} from "@liujitcn/kratos-admin-system/components/dynamicTranslation";
+  normalizeDynamicI18ns,
+  serializeDynamicI18ns,
+  type DynamicI18nRecord,
+  type DynamicI18nValue
+} from "@liujitcn/kratos-admin-system/components/dynamicI18n";
 
 defineOptions({
   name: "BaseDict",
@@ -70,7 +70,7 @@ defineOptions({
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
-const translationValues = ref<DynamicTranslationValue[]>(normalizeDynamicTranslations(undefined, "name"));
+const i18nValues = ref<DynamicI18nValue[]>(normalizeDynamicI18ns(undefined, "name"));
 const dialog = reactive({
   editing: false,
   visible: false
@@ -84,7 +84,7 @@ const formData = reactive<BaseDictForm>({
   /** 字典名称 */
   name: "",
   /** 非主语言翻译 */
-  translations: [],
+  i18ns: [],
   /** 状态 */
   status: Status.STATUS_ENABLE
 });
@@ -134,18 +134,18 @@ const formFields = computed<ProFormField[]>(() => [
     component: "input",
     props: { placeholder: t("system.base.dict.placeholder.code") }
   },
-  { prop: "translations", label: t("system.base.translation.field.translations"), component: "slot", slotName: "translations" },
+  { prop: "i18ns", label: t("system.base.i18n.field.i18ns"), component: "slot", slotName: "i18ns" },
   { prop: "status", label: t("common.field.status"), component: "radio-group", options: statusOptions.value }
 ]);
 
 /** 渲染字典名称翻译预览，并复用当前页面的编辑弹窗。 */
 function renderDictNameCell(scope: RenderScope<BaseDict>) {
   const row = scope.row;
-  return h(DynamicTranslationCell, {
+  return h(DynamicI18nCell, {
     source: row.name,
-    targetType: TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_DICT,
+    targetType: I18nTargetType.I18N_TARGET_TYPE_BASE_DICT,
     targetId: row.id,
-    translations: row.translations
+    i18ns: row.i18ns
   });
 }
 
@@ -261,7 +261,7 @@ async function handleOpenDialog(dictId?: number) {
 
   const data = await defBaseDictService.GetBaseDict({ id: dictId });
   Object.assign(formData, data);
-  translationValues.value = normalizeDynamicTranslations(data.translations as DynamicTranslationRecord[], "name");
+  i18nValues.value = normalizeDynamicI18ns(data.i18ns as DynamicI18nRecord[], "name");
 }
 
 /**
@@ -281,9 +281,9 @@ function resetForm() {
   formData.id = 0;
   formData.code = "";
   formData.name = "";
-  formData.translations = [];
+  formData.i18ns = [];
   formData.status = Status.STATUS_ENABLE;
-  translationValues.value = normalizeDynamicTranslations(undefined, "name");
+  i18nValues.value = normalizeDynamicI18ns(undefined, "name");
 }
 
 /**
@@ -294,9 +294,9 @@ function handleSubmit() {
     if (!isValid) return;
 
     const submitData = JSON.parse(JSON.stringify(formData)) as BaseDictForm;
-    submitData.translations = serializeDynamicTranslations(
-      translationValues.value,
-      TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_DICT,
+    submitData.i18ns = serializeDynamicI18ns(
+      i18nValues.value,
+      I18nTargetType.I18N_TARGET_TYPE_BASE_DICT,
       submitData.id
     );
     const request = submitData.id

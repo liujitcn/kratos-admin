@@ -98,7 +98,7 @@
   "system.admin.base.dict.entity.item.value.required": {
     "other": "请输入字典值（不超过50个字符）"
   },
-  "system.admin.base.translation.draft.source.required": {
+  "system.admin.base.i18n.draft.source.required": {
     "other": "待翻译文本不能为空"
   },
   "system.admin.base.job.entity.cron_expression.length": {
@@ -233,7 +233,7 @@
   "system.admin.base.tenant.entity.remark.max_length": {
     "other": "备注不能超过 500 个字符"
   },
-  "system.admin.base.translation.update.target.required": {
+  "system.admin.base.i18n.update.target.required": {
     "other": "ID为零时必须提供完整目标信息"
   },
   "system.admin.base.user.entity.avatar.max_length": {

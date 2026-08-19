@@ -17,7 +17,7 @@
 | `system.profile.*` | 个人资料、安全设置和用户中心导航。 | `src/views/profile/**`、`src/module.ts` 的用户菜单。 |
 | `system.base.*` | 区域、配置、部门、字典、岗位、角色、租户、用户等基础管理页面。 | `src/views/base/**`。 |
 | `system.code.gen.*` | 代码生成配置、预览、列配置和多语言编辑。 | `src/views/tool/code-gen/**`。 |
-| `system.translation.*` | 动态翻译编辑、草稿生成和语言包状态。 | `src/components/DynamicTranslationEditor.vue`、代码生成语言编辑组件。 |
+| `system.i18n.*` | 动态翻译编辑、草稿生成和语言包状态。 | `src/components/DynamicI18nEditor.vue`、代码生成语言编辑组件。 |
 
 语言包由生成的 `generated.ts` 传入 `systemAdminModule.messages`，由 core 的 `registerLocaleMessages` 校验语言键集合、命名空间和占位符后注册到 Vue I18n；业务代码统一使用 `t('system....')` 或 `useLocaleStore()` 读取。
 

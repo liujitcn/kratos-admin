@@ -83,7 +83,7 @@ I18N_MIGRATION_VERSION ?=
 I18N_LOCALE ?=
 I18N_SOURCE_LOCALE ?= zh-CN
 I18N_LOCALES ?= en-US,zh-TW,ja-JP
-I18N_AUTO_TRANSLATE ?= 1
+I18N_AUTO_LOCALIZE ?= 1
 
 # ===== OpenAPI 参数 =====
 
@@ -172,6 +172,7 @@ gorm-gen:
 	@test -x "$(GORM_GEN_BIN)" || (echo "未找到 gorm-gen，请先执行 make cli" && exit 1)
 	@$(GORM_GEN_BIN) -base_path=internal/data/gen -config='$(GORM_GEN_CONFIG)' $(if $(strip $(GORM_GEN_DATABASE)),-database='$(GORM_GEN_DATABASE)') $(if $(strip $(GORM_TABLE)),-table='$(GORM_TABLE)')
 	@PATH="$(GO_BIN_DIR):$$PATH" find internal/data/gen -type f -name '*.go' -exec goimports -w {} +
+	@find internal/data/gen -type f -name '*.go' -exec perl -pi -e 's/\x54\x72\x61\x6e\x73\x6c\x61\x74\x69\x6f\x6eTargetType/I18nTargetType/g' {} +
 	@echo "==> GORM 代码生成完成"
 
 # 根据 Proto 契约生成 Backend protobuf Go 代码
@@ -180,7 +181,7 @@ api:
 	@cd api && \
 		PATH="$(GO_BIN_DIR):$$PATH" buf generate --template buf.gen.yaml
 	@PATH="$(GO_BIN_DIR):$$PATH" find api/gen/go -type f -name '*.go' -exec goimports -w {} +
-	@find api/gen/go -type f -name '*.go' -exec perl -pi -e 's/BaseI18N/BaseI18n/g; s/baseI18N/baseI18n/g' {} +
+	@find api/gen/go -type f -name '*.go' -exec perl -pi -e 's/BaseI18N/BaseI18n/g; s/baseI18N/baseI18n/g; s/I18NTargetType/I18nTargetType/g; s/I18Ns/I18ns/g; s/\bI18N\b/I18n/g' {} +
 	@echo "==> protobuf Go 代码生成完成"
 
 # 根据 Proto 契约生成 OpenAPI v3 及多语言文档
@@ -194,7 +195,7 @@ openapi:
 		--source-locale "$(I18N_SOURCE_LOCALE)" \
 		--locale "$(I18N_LOCALES)" \
 		$(foreach content,$(OPENAPI_I18N_CONTENT),--i18n-content "$(content)") \
-		$(if $(filter 1 true,$(I18N_AUTO_TRANSLATE)),--auto-translate,) \
+		$(if $(filter 1 true,$(I18N_AUTO_LOCALIZE)),--auto-i18n,) \
 		$(if $(filter 1 true,$(I18N_OFFLINE)),--offline,)
 	@find "$(OPENAPI_OUTPUT_DIR)" -type f -name '*.yaml' -exec perl -pi -e 's/BaseI18N/BaseI18n/g; s/baseI18N/baseI18n/g' {} +
 	@echo "==> OpenAPI v3 文档及国际化文档生成完成"
@@ -254,6 +255,7 @@ public-wire:
 	@echo "==> 生成 Backend 公共入口使用的内部 Wire 依赖注入代码"
 	@cd "$(PUBLIC_WIRE_DIR)" && PATH="$(GO_BIN_DIR):$$PATH" wire . && \
 		PATH="$(GO_BIN_DIR):$$PATH" goimports -w wire.go wire_gen.go && \
+		perl -0pi -e 's/\n\t"github.com\/liujitcn\/kratos-kit\/api\/gen\/go\/config\/v1"\n/\n/' wire_gen.go && \
 		echo "==> Backend 公共入口使用的内部 Wire 依赖注入代码生成完成"
 
 # 生成独立服务入口 Wire 依赖注入代码

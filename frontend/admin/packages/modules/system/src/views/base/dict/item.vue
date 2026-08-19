@@ -35,9 +35,9 @@
           </el-radio-group>
         </div>
       </template>
-      <template #translations>
-        <DynamicTranslationEditor
-          v-model="translationValues"
+      <template #i18ns>
+        <DynamicI18nEditor
+          v-model="i18nValues"
           :source="formData.label"
           :maxlength="100"
         />
@@ -69,17 +69,17 @@ import type {
   PageBaseDictItemRequest
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dict";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
-import { TranslationTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
+import { I18nTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
-import DynamicTranslationEditor from "@liujitcn/kratos-admin-system/components/DynamicTranslationEditor.vue";
-import DynamicTranslationCell from "@liujitcn/kratos-admin-system/components/DynamicTranslationCell.vue";
+import DynamicI18nEditor from "@liujitcn/kratos-admin-system/components/DynamicI18nEditor.vue";
+import DynamicI18nCell from "@liujitcn/kratos-admin-system/components/DynamicI18nCell.vue";
 import {
-  normalizeDynamicTranslations,
-  serializeDynamicTranslations,
-  type DynamicTranslationRecord,
-  type DynamicTranslationValue
-} from "@liujitcn/kratos-admin-system/components/dynamicTranslation";
+  normalizeDynamicI18ns,
+  serializeDynamicI18ns,
+  type DynamicI18nRecord,
+  type DynamicI18nValue
+} from "@liujitcn/kratos-admin-system/components/dynamicI18n";
 
 defineOptions({
   name: "BaseDictItem",
@@ -90,7 +90,7 @@ const route = useRoute();
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
-const translationValues = ref<DynamicTranslationValue[]>(normalizeDynamicTranslations(undefined, "label"));
+const i18nValues = ref<DynamicI18nValue[]>(normalizeDynamicI18ns(undefined, "label"));
 
 const dictId = ref(Number(route.query.dictId ?? 0));
 
@@ -109,7 +109,7 @@ const formData = reactive<BaseDictItemForm>({
   /** 字典项标签 */
   label: "",
   /** 非主语言翻译 */
-  translations: [],
+  i18ns: [],
   /** 标签类型 */
   tag_type: "",
   /** 排序 */
@@ -158,10 +158,10 @@ const formFields = computed<ProFormField[]>(() => [
     props: { placeholder: t("system.base.dict.item.placeholder.value") }
   },
   {
-    prop: "translations",
-    label: t("system.base.translation.field.translations"),
+    prop: "i18ns",
+    label: t("system.base.i18n.field.i18ns"),
     component: "slot",
-    slotName: "translations",
+    slotName: "i18ns",
     colSpan: 24
   },
   {
@@ -202,11 +202,11 @@ function renderTagTypeCell(scope: RenderScope<BaseDictItem>) {
 /** 渲染字典项标签翻译预览，并复用当前页面的编辑弹窗。 */
 function renderDictItemLabelCell(scope: RenderScope<BaseDictItem>) {
   const row = scope.row;
-  return h(DynamicTranslationCell, {
+  return h(DynamicI18nCell, {
     source: row.label,
-    targetType: TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM,
+    targetType: I18nTargetType.I18N_TARGET_TYPE_BASE_DICT_ITEM,
     targetId: row.id,
-    translations: row.translations
+    i18ns: row.i18ns
   });
 }
 
@@ -330,7 +330,7 @@ async function handleOpenDialog(dictItemId?: number) {
 
   const data = await defBaseDictService.GetBaseDictItem({ id: dictItemId });
   Object.assign(formData, data);
-  translationValues.value = normalizeDynamicTranslations(data.translations as DynamicTranslationRecord[], "label");
+  i18nValues.value = normalizeDynamicI18ns(data.i18ns as DynamicI18nRecord[], "label");
 }
 
 /**
@@ -351,11 +351,11 @@ function resetForm() {
   formData.dict_id = dictId.value;
   formData.value = "";
   formData.label = "";
-  formData.translations = [];
+  formData.i18ns = [];
   formData.tag_type = "";
   formData.sort = 1;
   formData.status = Status.STATUS_ENABLE;
-  translationValues.value = normalizeDynamicTranslations(undefined, "label");
+  i18nValues.value = normalizeDynamicI18ns(undefined, "label");
 }
 
 /**
@@ -367,9 +367,9 @@ function handleSubmit() {
 
     formData.dict_id = dictId.value;
     const submitData = JSON.parse(JSON.stringify(formData)) as BaseDictItemForm;
-    submitData.translations = serializeDynamicTranslations(
-      translationValues.value,
-      TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM,
+    submitData.i18ns = serializeDynamicI18ns(
+      i18nValues.value,
+      I18nTargetType.I18N_TARGET_TYPE_BASE_DICT_ITEM,
       submitData.id
     );
     const request = submitData.id

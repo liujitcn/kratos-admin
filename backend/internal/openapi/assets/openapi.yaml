@@ -1097,6 +1097,41 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/i18n:
+        put:
+            tags:
+                - BaseI18nService
+            description: 修改国际化翻译信息
+            operationId: BaseI18nService_UpdateBaseI18n
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.UpdateBaseI18nRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/i18n/draft:
+        post:
+            tags:
+                - BaseI18nService
+            description: 翻译单个文本。
+            operationId: BaseI18nService_DraftBaseI18n
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.DraftBaseI18nRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.DraftBaseI18nResponse'
     /api/v1/admin/base/job:
         get:
             tags:
@@ -2198,41 +2233,6 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/v1/admin/base/translation:
-        put:
-            tags:
-                - BaseI18nService
-            description: 修改国际化翻译信息
-            operationId: BaseI18nService_UpdateBaseTranslation
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/system.admin.v1.UpdateBaseTranslationRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-    /api/v1/admin/base/translation/draft:
-        post:
-            tags:
-                - BaseI18nService
-            description: 翻译单个文本。
-            operationId: BaseI18nService_DraftBaseTranslation
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/system.admin.v1.DraftBaseTranslationRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.DraftBaseTranslationResponse'
     /api/v1/admin/base/user:
         get:
             tags:
@@ -4945,7 +4945,7 @@ components:
                 updated_at:
                     type: string
                     description: 更新时间
-                translations:
+                i18ns:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseI18n'
@@ -4986,12 +4986,12 @@ components:
                 value:
                     type: string
                     description: 配置value
-                name_translations:
+                name_i18ns:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseI18n'
                     description: 配置名称多语言翻
-                value_translations:
+                value_i18ns:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseI18n'
@@ -5107,7 +5107,7 @@ components:
                 updated_at:
                     type: string
                     description: 更新时间
-                translations:
+                i18ns:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseI18n'
@@ -5125,7 +5125,7 @@ components:
                 name:
                     type: string
                     description: 字典名称
-                translations:
+                i18ns:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseI18n'
@@ -5175,7 +5175,7 @@ components:
                 updated_at:
                     type: string
                     description: 更新时间
-                translations:
+                i18ns:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseI18n'
@@ -5203,7 +5203,7 @@ components:
                     type: integer
                     description: 排序
                     format: int32
-                translations:
+                i18ns:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseI18n'
@@ -5225,14 +5225,14 @@ components:
                     description: 主键ID
                 target_type:
                     enum:
-                        - TRANSLATION_TARGET_TYPE_UNSPECIFIED
-                        - TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE
-                        - TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME
-                        - TRANSLATION_TARGET_TYPE_BASE_DICT
-                        - TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM
-                        - TRANSLATION_TARGET_TYPE_BASE_MENU
+                        - I18N_TARGET_TYPE_UNSPECIFIED
+                        - I18N_TARGET_TYPE_BASE_CONFIG_VALUE
+                        - I18N_TARGET_TYPE_BASE_CONFIG_NAME
+                        - I18N_TARGET_TYPE_BASE_DICT
+                        - I18N_TARGET_TYPE_BASE_DICT_ITEM
+                        - I18N_TARGET_TYPE_BASE_MENU
                     type: string
-                    description: 目标类型：枚举【TranslationTargetType】
+                    description: 目标类型：枚举【I18nTargetType】
                     format: enum
                 target_id:
                     type: string
@@ -5563,7 +5563,7 @@ components:
                 has_children:
                     type: boolean
                     description: 是否存在子节点
-                translations:
+                i18ns:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseI18n'
@@ -5623,7 +5623,7 @@ components:
                     items:
                         type: string
                     description: 分配的API列表
-                translations:
+                i18ns:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseI18n'
@@ -6625,17 +6625,17 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.CodeGenTaskStep'
                     description: 生成步骤列表
             description: 单个生成对象任务进度
-        system.admin.v1.DraftBaseTranslationItem:
+        system.admin.v1.DraftBaseI18nItem:
             type: object
             properties:
                 locale:
                     type: string
                     description: 目标语言区域
-                translation:
+                i18n:
                     type: string
                     description: 翻译文本
             description: 翻译单个文本响应。
-        system.admin.v1.DraftBaseTranslationRequest:
+        system.admin.v1.DraftBaseI18nRequest:
             type: object
             properties:
                 source:
@@ -6645,13 +6645,13 @@ components:
                     type: string
                     description: 目标语言区域，不传时翻译所有启用的非主语言
             description: 翻译单个文本请求。
-        system.admin.v1.DraftBaseTranslationResponse:
+        system.admin.v1.DraftBaseI18nResponse:
             type: object
             properties:
-                translations:
+                i18ns:
                     type: array
                     items:
-                        $ref: '#/components/schemas/system.admin.v1.DraftBaseTranslationItem'
+                        $ref: '#/components/schemas/system.admin.v1.DraftBaseI18nItem'
                     description: 翻译结果
             description: 翻译单个文本响应。
         system.admin.v1.ExecuteBaseJobRequest:
@@ -7333,7 +7333,7 @@ components:
                     description: 预览文件列表
                 output_paths:
                     $ref: '#/components/schemas/system.admin.v1.CodeGenOutputPaths'
-                missing_translations:
+                missing_i18ns:
                     type: array
                     items:
                         type: string
@@ -7881,7 +7881,7 @@ components:
                     description: Agent工具状态：枚举【Status】
                     format: enum
             description: API更新条件
-        system.admin.v1.UpdateBaseTranslationRequest:
+        system.admin.v1.UpdateBaseI18nRequest:
             type: object
             properties:
                 id:
@@ -7889,12 +7889,12 @@ components:
                     description: 翻译记录ID，大于零时优先按ID更新；ID不存在时根据目标信息更新或新增
                 target_type:
                     enum:
-                        - TRANSLATION_TARGET_TYPE_UNSPECIFIED
-                        - TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE
-                        - TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME
-                        - TRANSLATION_TARGET_TYPE_BASE_DICT
-                        - TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM
-                        - TRANSLATION_TARGET_TYPE_BASE_MENU
+                        - I18N_TARGET_TYPE_UNSPECIFIED
+                        - I18N_TARGET_TYPE_BASE_CONFIG_VALUE
+                        - I18N_TARGET_TYPE_BASE_CONFIG_NAME
+                        - I18N_TARGET_TYPE_BASE_DICT
+                        - I18N_TARGET_TYPE_BASE_DICT_ITEM
+                        - I18N_TARGET_TYPE_BASE_MENU
                     type: string
                     description: 翻译目标类型，ID为零时用于查询或新增
                     format: enum

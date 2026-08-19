@@ -28,7 +28,7 @@ JSON_SOURCES = [
     ROOT / "frontend/taro-app/packages/modules/system/src/locales/zh-CN.json",
 ]
 DEFAULT_TARGET_LOCALES = ("zh-TW",)
-FALLBACK_TRANSLATIONS = {
+FALLBACK_I18NS = {
     "ja": {
         "Language Management": "言語管理",
         "Add Language": "言語を追加",
@@ -132,7 +132,7 @@ FALLBACK_TRANSLATIONS = {
 }
 
 # 迁移脚本以 default_data.up.sql 的中文主数据为源；网络不可用时使用这组固定译文。
-SQL_FIXED_TRANSLATIONS = {
+SQL_FIXED_I18NS = {
     "ja": {
         "Copyright © 2025 - 2030 Admin All Rights Reserved.": "著作権 © 2025 - 2030 Admin All Rights Reserved.",
         "Admin 管理系统": "Admin 管理システム",
@@ -492,7 +492,7 @@ SQL_MENU_NOUNS = {
 }
 
 
-def translate_sql_menu(text: str, target: str) -> str:
+def i18n_sql_menu(text: str, target: str) -> str:
     """按中文菜单源文生成稳定的菜单译文。"""
     if target not in SQL_MENU_CATEGORIES:
         return fallback_translate(text, target)
@@ -556,13 +556,13 @@ def translate_sql_menu(text: str, target: str) -> str:
 
 def fallback_sql_translate(text: str, target: str) -> str:
     """翻译 SQL 固定数据，优先完整短语，再处理菜单规则。"""
-    fixed = SQL_FIXED_TRANSLATIONS.get(target, {})
+    fixed = SQL_FIXED_I18NS.get(target, {})
     if text in fixed:
         return fixed[text]
     if text in SQL_MENU_CATEGORIES.get(target, {}) or text in SQL_MENU_NOUNS.get(target, {}):
-        return translate_sql_menu(text, target)
+        return i18n_sql_menu(text, target)
     if text.startswith(("首页", "AI助手", "个人信息", "系统", "菜单", "字典", "新增", "删除", "编辑", "修改", "启动", "停止", "执行", "查询", "设置", "刷新", "重置", "维护", "预览", "还原", "分配")):
-        translated = translate_sql_menu(text, target)
+        translated = i18n_sql_menu(text, target)
         if translated != text:
             return translated
     return fallback_translate(text, target)
@@ -629,17 +629,17 @@ def has_expected_placeholders(text: str, protected: dict[str, str]) -> bool:
 def fallback_translate(text: str, target: str) -> str:
     """使用内置术语表生成无网络环境下的可读语言草稿。"""
     protected, values = protect_text(text, 0)
-    replacements = FALLBACK_TRANSLATIONS.get(target, {})
+    replacements = FALLBACK_I18NS.get(target, {})
     for source, translated in sorted(replacements.items(), key=lambda item: len(item[0]), reverse=True):
         protected = re.sub(re.escape(source), translated, protected, flags=re.IGNORECASE)
     return restore_text(protected, values)
 
 
-def google_translate(text: str, source: str, target: str) -> str:
+def request_i18n(text: str, source: str, target: str) -> str:
     query = urllib.parse.urlencode(
         [("client", "gtx"), ("sl", source), ("tl", target), ("dt", "t"), ("q", text)]
     )
-    endpoint = os.environ.get("I18N_TRANSLATE_ENDPOINT", "http://translate.googleapis.com/translate_a/single")
+    endpoint = os.environ.get("I18N_ENDPOINT", "http://translate.googleapis.com/translate_a/single")
     request = urllib.request.Request(
         f"{endpoint}?{query}",
         headers={"User-Agent": "kratos-admin-i18n/1.0", "Connection": "close"},
@@ -656,7 +656,7 @@ def google_translate(text: str, source: str, target: str) -> str:
     raise RuntimeError(f"Google V1 翻译失败（{source}->{target}）：{last_error}")
 
 
-def translate_batch(texts: list[str], source: str, target: str, offline: bool = False) -> list[str]:
+def i18n_batch(texts: list[str], source: str, target: str, offline: bool = False) -> list[str]:
     if offline:
         return [fallback_translate(text, target) for text in texts]
     results: list[str] = []
@@ -675,7 +675,7 @@ def translate_batch(texts: list[str], source: str, target: str, offline: bool = 
             return
         source_text = "\n".join(f"__KRATOS_ENTRY_{index:04d}__ {value}" for index, (value, _) in enumerate(chunk))
         try:
-            translated = google_translate(source_text, source, target)
+            translated = request_i18n(source_text, source, target)
         except RuntimeError:
             provider_available = False
             results.extend(fallback_translate(restore_text(value, protected), target) for value, protected in chunk)
@@ -691,14 +691,14 @@ def translate_batch(texts: list[str], source: str, target: str, offline: bool = 
             result = translated_by_index.get(index)
             if result is None:
                 try:
-                    result = google_translate(chunk[index][0], source, target)
+                    result = request_i18n(chunk[index][0], source, target)
                 except RuntimeError:
                     provider_available = False
                     result = fallback_translate(restore_text(chunk[index][0], protected), target)
             result = restore_text(result, protected)
             if not has_expected_placeholders(result, protected) and provider_available:
                 try:
-                    result = restore_text(google_translate(chunk[index][0], source, target), protected)
+                    result = restore_text(request_i18n(chunk[index][0], source, target), protected)
                 except RuntimeError:
                     provider_available = False
             if not has_expected_placeholders(result, protected):
@@ -750,7 +750,7 @@ def generate_json(source: Path, locale: str, converter, machine: bool, offline: 
         source_values: list[str] = []
         collect_strings(source_data, source_values)
         translated = (
-            translate_batch(source_values, "zh-CN", locale.split("-")[0], offline)
+            i18n_batch(source_values, "zh-CN", locale.split("-")[0], offline)
             if machine or offline
             else source_values
         )
@@ -796,7 +796,7 @@ def parse_sql_values(line: str) -> list[str | None] | None:
     return values
 
 
-def translation_record(line: str) -> tuple[int, int, str, str] | None:
+def i18n_record(line: str) -> tuple[int, int, str, str] | None:
     """读取统一翻译表 INSERT，返回目标类型、资源编号、语言和文本。"""
     table_match = re.search(r"INSERT IGNORE INTO `([^`]+)`", line)
     values = parse_sql_values(line)
@@ -808,7 +808,7 @@ def translation_record(line: str) -> tuple[int, int, str, str] | None:
         return None
 
 
-def parse_primary_translation_sources(default_data: Path) -> dict[tuple[int, int], str]:
+def parse_primary_i18n_sources(default_data: Path) -> dict[tuple[int, int], str]:
     """从主数据 SQL 提取统一翻译表各目标类型对应的简体中文源文。"""
     sources: dict[tuple[int, int], str] = {}
     for line in default_data.read_text(encoding="utf-8").splitlines():
@@ -838,15 +838,15 @@ def parse_primary_translation_sources(default_data: Path) -> dict[tuple[int, int
     return sources
 
 
-def extract_translation(line: str, locale: str = "en-US") -> str:
-    record = translation_record(line)
+def extract_i18n(line: str, locale: str = "en-US") -> str:
+    record = i18n_record(line)
     return record[3] if record and record[2] == locale else ""
 
 
-def replace_translation(line: str, locale: str, translated: str) -> str:
+def replace_i18n(line: str, locale: str, translated: str) -> str:
     if "INSERT IGNORE INTO" not in line:
         return line.replace("en-US", locale)
-    record = translation_record(line)
+    record = i18n_record(line)
     if not record:
         return line
     target_type, target_id, _, _ = record
@@ -858,13 +858,13 @@ def replace_translation(line: str, locale: str, translated: str) -> str:
 
 
 def generate_sql(locale: str, converter, machine: bool, offline: bool, write: bool, sql_directory: Path) -> None:
-    source = SQL_DIR / "translation.en-US.up.sql"
-    target = sql_directory / f"translation.{locale}.up.sql"
-    primary_sources = parse_primary_translation_sources(SQL_DIR / "default_data.up.sql")
+    source = SQL_DIR / "i18n.en-US.up.sql"
+    target = sql_directory / f"i18n.{locale}.up.sql"
+    primary_sources = parse_primary_i18n_sources(SQL_DIR / "default_data.up.sql")
     lines = source.read_text(encoding="utf-8").splitlines()
     values = []
     for line in lines:
-        record = translation_record(line)
+        record = i18n_record(line)
         if record:
             values.append(primary_sources.get((record[0], record[1]), ""))
         else:
@@ -874,12 +874,12 @@ def generate_sql(locale: str, converter, machine: bool, offline: bool, write: bo
         if locale == "zh-TW"
         else [fallback_sql_translate(value, locale.split("-")[0]) for value in values]
         if offline
-        else translate_batch(values, "zh-CN", locale.split("-")[0], False)
+        else i18n_batch(values, "zh-CN", locale.split("-")[0], False)
         if machine or offline
         else values
     )
     generated = [
-        replace_translation(line, locale, converter.convert(translated[index]) if locale == "zh-TW" else translated[index])
+        replace_i18n(line, locale, converter.convert(translated[index]) if locale == "zh-TW" else translated[index])
         if "INSERT IGNORE INTO" in line
         else line.replace("en-US", locale)
         for index, line in enumerate(lines)
@@ -888,7 +888,7 @@ def generate_sql(locale: str, converter, machine: bool, offline: bool, write: bo
         target.write_text("\n".join(generated) + "\n", encoding="utf-8")
 
 
-def render_translation_description(locale: str) -> str:
+def render_i18n_description(locale: str) -> str:
     return (
         f"由 `scripts/generate_locale_drafts.py` 生成的 {locale} 动态资源翻译草稿。\n\n"
         "迁移只写入非空固定译文，已有统一表记录不会被覆盖；运行时仅在记录为空时补充机器译文。\n"
@@ -934,8 +934,8 @@ def main() -> int:
                 generate_json(source, locale, converter, args.machine, args.offline, args.write)
         generate_sql(locale, converter, args.machine, args.offline, args.write, sql_directory)
         if args.migration_version and args.write:
-            (sql_directory / f"translation.{locale}.description.md").write_text(
-                render_translation_description(locale), encoding="utf-8"
+            (sql_directory / f"i18n.{locale}.description.md").write_text(
+                render_i18n_description(locale), encoding="utf-8"
             )
     action = "已生成" if args.write else "可生成"
     artifact = "迁移数据" if args.sql_only else "语言包和迁移数据"

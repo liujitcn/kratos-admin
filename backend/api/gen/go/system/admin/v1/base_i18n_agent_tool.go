@@ -18,45 +18,45 @@ import (
 func NewBaseI18nServiceAgentTools(baseI18nServiceServer BaseI18nServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var draftBaseTranslationTool tool.InvokableTool
-	draftBaseTranslationTool, err = NewBaseI18nServiceDraftBaseTranslationAgentTool(baseI18nServiceServer)
+	var draftBaseI18nTool tool.InvokableTool
+	draftBaseI18nTool, err = NewBaseI18nServiceDraftBaseI18nAgentTool(baseI18nServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, draftBaseTranslationTool)
-	var updateBaseTranslationTool tool.InvokableTool
-	updateBaseTranslationTool, err = NewBaseI18nServiceUpdateBaseTranslationAgentTool(baseI18nServiceServer)
+	ts = append(ts, draftBaseI18nTool)
+	var updateBaseI18nTool tool.InvokableTool
+	updateBaseI18nTool, err = NewBaseI18nServiceUpdateBaseI18nAgentTool(baseI18nServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, updateBaseTranslationTool)
+	ts = append(ts, updateBaseI18nTool)
 	return ts, nil
 }
 
-// NewBaseI18nServiceDraftBaseTranslationAgentTool 创建翻译单个文本的 Agent Tool。
-func NewBaseI18nServiceDraftBaseTranslationAgentTool(baseI18nServiceServer BaseI18nServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*DraftBaseTranslationRequest, *DraftBaseTranslationResponse](
-		"system_admin_v1_base_i18_n_service_draft_base_translation",
+// NewBaseI18nServiceDraftBaseI18nAgentTool 创建翻译单个文本的 Agent Tool。
+func NewBaseI18nServiceDraftBaseI18nAgentTool(baseI18nServiceServer BaseI18nServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DraftBaseI18nRequest, *DraftBaseI18nResponse](
+		"system_admin_v1_base_i18_n_service_draft_base_i18_n",
 		"翻译单个文本。",
-		func(ctx context.Context, req *DraftBaseTranslationRequest) (*DraftBaseTranslationResponse, error) {
+		func(ctx context.Context, req *DraftBaseI18nRequest) (*DraftBaseI18nResponse, error) {
 			if req == nil {
-				req = &DraftBaseTranslationRequest{}
+				req = &DraftBaseI18nRequest{}
 			}
-			return baseI18nServiceServer.DraftBaseTranslation(ctx, req)
+			return baseI18nServiceServer.DraftBaseI18n(ctx, req)
 		},
 	)
 }
 
-// NewBaseI18nServiceUpdateBaseTranslationAgentTool 创建修改国际化翻译信息的 Agent Tool。
-func NewBaseI18nServiceUpdateBaseTranslationAgentTool(baseI18nServiceServer BaseI18nServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*UpdateBaseTranslationRequest, *emptypb.Empty](
-		"system_admin_v1_base_i18_n_service_update_base_translation",
+// NewBaseI18nServiceUpdateBaseI18nAgentTool 创建修改国际化翻译信息的 Agent Tool。
+func NewBaseI18nServiceUpdateBaseI18nAgentTool(baseI18nServiceServer BaseI18nServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateBaseI18nRequest, *emptypb.Empty](
+		"system_admin_v1_base_i18_n_service_update_base_i18_n",
 		"修改国际化翻译信息",
-		func(ctx context.Context, req *UpdateBaseTranslationRequest) (*emptypb.Empty, error) {
+		func(ctx context.Context, req *UpdateBaseI18nRequest) (*emptypb.Empty, error) {
 			if req == nil {
-				req = &UpdateBaseTranslationRequest{}
+				req = &UpdateBaseI18nRequest{}
 			}
-			return baseI18nServiceServer.UpdateBaseTranslation(ctx, req)
+			return baseI18nServiceServer.UpdateBaseI18n(ctx, req)
 		},
 	)
 }

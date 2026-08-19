@@ -50,7 +50,7 @@ func RenderGeneratedMenuSQL(table *Table, columns []*CodeGenColumn, methods []*P
 	builder.WriteString(" OR `component` = ")
 	builder.WriteString(sqlString(page.Component))
 	builder.WriteString(") ORDER BY `id` LIMIT 1);\n")
-	writeMenuTranslationSQL(&builder, "@codegen_page_menu_id", pageSpec, localeState)
+	writeMenuI18nSQL(&builder, "@codegen_page_menu_id", pageSpec, localeState)
 	for index, buttonSpec := range buttonSpecs {
 		button := buttonSpec.Menu
 		varName := fmt.Sprintf("@codegen_button_menu_id_%d", index+1)
@@ -62,23 +62,23 @@ func RenderGeneratedMenuSQL(table *Table, columns []*CodeGenColumn, methods []*P
 		builder.WriteString(" OR `api` = ")
 		builder.WriteString(sqlString(button.API))
 		builder.WriteString(") ORDER BY `id` LIMIT 1);\n")
-		writeMenuTranslationSQL(&builder, varName, buttonSpec, localeState)
+		writeMenuI18nSQL(&builder, varName, buttonSpec, localeState)
 	}
 	writeStaleStatusMenuSQL(&builder, table, buttonSpecs)
 	builder.WriteString("\n-- 代码生成菜单权限脚本结束。\n")
 	return builder.String()
 }
 
-// writeMenuTranslationSQL 写入启用的非主语言菜单译文，已有记录一律保留。
-func writeMenuTranslationSQL(builder *strings.Builder, menuIDExpression string, spec CodeGenMenuSpec, localeState LocaleState) {
-	for _, localeValue := range RequiredTranslationLocales(localeState) {
-		title := spec.Translations[localeValue]
+// writeMenuI18nSQL 写入启用的非主语言菜单译文，已有记录一律保留。
+func writeMenuI18nSQL(builder *strings.Builder, menuIDExpression string, spec CodeGenMenuSpec, localeState LocaleState) {
+	for _, localeValue := range RequiredI18nLocales(localeState) {
+		title := spec.I18ns[localeValue]
 		if title == "" {
 			continue
 		}
 		builder.WriteString("INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`)\n")
 		builder.WriteString("SELECT ")
-		builder.WriteString(strconv.FormatInt(int64(_const.TRANSLATION_TARGET_TYPE_BASE_MENU), 10))
+		builder.WriteString(strconv.FormatInt(int64(_const.I18N_TARGET_TYPE_BASE_MENU), 10))
 		builder.WriteString(", ")
 		builder.WriteString(menuIDExpression)
 		builder.WriteString(", ")
@@ -91,7 +91,7 @@ func writeMenuTranslationSQL(builder *strings.Builder, menuIDExpression string, 
 		builder.WriteString(" IS NOT NULL AND EXISTS (SELECT 1 FROM `base_language` WHERE `language_code` = ")
 		builder.WriteString(sqlString(localeValue))
 		builder.WriteString(" AND `is_primary` = 0 AND `status` = 1 AND `deleted_at` = 0) AND NOT EXISTS (SELECT 1 FROM `base_i18n` WHERE `target_type` = ")
-		builder.WriteString(strconv.FormatInt(int64(_const.TRANSLATION_TARGET_TYPE_BASE_MENU), 10))
+		builder.WriteString(strconv.FormatInt(int64(_const.I18N_TARGET_TYPE_BASE_MENU), 10))
 		builder.WriteString(" AND `target_id` = ")
 		builder.WriteString(menuIDExpression)
 		builder.WriteString(" AND `locale` = ")

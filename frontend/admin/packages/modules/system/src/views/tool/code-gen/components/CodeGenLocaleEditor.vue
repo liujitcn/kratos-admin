@@ -35,7 +35,7 @@
           :disabled="!canTranslate(locale.value, 'comment', sourceComment)"
           @click="handleTranslate(locale.value, 'comment', sourceComment, locale.label)"
         >
-          {{ t("system.base.translation.action.translate") }}
+          {{ t("system.base.i18n.action.translate") }}
         </el-button>
       </div>
       <div v-if="showLeftTreeComment" class="code-gen-locale-editor__control">
@@ -56,7 +56,7 @@
           :disabled="!canTranslate(locale.value, 'left_tree_comment', sourceLeftTreeComment)"
           @click="handleTranslate(locale.value, 'left_tree_comment', sourceLeftTreeComment, locale.label)"
         >
-          {{ t("system.base.translation.action.translate") }}
+          {{ t("system.base.i18n.action.translate") }}
         </el-button>
       </div>
     </div>
@@ -140,13 +140,13 @@ async function handleTranslate(locale: string, field: keyof CodeGenLocaleConfig,
   if (!canTranslate(locale, field, source)) return;
   translatingField.value = `${locale}:${field}`;
   try {
-    const response = await defBaseI18nService.DraftBaseTranslation({ source, locale });
-    const translation = response.translations.find(item => item.locale === locale)?.translation;
-    if (!translation) throw new Error("translation not found");
-    updateLocale(locale, field, translation);
-    ElMessage.success(t("system.base.translation.message.translate_success", { language }));
+    const response = await defBaseI18nService.DraftBaseI18n({ source, locale });
+    const i18n = response.i18ns.find(item => item.locale === locale)?.i18n;
+    if (!i18n) throw new Error("i18n not found");
+    updateLocale(locale, field, i18n);
+    ElMessage.success(t("system.base.i18n.message.translate_success", { language }));
   } catch {
-    ElMessage.error(t("system.base.translation.message.translate_failed", { language }));
+    ElMessage.error(t("system.base.i18n.message.translate_failed", { language }));
   } finally {
     translatingField.value = "";
   }

@@ -98,7 +98,7 @@
   "system.admin.base.dict.entity.item.value.required": {
     "other": "Please enter a dictionary value (no more than 50 characters)"
   },
-  "system.admin.base.translation.draft.source.required": {
+  "system.admin.base.i18n.draft.source.required": {
     "other": "Source text cannot be empty"
   },
   "system.admin.base.job.entity.cron_expression.length": {
@@ -233,7 +233,7 @@
   "system.admin.base.tenant.entity.remark.max_length": {
     "other": "Comments cannot exceed 500 characters"
   },
-  "system.admin.base.translation.update.target.required": {
+  "system.admin.base.i18n.update.target.required": {
     "other": "Complete target information is required when the ID is zero"
   },
   "system.admin.base.user.entity.avatar.max_length": {

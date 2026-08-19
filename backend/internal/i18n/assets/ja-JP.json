@@ -98,7 +98,7 @@
   "system.admin.base.dict.entity.item.value.required": {
     "other": "辞書の値を入力してください (50 文字以内)"
   },
-  "system.admin.base.translation.draft.source.required": {
+  "system.admin.base.i18n.draft.source.required": {
     "other": "翻訳するテキストを空にすることはできません"
   },
   "system.admin.base.job.entity.cron_expression.length": {
@@ -233,7 +233,7 @@
   "system.admin.base.tenant.entity.remark.max_length": {
     "other": "注は 500 文字を超えることはできません"
   },
-  "system.admin.base.translation.update.target.required": {
+  "system.admin.base.i18n.update.target.required": {
     "other": "ID がゼロの場合は、完全なターゲット情報を提供する必要があります"
   },
   "system.admin.base.user.entity.avatar.max_length": {

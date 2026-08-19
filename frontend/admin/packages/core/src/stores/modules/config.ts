@@ -6,7 +6,7 @@ import defaultLogoUrl from "@/assets/images/logo.svg";
 import defaultBackgroundUrl from "@/assets/images/login_left.png";
 
 const CAPTCHA_TYPE_KEY = "captchaType";
-const TRANSLATION_DRAFT_ENABLED_KEY = "i18n.translation_draft.enabled";
+const I18N_DRAFT_ENABLED_KEY = "i18n.draft.enabled";
 
 const DEFAULT_SITE_DISPLAY_CONFIG: SiteDisplayConfig = {
   sysName: "Admin",
@@ -78,7 +78,7 @@ export const useConfigStore = defineStore("admin-config", {
   state: (): SiteConfigState => ({
     display: { ...DEFAULT_SITE_DISPLAY_CONFIG },
     captcha: { ...DEFAULT_LOGIN_CAPTCHA_CONFIG },
-    translationDraftEnabled: false
+    i18nDraftEnabled: false
   }),
   getters: {},
   actions: {
@@ -103,7 +103,7 @@ export const useConfigStore = defineStore("admin-config", {
     resetDisplayConfig() {
       this.display = { ...DEFAULT_SITE_DISPLAY_CONFIG };
       this.captcha = { ...DEFAULT_LOGIN_CAPTCHA_CONFIG };
-      this.translationDraftEnabled = false;
+      this.i18nDraftEnabled = false;
     },
     /**
      * 加载管理端站点配置，并以服务端返回值覆盖本地默认值。
@@ -116,7 +116,7 @@ export const useConfigStore = defineStore("admin-config", {
 
       this.setDisplayConfig(normalizeSiteDisplayConfig(configMap));
       this.setLoginCaptchaConfig(normalizeLoginCaptchaConfig(configMap));
-      this.translationDraftEnabled = configMap[TRANSLATION_DRAFT_ENABLED_KEY] === "true";
+      this.i18nDraftEnabled = configMap[I18N_DRAFT_ENABLED_KEY] === "true";
       return this.display;
     }
   }

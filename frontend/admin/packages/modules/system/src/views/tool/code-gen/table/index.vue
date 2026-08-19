@@ -212,7 +212,7 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "i18n_config",
-    label: t("system.code.gen.i18n.field.translations"),
+    label: t("system.code.gen.i18n.field.i18ns"),
     component: "slot",
     slotName: "tableI18nConfig",
     colSpan: 24,
@@ -589,7 +589,7 @@ async function handleGenerate(selected: CodeGenGenerateTarget) {
     return;
   }
   generating.value = true;
-  let missingTranslations: string[] = [];
+  let missingI18ns: string[] = [];
   try {
     const previewEntries = await Promise.all(
       tables.map(async table => ({
@@ -597,17 +597,17 @@ async function handleGenerate(selected: CodeGenGenerateTarget) {
         preview: await defCodeGenService.PreviewCodeGen({ table_id: table.id, output_paths: undefined })
       }))
     );
-    missingTranslations = previewEntries.flatMap(({ table, preview }) =>
-      (preview.missing_translations ?? []).map(item => (tables.length === 1 ? item : `${table.name}: ${item}`))
+    missingI18ns = previewEntries.flatMap(({ table, preview }) =>
+      (preview.missing_i18ns ?? []).map(item => (tables.length === 1 ? item : `${table.name}: ${item}`))
     );
   } finally {
     generating.value = false;
   }
-  if (missingTranslations.length) {
+  if (missingI18ns.length) {
     try {
       await ElMessageBox.alert(
-        t("system.code.gen.preview.message.missing_translations", {
-          items: missingTranslations.join(t("system.code.gen.preview.value.list_separator"))
+        t("system.code.gen.preview.message.missing_i18ns", {
+          items: missingI18ns.join(t("system.code.gen.preview.value.list_separator"))
         }),
         t("common.title.warning"),
         {

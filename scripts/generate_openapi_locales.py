@@ -11,11 +11,11 @@ from pathlib import Path
 from typing import Any
 
 from generate_locale_drafts import (
-    google_translate,
+    request_i18n,
     load_opencc,
     protect_text,
     restore_text,
-    translate_batch,
+    i18n_batch,
 )
 
 
@@ -193,38 +193,38 @@ def load_content(catalog: LocaleCatalog, spec: str) -> None:
         raise ValueError(f"{source}: {error}") from error
 
 
-def register_translation(
-    translations: dict[str, str], source: str, target: str
+def register_i18n(
+    i18ns: dict[str, str], source: str, target: str
 ) -> None:
     if not source or not target or source == target:
         return
-    current = translations.get(source)
+    current = i18ns.get(source)
     if current is None or current == source:
-        translations[source] = target
+        i18ns[source] = target
 
 
-def build_translations(
+def build_i18ns(
     catalog: LocaleCatalog,
     source_locale: str,
     target_locale: str,
     source_values: set[str],
 ) -> dict[str, str]:
-    translations: dict[str, str] = {}
+    i18ns: dict[str, str] = {}
     source_messages = catalog.messages.get(source_locale, {})
     target_messages = catalog.messages.get(target_locale, {})
     for key in sorted(set(source_messages) & set(target_messages)):
-        register_translation(translations, source_messages[key], target_messages[key])
+        register_i18n(i18ns, source_messages[key], target_messages[key])
     for source, target in sorted(catalog.direct.get(target_locale, {}).items()):
         if source in source_values:
-            register_translation(translations, source, target)
+            register_i18n(i18ns, source, target)
     for source in sorted(source_values):
         target = target_messages.get(source)
         if target:
-            register_translation(translations, source, target)
-    return translations
+            register_i18n(i18ns, source, target)
+    return i18ns
 
 
-def automatic_translations(
+def automatic_i18ns(
     source_values: set[str],
     existing: dict[str, str],
     source_locale: str,
@@ -239,7 +239,7 @@ def automatic_translations(
         converter = load_opencc()
         translated = [converter.convert(value) for value in pending]
     else:
-        translated = translate_batch(
+        translated = i18n_batch(
             pending,
             source_locale.split("-", 1)[0],
             target_locale.split("-", 1)[0],
@@ -256,7 +256,7 @@ def automatic_translations(
                 for source in retry_sources:
                     protected, protected_values = protect_text(source, 0)
                     try:
-                        retry = google_translate(
+                        retry = request_i18n(
                             protected,
                             source_locale.split("-", 1)[0],
                             target_locale.split("-", 1)[0],
@@ -339,7 +339,7 @@ def source_values(document: str) -> set[str]:
     return values
 
 
-def localize_document(document: str, translations: dict[str, str]) -> tuple[str, int]:
+def localize_document(document: str, i18ns: dict[str, str]) -> tuple[str, int]:
     changed = 0
     lines: list[str] = []
     for line in document.splitlines(keepends=True):
@@ -348,7 +348,7 @@ def localize_document(document: str, translations: dict[str, str]) -> tuple[str,
             lines.append(line)
             continue
         source = parse_scalar(match.group("value"))
-        target = translations.get(source or "")
+        target = i18ns.get(source or "")
         if not target:
             lines.append(line)
             continue
@@ -394,7 +394,7 @@ def main() -> int:
         help="国际化目录、JSON 文件或 语言=路径/JSON；可重复传入",
     )
     parser.add_argument(
-        "--auto-translate",
+        "--auto-i18n",
         "--machine",
         dest="auto_translate",
         action="store_true",
@@ -421,27 +421,27 @@ def main() -> int:
         values = source_values(document)
         output_dir.mkdir(parents=True, exist_ok=True)
         for locale in locales:
-            translations = build_translations(catalog, args.source_locale, locale, values)
+            i18ns = build_i18ns(catalog, args.source_locale, locale, values)
             auto_translated = 0
             untranslated = 0
             if args.auto_translate or args.offline:
-                generated, untranslated = automatic_translations(
+                generated, untranslated = automatic_i18ns(
                     values,
-                    translations,
+                    i18ns,
                     args.source_locale,
                     locale,
                     args.offline,
                 )
-                translations.update(generated)
+                i18ns.update(generated)
                 auto_translated = len(generated)
-            localized, changed = localize_document(document, translations)
+            localized, changed = localize_document(document, i18ns)
             output_path = output_dir / f"openapi.{locale}.yaml"
             if output_path == input_path:
                 raise ValueError(f"本地化输出文件不能覆盖源文件: {output_path}")
             output_path.write_text(localized, encoding="utf-8")
             message = (
                 f"{locale}: 写入 {output_path}，替换 {changed} 个字段，"
-                f"匹配 {len(translations)} 条消息"
+                f"匹配 {len(i18ns)} 条消息"
             )
             if args.auto_translate or args.offline:
                 message += f"，自动翻译 {auto_translated} 条"

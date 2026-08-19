@@ -22,18 +22,18 @@ type BaseDictCase struct {
 	*biz.BaseCase
 	*data.BaseDictRepository
 	baseDictItemCase *BaseDictItemCase
-	translationCase  *adminbiz.BaseTranslationCase
+	i18nCase         *adminbiz.BaseI18nCase
 	dictMapper       *mapper.CopierMapper[appv1.BaseDictForm, models.BaseDict]
 	itemMapper       *mapper.CopierMapper[appv1.BaseDictForm_DictItem, models.BaseDictItem]
 }
 
 // NewBaseDictCase 创建字典业务处理对象
-func NewBaseDictCase(baseCase *biz.BaseCase, baseDictRepo *data.BaseDictRepository, baseDictItemCase *BaseDictItemCase, translationCase *adminbiz.BaseTranslationCase) *BaseDictCase {
+func NewBaseDictCase(baseCase *biz.BaseCase, baseDictRepo *data.BaseDictRepository, baseDictItemCase *BaseDictItemCase, i18nCase *adminbiz.BaseI18nCase) *BaseDictCase {
 	return &BaseDictCase{
 		BaseCase:           baseCase,
 		BaseDictRepository: baseDictRepo,
 		baseDictItemCase:   baseDictItemCase,
-		translationCase:    translationCase,
+		i18nCase:           i18nCase,
 		dictMapper:         mapper.NewCopierMapper[appv1.BaseDictForm, models.BaseDict](),
 		itemMapper:         mapper.NewCopierMapper[appv1.BaseDictForm_DictItem, models.BaseDictItem](),
 	}
@@ -62,7 +62,7 @@ func (c *BaseDictCase) GetBaseDict(ctx context.Context, code string) (*appv1.Bas
 		dictItemMap[item.DictID] = append(dictItemMap[item.DictID], item)
 	}
 	var dictNames map[int64]string
-	dictNames, err = c.translationCase.GetBaseTranslationNameMapByLocale(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT, biz.LocaleFromContext(ctx), []int64{baseDict.ID})
+	dictNames, err = c.i18nCase.GetBaseI18nNameMapByLocale(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT, biz.LocaleFromContext(ctx), []int64{baseDict.ID})
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (c *BaseDictCase) GetBaseDict(ctx context.Context, code string) (*appv1.Bas
 		dictItemIDs = append(dictItemIDs, item.ID)
 	}
 	var dictItemLabels map[int64]string
-	dictItemLabels, err = c.translationCase.GetBaseTranslationNameMapByLocale(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM, biz.LocaleFromContext(ctx), dictItemIDs)
+	dictItemLabels, err = c.i18nCase.GetBaseI18nNameMapByLocale(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_ITEM, biz.LocaleFromContext(ctx), dictItemIDs)
 	if err != nil {
 		return nil, err
 	}

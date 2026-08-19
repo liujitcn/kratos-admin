@@ -23,69 +23,69 @@ import (
 )
 
 const (
-	// BaseTranslationTaskName 是统一机器翻译任务的稳定调用目标。
-	BaseTranslationTaskName = "system.admin.BaseTranslation"
+	// BaseI18nTaskName 是统一机器翻译任务的稳定调用目标。
+	BaseI18nTaskName = "system.admin.BaseI18n"
 )
 
-var _ cron.TaskExec = (*BaseTranslationTask)(nil)
+var _ cron.TaskExec = (*BaseI18nTask)(nil)
 
-// BaseTranslationTask 执行菜单、字典、字典项和系统配置的机器翻译任务。
-type BaseTranslationTask struct {
-	translationCase *biz.BaseTranslationCase
-	menuRepo        *data.BaseMenuRepository
-	dictRepo        *data.BaseDictRepository
-	dictItemRepo    *data.BaseDictItemRepository
-	configRepo      *data.BaseConfigRepository
-	mu              sync.Mutex
+// BaseI18nTask 执行菜单、字典、字典项和系统配置的机器翻译任务。
+type BaseI18nTask struct {
+	i18nCase     *biz.BaseI18nCase
+	menuRepo     *data.BaseMenuRepository
+	dictRepo     *data.BaseDictRepository
+	dictItemRepo *data.BaseDictItemRepository
+	configRepo   *data.BaseConfigRepository
+	mu           sync.Mutex
 }
 
-type translationIndex map[adminv1.TranslationTargetType]map[dto.TranslationKey]*models.BaseI18N
+type i18nIndex map[adminv1.I18nTargetType]map[dto.I18nKey]*models.BaseI18N
 
-func (i translationIndex) get(targetType adminv1.TranslationTargetType, targetID int64, locale string) *models.BaseI18N {
-	return i[targetType][dto.TranslationKey{TargetID: targetID, Locale: locale}]
+func (i i18nIndex) get(targetType adminv1.I18nTargetType, targetID int64, locale string) *models.BaseI18N {
+	return i[targetType][dto.I18nKey{TargetID: targetID, Locale: locale}]
 }
 
-func (i translationIndex) set(row *models.BaseI18N) {
-	targetType := adminv1.TranslationTargetType(row.TargetType)
+func (i i18nIndex) set(row *models.BaseI18N) {
+	targetType := adminv1.I18nTargetType(row.TargetType)
 	rows := i[targetType]
 	if rows == nil {
-		rows = make(map[dto.TranslationKey]*models.BaseI18N)
+		rows = make(map[dto.I18nKey]*models.BaseI18N)
 		i[targetType] = rows
 	}
-	rows[dto.TranslationKey{TargetID: row.TargetID, Locale: row.Locale}] = row
+	rows[dto.I18nKey{TargetID: row.TargetID, Locale: row.Locale}] = row
 }
 
-// NewBaseTranslationTask 创建统一机器翻译任务执行器。
-func NewBaseTranslationTask(
-	translationCase *biz.BaseTranslationCase,
+// NewBaseI18nTask 创建统一机器翻译任务执行器。
+func NewBaseI18nTask(
+	i18nCase *biz.BaseI18nCase,
 	menuRepo *data.BaseMenuRepository,
 	dictRepo *data.BaseDictRepository,
 	dictItemRepo *data.BaseDictItemRepository,
 	configRepo *data.BaseConfigRepository,
-) *BaseTranslationTask {
-	task := &BaseTranslationTask{
-		translationCase: translationCase,
-		menuRepo:        menuRepo,
-		dictRepo:        dictRepo,
-		dictItemRepo:    dictItemRepo,
-		configRepo:      configRepo,
+) *BaseI18nTask {
+	task := &BaseI18nTask{
+		i18nCase:     i18nCase,
+		menuRepo:     menuRepo,
+		dictRepo:     dictRepo,
+		dictItemRepo: dictItemRepo,
+		configRepo:   configRepo,
 	}
 	return task
 }
 
 // Task 返回交由 base_job 统一调度的任务定义。
-func (t *BaseTranslationTask) Task() cronTransport.Task {
-	return cronTransport.Task{Name: BaseTranslationTaskName, Exec: t}
+func (t *BaseI18nTask) Task() cronTransport.Task {
+	return cronTransport.Task{Name: BaseI18nTaskName, Exec: t}
 }
 
 // Exec 扫描所有资源并补齐缺失的机器译文。
-func (t *BaseTranslationTask) Exec(ctx context.Context, _ map[string]string) ([]string, error) {
+func (t *BaseI18nTask) Exec(ctx context.Context, _ map[string]string) ([]string, error) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	if t.translationCase.Translator == nil {
+	if t.i18nCase.Translator == nil {
 		return []string{"机器翻译功能未启用"}, nil
 	}
-	state, err := t.translationCase.LocaleState(ctx)
+	state, err := t.i18nCase.LocaleState(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -93,8 +93,8 @@ func (t *BaseTranslationTask) Exec(ctx context.Context, _ map[string]string) ([]
 	if len(locales) == 0 {
 		return []string{"没有启用的目标语言"}, nil
 	}
-	var translations translationIndex
-	translations, err = t.loadTranslationIndex(ctx)
+	var i18ns i18nIndex
+	i18ns, err = t.loadI18nIndex(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func (t *BaseTranslationTask) Exec(ctx context.Context, _ map[string]string) ([]
 	for _, menu := range menus {
 		menuIDs = append(menuIDs, menu.ID)
 	}
-	t.translateIDs(ctx, state, translations, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, menuIDs, locales, "菜单", &translatedCount, &failedCount, &firstErr)
+	t.translateIDs(ctx, state, i18ns, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_MENU, menuIDs, locales, "菜单", &translatedCount, &failedCount, &firstErr)
 
 	dictQuery := t.dictRepo.Query(ctx).BaseDict
 	var dicts []*models.BaseDict
@@ -124,7 +124,7 @@ func (t *BaseTranslationTask) Exec(ctx context.Context, _ map[string]string) ([]
 	for _, dict := range dicts {
 		dictIDs = append(dictIDs, dict.ID)
 	}
-	t.translateIDs(ctx, state, translations, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT, dictIDs, locales, "字典", &translatedCount, &failedCount, &firstErr)
+	t.translateIDs(ctx, state, i18ns, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT, dictIDs, locales, "字典", &translatedCount, &failedCount, &firstErr)
 
 	dictItemQuery := t.dictItemRepo.Query(ctx).BaseDictItem
 	var dictItems []*models.BaseDictItem
@@ -136,7 +136,7 @@ func (t *BaseTranslationTask) Exec(ctx context.Context, _ map[string]string) ([]
 	for _, item := range dictItems {
 		dictItemIDs = append(dictItemIDs, item.ID)
 	}
-	t.translateIDs(ctx, state, translations, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM, dictItemIDs, locales, "字典项", &translatedCount, &failedCount, &firstErr)
+	t.translateIDs(ctx, state, i18ns, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_ITEM, dictItemIDs, locales, "字典项", &translatedCount, &failedCount, &firstErr)
 
 	configQuery := t.configRepo.Query(ctx).BaseConfig
 	var configs []*models.BaseConfig
@@ -152,8 +152,8 @@ func (t *BaseTranslationTask) Exec(ctx context.Context, _ map[string]string) ([]
 			configValueIDs = append(configValueIDs, config.ID)
 		}
 	}
-	t.translateIDs(ctx, state, translations, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, configNameIDs, locales, "系统配置名称", &translatedCount, &failedCount, &firstErr)
-	t.translateIDs(ctx, state, translations, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE, configValueIDs, locales, "系统配置值", &translatedCount, &failedCount, &firstErr)
+	t.translateIDs(ctx, state, i18ns, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_NAME, configNameIDs, locales, "系统配置名称", &translatedCount, &failedCount, &firstErr)
+	t.translateIDs(ctx, state, i18ns, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_VALUE, configValueIDs, locales, "系统配置值", &translatedCount, &failedCount, &firstErr)
 
 	output := []string{fmt.Sprintf("生成机器译文 %d 条", translatedCount)}
 	if failedCount > 0 {
@@ -162,13 +162,13 @@ func (t *BaseTranslationTask) Exec(ctx context.Context, _ map[string]string) ([]
 	return output, nil
 }
 
-func (t *BaseTranslationTask) loadTranslationIndex(ctx context.Context) (translationIndex, error) {
-	query := t.translationCase.Query(ctx).BaseI18N
-	rows, err := t.translationCase.List(ctx, repository.Order(query.ID.Asc()))
+func (t *BaseI18nTask) loadI18nIndex(ctx context.Context) (i18nIndex, error) {
+	query := t.i18nCase.Query(ctx).BaseI18N
+	rows, err := t.i18nCase.List(ctx, repository.Order(query.ID.Asc()))
 	if err != nil {
 		return nil, err
 	}
-	index := make(translationIndex)
+	index := make(i18nIndex)
 	for _, row := range rows {
 		index.set(row)
 	}
@@ -176,8 +176,8 @@ func (t *BaseTranslationTask) loadTranslationIndex(ctx context.Context) (transla
 }
 
 // translateOneWithState 使用已读取的语言状态生成单个资源译文。
-func (t *BaseTranslationTask) translateOneWithState(ctx context.Context, state *dto.LocaleState, translations translationIndex, targetType adminv1.TranslationTargetType, targetID int64, sourceLocale string, targetLocale string, sourceText string) error {
-	if t.translationCase.Translator == nil {
+func (t *BaseI18nTask) translateOneWithState(ctx context.Context, state *dto.LocaleState, i18ns i18nIndex, targetType adminv1.I18nTargetType, targetID int64, sourceLocale string, targetLocale string, sourceText string) error {
+	if t.i18nCase.Translator == nil {
 		return errorsx.PermissionDenied("机器翻译功能未启用")
 	}
 	if targetID <= 0 {
@@ -191,9 +191,9 @@ func (t *BaseTranslationTask) translateOneWithState(ctx context.Context, state *
 	}
 	var err error
 	var row *models.BaseI18N
-	if translations == nil {
-		query := t.translationCase.Query(ctx).BaseI18N
-		row, err = t.translationCase.Find(ctx,
+	if i18ns == nil {
+		query := t.i18nCase.Query(ctx).BaseI18N
+		row, err = t.i18nCase.Find(ctx,
 			repository.Where(query.TargetType.Eq(int32(targetType))),
 			repository.Where(query.TargetID.Eq(targetID)),
 			repository.Where(query.Locale.Eq(targetLocale)),
@@ -202,14 +202,14 @@ func (t *BaseTranslationTask) translateOneWithState(ctx context.Context, state *
 			return err
 		}
 	} else {
-		row = translations.get(targetType, targetID, targetLocale)
+		row = i18ns.get(targetType, targetID, targetLocale)
 	}
 	if row != nil && row.Name != "" {
 		return errorsx.Conflict("已有非空译文，不允许被机器翻译覆盖")
 	}
 	if sourceText == "" {
-		var source *dto.TranslationDraftSource
-		source, err = t.translationSource(ctx, targetType, targetID)
+		var source *dto.I18nDraftSource
+		source, err = t.i18nSource(ctx, targetType, targetID)
 		if err != nil {
 			return err
 		}
@@ -219,35 +219,35 @@ func (t *BaseTranslationTask) translateOneWithState(ctx context.Context, state *
 		return errorsx.InvalidArgument("待翻译源文不能为空")
 	}
 	var translated string
-	translated, err = t.translationCase.TranslateText(ctx, sourceText, sourceLocale, targetLocale)
+	translated, err = t.i18nCase.TranslateText(ctx, sourceText, sourceLocale, targetLocale)
 	if err != nil {
 		return errorsx.Internal("生成翻译失败").WithCause(err)
 	}
 	if row == nil {
 		row = &models.BaseI18N{TargetType: int32(targetType), TargetID: targetID, Locale: targetLocale, Name: translated}
-		if err = t.translationCase.Create(ctx, row); err != nil {
+		if err = t.i18nCase.Create(ctx, row); err != nil {
 			return err
 		}
-		if translations != nil {
-			translations.set(row)
+		if i18ns != nil {
+			i18ns.set(row)
 		}
 		return nil
 	}
 	row.Name = translated
-	return t.translationCase.UpdateByID(ctx, row)
+	return t.i18nCase.UpdateByID(ctx, row)
 }
 
 // translateIDs 批量调用统一翻译入口并统计结果。
-func (t *BaseTranslationTask) translateIDs(ctx context.Context, state *dto.LocaleState, translations translationIndex, targetType adminv1.TranslationTargetType, targetIDs []int64, locales []string, resourceName string, translatedCount, failedCount *int, firstErr *error) {
+func (t *BaseI18nTask) translateIDs(ctx context.Context, state *dto.LocaleState, i18ns i18nIndex, targetType adminv1.I18nTargetType, targetIDs []int64, locales []string, resourceName string, translatedCount, failedCount *int, firstErr *error) {
 	var err error
 	for _, targetID := range targetIDs {
 		for _, localeValue := range locales {
-			err = t.translateOneWithState(ctx, state, translations, targetType, targetID, state.Primary, localeValue, "")
+			err = t.translateOneWithState(ctx, state, i18ns, targetType, targetID, state.Primary, localeValue, "")
 			if err == nil {
 				*translatedCount = *translatedCount + 1
 				continue
 			}
-			if ignoreTranslationClientError(err) == nil {
+			if ignoreI18nClientError(err) == nil {
 				continue
 			}
 			*failedCount = *failedCount + 1
@@ -259,12 +259,12 @@ func (t *BaseTranslationTask) translateIDs(ctx context.Context, state *dto.Local
 	}
 }
 
-// translationSource 读取允许外发的资源源文。
-func (t *BaseTranslationTask) translationSource(ctx context.Context, targetType adminv1.TranslationTargetType, targetID int64) (*dto.TranslationDraftSource, error) {
-	source := &dto.TranslationDraftSource{TargetType: targetType, TargetID: targetID}
+// i18nSource 读取允许外发的资源源文。
+func (t *BaseI18nTask) i18nSource(ctx context.Context, targetType adminv1.I18nTargetType, targetID int64) (*dto.I18nDraftSource, error) {
+	source := &dto.I18nDraftSource{TargetType: targetType, TargetID: targetID}
 	var err error
 	switch targetType {
-	case adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU:
+	case adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_MENU:
 		menu, findErr := t.menuRepo.FindByID(ctx, targetID)
 		err = findErr
 		if err == nil {
@@ -274,27 +274,27 @@ func (t *BaseTranslationTask) translationSource(ctx context.Context, targetType 
 				source.Text = metadata.Title
 			}
 		}
-	case adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT:
+	case adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT:
 		dict, findErr := t.dictRepo.FindByID(ctx, targetID)
 		err = findErr
 		if err == nil {
 			source.Text = dict.Name
 		}
-	case adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM:
+	case adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_ITEM:
 		item, findErr := t.dictItemRepo.FindByID(ctx, targetID)
 		err = findErr
 		if err == nil {
 			source.Text = item.Label
 		}
-	case adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME,
-		adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE:
+	case adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_NAME,
+		adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_VALUE:
 		config, findErr := t.configRepo.FindByID(ctx, targetID)
 		err = findErr
 		if err == nil {
-			if targetType == adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE && !isTranslatableConfigType(config.Type) {
+			if targetType == adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_VALUE && !isTranslatableConfigType(config.Type) {
 				return nil, errorsx.InvalidArgument("图片、字典和布尔配置值不支持翻译")
 			}
-			if targetType == adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME {
+			if targetType == adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_NAME {
 				source.Text = config.Name
 			} else {
 				source.Text = config.Value
@@ -317,8 +317,8 @@ func isTranslatableConfigType(configType int32) bool {
 	return configType == int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_TEXT) || configType == int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_RICH_TEXT)
 }
 
-// ignoreTranslationClientError 将资源不存在、参数无效和已有译文视为无需重试。
-func ignoreTranslationClientError(err error) error {
+// ignoreI18nClientError 将资源不存在、参数无效和已有译文视为无需重试。
+func ignoreI18nClientError(err error) error {
 	if err == nil {
 		return nil
 	}

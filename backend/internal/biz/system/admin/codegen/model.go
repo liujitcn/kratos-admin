@@ -233,8 +233,8 @@ type CodeGenMenuSpec struct {
 	Menu *models.BaseMenu
 	// SourceTitle 菜单中文权威标题。
 	SourceTitle string
-	// Translations 按语言区域索引的菜单标题。
-	Translations map[string]string
+	// I18ns 按语言区域索引的菜单标题。
+	I18ns map[string]string
 }
 
 // TableInfo 数据库表元数据查询结果。

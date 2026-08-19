@@ -19,50 +19,50 @@ var _ = new(context.Context)
 
 const _ = http.SupportPackageIsVersion3
 
-const OperationBaseI18nServiceDraftBaseTranslation = "/system.admin.v1.BaseI18nService/DraftBaseTranslation"
-const OperationBaseI18nServiceUpdateBaseTranslation = "/system.admin.v1.BaseI18nService/UpdateBaseTranslation"
+const OperationBaseI18nServiceDraftBaseI18n = "/system.admin.v1.BaseI18nService/DraftBaseI18n"
+const OperationBaseI18nServiceUpdateBaseI18n = "/system.admin.v1.BaseI18nService/UpdateBaseI18n"
 
 type BaseI18nServiceHTTPServer interface {
-	// DraftBaseTranslation 翻译单个文本。
-	DraftBaseTranslation(context.Context, *DraftBaseTranslationRequest) (*DraftBaseTranslationResponse, error)
-	// UpdateBaseTranslation 修改国际化翻译信息
-	UpdateBaseTranslation(context.Context, *UpdateBaseTranslationRequest) (*emptypb.Empty, error)
+	// DraftBaseI18n 翻译单个文本。
+	DraftBaseI18n(context.Context, *DraftBaseI18nRequest) (*DraftBaseI18nResponse, error)
+	// UpdateBaseI18n 修改国际化翻译信息
+	UpdateBaseI18n(context.Context, *UpdateBaseI18nRequest) (*emptypb.Empty, error)
 }
 
 func RegisterBaseI18nServiceHTTPServer(s *http.Server, srv BaseI18nServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("POST", "/api/v1/admin/base/translation/draft", _BaseI18nService_DraftBaseTranslation0_HTTP_Handler(srv))
-	r.Handle("PUT", "/api/v1/admin/base/translation", _BaseI18nService_UpdateBaseTranslation0_HTTP_Handler(srv))
+	r.Handle("POST", "/api/v1/admin/base/i18n/draft", _BaseI18nService_DraftBaseI18n0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/admin/base/i18n", _BaseI18nService_UpdateBaseI18n0_HTTP_Handler(srv))
 }
 
-func _BaseI18nService_DraftBaseTranslation0_HTTP_Handler(srv BaseI18nServiceHTTPServer) func(ctx http.Context) error {
+func _BaseI18nService_DraftBaseI18n0_HTTP_Handler(srv BaseI18nServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in DraftBaseTranslationRequest
+		var in DraftBaseI18nRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseI18nServiceDraftBaseTranslation)
+		http.SetOperation(ctx, OperationBaseI18nServiceDraftBaseI18n)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.DraftBaseTranslation(ctx, req.(*DraftBaseTranslationRequest))
+			return srv.DraftBaseI18n(ctx, req.(*DraftBaseI18nRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*DraftBaseTranslationResponse)
+		reply := out.(*DraftBaseI18nResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _BaseI18nService_UpdateBaseTranslation0_HTTP_Handler(srv BaseI18nServiceHTTPServer) func(ctx http.Context) error {
+func _BaseI18nService_UpdateBaseI18n0_HTTP_Handler(srv BaseI18nServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in UpdateBaseTranslationRequest
+		var in UpdateBaseI18nRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseI18nServiceUpdateBaseTranslation)
+		http.SetOperation(ctx, OperationBaseI18nServiceUpdateBaseI18n)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.UpdateBaseTranslation(ctx, req.(*UpdateBaseTranslationRequest))
+			return srv.UpdateBaseI18n(ctx, req.(*UpdateBaseI18nRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -74,10 +74,10 @@ func _BaseI18nService_UpdateBaseTranslation0_HTTP_Handler(srv BaseI18nServiceHTT
 }
 
 type BaseI18nServiceHTTPClient interface {
-	// DraftBaseTranslation 翻译单个文本。
-	DraftBaseTranslation(ctx context.Context, req *DraftBaseTranslationRequest, opts ...http.CallOption) (rsp *DraftBaseTranslationResponse, err error)
-	// UpdateBaseTranslation 修改国际化翻译信息
-	UpdateBaseTranslation(ctx context.Context, req *UpdateBaseTranslationRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// DraftBaseI18n 翻译单个文本。
+	DraftBaseI18n(ctx context.Context, req *DraftBaseI18nRequest, opts ...http.CallOption) (rsp *DraftBaseI18nResponse, err error)
+	// UpdateBaseI18n 修改国际化翻译信息
+	UpdateBaseI18n(ctx context.Context, req *UpdateBaseI18nRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type BaseI18nServiceHTTPClientImpl struct {
@@ -88,15 +88,15 @@ func NewBaseI18nServiceHTTPClient(client *http.Client) BaseI18nServiceHTTPClient
 	return &BaseI18nServiceHTTPClientImpl{client}
 }
 
-// DraftBaseTranslation 翻译单个文本。
-func (c *BaseI18nServiceHTTPClientImpl) DraftBaseTranslation(ctx context.Context, in *DraftBaseTranslationRequest, opts ...http.CallOption) (*DraftBaseTranslationResponse, error) {
-	var out DraftBaseTranslationResponse
-	pattern := "/api/v1/admin/base/translation/draft"
+// DraftBaseI18n 翻译单个文本。
+func (c *BaseI18nServiceHTTPClientImpl) DraftBaseI18n(ctx context.Context, in *DraftBaseI18nRequest, opts ...http.CallOption) (*DraftBaseI18nResponse, error) {
+	var out DraftBaseI18nResponse
+	pattern := "/api/v1/admin/base/i18n/draft"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
 		http.ContentType("application/protojson"),
-		http.Operation(OperationBaseI18nServiceDraftBaseTranslation),
+		http.Operation(OperationBaseI18nServiceDraftBaseI18n),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
@@ -106,15 +106,15 @@ func (c *BaseI18nServiceHTTPClientImpl) DraftBaseTranslation(ctx context.Context
 	return &out, nil
 }
 
-// UpdateBaseTranslation 修改国际化翻译信息
-func (c *BaseI18nServiceHTTPClientImpl) UpdateBaseTranslation(ctx context.Context, in *UpdateBaseTranslationRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+// UpdateBaseI18n 修改国际化翻译信息
+func (c *BaseI18nServiceHTTPClientImpl) UpdateBaseI18n(ctx context.Context, in *UpdateBaseI18nRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/api/v1/admin/base/translation"
+	pattern := "/api/v1/admin/base/i18n"
 	path := http.BuildPath(pattern, in)
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
 		http.ContentType("application/protojson"),
-		http.Operation(OperationBaseI18nServiceUpdateBaseTranslation),
+		http.Operation(OperationBaseI18nServiceUpdateBaseI18n),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)

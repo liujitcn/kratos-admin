@@ -19,7 +19,7 @@ var ProviderSet = wire.NewSet(
 	NewBasePostCase,
 	NewBaseRoleCase,
 	NewBaseTenantCase,
-	NewBaseTranslationCase,
+	NewBaseI18nCase,
 	NewBaseUserCase,
 	NewCasbinRuleCase,
 	NewCodeGenCase,

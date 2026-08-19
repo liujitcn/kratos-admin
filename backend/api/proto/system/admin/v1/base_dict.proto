@@ -200,7 +200,7 @@ message BaseDictForm {
 
   string name = 3 [(gnostic.openapi.v3.property) = {description: "字典名称"}, (buf.validate.field).cel = {id: "system.admin.base.dict.entity.name.required" message: "请输入字典名称" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "system.admin.base.dict.entity.name.max_length" message: "字典名称不能超过 50 个字符" expression: "this.size() <= 50"}]; // 字典名称
 
-  repeated BaseI18n translations = 7 [(gnostic.openapi.v3.property) = {description: "非主语言翻译"}]; // 非主语言翻译
+  repeated BaseI18n i18ns = 7 [(gnostic.openapi.v3.property) = {description: "非主语言翻译"}]; // 非主语言翻译
 
   .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
 }
@@ -224,7 +224,7 @@ message BaseDictItemForm {
 
   int32 sort = 6 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).cel = {id: "system.admin.base.dict.entity.item.sort.required" message: "排序必须大于 0" expression: "this > 0"}]; // 排序
 
-  repeated BaseI18n translations = 7 [(gnostic.openapi.v3.property) = {description: "非主语言翻译"}]; // 非主语言翻译
+  repeated BaseI18n i18ns = 7 [(gnostic.openapi.v3.property) = {description: "非主语言翻译"}]; // 非主语言翻译
 
   .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
 }
@@ -291,7 +291,7 @@ message BaseDict {
 
   string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
 
-  repeated BaseI18n translations = 202 [(gnostic.openapi.v3.property) = {description: "非主语言翻译"}]; // 非主语言翻译
+  repeated BaseI18n i18ns = 202 [(gnostic.openapi.v3.property) = {description: "非主语言翻译"}]; // 非主语言翻译
 }
 
 // 字典项
@@ -314,5 +314,5 @@ message BaseDictItem {
 
   string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
 
-  repeated BaseI18n translations = 202 [(gnostic.openapi.v3.property) = {description: "非主语言翻译"}]; // 非主语言翻译
+  repeated BaseI18n i18ns = 202 [(gnostic.openapi.v3.property) = {description: "非主语言翻译"}]; // 非主语言翻译
 }

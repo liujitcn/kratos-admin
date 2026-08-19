@@ -21,7 +21,7 @@ from typing import Any, Iterator
 DEFAULT_SOURCE_LOCALE = "zh-CN"
 DEFAULT_OUTPUT_PATH = "internal/projectdocs"
 BACKEND_OUTPUT_PATH = "backend/internal/docs"
-TRANSLATION_ENDPOINT = "https://translate.googleapis.com/translate_a/single"
+I18N_ENDPOINT = "https://translate.googleapis.com/translate_a/single"
 MAX_SOURCE_PATH_DEPTH = 3
 MAX_DOCUMENT_BYTES = 2 << 20
 EXCLUDED_DIRECTORIES = {
@@ -241,7 +241,7 @@ def restore_text(value: str, protected: dict[str, str]) -> str:
     return value
 
 
-def google_translate(value: str, source: str, target: str) -> str:
+def request_i18n(value: str, source: str, target: str) -> str:
     """调用 Google V1 接口翻译文档自然语言。"""
     query = urllib.parse.urlencode(
         [
@@ -252,7 +252,7 @@ def google_translate(value: str, source: str, target: str) -> str:
             ("q", value),
         ]
     )
-    endpoint = os.environ.get("I18N_TRANSLATE_ENDPOINT", TRANSLATION_ENDPOINT)
+    endpoint = os.environ.get("I18N_ENDPOINT", I18N_ENDPOINT)
     request = urllib.request.Request(
         f"{endpoint}{'&' if '?' in endpoint else '?'}{query}",
         headers={"User-Agent": "kratos-admin-i18n/1.0", "Connection": "close"},
@@ -279,7 +279,7 @@ def load_opencc() -> Any:
     return OpenCC("s2twp")
 
 
-def translate_markdown_with_status(
+def i18n_markdown_with_status(
     value: str,
     source: str,
     target: str,
@@ -299,10 +299,10 @@ def translate_markdown_with_status(
     pending_size = 0
     in_fence = False
     fence_character = ""
-    translation_succeeded = True
+    i18n_succeeded = True
 
     def flush() -> None:
-        nonlocal pending, pending_size, translation_succeeded
+        nonlocal pending, pending_size, i18n_succeeded
         if not pending:
             return
         source_text = "\n".join(
@@ -311,14 +311,14 @@ def translate_markdown_with_status(
         )
         translated = ""
         try:
-            translated = google_translate(source_text, source, target)
+            translated = request_i18n(source_text, source, target)
         except RuntimeError as error:
-            if translation_succeeded:
+            if i18n_succeeded:
                 print(
                     f"项目文档翻译批次失败，保留原文并等待下次重试: {error}",
                     file=sys.stderr,
                 )
-            translation_succeeded = False
+            i18n_succeeded = False
         translated_by_index: dict[int, str] = {}
         matches = list(ENTRY_PATTERN.finditer(translated))
         for position, match in enumerate(matches):
@@ -326,12 +326,12 @@ def translate_markdown_with_status(
             translated_by_index[int(match.group(1))] = translated[match.end() : end].strip()
         expected_indexes = set(range(len(pending)))
         if set(translated_by_index) != expected_indexes:
-            if translation_succeeded:
+            if i18n_succeeded:
                 print(
                     "项目文档翻译批次缺少行标记，保留原文并等待下次重试",
                     file=sys.stderr,
                 )
-            translation_succeeded = False
+            i18n_succeeded = False
         for line_index, original, ending, _, protected_values in pending:
             translated_line = translated_by_index.get(line_index, "")
             output.append(
@@ -368,10 +368,10 @@ def translate_markdown_with_status(
         pending.append((len(pending), body, ending, protected, protected_values))
         pending_size += len(protected)
     flush()
-    return "".join(output), translation_succeeded
+    return "".join(output), i18n_succeeded
 
 
-def translate_document_name_with_status(
+def i18n_document_name_with_status(
     value: str,
     source: str,
     target: str,
@@ -381,7 +381,7 @@ def translate_document_name_with_status(
     if value == "README.md":
         return value, True
     path = PurePosixPath(value)
-    translated, succeeded = translate_markdown_with_status(path.stem, source, target, offline)
+    translated, succeeded = i18n_markdown_with_status(path.stem, source, target, offline)
     return f"{translated.strip() or path.stem}{path.suffix}", succeeded
 
 
@@ -489,7 +489,7 @@ def find_localized_source(
     return None
 
 
-def translate_catalog(
+def i18n_catalog(
     source: dict[str, Any],
     existing: dict[str, Any] | None,
     localized_sources: dict[str, dict[str, SourceDocument]],
@@ -532,7 +532,7 @@ def translate_catalog(
             if legacy_content and (offline or legacy_content != source_content):
                 translated_content = legacy_content
         if not translated_content and source_content:
-            candidate, succeeded = translate_markdown_with_status(
+            candidate, succeeded = i18n_markdown_with_status(
                 source_content, source_locale, target_locale, offline
             )
             if succeeded:
@@ -554,7 +554,7 @@ def translate_catalog(
             ):
                 translated_name = existing_name
         if not translated_name:
-            candidate, succeeded = translate_document_name_with_status(
+            candidate, succeeded = i18n_document_name_with_status(
                 source_name, source_locale, target_locale, offline
             )
             if succeeded:
@@ -681,7 +681,7 @@ def main() -> int:
             existing = load_catalog(localized_path) if localized_path.exists() else None
             if existing is not None:
                 prepare_catalog(existing)
-            localized, locale_changed, locale_reused_sources = translate_catalog(
+            localized, locale_changed, locale_reused_sources = i18n_catalog(
                 source_catalog,
                 existing,
                 localized_sources,

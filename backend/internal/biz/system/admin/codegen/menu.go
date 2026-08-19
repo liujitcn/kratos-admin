@@ -54,7 +54,7 @@ func MenuSpecs(table *Table, columns []*CodeGenColumn, methods []*Proto, resourc
 		buttonSpecs = append(buttonSpecs, newButtonMenuSpec(
 			permission+":create",
 			"新增"+table.BusinessName,
-			GeneratedMenuTranslations(table, nil, "create", localeState),
+			GeneratedMenuI18ns(table, nil, "create", localeState),
 			int32(len(buttonSpecs)+1),
 			GeneratedRPCPath(table, createMethod),
 		))
@@ -65,7 +65,7 @@ func MenuSpecs(table *Table, columns []*CodeGenColumn, methods []*Proto, resourc
 		buttonSpecs = append(buttonSpecs, newButtonMenuSpec(
 			permission+":update",
 			"编辑"+table.BusinessName,
-			GeneratedMenuTranslations(table, nil, "update", localeState),
+			GeneratedMenuI18ns(table, nil, "update", localeState),
 			int32(len(buttonSpecs)+1),
 			GeneratedRPCPath(table, getMethod),
 			GeneratedRPCPath(table, updateMethod),
@@ -75,7 +75,7 @@ func MenuSpecs(table *Table, columns []*CodeGenColumn, methods []*Proto, resourc
 		buttonSpecs = append(buttonSpecs, newButtonMenuSpec(
 			permission+":delete",
 			"删除"+table.BusinessName,
-			GeneratedMenuTranslations(table, nil, "delete", localeState),
+			GeneratedMenuI18ns(table, nil, "delete", localeState),
 			int32(len(buttonSpecs)+1),
 			GeneratedRPCPath(table, deleteMethod),
 		))
@@ -89,16 +89,16 @@ func MenuSpecs(table *Table, columns []*CodeGenColumn, methods []*Proto, resourc
 		buttonSpecs = append(buttonSpecs, newButtonMenuSpec(
 			statusPermissionPath(permission, column.Name, len(statusColumnList)),
 			"设置"+DefaultString(column.Comment, column.Name),
-			GeneratedMenuTranslations(table, column, "status", localeState),
+			GeneratedMenuI18ns(table, column, "status", localeState),
 			int32(len(buttonSpecs)+1),
 			GeneratedRPCPath(table, method),
 		))
 	}
 	pageTitle := DefaultString(tableComment, table.BusinessName)
 	return CodeGenMenuSpec{
-		Menu:         pageMenu,
-		SourceTitle:  pageTitle,
-		Translations: GeneratedMenuTranslations(table, nil, "", localeState),
+		Menu:        pageMenu,
+		SourceTitle: pageTitle,
+		I18ns:       GeneratedMenuI18ns(table, nil, "", localeState),
 	}, buttonSpecs
 }
 
@@ -127,7 +127,7 @@ func GeneratedRPCPath(table *Table, method *Proto) string {
 }
 
 // newButtonMenuSpec 创建按钮菜单定义。
-func newButtonMenuSpec(path string, title string, translations map[string]string, sort int32, apis ...string) CodeGenMenuSpec {
+func newButtonMenuSpec(path string, title string, i18ns map[string]string, sort int32, apis ...string) CodeGenMenuSpec {
 	return CodeGenMenuSpec{
 		Menu: &models.BaseMenu{
 			Type:   _const.BASE_MENU_TYPE_BUTTON,
@@ -137,8 +137,8 @@ func newButtonMenuSpec(path string, title string, translations map[string]string
 			Sort:   sort,
 			Status: coreconst.STATUS_STATUS_ENABLE,
 		},
-		SourceTitle:  title,
-		Translations: translations,
+		SourceTitle: title,
+		I18ns:       i18ns,
 	}
 }
 

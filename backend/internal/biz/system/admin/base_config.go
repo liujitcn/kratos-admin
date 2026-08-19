@@ -24,19 +24,19 @@ import (
 type BaseConfigCase struct {
 	*biz.BaseCase
 	*data.BaseConfigRepository
-	tx                  data.Transaction
-	baseTranslationCase *BaseTranslationCase
-	formMapper          *mapper.CopierMapper[adminv1.BaseConfigForm, models.BaseConfig]
-	mapper              *mapper.CopierMapper[adminv1.BaseConfig, models.BaseConfig]
+	tx           data.Transaction
+	baseI18nCase *BaseI18nCase
+	formMapper   *mapper.CopierMapper[adminv1.BaseConfigForm, models.BaseConfig]
+	mapper       *mapper.CopierMapper[adminv1.BaseConfig, models.BaseConfig]
 }
 
 // NewBaseConfigCase 创建配置业务实例
-func NewBaseConfigCase(baseCase *biz.BaseCase, tx data.Transaction, baseConfigRepo *data.BaseConfigRepository, baseTranslationCase *BaseTranslationCase) *BaseConfigCase {
+func NewBaseConfigCase(baseCase *biz.BaseCase, tx data.Transaction, baseConfigRepo *data.BaseConfigRepository, baseI18nCase *BaseI18nCase) *BaseConfigCase {
 	return &BaseConfigCase{
 		BaseCase:             baseCase,
 		tx:                   tx,
 		BaseConfigRepository: baseConfigRepo,
-		baseTranslationCase:  baseTranslationCase,
+		baseI18nCase:         baseI18nCase,
 		formMapper:           mapper.NewCopierMapper[adminv1.BaseConfigForm, models.BaseConfig](),
 		mapper:               mapper.NewCopierMapper[adminv1.BaseConfig, models.BaseConfig](),
 	}
@@ -69,7 +69,7 @@ func (c *BaseConfigCase) PageBaseConfig(ctx context.Context, req *adminv1.PageBa
 	}
 	// 传入名称关键字时，按配置名称模糊匹配。
 	if req.GetName() != "" {
-		targetIds, err := c.baseTranslationCase.GetTargetIdsByName(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, req.GetName())
+		targetIds, err := c.baseI18nCase.GetTargetIdsByName(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_NAME, req.GetName())
 		if err != nil {
 			return nil, err
 		}
@@ -101,14 +101,14 @@ func (c *BaseConfigCase) PageBaseConfig(ctx context.Context, req *adminv1.PageBa
 	for _, item := range list {
 		targetIds = append(targetIds, item.ID)
 	}
-	var translations map[int64][]*adminv1.BaseI18n
-	translations, err = c.baseTranslationCase.GetBaseTranslationMapByTargetType(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, targetIds)
+	var i18ns map[int64][]*adminv1.BaseI18n
+	i18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetType(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_NAME, targetIds)
 	if err != nil {
 		return nil, err
 	}
 	for _, item := range list {
 		baseConfig := c.mapper.ToDTO(item)
-		baseConfig.Translations = translations[item.ID]
+		baseConfig.I18ns = i18ns[item.ID]
 		resList = append(resList, baseConfig)
 	}
 
@@ -125,19 +125,19 @@ func (c *BaseConfigCase) GetBaseConfig(ctx context.Context, id int64) (*adminv1.
 		return nil, err
 	}
 	res := c.formMapper.ToDTO(baseConfig)
-	var nameTranslations, valueTranslations map[int64][]*adminv1.BaseI18n
-	nameTranslations, err = c.baseTranslationCase.GetBaseTranslationMapByTargetType(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, []int64{id})
+	var nameI18ns, valueI18ns map[int64][]*adminv1.BaseI18n
+	nameI18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetType(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_NAME, []int64{id})
 	if err != nil {
 		return nil, err
 	}
 	if isTranslatableConfigType(baseConfig.Type) {
-		valueTranslations, err = c.baseTranslationCase.GetBaseTranslationMapByTargetType(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE, []int64{id})
+		valueI18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetType(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_VALUE, []int64{id})
 		if err != nil {
 			return nil, err
 		}
 	}
-	res.NameTranslations = nameTranslations[id]
-	res.ValueTranslations = valueTranslations[id]
+	res.NameI18ns = nameI18ns[id]
+	res.ValueI18ns = valueI18ns[id]
 	return res, nil
 }
 
@@ -152,7 +152,7 @@ func (c *BaseConfigCase) CreateBaseConfig(ctx context.Context, req *adminv1.Base
 		}
 		return err
 	}
-	err = c.saveBaseTranslation(ctx, req, entity)
+	err = c.saveBaseI18n(ctx, req, entity)
 	if err != nil {
 		return err
 	}
@@ -179,7 +179,7 @@ func (c *BaseConfigCase) UpdateBaseConfig(ctx context.Context, req *adminv1.Base
 		}
 		return err
 	}
-	err = c.saveBaseTranslation(ctx, req, entity)
+	err = c.saveBaseI18n(ctx, req, entity)
 	if err != nil {
 		return err
 	}
@@ -209,7 +209,7 @@ func (c *BaseConfigCase) DeleteBaseConfig(ctx context.Context, id string) error 
 		if err != nil {
 			return err
 		}
-		return c.deleteBaseTranslation(ctx, ids)
+		return c.deleteBaseI18n(ctx, ids)
 	})
 	if err != nil {
 		return err
@@ -251,9 +251,9 @@ func (c *BaseConfigCase) SetBaseConfigStatus(ctx context.Context, req *adminv1.S
 	return nil
 }
 
-// saveBaseTranslation 保存翻译信息
-func (c *BaseConfigCase) saveBaseTranslation(ctx context.Context, req *adminv1.BaseConfigForm, entity *models.BaseConfig) error {
-	err := c.baseTranslationCase.SaveBaseTranslation(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, entity.ID, entity.Name, req.GetNameTranslations(), func(ctx context.Context, name string) error {
+// saveBaseI18n 保存翻译信息
+func (c *BaseConfigCase) saveBaseI18n(ctx context.Context, req *adminv1.BaseConfigForm, entity *models.BaseConfig) error {
+	err := c.baseI18nCase.SaveBaseI18n(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_NAME, entity.ID, entity.Name, req.GetNameI18ns(), func(ctx context.Context, name string) error {
 		return c.UpdateByID(ctx, &models.BaseConfig{
 			ID:   entity.ID,
 			Name: name,
@@ -265,7 +265,7 @@ func (c *BaseConfigCase) saveBaseTranslation(ctx context.Context, req *adminv1.B
 	if !isTranslatableConfigType(entity.Type) {
 		return nil
 	}
-	return c.baseTranslationCase.SaveBaseTranslation(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE, entity.ID, entity.Value, req.GetValueTranslations(), func(ctx context.Context, value string) error {
+	return c.baseI18nCase.SaveBaseI18n(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_VALUE, entity.ID, entity.Value, req.GetValueI18ns(), func(ctx context.Context, value string) error {
 		return c.UpdateByID(ctx, &models.BaseConfig{
 			ID:    entity.ID,
 			Value: value,
@@ -273,13 +273,13 @@ func (c *BaseConfigCase) saveBaseTranslation(ctx context.Context, req *adminv1.B
 	})
 }
 
-// deleteBaseTranslation 删除翻译信息
-func (c *BaseConfigCase) deleteBaseTranslation(ctx context.Context, ids []int64) error {
-	err := c.baseTranslationCase.DeleteBaseTranslation(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, ids)
+// deleteBaseI18n 删除翻译信息
+func (c *BaseConfigCase) deleteBaseI18n(ctx context.Context, ids []int64) error {
+	err := c.baseI18nCase.DeleteBaseI18n(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_NAME, ids)
 	if err != nil {
 		return err
 	}
-	return c.baseTranslationCase.DeleteBaseTranslation(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE, ids)
+	return c.baseI18nCase.DeleteBaseI18n(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_VALUE, ids)
 }
 
 // refreshBaseConfigSite 查询并缓存指定站点的启用配置。

@@ -189,3 +189,4 @@ INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VA
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 9990901, 'ja-JP', '個人情報');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 9990902, 'ja-JP', '設定');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 9990903, 'ja-JP', 'AI アシスタント');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 95004, 'ja-JP', '実行ログ');

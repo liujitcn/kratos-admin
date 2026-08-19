@@ -44,7 +44,7 @@ type baseI18N struct {
 
 	ALL        field.Asterisk
 	ID         field.Int64  // 主键ID
-	TargetType field.Int32  // 目标类型：枚举【TranslationTargetType】
+	TargetType field.Int32  // 目标类型：枚举【I18nTargetType】
 	TargetID   field.Int64  // 目标ID
 	Locale     field.String // 语言区域
 	Name       field.String // 翻译文本

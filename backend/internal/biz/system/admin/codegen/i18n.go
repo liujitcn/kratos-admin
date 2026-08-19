@@ -21,8 +21,8 @@ type LocaleState struct {
 	Primary string
 }
 
-// RequiredTranslationLocales 返回代码生成正式写入所需的非主语言。
-func RequiredTranslationLocales(state LocaleState) []string {
+// RequiredI18nLocales 返回代码生成正式写入所需的非主语言。
+func RequiredI18nLocales(state LocaleState) []string {
 	result := make([]string, 0, len(state.Enabled))
 	for _, localeValue := range state.Enabled {
 		if localeValue != state.Primary {
@@ -37,14 +37,14 @@ func GeneratedFrontendLocales(state LocaleState) []string {
 	return append([]string(nil), state.Enabled...)
 }
 
-// MissingTranslationFields 返回正式生成前尚未填写的表级和字段级翻译。
-func MissingTranslationFields(table *Table, columns []*CodeGenColumn, state LocaleState) []string {
+// MissingI18nFields 返回正式生成前尚未填写的表级和字段级翻译。
+func MissingI18nFields(table *Table, columns []*CodeGenColumn, state LocaleState) []string {
 	if table == nil {
 		return []string{"表配置"}
 	}
 	missing := make([]string, 0)
 	leftTreeEnabled := LeftTreeConfigFromTable(table).Enabled
-	for _, localeValue := range RequiredTranslationLocales(state) {
+	for _, localeValue := range RequiredI18nLocales(state) {
 		config := table.I18NConfig[localeValue]
 		if config.Comment == "" {
 			missing = append(missing, fmt.Sprintf("表描述（%s）", localeValue))
@@ -150,10 +150,10 @@ func mergeFrontendLocaleMessages(content string, prefix string, owned map[string
 	return renderFrontendLocaleMessages(messages)
 }
 
-// GeneratedMenuTranslations 返回页面或按钮菜单的非主语言标题。
-func GeneratedMenuTranslations(table *Table, column *CodeGenColumn, action string, state LocaleState) map[string]string {
-	translations := make(map[string]string, len(RequiredTranslationLocales(state)))
-	for _, localeValue := range RequiredTranslationLocales(state) {
+// GeneratedMenuI18ns 返回页面或按钮菜单的非主语言标题。
+func GeneratedMenuI18ns(table *Table, column *CodeGenColumn, action string, state LocaleState) map[string]string {
+	i18ns := make(map[string]string, len(RequiredI18nLocales(state)))
+	for _, localeValue := range RequiredI18nLocales(state) {
 		catalog := codegenCatalog(localeValue, state.Primary)
 		resource := localizedTableComment(table, localeValue, state.Primary)
 		values := map[string]string{"resource": resource}
@@ -164,9 +164,9 @@ func GeneratedMenuTranslations(table *Table, column *CodeGenColumn, action strin
 		if template == "" {
 			template = catalog.Menu["default"]
 		}
-		translations[localeValue] = renderCodegenTemplate(template, values)
+		i18ns[localeValue] = renderCodegenTemplate(template, values)
 	}
-	return translations
+	return i18ns
 }
 
 func localizedResourceMessages(prefix string, resource string, localeValue string, primaryLocale string) map[string]string {

@@ -21,8 +21,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BaseI18nService_DraftBaseTranslation_FullMethodName  = "/system.admin.v1.BaseI18nService/DraftBaseTranslation"
-	BaseI18nService_UpdateBaseTranslation_FullMethodName = "/system.admin.v1.BaseI18nService/UpdateBaseTranslation"
+	BaseI18nService_DraftBaseI18n_FullMethodName  = "/system.admin.v1.BaseI18nService/DraftBaseI18n"
+	BaseI18nService_UpdateBaseI18n_FullMethodName = "/system.admin.v1.BaseI18nService/UpdateBaseI18n"
 )
 
 // BaseI18nServiceClient is the client API for BaseI18nService service.
@@ -32,9 +32,9 @@ const (
 // 国际化翻译信息服务。
 type BaseI18nServiceClient interface {
 	// 翻译单个文本。
-	DraftBaseTranslation(ctx context.Context, in *DraftBaseTranslationRequest, opts ...grpc.CallOption) (*DraftBaseTranslationResponse, error)
+	DraftBaseI18n(ctx context.Context, in *DraftBaseI18nRequest, opts ...grpc.CallOption) (*DraftBaseI18nResponse, error)
 	// 修改国际化翻译信息
-	UpdateBaseTranslation(ctx context.Context, in *UpdateBaseTranslationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdateBaseI18n(ctx context.Context, in *UpdateBaseI18nRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type baseI18nServiceClient struct {
@@ -45,20 +45,20 @@ func NewBaseI18nServiceClient(cc grpc.ClientConnInterface) BaseI18nServiceClient
 	return &baseI18nServiceClient{cc}
 }
 
-func (c *baseI18nServiceClient) DraftBaseTranslation(ctx context.Context, in *DraftBaseTranslationRequest, opts ...grpc.CallOption) (*DraftBaseTranslationResponse, error) {
+func (c *baseI18nServiceClient) DraftBaseI18n(ctx context.Context, in *DraftBaseI18nRequest, opts ...grpc.CallOption) (*DraftBaseI18nResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DraftBaseTranslationResponse)
-	err := c.cc.Invoke(ctx, BaseI18nService_DraftBaseTranslation_FullMethodName, in, out, cOpts...)
+	out := new(DraftBaseI18nResponse)
+	err := c.cc.Invoke(ctx, BaseI18nService_DraftBaseI18n_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *baseI18nServiceClient) UpdateBaseTranslation(ctx context.Context, in *UpdateBaseTranslationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *baseI18nServiceClient) UpdateBaseI18n(ctx context.Context, in *UpdateBaseI18nRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, BaseI18nService_UpdateBaseTranslation_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, BaseI18nService_UpdateBaseI18n_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -72,9 +72,9 @@ func (c *baseI18nServiceClient) UpdateBaseTranslation(ctx context.Context, in *U
 // 国际化翻译信息服务。
 type BaseI18nServiceServer interface {
 	// 翻译单个文本。
-	DraftBaseTranslation(context.Context, *DraftBaseTranslationRequest) (*DraftBaseTranslationResponse, error)
+	DraftBaseI18n(context.Context, *DraftBaseI18nRequest) (*DraftBaseI18nResponse, error)
 	// 修改国际化翻译信息
-	UpdateBaseTranslation(context.Context, *UpdateBaseTranslationRequest) (*emptypb.Empty, error)
+	UpdateBaseI18n(context.Context, *UpdateBaseI18nRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBaseI18nServiceServer()
 }
 
@@ -85,11 +85,11 @@ type BaseI18nServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseI18nServiceServer struct{}
 
-func (UnimplementedBaseI18nServiceServer) DraftBaseTranslation(context.Context, *DraftBaseTranslationRequest) (*DraftBaseTranslationResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method DraftBaseTranslation not implemented")
+func (UnimplementedBaseI18nServiceServer) DraftBaseI18n(context.Context, *DraftBaseI18nRequest) (*DraftBaseI18nResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DraftBaseI18n not implemented")
 }
-func (UnimplementedBaseI18nServiceServer) UpdateBaseTranslation(context.Context, *UpdateBaseTranslationRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method UpdateBaseTranslation not implemented")
+func (UnimplementedBaseI18nServiceServer) UpdateBaseI18n(context.Context, *UpdateBaseI18nRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateBaseI18n not implemented")
 }
 func (UnimplementedBaseI18nServiceServer) mustEmbedUnimplementedBaseI18nServiceServer() {}
 func (UnimplementedBaseI18nServiceServer) testEmbeddedByValue()                         {}
@@ -112,38 +112,38 @@ func RegisterBaseI18nServiceServer(s grpc.ServiceRegistrar, srv BaseI18nServiceS
 	s.RegisterService(&BaseI18nService_ServiceDesc, srv)
 }
 
-func _BaseI18nService_DraftBaseTranslation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DraftBaseTranslationRequest)
+func _BaseI18nService_DraftBaseI18n_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DraftBaseI18nRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BaseI18nServiceServer).DraftBaseTranslation(ctx, in)
+		return srv.(BaseI18nServiceServer).DraftBaseI18n(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BaseI18nService_DraftBaseTranslation_FullMethodName,
+		FullMethod: BaseI18nService_DraftBaseI18n_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseI18nServiceServer).DraftBaseTranslation(ctx, req.(*DraftBaseTranslationRequest))
+		return srv.(BaseI18nServiceServer).DraftBaseI18n(ctx, req.(*DraftBaseI18nRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BaseI18nService_UpdateBaseTranslation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateBaseTranslationRequest)
+func _BaseI18nService_UpdateBaseI18n_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateBaseI18nRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BaseI18nServiceServer).UpdateBaseTranslation(ctx, in)
+		return srv.(BaseI18nServiceServer).UpdateBaseI18n(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BaseI18nService_UpdateBaseTranslation_FullMethodName,
+		FullMethod: BaseI18nService_UpdateBaseI18n_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseI18nServiceServer).UpdateBaseTranslation(ctx, req.(*UpdateBaseTranslationRequest))
+		return srv.(BaseI18nServiceServer).UpdateBaseI18n(ctx, req.(*UpdateBaseI18nRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -156,12 +156,12 @@ var BaseI18nService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*BaseI18nServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "DraftBaseTranslation",
-			Handler:    _BaseI18nService_DraftBaseTranslation_Handler,
+			MethodName: "DraftBaseI18n",
+			Handler:    _BaseI18nService_DraftBaseI18n_Handler,
 		},
 		{
-			MethodName: "UpdateBaseTranslation",
-			Handler:    _BaseI18nService_UpdateBaseTranslation_Handler,
+			MethodName: "UpdateBaseI18n",
+			Handler:    _BaseI18nService_UpdateBaseI18n_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

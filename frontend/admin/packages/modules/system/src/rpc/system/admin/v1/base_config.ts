@@ -83,9 +83,9 @@ export interface BaseConfigForm {
   /** 配置value */
   value: string;
   /** 配置名称多语言翻 */
-  name_translations: BaseI18n[];
+  name_i18ns: BaseI18n[];
   /** 配置value文本/富文本配置值的多语言翻译 */
-  value_translations: BaseI18n[];
+  value_i18ns: BaseI18n[];
   /** 状态 */
   status: Status;
 }
@@ -141,7 +141,7 @@ export interface BaseConfig {
   /** 更新时间 */
   updated_at: string;
   /** 配置名称及文本/富文本配置值的多语言翻译 */
-  translations: BaseI18n[];
+  i18ns: BaseI18n[];
 }
 
 /** Admin系统配置服务 */

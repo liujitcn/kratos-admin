@@ -17,18 +17,18 @@ require (
 	github.com/liujitcn/kratos-admin/backend/api v0.0.3
 	github.com/liujitcn/kratos-core v0.0.9
 	github.com/liujitcn/kratos-core/api v0.0.2
-	github.com/liujitcn/kratos-kit/api v0.0.29
+	github.com/liujitcn/kratos-kit/api v0.0.30
 	github.com/liujitcn/kratos-kit/auth v0.0.24
 	github.com/liujitcn/kratos-kit/auth/authn v0.0.22
 	github.com/liujitcn/kratos-kit/auth/authz v0.0.21
 	github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.18
-	github.com/liujitcn/kratos-kit/bootstrap v0.0.19
+	github.com/liujitcn/kratos-kit/bootstrap v0.0.20
 	github.com/liujitcn/kratos-kit/cache v0.0.17
 	github.com/liujitcn/kratos-kit/captcha v0.0.19
 	github.com/liujitcn/kratos-kit/database/gorm v0.0.39
 	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.15
 	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.11
-	github.com/liujitcn/kratos-kit/logger/zap v0.0.14
+	github.com/liujitcn/kratos-kit/logger/zap v0.0.16
 	github.com/liujitcn/kratos-kit/oauth v0.0.8
 	github.com/liujitcn/kratos-kit/oss v0.0.16
 	github.com/liujitcn/kratos-kit/pprof v0.0.13
@@ -45,6 +45,7 @@ require (
 	github.com/shirou/gopsutil/v4 v4.26.7
 	golang.org/x/sys v0.47.0
 	golang.org/x/text v0.41.0
+	google.golang.org/genproto/googleapis/api v0.0.0-20260807164820-c8921c73eeea
 	google.golang.org/grpc v1.83.0
 	google.golang.org/protobuf v1.36.12
 	gorm.io/gen v0.3.27
@@ -189,7 +190,7 @@ require (
 	github.com/liujitcn/kratos-kit/config v0.0.23 // indirect
 	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.17 // indirect
 	github.com/liujitcn/kratos-kit/locker v0.0.14 // indirect
-	github.com/liujitcn/kratos-kit/logger v0.0.28 // indirect
+	github.com/liujitcn/kratos-kit/logger v0.0.29 // indirect
 	github.com/liujitcn/kratos-kit/oss/s3 v0.0.2 // indirect
 	github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.14 // indirect
 	github.com/liujitcn/kratos-kit/registry v0.0.21 // indirect
@@ -296,7 +297,6 @@ require (
 	golang.org/x/tools v0.48.0 // indirect
 	google.golang.org/api v0.269.0 // indirect
 	google.golang.org/genproto v0.0.0-20260128011058-8636f8732409 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20260807164820-c8921c73eeea // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260729162451-8efbd57d26e0 // indirect
 	gopkg.in/cenkalti/backoff.v1 v1.1.0 // indirect
 	gopkg.in/ini.v1 v1.67.1 // indirect

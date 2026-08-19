@@ -115,7 +115,7 @@ make -C backend docker-stop IMAGE=kratos-admin TAG=latest
 
 外部 Go 项目将 `github.com/liujitcn/kratos-admin/backend` 的具名模块、资源、定时任务、SSE 流和队列消费者贡献与自身贡献合并后，再交给 `github.com/liujitcn/kratos-core` 创建协议服务及应用生命周期；外部生成代码不会引用 `backend/internal`。
 
-`make i18n-openapi` 会在生成 `openapi.yaml` 后同步生成 `openapi.en-US.yaml`、`openapi.zh-TW.yaml` 和 `openapi.ja-JP.yaml`。默认资源来自后端错误目录和管理端 Core 语言包；外部资源可通过 `OPENAPI_I18N_CONTENT="语言=路径"` 传入。未命中的文案默认自动翻译：英文和日语使用 Google V1，繁体中文使用 OpenCC；设置 `I18N_AUTO_TRANSLATE=0` 可关闭自动翻译。无网络环境使用 `I18N_OFFLINE=1 make i18n-openapi`。
+`make i18n-openapi` 会在生成 `openapi.yaml` 后同步生成 `openapi.en-US.yaml`、`openapi.zh-TW.yaml` 和 `openapi.ja-JP.yaml`。默认资源来自后端错误目录和管理端 Core 语言包；外部资源可通过 `OPENAPI_I18N_CONTENT="语言=路径"` 传入。未命中的文案默认自动翻译：英文和日语使用 Google V1，繁体中文使用 OpenCC；设置 `I18N_AUTO_LOCALIZE=0` 可关闭自动翻译。无网络环境使用 `I18N_OFFLINE=1 make i18n-openapi`。
 
 ## 国际化
 

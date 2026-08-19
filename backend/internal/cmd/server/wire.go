@@ -7,7 +7,7 @@ import (
 	"github.com/go-kratos/kratos/v3"
 	"github.com/google/wire"
 	"github.com/liujitcn/kratos-admin/backend"
-	"github.com/liujitcn/kratos-core"
+	kratoscore "github.com/liujitcn/kratos-core"
 	"github.com/liujitcn/kratos-kit/bootstrap"
 )
 

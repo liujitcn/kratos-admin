@@ -205,9 +205,9 @@ func (c *CodeGenCase) PreviewCodeGen(ctx context.Context, tableID int64, request
 		return nil, err
 	}
 	return &adminv1.PreviewCodeGenResponse{
-		Files:               generation.Files,
-		OutputPaths:         generation.OutputPaths,
-		MissingTranslations: codegen.MissingTranslationFields(table, columns, codegen.LocaleState{Enabled: localeState.Enabled, Primary: localeState.Primary}),
+		Files:        generation.Files,
+		OutputPaths:  generation.OutputPaths,
+		MissingI18ns: codegen.MissingI18nFields(table, columns, codegen.LocaleState{Enabled: localeState.Enabled, Primary: localeState.Primary}),
 	}, nil
 }
 
@@ -515,9 +515,9 @@ func (c *CodeGenCase) prepareCodeGenBatch(ctx context.Context, tableIDs []int64)
 		if err != nil {
 			return nil, err
 		}
-		missingTranslations := codegen.MissingTranslationFields(table, columns, localeState)
-		if len(missingTranslations) > 0 {
-			return nil, errorsx.InvalidArgument("正式生成前请补齐翻译配置：" + strings.Join(missingTranslations, "、"))
+		missingI18ns := codegen.MissingI18nFields(table, columns, localeState)
+		if len(missingI18ns) > 0 {
+			return nil, errorsx.InvalidArgument("正式生成前请补齐翻译配置：" + strings.Join(missingI18ns, "、"))
 		}
 		// 停用配置只允许查看，不能写入生成文件。
 		if table.Status == codegen.StatusDisabled {
@@ -1012,7 +1012,7 @@ func (c *CodeGenCase) syncGeneratedMenus(ctx context.Context, table *codegen.Tab
 	if err != nil {
 		return err
 	}
-	if err = c.baseMenuCase.SaveGeneratedMenuTranslations(ctx, pageMenu.ID, pageSpec.SourceTitle, pageSpec.Translations); err != nil {
+	if err = c.baseMenuCase.SaveGeneratedMenuI18ns(ctx, pageMenu.ID, pageSpec.SourceTitle, pageSpec.I18ns); err != nil {
 		return err
 	}
 	for _, buttonSpec := range buttonSpecs {
@@ -1022,7 +1022,7 @@ func (c *CodeGenCase) syncGeneratedMenus(ctx context.Context, table *codegen.Tab
 		if err != nil {
 			return err
 		}
-		if err = c.baseMenuCase.SaveGeneratedMenuTranslations(ctx, buttonMenu.ID, buttonSpec.SourceTitle, buttonSpec.Translations); err != nil {
+		if err = c.baseMenuCase.SaveGeneratedMenuI18ns(ctx, buttonMenu.ID, buttonSpec.SourceTitle, buttonSpec.I18ns); err != nil {
 			return err
 		}
 	}

@@ -60,8 +60,8 @@ func (c *BaseAPICase) OptionBaseAPI(ctx context.Context, _ *adminv1.OptionBaseAp
 	if err != nil {
 		return nil, err
 	}
-	var translations map[string]*models.BaseAPII18N
-	translations, err = c.baseAPII18NMap(ctx, list)
+	var i18ns map[string]*models.BaseAPII18N
+	i18ns, err = c.baseAPII18NMap(ctx, list)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func (c *BaseAPICase) OptionBaseAPI(ctx context.Context, _ *adminv1.OptionBaseAp
 				continue
 			}
 		}
-		baseAPI := c.toBaseAPIDTO(ctx, item, translations[item.Operation])
+		baseAPI := c.toBaseAPIDTO(ctx, item, i18ns[item.Operation])
 		baseAPIs = append(baseAPIs, baseAPI)
 	}
 
@@ -146,18 +146,18 @@ func (c *BaseAPICase) PageBaseAPI(ctx context.Context, req *adminv1.PageBaseApiR
 	if req.AgentStatus != nil {
 		opts = append(opts, repository.Where(query.AgentStatus.Eq(int32(req.GetAgentStatus()))))
 	}
-	var translations map[string]*models.BaseAPII18N
+	var i18ns map[string]*models.BaseAPII18N
 	if req.GetToolPrompt() != "" || req.GetOpenapiServiceCode() != "" {
 		list, err = c.List(ctx, opts...)
 		if err != nil {
 			return nil, err
 		}
 		if req.GetToolPrompt() != "" {
-			translations, err = c.baseAPII18NMap(ctx, list)
+			i18ns, err = c.baseAPII18NMap(ctx, list)
 			if err != nil {
 				return nil, err
 			}
-			list = filterBaseAPIsByToolPrompt(list, req.GetToolPrompt(), translations)
+			list = filterBaseAPIsByToolPrompt(list, req.GetToolPrompt(), i18ns)
 		}
 		list = c.filterBaseAPIsByOpenAPIService(ctx, list, req.GetOpenapiServiceCode())
 		total = int64(len(list))
@@ -168,8 +168,8 @@ func (c *BaseAPICase) PageBaseAPI(ctx context.Context, req *adminv1.PageBaseApiR
 			return nil, err
 		}
 	}
-	if translations == nil {
-		translations, err = c.baseAPII18NMap(ctx, list)
+	if i18ns == nil {
+		i18ns, err = c.baseAPII18NMap(ctx, list)
 		if err != nil {
 			return nil, err
 		}
@@ -177,7 +177,7 @@ func (c *BaseAPICase) PageBaseAPI(ctx context.Context, req *adminv1.PageBaseApiR
 
 	baseAPIs := make([]*adminv1.BaseApi, 0, len(list))
 	for _, item := range list {
-		baseAPI := c.toBaseAPIDTO(ctx, item, translations[item.Operation])
+		baseAPI := c.toBaseAPIDTO(ctx, item, i18ns[item.Operation])
 		baseAPIs = append(baseAPIs, baseAPI)
 	}
 
@@ -198,12 +198,12 @@ func (c *BaseAPICase) GetBaseAPI(ctx context.Context, id int64) (*adminv1.BaseAp
 		return nil, err
 	}
 
-	var translations map[string]*models.BaseAPII18N
-	translations, err = c.baseAPII18NMap(ctx, []*models.BaseAPI{baseAPI})
+	var i18ns map[string]*models.BaseAPII18N
+	i18ns, err = c.baseAPII18NMap(ctx, []*models.BaseAPI{baseAPI})
 	if err != nil {
 		return nil, err
 	}
-	return c.toBaseAPIDTO(ctx, baseAPI, translations[baseAPI.Operation]), nil
+	return c.toBaseAPIDTO(ctx, baseAPI, i18ns[baseAPI.Operation]), nil
 }
 
 // GetBaseAPIDoc 查询接口 OpenAPI 文档
@@ -310,17 +310,17 @@ func (c *BaseAPICase) SetBaseAPIMcpStatus(ctx context.Context, req *adminv1.SetB
 }
 
 // toBaseAPIDTO 转换接口数据并补充所属 OpenAPI 文档信息。
-func (c *BaseAPICase) toBaseAPIDTO(ctx context.Context, item *models.BaseAPI, translation *models.BaseAPII18N) *adminv1.BaseApi {
+func (c *BaseAPICase) toBaseAPIDTO(ctx context.Context, item *models.BaseAPI, i18n *models.BaseAPII18N) *adminv1.BaseApi {
 	baseAPI := c.mapper.ToDTO(item)
-	if translation != nil {
-		if translation.ToolPrompts != "" {
-			baseAPI.ToolPrompts = parseToolPrompts(translation.ToolPrompts)
+	if i18n != nil {
+		if i18n.ToolPrompts != "" {
+			baseAPI.ToolPrompts = parseToolPrompts(i18n.ToolPrompts)
 		}
-		if translation.ServiceDesc != "" {
-			baseAPI.ServiceDesc = translation.ServiceDesc
+		if i18n.ServiceDesc != "" {
+			baseAPI.ServiceDesc = i18n.ServiceDesc
 		}
-		if translation.Desc != "" {
-			baseAPI.Desc = translation.Desc
+		if i18n.Desc != "" {
+			baseAPI.Desc = i18n.Desc
 		}
 	}
 	document, found := c.openAPI.Service(ctx, item.Path, item.Method)
@@ -347,7 +347,7 @@ func (c *BaseAPICase) filterBaseAPIsByOpenAPIService(ctx context.Context, list [
 }
 
 // filterBaseAPIsByToolPrompt 按工具提示词内容过滤接口列表。
-func filterBaseAPIsByToolPrompt(list []*models.BaseAPI, keyword string, translations map[string]*models.BaseAPII18N) []*models.BaseAPI {
+func filterBaseAPIsByToolPrompt(list []*models.BaseAPI, keyword string, i18ns map[string]*models.BaseAPII18N) []*models.BaseAPI {
 	if keyword == "" {
 		return list
 	}
@@ -364,9 +364,9 @@ func filterBaseAPIsByToolPrompt(list []*models.BaseAPI, keyword string, translat
 			}
 		}
 		if !matched {
-			translation := translations[item.Operation]
-			if translation != nil {
-				for _, prompt := range parseToolPrompts(translation.ToolPrompts) {
+			i18n := i18ns[item.Operation]
+			if i18n != nil {
+				for _, prompt := range parseToolPrompts(i18n.ToolPrompts) {
 					if strings.Contains(prompt, keyword) {
 						matched = true
 						break
@@ -383,7 +383,7 @@ func filterBaseAPIsByToolPrompt(list []*models.BaseAPI, keyword string, translat
 
 // baseAPII18NMap 查询当前语言对应的 API 翻译信息。
 func (c *BaseAPICase) baseAPII18NMap(ctx context.Context, list []*models.BaseAPI) (map[string]*models.BaseAPII18N, error) {
-	translations := make(map[string]*models.BaseAPII18N)
+	i18ns := make(map[string]*models.BaseAPII18N)
 	operations := make([]string, 0, len(list))
 	seen := make(map[string]struct{}, len(list))
 	for _, item := range list {
@@ -398,7 +398,7 @@ func (c *BaseAPICase) baseAPII18NMap(ctx context.Context, list []*models.BaseAPI
 	}
 	locale := biz.LocaleFromContext(ctx)
 	if locale == "" || len(operations) == 0 {
-		return translations, nil
+		return i18ns, nil
 	}
 	query := c.baseAPII18NRepo.Query(ctx).BaseAPII18N
 	rows, err := c.baseAPII18NRepo.List(ctx,
@@ -409,9 +409,9 @@ func (c *BaseAPICase) baseAPII18NMap(ctx context.Context, list []*models.BaseAPI
 		return nil, err
 	}
 	for _, row := range rows {
-		translations[row.Operation] = row
+		i18ns[row.Operation] = row
 	}
-	return translations, nil
+	return i18ns, nil
 }
 
 // translatedOperations 查询当前语言中匹配字段关键字的 API 操作名。

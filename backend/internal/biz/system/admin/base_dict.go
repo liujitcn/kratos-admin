@@ -21,22 +21,22 @@ type BaseDictCase struct {
 	*biz.BaseCase
 	tx data.Transaction
 	*data.BaseDictRepository
-	baseDictItemCase    *BaseDictItemCase
-	baseTranslationCase *BaseTranslationCase
-	formMapper          *mapper.CopierMapper[adminv1.BaseDictForm, models.BaseDict]
-	mapper              *mapper.CopierMapper[adminv1.BaseDict, models.BaseDict]
+	baseDictItemCase *BaseDictItemCase
+	baseI18nCase     *BaseI18nCase
+	formMapper       *mapper.CopierMapper[adminv1.BaseDictForm, models.BaseDict]
+	mapper           *mapper.CopierMapper[adminv1.BaseDict, models.BaseDict]
 }
 
 // NewBaseDictCase 创建字典业务实例
-func NewBaseDictCase(baseCase *biz.BaseCase, tx data.Transaction, baseDictRepo *data.BaseDictRepository, baseDictItemCase *BaseDictItemCase, baseTranslationCase *BaseTranslationCase) *BaseDictCase {
+func NewBaseDictCase(baseCase *biz.BaseCase, tx data.Transaction, baseDictRepo *data.BaseDictRepository, baseDictItemCase *BaseDictItemCase, baseI18nCase *BaseI18nCase) *BaseDictCase {
 	return &BaseDictCase{
-		BaseCase:            baseCase,
-		tx:                  tx,
-		BaseDictRepository:  baseDictRepo,
-		baseDictItemCase:    baseDictItemCase,
-		baseTranslationCase: baseTranslationCase,
-		formMapper:          mapper.NewCopierMapper[adminv1.BaseDictForm, models.BaseDict](),
-		mapper:              mapper.NewCopierMapper[adminv1.BaseDict, models.BaseDict](),
+		BaseCase:           baseCase,
+		tx:                 tx,
+		BaseDictRepository: baseDictRepo,
+		baseDictItemCase:   baseDictItemCase,
+		baseI18nCase:       baseI18nCase,
+		formMapper:         mapper.NewCopierMapper[adminv1.BaseDictForm, models.BaseDict](),
+		mapper:             mapper.NewCopierMapper[adminv1.BaseDict, models.BaseDict](),
 	}
 }
 
@@ -69,7 +69,7 @@ func (c *BaseDictCase) OptionBaseDict(ctx context.Context) (*adminv1.OptionBaseD
 		dictIDs = append(dictIDs, item.ID)
 	}
 	var dictNames map[int64]string
-	dictNames, err = c.baseTranslationCase.GetBaseTranslationNameMapByLocale(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT, biz.LocaleFromContext(ctx), dictIDs)
+	dictNames, err = c.baseI18nCase.GetBaseI18nNameMapByLocale(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT, biz.LocaleFromContext(ctx), dictIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func (c *BaseDictCase) OptionBaseDict(ctx context.Context) (*adminv1.OptionBaseD
 		dictItemIDs = append(dictItemIDs, item.ID)
 	}
 	var dictItemLabels map[int64]string
-	dictItemLabels, err = c.baseTranslationCase.GetBaseTranslationNameMapByLocale(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM, biz.LocaleFromContext(ctx), dictItemIDs)
+	dictItemLabels, err = c.baseI18nCase.GetBaseI18nNameMapByLocale(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_ITEM, biz.LocaleFromContext(ctx), dictItemIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func (c *BaseDictCase) PageBaseDict(ctx context.Context, req *adminv1.PageBaseDi
 	var err error
 	if req.GetName() != "" {
 		var translatedIDs []int64
-		translatedIDs, err = c.baseTranslationCase.GetTargetIdsByName(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT, req.GetName())
+		translatedIDs, err = c.baseI18nCase.GetTargetIdsByName(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT, req.GetName())
 		if err != nil {
 			return nil, err
 		}
@@ -156,14 +156,14 @@ func (c *BaseDictCase) PageBaseDict(ctx context.Context, req *adminv1.PageBaseDi
 	for _, item := range list {
 		targetIds = append(targetIds, item.ID)
 	}
-	var translations map[int64][]*adminv1.BaseI18n
-	translations, err = c.baseTranslationCase.GetBaseTranslationMapByTargetType(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT, targetIds)
+	var i18ns map[int64][]*adminv1.BaseI18n
+	i18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetType(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT, targetIds)
 	if err != nil {
 		return nil, err
 	}
 	for _, item := range list {
 		baseDict := c.mapper.ToDTO(item)
-		baseDict.Translations = translations[item.ID]
+		baseDict.I18ns = i18ns[item.ID]
 		resList = append(resList, baseDict)
 	}
 	return &adminv1.PageBaseDictResponse{BaseDicts: resList, Total: int32(total)}, nil
@@ -176,12 +176,12 @@ func (c *BaseDictCase) GetBaseDict(ctx context.Context, id int64) (*adminv1.Base
 		return nil, err
 	}
 	res := c.formMapper.ToDTO(baseDict)
-	var translations map[int64][]*adminv1.BaseI18n
-	translations, err = c.baseTranslationCase.GetBaseTranslationMapByTargetType(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT, []int64{id})
+	var i18ns map[int64][]*adminv1.BaseI18n
+	i18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetType(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT, []int64{id})
 	if err != nil {
 		return nil, err
 	}
-	res.Translations = translations[id]
+	res.I18ns = i18ns[id]
 	return res, nil
 }
 
@@ -196,7 +196,7 @@ func (c *BaseDictCase) CreateBaseDict(ctx context.Context, req *adminv1.BaseDict
 		}
 		return err
 	}
-	return c.saveBaseTranslation(ctx, req, baseDict)
+	return c.saveBaseI18n(ctx, req, baseDict)
 }
 
 // UpdateBaseDict 更新字典
@@ -210,7 +210,7 @@ func (c *BaseDictCase) UpdateBaseDict(ctx context.Context, req *adminv1.BaseDict
 		}
 		return err
 	}
-	return c.saveBaseTranslation(ctx, req, baseDict)
+	return c.saveBaseI18n(ctx, req, baseDict)
 }
 
 // DeleteBaseDict 删除字典
@@ -234,7 +234,7 @@ func (c *BaseDictCase) DeleteBaseDict(ctx context.Context, id string) error {
 		if err != nil {
 			return err
 		}
-		return c.baseTranslationCase.DeleteBaseTranslation(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT, ids)
+		return c.baseI18nCase.DeleteBaseI18n(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT, ids)
 	})
 }
 
@@ -246,9 +246,9 @@ func (c *BaseDictCase) SetBaseDictStatus(ctx context.Context, req *adminv1.SetBa
 	})
 }
 
-// saveBaseTranslation 保存字典名称翻译并同步主表名称。
-func (c *BaseDictCase) saveBaseTranslation(ctx context.Context, req *adminv1.BaseDictForm, entity *models.BaseDict) error {
-	return c.baseTranslationCase.SaveBaseTranslation(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT, entity.ID, entity.Name, req.GetTranslations(), func(ctx context.Context, name string) error {
+// saveBaseI18n 保存字典名称翻译并同步主表名称。
+func (c *BaseDictCase) saveBaseI18n(ctx context.Context, req *adminv1.BaseDictForm, entity *models.BaseDict) error {
+	return c.baseI18nCase.SaveBaseI18n(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT, entity.ID, entity.Name, req.GetI18ns(), func(ctx context.Context, name string) error {
 		return c.UpdateByID(ctx, &models.BaseDict{ID: entity.ID, Name: name})
 	})
 }

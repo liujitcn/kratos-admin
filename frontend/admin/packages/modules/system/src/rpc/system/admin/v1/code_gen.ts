@@ -82,7 +82,7 @@ export interface PreviewCodeGenResponse {
     | CodeGenOutputPaths
     | undefined;
   /** 正式生成前必须补齐的翻译配置 */
-  missing_translations: string[];
+  missing_i18ns: string[];
 }
 
 /** 启动代码生成任务条件 */

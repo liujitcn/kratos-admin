@@ -80,7 +80,7 @@ message PreviewCodeGenResponse {
 
   CodeGenOutputPaths output_paths = 2 [(gnostic.openapi.v3.property) = {description: "本次生效输出路径"}]; // 本次生效输出路径
 
-  repeated string missing_translations = 3 [(gnostic.openapi.v3.property) = {description: "正式生成前必须补齐的翻译配置"}]; // 正式生成前必须补齐的翻译配置
+  repeated string missing_i18ns = 3 [(gnostic.openapi.v3.property) = {description: "正式生成前必须补齐的翻译配置"}]; // 正式生成前必须补齐的翻译配置
 }
 
 // 代码生成任务状态

@@ -31,9 +31,9 @@
         <SelectIcon v-model:icon-value="menuIconValue" :placeholder="t('system.base.menu.placeholder.icon')" />
       </template>
 
-      <template #translations>
-        <DynamicTranslationEditor
-          v-model="translationValues"
+      <template #i18ns>
+        <DynamicI18nEditor
+          v-model="i18nValues"
           :source="formData.meta.title"
           :maxlength="100"
         />
@@ -79,17 +79,17 @@ import type {
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_menu";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { BaseMenuType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/common";
-import { TranslationTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
+import { I18nTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
-import DynamicTranslationEditor from "@liujitcn/kratos-admin-system/components/DynamicTranslationEditor.vue";
-import DynamicTranslationCell from "@liujitcn/kratos-admin-system/components/DynamicTranslationCell.vue";
+import DynamicI18nEditor from "@liujitcn/kratos-admin-system/components/DynamicI18nEditor.vue";
+import DynamicI18nCell from "@liujitcn/kratos-admin-system/components/DynamicI18nCell.vue";
 import {
-  normalizeDynamicTranslations,
-  serializeDynamicTranslations,
-  type DynamicTranslationRecord,
-  type DynamicTranslationValue
-} from "@liujitcn/kratos-admin-system/components/dynamicTranslation";
+  normalizeDynamicI18ns,
+  serializeDynamicI18ns,
+  type DynamicI18nRecord,
+  type DynamicI18nValue
+} from "@liujitcn/kratos-admin-system/components/dynamicI18n";
 
 defineOptions({
   name: "BaseMenu",
@@ -113,7 +113,7 @@ const menuOptions = ref<ProFormOption[]>([]);
 const parentMenuTypeMap = ref(new Map<number, BaseMenuType>());
 const appMenuIds = ref(new Set<number>([APP_MENU_ROOT_ID]));
 const apiList = ref<BaseApi[]>([]);
-const translationValues = ref<DynamicTranslationValue[]>(normalizeDynamicTranslations(undefined, "title"));
+const i18nValues = ref<DynamicI18nValue[]>(normalizeDynamicI18ns(undefined, "title"));
 
 const dialog = reactive({
   editing: false,
@@ -159,7 +159,7 @@ function createDefaultMenuForm(): MenuFormState {
     redirect: "",
     meta: createDefaultMenuMeta(),
     api: [],
-    translations: [],
+    i18ns: [],
     sort: 1,
     status: Status.STATUS_ENABLE
   };
@@ -294,11 +294,11 @@ function renderHiddenCell(scope: RenderScope<BaseMenu>) {
 /** 渲染菜单标题翻译预览，并复用当前页面的编辑弹窗。 */
 function renderMenuTitleCell(scope: RenderScope<BaseMenu>) {
   const row = scope.row;
-  return h(DynamicTranslationCell, {
+  return h(DynamicI18nCell, {
     source: row.meta?.title ?? "",
-    targetType: TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_MENU,
+    targetType: I18nTargetType.I18N_TARGET_TYPE_BASE_MENU,
     targetId: row.id,
-    translations: row.translations
+    i18ns: row.i18ns
   });
 }
 
@@ -468,10 +468,10 @@ const formFields = computed<ProFormField[]>(() => [
     })
   },
   {
-    prop: "translations",
-    label: t("system.base.translation.field.translations"),
+    prop: "i18ns",
+    label: t("system.base.i18n.field.i18ns"),
     component: "slot",
-    slotName: "translations",
+    slotName: "i18ns",
     colSpan: 24
   },
   {
@@ -999,9 +999,9 @@ function buildMenuOptions(menuList: BaseMenu[] = []) {
 /** 根据菜单类型清理无效字段，避免提交脏数据。 */
 function buildSubmitPayload(): BaseMenuForm {
   const payload = normalizeMenuForm(formData);
-  payload.translations = serializeDynamicTranslations(
-    translationValues.value,
-    TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_MENU,
+  payload.i18ns = serializeDynamicI18ns(
+    i18nValues.value,
+    I18nTargetType.I18N_TARGET_TYPE_BASE_MENU,
     payload.id
   );
   // 一级菜单在表单中保持空白，提交时仍按接口约定传回根节点标识。
@@ -1145,7 +1145,7 @@ function resetForm(data?: Partial<BaseMenuForm>) {
   formDialogRef.value?.resetFields();
   formDialogRef.value?.clearValidate();
   Object.assign(formData, normalizeMenuForm(data));
-  translationValues.value = normalizeDynamicTranslations(data?.translations as DynamicTranslationRecord[] | undefined, "title");
+  i18nValues.value = normalizeDynamicI18ns(data?.i18ns as DynamicI18nRecord[] | undefined, "title");
 }
 
 /** 提交菜单表单，并在成功后关闭弹窗、刷新表格。 */

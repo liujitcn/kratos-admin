@@ -60,7 +60,7 @@ const table = ref<CodeGenTableForm>();
 const files = ref<CodeGenPreviewFile[]>([]);
 const loading = ref(false);
 const previewError = ref("");
-const missingTranslations = ref<string[]>([]);
+const missingI18ns = ref<string[]>([]);
 const progressTaskId = ref(typeof window === "undefined" ? "" : (window.sessionStorage.getItem(codeGenTaskStorageKey) ?? ""));
 const progressDialogVisible = ref(
   !!progressTaskId.value &&
@@ -94,7 +94,7 @@ async function loadCodePreview() {
   table.value = undefined;
   files.value = [];
   previewError.value = "";
-  missingTranslations.value = [];
+  missingI18ns.value = [];
   if (!tableId.value) return;
   loading.value = true;
   try {
@@ -103,10 +103,10 @@ async function loadCodePreview() {
     try {
       const preview = await defCodeGenService.PreviewCodeGen({ table_id: tableId.value, output_paths: undefined });
       files.value = preview.files ?? [];
-      missingTranslations.value = preview.missing_translations ?? [];
-      if (missingTranslations.value.length) {
-        previewError.value = t("system.code.gen.preview.message.missing_translations", {
-          items: missingTranslations.value.join(t("system.code.gen.preview.value.list_separator"))
+      missingI18ns.value = preview.missing_i18ns ?? [];
+      if (missingI18ns.value.length) {
+        previewError.value = t("system.code.gen.preview.message.missing_i18ns", {
+          items: missingI18ns.value.join(t("system.code.gen.preview.value.list_separator"))
         });
       }
       if (!files.value.length && !previewError.value) previewError.value = t("system.code.gen.preview.message.no_preview_files");
@@ -134,11 +134,11 @@ async function handleGenerate() {
     ElMessage.warning(t("system.code.gen.table.message.disabled", { name: table.value.name }));
     return;
   }
-  if (missingTranslations.value.length) {
+  if (missingI18ns.value.length) {
     try {
       await ElMessageBox.alert(
-        t("system.code.gen.preview.message.missing_translations", {
-          items: missingTranslations.value.join(t("system.code.gen.preview.value.list_separator"))
+        t("system.code.gen.preview.message.missing_i18ns", {
+          items: missingI18ns.value.join(t("system.code.gen.preview.value.list_separator"))
         }),
         t("common.title.warning"),
         {

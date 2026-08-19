@@ -27,72 +27,72 @@ const (
 )
 
 // 统一翻译表目标类型，和 base_i18n.target_type 的值一一对应。
-type TranslationTargetType int32
+type I18nTargetType int32
 
 const (
 	// 未指定统一翻译表目标类型。
-	TranslationTargetType_TRANSLATION_TARGET_TYPE_UNSPECIFIED TranslationTargetType = 0
+	I18nTargetType_I18N_TARGET_TYPE_UNSPECIFIED I18nTargetType = 0
 	// 系统配置值。
-	TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE TranslationTargetType = 1
+	I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_VALUE I18nTargetType = 1
 	// 系统配置名称。
-	TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME TranslationTargetType = 2
+	I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_NAME I18nTargetType = 2
 	// 字典名称。
-	TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT TranslationTargetType = 3
+	I18nTargetType_I18N_TARGET_TYPE_BASE_DICT I18nTargetType = 3
 	// 字典项标签。
-	TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM TranslationTargetType = 4
+	I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_ITEM I18nTargetType = 4
 	// 菜单标题。
-	TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU TranslationTargetType = 5
+	I18nTargetType_I18N_TARGET_TYPE_BASE_MENU I18nTargetType = 5
 )
 
-// Enum value maps for TranslationTargetType.
+// Enum value maps for I18nTargetType.
 var (
-	TranslationTargetType_name = map[int32]string{
-		0: "TRANSLATION_TARGET_TYPE_UNSPECIFIED",
-		1: "TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE",
-		2: "TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME",
-		3: "TRANSLATION_TARGET_TYPE_BASE_DICT",
-		4: "TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM",
-		5: "TRANSLATION_TARGET_TYPE_BASE_MENU",
+	I18nTargetType_name = map[int32]string{
+		0: "I18N_TARGET_TYPE_UNSPECIFIED",
+		1: "I18N_TARGET_TYPE_BASE_CONFIG_VALUE",
+		2: "I18N_TARGET_TYPE_BASE_CONFIG_NAME",
+		3: "I18N_TARGET_TYPE_BASE_DICT",
+		4: "I18N_TARGET_TYPE_BASE_DICT_ITEM",
+		5: "I18N_TARGET_TYPE_BASE_MENU",
 	}
-	TranslationTargetType_value = map[string]int32{
-		"TRANSLATION_TARGET_TYPE_UNSPECIFIED":       0,
-		"TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE": 1,
-		"TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME":  2,
-		"TRANSLATION_TARGET_TYPE_BASE_DICT":         3,
-		"TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM":    4,
-		"TRANSLATION_TARGET_TYPE_BASE_MENU":         5,
+	I18nTargetType_value = map[string]int32{
+		"I18N_TARGET_TYPE_UNSPECIFIED":       0,
+		"I18N_TARGET_TYPE_BASE_CONFIG_VALUE": 1,
+		"I18N_TARGET_TYPE_BASE_CONFIG_NAME":  2,
+		"I18N_TARGET_TYPE_BASE_DICT":         3,
+		"I18N_TARGET_TYPE_BASE_DICT_ITEM":    4,
+		"I18N_TARGET_TYPE_BASE_MENU":         5,
 	}
 )
 
-func (x TranslationTargetType) Enum() *TranslationTargetType {
-	p := new(TranslationTargetType)
+func (x I18nTargetType) Enum() *I18nTargetType {
+	p := new(I18nTargetType)
 	*p = x
 	return p
 }
 
-func (x TranslationTargetType) String() string {
+func (x I18nTargetType) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (TranslationTargetType) Descriptor() protoreflect.EnumDescriptor {
+func (I18nTargetType) Descriptor() protoreflect.EnumDescriptor {
 	return file_system_admin_v1_base_i18n_proto_enumTypes[0].Descriptor()
 }
 
-func (TranslationTargetType) Type() protoreflect.EnumType {
+func (I18nTargetType) Type() protoreflect.EnumType {
 	return &file_system_admin_v1_base_i18n_proto_enumTypes[0]
 }
 
-func (x TranslationTargetType) Number() protoreflect.EnumNumber {
+func (x I18nTargetType) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use TranslationTargetType.Descriptor instead.
-func (TranslationTargetType) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use I18nTargetType.Descriptor instead.
+func (I18nTargetType) EnumDescriptor() ([]byte, []int) {
 	return file_system_admin_v1_base_i18n_proto_rawDescGZIP(), []int{0}
 }
 
 // 翻译单个文本请求。
-type DraftBaseTranslationRequest struct {
+type DraftBaseI18nRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Source        string                 `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty"`       // 待翻译文本
 	Locale        *string                `protobuf:"bytes,2,opt,name=locale,proto3,oneof" json:"locale,omitempty"` // 目标语言区域，不传时翻译所有启用的非主语言
@@ -100,20 +100,20 @@ type DraftBaseTranslationRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *DraftBaseTranslationRequest) Reset() {
-	*x = DraftBaseTranslationRequest{}
+func (x *DraftBaseI18nRequest) Reset() {
+	*x = DraftBaseI18nRequest{}
 	mi := &file_system_admin_v1_base_i18n_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DraftBaseTranslationRequest) String() string {
+func (x *DraftBaseI18nRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DraftBaseTranslationRequest) ProtoMessage() {}
+func (*DraftBaseI18nRequest) ProtoMessage() {}
 
-func (x *DraftBaseTranslationRequest) ProtoReflect() protoreflect.Message {
+func (x *DraftBaseI18nRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_system_admin_v1_base_i18n_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -125,19 +125,19 @@ func (x *DraftBaseTranslationRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DraftBaseTranslationRequest.ProtoReflect.Descriptor instead.
-func (*DraftBaseTranslationRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use DraftBaseI18nRequest.ProtoReflect.Descriptor instead.
+func (*DraftBaseI18nRequest) Descriptor() ([]byte, []int) {
 	return file_system_admin_v1_base_i18n_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *DraftBaseTranslationRequest) GetSource() string {
+func (x *DraftBaseI18nRequest) GetSource() string {
 	if x != nil {
 		return x.Source
 	}
 	return ""
 }
 
-func (x *DraftBaseTranslationRequest) GetLocale() string {
+func (x *DraftBaseI18nRequest) GetLocale() string {
 	if x != nil && x.Locale != nil {
 		return *x.Locale
 	}
@@ -145,27 +145,27 @@ func (x *DraftBaseTranslationRequest) GetLocale() string {
 }
 
 // 翻译单个文本响应。
-type DraftBaseTranslationResponse struct {
-	state         protoimpl.MessageState      `protogen:"open.v1"`
-	Translations  []*DraftBaseTranslationItem `protobuf:"bytes,1,rep,name=translations,proto3" json:"translations,omitempty"` // 翻译结果
+type DraftBaseI18nResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	I18ns         []*DraftBaseI18nItem   `protobuf:"bytes,1,rep,name=i18ns,proto3" json:"i18ns,omitempty"` // 翻译结果
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *DraftBaseTranslationResponse) Reset() {
-	*x = DraftBaseTranslationResponse{}
+func (x *DraftBaseI18nResponse) Reset() {
+	*x = DraftBaseI18nResponse{}
 	mi := &file_system_admin_v1_base_i18n_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DraftBaseTranslationResponse) String() string {
+func (x *DraftBaseI18nResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DraftBaseTranslationResponse) ProtoMessage() {}
+func (*DraftBaseI18nResponse) ProtoMessage() {}
 
-func (x *DraftBaseTranslationResponse) ProtoReflect() protoreflect.Message {
+func (x *DraftBaseI18nResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_system_admin_v1_base_i18n_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -177,41 +177,41 @@ func (x *DraftBaseTranslationResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DraftBaseTranslationResponse.ProtoReflect.Descriptor instead.
-func (*DraftBaseTranslationResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use DraftBaseI18nResponse.ProtoReflect.Descriptor instead.
+func (*DraftBaseI18nResponse) Descriptor() ([]byte, []int) {
 	return file_system_admin_v1_base_i18n_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *DraftBaseTranslationResponse) GetTranslations() []*DraftBaseTranslationItem {
+func (x *DraftBaseI18nResponse) GetI18ns() []*DraftBaseI18nItem {
 	if x != nil {
-		return x.Translations
+		return x.I18ns
 	}
 	return nil
 }
 
 // 翻译单个文本响应。
-type DraftBaseTranslationItem struct {
+type DraftBaseI18nItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Locale        string                 `protobuf:"bytes,1,opt,name=locale,proto3" json:"locale,omitempty"`           // 目标语言区域
-	Translation   string                 `protobuf:"bytes,2,opt,name=translation,proto3" json:"translation,omitempty"` // 翻译文本
+	Locale        string                 `protobuf:"bytes,1,opt,name=locale,proto3" json:"locale,omitempty"` // 目标语言区域
+	I18n          string                 `protobuf:"bytes,2,opt,name=i18n,proto3" json:"i18n,omitempty"`     // 翻译文本
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *DraftBaseTranslationItem) Reset() {
-	*x = DraftBaseTranslationItem{}
+func (x *DraftBaseI18nItem) Reset() {
+	*x = DraftBaseI18nItem{}
 	mi := &file_system_admin_v1_base_i18n_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DraftBaseTranslationItem) String() string {
+func (x *DraftBaseI18nItem) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DraftBaseTranslationItem) ProtoMessage() {}
+func (*DraftBaseI18nItem) ProtoMessage() {}
 
-func (x *DraftBaseTranslationItem) ProtoReflect() protoreflect.Message {
+func (x *DraftBaseI18nItem) ProtoReflect() protoreflect.Message {
 	mi := &file_system_admin_v1_base_i18n_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -223,51 +223,51 @@ func (x *DraftBaseTranslationItem) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DraftBaseTranslationItem.ProtoReflect.Descriptor instead.
-func (*DraftBaseTranslationItem) Descriptor() ([]byte, []int) {
+// Deprecated: Use DraftBaseI18nItem.ProtoReflect.Descriptor instead.
+func (*DraftBaseI18nItem) Descriptor() ([]byte, []int) {
 	return file_system_admin_v1_base_i18n_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *DraftBaseTranslationItem) GetLocale() string {
+func (x *DraftBaseI18nItem) GetLocale() string {
 	if x != nil {
 		return x.Locale
 	}
 	return ""
 }
 
-func (x *DraftBaseTranslationItem) GetTranslation() string {
+func (x *DraftBaseI18nItem) GetI18N() string {
 	if x != nil {
-		return x.Translation
+		return x.I18n
 	}
 	return ""
 }
 
 // 修改单个翻译信息请求。
-type UpdateBaseTranslationRequest struct {
+type UpdateBaseI18nRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                              // 翻译记录ID，大于零时优先按ID更新；ID不存在时根据目标信息更新或新增
-	TargetType    TranslationTargetType  `protobuf:"varint,2,opt,name=target_type,json=targetType,proto3,enum=system.admin.v1.TranslationTargetType" json:"target_type,omitempty"` // 翻译目标类型，ID为零时用于查询或新增
-	TargetId      int64                  `protobuf:"varint,3,opt,name=target_id,json=targetId,proto3" json:"target_id,omitempty"`                                                  // 目标资源ID，ID为零时用于查询或新增
-	Locale        string                 `protobuf:"bytes,4,opt,name=locale,proto3" json:"locale,omitempty"`                                                                       // 目标语言区域，ID为零时用于查询或新增
-	Name          string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`                                                                           // 翻译文本
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                       // 翻译记录ID，大于零时优先按ID更新；ID不存在时根据目标信息更新或新增
+	TargetType    I18nTargetType         `protobuf:"varint,2,opt,name=target_type,json=targetType,proto3,enum=system.admin.v1.I18nTargetType" json:"target_type,omitempty"` // 翻译目标类型，ID为零时用于查询或新增
+	TargetId      int64                  `protobuf:"varint,3,opt,name=target_id,json=targetId,proto3" json:"target_id,omitempty"`                                           // 目标资源ID，ID为零时用于查询或新增
+	Locale        string                 `protobuf:"bytes,4,opt,name=locale,proto3" json:"locale,omitempty"`                                                                // 目标语言区域，ID为零时用于查询或新增
+	Name          string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`                                                                    // 翻译文本
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *UpdateBaseTranslationRequest) Reset() {
-	*x = UpdateBaseTranslationRequest{}
+func (x *UpdateBaseI18nRequest) Reset() {
+	*x = UpdateBaseI18nRequest{}
 	mi := &file_system_admin_v1_base_i18n_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *UpdateBaseTranslationRequest) String() string {
+func (x *UpdateBaseI18nRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UpdateBaseTranslationRequest) ProtoMessage() {}
+func (*UpdateBaseI18nRequest) ProtoMessage() {}
 
-func (x *UpdateBaseTranslationRequest) ProtoReflect() protoreflect.Message {
+func (x *UpdateBaseI18nRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_system_admin_v1_base_i18n_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -279,40 +279,40 @@ func (x *UpdateBaseTranslationRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UpdateBaseTranslationRequest.ProtoReflect.Descriptor instead.
-func (*UpdateBaseTranslationRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use UpdateBaseI18nRequest.ProtoReflect.Descriptor instead.
+func (*UpdateBaseI18nRequest) Descriptor() ([]byte, []int) {
 	return file_system_admin_v1_base_i18n_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *UpdateBaseTranslationRequest) GetId() int64 {
+func (x *UpdateBaseI18nRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
 	return 0
 }
 
-func (x *UpdateBaseTranslationRequest) GetTargetType() TranslationTargetType {
+func (x *UpdateBaseI18nRequest) GetTargetType() I18nTargetType {
 	if x != nil {
 		return x.TargetType
 	}
-	return TranslationTargetType_TRANSLATION_TARGET_TYPE_UNSPECIFIED
+	return I18nTargetType_I18N_TARGET_TYPE_UNSPECIFIED
 }
 
-func (x *UpdateBaseTranslationRequest) GetTargetId() int64 {
+func (x *UpdateBaseI18nRequest) GetTargetId() int64 {
 	if x != nil {
 		return x.TargetId
 	}
 	return 0
 }
 
-func (x *UpdateBaseTranslationRequest) GetLocale() string {
+func (x *UpdateBaseI18nRequest) GetLocale() string {
 	if x != nil {
 		return x.Locale
 	}
 	return ""
 }
 
-func (x *UpdateBaseTranslationRequest) GetName() string {
+func (x *UpdateBaseI18nRequest) GetName() string {
 	if x != nil {
 		return x.Name
 	}
@@ -322,11 +322,11 @@ func (x *UpdateBaseTranslationRequest) GetName() string {
 // 国际化翻译信息
 type BaseI18n struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                              // 翻译记录ID
-	TargetType    TranslationTargetType  `protobuf:"varint,2,opt,name=target_type,json=targetType,proto3,enum=system.admin.v1.TranslationTargetType" json:"target_type,omitempty"` // 翻译目标类型
-	TargetId      int64                  `protobuf:"varint,3,opt,name=target_id,json=targetId,proto3" json:"target_id,omitempty"`                                                  // 目标资源ID
-	Locale        string                 `protobuf:"bytes,4,opt,name=locale,proto3" json:"locale,omitempty"`                                                                       // 语言区域
-	Name          string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`                                                                           // 翻译文本
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                       // 翻译记录ID
+	TargetType    I18nTargetType         `protobuf:"varint,2,opt,name=target_type,json=targetType,proto3,enum=system.admin.v1.I18nTargetType" json:"target_type,omitempty"` // 翻译目标类型
+	TargetId      int64                  `protobuf:"varint,3,opt,name=target_id,json=targetId,proto3" json:"target_id,omitempty"`                                           // 目标资源ID
+	Locale        string                 `protobuf:"bytes,4,opt,name=locale,proto3" json:"locale,omitempty"`                                                                // 语言区域
+	Name          string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`                                                                    // 翻译文本
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -368,11 +368,11 @@ func (x *BaseI18n) GetId() int64 {
 	return 0
 }
 
-func (x *BaseI18n) GetTargetType() TranslationTargetType {
+func (x *BaseI18n) GetTargetType() I18nTargetType {
 	if x != nil {
 		return x.TargetType
 	}
-	return TranslationTargetType_TRANSLATION_TARGET_TYPE_UNSPECIFIED
+	return I18nTargetType_I18N_TARGET_TYPE_UNSPECIFIED
 }
 
 func (x *BaseI18n) GetTargetId() int64 {
@@ -453,45 +453,45 @@ var File_system_admin_v1_base_i18n_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_i18n_proto_rawDesc = "" +
 	"\n" +
-	"\x1fsystem/admin/v1/base_i18n.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xa5\x02\n" +
-	"\x1bDraftBaseTranslationRequest\x12\x96\x01\n" +
-	"\x06source\x18\x01 \x01(\tB~\xbaG\x12\x92\x02\x0f待翻译文本\xbaHf\xba\x01c\n" +
-	"3system.admin.base.translation.draft.source.required\x12\x1b待翻译文本不能为空\x1a\x0fthis.size() > 0R\x06source\x12b\n" +
+	"\x1fsystem/admin/v1/base_i18n.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x97\x02\n" +
+	"\x14DraftBaseI18nRequest\x12\x8f\x01\n" +
+	"\x06source\x18\x01 \x01(\tBw\xbaG\x12\x92\x02\x0f待翻译文本\xbaH_\xba\x01\\\n" +
+	",system.admin.base.i18n.draft.source.required\x12\x1b待翻译文本不能为空\x1a\x0fthis.size() > 0R\x06source\x12b\n" +
 	"\x06locale\x18\x02 \x01(\tBE\xbaGB\x92\x02?目标语言区域，不传时翻译所有启用的非主语言H\x00R\x06locale\x88\x01\x01B\t\n" +
-	"\a_locale\"\x81\x01\n" +
-	"\x1cDraftBaseTranslationResponse\x12a\n" +
-	"\ftranslations\x18\x01 \x03(\v2).system.admin.v1.DraftBaseTranslationItemB\x12\xbaG\x0f\x92\x02\f翻译结果R\ftranslations\"\x82\x01\n" +
-	"\x18DraftBaseTranslationItem\x120\n" +
-	"\x06locale\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12目标语言区域R\x06locale\x124\n" +
-	"\vtranslation\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f翻译文本R\vtranslation\"\xcd\x05\n" +
-	"\x1cUpdateBaseTranslationRequest\x12v\n" +
-	"\x02id\x18\x01 \x01(\x03Bf\xbaGc\x92\x02`翻译记录ID，大于零时优先按ID更新；ID不存在时根据目标信息更新或新增R\x02id\x12\x8c\x01\n" +
-	"\vtarget_type\x18\x02 \x01(\x0e2&.system.admin.v1.TranslationTargetTypeBC\xbaG8\x92\x025翻译目标类型，ID为零时用于查询或新增\xbaH\x05\x82\x01\x02\x10\x01R\n" +
+	"\a_locale\"e\n" +
+	"\x15DraftBaseI18nResponse\x12L\n" +
+	"\x05i18ns\x18\x01 \x03(\v2\".system.admin.v1.DraftBaseI18nItemB\x12\xbaG\x0f\x92\x02\f翻译结果R\x05i18ns\"m\n" +
+	"\x11DraftBaseI18nItem\x120\n" +
+	"\x06locale\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12目标语言区域R\x06locale\x12&\n" +
+	"\x04i18n\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f翻译文本R\x04i18n\"\xb8\x05\n" +
+	"\x15UpdateBaseI18nRequest\x12v\n" +
+	"\x02id\x18\x01 \x01(\x03Bf\xbaGc\x92\x02`翻译记录ID，大于零时优先按ID更新；ID不存在时根据目标信息更新或新增R\x02id\x12\x85\x01\n" +
+	"\vtarget_type\x18\x02 \x01(\x0e2\x1f.system.admin.v1.I18nTargetTypeBC\xbaG8\x92\x025翻译目标类型，ID为零时用于查询或新增\xbaH\x05\x82\x01\x02\x10\x01R\n" +
 	"targetType\x12T\n" +
 	"\ttarget_id\x18\x03 \x01(\x03B7\xbaG4\x92\x021目标资源ID，ID为零时用于查询或新增R\btargetId\x12S\n" +
 	"\x06locale\x18\x04 \x01(\tB;\xbaG8\x92\x025目标语言区域，ID为零时用于查询或新增R\x06locale\x12&\n" +
-	"\x04name\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f翻译文本R\x04name:\xd2\x01\xbaH\xce\x01\x1a\xcb\x01\n" +
-	"4system.admin.base.translation.update.target.required\x12)ID为零时必须提供完整目标信息\x1ahthis.id >= 0 && (this.id > 0 || (this.target_type != 0 && this.target_id > 0 && this.locale.size() > 0))\"\xac\x02\n" +
+	"\x04name\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f翻译文本R\x04name:\xcb\x01\xbaH\xc7\x01\x1a\xc4\x01\n" +
+	"-system.admin.base.i18n.update.target.required\x12)ID为零时必须提供完整目标信息\x1ahthis.id >= 0 && (this.id > 0 || (this.target_type != 0 && this.target_id > 0 && this.locale.size() > 0))\"\x9e\x02\n" +
 	"\bBaseI18n\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12\x7f\n" +
-	"\vtarget_type\x18\x02 \x01(\x0e2&.system.admin.v1.TranslationTargetTypeB6\xbaG3\x92\x020目标类型：枚举【TranslationTargetType】R\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12q\n" +
+	"\vtarget_type\x18\x02 \x01(\x0e2\x1f.system.admin.v1.I18nTargetTypeB/\xbaG,\x92\x02)目标类型：枚举【I18nTargetType】R\n" +
 	"targetType\x12+\n" +
 	"\ttarget_id\x18\x03 \x01(\x03B\x0e\xbaG\v\x92\x02\b目标IDR\btargetId\x12*\n" +
 	"\x06locale\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f语言区域R\x06locale\x12&\n" +
 	"\x04name\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f翻译文本R\x04name\"\x8c\x01\n" +
 	"\x13CodeGenLocaleConfig\x125\n" +
 	"\acomment\x18\x01 \x01(\tB\x1b\xbaG\x18\x92\x02\x15业务或字段描述R\acomment\x12>\n" +
-	"\x11left_tree_comment\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f左树描述R\x0fleftTreeComment*\x97\x02\n" +
-	"\x15TranslationTargetType\x12'\n" +
-	"#TRANSLATION_TARGET_TYPE_UNSPECIFIED\x10\x00\x12-\n" +
-	")TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE\x10\x01\x12,\n" +
-	"(TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME\x10\x02\x12%\n" +
-	"!TRANSLATION_TARGET_TYPE_BASE_DICT\x10\x03\x12*\n" +
-	"&TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM\x10\x04\x12%\n" +
-	"!TRANSLATION_TARGET_TYPE_BASE_MENU\x10\x052\xc4\x02\n" +
-	"\x0fBaseI18nService\x12\xa4\x01\n" +
-	"\x14DraftBaseTranslation\x12,.system.admin.v1.DraftBaseTranslationRequest\x1a-.system.admin.v1.DraftBaseTranslationResponse\"/\x82\xd3\xe4\x93\x02):\x01*\"$/api/v1/admin/base/translation/draft\x12\x89\x01\n" +
-	"\x15UpdateBaseTranslation\x12-.system.admin.v1.UpdateBaseTranslationRequest\x1a\x16.google.protobuf.Empty\")\x82\xd3\xe4\x93\x02#:\x01*\x1a\x1e/api/v1/admin/base/translationB\xcf\x01\n" +
+	"\x11left_tree_comment\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f左树描述R\x0fleftTreeComment*\xe6\x01\n" +
+	"\x0eI18nTargetType\x12 \n" +
+	"\x1cI18N_TARGET_TYPE_UNSPECIFIED\x10\x00\x12&\n" +
+	"\"I18N_TARGET_TYPE_BASE_CONFIG_VALUE\x10\x01\x12%\n" +
+	"!I18N_TARGET_TYPE_BASE_CONFIG_NAME\x10\x02\x12\x1e\n" +
+	"\x1aI18N_TARGET_TYPE_BASE_DICT\x10\x03\x12#\n" +
+	"\x1fI18N_TARGET_TYPE_BASE_DICT_ITEM\x10\x04\x12\x1e\n" +
+	"\x1aI18N_TARGET_TYPE_BASE_MENU\x10\x052\x92\x02\n" +
+	"\x0fBaseI18nService\x12\x88\x01\n" +
+	"\rDraftBaseI18n\x12%.system.admin.v1.DraftBaseI18nRequest\x1a&.system.admin.v1.DraftBaseI18nResponse\"(\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/api/v1/admin/base/i18n/draft\x12t\n" +
+	"\x0eUpdateBaseI18n\x12&.system.admin.v1.UpdateBaseI18nRequest\x1a\x16.google.protobuf.Empty\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\x1a\x17/api/v1/admin/base/i18nB\xcf\x01\n" +
 	"\x13com.system.admin.v1B\rBaseI18nProtoP\x01ZKgithub.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1;adminv1\xa2\x02\x03SAX\xaa\x02\x0fSystem.Admin.V1\xca\x02\x0fSystem\\Admin\\V1\xe2\x02\x1bSystem\\Admin\\V1\\GPBMetadata\xea\x02\x11System::Admin::V1b\x06proto3"
 
 var (
@@ -509,23 +509,23 @@ func file_system_admin_v1_base_i18n_proto_rawDescGZIP() []byte {
 var file_system_admin_v1_base_i18n_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_system_admin_v1_base_i18n_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_system_admin_v1_base_i18n_proto_goTypes = []any{
-	(TranslationTargetType)(0),           // 0: system.admin.v1.TranslationTargetType
-	(*DraftBaseTranslationRequest)(nil),  // 1: system.admin.v1.DraftBaseTranslationRequest
-	(*DraftBaseTranslationResponse)(nil), // 2: system.admin.v1.DraftBaseTranslationResponse
-	(*DraftBaseTranslationItem)(nil),     // 3: system.admin.v1.DraftBaseTranslationItem
-	(*UpdateBaseTranslationRequest)(nil), // 4: system.admin.v1.UpdateBaseTranslationRequest
-	(*BaseI18n)(nil),                     // 5: system.admin.v1.BaseI18n
-	(*CodeGenLocaleConfig)(nil),          // 6: system.admin.v1.CodeGenLocaleConfig
-	(*emptypb.Empty)(nil),                // 7: google.protobuf.Empty
+	(I18nTargetType)(0),           // 0: system.admin.v1.I18nTargetType
+	(*DraftBaseI18nRequest)(nil),  // 1: system.admin.v1.DraftBaseI18nRequest
+	(*DraftBaseI18nResponse)(nil), // 2: system.admin.v1.DraftBaseI18nResponse
+	(*DraftBaseI18nItem)(nil),     // 3: system.admin.v1.DraftBaseI18nItem
+	(*UpdateBaseI18nRequest)(nil), // 4: system.admin.v1.UpdateBaseI18nRequest
+	(*BaseI18n)(nil),              // 5: system.admin.v1.BaseI18n
+	(*CodeGenLocaleConfig)(nil),   // 6: system.admin.v1.CodeGenLocaleConfig
+	(*emptypb.Empty)(nil),         // 7: google.protobuf.Empty
 }
 var file_system_admin_v1_base_i18n_proto_depIdxs = []int32{
-	3, // 0: system.admin.v1.DraftBaseTranslationResponse.translations:type_name -> system.admin.v1.DraftBaseTranslationItem
-	0, // 1: system.admin.v1.UpdateBaseTranslationRequest.target_type:type_name -> system.admin.v1.TranslationTargetType
-	0, // 2: system.admin.v1.BaseI18n.target_type:type_name -> system.admin.v1.TranslationTargetType
-	1, // 3: system.admin.v1.BaseI18nService.DraftBaseTranslation:input_type -> system.admin.v1.DraftBaseTranslationRequest
-	4, // 4: system.admin.v1.BaseI18nService.UpdateBaseTranslation:input_type -> system.admin.v1.UpdateBaseTranslationRequest
-	2, // 5: system.admin.v1.BaseI18nService.DraftBaseTranslation:output_type -> system.admin.v1.DraftBaseTranslationResponse
-	7, // 6: system.admin.v1.BaseI18nService.UpdateBaseTranslation:output_type -> google.protobuf.Empty
+	3, // 0: system.admin.v1.DraftBaseI18nResponse.i18ns:type_name -> system.admin.v1.DraftBaseI18nItem
+	0, // 1: system.admin.v1.UpdateBaseI18nRequest.target_type:type_name -> system.admin.v1.I18nTargetType
+	0, // 2: system.admin.v1.BaseI18n.target_type:type_name -> system.admin.v1.I18nTargetType
+	1, // 3: system.admin.v1.BaseI18nService.DraftBaseI18n:input_type -> system.admin.v1.DraftBaseI18nRequest
+	4, // 4: system.admin.v1.BaseI18nService.UpdateBaseI18n:input_type -> system.admin.v1.UpdateBaseI18nRequest
+	2, // 5: system.admin.v1.BaseI18nService.DraftBaseI18n:output_type -> system.admin.v1.DraftBaseI18nResponse
+	7, // 6: system.admin.v1.BaseI18nService.UpdateBaseI18n:output_type -> google.protobuf.Empty
 	5, // [5:7] is the sub-list for method output_type
 	3, // [3:5] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name

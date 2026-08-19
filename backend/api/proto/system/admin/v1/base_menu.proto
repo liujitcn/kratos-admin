@@ -148,7 +148,7 @@ message BaseMenuForm {
 
   repeated string api = 9 [(gnostic.openapi.v3.property) = {description: "分配的API列表"}]; // 分配的API列表
 
-  repeated BaseI18n translations = 10 [(gnostic.openapi.v3.property) = {description: "非主语言翻译"}]; // 非主语言翻译
+  repeated BaseI18n i18ns = 10 [(gnostic.openapi.v3.property) = {description: "非主语言翻译"}]; // 非主语言翻译
 
   int32 sort = 50 [(gnostic.openapi.v3.property) = {description: "排序"}, (buf.validate.field).cel = {id: "system.admin.base.menu.entity.sort.required" message: "排序必须大于 0" expression: "this > 0"}]; // 排序
 
@@ -213,7 +213,7 @@ message BaseMenu {
 
   bool has_children = 301 [(gnostic.openapi.v3.property) = {description: "是否存在子节点"}]; // 是否存在子节点
 
-  repeated BaseI18n translations = 302 [(gnostic.openapi.v3.property) = {description: "非主语言翻译"}]; // 非主语言翻译
+  repeated BaseI18n i18ns = 302 [(gnostic.openapi.v3.property) = {description: "非主语言翻译"}]; // 非主语言翻译
 }
 
 // 菜单元信息

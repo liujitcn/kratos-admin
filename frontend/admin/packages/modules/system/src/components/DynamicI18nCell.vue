@@ -1,6 +1,6 @@
 <template>
-  <el-link class="dynamic-translation-cell" type="primary" underline="never" @click="openDialog">
-    <span class="dynamic-translation-cell__source">{{ displaySource || "--" }}</span>
+  <el-link class="dynamic-i18n-cell" type="primary" underline="never" @click="openDialog">
+    <span class="dynamic-i18n-cell__source">{{ displaySource || "--" }}</span>
   </el-link>
 
   <ProDialog
@@ -12,20 +12,20 @@
     :destroy-on-close="true"
     @closed="handleDialogClosed"
   >
-    <el-table v-loading="loading" :data="translationRows" border>
+    <el-table v-loading="loading" :data="i18nRows" border>
       <el-table-column :label="t('common.field.language')" width="150">
         <template #default="{ row }">
           {{ getLanguageLabel(row.locale) }}
         </template>
       </el-table-column>
-      <el-table-column :label="t('system.base.translation.field.translations')" min-width="360">
+      <el-table-column :label="t('system.base.i18n.field.i18ns')" min-width="360">
         <template #default="{ row }">
           <el-input
             v-if="row.editing"
             v-model="row.text"
-            :placeholder="t('system.base.translation.placeholder.text', { language: getLanguageLabel(row.locale) })"
+            :placeholder="t('system.base.i18n.placeholder.text', { language: getLanguageLabel(row.locale) })"
           />
-          <span v-else class="dynamic-translation-dialog__text">
+          <span v-else class="dynamic-i18n-dialog__text">
             {{ row.text || t("common.value.none") }}
           </span>
         </template>
@@ -36,7 +36,7 @@
             {{ t("common.action.edit") }}
           </el-button>
           <template v-else>
-            <el-button link type="primary" :icon="Check" :loading="row.saving" @click="saveTranslation(row)">
+            <el-button link type="primary" :icon="Check" :loading="row.saving" @click="saveI18n(row)">
               {{ t("common.action.save") }}
             </el-button>
             <el-button link :icon="Close" :disabled="row.saving" @click="cancelEdit(row)">
@@ -58,48 +58,48 @@ import { t, useLocaleStore } from "@liujitcn/kratos-admin-core";
 import { loadEnabledBaseLanguages, useEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
 import { defBaseI18nService } from "@liujitcn/kratos-admin-system/api/system/base_i18n";
 import type { BaseI18n } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
-import { TranslationTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
-import { getLanguageLabel } from "./dynamicTranslation";
+import { I18nTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
+import { getLanguageLabel } from "./dynamicI18n";
 
-/** DynamicTranslationCellProps 动态翻译列表单元格属性。 */
-interface DynamicTranslationCellProps {
+/** DynamicI18nCellProps 动态翻译列表单元格属性。 */
+interface DynamicI18nCellProps {
   /** 资源源文。 */
   source: string;
   /** 统一翻译表目标类型。 */
-  targetType?: TranslationTargetType;
+  targetType?: I18nTargetType;
   /** 目标资源编号。 */
   targetId?: number;
   /** 资源列表返回的非主语言翻译。 */
-  translations?: BaseI18n[];
+  i18ns?: BaseI18n[];
 }
 
-const props = defineProps<DynamicTranslationCellProps>();
+const props = defineProps<DynamicI18nCellProps>();
 
 const { languages } = useEnabledBaseLanguages();
 const { locale } = useLocaleStore();
 const dialogVisible = ref(false);
 const loading = ref(false);
-const translationRows = ref<DynamicTranslationRow[]>([]);
-const translationOverrides = ref(new Map<string, string>());
+const i18nRows = ref<DynamicI18nRow[]>([]);
+const i18nOverrides = ref(new Map<string, string>());
 
 const displaySource = computed(() => {
-  const override = translationOverrides.value.get(locale.value);
+  const override = i18nOverrides.value.get(locale.value);
   if (override) return override;
-  const translation = props.translations?.find(item => item.locale === locale.value && item.name);
-  return translation?.name || props.source;
+  const i18n = props.i18ns?.find(item => item.locale === locale.value && item.name);
+  return i18n?.name || props.source;
 });
 
 watch(
   () => [props.targetType, props.targetId],
   () => {
-    translationRows.value = [];
-    translationOverrides.value.clear();
+    i18nRows.value = [];
+    i18nOverrides.value.clear();
     dialogVisible.value = false;
   }
 );
 
-/** DynamicTranslationRow 描述弹窗内可编辑的单语言翻译行。 */
-interface DynamicTranslationRow {
+/** DynamicI18nRow 描述弹窗内可编辑的单语言翻译行。 */
+interface DynamicI18nRow {
   /** 翻译记录主键，新增翻译时为空。 */
   id: number;
   /** 语言区域。 */
@@ -117,43 +117,43 @@ interface DynamicTranslationRow {
 /** openDialog 打开翻译编辑弹窗并加载当前资源译文。 */
 async function openDialog() {
   dialogVisible.value = true;
-  await loadTranslations();
+  await loadI18ns();
 }
 
-/** loadTranslations 查询当前资源的翻译并补齐启用语言行。 */
-async function loadTranslations() {
+/** loadI18ns 查询当前资源的翻译并补齐启用语言行。 */
+async function loadI18ns() {
   const targetType = props.targetType;
   const targetId = props.targetId;
   if (!targetType || !targetId) return;
   loading.value = true;
   try {
     await loadEnabledBaseLanguages();
-    const rows = await queryTranslationRows();
-    translationRows.value = rows;
+    const rows = await queryI18nRows();
+    i18nRows.value = rows;
     const missingRows = rows.filter(row => !row.text);
     if (missingRows.length === 0) return;
     if (!props.source) return;
-    const draft = await defBaseI18nService.DraftBaseTranslation({ source: props.source });
-    const translations = new Map(draft.translations.map(item => [item.locale, item.translation]));
+    const draft = await defBaseI18nService.DraftBaseI18n({ source: props.source });
+    const i18ns = new Map(draft.i18ns.map(item => [item.locale, item.i18n]));
     const results = await Promise.allSettled(
       missingRows.map(async row => {
-        const translation = translations.get(row.locale);
-        if (!translation) throw new Error("translation not found");
-        await defBaseI18nService.UpdateBaseTranslation({
+        const i18n = i18ns.get(row.locale);
+        if (!i18n) throw new Error("i18n not found");
+        await defBaseI18nService.UpdateBaseI18n({
           id: row.id,
           target_type: targetType,
           target_id: targetId,
           locale: row.locale,
-          name: translation
+          name: i18n
         });
-        return { row, text: translation };
+        return { row, text: i18n };
       })
     );
     for (const result of results) {
       if (result.status !== "fulfilled") continue;
       result.value.row.text = result.value.text;
       result.value.row.originalText = result.value.text;
-      translationOverrides.value.set(result.value.row.locale, result.value.text);
+      i18nOverrides.value.set(result.value.row.locale, result.value.text);
     }
   } catch {
     ElMessage.error(t("common.message.system_error"));
@@ -162,14 +162,14 @@ async function loadTranslations() {
   }
 }
 
-/** queryTranslationRows 将列表返回的翻译记录补齐为可编辑语言行。 */
-async function queryTranslationRows(): Promise<DynamicTranslationRow[]> {
-  const records = new Map((props.translations ?? []).map(item => [item.locale, item]));
+/** queryI18nRows 将列表返回的翻译记录补齐为可编辑语言行。 */
+async function queryI18nRows(): Promise<DynamicI18nRow[]> {
+  const records = new Map((props.i18ns ?? []).map(item => [item.locale, item]));
   return languages.value
     .filter(item => !item.is_primary)
     .map(item => {
       const record = records.get(item.language_code);
-      const text = translationOverrides.value.get(item.language_code) ?? record?.name ?? "";
+      const text = i18nOverrides.value.get(item.language_code) ?? record?.name ?? "";
       return {
         id: record?.id ?? 0,
         locale: item.language_code,
@@ -182,19 +182,19 @@ async function queryTranslationRows(): Promise<DynamicTranslationRow[]> {
 }
 
 /** startEdit 开启指定语言的编辑状态。 */
-function startEdit(row: DynamicTranslationRow) {
+function startEdit(row: DynamicI18nRow) {
   row.originalText = row.text;
   row.editing = true;
 }
 
 /** cancelEdit 恢复编辑前的内容。 */
-function cancelEdit(row: DynamicTranslationRow) {
+function cancelEdit(row: DynamicI18nRow) {
   row.text = row.originalText;
   row.editing = false;
 }
 
-/** saveTranslation 使用统一更新接口保存指定语言译文。 */
-async function saveTranslation(row: DynamicTranslationRow) {
+/** saveI18n 使用统一更新接口保存指定语言译文。 */
+async function saveI18n(row: DynamicI18nRow) {
   const targetType = props.targetType;
   const targetId = props.targetId;
   if (row.saving || !targetType || !targetId) return;
@@ -204,7 +204,7 @@ async function saveTranslation(row: DynamicTranslationRow) {
   }
   row.saving = true;
   try {
-    await defBaseI18nService.UpdateBaseTranslation({
+    await defBaseI18nService.UpdateBaseI18n({
       id: row.id,
       target_type: targetType,
       target_id: targetId,
@@ -214,7 +214,7 @@ async function saveTranslation(row: DynamicTranslationRow) {
     ElMessage.success(t("common.message.operation_success"));
     row.editing = false;
     row.originalText = row.text;
-    translationOverrides.value.set(row.locale, row.text);
+    i18nOverrides.value.set(row.locale, row.text);
   } catch {
     ElMessage.error(t("common.message.system_error"));
   } finally {
@@ -224,25 +224,25 @@ async function saveTranslation(row: DynamicTranslationRow) {
 
 /** handleDialogClosed 清理弹窗状态，避免复用旧资源译文。 */
 function handleDialogClosed() {
-  translationRows.value = [];
+  i18nRows.value = [];
   loading.value = false;
 }
 </script>
 
 <style scoped>
-.dynamic-translation-cell {
+.dynamic-i18n-cell {
   display: inline-flex;
   align-items: center;
   min-width: 0;
   max-width: 100%;
 }
-.dynamic-translation-cell__source {
+.dynamic-i18n-cell__source {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.dynamic-translation-dialog__text {
+.dynamic-i18n-dialog__text {
   min-width: 0;
   overflow-wrap: anywhere;
 }

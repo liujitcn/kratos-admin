@@ -98,7 +98,7 @@
   "system.admin.base.dict.entity.item.value.required": {
     "other": "請輸入字典值（不超過50個字元）"
   },
-  "system.admin.base.translation.draft.source.required": {
+  "system.admin.base.i18n.draft.source.required": {
     "other": "待翻譯文字不能為空"
   },
   "system.admin.base.job.entity.cron_expression.length": {
@@ -233,7 +233,7 @@
   "system.admin.base.tenant.entity.remark.max_length": {
     "other": "備註不能超過 500 個字元"
   },
-  "system.admin.base.translation.update.target.required": {
+  "system.admin.base.i18n.update.target.required": {
     "other": "ID為零時必須提供完整目標資訊"
   },
   "system.admin.base.user.entity.avatar.max_length": {

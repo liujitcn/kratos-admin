@@ -56,16 +56,16 @@
           inline-prompt
         />
       </template>
-      <template #nameTranslations>
-        <DynamicTranslationEditor
-          v-model="nameTranslationValues"
+      <template #nameI18ns>
+        <DynamicI18nEditor
+          v-model="nameI18nValues"
           :source="formData.name"
           :maxlength="100"
         />
       </template>
-      <template #valueTranslations>
-        <DynamicTranslationEditor
-          v-model="valueTranslationValues"
+      <template #valueI18ns>
+        <DynamicI18nEditor
+          v-model="valueI18nValues"
           :source="formData.value"
           :maxlength="10000"
           multiline
@@ -99,15 +99,15 @@ import type { BaseI18n } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1
 import { BaseConfigSite } from "@liujitcn/kratos-admin-system/rpc/base/v1/config";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { BaseConfigType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_config";
-import { TranslationTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
+import { I18nTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
-import DynamicTranslationEditor from "@liujitcn/kratos-admin-system/components/DynamicTranslationEditor.vue";
-import DynamicTranslationCell from "@liujitcn/kratos-admin-system/components/DynamicTranslationCell.vue";
+import DynamicI18nEditor from "@liujitcn/kratos-admin-system/components/DynamicI18nEditor.vue";
+import DynamicI18nCell from "@liujitcn/kratos-admin-system/components/DynamicI18nCell.vue";
 import {
   getEditableLanguageOptions,
-  type DynamicTranslationValue
-} from "@liujitcn/kratos-admin-system/components/dynamicTranslation";
+  type DynamicI18nValue
+} from "@liujitcn/kratos-admin-system/components/dynamicI18n";
 
 /** 系统配置编辑表单状态，新增时枚举字段保持为空，避免把未知值 0 显示为下拉文本。 */
 type BaseConfigFormState = Omit<BaseConfigForm, "site" | "type"> & {
@@ -147,16 +147,16 @@ const formData = reactive<BaseConfigFormState>({
   /** 状态 */
   status: Status.STATUS_ENABLE,
   /** 配置名称非主语言翻译。 */
-  name_translations: [],
+  name_i18ns: [],
   /** 配置文本或富文本值的非主语言翻译。 */
-  value_translations: []
+  value_i18ns: []
 });
 
 /** 将配置值翻译记录转换为编辑器值，缺少记录时保留可编辑的空行。 */
-function normalizeConfigTranslations(targetType: TranslationTargetType): DynamicTranslationValue[] {
-  const records = targetType === TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME
-    ? formData.name_translations
-    : formData.value_translations;
+function normalizeConfigI18ns(targetType: I18nTargetType): DynamicI18nValue[] {
+  const records = targetType === I18nTargetType.I18N_TARGET_TYPE_BASE_CONFIG_NAME
+    ? formData.name_i18ns
+    : formData.value_i18ns;
   return getEditableLanguageOptions()
     .map(item => item.value)
     .map(locale => {
@@ -170,7 +170,7 @@ function normalizeConfigTranslations(targetType: TranslationTargetType): Dynamic
 }
 
 /** 保存指定目标类型的编辑器值，并保留其他字段的翻译。 */
-function updateConfigTranslations(targetType: TranslationTargetType, values: DynamicTranslationValue[]) {
+function updateConfigI18ns(targetType: I18nTargetType, values: DynamicI18nValue[]) {
   const next = values.map(
     item =>
       ({
@@ -180,21 +180,21 @@ function updateConfigTranslations(targetType: TranslationTargetType, values: Dyn
         name: item.text
       }) as BaseI18n
   );
-  if (targetType === TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME) {
-    formData.name_translations = next;
+  if (targetType === I18nTargetType.I18N_TARGET_TYPE_BASE_CONFIG_NAME) {
+    formData.name_i18ns = next;
   } else {
-    formData.value_translations = next;
+    formData.value_i18ns = next;
   }
 }
 
-const nameTranslationValues = computed<DynamicTranslationValue[]>({
-  get: () => normalizeConfigTranslations(TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME),
-  set: values => updateConfigTranslations(TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, values)
+const nameI18nValues = computed<DynamicI18nValue[]>({
+  get: () => normalizeConfigI18ns(I18nTargetType.I18N_TARGET_TYPE_BASE_CONFIG_NAME),
+  set: values => updateConfigI18ns(I18nTargetType.I18N_TARGET_TYPE_BASE_CONFIG_NAME, values)
 });
 
-const valueTranslationValues = computed<DynamicTranslationValue[]>({
-  get: () => normalizeConfigTranslations(TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE),
-  set: values => updateConfigTranslations(TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE, values)
+const valueI18nValues = computed<DynamicI18nValue[]>({
+  get: () => normalizeConfigI18ns(I18nTargetType.I18N_TARGET_TYPE_BASE_CONFIG_VALUE),
+  set: values => updateConfigI18ns(I18nTargetType.I18N_TARGET_TYPE_BASE_CONFIG_VALUE, values)
 });
 
 const rules = computed(() => ({
@@ -334,17 +334,17 @@ const formFields = computed<ProFormField[]>(() => [
     visible: model => model.type == BaseConfigType.BASE_CONFIG_TYPE_BOOLEAN
   },
   {
-    prop: "translations",
-    label: t("system.base.translation.field.name_translations"),
+    prop: "i18ns",
+    label: t("system.base.i18n.field.name_i18ns"),
     component: "slot",
-    slotName: "nameTranslations",
+    slotName: "nameI18ns",
     colSpan: 24
   },
   {
-    prop: "translations",
-    label: t("system.base.translation.field.value_translations"),
+    prop: "i18ns",
+    label: t("system.base.i18n.field.value_i18ns"),
     component: "slot",
-    slotName: "valueTranslations",
+    slotName: "valueI18ns",
     visible: model =>
       model.type == BaseConfigType.BASE_CONFIG_TYPE_TEXT || model.type == BaseConfigType.BASE_CONFIG_TYPE_RICH_TEXT,
     colSpan: 24
@@ -431,11 +431,11 @@ const columns = computed<ColumnProps[]>(() => [
 
 /** 渲染系统配置名称翻译预览。 */
 function renderConfigNameCell(row: BaseConfig) {
-  return h(DynamicTranslationCell, {
+  return h(DynamicI18nCell, {
     source: row.name,
-    targetType: TranslationTargetType.TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME,
+    targetType: I18nTargetType.I18N_TARGET_TYPE_BASE_CONFIG_NAME,
     targetId: row.id,
-    translations: row.translations
+    i18ns: row.i18ns
   });
 }
 
@@ -573,8 +573,8 @@ function resetForm() {
   formData.type = undefined;
   formData.key = "";
   formData.value = "";
-  formData.name_translations = [];
-  formData.value_translations = [];
+  formData.name_i18ns = [];
+  formData.value_i18ns = [];
   formData.status = Status.STATUS_ENABLE;
 }
 

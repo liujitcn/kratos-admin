@@ -557,7 +557,7 @@ import type {
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_column";
 import type { CodeGenDatabaseTable, CodeGenTableForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_table";
 import CodeGenLocaleEditor from "../components/CodeGenLocaleEditor.vue";
-import { getEditableLanguageOptions } from "@liujitcn/kratos-admin-system/components/dynamicTranslation";
+import { getEditableLanguageOptions } from "@liujitcn/kratos-admin-system/components/dynamicI18n";
 import {
   copyCodeGenOptionToEmptyMatches,
   copyFirstMatchingCodeGenOption,

@@ -20,18 +20,18 @@ import (
 type BaseMenuCase struct {
 	*biz.BaseCase
 	*data.BaseMenuRepository
-	translationCase *adminbiz.BaseTranslationCase
-	mapper          *mapper.CopierMapper[appv1.BaseMenu, models.BaseMenu]
+	i18nCase *adminbiz.BaseI18nCase
+	mapper   *mapper.CopierMapper[appv1.BaseMenu, models.BaseMenu]
 }
 
 // NewBaseMenuCase 创建移动端菜单业务处理对象。
-func NewBaseMenuCase(baseCase *biz.BaseCase, baseMenuRepo *data.BaseMenuRepository, translationCase *adminbiz.BaseTranslationCase) *BaseMenuCase {
+func NewBaseMenuCase(baseCase *biz.BaseCase, baseMenuRepo *data.BaseMenuRepository, i18nCase *adminbiz.BaseI18nCase) *BaseMenuCase {
 	menuMapper := mapper.NewCopierMapper[appv1.BaseMenu, models.BaseMenu]()
 	menuMapper.AppendConverters(mapper.NewJSONTypeConverter[*appv1.BaseMenuMeta]().NewConverterPair())
 	return &BaseMenuCase{
 		BaseCase:           baseCase,
 		BaseMenuRepository: baseMenuRepo,
-		translationCase:    translationCase,
+		i18nCase:           i18nCase,
 		mapper:             menuMapper,
 	}
 }
@@ -68,7 +68,7 @@ func (c *BaseMenuCase) ListBaseMenu(ctx context.Context) ([]*appv1.BaseMenu, err
 		}
 	}
 	var titles map[int64]string
-	titles, err = c.translationCase.GetBaseTranslationNameMapByLocale(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, biz.LocaleFromContext(ctx), menuIDs)
+	titles, err = c.i18nCase.GetBaseI18nNameMapByLocale(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_MENU, biz.LocaleFromContext(ctx), menuIDs)
 	if err != nil {
 		return nil, err
 	}

@@ -2,15 +2,15 @@ package dto
 
 import "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 
-// TranslationKey 标识一个资源的单语言翻译记录。
-type TranslationKey struct {
+// I18nKey 标识一个资源的单语言翻译记录。
+type I18nKey struct {
 	TargetID int64
 	Locale   string
 }
 
-// TranslationDraftSource 描述草稿操作从服务端读取的受控源文。
-type TranslationDraftSource struct {
-	TargetType adminv1.TranslationTargetType
+// I18nDraftSource 描述草稿操作从服务端读取的受控源文。
+type I18nDraftSource struct {
+	TargetType adminv1.I18nTargetType
 	TargetID   int64
 	Text       string
 }

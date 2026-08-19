@@ -72,7 +72,7 @@ export interface BaseMenuForm {
   /** 分配的API列表 */
   api: string[];
   /** 非主语言翻译 */
-  translations: BaseI18n[];
+  i18ns: BaseI18n[];
   /** 排序 */
   sort: number;
   /** 状态 */
@@ -138,7 +138,7 @@ export interface BaseMenu {
   /** 是否存在子节点 */
   has_children: boolean;
   /** 非主语言翻译 */
-  translations: BaseI18n[];
+  i18ns: BaseI18n[];
 }
 
 /** 菜单元信息 */

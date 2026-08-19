@@ -23,16 +23,16 @@ import (
 type ConfigCase struct {
 	*biz.BaseCase
 	*data.BaseConfigRepository
-	translationRepo *data.BaseI18NRepository
-	languageRepo    *data.BaseLanguageRepository
+	i18nRepo     *data.BaseI18NRepository
+	languageRepo *data.BaseLanguageRepository
 }
 
 // NewConfigCase 创建配置业务实例。
-func NewConfigCase(baseCase *biz.BaseCase, baseConfigRepo *data.BaseConfigRepository, translationRepo *data.BaseI18NRepository, languageRepo *data.BaseLanguageRepository) *ConfigCase {
+func NewConfigCase(baseCase *biz.BaseCase, baseConfigRepo *data.BaseConfigRepository, i18nRepo *data.BaseI18NRepository, languageRepo *data.BaseLanguageRepository) *ConfigCase {
 	return &ConfigCase{
 		BaseCase:             baseCase,
 		BaseConfigRepository: baseConfigRepo,
-		translationRepo:      translationRepo,
+		i18nRepo:             i18nRepo,
 		languageRepo:         languageRepo,
 	}
 }
@@ -119,8 +119,8 @@ func (c *ConfigCase) localizeRuntimeConfigValues(ctx context.Context, configs []
 	if len(configIDs) == 0 {
 		return configs, nil
 	}
-	query := c.translationRepo.Query(ctx).BaseI18N
-	rows, err := c.translationRepo.List(ctx, repository.Where(query.TargetType.Eq(int32(_const.TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE))), repository.Where(query.TargetID.In(configIDs...)), repository.Where(query.Locale.Eq(localeValue)))
+	query := c.i18nRepo.Query(ctx).BaseI18N
+	rows, err := c.i18nRepo.List(ctx, repository.Where(query.TargetType.Eq(int32(_const.I18N_TARGET_TYPE_BASE_CONFIG_VALUE))), repository.Where(query.TargetID.In(configIDs...)), repository.Where(query.Locale.Eq(localeValue)))
 	if err != nil {
 		return nil, err
 	}
@@ -183,9 +183,9 @@ func runtimeConfigIDsPresent(configs []*basev1.ConfigItem) bool {
 func appendI18nRuntimeConfig(configs []*basev1.ConfigItem, enabled bool) []*basev1.ConfigItem {
 	result := make([]*basev1.ConfigItem, 0, len(configs)+1)
 	for _, item := range configs {
-		if item.GetKey() != _const.I18N_TRANSLATION_DRAFT_CONFIG_KEY {
+		if item.GetKey() != _const.I18N_DRAFT_CONFIG_KEY {
 			result = append(result, item)
 		}
 	}
-	return append(result, &basev1.ConfigItem{Key: _const.I18N_TRANSLATION_DRAFT_CONFIG_KEY, Value: strconv.FormatBool(enabled)})
+	return append(result, &basev1.ConfigItem{Key: _const.I18N_DRAFT_CONFIG_KEY, Value: strconv.FormatBool(enabled)})
 }
