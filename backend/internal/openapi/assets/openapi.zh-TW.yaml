@@ -6746,6 +6746,12 @@ components:
                     type: number
                     description: 指標使用百分比
                     format: double
+                used_bytes:
+                    type: string
+                    description: 當前已用容量，單位位元組
+                total_bytes:
+                    type: string
+                    description: 總容量，單位位元組
             description: 例項資源指標。
         system.admin.v1.OpsNodesResponse:
             type: object
@@ -7220,14 +7226,12 @@ components:
                 path:
                     type: string
                     description: 專案內相對路徑
+                name:
+                    type: string
+                    description: 當前語言下的文件顯示檔名
                 content:
                     type: string
                     description: Markdown文件內容
-                locale:
-                    type: object
-                    additionalProperties:
-                        type: string
-                    description: 按語言標識索引的Markdown翻譯內容
                 updated_at:
                     type: string
                     description: Markdown檔案更新時間，RFC3339格式
@@ -7261,6 +7265,9 @@ components:
                 path:
                     type: string
                     description: 專案內相對路徑
+                name:
+                    type: string
+                    description: 當前語言下的文件顯示檔名
                 updated_at:
                     type: string
                     description: Markdown檔案更新時間，RFC3339格式

@@ -1,8 +1,8 @@
 package module
 
 import (
+	"fmt"
 	"io/fs"
-	"testing/fstest"
 
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	adminData "github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
@@ -63,13 +63,17 @@ var _ module.Resource = (*resource)(nil)
 
 // NewModuleResources 创建 Admin 在业务对象构建前提供给 Core 的静态资源。
 func NewModuleResources() module.Resources {
+	docsFS, err := fs.Sub(docs.DocsFS, "assets")
+	if err != nil {
+		panic(fmt.Errorf("读取内嵌项目文档资源: %w", err))
+	}
 	return module.Resources{
 		&resource{
 			projectKey:  _const.Project,
 			projectName: _const.Name,
 			models:      module.Models{databaseGorm.DefaultClientName: adminData.Models()},
 			openAPI:     openapi.Assets(),
-			docs:        fstest.MapFS{"docs.json": &fstest.MapFile{Data: docs.DocsData}},
+			docs:        docsFS,
 			migrations: module.Migrations{
 				{Name: migration.ModuleName, FS: migration.Assets(), Path: "."},
 			},

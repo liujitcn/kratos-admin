@@ -5,10 +5,14 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"path/filepath"
 	"runtime"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/shirou/gopsutil/v4/disk"
+	"github.com/shirou/gopsutil/v4/mem"
 
 	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
@@ -96,7 +100,7 @@ func (c *OpsMonitoringCase) GetOpsEndpoints(ctx context.Context, req *systemadmi
 // GetOpsNodes 查询实例资源状态。
 func (c *OpsMonitoringCase) GetOpsNodes(_ context.Context, _ *systemadminv1.GetOpsNodesRequest) *systemadminv1.OpsNodesResponse {
 	now := time.Now()
-	return &systemadminv1.OpsNodesResponse{CollectedAt: now.Format(time.RFC3339Nano), Nodes: summarizeNodes(c.runtimeInfo(now))}
+	return &systemadminv1.OpsNodesResponse{CollectedAt: now.Format(time.RFC3339Nano), Nodes: summarizeNodes(c.runtimeInfo(now), collectNodeMetrics())}
 }
 
 // GetOpsAlerts 查询窗口内告警事件。
@@ -384,18 +388,53 @@ func summarizeEndpoints(logs []dto.OpsLogRecord, windowMinutes int) []*systemadm
 	return endpoints
 }
 
-// summarizeNodes 将当前进程内存使用映射为实例资源指标。
-func summarizeNodes(runtimeInfo *systemadminv1.OpsRuntime) []*systemadminv1.OpsNode {
+// summarizeNodes 将进程和系统资源使用情况映射为实例资源指标。
+func summarizeNodes(runtimeInfo *systemadminv1.OpsRuntime, metrics []*systemadminv1.OpsNodeMetric) []*systemadminv1.OpsNode {
 	usedPercent := 0.0
 	if runtimeInfo.GetMemorySysBytes() > 0 {
 		usedPercent = float64(runtimeInfo.GetMemoryAllocBytes()) / float64(runtimeInfo.GetMemorySysBytes()) * 100
 	}
+	metrics = append([]*systemadminv1.OpsNodeMetric{{
+		Label:      "堆内存",
+		Value:      math.Min(usedPercent, 100),
+		UsedBytes:  runtimeInfo.GetMemoryAllocBytes(),
+		TotalBytes: runtimeInfo.GetMemorySysBytes(),
+	}}, metrics...)
 	return []*systemadminv1.OpsNode{{
-		Name: runtimeInfo.GetHostname(),
-		Metrics: []*systemadminv1.OpsNodeMetric{
-			{Label: "堆内存", Value: math.Min(usedPercent, 100)},
-		},
+		Name:    runtimeInfo.GetHostname(),
+		Metrics: metrics,
 	}}
+}
+
+// collectNodeMetrics 尽力采集实例可见的物理内存和程序所在文件系统使用率，单项失败时保留其他可用指标。
+func collectNodeMetrics() []*systemadminv1.OpsNodeMetric {
+	metrics := make([]*systemadminv1.OpsNodeMetric, 0, 2)
+	memoryStat, err := mem.VirtualMemory()
+	if err == nil && memoryStat.Total > 0 {
+		metrics = append(metrics, &systemadminv1.OpsNodeMetric{
+			Label:      "内存",
+			Value:      math.Min(memoryStat.UsedPercent, 100),
+			UsedBytes:  memoryStat.Used,
+			TotalBytes: memoryStat.Total,
+		})
+	}
+	diskPath := "."
+	var executablePath string
+	executablePath, err = os.Executable()
+	if err == nil {
+		diskPath = filepath.Dir(executablePath)
+	}
+	var diskStat *disk.UsageStat
+	diskStat, err = disk.Usage(diskPath)
+	if err == nil && diskStat.Total > 0 {
+		metrics = append(metrics, &systemadminv1.OpsNodeMetric{
+			Label:      "硬盘",
+			Value:      math.Min(diskStat.UsedPercent, 100),
+			UsedBytes:  diskStat.Used,
+			TotalBytes: diskStat.Total,
+		})
+	}
+	return metrics
 }
 
 // summarizeAlerts 将窗口内失败请求转换为告警事件。

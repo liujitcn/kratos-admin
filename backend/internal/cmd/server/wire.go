@@ -12,7 +12,7 @@ import (
 )
 
 // NewApp 通过 Core 根 ProviderSet 注入并创建应用。
-func NewAdminApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
+func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	panic(wire.Build(
 		kratoscore.ProviderSet,
 		module.ProviderSet,

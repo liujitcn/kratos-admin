@@ -23,12 +23,12 @@ import (
 type ConfigCase struct {
 	*biz.BaseCase
 	*data.BaseConfigRepository
-	translationRepo *data.BaseI18nRepository
+	translationRepo *data.BaseI18NRepository
 	languageRepo    *data.BaseLanguageRepository
 }
 
 // NewConfigCase 创建配置业务实例。
-func NewConfigCase(baseCase *biz.BaseCase, baseConfigRepo *data.BaseConfigRepository, translationRepo *data.BaseI18nRepository, languageRepo *data.BaseLanguageRepository) *ConfigCase {
+func NewConfigCase(baseCase *biz.BaseCase, baseConfigRepo *data.BaseConfigRepository, translationRepo *data.BaseI18NRepository, languageRepo *data.BaseLanguageRepository) *ConfigCase {
 	return &ConfigCase{
 		BaseCase:             baseCase,
 		BaseConfigRepository: baseConfigRepo,
@@ -119,7 +119,7 @@ func (c *ConfigCase) localizeRuntimeConfigValues(ctx context.Context, configs []
 	if len(configIDs) == 0 {
 		return configs, nil
 	}
-	query := c.translationRepo.Query(ctx).BaseI18n
+	query := c.translationRepo.Query(ctx).BaseI18N
 	rows, err := c.translationRepo.List(ctx, repository.Where(query.TargetType.Eq(int32(_const.TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE))), repository.Where(query.TargetID.In(configIDs...)), repository.Where(query.Locale.Eq(localeValue)))
 	if err != nil {
 		return nil, err

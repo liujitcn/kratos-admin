@@ -650,6 +650,9 @@
   "system.admin.auth.user_phone.phone.required": {
     "other": "Please enter mobile phone number"
   },
+  "system.admin.openapi.document.name": {
+    "other": "Core Services"
+  },
   "base.login.verify_captcha.captcha_code.required": {
     "other": "Verification code cannot be empty"
   },

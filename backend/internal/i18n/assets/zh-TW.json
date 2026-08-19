@@ -650,6 +650,9 @@
   "system.admin.auth.user_phone.phone.required": {
     "other": "請輸入手機號"
   },
+  "system.admin.openapi.document.name": {
+    "other": "基礎功能服務"
+  },
   "base.login.verify_captcha.captcha_code.required": {
     "other": "驗證碼不能為空"
   },

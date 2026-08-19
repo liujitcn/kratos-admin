@@ -14,10 +14,10 @@ require (
 	github.com/liujitcn/go-utils/crypto v0.0.12
 	github.com/liujitcn/go-utils/http v0.0.5
 	github.com/liujitcn/gorm-kit v0.0.32
-	github.com/liujitcn/kratos-admin/backend/api v0.0.2
-	github.com/liujitcn/kratos-core v0.0.6
+	github.com/liujitcn/kratos-admin/backend/api v0.0.3
+	github.com/liujitcn/kratos-core v0.0.9
 	github.com/liujitcn/kratos-core/api v0.0.2
-	github.com/liujitcn/kratos-kit/api v0.0.28
+	github.com/liujitcn/kratos-kit/api v0.0.29
 	github.com/liujitcn/kratos-kit/auth v0.0.24
 	github.com/liujitcn/kratos-kit/auth/authn v0.0.22
 	github.com/liujitcn/kratos-kit/auth/authz v0.0.21
@@ -42,6 +42,7 @@ require (
 	github.com/modelcontextprotocol/go-sdk v1.7.0
 	github.com/openai/openai-go/v3 v3.35.0
 	github.com/redis/go-redis/v9 v9.19.0
+	github.com/shirou/gopsutil/v4 v4.26.7
 	golang.org/x/text v0.41.0
 	google.golang.org/grpc v1.83.0
 	google.golang.org/protobuf v1.36.12
@@ -118,6 +119,7 @@ require (
 	github.com/cloudwego/base64x v0.1.6 // indirect
 	github.com/cloudwego/eino-ext/libs/acl/openai v0.1.18-0.20260527084435-846f52bd97c6 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/ebitengine/purego v0.10.2 // indirect
 	github.com/eino-contrib/jsonschema v1.0.3 // indirect
 	github.com/evanphx/json-patch v0.5.2 // indirect
 	github.com/fatih/color v1.18.0 // indirect
@@ -128,6 +130,7 @@ require (
 	github.com/go-ini/ini v1.67.0 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
+	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-playground/form/v4 v4.3.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
@@ -190,7 +193,7 @@ require (
 	github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.14 // indirect
 	github.com/liujitcn/kratos-kit/registry v0.0.21 // indirect
 	github.com/liujitcn/kratos-kit/server/grpc v0.0.1 // indirect
-	github.com/liujitcn/kratos-kit/server/http v0.0.1 // indirect
+	github.com/liujitcn/kratos-kit/server/http v0.0.2 // indirect
 	github.com/liujitcn/kratos-kit/server/mcp v0.0.1 // indirect
 	github.com/liujitcn/kratos-kit/server/sse v0.0.1 // indirect
 	github.com/liujitcn/kratos-kit/swagger-ui v0.0.14 // indirect
@@ -199,6 +202,7 @@ require (
 	github.com/liujitcn/kratos-kit/transport v0.0.22 // indirect
 	github.com/liujitcn/kratos-kit/transport/keepalive v0.0.11 // indirect
 	github.com/liujitcn/kratos-kit/transport/queue v0.0.2 // indirect
+	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.22 // indirect
@@ -222,10 +226,11 @@ require (
 	github.com/olekukonko/tablewriter v1.1.4 // indirect
 	github.com/openzipkin/zipkin-go v0.4.3 // indirect
 	github.com/paulmach/orb v0.11.1 // indirect
-	github.com/pelletier/go-toml/v2 v2.0.9 // indirect
+	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/philhofer/fwd v1.2.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
 	github.com/prometheus/client_golang v1.23.2 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
 	github.com/prometheus/common v0.67.5 // indirect
@@ -237,7 +242,7 @@ require (
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/segmentio/encoding v0.5.4 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
-	github.com/sirupsen/logrus v1.9.3 // indirect
+	github.com/sirupsen/logrus v1.9.4 // indirect
 	github.com/slongfield/pyfmt v0.0.0-20220222012616-ea85ff4c361f // indirect
 	github.com/spf13/cobra v1.10.2 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
@@ -248,6 +253,8 @@ require (
 	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/tinylib/msgp v1.6.1 // indirect
 	github.com/tjfoc/gmsm v1.4.1 // indirect
+	github.com/tklauser/go-sysconf v0.3.16 // indirect
+	github.com/tklauser/numcpus v0.11.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/vearutop/statigz v1.5.0 // indirect
 	github.com/volcengine/volc-sdk-golang v1.0.253 // indirect
@@ -256,6 +263,7 @@ require (
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
 	github.com/yargevad/filepathx v1.0.0 // indirect
 	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
+	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	github.com/zeebo/xxh3 v1.1.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.63.0 // indirect

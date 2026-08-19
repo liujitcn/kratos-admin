@@ -10,6 +10,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
+	corei18n "github.com/liujitcn/kratos-core/resource/i18n"
 	coreopenapi "github.com/liujitcn/kratos-core/resource/openapi"
 	openapidto "github.com/liujitcn/kratos-core/resource/openapi/dto"
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
@@ -24,7 +25,8 @@ import (
 type BaseAPICase struct {
 	*biz.BaseCase
 	*data.BaseAPIRepository
-	baseAPII18nRepo *data.BaseAPII18nRepository
+	baseAPII18NRepo *data.BaseAPII18NRepository
+	catalog         *corei18n.I18n
 	mapper          *mapper.CopierMapper[systemadminv1.BaseApi, models.BaseAPI]
 	openAPI         *coreopenapi.OpenAPI
 }
@@ -33,15 +35,17 @@ type BaseAPICase struct {
 func NewBaseAPICase(
 	baseCase *biz.BaseCase,
 	openAPI *coreopenapi.OpenAPI,
+	catalog *corei18n.I18n,
 	baseAPIRepo *data.BaseAPIRepository,
-	baseAPII18nRepo *data.BaseAPII18nRepository,
+	baseAPII18NRepo *data.BaseAPII18NRepository,
 ) *BaseAPICase {
 	baseAPIMapper := mapper.NewCopierMapper[systemadminv1.BaseApi, models.BaseAPI]()
 	baseAPIMapper.AppendConverters(mapper.NewJSONTypeConverter[[]string]().NewConverterPair())
 	return &BaseAPICase{
 		BaseCase:          baseCase,
 		BaseAPIRepository: baseAPIRepo,
-		baseAPII18nRepo:   baseAPII18nRepo,
+		baseAPII18NRepo:   baseAPII18NRepo,
+		catalog:           catalog,
 		mapper:            baseAPIMapper,
 		openAPI:           openAPI,
 	}
@@ -56,8 +60,8 @@ func (c *BaseAPICase) OptionBaseAPI(ctx context.Context, _ *systemadminv1.Option
 	if err != nil {
 		return nil, err
 	}
-	var translations map[string]*models.BaseAPII18n
-	translations, err = c.baseAPII18nMap(ctx, list)
+	var translations map[string]*models.BaseAPII18N
+	translations, err = c.baseAPII18NMap(ctx, list)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +103,7 @@ func (c *BaseAPICase) PageBaseAPI(ctx context.Context, req *systemadminv1.PageBa
 	// 传入服务描述关键字时，按服务描述模糊匹配。
 	if req.GetServiceDesc() != "" {
 		serviceDescCondition := query.ServiceDesc.Like("%" + req.GetServiceDesc() + "%")
-		i18nQuery := c.baseAPII18nRepo.Query(ctx).BaseAPII18n
+		i18nQuery := c.baseAPII18NRepo.Query(ctx).BaseAPII18N
 		var translatedOperations []string
 		translatedOperations, err = c.translatedOperations(ctx, i18nQuery.ServiceDesc.Like("%"+req.GetServiceDesc()+"%"))
 		if err != nil {
@@ -113,7 +117,7 @@ func (c *BaseAPICase) PageBaseAPI(ctx context.Context, req *systemadminv1.PageBa
 	// 传入描述关键字时，按接口描述模糊匹配。
 	if req.GetDesc() != "" {
 		descCondition := query.Desc.Like("%" + req.GetDesc() + "%")
-		i18nQuery := c.baseAPII18nRepo.Query(ctx).BaseAPII18n
+		i18nQuery := c.baseAPII18NRepo.Query(ctx).BaseAPII18N
 		var translatedOperations []string
 		translatedOperations, err = c.translatedOperations(ctx, i18nQuery.Desc.Like("%"+req.GetDesc()+"%"))
 		if err != nil {
@@ -142,14 +146,14 @@ func (c *BaseAPICase) PageBaseAPI(ctx context.Context, req *systemadminv1.PageBa
 	if req.AgentStatus != nil {
 		opts = append(opts, repository.Where(query.AgentStatus.Eq(int32(req.GetAgentStatus()))))
 	}
-	var translations map[string]*models.BaseAPII18n
+	var translations map[string]*models.BaseAPII18N
 	if req.GetToolPrompt() != "" || req.GetOpenapiServiceCode() != "" {
 		list, err = c.List(ctx, opts...)
 		if err != nil {
 			return nil, err
 		}
 		if req.GetToolPrompt() != "" {
-			translations, err = c.baseAPII18nMap(ctx, list)
+			translations, err = c.baseAPII18NMap(ctx, list)
 			if err != nil {
 				return nil, err
 			}
@@ -165,7 +169,7 @@ func (c *BaseAPICase) PageBaseAPI(ctx context.Context, req *systemadminv1.PageBa
 		}
 	}
 	if translations == nil {
-		translations, err = c.baseAPII18nMap(ctx, list)
+		translations, err = c.baseAPII18NMap(ctx, list)
 		if err != nil {
 			return nil, err
 		}
@@ -194,8 +198,8 @@ func (c *BaseAPICase) GetBaseAPI(ctx context.Context, id int64) (*systemadminv1.
 		return nil, err
 	}
 
-	var translations map[string]*models.BaseAPII18n
-	translations, err = c.baseAPII18nMap(ctx, []*models.BaseAPI{baseAPI})
+	var translations map[string]*models.BaseAPII18N
+	translations, err = c.baseAPII18NMap(ctx, []*models.BaseAPI{baseAPI})
 	if err != nil {
 		return nil, err
 	}
@@ -233,11 +237,20 @@ func (c *BaseAPICase) OptionOpenAPIService(ctx context.Context, req *systemadmin
 		}
 		options = append(options, &systemadminv1.OpenApiServiceOption{
 			Key:        service.Key,
-			Name:       service.Name,
+			Name:       c.localizeOpenAPIServiceName(ctx, service.Name),
 			Operations: operations,
 		})
 	}
 	return &systemadminv1.OptionOpenApiServiceResponse{List: options}, nil
+}
+
+// localizeOpenAPIServiceName 返回请求语言对应的 OpenAPI 服务名称。
+func (c *BaseAPICase) localizeOpenAPIServiceName(ctx context.Context, name string) string {
+	messageKey, found := c.catalog.KeyForSource(name)
+	if !found {
+		return name
+	}
+	return c.catalog.Localize(biz.LocaleFromContext(ctx), "", messageKey, nil, name)
 }
 
 // UpdateBaseAPI 更新接口 MCP、Agent 与工具提示词配置。
@@ -297,7 +310,7 @@ func (c *BaseAPICase) SetBaseAPIMcpStatus(ctx context.Context, req *systemadminv
 }
 
 // toBaseAPIDTO 转换接口数据并补充所属 OpenAPI 文档信息。
-func (c *BaseAPICase) toBaseAPIDTO(ctx context.Context, item *models.BaseAPI, translation *models.BaseAPII18n) *systemadminv1.BaseApi {
+func (c *BaseAPICase) toBaseAPIDTO(ctx context.Context, item *models.BaseAPI, translation *models.BaseAPII18N) *systemadminv1.BaseApi {
 	baseAPI := c.mapper.ToDTO(item)
 	if translation != nil {
 		if translation.ToolPrompts != "" {
@@ -313,7 +326,7 @@ func (c *BaseAPICase) toBaseAPIDTO(ctx context.Context, item *models.BaseAPI, tr
 	document, found := c.openAPI.Service(ctx, item.Path, item.Method)
 	if found {
 		baseAPI.OpenapiServiceCode = document.Key
-		baseAPI.OpenapiServiceName = document.Name
+		baseAPI.OpenapiServiceName = c.localizeOpenAPIServiceName(ctx, document.Name)
 	}
 	return baseAPI
 }
@@ -334,7 +347,7 @@ func (c *BaseAPICase) filterBaseAPIsByOpenAPIService(ctx context.Context, list [
 }
 
 // filterBaseAPIsByToolPrompt 按工具提示词内容过滤接口列表。
-func filterBaseAPIsByToolPrompt(list []*models.BaseAPI, keyword string, translations map[string]*models.BaseAPII18n) []*models.BaseAPI {
+func filterBaseAPIsByToolPrompt(list []*models.BaseAPI, keyword string, translations map[string]*models.BaseAPII18N) []*models.BaseAPI {
 	if keyword == "" {
 		return list
 	}
@@ -368,9 +381,9 @@ func filterBaseAPIsByToolPrompt(list []*models.BaseAPI, keyword string, translat
 	return values
 }
 
-// baseAPII18nMap 查询当前语言对应的 API 翻译信息。
-func (c *BaseAPICase) baseAPII18nMap(ctx context.Context, list []*models.BaseAPI) (map[string]*models.BaseAPII18n, error) {
-	translations := make(map[string]*models.BaseAPII18n)
+// baseAPII18NMap 查询当前语言对应的 API 翻译信息。
+func (c *BaseAPICase) baseAPII18NMap(ctx context.Context, list []*models.BaseAPI) (map[string]*models.BaseAPII18N, error) {
+	translations := make(map[string]*models.BaseAPII18N)
 	operations := make([]string, 0, len(list))
 	seen := make(map[string]struct{}, len(list))
 	for _, item := range list {
@@ -387,8 +400,8 @@ func (c *BaseAPICase) baseAPII18nMap(ctx context.Context, list []*models.BaseAPI
 	if locale == "" || len(operations) == 0 {
 		return translations, nil
 	}
-	query := c.baseAPII18nRepo.Query(ctx).BaseAPII18n
-	rows, err := c.baseAPII18nRepo.List(ctx,
+	query := c.baseAPII18NRepo.Query(ctx).BaseAPII18N
+	rows, err := c.baseAPII18NRepo.List(ctx,
 		repository.Where(query.Operation.In(operations...)),
 		repository.Where(query.Locale.Eq(locale)),
 	)
@@ -407,8 +420,8 @@ func (c *BaseAPICase) translatedOperations(ctx context.Context, condition gen.Co
 	if locale == "" {
 		return nil, nil
 	}
-	query := c.baseAPII18nRepo.Query(ctx).BaseAPII18n
-	rows, err := c.baseAPII18nRepo.List(ctx,
+	query := c.baseAPII18NRepo.Query(ctx).BaseAPII18N
+	rows, err := c.baseAPII18NRepo.List(ctx,
 		repository.Where(query.Locale.Eq(locale)),
 		repository.Where(condition),
 	)

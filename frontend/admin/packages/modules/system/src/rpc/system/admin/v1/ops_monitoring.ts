@@ -222,6 +222,10 @@ export interface OpsNodeMetric {
   label: string;
   /** 指标使用百分比 */
   value: number;
+  /** 当前已用容量，单位字节 */
+  used_bytes: number;
+  /** 总容量，单位字节 */
+  total_bytes: number;
 }
 
 /** 告警事件。 */

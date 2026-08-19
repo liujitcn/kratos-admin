@@ -58,7 +58,7 @@ import (
 // Injectors from wire.go:
 
 // NewApp 通过 Core 根 ProviderSet 注入并创建应用。
-func NewAdminApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
+func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	configv1Bootstrap, err := config.ParseBootstrap(ctx)
 	if err != nil {
 		return nil, nil, err
@@ -91,8 +91,8 @@ func NewAdminApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	baseAPIRepository := data.NewBaseAPIRepository(dataData)
-	baseAPII18nRepository := data.NewBaseAPII18nRepository(dataData)
-	baseAPICase := biz.NewBaseAPICase(baseAPIRepository, baseAPII18nRepository)
+	baseAPII18NRepository := data.NewBaseAPII18NRepository(dataData)
+	baseAPICase := biz.NewBaseAPICase(baseAPIRepository, baseAPII18NRepository)
 	baseRoleRepository := data.NewBaseRoleRepository(dataData)
 	baseTenantRepository := data.NewBaseTenantRepository(dataData)
 	baseTenantCase := biz.NewBaseTenantCase(dataData, baseRoleRepository, baseTenantRepository)
@@ -240,8 +240,8 @@ func NewAdminApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	dataCasbinRuleRepository := data2.NewCasbinRuleRepository(data3)
 	dataBaseMenuRepository := data2.NewBaseMenuRepository(data3)
 	openapiOpenAPI := openapi.NewOpenAPI(registry)
-	dataBaseAPII18nRepository := data2.NewBaseAPII18nRepository(data3)
-	bizBaseAPICase := biz4.NewBaseAPICase(baseCase, openapiOpenAPI, dataBaseAPIRepository, dataBaseAPII18nRepository)
+	dataBaseAPII18NRepository := data2.NewBaseAPII18NRepository(data3)
+	bizBaseAPICase := biz4.NewBaseAPICase(baseCase, openapiOpenAPI, i18nI18n, dataBaseAPIRepository, dataBaseAPII18NRepository)
 	bizCasbinRuleCase, err := biz4.NewCasbinRuleCase(dataCasbinRuleRepository, dataBaseMenuRepository, dataBaseRoleRepository, dataBaseTenantRepository, bizBaseAPICase, engine)
 	if err != nil {
 		cleanup4()
@@ -252,10 +252,10 @@ func NewAdminApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	baseRoleCase := biz4.NewBaseRoleCase(baseCase, transaction, dataBaseRoleRepository, dataBaseTenantRepository, bizCasbinRuleCase)
 	baseDeptCase := biz4.NewBaseDeptCase(baseCase, baseDeptRepository)
-	baseI18nRepository := data2.NewBaseI18nRepository(data3)
+	baseI18NRepository := data2.NewBaseI18NRepository(data3)
 	baseLanguageRepository := data2.NewBaseLanguageRepository(data3)
 	baseLanguageCase := biz4.NewBaseLanguageCase(baseCase, transaction, baseLanguageRepository)
-	baseTranslationCase := biz4.NewBaseTranslationCase(baseCase, transaction, baseI18nRepository, baseLanguageCase)
+	baseTranslationCase := biz4.NewBaseTranslationCase(baseCase, transaction, baseI18NRepository, baseLanguageCase)
 	baseMenuCase := biz4.NewBaseMenuCase(baseCase, transaction, dataBaseMenuRepository, dataBaseRoleRepository, bizCasbinRuleCase, baseTranslationCase)
 	bizBaseRoleCase := biz3.NewBaseRoleCase(baseCase, dataBaseRoleRepository, dataBaseTenantRepository)
 	bizBaseUserCase := biz4.NewBaseUserCase(baseCase, transaction, dataBaseUserRepository, baseDeptRepository, basePostRepository, baseRoleCase, baseDeptCase, baseMenuCase, bizBaseRoleCase)
@@ -335,7 +335,7 @@ func NewAdminApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	docsDocs := docs.NewDocs(docsRegistry)
-	projectDocumentService := admin.NewProjectDocumentService(docsDocs)
+	projectDocumentService := admin.NewProjectDocumentService(docsDocs, i18nI18n)
 	services := admin3.Services{
 		Auth:             authService,
 		BaseAPI:          baseApiService,
@@ -407,7 +407,7 @@ func NewAdminApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	aiToolCase := biz3.NewAiToolCase(baseCase, runtime)
 	aiToolService := base.NewAiToolService(aiToolCase)
 	aiMessageService := base.NewAiMessageService(aiMessageCase)
-	configCase := biz3.NewConfigCase(baseCase, baseConfigRepository, baseI18nRepository, baseLanguageRepository)
+	configCase := biz3.NewConfigCase(baseCase, baseConfigRepository, baseI18NRepository, baseLanguageRepository)
 	configService := base.NewConfigService(configCase)
 	languageCase := biz3.NewLanguageCase(baseCase, baseLanguageRepository)
 	languageService := base.NewLanguageService(languageCase)

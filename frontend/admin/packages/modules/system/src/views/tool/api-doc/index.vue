@@ -27,15 +27,16 @@
 <script setup lang="ts">
 import SwaggerUIBundle from "swagger-ui-dist/swagger-ui-bundle.js";
 import "swagger-ui-dist/swagger-ui.css";
+import { DEFAULT_LOCALE, t, useLocaleStore } from "@liujitcn/kratos-admin-core";
 import { getLocaleRequestHeaders, getRequestAccessToken } from "@liujitcn/kratos-admin-core/request";
 import { defBaseApiService } from "@liujitcn/kratos-admin-system/api/system/base_api";
 import type { OpenApiServiceOption } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_api";
-import { t } from "@liujitcn/kratos-admin-core";
 
 const swaggerRootRef = ref<HTMLElement>();
 const loading = ref(true);
 const documents = ref<OpenApiServiceOption[]>([]);
 const selectedDocumentKey = ref("");
+const { locale } = useLocaleStore();
 
 /** 初始化携带当前登录令牌的 Swagger UI。 */
 function initializeSwaggerUI(documentKey: string) {
@@ -44,9 +45,10 @@ function initializeSwaggerUI(documentKey: string) {
 
   loading.value = true;
   swaggerRoot.replaceChildren();
+  const localePath = locale.value === DEFAULT_LOCALE ? "" : `/${encodeURIComponent(locale.value)}`;
   SwaggerUIBundle({
     domNode: swaggerRoot,
-    url: `/api/docs/openapi/${encodeURIComponent(documentKey)}`,
+    url: `/api/docs/openapi/${encodeURIComponent(documentKey)}${localePath}`,
     deepLinking: true,
     displayOperationId: true,
     displayRequestDuration: true,
@@ -84,22 +86,28 @@ function handleDocumentChange(documentKey: string) {
 
 /** 加载可访问的 OpenAPI 文档并初始化默认文档。 */
 async function loadOpenAPIDocuments() {
+  loading.value = true;
   try {
     const response = await defBaseApiService.OptionOpenApiService({});
     documents.value = response.list;
-    const defaultDocument = response.list[0];
-    if (!defaultDocument) {
+    const selectedDocument = response.list.find(document => document.key === selectedDocumentKey.value) ?? response.list[0];
+    if (!selectedDocument) {
+      selectedDocumentKey.value = "";
       loading.value = false;
       return;
     }
-    selectedDocumentKey.value = defaultDocument.key;
-    initializeSwaggerUI(defaultDocument.key);
+    selectedDocumentKey.value = selectedDocument.key;
+    initializeSwaggerUI(selectedDocument.key);
   } catch {
     loading.value = false;
   }
 }
 
 onMounted(() => {
+  loadOpenAPIDocuments();
+});
+
+watch(locale, () => {
   loadOpenAPIDocuments();
 });
 

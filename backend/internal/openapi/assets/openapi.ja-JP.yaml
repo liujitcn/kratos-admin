@@ -10,7 +10,7 @@ paths:
         get:
             tags:
                 - AuthService
-            description: ログインユーザーのボタンリストをクエリします
+            description: ログインユーザーのボタンリストをクエリします。
             operationId: AuthService_ListUserButton
             responses:
                 "200":
@@ -84,7 +84,7 @@ paths:
         get:
             tags:
                 - AuthService
-            description: パーソナルセンターユーザー情報の取得
+            description: パーソナルセンターのユーザー情報を取得します
             operationId: AuthService_GetUserProfile
             responses:
                 "200":
@@ -112,7 +112,7 @@ paths:
         get:
             tags:
                 - AuthService
-            description: ログインしているユーザーのデータを取得します
+            description: ログインユーザーのデータを取得します
             operationId: AuthService_GetUserInfo
             responses:
                 "200":
@@ -426,7 +426,7 @@ paths:
         get:
             tags:
                 - BaseAreaService
-            description: 行政地域ツリーリストのクエリ
+            description: 行政地域ツリー リストのクエリ
             operationId: BaseAreaService_TreeBaseArea
             parameters:
                 - name: name
@@ -622,7 +622,7 @@ paths:
         get:
             tags:
                 - BaseConfigService
-            description: システム構成のクエリ
+            description: システム構成の問い合わせ
             operationId: BaseConfigService_GetBaseConfig
             parameters:
                 - name: id
@@ -1155,7 +1155,7 @@ paths:
         get:
             tags:
                 - BaseJobService
-            description: スケジュールされたタスク ログのページング リストをクエリする
+            description: スケジュールされたタスク ログのページング リストをクエリします
             operationId: BaseJobService_PageBaseJobLog
             parameters:
                 - name: job_id
@@ -1352,7 +1352,7 @@ paths:
         get:
             tags:
                 - BaseLanguageService
-            description: クエリ言語のページング リスト
+            description: クエリ言語のページ分割されたリスト
             operationId: BaseLanguageService_PageBaseLanguage
             parameters:
                 - name: language_name
@@ -1424,7 +1424,7 @@ paths:
         put:
             tags:
                 - BaseLanguageService
-            description: 言語を更新します
+            description: 言語を更新
             operationId: BaseLanguageService_UpdateBaseLanguage
             parameters:
                 - name: base_language.id
@@ -2746,7 +2746,7 @@ paths:
         get:
             tags:
                 - CodeGenService
-            description: クエリコード生成タスクの進行状況
+            description: コード生成タスクの進行状況を問い合わせます
             operationId: CodeGenService_GetCodeGenTask
             parameters:
                 - name: task_id
@@ -2816,7 +2816,7 @@ paths:
         get:
             tags:
                 - OpsMonitoringService
-            description: 現在のプロセス実行情報を照会します。
+            description: 現在のプロセス実行情報をクエリします。
             operationId: OpsMonitoringService_GetOpsRuntime
             responses:
                 "200":
@@ -2925,7 +2925,7 @@ paths:
         get:
             tags:
                 - AuthService
-            description: ログインしているユーザーのデータを取得します
+            description: ログインユーザーのデータを取得します
             operationId: AuthService_GetUserProfile
             responses:
                 "200":
@@ -2953,7 +2953,7 @@ paths:
         get:
             tags:
                 - BaseAreaService
-            description: 行政地域ツリーリストのクエリ
+            description: 行政地域ツリー リストのクエリ
             operationId: BaseAreaService_TreeBaseArea
             responses:
                 "200":
@@ -3471,7 +3471,7 @@ paths:
         post:
             tags:
                 - OauthService
-            description: 既存のアカウントをバインドし、スリーパーティ ログイン セッションを作成します
+            description: 既存のアカウントをバインドし、サードパーティのログイン セッションを作成します
             operationId: OauthService_BindOauthSession
             requestBody:
                 content:
@@ -3777,7 +3777,7 @@ components:
                     description: プロセス識別
                 step:
                     type: string
-                    description: 処理手順
+                    description: プロセスの手順
                 type:
                     type: string
                     description: アクションの種類
@@ -3864,7 +3864,7 @@ components:
                     format: int32
                 duration_ms:
                     type: integer
-                    description: 合計経過時間 (ミリ秒)
+                    description: にかかった合計時間 (ミリ秒)
                     format: int32
             description: AI アシスタントのメッセージ
         base.v1.AiOutputContent:
@@ -3884,7 +3884,7 @@ components:
                     description: 応答で使用されたモデル名
                 fallback:
                     type: boolean
-                    description: ダウングレード応答かどうか
+                    description: ダウングレードの返信ですか?
                 fallback_reason:
                     type: string
                     description: ダウングレードの理由
@@ -3893,7 +3893,7 @@ components:
                     description: プロセス識別
                 step:
                     type: string
-                    description: 処理手順
+                    description: プロセスの手順
                 blocks_json:
                     type: string
                     description: モバイル構造化コンテンツ JSON
@@ -3958,7 +3958,7 @@ components:
                     description: プロセス識別
                 step:
                     type: string
-                    description: 処理手順
+                    description: プロセスの手順
                 type:
                     type: string
                     description: アクションの種類
@@ -4549,7 +4549,7 @@ components:
                     description: 値。必須
                 text:
                     type: string
-                    description: テキストを表示します。必須
+                    description: はテキストを表示します。必須
                 selected:
                     type: boolean
                     description: デフォルトで選択されているかどうか。デフォルト値 false
@@ -4908,7 +4908,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseI18n'
-                    description: 設定値テキスト/リッチテキスト設定値の多言語翻訳
+                    description: 値テキスト/リッチテキスト設定値の多言語翻訳を設定します
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -5155,7 +5155,7 @@ components:
                     description: ロケール
                 name:
                     type: string
-                    description: テキストを翻訳
+                    description: 翻訳されたテキスト
             description: 国際翻訳情報
         system.admin.v1.BaseJob:
             type: object
@@ -5394,7 +5394,7 @@ components:
                     description: オペレーターアカウント名
                 client_ip:
                     type: string
-                    description: オペレーター IP
+                    description: オペレーターの IP
                 user_agent:
                     type: string
                     description: ブラウザのユーザーエージェント情報
@@ -5716,7 +5716,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: ロール ID
+                    description: ロールID
                 tenant_id:
                     type: string
                     description: テナントID
@@ -5734,7 +5734,7 @@ components:
                         - BASE_ROLE_DATA_SCOPE_SELF_DEPT
                         - BASE_ROLE_DATA_SCOPE_SELF_USER
                     type: string
-                    description: "データ権限: 0 すべてのデータ 1 部門および下位部門のデータ 2 部門データ 3 個人データ"
+                    description: "データ権限: 0 すべてのデータ 1 部門およびサブ部門のデータ 2 部門のデータ 3 個人データ"
                     format: enum
                 menus:
                     type: array
@@ -5767,7 +5767,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: ロール ID
+                    description: ロールID
                 tenant_id:
                     type: string
                     description: テナントID
@@ -5785,7 +5785,7 @@ components:
                         - BASE_ROLE_DATA_SCOPE_SELF_DEPT
                         - BASE_ROLE_DATA_SCOPE_SELF_USER
                     type: string
-                    description: "データ権限: 0 すべてのデータ 1 部門および下位部門のデータ 2 部門データ 3 個人データ"
+                    description: "データ権限: 0 すべてのデータ 1 部門およびサブ部門のデータ 2 部門のデータ 3 個人データ"
                     format: enum
                 menus:
                     type: array
@@ -5893,7 +5893,7 @@ components:
                     description: ユーザーのニックネーム
                 role_id:
                     type: string
-                    description: ロール ID
+                    description: ロールID
                 dept_id:
                     type: string
                     description: 部門ID
@@ -5956,7 +5956,7 @@ components:
                     description: ユーザーのニックネーム
                 role_id:
                     type: string
-                    description: ロール ID
+                    description: ロールID
                 dept_id:
                     type: string
                     description: 部門ID
@@ -6546,7 +6546,7 @@ components:
                     description: ターゲット言語地域
                 translation:
                     type: string
-                    description: テキストを翻訳
+                    description: 翻訳されたテキスト
             description: 単一のテキスト応答を翻訳します。
         system.admin.v1.DraftBaseTranslationRequest:
             type: object
@@ -6556,7 +6556,7 @@ components:
                     description: 翻訳対象のテキスト
                 locale:
                     type: string
-                    description: ターゲット言語領域。渡されない場合、有効な非メイン言語がすべて翻訳されます。
+                    description: ターゲット言語領域。渡されない場合は、有効な非メイン言語がすべて翻訳されます。
             description: 単一のテキスト リクエストを翻訳します。
         system.admin.v1.DraftBaseTranslationResponse:
             type: object
@@ -6573,7 +6573,7 @@ components:
                 id:
                     type: string
                     description: タスクID
-            description: 実行タスクのリクエストパラメータ
+            description: 実行タスクリクエストパラメータ
         system.admin.v1.ListBaseUserResponse:
             type: object
             properties:
@@ -6600,7 +6600,7 @@ components:
                     items:
                         $ref: '#/components/schemas/system.admin.v1.CodeGenDatabaseColumn'
                     description: データベースフィールドリスト
-            description: データベーステーブルフィールドリストの応答
+            description: データベーステーブルフィールドリスト応答
         system.admin.v1.ListCodeGenDatabaseTableResponse:
             type: object
             properties:
@@ -6746,6 +6746,12 @@ components:
                     type: number
                     description: インジケーターの使用率
                     format: double
+                used_bytes:
+                    type: string
+                    description: 現在使用されている容量、単位バイト
+                total_bytes:
+                    type: string
+                    description: 合計容量 (バイト単位)
             description: インスタンスリソースインジケーター。
         system.admin.v1.OpsNodesResponse:
             type: object
@@ -6868,7 +6874,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.OpsStorage'
-                    description: データ保存状態
+                    description: データ保存ステータス
             description: にはステータス応答が格納されます。
         system.admin.v1.OpsTraffic:
             type: object
@@ -7220,14 +7226,12 @@ components:
                 path:
                     type: string
                     description: プロジェクト内の相対パス
+                name:
+                    type: string
+                    description: 現在の言語でのドキュメント表示ファイル名
                 content:
                     type: string
                     description: マークダウンドキュメントのコンテンツ
-                locale:
-                    type: object
-                    additionalProperties:
-                        type: string
-                    description: 言語識別子によってインデックス付けされたマークダウン翻訳コンテンツ
                 updated_at:
                     type: string
                     description: マークダウン ファイルの更新時間、RFC3339 形式
@@ -7261,6 +7265,9 @@ components:
                 path:
                     type: string
                     description: プロジェクト内の相対パス
+                name:
+                    type: string
+                    description: 現在の言語でのドキュメント表示ファイル名
                 updated_at:
                     type: string
                     description: マークダウン ファイルの更新時間、RFC3339 形式
@@ -7283,7 +7290,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.ProjectDocumentDirectory'
-                    description: プロジェクトのルートディレクトリ下のサブディレクトリ
+                    description: プロジェクトのルート ディレクトリ下のサブディレクトリ
             description: プロジェクト ドキュメント ツリー
         system.admin.v1.RefreshBaseConfigCacheRequest:
             type: object
@@ -7545,7 +7552,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: ロール ID
+                    description: ロールID
                 menus:
                     type: array
                     items:
@@ -7557,7 +7564,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: ロール ID
+                    description: ロールID
                 status:
                     type: integer
                     description: ステータス
@@ -7706,7 +7713,7 @@ components:
                     description: ターゲット言語領域。ID が 0 の場合、クエリまたは新規追加に使用されます。
                 name:
                     type: string
-                    description: テキストを翻訳
+                    description: 翻訳されたテキスト
             description: 単一の翻訳情報リクエストを変更します。
         system.admin.v1.UserInfoForm:
             type: object
@@ -7863,7 +7870,7 @@ components:
                 code:
                     type: string
                     description: 認証情報
-            description: 携帯電話番号認証リクエストのパラメータ
+            description: 携帯電話番号認証リクエストパラメータ
         system.app.v1.BindUserPhoneResponse:
             type: object
             properties:

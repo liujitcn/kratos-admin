@@ -650,6 +650,9 @@
   "system.admin.auth.user_phone.phone.required": {
     "other": "携帯電話番号を入力してください"
   },
+  "system.admin.openapi.document.name": {
+    "other": "基本機能サービス"
+  },
   "base.login.verify_captcha.captcha_code.required": {
     "other": "確認コードを空にすることはできません"
   },

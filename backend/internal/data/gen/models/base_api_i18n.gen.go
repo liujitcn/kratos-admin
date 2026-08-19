@@ -4,10 +4,10 @@
 
 package models
 
-const TableNameBaseAPII18n = "base_api_i18n"
+const TableNameBaseAPII18N = "base_api_i18n"
 
-// BaseAPII18n API国际化信息
-type BaseAPII18n struct {
+// BaseAPII18N API国际化信息
+type BaseAPII18N struct {
 	ID          int64  `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:API国际化ID" json:"id"`                                        // API国际化ID
 	Operation   string `gorm:"column:operation;type:varchar(255);not null;uniqueIndex:unique_base_api_i18n,priority:1;comment:接口操作" json:"operation"` // 接口操作
 	Locale      string `gorm:"column:locale;type:varchar(32);not null;uniqueIndex:unique_base_api_i18n,priority:2;comment:语言标识" json:"locale"`        // 语言标识
@@ -16,7 +16,7 @@ type BaseAPII18n struct {
 	Desc        string `gorm:"column:desc;type:varchar(500);not null;comment:接口描述" json:"desc"`                                                       // 接口描述
 }
 
-// TableName BaseAPII18n's table name
-func (*BaseAPII18n) TableName() string {
-	return TableNameBaseAPII18n
+// TableName BaseAPII18N's table name
+func (*BaseAPII18N) TableName() string {
+	return TableNameBaseAPII18N
 }

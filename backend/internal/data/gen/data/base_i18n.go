@@ -14,32 +14,32 @@ import (
 	"gorm.io/gen/field"
 )
 
-// BaseI18nRepository 定义 国际化翻译信息 的基础仓储能力。
-type BaseI18nRepository struct {
-	repository.BaseRepository[models.BaseI18n]
+// BaseI18NRepository 定义 国际化翻译信息 的基础仓储能力。
+type BaseI18NRepository struct {
+	repository.BaseRepository[models.BaseI18N]
 	queryProvider QueryProvider
 }
 
-// NewBaseI18nRepository 创建 BaseI18n 基础仓储实例。
-func NewBaseI18nRepository(queryProvider QueryProvider) *BaseI18nRepository {
-	base := repository.NewBaseRepository[models.BaseI18n](
+// NewBaseI18NRepository 创建 BaseI18N 基础仓储实例。
+func NewBaseI18NRepository(queryProvider QueryProvider) *BaseI18NRepository {
+	base := repository.NewBaseRepository[models.BaseI18N](
 		func(ctx context.Context) gen.Dao {
-			return new(queryProvider.Query(ctx).BaseI18n.WithContext(ctx).DO)
+			return new(queryProvider.Query(ctx).BaseI18N.WithContext(ctx).DO)
 		},
 		func(ctx context.Context) field.Int64 {
-			return queryProvider.Query(ctx).BaseI18n.ID
+			return queryProvider.Query(ctx).BaseI18N.ID
 		},
-		func(entity *models.BaseI18n) int64 {
+		func(entity *models.BaseI18N) int64 {
 			return entity.ID
 		},
 	)
-	return &BaseI18nRepository{
+	return &BaseI18NRepository{
 		BaseRepository: base,
 		queryProvider:  queryProvider,
 	}
 }
 
 // Query 返回当前上下文对应的查询入口。
-func (r *BaseI18nRepository) Query(ctx context.Context) *query.Query {
+func (r *BaseI18NRepository) Query(ctx context.Context) *query.Query {
 	return r.queryProvider.Query(ctx)
 }

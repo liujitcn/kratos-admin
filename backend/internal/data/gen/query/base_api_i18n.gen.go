@@ -19,29 +19,29 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 )
 
-func newBaseAPII18n(db *gorm.DB, opts ...gen.DOOption) baseAPII18n {
-	_baseAPII18n := baseAPII18n{}
+func newBaseAPII18N(db *gorm.DB, opts ...gen.DOOption) baseAPII18N {
+	_baseAPII18N := baseAPII18N{}
 
-	_baseAPII18n.baseAPII18nDo.UseDB(db, opts...)
-	_baseAPII18n.baseAPII18nDo.UseModel(&models.BaseAPII18n{})
+	_baseAPII18N.baseAPII18NDo.UseDB(db, opts...)
+	_baseAPII18N.baseAPII18NDo.UseModel(&models.BaseAPII18N{})
 
-	tableName := _baseAPII18n.baseAPII18nDo.TableName()
-	_baseAPII18n.ALL = field.NewAsterisk(tableName)
-	_baseAPII18n.ID = field.NewInt64(tableName, "id")
-	_baseAPII18n.Operation = field.NewString(tableName, "operation")
-	_baseAPII18n.Locale = field.NewString(tableName, "locale")
-	_baseAPII18n.ToolPrompts = field.NewString(tableName, "tool_prompts")
-	_baseAPII18n.ServiceDesc = field.NewString(tableName, "service_desc")
-	_baseAPII18n.Desc = field.NewString(tableName, "desc")
+	tableName := _baseAPII18N.baseAPII18NDo.TableName()
+	_baseAPII18N.ALL = field.NewAsterisk(tableName)
+	_baseAPII18N.ID = field.NewInt64(tableName, "id")
+	_baseAPII18N.Operation = field.NewString(tableName, "operation")
+	_baseAPII18N.Locale = field.NewString(tableName, "locale")
+	_baseAPII18N.ToolPrompts = field.NewString(tableName, "tool_prompts")
+	_baseAPII18N.ServiceDesc = field.NewString(tableName, "service_desc")
+	_baseAPII18N.Desc = field.NewString(tableName, "desc")
 
-	_baseAPII18n.fillFieldMap()
+	_baseAPII18N.fillFieldMap()
 
-	return _baseAPII18n
+	return _baseAPII18N
 }
 
-// baseAPII18n API国际化信息
-type baseAPII18n struct {
-	baseAPII18nDo baseAPII18nDo
+// baseAPII18N API国际化信息
+type baseAPII18N struct {
+	baseAPII18NDo baseAPII18NDo
 
 	ALL         field.Asterisk
 	ID          field.Int64  // API国际化ID
@@ -54,17 +54,17 @@ type baseAPII18n struct {
 	fieldMap map[string]field.Expr
 }
 
-func (b baseAPII18n) Table(newTableName string) *baseAPII18n {
-	b.baseAPII18nDo.UseTable(newTableName)
+func (b baseAPII18N) Table(newTableName string) *baseAPII18N {
+	b.baseAPII18NDo.UseTable(newTableName)
 	return b.updateTableName(newTableName)
 }
 
-func (b baseAPII18n) As(alias string) *baseAPII18n {
-	b.baseAPII18nDo.DO = *(b.baseAPII18nDo.As(alias).(*gen.DO))
+func (b baseAPII18N) As(alias string) *baseAPII18N {
+	b.baseAPII18NDo.DO = *(b.baseAPII18NDo.As(alias).(*gen.DO))
 	return b.updateTableName(alias)
 }
 
-func (b *baseAPII18n) updateTableName(table string) *baseAPII18n {
+func (b *baseAPII18N) updateTableName(table string) *baseAPII18N {
 	b.ALL = field.NewAsterisk(table)
 	b.ID = field.NewInt64(table, "id")
 	b.Operation = field.NewString(table, "operation")
@@ -78,17 +78,17 @@ func (b *baseAPII18n) updateTableName(table string) *baseAPII18n {
 	return b
 }
 
-func (b *baseAPII18n) WithContext(ctx context.Context) *baseAPII18nDo {
-	return b.baseAPII18nDo.WithContext(ctx)
+func (b *baseAPII18N) WithContext(ctx context.Context) *baseAPII18NDo {
+	return b.baseAPII18NDo.WithContext(ctx)
 }
 
-func (b baseAPII18n) TableName() string { return b.baseAPII18nDo.TableName() }
+func (b baseAPII18N) TableName() string { return b.baseAPII18NDo.TableName() }
 
-func (b baseAPII18n) Alias() string { return b.baseAPII18nDo.Alias() }
+func (b baseAPII18N) Alias() string { return b.baseAPII18NDo.Alias() }
 
-func (b baseAPII18n) Columns(cols ...field.Expr) gen.Columns { return b.baseAPII18nDo.Columns(cols...) }
+func (b baseAPII18N) Columns(cols ...field.Expr) gen.Columns { return b.baseAPII18NDo.Columns(cols...) }
 
-func (b *baseAPII18n) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
+func (b *baseAPII18N) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 	_f, ok := b.fieldMap[fieldName]
 	if !ok || _f == nil {
 		return nil, false
@@ -97,7 +97,7 @@ func (b *baseAPII18n) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 	return _oe, ok
 }
 
-func (b *baseAPII18n) fillFieldMap() {
+func (b *baseAPII18N) fillFieldMap() {
 	b.fieldMap = make(map[string]field.Expr, 6)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["operation"] = b.Operation
@@ -107,161 +107,161 @@ func (b *baseAPII18n) fillFieldMap() {
 	b.fieldMap["desc"] = b.Desc
 }
 
-func (b baseAPII18n) clone(db *gorm.DB) baseAPII18n {
-	b.baseAPII18nDo.ReplaceConnPool(db.Statement.ConnPool)
+func (b baseAPII18N) clone(db *gorm.DB) baseAPII18N {
+	b.baseAPII18NDo.ReplaceConnPool(db.Statement.ConnPool)
 	return b
 }
 
-func (b baseAPII18n) replaceDB(db *gorm.DB) baseAPII18n {
-	b.baseAPII18nDo.ReplaceDB(db)
+func (b baseAPII18N) replaceDB(db *gorm.DB) baseAPII18N {
+	b.baseAPII18NDo.ReplaceDB(db)
 	return b
 }
 
-type baseAPII18nDo struct{ gen.DO }
+type baseAPII18NDo struct{ gen.DO }
 
-func (b baseAPII18nDo) Debug() *baseAPII18nDo {
+func (b baseAPII18NDo) Debug() *baseAPII18NDo {
 	return b.withDO(b.DO.Debug())
 }
 
-func (b baseAPII18nDo) WithContext(ctx context.Context) *baseAPII18nDo {
+func (b baseAPII18NDo) WithContext(ctx context.Context) *baseAPII18NDo {
 	return b.withDO(b.DO.WithContext(ctx))
 }
 
-func (b baseAPII18nDo) ReadDB() *baseAPII18nDo {
+func (b baseAPII18NDo) ReadDB() *baseAPII18NDo {
 	return b.Clauses(dbresolver.Read)
 }
 
-func (b baseAPII18nDo) WriteDB() *baseAPII18nDo {
+func (b baseAPII18NDo) WriteDB() *baseAPII18NDo {
 	return b.Clauses(dbresolver.Write)
 }
 
-func (b baseAPII18nDo) Session(config *gorm.Session) *baseAPII18nDo {
+func (b baseAPII18NDo) Session(config *gorm.Session) *baseAPII18NDo {
 	return b.withDO(b.DO.Session(config))
 }
 
-func (b baseAPII18nDo) Clauses(conds ...clause.Expression) *baseAPII18nDo {
+func (b baseAPII18NDo) Clauses(conds ...clause.Expression) *baseAPII18NDo {
 	return b.withDO(b.DO.Clauses(conds...))
 }
 
-func (b baseAPII18nDo) Returning(value interface{}, columns ...string) *baseAPII18nDo {
+func (b baseAPII18NDo) Returning(value interface{}, columns ...string) *baseAPII18NDo {
 	return b.withDO(b.DO.Returning(value, columns...))
 }
 
-func (b baseAPII18nDo) Not(conds ...gen.Condition) *baseAPII18nDo {
+func (b baseAPII18NDo) Not(conds ...gen.Condition) *baseAPII18NDo {
 	return b.withDO(b.DO.Not(conds...))
 }
 
-func (b baseAPII18nDo) Or(conds ...gen.Condition) *baseAPII18nDo {
+func (b baseAPII18NDo) Or(conds ...gen.Condition) *baseAPII18NDo {
 	return b.withDO(b.DO.Or(conds...))
 }
 
-func (b baseAPII18nDo) Select(conds ...field.Expr) *baseAPII18nDo {
+func (b baseAPII18NDo) Select(conds ...field.Expr) *baseAPII18NDo {
 	return b.withDO(b.DO.Select(conds...))
 }
 
-func (b baseAPII18nDo) Where(conds ...gen.Condition) *baseAPII18nDo {
+func (b baseAPII18NDo) Where(conds ...gen.Condition) *baseAPII18NDo {
 	return b.withDO(b.DO.Where(conds...))
 }
 
-func (b baseAPII18nDo) Order(conds ...field.Expr) *baseAPII18nDo {
+func (b baseAPII18NDo) Order(conds ...field.Expr) *baseAPII18NDo {
 	return b.withDO(b.DO.Order(conds...))
 }
 
-func (b baseAPII18nDo) Distinct(cols ...field.Expr) *baseAPII18nDo {
+func (b baseAPII18NDo) Distinct(cols ...field.Expr) *baseAPII18NDo {
 	return b.withDO(b.DO.Distinct(cols...))
 }
 
-func (b baseAPII18nDo) Omit(cols ...field.Expr) *baseAPII18nDo {
+func (b baseAPII18NDo) Omit(cols ...field.Expr) *baseAPII18NDo {
 	return b.withDO(b.DO.Omit(cols...))
 }
 
-func (b baseAPII18nDo) Join(table schema.Tabler, on ...field.Expr) *baseAPII18nDo {
+func (b baseAPII18NDo) Join(table schema.Tabler, on ...field.Expr) *baseAPII18NDo {
 	return b.withDO(b.DO.Join(table, on...))
 }
 
-func (b baseAPII18nDo) LeftJoin(table schema.Tabler, on ...field.Expr) *baseAPII18nDo {
+func (b baseAPII18NDo) LeftJoin(table schema.Tabler, on ...field.Expr) *baseAPII18NDo {
 	return b.withDO(b.DO.LeftJoin(table, on...))
 }
 
-func (b baseAPII18nDo) RightJoin(table schema.Tabler, on ...field.Expr) *baseAPII18nDo {
+func (b baseAPII18NDo) RightJoin(table schema.Tabler, on ...field.Expr) *baseAPII18NDo {
 	return b.withDO(b.DO.RightJoin(table, on...))
 }
 
-func (b baseAPII18nDo) Group(cols ...field.Expr) *baseAPII18nDo {
+func (b baseAPII18NDo) Group(cols ...field.Expr) *baseAPII18NDo {
 	return b.withDO(b.DO.Group(cols...))
 }
 
-func (b baseAPII18nDo) Having(conds ...gen.Condition) *baseAPII18nDo {
+func (b baseAPII18NDo) Having(conds ...gen.Condition) *baseAPII18NDo {
 	return b.withDO(b.DO.Having(conds...))
 }
 
-func (b baseAPII18nDo) Limit(limit int) *baseAPII18nDo {
+func (b baseAPII18NDo) Limit(limit int) *baseAPII18NDo {
 	return b.withDO(b.DO.Limit(limit))
 }
 
-func (b baseAPII18nDo) Offset(offset int) *baseAPII18nDo {
+func (b baseAPII18NDo) Offset(offset int) *baseAPII18NDo {
 	return b.withDO(b.DO.Offset(offset))
 }
 
-func (b baseAPII18nDo) Scopes(funcs ...func(gen.Dao) gen.Dao) *baseAPII18nDo {
+func (b baseAPII18NDo) Scopes(funcs ...func(gen.Dao) gen.Dao) *baseAPII18NDo {
 	return b.withDO(b.DO.Scopes(funcs...))
 }
 
-func (b baseAPII18nDo) Unscoped() *baseAPII18nDo {
+func (b baseAPII18NDo) Unscoped() *baseAPII18NDo {
 	return b.withDO(b.DO.Unscoped())
 }
 
-func (b baseAPII18nDo) Create(values ...*models.BaseAPII18n) error {
+func (b baseAPII18NDo) Create(values ...*models.BaseAPII18N) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return b.DO.Create(values)
 }
 
-func (b baseAPII18nDo) CreateInBatches(values []*models.BaseAPII18n, batchSize int) error {
+func (b baseAPII18NDo) CreateInBatches(values []*models.BaseAPII18N, batchSize int) error {
 	return b.DO.CreateInBatches(values, batchSize)
 }
 
 // Save : !!! underlying implementation is different with GORM
 // The method is equivalent to executing the statement: db.Clauses(clause.OnConflict{UpdateAll: true}).Create(values)
-func (b baseAPII18nDo) Save(values ...*models.BaseAPII18n) error {
+func (b baseAPII18NDo) Save(values ...*models.BaseAPII18N) error {
 	if len(values) == 0 {
 		return nil
 	}
 	return b.DO.Save(values)
 }
 
-func (b baseAPII18nDo) First() (*models.BaseAPII18n, error) {
+func (b baseAPII18NDo) First() (*models.BaseAPII18N, error) {
 	if result, err := b.DO.First(); err != nil {
 		return nil, err
 	} else {
-		return result.(*models.BaseAPII18n), nil
+		return result.(*models.BaseAPII18N), nil
 	}
 }
 
-func (b baseAPII18nDo) Take() (*models.BaseAPII18n, error) {
+func (b baseAPII18NDo) Take() (*models.BaseAPII18N, error) {
 	if result, err := b.DO.Take(); err != nil {
 		return nil, err
 	} else {
-		return result.(*models.BaseAPII18n), nil
+		return result.(*models.BaseAPII18N), nil
 	}
 }
 
-func (b baseAPII18nDo) Last() (*models.BaseAPII18n, error) {
+func (b baseAPII18NDo) Last() (*models.BaseAPII18N, error) {
 	if result, err := b.DO.Last(); err != nil {
 		return nil, err
 	} else {
-		return result.(*models.BaseAPII18n), nil
+		return result.(*models.BaseAPII18N), nil
 	}
 }
 
-func (b baseAPII18nDo) Find() ([]*models.BaseAPII18n, error) {
+func (b baseAPII18NDo) Find() ([]*models.BaseAPII18N, error) {
 	result, err := b.DO.Find()
-	return result.([]*models.BaseAPII18n), err
+	return result.([]*models.BaseAPII18N), err
 }
 
-func (b baseAPII18nDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*models.BaseAPII18n, err error) {
-	buf := make([]*models.BaseAPII18n, 0, batchSize)
+func (b baseAPII18NDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int) error) (results []*models.BaseAPII18N, err error) {
+	buf := make([]*models.BaseAPII18N, 0, batchSize)
 	err = b.DO.FindInBatches(&buf, batchSize, func(tx gen.Dao, batch int) error {
 		defer func() { results = append(results, buf...) }()
 		return fc(tx, batch)
@@ -269,49 +269,49 @@ func (b baseAPII18nDo) FindInBatch(batchSize int, fc func(tx gen.Dao, batch int)
 	return results, err
 }
 
-func (b baseAPII18nDo) FindInBatches(result *[]*models.BaseAPII18n, batchSize int, fc func(tx gen.Dao, batch int) error) error {
+func (b baseAPII18NDo) FindInBatches(result *[]*models.BaseAPII18N, batchSize int, fc func(tx gen.Dao, batch int) error) error {
 	return b.DO.FindInBatches(result, batchSize, fc)
 }
 
-func (b baseAPII18nDo) Attrs(attrs ...field.AssignExpr) *baseAPII18nDo {
+func (b baseAPII18NDo) Attrs(attrs ...field.AssignExpr) *baseAPII18NDo {
 	return b.withDO(b.DO.Attrs(attrs...))
 }
 
-func (b baseAPII18nDo) Assign(attrs ...field.AssignExpr) *baseAPII18nDo {
+func (b baseAPII18NDo) Assign(attrs ...field.AssignExpr) *baseAPII18NDo {
 	return b.withDO(b.DO.Assign(attrs...))
 }
 
-func (b baseAPII18nDo) Joins(fields ...field.RelationField) *baseAPII18nDo {
+func (b baseAPII18NDo) Joins(fields ...field.RelationField) *baseAPII18NDo {
 	for _, _f := range fields {
 		b = *b.withDO(b.DO.Joins(_f))
 	}
 	return &b
 }
 
-func (b baseAPII18nDo) Preload(fields ...field.RelationField) *baseAPII18nDo {
+func (b baseAPII18NDo) Preload(fields ...field.RelationField) *baseAPII18NDo {
 	for _, _f := range fields {
 		b = *b.withDO(b.DO.Preload(_f))
 	}
 	return &b
 }
 
-func (b baseAPII18nDo) FirstOrInit() (*models.BaseAPII18n, error) {
+func (b baseAPII18NDo) FirstOrInit() (*models.BaseAPII18N, error) {
 	if result, err := b.DO.FirstOrInit(); err != nil {
 		return nil, err
 	} else {
-		return result.(*models.BaseAPII18n), nil
+		return result.(*models.BaseAPII18N), nil
 	}
 }
 
-func (b baseAPII18nDo) FirstOrCreate() (*models.BaseAPII18n, error) {
+func (b baseAPII18NDo) FirstOrCreate() (*models.BaseAPII18N, error) {
 	if result, err := b.DO.FirstOrCreate(); err != nil {
 		return nil, err
 	} else {
-		return result.(*models.BaseAPII18n), nil
+		return result.(*models.BaseAPII18N), nil
 	}
 }
 
-func (b baseAPII18nDo) FindByPage(offset int, limit int) (result []*models.BaseAPII18n, count int64, err error) {
+func (b baseAPII18NDo) FindByPage(offset int, limit int) (result []*models.BaseAPII18N, count int64, err error) {
 	result, err = b.Offset(offset).Limit(limit).Find()
 	if err != nil {
 		return
@@ -326,7 +326,7 @@ func (b baseAPII18nDo) FindByPage(offset int, limit int) (result []*models.BaseA
 	return
 }
 
-func (b baseAPII18nDo) ScanByPage(result interface{}, offset int, limit int) (count int64, err error) {
+func (b baseAPII18NDo) ScanByPage(result interface{}, offset int, limit int) (count int64, err error) {
 	count, err = b.Count()
 	if err != nil {
 		return
@@ -336,15 +336,15 @@ func (b baseAPII18nDo) ScanByPage(result interface{}, offset int, limit int) (co
 	return
 }
 
-func (b baseAPII18nDo) Scan(result interface{}) (err error) {
+func (b baseAPII18NDo) Scan(result interface{}) (err error) {
 	return b.DO.Scan(result)
 }
 
-func (b baseAPII18nDo) Delete(models ...*models.BaseAPII18n) (result gen.ResultInfo, err error) {
+func (b baseAPII18NDo) Delete(models ...*models.BaseAPII18N) (result gen.ResultInfo, err error) {
 	return b.DO.Delete(models)
 }
 
-func (b *baseAPII18nDo) withDO(do gen.Dao) *baseAPII18nDo {
+func (b *baseAPII18NDo) withDO(do gen.Dao) *baseAPII18NDo {
 	b.DO = *do.(*gen.DO)
 	return b
 }

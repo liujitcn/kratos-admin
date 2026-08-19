@@ -33,6 +33,8 @@
 - MySQL 和 Redis；默认连接见 `backend/configs/data.yaml`。
 - Buf、protoc 插件、Wire 和 gorm-gen 只在重新生成代码时需要，可通过 `make -C backend init` 安装。
 
+直接执行 `make` 或 `make help` 查看仓库级命令；Backend 和 Frontend 的完整目标分别使用 `make -C backend help`、`make -C frontend help` 查看。
+
 ## 本地启动
 
 先创建数据库：
@@ -59,6 +61,8 @@ make -C frontend reinstall
 make -C backend run
 ```
 
+`run` 会先刷新启动所需的接口、文档和 Wire 产物；确认生成产物未变化时可使用 `make -C backend run-only` 直接启动。完整目标、执行顺序和参数见 [Backend 常用流程](backend/README.md#常用流程)。
+
 启动管理后台、uni-app 或 Taro H5（每个命令都应在独立终端运行）：
 
 ```bash
@@ -82,39 +86,22 @@ uni-app 和 Taro H5 默认分别使用 `5004` 与 `5002`，可以同时启动。
 ## 生成与检查
 
 ```bash
-make i18n-docs
 make -C backend gen
-cd backend && go test ./...
-make i18n-check
-
-cd frontend/admin
-pnpm check:exports
-pnpm test
-pnpm type:check
-pnpm lint:oxlint
-
-cd ../uni-app
-pnpm test
-pnpm check:exports
-pnpm tsc
-pnpm lint
-pnpm build:packages
-
-cd ../taro-app
-pnpm test
-pnpm check:exports
-pnpm tsc
-pnpm lint
-pnpm build:packages
-pnpm build:h5
-pnpm build:mp-weixin
+make check
+make -C frontend build-all
 ```
 
-`I18N_LOCALES` 使用逗号分隔的 BCP 47 语言代码列表（默认 `en-US,zh-TW,ja-JP`），统一控制项目文档和 OpenAPI 的目标语言。`make i18n-docs` 先由 Go 命令收集 Markdown，再由本地 `kratos-kit/cmd/i18n/project_docs.py` 补充缺失语言；`make i18n-openapi` 生成 OpenAPI 多语言 YAML。无本地 Kit 源码时，已安装的 Go 命令仍可完成文档收集，但不能代替 Python 翻译脚本。离线生成使用 `I18N_OFFLINE=1 make i18n`。
+`make check` 按 Backend、管理端模块边界、管理后台、uni-app、Taro 的顺序执行检查。`build-all` 构建管理后台及两个应用端的 H5 宿主；生成全部 npm 发布包使用 `make -C frontend package`，微信小程序仍分别执行各 workspace 的 `pnpm build:mp-weixin`。
 
-`backend/api/gen`、`backend/internal/data/gen`、`backend/internal/docs/assets/docs.json`、`backend/internal/docs/docs.go`、各前端包的 `src/rpc`、OpenAPI 及 `wire_gen.go` 都是生成产物，不得手工修改。所有前端 RPC 的 Buf 配置统一位于 `backend/api`，分别通过 `make -C backend ts`、`make -C backend ts-uni-app` 和 `make -C backend ts-taro-app` 生成。
+后端默认通过 `make -C backend build` 构建 `linux/amd64` 二进制，通过 `make -C backend package` 生成包含 `bin/server` 和 `configs` 的发布压缩包；目标平台可使用 `GOOS`、`GOARCH` 覆盖。
 
-`make -C backend gen` 默认使用 `backend/internal/cmd/server/wire.go` 生成 Admin 模块依赖；如需调整组合根位置，可通过 `WIRE_DIR` 指定包含 `wire.go` 的目录。
+`I18N_LOCALES` 使用逗号分隔的 BCP 47 语言代码列表（默认 `en-US,zh-TW,ja-JP`），统一控制项目文档和 OpenAPI 的目标语言。`make i18n-docs` 由仓库内 `scripts/project_docs.py` 按三段路径范围收集 README 与 docs Markdown，再生成 `docs.json` 和 `docs.<locale>.json`；对应的 `README.en-US.md`、`guide.ja-JP.md` 等语言源文件存在时直接使用，否则才执行机器翻译。语言目录只本地化文档正文和显示文件名，`README.md` 显示名、目录名称及稳定路径保持不变。如需使用外部实现，可通过 `PROJECT_DOCS_SCRIPT` 覆盖脚本路径。`make i18n-openapi` 生成 OpenAPI 多语言 YAML。离线生成使用 `I18N_OFFLINE=1 make i18n`。
+
+`backend/api/gen`、`backend/internal/data/gen`、`backend/internal/docs/assets/docs*.json`、`backend/internal/docs/docs.go`、各前端包的 `src/rpc`、OpenAPI 及 `wire_gen.go` 都是生成产物，不得手工修改。所有前端 RPC 的 Buf 配置统一位于 `backend/api`，管理端通过 `make -C backend ts-admin` 生成，应用端分别通过 `make -C backend ts-uni-app` 和 `make -C backend ts-taro-app` 生成；需要一次生成三端时执行 `make -C backend ts`。
+
+`make -C backend gen` 会同时生成 `backend/internal/module` 的公共入口内部 Wire 产物和 `backend/internal/cmd/server` 的独立启动 Wire 产物；单独刷新前者使用 `make -C backend public-wire`，单独刷新自定义组合根可通过 `WIRE_DIR` 指定包含 `wire.go` 的目录。
+
+外部 Go 项目将 `github.com/liujitcn/kratos-admin/backend` 的具名模块、资源、定时任务、SSE 流和队列消费者贡献与自身贡献合并后，再交给 `github.com/liujitcn/kratos-core` 创建协议服务及应用生命周期；外部生成代码不会引用 `backend/internal`。
 
 `make i18n-openapi` 会在生成 `openapi.yaml` 后同步生成 `openapi.en-US.yaml`、`openapi.zh-TW.yaml` 和 `openapi.ja-JP.yaml`。默认资源来自后端错误目录和管理端 Core 语言包；外部资源可通过 `OPENAPI_I18N_CONTENT="语言=路径"` 传入。未命中的文案默认自动翻译：英文和日语使用 Google V1，繁体中文使用 OpenCC；设置 `I18N_AUTO_TRANSLATE=0` 可关闭自动翻译。无网络环境使用 `I18N_OFFLINE=1 make i18n-openapi`。
 

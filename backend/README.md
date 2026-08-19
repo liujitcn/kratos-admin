@@ -1,6 +1,6 @@
 # backend
 
-`backend` 保留 API 契约、Go 生成接口、Service 实现、Biz 业务层，以及任务调度、HTTP/gRPC/MCP/AI 注册和必要的数据访问闭包；进程入口位于 `internal/cmd/server`，`internal/module` 负责提供唯一的 Admin `module.Module`。AI Runtime 实现在 `internal/biz`，对外复用入口为 `pkg/agent`。
+`backend` 保留 API 契约、Go 生成接口、Service 实现、Biz 业务层，以及任务调度、HTTP/gRPC/MCP/AI 注册和必要的数据访问闭包；进程入口位于 `internal/cmd/server`。根包通过 `ProviderSet`、`NewModuleResources`、`NewModules`、`NewTasks`、`NewStreams` 和 `NewQueueConsumers` 提供可被外部 Core 宿主复用的公共边界，`internal/module` 仅承载内部实现。AI Runtime 实现在 `internal/biz`，对外复用入口为 `pkg/agent`。
 
 ## 目录
 
@@ -11,10 +11,12 @@ backend
 │   ├── proto                         # Proto 契约
 │   └── gen/go                        # Buf 生成的 Go 接口、HTTP、gRPC 和工具代码
 ├── internal/biz                      # 业务 Case、DTO、代码生成和辅助领域代码
-├── internal/module                   # Admin 到 kratos-core 的模块适配、服务和资源
+├── bootstrap.go                      # 对外 ProviderSet 和模块/任务/SSE/队列/资源入口
+├── internal/module                   # Admin 到 kratos-core 的内部模块适配和资源实现
 │   ├── module.go                     # Core Module 协议注册
 │   ├── resources.go                  # module.Module 静态资源
-│   └── init.go                        # Admin 模块 ProviderSet
+│   ├── init.go                        # Admin 模块 ProviderSet
+│   └── wire.go / wire_gen.go          # 公共入口使用的内部依赖装配
 ├── pkg/agent                         # 对外复用的 AI Runtime、模型和工具 API
 ├── internal/task                     # 异步任务与定时任务执行器
 ├── internal/server                   # 服务中间件和 API 模块注册适配
@@ -26,28 +28,141 @@ backend
 └── migration                         # 代码生成业务使用的迁移资源
 ```
 
-## 启动
+## 常用流程
+
+进入 `backend` 目录后，先通过帮助查看全部目标、参数默认值和覆盖示例：
+
+```bash
+make help
+```
+
+首次开发安装 Buf、protoc、Wire、gorm-gen、goimports 和检查工具：
+
+```bash
+make init
+```
+
+日常启动使用：
 
 ```bash
 make run
 ```
 
-`make run` 会先生成项目文档、OpenAPI 和 `internal/cmd/server` 下的 Wire 装配产物。`internal/cmd/server/wire.go` 直接注入 `kratoscore.ProviderSet`，并将 Admin 提供的唯一 `module.Module` 交给 Core；Core 负责统一创建和管理 HTTP、gRPC、MCP、SSE、队列与定时任务运行时。
+`make run` 会按“项目文档 -> protobuf Go -> OpenAPI -> 独立入口 Wire -> 启动服务”的顺序刷新必要产物。确认生成产物没有变化时，可跳过生成直接启动：
 
-外部模块接入 AI 时使用 `pkg/agent.NewRuntime` 创建运行时，通过 `RuntimeConfig.AdminTools/AppTools` 或 `Runtime.RegisterTool` 注册 Eino `InvokableTool`；简单结构化工具优先使用 `pkg/agent.InferTool` 自动生成参数 schema。需要权限控制时实现 `ToolAccessChecker`，不接入权限系统则保持 `Checker` 为 `nil`。
+```bash
+make run-only
+```
+
+默认配置目录为 `./configs`，可以覆盖配置目录或追加启动参数：
+
+```bash
+make run-only CONF=/path/to/configs
+make run-only RUN_ARGS='--help'
+```
+
+独立入口注入 `kratoscore.ProviderSet` 与内部模块 ProviderSet；Core 负责统一创建和管理 HTTP、gRPC、MCP、SSE、队列与定时任务运行时。
+
+## 修改后执行
+
+| 修改场景 | 命令 | 说明 |
+| --- | --- | --- |
+| Proto 契约 | `make api openapi ts` | 生成 Go、OpenAPI 和三个前端的 TypeScript RPC。只影响一个前端时可改用 `ts-admin`、`ts-uni-app` 或 `ts-taro-app`。 |
+| 数据库表结构 | `make gorm-gen` | 先更新开发库，再按 `GORM_GEN_CONFIG`、`GORM_GEN_DATABASE` 和 `GORM_TABLE` 生成。 |
+| ProviderSet 或构造参数 | `make public-wire wire` | 分别刷新公共入口内部装配和独立服务入口。 |
+| README 或 docs | `make project-docs` | 收集 Markdown，并生成各语言文档目录。 |
+| 语言包或国际化资源 | `make i18n` | 依次同步语言包、项目文档和 OpenAPI 多语言产物。 |
+| 多类生成源同时变化 | `make gen` | 依次执行 GORM、接口、前端、文档、Wire 和格式化；需要可访问开发数据库。 |
+
+所有生成产物都必须通过上述命令刷新，不能手工修改。
 
 ## 检查
 
-```bash
-go test ./...
-```
-
-## API 生成
-
-需要预先安装 Buf、`protoc` Go 插件和 `goimports`。
+提交前执行完整 Backend 检查：
 
 ```bash
-make api
+make check
 ```
 
-生成配置为 `api/buf.yaml` 和 `api/buf.gen.yaml`，输入为 `api/proto`，产物为 `api/gen/go`。
+`make check` 依次运行 `make lint`、`make test` 和 `make i18n-check`，不会自动格式化代码。需要格式化时先执行：
+
+```bash
+make fmt
+```
+
+也可以单独运行某一项：
+
+```bash
+make lint
+make test
+make i18n-check
+```
+
+## 构建与打包
+
+默认构建 `linux/amd64`、`CGO_ENABLED=0` 的可执行文件：
+
+```bash
+make build
+```
+
+产物为 `bin/server`。发布压缩包同时包含可执行文件和 `configs` 目录：
+
+```bash
+make package
+```
+
+默认输出 `dist/backend-linux-amd64.tar.gz`。其他平台可以覆盖参数：
+
+```bash
+make package GOOS=linux GOARCH=arm64
+make build GOOS=darwin GOARCH=arm64 BINARY=bin/server-darwin-arm64
+```
+
+解压发布包后，可通过 `./bin/server --conf ./configs` 启动。打包前应检查 `configs` 内的数据库、Redis、JWT 和其他部署配置，不要直接发布本地凭据。
+
+仓库当前不内置 Dockerfile；宿主项目提供 Dockerfile 后，可执行：
+
+```bash
+make docker-build \
+  DOCKERFILE=/path/to/Dockerfile \
+  IMAGE=kratos-admin \
+  TAG=v1.0.0
+```
+
+## 常用参数
+
+| 参数 | 默认值 | 用途 |
+| --- | --- | --- |
+| `CONF` | `./configs` | 服务运行配置目录。 |
+| `RUN_ARGS` | 空 | 追加到服务命令后的参数。 |
+| `CGO_ENABLED` | `0` | Go 构建时是否启用 CGO。 |
+| `GOOS` / `GOARCH` | `linux` / `amd64` | 构建目标平台。 |
+| `BINARY` | `bin/server` | 可执行文件输出路径。 |
+| `ARCHIVE` | `dist/backend-<os>-<arch>.tar.gz` | 发布压缩包输出路径。 |
+| `PUBLIC_WIRE_DIR` | `internal/module` | 公共入口使用的内部 `wire.go` 所在目录。 |
+| `WIRE_DIR` | `internal/cmd/server` | 独立入口 `wire.go` 所在目录。 |
+| `GORM_GEN_CONFIG` | `configs/data_local.yaml` | GORM 生成使用的数据源配置。 |
+| `GORM_GEN_DATABASE` | 空 | 可选数据库名，默认读取配置文件。 |
+| `GORM_TABLE` | 内置表清单 | 逗号分隔的 GORM 生成表。 |
+| `I18N_LOCALES` | `en-US,zh-TW,ja-JP` | 文档和 OpenAPI 的目标语言。 |
+| `I18N_OFFLINE` | `0` | 设为 `1` 时禁用在线翻译。 |
+| `PROJECT_DOCS_SCRIPT` | `../scripts/project_docs.py` | 项目文档收集与本地化脚本。 |
+
+## 外部宿主复用
+
+外部 Go 项目复用 Backend 时，在自己的 Wire 组合根中加入 `kratoscore.ProviderSet`、`backend.ProviderSet` 和宿主的合并 ProviderSet：
+
+```go
+func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
+	panic(wire.Build(
+		kratoscore.ProviderSet,
+		backend.ProviderSet,
+		mergeProviderSet,
+	))
+}
+```
+
+根包通过 `AdminResources`、`AdminModules`、`AdminTasks`、`AdminStreams` 和 `AdminConsumers` 输出具名贡献，宿主的合并 ProviderSet 将它们与其他业务模块的贡献显式追加为 Core 最终集合。公开构造器只使用 Core 公共类型，外部生成的 `wire_gen.go` 不会依赖 `backend/internal`。
+
+外部模块接入 AI 时使用 `pkg/agent.NewRuntime` 创建运行时，通过 `RuntimeConfig.AdminTools/AppTools` 或 `Runtime.RegisterTool` 注册 Eino `InvokableTool`；简单结构化工具优先使用 `pkg/agent.InferTool` 自动生成参数 schema。需要权限控制时实现 `ToolAccessChecker`，不接入权限系统则保持 `Checker` 为 `nil`。

@@ -29,5 +29,5 @@
 - 文档只描述仓库当前已经存在的能力；规划中的能力必须明确标记为“未实现”，不能写成现状。
 - 命令、路径、包名和接口以代码、Makefile、Proto 和 package `exports` 为准。
 - 修改 README、`docs` 或后端细则后，执行 `make i18n-docs` 更新内嵌项目文档。
-- `I18N_LOCALES` 使用逗号分隔的 BCP 47 语言代码列表，同时控制 OpenAPI 和项目 Markdown 文档的目标语言；`make i18n-docs` 先收集 Markdown，再由 `../kratos-kit/cmd/i18n/project_docs.py` 补充缺失语言；`make i18n-openapi` 生成 OpenAPI 多语言 YAML。无网络环境可设置 `I18N_OFFLINE=1`。
-- 生成的 `backend/internal/docs/assets/docs.json` 和 `backend/internal/docs/docs.go` 只能通过 `make i18n-docs` 更新。
+- `I18N_LOCALES` 使用逗号分隔的 BCP 47 语言代码列表，同时控制 OpenAPI 和项目 Markdown 文档的目标语言；`make i18n-docs` 由仓库内 `scripts/project_docs.py` 先收集默认及已有语言 Markdown，再生成 `docs.json` 和不含 `locale` 字段的 `docs.<locale>.json`。语言目录只本地化文档正文和非 README 显示文件名，目录名称与稳定路径不变；也可通过 `PROJECT_DOCS_SCRIPT` 指定外部脚本。`make i18n-openapi` 生成 OpenAPI 多语言 YAML。无网络环境可设置 `I18N_OFFLINE=1`。
+- 生成的 `backend/internal/docs/assets/docs*.json` 和 `backend/internal/docs/docs.go` 只能通过 `make i18n-docs` 更新。

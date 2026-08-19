@@ -14,32 +14,32 @@ import (
 	"gorm.io/gen/field"
 )
 
-// BaseAPII18nRepository 定义 API国际化信息 的基础仓储能力。
-type BaseAPII18nRepository struct {
-	repository.BaseRepository[models.BaseAPII18n]
+// BaseAPII18NRepository 定义 API国际化信息 的基础仓储能力。
+type BaseAPII18NRepository struct {
+	repository.BaseRepository[models.BaseAPII18N]
 	queryProvider QueryProvider
 }
 
-// NewBaseAPII18nRepository 创建 BaseAPII18n 基础仓储实例。
-func NewBaseAPII18nRepository(queryProvider QueryProvider) *BaseAPII18nRepository {
-	base := repository.NewBaseRepository[models.BaseAPII18n](
+// NewBaseAPII18NRepository 创建 BaseAPII18N 基础仓储实例。
+func NewBaseAPII18NRepository(queryProvider QueryProvider) *BaseAPII18NRepository {
+	base := repository.NewBaseRepository[models.BaseAPII18N](
 		func(ctx context.Context) gen.Dao {
-			return new(queryProvider.Query(ctx).BaseAPII18n.WithContext(ctx).DO)
+			return new(queryProvider.Query(ctx).BaseAPII18N.WithContext(ctx).DO)
 		},
 		func(ctx context.Context) field.Int64 {
-			return queryProvider.Query(ctx).BaseAPII18n.ID
+			return queryProvider.Query(ctx).BaseAPII18N.ID
 		},
-		func(entity *models.BaseAPII18n) int64 {
+		func(entity *models.BaseAPII18N) int64 {
 			return entity.ID
 		},
 	)
-	return &BaseAPII18nRepository{
+	return &BaseAPII18NRepository{
 		BaseRepository: base,
 		queryProvider:  queryProvider,
 	}
 }
 
 // Query 返回当前上下文对应的查询入口。
-func (r *BaseAPII18nRepository) Query(ctx context.Context) *query.Query {
+func (r *BaseAPII18NRepository) Query(ctx context.Context) *query.Query {
 	return r.queryProvider.Query(ctx)
 }

@@ -39,17 +39,17 @@ type BaseTranslationTask struct {
 	mu              sync.Mutex
 }
 
-type translationIndex map[systemadminv1.TranslationTargetType]map[dto.TranslationKey]*models.BaseI18n
+type translationIndex map[systemadminv1.TranslationTargetType]map[dto.TranslationKey]*models.BaseI18N
 
-func (i translationIndex) get(targetType systemadminv1.TranslationTargetType, targetID int64, locale string) *models.BaseI18n {
+func (i translationIndex) get(targetType systemadminv1.TranslationTargetType, targetID int64, locale string) *models.BaseI18N {
 	return i[targetType][dto.TranslationKey{TargetID: targetID, Locale: locale}]
 }
 
-func (i translationIndex) set(row *models.BaseI18n) {
+func (i translationIndex) set(row *models.BaseI18N) {
 	targetType := systemadminv1.TranslationTargetType(row.TargetType)
 	rows := i[targetType]
 	if rows == nil {
-		rows = make(map[dto.TranslationKey]*models.BaseI18n)
+		rows = make(map[dto.TranslationKey]*models.BaseI18N)
 		i[targetType] = rows
 	}
 	rows[dto.TranslationKey{TargetID: row.TargetID, Locale: row.Locale}] = row
@@ -163,7 +163,7 @@ func (t *BaseTranslationTask) Exec(ctx context.Context, _ map[string]string) ([]
 }
 
 func (t *BaseTranslationTask) loadTranslationIndex(ctx context.Context) (translationIndex, error) {
-	query := t.translationCase.Query(ctx).BaseI18n
+	query := t.translationCase.Query(ctx).BaseI18N
 	rows, err := t.translationCase.List(ctx, repository.Order(query.ID.Asc()))
 	if err != nil {
 		return nil, err
@@ -190,9 +190,9 @@ func (t *BaseTranslationTask) translateOneWithState(ctx context.Context, state *
 		return errorsx.InvalidArgument("源语言和目标语言必须是不同的已启用语言")
 	}
 	var err error
-	var row *models.BaseI18n
+	var row *models.BaseI18N
 	if translations == nil {
-		query := t.translationCase.Query(ctx).BaseI18n
+		query := t.translationCase.Query(ctx).BaseI18N
 		row, err = t.translationCase.Find(ctx,
 			repository.Where(query.TargetType.Eq(int32(targetType))),
 			repository.Where(query.TargetID.Eq(targetID)),
@@ -224,7 +224,7 @@ func (t *BaseTranslationTask) translateOneWithState(ctx context.Context, state *
 		return errorsx.Internal("生成翻译失败").WithCause(err)
 	}
 	if row == nil {
-		row = &models.BaseI18n{TargetType: int32(targetType), TargetID: targetID, Locale: targetLocale, Name: translated}
+		row = &models.BaseI18N{TargetType: int32(targetType), TargetID: targetID, Locale: targetLocale, Name: translated}
 		if err = t.translationCase.Create(ctx, row); err != nil {
 			return err
 		}

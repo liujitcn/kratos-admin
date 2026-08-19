@@ -20,7 +20,7 @@ func (*BaseAPI) TableComment() string {
 }
 
 // TableComment 返回表注释。
-func (*BaseAPII18n) TableComment() string {
+func (*BaseAPII18N) TableComment() string {
 	return "API国际化信息"
 }
 
@@ -50,7 +50,7 @@ func (*BaseDictItem) TableComment() string {
 }
 
 // TableComment 返回表注释。
-func (*BaseI18n) TableComment() string {
+func (*BaseI18N) TableComment() string {
 	return "国际化翻译信息"
 }
 

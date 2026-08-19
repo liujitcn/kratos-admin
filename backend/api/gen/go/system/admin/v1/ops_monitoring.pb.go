@@ -1301,8 +1301,10 @@ func (x *OpsNode) GetMetrics() []*OpsNodeMetric {
 // 实例资源指标。
 type OpsNodeMetric struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Label         string                 `protobuf:"bytes,1,opt,name=label,proto3" json:"label,omitempty"`   // 指标名称
-	Value         float64                `protobuf:"fixed64,2,opt,name=value,proto3" json:"value,omitempty"` // 指标使用百分比
+	Label         string                 `protobuf:"bytes,1,opt,name=label,proto3" json:"label,omitempty"`                              // 指标名称
+	Value         float64                `protobuf:"fixed64,2,opt,name=value,proto3" json:"value,omitempty"`                            // 指标使用百分比
+	UsedBytes     uint64                 `protobuf:"varint,3,opt,name=used_bytes,json=usedBytes,proto3" json:"used_bytes,omitempty"`    // 当前已用容量，单位字节
+	TotalBytes    uint64                 `protobuf:"varint,4,opt,name=total_bytes,json=totalBytes,proto3" json:"total_bytes,omitempty"` // 总容量，单位字节
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1347,6 +1349,20 @@ func (x *OpsNodeMetric) GetLabel() string {
 func (x *OpsNodeMetric) GetValue() float64 {
 	if x != nil {
 		return x.Value
+	}
+	return 0
+}
+
+func (x *OpsNodeMetric) GetUsedBytes() uint64 {
+	if x != nil {
+		return x.UsedBytes
+	}
+	return 0
+}
+
+func (x *OpsNodeMetric) GetTotalBytes() uint64 {
+	if x != nil {
+		return x.TotalBytes
 	}
 	return 0
 }
@@ -1520,10 +1536,14 @@ const file_system_admin_v1_ops_monitoring_proto_rawDesc = "" +
 	"\x06status\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f接口状态R\x06status\"\x85\x01\n" +
 	"\aOpsNode\x12&\n" +
 	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f实例名称R\x04name\x12R\n" +
-	"\ametrics\x18\x02 \x03(\v2\x1e.system.admin.v1.OpsNodeMetricB\x18\xbaG\x15\x92\x02\x12实例资源指标R\ametrics\"l\n" +
+	"\ametrics\x18\x02 \x03(\v2\x1e.system.admin.v1.OpsNodeMetricB\x18\xbaG\x15\x92\x02\x12实例资源指标R\ametrics\"\xf5\x01\n" +
 	"\rOpsNodeMetric\x12(\n" +
 	"\x05label\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f指标名称R\x05label\x121\n" +
-	"\x05value\x18\x02 \x01(\x01B\x1b\xbaG\x18\x92\x02\x15指标使用百分比R\x05value\"\xc0\x01\n" +
+	"\x05value\x18\x02 \x01(\x01B\x1b\xbaG\x18\x92\x02\x15指标使用百分比R\x05value\x12F\n" +
+	"\n" +
+	"used_bytes\x18\x03 \x01(\x04B'\xbaG$\x92\x02!当前已用容量，单位字节R\tusedBytes\x12?\n" +
+	"\vtotal_bytes\x18\x04 \x01(\x04B\x1e\xbaG\x1b\x92\x02\x18总容量，单位字节R\n" +
+	"totalBytes\"\xc0\x01\n" +
 	"\bOpsAlert\x12(\n" +
 	"\x05title\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f告警标题R\x05title\x12*\n" +
 	"\x06detail\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f告警详情R\x06detail\x122\n" +

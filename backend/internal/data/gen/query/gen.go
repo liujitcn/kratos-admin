@@ -21,13 +21,13 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		AiMessage:        newAiMessage(db, opts...),
 		AiSession:        newAiSession(db, opts...),
 		BaseAPI:          newBaseAPI(db, opts...),
-		BaseAPII18n:      newBaseAPII18n(db, opts...),
+		BaseAPII18N:      newBaseAPII18N(db, opts...),
 		BaseArea:         newBaseArea(db, opts...),
 		BaseConfig:       newBaseConfig(db, opts...),
 		BaseDept:         newBaseDept(db, opts...),
 		BaseDict:         newBaseDict(db, opts...),
 		BaseDictItem:     newBaseDictItem(db, opts...),
-		BaseI18n:         newBaseI18n(db, opts...),
+		BaseI18N:         newBaseI18N(db, opts...),
 		BaseJob:          newBaseJob(db, opts...),
 		BaseJobLog:       newBaseJobLog(db, opts...),
 		BaseLanguage:     newBaseLanguage(db, opts...),
@@ -47,18 +47,17 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 }
 
 type Query struct {
-	db *gorm.DB
-
+	db               *gorm.DB
 	AiMessage        aiMessage
 	AiSession        aiSession
 	BaseAPI          baseAPI
-	BaseAPII18n      baseAPII18n
+	BaseAPII18N      baseAPII18N
 	BaseArea         baseArea
 	BaseConfig       baseConfig
 	BaseDept         baseDept
 	BaseDict         baseDict
 	BaseDictItem     baseDictItem
-	BaseI18n         baseI18n
+	BaseI18N         baseI18N
 	BaseJob          baseJob
 	BaseJobLog       baseJobLog
 	BaseLanguage     baseLanguage
@@ -84,13 +83,13 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		AiMessage:        q.AiMessage.clone(db),
 		AiSession:        q.AiSession.clone(db),
 		BaseAPI:          q.BaseAPI.clone(db),
-		BaseAPII18n:      q.BaseAPII18n.clone(db),
+		BaseAPII18N:      q.BaseAPII18N.clone(db),
 		BaseArea:         q.BaseArea.clone(db),
 		BaseConfig:       q.BaseConfig.clone(db),
 		BaseDept:         q.BaseDept.clone(db),
 		BaseDict:         q.BaseDict.clone(db),
 		BaseDictItem:     q.BaseDictItem.clone(db),
-		BaseI18n:         q.BaseI18n.clone(db),
+		BaseI18N:         q.BaseI18N.clone(db),
 		BaseJob:          q.BaseJob.clone(db),
 		BaseJobLog:       q.BaseJobLog.clone(db),
 		BaseLanguage:     q.BaseLanguage.clone(db),
@@ -123,13 +122,13 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		AiMessage:        q.AiMessage.replaceDB(db),
 		AiSession:        q.AiSession.replaceDB(db),
 		BaseAPI:          q.BaseAPI.replaceDB(db),
-		BaseAPII18n:      q.BaseAPII18n.replaceDB(db),
+		BaseAPII18N:      q.BaseAPII18N.replaceDB(db),
 		BaseArea:         q.BaseArea.replaceDB(db),
 		BaseConfig:       q.BaseConfig.replaceDB(db),
 		BaseDept:         q.BaseDept.replaceDB(db),
 		BaseDict:         q.BaseDict.replaceDB(db),
 		BaseDictItem:     q.BaseDictItem.replaceDB(db),
-		BaseI18n:         q.BaseI18n.replaceDB(db),
+		BaseI18N:         q.BaseI18N.replaceDB(db),
 		BaseJob:          q.BaseJob.replaceDB(db),
 		BaseJobLog:       q.BaseJobLog.replaceDB(db),
 		BaseLanguage:     q.BaseLanguage.replaceDB(db),
@@ -152,13 +151,13 @@ type queryCtx struct {
 	AiMessage        *aiMessageDo
 	AiSession        *aiSessionDo
 	BaseAPI          *baseAPIDo
-	BaseAPII18n      *baseAPII18nDo
+	BaseAPII18N      *baseAPII18NDo
 	BaseArea         *baseAreaDo
 	BaseConfig       *baseConfigDo
 	BaseDept         *baseDeptDo
 	BaseDict         *baseDictDo
 	BaseDictItem     *baseDictItemDo
-	BaseI18n         *baseI18nDo
+	BaseI18N         *baseI18NDo
 	BaseJob          *baseJobDo
 	BaseJobLog       *baseJobLogDo
 	BaseLanguage     *baseLanguageDo
@@ -181,13 +180,13 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		AiMessage:        q.AiMessage.WithContext(ctx),
 		AiSession:        q.AiSession.WithContext(ctx),
 		BaseAPI:          q.BaseAPI.WithContext(ctx),
-		BaseAPII18n:      q.BaseAPII18n.WithContext(ctx),
+		BaseAPII18N:      q.BaseAPII18N.WithContext(ctx),
 		BaseArea:         q.BaseArea.WithContext(ctx),
 		BaseConfig:       q.BaseConfig.WithContext(ctx),
 		BaseDept:         q.BaseDept.WithContext(ctx),
 		BaseDict:         q.BaseDict.WithContext(ctx),
 		BaseDictItem:     q.BaseDictItem.WithContext(ctx),
-		BaseI18n:         q.BaseI18n.WithContext(ctx),
+		BaseI18N:         q.BaseI18N.WithContext(ctx),
 		BaseJob:          q.BaseJob.WithContext(ctx),
 		BaseJobLog:       q.BaseJobLog.WithContext(ctx),
 		BaseLanguage:     q.BaseLanguage.WithContext(ctx),

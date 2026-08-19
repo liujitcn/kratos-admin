@@ -199,6 +199,8 @@ message OpsNode {
 message OpsNodeMetric {
   string label = 1 [(gnostic.openapi.v3.property) = {description: "指标名称"}]; // 指标名称
   double value = 2 [(gnostic.openapi.v3.property) = {description: "指标使用百分比"}]; // 指标使用百分比
+  uint64 used_bytes = 3 [(gnostic.openapi.v3.property) = {description: "当前已用容量，单位字节"}]; // 当前已用容量，单位字节
+  uint64 total_bytes = 4 [(gnostic.openapi.v3.property) = {description: "总容量，单位字节"}]; // 总容量，单位字节
 }
 
 // 告警事件。

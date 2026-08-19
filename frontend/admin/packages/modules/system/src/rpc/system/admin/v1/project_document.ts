@@ -28,6 +28,8 @@ export interface ProjectDocumentListItem {
   id: string;
   /** 项目内相对路径 */
   path: string;
+  /** 当前语言下的文档显示文件名 */
+  name: string;
   /** Markdown文件更新时间，RFC3339格式 */
   updated_at: string;
 }
@@ -66,17 +68,12 @@ export interface ProjectDocument {
   project_name: string;
   /** 项目内相对路径 */
   path: string;
+  /** 当前语言下的文档显示文件名 */
+  name: string;
   /** Markdown文档内容 */
   content: string;
-  /** 按语言标识索引的Markdown翻译内容 */
-  locale: Map<string, string>;
   /** Markdown文件更新时间，RFC3339格式 */
   updated_at: string;
-}
-
-export interface ProjectDocument_LocaleEntry {
-  key: string;
-  value: string;
 }
 
 /** 项目文档服务 */

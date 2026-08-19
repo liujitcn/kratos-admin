@@ -124,6 +124,15 @@ pnpm dev:h5
 pnpm dev:mp-weixin
 ```
 
+上一级 Frontend Makefile 提供对应的聚合入口：
+
+```bash
+make -C .. run-uni-app      # 微信小程序开发
+make -C .. check-uni-app
+make -C .. build-uni-app    # H5 构建
+make -C .. package-uni-app
+```
+
 开发和构建命令由 `turbo.json` 保证先执行依赖包的 `build:entries`；独立测试和
 exports 检查则通过 `prepare:modules` 完成相同准备，因此不依赖仓库中的历史
 `dist`。H5 默认地址为 `http://localhost:5004`，开发 API 默认代理到

@@ -49,7 +49,7 @@ func main() {
 			Version: _const.Version,
 		},
 	)
-	if err := bootstrap.RunApp(ctx, NewAdminApp); err != nil {
+	if err := bootstrap.RunApp(ctx, NewApp); err != nil {
 		panic(err)
 	}
 }

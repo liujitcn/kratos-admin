@@ -650,6 +650,9 @@
   "system.admin.auth.user_phone.phone.required": {
     "other": "请输入手机号"
   },
+  "system.admin.openapi.document.name": {
+    "other": "基础功能服务"
+  },
   "base.login.verify_captcha.captcha_code.required": {
     "other": "验证码不能为空"
   },

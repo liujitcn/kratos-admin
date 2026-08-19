@@ -189,10 +189,22 @@
             <code>{{ node.name }}</code>
             <div class="ops-node-meters">
               <div v-for="metric in node.metrics" :key="metric.label" class="ops-meter">
-                <span>{{ metric.label }}</span
-                ><el-progress :percentage="metric.value" :show-text="false" :color="metric.color" /><strong
-                  >{{ metric.value }}%</strong
-                >
+                <div class="ops-meter-head">
+                  <span class="ops-meter-label">{{ metric.label }}</span>
+                  <span class="ops-meter-stats">
+                    <span>
+                      {{ t("system.ops_monitoring.node_metric.current") }} {{ metric.usedLabel }} /
+                      {{ t("system.ops_monitoring.node_metric.total") }} {{ metric.totalLabel }}
+                    </span>
+                    <strong>{{ metric.percentageLabel }}</strong>
+                  </span>
+                </div>
+                <el-progress
+                  :percentage="metric.percentage"
+                  :show-text="false"
+                  :stroke-width="10"
+                  :color="metric.color"
+                />
               </div>
             </div>
           </div>
@@ -278,12 +290,28 @@ interface EndpointItem {
   healthy: boolean;
 }
 
-/** 实例资源指标。 */
+/** 实例资源单项指标。 */
+interface NodeMetricItem {
+  /** 指标名称。 */
+  label: string;
+  /** 指标使用百分比。 */
+  percentage: number;
+  /** 两位小数百分比。 */
+  percentageLabel: string;
+  /** 当前已用容量。 */
+  usedLabel: string;
+  /** 总容量。 */
+  totalLabel: string;
+  /** 进度条颜色。 */
+  color: string;
+}
+
+/** 实例资源信息。 */
 interface NodeItem {
   /** 实例名称。 */
   name: string;
   /** 实例资源指标。 */
-  metrics: Array<{ label: string; value: number; color: string }>;
+  metrics: NodeMetricItem[];
 }
 
 /** 折线图中的流量趋势点。 */
@@ -334,6 +362,12 @@ const alerts = ref<OpsAlertsResponse>();
 const windowMinutes = ref(15);
 const lastCollectedAt = ref("");
 const trendGridLines = [16, 62, 108, 154, 198];
+const nodeMetricLabelKeys: Record<string, string> = {
+  堆内存: "system.ops_monitoring.node_metric.heap_memory",
+  内存: "system.ops_monitoring.node_metric.memory",
+  硬盘: "system.ops_monitoring.node_metric.disk"
+};
+const byteUnits = ["B", "KB", "MB", "GB", "TB", "PB"];
 const trafficSummary = computed(() => traffic.value?.traffic);
 
 const kpiItems = computed<KpiItem[]>(() => [
@@ -579,12 +613,44 @@ function mapEndpoint(endpoint: OpsEndpoint): EndpointItem {
 function mapNode(node: OpsNode): NodeItem {
   return {
     name: node.name,
-    metrics: (node.metrics ?? []).map(metric => ({
-      label: metric.label,
-      value: Math.max(0, Math.min(metric.value, 100)),
-      color: metric.value >= 70 ? "var(--el-color-warning)" : "var(--el-color-primary)"
-    }))
+    metrics: (node.metrics ?? []).map(metric => {
+      const percentage = Math.max(0, Math.min(metric.value, 100));
+      return {
+        label: translateNodeMetricLabel(metric.label),
+        percentage,
+        percentageLabel: `${formatFixedNumber(percentage)}%`,
+        usedLabel: formatBytes(metric.used_bytes),
+        totalLabel: formatBytes(metric.total_bytes),
+        color: percentage >= 70 ? "var(--el-color-warning)" : "var(--el-color-primary)"
+      };
+    })
   };
+}
+
+/** 将字节数格式化为保留两位小数的可读容量。 */
+function formatBytes(value: number) {
+  if (!Number.isFinite(value) || value < 0) return "--";
+  let unitIndex = 0;
+  let displayValue = value;
+  while (displayValue >= 1024 && unitIndex < byteUnits.length - 1) {
+    displayValue /= 1024;
+    unitIndex += 1;
+  }
+  return `${formatFixedNumber(displayValue)} ${byteUnits[unitIndex]}`;
+}
+
+/** 将数值格式化为固定两位小数。 */
+function formatFixedNumber(value: number) {
+  return new Intl.NumberFormat(getCurrentLocale(), {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(value);
+}
+
+/** 翻译实例资源指标名称，未知指标保留后端原值。 */
+function translateNodeMetricLabel(label: string) {
+  const localeKey = nodeMetricLabelKeys[label];
+  return localeKey ? t(localeKey) : label;
 }
 
 function mapAlert(alert: OpsAlert) {
@@ -654,6 +720,7 @@ onBeforeUnmount(stopMonitoring);
 .ops-panel,
 .ops-storage-card,
 .ops-alert-panel {
+  min-width: 0;
   background: var(--ops-card-bg);
   border: 1px solid var(--ops-card-border);
   border-radius: var(--admin-page-radius);
@@ -934,7 +1001,7 @@ onBeforeUnmount(stopMonitoring);
   margin-bottom: 12px;
 }
 .ops-storage-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.9fr);
 }
 .ops-storage-card {
   min-width: 0;
@@ -1040,36 +1107,69 @@ onBeforeUnmount(stopMonitoring);
 .ops-node-list {
   display: grid;
   gap: 16px;
+  min-width: 0;
   padding-top: 3px;
 }
 .ops-node-row {
   display: grid;
-  grid-template-columns: 95px minmax(0, 1fr);
-  gap: 10px;
-  align-items: center;
+  grid-template-columns: minmax(110px, 0.24fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+  min-width: 0;
 }
 .ops-node-row > code {
+  overflow: hidden;
   font-family: var(--el-font-family-monospace);
   font-size: 11px;
   color: var(--ops-text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .ops-node-meters {
   display: grid;
-  gap: 7px;
+  gap: 13px;
+  min-width: 0;
 }
 .ops-meter {
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr) 35px;
   gap: 7px;
-  align-items: center;
-  font-size: 10px;
+  min-width: 0;
+  font-size: 11px;
   color: var(--ops-text-placeholder);
 }
-.ops-meter strong {
-  font-size: 11px;
-  font-weight: 500;
+.ops-meter-head,
+.ops-meter-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+}
+.ops-meter-label {
+  flex: none;
+  font-weight: 600;
   color: var(--ops-text-secondary);
+}
+.ops-meter-stats {
+  flex: 1;
+  justify-content: flex-end;
   text-align: right;
+}
+.ops-meter-stats > span {
+  overflow-wrap: anywhere;
+}
+.ops-meter-stats strong {
+  flex: none;
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--ops-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.ops-meter :deep(.el-progress),
+.ops-meter :deep(.el-progress-bar) {
+  min-width: 0;
+  width: 100%;
 }
 .ops-alert-panel {
   margin-bottom: 0;
@@ -1125,6 +1225,7 @@ onBeforeUnmount(stopMonitoring);
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .ops-primary-grid,
+  .ops-storage-grid,
   .ops-secondary-grid {
     grid-template-columns: 1fr;
   }
@@ -1159,8 +1260,13 @@ onBeforeUnmount(stopMonitoring);
     margin-left: 54px;
   }
   .ops-node-row {
-    grid-template-columns: 82px minmax(0, 1fr);
-    gap: 7px;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .ops-meter-stats {
+    flex-basis: 100%;
+    justify-content: flex-start;
+    text-align: left;
   }
   .ops-alert-row {
     grid-template-columns: 8px minmax(0, 1fr);

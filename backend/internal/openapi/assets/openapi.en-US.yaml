@@ -1352,7 +1352,7 @@ paths:
         get:
             tags:
                 - BaseLanguageService
-            description: Query language paging list
+            description: Query language paginated list
             operationId: BaseLanguageService_PageBaseLanguage
             parameters:
                 - name: language_name
@@ -2746,7 +2746,7 @@ paths:
         get:
             tags:
                 - CodeGenService
-            description: Query code generation task progress
+            description: Query the progress of the code generation task
             operationId: CodeGenService_GetCodeGenTask
             parameters:
                 - name: task_id
@@ -3125,7 +3125,7 @@ paths:
         put:
             tags:
                 - AiMessageService
-            description: Updates AI assistant messages and regenerates output
+            description: Update AI assistant messages and regenerate output
             operationId: AiMessageService_UpdateAiMessage
             parameters:
                 - name: session_id
@@ -3864,7 +3864,7 @@ components:
                     format: int32
                 duration_ms:
                     type: integer
-                    description: Total elapsed time in milliseconds
+                    description: Total time taken in milliseconds
                     format: int32
             description: AI assistant message
         base.v1.AiOutputContent:
@@ -3884,7 +3884,7 @@ components:
                     description: The model name used in the reply
                 fallback:
                     type: boolean
-                    description: Whether it is a downgrade reply
+                    description: Is it a downgrade reply?
                 fallback_reason:
                     type: string
                     description: Reason for downgrade
@@ -4549,7 +4549,7 @@ components:
                     description: value. Required
                 text:
                     type: string
-                    description: Display text. Required
+                    description: displays text. Required
                 selected:
                     type: boolean
                     description: Whether selected by default. Default value false
@@ -4908,7 +4908,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseI18n'
-                    description: Configuration value text/rich text configuration value multi-language translation
+                    description: Configure value text/rich text configuration value multi-language translation
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -5155,7 +5155,7 @@ components:
                     description: locale
                 name:
                     type: string
-                    description: Translate text
+                    description: Translated text
             description: International translation information
         system.admin.v1.BaseJob:
             type: object
@@ -5716,7 +5716,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: role ID
+                    description: Role ID
                 tenant_id:
                     type: string
                     description: Tenant ID
@@ -5767,7 +5767,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: role ID
+                    description: Role ID
                 tenant_id:
                     type: string
                     description: Tenant ID
@@ -5821,7 +5821,7 @@ components:
                     description: Contact
                 contact_phone:
                     type: string
-                    description: Contact Number
+                    description: Contact number
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -5860,7 +5860,7 @@ components:
                     description: Contact
                 contact_phone:
                     type: string
-                    description: Contact Number
+                    description: Contact number
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -5893,7 +5893,7 @@ components:
                     description: User nickname
                 role_id:
                     type: string
-                    description: role ID
+                    description: Role ID
                 dept_id:
                     type: string
                     description: Department ID
@@ -5956,7 +5956,7 @@ components:
                     description: User nickname
                 role_id:
                     type: string
-                    description: role ID
+                    description: Role ID
                 dept_id:
                     type: string
                     description: Department ID
@@ -6087,7 +6087,7 @@ components:
             properties:
                 kind:
                     type: string
-                    description: option display type
+                    description: Option display type
                 source_type:
                     type: string
                     description: option data source type
@@ -6546,7 +6546,7 @@ components:
                     description: Target language region
                 translation:
                     type: string
-                    description: Translate text
+                    description: Translated text
             description: Translates a single text response.
         system.admin.v1.DraftBaseTranslationRequest:
             type: object
@@ -6746,6 +6746,12 @@ components:
                     type: number
                     description: Indicator usage percentage
                     format: double
+                used_bytes:
+                    type: string
+                    description: Currently used capacity, unit byte
+                total_bytes:
+                    type: string
+                    description: Total capacity in bytes
             description: Instance resource indicators.
         system.admin.v1.OpsNodesResponse:
             type: object
@@ -7220,14 +7226,12 @@ components:
                 path:
                     type: string
                     description: Relative path within the project
+                name:
+                    type: string
+                    description: Document display file name in the current language
                 content:
                     type: string
                     description: Markdown document content
-                locale:
-                    type: object
-                    additionalProperties:
-                        type: string
-                    description: Markdown translation content indexed by language identifier
                 updated_at:
                     type: string
                     description: Markdown file update time, RFC3339 format
@@ -7261,6 +7265,9 @@ components:
                 path:
                     type: string
                     description: Relative path within the project
+                name:
+                    type: string
+                    description: Document display file name in the current language
                 updated_at:
                     type: string
                     description: Markdown file update time, RFC3339 format
@@ -7545,7 +7552,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: role ID
+                    description: Role ID
                 menus:
                     type: array
                     items:
@@ -7557,7 +7564,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: role ID
+                    description: Role ID
                 status:
                     type: integer
                     description: Status
@@ -7706,7 +7713,7 @@ components:
                     description: Target language area, used for query or new addition when ID is zero
                 name:
                     type: string
-                    description: Translate text
+                    description: Translated text
             description: Modifies a single translation information request.
         system.admin.v1.UserInfoForm:
             type: object

@@ -6,7 +6,7 @@ import (
 	adminServer "github.com/liujitcn/kratos-admin/backend/internal/server/system/admin/v1"
 	appServer "github.com/liujitcn/kratos-admin/backend/internal/server/system/app/v1"
 	"github.com/liujitcn/kratos-core/module"
-	corequeue "github.com/liujitcn/kratos-core/queue"
+	"github.com/liujitcn/kratos-core/queue"
 	mcpserver "github.com/liujitcn/kratos-kit/transport/mcp"
 	"google.golang.org/grpc"
 )
@@ -36,8 +36,8 @@ func NewModules(
 }
 
 // NewQueueConsumers 提供 Admin 当前没有的队列消费者集合。
-func NewQueueConsumers() corequeue.Consumers {
-	return corequeue.Consumers{}
+func NewQueueConsumers() queue.Consumers {
+	return queue.Consumers{}
 }
 
 // RegisterGRPC 注册 Admin 的全部 gRPC 服务。

@@ -28,7 +28,7 @@ var (
 type BaseTranslationCase struct {
 	*biz.BaseCase
 	tx data.Transaction
-	*data.BaseI18nRepository
+	*data.BaseI18NRepository
 	languageCase *BaseLanguageCase
 	draftMu      sync.Mutex
 }
@@ -37,13 +37,13 @@ type BaseTranslationCase struct {
 func NewBaseTranslationCase(
 	baseCase *biz.BaseCase,
 	tx data.Transaction,
-	baseTranslationRepository *data.BaseI18nRepository,
+	baseTranslationRepository *data.BaseI18NRepository,
 	languageCase *BaseLanguageCase,
 ) *BaseTranslationCase {
 	translationCase := &BaseTranslationCase{
 		BaseCase:           baseCase,
 		tx:                 tx,
-		BaseI18nRepository: baseTranslationRepository,
+		BaseI18NRepository: baseTranslationRepository,
 		languageCase:       languageCase,
 	}
 	return translationCase
@@ -119,7 +119,7 @@ func (c *BaseTranslationCase) UpdateBaseTranslation(ctx context.Context, req *sy
 	if err != nil {
 		return err
 	}
-	var row *models.BaseI18n
+	var row *models.BaseI18N
 	if req.GetId() > 0 {
 		row, err = c.FindByID(ctx, req.GetId())
 		if err == nil {
@@ -137,7 +137,7 @@ func (c *BaseTranslationCase) UpdateBaseTranslation(ctx context.Context, req *sy
 		return errorsx.InvalidArgument("翻译语言必须是已启用的非主语言")
 	}
 
-	query := c.Query(ctx).BaseI18n
+	query := c.Query(ctx).BaseI18N
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Where(query.TargetType.Eq(int32(req.GetTargetType()))))
 	opts = append(opts, repository.Where(query.TargetID.Eq(req.GetTargetId())))
@@ -150,7 +150,7 @@ func (c *BaseTranslationCase) UpdateBaseTranslation(ctx context.Context, req *sy
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return err
 	}
-	return c.Create(ctx, &models.BaseI18n{
+	return c.Create(ctx, &models.BaseI18N{
 		TargetType: int32(req.GetTargetType()),
 		TargetID:   req.GetTargetId(),
 		Locale:     req.GetLocale(),
@@ -173,8 +173,8 @@ func (c *BaseTranslationCase) GetTargetIdsByName(ctx context.Context, targetType
 	}
 	localeValue := state.Current
 
-	query := c.Query(ctx).BaseI18n
-	var rows []*models.BaseI18n
+	query := c.Query(ctx).BaseI18N
+	var rows []*models.BaseI18N
 	rows, err = c.List(ctx,
 		repository.Where(query.TargetType.Eq(int32(targetType))),
 		repository.Where(query.Locale.Eq(localeValue)),
@@ -196,7 +196,7 @@ func (c *BaseTranslationCase) GetBaseTranslationMapByTargetType(ctx context.Cont
 	if len(targetIds) == 0 {
 		return result, nil
 	}
-	query := c.Query(ctx).BaseI18n
+	query := c.Query(ctx).BaseI18N
 	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(query.TargetType.Eq(int32(targetType))))
 	opts = append(opts, repository.Where(query.TargetID.In(targetIds...)))
@@ -230,13 +230,13 @@ func (c *BaseTranslationCase) GetBaseTranslationNameMapByLocale(ctx context.Cont
 	if locale == state.Primary || !state.IsEnabled(locale) {
 		return result, nil
 	}
-	query := c.Query(ctx).BaseI18n
+	query := c.Query(ctx).BaseI18N
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Where(query.TargetType.Eq(int32(targetType))))
 	opts = append(opts, repository.Where(query.Locale.Eq(locale)))
 	opts = append(opts, repository.Where(query.TargetID.In(targetIds...)))
 
-	var list []*models.BaseI18n
+	var list []*models.BaseI18N
 	list, err = c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
@@ -259,16 +259,16 @@ func (c *BaseTranslationCase) SaveBaseTranslation(ctx context.Context, targetTyp
 	}
 
 	save := func(txCtx context.Context) error {
-		query := c.Query(txCtx).BaseI18n
+		query := c.Query(txCtx).BaseI18N
 		opts := make([]repository.QueryOption, 0, 2)
 		opts = append(opts, repository.Where(query.TargetType.Eq(int32(targetType))))
 		opts = append(opts, repository.Where(query.TargetID.Eq(targetId)))
-		var list []*models.BaseI18n
+		var list []*models.BaseI18N
 		list, err = c.List(txCtx, opts...)
 		if err != nil {
 			return err
 		}
-		existing := make(map[string]*models.BaseI18n, len(list))
+		existing := make(map[string]*models.BaseI18N, len(list))
 		for _, item := range list {
 			existing[item.Locale] = item
 		}
@@ -301,7 +301,7 @@ func (c *BaseTranslationCase) SaveBaseTranslation(ctx context.Context, targetTyp
 				continue
 			}
 			if row == nil {
-				if err = c.Create(txCtx, &models.BaseI18n{TargetType: int32(targetType), TargetID: targetId, Locale: localeValue, Name: text}); err != nil {
+				if err = c.Create(txCtx, &models.BaseI18N{TargetType: int32(targetType), TargetID: targetId, Locale: localeValue, Name: text}); err != nil {
 					return err
 				}
 				continue
@@ -338,8 +338,8 @@ func (c *BaseTranslationCase) SaveGeneratedTranslations(ctx context.Context, tar
 	if err != nil {
 		return err
 	}
-	query := c.Query(ctx).BaseI18n
-	var rows []*models.BaseI18n
+	query := c.Query(ctx).BaseI18N
+	var rows []*models.BaseI18N
 	rows, err = c.List(ctx,
 		repository.Where(query.TargetType.Eq(int32(targetType))),
 		repository.Where(query.TargetID.Eq(targetID)),
@@ -347,7 +347,7 @@ func (c *BaseTranslationCase) SaveGeneratedTranslations(ctx context.Context, tar
 	if err != nil {
 		return err
 	}
-	existing := make(map[string]*models.BaseI18n, len(rows))
+	existing := make(map[string]*models.BaseI18N, len(rows))
 	for _, row := range rows {
 		existing[row.Locale] = row
 	}
@@ -360,7 +360,7 @@ func (c *BaseTranslationCase) SaveGeneratedTranslations(ctx context.Context, tar
 			continue
 		}
 		if row == nil {
-			if err = c.Create(ctx, &models.BaseI18n{TargetType: int32(targetType), TargetID: targetID, Locale: locale, Name: text}); err != nil {
+			if err = c.Create(ctx, &models.BaseI18N{TargetType: int32(targetType), TargetID: targetID, Locale: locale, Name: text}); err != nil {
 				return err
 			}
 			continue
@@ -378,7 +378,7 @@ func (c *BaseTranslationCase) DeleteBaseTranslation(ctx context.Context, targetT
 	if len(targetId) == 0 {
 		return nil
 	}
-	query := c.Query(ctx).BaseI18n
+	query := c.Query(ctx).BaseI18N
 	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(query.TargetType.Eq(int32(targetType))))
 	opts = append(opts, repository.Where(query.TargetID.In(targetId...)))

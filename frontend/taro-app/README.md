@@ -60,6 +60,15 @@ pnpm build:h5
 pnpm build:mp-weixin
 ```
 
+上一级 Frontend Makefile 提供对应的聚合入口：
+
+```bash
+make -C .. run-taro-app      # 微信小程序开发
+make -C .. check-taro-app
+make -C .. build-taro-app    # H5 构建
+make -C .. package-taro-app
+```
+
 - H5 开发地址默认是 `http://localhost:5002`，`/api` 和 `/events` 代理到 `http://localhost:7001`。
 - H5 生产产物写入 `backend/data/taro-app`，访问地址是 `/taro-app/`。
 - 微信小程序开发和生产产物统一写入 `apps/taro-app/dist/mp-weixin`，微信开发者工具可直接导入该目录。

@@ -72,7 +72,7 @@
 import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { Search } from "@element-plus/icons-vue";
 import type { TreeNodeData } from "element-plus";
-import { getCurrentLocale, t } from "@liujitcn/kratos-admin-core";
+import { getCurrentLocale, t, useLocaleStore } from "@liujitcn/kratos-admin-core";
 import MarkdownPreview from "@liujitcn/kratos-admin-core/components/MarkdownPreview/index.vue";
 import { useGlobalStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { defProjectDocumentService } from "@liujitcn/kratos-admin-system/api/system/project_document";
@@ -112,6 +112,7 @@ interface ProjectDocumentTreeNode {
 }
 
 const globalStore = useGlobalStore();
+const { locale } = useLocaleStore();
 const loading = ref(false);
 const detailLoading = ref(false);
 const keyword = ref("");
@@ -137,11 +138,11 @@ const filteredDocumentCount = computed(() => {
   const search = keyword.value.trim().toLocaleLowerCase();
   if (!search) return documents.value.length;
   return documents.value.filter(node =>
-    [node.projectKey, node.projectName, node.path].some(value => value.toLocaleLowerCase().includes(search))
+    [node.label, node.projectKey, node.projectName, node.path].some(value => value.toLocaleLowerCase().includes(search))
   ).length;
 });
 const selectedDocumentNodeKey = computed(() => (selectedDocumentId.value ? buildDocumentNodeKey(selectedDocumentId.value) : ""));
-const selectedDocumentName = computed(() => selectedDocument.value?.path.split("/").at(-1) ?? "");
+const selectedDocumentName = computed(() => selectedDocument.value?.name ?? "");
 const selectedDocumentUpdatedAt = computed(
   () => documents.value.find(node => node.document?.id === selectedDocumentId.value)?.document?.updated_at ?? ""
 );
@@ -321,7 +322,7 @@ function buildDocumentTreeNode(
 ): ProjectDocumentTreeNode {
   return {
     key: buildDocumentNodeKey(document.id),
-    label: document.path.split("/").at(-1) ?? document.path,
+    label: document.name,
     kind: "document",
     projectKey,
     projectName,
@@ -350,6 +351,10 @@ function flattenDocumentTree(nodes: ProjectDocumentTreeNode[]): ProjectDocumentT
 
 watch(keyword, value => {
   documentTreeRef.value?.filter(value);
+});
+
+watch(locale, () => {
+  void loadDocuments();
 });
 
 onMounted(() => {
