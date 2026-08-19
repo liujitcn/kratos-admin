@@ -178,7 +178,7 @@ paths:
         get:
             tags:
                 - BaseApiService
-            description: Paging query API list
+            description: Paginated query API list
             operationId: BaseApiService_PageBaseApi
             parameters:
                 - name: tool_name
@@ -878,7 +878,7 @@ paths:
         get:
             tags:
                 - BaseDictService
-            description: Query dictionary attribute paginated list
+            description: Query dictionary attribute paging list
             operationId: BaseDictService_PageBaseDictItem
             parameters:
                 - name: dict_id
@@ -1352,7 +1352,7 @@ paths:
         get:
             tags:
                 - BaseLanguageService
-            description: Query language paginated list
+            description: Query language paging list
             operationId: BaseLanguageService_PageBaseLanguage
             parameters:
                 - name: language_name
@@ -2902,6 +2902,93 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.ProjectDocument'
+    /api/v1/admin/runtime-log/console:
+        post:
+            tags:
+                - RuntimeLogService
+            description: Creates a live console channel for the current user.
+            operationId: RuntimeLogService_OpenRuntimeConsole
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.OpenRuntimeConsoleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OpenRuntimeConsoleResponse'
+    /api/v1/admin/runtime-log/files:
+        get:
+            tags:
+                - RuntimeLogService
+            description: Query accessible historical log files.
+            operationId: RuntimeLogService_ListRuntimeLogFiles
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.ListRuntimeLogFilesResponse'
+    /api/v1/admin/runtime-log/files/{file_id}:
+        get:
+            tags:
+                - RuntimeLogService
+            description: Read the contents of the historical log file in pages.
+            operationId: RuntimeLogService_ReadRuntimeLogFile
+            parameters:
+                - name: file_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: cursor
+                  in: query
+                  schema:
+                    type: string
+                - name: limit
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: levels
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.ReadRuntimeLogFileResponse'
+    /api/v1/admin/runtime-log/files/{file_id}/download:
+        get:
+            tags:
+                - RuntimeLogService
+            description: Download the original history log file.
+            operationId: RuntimeLogService_DownloadRuntimeLogFile
+            parameters:
+                - name: file_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        '*/*': {}
     /api/v1/app/auth/phone:
         put:
             tags:
@@ -3388,7 +3475,7 @@ paths:
         post:
             tags:
                 - FileService
-            description: Multiple file upload
+            description: Multiple file uploads
             operationId: FileService_MultiUploadFile
             requestBody:
                 content:
@@ -3439,7 +3526,7 @@ paths:
         get:
             tags:
                 - OauthService
-            description: Query the third-party account binding list in the personal center
+            description: Query the three-party account binding list in the personal center
             operationId: OauthService_ListOauthBinding
             responses:
                 "200":
@@ -3909,7 +3996,7 @@ components:
                     description: Session title
                 summary:
                     type: string
-                    description: Session Summary
+                    description: Session summary
                 updated_at:
                     type: string
                     description: Updated at
@@ -3931,7 +4018,7 @@ components:
                     description: Quick entry logo
                 title:
                     type: string
-                    description: Display title
+                    description: display title
                 prompt:
                     type: string
                     description: Prompt word sent to assistant
@@ -4057,7 +4144,7 @@ components:
                 value:
                     type: string
                     description: configure value
-            description: System configuration item
+            description: system configuration item
         base.v1.CreateAiSessionBranchRequest:
             type: object
             properties:
@@ -4170,7 +4257,7 @@ components:
                     description: The type of token. This value is case-insensitive and required. It can be bearer type or mac type, usually just the string "Bearer".
                 expires_in:
                     type: string
-                    description: The token validity time, in seconds. If the access token expires, the server should reply with the duration of the access token granted. If this parameter is omitted, the expiration time must be set in other ways.
+                    description: Token validity time, unit is seconds. If the access token expires, the server should reply with the duration of the access token granted. If this parameter is omitted, the expiration time must be set in other ways.
                 binding_required:
                     type: boolean
                     description: Do you need to bind an existing account?
@@ -4205,7 +4292,7 @@ components:
                     description: The type of token. This value is case-insensitive and required. It can be bearer type or mac type, usually just the string "Bearer".
                 expires_in:
                     type: string
-                    description: The token validity time, in seconds. If the access token expires, the server should reply with the duration of the access token granted. If this parameter is omitted, the expiration time must be set in other ways.
+                    description: Token validity time, unit is seconds. If the access token expires, the server should reply with the duration of the access token granted. If this parameter is omitted, the expiration time must be set in other ways.
             description: Three-party login ticket exchange results
         base.v1.FileInfo:
             type: object
@@ -4332,7 +4419,7 @@ components:
                     description: The type of token. This value is case-insensitive and required. It can be bearer type or mac type, usually just the string "Bearer".
                 expires_in:
                     type: string
-                    description: The token validity time, in seconds. If the access token expires, the server should reply with the duration of the access token granted. If this parameter is omitted, the expiration time must be set in other ways.
+                    description: Token validity time, unit is seconds. If the access token expires, the server should reply with the duration of the access token granted. If this parameter is omitted, the expiration time must be set in other ways.
             description: Login response
         base.v1.MultiUploadFileRequest:
             type: object
@@ -4419,7 +4506,7 @@ components:
                     description: The type of token. This value is case-insensitive and required. It can be bearer type or mac type, usually just the string "Bearer".
                 expires_in:
                     type: string
-                    description: The token validity time, in seconds. If the access token expires, the server should reply with the duration of the access token granted. If this parameter is omitted, the expiration time must be set in other ways.
+                    description: Token validity time, unit is seconds. If the access token expires, the server should reply with the duration of the access token granted. If this parameter is omitted, the expiration time must be set in other ways.
             description: Refresh token response
         base.v1.RegenerateAiMessageRequest:
             type: object
@@ -4549,7 +4636,7 @@ components:
                     description: value. Required
                 text:
                     type: string
-                    description: displays text. Required
+                    description: Display text. Required
                 selected:
                     type: boolean
                     description: Whether selected by default. Default value false
@@ -4754,7 +4841,7 @@ components:
                     description: field type
                 format:
                     type: string
-                    description: field format
+                    description: Field format
                 required:
                     type: boolean
                     description: Is it required?
@@ -5168,7 +5255,7 @@ components:
                     description: Task name
                 invoke_target:
                     type: string
-                    description: call target
+                    description: Call target
                 args:
                     type: array
                     items:
@@ -5217,7 +5304,7 @@ components:
                     description: Task name
                 invoke_target:
                     type: string
-                    description: call target
+                    description: Call target
                 args:
                     type: array
                     items:
@@ -5716,7 +5803,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: Role ID
+                    description: role ID
                 tenant_id:
                     type: string
                     description: Tenant ID
@@ -5767,7 +5854,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: Role ID
+                    description: role ID
                 tenant_id:
                     type: string
                     description: Tenant ID
@@ -5893,7 +5980,7 @@ components:
                     description: User nickname
                 role_id:
                     type: string
-                    description: Role ID
+                    description: role ID
                 dept_id:
                     type: string
                     description: Department ID
@@ -5956,7 +6043,7 @@ components:
                     description: User nickname
                 role_id:
                     type: string
-                    description: Role ID
+                    description: role ID
                 dept_id:
                     type: string
                     description: Department ID
@@ -6087,7 +6174,7 @@ components:
             properties:
                 kind:
                     type: string
-                    description: Option display type
+                    description: option display type
                 source_type:
                     type: string
                     description: option data source type
@@ -6155,7 +6242,7 @@ components:
             properties:
                 name:
                     type: string
-                    description: database table name
+                    description: Database table name
                 comment:
                     type: string
                     description: Business table description
@@ -6299,7 +6386,7 @@ components:
                     format: int32
                 method_comment:
                     type: string
-                    description: method Chinese description
+                    description: Method Chinese description
                 service_name:
                     type: string
                     description: Service name
@@ -6351,7 +6438,7 @@ components:
                         - CODE_GEN_TABLE_STATUS_GENERATED
                         - CODE_GEN_TABLE_STATUS_DISABLED
                     type: string
-                    description: "Status: Enumeration [CodeGenTableStatus], 1 Draft 2 Generated 3 Deactivated"
+                    description: "Status: Enumeration [CodeGenTableStatus], 1 Draft 2 Generated 3 Inactive"
                     format: enum
                 remark:
                     type: string
@@ -6416,7 +6503,7 @@ components:
                         - CODE_GEN_TABLE_STATUS_GENERATED
                         - CODE_GEN_TABLE_STATUS_DISABLED
                     type: string
-                    description: "Status: Enumeration [CodeGenTableStatus], 1 Draft 2 Generated 3 Deactivated"
+                    description: "Status: Enumeration [CodeGenTableStatus], 1 Draft 2 Generated 3 Inactive"
                     format: enum
                 remark:
                     type: string
@@ -6619,6 +6706,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.CodeGenProtoCheck'
                     description: Code generation Proto interface check list
             description: Code generation Proto interface configuration query response
+        system.admin.v1.ListRuntimeLogFilesResponse:
+            type: object
+            properties:
+                files:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.RuntimeLogFile'
+                    description: Historical log file list
+            description: Historical log file list response.
         system.admin.v1.OpenApiServiceOperation:
             type: object
             properties:
@@ -6644,6 +6740,38 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.OpenApiServiceOperation'
                     description: OpenAPI interface list
             description: OpenAPI Business Service Options
+        system.admin.v1.OpenRuntimeConsoleRequest:
+            type: object
+            properties:
+                backlog_limit:
+                    type: integer
+                    description: The number of recent log entries returned for the first time, 0 uses the default value, and the maximum is 500
+                    format: int32
+            description: Real-time console opening conditions.
+        system.admin.v1.OpenRuntimeConsoleResponse:
+            type: object
+            properties:
+                stream:
+                    type: string
+                    description: SSE business flow identifier
+                channel_id:
+                    type: string
+                    description: Current user-specific SSE channel identification
+                expires_at:
+                    type: string
+                    description: Channel expiration time, RFC3339 format
+                instance_id:
+                    type: string
+                    description: Current service instance ID
+                latest_sequence:
+                    type: string
+                    description: The latest log sequence number of the current process
+                entries:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.RuntimeLogEntry'
+                    description: Recent logs of the current process
+            description: Real-time console opening response.
         system.admin.v1.OpsAlert:
             type: object
             properties:
@@ -6744,11 +6872,11 @@ components:
                     description: Indicator name
                 value:
                     type: number
-                    description: Indicator usage percentage
+                    description: indicator usage percentage
                     format: double
                 used_bytes:
                     type: string
-                    description: Currently used capacity, unit byte
+                    description: Current used capacity, unit bytes
                 total_bytes:
                     type: string
                     description: Total capacity in bytes
@@ -7292,6 +7420,24 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.ProjectDocumentDirectory'
                     description: Subdirectory under the project root directory
             description: Project Document Tree
+        system.admin.v1.ReadRuntimeLogFileResponse:
+            type: object
+            properties:
+                entries:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.RuntimeLogEntry'
+                    description: Log entries in chronological order
+                next_cursor:
+                    type: string
+                    description: Opaque cursor that continues reading earlier logs
+                has_more:
+                    type: boolean
+                    description: Are there any earlier logs?
+                file_changed:
+                    type: boolean
+                    description: Whether the log file was rolled or truncated during reading
+            description: Historical log file read response.
         system.admin.v1.RefreshBaseConfigCacheRequest:
             type: object
             properties: {}
@@ -7387,6 +7533,53 @@ components:
                     type: string
                     description: value
             description: Route parameters
+        system.admin.v1.RuntimeLogEntry:
+            type: object
+            properties:
+                sequence:
+                    type: string
+                    description: The log sequence number in the current process, the history file log is empty
+                timestamp:
+                    type: string
+                    description: Log time
+                level:
+                    type: string
+                    description: Log level
+                source:
+                    type: string
+                    description: Log source
+                message:
+                    type: string
+                    description: Log message
+                line:
+                    type: string
+                    description: Plain text log lines that can be directly displayed
+                is_truncated:
+                    type: boolean
+                    description: Whether the log line is truncated due to length limit
+            description: Live or historical log entry.
+        system.admin.v1.RuntimeLogFile:
+            type: object
+            properties:
+                file_id:
+                    type: string
+                    description: Log file identifier issued by the server
+                name:
+                    type: string
+                    description: Log file name
+                size_bytes:
+                    type: string
+                    description: Log file size in bytes
+                modified_at:
+                    type: string
+                    description: Last modification time, RFC3339 format
+                is_compressed:
+                    type: boolean
+                    description: Whether it is a Gzip compressed file
+                is_active:
+                    type: boolean
+                    description: Is it the current active log file?
+            description: Historical log file information.
         system.admin.v1.SaveCodeGenColumnRequest:
             type: object
             properties:
@@ -7475,7 +7668,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: Dictionary attribute ID
+                    description: dictionary attribute ID
                 status:
                     type: integer
                     description: Status
@@ -7552,7 +7745,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: Role ID
+                    description: role ID
                 menus:
                     type: array
                     items:
@@ -7564,7 +7757,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: Role ID
+                    description: role ID
                 status:
                     type: integer
                     description: Status
@@ -7863,7 +8056,7 @@ components:
                     description: menu icon
                 app:
                     $ref: '#/components/schemas/system.app.v1.BaseMenuAppMeta'
-            description: Mobile menu meta information
+            description: Mobile terminal menu meta information
         system.app.v1.BindUserPhoneRequest:
             type: object
             properties:
@@ -7987,5 +8180,7 @@ tags:
       description: Operation and maintenance monitoring service.
     - name: ProjectDocumentService
       description: Project Documentation Service
+    - name: RuntimeLogService
+      description: Runs the logging service.
     - name: SseService
       description: Base SSE Service

@@ -35,6 +35,7 @@ type Services struct {
 	CodeGenTable     *systemadmin.CodeGenTableService
 	BaseMigration    *systemadmin.BaseMigrationService
 	OpsMonitoring    *systemadmin.OpsMonitoringService
+	RuntimeLog       *systemadmin.RuntimeLogService
 	ProjectDocument  *systemadmin.ProjectDocumentService
 }
 
@@ -63,6 +64,7 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	systemadminv1.RegisterCodeGenTableServiceServer(srv, s.CodeGenTable)
 	systemadminv1.RegisterBaseMigrationServiceServer(srv, s.BaseMigration)
 	systemadminv1.RegisterOpsMonitoringServiceServer(srv, s.OpsMonitoring)
+	systemadminv1.RegisterRuntimeLogServiceServer(srv, s.RuntimeLog)
 	systemadminv1.RegisterProjectDocumentServiceServer(srv, s.ProjectDocument)
 }
 
@@ -90,6 +92,7 @@ func (s Services) RegisterHTTP(srv *kratosHTTP.Server) {
 	systemadminv1.RegisterCodeGenTableServiceHTTPServer(srv, s.CodeGenTable)
 	systemadminv1.RegisterBaseMigrationServiceHTTPServer(srv, s.BaseMigration)
 	systemadminv1.RegisterOpsMonitoringServiceHTTPServer(srv, s.OpsMonitoring)
+	systemadminv1.RegisterRuntimeLogServiceHTTPServer(srv, s.RuntimeLog)
 	systemadminv1.RegisterProjectDocumentServiceHTTPServer(srv, s.ProjectDocument)
 }
 

@@ -10,7 +10,7 @@ paths:
         get:
             tags:
                 - AuthService
-            description: ログインユーザーのボタンリストをクエリします。
+            description: ログインユーザーのボタンリストをクエリします
             operationId: AuthService_ListUserButton
             responses:
                 "200":
@@ -84,7 +84,7 @@ paths:
         get:
             tags:
                 - AuthService
-            description: パーソナルセンターのユーザー情報を取得します
+            description: パーソナル センターのユーザー情報を取得する
             operationId: AuthService_GetUserProfile
             responses:
                 "200":
@@ -112,7 +112,7 @@ paths:
         get:
             tags:
                 - AuthService
-            description: ログインユーザーのデータを取得します
+            description: ログインしているユーザーのデータを取得します
             operationId: AuthService_GetUserInfo
             responses:
                 "200":
@@ -125,7 +125,7 @@ paths:
         get:
             tags:
                 - BaseMigrationService
-            description: ページごとのデータベース アップグレード履歴のクエリ
+            description: ページごとにデータベースのアップグレード履歴をクエリする
             operationId: BaseMigrationService_PageBaseMigration
             parameters:
                 - name: data_source
@@ -178,7 +178,7 @@ paths:
         get:
             tags:
                 - BaseApiService
-            description: ページングクエリ API リスト
+            description: ページ分割されたクエリ API リスト
             operationId: BaseApiService_PageBaseApi
             parameters:
                 - name: tool_name
@@ -426,7 +426,7 @@ paths:
         get:
             tags:
                 - BaseAreaService
-            description: 行政地域ツリー リストのクエリ
+            description: 行政地域ツリーリストのクエリ
             operationId: BaseAreaService_TreeBaseArea
             parameters:
                 - name: name
@@ -622,7 +622,7 @@ paths:
         get:
             tags:
                 - BaseConfigService
-            description: システム構成の問い合わせ
+            description: システム構成のクエリ
             operationId: BaseConfigService_GetBaseConfig
             parameters:
                 - name: id
@@ -878,7 +878,7 @@ paths:
         get:
             tags:
                 - BaseDictService
-            description: クエリ辞書属性のページ分割されたリスト
+            description: クエリ辞書属性のページング リスト
             operationId: BaseDictService_PageBaseDictItem
             parameters:
                 - name: dict_id
@@ -1063,7 +1063,7 @@ paths:
         delete:
             tags:
                 - BaseDictService
-            description: 辞書を削除
+            description: 辞書の削除
             operationId: BaseDictService_DeleteBaseDict
             parameters:
                 - name: id
@@ -1101,7 +1101,7 @@ paths:
         get:
             tags:
                 - BaseJobService
-            description: スケジュールされたタスクのページング リストをクエリする
+            description: スケジュールされたタスクのページング リストをクエリします
             operationId: BaseJobService_PageBaseJob
             parameters:
                 - name: name
@@ -1352,7 +1352,7 @@ paths:
         get:
             tags:
                 - BaseLanguageService
-            description: クエリ言語のページ分割されたリスト
+            description: クエリ言語のページング リスト
             operationId: BaseLanguageService_PageBaseLanguage
             parameters:
                 - name: language_name
@@ -1480,7 +1480,7 @@ paths:
         put:
             tags:
                 - BaseLanguageService
-            description: 主言語を設定します
+            description: 第一言語を設定します
             operationId: BaseLanguageService_SetBaseLanguagePrimary
             parameters:
                 - name: id
@@ -1798,7 +1798,7 @@ paths:
         put:
             tags:
                 - BasePostService
-            description: 位置を更新します
+            description: 位置を更新
             operationId: BasePostService_UpdateBasePost
             parameters:
                 - name: base_post.id
@@ -1992,7 +1992,7 @@ paths:
         delete:
             tags:
                 - BaseRoleService
-            description: ロールの削除
+            description: ロールを削除
             operationId: BaseRoleService_DeleteBaseRole
             parameters:
                 - name: id
@@ -2687,7 +2687,7 @@ paths:
         get:
             tags:
                 - CodeGenProtoService
-            description: クエリコード生成 Proto インターフェース構成
+            description: クエリコード生成 Proto インターフェイス設定
             operationId: CodeGenProtoService_ListCodeGenProto
             parameters:
                 - name: table_id
@@ -2705,7 +2705,7 @@ paths:
         put:
             tags:
                 - CodeGenProtoService
-            description: コード生成 Proto インターフェース構成の保存
+            description: コード生成 Proto インターフェイス構成の保存
             operationId: CodeGenProtoService_SaveCodeGenProto
             parameters:
                 - name: table_id
@@ -2816,7 +2816,7 @@ paths:
         get:
             tags:
                 - OpsMonitoringService
-            description: 現在のプロセス実行情報をクエリします。
+            description: 現在のプロセス実行情報を照会します。
             operationId: OpsMonitoringService_GetOpsRuntime
             responses:
                 "200":
@@ -2902,6 +2902,93 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.ProjectDocument'
+    /api/v1/admin/runtime-log/console:
+        post:
+            tags:
+                - RuntimeLogService
+            description: 現在のユーザーのライブ コンソール チャネルを作成します。
+            operationId: RuntimeLogService_OpenRuntimeConsole
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.OpenRuntimeConsoleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OpenRuntimeConsoleResponse'
+    /api/v1/admin/runtime-log/files:
+        get:
+            tags:
+                - RuntimeLogService
+            description: アクセス可能な履歴ログ ファイルをクエリします。
+            operationId: RuntimeLogService_ListRuntimeLogFiles
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.ListRuntimeLogFilesResponse'
+    /api/v1/admin/runtime-log/files/{file_id}:
+        get:
+            tags:
+                - RuntimeLogService
+            description: 履歴ログ ファイルの内容をページ単位で読み取ります。
+            operationId: RuntimeLogService_ReadRuntimeLogFile
+            parameters:
+                - name: file_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: cursor
+                  in: query
+                  schema:
+                    type: string
+                - name: limit
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: levels
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.ReadRuntimeLogFileResponse'
+    /api/v1/admin/runtime-log/files/{file_id}/download:
+        get:
+            tags:
+                - RuntimeLogService
+            description: 元の履歴ログ ファイルをダウンロードします。
+            operationId: RuntimeLogService_DownloadRuntimeLogFile
+            parameters:
+                - name: file_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        '*/*': {}
     /api/v1/app/auth/phone:
         put:
             tags:
@@ -2925,7 +3012,7 @@ paths:
         get:
             tags:
                 - AuthService
-            description: ログインユーザーのデータを取得します
+            description: ログインしているユーザーのデータを取得します
             operationId: AuthService_GetUserProfile
             responses:
                 "200":
@@ -2953,7 +3040,7 @@ paths:
         get:
             tags:
                 - BaseAreaService
-            description: 行政地域ツリー リストのクエリ
+            description: 行政地域ツリーリストのクエリ
             operationId: BaseAreaService_TreeBaseArea
             responses:
                 "200":
@@ -3039,7 +3126,7 @@ paths:
         put:
             tags:
                 - AiSessionService
-            description: AI アシスタント セッションを更新します
+            description: AI アシスタント セッションを更新
             operationId: AiSessionService_UpdateAiSession
             parameters:
                 - name: id
@@ -3439,7 +3526,7 @@ paths:
         get:
             tags:
                 - OauthService
-            description: パーソナル センターのサードパーティ アカウント バインディング リストをクエリする
+            description: パーソナル センターのサードパーティ アカウント バインディング リストをクエリします。
             operationId: OauthService_ListOauthBinding
             responses:
                 "200":
@@ -3490,7 +3577,7 @@ paths:
         delete:
             tags:
                 - OauthService
-            description: パーソナル センターのサードパーティ アカウントのバインドを解除する
+            description: パーソナル センターのサードパーティ アカウントのバインドを解除します
             operationId: OauthService_UnbindOauthAccount
             parameters:
                 - name: provider
@@ -4003,7 +4090,7 @@ components:
                     description: ツール呼び出しステータス
                 input:
                     type: string
-                    description: ツールオリジナル入力パラメータ JSON
+                    description: ツール独自の入力パラメータ JSON
                 output:
                     type: string
                     description: ツール独自パラメータ JSON
@@ -4057,7 +4144,7 @@ components:
                 value:
                     type: string
                     description: 値を設定します
-            description: システム構成項目
+            description: システム構成アイテム
         base.v1.CreateAiSessionBranchRequest:
             type: object
             properties:
@@ -4170,7 +4257,7 @@ components:
                     description: トークンのタイプ。この値は大文字と小文字が区別されず、必須です。これは、ベアラー タイプまたは mac タイプにすることができ、通常は単なる文字列「Bearer」です。
                 expires_in:
                     type: string
-                    description: トークンの有効期間 (秒単位)。アクセス トークンの有効期限が切れた場合、サーバーは付与されたアクセス トークンの有効期間を応答する必要があります。このパラメータを省略した場合は、有効期限を他の方法で設定する必要があります。
+                    description: トークンの有効時間、単位は秒です。アクセス トークンの有効期限が切れた場合、サーバーは付与されたアクセス トークンの有効期間を応答する必要があります。このパラメータを省略した場合は、有効期限を他の方法で設定する必要があります。
                 binding_required:
                     type: boolean
                     description: 既存のアカウントをバインドする必要がありますか?
@@ -4205,7 +4292,7 @@ components:
                     description: トークンのタイプ。この値は大文字と小文字が区別されず、必須です。これは、ベアラー タイプまたは mac タイプにすることができ、通常は単なる文字列「Bearer」です。
                 expires_in:
                     type: string
-                    description: トークンの有効期間 (秒単位)。アクセス トークンの有効期限が切れた場合、サーバーは付与されたアクセス トークンの有効期間を応答する必要があります。このパラメータを省略した場合は、有効期限を他の方法で設定する必要があります。
+                    description: トークンの有効時間、単位は秒です。アクセス トークンの有効期限が切れた場合、サーバーは付与されたアクセス トークンの有効期間を応答する必要があります。このパラメータを省略した場合は、有効期限を他の方法で設定する必要があります。
             description: 三者間ログインチケット交換結果
         base.v1.FileInfo:
             type: object
@@ -4332,7 +4419,7 @@ components:
                     description: トークンのタイプ。この値は大文字と小文字が区別されず、必須です。これは、ベアラー タイプまたは mac タイプにすることができ、通常は単なる文字列「Bearer」です。
                 expires_in:
                     type: string
-                    description: トークンの有効期間 (秒単位)。アクセス トークンの有効期限が切れた場合、サーバーは付与されたアクセス トークンの有効期間を応答する必要があります。このパラメータを省略した場合は、有効期限を他の方法で設定する必要があります。
+                    description: トークンの有効時間、単位は秒です。アクセス トークンの有効期限が切れた場合、サーバーは付与されたアクセス トークンの有効期間を応答する必要があります。このパラメータを省略した場合は、有効期限を他の方法で設定する必要があります。
             description: ログイン応答
         base.v1.MultiUploadFileRequest:
             type: object
@@ -4419,7 +4506,7 @@ components:
                     description: トークンのタイプ。この値は大文字と小文字が区別されず、必須です。これは、ベアラー タイプまたは mac タイプにすることができ、通常は単なる文字列「Bearer」です。
                 expires_in:
                     type: string
-                    description: トークンの有効期間 (秒単位)。アクセス トークンの有効期限が切れた場合、サーバーは付与されたアクセス トークンの有効期間を応答する必要があります。このパラメータを省略した場合は、有効期限を他の方法で設定する必要があります。
+                    description: トークンの有効時間、単位は秒です。アクセス トークンの有効期限が切れた場合、サーバーは付与されたアクセス トークンの有効期間を応答する必要があります。このパラメータを省略した場合は、有効期限を他の方法で設定する必要があります。
             description: リフレッシュトークン応答
         base.v1.RegenerateAiMessageRequest:
             type: object
@@ -4536,7 +4623,7 @@ components:
             properties:
                 captcha_token:
                     type: string
-                    description: 検証コードがトークンを渡しました
+                    description: 検証コードがトークンに渡されました
                 expires_in:
                     type: string
                     description: 有効時間 (秒)
@@ -4549,7 +4636,7 @@ components:
                     description: 値。必須
                 text:
                     type: string
-                    description: はテキストを表示します。必須
+                    description: テキストを表示します。必須
                 selected:
                     type: boolean
                     description: デフォルトで選択されているかどうか。デフォルト値 false
@@ -4601,7 +4688,7 @@ components:
                     description: オプション名
                 value:
                     type: string
-                    description: オプション値
+                    description: オプションの値
                 disabled:
                     type: boolean
                     description: 無効にするかどうか
@@ -4632,7 +4719,7 @@ components:
                     description: オプション名
                 value:
                     type: string
-                    description: オプション値
+                    description: オプションの値
                 disabled:
                     type: boolean
                     description: 無効にするかどうか
@@ -4730,7 +4817,7 @@ components:
             properties:
                 status:
                     type: string
-                    description: ステータス コード
+                    description: ステータスコード
                 description:
                     type: string
                     description: 応答の説明
@@ -4754,7 +4841,7 @@ components:
                     description: フィールドタイプ
                 format:
                     type: string
-                    description: フィールドの形式
+                    description: フィールド形式
                 required:
                     type: boolean
                     description: 必須ですか?
@@ -4891,7 +4978,7 @@ components:
                         - BASE_CONFIG_TYPE_DICT
                         - BASE_CONFIG_TYPE_BOOLEAN
                     type: string
-                    description: "構成タイプ: 1. テキスト、2. 画像、3. リッチ テキスト、4. 辞書、5. ブール値"
+                    description: "設定タイプ: 1. テキスト、2. 画像、3. リッチ テキスト、4. 辞書、5. ブール値"
                     format: enum
                 key:
                     type: string
@@ -4926,7 +5013,7 @@ components:
                     description: 部門ID
                 tenant_id:
                     type: string
-                    description: テナントID
+                    description: テナント ID
                 parent_id:
                     type: string
                     description: 親部門ID
@@ -4971,7 +5058,7 @@ components:
                     description: 部門ID
                 tenant_id:
                     type: string
-                    description: テナントID
+                    description: テナント ID
                 parent_id:
                     type: string
                     description: 親部門ID
@@ -5168,7 +5255,7 @@ components:
                     description: タスク名
                 invoke_target:
                     type: string
-                    description: 呼び出しターゲット
+                    description: コールターゲット
                 args:
                     type: array
                     items:
@@ -5217,7 +5304,7 @@ components:
                     description: タスク名
                 invoke_target:
                     type: string
-                    description: 呼び出しターゲット
+                    description: コールターゲット
                 args:
                     type: array
                     items:
@@ -5378,7 +5465,7 @@ components:
                     description: 操作が成功したかどうか
                 status_code:
                     type: integer
-                    description: ステータス コード
+                    description: ステータスコード
                     format: int32
                 reason:
                     type: string
@@ -5651,7 +5738,7 @@ components:
                     description: ポジションID
                 tenant_id:
                     type: string
-                    description: テナントID
+                    description: テナント ID
                 name:
                     type: string
                     description: ポジション名
@@ -5688,7 +5775,7 @@ components:
                     description: ポジションID
                 tenant_id:
                     type: string
-                    description: テナントID
+                    description: テナント ID
                 name:
                     type: string
                     description: ポジション名
@@ -5716,10 +5803,10 @@ components:
             properties:
                 id:
                     type: string
-                    description: ロールID
+                    description: ロール ID
                 tenant_id:
                     type: string
-                    description: テナントID
+                    description: テナント ID
                 name:
                     type: string
                     description: ロール名
@@ -5767,10 +5854,10 @@ components:
             properties:
                 id:
                     type: string
-                    description: ロールID
+                    description: ロール ID
                 tenant_id:
                     type: string
-                    description: テナントID
+                    description: テナント ID
                 name:
                     type: string
                     description: ロール名
@@ -5809,7 +5896,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: テナントID
+                    description: テナント ID
                 code:
                     type: string
                     description: テナント番号
@@ -5848,7 +5935,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: テナントID
+                    description: テナント ID
                 code:
                     type: string
                     description: テナント番号
@@ -5881,7 +5968,7 @@ components:
                     description: ユーザーID
                 tenant_id:
                     type: string
-                    description: テナントID
+                    description: テナント ID
                 user_name:
                     type: string
                     description: ユーザーアカウント
@@ -5893,7 +5980,7 @@ components:
                     description: ユーザーのニックネーム
                 role_id:
                     type: string
-                    description: ロールID
+                    description: ロール ID
                 dept_id:
                     type: string
                     description: 部門ID
@@ -5944,7 +6031,7 @@ components:
                     description: ユーザーID
                 tenant_id:
                     type: string
-                    description: テナントID
+                    description: テナント ID
                 user_name:
                     type: string
                     description: ユーザーアカウント
@@ -5956,7 +6043,7 @@ components:
                     description: ユーザーのニックネーム
                 role_id:
                     type: string
-                    description: ロールID
+                    description: ロール ID
                 dept_id:
                     type: string
                     description: 部門ID
@@ -6186,7 +6273,7 @@ components:
                     description: 左のツリーの説明
                 lazy:
                     type: boolean
-                    description: 左側のツリーが遅延ロードされるかどうか
+                    description: 左側のツリーが遅延ロードされているかどうか
             description: 左ツリー右テーブルページ構成
         system.admin.v1.CodeGenLocaleConfig:
             type: object
@@ -6260,7 +6347,7 @@ components:
                     type: integer
                     description: 並べ替え
                     format: int32
-            description: コード生成 Proto インターフェイス構成
+            description: コード生成 Proto インターフェース構成
         system.admin.v1.CodeGenProtoCheck:
             type: object
             properties:
@@ -6299,7 +6386,7 @@ components:
                     format: int32
                 method_comment:
                     type: string
-                    description: メソッドの中国語の説明
+                    description: メソッド中国語の説明
                 service_name:
                     type: string
                     description: サービス名
@@ -6351,7 +6438,7 @@ components:
                         - CODE_GEN_TABLE_STATUS_GENERATED
                         - CODE_GEN_TABLE_STATUS_DISABLED
                     type: string
-                    description: "ステータス: 列挙 [CodeGenTableStatus]、1 ドラフト 2 生成済み 3 非アクティブ化"
+                    description: "ステータス: 列挙 [CodeGenTableStatus]、1 ドラフト 2 生成済み 3 非アクティブ"
                     format: enum
                 remark:
                     type: string
@@ -6416,7 +6503,7 @@ components:
                         - CODE_GEN_TABLE_STATUS_GENERATED
                         - CODE_GEN_TABLE_STATUS_DISABLED
                     type: string
-                    description: "ステータス: 列挙 [CodeGenTableStatus]、1 ドラフト 2 生成済み 3 非アクティブ化"
+                    description: "ステータス: 列挙 [CodeGenTableStatus]、1 ドラフト 2 生成済み 3 非アクティブ"
                     format: enum
                 remark:
                     type: string
@@ -6501,7 +6588,7 @@ components:
                 output:
                     type: string
                     description: コマンド出力
-            description: コード生成タスクの手順
+            description: コード生成タスクのステップ
         system.admin.v1.CodeGenTaskTable:
             type: object
             properties:
@@ -6537,7 +6624,7 @@ components:
                     items:
                         $ref: '#/components/schemas/system.admin.v1.CodeGenTaskStep'
                     description: ステップのリストを生成します
-            description: 単一生成オブジェクト タスクの進行状況
+            description: 単一生成オブジェクトタスクの進行状況
         system.admin.v1.DraftBaseTranslationItem:
             type: object
             properties:
@@ -6556,7 +6643,7 @@ components:
                     description: 翻訳対象のテキスト
                 locale:
                     type: string
-                    description: ターゲット言語領域。渡されない場合は、有効な非メイン言語がすべて翻訳されます。
+                    description: ターゲット言語領域。渡されない場合、有効な非メイン言語がすべて翻訳されます。
             description: 単一のテキスト リクエストを翻訳します。
         system.admin.v1.DraftBaseTranslationResponse:
             type: object
@@ -6600,7 +6687,7 @@ components:
                     items:
                         $ref: '#/components/schemas/system.admin.v1.CodeGenDatabaseColumn'
                     description: データベースフィールドリスト
-            description: データベーステーブルフィールドリスト応答
+            description: データベーステーブルフィールドリストの応答
         system.admin.v1.ListCodeGenDatabaseTableResponse:
             type: object
             properties:
@@ -6619,6 +6706,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.CodeGenProtoCheck'
                     description: コード生成 Proto インターフェースのチェックリスト
             description: コード生成 Proto インターフェイス設定クエリの応答
+        system.admin.v1.ListRuntimeLogFilesResponse:
+            type: object
+            properties:
+                files:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.RuntimeLogFile'
+                    description: 履歴ログファイルリスト
+            description: 履歴ログ ファイル リストの応答。
         system.admin.v1.OpenApiServiceOperation:
             type: object
             properties:
@@ -6644,6 +6740,38 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.OpenApiServiceOperation'
                     description: OpenAPI インターフェース一覧
             description: OpenAPI ビジネス サービス オプション
+        system.admin.v1.OpenRuntimeConsoleRequest:
+            type: object
+            properties:
+                backlog_limit:
+                    type: integer
+                    description: 初めて返された最近のログ エントリの数。0 はデフォルト値を使用し、最大値は 500 です。
+                    format: int32
+            description: リアルタイムコンソールのオープン条件。
+        system.admin.v1.OpenRuntimeConsoleResponse:
+            type: object
+            properties:
+                stream:
+                    type: string
+                    description: SSE ビジネス フロー識別子
+                channel_id:
+                    type: string
+                    description: 現在のユーザー固有の SSE チャネル ID
+                expires_at:
+                    type: string
+                    description: チャネル有効期限、RFC3339 形式
+                instance_id:
+                    type: string
+                    description: 現在のサービス インスタンス ID
+                latest_sequence:
+                    type: string
+                    description: 現在のプロセスの最新のログ シーケンス番号
+                entries:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.RuntimeLogEntry'
+                    description: 現在のプロセスの最近のログ
+            description: リアルタイムのコンソールを開く応答。
         system.admin.v1.OpsAlert:
             type: object
             properties:
@@ -7290,8 +7418,26 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.ProjectDocumentDirectory'
-                    description: プロジェクトのルート ディレクトリ下のサブディレクトリ
+                    description: プロジェクトのルートディレクトリ下のサブディレクトリ
             description: プロジェクト ドキュメント ツリー
+        system.admin.v1.ReadRuntimeLogFileResponse:
+            type: object
+            properties:
+                entries:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.RuntimeLogEntry'
+                    description: 時系列順のログエントリ
+                next_cursor:
+                    type: string
+                    description: 以前のログを読み続ける不透明なカーソル
+                has_more:
+                    type: boolean
+                    description: 以前のログはありますか?
+                file_changed:
+                    type: boolean
+                    description: 読み取り中にログ ファイルがロールされたか切り捨てられたか
+            description: 履歴ログ ファイルの読み取り応答。
         system.admin.v1.RefreshBaseConfigCacheRequest:
             type: object
             properties: {}
@@ -7387,6 +7533,53 @@ components:
                     type: string
                     description: 値
             description: ルートパラメータ
+        system.admin.v1.RuntimeLogEntry:
+            type: object
+            properties:
+                sequence:
+                    type: string
+                    description: 現在のプロセスのログ シーケンス番号。履歴ファイルのログは空です。
+                timestamp:
+                    type: string
+                    description: ログ時間
+                level:
+                    type: string
+                    description: ログレベル
+                source:
+                    type: string
+                    description: ログソース
+                message:
+                    type: string
+                    description: ログメッセージ
+                line:
+                    type: string
+                    description: 直接表示できるプレーンテキストのログ行
+                is_truncated:
+                    type: boolean
+                    description: 長さ制限によりログ行が切り詰められるかどうか
+            description: ライブまたは履歴のログ エントリ。
+        system.admin.v1.RuntimeLogFile:
+            type: object
+            properties:
+                file_id:
+                    type: string
+                    description: サーバーが発行したログファイル識別子
+                name:
+                    type: string
+                    description: ログファイル名
+                size_bytes:
+                    type: string
+                    description: ログ ファイルのサイズ (バイト単位)
+                modified_at:
+                    type: string
+                    description: 最終変更時刻、RFC3339 形式
+                is_compressed:
+                    type: boolean
+                    description: Gzip 圧縮ファイルかどうか
+                is_active:
+                    type: boolean
+                    description: 現在アクティブなログ ファイルですか?
+            description: 履歴ログ ファイル情報。
         system.admin.v1.SaveCodeGenColumnRequest:
             type: object
             properties:
@@ -7417,7 +7610,7 @@ components:
                 phone:
                     type: string
                     description: 携帯電話番号
-            description: 携帯電話番号認証コードリクエストパラメータを送信します
+            description: 携帯電話番号認証コードリクエストパラメータの送信
         system.admin.v1.SetBaseApiAgentStatusRequest:
             type: object
             properties:
@@ -7475,7 +7668,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: ディクショナリ属性 ID
+                    description: 辞書属性 ID
                 status:
                     type: integer
                     description: ステータス
@@ -7552,7 +7745,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: ロールID
+                    description: ロール ID
                 menus:
                     type: array
                     items:
@@ -7564,7 +7757,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: ロールID
+                    description: ロール ID
                 status:
                     type: integer
                     description: ステータス
@@ -7575,7 +7768,7 @@ components:
             properties:
                 id:
                     type: string
-                    description: テナントID
+                    description: テナント ID
                 status:
                     type: integer
                     description: ステータス
@@ -7598,7 +7791,7 @@ components:
                 id:
                     type: string
                     description: タスクID
-            description: スケジュールされたタスクの開始リクエストのパラメータ
+            description: スケジュールされたタスクの開始リクエストのパラメーター
         system.admin.v1.StartCodeGenTaskRequest:
             type: object
             properties:
@@ -7863,13 +8056,13 @@ components:
                     description: メニューアイコン
                 app:
                     $ref: '#/components/schemas/system.app.v1.BaseMenuAppMeta'
-            description: モバイルメニューのメタ情報
+            description: 携帯端末メニューメタ情報
         system.app.v1.BindUserPhoneRequest:
             type: object
             properties:
                 code:
                     type: string
-                    description: 認証情報
+                    description: 認可情報
             description: 携帯電話番号認証リクエストパラメータ
         system.app.v1.BindUserPhoneResponse:
             type: object
@@ -7987,5 +8180,7 @@ tags:
       description: 運用保守監視サービス。
     - name: ProjectDocumentService
       description: プロジェクト ドキュメント サービス
+    - name: RuntimeLogService
+      description: ロギングサービスを実行します。
     - name: SseService
       description: 基本 SSE サービス

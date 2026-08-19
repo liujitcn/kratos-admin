@@ -1,0 +1,5 @@
+INSERT IGNORE INTO `base_menu` (`id`, `parent_id`, `type`, `path`, `name`, `component`, `redirect`, `meta`, `api`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (95004, 950, 2, 'runtime-log', 'RuntimeLog', 'system/tool/runtime-log/index', '', '{"icon": "Tickets", "title": "运行日志", "hidden": false, "keep_alive": true, "always_show": false}', '["/system.admin.v1.RuntimeLogService/ListRuntimeLogFiles", "/system.admin.v1.RuntimeLogService/ReadRuntimeLogFile", "/system.admin.v1.RuntimeLogService/OpenRuntimeConsole", "/system.admin.v1.RuntimeLogService/DownloadRuntimeLogFile", "/base.v1.SseService/SubscribeSse"]', 2, 1, 1, 1, '2026-08-19 00:00:00', '2026-08-19 00:00:00', 0);
+
+UPDATE `base_menu` SET `sort` = 1, `updated_at` = '2026-08-19 00:00:00' WHERE `id` = 95001 AND `deleted_at` = 0;
+UPDATE `base_menu` SET `sort` = 2, `updated_at` = '2026-08-19 00:00:00' WHERE `id` = 95004 AND `deleted_at` = 0;
+UPDATE `base_menu` SET `sort` = 3, `updated_at` = '2026-08-19 00:00:00' WHERE `id` = 95991 AND `deleted_at` = 0;

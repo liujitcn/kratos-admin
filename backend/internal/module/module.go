@@ -1,7 +1,12 @@
 package module
 
 import (
+	"fmt"
+	"os"
+
+	kratosGRPC "github.com/go-kratos/kratos/v3/transport/grpc"
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	baseServer "github.com/liujitcn/kratos-admin/backend/internal/server/base/v1"
 	adminServer "github.com/liujitcn/kratos-admin/backend/internal/server/system/admin/v1"
 	appServer "github.com/liujitcn/kratos-admin/backend/internal/server/system/app/v1"
@@ -26,6 +31,9 @@ func NewModules(
 	adminServices *adminServer.Services,
 	appServices *appServer.Services,
 ) module.Modules {
+	if runtimeLogErr := logstream.InitializeRuntimeLogging(); runtimeLogErr != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "启动运行日志采集失败: %v\n", runtimeLogErr)
+	}
 	return module.Modules{
 		&Module{
 			baseServices:  baseServices,
@@ -42,6 +50,9 @@ func NewQueueConsumers() queue.Consumers {
 
 // RegisterGRPC 注册 Admin 的全部 gRPC 服务。
 func (m *Module) RegisterGRPC(registrar grpc.ServiceRegistrar) {
+	if server, ok := registrar.(*kratosGRPC.Server); ok {
+		server.Use("/system.admin.v1.RuntimeLogService/*", logstream.RuntimeAccessMiddleware())
+	}
 	m.baseServices.RegisterGRPC(registrar)
 	m.adminServices.RegisterGRPC(registrar)
 	m.appServices.RegisterGRPC(registrar)
@@ -49,6 +60,7 @@ func (m *Module) RegisterGRPC(registrar grpc.ServiceRegistrar) {
 
 // RegisterHTTP 注册 Admin 的全部 HTTP 服务。
 func (m *Module) RegisterHTTP(server *kratosHTTP.Server) {
+	server.Use("/system.admin.v1.RuntimeLogService/*", logstream.RuntimeAccessMiddleware())
 	m.baseServices.RegisterHTTP(server)
 	m.adminServices.RegisterHTTP(server)
 	m.appServices.RegisterHTTP(server)

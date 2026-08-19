@@ -2902,6 +2902,93 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.ProjectDocument'
+    /api/v1/admin/runtime-log/console:
+        post:
+            tags:
+                - RuntimeLogService
+            description: 创建当前用户的实时控制台频道。
+            operationId: RuntimeLogService_OpenRuntimeConsole
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.OpenRuntimeConsoleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OpenRuntimeConsoleResponse'
+    /api/v1/admin/runtime-log/files:
+        get:
+            tags:
+                - RuntimeLogService
+            description: 查询可访问的历史日志文件。
+            operationId: RuntimeLogService_ListRuntimeLogFiles
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.ListRuntimeLogFilesResponse'
+    /api/v1/admin/runtime-log/files/{file_id}:
+        get:
+            tags:
+                - RuntimeLogService
+            description: 分页读取历史日志文件内容。
+            operationId: RuntimeLogService_ReadRuntimeLogFile
+            parameters:
+                - name: file_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: cursor
+                  in: query
+                  schema:
+                    type: string
+                - name: limit
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: levels
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.ReadRuntimeLogFileResponse'
+    /api/v1/admin/runtime-log/files/{file_id}/download:
+        get:
+            tags:
+                - RuntimeLogService
+            description: 下载历史日志原文件。
+            operationId: RuntimeLogService_DownloadRuntimeLogFile
+            parameters:
+                - name: file_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        '*/*': {}
     /api/v1/app/auth/phone:
         put:
             tags:
@@ -6619,6 +6706,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.CodeGenProtoCheck'
                     description: 代码生成Proto接口检查列表
             description: 代码生成Proto接口配置查询响应
+        system.admin.v1.ListRuntimeLogFilesResponse:
+            type: object
+            properties:
+                files:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.RuntimeLogFile'
+                    description: 历史日志文件列表
+            description: 历史日志文件列表响应。
         system.admin.v1.OpenApiServiceOperation:
             type: object
             properties:
@@ -6644,6 +6740,38 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.OpenApiServiceOperation'
                     description: OpenAPI接口列表
             description: OpenAPI业务服务选项
+        system.admin.v1.OpenRuntimeConsoleRequest:
+            type: object
+            properties:
+                backlog_limit:
+                    type: integer
+                    description: 首次返回的最近日志条数，0使用默认值，最大500
+                    format: int32
+            description: 实时控制台开启条件。
+        system.admin.v1.OpenRuntimeConsoleResponse:
+            type: object
+            properties:
+                stream:
+                    type: string
+                    description: SSE业务流标识
+                channel_id:
+                    type: string
+                    description: 当前用户专属SSE频道标识
+                expires_at:
+                    type: string
+                    description: 频道过期时间，RFC3339格式
+                instance_id:
+                    type: string
+                    description: 当前服务实例标识
+                latest_sequence:
+                    type: string
+                    description: 当前进程最新日志序号
+                entries:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.RuntimeLogEntry'
+                    description: 当前进程最近日志
+            description: 实时控制台开启响应。
         system.admin.v1.OpsAlert:
             type: object
             properties:
@@ -7292,6 +7420,24 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.ProjectDocumentDirectory'
                     description: 项目根目录下的子目录
             description: 项目文档树
+        system.admin.v1.ReadRuntimeLogFileResponse:
+            type: object
+            properties:
+                entries:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.RuntimeLogEntry'
+                    description: 按时间正序排列的日志条目
+                next_cursor:
+                    type: string
+                    description: 继续读取更早日志的不透明游标
+                has_more:
+                    type: boolean
+                    description: 是否还有更早日志
+                file_changed:
+                    type: boolean
+                    description: 读取期间日志文件是否已滚动或截断
+            description: 历史日志文件读取响应。
         system.admin.v1.RefreshBaseConfigCacheRequest:
             type: object
             properties: {}
@@ -7387,6 +7533,53 @@ components:
                     type: string
                     description: value
             description: Route参数
+        system.admin.v1.RuntimeLogEntry:
+            type: object
+            properties:
+                sequence:
+                    type: string
+                    description: 当前进程内的日志序号，历史文件日志为空
+                timestamp:
+                    type: string
+                    description: 日志时间
+                level:
+                    type: string
+                    description: 日志级别
+                source:
+                    type: string
+                    description: 日志来源
+                message:
+                    type: string
+                    description: 日志消息
+                line:
+                    type: string
+                    description: 可直接展示的纯文本日志行
+                is_truncated:
+                    type: boolean
+                    description: 日志行是否因长度限制被截断
+            description: 实时或历史日志条目。
+        system.admin.v1.RuntimeLogFile:
+            type: object
+            properties:
+                file_id:
+                    type: string
+                    description: 服务端签发的日志文件标识
+                name:
+                    type: string
+                    description: 日志文件名称
+                size_bytes:
+                    type: string
+                    description: 日志文件大小，单位字节
+                modified_at:
+                    type: string
+                    description: 最后修改时间，RFC3339格式
+                is_compressed:
+                    type: boolean
+                    description: 是否为Gzip压缩文件
+                is_active:
+                    type: boolean
+                    description: 是否为当前活动日志文件
+            description: 历史日志文件信息。
         system.admin.v1.SaveCodeGenColumnRequest:
             type: object
             properties:
@@ -7987,5 +8180,7 @@ tags:
       description: 运维监控服务。
     - name: ProjectDocumentService
       description: 项目文档服务
+    - name: RuntimeLogService
+      description: 运行日志服务。
     - name: SseService
       description: Base SSE服务

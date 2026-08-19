@@ -12,6 +12,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	biz3 "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	sse2 "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/sse"
 	biz4 "github.com/liujitcn/kratos-admin/backend/internal/biz/system/app"
 	data2 "github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
@@ -135,6 +136,12 @@ func BuildModules(config *configv1.Bootstrap, databases map[string]*gorm.Client,
 	baseMigrationService := admin.NewBaseMigrationService(baseMigrationCase)
 	opsMonitoringCase := biz3.NewOpsMonitoringCase(baseCase, baseLogRepository)
 	opsMonitoringService := admin.NewOpsMonitoringService(opsMonitoringCase)
+	hub := logstream.DefaultHub()
+	runtimeLogCase, err := biz3.NewRuntimeLogCase(baseCase, hub, sseRuntime)
+	if err != nil {
+		return nil, nil, err
+	}
+	runtimeLogService := admin.NewRuntimeLogService(runtimeLogCase)
 	projectDocumentService := admin.NewProjectDocumentService(docsRuntime, catalog)
 	services := admin2.Services{
 		Auth:             authService,
@@ -159,6 +166,7 @@ func BuildModules(config *configv1.Bootstrap, databases map[string]*gorm.Client,
 		CodeGenTable:     codeGenTableService,
 		BaseMigration:    baseMigrationService,
 		OpsMonitoring:    opsMonitoringService,
+		RuntimeLog:       runtimeLogService,
 		ProjectDocument:  projectDocumentService,
 	}
 	adminTools, err := ParseAdminAgentTools(services)
@@ -243,6 +251,7 @@ func BuildModules(config *configv1.Bootstrap, databases map[string]*gorm.Client,
 		CodeGenTable:     codeGenTableService,
 		BaseMigration:    baseMigrationService,
 		OpsMonitoring:    opsMonitoringService,
+		RuntimeLog:       runtimeLogService,
 		ProjectDocument:  projectDocumentService,
 	}
 	services2 := &app2.Services{
@@ -288,7 +297,9 @@ func BuildStreams(databases map[string]*gorm.Client, baseCase *biz.BaseCase) (ss
 	baseLogRepository := data2.NewBaseLogRepository(dataData)
 	opsMonitoringCase := biz3.NewOpsMonitoringCase(baseCase, baseLogRepository)
 	opsMonitoring := sse2.NewOpsMonitoring(opsMonitoringCase)
-	streams, cleanup := sse2.NewStreams(sseCodegen, opsMonitoring)
+	hub := logstream.DefaultHub()
+	runtimeConsole := sse2.NewRuntimeConsole(hub)
+	streams, cleanup := sse2.NewStreams(sseCodegen, opsMonitoring, runtimeConsole)
 	return streams, func() {
 		cleanup()
 	}, nil

@@ -13,6 +13,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	biz4 "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	sse2 "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/sse"
 	biz5 "github.com/liujitcn/kratos-admin/backend/internal/biz/system/app"
 	data2 "github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
@@ -325,9 +326,41 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	baseMigrationService := admin.NewBaseMigrationService(baseMigrationCase)
 	opsMonitoringCase := biz4.NewOpsMonitoringCase(baseCase, baseLogRepository)
 	opsMonitoringService := admin.NewOpsMonitoringService(opsMonitoringCase)
+	hub := logstream.DefaultHub()
+	sseRegistry := sse.NewRegistry()
+	streamIDResolver := sse.NewStreamResolver(sseRegistry, authenticator, userToken)
+	sseCodegen := sse2.NewCodegen(manager)
+	opsMonitoring := sse2.NewOpsMonitoring(opsMonitoringCase)
+	runtimeConsole := sse2.NewRuntimeConsole(hub)
+	streams, cleanup5 := sse2.NewStreams(sseCodegen, opsMonitoring, runtimeConsole)
+	sseServer, cleanup6, err := sse.NewServer(ctx, streamIDResolver, streams, sseRegistry)
+	if err != nil {
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	sseSSE, cleanup7 := sse.NewSSE(authenticator, userToken, sseRegistry, sseServer)
+	runtimeLogCase, err := biz4.NewRuntimeLogCase(baseCase, hub, sseSSE)
+	if err != nil {
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	runtimeLogService := admin.NewRuntimeLogService(runtimeLogCase)
 	moduleDocs := module2.NewDocsFromResources(resources)
 	docsRegistry, err := docs.NewRegistry(moduleDocs)
 	if err != nil {
+		cleanup7()
+		cleanup6()
+		cleanup5()
 		cleanup4()
 		cleanup3()
 		cleanup2()
@@ -359,10 +392,14 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		CodeGenTable:     codeGenTableService,
 		BaseMigration:    baseMigrationService,
 		OpsMonitoring:    opsMonitoringService,
+		RuntimeLog:       runtimeLogService,
 		ProjectDocument:  projectDocumentService,
 	}
 	adminTools, err := module.ParseAdminAgentTools(services)
 	if err != nil {
+		cleanup7()
+		cleanup6()
+		cleanup5()
 		cleanup4()
 		cleanup3()
 		cleanup2()
@@ -372,6 +409,9 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	baseUserCase2 := biz5.NewBaseUserCase(baseCase, dataBaseUserRepository)
 	oauthManager, err := module.ParseOAuthManager(configv1Bootstrap)
 	if err != nil {
+		cleanup7()
+		cleanup6()
+		cleanup5()
 		cleanup4()
 		cleanup3()
 		cleanup2()
@@ -395,6 +435,9 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	appTools, err := module.ParseAppAgentTools(appServices)
 	if err != nil {
+		cleanup7()
+		cleanup6()
+		cleanup5()
 		cleanup4()
 		cleanup3()
 		cleanup2()
@@ -418,21 +461,6 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	oauthCase := biz3.NewOauthCase(baseCase, transaction, baseThirdAccountCase, baseUserCase, bizBaseRoleCase, bizBaseDeptCase, loginCase, configCase, oauthManager)
 	oauthService := base.NewOauthService(oauthCase)
 	mcpService := base.NewMcpService(mcpCase)
-	sseRegistry := sse.NewRegistry()
-	streamIDResolver := sse.NewStreamResolver(sseRegistry, authenticator, userToken)
-	sseCodegen := sse2.NewCodegen(manager)
-	opsMonitoring := sse2.NewOpsMonitoring(opsMonitoringCase)
-	streams, cleanup5 := sse2.NewStreams(sseCodegen, opsMonitoring)
-	sseServer, cleanup6, err := sse.NewServer(ctx, streamIDResolver, streams, sseRegistry)
-	if err != nil {
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	sseSSE, cleanup7 := sse.NewSSE(authenticator, userToken, sseRegistry, sseServer)
 	sseCase := biz3.NewSseCase(baseCase, sseSSE)
 	sseService := base.NewSseService(sseCase)
 	baseServices := &base2.Services{
@@ -470,6 +498,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		CodeGenTable:     codeGenTableService,
 		BaseMigration:    baseMigrationService,
 		OpsMonitoring:    opsMonitoringService,
+		RuntimeLog:       runtimeLogService,
 		ProjectDocument:  projectDocumentService,
 	}
 	services2 := &app2.Services{

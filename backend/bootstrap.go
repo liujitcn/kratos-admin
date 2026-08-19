@@ -1,7 +1,11 @@
 package backend
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/google/wire"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	adminModule "github.com/liujitcn/kratos-admin/backend/internal/module"
 	coreBiz "github.com/liujitcn/kratos-core/biz"
 	coreJob "github.com/liujitcn/kratos-core/job"
@@ -66,6 +70,9 @@ func NewModules(
 	catalog *coreI18n.I18n,
 	openAPIRuntime *coreOpenAPI.OpenAPI,
 ) (AdminModules, func(), error) {
+	if runtimeLogErr := logstream.InitializeRuntimeLogging(); runtimeLogErr != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "启动运行日志采集失败: %v\n", runtimeLogErr)
+	}
 	modules, cleanup, err := adminModule.BuildModules(config, databases, baseCase, authorizer, userToken, jobRuntime, sseRuntime, docsRuntime, catalog, openAPIRuntime)
 	return AdminModules(modules), cleanup, err
 }
