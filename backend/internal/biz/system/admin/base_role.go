@@ -3,19 +3,19 @@ package biz
 import (
 	"context"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
-	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
-	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 // BaseRoleCase 角色业务实例
@@ -25,8 +25,8 @@ type BaseRoleCase struct {
 	*data.BaseRoleRepository
 	baseTenantRepo *data.BaseTenantRepository
 	casbinRuleCase *CasbinRuleCase
-	formMapper     *mapper.CopierMapper[systemadminv1.BaseRoleForm, models.BaseRole]
-	mapper         *mapper.CopierMapper[systemadminv1.BaseRole, models.BaseRole]
+	formMapper     *mapper.CopierMapper[adminv1.BaseRoleForm, models.BaseRole]
+	mapper         *mapper.CopierMapper[adminv1.BaseRole, models.BaseRole]
 }
 
 // NewBaseRoleCase 创建角色业务实例
@@ -43,13 +43,13 @@ func NewBaseRoleCase(
 		BaseRoleRepository: baseRoleRepo,
 		baseTenantRepo:     baseTenantRepo,
 		casbinRuleCase:     casbinRuleCase,
-		formMapper:         mapper.NewCopierMapper[systemadminv1.BaseRoleForm, models.BaseRole](),
-		mapper:             mapper.NewCopierMapper[systemadminv1.BaseRole, models.BaseRole](),
+		formMapper:         mapper.NewCopierMapper[adminv1.BaseRoleForm, models.BaseRole](),
+		mapper:             mapper.NewCopierMapper[adminv1.BaseRole, models.BaseRole](),
 	}
 }
 
 // OptionBaseRole 查询角色选项
-func (c *BaseRoleCase) OptionBaseRole(ctx context.Context, req *systemadminv1.OptionBaseRoleRequest) (*commonv1.SelectOptionResponse, error) {
+func (c *BaseRoleCase) OptionBaseRole(ctx context.Context, req *adminv1.OptionBaseRoleRequest) (*commonv1.SelectOptionResponse, error) {
 	query := c.Query(ctx).BaseRole
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
@@ -64,7 +64,7 @@ func (c *BaseRoleCase) OptionBaseRole(ctx context.Context, req *systemadminv1.Op
 	options := make([]*commonv1.SelectOptionResponse_Option, 0, len(list))
 	for _, item := range list {
 		var disabled bool
-		if coreconst.IsDefaultBaseRole(item.Code) {
+		if _const.IsDefaultBaseRole(item.Code) {
 			disabled = true
 		}
 
@@ -78,7 +78,7 @@ func (c *BaseRoleCase) OptionBaseRole(ctx context.Context, req *systemadminv1.Op
 }
 
 // PageBaseRole 分页查询角色
-func (c *BaseRoleCase) PageBaseRole(ctx context.Context, req *systemadminv1.PageBaseRoleRequest) (*systemadminv1.PageBaseRoleResponse, error) {
+func (c *BaseRoleCase) PageBaseRole(ctx context.Context, req *adminv1.PageBaseRoleRequest) (*adminv1.PageBaseRoleResponse, error) {
 	query := c.Query(ctx).BaseRole
 	opts := make([]repository.QueryOption, 0, 6)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
@@ -106,18 +106,18 @@ func (c *BaseRoleCase) PageBaseRole(ctx context.Context, req *systemadminv1.Page
 		return nil, err
 	}
 
-	resList := make([]*systemadminv1.BaseRole, 0, len(list))
+	resList := make([]*adminv1.BaseRole, 0, len(list))
 	for _, item := range list {
 		baseRole := c.mapper.ToDTO(item)
 		baseRole.Menus = _string.ConvertJsonStringToInt64Array(item.Menus)
 		baseRole.IsProtected = isBaseRoleProtected(authInfo, item)
 		resList = append(resList, baseRole)
 	}
-	return &systemadminv1.PageBaseRoleResponse{BaseRoles: resList, Total: int32(total)}, nil
+	return &adminv1.PageBaseRoleResponse{BaseRoles: resList, Total: int32(total)}, nil
 }
 
 // GetBaseRole 获取角色
-func (c *BaseRoleCase) GetBaseRole(ctx context.Context, id int64) (*systemadminv1.BaseRoleForm, error) {
+func (c *BaseRoleCase) GetBaseRole(ctx context.Context, id int64) (*adminv1.BaseRoleForm, error) {
 	baseRole, err := c.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -132,7 +132,7 @@ func (c *BaseRoleCase) GetBaseRole(ctx context.Context, id int64) (*systemadminv
 }
 
 // CreateBaseRole 创建角色
-func (c *BaseRoleCase) CreateBaseRole(ctx context.Context, req *systemadminv1.BaseRoleForm) error {
+func (c *BaseRoleCase) CreateBaseRole(ctx context.Context, req *adminv1.BaseRoleForm) error {
 	baseRole := c.formMapper.ToEntity(req)
 	err := c.validateCreateBaseRole(ctx, baseRole)
 	if err != nil {
@@ -153,7 +153,7 @@ func (c *BaseRoleCase) CreateBaseRole(ctx context.Context, req *systemadminv1.Ba
 			return err
 		}
 		// 创建默认 tenant 模板后，将菜单重新同步到普通租户副本。
-		if baseRole.Code == coreconst.BASE_ROLE_CODE_TENANT {
+		if baseRole.Code == _const.BASE_ROLE_CODE_TENANT {
 			return c.syncTenantRoleMenus(ctx, baseRole)
 		}
 		return c.casbinRuleCase.RebuildCasbinRuleByRole(ctx, baseRole)
@@ -161,7 +161,7 @@ func (c *BaseRoleCase) CreateBaseRole(ctx context.Context, req *systemadminv1.Ba
 }
 
 // UpdateBaseRole 更新角色
-func (c *BaseRoleCase) UpdateBaseRole(ctx context.Context, req *systemadminv1.BaseRoleForm) error {
+func (c *BaseRoleCase) UpdateBaseRole(ctx context.Context, req *adminv1.BaseRoleForm) error {
 	oldBaseRole, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err
@@ -171,13 +171,13 @@ func (c *BaseRoleCase) UpdateBaseRole(ctx context.Context, req *systemadminv1.Ba
 		return err
 	}
 	// tenant 模板允许修改资料，但角色编码必须保持不变。
-	if oldBaseRole.Code == coreconst.BASE_ROLE_CODE_TENANT && req.GetCode() != oldBaseRole.Code {
+	if oldBaseRole.Code == _const.BASE_ROLE_CODE_TENANT && req.GetCode() != oldBaseRole.Code {
 		return errorsx.ProtectedResourceConflict("更新角色失败，不能修改内置角色编码", "base_role")
 	}
-	if oldBaseRole.Code != coreconst.BASE_ROLE_CODE_TENANT && coreconst.IsDefaultBaseRole(req.GetCode()) {
+	if oldBaseRole.Code != _const.BASE_ROLE_CODE_TENANT && _const.IsDefaultBaseRole(req.GetCode()) {
 		return errorsx.ProtectedResourceConflict("更新角色失败，不能使用内置角色编码", "base_role")
 	}
-	if coreconst.IsBaseRoleStatusProtected(oldBaseRole.Code) && req.GetStatus() != 0 && int32(req.GetStatus()) != oldBaseRole.Status {
+	if _const.IsBaseRoleStatusProtected(oldBaseRole.Code) && req.GetStatus() != 0 && int32(req.GetStatus()) != oldBaseRole.Status {
 		return errorsx.ProtectedResourceConflict("更新角色失败，不能修改默认角色状态", "base_role")
 	}
 	err = c.validateAssignableMenus(ctx, oldBaseRole.TenantID, req.GetMenus())
@@ -198,7 +198,7 @@ func (c *BaseRoleCase) UpdateBaseRole(ctx context.Context, req *systemadminv1.Ba
 			return err
 		}
 		// 默认 tenant 模板通过编辑表单保存菜单后，同步所有普通租户副本。
-		if baseRole.Code == coreconst.BASE_ROLE_CODE_TENANT {
+		if baseRole.Code == _const.BASE_ROLE_CODE_TENANT {
 			return c.syncTenantRoleMenus(ctx, baseRole)
 		}
 		return c.casbinRuleCase.RebuildCasbinRuleByRole(ctx, baseRole)
@@ -222,7 +222,7 @@ func (c *BaseRoleCase) DeleteBaseRole(ctx context.Context, id string) error {
 			return errorsx.ResourceNotFound("删除角色失败，角色不存在")
 		}
 		// admin、authuser、user 固定角色与状态保护使用同一保护集合，不允许删除。
-		if coreconst.IsBaseRoleStatusProtected(baseRole.Code) {
+		if _const.IsBaseRoleStatusProtected(baseRole.Code) {
 			return errorsx.ProtectedResourceConflict("删除角色失败，不能删除默认角色", "base_role")
 		}
 		err = c.validateBaseRoleManagementTarget(ctx, baseRole)
@@ -240,12 +240,12 @@ func (c *BaseRoleCase) DeleteBaseRole(ctx context.Context, id string) error {
 }
 
 // SetBaseRoleStatus 设置角色状态
-func (c *BaseRoleCase) SetBaseRoleStatus(ctx context.Context, req *systemadminv1.SetBaseRoleStatusRequest) error {
+func (c *BaseRoleCase) SetBaseRoleStatus(ctx context.Context, req *adminv1.SetBaseRoleStatusRequest) error {
 	baseRole, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err
 	}
-	if coreconst.IsBaseRoleStatusProtected(baseRole.Code) {
+	if _const.IsBaseRoleStatusProtected(baseRole.Code) {
 		return errorsx.ProtectedResourceConflict("操作角色失败，不能修改默认角色状态", "base_role")
 	}
 	err = c.validateBaseRoleManagementTarget(ctx, baseRole)
@@ -259,7 +259,7 @@ func (c *BaseRoleCase) SetBaseRoleStatus(ctx context.Context, req *systemadminv1
 }
 
 // SetBaseRoleMenu 设置角色菜单
-func (c *BaseRoleCase) SetBaseRoleMenu(ctx context.Context, req *systemadminv1.SetBaseRoleMenuRequest) error {
+func (c *BaseRoleCase) SetBaseRoleMenu(ctx context.Context, req *adminv1.SetBaseRoleMenuRequest) error {
 	oldBaseRole, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err
@@ -285,7 +285,7 @@ func (c *BaseRoleCase) SetBaseRoleMenu(ctx context.Context, req *systemadminv1.S
 		}
 		baseRole.Code = oldBaseRole.Code
 		// 默认租户的租户管理员角色是权限模板，变更后同步所有租户副本。
-		if oldBaseRole.Code == coreconst.BASE_ROLE_CODE_TENANT {
+		if oldBaseRole.Code == _const.BASE_ROLE_CODE_TENANT {
 			return c.syncTenantRoleMenus(ctx, baseRole)
 		}
 		return c.casbinRuleCase.RebuildCasbinRuleByRole(ctx, baseRole)
@@ -295,10 +295,10 @@ func (c *BaseRoleCase) SetBaseRoleMenu(ctx context.Context, req *systemadminv1.S
 // validateBaseRoleManagementTarget 校验当前登录租户是否允许操作目标角色。
 func (c *BaseRoleCase) validateBaseRoleManagementTarget(ctx context.Context, baseRole *models.BaseRole) error {
 	// super 始终由系统维护，任何租户都不能通过角色管理操作。
-	if baseRole.Code == coreconst.BASE_ROLE_CODE_SUPER {
+	if baseRole.Code == _const.BASE_ROLE_CODE_SUPER {
 		return errorsx.ProtectedResourceConflict("操作角色失败，不能操作内置角色", "base_role")
 	}
-	if baseRole.Code != coreconst.BASE_ROLE_CODE_TENANT {
+	if baseRole.Code != _const.BASE_ROLE_CODE_TENANT {
 		return nil
 	}
 	authInfo, err := c.GetAuthInfo(ctx)
@@ -314,11 +314,11 @@ func (c *BaseRoleCase) validateBaseRoleManagementTarget(ctx context.Context, bas
 
 // validateCreateBaseRole 校验当前登录租户是否允许创建目标角色编码。
 func (c *BaseRoleCase) validateCreateBaseRole(ctx context.Context, baseRole *models.BaseRole) error {
-	if !coreconst.IsDefaultBaseRole(baseRole.Code) {
+	if !_const.IsDefaultBaseRole(baseRole.Code) {
 		return nil
 	}
 	// super 始终由系统初始化维护，不允许通过角色管理创建。
-	if baseRole.Code == coreconst.BASE_ROLE_CODE_SUPER {
+	if baseRole.Code == _const.BASE_ROLE_CODE_SUPER {
 		return errorsx.ProtectedResourceConflict("创建角色失败，不能使用内置角色编码", "base_role")
 	}
 	authInfo, err := c.GetAuthInfo(ctx)
@@ -326,7 +326,7 @@ func (c *BaseRoleCase) validateCreateBaseRole(ctx context.Context, baseRole *mod
 		return err
 	}
 	// tenant 模板只允许默认租户在自己的租户范围内创建。
-	if authInfo.TenantCode != databaseGorm.DefaultTenantCode || baseRole.TenantID != authInfo.TenantId {
+	if authInfo.TenantCode != gorm.DefaultTenantCode || baseRole.TenantID != authInfo.TenantId {
 		return errorsx.ProtectedResourceConflict("创建角色失败，不能使用内置角色编码", "base_role")
 	}
 	return nil
@@ -341,18 +341,18 @@ func (c *BaseRoleCase) validateAssignableMenus(ctx context.Context, targetTenant
 
 	var allowedBaseRole *models.BaseRole
 	// 默认租户为普通租户维护角色时，以目标租户内置管理员角色作为权限上限。
-	if authInfo.TenantCode == databaseGorm.DefaultTenantCode && targetTenantID > 0 && targetTenantID != authInfo.TenantId {
+	if authInfo.TenantCode == gorm.DefaultTenantCode && targetTenantID > 0 && targetTenantID != authInfo.TenantId {
 		query := c.Query(ctx).BaseRole
 		opts := make([]repository.QueryOption, 0, 2)
 		opts = append(opts, repository.Where(query.TenantID.Eq(targetTenantID)))
-		opts = append(opts, repository.Where(query.Code.Eq(coreconst.BASE_ROLE_CODE_TENANT)))
+		opts = append(opts, repository.Where(query.Code.Eq(_const.BASE_ROLE_CODE_TENANT)))
 		allowedBaseRole, err = c.Find(ctx, opts...)
 		if err != nil {
 			return errorsx.Internal("查询租户最大权限失败").WithCause(err)
 		}
 	} else {
 		// 超级管理员维护默认租户角色时拥有完整菜单分配权限。
-		if authInfo.RoleCode == coreconst.BASE_ROLE_CODE_SUPER {
+		if authInfo.RoleCode == _const.BASE_ROLE_CODE_SUPER {
 			return nil
 		}
 		allowedBaseRole, err = c.FindByID(ctx, authInfo.RoleId)
@@ -361,7 +361,7 @@ func (c *BaseRoleCase) validateAssignableMenus(ctx context.Context, targetTenant
 		}
 	}
 	// 权限上限角色已停用时，不允许继续分配其他角色权限。
-	if allowedBaseRole.Status != coreconst.STATUS_STATUS_ENABLE {
+	if allowedBaseRole.Status != _const.STATUS_STATUS_ENABLE {
 		return errorsx.PermissionDenied("角色已被禁用")
 	}
 
@@ -383,7 +383,7 @@ func (c *BaseRoleCase) validateAssignableMenus(ctx context.Context, targetTenant
 func (c *BaseRoleCase) syncTenantRoleMenus(ctx context.Context, templateRole *models.BaseRole) error {
 	query := c.Query(ctx).BaseRole
 	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.Code.Eq(coreconst.BASE_ROLE_CODE_TENANT)))
+	opts = append(opts, repository.Where(query.Code.Eq(_const.BASE_ROLE_CODE_TENANT)))
 	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return err
@@ -411,9 +411,9 @@ func (c *BaseRoleCase) syncTenantRoleMenus(ctx context.Context, templateRole *mo
 
 // isBaseRoleProtected 判断目标角色是否禁止当前账号通过角色管理操作。
 func isBaseRoleProtected(authInfo *authData.UserTokenPayload, baseRole *models.BaseRole) bool {
-	if baseRole.Code == coreconst.BASE_ROLE_CODE_SUPER {
+	if baseRole.Code == _const.BASE_ROLE_CODE_SUPER {
 		return true
 	}
-	return baseRole.Code == coreconst.BASE_ROLE_CODE_TENANT &&
-		(authInfo == nil || authInfo.TenantCode != databaseGorm.DefaultTenantCode || baseRole.TenantID != authInfo.TenantId)
+	return baseRole.Code == _const.BASE_ROLE_CODE_TENANT &&
+		(authInfo == nil || authInfo.TenantCode != gorm.DefaultTenantCode || baseRole.TenantID != authInfo.TenantId)
 }

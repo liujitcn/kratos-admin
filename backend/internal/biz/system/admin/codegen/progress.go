@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -32,8 +32,8 @@ type Manager struct {
 
 // taskEntry 保存任务所属用户和任务快照。
 type taskEntry struct {
-	ownerID int64                      // 任务创建用户 ID
-	task    *systemadminv1.CodeGenTask // 当前任务快照
+	ownerID int64                // 任务创建用户 ID
+	task    *adminv1.CodeGenTask // 当前任务快照
 }
 
 // NewManager 创建代码生成任务进度管理器。
@@ -56,11 +56,11 @@ func StreamID(taskID string) string {
 }
 
 // Create 创建等待执行的代码生成任务，同一用户同时只允许一个活跃任务。
-func (m *Manager) Create(ownerID int64, tables []*systemadminv1.CodeGenTaskTable) (*systemadminv1.CodeGenTask, bool) {
+func (m *Manager) Create(ownerID int64, tables []*adminv1.CodeGenTaskTable) (*adminv1.CodeGenTask, bool) {
 	taskID := uuid.NewString()
-	task := &systemadminv1.CodeGenTask{
+	task := &adminv1.CodeGenTask{
 		TaskId:    taskID,
-		Status:    systemadminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_PENDING,
+		Status:    adminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_PENDING,
 		Message:   "等待执行",
 		Tables:    tables,
 		CreatedAt: time.Now().Format(time.RFC3339),
@@ -80,7 +80,7 @@ func (m *Manager) Create(ownerID int64, tables []*systemadminv1.CodeGenTaskTable
 }
 
 // Snapshot 查询指定用户可访问的任务快照。
-func (m *Manager) Snapshot(taskID string, ownerID int64) (*systemadminv1.CodeGenTask, bool) {
+func (m *Manager) Snapshot(taskID string, ownerID int64) (*adminv1.CodeGenTask, bool) {
 	m.mu.RLock()
 	entry, ok := m.tasks[taskID]
 	if ok && entry.ownerID == ownerID {
@@ -104,15 +104,15 @@ func (m *Manager) IsOwner(taskID string, ownerID int64) bool {
 
 // MarkTaskRunning 标记任务开始执行。
 func (m *Manager) MarkTaskRunning(ctx context.Context, taskID string) {
-	m.update(ctx, taskID, func(task *systemadminv1.CodeGenTask) {
-		task.Status = systemadminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_RUNNING
+	m.update(ctx, taskID, func(task *adminv1.CodeGenTask) {
+		task.Status = adminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_RUNNING
 		task.Message = "正在生成代码"
 	})
 }
 
 // MarkTaskCompleted 标记任务执行结束，并在保留期后释放内存快照。
-func (m *Manager) MarkTaskCompleted(ctx context.Context, taskID string, status systemadminv1.CodeGenTaskStatus, message string) {
-	m.update(ctx, taskID, func(task *systemadminv1.CodeGenTask) {
+func (m *Manager) MarkTaskCompleted(ctx context.Context, taskID string, status adminv1.CodeGenTaskStatus, message string) {
+	m.update(ctx, taskID, func(task *adminv1.CodeGenTask) {
 		task.Status = status
 		task.Message = message
 		task.CurrentTableName = ""
@@ -128,32 +128,32 @@ func (m *Manager) MarkTaskCompleted(ctx context.Context, taskID string, status s
 
 // MarkTableRunning 标记单个生成对象开始执行。
 func (m *Manager) MarkTableRunning(ctx context.Context, taskID string, tableID int64) {
-	m.update(ctx, taskID, func(task *systemadminv1.CodeGenTask) {
+	m.update(ctx, taskID, func(task *adminv1.CodeGenTask) {
 		table := findTaskTable(task, tableID)
 		if table == nil {
 			return
 		}
-		table.Status = systemadminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_RUNNING
+		table.Status = adminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_RUNNING
 		table.Message = "正在生成"
 		task.CurrentTableName = table.TableName
 	})
 }
 
 // MarkTableCompleted 标记单个生成对象执行结束。
-func (m *Manager) MarkTableCompleted(ctx context.Context, taskID string, tableID int64, status systemadminv1.CodeGenTaskStatus, message string) {
-	m.update(ctx, taskID, func(task *systemadminv1.CodeGenTask) {
+func (m *Manager) MarkTableCompleted(ctx context.Context, taskID string, tableID int64, status adminv1.CodeGenTaskStatus, message string) {
+	m.update(ctx, taskID, func(task *adminv1.CodeGenTask) {
 		table := findTaskTable(task, tableID)
 		if table == nil {
 			return
 		}
 		table.Status = status
 		table.Message = message
-		if status == systemadminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_FAILED {
+		if status == adminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_FAILED {
 			for _, step := range table.Steps {
 				if isTerminalStepStatus(step.Status) {
 					continue
 				}
-				step.Status = systemadminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_SKIPPED
+				step.Status = adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_SKIPPED
 				step.Message = "生成失败，未继续执行"
 			}
 		}
@@ -161,8 +161,8 @@ func (m *Manager) MarkTableCompleted(ctx context.Context, taskID string, tableID
 }
 
 // RegisterSteps 登记单个生成对象的全部执行步骤。
-func (m *Manager) RegisterSteps(ctx context.Context, taskID string, tableID int64, steps []*systemadminv1.CodeGenTaskStep) {
-	m.update(ctx, taskID, func(task *systemadminv1.CodeGenTask) {
+func (m *Manager) RegisterSteps(ctx context.Context, taskID string, tableID int64, steps []*adminv1.CodeGenTaskStep) {
+	m.update(ctx, taskID, func(task *adminv1.CodeGenTask) {
 		table := findTaskTable(task, tableID)
 		if table == nil {
 			return
@@ -177,11 +177,11 @@ func (m *Manager) UpdateStep(
 	taskID string,
 	tableID int64,
 	stepID string,
-	status systemadminv1.CodeGenTaskStepStatus,
+	status adminv1.CodeGenTaskStepStatus,
 	message string,
 	output string,
 ) {
-	m.update(ctx, taskID, func(task *systemadminv1.CodeGenTask) {
+	m.update(ctx, taskID, func(task *adminv1.CodeGenTask) {
 		table := findTaskTable(task, tableID)
 		if table == nil {
 			return
@@ -199,7 +199,7 @@ func (m *Manager) UpdateStep(
 }
 
 // update 修改任务快照，并在解锁后发布不可变副本。
-func (m *Manager) update(ctx context.Context, taskID string, update func(*systemadminv1.CodeGenTask)) {
+func (m *Manager) update(ctx context.Context, taskID string, update func(*adminv1.CodeGenTask)) {
 	m.mu.Lock()
 	entry := m.tasks[taskID]
 	if entry == nil {
@@ -220,7 +220,7 @@ func (m *Manager) update(ctx context.Context, taskID string, update func(*system
 }
 
 // recalculateProgress 重算单表和整批任务的完成步骤数。
-func recalculateProgress(task *systemadminv1.CodeGenTask) {
+func recalculateProgress(task *adminv1.CodeGenTask) {
 	task.TotalSteps = 0
 	task.CompletedSteps = 0
 	for _, table := range task.Tables {
@@ -238,20 +238,20 @@ func recalculateProgress(task *systemadminv1.CodeGenTask) {
 }
 
 // isTerminalStepStatus 判断步骤是否已经结束。
-func isTerminalStepStatus(status systemadminv1.CodeGenTaskStepStatus) bool {
-	return status == systemadminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_SUCCEEDED ||
-		status == systemadminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_FAILED ||
-		status == systemadminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_SKIPPED
+func isTerminalStepStatus(status adminv1.CodeGenTaskStepStatus) bool {
+	return status == adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_SUCCEEDED ||
+		status == adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_FAILED ||
+		status == adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_SKIPPED
 }
 
 // isTerminalTaskStatus 判断任务是否已经结束。
-func isTerminalTaskStatus(status systemadminv1.CodeGenTaskStatus) bool {
-	return status == systemadminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_SUCCEEDED ||
-		status == systemadminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_FAILED
+func isTerminalTaskStatus(status adminv1.CodeGenTaskStatus) bool {
+	return status == adminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_SUCCEEDED ||
+		status == adminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_FAILED
 }
 
 // findTaskTable 按生成对象 ID 查询任务明细。
-func findTaskTable(task *systemadminv1.CodeGenTask, tableID int64) *systemadminv1.CodeGenTaskTable {
+func findTaskTable(task *adminv1.CodeGenTask, tableID int64) *adminv1.CodeGenTaskTable {
 	for _, table := range task.Tables {
 		if table.TableId == tableID {
 			return table
@@ -261,6 +261,6 @@ func findTaskTable(task *systemadminv1.CodeGenTask, tableID int64) *systemadminv
 }
 
 // cloneTask 复制任务快照，避免调用方与管理器共享可变对象。
-func cloneTask(task *systemadminv1.CodeGenTask) *systemadminv1.CodeGenTask {
-	return proto.Clone(task).(*systemadminv1.CodeGenTask)
+func cloneTask(task *adminv1.CodeGenTask) *adminv1.CodeGenTask {
+	return proto.Clone(task).(*adminv1.CodeGenTask)
 }

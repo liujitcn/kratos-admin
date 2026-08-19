@@ -4,13 +4,13 @@ import (
 	"context"
 	"strings"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
-	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/liujitcn/go-utils/mapper"
@@ -25,8 +25,8 @@ type BaseLanguageCase struct {
 	*biz.BaseCase
 	*data.BaseLanguageRepository
 	tx         data.Transaction
-	formMapper *mapper.CopierMapper[systemadminv1.BaseLanguageForm, models.BaseLanguage]
-	mapper     *mapper.CopierMapper[systemadminv1.BaseLanguage, models.BaseLanguage]
+	formMapper *mapper.CopierMapper[adminv1.BaseLanguageForm, models.BaseLanguage]
+	mapper     *mapper.CopierMapper[adminv1.BaseLanguage, models.BaseLanguage]
 }
 
 // NewBaseLanguageCase 创建语言管理业务实例。
@@ -35,32 +35,32 @@ func NewBaseLanguageCase(baseCase *biz.BaseCase, tx data.Transaction, baseLangua
 		BaseCase:               baseCase,
 		BaseLanguageRepository: baseLanguageRepo,
 		tx:                     tx,
-		formMapper:             mapper.NewCopierMapper[systemadminv1.BaseLanguageForm, models.BaseLanguage](),
-		mapper:                 mapper.NewCopierMapper[systemadminv1.BaseLanguage, models.BaseLanguage](),
+		formMapper:             mapper.NewCopierMapper[adminv1.BaseLanguageForm, models.BaseLanguage](),
+		mapper:                 mapper.NewCopierMapper[adminv1.BaseLanguage, models.BaseLanguage](),
 	}
 }
 
 // OptionBaseLanguage 查询语言选项。
-func (c *BaseLanguageCase) OptionBaseLanguage(ctx context.Context, req *systemadminv1.OptionBaseLanguageRequest) (*systemadminv1.OptionBaseLanguageResponse, error) {
+func (c *BaseLanguageCase) OptionBaseLanguage(ctx context.Context, req *adminv1.OptionBaseLanguageRequest) (*adminv1.OptionBaseLanguageResponse, error) {
 	query := c.Query(ctx).BaseLanguage
 	opts := make([]repository.QueryOption, 0, 2)
 	if req.GetEnabledOnly() {
-		opts = append(opts, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
+		opts = append(opts, repository.Where(query.Status.Eq(_const.STATUS_STATUS_ENABLE)))
 	}
 	opts = append(opts, repository.Order(query.Sort.Asc()), repository.Order(query.ID.Asc()))
 	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
-	items := make([]*systemadminv1.BaseLanguage, 0, len(list))
+	items := make([]*adminv1.BaseLanguage, 0, len(list))
 	for _, item := range list {
 		items = append(items, c.mapper.ToDTO(item))
 	}
-	return &systemadminv1.OptionBaseLanguageResponse{BaseLanguages: items}, nil
+	return &adminv1.OptionBaseLanguageResponse{BaseLanguages: items}, nil
 }
 
 // PageBaseLanguage 分页查询语言列表。
-func (c *BaseLanguageCase) PageBaseLanguage(ctx context.Context, req *systemadminv1.PageBaseLanguageRequest) (*systemadminv1.PageBaseLanguageResponse, error) {
+func (c *BaseLanguageCase) PageBaseLanguage(ctx context.Context, req *adminv1.PageBaseLanguageRequest) (*adminv1.PageBaseLanguageResponse, error) {
 	query := c.Query(ctx).BaseLanguage
 	opts := make([]repository.QueryOption, 0, 5)
 	opts = append(opts, repository.Order(query.Sort.Asc()), repository.Order(query.ID.Asc()))
@@ -77,15 +77,15 @@ func (c *BaseLanguageCase) PageBaseLanguage(ctx context.Context, req *systemadmi
 	if err != nil {
 		return nil, err
 	}
-	items := make([]*systemadminv1.BaseLanguage, 0, len(list))
+	items := make([]*adminv1.BaseLanguage, 0, len(list))
 	for _, item := range list {
 		items = append(items, c.mapper.ToDTO(item))
 	}
-	return &systemadminv1.PageBaseLanguageResponse{BaseLanguages: items, Total: int32(total)}, nil
+	return &adminv1.PageBaseLanguageResponse{BaseLanguages: items, Total: int32(total)}, nil
 }
 
 // GetBaseLanguage 查询语言详情。
-func (c *BaseLanguageCase) GetBaseLanguage(ctx context.Context, id int64) (*systemadminv1.BaseLanguageForm, error) {
+func (c *BaseLanguageCase) GetBaseLanguage(ctx context.Context, id int64) (*adminv1.BaseLanguageForm, error) {
 	item, err := c.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -94,7 +94,7 @@ func (c *BaseLanguageCase) GetBaseLanguage(ctx context.Context, id int64) (*syst
 }
 
 // CreateBaseLanguage 创建语言。
-func (c *BaseLanguageCase) CreateBaseLanguage(ctx context.Context, req *systemadminv1.BaseLanguageForm) error {
+func (c *BaseLanguageCase) CreateBaseLanguage(ctx context.Context, req *adminv1.BaseLanguageForm) error {
 	item := c.formMapper.ToEntity(req)
 	if _, err := language.Parse(item.LanguageCode); err != nil {
 		return errorsx.InvalidArgument("语言代码必须是有效的语言代码").WithCause(err)
@@ -110,7 +110,7 @@ func (c *BaseLanguageCase) CreateBaseLanguage(ctx context.Context, req *systemad
 }
 
 // UpdateBaseLanguage 更新语言。
-func (c *BaseLanguageCase) UpdateBaseLanguage(ctx context.Context, req *systemadminv1.BaseLanguageForm) error {
+func (c *BaseLanguageCase) UpdateBaseLanguage(ctx context.Context, req *adminv1.BaseLanguageForm) error {
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
 		current, err := c.findBaseLanguageForUpdate(ctx, req.GetId())
 		if err != nil {
@@ -160,7 +160,7 @@ func (c *BaseLanguageCase) DeleteBaseLanguage(ctx context.Context, ids string) e
 }
 
 // SetBaseLanguageStatus 设置语言启用状态。
-func (c *BaseLanguageCase) SetBaseLanguageStatus(ctx context.Context, req *systemadminv1.SetBaseLanguageStatusRequest) error {
+func (c *BaseLanguageCase) SetBaseLanguageStatus(ctx context.Context, req *adminv1.SetBaseLanguageStatusRequest) error {
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
 		item, err := c.findBaseLanguageForUpdate(ctx, req.GetId())
 		if err != nil {
@@ -174,7 +174,7 @@ func (c *BaseLanguageCase) SetBaseLanguageStatus(ctx context.Context, req *syste
 }
 
 // SetBaseLanguagePrimary 设置主语言并清除其他主语言标记。
-func (c *BaseLanguageCase) SetBaseLanguagePrimary(ctx context.Context, req *systemadminv1.SetBaseLanguagePrimaryRequest) error {
+func (c *BaseLanguageCase) SetBaseLanguagePrimary(ctx context.Context, req *adminv1.SetBaseLanguagePrimaryRequest) error {
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
 		var err error
 		err = c.clearPrimaryLanguage(ctx, req.GetId())
@@ -186,7 +186,7 @@ func (c *BaseLanguageCase) SetBaseLanguagePrimary(ctx context.Context, req *syst
 		if err != nil {
 			return err
 		}
-		if item.Status != coreconst.STATUS_STATUS_ENABLE {
+		if item.Status != _const.STATUS_STATUS_ENABLE {
 			return errorsx.ProtectedResourceConflict("禁用语言不能设为主语言", "base_language")
 		}
 		if item.IsPrimary {
@@ -200,7 +200,7 @@ func (c *BaseLanguageCase) SetBaseLanguagePrimary(ctx context.Context, req *syst
 func (c *BaseLanguageCase) LocaleState(ctx context.Context) (*dto.LocaleState, error) {
 	query := c.Query(ctx).BaseLanguage
 	opts := []repository.QueryOption{
-		repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)),
+		repository.Where(query.Status.Eq(_const.STATUS_STATUS_ENABLE)),
 		repository.Order(query.Sort.Asc()),
 		repository.Order(query.ID.Asc()),
 	}
@@ -231,7 +231,7 @@ func (c *BaseLanguageCase) LocaleState(ctx context.Context) (*dto.LocaleState, e
 func (c *BaseLanguageCase) ResolveLocale(ctx context.Context, acceptLanguage string) (string, string, error) {
 	query := c.Query(ctx).BaseLanguage
 	opts := []repository.QueryOption{
-		repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)),
+		repository.Where(query.Status.Eq(_const.STATUS_STATUS_ENABLE)),
 		repository.Order(query.Sort.Asc()),
 		repository.Order(query.ID.Asc()),
 	}

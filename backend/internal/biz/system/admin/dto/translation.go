@@ -1,6 +1,6 @@
 package dto
 
-import systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+import "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 
 // TranslationKey 标识一个资源的单语言翻译记录。
 type TranslationKey struct {
@@ -10,7 +10,7 @@ type TranslationKey struct {
 
 // TranslationDraftSource 描述草稿操作从服务端读取的受控源文。
 type TranslationDraftSource struct {
-	TargetType systemadminv1.TranslationTargetType
+	TargetType adminv1.TranslationTargetType
 	TargetID   int64
 	Text       string
 }

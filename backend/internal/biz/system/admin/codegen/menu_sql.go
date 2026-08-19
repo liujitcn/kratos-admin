@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 )
 
@@ -101,22 +101,22 @@ func writeMenuTranslationSQL(builder *strings.Builder, menuIDExpression string, 
 }
 
 // newGeneratedMenuSQLPreviewFile 创建新版本迁移 SQL 的菜单权限预览文件。
-func (c *renderer) newGeneratedMenuSQLPreviewFile(table *Table, content string) *systemadminv1.CodeGenPreviewFile {
+func (c *renderer) newGeneratedMenuSQLPreviewFile(table *Table, content string) *adminv1.CodeGenPreviewFile {
 	path, err := nextGeneratedMenuSQLPath(c.migrationVersion)
 	if err != nil {
-		return &systemadminv1.CodeGenPreviewFile{Action: "skip", Content: content, Message: err.Error()}
+		return &adminv1.CodeGenPreviewFile{Action: "skip", Content: content, Message: err.Error()}
 	}
 	_, err = SafeRepoFilePath(path)
 	if err != nil {
-		return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: content, Message: err.Error()}
+		return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: content, Message: err.Error()}
 	}
 	var current []byte
 	current, err = c.readRepoFile(path)
 	if err != nil {
 		if !os.IsNotExist(err) {
-			return &systemadminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: content, Message: err.Error()}
+			return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: content, Message: err.Error()}
 		}
-		return &systemadminv1.CodeGenPreviewFile{
+		return &adminv1.CodeGenPreviewFile{
 			Path:    path,
 			Action:  "create",
 			Content: generatedMenuSQLBlock(table, content) + "\n",
@@ -126,7 +126,7 @@ func (c *renderer) newGeneratedMenuSQLPreviewFile(table *Table, content string) 
 	var merged string
 	merged, err = mergeGeneratedMenuSQLAtPath(string(current), table, content, path)
 	if err != nil {
-		return &systemadminv1.CodeGenPreviewFile{
+		return &adminv1.CodeGenPreviewFile{
 			Path:    path,
 			Action:  "skip",
 			Content: string(current),
@@ -135,7 +135,7 @@ func (c *renderer) newGeneratedMenuSQLPreviewFile(table *Table, content string) 
 		}
 	}
 	if string(current) == merged {
-		return &systemadminv1.CodeGenPreviewFile{
+		return &adminv1.CodeGenPreviewFile{
 			Path:    path,
 			Action:  "skip",
 			Content: merged,
@@ -143,7 +143,7 @@ func (c *renderer) newGeneratedMenuSQLPreviewFile(table *Table, content string) 
 			Message: fmt.Sprintf("%s 中的菜单和按钮权限 SQL 无需更新", path),
 		}
 	}
-	return &systemadminv1.CodeGenPreviewFile{
+	return &adminv1.CodeGenPreviewFile{
 		Path:    path,
 		Action:  "update",
 		Content: merged,

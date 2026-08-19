@@ -8,7 +8,7 @@ import (
 	"slices"
 	"strings"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/liujitcn/go-utils/stringcase"
@@ -254,7 +254,7 @@ func (c *renderer) renderExternalTargetFrontendAPIMethods(table *Table, methods 
 }
 
 // renderFrontendPageFile 渲染前端页面内容。
-func (c *renderer) renderFrontendPageFile(table *Table, columns []*CodeGenColumn, methods []*Proto, paths *systemadminv1.CodeGenOutputPaths) string {
+func (c *renderer) renderFrontendPageFile(table *Table, columns []*CodeGenColumn, methods []*Proto, paths *adminv1.CodeGenOutputPaths) string {
 	// 页面中的查询、列表与表单共用字段排序，Proto 仍使用调用方保留的数据库字段顺序。
 	columns = slices.Clone(columns)
 	slices.SortStableFunc(columns, func(left *CodeGenColumn, right *CodeGenColumn) int {
@@ -1550,7 +1550,7 @@ func findTSFunctionEndIndex(content string, functionStart int) int {
 }
 
 // validateCodeGenOutputPathLayout 校验输出路径仍位于生成代码可编译和可加载的目录中。
-func validateCodeGenOutputPathLayout(target ProtoTarget, paths *systemadminv1.CodeGenOutputPaths) error {
+func validateCodeGenOutputPathLayout(target ProtoTarget, paths *adminv1.CodeGenOutputPaths) error {
 	protoDirectory := filepath.ToSlash(filepath.Join(ProtoRootPath, target.Directory))
 	if filepath.Dir(paths.GetProtoFilePath()) != protoDirectory || filepath.Ext(paths.GetProtoFilePath()) != ".proto" {
 		return errorsx.InvalidArgument("Proto文件必须位于所选Proto目录且使用.proto扩展名")

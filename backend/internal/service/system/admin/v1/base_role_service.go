@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -15,7 +15,7 @@ import (
 
 // BaseRoleService Admin角色管理服务
 type BaseRoleService struct {
-	systemadminv1.UnimplementedBaseRoleServiceServer
+	adminv1.UnimplementedBaseRoleServiceServer
 	baseRoleCase *biz.BaseRoleCase
 }
 
@@ -29,7 +29,7 @@ func NewBaseRoleService(
 }
 
 // OptionBaseRole 查询角色下拉选择
-func (s *BaseRoleService) OptionBaseRole(ctx context.Context, req *systemadminv1.OptionBaseRoleRequest) (*commonv1.SelectOptionResponse, error) {
+func (s *BaseRoleService) OptionBaseRole(ctx context.Context, req *adminv1.OptionBaseRoleRequest) (*commonv1.SelectOptionResponse, error) {
 	list, err := s.baseRoleCase.OptionBaseRole(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("OptionBaseRole %v", err))
@@ -39,7 +39,7 @@ func (s *BaseRoleService) OptionBaseRole(ctx context.Context, req *systemadminv1
 }
 
 // PageBaseRole 查询角色分页列表
-func (s *BaseRoleService) PageBaseRole(ctx context.Context, req *systemadminv1.PageBaseRoleRequest) (*systemadminv1.PageBaseRoleResponse, error) {
+func (s *BaseRoleService) PageBaseRole(ctx context.Context, req *adminv1.PageBaseRoleRequest) (*adminv1.PageBaseRoleResponse, error) {
 	page, err := s.baseRoleCase.PageBaseRole(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("PageBaseRole %v", err))
@@ -49,7 +49,7 @@ func (s *BaseRoleService) PageBaseRole(ctx context.Context, req *systemadminv1.P
 }
 
 // GetBaseRole 查询角色
-func (s *BaseRoleService) GetBaseRole(ctx context.Context, req *systemadminv1.GetBaseRoleRequest) (*systemadminv1.BaseRoleForm, error) {
+func (s *BaseRoleService) GetBaseRole(ctx context.Context, req *adminv1.GetBaseRoleRequest) (*adminv1.BaseRoleForm, error) {
 	baseRole, err := s.baseRoleCase.GetBaseRole(ctx, req.GetId())
 	if err != nil {
 		log.Error(fmt.Sprintf("GetBaseRole %v", err))
@@ -59,7 +59,7 @@ func (s *BaseRoleService) GetBaseRole(ctx context.Context, req *systemadminv1.Ge
 }
 
 // CreateBaseRole 创建角色
-func (s *BaseRoleService) CreateBaseRole(ctx context.Context, req *systemadminv1.CreateBaseRoleRequest) (*emptypb.Empty, error) {
+func (s *BaseRoleService) CreateBaseRole(ctx context.Context, req *adminv1.CreateBaseRoleRequest) (*emptypb.Empty, error) {
 	err := s.baseRoleCase.CreateBaseRole(ctx, req.GetBaseRole())
 	if err != nil {
 		log.Error(fmt.Sprintf("CreateBaseRole %v", err))
@@ -69,7 +69,7 @@ func (s *BaseRoleService) CreateBaseRole(ctx context.Context, req *systemadminv1
 }
 
 // UpdateBaseRole 更新角色
-func (s *BaseRoleService) UpdateBaseRole(ctx context.Context, req *systemadminv1.UpdateBaseRoleRequest) (*emptypb.Empty, error) {
+func (s *BaseRoleService) UpdateBaseRole(ctx context.Context, req *adminv1.UpdateBaseRoleRequest) (*emptypb.Empty, error) {
 	err := s.baseRoleCase.UpdateBaseRole(ctx, req.GetBaseRole())
 	if err != nil {
 		log.Error(fmt.Sprintf("UpdateBaseRole %v", err))
@@ -79,7 +79,7 @@ func (s *BaseRoleService) UpdateBaseRole(ctx context.Context, req *systemadminv1
 }
 
 // DeleteBaseRole 删除角色
-func (s *BaseRoleService) DeleteBaseRole(ctx context.Context, req *systemadminv1.DeleteBaseRoleRequest) (*emptypb.Empty, error) {
+func (s *BaseRoleService) DeleteBaseRole(ctx context.Context, req *adminv1.DeleteBaseRoleRequest) (*emptypb.Empty, error) {
 	err := s.baseRoleCase.DeleteBaseRole(ctx, req.GetId())
 	if err != nil {
 		log.Error(fmt.Sprintf("DeleteBaseRole %v", err))
@@ -89,7 +89,7 @@ func (s *BaseRoleService) DeleteBaseRole(ctx context.Context, req *systemadminv1
 }
 
 // SetBaseRoleStatus 设置状态
-func (s *BaseRoleService) SetBaseRoleStatus(ctx context.Context, req *systemadminv1.SetBaseRoleStatusRequest) (*emptypb.Empty, error) {
+func (s *BaseRoleService) SetBaseRoleStatus(ctx context.Context, req *adminv1.SetBaseRoleStatusRequest) (*emptypb.Empty, error) {
 	err := s.baseRoleCase.SetBaseRoleStatus(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("SetBaseRoleStatus %v", err))
@@ -99,7 +99,7 @@ func (s *BaseRoleService) SetBaseRoleStatus(ctx context.Context, req *systemadmi
 }
 
 // SetBaseRoleMenu 设置角色菜单权限
-func (s *BaseRoleService) SetBaseRoleMenu(ctx context.Context, req *systemadminv1.SetBaseRoleMenuRequest) (*emptypb.Empty, error) {
+func (s *BaseRoleService) SetBaseRoleMenu(ctx context.Context, req *adminv1.SetBaseRoleMenuRequest) (*emptypb.Empty, error) {
 	err := s.baseRoleCase.SetBaseRoleMenu(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("SetBaseRoleMenu %v", err))

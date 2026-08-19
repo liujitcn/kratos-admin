@@ -6,7 +6,7 @@ import (
 	"mime"
 	"strings"
 
-	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 )
 
 // attachmentPayload 表示附件 JSON 落库结构。

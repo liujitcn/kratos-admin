@@ -8,7 +8,7 @@ import (
 	componentsTool "github.com/cloudwego/eino/components/tool"
 	"github.com/cloudwego/eino/schema"
 
-	einoMiddleware "github.com/liujitcn/kratos-admin/backend/internal/biz/agent/middleware"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/middleware"
 )
 
 // Option 表示 Eino 工具调用选项。
@@ -179,7 +179,7 @@ func WithCatalogName(name string) CallOption {
 
 // MarshalError 将工具错误转换成稳定 JSON 文本。
 func MarshalError(message string) string {
-	return einoMiddleware.MarshalToolError(message)
+	return middleware.MarshalToolError(message)
 }
 
 // CallOption 表示工具调用执行配置。
@@ -191,7 +191,7 @@ type callConfig struct {
 
 // DisabledMessage 返回 Agent 工具禁用提示。
 func DisabledMessage(name string) string {
-	return einoMiddleware.DisabledToolMessage(name)
+	return middleware.DisabledToolMessage(name)
 }
 
 // Info 返回工具目录查询工具定义。

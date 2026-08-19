@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	adminBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
 	sseTransport "github.com/liujitcn/kratos-kit/transport/sse"
 )
@@ -23,14 +23,14 @@ const (
 
 // OpsMonitoring 描述运维监控的 SSE 流及其实时发布循环。
 type OpsMonitoring struct {
-	monitoring *adminBiz.OpsMonitoringCase
+	monitoring *biz.OpsMonitoringCase
 	publisher  codegen.Publisher
 	mu         sync.Mutex
 	cancel     context.CancelFunc
 }
 
 // NewOpsMonitoring 创建运维监控 SSE 流。
-func NewOpsMonitoring(monitoring *adminBiz.OpsMonitoringCase) *OpsMonitoring {
+func NewOpsMonitoring(monitoring *biz.OpsMonitoringCase) *OpsMonitoring {
 	return &OpsMonitoring{monitoring: monitoring}
 }
 
@@ -107,14 +107,14 @@ func (o *OpsMonitoring) publishSnapshot(ctx context.Context) {
 	if publisher == nil {
 		return
 	}
-	traffic, err := o.monitoring.GetOpsTraffic(ctx, &systemadminv1.GetOpsTrafficRequest{WindowMinutes: 15})
+	traffic, err := o.monitoring.GetOpsTraffic(ctx, &adminv1.GetOpsTrafficRequest{WindowMinutes: 15})
 	if err == nil {
 		publisher(ctx, opsMonitoringStreamID, opsMonitoringTraffic, traffic)
 	}
-	services := o.monitoring.GetOpsServices(ctx, &systemadminv1.GetOpsServicesRequest{})
+	services := o.monitoring.GetOpsServices(ctx, &adminv1.GetOpsServicesRequest{})
 	publisher(ctx, opsMonitoringStreamID, opsMonitoringServices, services)
-	storage := o.monitoring.GetOpsStorage(ctx, &systemadminv1.GetOpsStorageRequest{})
+	storage := o.monitoring.GetOpsStorage(ctx, &adminv1.GetOpsStorageRequest{})
 	publisher(ctx, opsMonitoringStreamID, opsMonitoringStorage, storage)
-	nodes := o.monitoring.GetOpsNodes(ctx, &systemadminv1.GetOpsNodesRequest{})
+	nodes := o.monitoring.GetOpsNodes(ctx, &adminv1.GetOpsNodesRequest{})
 	publisher(ctx, opsMonitoringStreamID, opsMonitoringNodes, nodes)
 }

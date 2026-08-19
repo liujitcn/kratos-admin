@@ -6,7 +6,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
-	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/const"
 
 	"github.com/liujitcn/gorm-kit/repository"
 )
@@ -34,6 +34,6 @@ func (c *BaseDictItemCase) findByDictIDs(ctx context.Context, dictIDs []int64) (
 	opts = append(opts, repository.Order(query.Sort.Asc()))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
 	opts = append(opts, repository.Where(query.DictID.In(dictIDs...)))
-	opts = append(opts, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
+	opts = append(opts, repository.Where(query.Status.Eq(_const.STATUS_STATUS_ENABLE)))
 	return c.List(ctx, opts...)
 }

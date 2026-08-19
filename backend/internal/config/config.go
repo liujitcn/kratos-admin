@@ -3,7 +3,7 @@ package config
 import (
 	"errors"
 
-	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	"github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	"github.com/liujitcn/kratos-kit/oauth"
 )
 

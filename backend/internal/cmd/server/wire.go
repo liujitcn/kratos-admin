@@ -6,8 +6,8 @@ package main
 import (
 	"github.com/go-kratos/kratos/v3"
 	"github.com/google/wire"
-	admin "github.com/liujitcn/kratos-admin/backend"
-	kratoscore "github.com/liujitcn/kratos-core"
+	"github.com/liujitcn/kratos-admin/backend"
+	"github.com/liujitcn/kratos-core"
 	"github.com/liujitcn/kratos-kit/bootstrap"
 )
 
@@ -15,7 +15,7 @@ import (
 func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	panic(wire.Build(
 		kratoscore.ProviderSet,
-		admin.ProviderSet,
+		backend.ProviderSet,
 		hostProviderSet,
 	))
 }

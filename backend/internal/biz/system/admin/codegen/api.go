@@ -1,15 +1,15 @@
 package codegen
 
 import (
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 )
 
 // Generation 汇总一次预览或写入使用的完整生成结果。
 type Generation struct {
-	Table            *Table                              // 应用本次输出路径后的生成对象
-	GeneratedMethods []*Proto                            // 本次实际参与生成的方法
-	OutputPaths      *systemadminv1.CodeGenOutputPaths   // 校验后的输出路径
-	Files            []*systemadminv1.CodeGenPreviewFile // 已完成增量合并的预览文件
+	Table            *Table                        // 应用本次输出路径后的生成对象
+	GeneratedMethods []*Proto                      // 本次实际参与生成的方法
+	OutputPaths      *adminv1.CodeGenOutputPaths   // 校验后的输出路径
+	Files            []*adminv1.CodeGenPreviewFile // 已完成增量合并的预览文件
 }
 
 // PrepareGeneration 准备一次预览或写入所需的全部纯生成内容。
@@ -17,7 +17,7 @@ func PrepareGeneration(
 	table *Table,
 	columns []*CodeGenColumn,
 	methods []*Proto,
-	requestedPaths *systemadminv1.CodeGenOutputPaths,
+	requestedPaths *adminv1.CodeGenOutputPaths,
 	tableComment string,
 	localeState LocaleState,
 ) (*Generation, error) {
@@ -29,7 +29,7 @@ func PrepareGenerationWithMigrationVersion(
 	table *Table,
 	columns []*CodeGenColumn,
 	methods []*Proto,
-	requestedPaths *systemadminv1.CodeGenOutputPaths,
+	requestedPaths *adminv1.CodeGenOutputPaths,
 	tableComment string,
 	migrationVersion string,
 	localeState LocaleState,
@@ -45,7 +45,7 @@ func prepareGenerationWithRenderer(
 	table *Table,
 	columns []*CodeGenColumn,
 	methods []*Proto,
-	requestedPaths *systemadminv1.CodeGenOutputPaths,
+	requestedPaths *adminv1.CodeGenOutputPaths,
 	localeState LocaleState,
 	renderer *renderer,
 ) (*Generation, error) {

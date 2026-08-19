@@ -1,7 +1,7 @@
 package utils
 
 import (
-	_http "github.com/liujitcn/go-utils/http"
+	"github.com/liujitcn/go-utils/http"
 )
 
 // PhoneNumber 表示微信手机号授权接口返回结果
@@ -28,11 +28,11 @@ func GetPhoneNumber(accessToken, code string) (*PhoneNumber, error) {
 	body := make(map[string]string)
 	body["code"] = code
 	var res PhoneNumber
-	err := _http.Post(
+	err := http.Post(
 		"https://api.weixin.qq.com/wxa/business/getuserphonenumber",
 		&res,
-		_http.WithQueries(query),
-		_http.WithJSONBody(body),
+		http.WithQueries(query),
+		http.WithJSONBody(body),
 	)
 	if err != nil {
 		return nil, err

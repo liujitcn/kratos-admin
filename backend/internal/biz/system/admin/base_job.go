@@ -3,11 +3,11 @@ package biz
 import (
 	"context"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
-	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
 	corejob "github.com/liujitcn/kratos-core/job"
 
@@ -22,16 +22,16 @@ type BaseJobCase struct {
 	*data.BaseJobRepository
 	baseJobLogCase *BaseJobLogCase
 	job            *corejob.Job
-	formMapper     *_mapper.CopierMapper[systemadminv1.BaseJobForm, models.BaseJob]
-	mapper         *_mapper.CopierMapper[systemadminv1.BaseJob, models.BaseJob]
+	formMapper     *_mapper.CopierMapper[adminv1.BaseJobForm, models.BaseJob]
+	mapper         *_mapper.CopierMapper[adminv1.BaseJob, models.BaseJob]
 }
 
 // NewBaseJobCase 创建定时任务业务实例
 func NewBaseJobCase(baseCase *biz.BaseCase, job *corejob.Job, baseJobRepo *data.BaseJobRepository, baseJobLogCase *BaseJobLogCase) *BaseJobCase {
-	formMapper := _mapper.NewCopierMapper[systemadminv1.BaseJobForm, models.BaseJob]()
-	formMapper.AppendConverters(_mapper.NewJSONTypeConverter[[]*systemadminv1.BaseJobArgs]().NewConverterPair())
-	mapper := _mapper.NewCopierMapper[systemadminv1.BaseJob, models.BaseJob]()
-	mapper.AppendConverters(_mapper.NewJSONTypeConverter[[]*systemadminv1.BaseJobArgs]().NewConverterPair())
+	formMapper := _mapper.NewCopierMapper[adminv1.BaseJobForm, models.BaseJob]()
+	formMapper.AppendConverters(_mapper.NewJSONTypeConverter[[]*adminv1.BaseJobArgs]().NewConverterPair())
+	mapper := _mapper.NewCopierMapper[adminv1.BaseJob, models.BaseJob]()
+	mapper.AppendConverters(_mapper.NewJSONTypeConverter[[]*adminv1.BaseJobArgs]().NewConverterPair())
 
 	return &BaseJobCase{
 		BaseCase:          baseCase,
@@ -44,7 +44,7 @@ func NewBaseJobCase(baseCase *biz.BaseCase, job *corejob.Job, baseJobRepo *data.
 }
 
 // PageBaseJob 分页查询定时任务
-func (c *BaseJobCase) PageBaseJob(ctx context.Context, req *systemadminv1.PageBaseJobRequest) (*systemadminv1.PageBaseJobResponse, error) {
+func (c *BaseJobCase) PageBaseJob(ctx context.Context, req *adminv1.PageBaseJobRequest) (*adminv1.PageBaseJobResponse, error) {
 	query := c.Query(ctx).BaseJob
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
@@ -65,16 +65,16 @@ func (c *BaseJobCase) PageBaseJob(ctx context.Context, req *systemadminv1.PageBa
 		return nil, err
 	}
 
-	resList := make([]*systemadminv1.BaseJob, 0, len(list))
+	resList := make([]*adminv1.BaseJob, 0, len(list))
 	for _, item := range list {
 		baseJob := c.mapper.ToDTO(item)
 		resList = append(resList, baseJob)
 	}
-	return &systemadminv1.PageBaseJobResponse{BaseJobs: resList, Total: int32(total)}, nil
+	return &adminv1.PageBaseJobResponse{BaseJobs: resList, Total: int32(total)}, nil
 }
 
 // GetBaseJob 获取定时任务
-func (c *BaseJobCase) GetBaseJob(ctx context.Context, id int64) (*systemadminv1.BaseJobForm, error) {
+func (c *BaseJobCase) GetBaseJob(ctx context.Context, id int64) (*adminv1.BaseJobForm, error) {
 	baseJob, err := c.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -84,7 +84,7 @@ func (c *BaseJobCase) GetBaseJob(ctx context.Context, id int64) (*systemadminv1.
 }
 
 // CreateBaseJob 创建定时任务
-func (c *BaseJobCase) CreateBaseJob(ctx context.Context, req *systemadminv1.BaseJobForm) error {
+func (c *BaseJobCase) CreateBaseJob(ctx context.Context, req *adminv1.BaseJobForm) error {
 	err := validateBaseJobStatus(int32(req.GetStatus()))
 	if err != nil {
 		return err
@@ -103,7 +103,7 @@ func (c *BaseJobCase) CreateBaseJob(ctx context.Context, req *systemadminv1.Base
 }
 
 // UpdateBaseJob 更新定时任务
-func (c *BaseJobCase) UpdateBaseJob(ctx context.Context, req *systemadminv1.BaseJobForm) error {
+func (c *BaseJobCase) UpdateBaseJob(ctx context.Context, req *adminv1.BaseJobForm) error {
 	err := validateBaseJobStatus(int32(req.GetStatus()))
 	if err != nil {
 		return err
@@ -140,7 +140,7 @@ func (c *BaseJobCase) UpdateBaseJob(ctx context.Context, req *systemadminv1.Base
 		}
 		return err
 	}
-	if !wasRunning || baseJob.Status != coreconst.STATUS_STATUS_ENABLE {
+	if !wasRunning || baseJob.Status != _const.STATUS_STATUS_ENABLE {
 		return nil
 	}
 	var entryID int32
@@ -214,7 +214,7 @@ func (c *BaseJobCase) DeleteBaseJob(ctx context.Context, id string) error {
 }
 
 // SetBaseJobStatus 设置定时任务状态
-func (c *BaseJobCase) SetBaseJobStatus(ctx context.Context, req *systemadminv1.SetBaseJobStatusRequest) error {
+func (c *BaseJobCase) SetBaseJobStatus(ctx context.Context, req *adminv1.SetBaseJobStatusRequest) error {
 	err := validateBaseJobStatus(int32(req.GetStatus()))
 	if err != nil {
 		return err
@@ -224,7 +224,7 @@ func (c *BaseJobCase) SetBaseJobStatus(ctx context.Context, req *systemadminv1.S
 	if err != nil {
 		return err
 	}
-	if req.GetStatus() == coreconst.STATUS_STATUS_DISABLE && baseJob.EntryID > 0 {
+	if req.GetStatus() == _const.STATUS_STATUS_DISABLE && baseJob.EntryID > 0 {
 		err = c.job.Stop(ctx, baseJob.ID, baseJob.EntryID)
 		if err != nil {
 			return err
@@ -234,11 +234,11 @@ func (c *BaseJobCase) SetBaseJobStatus(ctx context.Context, req *systemadminv1.S
 		ID:     req.GetId(),
 		Status: req.GetStatus(),
 	}
-	if req.GetStatus() == coreconst.STATUS_STATUS_DISABLE {
+	if req.GetStatus() == _const.STATUS_STATUS_DISABLE {
 		updatedJob.EntryID = 0
 	}
 	err = c.UpdateByID(ctx, updatedJob)
-	if err != nil && req.GetStatus() == coreconst.STATUS_STATUS_DISABLE && baseJob.EntryID > 0 {
+	if err != nil && req.GetStatus() == _const.STATUS_STATUS_DISABLE && baseJob.EntryID > 0 {
 		restoreErr := c.restoreBaseJob(ctx, baseJob)
 		if restoreErr != nil {
 			return errorsx.WrapInternal(restoreErr, "恢复定时任务调度失败")
@@ -248,12 +248,12 @@ func (c *BaseJobCase) SetBaseJobStatus(ctx context.Context, req *systemadminv1.S
 }
 
 // StartBaseJob 启动定时任务
-func (c *BaseJobCase) StartBaseJob(ctx context.Context, req *systemadminv1.StartBaseJobRequest) error {
+func (c *BaseJobCase) StartBaseJob(ctx context.Context, req *adminv1.StartBaseJobRequest) error {
 	baseJob, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err
 	}
-	if baseJob.Status != coreconst.STATUS_STATUS_ENABLE {
+	if baseJob.Status != _const.STATUS_STATUS_ENABLE {
 		return errorsx.Conflict("定时任务未启用")
 	}
 	var entryID int32
@@ -275,7 +275,7 @@ func (c *BaseJobCase) StartBaseJob(ctx context.Context, req *systemadminv1.Start
 }
 
 // StopBaseJob 停止定时任务
-func (c *BaseJobCase) StopBaseJob(ctx context.Context, req *systemadminv1.StopBaseJobRequest) error {
+func (c *BaseJobCase) StopBaseJob(ctx context.Context, req *adminv1.StopBaseJobRequest) error {
 	baseJob, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err
@@ -294,12 +294,12 @@ func (c *BaseJobCase) StopBaseJob(ctx context.Context, req *systemadminv1.StopBa
 }
 
 // ExecuteBaseJob 立即执行定时任务
-func (c *BaseJobCase) ExecuteBaseJob(ctx context.Context, req *systemadminv1.ExecuteBaseJobRequest) error {
+func (c *BaseJobCase) ExecuteBaseJob(ctx context.Context, req *adminv1.ExecuteBaseJobRequest) error {
 	baseJob, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err
 	}
-	if baseJob.Status != coreconst.STATUS_STATUS_ENABLE {
+	if baseJob.Status != _const.STATUS_STATUS_ENABLE {
 		return errorsx.Conflict("定时任务未启用")
 	}
 	return c.job.Run(ctx, baseJob.ID, baseJob.InvokeTarget, baseJob.Args)
@@ -345,7 +345,7 @@ func (c *BaseJobCase) restoreBaseJobs(ctx context.Context, jobs []*models.BaseJo
 
 // validateBaseJobStatus 校验定时任务只能使用启用或禁用状态。
 func validateBaseJobStatus(status int32) error {
-	if status != coreconst.STATUS_STATUS_ENABLE && status != coreconst.STATUS_STATUS_DISABLE {
+	if status != _const.STATUS_STATUS_ENABLE && status != _const.STATUS_STATUS_DISABLE {
 		return errorsx.InvalidArgument("定时任务状态无效")
 	}
 	return nil

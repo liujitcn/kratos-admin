@@ -15,10 +15,10 @@ import (
 	"github.com/liujitcn/kratos-core/resource/i18n"
 	"github.com/liujitcn/kratos-core/resource/openapi"
 	"github.com/liujitcn/kratos-core/sse"
-	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
-	authzEngine "github.com/liujitcn/kratos-kit/auth/authz/engine"
-	authData "github.com/liujitcn/kratos-kit/auth/data"
-	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	"github.com/liujitcn/kratos-kit/auth/authz/engine"
+	"github.com/liujitcn/kratos-kit/auth/data"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 // AdminResources 表示 Admin 提供的静态资源集合。
@@ -60,10 +60,10 @@ func NewModuleResources() AdminResources {
 // 在 Backend 内部完成装配，避免外部项目的生成代码引用 backend/internal 包。
 func NewModules(
 	config *configv1.Bootstrap,
-	databases map[string]*databaseGorm.Client,
+	databases map[string]*gorm.Client,
 	baseCase *biz.BaseCase,
-	authorizer authzEngine.Engine,
-	userToken *authData.UserToken,
+	authorizer engine.Engine,
+	userToken *data.UserToken,
 	jobRuntime *job.Job,
 	sseRuntime *sse.SSE,
 	docsRuntime *docs.Docs,
@@ -79,7 +79,7 @@ func NewModules(
 
 // NewTasks 创建 Backend 提供给 Core 调度器的定时任务集合。
 func NewTasks(
-	databases map[string]*databaseGorm.Client,
+	databases map[string]*gorm.Client,
 	baseCase *biz.BaseCase,
 ) (AdminTasks, func(), error) {
 	tasks, cleanup, err := adminModule.BuildTasks(databases, baseCase)
@@ -88,7 +88,7 @@ func NewTasks(
 
 // NewStreams 创建 Backend 提供给 Core SSE 服务的业务流集合。
 func NewStreams(
-	databases map[string]*databaseGorm.Client,
+	databases map[string]*gorm.Client,
 	baseCase *biz.BaseCase,
 ) (AdminStreams, func(), error) {
 	streams, cleanup, err := adminModule.BuildStreams(databases, baseCase)

@@ -9,7 +9,7 @@ import (
 	"sync"
 
 	"github.com/liujitcn/gorm-kit/repository"
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -55,7 +55,7 @@ func (c *BaseTranslationCase) LocaleState(ctx context.Context) (*dto.LocaleState
 }
 
 // DraftBaseTranslation 翻译请求中的单个文本，不保存翻译结果。
-func (c *BaseTranslationCase) DraftBaseTranslation(ctx context.Context, req *systemadminv1.DraftBaseTranslationRequest) (*systemadminv1.DraftBaseTranslationResponse, error) {
+func (c *BaseTranslationCase) DraftBaseTranslation(ctx context.Context, req *adminv1.DraftBaseTranslationRequest) (*adminv1.DraftBaseTranslationResponse, error) {
 	translator := c.Translator
 	if translator == nil {
 		return nil, errorsx.PermissionDenied("机器翻译草稿功能未启用")
@@ -77,16 +77,16 @@ func (c *BaseTranslationCase) DraftBaseTranslation(ctx context.Context, req *sys
 
 	c.draftMu.Lock()
 	defer c.draftMu.Unlock()
-	translations := make([]*systemadminv1.DraftBaseTranslationItem, 0, len(locales))
+	translations := make([]*adminv1.DraftBaseTranslationItem, 0, len(locales))
 	for _, locale := range locales {
 		var translated string
 		translated, err = c.TranslateText(ctx, req.GetSource(), state.Primary, locale)
 		if err != nil {
 			return nil, errorsx.Internal("生成翻译草稿失败").WithCause(err)
 		}
-		translations = append(translations, &systemadminv1.DraftBaseTranslationItem{Locale: locale, Translation: translated})
+		translations = append(translations, &adminv1.DraftBaseTranslationItem{Locale: locale, Translation: translated})
 	}
-	return &systemadminv1.DraftBaseTranslationResponse{Translations: translations}, nil
+	return &adminv1.DraftBaseTranslationResponse{Translations: translations}, nil
 }
 
 // TranslateText 使用 SDK 翻译器生成译文，并保护代码、占位符和 URL 等结构化片段。
@@ -114,7 +114,7 @@ func (c *BaseTranslationCase) TranslateText(ctx context.Context, source, sourceL
 }
 
 // UpdateBaseTranslation 优先按 ID 更新，未找到时按目标信息更新或新增翻译记录。
-func (c *BaseTranslationCase) UpdateBaseTranslation(ctx context.Context, req *systemadminv1.UpdateBaseTranslationRequest) error {
+func (c *BaseTranslationCase) UpdateBaseTranslation(ctx context.Context, req *adminv1.UpdateBaseTranslationRequest) error {
 	state, err := c.LocaleState(ctx)
 	if err != nil {
 		return err
@@ -159,7 +159,7 @@ func (c *BaseTranslationCase) UpdateBaseTranslation(ctx context.Context, req *sy
 }
 
 // GetTargetIdsByName 根据当前语言和名称关键字获取资源 ID。
-func (c *BaseTranslationCase) GetTargetIdsByName(ctx context.Context, targetType systemadminv1.TranslationTargetType, name string) ([]int64, error) {
+func (c *BaseTranslationCase) GetTargetIdsByName(ctx context.Context, targetType adminv1.TranslationTargetType, name string) ([]int64, error) {
 	if name == "" {
 		return nil, nil
 	}
@@ -191,8 +191,8 @@ func (c *BaseTranslationCase) GetTargetIdsByName(ctx context.Context, targetType
 }
 
 // GetBaseTranslationMapByTargetType 根据类型查询翻译信息。
-func (c *BaseTranslationCase) GetBaseTranslationMapByTargetType(ctx context.Context, targetType systemadminv1.TranslationTargetType, targetIds []int64) (map[int64][]*systemadminv1.BaseI18n, error) {
-	result := make(map[int64][]*systemadminv1.BaseI18n, len(targetIds))
+func (c *BaseTranslationCase) GetBaseTranslationMapByTargetType(ctx context.Context, targetType adminv1.TranslationTargetType, targetIds []int64) (map[int64][]*adminv1.BaseI18n, error) {
+	result := make(map[int64][]*adminv1.BaseI18n, len(targetIds))
 	if len(targetIds) == 0 {
 		return result, nil
 	}
@@ -206,9 +206,9 @@ func (c *BaseTranslationCase) GetBaseTranslationMapByTargetType(ctx context.Cont
 		return nil, err
 	}
 	for _, item := range list {
-		result[item.TargetID] = append(result[item.TargetID], &systemadminv1.BaseI18n{
+		result[item.TargetID] = append(result[item.TargetID], &adminv1.BaseI18n{
 			Id:         item.ID,
-			TargetType: systemadminv1.TranslationTargetType(item.TargetType),
+			TargetType: adminv1.TranslationTargetType(item.TargetType),
 			TargetId:   item.TargetID,
 			Locale:     item.Locale,
 			Name:       item.Name,
@@ -218,7 +218,7 @@ func (c *BaseTranslationCase) GetBaseTranslationMapByTargetType(ctx context.Cont
 }
 
 // GetBaseTranslationNameMapByLocale 根据语言返回替换信息。
-func (c *BaseTranslationCase) GetBaseTranslationNameMapByLocale(ctx context.Context, targetType systemadminv1.TranslationTargetType, locale string, targetIds []int64) (map[int64]string, error) {
+func (c *BaseTranslationCase) GetBaseTranslationNameMapByLocale(ctx context.Context, targetType adminv1.TranslationTargetType, locale string, targetIds []int64) (map[int64]string, error) {
 	result := make(map[int64]string, len(targetIds))
 	if len(targetIds) == 0 {
 		return result, nil
@@ -250,7 +250,7 @@ func (c *BaseTranslationCase) GetBaseTranslationNameMapByLocale(ctx context.Cont
 }
 
 // SaveBaseTranslation 保存主语言源文对应的翻译信息，缺失译文由定时任务统一补齐。
-func (c *BaseTranslationCase) SaveBaseTranslation(ctx context.Context, targetType systemadminv1.TranslationTargetType, targetId int64, primaryText string, translations []*systemadminv1.BaseI18n, updateMain func(context.Context, string) error) error {
+func (c *BaseTranslationCase) SaveBaseTranslation(ctx context.Context, targetType adminv1.TranslationTargetType, targetId int64, primaryText string, translations []*adminv1.BaseI18n, updateMain func(context.Context, string) error) error {
 	var err error
 	var state *dto.LocaleState
 	state, err = c.LocaleState(ctx)
@@ -330,7 +330,7 @@ func (c *BaseTranslationCase) SaveBaseTranslation(ctx context.Context, targetTyp
 }
 
 // SaveGeneratedTranslations 保存代码生成器提供的非主语言译文，不覆盖已有非空内容。
-func (c *BaseTranslationCase) SaveGeneratedTranslations(ctx context.Context, targetType systemadminv1.TranslationTargetType, targetID int64, translations map[string]string) error {
+func (c *BaseTranslationCase) SaveGeneratedTranslations(ctx context.Context, targetType adminv1.TranslationTargetType, targetID int64, translations map[string]string) error {
 	if targetID <= 0 || len(translations) == 0 {
 		return nil
 	}
@@ -374,7 +374,7 @@ func (c *BaseTranslationCase) SaveGeneratedTranslations(ctx context.Context, tar
 }
 
 // DeleteBaseTranslation 删除翻译信息。
-func (c *BaseTranslationCase) DeleteBaseTranslation(ctx context.Context, targetType systemadminv1.TranslationTargetType, targetId []int64) error {
+func (c *BaseTranslationCase) DeleteBaseTranslation(ctx context.Context, targetType adminv1.TranslationTargetType, targetId []int64) error {
 	if len(targetId) == 0 {
 		return nil
 	}

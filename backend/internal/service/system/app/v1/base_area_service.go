@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	systemappv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
-	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/app"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/app"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -13,7 +13,7 @@ import (
 
 // BaseAreaService 行政区域服务
 type BaseAreaService struct {
-	systemappv1.UnimplementedBaseAreaServiceServer
+	appv1.UnimplementedBaseAreaServiceServer
 	baseAreaCase *biz.BaseAreaCase
 }
 
@@ -28,12 +28,12 @@ func NewBaseAreaService(
 }
 
 // TreeBaseArea 查询行政区域树形列表
-func (s *BaseAreaService) TreeBaseArea(ctx context.Context, req *systemappv1.TreeBaseAreaRequest) (*systemappv1.TreeBaseAreaResponse, error) {
+func (s *BaseAreaService) TreeBaseArea(ctx context.Context, req *appv1.TreeBaseAreaRequest) (*appv1.TreeBaseAreaResponse, error) {
 	tree, err := s.baseAreaCase.TreeBaseArea(ctx)
 	if err != nil {
 		log.Error(fmt.Sprintf("TreeBaseArea %v", err))
 		return nil, errorsx.WrapInternal(err, "查询行政区域树形列表失败")
 	}
 
-	return &systemappv1.TreeBaseAreaResponse{Areas: tree.GetList()}, nil
+	return &appv1.TreeBaseAreaResponse{Areas: tree.GetList()}, nil
 }

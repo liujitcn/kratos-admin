@@ -11,7 +11,7 @@ import (
 
 	"github.com/cloudwego/eino-ext/components/model/agenticopenai"
 	componentsModel "github.com/cloudwego/eino/components/model"
-	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	"github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 )
 
 // AgenticModel 表示当前项目使用的 Eino Agentic 模型接口。
@@ -27,7 +27,7 @@ type ChatClient struct {
 }
 
 // NewChatClient 创建评论审核与摘要专用聊天模型客户端。
-func NewChatClient(modelCfg *bootstrapConfigv1.AI_Model) *ChatClient {
+func NewChatClient(modelCfg *configv1.AI_Model) *ChatClient {
 	client := &ChatClient{}
 	// AI 未配置完整时保持空客户端，业务层会通过 Enabled 判断并走降级路径。
 	if !aiModelConfigured(modelCfg) {
@@ -46,7 +46,7 @@ func NewChatClient(modelCfg *bootstrapConfigv1.AI_Model) *ChatClient {
 }
 
 // NewResponsesClient 创建 AI 助手专用 Responses 模型客户端。
-func NewResponsesClient(modelCfg *bootstrapConfigv1.AI_Model) *ResponsesClient {
+func NewResponsesClient(modelCfg *configv1.AI_Model) *ResponsesClient {
 	client := &ResponsesClient{}
 	// AI 未配置完整时保持空客户端，避免服务启动阶段因为可选能力缺失而失败。
 	if !aiModelConfigured(modelCfg) {
@@ -89,17 +89,17 @@ func (c *ResponsesClient) Name() string {
 }
 
 // aiModelConfigured 判断大模型启动配置是否完整。
-func aiModelConfigured(modelCfg *bootstrapConfigv1.AI_Model) bool {
+func aiModelConfigured(modelCfg *configv1.AI_Model) bool {
 	// 模型名称是云模型和本地模型共同需要的最小配置。
 	if modelCfg == nil || modelCfg.GetModelName() == "" {
 		return false
 	}
 	// 不同模型来源需要校验的启动参数不同，保持在这里集中判断。
 	switch modelCfg.GetType() {
-	case bootstrapConfigv1.AI_Model_CLOUD_MODEL:
+	case configv1.AI_Model_CLOUD_MODEL:
 		cloud := modelCfg.GetCloud()
 		return cloud != nil && cloud.GetApiKey() != ""
-	case bootstrapConfigv1.AI_Model_LOCAL_MODEL:
+	case configv1.AI_Model_LOCAL_MODEL:
 		return modelCfg.GetLocal() != nil
 	default:
 		// 未知模型类型不启用 Agent，避免启动后调用到不明确的模型提供商。
@@ -114,20 +114,20 @@ const (
 )
 
 // newChatModel 根据配置创建 Chat Completions AgenticModel。
-func newChatModel(ctx context.Context, cfg *bootstrapConfigv1.AI_Model, mutate func(*agenticopenai.ChatConfig)) (componentsModel.AgenticModel, error) {
+func newChatModel(ctx context.Context, cfg *configv1.AI_Model, mutate func(*agenticopenai.ChatConfig)) (componentsModel.AgenticModel, error) {
 	if cfg == nil {
 		return nil, errors.New("ai model config is nil")
 	}
 	config := &agenticopenai.ChatConfig{Model: cfg.GetModelName()}
 	switch cfg.GetType() {
-	case bootstrapConfigv1.AI_Model_CLOUD_MODEL:
+	case configv1.AI_Model_CLOUD_MODEL:
 		cloud := cfg.GetCloud()
 		if cloud == nil {
 			return nil, errors.New("ai cloud config is nil")
 		}
 		config.APIKey = cloud.GetApiKey()
 		config.BaseURL = cloud.GetBaseUrl()
-	case bootstrapConfigv1.AI_Model_LOCAL_MODEL:
+	case configv1.AI_Model_LOCAL_MODEL:
 		local := cfg.GetLocal()
 		if local == nil {
 			return nil, errors.New("ai local config is nil")
@@ -155,20 +155,20 @@ func newChatModel(ctx context.Context, cfg *bootstrapConfigv1.AI_Model, mutate f
 }
 
 // newResponsesModel 根据配置创建 Responses AgenticModel。
-func newResponsesModel(ctx context.Context, cfg *bootstrapConfigv1.AI_Model) (componentsModel.AgenticModel, error) {
+func newResponsesModel(ctx context.Context, cfg *configv1.AI_Model) (componentsModel.AgenticModel, error) {
 	if cfg == nil {
 		return nil, errors.New("ai model config is nil")
 	}
 	config := &agenticopenai.ResponsesConfig{Model: cfg.GetModelName()}
 	switch cfg.GetType() {
-	case bootstrapConfigv1.AI_Model_CLOUD_MODEL:
+	case configv1.AI_Model_CLOUD_MODEL:
 		cloud := cfg.GetCloud()
 		if cloud == nil {
 			return nil, errors.New("ai cloud config is nil")
 		}
 		config.APIKey = cloud.GetApiKey()
 		config.BaseURL = cloud.GetBaseUrl()
-	case bootstrapConfigv1.AI_Model_LOCAL_MODEL:
+	case configv1.AI_Model_LOCAL_MODEL:
 		local := cfg.GetLocal()
 		if local == nil {
 			return nil, errors.New("ai local config is nil")
@@ -198,7 +198,7 @@ func newResponsesModel(ctx context.Context, cfg *bootstrapConfigv1.AI_Model) (co
 }
 
 // localBaseURL 根据 Ollama 配置生成 OpenAI 兼容地址。
-func localBaseURL(local *bootstrapConfigv1.AI_Model_LocalConfig) string {
+func localBaseURL(local *configv1.AI_Model_LocalConfig) string {
 	host := local.GetHost()
 	if host == "" {
 		host = defaultLocalHost

@@ -14,7 +14,7 @@ import (
 	"sync"
 	"time"
 
-	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -25,7 +25,7 @@ import (
 	kratosErrors "github.com/go-kratos/kratos/v3/errors"
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/liujitcn/go-utils/id"
-	kitOauth "github.com/liujitcn/kratos-kit/oauth"
+	"github.com/liujitcn/kratos-kit/oauth"
 	"github.com/liujitcn/kratos-kit/oauth/provider"
 	"gorm.io/gorm"
 )
@@ -48,7 +48,7 @@ type OauthCase struct {
 	baseDeptCase         *BaseDeptCase
 	loginCase            *LoginCase
 	configCase           *ConfigCase
-	oauthManager         *kitOauth.Manager
+	oauthManager         *oauth.Manager
 }
 
 // oauthLoginTicketPayload 表示三方登录一次性票据缓存的令牌信息。
@@ -69,7 +69,7 @@ func NewOauthCase(
 	baseDeptCase *BaseDeptCase,
 	loginCase *LoginCase,
 	configCase *ConfigCase,
-	oauthManager *kitOauth.Manager,
+	oauthManager *oauth.Manager,
 ) *OauthCase {
 	return &OauthCase{
 		BaseCase:             baseCase,
@@ -139,7 +139,7 @@ func (c *OauthCase) CreateOauthAuthorization(ctx context.Context, req *basev1.Cr
 		return nil, err
 	}
 
-	oauthType := kitOauth.Type(req.GetProvider())
+	oauthType := oauth.Type(req.GetProvider())
 	var oauthProvider provider.OAuth
 	oauthProvider, err = c.oauthManager.Get(oauthType)
 	if err != nil {
@@ -147,7 +147,7 @@ func (c *OauthCase) CreateOauthAuthorization(ctx context.Context, req *basev1.Cr
 	}
 	var state string
 	var pkce provider.PKCEChallenge
-	state, pkce, err = kitOauth.NewStateWithPKCE(c.Cache, kitOauth.StatePayload{
+	state, pkce, err = oauth.NewStateWithPKCE(c.Cache, oauth.StatePayload{
 		Provider:    oauthType,
 		Scene:       oauthSceneAdminLogin,
 		RedirectURL: redirectURL,
@@ -178,7 +178,7 @@ func (c *OauthCase) CreateOauthBindingAuthorization(ctx context.Context, req *ba
 		return nil, err
 	}
 
-	oauthType := kitOauth.Type(req.GetProvider())
+	oauthType := oauth.Type(req.GetProvider())
 	var oauthProvider provider.OAuth
 	oauthProvider, err = c.oauthManager.Get(oauthType)
 	if err != nil {
@@ -186,7 +186,7 @@ func (c *OauthCase) CreateOauthBindingAuthorization(ctx context.Context, req *ba
 	}
 	var state string
 	var pkce provider.PKCEChallenge
-	state, pkce, err = kitOauth.NewStateWithPKCE(c.Cache, kitOauth.StatePayload{
+	state, pkce, err = oauth.NewStateWithPKCE(c.Cache, oauth.StatePayload{
 		Provider:    oauthType,
 		Scene:       oauthSceneAdminBind,
 		RedirectURL: safeRedirectURL,
@@ -207,7 +207,7 @@ func (c *OauthCase) CreateOauthBindingAuthorization(ctx context.Context, req *ba
 // CreateOauthSession 使用非跳转型 OAuth 授权码创建登录会话。
 func (c *OauthCase) CreateOauthSession(ctx context.Context, req *basev1.CreateOauthSessionRequest) (*basev1.CreateOauthSessionResponse, error) {
 	// 当前非跳转登录只开放微信小程序，其他 Provider 继续走授权地址回调流程。
-	if req.GetProvider() != string(kitOauth.WechatMini) {
+	if req.GetProvider() != string(oauth.WechatMini) {
 		return nil, errorsx.InvalidArgument("登录方式不支持")
 	}
 	autoRegister, err := c.oauthAutoRegisterEnabled(ctx)
@@ -261,7 +261,7 @@ func (c *OauthCase) oauthAutoRegisterEnabled(ctx context.Context) (bool, error) 
 
 // BindOauthSession 校验已有账号并绑定微信小程序账号后创建登录会话。
 func (c *OauthCase) BindOauthSession(ctx context.Context, req *basev1.BindOauthSessionRequest) (*basev1.CreateOauthSessionResponse, error) {
-	if req.GetProvider() != string(kitOauth.WechatMini) {
+	if req.GetProvider() != string(oauth.WechatMini) {
 		return nil, errorsx.InvalidArgument("登录方式不支持")
 	}
 	var err error
@@ -274,7 +274,7 @@ func (c *OauthCase) BindOauthSession(ctx context.Context, req *basev1.BindOauthS
 	if err != nil {
 		return nil, err
 	}
-	_, err = c.baseThirdAccountCase.FindByProviderIdentifier(ctx, string(kitOauth.WechatMini), openID)
+	_, err = c.baseThirdAccountCase.FindByProviderIdentifier(ctx, string(oauth.WechatMini), openID)
 	if err == nil {
 		return nil, errorsx.Conflict("微信账号已绑定")
 	}
@@ -286,7 +286,7 @@ func (c *OauthCase) BindOauthSession(ctx context.Context, req *basev1.BindOauthS
 	if err != nil {
 		return nil, err
 	}
-	err = c.baseThirdAccountCase.CreateBinding(ctx, user.ID, string(kitOauth.WechatMini), openID)
+	err = c.baseThirdAccountCase.CreateBinding(ctx, user.ID, string(oauth.WechatMini), openID)
 	if err != nil {
 		return nil, err
 	}
@@ -303,7 +303,7 @@ func (c *OauthCase) BindOauthSession(ctx context.Context, req *basev1.BindOauthS
 
 // HandleOauthCallback 处理三方登录回调并跳回管理端登录页。
 func (c *OauthCase) HandleOauthCallback(ctx context.Context, req *basev1.HandleOauthCallbackRequest) (*basev1.HandleOauthCallbackResponse, error) {
-	payload, err := kitOauth.VerifyState(c.Cache, req.GetState())
+	payload, err := oauth.VerifyState(c.Cache, req.GetState())
 	if err != nil {
 		return nil, errorsx.InvalidArgument("三方登录状态已失效")
 	}
@@ -314,7 +314,7 @@ func (c *OauthCase) HandleOauthCallback(ctx context.Context, req *basev1.HandleO
 		return nil, c.oauthRedirectPayload(payload, "", "三方登录状态无效")
 	}
 
-	oauthType := kitOauth.Type(req.GetProvider())
+	oauthType := oauth.Type(req.GetProvider())
 	if payload.Provider != oauthType {
 		return nil, c.oauthRedirectPayload(payload, "", "三方登录状态无效")
 	}
@@ -357,7 +357,7 @@ func (c *OauthCase) HandleOauthCallback(ctx context.Context, req *basev1.HandleO
 
 // HandleOauthBindingCallback 处理个人中心三方账号绑定回调。
 func (c *OauthCase) HandleOauthBindingCallback(ctx context.Context, req *basev1.HandleOauthBindingCallbackRequest) error {
-	payload, err := kitOauth.VerifyState(c.Cache, req.GetState())
+	payload, err := oauth.VerifyState(c.Cache, req.GetState())
 	if err != nil {
 		return errorsx.InvalidArgument("三方账号绑定状态已失效")
 	}
@@ -408,7 +408,7 @@ func (c *OauthCase) UnbindOauthAccount(ctx context.Context, req *basev1.UnbindOa
 func (c *OauthCase) findWechatMiniUserByOpenID(ctx context.Context, openID string) (*models.BaseUser, error) {
 	var err error
 	var thirdAccount *models.BaseThirdAccount
-	thirdAccount, err = c.baseThirdAccountCase.FindByProviderIdentifier(ctx, string(kitOauth.WechatMini), openID)
+	thirdAccount, err = c.baseThirdAccountCase.FindByProviderIdentifier(ctx, string(oauth.WechatMini), openID)
 	if err != nil {
 		if stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errorsx.Unauthenticated("微信账号未绑定，请先绑定已有账号")
@@ -453,7 +453,7 @@ func (c *OauthCase) createWechatMiniUser(ctx context.Context, openID string) (*m
 		if err != nil {
 			return errorsx.Internal("微信登录失败").WithCause(err)
 		}
-		err = c.baseThirdAccountCase.CreateBinding(txCtx, user.ID, string(kitOauth.WechatMini), openID)
+		err = c.baseThirdAccountCase.CreateBinding(txCtx, user.ID, string(oauth.WechatMini), openID)
 		if err != nil {
 			return errorsx.Internal("微信登录失败").WithCause(err)
 		}
@@ -469,7 +469,7 @@ func (c *OauthCase) createWechatMiniUser(ctx context.Context, openID string) (*m
 func (c *OauthCase) getWechatMiniOpenID(ctx context.Context, code string) (string, error) {
 	var err error
 	var wechatMiniProvider provider.OAuth
-	wechatMiniProvider, err = c.oauthManager.Get(kitOauth.WechatMini)
+	wechatMiniProvider, err = c.oauthManager.Get(oauth.WechatMini)
 	if err != nil {
 		return "", errorsx.Internal("微信登录配置信息错误").WithCause(err)
 	}
@@ -490,12 +490,12 @@ func (c *OauthCase) getWechatMiniOpenID(ctx context.Context, code string) (strin
 }
 
 // handleOauthBindingCallback 校验三方账号并写入当前用户绑定关系。
-func (c *OauthCase) handleOauthBindingCallback(ctx context.Context, payload *kitOauth.StatePayload, providerName string, code string, providerError string) error {
+func (c *OauthCase) handleOauthBindingCallback(ctx context.Context, payload *oauth.StatePayload, providerName string, code string, providerError string) error {
 	if payload.Scene != oauthSceneAdminBind {
 		return c.oauthBindingRedirectPayload(payload, providerName, "三方账号绑定状态无效")
 	}
 
-	oauthType := kitOauth.Type(providerName)
+	oauthType := oauth.Type(providerName)
 	if payload.Provider != oauthType {
 		return c.oauthBindingRedirectPayload(payload, providerName, "三方账号绑定状态无效")
 	}
@@ -551,7 +551,7 @@ func (c *OauthCase) handleOauthBindingCallback(ctx context.Context, payload *kit
 }
 
 // fetchOauthIdentifier 通过授权码读取三方账号唯一标识。
-func (c *OauthCase) fetchOauthIdentifier(ctx context.Context, oauthType kitOauth.Type, code string, pkce provider.PKCEChallenge) (string, error) {
+func (c *OauthCase) fetchOauthIdentifier(ctx context.Context, oauthType oauth.Type, code string, pkce provider.PKCEChallenge) (string, error) {
 	var err error
 	var oauthProvider provider.OAuth
 	oauthProvider, err = c.oauthManager.Get(oauthType)
@@ -613,7 +613,7 @@ func (c *OauthCase) consumeOauthLoginTicket(ticket string) (string, error) {
 }
 
 // oauthRedirectPayload 构造回跳管理端登录页的重定向响应。
-func (c *OauthCase) oauthRedirectPayload(payload *kitOauth.StatePayload, ticket string, errorMessage string) error {
+func (c *OauthCase) oauthRedirectPayload(payload *oauth.StatePayload, ticket string, errorMessage string) error {
 	if payload.RedirectURL == "" {
 		return errorsx.InvalidArgument(errorMessage)
 	}
@@ -623,7 +623,7 @@ func (c *OauthCase) oauthRedirectPayload(payload *kitOauth.StatePayload, ticket 
 }
 
 // oauthBindingRedirectPayload 构造回跳个人中心的三方账号绑定响应。
-func (c *OauthCase) oauthBindingRedirectPayload(payload *kitOauth.StatePayload, providerName string, errorMessage string) error {
+func (c *OauthCase) oauthBindingRedirectPayload(payload *oauth.StatePayload, providerName string, errorMessage string) error {
 	if payload.RedirectURL == "" {
 		return errorsx.InvalidArgument(errorMessage)
 	}

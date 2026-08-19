@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 )
 
 // InputContentPayload 表示 AI 助手用户输入内容 JSON 结构。

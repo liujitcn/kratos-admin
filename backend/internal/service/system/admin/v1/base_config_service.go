@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -14,7 +14,7 @@ import (
 
 // BaseConfigService Admin系统配置服务
 type BaseConfigService struct {
-	systemadminv1.UnimplementedBaseConfigServiceServer
+	adminv1.UnimplementedBaseConfigServiceServer
 	baseConfigCase *biz.BaseConfigCase
 }
 
@@ -28,7 +28,7 @@ func NewBaseConfigService(
 }
 
 // RefreshBaseConfigCache 刷新缓存
-func (s *BaseConfigService) RefreshBaseConfigCache(ctx context.Context, req *systemadminv1.RefreshBaseConfigCacheRequest) (*emptypb.Empty, error) {
+func (s *BaseConfigService) RefreshBaseConfigCache(ctx context.Context, req *adminv1.RefreshBaseConfigCacheRequest) (*emptypb.Empty, error) {
 	err := s.baseConfigCase.RefreshBaseConfig(ctx)
 	if err != nil {
 		log.Error(fmt.Sprintf("RefreshBaseConfig %v", err))
@@ -38,7 +38,7 @@ func (s *BaseConfigService) RefreshBaseConfigCache(ctx context.Context, req *sys
 }
 
 // PageBaseConfig 查询系统配置分页列表
-func (s *BaseConfigService) PageBaseConfig(ctx context.Context, req *systemadminv1.PageBaseConfigRequest) (*systemadminv1.PageBaseConfigResponse, error) {
+func (s *BaseConfigService) PageBaseConfig(ctx context.Context, req *adminv1.PageBaseConfigRequest) (*adminv1.PageBaseConfigResponse, error) {
 	page, err := s.baseConfigCase.PageBaseConfig(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("PageBaseConfig %v", err))
@@ -49,7 +49,7 @@ func (s *BaseConfigService) PageBaseConfig(ctx context.Context, req *systemadmin
 }
 
 // GetBaseConfig 查询系统配置
-func (s *BaseConfigService) GetBaseConfig(ctx context.Context, req *systemadminv1.GetBaseConfigRequest) (*systemadminv1.BaseConfigForm, error) {
+func (s *BaseConfigService) GetBaseConfig(ctx context.Context, req *adminv1.GetBaseConfigRequest) (*adminv1.BaseConfigForm, error) {
 	config, err := s.baseConfigCase.GetBaseConfig(ctx, req.GetId())
 	if err != nil {
 		log.Error(fmt.Sprintf("GetBaseConfig %v", err))
@@ -59,7 +59,7 @@ func (s *BaseConfigService) GetBaseConfig(ctx context.Context, req *systemadminv
 }
 
 // CreateBaseConfig 创建系统配置
-func (s *BaseConfigService) CreateBaseConfig(ctx context.Context, req *systemadminv1.CreateBaseConfigRequest) (*emptypb.Empty, error) {
+func (s *BaseConfigService) CreateBaseConfig(ctx context.Context, req *adminv1.CreateBaseConfigRequest) (*emptypb.Empty, error) {
 	err := s.baseConfigCase.CreateBaseConfig(ctx, req.GetBaseConfig())
 	if err != nil {
 		log.Error(fmt.Sprintf("CreateBaseConfig %v", err))
@@ -69,7 +69,7 @@ func (s *BaseConfigService) CreateBaseConfig(ctx context.Context, req *systemadm
 }
 
 // UpdateBaseConfig 更新系统配置
-func (s *BaseConfigService) UpdateBaseConfig(ctx context.Context, req *systemadminv1.UpdateBaseConfigRequest) (*emptypb.Empty, error) {
+func (s *BaseConfigService) UpdateBaseConfig(ctx context.Context, req *adminv1.UpdateBaseConfigRequest) (*emptypb.Empty, error) {
 	err := s.baseConfigCase.UpdateBaseConfig(ctx, req.GetBaseConfig())
 	if err != nil {
 		log.Error(fmt.Sprintf("UpdateBaseConfig %v", err))
@@ -79,7 +79,7 @@ func (s *BaseConfigService) UpdateBaseConfig(ctx context.Context, req *systemadm
 }
 
 // DeleteBaseConfig 删除系统配置
-func (s *BaseConfigService) DeleteBaseConfig(ctx context.Context, req *systemadminv1.DeleteBaseConfigRequest) (*emptypb.Empty, error) {
+func (s *BaseConfigService) DeleteBaseConfig(ctx context.Context, req *adminv1.DeleteBaseConfigRequest) (*emptypb.Empty, error) {
 	err := s.baseConfigCase.DeleteBaseConfig(ctx, req.GetId())
 	if err != nil {
 		log.Error(fmt.Sprintf("DeleteBaseConfig %v", err))
@@ -89,7 +89,7 @@ func (s *BaseConfigService) DeleteBaseConfig(ctx context.Context, req *systemadm
 }
 
 // SetBaseConfigStatus 设置状态
-func (s *BaseConfigService) SetBaseConfigStatus(ctx context.Context, req *systemadminv1.SetBaseConfigStatusRequest) (*emptypb.Empty, error) {
+func (s *BaseConfigService) SetBaseConfigStatus(ctx context.Context, req *adminv1.SetBaseConfigStatusRequest) (*emptypb.Empty, error) {
 	err := s.baseConfigCase.SetBaseConfigStatus(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("SetBaseConfigStatus %v", err))

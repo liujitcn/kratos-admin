@@ -3,10 +3,10 @@ package biz
 import (
 	"context"
 
-	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-core/biz"
-	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/const"
 
 	"github.com/liujitcn/gorm-kit/repository"
 )
@@ -26,7 +26,7 @@ func NewLanguageCase(baseCase *biz.BaseCase, baseLanguageRepo *data.BaseLanguage
 func (c *LanguageCase) OptionLanguage(ctx context.Context, _ *basev1.OptionLanguageRequest) (*basev1.OptionLanguageResponse, error) {
 	query := c.Query(ctx).BaseLanguage
 	opts := []repository.QueryOption{
-		repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)),
+		repository.Where(query.Status.Eq(_const.STATUS_STATUS_ENABLE)),
 		repository.Order(query.Sort.Asc()),
 		repository.Order(query.ID.Asc()),
 	}

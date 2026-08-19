@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	einoadk "github.com/cloudwego/eino/adk"
+	"github.com/cloudwego/eino/adk"
 	"github.com/cloudwego/eino/components/tool"
 	"github.com/cloudwego/eino/schema"
 
@@ -16,7 +16,7 @@ type ToolTitleResolver func(name string) string
 
 // ToolFilterHandler 在模型调用前按本轮候选裁剪工具定义。
 type ToolFilterHandler struct {
-	*einoadk.TypedBaseChatModelAgentMiddleware[*schema.AgenticMessage]
+	*adk.TypedBaseChatModelAgentMiddleware[*schema.AgenticMessage]
 	allowedNames map[string]bool
 	enabled      bool
 }
@@ -32,7 +32,7 @@ func NewToolFilterHandler(toolInfos []*schema.ToolInfo) *ToolFilterHandler {
 		allowedNames[info.Name] = true
 	}
 	return &ToolFilterHandler{
-		TypedBaseChatModelAgentMiddleware: &einoadk.TypedBaseChatModelAgentMiddleware[*schema.AgenticMessage]{},
+		TypedBaseChatModelAgentMiddleware: &adk.TypedBaseChatModelAgentMiddleware[*schema.AgenticMessage]{},
 		allowedNames:                      allowedNames,
 		enabled:                           true,
 	}
@@ -41,7 +41,7 @@ func NewToolFilterHandler(toolInfos []*schema.ToolInfo) *ToolFilterHandler {
 // NewToolMetricsHandler 创建工具统计中间件。
 func NewToolMetricsHandler(titleResolver ToolTitleResolver) *ToolMetricsHandler {
 	return &ToolMetricsHandler{
-		TypedBaseChatModelAgentMiddleware: &einoadk.TypedBaseChatModelAgentMiddleware[*schema.AgenticMessage]{},
+		TypedBaseChatModelAgentMiddleware: &adk.TypedBaseChatModelAgentMiddleware[*schema.AgenticMessage]{},
 		titleResolver:                     titleResolver,
 	}
 }
@@ -49,9 +49,9 @@ func NewToolMetricsHandler(titleResolver ToolTitleResolver) *ToolMetricsHandler 
 // BeforeModelRewriteState 将工具列表限制在当前轮允许暴露的集合内。
 func (h *ToolFilterHandler) BeforeModelRewriteState(
 	ctx context.Context,
-	state *einoadk.TypedChatModelAgentState[*schema.AgenticMessage],
-	mc *einoadk.TypedModelContext[*schema.AgenticMessage],
-) (context.Context, *einoadk.TypedChatModelAgentState[*schema.AgenticMessage], error) {
+	state *adk.TypedChatModelAgentState[*schema.AgenticMessage],
+	mc *adk.TypedModelContext[*schema.AgenticMessage],
+) (context.Context, *adk.TypedChatModelAgentState[*schema.AgenticMessage], error) {
 	// 未启用筛选或状态为空时保持 ADK 原始状态，避免影响无工具的普通问答。
 	if h == nil || !h.enabled || state == nil {
 		return ctx, state, nil
@@ -67,8 +67,8 @@ func (h *ToolFilterHandler) BeforeModelRewriteState(
 // BeforeAgent 将本轮可执行工具池同步限制到允许暴露的集合内。
 func (h *ToolFilterHandler) BeforeAgent(
 	ctx context.Context,
-	runCtx *einoadk.ChatModelAgentContext,
-) (context.Context, *einoadk.ChatModelAgentContext, error) {
+	runCtx *adk.ChatModelAgentContext,
+) (context.Context, *adk.ChatModelAgentContext, error) {
 	// runCtx 为空时没有可执行工具池，保持原始上下文。
 	if h == nil || !h.enabled || runCtx == nil {
 		return ctx, runCtx, nil
@@ -95,7 +95,7 @@ func (h *ToolFilterHandler) BeforeAgent(
 
 // ToolMetricsHandler 统一记录函数工具调用、耗时、入参、出参和错误 JSON。
 type ToolMetricsHandler struct {
-	*einoadk.TypedBaseChatModelAgentMiddleware[*schema.AgenticMessage]
+	*adk.TypedBaseChatModelAgentMiddleware[*schema.AgenticMessage]
 	titleResolver ToolTitleResolver
 }
 
@@ -121,9 +121,9 @@ func (h *ToolFilterHandler) filter(infos []*schema.ToolInfo) []*schema.ToolInfo 
 // WrapInvokableToolCall 包装普通函数工具调用。
 func (h *ToolMetricsHandler) WrapInvokableToolCall(
 	ctx context.Context,
-	endpoint einoadk.InvokableToolCallEndpoint,
-	tCtx *einoadk.ToolContext,
-) (einoadk.InvokableToolCallEndpoint, error) {
+	endpoint adk.InvokableToolCallEndpoint,
+	tCtx *adk.ToolContext,
+) (adk.InvokableToolCallEndpoint, error) {
 	return func(ctx context.Context, argumentsInJSON string, opts ...tool.Option) (string, error) {
 		startedAt := time.Now()
 		output, err := endpoint(ctx, argumentsInJSON, opts...)
@@ -173,7 +173,7 @@ func recordToolCall(ctx context.Context, call callback.ToolCall) {
 }
 
 // toolContextName 读取 ADK 工具上下文中的工具名。
-func toolContextName(tCtx *einoadk.ToolContext) string {
+func toolContextName(tCtx *adk.ToolContext) string {
 	// 工具上下文缺失时无法定位工具名，返回空字符串让 recorder 自行过滤。
 	if tCtx == nil {
 		return ""

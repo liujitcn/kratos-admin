@@ -4,13 +4,13 @@ import (
 	"context"
 	"strconv"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
 
 	"github.com/liujitcn/go-utils/mapper"
-	_time "github.com/liujitcn/go-utils/time"
+	"github.com/liujitcn/go-utils/time"
 	"github.com/liujitcn/gorm-kit/repository"
 )
 
@@ -18,7 +18,7 @@ import (
 type BaseJobLogCase struct {
 	*biz.BaseCase
 	*data.BaseJobLogRepository
-	mapper *mapper.CopierMapper[systemadminv1.BaseJobLog, models.BaseJobLog]
+	mapper *mapper.CopierMapper[adminv1.BaseJobLog, models.BaseJobLog]
 }
 
 // NewBaseJobLogCase 创建任务日志业务实例
@@ -26,14 +26,14 @@ func NewBaseJobLogCase(baseCase *biz.BaseCase, baseJobLogRepo *data.BaseJobLogRe
 	c := &BaseJobLogCase{
 		BaseCase:             baseCase,
 		BaseJobLogRepository: baseJobLogRepo,
-		mapper:               mapper.NewCopierMapper[systemadminv1.BaseJobLog, models.BaseJobLog](),
+		mapper:               mapper.NewCopierMapper[adminv1.BaseJobLog, models.BaseJobLog](),
 	}
 
 	return c
 }
 
 // PageBaseJobLog 分页查询任务日志
-func (c *BaseJobLogCase) PageBaseJobLog(ctx context.Context, req *systemadminv1.PageBaseJobLogRequest) (*systemadminv1.PageBaseJobLogResponse, error) {
+func (c *BaseJobLogCase) PageBaseJobLog(ctx context.Context, req *adminv1.PageBaseJobLogRequest) (*adminv1.PageBaseJobLogResponse, error) {
 	query := c.Query(ctx).BaseJobLog
 	opts := make([]repository.QueryOption, 0, 5)
 	opts = append(opts, repository.Order(query.ExecuteTime.Desc()))
@@ -46,8 +46,8 @@ func (c *BaseJobLogCase) PageBaseJobLog(ctx context.Context, req *systemadminv1.
 	}
 	// 仅在传入完整时间区间时，按执行时间范围过滤任务日志。
 	if len(req.GetExecuteTime()) == 2 {
-		startTime := _time.StringTimeToTime(req.GetExecuteTime()[0])
-		endTime := _time.StringTimeToTime(req.GetExecuteTime()[1])
+		startTime := time.StringTimeToTime(req.GetExecuteTime()[0])
+		endTime := time.StringTimeToTime(req.GetExecuteTime()[1])
 		// 开始时间解析成功时，补充执行时间下界。
 		if startTime != nil {
 			opts = append(opts, repository.Where(query.ExecuteTime.Gte(*startTime)))
@@ -63,15 +63,15 @@ func (c *BaseJobLogCase) PageBaseJobLog(ctx context.Context, req *systemadminv1.
 		return nil, err
 	}
 
-	resList := make([]*systemadminv1.BaseJobLog, 0, len(list))
+	resList := make([]*adminv1.BaseJobLog, 0, len(list))
 	for _, item := range list {
 		resList = append(resList, c.toBaseJobLog(item))
 	}
-	return &systemadminv1.PageBaseJobLogResponse{BaseJobLogs: resList, Total: int32(total)}, nil
+	return &adminv1.PageBaseJobLogResponse{BaseJobLogs: resList, Total: int32(total)}, nil
 }
 
 // GetBaseJobLog 获取任务日志
-func (c *BaseJobLogCase) GetBaseJobLog(ctx context.Context, id int64) (*systemadminv1.BaseJobLog, error) {
+func (c *BaseJobLogCase) GetBaseJobLog(ctx context.Context, id int64) (*adminv1.BaseJobLog, error) {
 	baseJobLog, err := c.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -80,7 +80,7 @@ func (c *BaseJobLogCase) GetBaseJobLog(ctx context.Context, id int64) (*systemad
 }
 
 // toBaseJobLog 转换任务日志响应
-func (c *BaseJobLogCase) toBaseJobLog(item *models.BaseJobLog) *systemadminv1.BaseJobLog {
+func (c *BaseJobLogCase) toBaseJobLog(item *models.BaseJobLog) *adminv1.BaseJobLog {
 	baseJobLog := c.mapper.ToDTO(item)
 	baseJobLog.ProcessTime = strconv.FormatInt(int64(item.ProcessTime), 10)
 	return baseJobLog

@@ -4,13 +4,13 @@ import (
 	"context"
 
 	"github.com/liujitcn/go-utils/mapper"
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
 
 	"github.com/liujitcn/gorm-kit/repository"
-	gormmigration "github.com/liujitcn/kratos-kit/database/gorm/migration"
+	"github.com/liujitcn/kratos-kit/database/gorm/migration"
 	"gorm.io/gen/field"
 )
 
@@ -18,8 +18,8 @@ import (
 type BaseMigrationCase struct {
 	*biz.BaseCase
 	*data.BaseMigrationRepository
-	listMapper *mapper.CopierMapper[systemadminv1.BaseMigrationListItem, models.BaseMigration]
-	mapper     *mapper.CopierMapper[systemadminv1.BaseMigration, models.BaseMigration]
+	listMapper *mapper.CopierMapper[adminv1.BaseMigrationListItem, models.BaseMigration]
+	mapper     *mapper.CopierMapper[adminv1.BaseMigration, models.BaseMigration]
 }
 
 // NewBaseMigrationCase 创建数据库升级历史查询业务实例。
@@ -27,16 +27,16 @@ func NewBaseMigrationCase(baseCase *biz.BaseCase, baseMigrationRepository *data.
 	return &BaseMigrationCase{
 		BaseCase:                baseCase,
 		BaseMigrationRepository: baseMigrationRepository,
-		listMapper:              mapper.NewCopierMapper[systemadminv1.BaseMigrationListItem, models.BaseMigration](),
-		mapper:                  mapper.NewCopierMapper[systemadminv1.BaseMigration, models.BaseMigration](),
+		listMapper:              mapper.NewCopierMapper[adminv1.BaseMigrationListItem, models.BaseMigration](),
+		mapper:                  mapper.NewCopierMapper[adminv1.BaseMigration, models.BaseMigration](),
 	}
 }
 
 // PageBaseMigration 分页查询数据库升级历史。
 func (c *BaseMigrationCase) PageBaseMigration(
 	ctx context.Context,
-	req *systemadminv1.PageBaseMigrationRequest,
-) (*systemadminv1.PageBaseMigrationResponse, error) {
+	req *adminv1.PageBaseMigrationRequest,
+) (*adminv1.PageBaseMigrationResponse, error) {
 	query := c.Query(ctx).BaseMigration
 	opts := make([]repository.QueryOption, 0, 4)
 	if req.GetDataSource() != "" {
@@ -59,8 +59,8 @@ func (c *BaseMigrationCase) PageBaseMigration(
 	if err != nil {
 		return nil, err
 	}
-	res := &systemadminv1.PageBaseMigrationResponse{
-		BaseMigrations: make([]*systemadminv1.BaseMigrationListItem, 0, len(histories)),
+	res := &adminv1.PageBaseMigrationResponse{
+		BaseMigrations: make([]*adminv1.BaseMigrationListItem, 0, len(histories)),
 		Total:          int32(total),
 	}
 	for _, item := range histories {
@@ -70,7 +70,7 @@ func (c *BaseMigrationCase) PageBaseMigration(
 }
 
 // GetBaseMigration 查询数据库迁移记录详情。
-func (c *BaseMigrationCase) GetBaseMigration(ctx context.Context, id int64) (*systemadminv1.BaseMigration, error) {
+func (c *BaseMigrationCase) GetBaseMigration(ctx context.Context, id int64) (*adminv1.BaseMigration, error) {
 	item, err := c.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -79,7 +79,7 @@ func (c *BaseMigrationCase) GetBaseMigration(ctx context.Context, id int64) (*sy
 }
 
 // LatestVersion 查询指定模块和数据源最近一次已记录的版本。
-func (c *BaseMigrationCase) LatestVersion(ctx context.Context, module gormmigration.ModuleName, dataSource string) (string, error) {
+func (c *BaseMigrationCase) LatestVersion(ctx context.Context, module migration.ModuleName, dataSource string) (string, error) {
 	query := c.Query(ctx).BaseMigration
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Where(field.Or(

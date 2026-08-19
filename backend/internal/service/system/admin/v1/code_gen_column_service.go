@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -17,7 +17,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 // CodeGenColumnService Admin代码生成字段服务。
 type CodeGenColumnService struct {
-	systemadminv1.UnimplementedCodeGenColumnServiceServer
+	adminv1.UnimplementedCodeGenColumnServiceServer
 	codeGenColumnCase *biz.CodeGenColumnCase
 }
 
@@ -27,7 +27,7 @@ func NewCodeGenColumnService(codeGenColumnCase *biz.CodeGenColumnCase) *CodeGenC
 }
 
 // ListCodeGenColumn 查询代码生成字段配置。
-func (s *CodeGenColumnService) ListCodeGenColumn(ctx context.Context, req *systemadminv1.ListCodeGenColumnRequest) (*systemadminv1.ListCodeGenColumnResponse, error) {
+func (s *CodeGenColumnService) ListCodeGenColumn(ctx context.Context, req *adminv1.ListCodeGenColumnRequest) (*adminv1.ListCodeGenColumnResponse, error) {
 	res, err := s.codeGenColumnCase.ListCodeGenColumn(ctx, req.GetTableId())
 	if err != nil {
 		log.Error(fmt.Sprintf("ListCodeGenColumn %v", err))
@@ -37,7 +37,7 @@ func (s *CodeGenColumnService) ListCodeGenColumn(ctx context.Context, req *syste
 }
 
 // ListCodeGenDatabaseColumn 查询数据库表字段列表。
-func (s *CodeGenColumnService) ListCodeGenDatabaseColumn(ctx context.Context, req *systemadminv1.ListCodeGenDatabaseColumnRequest) (*systemadminv1.ListCodeGenDatabaseColumnResponse, error) {
+func (s *CodeGenColumnService) ListCodeGenDatabaseColumn(ctx context.Context, req *adminv1.ListCodeGenDatabaseColumnRequest) (*adminv1.ListCodeGenDatabaseColumnResponse, error) {
 	res, err := s.codeGenColumnCase.ListCodeGenDatabaseColumn(ctx, req.GetTableName())
 	if err != nil {
 		log.Error(fmt.Sprintf("ListCodeGenDatabaseColumn %v", err))
@@ -47,7 +47,7 @@ func (s *CodeGenColumnService) ListCodeGenDatabaseColumn(ctx context.Context, re
 }
 
 // SaveCodeGenColumn 保存代码生成字段配置。
-func (s *CodeGenColumnService) SaveCodeGenColumn(ctx context.Context, req *systemadminv1.SaveCodeGenColumnRequest) (*emptypb.Empty, error) {
+func (s *CodeGenColumnService) SaveCodeGenColumn(ctx context.Context, req *adminv1.SaveCodeGenColumnRequest) (*emptypb.Empty, error) {
 	err := s.codeGenColumnCase.SaveCodeGenColumn(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("SaveCodeGenColumn %v", err))

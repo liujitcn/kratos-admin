@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 )
 
 var supportedLevels = map[string]struct{}{

@@ -10,18 +10,18 @@ import (
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-kit/auth"
-	authnEngine "github.com/liujitcn/kratos-kit/auth/authn/engine"
-	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/auth/authn/engine"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 
-	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	basebiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
-	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
@@ -38,8 +38,8 @@ type BaseUserCase struct {
 	baseDeptCase    *BaseDeptCase
 	baseMenuCase    *BaseMenuCase
 	defaultRoleCase *basebiz.BaseRoleCase
-	formMapper      *mapper.CopierMapper[systemadminv1.BaseUserForm, models.BaseUser]
-	mapper          *mapper.CopierMapper[systemadminv1.BaseUser, models.BaseUser]
+	formMapper      *mapper.CopierMapper[adminv1.BaseUserForm, models.BaseUser]
+	mapper          *mapper.CopierMapper[adminv1.BaseUser, models.BaseUser]
 }
 
 // NewBaseUserCase 创建用户业务实例
@@ -64,13 +64,13 @@ func NewBaseUserCase(
 		baseDeptCase:       baseDeptCase,
 		baseMenuCase:       baseMenuCase,
 		defaultRoleCase:    defaultRoleCase,
-		formMapper:         mapper.NewCopierMapper[systemadminv1.BaseUserForm, models.BaseUser](),
-		mapper:             mapper.NewCopierMapper[systemadminv1.BaseUser, models.BaseUser](),
+		formMapper:         mapper.NewCopierMapper[adminv1.BaseUserForm, models.BaseUser](),
+		mapper:             mapper.NewCopierMapper[adminv1.BaseUser, models.BaseUser](),
 	}
 }
 
 // OptionBaseUser 查询用户选项
-func (c *BaseUserCase) OptionBaseUser(ctx context.Context, req *systemadminv1.OptionBaseUserRequest) (*commonv1.SelectOptionResponse, error) {
+func (c *BaseUserCase) OptionBaseUser(ctx context.Context, req *adminv1.OptionBaseUserRequest) (*commonv1.SelectOptionResponse, error) {
 	keyword := req.GetKeyword()
 	// 未传关键字时，直接返回空选项集。
 	if keyword == "" {
@@ -103,21 +103,21 @@ func (c *BaseUserCase) OptionBaseUser(ctx context.Context, req *systemadminv1.Op
 }
 
 // ListBaseUser 按编号列表查询用户。
-func (c *BaseUserCase) ListBaseUser(ctx context.Context, ids []int64) (*systemadminv1.ListBaseUserResponse, error) {
+func (c *BaseUserCase) ListBaseUser(ctx context.Context, ids []int64) (*adminv1.ListBaseUserResponse, error) {
 	ctx = baseUserGRPCContext(ctx)
 	users, err := c.ListByIDs(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
-	baseUsers := make([]*systemadminv1.BaseUser, 0, len(users))
+	baseUsers := make([]*adminv1.BaseUser, 0, len(users))
 	for _, user := range users {
 		baseUsers = append(baseUsers, c.mapper.ToDTO(user))
 	}
-	return &systemadminv1.ListBaseUserResponse{BaseUsers: baseUsers}, nil
+	return &adminv1.ListBaseUserResponse{BaseUsers: baseUsers}, nil
 }
 
 // SummaryBaseUser 汇总指定时间范围内的用户注册数据。
-func (c *BaseUserCase) SummaryBaseUser(ctx context.Context, req *systemadminv1.SummaryBaseUserRequest) (*systemadminv1.SummaryBaseUserResponse, error) {
+func (c *BaseUserCase) SummaryBaseUser(ctx context.Context, req *adminv1.SummaryBaseUserRequest) (*adminv1.SummaryBaseUserResponse, error) {
 	startTimestamp := req.GetStartAt()
 	endTimestamp := req.GetEndAt()
 	if startTimestamp == nil || endTimestamp == nil {
@@ -142,7 +142,7 @@ func (c *BaseUserCase) SummaryBaseUser(ctx context.Context, req *systemadminv1.S
 		return nil, err
 	}
 	tenantID := req.GetTenantId()
-	if authInfo.TenantCode != databaseGorm.DefaultTenantCode {
+	if authInfo.TenantCode != gorm.DefaultTenantCode {
 		if tenantID > 0 && tenantID != authInfo.TenantId {
 			return nil, errorsx.PermissionDenied("不能统计其他租户的用户")
 		}
@@ -171,7 +171,7 @@ func (c *BaseUserCase) SummaryBaseUser(ctx context.Context, req *systemadminv1.S
 	default:
 		groupField = query.CreatedAt.DayOfWeek().Add(5).Mod(7).Add(1)
 	}
-	summaries := make([]*systemadminv1.BaseUserSummaryItem, 0)
+	summaries := make([]*adminv1.BaseUserSummaryItem, 0)
 	err = query.WithContext(ctx).
 		Select(groupField.As("key"), query.ID.Count().As("count")).
 		Where(conditions...).
@@ -180,11 +180,11 @@ func (c *BaseUserCase) SummaryBaseUser(ctx context.Context, req *systemadminv1.S
 	if err != nil {
 		return nil, err
 	}
-	return &systemadminv1.SummaryBaseUserResponse{Total: total, Summaries: summaries}, nil
+	return &adminv1.SummaryBaseUserResponse{Total: total, Summaries: summaries}, nil
 }
 
 // PageBaseUser 分页查询用户
-func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *systemadminv1.PageBaseUserRequest) (*systemadminv1.PageBaseUserResponse, error) {
+func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *adminv1.PageBaseUserRequest) (*adminv1.PageBaseUserResponse, error) {
 	ctx = baseUserGRPCContext(ctx)
 	query := c.Query(ctx).BaseUser
 	opts := make([]repository.QueryOption, 0, 8)
@@ -202,7 +202,7 @@ func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *systemadminv1.Page
 			return nil, err
 		}
 		if req.GetTenantId() > 0 && dept.TenantID != req.GetTenantId() {
-			return &systemadminv1.PageBaseUserResponse{BaseUsers: []*systemadminv1.BaseUser{}, Total: 0}, nil
+			return &adminv1.PageBaseUserResponse{BaseUsers: []*adminv1.BaseUser{}, Total: 0}, nil
 		}
 
 		deptQuery := c.baseDeptRepo.Query(ctx).BaseDept
@@ -283,22 +283,22 @@ func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *systemadminv1.Page
 			return nil, errorsx.Internal("查询用户角色失败").WithCause(err)
 		}
 		for _, baseRole := range baseRoles {
-			if coreconst.IsDefaultBaseRole(baseRole.Code) {
+			if _const.IsDefaultBaseRole(baseRole.Code) {
 				protectedRoleIDs[baseRole.ID] = struct{}{}
 			}
 		}
 	}
-	resList := make([]*systemadminv1.BaseUser, 0, len(list))
+	resList := make([]*adminv1.BaseUser, 0, len(list))
 	for _, item := range list {
 		baseUser := c.mapper.ToDTO(item)
 		_, baseUser.IsProtected = protectedRoleIDs[item.RoleID]
 		resList = append(resList, baseUser)
 	}
-	return &systemadminv1.PageBaseUserResponse{BaseUsers: resList, Total: int32(total)}, nil
+	return &adminv1.PageBaseUserResponse{BaseUsers: resList, Total: int32(total)}, nil
 }
 
 // GetBaseUser 获取用户
-func (c *BaseUserCase) GetBaseUser(ctx context.Context, id int64) (*systemadminv1.BaseUserForm, error) {
+func (c *BaseUserCase) GetBaseUser(ctx context.Context, id int64) (*adminv1.BaseUserForm, error) {
 	baseUser, err := c.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -311,12 +311,12 @@ func (c *BaseUserCase) GetBaseUser(ctx context.Context, id int64) (*systemadminv
 }
 
 // CreateBaseUser 创建用户
-func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *systemadminv1.BaseUserForm) error {
+func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *adminv1.BaseUserForm) error {
 	baseRole, err := c.baseRoleCase.FindByID(ctx, req.GetRoleId())
 	if err != nil {
 		return errorsx.ResourceNotFound("用户角色不存在").WithCause(err)
 	}
-	if coreconst.IsDefaultBaseRole(baseRole.Code) {
+	if _const.IsDefaultBaseRole(baseRole.Code) {
 		return errorsx.ProtectedResourceConflict("创建用户失败，不能选择内置角色", "base_user")
 	}
 	var baseDept *models.BaseDept
@@ -372,7 +372,7 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *systemadminv1.Ba
 }
 
 // UpdateBaseUser 更新用户
-func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *systemadminv1.BaseUserForm) error {
+func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *adminv1.BaseUserForm) error {
 	oldBaseUser, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return errorsx.ResourceNotFound("更新用户失败，用户信息不存在").WithCause(err)
@@ -394,7 +394,7 @@ func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *systemadminv1.Ba
 	if err != nil {
 		return errorsx.ResourceNotFound("用户角色不存在").WithCause(err)
 	}
-	if coreconst.IsDefaultBaseRole(newBaseRole.Code) {
+	if _const.IsDefaultBaseRole(newBaseRole.Code) {
 		return errorsx.ProtectedResourceConflict("更新用户失败，不能选择内置角色", "base_user")
 	}
 	if newBaseRole.TenantID != oldBaseUser.TenantID {
@@ -466,7 +466,7 @@ func (c *BaseUserCase) DeleteBaseUser(ctx context.Context, id string) error {
 }
 
 // SetBaseUserStatus 设置用户状态
-func (c *BaseUserCase) SetBaseUserStatus(ctx context.Context, req *systemadminv1.SetBaseUserStatusRequest) error {
+func (c *BaseUserCase) SetBaseUserStatus(ctx context.Context, req *adminv1.SetBaseUserStatusRequest) error {
 	baseUser, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return errorsx.ResourceNotFound("设置状态失败，用户信息不存在").WithCause(err)
@@ -484,7 +484,7 @@ func (c *BaseUserCase) SetBaseUserStatus(ctx context.Context, req *systemadminv1
 }
 
 // ResetBaseUserPassword 重置用户密码
-func (c *BaseUserCase) ResetBaseUserPassword(ctx context.Context, req *systemadminv1.ResetBaseUserPasswordRequest) error {
+func (c *BaseUserCase) ResetBaseUserPassword(ctx context.Context, req *adminv1.ResetBaseUserPasswordRequest) error {
 	baseUser, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return errorsx.ResourceNotFound("重置密码失败，用户信息不存在").WithCause(err)
@@ -518,7 +518,7 @@ func (c *BaseUserCase) ResetBaseUserPassword(ctx context.Context, req *systemadm
 
 // SetBaseUserAppRole 将基础用户切换到允许的应用端内置角色。
 func (c *BaseUserCase) SetBaseUserAppRole(ctx context.Context, userID int64, roleCode string) error {
-	if roleCode != coreconst.BASE_ROLE_CODE_USER && roleCode != coreconst.BASE_ROLE_CODE_AUTHUSER {
+	if roleCode != _const.BASE_ROLE_CODE_USER && roleCode != _const.BASE_ROLE_CODE_AUTHUSER {
 		return errorsx.InvalidArgument("不允许设置应用端用户角色")
 	}
 	ctx = baseUserGRPCContext(ctx)
@@ -549,7 +549,7 @@ func (c *BaseUserCase) validateUserManagementTarget(ctx context.Context, baseUse
 		return errorsx.Internal("校验用户角色失败").WithCause(err)
 	}
 	// super 和 tenant 管理员只能通过个人中心维护自身资料与密码。
-	if coreconst.IsDefaultBaseRole(baseRole.Code) {
+	if _const.IsDefaultBaseRole(baseRole.Code) {
 		return errorsx.ProtectedResourceConflict("操作用户失败，内置管理员账号只能通过个人中心修改", "base_user")
 	}
 	return nil
@@ -562,8 +562,8 @@ func (c *BaseUserCase) roleProtectionQueryContext(ctx context.Context) (context.
 		return nil, err
 	}
 	roleAuthInfo := *authInfo
-	roleAuthInfo.DataScope = databaseGorm.DataScopeAll
-	return authnEngine.ContextWithAuthClaims(ctx, roleAuthInfo.MakeAuthClaims()), nil
+	roleAuthInfo.DataScope = gorm.DataScopeAll
+	return engine.ContextWithAuthClaims(ctx, roleAuthInfo.MakeAuthClaims()), nil
 }
 
 // validateBasePost 校验用户岗位属于用户租户，且新选择的岗位处于启用状态。
@@ -578,7 +578,7 @@ func (c *BaseUserCase) validateBasePost(ctx context.Context, postID int64, tenan
 	if basePost.TenantID != tenantID {
 		return nil, errorsx.InvalidArgument("用户岗位与所属租户不一致")
 	}
-	if basePost.Status != coreconst.STATUS_STATUS_ENABLE && basePost.ID != oldPostID {
+	if basePost.Status != _const.STATUS_STATUS_ENABLE && basePost.ID != oldPostID {
 		return nil, errorsx.PermissionDenied("岗位已被禁用，不能选择")
 	}
 	return basePost, nil
@@ -606,9 +606,9 @@ func baseUserGRPCContext(ctx context.Context) context.Context {
 		return ctx
 	}
 	unscopedAuthInfo := *authInfo
-	unscopedAuthInfo.TenantCode = databaseGorm.DefaultTenantCode
-	unscopedAuthInfo.DataScope = databaseGorm.DataScopeAll
-	return authnEngine.ContextWithAuthClaims(ctx, unscopedAuthInfo.MakeAuthClaims())
+	unscopedAuthInfo.TenantCode = gorm.DefaultTenantCode
+	unscopedAuthInfo.DataScope = gorm.DataScopeAll
+	return engine.ContextWithAuthClaims(ctx, unscopedAuthInfo.MakeAuthClaims())
 }
 
 // baseUserLocalCall 判断请求是否来自其他进程内模块。

@@ -4,7 +4,7 @@ import (
 	"context"
 	"regexp"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
@@ -16,7 +16,7 @@ import (
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
-	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 var codeGenBusinessModulePattern = regexp.MustCompile(`^[a-z][a-z0-9_]*$`)
@@ -36,8 +36,8 @@ type CodeGenTableCase struct {
 	baseMenuCase      *BaseMenuCase
 	codeGenColumnCase *CodeGenColumnCase
 	codeGenProtoCase  *CodeGenProtoCase
-	formMapper        *mapper.CopierMapper[systemadminv1.CodeGenTableForm, models.CodeGenTable]
-	mapper            *mapper.CopierMapper[systemadminv1.CodeGenTable, models.CodeGenTable]
+	formMapper        *mapper.CopierMapper[adminv1.CodeGenTableForm, models.CodeGenTable]
+	mapper            *mapper.CopierMapper[adminv1.CodeGenTable, models.CodeGenTable]
 }
 
 // NewCodeGenTableCase 创建代码生成表配置业务实例。
@@ -51,9 +51,9 @@ func NewCodeGenTableCase(
 	codeGenColumnCase *CodeGenColumnCase,
 	codeGenProtoCase *CodeGenProtoCase,
 ) *CodeGenTableCase {
-	formMapper := mapper.NewCopierMapper[systemadminv1.CodeGenTableForm, models.CodeGenTable]()
-	formMapper.AppendConverters(mapper.NewJSONTypeConverter[*systemadminv1.CodeGenLeftTreeConfig]().NewConverterPair())
-	formMapper.AppendConverters(mapper.NewJSONTypeConverter[map[string]*systemadminv1.CodeGenLocaleConfig]().NewConverterPair())
+	formMapper := mapper.NewCopierMapper[adminv1.CodeGenTableForm, models.CodeGenTable]()
+	formMapper.AppendConverters(mapper.NewJSONTypeConverter[*adminv1.CodeGenLeftTreeConfig]().NewConverterPair())
+	formMapper.AppendConverters(mapper.NewJSONTypeConverter[map[string]*adminv1.CodeGenLocaleConfig]().NewConverterPair())
 	formMapper.AppendConverters(mapper.NewGenericTypeConverterPair(
 		false,
 		int32(0),
@@ -67,8 +67,8 @@ func NewCodeGenTableCase(
 			return value == 1
 		},
 	))
-	tableMapper := mapper.NewCopierMapper[systemadminv1.CodeGenTable, models.CodeGenTable]()
-	tableMapper.AppendConverters(mapper.NewJSONTypeConverter[map[string]*systemadminv1.CodeGenLocaleConfig]().NewConverterPair())
+	tableMapper := mapper.NewCopierMapper[adminv1.CodeGenTable, models.CodeGenTable]()
+	tableMapper.AppendConverters(mapper.NewJSONTypeConverter[map[string]*adminv1.CodeGenLocaleConfig]().NewConverterPair())
 	return &CodeGenTableCase{
 		BaseCase:               baseCase,
 		CodeGenTableRepository: codeGenTableRepo,
@@ -84,7 +84,7 @@ func NewCodeGenTableCase(
 }
 
 // PageCodeGenTable 查询代码生成表配置分页数据。
-func (c *CodeGenTableCase) PageCodeGenTable(ctx context.Context, req *systemadminv1.PageCodeGenTableRequest) (*systemadminv1.PageCodeGenTableResponse, error) {
+func (c *CodeGenTableCase) PageCodeGenTable(ctx context.Context, req *adminv1.PageCodeGenTableRequest) (*adminv1.PageCodeGenTableResponse, error) {
 	query := c.Query(ctx).CodeGenTable
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
@@ -104,17 +104,17 @@ func (c *CodeGenTableCase) PageCodeGenTable(ctx context.Context, req *systemadmi
 	if err != nil {
 		return nil, err
 	}
-	codeGenTables := make([]*systemadminv1.CodeGenTable, 0, len(list))
+	codeGenTables := make([]*adminv1.CodeGenTable, 0, len(list))
 	for _, item := range list {
 		table := c.mapper.ToDTO(item)
 		table.RestoreAvailable = RestoreAvailable(item.ID)
 		codeGenTables = append(codeGenTables, table)
 	}
-	return &systemadminv1.PageCodeGenTableResponse{CodeGenTables: codeGenTables, Total: int32(total)}, nil
+	return &adminv1.PageCodeGenTableResponse{CodeGenTables: codeGenTables, Total: int32(total)}, nil
 }
 
 // ListCodeGenDatabaseTable 查询当前数据库表元数据。
-func (c *CodeGenTableCase) ListCodeGenDatabaseTable(ctx context.Context) (*systemadminv1.ListCodeGenDatabaseTableResponse, error) {
+func (c *CodeGenTableCase) ListCodeGenDatabaseTable(ctx context.Context) (*adminv1.ListCodeGenDatabaseTableResponse, error) {
 	query := c.Query(ctx).CodeGenTable
 	opts := make([]repository.QueryOption, 0, 1)
 	opts = append(opts, repository.Order(query.Name.Asc()))
@@ -131,26 +131,26 @@ func (c *CodeGenTableCase) ListCodeGenDatabaseTable(ctx context.Context) (*syste
 	if err != nil {
 		return nil, err
 	}
-	tables := make([]*systemadminv1.CodeGenDatabaseTable, 0, len(tableInfos))
+	tables := make([]*adminv1.CodeGenDatabaseTable, 0, len(tableInfos))
 	for _, tableInfo := range tableInfos {
-		tables = append(tables, &systemadminv1.CodeGenDatabaseTable{
+		tables = append(tables, &adminv1.CodeGenDatabaseTable{
 			Name:     tableInfo.TableName,
 			Comment:  tableInfo.TableComment,
 			Disabled: usedTableNames[tableInfo.TableName],
 		})
 	}
-	return &systemadminv1.ListCodeGenDatabaseTableResponse{Tables: tables}, nil
+	return &adminv1.ListCodeGenDatabaseTableResponse{Tables: tables}, nil
 }
 
 // GetCodeGenTable 查询代码生成表配置。
-func (c *CodeGenTableCase) GetCodeGenTable(ctx context.Context, id int64) (*systemadminv1.CodeGenTableForm, error) {
+func (c *CodeGenTableCase) GetCodeGenTable(ctx context.Context, id int64) (*adminv1.CodeGenTableForm, error) {
 	item, err := c.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 	form := c.formMapper.ToDTO(item)
 	if form.LeftTreeConfig == nil {
-		form.LeftTreeConfig = &systemadminv1.CodeGenLeftTreeConfig{}
+		form.LeftTreeConfig = &adminv1.CodeGenLeftTreeConfig{}
 	}
 	return form, nil
 }
@@ -174,7 +174,7 @@ func (c *CodeGenTableCase) ValidateBusinessModule(ctx context.Context, module st
 }
 
 // CreateCodeGenTable 创建代码生成表配置。
-func (c *CodeGenTableCase) CreateCodeGenTable(ctx context.Context, req *systemadminv1.CodeGenTableForm) error {
+func (c *CodeGenTableCase) CreateCodeGenTable(ctx context.Context, req *adminv1.CodeGenTableForm) error {
 	item, err := c.codeGenTableFormToModel(ctx, req)
 	if err != nil {
 		return err
@@ -191,7 +191,7 @@ func (c *CodeGenTableCase) CreateCodeGenTable(ctx context.Context, req *systemad
 }
 
 // UpdateCodeGenTable 更新代码生成表配置。
-func (c *CodeGenTableCase) UpdateCodeGenTable(ctx context.Context, id int64, req *systemadminv1.CodeGenTableForm) error {
+func (c *CodeGenTableCase) UpdateCodeGenTable(ctx context.Context, id int64, req *adminv1.CodeGenTableForm) error {
 	item, err := c.codeGenTableFormToModel(ctx, req)
 	if err != nil {
 		return err
@@ -247,7 +247,7 @@ func (c *CodeGenTableCase) DeleteCodeGenTable(ctx context.Context, ids string) e
 
 // listDatabaseTables 查询当前数据库的表名与表描述，可按表名缩小范围。
 func (c *CodeGenTableCase) listDatabaseTables(ctx context.Context, tableNames []string) ([]dto.CodeGenDatabaseTable, error) {
-	database := c.GormClients[databaseGorm.DefaultClientName]
+	database := c.GormClients[gorm.DefaultClientName]
 	query := database.DB.WithContext(ctx).
 		Table("information_schema.tables").
 		Select("table_name, table_comment").
@@ -262,7 +262,7 @@ func (c *CodeGenTableCase) listDatabaseTables(ctx context.Context, tableNames []
 }
 
 // codeGenTableFormToModel 转换代码生成表配置保存模型，并校验生成所需的关联配置。
-func (c *CodeGenTableCase) codeGenTableFormToModel(ctx context.Context, req *systemadminv1.CodeGenTableForm) (*models.CodeGenTable, error) {
+func (c *CodeGenTableCase) codeGenTableFormToModel(ctx context.Context, req *adminv1.CodeGenTableForm) (*models.CodeGenTable, error) {
 	module := req.GetBusinessModule()
 	err := c.ValidateBusinessModule(ctx, module)
 	if err != nil {

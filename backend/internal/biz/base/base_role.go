@@ -8,8 +8,8 @@ import (
 	"github.com/liujitcn/kratos-core/biz"
 
 	"github.com/liujitcn/gorm-kit/repository"
-	coreconst "github.com/liujitcn/kratos-core/const"
-	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 // BaseRoleCase 处理基础角色业务。
@@ -34,14 +34,14 @@ func NewBaseRoleCase(
 
 // FindDefaultUser 查询默认租户的普通用户角色。
 func (c *BaseRoleCase) FindDefaultUser(ctx context.Context) (*models.BaseRole, error) {
-	return c.FindDefaultByCode(ctx, coreconst.BASE_ROLE_CODE_USER)
+	return c.FindDefaultByCode(ctx, _const.BASE_ROLE_CODE_USER)
 }
 
 // FindDefaultByCode 按编码查询默认租户的基础角色。
 func (c *BaseRoleCase) FindDefaultByCode(ctx context.Context, roleCode string) (*models.BaseRole, error) {
 	tenantQuery := c.baseTenantRepo.Query(ctx).BaseTenant
 	tenantOpts := make([]repository.QueryOption, 0, 1)
-	tenantOpts = append(tenantOpts, repository.Where(tenantQuery.Code.Eq(databaseGorm.DefaultTenantCode)))
+	tenantOpts = append(tenantOpts, repository.Where(tenantQuery.Code.Eq(gorm.DefaultTenantCode)))
 	defaultTenant, err := c.baseTenantRepo.Find(ctx, tenantOpts...)
 	if err != nil {
 		return nil, err

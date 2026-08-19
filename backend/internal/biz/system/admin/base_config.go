@@ -6,8 +6,8 @@ import (
 
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 
-	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
@@ -26,8 +26,8 @@ type BaseConfigCase struct {
 	*data.BaseConfigRepository
 	tx                  data.Transaction
 	baseTranslationCase *BaseTranslationCase
-	formMapper          *mapper.CopierMapper[systemadminv1.BaseConfigForm, models.BaseConfig]
-	mapper              *mapper.CopierMapper[systemadminv1.BaseConfig, models.BaseConfig]
+	formMapper          *mapper.CopierMapper[adminv1.BaseConfigForm, models.BaseConfig]
+	mapper              *mapper.CopierMapper[adminv1.BaseConfig, models.BaseConfig]
 }
 
 // NewBaseConfigCase 创建配置业务实例
@@ -37,8 +37,8 @@ func NewBaseConfigCase(baseCase *biz.BaseCase, tx data.Transaction, baseConfigRe
 		tx:                   tx,
 		BaseConfigRepository: baseConfigRepo,
 		baseTranslationCase:  baseTranslationCase,
-		formMapper:           mapper.NewCopierMapper[systemadminv1.BaseConfigForm, models.BaseConfig](),
-		mapper:               mapper.NewCopierMapper[systemadminv1.BaseConfig, models.BaseConfig](),
+		formMapper:           mapper.NewCopierMapper[adminv1.BaseConfigForm, models.BaseConfig](),
+		mapper:               mapper.NewCopierMapper[adminv1.BaseConfig, models.BaseConfig](),
 	}
 }
 
@@ -60,7 +60,7 @@ func (c *BaseConfigCase) RefreshBaseConfig(ctx context.Context) error {
 }
 
 // PageBaseConfig 分页查询配置
-func (c *BaseConfigCase) PageBaseConfig(ctx context.Context, req *systemadminv1.PageBaseConfigRequest) (*systemadminv1.PageBaseConfigResponse, error) {
+func (c *BaseConfigCase) PageBaseConfig(ctx context.Context, req *adminv1.PageBaseConfigRequest) (*adminv1.PageBaseConfigResponse, error) {
 	query := c.Query(ctx).BaseConfig
 	opts := make([]repository.QueryOption, 0, 6)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
@@ -69,7 +69,7 @@ func (c *BaseConfigCase) PageBaseConfig(ctx context.Context, req *systemadminv1.
 	}
 	// 传入名称关键字时，按配置名称模糊匹配。
 	if req.GetName() != "" {
-		targetIds, err := c.baseTranslationCase.GetTargetIdsByName(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, req.GetName())
+		targetIds, err := c.baseTranslationCase.GetTargetIdsByName(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, req.GetName())
 		if err != nil {
 			return nil, err
 		}
@@ -96,13 +96,13 @@ func (c *BaseConfigCase) PageBaseConfig(ctx context.Context, req *systemadminv1.
 		return nil, err
 	}
 
-	resList := make([]*systemadminv1.BaseConfig, 0, len(list))
+	resList := make([]*adminv1.BaseConfig, 0, len(list))
 	targetIds := make([]int64, 0, len(list))
 	for _, item := range list {
 		targetIds = append(targetIds, item.ID)
 	}
-	var translations map[int64][]*systemadminv1.BaseI18n
-	translations, err = c.baseTranslationCase.GetBaseTranslationMapByTargetType(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, targetIds)
+	var translations map[int64][]*adminv1.BaseI18n
+	translations, err = c.baseTranslationCase.GetBaseTranslationMapByTargetType(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, targetIds)
 	if err != nil {
 		return nil, err
 	}
@@ -112,26 +112,26 @@ func (c *BaseConfigCase) PageBaseConfig(ctx context.Context, req *systemadminv1.
 		resList = append(resList, baseConfig)
 	}
 
-	return &systemadminv1.PageBaseConfigResponse{
+	return &adminv1.PageBaseConfigResponse{
 		BaseConfigs: resList,
 		Total:       int32(total),
 	}, nil
 }
 
 // GetBaseConfig 根据主键查询配置
-func (c *BaseConfigCase) GetBaseConfig(ctx context.Context, id int64) (*systemadminv1.BaseConfigForm, error) {
+func (c *BaseConfigCase) GetBaseConfig(ctx context.Context, id int64) (*adminv1.BaseConfigForm, error) {
 	baseConfig, err := c.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 	res := c.formMapper.ToDTO(baseConfig)
-	var nameTranslations, valueTranslations map[int64][]*systemadminv1.BaseI18n
-	nameTranslations, err = c.baseTranslationCase.GetBaseTranslationMapByTargetType(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, []int64{id})
+	var nameTranslations, valueTranslations map[int64][]*adminv1.BaseI18n
+	nameTranslations, err = c.baseTranslationCase.GetBaseTranslationMapByTargetType(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, []int64{id})
 	if err != nil {
 		return nil, err
 	}
 	if isTranslatableConfigType(baseConfig.Type) {
-		valueTranslations, err = c.baseTranslationCase.GetBaseTranslationMapByTargetType(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE, []int64{id})
+		valueTranslations, err = c.baseTranslationCase.GetBaseTranslationMapByTargetType(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE, []int64{id})
 		if err != nil {
 			return nil, err
 		}
@@ -142,7 +142,7 @@ func (c *BaseConfigCase) GetBaseConfig(ctx context.Context, id int64) (*systemad
 }
 
 // CreateBaseConfig 创建配置
-func (c *BaseConfigCase) CreateBaseConfig(ctx context.Context, req *systemadminv1.BaseConfigForm) error {
+func (c *BaseConfigCase) CreateBaseConfig(ctx context.Context, req *adminv1.BaseConfigForm) error {
 	entity := c.formMapper.ToEntity(req)
 	err := c.Create(ctx, entity)
 	if err != nil {
@@ -164,7 +164,7 @@ func (c *BaseConfigCase) CreateBaseConfig(ctx context.Context, req *systemadminv
 }
 
 // UpdateBaseConfig 更新配置
-func (c *BaseConfigCase) UpdateBaseConfig(ctx context.Context, req *systemadminv1.BaseConfigForm) error {
+func (c *BaseConfigCase) UpdateBaseConfig(ctx context.Context, req *adminv1.BaseConfigForm) error {
 	oldConfig, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err
@@ -229,7 +229,7 @@ func (c *BaseConfigCase) DeleteBaseConfig(ctx context.Context, id string) error 
 }
 
 // SetBaseConfigStatus 设置配置状态
-func (c *BaseConfigCase) SetBaseConfigStatus(ctx context.Context, req *systemadminv1.SetBaseConfigStatusRequest) error {
+func (c *BaseConfigCase) SetBaseConfigStatus(ctx context.Context, req *adminv1.SetBaseConfigStatusRequest) error {
 	err := c.UpdateByID(ctx, &models.BaseConfig{
 		ID:     req.GetId(),
 		Status: req.GetStatus(),
@@ -252,8 +252,8 @@ func (c *BaseConfigCase) SetBaseConfigStatus(ctx context.Context, req *systemadm
 }
 
 // saveBaseTranslation 保存翻译信息
-func (c *BaseConfigCase) saveBaseTranslation(ctx context.Context, req *systemadminv1.BaseConfigForm, entity *models.BaseConfig) error {
-	err := c.baseTranslationCase.SaveBaseTranslation(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, entity.ID, entity.Name, req.GetNameTranslations(), func(ctx context.Context, name string) error {
+func (c *BaseConfigCase) saveBaseTranslation(ctx context.Context, req *adminv1.BaseConfigForm, entity *models.BaseConfig) error {
+	err := c.baseTranslationCase.SaveBaseTranslation(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, entity.ID, entity.Name, req.GetNameTranslations(), func(ctx context.Context, name string) error {
 		return c.UpdateByID(ctx, &models.BaseConfig{
 			ID:   entity.ID,
 			Name: name,
@@ -265,7 +265,7 @@ func (c *BaseConfigCase) saveBaseTranslation(ctx context.Context, req *systemadm
 	if !isTranslatableConfigType(entity.Type) {
 		return nil
 	}
-	return c.baseTranslationCase.SaveBaseTranslation(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE, entity.ID, entity.Value, req.GetValueTranslations(), func(ctx context.Context, value string) error {
+	return c.baseTranslationCase.SaveBaseTranslation(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE, entity.ID, entity.Value, req.GetValueTranslations(), func(ctx context.Context, value string) error {
 		return c.UpdateByID(ctx, &models.BaseConfig{
 			ID:    entity.ID,
 			Value: value,
@@ -275,11 +275,11 @@ func (c *BaseConfigCase) saveBaseTranslation(ctx context.Context, req *systemadm
 
 // deleteBaseTranslation 删除翻译信息
 func (c *BaseConfigCase) deleteBaseTranslation(ctx context.Context, ids []int64) error {
-	err := c.baseTranslationCase.DeleteBaseTranslation(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, ids)
+	err := c.baseTranslationCase.DeleteBaseTranslation(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, ids)
 	if err != nil {
 		return err
 	}
-	return c.baseTranslationCase.DeleteBaseTranslation(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE, ids)
+	return c.baseTranslationCase.DeleteBaseTranslation(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE, ids)
 }
 
 // refreshBaseConfigSite 查询并缓存指定站点的启用配置。
@@ -312,5 +312,5 @@ func (c *BaseConfigCase) refreshBaseConfigSite(ctx context.Context, site int32) 
 
 // isTranslatableConfigType 判断配置值是否支持机器翻译和动态译文。
 func isTranslatableConfigType(configType int32) bool {
-	return configType == int32(systemadminv1.BaseConfigType_BASE_CONFIG_TYPE_TEXT) || configType == int32(systemadminv1.BaseConfigType_BASE_CONFIG_TYPE_RICH_TEXT)
+	return configType == int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_TEXT) || configType == int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_RICH_TEXT)
 }

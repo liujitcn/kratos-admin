@@ -14,13 +14,13 @@ import (
 	"github.com/shirou/gopsutil/v4/disk"
 	"github.com/shirou/gopsutil/v4/mem"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
 
-	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/liujitcn/kratos-kit/utils"
 	"github.com/redis/go-redis/v9"
 )
@@ -49,12 +49,12 @@ func NewOpsMonitoringCase(
 }
 
 // GetOpsRuntime 查询当前进程运行信息。
-func (c *OpsMonitoringCase) GetOpsRuntime(_ context.Context, _ *systemadminv1.GetOpsRuntimeRequest) *systemadminv1.OpsRuntime {
+func (c *OpsMonitoringCase) GetOpsRuntime(_ context.Context, _ *adminv1.GetOpsRuntimeRequest) *adminv1.OpsRuntime {
 	return c.runtimeInfo(time.Now())
 }
 
 // GetOpsTraffic 查询请求流量与延迟趋势。
-func (c *OpsMonitoringCase) GetOpsTraffic(ctx context.Context, req *systemadminv1.GetOpsTrafficRequest) (*systemadminv1.OpsTrafficResponse, error) {
+func (c *OpsMonitoringCase) GetOpsTraffic(ctx context.Context, req *adminv1.GetOpsTrafficRequest) (*adminv1.OpsTrafficResponse, error) {
 	windowMinutes := monitoringWindow(req.GetWindowMinutes())
 	now := time.Now()
 	start := now.Add(-time.Duration(windowMinutes) * time.Minute)
@@ -62,7 +62,7 @@ func (c *OpsMonitoringCase) GetOpsTraffic(ctx context.Context, req *systemadminv
 	if err != nil {
 		return nil, err
 	}
-	return &systemadminv1.OpsTrafficResponse{
+	return &adminv1.OpsTrafficResponse{
 		CollectedAt:   now.Format(time.RFC3339Nano),
 		WindowMinutes: int32(windowMinutes),
 		Traffic:       summarizeTraffic(logs, windowMinutes),
@@ -71,26 +71,26 @@ func (c *OpsMonitoringCase) GetOpsTraffic(ctx context.Context, req *systemadminv
 }
 
 // GetOpsServices 查询服务和外部依赖状态。
-func (c *OpsMonitoringCase) GetOpsServices(ctx context.Context, _ *systemadminv1.GetOpsServicesRequest) *systemadminv1.OpsServicesResponse {
+func (c *OpsMonitoringCase) GetOpsServices(ctx context.Context, _ *adminv1.GetOpsServicesRequest) *adminv1.OpsServicesResponse {
 	services, _ := c.collectDependencies(ctx)
-	return &systemadminv1.OpsServicesResponse{CollectedAt: time.Now().Format(time.RFC3339Nano), Services: services}
+	return &adminv1.OpsServicesResponse{CollectedAt: time.Now().Format(time.RFC3339Nano), Services: services}
 }
 
 // GetOpsStorage 查询数据库和缓存状态。
-func (c *OpsMonitoringCase) GetOpsStorage(ctx context.Context, _ *systemadminv1.GetOpsStorageRequest) *systemadminv1.OpsStorageResponse {
+func (c *OpsMonitoringCase) GetOpsStorage(ctx context.Context, _ *adminv1.GetOpsStorageRequest) *adminv1.OpsStorageResponse {
 	_, storage := c.collectDependencies(ctx)
-	return &systemadminv1.OpsStorageResponse{CollectedAt: time.Now().Format(time.RFC3339Nano), Storage: storage}
+	return &adminv1.OpsStorageResponse{CollectedAt: time.Now().Format(time.RFC3339Nano), Storage: storage}
 }
 
 // GetOpsEndpoints 查询接口请求摘要。
-func (c *OpsMonitoringCase) GetOpsEndpoints(ctx context.Context, req *systemadminv1.GetOpsEndpointsRequest) (*systemadminv1.OpsEndpointsResponse, error) {
+func (c *OpsMonitoringCase) GetOpsEndpoints(ctx context.Context, req *adminv1.GetOpsEndpointsRequest) (*adminv1.OpsEndpointsResponse, error) {
 	windowMinutes := monitoringWindow(req.GetWindowMinutes())
 	now := time.Now()
 	logs, err := c.loadLogs(ctx, now.Add(-time.Duration(windowMinutes)*time.Minute))
 	if err != nil {
 		return nil, err
 	}
-	return &systemadminv1.OpsEndpointsResponse{
+	return &adminv1.OpsEndpointsResponse{
 		CollectedAt:   now.Format(time.RFC3339Nano),
 		WindowMinutes: int32(windowMinutes),
 		Endpoints:     summarizeEndpoints(logs, windowMinutes),
@@ -98,20 +98,20 @@ func (c *OpsMonitoringCase) GetOpsEndpoints(ctx context.Context, req *systemadmi
 }
 
 // GetOpsNodes 查询实例资源状态。
-func (c *OpsMonitoringCase) GetOpsNodes(_ context.Context, _ *systemadminv1.GetOpsNodesRequest) *systemadminv1.OpsNodesResponse {
+func (c *OpsMonitoringCase) GetOpsNodes(_ context.Context, _ *adminv1.GetOpsNodesRequest) *adminv1.OpsNodesResponse {
 	now := time.Now()
-	return &systemadminv1.OpsNodesResponse{CollectedAt: now.Format(time.RFC3339Nano), Nodes: summarizeNodes(c.runtimeInfo(now), collectNodeMetrics())}
+	return &adminv1.OpsNodesResponse{CollectedAt: now.Format(time.RFC3339Nano), Nodes: summarizeNodes(c.runtimeInfo(now), collectNodeMetrics())}
 }
 
 // GetOpsAlerts 查询窗口内告警事件。
-func (c *OpsMonitoringCase) GetOpsAlerts(ctx context.Context, req *systemadminv1.GetOpsAlertsRequest) (*systemadminv1.OpsAlertsResponse, error) {
+func (c *OpsMonitoringCase) GetOpsAlerts(ctx context.Context, req *adminv1.GetOpsAlertsRequest) (*adminv1.OpsAlertsResponse, error) {
 	windowMinutes := monitoringWindow(req.GetWindowMinutes())
 	now := time.Now()
 	logs, err := c.loadLogs(ctx, now.Add(-time.Duration(windowMinutes)*time.Minute))
 	if err != nil {
 		return nil, err
 	}
-	return &systemadminv1.OpsAlertsResponse{
+	return &adminv1.OpsAlertsResponse{
 		CollectedAt:   now.Format(time.RFC3339Nano),
 		WindowMinutes: int32(windowMinutes),
 		Alerts:        summarizeAlerts(logs),
@@ -133,7 +133,7 @@ func (c *OpsMonitoringCase) loadLogs(ctx context.Context, start time.Time) ([]dt
 }
 
 // runtimeInfo 读取当前 Go 进程的运行时信息。
-func (c *OpsMonitoringCase) runtimeInfo(now time.Time) *systemadminv1.OpsRuntime {
+func (c *OpsMonitoringCase) runtimeInfo(now time.Time) *adminv1.OpsRuntime {
 	var memory runtime.MemStats
 	runtime.ReadMemStats(&memory)
 	appInfo := c.GetAppInfo()
@@ -147,7 +147,7 @@ func (c *OpsMonitoringCase) runtimeInfo(now time.Time) *systemadminv1.OpsRuntime
 			uptimeSeconds = 0
 		}
 	}
-	return &systemadminv1.OpsRuntime{
+	return &adminv1.OpsRuntime{
 		ServiceName:      firstNonEmpty(appInfo.GetName(), appInfo.GetAppId()),
 		Version:          appInfo.GetVersion(),
 		Hostname:         firstNonEmpty(appInfo.GetHostname(), hostname()),
@@ -164,12 +164,12 @@ func (c *OpsMonitoringCase) runtimeInfo(now time.Time) *systemadminv1.OpsRuntime
 }
 
 // collectDependencies 采集数据库和 Redis 的连接状态与连接池信息。
-func (c *OpsMonitoringCase) collectDependencies(ctx context.Context) ([]*systemadminv1.OpsServiceStatus, []*systemadminv1.OpsStorage) {
+func (c *OpsMonitoringCase) collectDependencies(ctx context.Context) ([]*adminv1.OpsServiceStatus, []*adminv1.OpsStorage) {
 	appInfo := c.GetAppInfo()
-	services := []*systemadminv1.OpsServiceStatus{
+	services := []*adminv1.OpsServiceStatus{
 		{Name: "Backend API", Address: appInfo.GetAppId(), Status: "正常", Message: "监控服务响应正常"},
 	}
-	storage := make([]*systemadminv1.OpsStorage, 0, 2)
+	storage := make([]*adminv1.OpsStorage, 0, 2)
 	databaseService, databaseStorage := c.databaseStatus(ctx)
 	services = append(services, databaseService)
 	if databaseStorage != nil {
@@ -184,16 +184,16 @@ func (c *OpsMonitoringCase) collectDependencies(ctx context.Context) ([]*systema
 }
 
 // databaseStatus 检查数据库连接并读取连接池统计。
-func (c *OpsMonitoringCase) databaseStatus(ctx context.Context) (*systemadminv1.OpsServiceStatus, *systemadminv1.OpsStorage) {
+func (c *OpsMonitoringCase) databaseStatus(ctx context.Context) (*adminv1.OpsServiceStatus, *adminv1.OpsStorage) {
 	dataConfig := c.GetConfig().GetData()
 	config := dataConfig.GetDatabase()
 	if config == nil {
-		config = dataConfig.GetDatabases()[databaseGorm.DefaultClientName]
+		config = dataConfig.GetDatabases()[gorm.DefaultClientName]
 	}
-	database := c.GormClients[databaseGorm.DefaultClientName]
+	database := c.GormClients[gorm.DefaultClientName]
 	address := databaseAddress(config.GetDriver(), config.GetSource())
-	service := &systemadminv1.OpsServiceStatus{Name: "MySQL", Address: address, Status: "异常"}
-	storage := &systemadminv1.OpsStorage{
+	service := &adminv1.OpsServiceStatus{Name: "MySQL", Address: address, Status: "异常"}
+	storage := &adminv1.OpsStorage{
 		Name:          "MySQL · primary",
 		ShortName:     "SQL",
 		Address:       address,
@@ -203,7 +203,7 @@ func (c *OpsMonitoringCase) databaseStatus(ctx context.Context) (*systemadminv1.
 	sqlDB, err := database.DB.DB()
 	if err != nil {
 		service.Message = err.Error()
-		storage.Metrics = []*systemadminv1.OpsMetric{{Label: "连接池", Value: "不可用"}}
+		storage.Metrics = []*adminv1.OpsMetric{{Label: "连接池", Value: "不可用"}}
 		return service, storage
 	}
 	startedAt := time.Now()
@@ -218,7 +218,7 @@ func (c *OpsMonitoringCase) databaseStatus(ctx context.Context) (*systemadminv1.
 		capacity = float64(stats.InUse) / float64(maxOpen) * 100
 	}
 	storage.Capacity = capacity
-	storage.Metrics = []*systemadminv1.OpsMetric{
+	storage.Metrics = []*adminv1.OpsMetric{
 		{Label: "活跃连接", Value: fmt.Sprintf("%d / %d", stats.InUse, maxOpen)},
 		{Label: "空闲连接", Value: fmt.Sprintf("%d", stats.Idle)},
 		{Label: "等待次数", Value: fmt.Sprintf("%d", stats.WaitCount)},
@@ -234,25 +234,25 @@ func (c *OpsMonitoringCase) databaseStatus(ctx context.Context) (*systemadminv1.
 }
 
 // redisStatus 检查 Redis 配置和连接状态。
-func (c *OpsMonitoringCase) redisStatus(ctx context.Context) (*systemadminv1.OpsServiceStatus, *systemadminv1.OpsStorage) {
+func (c *OpsMonitoringCase) redisStatus(ctx context.Context) (*adminv1.OpsServiceStatus, *adminv1.OpsStorage) {
 	dataConfig := c.GetConfig().GetData()
 	if dataConfig == nil {
-		return &systemadminv1.OpsServiceStatus{Name: "Redis", Status: "未配置", Message: "未配置 Redis"}, nil
+		return &adminv1.OpsServiceStatus{Name: "Redis", Status: "未配置", Message: "未配置 Redis"}, nil
 	}
 	config := dataConfig.GetRedis()
 	if config == nil || len(config.GetAddr()) == 0 {
-		return &systemadminv1.OpsServiceStatus{Name: "Redis", Status: "未配置", Message: "未配置 Redis"}, nil
+		return &adminv1.OpsServiceStatus{Name: "Redis", Status: "未配置", Message: "未配置 Redis"}, nil
 	}
 	address := strings.Join(config.GetAddr(), ", ")
-	service := &systemadminv1.OpsServiceStatus{Name: "Redis", Address: address, Status: "异常"}
-	storage := &systemadminv1.OpsStorage{
+	service := &adminv1.OpsServiceStatus{Name: "Redis", Address: address, Status: "异常"}
+	storage := &adminv1.OpsStorage{
 		Name:          "Redis · cache",
 		ShortName:     "RED",
 		Address:       address,
 		Status:        "异常",
 		CapacityLabel: "连接",
 		Capacity:      0,
-		Metrics:       []*systemadminv1.OpsMetric{{Label: "数据库", Value: fmt.Sprintf("%d", config.GetDb())}},
+		Metrics:       []*adminv1.OpsMetric{{Label: "数据库", Value: fmt.Sprintf("%d", config.GetDb())}},
 	}
 	options, err := utils.GetUniversalOptions(config)
 	if err != nil {
@@ -268,7 +268,7 @@ func (c *OpsMonitoringCase) redisStatus(ctx context.Context) (*systemadminv1.Ops
 		service.Status = "正常"
 		service.Message = "连接正常"
 		storage.Status = "正常"
-		storage.Metrics = append(storage.Metrics, &systemadminv1.OpsMetric{Label: "地址数", Value: fmt.Sprintf("%d", len(config.GetAddr()))})
+		storage.Metrics = append(storage.Metrics, &adminv1.OpsMetric{Label: "地址数", Value: fmt.Sprintf("%d", len(config.GetAddr()))})
 		return service, storage
 	}
 	if pingErr != nil {
@@ -280,7 +280,7 @@ func (c *OpsMonitoringCase) redisStatus(ctx context.Context) (*systemadminv1.Ops
 }
 
 // summarizeTraffic 聚合窗口内的请求摘要。
-func summarizeTraffic(logs []dto.OpsLogRecord, windowMinutes int) *systemadminv1.OpsTraffic {
+func summarizeTraffic(logs []dto.OpsLogRecord, windowMinutes int) *adminv1.OpsTraffic {
 	costs := make([]int64, 0, len(logs))
 	errors := 0
 	for _, log := range logs {
@@ -294,7 +294,7 @@ func summarizeTraffic(logs []dto.OpsLogRecord, windowMinutes int) *systemadminv1
 	if requestCount > 0 {
 		errorRate = float64(errors) / float64(requestCount) * 100
 	}
-	return &systemadminv1.OpsTraffic{
+	return &adminv1.OpsTraffic{
 		Qps:          float64(requestCount) / float64(windowMinutes*60),
 		P95LatencyMs: percentile(costs, 0.95),
 		ErrorRate:    errorRate,
@@ -304,7 +304,7 @@ func summarizeTraffic(logs []dto.OpsLogRecord, windowMinutes int) *systemadminv1
 }
 
 // summarizeTrafficPoints 按固定数量的时间桶聚合请求趋势。
-func summarizeTrafficPoints(logs []dto.OpsLogRecord, start time.Time, end time.Time) []*systemadminv1.OpsTrafficPoint {
+func summarizeTrafficPoints(logs []dto.OpsLogRecord, start time.Time, end time.Time) []*adminv1.OpsTrafficPoint {
 	bucketDuration := end.Sub(start) / monitoringBucketCount
 	buckets := make([]dto.OpsMinuteAggregate, monitoringBucketCount)
 	for index := range buckets {
@@ -320,7 +320,7 @@ func summarizeTrafficPoints(logs []dto.OpsLogRecord, start time.Time, end time.T
 	}
 	maxQPS := 0.0
 	maxLatency := 0.0
-	points := make([]*systemadminv1.OpsTrafficPoint, 0, len(buckets))
+	points := make([]*adminv1.OpsTrafficPoint, 0, len(buckets))
 	for _, bucket := range buckets {
 		qps := float64(bucket.Total) / bucketDuration.Seconds()
 		latency := percentile(bucket.Costs, 0.95)
@@ -330,7 +330,7 @@ func summarizeTrafficPoints(logs []dto.OpsLogRecord, start time.Time, end time.T
 		if latency > maxLatency {
 			maxLatency = latency
 		}
-		points = append(points, &systemadminv1.OpsTrafficPoint{At: bucket.At.Format(time.RFC3339Nano), Qps: qps, P95LatencyMs: latency})
+		points = append(points, &adminv1.OpsTrafficPoint{At: bucket.At.Format(time.RFC3339Nano), Qps: qps, P95LatencyMs: latency})
 	}
 	for _, point := range points {
 		if maxQPS > 0 {
@@ -344,7 +344,7 @@ func summarizeTrafficPoints(logs []dto.OpsLogRecord, start time.Time, end time.T
 }
 
 // summarizeEndpoints 按接口路径聚合窗口内的请求指标。
-func summarizeEndpoints(logs []dto.OpsLogRecord, windowMinutes int) []*systemadminv1.OpsEndpoint {
+func summarizeEndpoints(logs []dto.OpsLogRecord, windowMinutes int) []*adminv1.OpsEndpoint {
 	aggregates := make(map[string]*dto.OpsEndpointAggregate)
 	for _, log := range logs {
 		if log.Path == "" {
@@ -369,7 +369,7 @@ func summarizeEndpoints(logs []dto.OpsLogRecord, windowMinutes int) []*systemadm
 	if len(items) > 8 {
 		items = items[:8]
 	}
-	endpoints := make([]*systemadminv1.OpsEndpoint, 0, len(items))
+	endpoints := make([]*adminv1.OpsEndpoint, 0, len(items))
 	for _, item := range items {
 		errorRate := float64(item.Errors) / float64(item.Total) * 100
 		latency := percentile(item.Costs, 0.95)
@@ -377,7 +377,7 @@ func summarizeEndpoints(logs []dto.OpsLogRecord, windowMinutes int) []*systemadm
 		if item.Errors > 0 || latency >= 500 {
 			status = "关注"
 		}
-		endpoints = append(endpoints, &systemadminv1.OpsEndpoint{
+		endpoints = append(endpoints, &adminv1.OpsEndpoint{
 			Route:        item.Route,
 			Qps:          float64(item.Total) / float64(windowMinutes*60),
 			P95LatencyMs: latency,
@@ -389,29 +389,29 @@ func summarizeEndpoints(logs []dto.OpsLogRecord, windowMinutes int) []*systemadm
 }
 
 // summarizeNodes 将进程和系统资源使用情况映射为实例资源指标。
-func summarizeNodes(runtimeInfo *systemadminv1.OpsRuntime, metrics []*systemadminv1.OpsNodeMetric) []*systemadminv1.OpsNode {
+func summarizeNodes(runtimeInfo *adminv1.OpsRuntime, metrics []*adminv1.OpsNodeMetric) []*adminv1.OpsNode {
 	usedPercent := 0.0
 	if runtimeInfo.GetMemorySysBytes() > 0 {
 		usedPercent = float64(runtimeInfo.GetMemoryAllocBytes()) / float64(runtimeInfo.GetMemorySysBytes()) * 100
 	}
-	metrics = append([]*systemadminv1.OpsNodeMetric{{
+	metrics = append([]*adminv1.OpsNodeMetric{{
 		Label:      "堆内存",
 		Value:      math.Min(usedPercent, 100),
 		UsedBytes:  runtimeInfo.GetMemoryAllocBytes(),
 		TotalBytes: runtimeInfo.GetMemorySysBytes(),
 	}}, metrics...)
-	return []*systemadminv1.OpsNode{{
+	return []*adminv1.OpsNode{{
 		Name:    runtimeInfo.GetHostname(),
 		Metrics: metrics,
 	}}
 }
 
 // collectNodeMetrics 尽力采集实例可见的物理内存和程序所在文件系统使用率，单项失败时保留其他可用指标。
-func collectNodeMetrics() []*systemadminv1.OpsNodeMetric {
-	metrics := make([]*systemadminv1.OpsNodeMetric, 0, 2)
+func collectNodeMetrics() []*adminv1.OpsNodeMetric {
+	metrics := make([]*adminv1.OpsNodeMetric, 0, 2)
 	memoryStat, err := mem.VirtualMemory()
 	if err == nil && memoryStat.Total > 0 {
-		metrics = append(metrics, &systemadminv1.OpsNodeMetric{
+		metrics = append(metrics, &adminv1.OpsNodeMetric{
 			Label:      "内存",
 			Value:      math.Min(memoryStat.UsedPercent, 100),
 			UsedBytes:  memoryStat.Used,
@@ -427,7 +427,7 @@ func collectNodeMetrics() []*systemadminv1.OpsNodeMetric {
 	var diskStat *disk.UsageStat
 	diskStat, err = disk.Usage(diskPath)
 	if err == nil && diskStat.Total > 0 {
-		metrics = append(metrics, &systemadminv1.OpsNodeMetric{
+		metrics = append(metrics, &adminv1.OpsNodeMetric{
 			Label:      "硬盘",
 			Value:      math.Min(diskStat.UsedPercent, 100),
 			UsedBytes:  diskStat.Used,
@@ -438,8 +438,8 @@ func collectNodeMetrics() []*systemadminv1.OpsNodeMetric {
 }
 
 // summarizeAlerts 将窗口内失败请求转换为告警事件。
-func summarizeAlerts(logs []dto.OpsLogRecord) []*systemadminv1.OpsAlert {
-	alerts := make([]*systemadminv1.OpsAlert, 0)
+func summarizeAlerts(logs []dto.OpsLogRecord) []*adminv1.OpsAlert {
+	alerts := make([]*adminv1.OpsAlert, 0)
 	for _, log := range logs {
 		if log.IsSuccess {
 			continue
@@ -448,7 +448,7 @@ func summarizeAlerts(logs []dto.OpsLogRecord) []*systemadminv1.OpsAlert {
 		if statusCode == 0 {
 			statusCode = 500
 		}
-		alerts = append(alerts, &systemadminv1.OpsAlert{
+		alerts = append(alerts, &adminv1.OpsAlert{
 			Title:  "接口请求失败",
 			Detail: fmt.Sprintf("%s · HTTP %d · 耗时 %d ms", firstNonEmpty(log.Path, "未知接口"), statusCode, log.CostTime),
 			At:     log.RequestTime.Format(time.RFC3339Nano),

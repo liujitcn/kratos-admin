@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	systemappv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
-	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/app"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/app"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -13,7 +13,7 @@ import (
 
 // BaseDictService 字典服务
 type BaseDictService struct {
-	systemappv1.UnimplementedBaseDictServiceServer
+	appv1.UnimplementedBaseDictServiceServer
 	baseDictCase *biz.BaseDictCase
 }
 
@@ -28,7 +28,7 @@ func NewBaseDictService(
 }
 
 // GetBaseDict 查询字典
-func (s *BaseDictService) GetBaseDict(ctx context.Context, req *systemappv1.GetBaseDictRequest) (*systemappv1.BaseDictForm, error) {
+func (s *BaseDictService) GetBaseDict(ctx context.Context, req *appv1.GetBaseDictRequest) (*appv1.BaseDictForm, error) {
 	res, err := s.baseDictCase.GetBaseDict(ctx, req.GetCode())
 	if err != nil {
 		log.Error(fmt.Sprintf("GetBaseDict %v", err))

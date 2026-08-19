@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
 
@@ -20,8 +20,8 @@ import (
 type BaseDeptCase struct {
 	*biz.BaseCase
 	*data.BaseDeptRepository
-	formMapper *mapper.CopierMapper[systemadminv1.BaseDeptForm, models.BaseDept]
-	mapper     *mapper.CopierMapper[systemadminv1.BaseDept, models.BaseDept]
+	formMapper *mapper.CopierMapper[adminv1.BaseDeptForm, models.BaseDept]
+	mapper     *mapper.CopierMapper[adminv1.BaseDept, models.BaseDept]
 }
 
 // NewBaseDeptCase 创建部门业务实例
@@ -32,13 +32,13 @@ func NewBaseDeptCase(
 	return &BaseDeptCase{
 		BaseCase:           baseCase,
 		BaseDeptRepository: baseDeptRepo,
-		formMapper:         mapper.NewCopierMapper[systemadminv1.BaseDeptForm, models.BaseDept](),
-		mapper:             mapper.NewCopierMapper[systemadminv1.BaseDept, models.BaseDept](),
+		formMapper:         mapper.NewCopierMapper[adminv1.BaseDeptForm, models.BaseDept](),
+		mapper:             mapper.NewCopierMapper[adminv1.BaseDept, models.BaseDept](),
 	}
 }
 
 // OptionBaseDept 查询部门选项
-func (c *BaseDeptCase) OptionBaseDept(ctx context.Context, req *systemadminv1.OptionBaseDeptRequest) (*commonv1.TreeOptionResponse, error) {
+func (c *BaseDeptCase) OptionBaseDept(ctx context.Context, req *adminv1.OptionBaseDeptRequest) (*commonv1.TreeOptionResponse, error) {
 	query := c.Query(ctx).BaseDept
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
@@ -66,7 +66,7 @@ func (c *BaseDeptCase) OptionBaseDept(ctx context.Context, req *systemadminv1.Op
 }
 
 // TreeBaseDept 查询部门树
-func (c *BaseDeptCase) TreeBaseDept(ctx context.Context, req *systemadminv1.TreeBaseDeptRequest) (*systemadminv1.TreeBaseDeptResponse, error) {
+func (c *BaseDeptCase) TreeBaseDept(ctx context.Context, req *adminv1.TreeBaseDeptRequest) (*adminv1.TreeBaseDeptResponse, error) {
 	query := c.Query(ctx).BaseDept
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
@@ -90,11 +90,11 @@ func (c *BaseDeptCase) TreeBaseDept(ctx context.Context, req *systemadminv1.Tree
 	if req.GetLazy() {
 		parentID = req.GetParentId()
 	}
-	return &systemadminv1.TreeBaseDeptResponse{BaseDepts: c.buildBaseDeptTree(list, parentID, req.GetLazy(), hasChildren)}, nil
+	return &adminv1.TreeBaseDeptResponse{BaseDepts: c.buildBaseDeptTree(list, parentID, req.GetLazy(), hasChildren)}, nil
 }
 
 // GetBaseDept 获取部门
-func (c *BaseDeptCase) GetBaseDept(ctx context.Context, id int64) (*systemadminv1.BaseDeptForm, error) {
+func (c *BaseDeptCase) GetBaseDept(ctx context.Context, id int64) (*adminv1.BaseDeptForm, error) {
 	baseDept, err := c.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -103,7 +103,7 @@ func (c *BaseDeptCase) GetBaseDept(ctx context.Context, id int64) (*systemadminv
 }
 
 // CreateBaseDept 创建部门
-func (c *BaseDeptCase) CreateBaseDept(ctx context.Context, req *systemadminv1.BaseDeptForm) error {
+func (c *BaseDeptCase) CreateBaseDept(ctx context.Context, req *adminv1.BaseDeptForm) error {
 	baseDept := c.formMapper.ToEntity(req)
 
 	parentID := req.GetParentId()
@@ -136,7 +136,7 @@ func (c *BaseDeptCase) CreateBaseDept(ctx context.Context, req *systemadminv1.Ba
 }
 
 // UpdateBaseDept 更新部门
-func (c *BaseDeptCase) UpdateBaseDept(ctx context.Context, req *systemadminv1.BaseDeptForm) error {
+func (c *BaseDeptCase) UpdateBaseDept(ctx context.Context, req *adminv1.BaseDeptForm) error {
 	oldBaseDept, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err
@@ -179,7 +179,7 @@ func (c *BaseDeptCase) DeleteBaseDept(ctx context.Context, id string) error {
 }
 
 // SetBaseDeptStatus 设置部门状态
-func (c *BaseDeptCase) SetBaseDeptStatus(ctx context.Context, req *systemadminv1.SetBaseDeptStatusRequest) error {
+func (c *BaseDeptCase) SetBaseDeptStatus(ctx context.Context, req *adminv1.SetBaseDeptStatusRequest) error {
 	query := c.Query(ctx).BaseDept
 
 	opts := make([]repository.QueryOption, 0, 1)
@@ -205,8 +205,8 @@ func (c *BaseDeptCase) buildBaseDeptTree(
 	parentID int64,
 	lazy bool,
 	hasChildren map[int64]struct{},
-) []*systemadminv1.BaseDept {
-	res := make([]*systemadminv1.BaseDept, 0)
+) []*adminv1.BaseDept {
+	res := make([]*adminv1.BaseDept, 0)
 	for _, item := range list {
 		// 非当前父节点的部门不参与当前层级构建。
 		if item.ParentID != parentID {

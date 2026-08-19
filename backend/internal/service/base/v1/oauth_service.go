@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
-	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
+	"github.com/go-kratos/kratos/v3/transport/http"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -93,7 +93,7 @@ func (s *OauthService) BindOauthSession(ctx context.Context, req *basev1.BindOau
 func (s *OauthService) HandleOauthCallback(ctx context.Context, req *basev1.HandleOauthCallbackRequest) (*basev1.HandleOauthCallbackResponse, error) {
 	res, err := s.oauthCase.HandleOauthCallback(ctx, req)
 	if err != nil {
-		if _, ok := err.(kratosHTTP.Redirector); ok {
+		if _, ok := err.(http.Redirector); ok {
 			return nil, err
 		}
 		log.Error(fmt.Sprintf("HandleOauthCallback %v", err))
@@ -116,7 +116,7 @@ func (s *OauthService) ExchangeOauthTicket(ctx context.Context, req *basev1.Exch
 func (s *OauthService) HandleOauthBindingCallback(ctx context.Context, req *basev1.HandleOauthBindingCallbackRequest) (*basev1.HandleOauthBindingCallbackResponse, error) {
 	err := s.oauthCase.HandleOauthBindingCallback(ctx, req)
 	if err != nil {
-		if _, ok := err.(kratosHTTP.Redirector); ok {
+		if _, ok := err.(http.Redirector); ok {
 			return nil, err
 		}
 		log.Error(fmt.Sprintf("HandleOauthBindingCallback %v", err))

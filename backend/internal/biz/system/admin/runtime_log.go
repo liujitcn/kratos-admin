@@ -20,12 +20,12 @@ import (
 	"strings"
 	"time"
 
-	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	coreBiz "github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
-	coreSSE "github.com/liujitcn/kratos-core/sse"
+	"github.com/liujitcn/kratos-core/sse"
 )
 
 const (
@@ -43,7 +43,7 @@ type RuntimeLogCase struct {
 }
 
 // NewRuntimeLogCase 创建运行日志业务实例并接入 SSE 发布能力。
-func NewRuntimeLogCase(baseCase *coreBiz.BaseCase, hub *logstream.Hub, sseRuntime *coreSSE.SSE) (*RuntimeLogCase, error) {
+func NewRuntimeLogCase(baseCase *coreBiz.BaseCase, hub *logstream.Hub, sseRuntime *sse.SSE) (*RuntimeLogCase, error) {
 	loggerConfig := baseCase.GetConfig().GetLogger()
 	logRoot := ""
 	var err error

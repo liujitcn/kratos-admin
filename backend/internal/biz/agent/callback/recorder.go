@@ -8,7 +8,7 @@ import (
 	"time"
 
 	einoCallbacks "github.com/cloudwego/eino/callbacks"
-	componentsModel "github.com/cloudwego/eino/components/model"
+	"github.com/cloudwego/eino/components/model"
 	"github.com/cloudwego/eino/schema"
 	callbackTemplate "github.com/cloudwego/eino/utils/callbacks"
 
@@ -88,14 +88,14 @@ type Recorder struct {
 func NewHandler() einoCallbacks.Handler {
 	return callbackTemplate.NewHandlerHelper().
 		AgenticModel(&callbackTemplate.AgenticModelCallbackHandler{
-			OnStart: func(ctx context.Context, _ *einoCallbacks.RunInfo, _ *componentsModel.AgenticCallbackInput) context.Context {
+			OnStart: func(ctx context.Context, _ *einoCallbacks.RunInfo, _ *model.AgenticCallbackInput) context.Context {
 				return context.WithValue(ctx, callbackStartedAtKey{}, time.Now())
 			},
-			OnEnd: func(ctx context.Context, _ *einoCallbacks.RunInfo, output *componentsModel.AgenticCallbackOutput) context.Context {
+			OnEnd: func(ctx context.Context, _ *einoCallbacks.RunInfo, output *model.AgenticCallbackOutput) context.Context {
 				recordAgenticModelOutput(ctx, "generate", output, nil)
 				return ctx
 			},
-			OnEndWithStreamOutput: func(ctx context.Context, _ *einoCallbacks.RunInfo, output *schema.StreamReader[*componentsModel.AgenticCallbackOutput]) context.Context {
+			OnEndWithStreamOutput: func(ctx context.Context, _ *einoCallbacks.RunInfo, output *schema.StreamReader[*model.AgenticCallbackOutput]) context.Context {
 				recordAgenticModelStream(ctx, output)
 				return ctx
 			},
@@ -243,7 +243,7 @@ func (r *Recorder) TotalToken() TokenUsage {
 }
 
 // tokenFromAgenticCallbackOutput 从 Eino AgenticModel callback 输出中提取 token。
-func tokenFromAgenticCallbackOutput(output *componentsModel.AgenticCallbackOutput) TokenUsage {
+func tokenFromAgenticCallbackOutput(output *model.AgenticCallbackOutput) TokenUsage {
 	if output == nil {
 		return TokenUsage{}
 	}
@@ -259,7 +259,7 @@ func tokenFromAgenticCallbackOutput(output *componentsModel.AgenticCallbackOutpu
 }
 
 // recordAgenticModelOutput 记录一次非流式模型 callback 输出。
-func recordAgenticModelOutput(ctx context.Context, mode string, output *componentsModel.AgenticCallbackOutput, err error) {
+func recordAgenticModelOutput(ctx context.Context, mode string, output *model.AgenticCallbackOutput, err error) {
 	recorder := FromContext(ctx)
 	// 调用方未提供 Recorder 时仅跳过统计，不影响 Eino 主链路。
 	if recorder == nil {
@@ -280,14 +280,14 @@ func recordAgenticModelOutput(ctx context.Context, mode string, output *componen
 }
 
 // recordAgenticModelStream 消费 Eino callback 的流式副本并记录最终统计。
-func recordAgenticModelStream(ctx context.Context, output *schema.StreamReader[*componentsModel.AgenticCallbackOutput]) {
+func recordAgenticModelStream(ctx context.Context, output *schema.StreamReader[*model.AgenticCallbackOutput]) {
 	if output == nil {
 		recordAgenticModelOutput(ctx, "stream", nil, nil)
 		return
 	}
 	defer output.Close()
 
-	var finalOutput *componentsModel.AgenticCallbackOutput
+	var finalOutput *model.AgenticCallbackOutput
 	var streamErr error
 	for {
 		chunk, err := output.Recv()
@@ -308,7 +308,7 @@ func recordAgenticModelStream(ctx context.Context, output *schema.StreamReader[*
 }
 
 // mergeAgenticCallbackOutput 合并流式 callback 片段，供 token 和最终消息统计使用。
-func mergeAgenticCallbackOutput(left *componentsModel.AgenticCallbackOutput, right *componentsModel.AgenticCallbackOutput) *componentsModel.AgenticCallbackOutput {
+func mergeAgenticCallbackOutput(left *model.AgenticCallbackOutput, right *model.AgenticCallbackOutput) *model.AgenticCallbackOutput {
 	if right == nil {
 		return left
 	}

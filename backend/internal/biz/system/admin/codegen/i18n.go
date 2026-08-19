@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strings"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 
 	"github.com/liujitcn/go-utils/stringcase"
 )
@@ -111,9 +111,9 @@ func FrontendLocaleMessages(table *Table, columns []*CodeGenColumn, localeValue 
 }
 
 // newFrontendLocalePreviewFiles 创建语言包的结构化合并预览。
-func (c *renderer) newFrontendLocalePreviewFiles(table *Table, columns []*CodeGenColumn, state LocaleState) []*systemadminv1.CodeGenPreviewFile {
+func (c *renderer) newFrontendLocalePreviewFiles(table *Table, columns []*CodeGenColumn, state LocaleState) []*adminv1.CodeGenPreviewFile {
 	target := ProtoTargetForTable(table)
-	files := make([]*systemadminv1.CodeGenPreviewFile, 0, len(GeneratedFrontendLocales(state)))
+	files := make([]*adminv1.CodeGenPreviewFile, 0, len(GeneratedFrontendLocales(state)))
 	for _, localeValue := range GeneratedFrontendLocales(state) {
 		path := target.FrontendLocaleFilePath(localeValue)
 		messages := FrontendLocaleMessages(table, columns, localeValue, state.Primary)

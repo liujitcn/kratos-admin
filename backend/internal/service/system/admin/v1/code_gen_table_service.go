@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -17,7 +17,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 // CodeGenTableService Admin代码生成表配置服务。
 type CodeGenTableService struct {
-	systemadminv1.UnimplementedCodeGenTableServiceServer
+	adminv1.UnimplementedCodeGenTableServiceServer
 	codeGenTableCase *biz.CodeGenTableCase
 }
 
@@ -27,7 +27,7 @@ func NewCodeGenTableService(codeGenTableCase *biz.CodeGenTableCase) *CodeGenTabl
 }
 
 // PageCodeGenTable 查询代码生成表配置列表。
-func (s *CodeGenTableService) PageCodeGenTable(ctx context.Context, req *systemadminv1.PageCodeGenTableRequest) (*systemadminv1.PageCodeGenTableResponse, error) {
+func (s *CodeGenTableService) PageCodeGenTable(ctx context.Context, req *adminv1.PageCodeGenTableRequest) (*adminv1.PageCodeGenTableResponse, error) {
 	page, err := s.codeGenTableCase.PageCodeGenTable(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("PageCodeGenTable %v", err))
@@ -37,7 +37,7 @@ func (s *CodeGenTableService) PageCodeGenTable(ctx context.Context, req *systema
 }
 
 // ListCodeGenDatabaseTable 查询数据库表列表。
-func (s *CodeGenTableService) ListCodeGenDatabaseTable(ctx context.Context, _ *systemadminv1.ListCodeGenDatabaseTableRequest) (*systemadminv1.ListCodeGenDatabaseTableResponse, error) {
+func (s *CodeGenTableService) ListCodeGenDatabaseTable(ctx context.Context, _ *adminv1.ListCodeGenDatabaseTableRequest) (*adminv1.ListCodeGenDatabaseTableResponse, error) {
 	res, err := s.codeGenTableCase.ListCodeGenDatabaseTable(ctx)
 	if err != nil {
 		log.Error(fmt.Sprintf("ListCodeGenDatabaseTable %v", err))
@@ -47,7 +47,7 @@ func (s *CodeGenTableService) ListCodeGenDatabaseTable(ctx context.Context, _ *s
 }
 
 // GetCodeGenTable 查询代码生成表配置。
-func (s *CodeGenTableService) GetCodeGenTable(ctx context.Context, req *systemadminv1.GetCodeGenTableRequest) (*systemadminv1.CodeGenTableForm, error) {
+func (s *CodeGenTableService) GetCodeGenTable(ctx context.Context, req *adminv1.GetCodeGenTableRequest) (*adminv1.CodeGenTableForm, error) {
 	item, err := s.codeGenTableCase.GetCodeGenTable(ctx, req.GetId())
 	if err != nil {
 		log.Error(fmt.Sprintf("GetCodeGenTable %v", err))
@@ -57,7 +57,7 @@ func (s *CodeGenTableService) GetCodeGenTable(ctx context.Context, req *systemad
 }
 
 // CreateCodeGenTable 创建代码生成表配置。
-func (s *CodeGenTableService) CreateCodeGenTable(ctx context.Context, req *systemadminv1.CreateCodeGenTableRequest) (*emptypb.Empty, error) {
+func (s *CodeGenTableService) CreateCodeGenTable(ctx context.Context, req *adminv1.CreateCodeGenTableRequest) (*emptypb.Empty, error) {
 	err := s.codeGenTableCase.CreateCodeGenTable(ctx, req.GetCodeGenTable())
 	if err != nil {
 		log.Error(fmt.Sprintf("CreateCodeGenTable %v", err))
@@ -67,7 +67,7 @@ func (s *CodeGenTableService) CreateCodeGenTable(ctx context.Context, req *syste
 }
 
 // UpdateCodeGenTable 更新代码生成表配置。
-func (s *CodeGenTableService) UpdateCodeGenTable(ctx context.Context, req *systemadminv1.UpdateCodeGenTableRequest) (*emptypb.Empty, error) {
+func (s *CodeGenTableService) UpdateCodeGenTable(ctx context.Context, req *adminv1.UpdateCodeGenTableRequest) (*emptypb.Empty, error) {
 	err := s.codeGenTableCase.UpdateCodeGenTable(ctx, req.GetId(), req.GetCodeGenTable())
 	if err != nil {
 		log.Error(fmt.Sprintf("UpdateCodeGenTable %v", err))
@@ -77,7 +77,7 @@ func (s *CodeGenTableService) UpdateCodeGenTable(ctx context.Context, req *syste
 }
 
 // DeleteCodeGenTable 删除代码生成表配置。
-func (s *CodeGenTableService) DeleteCodeGenTable(ctx context.Context, req *systemadminv1.DeleteCodeGenTableRequest) (*emptypb.Empty, error) {
+func (s *CodeGenTableService) DeleteCodeGenTable(ctx context.Context, req *adminv1.DeleteCodeGenTableRequest) (*emptypb.Empty, error) {
 	err := s.codeGenTableCase.DeleteCodeGenTable(ctx, req.GetIds())
 	if err != nil {
 		log.Error(fmt.Sprintf("DeleteCodeGenTable %v", err))

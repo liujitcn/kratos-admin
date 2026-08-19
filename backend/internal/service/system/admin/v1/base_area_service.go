@@ -3,9 +3,9 @@ package admin
 import (
 	"context"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -17,7 +17,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 // BaseAreaService Admin行政区域服务。
 type BaseAreaService struct {
-	systemadminv1.UnimplementedBaseAreaServiceServer
+	adminv1.UnimplementedBaseAreaServiceServer
 	baseAreaCase *biz.BaseAreaCase
 }
 
@@ -27,7 +27,7 @@ func NewBaseAreaService(baseAreaCase *biz.BaseAreaCase) *BaseAreaService {
 }
 
 // OptionBaseArea 查询选项失败。
-func (s *BaseAreaService) OptionBaseArea(ctx context.Context, req *systemadminv1.OptionBaseAreaRequest) (*commonv1.TreeOptionResponse, error) {
+func (s *BaseAreaService) OptionBaseArea(ctx context.Context, req *adminv1.OptionBaseAreaRequest) (*commonv1.TreeOptionResponse, error) {
 	res, err := s.baseAreaCase.OptionBaseArea(ctx, req)
 	if err != nil {
 		log.Error("OptionBaseArea", "error", err)
@@ -37,7 +37,7 @@ func (s *BaseAreaService) OptionBaseArea(ctx context.Context, req *systemadminv1
 }
 
 // TreeBaseArea 查询行政区域树形列表失败。
-func (s *BaseAreaService) TreeBaseArea(ctx context.Context, req *systemadminv1.TreeBaseAreaRequest) (*systemadminv1.TreeBaseAreaResponse, error) {
+func (s *BaseAreaService) TreeBaseArea(ctx context.Context, req *adminv1.TreeBaseAreaRequest) (*adminv1.TreeBaseAreaResponse, error) {
 	res, err := s.baseAreaCase.TreeBaseArea(ctx, req)
 	if err != nil {
 		log.Error("TreeBaseArea", "error", err)
@@ -47,7 +47,7 @@ func (s *BaseAreaService) TreeBaseArea(ctx context.Context, req *systemadminv1.T
 }
 
 // GetBaseArea 查询行政区域失败。
-func (s *BaseAreaService) GetBaseArea(ctx context.Context, req *systemadminv1.GetBaseAreaRequest) (*systemadminv1.BaseAreaForm, error) {
+func (s *BaseAreaService) GetBaseArea(ctx context.Context, req *adminv1.GetBaseAreaRequest) (*adminv1.BaseAreaForm, error) {
 	res, err := s.baseAreaCase.GetBaseArea(ctx, req.GetId())
 	if err != nil {
 		log.Error("GetBaseArea", "error", err)
@@ -57,7 +57,7 @@ func (s *BaseAreaService) GetBaseArea(ctx context.Context, req *systemadminv1.Ge
 }
 
 // CreateBaseArea 创建行政区域失败。
-func (s *BaseAreaService) CreateBaseArea(ctx context.Context, req *systemadminv1.CreateBaseAreaRequest) (*emptypb.Empty, error) {
+func (s *BaseAreaService) CreateBaseArea(ctx context.Context, req *adminv1.CreateBaseAreaRequest) (*emptypb.Empty, error) {
 	err := s.baseAreaCase.CreateBaseArea(ctx, req.GetBaseArea())
 	if err != nil {
 		log.Error("CreateBaseArea", "error", err)
@@ -67,7 +67,7 @@ func (s *BaseAreaService) CreateBaseArea(ctx context.Context, req *systemadminv1
 }
 
 // UpdateBaseArea 更新行政区域失败。
-func (s *BaseAreaService) UpdateBaseArea(ctx context.Context, req *systemadminv1.UpdateBaseAreaRequest) (*emptypb.Empty, error) {
+func (s *BaseAreaService) UpdateBaseArea(ctx context.Context, req *adminv1.UpdateBaseAreaRequest) (*emptypb.Empty, error) {
 	err := s.baseAreaCase.UpdateBaseArea(ctx, req.GetId(), req.GetBaseArea())
 	if err != nil {
 		log.Error("UpdateBaseArea", "error", err)
@@ -77,7 +77,7 @@ func (s *BaseAreaService) UpdateBaseArea(ctx context.Context, req *systemadminv1
 }
 
 // DeleteBaseArea 删除行政区域失败。
-func (s *BaseAreaService) DeleteBaseArea(ctx context.Context, req *systemadminv1.DeleteBaseAreaRequest) (*emptypb.Empty, error) {
+func (s *BaseAreaService) DeleteBaseArea(ctx context.Context, req *adminv1.DeleteBaseAreaRequest) (*emptypb.Empty, error) {
 	err := s.baseAreaCase.DeleteBaseArea(ctx, req.GetIds())
 	if err != nil {
 		log.Error("DeleteBaseArea", "error", err)

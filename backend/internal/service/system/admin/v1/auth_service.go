@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -15,7 +15,7 @@ import (
 
 // AuthService Admin用户登录认证服务
 type AuthService struct {
-	systemadminv1.UnimplementedAuthServiceServer
+	adminv1.UnimplementedAuthServiceServer
 	authCase *biz.AuthCase
 }
 
@@ -29,7 +29,7 @@ func NewAuthService(
 }
 
 // TreeUserMenu 获取已经登录的用户菜单
-func (s *AuthService) TreeUserMenu(ctx context.Context, req *systemadminv1.TreeUserMenuRequest) (*systemadminv1.TreeRouteResponse, error) {
+func (s *AuthService) TreeUserMenu(ctx context.Context, req *adminv1.TreeUserMenuRequest) (*adminv1.TreeRouteResponse, error) {
 	res, err := s.authCase.TreeUserMenu(ctx)
 	if err != nil {
 		log.Error(fmt.Sprintf("TreeUserMenu %v", err))
@@ -39,7 +39,7 @@ func (s *AuthService) TreeUserMenu(ctx context.Context, req *systemadminv1.TreeU
 }
 
 // ListUserButton 获取已经登录的用户按钮
-func (s *AuthService) ListUserButton(ctx context.Context, req *systemadminv1.ListUserButtonRequest) (*commonv1.StringValues, error) {
+func (s *AuthService) ListUserButton(ctx context.Context, req *adminv1.ListUserButtonRequest) (*commonv1.StringValues, error) {
 	res, err := s.authCase.ListUserButton(ctx)
 	if err != nil {
 		log.Error(fmt.Sprintf("ListUserButton %v", err))
@@ -49,7 +49,7 @@ func (s *AuthService) ListUserButton(ctx context.Context, req *systemadminv1.Lis
 }
 
 // GetUserInfo 获取已经登录的用户的数据
-func (s *AuthService) GetUserInfo(ctx context.Context, req *systemadminv1.GetUserInfoRequest) (*systemadminv1.UserInfoForm, error) {
+func (s *AuthService) GetUserInfo(ctx context.Context, req *adminv1.GetUserInfoRequest) (*adminv1.UserInfoForm, error) {
 	res, err := s.authCase.GetUserInfo(ctx)
 	if err != nil {
 		log.Error(fmt.Sprintf("GetUserInfo %v", err))
@@ -59,7 +59,7 @@ func (s *AuthService) GetUserInfo(ctx context.Context, req *systemadminv1.GetUse
 }
 
 // GetUserProfile 获取个人中心用户信息
-func (s *AuthService) GetUserProfile(ctx context.Context, req *systemadminv1.GetUserProfileRequest) (*systemadminv1.UserProfileForm, error) {
+func (s *AuthService) GetUserProfile(ctx context.Context, req *adminv1.GetUserProfileRequest) (*adminv1.UserProfileForm, error) {
 	res, err := s.authCase.GetUserProfile(ctx)
 	if err != nil {
 		log.Error(fmt.Sprintf("GetUserProfile %v", err))
@@ -69,7 +69,7 @@ func (s *AuthService) GetUserProfile(ctx context.Context, req *systemadminv1.Get
 }
 
 // UpdateUserPassword 修改个人中心密码
-func (s *AuthService) UpdateUserPassword(ctx context.Context, req *systemadminv1.UpdateUserPasswordRequest) (*emptypb.Empty, error) {
+func (s *AuthService) UpdateUserPassword(ctx context.Context, req *adminv1.UpdateUserPasswordRequest) (*emptypb.Empty, error) {
 	err := s.authCase.UpdateUserPassword(ctx, req.GetUserPassword())
 	if err != nil {
 		log.Error(fmt.Sprintf("UpdateUserPassword %v", err))
@@ -79,7 +79,7 @@ func (s *AuthService) UpdateUserPassword(ctx context.Context, req *systemadminv1
 }
 
 // UpdateUserPhone 修改个人中心手机号
-func (s *AuthService) UpdateUserPhone(ctx context.Context, req *systemadminv1.UpdateUserPhoneRequest) (*emptypb.Empty, error) {
+func (s *AuthService) UpdateUserPhone(ctx context.Context, req *adminv1.UpdateUserPhoneRequest) (*emptypb.Empty, error) {
 	err := s.authCase.UpdateUserPhone(ctx, req.GetUserPhone())
 	if err != nil {
 		log.Error(fmt.Sprintf("UpdateUserPhone %v", err))
@@ -90,7 +90,7 @@ func (s *AuthService) UpdateUserPhone(ctx context.Context, req *systemadminv1.Up
 }
 
 // UpdateUserProfile 修改个人中心用户信息
-func (s *AuthService) UpdateUserProfile(ctx context.Context, req *systemadminv1.UpdateUserProfileRequest) (*emptypb.Empty, error) {
+func (s *AuthService) UpdateUserProfile(ctx context.Context, req *adminv1.UpdateUserProfileRequest) (*emptypb.Empty, error) {
 	err := s.authCase.UpdateUserProfile(ctx, req.GetUserProfile())
 	if err != nil {
 		log.Error(fmt.Sprintf("UpdateUserProfile %v", err))
@@ -100,7 +100,7 @@ func (s *AuthService) UpdateUserProfile(ctx context.Context, req *systemadminv1.
 }
 
 // SendPhoneCode 发送手机号验证码
-func (s *AuthService) SendPhoneCode(ctx context.Context, req *systemadminv1.SendPhoneCodeRequest) (*emptypb.Empty, error) {
+func (s *AuthService) SendPhoneCode(ctx context.Context, req *adminv1.SendPhoneCodeRequest) (*emptypb.Empty, error) {
 	err := s.authCase.SendPhoneCode(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("SendPhoneCode %v", err))

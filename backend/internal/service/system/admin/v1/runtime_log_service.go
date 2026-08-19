@@ -7,8 +7,8 @@ import (
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/go-kratos/kratos/v3/transport"
-	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	adminBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-core/errorsx"
 	"google.golang.org/genproto/googleapis/api/httpbody"
 )
@@ -16,11 +16,11 @@ import (
 // RuntimeLogService 提供实时控制台和历史日志文件接口。
 type RuntimeLogService struct {
 	adminv1.UnimplementedRuntimeLogServiceServer
-	runtimeLogCase *adminBiz.RuntimeLogCase
+	runtimeLogCase *biz.RuntimeLogCase
 }
 
 // NewRuntimeLogService 创建运行日志服务。
-func NewRuntimeLogService(runtimeLogCase *adminBiz.RuntimeLogCase) *RuntimeLogService {
+func NewRuntimeLogService(runtimeLogCase *biz.RuntimeLogCase) *RuntimeLogService {
 	return &RuntimeLogService{runtimeLogCase: runtimeLogCase}
 }
 

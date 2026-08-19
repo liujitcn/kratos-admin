@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -15,7 +15,7 @@ import (
 
 // BaseMenuService Admin菜单管理服务
 type BaseMenuService struct {
-	systemadminv1.UnimplementedBaseMenuServiceServer
+	adminv1.UnimplementedBaseMenuServiceServer
 	baseMenuCase *biz.BaseMenuCase
 }
 
@@ -29,7 +29,7 @@ func NewBaseMenuService(
 }
 
 // OptionBaseMenu 查询菜单树形选择
-func (s *BaseMenuService) OptionBaseMenu(ctx context.Context, req *systemadminv1.OptionBaseMenuRequest) (*commonv1.TreeOptionResponse, error) {
+func (s *BaseMenuService) OptionBaseMenu(ctx context.Context, req *adminv1.OptionBaseMenuRequest) (*commonv1.TreeOptionResponse, error) {
 	tree, err := s.baseMenuCase.OptionBaseMenu(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("OptionBaseMenu %v", err))
@@ -39,7 +39,7 @@ func (s *BaseMenuService) OptionBaseMenu(ctx context.Context, req *systemadminv1
 }
 
 // TreeBaseMenu 查询菜单树形列表
-func (s *BaseMenuService) TreeBaseMenu(ctx context.Context, req *systemadminv1.TreeBaseMenuRequest) (*systemadminv1.TreeBaseMenuResponse, error) {
+func (s *BaseMenuService) TreeBaseMenu(ctx context.Context, req *adminv1.TreeBaseMenuRequest) (*adminv1.TreeBaseMenuResponse, error) {
 	tree, err := s.baseMenuCase.TreeBaseMenu(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("TreeBaseMenu %v", err))
@@ -49,7 +49,7 @@ func (s *BaseMenuService) TreeBaseMenu(ctx context.Context, req *systemadminv1.T
 }
 
 // GetBaseMenu 查询菜单
-func (s *BaseMenuService) GetBaseMenu(ctx context.Context, req *systemadminv1.GetBaseMenuRequest) (*systemadminv1.BaseMenuForm, error) {
+func (s *BaseMenuService) GetBaseMenu(ctx context.Context, req *adminv1.GetBaseMenuRequest) (*adminv1.BaseMenuForm, error) {
 	baseMenu, err := s.baseMenuCase.GetBaseMenu(ctx, req.GetId())
 	if err != nil {
 		log.Error(fmt.Sprintf("GetBaseMenu %v", err))
@@ -59,7 +59,7 @@ func (s *BaseMenuService) GetBaseMenu(ctx context.Context, req *systemadminv1.Ge
 }
 
 // CreateBaseMenu 创建菜单
-func (s *BaseMenuService) CreateBaseMenu(ctx context.Context, req *systemadminv1.CreateBaseMenuRequest) (*emptypb.Empty, error) {
+func (s *BaseMenuService) CreateBaseMenu(ctx context.Context, req *adminv1.CreateBaseMenuRequest) (*emptypb.Empty, error) {
 	err := s.baseMenuCase.CreateBaseMenu(ctx, req.GetBaseMenu())
 	if err != nil {
 		log.Error(fmt.Sprintf("CreateBaseMenu %v", err))
@@ -69,7 +69,7 @@ func (s *BaseMenuService) CreateBaseMenu(ctx context.Context, req *systemadminv1
 }
 
 // UpdateBaseMenu 更新菜单
-func (s *BaseMenuService) UpdateBaseMenu(ctx context.Context, req *systemadminv1.UpdateBaseMenuRequest) (*emptypb.Empty, error) {
+func (s *BaseMenuService) UpdateBaseMenu(ctx context.Context, req *adminv1.UpdateBaseMenuRequest) (*emptypb.Empty, error) {
 	err := s.baseMenuCase.UpdateBaseMenu(ctx, req.GetBaseMenu())
 	if err != nil {
 		log.Error(fmt.Sprintf("UpdateBaseMenu %v", err))
@@ -79,7 +79,7 @@ func (s *BaseMenuService) UpdateBaseMenu(ctx context.Context, req *systemadminv1
 }
 
 // DeleteBaseMenu 删除菜单
-func (s *BaseMenuService) DeleteBaseMenu(ctx context.Context, req *systemadminv1.DeleteBaseMenuRequest) (*emptypb.Empty, error) {
+func (s *BaseMenuService) DeleteBaseMenu(ctx context.Context, req *adminv1.DeleteBaseMenuRequest) (*emptypb.Empty, error) {
 	err := s.baseMenuCase.DeleteBaseMenu(ctx, req.GetId())
 	if err != nil {
 		log.Error(fmt.Sprintf("DeleteBaseMenu %v", err))
@@ -89,7 +89,7 @@ func (s *BaseMenuService) DeleteBaseMenu(ctx context.Context, req *systemadminv1
 }
 
 // SetBaseMenuStatus 设置状态
-func (s *BaseMenuService) SetBaseMenuStatus(ctx context.Context, req *systemadminv1.SetBaseMenuStatusRequest) (*emptypb.Empty, error) {
+func (s *BaseMenuService) SetBaseMenuStatus(ctx context.Context, req *adminv1.SetBaseMenuStatusRequest) (*emptypb.Empty, error) {
 	err := s.baseMenuCase.SetBaseMenuStatus(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("SetBaseMenuStatus %v", err))

@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
@@ -15,7 +15,7 @@ import (
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/go-utils/stringcase"
 	"github.com/liujitcn/gorm-kit/repository"
-	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 const (
@@ -46,8 +46,8 @@ type CodeGenProtoCase struct {
 	baseAPIRepo       *data.BaseAPIRepository
 	codeGenTableRepo  *data.CodeGenTableRepository
 	codeGenColumnCase *CodeGenColumnCase
-	mapper            *mapper.CopierMapper[systemadminv1.CodeGenProto, models.CodeGenProto]
-	tableMapper       *mapper.CopierMapper[systemadminv1.CodeGenTableForm, models.CodeGenTable]
+	mapper            *mapper.CopierMapper[adminv1.CodeGenProto, models.CodeGenProto]
+	tableMapper       *mapper.CopierMapper[adminv1.CodeGenTableForm, models.CodeGenTable]
 }
 
 // NewCodeGenProtoCase 创建代码生成 Proto 接口业务实例。
@@ -59,8 +59,8 @@ func NewCodeGenProtoCase(
 	codeGenTableRepo *data.CodeGenTableRepository,
 	codeGenColumnCase *CodeGenColumnCase,
 ) *CodeGenProtoCase {
-	protoMapper := mapper.NewCopierMapper[systemadminv1.CodeGenProto, models.CodeGenProto]()
-	protoMapper.AppendConverters(mapper.NewJSONTypeConverter[*systemadminv1.CodeGenProtoConfig]().NewConverterPair())
+	protoMapper := mapper.NewCopierMapper[adminv1.CodeGenProto, models.CodeGenProto]()
+	protoMapper.AppendConverters(mapper.NewJSONTypeConverter[*adminv1.CodeGenProtoConfig]().NewConverterPair())
 	protoMapper.AppendConverters(mapper.NewGenericTypeConverterPair(
 		false,
 		int32(0),
@@ -75,8 +75,8 @@ func NewCodeGenProtoCase(
 			return value == 1
 		},
 	))
-	tableMapper := mapper.NewCopierMapper[systemadminv1.CodeGenTableForm, models.CodeGenTable]()
-	tableMapper.AppendConverters(mapper.NewJSONTypeConverter[*systemadminv1.CodeGenLeftTreeConfig]().NewConverterPair())
+	tableMapper := mapper.NewCopierMapper[adminv1.CodeGenTableForm, models.CodeGenTable]()
+	tableMapper.AppendConverters(mapper.NewJSONTypeConverter[*adminv1.CodeGenLeftTreeConfig]().NewConverterPair())
 	return &CodeGenProtoCase{
 		BaseCase:               baseCase,
 		CodeGenProtoRepository: codeGenProtoRepo,
@@ -90,12 +90,12 @@ func NewCodeGenProtoCase(
 }
 
 // ListCodeGenProto 查询当前生成配置需要的 Proto 接口。
-func (c *CodeGenProtoCase) ListCodeGenProto(ctx context.Context, tableID int64) (*systemadminv1.ListCodeGenProtoResponse, error) {
+func (c *CodeGenProtoCase) ListCodeGenProto(ctx context.Context, tableID int64) (*adminv1.ListCodeGenProtoResponse, error) {
 	table, err := c.codeGenTableRepo.FindByID(ctx, tableID)
 	if err != nil {
 		return nil, err
 	}
-	var columns []*systemadminv1.CodeGenColumn
+	var columns []*adminv1.CodeGenColumn
 	columns, err = c.codeGenColumnCase.listCodeGenColumns(ctx, tableID)
 	if err != nil {
 		return nil, err
@@ -109,12 +109,12 @@ func (c *CodeGenProtoCase) ListCodeGenProto(ctx context.Context, tableID int64) 
 	if err != nil {
 		return nil, err
 	}
-	var checks []*systemadminv1.CodeGenProtoCheck
+	var checks []*adminv1.CodeGenProtoCheck
 	checks, err = c.inspectCodeGenProtos(ctx, table, c.tableMapper.ToDTO(table), columns, savedProtos)
 	if err != nil {
 		return nil, err
 	}
-	return &systemadminv1.ListCodeGenProtoResponse{
+	return &adminv1.ListCodeGenProtoResponse{
 		CodeGenProtos: checks,
 	}, nil
 }
@@ -129,12 +129,12 @@ func (c *CodeGenProtoCase) DeleteByTableIDs(ctx context.Context, tableIDs []int6
 }
 
 // SaveCodeGenProto 按当前 Proto 能力清单同步接口配置。
-func (c *CodeGenProtoCase) SaveCodeGenProto(ctx context.Context, req *systemadminv1.SaveCodeGenProtoRequest) error {
+func (c *CodeGenProtoCase) SaveCodeGenProto(ctx context.Context, req *adminv1.SaveCodeGenProtoRequest) error {
 	table, err := c.codeGenTableRepo.FindByID(ctx, req.GetTableId())
 	if err != nil {
 		return err
 	}
-	var checks *systemadminv1.ListCodeGenProtoResponse
+	var checks *adminv1.ListCodeGenProtoResponse
 	checks, err = c.ListCodeGenProto(ctx, req.GetTableId())
 	if err != nil {
 		return err
@@ -158,7 +158,7 @@ func (c *CodeGenProtoCase) SaveCodeGenProto(ctx context.Context, req *systemadmi
 		if check.GetExists() || !input.GetGenerateWhenMissing() {
 			continue
 		}
-		proto := &systemadminv1.CodeGenProto{
+		proto := &adminv1.CodeGenProto{
 			TableId:             req.GetTableId(),
 			TriggerType:         check.GetTriggerType(),
 			ApiKind:             check.GetApiKind(),
@@ -228,7 +228,7 @@ func (c *CodeGenProtoCase) SaveCodeGenProto(ctx context.Context, req *systemadmi
 }
 
 // validateCodeGenProtoColumns 校验待生成 Proto 接口的类型配置和数据库字段。
-func (c *CodeGenProtoCase) validateCodeGenProtoColumns(ctx context.Context, tableName string, methodName string, proto *systemadminv1.CodeGenProto, columnNamesByTable map[string]map[string]struct{}) error {
+func (c *CodeGenProtoCase) validateCodeGenProtoColumns(ctx context.Context, tableName string, methodName string, proto *adminv1.CodeGenProto, columnNamesByTable map[string]map[string]struct{}) error {
 	// 未勾选生成的接口不消费类型配置，无需校验字段。
 	if !proto.GetGenerateWhenMissing() {
 		return nil
@@ -258,7 +258,7 @@ func (c *CodeGenProtoCase) validateCodeGenProtoColumns(ctx context.Context, tabl
 }
 
 // inspectCodeGenProtos 推导当前配置需要的 Proto 接口并检查仓库与目标表状态。
-func (c *CodeGenProtoCase) inspectCodeGenProtos(ctx context.Context, table *models.CodeGenTable, form *systemadminv1.CodeGenTableForm, columns []*systemadminv1.CodeGenColumn, savedProtos []*models.CodeGenProto) ([]*systemadminv1.CodeGenProtoCheck, error) {
+func (c *CodeGenProtoCase) inspectCodeGenProtos(ctx context.Context, table *models.CodeGenTable, form *adminv1.CodeGenTableForm, columns []*adminv1.CodeGenColumn, savedProtos []*models.CodeGenProto) ([]*adminv1.CodeGenProtoCheck, error) {
 	checks := buildExpectedCodeGenProtos(table, form, columns)
 	businessNames, err := c.codeGenProtoBusinessNames(ctx, table, form, checks)
 	if err != nil {
@@ -345,7 +345,7 @@ func (c *CodeGenProtoCase) inspectCodeGenProtos(ctx context.Context, table *mode
 }
 
 // codeGenProtoBusinessNames 加载 Proto 目标实体使用的业务描述，保持检查结果与生成器一致。
-func (c *CodeGenProtoCase) codeGenProtoBusinessNames(ctx context.Context, table *models.CodeGenTable, form *systemadminv1.CodeGenTableForm, checks []*systemadminv1.CodeGenProtoCheck) (map[string]string, error) {
+func (c *CodeGenProtoCase) codeGenProtoBusinessNames(ctx context.Context, table *models.CodeGenTable, form *adminv1.CodeGenTableForm, checks []*adminv1.CodeGenProtoCheck) (map[string]string, error) {
 	tableNames := make(map[string]struct{}, len(checks))
 	tableNameByCheck := make(map[string]string, len(checks))
 	targetEntityByCheck := make(map[string]string, len(checks))
@@ -373,7 +373,7 @@ func (c *CodeGenProtoCase) codeGenProtoBusinessNames(ctx context.Context, table 
 		tableNameList = append(tableNameList, tableName)
 	}
 	if len(tableNames) > 0 {
-		database := c.GormClients[databaseGorm.DefaultClientName]
+		database := c.GormClients[gorm.DefaultClientName]
 		err = database.DB.WithContext(ctx).
 			Table("information_schema.tables").
 			Select("table_name, table_comment").
@@ -435,10 +435,10 @@ func (c *CodeGenProtoCase) loadCodeGenProtoNames(ctx context.Context, tableName 
 }
 
 // buildExpectedCodeGenProtos 根据表与字段配置推导所需 Proto 接口。
-func buildExpectedCodeGenProtos(table *models.CodeGenTable, form *systemadminv1.CodeGenTableForm, columns []*systemadminv1.CodeGenColumn) []*systemadminv1.CodeGenProtoCheck {
+func buildExpectedCodeGenProtos(table *models.CodeGenTable, form *adminv1.CodeGenTableForm, columns []*adminv1.CodeGenColumn) []*adminv1.CodeGenProtoCheck {
 	protoPath := defaultCodeGenProtoPath(table)
 	entity := stringcase.ToPascalCase(table.Name)
-	checks := make([]*systemadminv1.CodeGenProtoCheck, 0, 10)
+	checks := make([]*adminv1.CodeGenProtoCheck, 0, 10)
 	// 树形页面使用树接口，普通页面使用分页与平铺选项接口。
 	if table.PageType == "tree" || table.PageType == codegen.PageTypeTreeLazy {
 		checks = append(checks,
@@ -469,7 +469,7 @@ func buildExpectedCodeGenProtos(table *models.CodeGenTable, form *systemadminv1.
 			"Option"+target,
 			defaultTargetCodeGenProtoPath(table, target),
 		)
-		check.Config = &systemadminv1.CodeGenProtoConfig{
+		check.Config = &adminv1.CodeGenProtoConfig{
 			ParentColumn: leftTree.GetParentColumn(),
 			LabelColumn:  leftTree.GetLabelColumn(),
 			ValueColumn:  leftTree.GetValueColumn(),
@@ -490,7 +490,7 @@ func buildExpectedCodeGenProtos(table *models.CodeGenTable, form *systemadminv1.
 				protoPath,
 			))
 		}
-		var options []*systemadminv1.CodeGenColumnOptionConfig
+		var options []*adminv1.CodeGenColumnOptionConfig
 		// 只检查已启用配置中的数据表选项，查询、列表和表单彼此独立。
 		if column.GetQueryConfig().GetEnabled() {
 			options = append(options, column.GetQueryConfig().GetOption())
@@ -524,7 +524,7 @@ func buildExpectedCodeGenProtos(table *models.CodeGenTable, form *systemadminv1.
 				"Option"+target,
 				defaultTargetCodeGenProtoPath(table, target),
 			)
-			check.Config = &systemadminv1.CodeGenProtoConfig{
+			check.Config = &adminv1.CodeGenProtoConfig{
 				ParentColumn: option.GetParentField(),
 				LabelColumn:  option.GetLabelField(),
 				ValueColumn:  option.GetValueField(),
@@ -533,7 +533,7 @@ func buildExpectedCodeGenProtos(table *models.CodeGenTable, form *systemadminv1.
 			checks = append(checks, check)
 		}
 	}
-	list := make([]*systemadminv1.CodeGenProtoCheck, 0, len(checks))
+	list := make([]*adminv1.CodeGenProtoCheck, 0, len(checks))
 	seen := make(map[string]struct{}, len(checks))
 	for _, check := range checks {
 		key := codeGenProtoKey(check.GetProtoFilePath(), check.GetTargetEntityName(), check.GetMethodName())
@@ -549,36 +549,36 @@ func buildExpectedCodeGenProtos(table *models.CodeGenTable, form *systemadminv1.
 }
 
 // newCodeGenProtoCheck 创建默认勾选生成的 Proto 接口检查项。
-func newCodeGenProtoCheck(tableID int64, triggerType string, apiKind string, targetEntity string, methodName string, protoPath string) *systemadminv1.CodeGenProtoCheck {
-	return &systemadminv1.CodeGenProtoCheck{
+func newCodeGenProtoCheck(tableID int64, triggerType string, apiKind string, targetEntity string, methodName string, protoPath string) *adminv1.CodeGenProtoCheck {
+	return &adminv1.CodeGenProtoCheck{
 		TableId:             tableID,
 		TriggerType:         triggerType,
 		ApiKind:             apiKind,
 		TargetEntityName:    targetEntity,
 		MethodName:          methodName,
 		ProtoFilePath:       protoPath,
-		Config:              &systemadminv1.CodeGenProtoConfig{},
+		Config:              &adminv1.CodeGenProtoConfig{},
 		GenerateWhenMissing: true,
 	}
 }
 
 // defaultCodeGenProtoConfig 返回接口类型用于默认选择判断的约定字段。
-func defaultCodeGenProtoConfig(apiKind string) *systemadminv1.CodeGenProtoConfig {
+func defaultCodeGenProtoConfig(apiKind string) *adminv1.CodeGenProtoConfig {
 	// 不同生成模板只保留自身消费的配置字段。
 	switch apiKind {
 	case codeGenAPIKindOption:
-		return &systemadminv1.CodeGenProtoConfig{LabelColumn: "name", ValueColumn: "id"}
+		return &adminv1.CodeGenProtoConfig{LabelColumn: "name", ValueColumn: "id"}
 	case codeGenAPIKindTree:
-		return &systemadminv1.CodeGenProtoConfig{ParentColumn: "parent_id", LabelColumn: "name", ValueColumn: "id"}
+		return &adminv1.CodeGenProtoConfig{ParentColumn: "parent_id", LabelColumn: "name", ValueColumn: "id"}
 	case codeGenAPIKindStatus:
-		return &systemadminv1.CodeGenProtoConfig{StatusColumn: "status"}
+		return &adminv1.CodeGenProtoConfig{StatusColumn: "status"}
 	default:
-		return &systemadminv1.CodeGenProtoConfig{}
+		return &adminv1.CodeGenProtoConfig{}
 	}
 }
 
 // codeGenProtoConfigFields 返回接口类型生成模板依赖的配置字段。
-func codeGenProtoConfigFields(apiKind string, config *systemadminv1.CodeGenProtoConfig) ([]codeGenProtoConfigField, bool) {
+func codeGenProtoConfigFields(apiKind string, config *adminv1.CodeGenProtoConfig) ([]codeGenProtoConfigField, bool) {
 	// 每种接口类型只返回生成模板实际消费的固定字段。
 	switch apiKind {
 	case codeGenAPIKindCRUD, codeGenAPIKindList:
@@ -604,7 +604,7 @@ func codeGenProtoConfigFields(apiKind string, config *systemadminv1.CodeGenProto
 }
 
 // hasCodeGenProtoConfigColumns 判断目标表是否包含接口配置所需的全部字段。
-func hasCodeGenProtoConfigColumns(apiKind string, config *systemadminv1.CodeGenProtoConfig, columnNames map[string]struct{}) bool {
+func hasCodeGenProtoConfigColumns(apiKind string, config *adminv1.CodeGenProtoConfig, columnNames map[string]struct{}) bool {
 	fields, supported := codeGenProtoConfigFields(apiKind, config)
 	// 未知类型不能进入默认生成选择。
 	if !supported {
@@ -622,8 +622,8 @@ func hasCodeGenProtoConfigColumns(apiKind string, config *systemadminv1.CodeGenP
 }
 
 // mergeCodeGenProtoConfig 合并用户配置与推导默认值，并按接口类型裁剪无关字段。
-func mergeCodeGenProtoConfig(apiKind string, preferred *systemadminv1.CodeGenProtoConfig, fallback *systemadminv1.CodeGenProtoConfig) *systemadminv1.CodeGenProtoConfig {
-	config := &systemadminv1.CodeGenProtoConfig{}
+func mergeCodeGenProtoConfig(apiKind string, preferred *adminv1.CodeGenProtoConfig, fallback *adminv1.CodeGenProtoConfig) *adminv1.CodeGenProtoConfig {
+	config := &adminv1.CodeGenProtoConfig{}
 	// 每种接口类型只合并生成模板需要的字段。
 	switch apiKind {
 	case codeGenAPIKindOption:
@@ -687,7 +687,7 @@ func codeGenProtoTargetTableName(table *models.CodeGenTable, targetEntity string
 }
 
 // savedCodeGenProtoMatches 判断已保存配置是否对应当前检查项，并兼容旧版复数契约名。
-func savedCodeGenProtoMatches(saved *models.CodeGenProto, check *systemadminv1.CodeGenProtoCheck) bool {
+func savedCodeGenProtoMatches(saved *models.CodeGenProto, check *adminv1.CodeGenProtoCheck) bool {
 	return saved.Sort == check.GetSort()
 }
 
@@ -697,7 +697,7 @@ func codeGenProtoKey(protoPath string, targetEntity string, methodName string) s
 }
 
 // codeGenProtoExists 根据 base_api 中的 path 与 operation 检查接口是否已存在。
-func (c *CodeGenProtoCase) codeGenProtoExists(ctx context.Context, table *codegen.Table, check *systemadminv1.CodeGenProtoCheck) (bool, string, error) {
+func (c *CodeGenProtoCase) codeGenProtoExists(ctx context.Context, table *codegen.Table, check *adminv1.CodeGenProtoCheck) (bool, string, error) {
 	method := &codegen.Proto{
 		TriggerType:      check.GetTriggerType(),
 		APIKind:          check.GetApiKind(),

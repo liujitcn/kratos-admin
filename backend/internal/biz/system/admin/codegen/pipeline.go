@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/liujitcn/go-utils/stringcase"
@@ -157,14 +157,14 @@ func (c *renderer) newProtoCheck(tableID int64, columnName string, triggerType, 
 }
 
 // resolveCodeGenOutputPaths 合并本次请求路径和默认路径，并校验启用的生成目标。
-func (c *renderer) resolveCodeGenOutputPaths(table *Table, requested *systemadminv1.CodeGenOutputPaths) (*systemadminv1.CodeGenOutputPaths, error) {
+func (c *renderer) resolveCodeGenOutputPaths(table *Table, requested *adminv1.CodeGenOutputPaths) (*adminv1.CodeGenOutputPaths, error) {
 	snakeEntity := stringcase.ToSnakeCase(table.EntityName)
 	target, ok := ProtoTargetForBusinessModule(table.BusinessModule)
 	if !ok {
 		return nil, errorsx.InvalidArgument("请选择有效的Proto目录")
 	}
 	// 默认路径统一由实体名和资源路径推导，保证首次进入预览时即可直接生成。
-	paths := &systemadminv1.CodeGenOutputPaths{
+	paths := &adminv1.CodeGenOutputPaths{
 		ProtoFilePath:          c.defaultProtoPath(table),
 		BackendBizFilePath:     target.BackendBizFilePath(snakeEntity),
 		BackendServiceFilePath: target.BackendServiceFilePath(snakeEntity),
@@ -227,7 +227,7 @@ func (c *renderer) resolveCodeGenOutputPaths(table *Table, requested *systemadmi
 }
 
 // applyCodeGenOutputPaths 创建仅供本次预览或生成使用的配置副本。
-func (c *renderer) applyCodeGenOutputPaths(table *Table, methods []*Proto, paths *systemadminv1.CodeGenOutputPaths) (*Table, []*Proto) {
+func (c *renderer) applyCodeGenOutputPaths(table *Table, methods []*Proto, paths *adminv1.CodeGenOutputPaths) (*Table, []*Proto) {
 	generationTable := *table
 	generationTable.ProtoFilePath = paths.GetProtoFilePath()
 	generationMethods := make([]*Proto, 0, len(methods))
@@ -243,10 +243,10 @@ func (c *renderer) applyCodeGenOutputPaths(table *Table, methods []*Proto, paths
 }
 
 // buildPreviewFiles 按后端、前端顺序构建本轮全部预览文件。
-func (c *renderer) buildPreviewFiles(table *Table, columns []*CodeGenColumn, methods []*Proto, paths *systemadminv1.CodeGenOutputPaths, localeState LocaleState) []*systemadminv1.CodeGenPreviewFile {
+func (c *renderer) buildPreviewFiles(table *Table, columns []*CodeGenColumn, methods []*Proto, paths *adminv1.CodeGenOutputPaths, localeState LocaleState) []*adminv1.CodeGenPreviewFile {
 	generatedMethods := c.generatedProtoMethods(table, columns, methods)
 	frontendMethods := c.frontendProtoMethods(table, columns, methods)
-	files := make([]*systemadminv1.CodeGenPreviewFile, 0, 9)
+	files := make([]*adminv1.CodeGenPreviewFile, 0, 9)
 	if table.GenBackend == 1 {
 		// 主 Proto 先生成，随后按路径去重补齐外部选项目标的 Proto 文件。
 		files = append(files, c.newTargetProtoPreviewFile(table, columns, generatedMethods, c.defaultProtoPath(table)))

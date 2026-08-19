@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	systemappv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
-	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/app"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/app"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -14,7 +14,7 @@ import (
 
 // AuthService 处理应用端用户认证资料服务。
 type AuthService struct {
-	systemappv1.UnimplementedAuthServiceServer
+	appv1.UnimplementedAuthServiceServer
 	authCase *biz.AuthCase
 }
 
@@ -29,7 +29,7 @@ func NewAuthService(
 }
 
 // GetUserProfile 获取已经登录的用户数据
-func (s *AuthService) GetUserProfile(ctx context.Context, req *systemappv1.GetUserProfileRequest) (*systemappv1.UserProfileForm, error) {
+func (s *AuthService) GetUserProfile(ctx context.Context, req *appv1.GetUserProfileRequest) (*appv1.UserProfileForm, error) {
 	res, err := s.authCase.GetUserProfile(ctx)
 	if err != nil {
 		log.Error(fmt.Sprintf("GetUserProfile %v", err))
@@ -39,11 +39,11 @@ func (s *AuthService) GetUserProfile(ctx context.Context, req *systemappv1.GetUs
 }
 
 // UpdateUserProfile 修改个人中心用户信息
-func (s *AuthService) UpdateUserProfile(ctx context.Context, req *systemappv1.UpdateUserProfileRequest) (*emptypb.Empty, error) {
+func (s *AuthService) UpdateUserProfile(ctx context.Context, req *appv1.UpdateUserProfileRequest) (*emptypb.Empty, error) {
 	userProfile := req.GetUserProfile()
 	// 请求体未携带资料时，使用空表单交由业务层按原有校验处理。
 	if userProfile == nil {
-		userProfile = &systemappv1.UserProfileForm{}
+		userProfile = &appv1.UserProfileForm{}
 	}
 	err := s.authCase.UpdateUserProfile(ctx, userProfile)
 	if err != nil {
@@ -54,7 +54,7 @@ func (s *AuthService) UpdateUserProfile(ctx context.Context, req *systemappv1.Up
 }
 
 // BindUserPhone 手机号授权
-func (s *AuthService) BindUserPhone(ctx context.Context, req *systemappv1.BindUserPhoneRequest) (*systemappv1.BindUserPhoneResponse, error) {
+func (s *AuthService) BindUserPhone(ctx context.Context, req *appv1.BindUserPhoneRequest) (*appv1.BindUserPhoneResponse, error) {
 	res, err := s.authCase.BindUserPhone(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("BindUserPhone %v", err))

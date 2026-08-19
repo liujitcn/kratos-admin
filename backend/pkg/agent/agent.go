@@ -7,16 +7,16 @@ package agent
 
 import (
 	"github.com/cloudwego/eino/components/tool"
-	toolutils "github.com/cloudwego/eino/components/tool/utils"
-	internalModel "github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
-	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	"github.com/cloudwego/eino/components/tool/utils"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
+	"github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 )
 
 // Tool 是 Eino 可执行工具接口。
 type Tool = tool.InvokableTool
 
 // ResponsesClient 是 Responses API 模型客户端。
-type ResponsesClient = internalModel.ResponsesClient
+type ResponsesClient = model.ResponsesClient
 
 // RuntimeConfig 是公开 Runtime 的初始化配置。
 type RuntimeConfig struct {
@@ -42,10 +42,10 @@ func NewRuntimeWithTools(client *ResponsesClient, tools ...Tool) *Runtime {
 
 // NewResponsesClient 根据 Backend AI 模型配置创建 Responses 客户端。
 func NewResponsesClient(modelConfig *configv1.AI_Model) *ResponsesClient {
-	return internalModel.NewResponsesClient(modelConfig)
+	return model.NewResponsesClient(modelConfig)
 }
 
 // InferTool 根据输入结构自动生成 Eino 工具 schema 和执行器。
-func InferTool[T, D any](name string, description string, fn toolutils.InvokeFunc[T, D], options ...toolutils.Option) (Tool, error) {
-	return toolutils.InferTool(name, description, fn, options...)
+func InferTool[T, D any](name string, description string, fn utils.InvokeFunc[T, D], options ...utils.Option) (Tool, error) {
+	return utils.InferTool(name, description, fn, options...)
 }

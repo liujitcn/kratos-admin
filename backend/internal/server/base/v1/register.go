@@ -1,11 +1,11 @@
 package base
 
 import (
-	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	baseService "github.com/liujitcn/kratos-admin/backend/internal/service/base/v1"
 
-	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
-	mcpserver "github.com/liujitcn/kratos-kit/transport/mcp"
+	"github.com/go-kratos/kratos/v3/transport/http"
+	"github.com/liujitcn/kratos-kit/transport/mcp"
 	"google.golang.org/grpc"
 )
 
@@ -38,7 +38,7 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 }
 
 // RegisterHTTP 注册 base.v1 的 HTTP 服务。
-func (s Services) RegisterHTTP(srv *kratosHTTP.Server) {
+func (s Services) RegisterHTTP(srv *http.Server) {
 	basev1.RegisterAiSessionServiceHTTPServer(srv, s.AiSession)
 	basev1.RegisterAiToolServiceHTTPServer(srv, s.AiTool)
 	// AI 助手消息发送使用直连 SSE，避免占用工作台共用 /events 流。
@@ -56,7 +56,7 @@ func (s Services) RegisterHTTP(srv *kratosHTTP.Server) {
 }
 
 // RegisterMCP 注册 base.v1 的 MCP 工具。
-func (s Services) RegisterMCP(server *mcpserver.Server) {
+func (s Services) RegisterMCP(server *mcp.Server) {
 	mcpSrv := server.MCPServer()
 	basev1.RegisterAiSessionServiceMCPTools(mcpSrv, s.AiSession)
 	basev1.RegisterAiToolServiceMCPTools(mcpSrv, s.AiTool)

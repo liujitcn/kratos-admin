@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -16,7 +16,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 // BaseThirdAccountService Admin用户三方账号服务。
 type BaseThirdAccountService struct {
-	systemadminv1.UnimplementedBaseThirdAccountServiceServer
+	adminv1.UnimplementedBaseThirdAccountServiceServer
 	baseThirdAccountCase *biz.BaseThirdAccountCase
 }
 
@@ -26,11 +26,11 @@ func NewBaseThirdAccountService(baseThirdAccountCase *biz.BaseThirdAccountCase) 
 }
 
 // GetBaseThirdAccountIdentifier 查询用户三方账号标识。
-func (s *BaseThirdAccountService) GetBaseThirdAccountIdentifier(ctx context.Context, req *systemadminv1.GetBaseThirdAccountIdentifierRequest) (*systemadminv1.GetBaseThirdAccountIdentifierResponse, error) {
+func (s *BaseThirdAccountService) GetBaseThirdAccountIdentifier(ctx context.Context, req *adminv1.GetBaseThirdAccountIdentifierRequest) (*adminv1.GetBaseThirdAccountIdentifierResponse, error) {
 	account, err := s.baseThirdAccountCase.FindByUserProvider(ctx, req.GetUserId(), req.GetProvider())
 	if err != nil {
 		log.Error(fmt.Sprintf("GetBaseThirdAccountIdentifier %v", err))
 		return nil, errorsx.WrapInternal(err, "查询用户三方账号标识失败")
 	}
-	return &systemadminv1.GetBaseThirdAccountIdentifierResponse{Identifier: account.Identifier}, nil
+	return &adminv1.GetBaseThirdAccountIdentifierResponse{Identifier: account.Identifier}, nil
 }

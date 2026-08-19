@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -14,7 +14,7 @@ import (
 
 // BaseApiService AdminAPI列表
 type BaseApiService struct {
-	systemadminv1.UnimplementedBaseApiServiceServer
+	adminv1.UnimplementedBaseApiServiceServer
 	baseAPICase *biz.BaseAPICase
 }
 
@@ -28,7 +28,7 @@ func NewBaseApiService(
 }
 
 // OptionBaseApi 查询菜单分配API选项列表
-func (s *BaseApiService) OptionBaseApi(ctx context.Context, req *systemadminv1.OptionBaseApiRequest) (*systemadminv1.OptionBaseApiResponse, error) {
+func (s *BaseApiService) OptionBaseApi(ctx context.Context, req *adminv1.OptionBaseApiRequest) (*adminv1.OptionBaseApiResponse, error) {
 	list, err := s.baseAPICase.OptionBaseAPI(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("OptionBaseApi %v", err))
@@ -39,7 +39,7 @@ func (s *BaseApiService) OptionBaseApi(ctx context.Context, req *systemadminv1.O
 }
 
 // PageBaseApi 分页查询API列表
-func (s *BaseApiService) PageBaseApi(ctx context.Context, req *systemadminv1.PageBaseApiRequest) (*systemadminv1.PageBaseApiResponse, error) {
+func (s *BaseApiService) PageBaseApi(ctx context.Context, req *adminv1.PageBaseApiRequest) (*adminv1.PageBaseApiResponse, error) {
 	list, err := s.baseAPICase.PageBaseAPI(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("PageBaseApi %v", err))
@@ -50,7 +50,7 @@ func (s *BaseApiService) PageBaseApi(ctx context.Context, req *systemadminv1.Pag
 }
 
 // GetBaseApi 查询API详情
-func (s *BaseApiService) GetBaseApi(ctx context.Context, req *systemadminv1.GetBaseApiRequest) (*systemadminv1.BaseApi, error) {
+func (s *BaseApiService) GetBaseApi(ctx context.Context, req *adminv1.GetBaseApiRequest) (*adminv1.BaseApi, error) {
 	baseAPI, err := s.baseAPICase.GetBaseAPI(ctx, req.GetId())
 	if err != nil {
 		log.Error(fmt.Sprintf("GetBaseApi %v", err))
@@ -61,7 +61,7 @@ func (s *BaseApiService) GetBaseApi(ctx context.Context, req *systemadminv1.GetB
 }
 
 // GetBaseApiDoc 查询API文档
-func (s *BaseApiService) GetBaseApiDoc(ctx context.Context, req *systemadminv1.GetBaseApiDocRequest) (*systemadminv1.BaseApiDoc, error) {
+func (s *BaseApiService) GetBaseApiDoc(ctx context.Context, req *adminv1.GetBaseApiDocRequest) (*adminv1.BaseApiDoc, error) {
 	baseAPIDoc, err := s.baseAPICase.GetBaseAPIDoc(ctx, req.GetId())
 	if err != nil {
 		log.Error(fmt.Sprintf("GetBaseApiDoc %v", err))
@@ -72,7 +72,7 @@ func (s *BaseApiService) GetBaseApiDoc(ctx context.Context, req *systemadminv1.G
 }
 
 // UpdateBaseApi 更新API配置
-func (s *BaseApiService) UpdateBaseApi(ctx context.Context, req *systemadminv1.UpdateBaseApiRequest) (*emptypb.Empty, error) {
+func (s *BaseApiService) UpdateBaseApi(ctx context.Context, req *adminv1.UpdateBaseApiRequest) (*emptypb.Empty, error) {
 	err := s.baseAPICase.UpdateBaseAPI(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("UpdateBaseApi %v", err))
@@ -83,7 +83,7 @@ func (s *BaseApiService) UpdateBaseApi(ctx context.Context, req *systemadminv1.U
 }
 
 // SetBaseApiAgentStatus 设置API Agent工具状态
-func (s *BaseApiService) SetBaseApiAgentStatus(ctx context.Context, req *systemadminv1.SetBaseApiAgentStatusRequest) (*emptypb.Empty, error) {
+func (s *BaseApiService) SetBaseApiAgentStatus(ctx context.Context, req *adminv1.SetBaseApiAgentStatusRequest) (*emptypb.Empty, error) {
 	err := s.baseAPICase.SetBaseAPIAgentStatus(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("SetBaseApiAgentStatus %v", err))
@@ -94,7 +94,7 @@ func (s *BaseApiService) SetBaseApiAgentStatus(ctx context.Context, req *systema
 }
 
 // SetBaseApiMcpStatus 设置API MCP工具状态
-func (s *BaseApiService) SetBaseApiMcpStatus(ctx context.Context, req *systemadminv1.SetBaseApiMcpStatusRequest) (*emptypb.Empty, error) {
+func (s *BaseApiService) SetBaseApiMcpStatus(ctx context.Context, req *adminv1.SetBaseApiMcpStatusRequest) (*emptypb.Empty, error) {
 	err := s.baseAPICase.SetBaseAPIMcpStatus(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("SetBaseApiMcpStatus %v", err))
@@ -105,7 +105,7 @@ func (s *BaseApiService) SetBaseApiMcpStatus(ctx context.Context, req *systemadm
 }
 
 // OptionOpenApiService 查询 OpenAPI 文档选项列表。
-func (s *BaseApiService) OptionOpenApiService(ctx context.Context, req *systemadminv1.OptionOpenApiServiceRequest) (*systemadminv1.OptionOpenApiServiceResponse, error) {
+func (s *BaseApiService) OptionOpenApiService(ctx context.Context, req *adminv1.OptionOpenApiServiceRequest) (*adminv1.OptionOpenApiServiceResponse, error) {
 	options, err := s.baseAPICase.OptionOpenAPIService(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("OptionOpenApiService %v", err))

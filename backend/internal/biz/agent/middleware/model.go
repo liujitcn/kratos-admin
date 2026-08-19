@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	einoadk "github.com/cloudwego/eino/adk"
+	"github.com/cloudwego/eino/adk"
 	componentsModel "github.com/cloudwego/eino/components/model"
 	"github.com/cloudwego/eino/schema"
 
@@ -21,14 +21,14 @@ type ModelRetryOptions struct {
 }
 
 // ModelRetryConfig 构造 ADK AgenticMessage 模型重试配置。
-func ModelRetryConfig(options ModelRetryOptions) *einoadk.TypedModelRetryConfig[*schema.AgenticMessage] {
+func ModelRetryConfig(options ModelRetryOptions) *adk.TypedModelRetryConfig[*schema.AgenticMessage] {
 	// 未配置重试次数时交给 ADK 默认行为处理，避免无意放大模型请求量。
 	if options.MaxRetries <= 0 {
 		return nil
 	}
-	return &einoadk.TypedModelRetryConfig[*schema.AgenticMessage]{
+	return &adk.TypedModelRetryConfig[*schema.AgenticMessage]{
 		MaxRetries: options.MaxRetries,
-		ShouldRetry: func(_ context.Context, retryCtx *einoadk.TypedRetryContext[*schema.AgenticMessage]) *einoadk.TypedRetryDecision[*schema.AgenticMessage] {
+		ShouldRetry: func(_ context.Context, retryCtx *adk.TypedRetryContext[*schema.AgenticMessage]) *adk.TypedRetryDecision[*schema.AgenticMessage] {
 			if retryCtx == nil || retryCtx.Err == nil {
 				return nil
 			}
@@ -36,7 +36,7 @@ func ModelRetryConfig(options ModelRetryOptions) *einoadk.TypedModelRetryConfig[
 			if errors.Is(retryCtx.Err, context.Canceled) || errors.Is(retryCtx.Err, context.DeadlineExceeded) {
 				return nil
 			}
-			return &einoadk.TypedRetryDecision[*schema.AgenticMessage]{Retry: true}
+			return &adk.TypedRetryDecision[*schema.AgenticMessage]{Retry: true}
 		},
 		BackoffFunc: options.BackoffFunc,
 	}
@@ -44,13 +44,13 @@ func ModelRetryConfig(options ModelRetryOptions) *einoadk.TypedModelRetryConfig[
 
 // ResponsesServerToolHandler 将 Responses 服务端工具选项和调用记录挂到模型调用中。
 type ResponsesServerToolHandler struct {
-	*einoadk.TypedBaseChatModelAgentMiddleware[*schema.AgenticMessage]
+	*adk.TypedBaseChatModelAgentMiddleware[*schema.AgenticMessage]
 }
 
 // NewResponsesServerToolHandler 创建 Responses 服务端工具中间件。
 func NewResponsesServerToolHandler() *ResponsesServerToolHandler {
 	return &ResponsesServerToolHandler{
-		TypedBaseChatModelAgentMiddleware: &einoadk.TypedBaseChatModelAgentMiddleware[*schema.AgenticMessage]{},
+		TypedBaseChatModelAgentMiddleware: &adk.TypedBaseChatModelAgentMiddleware[*schema.AgenticMessage]{},
 	}
 }
 
@@ -58,7 +58,7 @@ func NewResponsesServerToolHandler() *ResponsesServerToolHandler {
 func (h *ResponsesServerToolHandler) WrapModel(
 	ctx context.Context,
 	model componentsModel.BaseModel[*schema.AgenticMessage],
-	_ *einoadk.TypedModelContext[*schema.AgenticMessage],
+	_ *adk.TypedModelContext[*schema.AgenticMessage],
 ) (componentsModel.BaseModel[*schema.AgenticMessage], error) {
 	// Responses 服务端工具需要附加到每一次模型调用，所以这里包一层 BaseModel。
 	return &responsesServerToolModel{inner: model}, nil

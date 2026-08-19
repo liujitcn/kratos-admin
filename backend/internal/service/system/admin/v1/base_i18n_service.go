@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -14,7 +14,7 @@ import (
 
 // BaseI18nService 管理单条动态资源翻译。
 type BaseI18nService struct {
-	systemadminv1.UnimplementedBaseI18nServiceServer
+	adminv1.UnimplementedBaseI18nServiceServer
 	translationCase *biz.BaseTranslationCase
 }
 
@@ -24,7 +24,7 @@ func NewBaseI18nService(translationCase *biz.BaseTranslationCase) *BaseI18nServi
 }
 
 // DraftBaseTranslation 翻译请求中的单个文本。
-func (s *BaseI18nService) DraftBaseTranslation(ctx context.Context, req *systemadminv1.DraftBaseTranslationRequest) (*systemadminv1.DraftBaseTranslationResponse, error) {
+func (s *BaseI18nService) DraftBaseTranslation(ctx context.Context, req *adminv1.DraftBaseTranslationRequest) (*adminv1.DraftBaseTranslationResponse, error) {
 	response, err := s.translationCase.DraftBaseTranslation(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("DraftBaseTranslation %v", err))
@@ -34,7 +34,7 @@ func (s *BaseI18nService) DraftBaseTranslation(ctx context.Context, req *systema
 }
 
 // UpdateBaseTranslation 修改或新增单个翻译信息。
-func (s *BaseI18nService) UpdateBaseTranslation(ctx context.Context, req *systemadminv1.UpdateBaseTranslationRequest) (*emptypb.Empty, error) {
+func (s *BaseI18nService) UpdateBaseTranslation(ctx context.Context, req *adminv1.UpdateBaseTranslationRequest) (*emptypb.Empty, error) {
 	err := s.translationCase.UpdateBaseTranslation(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("UpdateBaseTranslation %v", err))

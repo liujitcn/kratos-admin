@@ -14,7 +14,7 @@ import (
 
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/callback"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/message"
-	einoMiddleware "github.com/liujitcn/kratos-admin/backend/internal/biz/agent/middleware"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/middleware"
 	einoModel "github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
 )
 
@@ -114,9 +114,9 @@ func (r *Runner) Run(ctx context.Context, request Request) (*Result, error) {
 // newAgent 创建带项目中间件的 Eino ChatModelAgent。
 func (r *Runner) newAgent(ctx context.Context, request Request) (*einoadk.TypedChatModelAgent[*schema.AgenticMessage], error) {
 	handlers := []einoadk.TypedChatModelAgentMiddleware[*schema.AgenticMessage]{
-		einoMiddleware.NewToolFilterHandler(request.ToolInfos),
-		einoMiddleware.NewResponsesServerToolHandler(),
-		einoMiddleware.NewToolMetricsHandler(toolTitleResolver(request.ToolInfos)),
+		middleware.NewToolFilterHandler(request.ToolInfos),
+		middleware.NewResponsesServerToolHandler(),
+		middleware.NewToolMetricsHandler(toolTitleResolver(request.ToolInfos)),
 	}
 	return einoadk.NewTypedChatModelAgent(ctx, &einoadk.TypedChatModelAgentConfig[*schema.AgenticMessage]{
 		Name:        r.name,
@@ -130,7 +130,7 @@ func (r *Runner) newAgent(ctx context.Context, request Request) (*einoadk.TypedC
 			},
 		},
 		Handlers:         handlers,
-		ModelRetryConfig: einoMiddleware.ModelRetryConfig(einoMiddleware.ModelRetryOptions{MaxRetries: 1}),
+		ModelRetryConfig: middleware.ModelRetryConfig(middleware.ModelRetryOptions{MaxRetries: 1}),
 		MaxIterations:    defaultMaxIterations,
 	})
 }
@@ -264,7 +264,7 @@ func hasToolCall(value *schema.AgenticMessage) bool {
 }
 
 // toolTitleResolver 构造工具展示标题解析器。
-func toolTitleResolver(infos []*schema.ToolInfo) einoMiddleware.ToolTitleResolver {
+func toolTitleResolver(infos []*schema.ToolInfo) middleware.ToolTitleResolver {
 	infoMap := make(map[string]*schema.ToolInfo, len(infos))
 	for _, info := range infos {
 		// 过滤无效工具定义，避免空名称污染标题映射。

@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"time"
 
-	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/google/uuid"
-	utilscrypto "github.com/liujitcn/go-utils/crypto"
+	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/kratos-kit/cache"
 )
 
@@ -41,7 +41,7 @@ func GeneratePasswordPublicKey(cacheClient cache.Cache, scene basev1.PasswordCry
 		return nil, errorsx.InvalidArgument("密码加密场景不支持")
 	}
 
-	rsaCrypto, err := utilscrypto.NewRSACrypto(2048)
+	rsaCrypto, err := crypto.NewRSACrypto(2048)
 	if err != nil {
 		return nil, errorsx.Internal("生成密码临时密钥失败").WithCause(err)
 	}
@@ -58,7 +58,7 @@ func GeneratePasswordPublicKey(cacheClient cache.Cache, scene basev1.PasswordCry
 
 	keyID := uuid.NewString()
 	var nonceBytes []byte
-	nonceBytes, err = utilscrypto.GenerateAESKey(16)
+	nonceBytes, err = crypto.GenerateAESKey(16)
 	if err != nil {
 		return nil, errorsx.Internal("生成密码临时密钥失败").WithCause(err)
 	}
@@ -128,8 +128,8 @@ func DecryptPassword(cacheClient cache.Cache, password *commonv1.PasswordCrypto,
 		return "", errorsx.InvalidArgument("密码密钥算法不支持")
 	}
 
-	var rsaCrypto *utilscrypto.RSACrypto
-	rsaCrypto, err = utilscrypto.NewRSACryptoFromPrivateKeyPEM(record.PrivateKey)
+	var rsaCrypto *crypto.RSACrypto
+	rsaCrypto, err = crypto.NewRSACryptoFromPrivateKeyPEM(record.PrivateKey)
 	if err != nil {
 		return "", errorsx.InvalidArgument("密码密钥无效").WithCause(err)
 	}
@@ -149,7 +149,7 @@ func DecryptPassword(cacheClient cache.Cache, password *commonv1.PasswordCrypto,
 		return "", errorsx.InvalidArgument("密码密文无效").WithCause(err)
 	}
 	var plaintext []byte
-	plaintext, err = utilscrypto.AesGCMDecrypt(ciphertext, aesKey, iv)
+	plaintext, err = crypto.AesGCMDecrypt(ciphertext, aesKey, iv)
 	if err != nil {
 		return "", errorsx.InvalidArgument("密码解密失败").WithCause(err)
 	}

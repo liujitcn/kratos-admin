@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -15,7 +15,7 @@ import (
 
 // BasePostService Admin岗位管理服务。
 type BasePostService struct {
-	systemadminv1.UnimplementedBasePostServiceServer
+	adminv1.UnimplementedBasePostServiceServer
 	basePostCase *biz.BasePostCase
 }
 
@@ -25,7 +25,7 @@ func NewBasePostService(basePostCase *biz.BasePostCase) *BasePostService {
 }
 
 // OptionBasePost 查询岗位下拉选择。
-func (s *BasePostService) OptionBasePost(ctx context.Context, req *systemadminv1.OptionBasePostRequest) (*commonv1.SelectOptionResponse, error) {
+func (s *BasePostService) OptionBasePost(ctx context.Context, req *adminv1.OptionBasePostRequest) (*commonv1.SelectOptionResponse, error) {
 	list, err := s.basePostCase.OptionBasePost(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("OptionBasePost %v", err))
@@ -35,7 +35,7 @@ func (s *BasePostService) OptionBasePost(ctx context.Context, req *systemadminv1
 }
 
 // PageBasePost 查询岗位分页列表。
-func (s *BasePostService) PageBasePost(ctx context.Context, req *systemadminv1.PageBasePostRequest) (*systemadminv1.PageBasePostResponse, error) {
+func (s *BasePostService) PageBasePost(ctx context.Context, req *adminv1.PageBasePostRequest) (*adminv1.PageBasePostResponse, error) {
 	page, err := s.basePostCase.PageBasePost(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("PageBasePost %v", err))
@@ -45,7 +45,7 @@ func (s *BasePostService) PageBasePost(ctx context.Context, req *systemadminv1.P
 }
 
 // GetBasePost 查询岗位。
-func (s *BasePostService) GetBasePost(ctx context.Context, req *systemadminv1.GetBasePostRequest) (*systemadminv1.BasePostForm, error) {
+func (s *BasePostService) GetBasePost(ctx context.Context, req *adminv1.GetBasePostRequest) (*adminv1.BasePostForm, error) {
 	basePost, err := s.basePostCase.GetBasePost(ctx, req.GetId())
 	if err != nil {
 		log.Error(fmt.Sprintf("GetBasePost %v", err))
@@ -55,7 +55,7 @@ func (s *BasePostService) GetBasePost(ctx context.Context, req *systemadminv1.Ge
 }
 
 // CreateBasePost 创建岗位。
-func (s *BasePostService) CreateBasePost(ctx context.Context, req *systemadminv1.CreateBasePostRequest) (*emptypb.Empty, error) {
+func (s *BasePostService) CreateBasePost(ctx context.Context, req *adminv1.CreateBasePostRequest) (*emptypb.Empty, error) {
 	err := s.basePostCase.CreateBasePost(ctx, req.GetBasePost())
 	if err != nil {
 		log.Error(fmt.Sprintf("CreateBasePost %v", err))
@@ -65,7 +65,7 @@ func (s *BasePostService) CreateBasePost(ctx context.Context, req *systemadminv1
 }
 
 // UpdateBasePost 更新岗位。
-func (s *BasePostService) UpdateBasePost(ctx context.Context, req *systemadminv1.UpdateBasePostRequest) (*emptypb.Empty, error) {
+func (s *BasePostService) UpdateBasePost(ctx context.Context, req *adminv1.UpdateBasePostRequest) (*emptypb.Empty, error) {
 	err := s.basePostCase.UpdateBasePost(ctx, req.GetBasePost())
 	if err != nil {
 		log.Error(fmt.Sprintf("UpdateBasePost %v", err))
@@ -75,7 +75,7 @@ func (s *BasePostService) UpdateBasePost(ctx context.Context, req *systemadminv1
 }
 
 // DeleteBasePost 删除岗位。
-func (s *BasePostService) DeleteBasePost(ctx context.Context, req *systemadminv1.DeleteBasePostRequest) (*emptypb.Empty, error) {
+func (s *BasePostService) DeleteBasePost(ctx context.Context, req *adminv1.DeleteBasePostRequest) (*emptypb.Empty, error) {
 	err := s.basePostCase.DeleteBasePost(ctx, req.GetId())
 	if err != nil {
 		log.Error(fmt.Sprintf("DeleteBasePost %v", err))
@@ -85,7 +85,7 @@ func (s *BasePostService) DeleteBasePost(ctx context.Context, req *systemadminv1
 }
 
 // SetBasePostStatus 设置岗位状态。
-func (s *BasePostService) SetBasePostStatus(ctx context.Context, req *systemadminv1.SetBasePostStatusRequest) (*emptypb.Empty, error) {
+func (s *BasePostService) SetBasePostStatus(ctx context.Context, req *adminv1.SetBasePostStatusRequest) (*emptypb.Empty, error) {
 	err := s.basePostCase.SetBasePostStatus(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("SetBasePostStatus %v", err))

@@ -10,7 +10,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/google/uuid"
-	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"google.golang.org/protobuf/proto"
 )
 

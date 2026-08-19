@@ -2,23 +2,23 @@ package task
 
 import (
 	"github.com/google/wire"
-	adminBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
-	adminTask "github.com/liujitcn/kratos-admin/backend/internal/task/system/admin"
-	corejob "github.com/liujitcn/kratos-core/job"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	"github.com/liujitcn/kratos-admin/backend/internal/task/system/admin"
+	"github.com/liujitcn/kratos-core/job"
 )
 
 // ProviderSet 统一注册 Backend 全部任务执行器。
 var ProviderSet = wire.NewSet(
-	adminBiz.ProviderSet,
-	adminTask.NewBaseTranslationTask,
+	biz.ProviderSet,
+	admin.NewBaseTranslationTask,
 	NewTask,
 )
 
 // NewTask 收集 Backend 全部任务执行器。
-func NewTask(baseTranslationTask *adminTask.BaseTranslationTask) corejob.Tasks {
-	return corejob.Tasks{
+func NewTask(baseTranslationTask *admin.BaseTranslationTask) job.Tasks {
+	return job.Tasks{
 		{
-			Name: adminTask.BaseTranslationTaskName,
+			Name: admin.BaseTranslationTaskName,
 			Exec: baseTranslationTask,
 		},
 	}

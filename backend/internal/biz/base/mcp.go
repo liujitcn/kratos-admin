@@ -8,12 +8,12 @@ import (
 	"net/http"
 	"strings"
 
-	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
-	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -127,7 +127,7 @@ func (h *McpCase) ToolConfigs(ctx context.Context, terminal string, names []stri
 	promptsByName := make(map[string][]string, len(filteredNames))
 	for _, item := range list {
 		totalByName[item.ToolName]++
-		if item.AgentStatus == coreconst.STATUS_STATUS_ENABLE {
+		if item.AgentStatus == _const.STATUS_STATUS_ENABLE {
 			enabledByName[item.ToolName]++
 		}
 		if len(promptsByName[item.ToolName]) == 0 {
@@ -258,7 +258,7 @@ func (h *McpCase) findEnabledBaseAPI(ctx context.Context, req mcp.Request, toolN
 	}
 	query := h.baseAPIRepo.Query(ctx).BaseAPI
 	opts := make([]repository.QueryOption, 0, 3)
-	opts = append(opts, repository.Where(query.McpStatus.Eq(coreconst.STATUS_STATUS_ENABLE)))
+	opts = append(opts, repository.Where(query.McpStatus.Eq(_const.STATUS_STATUS_ENABLE)))
 	opts = append(opts, repository.Where(query.ToolName.Eq(toolName)))
 	opts = append(opts, repository.Limit(1))
 	list, err := h.baseAPIRepo.List(ctx, opts...)

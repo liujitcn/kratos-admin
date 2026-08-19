@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
@@ -18,7 +18,7 @@ import (
 type BaseLogCase struct {
 	*biz.BaseCase
 	*data.BaseLogRepository
-	mapper *mapper.CopierMapper[systemadminv1.BaseLog, models.BaseLog]
+	mapper *mapper.CopierMapper[adminv1.BaseLog, models.BaseLog]
 }
 
 // NewBaseLogCase 创建日志业务实例
@@ -26,14 +26,14 @@ func NewBaseLogCase(baseCase *biz.BaseCase, baseLogRepo *data.BaseLogRepository)
 	c := &BaseLogCase{
 		BaseCase:          baseCase,
 		BaseLogRepository: baseLogRepo,
-		mapper:            mapper.NewCopierMapper[systemadminv1.BaseLog, models.BaseLog](),
+		mapper:            mapper.NewCopierMapper[adminv1.BaseLog, models.BaseLog](),
 	}
 
 	return c
 }
 
 // PageBaseLog 分页查询日志
-func (c *BaseLogCase) PageBaseLog(ctx context.Context, req *systemadminv1.PageBaseLogRequest) (*systemadminv1.PageBaseLogResponse, error) {
+func (c *BaseLogCase) PageBaseLog(ctx context.Context, req *adminv1.PageBaseLogRequest) (*adminv1.PageBaseLogResponse, error) {
 	query := c.Query(ctx).BaseLog
 	opts := make([]repository.QueryOption, 0, 5)
 	opts = append(opts, repository.Order(query.RequestTime.Desc()))
@@ -66,15 +66,15 @@ func (c *BaseLogCase) PageBaseLog(ctx context.Context, req *systemadminv1.PageBa
 		return nil, err
 	}
 
-	resList := make([]*systemadminv1.BaseLog, 0, len(list))
+	resList := make([]*adminv1.BaseLog, 0, len(list))
 	for _, item := range list {
 		resList = append(resList, c.toBaseLog(item))
 	}
-	return &systemadminv1.PageBaseLogResponse{BaseLogs: resList, Total: int32(total)}, nil
+	return &adminv1.PageBaseLogResponse{BaseLogs: resList, Total: int32(total)}, nil
 }
 
 // GetBaseLog 获取日志
-func (c *BaseLogCase) GetBaseLog(ctx context.Context, id int64) (*systemadminv1.BaseLog, error) {
+func (c *BaseLogCase) GetBaseLog(ctx context.Context, id int64) (*adminv1.BaseLog, error) {
 	baseLog, err := c.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -83,7 +83,7 @@ func (c *BaseLogCase) GetBaseLog(ctx context.Context, id int64) (*systemadminv1.
 }
 
 // toBaseLog 转换日志响应数据
-func (c *BaseLogCase) toBaseLog(item *models.BaseLog) *systemadminv1.BaseLog {
+func (c *BaseLogCase) toBaseLog(item *models.BaseLog) *adminv1.BaseLog {
 	costTime := time.Duration(item.CostTime) * time.Millisecond
 	baseLog := c.mapper.ToDTO(item)
 	baseLog.CostTime = costTime.String()

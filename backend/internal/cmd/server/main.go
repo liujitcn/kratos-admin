@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 
-	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
-	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/const"
+	"github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 
 	"github.com/liujitcn/kratos-kit/bootstrap"
 
@@ -42,7 +42,7 @@ import (
 func main() {
 	ctx := bootstrap.NewContext(
 		context.Background(),
-		&bootstrapConfigv1.AppInfo{
+		&configv1.AppInfo{
 			Project: _const.Project,
 			AppId:   _const.AppID,
 			Name:    _const.Name,

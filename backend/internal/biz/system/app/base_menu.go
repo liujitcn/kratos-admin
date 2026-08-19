@@ -3,8 +3,8 @@ package biz
 import (
 	"context"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	systemappv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
 	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
@@ -21,13 +21,13 @@ type BaseMenuCase struct {
 	*biz.BaseCase
 	*data.BaseMenuRepository
 	translationCase *adminbiz.BaseTranslationCase
-	mapper          *mapper.CopierMapper[systemappv1.BaseMenu, models.BaseMenu]
+	mapper          *mapper.CopierMapper[appv1.BaseMenu, models.BaseMenu]
 }
 
 // NewBaseMenuCase 创建移动端菜单业务处理对象。
 func NewBaseMenuCase(baseCase *biz.BaseCase, baseMenuRepo *data.BaseMenuRepository, translationCase *adminbiz.BaseTranslationCase) *BaseMenuCase {
-	menuMapper := mapper.NewCopierMapper[systemappv1.BaseMenu, models.BaseMenu]()
-	menuMapper.AppendConverters(mapper.NewJSONTypeConverter[*systemappv1.BaseMenuMeta]().NewConverterPair())
+	menuMapper := mapper.NewCopierMapper[appv1.BaseMenu, models.BaseMenu]()
+	menuMapper.AppendConverters(mapper.NewJSONTypeConverter[*appv1.BaseMenuMeta]().NewConverterPair())
 	return &BaseMenuCase{
 		BaseCase:           baseCase,
 		BaseMenuRepository: baseMenuRepo,
@@ -37,9 +37,9 @@ func NewBaseMenuCase(baseCase *biz.BaseCase, baseMenuRepo *data.BaseMenuReposito
 }
 
 // ListBaseMenu 查询固定移动端根目录下的完整启用页面层级。
-func (c *BaseMenuCase) ListBaseMenu(ctx context.Context) ([]*systemappv1.BaseMenu, error) {
+func (c *BaseMenuCase) ListBaseMenu(ctx context.Context) ([]*appv1.BaseMenu, error) {
 	query := c.Query(ctx).BaseMenu
-	items := make([]*systemappv1.BaseMenu, 0)
+	items := make([]*appv1.BaseMenu, 0)
 	menuIDs := make([]int64, 0)
 	parentIDs := []int64{_const.BASE_MENU_APP_ROOT_ID}
 	visited := map[int64]struct{}{_const.BASE_MENU_APP_ROOT_ID: {}}
@@ -68,7 +68,7 @@ func (c *BaseMenuCase) ListBaseMenu(ctx context.Context) ([]*systemappv1.BaseMen
 		}
 	}
 	var titles map[int64]string
-	titles, err = c.translationCase.GetBaseTranslationNameMapByLocale(ctx, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, biz.LocaleFromContext(ctx), menuIDs)
+	titles, err = c.translationCase.GetBaseTranslationNameMapByLocale(ctx, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, biz.LocaleFromContext(ctx), menuIDs)
 	if err != nil {
 		return nil, err
 	}

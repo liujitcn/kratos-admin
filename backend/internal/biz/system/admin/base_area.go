@@ -3,9 +3,9 @@ package biz
 import (
 	"context"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/const"
+	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -21,8 +21,8 @@ import (
 type BaseAreaCase struct {
 	*biz.BaseCase
 	*data.BaseAreaRepository
-	formMapper *mapper.CopierMapper[systemadminv1.BaseAreaForm, models.BaseArea]
-	mapper     *mapper.CopierMapper[systemadminv1.BaseArea, models.BaseArea]
+	formMapper *mapper.CopierMapper[adminv1.BaseAreaForm, models.BaseArea]
+	mapper     *mapper.CopierMapper[adminv1.BaseArea, models.BaseArea]
 }
 
 // NewBaseAreaCase 创建行政区域业务实例。
@@ -30,13 +30,13 @@ func NewBaseAreaCase(baseCase *biz.BaseCase, baseAreaRepo *data.BaseAreaReposito
 	return &BaseAreaCase{
 		BaseCase:           baseCase,
 		BaseAreaRepository: baseAreaRepo,
-		formMapper:         mapper.NewCopierMapper[systemadminv1.BaseAreaForm, models.BaseArea](),
-		mapper:             mapper.NewCopierMapper[systemadminv1.BaseArea, models.BaseArea](),
+		formMapper:         mapper.NewCopierMapper[adminv1.BaseAreaForm, models.BaseArea](),
+		mapper:             mapper.NewCopierMapper[adminv1.BaseArea, models.BaseArea](),
 	}
 }
 
 // OptionBaseArea 查询行政区域树形选择。
-func (c *BaseAreaCase) OptionBaseArea(ctx context.Context, req *systemadminv1.OptionBaseAreaRequest) (*commonv1.TreeOptionResponse, error) {
+func (c *BaseAreaCase) OptionBaseArea(ctx context.Context, req *adminv1.OptionBaseAreaRequest) (*commonv1.TreeOptionResponse, error) {
 	query := c.Query(ctx).BaseArea
 
 	opts := make([]repository.QueryOption, 0, 2)
@@ -62,7 +62,7 @@ func (c *BaseAreaCase) OptionBaseArea(ctx context.Context, req *systemadminv1.Op
 }
 
 // TreeBaseArea 查询行政区域树形列表。
-func (c *BaseAreaCase) TreeBaseArea(ctx context.Context, req *systemadminv1.TreeBaseAreaRequest) (*systemadminv1.TreeBaseAreaResponse, error) {
+func (c *BaseAreaCase) TreeBaseArea(ctx context.Context, req *adminv1.TreeBaseAreaRequest) (*adminv1.TreeBaseAreaResponse, error) {
 	query := c.Query(ctx).BaseArea
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.ID.Asc()))
@@ -82,7 +82,7 @@ func (c *BaseAreaCase) TreeBaseArea(ctx context.Context, req *systemadminv1.Tree
 	if err != nil {
 		return nil, err
 	}
-	baseAreas := make([]*systemadminv1.BaseArea, 0, len(list))
+	baseAreas := make([]*adminv1.BaseArea, 0, len(list))
 	if req.GetName() != "" {
 		for _, item := range list {
 			baseArea := c.mapper.ToDTO(item)
@@ -96,11 +96,11 @@ func (c *BaseAreaCase) TreeBaseArea(ctx context.Context, req *systemadminv1.Tree
 		}
 		baseAreas = c.buildBaseAreaTree(list, parentID, req.GetLazy(), hasChildren)
 	}
-	return &systemadminv1.TreeBaseAreaResponse{BaseAreas: baseAreas}, nil
+	return &adminv1.TreeBaseAreaResponse{BaseAreas: baseAreas}, nil
 }
 
 // GetBaseArea 查询行政区域详情。
-func (c *BaseAreaCase) GetBaseArea(ctx context.Context, id int64) (*systemadminv1.BaseAreaForm, error) {
+func (c *BaseAreaCase) GetBaseArea(ctx context.Context, id int64) (*adminv1.BaseAreaForm, error) {
 	baseArea, err := c.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -109,7 +109,7 @@ func (c *BaseAreaCase) GetBaseArea(ctx context.Context, id int64) (*systemadminv
 }
 
 // CreateBaseArea 创建行政区域。
-func (c *BaseAreaCase) CreateBaseArea(ctx context.Context, req *systemadminv1.BaseAreaForm) error {
+func (c *BaseAreaCase) CreateBaseArea(ctx context.Context, req *adminv1.BaseAreaForm) error {
 	baseArea := c.formMapper.ToEntity(req)
 	err := c.Create(ctx, baseArea)
 	if err != nil {
@@ -119,7 +119,7 @@ func (c *BaseAreaCase) CreateBaseArea(ctx context.Context, req *systemadminv1.Ba
 }
 
 // UpdateBaseArea 更新行政区域。
-func (c *BaseAreaCase) UpdateBaseArea(ctx context.Context, id int64, req *systemadminv1.BaseAreaForm) error {
+func (c *BaseAreaCase) UpdateBaseArea(ctx context.Context, id int64, req *adminv1.BaseAreaForm) error {
 	baseArea := c.formMapper.ToEntity(req)
 	baseArea.ID = id
 	err := c.UpdateByID(ctx, baseArea)
@@ -191,8 +191,8 @@ func (c *BaseAreaCase) buildBaseAreaTree(
 	parentID int64,
 	lazy bool,
 	hasChildren map[int64]struct{},
-) []*systemadminv1.BaseArea {
-	res := make([]*systemadminv1.BaseArea, 0)
+) []*adminv1.BaseArea {
+	res := make([]*adminv1.BaseArea, 0)
 	for _, item := range list {
 		if int64(item.ParentID) != parentID {
 			continue

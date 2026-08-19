@@ -11,7 +11,7 @@ import (
 	"slices"
 	"strings"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 
 	kratosErrors "github.com/go-kratos/kratos/v3/errors"
 	"github.com/liujitcn/go-utils/stringcase"
@@ -108,7 +108,7 @@ func TruncateText(value string, maxRunes int) string {
 }
 
 // BuildProgressSteps 构建文件、菜单和命令的完整进度步骤。
-func BuildProgressSteps(files []*systemadminv1.CodeGenPreviewFile, syncMenus bool, runCommands bool) []*systemadminv1.CodeGenTaskStep {
+func BuildProgressSteps(files []*adminv1.CodeGenPreviewFile, syncMenus bool, runCommands bool) []*adminv1.CodeGenTaskStep {
 	stepCount := len(files)
 	if syncMenus {
 		stepCount++
@@ -116,15 +116,15 @@ func BuildProgressSteps(files []*systemadminv1.CodeGenPreviewFile, syncMenus boo
 	if runCommands {
 		stepCount += 6
 	}
-	steps := make([]*systemadminv1.CodeGenTaskStep, 0, stepCount)
+	steps := make([]*adminv1.CodeGenTaskStep, 0, stepCount)
 	for i, file := range files {
-		status := systemadminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_PENDING
+		status := adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_PENDING
 		message := "等待生成"
 		if file.GetAction() != "create" && file.GetAction() != "update" {
-			status = systemadminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_SKIPPED
+			status = adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_SKIPPED
 			message = file.GetMessage()
 		}
-		steps = append(steps, &systemadminv1.CodeGenTaskStep{
+		steps = append(steps, &adminv1.CodeGenTaskStep{
 			Id:      FileStepID(i),
 			Label:   "生成文件",
 			Kind:    "file",
@@ -134,21 +134,21 @@ func BuildProgressSteps(files []*systemadminv1.CodeGenPreviewFile, syncMenus boo
 		})
 	}
 	if syncMenus {
-		steps = append(steps, &systemadminv1.CodeGenTaskStep{
+		steps = append(steps, &adminv1.CodeGenTaskStep{
 			Id:      MenuStepID,
 			Label:   "同步菜单权限",
 			Kind:    "menu",
-			Status:  systemadminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_PENDING,
+			Status:  adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_PENDING,
 			Message: "等待同步",
 		})
 	}
 	if runCommands {
 		for _, command := range []string{"gorm-gen", "api", "openapi", "ts", "wire", "fmt"} {
-			steps = append(steps, &systemadminv1.CodeGenTaskStep{
+			steps = append(steps, &adminv1.CodeGenTaskStep{
 				Id:      CommandStepPrefix + command,
 				Label:   "make " + command,
 				Kind:    "command",
-				Status:  systemadminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_PENDING,
+				Status:  adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_PENDING,
 				Message: "等待执行",
 			})
 		}

@@ -9,14 +9,14 @@ import (
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
-	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
 	coreconst "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
@@ -43,8 +43,8 @@ type BaseTenantCase struct {
 	baseUserRepo   *data.BaseUserRepository
 	casbinRuleRepo *data.CasbinRuleRepository
 	casbinRuleCase *CasbinRuleCase
-	formMapper     *mapper.CopierMapper[systemadminv1.BaseTenantForm, models.BaseTenant]
-	mapper         *mapper.CopierMapper[systemadminv1.BaseTenant, models.BaseTenant]
+	formMapper     *mapper.CopierMapper[adminv1.BaseTenantForm, models.BaseTenant]
+	mapper         *mapper.CopierMapper[adminv1.BaseTenant, models.BaseTenant]
 }
 
 // NewBaseTenantCase 创建租户业务实例。
@@ -67,8 +67,8 @@ func NewBaseTenantCase(
 		baseUserRepo:         baseUserRepo,
 		casbinRuleRepo:       casbinRuleRepo,
 		casbinRuleCase:       casbinRuleCase,
-		formMapper:           mapper.NewCopierMapper[systemadminv1.BaseTenantForm, models.BaseTenant](),
-		mapper:               mapper.NewCopierMapper[systemadminv1.BaseTenant, models.BaseTenant](),
+		formMapper:           mapper.NewCopierMapper[adminv1.BaseTenantForm, models.BaseTenant](),
+		mapper:               mapper.NewCopierMapper[adminv1.BaseTenant, models.BaseTenant](),
 	}
 }
 
@@ -76,12 +76,12 @@ func NewBaseTenantCase(
 func (c *BaseTenantCase) FindDefault(ctx context.Context) (*models.BaseTenant, error) {
 	query := c.Query(ctx).BaseTenant
 	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.Code.Eq(databaseGorm.DefaultTenantCode)))
+	opts = append(opts, repository.Where(query.Code.Eq(gorm.DefaultTenantCode)))
 	return c.Find(ctx, opts...)
 }
 
 // OptionBaseTenant 查询租户选项。
-func (c *BaseTenantCase) OptionBaseTenant(ctx context.Context, req *systemadminv1.OptionBaseTenantRequest) (*commonv1.SelectOptionResponse, error) {
+func (c *BaseTenantCase) OptionBaseTenant(ctx context.Context, req *adminv1.OptionBaseTenantRequest) (*commonv1.SelectOptionResponse, error) {
 	query := c.Query(ctx).BaseTenant
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
@@ -105,7 +105,7 @@ func (c *BaseTenantCase) OptionBaseTenant(ctx context.Context, req *systemadminv
 }
 
 // PageBaseTenant 分页查询租户。
-func (c *BaseTenantCase) PageBaseTenant(ctx context.Context, req *systemadminv1.PageBaseTenantRequest) (*systemadminv1.PageBaseTenantResponse, error) {
+func (c *BaseTenantCase) PageBaseTenant(ctx context.Context, req *adminv1.PageBaseTenantRequest) (*adminv1.PageBaseTenantResponse, error) {
 	query := c.Query(ctx).BaseTenant
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
@@ -124,17 +124,17 @@ func (c *BaseTenantCase) PageBaseTenant(ctx context.Context, req *systemadminv1.
 		return nil, err
 	}
 
-	resList := make([]*systemadminv1.BaseTenant, 0, len(list))
+	resList := make([]*adminv1.BaseTenant, 0, len(list))
 	for _, item := range list {
 		baseTenant := c.mapper.ToDTO(item)
 		baseTenant.IsProtected = isBaseTenantProtected(item)
 		resList = append(resList, baseTenant)
 	}
-	return &systemadminv1.PageBaseTenantResponse{BaseTenants: resList, Total: int32(total)}, nil
+	return &adminv1.PageBaseTenantResponse{BaseTenants: resList, Total: int32(total)}, nil
 }
 
 // GetBaseTenant 获取租户。
-func (c *BaseTenantCase) GetBaseTenant(ctx context.Context, id int64) (*systemadminv1.BaseTenantForm, error) {
+func (c *BaseTenantCase) GetBaseTenant(ctx context.Context, id int64) (*adminv1.BaseTenantForm, error) {
 	baseTenant, err := c.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -147,7 +147,7 @@ func (c *BaseTenantCase) GetBaseTenant(ctx context.Context, id int64) (*systemad
 }
 
 // CreateBaseTenant 创建租户。
-func (c *BaseTenantCase) CreateBaseTenant(ctx context.Context, req *systemadminv1.BaseTenantForm) error {
+func (c *BaseTenantCase) CreateBaseTenant(ctx context.Context, req *adminv1.BaseTenantForm) error {
 	baseTenant := c.formMapper.ToEntity(req)
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
 		code, err := c.getNextBaseTenantCode(ctx)
@@ -174,7 +174,7 @@ func (c *BaseTenantCase) CreateBaseTenant(ctx context.Context, req *systemadminv
 }
 
 // UpdateBaseTenant 更新租户。
-func (c *BaseTenantCase) UpdateBaseTenant(ctx context.Context, req *systemadminv1.BaseTenantForm) error {
+func (c *BaseTenantCase) UpdateBaseTenant(ctx context.Context, req *adminv1.BaseTenantForm) error {
 	oldBaseTenant, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err
@@ -236,7 +236,7 @@ func (c *BaseTenantCase) DeleteBaseTenant(ctx context.Context, id string) error 
 }
 
 // SetBaseTenantStatus 设置租户状态。
-func (c *BaseTenantCase) SetBaseTenantStatus(ctx context.Context, req *systemadminv1.SetBaseTenantStatusRequest) error {
+func (c *BaseTenantCase) SetBaseTenantStatus(ctx context.Context, req *adminv1.SetBaseTenantStatusRequest) error {
 	baseTenant, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err
@@ -424,5 +424,5 @@ func validateBaseTenantManagementTarget(baseTenant *models.BaseTenant) error {
 
 // isBaseTenantProtected 判断租户是否禁止通过租户管理操作。
 func isBaseTenantProtected(baseTenant *models.BaseTenant) bool {
-	return baseTenant.Code == databaseGorm.DefaultTenantCode
+	return baseTenant.Code == gorm.DefaultTenantCode
 }

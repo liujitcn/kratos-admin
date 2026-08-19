@@ -7,13 +7,13 @@ import (
 	"math/rand/v2"
 	"time"
 
-	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	baseBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
 	coreconst "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
@@ -39,11 +39,11 @@ type AuthCase struct {
 	baseMenuCase   *BaseMenuCase
 	fileCase       *baseBiz.FileCase
 	userInfoMapper *mapper.CopierMapper[
-		systemadminv1.UserInfoForm,
+		adminv1.UserInfoForm,
 		models.BaseUser,
 	]
 	profileMapper *mapper.CopierMapper[
-		systemadminv1.UserProfileForm,
+		adminv1.UserProfileForm,
 		models.BaseUser,
 	]
 }
@@ -67,18 +67,18 @@ func NewAuthCase(
 		baseMenuCase:   baseMenuCase,
 		fileCase:       fileCase,
 		userInfoMapper: mapper.NewCopierMapper[
-			systemadminv1.UserInfoForm,
+			adminv1.UserInfoForm,
 			models.BaseUser,
 		](),
 		profileMapper: mapper.NewCopierMapper[
-			systemadminv1.UserProfileForm,
+			adminv1.UserProfileForm,
 			models.BaseUser,
 		](),
 	}
 }
 
 // TreeUserMenu 获取用户菜单
-func (c *AuthCase) TreeUserMenu(ctx context.Context) (*systemadminv1.TreeRouteResponse, error) {
+func (c *AuthCase) TreeUserMenu(ctx context.Context) (*adminv1.TreeRouteResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -116,7 +116,7 @@ func (c *AuthCase) TreeUserMenu(ctx context.Context) (*systemadminv1.TreeRouteRe
 		ids := _string.ConvertJsonStringToInt64Array(baseRole.Menus)
 		// 角色未配置任何菜单时，直接返回空菜单树。
 		if len(ids) == 0 {
-			return &systemadminv1.TreeRouteResponse{Routes: []*systemadminv1.RouteItem{}}, nil
+			return &adminv1.TreeRouteResponse{Routes: []*adminv1.RouteItem{}}, nil
 		}
 		opts = append(opts, repository.Where(query.ID.In(ids...)))
 	}
@@ -133,7 +133,7 @@ func (c *AuthCase) TreeUserMenu(ctx context.Context) (*systemadminv1.TreeRouteRe
 		return nil, errorsx.Internal("获取用户菜单失败").WithCause(err)
 	}
 	list := c.baseMenuCase.buildRouteTree(menuList, 0, titles)
-	return &systemadminv1.TreeRouteResponse{Routes: list}, nil
+	return &adminv1.TreeRouteResponse{Routes: list}, nil
 }
 
 // ListUserButton 获取用户按钮
@@ -192,7 +192,7 @@ func (c *AuthCase) ListUserButton(ctx context.Context) (*commonv1.StringValues, 
 }
 
 // GetUserInfo 获取用户信息
-func (c *AuthCase) GetUserInfo(ctx context.Context) (*systemadminv1.UserInfoForm, error) {
+func (c *AuthCase) GetUserInfo(ctx context.Context) (*adminv1.UserInfoForm, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -239,7 +239,7 @@ func (c *AuthCase) GetUserInfo(ctx context.Context) (*systemadminv1.UserInfoForm
 }
 
 // GetUserProfile 获取用户资料
-func (c *AuthCase) GetUserProfile(ctx context.Context) (*systemadminv1.UserProfileForm, error) {
+func (c *AuthCase) GetUserProfile(ctx context.Context) (*adminv1.UserProfileForm, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -274,7 +274,7 @@ func (c *AuthCase) GetUserProfile(ctx context.Context) (*systemadminv1.UserProfi
 }
 
 // UpdateUserPassword 更新用户密码
-func (c *AuthCase) UpdateUserPassword(ctx context.Context, req *systemadminv1.UserPasswordForm) error {
+func (c *AuthCase) UpdateUserPassword(ctx context.Context, req *adminv1.UserPasswordForm) error {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return err
@@ -314,7 +314,7 @@ func (c *AuthCase) UpdateUserPassword(ctx context.Context, req *systemadminv1.Us
 }
 
 // UpdateUserPhone 更新用户手机号
-func (c *AuthCase) UpdateUserPhone(ctx context.Context, req *systemadminv1.UserPhoneForm) error {
+func (c *AuthCase) UpdateUserPhone(ctx context.Context, req *adminv1.UserPhoneForm) error {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return err
@@ -363,7 +363,7 @@ func (c *AuthCase) UpdateUserPhone(ctx context.Context, req *systemadminv1.UserP
 }
 
 // UpdateUserProfile 更新用户资料
-func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *systemadminv1.UserProfileForm) error {
+func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *adminv1.UserProfileForm) error {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return err
@@ -392,7 +392,7 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *systemadminv1.Use
 }
 
 // SendPhoneCode 发送更新手机号验证码
-func (c *AuthCase) SendPhoneCode(ctx context.Context, req *systemadminv1.SendPhoneCodeRequest) error {
+func (c *AuthCase) SendPhoneCode(ctx context.Context, req *adminv1.SendPhoneCodeRequest) error {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return err

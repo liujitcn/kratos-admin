@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"io/fs"
 
-	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
-	adminData "github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
+	"github.com/liujitcn/kratos-admin/backend/internal/const"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/docs"
 	"github.com/liujitcn/kratos-admin/backend/internal/i18n"
 	"github.com/liujitcn/kratos-admin/backend/internal/openapi"
 	"github.com/liujitcn/kratos-admin/backend/migration"
 	"github.com/liujitcn/kratos-core/module"
-	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 type resource struct {
@@ -71,7 +71,7 @@ func NewModuleResources() module.Resources {
 		&resource{
 			projectKey:  _const.Project,
 			projectName: _const.Name,
-			models:      module.Models{databaseGorm.DefaultClientName: adminData.Models()},
+			models:      module.Models{gorm.DefaultClientName: data.Models()},
 			openAPI:     openapi.Assets(),
 			docs:        docsFS,
 			migrations: module.Migrations{

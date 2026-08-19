@@ -9,11 +9,11 @@ import (
 	"sync"
 	"unicode"
 
-	einoADK "github.com/liujitcn/kratos-admin/backend/internal/biz/agent/adk"
-	einoCallback "github.com/liujitcn/kratos-admin/backend/internal/biz/agent/callback"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/adk"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/callback"
 	einoMessage "github.com/liujitcn/kratos-admin/backend/internal/biz/agent/message"
-	einoModel "github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
-	einoTool "github.com/liujitcn/kratos-admin/backend/internal/biz/agent/tool"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/tool"
 )
 
 const (
@@ -42,23 +42,23 @@ const aiInstruction = `你是一个通用 AI 助手，可以自然、友好、�
 // OSS、鉴权或前端协议。这样 AI 助手链路可以把“业务准备”和“模型运行”分开维护。
 type Runtime struct {
 	toolsMu    sync.RWMutex
-	client     *einoModel.ResponsesClient
-	adminTools []einoTool.Invokable
-	appTools   []einoTool.Invokable
+	client     *model.ResponsesClient
+	adminTools []tool.Invokable
+	appTools   []tool.Invokable
 	toolGate   ToolAccessChecker
 }
 
 // newRuntime 创建 AI 助手运行时。
 func newRuntime(
-	client *einoModel.ResponsesClient,
+	client *model.ResponsesClient,
 	checker ToolAccessChecker,
 	adminTools []Tool,
 	appTools []Tool,
 ) *Runtime {
 	return &Runtime{
 		client:     client,
-		adminTools: append([]einoTool.Invokable(nil), adminTools...),
-		appTools:   append([]einoTool.Invokable(nil), appTools...),
+		adminTools: append([]tool.Invokable(nil), adminTools...),
+		appTools:   append([]tool.Invokable(nil), appTools...),
 		toolGate:   checker,
 	}
 }
@@ -96,11 +96,11 @@ func (r *Runtime) InvokeTool(ctx context.Context, terminal string, name string, 
 	}
 	input := RuntimeInput{Terminal: terminal, Content: name}
 	infos := r.enabledToolInfos(ctx, input, r.allToolInfos(ctx, input))
-	result := einoTool.ExecuteCall(ctx, r.toolMap(ctx, input), infos, einoTool.Call{
+	result := tool.ExecuteCall(ctx, r.toolMap(ctx, input), infos, tool.Call{
 		ID:        "direct_" + name,
 		Name:      name,
 		Arguments: arguments,
-	}, einoTool.WithCatalogName(agentToolCatalogName))
+	}, tool.WithCatalogName(agentToolCatalogName))
 	usage := toolUsageFromCallResult(result)
 	if usage.Status != "success" {
 		return &ToolInvokeResult{Output: result.Content, Usage: usage}, errors.New(result.Content)
@@ -127,7 +127,7 @@ func (r *Runtime) EnabledToolNames(ctx context.Context, terminal string) map[str
 		return map[string]bool{}
 	}
 	input := RuntimeInput{Terminal: terminal}
-	return einoTool.NameSet(r.enabledToolInfos(ctx, input, r.allToolInfos(ctx, input)))
+	return tool.NameSet(r.enabledToolInfos(ctx, input, r.allToolInfos(ctx, input)))
 }
 
 // Run 使用生成式模式运行助手。
@@ -198,11 +198,11 @@ func (r *Runtime) runGenerate(ctx context.Context, input RuntimeInput, messages 
 }
 
 // disabledToolCall 在本轮命中已禁用工具时构造明确错误回复。
-func (r *Runtime) disabledToolCall(ctx context.Context, input RuntimeInput, enabledCandidates []*einoTool.Info) *disabledToolCall {
+func (r *Runtime) disabledToolCall(ctx context.Context, input RuntimeInput, enabledCandidates []*tool.Info) *disabledToolCall {
 	registeredInfos := r.allToolInfos(ctx, input)
 	enabledInfos := r.enabledToolInfos(ctx, input, registeredInfos)
-	enabledNames := einoTool.NameSet(enabledInfos)
-	disabledInfos := make([]*einoTool.Info, 0, len(registeredInfos))
+	enabledNames := tool.NameSet(enabledInfos)
+	disabledInfos := make([]*tool.Info, 0, len(registeredInfos))
 	for _, info := range registeredInfos {
 		if info == nil || info.Name == "" || info.Name == agentToolCatalogName {
 			continue
@@ -241,17 +241,17 @@ func (r *Runtime) runADK(
 	ctx context.Context,
 	input RuntimeInput,
 	messages []*einoMessage.AgenticMessage,
-	toolInfos []*einoTool.Info,
+	toolInfos []*tool.Info,
 	stream bool,
 	onDelta func(string),
-) (*einoADK.Result, *einoCallback.Recorder, error) {
-	recorder := &einoCallback.Recorder{}
-	runner := einoADK.NewRunner(einoADK.Config{
+) (*adk.Result, *callback.Recorder, error) {
+	recorder := &callback.Recorder{}
+	runner := adk.NewRunner(adk.Config{
 		Model:       r.client.AgenticModel,
 		Name:        "admin_ai",
 		Description: "管理端 AI 助手，负责会话问答、内部工具调用和联网搜索。",
 	})
-	result, err := runner.Run(ctx, einoADK.Request{
+	result, err := runner.Run(ctx, adk.Request{
 		Messages:  append([]*einoMessage.AgenticMessage(nil), messages...),
 		Tools:     r.runnerTools(ctx, input),
 		ToolInfos: toolInfos,
@@ -263,9 +263,9 @@ func (r *Runtime) runADK(
 }
 
 // runnerTools 收集当前终端可由 ADK 执行的工具。
-func (r *Runtime) runnerTools(ctx context.Context, input RuntimeInput) []einoTool.Base {
+func (r *Runtime) runnerTools(ctx context.Context, input RuntimeInput) []tool.Base {
 	toolMap := r.toolMap(ctx, input)
-	tools := make([]einoTool.Base, 0, len(toolMap))
+	tools := make([]tool.Base, 0, len(toolMap))
 	for _, item := range toolMap {
 		if item == nil {
 			continue
@@ -276,7 +276,7 @@ func (r *Runtime) runnerTools(ctx context.Context, input RuntimeInput) []einoToo
 }
 
 // toolInfos 收集可传给模型的工具定义。
-func (r *Runtime) toolInfos(ctx context.Context, input RuntimeInput) []*einoTool.Info {
+func (r *Runtime) toolInfos(ctx context.Context, input RuntimeInput) []*tool.Info {
 	registeredInfos := r.allToolInfos(ctx, input)
 	infos := r.enabledToolInfos(ctx, input, registeredInfos)
 	catalogTool := newAgentToolCatalogTool(input.Terminal, registeredInfos, infos, maxModelToolsPerRequest)
@@ -288,12 +288,12 @@ func (r *Runtime) toolInfos(ctx context.Context, input RuntimeInput) []*einoTool
 }
 
 // toolMap 按工具名构造本地执行索引。
-func (r *Runtime) toolMap(ctx context.Context, input RuntimeInput) map[string]einoTool.Invokable {
+func (r *Runtime) toolMap(ctx context.Context, input RuntimeInput) map[string]tool.Invokable {
 	registeredInfos := r.allToolInfos(ctx, input)
 	enabledInfos := r.enabledToolInfos(ctx, input, registeredInfos)
-	enabledNames := einoTool.NameSet(enabledInfos)
+	enabledNames := tool.NameSet(enabledInfos)
 	tools := r.terminalTools(input.Terminal)
-	result := make(map[string]einoTool.Invokable, len(enabledNames)+1)
+	result := make(map[string]tool.Invokable, len(enabledNames)+1)
 	var err error
 	if r == nil {
 		return result
@@ -302,7 +302,7 @@ func (r *Runtime) toolMap(ctx context.Context, input RuntimeInput) map[string]ei
 		if item == nil {
 			continue
 		}
-		var info *einoTool.Info
+		var info *tool.Info
 		info, err = item.Info(ctx)
 		if err != nil || info == nil || info.Name == "" {
 			continue
@@ -316,7 +316,7 @@ func (r *Runtime) toolMap(ctx context.Context, input RuntimeInput) map[string]ei
 		result[info.Name] = item
 	}
 	catalogTool := newAgentToolCatalogTool(input.Terminal, registeredInfos, enabledInfos, maxModelToolsPerRequest)
-	var catalogInfo *einoTool.Info
+	var catalogInfo *tool.Info
 	catalogInfo, err = catalogTool.Info(ctx)
 	if err == nil && catalogInfo != nil && catalogInfo.Name != "" {
 		result[catalogInfo.Name] = catalogTool
@@ -327,7 +327,7 @@ func (r *Runtime) toolMap(ctx context.Context, input RuntimeInput) map[string]ei
 // buildMessages 构建当前轮次发送给 Eino 模型的消息列表。
 func (r *Runtime) buildMessages(ctx context.Context, input RuntimeInput) []*einoMessage.AgenticMessage {
 	messages := []*einoMessage.AgenticMessage{einoMessage.SystemText(r.resolvePrompt(input))}
-	enabledNames := einoTool.NameSet(r.enabledToolInfos(ctx, input, r.allToolInfos(ctx, input)))
+	enabledNames := tool.NameSet(r.enabledToolInfos(ctx, input, r.allToolInfos(ctx, input)))
 	for _, item := range input.History {
 		if item.Content == "" {
 			continue
@@ -343,7 +343,7 @@ func (r *Runtime) buildMessages(ctx context.Context, input RuntimeInput) []*eino
 }
 
 // enabledToolInfos 按 base_api.agent_status 过滤当前终端可暴露给 Agent 的工具。
-func (r *Runtime) enabledToolInfos(ctx context.Context, input RuntimeInput, infos []*einoTool.Info) []*einoTool.Info {
+func (r *Runtime) enabledToolInfos(ctx context.Context, input RuntimeInput, infos []*tool.Info) []*tool.Info {
 	if len(infos) == 0 || r == nil || r.toolGate == nil {
 		return infos
 	}
@@ -358,7 +358,7 @@ func (r *Runtime) enabledToolInfos(ctx context.Context, input RuntimeInput, info
 	if err != nil {
 		return nil
 	}
-	result := make([]*einoTool.Info, 0, len(infos))
+	result := make([]*tool.Info, 0, len(infos))
 	for _, info := range infos {
 		if info == nil || info.Name == "" {
 			continue
@@ -373,12 +373,12 @@ func (r *Runtime) enabledToolInfos(ctx context.Context, input RuntimeInput, info
 }
 
 // allToolInfos 收集当前终端完整工具定义，不做本轮相关性筛选。
-func (r *Runtime) allToolInfos(ctx context.Context, input RuntimeInput) []*einoTool.Info {
+func (r *Runtime) allToolInfos(ctx context.Context, input RuntimeInput) []*tool.Info {
 	tools := r.terminalTools(input.Terminal)
 	if len(tools) == 0 {
 		return nil
 	}
-	infos := make([]*einoTool.Info, 0, len(tools))
+	infos := make([]*tool.Info, 0, len(tools))
 	seen := make(map[string]struct{}, len(tools))
 	for _, item := range tools {
 		if item == nil {
@@ -408,7 +408,7 @@ func (r *Runtime) allToolInfos(ctx context.Context, input RuntimeInput) []*einoT
 }
 
 // toolInfoConfigs 查询当前终端完整工具配置。
-func (r *Runtime) toolInfoConfigs(ctx context.Context, input RuntimeInput, infos []*einoTool.Info) map[string]ToolConfig {
+func (r *Runtime) toolInfoConfigs(ctx context.Context, input RuntimeInput, infos []*tool.Info) map[string]ToolConfig {
 	result := make(map[string]ToolConfig, len(infos))
 	if len(infos) == 0 || r == nil || r.toolGate == nil {
 		for _, info := range infos {
@@ -434,16 +434,16 @@ func (r *Runtime) toolInfoConfigs(ctx context.Context, input RuntimeInput, infos
 }
 
 // terminalTools 按终端选择当前智能体可用工具。
-func (r *Runtime) terminalTools(terminal string) []einoTool.Invokable {
+func (r *Runtime) terminalTools(terminal string) []tool.Invokable {
 	if r == nil {
 		return nil
 	}
 	r.toolsMu.RLock()
 	defer r.toolsMu.RUnlock()
 	if terminal == "app" {
-		return append([]einoTool.Invokable(nil), r.appTools...)
+		return append([]tool.Invokable(nil), r.appTools...)
 	}
-	return append([]einoTool.Invokable(nil), r.adminTools...)
+	return append([]tool.Invokable(nil), r.adminTools...)
 }
 
 // resolvePrompt 渲染 AI 助手提示词。
@@ -515,8 +515,8 @@ func (r *Runtime) buildResponse(message *einoMessage.AgenticMessage, token Token
 }
 
 // newAgentToolCatalogTool 创建工具目录查询工具。
-func newAgentToolCatalogTool(terminal string, infos []*einoTool.Info, enabledInfos []*einoTool.Info, modelToolsPerTurn int) einoTool.Invokable {
-	return einoTool.NewCatalogTool(einoTool.CatalogOptions{
+func newAgentToolCatalogTool(terminal string, infos []*tool.Info, enabledInfos []*tool.Info, modelToolsPerTurn int) tool.Invokable {
+	return tool.NewCatalogTool(tool.CatalogOptions{
 		Name:              agentToolCatalogName,
 		Description:       "查询当前终端完整注册的内部 Agent Tool 工具目录、工具数量、工具真实名称和功能说明。用户询问有哪些工具、工具列表、工具清单、工具名称、工具数量、加载了多少工具、可用 API、available tools、tool list、tool catalog 时使用。",
 		Terminal:          terminal,
@@ -527,16 +527,16 @@ func newAgentToolCatalogTool(terminal string, infos []*einoTool.Info, enabledInf
 }
 
 // newDisabledToolCall 构造禁用工具对应的错误回复与工具卡。
-func newDisabledToolCall(info *einoTool.Info) *disabledToolCall {
-	content := einoTool.DisabledMessage(info.Name)
+func newDisabledToolCall(info *tool.Info) *disabledToolCall {
+	content := tool.DisabledMessage(info.Name)
 	return &disabledToolCall{
 		Content: content,
 		Usage: ToolUsage{
 			Type:   "function",
 			Name:   info.Name,
-			Title:  einoTool.Title(info),
+			Title:  tool.Title(info),
 			Status: "error",
-			Output: einoTool.MarshalError(content),
+			Output: tool.MarshalError(content),
 		},
 	}
 }
@@ -553,7 +553,7 @@ func shouldReturnDisabledToolCall(disabled scoredToolInfo, enabledMatches []scor
 }
 
 // selectExplicitToolInfo 按用户本轮直接写出的工具名匹配工具。
-func selectExplicitToolInfo(input RuntimeInput, infos []*einoTool.Info) *einoTool.Info {
+func selectExplicitToolInfo(input RuntimeInput, infos []*tool.Info) *tool.Info {
 	text := strings.ToLower(toolQueryText(input))
 	if text == "" {
 		return nil
@@ -614,7 +614,7 @@ func hasPaginationReference(text string) bool {
 }
 
 // withToolInfoConfig 使用数据库中的工具配置覆盖生成工具描述。
-func withToolInfoConfig(info *einoTool.Info, config ToolConfig) *einoTool.Info {
+func withToolInfoConfig(info *tool.Info, config ToolConfig) *tool.Info {
 	if info == nil || len(config.Prompts) == 0 {
 		return info
 	}
@@ -636,7 +636,7 @@ func toolPromptsDescription(prompts []string) string {
 }
 
 // selectToolInfos 从当前终端完整工具池中挑选本轮请求相关工具。
-func selectToolInfos(input RuntimeInput, infos []*einoTool.Info) []*einoTool.Info {
+func selectToolInfos(input RuntimeInput, infos []*tool.Info) []*tool.Info {
 	if len(infos) <= maxModelToolsPerRequest {
 		return infos
 	}
@@ -652,7 +652,7 @@ func selectToolInfos(input RuntimeInput, infos []*einoTool.Info) []*einoTool.Inf
 }
 
 // selectScoredToolInfos 按关键词从完整工具池中挑选本轮可暴露的工具。
-func selectScoredToolInfos(infos []*einoTool.Info, terms []string) []*einoTool.Info {
+func selectScoredToolInfos(infos []*tool.Info, terms []string) []*tool.Info {
 	scoredTools := scoredToolInfos(infos, terms)
 	if len(scoredTools) == 0 {
 		return nil
@@ -661,7 +661,7 @@ func selectScoredToolInfos(infos []*einoTool.Info, terms []string) []*einoTool.I
 	if len(scoredTools) < limit {
 		limit = len(scoredTools)
 	}
-	result := make([]*einoTool.Info, 0, limit)
+	result := make([]*tool.Info, 0, limit)
 	for _, item := range scoredTools[:limit] {
 		result = append(result, item.info)
 	}
@@ -669,7 +669,7 @@ func selectScoredToolInfos(infos []*einoTool.Info, terms []string) []*einoTool.I
 }
 
 // scoredToolInfos 按关键词为工具打分并按相关性排序。
-func scoredToolInfos(infos []*einoTool.Info, terms []string) []scoredToolInfo {
+func scoredToolInfos(infos []*tool.Info, terms []string) []scoredToolInfo {
 	if len(terms) == 0 {
 		return nil
 	}
@@ -698,8 +698,8 @@ func scoredToolInfos(infos []*einoTool.Info, terms []string) []scoredToolInfo {
 }
 
 // selectHistoryToolInfos 在本轮未命中工具时，延续最近历史工具作为短追问候选。
-func selectHistoryToolInfos(input RuntimeInput, infos []*einoTool.Info) []*einoTool.Info {
-	infoMap := make(map[string]*einoTool.Info, len(infos))
+func selectHistoryToolInfos(input RuntimeInput, infos []*tool.Info) []*tool.Info {
+	infoMap := make(map[string]*tool.Info, len(infos))
 	for _, info := range infos {
 		if info == nil || info.Name == "" || info.Name == agentToolCatalogName {
 			continue
@@ -709,7 +709,7 @@ func selectHistoryToolInfos(input RuntimeInput, infos []*einoTool.Info) []*einoT
 	if len(infoMap) == 0 {
 		return nil
 	}
-	result := make([]*einoTool.Info, 0, maxModelToolsPerRequest)
+	result := make([]*tool.Info, 0, maxModelToolsPerRequest)
 	seen := make(map[string]struct{}, maxModelToolsPerRequest)
 	for index := len(input.History) - 1; index >= 0; index-- {
 		for _, item := range input.History[index].Tools {
@@ -731,7 +731,7 @@ func selectHistoryToolInfos(input RuntimeInput, infos []*einoTool.Info) []*einoT
 }
 
 type scoredToolInfo struct {
-	info  *einoTool.Info
+	info  *tool.Info
 	score int
 	index int
 }
@@ -841,7 +841,7 @@ func chineseNgrams(value string) []string {
 }
 
 // scoreToolInfo 计算工具与用户问题的相关性。
-func scoreToolInfo(info *einoTool.Info, terms []string) int {
+func scoreToolInfo(info *tool.Info, terms []string) int {
 	if info == nil {
 		return 0
 	}
@@ -1005,7 +1005,7 @@ func buildUserMessageParts(content string, attachmentLines []string, images []ei
 }
 
 // toolUsageFromCallResult 将 Eino 工具调用结果转换为助手协议工具卡。
-func toolUsageFromCallResult(result einoTool.CallResult) ToolUsage {
+func toolUsageFromCallResult(result tool.CallResult) ToolUsage {
 	return ToolUsage{
 		Type:   result.Type,
 		Name:   result.Name,
@@ -1067,7 +1067,7 @@ func toolStatusRank(status string) int {
 }
 
 // tokenFromCallback 将 Eino 调用统计转换为助手协议 token。
-func tokenFromCallback(token einoCallback.TokenUsage) TokenUsage {
+func tokenFromCallback(token callback.TokenUsage) TokenUsage {
 	return TokenUsage{
 		Input:  token.Input,
 		Output: token.Output,
@@ -1077,7 +1077,7 @@ func tokenFromCallback(token einoCallback.TokenUsage) TokenUsage {
 }
 
 // toolsFromRecorder 将 ADK callback 记录转换为助手协议工具卡。
-func toolsFromRecorder(recorder *einoCallback.Recorder) []ToolUsage {
+func toolsFromRecorder(recorder *callback.Recorder) []ToolUsage {
 	if recorder == nil {
 		return nil
 	}

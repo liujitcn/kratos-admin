@@ -12,11 +12,11 @@ import (
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
 
-	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-core/const"
 
 	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/go-utils/id"
@@ -216,7 +216,7 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 	if err != nil {
 		return nil, errorsx.Unauthenticated("用户名或密码错误")
 	}
-	if baseTenant.Status != coreconst.STATUS_STATUS_ENABLE {
+	if baseTenant.Status != _const.STATUS_STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("租户已被禁用")
 	}
 
@@ -250,7 +250,7 @@ func (c *LoginCase) FindUserByPassword(ctx context.Context, tenantCode string, u
 	}
 	var baseTenant *models.BaseTenant
 	baseTenant, err = c.findTenantByCode(ctx, tenantCode)
-	if err != nil || baseTenant.Status != coreconst.STATUS_STATUS_ENABLE {
+	if err != nil || baseTenant.Status != _const.STATUS_STATUS_ENABLE {
 		return nil, errorsx.Unauthenticated("用户名或密码错误")
 	}
 
@@ -303,7 +303,7 @@ func (c *LoginCase) IssueUserToken(ctx context.Context, user *models.BaseUser) (
 // buildAuthInfo 查询用户关联状态并构造认证载荷。
 func (c *LoginCase) buildAuthInfo(ctx context.Context, user *models.BaseUser) (*authData.UserTokenPayload, error) {
 	// 用户被停用时，不允许签发新的登录令牌。
-	if user.Status != coreconst.STATUS_STATUS_ENABLE {
+	if user.Status != _const.STATUS_STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("账号已被禁用")
 	}
 
@@ -313,7 +313,7 @@ func (c *LoginCase) buildAuthInfo(ctx context.Context, user *models.BaseUser) (*
 		return nil, errorsx.Internal("登录失败").WithCause(err)
 	}
 	// 角色被停用时，不允许继续登录后台。
-	if role.Status != coreconst.STATUS_STATUS_ENABLE {
+	if role.Status != _const.STATUS_STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("角色已被禁用")
 	}
 
@@ -324,7 +324,7 @@ func (c *LoginCase) buildAuthInfo(ctx context.Context, user *models.BaseUser) (*
 		return nil, errorsx.Internal("登录失败").WithCause(err)
 	}
 	// 部门被停用时，不允许继续登录后台。
-	if dept.Status != coreconst.STATUS_STATUS_ENABLE {
+	if dept.Status != _const.STATUS_STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("部门已被禁用")
 	}
 
@@ -334,7 +334,7 @@ func (c *LoginCase) buildAuthInfo(ctx context.Context, user *models.BaseUser) (*
 		return nil, errorsx.Internal("登录失败").WithCause(err)
 	}
 	// 租户被停用时，不允许继续登录后台。
-	if baseTenant.Status != coreconst.STATUS_STATUS_ENABLE {
+	if baseTenant.Status != _const.STATUS_STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("租户已被禁用")
 	}
 
@@ -489,7 +489,7 @@ func (c *LoginCase) randomCaptchaDriverType(ctx context.Context) (captcha.Driver
 	dictQuery := c.baseDictRepo.Query(ctx).BaseDict
 	dictOpts := make([]repository.QueryOption, 0, 2)
 	dictOpts = append(dictOpts, repository.Where(dictQuery.Code.Eq(loginCaptchaTypeDictCode)))
-	dictOpts = append(dictOpts, repository.Where(dictQuery.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
+	dictOpts = append(dictOpts, repository.Where(dictQuery.Status.Eq(_const.STATUS_STATUS_ENABLE)))
 	dict, err := c.baseDictRepo.Find(ctx, dictOpts...)
 	if err != nil {
 		return captcha.DriverDigit, err
@@ -498,7 +498,7 @@ func (c *LoginCase) randomCaptchaDriverType(ctx context.Context) (captcha.Driver
 	itemQuery := c.baseDictItemRepo.Query(ctx).BaseDictItem
 	itemOpts := make([]repository.QueryOption, 0, 2)
 	itemOpts = append(itemOpts, repository.Where(itemQuery.DictID.Eq(dict.ID)))
-	itemOpts = append(itemOpts, repository.Where(itemQuery.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
+	itemOpts = append(itemOpts, repository.Where(itemQuery.Status.Eq(_const.STATUS_STATUS_ENABLE)))
 	var items []*models.BaseDictItem
 	items, err = c.baseDictItemRepo.List(ctx, itemOpts...)
 	if err != nil {

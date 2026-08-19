@@ -6,15 +6,15 @@ import (
 
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
 
-	_set "github.com/liujitcn/go-utils/set"
+	"github.com/liujitcn/go-utils/set"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
-	authzEngine "github.com/liujitcn/kratos-kit/auth/authz/engine"
+	"github.com/liujitcn/kratos-kit/auth/authz/engine"
 	"github.com/liujitcn/kratos-kit/auth/authz/engine/casbin"
-	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 // CasbinRuleCase 权限规则业务实例
@@ -24,7 +24,7 @@ type CasbinRuleCase struct {
 	baseRoleRepo   *data.BaseRoleRepository
 	baseTenantRepo *data.BaseTenantRepository
 	baseAPICase    *BaseAPICase
-	policyWriter   authzEngine.PolicyWriter
+	policyWriter   engine.PolicyWriter
 }
 
 // NewCasbinRuleCase 创建权限规则业务实例。
@@ -34,9 +34,9 @@ func NewCasbinRuleCase(
 	baseRoleRepo *data.BaseRoleRepository,
 	baseTenantRepo *data.BaseTenantRepository,
 	baseAPICase *BaseAPICase,
-	authorizer authzEngine.Engine,
+	authorizer engine.Engine,
 ) (*CasbinRuleCase, error) {
-	policyWriter, ok := authorizer.(authzEngine.PolicyWriter)
+	policyWriter, ok := authorizer.(engine.PolicyWriter)
 	if !ok {
 		return nil, errorsx.Internal("鉴权引擎不支持策略写入").WithCause(fmt.Errorf("authz engine %T does not implement PolicyWriter", authorizer))
 	}
@@ -58,7 +58,7 @@ func (c *CasbinRuleCase) RebuildPolicyRule(ctx context.Context) error {
 		return err
 	}
 	for _, item := range baseAPIList {
-		policyRules = append(policyRules, casbin.PolicyRule{PType: "p", V0: databaseGorm.DefaultTenantCode, V1: coreconst.BASE_ROLE_CODE_SUPER, V2: item.Operation, V3: item.Method, V4: "*"})
+		policyRules = append(policyRules, casbin.PolicyRule{PType: "p", V0: gorm.DefaultTenantCode, V1: _const.BASE_ROLE_CODE_SUPER, V2: item.Operation, V3: item.Method, V4: "*"})
 	}
 	var casbinRuleList []*models.CasbinRule
 	casbinRuleList, err = c.List(ctx)
@@ -71,7 +71,7 @@ func (c *CasbinRuleCase) RebuildPolicyRule(ctx context.Context) error {
 		}
 		policyRules = append(policyRules, casbin.PolicyRule{PType: item.Ptype, V0: item.V0, V1: item.V1, V2: item.V2, V3: item.V3, V4: item.V4})
 	}
-	return c.policyWriter.SetPolicies(ctx, authzEngine.PolicyMap{"policies": policyRules}, authzEngine.RoleMap{})
+	return c.policyWriter.SetPolicies(ctx, engine.PolicyMap{"policies": policyRules}, engine.RoleMap{})
 }
 
 // DeleteCasbinRuleByMenuIDs 按菜单批量删除角色权限
@@ -81,7 +81,7 @@ func (c *CasbinRuleCase) DeleteCasbinRuleByMenuIDs(ctx context.Context, menuIDs 
 		return err
 	}
 
-	menuIDSet := _set.NewThreadUnsafeSet(menuIDs...)
+	menuIDSet := set.NewThreadUnsafeSet(menuIDs...)
 	for _, item := range baseRoleList {
 		menus := _string.ConvertJsonStringToInt64Array(item.Menus)
 		// 角色菜单未命中待删除菜单时，无需重建该角色权限。
@@ -136,7 +136,7 @@ func (c *CasbinRuleCase) RebuildCasbinRuleByMenuID(ctx context.Context, menuID i
 	for _, item := range baseRoleList {
 		menus := _string.ConvertJsonStringToInt64Array(item.Menus)
 		// 当前角色未配置目标菜单时，无需重建该角色权限。
-		if !_set.NewThreadUnsafeSet(menus...).ContainsOne(menuID) {
+		if !set.NewThreadUnsafeSet(menus...).ContainsOne(menuID) {
 			continue
 		}
 		err = c.rebuildCasbinRuleByRole(ctx, item)
@@ -197,7 +197,7 @@ func (c *CasbinRuleCase) rebuildCasbinRuleByTenantRole(ctx context.Context, tena
 		return nil
 	}
 
-	operationSet := _set.NewThreadUnsafeSet(operations...)
+	operationSet := set.NewThreadUnsafeSet(operations...)
 	var allAPIList []*models.BaseAPI
 	allAPIList, err = c.baseAPICase.List(ctx)
 	if err != nil {

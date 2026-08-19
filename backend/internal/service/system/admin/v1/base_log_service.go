@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -13,7 +13,7 @@ import (
 
 // BaseLogService Admin日志服务
 type BaseLogService struct {
-	systemadminv1.UnimplementedBaseLogServiceServer
+	adminv1.UnimplementedBaseLogServiceServer
 	baseLogCase *biz.BaseLogCase
 }
 
@@ -27,7 +27,7 @@ func NewBaseLogService(
 }
 
 // PageBaseLog 查询日志分页列表
-func (s *BaseLogService) PageBaseLog(ctx context.Context, req *systemadminv1.PageBaseLogRequest) (*systemadminv1.PageBaseLogResponse, error) {
+func (s *BaseLogService) PageBaseLog(ctx context.Context, req *adminv1.PageBaseLogRequest) (*adminv1.PageBaseLogResponse, error) {
 	page, err := s.baseLogCase.PageBaseLog(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("PageBaseLog %v", err))
@@ -38,7 +38,7 @@ func (s *BaseLogService) PageBaseLog(ctx context.Context, req *systemadminv1.Pag
 }
 
 // GetBaseLog 查询日志
-func (s *BaseLogService) GetBaseLog(ctx context.Context, req *systemadminv1.GetBaseLogRequest) (*systemadminv1.BaseLog, error) {
+func (s *BaseLogService) GetBaseLog(ctx context.Context, req *adminv1.GetBaseLogRequest) (*adminv1.BaseLog, error) {
 	res, err := s.baseLogCase.GetBaseLog(ctx, req.GetId())
 	if err != nil {
 		log.Error(fmt.Sprintf("GetBaseLog %v", err))

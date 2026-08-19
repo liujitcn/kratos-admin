@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"sync"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -31,7 +31,7 @@ var _ cron.TaskExec = (*BaseTranslationTask)(nil)
 
 // BaseTranslationTask 执行菜单、字典、字典项和系统配置的机器翻译任务。
 type BaseTranslationTask struct {
-	translationCase *adminbiz.BaseTranslationCase
+	translationCase *biz.BaseTranslationCase
 	menuRepo        *data.BaseMenuRepository
 	dictRepo        *data.BaseDictRepository
 	dictItemRepo    *data.BaseDictItemRepository
@@ -39,14 +39,14 @@ type BaseTranslationTask struct {
 	mu              sync.Mutex
 }
 
-type translationIndex map[systemadminv1.TranslationTargetType]map[dto.TranslationKey]*models.BaseI18N
+type translationIndex map[adminv1.TranslationTargetType]map[dto.TranslationKey]*models.BaseI18N
 
-func (i translationIndex) get(targetType systemadminv1.TranslationTargetType, targetID int64, locale string) *models.BaseI18N {
+func (i translationIndex) get(targetType adminv1.TranslationTargetType, targetID int64, locale string) *models.BaseI18N {
 	return i[targetType][dto.TranslationKey{TargetID: targetID, Locale: locale}]
 }
 
 func (i translationIndex) set(row *models.BaseI18N) {
-	targetType := systemadminv1.TranslationTargetType(row.TargetType)
+	targetType := adminv1.TranslationTargetType(row.TargetType)
 	rows := i[targetType]
 	if rows == nil {
 		rows = make(map[dto.TranslationKey]*models.BaseI18N)
@@ -57,7 +57,7 @@ func (i translationIndex) set(row *models.BaseI18N) {
 
 // NewBaseTranslationTask 创建统一机器翻译任务执行器。
 func NewBaseTranslationTask(
-	translationCase *adminbiz.BaseTranslationCase,
+	translationCase *biz.BaseTranslationCase,
 	menuRepo *data.BaseMenuRepository,
 	dictRepo *data.BaseDictRepository,
 	dictItemRepo *data.BaseDictItemRepository,
@@ -112,7 +112,7 @@ func (t *BaseTranslationTask) Exec(ctx context.Context, _ map[string]string) ([]
 	for _, menu := range menus {
 		menuIDs = append(menuIDs, menu.ID)
 	}
-	t.translateIDs(ctx, state, translations, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, menuIDs, locales, "菜单", &translatedCount, &failedCount, &firstErr)
+	t.translateIDs(ctx, state, translations, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU, menuIDs, locales, "菜单", &translatedCount, &failedCount, &firstErr)
 
 	dictQuery := t.dictRepo.Query(ctx).BaseDict
 	var dicts []*models.BaseDict
@@ -124,7 +124,7 @@ func (t *BaseTranslationTask) Exec(ctx context.Context, _ map[string]string) ([]
 	for _, dict := range dicts {
 		dictIDs = append(dictIDs, dict.ID)
 	}
-	t.translateIDs(ctx, state, translations, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT, dictIDs, locales, "字典", &translatedCount, &failedCount, &firstErr)
+	t.translateIDs(ctx, state, translations, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT, dictIDs, locales, "字典", &translatedCount, &failedCount, &firstErr)
 
 	dictItemQuery := t.dictItemRepo.Query(ctx).BaseDictItem
 	var dictItems []*models.BaseDictItem
@@ -136,7 +136,7 @@ func (t *BaseTranslationTask) Exec(ctx context.Context, _ map[string]string) ([]
 	for _, item := range dictItems {
 		dictItemIDs = append(dictItemIDs, item.ID)
 	}
-	t.translateIDs(ctx, state, translations, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM, dictItemIDs, locales, "字典项", &translatedCount, &failedCount, &firstErr)
+	t.translateIDs(ctx, state, translations, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM, dictItemIDs, locales, "字典项", &translatedCount, &failedCount, &firstErr)
 
 	configQuery := t.configRepo.Query(ctx).BaseConfig
 	var configs []*models.BaseConfig
@@ -152,8 +152,8 @@ func (t *BaseTranslationTask) Exec(ctx context.Context, _ map[string]string) ([]
 			configValueIDs = append(configValueIDs, config.ID)
 		}
 	}
-	t.translateIDs(ctx, state, translations, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, configNameIDs, locales, "系统配置名称", &translatedCount, &failedCount, &firstErr)
-	t.translateIDs(ctx, state, translations, systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE, configValueIDs, locales, "系统配置值", &translatedCount, &failedCount, &firstErr)
+	t.translateIDs(ctx, state, translations, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME, configNameIDs, locales, "系统配置名称", &translatedCount, &failedCount, &firstErr)
+	t.translateIDs(ctx, state, translations, adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE, configValueIDs, locales, "系统配置值", &translatedCount, &failedCount, &firstErr)
 
 	output := []string{fmt.Sprintf("生成机器译文 %d 条", translatedCount)}
 	if failedCount > 0 {
@@ -176,7 +176,7 @@ func (t *BaseTranslationTask) loadTranslationIndex(ctx context.Context) (transla
 }
 
 // translateOneWithState 使用已读取的语言状态生成单个资源译文。
-func (t *BaseTranslationTask) translateOneWithState(ctx context.Context, state *dto.LocaleState, translations translationIndex, targetType systemadminv1.TranslationTargetType, targetID int64, sourceLocale string, targetLocale string, sourceText string) error {
+func (t *BaseTranslationTask) translateOneWithState(ctx context.Context, state *dto.LocaleState, translations translationIndex, targetType adminv1.TranslationTargetType, targetID int64, sourceLocale string, targetLocale string, sourceText string) error {
 	if t.translationCase.Translator == nil {
 		return errorsx.PermissionDenied("机器翻译功能未启用")
 	}
@@ -238,7 +238,7 @@ func (t *BaseTranslationTask) translateOneWithState(ctx context.Context, state *
 }
 
 // translateIDs 批量调用统一翻译入口并统计结果。
-func (t *BaseTranslationTask) translateIDs(ctx context.Context, state *dto.LocaleState, translations translationIndex, targetType systemadminv1.TranslationTargetType, targetIDs []int64, locales []string, resourceName string, translatedCount, failedCount *int, firstErr *error) {
+func (t *BaseTranslationTask) translateIDs(ctx context.Context, state *dto.LocaleState, translations translationIndex, targetType adminv1.TranslationTargetType, targetIDs []int64, locales []string, resourceName string, translatedCount, failedCount *int, firstErr *error) {
 	var err error
 	for _, targetID := range targetIDs {
 		for _, localeValue := range locales {
@@ -260,11 +260,11 @@ func (t *BaseTranslationTask) translateIDs(ctx context.Context, state *dto.Local
 }
 
 // translationSource 读取允许外发的资源源文。
-func (t *BaseTranslationTask) translationSource(ctx context.Context, targetType systemadminv1.TranslationTargetType, targetID int64) (*dto.TranslationDraftSource, error) {
+func (t *BaseTranslationTask) translationSource(ctx context.Context, targetType adminv1.TranslationTargetType, targetID int64) (*dto.TranslationDraftSource, error) {
 	source := &dto.TranslationDraftSource{TargetType: targetType, TargetID: targetID}
 	var err error
 	switch targetType {
-	case systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU:
+	case adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_MENU:
 		menu, findErr := t.menuRepo.FindByID(ctx, targetID)
 		err = findErr
 		if err == nil {
@@ -274,27 +274,27 @@ func (t *BaseTranslationTask) translationSource(ctx context.Context, targetType 
 				source.Text = metadata.Title
 			}
 		}
-	case systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT:
+	case adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT:
 		dict, findErr := t.dictRepo.FindByID(ctx, targetID)
 		err = findErr
 		if err == nil {
 			source.Text = dict.Name
 		}
-	case systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM:
+	case adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_DICT_ITEM:
 		item, findErr := t.dictItemRepo.FindByID(ctx, targetID)
 		err = findErr
 		if err == nil {
 			source.Text = item.Label
 		}
-	case systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME,
-		systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE:
+	case adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME,
+		adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE:
 		config, findErr := t.configRepo.FindByID(ctx, targetID)
 		err = findErr
 		if err == nil {
-			if targetType == systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE && !isTranslatableConfigType(config.Type) {
+			if targetType == adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_VALUE && !isTranslatableConfigType(config.Type) {
 				return nil, errorsx.InvalidArgument("图片、字典和布尔配置值不支持翻译")
 			}
-			if targetType == systemadminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME {
+			if targetType == adminv1.TranslationTargetType_TRANSLATION_TARGET_TYPE_BASE_CONFIG_NAME {
 				source.Text = config.Name
 			} else {
 				source.Text = config.Value
@@ -314,7 +314,7 @@ func (t *BaseTranslationTask) translationSource(ctx context.Context, targetType 
 
 // isTranslatableConfigType 判断配置值是否支持机器翻译。
 func isTranslatableConfigType(configType int32) bool {
-	return configType == int32(systemadminv1.BaseConfigType_BASE_CONFIG_TYPE_TEXT) || configType == int32(systemadminv1.BaseConfigType_BASE_CONFIG_TYPE_RICH_TEXT)
+	return configType == int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_TEXT) || configType == int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_RICH_TEXT)
 }
 
 // ignoreTranslationClientError 将资源不存在、参数无效和已有译文视为无需重试。

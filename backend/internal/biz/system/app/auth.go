@@ -8,16 +8,16 @@ import (
 
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
-	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
 
-	systemappv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/app/utils"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
-	kitOauth "github.com/liujitcn/kratos-kit/oauth"
+	"github.com/liujitcn/kratos-kit/oauth"
 	"github.com/liujitcn/kratos-kit/oauth/provider"
 	"gorm.io/gorm"
 )
@@ -29,9 +29,9 @@ const CACHE_KEY_WX_ACCESS_TOKEN = "wx_access_token"
 type AuthCase struct {
 	*biz.BaseCase
 	baseUserCase  *BaseUserCase
-	oauthManager  *kitOauth.Manager
+	oauthManager  *oauth.Manager
 	profileMapper *mapper.CopierMapper[
-		systemappv1.UserProfileForm,
+		appv1.UserProfileForm,
 		models.BaseUser,
 	]
 }
@@ -40,21 +40,21 @@ type AuthCase struct {
 func NewAuthCase(
 	baseCase *biz.BaseCase,
 	baseUserCase *BaseUserCase,
-	oauthManager *kitOauth.Manager,
+	oauthManager *oauth.Manager,
 ) *AuthCase {
 	return &AuthCase{
 		BaseCase:     baseCase,
 		baseUserCase: baseUserCase,
 		oauthManager: oauthManager,
 		profileMapper: mapper.NewCopierMapper[
-			systemappv1.UserProfileForm,
+			appv1.UserProfileForm,
 			models.BaseUser,
 		](),
 	}
 }
 
 // GetUserProfile 获取当前登录用户信息
-func (c *AuthCase) GetUserProfile(ctx context.Context) (*systemappv1.UserProfileForm, error) {
+func (c *AuthCase) GetUserProfile(ctx context.Context) (*appv1.UserProfileForm, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -66,7 +66,7 @@ func (c *AuthCase) GetUserProfile(ctx context.Context) (*systemappv1.UserProfile
 		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
 	// 用户被停用时，不允许继续获取个人信息。
-	if user.Status != coreconst.STATUS_STATUS_ENABLE {
+	if user.Status != _const.STATUS_STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("账号已被禁用")
 	}
 
@@ -76,7 +76,7 @@ func (c *AuthCase) GetUserProfile(ctx context.Context) (*systemappv1.UserProfile
 }
 
 // UpdateUserProfile 修改个人中心用户信息
-func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *systemappv1.UserProfileForm) error {
+func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *appv1.UserProfileForm) error {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return err
@@ -115,7 +115,7 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *systemappv1.UserP
 }
 
 // BindUserPhone 手机号授权
-func (c *AuthCase) BindUserPhone(ctx context.Context, req *systemappv1.BindUserPhoneRequest) (*systemappv1.BindUserPhoneResponse, error) {
+func (c *AuthCase) BindUserPhone(ctx context.Context, req *appv1.BindUserPhoneRequest) (*appv1.BindUserPhoneResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -126,7 +126,7 @@ func (c *AuthCase) BindUserPhone(ctx context.Context, req *systemappv1.BindUserP
 	// 本地缓存未命中 access token 时，回源微信重新获取。
 	if err != nil {
 		var oauthProvider provider.OAuth
-		oauthProvider, err = c.oauthManager.Get(kitOauth.WechatMini)
+		oauthProvider, err = c.oauthManager.Get(oauth.WechatMini)
 		if err != nil {
 			return nil, errorsx.Internal("微信登录配置信息错误").WithCause(err)
 		}
@@ -185,7 +185,7 @@ func (c *AuthCase) BindUserPhone(ctx context.Context, req *systemappv1.BindUserP
 	if err = c.baseUserCase.UpdateByID(ctx, user); err != nil {
 		return nil, errorsx.Internal("手机号授权失败").WithCause(err)
 	}
-	return &systemappv1.BindUserPhoneResponse{
+	return &appv1.BindUserPhoneResponse{
 		Phone: _string.DesensitizePhone(user.Phone),
 	}, nil
 }

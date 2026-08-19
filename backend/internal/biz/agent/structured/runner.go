@@ -7,16 +7,16 @@ import (
 	"strings"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/message"
-	einoModel "github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
 )
 
 // Runner 封装结构化输出模型调用。
 type Runner struct {
-	client *einoModel.ChatClient
+	client *model.ChatClient
 }
 
 // NewRunner 创建结构化输出运行器。
-func NewRunner(client *einoModel.ChatClient) *Runner {
+func NewRunner(client *model.ChatClient) *Runner {
 	return &Runner{client: client}
 }
 

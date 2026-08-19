@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -15,7 +15,7 @@ import (
 
 // BaseUserService Admin用户管理服务
 type BaseUserService struct {
-	systemadminv1.UnimplementedBaseUserServiceServer
+	adminv1.UnimplementedBaseUserServiceServer
 	baseUserCase *biz.BaseUserCase
 }
 
@@ -29,7 +29,7 @@ func NewBaseUserService(
 }
 
 // OptionBaseUser 查询用户下拉选择
-func (s *BaseUserService) OptionBaseUser(ctx context.Context, req *systemadminv1.OptionBaseUserRequest) (*commonv1.SelectOptionResponse, error) {
+func (s *BaseUserService) OptionBaseUser(ctx context.Context, req *adminv1.OptionBaseUserRequest) (*commonv1.SelectOptionResponse, error) {
 	list, err := s.baseUserCase.OptionBaseUser(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("OptionBaseUser %v", err))
@@ -39,7 +39,7 @@ func (s *BaseUserService) OptionBaseUser(ctx context.Context, req *systemadminv1
 }
 
 // ListBaseUser 查询用户列表。
-func (s *BaseUserService) ListBaseUser(ctx context.Context, req *systemadminv1.ListBaseUserRequest) (*systemadminv1.ListBaseUserResponse, error) {
+func (s *BaseUserService) ListBaseUser(ctx context.Context, req *adminv1.ListBaseUserRequest) (*adminv1.ListBaseUserResponse, error) {
 	list, err := s.baseUserCase.ListBaseUser(ctx, req.GetIds())
 	if err != nil {
 		log.Error(fmt.Sprintf("ListBaseUser %v", err))
@@ -49,7 +49,7 @@ func (s *BaseUserService) ListBaseUser(ctx context.Context, req *systemadminv1.L
 }
 
 // SummaryBaseUser 汇总用户注册数据。
-func (s *BaseUserService) SummaryBaseUser(ctx context.Context, req *systemadminv1.SummaryBaseUserRequest) (*systemadminv1.SummaryBaseUserResponse, error) {
+func (s *BaseUserService) SummaryBaseUser(ctx context.Context, req *adminv1.SummaryBaseUserRequest) (*adminv1.SummaryBaseUserResponse, error) {
 	summary, err := s.baseUserCase.SummaryBaseUser(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("SummaryBaseUser %v", err))
@@ -59,7 +59,7 @@ func (s *BaseUserService) SummaryBaseUser(ctx context.Context, req *systemadminv
 }
 
 // PageBaseUser 查询用户分页列表
-func (s *BaseUserService) PageBaseUser(ctx context.Context, req *systemadminv1.PageBaseUserRequest) (*systemadminv1.PageBaseUserResponse, error) {
+func (s *BaseUserService) PageBaseUser(ctx context.Context, req *adminv1.PageBaseUserRequest) (*adminv1.PageBaseUserResponse, error) {
 	page, err := s.baseUserCase.PageBaseUser(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("PageBaseUser %v", err))
@@ -69,7 +69,7 @@ func (s *BaseUserService) PageBaseUser(ctx context.Context, req *systemadminv1.P
 }
 
 // GetBaseUser 查询用户
-func (s *BaseUserService) GetBaseUser(ctx context.Context, req *systemadminv1.GetBaseUserRequest) (*systemadminv1.BaseUserForm, error) {
+func (s *BaseUserService) GetBaseUser(ctx context.Context, req *adminv1.GetBaseUserRequest) (*adminv1.BaseUserForm, error) {
 	baseUser, err := s.baseUserCase.GetBaseUser(ctx, req.GetId())
 	if err != nil {
 		log.Error(fmt.Sprintf("GetBaseUser %v", err))
@@ -79,7 +79,7 @@ func (s *BaseUserService) GetBaseUser(ctx context.Context, req *systemadminv1.Ge
 }
 
 // CreateBaseUser 创建用户
-func (s *BaseUserService) CreateBaseUser(ctx context.Context, req *systemadminv1.CreateBaseUserRequest) (*emptypb.Empty, error) {
+func (s *BaseUserService) CreateBaseUser(ctx context.Context, req *adminv1.CreateBaseUserRequest) (*emptypb.Empty, error) {
 	err := s.baseUserCase.CreateBaseUser(ctx, req.GetBaseUser())
 	if err != nil {
 		log.Error(fmt.Sprintf("CreateBaseUser %v", err))
@@ -89,7 +89,7 @@ func (s *BaseUserService) CreateBaseUser(ctx context.Context, req *systemadminv1
 }
 
 // UpdateBaseUser 更新用户
-func (s *BaseUserService) UpdateBaseUser(ctx context.Context, req *systemadminv1.UpdateBaseUserRequest) (*emptypb.Empty, error) {
+func (s *BaseUserService) UpdateBaseUser(ctx context.Context, req *adminv1.UpdateBaseUserRequest) (*emptypb.Empty, error) {
 	err := s.baseUserCase.UpdateBaseUser(ctx, req.GetBaseUser())
 	if err != nil {
 		log.Error(fmt.Sprintf("UpdateBaseUser %v", err))
@@ -99,7 +99,7 @@ func (s *BaseUserService) UpdateBaseUser(ctx context.Context, req *systemadminv1
 }
 
 // DeleteBaseUser 删除用户
-func (s *BaseUserService) DeleteBaseUser(ctx context.Context, req *systemadminv1.DeleteBaseUserRequest) (*emptypb.Empty, error) {
+func (s *BaseUserService) DeleteBaseUser(ctx context.Context, req *adminv1.DeleteBaseUserRequest) (*emptypb.Empty, error) {
 	err := s.baseUserCase.DeleteBaseUser(ctx, req.GetId())
 	if err != nil {
 		log.Error(fmt.Sprintf("DeleteBaseUser %v", err))
@@ -109,7 +109,7 @@ func (s *BaseUserService) DeleteBaseUser(ctx context.Context, req *systemadminv1
 }
 
 // SetBaseUserStatus 设置状态
-func (s *BaseUserService) SetBaseUserStatus(ctx context.Context, req *systemadminv1.SetBaseUserStatusRequest) (*emptypb.Empty, error) {
+func (s *BaseUserService) SetBaseUserStatus(ctx context.Context, req *adminv1.SetBaseUserStatusRequest) (*emptypb.Empty, error) {
 	err := s.baseUserCase.SetBaseUserStatus(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("SetBaseUserStatus %v", err))
@@ -119,7 +119,7 @@ func (s *BaseUserService) SetBaseUserStatus(ctx context.Context, req *systemadmi
 }
 
 // ResetBaseUserPassword 重置密码
-func (s *BaseUserService) ResetBaseUserPassword(ctx context.Context, req *systemadminv1.ResetBaseUserPasswordRequest) (*emptypb.Empty, error) {
+func (s *BaseUserService) ResetBaseUserPassword(ctx context.Context, req *adminv1.ResetBaseUserPasswordRequest) (*emptypb.Empty, error) {
 	err := s.baseUserCase.ResetBaseUserPassword(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("ResetBaseUserPassword %v", err))
@@ -129,7 +129,7 @@ func (s *BaseUserService) ResetBaseUserPassword(ctx context.Context, req *system
 }
 
 // SetBaseUserAppRole 设置基础用户应用端角色。
-func (s *BaseUserService) SetBaseUserAppRole(ctx context.Context, req *systemadminv1.SetBaseUserAppRoleRequest) (*emptypb.Empty, error) {
+func (s *BaseUserService) SetBaseUserAppRole(ctx context.Context, req *adminv1.SetBaseUserAppRoleRequest) (*emptypb.Empty, error) {
 	err := s.baseUserCase.SetBaseUserAppRole(ctx, req.GetUserId(), req.GetRoleCode())
 	if err != nil {
 		log.Error(fmt.Sprintf("SetBaseUserAppRole %v", err))

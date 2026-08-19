@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -18,7 +18,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 // BaseTenantService Admin租户管理服务。
 type BaseTenantService struct {
-	systemadminv1.UnimplementedBaseTenantServiceServer
+	adminv1.UnimplementedBaseTenantServiceServer
 	baseTenantCase *biz.BaseTenantCase
 }
 
@@ -30,7 +30,7 @@ func NewBaseTenantService(baseTenantCase *biz.BaseTenantCase) *BaseTenantService
 }
 
 // OptionBaseTenant 查询租户下拉选择。
-func (s *BaseTenantService) OptionBaseTenant(ctx context.Context, req *systemadminv1.OptionBaseTenantRequest) (*commonv1.SelectOptionResponse, error) {
+func (s *BaseTenantService) OptionBaseTenant(ctx context.Context, req *adminv1.OptionBaseTenantRequest) (*commonv1.SelectOptionResponse, error) {
 	list, err := s.baseTenantCase.OptionBaseTenant(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("OptionBaseTenant %v", err))
@@ -40,7 +40,7 @@ func (s *BaseTenantService) OptionBaseTenant(ctx context.Context, req *systemadm
 }
 
 // PageBaseTenant 查询租户分页列表。
-func (s *BaseTenantService) PageBaseTenant(ctx context.Context, req *systemadminv1.PageBaseTenantRequest) (*systemadminv1.PageBaseTenantResponse, error) {
+func (s *BaseTenantService) PageBaseTenant(ctx context.Context, req *adminv1.PageBaseTenantRequest) (*adminv1.PageBaseTenantResponse, error) {
 	page, err := s.baseTenantCase.PageBaseTenant(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("PageBaseTenant %v", err))
@@ -50,7 +50,7 @@ func (s *BaseTenantService) PageBaseTenant(ctx context.Context, req *systemadmin
 }
 
 // GetBaseTenant 查询租户。
-func (s *BaseTenantService) GetBaseTenant(ctx context.Context, req *systemadminv1.GetBaseTenantRequest) (*systemadminv1.BaseTenantForm, error) {
+func (s *BaseTenantService) GetBaseTenant(ctx context.Context, req *adminv1.GetBaseTenantRequest) (*adminv1.BaseTenantForm, error) {
 	baseTenant, err := s.baseTenantCase.GetBaseTenant(ctx, req.GetId())
 	if err != nil {
 		log.Error(fmt.Sprintf("GetBaseTenant %v", err))
@@ -60,7 +60,7 @@ func (s *BaseTenantService) GetBaseTenant(ctx context.Context, req *systemadminv
 }
 
 // CreateBaseTenant 创建租户。
-func (s *BaseTenantService) CreateBaseTenant(ctx context.Context, req *systemadminv1.CreateBaseTenantRequest) (*emptypb.Empty, error) {
+func (s *BaseTenantService) CreateBaseTenant(ctx context.Context, req *adminv1.CreateBaseTenantRequest) (*emptypb.Empty, error) {
 	err := s.baseTenantCase.CreateBaseTenant(ctx, req.GetBaseTenant())
 	if err != nil {
 		log.Error(fmt.Sprintf("CreateBaseTenant %v", err))
@@ -70,7 +70,7 @@ func (s *BaseTenantService) CreateBaseTenant(ctx context.Context, req *systemadm
 }
 
 // UpdateBaseTenant 更新租户。
-func (s *BaseTenantService) UpdateBaseTenant(ctx context.Context, req *systemadminv1.UpdateBaseTenantRequest) (*emptypb.Empty, error) {
+func (s *BaseTenantService) UpdateBaseTenant(ctx context.Context, req *adminv1.UpdateBaseTenantRequest) (*emptypb.Empty, error) {
 	err := s.baseTenantCase.UpdateBaseTenant(ctx, req.GetBaseTenant())
 	if err != nil {
 		log.Error(fmt.Sprintf("UpdateBaseTenant %v", err))
@@ -80,7 +80,7 @@ func (s *BaseTenantService) UpdateBaseTenant(ctx context.Context, req *systemadm
 }
 
 // DeleteBaseTenant 删除租户。
-func (s *BaseTenantService) DeleteBaseTenant(ctx context.Context, req *systemadminv1.DeleteBaseTenantRequest) (*emptypb.Empty, error) {
+func (s *BaseTenantService) DeleteBaseTenant(ctx context.Context, req *adminv1.DeleteBaseTenantRequest) (*emptypb.Empty, error) {
 	err := s.baseTenantCase.DeleteBaseTenant(ctx, req.GetId())
 	if err != nil {
 		log.Error(fmt.Sprintf("DeleteBaseTenant %v", err))
@@ -90,7 +90,7 @@ func (s *BaseTenantService) DeleteBaseTenant(ctx context.Context, req *systemadm
 }
 
 // SetBaseTenantStatus 设置状态。
-func (s *BaseTenantService) SetBaseTenantStatus(ctx context.Context, req *systemadminv1.SetBaseTenantStatusRequest) (*emptypb.Empty, error) {
+func (s *BaseTenantService) SetBaseTenantStatus(ctx context.Context, req *adminv1.SetBaseTenantStatusRequest) (*emptypb.Empty, error) {
 	err := s.baseTenantCase.SetBaseTenantStatus(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("SetBaseTenantStatus %v", err))

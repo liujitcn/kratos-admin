@@ -3,18 +3,18 @@ package biz
 import (
 	"context"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
-	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
-	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 // BasePostCase 岗位业务实例。
@@ -23,8 +23,8 @@ type BasePostCase struct {
 	tx data.Transaction
 	*data.BasePostRepository
 	baseUserRepo *data.BaseUserRepository
-	formMapper   *mapper.CopierMapper[systemadminv1.BasePostForm, models.BasePost]
-	mapper       *mapper.CopierMapper[systemadminv1.BasePost, models.BasePost]
+	formMapper   *mapper.CopierMapper[adminv1.BasePostForm, models.BasePost]
+	mapper       *mapper.CopierMapper[adminv1.BasePost, models.BasePost]
 }
 
 // NewBasePostCase 创建岗位业务实例。
@@ -39,13 +39,13 @@ func NewBasePostCase(
 		tx:                 tx,
 		BasePostRepository: basePostRepo,
 		baseUserRepo:       baseUserRepo,
-		formMapper:         mapper.NewCopierMapper[systemadminv1.BasePostForm, models.BasePost](),
-		mapper:             mapper.NewCopierMapper[systemadminv1.BasePost, models.BasePost](),
+		formMapper:         mapper.NewCopierMapper[adminv1.BasePostForm, models.BasePost](),
+		mapper:             mapper.NewCopierMapper[adminv1.BasePost, models.BasePost](),
 	}
 }
 
 // OptionBasePost 查询岗位选项。
-func (c *BasePostCase) OptionBasePost(ctx context.Context, req *systemadminv1.OptionBasePostRequest) (*commonv1.SelectOptionResponse, error) {
+func (c *BasePostCase) OptionBasePost(ctx context.Context, req *adminv1.OptionBasePostRequest) (*commonv1.SelectOptionResponse, error) {
 	query := c.Query(ctx).BasePost
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
@@ -63,14 +63,14 @@ func (c *BasePostCase) OptionBasePost(ctx context.Context, req *systemadminv1.Op
 		options = append(options, &commonv1.SelectOptionResponse_Option{
 			Label:    item.Name,
 			Value:    item.ID,
-			Disabled: item.Status != coreconst.STATUS_STATUS_ENABLE,
+			Disabled: item.Status != _const.STATUS_STATUS_ENABLE,
 		})
 	}
 	return &commonv1.SelectOptionResponse{List: options}, nil
 }
 
 // PageBasePost 分页查询岗位。
-func (c *BasePostCase) PageBasePost(ctx context.Context, req *systemadminv1.PageBasePostRequest) (*systemadminv1.PageBasePostResponse, error) {
+func (c *BasePostCase) PageBasePost(ctx context.Context, req *adminv1.PageBasePostRequest) (*adminv1.PageBasePostResponse, error) {
 	query := c.Query(ctx).BasePost
 	opts := make([]repository.QueryOption, 0, 7)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
@@ -92,15 +92,15 @@ func (c *BasePostCase) PageBasePost(ctx context.Context, req *systemadminv1.Page
 		return nil, err
 	}
 
-	resList := make([]*systemadminv1.BasePost, 0, len(list))
+	resList := make([]*adminv1.BasePost, 0, len(list))
 	for _, item := range list {
 		resList = append(resList, c.mapper.ToDTO(item))
 	}
-	return &systemadminv1.PageBasePostResponse{BasePosts: resList, Total: int32(total)}, nil
+	return &adminv1.PageBasePostResponse{BasePosts: resList, Total: int32(total)}, nil
 }
 
 // GetBasePost 获取岗位。
-func (c *BasePostCase) GetBasePost(ctx context.Context, id int64) (*systemadminv1.BasePostForm, error) {
+func (c *BasePostCase) GetBasePost(ctx context.Context, id int64) (*adminv1.BasePostForm, error) {
 	basePost, err := c.FindByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -109,7 +109,7 @@ func (c *BasePostCase) GetBasePost(ctx context.Context, id int64) (*systemadminv
 }
 
 // CreateBasePost 创建岗位。
-func (c *BasePostCase) CreateBasePost(ctx context.Context, req *systemadminv1.BasePostForm) error {
+func (c *BasePostCase) CreateBasePost(ctx context.Context, req *adminv1.BasePostForm) error {
 	basePost := c.formMapper.ToEntity(req)
 	tenantID, err := c.resolveTenantID(ctx, req.GetTenantId())
 	if err != nil {
@@ -117,7 +117,7 @@ func (c *BasePostCase) CreateBasePost(ctx context.Context, req *systemadminv1.Ba
 	}
 	basePost.TenantID = tenantID
 	if basePost.Status == 0 {
-		basePost.Status = coreconst.STATUS_STATUS_ENABLE
+		basePost.Status = _const.STATUS_STATUS_ENABLE
 	}
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
 		err = c.Create(ctx, basePost)
@@ -132,7 +132,7 @@ func (c *BasePostCase) CreateBasePost(ctx context.Context, req *systemadminv1.Ba
 }
 
 // UpdateBasePost 更新岗位。
-func (c *BasePostCase) UpdateBasePost(ctx context.Context, req *systemadminv1.BasePostForm) error {
+func (c *BasePostCase) UpdateBasePost(ctx context.Context, req *adminv1.BasePostForm) error {
 	oldBasePost, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err
@@ -188,12 +188,12 @@ func (c *BasePostCase) DeleteBasePost(ctx context.Context, id string) error {
 }
 
 // SetBasePostStatus 设置岗位状态。
-func (c *BasePostCase) SetBasePostStatus(ctx context.Context, req *systemadminv1.SetBasePostStatusRequest) error {
+func (c *BasePostCase) SetBasePostStatus(ctx context.Context, req *adminv1.SetBasePostStatusRequest) error {
 	basePost, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err
 	}
-	if req.GetStatus() != coreconst.STATUS_STATUS_ENABLE && req.GetStatus() != coreconst.STATUS_STATUS_DISABLE {
+	if req.GetStatus() != _const.STATUS_STATUS_ENABLE && req.GetStatus() != _const.STATUS_STATUS_DISABLE {
 		return errorsx.InvalidArgument("岗位状态无效")
 	}
 	if basePost.Status == req.GetStatus() {
@@ -211,7 +211,7 @@ func (c *BasePostCase) resolveTenantID(ctx context.Context, tenantID int64) (int
 	if tenantID == 0 {
 		return authInfo.TenantId, nil
 	}
-	if authInfo.TenantCode != databaseGorm.DefaultTenantCode && tenantID != authInfo.TenantId {
+	if authInfo.TenantCode != gorm.DefaultTenantCode && tenantID != authInfo.TenantId {
 		return 0, errorsx.PermissionDenied("不能操作其他租户的岗位")
 	}
 	return tenantID, nil

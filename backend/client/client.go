@@ -4,12 +4,12 @@ package client
 import (
 	"context"
 
-	kratosRegistry "github.com/go-kratos/kratos/v3/registry"
-	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	appv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
+	"github.com/go-kratos/kratos/v3/registry"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
 	coreclient "github.com/liujitcn/kratos-core/client"
-	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	"github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 )
 
 // Connection 是 Core 客户端提供的统一 gRPC 连接。
@@ -179,7 +179,7 @@ func NewConnection(ctx context.Context, clientConfig *configv1.Client, options .
 }
 
 // WithDiscovery 为使用 discovery:/// 地址的连接注入服务发现器。
-func WithDiscovery(discovery kratosRegistry.Discovery) Option {
+func WithDiscovery(discovery registry.Discovery) Option {
 	return coreclient.WithDiscovery(discovery)
 }
 

@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	systemadminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -14,7 +14,7 @@ import (
 
 // BaseDictService Admin字典服务
 type BaseDictService struct {
-	systemadminv1.UnimplementedBaseDictServiceServer
+	adminv1.UnimplementedBaseDictServiceServer
 	baseDictCase     *biz.BaseDictCase
 	baseDictItemCase *biz.BaseDictItemCase
 }
@@ -31,7 +31,7 @@ func NewBaseDictService(
 }
 
 // OptionBaseDict 查询字典下拉选择
-func (s *BaseDictService) OptionBaseDict(ctx context.Context, req *systemadminv1.OptionBaseDictRequest) (*systemadminv1.OptionBaseDictResponse, error) {
+func (s *BaseDictService) OptionBaseDict(ctx context.Context, req *adminv1.OptionBaseDictRequest) (*adminv1.OptionBaseDictResponse, error) {
 	res, err := s.baseDictCase.OptionBaseDict(ctx)
 	if err != nil {
 		log.Error(fmt.Sprintf("OptionBaseDict %v", err))
@@ -41,7 +41,7 @@ func (s *BaseDictService) OptionBaseDict(ctx context.Context, req *systemadminv1
 }
 
 // PageBaseDict 查询字典分页列表
-func (s *BaseDictService) PageBaseDict(ctx context.Context, req *systemadminv1.PageBaseDictRequest) (*systemadminv1.PageBaseDictResponse, error) {
+func (s *BaseDictService) PageBaseDict(ctx context.Context, req *adminv1.PageBaseDictRequest) (*adminv1.PageBaseDictResponse, error) {
 	page, err := s.baseDictCase.PageBaseDict(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("PageBaseDict %v", err))
@@ -52,7 +52,7 @@ func (s *BaseDictService) PageBaseDict(ctx context.Context, req *systemadminv1.P
 }
 
 // PageBaseDictItem 查询字典属性分页列表
-func (s *BaseDictService) PageBaseDictItem(ctx context.Context, req *systemadminv1.PageBaseDictItemRequest) (*systemadminv1.PageBaseDictItemResponse, error) {
+func (s *BaseDictService) PageBaseDictItem(ctx context.Context, req *adminv1.PageBaseDictItemRequest) (*adminv1.PageBaseDictItemResponse, error) {
 	page, err := s.baseDictItemCase.PageBaseDictItem(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("PageBaseDictItem %v", err))
@@ -62,7 +62,7 @@ func (s *BaseDictService) PageBaseDictItem(ctx context.Context, req *systemadmin
 }
 
 // GetBaseDict 查询字典
-func (s *BaseDictService) GetBaseDict(ctx context.Context, req *systemadminv1.GetBaseDictRequest) (*systemadminv1.BaseDictForm, error) {
+func (s *BaseDictService) GetBaseDict(ctx context.Context, req *adminv1.GetBaseDictRequest) (*adminv1.BaseDictForm, error) {
 	baseDict, err := s.baseDictCase.GetBaseDict(ctx, req.GetId())
 	if err != nil {
 		log.Error(fmt.Sprintf("GetBaseDict %v", err))
@@ -73,7 +73,7 @@ func (s *BaseDictService) GetBaseDict(ctx context.Context, req *systemadminv1.Ge
 }
 
 // GetBaseDictItem 查询字典属性
-func (s *BaseDictService) GetBaseDictItem(ctx context.Context, req *systemadminv1.GetBaseDictItemRequest) (*systemadminv1.BaseDictItemForm, error) {
+func (s *BaseDictService) GetBaseDictItem(ctx context.Context, req *adminv1.GetBaseDictItemRequest) (*adminv1.BaseDictItemForm, error) {
 	baseDictItem, err := s.baseDictItemCase.GetBaseDictItem(ctx, req.GetId())
 	if err != nil {
 		log.Error(fmt.Sprintf("GetBaseDictItem %v", err))
@@ -83,7 +83,7 @@ func (s *BaseDictService) GetBaseDictItem(ctx context.Context, req *systemadminv
 }
 
 // CreateBaseDict 创建字典
-func (s *BaseDictService) CreateBaseDict(ctx context.Context, req *systemadminv1.CreateBaseDictRequest) (*emptypb.Empty, error) {
+func (s *BaseDictService) CreateBaseDict(ctx context.Context, req *adminv1.CreateBaseDictRequest) (*emptypb.Empty, error) {
 	err := s.baseDictCase.CreateBaseDict(ctx, req.GetBaseDict())
 	if err != nil {
 		log.Error(fmt.Sprintf("CreateBaseDict %v", err))
@@ -93,7 +93,7 @@ func (s *BaseDictService) CreateBaseDict(ctx context.Context, req *systemadminv1
 }
 
 // CreateBaseDictItem 创建字典属性
-func (s *BaseDictService) CreateBaseDictItem(ctx context.Context, req *systemadminv1.CreateBaseDictItemRequest) (*emptypb.Empty, error) {
+func (s *BaseDictService) CreateBaseDictItem(ctx context.Context, req *adminv1.CreateBaseDictItemRequest) (*emptypb.Empty, error) {
 	err := s.baseDictItemCase.CreateBaseDictItem(ctx, req.GetBaseDictItem())
 	if err != nil {
 		log.Error(fmt.Sprintf("CreateBaseDictItem %v", err))
@@ -103,7 +103,7 @@ func (s *BaseDictService) CreateBaseDictItem(ctx context.Context, req *systemadm
 }
 
 // UpdateBaseDict 更新字典
-func (s *BaseDictService) UpdateBaseDict(ctx context.Context, req *systemadminv1.UpdateBaseDictRequest) (*emptypb.Empty, error) {
+func (s *BaseDictService) UpdateBaseDict(ctx context.Context, req *adminv1.UpdateBaseDictRequest) (*emptypb.Empty, error) {
 	err := s.baseDictCase.UpdateBaseDict(ctx, req.GetBaseDict())
 	if err != nil {
 		log.Error(fmt.Sprintf("UpdateBaseDict %v", err))
@@ -113,7 +113,7 @@ func (s *BaseDictService) UpdateBaseDict(ctx context.Context, req *systemadminv1
 }
 
 // UpdateBaseDictItem 更新字典属性
-func (s *BaseDictService) UpdateBaseDictItem(ctx context.Context, req *systemadminv1.UpdateBaseDictItemRequest) (*emptypb.Empty, error) {
+func (s *BaseDictService) UpdateBaseDictItem(ctx context.Context, req *adminv1.UpdateBaseDictItemRequest) (*emptypb.Empty, error) {
 	err := s.baseDictItemCase.UpdateBaseDictItem(ctx, req.GetBaseDictItem())
 	if err != nil {
 		log.Error(fmt.Sprintf("UpdateBaseDictItem %v", err))
@@ -123,7 +123,7 @@ func (s *BaseDictService) UpdateBaseDictItem(ctx context.Context, req *systemadm
 }
 
 // DeleteBaseDict 删除字典
-func (s *BaseDictService) DeleteBaseDict(ctx context.Context, req *systemadminv1.DeleteBaseDictRequest) (*emptypb.Empty, error) {
+func (s *BaseDictService) DeleteBaseDict(ctx context.Context, req *adminv1.DeleteBaseDictRequest) (*emptypb.Empty, error) {
 	err := s.baseDictCase.DeleteBaseDict(ctx, req.GetId())
 	if err != nil {
 		log.Error(fmt.Sprintf("DeleteBaseDict %v", err))
@@ -133,7 +133,7 @@ func (s *BaseDictService) DeleteBaseDict(ctx context.Context, req *systemadminv1
 }
 
 // DeleteBaseDictItem 删除字典属性
-func (s *BaseDictService) DeleteBaseDictItem(ctx context.Context, req *systemadminv1.DeleteBaseDictItemRequest) (*emptypb.Empty, error) {
+func (s *BaseDictService) DeleteBaseDictItem(ctx context.Context, req *adminv1.DeleteBaseDictItemRequest) (*emptypb.Empty, error) {
 	err := s.baseDictItemCase.DeleteBaseDictItem(ctx, req.GetId())
 	if err != nil {
 		log.Error(fmt.Sprintf("DeleteBaseDictItem %v", err))
@@ -143,7 +143,7 @@ func (s *BaseDictService) DeleteBaseDictItem(ctx context.Context, req *systemadm
 }
 
 // SetBaseDictItemStatus 设置状态
-func (s *BaseDictService) SetBaseDictItemStatus(ctx context.Context, req *systemadminv1.SetBaseDictItemStatusRequest) (*emptypb.Empty, error) {
+func (s *BaseDictService) SetBaseDictItemStatus(ctx context.Context, req *adminv1.SetBaseDictItemStatusRequest) (*emptypb.Empty, error) {
 	err := s.baseDictItemCase.SetBaseDictItemStatus(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("SetBaseDictItemStatus %v", err))
@@ -153,7 +153,7 @@ func (s *BaseDictService) SetBaseDictItemStatus(ctx context.Context, req *system
 }
 
 // SetBaseDictStatus 设置状态
-func (s *BaseDictService) SetBaseDictStatus(ctx context.Context, req *systemadminv1.SetBaseDictStatusRequest) (*emptypb.Empty, error) {
+func (s *BaseDictService) SetBaseDictStatus(ctx context.Context, req *adminv1.SetBaseDictStatusRequest) (*emptypb.Empty, error) {
 	err := s.baseDictCase.SetBaseDictStatus(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("SetBaseDictStatus %v", err))
