@@ -75,6 +75,7 @@ make run-only RUN_ARGS='--help'
 | ProviderSet 或构造参数 | `make public-wire wire` | 分别刷新公共入口内部装配和独立服务入口。 |
 | README 或 docs | `make project-docs` | 收集 Markdown，并生成各语言文档目录。 |
 | 语言包或国际化资源 | `make i18n` | 依次同步语言包、项目文档和 OpenAPI 多语言产物。 |
+| Go import 别名 | `make normalize-go-imports` | 默认预览别名规范化结果；设置 `NORMALIZE_GO_IMPORTS_WRITE=1` 时写回文件。 |
 | 多类生成源同时变化 | `make gen` | 依次执行 GORM、接口、前端、文档、Wire 和格式化；需要可访问开发数据库。 |
 
 所有生成产物都必须通过上述命令刷新，不能手工修改。
@@ -190,6 +191,7 @@ make docker-stop IMAGE=kratos-admin TAG=v1.0.0
 | `GORM_TABLE` | 内置表清单 | 逗号分隔的 GORM 生成表。 |
 | `I18N_LOCALES` | `en-US,zh-TW,ja-JP` | 文档和 OpenAPI 的目标语言。 |
 | `I18N_OFFLINE` | `0` | 设为 `1` 时禁用在线翻译。 |
+| `I18N_BATCH_CHARS` | `400` | 单次项目文档翻译请求的最大字符数；Google 限流时自动切换 MyMemory。 |
 | `PROJECT_DOCS_SCRIPT` | `../scripts/project_docs.py` | 项目文档收集与本地化脚本。 |
 
 ## 外部宿主复用

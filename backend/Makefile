@@ -8,7 +8,7 @@
 #   提交前检查：make check
 #   Linux 打包：make package
 
-.PHONY: help init plugin cli fmt lint test check \
+.PHONY: help init plugin cli fmt lint test check normalize-go-imports \
 	gorm-gen api openapi ts ts-admin ts-uni-app ts-taro-app project-docs public-wire wire gen \
 	i18n i18n-check i18n-sync i18n-locale i18n-docs i18n-openapi \
 	run run-only build package docker-check docker-config docker-build docker-run docker-stop
@@ -55,6 +55,13 @@ PYTHON ?= python3
 GO_BIN_DIR ?= $(or $(shell go env GOBIN),$(shell go env GOPATH)/bin)
 PUBLIC_WIRE_DIR ?= internal/module
 WIRE_DIR ?= internal/cmd/server
+
+# Go import 别名规范化参数。
+NORMALIZE_GO_IMPORTS_ROOT ?= .
+NORMALIZE_GO_IMPORTS_MODULES ?=
+NORMALIZE_GO_IMPORTS_FILES ?=
+NORMALIZE_GO_IMPORTS_WRITE ?= 0
+
 TS_PROTO_BIN ?= $(or \
 	$(shell command -v protoc-gen-ts_proto 2>/dev/null), \
 	$(wildcard $(CURDIR)/../frontend/admin/node_modules/.bin/protoc-gen-ts_proto), \
@@ -85,6 +92,7 @@ I18N_LOCALE ?=
 I18N_SOURCE_LOCALE ?= zh-CN
 I18N_LOCALES ?= en-US,zh-TW,ja-JP
 I18N_AUTO_LOCALIZE ?= 1
+I18N_BATCH_CHARS ?= 400
 
 # ===== OpenAPI 参数 =====
 
@@ -164,6 +172,14 @@ check:
 	@$(MAKE) lint
 	@$(MAKE) test
 	@$(MAKE) i18n-check
+
+# 预览或写回 Go import 别名规范化结果
+normalize-go-imports:
+	@go run scripts/normalize_go_imports.go \
+		-root "$(NORMALIZE_GO_IMPORTS_ROOT)" \
+		$(foreach module,$(NORMALIZE_GO_IMPORTS_MODULES),-module "$(module)") \
+		$(foreach file,$(NORMALIZE_GO_IMPORTS_FILES),-file "$(file)") \
+		$(if $(filter 1 true yes,$(NORMALIZE_GO_IMPORTS_WRITE)),-write,)
 
 # ===== 代码与文档生成 =====
 
@@ -248,6 +264,7 @@ project-docs:
 		--output "$(CURDIR)/internal/docs" \
 		--source-locale "$(I18N_SOURCE_LOCALE)" \
 		--locales "$(I18N_LOCALES)" \
+		--batch-chars "$(I18N_BATCH_CHARS)" \
 		$(if $(filter 1 true,$(I18N_OFFLINE)),--offline,)
 	@echo "==> 项目文档收集与本地化完成"
 
@@ -446,6 +463,10 @@ help:
 	@printf "  %-20s %s\n" "GORM_TABLE" "可选逗号分隔表清单"
 	@printf "  %-20s %s\n" "I18N_LOCALES" "目标语言，当前: $(I18N_LOCALES)"
 	@printf "  %-20s %s\n" "I18N_OFFLINE" "设为 1 时离线生成"
+	@printf "  %-20s %s\n" "NORMALIZE_GO_IMPORTS_ROOT" "Go 仓库根目录，当前: $(NORMALIZE_GO_IMPORTS_ROOT)"
+	@printf "  %-20s %s\n" "NORMALIZE_GO_IMPORTS_MODULES" "显式 module 目录列表，为空时自动发现"
+	@printf "  %-20s %s\n" "NORMALIZE_GO_IMPORTS_WRITE" "设为 1/true/yes 时写回 Go 文件，当前: $(NORMALIZE_GO_IMPORTS_WRITE)"
+	@printf "  %-20s %s\n" "NORMALIZE_GO_IMPORTS_FILES" "只处理指定 Go 文件，默认为全部文件"
 	@printf "  %-20s %s\n" "IMAGE / TAG" "Docker 镜像，当前: $(IMAGE):$(TAG)"
 	@printf "  %-20s %s\n" "DOCKER_PLATFORM" "Docker 平台，当前: $(DOCKER_PLATFORM)"
 	@printf "  %-20s %s\n" "CONTAINER_NAME" "Docker 容器名，当前: $(CONTAINER_NAME)"

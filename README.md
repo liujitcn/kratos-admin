@@ -91,12 +91,12 @@ uni-app 和 Taro H5 默认分别使用 `5004` 与 `5002`，可以同时启动。
 make -C backend gen
 make check
 make -C frontend build-all
-make normalize-go-imports
+make -C backend normalize-go-imports
 ```
 
 `make check` 按 Backend、管理后台、uni-app、Taro 的顺序执行检查。`build-all` 构建管理后台及两个应用端的 H5 宿主；生成全部 npm 发布包使用 `make -C frontend package`，微信小程序仍分别执行各 workspace 的 `pnpm build:mp-weixin`。
 
-`make normalize-go-imports` 默认只预览 Go import 别名规范化结果；确认结果后使用 `NORMALIZE_GO_IMPORTS_WRITE=1 make normalize-go-imports` 写回文件。只处理指定文件时设置 `NORMALIZE_GO_IMPORTS_FILES`，例如 `NORMALIZE_GO_IMPORTS_FILES=backend/api/gen/go/base/v1/login.pb.go make normalize-go-imports`。
+`make -C backend normalize-go-imports` 默认只预览 Go import 别名规范化结果；确认结果后使用 `NORMALIZE_GO_IMPORTS_WRITE=1 make -C backend normalize-go-imports` 写回文件。只处理指定文件时，路径相对于 `backend` 设置 `NORMALIZE_GO_IMPORTS_FILES`，例如 `NORMALIZE_GO_IMPORTS_FILES=api/gen/go/base/v1/login.pb.go make -C backend normalize-go-imports`。
 
 后端默认通过 `make -C backend build` 构建 `linux/amd64` 二进制，通过 `make -C backend package` 生成包含 `bin/server` 和 `configs` 的发布压缩包；目标平台可使用 `GOOS`、`GOARCH` 覆盖。
 
@@ -110,7 +110,7 @@ make -C backend docker-stop IMAGE=kratos-admin TAG=latest
 
 构建命令先检查 Docker，再构建管理后台、uni-app H5、Taro H5 和 Linux 后端程序。运行命令发布宿主机 `7001/6001` 端口，将 `backend/data` 映射到 `/app/data`，并首次初始化可在宿主机修改的 `backend/runtime/configs` 后映射到 `/app/configs`。三端静态站点随镜像发布，启动时合并到 `/app/data`，已有上传文件不会被清空。完整构建参数和运行示例见 [Backend 构建与打包](backend/README.md#构建与打包)。
 
-`I18N_LOCALES` 使用逗号分隔的 BCP 47 语言代码列表（默认 `en-US,zh-TW,ja-JP`），统一控制项目文档和 OpenAPI 的目标语言。`make i18n-docs` 由仓库内 `scripts/project_docs.py` 按三段路径范围收集 README 与 docs Markdown，再生成 `docs.json` 和 `docs.<locale>.json`；对应的 `README.en-US.md`、`guide.ja-JP.md` 等语言源文件存在时直接使用，否则才执行机器翻译。语言目录只本地化文档正文和显示文件名，`README.md` 显示名、目录名称及稳定路径保持不变。如需使用外部实现，可通过 `PROJECT_DOCS_SCRIPT` 覆盖脚本路径。`make i18n-openapi` 生成 OpenAPI 多语言 YAML。离线生成使用 `I18N_OFFLINE=1 make i18n`。
+`I18N_LOCALES` 使用逗号分隔的 BCP 47 语言代码列表（默认 `en-US,zh-TW,ja-JP`），统一控制项目文档和 OpenAPI 的目标语言。`make i18n-docs` 由仓库内 `scripts/project_docs.py` 按三段路径范围收集 README 与 docs Markdown，再将正文按 `I18N_BATCH_CHARS`（默认 400）分片翻译并按原顺序合并，生成 `docs.json` 和 `docs.<locale>.json`；对应的 `README.en-US.md`、`guide.ja-JP.md` 等语言源文件存在时直接使用，否则才执行机器翻译。Google V1 返回 429 时，脚本会自动切换到 MyMemory，并保留 Markdown 代码、链接和占位符。语言目录只本地化文档正文和显示文件名，`README.md` 显示名、目录名称及稳定路径保持不变。如需使用外部实现，可通过 `PROJECT_DOCS_SCRIPT` 覆盖脚本路径。`make i18n-openapi` 生成 OpenAPI 多语言 YAML。离线生成使用 `I18N_OFFLINE=1 make i18n`。
 
 `backend/api/gen`、`backend/internal/data/gen`、`backend/internal/docs/assets/docs*.json`、`backend/internal/docs/docs.go`、各前端包的 `src/rpc`、OpenAPI 及 `wire_gen.go` 都是生成产物，不得手工修改。所有前端 RPC 的 Buf 配置统一位于 `backend/api`，管理端通过 `make -C backend ts-admin` 生成，应用端分别通过 `make -C backend ts-uni-app` 和 `make -C backend ts-taro-app` 生成；需要一次生成三端时执行 `make -C backend ts`。
 
@@ -145,7 +145,7 @@ I18N_LOCALE=ja-JP make i18n-locale
 I18N_LOCALE=de-DE I18N_OFFLINE=1 make i18n-locale
 ```
 
-在线模式使用 Google V1，离线模式使用内置术语表和 OpenCC。生成后应审核 JSON 与 SQL；已有数据库的语言启用状态不会被覆盖。运行时翻译表单仍可对动态资源执行即时翻译，已有非空译文不会覆盖。
+在线模式优先使用 Google V1，遇到公共接口限流时自动使用 MyMemory；繁体中文优先使用 OpenCC，离线模式使用内置术语表和 OpenCC。生成后应审核 JSON 与 SQL；已有数据库的语言启用状态不会被覆盖。运行时翻译表单仍可对动态资源执行即时翻译，已有非空译文不会覆盖。
 
 ## 发布
 

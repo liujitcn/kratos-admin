@@ -5,11 +5,13 @@ from __future__ import annotations
 
 import argparse
 import copy
+import html
 import json
 import os
 import re
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
@@ -22,6 +24,10 @@ DEFAULT_SOURCE_LOCALE = "zh-CN"
 DEFAULT_OUTPUT_PATH = "internal/projectdocs"
 BACKEND_OUTPUT_PATH = "backend/internal/docs"
 I18N_ENDPOINT = "https://translate.googleapis.com/translate_a/single"
+MYMEMORY_ENDPOINT = "https://api.mymemory.translated.net/get"
+GOOGLE_CLIENTS = ("gtx", "dict-chrome-ex", "chrome", "at")
+DEFAULT_I18N_BATCH_CHARS = 400
+DEFAULT_I18N_REQUEST_DELAY = 0.2
 MAX_SOURCE_PATH_DEPTH = 3
 MAX_DOCUMENT_BYTES = 2 << 20
 EXCLUDED_DIRECTORIES = {
@@ -37,7 +43,14 @@ EXCLUDED_DIRECTORIES = {
 }
 LOCALE_PATTERN = re.compile(r"^[A-Za-z]{2,3}(?:[-_][A-Za-z0-9]{2,8})*$")
 GO_IDENTIFIER_PATTERN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
-ENTRY_PATTERN = re.compile(r"__KRATOS_ENTRY_(\d{4})__")
+ENTRY_PATTERN = re.compile(
+    r"(?:__\s*)?KRATOS[_ ]?ENTRY[_ ]?(\d{4})(?:\s*__)?\s*:?\s*", re.IGNORECASE
+)
+TOKEN_PATTERN = re.compile(
+    r"(?:__\s*)?KRATOS[_ ]?TOKEN[_ ]?(\d{4})(?:\s*__)?", re.IGNORECASE
+)
+TRANSLATION_RATE_LIMITED = False
+LAST_I18N_REQUEST_AT = 0.0
 PROTECTED_PATTERN = re.compile(
     r"(?s)```.*?```|`[^`]+`|\{\{[^{}]+\}\}|\$\{[^{}]+\}|"
     r"\{[A-Za-z_][A-Za-z0-9_.-]*\}|%[sdv]|</?[^>]+>|"
@@ -250,7 +263,7 @@ def protect_text(value: str) -> tuple[str, dict[str, str]]:
     values: dict[str, str] = {}
 
     def replace(match: re.Match[str]) -> str:
-        token = f"__KRATOS_TOKEN_{len(values):04d}__"
+        token = f"KRATOSTOKEN{len(values):04d}"
         values[token] = match.group(0)
         return token
 
@@ -261,36 +274,124 @@ def restore_text(value: str, protected: dict[str, str]) -> str:
     """恢复 Markdown 中被保护的原始片段。"""
     for token, original in protected.items():
         value = value.replace(token, original)
-    return value
+        match = TOKEN_PATTERN.fullmatch(token)
+        if match:
+            loose_token = re.compile(
+                rf"__\s*KRATOS[_ ]TOKEN[_ ]{match.group(1)}\s*__", re.IGNORECASE
+            )
+            value = loose_token.sub(original, value)
+    return re.sub(r"\]\s+\(", "](", value)
 
 
-def request_i18n(value: str, source: str, target: str) -> str:
+def i18n_request_delay() -> float:
+    """读取翻译请求之间的最小间隔。"""
+    try:
+        return max(0.0, float(os.environ.get("I18N_REQUEST_DELAY", DEFAULT_I18N_REQUEST_DELAY)))
+    except ValueError:
+        return DEFAULT_I18N_REQUEST_DELAY
+
+
+def wait_for_i18n_request() -> None:
+    """限制连续请求频率，降低公共翻译接口触发限流的概率。"""
+    global LAST_I18N_REQUEST_AT
+    now = time.monotonic()
+    wait = i18n_request_delay() - (now - LAST_I18N_REQUEST_AT)
+    if wait > 0:
+        time.sleep(wait)
+    LAST_I18N_REQUEST_AT = time.monotonic()
+
+
+def request_google_i18n(value: str, source: str, target: str) -> str:
     """调用 Google V1 接口翻译文档自然语言。"""
-    query = urllib.parse.urlencode(
-        [
-            ("client", "gtx"),
-            ("sl", source.split("-", 1)[0]),
-            ("tl", target.split("-", 1)[0]),
-            ("dt", "t"),
-            ("q", value),
-        ]
-    )
     endpoint = os.environ.get("I18N_ENDPOINT", I18N_ENDPOINT)
-    request = urllib.request.Request(
-        f"{endpoint}{'&' if '?' in endpoint else '?'}{query}",
-        headers={"User-Agent": "kratos-admin-i18n/1.0", "Connection": "close"},
+    last_error: Exception | None = None
+    clients = tuple(
+        item.strip()
+        for item in os.environ.get("I18N_GOOGLE_CLIENTS", ",".join(GOOGLE_CLIENTS)).split(",")
+        if item.strip()
     )
+    for client in clients:
+        query = urllib.parse.urlencode(
+            [
+                ("client", client),
+                ("sl", source.split("-", 1)[0]),
+                ("tl", target.split("-", 1)[0]),
+                ("dt", "t"),
+                ("q", value),
+            ]
+        )
+        for attempt in range(2):
+            try:
+                wait_for_i18n_request()
+                request = urllib.request.Request(
+                    f"{endpoint}{'&' if '?' in endpoint else '?'}{query}",
+                    headers={"User-Agent": "kratos-admin-i18n/1.0", "Connection": "close"},
+                )
+                with urllib.request.urlopen(request, timeout=20) as response:
+                    payload = json.loads(response.read().decode("utf-8"))
+                return "".join(item[0] for item in payload[0] if item and item[0])
+            except urllib.error.HTTPError as error:
+                last_error = error
+                if error.code in (403, 429):
+                    break
+            except Exception as error:  # noqa: BLE001 - 翻译服务失败需要统一重试
+                last_error = error
+            if attempt < 1:
+                time.sleep(0.5)
+    raise RuntimeError(f"Google V1 翻译失败: {last_error}")
+
+
+def request_mymemory_i18n(value: str, source: str, target: str) -> str:
+    """调用 MyMemory 公共接口翻译较小的文档分片。"""
+    query = urllib.parse.urlencode(
+        {
+            "q": value,
+            "langpair": f"{source.split('-', 1)[0]}|{target.split('-', 1)[0]}",
+            "mt": "1",
+        }
+    )
+    endpoint = os.environ.get("I18N_FALLBACK_ENDPOINT", MYMEMORY_ENDPOINT)
     last_error: Exception | None = None
     for attempt in range(3):
         try:
+            wait_for_i18n_request()
+            request = urllib.request.Request(
+                f"{endpoint}{'&' if '?' in endpoint else '?'}{query}",
+                headers={"User-Agent": "kratos-admin-i18n/1.0", "Connection": "close"},
+            )
             with urllib.request.urlopen(request, timeout=20) as response:
                 payload = json.loads(response.read().decode("utf-8"))
-            return "".join(item[0] for item in payload[0] if item and item[0])
+            status = payload.get("responseStatus")
+            translated = payload.get("responseData", {}).get("translatedText")
+            if status != 200 or not isinstance(translated, str) or not translated:
+                details = payload.get("responseDetails") or f"status={status}"
+                raise RuntimeError(f"MyMemory 翻译失败: {details}")
+            return html.unescape(translated)
+        except urllib.error.HTTPError as error:
+            if error.code == 429:
+                raise RuntimeError("MyMemory 翻译接口返回 HTTP 429 Too Many Requests") from error
+            last_error = error
+            if attempt < 2:
+                time.sleep(0.5 * (attempt + 1))
         except Exception as error:  # noqa: BLE001 - 翻译服务失败需要统一重试
             last_error = error
             if attempt < 2:
                 time.sleep(0.5 * (attempt + 1))
-    raise RuntimeError(f"Google V1 翻译失败: {last_error}")
+    raise RuntimeError(f"MyMemory 翻译失败: {last_error}")
+
+
+def request_i18n(value: str, source: str, target: str) -> str:
+    """优先调用 Google，触发限流后切换 MyMemory。"""
+    global TRANSLATION_RATE_LIMITED
+    provider = os.environ.get("I18N_TRANSLATOR", "auto").lower()
+    if provider == "mymemory" or TRANSLATION_RATE_LIMITED:
+        return request_mymemory_i18n(value, source, target)
+    try:
+        return request_google_i18n(value, source, target)
+    except RuntimeError as error:
+        TRANSLATION_RATE_LIMITED = True
+        print(f"Google V1 不可用，后续分片切换 MyMemory 翻译: {error}", file=sys.stderr)
+        return request_mymemory_i18n(value, source, target)
 
 
 def load_opencc() -> Any:
@@ -307,6 +408,7 @@ def i18n_markdown_with_status(
     source: str,
     target: str,
     offline: bool,
+    batch_chars: int = DEFAULT_I18N_BATCH_CHARS,
 ) -> tuple[str, bool]:
     """翻译 Markdown 自然语言，并保留代码块、链接和占位符。"""
     if normalize_locale(target) == "zh-tw":
@@ -317,19 +419,53 @@ def i18n_markdown_with_status(
         return value, True
 
     lines = value.splitlines(keepends=True)
-    output: list[str] = []
+    line_order: list[int] = []
+    direct_lines: dict[int, str] = {}
+    translated_parts: dict[int, list[str]] = {}
+    line_endings: dict[int, str] = {}
     pending: list[tuple[int, str, str, str, dict[str, str]]] = []
     pending_size = 0
+    marker_prefix_size = len("KRATOSENTRY0000: ")
+    content_batch_chars = max(1, batch_chars - marker_prefix_size)
     in_fence = False
     fence_character = ""
     i18n_succeeded = True
+
+    def split_protected_text(text: str) -> list[str]:
+        """按批次上限拆分文本，并避免切断受保护的 Markdown 令牌。"""
+        if len(text) <= content_batch_chars:
+            return [text]
+        parts: list[str] = []
+        start = 0
+        while start < len(text):
+            end = min(start + content_batch_chars, len(text))
+            if end < len(text):
+                token = next(
+                    (
+                        match
+                        for match in TOKEN_PATTERN.finditer(text, max(start, end - 32))
+                        if match.start() < end < match.end()
+                    ),
+                    None,
+                )
+                if token is not None:
+                    end = token.start()
+                if end <= start:
+                    end = min(start + content_batch_chars, len(text))
+                else:
+                    separator = text.rfind(" ", start + content_batch_chars // 2, end)
+                    if separator > start:
+                        end = separator + 1
+            parts.append(text[start:end])
+            start = end
+        return parts
 
     def flush() -> None:
         nonlocal pending, pending_size, i18n_succeeded
         if not pending:
             return
         source_text = "\n".join(
-            f"__KRATOS_ENTRY_{index:04d}__ {protected}"
+            f"KRATOSENTRY{index:04d}: {protected}"
             for index, (_, _, _, protected, _) in enumerate(pending)
         )
         translated = ""
@@ -355,43 +491,55 @@ def i18n_markdown_with_status(
                     file=sys.stderr,
                 )
             i18n_succeeded = False
-        for line_index, original, ending, _, protected_values in pending:
-            translated_line = translated_by_index.get(line_index, "")
-            output.append(
-                (restore_text(translated_line, protected_values) if translated_line else original)
-                + ending
+        for marker_index, (line_index, original, ending, _, protected_values) in enumerate(pending):
+            translated_line = translated_by_index.get(marker_index, "")
+            translated_parts.setdefault(line_index, []).append(
+                restore_text(translated_line, protected_values) if translated_line else original
             )
+            line_endings[line_index] = ending
         pending = []
         pending_size = 0
 
-    for line in lines:
+    for line_index, line in enumerate(lines):
+        line_order.append(line_index)
         body = line.rstrip("\r\n")
         ending = line[len(body) :]
         stripped = body.strip()
         fence_match = FENCE_PATTERN.match(stripped)
         if in_fence:
-            output.append(line)
+            direct_lines[line_index] = line
             if fence_match and fence_match.group(1)[0] == fence_character:
                 in_fence = False
                 fence_character = ""
             continue
         if fence_match:
             flush()
-            output.append(line)
+            direct_lines[line_index] = line
             in_fence = True
             fence_character = fence_match.group(1)[0]
             continue
         if not any(character.isalpha() or character.isdigit() for character in stripped):
             flush()
-            output.append(line)
+            direct_lines[line_index] = line
             continue
         protected, protected_values = protect_text(body)
-        if pending and pending_size + len(protected) > 1200:
-            flush()
-        pending.append((len(pending), body, ending, protected, protected_values))
-        pending_size += len(protected)
+        parts = split_protected_text(protected)
+        for part_index, part in enumerate(parts):
+            entry_size = len(part) + marker_prefix_size + (1 if pending else 0)
+            if pending and pending_size + entry_size > batch_chars:
+                flush()
+            part_original = restore_text(part, protected_values)
+            part_ending = ending if part_index == len(parts) - 1 else ""
+            pending.append((line_index, part_original, part_ending, part, protected_values))
+            pending_size += entry_size
     flush()
-    return "".join(output), i18n_succeeded
+    return "".join(
+        direct_lines.get(
+            line_index,
+            "".join(translated_parts.get(line_index, [])) + line_endings.get(line_index, ""),
+        )
+        for line_index in line_order
+    ), i18n_succeeded
 
 
 def i18n_document_name_with_status(
@@ -399,12 +547,13 @@ def i18n_document_name_with_status(
     source: str,
     target: str,
     offline: bool,
+    batch_chars: int = DEFAULT_I18N_BATCH_CHARS,
 ) -> tuple[str, bool]:
     """翻译非 README 文档显示名，并保留 Markdown 扩展名。"""
     if value == "README.md":
         return value, True
     path = PurePosixPath(value)
-    translated, succeeded = i18n_markdown_with_status(path.stem, source, target, offline)
+    translated, succeeded = i18n_markdown_with_status(path.stem, source, target, offline, batch_chars)
     return f"{translated.strip() or path.stem}{path.suffix}", succeeded
 
 
@@ -535,6 +684,7 @@ def i18n_catalog(
     source_locale: str,
     target_locale: str,
     offline: bool,
+    batch_chars: int,
 ) -> tuple[dict[str, Any], int, int]:
     """生成单个语言目录，并优先复用仓库内已有语言文档。"""
     localized = copy.deepcopy(source)
@@ -571,7 +721,7 @@ def i18n_catalog(
                 translated_content = legacy_content
         if not translated_content and source_content:
             candidate, succeeded = i18n_markdown_with_status(
-                source_content, source_locale, target_locale, offline
+                source_content, source_locale, target_locale, offline, batch_chars
             )
             if succeeded:
                 translated_content = candidate
@@ -597,7 +747,7 @@ def i18n_catalog(
                 translated_name = existing_name
         if not translated_name:
             candidate, succeeded = i18n_document_name_with_status(
-                source_name, source_locale, target_locale, offline
+                source_name, source_locale, target_locale, offline, batch_chars
             )
             if succeeded:
                 translated_name = candidate
@@ -684,7 +834,15 @@ def main() -> int:
     parser.add_argument("--source-locale", default=DEFAULT_SOURCE_LOCALE, help="源语言")
     parser.add_argument("--locales", default="", help="逗号分隔的目标语言列表")
     parser.add_argument("--offline", action="store_true", help="跳过网络翻译")
+    parser.add_argument(
+        "--batch-chars",
+        type=int,
+        default=DEFAULT_I18N_BATCH_CHARS,
+        help="单次翻译请求的最大字符数",
+    )
     args = parser.parse_args()
+    if args.batch_chars < 1:
+        parser.error("--batch-chars 必须大于 0")
     try:
         locales = parse_locales(args.locales)
     except ValueError as error:
@@ -731,6 +889,7 @@ def main() -> int:
                 args.source_locale,
                 locale,
                 args.offline,
+                args.batch_chars,
             )
             write_catalog(localized_path, localized)
             generated.append(localized_path)

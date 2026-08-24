@@ -6,7 +6,7 @@
 #   国际化生成：make i18n
 #   统一发布：make tag VERSION=0.0.1
 
-.PHONY: help init hooks check normalize-go-imports \
+.PHONY: help init hooks check \
 	i18n i18n-check i18n-sync i18n-locale i18n-docs i18n-openapi \
 	tag
 
@@ -23,12 +23,6 @@ I18N_LOCALES ?= en-US,zh-TW,ja-JP
 I18N_OFFLINE ?= 0
 I18N_AUTO_TRANSLATE ?= 1
 I18N_MIGRATION_VERSION ?=
-
-# Go import 别名规范化参数。
-NORMALIZE_GO_IMPORTS_ROOT ?= .
-NORMALIZE_GO_IMPORTS_MODULES ?=
-NORMALIZE_GO_IMPORTS_FILES ?=
-NORMALIZE_GO_IMPORTS_WRITE ?= 0
 
 # ===== 环境初始化 =====
 
@@ -49,14 +43,6 @@ check:
 	@$(MAKE) -C backend check
 	@$(MAKE) -C frontend check
 	@echo "==> 全仓检查完成"
-
-# 预览或写回 Go import 别名规范化结果。
-normalize-go-imports:
-	@go run scripts/normalize_go_imports.go \
-		-root "$(NORMALIZE_GO_IMPORTS_ROOT)" \
-		$(foreach module,$(NORMALIZE_GO_IMPORTS_MODULES),-module "$(module)") \
-		$(foreach file,$(NORMALIZE_GO_IMPORTS_FILES),-file "$(file)") \
-		$(if $(filter 1 true yes,$(NORMALIZE_GO_IMPORTS_WRITE)),-write,)
 
 # ===== 国际化 =====
 
@@ -114,7 +100,6 @@ help:
 	@echo "常用流程:"
 	@echo "  make init                         初始化 Git hooks"
 	@echo "  make check                        执行 Backend 和 Frontend 检查"
-	@echo "  make normalize-go-imports         预览 Go import 别名规范化"
 	@echo "  make i18n                         生成全部国际化产物"
 	@echo "  make tag VERSION=0.0.1            统一发布（会提交并推送）"
 	@echo ""
@@ -135,10 +120,6 @@ help:
 	@printf "  %-24s %s\n" "I18N_SOURCE_LOCALE" "源语言，当前: $(I18N_SOURCE_LOCALE)"
 	@printf "  %-24s %s\n" "I18N_OFFLINE" "设为 1 时离线生成"
 	@printf "  %-24s %s\n" "I18N_AUTO_TRANSLATE" "OpenAPI 是否自动翻译，当前: $(I18N_AUTO_TRANSLATE)"
-	@printf "  %-24s %s\n" "NORMALIZE_GO_IMPORTS_ROOT" "Go 仓库根目录，当前: $(NORMALIZE_GO_IMPORTS_ROOT)"
-	@printf "  %-24s %s\n" "NORMALIZE_GO_IMPORTS_MODULES" "显式 module 目录列表，为空时自动发现"
-	@printf "  %-24s %s\n" "NORMALIZE_GO_IMPORTS_WRITE" "设为 1/true/yes 时写回 Go 文件，当前: $(NORMALIZE_GO_IMPORTS_WRITE)"
-	@printf "  %-24s %s\n" "NORMALIZE_GO_IMPORTS_FILES" "只处理指定 Go 文件，默认为全部文件"
 	@echo ""
 	@echo "更多命令:"
 	@echo "  make -C backend help              查看 Backend 命令"
