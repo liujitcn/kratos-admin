@@ -54,12 +54,15 @@ make run
 make run-only
 ```
 
-默认配置目录为 `./configs`，可以覆盖配置目录或追加启动参数：
+默认配置目录为 `./configs`，默认运行环境为 `dev`。基础配置使用 `<name>.yaml`，环境差异使用 `<name>.<env>.yaml`；环境文件存在时在基础配置之后加载，不存在时回退基础配置。可以覆盖配置目录、运行环境或追加启动参数：
 
 ```bash
 make run-only CONF=/path/to/configs
+make run-only APP_ENV=prod
 make run-only RUN_ARGS='--help'
 ```
+
+例如 `APP_ENV=dev` 会加载 `data.yaml` 后再加载 `data.dev.yaml`，同时忽略 `data.prod.yaml`。本地开发配置统一保存在 `*.dev.yaml`，这类文件默认不纳入 Git。
 
 独立入口注入 `kratoscore.ProviderSet` 与内部模块 ProviderSet；Core 负责统一创建和管理 HTTP、gRPC、MCP、SSE、队列与定时任务运行时。
 
@@ -137,10 +140,10 @@ make docker-build GOARCH=arm64 DOCKER_PLATFORM=linux/arm64
 
 镜像把三端静态站点保存在只读种子目录，容器启动时将其合并到 `/app/data`。本地 OSS 上传的图片、附件及其他运行期文件也位于 `/app/data`，因此部署时应将整个目录绑定到宿主机；启动脚本只覆盖镜像提供的站点文件，不会清空已有上传目录。
 
-本地构建完成后使用 `docker-run` 启动容器：
+本地构建完成后使用 `docker-run` 启动容器，运行环境通过 `APP_ENV` 选择：
 
 ```bash
-make docker-run IMAGE=kratos-admin TAG=v1.0.0
+make docker-run IMAGE=kratos-admin TAG=v1.0.0 APP_ENV=dev
 ```
 
 该命令默认使用桥接网络并发布宿主机 `7001`、`6001` 端口。首次运行会把 `configs/*.yaml` 初始化到宿主机 `runtime/configs`，将 MySQL、Redis、Consul 等容器主动连接的本机地址改为 `host.docker.internal`，再只读映射到 `/app/configs`；OAuth 浏览器回调地址保持不变。宿主机修改 `runtime/configs` 中的 YAML 后重启容器即可生效，不需要重建镜像。
@@ -155,13 +158,14 @@ make docker-stop IMAGE=kratos-admin TAG=v1.0.0
 
 之后再次执行 `make docker-run` 会自动清理已停止的同名容器并重新创建。
 
-镜像本身不会包含 `configs/*_local.yaml`、历史上传文件、代码生成恢复文件或运行日志。`docker-run` 挂载宿主机配置目录后，本地配置文件只在运行期对容器可见。
+镜像本身不会包含 `configs/*.dev.yaml`、历史上传文件、代码生成恢复文件或运行日志。`docker-run` 挂载宿主机配置目录后，开发环境配置文件只在运行期对容器可见。
 
 ## 常用参数
 
 | 参数 | 默认值 | 用途 |
 | --- | --- | --- |
 | `CONF` | `./configs` | 服务运行配置目录。 |
+| `APP_ENV` | `dev` | 选择 `<name>.<env>.yaml` 环境覆盖配置。 |
 | `RUN_ARGS` | 空 | 追加到服务命令后的参数。 |
 | `CGO_ENABLED` | `0` | Go 构建时是否启用 CGO。 |
 | `GOOS` / `GOARCH` | `linux` / `amd64` | 构建目标平台。 |
@@ -181,7 +185,7 @@ make docker-stop IMAGE=kratos-admin TAG=v1.0.0
 | `DOCKER_RUN_ARGS` | 空 | 传给 `docker run` 的其他参数。 |
 | `PUBLIC_WIRE_DIR` | `internal/module` | 公共入口使用的内部 `wire.go` 所在目录。 |
 | `WIRE_DIR` | `internal/cmd/server` | 独立入口 `wire.go` 所在目录。 |
-| `GORM_GEN_CONFIG` | `configs/data_local.yaml` | GORM 生成使用的数据源配置。 |
+| `GORM_GEN_CONFIG` | `configs/data.dev.yaml` | GORM 生成使用的数据源配置。 |
 | `GORM_GEN_DATABASE` | 空 | 可选数据库名，默认读取配置文件。 |
 | `GORM_TABLE` | 内置表清单 | 逗号分隔的 GORM 生成表。 |
 | `I18N_LOCALES` | `en-US,zh-TW,ja-JP` | 文档和 OpenAPI 的目标语言。 |

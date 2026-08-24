@@ -19,4 +19,4 @@ VOLUME ["/app/data"]
 EXPOSE 6001 7001
 
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["./server", "--conf", "./configs"]
+CMD ["./server", "-c", "./configs", "-e", "dev"]

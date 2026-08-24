@@ -15,9 +15,10 @@
 
 # ===== 运行与构建参数 =====
 
-# 服务入口、配置目录和附加运行参数。
+# 服务入口、配置目录、运行环境和附加运行参数。
 SERVER_PACKAGE ?= ./internal/cmd/server
 CONF ?= ./configs
+APP_ENV ?= dev
 RUN_ARGS ?=
 
 # 二进制目标平台与输出路径，默认构建 Linux amd64 静态程序。
@@ -69,7 +70,7 @@ GORM_GEN_BIN ?= $(or \
 	$(shell command -v gorm-gen 2>/dev/null), \
 	$(GO_BIN_DIR)/gorm-gen \
 )
-GORM_GEN_CONFIG ?= configs/data_local.yaml
+GORM_GEN_CONFIG ?= configs/data.dev.yaml
 GORM_GEN_DATABASE ?=
 # 仅生成本仓库使用的表；新增业务表时同步补充此列表。
 GORM_TABLE ?= ai_message,ai_session,base_api,base_api_i18n,base_area,base_config,base_dept,base_dict,base_dict_item,base_i18n,base_job,base_job_log,base_language,base_log,base_menu,base_migration,base_post,base_role,base_tenant,base_third_account,base_user,casbin_rule,code_gen_column,code_gen_proto,code_gen_table
@@ -314,7 +315,7 @@ i18n:
 
 # 直接启动服务，不执行代码或文档生成
 run-only:
-	@go run "$(SERVER_PACKAGE)" --conf "$(CONF)" $(RUN_ARGS)
+	@go run "$(SERVER_PACKAGE)" -c "$(CONF)" -e "$(APP_ENV)" $(RUN_ARGS)
 
 # 刷新启动所需产物后运行服务
 run:
@@ -351,7 +352,7 @@ docker-config:
 	@if [ ! -d "$(DOCKER_CONFIG_DIR)" ]; then \
 		mkdir -p "$(DOCKER_CONFIG_DIR)"; \
 		cp "$(DOCKER_CONFIG_SOURCE_DIR)"/*.yaml "$(DOCKER_CONFIG_DIR)/"; \
-		for config_file in data.yaml data_local.yaml logger.yaml pprof.yaml registry.yaml; do \
+		for config_file in data.yaml data.dev.yaml logger.yaml pprof.yaml registry.yaml; do \
 			if [ -f "$(DOCKER_CONFIG_DIR)/$$config_file" ]; then \
 				perl -pi -e 's/127\.0\.0\.1/host.docker.internal/g; s/localhost/host.docker.internal/g' "$(DOCKER_CONFIG_DIR)/$$config_file"; \
 			fi; \
@@ -391,7 +392,8 @@ docker-run: docker-check docker-config
 		-v "$(abspath $(DOCKER_DATA_DIR)):/app/data" \
 		-v "$(abspath $(DOCKER_CONFIG_DIR)):/app/configs:ro" \
 		$(DOCKER_RUN_ARGS) \
-		"$(IMAGE):$(TAG)"
+		"$(IMAGE):$(TAG)" \
+		./server -c ./configs -e "$(APP_ENV)"
 	@echo "==> Docker 容器已启动: $(CONTAINER_NAME)"
 	@echo "==> HTTP: http://127.0.0.1:$(DOCKER_HTTP_PORT)"
 	@echo "==> gRPC: 127.0.0.1:$(DOCKER_GRPC_PORT)"
@@ -433,6 +435,7 @@ help:
 	@echo ""
 	@echo "常用参数（命令行使用 参数=值 覆盖）:"
 	@printf "  %-20s %s\n" "CONF" "运行配置目录，当前: $(CONF)"
+	@printf "  %-20s %s\n" "APP_ENV" "运行环境，当前: $(APP_ENV)"
 	@printf "  %-20s %s\n" "GOOS / GOARCH" "目标平台，当前: $(GOOS) / $(GOARCH)"
 	@printf "  %-20s %s\n" "BINARY" "二进制输出，当前: $(BINARY)"
 	@printf "  %-20s %s\n" "ARCHIVE" "压缩包输出，当前: $(ARCHIVE)"
@@ -454,7 +457,8 @@ help:
 	@printf "  %-20s %s\n" "DOCKER_CONFIG_DIR" "宿主机配置目录，当前: $(DOCKER_CONFIG_DIR)"
 	@echo ""
 	@echo "示例:"
-	@echo "  make run-only CONF=./configs RUN_ARGS='--help'"
+	@echo "  make run-only CONF=./configs APP_ENV=dev"
+	@echo "  make run-only RUN_ARGS='--help'"
 	@echo "  make build GOOS=darwin GOARCH=arm64 BINARY=bin/server-darwin-arm64"
 	@echo "  make package GOOS=linux GOARCH=arm64"
 	@echo "  make docker-build IMAGE=kratos-admin TAG=v1.0.0"

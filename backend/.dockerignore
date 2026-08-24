@@ -5,7 +5,7 @@
 bin
 !bin/
 !bin/server
-configs/*_local.yaml
+configs/*.dev.yaml
 data/*
 !data/admin
 !data/admin/**

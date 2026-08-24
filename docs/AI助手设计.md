@@ -61,6 +61,6 @@ uni-app 位于 `frontend/uni-app/packages/modules/system/src/views/pagesMember/a
 
 ## 配置与验证
 
-模型配置位于 `backend/configs/ai.yaml` 和 `ai_local.yaml`。未提供模型配置时服务仍可启动，但 AI 运行时处于关闭状态。
+模型基础配置位于 `backend/configs/ai.yaml`，开发环境差异位于 `backend/configs/ai.dev.yaml`。未提供完整模型配置时服务仍可启动，但 AI 运行时处于关闭状态。
 
 修改协议或运行时后执行后端生成与测试；修改管理端执行 `pnpm lint:oxlint`、`pnpm type:check`；修改 uni-app 或 Taro 执行对应 workspace 的 `pnpm lint`、`pnpm tsc`，涉及模块协议或 runner 时再执行 `pnpm test`、`pnpm check:exports`。前端至少检查空会话、历史会话、发送中、失败、附件和过期流程动作状态。

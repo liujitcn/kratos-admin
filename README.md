@@ -60,10 +60,10 @@ make -C frontend reinstall
 启动后端：
 
 ```bash
-make -C backend run
+make -C backend run APP_ENV=dev
 ```
 
-`run` 会先刷新启动所需的接口、文档和 Wire 产物；确认生成产物未变化时可使用 `make -C backend run-only` 直接启动。完整目标、执行顺序和参数见 [Backend 常用流程](backend/README.md#常用流程)。
+`run` 会先刷新启动所需的接口、文档和 Wire 产物；确认生成产物未变化时可使用 `make -C backend run-only APP_ENV=dev` 直接启动。基础配置使用 `<name>.yaml`，环境差异使用 `<name>.<env>.yaml`，缺少当前环境文件时自动回退基础配置。完整目标、执行顺序和参数见 [Backend 常用流程](backend/README.md#常用流程)。
 
 启动管理后台、uni-app 或 Taro H5（每个命令都应在独立终端运行）：
 
@@ -101,7 +101,7 @@ Docker 镜像通过现有 Backend 命令构建：
 
 ```bash
 make -C backend docker-build IMAGE=kratos-admin TAG=latest
-make -C backend docker-run IMAGE=kratos-admin TAG=latest
+make -C backend docker-run IMAGE=kratos-admin TAG=latest APP_ENV=dev
 make -C backend docker-stop IMAGE=kratos-admin TAG=latest
 ```
 

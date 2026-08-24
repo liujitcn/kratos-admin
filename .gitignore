@@ -55,7 +55,7 @@ Thumbs.db
 __debug_bin
 
 # Local config
-*_local.yaml
+*.dev.yaml
 .codex-output/
 certs/
 web/
