@@ -224,13 +224,13 @@ export interface SummaryBaseUserRequest {
 export interface SummaryBaseUserResponse {
   /** 用户总数 */
   total: number;
-  /** 用户分组汇总 */
+  /** 用户注册时间维度汇总 */
   summaries: BaseUserSummaryItem[];
 }
 
-/** 用户注册分组汇总项 */
+/** 用户注册时间维度汇总项 */
 export interface BaseUserSummaryItem {
-  /** 分组序号 */
+  /** 统计周期值：按周统计时1至7依次表示星期一至星期日，按月统计时表示日期1至31，按年统计时表示月份1至12 */
   key: number;
   /** 用户数 */
   count: number;

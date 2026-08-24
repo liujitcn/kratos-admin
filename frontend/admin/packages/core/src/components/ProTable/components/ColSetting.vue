@@ -12,7 +12,7 @@
         </el-table-column>
         <template #empty>
           <div class="table-empty">
-            <img src="@/assets/images/notData.png" alt="notData" />
+            <img src="@/assets/images/notData.png" :alt="t('core.table.no_configurable_columns')" />
             <div>{{ t("core.table.no_configurable_columns") }}</div>
           </div>
         </template>

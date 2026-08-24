@@ -8,8 +8,3 @@ registry:
     token: "03e92c67-5da7-3f4f-6659-8fb2d137aaa5"
     # Admin 包含 scheduler 等非 TCP Endpoint，由注册器 TTL 心跳统一维护服务状态。
     health_check: false
-
-  zookeeper:
-    endpoints:
-      - "localhost:8500"
-    timeout: 10s

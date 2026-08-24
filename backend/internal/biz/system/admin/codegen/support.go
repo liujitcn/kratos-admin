@@ -33,12 +33,12 @@ func RunCommand(ctx context.Context, backendDir string, target string, variables
 }
 
 // CommandFailureMessage 生成适合列表展示的命令错误摘要。
-func CommandFailureMessage(target string, output string, err error) string {
+func CommandFailureMessage(state LocaleState, target string, output string, err error) string {
 	detail := strings.Join(strings.Fields(output), " ")
 	if detail == "" {
 		detail = err.Error()
 	}
-	return "代码生成失败（make " + target + "）：" + detail
+	return Message(state, "progress.command_failed", map[string]string{"target": target, "detail": detail})
 }
 
 // NormalizeQueryOperator 统一当前支持的查询方式。
@@ -108,7 +108,7 @@ func TruncateText(value string, maxRunes int) string {
 }
 
 // BuildProgressSteps 构建文件、菜单和命令的完整进度步骤。
-func BuildProgressSteps(files []*adminv1.CodeGenPreviewFile, syncMenus bool, runCommands bool) []*adminv1.CodeGenTaskStep {
+func BuildProgressSteps(files []*adminv1.CodeGenPreviewFile, syncMenus bool, runCommands bool, state LocaleState) []*adminv1.CodeGenTaskStep {
 	stepCount := len(files)
 	if syncMenus {
 		stepCount++
@@ -119,14 +119,14 @@ func BuildProgressSteps(files []*adminv1.CodeGenPreviewFile, syncMenus bool, run
 	steps := make([]*adminv1.CodeGenTaskStep, 0, stepCount)
 	for i, file := range files {
 		status := adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_PENDING
-		message := "等待生成"
+		message := Message(state, "progress.pending_generate", nil)
 		if file.GetAction() != "create" && file.GetAction() != "update" {
 			status = adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_SKIPPED
 			message = file.GetMessage()
 		}
 		steps = append(steps, &adminv1.CodeGenTaskStep{
 			Id:      FileStepID(i),
-			Label:   "生成文件",
+			Label:   Message(state, "progress.label_generate_file", nil),
 			Kind:    "file",
 			Path:    file.GetPath(),
 			Status:  status,
@@ -136,10 +136,10 @@ func BuildProgressSteps(files []*adminv1.CodeGenPreviewFile, syncMenus bool, run
 	if syncMenus {
 		steps = append(steps, &adminv1.CodeGenTaskStep{
 			Id:      MenuStepID,
-			Label:   "同步菜单权限",
+			Label:   Message(state, "progress.label_sync_menu", nil),
 			Kind:    "menu",
 			Status:  adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_PENDING,
-			Message: "等待同步",
+			Message: Message(state, "progress.pending_sync", nil),
 		})
 	}
 	if runCommands {
@@ -149,7 +149,7 @@ func BuildProgressSteps(files []*adminv1.CodeGenPreviewFile, syncMenus bool, run
 				Label:   "make " + command,
 				Kind:    "command",
 				Status:  adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_PENDING,
-				Message: "等待执行",
+				Message: Message(state, "progress.pending_execute", nil),
 			})
 		}
 	}

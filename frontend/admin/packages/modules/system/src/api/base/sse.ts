@@ -1,7 +1,7 @@
 import { EventStreamContentType, fetchEventSource, type EventSourceMessage } from "@microsoft/fetch-event-source";
 import type { SubscribeSseRequest } from "@liujitcn/kratos-admin-system/rpc/base/v1/sse";
 import { getRequestAccessToken, handleAuthExpired } from "@liujitcn/kratos-admin-core/request";
-import { getLocaleRequestHeaders } from "@liujitcn/kratos-admin-core";
+import { getLocaleRequestHeaders, t } from "@liujitcn/kratos-admin-core";
 
 const SSE_URL = "/events";
 
@@ -116,9 +116,9 @@ export class SseServiceImpl {
             return;
           }
           if (response.status === 401 || response.status === 403) {
-            throw new SseFatalError("SSE 认证已失效");
+            throw new SseFatalError(t("system.sse.error.auth_expired"));
           }
-          throw new SseRetriableError(`SSE 连接失败: ${response.status}`);
+          throw new SseRetriableError(t("system.sse.error.connection_failed", { status: response.status }));
         },
         onmessage: message => {
           const eventName = message.event || "";
@@ -132,7 +132,7 @@ export class SseServiceImpl {
           eventListeners.forEach(listener => listener(message));
         },
         onclose: () => {
-          throw new SseRetriableError("SSE 连接已关闭");
+          throw new SseRetriableError(t("system.sse.error.connection_closed"));
         },
         onerror: error => {
           if (controller.signal.aborted) {

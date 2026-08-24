@@ -101,5 +101,9 @@
   "core.status.loading": "をロードしています",
   "core.webview.embed_blocked": "現在の H5 ページは、ターゲット サイトによって埋め込みが制限されている可能性があります",
   "core.webview.invalid_url": "有効なリンク アドレスがありません",
-  "core.webview.open_failed": "リンクを開けません"
+  "core.webview.open_failed": "リンクを開けません",
+  "common.value.top_level": "トップレベル",
+  "common.resource.default": "{resource}",
+  "common.action.delete_resource": "{resource}を削除",
+  "common.action.set_field_status": "{field}を設定"
 }

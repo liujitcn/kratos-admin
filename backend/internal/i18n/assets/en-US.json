@@ -659,19 +659,472 @@
   "base.login.verify_captcha.captcha_id.required": {
     "other": "Verification code cannot be empty"
   },
-  "base.login.captcha.invalid": { "other": "Verification code is incorrect" },
-  "base.login.credentials.invalid": { "other": "Incorrect username or password" },
-  "base.login.tenant.disabled": { "other": "Tenant is disabled" },
-  "base.login.account.disabled": { "other": "Account is disabled" },
-  "base.login.role.disabled": { "other": "Role is disabled" },
-  "base.login.department.disabled": { "other": "Department is disabled" },
-  "base.login.login.failed": { "other": "Login failed" },
-  "base.login.logout.failed": { "other": "Logout failed" },
-  "base.login.refresh.failed": { "other": "Failed to refresh the authentication token" },
-  "base.login.captcha.verify_failed": { "other": "Verification code validation failed" },
-  "base.ai.message.not_found": { "other": "Message not found" },
-  "base.ai.runtime.uninitialized": { "other": "The AI assistant runtime is not initialized" },
-  "base.oauth.login_method.unsupported": { "other": "The login method is not supported" },
-  "base.oauth.state.invalid": { "other": "The third-party login state has expired" },
-  "base.file.upload.failed": { "other": "File upload failed" }
+  "base.login.captcha.invalid": {
+    "other": "Verification code is incorrect"
+  },
+  "base.login.credentials.invalid": {
+    "other": "Incorrect username or password"
+  },
+  "base.login.tenant.disabled": {
+    "other": "Tenant is disabled"
+  },
+  "base.login.account.disabled": {
+    "other": "Account is disabled"
+  },
+  "base.login.role.disabled": {
+    "other": "Role is disabled"
+  },
+  "base.login.department.disabled": {
+    "other": "Department is disabled"
+  },
+  "base.login.login.failed": {
+    "other": "Login failed"
+  },
+  "base.login.logout.failed": {
+    "other": "Logout failed"
+  },
+  "base.login.refresh.failed": {
+    "other": "Failed to refresh the authentication token"
+  },
+  "base.login.captcha.verify_failed": {
+    "other": "Verification code validation failed"
+  },
+  "base.ai.message.not_found": {
+    "other": "Message not found"
+  },
+  "base.ai.runtime.uninitialized": {
+    "other": "The AI assistant runtime is not initialized"
+  },
+  "base.oauth.login_method.unsupported": {
+    "other": "The login method is not supported"
+  },
+  "base.oauth.state.invalid": {
+    "other": "The third-party login state has expired"
+  },
+  "base.file.upload.failed": {
+    "other": "File upload failed"
+  },
+  "openapi.admin.service.ai_message": {
+    "other": "Base AI assistant message service"
+  },
+  "openapi.admin.service.ai_session": {
+    "other": "Base AI assistant session service"
+  },
+  "openapi.admin.service.ai_tool": {
+    "other": "Base AI assistant tool service"
+  },
+  "openapi.admin.service.auth_admin": {
+    "other": "Admin user login and authentication service"
+  },
+  "openapi.admin.service.auth_app": {
+    "other": "App user authentication service"
+  },
+  "openapi.admin.service.base_api": {
+    "other": "Admin API service"
+  },
+  "openapi.admin.service.base_area_admin": {
+    "other": "Admin administrative area service"
+  },
+  "openapi.admin.service.base_area_app": {
+    "other": "App administrative area service"
+  },
+  "openapi.admin.service.base_config_admin": {
+    "other": "Admin system configuration service"
+  },
+  "openapi.admin.service.base_dept_admin": {
+    "other": "Admin department service"
+  },
+  "openapi.admin.service.base_dict_admin": {
+    "other": "Admin dictionary service"
+  },
+  "openapi.admin.service.base_dict_app": {
+    "other": "App dictionary service"
+  },
+  "openapi.admin.service.base_i18n": {
+    "other": "Localization translation service."
+  },
+  "openapi.admin.service.base_job": {
+    "other": "Admin scheduled job service"
+  },
+  "openapi.admin.service.base_language": {
+    "other": "Admin language management service"
+  },
+  "openapi.admin.service.base_log": {
+    "other": "Admin log service"
+  },
+  "openapi.admin.service.base_menu_admin": {
+    "other": "Admin menu management service"
+  },
+  "openapi.admin.service.base_menu_app": {
+    "other": "App menu service"
+  },
+  "openapi.admin.service.base_migration": {
+    "other": "Database migration service"
+  },
+  "openapi.admin.service.base_post": {
+    "other": "Admin position management service"
+  },
+  "openapi.admin.service.base_role": {
+    "other": "Admin role management service"
+  },
+  "openapi.admin.service.base_tenant": {
+    "other": "Admin tenant management service"
+  },
+  "openapi.admin.service.base_user": {
+    "other": "Admin user management service"
+  },
+  "openapi.admin.service.code_gen_column": {
+    "other": "Admin code-generation field service"
+  },
+  "openapi.admin.service.code_gen_proto": {
+    "other": "Admin code-generation Proto API configuration service"
+  },
+  "openapi.admin.service.code_gen_service": {
+    "other": "Admin code-generation service"
+  },
+  "openapi.admin.service.code_gen_table": {
+    "other": "Admin code-generation table configuration service"
+  },
+  "openapi.admin.service.config_base": {
+    "other": "Base system configuration service"
+  },
+  "openapi.admin.service.file_base": {
+    "other": "Base file service"
+  },
+  "openapi.admin.service.language_base": {
+    "other": "Public language service."
+  },
+  "openapi.admin.service.login_base": {
+    "other": "Base login service"
+  },
+  "openapi.admin.service.mcp_base": {
+    "other": "Base MCP service"
+  },
+  "openapi.admin.service.oauth_base": {
+    "other": "Base third-party login service"
+  },
+  "openapi.admin.service.ops_monitoring": {
+    "other": "Operations monitoring service."
+  },
+  "system.admin.base.api.technical.service": {
+    "other": "{{.Name}} service"
+  },
+  "system.admin.base.api.technical.response": {
+    "other": "HTTP {{.Status}} response"
+  },
+  "system.admin.base.api.technical.operation_prompt": {
+    "other": "{{.Description}}, RPC: {{.Operation}}, HTTP: {{.Method}} {{.Path}}"
+  },
+  "system.admin.ops_monitoring.normal": {
+    "other": "Normal"
+  },
+  "system.admin.ops_monitoring.error": {
+    "other": "Error"
+  },
+  "system.admin.ops_monitoring.unconfigured": {
+    "other": "Not configured"
+  },
+  "system.admin.ops_monitoring.attention": {
+    "other": "Attention"
+  },
+  "system.admin.ops_monitoring.unresolved": {
+    "other": "Unresolved"
+  },
+  "system.admin.ops_monitoring.monitor_healthy": {
+    "other": "Monitoring service is healthy"
+  },
+  "system.admin.ops_monitoring.connection_healthy": {
+    "other": "Connection healthy"
+  },
+  "system.admin.ops_monitoring.redis_unconfigured": {
+    "other": "Redis is not configured"
+  },
+  "system.admin.ops_monitoring.pool": {
+    "other": "Connection pool"
+  },
+  "system.admin.ops_monitoring.unavailable": {
+    "other": "Unavailable"
+  },
+  "system.admin.ops_monitoring.active_connections": {
+    "other": "Active connections"
+  },
+  "system.admin.ops_monitoring.idle_connections": {
+    "other": "Idle connections"
+  },
+  "system.admin.ops_monitoring.wait_count": {
+    "other": "Wait count"
+  },
+  "system.admin.ops_monitoring.database": {
+    "other": "Database"
+  },
+  "system.admin.ops_monitoring.address_count": {
+    "other": "Address count"
+  },
+  "system.admin.ops_monitoring.connection": {
+    "other": "Connection"
+  },
+  "system.admin.ops_monitoring.heap_memory": {
+    "other": "Heap memory"
+  },
+  "system.admin.ops_monitoring.memory": {
+    "other": "Memory"
+  },
+  "system.admin.ops_monitoring.disk": {
+    "other": "Disk"
+  },
+  "system.admin.ops_monitoring.request_failed": {
+    "other": "Request failed"
+  },
+  "system.admin.ops_monitoring.unknown_endpoint": {
+    "other": "Unknown endpoint"
+  },
+  "system.admin.ops_monitoring.duration": {
+    "other": "Duration"
+  },
+  "system.admin.ops_monitoring.undeclared": {
+    "other": "Undeclared"
+  },
+  "system.admin.ops_monitoring.current_instance": {
+    "other": "Current instance"
+  },
+  "system.admin.ops_monitoring.unnamed_service": {
+    "other": "Unnamed service"
+  },
+  "openapi.admin.service.project_document": {
+    "other": "Project documentation service"
+  },
+  "openapi.admin.service.runtime_log": {
+    "other": "Runtime log service."
+  },
+  "openapi.admin.service.sse_base": {
+    "other": "Base SSE service"
+  },
+  "common.resource.default": {
+    "other": "{resource}"
+  },
+  "common.action.create_resource": {
+    "other": "Create {resource}"
+  },
+  "common.action.edit_resource": {
+    "other": "Edit {resource}"
+  },
+  "common.action.delete_resource": {
+    "other": "Delete {resource}"
+  },
+  "common.action.set_field_status": {
+    "other": "Set {field}"
+  },
+  "common.validation.required_input": {
+    "other": "Enter {field}"
+  },
+  "common.validation.required_select": {
+    "other": "Select {field}"
+  },
+  "common.validation.max_length": {
+    "other": "{field} must not exceed {max} characters"
+  },
+  "common.message.create_success": {
+    "other": "{resource} created"
+  },
+  "common.message.update_success": {
+    "other": "{resource} updated"
+  },
+  "common.message.delete_success": {
+    "other": "{resource} deleted"
+  },
+  "common.dialog.cancel_delete": {
+    "other": "{resource} deletion cancelled"
+  },
+  "common.message.select_delete_item": {
+    "other": "Select items to delete"
+  },
+  "common.message.status_success": {
+    "other": "{action} completed"
+  },
+  "common.dialog.delete_single": {
+    "other": "Delete this {resource}?"
+  },
+  "common.dialog.delete_selected": {
+    "other": "Delete the selected {resource}?"
+  },
+  "common.dialog.status_change": {
+    "other": "{action} this {resource}?\n{field}: {value}"
+  },
+  "common.status.enabled": {
+    "other": "Enabled"
+  },
+  "common.status.disabled": {
+    "other": "Disabled"
+  },
+  "common.value.top_level": {
+    "other": "Top level"
+  },
+  "common.value.yes": {
+    "other": "Yes"
+  },
+  "common.value.no": {
+    "other": "No"
+  },
+  "common.value.male": {
+    "other": "Male"
+  },
+  "common.value.female": {
+    "other": "Female"
+  },
+  "system.code.gen.message.common.exists": {
+    "other": "Exists"
+  },
+  "system.code.gen.message.proto.file_missing": {
+    "other": "Proto file does not exist"
+  },
+  "system.code.gen.message.proto.missing_select_generate": {
+    "other": "Missing; select to generate"
+  },
+  "system.code.gen.message.missing.table_config": {
+    "other": "Table configuration"
+  },
+  "system.code.gen.message.missing.table_comment": {
+    "other": "Table description ({locale})"
+  },
+  "system.code.gen.message.missing.left_tree_comment": {
+    "other": "Left-tree description ({locale})"
+  },
+  "system.code.gen.message.missing.field_comment": {
+    "other": "Field {field} ({locale})"
+  },
+  "system.code.gen.message.preview.backend_unchanged": {
+    "other": "The target file exists and its generated methods match the current configuration"
+  },
+  "system.code.gen.message.preview.backend_update": {
+    "other": "The target file exists; generated methods will be replaced and extension methods preserved"
+  },
+  "system.code.gen.message.preview.frontend_page_unmergeable": {
+    "other": "The existing frontend page cannot be parsed safely; incremental merge was skipped"
+  },
+  "system.code.gen.message.preview.frontend_page_unchanged": {
+    "other": "The generated page already matches the current configuration and extensions"
+  },
+  "system.code.gen.message.preview.frontend_page_update": {
+    "other": "The generated page will be updated in feature order while preserving existing extensions"
+  },
+  "system.code.gen.message.preview.locale_unchanged": {
+    "other": "The generated locale file already matches the current configuration"
+  },
+  "system.code.gen.message.preview.locale_update": {
+    "other": "Locale keys owned by the current generated object will be updated while preserving other messages"
+  },
+  "system.code.gen.message.preview.registration_missing_file": {
+    "other": "The target file does not exist; service registration cannot be appended"
+  },
+  "system.code.gen.message.preview.registration_unchanged": {
+    "other": "The target file exists and no service registration needs to be appended"
+  },
+  "system.code.gen.message.preview.registration_update": {
+    "other": "The target file exists; missing service registrations will be appended"
+  },
+  "system.code.gen.message.preview.proto_replace": {
+    "other": "Generated APIs in the Proto file will be replaced while preserving extension definitions"
+  },
+  "system.code.gen.message.preview.proto_normalize": {
+    "other": "The Proto file structure will be normalized into fixed method slots"
+  },
+  "system.code.gen.message.preview.proto_no_missing_selected": {
+    "other": "The Proto file exists and no missing APIs were selected"
+  },
+  "system.code.gen.message.preview.proto_service_missing": {
+    "other": "The Proto file exists but the target service was not found; append was skipped"
+  },
+  "system.code.gen.message.preview.proto_append": {
+    "other": "The Proto file exists; missing APIs will be appended"
+  },
+  "system.code.gen.message.preview.file_create": {
+    "other": "Will create"
+  },
+  "system.code.gen.message.preview.file_exists_skip": {
+    "other": "Exists; will not overwrite"
+  },
+  "system.code.gen.message.preview.batch_merged": {
+    "other": "Already merged into the same file in this batch; duplicate write is unnecessary"
+  },
+  "system.code.gen.message.preview.page_requirements_missing": {
+    "other": "Required query or CRUD APIs are missing; page generation was skipped"
+  },
+  "system.code.gen.message.preview.menu_sql_create": {
+    "other": "Will create {path}"
+  },
+  "system.code.gen.message.preview.menu_sql_unchanged": {
+    "other": "Menu and button permission SQL in {path} is already up to date"
+  },
+  "system.code.gen.message.preview.menu_sql_update": {
+    "other": "Menu and button permission SQL in {path} will be updated"
+  },
+  "system.code.gen.message.progress.pending_execute": {
+    "other": "Waiting to run"
+  },
+  "system.code.gen.message.progress.running_code_generation": {
+    "other": "Generating code"
+  },
+  "system.code.gen.message.progress.running_table": {
+    "other": "Generating"
+  },
+  "system.code.gen.message.progress.generation_failed_skipped": {
+    "other": "Generation failed; remaining steps were skipped"
+  },
+  "system.code.gen.message.progress.pending_generate": {
+    "other": "Waiting to generate"
+  },
+  "system.code.gen.message.progress.label_generate_file": {
+    "other": "Generate file"
+  },
+  "system.code.gen.message.progress.label_sync_menu": {
+    "other": "Sync menu permissions"
+  },
+  "system.code.gen.message.progress.pending_sync": {
+    "other": "Waiting to sync"
+  },
+  "system.code.gen.message.progress.running_sync": {
+    "other": "Syncing"
+  },
+  "system.code.gen.message.progress.sync_complete": {
+    "other": "Sync complete"
+  },
+  "system.code.gen.message.progress.merging_write": {
+    "other": "Merging and writing"
+  },
+  "system.code.gen.message.progress.merged_write": {
+    "other": "Merged and written"
+  },
+  "system.code.gen.message.progress.generation_state_update_failed": {
+    "other": "Failed to update generation status: {error}"
+  },
+  "system.code.gen.message.progress.generation_complete": {
+    "other": "Generation complete"
+  },
+  "system.code.gen.message.progress.batch_complete_partial": {
+    "other": "Generation complete: {success} succeeded, {failed} failed"
+  },
+  "system.code.gen.message.progress.batch_complete": {
+    "other": "Generation complete: {count} total"
+  },
+  "system.code.gen.message.progress.batch_failed": {
+    "other": "Batch generation failed: {error}"
+  },
+  "system.code.gen.message.progress.running_execute": {
+    "other": "Running"
+  },
+  "system.code.gen.message.progress.execute_complete": {
+    "other": "Execution complete"
+  },
+  "system.code.gen.message.progress.model_generation_failed": {
+    "other": "Model generation failed"
+  },
+  "system.code.gen.message.progress.previous_command_failed": {
+    "other": "A previous command failed"
+  },
+  "system.code.gen.message.progress.command_failed": {
+    "other": "Code generation failed (make {target}): {detail}"
+  },
+  "system.code.gen.password_strength": {
+    "other": "Password strength"
+  }
 }

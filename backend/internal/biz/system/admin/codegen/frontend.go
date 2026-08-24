@@ -344,7 +344,7 @@ const dialog = reactive({
   visible: false,
   editing: false
 });
-const dialogTitle = computed(() => t(dialog.editing ? localeKeyPrefix + ".title.edit" : localeKeyPrefix + ".title.create"));
+const dialogTitle = computed(() => t(dialog.editing ? "common.action.edit_resource" : "common.action.create_resource", { resource: t(localeKeyPrefix + ".resource") }));
 
 const formData = reactive<%s>({
 %s
@@ -464,7 +464,7 @@ __CODEGEN_PASSWORD_UPDATE__
       ? def%sService.Update%s({ id: payload.id, %s: payload })
       : def%sService.Create%s({ %s: payload });
     request.then(() => {
-      ElMessage.success(t(payload.id ? localeKeyPrefix + ".message.update_success" : localeKeyPrefix + ".message.create_success"));
+      ElMessage.success(t(payload.id ? "common.message.update_success" : "common.message.create_success", { resource: t(localeKeyPrefix + ".resource") }));
       handleCloseDialog();
       refreshTable();
     });
@@ -484,11 +484,11 @@ function handleDelete(selected?: number | string | Array<number | string> | %s |
     rowList.length ? rowList.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");
   if (!ids) {
-    ElMessage.warning(t(localeKeyPrefix + ".message.select_delete"));
+    ElMessage.warning(t("common.message.select_delete_item"));
     return;
   }
 
-  const confirmMessage = t(rowList.length === 1 ? localeKeyPrefix + ".dialog.delete_single" : localeKeyPrefix + ".dialog.delete_batch");
+  const confirmMessage = t(rowList.length === 1 ? "common.dialog.delete_single" : "common.dialog.delete_selected", { resource: t(localeKeyPrefix + ".resource") });
   ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
     confirmButtonText: t("common.action.confirm"),
     cancelButtonText: t("common.action.cancel"),
@@ -496,12 +496,12 @@ function handleDelete(selected?: number | string | Array<number | string> | %s |
   }).then(
     () => {
       def%sService.Delete%s({ ids }).then(() => {
-        ElMessage.success(t(localeKeyPrefix + ".message.delete_success"));
+        ElMessage.success(t("common.message.delete_success", { resource: t(localeKeyPrefix + ".resource") }));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info(t(localeKeyPrefix + ".message.delete_canceled"));
+      ElMessage.info(t("common.dialog.cancel_delete", { resource: t(localeKeyPrefix + ".resource") }));
     }
   );
 }
@@ -1134,9 +1134,9 @@ func (c *renderer) renderFrontendRules(table *Table, columns []*CodeGenColumn) s
 			trigger = "change"
 		}
 		fieldKey := frontendFieldLocaleKey(table, column)
-		rules := fmt.Sprintf("{ required: true, message: t(localeKeyPrefix + \".validation.required\", { field: t(%q) }), trigger: %q }", fieldKey, trigger)
+		rules := fmt.Sprintf("{ required: true, message: t(\"common.validation.required_input\", { field: t(%q) }), trigger: %q }", fieldKey, trigger)
 		if isString && column.DbLength > 0 {
-			maxRule := fmt.Sprintf("{ max: %d, message: t(localeKeyPrefix + \".validation.max_length\", { field: t(%q), max: %d }), trigger: %q }", column.DbLength, fieldKey, column.DbLength, trigger)
+			maxRule := fmt.Sprintf("{ max: %d, message: t(\"common.validation.max_length\", { field: t(%q), max: %d }), trigger: %q }", column.DbLength, fieldKey, column.DbLength, trigger)
 			if required {
 				rules += ", " + maxRule
 			} else {
@@ -1196,7 +1196,7 @@ func (c *renderer) renderFrontendFormField(table *Table, column *CodeGenColumn) 
 	label := fmt.Sprintf("t(%q)", frontendFieldLocaleKey(table, column))
 	disabled := frontendFormFieldDisabledPrefix(column)
 	if component == "password" {
-		return fmt.Sprintf(`  { prop: "%s", label: %s, component: "password", props: { placeholder: t(localeKeyPrefix + ".placeholder.input", { field: %s }), showPassword: true }, visible: model => !model.id }`, column.Name, label, label)
+		return fmt.Sprintf(`  { prop: "%s", label: %s, component: "password", props: { placeholder: t("common.validation.required_input", { field: %s }), showPassword: true }, visible: model => !model.id }`, column.Name, label, label)
 	}
 	if component == "switch" {
 		// 开关提交值由表单范围的独立配置决定。
@@ -1204,9 +1204,9 @@ func (c *renderer) renderFrontendFormField(table *Table, column *CodeGenColumn) 
 	}
 	option := column.FormOption
 	if option.Kind != "" && isSelectComponent(component) {
-		props := fmt.Sprintf(`props: { %splaceholder: t(localeKeyPrefix + ".placeholder.select", { field: %s }), filterable: true, style: { width: "100%%" } }`, disabled, label)
+		props := fmt.Sprintf(`props: { %splaceholder: t("common.validation.required_select", { field: %s }), filterable: true, style: { width: "100%%" } }`, disabled, label)
 		if option.Kind == APIKindTree && option.Lazy {
-			props = fmt.Sprintf(`props: { %slazy: true, load: %s, placeholder: t(localeKeyPrefix + ".placeholder.select", { field: %s }), filterable: true, style: { width: "100%%" } }`, disabled, frontendOptionLoaderVar(column, "form"), label)
+			props = fmt.Sprintf(`props: { %slazy: true, load: %s, placeholder: t("common.validation.required_select", { field: %s }), filterable: true, style: { width: "100%%" } }`, disabled, frontendOptionLoaderVar(column, "form"), label)
 		}
 		// 多选树形选择使用复选框，并允许选择任意层级节点。
 		if isFormTreeMultiple(column) {
@@ -1214,7 +1214,7 @@ func (c *renderer) renderFrontendFormField(table *Table, column *CodeGenColumn) 
 			if option.Kind == APIKindTree && option.Lazy {
 				lazyProps = fmt.Sprintf("lazy: true, load: %s, ", frontendOptionLoaderVar(column, "form"))
 			}
-			props = fmt.Sprintf(`props: { %s%smultiple: true, showCheckbox: true, checkStrictly: true, nodeKey: "value", placeholder: t(localeKeyPrefix + ".placeholder.select", { field: %s }), filterable: true, style: { width: "100%%" } }`, disabled, lazyProps, label)
+			props = fmt.Sprintf(`props: { %s%smultiple: true, showCheckbox: true, checkStrictly: true, nodeKey: "value", placeholder: t("common.validation.required_select", { field: %s }), filterable: true, style: { width: "100%%" } }`, disabled, lazyProps, label)
 		}
 		switch option.SourceType {
 		case OptionSourceDict:
@@ -1239,11 +1239,11 @@ func (c *renderer) renderFrontendFormField(table *Table, column *CodeGenColumn) 
 	if component == "date-picker" {
 		dbType := strings.ToLower(DefaultString(column.ColumnType, column.DbType))
 		if strings.Contains(dbType, "datetime") || strings.Contains(dbType, "timestamp") {
-			return fmt.Sprintf(`  { prop: "%s", label: %s, component: "date-picker", props: { %stype: "datetime", valueFormat: "YYYY-MM-DD HH:mm:ss", placeholder: t(localeKeyPrefix + ".placeholder.select", { field: %s }), style: { width: "100%%" } } }`, column.Name, label, disabled, label)
+			return fmt.Sprintf(`  { prop: "%s", label: %s, component: "date-picker", props: { %stype: "datetime", valueFormat: "YYYY-MM-DD HH:mm:ss", placeholder: t("common.validation.required_select", { field: %s }), style: { width: "100%%" } } }`, column.Name, label, disabled, label)
 		}
-		return fmt.Sprintf(`  { prop: "%s", label: %s, component: "date-picker", props: { %stype: "date", valueFormat: "YYYY-MM-DD", placeholder: t(localeKeyPrefix + ".placeholder.select", { field: %s }), style: { width: "100%%" } } }`, column.Name, label, disabled, label)
+		return fmt.Sprintf(`  { prop: "%s", label: %s, component: "date-picker", props: { %stype: "date", valueFormat: "YYYY-MM-DD", placeholder: t("common.validation.required_select", { field: %s }), style: { width: "100%%" } } }`, column.Name, label, disabled, label)
 	}
-	return fmt.Sprintf(`  { prop: "%s", label: %s, component: "%s", props: { %splaceholder: t(localeKeyPrefix + ".placeholder.input", { field: %s }) } }`, column.Name, label, component, disabled, label)
+	return fmt.Sprintf(`  { prop: "%s", label: %s, component: "%s", props: { %splaceholder: t("common.validation.required_input", { field: %s }) } }`, column.Name, label, component, disabled, label)
 }
 
 // renderFrontendOptionState 渲染静态选项、数据表选项状态与加载方法。
@@ -1353,11 +1353,11 @@ async function %s(node: { level: number; value?: string | number; data?: { value
 			builder.WriteString(fmt.Sprintf("  const %sResponse = await %s.%s(%s as Parameters<typeof %s.%s>[0]);\n", variable, serviceName, method.MethodName, request, serviceName, method.MethodName))
 			if column.Name == DefaultString(method.ParentColumn, "parent_id") && (column.FormComponent == "tree-select" || column.ListComponent == "tree-select" || column.QueryComponent == "tree-select") {
 				if scope.name == "form" && scope.option.Kind == APIKindTree && scope.option.Lazy {
-					builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: t(localeKeyPrefix + \".value.top_level\"), value: 0 }, ...normalizeLazyTreeOptions((%sResponse.list ?? []) as GeneratedTreeOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
+					builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: t(\"common.value.top_level\"), value: 0 }, ...normalizeLazyTreeOptions((%sResponse.list ?? []) as GeneratedTreeOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
 				} else if scope.option.Kind == APIKindTree {
-					builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: t(localeKeyPrefix + \".value.top_level\"), value: 0 }, ...transformTreeOptionPaths((%sResponse.list ?? []) as ProFormOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
+					builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: t(\"common.value.top_level\"), value: 0 }, ...transformTreeOptionPaths((%sResponse.list ?? []) as ProFormOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
 				} else {
-					builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: t(localeKeyPrefix + \".value.top_level\"), value: 0 }, ...((%sResponse.list ?? []) as ProFormOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
+					builder.WriteString(fmt.Sprintf("  %sOptions.value = [{ label: t(\"common.value.top_level\"), value: 0 }, ...((%sResponse.list ?? []) as ProFormOption[]).filter(option => Number(option.value) !== 0)];\n", variable, variable))
 				}
 				continue
 			}
@@ -1459,13 +1459,13 @@ async function %s(row: %s) {
   const nextStatus = currentStatus === %s ? %s : %s;
   const text = t(nextStatus === %s ? "common.status.enabled" : "common.status.disabled");
   try {
-    await ElMessageBox.confirm(t(localeKeyPrefix + ".dialog.confirm_status", { action: text }), t("common.title.notice"), {
+    await ElMessageBox.confirm(t("common.dialog.status_change", { action: text, resource: t(localeKeyPrefix + ".resource") }), t("common.title.notice"), {
       confirmButtonText: t("common.action.confirm"),
       cancelButtonText: t("common.action.cancel"),
       type: "warning"
     });
     await def%sService.%s({ id: row.id, status: nextStatus as %sRequest["status"] });
-    ElMessage.success(t(localeKeyPrefix + ".message.status_success", { action: text }));
+    ElMessage.success(t("common.message.status_success", { action: text }));
     refreshTable();
     return true;
   } catch {

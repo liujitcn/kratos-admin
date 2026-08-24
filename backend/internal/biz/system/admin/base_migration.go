@@ -18,17 +18,23 @@ import (
 type BaseMigrationCase struct {
 	*biz.BaseCase
 	*data.BaseMigrationRepository
-	listMapper *mapper.CopierMapper[adminv1.BaseMigrationListItem, models.BaseMigration]
-	mapper     *mapper.CopierMapper[adminv1.BaseMigration, models.BaseMigration]
+	listMapper   *mapper.CopierMapper[adminv1.BaseMigrationListItem, models.BaseMigration]
+	mapper       *mapper.CopierMapper[adminv1.BaseMigration, models.BaseMigration]
+	baseI18nCase *BaseI18nCase
 }
 
 // NewBaseMigrationCase 创建数据库升级历史查询业务实例。
-func NewBaseMigrationCase(baseCase *biz.BaseCase, baseMigrationRepository *data.BaseMigrationRepository) *BaseMigrationCase {
+func NewBaseMigrationCase(
+	baseCase *biz.BaseCase,
+	baseMigrationRepository *data.BaseMigrationRepository,
+	baseI18nCase *BaseI18nCase,
+) *BaseMigrationCase {
 	return &BaseMigrationCase{
 		BaseCase:                baseCase,
 		BaseMigrationRepository: baseMigrationRepository,
 		listMapper:              mapper.NewCopierMapper[adminv1.BaseMigrationListItem, models.BaseMigration](),
 		mapper:                  mapper.NewCopierMapper[adminv1.BaseMigration, models.BaseMigration](),
+		baseI18nCase:            baseI18nCase,
 	}
 }
 
@@ -75,7 +81,21 @@ func (c *BaseMigrationCase) GetBaseMigration(ctx context.Context, id int64) (*ad
 	if err != nil {
 		return nil, err
 	}
-	return c.mapper.ToDTO(item), nil
+	res := c.mapper.ToDTO(item)
+	var descriptions map[int64]string
+	descriptions, err = c.baseI18nCase.GetBaseI18nNameMapByLocale(
+		ctx,
+		adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION,
+		biz.LocaleFromContext(ctx),
+		[]int64{id},
+	)
+	if err != nil {
+		return nil, err
+	}
+	if description := descriptions[id]; description != "" {
+		res.Description = description
+	}
+	return res, nil
 }
 
 // LatestVersion 查询指定模块和数据源最近一次已记录的版本。

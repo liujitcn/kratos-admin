@@ -70,7 +70,6 @@ npm 打包和发布清单。
 cd frontend/admin
 pnpm install
 pnpm dev
-pnpm check:exports
 pnpm test
 pnpm type:check
 pnpm lint:oxlint
@@ -93,13 +92,13 @@ make -C .. package-admin
 
 管理端支持的语言由 core 与 System JSON 语言包自动发现，模块注册时校验语言键和占位符集合；登录页和顶部工具栏共用 locale store，切换语言不刷新页面，并保留当前路由、查询参数和未提交表单。
 
-语言偏好保存为 `kratos-admin:locale`。Axios、刷新令牌、原生 fetch、SSE 和 Swagger 请求统一发送 `Accept-Language`；动态菜单和字典由后端按 locale 返回，缺少当前语言译文时回退主语言。新增语言需要同步后端错误目录、三个 workspace 的六个前端语言包目录和代码生成 `catalog.json`，再执行仓库根目录的 `make i18n-sync`；注册文件和 Day.js 映射由脚本生成。具体流程见 [国际化语言扩展指南](../../docs/国际化语言扩展指南.md)。
+语言偏好保存为 `kratos-admin:locale`。Axios、刷新令牌、原生 fetch、SSE 和 Swagger 请求统一发送 `Accept-Language`；动态菜单和字典由后端按 locale 返回，缺少当前语言译文时回退主语言。新增语言需要同步后端国际化目录、三个 workspace 的六个前端语言包目录，再执行仓库根目录的 `make i18n-sync`；注册文件和 Day.js 映射由脚本生成。具体流程见 [国际化语言扩展指南](../../docs/国际化语言扩展指南.md)。
 
 API 按 Proto 一级领域组织为 `api/base`、`api/system` 等目录；RPC 保留 `rpc/base/v1`、`rpc/system/admin/v1` 等完整 Proto 层级。RPC 类型按真实消费者归属放置：core 保留登录、菜单、用户信息和启动期能力所需服务类型；System 自包含系统管理、个人中心、AI 及其依赖类型。修改 Proto 后在 `backend` 执行 `make ts-admin`，命令会按两份 Buf 配置分别清理并生成 core 与 System 的 RPC；需要一次生成三个前端的 RPC 时执行 `make ts`。服务端契约尚未完成细粒度拆分时，同一生成文件可能暂时包含当前包未调用的方法，不手写生成文件。
 
 core 内部源码使用 `@/*`；业务模块使用 `@liujitcn/kratos-admin-core/*` 和自身包名。模块间页面跳转使用 Vue Router，代码复用禁止跨目录相对引用。
 
-根 TypeScript 路径和宿主 Vite 源码别名只为各 npm 包映射 `package.json#exports` 声明的入口。core 实现内部使用的 `@/*` 因源码传递编译而保留，但 `pnpm check:exports` 会扫描应用、core、业务模块和内部构建配置中的 import，拒绝未公开子路径、非 core 的 `@/*` 引用以及业务模块跨包相对引用；仓库级 pre-commit 会先处理暂存文件，再执行 core 依赖方向和包导出边界检查。
+根 TypeScript 路径和宿主 Vite 源码别名只为各 npm 包映射 `package.json#exports` 声明的入口；core 实现内部使用 `@/*`，业务模块使用包名引用公开入口。
 
 ## 模块 interface
 

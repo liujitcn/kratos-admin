@@ -3,9 +3,7 @@ package biz
 import (
 	"context"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
-	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -20,18 +18,16 @@ import (
 type BaseMenuCase struct {
 	*biz.BaseCase
 	*data.BaseMenuRepository
-	i18nCase *adminbiz.BaseI18nCase
-	mapper   *mapper.CopierMapper[appv1.BaseMenu, models.BaseMenu]
+	mapper *mapper.CopierMapper[appv1.BaseMenu, models.BaseMenu]
 }
 
 // NewBaseMenuCase 创建移动端菜单业务处理对象。
-func NewBaseMenuCase(baseCase *biz.BaseCase, baseMenuRepo *data.BaseMenuRepository, i18nCase *adminbiz.BaseI18nCase) *BaseMenuCase {
+func NewBaseMenuCase(baseCase *biz.BaseCase, baseMenuRepo *data.BaseMenuRepository) *BaseMenuCase {
 	menuMapper := mapper.NewCopierMapper[appv1.BaseMenu, models.BaseMenu]()
 	menuMapper.AppendConverters(mapper.NewJSONTypeConverter[*appv1.BaseMenuMeta]().NewConverterPair())
 	return &BaseMenuCase{
 		BaseCase:           baseCase,
 		BaseMenuRepository: baseMenuRepo,
-		i18nCase:           i18nCase,
 		mapper:             menuMapper,
 	}
 }
@@ -40,7 +36,6 @@ func NewBaseMenuCase(baseCase *biz.BaseCase, baseMenuRepo *data.BaseMenuReposito
 func (c *BaseMenuCase) ListBaseMenu(ctx context.Context) ([]*appv1.BaseMenu, error) {
 	query := c.Query(ctx).BaseMenu
 	items := make([]*appv1.BaseMenu, 0)
-	menuIDs := make([]int64, 0)
 	parentIDs := []int64{_const.BASE_MENU_APP_ROOT_ID}
 	visited := map[int64]struct{}{_const.BASE_MENU_APP_ROOT_ID: {}}
 	var err error
@@ -63,18 +58,7 @@ func (c *BaseMenuCase) ListBaseMenu(ctx context.Context) ([]*appv1.BaseMenu, err
 			}
 			visited[child.ID] = struct{}{}
 			items = append(items, c.mapper.ToDTO(child))
-			menuIDs = append(menuIDs, child.ID)
 			parentIDs = append(parentIDs, child.ID)
-		}
-	}
-	var titles map[int64]string
-	titles, err = c.i18nCase.GetBaseI18nNameMapByLocale(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_MENU, biz.LocaleFromContext(ctx), menuIDs)
-	if err != nil {
-		return nil, err
-	}
-	for _, item := range items {
-		if title := titles[item.GetId()]; title != "" && item.GetMeta() != nil {
-			item.Meta.Title = title
 		}
 	}
 	return items, nil

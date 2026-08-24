@@ -209,7 +209,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	jobJob := job.NewJob(scheduler)
 	sseRegistry := sse.NewRegistry()
 	streamIDResolver := sse.NewStreamResolver(sseRegistry, authenticator, userToken)
-	adminStreams, cleanup6, err := backend.NewStreams(v2, baseCase)
+	adminStreams, cleanup6, err := backend.NewStreams(v2, baseCase, i18nI18n)
 	if err != nil {
 		cleanup5()
 		cleanup4()
@@ -245,7 +245,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	docsDocs := docs.NewDocs(docsRegistry)
 	openapiOpenAPI := openapi.NewOpenAPI(registry)
-	adminModules, cleanup9, err := backend.NewModules(configv1Bootstrap, v2, baseCase, engine, userToken, jobJob, sseSSE, docsDocs, i18nI18n, openapiOpenAPI)
+	adminModules, cleanup9, err := backend.NewModules(migrationMigration, configv1Bootstrap, v2, baseCase, engine, userToken, jobJob, sseSSE, docsDocs, i18nI18n, openapiOpenAPI)
 	if err != nil {
 		cleanup8()
 		cleanup7()

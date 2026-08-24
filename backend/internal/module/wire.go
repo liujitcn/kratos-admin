@@ -68,6 +68,7 @@ func BuildTasks(
 func BuildStreams(
 	databases map[string]*gorm.Client,
 	baseCase *coreBiz.BaseCase,
+	catalog *i18n.I18n,
 ) (coreSSE.Streams, func(), error) {
 	panic(wire.Build(
 		adminData.ProviderSet,

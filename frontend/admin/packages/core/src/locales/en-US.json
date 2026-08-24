@@ -47,6 +47,15 @@
   "core.auth.no_menu_permission": "This account has no menu permissions. Contact an administrator.",
   "core.auth.no_permission": "Access denied",
   "core.clipboard.success": "Copied",
+  "core.markdown.action.copy_code": "Copy code",
+  "core.markdown.message.copy_success": "Copied!",
+  "core.markdown.message.copy_failed": "Copy failed!",
+  "core.loading.text": "Loading",
+  "core.layout.avatar": "User avatar",
+  "core.layout.logo_alt": "System logo",
+  "core.login.background_alt": "Login background",
+  "core.layout.info_content": "View the current user's information",
+  "core.layout.password_content": "Change the current user's password",
   "core.cron.cycle_unit.day": "days",
   "core.cron.cycle_unit.hour": "hours",
   "core.cron.cycle_unit.minute": "minutes",
@@ -276,5 +285,9 @@
   "common.value.yes": "Yes",
   "common.value.no": "No",
   "common.value.unknown": "Unknown",
-  "common.value.none": "None"
+  "common.value.none": "None",
+  "common.value.top_level": "Top level",
+  "common.resource.default": "{resource}",
+  "common.action.delete_resource": "Delete {resource}",
+  "common.action.set_field_status": "Set {field}"
 }

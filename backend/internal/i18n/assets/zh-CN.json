@@ -659,19 +659,472 @@
   "base.login.verify_captcha.captcha_id.required": {
     "other": "验证码不能为空"
   },
-  "base.login.captcha.invalid": { "other": "验证码错误" },
-  "base.login.credentials.invalid": { "other": "用户名或密码错误" },
-  "base.login.tenant.disabled": { "other": "租户已被禁用" },
-  "base.login.account.disabled": { "other": "账号已被禁用" },
-  "base.login.role.disabled": { "other": "角色已被禁用" },
-  "base.login.department.disabled": { "other": "部门已被禁用" },
-  "base.login.login.failed": { "other": "登录失败" },
-  "base.login.logout.failed": { "other": "退出登录失败" },
-  "base.login.refresh.failed": { "other": "刷新认证令牌失败" },
-  "base.login.captcha.verify_failed": { "other": "验证码校验失败" },
-  "base.ai.message.not_found": { "other": "消息不存在" },
-  "base.ai.runtime.uninitialized": { "other": "AI助手运行时未初始化" },
-  "base.oauth.login_method.unsupported": { "other": "登录方式不支持" },
-  "base.oauth.state.invalid": { "other": "三方登录状态已失效" },
-  "base.file.upload.failed": { "other": "文件上传失败" }
+  "base.login.captcha.invalid": {
+    "other": "验证码错误"
+  },
+  "base.login.credentials.invalid": {
+    "other": "用户名或密码错误"
+  },
+  "base.login.tenant.disabled": {
+    "other": "租户已被禁用"
+  },
+  "base.login.account.disabled": {
+    "other": "账号已被禁用"
+  },
+  "base.login.role.disabled": {
+    "other": "角色已被禁用"
+  },
+  "base.login.department.disabled": {
+    "other": "部门已被禁用"
+  },
+  "base.login.login.failed": {
+    "other": "登录失败"
+  },
+  "base.login.logout.failed": {
+    "other": "退出登录失败"
+  },
+  "base.login.refresh.failed": {
+    "other": "刷新认证令牌失败"
+  },
+  "base.login.captcha.verify_failed": {
+    "other": "验证码校验失败"
+  },
+  "base.ai.message.not_found": {
+    "other": "消息不存在"
+  },
+  "base.ai.runtime.uninitialized": {
+    "other": "AI助手运行时未初始化"
+  },
+  "base.oauth.login_method.unsupported": {
+    "other": "登录方式不支持"
+  },
+  "base.oauth.state.invalid": {
+    "other": "三方登录状态已失效"
+  },
+  "base.file.upload.failed": {
+    "other": "文件上传失败"
+  },
+  "openapi.admin.service.ai_message": {
+    "other": "Base AI 助手消息服务"
+  },
+  "openapi.admin.service.ai_session": {
+    "other": "Base AI 助手会话服务"
+  },
+  "openapi.admin.service.ai_tool": {
+    "other": "Base AI 助手工具服务"
+  },
+  "openapi.admin.service.auth_admin": {
+    "other": "Admin用户登录认证服务"
+  },
+  "openapi.admin.service.auth_app": {
+    "other": "App用户认证服务"
+  },
+  "openapi.admin.service.base_api": {
+    "other": "AdminAPI服务"
+  },
+  "openapi.admin.service.base_area_admin": {
+    "other": "Admin行政区域服务"
+  },
+  "openapi.admin.service.base_area_app": {
+    "other": "App行政区域服务"
+  },
+  "openapi.admin.service.base_config_admin": {
+    "other": "Admin系统配置服务"
+  },
+  "openapi.admin.service.base_dept_admin": {
+    "other": "Admin部门服务"
+  },
+  "openapi.admin.service.base_dict_admin": {
+    "other": "Admin字典服务"
+  },
+  "openapi.admin.service.base_dict_app": {
+    "other": "App字典服务"
+  },
+  "openapi.admin.service.base_i18n": {
+    "other": "国际化翻译信息服务。"
+  },
+  "openapi.admin.service.base_job": {
+    "other": "Admin定时任务服务"
+  },
+  "openapi.admin.service.base_language": {
+    "other": "Admin语言管理服务"
+  },
+  "openapi.admin.service.base_log": {
+    "other": "Admin日志服务"
+  },
+  "openapi.admin.service.base_menu_admin": {
+    "other": "Admin菜单管理服务"
+  },
+  "openapi.admin.service.base_menu_app": {
+    "other": "App菜单服务"
+  },
+  "openapi.admin.service.base_migration": {
+    "other": "数据库迁移服务"
+  },
+  "openapi.admin.service.base_post": {
+    "other": "Admin岗位管理服务"
+  },
+  "openapi.admin.service.base_role": {
+    "other": "Admin角色管理服务"
+  },
+  "openapi.admin.service.base_tenant": {
+    "other": "Admin租户管理服务"
+  },
+  "openapi.admin.service.base_user": {
+    "other": "Admin用户管理服务"
+  },
+  "openapi.admin.service.code_gen_column": {
+    "other": "Admin代码生成字段服务"
+  },
+  "openapi.admin.service.code_gen_proto": {
+    "other": "Admin代码生成Proto接口配置服务"
+  },
+  "openapi.admin.service.code_gen_service": {
+    "other": "Admin代码生成服务"
+  },
+  "openapi.admin.service.code_gen_table": {
+    "other": "Admin代码生成表配置服务"
+  },
+  "openapi.admin.service.config_base": {
+    "other": "Base系统配置公共服务"
+  },
+  "openapi.admin.service.file_base": {
+    "other": "Base文件服务"
+  },
+  "openapi.admin.service.language_base": {
+    "other": "语言公共服务。"
+  },
+  "openapi.admin.service.login_base": {
+    "other": "Base登录公共服务"
+  },
+  "openapi.admin.service.mcp_base": {
+    "other": "Base MCP服务"
+  },
+  "openapi.admin.service.oauth_base": {
+    "other": "Base三方登录公共服务"
+  },
+  "openapi.admin.service.ops_monitoring": {
+    "other": "运维监控服务。"
+  },
+  "openapi.admin.service.project_document": {
+    "other": "项目文档服务"
+  },
+  "openapi.admin.service.runtime_log": {
+    "other": "运行日志服务。"
+  },
+  "openapi.admin.service.sse_base": {
+    "other": "Base SSE服务"
+  },
+  "system.admin.base.api.technical.operation_prompt": {
+    "other": "{{.Description}}，RPC：{{.Operation}}，HTTP：{{.Method}} {{.Path}}"
+  },
+  "system.admin.base.api.technical.response": {
+    "other": "HTTP {{.Status}} 响应"
+  },
+  "system.admin.base.api.technical.service": {
+    "other": "{{.Name}} 服务"
+  },
+  "system.admin.ops_monitoring.active_connections": {
+    "other": "活跃连接"
+  },
+  "system.admin.ops_monitoring.address_count": {
+    "other": "地址数"
+  },
+  "system.admin.ops_monitoring.attention": {
+    "other": "关注"
+  },
+  "system.admin.ops_monitoring.connection": {
+    "other": "连接"
+  },
+  "system.admin.ops_monitoring.connection_healthy": {
+    "other": "连接正常"
+  },
+  "system.admin.ops_monitoring.current_instance": {
+    "other": "当前实例"
+  },
+  "system.admin.ops_monitoring.database": {
+    "other": "数据库"
+  },
+  "system.admin.ops_monitoring.disk": {
+    "other": "硬盘"
+  },
+  "system.admin.ops_monitoring.duration": {
+    "other": "耗时"
+  },
+  "system.admin.ops_monitoring.error": {
+    "other": "异常"
+  },
+  "system.admin.ops_monitoring.heap_memory": {
+    "other": "堆内存"
+  },
+  "system.admin.ops_monitoring.idle_connections": {
+    "other": "空闲连接"
+  },
+  "system.admin.ops_monitoring.memory": {
+    "other": "内存"
+  },
+  "system.admin.ops_monitoring.monitor_healthy": {
+    "other": "监控服务响应正常"
+  },
+  "system.admin.ops_monitoring.normal": {
+    "other": "正常"
+  },
+  "system.admin.ops_monitoring.pool": {
+    "other": "连接池"
+  },
+  "system.admin.ops_monitoring.redis_unconfigured": {
+    "other": "未配置 Redis"
+  },
+  "system.admin.ops_monitoring.request_failed": {
+    "other": "接口请求失败"
+  },
+  "system.admin.ops_monitoring.unavailable": {
+    "other": "不可用"
+  },
+  "system.admin.ops_monitoring.unconfigured": {
+    "other": "未配置"
+  },
+  "system.admin.ops_monitoring.undeclared": {
+    "other": "未声明"
+  },
+  "system.admin.ops_monitoring.unknown_endpoint": {
+    "other": "未知接口"
+  },
+  "system.admin.ops_monitoring.unnamed_service": {
+    "other": "未命名服务"
+  },
+  "system.admin.ops_monitoring.unresolved": {
+    "other": "未解决"
+  },
+  "system.admin.ops_monitoring.wait_count": {
+    "other": "等待次数"
+  },
+  "common.resource.default": {
+    "other": "{resource}"
+  },
+  "common.action.create_resource": {
+    "other": "新增{resource}"
+  },
+  "common.action.edit_resource": {
+    "other": "修改{resource}"
+  },
+  "common.action.delete_resource": {
+    "other": "删除{resource}"
+  },
+  "common.action.set_field_status": {
+    "other": "设置{field}"
+  },
+  "common.validation.required_input": {
+    "other": "请输入{field}"
+  },
+  "common.validation.required_select": {
+    "other": "请选择{field}"
+  },
+  "common.validation.max_length": {
+    "other": "{field}不能超过 {max} 个字符"
+  },
+  "common.message.create_success": {
+    "other": "新增{resource}成功"
+  },
+  "common.message.update_success": {
+    "other": "修改{resource}成功"
+  },
+  "common.message.delete_success": {
+    "other": "删除{resource}成功"
+  },
+  "common.dialog.cancel_delete": {
+    "other": "已取消删除{resource}"
+  },
+  "common.message.select_delete_item": {
+    "other": "请勾选删除项"
+  },
+  "common.message.status_success": {
+    "other": "{action}成功"
+  },
+  "common.dialog.delete_single": {
+    "other": "是否确定删除{resource}？"
+  },
+  "common.dialog.delete_selected": {
+    "other": "确认删除已选中的{resource}吗？"
+  },
+  "common.dialog.status_change": {
+    "other": "是否确定{action}{resource}？\n{field}：{value}"
+  },
+  "common.status.enabled": {
+    "other": "启用"
+  },
+  "common.status.disabled": {
+    "other": "禁用"
+  },
+  "common.value.top_level": {
+    "other": "顶级节点"
+  },
+  "common.value.yes": {
+    "other": "是"
+  },
+  "common.value.no": {
+    "other": "否"
+  },
+  "common.value.male": {
+    "other": "男"
+  },
+  "common.value.female": {
+    "other": "女"
+  },
+  "system.code.gen.message.common.exists": {
+    "other": "已存在"
+  },
+  "system.code.gen.message.proto.file_missing": {
+    "other": "Proto文件不存在"
+  },
+  "system.code.gen.message.proto.missing_select_generate": {
+    "other": "缺少，可选择生成"
+  },
+  "system.code.gen.message.missing.table_config": {
+    "other": "表配置"
+  },
+  "system.code.gen.message.missing.table_comment": {
+    "other": "表描述（{locale}）"
+  },
+  "system.code.gen.message.missing.left_tree_comment": {
+    "other": "左树描述（{locale}）"
+  },
+  "system.code.gen.message.missing.field_comment": {
+    "other": "字段 {field}（{locale}）"
+  },
+  "system.code.gen.message.preview.backend_unchanged": {
+    "other": "目标文件已存在，生成方法已与当前配置一致"
+  },
+  "system.code.gen.message.preview.backend_update": {
+    "other": "目标文件已存在，将替换生成方法并保留扩展方法"
+  },
+  "system.code.gen.message.preview.frontend_page_unmergeable": {
+    "other": "已有前端页面无法安全解析，已跳过增量合并"
+  },
+  "system.code.gen.message.preview.frontend_page_unchanged": {
+    "other": "生成页面已与当前配置和扩展功能一致"
+  },
+  "system.code.gen.message.preview.frontend_page_update": {
+    "other": "生成页面将按功能顺序更新并保留已有扩展"
+  },
+  "system.code.gen.message.preview.locale_unchanged": {
+    "other": "生成语言包已与当前配置一致"
+  },
+  "system.code.gen.message.preview.locale_update": {
+    "other": "将更新当前生成对象的语言键并保留其他文案"
+  },
+  "system.code.gen.message.preview.registration_missing_file": {
+    "other": "目标文件不存在，无法追加服务注册"
+  },
+  "system.code.gen.message.preview.registration_unchanged": {
+    "other": "目标文件已存在，未发现需要追加的服务注册"
+  },
+  "system.code.gen.message.preview.registration_update": {
+    "other": "目标文件已存在，将追加缺失服务注册"
+  },
+  "system.code.gen.message.preview.proto_replace": {
+    "other": "Proto文件将替换生成接口并保留扩展定义"
+  },
+  "system.code.gen.message.preview.proto_normalize": {
+    "other": "Proto文件结构将按固定方法槽位整理"
+  },
+  "system.code.gen.message.preview.proto_no_missing_selected": {
+    "other": "Proto文件已存在，未选择缺失接口"
+  },
+  "system.code.gen.message.preview.proto_service_missing": {
+    "other": "Proto文件已存在，未找到目标service，已跳过追加"
+  },
+  "system.code.gen.message.preview.proto_append": {
+    "other": "Proto文件已存在，将追加缺失接口"
+  },
+  "system.code.gen.message.preview.file_create": {
+    "other": "将新增"
+  },
+  "system.code.gen.message.preview.file_exists_skip": {
+    "other": "已存在，不覆盖"
+  },
+  "system.code.gen.message.preview.batch_merged": {
+    "other": "已与本批相同文件合并，无需重复写入"
+  },
+  "system.code.gen.message.preview.page_requirements_missing": {
+    "other": "缺少页面所需的查询或 CRUD 接口，已跳过页面生成"
+  },
+  "system.code.gen.message.preview.menu_sql_create": {
+    "other": "将新增 {path}"
+  },
+  "system.code.gen.message.preview.menu_sql_unchanged": {
+    "other": "{path} 中的菜单和按钮权限 SQL 无需更新"
+  },
+  "system.code.gen.message.preview.menu_sql_update": {
+    "other": "将更新 {path} 中的菜单和按钮权限 SQL"
+  },
+  "system.code.gen.message.progress.pending_execute": {
+    "other": "等待执行"
+  },
+  "system.code.gen.message.progress.running_code_generation": {
+    "other": "正在生成代码"
+  },
+  "system.code.gen.message.progress.running_table": {
+    "other": "正在生成"
+  },
+  "system.code.gen.message.progress.generation_failed_skipped": {
+    "other": "生成失败，未继续执行"
+  },
+  "system.code.gen.message.progress.pending_generate": {
+    "other": "等待生成"
+  },
+  "system.code.gen.message.progress.label_generate_file": {
+    "other": "生成文件"
+  },
+  "system.code.gen.message.progress.label_sync_menu": {
+    "other": "同步菜单权限"
+  },
+  "system.code.gen.message.progress.pending_sync": {
+    "other": "等待同步"
+  },
+  "system.code.gen.message.progress.running_sync": {
+    "other": "正在同步"
+  },
+  "system.code.gen.message.progress.sync_complete": {
+    "other": "同步完成"
+  },
+  "system.code.gen.message.progress.merging_write": {
+    "other": "正在合并写入"
+  },
+  "system.code.gen.message.progress.merged_write": {
+    "other": "已合并写入"
+  },
+  "system.code.gen.message.progress.generation_state_update_failed": {
+    "other": "更新生成状态失败：{error}"
+  },
+  "system.code.gen.message.progress.generation_complete": {
+    "other": "生成完成"
+  },
+  "system.code.gen.message.progress.batch_complete_partial": {
+    "other": "生成完成，成功 {success} 个，失败 {failed} 个"
+  },
+  "system.code.gen.message.progress.batch_complete": {
+    "other": "生成完成，共 {count} 个"
+  },
+  "system.code.gen.message.progress.batch_failed": {
+    "other": "批量生成失败：{error}"
+  },
+  "system.code.gen.message.progress.running_execute": {
+    "other": "正在执行"
+  },
+  "system.code.gen.message.progress.execute_complete": {
+    "other": "执行完成"
+  },
+  "system.code.gen.message.progress.model_generation_failed": {
+    "other": "模型生成失败"
+  },
+  "system.code.gen.message.progress.previous_command_failed": {
+    "other": "前序命令执行失败"
+  },
+  "system.code.gen.message.progress.command_failed": {
+    "other": "代码生成失败（make {target}）：{detail}"
+  },
+  "system.code.gen.password_strength": {
+    "other": "强度提示"
+  }
 }

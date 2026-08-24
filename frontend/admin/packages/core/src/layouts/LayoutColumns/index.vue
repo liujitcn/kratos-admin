@@ -3,7 +3,7 @@
   <el-container class="layout">
     <div class="aside-split">
       <div class="logo flx-center">
-        <img class="logo-img" :src="logoUrl" alt="logo" />
+        <img class="logo-img" :src="logoUrl" :alt="t('core.layout.logo_alt')" />
       </div>
       <el-scrollbar>
         <div class="split-list">
@@ -60,12 +60,14 @@ import Main from "@/layouts/components/Main/index.vue";
 import ToolBarLeft from "@/layouts/components/Header/ToolBarLeft.vue";
 import ToolBarRight from "@/layouts/components/Header/ToolBarRight.vue";
 import SubMenu from "@/layouts/components/Menu/SubMenu.vue";
+import { useLocaleStore } from "@/locales";
 
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 const configStore = useConfigStore();
 const globalStore = useGlobalStore();
+const { t } = useLocaleStore();
 const accordion = computed(() => globalStore.accordion);
 const isCollapse = computed(() => globalStore.isCollapse);
 const menuList = computed(() => authStore.showMenuListGet.filter(item => Boolean(item.path) || Boolean(item.children?.length)));

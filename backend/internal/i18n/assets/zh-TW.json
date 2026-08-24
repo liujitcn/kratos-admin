@@ -659,19 +659,472 @@
   "base.login.verify_captcha.captcha_id.required": {
     "other": "驗證碼不能為空"
   },
-  "base.login.captcha.invalid": { "other": "驗證碼錯誤" },
-  "base.login.credentials.invalid": { "other": "使用者名稱或密碼錯誤" },
-  "base.login.tenant.disabled": { "other": "租戶已停用" },
-  "base.login.account.disabled": { "other": "帳號已停用" },
-  "base.login.role.disabled": { "other": "角色已停用" },
-  "base.login.department.disabled": { "other": "部門已停用" },
-  "base.login.login.failed": { "other": "登入失敗" },
-  "base.login.logout.failed": { "other": "登出失敗" },
-  "base.login.refresh.failed": { "other": "更新驗證令牌失敗" },
-  "base.login.captcha.verify_failed": { "other": "驗證碼校驗失敗" },
-  "base.ai.message.not_found": { "other": "找不到訊息" },
-  "base.ai.runtime.uninitialized": { "other": "AI 助手執行環境未初始化" },
-  "base.oauth.login_method.unsupported": { "other": "不支援此登入方式" },
-  "base.oauth.state.invalid": { "other": "第三方登入狀態已失效" },
-  "base.file.upload.failed": { "other": "檔案上傳失敗" }
+  "base.login.captcha.invalid": {
+    "other": "驗證碼錯誤"
+  },
+  "base.login.credentials.invalid": {
+    "other": "使用者名稱或密碼錯誤"
+  },
+  "base.login.tenant.disabled": {
+    "other": "租戶已停用"
+  },
+  "base.login.account.disabled": {
+    "other": "帳號已停用"
+  },
+  "base.login.role.disabled": {
+    "other": "角色已停用"
+  },
+  "base.login.department.disabled": {
+    "other": "部門已停用"
+  },
+  "base.login.login.failed": {
+    "other": "登入失敗"
+  },
+  "base.login.logout.failed": {
+    "other": "登出失敗"
+  },
+  "base.login.refresh.failed": {
+    "other": "更新驗證令牌失敗"
+  },
+  "base.login.captcha.verify_failed": {
+    "other": "驗證碼校驗失敗"
+  },
+  "base.ai.message.not_found": {
+    "other": "找不到訊息"
+  },
+  "base.ai.runtime.uninitialized": {
+    "other": "AI 助手執行環境未初始化"
+  },
+  "base.oauth.login_method.unsupported": {
+    "other": "不支援此登入方式"
+  },
+  "base.oauth.state.invalid": {
+    "other": "第三方登入狀態已失效"
+  },
+  "base.file.upload.failed": {
+    "other": "檔案上傳失敗"
+  },
+  "openapi.admin.service.ai_message": {
+    "other": "Base AI 助手訊息服務"
+  },
+  "openapi.admin.service.ai_session": {
+    "other": "Base AI 助手會話服務"
+  },
+  "openapi.admin.service.ai_tool": {
+    "other": "Base AI 助手工具服務"
+  },
+  "openapi.admin.service.auth_admin": {
+    "other": "Admin 使用者登入認證服務"
+  },
+  "openapi.admin.service.auth_app": {
+    "other": "App 使用者認證服務"
+  },
+  "openapi.admin.service.base_api": {
+    "other": "Admin API 服務"
+  },
+  "openapi.admin.service.base_area_admin": {
+    "other": "Admin 行政區域服務"
+  },
+  "openapi.admin.service.base_area_app": {
+    "other": "App 行政區域服務"
+  },
+  "openapi.admin.service.base_config_admin": {
+    "other": "Admin 系統設定服務"
+  },
+  "openapi.admin.service.base_dept_admin": {
+    "other": "Admin 部門服務"
+  },
+  "openapi.admin.service.base_dict_admin": {
+    "other": "Admin 字典服務"
+  },
+  "openapi.admin.service.base_dict_app": {
+    "other": "App 字典服務"
+  },
+  "openapi.admin.service.base_i18n": {
+    "other": "國際化翻譯資訊服務。"
+  },
+  "openapi.admin.service.base_job": {
+    "other": "Admin 排程任務服務"
+  },
+  "openapi.admin.service.base_language": {
+    "other": "Admin 語言管理服務"
+  },
+  "openapi.admin.service.base_log": {
+    "other": "Admin 日誌服務"
+  },
+  "openapi.admin.service.base_menu_admin": {
+    "other": "Admin 選單管理服務"
+  },
+  "openapi.admin.service.base_menu_app": {
+    "other": "App 選單服務"
+  },
+  "openapi.admin.service.base_migration": {
+    "other": "資料庫遷移服務"
+  },
+  "openapi.admin.service.base_post": {
+    "other": "Admin 崗位管理服務"
+  },
+  "openapi.admin.service.base_role": {
+    "other": "Admin 角色管理服務"
+  },
+  "openapi.admin.service.base_tenant": {
+    "other": "Admin 租戶管理服務"
+  },
+  "openapi.admin.service.base_user": {
+    "other": "Admin 使用者管理服務"
+  },
+  "openapi.admin.service.code_gen_column": {
+    "other": "Admin 程式碼生成欄位服務"
+  },
+  "openapi.admin.service.code_gen_proto": {
+    "other": "Admin 程式碼生成 Proto API 設定服務"
+  },
+  "openapi.admin.service.code_gen_service": {
+    "other": "Admin 程式碼生成服務"
+  },
+  "openapi.admin.service.code_gen_table": {
+    "other": "Admin 程式碼生成資料表設定服務"
+  },
+  "openapi.admin.service.config_base": {
+    "other": "Base 系統設定公共服務"
+  },
+  "openapi.admin.service.file_base": {
+    "other": "Base 檔案服務"
+  },
+  "openapi.admin.service.language_base": {
+    "other": "語言公共服務。"
+  },
+  "openapi.admin.service.login_base": {
+    "other": "Base 登入公共服務"
+  },
+  "openapi.admin.service.mcp_base": {
+    "other": "Base MCP 服務"
+  },
+  "openapi.admin.service.oauth_base": {
+    "other": "Base 第三方登入公共服務"
+  },
+  "openapi.admin.service.ops_monitoring": {
+    "other": "運維監控服務。"
+  },
+  "system.admin.base.api.technical.service": {
+    "other": "{{.Name}} 服務"
+  },
+  "system.admin.base.api.technical.response": {
+    "other": "HTTP {{.Status}} 回應"
+  },
+  "system.admin.base.api.technical.operation_prompt": {
+    "other": "{{.Description}}，RPC：{{.Operation}}，HTTP：{{.Method}} {{.Path}}"
+  },
+  "system.admin.ops_monitoring.normal": {
+    "other": "正常"
+  },
+  "system.admin.ops_monitoring.error": {
+    "other": "異常"
+  },
+  "system.admin.ops_monitoring.unconfigured": {
+    "other": "未配置"
+  },
+  "system.admin.ops_monitoring.attention": {
+    "other": "關注"
+  },
+  "system.admin.ops_monitoring.unresolved": {
+    "other": "未解決"
+  },
+  "system.admin.ops_monitoring.monitor_healthy": {
+    "other": "監控服務回應正常"
+  },
+  "system.admin.ops_monitoring.connection_healthy": {
+    "other": "連線正常"
+  },
+  "system.admin.ops_monitoring.redis_unconfigured": {
+    "other": "未配置 Redis"
+  },
+  "system.admin.ops_monitoring.pool": {
+    "other": "連線池"
+  },
+  "system.admin.ops_monitoring.unavailable": {
+    "other": "無法使用"
+  },
+  "system.admin.ops_monitoring.active_connections": {
+    "other": "活躍連線"
+  },
+  "system.admin.ops_monitoring.idle_connections": {
+    "other": "閒置連線"
+  },
+  "system.admin.ops_monitoring.wait_count": {
+    "other": "等待次數"
+  },
+  "system.admin.ops_monitoring.database": {
+    "other": "資料庫"
+  },
+  "system.admin.ops_monitoring.address_count": {
+    "other": "地址數"
+  },
+  "system.admin.ops_monitoring.connection": {
+    "other": "連線"
+  },
+  "system.admin.ops_monitoring.heap_memory": {
+    "other": "堆記憶體"
+  },
+  "system.admin.ops_monitoring.memory": {
+    "other": "記憶體"
+  },
+  "system.admin.ops_monitoring.disk": {
+    "other": "硬碟"
+  },
+  "system.admin.ops_monitoring.request_failed": {
+    "other": "介面請求失敗"
+  },
+  "system.admin.ops_monitoring.unknown_endpoint": {
+    "other": "未知介面"
+  },
+  "system.admin.ops_monitoring.duration": {
+    "other": "耗時"
+  },
+  "system.admin.ops_monitoring.undeclared": {
+    "other": "未宣告"
+  },
+  "system.admin.ops_monitoring.current_instance": {
+    "other": "目前執行個體"
+  },
+  "system.admin.ops_monitoring.unnamed_service": {
+    "other": "未命名服務"
+  },
+  "openapi.admin.service.project_document": {
+    "other": "專案文件服務"
+  },
+  "openapi.admin.service.runtime_log": {
+    "other": "執行日誌服務。"
+  },
+  "openapi.admin.service.sse_base": {
+    "other": "Base SSE 服務"
+  },
+  "common.resource.default": {
+    "other": "{resource}"
+  },
+  "common.action.create_resource": {
+    "other": "新增{resource}"
+  },
+  "common.action.edit_resource": {
+    "other": "修改{resource}"
+  },
+  "common.action.delete_resource": {
+    "other": "刪除{resource}"
+  },
+  "common.action.set_field_status": {
+    "other": "設定{field}"
+  },
+  "common.validation.required_input": {
+    "other": "請輸入{field}"
+  },
+  "common.validation.required_select": {
+    "other": "請選擇{field}"
+  },
+  "common.validation.max_length": {
+    "other": "{field}不能超過 {max} 個字元"
+  },
+  "common.message.create_success": {
+    "other": "新增{resource}成功"
+  },
+  "common.message.update_success": {
+    "other": "修改{resource}成功"
+  },
+  "common.message.delete_success": {
+    "other": "刪除{resource}成功"
+  },
+  "common.dialog.cancel_delete": {
+    "other": "已取消刪除{resource}"
+  },
+  "common.message.select_delete_item": {
+    "other": "請勾選刪除項"
+  },
+  "common.message.status_success": {
+    "other": "{action}成功"
+  },
+  "common.dialog.delete_single": {
+    "other": "是否確定刪除{resource}？"
+  },
+  "common.dialog.delete_selected": {
+    "other": "確認刪除已選中的{resource}嗎？"
+  },
+  "common.dialog.status_change": {
+    "other": "是否確定{action}{resource}？\n{field}：{value}"
+  },
+  "common.status.enabled": {
+    "other": "啟用"
+  },
+  "common.status.disabled": {
+    "other": "禁用"
+  },
+  "common.value.top_level": {
+    "other": "頂級節點"
+  },
+  "common.value.yes": {
+    "other": "是"
+  },
+  "common.value.no": {
+    "other": "否"
+  },
+  "common.value.male": {
+    "other": "男"
+  },
+  "common.value.female": {
+    "other": "女"
+  },
+  "system.code.gen.message.common.exists": {
+    "other": "已存在"
+  },
+  "system.code.gen.message.proto.file_missing": {
+    "other": "Proto檔案不存在"
+  },
+  "system.code.gen.message.proto.missing_select_generate": {
+    "other": "缺少，可選擇生成"
+  },
+  "system.code.gen.message.missing.table_config": {
+    "other": "資料表配置"
+  },
+  "system.code.gen.message.missing.table_comment": {
+    "other": "資料表描述（{locale}）"
+  },
+  "system.code.gen.message.missing.left_tree_comment": {
+    "other": "左樹描述（{locale}）"
+  },
+  "system.code.gen.message.missing.field_comment": {
+    "other": "欄位 {field}（{locale}）"
+  },
+  "system.code.gen.message.preview.backend_unchanged": {
+    "other": "目標檔案已存在，生成方法已與目前配置一致"
+  },
+  "system.code.gen.message.preview.backend_update": {
+    "other": "目標檔案已存在，將替換生成方法並保留擴充方法"
+  },
+  "system.code.gen.message.preview.frontend_page_unmergeable": {
+    "other": "現有前端頁面無法安全解析，已略過增量合併"
+  },
+  "system.code.gen.message.preview.frontend_page_unchanged": {
+    "other": "生成頁面已與目前配置和擴充功能一致"
+  },
+  "system.code.gen.message.preview.frontend_page_update": {
+    "other": "生成頁面將按功能順序更新並保留現有擴充"
+  },
+  "system.code.gen.message.preview.locale_unchanged": {
+    "other": "生成語言包已與目前配置一致"
+  },
+  "system.code.gen.message.preview.locale_update": {
+    "other": "將更新目前生成物件的語言鍵並保留其他文案"
+  },
+  "system.code.gen.message.preview.registration_missing_file": {
+    "other": "目標檔案不存在，無法追加服務註冊"
+  },
+  "system.code.gen.message.preview.registration_unchanged": {
+    "other": "目標檔案已存在，未發現需要追加的服務註冊"
+  },
+  "system.code.gen.message.preview.registration_update": {
+    "other": "目標檔案已存在，將追加缺少的服務註冊"
+  },
+  "system.code.gen.message.preview.proto_replace": {
+    "other": "Proto檔案將替換生成介面並保留擴充定義"
+  },
+  "system.code.gen.message.preview.proto_normalize": {
+    "other": "Proto檔案結構將按固定方法槽位整理"
+  },
+  "system.code.gen.message.preview.proto_no_missing_selected": {
+    "other": "Proto檔案已存在，未選擇缺少的介面"
+  },
+  "system.code.gen.message.preview.proto_service_missing": {
+    "other": "Proto檔案已存在，未找到目標service，已略過追加"
+  },
+  "system.code.gen.message.preview.proto_append": {
+    "other": "Proto檔案已存在，將追加缺少的介面"
+  },
+  "system.code.gen.message.preview.file_create": {
+    "other": "將新增"
+  },
+  "system.code.gen.message.preview.file_exists_skip": {
+    "other": "已存在，不覆蓋"
+  },
+  "system.code.gen.message.preview.batch_merged": {
+    "other": "已與本批相同檔案合併，無需重複寫入"
+  },
+  "system.code.gen.message.preview.page_requirements_missing": {
+    "other": "缺少頁面所需的查詢或 CRUD 介面，已略過頁面生成"
+  },
+  "system.code.gen.message.preview.menu_sql_create": {
+    "other": "將新增 {path}"
+  },
+  "system.code.gen.message.preview.menu_sql_unchanged": {
+    "other": "{path} 中的選單和按鈕權限 SQL 無需更新"
+  },
+  "system.code.gen.message.preview.menu_sql_update": {
+    "other": "將更新 {path} 中的選單和按鈕權限 SQL"
+  },
+  "system.code.gen.message.progress.pending_execute": {
+    "other": "等待執行"
+  },
+  "system.code.gen.message.progress.running_code_generation": {
+    "other": "正在生成程式碼"
+  },
+  "system.code.gen.message.progress.running_table": {
+    "other": "正在生成"
+  },
+  "system.code.gen.message.progress.generation_failed_skipped": {
+    "other": "生成失敗，未繼續執行"
+  },
+  "system.code.gen.message.progress.pending_generate": {
+    "other": "等待生成"
+  },
+  "system.code.gen.message.progress.label_generate_file": {
+    "other": "生成檔案"
+  },
+  "system.code.gen.message.progress.label_sync_menu": {
+    "other": "同步選單權限"
+  },
+  "system.code.gen.message.progress.pending_sync": {
+    "other": "等待同步"
+  },
+  "system.code.gen.message.progress.running_sync": {
+    "other": "正在同步"
+  },
+  "system.code.gen.message.progress.sync_complete": {
+    "other": "同步完成"
+  },
+  "system.code.gen.message.progress.merging_write": {
+    "other": "正在合併寫入"
+  },
+  "system.code.gen.message.progress.merged_write": {
+    "other": "已合併寫入"
+  },
+  "system.code.gen.message.progress.generation_state_update_failed": {
+    "other": "更新生成狀態失敗：{error}"
+  },
+  "system.code.gen.message.progress.generation_complete": {
+    "other": "生成完成"
+  },
+  "system.code.gen.message.progress.batch_complete_partial": {
+    "other": "生成完成，成功 {success} 個，失敗 {failed} 個"
+  },
+  "system.code.gen.message.progress.batch_complete": {
+    "other": "生成完成，共 {count} 個"
+  },
+  "system.code.gen.message.progress.batch_failed": {
+    "other": "批次生成失敗：{error}"
+  },
+  "system.code.gen.message.progress.running_execute": {
+    "other": "正在執行"
+  },
+  "system.code.gen.message.progress.execute_complete": {
+    "other": "執行完成"
+  },
+  "system.code.gen.message.progress.model_generation_failed": {
+    "other": "模型生成失敗"
+  },
+  "system.code.gen.message.progress.previous_command_failed": {
+    "other": "前序命令執行失敗"
+  },
+  "system.code.gen.message.progress.command_failed": {
+    "other": "程式碼生成失敗（make {target}）：{detail}"
+  },
+  "system.code.gen.password_strength": {
+    "other": "強度提示"
+  }
 }

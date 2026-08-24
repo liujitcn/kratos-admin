@@ -100,5 +100,9 @@
   "core.status.loading": "正在加载",
   "core.webview.embed_blocked": "当前 H5 页面可能被目标站点限制嵌入",
   "core.webview.invalid_url": "缺少有效链接地址",
-  "core.webview.open_failed": "链接无法打开"
+  "core.webview.open_failed": "链接无法打开",
+  "common.value.top_level": "顶级节点",
+  "common.resource.default": "{resource}",
+  "common.action.delete_resource": "删除{resource}",
+  "common.action.set_field_status": "设置{field}"
 }

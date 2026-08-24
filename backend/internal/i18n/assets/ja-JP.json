@@ -703,5 +703,428 @@
   },
   "base.file.upload.failed": {
     "other": "ファイルのアップロードに失敗しました"
+  },
+  "openapi.admin.service.ai_message": {
+    "other": "Base AI アシスタントメッセージサービス"
+  },
+  "openapi.admin.service.ai_session": {
+    "other": "Base AI アシスタントセッションサービス"
+  },
+  "openapi.admin.service.ai_tool": {
+    "other": "Base AI アシスタントツールサービス"
+  },
+  "openapi.admin.service.auth_admin": {
+    "other": "Admin ユーザーログイン認証サービス"
+  },
+  "openapi.admin.service.auth_app": {
+    "other": "App ユーザー認証サービス"
+  },
+  "openapi.admin.service.base_api": {
+    "other": "Admin API サービス"
+  },
+  "openapi.admin.service.base_area_admin": {
+    "other": "Admin 行政区域サービス"
+  },
+  "openapi.admin.service.base_area_app": {
+    "other": "App 行政区域サービス"
+  },
+  "openapi.admin.service.base_config_admin": {
+    "other": "Admin システム設定サービス"
+  },
+  "openapi.admin.service.base_dept_admin": {
+    "other": "Admin 部門サービス"
+  },
+  "openapi.admin.service.base_dict_admin": {
+    "other": "Admin 辞書サービス"
+  },
+  "openapi.admin.service.base_dict_app": {
+    "other": "App 辞書サービス"
+  },
+  "openapi.admin.service.base_i18n": {
+    "other": "国際化翻訳情報サービス。"
+  },
+  "openapi.admin.service.base_job": {
+    "other": "Admin 定期ジョブサービス"
+  },
+  "openapi.admin.service.base_language": {
+    "other": "Admin 言語管理サービス"
+  },
+  "openapi.admin.service.base_log": {
+    "other": "Admin ログサービス"
+  },
+  "openapi.admin.service.base_menu_admin": {
+    "other": "Admin メニュー管理サービス"
+  },
+  "openapi.admin.service.base_menu_app": {
+    "other": "App メニューサービス"
+  },
+  "openapi.admin.service.base_migration": {
+    "other": "データベースマイグレーションサービス"
+  },
+  "openapi.admin.service.base_post": {
+    "other": "Admin 役職管理サービス"
+  },
+  "openapi.admin.service.base_role": {
+    "other": "Admin ロール管理サービス"
+  },
+  "openapi.admin.service.base_tenant": {
+    "other": "Admin テナント管理サービス"
+  },
+  "openapi.admin.service.base_user": {
+    "other": "Admin ユーザー管理サービス"
+  },
+  "openapi.admin.service.code_gen_column": {
+    "other": "Admin コード生成フィールドサービス"
+  },
+  "openapi.admin.service.code_gen_proto": {
+    "other": "Admin コード生成 Proto API 設定サービス"
+  },
+  "openapi.admin.service.code_gen_service": {
+    "other": "Admin コード生成サービス"
+  },
+  "openapi.admin.service.code_gen_table": {
+    "other": "Admin コード生成テーブル設定サービス"
+  },
+  "openapi.admin.service.config_base": {
+    "other": "Base システム設定共通サービス"
+  },
+  "openapi.admin.service.file_base": {
+    "other": "Base ファイルサービス"
+  },
+  "openapi.admin.service.language_base": {
+    "other": "言語共通サービス。"
+  },
+  "openapi.admin.service.login_base": {
+    "other": "Base ログイン共通サービス"
+  },
+  "openapi.admin.service.mcp_base": {
+    "other": "Base MCP サービス"
+  },
+  "openapi.admin.service.oauth_base": {
+    "other": "Base 外部ログイン共通サービス"
+  },
+  "openapi.admin.service.ops_monitoring": {
+    "other": "運用監視サービス。"
+  },
+  "system.admin.base.api.technical.service": {
+    "other": "{{.Name}} サービス"
+  },
+  "system.admin.base.api.technical.response": {
+    "other": "HTTP {{.Status}} レスポンス"
+  },
+  "system.admin.base.api.technical.operation_prompt": {
+    "other": "{{.Description}}、RPC: {{.Operation}}、HTTP: {{.Method}} {{.Path}}"
+  },
+  "system.admin.ops_monitoring.normal": {
+    "other": "正常"
+  },
+  "system.admin.ops_monitoring.error": {
+    "other": "異常"
+  },
+  "system.admin.ops_monitoring.unconfigured": {
+    "other": "未設定"
+  },
+  "system.admin.ops_monitoring.attention": {
+    "other": "要確認"
+  },
+  "system.admin.ops_monitoring.unresolved": {
+    "other": "未解決"
+  },
+  "system.admin.ops_monitoring.monitor_healthy": {
+    "other": "監視サービスは正常に応答しています"
+  },
+  "system.admin.ops_monitoring.connection_healthy": {
+    "other": "接続正常"
+  },
+  "system.admin.ops_monitoring.redis_unconfigured": {
+    "other": "Redis 未設定"
+  },
+  "system.admin.ops_monitoring.pool": {
+    "other": "接続プール"
+  },
+  "system.admin.ops_monitoring.unavailable": {
+    "other": "利用不可"
+  },
+  "system.admin.ops_monitoring.active_connections": {
+    "other": "アクティブ接続"
+  },
+  "system.admin.ops_monitoring.idle_connections": {
+    "other": "アイドル接続"
+  },
+  "system.admin.ops_monitoring.wait_count": {
+    "other": "待機回数"
+  },
+  "system.admin.ops_monitoring.database": {
+    "other": "データベース"
+  },
+  "system.admin.ops_monitoring.address_count": {
+    "other": "アドレス数"
+  },
+  "system.admin.ops_monitoring.connection": {
+    "other": "接続"
+  },
+  "system.admin.ops_monitoring.heap_memory": {
+    "other": "ヒープメモリ"
+  },
+  "system.admin.ops_monitoring.memory": {
+    "other": "メモリ"
+  },
+  "system.admin.ops_monitoring.disk": {
+    "other": "ディスク"
+  },
+  "system.admin.ops_monitoring.request_failed": {
+    "other": "リクエスト失敗"
+  },
+  "system.admin.ops_monitoring.unknown_endpoint": {
+    "other": "不明なエンドポイント"
+  },
+  "system.admin.ops_monitoring.duration": {
+    "other": "所要時間"
+  },
+  "system.admin.ops_monitoring.undeclared": {
+    "other": "未宣言"
+  },
+  "system.admin.ops_monitoring.current_instance": {
+    "other": "現在のインスタンス"
+  },
+  "system.admin.ops_monitoring.unnamed_service": {
+    "other": "名前のないサービス"
+  },
+  "openapi.admin.service.project_document": {
+    "other": "プロジェクトドキュメントサービス"
+  },
+  "openapi.admin.service.runtime_log": {
+    "other": "実行ログサービス。"
+  },
+  "openapi.admin.service.sse_base": {
+    "other": "Base SSE サービス"
+  },
+  "common.resource.default": {
+    "other": "{resource}"
+  },
+  "common.action.create_resource": {
+    "other": "{resource} を追加しました"
+  },
+  "common.action.edit_resource": {
+    "other": "{resource} を変更します"
+  },
+  "common.action.delete_resource": {
+    "other": "{resource}を削除"
+  },
+  "common.action.set_field_status": {
+    "other": "{field}を設定"
+  },
+  "common.validation.required_input": {
+    "other": "{field} を入力してください"
+  },
+  "common.validation.required_select": {
+    "other": "{field} を選択してください"
+  },
+  "common.validation.max_length": {
+    "other": "{field} は {max} 文字を超えることはできません"
+  },
+  "common.message.create_success": {
+    "other": "{resource} が正常に追加されました"
+  },
+  "common.message.update_success": {
+    "other": "が {resource} を正常に変更しました"
+  },
+  "common.message.delete_success": {
+    "other": "{resource} の削除に成功しました"
+  },
+  "common.dialog.cancel_delete": {
+    "other": "削除を取り消しました {resource}"
+  },
+  "common.message.select_delete_item": {
+    "other": "項目を削除するにはチェックを入れてください"
+  },
+  "common.message.status_success": {
+    "other": "{action} 成功"
+  },
+  "common.dialog.delete_single": {
+    "other": "{resource} を削除してもよろしいですか?"
+  },
+  "common.dialog.delete_selected": {
+    "other": "選択した {resource} を削除してもよろしいですか?"
+  },
+  "common.dialog.status_change": {
+    "other": "{action}{resource} でよろしいですか?\n{field}: {value}"
+  },
+  "common.status.enabled": {
+    "other": "有効にする"
+  },
+  "common.status.disabled": {
+    "other": "無効"
+  },
+  "common.value.top_level": {
+    "other": "トップレベル"
+  },
+  "common.value.yes": {
+    "other": "はい"
+  },
+  "common.value.no": {
+    "other": "いいえ"
+  },
+  "common.value.male": {
+    "other": "男性"
+  },
+  "common.value.female": {
+    "other": "女性"
+  },
+  "system.code.gen.message.common.exists": {
+    "other": "既存"
+  },
+  "system.code.gen.message.proto.file_missing": {
+    "other": "Protoファイルが存在しません"
+  },
+  "system.code.gen.message.proto.missing_select_generate": {
+    "other": "不足しています。生成対象として選択できます"
+  },
+  "system.code.gen.message.missing.table_config": {
+    "other": "テーブル設定"
+  },
+  "system.code.gen.message.missing.table_comment": {
+    "other": "テーブル説明（{locale}）"
+  },
+  "system.code.gen.message.missing.left_tree_comment": {
+    "other": "左ツリー説明（{locale}）"
+  },
+  "system.code.gen.message.missing.field_comment": {
+    "other": "フィールド {field}（{locale}）"
+  },
+  "system.code.gen.message.preview.backend_unchanged": {
+    "other": "対象ファイルは存在し、生成メソッドは現在の設定と一致しています"
+  },
+  "system.code.gen.message.preview.backend_update": {
+    "other": "対象ファイルは存在します。生成メソッドを置換し、拡張メソッドを保持します"
+  },
+  "system.code.gen.message.preview.frontend_page_unmergeable": {
+    "other": "既存のフロントエンドページを安全に解析できないため、差分マージをスキップしました"
+  },
+  "system.code.gen.message.preview.frontend_page_unchanged": {
+    "other": "生成ページは現在の設定および拡張機能と一致しています"
+  },
+  "system.code.gen.message.preview.frontend_page_update": {
+    "other": "生成ページを機能順に更新し、既存の拡張を保持します"
+  },
+  "system.code.gen.message.preview.locale_unchanged": {
+    "other": "生成言語ファイルは現在の設定と一致しています"
+  },
+  "system.code.gen.message.preview.locale_update": {
+    "other": "現在の生成対象が所有する言語キーを更新し、その他の文言を保持します"
+  },
+  "system.code.gen.message.preview.registration_missing_file": {
+    "other": "対象ファイルが存在しないため、サービス登録を追加できません"
+  },
+  "system.code.gen.message.preview.registration_unchanged": {
+    "other": "対象ファイルは存在し、追加が必要なサービス登録はありません"
+  },
+  "system.code.gen.message.preview.registration_update": {
+    "other": "対象ファイルに不足しているサービス登録を追加します"
+  },
+  "system.code.gen.message.preview.proto_replace": {
+    "other": "Protoファイルの生成APIを置換し、拡張定義を保持します"
+  },
+  "system.code.gen.message.preview.proto_normalize": {
+    "other": "Protoファイル構造を固定メソッドスロットに整理します"
+  },
+  "system.code.gen.message.preview.proto_no_missing_selected": {
+    "other": "Protoファイルは存在しますが、不足APIが選択されていません"
+  },
+  "system.code.gen.message.preview.proto_service_missing": {
+    "other": "Protoファイルに対象serviceが見つからないため、追加をスキップしました"
+  },
+  "system.code.gen.message.preview.proto_append": {
+    "other": "Protoファイルに不足しているAPIを追加します"
+  },
+  "system.code.gen.message.preview.file_create": {
+    "other": "新規作成"
+  },
+  "system.code.gen.message.preview.file_exists_skip": {
+    "other": "既存のため上書きしません"
+  },
+  "system.code.gen.message.preview.batch_merged": {
+    "other": "同一バッチの同じファイルへマージ済みのため、重複書き込みは不要です"
+  },
+  "system.code.gen.message.preview.page_requirements_missing": {
+    "other": "ページに必要なクエリまたは CRUD API が不足しているため、ページ生成をスキップしました"
+  },
+  "system.code.gen.message.preview.menu_sql_create": {
+    "other": "{path} を新規作成します"
+  },
+  "system.code.gen.message.preview.menu_sql_unchanged": {
+    "other": "{path} のメニューおよびボタン権限 SQL は最新です"
+  },
+  "system.code.gen.message.preview.menu_sql_update": {
+    "other": "{path} のメニューおよびボタン権限 SQL を更新します"
+  },
+  "system.code.gen.message.progress.pending_execute": {
+    "other": "実行待ち"
+  },
+  "system.code.gen.message.progress.running_code_generation": {
+    "other": "コードを生成しています"
+  },
+  "system.code.gen.message.progress.running_table": {
+    "other": "生成中"
+  },
+  "system.code.gen.message.progress.generation_failed_skipped": {
+    "other": "生成に失敗したため、後続処理をスキップしました"
+  },
+  "system.code.gen.message.progress.pending_generate": {
+    "other": "生成待ち"
+  },
+  "system.code.gen.message.progress.label_generate_file": {
+    "other": "ファイル生成"
+  },
+  "system.code.gen.message.progress.label_sync_menu": {
+    "other": "メニュー権限同期"
+  },
+  "system.code.gen.message.progress.pending_sync": {
+    "other": "同期待ち"
+  },
+  "system.code.gen.message.progress.running_sync": {
+    "other": "同期中"
+  },
+  "system.code.gen.message.progress.sync_complete": {
+    "other": "同期完了"
+  },
+  "system.code.gen.message.progress.merging_write": {
+    "other": "マージして書き込んでいます"
+  },
+  "system.code.gen.message.progress.merged_write": {
+    "other": "マージして書き込みました"
+  },
+  "system.code.gen.message.progress.generation_state_update_failed": {
+    "other": "生成状態の更新に失敗しました: {error}"
+  },
+  "system.code.gen.message.progress.generation_complete": {
+    "other": "生成完了"
+  },
+  "system.code.gen.message.progress.batch_complete_partial": {
+    "other": "生成完了: 成功 {success} 件、失敗 {failed} 件"
+  },
+  "system.code.gen.message.progress.batch_complete": {
+    "other": "生成完了: 全 {count} 件"
+  },
+  "system.code.gen.message.progress.batch_failed": {
+    "other": "一括生成に失敗しました: {error}"
+  },
+  "system.code.gen.message.progress.running_execute": {
+    "other": "実行中"
+  },
+  "system.code.gen.message.progress.execute_complete": {
+    "other": "実行完了"
+  },
+  "system.code.gen.message.progress.model_generation_failed": {
+    "other": "モデル生成に失敗しました"
+  },
+  "system.code.gen.message.progress.previous_command_failed": {
+    "other": "前のコマンドの実行に失敗しました"
+  },
+  "system.code.gen.message.progress.command_failed": {
+    "other": "コード生成に失敗しました（make {target}）: {detail}"
+  },
+  "system.code.gen.password_strength": {
+    "other": "強度のヒント"
   }
 }

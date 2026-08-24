@@ -90,6 +90,7 @@ var (
 type renderer struct {
 	tableComment     string // 数据库表注释，由业务层查询后传入
 	migrationVersion string // 数据库最近一次成功迁移版本
+	localeState      LocaleState
 	readFile         func(string) ([]byte, error)
 }
 
@@ -110,14 +111,14 @@ func (c *renderer) protoMethodExists(protoPath string, targetEntity string, meth
 	content, err := c.readRepoFile(protoPath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return false, "Proto文件不存在"
+			return false, Message(c.localeState, "proto.file_missing", nil)
 		}
 		return false, err.Error()
 	}
 	if protoServiceMethodExists(string(content), targetEntity+"Service", methodName) {
-		return true, "已存在"
+		return true, Message(c.localeState, "common.exists", nil)
 	}
-	return false, "缺少，可选择生成"
+	return false, Message(c.localeState, "proto.missing_select_generate", nil)
 }
 
 // readRepoFile 读取当前渲染上下文中的仓库文件。

@@ -101,5 +101,9 @@
   "core.status.loading": "Loading",
   "core.webview.embed_blocked": "The destination may block embedding on H5",
   "core.webview.invalid_url": "No valid link was provided",
-  "core.webview.open_failed": "Unable to open link"
+  "core.webview.open_failed": "Unable to open link",
+  "common.value.top_level": "Top level",
+  "common.resource.default": "{resource}",
+  "common.action.delete_resource": "Delete {resource}",
+  "common.action.set_field_status": "Set {field}"
 }

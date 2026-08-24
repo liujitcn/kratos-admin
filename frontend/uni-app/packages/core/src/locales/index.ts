@@ -113,7 +113,7 @@ export function registerLocaleMessages(modules: KratosAppModule[]): void {
       }
       const target = localeMessages.get(locale) as LocaleMessages
       Object.keys(messages).forEach((key) => {
-        if (!key.startsWith('common.') && !key.startsWith('core.') && !key.startsWith('system.')) {
+        if (!isAllowedLocaleKey(module.name, key)) {
           throw new Error(`${module.name} 的语言键命名空间无效: ${key}`)
         }
         if (Object.prototype.hasOwnProperty.call(target, key)) {
@@ -129,6 +129,15 @@ export function registerLocaleMessages(modules: KratosAppModule[]): void {
       })
     })
   })
+}
+
+/** 校验公共键和当前业务模块专属的语言键命名空间。 */
+function isAllowedLocaleKey(moduleName: string, key: string): boolean {
+  const packageName = moduleName.split('/').at(-1) ?? moduleName
+  const moduleNamespace = packageName.split('-').at(-1) ?? packageName
+  return ['common', 'core', 'system', moduleNamespace].some((namespace) =>
+    key.startsWith(`${namespace}.`),
+  )
 }
 
 /** 获取当前语言区域。 */

@@ -394,6 +394,7 @@ type BaseJobForm struct {
 	Args           []*BaseJobArgs         `protobuf:"bytes,4,rep,name=args,proto3" json:"args,omitempty"`                                           // 目标参数
 	CronExpression string                 `protobuf:"bytes,5,opt,name=cron_expression,json=cronExpression,proto3" json:"cron_expression,omitempty"` // cron表达式
 	Status         v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`              // 状态
+	I18ns          []*BaseI18n            `protobuf:"bytes,7,rep,name=i18ns,proto3" json:"i18ns,omitempty"`                                         // 定时任务名称多语言翻译
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -468,6 +469,13 @@ func (x *BaseJobForm) GetStatus() v1.Status {
 		return x.Status
 	}
 	return v1.Status(0)
+}
+
+func (x *BaseJobForm) GetI18ns() []*BaseI18n {
+	if x != nil {
+		return x.I18ns
+	}
+	return nil
 }
 
 // 查询定时任务日志请求参数
@@ -1004,6 +1012,7 @@ type BaseJob struct {
 	Status         v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`              // 状态
 	CreatedAt      string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`              // 创建时间
 	UpdatedAt      string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`              // 更新时间
+	I18ns          []*BaseI18n            `protobuf:"bytes,202,rep,name=i18ns,proto3" json:"i18ns,omitempty"`                                       // 定时任务名称多语言翻译
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -1101,11 +1110,18 @@ func (x *BaseJob) GetUpdatedAt() string {
 	return ""
 }
 
+func (x *BaseJob) GetI18ns() []*BaseI18n {
+	if x != nil {
+		return x.I18ns
+	}
+	return nil
+}
+
 var File_system_admin_v1_base_job_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_job_proto_rawDesc = "" +
 	"\n" +
-	"\x1esystem/admin/v1/base_job.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1bbuf/validate/validate.proto\"\xbc\x02\n" +
+	"\x1esystem/admin/v1/base_job.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1fsystem/admin/v1/base_i18n.proto\"\xbc\x02\n" +
 	"\x12PageBaseJobRequest\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f任务名称R\x04name\x127\n" +
 	"\rinvoke_target\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f调用目标R\finvokeTarget\x12<\n" +
@@ -1127,7 +1143,7 @@ const file_system_admin_v1_base_job_proto_rawDesc = "" +
 	"\rbase_job_logs\x18\x01 \x03(\v2\x1b.system.admin.v1.BaseJobLogB\x12\xbaG\x0f\x92\x02\f分页数据R\vbaseJobLogs\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"3\n" +
 	"\x11GetBaseJobRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b任务IDR\x02id\"\x91\x06\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b任务IDR\x02id\"\xeb\x06\n" +
 	"\vBaseJobForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b任务IDR\x02id\x12\xb2\x01\n" +
 	"\x04name\x18\x02 \x01(\tB\x9d\x01\xbaG\x0f\x92\x02\f任务名称\xbaH\x87\x01\xba\x01\x83\x01\n" +
@@ -1137,7 +1153,8 @@ const file_system_admin_v1_base_job_proto_rawDesc = "" +
 	"\x04args\x18\x04 \x03(\v2\x1c.system.admin.v1.BaseJobArgsB\x12\xbaG\x0f\x92\x02\f目标参数R\x04args\x12\xd4\x01\n" +
 	"\x0fcron_expression\x18\x05 \x01(\tB\xaa\x01\xbaG\x10\x92\x02\rcron表达式\xbaH\x93\x01\xba\x01\x8f\x01\n" +
 	"3system.admin.base.job.entity.cron_expression.length\x122cron表达式不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\x0ecronExpression\x12?\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"<\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12X\n" +
+	"\x05i18ns\x18\a \x03(\v2\x19.system.admin.v1.BaseI18nB'\xbaG$\x92\x02!定时任务名称多语言翻译R\x05i18ns\"<\n" +
 	"\x14GetBaseJobLogRequest\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e任务日志IDR\x02id\"\xb7\x03\n" +
 	"\n" +
@@ -1168,7 +1185,7 @@ const file_system_admin_v1_base_job_proto_rawDesc = "" +
 	"\vBaseJobArgs\x12\x82\x01\n" +
 	"\x03key\x18\x01 \x01(\tBp\xbaG\t\x92\x02\x06参数\xbaHa\xba\x01^\n" +
 	".system.admin.base.job.entity.args.key.required\x12\x1b所有参数必须填写key\x1a\x0fthis.size() > 0R\x03key\x12\x1f\n" +
-	"\x05value\x18\x02 \x01(\tB\t\xbaG\x06\x92\x02\x03值R\x05value\"\xe9\x03\n" +
+	"\x05value\x18\x02 \x01(\tB\t\xbaG\x06\x92\x02\x03值R\x05value\"\xc4\x04\n" +
 	"\aBaseJob\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b任务IDR\x02id\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f任务名称R\x04name\x127\n" +
@@ -1180,7 +1197,8 @@ const file_system_admin_v1_base_job_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt*v\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12Y\n" +
+	"\x05i18ns\x18\xca\x01 \x03(\v2\x19.system.admin.v1.BaseI18nB'\xbaG$\x92\x02!定时任务名称多语言翻译R\x05i18ns*v\n" +
 	"\x10BaseJobLogStatus\x12#\n" +
 	"\x1fBASE_JOB_LOG_STATUS_UNSPECIFIED\x10\x00\x12\x1f\n" +
 	"\x1bBASE_JOB_LOG_STATUS_SUCCESS\x10\x01\x12\x1c\n" +
@@ -1235,7 +1253,8 @@ var file_system_admin_v1_base_job_proto_goTypes = []any{
 	(*BaseJobArgs)(nil),             // 16: system.admin.v1.BaseJobArgs
 	(*BaseJob)(nil),                 // 17: system.admin.v1.BaseJob
 	(v1.Status)(0),                  // 18: common.v1.Status
-	(*emptypb.Empty)(nil),           // 19: google.protobuf.Empty
+	(*BaseI18n)(nil),                // 19: system.admin.v1.BaseI18n
+	(*emptypb.Empty)(nil),           // 20: google.protobuf.Empty
 }
 var file_system_admin_v1_base_job_proto_depIdxs = []int32{
 	18, // 0: system.admin.v1.PageBaseJobRequest.status:type_name -> common.v1.Status
@@ -1244,38 +1263,40 @@ var file_system_admin_v1_base_job_proto_depIdxs = []int32{
 	8,  // 3: system.admin.v1.PageBaseJobLogResponse.base_job_logs:type_name -> system.admin.v1.BaseJobLog
 	16, // 4: system.admin.v1.BaseJobForm.args:type_name -> system.admin.v1.BaseJobArgs
 	18, // 5: system.admin.v1.BaseJobForm.status:type_name -> common.v1.Status
-	0,  // 6: system.admin.v1.BaseJobLog.status:type_name -> system.admin.v1.BaseJobLogStatus
-	6,  // 7: system.admin.v1.CreateBaseJobRequest.base_job:type_name -> system.admin.v1.BaseJobForm
-	6,  // 8: system.admin.v1.UpdateBaseJobRequest.base_job:type_name -> system.admin.v1.BaseJobForm
-	16, // 9: system.admin.v1.BaseJob.args:type_name -> system.admin.v1.BaseJobArgs
-	18, // 10: system.admin.v1.BaseJob.status:type_name -> common.v1.Status
-	1,  // 11: system.admin.v1.BaseJobService.PageBaseJob:input_type -> system.admin.v1.PageBaseJobRequest
-	3,  // 12: system.admin.v1.BaseJobService.PageBaseJobLog:input_type -> system.admin.v1.PageBaseJobLogRequest
-	5,  // 13: system.admin.v1.BaseJobService.GetBaseJob:input_type -> system.admin.v1.GetBaseJobRequest
-	7,  // 14: system.admin.v1.BaseJobService.GetBaseJobLog:input_type -> system.admin.v1.GetBaseJobLogRequest
-	9,  // 15: system.admin.v1.BaseJobService.CreateBaseJob:input_type -> system.admin.v1.CreateBaseJobRequest
-	10, // 16: system.admin.v1.BaseJobService.UpdateBaseJob:input_type -> system.admin.v1.UpdateBaseJobRequest
-	11, // 17: system.admin.v1.BaseJobService.DeleteBaseJob:input_type -> system.admin.v1.DeleteBaseJobRequest
-	12, // 18: system.admin.v1.BaseJobService.SetBaseJobStatus:input_type -> system.admin.v1.SetBaseJobStatusRequest
-	13, // 19: system.admin.v1.BaseJobService.StartBaseJob:input_type -> system.admin.v1.StartBaseJobRequest
-	14, // 20: system.admin.v1.BaseJobService.StopBaseJob:input_type -> system.admin.v1.StopBaseJobRequest
-	15, // 21: system.admin.v1.BaseJobService.ExecuteBaseJob:input_type -> system.admin.v1.ExecuteBaseJobRequest
-	2,  // 22: system.admin.v1.BaseJobService.PageBaseJob:output_type -> system.admin.v1.PageBaseJobResponse
-	4,  // 23: system.admin.v1.BaseJobService.PageBaseJobLog:output_type -> system.admin.v1.PageBaseJobLogResponse
-	6,  // 24: system.admin.v1.BaseJobService.GetBaseJob:output_type -> system.admin.v1.BaseJobForm
-	8,  // 25: system.admin.v1.BaseJobService.GetBaseJobLog:output_type -> system.admin.v1.BaseJobLog
-	19, // 26: system.admin.v1.BaseJobService.CreateBaseJob:output_type -> google.protobuf.Empty
-	19, // 27: system.admin.v1.BaseJobService.UpdateBaseJob:output_type -> google.protobuf.Empty
-	19, // 28: system.admin.v1.BaseJobService.DeleteBaseJob:output_type -> google.protobuf.Empty
-	19, // 29: system.admin.v1.BaseJobService.SetBaseJobStatus:output_type -> google.protobuf.Empty
-	19, // 30: system.admin.v1.BaseJobService.StartBaseJob:output_type -> google.protobuf.Empty
-	19, // 31: system.admin.v1.BaseJobService.StopBaseJob:output_type -> google.protobuf.Empty
-	19, // 32: system.admin.v1.BaseJobService.ExecuteBaseJob:output_type -> google.protobuf.Empty
-	22, // [22:33] is the sub-list for method output_type
-	11, // [11:22] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	19, // 6: system.admin.v1.BaseJobForm.i18ns:type_name -> system.admin.v1.BaseI18n
+	0,  // 7: system.admin.v1.BaseJobLog.status:type_name -> system.admin.v1.BaseJobLogStatus
+	6,  // 8: system.admin.v1.CreateBaseJobRequest.base_job:type_name -> system.admin.v1.BaseJobForm
+	6,  // 9: system.admin.v1.UpdateBaseJobRequest.base_job:type_name -> system.admin.v1.BaseJobForm
+	16, // 10: system.admin.v1.BaseJob.args:type_name -> system.admin.v1.BaseJobArgs
+	18, // 11: system.admin.v1.BaseJob.status:type_name -> common.v1.Status
+	19, // 12: system.admin.v1.BaseJob.i18ns:type_name -> system.admin.v1.BaseI18n
+	1,  // 13: system.admin.v1.BaseJobService.PageBaseJob:input_type -> system.admin.v1.PageBaseJobRequest
+	3,  // 14: system.admin.v1.BaseJobService.PageBaseJobLog:input_type -> system.admin.v1.PageBaseJobLogRequest
+	5,  // 15: system.admin.v1.BaseJobService.GetBaseJob:input_type -> system.admin.v1.GetBaseJobRequest
+	7,  // 16: system.admin.v1.BaseJobService.GetBaseJobLog:input_type -> system.admin.v1.GetBaseJobLogRequest
+	9,  // 17: system.admin.v1.BaseJobService.CreateBaseJob:input_type -> system.admin.v1.CreateBaseJobRequest
+	10, // 18: system.admin.v1.BaseJobService.UpdateBaseJob:input_type -> system.admin.v1.UpdateBaseJobRequest
+	11, // 19: system.admin.v1.BaseJobService.DeleteBaseJob:input_type -> system.admin.v1.DeleteBaseJobRequest
+	12, // 20: system.admin.v1.BaseJobService.SetBaseJobStatus:input_type -> system.admin.v1.SetBaseJobStatusRequest
+	13, // 21: system.admin.v1.BaseJobService.StartBaseJob:input_type -> system.admin.v1.StartBaseJobRequest
+	14, // 22: system.admin.v1.BaseJobService.StopBaseJob:input_type -> system.admin.v1.StopBaseJobRequest
+	15, // 23: system.admin.v1.BaseJobService.ExecuteBaseJob:input_type -> system.admin.v1.ExecuteBaseJobRequest
+	2,  // 24: system.admin.v1.BaseJobService.PageBaseJob:output_type -> system.admin.v1.PageBaseJobResponse
+	4,  // 25: system.admin.v1.BaseJobService.PageBaseJobLog:output_type -> system.admin.v1.PageBaseJobLogResponse
+	6,  // 26: system.admin.v1.BaseJobService.GetBaseJob:output_type -> system.admin.v1.BaseJobForm
+	8,  // 27: system.admin.v1.BaseJobService.GetBaseJobLog:output_type -> system.admin.v1.BaseJobLog
+	20, // 28: system.admin.v1.BaseJobService.CreateBaseJob:output_type -> google.protobuf.Empty
+	20, // 29: system.admin.v1.BaseJobService.UpdateBaseJob:output_type -> google.protobuf.Empty
+	20, // 30: system.admin.v1.BaseJobService.DeleteBaseJob:output_type -> google.protobuf.Empty
+	20, // 31: system.admin.v1.BaseJobService.SetBaseJobStatus:output_type -> google.protobuf.Empty
+	20, // 32: system.admin.v1.BaseJobService.StartBaseJob:output_type -> google.protobuf.Empty
+	20, // 33: system.admin.v1.BaseJobService.StopBaseJob:output_type -> google.protobuf.Empty
+	20, // 34: system.admin.v1.BaseJobService.ExecuteBaseJob:output_type -> google.protobuf.Empty
+	24, // [24:35] is the sub-list for method output_type
+	13, // [13:24] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_job_proto_init() }
@@ -1283,6 +1304,7 @@ func file_system_admin_v1_base_job_proto_init() {
 	if File_system_admin_v1_base_job_proto != nil {
 		return
 	}
+	file_system_admin_v1_base_i18n_proto_init()
 	file_system_admin_v1_base_job_proto_msgTypes[0].OneofWrappers = []any{}
 	file_system_admin_v1_base_job_proto_msgTypes[2].OneofWrappers = []any{}
 	type x struct{}

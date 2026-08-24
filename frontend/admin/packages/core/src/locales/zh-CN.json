@@ -47,6 +47,15 @@
   "core.auth.no_menu_permission": "当前账号无任何菜单权限，请联系系统管理员",
   "core.auth.no_permission": "无权限访问",
   "core.clipboard.success": "复制成功",
+  "core.markdown.action.copy_code": "复制代码",
+  "core.markdown.message.copy_success": "复制成功！",
+  "core.markdown.message.copy_failed": "复制失败！",
+  "core.loading.text": "加载中",
+  "core.layout.avatar": "用户头像",
+  "core.layout.logo_alt": "系统标志",
+  "core.login.background_alt": "登录页背景",
+  "core.layout.info_content": "查看当前用户信息",
+  "core.layout.password_content": "修改当前用户密码",
   "core.cron.cycle_unit.day": "天",
   "core.cron.cycle_unit.hour": "小时",
   "core.cron.cycle_unit.minute": "分钟",
@@ -276,5 +285,9 @@
   "common.value.yes": "是",
   "common.value.no": "否",
   "common.value.unknown": "未知",
-  "common.value.none": "无"
+  "common.value.none": "无",
+  "common.value.top_level": "顶级节点",
+  "common.resource.default": "{resource}",
+  "common.action.delete_resource": "删除{resource}",
+  "common.action.set_field_status": "设置{field}"
 }

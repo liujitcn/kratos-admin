@@ -213,7 +213,7 @@ service.interceptors.response.use(
     }
 
     ElMessage.error(message || t("common.message.system_error"));
-    return Promise.reject(new Error(message || "Error"));
+    return Promise.reject(new Error(message || t("common.message.system_error")));
   },
   async (error: AxiosError) => {
     const status = error.response?.status;

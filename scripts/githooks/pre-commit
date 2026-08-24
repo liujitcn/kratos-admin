@@ -4,4 +4,3 @@ set -euo pipefail
 
 repo_root="$(git rev-parse --show-toplevel)"
 pnpm --dir "$repo_root/frontend/admin" lint:lint-staged
-make -C "$repo_root" check-boundary

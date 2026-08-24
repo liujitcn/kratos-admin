@@ -3,7 +3,7 @@
   <el-container class="layout">
     <el-header>
       <div class="logo flx-center">
-        <img class="logo-img" :src="logoUrl" alt="logo" />
+        <img class="logo-img" :src="logoUrl" :alt="t('core.layout.logo_alt')" />
         <span class="logo-text">{{ title }}</span>
       </div>
       <el-menu mode="horizontal" :router="false" :default-active="activeMenu">
@@ -44,11 +44,13 @@ import { getRouteMenuKey, getRouteMetaIcon, getRouteMetaTitle, getRouteTarget, i
 import Main from "@/layouts/components/Main/index.vue";
 import ToolBarRight from "@/layouts/components/Header/ToolBarRight.vue";
 import SubMenu from "@/layouts/components/Menu/SubMenu.vue";
+import { useLocaleStore } from "@/locales";
 
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 const configStore = useConfigStore();
+const { t } = useLocaleStore();
 const menuList = computed(() => authStore.showMenuListGet);
 const activeMenu = computed(() => route.path as string);
 const title = computed(() => configStore.display.sysName || import.meta.env.VITE_GLOB_APP_TITLE);

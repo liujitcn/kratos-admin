@@ -4,7 +4,13 @@
     <el-aside>
       <div class="aside-box" :style="{ width: isCollapse ? '65px' : '240px' }">
         <div ref="logoWrapperRef" :class="['logo', { 'logo--text-only': !showLogoIcon && !isCollapse }]">
-          <img v-show="isCollapse || showLogoIcon" ref="logoIconRef" class="logo-img" :src="logoUrl" alt="logo" />
+          <img
+            v-show="isCollapse || showLogoIcon"
+            ref="logoIconRef"
+            class="logo-img"
+            :src="logoUrl"
+            :alt="t('core.layout.logo_alt')"
+          />
           <span
             v-show="!isCollapse"
             ref="logoTextRef"
@@ -46,11 +52,13 @@ import Main from "@/layouts/components/Main/index.vue";
 import ToolBarLeft from "@/layouts/components/Header/ToolBarLeft.vue";
 import ToolBarRight from "@/layouts/components/Header/ToolBarRight.vue";
 import SubMenu from "@/layouts/components/Menu/SubMenu.vue";
+import { useLocaleStore } from "@/locales";
 
 const route = useRoute();
 const authStore = useAuthStore();
 const configStore = useConfigStore();
 const globalStore = useGlobalStore();
+const { t } = useLocaleStore();
 const accordion = computed(() => globalStore.accordion);
 const isCollapse = computed(() => globalStore.isCollapse);
 const menuList = computed(() => authStore.showMenuListGet);

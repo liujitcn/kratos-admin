@@ -92,7 +92,7 @@ func PrepareBatchGeneration(inputs []BatchGenerationInput) (*BatchGeneration, er
 		}
 		initialGenerations = append(initialGenerations, generation)
 	}
-	if err := validateBatchMergeableFrontendPages(initialGenerations); err != nil {
+	if err := validateBatchMergeableFrontendPages(initialGenerations, orderedInputs[0].LocaleState); err != nil {
 		return nil, err
 	}
 	if err := validateBatchMethodConflicts(orderedInputs, initialGenerations); err != nil {
@@ -124,7 +124,7 @@ func PrepareBatchGeneration(inputs []BatchGenerationInput) (*BatchGeneration, er
 			if readErr == nil && string(currentContent) == file.GetContent() {
 				file.Action = "skip"
 				file.Exists = true
-				file.Message = "已与本批相同文件合并，无需重复写入"
+				file.Message = Message(input.LocaleState, "preview.batch_merged", nil)
 				continue
 			}
 			// 非“文件不存在”的读取错误会使合并基准不可信，必须终止预检。
@@ -160,14 +160,14 @@ func PrepareBatchGeneration(inputs []BatchGenerationInput) (*BatchGeneration, er
 }
 
 // validateBatchMergeableFrontendPages 阻止无法安全解析的页面对应模块被部分覆盖。
-func validateBatchMergeableFrontendPages(generations []*Generation) error {
+func validateBatchMergeableFrontendPages(generations []*Generation, localeState LocaleState) error {
 	for _, generation := range generations {
 		if generation.Table == nil || generation.Table.GenFrontend != 1 || generation.OutputPaths == nil {
 			continue
 		}
 		pagePath := generation.OutputPaths.GetFrontendPageFilePath()
 		for _, file := range generation.Files {
-			if file.GetPath() != pagePath || file.GetMessage() != unmergeableFrontendPageMessage {
+			if file.GetPath() != pagePath || file.GetMessage() != Message(localeState, "preview.frontend_page_unmergeable", nil) {
 				continue
 			}
 			return fmt.Errorf("表%s的前端页面%s无法安全解析，已取消整个模块生成，避免部分覆盖", generation.Table.TableName_, pagePath)

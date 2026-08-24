@@ -1,6 +1,6 @@
 <template>
   <el-dialog v-model="dialogVisible" :title="t('core.layout.info')" width="500px" draggable>
-    <span>This is userInfo</span>
+    <span>{{ t("core.layout.info_content") }}</span>
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogVisible = false">{{ t("common.action.cancel") }}</el-button>

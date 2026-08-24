@@ -190,3 +190,6 @@ INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VA
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 9990902, 'zh-TW', '設定');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 9990903, 'zh-TW', 'AI 助手');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 95004, 'zh-TW', '執行日誌');
+
+-- 定时任务名称翻译。
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (6, 1000, 'zh-TW', '資源翻譯任務');

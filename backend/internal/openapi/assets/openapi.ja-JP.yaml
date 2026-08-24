@@ -2355,6 +2355,44 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/common.v1.SelectOptionResponse'
+    /api/v1/admin/base/user/summary:
+        get:
+            tags:
+                - BaseUserService
+            description: 汇总用户注册数据
+            operationId: BaseUserService_SummaryBaseUser
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: start_at
+                  in: query
+                  schema:
+                    type: string
+                    format: date-time
+                - name: end_at
+                  in: query
+                  schema:
+                    type: string
+                    format: date-time
+                - name: time_type
+                  in: query
+                  schema:
+                    enum:
+                        - ANALYTICS_TIME_TYPE_UNSPECIFIED
+                        - ANALYTICS_TIME_TYPE_WEEK
+                        - ANALYTICS_TIME_TYPE_MONTH
+                        - ANALYTICS_TIME_TYPE_YEAR
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.SummaryBaseUserResponse'
     /api/v1/admin/base/user/{base_user.id}:
         put:
             tags:
@@ -5228,9 +5266,11 @@ components:
                         - I18N_TARGET_TYPE_UNSPECIFIED
                         - I18N_TARGET_TYPE_BASE_CONFIG_VALUE
                         - I18N_TARGET_TYPE_BASE_CONFIG_NAME
-                        - I18N_TARGET_TYPE_BASE_DICT
-                        - I18N_TARGET_TYPE_BASE_DICT_ITEM
-                        - I18N_TARGET_TYPE_BASE_MENU
+                        - I18N_TARGET_TYPE_BASE_DICT_NAME
+                        - I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL
+                        - I18N_TARGET_TYPE_BASE_MENU_META_TITLE
+                        - I18N_TARGET_TYPE_BASE_JOB_NAME
+                        - I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION
                     type: string
                     description: 目标类型：枚举【I18nTargetType】
                     format: enum
@@ -5282,6 +5322,11 @@ components:
                 updated_at:
                     type: string
                     description: 更新時間
+                i18ns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseI18n'
+                    description: 定时任务名称多语言翻译
             description: 定时任务
         system.admin.v1.BaseJobArgs:
             type: object
@@ -5321,6 +5366,11 @@ components:
                     type: string
                     description: ステータス
                     format: enum
+                i18ns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseI18n'
+                    description: 定时任务名称多语言翻译
             description: 定时任务表单
         system.admin.v1.BaseJobLog:
             type: object
@@ -6079,6 +6129,16 @@ components:
                     type: string
                     description: 备注名
             description: 用户表单
+        system.admin.v1.BaseUserSummaryItem:
+            type: object
+            properties:
+                key:
+                    type: string
+                    description: 统计周期值：按周统计时1至7依次表示星期一至星期日，按月统计时表示日期1至31，按年统计时表示月份1至12
+                count:
+                    type: string
+                    description: 用户数
+            description: 用户注册时间维度汇总项
         system.admin.v1.CodeGenColumn:
             type: object
             properties:
@@ -7808,6 +7868,18 @@ components:
                     type: string
                     description: 生成任务ID
             description: 启动代码生成任务响应
+        system.admin.v1.SummaryBaseUserResponse:
+            type: object
+            properties:
+                total:
+                    type: string
+                    description: 用户总数
+                summaries:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseUserSummaryItem'
+                    description: 用户注册时间维度汇总
+            description: 用户注册汇总响应
         system.admin.v1.TreeBaseAreaResponse:
             type: object
             properties:
@@ -7892,9 +7964,11 @@ components:
                         - I18N_TARGET_TYPE_UNSPECIFIED
                         - I18N_TARGET_TYPE_BASE_CONFIG_VALUE
                         - I18N_TARGET_TYPE_BASE_CONFIG_NAME
-                        - I18N_TARGET_TYPE_BASE_DICT
-                        - I18N_TARGET_TYPE_BASE_DICT_ITEM
-                        - I18N_TARGET_TYPE_BASE_MENU
+                        - I18N_TARGET_TYPE_BASE_DICT_NAME
+                        - I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL
+                        - I18N_TARGET_TYPE_BASE_MENU_META_TITLE
+                        - I18N_TARGET_TYPE_BASE_JOB_NAME
+                        - I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION
                     type: string
                     description: 翻译目标类型，ID为零时用于查询或新增
                     format: enum
@@ -8111,76 +8185,76 @@ components:
             description: 用户资料表单
 tags:
     - name: AiMessageService
-      description: Base AI 助手消息服务
+      description: Base AI アシスタントメッセージサービス
     - name: AiSessionService
-      description: Base AI 助手会话服务
+      description: Base AI アシスタントセッションサービス
     - name: AiToolService
-      description: Base AI 助手工具服务
+      description: Base AI アシスタントツールサービス
     - name: AuthService
-      description: App用户认证服务
+      description: App ユーザー認証サービス
     - name: AuthService
-      description: Admin用户登录认证服务
+      description: Admin ユーザーログイン認証サービス
     - name: BaseApiService
-      description: AdminAPI服务
+      description: Admin API サービス
     - name: BaseAreaService
-      description: App行政区域服务
+      description: App 行政区域サービス
     - name: BaseAreaService
-      description: Admin行政区域服务
+      description: Admin 行政区域サービス
     - name: BaseConfigService
-      description: Admin系统配置服务
+      description: Admin システム設定サービス
     - name: BaseDeptService
-      description: Admin部门服务
+      description: Admin 部門サービス
     - name: BaseDictService
-      description: App字典服务
+      description: App 辞書サービス
     - name: BaseDictService
-      description: Admin字典服务
+      description: Admin 辞書サービス
     - name: BaseI18nService
-      description: 国际化翻译信息服务。
+      description: 国際化翻訳情報サービス。
     - name: BaseJobService
-      description: Admin定时任务服务
+      description: Admin 定期ジョブサービス
     - name: BaseLanguageService
-      description: Admin语言管理服务
+      description: Admin 言語管理サービス
     - name: BaseLogService
-      description: Admin日志服务
+      description: Admin ログサービス
     - name: BaseMenuService
-      description: App菜单服务
+      description: App メニューサービス
     - name: BaseMenuService
-      description: Admin菜单管理服务
+      description: Admin メニュー管理サービス
     - name: BaseMigrationService
-      description: 数据库迁移服务
+      description: データベースマイグレーションサービス
     - name: BasePostService
-      description: Admin岗位管理服务
+      description: Admin 役職管理サービス
     - name: BaseRoleService
-      description: Admin角色管理服务
+      description: Admin ロール管理サービス
     - name: BaseTenantService
-      description: Admin租户管理服务
+      description: Admin テナント管理サービス
     - name: BaseUserService
-      description: Admin用户管理服务
+      description: Admin ユーザー管理サービス
     - name: CodeGenColumnService
-      description: Admin代码生成字段服务
+      description: Admin コード生成フィールドサービス
     - name: CodeGenProtoService
-      description: Admin代码生成Proto接口配置服务
+      description: Admin コード生成 Proto API 設定サービス
     - name: CodeGenService
-      description: Admin代码生成服务
+      description: Admin コード生成サービス
     - name: CodeGenTableService
-      description: Admin代码生成表配置服务
+      description: Admin コード生成テーブル設定サービス
     - name: ConfigService
-      description: Base系统配置公共服务
+      description: Base システム設定共通サービス
     - name: FileService
-      description: Base文件服务
+      description: Base ファイルサービス
     - name: LanguageService
-      description: 语言公共服务。
+      description: 言語共通サービス。
     - name: LoginService
-      description: Base登录公共服务
+      description: Base ログイン共通サービス
     - name: McpService
-      description: Base MCP服务
+      description: Base MCP サービス
     - name: OauthService
-      description: Base三方登录公共服务
+      description: Base 外部ログイン共通サービス
     - name: OpsMonitoringService
-      description: 运维监控服务。
+      description: 運用監視サービス。
     - name: ProjectDocumentService
-      description: 项目文档服务
+      description: プロジェクトドキュメントサービス
     - name: RuntimeLogService
-      description: 运行日志服务。
+      description: 実行ログサービス。
     - name: SseService
-      description: Base SSE服务
+      description: Base SSE サービス

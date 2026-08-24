@@ -1,4 +1,5 @@
 import { ElLoading } from "element-plus";
+import { t } from "@/locales";
 
 /* 全局请求 loading */
 let loadingInstance: ReturnType<typeof ElLoading.service>;
@@ -10,7 +11,7 @@ const startLoading = () => {
   loadingInstance = ElLoading.service({
     fullscreen: true,
     lock: true,
-    text: "Loading",
+    text: t("core.loading.text"),
     background: "rgba(0, 0, 0, 0.7)"
   });
 };

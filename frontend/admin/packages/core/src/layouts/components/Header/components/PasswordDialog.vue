@@ -1,6 +1,6 @@
 <template>
   <el-dialog v-model="dialogVisible" :title="t('core.layout.password_change')" width="500px" draggable>
-    <span>This is Password</span>
+    <span>{{ t("core.layout.password_content") }}</span>
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogVisible = false">{{ t("common.action.cancel") }}</el-button>

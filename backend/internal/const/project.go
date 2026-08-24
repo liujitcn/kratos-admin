@@ -2,7 +2,7 @@ package _const
 
 var (
 	// Project 是 Admin 服务的项目标识。
-	Project = "admin"
+	Project = "kratos"
 	// AppID 是 Admin 服务的应用标识。
 	AppID = "admin"
 	// Name 是 Admin 服务的展示名称。

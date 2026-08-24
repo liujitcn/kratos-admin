@@ -85,7 +85,11 @@ service BaseUserService {
   rpc SetBaseUserAppRole(SetBaseUserAppRoleRequest) returns (google.protobuf.Empty);
 
   // 汇总用户注册数据
-  rpc SummaryBaseUser(SummaryBaseUserRequest) returns (SummaryBaseUserResponse);
+  rpc SummaryBaseUser(SummaryBaseUserRequest) returns (SummaryBaseUserResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/user/summary"
+    };
+  }
 }
 
 // 用户性别。
@@ -289,12 +293,12 @@ message SummaryBaseUserRequest {
 message SummaryBaseUserResponse {
   int64 total = 1 [(gnostic.openapi.v3.property) = {description: "用户总数"}]; // 用户总数
 
-  repeated BaseUserSummaryItem summaries = 2 [(gnostic.openapi.v3.property) = {description: "用户分组汇总"}]; // 用户分组汇总
+  repeated BaseUserSummaryItem summaries = 2 [(gnostic.openapi.v3.property) = {description: "用户注册时间维度汇总"}]; // 用户注册时间维度汇总
 }
 
-// 用户注册分组汇总项
+// 用户注册时间维度汇总项
 message BaseUserSummaryItem {
-  int64 key = 1 [(gnostic.openapi.v3.property) = {description: "分组序号"}]; // 分组序号
+  int64 key = 1 [(gnostic.openapi.v3.property) = {description: "统计周期值：按周统计时1至7依次表示星期一至星期日，按月统计时表示日期1至31，按年统计时表示月份1至12"}]; // 统计周期值：按周统计时1至7依次表示星期一至星期日，按月统计时表示日期1至31，按年统计时表示月份1至12
 
   int64 count = 2 [(gnostic.openapi.v3.property) = {description: "用户数"}]; // 用户数
 }

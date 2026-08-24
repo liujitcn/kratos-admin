@@ -7,6 +7,7 @@
 /* eslint-disable */
 import type { Status } from "../../../common/v1/enum";
 import type { Empty } from "../../../google/protobuf/empty";
+import type { BaseI18n } from "./base_i18n";
 
 /** 定时任务日志状态。 */
 export enum BaseJobLogStatus {
@@ -86,6 +87,8 @@ export interface BaseJobForm {
   cron_expression: string;
   /** 状态 */
   status: Status;
+  /** 定时任务名称多语言翻译 */
+  i18ns: BaseI18n[];
 }
 
 /** 查询定时任务日志请求参数 */
@@ -186,6 +189,8 @@ export interface BaseJob {
   created_at: string;
   /** 更新时间 */
   updated_at: string;
+  /** 定时任务名称多语言翻译 */
+  i18ns: BaseI18n[];
 }
 
 /** Admin定时任务服务 */

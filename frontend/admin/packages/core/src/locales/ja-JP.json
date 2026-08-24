@@ -47,6 +47,15 @@
   "core.auth.no_menu_permission": "現在のアカウントにはメニュー権限がありません。システム管理者に連絡してください。",
   "core.auth.no_permission": "アクセス権限がありません",
   "core.clipboard.success": "正常にコピーされました",
+  "core.markdown.action.copy_code": "コードをコピー",
+  "core.markdown.message.copy_success": "コピーしました",
+  "core.markdown.message.copy_failed": "コピーに失敗しました",
+  "core.loading.text": "読み込み中",
+  "core.layout.avatar": "ユーザーアバター",
+  "core.layout.logo_alt": "システムロゴ",
+  "core.login.background_alt": "ログイン画面の背景",
+  "core.layout.info_content": "現在のユーザー情報を表示します",
+  "core.layout.password_content": "現在のユーザーのパスワードを変更します",
   "core.cron.cycle_unit.day": "日",
   "core.cron.cycle_unit.hour": "時間",
   "core.cron.cycle_unit.minute": "分",
@@ -276,5 +285,9 @@
   "common.value.yes": "はい",
   "common.value.no": "いいえ",
   "common.value.unknown": "不明",
-  "common.value.none": "なし"
+  "common.value.none": "なし",
+  "common.value.top_level": "トップレベル",
+  "common.resource.default": "{resource}",
+  "common.action.delete_resource": "{resource}を削除",
+  "common.action.set_field_status": "{field}を設定"
 }

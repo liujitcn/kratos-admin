@@ -28,6 +28,7 @@ const OperationBaseUserServiceOptionBaseUser = "/system.admin.v1.BaseUserService
 const OperationBaseUserServicePageBaseUser = "/system.admin.v1.BaseUserService/PageBaseUser"
 const OperationBaseUserServiceResetBaseUserPassword = "/system.admin.v1.BaseUserService/ResetBaseUserPassword"
 const OperationBaseUserServiceSetBaseUserStatus = "/system.admin.v1.BaseUserService/SetBaseUserStatus"
+const OperationBaseUserServiceSummaryBaseUser = "/system.admin.v1.BaseUserService/SummaryBaseUser"
 const OperationBaseUserServiceUpdateBaseUser = "/system.admin.v1.BaseUserService/UpdateBaseUser"
 
 type BaseUserServiceHTTPServer interface {
@@ -47,6 +48,8 @@ type BaseUserServiceHTTPServer interface {
 	ResetBaseUserPassword(context.Context, *ResetBaseUserPasswordRequest) (*emptypb.Empty, error)
 	// SetBaseUserStatus 设置状态
 	SetBaseUserStatus(context.Context, *SetBaseUserStatusRequest) (*emptypb.Empty, error)
+	// SummaryBaseUser 汇总用户注册数据
+	SummaryBaseUser(context.Context, *SummaryBaseUserRequest) (*SummaryBaseUserResponse, error)
 	// UpdateBaseUser 更新用户
 	UpdateBaseUser(context.Context, *UpdateBaseUserRequest) (*emptypb.Empty, error)
 }
@@ -62,6 +65,7 @@ func RegisterBaseUserServiceHTTPServer(s *http.Server, srv BaseUserServiceHTTPSe
 	r.Handle("DELETE", "/api/v1/admin/base/user/{id}", _BaseUserService_DeleteBaseUser0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/user/{id}/status", _BaseUserService_SetBaseUserStatus0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/user/{id}/password", _BaseUserService_ResetBaseUserPassword0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/user/summary", _BaseUserService_SummaryBaseUser0_HTTP_Handler(srv))
 }
 
 func _BaseUserService_OptionBaseUser0_HTTP_Handler(srv BaseUserServiceHTTPServer) func(ctx http.Context) error {
@@ -256,6 +260,25 @@ func _BaseUserService_ResetBaseUserPassword0_HTTP_Handler(srv BaseUserServiceHTT
 	}
 }
 
+func _BaseUserService_SummaryBaseUser0_HTTP_Handler(srv BaseUserServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SummaryBaseUserRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseUserServiceSummaryBaseUser)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SummaryBaseUser(ctx, req.(*SummaryBaseUserRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*SummaryBaseUserResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BaseUserServiceHTTPClient interface {
 	// CreateBaseUser 创建用户
 	CreateBaseUser(ctx context.Context, req *CreateBaseUserRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -273,6 +296,8 @@ type BaseUserServiceHTTPClient interface {
 	ResetBaseUserPassword(ctx context.Context, req *ResetBaseUserPasswordRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// SetBaseUserStatus 设置状态
 	SetBaseUserStatus(ctx context.Context, req *SetBaseUserStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// SummaryBaseUser 汇总用户注册数据
+	SummaryBaseUser(ctx context.Context, req *SummaryBaseUserRequest, opts ...http.CallOption) (rsp *SummaryBaseUserResponse, err error)
 	// UpdateBaseUser 更新用户
 	UpdateBaseUser(ctx context.Context, req *UpdateBaseUserRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
@@ -418,6 +443,23 @@ func (c *BaseUserServiceHTTPClientImpl) SetBaseUserStatus(ctx context.Context, i
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// SummaryBaseUser 汇总用户注册数据
+func (c *BaseUserServiceHTTPClientImpl) SummaryBaseUser(ctx context.Context, in *SummaryBaseUserRequest, opts ...http.CallOption) (*SummaryBaseUserResponse, error) {
+	var out SummaryBaseUserResponse
+	pattern := "/api/v1/admin/base/user/summary"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationBaseUserServiceSummaryBaseUser),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

@@ -158,6 +158,7 @@ SQL_FIXED_I18NS = {
         "系统配置类型": "システム設定の種類",
         "验证码类型": "CAPTCHAの種類",
         "定时任务日志状态": "スケジュールジョブログのステータス",
+        "资源翻译任务": "リソース翻訳タスク",
         "菜单类型": "メニューの種類",
         "用户角色数据范围": "ユーザーロールのデータ範囲",
         "业务模块": "業務モジュール",
@@ -835,6 +836,8 @@ def parse_primary_i18n_sources(default_data: Path) -> dict[tuple[int, int], str]
                 continue
             if isinstance(metadata, dict) and isinstance(metadata.get("title"), str):
                 sources[(5, resource_id)] = metadata["title"]
+        elif table == "base_job" and len(values) > 1:
+            sources[(6, resource_id)] = str(values[1] or "")
     return sources
 
 
@@ -888,9 +891,10 @@ def generate_sql(locale: str, converter, machine: bool, offline: bool, write: bo
         target.write_text("\n".join(generated) + "\n", encoding="utf-8")
 
 
-def render_i18n_description(locale: str) -> str:
+def render_i18n_migration_description(locales: tuple[str, ...]) -> str:
     return (
-        f"由 `scripts/generate_locale_drafts.py` 生成的 {locale} 动态资源翻译草稿。\n\n"
+        "由 `scripts/generate_locale_drafts.py` 生成动态资源翻译草稿。\n\n"
+        f"目标语言：{', '.join(locales)}。\n\n"
         "迁移只写入非空固定译文，已有统一表记录不会被覆盖；运行时仅在记录为空时补充机器译文。\n"
     )
 
@@ -933,10 +937,10 @@ def main() -> int:
             for source in JSON_SOURCES:
                 generate_json(source, locale, converter, args.machine, args.offline, args.write)
         generate_sql(locale, converter, args.machine, args.offline, args.write, sql_directory)
-        if args.migration_version and args.write:
-            (sql_directory / f"i18n.{locale}.description.md").write_text(
-                render_i18n_description(locale), encoding="utf-8"
-            )
+    if args.migration_version and args.write:
+        readme = sql_directory / "README.md"
+        if not readme.exists():
+            readme.write_text(render_i18n_migration_description(locales), encoding="utf-8")
     action = "已生成" if args.write else "可生成"
     artifact = "迁移数据" if args.sql_only else "语言包和迁移数据"
     print(f"{action} {', '.join(locales)} {artifact}")

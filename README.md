@@ -91,9 +91,12 @@ uni-app 和 Taro H5 默认分别使用 `5004` 与 `5002`，可以同时启动。
 make -C backend gen
 make check
 make -C frontend build-all
+make normalize-go-imports
 ```
 
-`make check` 按 Backend、管理端模块边界、管理后台、uni-app、Taro 的顺序执行检查。`build-all` 构建管理后台及两个应用端的 H5 宿主；生成全部 npm 发布包使用 `make -C frontend package`，微信小程序仍分别执行各 workspace 的 `pnpm build:mp-weixin`。
+`make check` 按 Backend、管理后台、uni-app、Taro 的顺序执行检查。`build-all` 构建管理后台及两个应用端的 H5 宿主；生成全部 npm 发布包使用 `make -C frontend package`，微信小程序仍分别执行各 workspace 的 `pnpm build:mp-weixin`。
+
+`make normalize-go-imports` 默认只预览 Go import 别名规范化结果；确认结果后使用 `NORMALIZE_GO_IMPORTS_WRITE=1 make normalize-go-imports` 写回文件。只处理指定文件时设置 `NORMALIZE_GO_IMPORTS_FILES`，例如 `NORMALIZE_GO_IMPORTS_FILES=backend/api/gen/go/base/v1/login.pb.go make normalize-go-imports`。
 
 后端默认通过 `make -C backend build` 构建 `linux/amd64` 二进制，通过 `make -C backend package` 生成包含 `bin/server` 和 `configs` 的发布压缩包；目标平台可使用 `GOOS`、`GOARCH` 覆盖。
 
@@ -121,7 +124,7 @@ make -C backend docker-stop IMAGE=kratos-admin TAG=latest
 
 语言包定义系统能够渲染的语言集合，`base_language` 表只负责运行时启用状态、名称、排序和主语言配置。管理端语言偏好保存为 `kratos-admin:locale`，uni-app 和 Taro 保存为 `kratos-app:locale`；所有 HTTP、刷新令牌、fetch、SSE、uni.request 和 Taro.request 请求都会发送规范化的 `Accept-Language`。固定文案由各 workspace 的 core/System JSON 语言包维护，动态菜单和字典由后端翻译表按请求语言解析，缺少当前语言译文时回退主语言。
 
-新增语言不需要修改 Go、TypeScript 或模块注册代码：在后端错误目录和三个 workspace 的六个前端语言包目录中增加同名 JSON，并在代码生成 `catalog.json` 中增加同名数据，然后执行 `make i18n-sync`。脚本会校验语言集合、语言键和占位符，并生成六个前端注册文件、Element Plus 和 Day.js 映射。语言名称、排序、启用状态和主语言由 `base_language` 数据库记录提供；`common.language.*` 用于编译期离线显示和生成语言迁移的初始名称。新增语言的完整文件清单和迁移流程见 [国际化语言扩展指南](docs/国际化语言扩展指南.md)。需要把语言加入新部署数据库时，再执行 `make i18n-sync I18N_MIGRATION_VERSION=vX.Y.Z`，提交脚本生成的版本化 `base_language` 迁移；已有数据库的启用状态不会被迁移覆盖。
+新增语言不需要修改 Go、TypeScript 或模块注册代码：在 `backend/internal/i18n/assets` 和三个 workspace 的六个前端语言包目录中增加同名 JSON，然后执行 `make i18n-sync`。脚本会校验语言集合、语言键和占位符，并生成六个前端注册文件、Element Plus 和 Day.js 映射。语言名称、排序、启用状态和主语言由 `base_language` 数据库记录提供；`common.language.*` 用于编译期离线显示和生成语言迁移的初始名称。新增语言的完整文件清单和迁移流程见 [国际化语言扩展指南](docs/国际化语言扩展指南.md)。需要把语言加入新部署数据库时，再执行 `make i18n-sync I18N_MIGRATION_VERSION=vX.Y.Z`，提交脚本生成的版本化 `base_language` 迁移；已有数据库的启用状态不会被迁移覆盖。
 
 动态资源的主语言由 `base_language.is_primary` 配置。创建或更新菜单、字典、字典项和系统配置时，后端按请求 `Accept-Language` 将输入文本转换为主语言写入主表；请求语言不是主语言时，原文写入对应翻译表，其他已启用非主语言也只保存在翻译表。系统配置名称、菜单标题、字典名称和字典项标签支持在管理端点击名称打开翻译弹窗，文本/富文本配置值支持运行时翻译回退。
 

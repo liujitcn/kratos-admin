@@ -138,7 +138,8 @@ const headerActions = computed<HeaderActionProps[]>(() => [
 /** 请求语言分页列表。 */
 async function requestBaseLanguageTable(params: PageBaseLanguageRequest) {
   const data = await defBaseLanguageService.PageBaseLanguage(buildPageRequest(params));
-  return { data: { list: data.base_languages ?? [], total: data.total } };
+  const list = (data.base_languages ?? []).map(item => ({ ...item, is_primary: item.is_primary ?? false }));
+  return { data: { list, total: data.total } };
 }
 
 /** 打开语言编辑弹窗。 */

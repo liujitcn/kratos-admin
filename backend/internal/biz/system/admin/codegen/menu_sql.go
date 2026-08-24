@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/const"
+	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 )
 
@@ -78,7 +78,7 @@ func writeMenuI18nSQL(builder *strings.Builder, menuIDExpression string, spec Co
 		}
 		builder.WriteString("INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`)\n")
 		builder.WriteString("SELECT ")
-		builder.WriteString(strconv.FormatInt(int64(_const.I18N_TARGET_TYPE_BASE_MENU), 10))
+		builder.WriteString(strconv.FormatInt(int64(_const.I18N_TARGET_TYPE_BASE_MENU_META_TITLE), 10))
 		builder.WriteString(", ")
 		builder.WriteString(menuIDExpression)
 		builder.WriteString(", ")
@@ -91,7 +91,7 @@ func writeMenuI18nSQL(builder *strings.Builder, menuIDExpression string, spec Co
 		builder.WriteString(" IS NOT NULL AND EXISTS (SELECT 1 FROM `base_language` WHERE `language_code` = ")
 		builder.WriteString(sqlString(localeValue))
 		builder.WriteString(" AND `is_primary` = 0 AND `status` = 1 AND `deleted_at` = 0) AND NOT EXISTS (SELECT 1 FROM `base_i18n` WHERE `target_type` = ")
-		builder.WriteString(strconv.FormatInt(int64(_const.I18N_TARGET_TYPE_BASE_MENU), 10))
+		builder.WriteString(strconv.FormatInt(int64(_const.I18N_TARGET_TYPE_BASE_MENU_META_TITLE), 10))
 		builder.WriteString(" AND `target_id` = ")
 		builder.WriteString(menuIDExpression)
 		builder.WriteString(" AND `locale` = ")
@@ -120,7 +120,7 @@ func (c *renderer) newGeneratedMenuSQLPreviewFile(table *Table, content string) 
 			Path:    path,
 			Action:  "create",
 			Content: generatedMenuSQLBlock(table, content) + "\n",
-			Message: fmt.Sprintf("将新增 %s", path),
+			Message: Message(c.localeState, "preview.menu_sql_create", map[string]string{"path": path}),
 		}
 	}
 	var merged string
@@ -140,7 +140,7 @@ func (c *renderer) newGeneratedMenuSQLPreviewFile(table *Table, content string) 
 			Action:  "skip",
 			Content: merged,
 			Exists:  true,
-			Message: fmt.Sprintf("%s 中的菜单和按钮权限 SQL 无需更新", path),
+			Message: Message(c.localeState, "preview.menu_sql_unchanged", map[string]string{"path": path}),
 		}
 	}
 	return &adminv1.CodeGenPreviewFile{
@@ -148,7 +148,7 @@ func (c *renderer) newGeneratedMenuSQLPreviewFile(table *Table, content string) 
 		Action:  "update",
 		Content: merged,
 		Exists:  true,
-		Message: fmt.Sprintf("将更新 %s 中的菜单和按钮权限 SQL", path),
+		Message: Message(c.localeState, "preview.menu_sql_update", map[string]string{"path": path}),
 	}
 }
 

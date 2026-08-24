@@ -13,7 +13,9 @@
           <el-descriptions-item :label="t('system.base.log.field.status_code')">
             <el-tag :type="statusCodeColor" effect="light">{{ detail.status_code || "--" }}</el-tag>
           </el-descriptions-item>
-          <el-descriptions-item :label="t('system.base.log.field.cost_time')">{{ detail.cost_time || "--" }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.base.log.field.cost_time')">{{
+            detail.cost_time || "--"
+          }}</el-descriptions-item>
           <el-descriptions-item :label="t('system.base.log.field.request_time')">{{
             detail.request_time || "--"
           }}</el-descriptions-item>
@@ -26,7 +28,9 @@
           direction="vertical"
           class="mt-4 compact-descriptions"
         >
-          <el-descriptions-item :label="t('system.base.log.field.request_id')">{{ detail.request_id || "--" }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.base.log.field.request_id')">{{
+            detail.request_id || "--"
+          }}</el-descriptions-item>
           <el-descriptions-item :label="t('system.base.log.field.operation')">
             <el-tag effect="plain">{{ detail.operation || "--" }}</el-tag>
           </el-descriptions-item>
@@ -53,8 +57,12 @@
 
         <el-descriptions :title="t('system.base.log.section.user')" border :column="2" class="mt-4">
           <el-descriptions-item :label="t('system.base.log.field.user_id')">{{ detail.user_id || "--" }}</el-descriptions-item>
-          <el-descriptions-item :label="t('system.base.log.field.user_name')">{{ detail.user_name || "--" }}</el-descriptions-item>
-          <el-descriptions-item :label="t('system.base.log.field.client_ip')">{{ detail.client_ip || "--" }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.base.log.field.user_name')">{{
+            detail.user_name || "--"
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.base.log.field.client_ip')">{{
+            detail.client_ip || "--"
+          }}</el-descriptions-item>
           <el-descriptions-item :label="t('system.base.log.field.location')">{{ detail.location || "--" }}</el-descriptions-item>
         </el-descriptions>
 
@@ -71,9 +79,15 @@
           <el-descriptions-item :label="t('system.base.log.field.os')">
             {{ [detail.os_name, detail.os_version].filter(Boolean).join(" ") || "--" }}
           </el-descriptions-item>
-          <el-descriptions-item :label="t('system.base.log.field.client_name')">{{ detail.client_name || "--" }}</el-descriptions-item>
-          <el-descriptions-item :label="t('system.base.log.field.client_id')">{{ detail.client_id || "--" }}</el-descriptions-item>
-          <el-descriptions-item label="User Agent" :span="2">{{ detail.user_agent || "--" }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.base.log.field.client_name')">{{
+            detail.client_name || "--"
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.base.log.field.client_id')">{{
+            detail.client_id || "--"
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.base.log.field.user_agent')" :span="2">{{
+            detail.user_agent || "--"
+          }}</el-descriptions-item>
         </el-descriptions>
 
         <el-alert

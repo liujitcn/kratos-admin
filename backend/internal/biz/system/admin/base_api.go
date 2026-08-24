@@ -213,11 +213,19 @@ func (c *BaseAPICase) GetBaseAPIDoc(ctx context.Context, id int64) (*adminv1.Bas
 	if err != nil {
 		return nil, err
 	}
-	coreDocument, err := c.openAPI.GetOperation(ctx, baseAPI.Path, baseAPI.Method)
+	var coreDocument *dto.OpenAPIOperationDocument
+	coreDocument, err = c.openAPI.GetOperation(ctx, baseAPI.Path, baseAPI.Method)
 	if err != nil {
 		return nil, err
 	}
-	return mapBaseAPIDoc(baseAPI.ID, coreDocument), nil
+	var sourceDocument *dto.OpenAPIOperationDocument
+	sourceDocument, err = c.openAPI.GetOperation(biz.WithLocale(ctx, "zh-CN"), baseAPI.Path, baseAPI.Method)
+	if err != nil {
+		return nil, err
+	}
+	res := mapBaseAPIDoc(baseAPI.ID, coreDocument)
+	applyBaseAPIDocFallback(c.catalog, res, mapBaseAPIDoc(baseAPI.ID, sourceDocument), baseAPI.Operation, biz.LocaleFromContext(ctx))
+	return res, nil
 }
 
 // OptionOpenAPIService 查询 OpenAPI 文档选项。
@@ -322,6 +330,18 @@ func (c *BaseAPICase) toBaseAPIDTO(ctx context.Context, item *models.BaseAPI, i1
 		if i18n.Desc != "" {
 			baseAPI.Desc = i18n.Desc
 		}
+	}
+	locale := biz.LocaleFromContext(ctx)
+	if localizedTextNeedsFallback(locale, item.ServiceDesc, baseAPI.ServiceDesc) {
+		baseAPI.ServiceDesc = technicalServiceDescription(c.catalog, locale, item.ServiceName)
+	}
+	if localizedTextNeedsFallback(locale, item.Desc, baseAPI.Desc) {
+		baseAPI.Desc = technicalOperationDescription(item.Operation)
+	}
+	sourcePrompts := strings.Join(parseToolPrompts(item.ToolPrompts), " ")
+	targetPrompts := strings.Join(baseAPI.ToolPrompts, " ")
+	if localizedTextNeedsFallback(locale, sourcePrompts, targetPrompts) || strings.Contains(targetPrompts, item.Desc) {
+		baseAPI.ToolPrompts = []string{technicalOperationPrompt(c.catalog, locale, item.Operation, item.Method, item.Path)}
 	}
 	document, found := c.openAPI.Service(ctx, item.Path, item.Method)
 	if found {
@@ -536,6 +556,124 @@ func mapBaseAPIDocSchema(schema *dto.OpenAPISchema) *adminv1.BaseApiDocSchema {
 		Children:    children,
 	}
 }
+
+// applyBaseAPIDocFallback 将未翻译的 OpenAPI 自然语言替换为稳定技术描述。
+func applyBaseAPIDocFallback(catalog *i18n.I18n, target, source *adminv1.BaseApiDoc, operation, locale string) {
+	if target == nil || source == nil || !technicalFallbackLocale(locale) {
+		return
+	}
+	if target.Summary == source.Summary || localizedTextNeedsFallback(locale, source.Summary, target.Summary) {
+		target.Summary = technicalOperationDescription(operation)
+	}
+	if target.Description == source.Description || localizedTextNeedsFallback(locale, source.Description, target.Description) {
+		target.Description = technicalOperationDescription(operation)
+	}
+	for index, parameter := range target.Parameters {
+		if index < len(source.Parameters) {
+			applyBaseAPIDocSchemaFallback(parameter, source.Parameters[index], locale)
+		}
+	}
+	applyBaseAPIDocSchemaFallback(target.RequestBody, source.RequestBody, locale)
+	for index, response := range target.Responses {
+		if index >= len(source.Responses) {
+			continue
+		}
+		sourceResponse := source.Responses[index]
+		if response.Description == sourceResponse.Description || localizedTextNeedsFallback(locale, sourceResponse.Description, response.Description) {
+			response.Description = localizedBaseAPITechnicalText(catalog, locale, "response", map[string]any{"Status": response.Status})
+		}
+		applyBaseAPIDocSchemaFallback(response.Body, sourceResponse.Body, locale)
+	}
+}
+
+// applyBaseAPIDocSchemaFallback 递归替换未翻译的 OpenAPI 字段说明。
+func applyBaseAPIDocSchemaFallback(target, source *adminv1.BaseApiDocSchema, locale string) {
+	if target == nil || source == nil {
+		return
+	}
+	if target.Description == source.Description || localizedTextNeedsFallback(locale, source.Description, target.Description) {
+		target.Description = splitTechnicalIdentifier(target.Name)
+	}
+	for index, child := range target.Children {
+		if index < len(source.Children) {
+			applyBaseAPIDocSchemaFallback(child, source.Children[index], locale)
+		}
+	}
+}
+
+// localizedTextNeedsFallback 判断目标文案是否仍包含源语言内容。
+func localizedTextNeedsFallback(locale, source, target string) bool {
+	if !technicalFallbackLocale(locale) {
+		return false
+	}
+	if target == "" || target == source || source != "" && strings.Contains(target, source) {
+		return true
+	}
+	if locale == "en-US" {
+		return containsHanText(target)
+	}
+	return containsHanText(target) && !containsKanaText(target)
+}
+
+// technicalFallbackLocale 判断当前语言是否需要技术文案兜底。
+func technicalFallbackLocale(locale string) bool {
+	return locale == "en-US" || locale == "ja-JP"
+}
+
+// technicalServiceDescription 根据 Proto 服务名生成技术描述。
+func technicalServiceDescription(catalog *i18n.I18n, locale, serviceName string) string {
+	return localizedBaseAPITechnicalText(catalog, locale, "service", map[string]any{
+		"Name": splitTechnicalIdentifier(strings.TrimSuffix(serviceName, "Service")),
+	})
+}
+
+// technicalOperationDescription 根据 RPC 操作名生成技术描述。
+func technicalOperationDescription(operation string) string {
+	name := operation
+	if separator := strings.LastIndex(operation, "/"); separator >= 0 {
+		name = operation[separator+1:]
+	}
+	return splitTechnicalIdentifier(name)
+}
+
+// technicalOperationPrompt 根据 RPC 与 HTTP 契约生成稳定工具提示。
+func technicalOperationPrompt(catalog *i18n.I18n, locale, operation, method, path string) string {
+	return localizedBaseAPITechnicalText(catalog, locale, "operation_prompt", map[string]any{
+		"Description": technicalOperationDescription(operation),
+		"Operation":   operation,
+		"Method":      method,
+		"Path":        path,
+	})
+}
+
+// localizedBaseAPITechnicalText 返回 API 文档技术兜底的当前语言文案。
+func localizedBaseAPITechnicalText(catalog *i18n.I18n, locale, key string, args map[string]any) string {
+	messageKey := "system.admin.base.api.technical." + key
+	return catalog.Localize(locale, "zh-CN", messageKey, args, messageKey)
+}
+
+// splitTechnicalIdentifier 将驼峰技术标识拆分为可读文本。
+func splitTechnicalIdentifier(value string) string {
+	value = technicalAcronymBoundaryPattern.ReplaceAllString(value, "$1 $2")
+	return technicalWordBoundaryPattern.ReplaceAllString(value, "$1 $2")
+}
+
+// containsHanText 判断文案是否包含汉字。
+func containsHanText(value string) bool {
+	return technicalHanPattern.MatchString(value)
+}
+
+// containsKanaText 判断文案是否包含日语假名。
+func containsKanaText(value string) bool {
+	return technicalKanaPattern.MatchString(value)
+}
+
+var (
+	technicalAcronymBoundaryPattern = regexp.MustCompile(`([A-Z]+)([A-Z][a-z])`)
+	technicalWordBoundaryPattern    = regexp.MustCompile(`([a-z0-9])([A-Z])`)
+	technicalHanPattern             = regexp.MustCompile(`[\p{Han}]`)
+	technicalKanaPattern            = regexp.MustCompile(`[\p{Hiragana}\p{Katakana}]`)
+)
 
 // matchAuthWhiteList 按认证白名单规则匹配当前接口操作名。
 func matchAuthWhiteList(whiteList *configv1.Authentication_Jwt_WhiteList, operation string) bool {

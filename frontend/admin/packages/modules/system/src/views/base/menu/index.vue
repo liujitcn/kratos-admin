@@ -296,7 +296,7 @@ function renderMenuTitleCell(scope: RenderScope<BaseMenu>) {
   const row = scope.row;
   return h(DynamicI18nCell, {
     source: row.meta?.title ?? "",
-    targetType: I18nTargetType.I18N_TARGET_TYPE_BASE_MENU,
+    targetType: I18nTargetType.I18N_TARGET_TYPE_BASE_MENU_META_TITLE,
     targetId: row.id,
     i18ns: row.i18ns
   });
@@ -1001,7 +1001,7 @@ function buildSubmitPayload(): BaseMenuForm {
   const payload = normalizeMenuForm(formData);
   payload.i18ns = serializeDynamicI18ns(
     i18nValues.value,
-    I18nTargetType.I18N_TARGET_TYPE_BASE_MENU,
+    I18nTargetType.I18N_TARGET_TYPE_BASE_MENU_META_TITLE,
     payload.id
   );
   // 一级菜单在表单中保持空白，提交时仍按接口约定传回根节点标识。

@@ -1124,7 +1124,7 @@ func (x *SummaryBaseUserRequest) GetTimeType() v1.AnalyticsTimeType {
 type SummaryBaseUserResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Total         int64                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`        // 用户总数
-	Summaries     []*BaseUserSummaryItem `protobuf:"bytes,2,rep,name=summaries,proto3" json:"summaries,omitempty"` // 用户分组汇总
+	Summaries     []*BaseUserSummaryItem `protobuf:"bytes,2,rep,name=summaries,proto3" json:"summaries,omitempty"` // 用户注册时间维度汇总
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1173,10 +1173,10 @@ func (x *SummaryBaseUserResponse) GetSummaries() []*BaseUserSummaryItem {
 	return nil
 }
 
-// 用户注册分组汇总项
+// 用户注册时间维度汇总项
 type BaseUserSummaryItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Key           int64                  `protobuf:"varint,1,opt,name=key,proto3" json:"key,omitempty"`     // 分组序号
+	Key           int64                  `protobuf:"varint,1,opt,name=key,proto3" json:"key,omitempty"`     // 统计周期值：按周统计时1至7依次表示星期一至星期日，按月统计时表示日期1至31，按年统计时表示月份1至12
 	Count         int64                  `protobuf:"varint,2,opt,name=count,proto3" json:"count,omitempty"` // 用户数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1342,19 +1342,18 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\x06end_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampB\x18\xbaG\x0f\x92\x02\f结束时间\xbaH\x03\xc8\x01\x01R\x05endAt\x12[\n" +
 	"\ttime_type\x18\x04 \x01(\x0e2\x1c.common.v1.AnalyticsTimeTypeB \xbaG\x15\x92\x02\x12统计时间类型\xbaH\x05\x82\x01\x02\x10\x01R\btimeTypeB\f\n" +
 	"\n" +
-	"_tenant_id\"\xa1\x01\n" +
+	"_tenant_id\"\xad\x01\n" +
 	"\x17SummaryBaseUserResponse\x12(\n" +
-	"\x05total\x18\x01 \x01(\x03B\x12\xbaG\x0f\x92\x02\f用户总数R\x05total\x12\\\n" +
-	"\tsummaries\x18\x02 \x03(\v2$.system.admin.v1.BaseUserSummaryItemB\x18\xbaG\x15\x92\x02\x12用户分组汇总R\tsummaries\"b\n" +
-	"\x13BaseUserSummaryItem\x12$\n" +
-	"\x03key\x18\x01 \x01(\x03B\x12\xbaG\x0f\x92\x02\f分组序号R\x03key\x12%\n" +
+	"\x05total\x18\x01 \x01(\x03B\x12\xbaG\x0f\x92\x02\f用户总数R\x05total\x12h\n" +
+	"\tsummaries\x18\x02 \x03(\v2$.system.admin.v1.BaseUserSummaryItemB$\xbaG!\x92\x02\x1e用户注册时间维度汇总R\tsummaries\"\xe9\x01\n" +
+	"\x13BaseUserSummaryItem\x12\xaa\x01\n" +
+	"\x03key\x18\x01 \x01(\x03B\x97\x01\xbaG\x93\x01\x92\x02\x8f\x01统计周期值：按周统计时1至7依次表示星期一至星期日，按月统计时表示日期1至31，按年统计时表示月份1至12R\x03key\x12%\n" +
 	"\x05count\x18\x02 \x01(\x03B\x0f\xbaG\f\x92\x02\t用户数R\x05count*\x87\x01\n" +
 	"\x0eBaseUserGender\x12 \n" +
 	"\x1cBASE_USER_GENDER_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17BASE_USER_GENDER_SECRET\x10\x01\x12\x19\n" +
 	"\x15BASE_USER_GENDER_MALE\x10\x02\x12\x1b\n" +
-	"\x17BASE_USER_GENDER_FEMALE\x10\x032\xf0\n" +
-	"\n" +
+	"\x17BASE_USER_GENDER_FEMALE\x10\x032\x9a\v\n" +
 	"\x0fBaseUserService\x12\x81\x01\n" +
 	"\x0eOptionBaseUser\x12&.system.admin.v1.OptionBaseUserRequest\x1a\x1f.common.v1.SelectOptionResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/user/option\x12\x81\x01\n" +
 	"\fListBaseUser\x12$.system.admin.v1.ListBaseUserRequest\x1a%.system.admin.v1.ListBaseUserResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/user/list\x12|\n" +
@@ -1365,8 +1364,8 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\x0eDeleteBaseUser\x12&.system.admin.v1.DeleteBaseUserRequest\x1a\x16.google.protobuf.Empty\"$\x82\xd3\xe4\x93\x02\x1e*\x1c/api/v1/admin/base/user/{id}\x12\x86\x01\n" +
 	"\x11SetBaseUserStatus\x12).system.admin.v1.SetBaseUserStatusRequest\x1a\x16.google.protobuf.Empty\".\x82\xd3\xe4\x93\x02(:\x01*\x1a#/api/v1/admin/base/user/{id}/status\x12\x90\x01\n" +
 	"\x15ResetBaseUserPassword\x12-.system.admin.v1.ResetBaseUserPasswordRequest\x1a\x16.google.protobuf.Empty\"0\x82\xd3\xe4\x93\x02*:\x01*\x1a%/api/v1/admin/base/user/{id}/password\x12X\n" +
-	"\x12SetBaseUserAppRole\x12*.system.admin.v1.SetBaseUserAppRoleRequest\x1a\x16.google.protobuf.Empty\x12d\n" +
-	"\x0fSummaryBaseUser\x12'.system.admin.v1.SummaryBaseUserRequest\x1a(.system.admin.v1.SummaryBaseUserResponseB\xcf\x01\n" +
+	"\x12SetBaseUserAppRole\x12*.system.admin.v1.SetBaseUserAppRoleRequest\x1a\x16.google.protobuf.Empty\x12\x8d\x01\n" +
+	"\x0fSummaryBaseUser\x12'.system.admin.v1.SummaryBaseUserRequest\x1a(.system.admin.v1.SummaryBaseUserResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/base/user/summaryB\xcf\x01\n" +
 	"\x13com.system.admin.v1B\rBaseUserProtoP\x01ZKgithub.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1;adminv1\xa2\x02\x03SAX\xaa\x02\x0fSystem.Admin.V1\xca\x02\x0fSystem\\Admin\\V1\xe2\x02\x1bSystem\\Admin\\V1\\GPBMetadata\xea\x02\x11System::Admin::V1b\x06proto3"
 
 var (

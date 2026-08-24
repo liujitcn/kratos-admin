@@ -7,7 +7,7 @@
     :theme="props.isDark ? 'dark' : 'light'"
     preview-theme="github"
     code-theme="github"
-    language="zh-CN"
+    :language="locale"
     :show-code-row-number="false"
     :code-foldable="false"
     :no-mermaid="true"
@@ -26,6 +26,7 @@ import DOMPurify from "dompurify";
 import hljs from "highlight.js";
 import { config as configureMarkdownPreview, MdPreview } from "md-editor-v3";
 import type { MdHeadingId } from "md-editor-v3";
+import { getLocaleText, useLocaleStore } from "@/locales";
 import "md-editor-v3/lib/preview.css";
 
 defineOptions({
@@ -53,11 +54,30 @@ const props = withDefaults(defineProps<MarkdownPreviewProps>(), {
 const generatedId = useId();
 const resolvedId = computed(() => props.id || `core-markdown-preview-${generatedId.replaceAll(":", "")}`);
 const markdownHeadingIdCounts = new Map<string, number>();
+const { locale } = useLocaleStore();
 
 configureMarkdownPreview({
   editorExtensions: {
     highlight: {
       instance: hljs
+    }
+  },
+  editorConfig: {
+    languageUserDefined: {
+      "zh-TW": {
+        copyCode: {
+          text: getLocaleText("zh-TW", "core.markdown.action.copy_code"),
+          successTips: getLocaleText("zh-TW", "core.markdown.message.copy_success"),
+          failTips: getLocaleText("zh-TW", "core.markdown.message.copy_failed")
+        }
+      },
+      "ja-JP": {
+        copyCode: {
+          text: getLocaleText("ja-JP", "core.markdown.action.copy_code"),
+          successTips: getLocaleText("ja-JP", "core.markdown.message.copy_success"),
+          failTips: getLocaleText("ja-JP", "core.markdown.message.copy_failed")
+        }
+      }
     }
   }
 });

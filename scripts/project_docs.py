@@ -45,6 +45,29 @@ PROTECTED_PATTERN = re.compile(
     r"/(?:api|events|mcp|v[0-9]+)/[A-Za-z0-9_./:{}-]+"
 )
 FENCE_PATTERN = re.compile(r"^\s*(```|~~~)")
+DOCUMENT_NAME_I18N = {
+    "AI助手设计.md": {"en-US": "AI Assistant Design.md", "zh-TW": "AI 助手設計.md", "ja-JP": "AI アシスタント設計.md"},
+    "前端组件清单.md": {"en-US": "Frontend Component Catalog.md", "zh-TW": "前端元件清單.md", "ja-JP": "フロントエンドコンポーネント一覧.md"},
+    "国际化最终方案.md": {"en-US": "Final Internationalization Design.md", "zh-TW": "國際化最終方案.md", "ja-JP": "国際化最終設計.md"},
+    "国际化语言扩展指南.md": {"en-US": "Internationalization Language Extension Guide.md", "zh-TW": "國際化語言擴充指南.md", "ja-JP": "国際化言語拡張ガイド.md"},
+    "接口参数校验设计.md": {"en-US": "API Parameter Validation Design.md", "zh-TW": "API 參數驗證設計.md", "ja-JP": "API パラメータ検証設計.md"},
+    "数据库与初始化数据设计.md": {"en-US": "Database and Seed Data Design.md", "zh-TW": "資料庫與初始化資料設計.md", "ja-JP": "データベースと初期データ設計.md"},
+    "服务接入指南.md": {"en-US": "Service Integration Guide.md", "zh-TW": "服務接入指南.md", "ja-JP": "サービス統合ガイド.md"},
+    "登录与密码加密流程.md": {"en-US": "Login and Password Encryption Flow.md", "zh-TW": "登入與密碼加密流程.md", "ja-JP": "ログインとパスワード暗号化フロー.md"},
+    "系统总体设计.md": {"en-US": "System Architecture.md", "zh-TW": "系統總體設計.md", "ja-JP": "システム全体設計.md"},
+    "后端服务设计.md": {"en-US": "Backend Service Design.md", "zh-TW": "後端服務設計.md", "ja-JP": "バックエンドサービス設計.md"},
+    "商城业务范围.md": {"en-US": "Shop Business Scope.md", "zh-TW": "商城業務範圍.md", "ja-JP": "ショップ業務範囲.md"},
+    "商城端设计.md": {"en-US": "Storefront Design.md", "zh-TW": "商城端設計.md", "ja-JP": "ストアフロント設計.md"},
+    "推荐系统设计.md": {"en-US": "Recommendation System Design.md", "zh-TW": "推薦系統設計.md", "ja-JP": "レコメンドシステム設計.md"},
+    "租户与门店体系设计.md": {"en-US": "Tenant and Store Model Design.md", "zh-TW": "租戶與門店體系設計.md", "ja-JP": "テナント・店舗体系設計.md"},
+    "管理后台设计.md": {"en-US": "Admin Console Design.md", "zh-TW": "管理後臺設計.md", "ja-JP": "管理画面設計.md"},
+    "统计数据流转设计.md": {"en-US": "Analytics Data Flow Design.md", "zh-TW": "統計資料流轉設計.md", "ja-JP": "統計データフロー設計.md"},
+    "订单数据流转设计.md": {"en-US": "Order Data Flow Design.md", "zh-TW": "訂單資料流轉設計.md", "ja-JP": "注文データフロー設計.md"},
+    "评价与审核数据流转设计.md": {"en-US": "Review and Moderation Data Flow Design.md", "zh-TW": "評價與審核資料流轉設計.md", "ja-JP": "レビュー・審査データフロー設計.md"},
+}
+CONTENT_LITERAL_I18N = {
+    '"语言=路径"': {"en-US": '"locale=path"', "zh-TW": '"語言=路徑"', "ja-JP": '"言語=パス"'},
+}
 
 
 @dataclass(frozen=True)
@@ -385,6 +408,21 @@ def i18n_document_name_with_status(
     return f"{translated.strip() or path.stem}{path.suffix}", succeeded
 
 
+def localized_document_name(value: str, target_locale: str) -> str:
+    """返回稳定词典中的本地化文档名。"""
+    return DOCUMENT_NAME_I18N.get(value, {}).get(canonical_locale(target_locale), "")
+
+
+def localize_content_literals(value: str, target_locale: str) -> str:
+    """替换机器翻译刻意保护、但需要随语言变化的示例字面量。"""
+    locale = canonical_locale(target_locale)
+    for source, translations in CONTENT_LITERAL_I18N.items():
+        target = translations.get(locale)
+        if target:
+            value = value.replace(source, target)
+    return value
+
+
 def iter_documents(node: dict[str, Any]) -> Iterator[dict[str, Any]]:
     """递归遍历目录中的全部文档节点。"""
     documents = node.get("documents", [])
@@ -538,13 +576,17 @@ def i18n_catalog(
             if succeeded:
                 translated_content = candidate
                 changed += 1
-        output_document["content"] = translated_content or source_content
+        output_document["content"] = localize_content_literals(
+            translated_content or source_content, target_locale
+        )
         output_document.pop("locale", None)
 
         translated_name = ""
         if source_name == "README.md":
             translated_name = source_name
-        elif existing_document is not None:
+        else:
+            translated_name = localized_document_name(source_name, target_locale)
+        if not translated_name and existing_document is not None:
             existing_name = existing_document.get("name")
             if (
                 isinstance(existing_name, str)

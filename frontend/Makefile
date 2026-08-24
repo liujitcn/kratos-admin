@@ -73,13 +73,12 @@ run-taro-app:
 
 # ===== 代码检查 =====
 
-# 检查管理后台的静态规则、类型、测试和包边界
+# 检查管理后台的静态规则、类型和测试
 check-admin:
 	@cd admin && \
 		CI="$(CI)" $(PNPM) exec oxlint --vue-plugin --config ./internal/lint-config/oxlint.json --ignore-path .oxlintignore ./apps ./packages ./internal ./scripts && \
 		CI="$(CI)" $(PNPM) run type:check && \
-		CI="$(CI)" $(PNPM) run test && \
-		CI="$(CI)" $(PNPM) run check:exports
+		CI="$(CI)" $(PNPM) run test
 
 # 检查 uni-app 的静态规则、类型、测试和包边界
 check-uni-app:

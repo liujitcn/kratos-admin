@@ -69,7 +69,7 @@ func (c *BaseDictCase) OptionBaseDict(ctx context.Context) (*adminv1.OptionBaseD
 		dictIDs = append(dictIDs, item.ID)
 	}
 	var dictNames map[int64]string
-	dictNames, err = c.baseI18nCase.GetBaseI18nNameMapByLocale(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT, biz.LocaleFromContext(ctx), dictIDs)
+	dictNames, err = c.baseI18nCase.GetBaseI18nNameMapByLocale(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_NAME, biz.LocaleFromContext(ctx), dictIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func (c *BaseDictCase) OptionBaseDict(ctx context.Context) (*adminv1.OptionBaseD
 		dictItemIDs = append(dictItemIDs, item.ID)
 	}
 	var dictItemLabels map[int64]string
-	dictItemLabels, err = c.baseI18nCase.GetBaseI18nNameMapByLocale(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_ITEM, biz.LocaleFromContext(ctx), dictItemIDs)
+	dictItemLabels, err = c.baseI18nCase.GetBaseI18nNameMapByLocale(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL, biz.LocaleFromContext(ctx), dictItemIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func (c *BaseDictCase) PageBaseDict(ctx context.Context, req *adminv1.PageBaseDi
 	var err error
 	if req.GetName() != "" {
 		var translatedIDs []int64
-		translatedIDs, err = c.baseI18nCase.GetTargetIdsByName(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT, req.GetName())
+		translatedIDs, err = c.baseI18nCase.GetTargetIdsByName(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_NAME, req.GetName())
 		if err != nil {
 			return nil, err
 		}
@@ -157,7 +157,7 @@ func (c *BaseDictCase) PageBaseDict(ctx context.Context, req *adminv1.PageBaseDi
 		targetIds = append(targetIds, item.ID)
 	}
 	var i18ns map[int64][]*adminv1.BaseI18n
-	i18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetType(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT, targetIds)
+	i18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetType(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_NAME, targetIds)
 	if err != nil {
 		return nil, err
 	}
@@ -177,7 +177,7 @@ func (c *BaseDictCase) GetBaseDict(ctx context.Context, id int64) (*adminv1.Base
 	}
 	res := c.formMapper.ToDTO(baseDict)
 	var i18ns map[int64][]*adminv1.BaseI18n
-	i18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetType(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT, []int64{id})
+	i18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetType(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_NAME, []int64{id})
 	if err != nil {
 		return nil, err
 	}
@@ -234,7 +234,7 @@ func (c *BaseDictCase) DeleteBaseDict(ctx context.Context, id string) error {
 		if err != nil {
 			return err
 		}
-		return c.baseI18nCase.DeleteBaseI18n(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT, ids)
+		return c.baseI18nCase.DeleteBaseI18n(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_NAME, ids)
 	})
 }
 
@@ -248,7 +248,7 @@ func (c *BaseDictCase) SetBaseDictStatus(ctx context.Context, req *adminv1.SetBa
 
 // saveBaseI18n 保存字典名称翻译并同步主表名称。
 func (c *BaseDictCase) saveBaseI18n(ctx context.Context, req *adminv1.BaseDictForm, entity *models.BaseDict) error {
-	return c.baseI18nCase.SaveBaseI18n(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT, entity.ID, entity.Name, req.GetI18ns(), func(ctx context.Context, name string) error {
+	return c.baseI18nCase.SaveBaseI18n(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_NAME, entity.ID, entity.Name, req.GetI18ns(), func(ctx context.Context, name string) error {
 		return c.UpdateByID(ctx, &models.BaseDict{ID: entity.ID, Name: name})
 	})
 }

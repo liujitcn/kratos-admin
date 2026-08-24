@@ -8,12 +8,9 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-
 	"github.com/liujitcn/go-utils/stringcase"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 )
-
-const unmergeableFrontendPageMessage = "已有前端页面无法安全解析，已跳过增量合并"
 
 // --- 已有源码的增量分析与补丁 ---
 
@@ -68,9 +65,9 @@ func (c *renderer) newPatchedPreviewFile(path string, createContent string, patc
 	patched := patch(string(content))
 	if patched == string(content) {
 		// 内容相同必须标记为 skip，避免生成任务无意义地更新文件时间。
-		return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: string(content), Exists: true, Message: "目标文件已存在，生成方法已与当前配置一致"}
+		return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: string(content), Exists: true, Message: Message(c.localeState, "preview.backend_unchanged", nil)}
 	}
-	return &adminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: patched, Exists: true, Message: "目标文件已存在，将替换生成方法并保留扩展方法"}
+	return &adminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: patched, Exists: true, Message: Message(c.localeState, "preview.backend_update", nil)}
 }
 
 // newMergedFrontendPagePreviewFile 按功能顺序增量合并前端页面并保留已有扩展。
@@ -87,12 +84,12 @@ func (c *renderer) newMergedFrontendPagePreviewFile(path string, renderedContent
 	originalContent := string(content)
 	mergedContent, ok := mergeGeneratedFrontendPage(originalContent, renderedContent)
 	if !ok {
-		return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: originalContent, Exists: true, Message: unmergeableFrontendPageMessage}
+		return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: originalContent, Exists: true, Message: Message(c.localeState, "preview.frontend_page_unmergeable", nil)}
 	}
 	if originalContent == mergedContent {
-		return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: originalContent, Exists: true, Message: "生成页面已与当前配置和扩展功能一致"}
+		return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: originalContent, Exists: true, Message: Message(c.localeState, "preview.frontend_page_unchanged", nil)}
 	}
-	return &adminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: mergedContent, Exists: true, Message: "生成页面将按功能顺序更新并保留已有扩展"}
+	return &adminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: mergedContent, Exists: true, Message: Message(c.localeState, "preview.frontend_page_update", nil)}
 }
 
 // newMergedFrontendLocalePreviewFile 解析并合并已有扁平 JSON 语言包。
@@ -114,9 +111,9 @@ func (c *renderer) newMergedFrontendLocalePreviewFile(path string, prefix string
 		return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: string(content), Exists: true, Message: err.Error()}
 	}
 	if string(content) == mergedContent {
-		return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: string(content), Exists: true, Message: "生成语言包已与当前配置一致"}
+		return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: string(content), Exists: true, Message: Message(c.localeState, "preview.locale_unchanged", nil)}
 	}
-	return &adminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: mergedContent, Exists: true, Message: "将更新当前生成对象的语言键并保留其他文案"}
+	return &adminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: mergedContent, Exists: true, Message: Message(c.localeState, "preview.locale_update", nil)}
 }
 
 // newAdminRegistrationPreviewFiles 创建管理端业务模块依赖注入与传输层注册补丁。
@@ -231,13 +228,13 @@ func (c *renderer) newExistingPatchedPreviewFile(path string, patch func(string)
 	var content []byte
 	content, err = c.readRepoFile(path)
 	if err != nil {
-		return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Message: "目标文件不存在，无法追加服务注册"}
+		return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Message: Message(c.localeState, "preview.registration_missing_file", nil)}
 	}
 	patched := patch(string(content))
 	if patched == string(content) {
-		return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: string(content), Exists: true, Message: "目标文件已存在，未发现需要追加的服务注册"}
+		return &adminv1.CodeGenPreviewFile{Path: path, Action: "skip", Content: string(content), Exists: true, Message: Message(c.localeState, "preview.registration_unchanged", nil)}
 	}
-	return &adminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: patched, Exists: true, Message: "目标文件已存在，将追加缺失服务注册"}
+	return &adminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: patched, Exists: true, Message: Message(c.localeState, "preview.registration_update", nil)}
 }
 
 // generatedProtoMethods 合并基础能力与用户勾选的缺失接口。
@@ -332,7 +329,7 @@ func (c *renderer) newTargetProtoPreviewFile(table *Table, columns []*CodeGenCol
 	// 已有 Proto 只整体替换固定生成 RPC 与消息，自定义定义始终原样保留在后面。
 	mergedContent := mergeGeneratedProtoFile(originalContent, renderedContent)
 	if mergedContent != originalContent {
-		return &adminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: mergedContent, Exists: true, Message: "Proto文件将替换生成接口并保留扩展定义"}
+		return &adminv1.CodeGenPreviewFile{Path: path, Action: "update", Content: mergedContent, Exists: true, Message: Message(c.localeState, "preview.proto_replace", nil)}
 	}
 	patch := c.renderProtoPatch(table, columns, methods, path)
 	normalizedContent := normalizeProtoMessageOrder(normalizeProtoRPCOrder(dedupeProtoMessageBlocks(originalContent), methods, path))
@@ -343,7 +340,7 @@ func (c *renderer) newTargetProtoPreviewFile(table *Table, columns []*CodeGenCol
 				Action:  "update",
 				Content: normalizedContent,
 				Exists:  true,
-				Message: "Proto文件结构将按固定方法槽位整理",
+				Message: Message(c.localeState, "preview.proto_normalize", nil),
 			}
 		}
 		return &adminv1.CodeGenPreviewFile{
@@ -351,7 +348,7 @@ func (c *renderer) newTargetProtoPreviewFile(table *Table, columns []*CodeGenCol
 			Action:  "skip",
 			Content: originalContent,
 			Exists:  true,
-			Message: "Proto文件已存在，未选择缺失接口",
+			Message: Message(c.localeState, "preview.proto_no_missing_selected", nil),
 		}
 	}
 	patched := normalizeProtoMessageOrder(normalizeProtoRPCOrder(dedupeProtoMessageBlocks(c.appendProtoPatch(normalizedContent, patch)), methods, path))
@@ -361,7 +358,7 @@ func (c *renderer) newTargetProtoPreviewFile(table *Table, columns []*CodeGenCol
 			Action:  "skip",
 			Content: originalContent,
 			Exists:  true,
-			Message: "Proto文件已存在，未找到目标service，已跳过追加",
+			Message: Message(c.localeState, "preview.proto_service_missing", nil),
 		}
 	}
 	return &adminv1.CodeGenPreviewFile{
@@ -369,7 +366,7 @@ func (c *renderer) newTargetProtoPreviewFile(table *Table, columns []*CodeGenCol
 		Action:  "update",
 		Content: patched,
 		Exists:  true,
-		Message: "Proto文件已存在，将追加缺失接口",
+		Message: Message(c.localeState, "preview.proto_append", nil),
 	}
 }
 
@@ -390,10 +387,10 @@ func (c *renderer) newPreviewFile(path string, content string) *adminv1.CodeGenP
 		exists = false
 	}
 	action := "create"
-	message := "将新增"
+	message := Message(c.localeState, "preview.file_create", nil)
 	if exists {
 		action = "skip"
-		message = "已存在，不覆盖"
+		message = Message(c.localeState, "preview.file_exists_skip", nil)
 	}
 	return &adminv1.CodeGenPreviewFile{
 		Path:    path,

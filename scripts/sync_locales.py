@@ -33,7 +33,8 @@ FRONTEND_GENERATED_FILES = {
     "taro-system": ROOT / "frontend/taro-app/packages/modules/system/src/locales/generated.ts",
 }
 
-CODEGEN_CATALOG = ROOT / "backend/internal/biz/system/admin/codegen/locales/catalog.json"
+CODEGEN_MESSAGE_PREFIX = "system.code.gen."
+COMMON_MESSAGE_PREFIX = "common."
 DAYJS_LOCALE_DIRECTORY = ROOT / "frontend/admin/packages/core/node_modules/dayjs/locale"
 ELEMENT_LOCALE_DIRECTORY = ROOT / "frontend/admin/packages/core/node_modules/element-plus/es/locale/lang"
 MIGRATION_VERSION_PATTERN = re.compile(r"^v\d+\.\d+\.\d+$")
@@ -68,6 +69,14 @@ def required_message_keys(messages: dict[str, object]) -> list[str]:
     return sorted(key for key in messages if not key.startswith(LANGUAGE_LABEL_PREFIX))
 
 
+def message_placeholders(value: object) -> list[str]:
+    if isinstance(value, dict):
+        value = value.get("other", "")
+    if not isinstance(value, str):
+        return []
+    return sorted(re.findall(r"\{([A-Za-z0-9_]+)\}", value))
+
+
 def validate_locale_sets(file_sets: dict[str, dict[str, Path]]) -> list[str]:
     expected = set(file_sets["backend"])
     for name, files in file_sets.items():
@@ -83,20 +92,25 @@ def validate_locale_sets(file_sets: dict[str, dict[str, Path]]) -> list[str]:
             messages = json.loads(path.read_text(encoding="utf-8"))
             if required_message_keys(messages) != reference_keys:
                 raise ValueError(f"{name}/{locale} 与 {DEFAULT_LOCALE} 的语言键集合不一致")
-    catalog = json.loads(CODEGEN_CATALOG.read_text(encoding="utf-8"))
-    if set(catalog) != expected:
-        missing = ", ".join(sorted(expected - set(catalog))) or "无"
-        extra = ", ".join(sorted(set(catalog) - expected)) or "无"
-        raise ValueError(f"代码生成器语言目录集合不一致，缺少: {missing}，多出: {extra}")
-    required_catalog_keys = {"menu", "resource", "password_strength", "static"}
-    for locale, value in catalog.items():
-        if set(value) != required_catalog_keys:
-            raise ValueError(f"代码生成器语言目录 {locale} 字段不完整")
-        if set(value["menu"]) != {"default", "create", "update", "delete", "status"}:
-            raise ValueError(f"代码生成器语言目录 {locale}.menu 字段不完整")
-        reference_resource_keys = set(catalog[DEFAULT_LOCALE]["resource"])
-        if set(value["resource"]) != reference_resource_keys:
-            raise ValueError(f"代码生成器语言目录 {locale}.resource 字段不一致")
+    backend_messages = {
+        locale: json.loads(path.read_text(encoding="utf-8"))
+        for locale, path in file_sets["backend"].items()
+    }
+    codegen_keys = sorted(key for key in backend_messages[DEFAULT_LOCALE] if key.startswith(CODEGEN_MESSAGE_PREFIX))
+    if not codegen_keys:
+        raise ValueError(f"后端语言目录缺少 {CODEGEN_MESSAGE_PREFIX} 前缀的代码生成文案")
+    for locale, messages in backend_messages.items():
+        actual_keys = sorted(key for key in messages if key.startswith(CODEGEN_MESSAGE_PREFIX))
+        if actual_keys != codegen_keys:
+            raise ValueError(f"后端代码生成文案键集合不一致: {locale}")
+        for key in codegen_keys:
+            if message_placeholders(messages[key]) != message_placeholders(backend_messages[DEFAULT_LOCALE][key]):
+                raise ValueError(f"后端代码生成文案占位符不一致: {locale}/{key}")
+    common_keys = sorted(key for key in backend_messages[DEFAULT_LOCALE] if key.startswith(COMMON_MESSAGE_PREFIX))
+    for locale, messages in backend_messages.items():
+        for key in common_keys:
+            if message_placeholders(messages[key]) != message_placeholders(backend_messages[DEFAULT_LOCALE][key]):
+                raise ValueError(f"后端通用文案占位符不一致: {locale}/{key}")
     return ordered_locales(expected)
 
 
@@ -252,12 +266,19 @@ def ensure_content(path: Path, content: str, write: bool) -> None:
     path.write_text(content, encoding="utf-8")
 
 
+def ensure_migration_readme(path: Path, content: str, write: bool) -> None:
+    """仅在迁移目录尚无统一说明时创建 README。"""
+    if path.exists():
+        return
+    ensure_content(path, content, write)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="同步语言包集合和前端注册产物")
     parser.add_argument("--write", action="store_true", help="写入生成产物；默认只检查")
     parser.add_argument(
         "--migration-version",
-        help="同时生成指定版本的 base_language 迁移，例如 v0.0.3；不传则不生成迁移",
+        help="同时生成指定版本的 base_language 迁移，例如 v0.0.1；不传则不生成迁移",
     )
     args = parser.parse_args()
 
@@ -278,8 +299,8 @@ def main() -> int:
                 render_language_migration(metadata),
                 args.write,
             )
-            ensure_content(
-                migration_directory / "language.description.md",
+            ensure_migration_readme(
+                migration_directory / "README.md",
                 render_language_migration_description(locales),
                 args.write,
             )

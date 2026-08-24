@@ -204,7 +204,7 @@ function renderDictItemLabelCell(scope: RenderScope<BaseDictItem>) {
   const row = scope.row;
   return h(DynamicI18nCell, {
     source: row.label,
-    targetType: I18nTargetType.I18N_TARGET_TYPE_BASE_DICT_ITEM,
+    targetType: I18nTargetType.I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL,
     targetId: row.id,
     i18ns: row.i18ns
   });
@@ -369,7 +369,7 @@ function handleSubmit() {
     const submitData = JSON.parse(JSON.stringify(formData)) as BaseDictItemForm;
     submitData.i18ns = serializeDynamicI18ns(
       i18nValues.value,
-      I18nTargetType.I18N_TARGET_TYPE_BASE_DICT_ITEM,
+      I18nTargetType.I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL,
       submitData.id
     );
     const request = submitData.id

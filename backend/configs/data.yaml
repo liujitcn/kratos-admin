@@ -18,7 +18,6 @@ data:
     password: "112233"
     db: 1
 
-
   queue:
     memory:
       pool_size: 1000

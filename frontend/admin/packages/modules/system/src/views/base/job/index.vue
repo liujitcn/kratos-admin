@@ -13,7 +13,15 @@
       :rules="rules"
       @confirm="handleSubmit"
       @close="handleCloseDialog"
-    />
+    >
+      <template #i18ns>
+        <DynamicI18nEditor
+          v-model="i18nValues"
+          :source="formData.name"
+          :maxlength="50"
+        />
+      </template>
+    </FormDialog>
   </div>
 </template>
 
@@ -32,6 +40,7 @@ import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/co
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBaseJobService } from "@liujitcn/kratos-admin-system/api/system/base_job";
+import { loadEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
 import type {
   BaseJob,
   BaseJobArgs,
@@ -40,8 +49,17 @@ import type {
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_job";
 import router, { navigateTo } from "@liujitcn/kratos-admin-core/navigation";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
+import { I18nTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
+import DynamicI18nCell from "@liujitcn/kratos-admin-system/components/DynamicI18nCell.vue";
+import DynamicI18nEditor from "@liujitcn/kratos-admin-system/components/DynamicI18nEditor.vue";
+import {
+  normalizeDynamicI18ns,
+  serializeDynamicI18ns,
+  type DynamicI18nRecord,
+  type DynamicI18nValue
+} from "@liujitcn/kratos-admin-system/components/dynamicI18n";
 
 defineOptions({
   name: "BaseJob",
@@ -51,6 +69,7 @@ defineOptions({
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
+const i18nValues = ref<DynamicI18nValue[]>(normalizeDynamicI18ns(undefined, "name"));
 
 const dialog = reactive({
   editing: false,
@@ -69,7 +88,9 @@ const formData = reactive<BaseJobForm>({
   /** cron表达式 */
   cron_expression: "",
   /** 状态 */
-  status: Status.STATUS_ENABLE
+  status: Status.STATUS_ENABLE,
+  /** 定时任务名称多语言翻译。 */
+  i18ns: []
 });
 
 const rules = computed(() => ({
@@ -142,6 +163,17 @@ function renderArgsCell(scope: RenderScope<BaseJob>) {
       )
     )
   );
+}
+
+/** 渲染定时任务名称翻译预览。 */
+function renderJobNameCell(scope: RenderScope<BaseJob>) {
+  const row = scope.row;
+  return h(DynamicI18nCell, {
+    source: row.name,
+    targetType: I18nTargetType.I18N_TARGET_TYPE_BASE_JOB_NAME,
+    targetId: row.id,
+    i18ns: row.i18ns
+  });
 }
 
 /**
@@ -271,6 +303,13 @@ const formFields = computed<ProFormField[]>(() => [
     props: { placeholder: t("system.base.job.placeholder.name") }
   },
   {
+    prop: "i18ns",
+    label: t("system.base.i18n.field.i18ns"),
+    component: "slot",
+    slotName: "i18ns",
+    colSpan: 24
+  },
+  {
     prop: "invoke_target",
     label: t("system.base.job.field.invoke_target"),
     component: "input",
@@ -298,7 +337,14 @@ const formFields = computed<ProFormField[]>(() => [
 /** 定时任务表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
-  { prop: "name", label: t("system.base.job.field.name"), minWidth: 140, search: { el: "input" } },
+  {
+    prop: "name",
+    label: t("system.base.job.field.name"),
+    minWidth: 140,
+    search: { el: "input" },
+    showOverflowTooltip: false,
+    render: scope => renderJobNameCell(scope as unknown as RenderScope<BaseJob>)
+  },
   { prop: "invoke_target", label: t("system.base.job.field.invoke_target"), minWidth: 180, search: { el: "input" } },
   {
     prop: "args",
@@ -357,6 +403,7 @@ const headerActions = computed<HeaderActionProps[]>(() => [
  * 请求定时任务列表，并由 ProTable 统一维护分页与搜索参数。
  */
 async function requestBaseJobTable(params: PageBaseJobRequest) {
+  await loadEnabledBaseLanguages();
   const data = await defBaseJobService.PageBaseJob(buildPageRequest(params));
   return { data: { list: data.base_jobs ?? [], total: data.total } };
 }
@@ -371,15 +418,16 @@ function refreshTable() {
 /**
  * 打开定时任务弹窗。
  */
-function handleOpenDialog(jobId?: number) {
+async function handleOpenDialog(jobId?: number) {
+  await loadEnabledBaseLanguages();
   resetForm();
   dialog.editing = Boolean(jobId);
   dialog.visible = true;
   if (!jobId) return;
 
-  defBaseJobService.GetBaseJob({ id: jobId }).then(data => {
-    Object.assign(formData, data);
-  });
+  const data = await defBaseJobService.GetBaseJob({ id: jobId });
+  Object.assign(formData, data);
+  i18nValues.value = normalizeDynamicI18ns(data.i18ns as DynamicI18nRecord[], "name");
 }
 
 /**
@@ -402,6 +450,8 @@ function resetForm() {
   formData.args = [];
   formData.cron_expression = "";
   formData.status = Status.STATUS_ENABLE;
+  formData.i18ns = [];
+  i18nValues.value = normalizeDynamicI18ns(undefined, "name");
 }
 
 /**
@@ -412,6 +462,11 @@ function handleSubmit() {
     if (!valid) return;
 
     const submitData = JSON.parse(JSON.stringify(formData)) as BaseJobForm;
+    submitData.i18ns = serializeDynamicI18ns(
+      i18nValues.value,
+      I18nTargetType.I18N_TARGET_TYPE_BASE_JOB_NAME,
+      submitData.id
+    );
     const request = submitData.id
       ? defBaseJobService.UpdateBaseJob({ base_job: submitData })
       : defBaseJobService.CreateBaseJob({ base_job: submitData });

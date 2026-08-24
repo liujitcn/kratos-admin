@@ -284,7 +284,7 @@ gen:
 
 # ===== 国际化 =====
 
-# 同步语言包集合、前端注册文件和代码生成语言目录
+# 同步后端/前端语言包集合与前端注册文件
 i18n-sync:
 	@$(PYTHON) ../scripts/sync_locales.py --write $(if $(strip $(I18N_MIGRATION_VERSION)),--migration-version "$(I18N_MIGRATION_VERSION)",)
 

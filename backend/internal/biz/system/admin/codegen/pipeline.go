@@ -284,7 +284,7 @@ func (c *renderer) buildPreviewFiles(table *Table, columns []*CodeGenColumn, met
 		} else {
 			pageFile := c.newPreviewFile(pagePath, "")
 			pageFile.Action = "skip"
-			pageFile.Message = "缺少页面所需的查询或 CRUD 接口，已跳过页面生成"
+			pageFile.Message = Message(c.localeState, "preview.page_requirements_missing", nil)
 			files = append(files, pageFile)
 		}
 		files = append(files, c.newExternalTargetFrontendPreviewFiles(table, frontendMethods)...)

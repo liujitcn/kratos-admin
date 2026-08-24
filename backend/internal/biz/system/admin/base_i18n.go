@@ -217,7 +217,7 @@ func (c *BaseI18nCase) GetBaseI18nMapByTargetType(ctx context.Context, targetTyp
 	return result, nil
 }
 
-// GetBaseI18nNameMapByLocale 根据语言返回替换信息。
+// GetBaseI18nNameMapByLocale 根据语言返回资源名称译文。
 func (c *BaseI18nCase) GetBaseI18nNameMapByLocale(ctx context.Context, targetType adminv1.I18nTargetType, locale string, targetIds []int64) (map[int64]string, error) {
 	result := make(map[int64]string, len(targetIds))
 	if len(targetIds) == 0 {

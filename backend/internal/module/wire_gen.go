@@ -104,7 +104,7 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 	baseJobRepository := data2.NewBaseJobRepository(dataData)
 	baseJobLogRepository := data2.NewBaseJobLogRepository(dataData)
 	baseJobLogCase := biz3.NewBaseJobLogCase(baseCase, baseJobLogRepository)
-	baseJobCase := biz3.NewBaseJobCase(baseCase, jobRuntime, baseJobRepository, baseJobLogCase)
+	baseJobCase := biz3.NewBaseJobCase(baseCase, jobRuntime, baseJobRepository, baseJobLogCase, baseI18nCase)
 	baseJobService := admin.NewBaseJobService(baseJobCase, baseJobLogCase)
 	baseLanguageService := admin.NewBaseLanguageService(baseLanguageCase)
 	baseLogRepository := data2.NewBaseLogRepository(dataData)
@@ -127,15 +127,15 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 	codeGenProtoCase := biz3.NewCodeGenProtoCase(baseCase, codeGenProtoRepository, transaction, baseAPIRepository, codeGenTableRepository, codeGenColumnCase)
 	codeGenTableCase := biz3.NewCodeGenTableCase(baseCase, codeGenTableRepository, transaction, baseDictRepository, baseDictItemRepository, baseMenuCase, codeGenColumnCase, codeGenProtoCase)
 	baseMigrationRepository := data2.NewBaseMigrationRepository(dataData)
-	baseMigrationCase := biz3.NewBaseMigrationCase(baseCase, baseMigrationRepository)
+	baseMigrationCase := biz3.NewBaseMigrationCase(baseCase, baseMigrationRepository, baseI18nCase)
 	manager := codegen.NewManager()
-	codeGenCase := biz3.NewCodeGenCase(baseCase, transaction, baseAPICase, codeGenTableCase, codeGenColumnCase, codeGenProtoCase, baseMenuCase, baseMigrationCase, baseLanguageCase, manager)
+	codeGenCase := biz3.NewCodeGenCase(baseCase, transaction, baseAPICase, codeGenTableCase, codeGenColumnCase, codeGenProtoCase, baseMenuCase, baseMigrationCase, baseLanguageCase, catalog, manager)
 	codeGenService := admin.NewCodeGenService(codeGenCase)
 	codeGenColumnService := admin.NewCodeGenColumnService(codeGenColumnCase)
 	codeGenProtoService := admin.NewCodeGenProtoService(codeGenProtoCase)
 	codeGenTableService := admin.NewCodeGenTableService(codeGenTableCase)
 	baseMigrationService := admin.NewBaseMigrationService(baseMigrationCase)
-	opsMonitoringCase := biz3.NewOpsMonitoringCase(baseCase, baseLogRepository)
+	opsMonitoringCase := biz3.NewOpsMonitoringCase(baseCase, baseLogRepository, catalog)
 	opsMonitoringService := admin.NewOpsMonitoringService(opsMonitoringCase)
 	hub := logstream.DefaultHub()
 	runtimeLogCase, err := biz3.NewRuntimeLogCase(baseCase, hub, sseRuntime)
@@ -184,9 +184,9 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 	bizBaseAreaCase := biz4.NewBaseAreaCase(baseCase, baseAreaRepository)
 	appBaseAreaService := app.NewBaseAreaService(bizBaseAreaCase)
 	bizBaseDictItemCase := biz4.NewBaseDictItemCase(baseCase, baseDictRepository, baseDictItemRepository)
-	bizBaseDictCase := biz4.NewBaseDictCase(baseCase, baseDictRepository, bizBaseDictItemCase, baseI18nCase)
+	bizBaseDictCase := biz4.NewBaseDictCase(baseCase, baseDictRepository, bizBaseDictItemCase)
 	appBaseDictService := app.NewBaseDictService(bizBaseDictCase)
-	bizBaseMenuCase := biz4.NewBaseMenuCase(baseCase, baseMenuRepository, baseI18nCase)
+	bizBaseMenuCase := biz4.NewBaseMenuCase(baseCase, baseMenuRepository)
 	appBaseMenuService := app.NewBaseMenuService(bizBaseMenuCase)
 	appServices := app2.Services{
 		Auth:     appAuthService,
@@ -281,14 +281,15 @@ func BuildTasks(databases map[string]*gorm.Client, baseCase *biz.BaseCase) (job.
 	baseDictRepository := data2.NewBaseDictRepository(dataData)
 	baseDictItemRepository := data2.NewBaseDictItemRepository(dataData)
 	baseConfigRepository := data2.NewBaseConfigRepository(dataData)
-	baseI18nTask := admin3.NewBaseI18nTask(baseI18nCase, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository)
+	baseJobRepository := data2.NewBaseJobRepository(dataData)
+	baseI18nTask := admin3.NewBaseI18nTask(baseI18nCase, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository, baseJobRepository)
 	tasks := task.NewTask(baseI18nTask)
 	return tasks, func() {
 	}, nil
 }
 
 // BuildStreams 通过最小依赖集合装配 Admin SSE 流。
-func BuildStreams(databases map[string]*gorm.Client, baseCase *biz.BaseCase) (sse.Streams, func(), error) {
+func BuildStreams(databases map[string]*gorm.Client, baseCase *biz.BaseCase, catalog *i18n.I18n) (sse.Streams, func(), error) {
 	manager := codegen.NewManager()
 	sseCodegen := sse2.NewCodegen(manager)
 	dataData, err := data2.NewData(databases)
@@ -296,7 +297,7 @@ func BuildStreams(databases map[string]*gorm.Client, baseCase *biz.BaseCase) (ss
 		return nil, nil, err
 	}
 	baseLogRepository := data2.NewBaseLogRepository(dataData)
-	opsMonitoringCase := biz3.NewOpsMonitoringCase(baseCase, baseLogRepository)
+	opsMonitoringCase := biz3.NewOpsMonitoringCase(baseCase, baseLogRepository, catalog)
 	opsMonitoring := sse2.NewOpsMonitoring(opsMonitoringCase)
 	hub := logstream.DefaultHub()
 	runtimeConsole := sse2.NewRuntimeConsole(hub)

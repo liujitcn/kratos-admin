@@ -8,7 +8,7 @@ import (
 	"sync"
 
 	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -29,13 +29,14 @@ const (
 
 var _ cron.TaskExec = (*BaseI18nTask)(nil)
 
-// BaseI18nTask 执行菜单、字典、字典项和系统配置的机器翻译任务。
+// BaseI18nTask 执行菜单、字典、字典项、系统配置和定时任务的机器翻译任务。
 type BaseI18nTask struct {
 	i18nCase     *biz.BaseI18nCase
 	menuRepo     *data.BaseMenuRepository
 	dictRepo     *data.BaseDictRepository
 	dictItemRepo *data.BaseDictItemRepository
 	configRepo   *data.BaseConfigRepository
+	jobRepo      *data.BaseJobRepository
 	mu           sync.Mutex
 }
 
@@ -62,6 +63,7 @@ func NewBaseI18nTask(
 	dictRepo *data.BaseDictRepository,
 	dictItemRepo *data.BaseDictItemRepository,
 	configRepo *data.BaseConfigRepository,
+	jobRepo *data.BaseJobRepository,
 ) *BaseI18nTask {
 	task := &BaseI18nTask{
 		i18nCase:     i18nCase,
@@ -69,6 +71,7 @@ func NewBaseI18nTask(
 		dictRepo:     dictRepo,
 		dictItemRepo: dictItemRepo,
 		configRepo:   configRepo,
+		jobRepo:      jobRepo,
 	}
 	return task
 }
@@ -112,7 +115,7 @@ func (t *BaseI18nTask) Exec(ctx context.Context, _ map[string]string) ([]string,
 	for _, menu := range menus {
 		menuIDs = append(menuIDs, menu.ID)
 	}
-	t.translateIDs(ctx, state, i18ns, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_MENU, menuIDs, locales, "菜单", &translatedCount, &failedCount, &firstErr)
+	t.translateIDs(ctx, state, i18ns, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_MENU_META_TITLE, menuIDs, locales, "菜单", &translatedCount, &failedCount, &firstErr)
 
 	dictQuery := t.dictRepo.Query(ctx).BaseDict
 	var dicts []*models.BaseDict
@@ -124,7 +127,7 @@ func (t *BaseI18nTask) Exec(ctx context.Context, _ map[string]string) ([]string,
 	for _, dict := range dicts {
 		dictIDs = append(dictIDs, dict.ID)
 	}
-	t.translateIDs(ctx, state, i18ns, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT, dictIDs, locales, "字典", &translatedCount, &failedCount, &firstErr)
+	t.translateIDs(ctx, state, i18ns, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_NAME, dictIDs, locales, "字典", &translatedCount, &failedCount, &firstErr)
 
 	dictItemQuery := t.dictItemRepo.Query(ctx).BaseDictItem
 	var dictItems []*models.BaseDictItem
@@ -136,7 +139,7 @@ func (t *BaseI18nTask) Exec(ctx context.Context, _ map[string]string) ([]string,
 	for _, item := range dictItems {
 		dictItemIDs = append(dictItemIDs, item.ID)
 	}
-	t.translateIDs(ctx, state, i18ns, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_ITEM, dictItemIDs, locales, "字典项", &translatedCount, &failedCount, &firstErr)
+	t.translateIDs(ctx, state, i18ns, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL, dictItemIDs, locales, "字典项", &translatedCount, &failedCount, &firstErr)
 
 	configQuery := t.configRepo.Query(ctx).BaseConfig
 	var configs []*models.BaseConfig
@@ -154,6 +157,18 @@ func (t *BaseI18nTask) Exec(ctx context.Context, _ map[string]string) ([]string,
 	}
 	t.translateIDs(ctx, state, i18ns, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_NAME, configNameIDs, locales, "系统配置名称", &translatedCount, &failedCount, &firstErr)
 	t.translateIDs(ctx, state, i18ns, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_VALUE, configValueIDs, locales, "系统配置值", &translatedCount, &failedCount, &firstErr)
+
+	jobQuery := t.jobRepo.Query(ctx).BaseJob
+	var jobs []*models.BaseJob
+	jobs, err = t.jobRepo.List(ctx, repository.Order(jobQuery.ID.Asc()))
+	if err != nil {
+		return nil, err
+	}
+	jobIDs := make([]int64, 0, len(jobs))
+	for _, job := range jobs {
+		jobIDs = append(jobIDs, job.ID)
+	}
+	t.translateIDs(ctx, state, i18ns, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_JOB_NAME, jobIDs, locales, "定时任务", &translatedCount, &failedCount, &firstErr)
 
 	output := []string{fmt.Sprintf("生成机器译文 %d 条", translatedCount)}
 	if failedCount > 0 {
@@ -264,9 +279,9 @@ func (t *BaseI18nTask) i18nSource(ctx context.Context, targetType adminv1.I18nTa
 	source := &dto.I18nDraftSource{TargetType: targetType, TargetID: targetID}
 	var err error
 	switch targetType {
-	case adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_MENU:
-		menu, findErr := t.menuRepo.FindByID(ctx, targetID)
-		err = findErr
+	case adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_MENU_META_TITLE:
+		var menu *models.BaseMenu
+		menu, err = t.menuRepo.FindByID(ctx, targetID)
 		if err == nil {
 			var metadata dto.MenuMetadata
 			err = json.Unmarshal([]byte(menu.Meta), &metadata)
@@ -274,22 +289,28 @@ func (t *BaseI18nTask) i18nSource(ctx context.Context, targetType adminv1.I18nTa
 				source.Text = metadata.Title
 			}
 		}
-	case adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT:
-		dict, findErr := t.dictRepo.FindByID(ctx, targetID)
-		err = findErr
+	case adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_NAME:
+		var dict *models.BaseDict
+		dict, err = t.dictRepo.FindByID(ctx, targetID)
 		if err == nil {
 			source.Text = dict.Name
 		}
-	case adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_ITEM:
-		item, findErr := t.dictItemRepo.FindByID(ctx, targetID)
-		err = findErr
+	case adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL:
+		var item *models.BaseDictItem
+		item, err = t.dictItemRepo.FindByID(ctx, targetID)
 		if err == nil {
 			source.Text = item.Label
 		}
+	case adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_JOB_NAME:
+		var job *models.BaseJob
+		job, err = t.jobRepo.FindByID(ctx, targetID)
+		if err == nil {
+			source.Text = job.Name
+		}
 	case adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_NAME,
 		adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_VALUE:
-		config, findErr := t.configRepo.FindByID(ctx, targetID)
-		err = findErr
+		var config *models.BaseConfig
+		config, err = t.configRepo.FindByID(ctx, targetID)
 		if err == nil {
 			if targetType == adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_VALUE && !isTranslatableConfigType(config.Type) {
 				return nil, errorsx.InvalidArgument("图片、字典和布尔配置值不支持翻译")

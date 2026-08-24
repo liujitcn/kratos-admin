@@ -126,13 +126,13 @@ func (c *AuthCase) TreeUserMenu(ctx context.Context) (*adminv1.TreeRouteResponse
 	if err != nil {
 		return nil, errorsx.Internal("获取用户菜单失败").WithCause(err)
 	}
-
-	var titles map[int64]string
-	titles, err = c.baseMenuCase.translatedMenuTitles(ctx, menuList)
+	var localizedTitles map[int64]string
+	localizedTitles, err = c.baseMenuCase.localizedMenuTitles(ctx, menuList)
 	if err != nil {
-		return nil, errorsx.Internal("获取用户菜单失败").WithCause(err)
+		return nil, errorsx.Internal("获取用户菜单翻译失败").WithCause(err)
 	}
-	list := c.baseMenuCase.buildRouteTree(menuList, 0, titles)
+
+	list := c.baseMenuCase.buildRouteTree(menuList, 0, localizedTitles)
 	return &adminv1.TreeRouteResponse{Routes: list}, nil
 }
 

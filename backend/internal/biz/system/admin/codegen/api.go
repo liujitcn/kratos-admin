@@ -1,8 +1,6 @@
 package codegen
 
-import (
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-)
+import adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 
 // Generation 汇总一次预览或写入使用的完整生成结果。
 type Generation struct {
@@ -49,6 +47,7 @@ func prepareGenerationWithRenderer(
 	localeState LocaleState,
 	renderer *renderer,
 ) (*Generation, error) {
+	renderer.localeState = localeState
 	outputPaths, err := renderer.resolveCodeGenOutputPaths(table, requestedPaths)
 	if err != nil {
 		return nil, err

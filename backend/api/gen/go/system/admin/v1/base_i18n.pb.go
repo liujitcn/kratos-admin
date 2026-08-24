@@ -37,11 +37,15 @@ const (
 	// 系统配置名称。
 	I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_NAME I18nTargetType = 2
 	// 字典名称。
-	I18nTargetType_I18N_TARGET_TYPE_BASE_DICT I18nTargetType = 3
+	I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_NAME I18nTargetType = 3
 	// 字典项标签。
-	I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_ITEM I18nTargetType = 4
+	I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL I18nTargetType = 4
 	// 菜单标题。
-	I18nTargetType_I18N_TARGET_TYPE_BASE_MENU I18nTargetType = 5
+	I18nTargetType_I18N_TARGET_TYPE_BASE_MENU_META_TITLE I18nTargetType = 5
+	// 定时任务名称。
+	I18nTargetType_I18N_TARGET_TYPE_BASE_JOB_NAME I18nTargetType = 6
+	// 数据库迁移说明。
+	I18nTargetType_I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION I18nTargetType = 7
 )
 
 // Enum value maps for I18nTargetType.
@@ -50,17 +54,21 @@ var (
 		0: "I18N_TARGET_TYPE_UNSPECIFIED",
 		1: "I18N_TARGET_TYPE_BASE_CONFIG_VALUE",
 		2: "I18N_TARGET_TYPE_BASE_CONFIG_NAME",
-		3: "I18N_TARGET_TYPE_BASE_DICT",
-		4: "I18N_TARGET_TYPE_BASE_DICT_ITEM",
-		5: "I18N_TARGET_TYPE_BASE_MENU",
+		3: "I18N_TARGET_TYPE_BASE_DICT_NAME",
+		4: "I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL",
+		5: "I18N_TARGET_TYPE_BASE_MENU_META_TITLE",
+		6: "I18N_TARGET_TYPE_BASE_JOB_NAME",
+		7: "I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION",
 	}
 	I18nTargetType_value = map[string]int32{
-		"I18N_TARGET_TYPE_UNSPECIFIED":       0,
-		"I18N_TARGET_TYPE_BASE_CONFIG_VALUE": 1,
-		"I18N_TARGET_TYPE_BASE_CONFIG_NAME":  2,
-		"I18N_TARGET_TYPE_BASE_DICT":         3,
-		"I18N_TARGET_TYPE_BASE_DICT_ITEM":    4,
-		"I18N_TARGET_TYPE_BASE_MENU":         5,
+		"I18N_TARGET_TYPE_UNSPECIFIED":                0,
+		"I18N_TARGET_TYPE_BASE_CONFIG_VALUE":          1,
+		"I18N_TARGET_TYPE_BASE_CONFIG_NAME":           2,
+		"I18N_TARGET_TYPE_BASE_DICT_NAME":             3,
+		"I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL":       4,
+		"I18N_TARGET_TYPE_BASE_MENU_META_TITLE":       5,
+		"I18N_TARGET_TYPE_BASE_JOB_NAME":              6,
+		"I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION": 7,
 	}
 )
 
@@ -481,14 +489,16 @@ const file_system_admin_v1_base_i18n_proto_rawDesc = "" +
 	"\x04name\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f翻译文本R\x04name\"\x8c\x01\n" +
 	"\x13CodeGenLocaleConfig\x125\n" +
 	"\acomment\x18\x01 \x01(\tB\x1b\xbaG\x18\x92\x02\x15业务或字段描述R\acomment\x12>\n" +
-	"\x11left_tree_comment\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f左树描述R\x0fleftTreeComment*\xe6\x01\n" +
+	"\x11left_tree_comment\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f左树描述R\x0fleftTreeComment*\xd1\x02\n" +
 	"\x0eI18nTargetType\x12 \n" +
 	"\x1cI18N_TARGET_TYPE_UNSPECIFIED\x10\x00\x12&\n" +
 	"\"I18N_TARGET_TYPE_BASE_CONFIG_VALUE\x10\x01\x12%\n" +
-	"!I18N_TARGET_TYPE_BASE_CONFIG_NAME\x10\x02\x12\x1e\n" +
-	"\x1aI18N_TARGET_TYPE_BASE_DICT\x10\x03\x12#\n" +
-	"\x1fI18N_TARGET_TYPE_BASE_DICT_ITEM\x10\x04\x12\x1e\n" +
-	"\x1aI18N_TARGET_TYPE_BASE_MENU\x10\x052\x92\x02\n" +
+	"!I18N_TARGET_TYPE_BASE_CONFIG_NAME\x10\x02\x12#\n" +
+	"\x1fI18N_TARGET_TYPE_BASE_DICT_NAME\x10\x03\x12)\n" +
+	"%I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL\x10\x04\x12)\n" +
+	"%I18N_TARGET_TYPE_BASE_MENU_META_TITLE\x10\x05\x12\"\n" +
+	"\x1eI18N_TARGET_TYPE_BASE_JOB_NAME\x10\x06\x12/\n" +
+	"+I18N_TARGET_TYPE_BASE_MIGRATION_DESCRIPTION\x10\a2\x92\x02\n" +
 	"\x0fBaseI18nService\x12\x88\x01\n" +
 	"\rDraftBaseI18n\x12%.system.admin.v1.DraftBaseI18nRequest\x1a&.system.admin.v1.DraftBaseI18nResponse\"(\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/api/v1/admin/base/i18n/draft\x12t\n" +
 	"\x0eUpdateBaseI18n\x12&.system.admin.v1.UpdateBaseI18nRequest\x1a\x16.google.protobuf.Empty\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\x1a\x17/api/v1/admin/base/i18nB\xcf\x01\n" +

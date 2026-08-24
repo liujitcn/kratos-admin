@@ -4,7 +4,7 @@
       <SwitchDark class="dark" />
       <LocaleSwitch class="locale" />
       <div class="login-left">
-        <img class="login-left-img" :src="backgroundUrl" alt="login" />
+        <img class="login-left-img" :src="backgroundUrl" :alt="t('core.login.background_alt')" />
       </div>
       <div class="login-form">
         <div ref="loginLogoRef" class="login-logo">
@@ -23,8 +23,10 @@ import LoginForm from "./components/LoginForm.vue";
 import SwitchDark from "@/components/SwitchDark/index.vue";
 import LocaleSwitch from "@/components/LocaleSwitch/index.vue";
 import { useConfigStore } from "@/stores/modules/config";
+import { useLocaleStore } from "@/locales";
 
 const configStore = useConfigStore();
+const { t } = useLocaleStore();
 const projectName = computed(() => configStore.display.sysName || import.meta.env.VITE_GLOB_APP_TITLE);
 const logoUrl = computed(() => configStore.display.adminLogo);
 const backgroundUrl = computed(() => configStore.display.background);

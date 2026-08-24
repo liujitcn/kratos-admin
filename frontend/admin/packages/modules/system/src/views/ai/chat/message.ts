@@ -9,13 +9,12 @@ import {
 import type { AiAction } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_message";
 import { AiMessageStatus } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import { Terminal } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
-import { t } from "@liujitcn/kratos-admin-core";
+import { getLocaleText, SUPPORTED_LOCALES, t } from "@liujitcn/kratos-admin-core";
 import type { AiStreamPayload, AIFlowBlock, ChatMessageItem, ReplySourceTag } from "./types";
 
 const THINKING_MESSAGE_ID_PREFIX = "ai-thinking";
 const LOCAL_USER_MESSAGE_ID_PREFIX = "ai-user-local";
 const PENDING_STREAM_MESSAGE_ID = "pending";
-const DEFAULT_SESSION_TITLES = new Set(["新对话", "新對話", "New conversation"]);
 const thinkingMessageContent = () => t("system.ai.chat.message.thinking");
 
 /** 生成流式消息分组键，确保同一轮回复只更新当前占位气泡。 */
@@ -55,10 +54,15 @@ export function normalizeSession(session?: Partial<AiSession> | null): AiSession
 /** 将服务端生成的默认会话文案切换到当前语言，兼容历史数据。 */
 function resolveSessionText(value: unknown, fallbackWhenEmpty: boolean) {
   const text = String(value ?? "");
-  if ((fallbackWhenEmpty && !text) || DEFAULT_SESSION_TITLES.has(text)) {
+  if ((fallbackWhenEmpty && !text) || isDefaultSessionTitle(text)) {
     return t("system.ai.chat.value.new_conversation");
   }
   return text;
+}
+
+/** 判断文本是否为任一已打包语言的默认会话标题。 */
+function isDefaultSessionTitle(value: string) {
+  return SUPPORTED_LOCALES.some(locale => getLocaleText(locale, "system.ai.chat.value.new_conversation") === value);
 }
 
 /** 将会话列表收敛成可安全渲染的数组。 */

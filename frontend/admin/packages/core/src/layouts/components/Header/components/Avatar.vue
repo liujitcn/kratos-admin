@@ -1,13 +1,13 @@
 <template>
   <el-dropdown ref="dropdownRef" trigger="click" placement="bottom-end" popper-class="header-avatar-dropdown">
     <div class="avatar">
-      <img :src="avatarSrc" alt="avatar" @error="handleAvatarError" />
+      <img :src="avatarSrc" :alt="t('core.layout.avatar')" @error="handleAvatarError" />
     </div>
     <template #dropdown>
       <div class="user-panel">
         <div class="user-panel__summary">
           <div class="user-panel__avatar">
-            <img :src="avatarSrc" alt="avatar" @error="handleAvatarError" />
+            <img :src="avatarSrc" :alt="t('core.layout.avatar')" @error="handleAvatarError" />
           </div>
           <div class="user-panel__identity">
             <div class="user-panel__name">{{ displayName }}</div>

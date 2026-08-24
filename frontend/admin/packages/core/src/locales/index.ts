@@ -11,7 +11,7 @@ import {
   DAYJS_LOCALE_MAP,
   DEFAULT_LOCALE as GENERATED_DEFAULT_LOCALE,
   SUPPORTED_LOCALES as GENERATED_SUPPORTED_LOCALES,
-  type GeneratedLocale,
+  type GeneratedLocale
 } from "./generated";
 
 /** 管理端已打包的语言区域；运行时可切换列表由 base_language 接口决定。 */
@@ -55,7 +55,9 @@ export function normalizeLocale(value?: string): SupportedLocale {
 
 /** 将接口或系统语言代码解析为已打包的语言区域。 */
 function parseSupportedLocale(value?: string): SupportedLocale | undefined {
-  const normalized = String(value ?? "").replace("_", "-").toLowerCase();
+  const normalized = String(value ?? "")
+    .replace("_", "-")
+    .toLowerCase();
   if (!normalized) return undefined;
   const alias = normalized.startsWith("zh-hk") || normalized.startsWith("zh-mo") ? "zh-tw" : normalized;
   const exact = SUPPORTED_LOCALES.find(locale => locale.toLowerCase() === alias);
@@ -106,10 +108,10 @@ export function initializeLocale(): SupportedLocale {
 export function applyLanguageConfig(response: OptionLanguageResponse): void {
   const options = response.languages.reduce<LocaleOption[]>((items, item) => {
     const languageCode = parseSupportedLocale(item.language_code);
-    if (!languageCode || items.some((option) => option.language_code === languageCode)) return items;
+    if (!languageCode || items.some(option => option.language_code === languageCode)) return items;
     items.push({
       language_code: languageCode,
-      native_name: item.native_name || languageCode,
+      native_name: item.native_name || languageCode
     });
     return items;
   }, []);
@@ -127,7 +129,7 @@ export function getLanguageOptions(): LocaleOption[] {
 
 /** 获取当前可切换的语言区域。 */
 export function getSupportedLocales(): SupportedLocale[] {
-  return getLanguageOptions().map((item) => item.language_code);
+  return getLanguageOptions().map(item => item.language_code);
 }
 
 /** 获取当前规范语言区域。 */
@@ -161,6 +163,13 @@ export function t(key: string, params: LocaleParams = {}): string {
   return String(adminI18n.global.t(key, params));
 }
 
+/** 从指定语言包读取固定文案，供第三方组件配置和跨语言兼容判断使用。 */
+export function getLocaleText(locale: SupportedLocale, key: string): string {
+  const messages = adminI18n.global.getLocaleMessage(locale) as LocaleMessages;
+  const fallbackMessages = adminI18n.global.getLocaleMessage(DEFAULT_LOCALE) as LocaleMessages;
+  return messages[key] ?? fallbackMessages[key] ?? "";
+}
+
 /** 管理端响应式语言状态。 */
 export function useLocaleStore() {
   return {
@@ -177,18 +186,13 @@ function getFallbackLanguageOptions(): LocaleOption[] {
   return SUPPORTED_LOCALES.map(languageCode => {
     return {
       language_code: languageCode,
-      native_name: fallbackNativeLanguageName(languageCode),
+      native_name: fallbackNativeLanguageName(languageCode)
     };
   });
 }
 
 function fallbackNativeLanguageName(languageCode: SupportedLocale): string {
-  return {
-    "zh-CN": "简体中文",
-    "zh-TW": "繁體中文",
-    "en-US": "English",
-    "ja-JP": "日本語",
-  }[languageCode];
+  return getLocaleText(languageCode, `common.language.${languageCode}`) || languageCode;
 }
 
 function applyLocale(locale: SupportedLocale): void {

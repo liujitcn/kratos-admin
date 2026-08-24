@@ -41,7 +41,11 @@
           <el-tooltip v-if="showToolButton('refresh')" :content="t('core.table.refresh')" placement="top">
             <el-button class="tool-button" :icon="Refresh" circle @click="handleToolRefresh" />
           </el-tooltip>
-          <el-tooltip v-if="showToolButton('setting') && columns.length" :content="t('core.table.column_setting')" placement="top">
+          <el-tooltip
+            v-if="showToolButton('setting') && columns.length"
+            :content="t('core.table.column_setting')"
+            placement="top"
+          >
             <el-button class="tool-button" :icon="Operation" circle @click="openColSetting" />
           </el-tooltip>
           <el-tooltip
@@ -107,7 +111,7 @@
       <template #empty>
         <div class="table-empty">
           <slot name="empty">
-            <img src="@/assets/images/notData.png" alt="notData" />
+            <img src="@/assets/images/notData.png" :alt="t('common.message.no_data')" />
             <div>{{ t("common.message.no_data") }}</div>
           </slot>
         </div>

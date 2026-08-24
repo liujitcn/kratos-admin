@@ -13,6 +13,7 @@ import (
 	"github.com/liujitcn/kratos-core/queue"
 	"github.com/liujitcn/kratos-core/resource/docs"
 	"github.com/liujitcn/kratos-core/resource/i18n"
+	coreMigration "github.com/liujitcn/kratos-core/resource/migration"
 	"github.com/liujitcn/kratos-core/resource/openapi"
 	"github.com/liujitcn/kratos-core/sse"
 	"github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
@@ -55,10 +56,11 @@ func NewModuleResources() AdminResources {
 
 // NewModules 创建 Backend 注册到 Core 的协议模块集合。
 //
-// 参数均来自 kratos-core.ProviderSet：数据库客户端由模块资源驱动创建，
+// 参数均来自 kratos-core.ProviderSet：迁移就绪对象保证版本记录已创建，数据库客户端由模块资源驱动创建，
 // BaseCase、Job、SSE、文档和 OpenAPI 运行时由 Core 统一提供。Admin 业务依赖
 // 在 Backend 内部完成装配，避免外部项目的生成代码引用 backend/internal 包。
 func NewModules(
+	_ *coreMigration.Migration,
 	config *configv1.Bootstrap,
 	databases map[string]*gorm.Client,
 	baseCase *biz.BaseCase,
@@ -90,8 +92,9 @@ func NewTasks(
 func NewStreams(
 	databases map[string]*gorm.Client,
 	baseCase *biz.BaseCase,
+	catalog *i18n.I18n,
 ) (AdminStreams, func(), error) {
-	streams, cleanup, err := adminModule.BuildStreams(databases, baseCase)
+	streams, cleanup, err := adminModule.BuildStreams(databases, baseCase, catalog)
 	return AdminStreams(streams), cleanup, err
 }
 

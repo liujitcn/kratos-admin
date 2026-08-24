@@ -47,6 +47,15 @@
   "core.auth.no_menu_permission": "當前賬號無任何選單許可權，請聯絡系統管理員",
   "core.auth.no_permission": "無許可權訪問",
   "core.clipboard.success": "複製成功",
+  "core.markdown.action.copy_code": "複製程式碼",
+  "core.markdown.message.copy_success": "已複製！",
+  "core.markdown.message.copy_failed": "複製失敗！",
+  "core.loading.text": "載入中",
+  "core.layout.avatar": "使用者頭像",
+  "core.layout.logo_alt": "系統標誌",
+  "core.login.background_alt": "登入頁背景",
+  "core.layout.info_content": "查看目前使用者資訊",
+  "core.layout.password_content": "修改目前使用者密碼",
   "core.cron.cycle_unit.day": "天",
   "core.cron.cycle_unit.hour": "小時",
   "core.cron.cycle_unit.minute": "分鐘",
@@ -276,5 +285,9 @@
   "common.value.yes": "是",
   "common.value.no": "否",
   "common.value.unknown": "未知",
-  "common.value.none": "無"
+  "common.value.none": "無",
+  "common.value.top_level": "頂級節點",
+  "common.resource.default": "{resource}",
+  "common.action.delete_resource": "刪除{resource}",
+  "common.action.set_field_status": "設定{field}"
 }

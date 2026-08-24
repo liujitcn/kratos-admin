@@ -7,13 +7,14 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
-	"github.com/liujitcn/kratos-core/const"
+	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
 	corejob "github.com/liujitcn/kratos-core/job"
 
 	_mapper "github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
+	"gorm.io/gen/field"
 )
 
 // BaseJobCase 定时任务业务实例
@@ -21,13 +22,14 @@ type BaseJobCase struct {
 	*biz.BaseCase
 	*data.BaseJobRepository
 	baseJobLogCase *BaseJobLogCase
+	baseI18nCase   *BaseI18nCase
 	job            *corejob.Job
 	formMapper     *_mapper.CopierMapper[adminv1.BaseJobForm, models.BaseJob]
 	mapper         *_mapper.CopierMapper[adminv1.BaseJob, models.BaseJob]
 }
 
 // NewBaseJobCase 创建定时任务业务实例
-func NewBaseJobCase(baseCase *biz.BaseCase, job *corejob.Job, baseJobRepo *data.BaseJobRepository, baseJobLogCase *BaseJobLogCase) *BaseJobCase {
+func NewBaseJobCase(baseCase *biz.BaseCase, job *corejob.Job, baseJobRepo *data.BaseJobRepository, baseJobLogCase *BaseJobLogCase, baseI18nCase *BaseI18nCase) *BaseJobCase {
 	formMapper := _mapper.NewCopierMapper[adminv1.BaseJobForm, models.BaseJob]()
 	formMapper.AppendConverters(_mapper.NewJSONTypeConverter[[]*adminv1.BaseJobArgs]().NewConverterPair())
 	mapper := _mapper.NewCopierMapper[adminv1.BaseJob, models.BaseJob]()
@@ -37,6 +39,7 @@ func NewBaseJobCase(baseCase *biz.BaseCase, job *corejob.Job, baseJobRepo *data.
 		BaseCase:          baseCase,
 		BaseJobRepository: baseJobRepo,
 		baseJobLogCase:    baseJobLogCase,
+		baseI18nCase:      baseI18nCase,
 		job:               job,
 		formMapper:        formMapper,
 		mapper:            mapper,
@@ -45,12 +48,23 @@ func NewBaseJobCase(baseCase *biz.BaseCase, job *corejob.Job, baseJobRepo *data.
 
 // PageBaseJob 分页查询定时任务
 func (c *BaseJobCase) PageBaseJob(ctx context.Context, req *adminv1.PageBaseJobRequest) (*adminv1.PageBaseJobResponse, error) {
+	var err error
 	query := c.Query(ctx).BaseJob
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
 	// 传入任务名称时，按名称模糊匹配定时任务。
 	if req.GetName() != "" {
-		opts = append(opts, repository.Where(query.Name.Like("%"+req.GetName()+"%")))
+		var translatedIDs []int64
+		translatedIDs, err = c.baseI18nCase.GetTargetIdsByName(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_JOB_NAME, req.GetName())
+		if err != nil {
+			return nil, err
+		}
+		nameCondition := query.Name.Like("%" + req.GetName() + "%")
+		if len(translatedIDs) > 0 {
+			opts = append(opts, repository.Where(field.Or(nameCondition, query.ID.In(translatedIDs...))))
+		} else {
+			opts = append(opts, repository.Where(nameCondition))
+		}
 	}
 	// 传入调用目标时，按调用目标模糊匹配定时任务。
 	if req.GetInvokeTarget() != "" {
@@ -60,14 +74,26 @@ func (c *BaseJobCase) PageBaseJob(ctx context.Context, req *adminv1.PageBaseJobR
 		opts = append(opts, repository.Where(query.Status.Eq(int32(req.GetStatus()))))
 	}
 
-	list, total, err := c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
+	var list []*models.BaseJob
+	var total int64
+	list, total, err = c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
 	if err != nil {
 		return nil, err
 	}
 
 	resList := make([]*adminv1.BaseJob, 0, len(list))
+	targetIds := make([]int64, 0, len(list))
+	for _, item := range list {
+		targetIds = append(targetIds, item.ID)
+	}
+	var i18ns map[int64][]*adminv1.BaseI18n
+	i18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetType(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_JOB_NAME, targetIds)
+	if err != nil {
+		return nil, err
+	}
 	for _, item := range list {
 		baseJob := c.mapper.ToDTO(item)
+		baseJob.I18ns = i18ns[item.ID]
 		resList = append(resList, baseJob)
 	}
 	return &adminv1.PageBaseJobResponse{BaseJobs: resList, Total: int32(total)}, nil
@@ -80,6 +106,12 @@ func (c *BaseJobCase) GetBaseJob(ctx context.Context, id int64) (*adminv1.BaseJo
 		return nil, err
 	}
 	res := c.formMapper.ToDTO(baseJob)
+	var i18ns map[int64][]*adminv1.BaseI18n
+	i18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetType(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_JOB_NAME, []int64{id})
+	if err != nil {
+		return nil, err
+	}
+	res.I18ns = i18ns[id]
 	return res, nil
 }
 
@@ -97,6 +129,10 @@ func (c *BaseJobCase) CreateBaseJob(ctx context.Context, req *adminv1.BaseJobFor
 		if errorsx.IsDuplicateKey(err) {
 			return errorsx.UniqueConflict("调用目标重复", "base_job", "invoke_target", "unique_base_job").WithCause(err)
 		}
+		return err
+	}
+	err = c.saveBaseI18n(ctx, req, baseJob)
+	if err != nil {
 		return err
 	}
 	return nil
@@ -137,6 +173,16 @@ func (c *BaseJobCase) UpdateBaseJob(ctx context.Context, req *adminv1.BaseJobFor
 		// 命中调用目标唯一索引冲突时，返回稳定的业务冲突错误。
 		if errorsx.IsDuplicateKey(err) {
 			return errorsx.UniqueConflict("调用目标重复", "base_job", "invoke_target", "unique_base_job").WithCause(err)
+		}
+		return err
+	}
+	err = c.saveBaseI18n(ctx, req, baseJob)
+	if err != nil {
+		if wasRunning {
+			restoreErr := c.restoreBaseJob(ctx, previousJob)
+			if restoreErr != nil {
+				return errorsx.WrapInternal(restoreErr, "恢复定时任务配置失败")
+			}
 		}
 		return err
 	}
@@ -209,8 +255,15 @@ func (c *BaseJobCase) DeleteBaseJob(ctx context.Context, id string) error {
 		if restoreErr != nil {
 			return errorsx.WrapInternal(restoreErr, "恢复定时任务调度失败")
 		}
+		return err
 	}
+	err = c.baseI18nCase.DeleteBaseI18n(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_JOB_NAME, ids)
 	return err
+}
+
+// saveBaseI18n 保存定时任务名称翻译。
+func (c *BaseJobCase) saveBaseI18n(ctx context.Context, req *adminv1.BaseJobForm, entity *models.BaseJob) error {
+	return c.baseI18nCase.SaveBaseI18n(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_JOB_NAME, entity.ID, entity.Name, req.GetI18ns(), nil)
 }
 
 // SetBaseJobStatus 设置定时任务状态

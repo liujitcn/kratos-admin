@@ -83,7 +83,7 @@ make -C .. package-taro-app
 
 Taro 支持的语言由 core 和 System JSON 语言包自动发现，模块注册时校验 key 与占位符集合；登录、首页、状态页、WebView、个人中心、设置、资料和 AI 页面都通过 `t(key)` 使用固定文案。语言偏好保存为 `kratos-app:locale`，切换后不改变稳定路由和业务字段。
 
-所有 `Taro.request`、文件上传和 SSE 请求统一发送 `Accept-Language`。动态菜单沿用后端解析后的标题，缺少当前语言译文时回退主语言；新增语言需要同步后端错误目录、三个 workspace 的六个前端语言包目录和代码生成 `catalog.json`，再执行仓库根目录的 `make i18n-sync`。具体流程见 [国际化语言扩展指南](../../docs/国际化语言扩展指南.md)。
+所有 `Taro.request`、文件上传和 SSE 请求统一发送 `Accept-Language`。动态菜单沿用后端解析后的标题，缺少当前语言译文时回退主语言；新增语言需要同步后端国际化目录、三个 workspace 的六个前端语言包目录，再执行仓库根目录的 `make i18n-sync`。具体流程见 [国际化语言扩展指南](../../docs/国际化语言扩展指南.md)。
 
 ## RPC 生成
 

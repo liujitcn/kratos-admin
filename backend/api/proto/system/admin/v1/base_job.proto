@@ -7,6 +7,7 @@ import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "buf/validate/validate.proto";
+import "system/admin/v1/base_i18n.proto";
 
 // Admin定时任务服务
 service BaseJobService {
@@ -173,6 +174,8 @@ message BaseJobForm {
   string cron_expression = 5 [(gnostic.openapi.v3.property) = {description: "cron表达式"}, (buf.validate.field).cel = {id: "system.admin.base.job.entity.cron_expression.length" message: "cron表达式不能为空且不超过 50 个字符" expression: "this.size() > 0 && this.size() <= 50"}]; // cron表达式
 
   .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+
+  repeated BaseI18n i18ns = 7 [(gnostic.openapi.v3.property) = {description: "定时任务名称多语言翻译"}]; // 定时任务名称多语言翻译
 }
 
 // 查询定时任务日志请求参数
@@ -265,4 +268,6 @@ message BaseJob {
   string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
 
   string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+
+  repeated BaseI18n i18ns = 202 [(gnostic.openapi.v3.property) = {description: "定时任务名称多语言翻译"}]; // 定时任务名称多语言翻译
 }

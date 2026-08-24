@@ -4,13 +4,11 @@ import (
 	"context"
 	"sort"
 
-	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
-	"github.com/liujitcn/kratos-core/const"
+	_const "github.com/liujitcn/kratos-core/const"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
 
 	"github.com/liujitcn/go-utils/mapper"
@@ -22,18 +20,16 @@ type BaseDictCase struct {
 	*biz.BaseCase
 	*data.BaseDictRepository
 	baseDictItemCase *BaseDictItemCase
-	i18nCase         *adminbiz.BaseI18nCase
 	dictMapper       *mapper.CopierMapper[appv1.BaseDictForm, models.BaseDict]
 	itemMapper       *mapper.CopierMapper[appv1.BaseDictForm_DictItem, models.BaseDictItem]
 }
 
 // NewBaseDictCase 创建字典业务处理对象
-func NewBaseDictCase(baseCase *biz.BaseCase, baseDictRepo *data.BaseDictRepository, baseDictItemCase *BaseDictItemCase, i18nCase *adminbiz.BaseI18nCase) *BaseDictCase {
+func NewBaseDictCase(baseCase *biz.BaseCase, baseDictRepo *data.BaseDictRepository, baseDictItemCase *BaseDictItemCase) *BaseDictCase {
 	return &BaseDictCase{
 		BaseCase:           baseCase,
 		BaseDictRepository: baseDictRepo,
 		baseDictItemCase:   baseDictItemCase,
-		i18nCase:           i18nCase,
 		dictMapper:         mapper.NewCopierMapper[appv1.BaseDictForm, models.BaseDict](),
 		itemMapper:         mapper.NewCopierMapper[appv1.BaseDictForm_DictItem, models.BaseDictItem](),
 	}
@@ -61,20 +57,6 @@ func (c *BaseDictCase) GetBaseDict(ctx context.Context, code string) (*appv1.Bas
 	for _, item := range baseDictItemList {
 		dictItemMap[item.DictID] = append(dictItemMap[item.DictID], item)
 	}
-	var dictNames map[int64]string
-	dictNames, err = c.i18nCase.GetBaseI18nNameMapByLocale(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT, biz.LocaleFromContext(ctx), []int64{baseDict.ID})
-	if err != nil {
-		return nil, err
-	}
-	dictItemIDs := make([]int64, 0, len(baseDictItemList))
-	for _, item := range baseDictItemList {
-		dictItemIDs = append(dictItemIDs, item.ID)
-	}
-	var dictItemLabels map[int64]string
-	dictItemLabels, err = c.i18nCase.GetBaseI18nNameMapByLocale(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_DICT_ITEM, biz.LocaleFromContext(ctx), dictItemIDs)
-	if err != nil {
-		return nil, err
-	}
 
 	items := make([]*appv1.BaseDictForm_DictItem, 0)
 	// 命中字典项映射时，再按排序规则组装当前字典的子项。
@@ -84,17 +66,11 @@ func (c *BaseDictCase) GetBaseDict(ctx context.Context, code string) (*appv1.Bas
 		})
 		for _, dictItem := range dictItems {
 			item := c.itemMapper.ToDTO(dictItem)
-			if translated := dictItemLabels[dictItem.ID]; translated != "" {
-				item.Label = translated
-			}
 			items = append(items, item)
 		}
 	}
 
 	res := c.dictMapper.ToDTO(baseDict)
-	if translated := dictNames[baseDict.ID]; translated != "" {
-		res.Name = translated
-	}
 	res.Items = items
 	return res, nil
 }

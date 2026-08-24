@@ -32,8 +32,9 @@ type Manager struct {
 
 // taskEntry 保存任务所属用户和任务快照。
 type taskEntry struct {
-	ownerID int64                // 任务创建用户 ID
-	task    *adminv1.CodeGenTask // 当前任务快照
+	ownerID     int64                // 任务创建用户 ID
+	localeState LocaleState          // 创建任务时的语言状态
+	task        *adminv1.CodeGenTask // 当前任务快照
 }
 
 // NewManager 创建代码生成任务进度管理器。
@@ -56,12 +57,12 @@ func StreamID(taskID string) string {
 }
 
 // Create 创建等待执行的代码生成任务，同一用户同时只允许一个活跃任务。
-func (m *Manager) Create(ownerID int64, tables []*adminv1.CodeGenTaskTable) (*adminv1.CodeGenTask, bool) {
+func (m *Manager) Create(ownerID int64, tables []*adminv1.CodeGenTaskTable, localeState LocaleState) (*adminv1.CodeGenTask, bool) {
 	taskID := uuid.NewString()
 	task := &adminv1.CodeGenTask{
 		TaskId:    taskID,
 		Status:    adminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_PENDING,
-		Message:   "等待执行",
+		Message:   Message(localeState, "progress.pending_execute", nil),
 		Tables:    tables,
 		CreatedAt: time.Now().Format(time.RFC3339),
 	}
@@ -74,7 +75,7 @@ func (m *Manager) Create(ownerID int64, tables []*adminv1.CodeGenTaskTable) (*ad
 			return nil, false
 		}
 	}
-	m.tasks[taskID] = &taskEntry{ownerID: ownerID, task: cloneTask(task)}
+	m.tasks[taskID] = &taskEntry{ownerID: ownerID, localeState: localeState, task: cloneTask(task)}
 	m.mu.Unlock()
 	return cloneTask(task), true
 }
@@ -102,17 +103,29 @@ func (m *Manager) IsOwner(taskID string, ownerID int64) bool {
 	return isOwner
 }
 
+// Message 返回任务创建语言对应的代码生成文案。
+func (m *Manager) Message(taskID string, key string, values map[string]string) string {
+	m.mu.RLock()
+	entry := m.tasks[taskID]
+	var localeState LocaleState
+	if entry != nil {
+		localeState = entry.localeState
+	}
+	m.mu.RUnlock()
+	return Message(localeState, key, values)
+}
+
 // MarkTaskRunning 标记任务开始执行。
 func (m *Manager) MarkTaskRunning(ctx context.Context, taskID string) {
-	m.update(ctx, taskID, func(task *adminv1.CodeGenTask) {
+	m.update(ctx, taskID, func(task *adminv1.CodeGenTask, localeState LocaleState) {
 		task.Status = adminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_RUNNING
-		task.Message = "正在生成代码"
+		task.Message = Message(localeState, "progress.running_code_generation", nil)
 	})
 }
 
 // MarkTaskCompleted 标记任务执行结束，并在保留期后释放内存快照。
 func (m *Manager) MarkTaskCompleted(ctx context.Context, taskID string, status adminv1.CodeGenTaskStatus, message string) {
-	m.update(ctx, taskID, func(task *adminv1.CodeGenTask) {
+	m.update(ctx, taskID, func(task *adminv1.CodeGenTask, _ LocaleState) {
 		task.Status = status
 		task.Message = message
 		task.CurrentTableName = ""
@@ -128,20 +141,20 @@ func (m *Manager) MarkTaskCompleted(ctx context.Context, taskID string, status a
 
 // MarkTableRunning 标记单个生成对象开始执行。
 func (m *Manager) MarkTableRunning(ctx context.Context, taskID string, tableID int64) {
-	m.update(ctx, taskID, func(task *adminv1.CodeGenTask) {
+	m.update(ctx, taskID, func(task *adminv1.CodeGenTask, localeState LocaleState) {
 		table := findTaskTable(task, tableID)
 		if table == nil {
 			return
 		}
 		table.Status = adminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_RUNNING
-		table.Message = "正在生成"
+		table.Message = Message(localeState, "progress.running_table", nil)
 		task.CurrentTableName = table.TableName
 	})
 }
 
 // MarkTableCompleted 标记单个生成对象执行结束。
 func (m *Manager) MarkTableCompleted(ctx context.Context, taskID string, tableID int64, status adminv1.CodeGenTaskStatus, message string) {
-	m.update(ctx, taskID, func(task *adminv1.CodeGenTask) {
+	m.update(ctx, taskID, func(task *adminv1.CodeGenTask, localeState LocaleState) {
 		table := findTaskTable(task, tableID)
 		if table == nil {
 			return
@@ -154,7 +167,7 @@ func (m *Manager) MarkTableCompleted(ctx context.Context, taskID string, tableID
 					continue
 				}
 				step.Status = adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_SKIPPED
-				step.Message = "生成失败，未继续执行"
+				step.Message = Message(localeState, "progress.generation_failed_skipped", nil)
 			}
 		}
 	})
@@ -162,7 +175,7 @@ func (m *Manager) MarkTableCompleted(ctx context.Context, taskID string, tableID
 
 // RegisterSteps 登记单个生成对象的全部执行步骤。
 func (m *Manager) RegisterSteps(ctx context.Context, taskID string, tableID int64, steps []*adminv1.CodeGenTaskStep) {
-	m.update(ctx, taskID, func(task *adminv1.CodeGenTask) {
+	m.update(ctx, taskID, func(task *adminv1.CodeGenTask, _ LocaleState) {
 		table := findTaskTable(task, tableID)
 		if table == nil {
 			return
@@ -181,7 +194,7 @@ func (m *Manager) UpdateStep(
 	message string,
 	output string,
 ) {
-	m.update(ctx, taskID, func(task *adminv1.CodeGenTask) {
+	m.update(ctx, taskID, func(task *adminv1.CodeGenTask, _ LocaleState) {
 		table := findTaskTable(task, tableID)
 		if table == nil {
 			return
@@ -199,14 +212,14 @@ func (m *Manager) UpdateStep(
 }
 
 // update 修改任务快照，并在解锁后发布不可变副本。
-func (m *Manager) update(ctx context.Context, taskID string, update func(*adminv1.CodeGenTask)) {
+func (m *Manager) update(ctx context.Context, taskID string, update func(*adminv1.CodeGenTask, LocaleState)) {
 	m.mu.Lock()
 	entry := m.tasks[taskID]
 	if entry == nil {
 		m.mu.Unlock()
 		return
 	}
-	update(entry.task)
+	update(entry.task, entry.localeState)
 	recalculateProgress(entry.task)
 	// 发布端只接收深拷贝，不能绕过锁修改管理器内部状态。
 	task := cloneTask(entry.task)

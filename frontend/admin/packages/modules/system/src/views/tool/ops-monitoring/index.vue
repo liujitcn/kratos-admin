@@ -128,7 +128,7 @@
                 <code>{{ item.address }}</code>
               </div>
             </div>
-            <el-tag :type="item.status === '正常' ? 'success' : 'warning'" size="small" effect="plain">{{
+            <el-tag :type="isNormalStatus(item.status) ? 'success' : 'warning'" size="small" effect="plain">{{
               item.statusLabel
             }}</el-tag>
           </div>
@@ -199,12 +199,7 @@
                     <strong>{{ metric.percentageLabel }}</strong>
                   </span>
                 </div>
-                <el-progress
-                  :percentage="metric.percentage"
-                  :show-text="false"
-                  :stroke-width="10"
-                  :color="metric.color"
-                />
+                <el-progress :percentage="metric.percentage" :show-text="false" :stroke-width="10" :color="metric.color" />
               </div>
             </div>
           </div>
@@ -362,11 +357,17 @@ const alerts = ref<OpsAlertsResponse>();
 const windowMinutes = ref(15);
 const lastCollectedAt = ref("");
 const trendGridLines = [16, 62, 108, 154, 198];
-const nodeMetricLabelKeys: Record<string, string> = {
-  堆内存: "system.ops_monitoring.node_metric.heap_memory",
-  内存: "system.ops_monitoring.node_metric.memory",
-  硬盘: "system.ops_monitoring.node_metric.disk"
-};
+const monitoringStatusKeys = [
+  "system.ops_monitoring.status.normal",
+  "system.ops_monitoring.status.unconfigured",
+  "system.ops_monitoring.status.error",
+  "system.ops_monitoring.status.attention"
+] as const;
+const nodeMetricLabelKeys = [
+  "system.ops_monitoring.node_metric.heap_memory",
+  "system.ops_monitoring.node_metric.memory",
+  "system.ops_monitoring.node_metric.disk"
+] as const;
 const byteUnits = ["B", "KB", "MB", "GB", "TB", "PB"];
 const trafficSummary = computed(() => traffic.value?.traffic);
 
@@ -454,7 +455,7 @@ const availabilityItems = computed<AvailabilityItem[]>(() =>
   (services.value?.services ?? []).map(service => ({
     label: service.name,
     value: translateStatus(service.status),
-    tone: service.status === "正常" ? "ok" : "warn"
+    tone: isNormalStatus(service.status) ? "ok" : "warn"
   }))
 );
 
@@ -580,17 +581,20 @@ function formatRelativeTime(value?: string) {
 }
 
 function translateStatus(status?: string) {
-  if (status === "正常") return t("system.ops_monitoring.status.normal");
-  if (status === "未配置") return t("system.ops_monitoring.status.unconfigured");
-  if (status === "异常") return t("system.ops_monitoring.status.error");
-  if (status === "关注") return t("system.ops_monitoring.status.attention");
+  const localeKey = monitoringStatusKeys.find(key => t(key) === status);
+  if (localeKey) return t(localeKey);
   return status || t("system.ops_monitoring.unknown");
+}
+
+/** 判断监控状态是否为当前语言下的正常状态。 */
+function isNormalStatus(status?: string) {
+  return status === t("system.ops_monitoring.status.normal");
 }
 
 function mapStorage(item: OpsStorage) {
   return {
     ...item,
-    color: item.status === "正常" ? "var(--el-color-success)" : "var(--el-color-warning)",
+    color: isNormalStatus(item.status) ? "var(--el-color-success)" : "var(--el-color-warning)",
     statusLabel: translateStatus(item.status),
     shortName: item.short_name || item.name,
     capacityLabel: item.capacity_label || t("system.ops_monitoring.capacity"),
@@ -606,7 +610,7 @@ function mapEndpoint(endpoint: OpsEndpoint): EndpointItem {
     latency: `${formatNumber(endpoint.p95_latency_ms)} ms`,
     errorRate: `${formatNumber(endpoint.error_rate)}%`,
     status: translateStatus(endpoint.status),
-    healthy: endpoint.status === "正常"
+    healthy: isNormalStatus(endpoint.status)
   };
 }
 
@@ -649,7 +653,7 @@ function formatFixedNumber(value: number) {
 
 /** 翻译实例资源指标名称，未知指标保留后端原值。 */
 function translateNodeMetricLabel(label: string) {
-  const localeKey = nodeMetricLabelKeys[label];
+  const localeKey = nodeMetricLabelKeys.find(key => t(key) === label);
   return localeKey ? t(localeKey) : label;
 }
 
@@ -658,7 +662,7 @@ function mapAlert(alert: OpsAlert) {
     title: alert.title,
     detail: alert.detail,
     at: alert.at,
-    tone: alert.status === "正常" ? "ok" : "warn"
+    tone: isNormalStatus(alert.status) ? "ok" : "warn"
   };
 }
 

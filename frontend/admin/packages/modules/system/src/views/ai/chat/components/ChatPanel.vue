@@ -115,11 +115,11 @@
                   </template>
                   <div class="agent-message-tool-payload">
                     <section class="agent-message-tool-payload__section">
-                      <div class="agent-message-tool-payload__label">REQUEST</div>
+                      <div class="agent-message-tool-payload__label">{{ t("system.ai.chat.field.request_payload") }}</div>
                       <pre>{{ formatToolRequest(tool) }}</pre>
                     </section>
                     <section class="agent-message-tool-payload__section">
-                      <div class="agent-message-tool-payload__label">RESPONSE</div>
+                      <div class="agent-message-tool-payload__label">{{ t("system.ai.chat.field.response_payload") }}</div>
                       <pre>{{ formatToolResponse(tool) }}</pre>
                     </section>
                   </div>

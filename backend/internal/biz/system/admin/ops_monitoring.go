@@ -19,6 +19,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/resource/i18n"
 
 	"github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/liujitcn/kratos-kit/utils"
@@ -35,22 +36,25 @@ const (
 type OpsMonitoringCase struct {
 	*biz.BaseCase
 	baseLogRepository *data.BaseLogRepository
+	catalog           *i18n.I18n
 }
 
 // NewOpsMonitoringCase 创建运维监控业务实例。
 func NewOpsMonitoringCase(
 	baseCase *biz.BaseCase,
 	baseLogRepository *data.BaseLogRepository,
+	catalog *i18n.I18n,
 ) *OpsMonitoringCase {
 	return &OpsMonitoringCase{
 		BaseCase:          baseCase,
 		baseLogRepository: baseLogRepository,
+		catalog:           catalog,
 	}
 }
 
 // GetOpsRuntime 查询当前进程运行信息。
-func (c *OpsMonitoringCase) GetOpsRuntime(_ context.Context, _ *adminv1.GetOpsRuntimeRequest) *adminv1.OpsRuntime {
-	return c.runtimeInfo(time.Now())
+func (c *OpsMonitoringCase) GetOpsRuntime(ctx context.Context, _ *adminv1.GetOpsRuntimeRequest) *adminv1.OpsRuntime {
+	return c.runtimeInfo(time.Now(), biz.LocaleFromContext(ctx))
 }
 
 // GetOpsTraffic 查询请求流量与延迟趋势。
@@ -93,14 +97,15 @@ func (c *OpsMonitoringCase) GetOpsEndpoints(ctx context.Context, req *adminv1.Ge
 	return &adminv1.OpsEndpointsResponse{
 		CollectedAt:   now.Format(time.RFC3339Nano),
 		WindowMinutes: int32(windowMinutes),
-		Endpoints:     summarizeEndpoints(logs, windowMinutes),
+		Endpoints:     summarizeEndpoints(logs, windowMinutes, c.catalog, biz.LocaleFromContext(ctx)),
 	}, nil
 }
 
 // GetOpsNodes 查询实例资源状态。
-func (c *OpsMonitoringCase) GetOpsNodes(_ context.Context, _ *adminv1.GetOpsNodesRequest) *adminv1.OpsNodesResponse {
+func (c *OpsMonitoringCase) GetOpsNodes(ctx context.Context, _ *adminv1.GetOpsNodesRequest) *adminv1.OpsNodesResponse {
 	now := time.Now()
-	return &adminv1.OpsNodesResponse{CollectedAt: now.Format(time.RFC3339Nano), Nodes: summarizeNodes(c.runtimeInfo(now), collectNodeMetrics())}
+	locale := biz.LocaleFromContext(ctx)
+	return &adminv1.OpsNodesResponse{CollectedAt: now.Format(time.RFC3339Nano), Nodes: summarizeNodes(c.runtimeInfo(now, locale), collectNodeMetrics(c.catalog, locale), c.catalog, locale)}
 }
 
 // GetOpsAlerts 查询窗口内告警事件。
@@ -114,7 +119,7 @@ func (c *OpsMonitoringCase) GetOpsAlerts(ctx context.Context, req *adminv1.GetOp
 	return &adminv1.OpsAlertsResponse{
 		CollectedAt:   now.Format(time.RFC3339Nano),
 		WindowMinutes: int32(windowMinutes),
-		Alerts:        summarizeAlerts(logs),
+		Alerts:        summarizeAlerts(logs, c.catalog, biz.LocaleFromContext(ctx)),
 	}, nil
 }
 
@@ -133,7 +138,7 @@ func (c *OpsMonitoringCase) loadLogs(ctx context.Context, start time.Time) ([]dt
 }
 
 // runtimeInfo 读取当前 Go 进程的运行时信息。
-func (c *OpsMonitoringCase) runtimeInfo(now time.Time) *adminv1.OpsRuntime {
+func (c *OpsMonitoringCase) runtimeInfo(now time.Time, locale string) *adminv1.OpsRuntime {
 	var memory runtime.MemStats
 	runtime.ReadMemStats(&memory)
 	appInfo := c.GetAppInfo()
@@ -148,9 +153,9 @@ func (c *OpsMonitoringCase) runtimeInfo(now time.Time) *adminv1.OpsRuntime {
 		}
 	}
 	return &adminv1.OpsRuntime{
-		ServiceName:      firstNonEmpty(appInfo.GetName(), appInfo.GetAppId()),
+		ServiceName:      firstNonEmpty(appInfo.GetName(), appInfo.GetAppId(), monitoringText(c.catalog, locale, "unnamed_service")),
 		Version:          appInfo.GetVersion(),
-		Hostname:         firstNonEmpty(appInfo.GetHostname(), hostname()),
+		Hostname:         firstNonEmpty(appInfo.GetHostname(), hostname(), monitoringText(c.catalog, locale, "current_instance")),
 		Environment:      appInfo.GetEnvironment(),
 		GoVersion:        runtime.Version(),
 		Os:               runtime.GOOS,
@@ -165,9 +170,10 @@ func (c *OpsMonitoringCase) runtimeInfo(now time.Time) *adminv1.OpsRuntime {
 
 // collectDependencies 采集数据库和 Redis 的连接状态与连接池信息。
 func (c *OpsMonitoringCase) collectDependencies(ctx context.Context) ([]*adminv1.OpsServiceStatus, []*adminv1.OpsStorage) {
+	locale := biz.LocaleFromContext(ctx)
 	appInfo := c.GetAppInfo()
 	services := []*adminv1.OpsServiceStatus{
-		{Name: "Backend API", Address: appInfo.GetAppId(), Status: "正常", Message: "监控服务响应正常"},
+		{Name: "Backend API", Address: appInfo.GetAppId(), Status: monitoringText(c.catalog, locale, "normal"), Message: monitoringText(c.catalog, locale, "monitor_healthy")},
 	}
 	storage := make([]*adminv1.OpsStorage, 0, 2)
 	databaseService, databaseStorage := c.databaseStatus(ctx)
@@ -185,25 +191,26 @@ func (c *OpsMonitoringCase) collectDependencies(ctx context.Context) ([]*adminv1
 
 // databaseStatus 检查数据库连接并读取连接池统计。
 func (c *OpsMonitoringCase) databaseStatus(ctx context.Context) (*adminv1.OpsServiceStatus, *adminv1.OpsStorage) {
+	locale := biz.LocaleFromContext(ctx)
 	dataConfig := c.GetConfig().GetData()
 	config := dataConfig.GetDatabase()
 	if config == nil {
 		config = dataConfig.GetDatabases()[gorm.DefaultClientName]
 	}
 	database := c.GormClients[gorm.DefaultClientName]
-	address := databaseAddress(config.GetDriver(), config.GetSource())
-	service := &adminv1.OpsServiceStatus{Name: "MySQL", Address: address, Status: "异常"}
+	address := databaseAddress(config.GetDriver(), config.GetSource(), c.catalog, locale)
+	service := &adminv1.OpsServiceStatus{Name: "MySQL", Address: address, Status: monitoringText(c.catalog, locale, "error")}
 	storage := &adminv1.OpsStorage{
 		Name:          "MySQL · primary",
 		ShortName:     "SQL",
 		Address:       address,
-		Status:        "异常",
-		CapacityLabel: "连接池",
+		Status:        monitoringText(c.catalog, locale, "error"),
+		CapacityLabel: monitoringText(c.catalog, locale, "pool"),
 	}
 	sqlDB, err := database.DB.DB()
 	if err != nil {
 		service.Message = err.Error()
-		storage.Metrics = []*adminv1.OpsMetric{{Label: "连接池", Value: "不可用"}}
+		storage.Metrics = []*adminv1.OpsMetric{{Label: monitoringText(c.catalog, locale, "pool"), Value: monitoringText(c.catalog, locale, "unavailable")}}
 		return service, storage
 	}
 	startedAt := time.Now()
@@ -219,14 +226,14 @@ func (c *OpsMonitoringCase) databaseStatus(ctx context.Context) (*adminv1.OpsSer
 	}
 	storage.Capacity = capacity
 	storage.Metrics = []*adminv1.OpsMetric{
-		{Label: "活跃连接", Value: fmt.Sprintf("%d / %d", stats.InUse, maxOpen)},
-		{Label: "空闲连接", Value: fmt.Sprintf("%d", stats.Idle)},
-		{Label: "等待次数", Value: fmt.Sprintf("%d", stats.WaitCount)},
+		{Label: monitoringText(c.catalog, locale, "active_connections"), Value: fmt.Sprintf("%d / %d", stats.InUse, maxOpen)},
+		{Label: monitoringText(c.catalog, locale, "idle_connections"), Value: fmt.Sprintf("%d", stats.Idle)},
+		{Label: monitoringText(c.catalog, locale, "wait_count"), Value: fmt.Sprintf("%d", stats.WaitCount)},
 	}
 	if pingErr == nil {
-		service.Status = "正常"
-		service.Message = "连接正常"
-		storage.Status = "正常"
+		service.Status = monitoringText(c.catalog, locale, "normal")
+		service.Message = monitoringText(c.catalog, locale, "connection_healthy")
+		storage.Status = monitoringText(c.catalog, locale, "normal")
 	} else {
 		service.Message = pingErr.Error()
 	}
@@ -235,24 +242,25 @@ func (c *OpsMonitoringCase) databaseStatus(ctx context.Context) (*adminv1.OpsSer
 
 // redisStatus 检查 Redis 配置和连接状态。
 func (c *OpsMonitoringCase) redisStatus(ctx context.Context) (*adminv1.OpsServiceStatus, *adminv1.OpsStorage) {
+	locale := biz.LocaleFromContext(ctx)
 	dataConfig := c.GetConfig().GetData()
 	if dataConfig == nil {
-		return &adminv1.OpsServiceStatus{Name: "Redis", Status: "未配置", Message: "未配置 Redis"}, nil
+		return &adminv1.OpsServiceStatus{Name: "Redis", Status: monitoringText(c.catalog, locale, "unconfigured"), Message: monitoringText(c.catalog, locale, "redis_unconfigured")}, nil
 	}
 	config := dataConfig.GetRedis()
 	if config == nil || len(config.GetAddr()) == 0 {
-		return &adminv1.OpsServiceStatus{Name: "Redis", Status: "未配置", Message: "未配置 Redis"}, nil
+		return &adminv1.OpsServiceStatus{Name: "Redis", Status: monitoringText(c.catalog, locale, "unconfigured"), Message: monitoringText(c.catalog, locale, "redis_unconfigured")}, nil
 	}
 	address := strings.Join(config.GetAddr(), ", ")
-	service := &adminv1.OpsServiceStatus{Name: "Redis", Address: address, Status: "异常"}
+	service := &adminv1.OpsServiceStatus{Name: "Redis", Address: address, Status: monitoringText(c.catalog, locale, "error")}
 	storage := &adminv1.OpsStorage{
 		Name:          "Redis · cache",
 		ShortName:     "RED",
 		Address:       address,
-		Status:        "异常",
-		CapacityLabel: "连接",
+		Status:        monitoringText(c.catalog, locale, "error"),
+		CapacityLabel: monitoringText(c.catalog, locale, "connection"),
 		Capacity:      0,
-		Metrics:       []*adminv1.OpsMetric{{Label: "数据库", Value: fmt.Sprintf("%d", config.GetDb())}},
+		Metrics:       []*adminv1.OpsMetric{{Label: monitoringText(c.catalog, locale, "database"), Value: fmt.Sprintf("%d", config.GetDb())}},
 	}
 	options, err := utils.GetUniversalOptions(config)
 	if err != nil {
@@ -265,10 +273,10 @@ func (c *OpsMonitoringCase) redisStatus(ctx context.Context) (*adminv1.OpsServic
 	closeErr := client.Close()
 	service.LatencyMs = time.Since(startedAt).Milliseconds()
 	if pingErr == nil && closeErr == nil {
-		service.Status = "正常"
-		service.Message = "连接正常"
-		storage.Status = "正常"
-		storage.Metrics = append(storage.Metrics, &adminv1.OpsMetric{Label: "地址数", Value: fmt.Sprintf("%d", len(config.GetAddr()))})
+		service.Status = monitoringText(c.catalog, locale, "normal")
+		service.Message = monitoringText(c.catalog, locale, "connection_healthy")
+		storage.Status = monitoringText(c.catalog, locale, "normal")
+		storage.Metrics = append(storage.Metrics, &adminv1.OpsMetric{Label: monitoringText(c.catalog, locale, "address_count"), Value: fmt.Sprintf("%d", len(config.GetAddr()))})
 		return service, storage
 	}
 	if pingErr != nil {
@@ -344,7 +352,7 @@ func summarizeTrafficPoints(logs []dto.OpsLogRecord, start time.Time, end time.T
 }
 
 // summarizeEndpoints 按接口路径聚合窗口内的请求指标。
-func summarizeEndpoints(logs []dto.OpsLogRecord, windowMinutes int) []*adminv1.OpsEndpoint {
+func summarizeEndpoints(logs []dto.OpsLogRecord, windowMinutes int, catalog *i18n.I18n, locale string) []*adminv1.OpsEndpoint {
 	aggregates := make(map[string]*dto.OpsEndpointAggregate)
 	for _, log := range logs {
 		if log.Path == "" {
@@ -373,9 +381,9 @@ func summarizeEndpoints(logs []dto.OpsLogRecord, windowMinutes int) []*adminv1.O
 	for _, item := range items {
 		errorRate := float64(item.Errors) / float64(item.Total) * 100
 		latency := percentile(item.Costs, 0.95)
-		status := "正常"
+		status := monitoringText(catalog, locale, "normal")
 		if item.Errors > 0 || latency >= 500 {
-			status = "关注"
+			status = monitoringText(catalog, locale, "attention")
 		}
 		endpoints = append(endpoints, &adminv1.OpsEndpoint{
 			Route:        item.Route,
@@ -389,13 +397,13 @@ func summarizeEndpoints(logs []dto.OpsLogRecord, windowMinutes int) []*adminv1.O
 }
 
 // summarizeNodes 将进程和系统资源使用情况映射为实例资源指标。
-func summarizeNodes(runtimeInfo *adminv1.OpsRuntime, metrics []*adminv1.OpsNodeMetric) []*adminv1.OpsNode {
+func summarizeNodes(runtimeInfo *adminv1.OpsRuntime, metrics []*adminv1.OpsNodeMetric, catalog *i18n.I18n, locale string) []*adminv1.OpsNode {
 	usedPercent := 0.0
 	if runtimeInfo.GetMemorySysBytes() > 0 {
 		usedPercent = float64(runtimeInfo.GetMemoryAllocBytes()) / float64(runtimeInfo.GetMemorySysBytes()) * 100
 	}
 	metrics = append([]*adminv1.OpsNodeMetric{{
-		Label:      "堆内存",
+		Label:      monitoringText(catalog, locale, "heap_memory"),
 		Value:      math.Min(usedPercent, 100),
 		UsedBytes:  runtimeInfo.GetMemoryAllocBytes(),
 		TotalBytes: runtimeInfo.GetMemorySysBytes(),
@@ -407,12 +415,12 @@ func summarizeNodes(runtimeInfo *adminv1.OpsRuntime, metrics []*adminv1.OpsNodeM
 }
 
 // collectNodeMetrics 尽力采集实例可见的物理内存和程序所在文件系统使用率，单项失败时保留其他可用指标。
-func collectNodeMetrics() []*adminv1.OpsNodeMetric {
+func collectNodeMetrics(catalog *i18n.I18n, locale string) []*adminv1.OpsNodeMetric {
 	metrics := make([]*adminv1.OpsNodeMetric, 0, 2)
 	memoryStat, err := mem.VirtualMemory()
 	if err == nil && memoryStat.Total > 0 {
 		metrics = append(metrics, &adminv1.OpsNodeMetric{
-			Label:      "内存",
+			Label:      monitoringText(catalog, locale, "memory"),
 			Value:      math.Min(memoryStat.UsedPercent, 100),
 			UsedBytes:  memoryStat.Used,
 			TotalBytes: memoryStat.Total,
@@ -428,7 +436,7 @@ func collectNodeMetrics() []*adminv1.OpsNodeMetric {
 	diskStat, err = disk.Usage(diskPath)
 	if err == nil && diskStat.Total > 0 {
 		metrics = append(metrics, &adminv1.OpsNodeMetric{
-			Label:      "硬盘",
+			Label:      monitoringText(catalog, locale, "disk"),
 			Value:      math.Min(diskStat.UsedPercent, 100),
 			UsedBytes:  diskStat.Used,
 			TotalBytes: diskStat.Total,
@@ -438,7 +446,7 @@ func collectNodeMetrics() []*adminv1.OpsNodeMetric {
 }
 
 // summarizeAlerts 将窗口内失败请求转换为告警事件。
-func summarizeAlerts(logs []dto.OpsLogRecord) []*adminv1.OpsAlert {
+func summarizeAlerts(logs []dto.OpsLogRecord, catalog *i18n.I18n, locale string) []*adminv1.OpsAlert {
 	alerts := make([]*adminv1.OpsAlert, 0)
 	for _, log := range logs {
 		if log.IsSuccess {
@@ -449,10 +457,10 @@ func summarizeAlerts(logs []dto.OpsLogRecord) []*adminv1.OpsAlert {
 			statusCode = 500
 		}
 		alerts = append(alerts, &adminv1.OpsAlert{
-			Title:  "接口请求失败",
-			Detail: fmt.Sprintf("%s · HTTP %d · 耗时 %d ms", firstNonEmpty(log.Path, "未知接口"), statusCode, log.CostTime),
+			Title:  monitoringText(catalog, locale, "request_failed"),
+			Detail: fmt.Sprintf("%s · HTTP %d · %s %d ms", firstNonEmpty(log.Path, monitoringText(catalog, locale, "unknown_endpoint")), statusCode, monitoringText(catalog, locale, "duration"), log.CostTime),
 			At:     log.RequestTime.Format(time.RFC3339Nano),
-			Status: "未解决",
+			Status: monitoringText(catalog, locale, "unresolved"),
 		})
 		if len(alerts) >= 8 {
 			break
@@ -484,7 +492,7 @@ func percentile(values []int64, ratio float64) float64 {
 }
 
 // databaseAddress 返回不包含账号密码的数据库地址摘要。
-func databaseAddress(driver string, source string) string {
+func databaseAddress(driver string, source string, catalog *i18n.I18n, locale string) string {
 	if index := strings.Index(source, "@tcp("); index >= 0 {
 		end := strings.Index(source[index+len("@tcp("):], ")")
 		if end >= 0 {
@@ -494,26 +502,32 @@ func databaseAddress(driver string, source string) string {
 	if driver != "" {
 		return driver
 	}
-	return "未声明"
+	return monitoringText(catalog, locale, "undeclared")
 }
 
-// hostname 返回当前主机名，读取失败时保留可识别的占位值。
+// hostname 返回当前主机名，读取失败时返回空字符串。
 func hostname() string {
 	name, err := os.Hostname()
 	if err != nil || name == "" {
-		return "当前实例"
+		return ""
 	}
 	return name
 }
 
-// firstNonEmpty 返回第一个非空字符串。
+// firstNonEmpty 返回第一个非空字符串，不存在时返回空字符串。
 func firstNonEmpty(values ...string) string {
 	for _, value := range values {
 		if value != "" {
 			return value
 		}
 	}
-	return "未命名服务"
+	return ""
+}
+
+// monitoringText 返回运维监控字段的当前语言文案。
+func monitoringText(catalog *i18n.I18n, locale, key string) string {
+	messageKey := "system.admin.ops_monitoring." + key
+	return catalog.Localize(locale, "zh-CN", messageKey, nil, messageKey)
 }
 
 // monitoringWindow 返回有效的监控统计窗口。

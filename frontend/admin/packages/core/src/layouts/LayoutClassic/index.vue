@@ -4,7 +4,7 @@
     <el-header>
       <div class="header-lf mask-image">
         <div class="logo flx-center">
-          <img class="logo-img" :src="logoUrl" alt="logo" />
+          <img class="logo-img" :src="logoUrl" :alt="t('core.layout.logo_alt')" />
           <span class="logo-text">{{ title }}</span>
         </div>
         <ToolBarLeft />
@@ -46,11 +46,13 @@ import Main from "@/layouts/components/Main/index.vue";
 import SubMenu from "@/layouts/components/Menu/SubMenu.vue";
 import ToolBarLeft from "@/layouts/components/Header/ToolBarLeft.vue";
 import ToolBarRight from "@/layouts/components/Header/ToolBarRight.vue";
+import { useLocaleStore } from "@/locales";
 
 const route = useRoute();
 const authStore = useAuthStore();
 const configStore = useConfigStore();
 const globalStore = useGlobalStore();
+const { t } = useLocaleStore();
 const accordion = computed(() => globalStore.accordion);
 const isCollapse = computed(() => globalStore.isCollapse);
 const menuList = computed(() => authStore.showMenuListGet);
