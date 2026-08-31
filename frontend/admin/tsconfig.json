@@ -23,8 +23,14 @@
         "packages/core/src/components/Mfa/MfaRecoveryCodesDialog.vue"
       ],
       "@liujitcn/kratos-admin-core/components/Dict/DictLabel.vue": ["packages/core/src/components/Dict/DictLabel.vue"],
+      "@liujitcn/kratos-admin-core/components/ECharts/index.vue": [
+        "packages/core/src/components/ECharts/index.vue"
+      ],
       "@liujitcn/kratos-admin-core/components/MarkdownPreview/index.vue": [
         "packages/core/src/components/MarkdownPreview/index.vue"
+      ],
+      "@liujitcn/kratos-admin-core/components/RichTextPreview/index.vue": [
+        "packages/core/src/components/RichTextPreview/index.vue"
       ],
       "@liujitcn/kratos-admin-core/components/PasswordStrength/index.vue": [
         "packages/core/src/components/PasswordStrength/index.vue"
