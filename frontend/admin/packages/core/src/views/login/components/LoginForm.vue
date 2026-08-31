@@ -59,15 +59,18 @@
     </el-form-item>
   </el-form>
   <div class="login-btn">
-    <el-button :icon="CircleClose" round size="large" @click="resetForm(loginFormRef)">{{ t("common.action.reset") }}</el-button>
+    <el-button round size="large" @click="resetForm(loginFormRef)">
+      <el-icon><CircleClose /></el-icon>
+      {{ t("common.action.reset") }}
+    </el-button>
     <el-button
-      :icon="UserFilled"
       round
       size="large"
       type="primary"
       :loading="loading || oauthTicketLoading"
       @click="handleLogin(loginFormRef)"
     >
+      <el-icon><UserFilled /></el-icon>
       {{ t("common.action.login") }}
     </el-button>
   </div>
@@ -128,6 +131,48 @@
       />
     </div>
   </el-dialog>
+  <ProDialog v-model="mfaDialogVisible" :title="t('core.login.mfa_title')" width="360px" :close-on-click-modal="false">
+    <ProForm
+      ref="mfaLoginFormRef"
+      :model="mfaLoginForm"
+      :fields="mfaLoginFormFields"
+      :rules="mfaLoginFormRules"
+      size="default"
+      label-width="auto"
+      @keyup.enter.prevent="verifyMfaLogin"
+    />
+    <template #footer>
+      <el-button @click="mfaDialogVisible = false">{{ t("common.action.cancel") }}</el-button>
+      <el-button type="primary" :loading="mfaLoading" @click="verifyMfaLogin">
+        {{ mfaMethod === "webauthn" ? t("core.login.mfa_webauthn_action") : t("common.action.confirm") }}
+      </el-button>
+    </template>
+  </ProDialog>
+  <ProDialog v-model="mfaSetupDialogVisible" :title="t('core.login.mfa_setup_title')" width="520px" :close-on-click-modal="false">
+    <template v-if="mfaSetupMethod !== 'webauthn'">
+      <MfaSetupPanel :uri="mfaSetupUri" />
+      <ProForm
+        ref="mfaSetupFormRef"
+        :model="mfaSetupForm"
+        :fields="mfaSetupFormFields"
+        :rules="mfaSetupFormRules"
+        size="default"
+        label-width="auto"
+        @keyup.enter.prevent="confirmMfaSetup"
+      />
+    </template>
+    <template #footer>
+      <el-button :disabled="mfaLoading" @click="mfaSetupDialogVisible = false">{{ t("common.action.cancel") }}</el-button>
+      <el-button type="primary" :loading="mfaLoading" @click="confirmMfaSetup">
+        {{ mfaSetupMethod === "webauthn" ? t("core.login.mfa_webauthn_action") : t("common.action.confirm") }}
+      </el-button>
+    </template>
+  </ProDialog>
+  <MfaRecoveryCodesDialog
+    v-model="recoveryCodesDialogVisible"
+    :codes="recoveryCodes"
+    @confirm="finishMfaEnrollment"
+  />
 </template>
 
 <script setup lang="ts">
@@ -136,9 +181,15 @@ import { useRoute, useRouter } from "vue-router";
 import { HOME_URL } from "@/config";
 import { getTimeState } from "@/utils";
 import { defLoginService } from "@/api/base/login";
+import { defMfaService } from "@/api/base/mfa";
 import { defOauthService } from "@/api/base/oauth";
-import { ElMessage, ElNotification } from "element-plus";
-import type { LoginRequest } from "@/rpc/base/v1/login";
+import { createWebAuthnCredential, getWebAuthnAssertion } from "@/security";
+import ProDialog from "@/components/Dialog/ProDialog.vue";
+import ProForm from "@/components/ProForm/index.vue";
+import MfaSetupPanel from "@/components/Mfa/MfaSetupPanel.vue";
+import MfaRecoveryCodesDialog from "@/components/Mfa/MfaRecoveryCodesDialog.vue";
+import type { ProFormField, ProFormInstance } from "@/components/ProForm/interface";
+import { LoginStatus, type LoginRequest, type LoginResponse } from "@/rpc/base/v1/login";
 import type { OauthProvider } from "@/rpc/base/v1/oauth";
 import { getOauthProviderIcon, withOauthProviderDisplay, type OauthProviderDisplay } from "@/utils/oauthProvider";
 import { useUserStore } from "@/stores/modules/user";
@@ -147,8 +198,7 @@ import { useTabsStore } from "@/stores/modules/tabs";
 import { useKeepAliveStore } from "@/stores/modules/keepAlive";
 import { initDynamicRouter } from "@/routers/modules/dynamicRouter";
 import { isUnmatchedRoute, navigateTo, resolveFrontendRouteURL } from "@/utils/router";
-import { CircleClose, UserFilled } from "@element-plus/icons-vue";
-import type { ElForm } from "element-plus";
+import type { ElForm, FormRules } from "element-plus";
 import { PASSWORD_CRYPTO_SCENE, encryptPassword } from "@/utils/passwordCrypto";
 import { useConfigStore } from "@/stores/modules/config";
 import { Click as GoCaptchaClick, Rotate as GoCaptchaRotate, Slide as GoCaptchaSlide } from "go-captcha-vue";
@@ -182,6 +232,84 @@ const loginRules = computed(() => ({
 const loading = ref(false);
 const oauthLoadingProvider = ref("");
 const oauthTicketLoading = ref(false);
+const mfaDialogVisible = ref(false);
+const mfaLoading = ref(false);
+const mfaChallengeId = ref("");
+const mfaLoginFormRef = ref<ProFormInstance>();
+const mfaLoginForm = reactive({ code: "", recoveryCode: "" });
+const mfaMethod = ref("totp");
+const mfaWebAuthnOptionsJson = ref("");
+const mfaSetupDialogVisible = ref(false);
+const mfaSetupTicket = ref("");
+const mfaSetupUri = ref("");
+const mfaSetupFormRef = ref<ProFormInstance>();
+const mfaSetupForm = reactive({ code: "" });
+const recoveryCodesDialogVisible = ref(false);
+const recoveryCodes = ref<string[]>([]);
+const mfaSetupMethod = ref("totp");
+const mfaSetupWebAuthnOptionsJson = ref("");
+
+/** 登录阶段 MFA 输入字段，验证码和恢复码至少填写其一。 */
+const mfaLoginFormFields = computed<ProFormField[]>(() => {
+  const recoveryCodeField: ProFormField = {
+    prop: "recoveryCode",
+    label: t("core.login.mfa_recovery_code"),
+    component: "input",
+    props: {
+      autocomplete: "one-time-code",
+      placeholder: t("core.login.mfa_recovery_code")
+    }
+  };
+  if (mfaMethod.value === "webauthn") return [recoveryCodeField];
+  return [
+    {
+      prop: "code",
+      label: t("core.login.mfa_code"),
+      component: "input",
+      props: {
+        autocomplete: "one-time-code",
+        inputmode: "numeric",
+        maxlength: 8,
+        placeholder: t("core.login.mfa_code")
+      }
+    },
+    recoveryCodeField
+  ];
+});
+
+const mfaLoginFormRules = computed<FormRules>(() => {
+  if (mfaMethod.value === "webauthn") return {};
+  const factorRule = {
+    validator: (_rule: unknown, value: string, callback: (error?: Error) => void) => {
+      if (value || mfaLoginForm.code || mfaLoginForm.recoveryCode) {
+        callback();
+        return;
+      }
+      callback(new Error(t("core.login.mfa_code")));
+    },
+    trigger: "blur"
+  };
+  return { code: [factorRule], recoveryCode: [factorRule] };
+});
+
+/** 强制绑定 MFA 的 TOTP 输入字段。 */
+const mfaSetupFormFields = computed<ProFormField[]>(() => [
+  {
+    prop: "code",
+    label: t("core.login.mfa_code"),
+    component: "input",
+    props: {
+      autocomplete: "one-time-code",
+      inputmode: "numeric",
+      maxlength: 8,
+      placeholder: t("core.login.mfa_code")
+    }
+  }
+]);
+
+const mfaSetupFormRules = computed<FormRules>(() => ({
+  code: [{ required: true, message: t("core.login.mfa_code"), trigger: "blur" }]
+}));
 
 /** 登录页三方登录展示项。 */
 type LoginOauthProvider = OauthProvider & OauthProviderDisplay;
@@ -412,12 +540,14 @@ const handleOauthLogin = async (provider: LoginOauthProvider) => {
 };
 
 /** 完成登录后的用户信息、字典与动态路由初始化。 */
-const finishLogin = async () => {
+const finishLogin = async (mustChangePassword = false) => {
   // 1.获取用户信息
   await userStore.getUserInfo();
 
-  // 2.预加载字典缓存，避免页面首次渲染时字典值为空
-  await dictStore.loadDictionaries();
+  if (!mustChangePassword) {
+    // 2.预加载字典缓存，避免页面首次渲染时字典值为空
+    await dictStore.loadDictionaries();
+  }
 
   // 3.添加动态路由
   await initDynamicRouter();
@@ -428,13 +558,106 @@ const finishLogin = async () => {
 
   // 5.优先跳回登录失效前页面，没有记录时再进入首个可访问页面。
   // 统一走动态路由感知跳转，避免首次登录后目标页面尚未完成挂载时直接进入 404。
-  await navigateTo(router, getLoginRedirectPath());
+  if (mustChangePassword) {
+    await navigateTo(router, "/profile", { tab: "password" });
+  } else {
+    await navigateTo(router, getLoginRedirectPath());
+  }
   ElNotification({
     title: getTimeState(),
     message: t("core.login.welcome"),
     type: "success",
     duration: 3000
   });
+};
+
+/** 处理密码或 OAuth 返回的 MFA 登录状态。 */
+const handleLoginResponse = async (result: LoginResponse) => {
+  if (result.status === LoginStatus.LOGIN_STATUS_MFA_REQUIRED) {
+    mfaChallengeId.value = result.mfa_challenge_id;
+    mfaMethod.value = result.mfa_method || "totp";
+    mfaWebAuthnOptionsJson.value = result.mfa_webauthn_options_json || "";
+    mfaLoginForm.code = "";
+    mfaLoginForm.recoveryCode = "";
+    mfaDialogVisible.value = true;
+    return;
+  }
+	if (result.status === LoginStatus.LOGIN_STATUS_MFA_ENROLLMENT_REQUIRED) {
+    mfaSetupTicket.value = result.mfa_setup_ticket;
+    mfaSetupMethod.value = result.mfa_method || "totp";
+    await beginMfaSetup(result.mfa_setup_ticket);
+		return;
+	}
+	userStore.updateTokenAuth(result.access_token, result.refresh_token ?? "", result.token_type ?? "", result.expires_in);
+	await finishLogin(result.status === LoginStatus.LOGIN_STATUS_PASSWORD_CHANGE_REQUIRED);
+};
+
+/** 校验登录阶段 MFA 并完成登录。 */
+const verifyMfaLogin = async () => {
+  if (mfaLoading.value || !mfaChallengeId.value) return;
+  if (mfaMethod.value !== "webauthn" && !(await mfaLoginFormRef.value?.validate())) return;
+  mfaLoading.value = true;
+  try {
+    const useRecoveryCode = Boolean(mfaLoginForm.recoveryCode);
+    const webauthnResponseJson =
+      mfaMethod.value === "webauthn" && !useRecoveryCode ? await getWebAuthnAssertion(mfaWebAuthnOptionsJson.value) : "";
+    if (mfaMethod.value !== "webauthn" && !mfaLoginForm.code && !mfaLoginForm.recoveryCode) return;
+    const result = await defMfaService.VerifyMfa({
+      challenge_id: mfaChallengeId.value,
+      code: useRecoveryCode ? "" : mfaLoginForm.code,
+      recovery_code: mfaLoginForm.recoveryCode,
+      webauthn_response_json: webauthnResponseJson
+    });
+    mfaDialogVisible.value = false;
+    await handleLoginResponse(result);
+  } finally {
+    mfaLoading.value = false;
+  }
+};
+
+/** 开始强制绑定 MFA。 */
+const beginMfaSetup = async (setupTicket: string) => {
+  mfaLoading.value = true;
+  try {
+    const result = await defMfaService.BeginMfaEnrollment({ setup_ticket: setupTicket });
+    mfaSetupTicket.value = result.setup_ticket;
+    mfaSetupUri.value = result.otpauth_uri;
+    mfaSetupMethod.value = result.method || "totp";
+    mfaSetupWebAuthnOptionsJson.value = result.webauthn_options_json || "";
+    mfaSetupForm.code = "";
+    mfaSetupDialogVisible.value = true;
+  } finally {
+    mfaLoading.value = false;
+  }
+};
+
+/** 关闭恢复码弹窗并结束强制绑定登录流程。 */
+const finishMfaEnrollment = async () => {
+  if (!recoveryCodes.value.length) return;
+  recoveryCodes.value = [];
+  ElMessage.success(t("core.login.mfa_setup_success"));
+  await loadPageCaptcha();
+};
+
+/** 确认强制绑定 MFA 并要求用户重新登录。 */
+const confirmMfaSetup = async () => {
+  if (mfaLoading.value || !mfaSetupTicket.value) return;
+  if (mfaSetupMethod.value !== "webauthn" && !(await mfaSetupFormRef.value?.validate())) return;
+  mfaLoading.value = true;
+  try {
+    const webauthnResponseJson =
+      mfaSetupMethod.value === "webauthn" ? await createWebAuthnCredential(mfaSetupWebAuthnOptionsJson.value) : "";
+    const result = await defMfaService.ConfirmMfaEnrollment({
+      setup_ticket: mfaSetupTicket.value,
+      code: mfaSetupForm.code,
+      webauthn_response_json: webauthnResponseJson
+    });
+    mfaSetupDialogVisible.value = false;
+    recoveryCodes.value = result.recovery_codes;
+    recoveryCodesDialogVisible.value = true;
+  } finally {
+    mfaLoading.value = false;
+  }
 };
 
 /** 消费 OAuth 回调携带的一次性票据。 */
@@ -452,8 +675,7 @@ const consumeOauthTicket = async () => {
   oauthTicketLoading.value = true;
   try {
     const result = await defOauthService.ExchangeOauthTicket({ ticket });
-    userStore.updateTokenAuth(result.access_token, result.refresh_token ?? "", result.token_type ?? "", result.expires_in);
-    await finishLogin();
+    await handleLoginResponse(result);
   } finally {
     oauthTicketLoading.value = false;
   }
@@ -537,10 +759,9 @@ const submitLogin = async (captchaToken: string) => {
       captcha_code: captchaToken,
       captcha_id: loginForm.captcha_id
     };
-    // 1.执行登录接口
-    await userStore.login(loginRequest);
-
-    await finishLogin();
+    // 1.执行登录接口，挑战态不保存令牌，等待 MFA 完成。
+    const result = await userStore.login(loginRequest);
+    await handleLoginResponse(result);
   } catch (_error) {
     await loadPageCaptcha();
   } finally {

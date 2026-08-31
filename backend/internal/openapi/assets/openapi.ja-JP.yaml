@@ -250,6 +250,75 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.PageBaseApiResponse'
+    /api/v1/admin/base/api-log:
+        get:
+            tags:
+                - BaseApiLogService
+            description: 分页查询 API 访问日志。
+            operationId: BaseApiLogService_PageBaseApiLog
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: user_id
+                  in: query
+                  schema:
+                    type: string
+                - name: result
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_AUDIT_RESULT_UNSPECIFIED
+                        - BASE_AUDIT_RESULT_SUCCESS
+                        - BASE_AUDIT_RESULT_FAILURE
+                        - BASE_AUDIT_RESULT_ERROR
+                    type: string
+                    format: enum
+                - name: occurred_at
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseApiLogResponse'
+    /api/v1/admin/base/api-log/{id}:
+        get:
+            tags:
+                - BaseApiLogService
+            description: 查询 API 访问日志详情。
+            operationId: BaseApiLogService_GetBaseApiLog
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseApiLog'
     /api/v1/admin/base/api/openapi-service/option:
         get:
             tags:
@@ -674,6 +743,154 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/dashboard/login-distribution:
+        get:
+            tags:
+                - BaseDashboardService
+            description: 查询登录结果分布。
+            operationId: BaseDashboardService_GetBaseDashboardLoginDistribution
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseDashboardDistributionResponse'
+    /api/v1/admin/base/dashboard/login-trend:
+        get:
+            tags:
+                - BaseDashboardService
+            description: 查询登录趋势。
+            operationId: BaseDashboardService_GetBaseDashboardLoginTrend
+            parameters:
+                - name: days
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseDashboardTrendResponse'
+    /api/v1/admin/base/dashboard/operation-distribution:
+        get:
+            tags:
+                - BaseDashboardService
+            description: 查询操作动作分布。
+            operationId: BaseDashboardService_GetBaseDashboardOperationDistribution
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseDashboardDistributionResponse'
+    /api/v1/admin/base/dashboard/overview:
+        get:
+            tags:
+                - BaseDashboardService
+            description: 查询首页概览统计。
+            operationId: BaseDashboardService_GetBaseDashboardOverview
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseDashboardOverview'
+    /api/v1/admin/base/data-access-log:
+        get:
+            tags:
+                - BaseDataAccessLogService
+            description: 分页查询数据访问日志。
+            operationId: BaseDataAccessLogService_PageBaseDataAccessLog
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: user_id
+                  in: query
+                  schema:
+                    type: string
+                - name: access_type
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_DATA_ACCESS_TYPE_UNSPECIFIED
+                        - BASE_DATA_ACCESS_TYPE_LIST
+                        - BASE_DATA_ACCESS_TYPE_DETAIL
+                        - BASE_DATA_ACCESS_TYPE_QUERY
+                        - BASE_DATA_ACCESS_TYPE_EXPORT
+                        - BASE_DATA_ACCESS_TYPE_DOWNLOAD
+                        - BASE_DATA_ACCESS_TYPE_IMPORT
+                    type: string
+                    format: enum
+                - name: sensitive
+                  in: query
+                  schema:
+                    type: boolean
+                - name: result
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_AUDIT_RESULT_UNSPECIFIED
+                        - BASE_AUDIT_RESULT_SUCCESS
+                        - BASE_AUDIT_RESULT_FAILURE
+                        - BASE_AUDIT_RESULT_ERROR
+                    type: string
+                    format: enum
+                - name: occurred_at
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+                - name: resource_type
+                  in: query
+                  schema:
+                    type: string
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseDataAccessLogResponse'
+    /api/v1/admin/base/data-access-log/{id}:
+        get:
+            tags:
+                - BaseDataAccessLogService
+            description: 查询数据访问日志详情。
+            operationId: BaseDataAccessLogService_GetBaseDataAccessLog
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseDataAccessLog'
     /api/v1/admin/base/dept:
         post:
             tags:
@@ -1093,6 +1310,74 @@ paths:
                         schema:
                             $ref: '#/components/schemas/system.admin.v1.SetBaseDictStatusRequest'
                 required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/file:
+        get:
+            tags:
+                - BaseFileService
+            description: 分页查询文件资产。
+            operationId: BaseFileService_PageBaseFile
+            parameters:
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: extension
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseFileResponse'
+    /api/v1/admin/base/file/{id}:
+        get:
+            tags:
+                - BaseFileService
+            description: 查询文件资产详情。
+            operationId: BaseFileService_GetBaseFile
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseFile'
+        delete:
+            tags:
+                - BaseFileService
+            description: 删除文件资产及其对象。
+            operationId: BaseFileService_DeleteBaseFile
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -1555,28 +1840,53 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/v1/admin/base/log:
+    /api/v1/admin/base/login-log:
         get:
             tags:
-                - BaseLogService
-            description: 查询日志分页列表
-            operationId: BaseLogService_PageBaseLog
+                - BaseLoginLogService
+            description: 分页查询登录日志。
+            operationId: BaseLoginLogService_PageBaseLoginLog
             parameters:
-                - name: request_time
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: user_id
+                  in: query
+                  schema:
+                    type: string
+                - name: login_type
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_LOGIN_LOG_TYPE_UNSPECIFIED
+                        - BASE_LOGIN_LOG_TYPE_PASSWORD
+                        - BASE_LOGIN_LOG_TYPE_OAUTH
+                        - BASE_LOGIN_LOG_TYPE_MFA
+                        - BASE_LOGIN_LOG_TYPE_TOKEN_REFRESH
+                        - BASE_LOGIN_LOG_TYPE_LOGOUT
+                    type: string
+                    format: enum
+                - name: result
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_AUDIT_RESULT_UNSPECIFIED
+                        - BASE_AUDIT_RESULT_SUCCESS
+                        - BASE_AUDIT_RESULT_FAILURE
+                        - BASE_AUDIT_RESULT_ERROR
+                    type: string
+                    format: enum
+                - name: occurred_at
                   in: query
                   schema:
                     type: array
                     items:
                         type: string
-                - name: operation
+                - name: keyword
                   in: query
                   schema:
                     type: string
-                - name: status_code
-                  in: query
-                  schema:
-                    type: integer
-                    format: int32
                 - name: page_num
                   in: query
                   schema:
@@ -1591,13 +1901,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/system.admin.v1.PageBaseLogResponse'
-    /api/v1/admin/base/log/{id}:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseLoginLogResponse'
+    /api/v1/admin/base/login-log/{id}:
         get:
             tags:
-                - BaseLogService
-            description: 查询日志
-            operationId: BaseLogService_GetBaseLog
+                - BaseLoginLogService
+            description: 查询登录日志详情。
+            operationId: BaseLoginLogService_GetBaseLoginLog
             parameters:
                 - name: id
                   in: path
@@ -1610,7 +1920,38 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/system.admin.v1.BaseLog'
+                                $ref: '#/components/schemas/system.admin.v1.BaseLoginLog'
+    /api/v1/admin/base/login-policy:
+        get:
+            tags:
+                - BaseLoginPolicyService
+            description: 查询登录来源策略。
+            operationId: BaseLoginPolicyService_GetBaseLoginPolicy
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseLoginPolicy'
+        put:
+            tags:
+                - BaseLoginPolicyService
+            description: 更新登录来源策略。
+            operationId: BaseLoginPolicyService_UpdateBaseLoginPolicy
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseLoginPolicy'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseLoginPolicy'
     /api/v1/admin/base/menu:
         post:
             tags:
@@ -1753,6 +2094,808 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/message:
+        get:
+            tags:
+                - BaseMessageService
+            description: 分页查询消息。
+            operationId: BaseMessageService_PageBaseMessage
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: category_id
+                  in: query
+                  schema:
+                    type: string
+                - name: title
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - MESSAGE_STATUS_UNSPECIFIED
+                        - MESSAGE_STATUS_DRAFT
+                        - MESSAGE_STATUS_SCHEDULED
+                        - MESSAGE_STATUS_PUBLISHING
+                        - MESSAGE_STATUS_PUBLISHED
+                        - MESSAGE_STATUS_REVOKED
+                        - MESSAGE_STATUS_ARCHIVED
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseMessageResponse'
+        post:
+            tags:
+                - BaseMessageService
+            description: 创建消息草稿。
+            operationId: BaseMessageService_CreateBaseMessage
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseMessageForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.CreateBaseMessageResponse'
+    /api/v1/admin/base/message-category:
+        get:
+            tags:
+                - BaseMessageCategoryService
+            description: 分页查询消息分类。
+            operationId: BaseMessageCategoryService_PageBaseMessageCategory
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseMessageCategoryResponse'
+        post:
+            tags:
+                - BaseMessageCategoryService
+            description: 创建消息分类。
+            operationId: BaseMessageCategoryService_CreateBaseMessageCategory
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseMessageCategoryForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message-category/option:
+        get:
+            tags:
+                - BaseMessageCategoryService
+            description: 查询消息分类选项。
+            operationId: BaseMessageCategoryService_OptionBaseMessageCategory
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/common.v1.SelectOptionResponse'
+    /api/v1/admin/base/message-category/{base_message_category.id}:
+        put:
+            tags:
+                - BaseMessageCategoryService
+            description: 更新消息分类。
+            operationId: BaseMessageCategoryService_UpdateBaseMessageCategory
+            parameters:
+                - name: base_message_category.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseMessageCategoryForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message-category/{id}:
+        get:
+            tags:
+                - BaseMessageCategoryService
+            description: 查询消息分类详情。
+            operationId: BaseMessageCategoryService_GetBaseMessageCategory
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseMessageCategoryForm'
+        delete:
+            tags:
+                - BaseMessageCategoryService
+            description: 删除消息分类。
+            operationId: BaseMessageCategoryService_DeleteBaseMessageCategory
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message-category/{id}/status:
+        put:
+            tags:
+                - BaseMessageCategoryService
+            description: 设置消息分类状态。
+            operationId: BaseMessageCategoryService_SetBaseMessageCategoryStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseMessageCategoryStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message/dispatch/{id}/retry:
+        put:
+            tags:
+                - BaseMessageService
+            description: 重试消息投递任务。
+            operationId: BaseMessageService_RetryBaseMessageDispatch
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.RetryBaseMessageDispatchRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message/{base_message.id}:
+        put:
+            tags:
+                - BaseMessageService
+            description: 更新消息草稿。
+            operationId: BaseMessageService_UpdateBaseMessage
+            parameters:
+                - name: base_message.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseMessageForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message/{id}:
+        get:
+            tags:
+                - BaseMessageService
+            description: 查询消息详情。
+            operationId: BaseMessageService_GetBaseMessage
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseMessageDetail'
+        delete:
+            tags:
+                - BaseMessageService
+            description: 删除消息草稿。
+            operationId: BaseMessageService_DeleteBaseMessage
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message/{id}/publish:
+        put:
+            tags:
+                - BaseMessageService
+            description: 发布消息。
+            operationId: BaseMessageService_PublishBaseMessage
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.PublishBaseMessageRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message/{id}/revoke:
+        put:
+            tags:
+                - BaseMessageService
+            description: 撤回消息。
+            operationId: BaseMessageService_RevokeBaseMessage
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.RevokeBaseMessageRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message/{id}/schedule/cancel:
+        put:
+            tags:
+                - BaseMessageService
+            description: 取消定时发布。
+            operationId: BaseMessageService_CancelBaseMessageSchedule
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.CancelBaseMessageScheduleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/oauth-client:
+        get:
+            tags:
+                - OauthClientService
+            description: 分页查询开放授权客户端。
+            operationId: OauthClientService_PageOauthClient
+            parameters:
+                - name: client_name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageOauthClientResponse'
+        post:
+            tags:
+                - OauthClientService
+            description: 创建开放授权客户端。
+            operationId: OauthClientService_CreateOauthClient
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.OauthClientForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/oauth-client/api:
+        get:
+            tags:
+                - OauthClientService
+            description: 查询可授权的开发接口选项。
+            operationId: OauthClientService_OptionOauthClientApi
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OptionOauthClientApiResponse'
+    /api/v1/admin/base/oauth-client/{id}:
+        get:
+            tags:
+                - OauthClientService
+            description: 查询开放授权客户端详情。
+            operationId: OauthClientService_GetOauthClient
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OauthClientForm'
+        delete:
+            tags:
+                - OauthClientService
+            description: 删除开放授权客户端。
+            operationId: OauthClientService_DeleteOauthClient
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/oauth-client/{id}/credentials:
+        get:
+            tags:
+                - OauthClientService
+            description: 查询客户端凭据元数据；客户端密钥和协议密钥不会通过接口回传。
+            operationId: OauthClientService_GetOauthClientCredentials
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OauthClientCredentials'
+    /api/v1/admin/base/oauth-client/{id}/credentials/rotate:
+        post:
+            tags:
+                - OauthClientService
+            description: 轮换客户端密钥并一次性返回新凭据。
+            operationId: OauthClientService_RotateOauthClientCredentials
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OauthClientCredentials'
+    /api/v1/admin/base/oauth-client/{id}/status:
+        put:
+            tags:
+                - OauthClientService
+            description: 设置开放授权客户端状态。
+            operationId: OauthClientService_SetOauthClientStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetOauthClientStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/oauth-client/{oauth_client.id}:
+        put:
+            tags:
+                - OauthClientService
+            description: 更新开放授权客户端。
+            operationId: OauthClientService_UpdateOauthClient
+            parameters:
+                - name: oauth_client.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.OauthClientForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/operation-log:
+        get:
+            tags:
+                - BaseOperationLogService
+            description: 分页查询业务操作日志。
+            operationId: BaseOperationLogService_PageBaseOperationLog
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: user_id
+                  in: query
+                  schema:
+                    type: string
+                - name: action
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_OPERATION_ACTION_UNSPECIFIED
+                        - BASE_OPERATION_ACTION_CREATE
+                        - BASE_OPERATION_ACTION_UPDATE
+                        - BASE_OPERATION_ACTION_DELETE
+                        - BASE_OPERATION_ACTION_PUBLISH
+                        - BASE_OPERATION_ACTION_REVOKE
+                        - BASE_OPERATION_ACTION_IMPORT
+                        - BASE_OPERATION_ACTION_EXPORT
+                        - BASE_OPERATION_ACTION_OTHER
+                    type: string
+                    format: enum
+                - name: result
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_AUDIT_RESULT_UNSPECIFIED
+                        - BASE_AUDIT_RESULT_SUCCESS
+                        - BASE_AUDIT_RESULT_FAILURE
+                        - BASE_AUDIT_RESULT_ERROR
+                    type: string
+                    format: enum
+                - name: occurred_at
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+                - name: resource_type
+                  in: query
+                  schema:
+                    type: string
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseOperationLogResponse'
+    /api/v1/admin/base/operation-log/{id}:
+        get:
+            tags:
+                - BaseOperationLogService
+            description: 查询业务操作日志详情。
+            operationId: BaseOperationLogService_GetBaseOperationLog
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseOperationLog'
+    /api/v1/admin/base/permission-log:
+        get:
+            tags:
+                - BasePermissionLogService
+            description: 分页查询权限日志。
+            operationId: BasePermissionLogService_PageBasePermissionLog
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: user_id
+                  in: query
+                  schema:
+                    type: string
+                - name: target_type
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_PERMISSION_TARGET_TYPE_UNSPECIFIED
+                        - BASE_PERMISSION_TARGET_TYPE_USER
+                        - BASE_PERMISSION_TARGET_TYPE_ROLE
+                        - BASE_PERMISSION_TARGET_TYPE_MENU
+                        - BASE_PERMISSION_TARGET_TYPE_API
+                        - BASE_PERMISSION_TARGET_TYPE_TENANT
+                    type: string
+                    format: enum
+                - name: action
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_PERMISSION_ACTION_UNSPECIFIED
+                        - BASE_PERMISSION_ACTION_GRANT
+                        - BASE_PERMISSION_ACTION_REVOKE
+                        - BASE_PERMISSION_ACTION_CREATE
+                        - BASE_PERMISSION_ACTION_UPDATE
+                        - BASE_PERMISSION_ACTION_DELETE
+                        - BASE_PERMISSION_ACTION_ASSIGN
+                    type: string
+                    format: enum
+                - name: result
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_AUDIT_RESULT_UNSPECIFIED
+                        - BASE_AUDIT_RESULT_SUCCESS
+                        - BASE_AUDIT_RESULT_FAILURE
+                        - BASE_AUDIT_RESULT_ERROR
+                    type: string
+                    format: enum
+                - name: occurred_at
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBasePermissionLogResponse'
+    /api/v1/admin/base/permission-log/{id}:
+        get:
+            tags:
+                - BasePermissionLogService
+            description: 查询权限日志详情。
+            operationId: BasePermissionLogService_GetBasePermissionLog
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BasePermissionLog'
+    /api/v1/admin/base/policy-evaluation-log:
+        get:
+            tags:
+                - BasePolicyEvaluationLogService
+            description: 分页查询策略评估日志。
+            operationId: BasePolicyEvaluationLogService_PageBasePolicyEvaluationLog
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: user_id
+                  in: query
+                  schema:
+                    type: string
+                - name: evaluation_type
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_POLICY_EVALUATION_TYPE_UNSPECIFIED
+                        - BASE_POLICY_EVALUATION_TYPE_IS_AUTHORIZED
+                        - BASE_POLICY_EVALUATION_TYPE_FILTER_PAIRS
+                        - BASE_POLICY_EVALUATION_TYPE_FILTER_PROJECTS
+                    type: string
+                    format: enum
+                - name: decision
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_POLICY_DECISION_UNSPECIFIED
+                        - BASE_POLICY_DECISION_ALLOW
+                        - BASE_POLICY_DECISION_DENY
+                        - BASE_POLICY_DECISION_ERROR
+                    type: string
+                    format: enum
+                - name: occurred_at
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+                - name: resource
+                  in: query
+                  schema:
+                    type: string
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBasePolicyEvaluationLogResponse'
+    /api/v1/admin/base/policy-evaluation-log/{id}:
+        get:
+            tags:
+                - BasePolicyEvaluationLogService
+            description: 查询策略评估日志详情。
+            operationId: BasePolicyEvaluationLogService_GetBasePolicyEvaluationLog
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BasePolicyEvaluationLog'
     /api/v1/admin/base/post:
         get:
             tags:
@@ -2078,6 +3221,35 @@ paths:
                     application/json:
                         schema:
                             $ref: '#/components/schemas/system.admin.v1.SetBaseRoleStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/session/current:
+        get:
+            tags:
+                - BaseSessionService
+            description: 查询当前用户会话。
+            operationId: BaseSessionService_GetCurrentBaseSession
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseSession'
+    /api/v1/admin/base/session/revoke-all:
+        put:
+            tags:
+                - BaseSessionService
+            description: 撤销当前用户全部会话。
+            operationId: BaseSessionService_RevokeAllBaseSessions
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.RevokeAllBaseSessionsRequest'
                 required: true
             responses:
                 "200":
@@ -3541,6 +4713,357 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.OptionLanguageResponse'
+    /api/v1/base/mfa:
+        get:
+            tags:
+                - MfaService
+            description: 查询当前用户多因素认证状态。
+            operationId: MfaService_GetMfaStatus
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.MfaStatusResponse'
+    /api/v1/base/mfa/disable:
+        post:
+            tags:
+                - MfaService
+            description: 禁用当前用户的多因素认证。
+            operationId: MfaService_DisableMfa
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.DisableMfaRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/base/mfa/disable/challenge:
+        post:
+            tags:
+                - MfaService
+            description: 开始禁用 WebAuthn 多因素认证的 Passkey 验证。
+            operationId: MfaService_BeginMfaDisable
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.BeginMfaDisableRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.BeginMfaDisableResponse'
+    /api/v1/base/mfa/enrollment:
+        post:
+            tags:
+                - MfaService
+            description: 开始登录强制绑定配置的 MFA 方式
+            operationId: MfaService_BeginMfaEnrollment
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.BeginMfaEnrollmentRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.BeginMfaEnrollmentResponse'
+    /api/v1/base/mfa/enrollment/confirm:
+        post:
+            tags:
+                - MfaService
+            description: 确认登录强制绑定配置的 MFA 方式
+            operationId: MfaService_ConfirmMfaEnrollment
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.ConfirmMfaEnrollmentRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ConfirmMfaEnrollmentResponse'
+    /api/v1/base/mfa/recovery-codes:
+        post:
+            tags:
+                - MfaService
+            description: 重新生成当前用户的多因素认证恢复码。
+            operationId: MfaService_RegenerateMfaRecoveryCodes
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.RegenerateMfaRecoveryCodesRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.RecoveryCodesResponse'
+    /api/v1/base/mfa/setup:
+        post:
+            tags:
+                - MfaService
+            description: 开始绑定当前用户的多因素认证方式。
+            operationId: MfaService_BeginMfaSetup
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.BeginMfaSetupRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.BeginMfaSetupResponse'
+    /api/v1/base/mfa/setup/confirm:
+        post:
+            tags:
+                - MfaService
+            description: 确认绑定当前用户的多因素认证方式。
+            operationId: MfaService_ConfirmMfaSetup
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.ConfirmMfaSetupRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ConfirmMfaSetupResponse'
+    /api/v1/base/mfa/verify:
+        post:
+            tags:
+                - MfaService
+            description: 校验多因素认证
+            operationId: MfaService_VerifyMfa
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.VerifyMfaRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.LoginResponse'
+    /api/v1/base/notification:
+        get:
+            tags:
+                - NotificationService
+            description: 分页查询当前用户收件箱。
+            operationId: NotificationService_PageNotification
+            parameters:
+                - name: view
+                  in: query
+                  schema:
+                    enum:
+                        - NOTIFICATION_VIEW_UNSPECIFIED
+                        - NOTIFICATION_VIEW_INBOX
+                        - NOTIFICATION_VIEW_UNREAD
+                        - NOTIFICATION_VIEW_ARCHIVED
+                    type: string
+                    format: enum
+                - name: category_id
+                  in: query
+                  schema:
+                    type: string
+                - name: priority
+                  in: query
+                  schema:
+                    enum:
+                        - MESSAGE_PRIORITY_UNSPECIFIED
+                        - MESSAGE_PRIORITY_NORMAL
+                        - MESSAGE_PRIORITY_IMPORTANT
+                        - MESSAGE_PRIORITY_URGENT
+                    type: string
+                    format: enum
+                - name: cursor_id
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.PageNotificationResponse'
+    /api/v1/base/notification/read:
+        put:
+            tags:
+                - NotificationService
+            description: 标记消息为已读。
+            operationId: NotificationService_MarkNotificationRead
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.MarkNotificationReadRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/base/notification/read/all:
+        put:
+            tags:
+                - NotificationService
+            description: 标记水位线之前的全部消息为已读。
+            operationId: NotificationService_MarkAllNotificationRead
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.MarkAllNotificationReadRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/base/notification/summary:
+        get:
+            tags:
+                - NotificationService
+            description: 查询当前用户未读汇总。
+            operationId: NotificationService_GetNotificationSummary
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.NotificationSummary'
+    /api/v1/base/notification/unread:
+        put:
+            tags:
+                - NotificationService
+            description: 标记消息为未读。
+            operationId: NotificationService_MarkNotificationUnread
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.MarkNotificationUnreadRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/base/notification/{id}:
+        get:
+            tags:
+                - NotificationService
+            description: 查询当前用户消息详情。
+            operationId: NotificationService_GetNotification
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.Notification'
+        delete:
+            tags:
+                - NotificationService
+            description: 从个人收件箱删除消息。
+            operationId: NotificationService_DeleteNotification
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/base/notification/{id}/archive:
+        put:
+            tags:
+                - NotificationService
+            description: 归档消息。
+            operationId: NotificationService_ArchiveNotification
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.ArchiveNotificationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/base/notification/{id}/restore:
+        put:
+            tags:
+                - NotificationService
+            description: 恢复已归档消息。
+            operationId: NotificationService_RestoreNotification
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.RestoreNotificationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/base/oauth/authorization:
         post:
             tags:
@@ -3627,6 +5150,25 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/base/oauth/client/token:
+        post:
+            tags:
+                - OauthClientService
+            description: 使用客户端凭据换取访问令牌。
+            operationId: OauthClientService_IssueOauthClientToken
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.IssueOauthClientTokenRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.IssueOauthClientTokenResponse'
     /api/v1/base/oauth/provider:
         get:
             tags:
@@ -3764,6 +5306,7 @@ paths:
                         - PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER
                         - PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD
                         - PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD
+                        - PASSWORD_CRYPTO_SCENE_MFA
                     type: string
                     format: enum
             responses:
@@ -4133,6 +5676,84 @@ components:
                     type: string
                     description: 工具原始出参JSON
             description: AI 助手工具调用记录
+        base.v1.ArchiveNotificationRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 投递ID
+            description: 归档消息请求。
+        base.v1.BeginMfaDisableRequest:
+            type: object
+            properties: {}
+            description: 开始禁用 WebAuthn 多因素认证请求。
+        base.v1.BeginMfaDisableResponse:
+            type: object
+            properties:
+                challenge_id:
+                    type: string
+                    description: WebAuthn 禁用挑战 ID
+                expires_in:
+                    type: string
+                    description: WebAuthn 禁用挑战有效时间，单位秒
+                webauthn_options_json:
+                    type: string
+                    description: WebAuthn 验证选项 JSON
+            description: 开始禁用 WebAuthn 多因素认证响应。
+        base.v1.BeginMfaEnrollmentRequest:
+            type: object
+            properties:
+                setup_ticket:
+                    type: string
+                    description: 强制绑定临时票据
+            description: 登录强制绑定多因素认证请求。
+        base.v1.BeginMfaEnrollmentResponse:
+            type: object
+            properties:
+                setup_ticket:
+                    type: string
+                    description: 绑定临时票据
+                otpauth_uri:
+                    type: string
+                    description: Authenticator应用使用的otpauth地址
+                expires_in:
+                    type: string
+                    description: 绑定临时票据有效时间，单位秒
+                method:
+                    type: string
+                    description: 多因素认证方式：totp、webauthn
+                webauthn_options_json:
+                    type: string
+                    description: WebAuthn注册选项JSON
+            description: 登录强制绑定多因素认证响应。
+        base.v1.BeginMfaSetupRequest:
+            type: object
+            properties:
+                password:
+                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                setup_ticket:
+                    type: string
+                    description: 强制绑定场景下的临时票据
+            description: 开始绑定多因素认证请求。
+        base.v1.BeginMfaSetupResponse:
+            type: object
+            properties:
+                setup_ticket:
+                    type: string
+                    description: 绑定临时票据
+                otpauth_uri:
+                    type: string
+                    description: Authenticator 应用使用的 otpauth 地址
+                expires_in:
+                    type: string
+                    description: 绑定临时票据有效时间，单位秒
+                method:
+                    type: string
+                    description: 多因素认证方式：totp、webauthn
+                webauthn_options_json:
+                    type: string
+                    description: WebAuthn 注册选项 JSON
+            description: 开始绑定多因素认证响应。
         base.v1.BindOauthSessionRequest:
             type: object
             properties:
@@ -4183,6 +5804,56 @@ components:
                     type: string
                     description: 配置value
             description: 系统配置项
+        base.v1.ConfirmMfaEnrollmentRequest:
+            type: object
+            properties:
+                setup_ticket:
+                    type: string
+                    description: 绑定临时票据
+                code:
+                    type: string
+                    description: TOTP动态口令
+                webauthn_response_json:
+                    type: string
+                    description: WebAuthn注册响应JSON
+            description: 登录强制绑定多因素认证确认请求。
+        base.v1.ConfirmMfaEnrollmentResponse:
+            type: object
+            properties:
+                enabled:
+                    type: boolean
+                    description: 是否启用成功
+                recovery_codes:
+                    type: array
+                    items:
+                        type: string
+                    description: 一次性恢复码，仅本次返回
+            description: 登录强制绑定多因素认证确认响应。
+        base.v1.ConfirmMfaSetupRequest:
+            type: object
+            properties:
+                setup_ticket:
+                    type: string
+                    description: 绑定临时票据
+                code:
+                    type: string
+                    description: TOTP 动态口令
+                webauthn_response_json:
+                    type: string
+                    description: WebAuthn 注册响应 JSON
+            description: 确认绑定多因素认证请求。
+        base.v1.ConfirmMfaSetupResponse:
+            type: object
+            properties:
+                enabled:
+                    type: boolean
+                    description: 是否启用成功
+                recovery_codes:
+                    type: array
+                    items:
+                        type: string
+                    description: 一次性恢复码，仅本次返回
+            description: 确认绑定多因素认证响应。
         base.v1.CreateAiSessionBranchRequest:
             type: object
             properties:
@@ -4299,6 +5970,31 @@ components:
                 binding_required:
                     type: boolean
                     description: 是否需要绑定已有账号
+                status:
+                    enum:
+                        - LOGIN_STATUS_UNSPECIFIED
+                        - LOGIN_STATUS_AUTHENTICATED
+                        - LOGIN_STATUS_MFA_REQUIRED
+                        - LOGIN_STATUS_MFA_ENROLLMENT_REQUIRED
+                        - LOGIN_STATUS_PASSWORD_CHANGE_REQUIRED
+                    type: string
+                    description: 登录认证状态
+                    format: enum
+                mfa_challenge_id:
+                    type: string
+                    description: 多因素认证挑战ID
+                mfa_setup_ticket:
+                    type: string
+                    description: 多因素认证绑定临时票据
+                mfa_expires_in:
+                    type: string
+                    description: 多因素认证挑战或绑定票据有效时间，单位秒
+                mfa_method:
+                    type: string
+                    description: 多因素认证方式：totp、webauthn
+                mfa_webauthn_options_json:
+                    type: string
+                    description: WebAuthn认证选项JSON
             description: 三方登录会话创建响应
         base.v1.DeleteAiMessageResponse:
             type: object
@@ -4308,6 +6004,24 @@ components:
             type: object
             properties: {}
             description: AI 助手会话删除响应
+        base.v1.DisableMfaRequest:
+            type: object
+            properties:
+                password:
+                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                code:
+                    type: string
+                    description: TOTP 动态口令
+                webauthn_challenge_id:
+                    type: string
+                    description: WebAuthn 禁用挑战 ID
+                webauthn_response_json:
+                    type: string
+                    description: WebAuthn 验证响应 JSON
+                recovery_code:
+                    type: string
+                    description: 一次性恢复码
+            description: 禁用多因素认证请求。
         base.v1.ExchangeOauthTicketRequest:
             type: object
             properties:
@@ -4331,6 +6045,31 @@ components:
                 expires_in:
                     type: string
                     description: 令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。
+                status:
+                    enum:
+                        - LOGIN_STATUS_UNSPECIFIED
+                        - LOGIN_STATUS_AUTHENTICATED
+                        - LOGIN_STATUS_MFA_REQUIRED
+                        - LOGIN_STATUS_MFA_ENROLLMENT_REQUIRED
+                        - LOGIN_STATUS_PASSWORD_CHANGE_REQUIRED
+                    type: string
+                    description: 登录认证状态
+                    format: enum
+                mfa_challenge_id:
+                    type: string
+                    description: 多因素认证挑战ID
+                mfa_setup_ticket:
+                    type: string
+                    description: 多因素认证绑定临时票据
+                mfa_expires_in:
+                    type: string
+                    description: 多因素认证挑战或绑定票据有效时间，单位秒
+                mfa_method:
+                    type: string
+                    description: 多因素认证方式：totp、webauthn
+                mfa_webauthn_options_json:
+                    type: string
+                    description: WebAuthn认证选项JSON
             description: 三方登录票据兑换结果
         base.v1.FileInfo:
             type: object
@@ -4369,6 +6108,34 @@ components:
             type: object
             properties: {}
             description: 三方登录回调结果
+        base.v1.IssueOauthClientTokenRequest:
+            type: object
+            properties:
+                client_id:
+                    type: string
+                    description: 客户端标识
+                client_secret:
+                    type: string
+                    description: 客户端密钥
+                grant_type:
+                    type: string
+                    default: client_credentials
+                    description: 授权类型，固定为 client_credentials
+            description: 客户端凭据令牌请求。
+        base.v1.IssueOauthClientTokenResponse:
+            type: object
+            properties:
+                access_token:
+                    type: string
+                    description: 访问令牌
+                token_type:
+                    type: string
+                    default: Bearer
+                    description: 令牌类型
+                expires_in:
+                    type: string
+                    description: 令牌有效时间，单位为秒
+            description: 客户端凭据令牌响应。
         base.v1.LanguageItem:
             type: object
             properties:
@@ -4458,7 +6225,70 @@ components:
                 expires_in:
                     type: string
                     description: 令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。
+                status:
+                    enum:
+                        - LOGIN_STATUS_UNSPECIFIED
+                        - LOGIN_STATUS_AUTHENTICATED
+                        - LOGIN_STATUS_MFA_REQUIRED
+                        - LOGIN_STATUS_MFA_ENROLLMENT_REQUIRED
+                        - LOGIN_STATUS_PASSWORD_CHANGE_REQUIRED
+                    type: string
+                    description: 登录认证状态
+                    format: enum
+                mfa_challenge_id:
+                    type: string
+                    description: 多因素认证挑战ID
+                mfa_setup_ticket:
+                    type: string
+                    description: 多因素认证绑定临时票据
+                mfa_expires_in:
+                    type: string
+                    description: 多因素认证挑战或绑定票据有效时间，单位秒
+                mfa_method:
+                    type: string
+                    description: 多因素认证方式：totp、webauthn
+                mfa_webauthn_options_json:
+                    type: string
+                    description: WebAuthn认证选项JSON
             description: 登录响应
+        base.v1.MarkAllNotificationReadRequest:
+            type: object
+            properties:
+                before_delivery_id:
+                    type: string
+                    description: 已读水位线投递ID
+            description: 全部已读请求。
+        base.v1.MarkNotificationReadRequest:
+            type: object
+            properties:
+                ids:
+                    type: array
+                    items:
+                        type: string
+                    description: 投递ID列表
+            description: 批量标记消息已读请求。
+        base.v1.MarkNotificationUnreadRequest:
+            type: object
+            properties:
+                ids:
+                    type: array
+                    items:
+                        type: string
+                    description: 投递ID列表
+            description: 批量标记消息未读请求。
+        base.v1.MfaStatusResponse:
+            type: object
+            properties:
+                enabled:
+                    type: boolean
+                    description: 是否已启用多因素认证
+                policy:
+                    type: string
+                    description: 全局多因素认证策略：disabled、optional、all_required
+                method:
+                    type: string
+                    description: 认证方式：totp、webauthn
+            description: 多因素认证状态响应。
         base.v1.MultiUploadFileRequest:
             type: object
             properties:
@@ -4477,6 +6307,111 @@ components:
                         $ref: '#/components/schemas/base.v1.FileInfo'
                     description: 文件上传结果
             description: 批量上传文件响应
+        base.v1.Notification:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 投递ID
+                message_id:
+                    type: string
+                    description: 消息ID
+                category_id:
+                    type: string
+                    description: 分类ID
+                category_name:
+                    type: string
+                    description: 分类名称
+                category_icon:
+                    type: string
+                    description: 分类图标
+                category_color:
+                    type: string
+                    description: 分类颜色
+                priority:
+                    enum:
+                        - MESSAGE_PRIORITY_UNSPECIFIED
+                        - MESSAGE_PRIORITY_NORMAL
+                        - MESSAGE_PRIORITY_IMPORTANT
+                        - MESSAGE_PRIORITY_URGENT
+                    type: string
+                    description: 消息优先级
+                    format: enum
+                title:
+                    type: string
+                    description: 消息标题
+                content:
+                    type: string
+                    description: 消息正文，列表响应为空
+                content_format:
+                    enum:
+                        - MESSAGE_CONTENT_FORMAT_UNSPECIFIED
+                        - MESSAGE_CONTENT_FORMAT_PLAIN_TEXT
+                        - MESSAGE_CONTENT_FORMAT_SAFE_MARKDOWN
+                        - MESSAGE_CONTENT_FORMAT_RICH_TEXT
+                    type: string
+                    description: 正文格式
+                    format: enum
+                action_type:
+                    enum:
+                        - MESSAGE_ACTION_TYPE_UNSPECIFIED
+                        - MESSAGE_ACTION_TYPE_VIEW_KEY
+                    type: string
+                    description: 动作类型
+                    format: enum
+                action_target:
+                    type: string
+                    description: 动作目标
+                action_params:
+                    type: string
+                    description: 动作参数JSON
+                sender_name:
+                    type: string
+                    description: 发送者名称
+                received_at:
+                    type: string
+                    description: 接收时间
+                read_at:
+                    type: string
+                    description: 已读时间
+                archived_at:
+                    type: string
+                    description: 归档时间
+                expires_at:
+                    type: string
+                    description: 过期时间
+                allow_archive:
+                    type: boolean
+                    description: 是否允许归档
+                allow_delete:
+                    type: boolean
+                    description: 是否允许删除
+            description: 当前用户消息。
+        base.v1.NotificationCategoryUnread:
+            type: object
+            properties:
+                category_id:
+                    type: string
+                    description: 消息分类ID
+                unread_total:
+                    type: string
+                    description: 分类未读数
+            description: 当前用户单个分类的未读数量。
+        base.v1.NotificationSummary:
+            type: object
+            properties:
+                unread_total:
+                    type: string
+                    description: 未读总数
+                latest_delivery_id:
+                    type: string
+                    description: 最新投递ID
+                category_unread:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.NotificationCategoryUnread'
+                    description: 分类未读数
+            description: 当前用户未读汇总。
         base.v1.OauthBinding:
             type: object
             properties:
@@ -4503,6 +6438,25 @@ components:
                         $ref: '#/components/schemas/base.v1.LanguageItem'
                     description: 当前支持的语言列表
             description: 当前支持的语言选项查询结果。
+        base.v1.PageNotificationResponse:
+            type: object
+            properties:
+                notifications:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.Notification'
+                    description: 消息列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+                next_cursor_id:
+                    type: string
+                    description: 下一页游标
+                has_more:
+                    type: boolean
+                    description: 是否还有下一页
+            description: 当前用户收件箱分页响应。
         base.v1.PasswordPublicKeyResponse:
             type: object
             properties:
@@ -4522,12 +6476,21 @@ components:
                     type: string
                     description: 有效时间，单位秒
             description: 密码临时公钥响应
+        base.v1.RecoveryCodesResponse:
+            type: object
+            properties:
+                recovery_codes:
+                    type: array
+                    items:
+                        type: string
+                    description: 一次性恢复码，仅本次返回
+            description: 恢复码响应。
         base.v1.RefreshTokenRequest:
             type: object
             properties:
                 refresh_token:
                     type: string
-                    description: 更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。
+                    description: 更新令牌；未填写时由服务端从HttpOnly Cookie读取
             description: 刷新令牌请求参数
         base.v1.RefreshTokenResponse:
             type: object
@@ -4556,6 +6519,20 @@ components:
                     type: string
                     description: 消息ID
             description: AI 助手输出重新生成请求
+        base.v1.RegenerateMfaRecoveryCodesRequest:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: TOTP 动态口令
+            description: 重新生成恢复码请求。
+        base.v1.RestoreNotificationRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 投递ID
+            description: 恢复归档消息请求。
         base.v1.RetryAiUserMessageRequest:
             type: object
             properties:
@@ -4666,6 +6643,22 @@ components:
                     type: string
                     description: 有效时间，单位秒
             description: 验证码预校验响应
+        base.v1.VerifyMfaRequest:
+            type: object
+            properties:
+                challenge_id:
+                    type: string
+                    description: 多因素认证挑战ID
+                code:
+                    type: string
+                    description: TOTP动态口令
+                recovery_code:
+                    type: string
+                    description: 一次性恢复码
+                webauthn_response_json:
+                    type: string
+                    description: WebAuthn认证响应JSON
+            description: 多因素认证校验请求。
         common.v1.AppTreeOptionResponse_Option:
             type: object
             properties:
@@ -4900,6 +6893,86 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseApiDocSchema'
                     description: 子字段
             description: API文档Schema
+        system.admin.v1.BaseApiLog:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: API日志ID
+                tenant_id:
+                    type: string
+                    description: 租户ID
+                tenant_code:
+                    type: string
+                    description: 租户编码
+                user_id:
+                    type: string
+                    description: 用户ID
+                user_name:
+                    type: string
+                    description: 用户名称
+                request_id:
+                    type: string
+                    description: 请求ID
+                trace_id:
+                    type: string
+                    description: 链路追踪ID
+                service_name:
+                    type: string
+                    description: 服务名
+                operation:
+                    type: string
+                    description: 操作方法
+                method:
+                    type: string
+                    description: 请求方法
+                path:
+                    type: string
+                    description: 请求路径
+                status_code:
+                    type: integer
+                    description: 状态码
+                    format: int32
+                result:
+                    enum:
+                        - BASE_AUDIT_RESULT_UNSPECIFIED
+                        - BASE_AUDIT_RESULT_SUCCESS
+                        - BASE_AUDIT_RESULT_FAILURE
+                        - BASE_AUDIT_RESULT_ERROR
+                    type: string
+                    description: 结果
+                    format: enum
+                reason_code:
+                    type: string
+                    description: 原因编码
+                reason:
+                    type: string
+                    description: 原因说明
+                latency_ms:
+                    type: integer
+                    description: 耗时毫秒
+                    format: int32
+                request_size:
+                    type: integer
+                    description: 请求大小
+                    format: int32
+                response_size:
+                    type: integer
+                    description: 响应大小
+                    format: int32
+                client_ip:
+                    type: string
+                    description: 客户端IP
+                user_agent:
+                    type: string
+                    description: 用户代理
+                occurred_at:
+                    type: string
+                    description: 事件发生时间
+                created_at:
+                    type: string
+                    description: 日志创建时间
+            description: API 访问日志。
         system.admin.v1.BaseArea:
             type: object
             properties:
@@ -5043,6 +7116,150 @@ components:
                     description: ステータス
                     format: enum
             description: 系统配置表单
+        system.admin.v1.BaseDashboardDistributionItem:
+            type: object
+            properties:
+                label:
+                    type: string
+                    description: 分布标签
+                count:
+                    type: string
+                    description: 数量
+            description: 分布统计数据项。
+        system.admin.v1.BaseDashboardDistributionResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseDashboardDistributionItem'
+                    description: 分布数据
+            description: 分布统计响应。
+        system.admin.v1.BaseDashboardOverview:
+            type: object
+            properties:
+                user_count:
+                    type: string
+                    description: 用户总数
+                role_count:
+                    type: string
+                    description: 角色总数
+                today_login_count:
+                    type: string
+                    description: 今日登录次数
+                today_operation_count:
+                    type: string
+                    description: 今日操作次数
+            description: 首页概览统计。
+        system.admin.v1.BaseDashboardTrendPoint:
+            type: object
+            properties:
+                date:
+                    type: string
+                    description: 日期，格式为YYYY-MM-DD
+                count:
+                    type: string
+                    description: 数量
+            description: 趋势数据点。
+        system.admin.v1.BaseDashboardTrendResponse:
+            type: object
+            properties:
+                points:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseDashboardTrendPoint'
+                    description: 趋势数据点
+            description: 趋势统计响应。
+        system.admin.v1.BaseDataAccessLog:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 数据访问日志ID
+                tenant_id:
+                    type: string
+                    description: 租户ID
+                tenant_code:
+                    type: string
+                    description: 租户编码
+                user_id:
+                    type: string
+                    description: 用户ID
+                user_name:
+                    type: string
+                    description: 用户名称
+                request_id:
+                    type: string
+                    description: 请求ID
+                trace_id:
+                    type: string
+                    description: 链路追踪ID
+                resource_type:
+                    type: string
+                    description: 资源类型
+                resource_id:
+                    type: string
+                    description: 资源ID
+                access_type:
+                    enum:
+                        - BASE_DATA_ACCESS_TYPE_UNSPECIFIED
+                        - BASE_DATA_ACCESS_TYPE_LIST
+                        - BASE_DATA_ACCESS_TYPE_DETAIL
+                        - BASE_DATA_ACCESS_TYPE_QUERY
+                        - BASE_DATA_ACCESS_TYPE_EXPORT
+                        - BASE_DATA_ACCESS_TYPE_DOWNLOAD
+                        - BASE_DATA_ACCESS_TYPE_IMPORT
+                    type: string
+                    description: 访问类型
+                    format: enum
+                data_source:
+                    type: string
+                    description: 数据源
+                table_name:
+                    type: string
+                    description: 数据表名
+                field_scope:
+                    type: string
+                    description: 访问字段范围
+                data_scope:
+                    type: string
+                    description: 数据范围
+                affected_rows:
+                    type: integer
+                    description: 影响行数
+                    format: int32
+                sensitive:
+                    type: boolean
+                    description: 是否敏感数据
+                sql_text:
+                    type: string
+                    description: 脱敏SQL
+                sql_digest:
+                    type: string
+                    description: SQL指纹
+                result:
+                    enum:
+                        - BASE_AUDIT_RESULT_UNSPECIFIED
+                        - BASE_AUDIT_RESULT_SUCCESS
+                        - BASE_AUDIT_RESULT_FAILURE
+                        - BASE_AUDIT_RESULT_ERROR
+                    type: string
+                    description: 结果
+                    format: enum
+                reason_code:
+                    type: string
+                    description: 原因编码
+                latency_ms:
+                    type: integer
+                    description: 耗时毫秒
+                    format: int32
+                occurred_at:
+                    type: string
+                    description: 事件发生时间
+                created_at:
+                    type: string
+                    description: 日志创建时间
+            description: 数据访问日志。
         system.admin.v1.BaseDept:
             type: object
             properties:
@@ -5255,6 +7472,56 @@ components:
                     description: ステータス
                     format: enum
             description: 字典属性表单
+        system.admin.v1.BaseFile:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 文件ID
+                tenant_id:
+                    type: string
+                    description: 租户ID
+                provider:
+                    type: integer
+                    description: 存储供应商
+                    format: int32
+                bucket_name:
+                    type: string
+                    description: 存储桶名称
+                file_directory:
+                    type: string
+                    description: 文件目录
+                file_guid:
+                    type: string
+                    description: 文件唯一标识
+                save_file_name:
+                    type: string
+                    description: 实际存储文件名
+                file_name:
+                    type: string
+                    description: 原始文件名
+                extension:
+                    type: string
+                    description: 文件扩展名
+                mime_type:
+                    type: string
+                    description: 文件MIME类型
+                size:
+                    type: string
+                    description: 文件大小，单位字节
+                link_url:
+                    type: string
+                    description: 文件访问地址
+                content_hash:
+                    type: string
+                    description: 文件内容SHA-256哈希
+                created_by:
+                    type: string
+                    description: 创建者ID
+                created_at:
+                    type: string
+                    description: 作成時刻
+            description: 文件资产元数据。
         system.admin.v1.BaseI18n:
             type: object
             properties:
@@ -5471,89 +7738,147 @@ components:
                     description: 启用状态
                     format: enum
             description: 语言表单
-        system.admin.v1.BaseLog:
+        system.admin.v1.BaseLoginLog:
             type: object
             properties:
                 id:
                     type: string
-                    description: 日志ID
+                    description: 登录日志ID
+                tenant_id:
+                    type: string
+                    description: 租户ID
+                tenant_code:
+                    type: string
+                    description: 租户编码
+                user_id:
+                    type: string
+                    description: 用户ID
+                user_name:
+                    type: string
+                    description: 账号名
+                login_type:
+                    enum:
+                        - BASE_LOGIN_LOG_TYPE_UNSPECIFIED
+                        - BASE_LOGIN_LOG_TYPE_PASSWORD
+                        - BASE_LOGIN_LOG_TYPE_OAUTH
+                        - BASE_LOGIN_LOG_TYPE_MFA
+                        - BASE_LOGIN_LOG_TYPE_TOKEN_REFRESH
+                        - BASE_LOGIN_LOG_TYPE_LOGOUT
+                    type: string
+                    description: 登录类型
+                    format: enum
+                result:
+                    enum:
+                        - BASE_AUDIT_RESULT_UNSPECIFIED
+                        - BASE_AUDIT_RESULT_SUCCESS
+                        - BASE_AUDIT_RESULT_FAILURE
+                        - BASE_AUDIT_RESULT_ERROR
+                    type: string
+                    description: 结果
+                    format: enum
+                reason_code:
+                    type: string
+                    description: 原因编码
+                reason:
+                    type: string
+                    description: 原因说明
+                client_ip:
+                    type: string
+                    description: 客户端IP
+                user_agent:
+                    type: string
+                    description: 用户代理
+                device_id:
+                    type: string
+                    description: 设备标识
                 request_id:
                     type: string
                     description: 请求ID
-                request_time:
+                trace_id:
                     type: string
-                    description: 请求时间
-                method:
+                    description: 链路追踪ID
+                occurred_at:
                     type: string
-                    description: 请求方法
-                operation:
+                    description: 事件发生时间
+                created_at:
                     type: string
-                    description: 操作方法
-                path:
-                    type: string
-                    description: 请求路径
-                referer:
-                    type: string
-                    description: 请求源
-                request_uri:
-                    type: string
-                    description: 请求URI
-                request_body:
-                    type: string
-                    description: 请求体
-                request_header:
-                    type: string
-                    description: 请求头
-                response:
-                    type: string
-                    description: 响应信息
-                cost_time:
-                    type: string
-                    description: 操作耗时
-                is_success:
+                    description: 日志创建时间
+            description: 登录日志。
+        system.admin.v1.BaseLoginPolicy:
+            type: object
+            properties:
+                enabled:
                     type: boolean
-                    description: 操作是否成功
-                status_code:
-                    type: integer
-                    description: 状态码
-                    format: int32
-                reason:
+                    description: 是否启用
+                ip_blacklist:
+                    type: array
+                    items:
+                        type: string
+                    description: IP黑名单，支持IP和CIDR
+                ip_whitelist:
+                    type: array
+                    items:
+                        type: string
+                    description: IP白名单，支持IP和CIDR
+                time_windows:
+                    type: array
+                    items:
+                        type: string
+                    description: 禁止登录时间窗口，格式HH:MM-HH:MM
+                device_blacklist:
+                    type: array
+                    items:
+                        type: string
+                    description: 设备黑名单
+                device_whitelist:
+                    type: array
+                    items:
+                        type: string
+                    description: 设备白名单
+                rules:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseLoginPolicyRule'
+                    description: 按租户或用户匹配的定向规则
+            description: 登录来源策略。
+        system.admin.v1.BaseLoginPolicyRule:
+            type: object
+            properties:
+                target_type:
                     type: string
-                    description: 操作失败原因
-                location:
+                    description: 目标类型：TENANT或USER
+                target_value:
                     type: string
-                    description: 操作地理位置
-                user_id:
-                    type: string
-                    description: 操作者用户ID
-                user_name:
-                    type: string
-                    description: 操作者账号名
-                client_ip:
-                    type: string
-                    description: 操作者IP
-                user_agent:
-                    type: string
-                    description: 浏览器的用户代理信息
-                browser_name:
-                    type: string
-                    description: 浏览器名称
-                browser_version:
-                    type: string
-                    description: 浏览器版本
-                client_id:
-                    type: string
-                    description: 客户端ID
-                client_name:
-                    type: string
-                    description: 客户端名称
-                os_name:
-                    type: string
-                    description: 操作系统名称
-                os_version:
-                    type: string
-                    description: 操作系统版本
-            description: 日志
+                    description: 目标值：租户编码或用户名
+                enabled:
+                    type: boolean
+                    description: 是否启用
+                ip_blacklist:
+                    type: array
+                    items:
+                        type: string
+                    description: IP黑名单，支持IP和CIDR
+                ip_whitelist:
+                    type: array
+                    items:
+                        type: string
+                    description: IP白名单，支持IP和CIDR
+                time_windows:
+                    type: array
+                    items:
+                        type: string
+                    description: 禁止登录时间窗口，格式HH:MM-HH:MM
+                device_blacklist:
+                    type: array
+                    items:
+                        type: string
+                    description: 设备黑名单
+                device_whitelist:
+                    type: array
+                    items:
+                        type: string
+                    description: 设备白名单
+            description: 登录来源定向规则。
         system.admin.v1.BaseMenu:
             type: object
             properties:
@@ -5733,6 +8058,323 @@ components:
                     type: string
                     description: 参数value
             description: 菜单参数
+        system.admin.v1.BaseMessage:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 消息ID
+                tenant_id:
+                    type: string
+                    description: 租户ID
+                category_id:
+                    type: string
+                    description: 消息分类ID
+                category_name:
+                    type: string
+                    description: 消息分类名称
+                title:
+                    type: string
+                    description: 消息标题
+                priority:
+                    enum:
+                        - MESSAGE_PRIORITY_UNSPECIFIED
+                        - MESSAGE_PRIORITY_NORMAL
+                        - MESSAGE_PRIORITY_IMPORTANT
+                        - MESSAGE_PRIORITY_URGENT
+                    type: string
+                    description: 消息优先级
+                    format: enum
+                status:
+                    enum:
+                        - MESSAGE_STATUS_UNSPECIFIED
+                        - MESSAGE_STATUS_DRAFT
+                        - MESSAGE_STATUS_SCHEDULED
+                        - MESSAGE_STATUS_PUBLISHING
+                        - MESSAGE_STATUS_PUBLISHED
+                        - MESSAGE_STATUS_REVOKED
+                        - MESSAGE_STATUS_ARCHIVED
+                    type: string
+                    description: 消息状态
+                    format: enum
+                sender_name:
+                    type: string
+                    description: 发送者名称
+                recipient_total:
+                    type: string
+                    description: 目标人数
+                delivered_total:
+                    type: string
+                    description: 已投递人数
+                failed_total:
+                    type: string
+                    description: 失败人数
+                scheduled_at:
+                    type: string
+                    description: 计划发布时间
+                published_at:
+                    type: string
+                    description: 发布时间
+                created_at:
+                    type: string
+                    description: 作成時刻
+                updated_at:
+                    type: string
+                    description: 更新時間
+            description: 消息列表项。
+        system.admin.v1.BaseMessageAudienceForm:
+            type: object
+            properties:
+                type:
+                    enum:
+                        - MESSAGE_AUDIENCE_TYPE_UNSPECIFIED
+                        - MESSAGE_AUDIENCE_TYPE_USER
+                        - MESSAGE_AUDIENCE_TYPE_ROLE
+                        - MESSAGE_AUDIENCE_TYPE_DEPT
+                        - MESSAGE_AUDIENCE_TYPE_POST
+                        - MESSAGE_AUDIENCE_TYPE_TENANT
+                    type: string
+                    description: 受众类型
+                    format: enum
+                id:
+                    type: string
+                    description: 受众ID，租户全员为0
+                include_children:
+                    type: boolean
+                    description: 是否包含子部门
+            description: 消息受众表单。
+        system.admin.v1.BaseMessageCategory:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 消息分类ID
+                code:
+                    type: string
+                    description: 分类编码
+                name:
+                    type: string
+                    description: 分类名称
+                icon:
+                    type: string
+                    description: 分类图标
+                color:
+                    type: string
+                    description: 分类颜色
+                sort:
+                    type: integer
+                    description: 並べ替え
+                    format: int32
+                default_priority:
+                    enum:
+                        - MESSAGE_PRIORITY_UNSPECIFIED
+                        - MESSAGE_PRIORITY_NORMAL
+                        - MESSAGE_PRIORITY_IMPORTANT
+                        - MESSAGE_PRIORITY_URGENT
+                    type: string
+                    description: 默认优先级
+                    format: enum
+                retention_days:
+                    type: integer
+                    description: 保留天数
+                    format: int32
+                allow_archive:
+                    type: boolean
+                    description: 是否允许归档
+                allow_delete:
+                    type: boolean
+                    description: 是否允许删除
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+                created_at:
+                    type: string
+                    description: 作成時刻
+                updated_at:
+                    type: string
+                    description: 更新時間
+            description: 消息分类。
+        system.admin.v1.BaseMessageCategoryForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 消息分类ID
+                code:
+                    type: string
+                    description: 分类编码
+                name:
+                    type: string
+                    description: 分类名称
+                icon:
+                    type: string
+                    description: 分类图标
+                color:
+                    type: string
+                    description: 分类颜色
+                sort:
+                    type: integer
+                    description: 並べ替え
+                    format: int32
+                default_priority:
+                    enum:
+                        - MESSAGE_PRIORITY_UNSPECIFIED
+                        - MESSAGE_PRIORITY_NORMAL
+                        - MESSAGE_PRIORITY_IMPORTANT
+                        - MESSAGE_PRIORITY_URGENT
+                    type: string
+                    description: 默认优先级
+                    format: enum
+                retention_days:
+                    type: integer
+                    description: 保留天数
+                    format: int32
+                allow_archive:
+                    type: boolean
+                    description: 是否允许归档
+                allow_delete:
+                    type: boolean
+                    description: 是否允许删除
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+            description: 消息分类表单。
+        system.admin.v1.BaseMessageDetail:
+            type: object
+            properties:
+                base_message:
+                    $ref: '#/components/schemas/system.admin.v1.BaseMessage'
+                form:
+                    $ref: '#/components/schemas/system.admin.v1.BaseMessageForm'
+                dispatches:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseMessageDispatch'
+                    description: 投递任务
+            description: 消息详情。
+        system.admin.v1.BaseMessageDispatch:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 投递任务ID
+                audience_type:
+                    enum:
+                        - MESSAGE_AUDIENCE_TYPE_UNSPECIFIED
+                        - MESSAGE_AUDIENCE_TYPE_USER
+                        - MESSAGE_AUDIENCE_TYPE_ROLE
+                        - MESSAGE_AUDIENCE_TYPE_DEPT
+                        - MESSAGE_AUDIENCE_TYPE_POST
+                        - MESSAGE_AUDIENCE_TYPE_TENANT
+                    type: string
+                    description: 受众类型
+                    format: enum
+                audience_id:
+                    type: string
+                    description: 受众ID
+                include_children:
+                    type: boolean
+                    description: 是否包含子部门
+                status:
+                    enum:
+                        - MESSAGE_DISPATCH_STATUS_UNSPECIFIED
+                        - MESSAGE_DISPATCH_STATUS_WAITING
+                        - MESSAGE_DISPATCH_STATUS_PENDING
+                        - MESSAGE_DISPATCH_STATUS_RUNNING
+                        - MESSAGE_DISPATCH_STATUS_SUCCEEDED
+                        - MESSAGE_DISPATCH_STATUS_FAILED
+                        - MESSAGE_DISPATCH_STATUS_CANCELLED
+                    type: string
+                    description: 投递状态
+                    format: enum
+                matched_total:
+                    type: string
+                    description: 匹配人数
+                inserted_total:
+                    type: string
+                    description: 新增投递人数
+                attempt_count:
+                    type: integer
+                    description: 尝试次数
+                    format: int32
+                last_error:
+                    type: string
+                    description: 最近错误
+            description: 消息投递任务。
+        system.admin.v1.BaseMessageForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 消息ID
+                tenant_id:
+                    type: string
+                    description: 租户ID
+                category_id:
+                    type: string
+                    description: 消息分类ID
+                title:
+                    type: string
+                    description: 消息标题
+                content:
+                    type: string
+                    description: 消息正文
+                content_format:
+                    enum:
+                        - MESSAGE_CONTENT_FORMAT_UNSPECIFIED
+                        - MESSAGE_CONTENT_FORMAT_PLAIN_TEXT
+                        - MESSAGE_CONTENT_FORMAT_SAFE_MARKDOWN
+                        - MESSAGE_CONTENT_FORMAT_RICH_TEXT
+                    type: string
+                    description: 正文格式
+                    format: enum
+                priority:
+                    enum:
+                        - MESSAGE_PRIORITY_UNSPECIFIED
+                        - MESSAGE_PRIORITY_NORMAL
+                        - MESSAGE_PRIORITY_IMPORTANT
+                        - MESSAGE_PRIORITY_URGENT
+                    type: string
+                    description: 消息优先级
+                    format: enum
+                action_type:
+                    enum:
+                        - MESSAGE_ACTION_TYPE_UNSPECIFIED
+                        - MESSAGE_ACTION_TYPE_VIEW_KEY
+                    type: string
+                    description: 动作类型
+                    format: enum
+                action_target:
+                    type: string
+                    description: 动作目标
+                action_params:
+                    type: string
+                    description: 动作参数JSON
+                scheduled_at:
+                    type: string
+                    description: 计划发布时间
+                expires_at:
+                    type: string
+                    description: 过期时间
+                audiences:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseMessageAudienceForm'
+                    description: 消息受众
+                version:
+                    type: string
+                    description: 乐观锁版本
+            description: 消息表单。
         system.admin.v1.BaseMigration:
             type: object
             properties:
@@ -5780,6 +8422,256 @@ components:
                     type: string
                     description: 作成時刻
             description: 数据库迁移记录列表项
+        system.admin.v1.BaseOperationLog:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 操作日志ID
+                tenant_id:
+                    type: string
+                    description: 租户ID
+                tenant_code:
+                    type: string
+                    description: 租户编码
+                user_id:
+                    type: string
+                    description: 用户ID
+                user_name:
+                    type: string
+                    description: 用户名称
+                request_id:
+                    type: string
+                    description: 请求ID
+                trace_id:
+                    type: string
+                    description: 链路追踪ID
+                resource_type:
+                    type: string
+                    description: 资源类型
+                resource_id:
+                    type: string
+                    description: 资源ID
+                resource_name:
+                    type: string
+                    description: 资源名称
+                action:
+                    enum:
+                        - BASE_OPERATION_ACTION_UNSPECIFIED
+                        - BASE_OPERATION_ACTION_CREATE
+                        - BASE_OPERATION_ACTION_UPDATE
+                        - BASE_OPERATION_ACTION_DELETE
+                        - BASE_OPERATION_ACTION_PUBLISH
+                        - BASE_OPERATION_ACTION_REVOKE
+                        - BASE_OPERATION_ACTION_IMPORT
+                        - BASE_OPERATION_ACTION_EXPORT
+                        - BASE_OPERATION_ACTION_OTHER
+                    type: string
+                    description: 操作动作
+                    format: enum
+                changed_fields:
+                    type: string
+                    description: 变更字段
+                before_data:
+                    type: string
+                    description: 变更前数据
+                after_data:
+                    type: string
+                    description: 变更后数据
+                result:
+                    enum:
+                        - BASE_AUDIT_RESULT_UNSPECIFIED
+                        - BASE_AUDIT_RESULT_SUCCESS
+                        - BASE_AUDIT_RESULT_FAILURE
+                        - BASE_AUDIT_RESULT_ERROR
+                    type: string
+                    description: 结果
+                    format: enum
+                reason_code:
+                    type: string
+                    description: 原因编码
+                reason:
+                    type: string
+                    description: 原因说明
+                occurred_at:
+                    type: string
+                    description: 事件发生时间
+                created_at:
+                    type: string
+                    description: 日志创建时间
+            description: 业务操作日志。
+        system.admin.v1.BasePermissionLog:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 权限日志ID
+                tenant_id:
+                    type: string
+                    description: 租户ID
+                tenant_code:
+                    type: string
+                    description: 租户编码
+                user_id:
+                    type: string
+                    description: 用户ID
+                user_name:
+                    type: string
+                    description: 用户名称
+                request_id:
+                    type: string
+                    description: 请求ID
+                trace_id:
+                    type: string
+                    description: 链路追踪ID
+                target_type:
+                    enum:
+                        - BASE_PERMISSION_TARGET_TYPE_UNSPECIFIED
+                        - BASE_PERMISSION_TARGET_TYPE_USER
+                        - BASE_PERMISSION_TARGET_TYPE_ROLE
+                        - BASE_PERMISSION_TARGET_TYPE_MENU
+                        - BASE_PERMISSION_TARGET_TYPE_API
+                        - BASE_PERMISSION_TARGET_TYPE_TENANT
+                    type: string
+                    description: 目标类型
+                    format: enum
+                target_id:
+                    type: string
+                    description: 目标ID
+                target_name:
+                    type: string
+                    description: 目标名称
+                action:
+                    enum:
+                        - BASE_PERMISSION_ACTION_UNSPECIFIED
+                        - BASE_PERMISSION_ACTION_GRANT
+                        - BASE_PERMISSION_ACTION_REVOKE
+                        - BASE_PERMISSION_ACTION_CREATE
+                        - BASE_PERMISSION_ACTION_UPDATE
+                        - BASE_PERMISSION_ACTION_DELETE
+                        - BASE_PERMISSION_ACTION_ASSIGN
+                    type: string
+                    description: 权限动作
+                    format: enum
+                old_value:
+                    type: string
+                    description: 变更前权限
+                new_value:
+                    type: string
+                    description: 变更后权限
+                result:
+                    enum:
+                        - BASE_AUDIT_RESULT_UNSPECIFIED
+                        - BASE_AUDIT_RESULT_SUCCESS
+                        - BASE_AUDIT_RESULT_FAILURE
+                        - BASE_AUDIT_RESULT_ERROR
+                    type: string
+                    description: 结果
+                    format: enum
+                reason_code:
+                    type: string
+                    description: 原因编码
+                reason:
+                    type: string
+                    description: 原因说明
+                occurred_at:
+                    type: string
+                    description: 事件发生时间
+                created_at:
+                    type: string
+                    description: 日志创建时间
+            description: 权限日志。
+        system.admin.v1.BasePolicyEvaluationLog:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 策略评估日志ID
+                tenant_id:
+                    type: string
+                    description: 租户ID
+                tenant_code:
+                    type: string
+                    description: 租户编码
+                user_id:
+                    type: string
+                    description: 用户ID
+                user_name:
+                    type: string
+                    description: 用户名称
+                role_id:
+                    type: string
+                    description: 角色ID
+                role_code:
+                    type: string
+                    description: 角色编码
+                request_id:
+                    type: string
+                    description: 请求ID
+                trace_id:
+                    type: string
+                    description: 链路追踪ID
+                client_ip:
+                    type: string
+                    description: 客户端IP
+                engine:
+                    type: string
+                    description: 鉴权引擎
+                evaluation_type:
+                    enum:
+                        - BASE_POLICY_EVALUATION_TYPE_UNSPECIFIED
+                        - BASE_POLICY_EVALUATION_TYPE_IS_AUTHORIZED
+                        - BASE_POLICY_EVALUATION_TYPE_FILTER_PAIRS
+                        - BASE_POLICY_EVALUATION_TYPE_FILTER_PROJECTS
+                    type: string
+                    description: 评估类型
+                    format: enum
+                resource:
+                    type: string
+                    description: 资源
+                action:
+                    type: string
+                    description: 动作
+                project:
+                    type: string
+                    description: 项目范围
+                decision:
+                    enum:
+                        - BASE_POLICY_DECISION_UNSPECIFIED
+                        - BASE_POLICY_DECISION_ALLOW
+                        - BASE_POLICY_DECISION_DENY
+                        - BASE_POLICY_DECISION_ERROR
+                    type: string
+                    description: 决策结果
+                    format: enum
+                reason_code:
+                    type: string
+                    description: 原因编码
+                reason:
+                    type: string
+                    description: 原因说明
+                duration_ms:
+                    type: integer
+                    description: 评估耗时毫秒
+                    format: int32
+                candidate_count:
+                    type: integer
+                    description: 候选数量
+                    format: int32
+                matched_count:
+                    type: integer
+                    description: 命中数量
+                    format: int32
+                input_hash:
+                    type: string
+                    description: 输入摘要
+                occurred_at:
+                    type: string
+                    description: 事件发生时间
+                created_at:
+                    type: string
+                    description: 日志创建时间
+            description: 策略评估日志。
         system.admin.v1.BasePost:
             type: object
             properties:
@@ -5941,6 +8833,34 @@ components:
                     type: string
                     description: 備考
             description: 角色表单
+        system.admin.v1.BaseSession:
+            type: object
+            properties:
+                user_id:
+                    type: string
+                    description: 用户ID
+                user_name:
+                    type: string
+                    description: 用户账号
+                tenant_code:
+                    type: string
+                    description: 租户编码
+                client_ip:
+                    type: string
+                    description: 客户端IP
+                device:
+                    type: string
+                    description: 登录设备
+                user_agent:
+                    type: string
+                    description: 用户代理
+                issued_at:
+                    type: string
+                    description: 签发时间
+                expires_in:
+                    type: string
+                    description: 令牌有效期（秒）
+            description: 当前会话信息。
         system.admin.v1.BaseTenant:
             type: object
             properties:
@@ -6139,6 +9059,13 @@ components:
                     type: string
                     description: 用户数
             description: 用户注册时间维度汇总项
+        system.admin.v1.CancelBaseMessageScheduleRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 消息ID
+            description: 取消消息定时发布请求。
         system.admin.v1.CodeGenColumn:
             type: object
             properties:
@@ -6685,6 +9612,13 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.CodeGenTaskStep'
                     description: 生成步骤列表
             description: 单个生成对象任务进度
+        system.admin.v1.CreateBaseMessageResponse:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 消息ID
+            description: 创建消息响应。
         system.admin.v1.DraftBaseI18nItem:
             type: object
             properties:
@@ -6775,6 +9709,104 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.RuntimeLogFile'
                     description: 历史日志文件列表
             description: 历史日志文件列表响应。
+        system.admin.v1.OauthClient:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 客户端ID
+                client_id:
+                    type: string
+                    description: 客户端标识
+                client_name:
+                    type: string
+                    description: 客户端名称
+                tenant_id:
+                    type: string
+                    description: 绑定租户ID
+                crypto_type:
+                    enum:
+                        - OAUTH_CLIENT_CRYPTO_TYPE_UNSPECIFIED
+                        - OAUTH_CLIENT_CRYPTO_TYPE_SM4
+                        - OAUTH_CLIENT_CRYPTO_TYPE_AES
+                    type: string
+                    description: 协议加密类型
+                    format: enum
+                ip_whitelist:
+                    type: string
+                    description: IP白名单
+                api:
+                    type: array
+                    items:
+                        type: string
+                    description: 允许访问的 API operation 列表
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+            description: 开放授权客户端非敏感信息。
+        system.admin.v1.OauthClientCredentials:
+            type: object
+            properties:
+                client_id:
+                    type: string
+                    description: 客户端标识
+                client_secret:
+                    type: string
+                    description: 客户端密钥
+                crypto_type:
+                    enum:
+                        - OAUTH_CLIENT_CRYPTO_TYPE_UNSPECIFIED
+                        - OAUTH_CLIENT_CRYPTO_TYPE_SM4
+                        - OAUTH_CLIENT_CRYPTO_TYPE_AES
+                    type: string
+                    description: 协议加密类型
+                    format: enum
+                crypto_key:
+                    type: string
+                    description: 协议加密密钥
+            description: 开放授权客户端凭据元数据；敏感密钥字段始终为空，仅保留协议类型和客户端标识。
+        system.admin.v1.OauthClientForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 客户端ID
+                tenant_id:
+                    type: string
+                    description: 绑定租户ID，默认租户管理员可指定
+                client_name:
+                    type: string
+                    description: 客户端名称
+                crypto_type:
+                    enum:
+                        - OAUTH_CLIENT_CRYPTO_TYPE_UNSPECIFIED
+                        - OAUTH_CLIENT_CRYPTO_TYPE_SM4
+                        - OAUTH_CLIENT_CRYPTO_TYPE_AES
+                    type: string
+                    description: 协议加密类型
+                    format: enum
+                ip_whitelist:
+                    type: string
+                    description: IP白名单，逗号分隔并支持CIDR
+                api:
+                    type: array
+                    items:
+                        type: string
+                    description: 允许访问的 base_api.operation 列表
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+            description: 开放授权客户端表单。
         system.admin.v1.OpenApiServiceOperation:
             type: object
             properties:
@@ -7183,6 +10215,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseLanguage'
                     description: 语言选项
             description: 语言选项响应
+        system.admin.v1.OptionOauthClientApiResponse:
+            type: object
+            properties:
+                base_apis:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseApi'
+                    description: 可授权的开发接口列表
+            description: 可授权 API 选项响应。
         system.admin.v1.OptionOpenApiServiceResponse:
             type: object
             properties:
@@ -7192,6 +10233,19 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.OpenApiServiceOption'
                     description: OpenAPI文档列表
             description: OpenAPI业务服务选项响应
+        system.admin.v1.PageBaseApiLogResponse:
+            type: object
+            properties:
+                base_api_logs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseApiLog'
+                    description: API访问日志列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: API 访问日志分页响应。
         system.admin.v1.PageBaseApiResponse:
             type: object
             properties:
@@ -7218,6 +10272,19 @@ components:
                     description: 总数
                     format: int32
             description: 系统配置分页响应
+        system.admin.v1.PageBaseDataAccessLogResponse:
+            type: object
+            properties:
+                base_data_access_logs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseDataAccessLog'
+                    description: 数据访问日志列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 数据访问日志分页响应。
         system.admin.v1.PageBaseDictItemResponse:
             type: object
             properties:
@@ -7244,6 +10311,18 @@ components:
                     description: 总数
                     format: int32
             description: 字典分页响应
+        system.admin.v1.PageBaseFileResponse:
+            type: object
+            properties:
+                base_files:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseFile'
+                    description: 文件资产列表
+                total:
+                    type: string
+                    description: 总数
+            description: 文件资产分页响应。
         system.admin.v1.PageBaseJobLogResponse:
             type: object
             properties:
@@ -7283,19 +10362,45 @@ components:
                     description: 总数
                     format: int32
             description: 语言分页响应
-        system.admin.v1.PageBaseLogResponse:
+        system.admin.v1.PageBaseLoginLogResponse:
             type: object
             properties:
-                base_logs:
+                base_login_logs:
                     type: array
                     items:
-                        $ref: '#/components/schemas/system.admin.v1.BaseLog'
-                    description: 分页数据
+                        $ref: '#/components/schemas/system.admin.v1.BaseLoginLog'
+                    description: 登录日志列表
                 total:
                     type: integer
                     description: 总数
                     format: int32
-            description: 日志分页响应
+            description: 登录日志分页响应。
+        system.admin.v1.PageBaseMessageCategoryResponse:
+            type: object
+            properties:
+                base_message_categories:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseMessageCategory'
+                    description: 消息分类列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 消息分类分页响应。
+        system.admin.v1.PageBaseMessageResponse:
+            type: object
+            properties:
+                base_messages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseMessage'
+                    description: 消息列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 消息分页响应。
         system.admin.v1.PageBaseMigrationResponse:
             type: object
             properties:
@@ -7309,6 +10414,45 @@ components:
                     description: 总数
                     format: int32
             description: 数据库迁移记录分页响应
+        system.admin.v1.PageBaseOperationLogResponse:
+            type: object
+            properties:
+                base_operation_logs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseOperationLog'
+                    description: 业务操作日志列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 业务操作日志分页响应。
+        system.admin.v1.PageBasePermissionLogResponse:
+            type: object
+            properties:
+                base_permission_logs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BasePermissionLog'
+                    description: 权限日志列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 权限日志分页响应。
+        system.admin.v1.PageBasePolicyEvaluationLogResponse:
+            type: object
+            properties:
+                base_policy_evaluation_logs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BasePolicyEvaluationLog'
+                    description: 策略评估日志列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 策略评估日志分页响应。
         system.admin.v1.PageBasePostResponse:
             type: object
             properties:
@@ -7374,6 +10518,19 @@ components:
                     description: 总数
                     format: int32
             description: 代码生成表配置分页响应
+        system.admin.v1.PageOauthClientResponse:
+            type: object
+            properties:
+                oauth_clients:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.OauthClient'
+                    description: 客户端列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 开放授权客户端分页响应。
         system.admin.v1.PreviewCodeGenRequest:
             type: object
             properties:
@@ -7480,6 +10637,13 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.ProjectDocumentDirectory'
                     description: 项目根目录下的子目录
             description: 项目文档树
+        system.admin.v1.PublishBaseMessageRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 消息ID
+            description: 发布消息请求。
         system.admin.v1.ReadRuntimeLogFileResponse:
             type: object
             properties:
@@ -7520,6 +10684,24 @@ components:
                         type: string
                     description: 代码生成表配置ID列表
             description: 还原代码生成结果条件
+        system.admin.v1.RetryBaseMessageDispatchRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 投递任务ID
+            description: 重试投递任务请求。
+        system.admin.v1.RevokeAllBaseSessionsRequest:
+            type: object
+            properties: {}
+            description: 撤销全部会话请求参数。
+        system.admin.v1.RevokeBaseMessageRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 消息ID
+            description: 撤回消息请求。
         system.admin.v1.RouteItem:
             type: object
             properties:
@@ -7789,6 +10971,21 @@ components:
                     description: ステータス
                     format: int32
             description: 设置菜单状态请求参数
+        system.admin.v1.SetBaseMessageCategoryStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 消息分类ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+            description: 设置消息分类状态请求。
         system.admin.v1.SetBasePostStatusRequest:
             type: object
             properties:
@@ -7845,6 +11042,21 @@ components:
                     description: ステータス
                     format: int32
             description: 设置用户状态请求参数
+        system.admin.v1.SetOauthClientStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 客户端ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+            description: 设置开放授权客户端状态请求。
         system.admin.v1.StartBaseJobRequest:
             type: object
             properties:
@@ -8194,38 +11406,60 @@ tags:
       description: App ユーザー認証サービス
     - name: AuthService
       description: Admin ユーザーログイン認証サービス
+    - name: BaseApiLogService
+      description: API 访问日志服务。
     - name: BaseApiService
       description: Admin API サービス
     - name: BaseAreaService
-      description: App 行政区域サービス
-    - name: BaseAreaService
       description: Admin 行政区域サービス
+    - name: BaseAreaService
+      description: App 行政区域サービス
     - name: BaseConfigService
       description: Admin システム設定サービス
+    - name: BaseDashboardService
+      description: Admin首页业务统计服务。
+    - name: BaseDataAccessLogService
+      description: 数据访问日志服务。
     - name: BaseDeptService
       description: Admin 部門サービス
     - name: BaseDictService
-      description: App 辞書サービス
-    - name: BaseDictService
       description: Admin 辞書サービス
+    - name: BaseDictService
+      description: App 辞書サービス
+    - name: BaseFileService
+      description: Admin文件资产管理服务。
     - name: BaseI18nService
       description: 国際化翻訳情報サービス。
     - name: BaseJobService
       description: Admin 定期ジョブサービス
     - name: BaseLanguageService
       description: Admin 言語管理サービス
-    - name: BaseLogService
-      description: Admin ログサービス
+    - name: BaseLoginLogService
+      description: 登录日志服务。
+    - name: BaseLoginPolicyService
+      description: Admin登录来源策略服务。
     - name: BaseMenuService
       description: App メニューサービス
     - name: BaseMenuService
       description: Admin メニュー管理サービス
+    - name: BaseMessageCategoryService
+      description: BaseMessageCategoryService 提供消息分类管理能力。
+    - name: BaseMessageService
+      description: BaseMessageService 提供站内信管理能力。
     - name: BaseMigrationService
       description: データベースマイグレーションサービス
+    - name: BaseOperationLogService
+      description: 业务操作日志服务。
+    - name: BasePermissionLogService
+      description: 权限日志服务。
+    - name: BasePolicyEvaluationLogService
+      description: 策略评估日志服务。
     - name: BasePostService
       description: Admin 役職管理サービス
     - name: BaseRoleService
       description: Admin ロール管理サービス
+    - name: BaseSessionService
+      description: Admin会话管理服务。
     - name: BaseTenantService
       description: Admin テナント管理サービス
     - name: BaseUserService
@@ -8248,6 +11482,14 @@ tags:
       description: Base ログイン共通サービス
     - name: McpService
       description: Base MCP サービス
+    - name: MfaService
+      description: Base 多因素认证公共服务。
+    - name: NotificationService
+      description: NotificationService 提供当前用户的站内信收件箱能力。
+    - name: OauthClientService
+      description: 开放授权客户端管理服务。
+    - name: OauthClientService
+      description: 开放授权客户端令牌服务。
     - name: OauthService
       description: Base 外部ログイン共通サービス
     - name: OpsMonitoringService

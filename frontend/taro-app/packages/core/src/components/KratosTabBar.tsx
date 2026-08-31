@@ -1,6 +1,6 @@
 import { Image, Text, View } from '@tarojs/components'
 import { resolveModuleIcon, resolveStaticView } from '../module'
-import { APP_MENU_ROOT_ID, navigateAppRoute, useAppNavigation } from '../navigation'
+import { APP_MENU_ROOT_ID, navigateAppRoute, useAppMenuBadges, useAppNavigation } from '../navigation'
 import { resolveRootMenuId } from '../navigation-tree.mjs'
 import './KratosTabBar.scss'
 
@@ -13,6 +13,7 @@ export interface KratosTabBarProps {
 export function KratosTabBar({ route }: KratosTabBarProps) {
   const menus = useAppNavigation((state) => state.menus)
   const tabBar = useAppNavigation((state) => state.tabBar)
+  const messageBadge = useAppMenuBadges((state) => state.badges.MESSAGE_INBOX ?? 0)
   const routeMenu = menus.find((menu) => resolveStaticView(menu.viewKey) === route)
   const tabMenuId = routeMenu
     ? resolveRootMenuId(menus, routeMenu.id, APP_MENU_ROOT_ID)
@@ -34,6 +35,10 @@ export function KratosTabBar({ route }: KratosTabBarProps) {
             {icon ? (
               <Image className='kratos-tab-bar__icon' src={icon} mode='aspectFit' />
             ) : null}
+            {!icon && item.viewKey === 'MESSAGE_INBOX' ? (
+              <View className={`kratos-tab-bar__message-icon${active ? ' kratos-tab-bar__message-icon--active' : ''}`} />
+            ) : null}
+            {item.viewKey === 'MESSAGE_INBOX' && messageBadge ? <Text className='kratos-tab-bar__badge'>{messageBadge}</Text> : null}
             <Text className={active ? 'kratos-tab-bar__text--active' : ''}>{item.title}</Text>
           </View>
         )

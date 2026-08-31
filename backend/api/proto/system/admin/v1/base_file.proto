@@ -1,0 +1,119 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// Admin文件资产管理服务。
+service BaseFileService {
+  // 分页查询文件资产。
+  rpc PageBaseFile(PageBaseFileRequest) returns (PageBaseFileResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/file"
+    };
+  }
+
+  // 查询文件资产详情。
+  rpc GetBaseFile(GetBaseFileRequest) returns (BaseFile) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/file/{id}"
+    };
+  }
+
+  // 删除文件资产及其对象。
+  rpc DeleteBaseFile(DeleteBaseFileRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/admin/base/file/{id}"
+    };
+  }
+}
+
+// 文件资产分页查询条件。
+message PageBaseFileRequest {
+  string keyword = 1 [
+    (gnostic.openapi.v3.property) = {description: "原始文件名或内容哈希关键字"}
+  ]; // 原始文件名或内容哈希关键字
+
+  string extension = 2 [
+    (gnostic.openapi.v3.property) = {description: "文件扩展名"}
+  ]; // 文件扩展名
+
+  optional int64 tenant_id = 3 [
+    (gnostic.openapi.v3.property) = {description: "租户ID"}
+  ]; // 租户ID
+
+  int64 page_num = 101 [
+    (gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}},
+    (buf.validate.field).cel = {
+      id: "system.admin.base.file.page.page_num.positive"
+      message: "页码必须大于0"
+      expression: "this > 0"
+    }
+  ]; // 当前页码
+
+  int64 page_size = 102 [
+    (gnostic.openapi.v3.property) = {description: "每页行数", default: {number: 20}},
+    (buf.validate.field).cel = {
+      id: "system.admin.base.file.page.page_size.range"
+      message: "每页行数必须在1到100之间"
+      expression: "this > 0 && this <= 100"
+    }
+  ]; // 每页行数
+}
+
+// 文件资产分页响应。
+message PageBaseFileResponse {
+  repeated BaseFile base_files = 1 [
+    (gnostic.openapi.v3.property) = {description: "文件资产列表"}
+  ]; // 文件资产列表
+
+  int64 total = 2 [
+    (gnostic.openapi.v3.property) = {description: "总数"}
+  ]; // 总数
+}
+
+// 文件资产详情查询条件。
+message GetBaseFileRequest {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "文件ID"},
+    (buf.validate.field).cel = {
+      id: "system.admin.base.file.get.id.positive"
+      message: "文件ID必须大于0"
+      expression: "this > 0"
+    }
+  ]; // 文件ID
+}
+
+// 文件资产删除条件。
+message DeleteBaseFileRequest {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "文件ID"},
+    (buf.validate.field).cel = {
+      id: "system.admin.base.file.delete.id.positive"
+      message: "文件ID必须大于0"
+      expression: "this > 0"
+    }
+  ]; // 文件ID
+}
+
+// 文件资产元数据。
+message BaseFile {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "文件ID"}]; // 文件ID
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  int32 provider = 3 [(gnostic.openapi.v3.property) = {description: "存储供应商"}]; // 存储供应商
+  string bucket_name = 4 [(gnostic.openapi.v3.property) = {description: "存储桶名称"}]; // 存储桶名称
+  string file_directory = 5 [(gnostic.openapi.v3.property) = {description: "文件目录"}]; // 文件目录
+  string file_guid = 6 [(gnostic.openapi.v3.property) = {description: "文件唯一标识"}]; // 文件唯一标识
+  string save_file_name = 7 [(gnostic.openapi.v3.property) = {description: "实际存储文件名"}]; // 实际存储文件名
+  string file_name = 8 [(gnostic.openapi.v3.property) = {description: "原始文件名"}]; // 原始文件名
+  string extension = 9 [(gnostic.openapi.v3.property) = {description: "文件扩展名"}]; // 文件扩展名
+  string mime_type = 10 [(gnostic.openapi.v3.property) = {description: "文件MIME类型"}]; // 文件MIME类型
+  int64 size = 11 [(gnostic.openapi.v3.property) = {description: "文件大小，单位字节"}]; // 文件大小，单位字节
+  string link_url = 12 [(gnostic.openapi.v3.property) = {description: "文件访问地址"}]; // 文件访问地址
+  string content_hash = 13 [(gnostic.openapi.v3.property) = {description: "文件内容SHA-256哈希"}]; // 文件内容SHA-256哈希
+  int64 created_by = 14 [(gnostic.openapi.v3.property) = {description: "创建者ID"}]; // 创建者ID
+  string created_at = 15 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+}

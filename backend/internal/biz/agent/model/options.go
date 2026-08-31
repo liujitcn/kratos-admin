@@ -2,14 +2,14 @@ package model
 
 import (
 	"github.com/cloudwego/eino-ext/components/model/agenticopenai"
-	componentsModel "github.com/cloudwego/eino/components/model"
+	"github.com/cloudwego/eino/components/model"
 	"github.com/cloudwego/eino/schema"
 	"github.com/openai/openai-go/v3/responses"
 )
 
 // WithTools 构造携带工具定义的模型调用选项。
 func WithTools(toolInfos []*schema.ToolInfo) Option {
-	return componentsModel.WithTools(toolInfos)
+	return model.WithTools(toolInfos)
 }
 
 // ResponsesServerToolOptions 构造 Responses 内置服务端工具选项。

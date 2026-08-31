@@ -7,8 +7,8 @@ import (
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/go-kratos/kratos/v3/transport"
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-core/errorsx"
 	"google.golang.org/genproto/googleapis/api/httpbody"
 )

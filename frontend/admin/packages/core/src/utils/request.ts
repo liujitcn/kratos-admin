@@ -1,6 +1,5 @@
 import axios, { type InternalAxiosRequestConfig, type AxiosResponse, type AxiosError } from "axios";
 import qs from "qs";
-import { ElMessage, ElMessageBox } from "element-plus";
 import router from "@/routers";
 import { LOGIN_URL } from "@/config";
 import pinia from "@/stores";
@@ -12,6 +11,7 @@ const apiTargetUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_APP_AP
 export const requestBaseURL = `${apiTargetUrl}${apiBasePath}`;
 const SESSION_URL = "/v1/base/session";
 const TOKEN_URL = "/v1/base/token";
+const REFRESH_EXPIRY_COOKIE = "kratos_refresh_exp";
 const CAPTCHA_URL = "/v1/base/captcha";
 const CONFIG_URL = "/v1/base/config";
 const LANGUAGE_URL = "/v1/base/language";
@@ -19,6 +19,9 @@ const PASSWORD_PUBLIC_KEY_URL = "/v1/base/password-public-key";
 const OAUTH_PROVIDER_URL = "/v1/base/oauth/provider";
 const OAUTH_AUTHORIZATION_URL = "/v1/base/oauth/authorization";
 const OAUTH_TICKET_URL = "/v1/base/oauth/ticket";
+const MFA_VERIFY_URL = "/v1/base/mfa/verify";
+const MFA_ENROLLMENT_URL = "/v1/base/mfa/enrollment";
+const MFA_ENROLLMENT_CONFIRM_URL = "/v1/base/mfa/enrollment/confirm";
 const LEGACY_AUTH_URL = "/auth";
 const LEGACY_REFRESH_TOKEN_URL = `${LEGACY_AUTH_URL}/token`;
 const LEGACY_CAPTCHA_URL = "/login/captcha";
@@ -33,6 +36,9 @@ const NO_AUTH_URL_SET = new Set([
   OAUTH_PROVIDER_URL,
   OAUTH_AUTHORIZATION_URL,
   OAUTH_TICKET_URL,
+  MFA_VERIFY_URL,
+  MFA_ENROLLMENT_URL,
+  MFA_ENROLLMENT_CONFIRM_URL,
   LEGACY_AUTH_URL,
   LEGACY_CAPTCHA_URL,
   LEGACY_REFRESH_TOKEN_URL
@@ -47,6 +53,9 @@ const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set([
   OAUTH_PROVIDER_URL,
   OAUTH_AUTHORIZATION_URL,
   OAUTH_TICKET_URL,
+  MFA_VERIFY_URL,
+  MFA_ENROLLMENT_URL,
+  MFA_ENROLLMENT_CONFIRM_URL,
   LEGACY_AUTH_URL,
   LEGACY_REFRESH_TOKEN_URL,
   LEGACY_CAPTCHA_URL
@@ -70,7 +79,8 @@ const service = axios.create({
 const refreshService = axios.create({
   baseURL: requestBaseURL,
   timeout: 50000,
-  headers: { "Content-Type": "application/json;charset=utf-8" }
+  headers: { "Content-Type": "application/json;charset=utf-8" },
+  withCredentials: true
 });
 
 /** 获取用户状态仓库 */
@@ -108,6 +118,15 @@ function getTokenExpiresAt() {
   return getUserStore().tokenExpiresAt;
 }
 
+/** 判断浏览器是否存在非敏感的刷新令牌过期提示。 */
+function hasRefreshCookieHint() {
+  if (typeof document === "undefined") return false;
+  const item = document.cookie.split(";").find(value => value.trim().startsWith(`${REFRESH_EXPIRY_COOKIE}=`));
+  if (!item) return false;
+  const expiresAt = Number(item.split("=")[1]);
+  return Number.isFinite(expiresAt) && expiresAt * 1000 > Date.now();
+}
+
 /** 判断当前访问令牌是否仍在有效期内。 */
 export function hasValidAccessToken() {
   const userStore = getUserStore();
@@ -117,7 +136,7 @@ export function hasValidAccessToken() {
 /** 读取最新可用访问令牌，必要时先串行刷新，供 axios、fetch 与 SSE 共用。 */
 export async function getRequestAccessToken(): Promise<string> {
   const userStore = getUserStore();
-  if (!userStore.token && userStore.refreshToken) {
+  if (!userStore.token && (userStore.refreshToken || hasRefreshCookieHint())) {
     await handleTokenRefresh(false);
   }
 
@@ -137,7 +156,7 @@ export async function ensureAccessToken() {
   }
 
   const userStore = getUserStore();
-  if (!userStore.refreshToken) {
+  if (!userStore.refreshToken && !hasRefreshCookieHint()) {
     return false;
   }
 
@@ -224,7 +243,7 @@ service.interceptors.response.use(
 
     // 业务请求仅在 401 时尝试刷新并重放，403 直接展示后端权限错误。
     if ((status === 401 || code === 401) && !shouldSkipAuthExpiredPrompt(requestConfig)) {
-      if (requestConfig && !requestConfig._authRetried && getUserStore().refreshToken) {
+      if (requestConfig && !requestConfig._authRetried && (getUserStore().refreshToken || hasRefreshCookieHint())) {
         requestConfig._authRetried = true;
         try {
           await handleTokenRefresh(false);
@@ -282,13 +301,10 @@ async function handleTokenRefresh(promptOnFailure = true) {
 /** 调用刷新令牌接口并回写最新认证信息 */
 async function refreshAccessToken() {
   const userStore = getUserStore();
-  if (!userStore.refreshToken) {
-    return Promise.reject(new Error(t("core.auth.refresh_token_missing")));
-  }
 
   const response = await refreshService.post(
     TOKEN_URL,
-    { refresh_token: userStore.refreshToken },
+    { refresh_token: userStore.refreshToken || undefined },
     { headers: { Authorization: "no-auth", ...getLocaleRequestHeaders() } }
   );
   const data = response.data;

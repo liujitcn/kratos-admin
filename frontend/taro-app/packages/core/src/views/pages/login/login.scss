@@ -266,6 +266,35 @@
   line-height: 1.6;
 }
 
+.mfa-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background: rgba(15, 23, 42, 0.46);
+}
+
+.mfa-panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 520px;
+  padding: 32px;
+  border-radius: 24px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.mfa-title {
+  margin-bottom: 20px;
+  color: #172a35;
+  font-size: 32px;
+  font-weight: 700;
+}
+
 .login-agreement {
   display: flex;
   align-items: center;

@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// Admin登录来源策略服务。
+service BaseLoginPolicyService {
+  // 查询登录来源策略。
+  rpc GetBaseLoginPolicy(GetBaseLoginPolicyRequest) returns (BaseLoginPolicy) {
+    option (google.api.http) = {get: "/api/v1/admin/base/login-policy"};
+  }
+
+  // 更新登录来源策略。
+  rpc UpdateBaseLoginPolicy(UpdateBaseLoginPolicyRequest) returns (BaseLoginPolicy) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/login-policy"
+      body: "policy"
+    };
+  }
+}
+
+// 查询登录来源策略请求参数。
+message GetBaseLoginPolicyRequest {}
+
+// 更新登录来源策略请求参数。
+message UpdateBaseLoginPolicyRequest {
+  BaseLoginPolicy policy = 1 [(gnostic.openapi.v3.property) = {description: "登录来源策略"}, (buf.validate.field).required = true]; // 登录来源策略
+}
+
+// 登录来源策略。
+message BaseLoginPolicy {
+  bool enabled = 1 [(gnostic.openapi.v3.property) = {description: "是否启用"}]; // 是否启用
+  repeated string ip_blacklist = 2 [(gnostic.openapi.v3.property) = {description: "IP黑名单，支持IP和CIDR"}]; // IP黑名单
+  repeated string ip_whitelist = 3 [(gnostic.openapi.v3.property) = {description: "IP白名单，支持IP和CIDR"}]; // IP白名单
+  repeated string time_windows = 4 [(gnostic.openapi.v3.property) = {description: "禁止登录时间窗口，格式HH:MM-HH:MM"}]; // 禁止登录时间窗口
+  repeated string device_blacklist = 5 [(gnostic.openapi.v3.property) = {description: "设备黑名单"}]; // 设备黑名单
+  repeated string device_whitelist = 6 [(gnostic.openapi.v3.property) = {description: "设备白名单"}]; // 设备白名单
+
+  repeated BaseLoginPolicyRule rules = 7 [(gnostic.openapi.v3.property) = {description: "按租户或用户匹配的定向规则"}]; // 按租户或用户匹配的定向规则
+}
+
+// 登录来源定向规则。
+message BaseLoginPolicyRule {
+  string target_type = 1 [
+    (gnostic.openapi.v3.property) = {description: "目标类型：TENANT或USER"},
+    (buf.validate.field).cel = {
+      id: "system.admin.base.login_policy.rule.target_type.required"
+      message: "定向规则目标类型不能为空"
+      expression: "this == 'TENANT' || this == 'USER'"
+    }
+  ]; // 目标类型：TENANT或USER
+
+  string target_value = 2 [
+    (gnostic.openapi.v3.property) = {description: "目标值：租户编码或用户名"},
+    (buf.validate.field).cel = {
+      id: "system.admin.base.login_policy.rule.target_value.required"
+      message: "定向规则目标值不能为空"
+      expression: "this.size() > 0 && this.size() <= 128"
+    }
+  ]; // 目标值：租户编码或用户名
+
+  bool enabled = 3 [(gnostic.openapi.v3.property) = {description: "是否启用"}]; // 是否启用
+  repeated string ip_blacklist = 4 [(gnostic.openapi.v3.property) = {description: "IP黑名单，支持IP和CIDR"}]; // IP黑名单
+  repeated string ip_whitelist = 5 [(gnostic.openapi.v3.property) = {description: "IP白名单，支持IP和CIDR"}]; // IP白名单
+  repeated string time_windows = 6 [(gnostic.openapi.v3.property) = {description: "禁止登录时间窗口，格式HH:MM-HH:MM"}]; // 禁止登录时间窗口
+  repeated string device_blacklist = 7 [(gnostic.openapi.v3.property) = {description: "设备黑名单"}]; // 设备黑名单
+  repeated string device_whitelist = 8 [(gnostic.openapi.v3.property) = {description: "设备白名单"}]; // 设备白名单
+}

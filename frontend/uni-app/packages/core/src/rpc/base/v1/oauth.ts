@@ -7,6 +7,7 @@
 /* eslint-disable */
 import type { PasswordCrypto } from "../../common/v1/types";
 import type { Empty } from "../../google/protobuf/empty";
+import type { LoginStatus } from "./login";
 
 /** 个人中心三方账号绑定列表查询条件 */
 export interface ListOauthBindingRequest {
@@ -96,6 +97,18 @@ export interface CreateOauthSessionResponse {
   expires_in: number;
   /** 是否需要绑定已有账号。 */
   binding_required: boolean;
+  /** 登录认证状态 */
+  status: LoginStatus;
+  /** 多因素认证挑战ID */
+  mfa_challenge_id: string;
+  /** 多因素认证绑定临时票据 */
+  mfa_setup_ticket: string;
+  /** 多因素认证挑战或绑定票据有效时间，单位秒 */
+  mfa_expires_in: number;
+  /** 多因素认证方式：totp、webauthn */
+  mfa_method: string;
+  /** WebAuthn认证选项JSON */
+  mfa_webauthn_options_json: string;
 }
 
 /** 三方登录回调请求 */
@@ -132,6 +145,18 @@ export interface ExchangeOauthTicketResponse {
   token_type: string;
   /** 令牌有效时间，单位为秒。 */
   expires_in: number;
+  /** 登录认证状态 */
+  status: LoginStatus;
+  /** 多因素认证挑战ID */
+  mfa_challenge_id: string;
+  /** 多因素认证绑定临时票据 */
+  mfa_setup_ticket: string;
+  /** 多因素认证挑战或绑定票据有效时间，单位秒 */
+  mfa_expires_in: number;
+  /** 多因素认证方式：totp、webauthn */
+  mfa_method: string;
+  /** WebAuthn认证选项JSON */
+  mfa_webauthn_options_json: string;
 }
 
 /** 个人中心三方账号绑定回调请求 */

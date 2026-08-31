@@ -4,14 +4,17 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"mime"
 	"mime/multipart"
+	stdhttp "net/http"
 	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	coreconst "github.com/liujitcn/kratos-core/const"
+	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -29,6 +32,8 @@ const _ = http.SupportPackageIsVersion3
 const OperationFileServiceDownloadFile = "/base.v1.FileService/DownloadFile"
 const OperationFileServiceMultiUploadFile = "/base.v1.FileService/MultiUploadFile"
 const OperationFileServiceUploadFile = "/base.v1.FileService/UploadFile"
+
+const maxMultipartUploadBytes int64 = 20 << 20
 
 type FileServiceHTTPServer interface {
 	// DownloadFile 下载文件
@@ -52,6 +57,7 @@ func _FileService_MultiUploadFile0_HTTP_Handler(srv FileServiceHTTPServer) func(
 		var in basev1.MultiUploadFileRequest
 		http.SetOperation(ctx, OperationFileServiceMultiUploadFile)
 		r := ctx.Request()
+		r.Body = stdhttp.MaxBytesReader(ctx.Response(), r.Body, maxMultipartUploadBytes)
 		var err error
 		if r.MultipartForm == nil {
 			err = r.ParseMultipartForm(32 << 20)
@@ -96,6 +102,7 @@ func _FileService_UploadFile0_HTTP_Handler(srv FileServiceHTTPServer) func(ctx h
 		var in basev1.UploadFileRequest
 		http.SetOperation(ctx, OperationFileServiceUploadFile)
 		r := ctx.Request()
+		r.Body = stdhttp.MaxBytesReader(ctx.Response(), r.Body, maxMultipartUploadBytes)
 		formFile, header, err := r.FormFile("file")
 		if err != nil {
 			return errorsx.InvalidArgument("未上传文件").WithCause(err)
@@ -139,9 +146,15 @@ func _FileService_DownloadFile0_HTTP_Handler(srv FileServiceHTTPServer) func(ctx
 		if len(filename) == 0 {
 			filename = path.Base(in.GetPath())
 		}
+		filename = path.Base(strings.ReplaceAll(strings.ReplaceAll(filename, "\\", "/"), "\r", ""))
+		filename = strings.ReplaceAll(filename, "\n", "")
+		contentDisposition := mime.FormatMediaType("attachment", map[string]string{"filename": filename})
+		if contentDisposition == "" {
+			contentDisposition = "attachment"
+		}
 		// 设置响应头，支持文件下载
 		ctx.Response().Header().Set("Content-Type", "application/octet-stream")
-		ctx.Response().Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filename))
+		ctx.Response().Header().Set("Content-Disposition", contentDisposition)
 		ctx.Response().Header().Set("Content-Length", strconv.Itoa(len(reply.Value)))
 
 		// 直接写入二进制数据
@@ -162,25 +175,25 @@ func convertUploadFileInfo(multipartFile multipart.File, fileType, contentType, 
 		}
 	}(multipartFile)
 
-	b := new(strings.Builder)
-	_, err := io.Copy(b, multipartFile)
+	limited := io.LimitReader(multipartFile, maxMultipartUploadBytes+1)
+	content, err := io.ReadAll(limited)
 	if err != nil {
 		return nil, err
 	}
-	filePath := fmt.Sprintf("/%s", coreconst.BASE_PATH)
+	if int64(len(content)) > maxMultipartUploadBytes {
+		return nil, errorsx.InvalidArgument("文件内容不能超过 20 MB")
+	}
+	filePath := fmt.Sprintf("/%s", _const.BASE_PATH)
 	if len(fileType) != 0 {
 		filePath += "/" + fileType
 	}
-	var extname string
+	extname := strings.TrimPrefix(strings.ToLower(filepath.Ext(fileName)), ".")
 	contentTypes := strings.Split(contentType, "/")
 	if len(contentTypes) != 2 {
 		filePath += "/files"
-		filenames := strings.Split(fileName, ".")
-		if len(filenames) > 1 {
-			extname = filenames[1]
-		}
+	} else if extname == "" {
+		extname = strings.ToLower(contentTypes[1])
 	} else {
-		extname = contentTypes[1]
 		switch contentTypes[0] {
 		case "image":
 			filePath += "/images"
@@ -205,6 +218,6 @@ func convertUploadFileInfo(multipartFile multipart.File, fileType, contentType, 
 		Name:    fmt.Sprintf("%d.%s", id.GenSnowflakeID(), extname),
 		Extname: extname,
 		Path:    fmt.Sprintf("%s/%s", filePath, datePath),
-		Content: []byte(b.String()),
+		Content: content,
 	}, nil
 }

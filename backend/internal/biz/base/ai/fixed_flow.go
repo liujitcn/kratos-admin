@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 )
 
 // FixedFlowProvider 提供模块私有的固定流程、入口校验和快捷入口。

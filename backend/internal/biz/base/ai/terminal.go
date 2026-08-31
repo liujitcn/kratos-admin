@@ -1,7 +1,7 @@
 package ai
 
 import (
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 )
 
 // NormalizeTerminal 将 proto 终端枚举转换为数据库使用的整型值。

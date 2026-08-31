@@ -81,11 +81,17 @@
   "system.profile.update_success": "更新成功",
   "system.settings.ai_description": "幫你整理資訊、回答問題並處理日常任務",
   "system.settings.ai_title": "智慧助手",
-  "system.settings.authorization": "授權管理",
-  "system.settings.contact": "聯絡我們",
-  "system.settings.feedback": "問題反饋",
   "system.settings.go_ask": "去提問",
-  "system.settings.logout_confirm": "是否退出登入？",
-  "system.settings.logout_failed": "退出登入失敗",
-  "system.settings.title": "設定"
+  "system.notification.title": "消息中心",
+  "system.notification.description": "查看系統通知和業務消息",
+  "system.notification.empty": "暫無消息",
+  "system.notification.action.view_all": "查看全部",
+  "system.notification.view.inbox": "全部",
+  "system.notification.view.unread": "未讀",
+  "system.notification.view.archived": "已歸檔",
+  "system.notification.category_filter": "分類 ID",
+  "system.notification.mark_all_read": "全部已讀",
+  "system.notification.action.archive": "歸檔",
+  "system.notification.action.restore": "恢復",
+  "system.notification.action.delete": "刪除"
 }

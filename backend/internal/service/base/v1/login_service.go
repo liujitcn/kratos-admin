@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -66,16 +66,22 @@ func (s *LoginService) Logout(ctx context.Context, req *basev1.LogoutRequest) (*
 		log.Error(fmt.Sprintf("Logout %v", err))
 		return nil, errorsx.WrapInternal(err, "退出登录失败")
 	}
+	clearRefreshTokenCookie(ctx)
 	return &emptypb.Empty{}, nil
 }
 
 // RefreshToken 刷新认证令牌
 func (s *LoginService) RefreshToken(ctx context.Context, req *basev1.RefreshTokenRequest) (*basev1.RefreshTokenResponse, error) {
+	if req.GetRefreshToken() == "" {
+		refreshToken := refreshTokenFromCookie(ctx)
+		req.RefreshToken = &refreshToken
+	}
 	res, err := s.loginCase.RefreshToken(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("RefreshToken %v", err))
 		return nil, errorsx.WrapInternal(err, "刷新认证令牌失败")
 	}
+	setRefreshTokenCookie(ctx, res.GetRefreshToken(), s.loginCase.RefreshTokenExpiresIn())
 	return res, nil
 }
 
@@ -86,5 +92,6 @@ func (s *LoginService) Login(ctx context.Context, req *basev1.LoginRequest) (*ba
 		log.Error(fmt.Sprintf("Login %v", err))
 		return nil, errorsx.WrapInternal(err, "登录失败")
 	}
+	setRefreshTokenCookie(ctx, res.GetRefreshToken(), s.loginCase.RefreshTokenExpiresIn())
 	return res, nil
 }

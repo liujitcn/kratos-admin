@@ -3,10 +3,10 @@ package sse
 import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
 	"github.com/liujitcn/kratos-core/errorsx"
-	sseTransport "github.com/liujitcn/kratos-kit/transport/sse"
+	"github.com/liujitcn/kratos-kit/transport/sse"
 )
 
-var _ sseTransport.SSEStream = (*Codegen)(nil)
+var _ sse.SSEStream = (*Codegen)(nil)
 
 // Codegen 描述代码生成任务的 SSE 订阅流。
 type Codegen struct {

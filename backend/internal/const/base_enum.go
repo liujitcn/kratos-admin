@@ -1,8 +1,8 @@
 package _const
 
 import (
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 )
 
 const (

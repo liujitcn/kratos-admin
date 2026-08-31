@@ -1,11 +1,14 @@
 import { defineStore } from "pinia";
 import { defAuthService } from "@/api/system/auth";
 import { defLoginService } from "@/api/base/login";
-import type { LoginRequest } from "@/rpc/base/v1/login";
+import { defMfaService } from "@/api/base/mfa";
+import type { LoginRequest, LoginResponse } from "@/rpc/base/v1/login";
+import type { VerifyMfaRequest } from "@/rpc/base/v1/mfa";
 import type { UserInfoForm } from "@/rpc/system/admin/v1/auth";
 import { UserState } from "@/stores/interface";
 import piniaPersistConfig from "@/stores/helper/persist";
 import { useDictStoreHook } from "@/stores/modules/dict";
+import { useLockScreenStore } from "@/stores/modules/lockScreen";
 import { t } from "@/locales";
 
 const defaultUserInfo: UserInfoForm = {
@@ -65,9 +68,18 @@ export const useUserStore = defineStore("admin-user", {
       return Boolean(this.token.trim() && this.tokenExpiresAt > Date.now());
     },
     /** 登录 */
-    async login(loginRequest: LoginRequest) {
+    async login(loginRequest: LoginRequest): Promise<LoginResponse> {
       const data = await defLoginService.Login(loginRequest);
+      if (data.status === 1 || data.status === 0 || data.status === 4) {
+        this.updateTokenAuth(data.access_token, data.refresh_token ?? "", data.token_type ?? "", data.expires_in);
+      }
+      return data;
+    },
+    /** 校验登录阶段的多因素认证并保存正式令牌。 */
+    async verifyMfa(request: VerifyMfaRequest): Promise<LoginResponse> {
+      const data = await defMfaService.VerifyMfa(request);
       this.updateTokenAuth(data.access_token, data.refresh_token ?? "", data.token_type ?? "", data.expires_in);
+      return data;
     },
     /** 刷新认证令牌 */
     async refreshAccessToken() {
@@ -89,6 +101,7 @@ export const useUserStore = defineStore("admin-user", {
     clearAuthData() {
       // 清理登录态时同步清空字典缓存，避免切换账号后读到旧字典。
       useDictStoreHook().clearDictionaryCache();
+      useLockScreenStore().clearLock();
       this.setToken("");
       this.setRefreshToken("");
       this.setTokenType("");
@@ -106,5 +119,5 @@ export const useUserStore = defineStore("admin-user", {
       }
     }
   },
-  persist: piniaPersistConfig("admin-user")
+  persist: piniaPersistConfig("admin-user", ["token", "tokenType", "tokenExpiresAt", "userInfo"])
 });

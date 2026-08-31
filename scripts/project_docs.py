@@ -28,6 +28,7 @@ MYMEMORY_ENDPOINT = "https://api.mymemory.translated.net/get"
 GOOGLE_CLIENTS = ("gtx", "dict-chrome-ex", "chrome", "at")
 DEFAULT_I18N_BATCH_CHARS = 400
 DEFAULT_I18N_REQUEST_DELAY = 0.2
+DEFAULT_I18N_REQUEST_TIMEOUT = 8.0
 MAX_SOURCE_PATH_DEPTH = 3
 MAX_DOCUMENT_BYTES = 2 << 20
 EXCLUDED_DIRECTORIES = {
@@ -67,6 +68,7 @@ DOCUMENT_NAME_I18N = {
     "数据库与初始化数据设计.md": {"en-US": "Database and Seed Data Design.md", "zh-TW": "資料庫與初始化資料設計.md", "ja-JP": "データベースと初期データ設計.md"},
     "服务接入指南.md": {"en-US": "Service Integration Guide.md", "zh-TW": "服務接入指南.md", "ja-JP": "サービス統合ガイド.md"},
     "登录与密码加密流程.md": {"en-US": "Login and Password Encryption Flow.md", "zh-TW": "登入與密碼加密流程.md", "ja-JP": "ログインとパスワード暗号化フロー.md"},
+    "站内信设计.md": {"en-US": "Internal Message Design.md", "zh-TW": "站內信設計.md", "ja-JP": "站内信設計.md"},
     "系统总体设计.md": {"en-US": "System Architecture.md", "zh-TW": "系統總體設計.md", "ja-JP": "システム全体設計.md"},
     "后端服务设计.md": {"en-US": "Backend Service Design.md", "zh-TW": "後端服務設計.md", "ja-JP": "バックエンドサービス設計.md"},
     "商城业务范围.md": {"en-US": "Shop Business Scope.md", "zh-TW": "商城業務範圍.md", "ja-JP": "ショップ業務範囲.md"},
@@ -291,6 +293,14 @@ def i18n_request_delay() -> float:
         return DEFAULT_I18N_REQUEST_DELAY
 
 
+def i18n_request_timeout() -> float:
+    """读取单次翻译请求的超时时间。"""
+    try:
+        return max(1.0, float(os.environ.get("I18N_REQUEST_TIMEOUT", DEFAULT_I18N_REQUEST_TIMEOUT)))
+    except ValueError:
+        return DEFAULT_I18N_REQUEST_TIMEOUT
+
+
 def wait_for_i18n_request() -> None:
     """限制连续请求频率，降低公共翻译接口触发限流的概率。"""
     global LAST_I18N_REQUEST_AT
@@ -327,7 +337,7 @@ def request_google_i18n(value: str, source: str, target: str) -> str:
                     f"{endpoint}{'&' if '?' in endpoint else '?'}{query}",
                     headers={"User-Agent": "kratos-admin-i18n/1.0", "Connection": "close"},
                 )
-                with urllib.request.urlopen(request, timeout=20) as response:
+                with urllib.request.urlopen(request, timeout=i18n_request_timeout()) as response:
                     payload = json.loads(response.read().decode("utf-8"))
                 return "".join(item[0] for item in payload[0] if item and item[0])
             except urllib.error.HTTPError as error:
@@ -359,7 +369,7 @@ def request_mymemory_i18n(value: str, source: str, target: str) -> str:
                 f"{endpoint}{'&' if '?' in endpoint else '?'}{query}",
                 headers={"User-Agent": "kratos-admin-i18n/1.0", "Connection": "close"},
             )
-            with urllib.request.urlopen(request, timeout=20) as response:
+            with urllib.request.urlopen(request, timeout=i18n_request_timeout()) as response:
                 payload = json.loads(response.read().decode("utf-8"))
             status = payload.get("responseStatus")
             translated = payload.get("responseData", {}).get("translatedText")
@@ -723,9 +733,14 @@ def i18n_catalog(
             candidate, succeeded = i18n_markdown_with_status(
                 source_content, source_locale, target_locale, offline, batch_chars
             )
-            if succeeded:
+            if candidate and (succeeded or candidate != source_content):
                 translated_content = candidate
-                changed += 1
+                if succeeded:
+                    changed += 1
+            elif existing_document is not None:
+                previous_content = existing_document.get("content")
+                if isinstance(previous_content, str) and previous_content:
+                    translated_content = previous_content
         output_document["content"] = localize_content_literals(
             translated_content or source_content, target_locale
         )

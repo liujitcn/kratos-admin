@@ -2,21 +2,31 @@ package biz
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"math/rand/v2"
+	"net"
+	"os"
+	"strconv"
+	"strings"
+	"sync"
 	"time"
 
+	"github.com/go-kratos/kratos/v3/transport"
+	httpTransport "github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
+	passwordPolicy "github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	"github.com/liujitcn/kratos-core/const"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	_const "github.com/liujitcn/kratos-core/const"
 
 	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/go-utils/id"
@@ -25,6 +35,7 @@ import (
 	authData "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/captcha"
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
@@ -35,6 +46,9 @@ const refreshTokenAuthKeyPrefix = "refresh_token_auth"
 const loginCaptchaTokenExpire = 2 * time.Minute
 const loginCaptchaRandomType = "random"
 const loginCaptchaTypeDictCode = "captcha_type"
+const loginFailureKeyPrefix = "login_failure_v2"
+const loginFailureMaxAttempts = 5
+const loginFailureWindow = 15 * time.Minute
 
 var supportedCaptchaDriverTypes = [...]captcha.DriverType{
 	captcha.DriverDigit,
@@ -55,7 +69,9 @@ type LoginCase struct {
 	baseTenantRepo   *data.BaseTenantRepository
 	baseDictRepo     *data.BaseDictRepository
 	baseDictItemRepo *data.BaseDictItemRepository
+	mfaCase          *MfaCase
 	userToken        *authData.UserToken
+	loginPolicyMu    sync.Mutex
 }
 
 // NewLoginCase 创建登录业务实例。
@@ -67,6 +83,7 @@ func NewLoginCase(
 	baseTenantRepo *data.BaseTenantRepository,
 	baseDictRepo *data.BaseDictRepository,
 	baseDictItemRepo *data.BaseDictItemRepository,
+	mfaCase *MfaCase,
 	userToken *authData.UserToken,
 ) *LoginCase {
 	return &LoginCase{
@@ -77,6 +94,7 @@ func NewLoginCase(
 		baseTenantRepo:   baseTenantRepo,
 		baseDictRepo:     baseDictRepo,
 		baseDictItemRepo: baseDictItemRepo,
+		mfaCase:          mfaCase,
 		userToken:        userToken,
 	}
 }
@@ -181,21 +199,39 @@ func (c *LoginCase) RefreshToken(ctx context.Context, req *basev1.RefreshTokenRe
 		}
 		return nil, errorsx.Internal("刷新认证令牌失败").WithCause(err)
 	}
+	if c.mfaCase != nil {
+		var mfaPolicy string
+		mfaPolicy, err = c.mfaCase.policy(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if mfaPolicy == mfaPolicyAllRequired {
+			return nil, errorsx.Unauthenticated("多因素认证策略要求重新登录")
+		}
+	}
 	authInfo, err = c.buildAuthInfo(ctx, user)
 	if err != nil {
 		return nil, err
 	}
 
-	// 生成新的访问令牌
+	// 每次刷新同时轮换 Refresh Token，旧令牌立即失效，避免被重放。
 	var accessToken string
 	accessToken, err = c.userToken.GenerateAccessToken(authInfo)
 	if err != nil {
 		return nil, errorsx.Internal("刷新认证令牌失败").WithCause(err)
 	}
+	var nextRefreshToken string
+	nextRefreshToken, err = c.userToken.GenerateRefreshToken(authInfo)
+	if err != nil {
+		return nil, errorsx.Internal("刷新认证令牌失败").WithCause(err)
+	}
+	if err = c.setRefreshTokenAuth(nextRefreshToken, authInfo, c.userToken.GetRefreshTokenExpires()); err != nil {
+		return nil, errorsx.Internal("刷新认证令牌失败").WithCause(err)
+	}
 	return &basev1.RefreshTokenResponse{
 		TokenType:    engine.BearerWord,
 		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
+		RefreshToken: nextRefreshToken,
 		ExpiresIn:    c.userToken.GetAccessTokenExpires(),
 	}, nil
 }
@@ -211,9 +247,23 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 	if tenantCode == "" {
 		tenantCode = databaseGorm.DefaultTenantCode
 	}
+	if err = c.checkLoginPolicy(ctx, tenantCode, req.GetUserName()); err != nil {
+		return nil, err
+	}
+	var loginSourcePolicy loginpolicy.Policy
+	loginSourcePolicy, err = loginpolicy.LoadFromCacheStrict(c.Cache)
+	if err != nil {
+		return nil, errorsx.Internal("读取登录来源策略失败").WithCause(err)
+	}
+	if blocked, reason := loginSourcePolicy.EvaluateFor(tenantCode, req.GetUserName(), loginClientIP(ctx), loginDevice(ctx), time.Now()); blocked {
+		return nil, errorsx.PermissionDenied(reason)
+	}
 	var baseTenant *models.BaseTenant
 	baseTenant, err = c.findTenantByCode(ctx, tenantCode)
 	if err != nil {
+		if err = c.recordLoginFailure(ctx, tenantCode, req.GetUserName()); err != nil {
+			return nil, errorsx.Internal("记录登录失败状态失败").WithCause(err)
+		}
 		return nil, errorsx.Unauthenticated("用户名或密码错误")
 	}
 	if baseTenant.Status != _const.STATUS_STATUS_ENABLE {
@@ -227,19 +277,90 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 	userOpts = append(userOpts, repository.Where(userQuery.UserName.Eq(req.GetUserName())))
 	user, err = c.baseUserCase.Find(ctx, userOpts...)
 	if err != nil {
+		if err = c.recordLoginFailure(ctx, tenantCode, req.GetUserName()); err != nil {
+			return nil, errorsx.Internal("记录登录失败状态失败").WithCause(err)
+		}
 		return nil, errorsx.Unauthenticated("用户名或密码错误")
 	}
 	var password string
 	password, err = utils.DecryptPassword(c.Cache, req.GetPassword(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_LOGIN)
 	if err != nil {
-		return nil, errorsx.Unauthenticated("用户名或密码错误").WithCause(err)
+		decryptErr := err
+		if err = c.recordLoginFailure(ctx, tenantCode, req.GetUserName()); err != nil {
+			return nil, errorsx.Internal("记录登录失败状态失败").WithCause(err)
+		}
+		return nil, errorsx.Unauthenticated("用户名或密码错误").WithCause(decryptErr)
 	}
 	err = crypto.Verify(password, user.Password)
 	if err != nil {
+		if err = c.recordLoginFailure(ctx, tenantCode, req.GetUserName()); err != nil {
+			return nil, errorsx.Internal("记录登录失败状态失败").WithCause(err)
+		}
 		return nil, errorsx.Unauthenticated("用户名或密码错误")
 	}
+	if err = c.clearLoginFailures(ctx, tenantCode, req.GetUserName()); err != nil {
+		return nil, errorsx.Internal("清理登录失败状态失败").WithCause(err)
+	}
+	var response *basev1.LoginResponse
+	response, err = c.IssueUserLogin(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
+}
 
+// ValidateExternalLogin 将来源策略和密码有效期应用到 OAuth 等非密码登录入口。
+func (c *LoginCase) ValidateExternalLogin(ctx context.Context, user *models.BaseUser) error {
+	loginSourcePolicy, err := loginpolicy.LoadFromCacheStrict(c.Cache)
+	if err != nil {
+		return errorsx.Internal("读取登录来源策略失败").WithCause(err)
+	}
+	tenantCode := ""
+	if user.TenantID > 0 {
+		var tenant *models.BaseTenant
+		tenant, err = c.baseTenantRepo.FindByID(ctx, user.TenantID)
+		if err != nil {
+			return errorsx.Internal("读取登录租户失败").WithCause(err)
+		}
+		tenantCode = tenant.Code
+	}
+	if blocked, reason := loginSourcePolicy.EvaluateFor(tenantCode, user.UserName, loginClientIP(ctx), loginDevice(ctx), time.Now()); blocked {
+		return errorsx.PermissionDenied(reason)
+	}
+	return nil
+}
+
+// VerifyMfa 校验登录阶段的 TOTP 或恢复码并签发正式令牌。
+func (c *LoginCase) VerifyMfa(ctx context.Context, req *basev1.VerifyMfaRequest) (*basev1.LoginResponse, error) {
+	user, err := c.mfaCase.VerifyLoginChallenge(ctx, req)
+	if err != nil {
+		return nil, err
+	}
 	return c.IssueUserToken(ctx, user)
+}
+
+// BeginMfaEnrollment 开始登录阶段的强制 MFA 绑定。
+func (c *LoginCase) BeginMfaEnrollment(ctx context.Context, req *basev1.BeginMfaEnrollmentRequest) (*basev1.BeginMfaEnrollmentResponse, error) {
+	res, err := c.mfaCase.BeginMfaSetup(ctx, &basev1.BeginMfaSetupRequest{SetupTicket: req.GetSetupTicket()})
+	if err != nil {
+		return nil, err
+	}
+	return &basev1.BeginMfaEnrollmentResponse{
+		SetupTicket:         res.GetSetupTicket(),
+		OtpauthUri:          res.GetOtpauthUri(),
+		ExpiresIn:           res.GetExpiresIn(),
+		Method:              res.GetMethod(),
+		WebauthnOptionsJson: res.GetWebauthnOptionsJson(),
+	}, nil
+}
+
+// ConfirmMfaEnrollment 确认登录阶段的强制 MFA 绑定。
+func (c *LoginCase) ConfirmMfaEnrollment(ctx context.Context, req *basev1.ConfirmMfaEnrollmentRequest) (*basev1.ConfirmMfaEnrollmentResponse, error) {
+	res, err := c.mfaCase.ConfirmMfaSetup(ctx, &basev1.ConfirmMfaSetupRequest{SetupTicket: req.GetSetupTicket(), Code: req.GetCode(), WebauthnResponseJson: req.GetWebauthnResponseJson()})
+	if err != nil {
+		return nil, err
+	}
+	return &basev1.ConfirmMfaEnrollmentResponse{Enabled: res.GetEnabled(), RecoveryCodes: res.GetRecoveryCodes()}, nil
 }
 
 // FindUserByPassword 按租户、用户名和加密密码查找已有用户，不执行验证码校验。
@@ -248,9 +369,15 @@ func (c *LoginCase) FindUserByPassword(ctx context.Context, tenantCode string, u
 	if tenantCode == "" {
 		tenantCode = databaseGorm.DefaultTenantCode
 	}
+	if err = c.checkLoginPolicy(ctx, tenantCode, userName); err != nil {
+		return nil, err
+	}
 	var baseTenant *models.BaseTenant
 	baseTenant, err = c.findTenantByCode(ctx, tenantCode)
 	if err != nil || baseTenant.Status != _const.STATUS_STATUS_ENABLE {
+		if err = c.recordLoginFailure(ctx, tenantCode, userName); err != nil {
+			return nil, errorsx.Internal("记录登录失败状态失败").WithCause(err)
+		}
 		return nil, errorsx.Unauthenticated("用户名或密码错误")
 	}
 
@@ -261,15 +388,28 @@ func (c *LoginCase) FindUserByPassword(ctx context.Context, tenantCode string, u
 	var user *models.BaseUser
 	user, err = c.baseUserCase.Find(ctx, userOpts...)
 	if err != nil {
+		if err = c.recordLoginFailure(ctx, tenantCode, userName); err != nil {
+			return nil, errorsx.Internal("记录登录失败状态失败").WithCause(err)
+		}
 		return nil, errorsx.Unauthenticated("用户名或密码错误")
 	}
 	var password string
 	password, err = utils.DecryptPassword(c.Cache, encryptedPassword, basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_LOGIN)
 	if err != nil {
-		return nil, errorsx.Unauthenticated("用户名或密码错误").WithCause(err)
+		decryptErr := err
+		if err = c.recordLoginFailure(ctx, tenantCode, userName); err != nil {
+			return nil, errorsx.Internal("记录登录失败状态失败").WithCause(err)
+		}
+		return nil, errorsx.Unauthenticated("用户名或密码错误").WithCause(decryptErr)
 	}
 	if err = crypto.Verify(password, user.Password); err != nil {
+		if err = c.recordLoginFailure(ctx, tenantCode, userName); err != nil {
+			return nil, errorsx.Internal("记录登录失败状态失败").WithCause(err)
+		}
 		return nil, errorsx.Unauthenticated("用户名或密码错误")
+	}
+	if err = c.clearLoginFailures(ctx, tenantCode, userName); err != nil {
+		return nil, errorsx.Internal("清理登录失败状态失败").WithCause(err)
 	}
 	return user, nil
 }
@@ -292,12 +432,38 @@ func (c *LoginCase) IssueUserToken(ctx context.Context, user *models.BaseUser) (
 	if err != nil {
 		return nil, errorsx.Internal("登录失败").WithCause(err)
 	}
+	status := basev1.LoginStatus_LOGIN_STATUS_AUTHENTICATED
+	if authInfo.RoleCode != _const.BASE_ROLE_CODE_USER && authInfo.RoleCode != _const.BASE_ROLE_CODE_AUTHUSER &&
+		(user.MustChangePassword != 0 || passwordPolicy.IsExpiredAt(user.PasswordChangedAt, time.Now())) {
+		status = basev1.LoginStatus_LOGIN_STATUS_PASSWORD_CHANGE_REQUIRED
+	}
 	return &basev1.LoginResponse{
 		TokenType:    engine.BearerWord,
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 		ExpiresIn:    c.userToken.GetAccessTokenExpires(),
+		Status:       status,
 	}, nil
+}
+
+// IssueUserLogin 根据 MFA 状态决定返回登录挑战或签发正式令牌。
+func (c *LoginCase) IssueUserLogin(ctx context.Context, user *models.BaseUser) (*basev1.LoginResponse, error) {
+	decision, err := c.mfaCase.PrepareLogin(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+	if decision != nil {
+		return decision, nil
+	}
+	return c.IssueUserToken(ctx, user)
+}
+
+// RefreshTokenExpiresIn 返回刷新令牌有效期，供 HTTP Cookie 生命周期使用。
+func (c *LoginCase) RefreshTokenExpiresIn() int64 {
+	if c == nil || c.userToken == nil {
+		return 0
+	}
+	return c.userToken.GetRefreshTokenExpires()
 }
 
 // buildAuthInfo 查询用户关联状态并构造认证载荷。
@@ -376,7 +542,7 @@ func (c *LoginCase) setRefreshTokenAuth(refreshToken string, authInfo *authData.
 
 // getAuthInfoByRefreshToken 根据刷新令牌读取认证信息。
 func (c *LoginCase) getAuthInfoByRefreshToken(refreshToken string) (*authData.UserTokenPayload, error) {
-	payload, err := c.Cache.Get(refreshTokenAuthKey(refreshToken))
+	payload, err := c.Cache.GetDel(refreshTokenAuthKey(refreshToken))
 	if err != nil {
 		return nil, errorsx.Unauthenticated("刷新认证令牌失败").WithCause(err)
 	}
@@ -391,6 +557,81 @@ func (c *LoginCase) getAuthInfoByRefreshToken(refreshToken string) (*authData.Us
 		return nil, errorsx.Unauthenticated("刷新认证令牌失败")
 	}
 	return authInfo, nil
+}
+
+// checkLoginPolicy 检查账号是否处于登录失败锁定窗口。
+func (c *LoginCase) checkLoginPolicy(ctx context.Context, tenantCode, userName string) error {
+	c.loginPolicyMu.Lock()
+	defer c.loginPolicyMu.Unlock()
+	for _, key := range loginFailureKeys(tenantCode, userName, loginClientIP(ctx)) {
+		_, err := c.Cache.Get(loginFailureLockKeyFromKey(key))
+		if err == nil {
+			return errorsx.PermissionDenied("登录失败次数过多，请稍后再试")
+		}
+		if !isLoginCacheMiss(err) {
+			return errorsx.Internal("读取登录策略状态失败").WithCause(err)
+		}
+	}
+	return nil
+}
+
+// recordLoginFailure 记录账号登录失败次数并在达到阈值后短暂锁定。
+func (c *LoginCase) recordLoginFailure(ctx context.Context, tenantCode, userName string) error {
+	c.loginPolicyMu.Lock()
+	defer c.loginPolicyMu.Unlock()
+	for _, key := range loginFailureKeys(tenantCode, userName, loginClientIP(ctx)) {
+		attempts, err := c.Cache.Incr(key)
+		if err != nil {
+			return err
+		}
+		if attempts == 1 {
+			if err = c.Cache.Expire(key, loginFailureWindowValue()); err != nil {
+				return err
+			}
+		}
+		if attempts >= int64(loginFailureMaxAttemptsValue()) {
+			if err = c.Cache.Set(loginFailureLockKeyFromKey(key), "1", loginFailureWindowValue()); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// loginFailureMaxAttemptsValue 返回部署可调的登录失败阈值。
+func loginFailureMaxAttemptsValue() int {
+	value, err := strconv.Atoi(os.Getenv("LOGIN_FAILURE_MAX_ATTEMPTS"))
+	if err == nil && value > 0 {
+		return value
+	}
+	return loginFailureMaxAttempts
+}
+
+// loginFailureWindowValue 返回部署可调的登录失败窗口。
+func loginFailureWindowValue() time.Duration {
+	value, err := strconv.Atoi(os.Getenv("LOGIN_FAILURE_WINDOW_MINUTES"))
+	if err == nil && value > 0 {
+		return time.Duration(value) * time.Minute
+	}
+	return loginFailureWindow
+}
+
+// clearLoginFailures 清除账号成功登录后的失败计数。
+func (c *LoginCase) clearLoginFailures(ctx context.Context, tenantCode, userName string) error {
+	c.loginPolicyMu.Lock()
+	defer c.loginPolicyMu.Unlock()
+	var err error
+	for _, key := range loginFailureKeys(tenantCode, userName, loginClientIP(ctx)) {
+		err = c.Cache.Del(key)
+		if err != nil {
+			return err
+		}
+		err = c.Cache.Del(loginFailureLockKeyFromKey(key))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // verifyLoginCaptcha 校验登录请求携带的验证码或行为验证码令牌。
@@ -468,6 +709,75 @@ func captchaDriverType(captchaType string) (captcha.DriverType, bool) {
 	default:
 		return captcha.DriverDigit, false
 	}
+}
+
+// loginFailureKey 生成带租户隔离的登录失败状态缓存键。
+func loginFailureKey(tenantCode, userName, clientIP string) string {
+	digest := sha256.Sum256([]byte(tenantCode + "\x00" + userName + "\x00" + clientIP))
+	return fmt.Sprintf("%s:%x", loginFailureKeyPrefix, digest[:])
+}
+
+// loginFailureAccountKey 生成不受来源地址影响的账号级失败状态键。
+func loginFailureAccountKey(tenantCode, userName string) string {
+	digest := sha256.Sum256([]byte(tenantCode + "\x00" + userName))
+	return fmt.Sprintf("%s:account:%x", loginFailureKeyPrefix, digest[:])
+}
+
+// loginFailureKeys 返回账号级和来源级登录失败状态键。
+func loginFailureKeys(tenantCode, userName, clientIP string) []string {
+	return []string{loginFailureAccountKey(tenantCode, userName), loginFailureKey(tenantCode, userName, clientIP)}
+}
+
+// loginFailureLockKey 生成登录失败锁定状态缓存键。
+func loginFailureLockKey(tenantCode, userName, clientIP string) string {
+	return loginFailureLockKeyFromKey(loginFailureKey(tenantCode, userName, clientIP))
+}
+
+// loginFailureLockKeyFromKey 生成指定失败状态的锁定键。
+func loginFailureLockKeyFromKey(key string) string {
+	return key + ":lock"
+}
+
+// isLoginCacheMiss 判断登录锁定键不存在，而不是缓存服务不可用。
+func isLoginCacheMiss(err error) bool {
+	if err == nil || errors.Is(err, redis.Nil) {
+		return err != nil
+	}
+	message := strings.ToLower(err.Error())
+	return strings.Contains(message, "key not found") || strings.Contains(message, "key expired") || strings.Contains(message, "not found")
+}
+
+// loginClientIP 从服务端请求上下文读取对端地址，不信任可伪造的转发请求头。
+func loginClientIP(ctx context.Context) string {
+	transportValue, ok := transport.FromServerContext(ctx)
+	if !ok {
+		return ""
+	}
+	httpValue, ok := transportValue.(*httpTransport.Transport)
+	if !ok || httpValue.Request() == nil {
+		return ""
+	}
+	clientIP, _, err := net.SplitHostPort(httpValue.Request().RemoteAddr)
+	if err != nil {
+		return httpValue.Request().RemoteAddr
+	}
+	return clientIP
+}
+
+// loginDevice 从请求头提取设备标识，优先使用客户端显式设备标识并回退到 User-Agent。
+func loginDevice(ctx context.Context) string {
+	transportValue, ok := transport.FromServerContext(ctx)
+	if !ok {
+		return ""
+	}
+	httpValue, ok := transportValue.(*httpTransport.Transport)
+	if !ok || httpValue.Request() == nil {
+		return ""
+	}
+	if deviceID := httpValue.RequestHeader().Get("X-Device-ID"); deviceID != "" {
+		return deviceID
+	}
+	return httpValue.RequestHeader().Get("User-Agent")
 }
 
 // resolveCaptchaDriverType 解析验证码请求类型，随机类型从启用字典项中选择。

@@ -689,6 +689,9 @@
   "base.login.captcha.verify_failed": {
     "other": "Verification code validation failed"
   },
+  "base.mfa.confirm_enrollment.code.invalid": {
+    "other": "Invalid one-time password"
+  },
   "base.ai.message.not_found": {
     "other": "Message not found"
   },
@@ -748,9 +751,6 @@
   },
   "openapi.admin.service.base_language": {
     "other": "Admin language management service"
-  },
-  "openapi.admin.service.base_log": {
-    "other": "Admin log service"
   },
   "openapi.admin.service.base_menu_admin": {
     "other": "Admin menu management service"
@@ -856,6 +856,9 @@
   },
   "system.admin.ops_monitoring.database": {
     "other": "Database"
+  },
+  "system.admin.ops_monitoring.dispatch_unconfigured": {
+    "other": "Message dispatch repository is not configured"
   },
   "system.admin.ops_monitoring.address_count": {
     "other": "Address count"

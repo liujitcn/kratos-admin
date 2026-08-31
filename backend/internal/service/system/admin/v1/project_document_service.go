@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
 	coreDocs "github.com/liujitcn/kratos-core/resource/docs"

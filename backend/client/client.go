@@ -5,21 +5,21 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v3/registry"
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
-	coreclient "github.com/liujitcn/kratos-core/client"
-	"github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	appv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
+	"github.com/liujitcn/kratos-core/client"
+	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 )
 
 // Connection 是 Core 客户端提供的统一 gRPC 连接。
-type Connection = coreclient.Connection
+type Connection = client.Connection
 
 // Option 是 Core 客户端连接的可选配置。
-type Option = coreclient.Option
+type Option = client.Option
 
 // LocalServiceRegistrar 描述向进程内 gRPC 客户端注册服务的函数。
-type LocalServiceRegistrar = coreclient.LocalServiceRegistrar
+type LocalServiceRegistrar = client.LocalServiceRegistrar
 
 // Client 汇总 Backend 的全部生成 gRPC 客户端。
 type Client struct {
@@ -49,10 +49,14 @@ type BaseClient struct {
 	Language basev1.LanguageServiceClient
 	// Login 是登录服务客户端。
 	Login basev1.LoginServiceClient
+	// Mfa 是登录阶段多因素认证服务客户端。
+	Mfa basev1.MfaServiceClient
 	// Mcp 是 MCP 服务客户端。
 	Mcp basev1.McpServiceClient
 	// Oauth 是 OAuth 服务客户端。
 	Oauth basev1.OauthServiceClient
+	// OauthClient 是开放授权客户端令牌服务客户端。
+	OauthClient basev1.OauthClientServiceClient
 	// Sse 是 SSE 服务客户端。
 	Sse basev1.SseServiceClient
 }
@@ -75,14 +79,16 @@ type SystemAdminClient struct {
 	BaseJob adminv1.BaseJobServiceClient
 	// BaseLanguage 是管理端语言服务客户端。
 	BaseLanguage adminv1.BaseLanguageServiceClient
-	// BaseLog 是管理端日志服务客户端。
-	BaseLog adminv1.BaseLogServiceClient
 	// BaseMenu 是管理端菜单服务客户端。
 	BaseMenu adminv1.BaseMenuServiceClient
 	// BaseMigration 是管理端迁移服务客户端。
 	BaseMigration adminv1.BaseMigrationServiceClient
 	// BasePost 是管理端岗位服务客户端。
 	BasePost adminv1.BasePostServiceClient
+	// BaseSession 是管理端会话服务客户端。
+	BaseSession adminv1.BaseSessionServiceClient
+	// BaseLoginPolicy 是管理端登录策略服务客户端。
+	BaseLoginPolicy adminv1.BaseLoginPolicyServiceClient
 	// BaseRole 是管理端角色服务客户端。
 	BaseRole adminv1.BaseRoleServiceClient
 	// BaseTenant 是管理端租户服务客户端。
@@ -103,6 +109,8 @@ type SystemAdminClient struct {
 	CodeGenTable adminv1.CodeGenTableServiceClient
 	// OpsMonitoring 是运维监控服务客户端。
 	OpsMonitoring adminv1.OpsMonitoringServiceClient
+	// OauthClient 是开放授权客户端管理服务客户端。
+	OauthClient adminv1.OauthClientServiceClient
 	// ProjectDocument 是项目文档服务客户端。
 	ProjectDocument adminv1.ProjectDocumentServiceClient
 }
@@ -121,23 +129,25 @@ type SystemAppClient struct {
 
 // NewClient 根据客户端配置创建 Backend 的全部 gRPC 客户端。
 func NewClient(ctx context.Context, clientConfig *configv1.Client, options ...Option) (*Client, func(), error) {
-	connection, cleanup, err := coreclient.NewConnection(ctx, clientConfig, options...)
+	connection, cleanup, err := client.NewConnection(ctx, clientConfig, options...)
 	if err != nil {
 		return nil, nil, err
 	}
 	return &Client{
 		Connection: connection,
 		Base: BaseClient{
-			AiMessage: basev1.NewAiMessageServiceClient(connection),
-			AiSession: basev1.NewAiSessionServiceClient(connection),
-			AiTool:    basev1.NewAiToolServiceClient(connection),
-			Config:    basev1.NewConfigServiceClient(connection),
-			File:      basev1.NewFileServiceClient(connection),
-			Language:  basev1.NewLanguageServiceClient(connection),
-			Login:     basev1.NewLoginServiceClient(connection),
-			Mcp:       basev1.NewMcpServiceClient(connection),
-			Oauth:     basev1.NewOauthServiceClient(connection),
-			Sse:       basev1.NewSseServiceClient(connection),
+			AiMessage:   basev1.NewAiMessageServiceClient(connection),
+			AiSession:   basev1.NewAiSessionServiceClient(connection),
+			AiTool:      basev1.NewAiToolServiceClient(connection),
+			Config:      basev1.NewConfigServiceClient(connection),
+			File:        basev1.NewFileServiceClient(connection),
+			Language:    basev1.NewLanguageServiceClient(connection),
+			Login:       basev1.NewLoginServiceClient(connection),
+			Mfa:         basev1.NewMfaServiceClient(connection),
+			Mcp:         basev1.NewMcpServiceClient(connection),
+			Oauth:       basev1.NewOauthServiceClient(connection),
+			OauthClient: basev1.NewOauthClientServiceClient(connection),
+			Sse:         basev1.NewSseServiceClient(connection),
 		},
 		SystemAdmin: SystemAdminClient{
 			Auth:             adminv1.NewAuthServiceClient(connection),
@@ -148,10 +158,11 @@ func NewClient(ctx context.Context, clientConfig *configv1.Client, options ...Op
 			BaseDict:         adminv1.NewBaseDictServiceClient(connection),
 			BaseJob:          adminv1.NewBaseJobServiceClient(connection),
 			BaseLanguage:     adminv1.NewBaseLanguageServiceClient(connection),
-			BaseLog:          adminv1.NewBaseLogServiceClient(connection),
 			BaseMenu:         adminv1.NewBaseMenuServiceClient(connection),
 			BaseMigration:    adminv1.NewBaseMigrationServiceClient(connection),
 			BasePost:         adminv1.NewBasePostServiceClient(connection),
+			BaseSession:      adminv1.NewBaseSessionServiceClient(connection),
+			BaseLoginPolicy:  adminv1.NewBaseLoginPolicyServiceClient(connection),
 			BaseRole:         adminv1.NewBaseRoleServiceClient(connection),
 			BaseTenant:       adminv1.NewBaseTenantServiceClient(connection),
 			BaseThirdAccount: adminv1.NewBaseThirdAccountServiceClient(connection),
@@ -162,6 +173,7 @@ func NewClient(ctx context.Context, clientConfig *configv1.Client, options ...Op
 			CodeGenProto:     adminv1.NewCodeGenProtoServiceClient(connection),
 			CodeGenTable:     adminv1.NewCodeGenTableServiceClient(connection),
 			OpsMonitoring:    adminv1.NewOpsMonitoringServiceClient(connection),
+			OauthClient:      adminv1.NewOauthClientServiceClient(connection),
 			ProjectDocument:  adminv1.NewProjectDocumentServiceClient(connection),
 		},
 		SystemApp: SystemAppClient{
@@ -175,15 +187,15 @@ func NewClient(ctx context.Context, clientConfig *configv1.Client, options ...Op
 
 // NewConnection 根据客户端配置创建底层 gRPC 连接。
 func NewConnection(ctx context.Context, clientConfig *configv1.Client, options ...Option) (*Connection, func(), error) {
-	return coreclient.NewConnection(ctx, clientConfig, options...)
+	return client.NewConnection(ctx, clientConfig, options...)
 }
 
 // WithDiscovery 为使用 discovery:/// 地址的连接注入服务发现器。
 func WithDiscovery(discovery registry.Discovery) Option {
-	return coreclient.WithDiscovery(discovery)
+	return client.WithDiscovery(discovery)
 }
 
 // WithLocalServices 配置进程内 gRPC 客户端需要注册的服务。
 func WithLocalServices(registrars ...LocalServiceRegistrar) Option {
-	return coreclient.WithLocalServices(registrars...)
+	return client.WithLocalServices(registrars...)
 }

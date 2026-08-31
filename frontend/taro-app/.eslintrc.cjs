@@ -8,5 +8,12 @@ module.exports = {
   rules: {
     'react/react-in-jsx-scope': 'off',
   },
-  ignorePatterns: ['**/dist/**', '**/src/rpc/**', 'node_modules/**'],
+  ignorePatterns: [
+    '**/dist/**',
+    '**/src/rpc/**',
+    'node_modules/**',
+    'apps/taro-app/src/pages/**',
+    '!apps/taro-app/src/pages/bootstrap/**',
+    'apps/taro-app/src/pagesMember/**',
+  ],
 }

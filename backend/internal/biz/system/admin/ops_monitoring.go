@@ -8,19 +8,22 @@ import (
 	"path/filepath"
 	"runtime"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/shirou/gopsutil/v4/disk"
 	"github.com/shirou/gopsutil/v4/mem"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/resource/i18n"
 
+	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/liujitcn/kratos-kit/utils"
 	"github.com/redis/go-redis/v9"
@@ -35,20 +38,23 @@ const (
 // OpsMonitoringCase 提供当前服务运行状态和访问日志聚合能力。
 type OpsMonitoringCase struct {
 	*biz.BaseCase
-	baseLogRepository *data.BaseLogRepository
-	catalog           *i18n.I18n
+	baseAPILogRepository *data.BaseAPILogRepository
+	dispatchRepository   *data.BaseMessageDispatchRepository
+	catalog              *i18n.I18n
 }
 
 // NewOpsMonitoringCase 创建运维监控业务实例。
 func NewOpsMonitoringCase(
 	baseCase *biz.BaseCase,
-	baseLogRepository *data.BaseLogRepository,
+	baseAPILogRepository *data.BaseAPILogRepository,
+	dispatchRepository *data.BaseMessageDispatchRepository,
 	catalog *i18n.I18n,
 ) *OpsMonitoringCase {
 	return &OpsMonitoringCase{
-		BaseCase:          baseCase,
-		baseLogRepository: baseLogRepository,
-		catalog:           catalog,
+		BaseCase:             baseCase,
+		baseAPILogRepository: baseAPILogRepository,
+		dispatchRepository:   dispatchRepository,
+		catalog:              catalog,
 	}
 }
 
@@ -125,8 +131,13 @@ func (c *OpsMonitoringCase) GetOpsAlerts(ctx context.Context, req *adminv1.GetOp
 
 // loadLogs 查询统计窗口内的访问日志，并限制单次聚合规模。
 func (c *OpsMonitoringCase) loadLogs(ctx context.Context, start time.Time) ([]dto.OpsLogRecord, error) {
-	query := c.baseLogRepository.Query(ctx).BaseLog
-	items, err := query.WithContext(ctx).Where(query.RequestTime.Gte(start)).Order(query.RequestTime.Desc()).Limit(monitoringLogLimit).Find()
+	query := c.baseAPILogRepository.Query(ctx).BaseAPILog
+	opts := []repository.QueryOption{
+		repository.Where(query.OccurredAt.Gte(start)),
+		repository.Order(query.OccurredAt.Desc()),
+		repository.Limit(monitoringLogLimit),
+	}
+	items, err := c.baseAPILogRepository.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -186,7 +197,68 @@ func (c *OpsMonitoringCase) collectDependencies(ctx context.Context) ([]*adminv1
 	if redisStorage != nil {
 		storage = append(storage, redisStorage)
 	}
+	services = append(services, c.dispatchStatus(ctx, locale))
 	return services, storage
+}
+
+// dispatchStatus 汇总站内信投递积压和最老待处理任务。
+func (c *OpsMonitoringCase) dispatchStatus(ctx context.Context, locale string) *adminv1.OpsServiceStatus {
+	service := &adminv1.OpsServiceStatus{
+		Name:    "Message dispatch",
+		Address: "base.message.dispatch",
+		Status:  monitoringText(c.catalog, locale, "unconfigured"),
+	}
+	if c.dispatchRepository == nil {
+		service.Message = monitoringText(c.catalog, locale, "dispatch_unconfigured")
+		return service
+	}
+	query := c.dispatchRepository.Query(ctx).BaseMessageDispatch
+	var pending int64
+	var running int64
+	var failed int64
+	var err error
+	pending, err = c.dispatchRepository.Count(ctx, repository.Where(query.Status.Eq(int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_PENDING))))
+	if err != nil {
+		service.Status = monitoringText(c.catalog, locale, "error")
+		service.Message = err.Error()
+		return service
+	}
+	running, err = c.dispatchRepository.Count(ctx, repository.Where(query.Status.Eq(int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_RUNNING))))
+	if err != nil {
+		service.Status = monitoringText(c.catalog, locale, "error")
+		service.Message = err.Error()
+		return service
+	}
+	failed, err = c.dispatchRepository.Count(ctx, repository.Where(query.Status.Eq(int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_FAILED))))
+	if err != nil {
+		service.Status = monitoringText(c.catalog, locale, "error")
+		service.Message = err.Error()
+		return service
+	}
+	service.Status = monitoringText(c.catalog, locale, "normal")
+	service.Message = fmt.Sprintf("pending=%d running=%d failed=%d", pending, running, failed)
+	if failed > 0 {
+		service.Status = monitoringText(c.catalog, locale, "attention")
+	}
+	var oldest []*models.BaseMessageDispatch
+	oldest, err = c.dispatchRepository.List(ctx,
+		repository.Where(query.Status.Eq(int32(basev1.MessageDispatchStatus_MESSAGE_DISPATCH_STATUS_PENDING))),
+		repository.Order(query.QueuedAt.Asc()),
+		repository.Limit(1),
+	)
+	if err != nil {
+		service.Status = monitoringText(c.catalog, locale, "error")
+		service.Message = err.Error()
+		return service
+	}
+	if len(oldest) > 0 && oldest[0].QueuedAt > 0 {
+		age := time.Since(time.UnixMilli(oldest[0].QueuedAt))
+		if age >= 5*time.Minute {
+			service.Status = monitoringText(c.catalog, locale, "attention")
+		}
+		service.Message += fmt.Sprintf(" oldest_pending=%s", age.Round(time.Second))
+	}
+	return service
 }
 
 // databaseStatus 检查数据库连接并读取连接池统计。
@@ -270,6 +342,21 @@ func (c *OpsMonitoringCase) redisStatus(ctx context.Context) (*adminv1.OpsServic
 	client := redis.NewUniversalClient(options)
 	startedAt := time.Now()
 	pingErr := client.Ping(ctx).Err()
+	if pingErr == nil {
+		if keys, sizeErr := client.DBSize(ctx).Result(); sizeErr == nil {
+			storage.Metrics = append(storage.Metrics, &adminv1.OpsMetric{Label: "keys", Value: strconv.FormatInt(keys, 10)})
+		}
+		if info, infoErr := client.Info(ctx, "memory", "clients", "stats").Result(); infoErr == nil {
+			for _, metric := range []string{"used_memory", "connected_clients", "instantaneous_ops_per_sec"} {
+				if value := redisInfoValue(info, metric); value != "" {
+					storage.Metrics = append(storage.Metrics, &adminv1.OpsMetric{Label: metric, Value: value})
+				}
+			}
+		}
+		if slowLogLength, slowErr := client.SlowLogLen(ctx).Result(); slowErr == nil {
+			storage.Metrics = append(storage.Metrics, &adminv1.OpsMetric{Label: "slowlog", Value: strconv.FormatInt(slowLogLength, 10)})
+		}
+	}
 	closeErr := client.Close()
 	service.LatencyMs = time.Since(startedAt).Milliseconds()
 	if pingErr == nil && closeErr == nil {
@@ -285,6 +372,18 @@ func (c *OpsMonitoringCase) redisStatus(ctx context.Context) (*adminv1.OpsServic
 		service.Message = closeErr.Error()
 	}
 	return service, storage
+}
+
+// redisInfoValue 从 Redis INFO 文本中读取单个指标值。
+func redisInfoValue(info, key string) string {
+	prefix := key + ":"
+	for _, line := range strings.Split(info, "\n") {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, prefix) {
+			return strings.TrimSpace(strings.TrimPrefix(line, prefix))
+		}
+	}
+	return ""
 }
 
 // summarizeTraffic 聚合窗口内的请求摘要。
@@ -470,8 +569,14 @@ func summarizeAlerts(logs []dto.OpsLogRecord, catalog *i18n.I18n, locale string)
 }
 
 // toOpsLogRecord 将访问日志模型转换为监控聚合记录。
-func toOpsLogRecord(item *models.BaseLog) dto.OpsLogRecord {
-	return dto.OpsLogRecord{Path: item.Path, RequestTime: item.RequestTime, CostTime: item.CostTime, IsSuccess: item.IsSuccess, StatusCode: item.StatusCode}
+func toOpsLogRecord(item *models.BaseAPILog) dto.OpsLogRecord {
+	return dto.OpsLogRecord{
+		Path:        item.Path,
+		RequestTime: item.OccurredAt,
+		CostTime:    int64(item.LatencyMs),
+		IsSuccess:   item.Result == 1,
+		StatusCode:  item.StatusCode,
+	}
 }
 
 // percentile 计算有序样本的近似百分位数。

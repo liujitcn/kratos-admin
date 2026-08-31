@@ -6,14 +6,14 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/resource/i18n"
 	"github.com/liujitcn/kratos-core/resource/openapi"
 	"github.com/liujitcn/kratos-core/resource/openapi/dto"
-	"github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repository"

@@ -10,6 +10,7 @@
       </template>
     </suspense>
     <ThemeDrawer />
+    <LockScreen />
   </el-watermark>
 </template>
 
@@ -20,6 +21,7 @@ import { useGlobalStore } from "@/stores/modules/global";
 import { useConfigStore } from "@/stores/modules/config";
 import Loading from "@/components/Loading/index.vue";
 import ThemeDrawer from "./components/ThemeDrawer/index.vue";
+import LockScreen from "./components/LockScreen.vue";
 
 const LayoutComponents: Record<LayoutType, Component> = {
   vertical: defineAsyncComponent(() => import("./LayoutVertical/index.vue")),

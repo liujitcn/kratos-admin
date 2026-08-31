@@ -10,14 +10,17 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
 	biz2 "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/oauthsecret"
 	biz3 "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	sse2 "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/sse"
 	biz4 "github.com/liujitcn/kratos-admin/backend/internal/biz/system/app"
 	"github.com/liujitcn/kratos-admin/backend/internal/config"
+	data3 "github.com/liujitcn/kratos-admin/backend/internal/data"
 	data2 "github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	base2 "github.com/liujitcn/kratos-admin/backend/internal/server/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/auditlog"
 	admin2 "github.com/liujitcn/kratos-admin/backend/internal/server/system/admin/v1"
 	app2 "github.com/liujitcn/kratos-admin/backend/internal/server/system/app/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/service/base/v1"
@@ -34,6 +37,7 @@ import (
 	"github.com/liujitcn/kratos-core/resource/openapi"
 	"github.com/liujitcn/kratos-core/sse"
 	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	engine2 "github.com/liujitcn/kratos-kit/auth/authn/engine"
 	"github.com/liujitcn/kratos-kit/auth/authz/engine"
 	"github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/database/gorm"
@@ -42,7 +46,7 @@ import (
 // Injectors from wire.go:
 
 // BuildModules 通过 Admin 内部依赖装配协议服务。
-func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client, baseCase *biz.BaseCase, authorizer engine.Engine, userToken *data.UserToken, jobRuntime *job.Job, sseRuntime *sse.SSE, docsRuntime *docs.Docs, catalog *i18n.I18n, openAPIRuntime *openapi.OpenAPI) (module.Modules, func(), error) {
+func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client, baseCase *biz.BaseCase, authorizer engine.Engine, authenticator engine2.Authenticator, userToken *data.UserToken, jobRuntime *job.Job, sseRuntime *sse.SSE, docsRuntime *docs.Docs, catalog *i18n.I18n, openAPIRuntime *openapi.OpenAPI) (module.Modules, func(), error) {
 	dataData, err := data2.NewData(databases)
 	if err != nil {
 		return nil, nil, err
@@ -59,7 +63,7 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 	}
 	responsesClient := model.NewResponsesClient(ai_Model)
 	baseAPIRepository := data2.NewBaseAPIRepository(dataData)
-	mcpCase, err := biz2.NewMcpCase(baseCase, baseAPIRepository)
+	mcpCase, err := biz2.NewMcpCase(baseCase, baseAPIRepository, authorizer)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -83,12 +87,29 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 	baseI18nCase := biz3.NewBaseI18nCase(baseCase, transaction, baseI18NRepository, baseLanguageCase)
 	baseMenuCase := biz3.NewBaseMenuCase(baseCase, transaction, baseMenuRepository, baseRoleRepository, casbinRuleCase, baseI18nCase)
 	bizBaseRoleCase := biz2.NewBaseRoleCase(baseCase, baseRoleRepository, baseTenantRepository)
-	bizBaseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseDeptRepository, basePostRepository, baseRoleCase, baseDeptCase, baseMenuCase, bizBaseRoleCase)
-	baseTenantCase := biz3.NewBaseTenantCase(baseCase, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, casbinRuleRepository, casbinRuleCase)
-	fileCase := biz2.NewFileCase(baseCase)
+	bizBaseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseDeptRepository, basePostRepository, baseRoleCase, baseDeptCase, baseMenuCase, bizBaseRoleCase, userToken)
+	baseMessageRepository := data2.NewBaseMessageRepository(dataData)
+	baseMessageDispatchRepository := data2.NewBaseMessageDispatchRepository(dataData)
+	baseMessageDeliveryRepository := data2.NewBaseMessageDeliveryRepository(dataData)
+	oauthClientRepository := data2.NewOauthClientRepository(dataData)
+	baseFileRepository := data2.NewBaseFileRepository(dataData)
+	baseThirdAccountRepository := data2.NewBaseThirdAccountRepository(dataData)
+	baseUserMFARepository := data2.NewBaseUserMFARepository(dataData)
+	baseUserMFATotpRepository := data2.NewBaseUserMFATotpRepository(dataData)
+	baseUserMFARecoveryRepository := data2.NewBaseUserMFARecoveryRepository(dataData)
+	baseUserMFAWebauthnRepository := data2.NewBaseUserMFAWebauthnRepository(dataData)
+	baseTenantCase := biz3.NewBaseTenantCase(baseCase, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, baseMessageRepository, baseMessageDispatchRepository, baseMessageDeliveryRepository, oauthClientRepository, baseFileRepository, baseThirdAccountRepository, baseUserMFARepository, baseUserMFATotpRepository, baseUserMFARecoveryRepository, baseUserMFAWebauthnRepository, userToken, casbinRuleRepository, casbinRuleCase)
+	fileCase := biz2.NewFileCase(baseCase, baseFileRepository)
 	authCase := biz3.NewAuthCase(baseCase, bizBaseUserCase, baseRoleCase, baseDeptCase, baseTenantCase, baseMenuCase, fileCase)
 	authService := admin.NewAuthService(authCase)
 	baseApiService := admin.NewBaseApiService(baseAPICase)
+	protector, err := oauthsecret.NewProtector(config2)
+	if err != nil {
+		return nil, nil, err
+	}
+	oauthClientCase := biz3.NewOauthClientCase(baseCase, transaction, oauthClientRepository, baseAPICase, baseTenantRepository, casbinRuleCase, userToken, protector)
+	oauthClientService := admin.NewOauthClientService(oauthClientCase, authenticator)
+	middleware := auditlog.NewMiddleware()
 	baseAreaRepository := data2.NewBaseAreaRepository(dataData)
 	baseAreaCase := biz3.NewBaseAreaCase(baseCase, baseAreaRepository)
 	baseAreaService := admin.NewBaseAreaService(baseAreaCase)
@@ -107,15 +128,34 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 	baseJobCase := biz3.NewBaseJobCase(baseCase, jobRuntime, baseJobRepository, baseJobLogCase, baseI18nCase)
 	baseJobService := admin.NewBaseJobService(baseJobCase, baseJobLogCase)
 	baseLanguageService := admin.NewBaseLanguageService(baseLanguageCase)
-	baseLogRepository := data2.NewBaseLogRepository(dataData)
-	baseLogCase := biz3.NewBaseLogCase(baseCase, baseLogRepository)
-	baseLogService := admin.NewBaseLogService(baseLogCase)
+	baseLoginLogRepository := data2.NewBaseLoginLogRepository(dataData)
+	baseAPILogRepository := data2.NewBaseAPILogRepository(dataData)
+	baseOperationLogRepository := data2.NewBaseOperationLogRepository(dataData)
+	baseDataAccessLogRepository := data2.NewBaseDataAccessLogRepository(dataData)
+	basePermissionLogRepository := data2.NewBasePermissionLogRepository(dataData)
+	basePolicyEvaluationLogRepository := data2.NewBasePolicyEvaluationLogRepository(dataData)
+	baseAuditLogCase := biz3.NewBaseAuditLogCase(baseCase, baseLoginLogRepository, baseAPILogRepository, baseOperationLogRepository, baseDataAccessLogRepository, basePermissionLogRepository, basePolicyEvaluationLogRepository)
+	baseLoginLogService := admin.NewBaseLoginLogService(baseAuditLogCase)
+	baseApiLogService := admin.NewBaseApiLogService(baseAuditLogCase)
+	baseOperationLogService := admin.NewBaseOperationLogService(baseAuditLogCase)
+	baseDataAccessLogService := admin.NewBaseDataAccessLogService(baseAuditLogCase)
+	basePermissionLogService := admin.NewBasePermissionLogService(baseAuditLogCase)
+	basePolicyEvaluationLogService := admin.NewBasePolicyEvaluationLogService(baseAuditLogCase)
+	baseDashboardCase := biz3.NewBaseDashboardCase(baseCase, baseUserRepository, baseRoleRepository, baseLoginLogRepository, baseOperationLogRepository)
+	baseDashboardService := admin.NewBaseDashboardService(baseDashboardCase)
+	baseFileCase := biz3.NewBaseFileCase(baseCase, baseFileRepository)
+	baseFileService := admin.NewBaseFileService(baseFileCase)
 	baseMenuService := admin.NewBaseMenuService(baseMenuCase)
+	messageDeliveryWriter := data3.NewMessageDeliveryWriter(dataData)
+	baseMessageCategoryRepository := data2.NewBaseMessageCategoryRepository(dataData)
+	baseMessageCategoryCase := biz3.NewBaseMessageCategoryCase(baseCase, transaction, baseMessageCategoryRepository, baseMessageRepository)
+	baseMessageCase := biz3.NewBaseMessageCase(baseCase, transaction, baseMessageRepository, baseMessageDispatchRepository, baseMessageDeliveryRepository, messageDeliveryWriter, baseMessageCategoryCase, baseUserRepository, baseRoleRepository, baseDeptRepository, basePostRepository, baseMenuRepository, sseRuntime)
+	baseMessageService := admin.NewBaseMessageService(baseMessageCase)
+	baseMessageCategoryService := admin.NewBaseMessageCategoryService(baseMessageCategoryCase)
 	basePostCase := biz3.NewBasePostCase(baseCase, transaction, basePostRepository, baseUserRepository)
 	basePostService := admin.NewBasePostService(basePostCase)
 	baseRoleService := admin.NewBaseRoleService(baseRoleCase)
 	baseTenantService := admin.NewBaseTenantService(baseTenantCase)
-	baseThirdAccountRepository := data2.NewBaseThirdAccountRepository(dataData)
 	baseThirdAccountCase := biz2.NewBaseThirdAccountCase(baseCase, baseThirdAccountRepository)
 	baseThirdAccountService := admin.NewBaseThirdAccountService(baseThirdAccountCase)
 	baseI18nService := admin.NewBaseI18nService(baseI18nCase)
@@ -135,7 +175,7 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 	codeGenProtoService := admin.NewCodeGenProtoService(codeGenProtoCase)
 	codeGenTableService := admin.NewCodeGenTableService(codeGenTableCase)
 	baseMigrationService := admin.NewBaseMigrationService(baseMigrationCase)
-	opsMonitoringCase := biz3.NewOpsMonitoringCase(baseCase, baseLogRepository, catalog)
+	opsMonitoringCase := biz3.NewOpsMonitoringCase(baseCase, baseAPILogRepository, baseMessageDispatchRepository, catalog)
 	opsMonitoringService := admin.NewOpsMonitoringService(opsMonitoringCase)
 	hub := logstream.DefaultHub()
 	runtimeLogCase, err := biz3.NewRuntimeLogCase(baseCase, hub, sseRuntime)
@@ -144,31 +184,53 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 	}
 	runtimeLogService := admin.NewRuntimeLogService(runtimeLogCase)
 	projectDocumentService := admin.NewProjectDocumentService(docsRuntime, catalog)
+	baseSessionCase := biz3.NewBaseSessionCase(baseCase, userToken)
+	baseSessionService := admin.NewBaseSessionService(baseSessionCase)
+	baseLoginPolicyCase := biz3.NewBaseLoginPolicyCase(baseCase, baseConfigRepository)
+	baseLoginPolicyService := admin.NewBaseLoginPolicyService(baseLoginPolicyCase)
 	services := admin2.Services{
-		Auth:             authService,
-		BaseAPI:          baseApiService,
-		BaseArea:         baseAreaService,
-		BaseConfig:       baseConfigService,
-		BaseDept:         baseDeptService,
-		BaseDict:         baseDictService,
-		BaseJob:          baseJobService,
-		BaseLanguage:     baseLanguageService,
-		BaseLog:          baseLogService,
-		BaseMenu:         baseMenuService,
-		BasePost:         basePostService,
-		BaseRole:         baseRoleService,
-		BaseTenant:       baseTenantService,
-		BaseThirdAccount: baseThirdAccountService,
-		BaseI18n:         baseI18nService,
-		BaseUser:         baseUserService,
-		CodeGen:          codeGenService,
-		CodeGenColumn:    codeGenColumnService,
-		CodeGenProto:     codeGenProtoService,
-		CodeGenTable:     codeGenTableService,
-		BaseMigration:    baseMigrationService,
-		OpsMonitoring:    opsMonitoringService,
-		RuntimeLog:       runtimeLogService,
-		ProjectDocument:  projectDocumentService,
+		Auth:                     authService,
+		BaseAPI:                  baseApiService,
+		OauthClient:              oauthClientService,
+		BaseAPICase:              baseAPICase,
+		BaseUserRepository:       baseUserRepository,
+		OauthClientRepository:    oauthClientRepository,
+		Authenticator:            authenticator,
+		OauthCredentialProtector: protector,
+		AuditLogMiddleware:       middleware,
+		BaseArea:                 baseAreaService,
+		BaseConfig:               baseConfigService,
+		BaseDept:                 baseDeptService,
+		BaseDict:                 baseDictService,
+		BaseJob:                  baseJobService,
+		BaseLanguage:             baseLanguageService,
+		BaseLoginLog:             baseLoginLogService,
+		BaseApiLog:               baseApiLogService,
+		BaseOperationLog:         baseOperationLogService,
+		BaseDataAccessLog:        baseDataAccessLogService,
+		BasePermissionLog:        basePermissionLogService,
+		BasePolicyEvaluationLog:  basePolicyEvaluationLogService,
+		BaseDashboard:            baseDashboardService,
+		BaseFile:                 baseFileService,
+		BaseMenu:                 baseMenuService,
+		BaseMessage:              baseMessageService,
+		BaseMessageCategory:      baseMessageCategoryService,
+		BasePost:                 basePostService,
+		BaseRole:                 baseRoleService,
+		BaseTenant:               baseTenantService,
+		BaseThirdAccount:         baseThirdAccountService,
+		BaseI18n:                 baseI18nService,
+		BaseUser:                 baseUserService,
+		CodeGen:                  codeGenService,
+		CodeGenColumn:            codeGenColumnService,
+		CodeGenProto:             codeGenProtoService,
+		CodeGenTable:             codeGenTableService,
+		BaseMigration:            baseMigrationService,
+		OpsMonitoring:            opsMonitoringService,
+		RuntimeLog:               runtimeLogService,
+		ProjectDocument:          projectDocumentService,
+		BaseSession:              baseSessionService,
+		BaseLoginPolicy:          baseLoginPolicyService,
 	}
 	adminTools, err := ParseAdminAgentTools(services)
 	if err != nil {
@@ -210,50 +272,78 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 	languageService := base.NewLanguageService(languageCase)
 	fileService := base.NewFileService(fileCase)
 	bizBaseDeptCase := biz2.NewBaseDeptCase(baseCase, baseDeptRepository)
-	loginCase := biz2.NewLoginCase(baseCase, bizBaseDeptCase, bizBaseRoleCase, baseUserCase, baseTenantRepository, baseDictRepository, baseDictItemRepository, userToken)
+	mfa := config.ParseMfaConfig(config2)
+	mfaCase := biz2.NewMfaCase(baseCase, transaction, baseUserMFARepository, baseUserMFARecoveryRepository, baseUserMFATotpRepository, baseUserMFAWebauthnRepository, baseUserCase, configCase, userToken, mfa)
+	loginCase := biz2.NewLoginCase(baseCase, bizBaseDeptCase, bizBaseRoleCase, baseUserCase, baseTenantRepository, baseDictRepository, baseDictItemRepository, mfaCase, userToken)
 	loginService := base.NewLoginService(loginCase)
+	mfaService := base.NewMfaService(loginCase, mfaCase)
 	oauthCase := biz2.NewOauthCase(baseCase, transaction, baseThirdAccountCase, baseUserCase, bizBaseRoleCase, bizBaseDeptCase, loginCase, configCase, oauthManager)
 	oauthService := base.NewOauthService(oauthCase)
+	oauthClientTokenCase := biz2.NewOauthClientTokenCase(baseCase, oauthClientRepository, baseTenantRepository, userToken, protector)
+	baseOauthClientService := base.NewOauthClientService(oauthClientTokenCase)
 	mcpService := base.NewMcpService(mcpCase)
+	notificationCase := biz2.NewNotificationCase(baseCase, baseMessageDeliveryRepository, messageDeliveryWriter, baseMessageRepository, baseMessageCategoryRepository, sseRuntime)
+	notificationService := base.NewNotificationService(notificationCase)
 	sseCase := biz2.NewSseCase(baseCase, sseRuntime)
 	sseService := base.NewSseService(sseCase)
 	baseServices := &base2.Services{
-		AiSession: aiSessionService,
-		AiTool:    aiToolService,
-		AiMessage: aiMessageService,
-		Config:    configService,
-		Language:  languageService,
-		File:      fileService,
-		Login:     loginService,
-		Oauth:     oauthService,
-		Mcp:       mcpService,
-		Sse:       sseService,
+		AiSession:    aiSessionService,
+		AiTool:       aiToolService,
+		AiMessage:    aiMessageService,
+		Config:       configService,
+		Language:     languageService,
+		File:         fileService,
+		Login:        loginService,
+		Mfa:          mfaService,
+		Oauth:        oauthService,
+		OauthClient:  baseOauthClientService,
+		Mcp:          mcpService,
+		Notification: notificationService,
+		Sse:          sseService,
 	}
 	adminServices := &admin2.Services{
-		Auth:             authService,
-		BaseAPI:          baseApiService,
-		BaseArea:         baseAreaService,
-		BaseConfig:       baseConfigService,
-		BaseDept:         baseDeptService,
-		BaseDict:         baseDictService,
-		BaseJob:          baseJobService,
-		BaseLanguage:     baseLanguageService,
-		BaseLog:          baseLogService,
-		BaseMenu:         baseMenuService,
-		BasePost:         basePostService,
-		BaseRole:         baseRoleService,
-		BaseTenant:       baseTenantService,
-		BaseThirdAccount: baseThirdAccountService,
-		BaseI18n:         baseI18nService,
-		BaseUser:         baseUserService,
-		CodeGen:          codeGenService,
-		CodeGenColumn:    codeGenColumnService,
-		CodeGenProto:     codeGenProtoService,
-		CodeGenTable:     codeGenTableService,
-		BaseMigration:    baseMigrationService,
-		OpsMonitoring:    opsMonitoringService,
-		RuntimeLog:       runtimeLogService,
-		ProjectDocument:  projectDocumentService,
+		Auth:                     authService,
+		BaseAPI:                  baseApiService,
+		OauthClient:              oauthClientService,
+		BaseAPICase:              baseAPICase,
+		BaseUserRepository:       baseUserRepository,
+		OauthClientRepository:    oauthClientRepository,
+		Authenticator:            authenticator,
+		OauthCredentialProtector: protector,
+		AuditLogMiddleware:       middleware,
+		BaseArea:                 baseAreaService,
+		BaseConfig:               baseConfigService,
+		BaseDept:                 baseDeptService,
+		BaseDict:                 baseDictService,
+		BaseJob:                  baseJobService,
+		BaseLanguage:             baseLanguageService,
+		BaseLoginLog:             baseLoginLogService,
+		BaseApiLog:               baseApiLogService,
+		BaseOperationLog:         baseOperationLogService,
+		BaseDataAccessLog:        baseDataAccessLogService,
+		BasePermissionLog:        basePermissionLogService,
+		BasePolicyEvaluationLog:  basePolicyEvaluationLogService,
+		BaseDashboard:            baseDashboardService,
+		BaseFile:                 baseFileService,
+		BaseMenu:                 baseMenuService,
+		BaseMessage:              baseMessageService,
+		BaseMessageCategory:      baseMessageCategoryService,
+		BasePost:                 basePostService,
+		BaseRole:                 baseRoleService,
+		BaseTenant:               baseTenantService,
+		BaseThirdAccount:         baseThirdAccountService,
+		BaseI18n:                 baseI18nService,
+		BaseUser:                 baseUserService,
+		CodeGen:                  codeGenService,
+		CodeGenColumn:            codeGenColumnService,
+		CodeGenProto:             codeGenProtoService,
+		CodeGenTable:             codeGenTableService,
+		BaseMigration:            baseMigrationService,
+		OpsMonitoring:            opsMonitoringService,
+		RuntimeLog:               runtimeLogService,
+		ProjectDocument:          projectDocumentService,
+		BaseSession:              baseSessionService,
+		BaseLoginPolicy:          baseLoginPolicyService,
 	}
 	services2 := &app2.Services{
 		Auth:     appAuthService,
@@ -261,13 +351,16 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 		BaseDict: appBaseDictService,
 		BaseMenu: appBaseMenuService,
 	}
-	modules := NewModules(baseServices, adminServices, services2)
+	modules, err := NewModules(baseServices, adminServices, services2, baseConfigCase, baseLoginPolicyCase)
+	if err != nil {
+		return nil, nil, err
+	}
 	return modules, func() {
 	}, nil
 }
 
 // BuildTasks 通过最小依赖集合装配 Admin 定时任务。
-func BuildTasks(databases map[string]*gorm.Client, baseCase *biz.BaseCase) (job.Tasks, func(), error) {
+func BuildTasks(databases map[string]*gorm.Client, baseCase *biz.BaseCase, sseRuntime *sse.SSE) (job.Tasks, func(), error) {
 	dataData, err := data2.NewData(databases)
 	if err != nil {
 		return nil, nil, err
@@ -283,7 +376,27 @@ func BuildTasks(databases map[string]*gorm.Client, baseCase *biz.BaseCase) (job.
 	baseConfigRepository := data2.NewBaseConfigRepository(dataData)
 	baseJobRepository := data2.NewBaseJobRepository(dataData)
 	baseI18nTask := admin3.NewBaseI18nTask(baseI18nCase, baseMenuRepository, baseDictRepository, baseDictItemRepository, baseConfigRepository, baseJobRepository)
-	tasks := task.NewTask(baseI18nTask)
+	baseMessageRepository := data2.NewBaseMessageRepository(dataData)
+	baseMessageDispatchRepository := data2.NewBaseMessageDispatchRepository(dataData)
+	baseMessageDeliveryRepository := data2.NewBaseMessageDeliveryRepository(dataData)
+	messageDeliveryWriter := data3.NewMessageDeliveryWriter(dataData)
+	baseMessageCategoryRepository := data2.NewBaseMessageCategoryRepository(dataData)
+	baseMessageCategoryCase := biz3.NewBaseMessageCategoryCase(baseCase, transaction, baseMessageCategoryRepository, baseMessageRepository)
+	baseUserRepository := data2.NewBaseUserRepository(dataData)
+	baseRoleRepository := data2.NewBaseRoleRepository(dataData)
+	baseDeptRepository := data2.NewBaseDeptRepository(dataData)
+	basePostRepository := data2.NewBasePostRepository(dataData)
+	baseMessageCase := biz3.NewBaseMessageCase(baseCase, transaction, baseMessageRepository, baseMessageDispatchRepository, baseMessageDeliveryRepository, messageDeliveryWriter, baseMessageCategoryCase, baseUserRepository, baseRoleRepository, baseDeptRepository, basePostRepository, baseMenuRepository, sseRuntime)
+	messageDispatchTask := admin3.NewMessageDispatchTask(baseMessageCase)
+	baseLoginLogRepository := data2.NewBaseLoginLogRepository(dataData)
+	baseAPILogRepository := data2.NewBaseAPILogRepository(dataData)
+	baseOperationLogRepository := data2.NewBaseOperationLogRepository(dataData)
+	baseDataAccessLogRepository := data2.NewBaseDataAccessLogRepository(dataData)
+	basePermissionLogRepository := data2.NewBasePermissionLogRepository(dataData)
+	basePolicyEvaluationLogRepository := data2.NewBasePolicyEvaluationLogRepository(dataData)
+	auditRetentionTask := admin3.NewAuditRetentionTask(baseLoginLogRepository, baseAPILogRepository, baseOperationLogRepository, baseDataAccessLogRepository, basePermissionLogRepository, basePolicyEvaluationLogRepository)
+	backupTask := admin3.NewBackupTask()
+	tasks := task.NewTask(baseI18nTask, messageDispatchTask, auditRetentionTask, backupTask)
 	return tasks, func() {
 	}, nil
 }
@@ -292,23 +405,48 @@ func BuildTasks(databases map[string]*gorm.Client, baseCase *biz.BaseCase) (job.
 func BuildStreams(databases map[string]*gorm.Client, baseCase *biz.BaseCase, catalog *i18n.I18n) (sse.Streams, func(), error) {
 	manager := codegen.NewManager()
 	sseCodegen := sse2.NewCodegen(manager)
+	notification := sse2.NewNotification()
 	dataData, err := data2.NewData(databases)
 	if err != nil {
 		return nil, nil, err
 	}
-	baseLogRepository := data2.NewBaseLogRepository(dataData)
-	opsMonitoringCase := biz3.NewOpsMonitoringCase(baseCase, baseLogRepository, catalog)
+	baseAPILogRepository := data2.NewBaseAPILogRepository(dataData)
+	baseMessageDispatchRepository := data2.NewBaseMessageDispatchRepository(dataData)
+	opsMonitoringCase := biz3.NewOpsMonitoringCase(baseCase, baseAPILogRepository, baseMessageDispatchRepository, catalog)
 	opsMonitoring := sse2.NewOpsMonitoring(opsMonitoringCase)
 	hub := logstream.DefaultHub()
 	runtimeConsole := sse2.NewRuntimeConsole(hub)
-	streams, cleanup := sse2.NewStreams(sseCodegen, opsMonitoring, runtimeConsole)
+	streams, cleanup := sse2.NewStreams(sseCodegen, notification, opsMonitoring, runtimeConsole)
 	return streams, func() {
 		cleanup()
 	}, nil
 }
 
 // BuildQueueConsumers 装配 Admin 队列消费者集合。
-func BuildQueueConsumers() queue.Consumers {
-	consumers := NewQueueConsumers()
-	return consumers
+func BuildQueueConsumers(databases map[string]*gorm.Client, baseCase *biz.BaseCase, sseRuntime *sse.SSE) (queue.Consumers, func(), error) {
+	dataData, err := data2.NewData(databases)
+	if err != nil {
+		return nil, nil, err
+	}
+	transaction := data2.NewTransaction(dataData)
+	baseMessageRepository := data2.NewBaseMessageRepository(dataData)
+	baseMessageDispatchRepository := data2.NewBaseMessageDispatchRepository(dataData)
+	baseMessageDeliveryRepository := data2.NewBaseMessageDeliveryRepository(dataData)
+	messageDeliveryWriter := data3.NewMessageDeliveryWriter(dataData)
+	baseMessageCategoryRepository := data2.NewBaseMessageCategoryRepository(dataData)
+	baseMessageCategoryCase := biz3.NewBaseMessageCategoryCase(baseCase, transaction, baseMessageCategoryRepository, baseMessageRepository)
+	baseUserRepository := data2.NewBaseUserRepository(dataData)
+	baseRoleRepository := data2.NewBaseRoleRepository(dataData)
+	baseDeptRepository := data2.NewBaseDeptRepository(dataData)
+	basePostRepository := data2.NewBasePostRepository(dataData)
+	baseMenuRepository := data2.NewBaseMenuRepository(dataData)
+	baseMessageCase := biz3.NewBaseMessageCase(baseCase, transaction, baseMessageRepository, baseMessageDispatchRepository, baseMessageDeliveryRepository, messageDeliveryWriter, baseMessageCategoryCase, baseUserRepository, baseRoleRepository, baseDeptRepository, basePostRepository, baseMenuRepository, sseRuntime)
+	baseLoginLogRepository := data2.NewBaseLoginLogRepository(dataData)
+	baseOperationLogRepository := data2.NewBaseOperationLogRepository(dataData)
+	baseDataAccessLogRepository := data2.NewBaseDataAccessLogRepository(dataData)
+	basePermissionLogRepository := data2.NewBasePermissionLogRepository(dataData)
+	consumerFunc := auditlog.NewConsumer(baseLoginLogRepository, baseOperationLogRepository, baseDataAccessLogRepository, basePermissionLogRepository)
+	consumers := NewQueueConsumers(baseMessageCase, consumerFunc)
+	return consumers, func() {
+	}, nil
 }

@@ -2,7 +2,7 @@ package sse
 
 import (
 	"github.com/google/wire"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 )
@@ -13,6 +13,7 @@ var ProviderSet = wire.NewSet(
 	biz.ProviderSet,
 	codegen.ProviderSet,
 	NewCodegen,
+	NewNotification,
 	NewOpsMonitoring,
 	NewRuntimeConsole,
 	NewStreams,

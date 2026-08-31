@@ -7,13 +7,14 @@ import (
 	"math/rand/v2"
 	"time"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	baseBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
+	passwordPolicy "github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
 	coreconst "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
@@ -300,17 +301,40 @@ func (c *AuthCase) UpdateUserPassword(ctx context.Context, req *adminv1.UserPass
 	if err != nil {
 		return errorsx.InvalidArgument("原密码错误")
 	}
+	if err = crypto.Verify(newPwd, baseUser.Password); err == nil {
+		return errorsx.InvalidArgument("新密码不能与当前密码相同")
+	}
+	if err = passwordPolicy.CheckHistoryJSON(baseUser.PasswordHistory, newPwd); err != nil {
+		return errorsx.InvalidArgument("新密码不能重复使用近期历史密码").WithCause(err)
+	}
+	if err = passwordPolicy.ValidateComplexity(newPwd); err != nil {
+		return errorsx.InvalidArgument("密码长度或复杂度不符合安全策略").WithCause(err)
+	}
 
 	var encrypted string
 	encrypted, err = crypto.Encrypt(newPwd)
 	if err != nil {
 		return errorsx.Internal("修改密码失败").WithCause(err)
 	}
-
-	return c.baseUserCase.UpdateByID(ctx, &models.BaseUser{
-		ID:       authInfo.UserId,
-		Password: encrypted,
+	if err = c.baseUserCase.revokeUserToken(authInfo.UserId); err != nil {
+		return err
+	}
+	var history string
+	history, err = passwordPolicy.AppendHistoryJSON(baseUser.PasswordHistory, baseUser.Password)
+	if err != nil {
+		return errorsx.Internal("记录历史密码失败").WithCause(err)
+	}
+	err = c.baseUserCase.UpdateByID(ctx, &models.BaseUser{
+		ID:                 authInfo.UserId,
+		Password:           encrypted,
+		PasswordChangedAt:  time.Now(),
+		PasswordHistory:    history,
+		MustChangePassword: 0,
 	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // UpdateUserPhone 更新用户手机号
@@ -418,8 +442,7 @@ func (c *AuthCase) SendPhoneCode(ctx context.Context, req *adminv1.SendPhoneCode
 		return errorsx.Internal("发送验证码失败").WithCause(err)
 	}
 
-	// 当前先将验证码写入日志，后续接入短信渠道时替换这里。
-	log.Info(fmt.Sprintf("send update phone code userID=%d phone=%s code=%s", authInfo.UserId, req.GetPhone(), code))
+	// 验证码只保存在短期缓存中，不写入运行日志，避免敏感认证信息泄露。
 	return nil
 }
 

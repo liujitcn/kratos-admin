@@ -10,19 +10,19 @@ import (
 	"time"
 
 	"github.com/cloudwego/eino-ext/components/model/agenticopenai"
-	componentsModel "github.com/cloudwego/eino/components/model"
-	"github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	"github.com/cloudwego/eino/components/model"
+	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 )
 
 // AgenticModel 表示当前项目使用的 Eino Agentic 模型接口。
-type AgenticModel = componentsModel.AgenticModel
+type AgenticModel = model.AgenticModel
 
 // Option 表示 Eino 模型调用选项。
-type Option = componentsModel.Option
+type Option = model.Option
 
 // ChatClient 表示评论审核与摘要专用聊天模型客户端。
 type ChatClient struct {
-	componentsModel.AgenticModel
+	model.AgenticModel
 	name string
 }
 
@@ -63,7 +63,7 @@ func NewResponsesClient(modelCfg *configv1.AI_Model) *ResponsesClient {
 
 // ResponsesClient 表示 AI 助手专用 Responses 模型客户端。
 type ResponsesClient struct {
-	componentsModel.AgenticModel
+	model.AgenticModel
 	name string
 }
 
@@ -114,7 +114,7 @@ const (
 )
 
 // newChatModel 根据配置创建 Chat Completions AgenticModel。
-func newChatModel(ctx context.Context, cfg *configv1.AI_Model, mutate func(*agenticopenai.ChatConfig)) (componentsModel.AgenticModel, error) {
+func newChatModel(ctx context.Context, cfg *configv1.AI_Model, mutate func(*agenticopenai.ChatConfig)) (model.AgenticModel, error) {
 	if cfg == nil {
 		return nil, errors.New("ai model config is nil")
 	}
@@ -155,7 +155,7 @@ func newChatModel(ctx context.Context, cfg *configv1.AI_Model, mutate func(*agen
 }
 
 // newResponsesModel 根据配置创建 Responses AgenticModel。
-func newResponsesModel(ctx context.Context, cfg *configv1.AI_Model) (componentsModel.AgenticModel, error) {
+func newResponsesModel(ctx context.Context, cfg *configv1.AI_Model) (model.AgenticModel, error) {
 	if cfg == nil {
 		return nil, errors.New("ai model config is nil")
 	}

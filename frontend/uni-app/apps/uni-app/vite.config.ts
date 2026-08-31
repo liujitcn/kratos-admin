@@ -55,6 +55,10 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
           changeOrigin: true,
           target: devEnv.VITE_APP_API_URL,
         },
+        '/events': {
+          changeOrigin: true,
+          target: devEnv.VITE_APP_API_URL,
+        },
       },
     },
     build: {

@@ -1,6 +1,6 @@
 # frontend/taro-app
 
-`frontend/taro-app` 是独立的 pnpm workspace，以 React 18 和 Taro 4 实现与 `frontend/uni-app` 相同的应用功能和视觉。当前支持 H5 与微信小程序，包含首页、登录、协议、WebView、个人中心、设置、个人资料和 AI 助手，不包含商城、订单、支付或推荐业务。
+`frontend/taro-app` 是独立的 pnpm workspace，以 React 18 和 Taro 4 实现与 `frontend/uni-app` 相同的应用功能和视觉。当前支持 H5 与微信小程序，包含首页、登录（含 TOTP/WebAuthn MFA）、协议、WebView、个人中心、设置、个人资料、AI 助手和站内信收件箱，不包含商城、订单、支付或推荐业务。
 
 ## Workspace
 
@@ -95,7 +95,7 @@ Taro RPC 模板统一位于 `backend/api`：
 ```bash
 pnpm generate:rpc
 # 等价于
-make -C ../../backend ts-taro-app
+make -C .. ts-taro-app
 ```
 
 RPC 是生成产物，不得手工修改。

@@ -22,6 +22,11 @@ const apiBasePath = import.meta.env.VITE_APP_BASE_API || '/api'
 const apiTargetUrl = import.meta.env.VITE_APP_API_URL || ''
 const normalizedApiBasePath = apiBasePath.startsWith('/') ? apiBasePath : `/${apiBasePath}`
 
+let sourceClient = 'uni-h5'
+// #ifdef MP-WEIXIN
+sourceClient = 'uni-weapp'
+// #endif
+
 /**
  * H5 开发环境优先走同源代理，避免浏览器直接请求后端产生跨域。
  * 其它平台继续使用显式配置的后端地址。
@@ -87,10 +92,10 @@ const httpInterceptor = {
     }
     // 2. 请求超时，普通请求默认 10s；流式等长连接可自行传入更长超时。
     options.timeout = options.timeout || 10000
-    // 3. 添加小程序端请求头标识
+    // 3. 添加当前客户端平台标识
     options.header = {
       ...options.header,
-      'source-client': 'miniapp',
+      'source-client': sourceClient,
       ...getLocaleRequestHeaders(),
     }
     // 4. 添加 token 请求头标识
@@ -330,7 +335,7 @@ async function refreshAccessToken() {
       method: 'POST',
       data: { refresh_token: refreshToken },
       header: {
-        'source-client': 'miniapp',
+        'source-client': sourceClient,
         ...getLocaleRequestHeaders(),
       },
       success: resolve,

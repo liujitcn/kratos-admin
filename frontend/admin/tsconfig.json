@@ -13,6 +13,15 @@
       "@liujitcn/kratos-admin-core/auth": ["packages/core/src/auth.ts"],
       "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue": ["packages/core/src/components/Dialog/FormDialog.vue"],
       "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue": ["packages/core/src/components/Dialog/ProDialog.vue"],
+      "@liujitcn/kratos-admin-core/components/Dialog/PasswordVerifyDialog.vue": [
+        "packages/core/src/components/Dialog/PasswordVerifyDialog.vue"
+      ],
+      "@liujitcn/kratos-admin-core/components/Mfa/MfaSetupPanel.vue": [
+        "packages/core/src/components/Mfa/MfaSetupPanel.vue"
+      ],
+      "@liujitcn/kratos-admin-core/components/Mfa/MfaRecoveryCodesDialog.vue": [
+        "packages/core/src/components/Mfa/MfaRecoveryCodesDialog.vue"
+      ],
       "@liujitcn/kratos-admin-core/components/Dict/DictLabel.vue": ["packages/core/src/components/Dict/DictLabel.vue"],
       "@liujitcn/kratos-admin-core/components/MarkdownPreview/index.vue": [
         "packages/core/src/components/MarkdownPreview/index.vue"

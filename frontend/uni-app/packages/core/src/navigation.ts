@@ -60,6 +60,18 @@ const createDefaultMenus = (): AppMenu[] => [
     selectedIcon: 'HOME_SELECTED',
   },
   {
+    id: 9990904,
+    parentId: APP_MENU_ROOT_ID,
+    name: 'AppMessage',
+    path: 'app/message',
+    viewKey: 'MESSAGE_INBOX',
+    title: t('core.navigation.message'),
+    access: 'AUTHENTICATED',
+    inTabBar: true,
+    icon: 'MESSAGE_DEFAULT',
+    selectedIcon: 'MESSAGE_SELECTED',
+  },
+  {
     id: 99909,
     parentId: APP_MENU_ROOT_ID,
     name: 'AppMy',
@@ -107,7 +119,7 @@ const createDefaultMenus = (): AppMenu[] => [
     name: 'AppSettings',
     path: 'app/settings',
     viewKey: 'SETTINGS',
-    title: t('system.settings.title'),
+    title: t('core.settings.title'),
     access: 'AUTHENTICATED',
     inTabBar: false,
   },
@@ -135,6 +147,7 @@ const createDefaultMenus = (): AppMenu[] => [
 
 const menus = ref<AppMenu[]>([])
 const ready = ref(false)
+const appMenuBadges = ref<Record<string, number>>({})
 let tabNavigationTarget: string | undefined
 let adapter: AppNavigationAdapter = {
   list: () => defBaseMenuService.ListBaseMenu(),
@@ -270,6 +283,39 @@ function navigateTabRouteInStack(
       uni.reLaunch({ url, success: release, fail: release, complete: release })
     },
   })
+}
+
+/** 按稳定 viewKey 跳转，并将动作参数作为查询参数传递。 */
+export function navigateAppView(viewKey: string, params: Record<string, string> = {}): void {
+  const menu = menus.value.find((item) => item.viewKey === viewKey)
+  if (!menu) {
+    launchAppStatus('NOT_FOUND')
+    return
+  }
+  const remaining = { ...params }
+  const path = menu.path.replace(/:([A-Za-z0-9_]+)/g, (placeholder, key: string) => {
+    if (!(key in remaining)) return placeholder
+    const value = remaining[key]
+    delete remaining[key]
+    return encodeURIComponent(value)
+  })
+  const query = Object.entries(remaining)
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+    .join('&')
+  navigateAppRoute(`${path}${query ? `?${query}` : ''}`)
+}
+
+/** 设置移动端菜单 badge 数量，供业务模块注册未读状态。 */
+export function setAppMenuBadge(viewKey: string, count: number): void {
+  const next = { ...appMenuBadges.value }
+  if (count > 0) next[viewKey] = Math.min(Math.floor(count), 99)
+  else delete next[viewKey]
+  appMenuBadges.value = next
+}
+
+/** 读取移动端菜单 badge 数量。 */
+export function useAppMenuBadge(viewKey: string) {
+  return computed(() => appMenuBadges.value[viewKey] ?? 0)
 }
 
 /** 获取导航响应式状态。 */

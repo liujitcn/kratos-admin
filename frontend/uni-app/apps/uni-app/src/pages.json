@@ -67,8 +67,14 @@
   "tabBar": {
     "custom": true,
     "list": [
-      { "pagePath": "pages/index/index", "text": "" },
-      { "pagePath": "pages/my/my", "text": "" }
+      {
+        "pagePath": "pages/index/index",
+        "text": ""
+      },
+      {
+        "pagePath": "pages/my/my",
+        "text": ""
+      }
     ]
   },
   "subPackages": [
@@ -92,6 +98,18 @@
         },
         {
           "path": "settings/settings",
+          "style": {
+            "navigationBarTitleText": ""
+          }
+        },
+        {
+          "path": "message/detail",
+          "style": {
+            "navigationBarTitleText": ""
+          }
+        },
+        {
+          "path": "message/index",
           "style": {
             "navigationBarTitleText": ""
           }

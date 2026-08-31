@@ -1,0 +1,224 @@
+syntax = "proto3";
+
+package base.v1;
+
+import "base/v1/login.proto";
+import "common/v1/types.proto";
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// Base 多因素认证公共服务。
+service MfaService {
+  // 校验多因素认证
+  rpc VerifyMfa(VerifyMfaRequest) returns (LoginResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/mfa/verify"
+      body: "*"
+    };
+  }
+
+  // 开始登录强制绑定配置的 MFA 方式
+  rpc BeginMfaEnrollment(BeginMfaEnrollmentRequest) returns (BeginMfaEnrollmentResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/mfa/enrollment"
+      body: "*"
+    };
+  }
+
+  // 确认登录强制绑定配置的 MFA 方式
+  rpc ConfirmMfaEnrollment(ConfirmMfaEnrollmentRequest) returns (ConfirmMfaEnrollmentResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/mfa/enrollment/confirm"
+      body: "*"
+    };
+  }
+
+  // 查询当前用户多因素认证状态。
+  rpc GetMfaStatus(GetMfaStatusRequest) returns (MfaStatusResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/base/mfa"
+    };
+  }
+
+  // 开始绑定当前用户的多因素认证方式。
+  rpc BeginMfaSetup(BeginMfaSetupRequest) returns (BeginMfaSetupResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/mfa/setup"
+      body: "*"
+    };
+  }
+
+  // 确认绑定当前用户的多因素认证方式。
+  rpc ConfirmMfaSetup(ConfirmMfaSetupRequest) returns (ConfirmMfaSetupResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/mfa/setup/confirm"
+      body: "*"
+    };
+  }
+
+  // 开始禁用 WebAuthn 多因素认证的 Passkey 验证。
+  rpc BeginMfaDisable(BeginMfaDisableRequest) returns (BeginMfaDisableResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/mfa/disable/challenge"
+      body: "*"
+    };
+  }
+
+  // 禁用当前用户的多因素认证。
+  rpc DisableMfa(DisableMfaRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/base/mfa/disable"
+      body: "*"
+    };
+  }
+
+  // 重新生成当前用户的多因素认证恢复码。
+  rpc RegenerateMfaRecoveryCodes(RegenerateMfaRecoveryCodesRequest) returns (RecoveryCodesResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/mfa/recovery-codes"
+      body: "*"
+    };
+  }
+}
+
+// 多因素认证校验请求。
+message VerifyMfaRequest {
+  string challenge_id = 1 [(gnostic.openapi.v3.property) = {description: "多因素认证挑战ID"}, (buf.validate.field).cel = {id: "base.mfa.verify.challenge_id.required" message: "多因素认证挑战不能为空" expression: "this.size() > 0"}]; // 多因素认证挑战ID
+
+  string code = 2 [(gnostic.openapi.v3.property) = {description: "TOTP动态口令"}]; // TOTP动态口令
+
+  string recovery_code = 3 [(gnostic.openapi.v3.property) = {description: "一次性恢复码"}]; // 一次性恢复码
+
+  string webauthn_response_json = 4 [(gnostic.openapi.v3.property) = {description: "WebAuthn认证响应JSON"}]; // WebAuthn认证响应JSON
+}
+
+// 登录强制绑定多因素认证请求。
+message BeginMfaEnrollmentRequest {
+  string setup_ticket = 1 [(gnostic.openapi.v3.property) = {description: "强制绑定临时票据"}, (buf.validate.field).cel = {id: "base.mfa.begin_enrollment.setup_ticket.required" message: "绑定临时票据不能为空" expression: "this.size() > 0"}]; // 强制绑定临时票据
+}
+
+// 登录强制绑定多因素认证响应。
+message BeginMfaEnrollmentResponse {
+  string setup_ticket = 1 [(gnostic.openapi.v3.property) = {description: "绑定临时票据"}]; // 绑定临时票据
+
+  string otpauth_uri = 2 [(gnostic.openapi.v3.property) = {description: "Authenticator应用使用的otpauth地址"}]; // Authenticator应用使用的otpauth地址
+
+  int64 expires_in = 3 [(gnostic.openapi.v3.property) = {description: "绑定临时票据有效时间，单位秒"}]; // 绑定临时票据有效时间，单位秒
+
+  string method = 4 [(gnostic.openapi.v3.property) = {description: "多因素认证方式：totp、webauthn"}]; // 多因素认证方式：totp、webauthn
+
+  string webauthn_options_json = 5 [(gnostic.openapi.v3.property) = {description: "WebAuthn注册选项JSON"}]; // WebAuthn注册选项JSON
+}
+
+// 登录强制绑定多因素认证确认请求。
+message ConfirmMfaEnrollmentRequest {
+  option (buf.validate.message).cel = {
+    id: "base.mfa.confirm_enrollment.factor.required"
+    message: "动态口令或 WebAuthn 注册响应不能为空"
+    expression: "this.code.size() > 0 || this.webauthn_response_json.size() > 0"
+  };
+
+  string setup_ticket = 1 [(gnostic.openapi.v3.property) = {description: "绑定临时票据"}, (buf.validate.field).cel = {id: "base.mfa.confirm_enrollment.setup_ticket.required" message: "绑定临时票据不能为空" expression: "this.size() > 0"}]; // 绑定临时票据
+
+  string code = 2 [(gnostic.openapi.v3.property) = {description: "TOTP动态口令"}]; // TOTP动态口令
+
+  string webauthn_response_json = 3 [(gnostic.openapi.v3.property) = {description: "WebAuthn注册响应JSON"}]; // WebAuthn注册响应JSON
+}
+
+// 登录强制绑定多因素认证确认响应。
+message ConfirmMfaEnrollmentResponse {
+  bool enabled = 1 [(gnostic.openapi.v3.property) = {description: "是否启用成功"}]; // 是否启用成功
+
+  repeated string recovery_codes = 2 [(gnostic.openapi.v3.property) = {description: "一次性恢复码，仅本次返回"}]; // 一次性恢复码，仅本次返回
+}
+
+// 查询当前用户多因素认证状态请求。
+message GetMfaStatusRequest {}
+
+// 多因素认证状态响应。
+message MfaStatusResponse {
+  bool enabled = 1 [(gnostic.openapi.v3.property) = {description: "是否已启用多因素认证"}]; // 是否已启用多因素认证
+
+  string policy = 2 [(gnostic.openapi.v3.property) = {description: "全局多因素认证策略：disabled、optional、all_required"}]; // 全局多因素认证策略
+
+  string method = 3 [(gnostic.openapi.v3.property) = {description: "认证方式：totp、webauthn"}]; // 认证方式
+}
+
+// 开始绑定多因素认证请求。
+message BeginMfaSetupRequest {
+  .common.v1.PasswordCrypto password = 1 [(gnostic.openapi.v3.property) = {description: "当前登录密码"}]; // 当前登录密码
+
+  string setup_ticket = 2 [(gnostic.openapi.v3.property) = {description: "强制绑定场景下的临时票据"}]; // 强制绑定场景下的临时票据
+}
+
+// 开始绑定多因素认证响应。
+message BeginMfaSetupResponse {
+  string setup_ticket = 1 [(gnostic.openapi.v3.property) = {description: "绑定临时票据"}]; // 绑定临时票据
+
+  string otpauth_uri = 2 [(gnostic.openapi.v3.property) = {description: "Authenticator 应用使用的 otpauth 地址"}]; // Authenticator 应用使用的 otpauth 地址
+
+  int64 expires_in = 3 [(gnostic.openapi.v3.property) = {description: "绑定临时票据有效时间，单位秒"}]; // 绑定临时票据有效时间，单位秒
+
+  string method = 4 [(gnostic.openapi.v3.property) = {description: "多因素认证方式：totp、webauthn"}]; // 多因素认证方式：totp、webauthn
+
+  string webauthn_options_json = 5 [(gnostic.openapi.v3.property) = {description: "WebAuthn 注册选项 JSON"}]; // WebAuthn 注册选项 JSON
+}
+
+// 确认绑定多因素认证请求。
+message ConfirmMfaSetupRequest {
+  option (buf.validate.message).cel = {
+    id: "base.mfa.confirm_setup.factor.required"
+    message: "动态口令或 WebAuthn 注册响应不能为空"
+    expression: "this.code.size() > 0 || this.webauthn_response_json.size() > 0"
+  };
+
+  string setup_ticket = 1 [(gnostic.openapi.v3.property) = {description: "绑定临时票据"}, (buf.validate.field).cel = {id: "base.mfa.confirm_setup.setup_ticket.required" message: "绑定临时票据不能为空" expression: "this.size() > 0"}]; // 绑定临时票据
+
+  string code = 2 [(gnostic.openapi.v3.property) = {description: "TOTP 动态口令"}]; // TOTP 动态口令
+
+  string webauthn_response_json = 3 [(gnostic.openapi.v3.property) = {description: "WebAuthn 注册响应 JSON"}]; // WebAuthn 注册响应 JSON
+}
+
+// 确认绑定多因素认证响应。
+message ConfirmMfaSetupResponse {
+  bool enabled = 1 [(gnostic.openapi.v3.property) = {description: "是否启用成功"}]; // 是否启用成功
+
+  repeated string recovery_codes = 2 [(gnostic.openapi.v3.property) = {description: "一次性恢复码，仅本次返回"}]; // 一次性恢复码，仅本次返回
+}
+
+// 开始禁用 WebAuthn 多因素认证请求。
+message BeginMfaDisableRequest {}
+
+// 开始禁用 WebAuthn 多因素认证响应。
+message BeginMfaDisableResponse {
+  string challenge_id = 1 [(gnostic.openapi.v3.property) = {description: "WebAuthn 禁用挑战 ID"}]; // WebAuthn 禁用挑战 ID
+
+  int64 expires_in = 2 [(gnostic.openapi.v3.property) = {description: "WebAuthn 禁用挑战有效时间，单位秒"}]; // WebAuthn 禁用挑战有效时间，单位秒
+
+  string webauthn_options_json = 3 [(gnostic.openapi.v3.property) = {description: "WebAuthn 验证选项 JSON"}]; // WebAuthn 验证选项 JSON
+}
+
+// 禁用多因素认证请求。
+message DisableMfaRequest {
+  .common.v1.PasswordCrypto password = 1 [(gnostic.openapi.v3.property) = {description: "当前登录密码"}]; // 当前登录密码
+
+  string code = 2 [(gnostic.openapi.v3.property) = {description: "TOTP 动态口令"}]; // TOTP 动态口令
+
+  string webauthn_challenge_id = 3 [(gnostic.openapi.v3.property) = {description: "WebAuthn 禁用挑战 ID"}]; // WebAuthn 禁用挑战 ID
+
+  string webauthn_response_json = 4 [(gnostic.openapi.v3.property) = {description: "WebAuthn 验证响应 JSON"}]; // WebAuthn 验证响应 JSON
+
+  string recovery_code = 5 [(gnostic.openapi.v3.property) = {description: "一次性恢复码"}]; // 一次性恢复码
+}
+
+// 重新生成恢复码请求。
+message RegenerateMfaRecoveryCodesRequest {
+  string code = 1 [(gnostic.openapi.v3.property) = {description: "TOTP 动态口令"}]; // TOTP 动态口令
+}
+
+// 恢复码响应。
+message RecoveryCodesResponse {
+  repeated string recovery_codes = 1 [(gnostic.openapi.v3.property) = {description: "一次性恢复码，仅本次返回"}]; // 一次性恢复码，仅本次返回
+}

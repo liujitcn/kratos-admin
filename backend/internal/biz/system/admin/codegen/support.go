@@ -11,7 +11,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 
 	kratosErrors "github.com/go-kratos/kratos/v3/errors"
 	"github.com/liujitcn/go-utils/stringcase"
@@ -91,8 +91,8 @@ func ExistingProtoFilePath(targetEntity string, methodName string, excludedModul
 
 // FailureRemark 提取适合保存和展示的生成错误信息。
 func FailureRemark(err error) string {
-	var structuredError *kratosErrors.Error
-	if errors.As(err, &structuredError) && structuredError.Message != "" {
+	structuredError, ok := errors.AsType[*kratosErrors.Error](err)
+	if ok && structuredError.Message != "" {
 		return TruncateText(structuredError.Message, RemarkMaxRunes)
 	}
 	return TruncateText(err.Error(), RemarkMaxRunes)

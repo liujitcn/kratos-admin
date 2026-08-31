@@ -5,12 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+	"uuid"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/errorsx"
 
-	"github.com/google/uuid"
 	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/kratos-kit/cache"
 )
@@ -26,6 +26,7 @@ var passwordCryptoSceneSet = map[basev1.PasswordCryptoScene]struct{}{
 	basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER:         {},
 	basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD: {},
 	basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD:     {},
+	basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_MFA:                      {},
 }
 
 type passwordCryptoKeyRecord struct {
@@ -56,7 +57,7 @@ func GeneratePasswordPublicKey(cacheClient cache.Cache, scene basev1.PasswordCry
 		return nil, errorsx.Internal("生成密码临时密钥失败").WithCause(err)
 	}
 
-	keyID := uuid.NewString()
+	keyID := uuid.New().String()
 	var nonceBytes []byte
 	nonceBytes, err = crypto.GenerateAESKey(16)
 	if err != nil {

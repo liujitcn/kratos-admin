@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { resolveModuleIcon, resolveStaticView } from '../module'
-import { APP_MENU_ROOT_ID, useAppNavigation } from '../navigation'
+import { APP_MENU_ROOT_ID, useAppMenuBadge, useAppNavigation } from '../navigation'
 import { resolveRootMenuId } from '../navigation-tree.mjs'
 
 const props = defineProps<{ route: string }>()
@@ -13,6 +13,7 @@ const activeMenu = computed(() => {
   return tabBar.value.find((menu) => menu.id === tabMenuId)
 })
 const visible = computed(() => Boolean(activeMenu.value && tabBar.value.length))
+const messageBadge = useAppMenuBadge('MESSAGE_INBOX')
 </script>
 
 <template>
@@ -23,6 +24,9 @@ const visible = computed(() => Boolean(activeMenu.value && tabBar.value.length))
       class="kratos-tab-bar__item"
       @tap="navigate(item.path)"
     >
+      <text v-if="item.viewKey === 'MESSAGE_INBOX' && messageBadge" class="kratos-tab-bar__badge">{{
+        messageBadge
+      }}</text>
       <image
         v-if="resolveModuleIcon(item.icon)"
         class="kratos-tab-bar__icon"
@@ -32,6 +36,12 @@ const visible = computed(() => Boolean(activeMenu.value && tabBar.value.length))
           )
         "
         mode="aspectFit"
+      />
+      <view
+        v-else-if="item.viewKey === 'MESSAGE_INBOX'"
+        class="kratos-tab-bar__message-icon"
+        :class="{ 'kratos-tab-bar__message-icon--active': activeMenu?.id === item.id }"
+        aria-hidden="true"
       />
       <text :class="{ 'kratos-tab-bar__text--active': activeMenu?.id === item.id }">
         {{ item.title }}
@@ -55,6 +65,7 @@ const visible = computed(() => Boolean(activeMenu.value && tabBar.value.length))
   background: #fff;
 }
 .kratos-tab-bar__item {
+  position: relative;
   display: flex;
   flex: 1;
   align-items: center;
@@ -70,7 +81,45 @@ const visible = computed(() => Boolean(activeMenu.value && tabBar.value.length))
   height: 28px;
   margin-bottom: 4px;
 }
+.kratos-tab-bar__message-icon {
+  position: relative;
+  width: 22px;
+  height: 16px;
+  margin-bottom: 8px;
+  border: 2px solid #9aa4b2;
+  border-radius: 3px;
+  box-sizing: border-box;
+}
+.kratos-tab-bar__message-icon::after {
+  position: absolute;
+  top: 1px;
+  left: 4px;
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid #9aa4b2;
+  border-bottom: 2px solid #9aa4b2;
+  content: '';
+  transform: rotate(45deg);
+}
+.kratos-tab-bar__message-icon--active,
+.kratos-tab-bar__message-icon--active::after {
+  border-color: #27ba9b;
+}
 .kratos-tab-bar__text--active {
   color: #27ba9b;
+}
+.kratos-tab-bar__badge {
+  position: absolute;
+  top: 2px;
+  right: calc(50% - 22px);
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
+  border-radius: 8px;
+  background: #e5484d;
+  color: #fff;
+  font-size: 9px;
+  line-height: 14px;
+  text-align: center;
 }
 </style>

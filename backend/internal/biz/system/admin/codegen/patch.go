@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/liujitcn/go-utils/stringcase"
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 )
 
 // --- 已有源码的增量分析与补丁 ---

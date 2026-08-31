@@ -7,7 +7,7 @@ import (
 	"io"
 	"strings"
 
-	einoadk "github.com/cloudwego/eino/adk"
+	"github.com/cloudwego/eino/adk"
 	"github.com/cloudwego/eino/components/tool"
 	"github.com/cloudwego/eino/compose"
 	"github.com/cloudwego/eino/schema"
@@ -15,7 +15,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/callback"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/message"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/middleware"
-	einoModel "github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
 )
 
 // defaultMaxIterations 限制单轮 Agent 的模型与工具循环次数，避免工具调用链异常时拖垮请求。
@@ -23,7 +23,7 @@ const defaultMaxIterations = 4
 
 // Runner 基于 Eino ADK ChatModelAgent 运行 AgenticMessage 对话。
 type Runner struct {
-	model       einoModel.AgenticModel
+	model       model.AgenticModel
 	name        string
 	description string
 }
@@ -31,7 +31,7 @@ type Runner struct {
 // Config 表示 ADK Runner 初始化配置。
 type Config struct {
 	// Model 当前 Agent 使用的模型。
-	Model einoModel.AgenticModel
+	Model model.AgenticModel
 	// Name Agent 名称。
 	Name string
 	// Description Agent 能力描述。
@@ -87,13 +87,13 @@ func (r *Runner) Run(ctx context.Context, request Request) (*Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	runner := einoadk.NewTypedRunner(einoadk.TypedRunnerConfig[*schema.AgenticMessage]{
+	runner := adk.NewTypedRunner(adk.TypedRunnerConfig[*schema.AgenticMessage]{
 		Agent: agent,
 		// Responses 的服务端工具事件与文本块可能混合返回，统一由 Runner 消费事件，避免
 		// ADK 自动合并时丢失工具事件。
 		EnableStreaming: false,
 	})
-	iter := runner.Run(ctx, request.Messages, einoadk.WithCallbacks(callback.NewHandler()))
+	iter := runner.Run(ctx, request.Messages, adk.WithCallbacks(callback.NewHandler()))
 	var messageValue *schema.AgenticMessage
 	messageValue, err = consumeEvents(iter, request.OnDelta, request.Stream)
 	if err != nil {
@@ -112,18 +112,18 @@ func (r *Runner) Run(ctx context.Context, request Request) (*Result, error) {
 }
 
 // newAgent 创建带项目中间件的 Eino ChatModelAgent。
-func (r *Runner) newAgent(ctx context.Context, request Request) (*einoadk.TypedChatModelAgent[*schema.AgenticMessage], error) {
-	handlers := []einoadk.TypedChatModelAgentMiddleware[*schema.AgenticMessage]{
+func (r *Runner) newAgent(ctx context.Context, request Request) (*adk.TypedChatModelAgent[*schema.AgenticMessage], error) {
+	handlers := []adk.TypedChatModelAgentMiddleware[*schema.AgenticMessage]{
 		middleware.NewToolFilterHandler(request.ToolInfos),
 		middleware.NewResponsesServerToolHandler(),
 		middleware.NewToolMetricsHandler(toolTitleResolver(request.ToolInfos)),
 	}
-	return einoadk.NewTypedChatModelAgent(ctx, &einoadk.TypedChatModelAgentConfig[*schema.AgenticMessage]{
+	return adk.NewTypedChatModelAgent(ctx, &adk.TypedChatModelAgentConfig[*schema.AgenticMessage]{
 		Name:        r.name,
 		Description: r.description,
 		Instruction: "请使用中文回答，并优先调用已提供的内部工具获取真实数据。",
 		Model:       r.model,
-		ToolsConfig: einoadk.ToolsConfig{
+		ToolsConfig: adk.ToolsConfig{
 			ToolsNodeConfig: compose.ToolsNodeConfig{
 				Tools:               request.Tools,
 				ExecuteSequentially: true,
@@ -136,7 +136,7 @@ func (r *Runner) newAgent(ctx context.Context, request Request) (*einoadk.TypedC
 }
 
 // consumeEvents 消费 ADK 事件流，返回本轮最终助手消息。
-func consumeEvents(iter *einoadk.AsyncIterator[*einoadk.TypedAgentEvent[*schema.AgenticMessage]], onDelta func(string), stream bool) (*schema.AgenticMessage, error) {
+func consumeEvents(iter *adk.AsyncIterator[*adk.TypedAgentEvent[*schema.AgenticMessage]], onDelta func(string), stream bool) (*schema.AgenticMessage, error) {
 	var finalMessage *schema.AgenticMessage
 	var streamText strings.Builder
 	for {

@@ -1,0 +1,147 @@
+.message-page {
+  min-height: 100vh;
+  padding: 24px;
+  background: var(--kratos-color-background);
+}
+
+.message-header {
+  padding: 20px 4px 28px;
+}
+.message-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.message-title {
+  color: var(--kratos-color-text);
+  font-size: 40px;
+  font-weight: 700;
+}
+.message-unread {
+  min-width: 36px;
+  padding: 4px 10px;
+  border-radius: 18px;
+  background: #e5484d;
+  color: #fff;
+  font-size: 22px;
+  line-height: 28px;
+  text-align: center;
+}
+.message-controls {
+  margin-bottom: 18px;
+}
+.message-tabs,
+.message-filter,
+.message-item__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.message-tab {
+  flex: 1;
+  margin: 0;
+  padding: 8px 12px;
+  background: transparent;
+  color: var(--kratos-color-text-muted);
+  font-size: 26px;
+}
+.message-tab.active {
+  background: var(--kratos-color-primary);
+  color: #fff;
+}
+.message-filter {
+  margin-top: 14px;
+}
+.message-filter input {
+  min-width: 0;
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid var(--kratos-color-border);
+  border-radius: 8px;
+}
+.message-filter button,
+.message-item__actions button {
+  margin: 0;
+  padding: 0 14px;
+  font-size: 24px;
+}
+.message-item__actions {
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+.message-item {
+  margin-bottom: 16px;
+  padding: 28px;
+  border-radius: 12px;
+  background: #fff;
+}
+.message-item__main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.message-item__title {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  color: var(--kratos-color-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.message-item__title.unread {
+  color: var(--kratos-color-text);
+  font-weight: 700;
+}
+.message-item__time,
+.message-item__category {
+  color: var(--kratos-color-text-muted);
+  font-size: 24px;
+}
+.message-item__category {
+  display: block;
+  margin-top: 14px;
+}
+.load-more {
+  margin-top: 24px;
+  font-size: 28px;
+}
+.empty {
+  padding-top: 180px;
+  color: var(--kratos-color-text-muted);
+  text-align: center;
+}
+.detail-page {
+  min-height: 100vh;
+  padding: 36px 30px;
+  background: var(--kratos-color-background);
+}
+.detail-title {
+  display: block;
+  color: var(--kratos-color-text);
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin: 24px 0 36px;
+  color: var(--kratos-color-text-muted);
+  font-size: 24px;
+}
+.detail-content {
+  color: var(--kratos-color-text);
+  font-size: 30px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.detail-content-rich {
+  display: block;
+  color: var(--kratos-color-text);
+  font-size: 30px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}

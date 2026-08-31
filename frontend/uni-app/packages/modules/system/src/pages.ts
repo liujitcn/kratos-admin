@@ -23,4 +23,6 @@ export const systemPages: Record<string, KratosAppPageConfig> = {
       navigationBarTitleText: '',
     },
   },
+  'pagesMember/message/index': { style: { navigationBarTitleText: '' } },
+  'pagesMember/message/detail': { style: { navigationBarTitleText: '' } },
 }

@@ -68,6 +68,23 @@ enum PasswordCryptoScene {
   PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD = 3;
   // 个人修改密码加密场景。
   PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD = 4;
+  // 多因素认证敏感操作场景。
+  PASSWORD_CRYPTO_SCENE_MFA = 5;
+}
+
+// LoginStatus 表示登录请求当前所处的认证阶段。
+// 只有 AUTHENTICATED 或 PASSWORD_CHANGE_REQUIRED 才会携带正式访问令牌，MFA 状态必须继续完成挑战。
+enum LoginStatus {
+  // 未指定登录状态。
+  LOGIN_STATUS_UNSPECIFIED = 0;
+  // 已完成认证并签发令牌。
+  LOGIN_STATUS_AUTHENTICATED = 1;
+  // 需要继续校验多因素认证。
+  LOGIN_STATUS_MFA_REQUIRED = 2;
+  // 必须先完成多因素认证绑定。
+  LOGIN_STATUS_MFA_ENROLLMENT_REQUIRED = 3;
+  // 下次操作前必须修改临时密码。
+  LOGIN_STATUS_PASSWORD_CHANGE_REQUIRED = 4;
 }
 
 // 验证码获取条件
@@ -121,7 +138,7 @@ message PasswordPublicKeyResponse {
 
 // 刷新令牌请求参数
 message RefreshTokenRequest {
-  string refresh_token = 1 [(gnostic.openapi.v3.property) = {description: "更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。"}, (buf.validate.field).cel = {id: "base.login.refresh_token.required" message: "刷新令牌不能为空" expression: "this.size() > 0"}]; // 更新令牌，用来获取下一次的访问令牌，必选项。
+  optional string refresh_token = 1 [(gnostic.openapi.v3.property) = {description: "更新令牌；未填写时由服务端从HttpOnly Cookie读取"}]; // 更新令牌；未填写时由服务端从HttpOnly Cookie读取。
 }
 
 // 刷新令牌响应
@@ -169,4 +186,16 @@ message LoginResponse {
   }]; // 令牌类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型。
 
   int64 expires_in = 4 [(gnostic.openapi.v3.property) = {description: "令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。"}]; // 令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。
+
+  LoginStatus status = 5 [(gnostic.openapi.v3.property) = {description: "登录认证状态"}]; // 登录认证状态
+
+  string mfa_challenge_id = 6 [(gnostic.openapi.v3.property) = {description: "多因素认证挑战ID"}]; // 多因素认证挑战ID
+
+  string mfa_setup_ticket = 7 [(gnostic.openapi.v3.property) = {description: "多因素认证绑定临时票据"}]; // 多因素认证绑定临时票据
+
+  int64 mfa_expires_in = 8 [(gnostic.openapi.v3.property) = {description: "多因素认证挑战或绑定票据有效时间，单位秒"}]; // 多因素认证挑战或绑定票据有效时间，单位秒
+
+  string mfa_method = 9 [(gnostic.openapi.v3.property) = {description: "多因素认证方式：totp、webauthn"}]; // 多因素认证方式：totp、webauthn
+
+  string mfa_webauthn_options_json = 10 [(gnostic.openapi.v3.property) = {description: "WebAuthn认证选项JSON"}]; // WebAuthn认证选项JSON
 }

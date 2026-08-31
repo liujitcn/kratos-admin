@@ -1,11 +1,11 @@
 package sse
 
-import coreSSE "github.com/liujitcn/kratos-core/sse"
+import "github.com/liujitcn/kratos-core/sse"
 
 // NewStreams 创建 Admin SSE 流集合。
-func NewStreams(codegen *Codegen, opsMonitoring *OpsMonitoring, runtimeConsole *RuntimeConsole) (coreSSE.Streams, func()) {
-	return coreSSE.Streams{
-			codegen, opsMonitoring, runtimeConsole,
+func NewStreams(codegen *Codegen, notification *Notification, opsMonitoring *OpsMonitoring, runtimeConsole *RuntimeConsole) (sse.Streams, func()) {
+	return sse.Streams{
+			codegen, notification, opsMonitoring, runtimeConsole,
 		}, func() {
 			if opsMonitoring != nil {
 				opsMonitoring.Stop()

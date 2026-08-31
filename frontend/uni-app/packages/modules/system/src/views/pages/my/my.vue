@@ -81,7 +81,7 @@ const navigateToProfile = () => navigateAppRoute('app/profile')
           </view>
         </view>
       </view>
-      <view class="settings" @tap="navigateToSettings">{{ t('system.settings.title') }}</view>
+      <view class="settings" @tap="navigateToSettings">{{ t('core.settings.title') }}</view>
     </view>
     <!-- AI 助手入口 -->
     <view class="ai-entry" @tap="navigateToAi">
@@ -163,6 +163,9 @@ page {
 
 .viewport {
   height: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+  background-color: #f7f7f8;
   background-repeat: no-repeat;
   background-size: 100% auto;
 }

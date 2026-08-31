@@ -73,6 +73,7 @@ const codeGenFormComponentLabelKeys: Record<ProFormComponentType, string> = {
   password: "system.code.gen.component.password",
   textarea: "system.code.gen.component.textarea",
   "input-number": "system.code.gen.component.input_number",
+  "color-picker": "system.code.gen.component.color_picker",
   segmented: "system.code.gen.component.segmented",
   switch: "system.code.gen.component.switch",
   checkbox: "system.code.gen.component.checkbox",

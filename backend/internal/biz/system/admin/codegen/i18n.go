@@ -9,16 +9,16 @@ import (
 	"strings"
 
 	"github.com/liujitcn/go-utils/stringcase"
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	corei18n "github.com/liujitcn/kratos-core/resource/i18n"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-core/resource/i18n"
 )
 
 const codegenMessagePrefix = "system.code.gen."
 
-var codegenCatalogValue *corei18n.I18n
+var codegenCatalogValue *i18n.I18n
 
 // SetCatalog 设置代码生成器使用的统一国际化目录。
-func SetCatalog(catalog *corei18n.I18n) {
+func SetCatalog(catalog *i18n.I18n) {
 	codegenCatalogValue = catalog
 }
 

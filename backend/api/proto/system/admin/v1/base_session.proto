@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// Admin会话管理服务。
+service BaseSessionService {
+  // 查询当前用户会话。
+  rpc GetCurrentBaseSession(GetCurrentBaseSessionRequest) returns (BaseSession) {
+    option (google.api.http) = {get: "/api/v1/admin/base/session/current"};
+  }
+
+  // 撤销当前用户全部会话。
+  rpc RevokeAllBaseSessions(RevokeAllBaseSessionsRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/session/revoke-all"
+      body: "*"
+    };
+  }
+}
+
+// 查询当前会话请求参数。
+message GetCurrentBaseSessionRequest {}
+
+// 撤销全部会话请求参数。
+message RevokeAllBaseSessionsRequest {}
+
+// 当前会话信息。
+message BaseSession {
+  int64 user_id = 1 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  string user_name = 2 [(gnostic.openapi.v3.property) = {description: "用户账号"}]; // 用户账号
+  string tenant_code = 3 [(gnostic.openapi.v3.property) = {description: "租户编码"}]; // 租户编码
+  string client_ip = 4 [(gnostic.openapi.v3.property) = {description: "客户端IP"}]; // 客户端IP
+  string device = 5 [(gnostic.openapi.v3.property) = {description: "登录设备"}]; // 登录设备
+  string user_agent = 6 [(gnostic.openapi.v3.property) = {description: "用户代理"}]; // 用户代理
+  string issued_at = 7 [(gnostic.openapi.v3.property) = {description: "签发时间"}]; // 签发时间
+  int64 expires_in = 8 [(gnostic.openapi.v3.property) = {description: "令牌有效期（秒）"}]; // 令牌有效期（秒）
+}

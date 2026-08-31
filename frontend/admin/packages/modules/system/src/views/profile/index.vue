@@ -26,6 +26,7 @@
           @refreshed="loadUserProfile"
           @switch-tab="handleTabChange"
         />
+        <ProfileSession v-else-if="activeTab === 'session'" />
         <ProfilePassword v-else />
       </main>
     </section>
@@ -47,10 +48,10 @@ import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import ProfileBase from "./components/base.vue";
 import ProfileSecurity from "./components/security.vue";
 import ProfilePassword from "./components/password.vue";
-import { ArrowRight } from "@element-plus/icons-vue";
+import ProfileSession from "./components/session.vue";
 
 /** 个人中心标签页。 */
-type ProfileTab = "account" | "security" | "password";
+type ProfileTab = "account" | "security" | "password" | "session";
 
 /** 左侧导航项结构。 */
 interface ProfileTabOption {
@@ -65,23 +66,33 @@ interface ProfileTabOption {
 const userStore = useUserStore();
 const route = useRoute();
 const activeTab = ref<ProfileTab>("account");
-const profileTabs = computed<ProfileTabOption[]>(() => [
-  {
-    value: "account",
-    label: t("system.profile.account.title"),
-    description: t("system.profile.account.nav_description")
-  },
-  {
-    value: "security",
-    label: t("system.profile.security.title"),
-    description: t("system.profile.security.nav_description")
-  },
-  {
-    value: "password",
-    label: t("system.profile.password.title"),
-    description: t("system.profile.password.nav_description")
+const profileTabs = computed<ProfileTabOption[]>(() => {
+  const tabs: ProfileTabOption[] = [
+    {
+      value: "account",
+      label: t("system.profile.account.title"),
+      description: t("system.profile.account.nav_description")
+    },
+    {
+      value: "security",
+      label: t("system.profile.security.title"),
+      description: t("system.profile.security.nav_description")
+    },
+    {
+      value: "password",
+      label: t("system.profile.password.title"),
+      description: t("system.profile.password.nav_description")
+    }
+  ];
+  if (userStore.userInfo.role_code === "super") {
+    tabs.push({
+      value: "session",
+      label: t("system.profile.session.title"),
+      description: t("system.profile.session.nav_description")
+    });
   }
-]);
+  return tabs;
+});
 const userProfileForm = reactive<UserProfileForm>({
   user_name: "",
   nick_name: "",
@@ -115,8 +126,10 @@ async function loadUserProfile() {
 }
 
 onMounted(async () => {
-  // OAuth 绑定回跳时优先打开安全设置，让子组件消费绑定结果并刷新状态。
-  if (route.query.oauth_bind_success || route.query.oauth_bind_error) {
+  if (route.query.tab === "password") {
+    activeTab.value = "password";
+  } else if (route.query.oauth_bind_success || route.query.oauth_bind_error) {
+    // OAuth 绑定回跳时优先打开安全设置，让子组件消费绑定结果并刷新状态。
     activeTab.value = "security";
   }
   await loadUserProfile();
@@ -139,7 +152,7 @@ onMounted(async () => {
   padding: 16px;
   background: #ffffff;
   border: 1px solid #ebeef5;
-  border-radius: 12px;
+  border-radius: var(--admin-page-radius);
   box-shadow: 0 2px 12px rgb(0 0 0 / 4%);
 }
 .nav-item {
@@ -153,7 +166,7 @@ onMounted(async () => {
   cursor: pointer;
   background: #ffffff;
   border: 1px solid transparent;
-  border-radius: 10px;
+  border-radius: var(--admin-page-radius);
   transition: all 0.2s ease;
 }
 .nav-item + .nav-item {

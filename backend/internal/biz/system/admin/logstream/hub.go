@@ -8,9 +8,9 @@ import (
 	"sync/atomic"
 	"time"
 	"unicode/utf8"
+	"uuid"
 
-	"github.com/google/uuid"
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -77,7 +77,7 @@ func DefaultHub() *Hub {
 func newHub() *Hub {
 	hub := &Hub{
 		entries:      make([]*adminv1.RuntimeLogEntry, 0, maxEntryCount),
-		instanceID:   uuid.NewString(),
+		instanceID:   uuid.New().String(),
 		sessions:     make(map[string]runtimeSession),
 		publishQueue: make(chan queuedEntry, publishQueueSize),
 	}
@@ -126,7 +126,7 @@ func (h *Hub) OpenSession(ownerID int64, backlogLimit int) Session {
 	}
 	now := time.Now()
 	expiresAt := now.Add(sessionTTL)
-	channelID := uuid.NewString()
+	channelID := uuid.New().String()
 
 	h.mu.Lock()
 	h.pruneSessionsLocked(now)

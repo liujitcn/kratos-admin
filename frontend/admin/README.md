@@ -1,6 +1,8 @@
 # frontend/admin
 
 管理后台采用 pnpm workspace，按“薄宿主 + core 底座 + 可选业务模块 + 工程工具”组织。宿主只负责组合和启动；页面、请求、RPC 类型和业务依赖归属对应模块包。
+System 模块包含消息管理、消息分类和个人收件箱，并通过顶部工具显示未读数。
+Core 布局在头像菜单中提供锁定屏幕能力，锁屏密码摘要仅在当前锁屏会话期间持久化。
 
 依赖方向固定为 `app -> business module -> core`。core 不依赖任何业务模块，业务模块之间默认也不互相引用；确需复用时，只能通过对方 `package.json#exports` 公开的 Interface。
 
@@ -94,7 +96,7 @@ make -C .. package-admin
 
 语言偏好保存为 `kratos-admin:locale`。Axios、刷新令牌、原生 fetch、SSE 和 Swagger 请求统一发送 `Accept-Language`；动态菜单和字典由后端按 locale 返回，缺少当前语言译文时回退主语言。新增语言需要同步后端国际化目录、三个 workspace 的六个前端语言包目录，再执行仓库根目录的 `make i18n-sync`；注册文件和 Day.js 映射由脚本生成。具体流程见 [国际化语言扩展指南](../../docs/国际化语言扩展指南.md)。
 
-API 按 Proto 一级领域组织为 `api/base`、`api/system` 等目录；RPC 保留 `rpc/base/v1`、`rpc/system/admin/v1` 等完整 Proto 层级。RPC 类型按真实消费者归属放置：core 保留登录、菜单、用户信息和启动期能力所需服务类型；System 自包含系统管理、个人中心、AI 及其依赖类型。修改 Proto 后在 `backend` 执行 `make ts-admin`，命令会按两份 Buf 配置分别清理并生成 core 与 System 的 RPC；需要一次生成三个前端的 RPC 时执行 `make ts`。服务端契约尚未完成细粒度拆分时，同一生成文件可能暂时包含当前包未调用的方法，不手写生成文件。
+API 按 Proto 一级领域组织为 `api/base`、`api/system` 等目录；RPC 保留 `rpc/base/v1`、`rpc/system/admin/v1` 等完整 Proto 层级。RPC 类型按真实消费者归属放置：core 保留登录、菜单、用户信息和启动期能力所需服务类型；System 自包含系统管理、个人中心、AI 及其依赖类型。修改 Proto 后在仓库根目录执行 `make -C frontend ts-admin`，命令会按两份 Buf 配置分别清理并生成 core 与 System 的 RPC；需要一次生成三个前端的 RPC 时执行 `make -C frontend ts`。服务端契约尚未完成细粒度拆分时，同一生成文件可能暂时包含当前包未调用的方法，不手写生成文件。
 
 core 内部源码使用 `@/*`；业务模块使用 `@liujitcn/kratos-admin-core/*` 和自身包名。模块间页面跳转使用 Vue Router，代码复用禁止跨目录相对引用。
 

@@ -25,6 +25,11 @@ func (*BaseAPII18N) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*BaseAPILog) TableComment() string {
+	return "API访问日志表"
+}
+
+// TableComment 返回表注释。
 func (*BaseArea) TableComment() string {
 	return "行政区域信息"
 }
@@ -32,6 +37,11 @@ func (*BaseArea) TableComment() string {
 // TableComment 返回表注释。
 func (*BaseConfig) TableComment() string {
 	return "参数配置"
+}
+
+// TableComment 返回表注释。
+func (*BaseDataAccessLog) TableComment() string {
+	return "数据访问日志表"
 }
 
 // TableComment 返回表注释。
@@ -47,6 +57,11 @@ func (*BaseDict) TableComment() string {
 // TableComment 返回表注释。
 func (*BaseDictItem) TableComment() string {
 	return "字典属性信息"
+}
+
+// TableComment 返回表注释。
+func (*BaseFile) TableComment() string {
+	return "文件元数据表"
 }
 
 // TableComment 返回表注释。
@@ -70,8 +85,8 @@ func (*BaseLanguage) TableComment() string {
 }
 
 // TableComment 返回表注释。
-func (*BaseLog) TableComment() string {
-	return "系统日志信息"
+func (*BaseLoginLog) TableComment() string {
+	return "登录日志表"
 }
 
 // TableComment 返回表注释。
@@ -80,8 +95,43 @@ func (*BaseMenu) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*BaseMessage) TableComment() string {
+	return "消息信息"
+}
+
+// TableComment 返回表注释。
+func (*BaseMessageCategory) TableComment() string {
+	return "消息分类"
+}
+
+// TableComment 返回表注释。
+func (*BaseMessageDelivery) TableComment() string {
+	return "用户消息投递"
+}
+
+// TableComment 返回表注释。
+func (*BaseMessageDispatch) TableComment() string {
+	return "消息投递任务"
+}
+
+// TableComment 返回表注释。
 func (*BaseMigration) TableComment() string {
 	return "数据库迁移记录"
+}
+
+// TableComment 返回表注释。
+func (*BaseOperationLog) TableComment() string {
+	return "业务操作日志表"
+}
+
+// TableComment 返回表注释。
+func (*BasePermissionLog) TableComment() string {
+	return "权限日志表"
+}
+
+// TableComment 返回表注释。
+func (*BasePolicyEvaluationLog) TableComment() string {
+	return "策略评估日志表"
 }
 
 // TableComment 返回表注释。
@@ -110,6 +160,26 @@ func (*BaseUser) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*BaseUserMFA) TableComment() string {
+	return "用户多因素认证配置"
+}
+
+// TableComment 返回表注释。
+func (*BaseUserMFARecovery) TableComment() string {
+	return "用户多因素认证恢复码"
+}
+
+// TableComment 返回表注释。
+func (*BaseUserMFATotp) TableComment() string {
+	return "用户TOTP多因素认证配置"
+}
+
+// TableComment 返回表注释。
+func (*BaseUserMFAWebauthn) TableComment() string {
+	return "用户WebAuthn多因素认证配置"
+}
+
+// TableComment 返回表注释。
 func (*CasbinRule) TableComment() string {
 	return "Casbin权限信息"
 }
@@ -127,4 +197,9 @@ func (*CodeGenProto) TableComment() string {
 // TableComment 返回表注释。
 func (*CodeGenTable) TableComment() string {
 	return "代码生成对象表"
+}
+
+// TableComment 返回表注释。
+func (*OauthClient) TableComment() string {
+	return "开放授权客户端"
 }

@@ -17,94 +17,139 @@ import (
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:               db,
-		AiMessage:        newAiMessage(db, opts...),
-		AiSession:        newAiSession(db, opts...),
-		BaseAPI:          newBaseAPI(db, opts...),
-		BaseAPII18N:      newBaseAPII18N(db, opts...),
-		BaseArea:         newBaseArea(db, opts...),
-		BaseConfig:       newBaseConfig(db, opts...),
-		BaseDept:         newBaseDept(db, opts...),
-		BaseDict:         newBaseDict(db, opts...),
-		BaseDictItem:     newBaseDictItem(db, opts...),
-		BaseI18N:         newBaseI18N(db, opts...),
-		BaseJob:          newBaseJob(db, opts...),
-		BaseJobLog:       newBaseJobLog(db, opts...),
-		BaseLanguage:     newBaseLanguage(db, opts...),
-		BaseLog:          newBaseLog(db, opts...),
-		BaseMenu:         newBaseMenu(db, opts...),
-		BaseMigration:    newBaseMigration(db, opts...),
-		BasePost:         newBasePost(db, opts...),
-		BaseRole:         newBaseRole(db, opts...),
-		BaseTenant:       newBaseTenant(db, opts...),
-		BaseThirdAccount: newBaseThirdAccount(db, opts...),
-		BaseUser:         newBaseUser(db, opts...),
-		CasbinRule:       newCasbinRule(db, opts...),
-		CodeGenColumn:    newCodeGenColumn(db, opts...),
-		CodeGenProto:     newCodeGenProto(db, opts...),
-		CodeGenTable:     newCodeGenTable(db, opts...),
+		db:                      db,
+		AiMessage:               newAiMessage(db, opts...),
+		AiSession:               newAiSession(db, opts...),
+		BaseAPI:                 newBaseAPI(db, opts...),
+		BaseAPII18N:             newBaseAPII18N(db, opts...),
+		BaseAPILog:              newBaseAPILog(db, opts...),
+		BaseArea:                newBaseArea(db, opts...),
+		BaseConfig:              newBaseConfig(db, opts...),
+		BaseDataAccessLog:       newBaseDataAccessLog(db, opts...),
+		BaseDept:                newBaseDept(db, opts...),
+		BaseDict:                newBaseDict(db, opts...),
+		BaseDictItem:            newBaseDictItem(db, opts...),
+		BaseFile:                newBaseFile(db, opts...),
+		BaseI18N:                newBaseI18N(db, opts...),
+		BaseJob:                 newBaseJob(db, opts...),
+		BaseJobLog:              newBaseJobLog(db, opts...),
+		BaseLanguage:            newBaseLanguage(db, opts...),
+		BaseLoginLog:            newBaseLoginLog(db, opts...),
+		BaseMenu:                newBaseMenu(db, opts...),
+		BaseMessage:             newBaseMessage(db, opts...),
+		BaseMessageCategory:     newBaseMessageCategory(db, opts...),
+		BaseMessageDelivery:     newBaseMessageDelivery(db, opts...),
+		BaseMessageDispatch:     newBaseMessageDispatch(db, opts...),
+		BaseMigration:           newBaseMigration(db, opts...),
+		BaseOperationLog:        newBaseOperationLog(db, opts...),
+		BasePermissionLog:       newBasePermissionLog(db, opts...),
+		BasePolicyEvaluationLog: newBasePolicyEvaluationLog(db, opts...),
+		BasePost:                newBasePost(db, opts...),
+		BaseRole:                newBaseRole(db, opts...),
+		BaseTenant:              newBaseTenant(db, opts...),
+		BaseThirdAccount:        newBaseThirdAccount(db, opts...),
+		BaseUser:                newBaseUser(db, opts...),
+		BaseUserMFA:             newBaseUserMFA(db, opts...),
+		BaseUserMFARecovery:     newBaseUserMFARecovery(db, opts...),
+		BaseUserMFATotp:         newBaseUserMFATotp(db, opts...),
+		BaseUserMFAWebauthn:     newBaseUserMFAWebauthn(db, opts...),
+		CasbinRule:              newCasbinRule(db, opts...),
+		CodeGenColumn:           newCodeGenColumn(db, opts...),
+		CodeGenProto:            newCodeGenProto(db, opts...),
+		CodeGenTable:            newCodeGenTable(db, opts...),
+		OauthClient:             newOauthClient(db, opts...),
 	}
 }
 
 type Query struct {
-	db               *gorm.DB
-	AiMessage        aiMessage
-	AiSession        aiSession
-	BaseAPI          baseAPI
-	BaseAPII18N      baseAPII18N
-	BaseArea         baseArea
-	BaseConfig       baseConfig
-	BaseDept         baseDept
-	BaseDict         baseDict
-	BaseDictItem     baseDictItem
-	BaseI18N         baseI18N
-	BaseJob          baseJob
-	BaseJobLog       baseJobLog
-	BaseLanguage     baseLanguage
-	BaseLog          baseLog
-	BaseMenu         baseMenu
-	BaseMigration    baseMigration
-	BasePost         basePost
-	BaseRole         baseRole
-	BaseTenant       baseTenant
-	BaseThirdAccount baseThirdAccount
-	BaseUser         baseUser
-	CasbinRule       casbinRule
-	CodeGenColumn    codeGenColumn
-	CodeGenProto     codeGenProto
-	CodeGenTable     codeGenTable
+	db                      *gorm.DB
+	AiMessage               aiMessage
+	AiSession               aiSession
+	BaseAPI                 baseAPI
+	BaseAPII18N             baseAPII18N
+	BaseAPILog              baseAPILog
+	BaseArea                baseArea
+	BaseConfig              baseConfig
+	BaseDataAccessLog       baseDataAccessLog
+	BaseDept                baseDept
+	BaseDict                baseDict
+	BaseDictItem            baseDictItem
+	BaseFile                baseFile
+	BaseI18N                baseI18N
+	BaseJob                 baseJob
+	BaseJobLog              baseJobLog
+	BaseLanguage            baseLanguage
+	BaseLoginLog            baseLoginLog
+	BaseMenu                baseMenu
+	BaseMessage             baseMessage
+	BaseMessageCategory     baseMessageCategory
+	BaseMessageDelivery     baseMessageDelivery
+	BaseMessageDispatch     baseMessageDispatch
+	BaseMigration           baseMigration
+	BaseOperationLog        baseOperationLog
+	BasePermissionLog       basePermissionLog
+	BasePolicyEvaluationLog basePolicyEvaluationLog
+	BasePost                basePost
+	BaseRole                baseRole
+	BaseTenant              baseTenant
+	BaseThirdAccount        baseThirdAccount
+	BaseUser                baseUser
+	BaseUserMFA             baseUserMFA
+	BaseUserMFARecovery     baseUserMFARecovery
+	BaseUserMFATotp         baseUserMFATotp
+	BaseUserMFAWebauthn     baseUserMFAWebauthn
+	CasbinRule              casbinRule
+	CodeGenColumn           codeGenColumn
+	CodeGenProto            codeGenProto
+	CodeGenTable            codeGenTable
+	OauthClient             oauthClient
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:               db,
-		AiMessage:        q.AiMessage.clone(db),
-		AiSession:        q.AiSession.clone(db),
-		BaseAPI:          q.BaseAPI.clone(db),
-		BaseAPII18N:      q.BaseAPII18N.clone(db),
-		BaseArea:         q.BaseArea.clone(db),
-		BaseConfig:       q.BaseConfig.clone(db),
-		BaseDept:         q.BaseDept.clone(db),
-		BaseDict:         q.BaseDict.clone(db),
-		BaseDictItem:     q.BaseDictItem.clone(db),
-		BaseI18N:         q.BaseI18N.clone(db),
-		BaseJob:          q.BaseJob.clone(db),
-		BaseJobLog:       q.BaseJobLog.clone(db),
-		BaseLanguage:     q.BaseLanguage.clone(db),
-		BaseLog:          q.BaseLog.clone(db),
-		BaseMenu:         q.BaseMenu.clone(db),
-		BaseMigration:    q.BaseMigration.clone(db),
-		BasePost:         q.BasePost.clone(db),
-		BaseRole:         q.BaseRole.clone(db),
-		BaseTenant:       q.BaseTenant.clone(db),
-		BaseThirdAccount: q.BaseThirdAccount.clone(db),
-		BaseUser:         q.BaseUser.clone(db),
-		CasbinRule:       q.CasbinRule.clone(db),
-		CodeGenColumn:    q.CodeGenColumn.clone(db),
-		CodeGenProto:     q.CodeGenProto.clone(db),
-		CodeGenTable:     q.CodeGenTable.clone(db),
+		db:                      db,
+		AiMessage:               q.AiMessage.clone(db),
+		AiSession:               q.AiSession.clone(db),
+		BaseAPI:                 q.BaseAPI.clone(db),
+		BaseAPII18N:             q.BaseAPII18N.clone(db),
+		BaseAPILog:              q.BaseAPILog.clone(db),
+		BaseArea:                q.BaseArea.clone(db),
+		BaseConfig:              q.BaseConfig.clone(db),
+		BaseDataAccessLog:       q.BaseDataAccessLog.clone(db),
+		BaseDept:                q.BaseDept.clone(db),
+		BaseDict:                q.BaseDict.clone(db),
+		BaseDictItem:            q.BaseDictItem.clone(db),
+		BaseFile:                q.BaseFile.clone(db),
+		BaseI18N:                q.BaseI18N.clone(db),
+		BaseJob:                 q.BaseJob.clone(db),
+		BaseJobLog:              q.BaseJobLog.clone(db),
+		BaseLanguage:            q.BaseLanguage.clone(db),
+		BaseLoginLog:            q.BaseLoginLog.clone(db),
+		BaseMenu:                q.BaseMenu.clone(db),
+		BaseMessage:             q.BaseMessage.clone(db),
+		BaseMessageCategory:     q.BaseMessageCategory.clone(db),
+		BaseMessageDelivery:     q.BaseMessageDelivery.clone(db),
+		BaseMessageDispatch:     q.BaseMessageDispatch.clone(db),
+		BaseMigration:           q.BaseMigration.clone(db),
+		BaseOperationLog:        q.BaseOperationLog.clone(db),
+		BasePermissionLog:       q.BasePermissionLog.clone(db),
+		BasePolicyEvaluationLog: q.BasePolicyEvaluationLog.clone(db),
+		BasePost:                q.BasePost.clone(db),
+		BaseRole:                q.BaseRole.clone(db),
+		BaseTenant:              q.BaseTenant.clone(db),
+		BaseThirdAccount:        q.BaseThirdAccount.clone(db),
+		BaseUser:                q.BaseUser.clone(db),
+		BaseUserMFA:             q.BaseUserMFA.clone(db),
+		BaseUserMFARecovery:     q.BaseUserMFARecovery.clone(db),
+		BaseUserMFATotp:         q.BaseUserMFATotp.clone(db),
+		BaseUserMFAWebauthn:     q.BaseUserMFAWebauthn.clone(db),
+		CasbinRule:              q.CasbinRule.clone(db),
+		CodeGenColumn:           q.CodeGenColumn.clone(db),
+		CodeGenProto:            q.CodeGenProto.clone(db),
+		CodeGenTable:            q.CodeGenTable.clone(db),
+		OauthClient:             q.OauthClient.clone(db),
 	}
 }
 
@@ -118,90 +163,135 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:               db,
-		AiMessage:        q.AiMessage.replaceDB(db),
-		AiSession:        q.AiSession.replaceDB(db),
-		BaseAPI:          q.BaseAPI.replaceDB(db),
-		BaseAPII18N:      q.BaseAPII18N.replaceDB(db),
-		BaseArea:         q.BaseArea.replaceDB(db),
-		BaseConfig:       q.BaseConfig.replaceDB(db),
-		BaseDept:         q.BaseDept.replaceDB(db),
-		BaseDict:         q.BaseDict.replaceDB(db),
-		BaseDictItem:     q.BaseDictItem.replaceDB(db),
-		BaseI18N:         q.BaseI18N.replaceDB(db),
-		BaseJob:          q.BaseJob.replaceDB(db),
-		BaseJobLog:       q.BaseJobLog.replaceDB(db),
-		BaseLanguage:     q.BaseLanguage.replaceDB(db),
-		BaseLog:          q.BaseLog.replaceDB(db),
-		BaseMenu:         q.BaseMenu.replaceDB(db),
-		BaseMigration:    q.BaseMigration.replaceDB(db),
-		BasePost:         q.BasePost.replaceDB(db),
-		BaseRole:         q.BaseRole.replaceDB(db),
-		BaseTenant:       q.BaseTenant.replaceDB(db),
-		BaseThirdAccount: q.BaseThirdAccount.replaceDB(db),
-		BaseUser:         q.BaseUser.replaceDB(db),
-		CasbinRule:       q.CasbinRule.replaceDB(db),
-		CodeGenColumn:    q.CodeGenColumn.replaceDB(db),
-		CodeGenProto:     q.CodeGenProto.replaceDB(db),
-		CodeGenTable:     q.CodeGenTable.replaceDB(db),
+		db:                      db,
+		AiMessage:               q.AiMessage.replaceDB(db),
+		AiSession:               q.AiSession.replaceDB(db),
+		BaseAPI:                 q.BaseAPI.replaceDB(db),
+		BaseAPII18N:             q.BaseAPII18N.replaceDB(db),
+		BaseAPILog:              q.BaseAPILog.replaceDB(db),
+		BaseArea:                q.BaseArea.replaceDB(db),
+		BaseConfig:              q.BaseConfig.replaceDB(db),
+		BaseDataAccessLog:       q.BaseDataAccessLog.replaceDB(db),
+		BaseDept:                q.BaseDept.replaceDB(db),
+		BaseDict:                q.BaseDict.replaceDB(db),
+		BaseDictItem:            q.BaseDictItem.replaceDB(db),
+		BaseFile:                q.BaseFile.replaceDB(db),
+		BaseI18N:                q.BaseI18N.replaceDB(db),
+		BaseJob:                 q.BaseJob.replaceDB(db),
+		BaseJobLog:              q.BaseJobLog.replaceDB(db),
+		BaseLanguage:            q.BaseLanguage.replaceDB(db),
+		BaseLoginLog:            q.BaseLoginLog.replaceDB(db),
+		BaseMenu:                q.BaseMenu.replaceDB(db),
+		BaseMessage:             q.BaseMessage.replaceDB(db),
+		BaseMessageCategory:     q.BaseMessageCategory.replaceDB(db),
+		BaseMessageDelivery:     q.BaseMessageDelivery.replaceDB(db),
+		BaseMessageDispatch:     q.BaseMessageDispatch.replaceDB(db),
+		BaseMigration:           q.BaseMigration.replaceDB(db),
+		BaseOperationLog:        q.BaseOperationLog.replaceDB(db),
+		BasePermissionLog:       q.BasePermissionLog.replaceDB(db),
+		BasePolicyEvaluationLog: q.BasePolicyEvaluationLog.replaceDB(db),
+		BasePost:                q.BasePost.replaceDB(db),
+		BaseRole:                q.BaseRole.replaceDB(db),
+		BaseTenant:              q.BaseTenant.replaceDB(db),
+		BaseThirdAccount:        q.BaseThirdAccount.replaceDB(db),
+		BaseUser:                q.BaseUser.replaceDB(db),
+		BaseUserMFA:             q.BaseUserMFA.replaceDB(db),
+		BaseUserMFARecovery:     q.BaseUserMFARecovery.replaceDB(db),
+		BaseUserMFATotp:         q.BaseUserMFATotp.replaceDB(db),
+		BaseUserMFAWebauthn:     q.BaseUserMFAWebauthn.replaceDB(db),
+		CasbinRule:              q.CasbinRule.replaceDB(db),
+		CodeGenColumn:           q.CodeGenColumn.replaceDB(db),
+		CodeGenProto:            q.CodeGenProto.replaceDB(db),
+		CodeGenTable:            q.CodeGenTable.replaceDB(db),
+		OauthClient:             q.OauthClient.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	AiMessage        *aiMessageDo
-	AiSession        *aiSessionDo
-	BaseAPI          *baseAPIDo
-	BaseAPII18N      *baseAPII18NDo
-	BaseArea         *baseAreaDo
-	BaseConfig       *baseConfigDo
-	BaseDept         *baseDeptDo
-	BaseDict         *baseDictDo
-	BaseDictItem     *baseDictItemDo
-	BaseI18N         *baseI18NDo
-	BaseJob          *baseJobDo
-	BaseJobLog       *baseJobLogDo
-	BaseLanguage     *baseLanguageDo
-	BaseLog          *baseLogDo
-	BaseMenu         *baseMenuDo
-	BaseMigration    *baseMigrationDo
-	BasePost         *basePostDo
-	BaseRole         *baseRoleDo
-	BaseTenant       *baseTenantDo
-	BaseThirdAccount *baseThirdAccountDo
-	BaseUser         *baseUserDo
-	CasbinRule       *casbinRuleDo
-	CodeGenColumn    *codeGenColumnDo
-	CodeGenProto     *codeGenProtoDo
-	CodeGenTable     *codeGenTableDo
+	AiMessage               *aiMessageDo
+	AiSession               *aiSessionDo
+	BaseAPI                 *baseAPIDo
+	BaseAPII18N             *baseAPII18NDo
+	BaseAPILog              *baseAPILogDo
+	BaseArea                *baseAreaDo
+	BaseConfig              *baseConfigDo
+	BaseDataAccessLog       *baseDataAccessLogDo
+	BaseDept                *baseDeptDo
+	BaseDict                *baseDictDo
+	BaseDictItem            *baseDictItemDo
+	BaseFile                *baseFileDo
+	BaseI18N                *baseI18NDo
+	BaseJob                 *baseJobDo
+	BaseJobLog              *baseJobLogDo
+	BaseLanguage            *baseLanguageDo
+	BaseLoginLog            *baseLoginLogDo
+	BaseMenu                *baseMenuDo
+	BaseMessage             *baseMessageDo
+	BaseMessageCategory     *baseMessageCategoryDo
+	BaseMessageDelivery     *baseMessageDeliveryDo
+	BaseMessageDispatch     *baseMessageDispatchDo
+	BaseMigration           *baseMigrationDo
+	BaseOperationLog        *baseOperationLogDo
+	BasePermissionLog       *basePermissionLogDo
+	BasePolicyEvaluationLog *basePolicyEvaluationLogDo
+	BasePost                *basePostDo
+	BaseRole                *baseRoleDo
+	BaseTenant              *baseTenantDo
+	BaseThirdAccount        *baseThirdAccountDo
+	BaseUser                *baseUserDo
+	BaseUserMFA             *baseUserMFADo
+	BaseUserMFARecovery     *baseUserMFARecoveryDo
+	BaseUserMFATotp         *baseUserMFATotpDo
+	BaseUserMFAWebauthn     *baseUserMFAWebauthnDo
+	CasbinRule              *casbinRuleDo
+	CodeGenColumn           *codeGenColumnDo
+	CodeGenProto            *codeGenProtoDo
+	CodeGenTable            *codeGenTableDo
+	OauthClient             *oauthClientDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		AiMessage:        q.AiMessage.WithContext(ctx),
-		AiSession:        q.AiSession.WithContext(ctx),
-		BaseAPI:          q.BaseAPI.WithContext(ctx),
-		BaseAPII18N:      q.BaseAPII18N.WithContext(ctx),
-		BaseArea:         q.BaseArea.WithContext(ctx),
-		BaseConfig:       q.BaseConfig.WithContext(ctx),
-		BaseDept:         q.BaseDept.WithContext(ctx),
-		BaseDict:         q.BaseDict.WithContext(ctx),
-		BaseDictItem:     q.BaseDictItem.WithContext(ctx),
-		BaseI18N:         q.BaseI18N.WithContext(ctx),
-		BaseJob:          q.BaseJob.WithContext(ctx),
-		BaseJobLog:       q.BaseJobLog.WithContext(ctx),
-		BaseLanguage:     q.BaseLanguage.WithContext(ctx),
-		BaseLog:          q.BaseLog.WithContext(ctx),
-		BaseMenu:         q.BaseMenu.WithContext(ctx),
-		BaseMigration:    q.BaseMigration.WithContext(ctx),
-		BasePost:         q.BasePost.WithContext(ctx),
-		BaseRole:         q.BaseRole.WithContext(ctx),
-		BaseTenant:       q.BaseTenant.WithContext(ctx),
-		BaseThirdAccount: q.BaseThirdAccount.WithContext(ctx),
-		BaseUser:         q.BaseUser.WithContext(ctx),
-		CasbinRule:       q.CasbinRule.WithContext(ctx),
-		CodeGenColumn:    q.CodeGenColumn.WithContext(ctx),
-		CodeGenProto:     q.CodeGenProto.WithContext(ctx),
-		CodeGenTable:     q.CodeGenTable.WithContext(ctx),
+		AiMessage:               q.AiMessage.WithContext(ctx),
+		AiSession:               q.AiSession.WithContext(ctx),
+		BaseAPI:                 q.BaseAPI.WithContext(ctx),
+		BaseAPII18N:             q.BaseAPII18N.WithContext(ctx),
+		BaseAPILog:              q.BaseAPILog.WithContext(ctx),
+		BaseArea:                q.BaseArea.WithContext(ctx),
+		BaseConfig:              q.BaseConfig.WithContext(ctx),
+		BaseDataAccessLog:       q.BaseDataAccessLog.WithContext(ctx),
+		BaseDept:                q.BaseDept.WithContext(ctx),
+		BaseDict:                q.BaseDict.WithContext(ctx),
+		BaseDictItem:            q.BaseDictItem.WithContext(ctx),
+		BaseFile:                q.BaseFile.WithContext(ctx),
+		BaseI18N:                q.BaseI18N.WithContext(ctx),
+		BaseJob:                 q.BaseJob.WithContext(ctx),
+		BaseJobLog:              q.BaseJobLog.WithContext(ctx),
+		BaseLanguage:            q.BaseLanguage.WithContext(ctx),
+		BaseLoginLog:            q.BaseLoginLog.WithContext(ctx),
+		BaseMenu:                q.BaseMenu.WithContext(ctx),
+		BaseMessage:             q.BaseMessage.WithContext(ctx),
+		BaseMessageCategory:     q.BaseMessageCategory.WithContext(ctx),
+		BaseMessageDelivery:     q.BaseMessageDelivery.WithContext(ctx),
+		BaseMessageDispatch:     q.BaseMessageDispatch.WithContext(ctx),
+		BaseMigration:           q.BaseMigration.WithContext(ctx),
+		BaseOperationLog:        q.BaseOperationLog.WithContext(ctx),
+		BasePermissionLog:       q.BasePermissionLog.WithContext(ctx),
+		BasePolicyEvaluationLog: q.BasePolicyEvaluationLog.WithContext(ctx),
+		BasePost:                q.BasePost.WithContext(ctx),
+		BaseRole:                q.BaseRole.WithContext(ctx),
+		BaseTenant:              q.BaseTenant.WithContext(ctx),
+		BaseThirdAccount:        q.BaseThirdAccount.WithContext(ctx),
+		BaseUser:                q.BaseUser.WithContext(ctx),
+		BaseUserMFA:             q.BaseUserMFA.WithContext(ctx),
+		BaseUserMFARecovery:     q.BaseUserMFARecovery.WithContext(ctx),
+		BaseUserMFATotp:         q.BaseUserMFATotp.WithContext(ctx),
+		BaseUserMFAWebauthn:     q.BaseUserMFAWebauthn.WithContext(ctx),
+		CasbinRule:              q.CasbinRule.WithContext(ctx),
+		CodeGenColumn:           q.CodeGenColumn.WithContext(ctx),
+		CodeGenProto:            q.CodeGenProto.WithContext(ctx),
+		CodeGenTable:            q.CodeGenTable.WithContext(ctx),
+		OauthClient:             q.OauthClient.WithContext(ctx),
 	}
 }
 

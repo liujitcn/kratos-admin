@@ -689,6 +689,9 @@
   "base.login.captcha.verify_failed": {
     "other": "認証コードの検証に失敗しました"
   },
+  "base.mfa.confirm_enrollment.code.invalid": {
+    "other": "ワンタイムパスワードが正しくありません"
+  },
   "base.ai.message.not_found": {
     "other": "メッセージは存在しません"
   },
@@ -748,9 +751,6 @@
   },
   "openapi.admin.service.base_language": {
     "other": "Admin 言語管理サービス"
-  },
-  "openapi.admin.service.base_log": {
-    "other": "Admin ログサービス"
   },
   "openapi.admin.service.base_menu_admin": {
     "other": "Admin メニュー管理サービス"
@@ -856,6 +856,9 @@
   },
   "system.admin.ops_monitoring.database": {
     "other": "データベース"
+  },
+  "system.admin.ops_monitoring.dispatch_unconfigured": {
+    "other": "メッセージ配信リポジトリが未設定です"
   },
   "system.admin.ops_monitoring.address_count": {
     "other": "アドレス数"

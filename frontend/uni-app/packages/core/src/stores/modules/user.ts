@@ -5,6 +5,8 @@ import type {
   CreateOauthSessionResponse,
 } from '../../rpc/base/v1/oauth'
 import type { LoginRequest, LoginResponse } from '../../rpc/base/v1/login'
+import type { VerifyMfaRequest } from '../../rpc/base/v1/mfa'
+import { defMfaService } from '../../api/base/mfa'
 import { defAuthService } from '../../api/system/auth'
 import { defLoginService } from '../../api/base/login'
 import { defOauthService } from '../../api/base/oauth'
@@ -82,16 +84,30 @@ export const useUserStore = defineStore(
      * @returns
      */
     function login(request: LoginRequest) {
-      return new Promise<void>((resolve, reject) => {
+      return new Promise<LoginResponse>((resolve, reject) => {
         defLoginService
           .Login(request)
           .then(async (data) => {
-            await applyLoginToken(data)
-            resolve()
+            if (data.status === 1 || data.status === 0 || data.status === 4)
+              await applyLoginToken(data)
+            resolve(data)
           })
           .catch((error) => {
             reject(error)
           })
+      })
+    }
+
+    /** 校验登录阶段的多因素认证并保存正式令牌。 */
+    function verifyMfa(request: VerifyMfaRequest) {
+      return new Promise<LoginResponse>((resolve, reject) => {
+        defMfaService
+          .VerifyMfa(request)
+          .then(async (data) => {
+            await applyLoginToken(data)
+            resolve(data)
+          })
+          .catch((error) => reject(error))
       })
     }
 
@@ -110,7 +126,8 @@ export const useUserStore = defineStore(
               resolve(data)
               return
             }
-            await applyLoginToken(data)
+            if (data.status === 1 || data.status === 0 || data.status === 4)
+              await applyLoginToken(data)
             resolve(data)
           })
           .catch((error) => {
@@ -121,12 +138,13 @@ export const useUserStore = defineStore(
 
     /** 绑定已有账号并创建三方登录会话。 */
     function bindOauthSession(request: BindOauthSessionRequest) {
-      return new Promise<void>((resolve, reject) => {
+      return new Promise<CreateOauthSessionResponse>((resolve, reject) => {
         defOauthService
           .BindOauthSession(request)
           .then(async (data) => {
-            await applyLoginToken(data)
-            resolve()
+            if (data.status === 1 || data.status === 0 || data.status === 4)
+              await applyLoginToken(data)
+            resolve(data)
           })
           .catch((error) => {
             reject(error)
@@ -239,6 +257,7 @@ export const useUserStore = defineStore(
       isAuthenticated,
       getUserProfile,
       login,
+      verifyMfa,
       createOauthSession,
       bindOauthSession,
       logout,

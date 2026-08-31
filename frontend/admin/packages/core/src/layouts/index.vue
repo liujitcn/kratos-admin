@@ -3,6 +3,7 @@
   <el-watermark id="watermark" :font="font" :content="watermarkContent">
     <component :is="LayoutComponents[layout]" />
     <ThemeDrawer />
+    <LockScreen />
   </el-watermark>
 </template>
 
@@ -12,6 +13,7 @@ import { LayoutType } from "@/stores/interface";
 import { useGlobalStore } from "@/stores/modules/global";
 import { useConfigStore } from "@/stores/modules/config";
 import ThemeDrawer from "./components/ThemeDrawer/index.vue";
+import LockScreen from "./components/LockScreen.vue";
 import LayoutVertical from "./LayoutVertical/index.vue";
 import LayoutClassic from "./LayoutClassic/index.vue";
 import LayoutTransverse from "./LayoutTransverse/index.vue";

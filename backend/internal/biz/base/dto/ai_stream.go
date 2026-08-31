@@ -1,6 +1,6 @@
 package dto
 
-import "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+import basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 
 // AiStreamEvent 表示聊天专用 SSE 事件名称。
 type AiStreamEvent string

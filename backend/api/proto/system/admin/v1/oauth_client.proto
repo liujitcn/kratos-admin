@@ -1,0 +1,199 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "buf/validate/validate.proto";
+import "common/v1/enum.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "system/admin/v1/base_api.proto";
+
+// 开放授权客户端管理服务。
+service OauthClientService {
+  // 查询可授权的开发接口选项。
+  rpc OptionOauthClientApi(OptionOauthClientApiRequest) returns (OptionOauthClientApiResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/oauth-client/api"};
+  }
+
+  // 分页查询开放授权客户端。
+  rpc PageOauthClient(PageOauthClientRequest) returns (PageOauthClientResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/oauth-client"};
+  }
+
+  // 查询开放授权客户端详情。
+  rpc GetOauthClient(GetOauthClientRequest) returns (OauthClientForm) {
+    option (google.api.http) = {get: "/api/v1/admin/base/oauth-client/{id}"};
+  }
+
+  // 查询客户端凭据元数据；客户端密钥和协议密钥不会通过接口回传。
+  rpc GetOauthClientCredentials(GetOauthClientCredentialsRequest) returns (OauthClientCredentials) {
+    option (google.api.http) = {get: "/api/v1/admin/base/oauth-client/{id}/credentials"};
+  }
+
+  // 轮换客户端密钥并一次性返回新凭据。
+  rpc RotateOauthClientCredentials(RotateOauthClientCredentialsRequest) returns (OauthClientCredentials) {
+    option (google.api.http) = {post: "/api/v1/admin/base/oauth-client/{id}/credentials/rotate"};
+  }
+
+  // 创建开放授权客户端。
+  rpc CreateOauthClient(CreateOauthClientRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/base/oauth-client"
+      body: "oauth_client"
+    };
+  }
+
+  // 更新开放授权客户端。
+  rpc UpdateOauthClient(UpdateOauthClientRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/oauth-client/{oauth_client.id}"
+      body: "oauth_client"
+    };
+  }
+
+  // 删除开放授权客户端。
+  rpc DeleteOauthClient(DeleteOauthClientRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/api/v1/admin/base/oauth-client/{id}"};
+  }
+
+  // 设置开放授权客户端状态。
+  rpc SetOauthClientStatus(SetOauthClientStatusRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/oauth-client/{id}/status"
+      body: "*"
+    };
+  }
+}
+
+// 可授权 API 选项查询条件。
+message OptionOauthClientApiRequest {}
+
+// 可授权 API 选项响应。
+message OptionOauthClientApiResponse {
+  repeated BaseApi base_apis = 1 [(gnostic.openapi.v3.property) = {description: "可授权的开发接口列表"}]; // 可授权的开发接口列表
+}
+
+// 开放授权客户端分页查询条件。
+message PageOauthClientRequest {
+  optional string client_name = 1 [(gnostic.openapi.v3.property) = {description: "客户端名称"}]; // 客户端名称
+
+  optional .common.v1.Status status = 2 [(gnostic.openapi.v3.property) = {description: "客户端状态"}]; // 客户端状态
+
+  optional int64 tenant_id = 3 [(gnostic.openapi.v3.property) = {description: "绑定租户ID"}]; // 绑定租户ID
+
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "页码"}]; // 页码
+
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页数量"}]; // 每页数量
+}
+
+// 开放授权客户端分页响应。
+message PageOauthClientResponse {
+  repeated OauthClient oauth_clients = 1 [(gnostic.openapi.v3.property) = {description: "客户端列表"}]; // 客户端列表
+
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 开放授权客户端查询条件。
+message GetOauthClientRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "客户端ID"}]; // 客户端ID
+}
+
+// 开放授权客户端凭据查询条件。
+message GetOauthClientCredentialsRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "客户端ID"}]; // 客户端ID
+}
+
+// 开放授权客户端凭据轮换条件。
+message RotateOauthClientCredentialsRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "客户端ID"}]; // 客户端ID
+}
+
+// 创建开放授权客户端请求。
+message CreateOauthClientRequest {
+  OauthClientForm oauth_client = 1 [(gnostic.openapi.v3.property) = {description: "客户端表单"}, (buf.validate.field).required = true]; // 客户端表单
+}
+
+// 更新开放授权客户端请求。
+message UpdateOauthClientRequest {
+  OauthClientForm oauth_client = 1 [(gnostic.openapi.v3.property) = {description: "客户端表单"}, (buf.validate.field).required = true]; // 客户端表单
+}
+
+// 删除开放授权客户端请求。
+message DeleteOauthClientRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "客户端ID列表"}, (buf.validate.field).cel = {id: "system.admin.oauth_client.delete.id.required" message: "客户端ID列表不能为空" expression: "this.size() > 0"}]; // 客户端ID列表
+}
+
+// 设置开放授权客户端状态请求。
+message SetOauthClientStatusRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "客户端ID"}, (buf.validate.field).cel = {id: "system.admin.oauth_client.set_status.id.required" message: "客户端ID不能为空" expression: "this > 0"}]; // 客户端ID
+
+  .common.v1.Status status = 2 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+}
+
+// 开放授权客户端表单。
+message OauthClientForm {
+  option (buf.validate.message).cel = {
+    id: "system.admin.oauth_client.form.client_name.required"
+    message: "客户端名称不能为空"
+    expression: "this.client_name.size() > 0"
+  };
+
+  option (buf.validate.message).cel = {
+    id: "system.admin.oauth_client.form.api.unique"
+    message: "授权 API 不能重复"
+    expression: "this.api.unique()"
+  };
+
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "客户端ID"}]; // 客户端ID
+
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "绑定租户ID，默认租户管理员可指定"}]; // 绑定租户ID
+
+  string client_name = 3 [(gnostic.openapi.v3.property) = {description: "客户端名称"}]; // 客户端名称
+
+  OauthClientCryptoType crypto_type = 4 [(gnostic.openapi.v3.property) = {description: "协议加密类型"}, (buf.validate.field).enum = {defined_only: true}]; // 协议加密类型
+
+  string ip_whitelist = 5 [(gnostic.openapi.v3.property) = {description: "IP白名单，逗号分隔并支持CIDR"}]; // IP白名单
+
+  repeated string api = 6 [(gnostic.openapi.v3.property) = {description: "允许访问的 base_api.operation 列表"}]; // 允许访问的 API operation 列表
+
+  .common.v1.Status status = 7 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+}
+
+// 开放授权客户端非敏感信息。
+message OauthClient {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "客户端ID"}]; // 客户端ID
+
+  string client_id = 2 [(gnostic.openapi.v3.property) = {description: "客户端标识"}]; // 客户端标识
+
+  string client_name = 3 [(gnostic.openapi.v3.property) = {description: "客户端名称"}]; // 客户端名称
+
+  int64 tenant_id = 4 [(gnostic.openapi.v3.property) = {description: "绑定租户ID"}]; // 绑定租户ID
+
+  OauthClientCryptoType crypto_type = 5 [(gnostic.openapi.v3.property) = {description: "协议加密类型"}]; // 协议加密类型
+
+  string ip_whitelist = 6 [(gnostic.openapi.v3.property) = {description: "IP白名单"}]; // IP白名单
+
+  repeated string api = 7 [(gnostic.openapi.v3.property) = {description: "允许访问的 API operation 列表"}]; // 允许访问的 API operation 列表
+
+  .common.v1.Status status = 8 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+}
+
+// 开放授权客户端凭据元数据；敏感密钥字段始终为空，仅保留协议类型和客户端标识。
+message OauthClientCredentials {
+  string client_id = 1 [(gnostic.openapi.v3.property) = {description: "客户端标识"}]; // 客户端标识
+
+  string client_secret = 2 [(gnostic.openapi.v3.property) = {description: "客户端密钥"}]; // 客户端密钥
+
+  OauthClientCryptoType crypto_type = 3 [(gnostic.openapi.v3.property) = {description: "协议加密类型"}]; // 协议加密类型
+
+  string crypto_key = 4 [(gnostic.openapi.v3.property) = {description: "协议加密密钥"}]; // 协议加密密钥
+}
+
+// OauthClientCryptoType 定义开放授权客户端请求和响应使用的加密算法。
+// 生产环境仅允许具备完整性保护的 AES-GCM 或 SM4-GCM，历史 3DES 值已禁用。
+enum OauthClientCryptoType {
+  OAUTH_CLIENT_CRYPTO_TYPE_UNSPECIFIED = 0;
+  OAUTH_CLIENT_CRYPTO_TYPE_SM4 = 1;
+  OAUTH_CLIENT_CRYPTO_TYPE_AES = 2;
+}

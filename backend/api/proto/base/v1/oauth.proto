@@ -7,6 +7,7 @@ import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "common/v1/types.proto";
+import "base/v1/login.proto";
 
 // Base三方登录公共服务
 service OauthService {
@@ -170,6 +171,18 @@ message CreateOauthSessionResponse {
   int64 expires_in = 4 [(gnostic.openapi.v3.property) = {description: "令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。"}]; // 令牌有效时间，单位为秒。
 
   bool binding_required = 5 [(gnostic.openapi.v3.property) = {description: "是否需要绑定已有账号"}]; // 是否需要绑定已有账号。
+
+  .base.v1.LoginStatus status = 6 [(gnostic.openapi.v3.property) = {description: "登录认证状态"}]; // 登录认证状态
+
+  string mfa_challenge_id = 7 [(gnostic.openapi.v3.property) = {description: "多因素认证挑战ID"}]; // 多因素认证挑战ID
+
+  string mfa_setup_ticket = 8 [(gnostic.openapi.v3.property) = {description: "多因素认证绑定临时票据"}]; // 多因素认证绑定临时票据
+
+  int64 mfa_expires_in = 9 [(gnostic.openapi.v3.property) = {description: "多因素认证挑战或绑定票据有效时间，单位秒"}]; // 多因素认证挑战或绑定票据有效时间，单位秒
+
+  string mfa_method = 10 [(gnostic.openapi.v3.property) = {description: "多因素认证方式：totp、webauthn"}]; // 多因素认证方式：totp、webauthn
+
+  string mfa_webauthn_options_json = 11 [(gnostic.openapi.v3.property) = {description: "WebAuthn认证选项JSON"}]; // WebAuthn认证选项JSON
 }
 
 // 三方登录回调请求
@@ -211,6 +224,18 @@ message ExchangeOauthTicketResponse {
   }]; // 令牌类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型。
 
   int64 expires_in = 4 [(gnostic.openapi.v3.property) = {description: "令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。"}]; // 令牌有效时间，单位为秒。
+
+  .base.v1.LoginStatus status = 5 [(gnostic.openapi.v3.property) = {description: "登录认证状态"}]; // 登录认证状态
+
+  string mfa_challenge_id = 6 [(gnostic.openapi.v3.property) = {description: "多因素认证挑战ID"}]; // 多因素认证挑战ID
+
+  string mfa_setup_ticket = 7 [(gnostic.openapi.v3.property) = {description: "多因素认证绑定临时票据"}]; // 多因素认证绑定临时票据
+
+  int64 mfa_expires_in = 8 [(gnostic.openapi.v3.property) = {description: "多因素认证挑战或绑定票据有效时间，单位秒"}]; // 多因素认证挑战或绑定票据有效时间，单位秒
+
+  string mfa_method = 9 [(gnostic.openapi.v3.property) = {description: "多因素认证方式：totp、webauthn"}]; // 多因素认证方式：totp、webauthn
+
+  string mfa_webauthn_options_json = 10 [(gnostic.openapi.v3.property) = {description: "WebAuthn认证选项JSON"}]; // WebAuthn认证选项JSON
 }
 
 // 个人中心三方账号绑定回调请求

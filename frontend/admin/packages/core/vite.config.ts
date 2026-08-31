@@ -28,6 +28,8 @@ export interface AdminViteConfigOptions {
   optimizeDependencies?: string[];
   /** 静态资源构建输出目录。 */
   outputDirectory?: string;
+  /** 自动组件声明输出位置，外部宿主默认不写入依赖包。 */
+  componentDts?: string | false;
 }
 
 /** 创建管理端宿主 Vite 配置。 */
@@ -109,7 +111,7 @@ export function defineAdminViteConfig(options: AdminViteConfigOptions = {}) {
       plugins: createVitePlugins(viteEnv, {
         sourcePatterns,
         autoImportDts: false,
-        componentDts: false,
+        componentDts: options.componentDts ?? false,
         iconDirectories: [resolve(coreSourceRoot, "assets/icons")]
       }),
       build: {

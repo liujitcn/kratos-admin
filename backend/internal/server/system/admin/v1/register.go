@@ -1,48 +1,75 @@
 package admin
 
 import (
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/tool"
-	systemadmin "github.com/liujitcn/kratos-admin/backend/internal/service/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/oauthsecret"
+	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
+	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/oauth"
+	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/passwordpolicy"
+	"github.com/liujitcn/kratos-admin/backend/internal/service/system/admin/v1"
 
+	"github.com/go-kratos/kratos/v3/middleware"
 	"github.com/go-kratos/kratos/v3/transport/http"
+	"github.com/liujitcn/kratos-kit/auth/authn/engine"
 	"github.com/liujitcn/kratos-kit/transport/mcp"
 	"google.golang.org/grpc"
 )
 
 // Services 汇总 system.admin.v1 的服务实现。
 type Services struct {
-	Auth    *systemadmin.AuthService
-	BaseAPI *systemadmin.BaseApiService
+	Auth        *admin.AuthService
+	BaseAPI     *admin.BaseApiService
+	OauthClient *admin.OauthClientService
 
-	BaseArea         *systemadmin.BaseAreaService
-	BaseConfig       *systemadmin.BaseConfigService
-	BaseDept         *systemadmin.BaseDeptService
-	BaseDict         *systemadmin.BaseDictService
-	BaseJob          *systemadmin.BaseJobService
-	BaseLanguage     *systemadmin.BaseLanguageService
-	BaseLog          *systemadmin.BaseLogService
-	BaseMenu         *systemadmin.BaseMenuService
-	BasePost         *systemadmin.BasePostService
-	BaseRole         *systemadmin.BaseRoleService
-	BaseTenant       *systemadmin.BaseTenantService
-	BaseThirdAccount *systemadmin.BaseThirdAccountService
-	BaseI18n         *systemadmin.BaseI18nService
-	BaseUser         *systemadmin.BaseUserService
-	CodeGen          *systemadmin.CodeGenService
-	CodeGenColumn    *systemadmin.CodeGenColumnService
-	CodeGenProto     *systemadmin.CodeGenProtoService
-	CodeGenTable     *systemadmin.CodeGenTableService
-	BaseMigration    *systemadmin.BaseMigrationService
-	OpsMonitoring    *systemadmin.OpsMonitoringService
-	RuntimeLog       *systemadmin.RuntimeLogService
-	ProjectDocument  *systemadmin.ProjectDocumentService
+	BaseAPICase              *biz.BaseAPICase
+	BaseUserRepository       *data.BaseUserRepository
+	OauthClientRepository    *data.OauthClientRepository
+	Authenticator            engine.Authenticator
+	OauthCredentialProtector *oauthsecret.Protector
+	AuditLogMiddleware       middleware.Middleware
+
+	BaseArea                *admin.BaseAreaService
+	BaseConfig              *admin.BaseConfigService
+	BaseDept                *admin.BaseDeptService
+	BaseDict                *admin.BaseDictService
+	BaseJob                 *admin.BaseJobService
+	BaseLanguage            *admin.BaseLanguageService
+	BaseLoginLog            *admin.BaseLoginLogService
+	BaseApiLog              *admin.BaseApiLogService
+	BaseOperationLog        *admin.BaseOperationLogService
+	BaseDataAccessLog       *admin.BaseDataAccessLogService
+	BasePermissionLog       *admin.BasePermissionLogService
+	BasePolicyEvaluationLog *admin.BasePolicyEvaluationLogService
+	BaseDashboard           *admin.BaseDashboardService
+	BaseFile                *admin.BaseFileService
+	BaseMenu                *admin.BaseMenuService
+	BaseMessage             *admin.BaseMessageService
+	BaseMessageCategory     *admin.BaseMessageCategoryService
+	BasePost                *admin.BasePostService
+	BaseRole                *admin.BaseRoleService
+	BaseTenant              *admin.BaseTenantService
+	BaseThirdAccount        *admin.BaseThirdAccountService
+	BaseI18n                *admin.BaseI18nService
+	BaseUser                *admin.BaseUserService
+	CodeGen                 *admin.CodeGenService
+	CodeGenColumn           *admin.CodeGenColumnService
+	CodeGenProto            *admin.CodeGenProtoService
+	CodeGenTable            *admin.CodeGenTableService
+	BaseMigration           *admin.BaseMigrationService
+	OpsMonitoring           *admin.OpsMonitoringService
+	RuntimeLog              *admin.RuntimeLogService
+	ProjectDocument         *admin.ProjectDocumentService
+	BaseSession             *admin.BaseSessionService
+	BaseLoginPolicy         *admin.BaseLoginPolicyService
 }
 
 // RegisterGRPC 注册 system.admin.v1 的 gRPC 服务。
 func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	adminv1.RegisterAuthServiceServer(srv, s.Auth)
 	adminv1.RegisterBaseApiServiceServer(srv, s.BaseAPI)
+	adminv1.RegisterOauthClientServiceServer(srv, s.OauthClient)
 
 	adminv1.RegisterBaseAreaServiceServer(srv, s.BaseArea)
 	adminv1.RegisterBaseConfigServiceServer(srv, s.BaseConfig)
@@ -50,8 +77,17 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	adminv1.RegisterBaseDictServiceServer(srv, s.BaseDict)
 	adminv1.RegisterBaseJobServiceServer(srv, s.BaseJob)
 	adminv1.RegisterBaseLanguageServiceServer(srv, s.BaseLanguage)
-	adminv1.RegisterBaseLogServiceServer(srv, s.BaseLog)
+	adminv1.RegisterBaseLoginLogServiceServer(srv, s.BaseLoginLog)
+	adminv1.RegisterBaseApiLogServiceServer(srv, s.BaseApiLog)
+	adminv1.RegisterBaseOperationLogServiceServer(srv, s.BaseOperationLog)
+	adminv1.RegisterBaseDataAccessLogServiceServer(srv, s.BaseDataAccessLog)
+	adminv1.RegisterBasePermissionLogServiceServer(srv, s.BasePermissionLog)
+	adminv1.RegisterBasePolicyEvaluationLogServiceServer(srv, s.BasePolicyEvaluationLog)
+	adminv1.RegisterBaseDashboardServiceServer(srv, s.BaseDashboard)
+	adminv1.RegisterBaseFileServiceServer(srv, s.BaseFile)
 	adminv1.RegisterBaseMenuServiceServer(srv, s.BaseMenu)
+	adminv1.RegisterBaseMessageServiceServer(srv, s.BaseMessage)
+	adminv1.RegisterBaseMessageCategoryServiceServer(srv, s.BaseMessageCategory)
 	adminv1.RegisterBasePostServiceServer(srv, s.BasePost)
 	adminv1.RegisterBaseRoleServiceServer(srv, s.BaseRole)
 	adminv1.RegisterBaseTenantServiceServer(srv, s.BaseTenant)
@@ -66,12 +102,18 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	adminv1.RegisterOpsMonitoringServiceServer(srv, s.OpsMonitoring)
 	adminv1.RegisterRuntimeLogServiceServer(srv, s.RuntimeLog)
 	adminv1.RegisterProjectDocumentServiceServer(srv, s.ProjectDocument)
+	adminv1.RegisterBaseSessionServiceServer(srv, s.BaseSession)
+	adminv1.RegisterBaseLoginPolicyServiceServer(srv, s.BaseLoginPolicy)
 }
 
 // RegisterHTTP 注册 system.admin.v1 的 HTTP 服务。
 func (s Services) RegisterHTTP(srv *http.Server) {
+	policyMiddleware := passwordpolicy.NewMiddleware(s.BaseUserRepository)
+	srv.Use("/*", oauth.NewIPMiddleware(s.OauthClientRepository), oauth.NewClientMiddleware(s.OauthClientRepository, s.BaseAPICase), s.AuditLogMiddleware, policyMiddleware)
+	srv.Use("/system.admin.v1.*", middleware.Chain(s.AuditLogMiddleware, policyMiddleware))
 	adminv1.RegisterAuthServiceHTTPServer(srv, s.Auth)
 	adminv1.RegisterBaseApiServiceHTTPServer(srv, s.BaseAPI)
+	adminv1.RegisterOauthClientServiceHTTPServer(srv, s.OauthClient)
 
 	adminv1.RegisterBaseAreaServiceHTTPServer(srv, s.BaseArea)
 	adminv1.RegisterBaseConfigServiceHTTPServer(srv, s.BaseConfig)
@@ -79,8 +121,17 @@ func (s Services) RegisterHTTP(srv *http.Server) {
 	adminv1.RegisterBaseDictServiceHTTPServer(srv, s.BaseDict)
 	adminv1.RegisterBaseJobServiceHTTPServer(srv, s.BaseJob)
 	adminv1.RegisterBaseLanguageServiceHTTPServer(srv, s.BaseLanguage)
-	adminv1.RegisterBaseLogServiceHTTPServer(srv, s.BaseLog)
+	adminv1.RegisterBaseLoginLogServiceHTTPServer(srv, s.BaseLoginLog)
+	adminv1.RegisterBaseApiLogServiceHTTPServer(srv, s.BaseApiLog)
+	adminv1.RegisterBaseOperationLogServiceHTTPServer(srv, s.BaseOperationLog)
+	adminv1.RegisterBaseDataAccessLogServiceHTTPServer(srv, s.BaseDataAccessLog)
+	adminv1.RegisterBasePermissionLogServiceHTTPServer(srv, s.BasePermissionLog)
+	adminv1.RegisterBasePolicyEvaluationLogServiceHTTPServer(srv, s.BasePolicyEvaluationLog)
+	adminv1.RegisterBaseDashboardServiceHTTPServer(srv, s.BaseDashboard)
+	adminv1.RegisterBaseFileServiceHTTPServer(srv, s.BaseFile)
 	adminv1.RegisterBaseMenuServiceHTTPServer(srv, s.BaseMenu)
+	adminv1.RegisterBaseMessageServiceHTTPServer(srv, s.BaseMessage)
+	adminv1.RegisterBaseMessageCategoryServiceHTTPServer(srv, s.BaseMessageCategory)
 	adminv1.RegisterBasePostServiceHTTPServer(srv, s.BasePost)
 	adminv1.RegisterBaseRoleServiceHTTPServer(srv, s.BaseRole)
 	adminv1.RegisterBaseTenantServiceHTTPServer(srv, s.BaseTenant)
@@ -94,6 +145,8 @@ func (s Services) RegisterHTTP(srv *http.Server) {
 	adminv1.RegisterOpsMonitoringServiceHTTPServer(srv, s.OpsMonitoring)
 	adminv1.RegisterRuntimeLogServiceHTTPServer(srv, s.RuntimeLog)
 	adminv1.RegisterProjectDocumentServiceHTTPServer(srv, s.ProjectDocument)
+	adminv1.RegisterBaseSessionServiceHTTPServer(srv, s.BaseSession)
+	adminv1.RegisterBaseLoginPolicyServiceHTTPServer(srv, s.BaseLoginPolicy)
 }
 
 // RegisterMCP 注册 system.admin.v1 的 MCP 工具。
@@ -108,7 +161,6 @@ func (s Services) RegisterMCP(server *mcp.Server) {
 	adminv1.RegisterBaseDictServiceMCPTools(mcpSrv, s.BaseDict)
 	adminv1.RegisterBaseJobServiceMCPTools(mcpSrv, s.BaseJob)
 	adminv1.RegisterBaseLanguageServiceMCPTools(mcpSrv, s.BaseLanguage)
-	adminv1.RegisterBaseLogServiceMCPTools(mcpSrv, s.BaseLog)
 	adminv1.RegisterBaseMenuServiceMCPTools(mcpSrv, s.BaseMenu)
 	adminv1.RegisterBasePostServiceMCPTools(mcpSrv, s.BasePost)
 	adminv1.RegisterBaseRoleServiceMCPTools(mcpSrv, s.BaseRole)
@@ -130,6 +182,10 @@ func (s Services) RegisterMCP(server *mcp.Server) {
 	adminv1.RegisterBaseMigrationServiceMCPTools(mcpSrv, s.BaseMigration)
 	adminv1.RegisterOpsMonitoringServiceMCPTools(mcpSrv, s.OpsMonitoring)
 	adminv1.RegisterProjectDocumentServiceMCPTools(mcpSrv, s.ProjectDocument)
+	adminv1.RegisterBaseSessionServiceMCPTools(mcpSrv, s.BaseSession)
+	adminv1.RegisterBaseLoginPolicyServiceMCPTools(mcpSrv, s.BaseLoginPolicy)
+	adminv1.RegisterBaseDashboardServiceMCPTools(mcpSrv, s.BaseDashboard)
+	adminv1.RegisterBaseFileServiceMCPTools(mcpSrv, s.BaseFile)
 }
 
 // AgentTools 创建 system.admin.v1 的管理端 AI 助手工具。
@@ -153,7 +209,6 @@ func (s Services) AgentTools() ([]tool.Invokable, error) {
 		func() ([]tool.Invokable, error) {
 			return adminv1.NewBaseLanguageServiceAgentTools(s.BaseLanguage)
 		},
-		func() ([]tool.Invokable, error) { return adminv1.NewBaseLogServiceAgentTools(s.BaseLog) },
 		func() ([]tool.Invokable, error) {
 			return adminv1.NewBaseMenuServiceAgentTools(s.BaseMenu)
 		},
@@ -187,6 +242,18 @@ func (s Services) AgentTools() ([]tool.Invokable, error) {
 		},
 		func() ([]tool.Invokable, error) {
 			return adminv1.NewBaseMigrationServiceAgentTools(s.BaseMigration)
+		},
+		func() ([]tool.Invokable, error) {
+			return adminv1.NewBaseSessionServiceAgentTools(s.BaseSession)
+		},
+		func() ([]tool.Invokable, error) {
+			return adminv1.NewBaseLoginPolicyServiceAgentTools(s.BaseLoginPolicy)
+		},
+		func() ([]tool.Invokable, error) {
+			return adminv1.NewBaseDashboardServiceAgentTools(s.BaseDashboard)
+		},
+		func() ([]tool.Invokable, error) {
+			return adminv1.NewBaseFileServiceAgentTools(s.BaseFile)
 		},
 		func() ([]tool.Invokable, error) {
 			return adminv1.NewOpsMonitoringServiceAgentTools(s.OpsMonitoring)

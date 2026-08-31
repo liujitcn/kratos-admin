@@ -5,23 +5,25 @@ package module
 
 import (
 	"github.com/google/wire"
-	bizProvider "github.com/liujitcn/kratos-admin/backend/internal/biz"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
-	adminSSE "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/sse"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/sse"
 	configProvider "github.com/liujitcn/kratos-admin/backend/internal/config"
-	adminData "github.com/liujitcn/kratos-admin/backend/internal/data"
+	"github.com/liujitcn/kratos-admin/backend/internal/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/server"
+	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/auditlog"
 	"github.com/liujitcn/kratos-admin/backend/internal/service"
 	"github.com/liujitcn/kratos-admin/backend/internal/task"
 	coreBiz "github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/job"
-	coreModule "github.com/liujitcn/kratos-core/module"
+	"github.com/liujitcn/kratos-core/module"
 	"github.com/liujitcn/kratos-core/queue"
 	"github.com/liujitcn/kratos-core/resource/docs"
 	"github.com/liujitcn/kratos-core/resource/i18n"
 	"github.com/liujitcn/kratos-core/resource/openapi"
 	coreSSE "github.com/liujitcn/kratos-core/sse"
 	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	authnEngine "github.com/liujitcn/kratos-kit/auth/authn/engine"
 	"github.com/liujitcn/kratos-kit/auth/authz/engine"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/database/gorm"
@@ -33,21 +35,23 @@ func BuildModules(
 	databases map[string]*gorm.Client,
 	baseCase *coreBiz.BaseCase,
 	authorizer engine.Engine,
+	authenticator authnEngine.Authenticator,
 	userToken *authData.UserToken,
 	jobRuntime *job.Job,
 	sseRuntime *coreSSE.SSE,
 	docsRuntime *docs.Docs,
 	catalog *i18n.I18n,
 	openAPIRuntime *openapi.OpenAPI,
-) (coreModule.Modules, func(), error) {
+) (module.Modules, func(), error) {
 	panic(wire.Build(
 		ParseAdminAgentTools,
 		ParseAppAgentTools,
 		configProvider.ProviderSet,
 		logstream.DefaultHub,
 		NewModules,
-		bizProvider.ProviderSet,
-		adminData.ProviderSet,
+		biz.ProviderSet,
+		biz.MessageProviderSet,
+		data.ProviderSet,
 		service.ProviderSet,
 		server.ProviderSet,
 	))
@@ -57,9 +61,11 @@ func BuildModules(
 func BuildTasks(
 	databases map[string]*gorm.Client,
 	baseCase *coreBiz.BaseCase,
+	sseRuntime *coreSSE.SSE,
 ) (job.Tasks, func(), error) {
 	panic(wire.Build(
-		adminData.ProviderSet,
+		data.ProviderSet,
+		biz.MessageProviderSet,
 		task.ProviderSet,
 	))
 }
@@ -71,12 +77,21 @@ func BuildStreams(
 	catalog *i18n.I18n,
 ) (coreSSE.Streams, func(), error) {
 	panic(wire.Build(
-		adminData.ProviderSet,
-		adminSSE.ProviderSet,
+		data.ProviderSet,
+		sse.ProviderSet,
 	))
 }
 
 // BuildQueueConsumers 装配 Admin 队列消费者集合。
-func BuildQueueConsumers() queue.Consumers {
-	panic(wire.Build(NewQueueConsumers))
+func BuildQueueConsumers(
+	databases map[string]*gorm.Client,
+	baseCase *coreBiz.BaseCase,
+	sseRuntime *coreSSE.SSE,
+) (queue.Consumers, func(), error) {
+	panic(wire.Build(
+		data.ProviderSet,
+		biz.MessageProviderSet,
+		auditlog.NewConsumer,
+		NewQueueConsumers,
+	))
 }

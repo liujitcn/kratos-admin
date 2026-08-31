@@ -2,15 +2,17 @@
 #
 # 常用流程：
 #   安装全部依赖：make init
-#   启动管理后台：make run
+#   启动全部前端：make run
 #   检查全部前端：make check
-#   构建全部宿主：make build-all
+#   生成全部前端 RPC：make ts
+#   构建全部宿主：make build
 #   生成全部 npm 包：make package
 
 .PHONY: help init reinstall pnpm-admin pnpm-uni-app pnpm-taro-app \
-	run run-admin run-uni-app run-taro-app \
+	ts types-admin ts-admin ts-uni-app ts-taro-app \
+	run run-all run-h5 run-mp-weixin run-admin run-uni-app run-uni-app-h5 run-uni-app-mp-weixin run-taro-app run-taro-app-h5 run-taro-app-mp-weixin \
 	check check-admin check-uni-app check-taro-app \
-	build build-all build-admin build-uni-app build-taro-app build-package \
+	build build-all build-h5 build-mp-weixin build-admin build-uni-app build-uni-app-h5 build-uni-app-mp-weixin build-taro-app build-taro-app-h5 build-taro-app-mp-weixin build-package \
 	package package-admin package-uni-app package-taro-app \
 	publish publish-only publish-admin publish-uni-app publish-taro-app
 
@@ -18,6 +20,17 @@
 
 PNPM ?= pnpm
 CI ?= 1
+GO_BIN_DIR ?= $(or $(shell go env GOBIN),$(shell go env GOPATH)/bin)
+API_DIR ?= ../backend/api
+
+TS_PROTO_BIN ?= $(or \
+	$(shell command -v protoc-gen-ts_proto 2>/dev/null), \
+	$(wildcard $(CURDIR)/admin/node_modules/.bin/protoc-gen-ts_proto), \
+	$(wildcard $(CURDIR)/uni-app/node_modules/.bin/protoc-gen-ts_proto), \
+	$(wildcard $(CURDIR)/taro-app/node_modules/.bin/protoc-gen-ts_proto), \
+	$(lastword $(wildcard $(HOME)/.nvm/versions/node/*/bin/protoc-gen-ts_proto)) \
+)
+TS_PROTO_BIN_DIR := $(dir $(TS_PROTO_BIN))
 
 # ===== npm 发布参数 =====
 
@@ -53,11 +66,74 @@ pnpm-uni-app:
 pnpm-taro-app:
 	@cd taro-app && CI="$(CI)" $(PNPM) install
 
+# ===== TypeScript RPC 生成 =====
+
+# 生成管理端、uni-app 和 Taro 的全部 TypeScript RPC 代码。
+ts: ts-admin ts-uni-app ts-taro-app
+	@echo "==> 全部 TypeScript RPC 代码生成完成"
+
+# 生成管理端 TypeScript RPC 代码。
+ts-admin: types-admin
+	@echo "==> 生成管理端 TypeScript RPC 代码"
+	@test -n "$(TS_PROTO_BIN)" || (echo "未找到 protoc-gen-ts_proto，请先执行 make init，或全局安装 ts-proto" && exit 1)
+	@cd "$(API_DIR)" && \
+		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.admin.typescript.gen.yaml --exclude-path proto/system/app
+	@cd "$(API_DIR)" && \
+		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.admin.core.typescript.gen.yaml --exclude-path proto/system/app
+	@echo "==> 管理端 TypeScript RPC 代码生成完成"
+
+# 生成管理端自动导入声明。
+types-admin:
+	@echo "==> 生成管理端自动导入声明"
+	@cd admin && CI="$(CI)" $(PNPM) run generate:auto-import-types
+	@echo "==> 管理端自动导入声明生成完成"
+
+# 生成 uni-app 端 TypeScript RPC 代码。
+ts-uni-app:
+	@echo "==> 生成 uni-app TypeScript RPC 代码"
+	@test -n "$(TS_PROTO_BIN)" || (echo "未找到 protoc-gen-ts_proto，请先执行 make init，或全局安装 ts-proto" && exit 1)
+	@cd "$(API_DIR)" && \
+		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.uni-app.typescript.gen.yaml --exclude-path proto/system/admin
+	@cd "$(API_DIR)" && \
+		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.uni-app.core.typescript.gen.yaml --exclude-path proto/system/admin
+	@echo "==> uni-app TypeScript RPC 代码生成完成"
+
+# 生成 Taro React 端 TypeScript RPC 代码。
+ts-taro-app:
+	@echo "==> 生成 Taro React TypeScript RPC 代码"
+	@test -n "$(TS_PROTO_BIN)" || (echo "未找到 protoc-gen-ts_proto，请先执行 make init，或全局安装 ts-proto" && exit 1)
+	@cd "$(API_DIR)" && \
+		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.taro-app.typescript.gen.yaml --exclude-path proto/system/admin
+	@cd "$(API_DIR)" && \
+		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.taro-app.core.typescript.gen.yaml --exclude-path proto/system/admin
+	@echo "==> Taro React TypeScript RPC 代码生成完成"
+
 # ===== 本地运行 =====
 
-# 启动管理后台开发环境
+# 并行启动管理后台、uni-app 和 Taro 的 H5/微信小程序开发环境
 run:
-	@$(MAKE) run-admin
+	@$(MAKE) run-all
+
+# 并行启动全部前端开发环境；按 Ctrl-C 会同时停止所有子进程
+run-all:
+	@set -e; \
+	pids=""; \
+	cleanup() { trap - INT TERM EXIT; test -z "$$pids" || kill $$pids 2>/dev/null || true; test -z "$$pids" || wait $$pids 2>/dev/null || true; }; \
+	trap cleanup INT TERM EXIT; \
+	$(MAKE) run-admin & pids="$$pids $$!"; \
+	$(MAKE) run-uni-app-h5 & pids="$$pids $$!"; \
+	$(MAKE) run-uni-app-mp-weixin & pids="$$pids $$!"; \
+	$(MAKE) run-taro-app-h5 & pids="$$pids $$!"; \
+	$(MAKE) run-taro-app-mp-weixin & pids="$$pids $$!"; \
+	wait
+
+# 并行启动全部 H5 开发环境
+run-h5:
+	@$(MAKE) --jobs=3 run-admin run-uni-app-h5 run-taro-app-h5
+
+# 并行启动全部微信小程序开发环境
+run-mp-weixin:
+	@$(MAKE) --jobs=2 run-uni-app-mp-weixin run-taro-app-mp-weixin
 
 # 启动管理后台开发服务
 run-admin:
@@ -65,10 +141,26 @@ run-admin:
 
 # 启动 uni-app 微信小程序开发服务
 run-uni-app:
+	@$(MAKE) run-uni-app-mp-weixin
+
+# 启动 uni-app H5 开发服务
+run-uni-app-h5:
+	@cd uni-app && CI="$(CI)" $(PNPM) run dev:h5
+
+# 启动 uni-app 微信小程序开发服务
+run-uni-app-mp-weixin:
 	@cd uni-app && CI="$(CI)" $(PNPM) run dev:mp-weixin
 
 # 启动 Taro 微信小程序开发服务
 run-taro-app:
+	@$(MAKE) run-taro-app-mp-weixin
+
+# 启动 Taro H5 开发服务
+run-taro-app-h5:
+	@cd taro-app && CI="$(CI)" $(PNPM) run dev:h5
+
+# 启动 Taro 微信小程序开发服务
+run-taro-app-mp-weixin:
 	@cd taro-app && CI="$(CI)" $(PNPM) run dev:mp-weixin
 
 # ===== 代码检查 =====
@@ -105,9 +197,9 @@ check:
 
 # ===== 应用与模块构建 =====
 
-# 构建管理后台静态资源
+# 构建全部前端 H5 和微信小程序产物
 build:
-	@$(MAKE) build-admin
+	@$(MAKE) build-all
 
 # 构建管理后台静态资源
 build-admin:
@@ -115,17 +207,43 @@ build-admin:
 
 # 构建 uni-app H5 静态资源
 build-uni-app:
+	@$(MAKE) build-uni-app-h5
+
+# 构建 uni-app H5 静态资源
+build-uni-app-h5:
 	@cd uni-app && CI="$(CI)" $(PNPM) run build:h5
+
+# 构建 uni-app 微信小程序产物
+build-uni-app-mp-weixin:
+	@cd uni-app && CI="$(CI)" $(PNPM) run build:mp-weixin
 
 # 构建 Taro H5 静态资源
 build-taro-app:
+	@$(MAKE) build-taro-app-h5
+
+# 构建 Taro H5 静态资源
+build-taro-app-h5:
 	@cd taro-app && CI="$(CI)" $(PNPM) run build:h5
 
-# 构建管理后台、uni-app H5 和 Taro H5 宿主
-build-all:
+# 构建 Taro 微信小程序产物
+build-taro-app-mp-weixin:
+	@cd taro-app && CI="$(CI)" $(PNPM) run build:mp-weixin
+
+# 构建管理后台、uni-app 和 Taro 的全部 H5 产物
+build-h5:
 	@$(MAKE) build-admin
-	@$(MAKE) build-uni-app
-	@$(MAKE) build-taro-app
+	@$(MAKE) build-uni-app-h5
+	@$(MAKE) build-taro-app-h5
+
+# 构建 uni-app 和 Taro 的全部微信小程序产物
+build-mp-weixin:
+	@$(MAKE) build-uni-app-mp-weixin
+	@$(MAKE) build-taro-app-mp-weixin
+
+# 构建管理后台、uni-app 和 Taro 的 H5/微信小程序全部宿主
+build-all:
+	@$(MAKE) build-h5
+	@$(MAKE) build-mp-weixin
 	@echo "==> 全部前端宿主构建完成"
 
 # 构建可供业务后台组合使用的管理端模块包
@@ -192,9 +310,10 @@ help:
 	@echo ""
 	@echo "常用流程:"
 	@echo "  make init                         安装三个 workspace 的依赖"
-	@echo "  make run                          启动管理后台"
+	@echo "  make run                          启动全部前端开发环境（H5 + 微信小程序）"
 	@echo "  make check                        检查三个 workspace"
-	@echo "  make build-all                    构建管理端、uni-app H5、Taro H5"
+	@echo "  make ts                            生成三个前端的 TypeScript RPC"
+	@echo "  make build                        构建管理端、uni-app、Taro 的 H5 + 微信小程序"
 	@echo "  make package                      检查并生成 10 个 npm 包"
 	@echo "  make publish                      打包并发布 10 个 npm 包"
 	@echo ""
@@ -212,6 +331,7 @@ help:
 	@echo "常用参数（命令行使用 参数=值 覆盖）:"
 	@printf "  %-24s %s\n" "PNPM" "pnpm 命令，当前: $(PNPM)"
 	@printf "  %-24s %s\n" "CI" "是否使用 CI 模式，当前: $(CI)"
+	@printf "  %-24s %s\n" "API_DIR" "Backend Proto 目录，当前: $(API_DIR)"
 	@printf "  %-24s %s\n" "NPM_REGISTRY" "npm registry，当前: $(NPM_REGISTRY)"
 	@printf "  %-24s %s\n" "NPM_ACCESS" "npm 访问级别，当前: $(NPM_ACCESS)"
 	@printf "  %-24s %s\n" "NPM_TAG" "npm dist-tag，当前: $(NPM_TAG)"
@@ -220,7 +340,10 @@ help:
 	@echo ""
 	@echo "示例:"
 	@echo "  make run-admin"
+	@echo "  make run-h5"
+	@echo "  make run-mp-weixin"
 	@echo "  make run-uni-app"
+	@echo "  make run-uni-app-h5"
 	@echo "  make check-taro-app"
 	@echo "  make publish NPM_REGISTRY=https://registry.npmjs.org/ NPM_TAG=next"
 

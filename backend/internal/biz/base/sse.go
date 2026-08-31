@@ -2,8 +2,9 @@ package biz
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-core/biz"
 	coresse "github.com/liujitcn/kratos-core/sse"
 
@@ -26,7 +27,15 @@ func NewSseCase(baseCase *biz.BaseCase, sse *coresse.SSE) *SseCase {
 
 // SubscribeSse 订阅 SSE 事件流。
 func (h *SseCase) SubscribeSse(ctx context.Context, req *basev1.SubscribeSseRequest) (*emptypb.Empty, error) {
-	err := h.sse.Serve(ctx, req.GetStream(), req.GetChannelId())
+	channelID := req.GetChannelId()
+	if req.GetStream() == "base.notification" {
+		authInfo, err := h.GetAuthInfo(ctx)
+		if err != nil {
+			return nil, err
+		}
+		channelID = fmt.Sprintf("%d:%s", authInfo.TenantId, channelID)
+	}
+	err := h.sse.Serve(ctx, req.GetStream(), channelID)
 	if err != nil {
 		return nil, err
 	}

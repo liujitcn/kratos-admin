@@ -1,6 +1,6 @@
 # @liujitcn/kratos-admin-system
 
-System 管理端业务模块。系统管理、个人中心、AI 助手的请求、RPC、页面与模块定义在同一个 npm 包内维护；宿主只有安装并注册本包后，才会提供这些能力。
+System 管理端业务模块。系统管理、个人中心（含 MFA 与三方账号绑定）、AI 助手、开放授权客户端的请求、RPC、页面与模块定义在同一个 npm 包内维护；宿主只有安装并注册本包后，才会提供这些能力。
 
 ## 目录结构
 
@@ -36,6 +36,8 @@ packages/modules/system
 | `src/ai.ts`             | 定义 AI 流程卡片扩展名称、类型和读取入口。              |
 | `src/components/Ai.vue`                   | System 提供的 AI 顶部工具入口。                              |
 | `src/components/DynamicI18nCell.vue` | 翻译资源列表单元格，悬停预览当前语言之外的内容。              |
+| `src/components/DynamicI18nEditor.vue` | 动态资源多语言编辑器。                                      |
+| `src/components/dynamicI18n.ts` | 动态资源翻译状态和表单辅助类型。                            |
 | `src/rpc/**/*.ts`       | System 页面与 API 自包含的 RPC 类型。                   |
 | `src/typings/*.d.ts`    | 声明 System 页面使用的 Markdown 和 Swagger 模块。       |
 | `package.json`          | 声明依赖以及公开的模块入口、API 和 RPC 子路径。         |
@@ -53,9 +55,15 @@ packages/modules/system
 | `src/api/base/oauth.ts`              | 个人中心账号绑定请求。                    |
 | `src/api/base/sse.ts`                | AI 与业务流式响应订阅。                   |
 | `src/api/system/auth.ts`             | 个人中心认证请求。                        |
+| `src/api/system/base_dashboard.ts`    | 后台工作台概览和趋势统计请求。             |
+| `src/api/system/base_file.ts`         | 文件资产元数据查询和删除请求。             |
 | `src/api/system/base_*.ts`           | System 基础资源管理请求。                 |
+| `@liujitcn/kratos-admin-core/api/base/mfa` | 当前用户 MFA 状态、绑定、停用和恢复码请求。 |
+| `src/api/system/oauth_client.ts`     | 开放授权客户端管理、凭据和 API 选项请求。   |
 | `src/api/system/code_gen*.ts`        | 代码生成、字段、Proto、表和进度订阅请求。 |
+| `src/api/system/ops_monitoring_sse.ts` | 运维监控实时指标流请求。                  |
 | `src/api/system/project_document.ts` | 多项目文档树与详情请求。                  |
+| `src/api/system/runtime_log*.ts`     | 运行日志文件、控制台和实时日志请求。       |
 
 ## 页面文件组
 
@@ -93,6 +101,10 @@ packages/modules/system
 | `src/views/tool/code-gen/components/CodePreviewPane.vue`       | 代码内容预览面板。                 |
 | `src/views/tool/code-gen/config.ts`                            | 代码生成页面的公共配置。           |
 
+| `src/views/base/language/index.vue` | 语言配置管理页。 |
+| `src/views/base/oauth-client/index.vue` | 开放授权客户端管理页。 |
+| `src/views/tool/runtime-log/index.vue` | 运行日志控制台、历史文件和下载页。 |
+
 ## 接入
 
 宿主安装本包后，在模块清单中注册：
@@ -122,6 +134,11 @@ System 页面只通过 `systemAdminModule.views` 注册，不作为 npm 子路�
 登录、菜单和用户信息等运行底座属于 core；个人中心、AI 助手及其顶部入口属于 System。System 可以引用 core 的公共导出，core 不得反向依赖 System；其他业务模块只能通过 `AdminModule.staticViews` 显式替换默认登录页或状态页。
 
 System 的 API 与 RPC 都按 Proto 层级维护。当前服务端契约尚未完成细粒度拆分，因此 System 与 core 可能分别包含同一服务生成文件；这些文件由项目命令生成，不在本包手工去重或改写。
+
+## 新增页面
+
+- `system/base/dashboard/index`：后台工作台概览和趋势统计。
+- `system/base/file/index`：文件资产元数据查询和删除。
 
 ## AI 扩展
 

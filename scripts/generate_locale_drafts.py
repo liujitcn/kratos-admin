@@ -10,6 +10,7 @@ import os
 import re
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -17,6 +18,8 @@ from typing import Any, Callable
 
 
 ROOT = Path(__file__).resolve().parents[1]
+GOOGLE_CLIENTS = ("gtx", "dict-chrome-ex", "chrome", "at")
+DEFAULT_REQUEST_TIMEOUT = 8.0
 SQL_DIR = ROOT / "backend/migration/assets/v0.0.1/mysql"
 JSON_SOURCES = [
     ROOT / "backend/internal/i18n/assets/zh-CN.json",
@@ -571,8 +574,12 @@ PROTECTED_PATTERN = re.compile(
     r"(?s)```.*?```|`[^`]+`|\{\{[^{}]+\}\}|\$\{[^{}]+\}|\{[A-Za-z_][A-Za-z0-9_.-]*\}|%[sdv]|</?[^>]+>|https?://[^\s<>()]+|/(?:api|events|mcp|v[0-9]+)/[A-Za-z0-9_./:{}-]+"
 )
 MIGRATION_VERSION_PATTERN = re.compile(r"^v\d+\.\d+\.\d+$")
-ENTRY_PATTERN = re.compile(r"__KRATOS_ENTRY_(\d{4})__")
-TOKEN_PATTERN = re.compile(r"__KRATOS_TOKEN_(\d{4})__")
+ENTRY_PATTERN = re.compile(
+    r"(?:__\s*)?KRATOS[_ ]?ENTRY[_ ]?(\d{4})(?:\s*__)?\s*:?\s*", re.IGNORECASE
+)
+TOKEN_PATTERN = re.compile(
+    r"(?:__\s*)?KRATOS[_ ]?TOKEN[_ ]?(\d{4})(?:\s*__)?", re.IGNORECASE
+)
 PLACEHOLDER_PATTERN = re.compile(r"\{\{[^{}]+\}\}|\$\{[^{}]+\}|\{[A-Za-z_][A-Za-z0-9_.-]*\}|%[sdv]")
 
 
@@ -600,7 +607,7 @@ def protect_text(text: str, index: int) -> tuple[str, dict[str, str]]:
     values: dict[str, str] = {}
 
     def replace(match: re.Match[str]) -> str:
-        token = f"__KRATOS_TOKEN_{len(values):04d}__"
+        token = f"KRATOSTOKEN{len(values):04d}"
         values[token] = match.group(0)
         return token
 
@@ -637,23 +644,40 @@ def fallback_translate(text: str, target: str) -> str:
 
 
 def request_i18n(text: str, source: str, target: str) -> str:
-    query = urllib.parse.urlencode(
-        [("client", "gtx"), ("sl", source), ("tl", target), ("dt", "t"), ("q", text)]
+    endpoint = os.environ.get(
+        "I18N_ENDPOINT", "https://translate.googleapis.com/translate_a/single"
     )
-    endpoint = os.environ.get("I18N_ENDPOINT", "http://translate.googleapis.com/translate_a/single")
-    request = urllib.request.Request(
-        f"{endpoint}?{query}",
-        headers={"User-Agent": "kratos-admin-i18n/1.0", "Connection": "close"},
+    clients = tuple(
+        item.strip()
+        for item in os.environ.get("I18N_GOOGLE_CLIENTS", ",".join(GOOGLE_CLIENTS)).split(",")
+        if item.strip()
     )
+    try:
+        timeout = max(1.0, float(os.environ.get("I18N_REQUEST_TIMEOUT", DEFAULT_REQUEST_TIMEOUT)))
+    except ValueError:
+        timeout = DEFAULT_REQUEST_TIMEOUT
     last_error: Exception | None = None
-    for attempt in range(5):
-        try:
-            with urllib.request.urlopen(request, timeout=20) as response:
-                payload = json.loads(response.read().decode("utf-8"))
-            return "".join(part[0] for part in payload[0] if part and part[0])
-        except Exception as error:  # noqa: BLE001 - network provider failure is retried
-            last_error = error
-            time.sleep(1.0 * (attempt + 1))
+    for client in clients:
+        query = urllib.parse.urlencode(
+            [("client", client), ("sl", source), ("tl", target), ("dt", "t"), ("q", text)]
+        )
+        for attempt in range(2):
+            try:
+                request = urllib.request.Request(
+                    f"{endpoint}{'&' if '?' in endpoint else '?'}{query}",
+                    headers={"User-Agent": "kratos-admin-i18n/1.0", "Connection": "close"},
+                )
+                with urllib.request.urlopen(request, timeout=timeout) as response:
+                    payload = json.loads(response.read().decode("utf-8"))
+                return "".join(part[0] for part in payload[0] if part and part[0])
+            except urllib.error.HTTPError as error:
+                last_error = error
+                if error.code in (403, 429):
+                    break
+            except Exception as error:  # noqa: BLE001 - network provider failure is retried
+                last_error = error
+            if attempt < 1:
+                time.sleep(0.5)
     raise RuntimeError(f"Google V1 翻译失败（{source}->{target}）：{last_error}")
 
 
@@ -674,7 +698,7 @@ def i18n_batch(texts: list[str], source: str, target: str, offline: bool = False
             chunk = []
             chunk_size = 0
             return
-        source_text = "\n".join(f"__KRATOS_ENTRY_{index:04d}__ {value}" for index, (value, _) in enumerate(chunk))
+        source_text = "\n".join(f"KRATOSENTRY{index:04d}: {value}" for index, (value, _) in enumerate(chunk))
         try:
             translated = request_i18n(source_text, source, target)
         except RuntimeError:

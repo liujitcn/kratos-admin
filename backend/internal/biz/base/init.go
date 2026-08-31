@@ -18,9 +18,12 @@ var ProviderSet = wire.NewSet(
 	NewConfigCase,
 	NewLanguageCase,
 	NewFileCase,
+	NewMfaCase,
 	NewLoginCase,
 	NewMcpCase,
+	NewNotificationCase,
 	wire.Bind(new(ai.ToolAccessChecker), new(*McpCase)),
 	NewOauthCase,
+	NewOauthClientTokenCase,
 	NewSseCase,
 )

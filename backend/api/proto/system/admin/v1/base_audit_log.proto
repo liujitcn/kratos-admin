@@ -1,0 +1,506 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// BaseAuditResult 定义审计事件的最终处理结果。
+// SUCCESS 表示业务完成，FAILURE 表示可预期拒绝，ERROR 表示系统异常。
+enum BaseAuditResult {
+  // 未指定审计结果。
+  BASE_AUDIT_RESULT_UNSPECIFIED = 0;
+  // 操作成功。
+  BASE_AUDIT_RESULT_SUCCESS = 1;
+  // 操作失败。
+  BASE_AUDIT_RESULT_FAILURE = 2;
+  // 执行异常。
+  BASE_AUDIT_RESULT_ERROR = 3;
+}
+
+// BaseLoginLogType 定义认证链路产生的登录事件类型。
+// 类型用于区分密码、OAuth、MFA、令牌刷新和退出操作的审计统计。
+enum BaseLoginLogType {
+  // 未指定登录日志类型。
+  BASE_LOGIN_LOG_TYPE_UNSPECIFIED = 0;
+  // 密码登录。
+  BASE_LOGIN_LOG_TYPE_PASSWORD = 1;
+  // OAuth 登录。
+  BASE_LOGIN_LOG_TYPE_OAUTH = 2;
+  // 多因素认证。
+  BASE_LOGIN_LOG_TYPE_MFA = 3;
+  // 刷新访问令牌。
+  BASE_LOGIN_LOG_TYPE_TOKEN_REFRESH = 4;
+  // 退出登录。
+  BASE_LOGIN_LOG_TYPE_LOGOUT = 5;
+}
+
+// BaseOperationAction 定义管理端资源变更的业务动作。
+// 动作与资源类型组合后用于生成可检索的操作审计记录。
+enum BaseOperationAction {
+  // 未指定业务操作动作。
+  BASE_OPERATION_ACTION_UNSPECIFIED = 0;
+  // 新增资源。
+  BASE_OPERATION_ACTION_CREATE = 1;
+  // 修改资源。
+  BASE_OPERATION_ACTION_UPDATE = 2;
+  // 删除资源。
+  BASE_OPERATION_ACTION_DELETE = 3;
+  // 发布资源。
+  BASE_OPERATION_ACTION_PUBLISH = 4;
+  // 撤回资源。
+  BASE_OPERATION_ACTION_REVOKE = 5;
+  // 导入数据。
+  BASE_OPERATION_ACTION_IMPORT = 6;
+  // 导出数据。
+  BASE_OPERATION_ACTION_EXPORT = 7;
+  // 其他业务动作。
+  BASE_OPERATION_ACTION_OTHER = 8;
+}
+
+// BaseDataAccessType 定义读取、导入、导出和下载等数据访问方式。
+// 该枚举只描述访问事实，不代表访问是否经过授权。
+enum BaseDataAccessType {
+  // 未指定数据访问类型。
+  BASE_DATA_ACCESS_TYPE_UNSPECIFIED = 0;
+  // 列表访问。
+  BASE_DATA_ACCESS_TYPE_LIST = 1;
+  // 详情访问。
+  BASE_DATA_ACCESS_TYPE_DETAIL = 2;
+  // 条件查询。
+  BASE_DATA_ACCESS_TYPE_QUERY = 3;
+  // 导出数据。
+  BASE_DATA_ACCESS_TYPE_EXPORT = 4;
+  // 下载数据。
+  BASE_DATA_ACCESS_TYPE_DOWNLOAD = 5;
+  // 导入数据。
+  BASE_DATA_ACCESS_TYPE_IMPORT = 6;
+}
+
+// BasePermissionTargetType 定义权限变更所作用的安全对象类型。
+// 目标可为用户、角色、菜单、API 或租户，便于审计定位授权边界。
+enum BasePermissionTargetType {
+  // 未指定权限目标类型。
+  BASE_PERMISSION_TARGET_TYPE_UNSPECIFIED = 0;
+  // 用户权限。
+  BASE_PERMISSION_TARGET_TYPE_USER = 1;
+  // 角色权限。
+  BASE_PERMISSION_TARGET_TYPE_ROLE = 2;
+  // 菜单权限。
+  BASE_PERMISSION_TARGET_TYPE_MENU = 3;
+  // API 权限。
+  BASE_PERMISSION_TARGET_TYPE_API = 4;
+  // 租户权限。
+  BASE_PERMISSION_TARGET_TYPE_TENANT = 5;
+}
+
+// BasePermissionAction 定义安全对象及其授权关系的变更动作。
+// 授予、回收和对象增删改均应保留对应的审计上下文。
+enum BasePermissionAction {
+  // 未指定权限动作。
+  BASE_PERMISSION_ACTION_UNSPECIFIED = 0;
+  // 授予权限。
+  BASE_PERMISSION_ACTION_GRANT = 1;
+  // 回收权限。
+  BASE_PERMISSION_ACTION_REVOKE = 2;
+  // 新增权限对象。
+  BASE_PERMISSION_ACTION_CREATE = 3;
+  // 修改权限对象。
+  BASE_PERMISSION_ACTION_UPDATE = 4;
+  // 删除权限对象。
+  BASE_PERMISSION_ACTION_DELETE = 5;
+  // 分配权限。
+  BASE_PERMISSION_ACTION_ASSIGN = 6;
+}
+
+// BasePolicyEvaluationType 定义授权引擎执行的评估模式。
+// 评估可以针对单个资源，也可以批量过滤资源对或项目集合。
+enum BasePolicyEvaluationType {
+  // 未指定策略评估类型。
+  BASE_POLICY_EVALUATION_TYPE_UNSPECIFIED = 0;
+  // 单主体单资源鉴权。
+  BASE_POLICY_EVALUATION_TYPE_IS_AUTHORIZED = 1;
+  // 批量资源动作过滤。
+  BASE_POLICY_EVALUATION_TYPE_FILTER_PAIRS = 2;
+  // 批量项目过滤。
+  BASE_POLICY_EVALUATION_TYPE_FILTER_PROJECTS = 3;
+}
+
+// BasePolicyDecision 定义授权策略评估的决策结果。
+// ERROR 表示策略引擎未能完成可靠判断，不能按允许访问处理。
+enum BasePolicyDecision {
+  // 未指定策略决策结果。
+  BASE_POLICY_DECISION_UNSPECIFIED = 0;
+  // 允许访问。
+  BASE_POLICY_DECISION_ALLOW = 1;
+  // 拒绝访问。
+  BASE_POLICY_DECISION_DENY = 2;
+  // 策略引擎异常。
+  BASE_POLICY_DECISION_ERROR = 3;
+}
+
+// 登录日志服务。
+service BaseLoginLogService {
+  // 分页查询登录日志。
+  rpc PageBaseLoginLog(PageBaseLoginLogRequest) returns (PageBaseLoginLogResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/login-log"};
+  }
+
+  // 查询登录日志详情。
+  rpc GetBaseLoginLog(GetBaseLoginLogRequest) returns (BaseLoginLog) {
+    option (google.api.http) = {get: "/api/v1/admin/base/login-log/{id}"};
+  }
+}
+
+// API 访问日志服务。
+service BaseApiLogService {
+  // 分页查询 API 访问日志。
+  rpc PageBaseApiLog(PageBaseApiLogRequest) returns (PageBaseApiLogResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/api-log"};
+  }
+
+  // 查询 API 访问日志详情。
+  rpc GetBaseApiLog(GetBaseApiLogRequest) returns (BaseApiLog) {
+    option (google.api.http) = {get: "/api/v1/admin/base/api-log/{id}"};
+  }
+}
+
+// 业务操作日志服务。
+service BaseOperationLogService {
+  // 分页查询业务操作日志。
+  rpc PageBaseOperationLog(PageBaseOperationLogRequest) returns (PageBaseOperationLogResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/operation-log"};
+  }
+
+  // 查询业务操作日志详情。
+  rpc GetBaseOperationLog(GetBaseOperationLogRequest) returns (BaseOperationLog) {
+    option (google.api.http) = {get: "/api/v1/admin/base/operation-log/{id}"};
+  }
+}
+
+// 数据访问日志服务。
+service BaseDataAccessLogService {
+  // 分页查询数据访问日志。
+  rpc PageBaseDataAccessLog(PageBaseDataAccessLogRequest) returns (PageBaseDataAccessLogResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/data-access-log"};
+  }
+
+  // 查询数据访问日志详情。
+  rpc GetBaseDataAccessLog(GetBaseDataAccessLogRequest) returns (BaseDataAccessLog) {
+    option (google.api.http) = {get: "/api/v1/admin/base/data-access-log/{id}"};
+  }
+}
+
+// 权限日志服务。
+service BasePermissionLogService {
+  // 分页查询权限日志。
+  rpc PageBasePermissionLog(PageBasePermissionLogRequest) returns (PageBasePermissionLogResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/permission-log"};
+  }
+
+  // 查询权限日志详情。
+  rpc GetBasePermissionLog(GetBasePermissionLogRequest) returns (BasePermissionLog) {
+    option (google.api.http) = {get: "/api/v1/admin/base/permission-log/{id}"};
+  }
+}
+
+// 策略评估日志服务。
+service BasePolicyEvaluationLogService {
+  // 分页查询策略评估日志。
+  rpc PageBasePolicyEvaluationLog(PageBasePolicyEvaluationLogRequest) returns (PageBasePolicyEvaluationLogResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/policy-evaluation-log"};
+  }
+
+  // 查询策略评估日志详情。
+  rpc GetBasePolicyEvaluationLog(GetBasePolicyEvaluationLogRequest) returns (BasePolicyEvaluationLog) {
+    option (google.api.http) = {get: "/api/v1/admin/base/policy-evaluation-log/{id}"};
+  }
+}
+
+// 登录日志分页查询条件。
+message PageBaseLoginLogRequest {
+  optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  optional int64 user_id = 2 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  optional BaseLoginLogType login_type = 3 [(gnostic.openapi.v3.property) = {description: "登录类型"}]; // 登录类型
+  optional BaseAuditResult result = 4 [(gnostic.openapi.v3.property) = {description: "结果"}]; // 结果
+  repeated string occurred_at = 5 [(gnostic.openapi.v3.property) = {description: "事件时间"}]; // 事件时间
+  string keyword = 6 [(gnostic.openapi.v3.property) = {description: "账号、租户或IP关键字"}]; // 关键字
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码"}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数"}]; // 每页行数
+}
+
+// 登录日志分页响应。
+message PageBaseLoginLogResponse {
+  repeated BaseLoginLog base_login_logs = 1 [(gnostic.openapi.v3.property) = {description: "登录日志列表"}]; // 登录日志列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 查询登录日志详情请求。
+message GetBaseLoginLogRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "登录日志ID"}]; // 登录日志ID
+}
+
+// 登录日志。
+message BaseLoginLog {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "登录日志ID"}]; // 登录日志ID
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  string tenant_code = 3 [(gnostic.openapi.v3.property) = {description: "租户编码"}]; // 租户编码
+  int64 user_id = 4 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  string user_name = 5 [(gnostic.openapi.v3.property) = {description: "账号名"}]; // 账号名
+  BaseLoginLogType login_type = 6 [(gnostic.openapi.v3.property) = {description: "登录类型"}]; // 登录类型
+  BaseAuditResult result = 7 [(gnostic.openapi.v3.property) = {description: "结果"}]; // 结果
+  string reason_code = 8 [(gnostic.openapi.v3.property) = {description: "原因编码"}]; // 原因编码
+  string reason = 9 [(gnostic.openapi.v3.property) = {description: "原因说明"}]; // 原因说明
+  string client_ip = 10 [(gnostic.openapi.v3.property) = {description: "客户端IP"}]; // 客户端IP
+  string user_agent = 11 [(gnostic.openapi.v3.property) = {description: "用户代理"}]; // 用户代理
+  string device_id = 12 [(gnostic.openapi.v3.property) = {description: "设备标识"}]; // 设备标识
+  string request_id = 13 [(gnostic.openapi.v3.property) = {description: "请求ID"}]; // 请求ID
+  string trace_id = 14 [(gnostic.openapi.v3.property) = {description: "链路追踪ID"}]; // 链路追踪ID
+  string occurred_at = 15 [(gnostic.openapi.v3.property) = {description: "事件发生时间"}]; // 事件发生时间
+  string created_at = 16 [(gnostic.openapi.v3.property) = {description: "日志创建时间"}]; // 日志创建时间
+}
+
+// API 访问日志分页查询条件。
+message PageBaseApiLogRequest {
+  optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  optional int64 user_id = 2 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  optional BaseAuditResult result = 3 [(gnostic.openapi.v3.property) = {description: "结果"}]; // 结果
+  repeated string occurred_at = 4 [(gnostic.openapi.v3.property) = {description: "事件时间"}]; // 事件时间
+  string keyword = 5 [(gnostic.openapi.v3.property) = {description: "操作、路径或请求ID关键字"}]; // 关键字
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码"}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数"}]; // 每页行数
+}
+
+// API 访问日志分页响应。
+message PageBaseApiLogResponse {
+  repeated BaseApiLog base_api_logs = 1 [(gnostic.openapi.v3.property) = {description: "API访问日志列表"}]; // API访问日志列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 查询 API 访问日志详情请求。
+message GetBaseApiLogRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "API日志ID"}]; // API日志ID
+}
+
+// API 访问日志。
+message BaseApiLog {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "API日志ID"}]; // API日志ID
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  string tenant_code = 3 [(gnostic.openapi.v3.property) = {description: "租户编码"}]; // 租户编码
+  int64 user_id = 4 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  string user_name = 5 [(gnostic.openapi.v3.property) = {description: "用户名称"}]; // 用户名称
+  string request_id = 6 [(gnostic.openapi.v3.property) = {description: "请求ID"}]; // 请求ID
+  string trace_id = 7 [(gnostic.openapi.v3.property) = {description: "链路追踪ID"}]; // 链路追踪ID
+  string service_name = 8 [(gnostic.openapi.v3.property) = {description: "服务名"}]; // 服务名
+  string operation = 9 [(gnostic.openapi.v3.property) = {description: "操作方法"}]; // 操作方法
+  string method = 10 [(gnostic.openapi.v3.property) = {description: "请求方法"}]; // 请求方法
+  string path = 11 [(gnostic.openapi.v3.property) = {description: "请求路径"}]; // 请求路径
+  int32 status_code = 12 [(gnostic.openapi.v3.property) = {description: "状态码"}]; // 状态码
+  BaseAuditResult result = 13 [(gnostic.openapi.v3.property) = {description: "结果"}]; // 结果
+  string reason_code = 14 [(gnostic.openapi.v3.property) = {description: "原因编码"}]; // 原因编码
+  string reason = 15 [(gnostic.openapi.v3.property) = {description: "原因说明"}]; // 原因说明
+  int32 latency_ms = 16 [(gnostic.openapi.v3.property) = {description: "耗时毫秒"}]; // 耗时毫秒
+  int32 request_size = 17 [(gnostic.openapi.v3.property) = {description: "请求大小"}]; // 请求大小
+  int32 response_size = 18 [(gnostic.openapi.v3.property) = {description: "响应大小"}]; // 响应大小
+  string client_ip = 19 [(gnostic.openapi.v3.property) = {description: "客户端IP"}]; // 客户端IP
+  string user_agent = 20 [(gnostic.openapi.v3.property) = {description: "用户代理"}]; // 用户代理
+  string occurred_at = 21 [(gnostic.openapi.v3.property) = {description: "事件发生时间"}]; // 事件发生时间
+  string created_at = 22 [(gnostic.openapi.v3.property) = {description: "日志创建时间"}]; // 日志创建时间
+}
+
+// 业务操作日志分页查询条件。
+message PageBaseOperationLogRequest {
+  optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  optional int64 user_id = 2 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  optional BaseOperationAction action = 3 [(gnostic.openapi.v3.property) = {description: "操作动作"}]; // 操作动作
+  optional BaseAuditResult result = 4 [(gnostic.openapi.v3.property) = {description: "结果"}]; // 结果
+  repeated string occurred_at = 5 [(gnostic.openapi.v3.property) = {description: "事件时间"}]; // 事件时间
+  string resource_type = 6 [(gnostic.openapi.v3.property) = {description: "资源类型"}]; // 资源类型
+  string keyword = 7 [(gnostic.openapi.v3.property) = {description: "资源或请求ID关键字"}]; // 关键字
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码"}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数"}]; // 每页行数
+}
+
+// 业务操作日志分页响应。
+message PageBaseOperationLogResponse {
+  repeated BaseOperationLog base_operation_logs = 1 [(gnostic.openapi.v3.property) = {description: "业务操作日志列表"}]; // 业务操作日志列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 查询业务操作日志详情请求。
+message GetBaseOperationLogRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "操作日志ID"}]; // 操作日志ID
+}
+
+// 业务操作日志。
+message BaseOperationLog {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "操作日志ID"}]; // 操作日志ID
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  string tenant_code = 3 [(gnostic.openapi.v3.property) = {description: "租户编码"}]; // 租户编码
+  int64 user_id = 4 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  string user_name = 5 [(gnostic.openapi.v3.property) = {description: "用户名称"}]; // 用户名称
+  string request_id = 6 [(gnostic.openapi.v3.property) = {description: "请求ID"}]; // 请求ID
+  string trace_id = 7 [(gnostic.openapi.v3.property) = {description: "链路追踪ID"}]; // 链路追踪ID
+  string resource_type = 8 [(gnostic.openapi.v3.property) = {description: "资源类型"}]; // 资源类型
+  string resource_id = 9 [(gnostic.openapi.v3.property) = {description: "资源ID"}]; // 资源ID
+  string resource_name = 10 [(gnostic.openapi.v3.property) = {description: "资源名称"}]; // 资源名称
+  BaseOperationAction action = 11 [(gnostic.openapi.v3.property) = {description: "操作动作"}]; // 操作动作
+  string changed_fields = 12 [(gnostic.openapi.v3.property) = {description: "变更字段"}]; // 变更字段
+  string before_data = 13 [(gnostic.openapi.v3.property) = {description: "变更前数据"}]; // 变更前数据
+  string after_data = 14 [(gnostic.openapi.v3.property) = {description: "变更后数据"}]; // 变更后数据
+  BaseAuditResult result = 15 [(gnostic.openapi.v3.property) = {description: "结果"}]; // 结果
+  string reason_code = 16 [(gnostic.openapi.v3.property) = {description: "原因编码"}]; // 原因编码
+  string reason = 17 [(gnostic.openapi.v3.property) = {description: "原因说明"}]; // 原因说明
+  string occurred_at = 18 [(gnostic.openapi.v3.property) = {description: "事件发生时间"}]; // 事件发生时间
+  string created_at = 19 [(gnostic.openapi.v3.property) = {description: "日志创建时间"}]; // 日志创建时间
+}
+
+// 数据访问日志分页查询条件。
+message PageBaseDataAccessLogRequest {
+  optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  optional int64 user_id = 2 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  optional BaseDataAccessType access_type = 3 [(gnostic.openapi.v3.property) = {description: "访问类型"}]; // 访问类型
+  optional bool sensitive = 4 [(gnostic.openapi.v3.property) = {description: "是否敏感数据"}]; // 是否敏感数据
+  optional BaseAuditResult result = 5 [(gnostic.openapi.v3.property) = {description: "结果"}]; // 结果
+  repeated string occurred_at = 6 [(gnostic.openapi.v3.property) = {description: "事件时间"}]; // 事件时间
+  string resource_type = 7 [(gnostic.openapi.v3.property) = {description: "资源类型"}]; // 资源类型
+  string keyword = 8 [(gnostic.openapi.v3.property) = {description: "表名、资源或请求ID关键字"}]; // 关键字
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码"}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数"}]; // 每页行数
+}
+
+// 数据访问日志分页响应。
+message PageBaseDataAccessLogResponse {
+  repeated BaseDataAccessLog base_data_access_logs = 1 [(gnostic.openapi.v3.property) = {description: "数据访问日志列表"}]; // 数据访问日志列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 查询数据访问日志详情请求。
+message GetBaseDataAccessLogRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "数据访问日志ID"}]; // 数据访问日志ID
+}
+
+// 数据访问日志。
+message BaseDataAccessLog {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "数据访问日志ID"}]; // 数据访问日志ID
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  string tenant_code = 3 [(gnostic.openapi.v3.property) = {description: "租户编码"}]; // 租户编码
+  int64 user_id = 4 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  string user_name = 5 [(gnostic.openapi.v3.property) = {description: "用户名称"}]; // 用户名称
+  string request_id = 6 [(gnostic.openapi.v3.property) = {description: "请求ID"}]; // 请求ID
+  string trace_id = 7 [(gnostic.openapi.v3.property) = {description: "链路追踪ID"}]; // 链路追踪ID
+  string resource_type = 8 [(gnostic.openapi.v3.property) = {description: "资源类型"}]; // 资源类型
+  string resource_id = 9 [(gnostic.openapi.v3.property) = {description: "资源ID"}]; // 资源ID
+  BaseDataAccessType access_type = 10 [(gnostic.openapi.v3.property) = {description: "访问类型"}]; // 访问类型
+  string data_source = 11 [(gnostic.openapi.v3.property) = {description: "数据源"}]; // 数据源
+  string table_name = 12 [(gnostic.openapi.v3.property) = {description: "数据表名"}]; // 数据表名
+  string field_scope = 13 [(gnostic.openapi.v3.property) = {description: "访问字段范围"}]; // 访问字段范围
+  string data_scope = 14 [(gnostic.openapi.v3.property) = {description: "数据范围"}]; // 数据范围
+  int32 affected_rows = 15 [(gnostic.openapi.v3.property) = {description: "影响行数"}]; // 影响行数
+  bool sensitive = 16 [(gnostic.openapi.v3.property) = {description: "是否敏感数据"}]; // 是否敏感数据
+  string sql_text = 17 [(gnostic.openapi.v3.property) = {description: "脱敏SQL"}]; // 脱敏SQL
+  string sql_digest = 18 [(gnostic.openapi.v3.property) = {description: "SQL指纹"}]; // SQL指纹
+  BaseAuditResult result = 19 [(gnostic.openapi.v3.property) = {description: "结果"}]; // 结果
+  string reason_code = 20 [(gnostic.openapi.v3.property) = {description: "原因编码"}]; // 原因编码
+  int32 latency_ms = 21 [(gnostic.openapi.v3.property) = {description: "耗时毫秒"}]; // 耗时毫秒
+  string occurred_at = 22 [(gnostic.openapi.v3.property) = {description: "事件发生时间"}]; // 事件发生时间
+  string created_at = 23 [(gnostic.openapi.v3.property) = {description: "日志创建时间"}]; // 日志创建时间
+}
+
+// 权限日志分页查询条件。
+message PageBasePermissionLogRequest {
+  optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  optional int64 user_id = 2 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  optional BasePermissionTargetType target_type = 3 [(gnostic.openapi.v3.property) = {description: "目标类型"}]; // 目标类型
+  optional BasePermissionAction action = 4 [(gnostic.openapi.v3.property) = {description: "权限动作"}]; // 权限动作
+  optional BaseAuditResult result = 5 [(gnostic.openapi.v3.property) = {description: "结果"}]; // 结果
+  repeated string occurred_at = 6 [(gnostic.openapi.v3.property) = {description: "事件时间"}]; // 事件时间
+  string keyword = 7 [(gnostic.openapi.v3.property) = {description: "目标或请求ID关键字"}]; // 关键字
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码"}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数"}]; // 每页行数
+}
+
+// 权限日志分页响应。
+message PageBasePermissionLogResponse {
+  repeated BasePermissionLog base_permission_logs = 1 [(gnostic.openapi.v3.property) = {description: "权限日志列表"}]; // 权限日志列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 查询权限日志详情请求。
+message GetBasePermissionLogRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "权限日志ID"}]; // 权限日志ID
+}
+
+// 权限日志。
+message BasePermissionLog {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "权限日志ID"}]; // 权限日志ID
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  string tenant_code = 3 [(gnostic.openapi.v3.property) = {description: "租户编码"}]; // 租户编码
+  int64 user_id = 4 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  string user_name = 5 [(gnostic.openapi.v3.property) = {description: "用户名称"}]; // 用户名称
+  string request_id = 6 [(gnostic.openapi.v3.property) = {description: "请求ID"}]; // 请求ID
+  string trace_id = 7 [(gnostic.openapi.v3.property) = {description: "链路追踪ID"}]; // 链路追踪ID
+  BasePermissionTargetType target_type = 8 [(gnostic.openapi.v3.property) = {description: "目标类型"}]; // 目标类型
+  string target_id = 9 [(gnostic.openapi.v3.property) = {description: "目标ID"}]; // 目标ID
+  string target_name = 10 [(gnostic.openapi.v3.property) = {description: "目标名称"}]; // 目标名称
+  BasePermissionAction action = 11 [(gnostic.openapi.v3.property) = {description: "权限动作"}]; // 权限动作
+  string old_value = 12 [(gnostic.openapi.v3.property) = {description: "变更前权限"}]; // 变更前权限
+  string new_value = 13 [(gnostic.openapi.v3.property) = {description: "变更后权限"}]; // 变更后权限
+  BaseAuditResult result = 14 [(gnostic.openapi.v3.property) = {description: "结果"}]; // 结果
+  string reason_code = 15 [(gnostic.openapi.v3.property) = {description: "原因编码"}]; // 原因编码
+  string reason = 16 [(gnostic.openapi.v3.property) = {description: "原因说明"}]; // 原因说明
+  string occurred_at = 17 [(gnostic.openapi.v3.property) = {description: "事件发生时间"}]; // 事件发生时间
+  string created_at = 18 [(gnostic.openapi.v3.property) = {description: "日志创建时间"}]; // 日志创建时间
+}
+
+// 策略评估日志分页查询条件。
+message PageBasePolicyEvaluationLogRequest {
+  optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  optional int64 user_id = 2 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  optional BasePolicyEvaluationType evaluation_type = 3 [(gnostic.openapi.v3.property) = {description: "评估类型"}]; // 评估类型
+  optional BasePolicyDecision decision = 4 [(gnostic.openapi.v3.property) = {description: "决策结果"}]; // 决策结果
+  repeated string occurred_at = 5 [(gnostic.openapi.v3.property) = {description: "事件时间"}]; // 事件时间
+  string resource = 6 [(gnostic.openapi.v3.property) = {description: "资源"}]; // 资源
+  string keyword = 7 [(gnostic.openapi.v3.property) = {description: "资源、动作或请求ID关键字"}]; // 关键字
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码"}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数"}]; // 每页行数
+}
+
+// 策略评估日志分页响应。
+message PageBasePolicyEvaluationLogResponse {
+  repeated BasePolicyEvaluationLog base_policy_evaluation_logs = 1 [(gnostic.openapi.v3.property) = {description: "策略评估日志列表"}]; // 策略评估日志列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 查询策略评估日志详情请求。
+message GetBasePolicyEvaluationLogRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "策略评估日志ID"}]; // 策略评估日志ID
+}
+
+// 策略评估日志。
+message BasePolicyEvaluationLog {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "策略评估日志ID"}]; // 策略评估日志ID
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  string tenant_code = 3 [(gnostic.openapi.v3.property) = {description: "租户编码"}]; // 租户编码
+  int64 user_id = 4 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  string user_name = 5 [(gnostic.openapi.v3.property) = {description: "用户名称"}]; // 用户名称
+  int64 role_id = 6 [(gnostic.openapi.v3.property) = {description: "角色ID"}]; // 角色ID
+  string role_code = 7 [(gnostic.openapi.v3.property) = {description: "角色编码"}]; // 角色编码
+  string request_id = 8 [(gnostic.openapi.v3.property) = {description: "请求ID"}]; // 请求ID
+  string trace_id = 9 [(gnostic.openapi.v3.property) = {description: "链路追踪ID"}]; // 链路追踪ID
+  string client_ip = 10 [(gnostic.openapi.v3.property) = {description: "客户端IP"}]; // 客户端IP
+  string engine = 11 [(gnostic.openapi.v3.property) = {description: "鉴权引擎"}]; // 鉴权引擎
+  BasePolicyEvaluationType evaluation_type = 12 [(gnostic.openapi.v3.property) = {description: "评估类型"}]; // 评估类型
+  string resource = 13 [(gnostic.openapi.v3.property) = {description: "资源"}]; // 资源
+  string action = 14 [(gnostic.openapi.v3.property) = {description: "动作"}]; // 动作
+  string project = 15 [(gnostic.openapi.v3.property) = {description: "项目范围"}]; // 项目范围
+  BasePolicyDecision decision = 16 [(gnostic.openapi.v3.property) = {description: "决策结果"}]; // 决策结果
+  string reason_code = 17 [(gnostic.openapi.v3.property) = {description: "原因编码"}]; // 原因编码
+  string reason = 18 [(gnostic.openapi.v3.property) = {description: "原因说明"}]; // 原因说明
+  int32 duration_ms = 19 [(gnostic.openapi.v3.property) = {description: "评估耗时毫秒"}]; // 评估耗时毫秒
+  int32 candidate_count = 20 [(gnostic.openapi.v3.property) = {description: "候选数量"}]; // 候选数量
+  int32 matched_count = 21 [(gnostic.openapi.v3.property) = {description: "命中数量"}]; // 命中数量
+  string input_hash = 22 [(gnostic.openapi.v3.property) = {description: "输入摘要"}]; // 输入摘要
+  string occurred_at = 23 [(gnostic.openapi.v3.property) = {description: "事件发生时间"}]; // 事件发生时间
+  string created_at = 24 [(gnostic.openapi.v3.property) = {description: "日志创建时间"}]; // 日志创建时间
+}

@@ -40,7 +40,7 @@ export default defineConfig<'webpack5'>(async (merge) => {
     resolve(__dirname, '../../../packages/modules/system/src'),
   ]
   const baseConfig: UserConfigExport<'webpack5'> = {
-    projectName: 'kratos-taro-app',
+    projectName: '通用应用',
     date: '2026-07-31',
     designWidth: 750,
     deviceRatio: {

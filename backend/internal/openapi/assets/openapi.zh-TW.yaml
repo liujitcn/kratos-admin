@@ -250,6 +250,75 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.PageBaseApiResponse'
+    /api/v1/admin/base/api-log:
+        get:
+            tags:
+                - BaseApiLogService
+            description: 分頁查詢 API 訪問日誌。
+            operationId: BaseApiLogService_PageBaseApiLog
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: user_id
+                  in: query
+                  schema:
+                    type: string
+                - name: result
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_AUDIT_RESULT_UNSPECIFIED
+                        - BASE_AUDIT_RESULT_SUCCESS
+                        - BASE_AUDIT_RESULT_FAILURE
+                        - BASE_AUDIT_RESULT_ERROR
+                    type: string
+                    format: enum
+                - name: occurred_at
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseApiLogResponse'
+    /api/v1/admin/base/api-log/{id}:
+        get:
+            tags:
+                - BaseApiLogService
+            description: 查詢 API 訪問日誌詳情。
+            operationId: BaseApiLogService_GetBaseApiLog
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseApiLog'
     /api/v1/admin/base/api/openapi-service/option:
         get:
             tags:
@@ -674,6 +743,154 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/dashboard/login-distribution:
+        get:
+            tags:
+                - BaseDashboardService
+            description: 查詢登入結果分佈。
+            operationId: BaseDashboardService_GetBaseDashboardLoginDistribution
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseDashboardDistributionResponse'
+    /api/v1/admin/base/dashboard/login-trend:
+        get:
+            tags:
+                - BaseDashboardService
+            description: 查詢登入趨勢。
+            operationId: BaseDashboardService_GetBaseDashboardLoginTrend
+            parameters:
+                - name: days
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseDashboardTrendResponse'
+    /api/v1/admin/base/dashboard/operation-distribution:
+        get:
+            tags:
+                - BaseDashboardService
+            description: 查詢操作動作分佈。
+            operationId: BaseDashboardService_GetBaseDashboardOperationDistribution
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseDashboardDistributionResponse'
+    /api/v1/admin/base/dashboard/overview:
+        get:
+            tags:
+                - BaseDashboardService
+            description: 查詢首頁概覽統計。
+            operationId: BaseDashboardService_GetBaseDashboardOverview
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseDashboardOverview'
+    /api/v1/admin/base/data-access-log:
+        get:
+            tags:
+                - BaseDataAccessLogService
+            description: 分頁查詢資料訪問日誌。
+            operationId: BaseDataAccessLogService_PageBaseDataAccessLog
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: user_id
+                  in: query
+                  schema:
+                    type: string
+                - name: access_type
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_DATA_ACCESS_TYPE_UNSPECIFIED
+                        - BASE_DATA_ACCESS_TYPE_LIST
+                        - BASE_DATA_ACCESS_TYPE_DETAIL
+                        - BASE_DATA_ACCESS_TYPE_QUERY
+                        - BASE_DATA_ACCESS_TYPE_EXPORT
+                        - BASE_DATA_ACCESS_TYPE_DOWNLOAD
+                        - BASE_DATA_ACCESS_TYPE_IMPORT
+                    type: string
+                    format: enum
+                - name: sensitive
+                  in: query
+                  schema:
+                    type: boolean
+                - name: result
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_AUDIT_RESULT_UNSPECIFIED
+                        - BASE_AUDIT_RESULT_SUCCESS
+                        - BASE_AUDIT_RESULT_FAILURE
+                        - BASE_AUDIT_RESULT_ERROR
+                    type: string
+                    format: enum
+                - name: occurred_at
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+                - name: resource_type
+                  in: query
+                  schema:
+                    type: string
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseDataAccessLogResponse'
+    /api/v1/admin/base/data-access-log/{id}:
+        get:
+            tags:
+                - BaseDataAccessLogService
+            description: 查詢資料訪問日誌詳情。
+            operationId: BaseDataAccessLogService_GetBaseDataAccessLog
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseDataAccessLog'
     /api/v1/admin/base/dept:
         post:
             tags:
@@ -1093,6 +1310,74 @@ paths:
                         schema:
                             $ref: '#/components/schemas/system.admin.v1.SetBaseDictStatusRequest'
                 required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/file:
+        get:
+            tags:
+                - BaseFileService
+            description: 分頁查詢檔案資產。
+            operationId: BaseFileService_PageBaseFile
+            parameters:
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: extension
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseFileResponse'
+    /api/v1/admin/base/file/{id}:
+        get:
+            tags:
+                - BaseFileService
+            description: 查詢檔案資產詳情。
+            operationId: BaseFileService_GetBaseFile
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseFile'
+        delete:
+            tags:
+                - BaseFileService
+            description: 刪除檔案資產及其物件。
+            operationId: BaseFileService_DeleteBaseFile
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -1555,28 +1840,53 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/v1/admin/base/log:
+    /api/v1/admin/base/login-log:
         get:
             tags:
-                - BaseLogService
-            description: 查詢日誌分頁列表
-            operationId: BaseLogService_PageBaseLog
+                - BaseLoginLogService
+            description: 分頁查詢登入日誌。
+            operationId: BaseLoginLogService_PageBaseLoginLog
             parameters:
-                - name: request_time
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: user_id
+                  in: query
+                  schema:
+                    type: string
+                - name: login_type
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_LOGIN_LOG_TYPE_UNSPECIFIED
+                        - BASE_LOGIN_LOG_TYPE_PASSWORD
+                        - BASE_LOGIN_LOG_TYPE_OAUTH
+                        - BASE_LOGIN_LOG_TYPE_MFA
+                        - BASE_LOGIN_LOG_TYPE_TOKEN_REFRESH
+                        - BASE_LOGIN_LOG_TYPE_LOGOUT
+                    type: string
+                    format: enum
+                - name: result
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_AUDIT_RESULT_UNSPECIFIED
+                        - BASE_AUDIT_RESULT_SUCCESS
+                        - BASE_AUDIT_RESULT_FAILURE
+                        - BASE_AUDIT_RESULT_ERROR
+                    type: string
+                    format: enum
+                - name: occurred_at
                   in: query
                   schema:
                     type: array
                     items:
                         type: string
-                - name: operation
+                - name: keyword
                   in: query
                   schema:
                     type: string
-                - name: status_code
-                  in: query
-                  schema:
-                    type: integer
-                    format: int32
                 - name: page_num
                   in: query
                   schema:
@@ -1591,13 +1901,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/system.admin.v1.PageBaseLogResponse'
-    /api/v1/admin/base/log/{id}:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseLoginLogResponse'
+    /api/v1/admin/base/login-log/{id}:
         get:
             tags:
-                - BaseLogService
-            description: 查詢日誌
-            operationId: BaseLogService_GetBaseLog
+                - BaseLoginLogService
+            description: 查詢登入日誌詳情。
+            operationId: BaseLoginLogService_GetBaseLoginLog
             parameters:
                 - name: id
                   in: path
@@ -1610,7 +1920,38 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/system.admin.v1.BaseLog'
+                                $ref: '#/components/schemas/system.admin.v1.BaseLoginLog'
+    /api/v1/admin/base/login-policy:
+        get:
+            tags:
+                - BaseLoginPolicyService
+            description: 查詢登入來源策略。
+            operationId: BaseLoginPolicyService_GetBaseLoginPolicy
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseLoginPolicy'
+        put:
+            tags:
+                - BaseLoginPolicyService
+            description: 更新登入來源策略。
+            operationId: BaseLoginPolicyService_UpdateBaseLoginPolicy
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseLoginPolicy'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseLoginPolicy'
     /api/v1/admin/base/menu:
         post:
             tags:
@@ -1753,6 +2094,808 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/message:
+        get:
+            tags:
+                - BaseMessageService
+            description: 分頁查詢訊息。
+            operationId: BaseMessageService_PageBaseMessage
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: category_id
+                  in: query
+                  schema:
+                    type: string
+                - name: title
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - MESSAGE_STATUS_UNSPECIFIED
+                        - MESSAGE_STATUS_DRAFT
+                        - MESSAGE_STATUS_SCHEDULED
+                        - MESSAGE_STATUS_PUBLISHING
+                        - MESSAGE_STATUS_PUBLISHED
+                        - MESSAGE_STATUS_REVOKED
+                        - MESSAGE_STATUS_ARCHIVED
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseMessageResponse'
+        post:
+            tags:
+                - BaseMessageService
+            description: 建立訊息草稿。
+            operationId: BaseMessageService_CreateBaseMessage
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseMessageForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.CreateBaseMessageResponse'
+    /api/v1/admin/base/message-category:
+        get:
+            tags:
+                - BaseMessageCategoryService
+            description: 分頁查詢訊息分類。
+            operationId: BaseMessageCategoryService_PageBaseMessageCategory
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseMessageCategoryResponse'
+        post:
+            tags:
+                - BaseMessageCategoryService
+            description: 建立訊息分類。
+            operationId: BaseMessageCategoryService_CreateBaseMessageCategory
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseMessageCategoryForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message-category/option:
+        get:
+            tags:
+                - BaseMessageCategoryService
+            description: 查詢訊息分類選項。
+            operationId: BaseMessageCategoryService_OptionBaseMessageCategory
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/common.v1.SelectOptionResponse'
+    /api/v1/admin/base/message-category/{base_message_category.id}:
+        put:
+            tags:
+                - BaseMessageCategoryService
+            description: 更新訊息分類。
+            operationId: BaseMessageCategoryService_UpdateBaseMessageCategory
+            parameters:
+                - name: base_message_category.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseMessageCategoryForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message-category/{id}:
+        get:
+            tags:
+                - BaseMessageCategoryService
+            description: 查詢訊息分類詳情。
+            operationId: BaseMessageCategoryService_GetBaseMessageCategory
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseMessageCategoryForm'
+        delete:
+            tags:
+                - BaseMessageCategoryService
+            description: 刪除訊息分類。
+            operationId: BaseMessageCategoryService_DeleteBaseMessageCategory
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message-category/{id}/status:
+        put:
+            tags:
+                - BaseMessageCategoryService
+            description: 設定訊息分類狀態。
+            operationId: BaseMessageCategoryService_SetBaseMessageCategoryStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseMessageCategoryStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message/dispatch/{id}/retry:
+        put:
+            tags:
+                - BaseMessageService
+            description: 重試訊息投遞任務。
+            operationId: BaseMessageService_RetryBaseMessageDispatch
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.RetryBaseMessageDispatchRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message/{base_message.id}:
+        put:
+            tags:
+                - BaseMessageService
+            description: 更新訊息草稿。
+            operationId: BaseMessageService_UpdateBaseMessage
+            parameters:
+                - name: base_message.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseMessageForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message/{id}:
+        get:
+            tags:
+                - BaseMessageService
+            description: 查詢訊息詳情。
+            operationId: BaseMessageService_GetBaseMessage
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseMessageDetail'
+        delete:
+            tags:
+                - BaseMessageService
+            description: 刪除訊息草稿。
+            operationId: BaseMessageService_DeleteBaseMessage
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message/{id}/publish:
+        put:
+            tags:
+                - BaseMessageService
+            description: 釋出訊息。
+            operationId: BaseMessageService_PublishBaseMessage
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.PublishBaseMessageRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message/{id}/revoke:
+        put:
+            tags:
+                - BaseMessageService
+            description: 撤回訊息。
+            operationId: BaseMessageService_RevokeBaseMessage
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.RevokeBaseMessageRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/message/{id}/schedule/cancel:
+        put:
+            tags:
+                - BaseMessageService
+            description: 取消定時釋出。
+            operationId: BaseMessageService_CancelBaseMessageSchedule
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.CancelBaseMessageScheduleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/oauth-client:
+        get:
+            tags:
+                - OauthClientService
+            description: 分頁查詢開放授權客戶端。
+            operationId: OauthClientService_PageOauthClient
+            parameters:
+                - name: client_name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageOauthClientResponse'
+        post:
+            tags:
+                - OauthClientService
+            description: 建立開放授權客戶端。
+            operationId: OauthClientService_CreateOauthClient
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.OauthClientForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/oauth-client/api:
+        get:
+            tags:
+                - OauthClientService
+            description: 查詢可授權的開發介面選項。
+            operationId: OauthClientService_OptionOauthClientApi
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OptionOauthClientApiResponse'
+    /api/v1/admin/base/oauth-client/{id}:
+        get:
+            tags:
+                - OauthClientService
+            description: 查詢開放授權客戶端詳情。
+            operationId: OauthClientService_GetOauthClient
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OauthClientForm'
+        delete:
+            tags:
+                - OauthClientService
+            description: 刪除開放授權客戶端。
+            operationId: OauthClientService_DeleteOauthClient
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/oauth-client/{id}/credentials:
+        get:
+            tags:
+                - OauthClientService
+            description: 查詢客戶端憑據後設資料；客戶端金鑰和協議金鑰不會透過介面回傳。
+            operationId: OauthClientService_GetOauthClientCredentials
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OauthClientCredentials'
+    /api/v1/admin/base/oauth-client/{id}/credentials/rotate:
+        post:
+            tags:
+                - OauthClientService
+            description: 輪換客戶端金鑰並一次性返回新憑據。
+            operationId: OauthClientService_RotateOauthClientCredentials
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.OauthClientCredentials'
+    /api/v1/admin/base/oauth-client/{id}/status:
+        put:
+            tags:
+                - OauthClientService
+            description: 設定開放授權客戶端狀態。
+            operationId: OauthClientService_SetOauthClientStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetOauthClientStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/oauth-client/{oauth_client.id}:
+        put:
+            tags:
+                - OauthClientService
+            description: 更新開放授權客戶端。
+            operationId: OauthClientService_UpdateOauthClient
+            parameters:
+                - name: oauth_client.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.OauthClientForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/operation-log:
+        get:
+            tags:
+                - BaseOperationLogService
+            description: 分頁查詢業務操作日誌。
+            operationId: BaseOperationLogService_PageBaseOperationLog
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: user_id
+                  in: query
+                  schema:
+                    type: string
+                - name: action
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_OPERATION_ACTION_UNSPECIFIED
+                        - BASE_OPERATION_ACTION_CREATE
+                        - BASE_OPERATION_ACTION_UPDATE
+                        - BASE_OPERATION_ACTION_DELETE
+                        - BASE_OPERATION_ACTION_PUBLISH
+                        - BASE_OPERATION_ACTION_REVOKE
+                        - BASE_OPERATION_ACTION_IMPORT
+                        - BASE_OPERATION_ACTION_EXPORT
+                        - BASE_OPERATION_ACTION_OTHER
+                    type: string
+                    format: enum
+                - name: result
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_AUDIT_RESULT_UNSPECIFIED
+                        - BASE_AUDIT_RESULT_SUCCESS
+                        - BASE_AUDIT_RESULT_FAILURE
+                        - BASE_AUDIT_RESULT_ERROR
+                    type: string
+                    format: enum
+                - name: occurred_at
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+                - name: resource_type
+                  in: query
+                  schema:
+                    type: string
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseOperationLogResponse'
+    /api/v1/admin/base/operation-log/{id}:
+        get:
+            tags:
+                - BaseOperationLogService
+            description: 查詢業務操作日誌詳情。
+            operationId: BaseOperationLogService_GetBaseOperationLog
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseOperationLog'
+    /api/v1/admin/base/permission-log:
+        get:
+            tags:
+                - BasePermissionLogService
+            description: 分頁查詢許可權日誌。
+            operationId: BasePermissionLogService_PageBasePermissionLog
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: user_id
+                  in: query
+                  schema:
+                    type: string
+                - name: target_type
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_PERMISSION_TARGET_TYPE_UNSPECIFIED
+                        - BASE_PERMISSION_TARGET_TYPE_USER
+                        - BASE_PERMISSION_TARGET_TYPE_ROLE
+                        - BASE_PERMISSION_TARGET_TYPE_MENU
+                        - BASE_PERMISSION_TARGET_TYPE_API
+                        - BASE_PERMISSION_TARGET_TYPE_TENANT
+                    type: string
+                    format: enum
+                - name: action
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_PERMISSION_ACTION_UNSPECIFIED
+                        - BASE_PERMISSION_ACTION_GRANT
+                        - BASE_PERMISSION_ACTION_REVOKE
+                        - BASE_PERMISSION_ACTION_CREATE
+                        - BASE_PERMISSION_ACTION_UPDATE
+                        - BASE_PERMISSION_ACTION_DELETE
+                        - BASE_PERMISSION_ACTION_ASSIGN
+                    type: string
+                    format: enum
+                - name: result
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_AUDIT_RESULT_UNSPECIFIED
+                        - BASE_AUDIT_RESULT_SUCCESS
+                        - BASE_AUDIT_RESULT_FAILURE
+                        - BASE_AUDIT_RESULT_ERROR
+                    type: string
+                    format: enum
+                - name: occurred_at
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBasePermissionLogResponse'
+    /api/v1/admin/base/permission-log/{id}:
+        get:
+            tags:
+                - BasePermissionLogService
+            description: 查詢許可權日誌詳情。
+            operationId: BasePermissionLogService_GetBasePermissionLog
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BasePermissionLog'
+    /api/v1/admin/base/policy-evaluation-log:
+        get:
+            tags:
+                - BasePolicyEvaluationLogService
+            description: 分頁查詢策略評估日誌。
+            operationId: BasePolicyEvaluationLogService_PageBasePolicyEvaluationLog
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: user_id
+                  in: query
+                  schema:
+                    type: string
+                - name: evaluation_type
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_POLICY_EVALUATION_TYPE_UNSPECIFIED
+                        - BASE_POLICY_EVALUATION_TYPE_IS_AUTHORIZED
+                        - BASE_POLICY_EVALUATION_TYPE_FILTER_PAIRS
+                        - BASE_POLICY_EVALUATION_TYPE_FILTER_PROJECTS
+                    type: string
+                    format: enum
+                - name: decision
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_POLICY_DECISION_UNSPECIFIED
+                        - BASE_POLICY_DECISION_ALLOW
+                        - BASE_POLICY_DECISION_DENY
+                        - BASE_POLICY_DECISION_ERROR
+                    type: string
+                    format: enum
+                - name: occurred_at
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+                - name: resource
+                  in: query
+                  schema:
+                    type: string
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBasePolicyEvaluationLogResponse'
+    /api/v1/admin/base/policy-evaluation-log/{id}:
+        get:
+            tags:
+                - BasePolicyEvaluationLogService
+            description: 查詢策略評估日誌詳情。
+            operationId: BasePolicyEvaluationLogService_GetBasePolicyEvaluationLog
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BasePolicyEvaluationLog'
     /api/v1/admin/base/post:
         get:
             tags:
@@ -2078,6 +3221,35 @@ paths:
                     application/json:
                         schema:
                             $ref: '#/components/schemas/system.admin.v1.SetBaseRoleStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/session/current:
+        get:
+            tags:
+                - BaseSessionService
+            description: 查詢當前使用者會話。
+            operationId: BaseSessionService_GetCurrentBaseSession
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseSession'
+    /api/v1/admin/base/session/revoke-all:
+        put:
+            tags:
+                - BaseSessionService
+            description: 撤銷當前使用者全部會話。
+            operationId: BaseSessionService_RevokeAllBaseSessions
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.RevokeAllBaseSessionsRequest'
                 required: true
             responses:
                 "200":
@@ -3541,6 +4713,357 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.OptionLanguageResponse'
+    /api/v1/base/mfa:
+        get:
+            tags:
+                - MfaService
+            description: 查詢當前使用者多因素認證狀態。
+            operationId: MfaService_GetMfaStatus
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.MfaStatusResponse'
+    /api/v1/base/mfa/disable:
+        post:
+            tags:
+                - MfaService
+            description: 禁用當前使用者的多因素認證。
+            operationId: MfaService_DisableMfa
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.DisableMfaRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/base/mfa/disable/challenge:
+        post:
+            tags:
+                - MfaService
+            description: 開始禁用 WebAuthn 多因素認證的 Passkey 驗證。
+            operationId: MfaService_BeginMfaDisable
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.BeginMfaDisableRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.BeginMfaDisableResponse'
+    /api/v1/base/mfa/enrollment:
+        post:
+            tags:
+                - MfaService
+            description: 開始登入強制繫結配置的 MFA 方式
+            operationId: MfaService_BeginMfaEnrollment
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.BeginMfaEnrollmentRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.BeginMfaEnrollmentResponse'
+    /api/v1/base/mfa/enrollment/confirm:
+        post:
+            tags:
+                - MfaService
+            description: 確認登入強制繫結配置的 MFA 方式
+            operationId: MfaService_ConfirmMfaEnrollment
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.ConfirmMfaEnrollmentRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ConfirmMfaEnrollmentResponse'
+    /api/v1/base/mfa/recovery-codes:
+        post:
+            tags:
+                - MfaService
+            description: 重新生成當前使用者的多因素認證恢復碼。
+            operationId: MfaService_RegenerateMfaRecoveryCodes
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.RegenerateMfaRecoveryCodesRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.RecoveryCodesResponse'
+    /api/v1/base/mfa/setup:
+        post:
+            tags:
+                - MfaService
+            description: 開始繫結當前使用者的多因素認證方式。
+            operationId: MfaService_BeginMfaSetup
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.BeginMfaSetupRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.BeginMfaSetupResponse'
+    /api/v1/base/mfa/setup/confirm:
+        post:
+            tags:
+                - MfaService
+            description: 確認繫結當前使用者的多因素認證方式。
+            operationId: MfaService_ConfirmMfaSetup
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.ConfirmMfaSetupRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ConfirmMfaSetupResponse'
+    /api/v1/base/mfa/verify:
+        post:
+            tags:
+                - MfaService
+            description: 校驗多因素認證
+            operationId: MfaService_VerifyMfa
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.VerifyMfaRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.LoginResponse'
+    /api/v1/base/notification:
+        get:
+            tags:
+                - NotificationService
+            description: 分頁查詢當前使用者收件箱。
+            operationId: NotificationService_PageNotification
+            parameters:
+                - name: view
+                  in: query
+                  schema:
+                    enum:
+                        - NOTIFICATION_VIEW_UNSPECIFIED
+                        - NOTIFICATION_VIEW_INBOX
+                        - NOTIFICATION_VIEW_UNREAD
+                        - NOTIFICATION_VIEW_ARCHIVED
+                    type: string
+                    format: enum
+                - name: category_id
+                  in: query
+                  schema:
+                    type: string
+                - name: priority
+                  in: query
+                  schema:
+                    enum:
+                        - MESSAGE_PRIORITY_UNSPECIFIED
+                        - MESSAGE_PRIORITY_NORMAL
+                        - MESSAGE_PRIORITY_IMPORTANT
+                        - MESSAGE_PRIORITY_URGENT
+                    type: string
+                    format: enum
+                - name: cursor_id
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.PageNotificationResponse'
+    /api/v1/base/notification/read:
+        put:
+            tags:
+                - NotificationService
+            description: 標記訊息為已讀。
+            operationId: NotificationService_MarkNotificationRead
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.MarkNotificationReadRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/base/notification/read/all:
+        put:
+            tags:
+                - NotificationService
+            description: 標記水位線之前的全部訊息為已讀。
+            operationId: NotificationService_MarkAllNotificationRead
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.MarkAllNotificationReadRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/base/notification/summary:
+        get:
+            tags:
+                - NotificationService
+            description: 查詢當前使用者未讀彙總。
+            operationId: NotificationService_GetNotificationSummary
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.NotificationSummary'
+    /api/v1/base/notification/unread:
+        put:
+            tags:
+                - NotificationService
+            description: 標記訊息為未讀。
+            operationId: NotificationService_MarkNotificationUnread
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.MarkNotificationUnreadRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/base/notification/{id}:
+        get:
+            tags:
+                - NotificationService
+            description: 查詢當前使用者訊息詳情。
+            operationId: NotificationService_GetNotification
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.Notification'
+        delete:
+            tags:
+                - NotificationService
+            description: 從個人收件箱刪除訊息。
+            operationId: NotificationService_DeleteNotification
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/base/notification/{id}/archive:
+        put:
+            tags:
+                - NotificationService
+            description: 歸檔訊息。
+            operationId: NotificationService_ArchiveNotification
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.ArchiveNotificationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/base/notification/{id}/restore:
+        put:
+            tags:
+                - NotificationService
+            description: 恢復已歸檔訊息。
+            operationId: NotificationService_RestoreNotification
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.RestoreNotificationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/base/oauth/authorization:
         post:
             tags:
@@ -3627,6 +5150,25 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/base/oauth/client/token:
+        post:
+            tags:
+                - OauthClientService
+            description: 使用客戶端憑據換取訪問令牌。
+            operationId: OauthClientService_IssueOauthClientToken
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/base.v1.IssueOauthClientTokenRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.IssueOauthClientTokenResponse'
     /api/v1/base/oauth/provider:
         get:
             tags:
@@ -3764,6 +5306,7 @@ paths:
                         - PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER
                         - PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD
                         - PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD
+                        - PASSWORD_CRYPTO_SCENE_MFA
                     type: string
                     format: enum
             responses:
@@ -4133,6 +5676,84 @@ components:
                     type: string
                     description: 工具原始出參JSON
             description: AI 助手工具呼叫記錄
+        base.v1.ArchiveNotificationRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 投遞ID
+            description: 歸檔訊息請求。
+        base.v1.BeginMfaDisableRequest:
+            type: object
+            properties: {}
+            description: 開始禁用 WebAuthn 多因素認證請求。
+        base.v1.BeginMfaDisableResponse:
+            type: object
+            properties:
+                challenge_id:
+                    type: string
+                    description: WebAuthn 禁用挑戰 ID
+                expires_in:
+                    type: string
+                    description: WebAuthn 禁用挑戰有效時間，單位秒
+                webauthn_options_json:
+                    type: string
+                    description: WebAuthn 驗證選項 JSON
+            description: 開始禁用 WebAuthn 多因素認證響應。
+        base.v1.BeginMfaEnrollmentRequest:
+            type: object
+            properties:
+                setup_ticket:
+                    type: string
+                    description: 強制繫結臨時票據
+            description: 登入強制繫結多因素認證請求。
+        base.v1.BeginMfaEnrollmentResponse:
+            type: object
+            properties:
+                setup_ticket:
+                    type: string
+                    description: 繫結臨時票據
+                otpauth_uri:
+                    type: string
+                    description: Authenticator應用使用的otpauth地址
+                expires_in:
+                    type: string
+                    description: 繫結臨時票據有效時間，單位秒
+                method:
+                    type: string
+                    description: 多因素認證方式：totp、webauthn
+                webauthn_options_json:
+                    type: string
+                    description: WebAuthn註冊選項JSON
+            description: 登入強制繫結多因素認證響應。
+        base.v1.BeginMfaSetupRequest:
+            type: object
+            properties:
+                password:
+                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                setup_ticket:
+                    type: string
+                    description: 強制繫結場景下的臨時票據
+            description: 開始繫結多因素認證請求。
+        base.v1.BeginMfaSetupResponse:
+            type: object
+            properties:
+                setup_ticket:
+                    type: string
+                    description: 繫結臨時票據
+                otpauth_uri:
+                    type: string
+                    description: Authenticator 應用使用的 otpauth 地址
+                expires_in:
+                    type: string
+                    description: 繫結臨時票據有效時間，單位秒
+                method:
+                    type: string
+                    description: 多因素認證方式：totp、webauthn
+                webauthn_options_json:
+                    type: string
+                    description: WebAuthn 註冊選項 JSON
+            description: 開始繫結多因素認證響應。
         base.v1.BindOauthSessionRequest:
             type: object
             properties:
@@ -4183,6 +5804,56 @@ components:
                     type: string
                     description: 配置value
             description: 系統配置項
+        base.v1.ConfirmMfaEnrollmentRequest:
+            type: object
+            properties:
+                setup_ticket:
+                    type: string
+                    description: 繫結臨時票據
+                code:
+                    type: string
+                    description: TOTP動態口令
+                webauthn_response_json:
+                    type: string
+                    description: WebAuthn註冊響應JSON
+            description: 登入強制繫結多因素認證確認請求。
+        base.v1.ConfirmMfaEnrollmentResponse:
+            type: object
+            properties:
+                enabled:
+                    type: boolean
+                    description: 是否啟用成功
+                recovery_codes:
+                    type: array
+                    items:
+                        type: string
+                    description: 一次性恢復碼，僅本次返回
+            description: 登入強制繫結多因素認證確認響應。
+        base.v1.ConfirmMfaSetupRequest:
+            type: object
+            properties:
+                setup_ticket:
+                    type: string
+                    description: 繫結臨時票據
+                code:
+                    type: string
+                    description: TOTP 動態口令
+                webauthn_response_json:
+                    type: string
+                    description: WebAuthn 註冊響應 JSON
+            description: 確認繫結多因素認證請求。
+        base.v1.ConfirmMfaSetupResponse:
+            type: object
+            properties:
+                enabled:
+                    type: boolean
+                    description: 是否啟用成功
+                recovery_codes:
+                    type: array
+                    items:
+                        type: string
+                    description: 一次性恢復碼，僅本次返回
+            description: 確認繫結多因素認證響應。
         base.v1.CreateAiSessionBranchRequest:
             type: object
             properties:
@@ -4299,6 +5970,31 @@ components:
                 binding_required:
                     type: boolean
                     description: 是否需要繫結已有賬號
+                status:
+                    enum:
+                        - LOGIN_STATUS_UNSPECIFIED
+                        - LOGIN_STATUS_AUTHENTICATED
+                        - LOGIN_STATUS_MFA_REQUIRED
+                        - LOGIN_STATUS_MFA_ENROLLMENT_REQUIRED
+                        - LOGIN_STATUS_PASSWORD_CHANGE_REQUIRED
+                    type: string
+                    description: 登入認證狀態
+                    format: enum
+                mfa_challenge_id:
+                    type: string
+                    description: 多因素認證挑戰ID
+                mfa_setup_ticket:
+                    type: string
+                    description: 多因素認證繫結臨時票據
+                mfa_expires_in:
+                    type: string
+                    description: 多因素認證挑戰或繫結票據有效時間，單位秒
+                mfa_method:
+                    type: string
+                    description: 多因素認證方式：totp、webauthn
+                mfa_webauthn_options_json:
+                    type: string
+                    description: WebAuthn認證選項JSON
             description: 三方登入會話建立響應
         base.v1.DeleteAiMessageResponse:
             type: object
@@ -4308,6 +6004,24 @@ components:
             type: object
             properties: {}
             description: AI 助手會話刪除響應
+        base.v1.DisableMfaRequest:
+            type: object
+            properties:
+                password:
+                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+                code:
+                    type: string
+                    description: TOTP 動態口令
+                webauthn_challenge_id:
+                    type: string
+                    description: WebAuthn 禁用挑戰 ID
+                webauthn_response_json:
+                    type: string
+                    description: WebAuthn 驗證響應 JSON
+                recovery_code:
+                    type: string
+                    description: 一次性恢復碼
+            description: 禁用多因素認證請求。
         base.v1.ExchangeOauthTicketRequest:
             type: object
             properties:
@@ -4331,6 +6045,31 @@ components:
                 expires_in:
                     type: string
                     description: 令牌有效時間，單位為秒。如果訪問令牌過期，伺服器應回覆授予訪問令牌的持續時間。如果省略該引數，必須其他方式設定過期時間。
+                status:
+                    enum:
+                        - LOGIN_STATUS_UNSPECIFIED
+                        - LOGIN_STATUS_AUTHENTICATED
+                        - LOGIN_STATUS_MFA_REQUIRED
+                        - LOGIN_STATUS_MFA_ENROLLMENT_REQUIRED
+                        - LOGIN_STATUS_PASSWORD_CHANGE_REQUIRED
+                    type: string
+                    description: 登入認證狀態
+                    format: enum
+                mfa_challenge_id:
+                    type: string
+                    description: 多因素認證挑戰ID
+                mfa_setup_ticket:
+                    type: string
+                    description: 多因素認證繫結臨時票據
+                mfa_expires_in:
+                    type: string
+                    description: 多因素認證挑戰或繫結票據有效時間，單位秒
+                mfa_method:
+                    type: string
+                    description: 多因素認證方式：totp、webauthn
+                mfa_webauthn_options_json:
+                    type: string
+                    description: WebAuthn認證選項JSON
             description: 三方登入票據兌換結果
         base.v1.FileInfo:
             type: object
@@ -4369,6 +6108,34 @@ components:
             type: object
             properties: {}
             description: 三方登入回撥結果
+        base.v1.IssueOauthClientTokenRequest:
+            type: object
+            properties:
+                client_id:
+                    type: string
+                    description: 客戶端標識
+                client_secret:
+                    type: string
+                    description: 客戶端金鑰
+                grant_type:
+                    type: string
+                    default: client_credentials
+                    description: 授權型別，固定為 client_credentials
+            description: 客戶端憑據令牌請求。
+        base.v1.IssueOauthClientTokenResponse:
+            type: object
+            properties:
+                access_token:
+                    type: string
+                    description: 訪問令牌
+                token_type:
+                    type: string
+                    default: Bearer
+                    description: 令牌型別
+                expires_in:
+                    type: string
+                    description: 令牌有效時間，單位為秒
+            description: 客戶端憑據令牌響應。
         base.v1.LanguageItem:
             type: object
             properties:
@@ -4458,7 +6225,70 @@ components:
                 expires_in:
                     type: string
                     description: 令牌有效時間，單位為秒。如果訪問令牌過期，伺服器應回覆授予訪問令牌的持續時間。如果省略該引數，必須其他方式設定過期時間。
+                status:
+                    enum:
+                        - LOGIN_STATUS_UNSPECIFIED
+                        - LOGIN_STATUS_AUTHENTICATED
+                        - LOGIN_STATUS_MFA_REQUIRED
+                        - LOGIN_STATUS_MFA_ENROLLMENT_REQUIRED
+                        - LOGIN_STATUS_PASSWORD_CHANGE_REQUIRED
+                    type: string
+                    description: 登入認證狀態
+                    format: enum
+                mfa_challenge_id:
+                    type: string
+                    description: 多因素認證挑戰ID
+                mfa_setup_ticket:
+                    type: string
+                    description: 多因素認證繫結臨時票據
+                mfa_expires_in:
+                    type: string
+                    description: 多因素認證挑戰或繫結票據有效時間，單位秒
+                mfa_method:
+                    type: string
+                    description: 多因素認證方式：totp、webauthn
+                mfa_webauthn_options_json:
+                    type: string
+                    description: WebAuthn認證選項JSON
             description: 登入響應
+        base.v1.MarkAllNotificationReadRequest:
+            type: object
+            properties:
+                before_delivery_id:
+                    type: string
+                    description: 已讀水位線投遞ID
+            description: 全部已讀請求。
+        base.v1.MarkNotificationReadRequest:
+            type: object
+            properties:
+                ids:
+                    type: array
+                    items:
+                        type: string
+                    description: 投遞ID列表
+            description: 批次標記訊息已讀請求。
+        base.v1.MarkNotificationUnreadRequest:
+            type: object
+            properties:
+                ids:
+                    type: array
+                    items:
+                        type: string
+                    description: 投遞ID列表
+            description: 批次標記訊息未讀請求。
+        base.v1.MfaStatusResponse:
+            type: object
+            properties:
+                enabled:
+                    type: boolean
+                    description: 是否已啟用多因素認證
+                policy:
+                    type: string
+                    description: 全域性多因素認證策略：disabled、optional、all_required
+                method:
+                    type: string
+                    description: 認證方式：totp、webauthn
+            description: 多因素認證狀態響應。
         base.v1.MultiUploadFileRequest:
             type: object
             properties:
@@ -4477,6 +6307,111 @@ components:
                         $ref: '#/components/schemas/base.v1.FileInfo'
                     description: 檔案上傳結果
             description: 批次上傳檔案響應
+        base.v1.Notification:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 投遞ID
+                message_id:
+                    type: string
+                    description: 訊息ID
+                category_id:
+                    type: string
+                    description: 分類ID
+                category_name:
+                    type: string
+                    description: 分類名稱
+                category_icon:
+                    type: string
+                    description: 分類圖示
+                category_color:
+                    type: string
+                    description: 分類顏色
+                priority:
+                    enum:
+                        - MESSAGE_PRIORITY_UNSPECIFIED
+                        - MESSAGE_PRIORITY_NORMAL
+                        - MESSAGE_PRIORITY_IMPORTANT
+                        - MESSAGE_PRIORITY_URGENT
+                    type: string
+                    description: 訊息優先順序
+                    format: enum
+                title:
+                    type: string
+                    description: 訊息標題
+                content:
+                    type: string
+                    description: 訊息正文，列表響應為空
+                content_format:
+                    enum:
+                        - MESSAGE_CONTENT_FORMAT_UNSPECIFIED
+                        - MESSAGE_CONTENT_FORMAT_PLAIN_TEXT
+                        - MESSAGE_CONTENT_FORMAT_SAFE_MARKDOWN
+                        - MESSAGE_CONTENT_FORMAT_RICH_TEXT
+                    type: string
+                    description: 正文格式
+                    format: enum
+                action_type:
+                    enum:
+                        - MESSAGE_ACTION_TYPE_UNSPECIFIED
+                        - MESSAGE_ACTION_TYPE_VIEW_KEY
+                    type: string
+                    description: 動作型別
+                    format: enum
+                action_target:
+                    type: string
+                    description: 動作目標
+                action_params:
+                    type: string
+                    description: 動作引數JSON
+                sender_name:
+                    type: string
+                    description: 傳送者名稱
+                received_at:
+                    type: string
+                    description: 接收時間
+                read_at:
+                    type: string
+                    description: 已讀時間
+                archived_at:
+                    type: string
+                    description: 歸檔時間
+                expires_at:
+                    type: string
+                    description: 過期時間
+                allow_archive:
+                    type: boolean
+                    description: 是否允許歸檔
+                allow_delete:
+                    type: boolean
+                    description: 是否允許刪除
+            description: 當前使用者訊息。
+        base.v1.NotificationCategoryUnread:
+            type: object
+            properties:
+                category_id:
+                    type: string
+                    description: 訊息分類ID
+                unread_total:
+                    type: string
+                    description: 分類未讀數
+            description: 當前使用者單個分類的未讀數量。
+        base.v1.NotificationSummary:
+            type: object
+            properties:
+                unread_total:
+                    type: string
+                    description: 未讀總數
+                latest_delivery_id:
+                    type: string
+                    description: 最新投遞ID
+                category_unread:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.NotificationCategoryUnread'
+                    description: 分類未讀數
+            description: 當前使用者未讀彙總。
         base.v1.OauthBinding:
             type: object
             properties:
@@ -4503,6 +6438,25 @@ components:
                         $ref: '#/components/schemas/base.v1.LanguageItem'
                     description: 當前支援的語言列表
             description: 當前支援的語言選項查詢結果。
+        base.v1.PageNotificationResponse:
+            type: object
+            properties:
+                notifications:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.Notification'
+                    description: 訊息列表
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+                next_cursor_id:
+                    type: string
+                    description: 下一頁遊標
+                has_more:
+                    type: boolean
+                    description: 是否還有下一頁
+            description: 當前使用者收件箱分頁響應。
         base.v1.PasswordPublicKeyResponse:
             type: object
             properties:
@@ -4522,12 +6476,21 @@ components:
                     type: string
                     description: 有效時間，單位秒
             description: 密碼臨時公鑰響應
+        base.v1.RecoveryCodesResponse:
+            type: object
+            properties:
+                recovery_codes:
+                    type: array
+                    items:
+                        type: string
+                    description: 一次性恢復碼，僅本次返回
+            description: 恢復碼響應。
         base.v1.RefreshTokenRequest:
             type: object
             properties:
                 refresh_token:
                     type: string
-                    description: 更新令牌，用來獲取下一次的訪問令牌，可選項。如果訪問令牌將過期，則返回重新整理令牌很有用，應用程式可以使用該重新整理令牌來獲取另一個訪問令牌。但是，透過隱式授予頒發的令牌不能頒發重新整理令牌。
+                    description: 更新令牌；未填寫時由服務端從HttpOnly Cookie讀取
             description: 重新整理令牌請求引數
         base.v1.RefreshTokenResponse:
             type: object
@@ -4556,6 +6519,20 @@ components:
                     type: string
                     description: 訊息ID
             description: AI 助手輸出重新生成請求
+        base.v1.RegenerateMfaRecoveryCodesRequest:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: TOTP 動態口令
+            description: 重新生成恢復碼請求。
+        base.v1.RestoreNotificationRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 投遞ID
+            description: 恢復歸檔訊息請求。
         base.v1.RetryAiUserMessageRequest:
             type: object
             properties:
@@ -4666,6 +6643,22 @@ components:
                     type: string
                     description: 有效時間，單位秒
             description: 驗證碼預校驗響應
+        base.v1.VerifyMfaRequest:
+            type: object
+            properties:
+                challenge_id:
+                    type: string
+                    description: 多因素認證挑戰ID
+                code:
+                    type: string
+                    description: TOTP動態口令
+                recovery_code:
+                    type: string
+                    description: 一次性恢復碼
+                webauthn_response_json:
+                    type: string
+                    description: WebAuthn認證響應JSON
+            description: 多因素認證校驗請求。
         common.v1.AppTreeOptionResponse_Option:
             type: object
             properties:
@@ -4900,6 +6893,86 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseApiDocSchema'
                     description: 子欄位
             description: API文件Schema
+        system.admin.v1.BaseApiLog:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: API日誌ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                tenant_code:
+                    type: string
+                    description: 租戶編碼
+                user_id:
+                    type: string
+                    description: 使用者ID
+                user_name:
+                    type: string
+                    description: 使用者名稱稱
+                request_id:
+                    type: string
+                    description: 請求ID
+                trace_id:
+                    type: string
+                    description: 鏈路追蹤ID
+                service_name:
+                    type: string
+                    description: 服務名
+                operation:
+                    type: string
+                    description: 操作方法
+                method:
+                    type: string
+                    description: 請求方法
+                path:
+                    type: string
+                    description: 請求路徑
+                status_code:
+                    type: integer
+                    description: 狀態碼
+                    format: int32
+                result:
+                    enum:
+                        - BASE_AUDIT_RESULT_UNSPECIFIED
+                        - BASE_AUDIT_RESULT_SUCCESS
+                        - BASE_AUDIT_RESULT_FAILURE
+                        - BASE_AUDIT_RESULT_ERROR
+                    type: string
+                    description: 結果
+                    format: enum
+                reason_code:
+                    type: string
+                    description: 原因編碼
+                reason:
+                    type: string
+                    description: 原因說明
+                latency_ms:
+                    type: integer
+                    description: 耗時毫秒
+                    format: int32
+                request_size:
+                    type: integer
+                    description: 請求大小
+                    format: int32
+                response_size:
+                    type: integer
+                    description: 響應大小
+                    format: int32
+                client_ip:
+                    type: string
+                    description: 客戶端IP
+                user_agent:
+                    type: string
+                    description: 使用者代理
+                occurred_at:
+                    type: string
+                    description: 事件發生時間
+                created_at:
+                    type: string
+                    description: 日誌建立時間
+            description: API 訪問日誌。
         system.admin.v1.BaseArea:
             type: object
             properties:
@@ -5043,6 +7116,150 @@ components:
                     description: 狀態
                     format: enum
             description: 系統配置表單
+        system.admin.v1.BaseDashboardDistributionItem:
+            type: object
+            properties:
+                label:
+                    type: string
+                    description: 分佈標籤
+                count:
+                    type: string
+                    description: 數量
+            description: 分佈統計資料項。
+        system.admin.v1.BaseDashboardDistributionResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseDashboardDistributionItem'
+                    description: 分佈資料
+            description: 分佈統計響應。
+        system.admin.v1.BaseDashboardOverview:
+            type: object
+            properties:
+                user_count:
+                    type: string
+                    description: 使用者總數
+                role_count:
+                    type: string
+                    description: 角色總數
+                today_login_count:
+                    type: string
+                    description: 今日登入次數
+                today_operation_count:
+                    type: string
+                    description: 今日操作次數
+            description: 首頁概覽統計。
+        system.admin.v1.BaseDashboardTrendPoint:
+            type: object
+            properties:
+                date:
+                    type: string
+                    description: 日期，格式為YYYY-MM-DD
+                count:
+                    type: string
+                    description: 數量
+            description: 趨勢資料點。
+        system.admin.v1.BaseDashboardTrendResponse:
+            type: object
+            properties:
+                points:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseDashboardTrendPoint'
+                    description: 趨勢資料點
+            description: 趨勢統計響應。
+        system.admin.v1.BaseDataAccessLog:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 資料訪問日誌ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                tenant_code:
+                    type: string
+                    description: 租戶編碼
+                user_id:
+                    type: string
+                    description: 使用者ID
+                user_name:
+                    type: string
+                    description: 使用者名稱稱
+                request_id:
+                    type: string
+                    description: 請求ID
+                trace_id:
+                    type: string
+                    description: 鏈路追蹤ID
+                resource_type:
+                    type: string
+                    description: 資源型別
+                resource_id:
+                    type: string
+                    description: 資源ID
+                access_type:
+                    enum:
+                        - BASE_DATA_ACCESS_TYPE_UNSPECIFIED
+                        - BASE_DATA_ACCESS_TYPE_LIST
+                        - BASE_DATA_ACCESS_TYPE_DETAIL
+                        - BASE_DATA_ACCESS_TYPE_QUERY
+                        - BASE_DATA_ACCESS_TYPE_EXPORT
+                        - BASE_DATA_ACCESS_TYPE_DOWNLOAD
+                        - BASE_DATA_ACCESS_TYPE_IMPORT
+                    type: string
+                    description: 訪問型別
+                    format: enum
+                data_source:
+                    type: string
+                    description: 資料來源
+                table_name:
+                    type: string
+                    description: 資料表名
+                field_scope:
+                    type: string
+                    description: 訪問欄位範圍
+                data_scope:
+                    type: string
+                    description: 資料範圍
+                affected_rows:
+                    type: integer
+                    description: 影響行數
+                    format: int32
+                sensitive:
+                    type: boolean
+                    description: 是否敏感資料
+                sql_text:
+                    type: string
+                    description: 脫敏SQL
+                sql_digest:
+                    type: string
+                    description: SQL指紋
+                result:
+                    enum:
+                        - BASE_AUDIT_RESULT_UNSPECIFIED
+                        - BASE_AUDIT_RESULT_SUCCESS
+                        - BASE_AUDIT_RESULT_FAILURE
+                        - BASE_AUDIT_RESULT_ERROR
+                    type: string
+                    description: 結果
+                    format: enum
+                reason_code:
+                    type: string
+                    description: 原因編碼
+                latency_ms:
+                    type: integer
+                    description: 耗時毫秒
+                    format: int32
+                occurred_at:
+                    type: string
+                    description: 事件發生時間
+                created_at:
+                    type: string
+                    description: 日誌建立時間
+            description: 資料訪問日誌。
         system.admin.v1.BaseDept:
             type: object
             properties:
@@ -5255,6 +7472,56 @@ components:
                     description: 狀態
                     format: enum
             description: 字典屬性表單
+        system.admin.v1.BaseFile:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 檔案ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                provider:
+                    type: integer
+                    description: 儲存供應商
+                    format: int32
+                bucket_name:
+                    type: string
+                    description: 儲存桶名稱
+                file_directory:
+                    type: string
+                    description: 檔案目錄
+                file_guid:
+                    type: string
+                    description: 檔案唯一標識
+                save_file_name:
+                    type: string
+                    description: 實際儲存檔名
+                file_name:
+                    type: string
+                    description: 原始檔名
+                extension:
+                    type: string
+                    description: 副檔名
+                mime_type:
+                    type: string
+                    description: 檔案MIME型別
+                size:
+                    type: string
+                    description: 檔案大小，單位位元組
+                link_url:
+                    type: string
+                    description: 檔案訪問地址
+                content_hash:
+                    type: string
+                    description: 檔案內容SHA-256雜湊
+                created_by:
+                    type: string
+                    description: 建立者ID
+                created_at:
+                    type: string
+                    description: 建立時間
+            description: 檔案資產後設資料。
         system.admin.v1.BaseI18n:
             type: object
             properties:
@@ -5471,89 +7738,147 @@ components:
                     description: 啟用狀態
                     format: enum
             description: 語言表單
-        system.admin.v1.BaseLog:
+        system.admin.v1.BaseLoginLog:
             type: object
             properties:
                 id:
                     type: string
-                    description: 日誌ID
+                    description: 登入日誌ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                tenant_code:
+                    type: string
+                    description: 租戶編碼
+                user_id:
+                    type: string
+                    description: 使用者ID
+                user_name:
+                    type: string
+                    description: 賬號名
+                login_type:
+                    enum:
+                        - BASE_LOGIN_LOG_TYPE_UNSPECIFIED
+                        - BASE_LOGIN_LOG_TYPE_PASSWORD
+                        - BASE_LOGIN_LOG_TYPE_OAUTH
+                        - BASE_LOGIN_LOG_TYPE_MFA
+                        - BASE_LOGIN_LOG_TYPE_TOKEN_REFRESH
+                        - BASE_LOGIN_LOG_TYPE_LOGOUT
+                    type: string
+                    description: 登入型別
+                    format: enum
+                result:
+                    enum:
+                        - BASE_AUDIT_RESULT_UNSPECIFIED
+                        - BASE_AUDIT_RESULT_SUCCESS
+                        - BASE_AUDIT_RESULT_FAILURE
+                        - BASE_AUDIT_RESULT_ERROR
+                    type: string
+                    description: 結果
+                    format: enum
+                reason_code:
+                    type: string
+                    description: 原因編碼
+                reason:
+                    type: string
+                    description: 原因說明
+                client_ip:
+                    type: string
+                    description: 客戶端IP
+                user_agent:
+                    type: string
+                    description: 使用者代理
+                device_id:
+                    type: string
+                    description: 裝置標識
                 request_id:
                     type: string
                     description: 請求ID
-                request_time:
+                trace_id:
                     type: string
-                    description: 請求時間
-                method:
+                    description: 鏈路追蹤ID
+                occurred_at:
                     type: string
-                    description: 請求方法
-                operation:
+                    description: 事件發生時間
+                created_at:
                     type: string
-                    description: 操作方法
-                path:
-                    type: string
-                    description: 請求路徑
-                referer:
-                    type: string
-                    description: 請求源
-                request_uri:
-                    type: string
-                    description: 請求URI
-                request_body:
-                    type: string
-                    description: 請求體
-                request_header:
-                    type: string
-                    description: 請求頭
-                response:
-                    type: string
-                    description: 響應資訊
-                cost_time:
-                    type: string
-                    description: 操作耗時
-                is_success:
+                    description: 日誌建立時間
+            description: 登入日誌。
+        system.admin.v1.BaseLoginPolicy:
+            type: object
+            properties:
+                enabled:
                     type: boolean
-                    description: 操作是否成功
-                status_code:
-                    type: integer
-                    description: 狀態碼
-                    format: int32
-                reason:
+                    description: 是否啟用
+                ip_blacklist:
+                    type: array
+                    items:
+                        type: string
+                    description: IP黑名單，支援IP和CIDR
+                ip_whitelist:
+                    type: array
+                    items:
+                        type: string
+                    description: IP白名單，支援IP和CIDR
+                time_windows:
+                    type: array
+                    items:
+                        type: string
+                    description: 禁止登入時間視窗，格式HH:MM-HH:MM
+                device_blacklist:
+                    type: array
+                    items:
+                        type: string
+                    description: 裝置黑名單
+                device_whitelist:
+                    type: array
+                    items:
+                        type: string
+                    description: 裝置白名單
+                rules:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseLoginPolicyRule'
+                    description: 按租戶或使用者匹配的定向規則
+            description: 登入來源策略。
+        system.admin.v1.BaseLoginPolicyRule:
+            type: object
+            properties:
+                target_type:
                     type: string
-                    description: 操作失敗原因
-                location:
+                    description: 目標型別：TENANT或USER
+                target_value:
                     type: string
-                    description: 操作地理位置
-                user_id:
-                    type: string
-                    description: 操作者使用者ID
-                user_name:
-                    type: string
-                    description: 操作者賬號名
-                client_ip:
-                    type: string
-                    description: 操作者IP
-                user_agent:
-                    type: string
-                    description: 瀏覽器的使用者代理資訊
-                browser_name:
-                    type: string
-                    description: 瀏覽器名稱
-                browser_version:
-                    type: string
-                    description: 瀏覽器版本
-                client_id:
-                    type: string
-                    description: 客戶端ID
-                client_name:
-                    type: string
-                    description: 客戶端名稱
-                os_name:
-                    type: string
-                    description: 作業系統名稱
-                os_version:
-                    type: string
-                    description: 作業系統版本
-            description: 日誌
+                    description: 目標值：租戶編碼或使用者名稱
+                enabled:
+                    type: boolean
+                    description: 是否啟用
+                ip_blacklist:
+                    type: array
+                    items:
+                        type: string
+                    description: IP黑名單，支援IP和CIDR
+                ip_whitelist:
+                    type: array
+                    items:
+                        type: string
+                    description: IP白名單，支援IP和CIDR
+                time_windows:
+                    type: array
+                    items:
+                        type: string
+                    description: 禁止登入時間視窗，格式HH:MM-HH:MM
+                device_blacklist:
+                    type: array
+                    items:
+                        type: string
+                    description: 裝置黑名單
+                device_whitelist:
+                    type: array
+                    items:
+                        type: string
+                    description: 裝置白名單
+            description: 登入來源定向規則。
         system.admin.v1.BaseMenu:
             type: object
             properties:
@@ -5733,6 +8058,323 @@ components:
                     type: string
                     description: 引數value
             description: 選單引數
+        system.admin.v1.BaseMessage:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 訊息ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                category_id:
+                    type: string
+                    description: 訊息分類ID
+                category_name:
+                    type: string
+                    description: 訊息分類名稱
+                title:
+                    type: string
+                    description: 訊息標題
+                priority:
+                    enum:
+                        - MESSAGE_PRIORITY_UNSPECIFIED
+                        - MESSAGE_PRIORITY_NORMAL
+                        - MESSAGE_PRIORITY_IMPORTANT
+                        - MESSAGE_PRIORITY_URGENT
+                    type: string
+                    description: 訊息優先順序
+                    format: enum
+                status:
+                    enum:
+                        - MESSAGE_STATUS_UNSPECIFIED
+                        - MESSAGE_STATUS_DRAFT
+                        - MESSAGE_STATUS_SCHEDULED
+                        - MESSAGE_STATUS_PUBLISHING
+                        - MESSAGE_STATUS_PUBLISHED
+                        - MESSAGE_STATUS_REVOKED
+                        - MESSAGE_STATUS_ARCHIVED
+                    type: string
+                    description: 訊息狀態
+                    format: enum
+                sender_name:
+                    type: string
+                    description: 傳送者名稱
+                recipient_total:
+                    type: string
+                    description: 目標人數
+                delivered_total:
+                    type: string
+                    description: 已投遞人數
+                failed_total:
+                    type: string
+                    description: 失敗人數
+                scheduled_at:
+                    type: string
+                    description: 計劃釋出時間
+                published_at:
+                    type: string
+                    description: 釋出時間
+                created_at:
+                    type: string
+                    description: 建立時間
+                updated_at:
+                    type: string
+                    description: 更新時間
+            description: 訊息列表項。
+        system.admin.v1.BaseMessageAudienceForm:
+            type: object
+            properties:
+                type:
+                    enum:
+                        - MESSAGE_AUDIENCE_TYPE_UNSPECIFIED
+                        - MESSAGE_AUDIENCE_TYPE_USER
+                        - MESSAGE_AUDIENCE_TYPE_ROLE
+                        - MESSAGE_AUDIENCE_TYPE_DEPT
+                        - MESSAGE_AUDIENCE_TYPE_POST
+                        - MESSAGE_AUDIENCE_TYPE_TENANT
+                    type: string
+                    description: 受眾型別
+                    format: enum
+                id:
+                    type: string
+                    description: 受眾ID，租戶全員為0
+                include_children:
+                    type: boolean
+                    description: 是否包含子部門
+            description: 訊息受眾表單。
+        system.admin.v1.BaseMessageCategory:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 訊息分類ID
+                code:
+                    type: string
+                    description: 分類編碼
+                name:
+                    type: string
+                    description: 分類名稱
+                icon:
+                    type: string
+                    description: 分類圖示
+                color:
+                    type: string
+                    description: 分類顏色
+                sort:
+                    type: integer
+                    description: 排序
+                    format: int32
+                default_priority:
+                    enum:
+                        - MESSAGE_PRIORITY_UNSPECIFIED
+                        - MESSAGE_PRIORITY_NORMAL
+                        - MESSAGE_PRIORITY_IMPORTANT
+                        - MESSAGE_PRIORITY_URGENT
+                    type: string
+                    description: 預設優先順序
+                    format: enum
+                retention_days:
+                    type: integer
+                    description: 保留天數
+                    format: int32
+                allow_archive:
+                    type: boolean
+                    description: 是否允許歸檔
+                allow_delete:
+                    type: boolean
+                    description: 是否允許刪除
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 狀態
+                    format: enum
+                created_at:
+                    type: string
+                    description: 建立時間
+                updated_at:
+                    type: string
+                    description: 更新時間
+            description: 訊息分類。
+        system.admin.v1.BaseMessageCategoryForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 訊息分類ID
+                code:
+                    type: string
+                    description: 分類編碼
+                name:
+                    type: string
+                    description: 分類名稱
+                icon:
+                    type: string
+                    description: 分類圖示
+                color:
+                    type: string
+                    description: 分類顏色
+                sort:
+                    type: integer
+                    description: 排序
+                    format: int32
+                default_priority:
+                    enum:
+                        - MESSAGE_PRIORITY_UNSPECIFIED
+                        - MESSAGE_PRIORITY_NORMAL
+                        - MESSAGE_PRIORITY_IMPORTANT
+                        - MESSAGE_PRIORITY_URGENT
+                    type: string
+                    description: 預設優先順序
+                    format: enum
+                retention_days:
+                    type: integer
+                    description: 保留天數
+                    format: int32
+                allow_archive:
+                    type: boolean
+                    description: 是否允許歸檔
+                allow_delete:
+                    type: boolean
+                    description: 是否允許刪除
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 狀態
+                    format: enum
+            description: 訊息分類表單。
+        system.admin.v1.BaseMessageDetail:
+            type: object
+            properties:
+                base_message:
+                    $ref: '#/components/schemas/system.admin.v1.BaseMessage'
+                form:
+                    $ref: '#/components/schemas/system.admin.v1.BaseMessageForm'
+                dispatches:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseMessageDispatch'
+                    description: 投遞任務
+            description: 訊息詳情。
+        system.admin.v1.BaseMessageDispatch:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 投遞任務ID
+                audience_type:
+                    enum:
+                        - MESSAGE_AUDIENCE_TYPE_UNSPECIFIED
+                        - MESSAGE_AUDIENCE_TYPE_USER
+                        - MESSAGE_AUDIENCE_TYPE_ROLE
+                        - MESSAGE_AUDIENCE_TYPE_DEPT
+                        - MESSAGE_AUDIENCE_TYPE_POST
+                        - MESSAGE_AUDIENCE_TYPE_TENANT
+                    type: string
+                    description: 受眾型別
+                    format: enum
+                audience_id:
+                    type: string
+                    description: 受眾ID
+                include_children:
+                    type: boolean
+                    description: 是否包含子部門
+                status:
+                    enum:
+                        - MESSAGE_DISPATCH_STATUS_UNSPECIFIED
+                        - MESSAGE_DISPATCH_STATUS_WAITING
+                        - MESSAGE_DISPATCH_STATUS_PENDING
+                        - MESSAGE_DISPATCH_STATUS_RUNNING
+                        - MESSAGE_DISPATCH_STATUS_SUCCEEDED
+                        - MESSAGE_DISPATCH_STATUS_FAILED
+                        - MESSAGE_DISPATCH_STATUS_CANCELLED
+                    type: string
+                    description: 投遞狀態
+                    format: enum
+                matched_total:
+                    type: string
+                    description: 匹配人數
+                inserted_total:
+                    type: string
+                    description: 新增投遞人數
+                attempt_count:
+                    type: integer
+                    description: 嘗試次數
+                    format: int32
+                last_error:
+                    type: string
+                    description: 最近錯誤
+            description: 訊息投遞任務。
+        system.admin.v1.BaseMessageForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 訊息ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                category_id:
+                    type: string
+                    description: 訊息分類ID
+                title:
+                    type: string
+                    description: 訊息標題
+                content:
+                    type: string
+                    description: 訊息正文
+                content_format:
+                    enum:
+                        - MESSAGE_CONTENT_FORMAT_UNSPECIFIED
+                        - MESSAGE_CONTENT_FORMAT_PLAIN_TEXT
+                        - MESSAGE_CONTENT_FORMAT_SAFE_MARKDOWN
+                        - MESSAGE_CONTENT_FORMAT_RICH_TEXT
+                    type: string
+                    description: 正文格式
+                    format: enum
+                priority:
+                    enum:
+                        - MESSAGE_PRIORITY_UNSPECIFIED
+                        - MESSAGE_PRIORITY_NORMAL
+                        - MESSAGE_PRIORITY_IMPORTANT
+                        - MESSAGE_PRIORITY_URGENT
+                    type: string
+                    description: 訊息優先順序
+                    format: enum
+                action_type:
+                    enum:
+                        - MESSAGE_ACTION_TYPE_UNSPECIFIED
+                        - MESSAGE_ACTION_TYPE_VIEW_KEY
+                    type: string
+                    description: 動作型別
+                    format: enum
+                action_target:
+                    type: string
+                    description: 動作目標
+                action_params:
+                    type: string
+                    description: 動作引數JSON
+                scheduled_at:
+                    type: string
+                    description: 計劃釋出時間
+                expires_at:
+                    type: string
+                    description: 過期時間
+                audiences:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseMessageAudienceForm'
+                    description: 訊息受眾
+                version:
+                    type: string
+                    description: 樂觀鎖版本
+            description: 訊息表單。
         system.admin.v1.BaseMigration:
             type: object
             properties:
@@ -5780,6 +8422,256 @@ components:
                     type: string
                     description: 建立時間
             description: 資料庫遷移記錄列表項
+        system.admin.v1.BaseOperationLog:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 操作日誌ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                tenant_code:
+                    type: string
+                    description: 租戶編碼
+                user_id:
+                    type: string
+                    description: 使用者ID
+                user_name:
+                    type: string
+                    description: 使用者名稱稱
+                request_id:
+                    type: string
+                    description: 請求ID
+                trace_id:
+                    type: string
+                    description: 鏈路追蹤ID
+                resource_type:
+                    type: string
+                    description: 資源型別
+                resource_id:
+                    type: string
+                    description: 資源ID
+                resource_name:
+                    type: string
+                    description: 資源名稱
+                action:
+                    enum:
+                        - BASE_OPERATION_ACTION_UNSPECIFIED
+                        - BASE_OPERATION_ACTION_CREATE
+                        - BASE_OPERATION_ACTION_UPDATE
+                        - BASE_OPERATION_ACTION_DELETE
+                        - BASE_OPERATION_ACTION_PUBLISH
+                        - BASE_OPERATION_ACTION_REVOKE
+                        - BASE_OPERATION_ACTION_IMPORT
+                        - BASE_OPERATION_ACTION_EXPORT
+                        - BASE_OPERATION_ACTION_OTHER
+                    type: string
+                    description: 操作動作
+                    format: enum
+                changed_fields:
+                    type: string
+                    description: 變更欄位
+                before_data:
+                    type: string
+                    description: 變更前資料
+                after_data:
+                    type: string
+                    description: 變更後資料
+                result:
+                    enum:
+                        - BASE_AUDIT_RESULT_UNSPECIFIED
+                        - BASE_AUDIT_RESULT_SUCCESS
+                        - BASE_AUDIT_RESULT_FAILURE
+                        - BASE_AUDIT_RESULT_ERROR
+                    type: string
+                    description: 結果
+                    format: enum
+                reason_code:
+                    type: string
+                    description: 原因編碼
+                reason:
+                    type: string
+                    description: 原因說明
+                occurred_at:
+                    type: string
+                    description: 事件發生時間
+                created_at:
+                    type: string
+                    description: 日誌建立時間
+            description: 業務操作日誌。
+        system.admin.v1.BasePermissionLog:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 許可權日誌ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                tenant_code:
+                    type: string
+                    description: 租戶編碼
+                user_id:
+                    type: string
+                    description: 使用者ID
+                user_name:
+                    type: string
+                    description: 使用者名稱稱
+                request_id:
+                    type: string
+                    description: 請求ID
+                trace_id:
+                    type: string
+                    description: 鏈路追蹤ID
+                target_type:
+                    enum:
+                        - BASE_PERMISSION_TARGET_TYPE_UNSPECIFIED
+                        - BASE_PERMISSION_TARGET_TYPE_USER
+                        - BASE_PERMISSION_TARGET_TYPE_ROLE
+                        - BASE_PERMISSION_TARGET_TYPE_MENU
+                        - BASE_PERMISSION_TARGET_TYPE_API
+                        - BASE_PERMISSION_TARGET_TYPE_TENANT
+                    type: string
+                    description: 目標型別
+                    format: enum
+                target_id:
+                    type: string
+                    description: 目標ID
+                target_name:
+                    type: string
+                    description: 目標名稱
+                action:
+                    enum:
+                        - BASE_PERMISSION_ACTION_UNSPECIFIED
+                        - BASE_PERMISSION_ACTION_GRANT
+                        - BASE_PERMISSION_ACTION_REVOKE
+                        - BASE_PERMISSION_ACTION_CREATE
+                        - BASE_PERMISSION_ACTION_UPDATE
+                        - BASE_PERMISSION_ACTION_DELETE
+                        - BASE_PERMISSION_ACTION_ASSIGN
+                    type: string
+                    description: 許可權動作
+                    format: enum
+                old_value:
+                    type: string
+                    description: 變更前許可權
+                new_value:
+                    type: string
+                    description: 變更後許可權
+                result:
+                    enum:
+                        - BASE_AUDIT_RESULT_UNSPECIFIED
+                        - BASE_AUDIT_RESULT_SUCCESS
+                        - BASE_AUDIT_RESULT_FAILURE
+                        - BASE_AUDIT_RESULT_ERROR
+                    type: string
+                    description: 結果
+                    format: enum
+                reason_code:
+                    type: string
+                    description: 原因編碼
+                reason:
+                    type: string
+                    description: 原因說明
+                occurred_at:
+                    type: string
+                    description: 事件發生時間
+                created_at:
+                    type: string
+                    description: 日誌建立時間
+            description: 許可權日誌。
+        system.admin.v1.BasePolicyEvaluationLog:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 策略評估日誌ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                tenant_code:
+                    type: string
+                    description: 租戶編碼
+                user_id:
+                    type: string
+                    description: 使用者ID
+                user_name:
+                    type: string
+                    description: 使用者名稱稱
+                role_id:
+                    type: string
+                    description: 角色ID
+                role_code:
+                    type: string
+                    description: 角色編碼
+                request_id:
+                    type: string
+                    description: 請求ID
+                trace_id:
+                    type: string
+                    description: 鏈路追蹤ID
+                client_ip:
+                    type: string
+                    description: 客戶端IP
+                engine:
+                    type: string
+                    description: 鑑權引擎
+                evaluation_type:
+                    enum:
+                        - BASE_POLICY_EVALUATION_TYPE_UNSPECIFIED
+                        - BASE_POLICY_EVALUATION_TYPE_IS_AUTHORIZED
+                        - BASE_POLICY_EVALUATION_TYPE_FILTER_PAIRS
+                        - BASE_POLICY_EVALUATION_TYPE_FILTER_PROJECTS
+                    type: string
+                    description: 評估型別
+                    format: enum
+                resource:
+                    type: string
+                    description: 資源
+                action:
+                    type: string
+                    description: 動作
+                project:
+                    type: string
+                    description: 專案範圍
+                decision:
+                    enum:
+                        - BASE_POLICY_DECISION_UNSPECIFIED
+                        - BASE_POLICY_DECISION_ALLOW
+                        - BASE_POLICY_DECISION_DENY
+                        - BASE_POLICY_DECISION_ERROR
+                    type: string
+                    description: 決策結果
+                    format: enum
+                reason_code:
+                    type: string
+                    description: 原因編碼
+                reason:
+                    type: string
+                    description: 原因說明
+                duration_ms:
+                    type: integer
+                    description: 評估耗時毫秒
+                    format: int32
+                candidate_count:
+                    type: integer
+                    description: 候選數量
+                    format: int32
+                matched_count:
+                    type: integer
+                    description: 命中數量
+                    format: int32
+                input_hash:
+                    type: string
+                    description: 輸入摘要
+                occurred_at:
+                    type: string
+                    description: 事件發生時間
+                created_at:
+                    type: string
+                    description: 日誌建立時間
+            description: 策略評估日誌。
         system.admin.v1.BasePost:
             type: object
             properties:
@@ -5941,6 +8833,34 @@ components:
                     type: string
                     description: 備註
             description: 角色表單
+        system.admin.v1.BaseSession:
+            type: object
+            properties:
+                user_id:
+                    type: string
+                    description: 使用者ID
+                user_name:
+                    type: string
+                    description: 使用者賬號
+                tenant_code:
+                    type: string
+                    description: 租戶編碼
+                client_ip:
+                    type: string
+                    description: 客戶端IP
+                device:
+                    type: string
+                    description: 登入裝置
+                user_agent:
+                    type: string
+                    description: 使用者代理
+                issued_at:
+                    type: string
+                    description: 簽發時間
+                expires_in:
+                    type: string
+                    description: 令牌有效期（秒）
+            description: 當前會話資訊。
         system.admin.v1.BaseTenant:
             type: object
             properties:
@@ -6139,6 +9059,13 @@ components:
                     type: string
                     description: 使用者數
             description: 使用者註冊時間維度彙總項
+        system.admin.v1.CancelBaseMessageScheduleRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 訊息ID
+            description: 取消訊息定時釋出請求。
         system.admin.v1.CodeGenColumn:
             type: object
             properties:
@@ -6685,6 +9612,13 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.CodeGenTaskStep'
                     description: 生成步驟列表
             description: 單個生成物件任務進度
+        system.admin.v1.CreateBaseMessageResponse:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 訊息ID
+            description: 建立訊息響應。
         system.admin.v1.DraftBaseI18nItem:
             type: object
             properties:
@@ -6775,6 +9709,104 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.RuntimeLogFile'
                     description: 歷史日誌檔案列表
             description: 歷史日誌檔案列表響應。
+        system.admin.v1.OauthClient:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 客戶端ID
+                client_id:
+                    type: string
+                    description: 客戶端標識
+                client_name:
+                    type: string
+                    description: 客戶端名稱
+                tenant_id:
+                    type: string
+                    description: 繫結租戶ID
+                crypto_type:
+                    enum:
+                        - OAUTH_CLIENT_CRYPTO_TYPE_UNSPECIFIED
+                        - OAUTH_CLIENT_CRYPTO_TYPE_SM4
+                        - OAUTH_CLIENT_CRYPTO_TYPE_AES
+                    type: string
+                    description: 協議加密型別
+                    format: enum
+                ip_whitelist:
+                    type: string
+                    description: IP白名單
+                api:
+                    type: array
+                    items:
+                        type: string
+                    description: 允許訪問的 API operation 列表
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 狀態
+                    format: enum
+            description: 開放授權客戶端非敏感資訊。
+        system.admin.v1.OauthClientCredentials:
+            type: object
+            properties:
+                client_id:
+                    type: string
+                    description: 客戶端標識
+                client_secret:
+                    type: string
+                    description: 客戶端金鑰
+                crypto_type:
+                    enum:
+                        - OAUTH_CLIENT_CRYPTO_TYPE_UNSPECIFIED
+                        - OAUTH_CLIENT_CRYPTO_TYPE_SM4
+                        - OAUTH_CLIENT_CRYPTO_TYPE_AES
+                    type: string
+                    description: 協議加密型別
+                    format: enum
+                crypto_key:
+                    type: string
+                    description: 協議加密金鑰
+            description: 開放授權客戶端憑據後設資料；敏感金鑰欄位始終為空，僅保留協議型別和客戶端標識。
+        system.admin.v1.OauthClientForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 客戶端ID
+                tenant_id:
+                    type: string
+                    description: 繫結租戶ID，預設租戶管理員可指定
+                client_name:
+                    type: string
+                    description: 客戶端名稱
+                crypto_type:
+                    enum:
+                        - OAUTH_CLIENT_CRYPTO_TYPE_UNSPECIFIED
+                        - OAUTH_CLIENT_CRYPTO_TYPE_SM4
+                        - OAUTH_CLIENT_CRYPTO_TYPE_AES
+                    type: string
+                    description: 協議加密型別
+                    format: enum
+                ip_whitelist:
+                    type: string
+                    description: IP白名單，逗號分隔並支援CIDR
+                api:
+                    type: array
+                    items:
+                        type: string
+                    description: 允許訪問的 base_api.operation 列表
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 狀態
+                    format: enum
+            description: 開放授權客戶端表單。
         system.admin.v1.OpenApiServiceOperation:
             type: object
             properties:
@@ -7183,6 +10215,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseLanguage'
                     description: 語言選項
             description: 語言選項響應
+        system.admin.v1.OptionOauthClientApiResponse:
+            type: object
+            properties:
+                base_apis:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseApi'
+                    description: 可授權的開發介面列表
+            description: 可授權 API 選項響應。
         system.admin.v1.OptionOpenApiServiceResponse:
             type: object
             properties:
@@ -7192,6 +10233,19 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.OpenApiServiceOption'
                     description: OpenAPI文件列表
             description: OpenAPI業務服務選項響應
+        system.admin.v1.PageBaseApiLogResponse:
+            type: object
+            properties:
+                base_api_logs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseApiLog'
+                    description: API訪問日誌列表
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: API 訪問日誌分頁響應。
         system.admin.v1.PageBaseApiResponse:
             type: object
             properties:
@@ -7218,6 +10272,19 @@ components:
                     description: 總數
                     format: int32
             description: 系統配置分頁響應
+        system.admin.v1.PageBaseDataAccessLogResponse:
+            type: object
+            properties:
+                base_data_access_logs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseDataAccessLog'
+                    description: 資料訪問日誌列表
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: 資料訪問日誌分頁響應。
         system.admin.v1.PageBaseDictItemResponse:
             type: object
             properties:
@@ -7244,6 +10311,18 @@ components:
                     description: 總數
                     format: int32
             description: 字典分頁響應
+        system.admin.v1.PageBaseFileResponse:
+            type: object
+            properties:
+                base_files:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseFile'
+                    description: 檔案資產列表
+                total:
+                    type: string
+                    description: 總數
+            description: 檔案資產分頁響應。
         system.admin.v1.PageBaseJobLogResponse:
             type: object
             properties:
@@ -7283,19 +10362,45 @@ components:
                     description: 總數
                     format: int32
             description: 語言分頁響應
-        system.admin.v1.PageBaseLogResponse:
+        system.admin.v1.PageBaseLoginLogResponse:
             type: object
             properties:
-                base_logs:
+                base_login_logs:
                     type: array
                     items:
-                        $ref: '#/components/schemas/system.admin.v1.BaseLog'
-                    description: 分頁資料
+                        $ref: '#/components/schemas/system.admin.v1.BaseLoginLog'
+                    description: 登入日誌列表
                 total:
                     type: integer
                     description: 總數
                     format: int32
-            description: 日誌分頁響應
+            description: 登入日誌分頁響應。
+        system.admin.v1.PageBaseMessageCategoryResponse:
+            type: object
+            properties:
+                base_message_categories:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseMessageCategory'
+                    description: 訊息分類列表
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: 訊息分類分頁響應。
+        system.admin.v1.PageBaseMessageResponse:
+            type: object
+            properties:
+                base_messages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseMessage'
+                    description: 訊息列表
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: 訊息分頁響應。
         system.admin.v1.PageBaseMigrationResponse:
             type: object
             properties:
@@ -7309,6 +10414,45 @@ components:
                     description: 總數
                     format: int32
             description: 資料庫遷移記錄分頁響應
+        system.admin.v1.PageBaseOperationLogResponse:
+            type: object
+            properties:
+                base_operation_logs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseOperationLog'
+                    description: 業務操作日誌列表
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: 業務操作日誌分頁響應。
+        system.admin.v1.PageBasePermissionLogResponse:
+            type: object
+            properties:
+                base_permission_logs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BasePermissionLog'
+                    description: 許可權日誌列表
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: 許可權日誌分頁響應。
+        system.admin.v1.PageBasePolicyEvaluationLogResponse:
+            type: object
+            properties:
+                base_policy_evaluation_logs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BasePolicyEvaluationLog'
+                    description: 策略評估日誌列表
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: 策略評估日誌分頁響應。
         system.admin.v1.PageBasePostResponse:
             type: object
             properties:
@@ -7374,6 +10518,19 @@ components:
                     description: 總數
                     format: int32
             description: 程式碼生成表配置分頁響應
+        system.admin.v1.PageOauthClientResponse:
+            type: object
+            properties:
+                oauth_clients:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.OauthClient'
+                    description: 客戶端列表
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: 開放授權客戶端分頁響應。
         system.admin.v1.PreviewCodeGenRequest:
             type: object
             properties:
@@ -7480,6 +10637,13 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.ProjectDocumentDirectory'
                     description: 專案根目錄下的子目錄
             description: 專案文件樹
+        system.admin.v1.PublishBaseMessageRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 訊息ID
+            description: 釋出訊息請求。
         system.admin.v1.ReadRuntimeLogFileResponse:
             type: object
             properties:
@@ -7520,6 +10684,24 @@ components:
                         type: string
                     description: 程式碼生成表配置ID列表
             description: 還原始碼生成結果條件
+        system.admin.v1.RetryBaseMessageDispatchRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 投遞任務ID
+            description: 重試投遞任務請求。
+        system.admin.v1.RevokeAllBaseSessionsRequest:
+            type: object
+            properties: {}
+            description: 撤銷全部會話請求引數。
+        system.admin.v1.RevokeBaseMessageRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 訊息ID
+            description: 撤回訊息請求。
         system.admin.v1.RouteItem:
             type: object
             properties:
@@ -7789,6 +10971,21 @@ components:
                     description: 狀態
                     format: int32
             description: 設定選單狀態請求引數
+        system.admin.v1.SetBaseMessageCategoryStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 訊息分類ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 狀態
+                    format: enum
+            description: 設定訊息分類狀態請求。
         system.admin.v1.SetBasePostStatusRequest:
             type: object
             properties:
@@ -7845,6 +11042,21 @@ components:
                     description: 狀態
                     format: int32
             description: 設定使用者狀態請求引數
+        system.admin.v1.SetOauthClientStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 客戶端ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 狀態
+                    format: enum
+            description: 設定開放授權客戶端狀態請求。
         system.admin.v1.StartBaseJobRequest:
             type: object
             properties:
@@ -8194,38 +11406,60 @@ tags:
       description: App 使用者認證服務
     - name: AuthService
       description: Admin 使用者登入認證服務
+    - name: BaseApiLogService
+      description: API 訪問日誌服務。
     - name: BaseApiService
       description: Admin API 服務
     - name: BaseAreaService
-      description: App 行政區域服務
-    - name: BaseAreaService
       description: Admin 行政區域服務
+    - name: BaseAreaService
+      description: App 行政區域服務
     - name: BaseConfigService
       description: Admin 系統設定服務
+    - name: BaseDashboardService
+      description: Admin首頁業務統計服務。
+    - name: BaseDataAccessLogService
+      description: 資料訪問日誌服務。
     - name: BaseDeptService
       description: Admin 部門服務
     - name: BaseDictService
-      description: App 字典服務
-    - name: BaseDictService
       description: Admin 字典服務
+    - name: BaseDictService
+      description: App 字典服務
+    - name: BaseFileService
+      description: Admin檔案資產管理服務。
     - name: BaseI18nService
       description: 國際化翻譯資訊服務。
     - name: BaseJobService
       description: Admin 排程任務服務
     - name: BaseLanguageService
       description: Admin 語言管理服務
-    - name: BaseLogService
-      description: Admin 日誌服務
+    - name: BaseLoginLogService
+      description: 登入日誌服務。
+    - name: BaseLoginPolicyService
+      description: Admin登入來源策略服務。
     - name: BaseMenuService
       description: App 選單服務
     - name: BaseMenuService
       description: Admin 選單管理服務
+    - name: BaseMessageCategoryService
+      description: BaseMessageCategoryService 提供訊息分類管理能力。
+    - name: BaseMessageService
+      description: BaseMessageService 提供站內信管理能力。
     - name: BaseMigrationService
       description: 資料庫遷移服務
+    - name: BaseOperationLogService
+      description: 業務操作日誌服務。
+    - name: BasePermissionLogService
+      description: 許可權日誌服務。
+    - name: BasePolicyEvaluationLogService
+      description: 策略評估日誌服務。
     - name: BasePostService
       description: Admin 崗位管理服務
     - name: BaseRoleService
       description: Admin 角色管理服務
+    - name: BaseSessionService
+      description: Admin會話管理服務。
     - name: BaseTenantService
       description: Admin 租戶管理服務
     - name: BaseUserService
@@ -8248,6 +11482,14 @@ tags:
       description: Base 登入公共服務
     - name: McpService
       description: Base MCP 服務
+    - name: MfaService
+      description: Base 多因素認證公共服務。
+    - name: NotificationService
+      description: NotificationService 提供當前使用者的站內信收件箱能力。
+    - name: OauthClientService
+      description: 開放授權客戶端管理服務。
+    - name: OauthClientService
+      description: 開放授權客戶端令牌服務。
     - name: OauthService
       description: Base 第三方登入公共服務
     - name: OpsMonitoringService

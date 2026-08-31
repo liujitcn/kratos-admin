@@ -4,12 +4,17 @@
 
 ## 已实现能力
 
-- 账号密码、验证码、OAuth、JWT 刷新、租户和 Casbin 权限。
-- 用户、角色、部门、岗位、菜单、字典、配置、任务、日志、地区、API 和迁移记录管理。
+- 账号密码、验证码、OAuth、TOTP/WebAuthn 多因素认证、JWT 刷新、租户和 Casbin 权限。
+- TOTP 多因素认证、一次性恢复码和 `disabled`、`optional`、`all_required` 全局策略。
+- 开放授权客户端管理：客户端按租户绑定，凭据换取 Bearer Token，并由 operation 拦截器和 HTTP 加解密 Filter 校验租户、状态、IP 白名单、JSON API 白名单及协议密文。
+- 用户、角色、部门、岗位、菜单、字典、配置、任务、文件资产、日志、地区、API 和迁移记录管理。
+- 后台工作台提供用户/角色概览、登录趋势、登录结果和操作动作分布统计。
+- 消息分类、租户内定向/全员站内信、收件箱已读/归档、Redis 投递恢复和 Admin/uni-app/Taro 消息中心。
 - Proto 驱动的 HTTP、gRPC、OpenAPI、Agent Tool、MCP Tool 和 TypeScript RPC 生成。
 - AI 会话、流式消息、附件、工具调用、重试、再生成和分支会话。
 - 管理端代码生成配置、预览、生成进度和还原。
 - 运行日志浏览：实时控制台 SSE、历史日志查询、级别和关键字筛选及历史原文件下载。
+- 登录来源策略（全局及租户/用户定向规则）、密码复杂度策略、当前会话撤销、审计日志异步落库与归档、受控 MySQL 备份恢复任务。
 - 构建期收集当前项目、宿主项目和外部模块的 README/docs，并在管理端统一查看。
 - 可挂载的 Go Core 模块；后端实现 `module.Module`，通过 `Resources` 提供静态资源，并由启动入口交给 Core 统一注册协议服务。
 - 管理端、uni-app、Taro 和后端错误目录的语言集合由语言包自动发现；动态菜单、字典和代码生成同步支持所有已注册语言。
@@ -26,13 +31,16 @@
 | `frontend/taro-app` | React/Taro workspace，包含默认宿主、core、UI、system 和 CLI。 | [frontend/taro-app/README.md](frontend/taro-app/README.md) |
 | `docs` | 当前架构、操作流程和专题说明。 | [docs/README.md](docs/README.md) |
 
+开放授权协议的接口范围、拦截器边界和加密扩展点见 [docs/开放授权协议设计.md](docs/开放授权协议设计.md)。
+
 ## 环境
 
-- Go `1.26.3`。
+- Go `1.27.0`。
 - Node.js `^20.19.0` 或 `>=22.12.0`。
 - pnpm 版本以各 workspace 的 `packageManager` 为准：管理端 `10.33.4`，uni-app 与 Taro 应用端 `10.13.1`。
 - MySQL 和 Redis；默认连接见 `backend/configs/data.yaml`。
 - Docker 部署需要可用的 Docker CLI 与 Docker daemon。
+- 启用 TOTP 绑定前需在 `backend/configs/mfa.yaml` 或 `mfa.dev.yaml` 的 `mfa.encryption_key` 中提供 base64 编码的 32 字节密钥；启用 WebAuthn 时还要配置 `mfa.webauthn.rp_id` 与 `mfa.webauthn.rp_origins`。生产环境应使用 KMS/Vault 等密钥管理服务。
 - Buf、protoc 插件、Wire 和 gorm-gen 只在重新生成代码时需要，可通过 `make -C backend init` 安装。
 
 直接执行 `make` 或 `make help` 查看仓库级命令；Backend 和 Frontend 的完整目标分别使用 `make -C backend help`、`make -C frontend help` 查看。
@@ -63,9 +71,15 @@ make -C frontend reinstall
 make -C backend run APP_ENV=dev
 ```
 
-`run` 会先刷新启动所需的接口、文档和 Wire 产物；确认生成产物未变化时可使用 `make -C backend run-only APP_ENV=dev` 直接启动。基础配置使用 `<name>.yaml`，环境差异使用 `<name>.<env>.yaml`，缺少当前环境文件时自动回退基础配置。完整目标、执行顺序和参数见 [Backend 常用流程](backend/README.md#常用流程)。
+`run` 会先刷新启动所需的接口、OpenAPI 和 Wire 产物；确认生成产物未变化时可使用 `make -C backend run-only APP_ENV=dev` 直接启动。基础配置使用 `<name>.yaml`，环境差异使用 `<name>.<env>.yaml`，缺少当前环境文件时自动回退基础配置。完整目标、执行顺序和参数见 [Backend 常用流程](backend/README.md#常用流程)。
 
-启动管理后台、uni-app 或 Taro H5（每个命令都应在独立终端运行）：
+启动全部前端开发环境（管理后台、uni-app/Taro H5 和微信小程序）：
+
+```bash
+make -C frontend run
+```
+
+也可以按端启动（每个常驻命令都应在独立终端运行）：
 
 ```bash
 make -C frontend run-admin
@@ -88,31 +102,42 @@ uni-app 和 Taro H5 默认分别使用 `5004` 与 `5002`，可以同时启动。
 ## 生成与检查
 
 ```bash
-make -C backend gen
+make gen
 make check
-make -C frontend build-all
-make -C backend normalize-go-imports
+make build
+make -C backend fmt
 ```
 
-`make check` 按 Backend、管理后台、uni-app、Taro 的顺序执行检查。`build-all` 构建管理后台及两个应用端的 H5 宿主；生成全部 npm 发布包使用 `make -C frontend package`，微信小程序仍分别执行各 workspace 的 `pnpm build:mp-weixin`。
+`make gen` 按 Backend、Frontend、文档和 OpenAPI 的顺序生成全仓产物；`make check` 按 Backend、三个前端 workspace 和国际化的顺序执行检查。根目录 `make build` 构建后端二进制及三个前端 H5 宿主；只构建全部前端（H5 + 微信小程序）可使用 `make -C frontend build`，仅构建 H5 使用 `make -C frontend build-h5`，生成全部 npm 发布包使用 `make -C frontend package`。
 
-`make -C backend normalize-go-imports` 默认只预览 Go import 别名规范化结果；确认结果后使用 `NORMALIZE_GO_IMPORTS_WRITE=1 make -C backend normalize-go-imports` 写回文件。只处理指定文件时，路径相对于 `backend` 设置 `NORMALIZE_GO_IMPORTS_FILES`，例如 `NORMALIZE_GO_IMPORTS_FILES=api/gen/go/base/v1/login.pb.go make -C backend normalize-go-imports`。
+`make -C backend cli` 会安装 `kratos-kit/cmd/normalize-go-imports`，`make -C backend fmt` 再运行该命令并使用 `goimports` 格式化 Backend 全部 Go 文件。
 
-后端默认通过 `make -C backend build` 构建 `linux/amd64` 二进制，通过 `make -C backend package` 生成包含 `bin/server` 和 `configs` 的发布压缩包；目标平台可使用 `GOOS`、`GOARCH` 覆盖。
+该工具实现统一位于 `kratos-kit/cmd/normalize-go-imports`，不再在 Admin 仓库保留独立 Make 目标。
 
-Docker 镜像通过现有 Backend 命令构建：
+后端默认通过 `make -C backend build` 构建 `linux/amd64` 二进制；仓库根目录的 `make package` 会生成包含 `bin/server` 和 `configs` 的后端发布压缩包，并同时生成全部前端 npm 包。目标平台可使用 `GOOS`、`GOARCH` 覆盖。
+
+Docker 镜像通过仓库根目录命令构建：
 
 ```bash
-make -C backend docker-build IMAGE=kratos-admin TAG=latest
-make -C backend docker-run IMAGE=kratos-admin TAG=latest APP_ENV=dev
-make -C backend docker-stop IMAGE=kratos-admin TAG=latest
+make docker-build IMAGE=kratos-admin TAG=latest
+make docker-run IMAGE=kratos-admin TAG=latest APP_ENV=dev
+make docker-stop IMAGE=kratos-admin TAG=latest
 ```
 
-构建命令先检查 Docker，再构建管理后台、uni-app H5、Taro H5 和 Linux 后端程序。运行命令发布宿主机 `7001/6001` 端口，将 `backend/data` 映射到 `/app/data`，并首次初始化可在宿主机修改的 `backend/runtime/configs` 后映射到 `/app/configs`。三端静态站点随镜像发布，启动时合并到 `/app/data`，已有上传文件不会被清空。完整构建参数和运行示例见 [Backend 构建与打包](backend/README.md#构建与打包)。
+构建命令先检查 Docker，再构建管理后台、uni-app H5、Taro H5 和 Linux 后端程序。运行命令发布宿主机 `7001/6001` 端口，将 `backend/data` 映射到 `/app/data`，并首次初始化可在宿主机修改的 `backend/runtime/configs` 后映射到 `/app/configs`。三端静态站点随镜像发布，启动时合并到 `/app/data`，已有上传文件不会被清空。完整构建参数和运行示例见本节。
 
-`I18N_LOCALES` 使用逗号分隔的 BCP 47 语言代码列表（默认 `en-US,zh-TW,ja-JP`），统一控制项目文档和 OpenAPI 的目标语言。`make i18n-docs` 由仓库内 `scripts/project_docs.py` 按三段路径范围收集 README 与 docs Markdown，再将正文按 `I18N_BATCH_CHARS`（默认 400）分片翻译并按原顺序合并，生成 `docs.json` 和 `docs.<locale>.json`；对应的 `README.en-US.md`、`guide.ja-JP.md` 等语言源文件存在时直接使用，否则才执行机器翻译。Google V1 返回 429 时，脚本会自动切换到 MyMemory，并保留 Markdown 代码、链接和占位符。语言目录只本地化文档正文和显示文件名，`README.md` 显示名、目录名称及稳定路径保持不变。如需使用外部实现，可通过 `PROJECT_DOCS_SCRIPT` 覆盖脚本路径。`make i18n-openapi` 生成 OpenAPI 多语言 YAML。离线生成使用 `I18N_OFFLINE=1 make i18n`。
+本地只启动依赖服务可使用：
 
-`backend/api/gen`、`backend/internal/data/gen`、`backend/internal/docs/assets/docs*.json`、`backend/internal/docs/docs.go`、各前端包的 `src/rpc`、OpenAPI 及 `wire_gen.go` 都是生成产物，不得手工修改。所有前端 RPC 的 Buf 配置统一位于 `backend/api`，管理端通过 `make -C backend ts-admin` 生成，应用端分别通过 `make -C backend ts-uni-app` 和 `make -C backend ts-taro-app` 生成；需要一次生成三端时执行 `make -C backend ts`。
+```bash
+docker compose -f docker-compose.libs.yml up -d
+docker compose -f docker-compose.libs.yml --profile object-storage up -d
+```
+
+该 Compose 只负责 MySQL、Redis 和可选 MinIO，不改变现有单镜像应用部署方式。
+
+`I18N_LOCALES` 使用逗号分隔的 BCP 47 语言代码列表（默认 `en-US,zh-TW,ja-JP`），统一控制项目文档和 OpenAPI 的目标语言。`make i18n-docs` 由仓库内 `scripts/project_docs.py` 按三段路径范围收集 README 与 docs Markdown，再将正文按 `I18N_BATCH_CHARS`（默认 400）分片翻译并按原顺序合并，生成 `docs.json` 和 `docs.<locale>.json`；对应的 `README.en-US.md`、`guide.ja-JP.md` 等语言源文件存在时直接使用，否则才执行机器翻译。Google V1 会按多个 client 顺序切换，全部不可用时再使用 MyMemory，并保留 Markdown 代码、链接和占位符。语言目录只本地化文档正文和显示文件名，`README.md` 显示名、目录名称及稳定路径保持不变。如需使用外部实现，可通过 `PROJECT_DOCS_SCRIPT` 覆盖脚本路径。`make i18n-openapi` 生成 OpenAPI 多语言 YAML。离线生成使用 `I18N_OFFLINE=1 make i18n`。
+
+`backend/api/gen`、`backend/internal/data/gen`、`backend/internal/docs/assets/docs*.json`、`backend/internal/docs/docs.go`、各前端包的 `src/rpc`、OpenAPI 及 `wire_gen.go` 都是生成产物，不得手工修改。所有前端 RPC 的 Buf 配置统一位于 `backend/api`，管理端通过 `make -C frontend ts-admin` 生成，应用端分别通过 `make -C frontend ts-uni-app` 和 `make -C frontend ts-taro-app` 生成；需要一次生成三端时执行 `make -C frontend ts`，全仓生成使用根目录 `make gen`。
 
 `make -C backend gen` 会同时生成 `backend/internal/module` 的公共入口内部 Wire 产物和 `backend/internal/cmd/server` 的独立启动 Wire 产物；单独刷新前者使用 `make -C backend public-wire`，单独刷新自定义组合根可通过 `WIRE_DIR` 指定包含 `wire.go` 的目录。
 
@@ -132,20 +157,21 @@ make -C backend docker-stop IMAGE=kratos-admin TAG=latest
 
 ```bash
 make i18n-check
+make i18n-verify
 make i18n-sync
 make i18n-docs
 make i18n-openapi
 make i18n
 ```
 
-新增语言直接写入当前 `v0.0.1` 迁移：
+新增语言按目标版本写入版本化迁移；当前项目全部属于初始化数据，统一写入 `v0.0.1`：
 
 ```bash
 I18N_LOCALE=ja-JP make i18n-locale
 I18N_LOCALE=de-DE I18N_OFFLINE=1 make i18n-locale
 ```
 
-在线模式优先使用 Google V1，遇到公共接口限流时自动使用 MyMemory；繁体中文优先使用 OpenCC，离线模式使用内置术语表和 OpenCC。生成后应审核 JSON 与 SQL；已有数据库的语言启用状态不会被覆盖。运行时翻译表单仍可对动态资源执行即时翻译，已有非空译文不会覆盖。
+在线模式优先使用 Google V1 的多个 client，全部不可用时使用 MyMemory；繁体中文优先使用 OpenCC，离线模式使用内置术语表和 OpenCC。生成后应审核 JSON 与 SQL；已有数据库的语言启用状态不会被覆盖。运行时翻译表单仍可对动态资源执行即时翻译，已有非空译文不会覆盖。
 
 ## 发布
 
@@ -163,10 +189,10 @@ I18N_LOCALE=de-DE I18N_OFFLINE=1 make i18n-locale
 - `@liujitcn/kratos-taro-app-cli`
 
 ```bash
-make tag VERSION=0.0.18
+make tag VERSION=0.0.30
 ```
 
-`make tag` 会先执行 `make i18n-docs` 刷新内嵌项目文档，再由发布脚本将文档和版本更新一起提交。脚本要求当前分支为远程默认分支且与 `origin` 同步，执行后端测试和前端打包，然后推送 `vX.Y.Z`、`backend/vX.Y.Z`、`npm/vX.Y.Z`。`npm/vX.Y.Z` 触发 `.github/workflows/publish-npm.yml`，通过 npm Trusted Publishing 发布以上 10 个包；三个默认宿主均为私有包，不参与发布。本机需要可用的 `git`、`gh` 和 GitHub 登录态。
+`make tag` 会先执行只读的 `make i18n-verify`，检查语言包、SQL 翻译脚本、OpenAPI 多语言文档和项目文档生成物；生成物未同步时会直接拒绝发布，不会在发布过程中自动翻译或改写文件。随后发布脚本要求当前分支为远程默认分支且与 `origin` 同步，执行后端测试和前端打包，然后推送 `vX.Y.Z`、`backend/vX.Y.Z`、`npm/vX.Y.Z`。`npm/vX.Y.Z` 触发 `.github/workflows/publish-npm.yml`，通过 npm Trusted Publishing 发布以上 10 个包；三个默认宿主均为私有包，不参与发布。本机需要可用的 `git`、`gh` 和 GitHub 登录态。
 
 只做本地 npm 发布时：
 
@@ -187,6 +213,8 @@ make -C frontend publish
 | 参数校验 | [docs/接口参数校验设计.md](docs/接口参数校验设计.md) |
 | 登录和密码 | [docs/登录与密码加密流程.md](docs/登录与密码加密流程.md) |
 | AI 助手 | [docs/AI助手设计.md](docs/AI助手设计.md) |
+| 站内信 | [docs/站内信设计.md](docs/站内信设计.md) |
 | 管理端组件 | [docs/前端组件清单.md](docs/前端组件清单.md) |
 | 国际化设计 | [docs/国际化最终方案.md](docs/国际化最终方案.md) |
+| 安全策略与运维任务 | [docs/安全策略与运维任务.md](docs/安全策略与运维任务.md) |
 | 新增语言 | [docs/国际化语言扩展指南.md](docs/国际化语言扩展指南.md) |

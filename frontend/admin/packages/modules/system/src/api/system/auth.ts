@@ -59,6 +59,7 @@ export class ProfileAuthServiceImpl {
       data: request
     });
   }
+
 }
 
 /** defProfileAuthService 个人中心认证服务实例。 */

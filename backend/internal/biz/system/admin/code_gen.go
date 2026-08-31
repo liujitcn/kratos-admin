@@ -14,7 +14,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
@@ -24,7 +24,7 @@ import (
 	"github.com/liujitcn/kratos-core/biz"
 	coreconst "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
-	corei18n "github.com/liujitcn/kratos-core/resource/i18n"
+	"github.com/liujitcn/kratos-core/resource/i18n"
 
 	"github.com/liujitcn/go-utils/stringcase"
 	"github.com/liujitcn/gorm-kit/repository"
@@ -140,7 +140,7 @@ func NewCodeGenCase(
 	baseMenuCase *BaseMenuCase,
 	baseMigrationCase *BaseMigrationCase,
 	baseLanguageCase *BaseLanguageCase,
-	catalog *corei18n.I18n,
+	catalog *i18n.I18n,
 	progressManager *codegen.Manager,
 ) *CodeGenCase {
 	codegen.SetCatalog(catalog)

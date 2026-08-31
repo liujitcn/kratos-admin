@@ -6,6 +6,7 @@
     "dev": "turbo run dev --filter=@liujitcn/kratos-admin",
     "build": "turbo run build --filter=@liujitcn/kratos-admin",
     "build:package": "turbo run build:package --filter=@liujitcn/kratos-admin-core --filter=@liujitcn/kratos-admin-system --filter=@liujitcn/kratos-admin-cli",
+    "generate:auto-import-types": "node scripts/generate-auto-import-types.mjs",
     "test": "pnpm --filter @liujitcn/kratos-admin-core test && pnpm --filter @liujitcn/kratos-admin-cli test",
     "type:check": "turbo run type:check",
     "lint:oxlint": "oxlint --fix --vue-plugin --config ./internal/lint-config/oxlint.json --ignore-path .oxlintignore ./apps ./packages ./internal ./scripts",

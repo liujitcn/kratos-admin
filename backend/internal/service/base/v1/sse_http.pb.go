@@ -3,9 +3,8 @@ package base
 import (
 	context "context"
 
-	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-
 	http "github.com/go-kratos/kratos/v3/transport/http"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 

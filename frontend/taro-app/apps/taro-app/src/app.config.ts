@@ -15,11 +15,26 @@ export default defineAppConfig({
     "navigationBarTextStyle": "black",
     "backgroundColor": "#f8f8f8"
   },
+  "tabBar": {
+    "custom": true,
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": ""
+      },
+      {
+        "pagePath": "pages/my/my",
+        "text": ""
+      }
+    ]
+  },
   "subpackages": [
     {
       "root": "pagesMember",
       "pages": [
         "ai/index",
+        "message/detail",
+        "message/index",
         "profile/profile",
         "settings/settings"
       ]

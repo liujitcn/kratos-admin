@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 )

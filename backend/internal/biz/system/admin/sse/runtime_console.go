@@ -3,10 +3,10 @@ package sse
 import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	"github.com/liujitcn/kratos-core/errorsx"
-	sseTransport "github.com/liujitcn/kratos-kit/transport/sse"
+	"github.com/liujitcn/kratos-kit/transport/sse"
 )
 
-var _ sseTransport.SSEStream = (*RuntimeConsole)(nil)
+var _ sse.SSEStream = (*RuntimeConsole)(nil)
 
 // RuntimeConsole 描述用户隔离的实时控制台 SSE 流。
 type RuntimeConsole struct {

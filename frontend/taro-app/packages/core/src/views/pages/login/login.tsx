@@ -3,23 +3,19 @@ import Taro, { useLoad } from '@tarojs/taro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import defaultLogo from '@liujitcn/kratos-taro-app-core/static/images/logo_icon.png'
 import { defLoginService } from '../../../api/base/login'
+import { defMfaService } from '../../../api/base/mfa'
 import { navigateAppRoute } from '../../../navigation'
-import type { LoginRequest } from '../../../rpc/base/v1/login'
+import { LoginStatus, type LoginRequest, type LoginResponse } from '../../../rpc/base/v1/login'
 import { useSettingStore, useUserStore } from '../../../stores'
 import { restoreLoginRedirect } from '../../../utils/navigation'
 import { encryptPassword, PASSWORD_CRYPTO_SCENE } from '../../../utils/passwordCrypto'
+import { createWebAuthnCredential, getWebAuthnAssertion } from '../../../utils/webauthn'
+import MfaRecoveryCodesDialog from '../../../components/MfaRecoveryCodesDialog'
+import MfaSetupPanel from '../../../components/MfaSetupPanel'
 import BehaviorCaptcha from './components/BehaviorCaptcha'
-import type {
-  BehaviorCaptchaData,
-  BehaviorCaptchaPoint,
-} from './components/types'
+import type { BehaviorCaptchaData, BehaviorCaptchaPoint } from './components/types'
 import './login.scss'
-import {
-  t as translate,
-  useLocaleStore,
-  useI18n,
-  type SupportedLocale,
-} from '../../../locales'
+import { t as translate, useLocaleStore, useI18n, type SupportedLocale } from '../../../locales'
 
 const behaviorCaptchaTypes = new Set(['slide', 'click', 'rotate'])
 const wechatMiniProvider = 'wechatmini'
@@ -49,10 +45,20 @@ function isWechatUnboundError(error: unknown): boolean {
     }
   }
   const reason = response.data?.reason ?? response.data?.error?.reason
-  return (
-    response.data?.binding_required === true ||
-    String(reason || '') === 'UNAUTHENTICATED'
-  )
+  return response.data?.binding_required === true || String(reason || '') === 'UNAUTHENTICATED'
+}
+
+/** 提取小程序请求失败时后端返回的可展示消息。 */
+function getWechatErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error && error.message) return error.message
+  if (!error || typeof error !== 'object') return fallback
+  const response = error as {
+    data?: {
+      message?: string
+      error?: { message?: string }
+    }
+  }
+  return response.data?.message || response.data?.error?.message || fallback
 }
 
 async function resolveMiniCaptchaImage(payload: string, captchaId: string): Promise<string> {
@@ -96,8 +102,24 @@ export default function LoginPage() {
   const [miniCaptchaImage, setMiniCaptchaImage] = useState('')
   const [miniForm, setMiniForm] = useState(emptyLoginForm)
   const [miniPassword, setMiniPassword] = useState('')
+  const [mfaVisible, setMfaVisible] = useState(false)
+  const [mfaLoading, setMfaLoading] = useState(false)
+  const [mfaChallengeId, setMfaChallengeId] = useState('')
+  const [mfaCode, setMfaCode] = useState('')
+  const [mfaRecoveryCode, setMfaRecoveryCode] = useState('')
+  const [mfaMethod, setMfaMethod] = useState('totp')
+  const [mfaWebAuthnOptionsJson, setMfaWebAuthnOptionsJson] = useState('')
+  const [mfaSetupVisible, setMfaSetupVisible] = useState(false)
+  const [mfaSetupTicket, setMfaSetupTicket] = useState('')
+  const [mfaSetupUri, setMfaSetupUri] = useState('')
+  const [mfaSetupCode, setMfaSetupCode] = useState('')
+  const [mfaSetupMethod, setMfaSetupMethod] = useState('totp')
+  const [mfaSetupWebAuthnOptionsJson, setMfaSetupWebAuthnOptionsJson] = useState('')
+  const [mfaRecoveryCodesVisible, setMfaRecoveryCodesVisible] = useState(false)
+  const [mfaRecoveryCodes, setMfaRecoveryCodes] = useState<string[]>([])
 
-  const currentLanguageName = languageOptions.find((item) => item.language_code === locale)?.native_name || locale
+  const currentLanguageName =
+    languageOptions.find((item) => item.language_code === locale)?.native_name || locale
   const mainTitle = settings?.get('mainTitle') || t('core.home.main_title')
   const subTitle = settings?.get('subTitle') || t('core.login.default_sub_title')
   const appLogo = settings?.get('appLogo') || defaultLogo
@@ -133,7 +155,8 @@ export default function LoginPage() {
       buttonText: t('common.action.confirm'),
       iconSize: 20,
       dotSize: 20,
-      title: captchaType === 'click' ? t('core.login.behavior_click') : t('core.login.behavior_puzzle'),
+      title:
+        captchaType === 'click' ? t('core.login.behavior_click') : t('core.login.behavior_puzzle'),
     }
   }, [
     behaviorData.thumbHeight,
@@ -141,12 +164,12 @@ export default function LoginPage() {
     behaviorHeight,
     behaviorWidth,
     captchaType,
-    locale,
+    t,
   ]) as unknown as Record<string, string | number | boolean>
 
   useEffect(() => {
     void Taro.setNavigationBarTitle({ title: t('common.action.login') })
-  }, [locale])
+  }, [locale, t])
 
   const updateForm = (key: keyof LoginRequest, value: string) => {
     setForm((current) => ({ ...current, [key]: value }))
@@ -192,9 +215,7 @@ export default function LoginPage() {
   const refreshMiniCaptcha = async () => {
     try {
       const captcha = await defLoginService.Captcha({ type: 'digit' })
-      setMiniCaptchaImage(
-        await resolveMiniCaptchaImage(captcha.captcha_base64, captcha.captcha_id),
-      )
+      setMiniCaptchaImage(await resolveMiniCaptchaImage(captcha.captcha_base64, captcha.captcha_id))
       setMiniForm((current) => ({
         ...current,
         captcha_id: captcha.captcha_id,
@@ -240,7 +261,10 @@ export default function LoginPage() {
   const checkedAgreePrivacy = async (): Promise<boolean> => {
     if (!(await loadLoginSettings())) return false
     const currentSettings = useSettingStore.getState()
-    if (!currentSettings.getData('serviceProtocol') || !currentSettings.getData('privacyProtocol')) {
+    if (
+      !currentSettings.getData('serviceProtocol') ||
+      !currentSettings.getData('privacyProtocol')
+    ) {
       await Taro.showToast({ icon: 'none', title: t('core.login.protocol_missing') })
       return false
     }
@@ -281,9 +305,112 @@ export default function LoginPage() {
     return checkedAgreePrivacy()
   }
 
+  const beginMfaSetup = async (ticket: string) => {
+    setMfaLoading(true)
+    try {
+      const response = await defMfaService.BeginMfaEnrollment({ setup_ticket: ticket })
+      setMfaSetupTicket(response.setup_ticket)
+      setMfaSetupUri(response.otpauth_uri)
+      setMfaSetupCode('')
+      setMfaSetupMethod(response.method || 'totp')
+      setMfaSetupWebAuthnOptionsJson(response.webauthn_options_json || '')
+      setMfaSetupVisible(true)
+    } finally {
+      setMfaLoading(false)
+    }
+  }
+
+  const handleLoginResponse = async (response: LoginResponse): Promise<boolean> => {
+    if (response.status === LoginStatus.LOGIN_STATUS_MFA_REQUIRED) {
+      setMfaChallengeId(response.mfa_challenge_id)
+      setMfaCode('')
+      setMfaRecoveryCode('')
+      setMfaMethod(response.mfa_method || 'totp')
+      setMfaWebAuthnOptionsJson(response.mfa_webauthn_options_json || '')
+      setMfaVisible(true)
+      return false
+    }
+    if (response.status === LoginStatus.LOGIN_STATUS_MFA_ENROLLMENT_REQUIRED) {
+      setMfaSetupTicket(response.mfa_setup_ticket)
+      await beginMfaSetup(response.mfa_setup_ticket)
+      return false
+    }
+    return true
+  }
+
+  const verifyMfaLogin = async () => {
+    if (mfaLoading || !mfaChallengeId || (mfaMethod !== 'webauthn' && !mfaCode && !mfaRecoveryCode))
+      return
+    setMfaLoading(true)
+    try {
+      const webauthnResponseJson =
+        mfaMethod === 'webauthn' && !mfaRecoveryCode
+          ? await getWebAuthnAssertion(mfaWebAuthnOptionsJson)
+          : ''
+      const response = await userStore.verifyMfa({
+        challenge_id: mfaChallengeId,
+        code: mfaRecoveryCode ? '' : mfaCode,
+        recovery_code: mfaRecoveryCode,
+        webauthn_response_json: webauthnResponseJson,
+      })
+      setMfaVisible(false)
+      if (await handleLoginResponse(response)) await loginSuccess()
+    } catch (error) {
+      await Taro.showToast({
+        icon: 'none',
+        title: getWechatErrorMessage(error, t('core.login.login_failed')),
+      })
+    } finally {
+      setMfaLoading(false)
+    }
+  }
+
+  const confirmMfaSetup = async () => {
+    if (mfaLoading || !mfaSetupTicket || (mfaSetupMethod !== 'webauthn' && !mfaSetupCode)) return
+    setMfaLoading(true)
+    try {
+      const webauthnResponseJson =
+        mfaSetupMethod === 'webauthn'
+          ? await createWebAuthnCredential(mfaSetupWebAuthnOptionsJson)
+          : ''
+      const response = await defMfaService.ConfirmMfaEnrollment({
+        setup_ticket: mfaSetupTicket,
+        code: mfaSetupCode,
+        webauthn_response_json: webauthnResponseJson,
+      })
+      setMfaSetupVisible(false)
+      setMfaRecoveryCodes(response.recovery_codes)
+      setMfaRecoveryCodesVisible(true)
+    } catch (error) {
+      await Taro.showToast({
+        icon: 'none',
+        title: getWechatErrorMessage(error, t('core.login.login_failed')),
+      })
+    } finally {
+      setMfaLoading(false)
+    }
+  }
+
+  /** 确认已保存恢复码，刷新验证码并重新进入登录流程。 */
+  const finishMfaEnrollment = async () => {
+    setMfaRecoveryCodesVisible(false)
+    setMfaRecoveryCodes([])
+    await Taro.showToast({ icon: 'none', title: t('core.login.mfa_setup_success') })
+    if (process.env.TARO_ENV === 'weapp') {
+      // 小程序没有可复用的账号密码会话，绑定完成后重新走微信登录以进入 MFA 挑战。
+      setMiniBinding(false)
+      await wxLogin()
+      return
+    }
+    await refreshCaptcha().catch(() => undefined)
+  }
+
   const submitLogin = async (captchaCode: string) => {
-    const encrypted = await encryptPassword(password, PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_LOGIN)
-    await userStore.login({
+    const encrypted = await encryptPassword(
+      password,
+      PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_LOGIN,
+    )
+    return userStore.login({
       ...form,
       tenant_code: showTenantCode ? form.tenant_code : '0000',
       password: encrypted,
@@ -305,8 +432,8 @@ export default function LoginPage() {
     }
     setLoading(true)
     try {
-      await submitLogin(form.captcha_code)
-      await loginSuccess()
+      const response = await submitLogin(form.captcha_code)
+      if (await handleLoginResponse(response)) await loginSuccess()
     } catch (error) {
       await refreshCaptcha().catch(() => undefined)
       if (error instanceof Error) {
@@ -344,8 +471,8 @@ export default function LoginPage() {
         captcha_code: captchaCode,
       })
       setBehaviorVisible(false)
-      await submitLogin(verified.captcha_token)
-      await loginSuccess()
+      const response = await submitLogin(verified.captcha_token)
+      if (await handleLoginResponse(response)) await loginSuccess()
     } catch {
       reset()
       await refreshCaptcha().catch(() => undefined)
@@ -365,13 +492,16 @@ export default function LoginPage() {
         await refreshMiniCaptcha()
         return
       }
-      await loginSuccess()
+      if (await handleLoginResponse(session)) await loginSuccess()
     } catch (error) {
       if (isWechatUnboundError(error)) {
         setMiniBinding(true)
         await refreshMiniCaptcha()
       } else {
-        await Taro.showToast({ icon: 'none', title: t('core.login.wechat_failed') })
+        await Taro.showToast({
+          icon: 'none',
+          title: getWechatErrorMessage(error, t('core.login.wechat_failed')),
+        })
       }
     } finally {
       setLoading(false)
@@ -391,9 +521,12 @@ export default function LoginPage() {
     }
     setLoading(true)
     try {
-      const encrypted = await encryptPassword(miniPassword, PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_LOGIN)
+      const encrypted = await encryptPassword(
+        miniPassword,
+        PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_LOGIN,
+      )
       const code = (await Taro.login()).code
-      await userStore.bindOauthSession({
+      const response = await userStore.bindOauthSession({
         provider: wechatMiniProvider,
         code,
         tenant_code: showTenantCode ? miniForm.tenant_code : '0000',
@@ -402,10 +535,13 @@ export default function LoginPage() {
         captcha_code: miniForm.captcha_code,
         captcha_id: miniForm.captcha_id,
       })
-      await loginSuccess()
+      if (await handleLoginResponse(response)) await loginSuccess()
     } catch (error) {
       await refreshMiniCaptcha()
-      if (error instanceof Error) await Taro.showToast({ icon: 'none', title: error.message })
+      await Taro.showToast({
+        icon: 'none',
+        title: getWechatErrorMessage(error, t('core.login.login_failed')),
+      })
     } finally {
       setLoading(false)
     }
@@ -445,9 +581,14 @@ export default function LoginPage() {
         className='login-locale'
         mode='selector'
         range={languageOptions.map((item) => item.native_name)}
-        value={Math.max(0, languageOptions.findIndex((item) => item.language_code === locale))}
+        value={Math.max(
+          0,
+          languageOptions.findIndex((item) => item.language_code === locale),
+        )}
         onChange={(event) => {
-          const nextLocale = languageOptions[Number(event.detail.value)]?.language_code as SupportedLocale | undefined
+          const nextLocale = languageOptions[Number(event.detail.value)]?.language_code as
+            | SupportedLocale
+            | undefined
           if (nextLocale) void setLocale(nextLocale)
         }}
       >
@@ -466,47 +607,189 @@ export default function LoginPage() {
         {process.env.TARO_ENV === 'h5' ? (
           <View className='login-form'>
             {showTenantCode ? (
-              <Input className='login-input' placeholder={t('core.login.tenant')} value={form.tenant_code} onInput={(event) => updateForm('tenant_code', event.detail.value)} />
+              <Input
+                className='login-input'
+                placeholder={t('core.login.tenant')}
+                value={form.tenant_code}
+                onInput={(event) => updateForm('tenant_code', event.detail.value)}
+              />
             ) : null}
-            <Input className='login-input' placeholder={t('core.login.user_name_mobile')} value={form.user_name} onInput={(event) => updateForm('user_name', event.detail.value)} />
-            <Input className='login-input' password placeholder={t('core.login.password')} value={password} onInput={(event) => setPassword(event.detail.value)} onConfirm={() => void onSubmit()} />
+            <Input
+              className='login-input'
+              placeholder={t('core.login.user_name_mobile')}
+              value={form.user_name}
+              onInput={(event) => updateForm('user_name', event.detail.value)}
+            />
+            <Input
+              className='login-input'
+              password
+              placeholder={t('core.login.password')}
+              value={password}
+              onInput={(event) => setPassword(event.detail.value)}
+              onConfirm={() => void onSubmit()}
+            />
             {!isBehaviorCaptcha ? (
               <View className='captcha-row'>
-                <Input className='login-input captcha-input' placeholder={t('core.login.captcha')} value={form.captcha_code} onInput={(event) => updateForm('captcha_code', event.detail.value)} onConfirm={() => void onSubmit()} />
+                <Input
+                  className='login-input captcha-input'
+                  placeholder={t('core.login.captcha')}
+                  value={form.captcha_code}
+                  onInput={(event) => updateForm('captcha_code', event.detail.value)}
+                  onConfirm={() => void onSubmit()}
+                />
                 <View className='captcha-divider' />
                 <View className='captcha-trigger' onClick={() => void refreshCaptcha()}>
                   <Image className='captcha-image' src={captchaImage} mode='aspectFit' />
                 </View>
               </View>
             ) : null}
-            <Button className='login-button login-button-primary' loading={loading} onClick={() => void onSubmit()}>{t('common.action.login')}</Button>
+            <Button
+              className='login-button login-button-primary'
+              loading={loading}
+              onClick={() => void onSubmit()}
+            >
+              {t('common.action.login')}
+            </Button>
             {behaviorVisible ? (
               <View className='login-behavior-mask'>
                 <View className='login-behavior-panel'>
-                  {behaviorLoading ? <View className='login-behavior-loading'>{t('core.login.behavior_loading')}</View> : null}
-                  <BehaviorCaptcha type={captchaType} data={behaviorData} config={behaviorConfig} onConfirm={(value, reset) => void verifyBehaviorCaptcha(value, reset)} onRefresh={() => void refreshCaptcha()} onClose={() => setBehaviorVisible(false)} />
+                  {behaviorLoading ? (
+                    <View className='login-behavior-loading'>
+                      {t('core.login.behavior_loading')}
+                    </View>
+                  ) : null}
+                  <BehaviorCaptcha
+                    type={captchaType}
+                    data={behaviorData}
+                    config={behaviorConfig}
+                    onConfirm={(value, reset) => void verifyBehaviorCaptcha(value, reset)}
+                    onRefresh={() => void refreshCaptcha()}
+                    onClose={() => setBehaviorVisible(false)}
+                  />
                 </View>
               </View>
             ) : null}
           </View>
         ) : !miniBinding ? (
-          <Button className='login-button login-button-primary' loading={loading} onClick={() => void wxLogin()}>
-            <Text className='login-phone-icon'>☎</Text>{t('core.login.wechat')}
+          <Button
+            className='login-button login-button-primary'
+            loading={loading}
+            onClick={() => void wxLogin()}
+          >
+            <Text className='login-phone-icon'>☎</Text>
+            {t('core.login.wechat')}
           </Button>
         ) : (
           <View className='login-form'>
             <View className='login-bind-tip'>{t('core.login.wechat_bind_tip')}</View>
-            {showTenantCode ? <Input className='login-input' placeholder={t('core.login.tenant')} value={miniForm.tenant_code} onInput={(event) => updateMiniForm('tenant_code', event.detail.value)} /> : null}
-            <Input className='login-input' placeholder={t('core.login.user_name_mobile')} value={miniForm.user_name} onInput={(event) => updateMiniForm('user_name', event.detail.value)} />
-            <Input className='login-input' password placeholder={t('core.login.password')} value={miniPassword} onInput={(event) => setMiniPassword(event.detail.value)} />
+            {showTenantCode ? (
+              <Input
+                className='login-input'
+                placeholder={t('core.login.tenant')}
+                value={miniForm.tenant_code}
+                onInput={(event) => updateMiniForm('tenant_code', event.detail.value)}
+              />
+            ) : null}
+            <Input
+              className='login-input'
+              placeholder={t('core.login.user_name_mobile')}
+              value={miniForm.user_name}
+              onInput={(event) => updateMiniForm('user_name', event.detail.value)}
+            />
+            <Input
+              className='login-input'
+              password
+              placeholder={t('core.login.password')}
+              value={miniPassword}
+              onInput={(event) => setMiniPassword(event.detail.value)}
+            />
             <View className='captcha-row'>
-              <Input className='login-input captcha-input' placeholder={t('core.login.captcha')} value={miniForm.captcha_code} onInput={(event) => updateMiniForm('captcha_code', event.detail.value)} />
+              <Input
+                className='login-input captcha-input'
+                placeholder={t('core.login.captcha')}
+                value={miniForm.captcha_code}
+                onInput={(event) => updateMiniForm('captcha_code', event.detail.value)}
+              />
               <View className='captcha-divider' />
-              <View className='captcha-trigger' onClick={() => void refreshMiniCaptcha()}><Image className='captcha-image' src={miniCaptchaImage} mode='aspectFit' /></View>
+              <View className='captcha-trigger' onClick={() => void refreshMiniCaptcha()}>
+                <Image className='captcha-image' src={miniCaptchaImage} mode='aspectFit' />
+              </View>
             </View>
-            <Button className='login-button login-button-primary' loading={loading} onClick={() => void bindMiniAccount()}>{t('core.login.bind_wechat')}</Button>
+            <Button
+              className='login-button login-button-primary'
+              loading={loading}
+              onClick={() => void bindMiniAccount()}
+            >
+              {t('core.login.bind_wechat')}
+            </Button>
           </View>
         )}
+        {mfaVisible ? (
+          <View className='mfa-mask'>
+            <View className='mfa-panel'>
+              <Text className='mfa-title'>{t('core.login.mfa_title')}</Text>
+              {mfaMethod !== 'webauthn' ? (
+                <Input
+                  className='login-input'
+                  type='number'
+                  maxlength={8}
+                  value={mfaCode}
+                  placeholder={t('core.login.mfa_code')}
+                  onInput={(event) => setMfaCode(event.detail.value)}
+                />
+              ) : null}
+              <Input
+                className='login-input'
+                value={mfaRecoveryCode}
+                placeholder={t('core.login.mfa_recovery_code')}
+                onInput={(event) => setMfaRecoveryCode(event.detail.value)}
+              />
+              <Button
+                className='login-button login-button-primary'
+                loading={mfaLoading}
+                onClick={() => void verifyMfaLogin()}
+              >
+                {mfaMethod === 'webauthn' && !mfaRecoveryCode
+                  ? t('core.login.mfa_webauthn_action')
+                  : t('common.action.confirm')}
+              </Button>
+            </View>
+          </View>
+        ) : null}
+        {mfaSetupVisible ? (
+          <View className='mfa-mask'>
+            <View className='mfa-panel'>
+              <Text className='mfa-title'>{t('core.login.mfa_setup_title')}</Text>
+              {mfaSetupMethod !== 'webauthn' ? (
+                <>
+                  <MfaSetupPanel uri={mfaSetupUri} />
+                  <Input
+                    className='login-input'
+                    type='number'
+                    maxlength={8}
+                    value={mfaSetupCode}
+                    placeholder={t('core.login.mfa_code')}
+                    onInput={(event) => setMfaSetupCode(event.detail.value)}
+                  />
+                </>
+              ) : null}
+              <Button
+                className='login-button login-button-primary'
+                loading={mfaLoading}
+                onClick={() => void confirmMfaSetup()}
+              >
+                {mfaSetupMethod === 'webauthn'
+                  ? t('core.login.mfa_webauthn_action')
+                  : t('common.action.confirm')}
+              </Button>
+            </View>
+          </View>
+        ) : null}
+        <MfaRecoveryCodesDialog
+          open={mfaRecoveryCodesVisible}
+          codes={mfaRecoveryCodes}
+          onConfirm={finishMfaEnrollment}
+        />
         {agreement}
       </View>
     </View>

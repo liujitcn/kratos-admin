@@ -4,6 +4,8 @@ import { defLoginService } from '../api/base/login'
 import { defOauthService } from '../api/base/oauth'
 import { defAuthService } from '../api/system/auth'
 import type { LoginRequest, LoginResponse } from '../rpc/base/v1/login'
+import type { VerifyMfaRequest } from '../rpc/base/v1/mfa'
+import { defMfaService } from '../api/base/mfa'
 import type {
   BindOauthSessionRequest,
   CreateOauthSessionRequest,
@@ -39,11 +41,12 @@ export interface UserStoreState {
   hydrate: () => void
   isAuthenticated: () => boolean
   applyLoginToken: (data: LoginResponse | CreateOauthSessionResponse) => Promise<void>
-  login: (request: LoginRequest) => Promise<void>
+  login: (request: LoginRequest) => Promise<LoginResponse>
+  verifyMfa: (request: VerifyMfaRequest) => Promise<LoginResponse>
   createOauthSession: (
     request: CreateOauthSessionRequest,
   ) => Promise<CreateOauthSessionResponse>
-  bindOauthSession: (request: BindOauthSessionRequest) => Promise<void>
+  bindOauthSession: (request: BindOauthSessionRequest) => Promise<CreateOauthSessionResponse>
   getUserProfile: () => Promise<UserProfileForm>
   logout: () => Promise<void>
   refreshToken: () => Promise<void>
@@ -94,15 +97,24 @@ export const useUserStore = create<UserStoreState>((set, get) => ({
     await runUserStoreExtensions('onLogin')
   },
   async login(request) {
-    await get().applyLoginToken(await defLoginService.Login(request))
+    const response = await defLoginService.Login(request)
+    if (response.status === 1 || response.status === 0 || response.status === 4) await get().applyLoginToken(response)
+    return response
+  },
+  async verifyMfa(request) {
+    const response = await defMfaService.VerifyMfa(request)
+    await get().applyLoginToken(response)
+    return response
   },
   async createOauthSession(request) {
     const response = await defOauthService.CreateOauthSession(request)
-    if (!response.binding_required) await get().applyLoginToken(response)
+    if (!response.binding_required && (response.status === 1 || response.status === 0 || response.status === 4)) await get().applyLoginToken(response)
     return response
   },
   async bindOauthSession(request) {
-    await get().applyLoginToken(await defOauthService.BindOauthSession(request))
+    const response = await defOauthService.BindOauthSession(request)
+    if (response.status === 1 || response.status === 0 || response.status === 4) await get().applyLoginToken(response)
+    return response
   },
   async getUserProfile() {
     const profile = await defAuthService.GetUserProfile({})

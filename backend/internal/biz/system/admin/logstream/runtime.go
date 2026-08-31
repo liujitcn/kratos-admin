@@ -2,6 +2,8 @@ package logstream
 
 import (
 	"sync"
+
+	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/logstream"
 )
 
 var (
@@ -13,7 +15,7 @@ var (
 func InitializeRuntimeLogging() error {
 	runtimeLoggingOnce.Do(func() {
 		runtimeLoggingErr = StartConsoleCapture(DefaultHub())
-		InstallRuntimeAccessFilter()
+		logstream.InstallRuntimeAccessFilter()
 	})
 	return runtimeLoggingErr
 }

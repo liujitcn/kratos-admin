@@ -19,6 +19,8 @@ inputs:
       - proto/base/v1/ai_session.proto
       - proto/base/v1/ai_tool.proto
       - proto/base/v1/oauth.proto
+      - proto/base/v1/oauth_client.proto
+      - proto/base/v1/notification.proto
       - proto/base/v1/sse.proto
       - proto/system/admin/v1
 

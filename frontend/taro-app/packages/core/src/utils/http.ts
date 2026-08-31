@@ -18,6 +18,7 @@ const normalizedApiBasePath = apiBasePath.startsWith('/') ? apiBasePath : `/${ap
 const requestOrigin = process.env.TARO_ENV === 'h5' ? '' : apiTargetUrl.replace(/\/$/, '')
 /** 请求基础地址。 */
 export const requestBaseURL = `${requestOrigin}${normalizedApiBasePath}`
+const sourceClient = process.env.TARO_ENV === 'weapp' ? 'taro-weapp' : 'taro-h5'
 
 const SESSION_URL = '/v1/base/session'
 const REFRESH_TOKEN_URL = '/v1/base/token'
@@ -117,7 +118,7 @@ async function sendRequest<T>(
       timeout: options.timeout || 10000,
       header: {
         ...options.header,
-        'source-client': 'miniapp',
+        'source-client': sourceClient,
         ...getLocaleRequestHeaders(),
         ...(accessToken ? { Authorization: accessToken } : {}),
       },
@@ -211,7 +212,7 @@ async function refreshAccessToken(): Promise<void> {
     url: resolveRequestUrl(REFRESH_TOKEN_URL),
     method: 'POST',
     data: { refresh_token: refreshToken },
-    header: { 'source-client': 'miniapp', ...getLocaleRequestHeaders() },
+    header: { 'source-client': sourceClient, ...getLocaleRequestHeaders() },
   })
   const data = response.data as ErrorData & {
     token_type?: string

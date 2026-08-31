@@ -9,7 +9,7 @@ import (
 	"github.com/cloudwego/eino/components/tool"
 	"github.com/cloudwego/eino/components/tool/utils"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
-	"github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 )
 
 // Tool 是 Eino 可执行工具接口。

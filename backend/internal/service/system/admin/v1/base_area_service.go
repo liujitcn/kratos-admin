@@ -3,9 +3,9 @@ package admin
 import (
 	"context"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
-	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"

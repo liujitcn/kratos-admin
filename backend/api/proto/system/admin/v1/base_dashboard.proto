@@ -1,0 +1,114 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// Admin首页业务统计服务。
+service BaseDashboardService {
+  // 查询首页概览统计。
+  rpc GetBaseDashboardOverview(GetBaseDashboardOverviewRequest) returns (BaseDashboardOverview) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/dashboard/overview"
+    };
+  }
+
+  // 查询登录趋势。
+  rpc GetBaseDashboardLoginTrend(GetBaseDashboardLoginTrendRequest) returns (BaseDashboardTrendResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/dashboard/login-trend"
+    };
+  }
+
+  // 查询操作动作分布。
+  rpc GetBaseDashboardOperationDistribution(GetBaseDashboardOperationDistributionRequest) returns (BaseDashboardDistributionResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/dashboard/operation-distribution"
+    };
+  }
+
+  // 查询登录结果分布。
+  rpc GetBaseDashboardLoginDistribution(GetBaseDashboardLoginDistributionRequest) returns (BaseDashboardDistributionResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/dashboard/login-distribution"
+    };
+  }
+}
+
+// 首页概览统计查询条件。
+message GetBaseDashboardOverviewRequest {}
+
+// 操作动作分布查询条件。
+message GetBaseDashboardOperationDistributionRequest {}
+
+// 登录结果分布查询条件。
+message GetBaseDashboardLoginDistributionRequest {}
+
+// 首页概览统计。
+message BaseDashboardOverview {
+  uint64 user_count = 1 [
+    (gnostic.openapi.v3.property) = {description: "用户总数"}
+  ]; // 用户总数
+
+  uint64 role_count = 2 [
+    (gnostic.openapi.v3.property) = {description: "角色总数"}
+  ]; // 角色总数
+
+  uint64 today_login_count = 3 [
+    (gnostic.openapi.v3.property) = {description: "今日登录次数"}
+  ]; // 今日登录次数
+
+  uint64 today_operation_count = 4 [
+    (gnostic.openapi.v3.property) = {description: "今日操作次数"}
+  ]; // 今日操作次数
+}
+
+// 登录趋势查询条件。
+message GetBaseDashboardLoginTrendRequest {
+  int32 days = 1 [
+    (gnostic.openapi.v3.property) = {description: "统计天数，默认7天"},
+    (buf.validate.field).cel = {
+      id: "system.admin.base.dashboard.login_trend.days.range"
+      message: "统计天数必须在1到31天之间"
+      expression: "this == 0 || (this >= 1 && this <= 31)"
+    }
+  ]; // 统计天数，默认7天
+}
+
+// 趋势统计响应。
+message BaseDashboardTrendResponse {
+  repeated BaseDashboardTrendPoint points = 1 [
+    (gnostic.openapi.v3.property) = {description: "趋势数据点"}
+  ]; // 趋势数据点
+}
+
+// 趋势数据点。
+message BaseDashboardTrendPoint {
+  string date = 1 [
+    (gnostic.openapi.v3.property) = {description: "日期，格式为YYYY-MM-DD"}
+  ]; // 日期，格式为YYYY-MM-DD
+
+  uint64 count = 2 [
+    (gnostic.openapi.v3.property) = {description: "数量"}
+  ]; // 数量
+}
+
+// 分布统计响应。
+message BaseDashboardDistributionResponse {
+  repeated BaseDashboardDistributionItem items = 1 [
+    (gnostic.openapi.v3.property) = {description: "分布数据"}
+  ]; // 分布数据
+}
+
+// 分布统计数据项。
+message BaseDashboardDistributionItem {
+  string label = 1 [
+    (gnostic.openapi.v3.property) = {description: "分布标签"}
+  ]; // 分布标签
+
+  uint64 count = 2 [
+    (gnostic.openapi.v3.property) = {description: "数量"}
+  ]; // 数量
+}

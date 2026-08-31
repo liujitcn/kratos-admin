@@ -689,6 +689,9 @@
   "base.login.captcha.verify_failed": {
     "other": "驗證碼校驗失敗"
   },
+  "base.mfa.confirm_enrollment.code.invalid": {
+    "other": "動態口令錯誤"
+  },
   "base.ai.message.not_found": {
     "other": "找不到訊息"
   },
@@ -748,9 +751,6 @@
   },
   "openapi.admin.service.base_language": {
     "other": "Admin 語言管理服務"
-  },
-  "openapi.admin.service.base_log": {
-    "other": "Admin 日誌服務"
   },
   "openapi.admin.service.base_menu_admin": {
     "other": "Admin 選單管理服務"
@@ -856,6 +856,9 @@
   },
   "system.admin.ops_monitoring.database": {
     "other": "資料庫"
+  },
+  "system.admin.ops_monitoring.dispatch_unconfigured": {
+    "other": "站內信投遞儲存庫未設定"
   },
   "system.admin.ops_monitoring.address_count": {
     "other": "地址數"

@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	einoCallbacks "github.com/cloudwego/eino/callbacks"
+	"github.com/cloudwego/eino/callbacks"
 	"github.com/cloudwego/eino/components/model"
 	"github.com/cloudwego/eino/schema"
 	callbackTemplate "github.com/cloudwego/eino/utils/callbacks"
@@ -85,21 +85,21 @@ type Recorder struct {
 // Quick Start 的 Callback/Trace 章节要求通过 Eino callback 链路观测组件执行。
 // 这里把 AgenticModel 的开始、结束、流式结束和错误事件统一写入 Recorder，
 // 让业务层继续复用现有 Token/Tools 协议，同时不再依赖手写模型包装器统计模型调用。
-func NewHandler() einoCallbacks.Handler {
+func NewHandler() callbacks.Handler {
 	return callbackTemplate.NewHandlerHelper().
 		AgenticModel(&callbackTemplate.AgenticModelCallbackHandler{
-			OnStart: func(ctx context.Context, _ *einoCallbacks.RunInfo, _ *model.AgenticCallbackInput) context.Context {
+			OnStart: func(ctx context.Context, _ *callbacks.RunInfo, _ *model.AgenticCallbackInput) context.Context {
 				return context.WithValue(ctx, callbackStartedAtKey{}, time.Now())
 			},
-			OnEnd: func(ctx context.Context, _ *einoCallbacks.RunInfo, output *model.AgenticCallbackOutput) context.Context {
+			OnEnd: func(ctx context.Context, _ *callbacks.RunInfo, output *model.AgenticCallbackOutput) context.Context {
 				recordAgenticModelOutput(ctx, "generate", output, nil)
 				return ctx
 			},
-			OnEndWithStreamOutput: func(ctx context.Context, _ *einoCallbacks.RunInfo, output *schema.StreamReader[*model.AgenticCallbackOutput]) context.Context {
+			OnEndWithStreamOutput: func(ctx context.Context, _ *callbacks.RunInfo, output *schema.StreamReader[*model.AgenticCallbackOutput]) context.Context {
 				recordAgenticModelStream(ctx, output)
 				return ctx
 			},
-			OnError: func(ctx context.Context, _ *einoCallbacks.RunInfo, err error) context.Context {
+			OnError: func(ctx context.Context, _ *callbacks.RunInfo, err error) context.Context {
 				recordAgenticModelOutput(ctx, "model", nil, err)
 				return ctx
 			},

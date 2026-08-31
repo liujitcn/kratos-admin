@@ -20,10 +20,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
-	coreBiz "github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
 	"github.com/liujitcn/kratos-core/sse"
 )
@@ -36,14 +36,14 @@ const (
 
 // RuntimeLogCase 提供当前进程实时日志和历史日志文件访问能力。
 type RuntimeLogCase struct {
-	*coreBiz.BaseCase
+	*biz.BaseCase
 	hub        *logstream.Hub
 	logRoot    string
 	signingKey []byte
 }
 
 // NewRuntimeLogCase 创建运行日志业务实例并接入 SSE 发布能力。
-func NewRuntimeLogCase(baseCase *coreBiz.BaseCase, hub *logstream.Hub, sseRuntime *sse.SSE) (*RuntimeLogCase, error) {
+func NewRuntimeLogCase(baseCase *biz.BaseCase, hub *logstream.Hub, sseRuntime *sse.SSE) (*RuntimeLogCase, error) {
 	loggerConfig := baseCase.GetConfig().GetLogger()
 	logRoot := ""
 	var err error

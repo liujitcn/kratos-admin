@@ -59,6 +59,20 @@ export interface UserState {
   userInfo: UserInfoForm;
 }
 
+/** 当前管理端锁屏状态。 */
+export interface LockScreenState {
+  /** 是否处于锁屏状态。 */
+  isLocked: boolean;
+  /** 当前锁屏密码的摘要，仅在锁屏期间持久化。 */
+  passwordHash: string;
+  /** 是否显示设置锁屏密码界面。 */
+  setupVisible: boolean;
+  /** 是否显示解锁输入界面。 */
+  unlockVisible: boolean;
+  /** 最近一次解锁是否失败。 */
+  unlockError: boolean;
+}
+
 /** 标签页菜单项状态。 */
 export interface TabsMenuProps {
   icon: string;

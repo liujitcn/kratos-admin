@@ -19,6 +19,7 @@ inputs:
       - proto/base/v1/language.proto
       - proto/base/v1/file.proto
       - proto/base/v1/login.proto
+      - proto/base/v1/mfa.proto
       - proto/base/v1/mcp.proto
       - proto/base/v1/oauth.proto
       - proto/base/v1/sse.proto

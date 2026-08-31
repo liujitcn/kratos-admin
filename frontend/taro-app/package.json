@@ -10,7 +10,7 @@
     "build:h5": "turbo run build:h5 --filter=@liujitcn/kratos-taro-app",
     "build:mp-weixin": "turbo run build:mp-weixin --filter=@liujitcn/kratos-taro-app",
     "build:packages": "turbo run build --concurrency=1 --filter=@liujitcn/kratos-taro-app-core --filter=@liujitcn/kratos-taro-app-ui --filter=@liujitcn/kratos-taro-app-system --filter=@liujitcn/kratos-taro-app-cli",
-    "generate:rpc": "make -C ../../backend ts-taro-app",
+    "generate:rpc": "make -C .. ts-taro-app",
     "check:exports": "pnpm run prepare:modules && node scripts/check-package-exports.mjs",
     "test": "pnpm run prepare:modules && pnpm --filter @liujitcn/kratos-taro-app-core build:entries && node --test packages/core/test/*.test.mjs packages/modules/system/test/*.test.mjs packages/cli/test/*.test.mjs",
     "lint": "eslint . --fix --ext .js,.mjs,.ts,.tsx",

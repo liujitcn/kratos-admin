@@ -1105,9 +1105,9 @@ func toolsFromRecorder(recorder *callback.Recorder) []ToolUsage {
 
 // pathExt 返回文件名扩展名。
 func pathExt(name string) string {
-	index := strings.LastIndex(name, ".")
-	if index < 0 || index == len(name)-1 {
+	_, ext, found := strings.CutLast(name, ".")
+	if !found || ext == "" {
 		return ""
 	}
-	return name[index:]
+	return "." + ext
 }

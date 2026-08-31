@@ -3,7 +3,7 @@ package config
 import (
 	"errors"
 
-	"github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	"github.com/liujitcn/kratos-kit/oauth"
 )
 
@@ -18,4 +18,12 @@ func ParseAIModel(cfg *configv1.Bootstrap) (*configv1.AI_Model, error) {
 // ParseOAuthManager 根据 Admin 启动配置创建 OAuth 管理器。
 func ParseOAuthManager(cfg *configv1.Bootstrap) (*oauth.Manager, error) {
 	return oauth.NewManager(cfg.GetOauth())
+}
+
+// ParseMfaConfig 提取多因素认证配置。
+func ParseMfaConfig(cfg *configv1.Bootstrap) *configv1.Mfa {
+	if cfg == nil {
+		return nil
+	}
+	return cfg.GetMfa()
 }

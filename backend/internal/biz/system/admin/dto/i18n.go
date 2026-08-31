@@ -1,6 +1,6 @@
 package dto
 
-import "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+import adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 
 // I18nKey 标识一个资源的单语言翻译记录。
 type I18nKey struct {

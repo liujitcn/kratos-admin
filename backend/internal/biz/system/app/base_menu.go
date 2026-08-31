@@ -3,7 +3,7 @@ package biz
 import (
 	"context"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
+	appv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"

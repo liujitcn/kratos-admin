@@ -70,6 +70,7 @@ service AuthService {
       body: "*"
     };
   }
+
 }
 
 // 登录用户菜单树查询参数

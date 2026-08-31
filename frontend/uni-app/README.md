@@ -2,7 +2,7 @@
 
 `frontend/uni-app` 是独立的 pnpm workspace，提供可直接运行的 uni-app 宿主、可发布应用底座、system 业务模块和项目脚手架。技术栈为 `uni-app + Vue 3 + TypeScript + Vite + Pinia + Sass`，当前支持 H5 和微信小程序。
 
-应用端只复用管理端的分层思想，不依赖 `frontend/admin` 的源码或 workspace。当前保留首页、登录、协议、WebView、个人中心、设置、个人资料和 AI 助手，不包含商城、订单、支付或推荐业务。
+应用端只复用管理端的分层思想，不依赖 `frontend/admin` 的源码或 workspace。当前保留首页、登录（含 TOTP/WebAuthn MFA）、协议、WebView、个人中心、设置（含 MFA 绑定）、个人资料、AI 助手和站内信收件箱，不包含商城、订单、支付或推荐业务。
 
 ## Workspace
 
@@ -18,17 +18,17 @@ frontend/uni-app
 │       ├── README.md
 │       └── package.json
 ├── packages
-│   ├── core                   # @liujitcn/kratos-uni-app-core v0.0.17
+│   ├── core                   # @liujitcn/kratos-uni-app-core v0.0.29
 │   │   ├── src                # 底座运行时、页面、状态和构建插件
 │   │   ├── test
 │   │   ├── README.md
 │   │   └── package.json
 │   ├── modules
-│   │   └── system             # @liujitcn/kratos-uni-app-system v0.0.17
-│   │       ├── src            # 个人中心、设置和 AI
+│   │   └── system             # @liujitcn/kratos-uni-app-system v0.0.29
+│   │       ├── src            # 个人中心、默认设置包装和 AI
 │   │       ├── README.md
 │   │       └── package.json
-│   └── cli                    # @liujitcn/kratos-uni-app-cli v0.0.17
+│   └── cli                    # @liujitcn/kratos-uni-app-cli v0.0.29
 │       ├── bin
 │       ├── src
 │       ├── test
@@ -49,8 +49,8 @@ frontend/uni-app
   -> @liujitcn/kratos-uni-app-core
 ```
 
-- `core` 负责认证、请求、配置、Pinia、基础页面、状态页、动态导航和构建插件。
-- `system` 负责个人中心、资料、设置和 AI 页面，只通过 `core` 的公开 exports 复用底座能力。
+- `core` 负责认证、请求、配置、Pinia、公共设置页、基础页面、状态页、动态导航和构建插件。
+- `system` 负责个人中心、资料、默认设置包装和 AI 页面，只通过 `core` 的公开 exports 复用底座能力。
 - `apps/uni-app` 只维护宿主入口、manifest、模块清单、bootstrap 页面和 Vite 配置。
 - `cli` 创建同结构的独立 pnpm workspace。
 
@@ -158,7 +158,7 @@ uni-app 与 admin 一样，由 backend API 契约目录统一维护 Buf 生成�
 ```bash
 pnpm generate:rpc
 # 等价于
-make -C ../../backend ts-uni-app
+make -C .. ts-uni-app
 ```
 
 命令分别清理并生成 `packages/core/src/rpc` 和 `packages/modules/system/src/rpc`。frontend 不保存第二份 Buf 配置；RPC 文件是生成产物，不得手工修改。

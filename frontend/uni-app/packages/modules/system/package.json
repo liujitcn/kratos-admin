@@ -7,7 +7,7 @@
     "type": "git",
     "url": "git@github.com:liujitcn/kratos-admin.git"
   },
-  "version": "0.0.29",
+  "version": "0.0.30",
   "type": "module",
   "files": [
     "dist",
@@ -20,12 +20,17 @@
       "import": "./dist/index.mjs",
       "default": "./dist/index.mjs"
     },
+    "./module": {
+      "types": "./src/module.ts",
+      "import": "./dist/module.mjs",
+      "default": "./dist/module.mjs"
+    },
     "./views/*": "./src/views/*",
     "./package.json": "./package.json"
   },
   "scripts": {
     "build": "pnpm run build:entries && pnpm pack --pack-destination ../../../dist/npm",
-    "build:entries": "esbuild src/index.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/index.mjs",
+    "build:entries": "esbuild src/index.ts --bundle --platform=node --format=esm --packages=external --external:@liujitcn/kratos-uni-app-core --outfile=dist/index.mjs && esbuild src/module.ts --bundle --platform=node --format=esm --packages=external --external:@liujitcn/kratos-uni-app-core --outfile=dist/module.mjs",
     "tsc": "vue-tsc --noEmit -p tsconfig.json"
   },
   "publishConfig": {

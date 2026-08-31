@@ -192,7 +192,7 @@ function validatePasswordStrength(_rule: unknown, value: string, callback: (erro
 <style scoped lang="scss">
 .password-card {
   border: 1px solid #ebeef5;
-  border-radius: 12px;
+  border-radius: var(--admin-page-radius);
 }
 :deep(.password-card .el-card__header) {
   padding: 18px 20px;
@@ -227,7 +227,7 @@ function validatePasswordStrength(_rule: unknown, value: string, callback: (erro
   padding: 18px;
   background: #ffffff;
   border: 1px solid #f0f2f5;
-  border-radius: 10px;
+  border-radius: var(--admin-page-radius);
 }
 .password-form-wrap__strength {
   margin-top: 16px;

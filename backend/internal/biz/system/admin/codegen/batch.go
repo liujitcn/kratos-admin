@@ -369,9 +369,10 @@ func compareBatchDefinition(definitions map[string]batchDefinition, key string, 
 
 // normalizeBatchProtoDefinition 移除不影响接口语义的独立 Proto 注释行。
 func normalizeBatchProtoDefinition(content string) string {
-	lines := strings.Split(content, "\n")
 	var builder strings.Builder
-	for _, line := range lines {
+	for line := range strings.Lines(content) {
+		line = strings.TrimSuffix(line, "\n")
+		line = strings.TrimSuffix(line, "\r")
 		trimmed := strings.TrimSpace(line)
 		if strings.HasPrefix(trimmed, "//") {
 			continue

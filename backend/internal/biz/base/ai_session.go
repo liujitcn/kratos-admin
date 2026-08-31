@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"

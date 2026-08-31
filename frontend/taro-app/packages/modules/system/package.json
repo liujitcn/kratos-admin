@@ -7,7 +7,7 @@
     "type": "git",
     "url": "git@github.com:liujitcn/kratos-admin.git"
   },
-  "version": "0.0.29",
+  "version": "0.0.30",
   "type": "module",
   "files": [
     "dist",
@@ -16,6 +16,11 @@
   ],
   "exports": {
     ".": "./src/index.ts",
+    "./module": {
+      "types": "./src/module.ts",
+      "import": "./dist/module.mjs",
+      "default": "./dist/module.mjs"
+    },
     "./build": {
       "types": "./src/build.ts",
       "import": "./dist/build.mjs",
@@ -28,7 +33,7 @@
   },
   "scripts": {
     "build": "pnpm run build:entries && pnpm pack --pack-destination ../../../dist/npm",
-    "build:entries": "esbuild src/build.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/build.mjs",
+    "build:entries": "esbuild src/build.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/build.mjs && esbuild src/module.ts --bundle --platform=node --format=esm --packages=external --external:@liujitcn/kratos-taro-app-core --outfile=dist/module.mjs",
     "tsc": "tsc --noEmit -p tsconfig.json"
   },
   "publishConfig": {

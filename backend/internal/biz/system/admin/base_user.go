@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/go-kratos/kratos/v3/transport"
 	"github.com/liujitcn/go-utils/crypto"
@@ -13,16 +14,18 @@ import (
 	"github.com/liujitcn/kratos-kit/auth/authn/engine"
 	"github.com/liujitcn/kratos-kit/database/gorm"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	basebiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
+	passwordPolicy "github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
-	"github.com/liujitcn/kratos-core/const"
+	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
+	authData "github.com/liujitcn/kratos-kit/auth/data"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 )
@@ -38,6 +41,7 @@ type BaseUserCase struct {
 	baseDeptCase    *BaseDeptCase
 	baseMenuCase    *BaseMenuCase
 	defaultRoleCase *basebiz.BaseRoleCase
+	userToken       *authData.UserToken
 	formMapper      *mapper.CopierMapper[adminv1.BaseUserForm, models.BaseUser]
 	mapper          *mapper.CopierMapper[adminv1.BaseUser, models.BaseUser]
 }
@@ -53,6 +57,7 @@ func NewBaseUserCase(
 	baseDeptCase *BaseDeptCase,
 	baseMenuCase *BaseMenuCase,
 	defaultRoleCase *basebiz.BaseRoleCase,
+	userToken *authData.UserToken,
 ) *BaseUserCase {
 	return &BaseUserCase{
 		BaseCase:           baseCase,
@@ -64,6 +69,7 @@ func NewBaseUserCase(
 		baseDeptCase:       baseDeptCase,
 		baseMenuCase:       baseMenuCase,
 		defaultRoleCase:    defaultRoleCase,
+		userToken:          userToken,
 		formMapper:         mapper.NewCopierMapper[adminv1.BaseUserForm, models.BaseUser](),
 		mapper:             mapper.NewCopierMapper[adminv1.BaseUser, models.BaseUser](),
 	}
@@ -336,14 +342,16 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *adminv1.BaseUser
 	}
 
 	var passwordStr string
-	// 未显式传入密码时，回退到系统默认密码规则。
+	// 管理端必须显式提交符合策略的初始密码，禁止回退到可预测默认密码。
 	if req.GetPwd() == nil {
-		passwordStr = utils.GetDefaultPassword(req.GetUserName(), req.GetPhone())
-	} else {
-		passwordStr, err = utils.DecryptPassword(c.Cache, req.GetPwd(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER)
-		if err != nil {
-			return err
-		}
+		return errorsx.InvalidArgument("必须设置符合安全策略的初始密码")
+	}
+	passwordStr, err = utils.DecryptPassword(c.Cache, req.GetPwd(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER)
+	if err != nil {
+		return err
+	}
+	if err = passwordPolicy.ValidateComplexity(passwordStr); err != nil {
+		return errorsx.InvalidArgument("密码长度或复杂度不符合安全策略").WithCause(err)
 	}
 
 	var password string
@@ -353,6 +361,8 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *adminv1.BaseUser
 	}
 	baseUser := c.formMapper.ToEntity(req)
 	baseUser.Password = password
+	baseUser.PasswordChangedAt = time.Now()
+	baseUser.PasswordHistory = "[]"
 	baseUser.TenantID = baseDept.TenantID
 	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		err = c.Create(ctx, baseUser)
@@ -418,6 +428,9 @@ func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *adminv1.BaseUser
 	baseUser.TenantID = oldBaseUser.TenantID
 	baseUser.UserName = oldBaseUser.UserName
 	baseUser.UserCode = oldBaseUser.UserCode
+	if err = c.revokeUserToken(baseUser.ID); err != nil {
+		return err
+	}
 	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		err = c.UpdateByID(ctx, baseUser)
 		if err != nil {
@@ -458,6 +471,11 @@ func (c *BaseUserCase) DeleteBaseUser(ctx context.Context, id string) error {
 		}
 		visibleIDs = append(visibleIDs, baseUser.ID)
 	}
+	for _, userID := range visibleIDs {
+		if err = c.revokeUserToken(userID); err != nil {
+			return err
+		}
+	}
 	err = c.DeleteByIDs(ctx, visibleIDs)
 	if err != nil {
 		return err
@@ -476,6 +494,11 @@ func (c *BaseUserCase) SetBaseUserStatus(ctx context.Context, req *adminv1.SetBa
 		return err
 	}
 	baseUser.Status = req.GetStatus()
+	if baseUser.Status == _const.STATUS_STATUS_DISABLE {
+		if err = c.revokeUserToken(baseUser.ID); err != nil {
+			return err
+		}
+	}
 	err = c.UpdateByID(ctx, baseUser)
 	if err != nil {
 		return err
@@ -495,14 +518,22 @@ func (c *BaseUserCase) ResetBaseUserPassword(ctx context.Context, req *adminv1.R
 	}
 
 	var passwordStr string
-	// 未显式传入密码时，回退到系统默认密码规则。
+	// 管理端重置密码必须显式提交新密码，禁止回退到可预测默认密码。
 	if req.GetPwd() == nil {
-		passwordStr = utils.GetDefaultPassword(baseUser.UserName, baseUser.Phone)
-	} else {
-		passwordStr, err = utils.DecryptPassword(c.Cache, req.GetPwd(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD)
-		if err != nil {
-			return err
-		}
+		return errorsx.InvalidArgument("必须设置符合安全策略的新密码")
+	}
+	passwordStr, err = utils.DecryptPassword(c.Cache, req.GetPwd(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD)
+	if err != nil {
+		return err
+	}
+	if err = crypto.Verify(passwordStr, baseUser.Password); err == nil {
+		return errorsx.InvalidArgument("新密码不能与当前密码相同")
+	}
+	if err = passwordPolicy.CheckHistoryJSON(baseUser.PasswordHistory, passwordStr); err != nil {
+		return errorsx.InvalidArgument("新密码不能重复使用近期历史密码").WithCause(err)
+	}
+	if err = passwordPolicy.ValidateComplexity(passwordStr); err != nil {
+		return errorsx.InvalidArgument("密码长度或复杂度不符合安全策略").WithCause(err)
 	}
 
 	var password string
@@ -510,10 +541,25 @@ func (c *BaseUserCase) ResetBaseUserPassword(ctx context.Context, req *adminv1.R
 	if err != nil {
 		return err
 	}
-	return c.UpdateByID(ctx, &models.BaseUser{
-		ID:       req.GetId(),
-		Password: password,
+	if err = c.revokeUserToken(baseUser.ID); err != nil {
+		return err
+	}
+	var history string
+	history, err = passwordPolicy.AppendHistoryJSON(baseUser.PasswordHistory, baseUser.Password)
+	if err != nil {
+		return errorsx.Internal("记录历史密码失败").WithCause(err)
+	}
+	err = c.UpdateByID(ctx, &models.BaseUser{
+		ID:                 req.GetId(),
+		Password:           password,
+		PasswordChangedAt:  time.Now(),
+		PasswordHistory:    history,
+		MustChangePassword: 1,
 	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // SetBaseUserAppRole 将基础用户切换到允许的应用端内置角色。
@@ -524,6 +570,9 @@ func (c *BaseUserCase) SetBaseUserAppRole(ctx context.Context, userID int64, rol
 	ctx = baseUserGRPCContext(ctx)
 	role, err := c.defaultRoleCase.FindDefaultByCode(ctx, roleCode)
 	if err != nil {
+		return err
+	}
+	if err = c.revokeUserToken(userID); err != nil {
 		return err
 	}
 	err = c.UpdateByID(ctx, &models.BaseUser{ID: userID, RoleID: role.ID})
@@ -594,6 +643,17 @@ func (c *BaseUserCase) updateBaseUserPostID(ctx context.Context, userID int64, p
 	}
 	_, err = query.WithContext(ctx).Where(query.ID.Eq(userID)).UpdateSimple(query.PostID.Null())
 	return err
+}
+
+// revokeUserToken 撤销用户现有访问令牌和刷新令牌。
+func (c *BaseUserCase) revokeUserToken(userID int64) error {
+	if c.userToken == nil {
+		return nil
+	}
+	if err := c.userToken.RemoveToken(userID); err != nil {
+		return errorsx.Internal("撤销用户登录令牌失败").WithCause(err)
+	}
+	return nil
 }
 
 // baseUserGRPCContext 将进程内模块调用切换为不受租户和数据范围限制的受信身份。

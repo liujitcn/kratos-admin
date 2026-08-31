@@ -3,14 +3,15 @@ package biz
 import (
 	"context"
 	"strings"
+	"time"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
-	"github.com/liujitcn/kratos-core/const"
+	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/liujitcn/go-utils/mapper"
@@ -95,12 +96,26 @@ func (c *BaseLanguageCase) GetBaseLanguage(ctx context.Context, id int64) (*admi
 
 // CreateBaseLanguage 创建语言。
 func (c *BaseLanguageCase) CreateBaseLanguage(ctx context.Context, req *adminv1.BaseLanguageForm) error {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
 	item := c.formMapper.ToEntity(req)
-	if _, err := language.Parse(item.LanguageCode); err != nil {
+	_, err = language.Parse(item.LanguageCode)
+	if err != nil {
 		return errorsx.InvalidArgument("语言代码必须是有效的语言代码").WithCause(err)
 	}
+	if item.Status == 0 {
+		item.Status = _const.STATUS_STATUS_ENABLE
+	}
+	now := time.Now()
 	item.IsPrimary = false
-	if err := c.Create(ctx, item); err != nil {
+	item.CreatedBy = authInfo.UserId
+	item.UpdatedBy = authInfo.UserId
+	item.CreatedAt = now
+	item.UpdatedAt = now
+	err = c.Create(ctx, item)
+	if err != nil {
 		if errorsx.IsDuplicateKey(err) {
 			return errorsx.UniqueConflict("语言代码重复", "base_language", "language_code", "unique_base_language").WithCause(err)
 		}

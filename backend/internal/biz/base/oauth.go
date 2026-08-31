@@ -3,18 +3,17 @@ package biz
 import (
 	"context"
 	"encoding/json"
-	stderrors "errors"
+	"errors"
 	"fmt"
-	"hash/fnv"
 	"net"
-	stdhttp "net/http"
+	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/dto"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -34,9 +33,6 @@ const oauthSceneAdminLogin = "admin_login"
 const oauthSceneAdminBind = "admin_bind"
 const oauthLoginTicketKeyPrefix = "oauth_login_ticket"
 const oauthLoginTicketExpire = 2 * time.Minute
-const oauthLoginTicketLockShardCount = 64
-
-var oauthLoginTicketLocks [oauthLoginTicketLockShardCount]sync.Mutex
 
 // OauthCase 处理三方登录授权业务。
 type OauthCase struct {
@@ -49,14 +45,6 @@ type OauthCase struct {
 	loginCase            *LoginCase
 	configCase           *ConfigCase
 	oauthManager         *oauth.Manager
-}
-
-// oauthLoginTicketPayload 表示三方登录一次性票据缓存的令牌信息。
-type oauthLoginTicketPayload struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-	TokenType    string `json:"token_type"`
-	ExpiresIn    int64  `json:"expires_in"`
 }
 
 // NewOauthCase 创建三方登录授权业务实例。
@@ -82,6 +70,14 @@ func NewOauthCase(
 		configCase:           configCase,
 		oauthManager:         oauthManager,
 	}
+}
+
+// RefreshTokenExpiresIn 返回 OAuth 登录签发的刷新令牌有效期。
+func (c *OauthCase) RefreshTokenExpiresIn() int64 {
+	if c == nil || c.loginCase == nil {
+		return 0
+	}
+	return c.loginCase.RefreshTokenExpiresIn()
 }
 
 // ListOauthBinding 查询当前用户的三方账号绑定状态。
@@ -232,16 +228,25 @@ func (c *OauthCase) CreateOauthSession(ctx context.Context, req *basev1.CreateOa
 	if err != nil {
 		return nil, err
 	}
+	if err = c.loginCase.ValidateExternalLogin(ctx, user); err != nil {
+		return nil, err
+	}
 	var loginRes *basev1.LoginResponse
-	loginRes, err = c.loginCase.IssueUserToken(ctx, user)
+	loginRes, err = c.loginCase.IssueUserLogin(ctx, user)
 	if err != nil {
 		return nil, err
 	}
 	return &basev1.CreateOauthSessionResponse{
-		AccessToken:  loginRes.GetAccessToken(),
-		RefreshToken: loginRes.GetRefreshToken(),
-		TokenType:    loginRes.GetTokenType(),
-		ExpiresIn:    loginRes.GetExpiresIn(),
+		AccessToken:            loginRes.GetAccessToken(),
+		RefreshToken:           loginRes.GetRefreshToken(),
+		TokenType:              loginRes.GetTokenType(),
+		ExpiresIn:              loginRes.GetExpiresIn(),
+		Status:                 loginRes.GetStatus(),
+		MfaChallengeId:         loginRes.GetMfaChallengeId(),
+		MfaSetupTicket:         loginRes.GetMfaSetupTicket(),
+		MfaExpiresIn:           loginRes.GetMfaExpiresIn(),
+		MfaMethod:              loginRes.GetMfaMethod(),
+		MfaWebauthnOptionsJson: loginRes.GetMfaWebauthnOptionsJson(),
 	}, nil
 }
 
@@ -274,30 +279,45 @@ func (c *OauthCase) BindOauthSession(ctx context.Context, req *basev1.BindOauthS
 	if err != nil {
 		return nil, err
 	}
-	_, err = c.baseThirdAccountCase.FindByProviderIdentifier(ctx, string(oauth.WechatMini), openID)
-	if err == nil {
-		return nil, errorsx.Conflict("微信账号已绑定")
+	var user *models.BaseUser
+	user, err = c.loginCase.FindUserByPassword(ctx, req.GetTenantCode(), req.GetUserName(), req.GetPassword())
+	if err != nil {
+		return nil, err
 	}
-	if !stderrors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, errorsx.Internal("微信登录失败").WithCause(err)
+	if err = c.loginCase.ValidateExternalLogin(ctx, user); err != nil {
+		return nil, err
 	}
 
-	user, err := c.loginCase.FindUserByPassword(ctx, req.GetTenantCode(), req.GetUserName(), req.GetPassword())
-	if err != nil {
-		return nil, err
+	// 先完成账号校验，再判断绑定关系，避免未认证请求泄露微信账号绑定状态。
+	var boundAccount *models.BaseThirdAccount
+	boundAccount, err = c.baseThirdAccountCase.FindByProviderIdentifier(ctx, string(oauth.WechatMini), openID)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, errorsx.Internal("微信登录失败").WithCause(err)
 	}
-	err = c.baseThirdAccountCase.CreateBinding(ctx, user.ID, string(oauth.WechatMini), openID)
-	if err != nil {
-		return nil, err
+	if err == nil && boundAccount.UserID != user.ID {
+		return nil, errorsx.Conflict("微信账号已绑定")
 	}
+
 	var loginRes *basev1.LoginResponse
-	loginRes, err = c.loginCase.IssueUserToken(ctx, user)
+	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		if boundAccount == nil {
+			err = c.baseThirdAccountCase.CreateBinding(txCtx, user.ID, string(oauth.WechatMini), openID)
+			if err != nil {
+				return err
+			}
+		}
+		loginRes, err = c.loginCase.IssueUserLogin(txCtx, user)
+		return err
+	})
 	if err != nil {
 		return nil, err
 	}
 	return &basev1.CreateOauthSessionResponse{
 		AccessToken: loginRes.GetAccessToken(), RefreshToken: loginRes.GetRefreshToken(),
 		TokenType: loginRes.GetTokenType(), ExpiresIn: loginRes.GetExpiresIn(),
+		Status: loginRes.GetStatus(), MfaChallengeId: loginRes.GetMfaChallengeId(),
+		MfaSetupTicket: loginRes.GetMfaSetupTicket(), MfaExpiresIn: loginRes.GetMfaExpiresIn(),
+		MfaMethod: loginRes.GetMfaMethod(), MfaWebauthnOptionsJson: loginRes.GetMfaWebauthnOptionsJson(),
 	}, nil
 }
 
@@ -330,7 +350,7 @@ func (c *OauthCase) HandleOauthCallback(ctx context.Context, req *basev1.HandleO
 	var thirdAccount *models.BaseThirdAccount
 	thirdAccount, err = c.baseThirdAccountCase.FindByProviderIdentifier(ctx, req.GetProvider(), identifier)
 	if err != nil {
-		if stderrors.Is(err, gorm.ErrRecordNotFound) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, c.oauthRedirectPayload(payload, "", "三方账号未绑定，请先使用账号密码登录后到个人中心绑定")
 		}
 		return nil, c.oauthRedirectPayload(payload, "", "三方账号登录失败")
@@ -341,8 +361,11 @@ func (c *OauthCase) HandleOauthCallback(ctx context.Context, req *basev1.HandleO
 	if err != nil {
 		return nil, c.oauthRedirectPayload(payload, "", "三方账号登录失败")
 	}
+	if err = c.loginCase.ValidateExternalLogin(ctx, user); err != nil {
+		return nil, c.oauthRedirectPayload(payload, "", kratosErrors.FromError(err).Message)
+	}
 	var loginRes *basev1.LoginResponse
-	loginRes, err = c.loginCase.IssueUserToken(ctx, user)
+	loginRes, err = c.loginCase.IssueUserLogin(ctx, user)
 	if err != nil {
 		return nil, c.oauthRedirectPayload(payload, "", kratosErrors.FromError(err).Message)
 	}
@@ -371,16 +394,22 @@ func (c *OauthCase) ExchangeOauthTicket(ctx context.Context, req *basev1.Exchang
 		return nil, err
 	}
 
-	var payload oauthLoginTicketPayload
+	var payload dto.OauthLoginTicketPayload
 	err = json.Unmarshal([]byte(value), &payload)
 	if err != nil {
 		return nil, errorsx.Unauthenticated("三方登录票据无效").WithCause(err)
 	}
 	return &basev1.ExchangeOauthTicketResponse{
-		AccessToken:  payload.AccessToken,
-		RefreshToken: payload.RefreshToken,
-		TokenType:    payload.TokenType,
-		ExpiresIn:    payload.ExpiresIn,
+		AccessToken:            payload.AccessToken,
+		RefreshToken:           payload.RefreshToken,
+		TokenType:              payload.TokenType,
+		ExpiresIn:              payload.ExpiresIn,
+		Status:                 payload.Status,
+		MfaChallengeId:         payload.MfaChallengeID,
+		MfaSetupTicket:         payload.MfaSetupTicket,
+		MfaExpiresIn:           payload.MfaExpiresIn,
+		MfaMethod:              payload.MfaMethod,
+		MfaWebauthnOptionsJson: payload.MfaWebAuthnJSON,
 	}, nil
 }
 
@@ -392,7 +421,7 @@ func (c *OauthCase) UnbindOauthAccount(ctx context.Context, req *basev1.UnbindOa
 	}
 	_, err = c.baseThirdAccountCase.FindByUserProvider(ctx, authInfo.UserId, req.GetProvider())
 	if err != nil {
-		if stderrors.Is(err, gorm.ErrRecordNotFound) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return errorsx.ResourceNotFound("三方账号未绑定")
 		}
 		return errorsx.Internal("解绑三方账号失败").WithCause(err)
@@ -410,7 +439,7 @@ func (c *OauthCase) findWechatMiniUserByOpenID(ctx context.Context, openID strin
 	var thirdAccount *models.BaseThirdAccount
 	thirdAccount, err = c.baseThirdAccountCase.FindByProviderIdentifier(ctx, string(oauth.WechatMini), openID)
 	if err != nil {
-		if stderrors.Is(err, gorm.ErrRecordNotFound) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errorsx.Unauthenticated("微信账号未绑定，请先绑定已有账号")
 		}
 		return nil, errorsx.Internal("微信登录失败").WithCause(err)
@@ -438,15 +467,20 @@ func (c *OauthCase) createWechatMiniUser(ctx context.Context, openID string) (*m
 		return nil, errorsx.Internal("微信登录默认部门配置错误")
 	}
 	userCode := id.NewXID()
+	now := time.Now()
 	user := &models.BaseUser{
-		TenantID: defaultRole.TenantID,
-		UserName: userCode,
-		UserCode: userCode,
-		RoleID:   defaultRole.ID,
-		DeptID:   defaultDept.ID,
-		Gender:   _const.BASE_USER_GENDER_SECRET,
-		Status:   coreconst.STATUS_STATUS_ENABLE,
-		Remark:   "自动注册用户",
+		TenantID:          defaultRole.TenantID,
+		UserName:          userCode,
+		UserCode:          userCode,
+		RoleID:            defaultRole.ID,
+		DeptID:            defaultDept.ID,
+		PasswordChangedAt: now,
+		PasswordHistory:   "[]",
+		Gender:            _const.BASE_USER_GENDER_SECRET,
+		Status:            coreconst.STATUS_STATUS_ENABLE,
+		Remark:            "自动注册用户",
+		CreatedAt:         now,
+		UpdatedAt:         now,
 	}
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		err = c.baseUserCase.Create(txCtx, user)
@@ -526,7 +560,7 @@ func (c *OauthCase) handleOauthBindingCallback(ctx context.Context, payload *oau
 		}
 		return c.oauthBindingRedirectPayload(payload, providerName, "三方账号已被其他用户绑定")
 	}
-	if !stderrors.Is(err, gorm.ErrRecordNotFound) {
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return c.oauthBindingRedirectPayload(payload, providerName, "三方账号绑定失败")
 	}
 
@@ -539,7 +573,7 @@ func (c *OauthCase) handleOauthBindingCallback(ctx context.Context, payload *oau
 		}
 		return c.oauthBindingRedirectPayload(payload, providerName, "当前用户已绑定该登录方式")
 	}
-	if !stderrors.Is(err, gorm.ErrRecordNotFound) {
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return c.oauthBindingRedirectPayload(payload, providerName, "三方账号绑定失败")
 	}
 
@@ -576,11 +610,17 @@ func (c *OauthCase) fetchOauthIdentifier(ctx context.Context, oauthType oauth.Ty
 
 // createOauthLoginTicket 缓存三方登录结果并返回一次性票据。
 func (c *OauthCase) createOauthLoginTicket(loginRes *basev1.LoginResponse) (string, error) {
-	payload := oauthLoginTicketPayload{
-		AccessToken:  loginRes.GetAccessToken(),
-		RefreshToken: loginRes.GetRefreshToken(),
-		TokenType:    loginRes.GetTokenType(),
-		ExpiresIn:    loginRes.GetExpiresIn(),
+	payload := dto.OauthLoginTicketPayload{
+		AccessToken:     loginRes.GetAccessToken(),
+		RefreshToken:    loginRes.GetRefreshToken(),
+		TokenType:       loginRes.GetTokenType(),
+		ExpiresIn:       loginRes.GetExpiresIn(),
+		Status:          loginRes.GetStatus(),
+		MfaChallengeID:  loginRes.GetMfaChallengeId(),
+		MfaSetupTicket:  loginRes.GetMfaSetupTicket(),
+		MfaExpiresIn:    loginRes.GetMfaExpiresIn(),
+		MfaMethod:       loginRes.GetMfaMethod(),
+		MfaWebAuthnJSON: loginRes.GetMfaWebauthnOptionsJson(),
 	}
 	body, err := json.Marshal(payload)
 	if err != nil {
@@ -594,20 +634,11 @@ func (c *OauthCase) createOauthLoginTicket(loginRes *basev1.LoginResponse) (stri
 	return ticket, nil
 }
 
-// consumeOauthLoginTicket 串行消费三方登录一次性票据，避免同一票据被并发重复兑换。
+// consumeOauthLoginTicket 原子消费三方登录一次性票据，避免同一票据被并发重复兑换。
 func (c *OauthCase) consumeOauthLoginTicket(ticket string) (string, error) {
-	lock := oauthLoginTicketLock(ticket)
-	lock.Lock()
-	defer lock.Unlock()
-
-	cacheKey := oauthLoginTicketKey(ticket)
-	value, err := c.Cache.Get(cacheKey)
+	value, err := c.Cache.GetDel(oauthLoginTicketKey(ticket))
 	if err != nil {
 		return "", errorsx.Unauthenticated("三方登录票据已失效").WithCause(err)
-	}
-	err = c.Cache.Del(cacheKey)
-	if err != nil {
-		return "", errorsx.Internal("三方登录票据消费失败").WithCause(err)
 	}
 	return value, nil
 }
@@ -619,7 +650,7 @@ func (c *OauthCase) oauthRedirectPayload(payload *oauth.StatePayload, ticket str
 	}
 
 	redirectURL := appendOauthRedirectQuery(payload.RedirectURL, ticket, errorMessage)
-	return kratosHTTP.NewRedirect(redirectURL, stdhttp.StatusFound)
+	return kratosHTTP.NewRedirect(redirectURL, http.StatusFound)
 }
 
 // oauthBindingRedirectPayload 构造回跳个人中心的三方账号绑定响应。
@@ -629,14 +660,7 @@ func (c *OauthCase) oauthBindingRedirectPayload(payload *oauth.StatePayload, pro
 	}
 
 	redirectURL := appendOauthBindingRedirectQuery(payload.RedirectURL, providerName, errorMessage)
-	return kratosHTTP.NewRedirect(redirectURL, stdhttp.StatusFound)
-}
-
-// oauthLoginTicketLock 返回三方登录票据消费分片锁。
-func oauthLoginTicketLock(ticket string) *sync.Mutex {
-	hash := fnv.New32a()
-	_, _ = hash.Write([]byte(ticket))
-	return &oauthLoginTicketLocks[hash.Sum32()%oauthLoginTicketLockShardCount]
+	return kratosHTTP.NewRedirect(redirectURL, http.StatusFound)
 }
 
 // appendOauthRedirectQuery 为登录页地址追加 OAuth 登录结果参数。
@@ -779,7 +803,7 @@ func oauthOrigin(scheme string, host string) string {
 }
 
 // oauthRequestScheme 获取当前请求的访问协议。
-func oauthRequestScheme(request *stdhttp.Request) string {
+func oauthRequestScheme(request *http.Request) string {
 	forwardedProto := strings.ToLower(strings.TrimSpace(strings.Split(request.Header.Get("X-Forwarded-Proto"), ",")[0]))
 	if forwardedProto == "http" || forwardedProto == "https" {
 		return forwardedProto

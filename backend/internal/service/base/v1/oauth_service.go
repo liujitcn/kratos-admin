@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -76,6 +76,7 @@ func (s *OauthService) CreateOauthSession(ctx context.Context, req *basev1.Creat
 		log.Error(fmt.Sprintf("CreateOauthSession %v", err))
 		return nil, errorsx.WrapInternal(err, "创建三方登录会话失败")
 	}
+	setRefreshTokenCookie(ctx, res.GetRefreshToken(), s.oauthCase.RefreshTokenExpiresIn())
 	return res, nil
 }
 
@@ -86,6 +87,7 @@ func (s *OauthService) BindOauthSession(ctx context.Context, req *basev1.BindOau
 		log.Error(fmt.Sprintf("BindOauthSession %v", err))
 		return nil, errorsx.WrapInternal(err, "绑定三方账号失败")
 	}
+	setRefreshTokenCookie(ctx, res.GetRefreshToken(), s.oauthCase.RefreshTokenExpiresIn())
 	return res, nil
 }
 
@@ -109,6 +111,7 @@ func (s *OauthService) ExchangeOauthTicket(ctx context.Context, req *basev1.Exch
 		log.Error(fmt.Sprintf("ExchangeOauthTicket %v", err))
 		return nil, errorsx.WrapInternal(err, "兑换三方登录票据失败")
 	}
+	setRefreshTokenCookie(ctx, res.GetRefreshToken(), s.oauthCase.RefreshTokenExpiresIn())
 	return res, nil
 }
 

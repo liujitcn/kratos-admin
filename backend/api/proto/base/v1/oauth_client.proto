@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package base.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// 开放授权客户端令牌服务。
+service OauthClientService {
+  // 使用客户端凭据换取访问令牌。
+  rpc IssueOauthClientToken(IssueOauthClientTokenRequest) returns (IssueOauthClientTokenResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/oauth/client/token"
+      body: "*"
+    };
+  }
+}
+
+// 客户端凭据令牌请求。
+message IssueOauthClientTokenRequest {
+  string client_id = 1 [(gnostic.openapi.v3.property) = {description: "客户端标识"}, (buf.validate.field).cel = {id: "base.oauth_client.issue_token.client_id.required" message: "客户端标识不能为空" expression: "this.size() > 0"}]; // 客户端标识
+
+  string client_secret = 2 [(gnostic.openapi.v3.property) = {description: "客户端密钥"}, (buf.validate.field).cel = {id: "base.oauth_client.issue_token.client_secret.required" message: "客户端密钥不能为空" expression: "this.size() > 0"}]; // 客户端密钥
+
+  string grant_type = 3 [(gnostic.openapi.v3.property) = {description: "授权类型，固定为 client_credentials", default: {string: "client_credentials"}}]; // 授权类型
+}
+
+// 客户端凭据令牌响应。
+message IssueOauthClientTokenResponse {
+  string access_token = 1 [(gnostic.openapi.v3.property) = {description: "访问令牌"}]; // 访问令牌
+
+  string token_type = 2 [(gnostic.openapi.v3.property) = {description: "令牌类型", default: {string: "Bearer"}}]; // 令牌类型
+
+  int64 expires_in = 3 [(gnostic.openapi.v3.property) = {description: "令牌有效时间，单位为秒"}]; // 令牌有效时间，单位为秒
+}

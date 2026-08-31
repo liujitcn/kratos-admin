@@ -1,0 +1,268 @@
+syntax = "proto3";
+
+package base.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// NotificationService 提供当前用户的站内信收件箱能力。
+service NotificationService {
+  // 分页查询当前用户收件箱。
+  rpc PageNotification(PageNotificationRequest) returns (PageNotificationResponse) {
+    option (google.api.http) = {get: "/api/v1/base/notification"};
+  }
+  // 查询当前用户未读汇总。
+  rpc GetNotificationSummary(GetNotificationSummaryRequest) returns (NotificationSummary) {
+    option (google.api.http) = {get: "/api/v1/base/notification/summary"};
+  }
+  // 查询当前用户消息详情。
+  rpc GetNotification(GetNotificationRequest) returns (Notification) {
+    option (google.api.http) = {get: "/api/v1/base/notification/{id}"};
+  }
+  // 标记消息为已读。
+  rpc MarkNotificationRead(MarkNotificationReadRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {put: "/api/v1/base/notification/read" body: "*"};
+  }
+  // 标记消息为未读。
+  rpc MarkNotificationUnread(MarkNotificationUnreadRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {put: "/api/v1/base/notification/unread" body: "*"};
+  }
+  // 标记水位线之前的全部消息为已读。
+  rpc MarkAllNotificationRead(MarkAllNotificationReadRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {put: "/api/v1/base/notification/read/all" body: "*"};
+  }
+  // 归档消息。
+  rpc ArchiveNotification(ArchiveNotificationRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {put: "/api/v1/base/notification/{id}/archive" body: "*"};
+  }
+  // 恢复已归档消息。
+  rpc RestoreNotification(RestoreNotificationRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {put: "/api/v1/base/notification/{id}/restore" body: "*"};
+  }
+  // 从个人收件箱删除消息。
+  rpc DeleteNotification(DeleteNotificationRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/api/v1/base/notification/{id}"};
+  }
+}
+
+// MessagePriority 定义站内信在收件箱和投递队列中的处理优先级。
+// 数值越高表示业务紧急程度越高，未指定值由业务层按分类默认值补齐。
+enum MessagePriority {
+  // 未指定消息优先级。
+  MESSAGE_PRIORITY_UNSPECIFIED = 0;
+  // 普通消息。
+  MESSAGE_PRIORITY_NORMAL = 1;
+  // 重要消息。
+  MESSAGE_PRIORITY_IMPORTANT = 2;
+  // 紧急消息。
+  MESSAGE_PRIORITY_URGENT = 3;
+}
+
+// MessageContentFormat 定义消息正文的编码格式和前端渲染方式。
+// 富文本和 Markdown 在入库前必须经过服务端安全清洗，不能直接信任客户端内容。
+enum MessageContentFormat {
+  // 未指定正文格式。
+  MESSAGE_CONTENT_FORMAT_UNSPECIFIED = 0;
+  // 纯文本。
+  MESSAGE_CONTENT_FORMAT_PLAIN_TEXT = 1;
+  // 安全 Markdown。
+  MESSAGE_CONTENT_FORMAT_SAFE_MARKDOWN = 2;
+  // 富文本。
+  MESSAGE_CONTENT_FORMAT_RICH_TEXT = 3;
+}
+
+// MessageActionType 定义用户点击站内信后执行的导航动作。
+// 动作目标由服务端校验为已注册视图键，避免将任意 URL 注入消息正文。
+enum MessageActionType {
+  // 无动作。
+  MESSAGE_ACTION_TYPE_UNSPECIFIED = 0;
+  // 跳转到视图键。
+  MESSAGE_ACTION_TYPE_VIEW_KEY = 1;
+}
+
+// MessageStatus 定义消息从草稿、发布、撤回到归档的生命周期状态。
+// 状态迁移由管理端业务用例控制，投递任务状态不直接改变消息主状态。
+enum MessageStatus {
+  // 未指定消息状态。
+  MESSAGE_STATUS_UNSPECIFIED = 0;
+  // 草稿。
+  MESSAGE_STATUS_DRAFT = 1;
+  // 已安排定时发布。
+  MESSAGE_STATUS_SCHEDULED = 2;
+  // 发布中。
+  MESSAGE_STATUS_PUBLISHING = 3;
+  // 已发布。
+  MESSAGE_STATUS_PUBLISHED = 4;
+  // 已撤回。
+  MESSAGE_STATUS_REVOKED = 5;
+  // 已归档。
+  MESSAGE_STATUS_ARCHIVED = 6;
+}
+
+// MessageSourceType 标识消息由管理端、系统任务还是业务模块产生。
+// 来源用于审计、展示发送者和排查异步投递问题。
+enum MessageSourceType {
+  // 未指定消息来源。
+  MESSAGE_SOURCE_TYPE_UNSPECIFIED = 0;
+  // 管理端发送。
+  MESSAGE_SOURCE_TYPE_ADMIN = 1;
+  // 系统发送。
+  MESSAGE_SOURCE_TYPE_SYSTEM = 2;
+  // 业务模块发送。
+  MESSAGE_SOURCE_TYPE_BUSINESS = 3;
+}
+
+// MessageSenderType 标识站内信对应的发送主体类型。
+// 用户发送消息必须使用当前认证身份，系统发送消息由受信内部调用创建。
+enum MessageSenderType {
+  // 未指定发送者类型。
+  MESSAGE_SENDER_TYPE_UNSPECIFIED = 0;
+  // 用户发送。
+  MESSAGE_SENDER_TYPE_USER = 1;
+  // 系统发送。
+  MESSAGE_SENDER_TYPE_SYSTEM = 2;
+}
+
+// MessageAudienceType 定义消息受众的解析范围。
+// 受众编号按类型解释，租户全员使用 0，部门受众可选择是否包含子部门。
+enum MessageAudienceType {
+  // 未指定受众类型。
+  MESSAGE_AUDIENCE_TYPE_UNSPECIFIED = 0;
+  // 指定用户。
+  MESSAGE_AUDIENCE_TYPE_USER = 1;
+  // 指定角色。
+  MESSAGE_AUDIENCE_TYPE_ROLE = 2;
+  // 指定部门。
+  MESSAGE_AUDIENCE_TYPE_DEPT = 3;
+  // 指定岗位。
+  MESSAGE_AUDIENCE_TYPE_POST = 4;
+  // 租户全员。
+  MESSAGE_AUDIENCE_TYPE_TENANT = 5;
+}
+
+// MessageDispatchStatus 定义单个受众投递任务的处理状态。
+// 状态用于租约恢复、失败重试和最终一致性统计，不代表用户是否已阅读消息。
+enum MessageDispatchStatus {
+  // 未指定投递状态。
+  MESSAGE_DISPATCH_STATUS_UNSPECIFIED = 0;
+  // 等待发布。
+  MESSAGE_DISPATCH_STATUS_WAITING = 1;
+  // 等待处理。
+  MESSAGE_DISPATCH_STATUS_PENDING = 2;
+  // 处理中。
+  MESSAGE_DISPATCH_STATUS_RUNNING = 3;
+  // 投递成功。
+  MESSAGE_DISPATCH_STATUS_SUCCEEDED = 4;
+  // 投递失败。
+  MESSAGE_DISPATCH_STATUS_FAILED = 5;
+  // 已取消。
+  MESSAGE_DISPATCH_STATUS_CANCELLED = 6;
+}
+
+// NotificationView 定义当前用户收件箱的筛选视图。
+// 视图只影响查询范围，不改变消息或投递记录的持久化状态。
+enum NotificationView {
+  // 未指定收件箱视图，按全部收件箱消息处理。
+  NOTIFICATION_VIEW_UNSPECIFIED = 0;
+  // 全部收件箱消息。
+  NOTIFICATION_VIEW_INBOX = 1;
+  // 未读消息。
+  NOTIFICATION_VIEW_UNREAD = 2;
+  // 已归档消息。
+  NOTIFICATION_VIEW_ARCHIVED = 3;
+}
+
+// 当前用户收件箱分页查询条件。
+message PageNotificationRequest {
+  NotificationView view = 1 [(gnostic.openapi.v3.property) = {description: "收件箱视图"}, (buf.validate.field).enum = {defined_only: true}]; // 收件箱视图
+  optional int64 category_id = 2 [(gnostic.openapi.v3.property) = {description: "消息分类ID"}]; // 消息分类ID
+  optional MessagePriority priority = 3 [(gnostic.openapi.v3.property) = {description: "消息优先级"}, (buf.validate.field).enum = {defined_only: true}]; // 消息优先级
+  int64 cursor_id = 4 [(gnostic.openapi.v3.property) = {description: "上一页最后投递ID"}]; // 上一页最后投递ID
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页数量", default: {number: 10}}]; // 每页数量
+}
+
+// 当前用户收件箱分页响应。
+message PageNotificationResponse {
+  repeated Notification notifications = 1 [(gnostic.openapi.v3.property) = {description: "消息列表"}]; // 消息列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+  int64 next_cursor_id = 3 [(gnostic.openapi.v3.property) = {description: "下一页游标"}]; // 下一页游标
+  bool has_more = 4 [(gnostic.openapi.v3.property) = {description: "是否还有下一页"}]; // 是否还有下一页
+}
+
+// 消息详情查询条件。
+message GetNotificationRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "投递ID"}, (buf.validate.field).cel = {id: "base.notification.get.id.required" message: "消息ID不能为空" expression: "this > 0"}]; // 投递ID
+}
+
+// 当前用户未读汇总查询条件。
+message GetNotificationSummaryRequest {}
+
+// 当前用户未读汇总。
+message NotificationSummary {
+  int64 unread_total = 1 [(gnostic.openapi.v3.property) = {description: "未读总数"}]; // 未读总数
+  int64 latest_delivery_id = 2 [(gnostic.openapi.v3.property) = {description: "最新投递ID"}]; // 最新投递ID
+  repeated NotificationCategoryUnread category_unread = 3 [(gnostic.openapi.v3.property) = {description: "分类未读数"}]; // 分类未读数
+}
+
+// 当前用户单个分类的未读数量。
+message NotificationCategoryUnread {
+  int64 category_id = 1 [(gnostic.openapi.v3.property) = {description: "消息分类ID"}]; // 消息分类ID
+  int64 unread_total = 2 [(gnostic.openapi.v3.property) = {description: "分类未读数"}]; // 分类未读数
+}
+
+// 批量标记消息已读请求。
+message MarkNotificationReadRequest {
+  repeated int64 ids = 1 [(gnostic.openapi.v3.property) = {description: "投递ID列表"}, (buf.validate.field).cel = {id: "base.notification.mark.ids.required" message: "消息ID列表不能为空且不能重复" expression: "this.size() > 0 && this.unique()"}]; // 投递ID列表
+}
+
+// 批量标记消息未读请求。
+message MarkNotificationUnreadRequest {
+  repeated int64 ids = 1 [(gnostic.openapi.v3.property) = {description: "投递ID列表"}, (buf.validate.field).cel = {id: "base.notification.mark.ids.required" message: "消息ID列表不能为空且不能重复" expression: "this.size() > 0 && this.unique()"}]; // 投递ID列表
+}
+
+// 全部已读请求。
+message MarkAllNotificationReadRequest {
+  int64 before_delivery_id = 1 [(gnostic.openapi.v3.property) = {description: "已读水位线投递ID"}, (buf.validate.field).cel = {id: "base.notification.mark_all.before_delivery_id.required" message: "已读水位线不能为空" expression: "this > 0"}]; // 已读水位线投递ID
+}
+
+// 归档消息请求。
+message ArchiveNotificationRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "投递ID"}, (buf.validate.field).cel = {id: "base.notification.action.id.required" message: "消息ID不能为空" expression: "this > 0"}]; // 投递ID
+}
+
+// 恢复归档消息请求。
+message RestoreNotificationRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "投递ID"}, (buf.validate.field).cel = {id: "base.notification.action.id.required" message: "消息ID不能为空" expression: "this > 0"}]; // 投递ID
+}
+
+// 删除消息请求。
+message DeleteNotificationRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "投递ID"}, (buf.validate.field).cel = {id: "base.notification.action.id.required" message: "消息ID不能为空" expression: "this > 0"}]; // 投递ID
+}
+
+// 当前用户消息。
+message Notification {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "投递ID"}]; // 投递ID
+  int64 message_id = 2 [(gnostic.openapi.v3.property) = {description: "消息ID"}]; // 消息ID
+  int64 category_id = 3 [(gnostic.openapi.v3.property) = {description: "分类ID"}]; // 分类ID
+  string category_name = 4 [(gnostic.openapi.v3.property) = {description: "分类名称"}]; // 分类名称
+  string category_icon = 5 [(gnostic.openapi.v3.property) = {description: "分类图标"}]; // 分类图标
+  string category_color = 6 [(gnostic.openapi.v3.property) = {description: "分类颜色"}]; // 分类颜色
+  MessagePriority priority = 7 [(gnostic.openapi.v3.property) = {description: "消息优先级"}]; // 消息优先级
+  string title = 8 [(gnostic.openapi.v3.property) = {description: "消息标题"}]; // 消息标题
+  string content = 9 [(gnostic.openapi.v3.property) = {description: "消息正文，列表响应为空"}]; // 消息正文
+  MessageContentFormat content_format = 10 [(gnostic.openapi.v3.property) = {description: "正文格式"}]; // 正文格式
+  MessageActionType action_type = 11 [(gnostic.openapi.v3.property) = {description: "动作类型"}]; // 动作类型
+  string action_target = 12 [(gnostic.openapi.v3.property) = {description: "动作目标"}]; // 动作目标
+  string action_params = 13 [(gnostic.openapi.v3.property) = {description: "动作参数JSON"}]; // 动作参数JSON
+  string sender_name = 14 [(gnostic.openapi.v3.property) = {description: "发送者名称"}]; // 发送者名称
+  string received_at = 15 [(gnostic.openapi.v3.property) = {description: "接收时间"}]; // 接收时间
+  string read_at = 16 [(gnostic.openapi.v3.property) = {description: "已读时间"}]; // 已读时间
+  string archived_at = 17 [(gnostic.openapi.v3.property) = {description: "归档时间"}]; // 归档时间
+  string expires_at = 18 [(gnostic.openapi.v3.property) = {description: "过期时间"}]; // 过期时间
+  bool allow_archive = 19 [(gnostic.openapi.v3.property) = {description: "是否允许归档"}]; // 是否允许归档
+  bool allow_delete = 20 [(gnostic.openapi.v3.property) = {description: "是否允许删除"}]; // 是否允许删除
+}

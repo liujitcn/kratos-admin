@@ -59,6 +59,22 @@
   color: #888;
 }
 
+.settings-mfa {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 42px;
+}
+
+.settings-mfa__value {
+  max-width: 55%;
+  overflow: hidden;
+  color: #888;
+  font-size: 26px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .settings-button {
   margin-bottom: 20px;
   border-radius: 10px;

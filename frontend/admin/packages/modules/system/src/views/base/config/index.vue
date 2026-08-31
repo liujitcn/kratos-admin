@@ -78,8 +78,6 @@
 <script setup lang="ts">
 import { computed, h, reactive, ref } from "vue";
 import { useDebounceFn } from "@vueuse/core";
-import { ElImage, ElMessage, ElMessageBox, ElTag, ElTooltip } from "element-plus";
-import { CirclePlus, Delete, EditPen, RefreshLeft } from "@element-plus/icons-vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
@@ -259,7 +257,9 @@ const statusOptions = computed<ProFormOption[]>(() => [
 
 /** 字典类系统配置与字典编码的映射关系。 */
 const BASE_CONFIG_DICT_CODE_MAP: Record<string, string> = {
-  captchaType: "captcha_type"
+  captchaType: "captcha_type",
+  securityMfaPolicy: "security_mfa_policy",
+  securityMfaMethod: "mfa_method"
 };
 
 /** 当前字典类配置对应的字典编码，未配置映射时允许退回手动输入。 */

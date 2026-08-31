@@ -8,6 +8,7 @@ import {
 import { createSSRApp } from 'vue'
 import App from './App.vue'
 import { moduleManifest } from './module-manifest'
+import '@liujitcn/kratos-uni-app-system'
 
 registerKratosAppModules(moduleManifest)
 registerUserStoreExtension({

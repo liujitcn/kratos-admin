@@ -14,7 +14,9 @@
       <div class="avatar-panel">
         <div class="avatar-shell">
           <el-avatar :src="avatarSrc" :size="116" @error="handleAvatarError" />
-          <el-button class="avatar-trigger" circle type="primary" :icon="Camera" @click="triggerFileUpload" />
+          <el-button class="avatar-trigger" circle type="primary" @click="triggerFileUpload">
+            <el-icon><Camera /></el-icon>
+          </el-button>
           <input ref="fileInputRef" type="file" class="hidden-input" accept="image/*" @change="handleFileChange" />
         </div>
         <div class="avatar-copy">
@@ -84,7 +86,6 @@ import defaultAvatar from "@liujitcn/kratos-admin-core/assets/images/avatar.png"
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import ProForm from "@liujitcn/kratos-admin-core/components/ProForm/index.vue";
 import type { ProFormField, ProFormInstance } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
-import { Camera } from "@element-plus/icons-vue";
 
 /** 个人中心基础资料组件属性。 */
 interface ProfileBaseProps {
@@ -223,7 +224,7 @@ function handleDialogClosed() {
 <style scoped lang="scss">
 .base-card {
   border: 1px solid #ebeef5;
-  border-radius: 12px;
+  border-radius: var(--admin-page-radius);
 }
 :deep(.base-card .el-card__header) {
   padding: 18px 20px;
@@ -259,7 +260,7 @@ function handleDialogClosed() {
   text-align: center;
   background: #f8fafc;
   border: 1px solid #eef2f6;
-  border-radius: 12px;
+  border-radius: var(--admin-page-radius);
 }
 .avatar-shell {
   position: relative;
@@ -296,7 +297,7 @@ function handleDialogClosed() {
   padding: 16px;
   background: #ffffff;
   border: 1px solid #f0f2f5;
-  border-radius: 10px;
+  border-radius: var(--admin-page-radius);
 }
 .detail-item--wide {
   grid-column: 1 / -1;

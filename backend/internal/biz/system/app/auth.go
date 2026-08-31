@@ -8,10 +8,10 @@ import (
 
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
-	"github.com/liujitcn/kratos-core/const"
+	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
+	appv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/app/utils"
 
 	"github.com/go-kratos/kratos/v3/log"

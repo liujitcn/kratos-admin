@@ -2,10 +2,10 @@
 
 ## 提交与发布
 - 提交顺序：本次任务全部改动完成后统一执行一次生成与测试（`go test ./...` 必须通过）→ 检查更新 `README.md` → `git add -A` + 中文提交信息 + push 当前分支同名远程分支；改动过程中间不要逐次编辑逐次编译/测试，避免重复全量扫描。
-- 本项目不编写 `_test.go`；临时测试用完即删。`go test ./...` 用于验证编译与依赖完整性。
+- 关键业务规则和安全边界允许编写小而稳定的 `_test.go` 回归测试；临时测试用完即删。提交前必须执行 `go test ./...`。
 
 ## 新增业务流程
-- 完整流程见 [docs/new-feature.md](docs/new-feature.md)，新增业务前必须先读。
+- 完整流程见 [服务接入指南](../docs/服务接入指南.md)，新增业务前必须先读。
 - 核心顺序：需要新表则先按 `configs/data.yaml` 确认连接后把表结构真正建到开发库 → `make gorm-gen` → proto 契约 → `make gen` → service/biz → 前端；不需要新表则从 proto 开始。
 - 表结构变更、菜单权限（`base_menu`）、接口权限（`base_api`）脚本统一新增版本目录到 `backend/migration/assets/vX.Y.Z/mysql`；需要区分数据源时再增加数据源子目录。SQL 使用 `<feature>.up.sql`，目录说明统一维护在 `README.md`，已有译文维护在 `README.<locale>.md`，与代码同一次改动完成。
 - `api/gen`、`internal/data/gen` 生成产物禁止手改或手工添加文件；生成一律走 `make gen`、`make gorm-gen`、`make wire`。
@@ -29,7 +29,7 @@
 ## 错误处理
 - 顶层 `reason` 只用 6 类冻结集合：`INVALID_ARGUMENT / UNAUTHENTICATED / PERMISSION_DENIED / RESOURCE_NOT_FOUND / CONFLICT / INTERNAL_ERROR`，未经确认禁止新增。
 - 对外业务错误必须用 `github.com/liujitcn/kratos-core/errorsx` 构造，禁止直接返回 `errors.New/fmt.Errorf`；repo 层返原始错误，biz 层负责分类与 `message/metadata/cause`，service 层只 `log.Errorf("方法名 %v", err)` 并以 `errorsx.WrapInternal(err, "xxx失败")` 兜底透传。
-- 场景映射、errorsx 方法、metadata 键等细则见 [docs/errors.md](docs/errors.md)，修改错误处理相关代码前必须先读。
+- 场景映射、errorsx 方法、metadata 键等细则见 [服务接入指南](../docs/服务接入指南.md)，修改错误处理相关代码前必须先读。
 
 ## 数据库命名
 - 表名、字段名全小写下划线，使用有意义的英文名词，同一概念命名一致。
@@ -39,6 +39,6 @@
 - package 带版本号并与目录对齐（`system.admin.v1`、`shop.app.v1` 等）；Go import 用真实包名别名（`shopadminv1` 等）；TS import 带 `/v1/` 层级。
 - HTTP 路径遵循 RESTful，格式 `/api/v1/{terminal}/{module}/{resource}`；本仓库不保留旧接口兼容路径，路径修改时同步更新 Proto、权限脚本和前端请求。
 - service、message、field、enum 和 HTTP 路径均不做向后兼容；每次契约修改都必须同步所有调用方、数据库数据、权限脚本和生成产物，禁止使用 `additional_bindings`、`allow_alias` 等兼容手段。协议确需为同一 RPC 映射多个 HTTP 方法时，`additional_bindings` 只按协议语义使用。
-- 字段与命名细则见 [docs/api.md](docs/api.md)，新增或修改 proto 字段前必须先读
+- 字段与命名细则见 [接口参数校验设计](../docs/接口参数校验设计.md)，新增或修改 proto 字段前必须先读
 - proto 的 `google.api.http`、对应版本目录 `up.sql` 的 `base_api.path`、前端请求地址三处必须一致，禁止只改其中一处。
 - 枚举归属按实际调用方决定：只被一个业务 Proto 文件使用的 enum，放在该文件中，紧随对应 service 定义并与 message 同级；同一 package 跨多个业务文件使用、且不属于单一业务核心的共享类型，放在该 package 的 `common.proto`；同一端多个业务文件使用但有明确核心 service/message 归属的 enum，放在主文件，其他文件显式 import；同时被 `system.admin.v1` 和 `system.app.v1` 使用的 enum，才放入更上层 shared enum 文件。Proto 不支持在 service 体内直接声明 enum，不得为了“放在 service 下”改成非法嵌套结构。

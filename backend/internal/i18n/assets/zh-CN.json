@@ -689,6 +689,9 @@
   "base.login.captcha.verify_failed": {
     "other": "验证码校验失败"
   },
+  "base.mfa.confirm_enrollment.code.invalid": {
+    "other": "动态口令错误"
+  },
   "base.ai.message.not_found": {
     "other": "消息不存在"
   },
@@ -748,9 +751,6 @@
   },
   "openapi.admin.service.base_language": {
     "other": "Admin语言管理服务"
-  },
-  "openapi.admin.service.base_log": {
-    "other": "Admin日志服务"
   },
   "openapi.admin.service.base_menu_admin": {
     "other": "Admin菜单管理服务"
@@ -844,6 +844,9 @@
   },
   "system.admin.ops_monitoring.database": {
     "other": "数据库"
+  },
+  "system.admin.ops_monitoring.dispatch_unconfigured": {
+    "other": "站内信投递仓储未配置"
   },
   "system.admin.ops_monitoring.disk": {
     "other": "硬盘"

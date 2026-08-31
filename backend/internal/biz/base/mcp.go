@@ -8,13 +8,15 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
-	"github.com/liujitcn/kratos-core/const"
+	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
+	"github.com/liujitcn/kratos-kit/auth"
+	authzEngine "github.com/liujitcn/kratos-kit/auth/authz/engine"
 
 	"github.com/go-kratos/kratos/v3/log"
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
@@ -39,14 +41,16 @@ type McpCase struct {
 	http.Handler
 
 	baseAPIRepo *data.BaseAPIRepository
+	authorizer  authzEngine.Engine
 	handlerPath string
 }
 
 // NewMcpCase 创建 MCP 业务实例。
-func NewMcpCase(baseCase *biz.BaseCase, baseAPIRepo *data.BaseAPIRepository) (*McpCase, error) {
+func NewMcpCase(baseCase *biz.BaseCase, baseAPIRepo *data.BaseAPIRepository, authorizer authzEngine.Engine) (*McpCase, error) {
 	h := &McpCase{
 		BaseCase:    baseCase,
 		baseAPIRepo: baseAPIRepo,
+		authorizer:  authorizer,
 	}
 	cfg := baseCase.GetConfig()
 	// 未启用 HTTP 服务时，不创建 MCP HTTP 处理器。
@@ -244,7 +248,32 @@ func (h *McpCase) filterToolCall(ctx context.Context, req mcp.Request, next mcp.
 	if baseAPI == nil {
 		return newMcpToolResultError(fmt.Sprintf("MCP 工具 %s 未注册", callReq.Params.Name)), nil
 	}
+	if err = h.authorizeToolCall(ctx, baseAPI); err != nil {
+		return newMcpToolResultError(err.Error()), nil
+	}
 	return next(ctx, mcpMethodCallTool, req)
+}
+
+// authorizeToolCall 按当前登录主体重新校验 MCP 工具对应的 API 权限。
+func (h *McpCase) authorizeToolCall(ctx context.Context, api *models.BaseAPI) error {
+	if h.authorizer == nil {
+		return errorsx.Internal("MCP鉴权引擎未初始化")
+	}
+	authInfo, err := auth.FromContext(ctx)
+	if err != nil || authInfo == nil || authInfo.RoleCode == "" || authInfo.TenantCode == "" {
+		return errorsx.Unauthenticated("MCP用户认证失败")
+	}
+	tenant := authzEngine.Tenant(authInfo.TenantCode)
+	authzCtx := authzEngine.ContextWithAuthClaims(ctx, &authzEngine.AuthClaims{Tenant: &tenant})
+	var allowed bool
+	allowed, err = h.authorizer.IsAuthorized(authzCtx, authzEngine.Subject(authInfo.RoleCode), authzEngine.Action(strings.ToUpper(api.Method)), authzEngine.Resource(api.Operation), "")
+	if err != nil {
+		return errorsx.Internal("MCP工具权限校验失败").WithCause(err)
+	}
+	if !allowed {
+		return errorsx.PermissionDenied("无权调用 MCP 工具")
+	}
+	return nil
 }
 
 // findEnabledBaseAPI 查询当前工具是否允许调用。

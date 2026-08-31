@@ -1,6 +1,6 @@
 # @liujitcn/kratos-admin-core
 
-kratos-admin 前端底座包。它不包含具体业务模块，提供登录、菜单、用户信息、应用启动、动态路由、布局、运行状态、公共组件和静态状态页。宿主可以只安装 core；个人中心、AI 助手和系统管理能力必须由 System 模块提供。
+kratos-admin 前端底座包。它不包含具体业务模块，提供登录、MFA 校验、菜单、用户信息、应用启动、动态路由、布局、运行状态、公共组件和静态状态页；MFA 绑定面板与恢复码弹窗由登录页和 System 模块共用。宿主可以只安装 core；个人中心、AI 助手和系统管理能力必须由 System 模块提供。
 
 ## 目录结构
 
@@ -9,7 +9,7 @@ packages/core
 ├── build/                    # Vite 配置辅助函数和插件组合
 ├── src
 │   ├── api/                  # 按 Proto 领域组织的底座请求
-│   │   ├── base/             # 登录、OAuth、配置和文件请求
+│   │   ├── base/             # 登录、MFA、OAuth、配置和文件请求
 │   │   └── system/           # 用户、菜单、字典和租户运行请求
 │   ├── assets/               # 字体、图标和图片资源
 │   ├── components/           # 公共 Vue 组件
@@ -61,21 +61,21 @@ packages/core
 | `src/format.ts`                        | 业务模块使用的格式化入口。                                                     |
 | `src/navigation.ts`                    | 业务模块使用的路由与跳转入口。                                                 |
 | `src/request.ts`                       | 业务模块使用的请求客户端入口。                                                 |
-| `src/security.ts`                      | OAuth、密码加密和密码强度入口。                                                |
+| `src/security.ts`                      | OAuth、密码加密、密码强度和 WebAuthn 入口。                                    |
 | `src/table.ts`                         | ProTable 请求和选择值处理入口。                                                |
 | `src/tenant.ts`                        | 租户选项入口。                                                                 |
 | `src/components/ProTable.ts`           | ProTable 对外 Adapter，稳定组件入口为 `components/ProTable`。                  |
 | `src/bootstrap.ts`                     | 创建 Vue 应用，注册 core 与宿主选择的业务模块后挂载。                          |
 | `src/App.vue`                          | 根组件和路由出口。                                                             |
 | `src/vite-env.d.ts`                    | Vite、构建变量和 `import.meta.glob` 类型引用。                                 |
-| `src/api/base/*.ts`                    | Proto `base` 领域的登录、OAuth、配置和文件请求。                               |
+| `src/api/base/*.ts`                    | Proto `base` 领域的登录、MFA、OAuth、配置和文件请求。                           |
 | `src/api/system/*.ts`                  | Proto `system` 领域的认证、字典和租户运行请求。                                |
 | `src/assets/fonts/`                    | 应用字体及字体样式。                                                           |
 | `src/assets/iconfont/`                 | 内置图标字体。                                                                 |
 | `src/assets/images/`                   | Logo、登录、错误页、头像和 OAuth 图标。                                        |
 | `src/components/Card/`                 | 数据概览卡片。                                                                 |
 | `src/components/CronExpression/`       | Cron 表达式编辑器。                                                            |
-| `src/components/Dialog/`               | 通用弹窗和表单弹窗。                                                           |
+| `src/components/Dialog/`               | 通用弹窗、表单弹窗和密码验证弹窗。                                             |
 | `src/components/Dict/`                 | 字典选择与字典值展示。                                                         |
 | `src/components/ECharts/`              | ECharts 容器和图表配置。                                                       |
 | `src/components/ErrorMessage/`         | 403、404、500 页面复用的错误状态展示组件。                                     |
@@ -85,6 +85,7 @@ packages/core
 | `src/components/PasswordStrength/`     | 密码强度提示。                                                                 |
 | `src/components/ProForm/`              | 配置驱动表单、动态列表、键值列表和类型。                                       |
 | `src/components/ProTable/`             | 配置驱动表格、分页、列设置和类型。                                             |
+| `src/components/RichTextPreview/`      | 经过清洗的富文本预览。                                                         |
 | `src/components/SearchForm/`           | 搜索表单和搜索字段渲染。                                                       |
 | `src/components/SelectFilter/`         | 筛选条件选择器。                                                               |
 | `src/components/SelectIcon/`           | 图标选择器。                                                                   |
@@ -125,7 +126,7 @@ packages/core
 | `src/styles/*.scss`                    | Element Plus 覆盖、暗色主题、重置、公共样式和变量。                            |
 | `src/styles/theme/*.ts`                | 侧栏、头部和菜单的运行时主题变量。                                             |
 | `src/typings/*.d.ts`                   | 全局、Window、工具和第三方库的手写声明。                                       |
-| `src/utils/*.ts`                       | 颜色、字典、校验、错误、事件、OAuth、密码、表格、请求、路由、SVG、租户等工具。 |
+| `src/utils/*.ts`                       | 颜色、字典、校验、错误、事件、OAuth、密码、MFA/WebAuthn、表格、请求、路由、SVG、租户等工具。 |
 | `src/utils/is/index.ts`                | 常用类型与值判断。                                                             |
 | `src/views/login/`                     | 登录页和登录表单。                                                             |
 | `src/views/error/`                     | 403、404、500 和动态菜单 Pending 的默认路由页面。                              |

@@ -20,6 +20,25 @@ export enum PasswordCryptoScene {
   PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD = 3,
   /** PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD - 个人修改密码加密场景。 */
   PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD = 4,
+  /** PASSWORD_CRYPTO_SCENE_MFA - 多因素认证敏感操作场景。 */
+  PASSWORD_CRYPTO_SCENE_MFA = 5,
+}
+
+/**
+ * LoginStatus 表示登录请求当前所处的认证阶段。
+ * 只有 AUTHENTICATED 或 PASSWORD_CHANGE_REQUIRED 才会携带正式访问令牌，MFA 状态必须继续完成挑战。
+ */
+export enum LoginStatus {
+  /** LOGIN_STATUS_UNSPECIFIED - 未指定登录状态。 */
+  LOGIN_STATUS_UNSPECIFIED = 0,
+  /** LOGIN_STATUS_AUTHENTICATED - 已完成认证并签发令牌。 */
+  LOGIN_STATUS_AUTHENTICATED = 1,
+  /** LOGIN_STATUS_MFA_REQUIRED - 需要继续校验多因素认证。 */
+  LOGIN_STATUS_MFA_REQUIRED = 2,
+  /** LOGIN_STATUS_MFA_ENROLLMENT_REQUIRED - 必须先完成多因素认证绑定。 */
+  LOGIN_STATUS_MFA_ENROLLMENT_REQUIRED = 3,
+  /** LOGIN_STATUS_PASSWORD_CHANGE_REQUIRED - 下次操作前必须修改临时密码。 */
+  LOGIN_STATUS_PASSWORD_CHANGE_REQUIRED = 4,
 }
 
 /** 验证码获取条件 */
@@ -80,8 +99,8 @@ export interface PasswordPublicKeyResponse {
 
 /** 刷新令牌请求参数 */
 export interface RefreshTokenRequest {
-  /** 更新令牌，用来获取下一次的访问令牌，必选项。 */
-  refresh_token: string;
+  /** 更新令牌；未填写时由服务端从HttpOnly Cookie读取。 */
+  refresh_token?: string | undefined;
 }
 
 /** 刷新令牌响应 */
@@ -122,6 +141,18 @@ export interface LoginResponse {
   token_type: string;
   /** 令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。 */
   expires_in: number;
+  /** 登录认证状态 */
+  status: LoginStatus;
+  /** 多因素认证挑战ID */
+  mfa_challenge_id: string;
+  /** 多因素认证绑定临时票据 */
+  mfa_setup_ticket: string;
+  /** 多因素认证挑战或绑定票据有效时间，单位秒 */
+  mfa_expires_in: number;
+  /** 多因素认证方式：totp、webauthn */
+  mfa_method: string;
+  /** WebAuthn认证选项JSON */
+  mfa_webauthn_options_json: string;
 }
 
 /** Base登录公共服务 */

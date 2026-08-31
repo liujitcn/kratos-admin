@@ -5,13 +5,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
-	sseTransport "github.com/liujitcn/kratos-kit/transport/sse"
+	"github.com/liujitcn/kratos-kit/transport/sse"
 )
 
-var _ sseTransport.SSEStream = (*OpsMonitoring)(nil)
+var _ sse.SSEStream = (*OpsMonitoring)(nil)
 
 const (
 	opsMonitoringStreamID = "system.admin.ops-monitoring"

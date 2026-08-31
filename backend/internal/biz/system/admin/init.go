@@ -13,8 +13,10 @@ var ProviderSet = wire.NewSet(
 	NewBaseDictItemCase,
 	NewBaseJobCase,
 	NewBaseJobLogCase,
+	NewBaseAuditLogCase,
+	NewBaseDashboardCase,
+	NewBaseFileCase,
 	NewBaseLanguageCase,
-	NewBaseLogCase,
 	NewBaseMenuCase,
 	NewBasePostCase,
 	NewBaseRoleCase,
@@ -29,4 +31,13 @@ var ProviderSet = wire.NewSet(
 	NewOpsMonitoringCase,
 	NewRuntimeLogCase,
 	NewBaseMigrationCase,
+	NewBaseSessionCase,
+	NewBaseLoginPolicyCase,
+	NewOauthClientCase,
+)
+
+// MessageProviderSet 汇总站内信管理和投递业务依赖。
+var MessageProviderSet = wire.NewSet(
+	NewBaseMessageCategoryCase,
+	NewBaseMessageCase,
 )

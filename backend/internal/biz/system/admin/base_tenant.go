@@ -2,8 +2,11 @@ package biz
 
 import (
 	"context"
+	cryptorand "crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/go-utils/mapper"
@@ -11,15 +14,15 @@ import (
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-kit/database/gorm"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
 	coreconst "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
+	authData "github.com/liujitcn/kratos-kit/auth/data"
 )
 
 const (
@@ -38,13 +41,24 @@ type BaseTenantCase struct {
 	*biz.BaseCase
 	tx data.Transaction
 	*data.BaseTenantRepository
-	baseDeptRepo   *data.BaseDeptRepository
-	baseRoleRepo   *data.BaseRoleRepository
-	baseUserRepo   *data.BaseUserRepository
-	casbinRuleRepo *data.CasbinRuleRepository
-	casbinRuleCase *CasbinRuleCase
-	formMapper     *mapper.CopierMapper[adminv1.BaseTenantForm, models.BaseTenant]
-	mapper         *mapper.CopierMapper[adminv1.BaseTenant, models.BaseTenant]
+	baseDeptRepo            *data.BaseDeptRepository
+	baseRoleRepo            *data.BaseRoleRepository
+	baseUserRepo            *data.BaseUserRepository
+	baseMessageRepo         *data.BaseMessageRepository
+	baseMessageDispatchRepo *data.BaseMessageDispatchRepository
+	baseMessageDeliveryRepo *data.BaseMessageDeliveryRepository
+	oauthClientRepo         *data.OauthClientRepository
+	baseFileRepo            *data.BaseFileRepository
+	baseThirdAccountRepo    *data.BaseThirdAccountRepository
+	baseUserMFARepo         *data.BaseUserMFARepository
+	baseUserMFATotpRepo     *data.BaseUserMFATotpRepository
+	baseUserMFARecoveryRepo *data.BaseUserMFARecoveryRepository
+	baseUserMFAWebauthnRepo *data.BaseUserMFAWebauthnRepository
+	userToken               *authData.UserToken
+	casbinRuleRepo          *data.CasbinRuleRepository
+	casbinRuleCase          *CasbinRuleCase
+	formMapper              *mapper.CopierMapper[adminv1.BaseTenantForm, models.BaseTenant]
+	mapper                  *mapper.CopierMapper[adminv1.BaseTenant, models.BaseTenant]
 }
 
 // NewBaseTenantCase 创建租户业务实例。
@@ -55,20 +69,42 @@ func NewBaseTenantCase(
 	baseDeptRepo *data.BaseDeptRepository,
 	baseRoleRepo *data.BaseRoleRepository,
 	baseUserRepo *data.BaseUserRepository,
+	baseMessageRepo *data.BaseMessageRepository,
+	baseMessageDispatchRepo *data.BaseMessageDispatchRepository,
+	baseMessageDeliveryRepo *data.BaseMessageDeliveryRepository,
+	oauthClientRepo *data.OauthClientRepository,
+	baseFileRepo *data.BaseFileRepository,
+	baseThirdAccountRepo *data.BaseThirdAccountRepository,
+	baseUserMFARepo *data.BaseUserMFARepository,
+	baseUserMFATotpRepo *data.BaseUserMFATotpRepository,
+	baseUserMFARecoveryRepo *data.BaseUserMFARecoveryRepository,
+	baseUserMFAWebauthnRepo *data.BaseUserMFAWebauthnRepository,
+	userToken *authData.UserToken,
 	casbinRuleRepo *data.CasbinRuleRepository,
 	casbinRuleCase *CasbinRuleCase,
 ) *BaseTenantCase {
 	return &BaseTenantCase{
-		BaseCase:             baseCase,
-		tx:                   tx,
-		BaseTenantRepository: baseTenantRepo,
-		baseDeptRepo:         baseDeptRepo,
-		baseRoleRepo:         baseRoleRepo,
-		baseUserRepo:         baseUserRepo,
-		casbinRuleRepo:       casbinRuleRepo,
-		casbinRuleCase:       casbinRuleCase,
-		formMapper:           mapper.NewCopierMapper[adminv1.BaseTenantForm, models.BaseTenant](),
-		mapper:               mapper.NewCopierMapper[adminv1.BaseTenant, models.BaseTenant](),
+		BaseCase:                baseCase,
+		tx:                      tx,
+		BaseTenantRepository:    baseTenantRepo,
+		baseDeptRepo:            baseDeptRepo,
+		baseRoleRepo:            baseRoleRepo,
+		baseUserRepo:            baseUserRepo,
+		baseMessageRepo:         baseMessageRepo,
+		baseMessageDispatchRepo: baseMessageDispatchRepo,
+		baseMessageDeliveryRepo: baseMessageDeliveryRepo,
+		oauthClientRepo:         oauthClientRepo,
+		baseFileRepo:            baseFileRepo,
+		baseThirdAccountRepo:    baseThirdAccountRepo,
+		baseUserMFARepo:         baseUserMFARepo,
+		baseUserMFATotpRepo:     baseUserMFATotpRepo,
+		baseUserMFARecoveryRepo: baseUserMFARecoveryRepo,
+		baseUserMFAWebauthnRepo: baseUserMFAWebauthnRepo,
+		userToken:               userToken,
+		casbinRuleRepo:          casbinRuleRepo,
+		casbinRuleCase:          casbinRuleCase,
+		formMapper:              mapper.NewCopierMapper[adminv1.BaseTenantForm, models.BaseTenant](),
+		mapper:                  mapper.NewCopierMapper[adminv1.BaseTenant, models.BaseTenant](),
 	}
 }
 
@@ -157,6 +193,13 @@ func (c *BaseTenantCase) CreateBaseTenant(ctx context.Context, req *adminv1.Base
 
 		// 租户编号只允许后端生成，避免客户端传入自定义编号。
 		baseTenant.Code = code
+		// 新租户 ID 与租户编号保持一致，编号从 1000 开始生成。
+		var tenantID int64
+		tenantID, err = strconv.ParseInt(code, 10, 64)
+		if err != nil {
+			return errorsx.Internal("解析租户编号失败").WithCause(err)
+		}
+		baseTenant.ID = tenantID
 		// 未指定状态时，新租户默认启用，避免初始化完成后仍无法登录。
 		if baseTenant.Status == 0 {
 			baseTenant.Status = coreconst.STATUS_STATUS_ENABLE
@@ -335,24 +378,31 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 		return errorsx.Internal("初始化租户管理员角色失败").WithCause(err)
 	}
 
+	// 生成不可预测的随机口令并禁用账号，由平台管理员重置后再启用。
+	randomPassword := make([]byte, 32)
+	if _, err = cryptorand.Read(randomPassword); err != nil {
+		return errorsx.Internal("初始化租户管理员账号失败").WithCause(err)
+	}
 	var password string
-	password, err = crypto.Encrypt(utils.GetDefaultPassword(baseTenantAdminUserName, baseTenant.ContactPhone))
+	password, err = crypto.Encrypt(base64.RawURLEncoding.EncodeToString(randomPassword))
 	if err != nil {
 		return errorsx.Internal("初始化租户管理员账号失败").WithCause(err)
 	}
 
 	baseUser := &models.BaseUser{
-		TenantID: baseTenant.ID,
-		UserName: baseTenantAdminUserName,
-		UserCode: baseTenantAdminUserName,
-		NickName: baseTenantAdminNickName,
-		RoleID:   baseRole.ID,
-		DeptID:   baseDept.ID,
-		Phone:    baseTenant.ContactPhone,
-		Password: password,
-		Gender:   _const.BASE_USER_GENDER_SECRET,
-		Status:   coreconst.STATUS_STATUS_ENABLE,
-		Remark:   "租户默认管理员",
+		TenantID:          baseTenant.ID,
+		UserName:          baseTenantAdminUserName,
+		UserCode:          baseTenantAdminUserName,
+		NickName:          baseTenantAdminNickName,
+		RoleID:            baseRole.ID,
+		DeptID:            baseDept.ID,
+		Phone:             baseTenant.ContactPhone,
+		Password:          password,
+		Gender:            _const.BASE_USER_GENDER_SECRET,
+		Status:            coreconst.STATUS_STATUS_DISABLE,
+		Remark:            "租户默认管理员，须由平台管理员设置密码后启用",
+		PasswordChangedAt: time.Now(),
+		PasswordHistory:   "[]",
 	}
 	err = c.baseUserRepo.Create(ctx, baseUser)
 	if err != nil {
@@ -391,11 +441,86 @@ func (c *BaseTenantCase) deleteTenantData(ctx context.Context, tenantIDs []int64
 	for _, item := range users {
 		userIDs = append(userIDs, item.ID)
 	}
+	if c.userToken != nil {
+		for _, userID := range userIDs {
+			if err = c.userToken.RemoveToken(userID); err != nil {
+				return errorsx.Internal("撤销租户用户登录令牌失败").WithCause(err)
+			}
+		}
+	}
+	if len(userIDs) > 0 {
+		thirdAccountQuery := c.baseThirdAccountRepo.Query(ctx).BaseThirdAccount
+		if err = c.baseThirdAccountRepo.Delete(ctx, repository.Where(thirdAccountQuery.UserID.In(userIDs...))); err != nil {
+			return err
+		}
+		mfaQuery := c.baseUserMFARepo.Query(ctx).BaseUserMFA
+		var mfas []*models.BaseUserMFA
+		mfas, err = c.baseUserMFARepo.List(ctx, repository.Where(mfaQuery.UserID.In(userIDs...)))
+		if err != nil {
+			return err
+		}
+		mfaIDs := make([]int64, 0, len(mfas))
+		for _, item := range mfas {
+			mfaIDs = append(mfaIDs, item.ID)
+		}
+		if len(mfaIDs) > 0 {
+			recoveryQuery := c.baseUserMFARecoveryRepo.Query(ctx).BaseUserMFARecovery
+			if err = c.baseUserMFARecoveryRepo.Delete(ctx, repository.Where(recoveryQuery.MFAID.In(mfaIDs...))); err != nil {
+				return err
+			}
+			totpQuery := c.baseUserMFATotpRepo.Query(ctx).BaseUserMFATotp
+			if err = c.baseUserMFATotpRepo.Delete(ctx, repository.Where(totpQuery.MFAID.In(mfaIDs...))); err != nil {
+				return err
+			}
+			webauthnQuery := c.baseUserMFAWebauthnRepo.Query(ctx).BaseUserMFAWebauthn
+			if err = c.baseUserMFAWebauthnRepo.Delete(ctx, repository.Where(webauthnQuery.MFAID.In(mfaIDs...))); err != nil {
+				return err
+			}
+			if err = c.baseUserMFARepo.DeleteByIDs(ctx, mfaIDs); err != nil {
+				return err
+			}
+		}
+	}
 	err = c.baseUserRepo.DeleteByIDs(ctx, userIDs)
 	if err != nil {
 		return err
 	}
+	oauthQuery := c.oauthClientRepo.Query(ctx).OauthClient
+	var oauthClients []*models.OauthClient
+	oauthClients, err = c.oauthClientRepo.List(ctx, repository.Where(oauthQuery.TenantID.In(tenantIDs...)))
+	if err != nil {
+		return err
+	}
+	if c.userToken != nil {
+		for _, client := range oauthClients {
+			if err = c.userToken.RemoveToken(-client.ID); err != nil {
+				return errorsx.Internal("撤销租户开放授权令牌失败").WithCause(err)
+			}
+		}
+	}
+	fileQuery := c.baseFileRepo.Query(ctx).BaseFile
+	if err = c.baseFileRepo.Delete(ctx, repository.Where(fileQuery.TenantID.In(tenantIDs...))); err != nil {
+		return err
+	}
+	if err = c.oauthClientRepo.Delete(ctx, repository.Where(oauthQuery.TenantID.In(tenantIDs...))); err != nil {
+		return err
+	}
 
+	deliveryQuery := c.baseMessageDeliveryRepo.Query(ctx).BaseMessageDelivery
+	err = c.baseMessageDeliveryRepo.Delete(ctx, repository.Where(deliveryQuery.TenantID.In(tenantIDs...)))
+	if err != nil {
+		return err
+	}
+	dispatchQuery := c.baseMessageDispatchRepo.Query(ctx).BaseMessageDispatch
+	err = c.baseMessageDispatchRepo.Delete(ctx, repository.Where(dispatchQuery.TenantID.In(tenantIDs...)))
+	if err != nil {
+		return err
+	}
+	messageQuery := c.baseMessageRepo.Query(ctx).BaseMessage
+	err = c.baseMessageRepo.Delete(ctx, repository.Where(messageQuery.TenantID.In(tenantIDs...)))
+	if err != nil {
+		return err
+	}
 	roleQuery := c.baseRoleRepo.Query(ctx).BaseRole
 	roleOpts := make([]repository.QueryOption, 0, 1)
 	roleOpts = append(roleOpts, repository.Where(roleQuery.TenantID.In(tenantIDs...)))

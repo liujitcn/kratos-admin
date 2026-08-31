@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/base"
+	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-core/errorsx"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 
 	"github.com/go-kratos/kratos/v3/log"
 )

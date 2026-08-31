@@ -1,7 +1,7 @@
 {
   "name": "@liujitcn/kratos-admin-core",
   "private": false,
-  "version": "0.0.29",
+  "version": "0.0.30",
   "type": "module",
   "description": "kratos-admin frontend runtime and base modules",
   "author": {
@@ -49,6 +49,7 @@
     "nprogress": "^0.2.0",
     "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",
+    "qrcode-generator": "^2.0.4",
     "qs": "^6.12.1",
     "rollup-plugin-visualizer": "^7.0.1",
     "screenfull": "^6.0.2",
@@ -110,6 +111,18 @@
       "types": "./dist/package/declarations/src/components/Dialog/ProDialog.vue.d.ts",
       "default": "./dist/package/src/components/Dialog/ProDialog.vue"
     },
+    "./components/Dialog/PasswordVerifyDialog.vue": {
+      "types": "./dist/package/declarations/src/components/Dialog/PasswordVerifyDialog.vue.d.ts",
+      "default": "./dist/package/src/components/Dialog/PasswordVerifyDialog.vue"
+    },
+    "./components/Mfa/MfaSetupPanel.vue": {
+      "types": "./dist/package/declarations/src/components/Mfa/MfaSetupPanel.vue.d.ts",
+      "default": "./dist/package/src/components/Mfa/MfaSetupPanel.vue"
+    },
+    "./components/Mfa/MfaRecoveryCodesDialog.vue": {
+      "types": "./dist/package/declarations/src/components/Mfa/MfaRecoveryCodesDialog.vue.d.ts",
+      "default": "./dist/package/src/components/Mfa/MfaRecoveryCodesDialog.vue"
+    },
     "./components/Dict/DictLabel.vue": {
       "types": "./dist/package/declarations/src/components/Dict/DictLabel.vue.d.ts",
       "default": "./dist/package/src/components/Dict/DictLabel.vue"
@@ -117,6 +130,14 @@
     "./components/MarkdownPreview/index.vue": {
       "types": "./dist/package/declarations/src/components/MarkdownPreview/index.vue.d.ts",
       "default": "./dist/package/src/components/MarkdownPreview/index.vue"
+    },
+    "./components/ECharts/index.vue": {
+      "types": "./dist/package/declarations/src/components/ECharts/index.vue.d.ts",
+      "default": "./dist/package/src/components/ECharts/index.vue"
+    },
+    "./components/RichTextPreview/index.vue": {
+      "types": "./dist/package/declarations/src/components/RichTextPreview/index.vue.d.ts",
+      "default": "./dist/package/src/components/RichTextPreview/index.vue"
     },
     "./components/PasswordStrength/index.vue": {
       "types": "./dist/package/declarations/src/components/PasswordStrength/index.vue.d.ts",

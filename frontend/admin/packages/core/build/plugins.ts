@@ -13,6 +13,7 @@ import viteCompression from "vite-plugin-compression";
 import vueSetupExtend from "unplugin-vue-setup-extend-plus/vite";
 import NextDevTools from "vite-plugin-vue-devtools";
 import { codeInspectorPlugin } from "code-inspector-plugin";
+import autoImports from "./auto-imports.json";
 
 /**
  * Vite 插件扩展配置。
@@ -45,64 +46,7 @@ export const createVitePlugins = (viteEnv: ViteEnv, options: VitePluginOptions =
       include: sourcePatterns,
       exclude: sourcePatterns ? [/[/\\]\.git[/\\]/] : undefined,
       resolvers: [ElementPlusResolver()],
-      imports: [
-        "vue",
-        "vue-router",
-        {
-          "element-plus": [
-            "ElConfigProvider",
-            "ElLoading",
-            "ElMessage",
-            "ElMessageBox",
-            "ElNotification",
-            "ElTable",
-            "ElTree",
-            "formContextKey",
-            "formItemContextKey"
-          ]
-        },
-        {
-          "@element-plus/icons-vue": [
-            "ArrowDown",
-            "ArrowRight",
-            "ArrowUp",
-            "Camera",
-            "CircleCheck",
-            "CircleClose",
-            "CirclePlus",
-            "Delete",
-            "Document",
-            "Download",
-            "Edit",
-            "EditPen",
-            "Expand",
-            "Female",
-            "Fold",
-            "Goods",
-            "InfoFilled",
-            "List",
-            "Male",
-            "Moon",
-            "Operation",
-            "Phone",
-            "Plus",
-            "Position",
-            "QuestionFilled",
-            "Refresh",
-            "RefreshLeft",
-            "Search",
-            "Sunny",
-            "Switch",
-            "Tickets",
-            "Timer",
-            "User",
-            "UserFilled",
-            "Van",
-            "View",
-            "Wallet"
-          ]
-        }
-      ]
+      imports: ["vue", "vue-router", autoImports]
     }),
     // 按需解析 Element Plus 组件，避免主入口全量安装 ElementPlus。
     Components({

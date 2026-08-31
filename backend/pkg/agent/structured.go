@@ -4,7 +4,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/message"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/structured"
-	"github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 )
 
 // ChatClient 是结构化任务使用的聊天模型客户端。

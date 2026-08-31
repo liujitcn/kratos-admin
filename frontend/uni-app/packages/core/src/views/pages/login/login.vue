@@ -1,14 +1,19 @@
 <script setup lang="ts">
 import { useSettingStore, useUserStore } from '../../../stores'
 import type { LoginRequest } from '../../../rpc/base/v1/login'
+import { LoginStatus, type LoginResponse } from '../../../rpc/base/v1/login'
 import { onLoad } from '@dcloudio/uni-app'
-import { computed, defineAsyncComponent, reactive, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, nextTick, reactive, ref, watch } from 'vue'
 import { defLoginService } from '../../../api/base/login'
+import { defMfaService } from '../../../api/base/mfa'
 import defaultLogo from '../../../static/images/logo_icon.png'
 import { homeTabPage } from '../../../utils/navigation'
 import { PASSWORD_CRYPTO_SCENE, encryptPassword } from '../../../utils/passwordCrypto'
+import { createWebAuthnCredential, getWebAuthnAssertion } from '../../../utils/webauthn'
 import { navigateAppRoute } from '../../../navigation'
 import { getLanguageOptions, useI18n, type SupportedLocale } from '../../../locales'
+import MfaRecoveryCodesDialog from '../../../components/MfaRecoveryCodesDialog.vue'
+import MfaSetupPanel from '../../../components/MfaSetupPanel.vue'
 
 // go-captcha-uni 仅在 H5 端使用，小程序端不支持 defineAsyncComponent，需按平台裁剪。
 // #ifdef H5
@@ -43,6 +48,21 @@ const showTenantCode = computed(() => settingStore.getData('showTenantCode') !==
 const isAgreePrivacy = ref(false)
 const isAgreePrivacyShakeY = ref(false)
 const loading = ref(false)
+const mfaVisible = ref(false)
+const mfaLoading = ref(false)
+const mfaChallengeId = ref('')
+const mfaCode = ref('')
+const mfaRecoveryCode = ref('')
+const mfaMethod = ref('totp')
+const mfaWebAuthnOptionsJson = ref('')
+const mfaSetupVisible = ref(false)
+const mfaSetupTicket = ref('')
+const mfaSetupUri = ref('')
+const mfaSetupCode = ref('')
+const mfaSetupMethod = ref('totp')
+const mfaSetupWebAuthnOptionsJson = ref('')
+const mfaRecoveryCodesVisible = ref(false)
+const mfaRecoveryCodes = ref<string[]>([])
 
 watch(locale, () => void uni.setNavigationBarTitle({ title: t('common.action.login') }), {
   immediate: true,
@@ -75,6 +95,23 @@ const onOpenServiceProtocol = () => {
 // 打开隐私协议
 const onOpenPrivacyContract = () => {
   navigateAppRoute('app/protocol/privacy')
+}
+
+/** 提取请求失败时后端返回的可展示消息。 */
+const getWechatErrorMessage = (error: unknown, fallback: string) => {
+  if (error instanceof Error && error.message) {
+    return error.message
+  }
+  if (!error || typeof error !== 'object') {
+    return fallback
+  }
+  const response = error as {
+    data?: {
+      message?: string
+      error?: { message?: string }
+    }
+  }
+  return response.data?.message || response.data?.error?.message || fallback
 }
 
 // #ifdef MP-WEIXIN
@@ -185,10 +222,13 @@ const wxLogin = async () => {
       void refreshMiniCaptcha()
       return
     }
-    await loginSuccess()
+    if (await handleLoginResponse(session)) await loginSuccess()
   } catch (error) {
     if (!isWechatUnboundError(error)) {
-      await uni.showToast({ icon: 'none', title: t('core.login.wechat_failed') })
+      await uni.showToast({
+        icon: 'none',
+        title: getWechatErrorMessage(error, t('core.login.wechat_failed')),
+      })
       return
     }
     miniBinding.value = true
@@ -221,7 +261,7 @@ const bindMiniAccount = async () => {
       PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_LOGIN,
     )
     const code = (await wx.login()).code
-    await userStore.bindOauthSession({
+    const response = await userStore.bindOauthSession({
       provider: wechatMiniProvider,
       code,
       tenant_code: showTenantCode.value ? miniForm.tenant_code : '0000',
@@ -230,17 +270,134 @@ const bindMiniAccount = async () => {
       captcha_code: miniForm.captcha_code,
       captcha_id: miniForm.captcha_id,
     })
-    await loginSuccess()
+    if (await handleLoginResponse(response)) await loginSuccess()
   } catch (error) {
     await refreshMiniCaptcha()
-    if (error instanceof Error && error.message) {
-      await uni.showToast({ icon: 'none', title: error.message })
-    }
+    await uni.showToast({
+      icon: 'none',
+      title: getWechatErrorMessage(error, t('core.login.login_failed')),
+    })
   } finally {
     loading.value = false
   }
 }
 // #endif
+
+// 处理登录接口返回的 MFA 状态。
+const handleLoginResponse = async (response: LoginResponse) => {
+  if (response.status === LoginStatus.LOGIN_STATUS_MFA_REQUIRED) {
+    mfaChallengeId.value = response.mfa_challenge_id
+    mfaCode.value = ''
+    mfaRecoveryCode.value = ''
+    mfaMethod.value = response.mfa_method || 'totp'
+    mfaWebAuthnOptionsJson.value = response.mfa_webauthn_options_json || ''
+    mfaVisible.value = true
+    return false
+  }
+  if (response.status === LoginStatus.LOGIN_STATUS_MFA_ENROLLMENT_REQUIRED) {
+    mfaSetupTicket.value = response.mfa_setup_ticket
+    mfaSetupMethod.value = response.mfa_method || 'totp'
+    await beginMfaSetup(response.mfa_setup_ticket)
+    return false
+  }
+  return true
+}
+
+// 校验登录阶段 MFA。
+const verifyMfaLogin = async () => {
+  if (
+    mfaLoading.value ||
+    !mfaChallengeId.value ||
+    (mfaMethod.value !== 'webauthn' && !mfaCode.value && !mfaRecoveryCode.value)
+  )
+    return
+  mfaLoading.value = true
+  try {
+    const webauthnResponseJson =
+      mfaMethod.value === 'webauthn' && !mfaRecoveryCode.value
+        ? await getWebAuthnAssertion(mfaWebAuthnOptionsJson.value)
+        : ''
+    const response = await userStore.verifyMfa({
+      challenge_id: mfaChallengeId.value,
+      code: mfaRecoveryCode.value ? '' : mfaCode.value,
+      recovery_code: mfaRecoveryCode.value,
+      webauthn_response_json: webauthnResponseJson,
+    })
+    mfaVisible.value = false
+    if (await handleLoginResponse(response)) await loginSuccess()
+  } catch (error) {
+    await uni.showToast({
+      icon: 'none',
+      title: getWechatErrorMessage(error, t('core.login.login_failed')),
+    })
+  } finally {
+    mfaLoading.value = false
+  }
+}
+
+// 开始强制绑定 MFA。
+const beginMfaSetup = async (ticket: string) => {
+  mfaLoading.value = true
+  try {
+    const response = await defMfaService.BeginMfaEnrollment({ setup_ticket: ticket })
+    mfaSetupTicket.value = response.setup_ticket
+    mfaSetupUri.value = response.otpauth_uri
+    mfaSetupCode.value = ''
+    mfaSetupMethod.value = response.method || 'totp'
+    mfaSetupWebAuthnOptionsJson.value = response.webauthn_options_json || ''
+    mfaSetupVisible.value = true
+  } finally {
+    mfaLoading.value = false
+  }
+}
+
+// 确认强制绑定 MFA。
+const confirmMfaSetup = async () => {
+  if (
+    mfaLoading.value ||
+    !mfaSetupTicket.value ||
+    (mfaSetupMethod.value !== 'webauthn' && !mfaSetupCode.value)
+  )
+    return
+  mfaLoading.value = true
+  try {
+    const webauthnResponseJson =
+      mfaSetupMethod.value === 'webauthn'
+        ? await createWebAuthnCredential(mfaSetupWebAuthnOptionsJson.value)
+        : ''
+    const response = await defMfaService.ConfirmMfaEnrollment({
+      setup_ticket: mfaSetupTicket.value,
+      code: mfaSetupCode.value,
+      webauthn_response_json: webauthnResponseJson,
+    })
+    mfaSetupVisible.value = false
+    mfaRecoveryCodes.value = response.recovery_codes
+    mfaRecoveryCodesVisible.value = true
+  } catch (error) {
+    await uni.showToast({
+      icon: 'none',
+      title: getWechatErrorMessage(error, t('core.login.login_failed')),
+    })
+  } finally {
+    mfaLoading.value = false
+  }
+}
+
+/** 确认已保存恢复码，刷新验证码并重新进入登录流程。 */
+const finishMfaEnrollment = async () => {
+  mfaRecoveryCodesVisible.value = false
+  await nextTick()
+  mfaRecoveryCodes.value = []
+  await uni.showToast({ icon: 'none', title: t('core.login.mfa_setup_success') })
+  // #ifdef H5
+  await loadPageCaptcha()
+  // #endif
+  // 小程序没有可复用的账号密码会话，绑定完成后重新走微信登录以进入 MFA 挑战。
+  // #ifdef MP-WEIXIN
+  miniBinding.value = false
+  await wxLogin()
+  // #endif
+}
 
 // #ifdef H5
 const captcha_base64 = ref() // 验证码图片Base64字符串
@@ -504,6 +661,7 @@ const verifyCaptchaToken = async (captchaCode: string) => {
   })
   return result.captcha_token
 }
+
 // 执行真正的账号登录流程。
 const submitLogin = async (captchaCode: string) => {
   const password = await encryptPassword(
@@ -540,8 +698,8 @@ const verifyBehaviorCaptcha = async (captchaCode: string, reset: () => void) => 
   try {
     const captchaToken = await verifyCaptchaToken(captchaCode)
     behaviorDialogVisible.value = false
-    await submitLogin(captchaToken)
-    await loginSuccess()
+    const response = await submitLogin(captchaToken)
+    if (await handleLoginResponse(response)) await loginSuccess()
   } catch {
     reset()
     await refreshCaptcha()
@@ -586,8 +744,8 @@ const onSubmit = async () => {
     return
   }
   try {
-    await submitLogin(form.value.captcha_code)
-    await loginSuccess()
+    const response = await submitLogin(form.value.captcha_code)
+    if (await handleLoginResponse(response)) await loginSuccess()
   } catch {
     form.value.captcha_code = ''
     await refreshCaptcha()
@@ -849,6 +1007,65 @@ onLoad(() => {
           }}</text>
         </view>
       </view>
+      <view v-if="mfaVisible" class="mfa-mask">
+        <view class="mfa-panel">
+          <text class="mfa-title">{{ t('core.login.mfa_title') }}</text>
+          <input
+            v-if="mfaMethod !== 'webauthn'"
+            v-model="mfaCode"
+            class="login-input"
+            type="number"
+            maxlength="8"
+            :placeholder="t('core.login.mfa_code')"
+          />
+          <input
+            v-model="mfaRecoveryCode"
+            class="login-input"
+            :placeholder="t('core.login.mfa_recovery_code')"
+          />
+          <button
+            class="login-button login-button-primary"
+            :loading="mfaLoading"
+            @tap="verifyMfaLogin"
+          >
+            {{
+              mfaMethod === 'webauthn' && !mfaRecoveryCode
+                ? t('core.login.mfa_webauthn_action')
+                : t('common.action.confirm')
+            }}
+          </button>
+        </view>
+      </view>
+      <view v-if="mfaSetupVisible" class="mfa-mask">
+        <view class="mfa-panel">
+          <text class="mfa-title">{{ t('core.login.mfa_setup_title') }}</text>
+          <MfaSetupPanel :uri="mfaSetupUri" />
+          <input
+            v-if="mfaSetupMethod !== 'webauthn'"
+            v-model="mfaSetupCode"
+            class="login-input"
+            type="number"
+            maxlength="8"
+            :placeholder="t('core.login.mfa_code')"
+          />
+          <button
+            class="login-button login-button-primary"
+            :loading="mfaLoading"
+            @tap="confirmMfaSetup"
+          >
+            {{
+              mfaSetupMethod === 'webauthn'
+                ? t('core.login.mfa_webauthn_action')
+                : t('common.action.confirm')
+            }}
+          </button>
+        </view>
+      </view>
+      <MfaRecoveryCodesDialog
+        v-model="mfaRecoveryCodesVisible"
+        :codes="mfaRecoveryCodes"
+        @confirm="finishMfaEnrollment"
+      />
     </view>
   </view>
 </template>
@@ -1025,6 +1242,70 @@ onLoad(() => {
       height: 60rpx;
     }
   }
+}
+.mfa-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx;
+  background: rgba(15, 23, 42, 0.46);
+}
+.mfa-panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 620rpx;
+  padding: 36rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  box-sizing: border-box;
+}
+.mfa-title {
+  margin-bottom: 22rpx;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #172a35;
+}
+
+.mfa-panel .login-input {
+  width: 100%;
+  height: 88rpx;
+  margin-bottom: 20rpx;
+  padding: 0 30rpx;
+  color: #1f2937;
+  font-size: 28rpx;
+  background: #f9fbfa;
+  border: 1px solid #e5e7eb;
+  border-radius: 24rpx;
+  box-sizing: border-box;
+}
+
+.mfa-panel .login-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 88rpx;
+  margin-top: 12rpx;
+  padding: 0;
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 500;
+  background: transparent;
+  border: 0;
+  border-radius: 24rpx;
+  box-shadow: 0 18rpx 36rpx rgba(40, 187, 156, 0.24);
+}
+
+.mfa-panel .login-button::after {
+  border: 0;
+}
+
+.mfa-panel .login-button-primary {
+  background: linear-gradient(135deg, #34c8aa 0%, #28bb9c 100%);
 }
 
 .login-behavior-mask {

@@ -25,6 +25,10 @@
             <el-icon v-if="action.icon"><component :is="action.icon" /></el-icon>
             <span>{{ action.labelKey ? t(action.labelKey) : action.label }}</span>
           </button>
+          <button class="action-btn action-btn--lock" type="button" @click.stop="lockScreen">
+            <el-icon><Lock /></el-icon>
+            <span>{{ t("core.layout.lock_screen") }}</span>
+          </button>
           <button class="action-btn action-btn--danger" type="button" @click="logout">
             <el-icon><SwitchButton /></el-icon>
             <span>{{ t("common.action.logout") }}</span>
@@ -41,16 +45,17 @@ import { LOGIN_URL } from "@/config";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/stores/modules/user";
 import { useAuthStore } from "@/stores/modules/auth";
-import { ElMessageBox, ElMessage } from "element-plus";
 import type { DropdownInstance } from "element-plus";
 import defaultAvatar from "@/assets/images/avatar.png";
 import { navigateTo } from "@/utils/router";
 import { getAdminUserMenuActions } from "@/modules";
 import { useLocaleStore } from "@/locales";
+import { useLockScreenStore } from "@/stores/modules/lockScreen";
 
 const router = useRouter();
 const userStore = useUserStore();
 const authStore = useAuthStore();
+const lockScreenStore = useLockScreenStore();
 const userMenuActions = getAdminUserMenuActions();
 const dropdownRef = ref<DropdownInstance>();
 const { t } = useLocaleStore();
@@ -111,6 +116,12 @@ const handleAvatarError = () => {
 const handleUserMenuAction = async (path: string) => {
   dropdownRef.value?.handleClose();
   await navigateTo(router, path);
+};
+
+/** 打开锁屏密码设置界面并关闭头像菜单。 */
+const lockScreen = () => {
+  dropdownRef.value?.handleClose();
+  lockScreenStore.openSetup();
 };
 </script>
 
@@ -192,7 +203,7 @@ const handleUserMenuAction = async (path: string) => {
   height: 38px;
   cursor: pointer;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--admin-page-radius);
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
@@ -216,6 +227,14 @@ const handleUserMenuAction = async (path: string) => {
     &:hover {
       background: rgb(220 38 38 / 12%);
       box-shadow: 0 8px 18px rgb(220 38 38 / 14%);
+    }
+  }
+  &--lock {
+    color: var(--el-text-color-regular);
+    background: var(--el-fill-color-light);
+    &:hover {
+      background: var(--el-fill-color);
+      box-shadow: 0 8px 18px rgb(15 23 42 / 10%);
     }
   }
 }

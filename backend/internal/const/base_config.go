@@ -12,6 +12,10 @@ const (
 	BASE_CONFIG_CACHE_EXPIRE = 100 * 365 * 24 * time.Hour
 	// BASE_CONFIG_KEY_OAUTH_AUTO_REGISTER 表示微信未绑定时是否自动注册用户。
 	BASE_CONFIG_KEY_OAUTH_AUTO_REGISTER = "oauthAutoRegister"
+	// BASE_CONFIG_KEY_SECURITY_MFA_POLICY 表示全局多因素认证策略。
+	BASE_CONFIG_KEY_SECURITY_MFA_POLICY = "securityMfaPolicy"
+	// BASE_CONFIG_KEY_SECURITY_MFA_METHOD 表示全局多因素认证方式。
+	BASE_CONFIG_KEY_SECURITY_MFA_METHOD = "securityMfaMethod"
 )
 
 // BaseConfigCacheKey 生成指定站点的配置缓存键。

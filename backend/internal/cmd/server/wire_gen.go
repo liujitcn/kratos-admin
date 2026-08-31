@@ -10,6 +10,7 @@ import (
 	"github.com/go-kratos/kratos/v3"
 	"github.com/liujitcn/kratos-admin/backend"
 	kratoscore "github.com/liujitcn/kratos-core"
+	"github.com/liujitcn/kratos-core/audit"
 	biz2 "github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/config"
 	"github.com/liujitcn/kratos-core/data"
@@ -187,8 +188,32 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	baseCase, cleanup4 := biz2.NewBaseCase(ctx, pprofPprof, cacheCache, queueQueue, ossOSS, translatorTranslator, v2)
 	baseJobRepository := data.NewBaseJobRepository(dataData)
-	adminTasks, cleanup5, err := backend.NewTasks(v2, baseCase)
+	sseRegistry := sse.NewRegistry()
+	streamIDResolver := sse.NewStreamResolver(sseRegistry, authenticator, userToken)
+	adminStreams, cleanup5, err := backend.NewStreams(v2, baseCase, i18nI18n)
 	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	streams := provideStreams(adminStreams)
+	sseServer, cleanup6, err := sse.NewServer(ctx, streamIDResolver, streams, sseRegistry)
+	if err != nil {
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	sseSSE, cleanup7 := sse.NewSSE(authenticator, userToken, sseRegistry, sseServer)
+	adminTasks, cleanup8, err := backend.NewTasks(v2, baseCase, sseSSE)
+	if err != nil {
+		cleanup7()
+		cleanup6()
+		cleanup5()
 		cleanup4()
 		cleanup3()
 		cleanup2()
@@ -198,6 +223,9 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	tasks := provideTasks(adminTasks)
 	jobRegistry, err := job.NewRegistry(tasks)
 	if err != nil {
+		cleanup8()
+		cleanup7()
+		cleanup6()
 		cleanup5()
 		cleanup4()
 		cleanup3()
@@ -207,29 +235,6 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	scheduler := job.NewScheduler(baseJobRepository, jobRegistry)
 	jobJob := job.NewJob(scheduler)
-	sseRegistry := sse.NewRegistry()
-	streamIDResolver := sse.NewStreamResolver(sseRegistry, authenticator, userToken)
-	adminStreams, cleanup6, err := backend.NewStreams(v2, baseCase, i18nI18n)
-	if err != nil {
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	streams := provideStreams(adminStreams)
-	sseServer, cleanup7, err := sse.NewServer(ctx, streamIDResolver, streams, sseRegistry)
-	if err != nil {
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	sseSSE, cleanup8 := sse.NewSSE(authenticator, userToken, sseRegistry, sseServer)
 	moduleDocs := module.NewDocsFromResources(resources)
 	docsRegistry, err := docs.NewRegistry(moduleDocs)
 	if err != nil {
@@ -245,7 +250,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	docsDocs := docs.NewDocs(docsRegistry)
 	openapiOpenAPI := openapi.NewOpenAPI(registry)
-	adminModules, cleanup9, err := backend.NewModules(migrationMigration, configv1Bootstrap, v2, baseCase, engine, userToken, jobJob, sseSSE, docsDocs, i18nI18n, openapiOpenAPI)
+	adminModules, cleanup9, err := backend.NewModules(migrationMigration, configv1Bootstrap, v2, baseCase, engine, authenticator, userToken, jobJob, sseSSE, docsDocs, i18nI18n, openapiOpenAPI)
 	if err != nil {
 		cleanup8()
 		cleanup7()
@@ -301,11 +306,29 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	baseJobLogRepository := data.NewBaseJobLogRepository(dataData)
-	baseLogRepository := data.NewBaseLogRepository(dataData)
-	adminConsumers := backend.NewQueueConsumers()
-	consumers := provideConsumers(adminConsumers)
-	queueServer, err := queue2.NewServer(queueQueue, baseJobLogRepository, baseLogRepository, consumers)
+	baseAPILogRepository := data.NewBaseAPILogRepository(dataData)
+	basePolicyEvaluationLogRepository := data.NewBasePolicyEvaluationLogRepository(dataData)
+	pipeline, cleanup11 := audit.NewPipeline(queueQueue, baseAPILogRepository, basePolicyEvaluationLogRepository)
+	adminConsumers, cleanup12, err := backend.NewQueueConsumers(v2, baseCase, sseSSE)
 	if err != nil {
+		cleanup11()
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	consumers := provideConsumers(adminConsumers)
+	queueServer, err := queue2.NewServer(queueQueue, baseJobLogRepository, pipeline, consumers)
+	if err != nil {
+		cleanup12()
+		cleanup11()
 		cleanup10()
 		cleanup9()
 		cleanup8()
@@ -321,6 +344,8 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	jobServer := job.NewServer(scheduler)
 	app := kratoscore.NewApp(ctx, syncResult, transportServer, grpcServer, mcpServer, sseServer, queueServer, jobServer)
 	return app, func() {
+		cleanup12()
+		cleanup11()
 		cleanup10()
 		cleanup9()
 		cleanup8()

@@ -552,8 +552,24 @@ function appendPage(manifest: AppManifest, route: string): void {
   if (!subpackage.pages.includes(subRoute)) subpackage.pages.push(subRoute)
 }
 
+/** 将动态页面配置安全编码为 TypeScript 单引号字符串。 */
+function typescriptStringLiteral(value: string): string {
+  return `'${value
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/\r/g, '\\r')
+    .replace(/\n/g, '\\n')
+    .replace(/\t/g, '\\t')}'`
+}
+
+/** 读取页面样式中的字符串配置，非法类型回退默认值。 */
+function pageStyleString(style: Record<string, unknown> | undefined, key: string, fallback: string): string {
+  const value = style?.[key]
+  return typeof value === 'string' ? value : fallback
+}
+
 function createPageWrapper(page: PageEntry): string {
-  return `import KratosPage from ${JSON.stringify(`${page.source}.tsx`)}
+  return `import KratosPage from ${typescriptStringLiteral(`${page.source}.tsx`)}
 import { KratosPageFrame } from '@liujitcn/kratos-taro-app-core/components/KratosPageFrame'
 import { KratosTabBar } from '@liujitcn/kratos-taro-app-core/components/KratosTabBar'
 
@@ -562,14 +578,14 @@ export default function KratosPageWrapper() {
   return (
     <>
       <KratosPageFrame
-        navigationStyle=${JSON.stringify(page.style?.navigationStyle ?? 'default')}
-        navigationBarTitleText=${JSON.stringify(page.style?.navigationBarTitleText ?? '')}
-        navigationBarBackgroundColor=${JSON.stringify(page.style?.navigationBarBackgroundColor ?? '#f8f8f8')}
-        navigationBarTextStyle=${JSON.stringify(page.style?.navigationBarTextStyle ?? 'black')}
+        navigationStyle=${typescriptStringLiteral(pageStyleString(page.style, 'navigationStyle', 'default'))}
+        navigationBarTitleText=${typescriptStringLiteral(pageStyleString(page.style, 'navigationBarTitleText', ''))}
+        navigationBarBackgroundColor=${typescriptStringLiteral(pageStyleString(page.style, 'navigationBarBackgroundColor', '#f8f8f8'))}
+        navigationBarTextStyle=${typescriptStringLiteral(pageStyleString(page.style, 'navigationBarTextStyle', 'black'))}
       >
         <KratosPage />
       </KratosPageFrame>
-      <KratosTabBar route=${JSON.stringify(page.route)} />
+      <KratosTabBar route=${typescriptStringLiteral(page.route)} />
     </>
   )
 }

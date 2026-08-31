@@ -1,4 +1,5 @@
 import type { FormItemRule } from "element-plus";
+import type { Component } from "vue";
 
 /** ProForm 支持的字段组件类型。 */
 export type ProFormComponentType =
@@ -6,6 +7,7 @@ export type ProFormComponentType =
   | "password"
   | "textarea"
   | "input-number"
+  | "color-picker"
   | "segmented"
   | "switch"
   | "checkbox"
@@ -31,6 +33,8 @@ export interface ProFormOption {
   label: string;
   value: string | number | boolean;
   disabled?: boolean;
+  /** 下拉项前置图标。 */
+  icon?: Component;
   children?: ProFormOption[];
   /** Element Plus 懒加载树节点是否为叶子节点。 */
   isLeaf?: boolean;

@@ -13,6 +13,8 @@
 
   <el-input-number v-else-if="field.component === 'input-number'" v-model="fieldValue" v-bind="fieldProps" />
 
+  <el-color-picker v-else-if="field.component === 'color-picker'" v-model="fieldValue" v-bind="fieldProps" />
+
   <el-segmented v-else-if="field.component === 'segmented'" v-model="fieldValue" :options="fieldOptions" v-bind="fieldProps" />
 
   <el-checkbox v-else-if="field.component === 'checkbox'" v-model="fieldValue" v-bind="fieldProps">
@@ -28,7 +30,12 @@
       :label="option.label"
       :value="option.value"
       :disabled="option.disabled"
-    />
+    >
+      <span class="pro-form-option">
+        <component :is="option.icon" v-if="option.icon" />
+        <span>{{ option.label }}</span>
+      </span>
+    </el-option>
   </el-select>
 
   <el-radio-group v-else-if="field.component === 'radio-group'" v-model="fieldValue" v-bind="fieldProps">
@@ -189,3 +196,11 @@ const multipleKvValue = computed({
   set: value => setFieldValue(value)
 });
 </script>
+
+<style scoped lang="scss">
+.pro-form-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+</style>

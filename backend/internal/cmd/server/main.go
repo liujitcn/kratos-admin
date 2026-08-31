@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 
-	"github.com/liujitcn/kratos-admin/backend/internal/const"
-	"github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
+	coreconst "github.com/liujitcn/kratos-core/const"
+	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 
 	"github.com/liujitcn/kratos-kit/bootstrap"
 
@@ -49,6 +50,8 @@ func main() {
 			Version: _const.Version,
 		},
 	)
+	// 文件服务和 Core 静态资源路由共用项目目录前缀。
+	coreconst.BASE_PATH = _const.Project
 	if err := bootstrap.RunApp(ctx, NewApp); err != nil {
 		panic(err)
 	}

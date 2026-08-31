@@ -81,11 +81,17 @@
   "system.profile.update_success": "Updated",
   "system.settings.ai_description": "Organize information, answer questions, and handle everyday tasks",
   "system.settings.ai_title": "AI Assistant",
-  "system.settings.authorization": "Authorization settings",
-  "system.settings.contact": "Contact us",
-  "system.settings.feedback": "Feedback",
   "system.settings.go_ask": "Ask now",
-  "system.settings.logout_confirm": "Log out now?",
-  "system.settings.logout_failed": "Logout failed",
-  "system.settings.title": "Settings"
+  "system.notification.title": "Message Center",
+  "system.notification.description": "View system notifications and business messages",
+  "system.notification.empty": "No messages",
+  "system.notification.action.view_all": "View all",
+  "system.notification.view.inbox": "All",
+  "system.notification.view.unread": "Unread",
+  "system.notification.view.archived": "Archived",
+  "system.notification.category_filter": "Category ID",
+  "system.notification.mark_all_read": "Mark all read",
+  "system.notification.action.archive": "Archive",
+  "system.notification.action.restore": "Restore",
+  "system.notification.action.delete": "Delete"
 }

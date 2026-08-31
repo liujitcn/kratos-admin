@@ -51,6 +51,24 @@ export interface AppNavigationState {
   tabBar: AppMenuNode[]
 }
 
+/** 移动端菜单未读 badge 状态。 */
+interface AppMenuBadgeState {
+  badges: Record<string, number>
+}
+
+/** 移动端菜单 badge 状态容器。 */
+export const useAppMenuBadges = create<AppMenuBadgeState>(() => ({ badges: {} }))
+
+/** 设置移动端菜单 badge 数量，供业务模块注册未读状态。 */
+export function setAppMenuBadge(viewKey: string, count: number): void {
+  useAppMenuBadges.setState((state) => {
+    const badges = { ...state.badges }
+    if (count > 0) badges[viewKey] = Math.min(Math.floor(count), 99)
+    else delete badges[viewKey]
+    return { badges }
+  })
+}
+
 const ANONYMOUS_CACHE_KEY = 'kratos-taro-app:navigation:anonymous'
 const AUTHENTICATED_CACHE_KEY = 'kratos-taro-app:navigation:authenticated'
 /** 固定移动端菜单根目录编号。 */
@@ -68,6 +86,18 @@ export const defaultAppMenus: AppMenu[] = [
     inTabBar: true,
     icon: 'HOME_DEFAULT',
     selectedIcon: 'HOME_SELECTED',
+  },
+  {
+    id: 9990904,
+    parentId: APP_MENU_ROOT_ID,
+    name: 'AppMessage',
+    path: 'app/message',
+    viewKey: 'MESSAGE_INBOX',
+    title: '',
+    access: 'AUTHENTICATED',
+    inTabBar: true,
+    icon: 'MESSAGE_DEFAULT',
+    selectedIcon: 'MESSAGE_SELECTED',
   },
   {
     id: 99909,
@@ -145,6 +175,7 @@ export const defaultAppMenus: AppMenu[] = [
 
 const defaultMenuTitleKeys: Record<string, string> = {
   AppHome: 'core.navigation.home',
+  AppMessage: 'core.navigation.message',
   AppMy: 'core.navigation.my',
   AppLogin: 'common.action.login',
   AppProtocol: 'core.navigation.protocol',
@@ -254,6 +285,26 @@ export function navigateAppRoute(
     return
   }
   void Taro.navigateTo({ url, fail: () => void Taro.reLaunch({ url }) })
+}
+
+/** 按稳定 viewKey 跳转，并将动作参数作为查询参数传递。 */
+export function navigateAppView(viewKey: string, params: Record<string, string> = {}): void {
+  const menu = useAppNavigation.getState().menus.find((item) => item.viewKey === viewKey)
+  if (!menu) {
+    launchAppStatus('NOT_FOUND')
+    return
+  }
+  const remaining = { ...params }
+  const path = menu.path.replace(/:([A-Za-z0-9_]+)/g, (placeholder, key: string) => {
+    if (!(key in remaining)) return placeholder
+    const value = remaining[key]
+    delete remaining[key]
+    return encodeURIComponent(value)
+  })
+  const query = Object.entries(remaining)
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+    .join('&')
+  navigateAppRoute(`${path}${query ? `?${query}` : ''}`)
 }
 
 /** 切换 tab 页面，优先复用已有页面，避免重建页面栈产生空白帧。 */

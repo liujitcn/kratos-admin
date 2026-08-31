@@ -1,54 +1,60 @@
 module github.com/liujitcn/kratos-admin/backend
 
-go 1.26.5
+replace github.com/liujitcn/kratos-core => ../../kratos-core
+
+go 1.27.0
 
 require (
-	github.com/cloudwego/eino v0.9.13
-	github.com/cloudwego/eino-ext/components/model/agenticopenai v0.2.1
+	github.com/cloudwego/eino v0.9.15
+	github.com/cloudwego/eino-ext/components/model/agenticopenai v0.2.2
 	github.com/go-kratos/kratos/v3 v3.0.0
 	github.com/go-sql-driver/mysql v1.10.0
+	github.com/go-webauthn/webauthn v0.17.4
 	github.com/google/jsonschema-go v0.4.3
-	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
-	github.com/liujitcn/go-utils v0.0.35
-	github.com/liujitcn/go-utils/crypto v0.0.12
-	github.com/liujitcn/go-utils/http v0.0.5
-	github.com/liujitcn/gorm-kit v0.0.32
+	github.com/liujitcn/go-utils v0.0.38
+	github.com/liujitcn/go-utils/crypto v0.0.13
+	github.com/liujitcn/go-utils/http v0.0.7
+	github.com/liujitcn/gorm-kit v0.0.33
 	github.com/liujitcn/kratos-admin/backend/api v0.0.3
-	github.com/liujitcn/kratos-core v0.0.14
-	github.com/liujitcn/kratos-core/api v0.0.2
-	github.com/liujitcn/kratos-kit/api v0.0.30
-	github.com/liujitcn/kratos-kit/auth v0.0.24
-	github.com/liujitcn/kratos-kit/auth/authn v0.0.22
-	github.com/liujitcn/kratos-kit/auth/authz v0.0.21
-	github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.18
-	github.com/liujitcn/kratos-kit/bootstrap v0.0.21
-	github.com/liujitcn/kratos-kit/cache v0.0.17
-	github.com/liujitcn/kratos-kit/captcha v0.0.19
-	github.com/liujitcn/kratos-kit/database/gorm v0.0.39
-	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.15
-	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.11
-	github.com/liujitcn/kratos-kit/logger/zap v0.0.16
-	github.com/liujitcn/kratos-kit/oauth v0.0.8
-	github.com/liujitcn/kratos-kit/oss v0.0.16
-	github.com/liujitcn/kratos-kit/pprof v0.0.13
-	github.com/liujitcn/kratos-kit/queue v0.0.26
-	github.com/liujitcn/kratos-kit/registry/consul v0.0.3
-	github.com/liujitcn/kratos-kit/translator v0.0.4
-	github.com/liujitcn/kratos-kit/transport/cron v0.0.16
-	github.com/liujitcn/kratos-kit/transport/mcp v0.0.13
-	github.com/liujitcn/kratos-kit/transport/sse v0.0.12
-	github.com/liujitcn/kratos-kit/utils v0.0.18
+	github.com/liujitcn/kratos-core v0.0.18
+	github.com/liujitcn/kratos-core/api v0.0.4
+	github.com/liujitcn/kratos-kit/api v0.0.32
+	github.com/liujitcn/kratos-kit/auth v0.0.25
+	github.com/liujitcn/kratos-kit/auth/authn v0.0.23
+	github.com/liujitcn/kratos-kit/auth/authz v0.0.22
+	github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.20
+	github.com/liujitcn/kratos-kit/bootstrap v0.0.23
+	github.com/liujitcn/kratos-kit/cache v0.0.19
+	github.com/liujitcn/kratos-kit/captcha v0.0.21
+	github.com/liujitcn/kratos-kit/database/gorm v0.0.40
+	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.17
+	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.13
+	github.com/liujitcn/kratos-kit/logger/zap v0.0.17
+	github.com/liujitcn/kratos-kit/oauth v0.0.10
+	github.com/liujitcn/kratos-kit/oss v0.0.17
+	github.com/liujitcn/kratos-kit/pprof v0.0.14
+	github.com/liujitcn/kratos-kit/queue v0.0.27
+	github.com/liujitcn/kratos-kit/registry/consul v0.0.5
+	github.com/liujitcn/kratos-kit/translator v0.0.5
+	github.com/liujitcn/kratos-kit/transport/cron v0.0.17
+	github.com/liujitcn/kratos-kit/transport/mcp v0.0.14
+	github.com/liujitcn/kratos-kit/transport/queue v0.0.3
+	github.com/liujitcn/kratos-kit/transport/sse v0.0.13
+	github.com/liujitcn/kratos-kit/utils v0.0.20
+	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/modelcontextprotocol/go-sdk v1.7.0
 	github.com/openai/openai-go/v3 v3.35.0
-	github.com/redis/go-redis/v9 v9.19.0
+	github.com/pquerna/otp v1.4.0
+	github.com/redis/go-redis/v9 v9.22.0
 	github.com/shirou/gopsutil/v4 v4.26.7
+	github.com/tjfoc/gmsm v1.4.1
 	golang.org/x/sys v0.47.0
 	golang.org/x/text v0.41.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20260807164820-c8921c73eeea
-	google.golang.org/grpc v1.83.0
+	google.golang.org/genproto/googleapis/api v0.0.0-20260819154853-08b0e4226688
+	google.golang.org/grpc v1.83.1
 	google.golang.org/protobuf v1.36.12
-	gorm.io/gen v0.3.27
+	gorm.io/gen v0.3.29
 	gorm.io/gorm v1.31.2
 	gorm.io/plugin/dbresolver v1.6.2
 	gorm.io/plugin/soft_delete v1.2.1
@@ -65,8 +71,8 @@ require (
 	cloud.google.com/go/longrunning v0.8.0 // indirect
 	cloud.google.com/go/translate v1.12.7 // indirect
 	filippo.io/edwards25519 v1.2.0 // indirect
-	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.17.0 // indirect
-	github.com/Azure/azure-sdk-for-go/sdk/internal v1.10.0 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.22.0 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/internal v1.12.0 // indirect
 	github.com/ClickHouse/ch-go v0.61.5 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.30.0 // indirect
 	github.com/alibabacloud-go/alibabacloud-gateway-spi v0.0.5 // indirect
@@ -83,28 +89,30 @@ require (
 	github.com/andybalholm/brotli v1.2.1 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
-	github.com/aws/aws-sdk-go-v2 v1.43.2 // indirect
+	github.com/aws/aws-sdk-go-v2 v1.43.4 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.15 // indirect
-	github.com/aws/aws-sdk-go-v2/config v1.32.33 // indirect
-	github.com/aws/aws-sdk-go-v2/credentials v1.19.32 // indirect
-	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.33 // indirect
+	github.com/aws/aws-sdk-go-v2/config v1.32.35 // indirect
+	github.com/aws/aws-sdk-go-v2/credentials v1.19.34 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.35 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.22.37 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.33 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.33 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/v4a v1.4.34 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.14 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.35 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.35 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/v4a v1.4.36 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.15 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.9.26 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.13.33 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.13.35 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.19.34 // indirect
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.106.2 // indirect
-	github.com/aws/aws-sdk-go-v2/service/signin v1.5.2 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sso v1.33.2 // indirect
-	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.38.2 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sts v1.45.2 // indirect
-	github.com/aws/smithy-go v1.27.5 // indirect
+	github.com/aws/aws-sdk-go-v2/service/signin v1.5.4 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sso v1.33.4 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.38.4 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sts v1.45.4 // indirect
+	github.com/aws/smithy-go v1.27.6 // indirect
+	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bmatcuk/doublestar/v4 v4.10.0 // indirect
+	github.com/boombuler/barcode v1.0.1-0.20190219062509-6c824513bacc // indirect
 	github.com/bsm/redislock v0.9.4 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/bytedance/gopkg v0.1.3 // indirect
@@ -127,6 +135,7 @@ require (
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
+	github.com/fxamacker/cbor/v2 v2.9.2 // indirect
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.7.1 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
@@ -135,16 +144,20 @@ require (
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-playground/form/v4 v4.3.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
+	github.com/go-webauthn/x v0.2.6 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/google/cel-go v0.30.0 // indirect
 	github.com/google/gnostic v0.7.1 // indirect
 	github.com/google/gnostic-models v0.7.0 // indirect
+	github.com/google/go-tpm v0.9.8 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
 	github.com/google/subcommands v1.2.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.12 // indirect
 	github.com/googleapis/gax-go/v2 v2.17.0 // indirect
 	github.com/goph/emperror v0.17.2 // indirect
+	github.com/gorilla/css v1.0.1 // indirect
 	github.com/gorilla/handlers v1.5.2 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674 // indirect
@@ -155,7 +168,7 @@ require (
 	github.com/hashicorp/consul/api v1.34.2 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
-	github.com/hashicorp/go-hclog v1.5.0 // indirect
+	github.com/hashicorp/go-hclog v1.6.3 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-rootcerts v1.0.2 // indirect
@@ -175,35 +188,33 @@ require (
 	github.com/klauspost/compress v1.18.6 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
 	github.com/klauspost/crc32 v1.3.0 // indirect
-	github.com/lithammer/shortuuid/v4 v4.2.0 // indirect
-	github.com/liujitcn/go-utils/geoip v0.0.4 // indirect
-	github.com/liujitcn/go-utils/translator v0.0.2 // indirect
-	github.com/liujitcn/go-utils/translator/alibaba v0.0.1 // indirect
-	github.com/liujitcn/go-utils/translator/baidu v0.0.2 // indirect
-	github.com/liujitcn/go-utils/translator/google v0.0.2 // indirect
-	github.com/liujitcn/go-utils/translator/volc v0.0.1 // indirect
-	github.com/liujitcn/kratos-kit v0.0.72 // indirect
-	github.com/liujitcn/kratos-kit/auth/authn/engine/jwt v0.0.17 // indirect
-	github.com/liujitcn/kratos-kit/auth/authn/middleware v0.0.18 // indirect
-	github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.17 // indirect
-	github.com/liujitcn/kratos-kit/broker v0.0.9 // indirect
-	github.com/liujitcn/kratos-kit/config v0.0.24 // indirect
-	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.17 // indirect
-	github.com/liujitcn/kratos-kit/locker v0.0.14 // indirect
-	github.com/liujitcn/kratos-kit/logger v0.0.29 // indirect
-	github.com/liujitcn/kratos-kit/oss/s3 v0.0.2 // indirect
-	github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.14 // indirect
-	github.com/liujitcn/kratos-kit/registry v0.0.21 // indirect
-	github.com/liujitcn/kratos-kit/server/grpc v0.0.1 // indirect
-	github.com/liujitcn/kratos-kit/server/http v0.0.2 // indirect
-	github.com/liujitcn/kratos-kit/server/mcp v0.0.1 // indirect
-	github.com/liujitcn/kratos-kit/server/sse v0.0.1 // indirect
-	github.com/liujitcn/kratos-kit/swagger-ui v0.0.14 // indirect
-	github.com/liujitcn/kratos-kit/tracer v0.0.15 // indirect
-	github.com/liujitcn/kratos-kit/tracing v0.0.10 // indirect
-	github.com/liujitcn/kratos-kit/transport v0.0.22 // indirect
-	github.com/liujitcn/kratos-kit/transport/keepalive v0.0.11 // indirect
-	github.com/liujitcn/kratos-kit/transport/queue v0.0.2 // indirect
+	github.com/liujitcn/go-utils/geoip v0.0.5 // indirect
+	github.com/liujitcn/go-utils/translator v0.0.4 // indirect
+	github.com/liujitcn/go-utils/translator/alibaba v0.0.3 // indirect
+	github.com/liujitcn/go-utils/translator/baidu v0.0.4 // indirect
+	github.com/liujitcn/go-utils/translator/google v0.0.4 // indirect
+	github.com/liujitcn/go-utils/translator/volc v0.0.2 // indirect
+	github.com/liujitcn/kratos-kit v0.0.75 // indirect
+	github.com/liujitcn/kratos-kit/auth/authn/engine/jwt v0.0.18 // indirect
+	github.com/liujitcn/kratos-kit/auth/authn/middleware v0.0.19 // indirect
+	github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.18 // indirect
+	github.com/liujitcn/kratos-kit/broker v0.0.10 // indirect
+	github.com/liujitcn/kratos-kit/config v0.0.25 // indirect
+	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.18 // indirect
+	github.com/liujitcn/kratos-kit/locker v0.0.15 // indirect
+	github.com/liujitcn/kratos-kit/logger v0.0.31 // indirect
+	github.com/liujitcn/kratos-kit/oss/s3 v0.0.3 // indirect
+	github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.15 // indirect
+	github.com/liujitcn/kratos-kit/registry v0.0.22 // indirect
+	github.com/liujitcn/kratos-kit/server/grpc v0.0.2 // indirect
+	github.com/liujitcn/kratos-kit/server/http v0.0.3 // indirect
+	github.com/liujitcn/kratos-kit/server/mcp v0.0.2 // indirect
+	github.com/liujitcn/kratos-kit/server/sse v0.0.2 // indirect
+	github.com/liujitcn/kratos-kit/swagger-ui v0.0.15 // indirect
+	github.com/liujitcn/kratos-kit/tracer v0.0.16 // indirect
+	github.com/liujitcn/kratos-kit/tracing v0.0.11 // indirect
+	github.com/liujitcn/kratos-kit/transport v0.0.23 // indirect
+	github.com/liujitcn/kratos-kit/transport/keepalive v0.0.12 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
@@ -220,7 +231,7 @@ require (
 	github.com/mojocn/base64Captcha v1.3.8 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/mvrilo/go-redoc v0.1.5 // indirect
-	github.com/nicksnyder/go-i18n/v2 v2.6.1 // indirect
+	github.com/nicksnyder/go-i18n/v2 v2.0.2 // indirect
 	github.com/nikolalohinski/gonja v1.5.3 // indirect
 	github.com/olekukonko/cat v0.0.0-20250911104152-50322a0618f6 // indirect
 	github.com/olekukonko/errors v1.2.0 // indirect
@@ -228,7 +239,7 @@ require (
 	github.com/olekukonko/tablewriter v1.1.4 // indirect
 	github.com/openzipkin/zipkin-go v0.4.3 // indirect
 	github.com/paulmach/orb v0.11.1 // indirect
-	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
+	github.com/pelletier/go-toml/v2 v2.0.9 // indirect
 	github.com/philhofer/fwd v1.2.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -244,17 +255,16 @@ require (
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/segmentio/encoding v0.5.4 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
-	github.com/sirupsen/logrus v1.9.4 // indirect
+	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/slongfield/pyfmt v0.0.0-20220222012616-ea85ff4c361f // indirect
 	github.com/spf13/cobra v1.10.2 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/swaggest/swgui v1.8.7 // indirect
-	github.com/tidwall/gjson v1.18.0 // indirect
+	github.com/tidwall/gjson v1.19.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
-	github.com/tinylib/msgp v1.6.1 // indirect
-	github.com/tjfoc/gmsm v1.4.1 // indirect
+	github.com/tinylib/msgp v1.6.4 // indirect
 	github.com/tklauser/go-sysconf v0.3.16 // indirect
 	github.com/tklauser/numcpus v0.11.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
@@ -263,6 +273,7 @@ require (
 	github.com/wenlng/go-captcha-assets v1.0.7 // indirect
 	github.com/wenlng/go-captcha/v2 v2.0.5 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
+	github.com/x448/float16 v0.8.4 // indirect
 	github.com/yargevad/filepathx v1.0.0 // indirect
 	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
@@ -297,7 +308,7 @@ require (
 	golang.org/x/tools v0.48.0 // indirect
 	google.golang.org/api v0.269.0 // indirect
 	google.golang.org/genproto v0.0.0-20260128011058-8636f8732409 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260729162451-8efbd57d26e0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260818201246-1b0934165a6f // indirect
 	gopkg.in/cenkalti/backoff.v1 v1.1.0 // indirect
 	gopkg.in/ini.v1 v1.67.1 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect

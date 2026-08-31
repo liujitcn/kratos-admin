@@ -30,13 +30,13 @@ AI 助手是管理端、uni-app 和 Taro 应用端共用的会话能力。三个
 flowchart LR
   API["AiMessageService"] --> Case["AiMessageCase"]
   Case --> Runtime["biz/base/ai.Runtime"]
-  Runtime --> ADK["internal/agent/adk"]
+  Runtime --> ADK["internal/biz/agent/adk"]
   ADK --> Model["Eino Agentic Model"]
   ADK --> Tools["按终端和权限筛选的工具"]
   Case --> DB[("ai_session / ai_message")]
 ```
 
-`internal/biz/base/ai` 负责业务协议、历史消息、附件、终端策略、固定流程和结果持久化；`internal/agent` 隔离 Eino 的模型、消息、ADK、Middleware、Callback、Tool、Structured 和 Workflow 细节。
+`internal/biz/base/ai` 负责业务协议、历史消息、附件、终端策略、固定流程和结果持久化；`internal/biz/agent` 隔离 Eino 的模型、消息、ADK、Middleware、Callback、Tool、Structured 和 Workflow 细节。
 
 Agent Tool 来自生成代码，`agent_status` 控制是否可被 AI 使用；`mcp_status` 独立控制是否暴露为 MCP Tool。两者不是同一个开关。
 

@@ -13,10 +13,11 @@ import (
 	"github.com/liujitcn/kratos-core/queue"
 	"github.com/liujitcn/kratos-core/resource/docs"
 	"github.com/liujitcn/kratos-core/resource/i18n"
-	coreMigration "github.com/liujitcn/kratos-core/resource/migration"
+	"github.com/liujitcn/kratos-core/resource/migration"
 	"github.com/liujitcn/kratos-core/resource/openapi"
 	"github.com/liujitcn/kratos-core/sse"
-	"github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	authnEngine "github.com/liujitcn/kratos-kit/auth/authn/engine"
 	"github.com/liujitcn/kratos-kit/auth/authz/engine"
 	"github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/database/gorm"
@@ -60,11 +61,12 @@ func NewModuleResources() AdminResources {
 // BaseCase、Job、SSE、文档和 OpenAPI 运行时由 Core 统一提供。Admin 业务依赖
 // 在 Backend 内部完成装配，避免外部项目的生成代码引用 backend/internal 包。
 func NewModules(
-	_ *coreMigration.Migration,
+	_ *migration.Migration,
 	config *configv1.Bootstrap,
 	databases map[string]*gorm.Client,
 	baseCase *biz.BaseCase,
 	authorizer engine.Engine,
+	authenticator authnEngine.Authenticator,
 	userToken *data.UserToken,
 	jobRuntime *job.Job,
 	sseRuntime *sse.SSE,
@@ -72,10 +74,14 @@ func NewModules(
 	catalog *i18n.I18n,
 	openAPIRuntime *openapi.OpenAPI,
 ) (AdminModules, func(), error) {
-	if runtimeLogErr := logstream.InitializeRuntimeLogging(); runtimeLogErr != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "启动运行日志采集失败: %v\n", runtimeLogErr)
+	var err error
+	err = logstream.InitializeRuntimeLogging()
+	if err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "启动运行日志采集失败: %v\n", err)
 	}
-	modules, cleanup, err := adminModule.BuildModules(config, databases, baseCase, authorizer, userToken, jobRuntime, sseRuntime, docsRuntime, catalog, openAPIRuntime)
+	var modules module.Modules
+	var cleanup func()
+	modules, cleanup, err = adminModule.BuildModules(config, databases, baseCase, authorizer, authenticator, userToken, jobRuntime, sseRuntime, docsRuntime, catalog, openAPIRuntime)
 	return AdminModules(modules), cleanup, err
 }
 
@@ -83,8 +89,9 @@ func NewModules(
 func NewTasks(
 	databases map[string]*gorm.Client,
 	baseCase *biz.BaseCase,
+	sseRuntime *sse.SSE,
 ) (AdminTasks, func(), error) {
-	tasks, cleanup, err := adminModule.BuildTasks(databases, baseCase)
+	tasks, cleanup, err := adminModule.BuildTasks(databases, baseCase, sseRuntime)
 	return AdminTasks(tasks), cleanup, err
 }
 
@@ -99,6 +106,11 @@ func NewStreams(
 }
 
 // NewQueueConsumers 创建 Backend 提供给 Core 队列服务的消费者集合。
-func NewQueueConsumers() AdminConsumers {
-	return AdminConsumers(adminModule.BuildQueueConsumers())
+func NewQueueConsumers(
+	databases map[string]*gorm.Client,
+	baseCase *biz.BaseCase,
+	sseRuntime *sse.SSE,
+) (AdminConsumers, func(), error) {
+	consumers, cleanup, err := adminModule.BuildQueueConsumers(databases, baseCase, sseRuntime)
+	return AdminConsumers(consumers), cleanup, err
 }

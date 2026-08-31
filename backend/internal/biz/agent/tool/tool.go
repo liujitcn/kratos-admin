@@ -5,23 +5,23 @@ import (
 	"encoding/json"
 	"fmt"
 
-	componentsTool "github.com/cloudwego/eino/components/tool"
+	"github.com/cloudwego/eino/components/tool"
 	"github.com/cloudwego/eino/schema"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/middleware"
 )
 
 // Option 表示 Eino 工具调用选项。
-type Option = componentsTool.Option
+type Option = tool.Option
 
 // Info 表示 Eino 工具定义。
 type Info = schema.ToolInfo
 
 // Invokable 表示可直接执行的 Eino 工具。
-type Invokable = componentsTool.InvokableTool
+type Invokable = tool.InvokableTool
 
 // Base 表示只提供定义信息的 Eino 工具。
-type Base = componentsTool.BaseTool
+type Base = tool.BaseTool
 
 // Call 表示一次函数工具调用请求。
 type Call struct {

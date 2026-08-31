@@ -4,9 +4,11 @@
 
 ## 主要能力
 
-- 账号密码、行为验证码、微信登录、OAuth、Token 刷新和退出。
-- 统一 HTTP、上传、下载、文件预览与 RSA/AES 密码加密。
-- Zustand 用户、配置和导航状态。
+- 账号密码、行为验证码、微信登录、OAuth、MFA（TOTP/WebAuthn/恢复码）、Token 刷新和退出。
+- 统一 HTTP、上传、下载、文件预览、RSA/AES 密码加密和 WebAuthn 工具。
+- Zustand 用户、配置和导航状态，H5 浏览器页签标题使用宿主 HTML 声明的应用名称。
+- 登录阶段支持 TOTP、WebAuthn 和一次性恢复码校验。
+- 公开 Base MFA 请求及通用密码弹窗、绑定面板和恢复码弹窗，供登录页与业务模块复用同一套绑定界面。
 - 接口驱动的逻辑路由、访问模式、自绘 tabBar 和稳定 `viewKey`。
 - 页面静态资源 export、动态资源公共路径解析，以及 H5 默认导航栏兼容框架。
 - 首页、登录、协议、WebView、启动/错误状态页面。
@@ -20,7 +22,7 @@
 - `@liujitcn/kratos-taro-app-core/runner`：Taro 构建装配入口。
 - `api/*`、`components/*`、`rpc/*`、`styles/*`、`utils/*`、`views/*`：白名单子路径。
 
-业务模块只能通过这些 exports 使用底座，不得相对引用 core 源码。RPC 由 `make -C backend ts-taro-app` 生成，不能手工编辑。
+业务模块只能通过这些 exports 使用底座，不得相对引用 core 源码。RPC 由 `make -C frontend ts-taro-app` 生成，不能手工编辑。
 
 ## Runner 协议
 

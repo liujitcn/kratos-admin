@@ -1,6 +1,6 @@
 {
   "miniprogramRoot": "./dist/mp-weixin",
-  "projectname": "kratos-taro-app",
+  "projectname": "通用应用",
   "description": "Kratos Taro React application",
   "appid": "wx3fe0d8a39051f39a",
   "setting": {

@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/dto"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"

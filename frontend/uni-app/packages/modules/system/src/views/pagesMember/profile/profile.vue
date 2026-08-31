@@ -259,6 +259,9 @@ page {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+  background-color: #f4f4f4;
   background-size: auto 420rpx;
   background-repeat: no-repeat;
 }

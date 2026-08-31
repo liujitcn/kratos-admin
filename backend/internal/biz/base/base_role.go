@@ -8,7 +8,7 @@ import (
 	"github.com/liujitcn/kratos-core/biz"
 
 	"github.com/liujitcn/gorm-kit/repository"
-	"github.com/liujitcn/kratos-core/const"
+	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 

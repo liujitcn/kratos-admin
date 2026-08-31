@@ -81,11 +81,17 @@
   "system.profile.update_success": "アップデートが成功しました",
   "system.settings.ai_description": "は、情報を整理し、質問に答え、日常業務を処理するのに役立ちます",
   "system.settings.ai_title": "インテリジェント アシスタント",
-  "system.settings.authorization": "認可管理",
-  "system.settings.contact": "お問い合わせ",
-  "system.settings.feedback": "問題のフィードバック",
   "system.settings.go_ask": "質問してみよう",
-  "system.settings.logout_confirm": "ログアウトしますか?",
-  "system.settings.logout_failed": "ログアウトに失敗しました",
-  "system.settings.title": "設定"
+  "system.notification.title": "メッセージセンター",
+  "system.notification.description": "システム通知と業務メッセージを確認",
+  "system.notification.empty": "メッセージはありません",
+  "system.notification.action.view_all": "すべて表示",
+  "system.notification.view.inbox": "すべて",
+  "system.notification.view.unread": "未読",
+  "system.notification.view.archived": "アーカイブ済み",
+  "system.notification.category_filter": "カテゴリID",
+  "system.notification.mark_all_read": "すべて既読",
+  "system.notification.action.archive": "アーカイブ",
+  "system.notification.action.restore": "復元",
+  "system.notification.action.delete": "削除"
 }

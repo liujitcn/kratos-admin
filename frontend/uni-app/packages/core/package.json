@@ -7,7 +7,7 @@
     "type": "git",
     "url": "git@github.com:liujitcn/kratos-admin.git"
   },
-  "version": "0.0.29",
+  "version": "0.0.30",
   "type": "module",
   "files": [
     "dist",
@@ -25,6 +25,7 @@
     "./components/*.vue": "./src/components/*.vue",
     "./rpc/*": "./src/rpc/*",
     "./stores": "./src/stores/index.ts",
+    "./navigation": "./src/navigation.ts",
     "./static/*": "./src/static/*",
     "./styles/base.scss": "./src/styles/base.scss",
     "./uni.scss": "./src/uni.scss",
@@ -53,6 +54,7 @@
     "go-captcha-uni": "1.0.6",
     "pinia": "^2.0.27",
     "pinia-plugin-persistedstate": "^3.2.0",
+    "qrcode-generator": "^2.0.4",
     "vite": "5.2.8",
     "vue": "^3.4.21"
   },

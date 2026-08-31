@@ -6,7 +6,7 @@ import (
 	"mime"
 	"strings"
 
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 )
 
 // attachmentPayload 表示附件 JSON 落库结构。
@@ -124,12 +124,12 @@ func ParseAttachments(raw string) []*basev1.AiAttachment {
 
 // pathExt 返回文件扩展名，文件名无扩展名时返回空字符串。
 func pathExt(name string) string {
-	index := strings.LastIndex(name, ".")
+	_, ext, found := strings.CutLast(name, ".")
 	// 无扩展名或点号在末尾时，不能作为可靠后缀参与 MIME 推断。
-	if index < 0 || index == len(name)-1 {
+	if !found || ext == "" {
 		return ""
 	}
-	return name[index:]
+	return "." + ext
 }
 
 // isTextAttachmentMIME 判断附件 MIME 是否可以按文本方式读取。

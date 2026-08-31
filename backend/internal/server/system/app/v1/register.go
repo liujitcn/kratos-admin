@@ -2,19 +2,19 @@ package app
 
 import (
 	"github.com/go-kratos/kratos/v3/transport/http"
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
+	appv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/app/v1"
 	einoTool "github.com/liujitcn/kratos-admin/backend/internal/biz/agent/tool"
-	systemapp "github.com/liujitcn/kratos-admin/backend/internal/service/system/app/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/service/system/app/v1"
 	"github.com/liujitcn/kratos-kit/transport/mcp"
 	"google.golang.org/grpc"
 )
 
 // Services 汇总 system.app.v1 的服务实现。
 type Services struct {
-	Auth     *systemapp.AuthService
-	BaseArea *systemapp.BaseAreaService
-	BaseDict *systemapp.BaseDictService
-	BaseMenu *systemapp.BaseMenuService
+	Auth     *app.AuthService
+	BaseArea *app.BaseAreaService
+	BaseDict *app.BaseDictService
+	BaseMenu *app.BaseMenuService
 }
 
 // RegisterGRPC 注册 system.app.v1 的 gRPC 服务。

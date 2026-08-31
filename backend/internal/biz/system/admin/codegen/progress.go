@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"sync"
 	"time"
+	"uuid"
 
-	"github.com/google/uuid"
-	"github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -58,7 +58,7 @@ func StreamID(taskID string) string {
 
 // Create 创建等待执行的代码生成任务，同一用户同时只允许一个活跃任务。
 func (m *Manager) Create(ownerID int64, tables []*adminv1.CodeGenTaskTable, localeState LocaleState) (*adminv1.CodeGenTask, bool) {
-	taskID := uuid.NewString()
+	taskID := uuid.New().String()
 	task := &adminv1.CodeGenTask{
 		TaskId:    taskID,
 		Status:    adminv1.CodeGenTaskStatus_CODE_GEN_TASK_STATUS_PENDING,
