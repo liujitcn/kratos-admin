@@ -85,6 +85,7 @@ export function defineAdminViteConfig(options: AdminViteConfigOptions = {}) {
           "@liujitcn/kratos-admin-core > dayjs/plugin/advancedFormat.js",
           "@liujitcn/kratos-admin-core > dayjs/plugin/customParseFormat.js",
           "@liujitcn/kratos-admin-core > dayjs/plugin/dayOfYear.js",
+          "@liujitcn/kratos-admin-core > dayjs/plugin/quarterOfYear.js",
           "@liujitcn/kratos-admin-core > dayjs/plugin/isSameOrAfter.js",
           "@liujitcn/kratos-admin-core > dayjs/plugin/isSameOrBefore.js",
           "@liujitcn/kratos-admin-core > dayjs/plugin/localeData.js",
