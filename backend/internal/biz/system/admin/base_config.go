@@ -98,18 +98,6 @@ func (c *BaseConfigCase) RefreshHiddenBaseConfig(ctx context.Context) error {
 		} else {
 			entity = list[0]
 		}
-		var migratedValue string
-		migratedValue, err = runtimeconfig.MigrateJSON(key, entity.Value)
-		if err != nil {
-			return fmt.Errorf("迁移隐藏系统配置失败: %w", err)
-		}
-		if migratedValue != entity.Value {
-			entity.Value = migratedValue
-			err = c.UpdateByID(ctx, &models.BaseConfig{ID: entity.ID, Value: migratedValue})
-			if err != nil {
-				return fmt.Errorf("保存迁移后的隐藏系统配置失败: %w", err)
-			}
-		}
 		if entity.HiddenStatus != int32(adminv1.BaseConfigHiddenStatus_BASE_CONFIG_HIDDEN_STATUS_HIDDEN) {
 			return fmt.Errorf("系统配置 %s 未标记为隐藏配置", key)
 		}

@@ -1,9 +1,9 @@
 import { shallowReactive } from "vue";
 import type { RuntimeConfigDefinition } from "./types";
 
-import { auditLogSpoolConfig } from "./audit-log-spool";
+import { baseLogFallbackConfig } from "./base-log-fallback";
 
-export { auditLogSpoolConfig } from "./audit-log-spool";
+export { baseLogFallbackConfig } from "./base-log-fallback";
 export type {
   RuntimeConfigDefinition,
   RuntimeConfigField,
@@ -14,7 +14,7 @@ export type {
 
 /** Admin 内置运行配置定义集合。 */
 export const runtimeConfigDefinitions = shallowReactive<RuntimeConfigDefinition[]>([
-  auditLogSpoolConfig
+  baseLogFallbackConfig
 ]);
 
 /** 注册外部业务模块提供的运行配置定义。 */

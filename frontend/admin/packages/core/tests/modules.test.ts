@@ -80,11 +80,11 @@ test("重复用户菜单名称直接拒绝", () => {
     [
       {
         name: "test-user-menu-a",
-        userMenuActions: [{ name: "duplicate-user-menu", label: "菜单 A", menuName: "MenuA" }]
+        userMenuActions: [{ name: "duplicate-user-menu", labelKey: "test.user_menu.a", menuName: "MenuA" }]
       },
       {
         name: "test-user-menu-b",
-        userMenuActions: [{ name: "duplicate-user-menu", label: "菜单 B", menuName: "MenuB" }]
+        userMenuActions: [{ name: "duplicate-user-menu", labelKey: "test.user_menu.b", menuName: "MenuB" }]
       }
     ],
     /管理端用户菜单名称重复/

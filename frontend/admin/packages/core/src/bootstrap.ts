@@ -45,9 +45,7 @@ export interface AdminBootstrapOptions {
  * 创建并启动管理端应用，业务项目可通过 modules 注册自己的页面。
  */
 export async function bootstrapAdminApp(options: AdminBootstrapOptions = {}) {
-  // 旧版本曾持久化访问令牌，启动时主动删除遗留认证状态。
-  window.localStorage.removeItem("admin-user");
-  const modules = [kratosAdminModule, ...(options.modules ?? [])];
+	const modules = [kratosAdminModule, ...(options.modules ?? [])];
   registerAdminModules(modules);
   registerLocaleMessages(modules);
   initializeLocale();

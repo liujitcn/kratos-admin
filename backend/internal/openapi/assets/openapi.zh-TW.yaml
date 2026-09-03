@@ -5693,6 +5693,19 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.PageNotificationResponse'
+    /api/v1/base/notification/categories:
+        get:
+            tags:
+                - NotificationService
+            description: 查詢訊息分類列表。
+            operationId: NotificationService_ListNotificationCategories
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListNotificationCategoriesResponse'
     /api/v1/base/notification/read:
         put:
             tags:
@@ -6942,6 +6955,15 @@ components:
                         $ref: '#/components/schemas/base.v1.AiShortcut'
                     description: 快捷入口列表
             description: AI 助手快捷入口列表響應
+        base.v1.ListNotificationCategoriesResponse:
+            type: object
+            properties:
+                categories:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.NotificationCategory'
+                    description: 訊息分類列表
+            description: 訊息分類列表響應。
         base.v1.ListOauthBindingResponse:
             type: object
             properties:
@@ -7156,6 +7178,29 @@ components:
                     type: boolean
                     description: 是否允許刪除
             description: 當前使用者訊息。
+        base.v1.NotificationCategory:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 訊息分類ID
+                code:
+                    type: string
+                    description: 分類編碼
+                name:
+                    type: string
+                    description: 分類名稱
+                icon:
+                    type: string
+                    description: 分類圖示
+                color:
+                    type: string
+                    description: 分類顏色
+                sort:
+                    type: integer
+                    description: 排序
+                    format: int32
+            description: 當前可用的訊息分類。
         base.v1.NotificationCategoryUnread:
             type: object
             properties:

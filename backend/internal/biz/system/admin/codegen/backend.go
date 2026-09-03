@@ -380,11 +380,10 @@ func (c *renderer) renderBackendServiceFile(table *Table, methods []*Proto) stri
 // appendExternalTargetBizMethods 仅补齐已有业务文件缺失的外部目标选项方法。
 func (c *renderer) appendExternalTargetBizMethods(content string, table *Table, methods []*Proto) string {
 	generatedReceiver := table.EntityName + "Case"
-	existingReceiver := goReceiverType(content, "Case")
-	if existingReceiver == "" {
+	if goReceiverType(content, "Case") != generatedReceiver {
 		return content
 	}
-	existingMethodNames := goReceiverMethodNames(content, existingReceiver)
+	existingMethodNames := goReceiverMethodNames(content, generatedReceiver)
 	missingMethods := make([]*Proto, 0, len(methods))
 	for _, method := range methods {
 		if _, exists := existingMethodNames[method.MethodName]; !exists {
@@ -400,16 +399,8 @@ func (c *renderer) appendExternalTargetBizMethods(content string, table *Table, 
 	if methodContent == "" {
 		return content
 	}
-	_, repositoryType := goStructDependency(content, existingReceiver, "data", "Repository")
-	repositoryType = strings.TrimSuffix(repositoryType, "Repository")
-	if repositoryType == "" {
-		return content
-	}
-	methodContent = strings.ReplaceAll(methodContent, "*"+generatedReceiver, "*"+existingReceiver)
-	methodContent = strings.ReplaceAll(methodContent, "models."+table.EntityName, "models."+repositoryType)
-	methodContent = strings.ReplaceAll(methodContent, "c.Query(ctx)."+table.EntityName, "c.Query(ctx)."+repositoryType)
 	target := ProtoTargetForTable(table)
-	return mergeGeneratedGoReceiverMethods(content, methodContent, existingReceiver, target.GoAlias+" \""+target.GoImportPath+"\"")
+	return mergeGeneratedGoReceiverMethods(content, methodContent, generatedReceiver, target.GoAlias+" \""+target.GoImportPath+"\"")
 }
 
 // renderExternalTargetBizFile 渲染外部目标实体的最小业务文件。
@@ -446,11 +437,10 @@ func (c *renderer) renderExternalTargetBizMethods(table *Table, methods []*Proto
 // appendExternalTargetServiceMethods 仅补齐已有服务文件缺失的外部目标选项方法。
 func (c *renderer) appendExternalTargetServiceMethods(content string, table *Table, methods []*Proto) string {
 	generatedReceiver := table.EntityName + "Service"
-	existingReceiver := goReceiverType(content, "Service")
-	if existingReceiver == "" {
+	if goReceiverType(content, "Service") != generatedReceiver {
 		return content
 	}
-	existingMethodNames := goReceiverMethodNames(content, existingReceiver)
+	existingMethodNames := goReceiverMethodNames(content, generatedReceiver)
 	missingMethods := make([]*Proto, 0, len(methods))
 	for _, method := range methods {
 		if _, exists := existingMethodNames[method.MethodName]; !exists {
@@ -466,15 +456,8 @@ func (c *renderer) appendExternalTargetServiceMethods(content string, table *Tab
 	if methodContent == "" {
 		return content
 	}
-	existingCaseField, _ := goStructDependency(content, existingReceiver, "biz", "Case")
-	generatedCaseField := stringcase.ToCamelCase(table.EntityName) + "Case"
-	if existingCaseField == "" {
-		return content
-	}
-	methodContent = strings.ReplaceAll(methodContent, "*"+generatedReceiver, "*"+existingReceiver)
-	methodContent = strings.ReplaceAll(methodContent, "s."+generatedCaseField, "s."+existingCaseField)
 	target := ProtoTargetForTable(table)
-	return mergeGeneratedGoReceiverMethods(content, methodContent, existingReceiver, target.GoAlias+" \""+target.GoImportPath+"\"")
+	return mergeGeneratedGoReceiverMethods(content, methodContent, generatedReceiver, target.GoAlias+" \""+target.GoImportPath+"\"")
 }
 
 // renderExternalTargetServiceFile 渲染外部目标实体的最小服务文件。

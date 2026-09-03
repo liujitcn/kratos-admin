@@ -21,7 +21,7 @@ export const databaseBackupConfig: RuntimeConfigDefinition<DatabaseBackupConfig>
     enabled: false,
     integrity_key: "",
     encryption_key: "",
-    directory: "./data/backups",
+    directory: "./backups",
     gzip: true,
     retention_count: 7
   }),

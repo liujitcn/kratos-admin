@@ -43,10 +43,7 @@ const CAPTCHA_URL = '/v1/base/captcha'
 const CONFIG_URL = '/v1/base/config'
 const LANGUAGE_URL = '/v1/base/language'
 const PASSWORD_PUBLIC_KEY_URL = '/v1/base/password-public-key'
-const LEGACY_AUTH_URL = '/auth'
-const LEGACY_REFRESH_TOKEN_URL = `${LEGACY_AUTH_URL}/token`
-const LEGACY_CAPTCHA_URL = '/login/captcha'
-// 认证公共接口不携带旧 token，同时保留旧路径兼容迁移期间的灰度访问。
+// 认证公共接口不携带访问令牌。
 const NO_AUTH_URL_SET = new Set([
   SESSION_URL,
   REFRESH_TOKEN_URL,
@@ -54,9 +51,6 @@ const NO_AUTH_URL_SET = new Set([
   CONFIG_URL,
   LANGUAGE_URL,
   PASSWORD_PUBLIC_KEY_URL,
-  LEGACY_AUTH_URL,
-  LEGACY_CAPTCHA_URL,
-  LEGACY_REFRESH_TOKEN_URL,
 ])
 const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set([
   SESSION_URL,
@@ -64,8 +58,6 @@ const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set([
   CONFIG_URL,
   LANGUAGE_URL,
   PASSWORD_PUBLIC_KEY_URL,
-  LEGACY_AUTH_URL,
-  LEGACY_CAPTCHA_URL,
 ])
 
 const AUTH_SILENT_LOGOUT_EVENT = 'auth:silent-logout'
@@ -147,7 +139,7 @@ function isAuthErrorResponse(data: unknown) {
   )
 }
 
-// 当前请求属于公共认证接口时，不应自动附带旧登录态。
+// 当前请求属于公共认证接口时，不应自动附带登录态。
 function isNoAuthRequest(url: string) {
   return NO_AUTH_URL_SET.has(url)
 }

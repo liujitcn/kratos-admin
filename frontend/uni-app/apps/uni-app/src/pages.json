@@ -111,6 +111,7 @@
         {
           "path": "message/index",
           "style": {
+            "navigationStyle": "custom",
             "navigationBarTitleText": ""
           }
         }

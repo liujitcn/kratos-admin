@@ -184,6 +184,32 @@ export interface PageNotificationResponse {
   has_more: boolean;
 }
 
+/** 消息分类列表查询条件。 */
+export interface ListNotificationCategoriesRequest {
+}
+
+/** 消息分类列表响应。 */
+export interface ListNotificationCategoriesResponse {
+  /** 消息分类列表 */
+  categories: NotificationCategory[];
+}
+
+/** 当前可用的消息分类。 */
+export interface NotificationCategory {
+  /** 消息分类ID */
+  id: number;
+  /** 分类编码 */
+  code: string;
+  /** 分类名称 */
+  name: string;
+  /** 分类图标 */
+  icon: string;
+  /** 分类颜色 */
+  color: string;
+  /** 排序 */
+  sort: number;
+}
+
 /** 消息详情查询条件。 */
 export interface GetNotificationRequest {
   /** 投递ID */
@@ -296,6 +322,8 @@ export interface Notification {
 export interface NotificationService {
   /** 分页查询当前用户收件箱。 */
   PageNotification(request: PageNotificationRequest): Promise<PageNotificationResponse>;
+  /** 查询消息分类列表。 */
+  ListNotificationCategories(request: ListNotificationCategoriesRequest): Promise<ListNotificationCategoriesResponse>;
   /** 查询当前用户未读汇总。 */
   GetNotificationSummary(request: GetNotificationSummaryRequest): Promise<NotificationSummary>;
   /** 查询当前用户消息详情。 */

@@ -9,32 +9,32 @@ import (
 )
 
 const (
-	// AuditLogSpoolKey 表示日志入库回退配置键。
-	AuditLogSpoolKey = runtimeconfig.AuditLogSpoolKey
+	// BaseLogFallbackKey 表示日志入库回退配置键。
+	BaseLogFallbackKey = runtimeconfig.BaseLogFallbackKey
 	// CacheExpire 表示运行配置缓存有效期。
 	CacheExpire = runtimeconfig.CacheExpire
-	// AuditLogSpoolFileName 表示日志入库回退文件的固定文件名。
-	AuditLogSpoolFileName = runtimeconfig.AuditLogSpoolFileName
+	// BaseLogFallbackFileName 表示日志入库回退文件的固定文件名。
+	BaseLogFallbackFileName = runtimeconfig.BaseLogFallbackFileName
 	// RedactedValue 表示管理端返回的敏感配置占位值。
 	RedactedValue = runtimeconfig.RedactedValue
 )
 
-// AuditLogSpoolConfig 表示日志入库回退配置。
-type AuditLogSpoolConfig = runtimeconfig.AuditLogSpoolConfig
+// BaseLogFallbackConfig 表示日志入库回退配置。
+type BaseLogFallbackConfig = runtimeconfig.BaseLogFallbackConfig
 
-// DefaultAuditLogSpoolConfig 返回日志入库回退配置默认值。
-func DefaultAuditLogSpoolConfig() AuditLogSpoolConfig {
-	return runtimeconfig.DefaultAuditLogSpoolConfig()
+// DefaultBaseLogFallbackConfig 返回日志入库回退配置默认值。
+func DefaultBaseLogFallbackConfig() BaseLogFallbackConfig {
+	return runtimeconfig.DefaultBaseLogFallbackConfig()
 }
 
-// ResolveAuditLogIntegrityKey 从运行时密钥服务派生日志回退完整性密钥。
-func ResolveAuditLogIntegrityKey() (string, error) {
-	return runtimeconfig.ResolveAuditLogIntegrityKey()
+// ResolveBaseLogFallbackIntegrityKey 从运行时密钥服务派生日志回退完整性密钥。
+func ResolveBaseLogFallbackIntegrityKey() (string, error) {
+	return runtimeconfig.ResolveBaseLogFallbackIntegrityKey()
 }
 
-// AuditLogSpoolFilePath 根据配置目录返回日志入库回退文件路径。
-func AuditLogSpoolFilePath(filePath string) string {
-	return runtimeconfig.AuditLogSpoolFilePath(filePath)
+// BaseLogFallbackFilePath 根据配置目录返回日志入库回退文件路径。
+func BaseLogFallbackFilePath(filePath string) string {
+	return runtimeconfig.BaseLogFallbackFilePath(filePath)
 }
 
 // CacheKey 返回运行配置缓存键。
@@ -70,11 +70,6 @@ func RedactJSON(key, value string) (string, error) {
 // MergeSensitiveJSON 将管理端提交的敏感字段占位值替换为当前已保存值。
 func MergeSensitiveJSON(key, current, incoming string) (string, error) {
 	return runtimeconfig.MergeSensitiveJSON(key, current, incoming)
-}
-
-// MigrateJSON 清理指定运行配置中的历史废弃字段。
-func MigrateJSON(key, value string) (string, error) {
-	return runtimeconfig.MigrateJSON(key, value)
 }
 
 // ValidateJSON 校验配置 JSON 的结构和值域。

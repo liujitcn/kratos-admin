@@ -89,7 +89,7 @@ export const moduleManifest = [coreModule, systemModule]
 GET /api/v1/app/base/menu
 ```
 
-请求 service path 为 `/v1/app/base/menu`，由统一 `/api` base 拼接。`base_menu.id = 99000000` 是隐藏的移动端固定根目录，后端逐层查询它下面的启用页面并保持扁平响应，core 再按 `parent_id` 构建菜单树；也可以通过 `setAppNavigationAdapter()` 接入兼容契约。根目录只关联移动菜单查询，每个页面菜单分别关联该页面实际调用的受保护 API。
+请求 service path 为 `/v1/app/base/menu`，由统一 `/api` base 拼接。`base_menu.id = 99000000` 是隐藏的移动端固定根目录，后端逐层查询它下面的启用页面并保持扁平响应，core 再按 `parent_id` 构建菜单树；也可以通过 `setAppNavigationAdapter()` 接入自定义菜单数据源。根目录只关联移动菜单查询，每个页面菜单分别关联该页面实际调用的受保护 API。
 
 菜单配置约束：
 

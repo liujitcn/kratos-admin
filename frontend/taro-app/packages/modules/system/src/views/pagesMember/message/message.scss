@@ -1,79 +1,140 @@
 .message-page {
+  box-sizing: border-box;
   min-height: 100vh;
-  padding: 24px;
-  background: var(--kratos-color-background);
+  padding: 16px 24px calc(120px + env(safe-area-inset-bottom));
+  background: var(--kratos-color-background, #f7f8fa);
+  color: var(--kratos-color-text, #1f2937);
 }
 
-.message-header {
-  padding: 20px 4px 28px;
-}
 .message-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 20px 4px 24px;
 }
 .message-title {
-  color: var(--kratos-color-text);
+  display: block;
+  color: var(--kratos-color-text, #1f2937);
   font-size: 40px;
   font-weight: 700;
+  line-height: 1.35;
 }
-.message-unread {
-  min-width: 36px;
-  padding: 4px 10px;
-  border-radius: 18px;
+.message-unread-dot {
+  width: 12px;
+  height: 12px;
+  margin-left: 8px;
+  border-radius: 50%;
   background: #e5484d;
-  color: #fff;
-  font-size: 22px;
-  line-height: 28px;
-  text-align: center;
 }
 .message-controls {
-  margin-bottom: 18px;
+  margin-bottom: 24px;
 }
+.message-category-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+.message-category-list {
+  display: flex;
+  gap: 12px;
+  width: max-content;
+  padding-bottom: 4px;
+}
+.message-category,
 .message-tabs,
-.message-filter,
+.message-actions,
 .message-item__actions {
   display: flex;
   align-items: center;
+}
+.message-category {
+  flex-shrink: 0;
+  height: 64px;
+  margin: 0;
+  padding: 0 22px;
+  border: 1px solid var(--kratos-color-border, #e2e8f0);
+  border-radius: 32px;
+  background: #fff;
+  color: var(--kratos-color-text-muted, #6b7280);
+  font-size: 24px;
+  line-height: 64px;
+  white-space: nowrap;
+}
+.message-category__icon,
+.message-item__category-icon {
+  flex: 0 0 auto;
+  margin-right: 8px;
+}
+.message-category.active {
+  border-color: var(--kratos-color-primary, #27ba9b);
+  background: var(--kratos-color-primary, #27ba9b);
+  color: #fff;
+}
+.message-tabs {
+  gap: 12px;
+  margin-top: 18px;
+  padding: 6px;
+  border-radius: 12px;
+  background: #eef1f3;
+}
+.message-actions {
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+.message-item__actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 12px;
 }
 .message-tab {
+  box-sizing: border-box;
   flex: 1;
+  min-width: 0;
+  height: 68px;
   margin: 0;
-  padding: 8px 12px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
   background: transparent;
-  color: var(--kratos-color-text-muted);
+  color: var(--kratos-color-text-muted, #6b7280);
   font-size: 26px;
+  line-height: 68px;
+  white-space: nowrap;
 }
 .message-tab.active {
-  background: var(--kratos-color-primary);
+  background: var(--kratos-color-primary, #27ba9b);
   color: #fff;
 }
-.message-filter {
-  margin-top: 14px;
-}
-.message-filter input {
-  min-width: 0;
-  flex: 1;
-  padding: 12px 16px;
-  border: 1px solid var(--kratos-color-border);
-  border-radius: 8px;
-}
-.message-filter button,
+.message-action,
 .message-item__actions button {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  height: 68px;
   margin: 0;
-  padding: 0 14px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 8px;
+  background: #eef1f3;
+  color: var(--kratos-color-text, #1f2937);
   font-size: 24px;
+  line-height: 68px;
+  white-space: nowrap;
 }
-.message-item__actions {
-  justify-content: flex-end;
-  margin-top: 14px;
+.message-action--read {
+  background: #e8f8f4;
+  color: var(--kratos-color-primary, #16806d);
+}
+.message-item__actions button {
+  height: 56px;
+  padding: 0 16px;
+  font-size: 22px;
+  line-height: 56px;
 }
 .message-item {
   margin-bottom: 16px;
   padding: 28px;
   border-radius: 12px;
   background: #fff;
+  box-shadow: 0 4px 16px rgba(31, 41, 55, 0.05);
 }
 .message-item__main {
   display: flex;
@@ -82,33 +143,47 @@
   gap: 20px;
 }
 .message-item__title {
+  display: block;
   min-width: 0;
   flex: 1;
   overflow: hidden;
-  color: var(--kratos-color-text);
+  color: var(--kratos-color-text, #1f2937);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .message-item__title.unread {
-  color: var(--kratos-color-text);
+  color: var(--kratos-color-text, #1f2937);
   font-weight: 700;
 }
 .message-item__time,
 .message-item__category {
-  color: var(--kratos-color-text-muted);
+  color: var(--kratos-color-text-muted, #6b7280);
   font-size: 24px;
 }
+.message-item__time {
+  flex-shrink: 0;
+}
 .message-item__category {
-  display: block;
+  display: flex;
+  align-items: center;
   margin-top: 14px;
 }
 .load-more {
+  box-sizing: border-box;
+  width: 100%;
+  height: 72px;
   margin-top: 24px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 8px;
+  background: #eef1f3;
+  color: var(--kratos-color-text, #1f2937);
   font-size: 28px;
+  line-height: 72px;
 }
 .empty {
   padding-top: 180px;
-  color: var(--kratos-color-text-muted);
+  color: var(--kratos-color-text-muted, #6b7280);
   text-align: center;
 }
 .detail-page {
@@ -130,6 +205,13 @@
   margin: 24px 0 36px;
   color: var(--kratos-color-text-muted);
   font-size: 24px;
+}
+.detail-category {
+  display: inline-flex;
+  align-items: center;
+}
+.detail-category__icon {
+  margin-right: 8px;
 }
 .detail-content {
   color: var(--kratos-color-text);

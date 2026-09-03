@@ -29,6 +29,10 @@ backend
 ├── internal/service                  # Proto Service 实现
 ├── internal/const                    # 业务常量
 ├── internal/i18n/assets              # 业务语言资源
+├── data                              # 前端 H5 产物和 OSS 上传对象
+├── logs                              # 运行日志和日志入库回退文件
+├── backups                           # 本地备份工作目录
+├── codegen/restore                   # 代码生成还原快照
 └── migration                         # 代码生成业务使用的迁移资源
 ```
 
@@ -60,7 +64,9 @@ make run-only
 
 默认配置目录为 `./configs`，默认运行环境为 `dev`。基础配置使用 `<name>.yaml`，环境差异使用 `<name>.<env>.yaml`；环境文件存在时在基础配置之后加载，不存在时回退基础配置。可以覆盖配置目录、运行环境或追加启动参数：
 
-会话生命周期和上传安全扫描使用 `authn.session`、`oss.upload_security` 启动配置；审计日志保留在“系统管理 → 备份管理 → 数据归档”按表维护，数据库备份在“系统管理 → 备份管理 → 数据备份”按数据源维护。日志入库回退配置单独使用隐藏配置 `auditLogSpool`；备份完整性密钥和加密密钥在具体任务执行时分别按 `kratos-admin:backup/integrity`、`kratos-admin:backup/encryption` 从运行时密钥服务派生。普通系统配置仍由“系统配置”页面维护。HTTP 普通请求只使用 `server.http.timeout` 和 `server.http.max_body_bytes`，`/events`、`/mcp` 及 AI 消息流自动跳过普通请求超时。
+会话生命周期和上传安全扫描使用 `authn.session`、`oss.upload_security` 启动配置；审计日志保留在“系统管理 → 备份管理 → 数据归档”按表维护，数据库备份在“系统管理 → 备份管理 → 数据备份”按数据源维护。日志入库回退配置单独使用隐藏配置 `baseLogFallback`；备份完整性密钥和加密密钥在具体任务执行时分别按 `kratos-admin:backup/integrity`、`kratos-admin:backup/encryption` 从运行时密钥服务派生。普通系统配置仍由“系统配置”页面维护。HTTP 普通请求只使用 `server.http.timeout` 和 `server.http.max_body_bytes`，`/events`、`/mcp` 及 AI 消息流自动跳过普通请求超时。
+
+本地文件存储的磁盘根目录只由 `configs/oss.yaml` 的 `oss.root_directory` 配置，Core 将该目录映射到 `/data/`。上传对象按 `业务类型/文件分类/年/月/日/文件名` 分层，数据库保存 OSS 对象路径；`backend/data` 只保留三端 H5 产物和上传对象，日志、备份及代码生成还原快照分别位于 `backend/logs`、`backend/backups` 和 `backend/codegen/restore`。
 
 多因素认证方式由系统配置 `securityMfaMethod` 选择，当前支持 `totp` 和 `webauthn`。运行时 MFA 参数通过 `mfa.yaml` 或环境覆盖文件 `mfa.dev.yaml` 的 `mfa` 节点加载；`mfa.encryption_key` 有显式值时优先使用，留空时在 TOTP 密钥真正加解密时按 `kratos-kit:mfa/encryption` 从运行时密钥服务派生。管理端和应用端禁用 TOTP 需要当前密码和动态口令或恢复码，禁用 WebAuthn 需要当前密码和一次 Passkey 或恢复码验证。生产环境不要把真实密钥写入仓库或数据库。完整字段以 `kratos-kit/api/proto/config/v1/mfa.proto` 为准。
 

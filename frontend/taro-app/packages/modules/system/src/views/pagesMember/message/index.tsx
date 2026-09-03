@@ -1,11 +1,13 @@
 import { useDidShow } from '@tarojs/taro'
-import { Button, Input, Text, View } from '@tarojs/components'
+import { Button, ScrollView, Text, View } from '@tarojs/components'
 import { useState } from 'react'
-import { navigateAppRoute, t } from '@liujitcn/kratos-taro-app-core'
+import { navigateAppView, t } from '@liujitcn/kratos-taro-app-core'
+import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
 import { defNotificationService } from '../../../api/base/v1/notification'
-import type { Notification } from '../../../rpc/base/v1/notification'
+import type { Notification, NotificationCategory } from '../../../rpc/base/v1/notification'
 import { NotificationView } from '../../../rpc/base/v1/notification'
 import { refreshNotificationSummary } from '../../../notification'
+import { resolveMessageCategoryIcon } from './icons'
 import './message.scss'
 
 /** Taro 站内信收件箱页面。 */
@@ -16,8 +18,10 @@ export default function MessageInboxPage() {
   const [finished, setFinished] = useState(false)
   const [unreadTotal, setUnreadTotal] = useState(0)
   const [selectedView, setSelectedView] = useState(NotificationView.NOTIFICATION_VIEW_INBOX)
-  const [categoryInput, setCategoryInput] = useState('')
   const [categoryId, setCategoryId] = useState<number>()
+  const [categoryOptions, setCategoryOptions] = useState<
+    NotificationCategory[]
+  >([])
   const viewOptions = [
     { value: NotificationView.NOTIFICATION_VIEW_INBOX, key: 'system.notification.view.inbox' },
     { value: NotificationView.NOTIFICATION_VIEW_UNREAD, key: 'system.notification.view.unread' },
@@ -28,9 +32,18 @@ export default function MessageInboxPage() {
   ]
 
   useDidShow(() => {
+    void loadCategories().catch(() => undefined)
     void refresh().catch(() => undefined)
-    void refreshNotificationSummary().then(setUnreadTotal).catch(() => undefined)
+    void refreshNotificationSummary()
+      .then(setUnreadTotal)
+      .catch(() => undefined)
   })
+
+  /** 加载管理端维护的消息分类。 */
+  async function loadCategories() {
+    const result = await defNotificationService.ListNotificationCategories({})
+    setCategoryOptions(result.categories ?? [])
+  }
 
   /** 刷新站内信列表。 */
   async function refresh(view = selectedView, category = categoryId) {
@@ -80,12 +93,10 @@ export default function MessageInboxPage() {
     void refresh(view, categoryId).catch(() => undefined)
   }
 
-  /** 应用分类筛选。 */
-  function applyCategoryFilter() {
-    const value = Number(categoryInput)
-    const next = Number.isInteger(value) && value > 0 ? value : undefined
-    setCategoryId(next)
-    void refresh(selectedView, next).catch(() => undefined)
+  /** 切换消息分类。 */
+  function changeCategory(id?: number) {
+    setCategoryId(id)
+    void refresh(selectedView, id).catch(() => undefined)
   }
 
   /** 标记当前水位线之前的消息为已读。 */
@@ -116,18 +127,43 @@ export default function MessageInboxPage() {
   /** 打开站内信详情。 */
   async function openDetail(item: Notification) {
     if (!item.read_at) await defNotificationService.MarkNotificationRead({ ids: [item.id] })
-    navigateAppRoute(`app/message/detail?id=${item.id}`)
+    navigateAppView('MESSAGE_DETAIL', { id: String(item.id) })
   }
 
   return (
     <View className='message-page'>
       <View className='message-header'>
         <Text className='message-title'>{t('system.notification.title')}</Text>
-        {unreadTotal > 0 && (
-          <Text className='message-unread'>{unreadTotal > 99 ? '99+' : unreadTotal}</Text>
-        )}
+        {unreadTotal > 0 && <View className='message-unread-dot' aria-hidden='true' />}
       </View>
       <View className='message-controls'>
+        <ScrollView className='message-category-scroll' scrollX showScrollbar={false}>
+          <View className='message-category-list'>
+            <Button
+              className={categoryId === undefined ? 'message-category active' : 'message-category'}
+              onClick={() => changeCategory()}
+            >
+              {t('system.notification.view.inbox')}
+            </Button>
+            {categoryOptions.map((category) => (
+              <Button
+                key={category.id}
+                className={
+                  categoryId === category.id ? 'message-category active' : 'message-category'
+                }
+                onClick={() => changeCategory(category.id)}
+              >
+                <UniIcon
+                  className='message-category__icon'
+                  type={resolveMessageCategoryIcon(category.icon)}
+                  size={16}
+                  color={categoryId === category.id ? '#fff' : category.color || '#64748b'}
+                />
+                {category.name}
+              </Button>
+            ))}
+          </View>
+        </ScrollView>
         <View className='message-tabs'>
           {viewOptions.map((option) => (
             <Button
@@ -139,19 +175,12 @@ export default function MessageInboxPage() {
             </Button>
           ))}
         </View>
-        <View className='message-filter'>
-          <Input
-            type='number'
-            value={categoryInput}
-            placeholder={t('system.notification.category_filter')}
-            onInput={(event) => setCategoryInput(event.detail.value)}
-            onConfirm={applyCategoryFilter}
-          />
-          <Button size='mini' onClick={applyCategoryFilter}>
-            {t('common.action.confirm')}
-          </Button>
+        <View className='message-actions'>
           {selectedView !== NotificationView.NOTIFICATION_VIEW_ARCHIVED && unreadTotal > 0 && (
-            <Button size='mini' onClick={() => void markAllRead().catch(() => undefined)}>
+            <Button
+              className='message-action message-action--read'
+              onClick={() => void markAllRead().catch(() => undefined)}
+            >
               {t('system.notification.mark_all_read')}
             </Button>
           )}
@@ -169,7 +198,15 @@ export default function MessageInboxPage() {
             </Text>
             <Text className='message-item__time'>{item.received_at}</Text>
           </View>
-          <Text className='message-item__category'>{item.category_name}</Text>
+          <View className='message-item__category'>
+            <UniIcon
+              className='message-item__category-icon'
+              type={resolveMessageCategoryIcon(item.category_icon)}
+              size={16}
+              color={item.category_color || '#64748b'}
+            />
+            <Text>{item.category_name}</Text>
+          </View>
           <View className='message-item__actions'>
             {selectedView !== NotificationView.NOTIFICATION_VIEW_ARCHIVED && item.allow_archive && (
               <Button

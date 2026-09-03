@@ -18,6 +18,7 @@ import (
 	"github.com/go-kratos/kratos/v3/transport"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/runtimeconfig"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-kit/cache"
 	"github.com/liujitcn/kratos-kit/cache/memory"
 	queueData "github.com/liujitcn/kratos-kit/queue/data"
@@ -53,9 +54,91 @@ func TestLogResponseMetadata(t *testing.T) {
 	}
 }
 
+// TestLogResourceReadsNestedBusinessFields 验证嵌套表单中的资源编号和业务名称可以被识别。
+func TestLogResourceReadsNestedBusinessFields(t *testing.T) {
+	resourceID, resourceName := logResource(map[string]interface{}{
+		"base_message": map[string]interface{}{
+			"id":    1,
+			"title": "系统维护通知",
+		},
+	})
+	if resourceID != "1" || resourceName != "系统维护通知" {
+		t.Fatalf("unexpected nested resource: id=%s name=%s", resourceID, resourceName)
+	}
+}
+
+// TestBuildOperationEventUsesResourceSnapshot 验证操作日志使用请求前的资源名称和快照。
+func TestBuildOperationEventUsesResourceSnapshot(t *testing.T) {
+	logMiddleware := newMiddleware(nil, nil)
+	defer logMiddleware.close()
+	event, ok, err := logMiddleware.buildEvent(adminTask{
+		Kind:     "operation",
+		Request:  request{Operation: "/system.admin.v1.BaseMessageService/UpdateBaseMessage", OccurredAt: time.Now()},
+		Payload:  map[string]interface{}{"base_message": map[string]interface{}{"id": 1, "title": "新标题"}},
+		Snapshot: resourceSnapshot{ResourceID: "1", ResourceName: "旧标题", BeforeData: `{"id":1,"title":"旧标题"}`},
+	})
+	if err != nil || !ok {
+		t.Fatalf("build operation event failed: ok=%v err=%v", ok, err)
+	}
+	item := &models.BaseOperationLog{}
+	if err = json.Unmarshal(event.Payload, item); err != nil {
+		t.Fatal(err)
+	}
+	if item.ResourceID != "1" || item.ResourceName != "旧标题" || item.BeforeData != `{"id":1,"title":"旧标题"}` {
+		t.Fatalf("operation snapshot was not applied: %+v", item)
+	}
+}
+
+// TestBuildDataAccessEventIncludesTableAndRequestIdentity 验证数据访问日志写入资源表和关联请求字段。
+func TestBuildDataAccessEventIncludesTableAndRequestIdentity(t *testing.T) {
+	logMiddleware := newMiddleware(nil, nil)
+	defer logMiddleware.close()
+	event, ok, err := logMiddleware.buildEvent(adminTask{
+		Kind:    "data_access",
+		Request: request{Operation: "/system.admin.v1.BaseMessageService/PageBaseMessage", RequestID: "request-1", TraceID: "trace-1", OccurredAt: time.Now()},
+		Payload: map[string]interface{}{"tenant_id": 1},
+		Reply: &adminv1.PageBaseMessageResponse{
+			BaseMessages: []*adminv1.BaseMessage{{Title: "系统通知"}},
+			Total:        1,
+		},
+	})
+	if err != nil || !ok {
+		t.Fatalf("build data access event failed: ok=%v err=%v", ok, err)
+	}
+	item := &models.BaseDataAccessLog{}
+	if err = json.Unmarshal(event.Payload, item); err != nil {
+		t.Fatal(err)
+	}
+	if item.TableName_ != "base_message" || item.RequestID != "request-1" || item.TraceID != "trace-1" {
+		t.Fatalf("data access metadata was not applied: %+v", item)
+	}
+}
+
+// TestBuildPermissionEventUsesRoleSnapshot 验证权限日志使用操作前角色快照。
+func TestBuildPermissionEventUsesRoleSnapshot(t *testing.T) {
+	logMiddleware := newMiddleware(nil, nil)
+	defer logMiddleware.close()
+	event, ok, err := logMiddleware.buildEvent(adminTask{
+		Kind:     "permission",
+		Request:  request{Operation: "/system.admin.v1.BaseRoleService/UpdateBaseRole", RequestID: "request-2", TraceID: "trace-2", OccurredAt: time.Now()},
+		Payload:  map[string]interface{}{"base_role": map[string]interface{}{"id": 2, "name": "新角色"}},
+		Snapshot: resourceSnapshot{ResourceID: "2", ResourceName: "旧角色", BeforeData: `{"id":2,"name":"旧角色","menus":"[1]"}`},
+	})
+	if err != nil || !ok {
+		t.Fatalf("build permission event failed: ok=%v err=%v", ok, err)
+	}
+	item := &models.BasePermissionLog{}
+	if err = json.Unmarshal(event.Payload, item); err != nil {
+		t.Fatal(err)
+	}
+	if item.TargetID != "2" || item.TargetName != "旧角色" || item.OldValue != `{"id":2,"name":"旧角色","menus":"[1]"}` || item.RequestID != "request-2" || item.TraceID != "trace-2" {
+		t.Fatalf("permission metadata was not applied: %+v", item)
+	}
+}
+
 // TestLogSnapshotRedactsRuntimeConfigValue 验证隐藏配置更新的 JSON 字符串不会进入审计快照。
 func TestLogSnapshotRedactsRuntimeConfigValue(t *testing.T) {
-	snapshot, _ := logSnapshot(map[string]string{"key": "auditLogSpool", "value_json": `{"file_path":"./data/audit-log-spool","password":"secret"}`})
+	snapshot, _ := logSnapshot(map[string]string{"key": "baseLogFallback", "value_json": `{"file_path":"./logs/base-log-fallback","password":"secret"}`})
 	if strings.Contains(snapshot, "secret") || !strings.Contains(snapshot, "[REDACTED]") {
 		t.Fatalf("runtime config value was not redacted: %s", snapshot)
 	}
@@ -193,21 +276,21 @@ func TestIsOperationRecognizesRestoreRPC(t *testing.T) {
 	}
 }
 
-// TestAuditLogSpoolFileHasValidHMAC 验证日志入库回退文件同步落盘并携带有效 HMAC。
-func TestAuditLogSpoolFileHasValidHMAC(t *testing.T) {
+// TestBaseLogFallbackFileHasValidHMAC 验证日志入库回退文件同步落盘并携带有效 HMAC。
+func TestBaseLogFallbackFileHasValidHMAC(t *testing.T) {
 	directory := t.TempDir()
-	key := "audit-log-spool-integrity-key-32-bytes"
+	key := "base-log-fallback-integrity-key-32-bytes"
 	previousKey := sdk.Runtime.GetKey()
 	sdk.Runtime.SetKey(logTestKey{value: []byte(key)})
 	t.Cleanup(func() { sdk.Runtime.SetKey(previousKey) })
 	configCache := newLogStorageTestCache(t, directory)
 	logMiddleware := newMiddleware(nil, configCache)
-	err := logMiddleware.writeAuditLogSpool("queue_unavailable", "login", "/base.v1.LoginService/Login", map[string]string{"user_name": "admin"})
+	err := logMiddleware.writeBaseLogFallback("queue_unavailable", "login", "/base.v1.LoginService/Login", map[string]string{"user_name": "admin"})
 	logMiddleware.close()
 	if err != nil {
 		t.Fatal(err)
 	}
-	path := filepath.Join(directory, runtimeconfig.AuditLogSpoolFileName)
+	path := filepath.Join(directory, runtimeconfig.BaseLogFallbackFileName)
 	file, err := os.Open(path)
 	if err != nil {
 		t.Fatal(err)
@@ -217,7 +300,7 @@ func TestAuditLogSpoolFileHasValidHMAC(t *testing.T) {
 	if !scanner.Scan() {
 		t.Fatal("日志入库回退文件没有记录")
 	}
-	var record auditLogSpoolRecord
+	var record baseLogFallbackRecord
 	if err = json.Unmarshal(scanner.Bytes(), &record); err != nil {
 		t.Fatal(err)
 	}
@@ -237,13 +320,13 @@ func newLogStorageTestCache(t *testing.T, directory string) cache.Cache {
 		t.Fatal(err)
 	}
 	t.Cleanup(cleanup)
-	config := runtimeconfig.DefaultAuditLogSpoolConfig()
+	config := runtimeconfig.DefaultBaseLogFallbackConfig()
 	config.FilePath = directory
 	value, err := json.Marshal(config)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err = store.Set(runtimeconfig.CacheKey(runtimeconfig.AuditLogSpoolKey), string(value), runtimeconfig.CacheExpire); err != nil {
+	if err = store.Set(runtimeconfig.CacheKey(runtimeconfig.BaseLogFallbackKey), string(value), runtimeconfig.CacheExpire); err != nil {
 		t.Fatal(err)
 	}
 	return store

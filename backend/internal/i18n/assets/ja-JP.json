@@ -1133,7 +1133,7 @@
   "system.admin.runtime_config.invalid_json": {
     "other": "システム設定の内容が無効です"
   },
-  "system.admin.runtime.audit_log_spool.file_path.required": {
+  "system.admin.runtime.base_log_fallback.file_path.required": {
     "other": "監査ログ登録フォールバックディレクトリのパスは空にできません"
   }
 }

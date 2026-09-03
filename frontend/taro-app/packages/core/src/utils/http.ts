@@ -33,9 +33,6 @@ const NO_AUTH_URL_SET = new Set([
   CONFIG_URL,
   LANGUAGE_URL,
   PASSWORD_PUBLIC_KEY_URL,
-  '/auth',
-  '/login/captcha',
-  '/auth/token',
 ])
 const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set([
   SESSION_URL,
@@ -43,8 +40,6 @@ const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set([
   CONFIG_URL,
   LANGUAGE_URL,
   PASSWORD_PUBLIC_KEY_URL,
-  '/auth',
-  '/login/captcha',
 ])
 /** 认证状态被静默清理的事件名。 */
 export const AUTH_SILENT_LOGOUT_EVENT = 'auth:silent-logout'

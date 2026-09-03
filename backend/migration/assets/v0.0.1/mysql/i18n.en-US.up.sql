@@ -445,4 +445,4 @@ INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VA
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (6, 1001, 'en-US', 'Message Delivery Recovery');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (6, 1002, 'en-US', 'Log Archive');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (6, 1003, 'en-US', 'Database Backup');
-INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (6, 1004, 'en-US', 'Audit Log Ingestion Fallback Task');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (6, 1004, 'en-US', 'Log Ingestion Fallback Task');

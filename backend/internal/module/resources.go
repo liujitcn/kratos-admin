@@ -93,7 +93,7 @@ func NewModuleResources() module.Resources {
 	models := data.Models()
 	return module.Resources{
 		&resource{
-			projectKey:  _const.Project,
+			projectKey:  fmt.Sprintf("%s-%s", _const.Project, _const.AppID),
 			projectName: _const.Name,
 			models:      module.Models{gorm.DefaultClientName: models},
 			openAPI:     openapi.Assets(),

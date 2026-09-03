@@ -63,8 +63,7 @@ func mergeGeneratedFrontendPage(existing string, candidate string) (string, bool
 	if !ok {
 		return existing, false
 	}
-	// 表单字段类型发生变化时，旧页面扩展可能继续按旧类型处理字段。
-	// 此时保留扩展会把旧接口契约重新拼回生成页面，直接采用最新完整页面更安全。
+	// 表单字段类型发生变化时，直接采用最新完整页面，避免扩展代码与当前字段类型冲突。
 	if frontendScriptSchemaChanged(existingScript, candidateScript) {
 		return strings.TrimRight(candidate, " \t\r\n") + "\n", true
 	}

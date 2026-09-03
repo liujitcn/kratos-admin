@@ -25,8 +25,8 @@ import (
 
 const (
 	// BaseLogFallbackTaskName 是日志入库回退任务的稳定调用目标。
-	BaseLogFallbackTaskName = "system.admin.BaseLogFallback"
-	auditLogSpoolBatchSize  = 1000
+	BaseLogFallbackTaskName  = "system.admin.BaseLogFallback"
+	baseLogFallbackBatchSize = 1000
 )
 
 var _ cron.TaskExec = (*BaseLogFallbackTask)(nil)
@@ -64,25 +64,25 @@ func (t *BaseLogFallbackTask) Task() cron.Task {
 
 // Exec 扫描日志入库回退文件并重新写入待处理事件。
 func (t *BaseLogFallbackTask) Exec(ctx context.Context, _ map[string]string) ([]string, error) {
-	config := runtimeconfig.DefaultAuditLogSpoolConfig()
-	err := runtimeconfig.LoadJSON(t.configCache, runtimeconfig.AuditLogSpoolKey, &config)
+	config := runtimeconfig.DefaultBaseLogFallbackConfig()
+	err := runtimeconfig.LoadJSON(t.configCache, runtimeconfig.BaseLogFallbackKey, &config)
 	if err != nil {
 		return nil, fmt.Errorf("读取日志入库回退配置失败: %w", err)
 	}
 	var replayed int
-	replayed, err = t.replayAuditLogSpool(ctx, config)
+	replayed, err = t.replayBaseLogFallback(ctx, config)
 	if err != nil {
 		return nil, err
 	}
 	return []string{fmt.Sprintf("日志入库回退 %d 条", replayed)}, nil
 }
 
-type auditLogSpoolRecord struct {
+type baseLogFallbackRecord struct {
 	Content json.RawMessage `json:"content"`
 	HMAC    string          `json:"hmac"`
 }
 
-type auditLogSpoolContent struct {
+type baseLogFallbackContent struct {
 	RecordedAt string          `json:"recorded_at"`
 	Stage      string          `json:"stage"`
 	Kind       string          `json:"kind"`
@@ -90,15 +90,15 @@ type auditLogSpoolContent struct {
 	Payload    json.RawMessage `json:"payload"`
 }
 
-type auditLogSpoolAdminEvent struct {
+type baseLogFallbackAdminEvent struct {
 	EventID string          `json:"event_id"`
 	Kind    string          `json:"kind"`
 	Payload json.RawMessage `json:"payload"`
 }
 
-// replayAuditLogSpool 读取日志入库回退文件并将完整事件重新写入日志表。
-func (t *BaseLogFallbackTask) replayAuditLogSpool(ctx context.Context, config runtimeconfig.AuditLogSpoolConfig) (int, error) {
-	path := runtimeconfig.AuditLogSpoolFilePath(config.FilePath)
+// replayBaseLogFallback 读取日志入库回退文件并将完整事件重新写入日志表。
+func (t *BaseLogFallbackTask) replayBaseLogFallback(ctx context.Context, config runtimeconfig.BaseLogFallbackConfig) (int, error) {
+	path := runtimeconfig.BaseLogFallbackFilePath(config.FilePath)
 	_, err := os.Stat(path)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -107,17 +107,17 @@ func (t *BaseLogFallbackTask) replayAuditLogSpool(ctx context.Context, config ru
 		return 0, fmt.Errorf("检查日志入库回退文件失败: %w", err)
 	}
 	var integrityKey string
-	integrityKey, err = runtimeconfig.ResolveAuditLogIntegrityKey()
+	integrityKey, err = runtimeconfig.ResolveBaseLogFallbackIntegrityKey()
 	if err != nil {
 		return 0, err
 	}
-	return replayAuditLogSpoolFile(ctx, path, integrityKey, func(ctx context.Context, eventID string, rawValue []byte) error {
+	return replayBaseLogFallbackFile(ctx, path, integrityKey, func(ctx context.Context, eventID string, rawValue []byte) error {
 		return logmiddleware.ReplayAdminEvent(ctx, eventID, rawValue, t.loginRepo, t.operationRepo, t.dataAccessRepo, t.permissionRepo)
 	})
 }
 
-// replayAuditLogSpoolFile 按持久化偏移量逐行处理日志入库回退文件。
-func replayAuditLogSpoolFile(ctx context.Context, path, integrityKey string, replay func(context.Context, string, []byte) error) (int, error) {
+// replayBaseLogFallbackFile 按持久化偏移量逐行处理日志入库回退文件。
+func replayBaseLogFallbackFile(ctx context.Context, path, integrityKey string, replay func(context.Context, string, []byte) error) (int, error) {
 	var file *os.File
 	var err error
 	file, err = os.Open(path)
@@ -134,7 +134,7 @@ func replayAuditLogSpoolFile(ctx context.Context, path, integrityKey string, rep
 		return 0, fmt.Errorf("读取日志入库回退文件信息失败: %w", err)
 	}
 	var offset int64
-	offset, err = readAuditLogSpoolOffset(path)
+	offset, err = readBaseLogFallbackOffset(path)
 	if err != nil {
 		return 0, err
 	}
@@ -151,7 +151,7 @@ func replayAuditLogSpoolFile(ctx context.Context, path, integrityKey string, rep
 	reader := bufio.NewReader(file)
 	currentOffset := offset
 	replayed := 0
-	for replayed < auditLogSpoolBatchSize {
+	for replayed < baseLogFallbackBatchSize {
 		line, readErr := reader.ReadBytes('\n')
 		if len(line) == 0 && readErr == io.EOF {
 			break
@@ -166,14 +166,14 @@ func replayAuditLogSpoolFile(ctx context.Context, path, integrityKey string, rep
 		line = bytes.TrimSpace(bytes.TrimSuffix(line, []byte{'\n'}))
 		if len(line) == 0 {
 			currentOffset = nextOffset
-			if err = writeAuditLogSpoolOffset(path, currentOffset); err != nil {
+			if err = writeBaseLogFallbackOffset(path, currentOffset); err != nil {
 				return replayed, err
 			}
 			continue
 		}
 		var eventID string
 		var payload []byte
-		eventID, payload, err = decodeAuditLogSpoolRecord(line, integrityKey)
+		eventID, payload, err = decodeBaseLogFallbackRecord(line, integrityKey)
 		if err != nil {
 			return replayed, fmt.Errorf("解析日志入库回退记录失败，偏移 %d: %w", currentOffset, err)
 		}
@@ -181,7 +181,7 @@ func replayAuditLogSpoolFile(ctx context.Context, path, integrityKey string, rep
 			return replayed, fmt.Errorf("重新写入日志入库回退记录失败，偏移 %d: %w", currentOffset, err)
 		}
 		currentOffset = nextOffset
-		if err = writeAuditLogSpoolOffset(path, currentOffset); err != nil {
+		if err = writeBaseLogFallbackOffset(path, currentOffset); err != nil {
 			return replayed, err
 		}
 		replayed++
@@ -189,9 +189,9 @@ func replayAuditLogSpoolFile(ctx context.Context, path, integrityKey string, rep
 	return replayed, nil
 }
 
-// decodeAuditLogSpoolRecord 校验日志入库回退记录并提取可重新写入的事件载荷。
-func decodeAuditLogSpoolRecord(line []byte, integrityKey string) (string, []byte, error) {
-	var record auditLogSpoolRecord
+// decodeBaseLogFallbackRecord 校验日志入库回退记录并提取可重新写入的事件载荷。
+func decodeBaseLogFallbackRecord(line []byte, integrityKey string) (string, []byte, error) {
+	var record baseLogFallbackRecord
 	err := json.Unmarshal(line, &record)
 	if err != nil {
 		return "", nil, err
@@ -205,12 +205,12 @@ func decodeAuditLogSpoolRecord(line []byte, integrityKey string) (string, []byte
 	if !hmac.Equal([]byte(expectedHMAC), []byte(record.HMAC)) {
 		return "", nil, fmt.Errorf("日志入库回退记录 HMAC 校验失败")
 	}
-	var content auditLogSpoolContent
+	var content baseLogFallbackContent
 	err = json.Unmarshal(record.Content, &content)
 	if err != nil {
 		return "", nil, fmt.Errorf("解析日志入库回退内容失败: %w", err)
 	}
-	var event auditLogSpoolAdminEvent
+	var event baseLogFallbackAdminEvent
 	err = json.Unmarshal(content.Payload, &event)
 	if err != nil {
 		return "", nil, fmt.Errorf("解析 Admin 审计事件失败: %w", err)
@@ -221,13 +221,13 @@ func decodeAuditLogSpoolRecord(line []byte, integrityKey string) (string, []byte
 	eventID := event.EventID
 	if eventID == "" {
 		digest := sha256.Sum256(record.Content)
-		eventID = "audit-log-spool-" + hex.EncodeToString(digest[:])
+		eventID = "base-log-fallback-" + hex.EncodeToString(digest[:])
 	}
 	return eventID, content.Payload, nil
 }
 
-// readAuditLogSpoolOffset 读取日志入库回退文件的已确认字节偏移量。
-func readAuditLogSpoolOffset(path string) (int64, error) {
+// readBaseLogFallbackOffset 读取日志入库回退文件的已确认字节偏移量。
+func readBaseLogFallbackOffset(path string) (int64, error) {
 	offsetPath := path + ".offset"
 	data, err := os.ReadFile(offsetPath)
 	if err != nil {
@@ -247,8 +247,8 @@ func readAuditLogSpoolOffset(path string) (int64, error) {
 	return offset, nil
 }
 
-// writeAuditLogSpoolOffset 原子更新日志入库回退文件的已确认字节偏移量。
-func writeAuditLogSpoolOffset(path string, offset int64) error {
+// writeBaseLogFallbackOffset 原子更新日志入库回退文件的已确认字节偏移量。
+func writeBaseLogFallbackOffset(path string, offset int64) error {
 	offsetPath := path + ".offset"
 	temporaryPath := offsetPath + ".tmp"
 	content := []byte(strconv.FormatInt(offset, 10) + "\n")

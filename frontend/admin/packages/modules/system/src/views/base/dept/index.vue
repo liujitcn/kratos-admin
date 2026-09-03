@@ -16,7 +16,7 @@
     <FormDialog
       v-model="dialog.visible"
       ref="formDialogRef"
-      :title="t(dialog.titleKey, { resource: t('system.base.dept.resource') })"
+      :title="t(dialog.titleKey, { resource: t('common.field.department') })"
       width="600px"
       :model="formData"
       :fields="formFields"
@@ -139,7 +139,7 @@ const formFields = computed<ProFormField[]>(() => [
     label: t("common.field.tenant"),
     component: "select",
     props: {
-      placeholder: t("common.validation.required_select", { field: t("common.field.tenant") }),
+      placeholder: t("common.placeholder.select"),
       filterable: true,
       disabled: Boolean(formData.id),
       onChange: handleFormTenantChange
@@ -427,7 +427,7 @@ function handleSubmit() {
     request.then(() => {
       ElMessage.success(
         t(submitData.id ? "common.message.update_success" : "common.message.create_success", {
-          resource: t("system.base.dept.resource")
+          resource: t("common.field.department")
         })
       );
       handleCloseDialog();
@@ -447,7 +447,7 @@ async function handleBeforeSetStatus(row: BaseDept) {
     await ElMessageBox.confirm(
       t("common.dialog.status_change", {
         action: text,
-        resource: t("system.base.dept.resource"),
+        resource: t("common.field.department"),
         field: t("system.base.dept.field.name"),
         value: deptName
       }),
@@ -486,9 +486,9 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
 
   const confirmMessage = deptList.length
     ? deptList.length === 1
-      ? `${t("common.dialog.delete_single", { resource: t("system.base.dept.resource") })}\n${t("common.dialog.resource_field", { field: t("system.base.dept.field.name"), value: deptList[0].name || `ID:${deptList[0].id}` })}`
-      : t("common.dialog.delete_batch", { count: deptList.length, unit: "", resource: t("system.base.dept.resource") })
-    : t("common.dialog.delete_selected", { resource: t("system.base.dept.resource") });
+      ? `${t("common.dialog.delete_single", { resource: t("common.field.department") })}\n${t("common.dialog.resource_field", { field: t("system.base.dept.field.name"), value: deptList[0].name || `ID:${deptList[0].id}` })}`
+      : t("common.dialog.delete_batch", { count: deptList.length, unit: "", resource: t("common.field.department") })
+    : t("common.dialog.delete_selected", { resource: t("common.field.department") });
 
   ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
     confirmButtonText: t("common.action.confirm"),
@@ -497,12 +497,12 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   }).then(
     () => {
       defBaseDeptService.DeleteBaseDept({ id: deptIds }).then(() => {
-        ElMessage.success(t("common.message.delete_success", { resource: t("system.base.dept.resource") }));
+        ElMessage.success(t("common.message.delete_success", { resource: t("common.field.department") }));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info(t("common.dialog.cancel_delete", { resource: t("system.base.dept.resource") }));
+      ElMessage.info(t("common.dialog.cancel_delete", { resource: t("common.field.department") }));
     }
   );
 }

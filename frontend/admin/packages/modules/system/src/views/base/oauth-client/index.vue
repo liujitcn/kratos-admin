@@ -47,6 +47,12 @@ import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { DEFAULT_TENANT_CODE, requestTenantOptions } from "@liujitcn/kratos-admin-core/tenant";
 
+/** 开放授权客户端表单状态，新增时租户保持未选择。 */
+type OauthClientFormState = Omit<OauthClientForm, "tenant_id"> & {
+  /** 绑定租户ID。 */
+  tenant_id?: number;
+};
+
 defineOptions({
   name: "OauthClient",
   inheritAttrs: false
@@ -65,9 +71,9 @@ const dialog = reactive({
   visible: false
 });
 
-const formData = reactive<OauthClientForm>({
+const formData = reactive<OauthClientFormState>({
   id: 0,
-  tenant_id: 0,
+  tenant_id: undefined,
   client_name: "",
   crypto_type: OauthClientCryptoType.OAUTH_CLIENT_CRYPTO_TYPE_SM4,
   ip_whitelist: "",
@@ -102,7 +108,7 @@ const rules = computed(() => ({
   tenant_id: [
     {
       required: isDefaultTenant.value,
-      message: t("common.validation.required_select", { field: t("system.base.oauth_client.field.tenant") }),
+      message: t("common.validation.required_select", { field: t("common.field.tenant") }),
       trigger: "change"
     }
   ],
@@ -133,9 +139,13 @@ const rules = computed(() => ({
 const formFields = computed<ProFormField[]>(() => [
   {
     prop: "tenant_id",
-    label: t("system.base.oauth_client.field.tenant"),
+    label: t("common.field.tenant"),
     component: "select",
-    props: { filterable: true, disabled: Boolean(formData.id) },
+    props: {
+      filterable: true,
+      disabled: Boolean(formData.id),
+      placeholder: t("common.placeholder.select")
+    },
     options: tenantOptions.value,
     visible: () => isDefaultTenant.value
   },
@@ -178,7 +188,7 @@ const columns = computed<ColumnProps[]>(() => [
     ? ([
         {
           prop: "tenant_id",
-          label: t("system.base.oauth_client.field.tenant"),
+          label: t("common.field.tenant"),
           minWidth: 130,
           search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 1 },
           enum: requestTenantOptions,
@@ -304,7 +314,7 @@ function resetForm() {
   formDialogRef.value?.clearValidate();
   Object.assign(formData, {
     id: 0,
-    tenant_id: 0,
+    tenant_id: undefined,
     client_name: "",
     crypto_type: OauthClientCryptoType.OAUTH_CLIENT_CRYPTO_TYPE_SM4,
     ip_whitelist: "",

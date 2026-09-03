@@ -113,7 +113,7 @@ const menuOptions = ref<ProFormOption[]>([]);
 const parentMenuTypeMap = ref(new Map<number, BaseMenuType>());
 const appMenuIds = ref(new Set<number>([APP_MENU_ROOT_ID]));
 const apiList = ref<BaseApi[]>([]);
-const i18nValues = ref<DynamicI18nValue[]>(normalizeDynamicI18ns(undefined, "title"));
+const i18nValues = ref<DynamicI18nValue[]>(normalizeDynamicI18ns(undefined));
 
 const dialog = reactive({
   editing: false,
@@ -1145,7 +1145,7 @@ function resetForm(data?: Partial<BaseMenuForm>) {
   formDialogRef.value?.resetFields();
   formDialogRef.value?.clearValidate();
   Object.assign(formData, normalizeMenuForm(data));
-  i18nValues.value = normalizeDynamicI18ns(data?.i18ns as DynamicI18nRecord[] | undefined, "title");
+	i18nValues.value = normalizeDynamicI18ns(data?.i18ns as DynamicI18nRecord[] | undefined);
 }
 
 /** 提交菜单表单，并在成功后关闭弹窗、刷新表格。 */

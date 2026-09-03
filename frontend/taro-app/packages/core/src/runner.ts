@@ -365,7 +365,7 @@ function restoreBuildTransaction(transaction: BuildTransaction, transactionFile:
     removeEmptyParents(dirname(file), transaction.inputDir)
   }
   removeGeneratedStaticFiles(
-    transaction.generatedStaticFiles ?? [],
+    transaction.generatedStaticFiles,
     resolve(transaction.inputDir, 'static'),
   )
   writeFileSync(transaction.appConfigFile, transaction.originalAppConfig)

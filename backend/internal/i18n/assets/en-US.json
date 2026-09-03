@@ -1133,7 +1133,7 @@
   "system.admin.runtime_config.invalid_json": {
     "other": "The system configuration is invalid"
   },
-  "system.admin.runtime.audit_log_spool.file_path.required": {
-    "other": "The audit-log ingestion fallback directory path cannot be empty"
+  "system.admin.runtime.base_log_fallback.file_path.required": {
+    "other": "The log ingestion fallback directory path cannot be empty"
   }
 }

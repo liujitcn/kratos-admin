@@ -332,7 +332,11 @@ func (r *Runtime) buildMessages(ctx context.Context, input RuntimeInput) []*eino
 		if item.Content == "" {
 			continue
 		}
-		messages = append(messages, einoMessage.TextByRole(item.Role, item.Content))
+		historyMessage := einoMessage.TextByRole(item.Role, item.Content)
+		if historyMessage == nil {
+			continue
+		}
+		messages = append(messages, historyMessage)
 		toolContext := buildHistoryToolContext(item.Tools, enabledNames)
 		if toolContext != "" {
 			messages = append(messages, einoMessage.SystemText(toolContext))

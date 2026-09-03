@@ -61,6 +61,8 @@ DOCKER_NETWORK ?= bridge
 DOCKER_HTTP_PORT ?= 7001
 DOCKER_GRPC_PORT ?= 6001
 DOCKER_DATA_DIR ?= backend/data
+DOCKER_LOG_DIR ?= backend/logs
+DOCKER_BACKUP_DIR ?= backend/backups
 DOCKER_CONFIG_SOURCE_DIR ?= backend/configs
 DOCKER_CONFIG_DIR ?= backend/runtime/configs
 DOCKER_RUN_ARGS ?=
@@ -225,6 +227,7 @@ docker-run: docker-check docker-config
 	@"$(DOCKER)" image inspect "$(IMAGE):$(TAG)" >/dev/null 2>&1 || (echo "未找到 Docker 镜像: $(IMAGE):$(TAG)，请先执行 make docker-build" && exit 1)
 	@test -d "$(DOCKER_CONFIG_DIR)" || (echo "未找到宿主机配置目录: $(DOCKER_CONFIG_DIR)" && exit 1)
 	@mkdir -p "$(DOCKER_DATA_DIR)"
+	@mkdir -p "$(DOCKER_LOG_DIR)" "$(DOCKER_BACKUP_DIR)"
 	@if "$(DOCKER)" container inspect "$(CONTAINER_NAME)" >/dev/null 2>&1; then \
 		container_status=$$("$(DOCKER)" container inspect -f '{{.State.Status}}' "$(CONTAINER_NAME)"); \
 		if [ "$$container_status" = "running" ]; then \
@@ -243,6 +246,8 @@ docker-run: docker-check docker-config
 		-p "$(DOCKER_HTTP_PORT):7001" \
 		-p "$(DOCKER_GRPC_PORT):6001" \
 		-v "$(abspath $(DOCKER_DATA_DIR)):/app/data" \
+		-v "$(abspath $(DOCKER_LOG_DIR)):/app/logs" \
+		-v "$(abspath $(DOCKER_BACKUP_DIR)):/app/backups" \
 		-v "$(abspath $(DOCKER_CONFIG_DIR)):/app/configs:ro" \
 		$(DOCKER_RUN_ARGS) \
 		"$(IMAGE):$(TAG)" \
@@ -313,6 +318,8 @@ help:
 	@printf "  %-24s %s\n" "DOCKER_HTTP_PORT" "宿主机 HTTP 端口，当前: $(DOCKER_HTTP_PORT)"
 	@printf "  %-24s %s\n" "DOCKER_GRPC_PORT" "宿主机 gRPC 端口，当前: $(DOCKER_GRPC_PORT)"
 	@printf "  %-24s %s\n" "DOCKER_DATA_DIR" "宿主机数据目录，当前: $(DOCKER_DATA_DIR)"
+	@printf "  %-24s %s\n" "DOCKER_LOG_DIR" "宿主机日志目录，当前: $(DOCKER_LOG_DIR)"
+	@printf "  %-24s %s\n" "DOCKER_BACKUP_DIR" "宿主机备份目录，当前: $(DOCKER_BACKUP_DIR)"
 	@printf "  %-24s %s\n" "DOCKER_CONFIG_SOURCE_DIR" "Docker 配置源目录，当前: $(DOCKER_CONFIG_SOURCE_DIR)"
 	@printf "  %-24s %s\n" "DOCKER_CONFIG_DIR" "宿主机配置目录，当前: $(DOCKER_CONFIG_DIR)"
 	@echo ""

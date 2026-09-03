@@ -23,7 +23,7 @@
         </slot>
       </div>
       <template #file="{ file }">
-        <img :src="file.url" class="upload-image" />
+        <img :src="formatSrc(file.url ?? '')" class="upload-image" />
         <div class="upload-handle" @click.stop>
           <div class="handle-icon" @click="handlePictureCardPreview(file)">
             <el-icon><ZoomIn /></el-icon>
@@ -47,6 +47,7 @@
 import { ref, computed, inject, watch } from "vue";
 import { Plus } from "@element-plus/icons-vue";
 import { defFileService } from "@/api/base/v1/file";
+import { formatSrc } from "@/utils/utils";
 import type { UploadProps, UploadFile, UploadUserFile, UploadRequestOptions } from "element-plus";
 import { ElNotification, formContextKey, formItemContextKey } from "element-plus";
 import type { FileInfo } from "@/rpc/base/v1/file";
@@ -200,7 +201,7 @@ const handleExceed = () => {
 const viewImageUrl = ref("");
 const imgViewVisible = ref(false);
 const handlePictureCardPreview: UploadProps["onPreview"] = file => {
-  viewImageUrl.value = file.url!;
+  viewImageUrl.value = formatSrc(file.url ?? "");
   imgViewVisible.value = true;
 };
 </script>

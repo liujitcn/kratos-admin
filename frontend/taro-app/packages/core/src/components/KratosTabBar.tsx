@@ -38,7 +38,9 @@ export function KratosTabBar({ route }: KratosTabBarProps) {
             {!icon && item.viewKey === 'MESSAGE_INBOX' ? (
               <View className={`kratos-tab-bar__message-icon${active ? ' kratos-tab-bar__message-icon--active' : ''}`} />
             ) : null}
-            {item.viewKey === 'MESSAGE_INBOX' && messageBadge ? <Text className='kratos-tab-bar__badge'>{messageBadge}</Text> : null}
+            {item.viewKey === 'MESSAGE_INBOX' && messageBadge ? (
+              <View className='kratos-tab-bar__badge' aria-hidden='true' />
+            ) : null}
             <Text className={active ? 'kratos-tab-bar__text--active' : ''}>{item.title}</Text>
           </View>
         )

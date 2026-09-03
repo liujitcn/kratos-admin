@@ -15,7 +15,7 @@
       :accept="fileType.join(',')"
     >
       <template v-if="imageUrl">
-        <img :src="imageUrl" class="upload-image" />
+        <img :src="displayImageUrl" class="upload-image" />
         <div class="upload-handle" @click.stop>
           <div v-if="!self_disabled" class="handle-icon" @click="editImg">
             <el-icon><Edit /></el-icon>
@@ -43,13 +43,14 @@
     <div class="el-upload__tip">
       <slot name="tip"></slot>
     </div>
-    <el-image-viewer v-if="imgViewVisible" :url-list="[imageUrl]" @close="imgViewVisible = false" />
+    <el-image-viewer v-if="imgViewVisible" :url-list="[displayImageUrl]" @close="imgViewVisible = false" />
   </div>
 </template>
 
 <script setup lang="ts" name="UploadImg">
 import { ref, computed, inject } from "vue";
 import { generateUUID } from "@/utils";
+import { formatSrc } from "@/utils/utils";
 import { defFileService } from "@/api/base/v1/file";
 import { ElNotification, formContextKey, formItemContextKey } from "element-plus";
 import type { UploadProps, UploadRequestOptions } from "element-plus";
@@ -98,6 +99,7 @@ const formItemContext = inject(formItemContextKey, void 0);
 const self_disabled = computed(() => {
   return props.disabled || formContext?.disabled;
 });
+const displayImageUrl = computed(() => formatSrc(props.imageUrl));
 
 /**
  * @description 图片上传

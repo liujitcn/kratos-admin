@@ -1,1 +1,1 @@
-export { formatJson, formatSrc } from "./utils/utils";
+export { formatJson, formatSrc, normalizeRichTextMediaPaths, normalizeStaticAssetPath } from "./utils/utils";

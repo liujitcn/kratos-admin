@@ -15,7 +15,7 @@ func TestNotificationResolveTenantIsolatesTenantAndUser(t *testing.T) {
 
 func TestNotificationResolvePrefixedChannelKeepsTenantIsolation(t *testing.T) {
 	stream := NewNotification()
-	resolved, err := stream.Resolve("7:legacy", 42)
+	resolved, err := stream.Resolve("7:channel", 42)
 	if err != nil {
 		t.Fatal(err)
 	}

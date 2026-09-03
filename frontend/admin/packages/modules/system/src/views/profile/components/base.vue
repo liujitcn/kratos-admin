@@ -55,11 +55,11 @@
           <span class="detail-value">{{ profile.id_code || t("system.profile.value.unbound") }}</span>
         </div>
         <div class="detail-item">
-          <span class="detail-label">{{ t("system.profile.account.field.role") }}</span>
+          <span class="detail-label">{{ t("common.field.role") }}</span>
           <span class="detail-value">{{ profile.role_name || "--" }}</span>
         </div>
         <div class="detail-item">
-          <span class="detail-label">{{ t("system.profile.account.field.dept") }}</span>
+          <span class="detail-label">{{ t("common.field.department") }}</span>
           <span class="detail-value">{{ profile.dept_name || "--" }}</span>
         </div>
         <div class="detail-item detail-item--wide">

@@ -90,7 +90,7 @@ const route = useRoute();
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
-const i18nValues = ref<DynamicI18nValue[]>(normalizeDynamicI18ns(undefined, "label"));
+const i18nValues = ref<DynamicI18nValue[]>(normalizeDynamicI18ns(undefined));
 
 const dictId = ref(Number(route.query.dictId ?? 0));
 
@@ -330,7 +330,7 @@ async function handleOpenDialog(dictItemId?: number) {
 
   const data = await defBaseDictItemService.GetBaseDictItem({ id: dictItemId });
   Object.assign(formData, data);
-  i18nValues.value = normalizeDynamicI18ns(data.i18ns as DynamicI18nRecord[], "label");
+	i18nValues.value = normalizeDynamicI18ns(data.i18ns as DynamicI18nRecord[]);
 }
 
 /**
@@ -355,7 +355,7 @@ function resetForm() {
   formData.tag_type = "";
   formData.sort = 1;
   formData.status = Status.STATUS_ENABLE;
-  i18nValues.value = normalizeDynamicI18ns(undefined, "label");
+	i18nValues.value = normalizeDynamicI18ns(undefined);
 }
 
 /**

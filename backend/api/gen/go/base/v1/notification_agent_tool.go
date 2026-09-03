@@ -24,6 +24,12 @@ func NewNotificationServiceAgentTools(notificationServiceServer NotificationServ
 		return nil, err
 	}
 	ts = append(ts, pageNotificationTool)
+	var listNotificationCategoriesTool tool.InvokableTool
+	listNotificationCategoriesTool, err = NewNotificationServiceListNotificationCategoriesAgentTool(notificationServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, listNotificationCategoriesTool)
 	var getNotificationSummaryTool tool.InvokableTool
 	getNotificationSummaryTool, err = NewNotificationServiceGetNotificationSummaryAgentTool(notificationServiceServer)
 	if err != nil {
@@ -85,6 +91,20 @@ func NewNotificationServicePageNotificationAgentTool(notificationServiceServer N
 				req = &PageNotificationRequest{}
 			}
 			return notificationServiceServer.PageNotification(ctx, req)
+		},
+	)
+}
+
+// NewNotificationServiceListNotificationCategoriesAgentTool 创建查询消息分类列表的 Agent Tool。
+func NewNotificationServiceListNotificationCategoriesAgentTool(notificationServiceServer NotificationServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListNotificationCategoriesRequest, *ListNotificationCategoriesResponse](
+		"base_v1_notification_service_list_notification_categories",
+		"查询消息分类列表。",
+		func(ctx context.Context, req *ListNotificationCategoriesRequest) (*ListNotificationCategoriesResponse, error) {
+			if req == nil {
+				req = &ListNotificationCategoriesRequest{}
+			}
+			return notificationServiceServer.ListNotificationCategories(ctx, req)
 		},
 	)
 }

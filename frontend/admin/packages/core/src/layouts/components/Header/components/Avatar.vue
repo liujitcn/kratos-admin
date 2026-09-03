@@ -23,7 +23,7 @@
             @click.stop="handleUserMenuAction(action.path)"
           >
             <el-icon v-if="action.icon"><component :is="action.icon" /></el-icon>
-            <span>{{ action.labelKey ? t(action.labelKey) : action.label }}</span>
+			<span>{{ t(action.labelKey) }}</span>
           </button>
           <button class="action-btn action-btn--lock" type="button" @click.stop="lockScreen">
             <el-icon><Lock /></el-icon>

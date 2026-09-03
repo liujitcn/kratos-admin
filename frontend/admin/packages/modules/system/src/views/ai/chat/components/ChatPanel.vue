@@ -848,11 +848,9 @@ function formatToolRequest(tool: AiToolCall) {
   return formatToolArguments(input);
 }
 
-/** 格式化工具出参，兼容历史结果落在 input 的消息。 */
+/** 格式化工具出参。 */
 function formatToolResponse(tool: AiToolCall) {
-  if (hasToolPayloadValue(tool.output)) return formatToolPayload(tool.output);
-  if (hasToolPayloadValue(tool.input) && !isJSONLikeText(tool.input)) return formatToolPayload(tool.input);
-  return "{}";
+  return hasToolPayloadValue(tool.output) ? formatToolPayload(tool.output) : "{}";
 }
 
 /** 判断文本是否像 JSON，工具请求报文正常应由模型参数 JSON 构成。 */

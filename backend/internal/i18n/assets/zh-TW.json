@@ -1133,7 +1133,7 @@
   "system.admin.runtime_config.invalid_json": {
     "other": "系統配置內容無效"
   },
-  "system.admin.runtime.audit_log_spool.file_path.required": {
+  "system.admin.runtime.base_log_fallback.file_path.required": {
     "other": "稽核日誌入庫回退目錄路徑不得為空"
   }
 }

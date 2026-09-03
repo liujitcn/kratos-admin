@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -22,37 +21,37 @@ import (
 )
 
 const (
-	// AuditLogSpoolKey 表示日志入库回退配置键。
-	AuditLogSpoolKey = "auditLogSpool"
+	// BaseLogFallbackKey 表示日志入库回退配置键。
+	BaseLogFallbackKey = "baseLogFallback"
 	// CacheExpire 表示运行配置缓存有效期。
 	CacheExpire = 100 * 365 * 24 * time.Hour
-	// AuditLogSpoolFileName 表示日志入库回退文件的固定文件名。
-	AuditLogSpoolFileName = "admin-log.jsonl"
-	// AuditLogIntegrityKeyName 表示日志入库回退完整性密钥的固定名称。
-	AuditLogIntegrityKeyName = "kratos-admin:audit-log-spool/integrity"
+	// BaseLogFallbackFileName 表示日志入库回退文件的固定文件名。
+	BaseLogFallbackFileName = "admin-log.jsonl"
+	// BaseLogFallbackIntegrityKeyName 表示日志入库回退完整性密钥的固定名称。
+	BaseLogFallbackIntegrityKeyName = "kratos-admin:base-log-fallback/integrity"
 	// RedactedValue 表示管理端返回的敏感配置占位值。
 	RedactedValue = "[REDACTED]"
 )
 
-// AuditLogSpoolConfig 表示日志入库回退配置。
-type AuditLogSpoolConfig = configv1.BaseLogFallbackConfig
+// BaseLogFallbackConfig 表示日志入库回退配置。
+type BaseLogFallbackConfig = configv1.BaseLogFallbackConfig
 
-// ResolveAuditLogIntegrityKey 从运行时密钥服务派生日志回退完整性密钥。
-func ResolveAuditLogIntegrityKey() (string, error) {
+// ResolveBaseLogFallbackIntegrityKey 从运行时密钥服务派生日志回退完整性密钥。
+func ResolveBaseLogFallbackIntegrityKey() (string, error) {
 	keyValue := sdk.Runtime.GetKey()
 	if keyValue == nil {
 		return "", errors.New("日志入库回退完整性密钥为空且运行时密钥未初始化")
 	}
-	derived, err := keyValue.Derive(context.Background(), AuditLogIntegrityKeyName)
+	derived, err := keyValue.Derive(context.Background(), BaseLogFallbackIntegrityKeyName)
 	if err != nil {
 		return "", fmt.Errorf("派生日志入库回退完整性密钥失败: %w", err)
 	}
 	return base64.RawStdEncoding.EncodeToString(derived), nil
 }
 
-// AuditLogSpoolFilePath 根据配置目录返回日志入库回退文件路径。
-func AuditLogSpoolFilePath(filePath string) string {
-	return filepath.Join(filePath, AuditLogSpoolFileName)
+// BaseLogFallbackFilePath 根据配置目录返回日志入库回退文件路径。
+func BaseLogFallbackFilePath(filePath string) string {
+	return filepath.Join(filePath, BaseLogFallbackFileName)
 }
 
 // Definition 描述一个可被 Admin 管理的运行配置。
@@ -352,53 +351,6 @@ func DefaultJSON(key string) (string, error) {
 	return defaultRegistry.DefaultJSON(key)
 }
 
-// MigrateJSON 清理指定运行配置中的历史废弃字段。
-func MigrateJSON(key, value string) (string, error) {
-	var payload map[string]json.RawMessage
-	err := json.Unmarshal([]byte(value), &payload)
-	if err != nil {
-		return "", fmt.Errorf("解析历史系统配置 JSON 失败: %w", err)
-	}
-	if payload == nil {
-		return "", errors.New("历史系统配置 JSON 必须是对象")
-	}
-	if key == AuditLogSpoolKey {
-		legacyValue, exists := payload["spool_file"]
-		if _, hasFilePath := payload["file_path"]; !hasFilePath && exists {
-			var legacyPath string
-			err = json.Unmarshal(legacyValue, &legacyPath)
-			if err != nil {
-				return "", fmt.Errorf("解析历史日志入库回退文件路径失败: %w", err)
-			}
-			if legacyPath != "" {
-				normalizedLegacyPath := filepath.ToSlash(legacyPath)
-				filePath := path.Dir(normalizedLegacyPath)
-				if strings.HasPrefix(normalizedLegacyPath, "./") && filePath != "." {
-					filePath = "./" + filePath
-				}
-				var filePathJSON []byte
-				filePathJSON, err = json.Marshal(filePath)
-				if err != nil {
-					return "", fmt.Errorf("生成历史日志入库回退目录路径失败: %w", err)
-				}
-				payload["file_path"] = filePathJSON
-			}
-		}
-	}
-	deprecatedFields := map[string][]string{
-		AuditLogSpoolKey: {"archive_dir", "archive_integrity_key", "retention_days", "spool_file", "integrity_key"},
-	}
-	for _, field := range deprecatedFields[key] {
-		delete(payload, field)
-	}
-	var data []byte
-	data, err = json.Marshal(payload)
-	if err != nil {
-		return "", fmt.Errorf("生成历史系统配置 JSON 失败: %w", err)
-	}
-	return string(data), nil
-}
-
 // ValidateJSON 使用进程内默认注册表校验配置 ProtoJSON。
 func ValidateJSON(key, value string) error {
 	return defaultRegistry.ValidateJSON(key, value)
@@ -443,9 +395,9 @@ func MergeSensitiveJSON(key, current, incoming string) (string, error) {
 	return defaultRegistry.MergeSensitiveJSON(key, current, incoming)
 }
 
-// DefaultAuditLogSpoolConfig 返回日志入库回退配置默认值。
-func DefaultAuditLogSpoolConfig() AuditLogSpoolConfig {
-	return AuditLogSpoolConfig{FilePath: "./data/audit-log-spool"}
+// DefaultBaseLogFallbackConfig 返回日志入库回退配置默认值。
+func DefaultBaseLogFallbackConfig() BaseLogFallbackConfig {
+	return BaseLogFallbackConfig{FilePath: "./logs/base-log-fallback"}
 }
 
 func (r *Registry) decodeJSON(key, value string) (proto.Message, error) {
@@ -643,12 +595,12 @@ func isRedactedJSONValue(value json.RawMessage) bool {
 func builtinDefinitions() []Definition {
 	return []Definition{
 		{
-			Key:            AuditLogSpoolKey,
-			New:            func() proto.Message { return new(AuditLogSpoolConfig) },
-			Default:        func() proto.Message { value := DefaultAuditLogSpoolConfig(); return &value },
+			Key:            BaseLogFallbackKey,
+			New:            func() proto.Message { return new(BaseLogFallbackConfig) },
+			Default:        func() proto.Message { value := DefaultBaseLogFallbackConfig(); return &value },
 			Owner:          "admin",
-			NameKey:        "system.base.runtime_config.audit_log_spool.title",
-			DescriptionKey: "system.base.runtime_config.audit_log_spool.description",
+			NameKey:        "system.base.runtime_config.base_log_fallback.title",
+			DescriptionKey: "system.base.runtime_config.base_log_fallback.description",
 		},
 	}
 }

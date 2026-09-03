@@ -12,7 +12,7 @@
     <FormDialog
       v-model="dialog.visible"
       ref="formDialogRef"
-      :title="t(dialog.titleKey, { resource: t('system.base.tenant.resource') })"
+      :title="t(dialog.titleKey, { resource: t('common.field.tenant') })"
       width="780px"
       :model="formData"
       :fields="formFields"
@@ -303,7 +303,7 @@ function handleSubmit() {
     request.then(() => {
       ElMessage.success(
         t(submitData.id ? "common.message.update_success" : "common.message.create_success", {
-          resource: t("system.base.tenant.resource")
+          resource: t("common.field.tenant")
         })
       );
       handleCloseDialog();
@@ -327,7 +327,7 @@ async function handleBeforeSetStatus(row: BaseTenant) {
     await ElMessageBox.confirm(
       t("common.dialog.status_change", {
         action: text,
-        resource: t("system.base.tenant.resource"),
+        resource: t("common.field.tenant"),
         field: t("system.base.tenant.field.name"),
         value: row.name || `ID:${row.id}`
       }),
@@ -373,9 +373,9 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
 
   const confirmMessage = tenantList.length
     ? tenantList.length === 1
-      ? `${t("common.dialog.delete_single", { resource: t("system.base.tenant.resource") })}\n${t("common.dialog.resource_field", { field: t("system.base.tenant.field.name"), value: tenantList[0].name || `ID:${tenantList[0].id}` })}`
-      : t("common.dialog.delete_batch", { count: tenantList.length, unit: "", resource: t("system.base.tenant.resource") })
-    : t("common.dialog.delete_selected", { resource: t("system.base.tenant.resource") });
+      ? `${t("common.dialog.delete_single", { resource: t("common.field.tenant") })}\n${t("common.dialog.resource_field", { field: t("system.base.tenant.field.name"), value: tenantList[0].name || `ID:${tenantList[0].id}` })}`
+      : t("common.dialog.delete_batch", { count: tenantList.length, unit: "", resource: t("common.field.tenant") })
+    : t("common.dialog.delete_selected", { resource: t("common.field.tenant") });
 
   ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
     confirmButtonText: t("common.action.confirm"),
@@ -384,12 +384,12 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   }).then(
     () => {
       defBaseTenantService.DeleteBaseTenant({ id: tenantIds }).then(() => {
-        ElMessage.success(t("common.message.delete_success", { resource: t("system.base.tenant.resource") }));
+        ElMessage.success(t("common.message.delete_success", { resource: t("common.field.tenant") }));
         refreshTable();
       });
     },
     () => {
-      ElMessage.info(t("common.dialog.cancel_delete", { resource: t("system.base.tenant.resource") }));
+      ElMessage.info(t("common.dialog.cancel_delete", { resource: t("common.field.tenant") }));
     }
   );
 }

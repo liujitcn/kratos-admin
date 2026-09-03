@@ -33,6 +33,16 @@ func (s *NotificationService) PageNotification(ctx context.Context, req *basev1.
 	return result, nil
 }
 
+// ListNotificationCategories 查询消息分类列表。
+func (s *NotificationService) ListNotificationCategories(ctx context.Context, req *basev1.ListNotificationCategoriesRequest) (*basev1.ListNotificationCategoriesResponse, error) {
+	result, err := s.notificationCase.ListNotificationCategories(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("ListNotificationCategories %v", err))
+		return nil, errorsx.WrapInternal(err, "查询消息分类失败")
+	}
+	return result, nil
+}
+
 // GetNotification 查询当前用户消息详情。
 func (s *NotificationService) GetNotification(ctx context.Context, req *basev1.GetNotificationRequest) (*basev1.Notification, error) {
 	result, err := s.notificationCase.GetNotification(ctx, req.GetId())

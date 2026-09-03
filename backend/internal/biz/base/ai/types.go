@@ -20,8 +20,6 @@ const (
 	RoleUser = agent.RoleUser
 	// RoleAI 表示助手历史消息角色。
 	RoleAI = agent.RoleAI
-	// RoleSystem 表示系统历史消息角色。
-	RoleSystem = agent.RoleSystem
 	// KindText 表示普通文本消息类型。
 	KindText = agent.KindText
 )

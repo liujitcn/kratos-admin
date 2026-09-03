@@ -27,10 +27,7 @@ const OAUTH_TICKET_URL = "/v1/base/oauth/ticket";
 const MFA_VERIFY_URL = "/v1/base/mfa/verify";
 const MFA_ENROLLMENT_URL = "/v1/base/mfa/enrollment";
 const MFA_ENROLLMENT_CONFIRM_URL = "/v1/base/mfa/enrollment/confirm";
-const LEGACY_AUTH_URL = "/auth";
-const LEGACY_REFRESH_TOKEN_URL = `${LEGACY_AUTH_URL}/token`;
-const LEGACY_CAPTCHA_URL = "/login/captcha";
-// 认证公共接口不携带旧 token，同时保留旧路径兼容迁移期间的灰度访问。
+// 认证公共接口不携带访问令牌。
 const NO_AUTH_URL_SET = new Set([
   SESSION_URL,
   TOKEN_URL,
@@ -43,10 +40,7 @@ const NO_AUTH_URL_SET = new Set([
   OAUTH_TICKET_URL,
   MFA_VERIFY_URL,
   MFA_ENROLLMENT_URL,
-  MFA_ENROLLMENT_CONFIRM_URL,
-  LEGACY_AUTH_URL,
-  LEGACY_CAPTCHA_URL,
-  LEGACY_REFRESH_TOKEN_URL
+  MFA_ENROLLMENT_CONFIRM_URL
 ]);
 const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set([
   SESSION_URL,
@@ -60,10 +54,7 @@ const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set([
   OAUTH_TICKET_URL,
   MFA_VERIFY_URL,
   MFA_ENROLLMENT_URL,
-  MFA_ENROLLMENT_CONFIRM_URL,
-  LEGACY_AUTH_URL,
-  LEGACY_REFRESH_TOKEN_URL,
-  LEGACY_CAPTCHA_URL
+  MFA_ENROLLMENT_CONFIRM_URL
 ]);
 
 /** 支持自动重试的 Axios 请求配置。 */
@@ -140,7 +131,7 @@ function shouldSkipAuth(config: InternalAxiosRequestConfig) {
   const requestUrl = config.url ?? "";
   const requestMethod = String(config.method ?? "").toLowerCase();
   // 登录请求会显式声明 no-auth，登出请求则必须带访问令牌让服务端清理会话和刷新令牌。
-  if ((requestUrl === SESSION_URL || requestUrl === LEGACY_AUTH_URL) && requestMethod === "delete") return false;
+  if (requestUrl === SESSION_URL && requestMethod === "delete") return false;
   return NO_AUTH_URL_SET.has(requestUrl);
 }
 
@@ -158,7 +149,7 @@ function shouldSkipErrorMessage(config?: InternalAxiosRequestConfig) {
 
   const requestUrl = config.url ?? "";
   const requestMethod = String(config.method ?? "").toLowerCase();
-  return (requestUrl === SESSION_URL || requestUrl === LEGACY_AUTH_URL) && requestMethod === "delete";
+  return requestUrl === SESSION_URL && requestMethod === "delete";
 }
 
 /** 判断响应是否要求用户先修改密码。 */
@@ -317,7 +308,7 @@ service.interceptors.request.use(
     const accessToken = skipAuth ? "" : await getRequestAccessToken();
     Object.assign(config.headers, getLocaleRequestHeaders());
     config.headers[REFRESH_TOKEN_TRANSPORT_HEADER] = REFRESH_TOKEN_TRANSPORT_COOKIE;
-    // 登录、验证码、刷新令牌接口不携带旧 token，避免请求头污染。
+    // 登录、验证码、刷新令牌接口不携带访问令牌，避免请求头污染。
     if (!skipAuth && accessToken) {
       config.headers.Authorization = accessToken;
     } else {

@@ -685,7 +685,7 @@ func codeGenProtoTargetTableName(table *models.CodeGenTable, targetEntity string
 	return stringcase.ToSnakeCase(targetEntity)
 }
 
-// savedCodeGenProtoMatches 判断已保存配置是否对应当前检查项，并兼容旧版复数契约名。
+// savedCodeGenProtoMatches 判断已保存配置是否对应当前检查项。
 func savedCodeGenProtoMatches(saved *models.CodeGenProto, check *adminv1.CodeGenProtoCheck) bool {
 	return saved.Sort == check.GetSort()
 }

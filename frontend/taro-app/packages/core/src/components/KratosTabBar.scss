@@ -88,15 +88,12 @@
 
 .kratos-tab-bar__badge {
   position: absolute;
-  top: 2PX;
-  right: calc(50% - 22PX);
-  min-width: 14PX;
-  height: 14PX;
-  padding: 0 3PX;
-  border-radius: 8PX;
+  top: 0;
+  right: calc(50% - 19PX);
+  width: 10PX;
+  height: 10PX;
+  box-sizing: border-box;
+  border: 2PX solid #fff;
+  border-radius: 50%;
   background: #e5484d;
-  color: #fff;
-  font-size: 9PX;
-  line-height: 14PX;
-  text-align: center;
 }

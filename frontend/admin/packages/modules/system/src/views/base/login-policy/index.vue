@@ -87,8 +87,8 @@ const formData = reactive<BaseLoginPolicyFormState>(defaultForm());
 
 const scopeTypeOptions = computed<ProFormOption[]>(() => [
   { label: t("system.base.login_policy.scope.global"), value: BaseLoginPolicyScopeType.BASE_LOGIN_POLICY_SCOPE_TYPE_GLOBAL },
-  { label: t("system.base.login_policy.scope.tenant"), value: BaseLoginPolicyScopeType.BASE_LOGIN_POLICY_SCOPE_TYPE_TENANT },
-  { label: t("system.base.login_policy.scope.user"), value: BaseLoginPolicyScopeType.BASE_LOGIN_POLICY_SCOPE_TYPE_USER }
+  { label: t("common.field.tenant"), value: BaseLoginPolicyScopeType.BASE_LOGIN_POLICY_SCOPE_TYPE_TENANT },
+  { label: t("common.field.user"), value: BaseLoginPolicyScopeType.BASE_LOGIN_POLICY_SCOPE_TYPE_USER }
 ]);
 const restrictionTypeOptions = computed<ProFormOption[]>(() => [
   { label: t("system.base.login_policy.restriction.blacklist"), value: BaseLoginPolicyRestrictionType.BASE_LOGIN_POLICY_RESTRICTION_TYPE_BLACKLIST },
@@ -110,7 +110,7 @@ const formFields = computed<ProFormField[]>(() => [
   { prop: "scope_type", label: t("system.base.login_policy.field.scope_type"), component: "select", options: scopeTypeOptions.value },
   {
     prop: "tenant_id",
-    label: t("system.base.login_policy.field.tenant"),
+    label: t("common.field.tenant"),
     component: "select",
     options: tenantOptions.value,
     visible: model => model.scope_type !== BaseLoginPolicyScopeType.BASE_LOGIN_POLICY_SCOPE_TYPE_GLOBAL,
@@ -118,7 +118,7 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "user_id",
-    label: t("system.base.login_policy.field.user"),
+    label: t("common.field.user"),
     component: "select",
     options: userOptions.value,
     visible: model => model.scope_type === BaseLoginPolicyScopeType.BASE_LOGIN_POLICY_SCOPE_TYPE_USER,
@@ -424,7 +424,7 @@ function removeRule(index: number) {
 /** 校验租户作用域目标。 */
 function validateTenant(_rule: unknown, value: number, callback: (error?: Error) => void) {
   if (formData.scope_type !== BaseLoginPolicyScopeType.BASE_LOGIN_POLICY_SCOPE_TYPE_GLOBAL && !value) {
-    callback(new Error(t("system.base.login_policy.validation.tenant")));
+    callback(new Error(t("common.validation.required_select", { field: t("common.field.tenant") })));
     return;
   }
   callback();
@@ -433,7 +433,7 @@ function validateTenant(_rule: unknown, value: number, callback: (error?: Error)
 /** 校验用户作用域目标。 */
 function validateUser(_rule: unknown, value: number, callback: (error?: Error) => void) {
   if (formData.scope_type === BaseLoginPolicyScopeType.BASE_LOGIN_POLICY_SCOPE_TYPE_USER && !value) {
-    callback(new Error(t("system.base.login_policy.validation.user")));
+    callback(new Error(t("common.validation.required_select", { field: t("common.field.user") })));
     return;
   }
   callback();

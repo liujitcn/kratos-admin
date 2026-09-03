@@ -74,7 +74,7 @@ func (c *FileCase) MultiUploadFile(ctx context.Context, req *basev1.MultiUploadF
 	}
 	for _, item := range uploadFiles {
 		var objectPath string
-		objectPath, err = tenantFilePath(authInfo.TenantId, item.GetPath())
+		objectPath, err = objectFilePath(item.GetPath())
 		if err != nil {
 			return nil, err
 		}
@@ -94,7 +94,7 @@ func (c *FileCase) MultiUploadFile(ctx context.Context, req *basev1.MultiUploadF
 			return nil, err
 		}
 		files = append(files, &basev1.FileInfo{
-			Url:     url,
+			Url:     publicFileURL(url),
 			Name:    item.GetName(),
 			Extname: item.GetExtname(),
 		})
@@ -110,7 +110,7 @@ func (c *FileCase) UploadFile(ctx context.Context, req *basev1.UploadFileRequest
 	}
 	file := req.GetFile()
 	var objectPath string
-	objectPath, err = tenantFilePath(authInfo.TenantId, file.GetPath())
+	objectPath, err = objectFilePath(file.GetPath())
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +130,7 @@ func (c *FileCase) UploadFile(ctx context.Context, req *basev1.UploadFileRequest
 		return nil, err
 	}
 	return &basev1.FileInfo{
-		Url:     url,
+		Url:     publicFileURL(url),
 		Name:    file.GetName(),
 		Extname: file.GetExtname(),
 	}, nil
@@ -175,12 +175,12 @@ func (c *FileCase) recordUploadedFile(ctx context.Context, tenantID, userID int6
 
 // DownloadFile 下载文件内容。
 func (c *FileCase) DownloadFile(ctx context.Context, req *basev1.DownloadFileRequest) (*wrapperspb.BytesValue, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
+	_, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
 	var objectPath string
-	objectPath, err = tenantFilePath(authInfo.TenantId, req.GetPath())
+	objectPath, err = objectFilePath(req.GetPath())
 	if err != nil {
 		return nil, err
 	}
@@ -206,24 +206,37 @@ func validateFilePath(filePath string) error {
 	return nil
 }
 
-// tenantFilePath 将对象路径绑定到当前租户目录，阻止跨租户读取或写入。
-func tenantFilePath(tenantID int64, filePath string) (string, error) {
-	if tenantID <= 0 {
-		return "", errorsx.PermissionDenied("无法识别文件所属租户")
-	}
+// objectFilePath 将浏览器访问路径转换为 OSS 对象路径并阻止路径逃逸。
+func objectFilePath(filePath string) (string, error) {
 	err := validateFilePath(filePath)
 	if err != nil {
 		return "", err
 	}
 	normalized := "/" + strings.TrimPrefix(strings.ReplaceAll(filePath, `\`, "/"), "/")
-	prefix := fmt.Sprintf("/tenant/%d/", tenantID)
-	if strings.HasPrefix(normalized, "/tenant/") {
-		if !strings.HasPrefix(normalized, prefix) {
-			return "", errorsx.PermissionDenied("文件不属于当前租户")
-		}
-		return normalized, nil
+	if strings.HasPrefix(normalized, "/data/") {
+		normalized = strings.TrimPrefix(normalized, "/data")
 	}
-	return prefix + strings.TrimPrefix(normalized, "/"), nil
+	if normalized == "/data" || normalized == "/" {
+		return "", errorsx.InvalidArgument("文件路径不合法")
+	}
+	return strings.TrimPrefix(normalized, "/"), nil
+}
+
+// publicFileURL 将本地 OSS 对象路径转换为统一的浏览器访问路径。
+func publicFileURL(objectPath string) string {
+	if strings.HasPrefix(objectPath, "http://") || strings.HasPrefix(objectPath, "https://") || strings.HasPrefix(objectPath, "//") {
+		return objectPath
+	}
+	normalizedPath := strings.TrimPrefix(strings.ReplaceAll(objectPath, `\`, "/"), "/")
+	normalizedPath = strings.TrimPrefix(normalizedPath, "data/")
+	normalized := "/" + normalizedPath
+	if strings.HasPrefix(normalized, "/data/") {
+		return normalized
+	}
+	if normalized == "/" {
+		return ""
+	}
+	return "/data" + normalized
 }
 
 // validateFileContent 校验上传内容大小并拒绝可直接执行或嵌入的危险类型。

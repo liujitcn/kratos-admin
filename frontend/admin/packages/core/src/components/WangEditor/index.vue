@@ -18,6 +18,7 @@ import { nextTick, computed, inject, shallowRef, onBeforeUnmount } from "vue";
 import { IToolbarConfig, IEditorConfig } from "@wangeditor/editor";
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import { defFileService } from "@/api/base/v1/file";
+import { normalizeRichTextMediaPaths, normalizeStaticAssetPath } from "@/utils/utils";
 import "@wangeditor/editor/dist/css/style.css";
 import { formContextKey, formItemContextKey } from "element-plus";
 import { useLocaleStore } from "@/locales";
@@ -41,6 +42,7 @@ interface RichEditorProps {
   mode?: "default" | "simple"; // 富文本模式 ==> 非必传（默认为 default）
   hideToolBar?: boolean; // 是否隐藏工具栏 ==> 非必传（默认为false）
   disabled?: boolean; // 是否禁用编辑器 ==> 非必传（默认为false）
+  uploadType?: string; // 富文本上传业务类型 ==> 非必传（默认为 content）
 }
 const props = withDefaults(defineProps<RichEditorProps>(), {
   toolbarConfig: () => {
@@ -56,7 +58,8 @@ const props = withDefaults(defineProps<RichEditorProps>(), {
   height: "500px",
   mode: "default",
   hideToolBar: false,
-  disabled: false
+  disabled: false,
+  uploadType: "content"
 });
 const editorMenuConfig = props.editorConfig.MENU_CONF ?? {};
 const resolvedEditorConfig = computed(() => ({
@@ -84,7 +87,7 @@ const emit = defineEmits<{
 }>();
 const valueHtml = computed({
   get() {
-    return props.value;
+    return normalizeRichTextMediaPaths(props.value);
   },
   set(val: string) {
     // 防止富文本内容为空时，校验失败
@@ -103,8 +106,8 @@ editorMenuConfig["uploadImage"] = {
   async customUpload(file: File, insertFn: InsertFnTypeImg) {
     if (!uploadImgValidate(file)) return;
     try {
-      const data = await defFileService.UploadFile(file, "image");
-      insertFn(data.url);
+      const data = await defFileService.UploadFile(file, props.uploadType);
+      insertFn(normalizeStaticAssetPath(data.url));
     } catch (error) {
       console.log(error);
     }
@@ -127,8 +130,8 @@ editorMenuConfig["uploadVideo"] = {
   async customUpload(file: File, insertFn: InsertFnTypeVideo) {
     if (!uploadVideoValidate(file)) return;
     try {
-      const data = await defFileService.UploadFile(file, "video");
-      insertFn(data.url);
+      const data = await defFileService.UploadFile(file, props.uploadType);
+      insertFn(normalizeStaticAssetPath(data.url));
     } catch (error) {
       console.log(error);
     }

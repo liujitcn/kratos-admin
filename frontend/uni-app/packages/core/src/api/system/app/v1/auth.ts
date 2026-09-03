@@ -3,24 +3,18 @@ import {
   type AuthService,
   type BindUserPhoneRequest,
   type BindUserPhoneResponse,
+  type GetUserProfileRequest,
+  type UpdateUserProfileRequest,
   type UserProfileForm,
 } from '../../../../rpc/system/app/v1/auth'
 import type { Empty } from '../../../../rpc/google/protobuf/empty'
 
 const AUTH_URL = '/v1/app/auth'
 
-/** 获取用户资料请求兼容空请求结构。 */
-type GetUserProfileRequestCompat = Empty
-
-/** 更新用户资料请求兼容新旧两种表单包裹方式。 */
-type UpdateUserProfileRequestCompat = Partial<UserProfileForm> & {
-  user_profile?: UserProfileForm
-}
-
 /** 用户认证资料服务 */
 export class AuthServiceImpl implements AuthService {
   /** 获取已登录用户资料 */
-  GetUserProfile(request: GetUserProfileRequestCompat): Promise<UserProfileForm> {
+  GetUserProfile(request: GetUserProfileRequest): Promise<UserProfileForm> {
     return http<UserProfileForm>({
       url: `${AUTH_URL}/profile`,
       method: 'GET',
@@ -30,13 +24,12 @@ export class AuthServiceImpl implements AuthService {
   }
 
   /** 修改个人中心用户信息 */
-  UpdateUserProfile(request: UpdateUserProfileRequestCompat): Promise<Empty> {
-    const userProfile = request.user_profile ?? (request as UserProfileForm)
+  UpdateUserProfile(request: UpdateUserProfileRequest): Promise<Empty> {
     return http<Empty>({
       url: `${AUTH_URL}/profile`,
       method: 'PUT',
       authMode: 'required',
-      data: userProfile,
+      data: request.user_profile,
     })
   }
 

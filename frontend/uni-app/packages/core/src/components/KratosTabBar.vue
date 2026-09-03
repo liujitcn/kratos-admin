@@ -24,9 +24,11 @@ const messageBadge = useAppMenuBadge('MESSAGE_INBOX')
       class="kratos-tab-bar__item"
       @tap="navigate(item.path)"
     >
-      <text v-if="item.viewKey === 'MESSAGE_INBOX' && messageBadge" class="kratos-tab-bar__badge">{{
-        messageBadge
-      }}</text>
+      <view
+        v-if="item.viewKey === 'MESSAGE_INBOX' && messageBadge"
+        class="kratos-tab-bar__badge"
+        aria-hidden="true"
+      />
       <image
         v-if="resolveModuleIcon(item.icon)"
         class="kratos-tab-bar__icon"
@@ -132,16 +134,13 @@ const messageBadge = useAppMenuBadge('MESSAGE_INBOX')
 }
 .kratos-tab-bar__badge {
   position: absolute;
-  top: 2px;
-  right: calc(50% - 22px);
-  min-width: 14px;
-  height: 14px;
-  padding: 0 3px;
-  border-radius: 8px;
+  top: 0;
+  right: calc(50% - 19px);
+  width: 10px;
+  height: 10px;
+  box-sizing: border-box;
+  border: 2px solid #fff;
+  border-radius: 50%;
   background: #e5484d;
-  color: #fff;
-  font-size: 9px;
-  line-height: 14px;
-  text-align: center;
 }
 </style>

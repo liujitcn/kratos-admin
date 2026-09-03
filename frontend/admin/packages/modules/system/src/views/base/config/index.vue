@@ -30,7 +30,7 @@
         <UploadImg v-model:image-url="formData.value" upload-type="config" />
       </template>
       <template #richTextValue>
-        <WangEditor v-model:value="formData.value" />
+        <WangEditor v-model:value="formData.value" upload-type="config" />
       </template>
       <template #dictValue>
         <Dict

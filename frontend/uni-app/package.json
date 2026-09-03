@@ -41,6 +41,11 @@
       "core-js",
       "core-js-pure",
       "vue-demi"
-    ]
+    ],
+    "auditConfig": {
+      "ignoreCves": [
+        "CVE-2024-6783"
+      ]
+    }
   }
 }

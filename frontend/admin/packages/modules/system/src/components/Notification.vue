@@ -177,7 +177,7 @@ function openAction() {
   void router.push({ name: actionRouteName.value });
 }
 
-/** 解析收件箱分类图标，兼容历史数据中的未知图标名。 */
+/** 解析收件箱分类图标，未知图标使用默认图标。 */
 function resolveNotificationIcon(icon: string) {
   return notificationIcons[icon as keyof typeof notificationIcons] ?? CollectionTag;
 }

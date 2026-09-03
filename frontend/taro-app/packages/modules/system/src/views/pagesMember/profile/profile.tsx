@@ -74,7 +74,7 @@ export default function ProfilePage() {
   const loadData = async () => {
     const [profile, gender] = await Promise.all([
       useUserStore.getState().getUserProfile(),
-      defBaseDictService.GetBaseDict({ value: 'base_user_gender' }),
+      defBaseDictService.GetBaseDict({ code: 'base_user_gender' }),
     ])
     setUserInfo(profile)
     setGenderList(gender.items || [])
@@ -89,7 +89,7 @@ export default function ProfilePage() {
     try {
       const fileInfo = await uploadFile('avatar', filePath)
       const nextProfile = { ...userInfo, avatar: fileInfo.url }
-      await defAuthService.UpdateUserProfile(nextProfile)
+      await defAuthService.UpdateUserProfile({ user_profile: nextProfile })
       setUserInfo(nextProfile)
       await useUserStore.getState().getUserProfile()
       await Taro.showToast({ icon: 'success', title: t('system.profile.update_success') })
@@ -131,7 +131,7 @@ export default function ProfilePage() {
       await Taro.showToast({ icon: 'none', title: t('system.profile.id_code_invalid') })
       return
     }
-    await defAuthService.UpdateUserProfile(userInfo)
+    await defAuthService.UpdateUserProfile({ user_profile: userInfo })
     await useUserStore.getState().getUserProfile()
     await Taro.showToast({ icon: 'success', title: t('system.profile.save_success') })
     setTimeout(() => void Taro.navigateBack(), 400)

@@ -454,46 +454,6 @@ func goReceiverMethodNames(content string, receiverName string) map[string]struc
 	return methods
 }
 
-// goStructDependency 查找结构体中指定包和类型后缀的依赖字段。
-func goStructDependency(content string, structName string, packageName string, typeSuffix string) (string, string) {
-	file, _, err := parseGoSource(content)
-	if err != nil {
-		return "", ""
-	}
-	for _, declaration := range file.Decls {
-		general, isGeneral := declaration.(*ast.GenDecl)
-		if !isGeneral {
-			continue
-		}
-		for _, specification := range general.Specs {
-			typeSpec, isTypeSpec := specification.(*ast.TypeSpec)
-			if !isTypeSpec || typeSpec.Name.Name != structName {
-				continue
-			}
-			structType, isStructType := typeSpec.Type.(*ast.StructType)
-			if !isStructType {
-				return "", ""
-			}
-			for _, field := range structType.Fields.List {
-				selector := goSelectorType(field.Type)
-				if selector == nil || selector.Sel == nil || !strings.HasSuffix(selector.Sel.Name, typeSuffix) {
-					continue
-				}
-				identifier, isIdentifier := selector.X.(*ast.Ident)
-				if !isIdentifier || identifier.Name != packageName {
-					continue
-				}
-				fieldName := selector.Sel.Name
-				if len(field.Names) > 0 {
-					fieldName = field.Names[0].Name
-				}
-				return fieldName, selector.Sel.Name
-			}
-		}
-	}
-	return "", ""
-}
-
 // extractGoMethods 从生成候选文件中提取指定方法源码。
 func extractGoMethods(content string, methodNames map[string]struct{}) []string {
 	methods := make([]string, 0, len(methodNames))

@@ -25,11 +25,11 @@ const resultOptions = computed(() => createLogEnumOptions([
 ]));
 const targetOptions = computed(() => createLogEnumOptions([
   [BasePermissionTargetType.BASE_PERMISSION_TARGET_TYPE_UNSPECIFIED, t("system.base.log.target_type.unspecified")],
-  [BasePermissionTargetType.BASE_PERMISSION_TARGET_TYPE_USER, t("system.base.log.target_type.user")],
-  [BasePermissionTargetType.BASE_PERMISSION_TARGET_TYPE_ROLE, t("system.base.log.target_type.role")],
+  [BasePermissionTargetType.BASE_PERMISSION_TARGET_TYPE_USER, t("common.field.user")],
+  [BasePermissionTargetType.BASE_PERMISSION_TARGET_TYPE_ROLE, t("common.field.role")],
   [BasePermissionTargetType.BASE_PERMISSION_TARGET_TYPE_MENU, t("system.base.log.target_type.menu")],
   [BasePermissionTargetType.BASE_PERMISSION_TARGET_TYPE_API, t("system.base.log.target_type.api")],
-  [BasePermissionTargetType.BASE_PERMISSION_TARGET_TYPE_TENANT, t("system.base.log.target_type.tenant")]
+  [BasePermissionTargetType.BASE_PERMISSION_TARGET_TYPE_TENANT, t("common.field.tenant")]
 ]));
 const actionOptions = computed(() => createLogEnumOptions([
   [BasePermissionAction.BASE_PERMISSION_ACTION_UNSPECIFIED, t("system.base.log.permission_action.unspecified")],

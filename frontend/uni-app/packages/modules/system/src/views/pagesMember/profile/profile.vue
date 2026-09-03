@@ -81,7 +81,7 @@ const genderList = ref<BaseDictForm_DictItem[]>([])
 const getDictData = async () => {
   const genderCode = 'base_user_gender'
   const res = await defBaseDictService.GetBaseDict({
-    value: genderCode,
+    code: genderCode,
   })
   genderList.value = res.items || []
 }
@@ -157,7 +157,7 @@ const uploadAvatar = async (file: string) => {
   try {
     const fileInfo = await uploadFile('avatar', file)
     userInfo.value.avatar = fileInfo.url
-    await defAuthService.UpdateUserProfile(userInfo.value)
+    await defAuthService.UpdateUserProfile({ user_profile: userInfo.value })
     syncUserStoreProfile(userInfo.value)
     await uni.showToast({ icon: 'success', title: t('system.profile.update_success') })
   } catch {
@@ -212,14 +212,16 @@ const onSubmit = async () => {
 
   const { nick_name, gender, email, id_type, id_code } = userInfo.value
   await defAuthService.UpdateUserProfile({
-    nick_name: nick_name,
-    gender: gender,
-    avatar: userInfo.value.avatar,
-    phone: userInfo.value.phone,
-    user_name: userInfo.value.user_name,
-    email,
-    id_type,
-    id_code,
+    user_profile: {
+      nick_name: nick_name,
+      gender: gender,
+      avatar: userInfo.value.avatar,
+      phone: userInfo.value.phone,
+      user_name: userInfo.value.user_name,
+      email,
+      id_type,
+      id_code,
+    },
   })
   // 更新Store昵称
   syncUserStoreProfile(userInfo.value)

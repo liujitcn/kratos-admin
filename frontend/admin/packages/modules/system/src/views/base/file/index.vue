@@ -16,7 +16,8 @@
       :show-footer="false"
       @closed="resetDetail"
     >
-      <template v-if="detail">
+      <el-skeleton v-if="!detail" :rows="8" animated />
+      <template v-else>
         <section class="file-preview" aria-live="polite">
           <el-skeleton v-if="previewLoading" :rows="8" animated />
           <template v-else-if="previewUrl && previewKind === 'image'">
@@ -58,7 +59,7 @@
           <el-descriptions-item :label="t('system.base.file.field.mime')">{{ detail.mime_type || "-" }}</el-descriptions-item>
           <el-descriptions-item :label="t('system.base.file.field.size')">{{ formatFileSize(detail.size) }}</el-descriptions-item>
           <el-descriptions-item :label="t('system.base.file.field.path')" :span="2">
-            <code class="file-meta__value">{{ detail.link_url || `${detail.file_directory}/${detail.save_file_name}` }}</code>
+            <code class="file-meta__value">{{ detail.link_url }}</code>
           </el-descriptions-item>
           <el-descriptions-item :label="t('system.base.file.field.hash')" :span="2">
             <code class="file-meta__value">{{ detail.content_hash || "-" }}</code>
@@ -98,6 +99,7 @@ const previewLoading = ref(false);
 const previewError = ref(false);
 const previewUrl = ref("");
 const previewText = ref("");
+let viewRequestId = 0;
 
 /** 文件内容预览类型。 */
 type PreviewKind = "image" | "video" | "audio" | "pdf" | "text" | "unsupported";
@@ -147,20 +149,22 @@ async function requestBaseFileTable(params: PageBaseFileRequest) {
 
 /** 查看文件资产详情。 */
 async function handleView(row: BaseFile) {
+  const requestId = ++viewRequestId;
   detailVisible.value = true;
   detail.value = undefined;
   resetPreview();
   try {
     const loadedDetail = await defBaseFileService.GetBaseFile({ id: row.id });
+    if (requestId !== viewRequestId) return;
     detail.value = loadedDetail;
-    await loadPreview(loadedDetail);
+    await loadPreview(loadedDetail, requestId);
   } catch {
-    detailVisible.value = false;
+    if (requestId === viewRequestId) detailVisible.value = false;
   }
 }
 
 /** 加载文件内容并准备浏览器预览。 */
-async function loadPreview(file: BaseFile) {
+async function loadPreview(file: BaseFile, requestId: number) {
   const kind = getPreviewKind(file);
   if (kind === "unsupported") return;
 
@@ -168,16 +172,18 @@ async function loadPreview(file: BaseFile) {
   previewError.value = false;
   try {
     const blob = await defFileService.GetFileBlob(file.link_url, file.file_name);
+    if (!isViewActive(file, requestId)) return;
     const previewBlob = new Blob([blob], { type: file.mime_type || blob.type || "application/octet-stream" });
     if (kind === "text") {
-      previewText.value = await previewBlob.text();
+      const text = await previewBlob.text();
+      if (isViewActive(file, requestId)) previewText.value = text;
     } else {
       previewUrl.value = URL.createObjectURL(previewBlob);
     }
   } catch {
-    previewError.value = true;
+    if (isViewActive(file, requestId)) previewError.value = true;
   } finally {
-    previewLoading.value = false;
+    if (requestId === viewRequestId) previewLoading.value = false;
   }
 }
 
@@ -189,6 +195,7 @@ async function downloadDetail() {
 
 /** 关闭详情时释放预览资源并清空状态。 */
 function resetDetail() {
+  viewRequestId += 1;
   detail.value = undefined;
   resetPreview();
 }
@@ -211,6 +218,11 @@ function getPreviewKind(file: BaseFile): PreviewKind {
   if (mimeType === "application/pdf") return "pdf";
   if (mimeType.startsWith("text/") || mimeType === "application/json") return "text";
   return "unsupported";
+}
+
+/** 判断异步预览请求是否仍对应当前打开的文件详情。 */
+function isViewActive(file: BaseFile, requestId: number) {
+  return detailVisible.value && requestId === viewRequestId && detail.value?.id === file.id;
 }
 
 /** 删除文件资产。 */

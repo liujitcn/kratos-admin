@@ -14,7 +14,6 @@ import (
 	"time"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/go-kratos/kratos/v3/log"
@@ -183,33 +182,29 @@ func convertUploadFileInfo(multipartFile multipart.File, fileType, contentType, 
 	if int64(len(content)) > maxMultipartUploadBytes {
 		return nil, errorsx.InvalidArgument("文件内容不能超过 20 MB")
 	}
-	filePath := fmt.Sprintf("/%s", _const.BASE_PATH)
-	if len(fileType) != 0 {
-		filePath += "/" + fileType
+	var businessType string
+	businessType, err = normalizeUploadBusinessType(fileType)
+	if err != nil {
+		return nil, err
 	}
 	extname := strings.TrimPrefix(strings.ToLower(filepath.Ext(fileName)), ".")
 	contentTypes := strings.Split(contentType, "/")
+	fileCategory := "files"
 	if len(contentTypes) != 2 {
-		filePath += "/files"
+		fileCategory = "files"
 	} else if extname == "" {
 		extname = strings.ToLower(contentTypes[1])
-	} else {
+	}
+	if len(contentTypes) == 2 {
 		switch contentTypes[0] {
 		case "image":
-			filePath += "/images"
-			break
+			fileCategory = "images"
 		case "video":
-			filePath += "/videos"
-			break
+			fileCategory = "videos"
 		case "audio":
-			filePath += "/audios"
-			break
+			fileCategory = "audios"
 		case "application", "text":
-			filePath += "/docs"
-			break
-		default:
-			filePath += "/files"
-			break
+			fileCategory = "docs"
 		}
 	}
 
@@ -217,7 +212,18 @@ func convertUploadFileInfo(multipartFile multipart.File, fileType, contentType, 
 	return &basev1.UploadFileInfo{
 		Name:    fmt.Sprintf("%d.%s", id.GenSnowflakeID(), extname),
 		Extname: extname,
-		Path:    fmt.Sprintf("%s/%s", filePath, datePath),
+		Path:    path.Join(businessType, fileCategory, datePath),
 		Content: content,
 	}, nil
+}
+
+// normalizeUploadBusinessType 校验上传业务类型只能占用一个安全目录层级。
+func normalizeUploadBusinessType(fileType string) (string, error) {
+	if fileType == "" {
+		return "file", nil
+	}
+	if strings.ContainsAny(fileType, "/\\\x00\r\n") || fileType == "." || fileType == ".." {
+		return "", errorsx.InvalidArgument("文件业务类型不合法")
+	}
+	return fileType, nil
 }

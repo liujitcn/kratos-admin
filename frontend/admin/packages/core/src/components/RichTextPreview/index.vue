@@ -5,6 +5,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import DOMPurify from "dompurify";
+import { formatSrc } from "@/utils/utils";
 
 defineOptions({
   name: "CoreRichTextPreview"
@@ -17,7 +18,17 @@ interface RichTextPreviewProps {
 }
 
 const props = defineProps<RichTextPreviewProps>();
-const sanitizedHtml = computed(() => DOMPurify.sanitize(props.modelValue, { USE_PROFILES: { html: true } }));
+const sanitizedHtml = computed(() => {
+  const sanitized = DOMPurify.sanitize(props.modelValue, { USE_PROFILES: { html: true } });
+  if (typeof DOMParser === "undefined") return sanitized;
+
+  const document = new DOMParser().parseFromString(sanitized, "text/html");
+  document.body.querySelectorAll<HTMLElement>("img[src], video[src]").forEach(element => {
+    const src = element.getAttribute("src");
+    if (src) element.setAttribute("src", formatSrc(src));
+  });
+  return document.body.innerHTML;
+});
 </script>
 
 <style scoped lang="scss">

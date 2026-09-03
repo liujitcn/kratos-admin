@@ -43,10 +43,8 @@ export interface AdminHeaderTool {
 export interface AdminUserMenuAction {
   /** 操作唯一名称。 */
   name: string;
-  /** 操作显示名称对应的稳定语言键。 */
-  labelKey?: string;
-  /** 兼容未迁移模块的静态显示名称。 */
-  label?: string;
+	/** 操作显示名称对应的稳定语言键。 */
+	labelKey: string;
   /** 对应后端动态菜单名称，菜单不存在时不显示操作。 */
   menuName: string;
   /** 操作图标。 */

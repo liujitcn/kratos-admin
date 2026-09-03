@@ -309,8 +309,7 @@ func (c *renderer) appendMainBizMethods(content string, table *Table, columns []
 	// 候选文件提供当前配置下生成方法的完整实现，已有文件只保留非生成扩展方法。
 	candidate := c.renderBackendBizFile(table, columns, methods)
 	generatedReceiver := table.EntityName + "Case"
-	existingReceiver := goReceiverType(content, "Case")
-	if existingReceiver == "" {
+	if goReceiverType(content, "Case") != generatedReceiver {
 		return content
 	}
 	// Mapper 已统一处理时间字段，清理旧模板生成的重复赋值。
@@ -318,29 +317,13 @@ func (c *renderer) appendMainBizMethods(content string, table *Table, columns []
 	if !strings.Contains(content, "_time.") {
 		content = strings.Replace(content, "\t_time \"github.com/liujitcn/go-utils/time\"\n", "", 1)
 	}
-	// 已有业务文件可能采用不同实体名，先从接收者依赖中识别真实 Repository 类型。
-	_, repositoryType := goStructDependency(content, existingReceiver, "data", "Repository")
-	repositoryType = strings.TrimSuffix(repositoryType, "Repository")
-	if repositoryType == "" {
-		return content
-	}
-
 	methodNames := goReceiverMethodNames(candidate, generatedReceiver)
 	methodContent := strings.Join(extractGoMethods(candidate, methodNames), "\n\n")
 	if methodContent == "" {
 		return content
 	}
-	// 仅改写生成方法片段，避免替换已有扩展代码中的同名标识符。
-	entityVar := stringcase.ToCamelCase(table.EntityName)
-	methodContent = strings.ReplaceAll(methodContent, "*"+generatedReceiver, "*"+existingReceiver)
-	methodContent = strings.ReplaceAll(methodContent, "models."+table.EntityName, "models."+repositoryType)
-	methodContent = strings.ReplaceAll(methodContent, "c.Query(ctx)."+table.EntityName, "c.Query(ctx)."+repositoryType)
-	apiAlias := ProtoTargetForTable(table).GoAlias
-	methodContent = strings.ReplaceAll(methodContent, "c.formMapper.ToEntity(req)", "mapper.NewCopierMapper["+apiAlias+"."+table.EntityName+"Form, models."+repositoryType+"]().ToEntity(req)")
-	methodContent = strings.ReplaceAll(methodContent, "c.formMapper.ToDTO("+entityVar+")", "mapper.NewCopierMapper["+apiAlias+"."+table.EntityName+"Form, models."+repositoryType+"]().ToDTO("+entityVar+")")
-	methodContent = strings.ReplaceAll(methodContent, "c.mapper.ToDTO(item)", "mapper.NewCopierMapper["+apiAlias+"."+table.EntityName+", models."+repositoryType+"]().ToDTO(item)")
 	target := ProtoTargetForTable(table)
-	content = mergeGeneratedGoReceiverMethods(content, methodContent, existingReceiver, target.GoAlias+" \""+target.GoImportPath+"\"")
+	content = mergeGeneratedGoReceiverMethods(content, methodContent, generatedReceiver, target.GoAlias+" \""+target.GoImportPath+"\"")
 	if !strings.Contains(content, "_time.") {
 		content = strings.Replace(content, "\t_time \"github.com/liujitcn/go-utils/time\"\n", "", 1)
 	}
@@ -352,8 +335,7 @@ func (c *renderer) appendMainServiceMethods(content string, table *Table, method
 	// 服务层从完整候选文件中提取固定生成方法，已有同名实现必须整体替换。
 	candidate := c.renderBackendServiceFile(table, methods)
 	generatedReceiver := table.EntityName + "Service"
-	existingReceiver := goReceiverType(content, "Service")
-	if existingReceiver == "" {
+	if goReceiverType(content, "Service") != generatedReceiver {
 		return content
 	}
 	methodNames := goReceiverMethodNames(candidate, generatedReceiver)
@@ -361,16 +343,8 @@ func (c *renderer) appendMainServiceMethods(content string, table *Table, method
 	if methodContent == "" {
 		return content
 	}
-	// 根据已有 Service 的依赖字段改写候选接收者，兼容人工命名的 Case 字段。
-	existingCaseField, _ := goStructDependency(content, existingReceiver, "biz", "Case")
-	generatedCaseField := stringcase.ToCamelCase(table.EntityName) + "Case"
-	if existingCaseField == "" {
-		return content
-	}
-	methodContent = strings.ReplaceAll(methodContent, "*"+generatedReceiver, "*"+existingReceiver)
-	methodContent = strings.ReplaceAll(methodContent, "s."+generatedCaseField, "s."+existingCaseField)
 	target := ProtoTargetForTable(table)
-	return mergeGeneratedGoReceiverMethods(content, methodContent, existingReceiver, target.GoAlias+" \""+target.GoImportPath+"\"")
+	return mergeGeneratedGoReceiverMethods(content, methodContent, generatedReceiver, target.GoAlias+" \""+target.GoImportPath+"\"")
 }
 
 // appendMainFrontendAPIMethods 根据最新配置替换前端服务类的固定生成方法。

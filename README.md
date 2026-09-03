@@ -124,7 +124,7 @@ make docker-run IMAGE=kratos-admin TAG=latest APP_ENV=dev
 make docker-stop IMAGE=kratos-admin TAG=latest
 ```
 
-构建命令先检查 Docker，再构建管理后台、uni-app H5、Taro H5 和 Linux 后端程序。运行命令发布宿主机 `7001/6001` 端口，将 `backend/data` 映射到 `/app/data`，并首次初始化可在宿主机修改的 `backend/runtime/configs` 后映射到 `/app/configs`。三端静态站点随镜像发布，启动时合并到 `/app/data`，已有上传文件不会被清空。完整构建参数和运行示例见本节。
+构建命令先检查 Docker，再构建管理后台、uni-app H5、Taro H5 和 Linux 后端程序。运行命令发布宿主机 `7001/6001` 端口，将 `backend/data`、`backend/logs`、`backend/backups` 分别映射到容器的 `/app/data`、`/app/logs`、`/app/backups`，并首次初始化可在宿主机修改的 `backend/runtime/configs` 后映射到 `/app/configs`。三端静态站点随镜像发布，启动时合并到 `/app/data`，已有上传文件不会被清空；Core 根据 `oss.root_directory` 将本地对象统一映射到 `/data/`。完整构建参数和运行示例见本节。
 
 本地只启动依赖服务可使用：
 

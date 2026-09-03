@@ -5693,6 +5693,19 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/base.v1.PageNotificationResponse'
+    /api/v1/base/notification/categories:
+        get:
+            tags:
+                - NotificationService
+            description: 查询消息分类列表。
+            operationId: NotificationService_ListNotificationCategories
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/base.v1.ListNotificationCategoriesResponse'
     /api/v1/base/notification/read:
         put:
             tags:
@@ -6942,6 +6955,15 @@ components:
                         $ref: '#/components/schemas/base.v1.AiShortcut'
                     description: 快捷入口列表
             description: AI 助手快捷入口列表响应
+        base.v1.ListNotificationCategoriesResponse:
+            type: object
+            properties:
+                categories:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.NotificationCategory'
+                    description: 消息分类列表
+            description: 消息分类列表响应。
         base.v1.ListOauthBindingResponse:
             type: object
             properties:
@@ -7156,6 +7178,29 @@ components:
                     type: boolean
                     description: 是否允许删除
             description: 当前用户消息。
+        base.v1.NotificationCategory:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 消息分类ID
+                code:
+                    type: string
+                    description: 分类编码
+                name:
+                    type: string
+                    description: 分类名称
+                icon:
+                    type: string
+                    description: 分类图标
+                color:
+                    type: string
+                    description: 分类颜色
+                sort:
+                    type: integer
+                    description: 並べ替え
+                    format: int32
+            description: 当前可用的消息分类。
         base.v1.NotificationCategoryUnread:
             type: object
             properties:
@@ -8102,7 +8147,7 @@ components:
                 has_children:
                     type: boolean
                     description: 是否存在子节点
-            description: 部门
+            description: 部門
         system.admin.v1.BaseDeptForm:
             type: object
             properties:
@@ -9665,7 +9710,7 @@ components:
                 updated_at:
                     type: string
                     description: 更新時間
-            description: 岗位
+            description: ポジション
         system.admin.v1.BasePostForm:
             type: object
             properties:
@@ -9747,7 +9792,7 @@ components:
                 is_protected:
                     type: boolean
                     description: 是否禁止通过角色管理操作
-            description: 角色
+            description: 役割
         system.admin.v1.BaseRoleForm:
             type: object
             properties:
@@ -10283,7 +10328,7 @@ components:
                 is_protected:
                     type: boolean
                     description: 是否禁止通过用户管理操作
-            description: 用户
+            description: ユーザー
         system.admin.v1.BaseUserForm:
             type: object
             properties:

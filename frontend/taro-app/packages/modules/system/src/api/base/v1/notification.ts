@@ -4,6 +4,8 @@ import type {
   DeleteNotificationRequest,
   GetNotificationRequest,
   GetNotificationSummaryRequest,
+  ListNotificationCategoriesRequest,
+  ListNotificationCategoriesResponse,
   MarkAllNotificationReadRequest,
   MarkNotificationReadRequest,
   MarkNotificationUnreadRequest,
@@ -22,7 +24,21 @@ const NOTIFICATION_URL = '/v1/base/notification'
 export class NotificationServiceImpl implements NotificationService {
   /** 分页查询收件箱。 */
   PageNotification(request: PageNotificationRequest): Promise<PageNotificationResponse> {
-    return http({ url: NOTIFICATION_URL, method: 'GET', authMode: 'required', data: request })
+    const data = Object.fromEntries(
+      Object.entries(request).filter(([, value]) => value !== undefined),
+    )
+    return http({ url: NOTIFICATION_URL, method: 'GET', authMode: 'required', data })
+  }
+  /** 查询当前可用的消息分类。 */
+  ListNotificationCategories(
+    request: ListNotificationCategoriesRequest,
+  ): Promise<ListNotificationCategoriesResponse> {
+    return http({
+      url: `${NOTIFICATION_URL}/categories`,
+      method: 'GET',
+      authMode: 'required',
+      data: request,
+    })
   }
   /** 查询消息详情。 */
   GetNotification(request: GetNotificationRequest): Promise<Notification> {

@@ -380,7 +380,7 @@ function priorityLabel(priority: MessagePriority) {
   return priorityOptions.value.find(item => item.value === priority)?.label ?? "";
 }
 
-/** 解析消息分类图标，兼容历史数据中的未知图标名。 */
+/** 解析消息分类图标，未知图标使用默认图标。 */
 function resolveCategoryIcon(icon: string) {
   return categoryIcons[icon] ?? CollectionTag;
 }

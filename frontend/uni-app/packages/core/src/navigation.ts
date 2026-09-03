@@ -1,5 +1,6 @@
 import { computed, readonly, ref } from 'vue'
 import { defBaseMenuService } from './api/system/app/v1/base_menu'
+import type { BaseMenu, ListBaseMenuResponse } from './rpc/system/app/v1/base_menu'
 import { hasValidToken } from './utils/auth'
 import { navigateToLogin } from './utils/navigation'
 import { resolveStaticView } from './module'
@@ -32,7 +33,7 @@ export interface AppMenuNode extends AppMenu {
 /** 菜单获取适配器。 */
 export interface AppNavigationAdapter {
   /** 获取扁平移动菜单配置。 */
-  list(): Promise<unknown>
+  list(): Promise<ListBaseMenuResponse>
 }
 
 /** 逻辑路由解析结果。 */
@@ -154,6 +155,18 @@ let adapter: AppNavigationAdapter = {
 }
 
 const nativeTabViewKeys = ['HOME', 'PROFILE_HOME']
+const pageTitleKeys: Record<string, string> = {
+  'pages/index/index': 'core.home.main_title',
+  'pages/login/login': 'common.action.login',
+  'pages/login/protocal': 'core.navigation.protocol',
+  'pages/my/my': 'core.navigation.my',
+  'pagesMember/ai/index': 'system.ai.chat_title',
+  'pagesMember/message/detail': 'system.notification.title',
+  'pagesMember/message/index': 'system.notification.title',
+  'pagesMember/profile/profile': 'system.profile.title',
+  'pagesMember/settings/settings': 'core.settings.title',
+}
+const resetTabViewKeys = ['MESSAGE_INBOX']
 
 /** 替换导航远端适配器，供宿主接入自定义契约。 */
 export function setAppNavigationAdapter(nextAdapter: AppNavigationAdapter): void {
@@ -255,6 +268,10 @@ function navigateTabRoute(url: string): void {
     })
     return
   }
+  if (resetTabViewKeys.some((viewKey) => resolveStaticView(viewKey) === targetRoute)) {
+    uni.reLaunch({ url, success: release, fail: release, complete: release })
+    return
+  }
   navigateTabRouteInStack(url, targetRoute, pages, currentIndex, release)
 }
 
@@ -318,6 +335,15 @@ export function useAppMenuBadge(viewKey: string) {
   return computed(() => appMenuBadges.value[viewKey] ?? 0)
 }
 
+/** 根据物理页面路由更新 H5 和原生导航栏标题。 */
+export function setAppPageTitle(route: string): void {
+  const titleKey = pageTitleKeys[route]
+  const menuTitle = menus.value.find((menu) => resolveStaticView(menu.viewKey) === route)?.title
+  const title = titleKey ? t(titleKey) : menuTitle
+  if (!title) return
+  void uni.setNavigationBarTitle({ title })
+}
+
 /** 获取导航响应式状态。 */
 export function useAppNavigation() {
   const menuTree = computed<AppMenuNode[]>(() => buildMenuTree(menus.value, APP_MENU_ROOT_ID))
@@ -347,48 +373,32 @@ function readCachedMenus(cacheKey: string): AppMenu[] | undefined {
   const cached = uni.getStorageSync(cacheKey) as unknown
   if (!Array.isArray(cached)) return
   try {
-    const normalized = cached.map(normalizeMenu)
-    validateMenus(normalized)
-    return normalized
+    const cachedMenus = cached as AppMenu[]
+    validateMenus(cachedMenus)
+    return cachedMenus
   } catch {
     uni.removeStorageSync(cacheKey)
   }
 }
 
-function normalizeMenuResponse(response: unknown): AppMenu[] {
-  if (Array.isArray(response)) return response.map(normalizeMenu)
-  if (!response || typeof response !== 'object')
-    throw new Error(t('core.navigation.error.response_object'))
-  const record = response as Record<string, unknown>
-  const list = record.items ?? record.list ?? record.data
-  if (!Array.isArray(list)) throw new Error(t('core.navigation.error.list_missing'))
-  return list.map(normalizeMenu)
+function normalizeMenuResponse(response: ListBaseMenuResponse): AppMenu[] {
+  return response.items.map(normalizeMenu)
 }
 
-function normalizeMenu(value: unknown): AppMenu {
-  if (!value || typeof value !== 'object') throw new Error(t('core.navigation.error.item_object'))
-  const item = value as Record<string, unknown>
-  const meta = (item.meta ?? {}) as Record<string, unknown>
-  const app = (meta.app ?? item.app ?? {}) as Record<string, unknown>
+function normalizeMenu(item: BaseMenu): AppMenu {
+  const meta = item.meta
+  const app = meta?.app
   return {
-    id: Number(item.id),
-    parentId:
-      item.parent_id === undefined && item.parentId === undefined
-        ? undefined
-        : Number(item.parent_id ?? item.parentId),
-    name: String(item.name ?? ''),
-    path: String(item.path ?? ''),
-    viewKey: String(app.view_key ?? app.viewKey ?? item.view_key ?? item.viewKey ?? ''),
-    title: String(meta.title ?? item.title ?? ''),
-    access: String(app.access ?? 'AUTHENTICATED') as AppMenuAccess,
-    inTabBar: Boolean(app.in_tab_bar ?? app.inTabBar),
-    icon: typeof meta.icon === 'string' ? meta.icon : undefined,
-    selectedIcon:
-      typeof app.selected_icon === 'string'
-        ? app.selected_icon
-        : typeof app.selectedIcon === 'string'
-          ? app.selectedIcon
-          : undefined,
+    id: item.id,
+    parentId: item.parent_id,
+    name: item.name,
+    path: item.path,
+    viewKey: app?.view_key ?? '',
+    title: meta?.title ?? '',
+    access: (app?.access ?? 'AUTHENTICATED') as AppMenuAccess,
+    inTabBar: app?.in_tab_bar ?? false,
+    icon: meta?.icon,
+    selectedIcon: app?.selected_icon,
   }
 }
 

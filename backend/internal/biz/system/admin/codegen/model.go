@@ -412,7 +412,7 @@ type CodeGenColumnOptionConfig struct {
 type CodeGenStaticOption struct {
 	// Label 选择项显示文案。
 	Label string `json:"label"`
-	// Value 选择项提交值，兼容历史数字和布尔类型。
+	// Value 选择项提交值。
 	Value any `json:"value"`
 }
 

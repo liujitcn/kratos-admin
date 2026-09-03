@@ -23,6 +23,11 @@ export const systemPages: Record<string, KratosTaroPageConfig> = {
       navigationBarTitleText: '',
     },
   },
-  'pagesMember/message/index': { style: { navigationBarTitleText: '' } },
+  'pagesMember/message/index': {
+    style: {
+      navigationStyle: 'custom',
+      navigationBarTitleText: '',
+    },
+  },
   'pagesMember/message/detail': { style: { navigationBarTitleText: '' } },
 }

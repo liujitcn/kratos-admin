@@ -163,7 +163,7 @@ const rules = computed(() => ({
   tenant_id: [
     {
       required: true,
-      message: t("common.validation.required_select", { field: t("system.base.role.field.tenant") }),
+      message: t("common.validation.required_select", { field: t("common.field.tenant") }),
       trigger: "change"
     }
   ],
@@ -245,10 +245,10 @@ const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAUL
 const formFields = computed<ProFormField[]>(() => [
   {
     prop: "tenant_id",
-    label: t("system.base.role.field.tenant"),
+    label: t("common.field.tenant"),
     component: "select",
     props: {
-      placeholder: t("system.base.role.placeholder.tenant"),
+      placeholder: t("common.placeholder.select"),
       filterable: true,
       disabled: Boolean(formData.id),
       onChange: handleFormTenantChange
@@ -306,7 +306,7 @@ const columns = computed<ColumnProps[]>(() => [
     ? ([
         {
           prop: "tenant_id",
-          label: t("system.base.role.field.tenant_short"),
+          label: t("common.field.tenant"),
           minWidth: 140,
           showOverflowTooltip: true,
           search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 1 },

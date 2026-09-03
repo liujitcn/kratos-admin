@@ -379,7 +379,6 @@ __CODEGEN_TREE_CREATE_ACTION__
         hidden: () => !BUTTONS.value["%s:update"],
 __CODEGEN_TREE_EDIT_PARAMS__
         onClick: __CODEGEN_EDIT_HANDLER__
-__CODEGEN_LEGACY_EDIT_ARG_START__%s__CODEGEN_LEGACY_EDIT_ARG_END__
       },
       {
         label: t("common.action.delete"),
@@ -419,8 +418,7 @@ const headerActions = computed<HeaderActionProps[]>(() => [
 async function request%sTable(params: Page%sRequest) {
   const requestParams = buildPageRequest(params);
   const data = await def%sService.Page%s(requestParams);
-  const compatData = data as typeof data & { list?: typeof data.%s };
-  const list = compatData.%s ?? compatData.list ?? [];
+  const list = data.%s ?? [];
   return { data: { ...data, list } };
 }
 
@@ -448,7 +446,6 @@ async function handleOpenDialog(__CODEGEN_OPEN_DIALOG_PARAMETERS__) {
 %s  dialog.editing = Boolean(id);
   dialog.visible = true;
 __CODEGEN_OPEN_DIALOG_DATA__
-__CODEGEN_LEGACY_OPEN_DIALOG_ARGS_START__%s%s__CODEGEN_LEGACY_OPEN_DIALOG_ARGS_END__
 }
 
 /**
@@ -514,7 +511,7 @@ function handleCloseDialog() {
   resetForm();
 }
 </script>
-			`, renderFrontendDateImport(columns), proFormTypeImport, entity, frontendAPIImport, c.renderFrontendOptionImports(table, columns, methods), tenantImports, entity, entity, entity, statusTypeImport, frontendRPCImport, c.renderFrontendEnumImports(table, columns), entity, FrontendLocaleKeyPrefix(table), formStateType, tenantState, formDataType, c.renderFrontendFormDefaults(columns), c.renderFrontendRules(table, columns), c.renderFrontendStatusOptions(table, columns)+c.renderFrontendOptionState(table, columns, methods), table.BusinessName, c.renderFrontendFormFields(table, columns), table.BusinessName, c.renderFrontendColumns(table, columns, methods), PermissionPrefix(table), entity, PermissionPrefix(table), entity, table.BusinessName, PermissionPrefix(table), PermissionPrefix(table), entity, "", table.BusinessName, entity, entity, entity, entity, listField, listField, table.BusinessName, table.BusinessName, c.renderFrontendResetForm(columns), table.BusinessName, c.renderFrontendLoadOptionsCall(columns, methods), "", "", table.BusinessName, entity, entity, entity, snakeEntity, entity, entity, snakeEntity, c.renderFrontendStatusHandlers(table, columns, methods), table.BusinessName, entity, entity, entity, entity, entity, entity, table.BusinessName)
+			`, renderFrontendDateImport(columns), proFormTypeImport, entity, frontendAPIImport, c.renderFrontendOptionImports(table, columns, methods), tenantImports, entity, entity, entity, statusTypeImport, frontendRPCImport, c.renderFrontendEnumImports(table, columns), entity, FrontendLocaleKeyPrefix(table), formStateType, tenantState, formDataType, c.renderFrontendFormDefaults(columns), c.renderFrontendRules(table, columns), c.renderFrontendStatusOptions(table, columns)+c.renderFrontendOptionState(table, columns, methods), table.BusinessName, c.renderFrontendFormFields(table, columns), table.BusinessName, c.renderFrontendColumns(table, columns, methods), PermissionPrefix(table), entity, PermissionPrefix(table), entity, table.BusinessName, PermissionPrefix(table), PermissionPrefix(table), entity, table.BusinessName, entity, entity, entity, entity, listField, table.BusinessName, table.BusinessName, c.renderFrontendResetForm(columns), table.BusinessName, c.renderFrontendLoadOptionsCall(columns, methods), table.BusinessName, entity, entity, entity, snakeEntity, entity, entity, snakeEntity, c.renderFrontendStatusHandlers(table, columns, methods), table.BusinessName, entity, entity, entity, entity, entity, entity, table.BusinessName)
 	if passwordColumn := c.findFrontendPasswordColumn(columns); passwordColumn != nil {
 		script = strings.Replace(
 			script,
@@ -524,8 +521,6 @@ import PasswordStrength from "@liujitcn/kratos-admin-core/components/PasswordStr
 			1,
 		)
 	}
-	script = c.removeFrontendTemplateMarkerSegment(script, "__CODEGEN_LEGACY_OPEN_DIALOG_ARGS_START__", "__CODEGEN_LEGACY_OPEN_DIALOG_ARGS_END__")
-	script = c.removeFrontendTemplateMarkerSegment(script, "__CODEGEN_LEGACY_EDIT_ARG_START__", "__CODEGEN_LEGACY_EDIT_ARG_END__")
 	script = strings.ReplaceAll(script, "__CODEGEN_OPERATION_WIDTH__", c.renderFrontendOperationWidth(table))
 	script = strings.ReplaceAll(script, "__CODEGEN_TREE_CREATE_ACTION__", c.renderFrontendTreeCreateAction(table, columns))
 	script = strings.ReplaceAll(script, "__CODEGEN_TREE_EDIT_PARAMS__", c.renderFrontendTreeEditParams(table))
@@ -707,23 +702,6 @@ func (c *renderer) renderFrontendTreeParentField(content string, table *Table) s
 		field += `, props: { disabled: Boolean(formData.id) || treeCreateState.lockParent } }`
 	}
 	return content[:fieldStart] + field + content[fieldEnd:]
-}
-
-// removeFrontendTemplateMarkerSegment 删除模板中用于消费兼容参数的临时标记片段。
-func (c *renderer) removeFrontendTemplateMarkerSegment(content string, startMarker string, endMarker string) string {
-	start := strings.Index(content, startMarker)
-	if start < 0 {
-		return content
-	}
-	endOffset := strings.Index(content[start+len(startMarker):], endMarker)
-	if endOffset < 0 {
-		return content
-	}
-	end := start + len(startMarker) + endOffset + len(endMarker)
-	if end < len(content) && content[end] == '\n' {
-		end++
-	}
-	return content[:start] + content[end:]
 }
 
 // reorderFrontendPageMethods 统一生成页面的主流程方法顺序，保持列表、选项与弹窗逻辑按阅读顺序排列。
@@ -2118,33 +2096,17 @@ func dedupeProtoChecks(checks []*ProtoCheck) []*ProtoCheck {
 	return list
 }
 
-// findSavedProtoMethod 查找已保存的生成选择，并兼容按字段保存的旧状态方法名。
+// findSavedProtoMethod 查找已保存的生成选择。
 func findSavedProtoMethod(methods []*Proto, check *ProtoCheck) *Proto {
-	legacyMethodName := legacyPluralProtoMethodName(check.TargetEntityName, check.MethodName)
-	var savedStatusMethod *Proto
 	for _, method := range methods {
 		if method.ProtoFilePath != check.ProtoFilePath || method.TargetEntityName != check.TargetEntityName {
 			continue
 		}
-		if method.MethodName == check.MethodName || legacyMethodName != "" && method.MethodName == legacyMethodName {
+		if method.MethodName == check.MethodName {
 			return method
 		}
-		// 状态接口的旧方法名可能由字段数量推导，使用字段名继续关联已保存的生成选择。
-		if check.APIKind == APIKindStatus && method.APIKind == APIKindStatus && method.Name == check.Name {
-			savedStatusMethod = method
-		}
 	}
-	return savedStatusMethod
-}
-
-// legacyPluralProtoMethodName 返回旧版 Page、Tree、Option 复数契约名。
-func legacyPluralProtoMethodName(entity string, methodName string) string {
-	for _, prefix := range []string{"Page", "Tree", "Option"} {
-		if methodName == prefix+entity {
-			return prefix + pluralize(entity)
-		}
-	}
-	return ""
+	return nil
 }
 
 // FrontendPageComponentPath 根据页面文件路径推导动态路由组件路径。

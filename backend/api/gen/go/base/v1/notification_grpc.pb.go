@@ -21,15 +21,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	NotificationService_PageNotification_FullMethodName        = "/base.v1.NotificationService/PageNotification"
-	NotificationService_GetNotificationSummary_FullMethodName  = "/base.v1.NotificationService/GetNotificationSummary"
-	NotificationService_GetNotification_FullMethodName         = "/base.v1.NotificationService/GetNotification"
-	NotificationService_MarkNotificationRead_FullMethodName    = "/base.v1.NotificationService/MarkNotificationRead"
-	NotificationService_MarkNotificationUnread_FullMethodName  = "/base.v1.NotificationService/MarkNotificationUnread"
-	NotificationService_MarkAllNotificationRead_FullMethodName = "/base.v1.NotificationService/MarkAllNotificationRead"
-	NotificationService_ArchiveNotification_FullMethodName     = "/base.v1.NotificationService/ArchiveNotification"
-	NotificationService_RestoreNotification_FullMethodName     = "/base.v1.NotificationService/RestoreNotification"
-	NotificationService_DeleteNotification_FullMethodName      = "/base.v1.NotificationService/DeleteNotification"
+	NotificationService_PageNotification_FullMethodName           = "/base.v1.NotificationService/PageNotification"
+	NotificationService_ListNotificationCategories_FullMethodName = "/base.v1.NotificationService/ListNotificationCategories"
+	NotificationService_GetNotificationSummary_FullMethodName     = "/base.v1.NotificationService/GetNotificationSummary"
+	NotificationService_GetNotification_FullMethodName            = "/base.v1.NotificationService/GetNotification"
+	NotificationService_MarkNotificationRead_FullMethodName       = "/base.v1.NotificationService/MarkNotificationRead"
+	NotificationService_MarkNotificationUnread_FullMethodName     = "/base.v1.NotificationService/MarkNotificationUnread"
+	NotificationService_MarkAllNotificationRead_FullMethodName    = "/base.v1.NotificationService/MarkAllNotificationRead"
+	NotificationService_ArchiveNotification_FullMethodName        = "/base.v1.NotificationService/ArchiveNotification"
+	NotificationService_RestoreNotification_FullMethodName        = "/base.v1.NotificationService/RestoreNotification"
+	NotificationService_DeleteNotification_FullMethodName         = "/base.v1.NotificationService/DeleteNotification"
 )
 
 // NotificationServiceClient is the client API for NotificationService service.
@@ -40,6 +41,8 @@ const (
 type NotificationServiceClient interface {
 	// 分页查询当前用户收件箱。
 	PageNotification(ctx context.Context, in *PageNotificationRequest, opts ...grpc.CallOption) (*PageNotificationResponse, error)
+	// 查询消息分类列表。
+	ListNotificationCategories(ctx context.Context, in *ListNotificationCategoriesRequest, opts ...grpc.CallOption) (*ListNotificationCategoriesResponse, error)
 	// 查询当前用户未读汇总。
 	GetNotificationSummary(ctx context.Context, in *GetNotificationSummaryRequest, opts ...grpc.CallOption) (*NotificationSummary, error)
 	// 查询当前用户消息详情。
@@ -70,6 +73,16 @@ func (c *notificationServiceClient) PageNotification(ctx context.Context, in *Pa
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(PageNotificationResponse)
 	err := c.cc.Invoke(ctx, NotificationService_PageNotification_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *notificationServiceClient) ListNotificationCategories(ctx context.Context, in *ListNotificationCategoriesRequest, opts ...grpc.CallOption) (*ListNotificationCategoriesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListNotificationCategoriesResponse)
+	err := c.cc.Invoke(ctx, NotificationService_ListNotificationCategories_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -164,6 +177,8 @@ func (c *notificationServiceClient) DeleteNotification(ctx context.Context, in *
 type NotificationServiceServer interface {
 	// 分页查询当前用户收件箱。
 	PageNotification(context.Context, *PageNotificationRequest) (*PageNotificationResponse, error)
+	// 查询消息分类列表。
+	ListNotificationCategories(context.Context, *ListNotificationCategoriesRequest) (*ListNotificationCategoriesResponse, error)
 	// 查询当前用户未读汇总。
 	GetNotificationSummary(context.Context, *GetNotificationSummaryRequest) (*NotificationSummary, error)
 	// 查询当前用户消息详情。
@@ -192,6 +207,9 @@ type UnimplementedNotificationServiceServer struct{}
 
 func (UnimplementedNotificationServiceServer) PageNotification(context.Context, *PageNotificationRequest) (*PageNotificationResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PageNotification not implemented")
+}
+func (UnimplementedNotificationServiceServer) ListNotificationCategories(context.Context, *ListNotificationCategoriesRequest) (*ListNotificationCategoriesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListNotificationCategories not implemented")
 }
 func (UnimplementedNotificationServiceServer) GetNotificationSummary(context.Context, *GetNotificationSummaryRequest) (*NotificationSummary, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetNotificationSummary not implemented")
@@ -252,6 +270,24 @@ func _NotificationService_PageNotification_Handler(srv interface{}, ctx context.
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(NotificationServiceServer).PageNotification(ctx, req.(*PageNotificationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NotificationService_ListNotificationCategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListNotificationCategoriesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NotificationServiceServer).ListNotificationCategories(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NotificationService_ListNotificationCategories_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NotificationServiceServer).ListNotificationCategories(ctx, req.(*ListNotificationCategoriesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -410,6 +446,10 @@ var NotificationService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PageNotification",
 			Handler:    _NotificationService_PageNotification_Handler,
+		},
+		{
+			MethodName: "ListNotificationCategories",
+			Handler:    _NotificationService_ListNotificationCategories_Handler,
 		},
 		{
 			MethodName: "GetNotificationSummary",

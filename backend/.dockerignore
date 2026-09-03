@@ -19,3 +19,6 @@ runtime
 node_modules
 coverage
 *.log
+logs/*
+backups/*
+codegen/*

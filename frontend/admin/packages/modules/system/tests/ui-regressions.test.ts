@@ -68,6 +68,29 @@ test("通知组件显式接管并透传顶部工具属性", async () => {
   assert.match(source, /<el-popover[\s\S]*v-bind="\$attrs"/);
 });
 
+test("文件资产详情使用可关闭的内容预览弹窗", async () => {
+  const source = await readSource("src/views/base/file/index.vue");
+
+  assert.match(source, /<ProDialog[\s\S]*:show-footer="false"/);
+  assert.match(source, /GetFileBlob/);
+  assert.match(source, /URL\.revokeObjectURL/);
+  assert.doesNotMatch(source, /ElMessageBox\.alert/);
+});
+
+test("消息标题单独打开正文，发送详情只展示投递信息", async () => {
+  const source = await readSource("src/views/base/message/index.vue");
+  const sendDetailDialog = source.match(/<ProDialog\s+v-model="detail\.visible"[\s\S]*?<\/ProDialog>/)?.[0];
+
+  assert.match(source, /prop: "title"[\s\S]*?openContent\(row\.id\)/);
+  assert.match(source, /system\.base\.message\.content\.title/);
+  assert.match(source, /system\.base\.message\.send_detail\.title/);
+  assert.match(source, /function openContent\(id: number\)/);
+  assert.match(source, /prop: "operation"[\s\S]*?width: 380[\s\S]*?message-operation-column/);
+  assert.match(source, /whiteSpace: "nowrap"[\s\S]*?\n\s*\},\n\s*row\.title/);
+  assert.ok(sendDetailDialog, "缺少发送详情弹窗");
+  assert.doesNotMatch(sendDetailDialog, /message-detail-content|detail\.data\.form\?\.content/);
+});
+
 test("新增回归校验使用的国际化键在四种语言中均存在", async () => {
   const locales = await Promise.all(["zh-CN", "en-US", "ja-JP", "zh-TW"].map(locale => readSource(`src/locales/${locale}.json`)));
   const requiredKeys = [

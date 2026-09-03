@@ -6,11 +6,12 @@
       ref="formDialogRef"
       :title="t(dialog.titleKey)"
       width="900px"
+      destroy-on-close
       :model="formState"
       :fields="formFields"
       :rules="rules"
       @confirm="handleSubmit"
-      @close="handleClose"
+      @closed="handleClose"
     >
       <template #audiences>
         <div class="audiences-editor">
@@ -46,9 +47,30 @@
       </template>
     </FormDialog>
     <ProDialog
+      v-model="content.visible"
+      :title="content.data?.base_message?.title || t('system.base.message.content.title')"
+      width="760px"
+      destroy-on-close
+      :show-footer="false"
+    >
+      <el-skeleton v-if="content.loading" :rows="8" animated />
+      <template v-else-if="content.data">
+        <div class="message-content-meta">
+          <span>{{ content.data.base_message?.category_name || "-" }}</span>
+          <span>{{ content.data.base_message?.created_at || "-" }}</span>
+        </div>
+        <RichTextPreview
+          v-if="content.data.form?.content_format === MessageContentFormat.MESSAGE_CONTENT_FORMAT_RICH_TEXT"
+          class="message-content-body"
+          :model-value="content.data.form?.content ?? ''"
+        />
+        <pre v-else class="message-content-body">{{ content.data.form?.content ?? "" }}</pre>
+      </template>
+    </ProDialog>
+    <ProDialog
       v-model="detail.visible"
-      :title="t('system.base.message.detail.title')"
-      width="900px"
+      :title="t('system.base.message.send_detail.title')"
+      width="min(1200px, calc(100vw - 32px))"
       :show-footer="false"
     >
       <template v-if="detail.data">
@@ -56,8 +78,14 @@
           <el-descriptions-item :label="t('system.base.message.field.title')">{{
             detail.data.base_message?.title
           }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.base.message.field.category')">{{
+            detail.data.base_message?.category_name
+          }}</el-descriptions-item>
           <el-descriptions-item :label="t('common.field.status')">{{
             optionLabel(statusOptions, detail.data.base_message?.status)
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.base.message.field.sender')">{{
+            detail.data.base_message?.sender_name
           }}</el-descriptions-item>
           <el-descriptions-item :label="t('system.base.message.field.delivered_total')">{{
             detail.data.base_message?.delivered_total
@@ -65,9 +93,25 @@
           <el-descriptions-item :label="t('system.base.message.field.recipient_total')">{{
             detail.data.base_message?.recipient_total
           }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.base.message.field.failed_total')">{{
+            detail.data.base_message?.failed_total
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.base.message.field.published_at')">{{
+            detail.data.base_message?.published_at || "-"
+          }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.base.message.field.scheduled_at')">{{
+            detail.data.base_message?.scheduled_at || "-"
+          }}</el-descriptions-item>
         </el-descriptions>
         <el-table :data="detail.data.dispatches" style="margin-top: 16px" size="small">
           <el-table-column prop="id" label="ID" width="90" />
+          <el-table-column prop="audience_type" :label="t('system.base.message.field.audience_type')" width="120">
+            <template #default="scope">{{ optionLabel(audienceOptions, scope.row.audience_type) }}</template>
+          </el-table-column>
+          <el-table-column prop="audience_id" :label="t('system.base.message.field.audience_id')" width="110" />
+          <el-table-column prop="include_children" :label="t('system.base.message.field.include_children')" width="120">
+            <template #default="scope">{{ scope.row.include_children ? t("common.value.yes") : t("common.value.no") }}</template>
+          </el-table-column>
           <el-table-column prop="status" :label="t('common.field.status')" width="120" />
           <el-table-column prop="matched_total" :label="t('system.base.message.field.matched_total')" width="110" />
           <el-table-column prop="inserted_total" :label="t('system.base.message.field.inserted_total')" width="110" />
@@ -97,10 +141,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from "vue";
+import { computed, h, onMounted, reactive, ref, watch } from "vue";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
+import RichTextPreview from "@liujitcn/kratos-admin-core/components/RichTextPreview/index.vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
@@ -151,6 +196,7 @@ const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const categoryOptions = ref<ProFormOption[]>([]);
 const tenantOptions = ref<ProFormOption[]>([]);
 const dialog = reactive({ visible: false, titleKey: "common.action.create" });
+const content = reactive<{ visible: boolean; loading: boolean; data?: BaseMessageDetail }>({ visible: false, loading: false });
 const detail = reactive<{ visible: boolean; data?: BaseMessageDetail }>({ visible: false });
 const formState = reactive<MessageFormState>(defaultForm());
 
@@ -177,7 +223,10 @@ const statusOptions = computed<ProFormOption[]>(() => [
   { label: t("system.base.message.status.published"), value: MessageStatus.MESSAGE_STATUS_PUBLISHED },
   { label: t("system.base.message.status.revoked"), value: MessageStatus.MESSAGE_STATUS_REVOKED }
 ]);
-onMounted(() => void loadTenantOptions());
+onMounted(() => {
+  void loadCategoryOptions();
+  void loadTenantOptions();
+});
 watch(
   () => formState.action_type,
   value => {
@@ -250,7 +299,11 @@ const formFields = computed<ProFormField[]>(() => [
     label: t("system.base.message.field.content"),
     labelTooltip: t("system.base.message.tooltip.content"),
     component: "rich-text",
-    props: { height: "320px", editorConfig: { placeholder: t("system.base.message.placeholder.content") } },
+    props: {
+      height: "320px",
+      uploadType: "message",
+      editorConfig: { placeholder: t("system.base.message.placeholder.content") }
+    },
     colSpan: 24
   },
   {
@@ -316,8 +369,42 @@ const columns = computed<ColumnProps[]>(() => [
         }
       ] satisfies ColumnProps[])
     : []),
-  { prop: "title", label: t("system.base.message.field.title"), minWidth: 220, search: { el: "input" } },
-  { prop: "category_name", label: t("system.base.message.field.category"), minWidth: 130 },
+  {
+    prop: "title",
+    label: t("system.base.message.field.title"),
+    minWidth: 220,
+    search: { el: "input" },
+    render: scope => {
+      const row = scope.row as BaseMessage;
+      return h(
+        "a",
+        {
+          href: "#",
+          title: row.title,
+          style: {
+            display: "block",
+            maxWidth: "100%",
+            overflow: "hidden",
+            color: "var(--el-color-primary)",
+            textDecoration: "none",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap"
+          },
+          onClick: (event: MouseEvent) => {
+            event.preventDefault();
+            void openContent(row.id);
+          }
+        },
+        row.title
+      );
+    }
+  },
+  {
+    prop: "category_name",
+    label: t("system.base.message.field.category"),
+    minWidth: 130,
+    search: { el: "select", key: "category_id", enum: categoryOptions.value }
+  },
   {
     prop: "priority",
     label: t("system.base.message.field.priority"),
@@ -336,7 +423,8 @@ const columns = computed<ColumnProps[]>(() => [
   {
     prop: "operation",
     label: t("common.field.operation"),
-    width: 260,
+    width: 380,
+    className: "message-operation-column",
     fixed: "right",
     cellType: "actions",
     actions: [
@@ -349,7 +437,7 @@ const columns = computed<ColumnProps[]>(() => [
         onClick: scope => openDialog((scope.row as BaseMessage).id)
       },
       {
-        label: t("system.base.message.detail.action"),
+        label: t("system.base.message.send_detail.action"),
         link: true,
         icon: View,
         onClick: scope => openDetail((scope.row as BaseMessage).id)
@@ -471,7 +559,6 @@ async function loadTenantOptions() {
   if (!isDefaultTenant.value) return;
   const result = await defBaseTenantService.OptionBaseTenant({ keyword: "" });
   tenantOptions.value = result.list.map(item => ({ label: item.label, value: item.value }));
-  await loadCategoryOptions();
 }
 
 /** 加载消息分类选项。 */
@@ -511,10 +598,24 @@ async function handleSubmit() {
   proTable.value?.getTableList();
 }
 
-/** 打开消息详情并加载投递进度。 */
+/** 打开发送详情并加载投递进度。 */
 async function openDetail(id: number) {
   detail.data = await defBaseMessageService.GetBaseMessage({ id });
   detail.visible = true;
+}
+
+/** 打开消息正文并单独展示内容。 */
+async function openContent(id: number) {
+  content.visible = true;
+  content.loading = true;
+  content.data = undefined;
+  try {
+    content.data = await defBaseMessageService.GetBaseMessage({ id });
+  } catch {
+    content.visible = false;
+  } finally {
+    content.loading = false;
+  }
 }
 
 /** 重试失败的消息投递任务并刷新详情。 */
@@ -584,5 +685,28 @@ function optionLabel(options: ProFormOption[], value: unknown) {
 
 .audience-id {
   width: 160px;
+}
+
+.message-content-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  color: var(--el-text-color-secondary);
+  font-size: 13px;
+}
+
+.message-content-body {
+  max-height: 60vh;
+  margin: 0;
+  overflow: auto;
+  padding: 12px;
+  border: 1px solid var(--el-border-color-lighter);
+  color: var(--el-text-color-primary);
+  overflow-wrap: anywhere;
+}
+
+pre.message-content-body {
+  white-space: pre-wrap;
 }
 </style>

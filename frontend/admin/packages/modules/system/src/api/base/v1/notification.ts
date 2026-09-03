@@ -4,6 +4,8 @@ import type {
   DeleteNotificationRequest,
   GetNotificationRequest,
   GetNotificationSummaryRequest,
+  ListNotificationCategoriesRequest,
+  ListNotificationCategoriesResponse,
   MarkAllNotificationReadRequest,
   MarkNotificationReadRequest,
   MarkNotificationUnreadRequest,
@@ -29,6 +31,15 @@ export class NotificationServiceImpl implements NotificationService {
       params: request
     });
     return normalizePageNotificationResponse(response);
+  }
+
+  /** 查询当前可用的消息分类。 */
+  ListNotificationCategories(request: ListNotificationCategoriesRequest): Promise<ListNotificationCategoriesResponse> {
+    return service<ListNotificationCategoriesRequest, ListNotificationCategoriesResponse>({
+      url: `${NOTIFICATION_URL}/categories`,
+      method: "get",
+      params: request
+    });
   }
 
   /** 查询当前用户消息详情。 */

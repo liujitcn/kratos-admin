@@ -9,7 +9,7 @@ import DictLabel from "@/components/Dict/DictLabel.vue";
 import { ColumnProps, HeaderRenderScope, RenderScope, TableActionProps } from "@/components/ProTable/interface";
 import type { TableAlign } from "@/utils/proTable";
 import { filterEnum, formatValue, handleProp, handleRowAccordingToProp } from "@/utils";
-import { formatPrice } from "@/utils/utils";
+import { formatPrice, formatSrc } from "@/utils/utils";
 import { t } from "@/locales";
 
 const props = defineProps<{
@@ -93,12 +93,14 @@ const getBooleanValue = (value: boolean | ((scope: RenderScope<any>) => boolean)
  */
 const renderImageCell = (item: ColumnProps, scope: RenderScope<any>) => {
   const imageProps = item.imageProps ?? {};
-  const src =
+  const rawSrc =
     typeof imageProps.src === "function"
       ? imageProps.src(scope)
       : (imageProps.src ?? handleRowAccordingToProp(scope.row, item.prop!));
-  const previewSrc = typeof imageProps.previewSrc === "function" ? imageProps.previewSrc(scope) : (imageProps.previewSrc ?? src);
-  if (!src || src === "--") return "--";
+  const rawPreviewSrc = typeof imageProps.previewSrc === "function" ? imageProps.previewSrc(scope) : (imageProps.previewSrc ?? rawSrc);
+  if (!rawSrc || rawSrc === "--") return "--";
+  const src = formatSrc(String(rawSrc));
+  const previewSrc = formatSrc(String(rawPreviewSrc));
   const thumbWidth = typeof imageProps.width === "number" ? `${imageProps.width}px` : (imageProps.width ?? "60px");
   const thumbHeight = typeof imageProps.height === "number" ? `${imageProps.height}px` : (imageProps.height ?? "60px");
   return h(

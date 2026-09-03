@@ -2,9 +2,11 @@ import { useLoad } from '@tarojs/taro'
 import { Button, RichText, Text, View } from '@tarojs/components'
 import { useState } from 'react'
 import { navigateAppView, t } from '@liujitcn/kratos-taro-app-core'
+import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
 import { defNotificationService } from '../../../api/base/v1/notification'
 import type { Notification } from '../../../rpc/base/v1/notification'
 import { MessageActionType, MessageContentFormat } from '../../../rpc/base/v1/notification'
+import { resolveMessageCategoryIcon } from './icons'
 import './message.scss'
 
 /** Taro 站内信详情页面。 */
@@ -31,7 +33,11 @@ export default function MessageDetailPage() {
       try {
         const value = JSON.parse(detail.action_params) as Record<string, unknown>
         if (value && typeof value === 'object' && !Array.isArray(value)) {
-          params = Object.fromEntries(Object.entries(value).filter(([, item]) => typeof item === 'string' || typeof item === 'number').map(([key, item]) => [key, String(item)]))
+          params = Object.fromEntries(
+            Object.entries(value)
+              .filter(([, item]) => typeof item === 'string' || typeof item === 'number')
+              .map(([key, item]) => [key, String(item)]),
+          )
         }
       } catch {
         params = {}
@@ -45,12 +51,28 @@ export default function MessageDetailPage() {
     <View className='detail-page'>
       <Text className='detail-title'>{detail.title}</Text>
       <View className='detail-meta'>
-        <Text>{detail.category_name}</Text><Text>{detail.sender_name}</Text><Text>{detail.received_at}</Text>
+        <View className='detail-category' style={{ color: detail.category_color || undefined }}>
+          <UniIcon
+            className='detail-category__icon'
+            type={resolveMessageCategoryIcon(detail.category_icon)}
+            size={18}
+            color={detail.category_color || '#64748b'}
+          />
+          <Text>{detail.category_name}</Text>
+        </View>
+        <Text>{detail.sender_name}</Text>
+        <Text>{detail.received_at}</Text>
       </View>
-      {detail.content_format === MessageContentFormat.MESSAGE_CONTENT_FORMAT_RICH_TEXT
-        ? <RichText className='detail-content-rich' nodes={detail.content} />
-        : <Text className='detail-content'>{detail.content}</Text>}
-      {detail.action_type === MessageActionType.MESSAGE_ACTION_TYPE_VIEW_KEY && <Button className='detail-action' onClick={openAction}>{t('common.action.view')}</Button>}
+      {detail.content_format === MessageContentFormat.MESSAGE_CONTENT_FORMAT_RICH_TEXT ? (
+        <RichText className='detail-content-rich' nodes={detail.content} />
+      ) : (
+        <Text className='detail-content'>{detail.content}</Text>
+      )}
+      {detail.action_type === MessageActionType.MESSAGE_ACTION_TYPE_VIEW_KEY && (
+        <Button className='detail-action' onClick={openAction}>
+          {t('common.action.view')}
+        </Button>
+      )}
     </View>
   )
 }

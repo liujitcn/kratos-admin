@@ -187,7 +187,7 @@ const rules = computed(() => ({
   tenant_id: [
     {
       required: true,
-      message: t("common.validation.required_select", { field: t("system.base.user.field.tenant") }),
+      message: t("common.validation.required_select", { field: t("common.field.tenant") }),
       trigger: "change"
     }
   ],
@@ -230,14 +230,14 @@ const rules = computed(() => ({
   dept_id: [
     {
       required: true,
-      message: t("common.validation.required_select", { field: t("system.base.user.field.department") }),
+      message: t("common.validation.required_select", { field: t("common.field.department") }),
       trigger: "change"
     }
   ],
   role_id: [
     {
       required: true,
-      message: t("common.validation.required_select", { field: t("system.base.user.field.role") }),
+      message: t("common.validation.required_select", { field: t("common.field.role") }),
       trigger: "change"
     }
   ],
@@ -338,10 +338,10 @@ const isSuperEditUser = computed(() => Boolean(formData.id && formData.user_name
 const formFields = computed<ProFormField[]>(() => [
   {
     prop: "tenant_id",
-    label: t("system.base.user.field.tenant"),
+    label: t("common.field.tenant"),
     component: "select",
     props: {
-      placeholder: t("system.base.user.placeholder.tenant"),
+      placeholder: t("common.placeholder.select"),
       filterable: true,
       disabled: Boolean(formData.id),
       onChange: handleFormTenantChange
@@ -369,18 +369,18 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "role_id",
-    label: t("system.base.user.field.role"),
+    label: t("common.field.role"),
     component: "select",
     options: baseRoleOptions.value.map(item => ({ label: item.label, value: item.value, disabled: item.disabled })),
     props: { placeholder: t("common.placeholder.select"), disabled: isProtectedUserRole.value }
   },
   {
     prop: "dept_id",
-    label: t("system.base.user.field.department"),
+    label: t("common.field.department"),
     component: "tree-select",
     options: basedDeptOptions.value as unknown as ProFormOption[],
     props: {
-      placeholder: t("system.base.user.placeholder.department"),
+      placeholder: t("common.placeholder.select"),
       filterable: true,
       checkStrictly: true,
       renderAfterExpand: false,
@@ -389,10 +389,10 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "post_id",
-    label: t("system.base.user.field.post"),
+    label: t("common.field.post"),
     component: "select",
     options: basePostOptions.value.map(item => ({ label: item.label, value: item.value, disabled: item.disabled })),
-    props: { placeholder: t("system.base.user.placeholder.post"), clearable: true, filterable: true }
+    props: { placeholder: t("common.placeholder.select"), clearable: true, filterable: true }
   },
   {
     prop: "phone",
@@ -456,7 +456,7 @@ const columns = computed<ColumnProps[]>(() => [
     ? ([
         {
           prop: "tenant_id",
-          label: t("system.base.user.field.tenant_short"),
+          label: t("common.field.tenant"),
           minWidth: 140,
           showOverflowTooltip: true,
           search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 1 },
@@ -467,15 +467,15 @@ const columns = computed<ColumnProps[]>(() => [
   { prop: "user_name", label: t("system.base.user.field.user_name"), minWidth: 140, search: { el: "input" } },
   { prop: "user_code", label: t("system.base.user.field.user_code"), minWidth: 140, search: { el: "input" } },
   { prop: "nick_name", label: t("system.base.user.field.nick_name_short"), minWidth: 100, search: { el: "input" } },
-  { prop: "role_id", label: t("system.base.user.field.role"), minWidth: 140, enum: requestRoleOptions },
+  { prop: "role_id", label: t("common.field.role"), minWidth: 140, enum: requestRoleOptions },
   {
     prop: "dept_id",
-    label: t("system.base.user.field.department_short"),
+    label: t("common.field.department"),
     minWidth: 180,
     showOverflowTooltip: true,
     enum: requestDeptOptions
   },
-  { prop: "post_id", label: t("system.base.user.field.post_short"), minWidth: 120, enum: requestPostOptions },
+  { prop: "post_id", label: t("common.field.post"), minWidth: 120, enum: requestPostOptions },
   { prop: "phone", label: t("common.field.phone"), minWidth: 130, search: { el: "input" } },
   { prop: "email", label: t("system.base.user.field.email"), minWidth: 180, search: { el: "input" } },
   { prop: "id_type", label: t("system.base.user.field.id_type"), minWidth: 150, enum: idTypeOptions },

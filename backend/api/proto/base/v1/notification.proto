@@ -13,6 +13,10 @@ service NotificationService {
   rpc PageNotification(PageNotificationRequest) returns (PageNotificationResponse) {
     option (google.api.http) = {get: "/api/v1/base/notification"};
   }
+  // 查询消息分类列表。
+  rpc ListNotificationCategories(ListNotificationCategoriesRequest) returns (ListNotificationCategoriesResponse) {
+    option (google.api.http) = {get: "/api/v1/base/notification/categories"};
+  }
   // 查询当前用户未读汇总。
   rpc GetNotificationSummary(GetNotificationSummaryRequest) returns (NotificationSummary) {
     option (google.api.http) = {get: "/api/v1/base/notification/summary"};
@@ -190,6 +194,25 @@ message PageNotificationResponse {
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
   int64 next_cursor_id = 3 [(gnostic.openapi.v3.property) = {description: "下一页游标"}]; // 下一页游标
   bool has_more = 4 [(gnostic.openapi.v3.property) = {description: "是否还有下一页"}]; // 是否还有下一页
+}
+
+// 消息分类列表查询条件。
+message ListNotificationCategoriesRequest {
+}
+
+// 消息分类列表响应。
+message ListNotificationCategoriesResponse {
+  repeated NotificationCategory categories = 1 [(gnostic.openapi.v3.property) = {description: "消息分类列表"}]; // 消息分类列表
+}
+
+// 当前可用的消息分类。
+message NotificationCategory {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "消息分类ID"}]; // 消息分类ID
+  string code = 2 [(gnostic.openapi.v3.property) = {description: "分类编码"}]; // 分类编码
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "分类名称"}]; // 分类名称
+  string icon = 4 [(gnostic.openapi.v3.property) = {description: "分类图标"}]; // 分类图标
+  string color = 5 [(gnostic.openapi.v3.property) = {description: "分类颜色"}]; // 分类颜色
+  int32 sort = 6 [(gnostic.openapi.v3.property) = {description: "排序"}]; // 排序
 }
 
 // 消息详情查询条件。

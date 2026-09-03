@@ -1,6 +1,7 @@
 import Taro, { getCurrentPages } from '@tarojs/taro'
 import { create } from 'zustand'
 import { defBaseMenuService } from './api/system/app/v1/base_menu'
+import type { BaseMenu, ListBaseMenuResponse } from './rpc/system/app/v1/base_menu'
 import { resolveStaticView } from './module'
 import { matchLogicalPath, parseLogicalQuery } from './navigation-pattern.mjs'
 import { buildMenuTree } from './navigation-tree.mjs'
@@ -33,7 +34,7 @@ export interface AppMenuNode extends AppMenu {
 /** 菜单获取适配器。 */
 export interface AppNavigationAdapter {
   /** 获取扁平移动菜单配置。 */
-  list(): Promise<unknown>
+  list(): Promise<ListBaseMenuResponse>
 }
 
 /** 逻辑路由解析结果。 */
@@ -186,6 +187,7 @@ const defaultMenuTitleKeys: Record<string, string> = {
 
 let tabNavigationTarget: string | undefined
 const nativeTabViewKeys = ['HOME', 'PROFILE_HOME']
+const resetTabViewKeys = ['MESSAGE_INBOX']
 
 function localizedDefaultAppMenus(): AppMenu[] {
   return defaultAppMenus.map((menu) => ({
@@ -254,10 +256,7 @@ export function resolveAppRoute(rawRoute: string): ResolvedAppRoute | undefined 
 }
 
 /** 跳转逻辑路由，并执行登录访问控制。 */
-export function navigateAppRoute(
-  rawRoute: string,
-  options: { replace?: boolean } = {},
-): void {
+export function navigateAppRoute(rawRoute: string, options: { replace?: boolean } = {}): void {
   const resolved = resolveAppRoute(rawRoute)
   if (!resolved) {
     launchAppStatus('NOT_FOUND')
@@ -320,9 +319,15 @@ function navigateTabRoute(url: string): void {
     if (tabNavigationTarget === targetRoute) tabNavigationTarget = undefined
   }
   if (nativeTabViewKeys.some((viewKey) => resolveStaticView(viewKey) === targetRoute)) {
-    void Taro.switchTab({ url }).then(release).catch(() => {
-      navigateTabRouteInStack(url, targetRoute, pages, currentIndex, release)
-    })
+    void Taro.switchTab({ url })
+      .then(release)
+      .catch(() => {
+        navigateTabRouteInStack(url, targetRoute, pages, currentIndex, release)
+      })
+    return
+  }
+  if (resetTabViewKeys.some((viewKey) => resolveStaticView(viewKey) === targetRoute)) {
+    void Taro.reLaunch({ url }).then(release, release)
     return
   }
   navigateTabRouteInStack(url, targetRoute, pages, currentIndex, release)
@@ -347,10 +352,7 @@ function navigateTabRouteInStack(
 }
 
 /** 打开可替换的状态视图。 */
-export function launchAppStatus(
-  state: import('./module').BootstrapViewKey,
-  detail = '',
-): void {
+export function launchAppStatus(state: import('./module').BootstrapViewKey, detail = ''): void {
   const route = resolveStaticView(state) ?? 'pages/status/index'
   const query = `state=${encodeURIComponent(state)}${detail ? `&detail=${encodeURIComponent(detail)}` : ''}`
   void Taro.reLaunch({ url: `/${route}?${query}` })
@@ -365,47 +367,32 @@ function readCachedMenus(cacheKey: string): AppMenu[] | undefined {
   const cached = Taro.getStorageSync<unknown>(cacheKey)
   if (!Array.isArray(cached)) return
   try {
-    const normalized = cached.map(normalizeMenu)
-    validateMenus(normalized)
-    return normalized
+    const cachedMenus = cached as AppMenu[]
+    validateMenus(cachedMenus)
+    return cachedMenus
   } catch {
     Taro.removeStorageSync(cacheKey)
   }
 }
 
-function normalizeMenuResponse(response: unknown): AppMenu[] {
-  if (Array.isArray(response)) return response.map(normalizeMenu)
-  if (!response || typeof response !== 'object') throw new Error(t('core.navigation.error.response_object'))
-  const record = response as Record<string, unknown>
-  const list = record.items ?? record.list ?? record.data
-  if (!Array.isArray(list)) throw new Error(t('core.navigation.error.list_missing'))
-  return list.map(normalizeMenu)
+function normalizeMenuResponse(response: ListBaseMenuResponse): AppMenu[] {
+  return response.items.map(normalizeMenu)
 }
 
-function normalizeMenu(value: unknown): AppMenu {
-  if (!value || typeof value !== 'object') throw new Error(t('core.navigation.error.item_object'))
-  const item = value as Record<string, unknown>
-  const meta = (item.meta ?? {}) as Record<string, unknown>
-  const app = (meta.app ?? item.app ?? {}) as Record<string, unknown>
+function normalizeMenu(item: BaseMenu): AppMenu {
+  const meta = item.meta
+  const app = meta?.app
   return {
-    id: Number(item.id),
-    parentId:
-      item.parent_id === undefined && item.parentId === undefined
-        ? undefined
-        : Number(item.parent_id ?? item.parentId),
-    name: String(item.name ?? ''),
-    path: String(item.path ?? ''),
-    viewKey: String(app.view_key ?? app.viewKey ?? item.view_key ?? item.viewKey ?? ''),
-    title: String(meta.title ?? item.title ?? ''),
-    access: String(app.access ?? 'AUTHENTICATED') as AppMenuAccess,
-    inTabBar: Boolean(app.in_tab_bar ?? app.inTabBar),
-    icon: typeof meta.icon === 'string' ? meta.icon : undefined,
-    selectedIcon:
-      typeof app.selected_icon === 'string'
-        ? app.selected_icon
-        : typeof app.selectedIcon === 'string'
-          ? app.selectedIcon
-          : undefined,
+    id: item.id,
+    parentId: item.parent_id,
+    name: item.name,
+    path: item.path,
+    viewKey: app?.view_key ?? '',
+    title: meta?.title ?? '',
+    access: (app?.access ?? 'AUTHENTICATED') as AppMenuAccess,
+    inTabBar: app?.in_tab_bar ?? false,
+    icon: meta?.icon,
+    selectedIcon: app?.selected_icon,
   }
 }
 
@@ -446,10 +433,12 @@ function validateMenus(nextMenus: AppMenu[]): void {
     const visited = new Set<number>([menu.id])
     let parentId = menu.parentId
     while (parentId !== APP_MENU_ROOT_ID) {
-      if (visited.has(parentId)) throw new Error(t('core.navigation.error.cycle', { name: menu.name }))
+      if (visited.has(parentId))
+        throw new Error(t('core.navigation.error.cycle', { name: menu.name }))
       visited.add(parentId)
       const parent = menuMap.get(parentId)
-      if (!parent?.parentId) throw new Error(t('core.navigation.error.parent_not_found', { name: menu.name }))
+      if (!parent?.parentId)
+        throw new Error(t('core.navigation.error.parent_not_found', { name: menu.name }))
       parentId = parent.parentId
     }
   }

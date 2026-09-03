@@ -23,6 +23,7 @@ const OperationNotificationServiceArchiveNotification = "/base.v1.NotificationSe
 const OperationNotificationServiceDeleteNotification = "/base.v1.NotificationService/DeleteNotification"
 const OperationNotificationServiceGetNotification = "/base.v1.NotificationService/GetNotification"
 const OperationNotificationServiceGetNotificationSummary = "/base.v1.NotificationService/GetNotificationSummary"
+const OperationNotificationServiceListNotificationCategories = "/base.v1.NotificationService/ListNotificationCategories"
 const OperationNotificationServiceMarkAllNotificationRead = "/base.v1.NotificationService/MarkAllNotificationRead"
 const OperationNotificationServiceMarkNotificationRead = "/base.v1.NotificationService/MarkNotificationRead"
 const OperationNotificationServiceMarkNotificationUnread = "/base.v1.NotificationService/MarkNotificationUnread"
@@ -38,6 +39,8 @@ type NotificationServiceHTTPServer interface {
 	GetNotification(context.Context, *GetNotificationRequest) (*Notification, error)
 	// GetNotificationSummary 查询当前用户未读汇总。
 	GetNotificationSummary(context.Context, *GetNotificationSummaryRequest) (*NotificationSummary, error)
+	// ListNotificationCategories 查询消息分类列表。
+	ListNotificationCategories(context.Context, *ListNotificationCategoriesRequest) (*ListNotificationCategoriesResponse, error)
 	// MarkAllNotificationRead 标记水位线之前的全部消息为已读。
 	MarkAllNotificationRead(context.Context, *MarkAllNotificationReadRequest) (*emptypb.Empty, error)
 	// MarkNotificationRead 标记消息为已读。
@@ -53,6 +56,7 @@ type NotificationServiceHTTPServer interface {
 func RegisterNotificationServiceHTTPServer(s *http.Server, srv NotificationServiceHTTPServer) {
 	r := s.Route("/")
 	r.Handle("GET", "/api/v1/base/notification", _NotificationService_PageNotification0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/base/notification/categories", _NotificationService_ListNotificationCategories0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/base/notification/summary", _NotificationService_GetNotificationSummary0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/base/notification/{id}", _NotificationService_GetNotification0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/base/notification/read", _NotificationService_MarkNotificationRead0_HTTP_Handler(srv))
@@ -78,6 +82,25 @@ func _NotificationService_PageNotification0_HTTP_Handler(srv NotificationService
 			return err
 		}
 		reply := out.(*PageNotificationResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _NotificationService_ListNotificationCategories0_HTTP_Handler(srv NotificationServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ListNotificationCategoriesRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationNotificationServiceListNotificationCategories)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListNotificationCategories(ctx, req.(*ListNotificationCategoriesRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListNotificationCategoriesResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -255,6 +278,8 @@ type NotificationServiceHTTPClient interface {
 	GetNotification(ctx context.Context, req *GetNotificationRequest, opts ...http.CallOption) (rsp *Notification, err error)
 	// GetNotificationSummary 查询当前用户未读汇总。
 	GetNotificationSummary(ctx context.Context, req *GetNotificationSummaryRequest, opts ...http.CallOption) (rsp *NotificationSummary, err error)
+	// ListNotificationCategories 查询消息分类列表。
+	ListNotificationCategories(ctx context.Context, req *ListNotificationCategoriesRequest, opts ...http.CallOption) (rsp *ListNotificationCategoriesResponse, err error)
 	// MarkAllNotificationRead 标记水位线之前的全部消息为已读。
 	MarkAllNotificationRead(ctx context.Context, req *MarkAllNotificationReadRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// MarkNotificationRead 标记消息为已读。
@@ -335,6 +360,23 @@ func (c *NotificationServiceHTTPClientImpl) GetNotificationSummary(ctx context.C
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
 		http.Operation(OperationNotificationServiceGetNotificationSummary),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// ListNotificationCategories 查询消息分类列表。
+func (c *NotificationServiceHTTPClientImpl) ListNotificationCategories(ctx context.Context, in *ListNotificationCategoriesRequest, opts ...http.CallOption) (*ListNotificationCategoriesResponse, error) {
+	var out ListNotificationCategoriesResponse
+	pattern := "/api/v1/base/notification/categories"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationNotificationServiceListNotificationCategories),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

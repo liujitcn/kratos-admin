@@ -7,8 +7,6 @@ const (
 	RoleUser = "user"
 	// RoleAI 表示助手消息角色。
 	RoleAI = "ai"
-	// RoleSystem 表示系统消息角色，当前只在历史上下文兼容路径中使用。
-	RoleSystem = "system"
 
 	// KindText 表示普通文本消息类型。
 	KindText = "text"
@@ -19,7 +17,7 @@ const (
 // 该结构只保留模型构造上下文所需的最小信息，调用方从数据库消息或其他来源转换时，
 // 不需要把附件、模型、降级等展示层元数据带入历史上下文。
 type Message struct {
-	// Role 消息角色，当前主要使用 user / ai，system 仅用于兼容历史上下文。
+	// Role 消息角色，只允许 user 或 ai。
 	Role string `json:"role"`
 	// Content 消息正文，进入模型前会再次过滤空白内容。
 	Content string `json:"content"`

@@ -5,7 +5,6 @@ import {
   readFileSync,
   readdirSync,
   rmdirSync,
-  rmSync,
   statSync,
   unlinkSync,
   writeFileSync,
@@ -39,7 +38,6 @@ type BuildTransaction = {
   originalPages: string
   generatedFiles: string[]
   generatedStaticFiles: string[]
-  generatedStatic?: boolean
   ownerPid?: number
   ready?: boolean
 }
@@ -368,13 +366,9 @@ function restoreBuildTransaction(transaction: BuildTransaction, transactionFile:
     removeEmptyParents(dirname(file), transaction.inputDir)
   }
   removeGeneratedStaticFiles(
-    transaction.generatedStaticFiles ?? [],
+    transaction.generatedStaticFiles,
     resolve(transaction.inputDir, 'static'),
   )
-  // 兼容旧事务：旧格式仅在 static 原本不存在时记录整个目录由插件生成。
-  if (transaction.generatedStatic && transaction.generatedStaticFiles === undefined) {
-    rmSync(resolve(transaction.inputDir, 'static'), { recursive: true, force: true })
-  }
   writeFileSync(transaction.pagesFile, transaction.originalPages)
   if (existsSync(transactionFile)) unlinkSync(transactionFile)
 }
@@ -600,10 +594,13 @@ function appendPage(manifest: PagesManifest, page: ScannedPage): void {
 function createPageWrapper(page: ScannedPage): string {
   const source = page.source.replace(/\\/g, '/')
   return `<script setup lang="ts">
+import { onShow } from '@dcloudio/uni-app'
+import { setAppPageTitle } from '@liujitcn/kratos-uni-app-core'
 import KratosPage from ${JSON.stringify(source)}
 import KratosTabBar from '@liujitcn/kratos-uni-app-core/components/KratosTabBar.vue'
 
 defineOptions({ inheritAttrs: false })
+onShow(() => setAppPageTitle(${JSON.stringify(page.route)}))
 </script>
 
 <template>

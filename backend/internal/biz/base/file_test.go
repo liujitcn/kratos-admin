@@ -2,17 +2,34 @@ package biz
 
 import "testing"
 
-// TestTenantFilePath 验证租户文件路径隔离。
-func TestTenantFilePath(t *testing.T) {
-	path, err := tenantFilePath(7, "/base/avatar/2026/01/01/a.png")
+// TestObjectFilePath 验证浏览器路径和 OSS 对象路径的转换。
+func TestObjectFilePath(t *testing.T) {
+	path, err := objectFilePath("/image/images/2026/01/01/a.png")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if path != "/tenant/7/base/avatar/2026/01/01/a.png" {
-		t.Fatalf("unexpected tenant path %q", path)
+	if path != "image/images/2026/01/01/a.png" {
+		t.Fatalf("unexpected object path %q", path)
 	}
-	if _, err = tenantFilePath(7, "/tenant/8/base/avatar/a.png"); err == nil {
-		t.Fatal("expected cross-tenant path to be rejected")
+	path, err = objectFilePath("/data/image/images/2026/01/01/a.png")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if path != "image/images/2026/01/01/a.png" {
+		t.Fatalf("unexpected public object path %q", path)
+	}
+	if _, err = objectFilePath("/image/../secret.txt"); err == nil {
+		t.Fatal("expected path traversal to be rejected")
+	}
+}
+
+// TestPublicFileURL 验证上传响应使用统一的数据访问路径。
+func TestPublicFileURL(t *testing.T) {
+	if path := publicFileURL("image/images/2026/01/01/a.png"); path != "/data/image/images/2026/01/01/a.png" {
+		t.Fatalf("unexpected public file path %q", path)
+	}
+	if path := publicFileURL("https://cdn.example.com/a.png"); path != "https://cdn.example.com/a.png" {
+		t.Fatalf("unexpected external file URL %q", path)
 	}
 }
 

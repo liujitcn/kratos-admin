@@ -16,7 +16,7 @@ require (
 	github.com/liujitcn/go-utils/http v0.0.7
 	github.com/liujitcn/gorm-kit v0.0.33
 	github.com/liujitcn/kratos-admin/backend/api v0.0.3
-	github.com/liujitcn/kratos-core v0.0.21
+	github.com/liujitcn/kratos-core v0.0.22
 	github.com/liujitcn/kratos-core/api v0.0.4
 	github.com/liujitcn/kratos-kit v0.0.79
 	github.com/liujitcn/kratos-kit/api v0.0.35
@@ -360,3 +360,4 @@ require (
 )
 
 replace github.com/liujitcn/go-utils/crypto => ../../go-utils/crypto
+replace github.com/liujitcn/kratos-core => ../../kratos-core

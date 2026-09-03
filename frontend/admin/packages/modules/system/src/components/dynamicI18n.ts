@@ -11,12 +11,9 @@ export interface DynamicI18nValue {
 
 /** DynamicI18nRecord 描述三类动态资源翻译共有字段。 */
 export interface DynamicI18nRecord extends Omit<DynamicI18nValue, "text"> {
-  target_type?: I18nTargetType;
-  target_id?: number;
-  name?: string;
-  /** 兼容旧接口缓存中的字段名。 */
-  title?: string;
-  label?: string;
+	target_type: I18nTargetType;
+	target_id: number;
+	name: string;
 }
 
 /** DynamicLanguageOption 动态翻译编辑器显示的语言选项。 */
@@ -43,7 +40,6 @@ export function getLanguageLabel(locale: string): string {
 /** normalizeDynamicI18ns 将后端翻译记录补齐为全部非主语言编辑状态。 */
 export function normalizeDynamicI18ns(
   records: DynamicI18nRecord[] | undefined,
-  _textField: "title" | "name" | "label",
   locales: string[] = getEditableLanguageOptions().map(item => item.value)
 ): DynamicI18nValue[] {
   return locales.map(locale => {
@@ -51,7 +47,7 @@ export function normalizeDynamicI18ns(
     return {
       id: record?.id ?? 0,
       locale,
-      text: String(record?.name ?? record?.[_textField] ?? "")
+      text: String(record?.name ?? "")
     };
   });
 }

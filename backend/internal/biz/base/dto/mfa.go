@@ -7,7 +7,6 @@ import webauthn "github.com/go-webauthn/webauthn/webauthn"
 type MfaLoginChallenge struct {
 	UserID    int64                 `json:"user_id"`            // 发起挑战的用户编号。
 	TenantID  int64                 `json:"tenant_id"`          // 用户所属租户编号。
-	Attempts  int                   `json:"attempts"`           // 兼容旧载荷的失败次数字段。
 	ExpiresAt int64                 `json:"expires_at"`         // 挑战过期时间，Unix 秒。
 	Method    string                `json:"method"`             // 因子类型，例如 totp 或 webauthn。
 	MFAID     int64                 `json:"mfa_id"`             // 绑定的 MFA 配置编号。

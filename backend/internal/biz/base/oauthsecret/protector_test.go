@@ -15,7 +15,7 @@ func (testKey) Derive(context.Context, string) ([]byte, error) {
 	return bytes.Repeat([]byte{1}, 32), nil
 }
 
-func TestProtectorRoundTripAndLegacyValue(t *testing.T) {
+func TestProtectorRoundTripAndUnprotectedValue(t *testing.T) {
 	previousKey := sdk.Runtime.GetKey()
 	sdk.Runtime.SetKey(testKey{})
 	t.Cleanup(func() {
@@ -37,7 +37,7 @@ func TestProtectorRoundTripAndLegacyValue(t *testing.T) {
 	if err != nil || plain != "client-secret" {
 		t.Fatalf("unexpected decrypted credential %q: %v", plain, err)
 	}
-	if _, err = protector.Unprotect("legacy-secret"); err == nil {
+	if _, err = protector.Unprotect("plain-secret"); err == nil {
 		t.Fatal("expected unprotected credential to be rejected")
 	}
 }

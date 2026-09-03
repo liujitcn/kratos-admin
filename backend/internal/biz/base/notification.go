@@ -11,6 +11,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
+	coreconst "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
 	coresse "github.com/liujitcn/kratos-core/sse"
 
@@ -106,6 +107,33 @@ func (c *NotificationCase) PageNotification(ctx context.Context, req *basev1.Pag
 		nextCursorID = list[len(list)-1].ID
 	}
 	return &basev1.PageNotificationResponse{Notifications: items, Total: int32(total), NextCursorId: nextCursorID, HasMore: hasMore}, nil
+}
+
+// ListNotificationCategories 查询当前可用的消息分类。
+func (c *NotificationCase) ListNotificationCategories(ctx context.Context, _ *basev1.ListNotificationCategoriesRequest) (*basev1.ListNotificationCategoriesResponse, error) {
+	_, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+	query := c.Query(ctx).BaseMessageCategory
+	opts := []repository.QueryOption{
+		repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)),
+		repository.Order(query.Sort.Asc()),
+		repository.Order(query.ID.Asc()),
+	}
+	var categories []*models.BaseMessageCategory
+	categories, err = c.categoryRepo.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]*basev1.NotificationCategory, 0, len(categories))
+	for _, category := range categories {
+		result = append(result, &basev1.NotificationCategory{
+			Id: category.ID, Code: category.Code, Name: category.Name,
+			Icon: category.Icon, Color: category.Color, Sort: category.Sort,
+		})
+	}
+	return &basev1.ListNotificationCategoriesResponse{Categories: result}, nil
 }
 
 // GetNotification 查询当前用户消息详情。

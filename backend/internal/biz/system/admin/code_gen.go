@@ -77,7 +77,7 @@ type codeGenFileTransaction struct {
 	committed    bool
 }
 
-const codeGenRestoreRoot = "backend/data/codegen/restore"
+const codeGenRestoreRoot = "backend/codegen/restore"
 
 // codeGenRestoreManifest 保存一次生成前的文件和菜单快照。
 type codeGenRestoreManifest struct {

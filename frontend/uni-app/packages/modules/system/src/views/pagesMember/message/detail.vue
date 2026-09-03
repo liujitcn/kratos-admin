@@ -5,6 +5,7 @@ import { navigateAppView, t } from '@liujitcn/kratos-uni-app-core'
 import { defNotificationService } from '../../../api/base/v1/notification'
 import type { Notification } from '../../../rpc/base/v1/notification'
 import { MessageActionType, MessageContentFormat } from '../../../rpc/base/v1/notification'
+import { resolveMessageCategoryIcon } from './icons'
 
 const detail = ref<Notification>()
 
@@ -46,7 +47,16 @@ function openAction() {
   <view class="detail-page" v-if="detail">
     <text class="detail-title">{{ detail.title }}</text>
     <view class="detail-meta">
-      <text>{{ detail.category_name }}</text>
+      <view class="detail-category" :style="{ color: detail.category_color || undefined }">
+        <uni-icons
+          class="detail-category__icon"
+          :type="resolveMessageCategoryIcon(detail.category_icon)"
+          size="18"
+          :color="detail.category_color || '#64748b'"
+          aria-hidden="true"
+        />
+        <text>{{ detail.category_name }}</text>
+      </view>
       <text>{{ detail.sender_name }}</text>
       <text>{{ detail.received_at }}</text>
     </view>
@@ -89,6 +99,13 @@ function openAction() {
   margin: 24rpx 0 36rpx;
   color: var(--kratos-color-text-muted, #6b7280);
   font-size: 24rpx;
+}
+.detail-category {
+  display: inline-flex;
+  align-items: center;
+}
+.detail-category__icon {
+  margin-right: 8rpx;
 }
 .detail-content {
   color: var(--kratos-color-text, #1f2937);

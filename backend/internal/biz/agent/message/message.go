@@ -56,14 +56,13 @@ func AIText(content string) *AgenticMessage {
 
 // TextByRole 按对话角色创建文本消息。
 func TextByRole(role string, content string) *AgenticMessage {
-	// 历史消息角色需要还原到模型角色，未知角色按用户消息兼容旧数据。
-	switch strings.ToLower(role) {
+	switch role {
 	case "ai":
 		return AIText(content)
-	case "system":
-		return SystemText(content)
-	default:
+	case "user":
 		return UserText(content)
+	default:
+		return nil
 	}
 }
 

@@ -69,7 +69,7 @@ defineOptions({
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
-const i18nValues = ref<DynamicI18nValue[]>(normalizeDynamicI18ns(undefined, "name"));
+const i18nValues = ref<DynamicI18nValue[]>(normalizeDynamicI18ns(undefined));
 
 const dialog = reactive({
   editing: false,
@@ -427,7 +427,7 @@ async function handleOpenDialog(jobId?: number) {
 
   const data = await defBaseJobService.GetBaseJob({ id: jobId });
   Object.assign(formData, data);
-  i18nValues.value = normalizeDynamicI18ns(data.i18ns as DynamicI18nRecord[], "name");
+	i18nValues.value = normalizeDynamicI18ns(data.i18ns as DynamicI18nRecord[]);
 }
 
 /**
@@ -451,7 +451,7 @@ function resetForm() {
   formData.cron_expression = "";
   formData.status = Status.STATUS_ENABLE;
   formData.i18ns = [];
-  i18nValues.value = normalizeDynamicI18ns(undefined, "name");
+	i18nValues.value = normalizeDynamicI18ns(undefined);
 }
 
 /**

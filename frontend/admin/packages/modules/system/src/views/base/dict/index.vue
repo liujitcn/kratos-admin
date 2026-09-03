@@ -70,7 +70,7 @@ defineOptions({
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
-const i18nValues = ref<DynamicI18nValue[]>(normalizeDynamicI18ns(undefined, "name"));
+const i18nValues = ref<DynamicI18nValue[]>(normalizeDynamicI18ns(undefined));
 const dialog = reactive({
   editing: false,
   visible: false
@@ -261,7 +261,7 @@ async function handleOpenDialog(dictId?: number) {
 
   const data = await defBaseDictService.GetBaseDict({ id: dictId });
   Object.assign(formData, data);
-  i18nValues.value = normalizeDynamicI18ns(data.i18ns as DynamicI18nRecord[], "name");
+	i18nValues.value = normalizeDynamicI18ns(data.i18ns as DynamicI18nRecord[]);
 }
 
 /**
@@ -283,7 +283,7 @@ function resetForm() {
   formData.name = "";
   formData.i18ns = [];
   formData.status = Status.STATUS_ENABLE;
-  i18nValues.value = normalizeDynamicI18ns(undefined, "name");
+	i18nValues.value = normalizeDynamicI18ns(undefined);
 }
 
 /**

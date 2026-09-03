@@ -59,6 +59,10 @@ certs/
 web/
 service_tmp/
 /backend/data/
+/backend/logs/
+/backend/backups/
+/backend/codegen/
+/backend/legacy-data/
 /backend/runtime/
 /backend/configs/root.key
 /gorse/data/

@@ -16,6 +16,7 @@ import (
 // RegisterNotificationServiceMCPTools 注册NotificationService 提供当前用户的站内信收件箱能力的 MCP Tool。
 func RegisterNotificationServiceMCPTools(mcpServer *mcp.Server, notificationServiceServer NotificationServiceServer) {
 	RegisterNotificationServicePageNotificationMCPTool(mcpServer, notificationServiceServer)
+	RegisterNotificationServiceListNotificationCategoriesMCPTool(mcpServer, notificationServiceServer)
 	RegisterNotificationServiceGetNotificationSummaryMCPTool(mcpServer, notificationServiceServer)
 	RegisterNotificationServiceGetNotificationMCPTool(mcpServer, notificationServiceServer)
 	RegisterNotificationServiceMarkNotificationReadMCPTool(mcpServer, notificationServiceServer)
@@ -39,6 +40,27 @@ func RegisterNotificationServicePageNotificationMCPTool(mcpServer *mcp.Server, n
 				input = &PageNotificationRequest{}
 			}
 			reply, err := notificationServiceServer.PageNotification(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterNotificationServiceListNotificationCategoriesMCPTool 注册查询消息分类列表的 MCP Tool。
+func RegisterNotificationServiceListNotificationCategoriesMCPTool(mcpServer *mcp.Server, notificationServiceServer NotificationServiceServer) {
+	mcp.AddTool[*ListNotificationCategoriesRequest, *ListNotificationCategoriesResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "base_v1_notification_service_list_notification_categories",
+			Description: "查询消息分类列表。",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListNotificationCategoriesRequest) (*mcp.CallToolResult, *ListNotificationCategoriesResponse, error) {
+			if input == nil {
+				input = &ListNotificationCategoriesRequest{}
+			}
+			reply, err := notificationServiceServer.ListNotificationCategories(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

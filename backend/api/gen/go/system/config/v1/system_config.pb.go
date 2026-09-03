@@ -74,10 +74,10 @@ var File_system_config_v1_system_config_proto protoreflect.FileDescriptor
 
 const file_system_config_v1_system_config_proto_rawDesc = "" +
 	"\n" +
-	"$system/config/v1/system_config.proto\x12\x10system.config.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\"\xd8\x01\n" +
-	"\x15BaseLogFallbackConfig\x12\xbe\x01\n" +
-	"\tfile_path\x18\x01 \x01(\tB\xa0\x01\xbaG!\x92\x02\x1e日志入库回退目录路径\xbaHy\xba\x01v\n" +
-	"7system.admin.runtime.audit_log_spool.file_path.required\x12*日志入库回退目录路径不能为空\x1a\x0fthis.size() > 0R\bfilePathB\xda\x01\n" +
+	"$system/config/v1/system_config.proto\x12\x10system.config.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\"\xda\x01\n" +
+	"\x15BaseLogFallbackConfig\x12\xc0\x01\n" +
+	"\tfile_path\x18\x01 \x01(\tB\xa2\x01\xbaG!\x92\x02\x1e日志入库回退目录路径\xbaH{\xba\x01x\n" +
+	"9system.admin.runtime.base_log_fallback.file_path.required\x12*日志入库回退目录路径不能为空\x1a\x0fthis.size() > 0R\bfilePathB\xda\x01\n" +
 	"\x14com.system.config.v1B\x11SystemConfigProtoP\x01ZMgithub.com/liujitcn/kratos-admin/backend/api/gen/go/system/config/v1;configv1\xa2\x02\x03SCX\xaa\x02\x10System.Config.V1\xca\x02\x10System\\Config\\V1\xe2\x02\x1cSystem\\Config\\V1\\GPBMetadata\xea\x02\x12System::Config::V1b\x06proto3"
 
 var (

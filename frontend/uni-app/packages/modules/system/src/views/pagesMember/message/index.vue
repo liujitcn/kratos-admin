@@ -1,19 +1,20 @@
 <script setup lang="ts">
 import { onShow } from '@dcloudio/uni-app'
 import { ref } from 'vue'
-import { navigateAppRoute, t } from '@liujitcn/kratos-uni-app-core'
+import { navigateAppView, t } from '@liujitcn/kratos-uni-app-core'
 import { defNotificationService } from '../../../api/base/v1/notification'
-import type { Notification } from '../../../rpc/base/v1/notification'
+import type { Notification, NotificationCategory } from '../../../rpc/base/v1/notification'
 import { NotificationView } from '../../../rpc/base/v1/notification'
 import { notificationUnreadTotal, refreshNotificationSummary } from '../../../notification'
+import { resolveMessageCategoryIcon } from './icons'
 
 const items = ref<Notification[]>([])
 const loading = ref(false)
 const cursorId = ref(0)
 const finished = ref(false)
 const selectedView = ref(NotificationView.NOTIFICATION_VIEW_INBOX)
-const categoryInput = ref('')
 const categoryId = ref<number>()
+const categoryOptions = ref<NotificationCategory[]>([])
 const viewOptions = [
   { value: NotificationView.NOTIFICATION_VIEW_INBOX, key: 'system.notification.view.inbox' },
   { value: NotificationView.NOTIFICATION_VIEW_UNREAD, key: 'system.notification.view.unread' },
@@ -21,9 +22,16 @@ const viewOptions = [
 ]
 
 onShow(() => {
+  void loadCategories().catch(() => undefined)
   void refresh()
   void refreshNotificationSummary()
 })
+
+/** 加载管理端维护的消息分类。 */
+async function loadCategories() {
+  const result = await defNotificationService.ListNotificationCategories({})
+  categoryOptions.value = result.categories ?? []
+}
 
 /** 刷新站内信列表。 */
 async function refresh() {
@@ -39,10 +47,9 @@ function changeView(view: NotificationView) {
   void refresh()
 }
 
-/** 应用分类筛选。 */
-function applyCategoryFilter() {
-  const value = Number(categoryInput.value)
-  categoryId.value = Number.isInteger(value) && value > 0 ? value : undefined
+/** 切换消息分类。 */
+function changeCategory(id?: number) {
+  categoryId.value = id
   void refresh()
 }
 
@@ -95,7 +102,7 @@ async function loadMore() {
 /** 打开站内信详情。 */
 async function openDetail(item: Notification) {
   if (!item.read_at) await defNotificationService.MarkNotificationRead({ ids: [item.id] })
-  navigateAppRoute(`app/message/detail?id=${item.id}`)
+  navigateAppView('MESSAGE_DETAIL', { id: String(item.id) })
 }
 </script>
 
@@ -103,11 +110,36 @@ async function openDetail(item: Notification) {
   <view class="message-page">
     <view class="message-header">
       <text class="message-title">{{ t('system.notification.title') }}</text>
-      <text v-if="notificationUnreadTotal > 0" class="message-unread">{{
-        notificationUnreadTotal > 99 ? '99+' : notificationUnreadTotal
-      }}</text>
+      <view v-if="notificationUnreadTotal > 0" class="message-unread-dot" aria-hidden="true" />
     </view>
     <view class="message-controls">
+      <scroll-view class="message-category-scroll" scroll-x :show-scrollbar="false">
+        <view class="message-category-list">
+          <button
+            class="message-category"
+            :class="{ active: categoryId === undefined }"
+            @tap="changeCategory()"
+          >
+            {{ t('system.notification.view.inbox') }}
+          </button>
+          <button
+            v-for="category in categoryOptions"
+            :key="category.id"
+            class="message-category"
+            :class="{ active: categoryId === category.id }"
+            @tap="changeCategory(category.id)"
+          >
+            <uni-icons
+              class="message-category__icon"
+              :type="resolveMessageCategoryIcon(category.icon)"
+              size="16"
+              :color="categoryId === category.id ? '#fff' : category.color || '#64748b'"
+              aria-hidden="true"
+            />
+            {{ category.name }}
+          </button>
+        </view>
+      </scroll-view>
       <view class="message-tabs">
         <button
           v-for="option in viewOptions"
@@ -118,23 +150,13 @@ async function openDetail(item: Notification) {
           {{ t(option.key) }}
         </button>
       </view>
-      <view class="message-filter">
-        <input
-          class="message-filter__input"
-          v-model="categoryInput"
-          type="number"
-          :placeholder="t('system.notification.category_filter')"
-          @confirm="applyCategoryFilter"
-        />
-        <button class="message-filter__button" @tap="applyCategoryFilter">
-          {{ t('common.action.confirm') }}
-        </button>
+      <view class="message-actions">
         <button
           v-if="
             selectedView !== NotificationView.NOTIFICATION_VIEW_ARCHIVED &&
             notificationUnreadTotal > 0
           "
-          class="message-filter__button message-filter__button--read"
+          class="message-action message-action--read"
           @tap="markAllRead"
         >
           {{ t('system.notification.mark_all_read') }}
@@ -146,7 +168,16 @@ async function openDetail(item: Notification) {
         <text :class="['message-item__title', { unread: !item.read_at }]">{{ item.title }}</text>
         <text class="message-item__time">{{ item.received_at }}</text>
       </view>
-      <text class="message-item__category">{{ item.category_name }}</text>
+      <view class="message-item__category">
+        <uni-icons
+          class="message-item__category-icon"
+          :type="resolveMessageCategoryIcon(item.category_icon)"
+          size="16"
+          :color="item.category_color || '#64748b'"
+          aria-hidden="true"
+        />
+        <text>{{ item.category_name }}</text>
+      </view>
       <view class="message-item__actions">
         <button
           v-if="selectedView !== NotificationView.NOTIFICATION_VIEW_ARCHIVED && item.allow_archive"
@@ -195,34 +226,66 @@ async function openDetail(item: Notification) {
   line-height: 1.35;
   color: var(--kratos-color-text, #1f2937);
 }
-.message-unread {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 36rpx;
-  min-height: 36rpx;
-  padding: 4rpx 10rpx;
-  border-radius: 18rpx;
+.message-unread-dot {
+  width: 12rpx;
+  height: 12rpx;
+  margin-left: 8rpx;
+  border-radius: 50%;
   background: #e5484d;
-  color: #fff;
-  font-size: 22rpx;
-  line-height: 28rpx;
-  text-align: center;
 }
 .message-controls {
   margin-bottom: 24rpx;
 }
+.message-category-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+.message-category-list {
+  display: flex;
+  gap: 12rpx;
+  width: max-content;
+  padding-bottom: 4rpx;
+}
+.message-category,
 .message-tabs,
-.message-filter,
+.message-actions,
 .message-item__actions {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+}
+.message-category {
+  flex-shrink: 0;
+  height: 64rpx;
+  margin: 0;
+  padding: 0 22rpx;
+  border: 1rpx solid var(--kratos-color-border, #e2e8f0);
+  border-radius: 32rpx;
+  background: #fff;
+  color: var(--kratos-color-text-muted, #6b7280);
+  font-size: 24rpx;
+  line-height: 64rpx;
+  white-space: nowrap;
+}
+.message-category.active {
+  border-color: var(--kratos-color-primary, #27ba9b);
+  background: var(--kratos-color-primary, #27ba9b);
+  color: #fff;
 }
 .message-tabs {
+  gap: 12rpx;
+  margin-top: 18rpx;
   padding: 6rpx;
   border-radius: 12rpx;
   background: #eef1f3;
+}
+.message-actions {
+  justify-content: flex-end;
+  margin-top: 16rpx;
+}
+.message-item__actions {
+  gap: 12rpx;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 .message-tab {
   box-sizing: border-box;
@@ -240,7 +303,8 @@ async function openDetail(item: Notification) {
   white-space: nowrap;
 }
 .message-tab::after,
-.message-filter__button::after,
+.message-category::after,
+.message-action::after,
 .message-item__actions button::after,
 .load-more::after {
   border: 0;
@@ -249,24 +313,7 @@ async function openDetail(item: Notification) {
   background: var(--kratos-color-primary, #27ba9b);
   color: #fff;
 }
-.message-filter {
-  width: 100%;
-  margin-top: 16rpx;
-}
-.message-filter__input {
-  box-sizing: border-box;
-  min-width: 0;
-  flex: 1;
-  height: 68rpx;
-  padding: 0 18rpx;
-  border: 1rpx solid var(--kratos-color-border, #e2e8f0);
-  border-radius: 8rpx;
-  background: #fff;
-  color: var(--kratos-color-text, #1f2937);
-  font-size: 26rpx;
-  line-height: 68rpx;
-}
-.message-filter__button,
+.message-action,
 .message-item__actions button {
   box-sizing: border-box;
   flex-shrink: 0;
@@ -281,14 +328,9 @@ async function openDetail(item: Notification) {
   line-height: 68rpx;
   white-space: nowrap;
 }
-.message-filter__button--read {
+.message-action--read {
   background: #e8f8f4;
   color: var(--kratos-color-primary, #16806d);
-}
-.message-item__actions {
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  margin-top: 14rpx;
 }
 .message-item__actions button {
   height: 56rpx;
@@ -331,7 +373,8 @@ async function openDetail(item: Notification) {
   flex-shrink: 0;
 }
 .message-item__category {
-  display: block;
+  display: flex;
+  align-items: center;
   margin-top: 14rpx;
 }
 .load-more {

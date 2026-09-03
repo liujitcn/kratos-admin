@@ -12,7 +12,7 @@
     <FormDialog
       v-model="dialog.visible"
       ref="formDialogRef"
-      :title="t(dialog.titleKey, { resource: t('system.base.post.resource') })"
+      :title="t(dialog.titleKey, { resource: t('common.field.post') })"
       width="560px"
       :model="formData"
       :fields="formFields"
@@ -142,7 +142,7 @@ const formFields = computed<ProFormField[]>(() => [
     label: t("common.field.tenant"),
     component: "select",
     props: {
-      placeholder: t("common.validation.required_select", { field: t("common.field.tenant") }),
+      placeholder: t("common.placeholder.select"),
       filterable: true,
       disabled: Boolean(formData.id)
     },
@@ -319,7 +319,7 @@ function handleSubmit() {
     request.then(() => {
       ElMessage.success(
         t(submitData.id ? "common.message.update_success" : "common.message.create_success", {
-          resource: t("system.base.post.resource")
+          resource: t("common.field.post")
         })
       );
       handleCloseDialog();
@@ -336,7 +336,7 @@ async function handleBeforeSetStatus(row: BasePost) {
     await ElMessageBox.confirm(
       t("common.dialog.status_change", {
         action: text,
-        resource: t("system.base.post.resource"),
+        resource: t("common.field.post"),
         field: t("system.base.post.field.name"),
         value: row.name || row.code || `ID:${row.id}`
       }),
@@ -372,10 +372,10 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   }
   const confirmMessage =
     postList.length === 1
-      ? `${t("common.dialog.delete_single", { resource: t("system.base.post.resource") })}\n${t("common.dialog.resource_field", { field: t("system.base.post.field.name"), value: postList[0].name || postList[0].code || `ID:${postList[0].id}` })}`
+      ? `${t("common.dialog.delete_single", { resource: t("common.field.post") })}\n${t("common.dialog.resource_field", { field: t("system.base.post.field.name"), value: postList[0].name || postList[0].code || `ID:${postList[0].id}` })}`
       : postList.length > 1
-        ? t("common.dialog.delete_batch", { count: postList.length, unit: "", resource: t("system.base.post.resource") })
-        : t("common.dialog.delete_selected", { resource: t("system.base.post.resource") });
+        ? t("common.dialog.delete_batch", { count: postList.length, unit: "", resource: t("common.field.post") })
+        : t("common.dialog.delete_selected", { resource: t("common.field.post") });
   ElMessageBox.confirm(confirmMessage, t("common.title.warning"), {
     confirmButtonText: t("common.action.confirm"),
     cancelButtonText: t("common.action.cancel"),
@@ -383,10 +383,10 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   }).then(
     () =>
       defBasePostService.DeleteBasePost({ id: postIds }).then(() => {
-        ElMessage.success(t("common.message.delete_success", { resource: t("system.base.post.resource") }));
+        ElMessage.success(t("common.message.delete_success", { resource: t("common.field.post") }));
         refreshTable();
       }),
-    () => ElMessage.info(t("common.dialog.cancel_delete", { resource: t("system.base.post.resource") }))
+    () => ElMessage.info(t("common.dialog.cancel_delete", { resource: t("common.field.post") }))
   );
 }
 </script>

@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, ref } from "vue";
+import { computed, h, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
@@ -41,7 +41,11 @@ import RichTextPreview from "@liujitcn/kratos-admin-core/components/RichTextPrev
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
 import { defNotificationService } from "@liujitcn/kratos-admin-system/api/base/v1/notification";
-import type { Notification, PageNotificationRequest } from "@liujitcn/kratos-admin-system/rpc/base/v1/notification";
+import type {
+  Notification,
+  NotificationCategory,
+  PageNotificationRequest
+} from "@liujitcn/kratos-admin-system/rpc/base/v1/notification";
 import {
   MessageActionType,
   MessageContentFormat,
@@ -54,6 +58,7 @@ const proTable = ref<ProTableInstance>();
 const router = useRouter();
 const detailVisible = ref(false);
 const detail = ref<Notification>();
+const categoryOptions = ref<NotificationCategory[]>([]);
 const actionRouteName = computed(() => {
   const viewKey = detail.value?.action_target;
   if (!viewKey) return "";
@@ -82,12 +87,19 @@ const viewOptions = computed<ProFormOption[]>(() => [
   { label: t("system.notification.view.archived"), value: NotificationView.NOTIFICATION_VIEW_ARCHIVED }
 ]);
 
+const categoryFilterOptions = computed<ProFormOption[]>(() =>
+  categoryOptions.value.map(item => ({ label: item.name, value: item.id }))
+);
+
+onMounted(() => void loadCategoryOptions());
+
 const columns = computed<ColumnProps[]>(() => [
   { prop: "title", label: t("system.base.message.field.title"), minWidth: 240 },
   {
     prop: "category_name",
     label: t("system.base.message.field.category"),
     minWidth: 150,
+    search: { el: "select", key: "category_id", enum: categoryFilterOptions },
     render: scope => {
       const row = scope.row as Notification;
       return h("span", { class: "message-category", style: { color: row.category_color || undefined } }, [
@@ -159,6 +171,12 @@ async function requestTable(params: Record<string, unknown>) {
   return { data: { list: data.notifications ?? [], total: data.total } };
 }
 
+/** 加载消息分类筛选项。 */
+async function loadCategoryOptions() {
+  const result = await defNotificationService.ListNotificationCategories({});
+  categoryOptions.value = result.categories ?? [];
+}
+
 /** 打开消息详情并标记已读。 */
 async function openDetail(row: Notification) {
   detail.value = await defNotificationService.GetNotification({ id: row.id });
@@ -209,7 +227,7 @@ async function remove(row: Notification) {
   proTable.value?.getTableList();
 }
 
-/** 解析收件箱分类图标，兼容历史数据中的未知图标名。 */
+/** 解析收件箱分类图标，未知图标使用默认图标。 */
 function resolveNotificationIcon(icon: string) {
   return notificationIcons[icon as keyof typeof notificationIcons] ?? CollectionTag;
 }
