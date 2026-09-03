@@ -27,7 +27,7 @@ jobs:
           repository: liujitcn/go-utils
           ref: aa9494357b2be88dccdeda54d11bfdecb44af2e4
           path: go-utils
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with:
           go-version-file: backend/go.mod
           cache-dependency-path: backend/go.sum
