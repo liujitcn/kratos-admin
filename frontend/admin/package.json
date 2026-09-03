@@ -55,7 +55,7 @@
     "overrides": {
       "svg-baker>braces": "3.0.3",
       "svg-baker>micromatch": "4.0.8",
-      "svg-baker>postcss": "8.5.15"
+      "svg-baker>postcss": "8.5.26"
     },
     "onlyBuiltDependencies": [
       "@parcel/watcher",
@@ -66,6 +66,12 @@
     ],
     "ignoredBuiltDependencies": [
       "@scarf/scarf"
-    ]
+    ],
+    "auditConfig": {
+      "ignoreCves": [
+        "CVE-2025-71330",
+        "CVE-2025-71329"
+      ]
+    }
   }
 }

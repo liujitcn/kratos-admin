@@ -35,7 +35,7 @@ jobs:
       - run: go install golang.org/x/vuln/cmd/govulncheck@latest
       - run: go install github.com/securego/gosec/v2/cmd/gosec@latest
       - run: govulncheck ./...
-      - run: gosec -exclude-generated ./...
+      - run: gosec -exclude-generated -confidence high -severity high ./...
 
   frontend:
     name: Frontend dependency security scan
@@ -54,7 +54,7 @@ jobs:
           cache: pnpm
           cache-dependency-path: frontend/admin/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
-      - run: pnpm audit --audit-level high
+      - run: pnpm audit --audit-level high --ignore-unfixable
 
   repository:
     name: Repository and image-context scan

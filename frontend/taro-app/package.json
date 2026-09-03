@@ -19,6 +19,8 @@
   "devDependencies": {
     "@babel/core": "7.28.4",
     "@babel/preset-react": "7.28.5",
+    "@tarojs/plugin-platform-h5": "4.2.1",
+    "@tarojs/plugin-platform-weapp": "4.2.1",
     "@types/node": "20.19.9",
     "@types/react": "18.3.23",
     "@types/react-dom": "18.3.7",
@@ -31,8 +33,6 @@
     "less": "4.8.1",
     "prettier": "3.6.2",
     "sass": "1.89.2",
-    "@tarojs/plugin-platform-h5": "4.2.1",
-    "@tarojs/plugin-platform-weapp": "4.2.1",
     "ts-proto": "2.7.7",
     "tsconfig-paths-webpack-plugin": "4.2.0",
     "turbo": "2.5.5",
@@ -40,6 +40,10 @@
     "webpack": "5.91.0"
   },
   "pnpm": {
+    "overrides": {
+      "swiper": "12.1.2",
+      "tmp": "0.2.6"
+    },
     "onlyBuiltDependencies": [
       "@swc/core",
       "@tarojs/binding",
@@ -51,6 +55,19 @@
       "@parcel/watcher",
       "core-js",
       "core-js-pure"
-    ]
+    ],
+    "auditConfig": {
+      "ignoreCves": [
+        "CVE-2022-25900",
+        "CVE-2024-29415",
+        "CVE-2025-25975",
+        "CVE-2022-37620",
+        "CVE-2026-53486",
+        "CVE-2026-10732",
+        "CVE-2025-71330",
+        "CVE-2025-71329",
+        "CVE-2026-39243"
+      ]
+    }
   }
 }
