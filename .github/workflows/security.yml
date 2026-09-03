@@ -20,9 +20,9 @@ jobs:
       run:
         working-directory: backend
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # 后端当前使用尚未进入公共模块版本的 crypto API，固定检出对应依赖版本。
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: liujitcn/go-utils
           ref: aa9494357b2be88dccdeda54d11bfdecb44af2e4
@@ -44,7 +44,7 @@ jobs:
       run:
         working-directory: frontend/admin
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v4
         with:
           version: 10.33.4
@@ -60,7 +60,7 @@ jobs:
     name: Repository and image-context scan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: gitleaks/gitleaks-action@v3
