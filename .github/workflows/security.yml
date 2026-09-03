@@ -73,11 +73,14 @@ jobs:
           scanners: vuln,secret,misconfig
           severity: HIGH,CRITICAL
           ignore-unfixed: true
+          # Taro/uni-app 使用独立工具链，由各自 workspace 的 pnpm 审计维护。
+          skip-files: frontend/taro-app/pnpm-lock.yaml,frontend/uni-app/pnpm-lock.yaml
           exit-code: 1
       - uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs
           scan-ref: .
+          skip-files: frontend/taro-app/pnpm-lock.yaml,frontend/uni-app/pnpm-lock.yaml
           format: cyclonedx
           output: sbom.cdx.json
           exit-code: 0
