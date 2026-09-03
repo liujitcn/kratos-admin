@@ -45,7 +45,12 @@
         </div>
       </template>
     </FormDialog>
-    <el-dialog v-model="detail.visible" :title="t('system.base.message.detail.title')" width="900px">
+    <ProDialog
+      v-model="detail.visible"
+      :title="t('system.base.message.detail.title')"
+      width="900px"
+      :show-footer="false"
+    >
       <template v-if="detail.data">
         <el-descriptions :column="2" border>
           <el-descriptions-item :label="t('system.base.message.field.title')">{{
@@ -87,13 +92,14 @@
           </el-table-column>
         </el-table>
       </template>
-    </el-dialog>
+    </ProDialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
+import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
@@ -102,9 +108,9 @@ import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-c
 import { DEFAULT_TENANT_CODE, requestTenantOptions } from "@liujitcn/kratos-admin-core/tenant";
 import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { t } from "@liujitcn/kratos-admin-core";
-import { defBaseMessageService } from "@liujitcn/kratos-admin-system/api/system/base_message";
-import { defBaseMessageCategoryService } from "@liujitcn/kratos-admin-system/api/system/base_message_category";
-import { defBaseTenantService } from "@liujitcn/kratos-admin-system/api/system/base_tenant";
+import { defBaseMessageService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_message";
+import { defBaseMessageCategoryService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_message_category";
+import { defBaseTenantService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_tenant";
 import type {
   BaseMessage,
   BaseMessageDetail,
@@ -399,7 +405,7 @@ const headerActions = computed<HeaderActionProps[]>(() => [
     onClick: () => openDialog()
   },
   {
-    label: t("common.action.batch_delete"),
+    label: t("common.action.delete"),
     type: "danger",
     icon: Delete,
     hidden: !BUTTONS.value["base:message:delete"],
@@ -522,7 +528,7 @@ async function retryDispatch(id: number) {
 /** 删除草稿消息。 */
 async function handleDelete(value: BaseMessage | BaseMessage[] | number | number[]) {
   const ids = normalizeSelectedIds(value as Parameters<typeof normalizeSelectedIds>[0]);
-  await ElMessageBox.confirm(t("common.confirm.delete"), t("common.tips"), { type: "warning" });
+  await ElMessageBox.confirm(t("common.confirm.delete"), t("common.title.warning"), { type: "warning" });
   await defBaseMessageService.DeleteBaseMessage({ id: ids.join(",") });
   ElMessage.success(t("common.message.operation_success"));
   proTable.value?.getTableList();
@@ -530,7 +536,7 @@ async function handleDelete(value: BaseMessage | BaseMessage[] | number | number
 
 /** 发布消息。 */
 async function publishMessage(row: BaseMessage) {
-  await ElMessageBox.confirm(t("system.base.message.confirm.publish"), t("common.tips"), { type: "warning" });
+  await ElMessageBox.confirm(t("system.base.message.confirm.publish"), t("common.title.warning"), { type: "warning" });
   await defBaseMessageService.PublishBaseMessage({ id: row.id });
   proTable.value?.getTableList();
 }
@@ -543,7 +549,7 @@ async function cancelSchedule(row: BaseMessage) {
 
 /** 撤回消息。 */
 async function revokeMessage(row: BaseMessage) {
-  await ElMessageBox.confirm(t("system.base.message.confirm.revoke"), t("common.tips"), { type: "warning" });
+  await ElMessageBox.confirm(t("system.base.message.confirm.revoke"), t("common.title.warning"), { type: "warning" });
   await defBaseMessageService.RevokeBaseMessage({ id: row.id });
   proTable.value?.getTableList();
 }

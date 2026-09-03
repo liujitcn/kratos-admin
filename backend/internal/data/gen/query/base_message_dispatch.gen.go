@@ -33,7 +33,6 @@ func newBaseMessageDispatch(db *gorm.DB, opts ...gen.DOOption) baseMessageDispat
 	_baseMessageDispatch.AudienceType = field.NewInt32(tableName, "audience_type")
 	_baseMessageDispatch.AudienceID = field.NewInt64(tableName, "audience_id")
 	_baseMessageDispatch.IncludeChildren = field.NewBool(tableName, "include_children")
-	_baseMessageDispatch.Status = field.NewInt32(tableName, "status")
 	_baseMessageDispatch.CursorUserID = field.NewInt64(tableName, "cursor_user_id")
 	_baseMessageDispatch.BatchSize = field.NewInt32(tableName, "batch_size")
 	_baseMessageDispatch.MatchedTotal = field.NewInt64(tableName, "matched_total")
@@ -47,6 +46,7 @@ func newBaseMessageDispatch(db *gorm.DB, opts ...gen.DOOption) baseMessageDispat
 	_baseMessageDispatch.QueuedAt = field.NewInt64(tableName, "queued_at")
 	_baseMessageDispatch.StartedAt = field.NewInt64(tableName, "started_at")
 	_baseMessageDispatch.CompletedAt = field.NewInt64(tableName, "completed_at")
+	_baseMessageDispatch.Status = field.NewInt32(tableName, "status")
 	_baseMessageDispatch.CreatedBy = field.NewInt64(tableName, "created_by")
 	_baseMessageDispatch.UpdatedBy = field.NewInt64(tableName, "updated_by")
 	_baseMessageDispatch.CreatedAt = field.NewTime(tableName, "created_at")
@@ -69,7 +69,6 @@ type baseMessageDispatch struct {
 	AudienceType    field.Int32  // 受众类型：枚举【MessageAudienceType】
 	AudienceID      field.Int64  // 受众ID
 	IncludeChildren field.Bool   // 是否包含子部门
-	Status          field.Int32  // 投递状态：枚举【MessageDispatchStatus】
 	CursorUserID    field.Int64  // 用户分页游标
 	BatchSize       field.Int32  // 批次大小
 	MatchedTotal    field.Int64  // 匹配人数
@@ -83,6 +82,7 @@ type baseMessageDispatch struct {
 	QueuedAt        field.Int64  // 入队时间戳，毫秒
 	StartedAt       field.Int64  // 开始时间戳，毫秒
 	CompletedAt     field.Int64  // 完成时间戳，毫秒
+	Status          field.Int32  // 投递状态：枚举【MessageDispatchStatus】
 	CreatedBy       field.Int64  // 创建者ID
 	UpdatedBy       field.Int64  // 更新者ID
 	CreatedAt       field.Time   // 创建时间
@@ -110,7 +110,6 @@ func (b *baseMessageDispatch) updateTableName(table string) *baseMessageDispatch
 	b.AudienceType = field.NewInt32(table, "audience_type")
 	b.AudienceID = field.NewInt64(table, "audience_id")
 	b.IncludeChildren = field.NewBool(table, "include_children")
-	b.Status = field.NewInt32(table, "status")
 	b.CursorUserID = field.NewInt64(table, "cursor_user_id")
 	b.BatchSize = field.NewInt32(table, "batch_size")
 	b.MatchedTotal = field.NewInt64(table, "matched_total")
@@ -124,6 +123,7 @@ func (b *baseMessageDispatch) updateTableName(table string) *baseMessageDispatch
 	b.QueuedAt = field.NewInt64(table, "queued_at")
 	b.StartedAt = field.NewInt64(table, "started_at")
 	b.CompletedAt = field.NewInt64(table, "completed_at")
+	b.Status = field.NewInt32(table, "status")
 	b.CreatedBy = field.NewInt64(table, "created_by")
 	b.UpdatedBy = field.NewInt64(table, "updated_by")
 	b.CreatedAt = field.NewTime(table, "created_at")
@@ -164,7 +164,6 @@ func (b *baseMessageDispatch) fillFieldMap() {
 	b.fieldMap["audience_type"] = b.AudienceType
 	b.fieldMap["audience_id"] = b.AudienceID
 	b.fieldMap["include_children"] = b.IncludeChildren
-	b.fieldMap["status"] = b.Status
 	b.fieldMap["cursor_user_id"] = b.CursorUserID
 	b.fieldMap["batch_size"] = b.BatchSize
 	b.fieldMap["matched_total"] = b.MatchedTotal
@@ -178,6 +177,7 @@ func (b *baseMessageDispatch) fillFieldMap() {
 	b.fieldMap["queued_at"] = b.QueuedAt
 	b.fieldMap["started_at"] = b.StartedAt
 	b.fieldMap["completed_at"] = b.CompletedAt
+	b.fieldMap["status"] = b.Status
 	b.fieldMap["created_by"] = b.CreatedBy
 	b.fieldMap["updated_by"] = b.UpdatedBy
 	b.fieldMap["created_at"] = b.CreatedAt

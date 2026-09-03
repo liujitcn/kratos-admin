@@ -34,6 +34,13 @@ service BaseConfigService {
     };
   }
 
+  // 按配置键查询隐藏系统配置。
+  rpc GetBaseConfigByKey(GetBaseConfigByKeyRequest) returns (BaseConfigValue) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/config/key/{key}"
+    };
+  }
+
   // 创建系统配置
   rpc CreateBaseConfig(CreateBaseConfigRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
@@ -47,6 +54,14 @@ service BaseConfigService {
     option (google.api.http) = {
       put: "/api/v1/admin/base/config/{base_config.id}"
       body: "base_config"
+    };
+  }
+
+  // 按配置键更新隐藏系统配置。
+  rpc UpdateBaseConfigByKey(UpdateBaseConfigByKeyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/config/key/{key}"
+      body: "*"
     };
   }
 
@@ -81,6 +96,16 @@ enum BaseConfigType {
   BASE_CONFIG_TYPE_DICT = 4;
   // 布尔。
   BASE_CONFIG_TYPE_BOOLEAN = 5;
+}
+
+// 系统配置隐藏状态。
+enum BaseConfigHiddenStatus {
+  // 未指定隐藏状态。
+  BASE_CONFIG_HIDDEN_STATUS_UNSPECIFIED = 0;
+  // 普通配置，可在通用配置页面展示。
+  BASE_CONFIG_HIDDEN_STATUS_VISIBLE = 1;
+  // 隐藏配置，仅允许通过专用配置表单访问。
+  BASE_CONFIG_HIDDEN_STATUS_HIDDEN = 2;
 }
 
 // 系统配置分页查询条件
@@ -132,6 +157,8 @@ message BaseConfigForm {
 
   string value = 6 [(gnostic.openapi.v3.property) = {description: "配置value"}, (buf.validate.field).cel = {id: "system.admin.base.config.entity.value.required" message: "配置值不能为空" expression: "this.size() > 0"}]; // 配置value
 
+  BaseConfigHiddenStatus hidden_status = 9 [(gnostic.openapi.v3.property) = {description: "隐藏状态：枚举【BaseConfigHiddenStatus】"}, (buf.validate.field).enum = {defined_only: true}]; // 隐藏状态
+
   repeated BaseI18n name_i18ns = 7 [(gnostic.openapi.v3.property) = {description: "配置名称多语言翻"}]; // 配置名称多语言翻
 
   repeated BaseI18n value_i18ns = 8 [(gnostic.openapi.v3.property) = {description: "配置value文本/富文本配置值的多语言翻译"}]; // 配置value文本/富文本配置值的多语言翻译
@@ -180,6 +207,8 @@ message BaseConfig {
 
   string value = 6 [(gnostic.openapi.v3.property) = {description: "配置value"}]; // 配置value
 
+  BaseConfigHiddenStatus hidden_status = 9 [(gnostic.openapi.v3.property) = {description: "隐藏状态：枚举【BaseConfigHiddenStatus】"}]; // 隐藏状态
+
   .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态：枚举【Status】"}]; // 状态：枚举【Status】
 
   string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
@@ -187,4 +216,25 @@ message BaseConfig {
   string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
 
   repeated BaseI18n i18ns = 202 [(gnostic.openapi.v3.property) = {description: "配置名称及文本/富文本配置值的多语言翻译"}]; // 配置名称及文本/富文本配置值的多语言翻译
+}
+
+// 按配置键查询系统配置请求参数。
+message GetBaseConfigByKeyRequest {
+  string key = 1 [(gnostic.openapi.v3.property) = {description: "配置key"}, (buf.validate.field).cel = {id: "system.admin.base.config.by_key.key.required" message: "配置key不能为空" expression: "this.size() > 0"}, (buf.validate.field).string.max_len = 50]; // 配置key
+}
+
+// 按配置键返回系统配置值。
+message BaseConfigValue {
+  string key = 1 [(gnostic.openapi.v3.property) = {description: "配置key"}]; // 配置key
+
+  string value_json = 2 [(gnostic.openapi.v3.property) = {description: "JSON格式配置值"}]; // JSON格式配置值
+
+  string updated_at = 3 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+}
+
+// 按配置键更新系统配置请求参数。
+message UpdateBaseConfigByKeyRequest {
+  string key = 1 [(gnostic.openapi.v3.property) = {description: "配置key"}, (buf.validate.field).cel = {id: "system.admin.base.config.by_key.key.required" message: "配置key不能为空" expression: "this.size() > 0"}, (buf.validate.field).string.max_len = 50]; // 配置key
+
+  string value_json = 2 [(gnostic.openapi.v3.property) = {description: "JSON格式配置值"}, (buf.validate.field).cel = {id: "system.admin.base.config.by_key.value_json.required" message: "配置值不能为空" expression: "this.size() > 0"}]; // JSON格式配置值
 }

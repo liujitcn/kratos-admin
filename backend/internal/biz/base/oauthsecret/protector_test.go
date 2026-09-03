@@ -1,13 +1,26 @@
 package oauthsecret
 
 import (
+	"bytes"
+	"context"
 	"testing"
 
 	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	"github.com/liujitcn/kratos-kit/sdk"
 )
 
+type testKey struct{}
+
+func (testKey) Derive(context.Context, string) ([]byte, error) {
+	return bytes.Repeat([]byte{1}, 32), nil
+}
+
 func TestProtectorRoundTripAndLegacyValue(t *testing.T) {
-	t.Setenv("OAUTH_CREDENTIAL_ENCRYPTION_KEY", "independent-test-key")
+	previousKey := sdk.Runtime.GetKey()
+	sdk.Runtime.SetKey(testKey{})
+	t.Cleanup(func() {
+		sdk.Runtime.SetKey(previousKey)
+	})
 	protector, err := NewProtector(&configv1.Bootstrap{Authn: &configv1.Authentication{Jwt: &configv1.Authentication_Jwt{Secret: "test-secret"}}})
 	if err != nil {
 		t.Fatal(err)

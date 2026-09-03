@@ -1,4 +1,4 @@
-import { getEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
+import { getEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_language";
 import type { I18nTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 
 /** DynamicI18nValue 动态资源单语言翻译编辑状态。 */

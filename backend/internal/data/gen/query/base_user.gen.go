@@ -36,14 +36,17 @@ func newBaseUser(db *gorm.DB, opts ...gen.DOOption) baseUser {
 	_baseUser.DeptID = field.NewInt64(tableName, "dept_id")
 	_baseUser.PostID = field.NewInt64(tableName, "post_id")
 	_baseUser.Phone = field.NewString(tableName, "phone")
+	_baseUser.Email = field.NewString(tableName, "email")
+	_baseUser.IDType = field.NewInt32(tableName, "id_type")
+	_baseUser.IDCode = field.NewString(tableName, "id_code")
 	_baseUser.Password = field.NewString(tableName, "password")
 	_baseUser.PasswordChangedAt = field.NewTime(tableName, "password_changed_at")
 	_baseUser.PasswordHistory = field.NewString(tableName, "password_history")
 	_baseUser.MustChangePassword = field.NewInt32(tableName, "must_change_password")
 	_baseUser.Gender = field.NewInt32(tableName, "gender")
 	_baseUser.Avatar = field.NewString(tableName, "avatar")
-	_baseUser.Status = field.NewInt32(tableName, "status")
 	_baseUser.Remark = field.NewString(tableName, "remark")
+	_baseUser.Status = field.NewInt32(tableName, "status")
 	_baseUser.CreatedBy = field.NewInt64(tableName, "created_by")
 	_baseUser.UpdatedBy = field.NewInt64(tableName, "updated_by")
 	_baseUser.CreatedAt = field.NewTime(tableName, "created_at")
@@ -69,14 +72,17 @@ type baseUser struct {
 	DeptID             field.Int64  // 部门ID
 	PostID             field.Int64  // 岗位ID
 	Phone              field.String // 手机号码
+	Email              field.String // 邮箱
+	IDType             field.Int32  // 证件类型：枚举【BaseUserIDType】
+	IDCode             field.String // 证件号
 	Password           field.String // 密码
 	PasswordChangedAt  field.Time   // 密码最近修改时间
 	PasswordHistory    field.String // 历史密码哈希列表（不保存明文）
-	MustChangePassword field.Int32  // 下次登录必须修改密码
+	MustChangePassword field.Int32  // 密码修改状态：枚举【BaseUserPasswordChangeStatus】
 	Gender             field.Int32  // 用户性别：枚举【BaseUserGender】
 	Avatar             field.String // 头像地址
-	Status             field.Int32  // 状态：枚举【Status】
 	Remark             field.String // 备注
+	Status             field.Int32  // 状态：枚举【Status】
 	CreatedBy          field.Int64  // 创建者ID
 	UpdatedBy          field.Int64  // 更新者ID
 	CreatedAt          field.Time   // 创建时间
@@ -107,14 +113,17 @@ func (b *baseUser) updateTableName(table string) *baseUser {
 	b.DeptID = field.NewInt64(table, "dept_id")
 	b.PostID = field.NewInt64(table, "post_id")
 	b.Phone = field.NewString(table, "phone")
+	b.Email = field.NewString(table, "email")
+	b.IDType = field.NewInt32(table, "id_type")
+	b.IDCode = field.NewString(table, "id_code")
 	b.Password = field.NewString(table, "password")
 	b.PasswordChangedAt = field.NewTime(table, "password_changed_at")
 	b.PasswordHistory = field.NewString(table, "password_history")
 	b.MustChangePassword = field.NewInt32(table, "must_change_password")
 	b.Gender = field.NewInt32(table, "gender")
 	b.Avatar = field.NewString(table, "avatar")
-	b.Status = field.NewInt32(table, "status")
 	b.Remark = field.NewString(table, "remark")
+	b.Status = field.NewInt32(table, "status")
 	b.CreatedBy = field.NewInt64(table, "created_by")
 	b.UpdatedBy = field.NewInt64(table, "updated_by")
 	b.CreatedAt = field.NewTime(table, "created_at")
@@ -144,7 +153,7 @@ func (b *baseUser) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (b *baseUser) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 22)
+	b.fieldMap = make(map[string]field.Expr, 25)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["tenant_id"] = b.TenantID
 	b.fieldMap["user_name"] = b.UserName
@@ -154,14 +163,17 @@ func (b *baseUser) fillFieldMap() {
 	b.fieldMap["dept_id"] = b.DeptID
 	b.fieldMap["post_id"] = b.PostID
 	b.fieldMap["phone"] = b.Phone
+	b.fieldMap["email"] = b.Email
+	b.fieldMap["id_type"] = b.IDType
+	b.fieldMap["id_code"] = b.IDCode
 	b.fieldMap["password"] = b.Password
 	b.fieldMap["password_changed_at"] = b.PasswordChangedAt
 	b.fieldMap["password_history"] = b.PasswordHistory
 	b.fieldMap["must_change_password"] = b.MustChangePassword
 	b.fieldMap["gender"] = b.Gender
 	b.fieldMap["avatar"] = b.Avatar
-	b.fieldMap["status"] = b.Status
 	b.fieldMap["remark"] = b.Remark
+	b.fieldMap["status"] = b.Status
 	b.fieldMap["created_by"] = b.CreatedBy
 	b.fieldMap["updated_by"] = b.UpdatedBy
 	b.fieldMap["created_at"] = b.CreatedAt

@@ -16,7 +16,7 @@ const TableNameBaseMenu = "base_menu"
 type BaseMenu struct {
 	ID        int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:菜单ID" json:"id"`                                                                                // 菜单ID
 	ParentID  int64                 `gorm:"column:parent_id;type:bigint;not null;index:idx_base_menu_parent_id,priority:1;comment:父级菜单ID" json:"parent_id"`                                            // 父级菜单ID
-	Type      int32                 `gorm:"column:type;type:tinyint;not null;comment:菜单类型 1: 目录 2: 菜单 3: 按钮 4：外部链接" json:"type"`                                                                       // 菜单类型 1: 目录 2: 菜单 3: 按钮 4：外部链接
+	Type      int32                 `gorm:"column:type;type:tinyint;not null;comment:菜单类型：枚举【BaseMenuType】" json:"type"`                                                                               // 菜单类型：枚举【BaseMenuType】
 	Path      string                `gorm:"column:path;type:varchar(1024);not null;comment:路径,当其类型为'按钮'的时候对应的按钮权限base:user:create" json:"path"`                                                        // 路径,当其类型为'按钮'的时候对应的按钮权限base:user:create
 	Name      string                `gorm:"column:name;type:varchar(255);comment:路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。如果需要开启缓存，需保证页面 defineOptions 中的 name 与此处一致，建议使用驼峰。" json:"name"` // 路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。如果需要开启缓存，需保证页面 defineOptions 中的 name 与此处一致，建议使用驼峰。
 	Component string                `gorm:"column:component;type:varchar(255);comment:前端页面组件" json:"component"`                                                                                        // 前端页面组件

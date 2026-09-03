@@ -239,6 +239,7 @@ docker-run: docker-check docker-config
 		--restart unless-stopped \
 		--network "$(DOCKER_NETWORK)" \
 		--add-host "host.docker.internal:host-gateway" \
+		-e APP_ENV="$(APP_ENV)" \
 		-p "$(DOCKER_HTTP_PORT):7001" \
 		-p "$(DOCKER_GRPC_PORT):6001" \
 		-v "$(abspath $(DOCKER_DATA_DIR)):/app/data" \

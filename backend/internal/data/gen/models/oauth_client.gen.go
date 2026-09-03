@@ -15,15 +15,15 @@ const TableNameOauthClient = "oauth_client"
 // OauthClient 开放授权客户端
 type OauthClient struct {
 	ID           int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:OAuth客户端ID" json:"id"`                                                                     // OAuth客户端ID
-	TenantID     int64                 `gorm:"column:tenant_id;type:bigint;not null;index:idx_oauth_client_tenant_id,priority:1;comment:绑定租户ID" json:"tenant_id"`                          // 绑定租户ID
+	TenantID     int64                 `gorm:"column:tenant_id;type:bigint;not null;index:idx_oauth_client_tenant_id,priority:1;comment:绑定租户ID" json:"tenant_id"`                                    // 绑定租户ID
 	ClientID     string                `gorm:"column:client_id;type:varchar(64);not null;uniqueIndex:unique_oauth_client_client_id,priority:1;comment:客户端标识" json:"client_id"`                       // 客户端标识
 	ClientSecret string                `gorm:"column:client_secret;type:varchar(128);not null;comment:客户端密钥" json:"client_secret"`                                                                   // 客户端密钥
 	ClientName   string                `gorm:"column:client_name;type:varchar(100);not null;comment:客户端名称" json:"client_name"`                                                                       // 客户端名称
-	CryptoType   string                `gorm:"column:crypto_type;type:varchar(16);not null;comment:协议加密类型：sm4、aes、3des" json:"crypto_type"`                                              // 协议加密类型：sm4、aes、3des
+	CryptoType   string                `gorm:"column:crypto_type;type:varchar(16);not null;comment:协议加密类型：枚举【OauthClientCryptoType】" json:"crypto_type"`                                             // 协议加密类型：枚举【OauthClientCryptoType】
 	CryptoKey    string                `gorm:"column:crypto_key;type:varchar(255);not null;comment:协议加密密钥" json:"crypto_key"`                                                                        // 协议加密密钥
 	IPWhitelist  string                `gorm:"column:ip_whitelist;type:varchar(512);not null;comment:IP白名单，逗号分隔，支持CIDR" json:"ip_whitelist"`                                                         // IP白名单，逗号分隔，支持CIDR
 	API          string                `gorm:"column:api;type:json;not null;comment:允许访问的API operation JSON数组" json:"api"`                                                                           // 允许访问的API operation JSON数组
-	Status       int32                 `gorm:"column:status;type:tinyint;not null;index:idx_oauth_client_status,priority:1;comment:状态：1启用，2禁用" json:"status"`                              // 状态：1启用，2禁用
+	Status       int32                 `gorm:"column:status;type:tinyint;not null;index:idx_oauth_client_status,priority:1;comment:状态：枚举【Status】" json:"status"`                                     // 状态：枚举【Status】
 	CreatedBy    int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建者ID" json:"created_by"`                                                                               // 创建者ID
 	UpdatedBy    int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新者ID" json:"updated_by"`                                                                               // 更新者ID
 	CreatedAt    time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                                              // 创建时间

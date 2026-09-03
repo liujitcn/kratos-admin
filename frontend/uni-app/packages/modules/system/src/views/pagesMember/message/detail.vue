@@ -2,7 +2,7 @@
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import { navigateAppView, t } from '@liujitcn/kratos-uni-app-core'
-import { defNotificationService } from '../../../api/base/notification'
+import { defNotificationService } from '../../../api/base/v1/notification'
 import type { Notification } from '../../../rpc/base/v1/notification'
 import { MessageActionType, MessageContentFormat } from '../../../rpc/base/v1/notification'
 
@@ -69,13 +69,15 @@ function openAction() {
 
 <style scoped lang="scss">
 .detail-page {
+  box-sizing: border-box;
   min-height: 100vh;
-  padding: 36rpx 30rpx;
-  background: var(--kratos-color-background);
+  padding: 24rpx 30rpx calc(96rpx + env(safe-area-inset-bottom));
+  background: var(--kratos-color-background, #f7f8fa);
+  color: var(--kratos-color-text, #1f2937);
 }
 .detail-title {
   display: block;
-  color: var(--kratos-color-text);
+  color: var(--kratos-color-text, #1f2937);
   font-size: 42rpx;
   font-weight: 700;
   line-height: 1.35;
@@ -85,11 +87,11 @@ function openAction() {
   flex-wrap: wrap;
   gap: 18rpx;
   margin: 24rpx 0 36rpx;
-  color: var(--kratos-color-text-muted);
+  color: var(--kratos-color-text-muted, #6b7280);
   font-size: 24rpx;
 }
 .detail-content {
-  color: var(--kratos-color-text);
+  color: var(--kratos-color-text, #1f2937);
   font-size: 30rpx;
   line-height: 1.8;
   white-space: pre-wrap;
@@ -97,14 +99,14 @@ function openAction() {
 }
 .detail-content-rich {
   display: block;
-  color: var(--kratos-color-text);
+  color: var(--kratos-color-text, #1f2937);
   font-size: 30rpx;
   line-height: 1.8;
   overflow-wrap: anywhere;
 }
 .empty {
   padding-top: 180rpx;
-  color: var(--kratos-color-text-muted);
+  color: var(--kratos-color-text-muted, #6b7280);
   text-align: center;
 }
 </style>

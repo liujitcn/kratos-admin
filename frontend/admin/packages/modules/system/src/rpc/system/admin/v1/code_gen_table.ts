@@ -38,6 +38,8 @@ export interface PageCodeGenTableRequest {
   status?:
     | CodeGenTableStatus
     | undefined;
+  /** 数据源名称 */
+  source_name: string;
   /** 当前页码 */
   page_num: number;
   /** 每一页的行数 */
@@ -54,6 +56,8 @@ export interface PageCodeGenTableResponse {
 
 /** 数据库表列表查询条件 */
 export interface ListCodeGenDatabaseTableRequest {
+  /** 数据源名称 */
+  source_name: string;
 }
 
 /** 数据库表列表响应 */
@@ -102,6 +106,8 @@ export interface CodeGenTableForm {
   remark: string;
   /** 按语言区域索引的表级国际化配置 */
   i18n_config: Map<string, CodeGenLocaleConfig>;
+  /** 数据源名称 */
+  source_name: string;
 }
 
 export interface CodeGenTableForm_I18nConfigEntry {
@@ -163,6 +169,8 @@ export interface CodeGenTable {
   restore_available: boolean;
   /** 按语言区域索引的表级国际化配置 */
   i18n_config: Map<string, CodeGenLocaleConfig>;
+  /** 数据源名称 */
+  source_name: string;
 }
 
 export interface CodeGenTable_I18nConfigEntry {

@@ -241,7 +241,7 @@ function createMarkdownHeadingId({ text, index }: Parameters<MdHeadingId>[0]) {
   cursor: pointer;
   background: var(--admin-page-card-bg);
   border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: 4px;
+  border-radius: var(--admin-page-radius);
   box-shadow: var(--admin-page-shadow);
 }
 .core-markdown-preview :deep(.md-editor-code pre) {

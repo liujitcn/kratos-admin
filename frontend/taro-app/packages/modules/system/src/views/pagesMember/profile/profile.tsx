@@ -3,6 +3,7 @@ import {
   Image,
   Input,
   Label,
+  Picker,
   Radio,
   RadioGroup,
   Text,
@@ -12,10 +13,11 @@ import Taro, { useLoad } from '@tarojs/taro'
 import { useEffect, useState } from 'react'
 import defaultAvatar from '@liujitcn/kratos-taro-app-core/static/images/avatar.png'
 import navigatorBackground from '@liujitcn/kratos-taro-app-core/static/images/navigator_bg.png'
-import { defAuthService } from '@liujitcn/kratos-taro-app-core/api/system/auth'
-import { defBaseDictService } from '@liujitcn/kratos-taro-app-core/api/system/base_dict'
+import { defAuthService } from '@liujitcn/kratos-taro-app-core/api/system/app/v1/auth'
+import { defBaseDictService } from '@liujitcn/kratos-taro-app-core/api/system/app/v1/base_dict'
 import type { BaseDictForm_DictItem } from '@liujitcn/kratos-taro-app-core/rpc/system/app/v1/base_dict'
 import type { UserProfileForm } from '@liujitcn/kratos-taro-app-core/rpc/system/app/v1/auth'
+import { BaseUserIDType } from '@liujitcn/kratos-taro-app-core/rpc/system/common/v1/common'
 import {
   formatSrc,
   navigateToLogin,
@@ -26,6 +28,8 @@ import {
 import './profile.scss'
 
 const IMG_MAX_SIZE = 1024 * 1024
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const ID_CODE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9-]{0,63}$/
 
 /** 用户个人资料编辑页。 */
 export default function ProfilePage() {
@@ -35,11 +39,27 @@ export default function ProfilePage() {
     nick_name: '',
     gender: 0,
     phone: '',
+    email: '',
+    id_type: BaseUserIDType.BASE_USER_ID_TYPE_UNSPECIFIED,
+    id_code: '',
     avatar: '',
   })
   const [genderList, setGenderList] = useState<BaseDictForm_DictItem[]>([])
   const ensureAuthenticated = useUserStore((state) => state.ensureAuthenticated)
   const safeTop = Taro.getWindowInfo().safeArea?.top || 0
+  const idTypeOptions = [
+    { label: t('system.profile.id_type.unspecified'), value: BaseUserIDType.BASE_USER_ID_TYPE_UNSPECIFIED },
+    { label: t('system.profile.id_type.id_card'), value: BaseUserIDType.BASE_USER_ID_TYPE_ID_CARD },
+    { label: t('system.profile.id_type.passport'), value: BaseUserIDType.BASE_USER_ID_TYPE_PASSPORT },
+    { label: t('system.profile.id_type.hk_macao_permit'), value: BaseUserIDType.BASE_USER_ID_TYPE_HK_MACAO_PERMIT },
+    { label: t('system.profile.id_type.taiwan_permit'), value: BaseUserIDType.BASE_USER_ID_TYPE_TAIWAN_PERMIT },
+    {
+      label: t('system.profile.id_type.foreign_permanent_residence'),
+      value: BaseUserIDType.BASE_USER_ID_TYPE_FOREIGN_PERMANENT_RESIDENCE,
+    },
+    { label: t('system.profile.id_type.other'), value: BaseUserIDType.BASE_USER_ID_TYPE_OTHER },
+  ]
+  const idTypeIndex = Math.max(0, idTypeOptions.findIndex((item) => item.value === userInfo.id_type))
 
   useEffect(() => {
     void Taro.setNavigationBarTitle({ title: t('system.profile.title') })
@@ -103,6 +123,14 @@ export default function ProfilePage() {
 
   const onSubmit = async () => {
     if (!requireAuth()) return
+    if (userInfo.email && !EMAIL_PATTERN.test(userInfo.email)) {
+      await Taro.showToast({ icon: 'none', title: t('system.profile.email_invalid') })
+      return
+    }
+    if (userInfo.id_code && !ID_CODE_PATTERN.test(userInfo.id_code)) {
+      await Taro.showToast({ icon: 'none', title: t('system.profile.id_code_invalid') })
+      return
+    }
     await defAuthService.UpdateUserProfile(userInfo)
     await useUserStore.getState().getUserProfile()
     await Taro.showToast({ icon: 'success', title: t('system.profile.save_success') })
@@ -144,6 +172,25 @@ export default function ProfilePage() {
           <View className='profile-form__item'>
             <Text className='profile-label'>{t('system.profile.nick_name')}</Text>
             <Input className='profile-input' placeholder={t('system.profile.nick_name_placeholder')} value={userInfo.nick_name} onInput={(event) => setUserInfo((current) => ({ ...current, nick_name: event.detail.value }))} />
+          </View>
+          <View className='profile-form__item'>
+            <Text className='profile-label'>{t('system.profile.email')}</Text>
+            <Input className='profile-input' type='text' placeholder={t('system.profile.email_placeholder')} value={userInfo.email} onInput={(event) => setUserInfo((current) => ({ ...current, email: event.detail.value }))} />
+          </View>
+          <Picker
+            mode='selector'
+            range={idTypeOptions.map((item) => item.label)}
+            value={idTypeIndex}
+            onChange={(event) => setUserInfo((current) => ({ ...current, id_type: idTypeOptions[Number(event.detail.value)]?.value ?? BaseUserIDType.BASE_USER_ID_TYPE_UNSPECIFIED }))}
+          >
+            <View className='profile-form__item'>
+              <Text className='profile-label'>{t('system.profile.id_type')}</Text>
+              <Text className='profile-input profile-account'>{idTypeOptions[idTypeIndex]?.label}</Text>
+            </View>
+          </Picker>
+          <View className='profile-form__item'>
+            <Text className='profile-label'>{t('system.profile.id_code')}</Text>
+            <Input className='profile-input' type='text' placeholder={t('system.profile.id_code_placeholder')} value={userInfo.id_code} onInput={(event) => setUserInfo((current) => ({ ...current, id_code: event.detail.value }))} />
           </View>
           <View className='profile-form__item'>
             <Text className='profile-label'>{t('system.profile.gender')}</Text>

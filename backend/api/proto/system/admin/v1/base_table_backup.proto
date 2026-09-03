@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "common/v1/enum.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "buf/validate/validate.proto";
+
+// BaseTableBackupService 管理数据库备份配置。
+service BaseTableBackupService {
+  // 查询数据库备份配置分页列表。
+  rpc PageBaseTableBackup(PageBaseTableBackupRequest) returns (PageBaseTableBackupResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/table-backup"};
+  }
+
+  // 查询数据库备份配置。
+  rpc GetBaseTableBackup(GetBaseTableBackupRequest) returns (BaseTableBackupForm) {
+    option (google.api.http) = {get: "/api/v1/admin/base/table-backup/{id}"};
+  }
+
+  // 创建数据库备份配置。
+  rpc CreateBaseTableBackup(CreateBaseTableBackupRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {post: "/api/v1/admin/base/table-backup", body: "base_table_backup"};
+  }
+
+  // 更新数据库备份配置。
+  rpc UpdateBaseTableBackup(UpdateBaseTableBackupRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {put: "/api/v1/admin/base/table-backup/{base_table_backup.id}", body: "base_table_backup"};
+  }
+
+  // 删除数据库备份配置。
+  rpc DeleteBaseTableBackup(DeleteBaseTableBackupRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/api/v1/admin/base/table-backup/{id}"};
+  }
+
+  // 设置数据库备份配置状态。
+  rpc SetBaseTableBackupStatus(SetBaseTableBackupStatusRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {put: "/api/v1/admin/base/table-backup/{id}/status", body: "*"};
+  }
+}
+
+// BaseTableBackupType 表示数据库备份类型。
+enum BaseTableBackupType {
+  // 未指定备份类型。
+  BASE_TABLE_BACKUP_TYPE_UNSPECIFIED = 0;
+  // 全量备份。
+  BASE_TABLE_BACKUP_TYPE_FULL = 1;
+  // 增量备份，预留扩展。
+  BASE_TABLE_BACKUP_TYPE_INCREMENTAL = 2;
+}
+
+// BaseTableBackupForm 数据库备份配置表单。
+message BaseTableBackupForm {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "备份配置ID"}]; // 备份配置ID
+  string source_name = 3 [(gnostic.openapi.v3.property) = {description: "数据源名称"}, (buf.validate.field).cel = {id: "system.admin.base.table_backup.source_name.required" message: "数据源名称不能为空" expression: "this.size() > 0 && this.size() <= 64"}]; // 数据源名称
+  BaseTableBackupType backup_type = 4 [(gnostic.openapi.v3.property) = {description: "备份类型"}, (buf.validate.field).enum = {defined_only: true}]; // 备份类型
+  string oss_prefix = 5 [(gnostic.openapi.v3.property) = {description: "OSS对象前缀"}, (buf.validate.field).cel = {id: "system.admin.base.table_backup.oss_prefix.max_len" message: "OSS对象前缀不能超过255个字符" expression: "this.size() <= 255"}]; // OSS对象前缀
+  int32 retention_count = 6 [(gnostic.openapi.v3.property) = {description: "保留数量"}, (buf.validate.field).cel = {id: "system.admin.base.table_backup.retention_count.positive" message: "保留数量必须大于零" expression: "this > 0"}]; // 保留数量
+  .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+}
+
+// PageBaseTableBackupRequest 数据库备份配置分页请求。
+message PageBaseTableBackupRequest { string source_name = 2 [(gnostic.openapi.v3.property) = {description: "数据源名称"}]; optional .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}]; int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数", default: {number: 10}}]; } // 数据库备份配置分页请求
+
+// PageBaseTableBackupResponse 数据库备份配置分页响应。
+message PageBaseTableBackupResponse { repeated BaseTableBackupForm base_table_backups = 1 [(gnostic.openapi.v3.property) = {description: "备份配置列表"}]; int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; } // 数据库备份配置分页响应
+
+// GetBaseTableBackupRequest 查询数据库备份配置请求。
+message GetBaseTableBackupRequest { int64 id = 1 [(gnostic.openapi.v3.property) = {description: "备份配置ID"}]; } // 备份配置ID
+
+// CreateBaseTableBackupRequest 创建数据库备份配置请求。
+message CreateBaseTableBackupRequest { BaseTableBackupForm base_table_backup = 1 [(gnostic.openapi.v3.property) = {description: "备份配置"}, (buf.validate.field).required = true]; } // 备份配置
+
+// UpdateBaseTableBackupRequest 更新数据库备份配置请求。
+message UpdateBaseTableBackupRequest { BaseTableBackupForm base_table_backup = 1 [(gnostic.openapi.v3.property) = {description: "备份配置"}, (buf.validate.field).required = true]; } // 备份配置
+
+// DeleteBaseTableBackupRequest 删除数据库备份配置请求。
+message DeleteBaseTableBackupRequest { string id = 1 [(gnostic.openapi.v3.property) = {description: "备份配置ID列表"}]; } // 备份配置ID列表
+
+// SetBaseTableBackupStatusRequest 设置数据库备份配置状态请求。
+message SetBaseTableBackupStatusRequest { int64 id = 1 [(gnostic.openapi.v3.property) = {description: "备份配置ID"}]; int32 status = 2 [(gnostic.openapi.v3.property) = {description: "状态"}]; } // 状态

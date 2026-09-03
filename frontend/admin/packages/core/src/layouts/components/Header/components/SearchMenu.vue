@@ -3,7 +3,14 @@
     <el-tooltip effect="dark" :content="t('core.header.menu_search')" placement="bottom" :show-after="200">
       <i :class="'iconfont icon-sousuo'" class="toolBar-icon" @click="handleOpen"></i>
     </el-tooltip>
-    <el-dialog class="search-dialog" v-model="isShowSearch" :width="600" :show-close="false" top="10vh">
+    <ProDialog
+      class="search-dialog"
+      v-model="isShowSearch"
+      :width="600"
+      :show-close="false"
+      :show-footer="false"
+      top="10vh"
+    >
       <el-input
         v-model="searchMenu"
         ref="menuInputRef"
@@ -30,7 +37,7 @@
         </div>
       </div>
       <el-empty v-else class="mt20 mb20" :image-size="100" :description="t('core.header.menu_search_empty')" />
-    </el-dialog>
+    </ProDialog>
   </div>
 </template>
 
@@ -44,6 +51,7 @@ import { useDebounceFn } from "@vueuse/core";
 import type { RouteItem } from "@/rpc/system/admin/v1/auth";
 import { getRouteMetaHidden, getRouteMetaIcon, getRouteMetaTitle, getRouteTarget, isExternalPath } from "@/utils";
 import { useLocaleStore } from "@/locales";
+import ProDialog from "@/components/Dialog/ProDialog.vue";
 
 /** 可被菜单搜索展示的路由项。 */
 interface SearchRouteItem extends RouteItem {
@@ -152,11 +160,11 @@ const handleClickMenu = () => {
 
 <style scoped lang="scss">
 .search-menu {
-  :deep(.el-dialog) {
-    border-radius: 4px;
-    .el-dialog__header {
-      display: none;
-    }
+  :global(.search-dialog) {
+    border-radius: var(--admin-page-radius);
+  }
+  :global(.search-dialog .el-dialog__header) {
+    display: none;
   }
   .menu-list {
     max-height: 515px;
@@ -174,7 +182,7 @@ const handleClickMenu = () => {
       cursor: pointer;
       background-color: transparent;
       border: 1px solid var(--el-border-color);
-      border-radius: 6px;
+      border-radius: var(--admin-page-radius);
       transition: all 0.2s ease;
       .menu-lf {
         display: flex;

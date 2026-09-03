@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+
+// BaseTableArchiveRestoreService 手工恢复归档数据。
+service BaseTableArchiveRestoreService {
+  // 查询归档恢复记录分页列表。
+  rpc PageBaseTableArchiveRestore(PageBaseTableArchiveRestoreRequest) returns (PageBaseTableArchiveRestoreResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/table-archive-restore"};
+  }
+
+  // 查询归档恢复记录。
+  rpc GetBaseTableArchiveRestore(GetBaseTableArchiveRestoreRequest) returns (BaseTableArchiveRestore) {
+    option (google.api.http) = {get: "/api/v1/admin/base/table-archive-restore/{id}"};
+  }
+
+  // 手工执行归档恢复。
+  rpc ExecuteBaseTableArchiveRestore(ExecuteBaseTableArchiveRestoreRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {post: "/api/v1/admin/base/table-archive-restore", body: "base_table_archive_restore"};
+  }
+}
+
+// BaseTableArchiveRestoreMode 表示归档数据恢复模式。
+enum BaseTableArchiveRestoreMode {
+  // 未指定归档恢复模式。
+  BASE_TABLE_ARCHIVE_RESTORE_MODE_UNSPECIFIED = 0;
+  // 恢复全部归档数据。
+  BASE_TABLE_ARCHIVE_RESTORE_MODE_ALL = 1;
+  // 按范围选择性恢复。
+  BASE_TABLE_ARCHIVE_RESTORE_MODE_SELECTED = 2;
+}
+
+// BaseTableArchiveRestoreStatus 表示归档恢复状态。
+enum BaseTableArchiveRestoreStatus {
+  // 未指定归档恢复状态。
+  BASE_TABLE_ARCHIVE_RESTORE_STATUS_UNSPECIFIED = 0;
+  // 等待人工确认。
+  BASE_TABLE_ARCHIVE_RESTORE_STATUS_PENDING = 1;
+  // 执行中。
+  BASE_TABLE_ARCHIVE_RESTORE_STATUS_RUNNING = 2;
+  // 执行成功。
+  BASE_TABLE_ARCHIVE_RESTORE_STATUS_SUCCESS = 3;
+  // 执行失败。
+  BASE_TABLE_ARCHIVE_RESTORE_STATUS_FAILED = 4;
+}
+
+// BaseTableArchiveRestore 归档恢复记录。
+message BaseTableArchiveRestore {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "恢复记录ID"}]; // 恢复记录ID
+  int64 archive_record_id = 2 [(gnostic.openapi.v3.property) = {description: "归档记录ID"}]; // 归档记录ID
+  string table_name = 3 [(gnostic.openapi.v3.property) = {description: "数据表名称"}]; // 数据表名称
+  BaseTableArchiveRestoreMode restore_mode = 4 [(gnostic.openapi.v3.property) = {description: "恢复模式"}]; // 恢复模式
+  string restore_range = 5 [(gnostic.openapi.v3.property) = {description: "恢复范围"}]; // 恢复范围
+  int64 restored_rows = 6 [(gnostic.openapi.v3.property) = {description: "恢复条数"}]; // 恢复条数
+  int64 operator_id = 7 [(gnostic.openapi.v3.property) = {description: "操作人ID"}]; // 操作人ID
+  BaseTableArchiveRestoreStatus status = 8 [(gnostic.openapi.v3.property) = {description: "恢复状态"}]; // 恢复状态
+  string error = 9 [(gnostic.openapi.v3.property) = {description: "错误信息"}]; // 错误信息
+  string started_at = 10 [(gnostic.openapi.v3.property) = {description: "开始时间"}]; // 开始时间
+  string finished_at = 11 [(gnostic.openapi.v3.property) = {description: "完成时间"}]; // 完成时间
+}
+
+// PageBaseTableArchiveRestoreRequest 归档恢复记录分页请求。
+message PageBaseTableArchiveRestoreRequest { optional BaseTableArchiveRestoreStatus status = 1 [(gnostic.openapi.v3.property) = {description: "恢复状态"}]; int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}]; int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数", default: {number: 10}}]; } // 归档恢复记录分页请求
+
+// PageBaseTableArchiveRestoreResponse 归档恢复记录分页响应。
+message PageBaseTableArchiveRestoreResponse { repeated BaseTableArchiveRestore base_table_archive_restores = 1 [(gnostic.openapi.v3.property) = {description: "恢复记录列表"}]; int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; } // 归档恢复记录分页响应
+
+// GetBaseTableArchiveRestoreRequest 查询归档恢复记录请求。
+message GetBaseTableArchiveRestoreRequest { int64 id = 1 [(gnostic.openapi.v3.property) = {description: "恢复记录ID"}]; } // 恢复记录ID
+
+// ExecuteBaseTableArchiveRestoreRequest 执行归档恢复请求。
+message ExecuteBaseTableArchiveRestoreRequest { BaseTableArchiveRestore base_table_archive_restore = 1 [(gnostic.openapi.v3.property) = {description: "恢复请求"}, (buf.validate.field).required = true]; } // 恢复请求

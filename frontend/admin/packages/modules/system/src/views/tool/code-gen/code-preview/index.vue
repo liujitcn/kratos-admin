@@ -32,11 +32,11 @@
 import { computed, ref, watch } from "vue";
 import { Clock, Promotion } from "@element-plus/icons-vue";
 import { useRoute } from "vue-router";
-import { t } from "@liujitcn/kratos-admin-core";
+import { setAdminDocumentTitle, t } from "@liujitcn/kratos-admin-core";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { useTabsStore } from "@liujitcn/kratos-admin-core/stores/runtime";
-import { defCodeGenService } from "@liujitcn/kratos-admin-system/api/system/code_gen";
-import { defCodeGenTableService } from "@liujitcn/kratos-admin-system/api/system/code_gen_table";
+import { defCodeGenService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen";
+import { defCodeGenTableService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen_table";
 import type { CodeGenPreviewFile } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen";
 import type { CodeGenTableForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_table";
 import { CodeGenTableStatus } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_table";
@@ -124,7 +124,7 @@ async function loadCodePreview() {
 function syncWorkspaceTitle() {
   const title = t("system.code.gen.preview.title.workspace", { table: pageTitle.value });
   tabsStore.setTabsTitle(title);
-  document.title = `${title} - ${import.meta.env.VITE_GLOB_APP_TITLE}`;
+  setAdminDocumentTitle(title);
 }
 
 /** 启动当前生成对象的代码生成任务。 */

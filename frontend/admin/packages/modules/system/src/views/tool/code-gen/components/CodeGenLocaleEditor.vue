@@ -67,8 +67,8 @@
 import { computed, ref } from "vue";
 import { Promotion } from "@element-plus/icons-vue";
 import { t } from "@liujitcn/kratos-admin-core";
-import { defBaseI18nService } from "@liujitcn/kratos-admin-system/api/system/base_i18n";
-import { loadEnabledBaseLanguages, useEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
+import { defBaseI18nService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_i18n";
+import { loadEnabledBaseLanguages, useEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_language";
 import type { CodeGenLocaleConfig } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 
 /** 代码生成多语言编辑器属性。 */

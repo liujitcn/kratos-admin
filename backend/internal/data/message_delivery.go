@@ -35,7 +35,6 @@ func (w *MessageDeliveryWriter) CreateIgnore(ctx context.Context, list []*models
 		userIDs = append(userIDs, item.UserID)
 	}
 	existing, err := query.WithContext(ctx).Unscoped().Where(
-		query.TenantID.Eq(list[0].TenantID),
 		query.MessageID.Eq(list[0].MessageID),
 		query.UserID.In(userIDs...),
 	).Find()
@@ -65,10 +64,10 @@ func (w *MessageDeliveryWriter) CreateIgnore(ctx context.Context, list []*models
 }
 
 // SetReadAt 批量设置或清空当前用户投递记录的已读时间。
-func (w *MessageDeliveryWriter) SetReadAt(ctx context.Context, tenantID, userID int64, ids []int64, readAt *time.Time) error {
+func (w *MessageDeliveryWriter) SetReadAt(ctx context.Context, userID int64, ids []int64, readAt *time.Time) error {
 	query := w.queryProvider.Query(ctx).BaseMessageDelivery
 	dao := query.WithContext(ctx).Where(
-		query.TenantID.Eq(tenantID), query.UserID.Eq(userID), query.ID.In(ids...), query.RevokedAt.Eq(0),
+		query.UserID.Eq(userID), query.ID.In(ids...), query.RevokedAt.Eq(0),
 		field.Or(query.ExpiresAt.Eq(0), query.ExpiresAt.Gt(time.Now().UnixMilli())),
 	)
 	var readAtValue int64
@@ -82,19 +81,19 @@ func (w *MessageDeliveryWriter) SetReadAt(ctx context.Context, tenantID, userID 
 }
 
 // SetAllReadAt 按水位线批量设置当前用户消息已读时间。
-func (w *MessageDeliveryWriter) SetAllReadAt(ctx context.Context, tenantID, userID, beforeDeliveryID int64, readAt time.Time) error {
+func (w *MessageDeliveryWriter) SetAllReadAt(ctx context.Context, userID, beforeDeliveryID int64, readAt time.Time) error {
 	query := w.queryProvider.Query(ctx).BaseMessageDelivery
 	_, err := query.WithContext(ctx).
-		Where(query.TenantID.Eq(tenantID), query.UserID.Eq(userID), query.ID.Lte(beforeDeliveryID), query.ReadAt.Eq(0), query.RevokedAt.Eq(0), field.Or(query.ExpiresAt.Eq(0), query.ExpiresAt.Gt(time.Now().UnixMilli()))).
+		Where(query.UserID.Eq(userID), query.ID.Lte(beforeDeliveryID), query.ReadAt.Eq(0), query.RevokedAt.Eq(0), field.Or(query.ExpiresAt.Eq(0), query.ExpiresAt.Gt(time.Now().UnixMilli()))).
 		UpdateSimple(query.ReadAt.Value(readAt.UnixMilli()), query.UpdatedAt.Value(readAt))
 	return err
 }
 
 // SetArchivedAt 设置或清空当前用户单条投递记录的归档时间。
-func (w *MessageDeliveryWriter) SetArchivedAt(ctx context.Context, tenantID, userID, id int64, archivedAt *time.Time) error {
+func (w *MessageDeliveryWriter) SetArchivedAt(ctx context.Context, userID, id int64, archivedAt *time.Time) error {
 	query := w.queryProvider.Query(ctx).BaseMessageDelivery
 	dao := query.WithContext(ctx).Where(
-		query.TenantID.Eq(tenantID), query.UserID.Eq(userID), query.ID.Eq(id), query.RevokedAt.Eq(0),
+		query.UserID.Eq(userID), query.ID.Eq(id), query.RevokedAt.Eq(0),
 		field.Or(query.ExpiresAt.Eq(0), query.ExpiresAt.Gt(time.Now().UnixMilli())),
 	)
 	var archivedAtValue int64
@@ -108,10 +107,10 @@ func (w *MessageDeliveryWriter) SetArchivedAt(ctx context.Context, tenantID, use
 }
 
 // RevokeMessage 批量撤回指定消息的全部用户投递记录。
-func (w *MessageDeliveryWriter) RevokeMessage(ctx context.Context, tenantID, messageID int64, revokedAt time.Time) error {
+func (w *MessageDeliveryWriter) RevokeMessage(ctx context.Context, messageID int64, revokedAt time.Time) error {
 	query := w.queryProvider.Query(ctx).BaseMessageDelivery
 	_, err := query.WithContext(ctx).
-		Where(query.TenantID.Eq(tenantID), query.MessageID.Eq(messageID), query.RevokedAt.Eq(0)).
+		Where(query.MessageID.Eq(messageID), query.RevokedAt.Eq(0)).
 		UpdateSimple(query.RevokedAt.Value(revokedAt.UnixMilli()), query.UpdatedAt.Value(revokedAt))
 	return err
 }

@@ -16,7 +16,6 @@ import (
 
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repository"
-	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 var codeGenDatabaseTableNamePattern = regexp.MustCompile(`^[a-z][a-z0-9_]*$`)
@@ -72,8 +71,8 @@ func (c *CodeGenColumnCase) ListCodeGenColumn(ctx context.Context, tableID int64
 }
 
 // ListCodeGenDatabaseColumn 查询指定数据库表的字段元数据。
-func (c *CodeGenColumnCase) ListCodeGenDatabaseColumn(ctx context.Context, tableName string) (*adminv1.ListCodeGenDatabaseColumnResponse, error) {
-	databaseColumns, err := c.listDatabaseColumns(ctx, tableName)
+func (c *CodeGenColumnCase) ListCodeGenDatabaseColumn(ctx context.Context, sourceName, tableName string) (*adminv1.ListCodeGenDatabaseColumnResponse, error) {
+	databaseColumns, err := c.listDatabaseColumns(ctx, sourceName, tableName)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +116,7 @@ func (c *CodeGenColumnCase) SaveCodeGenColumn(ctx context.Context, req *adminv1.
 		return err
 	}
 	var databaseColumns []dto.CodeGenDatabaseColumn
-	databaseColumns, err = c.listDatabaseColumns(ctx, table.Name)
+	databaseColumns, err = c.listDatabaseColumns(ctx, table.SourceName, table.Name)
 	if err != nil {
 		return err
 	}
@@ -126,7 +125,7 @@ func (c *CodeGenColumnCase) SaveCodeGenColumn(ctx context.Context, req *adminv1.
 		return errorsx.ResourceNotFound("数据库表字段不存在")
 	}
 	var defaultSources map[string]codeGenColumnDefaultSource
-	defaultSources, err = c.listCodeGenColumnDefaultSources(ctx, table.Name, databaseColumns)
+	defaultSources, err = c.listCodeGenColumnDefaultSources(ctx, table.SourceName, table.Name, databaseColumns)
 	if err != nil {
 		return err
 	}
@@ -223,12 +222,12 @@ func (c *CodeGenColumnCase) listCodeGenColumns(ctx context.Context, tableID int6
 		return nil, err
 	}
 	var databaseColumns []dto.CodeGenDatabaseColumn
-	databaseColumns, err = c.listDatabaseColumns(ctx, table.Name)
+	databaseColumns, err = c.listDatabaseColumns(ctx, table.SourceName, table.Name)
 	if err != nil {
 		return nil, err
 	}
 	var defaultSources map[string]codeGenColumnDefaultSource
-	defaultSources, err = c.listCodeGenColumnDefaultSources(ctx, table.Name, databaseColumns)
+	defaultSources, err = c.listCodeGenColumnDefaultSources(ctx, table.SourceName, table.Name, databaseColumns)
 	if err != nil {
 		return nil, err
 	}
@@ -246,17 +245,20 @@ func (c *CodeGenColumnCase) listCodeGenColumns(ctx context.Context, tableID int6
 }
 
 // listDatabaseColumns 查询数据库字段生成所需的完整元数据。
-func (c *CodeGenColumnCase) listDatabaseColumns(ctx context.Context, tableName string) ([]dto.CodeGenDatabaseColumn, error) {
+func (c *CodeGenColumnCase) listDatabaseColumns(ctx context.Context, sourceName, tableName string) ([]dto.CodeGenDatabaseColumn, error) {
 	if tableName == "" {
 		return nil, errorsx.InvalidArgument("数据库表名不能为空")
 	}
 	if !codeGenDatabaseTableNamePattern.MatchString(tableName) {
 		return nil, errorsx.InvalidArgument("数据库表名格式不正确")
 	}
-	database := c.GormClients[gorm.DefaultClientName]
+	database, err := GormClientBySourceName(c.BaseCase, sourceName)
+	if err != nil {
+		return nil, err
+	}
 	var columns []dto.CodeGenDatabaseColumn
 	// information_schema 没有业务生成模型，表名经白名单校验后使用参数化查询读取字段元数据。
-	err := database.DB.WithContext(ctx).
+	err = database.DB.WithContext(ctx).
 		Table("information_schema.columns").
 		Select("column_name, column_comment, data_type, column_type, column_key, is_nullable, extra, ordinal_position, character_maximum_length, numeric_precision, numeric_scale, column_default").
 		Where("table_schema = DATABASE()").
@@ -267,7 +269,7 @@ func (c *CodeGenColumnCase) listDatabaseColumns(ctx context.Context, tableName s
 }
 
 // listCodeGenColumnDefaultSources 查询字段默认选项对应的字典或数据表来源。
-func (c *CodeGenColumnCase) listCodeGenColumnDefaultSources(ctx context.Context, tableName string, databaseColumns []dto.CodeGenDatabaseColumn) (map[string]codeGenColumnDefaultSource, error) {
+func (c *CodeGenColumnCase) listCodeGenColumnDefaultSources(ctx context.Context, sourceName, tableName string, databaseColumns []dto.CodeGenDatabaseColumn) (map[string]codeGenColumnDefaultSource, error) {
 	defaultSources := make(map[string]codeGenColumnDefaultSource, len(databaseColumns))
 	if len(databaseColumns) == 0 {
 		return defaultSources, nil
@@ -311,7 +313,7 @@ func (c *CodeGenColumnCase) listCodeGenColumnDefaultSources(ctx context.Context,
 	if !needsTableMatch {
 		return defaultSources, nil
 	}
-	tableInfos, err := c.listCodeGenOptionTables(ctx)
+	tableInfos, err := c.listCodeGenOptionTables(ctx, sourceName)
 	if err != nil {
 		return nil, err
 	}
@@ -328,10 +330,13 @@ func (c *CodeGenColumnCase) listCodeGenColumnDefaultSources(ctx context.Context,
 }
 
 // listCodeGenOptionTables 查询用于匹配字段关联关系的数据库表名。
-func (c *CodeGenColumnCase) listCodeGenOptionTables(ctx context.Context) ([]dto.CodeGenDatabaseTable, error) {
-	database := c.GormClients[gorm.DefaultClientName]
+func (c *CodeGenColumnCase) listCodeGenOptionTables(ctx context.Context, sourceName string) ([]dto.CodeGenDatabaseTable, error) {
+	database, err := GormClientBySourceName(c.BaseCase, sourceName)
+	if err != nil {
+		return nil, err
+	}
 	var tableInfos []dto.CodeGenDatabaseTable
-	err := database.DB.WithContext(ctx).
+	err = database.DB.WithContext(ctx).
 		Table("information_schema.tables").
 		Select("table_name, table_comment").
 		Where("table_schema = DATABASE()").

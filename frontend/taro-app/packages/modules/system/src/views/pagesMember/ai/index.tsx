@@ -10,9 +10,9 @@ import {
   useI18n,
 } from '@liujitcn/kratos-taro-app-core'
 import { UniIcon } from '@liujitcn/kratos-taro-app-ui'
-import { defAiMessageService, StreamAiMessageByChunkedRequest } from '../../../api/base/ai_message'
-import { defAiSessionService } from '../../../api/base/ai_session'
-import { defAiToolService } from '../../../api/base/ai_tool'
+import { defAiMessageService, StreamAiMessageByChunkedRequest } from '../../../api/base/v1/ai_message'
+import { defAiSessionService } from '../../../api/base/v1/ai_session'
+import { defAiToolService } from '../../../api/base/v1/ai_tool'
 import type { AiAttachment, AiMessage, AiSession } from '../../../rpc/base/v1/ai_session'
 import type { AiShortcut, AiToolCall } from '../../../rpc/base/v1/ai_tool'
 import { AiMessageStatus } from '../../../rpc/base/v1/ai_session'

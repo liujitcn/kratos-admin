@@ -9,7 +9,7 @@ import {
 } from './locales'
 import { initializeAppNavigation } from './navigation'
 import { useSettingStore } from './stores'
-import { defLanguageService } from './api/base/language'
+import { defLanguageService } from './api/base/v1/language'
 
 /** uni-app 启动参数。 */
 export interface KratosAppBootstrapOptions {

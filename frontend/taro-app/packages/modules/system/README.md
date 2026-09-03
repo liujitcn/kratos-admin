@@ -7,7 +7,7 @@
 | 页面 | 视图键 | 用途 |
 | --- | --- | --- |
 | `pages/my/my` | `PROFILE_HOME` | 我的 tab 与登录概览。 |
-| `pagesMember/profile/profile` | `PROFILE` | 头像、昵称、性别和地区资料。 |
+| `pagesMember/profile/profile` | `PROFILE` | 头像、昵称、性别、邮箱和证件资料。 |
 | `pagesMember/settings/settings` | `SETTINGS` | MFA 状态、设置与退出登录。 |
 | `pagesMember/ai/index` | `AI` | AI 会话、流式消息、附件和快捷入口。 |
 
@@ -21,7 +21,7 @@ AI 页面支持会话创建与切换、历史会话搜索、消息加载、附�
 
 ## MFA
 
-设置页通过 `@liujitcn/kratos-taro-app-core/api/base/mfa` 查询状态并发起绑定或禁用；页面私有的 `components/PasswordVerifyDialog.tsx` 提供 `setup`、`disable` 两种模式。未启用 MFA 时组件只显示密码输入，已启用 MFA 时在同一组件内同时完成密码和 MFA 校验，绑定成功展示一次性恢复码，禁用成功后清理会话并重新登录。
+设置页通过 `@liujitcn/kratos-taro-app-core/api/base/v1/mfa` 查询状态并发起绑定或禁用；页面私有的 `components/PasswordVerifyDialog.tsx` 提供 `setup`、`disable` 两种模式。未启用 MFA 时组件只显示密码输入，已启用 MFA 时在同一组件内同时完成密码和 MFA 校验，绑定成功展示一次性恢复码，禁用成功后清理会话并重新登录。
 
 ## 验证
 

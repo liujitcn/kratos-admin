@@ -23,6 +23,7 @@ inputs:
       - proto/base/v1/notification.proto
       - proto/base/v1/sse.proto
       - proto/system/admin/v1
+      - proto/system/config/v1
 
 plugins:
   - local: protoc-gen-ts_proto

@@ -1,0 +1,281 @@
+package logmiddleware
+
+import (
+	"bufio"
+	"context"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/hex"
+	"encoding/json"
+	"errors"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+	"time"
+
+	"github.com/go-kratos/kratos/v3/transport"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/runtimeconfig"
+	"github.com/liujitcn/kratos-kit/cache"
+	"github.com/liujitcn/kratos-kit/cache/memory"
+	queueData "github.com/liujitcn/kratos-kit/queue/data"
+	"github.com/liujitcn/kratos-kit/sdk"
+)
+
+type testQueue struct {
+	stream  string
+	message queueData.Message
+	started chan struct{}
+	release chan struct{}
+}
+
+type logTestKey struct {
+	value []byte
+}
+
+// Derive 返回测试使用的运行时派生密钥。
+func (k logTestKey) Derive(context.Context, string) ([]byte, error) { return k.value, nil }
+
+// TestLogResponseMetadata 验证数据访问审计从真实响应提取字段、行数和敏感标识。
+func TestLogResponseMetadata(t *testing.T) {
+	response := &adminv1.PageBaseUserResponse{
+		BaseUsers: []*adminv1.BaseUser{{Phone: "138****0000"}, {Phone: "139****0000"}},
+		Total:     2,
+	}
+	fields, rows, sensitive := logResponseMetadata(response)
+	if rows != 2 || !sensitive {
+		t.Fatalf("unexpected response metadata: fields=%s rows=%d sensitive=%v", fields, rows, sensitive)
+	}
+	if fields == "[]" {
+		t.Fatal("expected populated response field scope")
+	}
+}
+
+// TestLogSnapshotRedactsRuntimeConfigValue 验证隐藏配置更新的 JSON 字符串不会进入审计快照。
+func TestLogSnapshotRedactsRuntimeConfigValue(t *testing.T) {
+	snapshot, _ := logSnapshot(map[string]string{"key": "auditLogSpool", "value_json": `{"file_path":"./data/audit-log-spool","password":"secret"}`})
+	if strings.Contains(snapshot, "secret") || !strings.Contains(snapshot, "[REDACTED]") {
+		t.Fatalf("runtime config value was not redacted: %s", snapshot)
+	}
+}
+
+// Append 记录测试期间投递的队列消息。
+func (q *testQueue) Append(stream string, message queueData.Message) error {
+	q.stream = stream
+	q.message = message
+	if q.started != nil {
+		close(q.started)
+		<-q.release
+	}
+	return nil
+}
+
+// Register 忽略测试不需要的消费者注册。
+func (*testQueue) Register(string, queueData.ConsumerFunc) {}
+
+// Run 忽略测试不需要的队列启动。
+func (*testQueue) Run() {}
+
+// Shutdown 忽略测试不需要的队列停止。
+func (*testQueue) Shutdown() {}
+
+type testHeader map[string]string
+
+// Get 读取测试请求头。
+func (h testHeader) Get(key string) string { return h[key] }
+
+// Set 写入测试请求头。
+func (h testHeader) Set(key string, value string) { h[key] = value }
+
+// Add 写入测试请求头。
+func (h testHeader) Add(key string, value string) { h[key] = value }
+
+// Keys 返回测试请求头名称。
+func (h testHeader) Keys() []string { return nil }
+
+// Values 返回测试请求头值。
+func (h testHeader) Values(key string) []string { return []string{h[key]} }
+
+type testTransport struct {
+	header testHeader
+}
+
+// Kind 返回测试传输类型。
+func (*testTransport) Kind() transport.Kind { return transport.KindGRPC }
+
+// Endpoint 返回测试传输端点。
+func (*testTransport) Endpoint() string { return "grpc://test" }
+
+// Operation 返回用于触发操作审计的测试方法。
+func (*testTransport) Operation() string { return "/system.admin.v1.BaseUserService/UpdateBaseUser" }
+
+// RequestHeader 返回测试请求头。
+func (t *testTransport) RequestHeader() transport.Header { return t.header }
+
+// ReplyHeader 返回测试响应头。
+func (t *testTransport) ReplyHeader() transport.Header { return t.header }
+
+// Method 返回测试请求方法。
+func (*testTransport) Method() string { return "POST" }
+
+// TestMiddlewareEmitsAdminEventToQueue 验证 Admin 业务审计事件只投递到异步入库队列。
+func TestMiddlewareEmitsAdminEventToQueue(t *testing.T) {
+	queue := &testQueue{}
+	logMiddleware := newMiddleware(queue, nil)
+	logMiddleware.enqueue(adminTask{
+		Kind: "login",
+		Request: request{
+			Operation:  "/base.v1.LoginService/Login",
+			RequestID:  "test",
+			TenantCode: "default",
+			OccurredAt: time.Now(),
+		},
+		Payload: map[string]string{"user_name": "admin"},
+	})
+	logMiddleware.close()
+	if queue.stream != string(adminEventStream) {
+		t.Fatalf("unexpected stream: %s", queue.stream)
+	}
+	rawBody, ok := queue.message.Values["data"].(string)
+	if !ok {
+		t.Fatal("expected string queue payload")
+	}
+	var event adminEvent
+	err := json.Unmarshal([]byte(rawBody), &event)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if event.Kind != "login" {
+		t.Fatalf("unexpected event kind: %s", event.Kind)
+	}
+	if len(event.Payload) == 0 {
+		t.Fatal("expected event payload")
+	}
+}
+
+// TestMiddlewareDoesNotWaitForQueueIO 验证队列阻塞不会延迟主业务处理结果。
+func TestMiddlewareDoesNotWaitForQueueIO(t *testing.T) {
+	queue := &testQueue{started: make(chan struct{}), release: make(chan struct{})}
+	logMiddleware := newMiddleware(queue, nil)
+	defer func() {
+		close(queue.release)
+		logMiddleware.close()
+	}()
+	ctx := transport.NewServerContext(context.Background(), &testTransport{header: testHeader{"X-Request-ID": "request-1"}})
+	handler := logMiddleware.Handle(func(context.Context, interface{}) (interface{}, error) {
+		return "business-result", nil
+	})
+	startedAt := time.Now()
+	reply, err := handler(ctx, map[string]string{"id": "1"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if reply != "business-result" {
+		t.Fatalf("unexpected business result: %v", reply)
+	}
+	if time.Since(startedAt) > 100*time.Millisecond {
+		t.Fatal("business handler waited for log queue IO")
+	}
+	select {
+	case <-queue.started:
+	case <-time.After(time.Second):
+		t.Fatal("log worker did not dispatch queued event")
+	}
+}
+
+// TestIsOperationRecognizesRestoreRPC 验证 gRPC Execute...Restore 会被记录为业务操作。
+func TestIsOperationRecognizesRestoreRPC(t *testing.T) {
+	info := request{Method: "RPC", Operation: "/system.admin.v1.BaseTableBackupRestoreService/ExecuteBaseTableBackupRestore"}
+	if !isOperation(info) {
+		t.Fatal("restore RPC was not recognized as an operation")
+	}
+}
+
+// TestAuditLogSpoolFileHasValidHMAC 验证日志入库回退文件同步落盘并携带有效 HMAC。
+func TestAuditLogSpoolFileHasValidHMAC(t *testing.T) {
+	directory := t.TempDir()
+	key := "audit-log-spool-integrity-key-32-bytes"
+	previousKey := sdk.Runtime.GetKey()
+	sdk.Runtime.SetKey(logTestKey{value: []byte(key)})
+	t.Cleanup(func() { sdk.Runtime.SetKey(previousKey) })
+	configCache := newLogStorageTestCache(t, directory)
+	logMiddleware := newMiddleware(nil, configCache)
+	err := logMiddleware.writeAuditLogSpool("queue_unavailable", "login", "/base.v1.LoginService/Login", map[string]string{"user_name": "admin"})
+	logMiddleware.close()
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(directory, runtimeconfig.AuditLogSpoolFileName)
+	file, err := os.Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	if !scanner.Scan() {
+		t.Fatal("日志入库回退文件没有记录")
+	}
+	var record auditLogSpoolRecord
+	if err = json.Unmarshal(scanner.Bytes(), &record); err != nil {
+		t.Fatal(err)
+	}
+	mac := hmac.New(sha256.New, []byte(base64.RawStdEncoding.EncodeToString([]byte(key))))
+	_, _ = mac.Write(record.Content)
+	expected := hex.EncodeToString(mac.Sum(nil))
+	if !hmac.Equal([]byte(expected), []byte(record.HMAC)) {
+		t.Fatal("日志入库回退 HMAC 校验失败")
+	}
+}
+
+// newLogStorageTestCache 创建包含日志入库回退配置的内存缓存。
+func newLogStorageTestCache(t *testing.T, directory string) cache.Cache {
+	t.Helper()
+	store, cleanup, err := memory.NewMemory()
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(cleanup)
+	config := runtimeconfig.DefaultAuditLogSpoolConfig()
+	config.FilePath = directory
+	value, err := json.Marshal(config)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = store.Set(runtimeconfig.CacheKey(runtimeconfig.AuditLogSpoolKey), string(value), runtimeconfig.CacheExpire); err != nil {
+		t.Fatal(err)
+	}
+	return store
+}
+
+type logTestRecord struct {
+	ID int64
+}
+
+// TestCreateLogTreatsDuplicateDeliveryAsSuccess 验证同一队列消息重复投递不会生成第二条日志。
+func TestCreateLogTreatsDuplicateDeliveryAsSuccess(t *testing.T) {
+	record := &logTestRecord{ID: 10}
+	var stored *logTestRecord
+	create := func(_ context.Context, item *logTestRecord) error {
+		if stored != nil {
+			return errors.New("duplicate primary key")
+		}
+		stored = item
+		return nil
+	}
+	find := func(_ context.Context, id int64) (*logTestRecord, error) {
+		if stored != nil && stored.ID == id {
+			return stored, nil
+		}
+		return nil, errors.New("not found")
+	}
+	err := createLogRecord(context.Background(), record.ID, record, create, find)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = createLogRecord(context.Background(), record.ID, record, create, find)
+	if err != nil {
+		t.Fatalf("duplicate delivery must be idempotent: %v", err)
+	}
+}

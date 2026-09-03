@@ -6,6 +6,7 @@ import (
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
 	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
@@ -44,6 +45,43 @@ func NewBaseJobCase(baseCase *biz.BaseCase, job *corejob.Job, baseJobRepo *data.
 		formMapper:        formMapper,
 		mapper:            mapper,
 	}
+}
+
+// OptionBaseJob 查询定时任务选项
+func (c *BaseJobCase) OptionBaseJob(ctx context.Context, _ *adminv1.OptionBaseJobRequest) (*commonv1.SelectOptionResponse, error) {
+	query := c.Query(ctx).BaseJob
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Order(query.CreatedAt.Desc()), repository.Order(query.ID.Desc()))
+	list, err := c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	targetIDs := make([]int64, 0, len(list))
+	for _, item := range list {
+		targetIDs = append(targetIDs, item.ID)
+	}
+	var localizedNames map[int64]string
+	localizedNames, err = c.baseI18nCase.GetBaseI18nNameMapByLocale(
+		ctx,
+		adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_JOB_NAME,
+		biz.LocaleFromContext(ctx),
+		targetIDs,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	options := make([]*commonv1.SelectOptionResponse_Option, 0, len(list))
+	// 日志筛选允许选择已停用任务，避免历史日志无法检索。
+	for _, item := range list {
+		label := item.Name
+		if localizedName := localizedNames[item.ID]; localizedName != "" {
+			label = localizedName
+		}
+		options = append(options, &commonv1.SelectOptionResponse_Option{Label: label, Value: item.ID})
+	}
+	return &commonv1.SelectOptionResponse{List: options}, nil
 }
 
 // PageBaseJob 分页查询定时任务
@@ -268,7 +306,7 @@ func (c *BaseJobCase) saveBaseI18n(ctx context.Context, req *adminv1.BaseJobForm
 
 // SetBaseJobStatus 设置定时任务状态
 func (c *BaseJobCase) SetBaseJobStatus(ctx context.Context, req *adminv1.SetBaseJobStatusRequest) error {
-	err := validateBaseJobStatus(int32(req.GetStatus()))
+	err := validateBaseJobStatus(req.GetStatus())
 	if err != nil {
 		return err
 	}

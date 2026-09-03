@@ -16,7 +16,7 @@ test('encryptPassword falls back when WebCrypto subtle is unavailable', async ()
           privateDecrypt,
           webcrypto,
         } from 'node:crypto'
-        import { defLoginService } from './src/api/base/login.ts'
+        import { defLoginService } from './src/api/base/v1/login.ts'
         import { encryptPassword, PASSWORD_CRYPTO_SCENE } from './src/utils/passwordCrypto.ts'
 
         const { publicKey, privateKey } = generateKeyPairSync('rsa', { modulusLength: 2048 })

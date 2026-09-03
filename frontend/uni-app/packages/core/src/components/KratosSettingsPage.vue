@@ -3,7 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useUserStore } from '../stores'
 import { navigateToLogin } from '../utils/navigation'
 import { getLanguageOptions, useI18n, type SupportedLocale } from '../locales'
-import { defMfaService } from '../api/base/mfa'
+import { defMfaService } from '../api/base/v1/mfa'
 import MfaManageDialog from './MfaManageDialog.vue'
 
 defineOptions({ name: 'KratosSettingsPage' })

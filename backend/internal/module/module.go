@@ -11,10 +11,12 @@ import (
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/base/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/auditlog"
+	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/log"
 	serverlogstream "github.com/liujitcn/kratos-admin/backend/internal/server/middleware/logstream"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/oauth"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/passwordpolicy"
+	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/securityheaders"
+	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/sessionpolicy"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/system/app/v1"
 	"github.com/liujitcn/kratos-core/module"
@@ -47,6 +49,10 @@ func NewModules(
 	if err != nil {
 		return nil, err
 	}
+	err = baseConfigCase.RefreshHiddenBaseConfig(context.Background())
+	if err != nil {
+		return nil, err
+	}
 	err = baseLoginPolicyCase.RefreshBaseLoginPolicy(context.Background())
 	if err != nil {
 		return nil, err
@@ -65,19 +71,20 @@ func NewModules(
 }
 
 // NewQueueConsumers 提供 Admin 自身投递事件的队列消费者集合。
-func NewQueueConsumers(baseMessageCase *biz.BaseMessageCase, auditConsumer queueData.ConsumerFunc) queue.Consumers {
+func NewQueueConsumers(baseMessageCase *biz.BaseMessageCase, logConsumer queueData.ConsumerFunc) queue.Consumers {
 	return queue.Consumers{
 		{Stream: "base.message.dispatch", Handler: baseMessageCase.HandleDispatchMessage},
-		{Stream: auditlog.AdminEventStream(), Handler: auditConsumer},
+		{Stream: logmiddleware.AdminEventStream(), Handler: logConsumer},
 	}
 }
 
 // RegisterGRPC 注册 Admin 的全部 gRPC 服务。
 func (m *Module) RegisterGRPC(registrar grpc.ServiceRegistrar) {
 	if server, ok := registrar.(*kratosGRPC.Server); ok {
-		policyMiddleware := passwordpolicy.NewMiddleware(m.adminServices.BaseUserRepository)
-		server.Use("/*", middleware.Chain(m.adminServices.AuditLogMiddleware, policyMiddleware))
-		server.Use("/system.admin.v1.RuntimeLogService/*", middleware.Chain(m.adminServices.AuditLogMiddleware, policyMiddleware, serverlogstream.RuntimeAccessMiddleware()))
+		policyMiddleware := passwordpolicy.NewMiddleware(m.adminServices.BaseUserRepository, m.adminServices.BaseCase.Cache)
+		sessionMiddleware := sessionpolicy.NewMiddleware(m.adminServices.BaseCase, m.adminServices.UserToken)
+		server.Use("/*", middleware.Chain(m.adminServices.LogMiddleware, sessionMiddleware, policyMiddleware))
+		server.Use("/system.admin.v1.RuntimeLogService/*", middleware.Chain(m.adminServices.LogMiddleware, sessionMiddleware, policyMiddleware, serverlogstream.RuntimeAccessMiddleware()))
 	}
 	m.baseServices.RegisterGRPC(registrar)
 	m.adminServices.RegisterGRPC(registrar)
@@ -89,21 +96,23 @@ func (m *Module) RegisterHTTP(server *http.Server) {
 	m.baseServices.RegisterHTTP(server)
 	m.adminServices.RegisterHTTP(server)
 	m.appServices.RegisterHTTP(server)
-	policyMiddleware := passwordpolicy.NewMiddleware(m.adminServices.BaseUserRepository)
+	policyMiddleware := passwordpolicy.NewMiddleware(m.adminServices.BaseUserRepository, m.adminServices.BaseCase.Cache)
+	sessionMiddleware := sessionpolicy.NewMiddleware(m.adminServices.BaseCase, m.adminServices.UserToken)
 	server.Use("/system.admin.v1.RuntimeLogService/*", middleware.Chain(
 		oauth.NewIPMiddleware(m.adminServices.OauthClientRepository),
 		oauth.NewClientMiddleware(m.adminServices.OauthClientRepository, m.adminServices.BaseAPICase),
-		m.adminServices.AuditLogMiddleware,
+		m.adminServices.LogMiddleware,
+		sessionMiddleware,
 		policyMiddleware,
 		serverlogstream.RuntimeAccessMiddleware(),
 	))
 	// 外部开放授权接口需要在 Proto HTTP 绑定前解密请求体，并在响应写出前加密数据。
 	// 模块路由已全部注册，包裹底层 Handler 可以覆盖所有动态生成的 HTTP 路由。
-	server.Server.Handler = oauth.NewCryptoFilter(
+	server.Server.Handler = securityheaders.NewHandler(oauth.NewCryptoFilter(
 		m.adminServices.OauthClientRepository,
 		m.adminServices.Authenticator,
 		m.adminServices.OauthCredentialProtector,
-	)(server.Server.Handler)
+	)(server.Server.Handler))
 }
 
 // RegisterMCP 注册 Admin 的全部 MCP 工具。

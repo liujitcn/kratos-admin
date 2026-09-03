@@ -86,7 +86,7 @@ func resolveOauthClientRequest(ctx context.Context, clientRepo *data.OauthClient
 	if authInfo.UserId != -client.ID {
 		return nil, true, errorsx.PermissionDenied("客户端令牌身份不匹配")
 	}
-	if client.Status != int32(_const.STATUS_STATUS_ENABLE) {
+	if client.Status != _const.STATUS_STATUS_ENABLE {
 		return nil, true, errorsx.PermissionDenied("客户端已停用")
 	}
 	return client, true, nil

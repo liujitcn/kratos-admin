@@ -84,24 +84,46 @@ const messageBadge = useAppMenuBadge('MESSAGE_INBOX')
 .kratos-tab-bar__message-icon {
   position: relative;
   width: 22px;
-  height: 16px;
-  margin-bottom: 8px;
+  height: 18px;
+  margin-bottom: 6px;
   border: 2px solid #9aa4b2;
-  border-radius: 3px;
+  border-radius: 6px;
   box-sizing: border-box;
+}
+.kratos-tab-bar__message-icon::before {
+  position: absolute;
+  top: 5px;
+  left: 4px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #9aa4b2;
+  box-shadow:
+    5px 0 #9aa4b2,
+    10px 0 #9aa4b2;
+  content: '';
 }
 .kratos-tab-bar__message-icon::after {
   position: absolute;
-  top: 1px;
-  left: 4px;
-  width: 9px;
-  height: 9px;
+  bottom: -5px;
+  left: 3px;
+  width: 7px;
+  height: 7px;
   border-right: 2px solid #9aa4b2;
   border-bottom: 2px solid #9aa4b2;
+  background: #fff;
   content: '';
   transform: rotate(45deg);
 }
-.kratos-tab-bar__message-icon--active,
+.kratos-tab-bar__message-icon--active {
+  border-color: #27ba9b;
+}
+.kratos-tab-bar__message-icon--active::before {
+  background: #27ba9b;
+  box-shadow:
+    5px 0 #27ba9b,
+    10px 0 #27ba9b;
+}
 .kratos-tab-bar__message-icon--active::after {
   border-color: #27ba9b;
 }

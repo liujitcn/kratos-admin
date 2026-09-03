@@ -1,4 +1,4 @@
-import { defLoginService } from '../api/base/login'
+import { defLoginService } from '../api/base/v1/login'
 import { t } from '../locales'
 import { PasswordCryptoScene } from '../rpc/base/v1/login'
 import type { PasswordCrypto } from '../rpc/common/v1/types'

@@ -34,7 +34,7 @@ import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/co
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { applyLanguageConfig, defLanguageService, t } from "@liujitcn/kratos-admin-core";
-import { defBaseLanguageService, invalidateEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
+import { defBaseLanguageService, invalidateEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_language";
 import type { BaseLanguage, BaseLanguageForm, PageBaseLanguageRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_language";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 

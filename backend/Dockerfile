@@ -1,6 +1,8 @@
 FROM alpine:3.22
 
-RUN apk add --no-cache ca-certificates tzdata
+RUN apk add --no-cache ca-certificates gzip mysql-client openssl tzdata
+
+RUN addgroup -S kratos && adduser -S -G kratos -h /app kratos
 
 WORKDIR /app
 
@@ -12,11 +14,14 @@ COPY data/taro-app /opt/kratos-admin/static/taro-app
 COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh \
-    && mkdir -p /app/data
+    && mkdir -p /app/data \
+    && chown -R kratos:kratos /app /opt/kratos-admin /usr/local/bin/docker-entrypoint.sh
 
 VOLUME ["/app/data"]
 
 EXPOSE 6001 7001
 
+USER kratos:kratos
+
 ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["./server", "-c", "./configs", "-e", "dev"]
+CMD ["./server", "-c", "./configs", "-e", "prod"]

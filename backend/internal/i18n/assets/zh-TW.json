@@ -1129,5 +1129,11 @@
   },
   "system.code.gen.password_strength": {
     "other": "強度提示"
+  },
+  "system.admin.runtime_config.invalid_json": {
+    "other": "系統配置內容無效"
+  },
+  "system.admin.runtime.audit_log_spool.file_path.required": {
+    "other": "稽核日誌入庫回退目錄路徑不得為空"
   }
 }

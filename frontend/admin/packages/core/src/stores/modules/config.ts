@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { defConfigService } from "@/api/base/config";
+import { defConfigService } from "@/api/base/v1/config";
 import { BaseConfigSite } from "@/rpc/base/v1/config";
 import type { LoginCaptchaConfig, SiteConfigState, SiteDisplayConfig } from "@/stores/interface";
 import defaultLogoUrl from "@/assets/images/logo.svg";
@@ -9,7 +9,7 @@ const CAPTCHA_TYPE_KEY = "captchaType";
 const I18N_DRAFT_ENABLED_KEY = "i18n.draft.enabled";
 
 const DEFAULT_SITE_DISPLAY_CONFIG: SiteDisplayConfig = {
-  sysName: "Admin",
+  sysName: import.meta.env.VITE_GLOB_APP_TITLE,
   icp: "",
   copyright: "2026 © Admin",
   watermark: "Admin",

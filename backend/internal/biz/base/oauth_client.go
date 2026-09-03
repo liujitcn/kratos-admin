@@ -96,7 +96,7 @@ func (c *OauthClientTokenCase) IssueOauthClientToken(ctx context.Context, req *b
 	if err = c.clearOauthClientFailures(ctx, req.GetClientId()); err != nil {
 		return nil, errorsx.Internal("清理客户端认证失败状态失败").WithCause(err)
 	}
-	if item.Status != int32(coreconst.STATUS_STATUS_ENABLE) {
+	if item.Status != coreconst.STATUS_STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("客户端已停用")
 	}
 	var tenant *models.BaseTenant
@@ -107,7 +107,7 @@ func (c *OauthClientTokenCase) IssueOauthClientToken(ctx context.Context, req *b
 		}
 		return nil, errorsx.Internal("读取客户端绑定租户失败").WithCause(err)
 	}
-	if tenant.Status != int32(coreconst.STATUS_STATUS_ENABLE) {
+	if tenant.Status != coreconst.STATUS_STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("客户端绑定租户已停用")
 	}
 	authInfo := &authData.UserTokenPayload{

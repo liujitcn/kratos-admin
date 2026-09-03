@@ -35,6 +35,8 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		BaseJobLog:              newBaseJobLog(db, opts...),
 		BaseLanguage:            newBaseLanguage(db, opts...),
 		BaseLoginLog:            newBaseLoginLog(db, opts...),
+		BaseLoginPolicy:         newBaseLoginPolicy(db, opts...),
+		BaseLoginPolicyRule:     newBaseLoginPolicyRule(db, opts...),
 		BaseMenu:                newBaseMenu(db, opts...),
 		BaseMessage:             newBaseMessage(db, opts...),
 		BaseMessageCategory:     newBaseMessageCategory(db, opts...),
@@ -46,6 +48,12 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		BasePolicyEvaluationLog: newBasePolicyEvaluationLog(db, opts...),
 		BasePost:                newBasePost(db, opts...),
 		BaseRole:                newBaseRole(db, opts...),
+		BaseTableArchive:        newBaseTableArchive(db, opts...),
+		BaseTableArchiveRecord:  newBaseTableArchiveRecord(db, opts...),
+		BaseTableArchiveRestore: newBaseTableArchiveRestore(db, opts...),
+		BaseTableBackup:         newBaseTableBackup(db, opts...),
+		BaseTableBackupRecord:   newBaseTableBackupRecord(db, opts...),
+		BaseTableBackupRestore:  newBaseTableBackupRestore(db, opts...),
 		BaseTenant:              newBaseTenant(db, opts...),
 		BaseThirdAccount:        newBaseThirdAccount(db, opts...),
 		BaseUser:                newBaseUser(db, opts...),
@@ -80,6 +88,8 @@ type Query struct {
 	BaseJobLog              baseJobLog
 	BaseLanguage            baseLanguage
 	BaseLoginLog            baseLoginLog
+	BaseLoginPolicy         baseLoginPolicy
+	BaseLoginPolicyRule     baseLoginPolicyRule
 	BaseMenu                baseMenu
 	BaseMessage             baseMessage
 	BaseMessageCategory     baseMessageCategory
@@ -91,6 +101,12 @@ type Query struct {
 	BasePolicyEvaluationLog basePolicyEvaluationLog
 	BasePost                basePost
 	BaseRole                baseRole
+	BaseTableArchive        baseTableArchive
+	BaseTableArchiveRecord  baseTableArchiveRecord
+	BaseTableArchiveRestore baseTableArchiveRestore
+	BaseTableBackup         baseTableBackup
+	BaseTableBackupRecord   baseTableBackupRecord
+	BaseTableBackupRestore  baseTableBackupRestore
 	BaseTenant              baseTenant
 	BaseThirdAccount        baseThirdAccount
 	BaseUser                baseUser
@@ -127,6 +143,8 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		BaseJobLog:              q.BaseJobLog.clone(db),
 		BaseLanguage:            q.BaseLanguage.clone(db),
 		BaseLoginLog:            q.BaseLoginLog.clone(db),
+		BaseLoginPolicy:         q.BaseLoginPolicy.clone(db),
+		BaseLoginPolicyRule:     q.BaseLoginPolicyRule.clone(db),
 		BaseMenu:                q.BaseMenu.clone(db),
 		BaseMessage:             q.BaseMessage.clone(db),
 		BaseMessageCategory:     q.BaseMessageCategory.clone(db),
@@ -138,6 +156,12 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		BasePolicyEvaluationLog: q.BasePolicyEvaluationLog.clone(db),
 		BasePost:                q.BasePost.clone(db),
 		BaseRole:                q.BaseRole.clone(db),
+		BaseTableArchive:        q.BaseTableArchive.clone(db),
+		BaseTableArchiveRecord:  q.BaseTableArchiveRecord.clone(db),
+		BaseTableArchiveRestore: q.BaseTableArchiveRestore.clone(db),
+		BaseTableBackup:         q.BaseTableBackup.clone(db),
+		BaseTableBackupRecord:   q.BaseTableBackupRecord.clone(db),
+		BaseTableBackupRestore:  q.BaseTableBackupRestore.clone(db),
 		BaseTenant:              q.BaseTenant.clone(db),
 		BaseThirdAccount:        q.BaseThirdAccount.clone(db),
 		BaseUser:                q.BaseUser.clone(db),
@@ -181,6 +205,8 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		BaseJobLog:              q.BaseJobLog.replaceDB(db),
 		BaseLanguage:            q.BaseLanguage.replaceDB(db),
 		BaseLoginLog:            q.BaseLoginLog.replaceDB(db),
+		BaseLoginPolicy:         q.BaseLoginPolicy.replaceDB(db),
+		BaseLoginPolicyRule:     q.BaseLoginPolicyRule.replaceDB(db),
 		BaseMenu:                q.BaseMenu.replaceDB(db),
 		BaseMessage:             q.BaseMessage.replaceDB(db),
 		BaseMessageCategory:     q.BaseMessageCategory.replaceDB(db),
@@ -192,6 +218,12 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		BasePolicyEvaluationLog: q.BasePolicyEvaluationLog.replaceDB(db),
 		BasePost:                q.BasePost.replaceDB(db),
 		BaseRole:                q.BaseRole.replaceDB(db),
+		BaseTableArchive:        q.BaseTableArchive.replaceDB(db),
+		BaseTableArchiveRecord:  q.BaseTableArchiveRecord.replaceDB(db),
+		BaseTableArchiveRestore: q.BaseTableArchiveRestore.replaceDB(db),
+		BaseTableBackup:         q.BaseTableBackup.replaceDB(db),
+		BaseTableBackupRecord:   q.BaseTableBackupRecord.replaceDB(db),
+		BaseTableBackupRestore:  q.BaseTableBackupRestore.replaceDB(db),
 		BaseTenant:              q.BaseTenant.replaceDB(db),
 		BaseThirdAccount:        q.BaseThirdAccount.replaceDB(db),
 		BaseUser:                q.BaseUser.replaceDB(db),
@@ -225,6 +257,8 @@ type queryCtx struct {
 	BaseJobLog              *baseJobLogDo
 	BaseLanguage            *baseLanguageDo
 	BaseLoginLog            *baseLoginLogDo
+	BaseLoginPolicy         *baseLoginPolicyDo
+	BaseLoginPolicyRule     *baseLoginPolicyRuleDo
 	BaseMenu                *baseMenuDo
 	BaseMessage             *baseMessageDo
 	BaseMessageCategory     *baseMessageCategoryDo
@@ -236,6 +270,12 @@ type queryCtx struct {
 	BasePolicyEvaluationLog *basePolicyEvaluationLogDo
 	BasePost                *basePostDo
 	BaseRole                *baseRoleDo
+	BaseTableArchive        *baseTableArchiveDo
+	BaseTableArchiveRecord  *baseTableArchiveRecordDo
+	BaseTableArchiveRestore *baseTableArchiveRestoreDo
+	BaseTableBackup         *baseTableBackupDo
+	BaseTableBackupRecord   *baseTableBackupRecordDo
+	BaseTableBackupRestore  *baseTableBackupRestoreDo
 	BaseTenant              *baseTenantDo
 	BaseThirdAccount        *baseThirdAccountDo
 	BaseUser                *baseUserDo
@@ -269,6 +309,8 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		BaseJobLog:              q.BaseJobLog.WithContext(ctx),
 		BaseLanguage:            q.BaseLanguage.WithContext(ctx),
 		BaseLoginLog:            q.BaseLoginLog.WithContext(ctx),
+		BaseLoginPolicy:         q.BaseLoginPolicy.WithContext(ctx),
+		BaseLoginPolicyRule:     q.BaseLoginPolicyRule.WithContext(ctx),
 		BaseMenu:                q.BaseMenu.WithContext(ctx),
 		BaseMessage:             q.BaseMessage.WithContext(ctx),
 		BaseMessageCategory:     q.BaseMessageCategory.WithContext(ctx),
@@ -280,6 +322,12 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		BasePolicyEvaluationLog: q.BasePolicyEvaluationLog.WithContext(ctx),
 		BasePost:                q.BasePost.WithContext(ctx),
 		BaseRole:                q.BaseRole.WithContext(ctx),
+		BaseTableArchive:        q.BaseTableArchive.WithContext(ctx),
+		BaseTableArchiveRecord:  q.BaseTableArchiveRecord.WithContext(ctx),
+		BaseTableArchiveRestore: q.BaseTableArchiveRestore.WithContext(ctx),
+		BaseTableBackup:         q.BaseTableBackup.WithContext(ctx),
+		BaseTableBackupRecord:   q.BaseTableBackupRecord.WithContext(ctx),
+		BaseTableBackupRestore:  q.BaseTableBackupRestore.WithContext(ctx),
 		BaseTenant:              q.BaseTenant.WithContext(ctx),
 		BaseThirdAccount:        q.BaseThirdAccount.WithContext(ctx),
 		BaseUser:                q.BaseUser.WithContext(ctx),

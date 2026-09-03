@@ -2,7 +2,7 @@
 import { onShow } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import { navigateAppRoute, t } from '@liujitcn/kratos-uni-app-core'
-import { defNotificationService } from '../../../api/base/notification'
+import { defNotificationService } from '../../../api/base/v1/notification'
 import type { Notification } from '../../../rpc/base/v1/notification'
 import { NotificationView } from '../../../rpc/base/v1/notification'
 import { notificationUnreadTotal, refreshNotificationSummary } from '../../../notification'
@@ -120,17 +120,21 @@ async function openDetail(item: Notification) {
       </view>
       <view class="message-filter">
         <input
+          class="message-filter__input"
           v-model="categoryInput"
           type="number"
           :placeholder="t('system.notification.category_filter')"
           @confirm="applyCategoryFilter"
         />
-        <button @tap="applyCategoryFilter">{{ t('common.action.confirm') }}</button>
+        <button class="message-filter__button" @tap="applyCategoryFilter">
+          {{ t('common.action.confirm') }}
+        </button>
         <button
           v-if="
             selectedView !== NotificationView.NOTIFICATION_VIEW_ARCHIVED &&
             notificationUnreadTotal > 0
           "
+          class="message-filter__button message-filter__button--read"
           @tap="markAllRead"
         >
           {{ t('system.notification.mark_all_read') }}
@@ -172,20 +176,31 @@ async function openDetail(item: Notification) {
 
 <style scoped lang="scss">
 .message-page {
+  box-sizing: border-box;
   min-height: 100vh;
-  padding: 24rpx;
-  background: var(--kratos-color-background);
+  padding: 16rpx 24rpx calc(120rpx + env(safe-area-inset-bottom));
+  background: var(--kratos-color-background, #f7f8fa);
+  color: var(--kratos-color-text, #1f2937);
 }
 .message-header {
-  padding: 20rpx 4rpx 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 4rpx 24rpx;
 }
 .message-title {
+  display: block;
   font-size: 40rpx;
   font-weight: 700;
-  color: var(--kratos-color-text);
+  line-height: 1.35;
+  color: var(--kratos-color-text, #1f2937);
 }
 .message-unread {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-width: 36rpx;
+  min-height: 36rpx;
   padding: 4rpx 10rpx;
   border-radius: 18rpx;
   background: #e5484d;
@@ -195,7 +210,7 @@ async function openDetail(item: Notification) {
   text-align: center;
 }
 .message-controls {
-  margin-bottom: 18rpx;
+  margin-bottom: 24rpx;
 }
 .message-tabs,
 .message-filter,
@@ -204,43 +219,89 @@ async function openDetail(item: Notification) {
   align-items: center;
   gap: 12rpx;
 }
+.message-tabs {
+  padding: 6rpx;
+  border-radius: 12rpx;
+  background: #eef1f3;
+}
 .message-tab {
+  box-sizing: border-box;
   flex: 1;
+  min-width: 0;
+  height: 68rpx;
   margin: 0;
   padding: 0 12rpx;
+  border: 0;
+  border-radius: 8rpx;
   background: transparent;
-  color: var(--kratos-color-text-muted);
+  color: var(--kratos-color-text-muted, #6b7280);
   font-size: 26rpx;
+  line-height: 68rpx;
+  white-space: nowrap;
+}
+.message-tab::after,
+.message-filter__button::after,
+.message-item__actions button::after,
+.load-more::after {
+  border: 0;
 }
 .message-tab.active {
-  background: var(--kratos-color-primary);
+  background: var(--kratos-color-primary, #27ba9b);
   color: #fff;
 }
 .message-filter {
-  margin-top: 14rpx;
+  width: 100%;
+  margin-top: 16rpx;
 }
-.message-filter input {
+.message-filter__input {
+  box-sizing: border-box;
   min-width: 0;
   flex: 1;
-  padding: 12rpx 16rpx;
-  border: 1rpx solid var(--kratos-color-border);
+  height: 68rpx;
+  padding: 0 18rpx;
+  border: 1rpx solid var(--kratos-color-border, #e2e8f0);
   border-radius: 8rpx;
+  background: #fff;
+  color: var(--kratos-color-text, #1f2937);
+  font-size: 26rpx;
+  line-height: 68rpx;
 }
-.message-filter button,
+.message-filter__button,
 .message-item__actions button {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  height: 68rpx;
   margin: 0;
-  padding: 0 14rpx;
+  padding: 0 20rpx;
+  border: 0;
+  border-radius: 8rpx;
+  background: #eef1f3;
+  color: var(--kratos-color-text, #1f2937);
   font-size: 24rpx;
+  line-height: 68rpx;
+  white-space: nowrap;
+}
+.message-filter__button--read {
+  background: #e8f8f4;
+  color: var(--kratos-color-primary, #16806d);
 }
 .message-item__actions {
+  flex-wrap: wrap;
   justify-content: flex-end;
   margin-top: 14rpx;
+}
+.message-item__actions button {
+  height: 56rpx;
+  padding: 0 16rpx;
+  font-size: 22rpx;
+  line-height: 56rpx;
 }
 .message-item {
   margin-bottom: 16rpx;
   padding: 28rpx;
   border-radius: 12rpx;
   background: #fff;
+  box-shadow: 0 4rpx 16rpx rgba(31, 41, 55, 0.05);
 }
 .message-item__main {
   display: flex;
@@ -249,33 +310,46 @@ async function openDetail(item: Notification) {
   gap: 20rpx;
 }
 .message-item__title {
+  display: block;
   min-width: 0;
   flex: 1;
   overflow: hidden;
-  color: var(--kratos-color-text);
+  color: var(--kratos-color-text, #1f2937);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .message-item__title.unread {
-  color: var(--kratos-color-text);
+  color: var(--kratos-color-text, #1f2937);
   font-weight: 700;
 }
 .message-item__time,
 .message-item__category {
-  color: var(--kratos-color-text-muted);
+  color: var(--kratos-color-text-muted, #6b7280);
   font-size: 24rpx;
+}
+.message-item__time {
+  flex-shrink: 0;
 }
 .message-item__category {
   display: block;
   margin-top: 14rpx;
 }
 .load-more {
+  box-sizing: border-box;
+  width: 100%;
+  height: 72rpx;
   margin-top: 24rpx;
+  padding: 0 24rpx;
+  border: 0;
+  border-radius: 8rpx;
+  background: #eef1f3;
+  color: var(--kratos-color-text, #1f2937);
   font-size: 28rpx;
+  line-height: 72rpx;
 }
 .empty {
   padding: 120rpx 0;
-  color: var(--kratos-color-text-muted);
+  color: var(--kratos-color-text-muted, #6b7280);
   text-align: center;
 }
 </style>

@@ -1,4 +1,3 @@
-// Package notification 提供站内信发布方使用的稳定接口。
 package notification
 
 import (

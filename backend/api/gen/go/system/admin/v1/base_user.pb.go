@@ -13,6 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
+	v11 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/common/v1"
 	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -633,25 +634,29 @@ func (x *SetBaseUserStatusRequest) GetStatus() int32 {
 
 // 用户
 type BaseUser struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                             // 用户ID
-	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                 // 租户ID
-	UserName      string                 `protobuf:"bytes,3,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                  // 用户账号
-	UserCode      string                 `protobuf:"bytes,11,opt,name=user_code,json=userCode,proto3" json:"user_code,omitempty"`                 // 用户编号
-	NickName      string                 `protobuf:"bytes,4,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                  // 用户昵称
-	RoleId        int64                  `protobuf:"varint,5,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`                       // 角色ID
-	DeptId        int64                  `protobuf:"varint,6,opt,name=dept_id,json=deptId,proto3" json:"dept_id,omitempty"`                       // 部门ID
-	PostId        int64                  `protobuf:"varint,7,opt,name=post_id,json=postId,proto3" json:"post_id,omitempty"`                       // 岗位ID
-	Phone         string                 `protobuf:"bytes,8,opt,name=phone,proto3" json:"phone,omitempty"`                                        // 手机号
-	Gender        BaseUserGender         `protobuf:"varint,9,opt,name=gender,proto3,enum=system.admin.v1.BaseUserGender" json:"gender,omitempty"` // 性别
-	Avatar        string                 `protobuf:"bytes,10,opt,name=avatar,proto3" json:"avatar,omitempty"`                                     // 头像
-	Status        v1.Status              `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`             // 用户状态
-	Remark        string                 `protobuf:"bytes,102,opt,name=remark,proto3" json:"remark,omitempty"`                                    // 备注名
-	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`             // 创建时间
-	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`             // 更新时间
-	IsProtected   bool                   `protobuf:"varint,300,opt,name=is_protected,json=isProtected,proto3" json:"is_protected,omitempty"`      // 是否禁止通过用户管理操作
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state              protoimpl.MessageState           `protogen:"open.v1"`
+	Id                 int64                            `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                                                                  // 用户ID
+	TenantId           int64                            `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                                                                                      // 租户ID
+	UserName           string                           `protobuf:"bytes,3,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                                                                                       // 用户账号
+	UserCode           string                           `protobuf:"bytes,11,opt,name=user_code,json=userCode,proto3" json:"user_code,omitempty"`                                                                                      // 用户编号
+	NickName           string                           `protobuf:"bytes,4,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                                                                                       // 用户昵称
+	RoleId             int64                            `protobuf:"varint,5,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`                                                                                            // 角色ID
+	DeptId             int64                            `protobuf:"varint,6,opt,name=dept_id,json=deptId,proto3" json:"dept_id,omitempty"`                                                                                            // 部门ID
+	PostId             int64                            `protobuf:"varint,7,opt,name=post_id,json=postId,proto3" json:"post_id,omitempty"`                                                                                            // 岗位ID
+	Phone              string                           `protobuf:"bytes,8,opt,name=phone,proto3" json:"phone,omitempty"`                                                                                                             // 手机号
+	Email              string                           `protobuf:"bytes,12,opt,name=email,proto3" json:"email,omitempty"`                                                                                                            // 邮箱
+	IdType             v11.BaseUserIDType               `protobuf:"varint,13,opt,name=id_type,json=idType,proto3,enum=system.common.v1.BaseUserIDType" json:"id_type,omitempty"`                                                      // 证件类型：枚举【BaseUserIDType】
+	IdCode             string                           `protobuf:"bytes,14,opt,name=id_code,json=idCode,proto3" json:"id_code,omitempty"`                                                                                            // 证件号
+	Gender             BaseUserGender                   `protobuf:"varint,9,opt,name=gender,proto3,enum=system.admin.v1.BaseUserGender" json:"gender,omitempty"`                                                                      // 性别
+	Avatar             string                           `protobuf:"bytes,10,opt,name=avatar,proto3" json:"avatar,omitempty"`                                                                                                          // 头像
+	Status             v1.Status                        `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                                                  // 用户状态
+	Remark             string                           `protobuf:"bytes,102,opt,name=remark,proto3" json:"remark,omitempty"`                                                                                                         // 备注名
+	MustChangePassword v11.BaseUserPasswordChangeStatus `protobuf:"varint,103,opt,name=must_change_password,json=mustChangePassword,proto3,enum=system.common.v1.BaseUserPasswordChangeStatus" json:"must_change_password,omitempty"` // 密码修改状态：枚举【BaseUserPasswordChangeStatus】
+	CreatedAt          string                           `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                                                                  // 创建时间
+	UpdatedAt          string                           `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                                                                  // 更新时间
+	IsProtected        bool                             `protobuf:"varint,300,opt,name=is_protected,json=isProtected,proto3" json:"is_protected,omitempty"`                                                                           // 是否禁止通过用户管理操作
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *BaseUser) Reset() {
@@ -747,6 +752,27 @@ func (x *BaseUser) GetPhone() string {
 	return ""
 }
 
+func (x *BaseUser) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *BaseUser) GetIdType() v11.BaseUserIDType {
+	if x != nil {
+		return x.IdType
+	}
+	return v11.BaseUserIDType(0)
+}
+
+func (x *BaseUser) GetIdCode() string {
+	if x != nil {
+		return x.IdCode
+	}
+	return ""
+}
+
 func (x *BaseUser) GetGender() BaseUserGender {
 	if x != nil {
 		return x.Gender
@@ -775,6 +801,13 @@ func (x *BaseUser) GetRemark() string {
 	return ""
 }
 
+func (x *BaseUser) GetMustChangePassword() v11.BaseUserPasswordChangeStatus {
+	if x != nil {
+		return x.MustChangePassword
+	}
+	return v11.BaseUserPasswordChangeStatus(0)
+}
+
 func (x *BaseUser) GetCreatedAt() string {
 	if x != nil {
 		return x.CreatedAt
@@ -799,20 +832,23 @@ func (x *BaseUser) GetIsProtected() bool {
 // 用户表单
 type BaseUserForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                             // 用户ID
-	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                 // 租户ID
-	UserName      string                 `protobuf:"bytes,3,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                  // 用户账号
-	UserCode      string                 `protobuf:"bytes,12,opt,name=user_code,json=userCode,proto3" json:"user_code,omitempty"`                 // 用户编号
-	NickName      string                 `protobuf:"bytes,4,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                  // 用户昵称
-	RoleId        int64                  `protobuf:"varint,5,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`                       // 角色ID
-	DeptId        int64                  `protobuf:"varint,6,opt,name=dept_id,json=deptId,proto3" json:"dept_id,omitempty"`                       // 部门ID
-	PostId        int64                  `protobuf:"varint,10,opt,name=post_id,json=postId,proto3" json:"post_id,omitempty"`                      // 岗位ID
-	Phone         string                 `protobuf:"bytes,7,opt,name=phone,proto3" json:"phone,omitempty"`                                        // 手机号
-	Avatar        string                 `protobuf:"bytes,8,opt,name=avatar,proto3" json:"avatar,omitempty"`                                      // 头像
-	Gender        BaseUserGender         `protobuf:"varint,9,opt,name=gender,proto3,enum=system.admin.v1.BaseUserGender" json:"gender,omitempty"` // 性别
-	Pwd           *v1.PasswordCrypto     `protobuf:"bytes,300,opt,name=pwd,proto3" json:"pwd,omitempty"`                                          // 密码
-	Status        v1.Status              `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`             // 用户状态
-	Remark        string                 `protobuf:"bytes,102,opt,name=remark,proto3" json:"remark,omitempty"`                                    // 备注名
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                             // 用户ID
+	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                                 // 租户ID
+	UserName      string                 `protobuf:"bytes,3,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                                  // 用户账号
+	UserCode      string                 `protobuf:"bytes,12,opt,name=user_code,json=userCode,proto3" json:"user_code,omitempty"`                                 // 用户编号
+	NickName      string                 `protobuf:"bytes,4,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                                  // 用户昵称
+	RoleId        int64                  `protobuf:"varint,5,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`                                       // 角色ID
+	DeptId        int64                  `protobuf:"varint,6,opt,name=dept_id,json=deptId,proto3" json:"dept_id,omitempty"`                                       // 部门ID
+	PostId        int64                  `protobuf:"varint,10,opt,name=post_id,json=postId,proto3" json:"post_id,omitempty"`                                      // 岗位ID
+	Phone         string                 `protobuf:"bytes,7,opt,name=phone,proto3" json:"phone,omitempty"`                                                        // 手机号
+	Email         string                 `protobuf:"bytes,13,opt,name=email,proto3" json:"email,omitempty"`                                                       // 邮箱
+	IdType        v11.BaseUserIDType     `protobuf:"varint,14,opt,name=id_type,json=idType,proto3,enum=system.common.v1.BaseUserIDType" json:"id_type,omitempty"` // 证件类型：枚举【BaseUserIDType】
+	IdCode        string                 `protobuf:"bytes,15,opt,name=id_code,json=idCode,proto3" json:"id_code,omitempty"`                                       // 证件号
+	Avatar        string                 `protobuf:"bytes,8,opt,name=avatar,proto3" json:"avatar,omitempty"`                                                      // 头像
+	Gender        BaseUserGender         `protobuf:"varint,9,opt,name=gender,proto3,enum=system.admin.v1.BaseUserGender" json:"gender,omitempty"`                 // 性别
+	Pwd           *v1.PasswordCrypto     `protobuf:"bytes,300,opt,name=pwd,proto3" json:"pwd,omitempty"`                                                          // 密码
+	Status        v1.Status              `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                             // 用户状态
+	Remark        string                 `protobuf:"bytes,102,opt,name=remark,proto3" json:"remark,omitempty"`                                                    // 备注名
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -906,6 +942,27 @@ func (x *BaseUserForm) GetPostId() int64 {
 func (x *BaseUserForm) GetPhone() string {
 	if x != nil {
 		return x.Phone
+	}
+	return ""
+}
+
+func (x *BaseUserForm) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *BaseUserForm) GetIdType() v11.BaseUserIDType {
+	if x != nil {
+		return x.IdType
+	}
+	return v11.BaseUserIDType(0)
+}
+
+func (x *BaseUserForm) GetIdCode() string {
+	if x != nil {
+		return x.IdCode
 	}
 	return ""
 }
@@ -1230,7 +1287,7 @@ var File_system_admin_v1_base_user_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\n" +
-	"\x1fsystem/admin/v1/base_user.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x19common/v1/analytics.proto\x1a\x14common/v1/enum.proto\x1a\x15common/v1/types.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bbuf/validate/validate.proto\"\x82\x01\n" +
+	"\x1fsystem/admin/v1/base_user.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x19common/v1/analytics.proto\x1a\x14common/v1/enum.proto\x1a\x15common/v1/types.proto\x1a\x1dsystem/common/v1/common.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bbuf/validate/validate.proto\"\x82\x01\n" +
 	"\x15OptionBaseUserRequest\x12)\n" +
 	"\akeyword\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t关键字R\akeyword\x120\n" +
 	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01B\f\n" +
@@ -1265,10 +1322,9 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x82\x01\n" +
 	"\x12GetBaseUserRequest\x12l\n" +
 	"\x02id\x18\x01 \x01(\x03B\\\xbaG\v\x92\x02\b用户ID\xbaHK\xba\x01H\n" +
-	"&system.admin.base.user.get.id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x02id\"\xe2\x01\n" +
+	"&system.admin.base.user.get.id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x02id\"m\n" +
 	"\x15CreateBaseUserRequest\x12T\n" +
-	"\tbase_user\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseUserFormB\x18\xbaG\x0f\x92\x02\f用户表单\xbaH\x03\xc8\x01\x01R\bbaseUser:s\xbaHp\x1an\n" +
-	"*system.admin.base.user.create.pwd.required\x12\x0f请输入密码\x1a/!has(this.base_user) || has(this.base_user.pwd)\"\xcc\x01\n" +
+	"\tbase_user\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseUserFormB\x18\xbaG\x0f\x92\x02\f用户表单\xbaH\x03\xc8\x01\x01R\bbaseUser\"\xcc\x01\n" +
 	"\x15UpdateBaseUserRequest\x12T\n" +
 	"\tbase_user\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseUserFormB\x18\xbaG\x0f\x92\x02\f用户表单\xbaH\x03\xc8\x01\x01R\bbaseUser:]\xbaHZ\x1aX\n" +
 	")system.admin.base.user.update.id.required\x12\x14用户ID不能为空\x1a\x15this.base_user.id > 0\"\x9c\x01\n" +
@@ -1278,7 +1334,7 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\x18SetBaseUserStatusRequest\x12s\n" +
 	"\x02id\x18\x01 \x01(\x03Bc\xbaG\v\x92\x02\b用户ID\xbaHR\xba\x01O\n" +
 	"-system.admin.base.user.set_status.id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x02id\x12$\n" +
-	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xf2\x06\n" +
+	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xef\v\n" +
 	"\bBaseUser\x12w\n" +
 	"\x02id\x18\x01 \x01(\x03Bg\xbaG\v\x92\x02\b用户ID\xbaHV\xba\x01S\n" +
 	"1system.admin.base.user.reset_password.id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x02id\x12+\n" +
@@ -1289,17 +1345,23 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\arole_id\x18\x05 \x01(\x03B\x0e\xbaG\v\x92\x02\b角色IDR\x06roleId\x12'\n" +
 	"\adept_id\x18\x06 \x01(\x03B\x0e\xbaG\v\x92\x02\b部门IDR\x06deptId\x12'\n" +
 	"\apost_id\x18\a \x01(\x03B\x0e\xbaG\v\x92\x02\b岗位IDR\x06postId\x12%\n" +
-	"\x05phone\x18\b \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12E\n" +
+	"\x05phone\x18\b \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12\x92\x01\n" +
+	"\x05email\x18\f \x01(\tB|\xbaG\t\x92\x02\x06邮箱\xbaHm\xba\x01f\n" +
+	".system.admin.base.user.entity.email.max_length\x12 邮箱不能超过 128 个字符\x1a\x12this.size() <= 128r\x02`\x01R\x05email\x12r\n" +
+	"\aid_type\x18\r \x01(\x0e2 .system.common.v1.BaseUserIDTypeB7\xbaG,\x92\x02)证件类型：枚举【BaseUserIDType】\xbaH\x05\x82\x01\x02\x10\x01R\x06idType\x12\xc1\x01\n" +
+	"\aid_code\x18\x0e \x01(\tB\xa7\x01\xbaG\f\x92\x02\t证件号\xbaH\x94\x01\xba\x01\x90\x01\n" +
+	",system.admin.base.user.entity.id_code.format\x12\x1b请输入正确的证件号\x1aCthis.size() == 0 || this.matches('^[A-Za-z0-9][A-Za-z0-9-]{0,63}$')R\x06idCode\x12E\n" +
 	"\x06gender\x18\t \x01(\x0e2\x1f.system.admin.v1.BaseUserGenderB\f\xbaG\t\x92\x02\x06性别R\x06gender\x12$\n" +
 	"\x06avatar\x18\n" +
 	" \x01(\tB\f\xbaG\t\x92\x02\x06头像R\x06avatar\x12=\n" +
 	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\x12\xbaG\x0f\x92\x02\f用户状态R\x06status\x12'\n" +
-	"\x06remark\x18f \x01(\tB\x0f\xbaG\f\x92\x02\t备注名R\x06remark\x122\n" +
+	"\x06remark\x18f \x01(\tB\x0f\xbaG\f\x92\x02\t备注名R\x06remark\x12\xad\x01\n" +
+	"\x14must_change_password\x18g \x01(\x0e2..system.common.v1.BaseUserPasswordChangeStatusBK\xbaG@\x92\x02=密码修改状态：枚举【BaseUserPasswordChangeStatus】\xbaH\x05\x82\x01\x02\x10\x01R\x12mustChangePassword\x122\n" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12N\n" +
-	"\fis_protected\x18\xac\x02 \x01(\bB*\xbaG'\x92\x02$是否禁止通过用户管理操作R\visProtected\"\x85\x0f\n" +
+	"\fis_protected\x18\xac\x02 \x01(\bB*\xbaG'\x92\x02$是否禁止通过用户管理操作R\visProtected\"\xd2\x12\n" +
 	"\fBaseUserForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x12\x87\x01\n" +
 	"\ttenant_id\x18\x02 \x01(\x03Bj\xbaG\v\x92\x02\b租户ID\xbaHY\xba\x01V\n" +
@@ -1319,7 +1381,12 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	" \x01(\x03B\x0e\xbaG\v\x92\x02\b岗位IDR\x06postId\x12\x98\x02\n" +
 	"\x05phone\x18\a \x01(\tB\x81\x02\xbaG\f\x92\x02\t手机号\xbaH\xee\x01\xba\x01g\n" +
 	".system.admin.base.user.entity.phone.max_length\x12\"手机号不能超过 20 个字符\x1a\x11this.size() <= 20\xba\x01\x80\x01\n" +
-	"*system.admin.base.user.entity.phone.format\x12\x1e请输入正确的手机号码\x1a2this.size() == 0 || this.matches('^1[3-9]\\\\d{9}$')R\x05phone\x12\x93\x01\n" +
+	"*system.admin.base.user.entity.phone.format\x12\x1e请输入正确的手机号码\x1a2this.size() == 0 || this.matches('^1[3-9]\\\\d{9}$')R\x05phone\x12\x92\x01\n" +
+	"\x05email\x18\r \x01(\tB|\xbaG\t\x92\x02\x06邮箱\xbaHm\xba\x01f\n" +
+	".system.admin.base.user.entity.email.max_length\x12 邮箱不能超过 128 个字符\x1a\x12this.size() <= 128r\x02`\x01R\x05email\x12r\n" +
+	"\aid_type\x18\x0e \x01(\x0e2 .system.common.v1.BaseUserIDTypeB7\xbaG,\x92\x02)证件类型：枚举【BaseUserIDType】\xbaH\x05\x82\x01\x02\x10\x01R\x06idType\x12\xc1\x01\n" +
+	"\aid_code\x18\x0f \x01(\tB\xa7\x01\xbaG\f\x92\x02\t证件号\xbaH\x94\x01\xba\x01\x90\x01\n" +
+	",system.admin.base.user.entity.id_code.format\x12\x1b请输入正确的证件号\x1aCthis.size() == 0 || this.matches('^[A-Za-z0-9][A-Za-z0-9-]{0,63}$')R\x06idCode\x12\x93\x01\n" +
 	"\x06avatar\x18\b \x01(\tB{\xbaG\t\x92\x02\x06头像\xbaHl\xba\x01i\n" +
 	"/system.admin.base.user.entity.avatar.max_length\x12!头像不能超过 1024 个字符\x1a\x13this.size() <= 1024R\x06avatar\x12M\n" +
 	"\x06gender\x18\t \x01(\x0e2\x1f.system.admin.v1.BaseUserGenderB\x14\xbaG\t\x92\x02\x06性别\xbaH\x05\x82\x01\x02\x10\x01R\x06gender\x12:\n" +
@@ -1383,30 +1450,32 @@ func file_system_admin_v1_base_user_proto_rawDescGZIP() []byte {
 var file_system_admin_v1_base_user_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_system_admin_v1_base_user_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_system_admin_v1_base_user_proto_goTypes = []any{
-	(BaseUserGender)(0),                  // 0: system.admin.v1.BaseUserGender
-	(*OptionBaseUserRequest)(nil),        // 1: system.admin.v1.OptionBaseUserRequest
-	(*ListBaseUserRequest)(nil),          // 2: system.admin.v1.ListBaseUserRequest
-	(*ListBaseUserResponse)(nil),         // 3: system.admin.v1.ListBaseUserResponse
-	(*PageBaseUserRequest)(nil),          // 4: system.admin.v1.PageBaseUserRequest
-	(*PageBaseUserResponse)(nil),         // 5: system.admin.v1.PageBaseUserResponse
-	(*GetBaseUserRequest)(nil),           // 6: system.admin.v1.GetBaseUserRequest
-	(*CreateBaseUserRequest)(nil),        // 7: system.admin.v1.CreateBaseUserRequest
-	(*UpdateBaseUserRequest)(nil),        // 8: system.admin.v1.UpdateBaseUserRequest
-	(*DeleteBaseUserRequest)(nil),        // 9: system.admin.v1.DeleteBaseUserRequest
-	(*SetBaseUserStatusRequest)(nil),     // 10: system.admin.v1.SetBaseUserStatusRequest
-	(*BaseUser)(nil),                     // 11: system.admin.v1.BaseUser
-	(*BaseUserForm)(nil),                 // 12: system.admin.v1.BaseUserForm
-	(*ResetBaseUserPasswordRequest)(nil), // 13: system.admin.v1.ResetBaseUserPasswordRequest
-	(*SetBaseUserAppRoleRequest)(nil),    // 14: system.admin.v1.SetBaseUserAppRoleRequest
-	(*SummaryBaseUserRequest)(nil),       // 15: system.admin.v1.SummaryBaseUserRequest
-	(*SummaryBaseUserResponse)(nil),      // 16: system.admin.v1.SummaryBaseUserResponse
-	(*BaseUserSummaryItem)(nil),          // 17: system.admin.v1.BaseUserSummaryItem
-	(v1.Status)(0),                       // 18: common.v1.Status
-	(*v1.PasswordCrypto)(nil),            // 19: common.v1.PasswordCrypto
-	(*timestamppb.Timestamp)(nil),        // 20: google.protobuf.Timestamp
-	(v1.AnalyticsTimeType)(0),            // 21: common.v1.AnalyticsTimeType
-	(*v1.SelectOptionResponse)(nil),      // 22: common.v1.SelectOptionResponse
-	(*emptypb.Empty)(nil),                // 23: google.protobuf.Empty
+	(BaseUserGender)(0),                   // 0: system.admin.v1.BaseUserGender
+	(*OptionBaseUserRequest)(nil),         // 1: system.admin.v1.OptionBaseUserRequest
+	(*ListBaseUserRequest)(nil),           // 2: system.admin.v1.ListBaseUserRequest
+	(*ListBaseUserResponse)(nil),          // 3: system.admin.v1.ListBaseUserResponse
+	(*PageBaseUserRequest)(nil),           // 4: system.admin.v1.PageBaseUserRequest
+	(*PageBaseUserResponse)(nil),          // 5: system.admin.v1.PageBaseUserResponse
+	(*GetBaseUserRequest)(nil),            // 6: system.admin.v1.GetBaseUserRequest
+	(*CreateBaseUserRequest)(nil),         // 7: system.admin.v1.CreateBaseUserRequest
+	(*UpdateBaseUserRequest)(nil),         // 8: system.admin.v1.UpdateBaseUserRequest
+	(*DeleteBaseUserRequest)(nil),         // 9: system.admin.v1.DeleteBaseUserRequest
+	(*SetBaseUserStatusRequest)(nil),      // 10: system.admin.v1.SetBaseUserStatusRequest
+	(*BaseUser)(nil),                      // 11: system.admin.v1.BaseUser
+	(*BaseUserForm)(nil),                  // 12: system.admin.v1.BaseUserForm
+	(*ResetBaseUserPasswordRequest)(nil),  // 13: system.admin.v1.ResetBaseUserPasswordRequest
+	(*SetBaseUserAppRoleRequest)(nil),     // 14: system.admin.v1.SetBaseUserAppRoleRequest
+	(*SummaryBaseUserRequest)(nil),        // 15: system.admin.v1.SummaryBaseUserRequest
+	(*SummaryBaseUserResponse)(nil),       // 16: system.admin.v1.SummaryBaseUserResponse
+	(*BaseUserSummaryItem)(nil),           // 17: system.admin.v1.BaseUserSummaryItem
+	(v1.Status)(0),                        // 18: common.v1.Status
+	(v11.BaseUserIDType)(0),               // 19: system.common.v1.BaseUserIDType
+	(v11.BaseUserPasswordChangeStatus)(0), // 20: system.common.v1.BaseUserPasswordChangeStatus
+	(*v1.PasswordCrypto)(nil),             // 21: common.v1.PasswordCrypto
+	(*timestamppb.Timestamp)(nil),         // 22: google.protobuf.Timestamp
+	(v1.AnalyticsTimeType)(0),             // 23: common.v1.AnalyticsTimeType
+	(*v1.SelectOptionResponse)(nil),       // 24: common.v1.SelectOptionResponse
+	(*emptypb.Empty)(nil),                 // 25: google.protobuf.Empty
 }
 var file_system_admin_v1_base_user_proto_depIdxs = []int32{
 	11, // 0: system.admin.v1.ListBaseUserResponse.base_users:type_name -> system.admin.v1.BaseUser
@@ -1415,43 +1484,46 @@ var file_system_admin_v1_base_user_proto_depIdxs = []int32{
 	11, // 3: system.admin.v1.PageBaseUserResponse.base_users:type_name -> system.admin.v1.BaseUser
 	12, // 4: system.admin.v1.CreateBaseUserRequest.base_user:type_name -> system.admin.v1.BaseUserForm
 	12, // 5: system.admin.v1.UpdateBaseUserRequest.base_user:type_name -> system.admin.v1.BaseUserForm
-	0,  // 6: system.admin.v1.BaseUser.gender:type_name -> system.admin.v1.BaseUserGender
-	18, // 7: system.admin.v1.BaseUser.status:type_name -> common.v1.Status
-	0,  // 8: system.admin.v1.BaseUserForm.gender:type_name -> system.admin.v1.BaseUserGender
-	19, // 9: system.admin.v1.BaseUserForm.pwd:type_name -> common.v1.PasswordCrypto
-	18, // 10: system.admin.v1.BaseUserForm.status:type_name -> common.v1.Status
-	19, // 11: system.admin.v1.ResetBaseUserPasswordRequest.pwd:type_name -> common.v1.PasswordCrypto
-	20, // 12: system.admin.v1.SummaryBaseUserRequest.start_at:type_name -> google.protobuf.Timestamp
-	20, // 13: system.admin.v1.SummaryBaseUserRequest.end_at:type_name -> google.protobuf.Timestamp
-	21, // 14: system.admin.v1.SummaryBaseUserRequest.time_type:type_name -> common.v1.AnalyticsTimeType
-	17, // 15: system.admin.v1.SummaryBaseUserResponse.summaries:type_name -> system.admin.v1.BaseUserSummaryItem
-	1,  // 16: system.admin.v1.BaseUserService.OptionBaseUser:input_type -> system.admin.v1.OptionBaseUserRequest
-	2,  // 17: system.admin.v1.BaseUserService.ListBaseUser:input_type -> system.admin.v1.ListBaseUserRequest
-	4,  // 18: system.admin.v1.BaseUserService.PageBaseUser:input_type -> system.admin.v1.PageBaseUserRequest
-	6,  // 19: system.admin.v1.BaseUserService.GetBaseUser:input_type -> system.admin.v1.GetBaseUserRequest
-	7,  // 20: system.admin.v1.BaseUserService.CreateBaseUser:input_type -> system.admin.v1.CreateBaseUserRequest
-	8,  // 21: system.admin.v1.BaseUserService.UpdateBaseUser:input_type -> system.admin.v1.UpdateBaseUserRequest
-	9,  // 22: system.admin.v1.BaseUserService.DeleteBaseUser:input_type -> system.admin.v1.DeleteBaseUserRequest
-	10, // 23: system.admin.v1.BaseUserService.SetBaseUserStatus:input_type -> system.admin.v1.SetBaseUserStatusRequest
-	13, // 24: system.admin.v1.BaseUserService.ResetBaseUserPassword:input_type -> system.admin.v1.ResetBaseUserPasswordRequest
-	14, // 25: system.admin.v1.BaseUserService.SetBaseUserAppRole:input_type -> system.admin.v1.SetBaseUserAppRoleRequest
-	15, // 26: system.admin.v1.BaseUserService.SummaryBaseUser:input_type -> system.admin.v1.SummaryBaseUserRequest
-	22, // 27: system.admin.v1.BaseUserService.OptionBaseUser:output_type -> common.v1.SelectOptionResponse
-	3,  // 28: system.admin.v1.BaseUserService.ListBaseUser:output_type -> system.admin.v1.ListBaseUserResponse
-	5,  // 29: system.admin.v1.BaseUserService.PageBaseUser:output_type -> system.admin.v1.PageBaseUserResponse
-	12, // 30: system.admin.v1.BaseUserService.GetBaseUser:output_type -> system.admin.v1.BaseUserForm
-	23, // 31: system.admin.v1.BaseUserService.CreateBaseUser:output_type -> google.protobuf.Empty
-	23, // 32: system.admin.v1.BaseUserService.UpdateBaseUser:output_type -> google.protobuf.Empty
-	23, // 33: system.admin.v1.BaseUserService.DeleteBaseUser:output_type -> google.protobuf.Empty
-	23, // 34: system.admin.v1.BaseUserService.SetBaseUserStatus:output_type -> google.protobuf.Empty
-	23, // 35: system.admin.v1.BaseUserService.ResetBaseUserPassword:output_type -> google.protobuf.Empty
-	23, // 36: system.admin.v1.BaseUserService.SetBaseUserAppRole:output_type -> google.protobuf.Empty
-	16, // 37: system.admin.v1.BaseUserService.SummaryBaseUser:output_type -> system.admin.v1.SummaryBaseUserResponse
-	27, // [27:38] is the sub-list for method output_type
-	16, // [16:27] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	19, // 6: system.admin.v1.BaseUser.id_type:type_name -> system.common.v1.BaseUserIDType
+	0,  // 7: system.admin.v1.BaseUser.gender:type_name -> system.admin.v1.BaseUserGender
+	18, // 8: system.admin.v1.BaseUser.status:type_name -> common.v1.Status
+	20, // 9: system.admin.v1.BaseUser.must_change_password:type_name -> system.common.v1.BaseUserPasswordChangeStatus
+	19, // 10: system.admin.v1.BaseUserForm.id_type:type_name -> system.common.v1.BaseUserIDType
+	0,  // 11: system.admin.v1.BaseUserForm.gender:type_name -> system.admin.v1.BaseUserGender
+	21, // 12: system.admin.v1.BaseUserForm.pwd:type_name -> common.v1.PasswordCrypto
+	18, // 13: system.admin.v1.BaseUserForm.status:type_name -> common.v1.Status
+	21, // 14: system.admin.v1.ResetBaseUserPasswordRequest.pwd:type_name -> common.v1.PasswordCrypto
+	22, // 15: system.admin.v1.SummaryBaseUserRequest.start_at:type_name -> google.protobuf.Timestamp
+	22, // 16: system.admin.v1.SummaryBaseUserRequest.end_at:type_name -> google.protobuf.Timestamp
+	23, // 17: system.admin.v1.SummaryBaseUserRequest.time_type:type_name -> common.v1.AnalyticsTimeType
+	17, // 18: system.admin.v1.SummaryBaseUserResponse.summaries:type_name -> system.admin.v1.BaseUserSummaryItem
+	1,  // 19: system.admin.v1.BaseUserService.OptionBaseUser:input_type -> system.admin.v1.OptionBaseUserRequest
+	2,  // 20: system.admin.v1.BaseUserService.ListBaseUser:input_type -> system.admin.v1.ListBaseUserRequest
+	4,  // 21: system.admin.v1.BaseUserService.PageBaseUser:input_type -> system.admin.v1.PageBaseUserRequest
+	6,  // 22: system.admin.v1.BaseUserService.GetBaseUser:input_type -> system.admin.v1.GetBaseUserRequest
+	7,  // 23: system.admin.v1.BaseUserService.CreateBaseUser:input_type -> system.admin.v1.CreateBaseUserRequest
+	8,  // 24: system.admin.v1.BaseUserService.UpdateBaseUser:input_type -> system.admin.v1.UpdateBaseUserRequest
+	9,  // 25: system.admin.v1.BaseUserService.DeleteBaseUser:input_type -> system.admin.v1.DeleteBaseUserRequest
+	10, // 26: system.admin.v1.BaseUserService.SetBaseUserStatus:input_type -> system.admin.v1.SetBaseUserStatusRequest
+	13, // 27: system.admin.v1.BaseUserService.ResetBaseUserPassword:input_type -> system.admin.v1.ResetBaseUserPasswordRequest
+	14, // 28: system.admin.v1.BaseUserService.SetBaseUserAppRole:input_type -> system.admin.v1.SetBaseUserAppRoleRequest
+	15, // 29: system.admin.v1.BaseUserService.SummaryBaseUser:input_type -> system.admin.v1.SummaryBaseUserRequest
+	24, // 30: system.admin.v1.BaseUserService.OptionBaseUser:output_type -> common.v1.SelectOptionResponse
+	3,  // 31: system.admin.v1.BaseUserService.ListBaseUser:output_type -> system.admin.v1.ListBaseUserResponse
+	5,  // 32: system.admin.v1.BaseUserService.PageBaseUser:output_type -> system.admin.v1.PageBaseUserResponse
+	12, // 33: system.admin.v1.BaseUserService.GetBaseUser:output_type -> system.admin.v1.BaseUserForm
+	25, // 34: system.admin.v1.BaseUserService.CreateBaseUser:output_type -> google.protobuf.Empty
+	25, // 35: system.admin.v1.BaseUserService.UpdateBaseUser:output_type -> google.protobuf.Empty
+	25, // 36: system.admin.v1.BaseUserService.DeleteBaseUser:output_type -> google.protobuf.Empty
+	25, // 37: system.admin.v1.BaseUserService.SetBaseUserStatus:output_type -> google.protobuf.Empty
+	25, // 38: system.admin.v1.BaseUserService.ResetBaseUserPassword:output_type -> google.protobuf.Empty
+	25, // 39: system.admin.v1.BaseUserService.SetBaseUserAppRole:output_type -> google.protobuf.Empty
+	16, // 40: system.admin.v1.BaseUserService.SummaryBaseUser:output_type -> system.admin.v1.SummaryBaseUserResponse
+	30, // [30:41] is the sub-list for method output_type
+	19, // [19:30] is the sub-list for method input_type
+	19, // [19:19] is the sub-list for extension type_name
+	19, // [19:19] is the sub-list for extension extendee
+	0,  // [0:19] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_user_proto_init() }

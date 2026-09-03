@@ -13,7 +13,7 @@
         <el-button :icon="customIcons[iconValue]" />
       </template>
     </el-input>
-    <el-dialog v-model="dialogVisible" :title="placeholder" top="50px" width="760px">
+    <ProDialog v-model="dialogVisible" :title="placeholder" top="50px" width="760px" :show-footer="false">
       <el-input v-model="inputValue" :placeholder="t('core.icon.search')" size="large" :prefix-icon="Icons.Search" />
       <el-scrollbar v-if="Object.keys(iconsList).length">
         <div class="icon-list">
@@ -24,13 +24,14 @@
         </div>
       </el-scrollbar>
       <el-empty v-else :description="t('core.icon.empty')" />
-    </el-dialog>
+    </ProDialog>
   </div>
 </template>
 
 <script setup lang="ts" name="SelectIcon">
 import { ref, computed, watch } from "vue";
 import * as Icons from "@element-plus/icons-vue";
+import ProDialog from "@/components/Dialog/ProDialog.vue";
 import { useLocaleStore } from "@/locales";
 
 const { t } = useLocaleStore();

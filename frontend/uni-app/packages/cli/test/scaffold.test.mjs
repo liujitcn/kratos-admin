@@ -11,6 +11,7 @@ test('生成默认 system、本地模块和发布模块', () => {
   scaffoldKratosApp(target, { modules: ['orders'], packages: ['@acme/pay'] })
   const manifest = readFileSync(resolve(target, 'apps/uni-app/src/module-manifest.ts'), 'utf8')
   const main = readFileSync(resolve(target, 'apps/uni-app/src/main.ts'), 'utf8')
+  const viteConfig = readFileSync(resolve(target, 'apps/uni-app/vite.config.ts'), 'utf8')
   const cliPackage = JSON.parse(
     readFileSync(resolve(import.meta.dirname, '../package.json'), 'utf8'),
   )
@@ -25,6 +26,7 @@ test('生成默认 system、本地模块和发布模块', () => {
   assert.match(main, /registerKratosAppModules\(moduleManifest\)[\s\S]+export function createApp/)
   assert.match(main, /registerUserStoreExtension\(\{[\s\S]+onLogin: initializeAppNavigation/)
   assert.match(main, /bootstrapKratosApp\(\{ app: App, createSSRApp,/)
+  assert.match(viteConfig, /server: \{ open: true \}/)
   assert.equal(hostPackage.dependencies['@liujitcn/kratos-uni-app-core'], `^${cliPackage.version}`)
   assert.equal(
     hostPackage.dependencies['@liujitcn/kratos-uni-app-system'],

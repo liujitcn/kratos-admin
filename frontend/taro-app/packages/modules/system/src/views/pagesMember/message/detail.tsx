@@ -2,7 +2,7 @@ import { useLoad } from '@tarojs/taro'
 import { Button, RichText, Text, View } from '@tarojs/components'
 import { useState } from 'react'
 import { navigateAppView, t } from '@liujitcn/kratos-taro-app-core'
-import { defNotificationService } from '../../../api/base/notification'
+import { defNotificationService } from '../../../api/base/v1/notification'
 import type { Notification } from '../../../rpc/base/v1/notification'
 import { MessageActionType, MessageContentFormat } from '../../../rpc/base/v1/notification'
 import './message.scss'
@@ -13,7 +13,7 @@ export default function MessageDetailPage() {
 
   useLoad((options) => {
     const id = Number(options?.id)
-    if (id > 0) void loadDetail(id)
+    if (id > 0) void loadDetail(id).catch(() => undefined)
   })
 
   /** 加载站内信详情。 */

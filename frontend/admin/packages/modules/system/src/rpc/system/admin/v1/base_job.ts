@@ -5,18 +5,13 @@
 // source: system/admin/v1/base_job.proto
 
 /* eslint-disable */
+import type { SelectOptionResponse } from "../../../common/v1/common";
 import type { Status } from "../../../common/v1/enum";
 import type { Empty } from "../../../google/protobuf/empty";
 import type { BaseI18n } from "./base_i18n";
 
-/** 定时任务日志状态。 */
-export enum BaseJobLogStatus {
-  /** BASE_JOB_LOG_STATUS_UNSPECIFIED - 未指定定时任务日志状态。 */
-  BASE_JOB_LOG_STATUS_UNSPECIFIED = 0,
-  /** BASE_JOB_LOG_STATUS_SUCCESS - 成功。 */
-  BASE_JOB_LOG_STATUS_SUCCESS = 1,
-  /** BASE_JOB_LOG_STATUS_FAIL - 失败。 */
-  BASE_JOB_LOG_STATUS_FAIL = 2,
+/** 定时任务选项查询条件 */
+export interface OptionBaseJobRequest {
 }
 
 /** 定时任务分页查询条件 */
@@ -43,30 +38,6 @@ export interface PageBaseJobResponse {
   total: number;
 }
 
-/** 定时任务日志分页查询条件 */
-export interface PageBaseJobLogRequest {
-  /** 任务ID */
-  job_id: number;
-  /** 状态 */
-  status?:
-    | BaseJobLogStatus
-    | undefined;
-  /** 执行时间 */
-  execute_time: string[];
-  /** 当前页码 */
-  page_num: number;
-  /** 每一页的行数 */
-  page_size: number;
-}
-
-/** 定时任务日志分页响应 */
-export interface PageBaseJobLogResponse {
-  /** 分页数据 */
-  base_job_logs: BaseJobLog[];
-  /** 总数 */
-  total: number;
-}
-
 /** 查询定时任务请求参数 */
 export interface GetBaseJobRequest {
   /** 任务ID */
@@ -89,32 +60,6 @@ export interface BaseJobForm {
   status: Status;
   /** 定时任务名称多语言翻译 */
   i18ns: BaseI18n[];
-}
-
-/** 查询定时任务日志请求参数 */
-export interface GetBaseJobLogRequest {
-  /** 任务日志ID */
-  id: number;
-}
-
-/** 定时任务日志 */
-export interface BaseJobLog {
-  /** 任务日志ID */
-  id: number;
-  /** 任务ID */
-  job_id: number;
-  /** 执行参数 */
-  input: string;
-  /** 输出结果 */
-  output: string;
-  /** 错误信息 */
-  error: string;
-  /** 状态：1、成功。2、失败。 */
-  status: BaseJobLogStatus;
-  /** 消耗时间/毫秒 */
-  process_time: string;
-  /** 执行时间 */
-  execute_time: string;
 }
 
 /** 创建定时任务请求参数 */
@@ -195,14 +140,12 @@ export interface BaseJob {
 
 /** Admin定时任务服务 */
 export interface BaseJobService {
+  /** 查询定时任务下拉选择 */
+  OptionBaseJob(request: OptionBaseJobRequest): Promise<SelectOptionResponse>;
   /** 查询定时任务分页列表 */
   PageBaseJob(request: PageBaseJobRequest): Promise<PageBaseJobResponse>;
-  /** 查询定时任务日志分页列表 */
-  PageBaseJobLog(request: PageBaseJobLogRequest): Promise<PageBaseJobLogResponse>;
   /** 查询定时任务 */
   GetBaseJob(request: GetBaseJobRequest): Promise<BaseJobForm>;
-  /** 查询定时任务日志 */
-  GetBaseJobLog(request: GetBaseJobLogRequest): Promise<BaseJobLog>;
   /** 创建定时任务 */
   CreateBaseJob(request: CreateBaseJobRequest): Promise<Empty>;
   /** 更新定时任务 */

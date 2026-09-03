@@ -4,36 +4,36 @@ import test from 'node:test'
 import { buildMenuTree, resolveRootMenuId } from '../src/navigation-tree.mjs'
 
 const menus = [
-  { id: 99901, parentId: 999, name: 'AppHome' },
-  { id: 99909, parentId: 999, name: 'AppMy' },
-  { id: 9990101, parentId: 99901, name: 'AppLogin' },
-  { id: 999010101, parentId: 9990101, name: 'AppProtocol' },
-  { id: 9990901, parentId: 99909, name: 'AppProfile' },
+  { id: 99010000, parentId: 99000000, name: 'AppHome' },
+  { id: 99090000, parentId: 99000000, name: 'AppMy' },
+  { id: 99010100, parentId: 99010000, name: 'AppLogin' },
+  { id: 99010101, parentId: 99010100, name: 'AppProtocol' },
+  { id: 99090100, parentId: 99090000, name: 'AppProfile' },
 ]
 
 test('按上下级关系构建移动端菜单树', () => {
-  const tree = buildMenuTree(menus, 999)
+  const tree = buildMenuTree(menus, 99000000)
 
   assert.deepEqual(
     tree.map((menu) => menu.id),
-    [99901, 99909],
+    [99010000, 99090000],
   )
   assert.deepEqual(
     tree[0].children.map((menu) => menu.id),
-    [9990101],
+    [99010100],
   )
   assert.deepEqual(
     tree[0].children[0].children.map((menu) => menu.id),
-    [999010101],
+    [99010101],
   )
   assert.deepEqual(
     tree[1].children.map((menu) => menu.id),
-    [9990901],
+    [99090100],
   )
 })
 
 test('嵌套页面沿父级关系归属二级 tab', () => {
-  assert.equal(resolveRootMenuId(menus, 999010101, 999), 99901)
-  assert.equal(resolveRootMenuId(menus, 9990901, 999), 99909)
-  assert.equal(resolveRootMenuId(menus, 12345, 999), undefined)
+  assert.equal(resolveRootMenuId(menus, 99010101, 99000000), 99010000)
+  assert.equal(resolveRootMenuId(menus, 99090100, 99000000), 99090000)
+  assert.equal(resolveRootMenuId(menus, 12345, 99000000), undefined)
 })

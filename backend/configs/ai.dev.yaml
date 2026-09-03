@@ -1,0 +1,11 @@
+ai:
+    model:
+        cloud:
+            api_key: ENC[WGq6Ri6UWanjeoYmcgrWLt5UsWq-hR0NDBWa33Dm9rfBVqC6rSZkBrm5rWVLYnt2KE9dTR3KXjqIUU_DaQBUVu8rDHDAy_oh31CBwUaDako4o8FpJ4Lt17gNDfiM6rI]
+            base_url: http://subapi.openclawrouter.site/v1
+        max_retries: 2
+        max_tokens: 1024
+        model_name: gpt-5.6
+        temperature: 0.2
+        timeout_seconds: 60
+        type: CLOUD_MODEL

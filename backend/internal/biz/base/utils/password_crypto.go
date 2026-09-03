@@ -3,7 +3,6 @@ package utils
 import (
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"time"
 	"uuid"
 
@@ -22,11 +21,12 @@ const (
 )
 
 var passwordCryptoSceneSet = map[basev1.PasswordCryptoScene]struct{}{
-	basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_LOGIN:                    {},
-	basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER:         {},
-	basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD: {},
-	basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD:     {},
-	basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_MFA:                      {},
+	basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_LOGIN:                     {},
+	basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER:          {},
+	basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD:  {},
+	basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD:      {},
+	basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_MFA:                       {},
+	basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_CONFIGURE_PASSWORD_POLICY: {},
 }
 
 type passwordCryptoKeyRecord struct {
@@ -155,18 +155,6 @@ func DecryptPassword(cacheClient cache.Cache, password *commonv1.PasswordCrypto,
 		return "", errorsx.InvalidArgument("密码解密失败").WithCause(err)
 	}
 	return string(plaintext), nil
-}
-
-// GetDefaultPassword 生成默认密码
-func GetDefaultPassword(userName, phone string) string {
-	prefix := phone
-	// 取手机号后4位
-	if len(phone) > 4 {
-		prefix = phone[len(phone)-4:]
-	}
-	// 不足4位左补0
-	prefix = ("0000" + prefix)[len(prefix):]
-	return fmt.Sprintf("%s@%s", userName, prefix)
 }
 
 // makePasswordCryptoCacheKey 生成临时密码密钥缓存键。

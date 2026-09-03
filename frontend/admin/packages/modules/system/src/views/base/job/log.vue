@@ -45,11 +45,12 @@ import { InfoFilled } from "@element-plus/icons-vue";
 import type { ColumnProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
-import { defBaseJobService } from "@liujitcn/kratos-admin-system/api/system/base_job";
+import { defBaseJobService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_job";
+import { defBaseJobLogService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_job_log";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
 import { formatJson } from "@liujitcn/kratos-admin-core/format";
-import type { BaseJobLog, PageBaseJobLogRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_job";
-import { BaseJobLogStatus } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_job";
+import type { BaseJobLog, PageBaseJobLogRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_job_log";
+import { BaseJobLogStatus } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_job_log";
 import { t } from "@liujitcn/kratos-admin-core";
 
 defineOptions({
@@ -59,7 +60,7 @@ defineOptions({
 
 const route = useRoute();
 const proTable = ref<ProTableInstance>();
-const jobId = ref(Number(route.query.jobId ?? 0));
+const initialJobID = Number(route.query.jobId ?? 0);
 
 const dialog = reactive({
   visible: false
@@ -91,6 +92,18 @@ const detail = reactive<BaseJobLog>(createDefaultDetail());
 
 /** 定时任务日志表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
+  {
+    prop: "job_id",
+    label: t("system.base.job.field.name"),
+    minWidth: 180,
+    search: {
+      el: "select",
+      defaultValue: initialJobID > 0 ? initialJobID : undefined,
+      props: { clearable: true, filterable: true },
+      order: 1
+    },
+    enum: requestBaseJobOptions
+  },
   {
     prop: "status",
     label: t("common.field.status"),
@@ -137,16 +150,30 @@ const columns = computed<ColumnProps[]>(() => [
 watch(
   () => route.query.jobId,
   value => {
-    jobId.value = Number(value ?? 0);
-    proTable.value?.search();
+    const nextJobID = Number(value ?? 0);
+    if (!proTable.value) return;
+    if (nextJobID > 0) {
+      proTable.value.searchParam.job_id = nextJobID;
+      proTable.value.searchInitParam.job_id = nextJobID;
+    } else {
+      delete proTable.value.searchParam.job_id;
+      delete proTable.value.searchInitParam.job_id;
+    }
+    proTable.value.search();
   }
 );
 
+/** 请求定时任务筛选选项。 */
+async function requestBaseJobOptions() {
+  const data = await defBaseJobService.OptionBaseJob({});
+  return { data: data.list ?? [] };
+}
+
 /**
- * 请求定时任务日志列表，并补充当前任务 ID。
+ * 请求定时任务日志列表。
  */
 async function requestBaseJobLogTable(params: PageBaseJobLogRequest) {
-  const data = await defBaseJobService.PageBaseJobLog({ ...buildPageRequest(params), job_id: jobId.value });
+  const data = await defBaseJobLogService.PageBaseJobLog(buildPageRequest(params));
   return { data: { list: data.base_job_logs ?? [], total: data.total } };
 }
 
@@ -158,7 +185,7 @@ function handleOpenDialog(logId?: number) {
   dialog.visible = true;
   if (!logId) return;
 
-  defBaseJobService.GetBaseJobLog({ id: logId }).then(data => {
+  defBaseJobLogService.GetBaseJobLog({ id: logId }).then(data => {
     Object.assign(detail, data);
   });
 }
@@ -185,7 +212,7 @@ function resetDetail() {
   padding: 20px;
   overflow-y: auto;
   background: #ffffff;
-  border-radius: 4px;
+  border-radius: var(--admin-page-radius);
 }
 .mt-4 {
   margin-top: 16px;
@@ -196,6 +223,6 @@ function resetDetail() {
   margin: 0;
   overflow: auto;
   background: #f5f7fa;
-  border-radius: 4px;
+  border-radius: var(--admin-page-radius);
 }
 </style>

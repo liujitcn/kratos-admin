@@ -30,9 +30,9 @@
           </span>
         </template>
       </el-table-column>
-      <el-table-column :label="t('common.field.operation')" width="200" fixed="right">
+      <el-table-column v-if="editable" :label="t('common.field.operation')" width="200" fixed="right">
         <template #default="{ row }">
-          <el-button v-if="!row.editing" link type="primary" :icon="EditPen" @click="startEdit(row)">
+          <el-button v-if="editable && !row.editing" link type="primary" :icon="EditPen" @click="startEdit(row)">
             {{ t("common.action.edit") }}
           </el-button>
           <template v-else>
@@ -55,8 +55,8 @@ import { ElMessage } from "element-plus";
 import { Check, Close, EditPen } from "@element-plus/icons-vue";
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import { t, useLocaleStore } from "@liujitcn/kratos-admin-core";
-import { loadEnabledBaseLanguages, useEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
-import { defBaseI18nService } from "@liujitcn/kratos-admin-system/api/system/base_i18n";
+import { loadEnabledBaseLanguages, useEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_language";
+import { defBaseI18nService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_i18n";
 import type { BaseI18n } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { I18nTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { getLanguageLabel } from "./dynamicI18n";
@@ -71,9 +71,15 @@ interface DynamicI18nCellProps {
   targetId?: number;
   /** 资源列表返回的非主语言翻译。 */
   i18ns?: BaseI18n[];
+  /** 是否允许编辑翻译。 */
+  editable?: boolean;
 }
 
-const props = defineProps<DynamicI18nCellProps>();
+const props = withDefaults(defineProps<DynamicI18nCellProps>(), {
+  editable: true
+});
+
+const editable = computed(() => props.editable);
 
 const { languages } = useEnabledBaseLanguages();
 const { locale } = useLocaleStore();
@@ -130,6 +136,7 @@ async function loadI18ns() {
     await loadEnabledBaseLanguages();
     const rows = await queryI18nRows();
     i18nRows.value = rows;
+    if (!props.editable) return;
     const missingRows = rows.filter(row => !row.text);
     if (missingRows.length === 0) return;
     if (!props.source) return;
@@ -183,6 +190,7 @@ async function queryI18nRows(): Promise<DynamicI18nRow[]> {
 
 /** startEdit 开启指定语言的编辑状态。 */
 function startEdit(row: DynamicI18nRow) {
+  if (!props.editable) return;
   row.originalText = row.text;
   row.editing = true;
 }
@@ -197,7 +205,7 @@ function cancelEdit(row: DynamicI18nRow) {
 async function saveI18n(row: DynamicI18nRow) {
   const targetType = props.targetType;
   const targetId = props.targetId;
-  if (row.saving || !targetType || !targetId) return;
+  if (!props.editable || row.saving || !targetType || !targetId) return;
   if (row.id === 0 && !row.text) {
     row.editing = false;
     return;

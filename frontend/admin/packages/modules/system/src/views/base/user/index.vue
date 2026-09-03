@@ -69,21 +69,22 @@ import PasswordStrength from "@liujitcn/kratos-admin-core/components/PasswordStr
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import TreeFilter from "@liujitcn/kratos-admin-core/components/TreeFilter/index.vue";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
-import { defBaseUserService } from "@liujitcn/kratos-admin-system/api/system/base_user";
+import { defBaseUserService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_user";
 import type {
   BaseUser,
   BaseUserForm,
   PageBaseUserRequest,
   ResetBaseUserPasswordRequest
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_user";
-import { defBaseDeptService } from "@liujitcn/kratos-admin-system/api/system/base_dept";
-import { defBaseRoleService } from "@liujitcn/kratos-admin-system/api/system/base_role";
-import { defBasePostService } from "@liujitcn/kratos-admin-system/api/system/base_post";
-import { defBaseTenantService } from "@liujitcn/kratos-admin-system/api/system/base_tenant";
+import { BaseUserIDType } from "@liujitcn/kratos-admin-system/rpc/system/common/v1/common";
+import { defBaseDeptService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_dept";
+import { defBaseRoleService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_role";
+import { defBasePostService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_post";
+import { defBaseTenantService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_tenant";
 import type { SelectOptionResponse_Option, TreeOptionResponse_Option } from "@liujitcn/kratos-admin-system/rpc/common/v1/common";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
-import { PASSWORD_CRYPTO_SCENE, encryptPassword, validatePasswordStrengthValue } from "@liujitcn/kratos-admin-core/security";
+import { PASSWORD_CRYPTO_SCENE, encryptPassword } from "@liujitcn/kratos-admin-core/security";
 import { DEFAULT_TENANT_CODE, requestTenantOptions } from "@liujitcn/kratos-admin-core/tenant";
 import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { t } from "@liujitcn/kratos-admin-core";
@@ -159,6 +160,12 @@ const formData = reactive<BaseUserFormState>({
   post_id: undefined,
   /** 手机号 */
   phone: "",
+  /** 邮箱 */
+  email: "",
+  /** 证件类型 */
+  id_type: BaseUserIDType.BASE_USER_ID_TYPE_UNSPECIFIED,
+  /** 证件号 */
+  id_code: "",
   /** 密码 */
   pwd: "",
   /** 性别 */
@@ -242,9 +249,22 @@ const rules = computed(() => ({
       trigger: "blur"
     }
   ],
+  email: [
+    {
+      type: "email",
+      message: t("system.base.user.validation.email_invalid"),
+      trigger: "blur"
+    }
+  ],
+  id_code: [
+    {
+      pattern: /^[A-Za-z0-9][A-Za-z0-9-]{0,63}$/,
+      message: t("system.base.user.validation.id_code_invalid"),
+      trigger: "blur"
+    }
+  ],
   pwd: [
-    { required: true, message: t("core.password.required"), trigger: "blur" },
-    { validator: validatePasswordField, trigger: "blur" }
+    { required: false, trigger: "blur" }
   ],
   status: [
     {
@@ -263,8 +283,7 @@ const rules = computed(() => ({
 }));
 const resetPwdRules = computed(() => ({
   pwd: [
-    { required: true, message: t("system.base.user.placeholder.new_password"), trigger: "blur" },
-    { validator: validatePasswordField, trigger: "blur" }
+    { required: true, message: t("system.base.user.placeholder.new_password"), trigger: "blur" }
   ]
 }));
 
@@ -275,6 +294,18 @@ const tenantOptions = ref<SelectOptionResponse_Option[]>([]);
 const statusOptions = computed<ProFormOption[]>(() => [
   { label: t("common.status.enabled"), value: Status.STATUS_ENABLE },
   { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }
+]);
+const idTypeOptions = computed<ProFormOption[]>(() => [
+  { label: t("system.base.user.id_type.unspecified"), value: BaseUserIDType.BASE_USER_ID_TYPE_UNSPECIFIED },
+  { label: t("system.base.user.id_type.id_card"), value: BaseUserIDType.BASE_USER_ID_TYPE_ID_CARD },
+  { label: t("system.base.user.id_type.passport"), value: BaseUserIDType.BASE_USER_ID_TYPE_PASSPORT },
+  { label: t("system.base.user.id_type.hk_macao_permit"), value: BaseUserIDType.BASE_USER_ID_TYPE_HK_MACAO_PERMIT },
+  { label: t("system.base.user.id_type.taiwan_permit"), value: BaseUserIDType.BASE_USER_ID_TYPE_TAIWAN_PERMIT },
+  {
+    label: t("system.base.user.id_type.foreign_permanent_residence"),
+    value: BaseUserIDType.BASE_USER_ID_TYPE_FOREIGN_PERMANENT_RESIDENCE
+  },
+  { label: t("system.base.user.id_type.other"), value: BaseUserIDType.BASE_USER_ID_TYPE_OTHER }
 ]);
 const resetPwdFields = computed<ProFormField[]>(() => [
   {
@@ -370,10 +401,29 @@ const formFields = computed<ProFormField[]>(() => [
     props: { placeholder: t("common.validation.phone_required") }
   },
   {
+    prop: "email",
+    label: t("system.base.user.field.email"),
+    component: "input",
+    props: { placeholder: t("system.base.user.placeholder.email") }
+  },
+  {
+    prop: "id_type",
+    label: t("system.base.user.field.id_type"),
+    component: "select",
+    options: idTypeOptions.value,
+    props: { placeholder: t("common.placeholder.select") }
+  },
+  {
+    prop: "id_code",
+    label: t("system.base.user.field.id_code"),
+    component: "input",
+    props: { placeholder: t("system.base.user.placeholder.id_code") }
+  },
+  {
     prop: "pwd",
     label: t("system.base.user.field.password"),
     component: "password",
-    props: { placeholder: t("system.base.user.placeholder.password"), showPassword: true },
+    props: { placeholder: t("system.base.user.placeholder.password_optional"), showPassword: true },
     visible: model => !model.id
   },
   {
@@ -427,6 +477,9 @@ const columns = computed<ColumnProps[]>(() => [
   },
   { prop: "post_id", label: t("system.base.user.field.post_short"), minWidth: 120, enum: requestPostOptions },
   { prop: "phone", label: t("common.field.phone"), minWidth: 130, search: { el: "input" } },
+  { prop: "email", label: t("system.base.user.field.email"), minWidth: 180, search: { el: "input" } },
+  { prop: "id_type", label: t("system.base.user.field.id_type"), minWidth: 150, enum: idTypeOptions },
+  { prop: "id_code", label: t("system.base.user.field.id_code"), minWidth: 180, showOverflowTooltip: true },
   {
     prop: "gender",
     label: t("system.base.user.field.gender"),
@@ -687,6 +740,9 @@ function resetForm() {
   formData.dept_id = undefined;
   formData.post_id = undefined;
   formData.phone = "";
+  formData.email = "";
+  formData.id_type = BaseUserIDType.BASE_USER_ID_TYPE_UNSPECIFIED;
+  formData.id_code = "";
   formData.pwd = "";
   formData.gender = 3;
   formData.avatar = "";
@@ -746,7 +802,10 @@ const handleSubmit = useDebounceFn(() => {
     const submitData = JSON.parse(JSON.stringify(formData)) as BaseUserFormState;
     const baseUser = {
       ...submitData,
-      pwd: submitData.id ? undefined : await encryptPassword(submitData.pwd, PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER)
+      pwd:
+        submitData.id || !submitData.pwd
+          ? undefined
+          : await encryptPassword(submitData.pwd, PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER)
     } as BaseUserForm;
     const request = submitData.id
       ? defBaseUserService.UpdateBaseUser({ base_user: baseUser })
@@ -830,26 +889,6 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
       ElMessage.info(t("system.base.user.message.delete_canceled"));
     }
   );
-}
-
-/**
- * 校验密码强度，新增用户和重置密码统一要求达到最高强度。
- *
- * @param _rule 表单规则对象
- * @param value 当前密码值
- * @param callback 校验回调
- */
-function validatePasswordField(_rule: unknown, value: string, callback: (error?: Error) => void) {
-  if (!value) {
-    callback();
-    return;
-  }
-  const result = validatePasswordStrengthValue(value);
-  if (!result.valid) {
-    callback(new Error(t("core.password.error")));
-    return;
-  }
-  callback();
 }
 
 /**

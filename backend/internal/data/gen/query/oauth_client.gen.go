@@ -58,11 +58,11 @@ type oauthClient struct {
 	ClientID     field.String // 客户端标识
 	ClientSecret field.String // 客户端密钥
 	ClientName   field.String // 客户端名称
-	CryptoType   field.String // 协议加密类型：sm4、aes、3des
+	CryptoType   field.String // 协议加密类型：枚举【OauthClientCryptoType】
 	CryptoKey    field.String // 协议加密密钥
 	IPWhitelist  field.String // IP白名单，逗号分隔，支持CIDR
 	API          field.String // 允许访问的API operation JSON数组
-	Status       field.Int32  // 状态：1启用，2禁用
+	Status       field.Int32  // 状态：枚举【Status】
 	CreatedBy    field.Int64  // 创建者ID
 	UpdatedBy    field.Int64  // 更新者ID
 	CreatedAt    field.Time   // 创建时间

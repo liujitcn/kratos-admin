@@ -1,12 +1,12 @@
 <template>
   <div class="table-box">
     <ProTable ref="proTable" row-key="id" :columns="columns" :header-actions="headerActions" :request-api="requestTable" />
-    <el-dialog v-model="detailVisible" :title="detail?.title" width="720px" destroy-on-close>
+    <ProDialog v-model="detailVisible" :title="detail?.title" width="720px" destroy-on-close :show-footer="false">
       <div v-if="detail" class="message-detail">
         <div class="message-meta">
           <span class="message-category" :style="{ color: detail.category_color || undefined }">
             <component :is="resolveNotificationIcon(detail.category_icon)" />
-            {{ detail.category_name }}
+            <span class="message-category__name">{{ detail.category_name }}</span>
           </span>
           <span>{{ detail.sender_name }}</span>
           <span>{{ detail.received_at }}</span>
@@ -26,7 +26,7 @@
           {{ t("common.action.view") }}
         </el-button>
       </div>
-    </el-dialog>
+    </ProDialog>
   </div>
 </template>
 
@@ -34,12 +34,13 @@
 import { computed, h, ref } from "vue";
 import { useRouter } from "vue-router";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
+import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import type { ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import RichTextPreview from "@liujitcn/kratos-admin-core/components/RichTextPreview/index.vue";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
-import { defNotificationService } from "@liujitcn/kratos-admin-system/api/base/notification";
+import { defNotificationService } from "@liujitcn/kratos-admin-system/api/base/v1/notification";
 import type { Notification, PageNotificationRequest } from "@liujitcn/kratos-admin-system/rpc/base/v1/notification";
 import {
   MessageActionType,
@@ -203,7 +204,7 @@ async function restore(row: Notification) {
 
 /** 从个人收件箱删除消息。 */
 async function remove(row: Notification) {
-  await ElMessageBox.confirm(t("common.confirm.delete"), t("common.tips"), { type: "warning" });
+  await ElMessageBox.confirm(t("common.confirm.delete"), t("common.title.warning"), { type: "warning" });
   await defNotificationService.DeleteNotification({ id: row.id });
   proTable.value?.getTableList();
 }
@@ -223,13 +224,21 @@ function resolveNotificationIcon(icon: string) {
   color: var(--el-text-color-secondary);
 }
 
-.message-category {
+:deep(.message-category) {
   display: inline-flex;
-  align-items: center;
   gap: 6px;
+  align-items: center;
+  line-height: 18px;
 }
 
-.message-category__name {
+:deep(.message-category > svg) {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+}
+
+:deep(.message-category__name) {
+  white-space: nowrap;
   color: var(--el-text-color-primary);
 }
 

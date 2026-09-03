@@ -63,13 +63,13 @@ type basePermissionLog struct {
 	UserName   field.String // 用户名称
 	RequestID  field.String // 请求ID
 	TraceID    field.String // 链路追踪ID
-	TargetType field.Int32  // 目标类型
+	TargetType field.Int32  // 目标类型：枚举【BasePermissionTargetType】
 	TargetID   field.String // 目标ID
 	TargetName field.String // 目标名称
-	Action     field.Int32  // 权限动作
+	Action     field.Int32  // 权限动作：枚举【BasePermissionAction】
 	OldValue   field.String // 变更前权限
 	NewValue   field.String // 变更后权限
-	Result     field.Int32  // 结果
+	Result     field.Int32  // 结果：枚举【BaseLogResult】
 	ReasonCode field.String // 原因编码
 	Reason     field.String // 原因说明
 	OccurredAt field.Time   // 事件发生时间

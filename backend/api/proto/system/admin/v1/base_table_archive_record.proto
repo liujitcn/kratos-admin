@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "google/api/annotations.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "system/admin/v1/base_table_archive.proto";
+
+// BaseTableArchiveRecordService 查询表归档执行记录。
+service BaseTableArchiveRecordService {
+  // 查询表归档记录分页列表。
+  rpc PageBaseTableArchiveRecord(PageBaseTableArchiveRecordRequest) returns (PageBaseTableArchiveRecordResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/table-archive-record"};
+  }
+
+  // 查询表归档记录。
+  rpc GetBaseTableArchiveRecord(GetBaseTableArchiveRecordRequest) returns (BaseTableArchiveRecord) {
+    option (google.api.http) = {get: "/api/v1/admin/base/table-archive-record/{id}"};
+  }
+}
+
+// BaseTableArchiveRecordStatus 表示归档记录执行状态。
+enum BaseTableArchiveRecordStatus {
+  // 未指定归档记录状态。
+  BASE_TABLE_ARCHIVE_RECORD_STATUS_UNSPECIFIED = 0;
+  // 等待执行。
+  BASE_TABLE_ARCHIVE_RECORD_STATUS_PENDING = 1;
+  // 执行中。
+  BASE_TABLE_ARCHIVE_RECORD_STATUS_RUNNING = 2;
+  // 校验中。
+  BASE_TABLE_ARCHIVE_RECORD_STATUS_VERIFYING = 3;
+  // 执行成功。
+  BASE_TABLE_ARCHIVE_RECORD_STATUS_SUCCESS = 4;
+  // 执行失败。
+  BASE_TABLE_ARCHIVE_RECORD_STATUS_FAILED = 5;
+  // 归档对象已过期清理。
+  BASE_TABLE_ARCHIVE_RECORD_STATUS_DELETED = 6;
+}
+
+// BaseTableArchiveRecord 表归档执行记录。
+message BaseTableArchiveRecord {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "归档记录ID"}]; // 归档记录ID
+  int64 archive_id = 2 [(gnostic.openapi.v3.property) = {description: "归档配置ID"}]; // 归档配置ID
+  string table_name = 3 [(gnostic.openapi.v3.property) = {description: "数据表名称"}]; // 数据表名称
+  BaseTableArchiveMode archive_mode = 4 [(gnostic.openapi.v3.property) = {description: "归档模式"}]; // 归档模式
+  string cutoff_at = 5 [(gnostic.openapi.v3.property) = {description: "归档截止时间"}]; // 归档截止时间
+  string cursor = 6 [(gnostic.openapi.v3.property) = {description: "断点游标"}]; // 断点游标
+  int64 scanned_rows = 7 [(gnostic.openapi.v3.property) = {description: "扫描条数"}]; // 扫描条数
+  int64 archived_rows = 8 [(gnostic.openapi.v3.property) = {description: "归档条数"}]; // 归档条数
+  int64 deleted_rows = 9 [(gnostic.openapi.v3.property) = {description: "删除条数"}]; // 删除条数
+  string archive_table_name = 10 [(gnostic.openapi.v3.property) = {description: "内部归档表名"}]; // 内部归档表名
+  string object_key = 11 [(gnostic.openapi.v3.property) = {description: "OSS对象Key"}]; // OSS对象Key
+  int64 size_bytes = 12 [(gnostic.openapi.v3.property) = {description: "对象大小"}]; // 对象大小
+  string sha256 = 13 [(gnostic.openapi.v3.property) = {description: "SHA-256"}]; // SHA-256
+  BaseTableArchiveRecordStatus status = 14 [(gnostic.openapi.v3.property) = {description: "归档状态"}]; // 归档状态
+  string error = 15 [(gnostic.openapi.v3.property) = {description: "错误信息"}]; // 错误信息
+  string started_at = 16 [(gnostic.openapi.v3.property) = {description: "开始时间"}]; // 开始时间
+  string finished_at = 17 [(gnostic.openapi.v3.property) = {description: "完成时间"}]; // 完成时间
+  string source_name = 18 [(gnostic.openapi.v3.property) = {description: "数据源名称"}]; // 数据源名称
+}
+
+// PageBaseTableArchiveRecordRequest 表归档记录分页请求。
+message PageBaseTableArchiveRecordRequest { int64 archive_id = 1 [(gnostic.openapi.v3.property) = {description: "归档配置ID"}]; string table_name = 2 [(gnostic.openapi.v3.property) = {description: "数据表名称"}]; optional BaseTableArchiveRecordStatus status = 3 [(gnostic.openapi.v3.property) = {description: "归档状态"}]; string source_name = 4 [(gnostic.openapi.v3.property) = {description: "数据源名称"}]; int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}]; int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数", default: {number: 10}}]; } // 表归档记录分页请求
+
+// PageBaseTableArchiveRecordResponse 表归档记录分页响应。
+message PageBaseTableArchiveRecordResponse { repeated BaseTableArchiveRecord base_table_archive_records = 1 [(gnostic.openapi.v3.property) = {description: "归档记录列表"}]; int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; } // 表归档记录分页响应
+
+// GetBaseTableArchiveRecordRequest 查询表归档记录请求。
+message GetBaseTableArchiveRecordRequest { int64 id = 1 [(gnostic.openapi.v3.property) = {description: "归档记录ID"}]; } // 归档记录ID

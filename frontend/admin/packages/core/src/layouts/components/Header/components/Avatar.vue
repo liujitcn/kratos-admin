@@ -146,7 +146,7 @@ const lockScreen = () => {
   padding: 16px;
   background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
   border: 1px solid rgb(15 23 42 / 8%);
-  border-radius: 12px;
+  border-radius: var(--admin-page-radius);
   box-shadow: 0 16px 40px rgb(15 23 42 / 14%);
   &__summary {
     display: flex;
@@ -230,11 +230,12 @@ const lockScreen = () => {
     }
   }
   &--lock {
-    color: var(--el-text-color-regular);
-    background: var(--el-fill-color-light);
+    color: var(--el-color-warning-dark-2);
+    background: var(--el-color-warning-light-9);
     &:hover {
-      background: var(--el-fill-color);
-      box-shadow: 0 8px 18px rgb(15 23 42 / 10%);
+      color: var(--el-color-warning-dark-2);
+      background: var(--el-color-warning-light-8);
+      box-shadow: 0 8px 18px rgb(230 162 60 / 14%);
     }
   }
 }

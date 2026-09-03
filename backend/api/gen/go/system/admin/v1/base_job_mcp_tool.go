@@ -9,16 +9,16 @@ package adminv1
 import (
 	context "context"
 
+	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterBaseJobServiceMCPTools 注册Admin定时任务服务的 MCP Tool。
 func RegisterBaseJobServiceMCPTools(mcpServer *mcp.Server, baseJobServiceServer BaseJobServiceServer) {
+	RegisterBaseJobServiceOptionBaseJobMCPTool(mcpServer, baseJobServiceServer)
 	RegisterBaseJobServicePageBaseJobMCPTool(mcpServer, baseJobServiceServer)
-	RegisterBaseJobServicePageBaseJobLogMCPTool(mcpServer, baseJobServiceServer)
 	RegisterBaseJobServiceGetBaseJobMCPTool(mcpServer, baseJobServiceServer)
-	RegisterBaseJobServiceGetBaseJobLogMCPTool(mcpServer, baseJobServiceServer)
 	RegisterBaseJobServiceCreateBaseJobMCPTool(mcpServer, baseJobServiceServer)
 	RegisterBaseJobServiceUpdateBaseJobMCPTool(mcpServer, baseJobServiceServer)
 	RegisterBaseJobServiceDeleteBaseJobMCPTool(mcpServer, baseJobServiceServer)
@@ -26,6 +26,27 @@ func RegisterBaseJobServiceMCPTools(mcpServer *mcp.Server, baseJobServiceServer 
 	RegisterBaseJobServiceStartBaseJobMCPTool(mcpServer, baseJobServiceServer)
 	RegisterBaseJobServiceStopBaseJobMCPTool(mcpServer, baseJobServiceServer)
 	RegisterBaseJobServiceExecuteBaseJobMCPTool(mcpServer, baseJobServiceServer)
+}
+
+// RegisterBaseJobServiceOptionBaseJobMCPTool 注册查询定时任务下拉选择的 MCP Tool。
+func RegisterBaseJobServiceOptionBaseJobMCPTool(mcpServer *mcp.Server, baseJobServiceServer BaseJobServiceServer) {
+	mcp.AddTool[*OptionBaseJobRequest, *v1.SelectOptionResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_base_job_service_option_base_job",
+			Description: "查询定时任务下拉选择",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseJobRequest) (*mcp.CallToolResult, *v1.SelectOptionResponse, error) {
+			if input == nil {
+				input = &OptionBaseJobRequest{}
+			}
+			reply, err := baseJobServiceServer.OptionBaseJob(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
 }
 
 // RegisterBaseJobServicePageBaseJobMCPTool 注册查询定时任务分页列表的 MCP Tool。
@@ -49,27 +70,6 @@ func RegisterBaseJobServicePageBaseJobMCPTool(mcpServer *mcp.Server, baseJobServ
 	)
 }
 
-// RegisterBaseJobServicePageBaseJobLogMCPTool 注册查询定时任务日志分页列表的 MCP Tool。
-func RegisterBaseJobServicePageBaseJobLogMCPTool(mcpServer *mcp.Server, baseJobServiceServer BaseJobServiceServer) {
-	mcp.AddTool[*PageBaseJobLogRequest, *PageBaseJobLogResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_job_service_page_base_job_log",
-			Description: "查询定时任务日志分页列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseJobLogRequest) (*mcp.CallToolResult, *PageBaseJobLogResponse, error) {
-			if input == nil {
-				input = &PageBaseJobLogRequest{}
-			}
-			reply, err := baseJobServiceServer.PageBaseJobLog(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
 // RegisterBaseJobServiceGetBaseJobMCPTool 注册查询定时任务的 MCP Tool。
 func RegisterBaseJobServiceGetBaseJobMCPTool(mcpServer *mcp.Server, baseJobServiceServer BaseJobServiceServer) {
 	mcp.AddTool[*GetBaseJobRequest, *BaseJobForm](
@@ -83,27 +83,6 @@ func RegisterBaseJobServiceGetBaseJobMCPTool(mcpServer *mcp.Server, baseJobServi
 				input = &GetBaseJobRequest{}
 			}
 			reply, err := baseJobServiceServer.GetBaseJob(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterBaseJobServiceGetBaseJobLogMCPTool 注册查询定时任务日志的 MCP Tool。
-func RegisterBaseJobServiceGetBaseJobLogMCPTool(mcpServer *mcp.Server, baseJobServiceServer BaseJobServiceServer) {
-	mcp.AddTool[*GetBaseJobLogRequest, *BaseJobLog](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_job_service_get_base_job_log",
-			Description: "查询定时任务日志",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseJobLogRequest) (*mcp.CallToolResult, *BaseJobLog, error) {
-			if input == nil {
-				input = &GetBaseJobLogRequest{}
-			}
-			reply, err := baseJobServiceServer.GetBaseJobLog(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

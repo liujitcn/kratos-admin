@@ -66,9 +66,9 @@ import type {
 } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import SelectIcon from "@liujitcn/kratos-admin-core/components/SelectIcon/index.vue";
-import { defBaseMenuService } from "@liujitcn/kratos-admin-system/api/system/base_menu";
-import { loadEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
-import { defBaseApiService } from "@liujitcn/kratos-admin-system/api/system/base_api";
+import { defBaseMenuService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_menu";
+import { loadEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_language";
+import { defBaseApiService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_api";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import type { BaseApi } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_api";
 import type {
@@ -96,7 +96,7 @@ defineOptions({
   inheritAttrs: false
 });
 
-const APP_MENU_ROOT_ID = 999;
+const APP_MENU_ROOT_ID = 99000000;
 
 /**
  * 菜单表单状态，统一补齐 meta 字段，便于 ProForm 直接双向绑定。
@@ -192,21 +192,21 @@ function isAppTab(parentId?: number) {
   return parentId === APP_MENU_ROOT_ID;
 }
 
-/** 根据三、五、七、九位编号识别菜单层级。 */
+/** 根据固定八位编号中的非零层级槽位识别菜单层级。 */
 function getMenuLevel(menuId: number) {
-  if (menuId >= 100 && menuId <= 999) return 1;
-  if (menuId >= 10000 && menuId <= 99999) return 2;
-  if (menuId >= 1000000 && menuId <= 9999999) return 3;
-  if (menuId >= 100000000 && menuId <= 999999999) return 4;
-  return 0;
+  if (menuId < 10000000 || menuId > 99999999) return 0;
+  if (menuId % 1000000 === 0) return 1;
+  if (menuId % 10000 === 0) return 2;
+  if (menuId % 100 === 0) return 3;
+  return 4;
 }
 
 /** 判断当前菜单是否还能继续新增下级节点。 */
 function canCreateChild(menu: BaseMenu) {
   const level = getMenuLevel(menu.id);
   if (menu.id === APP_MENU_ROOT_ID || isAppMenu(menu.parent_id)) return level >= 1 && level < 4;
-  if (menu.type === BaseMenuType.BASE_MENU_TYPE_FOLDER) return level === 1 || level === 2;
-  if (menu.type === BaseMenuType.BASE_MENU_TYPE_MENU) return level === 2 || level === 3;
+  if (menu.type === BaseMenuType.BASE_MENU_TYPE_FOLDER) return level === 1 || level === 2 || level === 3;
+  if (menu.type === BaseMenuType.BASE_MENU_TYPE_MENU) return level === 2 || level === 3 || level === 4;
   return false;
 }
 
@@ -219,18 +219,18 @@ const availableMenuTypeOptions = computed(() => {
   if (isAppMenu(formData.parent_id)) return menuTypeOptions.value.filter(item => item.value === BaseMenuType.BASE_MENU_TYPE_MENU);
   if (formData.id > 0 && parentLevel === 0)
     return menuTypeOptions.value.filter(item => item.value === BaseMenuType.BASE_MENU_TYPE_FOLDER);
-  if (dialog.parentType === BaseMenuType.BASE_MENU_TYPE_FOLDER && parentLevel === 1)
+  if (dialog.parentType === BaseMenuType.BASE_MENU_TYPE_FOLDER && (parentLevel === 1 || parentLevel === 2))
     return menuTypeOptions.value.filter(
       item =>
         item.value === BaseMenuType.BASE_MENU_TYPE_FOLDER ||
         item.value === BaseMenuType.BASE_MENU_TYPE_MENU ||
         item.value === BaseMenuType.BASE_MENU_TYPE_EXT_LINK
     );
-  if (dialog.parentType === BaseMenuType.BASE_MENU_TYPE_FOLDER && parentLevel === 2)
+  if (dialog.parentType === BaseMenuType.BASE_MENU_TYPE_FOLDER && parentLevel === 3)
     return menuTypeOptions.value.filter(
       item => item.value === BaseMenuType.BASE_MENU_TYPE_MENU || item.value === BaseMenuType.BASE_MENU_TYPE_EXT_LINK
     );
-  if (dialog.parentType === BaseMenuType.BASE_MENU_TYPE_MENU && (parentLevel === 2 || parentLevel === 3))
+  if (dialog.parentType === BaseMenuType.BASE_MENU_TYPE_MENU && (parentLevel === 2 || parentLevel === 3 || parentLevel === 4))
     return menuTypeOptions.value.filter(item => item.value === BaseMenuType.BASE_MENU_TYPE_BUTTON);
   return [];
 });

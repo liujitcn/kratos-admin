@@ -13,6 +13,7 @@
   "scripts": {
     "build": "pnpm build:package",
     "build:package": "node ../../../scripts/build-package.mjs .",
+    "test": "tsc -p tsconfig.test.json && node --test dist/test/tests/*.test.js",
     "type:check": "vue-tsc --noEmit --skipLibCheck",
     "prepack": "pnpm build:package"
   },
@@ -37,6 +38,10 @@
     ".": {
       "types": "./dist/package/declarations/index.d.ts",
       "default": "./dist/package/src/index.ts"
+    },
+    "./config": {
+      "types": "./dist/package/declarations/src/config/index.d.ts",
+      "default": "./dist/package/src/config/index.ts"
     },
     "./api/*": {
       "types": "./dist/package/declarations/src/api/*.d.ts",

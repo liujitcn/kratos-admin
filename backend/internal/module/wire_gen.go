@@ -20,7 +20,7 @@ import (
 	data3 "github.com/liujitcn/kratos-admin/backend/internal/data"
 	data2 "github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	base2 "github.com/liujitcn/kratos-admin/backend/internal/server/base/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/auditlog"
+	logmiddleware "github.com/liujitcn/kratos-admin/backend/internal/server/middleware/log"
 	admin2 "github.com/liujitcn/kratos-admin/backend/internal/server/system/admin/v1"
 	app2 "github.com/liujitcn/kratos-admin/backend/internal/server/system/app/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/service/base/v1"
@@ -86,7 +86,7 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 	baseLanguageCase := biz3.NewBaseLanguageCase(baseCase, transaction, baseLanguageRepository)
 	baseI18nCase := biz3.NewBaseI18nCase(baseCase, transaction, baseI18NRepository, baseLanguageCase)
 	baseMenuCase := biz3.NewBaseMenuCase(baseCase, transaction, baseMenuRepository, baseRoleRepository, casbinRuleCase, baseI18nCase)
-	bizBaseRoleCase := biz2.NewBaseRoleCase(baseCase, baseRoleRepository, baseTenantRepository)
+	bizBaseRoleCase := biz2.NewBaseRoleCase(baseCase, baseRoleRepository)
 	bizBaseUserCase := biz3.NewBaseUserCase(baseCase, transaction, baseUserRepository, baseDeptRepository, basePostRepository, baseRoleCase, baseDeptCase, baseMenuCase, bizBaseRoleCase, userToken)
 	baseMessageRepository := data2.NewBaseMessageRepository(dataData)
 	baseMessageDispatchRepository := data2.NewBaseMessageDispatchRepository(dataData)
@@ -109,7 +109,7 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 	}
 	oauthClientCase := biz3.NewOauthClientCase(baseCase, transaction, oauthClientRepository, baseAPICase, baseTenantRepository, casbinRuleCase, userToken, protector)
 	oauthClientService := admin.NewOauthClientService(oauthClientCase, authenticator)
-	middleware := auditlog.NewMiddleware()
+	middleware, cleanup := logmiddleware.NewMiddleware(baseCase)
 	baseAreaRepository := data2.NewBaseAreaRepository(dataData)
 	baseAreaCase := biz3.NewBaseAreaCase(baseCase, baseAreaRepository)
 	baseAreaService := admin.NewBaseAreaService(baseAreaCase)
@@ -121,26 +121,35 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 	baseDictItemRepository := data2.NewBaseDictItemRepository(dataData)
 	baseDictItemCase := biz3.NewBaseDictItemCase(baseCase, transaction, baseDictRepository, baseDictItemRepository, baseI18nCase)
 	baseDictCase := biz3.NewBaseDictCase(baseCase, transaction, baseDictRepository, baseDictItemCase, baseI18nCase)
-	baseDictService := admin.NewBaseDictService(baseDictCase, baseDictItemCase)
+	baseDictService := admin.NewBaseDictService(baseDictCase)
+	baseDictItemService := admin.NewBaseDictItemService(baseDictItemCase)
 	baseJobRepository := data2.NewBaseJobRepository(dataData)
 	baseJobLogRepository := data2.NewBaseJobLogRepository(dataData)
 	baseJobLogCase := biz3.NewBaseJobLogCase(baseCase, baseJobLogRepository)
 	baseJobCase := biz3.NewBaseJobCase(baseCase, jobRuntime, baseJobRepository, baseJobLogCase, baseI18nCase)
-	baseJobService := admin.NewBaseJobService(baseJobCase, baseJobLogCase)
+	baseJobService := admin.NewBaseJobService(baseJobCase)
+	baseJobLogService := admin.NewBaseJobLogService(baseJobLogCase)
 	baseLanguageService := admin.NewBaseLanguageService(baseLanguageCase)
 	baseLoginLogRepository := data2.NewBaseLoginLogRepository(dataData)
+	baseLoginLogCase := biz3.NewBaseLoginLogCase(baseCase, baseLoginLogRepository)
 	baseAPILogRepository := data2.NewBaseAPILogRepository(dataData)
+	baseAPILogCase := biz3.NewBaseAPILogCase(baseCase, baseAPILogRepository)
 	baseOperationLogRepository := data2.NewBaseOperationLogRepository(dataData)
+	baseOperationLogCase := biz3.NewBaseOperationLogCase(baseCase, baseOperationLogRepository)
 	baseDataAccessLogRepository := data2.NewBaseDataAccessLogRepository(dataData)
+	baseDataAccessLogCase := biz3.NewBaseDataAccessLogCase(baseCase, baseDataAccessLogRepository)
 	basePermissionLogRepository := data2.NewBasePermissionLogRepository(dataData)
+	basePermissionLogCase := biz3.NewBasePermissionLogCase(baseCase, basePermissionLogRepository)
 	basePolicyEvaluationLogRepository := data2.NewBasePolicyEvaluationLogRepository(dataData)
-	baseAuditLogCase := biz3.NewBaseAuditLogCase(baseCase, baseLoginLogRepository, baseAPILogRepository, baseOperationLogRepository, baseDataAccessLogRepository, basePermissionLogRepository, basePolicyEvaluationLogRepository)
-	baseLoginLogService := admin.NewBaseLoginLogService(baseAuditLogCase)
-	baseApiLogService := admin.NewBaseApiLogService(baseAuditLogCase)
-	baseOperationLogService := admin.NewBaseOperationLogService(baseAuditLogCase)
-	baseDataAccessLogService := admin.NewBaseDataAccessLogService(baseAuditLogCase)
-	basePermissionLogService := admin.NewBasePermissionLogService(baseAuditLogCase)
-	basePolicyEvaluationLogService := admin.NewBasePolicyEvaluationLogService(baseAuditLogCase)
+	basePolicyEvaluationLogCase := biz3.NewBasePolicyEvaluationLogCase(baseCase, basePolicyEvaluationLogRepository)
+	baseLogCase := biz3.NewBaseLogCase(baseCase, baseLoginLogCase, baseAPILogCase, baseOperationLogCase, baseDataAccessLogCase, basePermissionLogCase, basePolicyEvaluationLogCase)
+	baseLogService := admin.NewBaseLogService(baseLogCase)
+	baseLoginLogService := admin.NewBaseLoginLogService(baseLoginLogCase)
+	baseApiLogService := admin.NewBaseApiLogService(baseAPILogCase)
+	baseOperationLogService := admin.NewBaseOperationLogService(baseOperationLogCase)
+	baseDataAccessLogService := admin.NewBaseDataAccessLogService(baseDataAccessLogCase)
+	basePermissionLogService := admin.NewBasePermissionLogService(basePermissionLogCase)
+	basePolicyEvaluationLogService := admin.NewBasePolicyEvaluationLogService(basePolicyEvaluationLogCase)
 	baseDashboardCase := biz3.NewBaseDashboardCase(baseCase, baseUserRepository, baseRoleRepository, baseLoginLogRepository, baseOperationLogRepository)
 	baseDashboardService := admin.NewBaseDashboardService(baseDashboardCase)
 	baseFileCase := biz3.NewBaseFileCase(baseCase, baseFileRepository)
@@ -177,17 +186,43 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 	baseMigrationService := admin.NewBaseMigrationService(baseMigrationCase)
 	opsMonitoringCase := biz3.NewOpsMonitoringCase(baseCase, baseAPILogRepository, baseMessageDispatchRepository, catalog)
 	opsMonitoringService := admin.NewOpsMonitoringService(opsMonitoringCase)
+	cacheCase := biz3.NewCacheCase(baseCase)
+	cacheService := admin.NewCacheService(cacheCase)
 	hub := logstream.DefaultHub()
 	runtimeLogCase, err := biz3.NewRuntimeLogCase(baseCase, hub, sseRuntime)
 	if err != nil {
+		cleanup()
 		return nil, nil, err
 	}
 	runtimeLogService := admin.NewRuntimeLogService(runtimeLogCase)
-	projectDocumentService := admin.NewProjectDocumentService(docsRuntime, catalog)
+	projectDocumentCase := biz3.NewProjectDocumentCase(baseCase, docsRuntime, catalog)
+	projectDocumentService := admin.NewProjectDocumentService(projectDocumentCase)
 	baseSessionCase := biz3.NewBaseSessionCase(baseCase, userToken)
 	baseSessionService := admin.NewBaseSessionService(baseSessionCase)
-	baseLoginPolicyCase := biz3.NewBaseLoginPolicyCase(baseCase, baseConfigRepository)
+	baseLoginPolicyRepository := data2.NewBaseLoginPolicyRepository(dataData)
+	baseLoginPolicyRuleRepository := data2.NewBaseLoginPolicyRuleRepository(dataData)
+	baseLoginPolicyCase := biz3.NewBaseLoginPolicyCase(baseCase, transaction, baseLoginPolicyRepository, baseLoginPolicyRuleRepository, baseTenantRepository, baseUserRepository)
 	baseLoginPolicyService := admin.NewBaseLoginPolicyService(baseLoginPolicyCase)
+	baseTableArchiveRepository := data2.NewBaseTableArchiveRepository(dataData)
+	baseTableArchiveCase := biz3.NewBaseTableArchiveCase(baseCase, baseTableArchiveRepository)
+	baseTableArchiveService := admin.NewBaseTableArchiveService(baseTableArchiveCase)
+	baseTableArchiveRecordRepository := data2.NewBaseTableArchiveRecordRepository(dataData)
+	baseTableArchiveRecordCase := biz3.NewBaseTableArchiveRecordCase(baseCase, baseTableArchiveRecordRepository)
+	baseTableArchiveRecordService := admin.NewBaseTableArchiveRecordService(baseTableArchiveRecordCase)
+	baseTableArchiveRestoreRepository := data2.NewBaseTableArchiveRestoreRepository(dataData)
+	baseTableArchiveRestoreCase := biz3.NewBaseTableArchiveRestoreCase(baseCase, baseTableArchiveRestoreRepository, baseTableArchiveRecordRepository)
+	baseTableArchiveRestoreService := admin.NewBaseTableArchiveRestoreService(baseTableArchiveRestoreCase)
+	baseTableBackupRepository := data2.NewBaseTableBackupRepository(dataData)
+	baseTableBackupCase := biz3.NewBaseTableBackupCase(baseCase, baseTableBackupRepository)
+	baseTableBackupService := admin.NewBaseTableBackupService(baseTableBackupCase)
+	baseTableBackupRecordRepository := data2.NewBaseTableBackupRecordRepository(dataData)
+	baseTableBackupRecordCase := biz3.NewBaseTableBackupRecordCase(baseCase, baseTableBackupRecordRepository)
+	baseTableBackupRecordService := admin.NewBaseTableBackupRecordService(baseTableBackupRecordCase)
+	baseTableBackupRestoreRepository := data2.NewBaseTableBackupRestoreRepository(dataData)
+	baseTableBackupRestoreCase := biz3.NewBaseTableBackupRestoreCase(baseCase, baseTableBackupRestoreRepository, baseTableBackupRecordRepository)
+	baseTableBackupRestoreService := admin.NewBaseTableBackupRestoreService(baseTableBackupRestoreCase)
+	baseTableSourceCase := biz3.NewBaseTableSourceCase(baseCase)
+	baseTableSourceService := admin.NewBaseTableSourceService(baseTableSourceCase)
 	services := admin2.Services{
 		Auth:                     authService,
 		BaseAPI:                  baseApiService,
@@ -197,13 +232,18 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 		OauthClientRepository:    oauthClientRepository,
 		Authenticator:            authenticator,
 		OauthCredentialProtector: protector,
-		AuditLogMiddleware:       middleware,
+		LogMiddleware:            middleware,
+		BaseCase:                 baseCase,
+		UserToken:                userToken,
 		BaseArea:                 baseAreaService,
 		BaseConfig:               baseConfigService,
 		BaseDept:                 baseDeptService,
 		BaseDict:                 baseDictService,
+		BaseDictItem:             baseDictItemService,
 		BaseJob:                  baseJobService,
+		BaseJobLog:               baseJobLogService,
 		BaseLanguage:             baseLanguageService,
+		BaseLog:                  baseLogService,
 		BaseLoginLog:             baseLoginLogService,
 		BaseApiLog:               baseApiLogService,
 		BaseOperationLog:         baseOperationLogService,
@@ -227,18 +267,28 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 		CodeGenTable:             codeGenTableService,
 		BaseMigration:            baseMigrationService,
 		OpsMonitoring:            opsMonitoringService,
+		Cache:                    cacheService,
 		RuntimeLog:               runtimeLogService,
 		ProjectDocument:          projectDocumentService,
 		BaseSession:              baseSessionService,
 		BaseLoginPolicy:          baseLoginPolicyService,
+		BaseTableArchive:         baseTableArchiveService,
+		BaseTableArchiveRecord:   baseTableArchiveRecordService,
+		BaseTableArchiveRestore:  baseTableArchiveRestoreService,
+		BaseTableBackup:          baseTableBackupService,
+		BaseTableBackupRecord:    baseTableBackupRecordService,
+		BaseTableBackupRestore:   baseTableBackupRestoreService,
+		BaseTableSource:          baseTableSourceService,
 	}
 	adminTools, err := ParseAdminAgentTools(services)
 	if err != nil {
+		cleanup()
 		return nil, nil, err
 	}
 	baseUserCase2 := biz4.NewBaseUserCase(baseCase, baseUserRepository)
 	oauthManager, err := config.ParseOAuthManager(config2)
 	if err != nil {
+		cleanup()
 		return nil, nil, err
 	}
 	bizAuthCase := biz4.NewAuthCase(baseCase, baseUserCase2, oauthManager)
@@ -258,6 +308,7 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 	}
 	appTools, err := ParseAppAgentTools(appServices)
 	if err != nil {
+		cleanup()
 		return nil, nil, err
 	}
 	runtime := ai.NewRuntime(responsesClient, mcpCase, adminTools, appTools)
@@ -310,13 +361,18 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 		OauthClientRepository:    oauthClientRepository,
 		Authenticator:            authenticator,
 		OauthCredentialProtector: protector,
-		AuditLogMiddleware:       middleware,
+		LogMiddleware:            middleware,
+		BaseCase:                 baseCase,
+		UserToken:                userToken,
 		BaseArea:                 baseAreaService,
 		BaseConfig:               baseConfigService,
 		BaseDept:                 baseDeptService,
 		BaseDict:                 baseDictService,
+		BaseDictItem:             baseDictItemService,
 		BaseJob:                  baseJobService,
+		BaseJobLog:               baseJobLogService,
 		BaseLanguage:             baseLanguageService,
+		BaseLog:                  baseLogService,
 		BaseLoginLog:             baseLoginLogService,
 		BaseApiLog:               baseApiLogService,
 		BaseOperationLog:         baseOperationLogService,
@@ -340,10 +396,18 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 		CodeGenTable:             codeGenTableService,
 		BaseMigration:            baseMigrationService,
 		OpsMonitoring:            opsMonitoringService,
+		Cache:                    cacheService,
 		RuntimeLog:               runtimeLogService,
 		ProjectDocument:          projectDocumentService,
 		BaseSession:              baseSessionService,
 		BaseLoginPolicy:          baseLoginPolicyService,
+		BaseTableArchive:         baseTableArchiveService,
+		BaseTableArchiveRecord:   baseTableArchiveRecordService,
+		BaseTableArchiveRestore:  baseTableArchiveRestoreService,
+		BaseTableBackup:          baseTableBackupService,
+		BaseTableBackupRecord:    baseTableBackupRecordService,
+		BaseTableBackupRestore:   baseTableBackupRestoreService,
+		BaseTableSource:          baseTableSourceService,
 	}
 	services2 := &app2.Services{
 		Auth:     appAuthService,
@@ -353,9 +417,11 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 	}
 	modules, err := NewModules(baseServices, adminServices, services2, baseConfigCase, baseLoginPolicyCase)
 	if err != nil {
+		cleanup()
 		return nil, nil, err
 	}
 	return modules, func() {
+		cleanup()
 	}, nil
 }
 
@@ -388,15 +454,18 @@ func BuildTasks(databases map[string]*gorm.Client, baseCase *biz.BaseCase, sseRu
 	basePostRepository := data2.NewBasePostRepository(dataData)
 	baseMessageCase := biz3.NewBaseMessageCase(baseCase, transaction, baseMessageRepository, baseMessageDispatchRepository, baseMessageDeliveryRepository, messageDeliveryWriter, baseMessageCategoryCase, baseUserRepository, baseRoleRepository, baseDeptRepository, basePostRepository, baseMenuRepository, sseRuntime)
 	messageDispatchTask := admin3.NewMessageDispatchTask(baseMessageCase)
+	baseTableArchiveRepository := data2.NewBaseTableArchiveRepository(dataData)
+	baseTableArchiveRecordRepository := data2.NewBaseTableArchiveRecordRepository(dataData)
+	tableArchiveTask := admin3.NewTableArchiveTask(baseCase, baseTableArchiveRepository, baseTableArchiveRecordRepository)
 	baseLoginLogRepository := data2.NewBaseLoginLogRepository(dataData)
-	baseAPILogRepository := data2.NewBaseAPILogRepository(dataData)
 	baseOperationLogRepository := data2.NewBaseOperationLogRepository(dataData)
 	baseDataAccessLogRepository := data2.NewBaseDataAccessLogRepository(dataData)
 	basePermissionLogRepository := data2.NewBasePermissionLogRepository(dataData)
-	basePolicyEvaluationLogRepository := data2.NewBasePolicyEvaluationLogRepository(dataData)
-	auditRetentionTask := admin3.NewAuditRetentionTask(baseLoginLogRepository, baseAPILogRepository, baseOperationLogRepository, baseDataAccessLogRepository, basePermissionLogRepository, basePolicyEvaluationLogRepository)
-	backupTask := admin3.NewBackupTask()
-	tasks := task.NewTask(baseI18nTask, messageDispatchTask, auditRetentionTask, backupTask)
+	baseLogFallbackTask := admin3.NewBaseLogFallbackTask(baseCase, baseLoginLogRepository, baseOperationLogRepository, baseDataAccessLogRepository, basePermissionLogRepository)
+	baseTableBackupRepository := data2.NewBaseTableBackupRepository(dataData)
+	baseTableBackupRecordRepository := data2.NewBaseTableBackupRecordRepository(dataData)
+	tableBackupTask := admin3.NewTableBackupTask(baseCase, baseTableBackupRepository, baseTableBackupRecordRepository)
+	tasks := task.NewTask(baseI18nTask, messageDispatchTask, tableArchiveTask, baseLogFallbackTask, tableBackupTask)
 	return tasks, func() {
 	}, nil
 }
@@ -445,7 +514,7 @@ func BuildQueueConsumers(databases map[string]*gorm.Client, baseCase *biz.BaseCa
 	baseOperationLogRepository := data2.NewBaseOperationLogRepository(dataData)
 	baseDataAccessLogRepository := data2.NewBaseDataAccessLogRepository(dataData)
 	basePermissionLogRepository := data2.NewBasePermissionLogRepository(dataData)
-	consumerFunc := auditlog.NewConsumer(baseLoginLogRepository, baseOperationLogRepository, baseDataAccessLogRepository, basePermissionLogRepository)
+	consumerFunc := logmiddleware.NewConsumer(baseLoginLogRepository, baseOperationLogRepository, baseDataAccessLogRepository, basePermissionLogRepository)
 	consumers := NewQueueConsumers(baseMessageCase, consumerFunc)
 	return consumers, func() {
 	}, nil

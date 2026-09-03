@@ -36,6 +36,12 @@ func NewBaseConfigServiceAgentTools(baseConfigServiceServer BaseConfigServiceSer
 		return nil, err
 	}
 	ts = append(ts, getBaseConfigTool)
+	var getBaseConfigByKeyTool tool.InvokableTool
+	getBaseConfigByKeyTool, err = NewBaseConfigServiceGetBaseConfigByKeyAgentTool(baseConfigServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, getBaseConfigByKeyTool)
 	var createBaseConfigTool tool.InvokableTool
 	createBaseConfigTool, err = NewBaseConfigServiceCreateBaseConfigAgentTool(baseConfigServiceServer)
 	if err != nil {
@@ -48,6 +54,12 @@ func NewBaseConfigServiceAgentTools(baseConfigServiceServer BaseConfigServiceSer
 		return nil, err
 	}
 	ts = append(ts, updateBaseConfigTool)
+	var updateBaseConfigByKeyTool tool.InvokableTool
+	updateBaseConfigByKeyTool, err = NewBaseConfigServiceUpdateBaseConfigByKeyAgentTool(baseConfigServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, updateBaseConfigByKeyTool)
 	var deleteBaseConfigTool tool.InvokableTool
 	deleteBaseConfigTool, err = NewBaseConfigServiceDeleteBaseConfigAgentTool(baseConfigServiceServer)
 	if err != nil {
@@ -105,6 +117,20 @@ func NewBaseConfigServiceGetBaseConfigAgentTool(baseConfigServiceServer BaseConf
 	)
 }
 
+// NewBaseConfigServiceGetBaseConfigByKeyAgentTool 创建按配置键查询隐藏系统配置的 Agent Tool。
+func NewBaseConfigServiceGetBaseConfigByKeyAgentTool(baseConfigServiceServer BaseConfigServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetBaseConfigByKeyRequest, *BaseConfigValue](
+		"system_admin_v1_base_config_service_get_base_config_by_key",
+		"按配置键查询隐藏系统配置。",
+		func(ctx context.Context, req *GetBaseConfigByKeyRequest) (*BaseConfigValue, error) {
+			if req == nil {
+				req = &GetBaseConfigByKeyRequest{}
+			}
+			return baseConfigServiceServer.GetBaseConfigByKey(ctx, req)
+		},
+	)
+}
+
 // NewBaseConfigServiceCreateBaseConfigAgentTool 创建创建系统配置的 Agent Tool。
 func NewBaseConfigServiceCreateBaseConfigAgentTool(baseConfigServiceServer BaseConfigServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*CreateBaseConfigRequest, *emptypb.Empty](
@@ -129,6 +155,20 @@ func NewBaseConfigServiceUpdateBaseConfigAgentTool(baseConfigServiceServer BaseC
 				req = &UpdateBaseConfigRequest{}
 			}
 			return baseConfigServiceServer.UpdateBaseConfig(ctx, req)
+		},
+	)
+}
+
+// NewBaseConfigServiceUpdateBaseConfigByKeyAgentTool 创建按配置键更新隐藏系统配置的 Agent Tool。
+func NewBaseConfigServiceUpdateBaseConfigByKeyAgentTool(baseConfigServiceServer BaseConfigServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateBaseConfigByKeyRequest, *emptypb.Empty](
+		"system_admin_v1_base_config_service_update_base_config_by_key",
+		"按配置键更新隐藏系统配置。",
+		func(ctx context.Context, req *UpdateBaseConfigByKeyRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &UpdateBaseConfigByKeyRequest{}
+			}
+			return baseConfigServiceServer.UpdateBaseConfigByKey(ctx, req)
 		},
 	)
 }

@@ -28,6 +28,7 @@ func newCodeGenTable(db *gorm.DB, opts ...gen.DOOption) codeGenTable {
 	tableName := _codeGenTable.codeGenTableDo.TableName()
 	_codeGenTable.ALL = field.NewAsterisk(tableName)
 	_codeGenTable.ID = field.NewInt64(tableName, "id")
+	_codeGenTable.SourceName = field.NewString(tableName, "source_name")
 	_codeGenTable.Name = field.NewString(tableName, "name")
 	_codeGenTable.Comment = field.NewString(tableName, "comment")
 	_codeGenTable.BusinessModule = field.NewString(tableName, "business_module")
@@ -40,8 +41,8 @@ func newCodeGenTable(db *gorm.DB, opts ...gen.DOOption) codeGenTable {
 	_codeGenTable.GenBackend = field.NewInt32(tableName, "gen_backend")
 	_codeGenTable.GenFrontend = field.NewInt32(tableName, "gen_frontend")
 	_codeGenTable.GenSql = field.NewInt32(tableName, "gen_sql")
-	_codeGenTable.Status = field.NewInt32(tableName, "status")
 	_codeGenTable.Remark = field.NewString(tableName, "remark")
+	_codeGenTable.Status = field.NewInt32(tableName, "status")
 	_codeGenTable.CreatedBy = field.NewInt64(tableName, "created_by")
 	_codeGenTable.UpdatedBy = field.NewInt64(tableName, "updated_by")
 	_codeGenTable.CreatedAt = field.NewTime(tableName, "created_at")
@@ -59,6 +60,7 @@ type codeGenTable struct {
 
 	ALL             field.Asterisk
 	ID              field.Int64  // 主键ID
+	SourceName      field.String // 数据源名称
 	Name            field.String // 业务表名
 	Comment         field.String // 业务表描述
 	BusinessModule  field.String // 业务模块
@@ -71,8 +73,8 @@ type codeGenTable struct {
 	GenBackend      field.Int32  // 是否生成后端
 	GenFrontend     field.Int32  // 是否生成前端
 	GenSql          field.Int32  // 是否生成建表SQL
-	Status          field.Int32  // 状态：0草稿 1已生成 2停用
 	Remark          field.String // 备注
+	Status          field.Int32  // 状态：枚举【CodeGenTableStatus】
 	CreatedBy       field.Int64  // 创建人ID
 	UpdatedBy       field.Int64  // 更新人ID
 	CreatedAt       field.Time   // 创建时间
@@ -95,6 +97,7 @@ func (c codeGenTable) As(alias string) *codeGenTable {
 func (c *codeGenTable) updateTableName(table string) *codeGenTable {
 	c.ALL = field.NewAsterisk(table)
 	c.ID = field.NewInt64(table, "id")
+	c.SourceName = field.NewString(table, "source_name")
 	c.Name = field.NewString(table, "name")
 	c.Comment = field.NewString(table, "comment")
 	c.BusinessModule = field.NewString(table, "business_module")
@@ -107,8 +110,8 @@ func (c *codeGenTable) updateTableName(table string) *codeGenTable {
 	c.GenBackend = field.NewInt32(table, "gen_backend")
 	c.GenFrontend = field.NewInt32(table, "gen_frontend")
 	c.GenSql = field.NewInt32(table, "gen_sql")
-	c.Status = field.NewInt32(table, "status")
 	c.Remark = field.NewString(table, "remark")
+	c.Status = field.NewInt32(table, "status")
 	c.CreatedBy = field.NewInt64(table, "created_by")
 	c.UpdatedBy = field.NewInt64(table, "updated_by")
 	c.CreatedAt = field.NewTime(table, "created_at")
@@ -142,8 +145,9 @@ func (c *codeGenTable) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (c *codeGenTable) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 20)
+	c.fieldMap = make(map[string]field.Expr, 21)
 	c.fieldMap["id"] = c.ID
+	c.fieldMap["source_name"] = c.SourceName
 	c.fieldMap["name"] = c.Name
 	c.fieldMap["comment"] = c.Comment
 	c.fieldMap["business_module"] = c.BusinessModule
@@ -156,8 +160,8 @@ func (c *codeGenTable) fillFieldMap() {
 	c.fieldMap["gen_backend"] = c.GenBackend
 	c.fieldMap["gen_frontend"] = c.GenFrontend
 	c.fieldMap["gen_sql"] = c.GenSql
-	c.fieldMap["status"] = c.Status
 	c.fieldMap["remark"] = c.Remark
+	c.fieldMap["status"] = c.Status
 	c.fieldMap["created_by"] = c.CreatedBy
 	c.fieldMap["updated_by"] = c.UpdatedBy
 	c.fieldMap["created_at"] = c.CreatedAt

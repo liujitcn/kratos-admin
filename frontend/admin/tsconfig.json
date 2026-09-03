@@ -55,6 +55,7 @@
       "@liujitcn/kratos-admin-core/tsconfig.json": ["packages/core/tsconfig.json"],
       "@liujitcn/kratos-admin-core/vite.config": ["packages/core/vite.config.ts"],
       "@liujitcn/kratos-admin-system": ["packages/modules/system/src/index.ts"],
+      "@liujitcn/kratos-admin-system/config": ["packages/modules/system/src/config/index.ts"],
       "@liujitcn/kratos-admin-system/api/*": ["packages/modules/system/src/api/*"],
       "@liujitcn/kratos-admin-system/components/*": ["packages/modules/system/src/components/*"],
       "@liujitcn/kratos-admin-system/package.json": ["packages/modules/system/package.json"],

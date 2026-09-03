@@ -107,7 +107,7 @@ import type { FilesCardProps } from "vue-element-plus-x/types/FilesCard";
 import { Loading, Microphone, Paperclip, Promotion } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import { t } from "@liujitcn/kratos-admin-core";
-import { defFileService } from "@liujitcn/kratos-admin-core/api/base/file";
+import { defFileService } from "@liujitcn/kratos-admin-core/api/base/v1/file";
 import type { AiAttachment } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import type { SubmitPayload } from "../types";
 import { buildAIAttachmentFileCard } from "../attachment";

@@ -180,7 +180,7 @@ import { CopyDocument, Document, DocumentAdd, DocumentRemove, Files, Refresh, Se
 import MarkdownPreview from "@liujitcn/kratos-admin-core/components/MarkdownPreview/index.vue";
 import { useGlobalStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
-import { defBaseMigrationService } from "@liujitcn/kratos-admin-system/api/system/base_migration";
+import { defBaseMigrationService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_migration";
 import type {
   BaseMigration,
   BaseMigrationListItem,
@@ -643,7 +643,7 @@ onMounted(() => {
   font-weight: 500;
   color: var(--admin-page-text-secondary);
   background: var(--admin-page-card-bg-muted);
-  border-radius: 4px;
+  border-radius: var(--admin-page-radius);
 }
 
 .sql-panel {

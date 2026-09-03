@@ -131,7 +131,7 @@ const globalStore = useGlobalStore();
   }
   :deep(code:not(pre code)) {
     color: var(--el-color-primary);
-    border-radius: 6px;
+    border-radius: var(--admin-page-radius);
   }
 }
 </style>

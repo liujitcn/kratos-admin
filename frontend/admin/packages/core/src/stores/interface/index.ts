@@ -53,9 +53,14 @@ export interface GlobalState {
 /** 当前登录用户认证状态。 */
 export interface UserState {
   token: string;
-  refreshToken: string;
   tokenType: string;
   tokenExpiresAt: number;
+  /** 是否正在执行退出登录，阻止后台请求刷新令牌。 */
+  isLoggingOut: boolean;
+  /** 认证状态版本，用于丢弃退出期间完成的旧刷新请求。 */
+  authVersion: number;
+  /** 当前认证是否已被本地显式清理。 */
+  authInvalidated: boolean;
   userInfo: UserInfoForm;
 }
 

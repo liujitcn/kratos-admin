@@ -47,8 +47,7 @@ func (c *BaseThirdAccountCase) CreateBinding(ctx context.Context, userID int64, 
 		if errorsx.IsDuplicateKey(err) {
 			message := "三方账号绑定关系已存在"
 			constraint := ""
-			var mysqlErr *mysql.MySQLError
-			if errors.As(err, &mysqlErr) {
+			if mysqlErr, ok := errors.AsType[*mysql.MySQLError](err); ok {
 				// 根据数据库实际命中的唯一索引返回对应的绑定关系描述。
 				switch {
 				case strings.Contains(mysqlErr.Message, "unique_base_third_account_user"):

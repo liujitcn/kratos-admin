@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "system/admin/v1/base_log.proto";
+
+// 业务操作日志服务。
+service BaseOperationLogService {
+  // 分页查询业务操作日志。
+  rpc PageBaseOperationLog(PageBaseOperationLogRequest) returns (PageBaseOperationLogResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/operation-log"};
+  }
+
+  // 查询业务操作日志详情。
+  rpc GetBaseOperationLog(GetBaseOperationLogRequest) returns (BaseOperationLog) {
+    option (google.api.http) = {get: "/api/v1/admin/base/operation-log/{id}"};
+  }
+}
+
+// BaseOperationAction 定义管理端资源变更的业务动作。
+// 动作与资源类型组合后用于生成可检索的操作审计记录。
+enum BaseOperationAction {
+  // 未指定业务操作动作。
+  BASE_OPERATION_ACTION_UNSPECIFIED = 0;
+  // 新增资源。
+  BASE_OPERATION_ACTION_CREATE = 1;
+  // 修改资源。
+  BASE_OPERATION_ACTION_UPDATE = 2;
+  // 删除资源。
+  BASE_OPERATION_ACTION_DELETE = 3;
+  // 发布资源。
+  BASE_OPERATION_ACTION_PUBLISH = 4;
+  // 撤回资源。
+  BASE_OPERATION_ACTION_REVOKE = 5;
+  // 导入数据。
+  BASE_OPERATION_ACTION_IMPORT = 6;
+  // 导出数据。
+  BASE_OPERATION_ACTION_EXPORT = 7;
+  // 其他业务动作。
+  BASE_OPERATION_ACTION_OTHER = 8;
+}
+
+// 业务操作日志分页查询条件。
+message PageBaseOperationLogRequest {
+  optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  optional int64 user_id = 2 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  optional BaseOperationAction action = 3 [(gnostic.openapi.v3.property) = {description: "操作动作"}]; // 操作动作
+  optional BaseLogResult result = 4 [(gnostic.openapi.v3.property) = {description: "结果"}]; // 结果
+  repeated string occurred_at = 5 [(gnostic.openapi.v3.property) = {description: "事件时间"}]; // 事件时间
+  string resource_type = 6 [(gnostic.openapi.v3.property) = {description: "资源类型"}]; // 资源类型
+  string keyword = 7 [(gnostic.openapi.v3.property) = {description: "资源或请求ID关键字"}]; // 关键字
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码"}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数"}]; // 每页行数
+}
+
+// 业务操作日志分页响应。
+message PageBaseOperationLogResponse {
+  repeated BaseOperationLog base_operation_logs = 1 [(gnostic.openapi.v3.property) = {description: "业务操作日志列表"}]; // 业务操作日志列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 查询业务操作日志详情请求。
+message GetBaseOperationLogRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "操作日志ID"}]; // 操作日志ID
+}
+
+// 业务操作日志。
+message BaseOperationLog {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "操作日志ID"}]; // 操作日志ID
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  string tenant_code = 3 [(gnostic.openapi.v3.property) = {description: "租户编码"}]; // 租户编码
+  int64 user_id = 4 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  string user_name = 5 [(gnostic.openapi.v3.property) = {description: "用户名称"}]; // 用户名称
+  string request_id = 6 [(gnostic.openapi.v3.property) = {description: "请求ID"}]; // 请求ID
+  string trace_id = 7 [(gnostic.openapi.v3.property) = {description: "链路追踪ID"}]; // 链路追踪ID
+  string resource_type = 8 [(gnostic.openapi.v3.property) = {description: "资源类型"}]; // 资源类型
+  string resource_id = 9 [(gnostic.openapi.v3.property) = {description: "资源ID"}]; // 资源ID
+  string resource_name = 10 [(gnostic.openapi.v3.property) = {description: "资源名称"}]; // 资源名称
+  BaseOperationAction action = 11 [(gnostic.openapi.v3.property) = {description: "操作动作"}]; // 操作动作
+  string changed_fields = 12 [(gnostic.openapi.v3.property) = {description: "变更字段"}]; // 变更字段
+  string before_data = 13 [(gnostic.openapi.v3.property) = {description: "变更前数据"}]; // 变更前数据
+  string after_data = 14 [(gnostic.openapi.v3.property) = {description: "变更后数据"}]; // 变更后数据
+  BaseLogResult result = 15 [(gnostic.openapi.v3.property) = {description: "结果"}]; // 结果
+  string reason_code = 16 [(gnostic.openapi.v3.property) = {description: "原因编码"}]; // 原因编码
+  string reason = 17 [(gnostic.openapi.v3.property) = {description: "原因说明"}]; // 原因说明
+  string occurred_at = 18 [(gnostic.openapi.v3.property) = {description: "事件发生时间"}]; // 事件发生时间
+  string created_at = 19 [(gnostic.openapi.v3.property) = {description: "日志落库时间"}]; // 日志落库时间
+}

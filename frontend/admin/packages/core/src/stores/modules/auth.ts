@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { defAuthService } from "@/api/system/auth";
+import { defAuthService } from "@/api/system/admin/v1/auth";
 import { AuthState } from "@/stores/interface";
 import { getFlatMenuList, getShowMenuList, getAllBreadcrumbList, isExternalPath } from "@/utils";
 import type { RouteItem } from "@/rpc/system/admin/v1/auth";

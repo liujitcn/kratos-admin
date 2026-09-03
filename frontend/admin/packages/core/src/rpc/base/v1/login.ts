@@ -22,6 +22,8 @@ export enum PasswordCryptoScene {
   PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD = 4,
   /** PASSWORD_CRYPTO_SCENE_MFA - 多因素认证敏感操作场景。 */
   PASSWORD_CRYPTO_SCENE_MFA = 5,
+  /** PASSWORD_CRYPTO_SCENE_CONFIGURE_PASSWORD_POLICY - 密码策略初始化密码配置场景。 */
+  PASSWORD_CRYPTO_SCENE_CONFIGURE_PASSWORD_POLICY = 6,
 }
 
 /**
@@ -107,7 +109,7 @@ export interface RefreshTokenRequest {
 export interface RefreshTokenResponse {
   /** 访问令牌，必选项。 */
   access_token: string;
-  /** 更新令牌，用来获取下一次的访问令牌，可选项。 */
+  /** 更新令牌；管理端 Cookie-only 请求不在响应体返回，应用端请求可返回。 */
   refresh_token: string;
   /** 令牌类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型。 */
   token_type: string;
@@ -135,7 +137,7 @@ export interface LoginRequest {
 export interface LoginResponse {
   /** 访问令牌，必选项。 */
   access_token: string;
-  /** 更新令牌，用来获取下一次的访问令牌，可选项。 */
+  /** 更新令牌；管理端 Cookie-only 请求不在响应体返回，应用端请求可返回。 */
   refresh_token: string;
   /** 令牌类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型。 */
   token_type: string;

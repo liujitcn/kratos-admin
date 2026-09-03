@@ -33,8 +33,8 @@ func newBaseRole(db *gorm.DB, opts ...gen.DOOption) baseRole {
 	_baseRole.Code = field.NewString(tableName, "code")
 	_baseRole.DataScope = field.NewInt32(tableName, "data_scope")
 	_baseRole.Menus = field.NewString(tableName, "menus")
-	_baseRole.Status = field.NewInt32(tableName, "status")
 	_baseRole.Remark = field.NewString(tableName, "remark")
+	_baseRole.Status = field.NewInt32(tableName, "status")
 	_baseRole.CreatedBy = field.NewInt64(tableName, "created_by")
 	_baseRole.UpdatedBy = field.NewInt64(tableName, "updated_by")
 	_baseRole.CreatedAt = field.NewTime(tableName, "created_at")
@@ -57,8 +57,8 @@ type baseRole struct {
 	Code      field.String // 角色代码
 	DataScope field.Int32  // 数据权限：枚举【BaseRoleDataScope】
 	Menus     field.String // 分配的菜单列表
-	Status    field.Int32  // 状态：枚举【Status】
 	Remark    field.String // 备注
+	Status    field.Int32  // 状态：枚举【Status】
 	CreatedBy field.Int64  // 创建者ID
 	UpdatedBy field.Int64  // 更新者ID
 	CreatedAt field.Time   // 创建时间
@@ -86,8 +86,8 @@ func (b *baseRole) updateTableName(table string) *baseRole {
 	b.Code = field.NewString(table, "code")
 	b.DataScope = field.NewInt32(table, "data_scope")
 	b.Menus = field.NewString(table, "menus")
-	b.Status = field.NewInt32(table, "status")
 	b.Remark = field.NewString(table, "remark")
+	b.Status = field.NewInt32(table, "status")
 	b.CreatedBy = field.NewInt64(table, "created_by")
 	b.UpdatedBy = field.NewInt64(table, "updated_by")
 	b.CreatedAt = field.NewTime(table, "created_at")
@@ -124,8 +124,8 @@ func (b *baseRole) fillFieldMap() {
 	b.fieldMap["code"] = b.Code
 	b.fieldMap["data_scope"] = b.DataScope
 	b.fieldMap["menus"] = b.Menus
-	b.fieldMap["status"] = b.Status
 	b.fieldMap["remark"] = b.Remark
+	b.fieldMap["status"] = b.Status
 	b.fieldMap["created_by"] = b.CreatedBy
 	b.fieldMap["updated_by"] = b.UpdatedBy
 	b.fieldMap["created_at"] = b.CreatedAt

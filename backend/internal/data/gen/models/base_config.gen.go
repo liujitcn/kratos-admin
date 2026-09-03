@@ -14,18 +14,19 @@ const TableNameBaseConfig = "base_config"
 
 // BaseConfig 参数配置
 type BaseConfig struct {
-	ID        int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:系统配置ID" json:"id"`                                                              // 系统配置ID
-	Site      int32                 `gorm:"column:site;type:tinyint;not null;uniqueIndex:unique_base_config,priority:1;comment:位置：枚举【BaseConfigSite】" json:"site"`                     // 位置：枚举【BaseConfigSite】
-	Name      string                `gorm:"column:name;type:varchar(50);not null;comment:配置名称" json:"name"`                                                                            // 配置名称
-	Type      int32                 `gorm:"column:type;type:tinyint;not null;comment:配置类型：枚举【BaseConfigType】" json:"type"`                                                             // 配置类型：枚举【BaseConfigType】
-	Key       string                `gorm:"column:key;type:varchar(50);not null;uniqueIndex:unique_base_config,priority:2;comment:配置key" json:"key"`                                   // 配置key
-	Value     string                `gorm:"column:value;type:text;not null;comment:配置值" json:"value"`                                                                                  // 配置值
-	Status    int32                 `gorm:"column:status;type:tinyint;not null;comment:状态：枚举【Status】" json:"status"`                                                                   // 状态：枚举【Status】
-	CreatedBy int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建人ID" json:"created_by"`                                                                    // 创建人ID
-	UpdatedBy int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新人ID" json:"updated_by"`                                                                    // 更新人ID
-	CreatedAt time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                                   // 创建时间
-	UpdatedAt time.Time             `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                                                   // 更新时间
-	DeletedAt soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;uniqueIndex:unique_base_config,priority:3;comment:删除时间;softDelete:milli" json:"deleted_at"` // 删除时间
+	ID           int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:系统配置ID" json:"id"`                                                              // 系统配置ID
+	Site         int32                 `gorm:"column:site;type:tinyint;not null;uniqueIndex:unique_base_config,priority:1;comment:位置：枚举【BaseConfigSite】" json:"site"`                     // 位置：枚举【BaseConfigSite】
+	Name         string                `gorm:"column:name;type:varchar(50);not null;comment:配置名称" json:"name"`                                                                            // 配置名称
+	Type         int32                 `gorm:"column:type;type:tinyint;not null;comment:配置类型：枚举【BaseConfigType】" json:"type"`                                                             // 配置类型：枚举【BaseConfigType】
+	Key          string                `gorm:"column:key;type:varchar(50);not null;uniqueIndex:unique_base_config,priority:2;comment:配置key" json:"key"`                                   // 配置key
+	Value        string                `gorm:"column:value;type:text;not null;comment:配置值" json:"value"`                                                                                  // 配置值
+	HiddenStatus int32                 `gorm:"column:hidden_status;type:tinyint;not null;comment:隐藏状态：1显示，2隐藏" json:"hidden_status"`                                                      // 隐藏状态：1显示，2隐藏
+	Status       int32                 `gorm:"column:status;type:tinyint;not null;comment:状态：枚举【Status】" json:"status"`                                                                   // 状态：枚举【Status】
+	CreatedBy    int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建人ID" json:"created_by"`                                                                    // 创建人ID
+	UpdatedBy    int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新人ID" json:"updated_by"`                                                                    // 更新人ID
+	CreatedAt    time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                                   // 创建时间
+	UpdatedAt    time.Time             `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                                                   // 更新时间
+	DeletedAt    soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;uniqueIndex:unique_base_config,priority:3;comment:删除时间;softDelete:milli" json:"deleted_at"` // 删除时间
 }
 
 // TableName BaseConfig's table name

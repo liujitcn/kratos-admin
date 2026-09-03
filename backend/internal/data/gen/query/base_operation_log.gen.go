@@ -67,11 +67,11 @@ type baseOperationLog struct {
 	ResourceType  field.String // 资源类型
 	ResourceID    field.String // 资源ID
 	ResourceName  field.String // 资源名称
-	Action        field.Int32  // 操作动作
+	Action        field.Int32  // 操作动作：枚举【BaseOperationAction】
 	ChangedFields field.String // 变更字段
 	BeforeData    field.String // 变更前数据
 	AfterData     field.String // 变更后数据
-	Result        field.Int32  // 结果
+	Result        field.Int32  // 结果：枚举【BaseLogResult】
 	ReasonCode    field.String // 原因编码
 	Reason        field.String // 原因说明
 	OccurredAt    field.Time   // 事件发生时间

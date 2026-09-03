@@ -8,7 +8,7 @@ import {
   useI18n,
   useUserStore,
 } from '@liujitcn/kratos-taro-app-core'
-import { defMfaService } from '@liujitcn/kratos-taro-app-core/api/base/mfa'
+import { defMfaService } from '@liujitcn/kratos-taro-app-core/api/base/v1/mfa'
 import PasswordVerifyDialog from './components/PasswordVerifyDialog'
 import './settings.scss'
 

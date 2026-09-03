@@ -22,7 +22,7 @@
 
 - Element Plus 运行时 API 和图标走 `unplugin-auto-import`，不重复手写 import；类型（`FormRules` 等）保持显式导入。
 - core 手写源码使用 `@/*`，业务模块通过 `@liujitcn/kratos-admin-core/*` 和自身 npm 包名引用；RPC 生成文件保留生成器输出的相对路径。npm 发布产物由 `pnpm build:package` 生成，禁止手改任意 `dist/package`。
-- API 按 Proto 一级领域放入 `src/api/base`、`src/api/system` 等目录；RPC 保留 Proto 的完整生成层级，不把 API 或 RPC 扁平化。
+- API 按 Proto 完整路径放入 `src/api/base/v1`、`src/api/system/admin/v1` 等目录，TS 文件名与对应服务文件名保持一致；RPC 保留 Proto 的完整生成层级，不把 API 或 RPC 扁平化。
 - RPC 按前端能力归属放置：登录、菜单、用户信息等运行契约属于 core；个人中心、AI 和 System 管理契约属于 System；其他业务模块契约放在对应模块的 `src/rpc`。业务模型优先引用所属包的生成类型，不重复定义等价类型。
 - 自动生成文件放 `packages/core/types/generated`（`auto-imports.d.ts`、`components.d.ts`）；`packages/core/src/typings` 只放手写声明。调整自动导入配置时同步确认 `packages/core/build/plugins.ts`、`internal/lint-config/oxlint.json`、根 `tsconfig.json` 与包级 `tsconfig.json`。
 

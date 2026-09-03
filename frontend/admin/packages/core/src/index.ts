@@ -6,6 +6,7 @@
 
 export * from "./modules";
 export * from "./locales";
-export { defLanguageService } from "./api/base/language";
+export { defLanguageService } from "./api/base/v1/language";
+export { setAdminDocumentTitle } from "./documentTitle";
 export { kratosAdminModule } from "./modules/kratosAdmin";
 export { bootstrapAdminApp } from "./bootstrap";

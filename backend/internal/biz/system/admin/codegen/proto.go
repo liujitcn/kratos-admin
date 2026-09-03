@@ -94,7 +94,7 @@ func (c *renderer) renderProtoPatch(table *Table, columns []*CodeGenColumn, meth
 	messageNames := make(map[string]struct{})
 	// 一个 Proto 文件可能包含多个 service，RPC 按目标 service 分组，message 则在文件级去重。
 	for _, method := range filtered {
-		exists, _ := c.protoMethodExists(method.ProtoFilePath, method.TargetEntityName, method.MethodName)
+		exists := c.protoMethodExists(method.ProtoFilePath, method.TargetEntityName, method.MethodName)
 		if !exists {
 			serviceName := method.TargetEntityName + "Service"
 			if _, ok := patch.RPCs[serviceName]; !ok {

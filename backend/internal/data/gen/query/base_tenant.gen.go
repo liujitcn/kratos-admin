@@ -32,8 +32,8 @@ func newBaseTenant(db *gorm.DB, opts ...gen.DOOption) baseTenant {
 	_baseTenant.Name = field.NewString(tableName, "name")
 	_baseTenant.ContactName = field.NewString(tableName, "contact_name")
 	_baseTenant.ContactPhone = field.NewString(tableName, "contact_phone")
-	_baseTenant.Status = field.NewInt32(tableName, "status")
 	_baseTenant.Remark = field.NewString(tableName, "remark")
+	_baseTenant.Status = field.NewInt32(tableName, "status")
 	_baseTenant.CreatedBy = field.NewInt64(tableName, "created_by")
 	_baseTenant.UpdatedBy = field.NewInt64(tableName, "updated_by")
 	_baseTenant.CreatedAt = field.NewTime(tableName, "created_at")
@@ -55,8 +55,8 @@ type baseTenant struct {
 	Name         field.String // 租户名称
 	ContactName  field.String // 联系人
 	ContactPhone field.String // 联系电话
-	Status       field.Int32  // 状态：枚举【Status】
 	Remark       field.String // 备注
+	Status       field.Int32  // 状态：枚举【Status】
 	CreatedBy    field.Int64  // 创建者ID
 	UpdatedBy    field.Int64  // 更新者ID
 	CreatedAt    field.Time   // 创建时间
@@ -83,8 +83,8 @@ func (b *baseTenant) updateTableName(table string) *baseTenant {
 	b.Name = field.NewString(table, "name")
 	b.ContactName = field.NewString(table, "contact_name")
 	b.ContactPhone = field.NewString(table, "contact_phone")
-	b.Status = field.NewInt32(table, "status")
 	b.Remark = field.NewString(table, "remark")
+	b.Status = field.NewInt32(table, "status")
 	b.CreatedBy = field.NewInt64(table, "created_by")
 	b.UpdatedBy = field.NewInt64(table, "updated_by")
 	b.CreatedAt = field.NewTime(table, "created_at")
@@ -122,8 +122,8 @@ func (b *baseTenant) fillFieldMap() {
 	b.fieldMap["name"] = b.Name
 	b.fieldMap["contact_name"] = b.ContactName
 	b.fieldMap["contact_phone"] = b.ContactPhone
-	b.fieldMap["status"] = b.Status
 	b.fieldMap["remark"] = b.Remark
+	b.fieldMap["status"] = b.Status
 	b.fieldMap["created_by"] = b.CreatedBy
 	b.fieldMap["updated_by"] = b.UpdatedBy
 	b.fieldMap["created_at"] = b.CreatedAt

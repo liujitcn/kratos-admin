@@ -61,13 +61,13 @@ import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
-import { defBaseDictService } from "@liujitcn/kratos-admin-system/api/system/base_dict";
-import { loadEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
+import { defBaseDictItemService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_dict_item";
+import { loadEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_language";
 import type {
   BaseDictItem,
   BaseDictItemForm,
   PageBaseDictItemRequest
-} from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dict";
+} from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dict_item";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { I18nTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
@@ -307,7 +307,7 @@ watch(
  */
 async function requestBaseDictItemTable(params: PageBaseDictItemRequest) {
   await loadEnabledBaseLanguages();
-  const data = await defBaseDictService.PageBaseDictItem({ ...buildPageRequest(params), dict_id: dictId.value });
+  const data = await defBaseDictItemService.PageBaseDictItem({ ...buildPageRequest(params), dict_id: dictId.value });
   return { data: { list: data.base_dict_items ?? [], total: data.total } };
 }
 
@@ -328,7 +328,7 @@ async function handleOpenDialog(dictItemId?: number) {
   dialog.visible = true;
   if (!dictItemId) return;
 
-  const data = await defBaseDictService.GetBaseDictItem({ id: dictItemId });
+  const data = await defBaseDictItemService.GetBaseDictItem({ id: dictItemId });
   Object.assign(formData, data);
   i18nValues.value = normalizeDynamicI18ns(data.i18ns as DynamicI18nRecord[], "label");
 }
@@ -373,8 +373,8 @@ function handleSubmit() {
       submitData.id
     );
     const request = submitData.id
-      ? defBaseDictService.UpdateBaseDictItem({ base_dict_item: submitData })
-      : defBaseDictService.CreateBaseDictItem({ base_dict_item: submitData });
+      ? defBaseDictItemService.UpdateBaseDictItem({ base_dict_item: submitData })
+      : defBaseDictItemService.CreateBaseDictItem({ base_dict_item: submitData });
     request.then(() => {
       ElMessage.success(
         t(submitData.id ? "system.base.dict.item.message.update_success" : "system.base.dict.item.message.create_success")
@@ -402,7 +402,7 @@ async function handleBeforeSetStatus(row: BaseDictItem) {
         type: "warning"
       }
     );
-    await defBaseDictService.SetBaseDictItemStatus({ id: row.id, status: nextStatus });
+    await defBaseDictItemService.SetBaseDictItemStatus({ id: row.id, status: nextStatus });
     ElMessage.success(t("common.message.status_success", { action }));
     refreshTable();
     return true;
@@ -443,7 +443,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
     type: "warning"
   }).then(
     () => {
-      defBaseDictService.DeleteBaseDictItem({ id: dictItemIds }).then(() => {
+      defBaseDictItemService.DeleteBaseDictItem({ id: dictItemIds }).then(() => {
         ElMessage.success(t("system.base.dict.item.message.delete_success"));
         refreshTable();
       });

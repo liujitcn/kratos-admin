@@ -469,18 +469,19 @@ func (c *OauthCase) createWechatMiniUser(ctx context.Context, openID string) (*m
 	userCode := id.NewXID()
 	now := time.Now()
 	user := &models.BaseUser{
-		TenantID:          defaultRole.TenantID,
-		UserName:          userCode,
-		UserCode:          userCode,
-		RoleID:            defaultRole.ID,
-		DeptID:            defaultDept.ID,
-		PasswordChangedAt: now,
-		PasswordHistory:   "[]",
-		Gender:            _const.BASE_USER_GENDER_SECRET,
-		Status:            coreconst.STATUS_STATUS_ENABLE,
-		Remark:            "自动注册用户",
-		CreatedAt:         now,
-		UpdatedAt:         now,
+		TenantID:           defaultRole.TenantID,
+		UserName:           userCode,
+		UserCode:           userCode,
+		RoleID:             defaultRole.ID,
+		DeptID:             defaultDept.ID,
+		PasswordChangedAt:  now,
+		PasswordHistory:    "[]",
+		MustChangePassword: _const.BASE_USER_PASSWORD_CHANGE_STATUS_NOT_REQUIRED,
+		Gender:             _const.BASE_USER_GENDER_SECRET,
+		Status:             coreconst.STATUS_STATUS_ENABLE,
+		Remark:             "自动注册用户",
+		CreatedAt:          now,
+		UpdatedAt:          now,
 	}
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		err = c.baseUserCase.Create(txCtx, user)

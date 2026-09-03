@@ -94,6 +94,9 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *appv1.UserProfile
 		NickName: req.GetNickName(),
 		Gender:   req.GetGender(),
 		Avatar:   req.GetAvatar(),
+		Email:    req.GetEmail(),
+		IDType:   int32(req.GetIdType()),
+		IDCode:   req.GetIdCode(),
 	}
 	// 用户资料更新失败时，直接返回错误交由上层处理。
 	if err = c.baseUserCase.UpdateByID(ctx, baseUser); err != nil {

@@ -33,6 +33,7 @@ func newBaseConfig(db *gorm.DB, opts ...gen.DOOption) baseConfig {
 	_baseConfig.Type = field.NewInt32(tableName, "type")
 	_baseConfig.Key = field.NewString(tableName, "key")
 	_baseConfig.Value = field.NewString(tableName, "value")
+	_baseConfig.HiddenStatus = field.NewInt32(tableName, "hidden_status")
 	_baseConfig.Status = field.NewInt32(tableName, "status")
 	_baseConfig.CreatedBy = field.NewInt64(tableName, "created_by")
 	_baseConfig.UpdatedBy = field.NewInt64(tableName, "updated_by")
@@ -49,19 +50,20 @@ func newBaseConfig(db *gorm.DB, opts ...gen.DOOption) baseConfig {
 type baseConfig struct {
 	baseConfigDo baseConfigDo
 
-	ALL       field.Asterisk
-	ID        field.Int64  // 系统配置ID
-	Site      field.Int32  // 位置：枚举【BaseConfigSite】
-	Name      field.String // 配置名称
-	Type      field.Int32  // 配置类型：枚举【BaseConfigType】
-	Key       field.String // 配置key
-	Value     field.String // 配置值
-	Status    field.Int32  // 状态：枚举【Status】
-	CreatedBy field.Int64  // 创建人ID
-	UpdatedBy field.Int64  // 更新人ID
-	CreatedAt field.Time   // 创建时间
-	UpdatedAt field.Time   // 更新时间
-	DeletedAt field.Field  // 删除时间
+	ALL          field.Asterisk
+	ID           field.Int64  // 系统配置ID
+	Site         field.Int32  // 位置：枚举【BaseConfigSite】
+	Name         field.String // 配置名称
+	Type         field.Int32  // 配置类型：枚举【BaseConfigType】
+	Key          field.String // 配置key
+	Value        field.String // 配置值
+	HiddenStatus field.Int32  // 隐藏状态：1显示，2隐藏
+	Status       field.Int32  // 状态：枚举【Status】
+	CreatedBy    field.Int64  // 创建人ID
+	UpdatedBy    field.Int64  // 更新人ID
+	CreatedAt    field.Time   // 创建时间
+	UpdatedAt    field.Time   // 更新时间
+	DeletedAt    field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -84,6 +86,7 @@ func (b *baseConfig) updateTableName(table string) *baseConfig {
 	b.Type = field.NewInt32(table, "type")
 	b.Key = field.NewString(table, "key")
 	b.Value = field.NewString(table, "value")
+	b.HiddenStatus = field.NewInt32(table, "hidden_status")
 	b.Status = field.NewInt32(table, "status")
 	b.CreatedBy = field.NewInt64(table, "created_by")
 	b.UpdatedBy = field.NewInt64(table, "updated_by")
@@ -116,13 +119,14 @@ func (b *baseConfig) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (b *baseConfig) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 12)
+	b.fieldMap = make(map[string]field.Expr, 13)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["site"] = b.Site
 	b.fieldMap["name"] = b.Name
 	b.fieldMap["type"] = b.Type
 	b.fieldMap["key"] = b.Key
 	b.fieldMap["value"] = b.Value
+	b.fieldMap["hidden_status"] = b.HiddenStatus
 	b.fieldMap["status"] = b.Status
 	b.fieldMap["created_by"] = b.CreatedBy
 	b.fieldMap["updated_by"] = b.UpdatedBy

@@ -32,9 +32,9 @@ func newBaseJobLog(db *gorm.DB, opts ...gen.DOOption) baseJobLog {
 	_baseJobLog.Input = field.NewString(tableName, "input")
 	_baseJobLog.Output = field.NewString(tableName, "output")
 	_baseJobLog.Error = field.NewString(tableName, "error")
-	_baseJobLog.Status = field.NewInt32(tableName, "status")
 	_baseJobLog.ProcessTime = field.NewInt32(tableName, "process_time")
 	_baseJobLog.ExecuteTime = field.NewTime(tableName, "execute_time")
+	_baseJobLog.Status = field.NewInt32(tableName, "status")
 
 	_baseJobLog.fillFieldMap()
 
@@ -51,9 +51,9 @@ type baseJobLog struct {
 	Input       field.String // 执行参数
 	Output      field.String // 输出结果
 	Error       field.String // 错误信息
-	Status      field.Int32  // 状态：枚举【BaseJobLogStatus】
 	ProcessTime field.Int32  // 消耗时间/毫秒
 	ExecuteTime field.Time   // 执行时间
+	Status      field.Int32  // 状态：枚举【BaseJobLogStatus】
 
 	fieldMap map[string]field.Expr
 }
@@ -75,9 +75,9 @@ func (b *baseJobLog) updateTableName(table string) *baseJobLog {
 	b.Input = field.NewString(table, "input")
 	b.Output = field.NewString(table, "output")
 	b.Error = field.NewString(table, "error")
-	b.Status = field.NewInt32(table, "status")
 	b.ProcessTime = field.NewInt32(table, "process_time")
 	b.ExecuteTime = field.NewTime(table, "execute_time")
+	b.Status = field.NewInt32(table, "status")
 
 	b.fillFieldMap()
 
@@ -110,9 +110,9 @@ func (b *baseJobLog) fillFieldMap() {
 	b.fieldMap["input"] = b.Input
 	b.fieldMap["output"] = b.Output
 	b.fieldMap["error"] = b.Error
-	b.fieldMap["status"] = b.Status
 	b.fieldMap["process_time"] = b.ProcessTime
 	b.fieldMap["execute_time"] = b.ExecuteTime
+	b.fieldMap["status"] = b.Status
 }
 
 func (b baseJobLog) clone(db *gorm.DB) baseJobLog {

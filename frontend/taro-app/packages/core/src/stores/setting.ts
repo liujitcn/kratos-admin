@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { defConfigService } from '../api/base/config'
+import { defConfigService } from '../api/base/v1/config'
 import { t } from '../locales'
 import { BaseConfigSite } from '../rpc/base/v1/config'
 

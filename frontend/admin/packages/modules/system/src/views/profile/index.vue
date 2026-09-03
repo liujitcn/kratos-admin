@@ -42,7 +42,7 @@ defineOptions({
 import { computed, onMounted, reactive, ref } from "vue";
 import { useRoute } from "vue-router";
 import { t } from "@liujitcn/kratos-admin-core";
-import { defProfileAuthService } from "@liujitcn/kratos-admin-system/api/system/auth";
+import { defProfileAuthService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/auth";
 import type { UserProfileForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/auth";
 import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import ProfileBase from "./components/base.vue";
@@ -99,6 +99,9 @@ const userProfileForm = reactive<UserProfileForm>({
   avatar: "",
   gender: 3,
   phone: "",
+  email: "",
+  id_type: 0,
+  id_code: "",
   role_name: "",
   dept_name: "",
   created_at: ""
@@ -119,6 +122,9 @@ async function loadUserProfile() {
     user_name: profile.user_name,
     nick_name: profile.nick_name,
     phone: profile.phone,
+    email: profile.email,
+    id_type: profile.id_type,
+    id_code: profile.id_code,
     avatar: profile.avatar,
     role_name: profile.role_name,
     dept_name: profile.dept_name
@@ -138,17 +144,17 @@ onMounted(async () => {
 
 <style scoped lang="scss">
 .profile-page {
-  padding: 20px;
+  min-width: 0;
 }
 .profile-shell {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
-  gap: 16px;
+  gap: 10px;
   align-items: start;
 }
 .profile-nav {
   position: sticky;
-  top: 20px;
+  top: 10px;
   padding: 16px;
   background: #ffffff;
   border: 1px solid #ebeef5;
@@ -205,9 +211,4 @@ onMounted(async () => {
   }
 }
 
-@media screen and (width <= 640px) {
-  .profile-page {
-    padding: 16px;
-  }
-}
 </style>

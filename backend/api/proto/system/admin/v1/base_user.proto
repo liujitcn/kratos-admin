@@ -6,6 +6,7 @@ import "common/v1/common.proto";
 import "common/v1/analytics.proto";
 import "common/v1/enum.proto";
 import "common/v1/types.proto";
+import "system/common/v1/common.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
@@ -164,12 +165,6 @@ message GetBaseUserRequest {
 
 // 创建用户请求参数
 message CreateBaseUserRequest {
-  option (buf.validate.message).cel = {
-    id: "system.admin.base.user.create.pwd.required"
-    message: "请输入密码"
-    expression: "!has(this.base_user) || has(this.base_user.pwd)"
-  };
-
   BaseUserForm base_user = 1 [(gnostic.openapi.v3.property) = {description: "用户表单"}, (buf.validate.field).required = true]; // 用户表单
 }
 
@@ -212,6 +207,12 @@ message BaseUser {
 
   string phone = 8 [(gnostic.openapi.v3.property) = {description: "手机号"}]; // 手机号
 
+  string email = 12 [(gnostic.openapi.v3.property) = {description: "邮箱"}, (buf.validate.field).string.email = true, (buf.validate.field).cel = {id: "system.admin.base.user.entity.email.max_length" message: "邮箱不能超过 128 个字符" expression: "this.size() <= 128"}]; // 邮箱
+
+  .system.common.v1.BaseUserIDType id_type = 13 [(gnostic.openapi.v3.property) = {description: "证件类型：枚举【BaseUserIDType】"}, (buf.validate.field).enum = {defined_only: true}]; // 证件类型：枚举【BaseUserIDType】
+
+  string id_code = 14 [(gnostic.openapi.v3.property) = {description: "证件号"}, (buf.validate.field).cel = {id: "system.admin.base.user.entity.id_code.format" message: "请输入正确的证件号" expression: "this.size() == 0 || this.matches('^[A-Za-z0-9][A-Za-z0-9-]{0,63}$')"}]; // 证件号
+
   BaseUserGender gender = 9 [(gnostic.openapi.v3.property) = {description: "性别"}]; // 性别
 
   string avatar = 10 [(gnostic.openapi.v3.property) = {description: "头像"}]; // 头像
@@ -219,6 +220,8 @@ message BaseUser {
   .common.v1.Status status = 101 [(gnostic.openapi.v3.property) = {description: "用户状态"}]; // 用户状态
 
   string remark = 102 [(gnostic.openapi.v3.property) = {description: "备注名"}]; // 备注名
+
+  .system.common.v1.BaseUserPasswordChangeStatus must_change_password = 103 [(gnostic.openapi.v3.property) = {description: "密码修改状态：枚举【BaseUserPasswordChangeStatus】"}, (buf.validate.field).enum = {defined_only: true}]; // 密码修改状态：枚举【BaseUserPasswordChangeStatus】
 
   string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
 
@@ -246,6 +249,12 @@ message BaseUserForm {
   int64 post_id = 10 [(gnostic.openapi.v3.property) = {description: "岗位ID"}]; // 岗位ID
 
   string phone = 7 [(gnostic.openapi.v3.property) = {description: "手机号"}, (buf.validate.field).cel = {id: "system.admin.base.user.entity.phone.max_length" message: "手机号不能超过 20 个字符" expression: "this.size() <= 20"}, (buf.validate.field).cel = {id: "system.admin.base.user.entity.phone.format" message: "请输入正确的手机号码" expression: "this.size() == 0 || this.matches('^1[3-9]\\\\d{9}$')"}]; // 手机号
+
+  string email = 13 [(gnostic.openapi.v3.property) = {description: "邮箱"}, (buf.validate.field).string.email = true, (buf.validate.field).cel = {id: "system.admin.base.user.entity.email.max_length" message: "邮箱不能超过 128 个字符" expression: "this.size() <= 128"}]; // 邮箱
+
+  .system.common.v1.BaseUserIDType id_type = 14 [(gnostic.openapi.v3.property) = {description: "证件类型：枚举【BaseUserIDType】"}, (buf.validate.field).enum = {defined_only: true}]; // 证件类型：枚举【BaseUserIDType】
+
+  string id_code = 15 [(gnostic.openapi.v3.property) = {description: "证件号"}, (buf.validate.field).cel = {id: "system.admin.base.user.entity.id_code.format" message: "请输入正确的证件号" expression: "this.size() == 0 || this.matches('^[A-Za-z0-9][A-Za-z0-9-]{0,63}$')"}]; // 证件号
 
   string avatar = 8 [(gnostic.openapi.v3.property) = {description: "头像"}, (buf.validate.field).cel = {id: "system.admin.base.user.entity.avatar.max_length" message: "头像不能超过 1024 个字符" expression: "this.size() <= 1024"}]; // 头像
 

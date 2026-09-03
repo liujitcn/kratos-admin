@@ -1,6 +1,6 @@
 import Taro, { getCurrentPages } from '@tarojs/taro'
 import { create } from 'zustand'
-import { defBaseMenuService } from './api/base/menu'
+import { defBaseMenuService } from './api/system/app/v1/base_menu'
 import { resolveStaticView } from './module'
 import { matchLogicalPath, parseLogicalQuery } from './navigation-pattern.mjs'
 import { buildMenuTree } from './navigation-tree.mjs'
@@ -72,11 +72,11 @@ export function setAppMenuBadge(viewKey: string, count: number): void {
 const ANONYMOUS_CACHE_KEY = 'kratos-taro-app:navigation:anonymous'
 const AUTHENTICATED_CACHE_KEY = 'kratos-taro-app:navigation:authenticated'
 /** 固定移动端菜单根目录编号。 */
-export const APP_MENU_ROOT_ID = 999
+export const APP_MENU_ROOT_ID = 99000000
 /** 本地兜底移动菜单。 */
 export const defaultAppMenus: AppMenu[] = [
   {
-    id: 99901,
+    id: 99010000,
     parentId: APP_MENU_ROOT_ID,
     name: 'AppHome',
     path: 'app/home',
@@ -88,7 +88,7 @@ export const defaultAppMenus: AppMenu[] = [
     selectedIcon: 'HOME_SELECTED',
   },
   {
-    id: 9990904,
+    id: 99040000,
     parentId: APP_MENU_ROOT_ID,
     name: 'AppMessage',
     path: 'app/message',
@@ -100,7 +100,7 @@ export const defaultAppMenus: AppMenu[] = [
     selectedIcon: 'MESSAGE_SELECTED',
   },
   {
-    id: 99909,
+    id: 99090000,
     parentId: APP_MENU_ROOT_ID,
     name: 'AppMy',
     path: 'app/my',
@@ -112,8 +112,8 @@ export const defaultAppMenus: AppMenu[] = [
     selectedIcon: 'USER_SELECTED',
   },
   {
-    id: 9990101,
-    parentId: 99901,
+    id: 99010100,
+    parentId: 99010000,
     name: 'AppLogin',
     path: 'app/login',
     viewKey: 'LOGIN',
@@ -122,8 +122,8 @@ export const defaultAppMenus: AppMenu[] = [
     inTabBar: false,
   },
   {
-    id: 999010101,
-    parentId: 9990101,
+    id: 99010101,
+    parentId: 99010100,
     name: 'AppProtocol',
     path: 'app/protocol/:type',
     viewKey: 'PROTOCOL',
@@ -132,8 +132,8 @@ export const defaultAppMenus: AppMenu[] = [
     inTabBar: false,
   },
   {
-    id: 9990901,
-    parentId: 99909,
+    id: 99090100,
+    parentId: 99090000,
     name: 'AppProfile',
     path: 'app/profile',
     viewKey: 'PROFILE',
@@ -142,8 +142,8 @@ export const defaultAppMenus: AppMenu[] = [
     inTabBar: false,
   },
   {
-    id: 9990902,
-    parentId: 99909,
+    id: 99090200,
+    parentId: 99090000,
     name: 'AppSettings',
     path: 'app/settings',
     viewKey: 'SETTINGS',
@@ -152,8 +152,8 @@ export const defaultAppMenus: AppMenu[] = [
     inTabBar: false,
   },
   {
-    id: 9990903,
-    parentId: 99909,
+    id: 99090300,
+    parentId: 99090000,
     name: 'AppAi',
     path: 'app/ai',
     viewKey: 'AI',
@@ -162,8 +162,8 @@ export const defaultAppMenus: AppMenu[] = [
     inTabBar: false,
   },
   {
-    id: 9990102,
-    parentId: 99901,
+    id: 99010200,
+    parentId: 99010000,
     name: 'AppWebView',
     path: 'app/webview',
     viewKey: 'WEBVIEW',

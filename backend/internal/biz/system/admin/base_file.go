@@ -11,7 +11,6 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
-	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"gorm.io/gen/field"
 )
 
@@ -33,14 +32,10 @@ func NewBaseFileCase(baseCase *biz.BaseCase, baseFileRepo *data.BaseFileReposito
 
 // PageBaseFile 分页查询文件资产元数据。
 func (c *BaseFileCase) PageBaseFile(ctx context.Context, req *adminv1.PageBaseFileRequest) (*adminv1.PageBaseFileResponse, error) {
-	tenantID, err := c.resolveFileTenant(ctx, req.GetTenantId())
-	if err != nil {
-		return nil, err
-	}
 	query := c.baseFileRepo.Query(ctx).BaseFile
 	opts := []repository.QueryOption{repository.Order(query.CreatedAt.Desc()), repository.Order(query.ID.Desc())}
-	if tenantID > 0 {
-		opts = append(opts, repository.Where(query.TenantID.Eq(tenantID)))
+	if req.GetTenantId() > 0 {
+		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
 	}
 	if keyword := req.GetKeyword(); keyword != "" {
 		pattern := "%" + keyword + "%"
@@ -49,6 +44,7 @@ func (c *BaseFileCase) PageBaseFile(ctx context.Context, req *adminv1.PageBaseFi
 	if extension := req.GetExtension(); extension != "" {
 		opts = append(opts, repository.Where(query.Extension.Eq(extension)))
 	}
+	var err error
 	var list []*models.BaseFile
 	var total int64
 	list, total, err = c.baseFileRepo.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
@@ -64,15 +60,9 @@ func (c *BaseFileCase) PageBaseFile(ctx context.Context, req *adminv1.PageBaseFi
 
 // GetBaseFile 查询文件资产详情。
 func (c *BaseFileCase) GetBaseFile(ctx context.Context, id int64) (*adminv1.BaseFile, error) {
-	tenantID, err := c.resolveFileTenant(ctx, 0)
-	if err != nil {
-		return nil, err
-	}
 	query := c.baseFileRepo.Query(ctx).BaseFile
 	opts := []repository.QueryOption{repository.Where(query.ID.Eq(id))}
-	if tenantID > 0 {
-		opts = append(opts, repository.Where(query.TenantID.Eq(tenantID)))
-	}
+	var err error
 	var item *models.BaseFile
 	item, err = c.baseFileRepo.Find(ctx, opts...)
 	if err != nil {
@@ -83,15 +73,9 @@ func (c *BaseFileCase) GetBaseFile(ctx context.Context, id int64) (*adminv1.Base
 
 // DeleteBaseFile 删除文件对象及其元数据。
 func (c *BaseFileCase) DeleteBaseFile(ctx context.Context, id int64) error {
-	tenantID, err := c.resolveFileTenant(ctx, 0)
-	if err != nil {
-		return err
-	}
 	query := c.baseFileRepo.Query(ctx).BaseFile
 	opts := []repository.QueryOption{repository.Where(query.ID.Eq(id))}
-	if tenantID > 0 {
-		opts = append(opts, repository.Where(query.TenantID.Eq(tenantID)))
-	}
+	var err error
 	var item *models.BaseFile
 	item, err = c.baseFileRepo.Find(ctx, opts...)
 	if err != nil {
@@ -105,21 +89,6 @@ func (c *BaseFileCase) DeleteBaseFile(ctx context.Context, id int64) error {
 		return err
 	}
 	return nil
-}
-
-// resolveFileTenant 将普通租户限制在自身文件范围，默认租户保留跨租户查询能力。
-func (c *BaseFileCase) resolveFileTenant(ctx context.Context, requested int64) (int64, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return 0, err
-	}
-	if requested > 0 && authInfo.TenantCode != databaseGorm.DefaultTenantCode && requested != authInfo.TenantId {
-		return 0, errorsx.PermissionDenied("无权访问其他租户文件")
-	}
-	if authInfo.TenantCode != databaseGorm.DefaultTenantCode {
-		return authInfo.TenantId, nil
-	}
-	return requested, nil
 }
 
 // toBaseFile 将文件模型转换为接口响应并保留文件大小精度。

@@ -170,7 +170,7 @@ func (c *CodeGenProtoCase) SaveCodeGenProto(ctx context.Context, req *adminv1.Sa
 			proto.Sort = int32(index + 1)
 		}
 		targetTableName := codeGenProtoTargetTableName(table, check.GetTargetEntityName())
-		if err = c.validateCodeGenProtoColumns(ctx, targetTableName, check.GetMethodName(), proto, columnNamesByTable); err != nil {
+		if err = c.validateCodeGenProtoColumns(ctx, table.SourceName, targetTableName, check.GetMethodName(), proto, columnNamesByTable); err != nil {
 			return err
 		}
 		item := c.mapper.ToEntity(proto)
@@ -228,7 +228,7 @@ func (c *CodeGenProtoCase) SaveCodeGenProto(ctx context.Context, req *adminv1.Sa
 }
 
 // validateCodeGenProtoColumns 校验待生成 Proto 接口的类型配置和数据库字段。
-func (c *CodeGenProtoCase) validateCodeGenProtoColumns(ctx context.Context, tableName string, methodName string, proto *adminv1.CodeGenProto, columnNamesByTable map[string]map[string]struct{}) error {
+func (c *CodeGenProtoCase) validateCodeGenProtoColumns(ctx context.Context, sourceName, tableName string, methodName string, proto *adminv1.CodeGenProto, columnNamesByTable map[string]map[string]struct{}) error {
 	// 未勾选生成的接口不消费类型配置，无需校验字段。
 	if !proto.GetGenerateWhenMissing() {
 		return nil
@@ -242,7 +242,7 @@ func (c *CodeGenProtoCase) validateCodeGenProtoColumns(ctx context.Context, tabl
 	if len(fields) == 0 {
 		return nil
 	}
-	columnNames, err := c.loadCodeGenProtoNames(ctx, tableName, columnNamesByTable)
+	columnNames, err := c.loadCodeGenProtoNames(ctx, sourceName, tableName, columnNamesByTable)
 	if err != nil {
 		return err
 	}
@@ -332,7 +332,7 @@ func (c *CodeGenProtoCase) inspectCodeGenProtos(ctx context.Context, table *mode
 			continue
 		}
 		var columnNames map[string]struct{}
-		columnNames, err = c.loadCodeGenProtoNames(ctx, targetTableName, columnNamesByTable)
+		columnNames, err = c.loadCodeGenProtoNames(ctx, table.SourceName, targetTableName, columnNamesByTable)
 		if err != nil {
 			return nil, err
 		}
@@ -373,14 +373,12 @@ func (c *CodeGenProtoCase) codeGenProtoBusinessNames(ctx context.Context, table 
 		tableNameList = append(tableNameList, tableName)
 	}
 	if len(tableNames) > 0 {
-		database := c.GormClients[gorm.DefaultClientName]
-		err = database.DB.WithContext(ctx).
-			Table("information_schema.tables").
-			Select("table_name, table_comment").
-			Where("table_schema = DATABASE()").
-			Where("table_type = ?", "BASE TABLE").
-			Where("table_name IN ?", tableNameList).
-			Find(&databaseTables).Error
+		var database *gorm.Client
+		database, err = GormClientBySourceName(c.BaseCase, table.SourceName)
+		if err != nil {
+			return nil, err
+		}
+		databaseTables, err = listDatabaseTableMetadata(ctx, database, tableNameList)
 		if err != nil {
 			return nil, err
 		}
@@ -394,7 +392,7 @@ func (c *CodeGenProtoCase) codeGenProtoBusinessNames(ctx context.Context, table 
 	if len(tableNames) > 0 {
 		query := c.codeGenTableRepo.Query(ctx).CodeGenTable
 		var configuredTables []*models.CodeGenTable
-		configuredTables, err = c.codeGenTableRepo.List(ctx, repository.Where(query.Name.In(tableNameList...)))
+		configuredTables, err = c.codeGenTableRepo.List(ctx, repository.Where(query.SourceName.Eq(table.SourceName)), repository.Where(query.Name.In(tableNameList...)))
 		if err != nil {
 			return nil, err
 		}
@@ -416,13 +414,14 @@ func (c *CodeGenProtoCase) codeGenProtoBusinessNames(ctx context.Context, table 
 }
 
 // loadCodeGenProtoNames 加载并缓存目标表字段名。
-func (c *CodeGenProtoCase) loadCodeGenProtoNames(ctx context.Context, tableName string, columnNamesByTable map[string]map[string]struct{}) (map[string]struct{}, error) {
-	columnNames := columnNamesByTable[tableName]
+func (c *CodeGenProtoCase) loadCodeGenProtoNames(ctx context.Context, sourceName, tableName string, columnNamesByTable map[string]map[string]struct{}) (map[string]struct{}, error) {
+	cacheKey := sourceTableKey(sourceName, tableName)
+	columnNames := columnNamesByTable[cacheKey]
 	// 同一目标表已加载时直接复用字段集合。
 	if columnNames != nil {
 		return columnNames, nil
 	}
-	databaseColumns, err := c.codeGenColumnCase.listDatabaseColumns(ctx, tableName)
+	databaseColumns, err := c.codeGenColumnCase.listDatabaseColumns(ctx, sourceName, tableName)
 	if err != nil {
 		return nil, err
 	}
@@ -430,7 +429,7 @@ func (c *CodeGenProtoCase) loadCodeGenProtoNames(ctx context.Context, tableName 
 	for _, column := range databaseColumns {
 		columnNames[column.Name] = struct{}{}
 	}
-	columnNamesByTable[tableName] = columnNames
+	columnNamesByTable[cacheKey] = columnNames
 	return columnNames, nil
 }
 

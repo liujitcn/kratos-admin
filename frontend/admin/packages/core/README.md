@@ -2,6 +2,8 @@
 
 kratos-admin 前端底座包。它不包含具体业务模块，提供登录、MFA 校验、菜单、用户信息、应用启动、动态路由、布局、运行状态、公共组件和静态状态页；MFA 绑定面板与恢复码弹窗由登录页和 System 模块共用。宿主可以只安装 core；个人中心、AI 助手和系统管理能力必须由 System 模块提供。
 
+浏览器认证使用 Cookie-only 刷新令牌与内存访问令牌。Core 不持久化任何访问令牌或刷新令牌，刷新请求统一携带 `X-Refresh-Token-Transport: cookie` 并启用凭据 Cookie。
+
 ## 目录结构
 
 ```text
@@ -9,8 +11,8 @@ packages/core
 ├── build/                    # Vite 配置辅助函数和插件组合
 ├── src
 │   ├── api/                  # 按 Proto 领域组织的底座请求
-│   │   ├── base/             # 登录、MFA、OAuth、配置和文件请求
-│   │   └── system/           # 用户、菜单、字典和租户运行请求
+│   │   ├── base/v1/          # 登录、MFA、OAuth、配置和文件请求
+│   │   └── system/admin/v1/  # 用户、字典和租户运行请求
 │   ├── assets/               # 字体、图标和图片资源
 │   ├── components/           # 公共 Vue 组件
 │   ├── config/               # 前端运行配置
@@ -68,8 +70,8 @@ packages/core
 | `src/bootstrap.ts`                     | 创建 Vue 应用，注册 core 与宿主选择的业务模块后挂载。                          |
 | `src/App.vue`                          | 根组件和路由出口。                                                             |
 | `src/vite-env.d.ts`                    | Vite、构建变量和 `import.meta.glob` 类型引用。                                 |
-| `src/api/base/*.ts`                    | Proto `base` 领域的登录、MFA、OAuth、配置和文件请求。                           |
-| `src/api/system/*.ts`                  | Proto `system` 领域的认证、字典和租户运行请求。                                |
+| `src/api/base/v1/*.ts`                    | Proto `base/v1` 服务的登录、MFA、OAuth、配置和文件请求。                         |
+| `src/api/system/admin/v1/*.ts`            | Proto `system/admin/v1` 服务的认证、字典和租户运行请求。                         |
 | `src/assets/fonts/`                    | 应用字体及字体样式。                                                           |
 | `src/assets/iconfont/`                 | 内置图标字体。                                                                 |
 | `src/assets/images/`                   | Logo、登录、错误页、头像和 OAuth 图标。                                        |
@@ -98,6 +100,7 @@ packages/core
 | `src/config/nprogress.ts`              | 页面切换进度条配置。                                                           |
 | `src/directives/index.ts`              | 全局指令安装入口。                                                             |
 | `src/directives/modules/*.ts`          | 权限、复制、防抖、拖拽、长按、节流和水印指令。                                 |
+| `src/documentTitle.ts`                 | 使用后端站点名称统一更新浏览器标题。                                           |
 | `src/enums/httpEnum.ts`                | HTTP 状态和请求相关枚举。                                                      |
 | `src/hooks/interface/index.ts`         | hooks 共用类型。                                                               |
 | `src/hooks/useAuthButtons.ts`          | 页面按钮权限计算。                                                             |
@@ -146,6 +149,7 @@ core 通过 `ADMIN_STATIC_VIEWS` 注册全部默认静态页面，后注册业�
 | 能力             | 入口                                                        |
 | ---------------- | ----------------------------------------------------------- |
 | 应用与模块注册   | `@liujitcn/kratos-admin-core`                               |
+| 浏览器标题       | `@liujitcn/kratos-admin-core`                               |
 | 请求客户端       | `@liujitcn/kratos-admin-core/request`                       |
 | 路由与跳转       | `@liujitcn/kratos-admin-core/navigation`                    |
 | 权限             | `@liujitcn/kratos-admin-core/auth`                          |
@@ -158,6 +162,8 @@ core 通过 `ADMIN_STATIC_VIEWS` 注册全部默认静态页面，后注册业�
 | ProTable 类型    | `@liujitcn/kratos-admin-core/components/ProTable/interface` |
 
 其他 Vue 组件以 `package.json#exports` 中的明确白名单为准。禁止使用 `components/ProTable/index.vue`、`utils/*`、`hooks/*`、`stores/modules/*` 等实现路径。发布构建会把内部 `@/` 别名转换成包内相对路径，内部实现不占用公共子路径。
+
+`setAdminDocumentTitle` 使用公共配置接口返回的 `sysName` 作为应用名称，配置接口失败或未返回名称时回退宿主的 `VITE_GLOB_APP_TITLE`。
 
 ## 命令
 

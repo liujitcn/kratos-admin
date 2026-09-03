@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// 公共日志聚合查询服务。
+service BaseLogService {
+  // 查询同一请求或链路关联的六类审计记录。
+  rpc GetBaseLogTrace(GetBaseLogTraceRequest) returns (GetBaseLogTraceResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/log-trace"};
+  }
+}
+
+// BaseLogResult 定义日志事件的最终处理结果。
+// SUCCESS 表示业务完成，FAILURE 表示可预期拒绝，ERROR 表示系统异常。
+enum BaseLogResult {
+  // 未指定审计结果。
+  BASE_LOG_RESULT_UNSPECIFIED = 0;
+  // 操作成功。
+  BASE_LOG_RESULT_SUCCESS = 1;
+  // 操作失败。
+  BASE_LOG_RESULT_FAILURE = 2;
+  // 执行异常。
+  BASE_LOG_RESULT_ERROR = 3;
+}
+
+// BaseLogType 定义关联日志时间线中的日志类型。
+enum BaseLogType {
+  // 未指定日志类型。
+  BASE_LOG_TYPE_UNSPECIFIED = 0;
+  // 登录日志。
+  BASE_LOG_TYPE_LOGIN = 1;
+  // API 访问日志。
+  BASE_LOG_TYPE_API = 2;
+  // 业务操作日志。
+  BASE_LOG_TYPE_OPERATION = 3;
+  // 数据访问日志。
+  BASE_LOG_TYPE_DATA_ACCESS = 4;
+  // 权限日志。
+  BASE_LOG_TYPE_PERMISSION = 5;
+  // 策略评估日志。
+  BASE_LOG_TYPE_POLICY_EVALUATION = 6;
+}
+
+// 关联审计查询条件。
+message GetBaseLogTraceRequest {
+  option (buf.validate.message).cel = {
+    id: "system.admin.base.log_trace.identity.required"
+    message: "请求ID和链路追踪ID不能同时为空"
+    expression: "this.request_id.size() > 0 || this.trace_id.size() > 0"
+  };
+
+  string request_id = 1 [
+    (gnostic.openapi.v3.property) = {description: "请求ID"},
+    (buf.validate.field).string.max_len = 64
+  ]; // 请求ID
+  string trace_id = 2 [
+    (gnostic.openapi.v3.property) = {description: "链路追踪ID"},
+    (buf.validate.field).string.max_len = 128
+  ]; // 链路追踪ID
+}
+
+// 关联审计查询响应。
+message GetBaseLogTraceResponse {
+  repeated BaseLogTraceItem items = 1 [(gnostic.openapi.v3.property) = {description: "关联日志时间线"}]; // 关联日志时间线
+}
+
+// 关联审计时间线项目。
+message BaseLogTraceItem {
+  BaseLogType log_type = 1 [(gnostic.openapi.v3.property) = {description: "日志类型"}]; // 日志类型
+  int64 id = 2 [(gnostic.openapi.v3.property) = {description: "日志ID"}]; // 日志ID
+  int64 tenant_id = 3 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  int64 user_id = 4 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  string user_name = 5 [(gnostic.openapi.v3.property) = {description: "用户名称"}]; // 用户名称
+  string request_id = 6 [(gnostic.openapi.v3.property) = {description: "请求ID"}]; // 请求ID
+  string trace_id = 7 [(gnostic.openapi.v3.property) = {description: "链路追踪ID"}]; // 链路追踪ID
+  string resource = 8 [(gnostic.openapi.v3.property) = {description: "资源或接口"}]; // 资源或接口
+  BaseLogResult result = 9 [(gnostic.openapi.v3.property) = {description: "结果"}]; // 结果
+  string reason = 10 [(gnostic.openapi.v3.property) = {description: "原因说明"}]; // 原因说明
+  int32 duration_ms = 11 [(gnostic.openapi.v3.property) = {description: "本层耗时毫秒"}]; // 本层耗时毫秒
+  string occurred_at = 12 [(gnostic.openapi.v3.property) = {description: "事件发生时间"}]; // 事件发生时间
+  string created_at = 13 [(gnostic.openapi.v3.property) = {description: "日志落库时间"}]; // 日志落库时间
+}

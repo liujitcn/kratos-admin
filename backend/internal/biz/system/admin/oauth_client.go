@@ -87,16 +87,9 @@ func (c *OauthClientCase) OptionOauthClientAPI(ctx context.Context, req *adminv1
 
 // PageOauthClient 分页查询开放授权客户端。
 func (c *OauthClientCase) PageOauthClient(ctx context.Context, req *adminv1.PageOauthClientRequest) (*adminv1.PageOauthClientResponse, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return nil, err
-	}
 	query := c.Query(ctx).OauthClient
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.ID.Desc()))
-	if authInfo.TenantCode != gormKit.DefaultTenantCode {
-		opts = append(opts, repository.Where(query.TenantID.Eq(authInfo.TenantId)))
-	}
 	if req.GetClientName() != "" {
 		opts = append(opts, repository.Where(query.ClientName.Like("%"+req.GetClientName()+"%")))
 	}
@@ -106,6 +99,7 @@ func (c *OauthClientCase) PageOauthClient(ctx context.Context, req *adminv1.Page
 	if req.TenantId != nil && req.GetTenantId() > 0 {
 		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
 	}
+	var err error
 	var list []*models.OauthClient
 	var total int64
 	list, total, err = c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
@@ -256,7 +250,7 @@ func (c *OauthClientCase) CreateOauthClient(ctx context.Context, req *adminv1.Oa
 		return errorsx.Internal("保护客户端加密密钥失败").WithCause(err)
 	}
 	if item.Status == 0 {
-		item.Status = int32(coreconst.STATUS_STATUS_ENABLE)
+		item.Status = coreconst.STATUS_STATUS_ENABLE
 	}
 	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		err = c.Create(ctx, item)
@@ -441,7 +435,7 @@ func (c *OauthClientCase) resolveClientTenant(ctx context.Context, requestedID i
 		}
 		return nil, errorsx.Internal("读取绑定租户失败").WithCause(err)
 	}
-	if tenant.Status != int32(coreconst.STATUS_STATUS_ENABLE) {
+	if tenant.Status != coreconst.STATUS_STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("绑定租户已停用")
 	}
 	return tenant, nil
@@ -449,32 +443,14 @@ func (c *OauthClientCase) resolveClientTenant(ctx context.Context, requestedID i
 
 // findClientForCurrentTenant 按当前身份读取开放授权客户端，平台管理员可跨租户查询。
 func (c *OauthClientCase) findClientForCurrentTenant(ctx context.Context, idValue int64) (*models.OauthClient, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return nil, err
-	}
 	query := c.Query(ctx).OauthClient
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.ID.Eq(idValue)))
-	if authInfo.TenantCode != gormKit.DefaultTenantCode {
-		opts = append(opts, repository.Where(query.TenantID.Eq(authInfo.TenantId)))
-	}
-	return c.Find(ctx, opts...)
+	return c.Find(ctx, repository.Where(query.ID.Eq(idValue)))
 }
 
 // listClientsForCurrentTenant 按当前身份读取待操作的开放授权客户端集合。
 func (c *OauthClientCase) listClientsForCurrentTenant(ctx context.Context, ids []int64) ([]*models.OauthClient, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return nil, err
-	}
 	query := c.Query(ctx).OauthClient
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.ID.In(ids...)))
-	if authInfo.TenantCode != gormKit.DefaultTenantCode {
-		opts = append(opts, repository.Where(query.TenantID.Eq(authInfo.TenantId)))
-	}
-	return c.List(ctx, opts...)
+	return c.List(ctx, repository.Where(query.ID.In(ids...)))
 }
 
 // validateAPIs 校验客户端选择的 API 均为当前系统已注册接口。

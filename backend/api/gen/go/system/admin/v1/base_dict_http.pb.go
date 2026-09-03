@@ -20,62 +20,38 @@ var _ = new(context.Context)
 const _ = http.SupportPackageIsVersion3
 
 const OperationBaseDictServiceCreateBaseDict = "/system.admin.v1.BaseDictService/CreateBaseDict"
-const OperationBaseDictServiceCreateBaseDictItem = "/system.admin.v1.BaseDictService/CreateBaseDictItem"
 const OperationBaseDictServiceDeleteBaseDict = "/system.admin.v1.BaseDictService/DeleteBaseDict"
-const OperationBaseDictServiceDeleteBaseDictItem = "/system.admin.v1.BaseDictService/DeleteBaseDictItem"
 const OperationBaseDictServiceGetBaseDict = "/system.admin.v1.BaseDictService/GetBaseDict"
-const OperationBaseDictServiceGetBaseDictItem = "/system.admin.v1.BaseDictService/GetBaseDictItem"
 const OperationBaseDictServiceOptionBaseDict = "/system.admin.v1.BaseDictService/OptionBaseDict"
 const OperationBaseDictServicePageBaseDict = "/system.admin.v1.BaseDictService/PageBaseDict"
-const OperationBaseDictServicePageBaseDictItem = "/system.admin.v1.BaseDictService/PageBaseDictItem"
-const OperationBaseDictServiceSetBaseDictItemStatus = "/system.admin.v1.BaseDictService/SetBaseDictItemStatus"
 const OperationBaseDictServiceSetBaseDictStatus = "/system.admin.v1.BaseDictService/SetBaseDictStatus"
 const OperationBaseDictServiceUpdateBaseDict = "/system.admin.v1.BaseDictService/UpdateBaseDict"
-const OperationBaseDictServiceUpdateBaseDictItem = "/system.admin.v1.BaseDictService/UpdateBaseDictItem"
 
 type BaseDictServiceHTTPServer interface {
 	// CreateBaseDict 创建字典
 	CreateBaseDict(context.Context, *CreateBaseDictRequest) (*emptypb.Empty, error)
-	// CreateBaseDictItem 创建字典属性
-	CreateBaseDictItem(context.Context, *CreateBaseDictItemRequest) (*emptypb.Empty, error)
 	// DeleteBaseDict 删除字典
 	DeleteBaseDict(context.Context, *DeleteBaseDictRequest) (*emptypb.Empty, error)
-	// DeleteBaseDictItem 删除字典属性
-	DeleteBaseDictItem(context.Context, *DeleteBaseDictItemRequest) (*emptypb.Empty, error)
 	// GetBaseDict 查询字典
 	GetBaseDict(context.Context, *GetBaseDictRequest) (*BaseDictForm, error)
-	// GetBaseDictItem 查询字典属性
-	GetBaseDictItem(context.Context, *GetBaseDictItemRequest) (*BaseDictItemForm, error)
 	// OptionBaseDict 查询字典列表
 	OptionBaseDict(context.Context, *OptionBaseDictRequest) (*OptionBaseDictResponse, error)
 	// PageBaseDict 查询字典分页列表
 	PageBaseDict(context.Context, *PageBaseDictRequest) (*PageBaseDictResponse, error)
-	// PageBaseDictItem 查询字典属性分页列表
-	PageBaseDictItem(context.Context, *PageBaseDictItemRequest) (*PageBaseDictItemResponse, error)
-	// SetBaseDictItemStatus 设置状态
-	SetBaseDictItemStatus(context.Context, *SetBaseDictItemStatusRequest) (*emptypb.Empty, error)
 	// SetBaseDictStatus 设置状态
 	SetBaseDictStatus(context.Context, *SetBaseDictStatusRequest) (*emptypb.Empty, error)
 	// UpdateBaseDict 更新字典
 	UpdateBaseDict(context.Context, *UpdateBaseDictRequest) (*emptypb.Empty, error)
-	// UpdateBaseDictItem 更新字典属性
-	UpdateBaseDictItem(context.Context, *UpdateBaseDictItemRequest) (*emptypb.Empty, error)
 }
 
 func RegisterBaseDictServiceHTTPServer(s *http.Server, srv BaseDictServiceHTTPServer) {
 	r := s.Route("/")
 	r.Handle("GET", "/api/v1/admin/base/dict/option", _BaseDictService_OptionBaseDict0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/dict", _BaseDictService_PageBaseDict0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/base/dict-item", _BaseDictService_PageBaseDictItem0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/dict/{id}", _BaseDictService_GetBaseDict0_HTTP_Handler(srv))
-	r.Handle("GET", "/api/v1/admin/base/dict-item/{id}", _BaseDictService_GetBaseDictItem0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/base/dict", _BaseDictService_CreateBaseDict0_HTTP_Handler(srv))
-	r.Handle("POST", "/api/v1/admin/base/dict-item", _BaseDictService_CreateBaseDictItem0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/dict/{base_dict.id}", _BaseDictService_UpdateBaseDict0_HTTP_Handler(srv))
-	r.Handle("PUT", "/api/v1/admin/base/dict-item/{base_dict_item.id}", _BaseDictService_UpdateBaseDictItem0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/base/dict/{id}", _BaseDictService_DeleteBaseDict0_HTTP_Handler(srv))
-	r.Handle("DELETE", "/api/v1/admin/base/dict-item/{id}", _BaseDictService_DeleteBaseDictItem0_HTTP_Handler(srv))
-	r.Handle("PUT", "/api/v1/admin/base/dict-item/{id}/status", _BaseDictService_SetBaseDictItemStatus0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/dict/{id}/status", _BaseDictService_SetBaseDictStatus0_HTTP_Handler(srv))
 }
 
@@ -117,25 +93,6 @@ func _BaseDictService_PageBaseDict0_HTTP_Handler(srv BaseDictServiceHTTPServer) 
 	}
 }
 
-func _BaseDictService_PageBaseDictItem0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in PageBaseDictItemRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationBaseDictServicePageBaseDictItem)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageBaseDictItem(ctx, req.(*PageBaseDictItemRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*PageBaseDictItemResponse)
-		return ctx.Result(200, reply)
-	}
-}
-
 func _BaseDictService_GetBaseDict0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetBaseDictRequest
@@ -158,28 +115,6 @@ func _BaseDictService_GetBaseDict0_HTTP_Handler(srv BaseDictServiceHTTPServer) f
 	}
 }
 
-func _BaseDictService_GetBaseDictItem0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in GetBaseDictItemRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationBaseDictServiceGetBaseDictItem)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetBaseDictItem(ctx, req.(*GetBaseDictItemRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*BaseDictItemForm)
-		return ctx.Result(200, reply)
-	}
-}
-
 func _BaseDictService_CreateBaseDict0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in CreateBaseDictRequest
@@ -192,28 +127,6 @@ func _BaseDictService_CreateBaseDict0_HTTP_Handler(srv BaseDictServiceHTTPServer
 		http.SetOperation(ctx, OperationBaseDictServiceCreateBaseDict)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.CreateBaseDict(ctx, req.(*CreateBaseDictRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _BaseDictService_CreateBaseDictItem0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in CreateBaseDictItemRequest
-		if err := ctx.Bind(&in.BaseDictItem); err != nil {
-			return err
-		}
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationBaseDictServiceCreateBaseDictItem)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.CreateBaseDictItem(ctx, req.(*CreateBaseDictItemRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -249,31 +162,6 @@ func _BaseDictService_UpdateBaseDict0_HTTP_Handler(srv BaseDictServiceHTTPServer
 	}
 }
 
-func _BaseDictService_UpdateBaseDictItem0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in UpdateBaseDictItemRequest
-		if err := ctx.Bind(&in.BaseDictItem); err != nil {
-			return err
-		}
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationBaseDictServiceUpdateBaseDictItem)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.UpdateBaseDictItem(ctx, req.(*UpdateBaseDictItemRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
 func _BaseDictService_DeleteBaseDict0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in DeleteBaseDictRequest
@@ -286,50 +174,6 @@ func _BaseDictService_DeleteBaseDict0_HTTP_Handler(srv BaseDictServiceHTTPServer
 		http.SetOperation(ctx, OperationBaseDictServiceDeleteBaseDict)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.DeleteBaseDict(ctx, req.(*DeleteBaseDictRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _BaseDictService_DeleteBaseDictItem0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in DeleteBaseDictItemRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationBaseDictServiceDeleteBaseDictItem)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.DeleteBaseDictItem(ctx, req.(*DeleteBaseDictItemRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _BaseDictService_SetBaseDictItemStatus0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in SetBaseDictItemStatusRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationBaseDictServiceSetBaseDictItemStatus)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SetBaseDictItemStatus(ctx, req.(*SetBaseDictItemStatusRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -365,30 +209,18 @@ func _BaseDictService_SetBaseDictStatus0_HTTP_Handler(srv BaseDictServiceHTTPSer
 type BaseDictServiceHTTPClient interface {
 	// CreateBaseDict 创建字典
 	CreateBaseDict(ctx context.Context, req *CreateBaseDictRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// CreateBaseDictItem 创建字典属性
-	CreateBaseDictItem(ctx context.Context, req *CreateBaseDictItemRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// DeleteBaseDict 删除字典
 	DeleteBaseDict(ctx context.Context, req *DeleteBaseDictRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// DeleteBaseDictItem 删除字典属性
-	DeleteBaseDictItem(ctx context.Context, req *DeleteBaseDictItemRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetBaseDict 查询字典
 	GetBaseDict(ctx context.Context, req *GetBaseDictRequest, opts ...http.CallOption) (rsp *BaseDictForm, err error)
-	// GetBaseDictItem 查询字典属性
-	GetBaseDictItem(ctx context.Context, req *GetBaseDictItemRequest, opts ...http.CallOption) (rsp *BaseDictItemForm, err error)
 	// OptionBaseDict 查询字典列表
 	OptionBaseDict(ctx context.Context, req *OptionBaseDictRequest, opts ...http.CallOption) (rsp *OptionBaseDictResponse, err error)
 	// PageBaseDict 查询字典分页列表
 	PageBaseDict(ctx context.Context, req *PageBaseDictRequest, opts ...http.CallOption) (rsp *PageBaseDictResponse, err error)
-	// PageBaseDictItem 查询字典属性分页列表
-	PageBaseDictItem(ctx context.Context, req *PageBaseDictItemRequest, opts ...http.CallOption) (rsp *PageBaseDictItemResponse, err error)
-	// SetBaseDictItemStatus 设置状态
-	SetBaseDictItemStatus(ctx context.Context, req *SetBaseDictItemStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// SetBaseDictStatus 设置状态
 	SetBaseDictStatus(ctx context.Context, req *SetBaseDictStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// UpdateBaseDict 更新字典
 	UpdateBaseDict(ctx context.Context, req *UpdateBaseDictRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// UpdateBaseDictItem 更新字典属性
-	UpdateBaseDictItem(ctx context.Context, req *UpdateBaseDictItemRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type BaseDictServiceHTTPClientImpl struct {
@@ -417,24 +249,6 @@ func (c *BaseDictServiceHTTPClientImpl) CreateBaseDict(ctx context.Context, in *
 	return &out, nil
 }
 
-// CreateBaseDictItem 创建字典属性
-func (c *BaseDictServiceHTTPClientImpl) CreateBaseDictItem(ctx context.Context, in *CreateBaseDictItemRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
-	var out emptypb.Empty
-	pattern := "/api/v1/admin/base/dict-item"
-	path := http.BuildPath(pattern, in, http.WithQueryParams(), http.WithOmitFields("baseDictItem"))
-	opts = append([]http.CallOption{
-		http.Accept("application/protojson"),
-		http.ContentType("application/protojson"),
-		http.Operation(OperationBaseDictServiceCreateBaseDictItem),
-		http.PathTemplate(pattern),
-	}, opts...)
-	err := c.cc.Invoke(ctx, "POST", path, in.BaseDictItem, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
 // DeleteBaseDict 删除字典
 func (c *BaseDictServiceHTTPClientImpl) DeleteBaseDict(ctx context.Context, in *DeleteBaseDictRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
@@ -452,23 +266,6 @@ func (c *BaseDictServiceHTTPClientImpl) DeleteBaseDict(ctx context.Context, in *
 	return &out, nil
 }
 
-// DeleteBaseDictItem 删除字典属性
-func (c *BaseDictServiceHTTPClientImpl) DeleteBaseDictItem(ctx context.Context, in *DeleteBaseDictItemRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
-	var out emptypb.Empty
-	pattern := "/api/v1/admin/base/dict-item/{id}"
-	path := http.BuildPath(pattern, in, http.WithQueryParams())
-	opts = append([]http.CallOption{
-		http.Accept("application/protojson"),
-		http.Operation(OperationBaseDictServiceDeleteBaseDictItem),
-		http.PathTemplate(pattern),
-	}, opts...)
-	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
 // GetBaseDict 查询字典
 func (c *BaseDictServiceHTTPClientImpl) GetBaseDict(ctx context.Context, in *GetBaseDictRequest, opts ...http.CallOption) (*BaseDictForm, error) {
 	var out BaseDictForm
@@ -477,23 +274,6 @@ func (c *BaseDictServiceHTTPClientImpl) GetBaseDict(ctx context.Context, in *Get
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
 		http.Operation(OperationBaseDictServiceGetBaseDict),
-		http.PathTemplate(pattern),
-	}, opts...)
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-// GetBaseDictItem 查询字典属性
-func (c *BaseDictServiceHTTPClientImpl) GetBaseDictItem(ctx context.Context, in *GetBaseDictItemRequest, opts ...http.CallOption) (*BaseDictItemForm, error) {
-	var out BaseDictItemForm
-	pattern := "/api/v1/admin/base/dict-item/{id}"
-	path := http.BuildPath(pattern, in, http.WithQueryParams())
-	opts = append([]http.CallOption{
-		http.Accept("application/protojson"),
-		http.Operation(OperationBaseDictServiceGetBaseDictItem),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -537,41 +317,6 @@ func (c *BaseDictServiceHTTPClientImpl) PageBaseDict(ctx context.Context, in *Pa
 	return &out, nil
 }
 
-// PageBaseDictItem 查询字典属性分页列表
-func (c *BaseDictServiceHTTPClientImpl) PageBaseDictItem(ctx context.Context, in *PageBaseDictItemRequest, opts ...http.CallOption) (*PageBaseDictItemResponse, error) {
-	var out PageBaseDictItemResponse
-	pattern := "/api/v1/admin/base/dict-item"
-	path := http.BuildPath(pattern, in, http.WithQueryParams())
-	opts = append([]http.CallOption{
-		http.Accept("application/protojson"),
-		http.Operation(OperationBaseDictServicePageBaseDictItem),
-		http.PathTemplate(pattern),
-	}, opts...)
-	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-// SetBaseDictItemStatus 设置状态
-func (c *BaseDictServiceHTTPClientImpl) SetBaseDictItemStatus(ctx context.Context, in *SetBaseDictItemStatusRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
-	var out emptypb.Empty
-	pattern := "/api/v1/admin/base/dict-item/{id}/status"
-	path := http.BuildPath(pattern, in)
-	opts = append([]http.CallOption{
-		http.Accept("application/protojson"),
-		http.ContentType("application/protojson"),
-		http.Operation(OperationBaseDictServiceSetBaseDictItemStatus),
-		http.PathTemplate(pattern),
-	}, opts...)
-	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
 // SetBaseDictStatus 设置状态
 func (c *BaseDictServiceHTTPClientImpl) SetBaseDictStatus(ctx context.Context, in *SetBaseDictStatusRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
@@ -602,24 +347,6 @@ func (c *BaseDictServiceHTTPClientImpl) UpdateBaseDict(ctx context.Context, in *
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "PUT", path, in.BaseDict, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-// UpdateBaseDictItem 更新字典属性
-func (c *BaseDictServiceHTTPClientImpl) UpdateBaseDictItem(ctx context.Context, in *UpdateBaseDictItemRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
-	var out emptypb.Empty
-	pattern := "/api/v1/admin/base/dict-item/{base_dict_item.id}"
-	path := http.BuildPath(pattern, in, http.WithQueryParams(), http.WithOmitFields("baseDictItem"))
-	opts = append([]http.CallOption{
-		http.Accept("application/protojson"),
-		http.ContentType("application/protojson"),
-		http.Operation(OperationBaseDictServiceUpdateBaseDictItem),
-		http.PathTemplate(pattern),
-	}, opts...)
-	err := c.cc.Invoke(ctx, "PUT", path, in.BaseDictItem, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

@@ -109,21 +109,6 @@ func NewBaseMessageCase(
 	return caseValue
 }
 
-// resolveQueryTenant 解析消息查询租户；默认租户不传条件时允许查询全部租户。
-func (c *BaseMessageCase) resolveQueryTenant(ctx context.Context, tenantID int64) (int64, bool, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return 0, false, err
-	}
-	if authInfo.TenantCode == gorm.DefaultTenantCode {
-		return tenantID, tenantID == 0, nil
-	}
-	if tenantID > 0 && tenantID != authInfo.TenantId {
-		return 0, false, errorsx.PermissionDenied("不能查询其他租户的消息")
-	}
-	return authInfo.TenantId, false, nil
-}
-
 // resolveWriteTenant 解析消息写入租户。
 func (c *BaseMessageCase) resolveWriteTenant(ctx context.Context, tenantID int64) (int64, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
@@ -153,15 +138,11 @@ func (c *BaseMessageCase) ensureTenantAccess(ctx context.Context, tenantID int64
 
 // PageBaseMessage 分页查询消息。
 func (c *BaseMessageCase) PageBaseMessage(ctx context.Context, req *adminv1.PageBaseMessageRequest) (*adminv1.PageBaseMessageResponse, error) {
-	tenantID, unrestricted, err := c.resolveQueryTenant(ctx, req.GetTenantId())
-	if err != nil {
-		return nil, err
-	}
 	query := c.Query(ctx).BaseMessage
 	opts := make([]repository.QueryOption, 0, 7)
 	opts = append(opts, repository.Order(query.ID.Desc()))
-	if !unrestricted {
-		opts = append(opts, repository.Where(query.TenantID.Eq(tenantID)))
+	if req.GetTenantId() > 0 {
+		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
 	}
 	if req.CategoryId != nil {
 		opts = append(opts, repository.Where(query.CategoryID.Eq(req.GetCategoryId())))
@@ -174,6 +155,7 @@ func (c *BaseMessageCase) PageBaseMessage(ctx context.Context, req *adminv1.Page
 	}
 	var list []*models.BaseMessage
 	var total int64
+	var err error
 	list, total, err = c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
 	if err != nil {
 		return nil, err
@@ -321,7 +303,6 @@ func (c *BaseMessageCase) Publish(ctx context.Context, request messagepublisher.
 	inTransaction := c.BaseMessageRepository != nil && c.Query(ctx) != c.Query(context.Background())
 	var existing []*models.BaseMessage
 	existing, err = c.List(ctx,
-		repository.Where(messageQuery.TenantID.Eq(request.TenantID)),
 		repository.Where(messageQuery.Source.Eq(request.Source)),
 		repository.Where(messageQuery.IdempotencyKey.Eq(request.IdempotencyKey)),
 	)
@@ -378,7 +359,6 @@ func (c *BaseMessageCase) Publish(ctx context.Context, request messagepublisher.
 		if errorsx.IsDuplicateKey(err) {
 			var concurrentExisting []*models.BaseMessage
 			concurrentExisting, err = c.List(ctx,
-				repository.Where(messageQuery.TenantID.Eq(request.TenantID)),
 				repository.Where(messageQuery.Source.Eq(request.Source)),
 				repository.Where(messageQuery.IdempotencyKey.Eq(request.IdempotencyKey)),
 			)
@@ -672,7 +652,7 @@ func (c *BaseMessageCase) RevokeBaseMessage(ctx context.Context, id int64) error
 		entity.RevokedAt = now.UnixMilli()
 		entity.Version++
 		entity.UpdatedAt = now
-		err = c.deliveryWriter.RevokeMessage(txCtx, entity.TenantID, entity.ID, now)
+		err = c.deliveryWriter.RevokeMessage(txCtx, entity.ID, now)
 		if err != nil {
 			return err
 		}
@@ -1448,7 +1428,6 @@ func (c *BaseMessageCase) listDispatchUsers(ctx context.Context, dispatch *model
 	query := c.baseUserRepo.Query(ctx).BaseUser
 	opts := make([]repository.QueryOption, 0, 6)
 	opts = append(opts,
-		repository.Where(query.TenantID.Eq(dispatch.TenantID)),
 		repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)),
 		repository.Where(query.ID.Gt(dispatch.CursorUserID)),
 		repository.Order(query.ID.Asc()),
@@ -1472,7 +1451,6 @@ func (c *BaseMessageCase) listDispatchUsers(ctx context.Context, dispatch *model
 			deptQuery := c.baseDeptRepo.Query(ctx).BaseDept
 			var depts []*models.BaseDept
 			depts, err = c.baseDeptRepo.List(ctx,
-				repository.Where(deptQuery.TenantID.Eq(dispatch.TenantID)),
 				repository.Where(field.Or(deptQuery.Path.Eq(dept.Path), deptQuery.Path.Like(dept.Path+"/%"))),
 			)
 			if err != nil {

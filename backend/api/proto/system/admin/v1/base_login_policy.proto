@@ -3,69 +3,258 @@ syntax = "proto3";
 package system.admin.v1;
 
 import "buf/validate/validate.proto";
+import "common/v1/types.proto";
+import "common/v1/enum.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
 
-// Admin登录来源策略服务。
+// Admin登录策略管理服务。
 service BaseLoginPolicyService {
-  // 查询登录来源策略。
-  rpc GetBaseLoginPolicy(GetBaseLoginPolicyRequest) returns (BaseLoginPolicy) {
+  // 分页查询登录策略。
+  rpc PageBaseLoginPolicy(PageBaseLoginPolicyRequest) returns (PageBaseLoginPolicyResponse) {
     option (google.api.http) = {get: "/api/v1/admin/base/login-policy"};
   }
 
-  // 更新登录来源策略。
-  rpc UpdateBaseLoginPolicy(UpdateBaseLoginPolicyRequest) returns (BaseLoginPolicy) {
+  // 查询登录策略详情。
+  rpc GetBaseLoginPolicy(GetBaseLoginPolicyRequest) returns (BaseLoginPolicyForm) {
+    option (google.api.http) = {get: "/api/v1/admin/base/login-policy/{id}"};
+  }
+
+  // 创建登录策略。
+  rpc CreateBaseLoginPolicy(CreateBaseLoginPolicyRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      put: "/api/v1/admin/base/login-policy"
-      body: "policy"
+      post: "/api/v1/admin/base/login-policy"
+      body: "base_login_policy"
+    };
+  }
+
+  // 更新登录策略。
+  rpc UpdateBaseLoginPolicy(UpdateBaseLoginPolicyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/login-policy/{base_login_policy.id}"
+      body: "base_login_policy"
+    };
+  }
+
+  // 删除登录策略。
+  rpc DeleteBaseLoginPolicy(DeleteBaseLoginPolicyRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/api/v1/admin/base/login-policy/{id}"};
+  }
+
+  // 设置登录策略状态。
+  rpc SetBaseLoginPolicyStatus(SetBaseLoginPolicyStatusRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/login-policy/{id}/status"
+      body: "*"
     };
   }
 }
 
-// 查询登录来源策略请求参数。
-message GetBaseLoginPolicyRequest {}
+// 登录策略作用域类型。
+enum BaseLoginPolicyScopeType {
+  // 未指定作用域。
+  BASE_LOGIN_POLICY_SCOPE_TYPE_UNSPECIFIED = 0;
+  // 全局作用域。
+  BASE_LOGIN_POLICY_SCOPE_TYPE_GLOBAL = 1;
+  // 租户作用域。
+  BASE_LOGIN_POLICY_SCOPE_TYPE_TENANT = 2;
+  // 用户作用域。
+  BASE_LOGIN_POLICY_SCOPE_TYPE_USER = 3;
+}
 
-// 更新登录来源策略请求参数。
+// 登录策略限制类型。
+enum BaseLoginPolicyRestrictionType {
+  // 未指定限制类型。
+  BASE_LOGIN_POLICY_RESTRICTION_TYPE_UNSPECIFIED = 0;
+  // 黑名单，命中后拒绝登录。
+  BASE_LOGIN_POLICY_RESTRICTION_TYPE_BLACKLIST = 1;
+  // 白名单，未命中时拒绝登录。
+  BASE_LOGIN_POLICY_RESTRICTION_TYPE_WHITELIST = 2;
+}
+
+// 登录策略限制方式。
+enum BaseLoginPolicyRestrictionMethod {
+  // 未指定限制方式。
+  BASE_LOGIN_POLICY_RESTRICTION_METHOD_UNSPECIFIED = 0;
+  // IP地址限制。
+  BASE_LOGIN_POLICY_RESTRICTION_METHOD_IP = 1;
+  // MAC地址限制。
+  BASE_LOGIN_POLICY_RESTRICTION_METHOD_MAC = 2;
+  // 地区限制。
+  BASE_LOGIN_POLICY_RESTRICTION_METHOD_REGION = 3;
+  // 时间限制。
+  BASE_LOGIN_POLICY_RESTRICTION_METHOD_TIME = 4;
+  // 设备限制。
+  BASE_LOGIN_POLICY_RESTRICTION_METHOD_DEVICE = 5;
+}
+
+// 登录策略分页查询条件。
+message PageBaseLoginPolicyRequest {
+  optional BaseLoginPolicyScopeType scope_type = 1 [(gnostic.openapi.v3.property) = {description: "作用域类型"}]; // 作用域类型
+
+  optional .common.v1.Status status = 2 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {
+    description: "当前页码"
+    default: {number: 1}
+  }]; // 当前页码
+
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {
+    description: "每一页的行数"
+    default: {number: 10}
+  }]; // 每一页的行数
+}
+
+// 登录策略分页响应。
+message PageBaseLoginPolicyResponse {
+  repeated BaseLoginPolicy base_login_policies = 1 [(gnostic.openapi.v3.property) = {description: "登录策略列表"}]; // 登录策略列表
+
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 查询登录策略详情请求参数。
+message GetBaseLoginPolicyRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "登录策略ID"}]; // 登录策略ID
+}
+
+// 创建登录策略请求参数。
+message CreateBaseLoginPolicyRequest {
+  BaseLoginPolicyForm base_login_policy = 1 [
+    (gnostic.openapi.v3.property) = {description: "登录策略表单"},
+    (buf.validate.field).required = true
+  ]; // 登录策略表单
+}
+
+// 更新登录策略请求参数。
 message UpdateBaseLoginPolicyRequest {
-  BaseLoginPolicy policy = 1 [(gnostic.openapi.v3.property) = {description: "登录来源策略"}, (buf.validate.field).required = true]; // 登录来源策略
+  BaseLoginPolicyForm base_login_policy = 1 [
+    (gnostic.openapi.v3.property) = {description: "登录策略表单"},
+    (buf.validate.field).required = true
+  ]; // 登录策略表单
 }
 
-// 登录来源策略。
+// 删除登录策略请求参数。
+message DeleteBaseLoginPolicyRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "登录策略ID列表"}]; // 登录策略ID列表
+}
+
+// 设置登录策略状态请求参数。
+message SetBaseLoginPolicyStatusRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "登录策略ID"}]; // 登录策略ID
+
+  .common.v1.Status status = 2 [
+    (gnostic.openapi.v3.property) = {description: "状态"},
+    (buf.validate.field).enum = {defined_only: true}
+  ]; // 状态
+}
+
+// 登录策略表单。
+message BaseLoginPolicyForm {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "登录策略ID"}]; // 登录策略ID
+
+  BaseLoginPolicyScopeType scope_type = 2 [
+    (gnostic.openapi.v3.property) = {description: "作用域类型：全局、租户或用户"},
+    (buf.validate.field).enum = {defined_only: true}
+  ]; // 作用域类型
+
+  int64 tenant_id = 3 [(gnostic.openapi.v3.property) = {description: "租户ID，租户或用户作用域必填"}]; // 租户ID
+
+  int64 user_id = 4 [(gnostic.openapi.v3.property) = {description: "用户ID，用户作用域必填"}]; // 用户ID
+
+  int32 max_failed_attempts = 5 [(gnostic.openapi.v3.property) = {description: "最大登录失败次数"}]; // 最大登录失败次数
+
+  int32 lock_duration_minutes = 6 [(gnostic.openapi.v3.property) = {description: "锁定时长（分钟）"}]; // 锁定时长（分钟）
+
+  .common.v1.Status status = 100 [
+    (gnostic.openapi.v3.property) = {description: "状态"},
+    (buf.validate.field).enum = {defined_only: true}
+  ]; // 状态
+
+  optional int32 password_max_age_days = 7 [(gnostic.openapi.v3.property) = {description: "密码有效期（天），0表示不启用"}]; // 密码有效期（天）
+
+  repeated BaseLoginPolicyRule rules = 8 [(gnostic.openapi.v3.property) = {description: "限制规则列表"}]; // 限制规则列表
+
+  optional int32 password_min_length = 11 [(gnostic.openapi.v3.property) = {description: "密码最小长度"}]; // 密码最小长度
+
+  optional int32 password_history_count = 12 [(gnostic.openapi.v3.property) = {description: "禁止重复使用的历史密码数量，0表示不启用"}]; // 禁止重复使用的历史密码数量，0表示不启用
+
+  optional int32 password_min_complexity_classes = 13 [(gnostic.openapi.v3.property) = {description: "密码至少满足的字符类别数量，字符类别包括小写、大写、数字和符号"}]; // 密码至少满足的字符类别数量，字符类别包括小写、大写、数字和符号
+
+  .common.v1.PasswordCrypto initial_password = 14 [(gnostic.openapi.v3.property) = {description: "初始化密码，新增用户未提交密码时使用"}]; // 初始化密码，新增用户未提交密码时使用
+}
+
+// 登录策略列表项。
 message BaseLoginPolicy {
-  bool enabled = 1 [(gnostic.openapi.v3.property) = {description: "是否启用"}]; // 是否启用
-  repeated string ip_blacklist = 2 [(gnostic.openapi.v3.property) = {description: "IP黑名单，支持IP和CIDR"}]; // IP黑名单
-  repeated string ip_whitelist = 3 [(gnostic.openapi.v3.property) = {description: "IP白名单，支持IP和CIDR"}]; // IP白名单
-  repeated string time_windows = 4 [(gnostic.openapi.v3.property) = {description: "禁止登录时间窗口，格式HH:MM-HH:MM"}]; // 禁止登录时间窗口
-  repeated string device_blacklist = 5 [(gnostic.openapi.v3.property) = {description: "设备黑名单"}]; // 设备黑名单
-  repeated string device_whitelist = 6 [(gnostic.openapi.v3.property) = {description: "设备白名单"}]; // 设备白名单
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "登录策略ID"}]; // 登录策略ID
 
-  repeated BaseLoginPolicyRule rules = 7 [(gnostic.openapi.v3.property) = {description: "按租户或用户匹配的定向规则"}]; // 按租户或用户匹配的定向规则
+  BaseLoginPolicyScopeType scope_type = 2 [(gnostic.openapi.v3.property) = {description: "作用域类型"}]; // 作用域类型
+
+  int64 tenant_id = 3 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+
+  int64 user_id = 4 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+
+  string tenant_name = 5 [(gnostic.openapi.v3.property) = {description: "租户名称"}]; // 租户名称
+
+  string user_name = 6 [(gnostic.openapi.v3.property) = {description: "用户账号"}]; // 用户账号
+
+  int32 max_failed_attempts = 7 [(gnostic.openapi.v3.property) = {description: "最大登录失败次数"}]; // 最大登录失败次数
+
+  int32 lock_duration_minutes = 8 [(gnostic.openapi.v3.property) = {description: "锁定时长（分钟）"}]; // 锁定时长（分钟）
+
+  .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+
+  string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+
+  string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+
+  int32 password_max_age_days = 9 [(gnostic.openapi.v3.property) = {description: "密码有效期（天），0表示不启用"}]; // 密码有效期（天）
+
+  repeated BaseLoginPolicyRule rules = 10 [(gnostic.openapi.v3.property) = {description: "限制规则列表"}]; // 限制规则列表
+
+  int32 password_min_length = 11 [(gnostic.openapi.v3.property) = {description: "密码最小长度"}]; // 密码最小长度
+
+  int32 password_history_count = 12 [(gnostic.openapi.v3.property) = {description: "禁止重复使用的历史密码数量，0表示不启用"}]; // 禁止重复使用的历史密码数量，0表示不启用
+
+  int32 password_min_complexity_classes = 13 [(gnostic.openapi.v3.property) = {description: "密码至少满足的字符类别数量，字符类别包括小写、大写、数字和符号"}]; // 密码至少满足的字符类别数量，字符类别包括小写、大写、数字和符号
 }
 
-// 登录来源定向规则。
+// 登录策略限制规则。
 message BaseLoginPolicyRule {
-  string target_type = 1 [
-    (gnostic.openapi.v3.property) = {description: "目标类型：TENANT或USER"},
-    (buf.validate.field).cel = {
-      id: "system.admin.base.login_policy.rule.target_type.required"
-      message: "定向规则目标类型不能为空"
-      expression: "this == 'TENANT' || this == 'USER'"
-    }
-  ]; // 目标类型：TENANT或USER
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "限制规则ID"}]; // 限制规则ID
 
-  string target_value = 2 [
-    (gnostic.openapi.v3.property) = {description: "目标值：租户编码或用户名"},
-    (buf.validate.field).cel = {
-      id: "system.admin.base.login_policy.rule.target_value.required"
-      message: "定向规则目标值不能为空"
-      expression: "this.size() > 0 && this.size() <= 128"
-    }
-  ]; // 目标值：租户编码或用户名
+  int64 policy_id = 2 [(gnostic.openapi.v3.property) = {description: "登录策略ID"}]; // 登录策略ID
 
-  bool enabled = 3 [(gnostic.openapi.v3.property) = {description: "是否启用"}]; // 是否启用
-  repeated string ip_blacklist = 4 [(gnostic.openapi.v3.property) = {description: "IP黑名单，支持IP和CIDR"}]; // IP黑名单
-  repeated string ip_whitelist = 5 [(gnostic.openapi.v3.property) = {description: "IP白名单，支持IP和CIDR"}]; // IP白名单
-  repeated string time_windows = 6 [(gnostic.openapi.v3.property) = {description: "禁止登录时间窗口，格式HH:MM-HH:MM"}]; // 禁止登录时间窗口
-  repeated string device_blacklist = 7 [(gnostic.openapi.v3.property) = {description: "设备黑名单"}]; // 设备黑名单
-  repeated string device_whitelist = 8 [(gnostic.openapi.v3.property) = {description: "设备白名单"}]; // 设备白名单
+  BaseLoginPolicyRestrictionType restriction_type = 3 [
+    (gnostic.openapi.v3.property) = {description: "限制类型：黑名单或白名单"},
+    (buf.validate.field).enum = {defined_only: true}
+  ]; // 限制类型
+
+  BaseLoginPolicyRestrictionMethod restriction_method = 4 [
+    (gnostic.openapi.v3.property) = {description: "限制方式：IP、MAC、地区、时间或设备"},
+    (buf.validate.field).enum = {defined_only: true}
+  ]; // 限制方式
+
+  string restriction_value = 5 [
+    (gnostic.openapi.v3.property) = {description: "限制值"},
+    (buf.validate.field).cel = {
+      id: "system.admin.base.login_policy.rule.value.required"
+      message: "限制值不能为空且不超过512个字符"
+      expression: "this.size() > 0 && this.size() <= 512"
+    }
+  ]; // 限制值
+
+  string reason = 6 [
+    (gnostic.openapi.v3.property) = {description: "限制原因"},
+    (buf.validate.field).cel = {
+      id: "system.admin.base.login_policy.rule.reason.length"
+      message: "限制原因不能超过500个字符"
+      expression: "this.size() <= 500"
+    }
+  ]; // 限制原因
+
+  .common.v1.Status status = 100 [
+    (gnostic.openapi.v3.property) = {description: "状态"},
+    (buf.validate.field).enum = {defined_only: true}
+  ]; // 状态
 }

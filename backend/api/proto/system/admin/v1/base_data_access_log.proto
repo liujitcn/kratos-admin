@@ -1,0 +1,91 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "system/admin/v1/base_log.proto";
+
+// 数据访问日志服务。
+service BaseDataAccessLogService {
+  // 分页查询数据访问日志。
+  rpc PageBaseDataAccessLog(PageBaseDataAccessLogRequest) returns (PageBaseDataAccessLogResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/data-access-log"};
+  }
+
+  // 查询数据访问日志详情。
+  rpc GetBaseDataAccessLog(GetBaseDataAccessLogRequest) returns (BaseDataAccessLog) {
+    option (google.api.http) = {get: "/api/v1/admin/base/data-access-log/{id}"};
+  }
+}
+
+// BaseDataAccessType 定义读取、导入、导出和下载等数据访问方式。
+// 该枚举只描述访问事实，不代表访问是否经过授权。
+enum BaseDataAccessType {
+  // 未指定数据访问类型。
+  BASE_DATA_ACCESS_TYPE_UNSPECIFIED = 0;
+  // 列表访问。
+  BASE_DATA_ACCESS_TYPE_LIST = 1;
+  // 详情访问。
+  BASE_DATA_ACCESS_TYPE_DETAIL = 2;
+  // 条件查询。
+  BASE_DATA_ACCESS_TYPE_QUERY = 3;
+  // 导出数据。
+  BASE_DATA_ACCESS_TYPE_EXPORT = 4;
+  // 下载数据。
+  BASE_DATA_ACCESS_TYPE_DOWNLOAD = 5;
+  // 导入数据。
+  BASE_DATA_ACCESS_TYPE_IMPORT = 6;
+}
+
+// 数据访问日志分页查询条件。
+message PageBaseDataAccessLogRequest {
+  optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  optional int64 user_id = 2 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  optional BaseDataAccessType access_type = 3 [(gnostic.openapi.v3.property) = {description: "访问类型"}]; // 访问类型
+  optional bool sensitive = 4 [(gnostic.openapi.v3.property) = {description: "是否敏感数据"}]; // 是否敏感数据
+  optional BaseLogResult result = 5 [(gnostic.openapi.v3.property) = {description: "结果"}]; // 结果
+  repeated string occurred_at = 6 [(gnostic.openapi.v3.property) = {description: "事件时间"}]; // 事件时间
+  string resource_type = 7 [(gnostic.openapi.v3.property) = {description: "资源类型"}]; // 资源类型
+  string keyword = 8 [(gnostic.openapi.v3.property) = {description: "表名、资源或请求ID关键字"}]; // 关键字
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码"}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数"}]; // 每页行数
+}
+
+// 数据访问日志分页响应。
+message PageBaseDataAccessLogResponse {
+  repeated BaseDataAccessLog base_data_access_logs = 1 [(gnostic.openapi.v3.property) = {description: "数据访问日志列表"}]; // 数据访问日志列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 查询数据访问日志详情请求。
+message GetBaseDataAccessLogRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "数据访问日志ID"}]; // 数据访问日志ID
+}
+
+// 数据访问日志。
+message BaseDataAccessLog {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "数据访问日志ID"}]; // 数据访问日志ID
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  string tenant_code = 3 [(gnostic.openapi.v3.property) = {description: "租户编码"}]; // 租户编码
+  int64 user_id = 4 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  string user_name = 5 [(gnostic.openapi.v3.property) = {description: "用户名称"}]; // 用户名称
+  string request_id = 6 [(gnostic.openapi.v3.property) = {description: "请求ID"}]; // 请求ID
+  string trace_id = 7 [(gnostic.openapi.v3.property) = {description: "链路追踪ID"}]; // 链路追踪ID
+  string resource_type = 8 [(gnostic.openapi.v3.property) = {description: "资源类型"}]; // 资源类型
+  string resource_id = 9 [(gnostic.openapi.v3.property) = {description: "资源ID"}]; // 资源ID
+  BaseDataAccessType access_type = 10 [(gnostic.openapi.v3.property) = {description: "访问类型"}]; // 访问类型
+  string data_source = 11 [(gnostic.openapi.v3.property) = {description: "数据源"}]; // 数据源
+  string table_name = 12 [(gnostic.openapi.v3.property) = {description: "数据表名"}]; // 数据表名
+  string field_scope = 13 [(gnostic.openapi.v3.property) = {description: "访问字段范围"}]; // 访问字段范围
+  string data_scope = 14 [(gnostic.openapi.v3.property) = {description: "数据范围"}]; // 数据范围
+  int32 affected_rows = 15 [(gnostic.openapi.v3.property) = {description: "影响行数"}]; // 影响行数
+  bool sensitive = 16 [(gnostic.openapi.v3.property) = {description: "是否敏感数据"}]; // 是否敏感数据
+  string sql_text = 17 [(gnostic.openapi.v3.property) = {description: "脱敏SQL"}]; // 脱敏SQL
+  string sql_digest = 18 [(gnostic.openapi.v3.property) = {description: "SQL指纹"}]; // SQL指纹
+  BaseLogResult result = 19 [(gnostic.openapi.v3.property) = {description: "结果"}]; // 结果
+  string reason_code = 20 [(gnostic.openapi.v3.property) = {description: "原因编码"}]; // 原因编码
+  int32 latency_ms = 21 [(gnostic.openapi.v3.property) = {description: "数据层耗时毫秒，未采集时为0"}]; // 数据层耗时毫秒，未采集时为0
+  string occurred_at = 22 [(gnostic.openapi.v3.property) = {description: "事件发生时间"}]; // 事件发生时间
+  string created_at = 23 [(gnostic.openapi.v3.property) = {description: "日志落库时间"}]; // 日志落库时间
+}

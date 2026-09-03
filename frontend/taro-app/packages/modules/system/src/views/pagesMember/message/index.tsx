@@ -2,7 +2,7 @@ import { useDidShow } from '@tarojs/taro'
 import { Button, Input, Text, View } from '@tarojs/components'
 import { useState } from 'react'
 import { navigateAppRoute, t } from '@liujitcn/kratos-taro-app-core'
-import { defNotificationService } from '../../../api/base/notification'
+import { defNotificationService } from '../../../api/base/v1/notification'
 import type { Notification } from '../../../rpc/base/v1/notification'
 import { NotificationView } from '../../../rpc/base/v1/notification'
 import { refreshNotificationSummary } from '../../../notification'
@@ -28,8 +28,8 @@ export default function MessageInboxPage() {
   ]
 
   useDidShow(() => {
-    void refresh()
-    void refreshNotificationSummary().then(setUnreadTotal)
+    void refresh().catch(() => undefined)
+    void refreshNotificationSummary().then(setUnreadTotal).catch(() => undefined)
   })
 
   /** 刷新站内信列表。 */
@@ -77,7 +77,7 @@ export default function MessageInboxPage() {
   /** 切换收件箱视图。 */
   function changeView(view: NotificationView) {
     setSelectedView(view)
-    void refresh(view, categoryId)
+    void refresh(view, categoryId).catch(() => undefined)
   }
 
   /** 应用分类筛选。 */
@@ -85,7 +85,7 @@ export default function MessageInboxPage() {
     const value = Number(categoryInput)
     const next = Number.isInteger(value) && value > 0 ? value : undefined
     setCategoryId(next)
-    void refresh(selectedView, next)
+    void refresh(selectedView, next).catch(() => undefined)
   }
 
   /** 标记当前水位线之前的消息为已读。 */
@@ -151,14 +151,18 @@ export default function MessageInboxPage() {
             {t('common.action.confirm')}
           </Button>
           {selectedView !== NotificationView.NOTIFICATION_VIEW_ARCHIVED && unreadTotal > 0 && (
-            <Button size='mini' onClick={() => void markAllRead()}>
+            <Button size='mini' onClick={() => void markAllRead().catch(() => undefined)}>
               {t('system.notification.mark_all_read')}
             </Button>
           )}
         </View>
       </View>
       {items.map((item) => (
-        <View className='message-item' key={item.id} onClick={() => void openDetail(item)}>
+        <View
+          className='message-item'
+          key={item.id}
+          onClick={() => void openDetail(item).catch(() => undefined)}
+        >
           <View className='message-item__main'>
             <Text className={`message-item__title ${item.read_at ? '' : 'unread'}`}>
               {item.title}
@@ -172,7 +176,7 @@ export default function MessageInboxPage() {
                 size='mini'
                 onClick={(event) => {
                   event.stopPropagation()
-                  void toggleArchive(item)
+                  void toggleArchive(item).catch(() => undefined)
                 }}
               >
                 {t('system.notification.action.archive')}
@@ -183,7 +187,7 @@ export default function MessageInboxPage() {
                 size='mini'
                 onClick={(event) => {
                   event.stopPropagation()
-                  void toggleArchive(item)
+                  void toggleArchive(item).catch(() => undefined)
                 }}
               >
                 {t('system.notification.action.restore')}
@@ -194,7 +198,7 @@ export default function MessageInboxPage() {
                 size='mini'
                 onClick={(event) => {
                   event.stopPropagation()
-                  void deleteItem(item)
+                  void deleteItem(item).catch(() => undefined)
                 }}
               >
                 {t('system.notification.action.delete')}
@@ -204,7 +208,11 @@ export default function MessageInboxPage() {
         </View>
       ))}
       {!finished && (
-        <Button className='load-more' loading={loading} onClick={() => void loadMore()}>
+        <Button
+          className='load-more'
+          loading={loading}
+          onClick={() => void loadMore().catch(() => undefined)}
+        >
           {t('common.action.load_more')}
         </Button>
       )}

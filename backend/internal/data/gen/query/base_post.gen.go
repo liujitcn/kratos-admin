@@ -32,8 +32,8 @@ func newBasePost(db *gorm.DB, opts ...gen.DOOption) basePost {
 	_basePost.Name = field.NewString(tableName, "name")
 	_basePost.Code = field.NewString(tableName, "code")
 	_basePost.Sort = field.NewInt32(tableName, "sort")
-	_basePost.Status = field.NewInt32(tableName, "status")
 	_basePost.Remark = field.NewString(tableName, "remark")
+	_basePost.Status = field.NewInt32(tableName, "status")
 	_basePost.CreatedBy = field.NewInt64(tableName, "created_by")
 	_basePost.UpdatedBy = field.NewInt64(tableName, "updated_by")
 	_basePost.CreatedAt = field.NewTime(tableName, "created_at")
@@ -55,8 +55,8 @@ type basePost struct {
 	Name      field.String // 岗位名称
 	Code      field.String // 岗位编码
 	Sort      field.Int32  // 显示顺序
-	Status    field.Int32  // 状态：枚举【Status】
 	Remark    field.String // 备注
+	Status    field.Int32  // 状态：枚举【Status】
 	CreatedBy field.Int64  // 创建者ID
 	UpdatedBy field.Int64  // 更新者ID
 	CreatedAt field.Time   // 创建时间
@@ -83,8 +83,8 @@ func (b *basePost) updateTableName(table string) *basePost {
 	b.Name = field.NewString(table, "name")
 	b.Code = field.NewString(table, "code")
 	b.Sort = field.NewInt32(table, "sort")
-	b.Status = field.NewInt32(table, "status")
 	b.Remark = field.NewString(table, "remark")
+	b.Status = field.NewInt32(table, "status")
 	b.CreatedBy = field.NewInt64(table, "created_by")
 	b.UpdatedBy = field.NewInt64(table, "updated_by")
 	b.CreatedAt = field.NewTime(table, "created_at")
@@ -120,8 +120,8 @@ func (b *basePost) fillFieldMap() {
 	b.fieldMap["name"] = b.Name
 	b.fieldMap["code"] = b.Code
 	b.fieldMap["sort"] = b.Sort
-	b.fieldMap["status"] = b.Status
 	b.fieldMap["remark"] = b.Remark
+	b.fieldMap["status"] = b.Status
 	b.fieldMap["created_by"] = b.CreatedBy
 	b.fieldMap["updated_by"] = b.UpdatedBy
 	b.fieldMap["created_at"] = b.CreatedAt

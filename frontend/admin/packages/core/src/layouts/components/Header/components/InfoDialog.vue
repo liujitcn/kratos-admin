@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="dialogVisible" :title="t('core.layout.info')" width="500px" draggable>
+  <ProDialog v-model="dialogVisible" :title="t('core.layout.info')" width="500px" draggable>
     <span>{{ t("core.layout.info_content") }}</span>
     <template #footer>
       <span class="dialog-footer">
@@ -7,11 +7,12 @@
         <el-button type="primary" @click="dialogVisible = false">{{ t("common.action.confirm") }}</el-button>
       </span>
     </template>
-  </el-dialog>
+  </ProDialog>
 </template>
 
 <script setup lang="ts">
 import { useLocaleStore } from "@/locales";
+import ProDialog from "@/components/Dialog/ProDialog.vue";
 
 const { t } = useLocaleStore();
 import { ref } from "vue";

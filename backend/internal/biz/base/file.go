@@ -6,6 +6,8 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net/http"
+	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"strings"
@@ -16,6 +18,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
+	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/go-utils/id"
@@ -78,6 +81,9 @@ func (c *FileCase) MultiUploadFile(ctx context.Context, req *basev1.MultiUploadF
 		if err = validateFileContent(item.GetName(), item.GetContent()); err != nil {
 			return nil, err
 		}
+		if err = scanFileContent(ctx, c.GetConfig().GetOss().GetUploadSecurity(), item.GetName(), item.GetContent()); err != nil {
+			return nil, err
+		}
 		var url string
 		url, err = c.OSS.UploadByByte(item.GetName(), objectPath, item.GetContent())
 		if err != nil {
@@ -109,6 +115,9 @@ func (c *FileCase) UploadFile(ctx context.Context, req *basev1.UploadFileRequest
 		return nil, err
 	}
 	if err = validateFileContent(file.GetName(), file.GetContent()); err != nil {
+		return nil, err
+	}
+	if err = scanFileContent(ctx, c.GetConfig().GetOss().GetUploadSecurity(), file.GetName(), file.GetContent()); err != nil {
 		return nil, err
 	}
 	var url string
@@ -234,6 +243,68 @@ func validateFileContent(fileName string, content []byte) error {
 	case "text/html; charset=utf-8", "image/svg+xml", "application/x-httpd-php", "application/x-shockwave-flash":
 		return errorsx.InvalidArgument("不允许上传可执行或可嵌入脚本的文件")
 	default:
+		if !fileContentMatchesExtension(extension, detectedType) {
+			return errorsx.InvalidArgument("文件扩展名与实际内容类型不匹配")
+		}
 		return nil
 	}
+}
+
+// fileContentMatchesExtension 判断文件扩展名和服务端嗅探类型是否属于同一允许类别。
+func fileContentMatchesExtension(extension, contentType string) bool {
+	switch extension {
+	case ".bmp", ".gif", ".jpeg", ".jpg", ".png", ".webp":
+		return strings.HasPrefix(contentType, "image/") && contentType != "image/svg+xml"
+	case ".mp3", ".wav":
+		return strings.HasPrefix(contentType, "audio/") || contentType == "application/octet-stream"
+	case ".mp4":
+		return strings.HasPrefix(contentType, "video/") || contentType == "application/octet-stream"
+	case ".pdf":
+		return contentType == "application/pdf"
+	case ".csv", ".txt":
+		return strings.HasPrefix(contentType, "text/plain") || contentType == "application/vnd.ms-excel"
+	case ".doc", ".xls", ".ppt":
+		return contentType == "application/octet-stream" || strings.HasPrefix(contentType, "application/ms") || strings.HasPrefix(contentType, "application/vnd.ms")
+	case ".docx", ".xlsx", ".pptx":
+		return contentType == "application/zip" || contentType == "application/octet-stream" || strings.HasPrefix(contentType, "application/vnd.openxmlformats-officedocument")
+	default:
+		return false
+	}
+}
+
+// scanFileContent 使用 OSS 上传安全配置中的 ClamAV 兼容命令扫描上传内容。
+func scanFileContent(ctx context.Context, config *configv1.Oss_UploadSecurity, fileName string, content []byte) error {
+	if config == nil || !config.GetEnabled() {
+		return nil
+	}
+	if config.GetCommand() == "" {
+		return errorsx.Internal("文件安全扫描命令未配置")
+	}
+	var err error
+	var file *os.File
+	file, err = os.CreateTemp("", "kratos-upload-*")
+	if err != nil {
+		return errorsx.Internal("创建文件扫描临时文件失败").WithCause(err)
+	}
+	path := file.Name()
+	defer os.Remove(path)
+	if err = file.Chmod(0o600); err != nil {
+		_ = file.Close()
+		return errorsx.Internal("设置文件扫描临时文件权限失败").WithCause(err)
+	}
+	if _, err = file.Write(content); err != nil {
+		_ = file.Close()
+		return errorsx.Internal("写入文件扫描临时文件失败").WithCause(err)
+	}
+	if err = file.Close(); err != nil {
+		return errorsx.Internal("关闭文件扫描临时文件失败").WithCause(err)
+	}
+	scanCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+	scan := exec.CommandContext(scanCtx, config.GetCommand(), "--no-summary", path)
+	if output, scanErr := scan.CombinedOutput(); scanErr != nil {
+		log.Error("上传文件恶意代码扫描失败", "error", scanErr, "file_name", fileName, "output", string(output))
+		return errorsx.InvalidArgument("上传文件未通过安全扫描")
+	}
+	return nil
 }

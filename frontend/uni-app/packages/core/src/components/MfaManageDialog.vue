@@ -10,7 +10,7 @@ import type {
 import { createWebAuthnCredential, getWebAuthnAssertion } from '../utils/webauthn'
 import { PASSWORD_CRYPTO_SCENE, encryptPassword } from '../utils/passwordCrypto'
 import { useI18n } from '../locales'
-import { defMfaService } from '../api/base/mfa'
+import { defMfaService } from '../api/base/v1/mfa'
 
 const props = withDefaults(
   defineProps<{

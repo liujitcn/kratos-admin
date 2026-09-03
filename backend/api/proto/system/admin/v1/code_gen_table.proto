@@ -77,6 +77,8 @@ message PageCodeGenTableRequest {
 
   optional CodeGenTableStatus status = 4 [(gnostic.openapi.v3.property) = {description: "状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用"}]; // 状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用
 
+  string source_name = 5 [(gnostic.openapi.v3.property) = {description: "数据源名称"}]; // 数据源名称
+
   int64 page_num = 101 [(gnostic.openapi.v3.property) = {
     description: "当前页码"
     default: {number: 1}
@@ -96,7 +98,9 @@ message PageCodeGenTableResponse {
 }
 
 // 数据库表列表查询条件
-message ListCodeGenDatabaseTableRequest {}
+message ListCodeGenDatabaseTableRequest {
+  string source_name = 1 [(gnostic.openapi.v3.property) = {description: "数据源名称"}]; // 数据源名称
+}
 
 // 数据库表列表响应
 message ListCodeGenDatabaseTableResponse {
@@ -139,6 +143,8 @@ message CodeGenTableForm {
   string remark = 14 [(gnostic.openapi.v3.property) = {description: "备注"}, (buf.validate.field).cel = {id: "system.admin.code.gen.table.field.remark.length", message: "备注不能超过 500 个字符", expression: "this.size() <= 500"}]; // 备注
 
   map<string, CodeGenLocaleConfig> i18n_config = 15 [(gnostic.openapi.v3.property) = {description: "按语言区域索引的表级国际化配置"}]; // 按语言区域索引的表级国际化配置
+
+  string source_name = 16 [(gnostic.openapi.v3.property) = {description: "数据源名称"}, (buf.validate.field).cel = {id: "system.admin.code.gen.table.field.source_name.required" message: "数据源名称不能为空" expression: "this.size() > 0 && this.size() <= 64"}]; // 数据源名称
 }
 
 // 代码生成表配置创建条件
@@ -191,6 +197,8 @@ message CodeGenTable {
   bool restore_available = 10 [(gnostic.openapi.v3.property) = {description: "是否可以还原生成结果"}]; // 是否可以还原生成结果
 
   map<string, CodeGenLocaleConfig> i18n_config = 11 [(gnostic.openapi.v3.property) = {description: "按语言区域索引的表级国际化配置"}]; // 按语言区域索引的表级国际化配置
+
+  string source_name = 12 [(gnostic.openapi.v3.property) = {description: "数据源名称"}]; // 数据源名称
 }
 
 // 左树右表页面配置

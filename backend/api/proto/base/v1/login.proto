@@ -70,6 +70,8 @@ enum PasswordCryptoScene {
   PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD = 4;
   // 多因素认证敏感操作场景。
   PASSWORD_CRYPTO_SCENE_MFA = 5;
+  // 密码策略初始化密码配置场景。
+  PASSWORD_CRYPTO_SCENE_CONFIGURE_PASSWORD_POLICY = 6;
 }
 
 // LoginStatus 表示登录请求当前所处的认证阶段。
@@ -145,7 +147,7 @@ message RefreshTokenRequest {
 message RefreshTokenResponse {
   string access_token = 1 [(gnostic.openapi.v3.property) = {description: "访问令牌，必选项。授权服务器颁发的访问令牌字符串。"}]; // 访问令牌，必选项。
 
-  string refresh_token = 2 [(gnostic.openapi.v3.property) = {description: "更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。"}]; // 更新令牌，用来获取下一次的访问令牌，可选项。
+  string refresh_token = 2 [(gnostic.openapi.v3.property) = {description: "更新令牌；管理端 Cookie-only 请求不在响应体返回，应用端请求可返回。"}]; // 更新令牌；管理端 Cookie-only 请求不在响应体返回，应用端请求可返回。
 
   string token_type = 3 [(gnostic.openapi.v3.property) = {
     description: "令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。"
@@ -178,7 +180,7 @@ message LoginRequest {
 message LoginResponse {
   string access_token = 1 [(gnostic.openapi.v3.property) = {description: "访问令牌，必选项。授权服务器颁发的访问令牌字符串。"}]; // 访问令牌，必选项。
 
-  string refresh_token = 2 [(gnostic.openapi.v3.property) = {description: "更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。"}]; // 更新令牌，用来获取下一次的访问令牌，可选项。
+  string refresh_token = 2 [(gnostic.openapi.v3.property) = {description: "更新令牌；管理端 Cookie-only 请求不在响应体返回，应用端请求可返回。"}]; // 更新令牌；管理端 Cookie-only 请求不在响应体返回，应用端请求可返回。
 
   string token_type = 3 [(gnostic.openapi.v3.property) = {
     description: "令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。"

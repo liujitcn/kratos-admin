@@ -1,17 +1,16 @@
-// Package password 提供后台账号口令安全策略。
 package password
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 	"time"
 	"unicode"
 
 	"github.com/liujitcn/go-utils/crypto"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
 	"github.com/liujitcn/kratos-kit/cache"
 	"github.com/redis/go-redis/v9"
 )
@@ -21,45 +20,9 @@ const passwordStateTTL = 10 * 365 * 24 * time.Hour
 // ErrWeakPassword 表示口令未达到复杂度要求。
 var ErrWeakPassword = errors.New("口令长度不足或复杂度不符合要求")
 
-// MinLength 返回口令最小长度。
-func MinLength() int {
-	value := os.Getenv("PASSWORD_MIN_LENGTH")
-	if value != "" {
-		length, err := strconv.Atoi(value)
-		if err == nil && length > 0 {
-			return length
-		}
-	}
-	return 8
-}
-
-// HistoryCount 返回需要避免重复使用的历史口令数量。
-func HistoryCount() int {
-	value := os.Getenv("PASSWORD_HISTORY_COUNT")
-	if value != "" {
-		count, err := strconv.Atoi(value)
-		if err == nil && count >= 0 {
-			return count
-		}
-	}
-	return 3
-}
-
-// MaxAgeDays 返回口令有效期天数，零表示不启用有效期。
-func MaxAgeDays() int {
-	value := os.Getenv("PASSWORD_MAX_AGE_DAYS")
-	if value != "" {
-		days, err := strconv.Atoi(value)
-		if err == nil && days >= 0 {
-			return days
-		}
-	}
-	return 90
-}
-
-// ValidateComplexity 校验口令长度和字符类别复杂度。
-func ValidateComplexity(plain string) error {
-	if len([]rune(plain)) < MinLength() {
+// ValidateComplexity 按密码策略校验口令长度和字符类别复杂度。
+func ValidateComplexity(plain string, config loginpolicy.PasswordConfig) error {
+	if len([]rune(plain)) < int(config.MinLength) {
 		return ErrWeakPassword
 	}
 	var lower, upper, digit, symbol bool
@@ -81,18 +44,18 @@ func ValidateComplexity(plain string) error {
 			classes++
 		}
 	}
-	if classes < 3 {
+	if classes < int(config.MinComplexityClasses) {
 		return ErrWeakPassword
 	}
 	return nil
 }
 
 // CheckHistory 判断新口令是否重复使用近期历史口令。
-func CheckHistory(store cache.Cache, userID int64, plain string) error {
+func CheckHistory(store cache.Cache, userID int64, plain string, historyCount int32) error {
 	if store == nil {
 		return errors.New("口令历史缓存未配置")
 	}
-	if userID <= 0 || HistoryCount() <= 0 {
+	if userID <= 0 || historyCount <= 0 {
 		return nil
 	}
 	raw, err := store.Get(historyKey(userID))
@@ -105,19 +68,23 @@ func CheckHistory(store cache.Cache, userID int64, plain string) error {
 	if raw == "" {
 		return nil
 	}
-	return CheckHistoryJSON(raw, plain)
+	return CheckHistoryJSON(raw, plain, historyCount)
 }
 
 // CheckHistoryJSON 校验 JSON 编码的历史口令哈希列表。
-func CheckHistoryJSON(raw, plain string) error {
-	if raw == "" {
+func CheckHistoryJSON(raw, plain string, historyCount int32) error {
+	if raw == "" || historyCount <= 0 {
 		return nil
 	}
 	var history []string
 	if err := json.Unmarshal([]byte(raw), &history); err != nil {
 		return fmt.Errorf("解析口令历史失败: %w", err)
 	}
-	for _, hash := range history {
+	limit := len(history)
+	if limit > int(historyCount) {
+		limit = int(historyCount)
+	}
+	for _, hash := range history[:limit] {
 		if err := crypto.Verify(plain, hash); err == nil {
 			return errors.New("新口令不能与近期历史口令相同")
 		}
@@ -126,11 +93,11 @@ func CheckHistoryJSON(raw, plain string) error {
 }
 
 // RecordHistory 记录用户修改前的口令哈希，不保存明文口令。
-func RecordHistory(store cache.Cache, userID int64, oldHash string) error {
+func RecordHistory(store cache.Cache, userID int64, oldHash string, historyCount int32) error {
 	if store == nil {
 		return errors.New("口令历史缓存未配置")
 	}
-	if userID <= 0 || oldHash == "" || HistoryCount() <= 0 {
+	if userID <= 0 || oldHash == "" || historyCount <= 0 {
 		return nil
 	}
 	var history []string
@@ -143,8 +110,8 @@ func RecordHistory(store cache.Cache, userID int64, oldHash string) error {
 		return fmt.Errorf("读取口令历史失败: %w", err)
 	}
 	history = append([]string{oldHash}, history...)
-	if len(history) > HistoryCount() {
-		history = history[:HistoryCount()]
+	if len(history) > int(historyCount) {
+		history = history[:historyCount]
 	}
 	var payload []byte
 	payload, err = json.Marshal(history)
@@ -155,8 +122,14 @@ func RecordHistory(store cache.Cache, userID int64, oldHash string) error {
 }
 
 // AppendHistoryJSON 将旧口令哈希追加到持久化历史列表并限制保留数量。
-func AppendHistoryJSON(raw, oldHash string) (string, error) {
-	if oldHash == "" || HistoryCount() <= 0 {
+func AppendHistoryJSON(raw, oldHash string, historyCount int32) (string, error) {
+	if historyCount <= 0 {
+		if raw == "" {
+			return "[]", nil
+		}
+		return raw, nil
+	}
+	if oldHash == "" {
 		return raw, nil
 	}
 	var history []string
@@ -166,8 +139,8 @@ func AppendHistoryJSON(raw, oldHash string) (string, error) {
 		}
 	}
 	history = append([]string{oldHash}, history...)
-	if len(history) > HistoryCount() {
-		history = history[:HistoryCount()]
+	if len(history) > int(historyCount) {
+		history = history[:historyCount]
 	}
 	payload, err := json.Marshal(history)
 	if err != nil {
@@ -206,8 +179,7 @@ func EnsureChanged(store cache.Cache, userID int64) error {
 }
 
 // CheckExpiry 判断用户口令是否超过配置的有效期，并区分缓存故障。
-func CheckExpiry(store cache.Cache, userID int64, now time.Time) (bool, error) {
-	maxAge := MaxAgeDays()
+func CheckExpiry(store cache.Cache, userID int64, now time.Time, maxAge int32) (bool, error) {
 	if store == nil {
 		return false, errors.New("口令状态缓存未配置")
 	}
@@ -236,18 +208,22 @@ func CheckExpiry(store cache.Cache, userID int64, now time.Time) (bool, error) {
 }
 
 // IsExpiredAt 根据数据库中的口令修改时间判断是否过期。
-func IsExpiredAt(changedAt, now time.Time) bool {
-	maxAge := MaxAgeDays()
-	if maxAge <= 0 || changedAt.IsZero() {
+func IsExpiredAt(changedAt, now time.Time, maxAgeDays int32) bool {
+	if maxAgeDays <= 0 || changedAt.IsZero() {
 		return false
 	}
-	return now.Sub(changedAt) >= time.Duration(maxAge)*24*time.Hour
+	return now.Sub(changedAt) >= time.Duration(maxAgeDays)*24*time.Hour
 }
 
 // IsExpired 判断用户口令是否超过配置的有效期。
-func IsExpired(store cache.Cache, userID int64, now time.Time) bool {
-	expired, err := CheckExpiry(store, userID, now)
+func IsExpired(store cache.Cache, userID int64, now time.Time, maxAgeDays int32) bool {
+	expired, err := CheckExpiry(store, userID, now, maxAgeDays)
 	return err == nil && expired
+}
+
+// IsExpiredAtWithMaxAge 按指定有效期天数判断数据库中的口令修改时间是否过期。
+func IsExpiredAtWithMaxAge(changedAt, now time.Time, maxAgeDays int32) bool {
+	return IsExpiredAt(changedAt, now, maxAgeDays)
 }
 
 // isCacheMiss 判断缓存键不存在，而不是缓存服务故障。

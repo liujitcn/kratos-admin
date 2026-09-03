@@ -1,8 +1,3 @@
-// Package agent 提供可被其他 Backend 模块复用的 AI Agent 公开 API。
-//
-// 业务模块可以直接使用 Eino 工具、模型客户端和 Runtime；不需要依赖
-// internal/biz 下的实现路径。工具既可以在创建 Runtime 时传入，也可以在
-// 启动后通过 Runtime.RegisterTool 动态追加。
 package agent
 
 import (

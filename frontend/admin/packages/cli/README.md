@@ -42,13 +42,13 @@ packages/cli
 ```bash
 pnpm dlx @liujitcn/kratos-admin-cli create shop-admin --module shop
 pnpm dlx @liujitcn/kratos-admin-cli create shop-admin --module shop,order
-pnpm dlx @liujitcn/kratos-admin-cli create shop-admin --module shop --with audit
+pnpm dlx @liujitcn/kratos-admin-cli create shop-admin --module shop --with log
 
 # 当前仓库开发
 pnpm module:create ../shop-admin --module shop
 pnpm module:create ../shop-admin --module shop,order
 pnpm module:create ../shop-admin --module shop --module order
-pnpm module:create ../shop-admin --module shop,order --with audit
+pnpm module:create ../shop-admin --module shop,order --with log
 pnpm --filter @liujitcn/kratos-admin-cli test
 ```
 

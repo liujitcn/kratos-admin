@@ -14,7 +14,7 @@
 - AI 会话、流式消息、附件、工具调用、重试、再生成和分支会话。
 - 管理端代码生成配置、预览、生成进度和还原。
 - 运行日志浏览：实时控制台 SSE、历史日志查询、级别和关键字筛选及历史原文件下载。
-- 登录来源策略（全局及租户/用户定向规则）、密码复杂度策略、当前会话撤销、审计日志异步落库与归档、受控 MySQL 备份恢复任务。
+- 登录来源策略（全局及租户/用户定向规则）、密码复杂度策略、当前会话撤销、审计日志异步落库与保留清理、受控 MySQL 备份恢复任务。
 - 构建期收集当前项目、宿主项目和外部模块的 README/docs，并在管理端统一查看。
 - 可挂载的 Go Core 模块；后端实现 `module.Module`，通过 `Resources` 提供静态资源，并由启动入口交给 Core 统一注册协议服务。
 - 管理端、uni-app、Taro 和后端错误目录的语言集合由语言包自动发现；动态菜单、字典和代码生成同步支持所有已注册语言。
@@ -40,7 +40,7 @@
 - pnpm 版本以各 workspace 的 `packageManager` 为准：管理端 `10.33.4`，uni-app 与 Taro 应用端 `10.13.1`。
 - MySQL 和 Redis；默认连接见 `backend/configs/data.yaml`。
 - Docker 部署需要可用的 Docker CLI 与 Docker daemon。
-- 启用 TOTP 绑定前需在 `backend/configs/mfa.yaml` 或 `mfa.dev.yaml` 的 `mfa.encryption_key` 中提供 base64 编码的 32 字节密钥；启用 WebAuthn 时还要配置 `mfa.webauthn.rp_id` 与 `mfa.webauthn.rp_origins`。生产环境应使用 KMS/Vault 等密钥管理服务。
+- 启用 TOTP 绑定时，`mfa.encryption_key` 有显式值则使用该值，留空时在实际保护 TOTP 密钥时按 `kratos-kit:mfa/encryption` 从运行时密钥服务派生；启用 WebAuthn 时还要配置 `mfa.webauthn.rp_id` 与 `mfa.webauthn.rp_origins`。配置文件中的敏感值应使用 `ENC[...]` 保存。
 - Buf、protoc 插件、Wire 和 gorm-gen 只在重新生成代码时需要，可通过 `make -C backend init` 安装。
 
 直接执行 `make` 或 `make help` 查看仓库级命令；Backend 和 Frontend 的完整目标分别使用 `make -C backend help`、`make -C frontend help` 查看。
@@ -149,7 +149,7 @@ docker compose -f docker-compose.libs.yml --profile object-storage up -d
 
 语言包定义系统能够渲染的语言集合，`base_language` 表只负责运行时启用状态、名称、排序和主语言配置。管理端语言偏好保存为 `kratos-admin:locale`，uni-app 和 Taro 保存为 `kratos-app:locale`；所有 HTTP、刷新令牌、fetch、SSE、uni.request 和 Taro.request 请求都会发送规范化的 `Accept-Language`。固定文案由各 workspace 的 core/System JSON 语言包维护，动态菜单和字典由后端翻译表按请求语言解析，缺少当前语言译文时回退主语言。
 
-新增语言不需要修改 Go、TypeScript 或模块注册代码：在 `backend/internal/i18n/assets` 和三个 workspace 的六个前端语言包目录中增加同名 JSON，然后执行 `make i18n-sync`。脚本会校验语言集合、语言键和占位符，并生成六个前端注册文件、Element Plus 和 Day.js 映射。语言名称、排序、启用状态和主语言由 `base_language` 数据库记录提供；`common.language.*` 用于编译期离线显示和生成语言迁移的初始名称。新增语言的完整文件清单和迁移流程见 [国际化语言扩展指南](docs/国际化语言扩展指南.md)。需要把语言加入新部署数据库时，再执行 `make i18n-sync I18N_MIGRATION_VERSION=vX.Y.Z`，提交脚本生成的版本化 `base_language` 迁移；已有数据库的启用状态不会被迁移覆盖。
+新增语言不需要修改 Go、TypeScript 或模块注册代码：在 `backend/internal/i18n/assets` 和三个 workspace 的六个前端语言包目录中增加同名 JSON，然后执行 `make i18n-sync`。脚本会校验语言集合、语言键和占位符，并生成六个前端注册文件、Element Plus 和 Day.js 映射。语言名称、排序、启用状态和主语言由 `base_language` 数据库记录提供；`common.language.*` 用于编译期离线显示和生成语言迁移的初始名称。新增语言的完整文件清单和迁移流程见 [国际化语言扩展指南](docs/国际化语言扩展指南.md)。需要把语言加入新部署数据库时，直接更新唯一的 `v0.0.1` 初始化迁移；已有数据库的启用状态不会被迁移覆盖。
 
 动态资源的主语言由 `base_language.is_primary` 配置。创建或更新菜单、字典、字典项和系统配置时，后端按请求 `Accept-Language` 将输入文本转换为主语言写入主表；请求语言不是主语言时，原文写入对应翻译表，其他已启用非主语言也只保存在翻译表。系统配置名称、菜单标题、字典名称和字典项标签支持在管理端点击名称打开翻译弹窗，文本/富文本配置值支持运行时翻译回退。
 
@@ -164,7 +164,7 @@ make i18n-openapi
 make i18n
 ```
 
-新增语言按目标版本写入版本化迁移；当前项目全部属于初始化数据，统一写入 `v0.0.1`：
+新增语言属于初始化数据，统一写入唯一的 `v0.0.1` 迁移：
 
 ```bash
 I18N_LOCALE=ja-JP make i18n-locale

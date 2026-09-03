@@ -1,9 +1,10 @@
 <template>
-  <el-dialog
+  <ProDialog
     v-model="dialogVisible"
     :title="t('core.upload.batch_add', { resource: parameter.title })"
     :destroy-on-close="true"
     width="580px"
+    :show-footer="false"
     draggable
   >
     <el-form class="drawer-multiColumn-form" label-width="180px">
@@ -44,11 +45,12 @@
         <el-switch v-model="isCover" />
       </el-form-item>
     </el-form>
-  </el-dialog>
+  </ProDialog>
 </template>
 
 <script setup lang="ts" name="ImportExcel">
 import { ref } from "vue";
+import ProDialog from "@/components/Dialog/ProDialog.vue";
 import { useDownload } from "@/hooks/useDownload";
 import { Download } from "@element-plus/icons-vue";
 import { ElNotification, UploadRequestOptions, UploadRawFile } from "element-plus";

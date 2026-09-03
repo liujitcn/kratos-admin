@@ -82,7 +82,7 @@ import { computed, nextTick, onMounted, reactive, ref, watch } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
 import { useRoute } from "vue-router";
-import { t } from "@liujitcn/kratos-admin-core";
+import { setAdminDocumentTitle, t } from "@liujitcn/kratos-admin-core";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import type {
   ColumnProps,
@@ -95,10 +95,10 @@ import PasswordStrength from "@liujitcn/kratos-admin-core/components/PasswordStr
 import type { ProFormComponentType, ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import TreeFilter from "@liujitcn/kratos-admin-core/components/TreeFilter/index.vue";
 import { useTabsStore } from "@liujitcn/kratos-admin-core/stores/runtime";
-import { defBaseDictService } from "@liujitcn/kratos-admin-system/api/system/base_dict";
-import { defCodeGenColumnService } from "@liujitcn/kratos-admin-system/api/system/code_gen_column";
-import { defCodeGenProtoService } from "@liujitcn/kratos-admin-system/api/system/code_gen_proto";
-import { defCodeGenTableService } from "@liujitcn/kratos-admin-system/api/system/code_gen_table";
+import { defBaseDictService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_dict";
+import { defCodeGenColumnService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen_column";
+import { defCodeGenProtoService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen_proto";
+import { defCodeGenTableService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen_table";
 import type { OptionBaseDictResponse_BaseDict } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dict";
 import type { CodeGenColumn, CodeGenColumnOptionConfig } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_column";
 import type { CodeGenProtoCheck } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_proto";
@@ -430,12 +430,12 @@ async function loadPreview() {
     dictionaries.value = [];
     databaseTables.value = [];
     if (!tableId.value) return;
-    const [table, columnResponse, protoResponse, dictionaryResponse, databaseTableResponse] = await Promise.all([
-      defCodeGenTableService.GetCodeGenTable({ id: tableId.value }),
+    const table = await defCodeGenTableService.GetCodeGenTable({ id: tableId.value });
+    const [columnResponse, protoResponse, dictionaryResponse, databaseTableResponse] = await Promise.all([
       defCodeGenColumnService.ListCodeGenColumn({ table_id: tableId.value }),
       defCodeGenProtoService.ListCodeGenProto({ table_id: tableId.value }),
       defBaseDictService.OptionBaseDict({}),
-      defCodeGenTableService.ListCodeGenDatabaseTable({})
+      defCodeGenTableService.ListCodeGenDatabaseTable({ source_name: table.source_name })
     ]);
     snapshot.value = { table, columns: columnResponse.code_gen_columns ?? [] };
     protoChecks.value = protoResponse.code_gen_protos ?? [];
@@ -548,7 +548,7 @@ function createMockRows() {
 function syncWorkspaceTitle() {
   const title = snapshot.value?.table.comment || snapshot.value?.table.name || t("system.code.gen.preview.title.data_list");
   tabsStore.setTabsTitle(title);
-  document.title = `${title} - ${import.meta.env.VITE_GLOB_APP_TITLE}`;
+  setAdminDocumentTitle(title);
 }
 
 /** 将数据库表名转换为生成器使用的实体名。 */

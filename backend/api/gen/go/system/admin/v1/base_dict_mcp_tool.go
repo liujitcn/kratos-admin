@@ -17,16 +17,10 @@ import (
 func RegisterBaseDictServiceMCPTools(mcpServer *mcp.Server, baseDictServiceServer BaseDictServiceServer) {
 	RegisterBaseDictServiceOptionBaseDictMCPTool(mcpServer, baseDictServiceServer)
 	RegisterBaseDictServicePageBaseDictMCPTool(mcpServer, baseDictServiceServer)
-	RegisterBaseDictServicePageBaseDictItemMCPTool(mcpServer, baseDictServiceServer)
 	RegisterBaseDictServiceGetBaseDictMCPTool(mcpServer, baseDictServiceServer)
-	RegisterBaseDictServiceGetBaseDictItemMCPTool(mcpServer, baseDictServiceServer)
 	RegisterBaseDictServiceCreateBaseDictMCPTool(mcpServer, baseDictServiceServer)
-	RegisterBaseDictServiceCreateBaseDictItemMCPTool(mcpServer, baseDictServiceServer)
 	RegisterBaseDictServiceUpdateBaseDictMCPTool(mcpServer, baseDictServiceServer)
-	RegisterBaseDictServiceUpdateBaseDictItemMCPTool(mcpServer, baseDictServiceServer)
 	RegisterBaseDictServiceDeleteBaseDictMCPTool(mcpServer, baseDictServiceServer)
-	RegisterBaseDictServiceDeleteBaseDictItemMCPTool(mcpServer, baseDictServiceServer)
-	RegisterBaseDictServiceSetBaseDictItemStatusMCPTool(mcpServer, baseDictServiceServer)
 	RegisterBaseDictServiceSetBaseDictStatusMCPTool(mcpServer, baseDictServiceServer)
 }
 
@@ -72,27 +66,6 @@ func RegisterBaseDictServicePageBaseDictMCPTool(mcpServer *mcp.Server, baseDictS
 	)
 }
 
-// RegisterBaseDictServicePageBaseDictItemMCPTool 注册查询字典属性分页列表的 MCP Tool。
-func RegisterBaseDictServicePageBaseDictItemMCPTool(mcpServer *mcp.Server, baseDictServiceServer BaseDictServiceServer) {
-	mcp.AddTool[*PageBaseDictItemRequest, *PageBaseDictItemResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_dict_service_page_base_dict_item",
-			Description: "查询字典属性分页列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *PageBaseDictItemRequest) (*mcp.CallToolResult, *PageBaseDictItemResponse, error) {
-			if input == nil {
-				input = &PageBaseDictItemRequest{}
-			}
-			reply, err := baseDictServiceServer.PageBaseDictItem(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
 // RegisterBaseDictServiceGetBaseDictMCPTool 注册查询字典的 MCP Tool。
 func RegisterBaseDictServiceGetBaseDictMCPTool(mcpServer *mcp.Server, baseDictServiceServer BaseDictServiceServer) {
 	mcp.AddTool[*GetBaseDictRequest, *BaseDictForm](
@@ -106,27 +79,6 @@ func RegisterBaseDictServiceGetBaseDictMCPTool(mcpServer *mcp.Server, baseDictSe
 				input = &GetBaseDictRequest{}
 			}
 			reply, err := baseDictServiceServer.GetBaseDict(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterBaseDictServiceGetBaseDictItemMCPTool 注册查询字典属性的 MCP Tool。
-func RegisterBaseDictServiceGetBaseDictItemMCPTool(mcpServer *mcp.Server, baseDictServiceServer BaseDictServiceServer) {
-	mcp.AddTool[*GetBaseDictItemRequest, *BaseDictItemForm](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_dict_service_get_base_dict_item",
-			Description: "查询字典属性",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseDictItemRequest) (*mcp.CallToolResult, *BaseDictItemForm, error) {
-			if input == nil {
-				input = &GetBaseDictItemRequest{}
-			}
-			reply, err := baseDictServiceServer.GetBaseDictItem(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -156,27 +108,6 @@ func RegisterBaseDictServiceCreateBaseDictMCPTool(mcpServer *mcp.Server, baseDic
 	)
 }
 
-// RegisterBaseDictServiceCreateBaseDictItemMCPTool 注册创建字典属性的 MCP Tool。
-func RegisterBaseDictServiceCreateBaseDictItemMCPTool(mcpServer *mcp.Server, baseDictServiceServer BaseDictServiceServer) {
-	mcp.AddTool[*CreateBaseDictItemRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_dict_service_create_base_dict_item",
-			Description: "创建字典属性",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBaseDictItemRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &CreateBaseDictItemRequest{}
-			}
-			reply, err := baseDictServiceServer.CreateBaseDictItem(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
 // RegisterBaseDictServiceUpdateBaseDictMCPTool 注册更新字典的 MCP Tool。
 func RegisterBaseDictServiceUpdateBaseDictMCPTool(mcpServer *mcp.Server, baseDictServiceServer BaseDictServiceServer) {
 	mcp.AddTool[*UpdateBaseDictRequest, *emptypb.Empty](
@@ -198,27 +129,6 @@ func RegisterBaseDictServiceUpdateBaseDictMCPTool(mcpServer *mcp.Server, baseDic
 	)
 }
 
-// RegisterBaseDictServiceUpdateBaseDictItemMCPTool 注册更新字典属性的 MCP Tool。
-func RegisterBaseDictServiceUpdateBaseDictItemMCPTool(mcpServer *mcp.Server, baseDictServiceServer BaseDictServiceServer) {
-	mcp.AddTool[*UpdateBaseDictItemRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_dict_service_update_base_dict_item",
-			Description: "更新字典属性",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseDictItemRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &UpdateBaseDictItemRequest{}
-			}
-			reply, err := baseDictServiceServer.UpdateBaseDictItem(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
 // RegisterBaseDictServiceDeleteBaseDictMCPTool 注册删除字典的 MCP Tool。
 func RegisterBaseDictServiceDeleteBaseDictMCPTool(mcpServer *mcp.Server, baseDictServiceServer BaseDictServiceServer) {
 	mcp.AddTool[*DeleteBaseDictRequest, *emptypb.Empty](
@@ -232,48 +142,6 @@ func RegisterBaseDictServiceDeleteBaseDictMCPTool(mcpServer *mcp.Server, baseDic
 				input = &DeleteBaseDictRequest{}
 			}
 			reply, err := baseDictServiceServer.DeleteBaseDict(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterBaseDictServiceDeleteBaseDictItemMCPTool 注册删除字典属性的 MCP Tool。
-func RegisterBaseDictServiceDeleteBaseDictItemMCPTool(mcpServer *mcp.Server, baseDictServiceServer BaseDictServiceServer) {
-	mcp.AddTool[*DeleteBaseDictItemRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_dict_service_delete_base_dict_item",
-			Description: "删除字典属性",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteBaseDictItemRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &DeleteBaseDictItemRequest{}
-			}
-			reply, err := baseDictServiceServer.DeleteBaseDictItem(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterBaseDictServiceSetBaseDictItemStatusMCPTool 注册设置状态的 MCP Tool。
-func RegisterBaseDictServiceSetBaseDictItemStatusMCPTool(mcpServer *mcp.Server, baseDictServiceServer BaseDictServiceServer) {
-	mcp.AddTool[*SetBaseDictItemStatusRequest, *emptypb.Empty](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "system_admin_v1_base_dict_service_set_base_dict_item_status",
-			Description: "设置状态",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseDictItemStatusRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
-			if input == nil {
-				input = &SetBaseDictItemStatusRequest{}
-			}
-			reply, err := baseDictServiceServer.SetBaseDictItemStatus(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -59,6 +60,7 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 	query := c.Query(ctx).BaseConfig
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Where(query.Site.Eq(site)))
+	opts = append(opts, repository.Where(query.HiddenStatus.Eq(int32(adminv1.BaseConfigHiddenStatus_BASE_CONFIG_HIDDEN_STATUS_VISIBLE))))
 	opts = append(opts, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
 	opts = append(opts, repository.Order(query.ID.Asc()))
 	var list []*models.BaseConfig
@@ -120,7 +122,7 @@ func (c *ConfigCase) localizeRuntimeConfigValues(ctx context.Context, configs []
 		return configs, nil
 	}
 	query := c.i18nRepo.Query(ctx).BaseI18N
-	rows, err := c.i18nRepo.List(ctx, repository.Where(query.TargetType.Eq(int32(_const.I18N_TARGET_TYPE_BASE_CONFIG_VALUE))), repository.Where(query.TargetID.In(configIDs...)), repository.Where(query.Locale.Eq(localeValue)))
+	rows, err := c.i18nRepo.List(ctx, repository.Where(query.TargetType.Eq(_const.I18N_TARGET_TYPE_BASE_CONFIG_VALUE)), repository.Where(query.TargetID.In(configIDs...)), repository.Where(query.Locale.Eq(localeValue)))
 	if err != nil {
 		return nil, err
 	}

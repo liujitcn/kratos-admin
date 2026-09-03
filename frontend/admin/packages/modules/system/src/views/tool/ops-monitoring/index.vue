@@ -1,15 +1,5 @@
 <template>
   <div class="app-container ops-monitoring-page">
-    <section class="ops-page-head">
-      <div class="ops-page-meta">
-        <el-tag :type="loading ? 'info' : 'success'" effect="plain">
-          {{ loading ? t("system.ops_monitoring.collecting") : t("system.ops_monitoring.realtime") }}
-        </el-tag>
-        <span>{{ t("system.ops_monitoring.window", { minutes: windowMinutes }) }}</span>
-        <span>{{ t("system.ops_monitoring.last_sample", { time: formatDateTime(lastCollectedAt) }) }}</span>
-      </div>
-    </section>
-
     <section class="ops-kpi-grid" :aria-label="t('system.ops_monitoring.core_metrics')">
       <el-card v-for="item in kpiItems" :key="item.label" class="ops-kpi-card" shadow="never">
         <span class="ops-kpi-label">{{ item.label }}</span>
@@ -113,18 +103,14 @@
       </el-card>
     </section>
 
-    <section class="ops-storage-section">
-      <div class="ops-section-title">
-        <h2>{{ t("system.ops_monitoring.data_storage") }}</h2>
-        <span>{{ t("system.ops_monitoring.storage_summary") }}</span>
-      </div>
-      <div class="ops-storage-grid">
-        <el-card v-for="item in storageItems" :key="item.name" class="ops-storage-card" shadow="never">
+    <section class="ops-storage-grid ops-storage-section" :aria-label="t('system.ops_monitoring.data_storage')">
+      <el-card v-for="item in storageItems" :key="item.name" class="ops-storage-card" shadow="never">
+        <template #header>
           <div class="ops-storage-head">
             <div class="ops-storage-name">
               <span class="ops-storage-mark" :style="{ backgroundColor: item.color }">{{ item.shortName }}</span>
               <div>
-                <h3>{{ item.name }}</h3>
+                <h2>{{ item.name }}</h2>
                 <code>{{ item.address }}</code>
               </div>
             </div>
@@ -132,18 +118,20 @@
               item.statusLabel
             }}</el-tag>
           </div>
-          <div class="ops-storage-metrics">
-            <div v-for="metric in item.metrics" :key="metric.label">
-              <strong>{{ metric.value }}</strong
-              ><span>{{ metric.label }}</span>
-            </div>
+        </template>
+        <div class="ops-storage-metrics">
+          <div v-for="metric in item.metrics" :key="metric.label">
+            <strong>{{ metric.value }}</strong
+            ><span>{{ metric.label }}</span>
           </div>
-          <div class="ops-capacity">
-            <span>{{ item.capacityLabel }}</span
-            ><el-progress :percentage="item.capacity" :show-text="false" :color="item.color" /><span>{{ item.capacity }}%</span>
-          </div>
-        </el-card>
-      </div>
+        </div>
+        <div class="ops-capacity">
+          <span>{{ item.capacityLabel }}</span
+          ><el-progress :percentage="item.capacity" :show-text="false" :stroke-width="8" :color="item.color" /><span
+            >{{ item.capacity }}%</span
+          >
+        </div>
+      </el-card>
     </section>
 
     <section class="ops-secondary-grid">
@@ -199,7 +187,7 @@
                     <strong>{{ metric.percentageLabel }}</strong>
                   </span>
                 </div>
-                <el-progress :percentage="metric.percentage" :show-text="false" :stroke-width="10" :color="metric.color" />
+                <el-progress :percentage="metric.percentage" :show-text="false" :stroke-width="8" :color="metric.color" />
               </div>
             </div>
           </div>
@@ -233,7 +221,7 @@
 
 <script setup lang="ts">
 import { computed, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref } from "vue";
-import { defOpsMonitoringService } from "@liujitcn/kratos-admin-system/api/system/ops_monitoring";
+import { defOpsMonitoringService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/ops_monitoring";
 import { getCurrentLocale, t } from "@liujitcn/kratos-admin-core";
 import type {
   OpsAlert,
@@ -355,7 +343,6 @@ const endpoints = ref<OpsEndpointsResponse>();
 const nodes = ref<OpsNodesResponse>();
 const alerts = ref<OpsAlertsResponse>();
 const windowMinutes = ref(15);
-const lastCollectedAt = ref("");
 const trendGridLines = [16, 62, 108, 154, 198];
 const monitoringStatusKeys = [
   "system.ops_monitoring.status.normal",
@@ -493,36 +480,26 @@ async function loadMonitoring() {
 function setTraffic(value: OpsTrafficResponse) {
   traffic.value = value;
   windowMinutes.value = value.window_minutes || windowMinutes.value;
-  updateCollectedAt(value.collected_at);
 }
 
 function setServices(value: OpsServicesResponse) {
   services.value = value;
-  updateCollectedAt(value.collected_at);
 }
 
 function setStorage(value: OpsStorageResponse) {
   storage.value = value;
-  updateCollectedAt(value.collected_at);
 }
 
 function setEndpoints(value: OpsEndpointsResponse) {
   endpoints.value = value;
-  updateCollectedAt(value.collected_at);
 }
 
 function setNodes(value: OpsNodesResponse) {
   nodes.value = value;
-  updateCollectedAt(value.collected_at);
 }
 
 function setAlerts(value: OpsAlertsResponse) {
   alerts.value = value;
-  updateCollectedAt(value.collected_at);
-}
-
-function updateCollectedAt(value?: string) {
-  if (value) lastCollectedAt.value = value;
 }
 
 async function startMonitoring() {
@@ -547,13 +524,6 @@ function stopMonitoring() {
 function formatNumber(value?: number) {
   if (value === undefined || Number.isNaN(value)) return "--";
   return new Intl.NumberFormat(getCurrentLocale(), { maximumFractionDigits: 2 }).format(value);
-}
-
-function formatDateTime(value?: string) {
-  if (!value) return "--";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "--";
-  return new Intl.DateTimeFormat(getCurrentLocale(), { dateStyle: "short", timeStyle: "medium" }).format(date);
 }
 
 function formatClock(value?: string) {
@@ -686,39 +656,21 @@ onBeforeUnmount(stopMonitoring);
   color: var(--ops-text-primary);
   background: var(--el-bg-color-page);
 }
-.ops-page-head,
 .ops-primary-grid,
 .ops-secondary-grid,
 .ops-storage-grid {
   min-width: 0;
-}
-.ops-page-head {
-  display: flex;
-  gap: 24px;
-  align-items: flex-end;
-  justify-content: space-between;
-  margin-bottom: 22px;
-}
-.ops-page-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  justify-content: flex-end;
-  margin-left: auto;
-  font-size: 12px;
-  color: var(--ops-text-placeholder);
 }
 .ops-kpi-grid,
 .ops-primary-grid,
 .ops-storage-grid,
 .ops-secondary-grid {
   display: grid;
-  gap: 14px;
+  gap: 10px;
 }
 .ops-kpi-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin-bottom: 24px;
+  margin-bottom: 10px;
 }
 .ops-kpi-card,
 .ops-panel,
@@ -779,12 +731,12 @@ onBeforeUnmount(stopMonitoring);
   bottom: 10px;
   left: 16px;
   height: 2px;
-  border-radius: 2px;
+  border-radius: var(--admin-page-radius);
   opacity: 0.65;
 }
 .ops-primary-grid {
   grid-template-columns: minmax(0, 1.65fr) minmax(280px, 0.85fr);
-  margin-bottom: 24px;
+  margin-bottom: 10px;
 }
 .ops-panel :deep(.el-card__header),
 .ops-storage-card :deep(.el-card__header),
@@ -797,15 +749,13 @@ onBeforeUnmount(stopMonitoring);
 .ops-alert-panel :deep(.el-card__body) {
   padding: 0 18px 18px;
 }
-.ops-section-head,
-.ops-section-title {
+.ops-section-head {
   display: flex;
   gap: 12px;
   align-items: center;
   justify-content: space-between;
 }
-.ops-section-head h2,
-.ops-section-title h2 {
+.ops-section-head h2 {
   margin: 0;
   font-size: 15px;
   font-weight: 650;
@@ -816,8 +766,7 @@ onBeforeUnmount(stopMonitoring);
   font-size: 11px;
   color: var(--ops-text-placeholder);
 }
-.ops-muted,
-.ops-section-title > span {
+.ops-muted {
   font-size: 11px;
   color: var(--ops-text-placeholder);
 }
@@ -836,7 +785,7 @@ onBeforeUnmount(stopMonitoring);
 .ops-legend-mark {
   width: 15px;
   height: 3px;
-  border-radius: 3px;
+  border-radius: var(--admin-page-radius);
 }
 .ops-legend-mark.is-teal {
   background: var(--el-color-primary);
@@ -999,24 +948,19 @@ onBeforeUnmount(stopMonitoring);
   color: var(--el-color-warning);
 }
 .ops-storage-section {
-  margin-bottom: 24px;
-}
-.ops-section-title {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 .ops-storage-grid {
   grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.9fr);
 }
 .ops-storage-card {
   min-width: 0;
-  padding: 17px 18px;
 }
 .ops-storage-head {
   display: flex;
   gap: 12px;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 15px;
 }
 .ops-storage-name {
   display: flex;
@@ -1033,9 +977,9 @@ onBeforeUnmount(stopMonitoring);
   font-size: 9px;
   font-weight: 600;
   color: #ffffff;
-  border-radius: 6px;
+  border-radius: var(--admin-page-radius);
 }
-.ops-storage-name h3 {
+.ops-storage-name h2 {
   margin: 0 0 2px;
   font-size: 14px;
   font-weight: 650;
@@ -1087,7 +1031,7 @@ onBeforeUnmount(stopMonitoring);
 }
 .ops-secondary-grid {
   grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.9fr);
-  margin-bottom: 24px;
+  margin-bottom: 10px;
 }
 .ops-table :deep(.el-table__inner-wrapper::before) {
   display: none;
@@ -1236,15 +1180,6 @@ onBeforeUnmount(stopMonitoring);
 }
 
 @media (width <= 680px) {
-  .ops-page-head {
-    flex-direction: column;
-    gap: 13px;
-    align-items: flex-start;
-  }
-  .ops-page-meta {
-    justify-content: flex-start;
-    margin-left: 0;
-  }
   .ops-kpi-grid,
   .ops-storage-grid {
     grid-template-columns: 1fr;

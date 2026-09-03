@@ -21,19 +21,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BaseDictService_OptionBaseDict_FullMethodName        = "/system.admin.v1.BaseDictService/OptionBaseDict"
-	BaseDictService_PageBaseDict_FullMethodName          = "/system.admin.v1.BaseDictService/PageBaseDict"
-	BaseDictService_PageBaseDictItem_FullMethodName      = "/system.admin.v1.BaseDictService/PageBaseDictItem"
-	BaseDictService_GetBaseDict_FullMethodName           = "/system.admin.v1.BaseDictService/GetBaseDict"
-	BaseDictService_GetBaseDictItem_FullMethodName       = "/system.admin.v1.BaseDictService/GetBaseDictItem"
-	BaseDictService_CreateBaseDict_FullMethodName        = "/system.admin.v1.BaseDictService/CreateBaseDict"
-	BaseDictService_CreateBaseDictItem_FullMethodName    = "/system.admin.v1.BaseDictService/CreateBaseDictItem"
-	BaseDictService_UpdateBaseDict_FullMethodName        = "/system.admin.v1.BaseDictService/UpdateBaseDict"
-	BaseDictService_UpdateBaseDictItem_FullMethodName    = "/system.admin.v1.BaseDictService/UpdateBaseDictItem"
-	BaseDictService_DeleteBaseDict_FullMethodName        = "/system.admin.v1.BaseDictService/DeleteBaseDict"
-	BaseDictService_DeleteBaseDictItem_FullMethodName    = "/system.admin.v1.BaseDictService/DeleteBaseDictItem"
-	BaseDictService_SetBaseDictItemStatus_FullMethodName = "/system.admin.v1.BaseDictService/SetBaseDictItemStatus"
-	BaseDictService_SetBaseDictStatus_FullMethodName     = "/system.admin.v1.BaseDictService/SetBaseDictStatus"
+	BaseDictService_OptionBaseDict_FullMethodName    = "/system.admin.v1.BaseDictService/OptionBaseDict"
+	BaseDictService_PageBaseDict_FullMethodName      = "/system.admin.v1.BaseDictService/PageBaseDict"
+	BaseDictService_GetBaseDict_FullMethodName       = "/system.admin.v1.BaseDictService/GetBaseDict"
+	BaseDictService_CreateBaseDict_FullMethodName    = "/system.admin.v1.BaseDictService/CreateBaseDict"
+	BaseDictService_UpdateBaseDict_FullMethodName    = "/system.admin.v1.BaseDictService/UpdateBaseDict"
+	BaseDictService_DeleteBaseDict_FullMethodName    = "/system.admin.v1.BaseDictService/DeleteBaseDict"
+	BaseDictService_SetBaseDictStatus_FullMethodName = "/system.admin.v1.BaseDictService/SetBaseDictStatus"
 )
 
 // BaseDictServiceClient is the client API for BaseDictService service.
@@ -46,26 +40,14 @@ type BaseDictServiceClient interface {
 	OptionBaseDict(ctx context.Context, in *OptionBaseDictRequest, opts ...grpc.CallOption) (*OptionBaseDictResponse, error)
 	// 查询字典分页列表
 	PageBaseDict(ctx context.Context, in *PageBaseDictRequest, opts ...grpc.CallOption) (*PageBaseDictResponse, error)
-	// 查询字典属性分页列表
-	PageBaseDictItem(ctx context.Context, in *PageBaseDictItemRequest, opts ...grpc.CallOption) (*PageBaseDictItemResponse, error)
 	// 查询字典
 	GetBaseDict(ctx context.Context, in *GetBaseDictRequest, opts ...grpc.CallOption) (*BaseDictForm, error)
-	// 查询字典属性
-	GetBaseDictItem(ctx context.Context, in *GetBaseDictItemRequest, opts ...grpc.CallOption) (*BaseDictItemForm, error)
 	// 创建字典
 	CreateBaseDict(ctx context.Context, in *CreateBaseDictRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// 创建字典属性
-	CreateBaseDictItem(ctx context.Context, in *CreateBaseDictItemRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 更新字典
 	UpdateBaseDict(ctx context.Context, in *UpdateBaseDictRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// 更新字典属性
-	UpdateBaseDictItem(ctx context.Context, in *UpdateBaseDictItemRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 删除字典
 	DeleteBaseDict(ctx context.Context, in *DeleteBaseDictRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// 删除字典属性
-	DeleteBaseDictItem(ctx context.Context, in *DeleteBaseDictItemRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// 设置状态
-	SetBaseDictItemStatus(ctx context.Context, in *SetBaseDictItemStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 设置状态
 	SetBaseDictStatus(ctx context.Context, in *SetBaseDictStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -98,30 +80,10 @@ func (c *baseDictServiceClient) PageBaseDict(ctx context.Context, in *PageBaseDi
 	return out, nil
 }
 
-func (c *baseDictServiceClient) PageBaseDictItem(ctx context.Context, in *PageBaseDictItemRequest, opts ...grpc.CallOption) (*PageBaseDictItemResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PageBaseDictItemResponse)
-	err := c.cc.Invoke(ctx, BaseDictService_PageBaseDictItem_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *baseDictServiceClient) GetBaseDict(ctx context.Context, in *GetBaseDictRequest, opts ...grpc.CallOption) (*BaseDictForm, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(BaseDictForm)
 	err := c.cc.Invoke(ctx, BaseDictService_GetBaseDict_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *baseDictServiceClient) GetBaseDictItem(ctx context.Context, in *GetBaseDictItemRequest, opts ...grpc.CallOption) (*BaseDictItemForm, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(BaseDictItemForm)
-	err := c.cc.Invoke(ctx, BaseDictService_GetBaseDictItem_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -138,16 +100,6 @@ func (c *baseDictServiceClient) CreateBaseDict(ctx context.Context, in *CreateBa
 	return out, nil
 }
 
-func (c *baseDictServiceClient) CreateBaseDictItem(ctx context.Context, in *CreateBaseDictItemRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, BaseDictService_CreateBaseDictItem_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *baseDictServiceClient) UpdateBaseDict(ctx context.Context, in *UpdateBaseDictRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
@@ -158,40 +110,10 @@ func (c *baseDictServiceClient) UpdateBaseDict(ctx context.Context, in *UpdateBa
 	return out, nil
 }
 
-func (c *baseDictServiceClient) UpdateBaseDictItem(ctx context.Context, in *UpdateBaseDictItemRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, BaseDictService_UpdateBaseDictItem_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *baseDictServiceClient) DeleteBaseDict(ctx context.Context, in *DeleteBaseDictRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, BaseDictService_DeleteBaseDict_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *baseDictServiceClient) DeleteBaseDictItem(ctx context.Context, in *DeleteBaseDictItemRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, BaseDictService_DeleteBaseDictItem_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *baseDictServiceClient) SetBaseDictItemStatus(ctx context.Context, in *SetBaseDictItemStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, BaseDictService_SetBaseDictItemStatus_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -218,26 +140,14 @@ type BaseDictServiceServer interface {
 	OptionBaseDict(context.Context, *OptionBaseDictRequest) (*OptionBaseDictResponse, error)
 	// 查询字典分页列表
 	PageBaseDict(context.Context, *PageBaseDictRequest) (*PageBaseDictResponse, error)
-	// 查询字典属性分页列表
-	PageBaseDictItem(context.Context, *PageBaseDictItemRequest) (*PageBaseDictItemResponse, error)
 	// 查询字典
 	GetBaseDict(context.Context, *GetBaseDictRequest) (*BaseDictForm, error)
-	// 查询字典属性
-	GetBaseDictItem(context.Context, *GetBaseDictItemRequest) (*BaseDictItemForm, error)
 	// 创建字典
 	CreateBaseDict(context.Context, *CreateBaseDictRequest) (*emptypb.Empty, error)
-	// 创建字典属性
-	CreateBaseDictItem(context.Context, *CreateBaseDictItemRequest) (*emptypb.Empty, error)
 	// 更新字典
 	UpdateBaseDict(context.Context, *UpdateBaseDictRequest) (*emptypb.Empty, error)
-	// 更新字典属性
-	UpdateBaseDictItem(context.Context, *UpdateBaseDictItemRequest) (*emptypb.Empty, error)
 	// 删除字典
 	DeleteBaseDict(context.Context, *DeleteBaseDictRequest) (*emptypb.Empty, error)
-	// 删除字典属性
-	DeleteBaseDictItem(context.Context, *DeleteBaseDictItemRequest) (*emptypb.Empty, error)
-	// 设置状态
-	SetBaseDictItemStatus(context.Context, *SetBaseDictItemStatusRequest) (*emptypb.Empty, error)
 	// 设置状态
 	SetBaseDictStatus(context.Context, *SetBaseDictStatusRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBaseDictServiceServer()
@@ -256,35 +166,17 @@ func (UnimplementedBaseDictServiceServer) OptionBaseDict(context.Context, *Optio
 func (UnimplementedBaseDictServiceServer) PageBaseDict(context.Context, *PageBaseDictRequest) (*PageBaseDictResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PageBaseDict not implemented")
 }
-func (UnimplementedBaseDictServiceServer) PageBaseDictItem(context.Context, *PageBaseDictItemRequest) (*PageBaseDictItemResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PageBaseDictItem not implemented")
-}
 func (UnimplementedBaseDictServiceServer) GetBaseDict(context.Context, *GetBaseDictRequest) (*BaseDictForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetBaseDict not implemented")
-}
-func (UnimplementedBaseDictServiceServer) GetBaseDictItem(context.Context, *GetBaseDictItemRequest) (*BaseDictItemForm, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetBaseDictItem not implemented")
 }
 func (UnimplementedBaseDictServiceServer) CreateBaseDict(context.Context, *CreateBaseDictRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateBaseDict not implemented")
 }
-func (UnimplementedBaseDictServiceServer) CreateBaseDictItem(context.Context, *CreateBaseDictItemRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method CreateBaseDictItem not implemented")
-}
 func (UnimplementedBaseDictServiceServer) UpdateBaseDict(context.Context, *UpdateBaseDictRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateBaseDict not implemented")
 }
-func (UnimplementedBaseDictServiceServer) UpdateBaseDictItem(context.Context, *UpdateBaseDictItemRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method UpdateBaseDictItem not implemented")
-}
 func (UnimplementedBaseDictServiceServer) DeleteBaseDict(context.Context, *DeleteBaseDictRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteBaseDict not implemented")
-}
-func (UnimplementedBaseDictServiceServer) DeleteBaseDictItem(context.Context, *DeleteBaseDictItemRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method DeleteBaseDictItem not implemented")
-}
-func (UnimplementedBaseDictServiceServer) SetBaseDictItemStatus(context.Context, *SetBaseDictItemStatusRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method SetBaseDictItemStatus not implemented")
 }
 func (UnimplementedBaseDictServiceServer) SetBaseDictStatus(context.Context, *SetBaseDictStatusRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetBaseDictStatus not implemented")
@@ -346,24 +238,6 @@ func _BaseDictService_PageBaseDict_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BaseDictService_PageBaseDictItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PageBaseDictItemRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BaseDictServiceServer).PageBaseDictItem(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: BaseDictService_PageBaseDictItem_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseDictServiceServer).PageBaseDictItem(ctx, req.(*PageBaseDictItemRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _BaseDictService_GetBaseDict_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetBaseDictRequest)
 	if err := dec(in); err != nil {
@@ -378,24 +252,6 @@ func _BaseDictService_GetBaseDict_Handler(srv interface{}, ctx context.Context, 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BaseDictServiceServer).GetBaseDict(ctx, req.(*GetBaseDictRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _BaseDictService_GetBaseDictItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetBaseDictItemRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BaseDictServiceServer).GetBaseDictItem(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: BaseDictService_GetBaseDictItem_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseDictServiceServer).GetBaseDictItem(ctx, req.(*GetBaseDictItemRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -418,24 +274,6 @@ func _BaseDictService_CreateBaseDict_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BaseDictService_CreateBaseDictItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateBaseDictItemRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BaseDictServiceServer).CreateBaseDictItem(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: BaseDictService_CreateBaseDictItem_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseDictServiceServer).CreateBaseDictItem(ctx, req.(*CreateBaseDictItemRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _BaseDictService_UpdateBaseDict_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateBaseDictRequest)
 	if err := dec(in); err != nil {
@@ -454,24 +292,6 @@ func _BaseDictService_UpdateBaseDict_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BaseDictService_UpdateBaseDictItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateBaseDictItemRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BaseDictServiceServer).UpdateBaseDictItem(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: BaseDictService_UpdateBaseDictItem_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseDictServiceServer).UpdateBaseDictItem(ctx, req.(*UpdateBaseDictItemRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _BaseDictService_DeleteBaseDict_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteBaseDictRequest)
 	if err := dec(in); err != nil {
@@ -486,42 +306,6 @@ func _BaseDictService_DeleteBaseDict_Handler(srv interface{}, ctx context.Contex
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BaseDictServiceServer).DeleteBaseDict(ctx, req.(*DeleteBaseDictRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _BaseDictService_DeleteBaseDictItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteBaseDictItemRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BaseDictServiceServer).DeleteBaseDictItem(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: BaseDictService_DeleteBaseDictItem_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseDictServiceServer).DeleteBaseDictItem(ctx, req.(*DeleteBaseDictItemRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _BaseDictService_SetBaseDictItemStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SetBaseDictItemStatusRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BaseDictServiceServer).SetBaseDictItemStatus(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: BaseDictService_SetBaseDictItemStatus_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseDictServiceServer).SetBaseDictItemStatus(ctx, req.(*SetBaseDictItemStatusRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -560,44 +344,20 @@ var BaseDictService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _BaseDictService_PageBaseDict_Handler,
 		},
 		{
-			MethodName: "PageBaseDictItem",
-			Handler:    _BaseDictService_PageBaseDictItem_Handler,
-		},
-		{
 			MethodName: "GetBaseDict",
 			Handler:    _BaseDictService_GetBaseDict_Handler,
-		},
-		{
-			MethodName: "GetBaseDictItem",
-			Handler:    _BaseDictService_GetBaseDictItem_Handler,
 		},
 		{
 			MethodName: "CreateBaseDict",
 			Handler:    _BaseDictService_CreateBaseDict_Handler,
 		},
 		{
-			MethodName: "CreateBaseDictItem",
-			Handler:    _BaseDictService_CreateBaseDictItem_Handler,
-		},
-		{
 			MethodName: "UpdateBaseDict",
 			Handler:    _BaseDictService_UpdateBaseDict_Handler,
 		},
 		{
-			MethodName: "UpdateBaseDictItem",
-			Handler:    _BaseDictService_UpdateBaseDictItem_Handler,
-		},
-		{
 			MethodName: "DeleteBaseDict",
 			Handler:    _BaseDictService_DeleteBaseDict_Handler,
-		},
-		{
-			MethodName: "DeleteBaseDictItem",
-			Handler:    _BaseDictService_DeleteBaseDictItem_Handler,
-		},
-		{
-			MethodName: "SetBaseDictItemStatus",
-			Handler:    _BaseDictService_SetBaseDictItemStatus_Handler,
 		},
 		{
 			MethodName: "SetBaseDictStatus",

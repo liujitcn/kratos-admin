@@ -24,7 +24,8 @@
             :aria-label="t('core.layout.lock_screen_password_placeholder')"
           />
           <p v-if="setupError" class="lock-form-error">{{ setupError }}</p>
-          <el-button class="lock-submit" type="primary" size="large" native-type="submit" :loading="settingLock">
+          <el-button class="lock-submit lock-submit--lock" size="large" native-type="submit" :loading="settingLock">
+            <el-icon><Lock /></el-icon>
             {{ t("core.layout.lock_screen_action") }}
           </el-button>
         </form>
@@ -47,7 +48,6 @@
         <div class="lock-avatar lock-avatar--unlock">
           <img :src="avatarSrc" :alt="t('core.layout.avatar')" @error="handleAvatarError" />
         </div>
-        <div class="lock-user-name">{{ displayName }}</div>
         <form class="lock-form" @submit.prevent="handleUnlock">
           <el-input
             ref="unlockInputRef"
@@ -76,8 +76,20 @@
         </button>
       </section>
     </div>
-    <div class="lock-screen__clock" aria-live="polite">
-      <time class="lock-screen__time">{{ timeText }}</time>
+    <div class="lock-screen__clock" :class="{ 'lock-screen__clock--compact': lockScreenStore.unlockVisible }" aria-live="polite">
+      <div v-if="lockScreenStore.unlockVisible" class="lock-screen__compact-time" :aria-label="`${periodText} ${hourText}:${minuteText}`">
+        <time class="lock-screen__compact-time-value">{{ hourText }}:{{ minuteText }}</time>
+        <span class="lock-screen__compact-period">{{ periodText }}</span>
+      </div>
+      <div v-else class="lock-screen__time-grid" :aria-label="`${periodText} ${hourText}:${minuteText}`">
+        <div class="lock-screen__time-card">
+          <span class="lock-screen__period">{{ periodText }}</span>
+          <time class="lock-screen__time-value">{{ hourText }}</time>
+        </div>
+        <div class="lock-screen__time-card">
+          <time class="lock-screen__time-value">{{ minuteText }}</time>
+        </div>
+      </div>
       <time class="lock-screen__date">{{ dateText }}</time>
     </div>
   </div>
@@ -108,20 +120,23 @@ const unlockInputRef = ref<{ focus?: () => void }>();
 let clockTimer: number | undefined;
 
 const displayName = computed(() => userStore.userInfo.nick_name || userStore.userInfo.user_name || t("core.layout.not_set"));
-const timeText = computed(() => {
-  return new Intl.DateTimeFormat(locale.value, {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false
-  }).format(now.value);
-});
+
+/** 当前小时，使用 24 小时制并补齐两位。 */
+const hourText = computed(() => String(now.value.getHours()).padStart(2, "0"));
+
+/** 当前分钟，补齐两位。 */
+const minuteText = computed(() => String(now.value.getMinutes()).padStart(2, "0"));
+
+/** 当前时间所属的上午或下午时段。 */
+const periodText = computed(() => (now.value.getHours() < 12 ? "AM" : "PM"));
+
+/** 按“日期 星期”格式展示当前本地日期。 */
 const dateText = computed(() => {
-  return new Intl.DateTimeFormat(locale.value, {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    weekday: "long"
-  }).format(now.value);
+  const year = now.value.getFullYear();
+  const month = String(now.value.getMonth() + 1).padStart(2, "0");
+  const day = String(now.value.getDate()).padStart(2, "0");
+  const weekday = new Intl.DateTimeFormat(locale.value, { weekday: "long" }).format(now.value);
+  return `${year}-${month}-${day} ${weekday}`;
 });
 
 watch(
@@ -240,23 +255,23 @@ const handleAvatarError = () => {
   background: rgb(0 0 0 / 60%);
 }
 .lock-setup-dialog {
-  width: min(720px, 100%);
+  width: min(600px, 100%);
   overflow: hidden;
   color: var(--el-text-color-primary);
   background: var(--el-bg-color-overlay);
   border: 1px solid var(--el-border-color);
-  border-radius: 16px;
+  border-radius: var(--admin-page-radius);
   box-shadow: 0 24px 80px rgb(0 0 0 / 28%);
 }
 .lock-dialog-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 26px 32px;
+  padding: 20px 24px;
   border-bottom: 1px solid var(--el-border-color-light);
   h2 {
     margin: 0;
-    font-size: 28px;
+    font-size: 24px;
     line-height: 1.25;
   }
 }
@@ -280,7 +295,7 @@ const handleAvatarError = () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 36px 32px 44px;
+  padding: 30px 28px 36px;
 }
 .lock-avatar {
   overflow: hidden;
@@ -294,8 +309,8 @@ const handleAvatarError = () => {
     object-fit: cover;
   }
   &--setup {
-    width: 168px;
-    height: 168px;
+    width: 136px;
+    height: 136px;
   }
   &--unlock {
     width: 132px;
@@ -303,27 +318,38 @@ const handleAvatarError = () => {
   }
 }
 .lock-user-name {
-  margin-top: 20px;
-  font-size: 24px;
+  margin-top: 16px;
+  font-size: 22px;
   font-weight: 600;
   line-height: 1.35;
   color: var(--el-text-color-primary);
 }
 .lock-form {
-  width: min(100%, 560px);
-  margin-top: 34px;
+  width: min(100%, 480px);
+  margin-top: 28px;
 }
 .lock-input {
   :deep(.el-input__wrapper) {
-    min-height: 58px;
-    padding: 0 18px;
-    background: transparent;
+    box-sizing: border-box;
+    height: 48px;
+    padding: 0 14px;
+    background: var(--el-fill-color-blank);
     border: 1px solid var(--el-border-color);
-    border-radius: 12px;
+    border-radius: var(--admin-page-radius);
     box-shadow: none;
+    transition:
+      border-color var(--el-transition-duration),
+      box-shadow var(--el-transition-duration);
+  }
+  :deep(.el-input__wrapper:hover) {
+    border-color: var(--el-border-color-hover);
+  }
+  :deep(.el-input__wrapper.is-focus) {
+    border-color: var(--el-color-primary);
+    box-shadow: 0 0 0 2px var(--el-color-primary-light-8);
   }
   :deep(.el-input__inner) {
-    font-size: 18px;
+    font-size: 16px;
   }
 }
 .lock-form-error {
@@ -334,9 +360,24 @@ const handleAvatarError = () => {
 }
 .lock-submit {
   width: 100%;
-  min-height: 56px;
-  margin-top: 28px;
-  border-radius: 10px;
+  height: 48px;
+  margin-top: 20px;
+  font-weight: 600;
+  border-radius: var(--admin-page-radius);
+}
+.lock-submit--lock {
+  --el-button-text-color: var(--el-text-color-regular);
+  --el-button-bg-color: var(--el-fill-color-light);
+  --el-button-border-color: transparent;
+  --el-button-hover-text-color: var(--el-text-color-primary);
+  --el-button-hover-bg-color: var(--el-fill-color);
+  --el-button-hover-border-color: var(--el-border-color-light);
+  --el-button-active-text-color: var(--el-text-color-primary);
+  --el-button-active-bg-color: var(--el-fill-color-dark);
+  --el-button-active-border-color: var(--el-border-color);
+  --el-button-disabled-text-color: var(--el-text-color-placeholder);
+  --el-button-disabled-bg-color: var(--el-fill-color-light);
+  --el-button-disabled-border-color: transparent;
 }
 .lock-screen {
   position: fixed;
@@ -348,6 +389,8 @@ const handleAvatarError = () => {
   background: var(--el-bg-color-page);
 }
 .lock-screen__trigger-wrap {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -366,7 +409,7 @@ const handleAvatarError = () => {
   cursor: pointer;
   background: transparent;
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--admin-page-radius);
   &:hover,
   &:focus-visible {
     color: var(--el-text-color-primary);
@@ -395,7 +438,7 @@ const handleAvatarError = () => {
   cursor: pointer;
   background: transparent;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--admin-page-radius);
   &:hover,
   &:focus-visible {
     color: var(--el-text-color-primary);
@@ -409,42 +452,122 @@ const handleAvatarError = () => {
 }
 .lock-screen__clock {
   position: absolute;
-  right: 24px;
-  bottom: clamp(22px, 6vh, 64px);
-  left: 24px;
+  inset: clamp(108px, 15vh, 150px) clamp(20px, 8vw, 180px) clamp(18px, 3vh, 36px);
   display: flex;
   flex-direction: column;
+  gap: clamp(18px, 3vh, 30px);
   align-items: center;
+  justify-content: center;
   pointer-events: none;
 }
-.lock-screen__time {
-  font-size: clamp(44px, 8vw, 88px);
-  font-weight: 300;
+.lock-screen__clock--compact {
+  inset: auto 24px clamp(18px, 4vh, 36px);
+  gap: 10px;
+}
+.lock-screen__compact-time {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  font-variant-numeric: tabular-nums;
+  color: var(--el-text-color-primary);
+}
+.lock-screen__compact-time-value {
+  font-size: 30px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+}
+.lock-screen__compact-period {
+  font-size: 16px;
   line-height: 1;
 }
+.lock-screen__time-grid {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(20px, 4vw, 72px);
+  width: min(100%, 1536px);
+  min-height: 0;
+}
+.lock-screen__time-card {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--el-text-color-primary);
+  background: var(--el-fill-color-light);
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: var(--admin-page-radius);
+}
+.lock-screen__period {
+  position: absolute;
+  top: clamp(16px, 3vh, 28px);
+  left: clamp(16px, 2vw, 28px);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--el-text-color-regular);
+}
+.lock-screen__time-value {
+  font-size: clamp(112px, 31vh, 272px);
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: 0;
+}
 .lock-screen__date {
-  margin-top: 14px;
-  font-size: clamp(17px, 2.4vw, 26px);
+  flex: none;
+  font-size: clamp(20px, 3vh, 30px);
+  font-variant-numeric: tabular-nums;
   line-height: 1.35;
-  color: var(--el-text-color-secondary);
+  color: var(--el-text-color-primary);
+  letter-spacing: 0;
 }
 
 @media (width <= 600px) {
   .lock-dialog-header {
-    padding: 20px 22px;
+    padding: 18px 20px;
     h2 {
-      font-size: 24px;
+      font-size: 22px;
     }
   }
   .lock-dialog-body {
-    padding: 28px 20px 32px;
+    padding: 24px 20px 28px;
   }
   .lock-avatar--setup {
-    width: 132px;
-    height: 132px;
+    width: 112px;
+    height: 112px;
   }
   .lock-screen__clock {
-    bottom: 28px;
+    inset: 108px 16px 24px;
+    gap: 16px;
+  }
+  .lock-screen__clock--compact {
+    inset: auto 16px 24px;
+    gap: 8px;
+  }
+  .lock-screen__time-grid {
+    flex: none;
+    gap: 12px;
+    height: min(42vh, 220px);
+  }
+  .lock-screen__period {
+    top: 12px;
+    left: 12px;
+    font-size: 14px;
+  }
+  .lock-screen__time-value {
+    font-size: clamp(72px, 17vh, 120px);
+  }
+  .lock-screen__date {
+    font-size: 18px;
+  }
+  .lock-screen__compact-time-value {
+    font-size: 26px;
+  }
+  .lock-screen__compact-period {
+    font-size: 14px;
   }
 }
 </style>

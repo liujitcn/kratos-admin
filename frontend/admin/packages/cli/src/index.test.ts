@@ -18,7 +18,7 @@ test("生成包含宿主和业务模块的 pnpm workspace", async () => {
       cwd: root,
       projectName: "shop-admin",
       moduleNames: ["shop", "order"],
-      additionalModules: ["audit"]
+      additionalModules: ["log"]
     });
     await stat(join(target, "pnpm-workspace.yaml"));
     await stat(join(target, ".gitignore"));
@@ -60,7 +60,7 @@ test("生成包含宿主和业务模块的 pnpm workspace", async () => {
     assert.match(manifest, /import\("@order\/admin-module"\)\)\.orderAdminModule/);
     assert.match(manifest, /packageName: "@liujitcn\/kratos-admin-system"/);
     assert.match(manifest, /import\("@liujitcn\/kratos-admin-system"\)\)\.systemAdminModule/);
-    assert.match(manifest, /packageName: "@liujitcn\/kratos-admin-audit"/);
+    assert.match(manifest, /packageName: "@liujitcn\/kratos-admin-log"/);
     assert.match(manifest, /swagger-ui-dist\/swagger-ui-bundle\.js/);
     assert.ok(manifest.indexOf("@liujitcn/kratos-admin-system") < manifest.indexOf("@shop/admin-module"));
 
@@ -81,7 +81,7 @@ test("生成包含宿主和业务模块的 pnpm workspace", async () => {
     const cliPackageJson = JSON.parse(await readFile(join(packageRoot, "package.json"), "utf8"));
     assert.equal(packageJson.dependencies["@liujitcn/kratos-admin-core"], `^${cliPackageJson.version}`);
     assert.equal(packageJson.dependencies["@liujitcn/kratos-admin-system"], `^${cliPackageJson.version}`);
-    assert.equal(packageJson.dependencies["@liujitcn/kratos-admin-audit"], `^${cliPackageJson.version}`);
+    assert.equal(packageJson.dependencies["@liujitcn/kratos-admin-log"], `^${cliPackageJson.version}`);
     assert.equal(packageJson.dependencies["@shop/admin-module"], "workspace:*");
     assert.equal(packageJson.dependencies["@order/admin-module"], "workspace:*");
     assert.equal(packageJson.dependencies["@liujitcn/kratos-admin"], undefined);

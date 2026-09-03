@@ -43,9 +43,10 @@ type codeGenProgressReporter struct {
 
 // codeGenCommandTarget 描述批量生成命令关联的业务表和进度上报器。
 type codeGenCommandTarget struct {
-	tableID   int64
-	tableName string
-	progress  *codeGenProgressReporter
+	tableID    int64
+	tableName  string
+	sourceName string
+	progress   *codeGenProgressReporter
 }
 
 // codeGenCommandResult 保存单个业务表在共享命令链中的最终结果。
@@ -182,7 +183,7 @@ func (c *CodeGenCase) PreviewCodeGen(ctx context.Context, tableID int64, request
 		return nil, err
 	}
 	var migrationVersion string
-	migrationVersion, err = c.latestMigrationVersion(ctx)
+	migrationVersion, err = c.latestMigrationVersion(ctx, table.SourceName)
 	if err != nil {
 		return nil, err
 	}
@@ -327,8 +328,11 @@ func (c *CodeGenCase) RestoreCodeGen(ctx context.Context, tableIDs []int64) erro
 }
 
 // latestMigrationVersion 查询代码生成使用的最近一次已记录迁移版本。
-func (c *CodeGenCase) latestMigrationVersion(ctx context.Context) (string, error) {
-	database := c.GormClients[gorm.DefaultClientName]
+func (c *CodeGenCase) latestMigrationVersion(ctx context.Context, sourceName string) (string, error) {
+	database, err := GormClientBySourceName(c.BaseCase, sourceName)
+	if err != nil {
+		return "", err
+	}
 	return c.baseMigrationCase.LatestVersion(ctx, migration.ModuleName, database.Name())
 }
 
@@ -439,7 +443,7 @@ func (c *CodeGenCase) runCodeGenTask(
 		generation := batch.plan.GenerationForTable(tableID)
 		reporter := reporters[tableID]
 		if generation.Table.GenBackend == 1 {
-			commandTargets = append(commandTargets, codeGenCommandTarget{tableID: tableID, tableName: generation.Table.TableName_, progress: reporter})
+			commandTargets = append(commandTargets, codeGenCommandTarget{tableID: tableID, tableName: generation.Table.TableName_, sourceName: generation.Table.SourceName, progress: reporter})
 			continue
 		}
 		// 仅在该表全部生成步骤成功后更新持久化状态，失败任务保留原状态便于再次执行。
@@ -496,12 +500,7 @@ func (c *CodeGenCase) prepareCodeGenBatch(ctx context.Context, tableIDs []int64)
 	inputs := make([]codegen.BatchGenerationInput, 0, len(tableIDs))
 	columnsByTable := make(map[int64][]*codegen.CodeGenColumn, len(tableIDs))
 	tableIDSet := make(map[int64]struct{}, len(tableIDs))
-	var migrationVersion string
 	var err error
-	migrationVersion, err = c.latestMigrationVersion(ctx)
-	if err != nil {
-		return nil, err
-	}
 	var localeState codegen.LocaleState
 	localeState, err = c.codeGenLocaleState(ctx)
 	if err != nil {
@@ -519,6 +518,11 @@ func (c *CodeGenCase) prepareCodeGenBatch(ctx context.Context, tableIDs []int64)
 		var columns []*codegen.CodeGenColumn
 		var protos []*codegen.Proto
 		table, columns, protos, err = c.loadCodeGenContext(ctx, tableID)
+		if err != nil {
+			return nil, err
+		}
+		var migrationVersion string
+		migrationVersion, err = c.latestMigrationVersion(ctx, table.SourceName)
 		if err != nil {
 			return nil, err
 		}
@@ -685,17 +689,7 @@ func (c *CodeGenCase) runCodeGenCommands(ctx context.Context, targets []codeGenC
 	}
 
 	backendDir := codegen.BackendDir()
-	databaseSource := ""
-	dataConfig := c.GetConfig().GetData()
-	if dataConfig != nil {
-		database := dataConfig.GetDatabase()
-		if database == nil {
-			database = dataConfig.GetDatabases()[gorm.DefaultClientName]
-		}
-		if database != nil {
-			databaseSource = database.GetSource()
-		}
-	}
+	var err error
 	states := make(map[int64]*commandState, len(targets))
 	sharedTargets := []string{"api", "openapi", "ts", "wire"}
 	eligibleTargets := make([]codeGenCommandTarget, 0, len(targets))
@@ -704,17 +698,22 @@ func (c *CodeGenCase) runCodeGenCommands(ctx context.Context, targets []codeGenC
 		states[target.tableID] = state
 		stepID := codegen.CommandStepPrefix + "gorm-gen"
 		target.progress.updateStep(ctx, stepID, adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_RUNNING, codegen.Message(localeState, "progress.running_execute", nil), "")
-		if databaseSource == "" {
-			state.err = errors.New("代码生成数据库配置缺少数据源")
-			failureMessage := codegen.CommandFailureMessage(localeState, "gorm-gen", "", state.err)
+		var configPath string
+		var cleanupConfig func()
+		configPath, cleanupConfig, err = codeGenGormConfigFile(c.BaseCase, target.sourceName)
+		if err != nil {
+			failureMessage := codegen.CommandFailureMessage(localeState, "gorm-gen", "", err)
 			state.failureMessages = append(state.failureMessages, failureMessage)
+			state.err = err
 			target.progress.updateStep(ctx, stepID, adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_FAILED, failureMessage, "")
 			for _, skippedTarget := range sharedTargets {
 				target.progress.updateStep(ctx, codegen.CommandStepPrefix+skippedTarget, adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_SKIPPED, codegen.Message(localeState, "progress.model_generation_failed", nil), "")
 			}
 			continue
 		}
-		output, err := codegen.RunCommand(ctx, backendDir, "gorm-gen", "GORM_TABLE="+target.tableName, "GORM_GEN_SOURCE="+databaseSource)
+		var output string
+		output, err = codegen.RunCommand(ctx, backendDir, "gorm-gen", "GORM_TABLE="+target.tableName, "GORM_GEN_CONFIG="+configPath, "GORM_GEN_DATABASE=default")
+		cleanupConfig()
 		if err != nil {
 			failureMessage := codegen.CommandFailureMessage(localeState, "gorm-gen", output, err)
 			state.failureMessages = append(state.failureMessages, failureMessage)
@@ -737,7 +736,8 @@ func (c *CodeGenCase) runCodeGenCommands(ctx context.Context, targets []codeGenC
 		for _, target := range eligibleTargets {
 			target.progress.updateStep(ctx, stepID, adminv1.CodeGenTaskStepStatus_CODE_GEN_TASK_STEP_STATUS_RUNNING, codegen.Message(localeState, "progress.running_execute", nil), "")
 		}
-		output, err := codegen.RunCommand(ctx, backendDir, commandTarget)
+		var output string
+		output, err = codegen.RunCommand(ctx, backendDir, commandTarget)
 		if err != nil {
 			failureMessage := codegen.CommandFailureMessage(localeState, commandTarget, output, err)
 			for _, target := range eligibleTargets {
@@ -790,6 +790,32 @@ func (c *CodeGenCase) runCodeGenCommands(ctx context.Context, targets []codeGenC
 	return results
 }
 
+// codeGenGormConfigFile 为选中的数据源创建临时单库配置，确保 GORM 产物写入 Admin 默认生成目录。
+func codeGenGormConfigFile(baseCase *biz.BaseCase, sourceName string) (string, func(), error) {
+	dataConfig := baseCase.GetConfig().GetData()
+	if dataConfig == nil {
+		return "", nil, errors.New("代码生成数据源配置为空")
+	}
+	database := dataConfig.GetDatabases()[sourceName]
+	if database == nil && sourceName == gorm.DefaultClientName {
+		database = dataConfig.GetDatabase()
+	}
+	if database == nil || database.GetDriver() == "" || database.GetSource() == "" {
+		return "", nil, fmt.Errorf("代码生成数据源 %s 未配置", sourceName)
+	}
+	directory, err := os.MkdirTemp("", "kratos-code-gen-config-")
+	if err != nil {
+		return "", nil, fmt.Errorf("创建代码生成临时配置目录失败: %w", err)
+	}
+	configPath := filepath.Join(directory, "data.yaml")
+	content := fmt.Sprintf("data:\n  database:\n    driver: %s\n    source: %s\n", strconv.Quote(database.GetDriver()), strconv.Quote(database.GetSource()))
+	if err = os.WriteFile(configPath, []byte(content), 0o600); err != nil {
+		_ = os.RemoveAll(directory)
+		return "", nil, fmt.Errorf("写入代码生成临时配置失败: %w", err)
+	}
+	return configPath, func() { _ = os.RemoveAll(directory) }, nil
+}
+
 // loadCodeGenContext 只读加载表、字段和Proto生成配置快照。
 func (c *CodeGenCase) loadCodeGenContext(ctx context.Context, tableID int64) (*codegen.Table, []*codegen.CodeGenColumn, []*codegen.Proto, error) {
 	if tableID <= 0 {
@@ -810,7 +836,7 @@ func (c *CodeGenCase) loadCodeGenContext(ctx context.Context, tableID int64) (*c
 	}
 	if table.TableComment == "" {
 		var tableInfos []dto.CodeGenDatabaseTable
-		tableInfos, err = c.codeGenTableCase.listDatabaseTables(ctx, []string{tableModel.Name})
+		tableInfos, err = c.codeGenTableCase.listDatabaseTables(ctx, tableModel.SourceName, []string{tableModel.Name})
 		if err != nil {
 			return nil, nil, nil, err
 		}
@@ -826,7 +852,7 @@ func (c *CodeGenCase) loadCodeGenContext(ctx context.Context, tableID int64) (*c
 		return nil, nil, nil, err
 	}
 	var databaseColumns []dto.CodeGenDatabaseColumn
-	databaseColumns, err = c.codeGenColumnCase.listDatabaseColumns(ctx, tableModel.Name)
+	databaseColumns, err = c.codeGenColumnCase.listDatabaseColumns(ctx, tableModel.SourceName, tableModel.Name)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -839,11 +865,7 @@ func (c *CodeGenCase) loadCodeGenContext(ctx context.Context, tableID int64) (*c
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	var protos []*codegen.Proto
-	protos, err = codeGenProtosToSnapshots(protoChecks.GetCodeGenProtos(), table.TableComment)
-	if err != nil {
-		return nil, nil, nil, err
-	}
+	protos := codeGenProtosToSnapshots(protoChecks.GetCodeGenProtos(), table.TableComment)
 	err = c.enrichCodeGenProtoTargetComments(ctx, table, columns, protos)
 	if err != nil {
 		return nil, nil, nil, err
@@ -873,7 +895,7 @@ func (c *CodeGenCase) enrichCodeGenProtoTargetComments(ctx context.Context, tabl
 	var tableInfos []dto.CodeGenDatabaseTable
 	var err error
 	if len(tableNames) > 0 {
-		tableInfos, err = c.codeGenTableCase.listDatabaseTables(ctx, tableNames)
+		tableInfos, err = c.codeGenTableCase.listDatabaseTables(ctx, table.SourceName, tableNames)
 		if err != nil {
 			return err
 		}
@@ -885,7 +907,7 @@ func (c *CodeGenCase) enrichCodeGenProtoTargetComments(ctx context.Context, tabl
 	var configuredTables []*models.CodeGenTable
 	if len(tableNames) > 0 {
 		query := c.codeGenTableCase.Query(ctx).CodeGenTable
-		configuredTables, err = c.codeGenTableCase.List(ctx, repository.Where(query.Name.In(tableNames...)))
+		configuredTables, err = c.codeGenTableCase.List(ctx, repository.Where(query.SourceName.Eq(table.SourceName)), repository.Where(query.Name.In(tableNames...)))
 		if err != nil {
 			return err
 		}
@@ -897,7 +919,7 @@ func (c *CodeGenCase) enrichCodeGenProtoTargetComments(ctx context.Context, tabl
 	}
 	configuredTablesByName := make(map[string]*models.CodeGenTable, len(configuredTables))
 	for _, configuredTable := range configuredTables {
-		configuredTablesByName[configuredTable.Name] = configuredTable
+		configuredTablesByName[sourceTableKey(configuredTable.SourceName, configuredTable.Name)] = configuredTable
 	}
 	columnSnapshotsByEntity := map[string][]*codegen.CodeGenColumn{table.EntityName: columns}
 	for _, proto := range protos {
@@ -911,12 +933,12 @@ func (c *CodeGenCase) enrichCodeGenProtoTargetComments(ctx context.Context, tabl
 				tableName = leftTreeConfig.SourceValue
 			}
 			var databaseColumns []dto.CodeGenDatabaseColumn
-			databaseColumns, err = c.codeGenColumnCase.listDatabaseColumns(ctx, tableName)
+			databaseColumns, err = c.codeGenColumnCase.listDatabaseColumns(ctx, table.SourceName, tableName)
 			if err != nil {
 				return err
 			}
 			var targetConfigs []*adminv1.CodeGenColumn
-			if configuredTable := configuredTablesByName[tableName]; configuredTable != nil {
+			if configuredTable := configuredTablesByName[sourceTableKey(table.SourceName, tableName)]; configuredTable != nil {
 				targetConfigs, err = c.codeGenColumnCase.listCodeGenColumns(ctx, configuredTable.ID)
 				if err != nil {
 					return err
@@ -988,7 +1010,7 @@ func (c *CodeGenCase) optionTargetColumns(ctx context.Context, table *codegen.Ta
 	if method.TriggerType == codegen.TriggerLeftTree && leftTreeConfig.SourceValue != "" {
 		tableName = leftTreeConfig.SourceValue
 	}
-	databaseColumns, err := c.codeGenColumnCase.listDatabaseColumns(ctx, tableName)
+	databaseColumns, err := c.codeGenColumnCase.listDatabaseColumns(ctx, table.SourceName, tableName)
 	if err != nil {
 		return nil, err
 	}
@@ -1198,6 +1220,7 @@ func codeGenTableToSnapshot(item *models.CodeGenTable) (*codegen.Table, error) {
 	}
 	return &codegen.Table{
 		ID:               item.ID,
+		SourceName:       item.SourceName,
 		TableName_:       item.Name,
 		TableComment:     item.Comment,
 		BusinessModule:   item.BusinessModule,
@@ -1341,7 +1364,7 @@ func codeGenOptionToSnapshot(option *adminv1.CodeGenColumnOptionConfig) codegen.
 }
 
 // codeGenProtosToSnapshots 将现有Proto配置转换为生成器只读快照。
-func codeGenProtosToSnapshots(items []*adminv1.CodeGenProtoCheck, tableComment string) ([]*codegen.Proto, error) {
+func codeGenProtosToSnapshots(items []*adminv1.CodeGenProtoCheck, tableComment string) []*codegen.Proto {
 	protos := make([]*codegen.Proto, 0, len(items))
 	for _, item := range items {
 		config := item.GetConfig()
@@ -1367,7 +1390,7 @@ func codeGenProtosToSnapshots(items []*adminv1.CodeGenProtoCheck, tableComment s
 			Sort:                item.GetSort(),
 		})
 	}
-	return protos, nil
+	return protos
 }
 
 // validateOptionLabelColumn 校验选项响应的显示字段存在。

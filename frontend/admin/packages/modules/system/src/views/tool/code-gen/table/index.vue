@@ -68,11 +68,12 @@ import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
-import { defBaseMenuService } from "@liujitcn/kratos-admin-system/api/system/base_menu";
-import { defBaseDictService } from "@liujitcn/kratos-admin-system/api/system/base_dict";
-import { defCodeGenService } from "@liujitcn/kratos-admin-system/api/system/code_gen";
-import { defCodeGenColumnService } from "@liujitcn/kratos-admin-system/api/system/code_gen_column";
-import { defCodeGenTableService } from "@liujitcn/kratos-admin-system/api/system/code_gen_table";
+import { defBaseMenuService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_menu";
+import { defBaseDictService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_dict";
+import { defCodeGenService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen";
+import { defCodeGenColumnService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen_column";
+import { defCodeGenTableService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen_table";
+import { defBaseTableSourceService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_table_source";
 import type { CodeGenDatabaseColumn } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_column";
 import type {
   CodeGenDatabaseTable,
@@ -126,6 +127,8 @@ const router = useRouter();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const saving = ref(false);
+const sourceOptions = ref<ProFormOption[]>([]);
+const loadingSourceOptions = ref(false);
 const databaseTables = ref<CodeGenDatabaseTable[]>([]);
 const businessModuleItems = ref<OptionBaseDictResponse_BaseDictItem[]>([]);
 const databaseColumns = ref<CodeGenDatabaseColumn[]>([]);
@@ -186,6 +189,21 @@ const leftTreeColumnOptions = computed<ProFormOption[]>(() => createDatabaseColu
 
 /** 代码生成表配置表单字段。 */
 const formFields = computed<ProFormField[]>(() => [
+  {
+    prop: "source_name",
+    label: t("system.code.gen.table.field.source_name"),
+    component: "select",
+    options: sourceOptions.value,
+    colSpan: 24,
+    labelTooltip: t("system.code.gen.table.tooltip.source_name"),
+    props: {
+      loading: loadingSourceOptions.value,
+      placeholder: t("system.code.gen.table.placeholder.source_name"),
+      filterable: true,
+      style: { width: "100%" },
+      onChange: handleSourceNameChange
+    }
+  },
   // 标签提示与当前生成器的实际读写逻辑保持一致，方便配置时判断影响范围。
   {
     prop: "name",
@@ -411,6 +429,7 @@ const formFields = computed<ProFormField[]>(() => [
 /** 代码生成表配置列表列。 */
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
+  { prop: "source_name", label: t("system.code.gen.table.field.source_name"), minWidth: 130 },
   { prop: "name", label: t("system.code.gen.table.field.name"), minWidth: 160, search: { el: "input" } },
   { prop: "comment", label: t("system.code.gen.table.field.comment"), minWidth: 160, showOverflowTooltip: true },
   {
@@ -745,17 +764,19 @@ function refreshTable() {
 /** 打开新增或编辑弹窗，并加载当前表单所需选项。 */
 async function handleOpenDialog(tableId?: number) {
   resetForm();
+  await loadSourceOptions();
+  const detail = tableId ? await defCodeGenTableService.GetCodeGenTable({ id: tableId }) : undefined;
+  if (detail) Object.assign(formData, detail);
+  if (!formData.source_name) formData.source_name = String(sourceOptions.value[0]?.value ?? "");
   const [tableData, menuData, dictionaryData] = await Promise.all([
-    defCodeGenTableService.ListCodeGenDatabaseTable({}),
+    loadDatabaseTables(formData.source_name),
     defBaseMenuService.TreeBaseMenu({}),
     defBaseDictService.OptionBaseDict({})
   ]);
   databaseTables.value = tableData.tables ?? [];
   parentMenuOptions.value = convertMenuOptions(menuData.base_menus ?? []);
   businessModuleItems.value = dictionaryData.base_dicts?.find(item => item.code === "business_module")?.items ?? [];
-  if (tableId) {
-    const detail = await defCodeGenTableService.GetCodeGenTable({ id: tableId });
-    Object.assign(formData, detail);
+  if (detail) {
     formData.parent_menu_id = detail.parent_menu_id || undefined;
     formData.left_tree_config ??= createDefaultCodeGenLeftTreeConfig();
     if (!formData.comment) {
@@ -765,10 +786,22 @@ async function handleOpenDialog(tableId?: number) {
       formData.left_tree_config.comment =
         databaseTables.value.find(item => item.name === formData.left_tree_config?.table_name)?.comment ?? "";
     }
-    await Promise.all([loadDatabaseColumns(databaseColumns, formData.name), loadLeftTreeDatabaseColumns()]);
+    await Promise.all([loadDatabaseColumns(databaseColumns, formData.source_name, formData.name), loadLeftTreeDatabaseColumns()]);
     dialog.editing = true;
   }
   dialog.visible = true;
+}
+
+/** 加载已初始化的数据源选项。 */
+async function loadSourceOptions() {
+  if (sourceOptions.value.length || loadingSourceOptions.value) return;
+  loadingSourceOptions.value = true;
+  try {
+    const data = await defBaseTableSourceService.OptionBaseTableSource({});
+    sourceOptions.value = (data.value ?? []).map(value => ({ label: value, value }));
+  } finally {
+    loadingSourceOptions.value = false;
+  }
 }
 
 /** 关闭弹窗并清理表单状态。 */
@@ -794,7 +827,7 @@ async function handleTableNameChange(tableName: string) {
   const table = databaseTables.value.find(item => item.name === tableName);
   formData.comment = table?.comment ?? "";
   formData.i18n_config = new Map();
-  await loadDatabaseColumns(databaseColumns, tableName);
+  await loadDatabaseColumns(databaseColumns, formData.source_name, tableName);
   resetUnavailableTableColumns();
   formData.parent_column = resolveDefaultColumn(databaseColumns.value, "parent_id");
   formData.tree_label_column = resolveDefaultColumn(databaseColumns.value, "name");
@@ -879,13 +912,36 @@ async function handleDelete(selected?: CodeGenDeleteTarget) {
   refreshTable();
 }
 
-/** 查询数据库表字段选项。 */
-async function loadDatabaseColumns(target: { value: CodeGenDatabaseColumn[] }, tableName: string) {
+/** 切换数据源后清理旧表并重新加载当前数据源的表列表。 */
+async function handleSourceNameChange(value: string | number | boolean | undefined) {
+  formData.source_name = String(value ?? "");
+  formData.name = "";
+  formData.comment = "";
+  formData.i18n_config = new Map();
+  databaseColumns.value = [];
+  leftTreeDatabaseColumns.value = [];
+  resetLeftTreeConfig();
+  await loadDatabaseTables(formData.source_name);
+}
+
+/** 按数据源加载代码生成可选数据库表。 */
+async function loadDatabaseTables(sourceName: string) {
+  if (!sourceName) {
+    databaseTables.value = [];
+    return { tables: [] as CodeGenDatabaseTable[] };
+  }
+  const data = await defCodeGenTableService.ListCodeGenDatabaseTable({ source_name: sourceName });
+  databaseTables.value = data.tables ?? [];
+  return data;
+}
+
+/** 查询指定数据源的数据表字段选项。 */
+async function loadDatabaseColumns(target: { value: CodeGenDatabaseColumn[] }, sourceName: string, tableName: string) {
   if (!tableName) {
     target.value = [];
     return;
   }
-  const data = await defCodeGenColumnService.ListCodeGenDatabaseColumn({ table_name: tableName });
+  const data = await defCodeGenColumnService.ListCodeGenDatabaseColumn({ source_name: sourceName, table_name: tableName });
   target.value = data.columns ?? [];
 }
 
@@ -896,7 +952,7 @@ async function loadLeftTreeDatabaseColumns() {
     leftTreeDatabaseColumns.value = [];
     return;
   }
-  await loadDatabaseColumns(leftTreeDatabaseColumns, config.table_name);
+  await loadDatabaseColumns(leftTreeDatabaseColumns, formData.source_name, config.table_name);
 }
 
 /** 转换数据库字段为 ProForm 选择项。 */

@@ -24,7 +24,7 @@ func (c *renderer) renderBackendBizFile(table *Table, columns []*CodeGenColumn, 
 	pageMethod := "Page" + entity
 	pageResponse := target.GoAlias + ".Page" + entity + "Response"
 	listField := stringcase.ToPascalCase(pluralize(entity))
-	treeMethod := firstMethodByKind(methods, APIKindTree, TriggerPageTree)
+	treeMethod := firstTreeMethodByTrigger(methods, TriggerPageTree)
 	optionMethods := methodsByKinds(methods, APIKindOption, APIKindTree)
 	defaultOrderOption := renderDefaultOrderOption(columns)
 	orderOptionCount := 0
@@ -341,13 +341,13 @@ func isGeneratedJSONScalar(column *CodeGenColumn) bool {
 }
 
 // renderBackendServiceFile 渲染后端服务文件内容。
-func (c *renderer) renderBackendServiceFile(table *Table, columns []*CodeGenColumn, methods []*Proto) string {
+func (c *renderer) renderBackendServiceFile(table *Table, methods []*Proto) string {
 	entity := table.EntityName
 	target := ProtoTargetForTable(table)
 	methods = filterProtoMethods(methods, c.defaultProtoPath(table))
 	entityVar := stringcase.ToCamelCase(entity)
 	var methodsBuilder strings.Builder
-	if treeMethod := firstMethodByKind(methods, APIKindTree, TriggerPageTree); treeMethod != nil {
+	if treeMethod := firstTreeMethodByTrigger(methods, TriggerPageTree); treeMethod != nil {
 		methodsBuilder.WriteString(c.renderServiceMethod(table, treeMethod, entityVar, "tree", "查询"+table.BusinessName+"树形列表失败"))
 	} else {
 		methodsBuilder.WriteString(c.renderServiceMethod(table, &Proto{APIKind: APIKindList, MethodName: "Page" + entity}, entityVar, "page", "查询"+table.BusinessName+"分页列表失败"))

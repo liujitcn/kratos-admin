@@ -38,21 +38,21 @@
     height: 70px;
     padding: 6px;
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: var(--admin-page-radius);
     box-shadow: 0 0 5px 1px var(--el-border-color-dark);
     transition: all 0.2s;
     .layout-dark {
       background-color: var(--el-color-primary);
-      border-radius: 3px;
+      border-radius: var(--admin-page-radius);
     }
     .layout-light {
       background-color: var(--el-color-primary-light-5);
-      border-radius: 3px;
+      border-radius: var(--admin-page-radius);
     }
     .layout-content {
       background-color: var(--el-color-primary-light-8);
       border: 1px dashed var(--el-color-primary);
-      border-radius: 3px;
+      border-radius: var(--admin-page-radius);
     }
     .el-icon {
       position: absolute;

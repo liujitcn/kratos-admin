@@ -17,6 +17,8 @@ const (
 	oauthCrypto3DES       = "3des"
 	oauthCryptoAESKeySize = 32
 	oauthCryptoSM4KeySize = 16
+	oauthCryptoNonceSize = 12
+	oauthCryptoTagSize   = 16
 )
 
 // Crypto 定义开放授权协议的加解密能力。

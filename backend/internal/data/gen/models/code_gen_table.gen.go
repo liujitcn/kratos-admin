@@ -15,7 +15,8 @@ const TableNameCodeGenTable = "code_gen_table"
 // CodeGenTable 代码生成对象表
 type CodeGenTable struct {
 	ID              int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:主键ID" json:"id"`                                                                   // 主键ID
-	Name            string                `gorm:"column:name;type:varchar(128);not null;uniqueIndex:unique_code_gen_table,priority:1;comment:业务表名" json:"name"`                                 // 业务表名
+	SourceName      string                `gorm:"column:source_name;type:varchar(64);not null;uniqueIndex:unique_code_gen_table,priority:1;comment:数据源名称" json:"source_name"`                   // 数据源名称
+	Name            string                `gorm:"column:name;type:varchar(128);not null;uniqueIndex:unique_code_gen_table,priority:2;comment:业务表名" json:"name"`                                 // 业务表名
 	Comment         string                `gorm:"column:comment;type:varchar(128);comment:业务表描述" json:"comment"`                                                                                // 业务表描述
 	BusinessModule  string                `gorm:"column:business_module;type:varchar(64);comment:业务模块" json:"business_module"`                                                                  // 业务模块
 	ParentMenuID    int64                 `gorm:"column:parent_menu_id;type:bigint;not null;comment:父级菜单ID" json:"parent_menu_id"`                                                              // 父级菜单ID
@@ -27,13 +28,13 @@ type CodeGenTable struct {
 	GenBackend      int32                 `gorm:"column:gen_backend;type:tinyint;not null;comment:是否生成后端" json:"gen_backend"`                                                                   // 是否生成后端
 	GenFrontend     int32                 `gorm:"column:gen_frontend;type:tinyint;not null;comment:是否生成前端" json:"gen_frontend"`                                                                 // 是否生成前端
 	GenSql          int32                 `gorm:"column:gen_sql;type:tinyint;not null;comment:是否生成建表SQL" json:"gen_sql"`                                                                        // 是否生成建表SQL
-	Status          int32                 `gorm:"column:status;type:tinyint;not null;comment:状态：0草稿 1已生成 2停用" json:"status"`                                                                    // 状态：0草稿 1已生成 2停用
 	Remark          string                `gorm:"column:remark;type:varchar(500);comment:备注" json:"remark"`                                                                                     // 备注
+	Status          int32                 `gorm:"column:status;type:tinyint;not null;comment:状态：枚举【CodeGenTableStatus】" json:"status"`                                                          // 状态：枚举【CodeGenTableStatus】
 	CreatedBy       int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建人ID" json:"created_by"`                                                                       // 创建人ID
 	UpdatedBy       int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新人ID" json:"updated_by"`                                                                       // 更新人ID
 	CreatedAt       time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                                      // 创建时间
 	UpdatedAt       time.Time             `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                                                      // 更新时间
-	DeletedAt       soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;uniqueIndex:unique_code_gen_table,priority:2;comment:删除时间;softDelete:milli" json:"deleted_at"` // 删除时间
+	DeletedAt       soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;uniqueIndex:unique_code_gen_table,priority:3;comment:删除时间;softDelete:milli" json:"deleted_at"` // 删除时间
 }
 
 // TableName CodeGenTable's table name

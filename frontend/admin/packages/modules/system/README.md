@@ -8,8 +8,10 @@ System 管理端业务模块。系统管理、个人中心（含 MFA 与三方�
 packages/modules/system
 ├── src
 │   ├── api
-│   │   ├── base
-│   │   └── system
+│   │   │   ├── base/v1
+│   │   │   └── system/admin/v1
+│   ├── config
+│   ├── utils
 │   ├── components
 │   ├── rpc
 │   ├── typings
@@ -35,6 +37,8 @@ packages/modules/system
 | `src/module.ts`         | 注册 System 页面、AI 顶部入口、个人中心菜单和路由行为。 |
 | `src/ai.ts`             | 定义 AI 流程卡片扩展名称、类型和读取入口。              |
 | `src/components/Ai.vue`                   | System 提供的 AI 顶部工具入口。                              |
+| `src/components/ChangePasswordForm.vue`   | 个人中心与强制改密弹窗共用的修改密码表单。                    |
+| `src/components/ForcedPasswordDialog.vue` | 登录成功后在当前业务页面展示的强制改密弹窗。                  |
 | `src/components/DynamicI18nCell.vue` | 翻译资源列表单元格，悬停预览当前语言之外的内容。              |
 | `src/components/DynamicI18nEditor.vue` | 动态资源多语言编辑器。                                      |
 | `src/components/dynamicI18n.ts` | 动态资源翻译状态和表单辅助类型。                            |
@@ -47,23 +51,25 @@ packages/modules/system
 
 ## API 文件
 
-| 路径                                 | 作用                                      |
-| ------------------------------------ | ----------------------------------------- |
-| `src/api/base/ai_message.ts`         | AI 消息请求。                             |
-| `src/api/base/ai_session.ts`         | AI 会话请求。                             |
-| `src/api/base/ai_tool.ts`            | AI 工具请求。                             |
-| `src/api/base/oauth.ts`              | 个人中心账号绑定请求。                    |
-| `src/api/base/sse.ts`                | AI 与业务流式响应订阅。                   |
-| `src/api/system/auth.ts`             | 个人中心认证请求。                        |
-| `src/api/system/base_dashboard.ts`    | 后台工作台概览和趋势统计请求。             |
-| `src/api/system/base_file.ts`         | 文件资产元数据查询和删除请求。             |
-| `src/api/system/base_*.ts`           | System 基础资源管理请求。                 |
-| `@liujitcn/kratos-admin-core/api/base/mfa` | 当前用户 MFA 状态、绑定、停用和恢复码请求。 |
-| `src/api/system/oauth_client.ts`     | 开放授权客户端管理、凭据和 API 选项请求。   |
-| `src/api/system/code_gen*.ts`        | 代码生成、字段、Proto、表和进度订阅请求。 |
-| `src/api/system/ops_monitoring_sse.ts` | 运维监控实时指标流请求。                  |
-| `src/api/system/project_document.ts` | 多项目文档树与详情请求。                  |
-| `src/api/system/runtime_log*.ts`     | 运行日志文件、控制台和实时日志请求。       |
+| 路径                                         | 作用                                      |
+| -------------------------------------------- | ----------------------------------------- |
+| `src/api/base/v1/ai_message.ts`              | AI 消息服务请求。                         |
+| `src/api/base/v1/ai_session.ts`              | AI 会话服务请求。                         |
+| `src/api/base/v1/ai_tool.ts`                 | AI 工具服务请求。                         |
+| `src/api/base/v1/notification.ts`             | 站内信服务请求。                          |
+| `src/api/base/v1/oauth.ts`                   | 个人中心三方账号绑定服务请求。            |
+| `src/api/base/v1/sse.ts`                     | SSE 服务请求。                            |
+| `src/api/system/admin/v1/auth.ts`            | 个人中心认证服务请求。                    |
+| `src/api/system/admin/v1/base_*.ts`          | System 基础服务请求。                     |
+| `src/api/system/admin/v1/code_gen*.ts`       | 代码生成服务请求。                        |
+| `src/api/system/admin/v1/oauth_client.ts`    | 开放授权客户端服务请求。                  |
+| `src/api/system/admin/v1/ops_monitoring.ts`  | 运维监控服务请求。                        |
+| `src/api/system/admin/v1/project_document.ts` | 项目文档服务请求。                         |
+| `src/api/system/admin/v1/runtime_log.ts`     | 运行日志服务请求。                        |
+| `src/api/system/admin/v1/cache.ts`           | 运行时缓存服务请求。                      |
+| `@liujitcn/kratos-admin-core/api/base/v1/mfa` | 当前用户 MFA 服务请求。                   |
+
+`src/config` 维护运行配置定义，`src/utils` 维护 SSE 订阅、响应归一化和代码生成序列化等内部辅助；这些文件不属于 Proto 服务 API。
 
 ## 页面文件组
 
@@ -73,6 +79,13 @@ packages/modules/system
 | `src/views/base/api/index.vue`                                 | API 资源管理页。                   |
 | `src/views/base/area/index.vue`                                | 行政区域管理页。                   |
 | `src/views/base/config/index.vue`                              | 系统配置管理页。                   |
+| `src/views/base/runtime-config/index.vue`                      | 日志入库回退配置页。               |
+| `src/views/base/backup-management/archive-config/index.vue`    | 数据归档配置页。                   |
+| `src/views/base/backup-management/archive-record/index.vue`    | 数据归档执行记录页。               |
+| `src/views/base/backup-management/archive-restore/index.vue`   | 数据归档人工恢复与恢复记录页。     |
+| `src/views/base/backup-management/backup-config/index.vue`    | 数据备份配置页。                   |
+| `src/views/base/backup-management/backup-record/index.vue`    | 数据备份执行记录页。               |
+| `src/views/base/backup-management/backup-restore/index.vue`   | 数据备份人工恢复与恢复记录页。     |
 | `src/views/base/dept/index.vue`                                | 部门管理页。                       |
 | `src/views/base/dict/index.vue`                                | 字典类型管理页。                   |
 | `src/views/base/dict/item.vue`                                 | 字典项管理页。                     |
@@ -104,6 +117,7 @@ packages/modules/system
 | `src/views/base/language/index.vue` | 语言配置管理页。 |
 | `src/views/base/oauth-client/index.vue` | 开放授权客户端管理页。 |
 | `src/views/tool/runtime-log/index.vue` | 运行日志控制台、历史文件和下载页。 |
+| `src/views/tool/cache/index.vue` | 运行时缓存查询页，展示键、值、TTL 和时间元数据。 |
 
 ## 接入
 
@@ -133,7 +147,7 @@ System 页面只通过 `systemAdminModule.views` 注册，不作为 npm 子路�
 
 登录、菜单和用户信息等运行底座属于 core；个人中心、AI 助手及其顶部入口属于 System。System 可以引用 core 的公共导出，core 不得反向依赖 System；其他业务模块只能通过 `AdminModule.staticViews` 显式替换默认登录页或状态页。
 
-System 的 API 与 RPC 都按 Proto 层级维护。当前服务端契约尚未完成细粒度拆分，因此 System 与 core 可能分别包含同一服务生成文件；这些文件由项目命令生成，不在本包手工去重或改写。
+System 的 API 与 RPC 都按 Proto 完整层级维护，API 文件名与对应 Proto 服务文件名保持一致。当前服务端契约尚未完成细粒度拆分，因此 System 与 core 可能分别包含同一服务生成文件；这些文件由项目命令生成，不在本包手工去重或改写。
 
 ## 新增页面
 

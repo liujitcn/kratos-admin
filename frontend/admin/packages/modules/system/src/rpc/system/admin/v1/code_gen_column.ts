@@ -24,6 +24,8 @@ export interface ListCodeGenColumnResponse {
 export interface ListCodeGenDatabaseColumnRequest {
   /** 数据库表名 */
   table_name: string;
+  /** 数据源名称 */
+  source_name: string;
 }
 
 /** 数据库表字段列表响应 */

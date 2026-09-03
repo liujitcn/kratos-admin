@@ -7,7 +7,7 @@
 ```text
 packages/core
 ├── src
-│   ├── api                    # base、system 基础接口 service
+│   ├── api                    # 与 Proto 完整路径一致的接口 service
 │   ├── components             # 启动状态、自绘 tabBar、公共设置页和 MFA 组件
 │   ├── rpc                    # Buf 生成的 TypeScript 接口类型
 │   ├── static                 # 底座图片和 tab 图标
@@ -31,7 +31,7 @@ packages/core
 ## 功能
 
 - 定义 `KratosAppModule`、`viewKey`、静态页面覆盖和模块图标协议。
-- 从 `/v1/app/base/menu` 加载 `999` 下的扁平菜单，按 `parent_id` 构建树，以二级页面生成 tabBar，并原子更新动态路由和层级导航。
+- 从 `/v1/app/base/menu` 加载 `99000000` 下的扁平菜单，按 `parent_id` 构建树，以二级页面生成 tabBar，并原子更新动态路由和层级导航。
 - 按匿名态、登录态缓存导航，并在远端不可用时回退到最近缓存或默认菜单。
 - 统一认证、token、MFA、HTTP、上传、配置、Pinia 和基础页面能力。
 - 提供可复用的 `KratosSettingsPage`，统一语言、MFA、微信设置和退出登录，并允许产品在最上方追加业务设置。

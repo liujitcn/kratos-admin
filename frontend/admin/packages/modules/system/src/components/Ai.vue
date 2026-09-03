@@ -58,7 +58,7 @@ async function openAi() {
   &:focus-visible {
     outline: 2px solid var(--el-color-primary-light-5);
     outline-offset: 4px;
-    border-radius: 4px;
+    border-radius: var(--admin-page-radius);
   }
 }
 </style>

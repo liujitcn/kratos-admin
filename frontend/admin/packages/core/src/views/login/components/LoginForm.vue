@@ -99,11 +99,12 @@
       </el-tooltip>
     </div>
   </div>
-  <el-dialog
+  <ProDialog
     v-model="behaviorDialogVisible"
     width="364px"
     top="16vh"
     :show-close="false"
+    :show-footer="false"
     append-to-body
     class="behavior-captcha-dialog"
   >
@@ -130,7 +131,7 @@
         :events="rotateCaptchaEvents"
       />
     </div>
-  </el-dialog>
+  </ProDialog>
   <ProDialog v-model="mfaDialogVisible" :title="t('core.login.mfa_title')" width="360px" :close-on-click-modal="false">
     <ProForm
       ref="mfaLoginFormRef"
@@ -180,9 +181,9 @@ import { computed, ref, reactive, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { HOME_URL } from "@/config";
 import { getTimeState } from "@/utils";
-import { defLoginService } from "@/api/base/login";
-import { defMfaService } from "@/api/base/mfa";
-import { defOauthService } from "@/api/base/oauth";
+import { defLoginService } from "@/api/base/v1/login";
+import { defMfaService } from "@/api/base/v1/mfa";
+import { defOauthService } from "@/api/base/v1/oauth";
 import { createWebAuthnCredential, getWebAuthnAssertion } from "@/security";
 import ProDialog from "@/components/Dialog/ProDialog.vue";
 import ProForm from "@/components/ProForm/index.vue";
@@ -204,6 +205,7 @@ import { useConfigStore } from "@/stores/modules/config";
 import { Click as GoCaptchaClick, Rotate as GoCaptchaRotate, Slide as GoCaptchaSlide } from "go-captcha-vue";
 import "go-captcha-vue/dist/style.css";
 import { useLocaleStore } from "@/locales";
+import { clearPasswordChangeRequired, handlePasswordChangeRequired } from "@/utils/request";
 
 const router = useRouter();
 const route = useRoute();
@@ -556,13 +558,9 @@ const finishLogin = async (mustChangePassword = false) => {
   tabsStore.setTabs([]);
   keepAliveStore.setKeepAliveName([]);
 
-  // 5.优先跳回登录失效前页面，没有记录时再进入首个可访问页面。
+  // 5.无论是否需要改密，都回到登录前页面；强制改密状态由布局中的全局弹窗展示。
   // 统一走动态路由感知跳转，避免首次登录后目标页面尚未完成挂载时直接进入 404。
-  if (mustChangePassword) {
-    await navigateTo(router, "/profile", { tab: "password" });
-  } else {
-    await navigateTo(router, getLoginRedirectPath());
-  }
+  await navigateTo(router, getLoginRedirectPath());
   ElNotification({
     title: getTimeState(),
     message: t("core.login.welcome"),
@@ -582,14 +580,20 @@ const handleLoginResponse = async (result: LoginResponse) => {
     mfaDialogVisible.value = true;
     return;
   }
-	if (result.status === LoginStatus.LOGIN_STATUS_MFA_ENROLLMENT_REQUIRED) {
+  if (result.status === LoginStatus.LOGIN_STATUS_MFA_ENROLLMENT_REQUIRED) {
     mfaSetupTicket.value = result.mfa_setup_ticket;
     mfaSetupMethod.value = result.mfa_method || "totp";
     await beginMfaSetup(result.mfa_setup_ticket);
-		return;
-	}
-	userStore.updateTokenAuth(result.access_token, result.refresh_token ?? "", result.token_type ?? "", result.expires_in);
-	await finishLogin(result.status === LoginStatus.LOGIN_STATUS_PASSWORD_CHANGE_REQUIRED);
+    return;
+  }
+  const mustChangePassword = result.status === LoginStatus.LOGIN_STATUS_PASSWORD_CHANGE_REQUIRED;
+  if (mustChangePassword) {
+    handlePasswordChangeRequired(t("core.layout.password_change_required"));
+  } else {
+    clearPasswordChangeRequired();
+  }
+  userStore.updateTokenAuth(result.access_token, result.token_type ?? "", result.expires_in);
+  await finishLogin(mustChangePassword);
 };
 
 /** 校验登录阶段 MFA 并完成登录。 */
@@ -859,7 +863,7 @@ watch(
   height: 40px;
   cursor: pointer;
   object-fit: contain;
-  border-radius: 6px;
+  border-radius: var(--admin-page-radius);
 }
 .behavior-captcha-body {
   min-height: 0;
@@ -969,15 +973,19 @@ watch(
   --go-captcha-theme-dot-color-color: #ffffff;
   --go-captcha-theme-dot-bg-color: color-mix(in srgb, var(--el-color-primary) 68%, transparent);
   --go-captcha-theme-dot-border-color: var(--el-bg-color);
-  border-radius: 10px;
+  border-radius: var(--admin-page-radius);
   box-shadow: rgb(0 0 0 / 10%) 0 2px 10px 2px;
+}
+
+:global(.behavior-captcha-dialog .go-captcha.gc-theme) {
+  border-radius: var(--admin-page-radius);
 }
 
 :global(.behavior-captcha-dialog .el-dialog__header) {
   display: none;
 }
 
-:global(.behavior-captcha-dialog .el-dialog__body) {
+:global(.behavior-captcha-dialog.pro-dialog .el-dialog__body) {
   padding: 10px 12px 12px;
 }
 
@@ -999,7 +1007,11 @@ watch(
 
 :global(.behavior-captcha-dialog .go-captcha .gc-body) {
   margin-top: 0;
-  border-radius: 6px;
+  border-radius: var(--admin-page-radius);
+}
+
+:global(.behavior-captcha-dialog .go-captcha .gc-button-block button) {
+  border-radius: var(--admin-page-radius);
 }
 
 :global(.behavior-captcha-dialog .go-captcha .gc-footer) {

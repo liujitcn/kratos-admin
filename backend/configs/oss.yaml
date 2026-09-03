@@ -1,26 +1,25 @@
 oss:
-  type: local
-  root_directory: ./data
-
-  aliyun:
-    endpoint: https://oss-cn-beijing.aliyuncs.com
-    access_key_id: xxx
-    access_key_secret: xxx
-    bucket_name: xxx
-
-  # 多实例部署可将 type 改为 minio 或 s3，并通过环境覆盖以下凭据。
-  minio:
-    endpoint: http://127.0.0.1:9000
-    access_key: minioadmin
-    secret_key: minioadmin
-    bucket_name: kratos-admin
-    use_ssl: false
-
-  s3:
-    endpoint: http://127.0.0.1:9000
-    region: us-east-1
-    access_key: minioadmin
-    secret_key: minioadmin
-    bucket_name: kratos-admin
-    use_ssl: false
-    force_path_style: true
+    aliyun:
+        access_key_id: ENC[CEzgVkacpxzQSKTAKdoChmgHlQwTEM0WnYcTWUWNRQ]
+        access_key_secret: ENC[3MEOf7YE6UPpM4LGI4Fuu1Rddo9setR2Fy6YvXjyFQ]
+        bucket_name: xxx
+        endpoint: https://oss-cn-beijing.aliyuncs.com
+    minio:
+        access_key: ENC[nf0v5USmxcupr1kEv72CwrEu_X5d8sV7vs8Igwwf305U_N1Oc34]
+        bucket_name: kratos-admin
+        endpoint: http://127.0.0.1:9000
+        secret_key: ENC[HODItqPln_C5mIwQM8Sxb1rn6VsLPQtY6HdvQ05DYKttTu6YI5o]
+        use_ssl: false
+    root_directory: ./data
+    s3:
+        access_key: ENC[DuXDOo9u6PuBESu1M4YFPjdixBVQ8y7bo52YQBhxPULqFLpZ--E]
+        bucket_name: kratos-admin
+        endpoint: http://127.0.0.1:9000
+        force_path_style: true
+        region: us-east-1
+        secret_key: ENC[IM3K8bf655xvrABAhJxHf-nMjydEYwIaetSzPWEg5A0dJxDkY1g]
+        use_ssl: false
+    type: local
+    upload_security:
+        command: clamdscan
+        enabled: false

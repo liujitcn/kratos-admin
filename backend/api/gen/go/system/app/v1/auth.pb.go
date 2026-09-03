@@ -11,7 +11,9 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
+	v1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -65,11 +67,14 @@ func (*GetUserProfileRequest) Descriptor() ([]byte, []int) {
 // 用户资料表单
 type UserProfileForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserName      string                 `protobuf:"bytes,1,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"` // 用户账号
-	NickName      string                 `protobuf:"bytes,2,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"` // 用户昵称
-	Gender        int32                  `protobuf:"varint,3,opt,name=gender,proto3" json:"gender,omitempty"`                    // 性别
-	Phone         string                 `protobuf:"bytes,4,opt,name=phone,proto3" json:"phone,omitempty"`                       // 手机号
-	Avatar        string                 `protobuf:"bytes,5,opt,name=avatar,proto3" json:"avatar,omitempty"`                     // 头像
+	UserName      string                 `protobuf:"bytes,1,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                                 // 用户账号
+	NickName      string                 `protobuf:"bytes,2,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                                 // 用户昵称
+	Gender        int32                  `protobuf:"varint,3,opt,name=gender,proto3" json:"gender,omitempty"`                                                    // 性别
+	Phone         string                 `protobuf:"bytes,4,opt,name=phone,proto3" json:"phone,omitempty"`                                                       // 手机号
+	Email         string                 `protobuf:"bytes,6,opt,name=email,proto3" json:"email,omitempty"`                                                       // 邮箱
+	IdType        v1.BaseUserIDType      `protobuf:"varint,7,opt,name=id_type,json=idType,proto3,enum=system.common.v1.BaseUserIDType" json:"id_type,omitempty"` // 证件类型：枚举【BaseUserIDType】
+	IdCode        string                 `protobuf:"bytes,8,opt,name=id_code,json=idCode,proto3" json:"id_code,omitempty"`                                       // 证件号
+	Avatar        string                 `protobuf:"bytes,5,opt,name=avatar,proto3" json:"avatar,omitempty"`                                                     // 头像
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -128,6 +133,27 @@ func (x *UserProfileForm) GetGender() int32 {
 func (x *UserProfileForm) GetPhone() string {
 	if x != nil {
 		return x.Phone
+	}
+	return ""
+}
+
+func (x *UserProfileForm) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+func (x *UserProfileForm) GetIdType() v1.BaseUserIDType {
+	if x != nil {
+		return x.IdType
+	}
+	return v1.BaseUserIDType(0)
+}
+
+func (x *UserProfileForm) GetIdCode() string {
+	if x != nil {
+		return x.IdCode
 	}
 	return ""
 }
@@ -278,13 +304,18 @@ var File_system_app_v1_auth_proto protoreflect.FileDescriptor
 
 const file_system_app_v1_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x18system/app/v1/auth.proto\x12\rsystem.app.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x17\n" +
-	"\x15GetUserProfileRequest\"\xe6\x01\n" +
+	"\x18system/app/v1/auth.proto\x12\rsystem.app.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1dsystem/common/v1/common.proto\x1a\x1bbuf/validate/validate.proto\"\x17\n" +
+	"\x15GetUserProfileRequest\"\xa7\x05\n" +
 	"\x0fUserProfileForm\x12/\n" +
 	"\tuser_name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x12/\n" +
 	"\tnick_name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户昵称R\bnickName\x12$\n" +
 	"\x06gender\x18\x03 \x01(\x05B\f\xbaG\t\x92\x02\x06性别R\x06gender\x12%\n" +
-	"\x05phone\x18\x04 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12$\n" +
+	"\x05phone\x18\x04 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12\x8c\x01\n" +
+	"\x05email\x18\x06 \x01(\tBv\xbaG\t\x92\x02\x06邮箱\xbaHg\xba\x01`\n" +
+	"(system.app.auth.profile.email.max_length\x12 邮箱不能超过 128 个字符\x1a\x12this.size() <= 128r\x02`\x01R\x05email\x12r\n" +
+	"\aid_type\x18\a \x01(\x0e2 .system.common.v1.BaseUserIDTypeB7\xbaG,\x92\x02)证件类型：枚举【BaseUserIDType】\xbaH\x05\x82\x01\x02\x10\x01R\x06idType\x12\xbb\x01\n" +
+	"\aid_code\x18\b \x01(\tB\xa1\x01\xbaG\f\x92\x02\t证件号\xbaH\x8e\x01\xba\x01\x8a\x01\n" +
+	"&system.app.auth.profile.id_code.format\x12\x1b请输入正确的证件号\x1aCthis.size() == 0 || this.matches('^[A-Za-z0-9][A-Za-z0-9-]{0,63}$')R\x06idCode\x12$\n" +
 	"\x06avatar\x18\x05 \x01(\tB\f\xbaG\t\x92\x02\x06头像R\x06avatar\"q\n" +
 	"\x18UpdateUserProfileRequest\x12U\n" +
 	"\fuser_profile\x18\x01 \x01(\v2\x1e.system.app.v1.UserProfileFormB\x12\xbaG\x0f\x92\x02\f用户资料R\vuserProfile\">\n" +
@@ -317,21 +348,23 @@ var file_system_app_v1_auth_proto_goTypes = []any{
 	(*UpdateUserProfileRequest)(nil), // 2: system.app.v1.UpdateUserProfileRequest
 	(*BindUserPhoneRequest)(nil),     // 3: system.app.v1.BindUserPhoneRequest
 	(*BindUserPhoneResponse)(nil),    // 4: system.app.v1.BindUserPhoneResponse
-	(*emptypb.Empty)(nil),            // 5: google.protobuf.Empty
+	(v1.BaseUserIDType)(0),           // 5: system.common.v1.BaseUserIDType
+	(*emptypb.Empty)(nil),            // 6: google.protobuf.Empty
 }
 var file_system_app_v1_auth_proto_depIdxs = []int32{
-	1, // 0: system.app.v1.UpdateUserProfileRequest.user_profile:type_name -> system.app.v1.UserProfileForm
-	0, // 1: system.app.v1.AuthService.GetUserProfile:input_type -> system.app.v1.GetUserProfileRequest
-	2, // 2: system.app.v1.AuthService.UpdateUserProfile:input_type -> system.app.v1.UpdateUserProfileRequest
-	3, // 3: system.app.v1.AuthService.BindUserPhone:input_type -> system.app.v1.BindUserPhoneRequest
-	1, // 4: system.app.v1.AuthService.GetUserProfile:output_type -> system.app.v1.UserProfileForm
-	5, // 5: system.app.v1.AuthService.UpdateUserProfile:output_type -> google.protobuf.Empty
-	4, // 6: system.app.v1.AuthService.BindUserPhone:output_type -> system.app.v1.BindUserPhoneResponse
-	4, // [4:7] is the sub-list for method output_type
-	1, // [1:4] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	5, // 0: system.app.v1.UserProfileForm.id_type:type_name -> system.common.v1.BaseUserIDType
+	1, // 1: system.app.v1.UpdateUserProfileRequest.user_profile:type_name -> system.app.v1.UserProfileForm
+	0, // 2: system.app.v1.AuthService.GetUserProfile:input_type -> system.app.v1.GetUserProfileRequest
+	2, // 3: system.app.v1.AuthService.UpdateUserProfile:input_type -> system.app.v1.UpdateUserProfileRequest
+	3, // 4: system.app.v1.AuthService.BindUserPhone:input_type -> system.app.v1.BindUserPhoneRequest
+	1, // 5: system.app.v1.AuthService.GetUserProfile:output_type -> system.app.v1.UserProfileForm
+	6, // 6: system.app.v1.AuthService.UpdateUserProfile:output_type -> google.protobuf.Empty
+	4, // 7: system.app.v1.AuthService.BindUserPhone:output_type -> system.app.v1.BindUserPhoneResponse
+	5, // [5:8] is the sub-list for method output_type
+	2, // [2:5] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_system_app_v1_auth_proto_init() }

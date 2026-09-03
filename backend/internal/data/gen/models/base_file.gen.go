@@ -30,8 +30,8 @@ type BaseFile struct {
 	CreatedBy     int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建者ID" json:"created_by"`                                                                                                                                                      // 创建者ID
 	UpdatedBy     int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新者ID" json:"updated_by"`                                                                                                                                                      // 更新者ID
 	DeletedBy     int64                 `gorm:"column:deleted_by;type:bigint;not null;comment:删除者ID" json:"deleted_by"`                                                                                                                                                      // 删除者ID
-	CreatedAt     time.Time             `gorm:"column:created_at;type:datetime(3);not null;index:idx_base_file_tenant_created_at,priority:2;comment:创建时间" json:"created_at"`                                                                    // 创建时间
-	UpdatedAt     time.Time             `gorm:"column:updated_at;type:datetime(3);not null;comment:更新时间" json:"updated_at"`                                                                                                                     // 更新时间
+	CreatedAt     time.Time             `gorm:"column:created_at;type:datetime(3);not null;index:idx_base_file_tenant_created_at,priority:2;comment:创建时间" json:"created_at"`                                                                                                 // 创建时间
+	UpdatedAt     time.Time             `gorm:"column:updated_at;type:datetime(3);not null;comment:更新时间" json:"updated_at"`                                                                                                                                                  // 更新时间
 	DeletedAt     soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;comment:删除时间;softDelete:milli" json:"deleted_at"`                                                                                                                             // 删除时间
 }
 

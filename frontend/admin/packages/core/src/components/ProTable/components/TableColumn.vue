@@ -116,7 +116,7 @@ const renderImageCell = (item: ColumnProps, scope: RenderScope<any>) => {
       style: {
         width: thumbWidth,
         height: thumbHeight,
-        borderRadius: "4px"
+        borderRadius: "var(--admin-page-radius)"
       }
     },
     {
@@ -187,6 +187,12 @@ const renderActionsCell = (item: ColumnProps, scope: RenderScope<any>) => {
   });
 };
 
+/** 渲染默认表头标题，避免窄列换行并保留完整标题提示。 */
+const renderHeaderLabel = (item: ColumnProps) => {
+  if (!item.label || item.showOverflowTooltip === false) return item.label;
+  return h("span", { title: item.label }, item.label);
+};
+
 /**
  * 渲染预置列类型，统一收敛图片、状态和操作按钮等通用场景。
  */
@@ -227,7 +233,7 @@ const RenderTableColumn = (item: ColumnProps) => {
       header: (scope: HeaderRenderScope<any>) => {
         if (item.headerRender) return item.headerRender(scope);
         if (item.prop && slots[`${handleProp(item.prop)}Header`]) return slots[`${handleProp(item.prop)}Header`]!(scope);
-        return item.label;
+        return renderHeaderLabel(item);
       }
     }
   );

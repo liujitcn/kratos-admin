@@ -39,8 +39,8 @@ import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
-import { defBaseJobService } from "@liujitcn/kratos-admin-system/api/system/base_job";
-import { loadEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
+import { defBaseJobService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_job";
+import { loadEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_language";
 import type {
   BaseJob,
   BaseJobArgs,

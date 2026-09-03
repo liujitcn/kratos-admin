@@ -106,6 +106,7 @@ export function codeGenFormComponentOptions(): ProFormOption[] {
 /** 代码生成表配置校验规则。 */
 export function codeGenTableRules(): FormRules {
   return {
+    source_name: [{ required: true, message: t("system.code.gen.validation.source_required"), trigger: "change" }],
     name: [{ required: true, max: 128, message: t("system.code.gen.validation.table_required"), trigger: "change" }],
     business_module: [
       {
@@ -161,6 +162,7 @@ export function createDefaultCodeGenLeftTreeConfig(): CodeGenLeftTreeConfig {
 export function createDefaultCodeGenTableForm(): CodeGenTableForm {
   return {
     id: 0,
+    source_name: "",
     name: "",
     comment: "",
     business_module: "",

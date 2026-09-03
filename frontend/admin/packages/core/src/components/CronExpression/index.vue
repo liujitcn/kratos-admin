@@ -12,7 +12,7 @@
       </template>
     </el-input>
 
-    <el-dialog v-model="dialogVisible" :title="t('core.cron.title')" width="980px" top="2vh" destroy-on-close>
+    <ProDialog v-model="dialogVisible" :title="t('core.cron.title')" width="980px" top="2vh" destroy-on-close>
       <div class="cron-editor">
         <div class="cron-editor__preset">
           <div class="cron-editor__section-title">{{ t("core.cron.presets") }}</div>
@@ -107,7 +107,7 @@
           <el-button @click="dialogVisible = false">{{ t("common.action.cancel") }}</el-button>
         </div>
       </template>
-    </el-dialog>
+    </ProDialog>
   </div>
 </template>
 
@@ -116,6 +116,7 @@ import { computed, defineComponent, h, reactive, ref, watch } from "vue";
 import type { PropType } from "vue";
 import { ElCheckbox, ElCheckboxGroup, ElInputNumber, ElRadio } from "element-plus";
 import { Operation } from "@element-plus/icons-vue";
+import ProDialog from "@/components/Dialog/ProDialog.vue";
 import { useLocaleStore } from "@/locales";
 
 const { t } = useLocaleStore();
@@ -669,7 +670,7 @@ const CronSegmentEditor = defineComponent({
   gap: 8px;
   padding: 12px;
   background: var(--el-fill-color-light);
-  border-radius: 8px;
+  border-radius: var(--admin-page-radius);
 }
 .cron-editor__preset-list {
   display: flex;

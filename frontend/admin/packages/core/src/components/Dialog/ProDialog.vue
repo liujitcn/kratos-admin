@@ -1,5 +1,6 @@
 <template>
   <el-dialog
+    class="pro-dialog"
     :model-value="modelValue"
     :title="title"
     :width="width"

@@ -27,56 +27,40 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 定时任务日志状态。
-type BaseJobLogStatus int32
+// 定时任务选项查询条件
+type OptionBaseJobRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
 
-const (
-	// 未指定定时任务日志状态。
-	BaseJobLogStatus_BASE_JOB_LOG_STATUS_UNSPECIFIED BaseJobLogStatus = 0
-	// 成功。
-	BaseJobLogStatus_BASE_JOB_LOG_STATUS_SUCCESS BaseJobLogStatus = 1
-	// 失败。
-	BaseJobLogStatus_BASE_JOB_LOG_STATUS_FAIL BaseJobLogStatus = 2
-)
+func (x *OptionBaseJobRequest) Reset() {
+	*x = OptionBaseJobRequest{}
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
 
-// Enum value maps for BaseJobLogStatus.
-var (
-	BaseJobLogStatus_name = map[int32]string{
-		0: "BASE_JOB_LOG_STATUS_UNSPECIFIED",
-		1: "BASE_JOB_LOG_STATUS_SUCCESS",
-		2: "BASE_JOB_LOG_STATUS_FAIL",
+func (x *OptionBaseJobRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OptionBaseJobRequest) ProtoMessage() {}
+
+func (x *OptionBaseJobRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
 	}
-	BaseJobLogStatus_value = map[string]int32{
-		"BASE_JOB_LOG_STATUS_UNSPECIFIED": 0,
-		"BASE_JOB_LOG_STATUS_SUCCESS":     1,
-		"BASE_JOB_LOG_STATUS_FAIL":        2,
-	}
-)
-
-func (x BaseJobLogStatus) Enum() *BaseJobLogStatus {
-	p := new(BaseJobLogStatus)
-	*p = x
-	return p
+	return mi.MessageOf(x)
 }
 
-func (x BaseJobLogStatus) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (BaseJobLogStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_system_admin_v1_base_job_proto_enumTypes[0].Descriptor()
-}
-
-func (BaseJobLogStatus) Type() protoreflect.EnumType {
-	return &file_system_admin_v1_base_job_proto_enumTypes[0]
-}
-
-func (x BaseJobLogStatus) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use BaseJobLogStatus.Descriptor instead.
-func (BaseJobLogStatus) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use OptionBaseJobRequest.ProtoReflect.Descriptor instead.
+func (*OptionBaseJobRequest) Descriptor() ([]byte, []int) {
 	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{0}
 }
 
@@ -94,7 +78,7 @@ type PageBaseJobRequest struct {
 
 func (x *PageBaseJobRequest) Reset() {
 	*x = PageBaseJobRequest{}
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[0]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -106,7 +90,7 @@ func (x *PageBaseJobRequest) String() string {
 func (*PageBaseJobRequest) ProtoMessage() {}
 
 func (x *PageBaseJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[0]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -119,7 +103,7 @@ func (x *PageBaseJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageBaseJobRequest.ProtoReflect.Descriptor instead.
 func (*PageBaseJobRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{0}
+	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *PageBaseJobRequest) GetName() string {
@@ -168,7 +152,7 @@ type PageBaseJobResponse struct {
 
 func (x *PageBaseJobResponse) Reset() {
 	*x = PageBaseJobResponse{}
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[1]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -180,7 +164,7 @@ func (x *PageBaseJobResponse) String() string {
 func (*PageBaseJobResponse) ProtoMessage() {}
 
 func (x *PageBaseJobResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[1]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -193,7 +177,7 @@ func (x *PageBaseJobResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageBaseJobResponse.ProtoReflect.Descriptor instead.
 func (*PageBaseJobResponse) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{1}
+	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *PageBaseJobResponse) GetBaseJobs() []*BaseJob {
@@ -210,136 +194,6 @@ func (x *PageBaseJobResponse) GetTotal() int32 {
 	return 0
 }
 
-// 定时任务日志分页查询条件
-type PageBaseJobLogRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	JobId         int64                  `protobuf:"varint,2,opt,name=job_id,json=jobId,proto3" json:"job_id,omitempty"`                                  // 任务ID
-	Status        *BaseJobLogStatus      `protobuf:"varint,6,opt,name=status,proto3,enum=system.admin.v1.BaseJobLogStatus,oneof" json:"status,omitempty"` // 状态
-	ExecuteTime   []string               `protobuf:"bytes,8,rep,name=execute_time,json=executeTime,proto3" json:"execute_time,omitempty"`                 // 执行时间
-	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                          // 当前页码
-	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                       // 每一页的行数
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PageBaseJobLogRequest) Reset() {
-	*x = PageBaseJobLogRequest{}
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PageBaseJobLogRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PageBaseJobLogRequest) ProtoMessage() {}
-
-func (x *PageBaseJobLogRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PageBaseJobLogRequest.ProtoReflect.Descriptor instead.
-func (*PageBaseJobLogRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *PageBaseJobLogRequest) GetJobId() int64 {
-	if x != nil {
-		return x.JobId
-	}
-	return 0
-}
-
-func (x *PageBaseJobLogRequest) GetStatus() BaseJobLogStatus {
-	if x != nil && x.Status != nil {
-		return *x.Status
-	}
-	return BaseJobLogStatus_BASE_JOB_LOG_STATUS_UNSPECIFIED
-}
-
-func (x *PageBaseJobLogRequest) GetExecuteTime() []string {
-	if x != nil {
-		return x.ExecuteTime
-	}
-	return nil
-}
-
-func (x *PageBaseJobLogRequest) GetPageNum() int64 {
-	if x != nil {
-		return x.PageNum
-	}
-	return 0
-}
-
-func (x *PageBaseJobLogRequest) GetPageSize() int64 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-// 定时任务日志分页响应
-type PageBaseJobLogResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	BaseJobLogs   []*BaseJobLog          `protobuf:"bytes,1,rep,name=base_job_logs,json=baseJobLogs,proto3" json:"base_job_logs,omitempty"` // 分页数据
-	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                                 // 总数
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PageBaseJobLogResponse) Reset() {
-	*x = PageBaseJobLogResponse{}
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PageBaseJobLogResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PageBaseJobLogResponse) ProtoMessage() {}
-
-func (x *PageBaseJobLogResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PageBaseJobLogResponse.ProtoReflect.Descriptor instead.
-func (*PageBaseJobLogResponse) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *PageBaseJobLogResponse) GetBaseJobLogs() []*BaseJobLog {
-	if x != nil {
-		return x.BaseJobLogs
-	}
-	return nil
-}
-
-func (x *PageBaseJobLogResponse) GetTotal() int32 {
-	if x != nil {
-		return x.Total
-	}
-	return 0
-}
-
 // 查询定时任务请求参数
 type GetBaseJobRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -350,7 +204,7 @@ type GetBaseJobRequest struct {
 
 func (x *GetBaseJobRequest) Reset() {
 	*x = GetBaseJobRequest{}
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[4]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -362,7 +216,7 @@ func (x *GetBaseJobRequest) String() string {
 func (*GetBaseJobRequest) ProtoMessage() {}
 
 func (x *GetBaseJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[4]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -375,7 +229,7 @@ func (x *GetBaseJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBaseJobRequest.ProtoReflect.Descriptor instead.
 func (*GetBaseJobRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{4}
+	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetBaseJobRequest) GetId() int64 {
@@ -401,7 +255,7 @@ type BaseJobForm struct {
 
 func (x *BaseJobForm) Reset() {
 	*x = BaseJobForm{}
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[5]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -413,7 +267,7 @@ func (x *BaseJobForm) String() string {
 func (*BaseJobForm) ProtoMessage() {}
 
 func (x *BaseJobForm) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[5]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -426,7 +280,7 @@ func (x *BaseJobForm) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseJobForm.ProtoReflect.Descriptor instead.
 func (*BaseJobForm) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{5}
+	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *BaseJobForm) GetId() int64 {
@@ -478,152 +332,6 @@ func (x *BaseJobForm) GetI18ns() []*BaseI18n {
 	return nil
 }
 
-// 查询定时任务日志请求参数
-type GetBaseJobLogRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 任务日志ID
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetBaseJobLogRequest) Reset() {
-	*x = GetBaseJobLogRequest{}
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetBaseJobLogRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetBaseJobLogRequest) ProtoMessage() {}
-
-func (x *GetBaseJobLogRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetBaseJobLogRequest.ProtoReflect.Descriptor instead.
-func (*GetBaseJobLogRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *GetBaseJobLogRequest) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-// 定时任务日志
-type BaseJobLog struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                               // 任务日志ID
-	JobId         int64                  `protobuf:"varint,2,opt,name=job_id,json=jobId,proto3" json:"job_id,omitempty"`                            // 任务ID
-	Input         string                 `protobuf:"bytes,3,opt,name=input,proto3" json:"input,omitempty"`                                          // 执行参数
-	Output        string                 `protobuf:"bytes,4,opt,name=output,proto3" json:"output,omitempty"`                                        // 输出结果
-	Error         string                 `protobuf:"bytes,5,opt,name=error,proto3" json:"error,omitempty"`                                          // 错误信息
-	Status        BaseJobLogStatus       `protobuf:"varint,6,opt,name=status,proto3,enum=system.admin.v1.BaseJobLogStatus" json:"status,omitempty"` // 状态：1、成功。2、失败。
-	ProcessTime   string                 `protobuf:"bytes,7,opt,name=process_time,json=processTime,proto3" json:"process_time,omitempty"`           // 消耗时间/毫秒
-	ExecuteTime   string                 `protobuf:"bytes,8,opt,name=execute_time,json=executeTime,proto3" json:"execute_time,omitempty"`           // 执行时间
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *BaseJobLog) Reset() {
-	*x = BaseJobLog{}
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BaseJobLog) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BaseJobLog) ProtoMessage() {}
-
-func (x *BaseJobLog) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use BaseJobLog.ProtoReflect.Descriptor instead.
-func (*BaseJobLog) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *BaseJobLog) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *BaseJobLog) GetJobId() int64 {
-	if x != nil {
-		return x.JobId
-	}
-	return 0
-}
-
-func (x *BaseJobLog) GetInput() string {
-	if x != nil {
-		return x.Input
-	}
-	return ""
-}
-
-func (x *BaseJobLog) GetOutput() string {
-	if x != nil {
-		return x.Output
-	}
-	return ""
-}
-
-func (x *BaseJobLog) GetError() string {
-	if x != nil {
-		return x.Error
-	}
-	return ""
-}
-
-func (x *BaseJobLog) GetStatus() BaseJobLogStatus {
-	if x != nil {
-		return x.Status
-	}
-	return BaseJobLogStatus_BASE_JOB_LOG_STATUS_UNSPECIFIED
-}
-
-func (x *BaseJobLog) GetProcessTime() string {
-	if x != nil {
-		return x.ProcessTime
-	}
-	return ""
-}
-
-func (x *BaseJobLog) GetExecuteTime() string {
-	if x != nil {
-		return x.ExecuteTime
-	}
-	return ""
-}
-
 // 创建定时任务请求参数
 type CreateBaseJobRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -634,7 +342,7 @@ type CreateBaseJobRequest struct {
 
 func (x *CreateBaseJobRequest) Reset() {
 	*x = CreateBaseJobRequest{}
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[8]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -646,7 +354,7 @@ func (x *CreateBaseJobRequest) String() string {
 func (*CreateBaseJobRequest) ProtoMessage() {}
 
 func (x *CreateBaseJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[8]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -659,7 +367,7 @@ func (x *CreateBaseJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateBaseJobRequest.ProtoReflect.Descriptor instead.
 func (*CreateBaseJobRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{8}
+	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *CreateBaseJobRequest) GetBaseJob() *BaseJobForm {
@@ -679,7 +387,7 @@ type UpdateBaseJobRequest struct {
 
 func (x *UpdateBaseJobRequest) Reset() {
 	*x = UpdateBaseJobRequest{}
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[9]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -691,7 +399,7 @@ func (x *UpdateBaseJobRequest) String() string {
 func (*UpdateBaseJobRequest) ProtoMessage() {}
 
 func (x *UpdateBaseJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[9]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -704,7 +412,7 @@ func (x *UpdateBaseJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateBaseJobRequest.ProtoReflect.Descriptor instead.
 func (*UpdateBaseJobRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{9}
+	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *UpdateBaseJobRequest) GetBaseJob() *BaseJobForm {
@@ -724,7 +432,7 @@ type DeleteBaseJobRequest struct {
 
 func (x *DeleteBaseJobRequest) Reset() {
 	*x = DeleteBaseJobRequest{}
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[10]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -736,7 +444,7 @@ func (x *DeleteBaseJobRequest) String() string {
 func (*DeleteBaseJobRequest) ProtoMessage() {}
 
 func (x *DeleteBaseJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[10]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -749,7 +457,7 @@ func (x *DeleteBaseJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteBaseJobRequest.ProtoReflect.Descriptor instead.
 func (*DeleteBaseJobRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{10}
+	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *DeleteBaseJobRequest) GetId() string {
@@ -770,7 +478,7 @@ type SetBaseJobStatusRequest struct {
 
 func (x *SetBaseJobStatusRequest) Reset() {
 	*x = SetBaseJobStatusRequest{}
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[11]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -782,7 +490,7 @@ func (x *SetBaseJobStatusRequest) String() string {
 func (*SetBaseJobStatusRequest) ProtoMessage() {}
 
 func (x *SetBaseJobStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[11]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -795,7 +503,7 @@ func (x *SetBaseJobStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetBaseJobStatusRequest.ProtoReflect.Descriptor instead.
 func (*SetBaseJobStatusRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{11}
+	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *SetBaseJobStatusRequest) GetId() int64 {
@@ -822,7 +530,7 @@ type StartBaseJobRequest struct {
 
 func (x *StartBaseJobRequest) Reset() {
 	*x = StartBaseJobRequest{}
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[12]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -834,7 +542,7 @@ func (x *StartBaseJobRequest) String() string {
 func (*StartBaseJobRequest) ProtoMessage() {}
 
 func (x *StartBaseJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[12]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -847,7 +555,7 @@ func (x *StartBaseJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartBaseJobRequest.ProtoReflect.Descriptor instead.
 func (*StartBaseJobRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{12}
+	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *StartBaseJobRequest) GetId() int64 {
@@ -867,7 +575,7 @@ type StopBaseJobRequest struct {
 
 func (x *StopBaseJobRequest) Reset() {
 	*x = StopBaseJobRequest{}
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[13]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -879,7 +587,7 @@ func (x *StopBaseJobRequest) String() string {
 func (*StopBaseJobRequest) ProtoMessage() {}
 
 func (x *StopBaseJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[13]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -892,7 +600,7 @@ func (x *StopBaseJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopBaseJobRequest.ProtoReflect.Descriptor instead.
 func (*StopBaseJobRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{13}
+	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *StopBaseJobRequest) GetId() int64 {
@@ -912,7 +620,7 @@ type ExecuteBaseJobRequest struct {
 
 func (x *ExecuteBaseJobRequest) Reset() {
 	*x = ExecuteBaseJobRequest{}
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[14]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -924,7 +632,7 @@ func (x *ExecuteBaseJobRequest) String() string {
 func (*ExecuteBaseJobRequest) ProtoMessage() {}
 
 func (x *ExecuteBaseJobRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[14]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -937,7 +645,7 @@ func (x *ExecuteBaseJobRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExecuteBaseJobRequest.ProtoReflect.Descriptor instead.
 func (*ExecuteBaseJobRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{14}
+	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ExecuteBaseJobRequest) GetId() int64 {
@@ -958,7 +666,7 @@ type BaseJobArgs struct {
 
 func (x *BaseJobArgs) Reset() {
 	*x = BaseJobArgs{}
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[15]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -970,7 +678,7 @@ func (x *BaseJobArgs) String() string {
 func (*BaseJobArgs) ProtoMessage() {}
 
 func (x *BaseJobArgs) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[15]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -983,7 +691,7 @@ func (x *BaseJobArgs) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseJobArgs.ProtoReflect.Descriptor instead.
 func (*BaseJobArgs) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{15}
+	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *BaseJobArgs) GetKey() string {
@@ -1019,7 +727,7 @@ type BaseJob struct {
 
 func (x *BaseJob) Reset() {
 	*x = BaseJob{}
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[16]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1031,7 +739,7 @@ func (x *BaseJob) String() string {
 func (*BaseJob) ProtoMessage() {}
 
 func (x *BaseJob) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_job_proto_msgTypes[16]
+	mi := &file_system_admin_v1_base_job_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1044,7 +752,7 @@ func (x *BaseJob) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseJob.ProtoReflect.Descriptor instead.
 func (*BaseJob) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{16}
+	return file_system_admin_v1_base_job_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *BaseJob) GetId() int64 {
@@ -1121,7 +829,8 @@ var File_system_admin_v1_base_job_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_job_proto_rawDesc = "" +
 	"\n" +
-	"\x1esystem/admin/v1/base_job.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1fsystem/admin/v1/base_i18n.proto\"\xbc\x02\n" +
+	"\x1esystem/admin/v1/base_job.proto\x12\x0fsystem.admin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1fsystem/admin/v1/base_i18n.proto\"\x16\n" +
+	"\x14OptionBaseJobRequest\"\xbc\x02\n" +
 	"\x12PageBaseJobRequest\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f任务名称R\x04name\x127\n" +
 	"\rinvoke_target\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f调用目标R\finvokeTarget\x12<\n" +
@@ -1131,16 +840,6 @@ const file_system_admin_v1_base_job_proto_rawDesc = "" +
 	"\a_status\"\x84\x01\n" +
 	"\x13PageBaseJobResponse\x12I\n" +
 	"\tbase_jobs\x18\x01 \x03(\v2\x18.system.admin.v1.BaseJobB\x12\xbaG\x0f\x92\x02\f分页数据R\bbaseJobs\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xcc\x02\n" +
-	"\x15PageBaseJobLogRequest\x12%\n" +
-	"\x06job_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b任务IDR\x05jobId\x12L\n" +
-	"\x06status\x18\x06 \x01(\x0e2!.system.admin.v1.BaseJobLogStatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x125\n" +
-	"\fexecute_time\x18\b \x03(\tB\x12\xbaG\x0f\x92\x02\f执行时间R\vexecuteTime\x129\n" +
-	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
-	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
-	"\a_status\"\x91\x01\n" +
-	"\x16PageBaseJobLogResponse\x12S\n" +
-	"\rbase_job_logs\x18\x01 \x03(\v2\x1b.system.admin.v1.BaseJobLogB\x12\xbaG\x0f\x92\x02\f分页数据R\vbaseJobLogs\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"3\n" +
 	"\x11GetBaseJobRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b任务IDR\x02id\"\xeb\x06\n" +
@@ -1154,19 +853,7 @@ const file_system_admin_v1_base_job_proto_rawDesc = "" +
 	"\x0fcron_expression\x18\x05 \x01(\tB\xaa\x01\xbaG\x10\x92\x02\rcron表达式\xbaH\x93\x01\xba\x01\x8f\x01\n" +
 	"3system.admin.base.job.entity.cron_expression.length\x122cron表达式不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\x0ecronExpression\x12?\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12X\n" +
-	"\x05i18ns\x18\a \x03(\v2\x19.system.admin.v1.BaseI18nB'\xbaG$\x92\x02!定时任务名称多语言翻译R\x05i18ns\"<\n" +
-	"\x14GetBaseJobLogRequest\x12$\n" +
-	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e任务日志IDR\x02id\"\xb7\x03\n" +
-	"\n" +
-	"BaseJobLog\x12$\n" +
-	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e任务日志IDR\x02id\x12%\n" +
-	"\x06job_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b任务IDR\x05jobId\x12+\n" +
-	"\x05input\x18\x03 \x01(\tB\x15\xbaG\x12x\xff\x01\x92\x02\f执行参数R\x05input\x12*\n" +
-	"\x06output\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f输出结果R\x06output\x12(\n" +
-	"\x05error\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f错误信息R\x05error\x12d\n" +
-	"\x06status\x18\x06 \x01(\x0e2!.system.admin.v1.BaseJobLogStatusB)\xbaG&\x92\x02#状态：1、成功。2、失败。R\x06status\x12<\n" +
-	"\fprocess_time\x18\a \x01(\tB\x19\xbaG\x16\x92\x02\x13消耗时间/毫秒R\vprocessTime\x125\n" +
-	"\fexecute_time\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\f执行时间R\vexecuteTime\"o\n" +
+	"\x05i18ns\x18\a \x03(\v2\x19.system.admin.v1.BaseI18nB'\xbaG$\x92\x02!定时任务名称多语言翻译R\x05i18ns\"o\n" +
 	"\x14CreateBaseJobRequest\x12W\n" +
 	"\bbase_job\x18\x01 \x01(\v2\x1c.system.admin.v1.BaseJobFormB\x1e\xbaG\x15\x92\x02\x12定时任务表单\xbaH\x03\xc8\x01\x01R\abaseJob\"o\n" +
 	"\x14UpdateBaseJobRequest\x12W\n" +
@@ -1198,18 +885,12 @@ const file_system_admin_v1_base_job_proto_rawDesc = "" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12Y\n" +
-	"\x05i18ns\x18\xca\x01 \x03(\v2\x19.system.admin.v1.BaseI18nB'\xbaG$\x92\x02!定时任务名称多语言翻译R\x05i18ns*v\n" +
-	"\x10BaseJobLogStatus\x12#\n" +
-	"\x1fBASE_JOB_LOG_STATUS_UNSPECIFIED\x10\x00\x12\x1f\n" +
-	"\x1bBASE_JOB_LOG_STATUS_SUCCESS\x10\x01\x12\x1c\n" +
-	"\x18BASE_JOB_LOG_STATUS_FAIL\x10\x022\xff\n" +
+	"\x05i18ns\x18\xca\x01 \x03(\v2\x19.system.admin.v1.BaseI18nB'\xbaG$\x92\x02!定时任务名称多语言翻译R\x05i18ns2\xf9\t\n" +
+	"\x0eBaseJobService\x12~\n" +
+	"\rOptionBaseJob\x12%.system.admin.v1.OptionBaseJobRequest\x1a\x1f.common.v1.SelectOptionResponse\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/api/v1/admin/base/job/option\x12x\n" +
+	"\vPageBaseJob\x12#.system.admin.v1.PageBaseJobRequest\x1a$.system.admin.v1.PageBaseJobResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/v1/admin/base/job\x12s\n" +
 	"\n" +
-	"\x0eBaseJobService\x12x\n" +
-	"\vPageBaseJob\x12#.system.admin.v1.PageBaseJobRequest\x1a$.system.admin.v1.PageBaseJobResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/v1/admin/base/job\x12\x85\x01\n" +
-	"\x0ePageBaseJobLog\x12&.system.admin.v1.PageBaseJobLogRequest\x1a'.system.admin.v1.PageBaseJobLogResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/admin/base/job-log\x12s\n" +
-	"\n" +
-	"GetBaseJob\x12\".system.admin.v1.GetBaseJobRequest\x1a\x1c.system.admin.v1.BaseJobForm\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/admin/base/job/{id}\x12|\n" +
-	"\rGetBaseJobLog\x12%.system.admin.v1.GetBaseJobLogRequest\x1a\x1b.system.admin.v1.BaseJobLog\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/base/job-log/{id}\x12x\n" +
+	"GetBaseJob\x12\".system.admin.v1.GetBaseJobRequest\x1a\x1c.system.admin.v1.BaseJobForm\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/admin/base/job/{id}\x12x\n" +
 	"\rCreateBaseJob\x12%.system.admin.v1.CreateBaseJobRequest\x1a\x16.google.protobuf.Empty\"(\x82\xd3\xe4\x93\x02\":\bbase_job\"\x16/api/v1/admin/base/job\x12\x86\x01\n" +
 	"\rUpdateBaseJob\x12%.system.admin.v1.UpdateBaseJobRequest\x1a\x16.google.protobuf.Empty\"6\x82\xd3\xe4\x93\x020:\bbase_job\x1a$/api/v1/admin/base/job/{base_job.id}\x12s\n" +
 	"\rDeleteBaseJob\x12%.system.admin.v1.DeleteBaseJobRequest\x1a\x16.google.protobuf.Empty\"#\x82\xd3\xe4\x93\x02\x1d*\x1b/api/v1/admin/base/job/{id}\x12\x83\x01\n" +
@@ -1231,72 +912,63 @@ func file_system_admin_v1_base_job_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_base_job_proto_rawDescData
 }
 
-var file_system_admin_v1_base_job_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_system_admin_v1_base_job_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
+var file_system_admin_v1_base_job_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_system_admin_v1_base_job_proto_goTypes = []any{
-	(BaseJobLogStatus)(0),           // 0: system.admin.v1.BaseJobLogStatus
+	(*OptionBaseJobRequest)(nil),    // 0: system.admin.v1.OptionBaseJobRequest
 	(*PageBaseJobRequest)(nil),      // 1: system.admin.v1.PageBaseJobRequest
 	(*PageBaseJobResponse)(nil),     // 2: system.admin.v1.PageBaseJobResponse
-	(*PageBaseJobLogRequest)(nil),   // 3: system.admin.v1.PageBaseJobLogRequest
-	(*PageBaseJobLogResponse)(nil),  // 4: system.admin.v1.PageBaseJobLogResponse
-	(*GetBaseJobRequest)(nil),       // 5: system.admin.v1.GetBaseJobRequest
-	(*BaseJobForm)(nil),             // 6: system.admin.v1.BaseJobForm
-	(*GetBaseJobLogRequest)(nil),    // 7: system.admin.v1.GetBaseJobLogRequest
-	(*BaseJobLog)(nil),              // 8: system.admin.v1.BaseJobLog
-	(*CreateBaseJobRequest)(nil),    // 9: system.admin.v1.CreateBaseJobRequest
-	(*UpdateBaseJobRequest)(nil),    // 10: system.admin.v1.UpdateBaseJobRequest
-	(*DeleteBaseJobRequest)(nil),    // 11: system.admin.v1.DeleteBaseJobRequest
-	(*SetBaseJobStatusRequest)(nil), // 12: system.admin.v1.SetBaseJobStatusRequest
-	(*StartBaseJobRequest)(nil),     // 13: system.admin.v1.StartBaseJobRequest
-	(*StopBaseJobRequest)(nil),      // 14: system.admin.v1.StopBaseJobRequest
-	(*ExecuteBaseJobRequest)(nil),   // 15: system.admin.v1.ExecuteBaseJobRequest
-	(*BaseJobArgs)(nil),             // 16: system.admin.v1.BaseJobArgs
-	(*BaseJob)(nil),                 // 17: system.admin.v1.BaseJob
-	(v1.Status)(0),                  // 18: common.v1.Status
-	(*BaseI18n)(nil),                // 19: system.admin.v1.BaseI18n
-	(*emptypb.Empty)(nil),           // 20: google.protobuf.Empty
+	(*GetBaseJobRequest)(nil),       // 3: system.admin.v1.GetBaseJobRequest
+	(*BaseJobForm)(nil),             // 4: system.admin.v1.BaseJobForm
+	(*CreateBaseJobRequest)(nil),    // 5: system.admin.v1.CreateBaseJobRequest
+	(*UpdateBaseJobRequest)(nil),    // 6: system.admin.v1.UpdateBaseJobRequest
+	(*DeleteBaseJobRequest)(nil),    // 7: system.admin.v1.DeleteBaseJobRequest
+	(*SetBaseJobStatusRequest)(nil), // 8: system.admin.v1.SetBaseJobStatusRequest
+	(*StartBaseJobRequest)(nil),     // 9: system.admin.v1.StartBaseJobRequest
+	(*StopBaseJobRequest)(nil),      // 10: system.admin.v1.StopBaseJobRequest
+	(*ExecuteBaseJobRequest)(nil),   // 11: system.admin.v1.ExecuteBaseJobRequest
+	(*BaseJobArgs)(nil),             // 12: system.admin.v1.BaseJobArgs
+	(*BaseJob)(nil),                 // 13: system.admin.v1.BaseJob
+	(v1.Status)(0),                  // 14: common.v1.Status
+	(*BaseI18n)(nil),                // 15: system.admin.v1.BaseI18n
+	(*v1.SelectOptionResponse)(nil), // 16: common.v1.SelectOptionResponse
+	(*emptypb.Empty)(nil),           // 17: google.protobuf.Empty
 }
 var file_system_admin_v1_base_job_proto_depIdxs = []int32{
-	18, // 0: system.admin.v1.PageBaseJobRequest.status:type_name -> common.v1.Status
-	17, // 1: system.admin.v1.PageBaseJobResponse.base_jobs:type_name -> system.admin.v1.BaseJob
-	0,  // 2: system.admin.v1.PageBaseJobLogRequest.status:type_name -> system.admin.v1.BaseJobLogStatus
-	8,  // 3: system.admin.v1.PageBaseJobLogResponse.base_job_logs:type_name -> system.admin.v1.BaseJobLog
-	16, // 4: system.admin.v1.BaseJobForm.args:type_name -> system.admin.v1.BaseJobArgs
-	18, // 5: system.admin.v1.BaseJobForm.status:type_name -> common.v1.Status
-	19, // 6: system.admin.v1.BaseJobForm.i18ns:type_name -> system.admin.v1.BaseI18n
-	0,  // 7: system.admin.v1.BaseJobLog.status:type_name -> system.admin.v1.BaseJobLogStatus
-	6,  // 8: system.admin.v1.CreateBaseJobRequest.base_job:type_name -> system.admin.v1.BaseJobForm
-	6,  // 9: system.admin.v1.UpdateBaseJobRequest.base_job:type_name -> system.admin.v1.BaseJobForm
-	16, // 10: system.admin.v1.BaseJob.args:type_name -> system.admin.v1.BaseJobArgs
-	18, // 11: system.admin.v1.BaseJob.status:type_name -> common.v1.Status
-	19, // 12: system.admin.v1.BaseJob.i18ns:type_name -> system.admin.v1.BaseI18n
-	1,  // 13: system.admin.v1.BaseJobService.PageBaseJob:input_type -> system.admin.v1.PageBaseJobRequest
-	3,  // 14: system.admin.v1.BaseJobService.PageBaseJobLog:input_type -> system.admin.v1.PageBaseJobLogRequest
-	5,  // 15: system.admin.v1.BaseJobService.GetBaseJob:input_type -> system.admin.v1.GetBaseJobRequest
-	7,  // 16: system.admin.v1.BaseJobService.GetBaseJobLog:input_type -> system.admin.v1.GetBaseJobLogRequest
-	9,  // 17: system.admin.v1.BaseJobService.CreateBaseJob:input_type -> system.admin.v1.CreateBaseJobRequest
-	10, // 18: system.admin.v1.BaseJobService.UpdateBaseJob:input_type -> system.admin.v1.UpdateBaseJobRequest
-	11, // 19: system.admin.v1.BaseJobService.DeleteBaseJob:input_type -> system.admin.v1.DeleteBaseJobRequest
-	12, // 20: system.admin.v1.BaseJobService.SetBaseJobStatus:input_type -> system.admin.v1.SetBaseJobStatusRequest
-	13, // 21: system.admin.v1.BaseJobService.StartBaseJob:input_type -> system.admin.v1.StartBaseJobRequest
-	14, // 22: system.admin.v1.BaseJobService.StopBaseJob:input_type -> system.admin.v1.StopBaseJobRequest
-	15, // 23: system.admin.v1.BaseJobService.ExecuteBaseJob:input_type -> system.admin.v1.ExecuteBaseJobRequest
-	2,  // 24: system.admin.v1.BaseJobService.PageBaseJob:output_type -> system.admin.v1.PageBaseJobResponse
-	4,  // 25: system.admin.v1.BaseJobService.PageBaseJobLog:output_type -> system.admin.v1.PageBaseJobLogResponse
-	6,  // 26: system.admin.v1.BaseJobService.GetBaseJob:output_type -> system.admin.v1.BaseJobForm
-	8,  // 27: system.admin.v1.BaseJobService.GetBaseJobLog:output_type -> system.admin.v1.BaseJobLog
-	20, // 28: system.admin.v1.BaseJobService.CreateBaseJob:output_type -> google.protobuf.Empty
-	20, // 29: system.admin.v1.BaseJobService.UpdateBaseJob:output_type -> google.protobuf.Empty
-	20, // 30: system.admin.v1.BaseJobService.DeleteBaseJob:output_type -> google.protobuf.Empty
-	20, // 31: system.admin.v1.BaseJobService.SetBaseJobStatus:output_type -> google.protobuf.Empty
-	20, // 32: system.admin.v1.BaseJobService.StartBaseJob:output_type -> google.protobuf.Empty
-	20, // 33: system.admin.v1.BaseJobService.StopBaseJob:output_type -> google.protobuf.Empty
-	20, // 34: system.admin.v1.BaseJobService.ExecuteBaseJob:output_type -> google.protobuf.Empty
-	24, // [24:35] is the sub-list for method output_type
-	13, // [13:24] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	14, // 0: system.admin.v1.PageBaseJobRequest.status:type_name -> common.v1.Status
+	13, // 1: system.admin.v1.PageBaseJobResponse.base_jobs:type_name -> system.admin.v1.BaseJob
+	12, // 2: system.admin.v1.BaseJobForm.args:type_name -> system.admin.v1.BaseJobArgs
+	14, // 3: system.admin.v1.BaseJobForm.status:type_name -> common.v1.Status
+	15, // 4: system.admin.v1.BaseJobForm.i18ns:type_name -> system.admin.v1.BaseI18n
+	4,  // 5: system.admin.v1.CreateBaseJobRequest.base_job:type_name -> system.admin.v1.BaseJobForm
+	4,  // 6: system.admin.v1.UpdateBaseJobRequest.base_job:type_name -> system.admin.v1.BaseJobForm
+	12, // 7: system.admin.v1.BaseJob.args:type_name -> system.admin.v1.BaseJobArgs
+	14, // 8: system.admin.v1.BaseJob.status:type_name -> common.v1.Status
+	15, // 9: system.admin.v1.BaseJob.i18ns:type_name -> system.admin.v1.BaseI18n
+	0,  // 10: system.admin.v1.BaseJobService.OptionBaseJob:input_type -> system.admin.v1.OptionBaseJobRequest
+	1,  // 11: system.admin.v1.BaseJobService.PageBaseJob:input_type -> system.admin.v1.PageBaseJobRequest
+	3,  // 12: system.admin.v1.BaseJobService.GetBaseJob:input_type -> system.admin.v1.GetBaseJobRequest
+	5,  // 13: system.admin.v1.BaseJobService.CreateBaseJob:input_type -> system.admin.v1.CreateBaseJobRequest
+	6,  // 14: system.admin.v1.BaseJobService.UpdateBaseJob:input_type -> system.admin.v1.UpdateBaseJobRequest
+	7,  // 15: system.admin.v1.BaseJobService.DeleteBaseJob:input_type -> system.admin.v1.DeleteBaseJobRequest
+	8,  // 16: system.admin.v1.BaseJobService.SetBaseJobStatus:input_type -> system.admin.v1.SetBaseJobStatusRequest
+	9,  // 17: system.admin.v1.BaseJobService.StartBaseJob:input_type -> system.admin.v1.StartBaseJobRequest
+	10, // 18: system.admin.v1.BaseJobService.StopBaseJob:input_type -> system.admin.v1.StopBaseJobRequest
+	11, // 19: system.admin.v1.BaseJobService.ExecuteBaseJob:input_type -> system.admin.v1.ExecuteBaseJobRequest
+	16, // 20: system.admin.v1.BaseJobService.OptionBaseJob:output_type -> common.v1.SelectOptionResponse
+	2,  // 21: system.admin.v1.BaseJobService.PageBaseJob:output_type -> system.admin.v1.PageBaseJobResponse
+	4,  // 22: system.admin.v1.BaseJobService.GetBaseJob:output_type -> system.admin.v1.BaseJobForm
+	17, // 23: system.admin.v1.BaseJobService.CreateBaseJob:output_type -> google.protobuf.Empty
+	17, // 24: system.admin.v1.BaseJobService.UpdateBaseJob:output_type -> google.protobuf.Empty
+	17, // 25: system.admin.v1.BaseJobService.DeleteBaseJob:output_type -> google.protobuf.Empty
+	17, // 26: system.admin.v1.BaseJobService.SetBaseJobStatus:output_type -> google.protobuf.Empty
+	17, // 27: system.admin.v1.BaseJobService.StartBaseJob:output_type -> google.protobuf.Empty
+	17, // 28: system.admin.v1.BaseJobService.StopBaseJob:output_type -> google.protobuf.Empty
+	17, // 29: system.admin.v1.BaseJobService.ExecuteBaseJob:output_type -> google.protobuf.Empty
+	20, // [20:30] is the sub-list for method output_type
+	10, // [10:20] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_job_proto_init() }
@@ -1305,21 +977,19 @@ func file_system_admin_v1_base_job_proto_init() {
 		return
 	}
 	file_system_admin_v1_base_i18n_proto_init()
-	file_system_admin_v1_base_job_proto_msgTypes[0].OneofWrappers = []any{}
-	file_system_admin_v1_base_job_proto_msgTypes[2].OneofWrappers = []any{}
+	file_system_admin_v1_base_job_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_base_job_proto_rawDesc), len(file_system_admin_v1_base_job_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   17,
+			NumEnums:      0,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_system_admin_v1_base_job_proto_goTypes,
 		DependencyIndexes: file_system_admin_v1_base_job_proto_depIdxs,
-		EnumInfos:         file_system_admin_v1_base_job_proto_enumTypes,
 		MessageInfos:      file_system_admin_v1_base_job_proto_msgTypes,
 	}.Build()
 	File_system_admin_v1_base_job_proto = out.File

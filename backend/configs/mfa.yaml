@@ -1,32 +1,17 @@
 mfa:
-  # 生产环境必须通过 mfa.<env>.yaml 或 Secret Manager 注入 encryption_key。
-  # 登录阶段 MFA 挑战有效期。
-  login_challenge_expire: 5m
-  # 强制绑定 MFA 票据有效期。
-  setup_ticket_expire: 10m
-  # 单次 MFA 登录挑战的最大失败次数。
-  login_max_attempts: 5
-  # 每次生成的恢复码数量。
-  recovery_code_count: 10
-  # 单个恢复码长度。
-  recovery_code_length: 10
-  totp:
-    issuer: Kratos Admin
-    period: 30
-    skew: 1
-    secret_size: 20
-    digits: 6
-    algorithm: SHA1
-  webauthn:
-    rp_id: localhost
-    rp_origins:
-      - http://localhost:8848
-      - http://127.0.0.1:8848
-      - http://localhost:3000
-      - http://127.0.0.1:3000
-      - http://localhost:5173
-      - http://127.0.0.1:5173
-      - http://localhost:5002
-      - http://127.0.0.1:5002
-      - http://localhost:5004
-      - http://127.0.0.1:5004
+    login_challenge_expire: 300s
+    login_max_attempts: 5
+    recovery_code_count: 10
+    recovery_code_length: 10
+    setup_ticket_expire: 600s
+    totp:
+        algorithm: SHA1
+        digits: 6
+        issuer: Kratos Admin
+        period: 30
+        secret_size: 20
+        skew: 1
+    webauthn:
+        rp_id: localhost
+        rp_origins:
+            - https://test.com

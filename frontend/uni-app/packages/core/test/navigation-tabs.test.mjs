@@ -40,7 +40,7 @@ async function loadNavigationRuntime(state) {
       {
         name: 'uni-tabs-test-runtime',
         setup(buildApi) {
-          buildApi.onResolve({ filter: /\/api\/base\/menu(?:\.ts)?$/ }, () => ({
+          buildApi.onResolve({ filter: /\/api\/system\/app\/v1\/base_menu(?:\.ts)?$/ }, () => ({
             path: 'menu-test-runtime',
             namespace: 'test',
           }))
@@ -124,8 +124,8 @@ function createState(pages) {
 
 const menus = [
   {
-    id: 99901,
-    parentId: 999,
+    id: 99010000,
+    parentId: 99000000,
     name: 'AppHome',
     path: 'app/home',
     viewKey: 'HOME',
@@ -134,8 +134,8 @@ const menus = [
     inTabBar: true,
   },
   {
-    id: 99909,
-    parentId: 999,
+    id: 99090000,
+    parentId: 99000000,
     name: 'AppMy',
     path: 'app/my',
     viewKey: 'PROFILE_HOME',

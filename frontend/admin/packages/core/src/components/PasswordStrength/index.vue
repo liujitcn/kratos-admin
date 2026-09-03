@@ -53,7 +53,7 @@ const strength = computed(() => getPasswordStrength(props.password));
   padding: 14px 16px;
   background: #fafbfd;
   border: 1px solid #ebeef5;
-  border-radius: 10px;
+  border-radius: var(--admin-page-radius);
 }
 .password-strength__header {
   display: flex;

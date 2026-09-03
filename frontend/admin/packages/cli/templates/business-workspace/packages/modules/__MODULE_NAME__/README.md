@@ -9,8 +9,7 @@
 ```text
 packages/modules/__MODULE_NAME__
 ├── src
-│   ├── api
-│   │   └── index.ts              # 请求公开入口；按需新增 base、system 等领域目录
+│   ├── api                       # 按 Proto 完整路径新增服务目录和同名请求文件
 │   ├── rpc
 │   │   └── README.md             # Proto 生成目录说明
 │   ├── components                # 可选的模块内共享组件
@@ -29,7 +28,7 @@ packages/modules/__MODULE_NAME__
 | --------------------------- | --------------------------------------------------------------- |
 | `src/index.ts`              | npm 主入口，导出 `__MODULE_IDENTIFIER__`。                      |
 | `src/module.ts`             | 收集 `src/views/**/*.vue` 并声明名为 `__MODULE_NAME__` 的模块。 |
-| `src/api/index.ts`          | 当前模块请求导出入口；具体文件按 Proto 一级领域组织。           |
+| `src/api/<proto-path>/*.ts`  | 与 Proto 服务文件同路径、同名的请求封装。                       |
 | `src/rpc/README.md`         | 当前模块 RPC 生成目录说明，生成类型通过模块包子路径公开。       |
 | `src/views/index/index.vue` | 模板自带的模块首页。                                            |
 | `package.json`              | 声明依赖、模块入口、API/RPC 子路径和 npm 发布配置。             |
@@ -39,7 +38,7 @@ packages/modules/__MODULE_NAME__
 
 ## 开发约束
 
-- API 放在 `src/api/<proto-domain>`，例如 `src/api/base`、`src/api/system`；RPC 保留 `src/rpc/<proto-domain>/<version>` 等完整生成层级，不扁平化。
+- API 放在与 Proto 完整路径一致的 `src/api/<proto-path>`，例如 `src/api/base/v1`、`src/api/system/admin/v1`；文件名与服务文件名保持一致。RPC 保留 `src/rpc/<proto-domain>/<version>` 等完整生成层级，不扁平化。
 - 页面放在 `src/views`。页面私有组件就近放置，需要模块内多个页面复用时再创建 `src/components`。
 - 底座能力通过 `@liujitcn/kratos-admin-core` 的公开子路径引用，不要依赖 core 源码目录。
 - 跨模块页面跳转使用 Vue Router；跨模块代码复用需要对方先提供 npm 公开导出。

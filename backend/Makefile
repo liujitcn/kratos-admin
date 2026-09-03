@@ -47,7 +47,7 @@ GORM_GEN_BIN ?= $(or \
 GORM_GEN_CONFIG ?= configs/data.dev.yaml
 GORM_GEN_DATABASE ?=
 # 仅生成本仓库使用的表；新增业务表时同步补充此列表。
-	GORM_TABLE ?= ai_message,ai_session,base_api,base_api_i18n,base_area,base_api_log,base_config,base_data_access_log,base_dept,base_dict,base_dict_item,base_file,base_i18n,base_job,base_job_log,base_language,base_login_log,base_menu,base_message,base_message_category,base_message_delivery,base_message_dispatch,base_migration,base_operation_log,base_permission_log,base_policy_evaluation_log,base_post,base_role,base_tenant,base_third_account,base_user,base_user_mfa,base_user_mfa_recovery,base_user_mfa_totp,base_user_mfa_webauthn,casbin_rule,code_gen_column,code_gen_proto,code_gen_table,oauth_client
+	GORM_TABLE ?= ai_message,ai_session,base_api,base_api_i18n,base_area,base_api_log,base_config,base_data_access_log,base_dept,base_dict,base_dict_item,base_file,base_i18n,base_job,base_job_log,base_language,base_login_log,base_login_policy,base_menu,base_message,base_message_category,base_message_delivery,base_message_dispatch,base_migration,base_operation_log,base_permission_log,base_policy_evaluation_log,base_post,base_role,base_table_archive,base_table_archive_record,base_table_archive_restore,base_table_backup,base_table_backup_record,base_table_backup_restore,base_tenant,base_third_account,base_user,base_user_mfa,base_user_mfa_recovery,base_user_mfa_totp,base_user_mfa_webauthn,casbin_rule,code_gen_column,code_gen_proto,code_gen_table,oauth_client
 
 # ===== 环境初始化 =====
 

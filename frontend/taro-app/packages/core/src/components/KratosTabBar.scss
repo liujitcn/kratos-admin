@@ -34,26 +34,50 @@
 .kratos-tab-bar__message-icon {
   position: relative;
   width: 22PX;
-  height: 16PX;
-  margin-bottom: 8PX;
+  height: 18PX;
+  margin-bottom: 6PX;
   border: 2PX solid #9aa4b2;
-  border-radius: 3PX;
+  border-radius: 6PX;
   box-sizing: border-box;
+}
+.kratos-tab-bar__message-icon::before {
+  position: absolute;
+  top: 5PX;
+  left: 4PX;
+  width: 3PX;
+  height: 3PX;
+  border-radius: 50%;
+  background: #9aa4b2;
+  box-shadow:
+    5PX 0 #9aa4b2,
+    10PX 0 #9aa4b2;
+  content: '';
 }
 
 .kratos-tab-bar__message-icon::after {
   position: absolute;
-  top: 1PX;
-  left: 4PX;
-  width: 9PX;
-  height: 9PX;
+  bottom: -5PX;
+  left: 3PX;
+  width: 7PX;
+  height: 7PX;
   border-right: 2PX solid #9aa4b2;
   border-bottom: 2PX solid #9aa4b2;
+  background: #fff;
   content: '';
   transform: rotate(45deg);
 }
 
-.kratos-tab-bar__message-icon--active,
+.kratos-tab-bar__message-icon--active {
+  border-color: #27ba9b;
+}
+
+.kratos-tab-bar__message-icon--active::before {
+  background: #27ba9b;
+  box-shadow:
+    5PX 0 #27ba9b,
+    10PX 0 #27ba9b;
+}
+
 .kratos-tab-bar__message-icon--active::after {
   border-color: #27ba9b;
 }

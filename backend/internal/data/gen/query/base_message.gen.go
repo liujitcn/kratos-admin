@@ -44,7 +44,6 @@ func newBaseMessage(db *gorm.DB, opts ...gen.DOOption) baseMessage {
 	_baseMessage.ActionType = field.NewInt32(tableName, "action_type")
 	_baseMessage.ActionTarget = field.NewString(tableName, "action_target")
 	_baseMessage.ActionParams = field.NewString(tableName, "action_params")
-	_baseMessage.Status = field.NewInt32(tableName, "status")
 	_baseMessage.ScheduledAt = field.NewInt64(tableName, "scheduled_at")
 	_baseMessage.PublishedAt = field.NewInt64(tableName, "published_at")
 	_baseMessage.RevokedAt = field.NewInt64(tableName, "revoked_at")
@@ -53,6 +52,7 @@ func newBaseMessage(db *gorm.DB, opts ...gen.DOOption) baseMessage {
 	_baseMessage.DeliveredTotal = field.NewInt64(tableName, "delivered_total")
 	_baseMessage.FailedTotal = field.NewInt64(tableName, "failed_total")
 	_baseMessage.Version = field.NewInt64(tableName, "version")
+	_baseMessage.Status = field.NewInt32(tableName, "status")
 	_baseMessage.CreatedBy = field.NewInt64(tableName, "created_by")
 	_baseMessage.UpdatedBy = field.NewInt64(tableName, "updated_by")
 	_baseMessage.CreatedAt = field.NewTime(tableName, "created_at")
@@ -86,7 +86,6 @@ type baseMessage struct {
 	ActionType     field.Int32  // 动作类型：枚举【MessageActionType】
 	ActionTarget   field.String // 动作目标
 	ActionParams   field.String // 动作参数
-	Status         field.Int32  // 消息状态：枚举【MessageStatus】
 	ScheduledAt    field.Int64  // 计划发布时间戳，毫秒
 	PublishedAt    field.Int64  // 发布时间戳，毫秒
 	RevokedAt      field.Int64  // 撤回时间戳，毫秒
@@ -95,6 +94,7 @@ type baseMessage struct {
 	DeliveredTotal field.Int64  // 已投递人数
 	FailedTotal    field.Int64  // 失败人数
 	Version        field.Int64  // 乐观锁版本
+	Status         field.Int32  // 消息状态：枚举【MessageStatus】
 	CreatedBy      field.Int64  // 创建者ID
 	UpdatedBy      field.Int64  // 更新者ID
 	CreatedAt      field.Time   // 创建时间
@@ -133,7 +133,6 @@ func (b *baseMessage) updateTableName(table string) *baseMessage {
 	b.ActionType = field.NewInt32(table, "action_type")
 	b.ActionTarget = field.NewString(table, "action_target")
 	b.ActionParams = field.NewString(table, "action_params")
-	b.Status = field.NewInt32(table, "status")
 	b.ScheduledAt = field.NewInt64(table, "scheduled_at")
 	b.PublishedAt = field.NewInt64(table, "published_at")
 	b.RevokedAt = field.NewInt64(table, "revoked_at")
@@ -142,6 +141,7 @@ func (b *baseMessage) updateTableName(table string) *baseMessage {
 	b.DeliveredTotal = field.NewInt64(table, "delivered_total")
 	b.FailedTotal = field.NewInt64(table, "failed_total")
 	b.Version = field.NewInt64(table, "version")
+	b.Status = field.NewInt32(table, "status")
 	b.CreatedBy = field.NewInt64(table, "created_by")
 	b.UpdatedBy = field.NewInt64(table, "updated_by")
 	b.CreatedAt = field.NewTime(table, "created_at")
@@ -191,7 +191,6 @@ func (b *baseMessage) fillFieldMap() {
 	b.fieldMap["action_type"] = b.ActionType
 	b.fieldMap["action_target"] = b.ActionTarget
 	b.fieldMap["action_params"] = b.ActionParams
-	b.fieldMap["status"] = b.Status
 	b.fieldMap["scheduled_at"] = b.ScheduledAt
 	b.fieldMap["published_at"] = b.PublishedAt
 	b.fieldMap["revoked_at"] = b.RevokedAt
@@ -200,6 +199,7 @@ func (b *baseMessage) fillFieldMap() {
 	b.fieldMap["delivered_total"] = b.DeliveredTotal
 	b.fieldMap["failed_total"] = b.FailedTotal
 	b.fieldMap["version"] = b.Version
+	b.fieldMap["status"] = b.Status
 	b.fieldMap["created_by"] = b.CreatedBy
 	b.fieldMap["updated_by"] = b.UpdatedBy
 	b.fieldMap["created_at"] = b.CreatedAt

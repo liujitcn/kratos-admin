@@ -1,11 +1,11 @@
 import Taro from '@tarojs/taro'
 import { create } from 'zustand'
-import { defLoginService } from '../api/base/login'
-import { defOauthService } from '../api/base/oauth'
-import { defAuthService } from '../api/system/auth'
+import { defLoginService } from '../api/base/v1/login'
+import { defOauthService } from '../api/base/v1/oauth'
+import { defAuthService } from '../api/system/app/v1/auth'
 import type { LoginRequest, LoginResponse } from '../rpc/base/v1/login'
 import type { VerifyMfaRequest } from '../rpc/base/v1/mfa'
-import { defMfaService } from '../api/base/mfa'
+import { defMfaService } from '../api/base/v1/mfa'
 import type {
   BindOauthSessionRequest,
   CreateOauthSessionRequest,

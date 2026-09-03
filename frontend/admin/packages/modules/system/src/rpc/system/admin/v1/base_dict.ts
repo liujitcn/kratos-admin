@@ -63,30 +63,6 @@ export interface PageBaseDictResponse {
   total: number;
 }
 
-/** 字典属性分页查询条件 */
-export interface PageBaseDictItemRequest {
-  /** 字典ID */
-  dict_id: number;
-  /** 字典属性名称 */
-  label: string;
-  /** 状态 */
-  status?:
-    | Status
-    | undefined;
-  /** 当前页码 */
-  page_num: number;
-  /** 每一页的行数 */
-  page_size: number;
-}
-
-/** 字典属性分页响应 */
-export interface PageBaseDictItemResponse {
-  /** 分页数据 */
-  base_dict_items: BaseDictItem[];
-  /** 总数 */
-  total: number;
-}
-
 /** 查询字典请求参数 */
 export interface GetBaseDictRequest {
   /** 字典ID */
@@ -107,42 +83,10 @@ export interface BaseDictForm {
   status: Status;
 }
 
-/** 查询字典属性请求参数 */
-export interface GetBaseDictItemRequest {
-  /** 字典属性ID */
-  id: number;
-}
-
-/** 字典属性表单 */
-export interface BaseDictItemForm {
-  /** 字典项ID */
-  id: number;
-  /** 字典ID */
-  dict_id: number;
-  /** 字典项值 */
-  value: string;
-  /** 字典项标签 */
-  label: string;
-  /** 标签类型，用于前端样式展示（如success、warning等） */
-  tag_type: string;
-  /** 排序 */
-  sort: number;
-  /** 非主语言翻译 */
-  i18ns: BaseI18n[];
-  /** 状态 */
-  status: Status;
-}
-
 /** 创建字典请求参数 */
 export interface CreateBaseDictRequest {
   /** 字典表单 */
   base_dict: BaseDictForm | undefined;
-}
-
-/** 创建字典属性请求参数 */
-export interface CreateBaseDictItemRequest {
-  /** 字典属性表单 */
-  base_dict_item: BaseDictItemForm | undefined;
 }
 
 /** 更新字典请求参数 */
@@ -151,30 +95,10 @@ export interface UpdateBaseDictRequest {
   base_dict: BaseDictForm | undefined;
 }
 
-/** 更新字典属性请求参数 */
-export interface UpdateBaseDictItemRequest {
-  /** 字典属性表单 */
-  base_dict_item: BaseDictItemForm | undefined;
-}
-
 /** 删除字典请求参数 */
 export interface DeleteBaseDictRequest {
   /** 字典ID列表 */
   id: string;
-}
-
-/** 删除字典属性请求参数 */
-export interface DeleteBaseDictItemRequest {
-  /** 字典属性ID列表 */
-  id: string;
-}
-
-/** 设置字典属性状态请求参数 */
-export interface SetBaseDictItemStatusRequest {
-  /** 字典属性ID */
-  id: number;
-  /** 状态 */
-  status: number;
 }
 
 /** 设置字典状态请求参数 */
@@ -203,56 +127,20 @@ export interface BaseDict {
   i18ns: BaseI18n[];
 }
 
-/** 字典项 */
-export interface BaseDictItem {
-  /** 字典项ID */
-  id: number;
-  /** 字典ID */
-  dict_id: number;
-  /** 字典项值 */
-  value: string;
-  /** 字典项标签 */
-  label: string;
-  /** 标签类型，用于前端样式展示（如success、warning等） */
-  tag_type: string;
-  /** 排序 */
-  sort: number;
-  /** 状态 */
-  status: Status;
-  /** 创建时间 */
-  created_at: string;
-  /** 更新时间 */
-  updated_at: string;
-  /** 非主语言翻译 */
-  i18ns: BaseI18n[];
-}
-
 /** Admin字典服务 */
 export interface BaseDictService {
   /** 查询字典列表 */
   OptionBaseDict(request: OptionBaseDictRequest): Promise<OptionBaseDictResponse>;
   /** 查询字典分页列表 */
   PageBaseDict(request: PageBaseDictRequest): Promise<PageBaseDictResponse>;
-  /** 查询字典属性分页列表 */
-  PageBaseDictItem(request: PageBaseDictItemRequest): Promise<PageBaseDictItemResponse>;
   /** 查询字典 */
   GetBaseDict(request: GetBaseDictRequest): Promise<BaseDictForm>;
-  /** 查询字典属性 */
-  GetBaseDictItem(request: GetBaseDictItemRequest): Promise<BaseDictItemForm>;
   /** 创建字典 */
   CreateBaseDict(request: CreateBaseDictRequest): Promise<Empty>;
-  /** 创建字典属性 */
-  CreateBaseDictItem(request: CreateBaseDictItemRequest): Promise<Empty>;
   /** 更新字典 */
   UpdateBaseDict(request: UpdateBaseDictRequest): Promise<Empty>;
-  /** 更新字典属性 */
-  UpdateBaseDictItem(request: UpdateBaseDictItemRequest): Promise<Empty>;
   /** 删除字典 */
   DeleteBaseDict(request: DeleteBaseDictRequest): Promise<Empty>;
-  /** 删除字典属性 */
-  DeleteBaseDictItem(request: DeleteBaseDictItemRequest): Promise<Empty>;
-  /** 设置状态 */
-  SetBaseDictItemStatus(request: SetBaseDictItemStatusRequest): Promise<Empty>;
   /** 设置状态 */
   SetBaseDictStatus(request: SetBaseDictStatusRequest): Promise<Empty>;
 }

@@ -59,8 +59,8 @@ type baseLoginLog struct {
 	TenantCode field.String // 租户编码
 	UserID     field.Int64  // 用户ID
 	UserName   field.String // 账号名
-	LoginType  field.Int32  // 登录类型
-	Result     field.Int32  // 结果
+	LoginType  field.Int32  // 登录类型：枚举【BaseLoginLogType】
+	Result     field.Int32  // 结果：枚举【BaseLogResult】
 	ReasonCode field.String // 原因编码
 	Reason     field.String // 原因说明
 	ClientIP   field.String // 客户端IP

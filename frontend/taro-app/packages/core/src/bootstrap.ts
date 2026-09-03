@@ -16,7 +16,7 @@ import {
   registerLocaleMessages,
   t,
 } from './locales'
-import { defLanguageService } from './api/base/language'
+import { defLanguageService } from './api/base/v1/language'
 
 /** Taro 应用启动参数。 */
 export interface KratosTaroBootstrapOptions {

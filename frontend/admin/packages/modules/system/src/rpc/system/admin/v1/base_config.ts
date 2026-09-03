@@ -26,6 +26,16 @@ export enum BaseConfigType {
   BASE_CONFIG_TYPE_BOOLEAN = 5,
 }
 
+/** 系统配置隐藏状态。 */
+export enum BaseConfigHiddenStatus {
+  /** BASE_CONFIG_HIDDEN_STATUS_UNSPECIFIED - 未指定隐藏状态。 */
+  BASE_CONFIG_HIDDEN_STATUS_UNSPECIFIED = 0,
+  /** BASE_CONFIG_HIDDEN_STATUS_VISIBLE - 普通配置，可在通用配置页面展示。 */
+  BASE_CONFIG_HIDDEN_STATUS_VISIBLE = 1,
+  /** BASE_CONFIG_HIDDEN_STATUS_HIDDEN - 隐藏配置，仅允许通过专用配置表单访问。 */
+  BASE_CONFIG_HIDDEN_STATUS_HIDDEN = 2,
+}
+
 /** 系统配置分页查询条件 */
 export interface PageBaseConfigRequest {
   /** 位置：枚举【BaseConfigSite】 */
@@ -82,6 +92,8 @@ export interface BaseConfigForm {
   key: string;
   /** 配置value */
   value: string;
+  /** 隐藏状态 */
+  hidden_status: BaseConfigHiddenStatus;
   /** 配置名称多语言翻 */
   name_i18ns: BaseI18n[];
   /** 配置value文本/富文本配置值的多语言翻译 */
@@ -134,6 +146,8 @@ export interface BaseConfig {
   key: string;
   /** 配置value */
   value: string;
+  /** 隐藏状态 */
+  hidden_status: BaseConfigHiddenStatus;
   /** 状态：枚举【Status】 */
   status: Status;
   /** 创建时间 */
@@ -144,6 +158,30 @@ export interface BaseConfig {
   i18ns: BaseI18n[];
 }
 
+/** 按配置键查询系统配置请求参数。 */
+export interface GetBaseConfigByKeyRequest {
+  /** 配置key */
+  key: string;
+}
+
+/** 按配置键返回系统配置值。 */
+export interface BaseConfigValue {
+  /** 配置key */
+  key: string;
+  /** JSON格式配置值 */
+  value_json: string;
+  /** 更新时间 */
+  updated_at: string;
+}
+
+/** 按配置键更新系统配置请求参数。 */
+export interface UpdateBaseConfigByKeyRequest {
+  /** 配置key */
+  key: string;
+  /** JSON格式配置值 */
+  value_json: string;
+}
+
 /** Admin系统配置服务 */
 export interface BaseConfigService {
   /** 刷新缓存 */
@@ -152,10 +190,14 @@ export interface BaseConfigService {
   PageBaseConfig(request: PageBaseConfigRequest): Promise<PageBaseConfigResponse>;
   /** 查询系统配置 */
   GetBaseConfig(request: GetBaseConfigRequest): Promise<BaseConfigForm>;
+  /** 按配置键查询隐藏系统配置。 */
+  GetBaseConfigByKey(request: GetBaseConfigByKeyRequest): Promise<BaseConfigValue>;
   /** 创建系统配置 */
   CreateBaseConfig(request: CreateBaseConfigRequest): Promise<Empty>;
   /** 更新系统配置 */
   UpdateBaseConfig(request: UpdateBaseConfigRequest): Promise<Empty>;
+  /** 按配置键更新隐藏系统配置。 */
+  UpdateBaseConfigByKey(request: UpdateBaseConfigByKeyRequest): Promise<Empty>;
   /** 删除系统配置 */
   DeleteBaseConfig(request: DeleteBaseConfigRequest): Promise<Empty>;
   /** 设置状态 */

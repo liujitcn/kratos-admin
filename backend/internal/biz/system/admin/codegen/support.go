@@ -808,10 +808,10 @@ func codeGenProtoMethodPosition(apiKind string, triggerType string, methodName s
 	return 80
 }
 
-// firstMethodByKind 查找指定类型和触发来源的首个方法。
-func firstMethodByKind(methods []*Proto, apiKind string, triggerType string) *Proto {
+// firstTreeMethodByTrigger 查找指定触发来源的首个树形方法。
+func firstTreeMethodByTrigger(methods []*Proto, triggerType string) *Proto {
 	for _, method := range methods {
-		if method.APIKind != apiKind {
+		if method.APIKind != APIKindTree {
 			continue
 		}
 		if triggerType != "" && method.TriggerType != triggerType {

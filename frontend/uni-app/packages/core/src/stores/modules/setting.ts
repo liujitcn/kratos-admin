@@ -1,4 +1,4 @@
-import { defConfigService } from '../../api/base/config'
+import { defConfigService } from '../../api/base/v1/config'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { BaseConfigSite } from '../../rpc/base/v1/config'

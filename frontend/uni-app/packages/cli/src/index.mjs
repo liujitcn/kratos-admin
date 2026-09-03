@@ -258,6 +258,7 @@ export function createApp() {
 import { moduleManifest } from './src/module-manifest'
 export default defineConfig({
   resolve: { preserveSymlinks: true },
+  server: { open: true },
   plugins: [kratosApp({ modules: moduleManifest }), createKratosUniPlugin()],
 })
 `,

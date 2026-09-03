@@ -1,0 +1,16 @@
+data:
+    database:
+        connection_max_lifetime: 300s
+        debug: true
+        driver: mysql
+        enable_metrics: false
+        enable_migrate: true
+        enable_trace: false
+        max_idle_connections: 25
+        max_open_connections: 25
+        source: root:ENC[HL8cVvVyAhFQfJrIHsD7ro_fxlkglVYjkw_1vZmduVMllQ]@tcp(192.168.60.52:3306)/kratos_admin?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms
+    redis:
+        addr:
+            - 192.168.60.52:6379
+        db: 1
+        password: ENC[c1WdJxtMfinTqqC-Pg8Wkc60cRDcOhFZfZ4LKQcPNRiuiA]

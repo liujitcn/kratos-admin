@@ -538,14 +538,14 @@ import Sortable from "sortablejs";
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
 import { ChatLineSquare, Delete, Document, List, Plus, Setting } from "@element-plus/icons-vue";
 import { useRoute, useRouter } from "vue-router";
-import { t } from "@liujitcn/kratos-admin-core";
+import { setAdminDocumentTitle, t } from "@liujitcn/kratos-admin-core";
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { useTabsStore } from "@liujitcn/kratos-admin-core/stores/runtime";
-import { defBaseDictService } from "@liujitcn/kratos-admin-system/api/system/base_dict";
-import { loadEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
-import { defCodeGenColumnService } from "@liujitcn/kratos-admin-system/api/system/code_gen_column";
-import { defCodeGenTableService } from "@liujitcn/kratos-admin-system/api/system/code_gen_table";
+import { defBaseDictService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_dict";
+import { loadEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_language";
+import { defCodeGenColumnService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen_column";
+import { defCodeGenTableService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen_table";
 import type { OptionBaseDictResponse_BaseDict } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dict";
 import type {
   CodeGenColumn as CodeGenColumnDTO,
@@ -742,7 +742,7 @@ function syncWorkspaceTitle() {
     ? t("system.code.gen.column.title.workspace_with_table", { table: tableTitle })
     : t("system.code.gen.column.title.workspace");
   tabsStore.setTabsTitle(title);
-  document.title = `${title} - ${import.meta.env.VITE_GLOB_APP_TITLE}`;
+  setAdminDocumentTitle(title);
 }
 
 /** 保存字段配置。 */
@@ -986,7 +986,7 @@ async function loadDatabaseTables() {
   if (databaseTablesLoaded || loadingDatabaseTables.value) return;
   loadingDatabaseTables.value = true;
   try {
-    const data = await defCodeGenTableService.ListCodeGenDatabaseTable({});
+    const data = await defCodeGenTableService.ListCodeGenDatabaseTable({ source_name: formData.source_name });
     databaseTables.value = data.tables ?? [];
     databaseTablesLoaded = true;
   } finally {
@@ -999,7 +999,7 @@ async function loadDatabaseColumns(tableName: string) {
   if (!tableName || databaseColumns[tableName] || loadingDatabaseColumns.has(tableName)) return;
   loadingDatabaseColumns.add(tableName);
   try {
-    const data = await defCodeGenColumnService.ListCodeGenDatabaseColumn({ table_name: tableName });
+    const data = await defCodeGenColumnService.ListCodeGenDatabaseColumn({ source_name: formData.source_name, table_name: tableName });
     databaseColumns[tableName] = data.columns ?? [];
   } finally {
     loadingDatabaseColumns.delete(tableName);

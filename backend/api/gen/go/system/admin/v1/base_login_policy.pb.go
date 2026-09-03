@@ -13,9 +13,11 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
+	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 const (
@@ -25,16 +27,314 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 查询登录来源策略请求参数。
+// 登录策略作用域类型。
+type BaseLoginPolicyScopeType int32
+
+const (
+	// 未指定作用域。
+	BaseLoginPolicyScopeType_BASE_LOGIN_POLICY_SCOPE_TYPE_UNSPECIFIED BaseLoginPolicyScopeType = 0
+	// 全局作用域。
+	BaseLoginPolicyScopeType_BASE_LOGIN_POLICY_SCOPE_TYPE_GLOBAL BaseLoginPolicyScopeType = 1
+	// 租户作用域。
+	BaseLoginPolicyScopeType_BASE_LOGIN_POLICY_SCOPE_TYPE_TENANT BaseLoginPolicyScopeType = 2
+	// 用户作用域。
+	BaseLoginPolicyScopeType_BASE_LOGIN_POLICY_SCOPE_TYPE_USER BaseLoginPolicyScopeType = 3
+)
+
+// Enum value maps for BaseLoginPolicyScopeType.
+var (
+	BaseLoginPolicyScopeType_name = map[int32]string{
+		0: "BASE_LOGIN_POLICY_SCOPE_TYPE_UNSPECIFIED",
+		1: "BASE_LOGIN_POLICY_SCOPE_TYPE_GLOBAL",
+		2: "BASE_LOGIN_POLICY_SCOPE_TYPE_TENANT",
+		3: "BASE_LOGIN_POLICY_SCOPE_TYPE_USER",
+	}
+	BaseLoginPolicyScopeType_value = map[string]int32{
+		"BASE_LOGIN_POLICY_SCOPE_TYPE_UNSPECIFIED": 0,
+		"BASE_LOGIN_POLICY_SCOPE_TYPE_GLOBAL":      1,
+		"BASE_LOGIN_POLICY_SCOPE_TYPE_TENANT":      2,
+		"BASE_LOGIN_POLICY_SCOPE_TYPE_USER":        3,
+	}
+)
+
+func (x BaseLoginPolicyScopeType) Enum() *BaseLoginPolicyScopeType {
+	p := new(BaseLoginPolicyScopeType)
+	*p = x
+	return p
+}
+
+func (x BaseLoginPolicyScopeType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (BaseLoginPolicyScopeType) Descriptor() protoreflect.EnumDescriptor {
+	return file_system_admin_v1_base_login_policy_proto_enumTypes[0].Descriptor()
+}
+
+func (BaseLoginPolicyScopeType) Type() protoreflect.EnumType {
+	return &file_system_admin_v1_base_login_policy_proto_enumTypes[0]
+}
+
+func (x BaseLoginPolicyScopeType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use BaseLoginPolicyScopeType.Descriptor instead.
+func (BaseLoginPolicyScopeType) EnumDescriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_login_policy_proto_rawDescGZIP(), []int{0}
+}
+
+// 登录策略限制类型。
+type BaseLoginPolicyRestrictionType int32
+
+const (
+	// 未指定限制类型。
+	BaseLoginPolicyRestrictionType_BASE_LOGIN_POLICY_RESTRICTION_TYPE_UNSPECIFIED BaseLoginPolicyRestrictionType = 0
+	// 黑名单，命中后拒绝登录。
+	BaseLoginPolicyRestrictionType_BASE_LOGIN_POLICY_RESTRICTION_TYPE_BLACKLIST BaseLoginPolicyRestrictionType = 1
+	// 白名单，未命中时拒绝登录。
+	BaseLoginPolicyRestrictionType_BASE_LOGIN_POLICY_RESTRICTION_TYPE_WHITELIST BaseLoginPolicyRestrictionType = 2
+)
+
+// Enum value maps for BaseLoginPolicyRestrictionType.
+var (
+	BaseLoginPolicyRestrictionType_name = map[int32]string{
+		0: "BASE_LOGIN_POLICY_RESTRICTION_TYPE_UNSPECIFIED",
+		1: "BASE_LOGIN_POLICY_RESTRICTION_TYPE_BLACKLIST",
+		2: "BASE_LOGIN_POLICY_RESTRICTION_TYPE_WHITELIST",
+	}
+	BaseLoginPolicyRestrictionType_value = map[string]int32{
+		"BASE_LOGIN_POLICY_RESTRICTION_TYPE_UNSPECIFIED": 0,
+		"BASE_LOGIN_POLICY_RESTRICTION_TYPE_BLACKLIST":   1,
+		"BASE_LOGIN_POLICY_RESTRICTION_TYPE_WHITELIST":   2,
+	}
+)
+
+func (x BaseLoginPolicyRestrictionType) Enum() *BaseLoginPolicyRestrictionType {
+	p := new(BaseLoginPolicyRestrictionType)
+	*p = x
+	return p
+}
+
+func (x BaseLoginPolicyRestrictionType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (BaseLoginPolicyRestrictionType) Descriptor() protoreflect.EnumDescriptor {
+	return file_system_admin_v1_base_login_policy_proto_enumTypes[1].Descriptor()
+}
+
+func (BaseLoginPolicyRestrictionType) Type() protoreflect.EnumType {
+	return &file_system_admin_v1_base_login_policy_proto_enumTypes[1]
+}
+
+func (x BaseLoginPolicyRestrictionType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use BaseLoginPolicyRestrictionType.Descriptor instead.
+func (BaseLoginPolicyRestrictionType) EnumDescriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_login_policy_proto_rawDescGZIP(), []int{1}
+}
+
+// 登录策略限制方式。
+type BaseLoginPolicyRestrictionMethod int32
+
+const (
+	// 未指定限制方式。
+	BaseLoginPolicyRestrictionMethod_BASE_LOGIN_POLICY_RESTRICTION_METHOD_UNSPECIFIED BaseLoginPolicyRestrictionMethod = 0
+	// IP地址限制。
+	BaseLoginPolicyRestrictionMethod_BASE_LOGIN_POLICY_RESTRICTION_METHOD_IP BaseLoginPolicyRestrictionMethod = 1
+	// MAC地址限制。
+	BaseLoginPolicyRestrictionMethod_BASE_LOGIN_POLICY_RESTRICTION_METHOD_MAC BaseLoginPolicyRestrictionMethod = 2
+	// 地区限制。
+	BaseLoginPolicyRestrictionMethod_BASE_LOGIN_POLICY_RESTRICTION_METHOD_REGION BaseLoginPolicyRestrictionMethod = 3
+	// 时间限制。
+	BaseLoginPolicyRestrictionMethod_BASE_LOGIN_POLICY_RESTRICTION_METHOD_TIME BaseLoginPolicyRestrictionMethod = 4
+	// 设备限制。
+	BaseLoginPolicyRestrictionMethod_BASE_LOGIN_POLICY_RESTRICTION_METHOD_DEVICE BaseLoginPolicyRestrictionMethod = 5
+)
+
+// Enum value maps for BaseLoginPolicyRestrictionMethod.
+var (
+	BaseLoginPolicyRestrictionMethod_name = map[int32]string{
+		0: "BASE_LOGIN_POLICY_RESTRICTION_METHOD_UNSPECIFIED",
+		1: "BASE_LOGIN_POLICY_RESTRICTION_METHOD_IP",
+		2: "BASE_LOGIN_POLICY_RESTRICTION_METHOD_MAC",
+		3: "BASE_LOGIN_POLICY_RESTRICTION_METHOD_REGION",
+		4: "BASE_LOGIN_POLICY_RESTRICTION_METHOD_TIME",
+		5: "BASE_LOGIN_POLICY_RESTRICTION_METHOD_DEVICE",
+	}
+	BaseLoginPolicyRestrictionMethod_value = map[string]int32{
+		"BASE_LOGIN_POLICY_RESTRICTION_METHOD_UNSPECIFIED": 0,
+		"BASE_LOGIN_POLICY_RESTRICTION_METHOD_IP":          1,
+		"BASE_LOGIN_POLICY_RESTRICTION_METHOD_MAC":         2,
+		"BASE_LOGIN_POLICY_RESTRICTION_METHOD_REGION":      3,
+		"BASE_LOGIN_POLICY_RESTRICTION_METHOD_TIME":        4,
+		"BASE_LOGIN_POLICY_RESTRICTION_METHOD_DEVICE":      5,
+	}
+)
+
+func (x BaseLoginPolicyRestrictionMethod) Enum() *BaseLoginPolicyRestrictionMethod {
+	p := new(BaseLoginPolicyRestrictionMethod)
+	*p = x
+	return p
+}
+
+func (x BaseLoginPolicyRestrictionMethod) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (BaseLoginPolicyRestrictionMethod) Descriptor() protoreflect.EnumDescriptor {
+	return file_system_admin_v1_base_login_policy_proto_enumTypes[2].Descriptor()
+}
+
+func (BaseLoginPolicyRestrictionMethod) Type() protoreflect.EnumType {
+	return &file_system_admin_v1_base_login_policy_proto_enumTypes[2]
+}
+
+func (x BaseLoginPolicyRestrictionMethod) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use BaseLoginPolicyRestrictionMethod.Descriptor instead.
+func (BaseLoginPolicyRestrictionMethod) EnumDescriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_login_policy_proto_rawDescGZIP(), []int{2}
+}
+
+// 登录策略分页查询条件。
+type PageBaseLoginPolicyRequest struct {
+	state         protoimpl.MessageState    `protogen:"open.v1"`
+	ScopeType     *BaseLoginPolicyScopeType `protobuf:"varint,1,opt,name=scope_type,json=scopeType,proto3,enum=system.admin.v1.BaseLoginPolicyScopeType,oneof" json:"scope_type,omitempty"` // 作用域类型
+	Status        *v1.Status                `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`                                                // 状态
+	PageNum       int64                     `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                                                         // 当前页码
+	PageSize      int64                     `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                                                      // 每一页的行数
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PageBaseLoginPolicyRequest) Reset() {
+	*x = PageBaseLoginPolicyRequest{}
+	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PageBaseLoginPolicyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PageBaseLoginPolicyRequest) ProtoMessage() {}
+
+func (x *PageBaseLoginPolicyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PageBaseLoginPolicyRequest.ProtoReflect.Descriptor instead.
+func (*PageBaseLoginPolicyRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_login_policy_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *PageBaseLoginPolicyRequest) GetScopeType() BaseLoginPolicyScopeType {
+	if x != nil && x.ScopeType != nil {
+		return *x.ScopeType
+	}
+	return BaseLoginPolicyScopeType_BASE_LOGIN_POLICY_SCOPE_TYPE_UNSPECIFIED
+}
+
+func (x *PageBaseLoginPolicyRequest) GetStatus() v1.Status {
+	if x != nil && x.Status != nil {
+		return *x.Status
+	}
+	return v1.Status(0)
+}
+
+func (x *PageBaseLoginPolicyRequest) GetPageNum() int64 {
+	if x != nil {
+		return x.PageNum
+	}
+	return 0
+}
+
+func (x *PageBaseLoginPolicyRequest) GetPageSize() int64 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+// 登录策略分页响应。
+type PageBaseLoginPolicyResponse struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	BaseLoginPolicies []*BaseLoginPolicy     `protobuf:"bytes,1,rep,name=base_login_policies,json=baseLoginPolicies,proto3" json:"base_login_policies,omitempty"` // 登录策略列表
+	Total             int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                                                   // 总数
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *PageBaseLoginPolicyResponse) Reset() {
+	*x = PageBaseLoginPolicyResponse{}
+	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PageBaseLoginPolicyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PageBaseLoginPolicyResponse) ProtoMessage() {}
+
+func (x *PageBaseLoginPolicyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PageBaseLoginPolicyResponse.ProtoReflect.Descriptor instead.
+func (*PageBaseLoginPolicyResponse) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_login_policy_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *PageBaseLoginPolicyResponse) GetBaseLoginPolicies() []*BaseLoginPolicy {
+	if x != nil {
+		return x.BaseLoginPolicies
+	}
+	return nil
+}
+
+func (x *PageBaseLoginPolicyResponse) GetTotal() int32 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+// 查询登录策略详情请求参数。
 type GetBaseLoginPolicyRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 登录策略ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetBaseLoginPolicyRequest) Reset() {
 	*x = GetBaseLoginPolicyRequest{}
-	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[0]
+	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -46,7 +346,7 @@ func (x *GetBaseLoginPolicyRequest) String() string {
 func (*GetBaseLoginPolicyRequest) ProtoMessage() {}
 
 func (x *GetBaseLoginPolicyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[0]
+	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -59,20 +359,72 @@ func (x *GetBaseLoginPolicyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBaseLoginPolicyRequest.ProtoReflect.Descriptor instead.
 func (*GetBaseLoginPolicyRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_login_policy_proto_rawDescGZIP(), []int{0}
+	return file_system_admin_v1_base_login_policy_proto_rawDescGZIP(), []int{2}
 }
 
-// 更新登录来源策略请求参数。
+func (x *GetBaseLoginPolicyRequest) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+// 创建登录策略请求参数。
+type CreateBaseLoginPolicyRequest struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	BaseLoginPolicy *BaseLoginPolicyForm   `protobuf:"bytes,1,opt,name=base_login_policy,json=baseLoginPolicy,proto3" json:"base_login_policy,omitempty"` // 登录策略表单
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *CreateBaseLoginPolicyRequest) Reset() {
+	*x = CreateBaseLoginPolicyRequest{}
+	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateBaseLoginPolicyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateBaseLoginPolicyRequest) ProtoMessage() {}
+
+func (x *CreateBaseLoginPolicyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateBaseLoginPolicyRequest.ProtoReflect.Descriptor instead.
+func (*CreateBaseLoginPolicyRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_login_policy_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *CreateBaseLoginPolicyRequest) GetBaseLoginPolicy() *BaseLoginPolicyForm {
+	if x != nil {
+		return x.BaseLoginPolicy
+	}
+	return nil
+}
+
+// 更新登录策略请求参数。
 type UpdateBaseLoginPolicyRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Policy        *BaseLoginPolicy       `protobuf:"bytes,1,opt,name=policy,proto3" json:"policy,omitempty"` // 登录来源策略
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	BaseLoginPolicy *BaseLoginPolicyForm   `protobuf:"bytes,1,opt,name=base_login_policy,json=baseLoginPolicy,proto3" json:"base_login_policy,omitempty"` // 登录策略表单
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *UpdateBaseLoginPolicyRequest) Reset() {
 	*x = UpdateBaseLoginPolicyRequest{}
-	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[1]
+	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -84,7 +436,7 @@ func (x *UpdateBaseLoginPolicyRequest) String() string {
 func (*UpdateBaseLoginPolicyRequest) ProtoMessage() {}
 
 func (x *UpdateBaseLoginPolicyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[1]
+	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -97,33 +449,281 @@ func (x *UpdateBaseLoginPolicyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateBaseLoginPolicyRequest.ProtoReflect.Descriptor instead.
 func (*UpdateBaseLoginPolicyRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_login_policy_proto_rawDescGZIP(), []int{1}
+	return file_system_admin_v1_base_login_policy_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *UpdateBaseLoginPolicyRequest) GetPolicy() *BaseLoginPolicy {
+func (x *UpdateBaseLoginPolicyRequest) GetBaseLoginPolicy() *BaseLoginPolicyForm {
 	if x != nil {
-		return x.Policy
+		return x.BaseLoginPolicy
 	}
 	return nil
 }
 
-// 登录来源策略。
+// 删除登录策略请求参数。
+type DeleteBaseLoginPolicyRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // 登录策略ID列表
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteBaseLoginPolicyRequest) Reset() {
+	*x = DeleteBaseLoginPolicyRequest{}
+	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteBaseLoginPolicyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteBaseLoginPolicyRequest) ProtoMessage() {}
+
+func (x *DeleteBaseLoginPolicyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteBaseLoginPolicyRequest.ProtoReflect.Descriptor instead.
+func (*DeleteBaseLoginPolicyRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_login_policy_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *DeleteBaseLoginPolicyRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+// 设置登录策略状态请求参数。
+type SetBaseLoginPolicyStatusRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                               // 登录策略ID
+	Status        v1.Status              `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetBaseLoginPolicyStatusRequest) Reset() {
+	*x = SetBaseLoginPolicyStatusRequest{}
+	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetBaseLoginPolicyStatusRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetBaseLoginPolicyStatusRequest) ProtoMessage() {}
+
+func (x *SetBaseLoginPolicyStatusRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetBaseLoginPolicyStatusRequest.ProtoReflect.Descriptor instead.
+func (*SetBaseLoginPolicyStatusRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_login_policy_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *SetBaseLoginPolicyStatusRequest) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *SetBaseLoginPolicyStatusRequest) GetStatus() v1.Status {
+	if x != nil {
+		return x.Status
+	}
+	return v1.Status(0)
+}
+
+// 登录策略表单。
+type BaseLoginPolicyForm struct {
+	state                        protoimpl.MessageState   `protogen:"open.v1"`
+	Id                           int64                    `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                                                    // 登录策略ID
+	ScopeType                    BaseLoginPolicyScopeType `protobuf:"varint,2,opt,name=scope_type,json=scopeType,proto3,enum=system.admin.v1.BaseLoginPolicyScopeType" json:"scope_type,omitempty"`                       // 作用域类型
+	TenantId                     int64                    `protobuf:"varint,3,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                                                                        // 租户ID
+	UserId                       int64                    `protobuf:"varint,4,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                                                                              // 用户ID
+	MaxFailedAttempts            int32                    `protobuf:"varint,5,opt,name=max_failed_attempts,json=maxFailedAttempts,proto3" json:"max_failed_attempts,omitempty"`                                           // 最大登录失败次数
+	LockDurationMinutes          int32                    `protobuf:"varint,6,opt,name=lock_duration_minutes,json=lockDurationMinutes,proto3" json:"lock_duration_minutes,omitempty"`                                     // 锁定时长（分钟）
+	Status                       v1.Status                `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                                    // 状态
+	PasswordMaxAgeDays           *int32                   `protobuf:"varint,7,opt,name=password_max_age_days,json=passwordMaxAgeDays,proto3,oneof" json:"password_max_age_days,omitempty"`                                // 密码有效期（天）
+	Rules                        []*BaseLoginPolicyRule   `protobuf:"bytes,8,rep,name=rules,proto3" json:"rules,omitempty"`                                                                                               // 限制规则列表
+	PasswordMinLength            *int32                   `protobuf:"varint,11,opt,name=password_min_length,json=passwordMinLength,proto3,oneof" json:"password_min_length,omitempty"`                                    // 密码最小长度
+	PasswordHistoryCount         *int32                   `protobuf:"varint,12,opt,name=password_history_count,json=passwordHistoryCount,proto3,oneof" json:"password_history_count,omitempty"`                           // 禁止重复使用的历史密码数量，0表示不启用
+	PasswordMinComplexityClasses *int32                   `protobuf:"varint,13,opt,name=password_min_complexity_classes,json=passwordMinComplexityClasses,proto3,oneof" json:"password_min_complexity_classes,omitempty"` // 密码至少满足的字符类别数量，字符类别包括小写、大写、数字和符号
+	InitialPassword              *v1.PasswordCrypto       `protobuf:"bytes,14,opt,name=initial_password,json=initialPassword,proto3" json:"initial_password,omitempty"`                                                   // 初始化密码，新增用户未提交密码时使用
+	unknownFields                protoimpl.UnknownFields
+	sizeCache                    protoimpl.SizeCache
+}
+
+func (x *BaseLoginPolicyForm) Reset() {
+	*x = BaseLoginPolicyForm{}
+	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BaseLoginPolicyForm) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BaseLoginPolicyForm) ProtoMessage() {}
+
+func (x *BaseLoginPolicyForm) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BaseLoginPolicyForm.ProtoReflect.Descriptor instead.
+func (*BaseLoginPolicyForm) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_login_policy_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *BaseLoginPolicyForm) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *BaseLoginPolicyForm) GetScopeType() BaseLoginPolicyScopeType {
+	if x != nil {
+		return x.ScopeType
+	}
+	return BaseLoginPolicyScopeType_BASE_LOGIN_POLICY_SCOPE_TYPE_UNSPECIFIED
+}
+
+func (x *BaseLoginPolicyForm) GetTenantId() int64 {
+	if x != nil {
+		return x.TenantId
+	}
+	return 0
+}
+
+func (x *BaseLoginPolicyForm) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *BaseLoginPolicyForm) GetMaxFailedAttempts() int32 {
+	if x != nil {
+		return x.MaxFailedAttempts
+	}
+	return 0
+}
+
+func (x *BaseLoginPolicyForm) GetLockDurationMinutes() int32 {
+	if x != nil {
+		return x.LockDurationMinutes
+	}
+	return 0
+}
+
+func (x *BaseLoginPolicyForm) GetStatus() v1.Status {
+	if x != nil {
+		return x.Status
+	}
+	return v1.Status(0)
+}
+
+func (x *BaseLoginPolicyForm) GetPasswordMaxAgeDays() int32 {
+	if x != nil && x.PasswordMaxAgeDays != nil {
+		return *x.PasswordMaxAgeDays
+	}
+	return 0
+}
+
+func (x *BaseLoginPolicyForm) GetRules() []*BaseLoginPolicyRule {
+	if x != nil {
+		return x.Rules
+	}
+	return nil
+}
+
+func (x *BaseLoginPolicyForm) GetPasswordMinLength() int32 {
+	if x != nil && x.PasswordMinLength != nil {
+		return *x.PasswordMinLength
+	}
+	return 0
+}
+
+func (x *BaseLoginPolicyForm) GetPasswordHistoryCount() int32 {
+	if x != nil && x.PasswordHistoryCount != nil {
+		return *x.PasswordHistoryCount
+	}
+	return 0
+}
+
+func (x *BaseLoginPolicyForm) GetPasswordMinComplexityClasses() int32 {
+	if x != nil && x.PasswordMinComplexityClasses != nil {
+		return *x.PasswordMinComplexityClasses
+	}
+	return 0
+}
+
+func (x *BaseLoginPolicyForm) GetInitialPassword() *v1.PasswordCrypto {
+	if x != nil {
+		return x.InitialPassword
+	}
+	return nil
+}
+
+// 登录策略列表项。
 type BaseLoginPolicy struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	Enabled         bool                   `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`                                       // 是否启用
-	IpBlacklist     []string               `protobuf:"bytes,2,rep,name=ip_blacklist,json=ipBlacklist,proto3" json:"ip_blacklist,omitempty"`             // IP黑名单
-	IpWhitelist     []string               `protobuf:"bytes,3,rep,name=ip_whitelist,json=ipWhitelist,proto3" json:"ip_whitelist,omitempty"`             // IP白名单
-	TimeWindows     []string               `protobuf:"bytes,4,rep,name=time_windows,json=timeWindows,proto3" json:"time_windows,omitempty"`             // 禁止登录时间窗口
-	DeviceBlacklist []string               `protobuf:"bytes,5,rep,name=device_blacklist,json=deviceBlacklist,proto3" json:"device_blacklist,omitempty"` // 设备黑名单
-	DeviceWhitelist []string               `protobuf:"bytes,6,rep,name=device_whitelist,json=deviceWhitelist,proto3" json:"device_whitelist,omitempty"` // 设备白名单
-	Rules           []*BaseLoginPolicyRule `protobuf:"bytes,7,rep,name=rules,proto3" json:"rules,omitempty"`                                            // 按租户或用户匹配的定向规则
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state                        protoimpl.MessageState   `protogen:"open.v1"`
+	Id                           int64                    `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                                              // 登录策略ID
+	ScopeType                    BaseLoginPolicyScopeType `protobuf:"varint,2,opt,name=scope_type,json=scopeType,proto3,enum=system.admin.v1.BaseLoginPolicyScopeType" json:"scope_type,omitempty"`                 // 作用域类型
+	TenantId                     int64                    `protobuf:"varint,3,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                                                                  // 租户ID
+	UserId                       int64                    `protobuf:"varint,4,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                                                                        // 用户ID
+	TenantName                   string                   `protobuf:"bytes,5,opt,name=tenant_name,json=tenantName,proto3" json:"tenant_name,omitempty"`                                                             // 租户名称
+	UserName                     string                   `protobuf:"bytes,6,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                                                                   // 用户账号
+	MaxFailedAttempts            int32                    `protobuf:"varint,7,opt,name=max_failed_attempts,json=maxFailedAttempts,proto3" json:"max_failed_attempts,omitempty"`                                     // 最大登录失败次数
+	LockDurationMinutes          int32                    `protobuf:"varint,8,opt,name=lock_duration_minutes,json=lockDurationMinutes,proto3" json:"lock_duration_minutes,omitempty"`                               // 锁定时长（分钟）
+	Status                       v1.Status                `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                              // 状态
+	CreatedAt                    string                   `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                                              // 创建时间
+	UpdatedAt                    string                   `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                                              // 更新时间
+	PasswordMaxAgeDays           int32                    `protobuf:"varint,9,opt,name=password_max_age_days,json=passwordMaxAgeDays,proto3" json:"password_max_age_days,omitempty"`                                // 密码有效期（天）
+	Rules                        []*BaseLoginPolicyRule   `protobuf:"bytes,10,rep,name=rules,proto3" json:"rules,omitempty"`                                                                                        // 限制规则列表
+	PasswordMinLength            int32                    `protobuf:"varint,11,opt,name=password_min_length,json=passwordMinLength,proto3" json:"password_min_length,omitempty"`                                    // 密码最小长度
+	PasswordHistoryCount         int32                    `protobuf:"varint,12,opt,name=password_history_count,json=passwordHistoryCount,proto3" json:"password_history_count,omitempty"`                           // 禁止重复使用的历史密码数量，0表示不启用
+	PasswordMinComplexityClasses int32                    `protobuf:"varint,13,opt,name=password_min_complexity_classes,json=passwordMinComplexityClasses,proto3" json:"password_min_complexity_classes,omitempty"` // 密码至少满足的字符类别数量，字符类别包括小写、大写、数字和符号
+	unknownFields                protoimpl.UnknownFields
+	sizeCache                    protoimpl.SizeCache
 }
 
 func (x *BaseLoginPolicy) Reset() {
 	*x = BaseLoginPolicy{}
-	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[2]
+	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -135,7 +735,7 @@ func (x *BaseLoginPolicy) String() string {
 func (*BaseLoginPolicy) ProtoMessage() {}
 
 func (x *BaseLoginPolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[2]
+	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -148,49 +748,91 @@ func (x *BaseLoginPolicy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseLoginPolicy.ProtoReflect.Descriptor instead.
 func (*BaseLoginPolicy) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_login_policy_proto_rawDescGZIP(), []int{2}
+	return file_system_admin_v1_base_login_policy_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *BaseLoginPolicy) GetEnabled() bool {
+func (x *BaseLoginPolicy) GetId() int64 {
 	if x != nil {
-		return x.Enabled
+		return x.Id
 	}
-	return false
+	return 0
 }
 
-func (x *BaseLoginPolicy) GetIpBlacklist() []string {
+func (x *BaseLoginPolicy) GetScopeType() BaseLoginPolicyScopeType {
 	if x != nil {
-		return x.IpBlacklist
+		return x.ScopeType
 	}
-	return nil
+	return BaseLoginPolicyScopeType_BASE_LOGIN_POLICY_SCOPE_TYPE_UNSPECIFIED
 }
 
-func (x *BaseLoginPolicy) GetIpWhitelist() []string {
+func (x *BaseLoginPolicy) GetTenantId() int64 {
 	if x != nil {
-		return x.IpWhitelist
+		return x.TenantId
 	}
-	return nil
+	return 0
 }
 
-func (x *BaseLoginPolicy) GetTimeWindows() []string {
+func (x *BaseLoginPolicy) GetUserId() int64 {
 	if x != nil {
-		return x.TimeWindows
+		return x.UserId
 	}
-	return nil
+	return 0
 }
 
-func (x *BaseLoginPolicy) GetDeviceBlacklist() []string {
+func (x *BaseLoginPolicy) GetTenantName() string {
 	if x != nil {
-		return x.DeviceBlacklist
+		return x.TenantName
 	}
-	return nil
+	return ""
 }
 
-func (x *BaseLoginPolicy) GetDeviceWhitelist() []string {
+func (x *BaseLoginPolicy) GetUserName() string {
 	if x != nil {
-		return x.DeviceWhitelist
+		return x.UserName
 	}
-	return nil
+	return ""
+}
+
+func (x *BaseLoginPolicy) GetMaxFailedAttempts() int32 {
+	if x != nil {
+		return x.MaxFailedAttempts
+	}
+	return 0
+}
+
+func (x *BaseLoginPolicy) GetLockDurationMinutes() int32 {
+	if x != nil {
+		return x.LockDurationMinutes
+	}
+	return 0
+}
+
+func (x *BaseLoginPolicy) GetStatus() v1.Status {
+	if x != nil {
+		return x.Status
+	}
+	return v1.Status(0)
+}
+
+func (x *BaseLoginPolicy) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
+func (x *BaseLoginPolicy) GetUpdatedAt() string {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return ""
+}
+
+func (x *BaseLoginPolicy) GetPasswordMaxAgeDays() int32 {
+	if x != nil {
+		return x.PasswordMaxAgeDays
+	}
+	return 0
 }
 
 func (x *BaseLoginPolicy) GetRules() []*BaseLoginPolicyRule {
@@ -200,24 +842,44 @@ func (x *BaseLoginPolicy) GetRules() []*BaseLoginPolicyRule {
 	return nil
 }
 
-// 登录来源定向规则。
+func (x *BaseLoginPolicy) GetPasswordMinLength() int32 {
+	if x != nil {
+		return x.PasswordMinLength
+	}
+	return 0
+}
+
+func (x *BaseLoginPolicy) GetPasswordHistoryCount() int32 {
+	if x != nil {
+		return x.PasswordHistoryCount
+	}
+	return 0
+}
+
+func (x *BaseLoginPolicy) GetPasswordMinComplexityClasses() int32 {
+	if x != nil {
+		return x.PasswordMinComplexityClasses
+	}
+	return 0
+}
+
+// 登录策略限制规则。
 type BaseLoginPolicyRule struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	TargetType      string                 `protobuf:"bytes,1,opt,name=target_type,json=targetType,proto3" json:"target_type,omitempty"`                // 目标类型：TENANT或USER
-	TargetValue     string                 `protobuf:"bytes,2,opt,name=target_value,json=targetValue,proto3" json:"target_value,omitempty"`             // 目标值：租户编码或用户名
-	Enabled         bool                   `protobuf:"varint,3,opt,name=enabled,proto3" json:"enabled,omitempty"`                                       // 是否启用
-	IpBlacklist     []string               `protobuf:"bytes,4,rep,name=ip_blacklist,json=ipBlacklist,proto3" json:"ip_blacklist,omitempty"`             // IP黑名单
-	IpWhitelist     []string               `protobuf:"bytes,5,rep,name=ip_whitelist,json=ipWhitelist,proto3" json:"ip_whitelist,omitempty"`             // IP白名单
-	TimeWindows     []string               `protobuf:"bytes,6,rep,name=time_windows,json=timeWindows,proto3" json:"time_windows,omitempty"`             // 禁止登录时间窗口
-	DeviceBlacklist []string               `protobuf:"bytes,7,rep,name=device_blacklist,json=deviceBlacklist,proto3" json:"device_blacklist,omitempty"` // 设备黑名单
-	DeviceWhitelist []string               `protobuf:"bytes,8,rep,name=device_whitelist,json=deviceWhitelist,proto3" json:"device_whitelist,omitempty"` // 设备白名单
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state             protoimpl.MessageState           `protogen:"open.v1"`
+	Id                int64                            `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                                                              // 限制规则ID
+	PolicyId          int64                            `protobuf:"varint,2,opt,name=policy_id,json=policyId,proto3" json:"policy_id,omitempty"`                                                                                  // 登录策略ID
+	RestrictionType   BaseLoginPolicyRestrictionType   `protobuf:"varint,3,opt,name=restriction_type,json=restrictionType,proto3,enum=system.admin.v1.BaseLoginPolicyRestrictionType" json:"restriction_type,omitempty"`         // 限制类型
+	RestrictionMethod BaseLoginPolicyRestrictionMethod `protobuf:"varint,4,opt,name=restriction_method,json=restrictionMethod,proto3,enum=system.admin.v1.BaseLoginPolicyRestrictionMethod" json:"restriction_method,omitempty"` // 限制方式
+	RestrictionValue  string                           `protobuf:"bytes,5,opt,name=restriction_value,json=restrictionValue,proto3" json:"restriction_value,omitempty"`                                                           // 限制值
+	Reason            string                           `protobuf:"bytes,6,opt,name=reason,proto3" json:"reason,omitempty"`                                                                                                       // 限制原因
+	Status            v1.Status                        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                                              // 状态
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *BaseLoginPolicyRule) Reset() {
 	*x = BaseLoginPolicyRule{}
-	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[3]
+	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -229,7 +891,7 @@ func (x *BaseLoginPolicyRule) String() string {
 func (*BaseLoginPolicyRule) ProtoMessage() {}
 
 func (x *BaseLoginPolicyRule) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[3]
+	mi := &file_system_admin_v1_base_login_policy_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -242,96 +904,160 @@ func (x *BaseLoginPolicyRule) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseLoginPolicyRule.ProtoReflect.Descriptor instead.
 func (*BaseLoginPolicyRule) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_login_policy_proto_rawDescGZIP(), []int{3}
+	return file_system_admin_v1_base_login_policy_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *BaseLoginPolicyRule) GetTargetType() string {
+func (x *BaseLoginPolicyRule) GetId() int64 {
 	if x != nil {
-		return x.TargetType
+		return x.Id
+	}
+	return 0
+}
+
+func (x *BaseLoginPolicyRule) GetPolicyId() int64 {
+	if x != nil {
+		return x.PolicyId
+	}
+	return 0
+}
+
+func (x *BaseLoginPolicyRule) GetRestrictionType() BaseLoginPolicyRestrictionType {
+	if x != nil {
+		return x.RestrictionType
+	}
+	return BaseLoginPolicyRestrictionType_BASE_LOGIN_POLICY_RESTRICTION_TYPE_UNSPECIFIED
+}
+
+func (x *BaseLoginPolicyRule) GetRestrictionMethod() BaseLoginPolicyRestrictionMethod {
+	if x != nil {
+		return x.RestrictionMethod
+	}
+	return BaseLoginPolicyRestrictionMethod_BASE_LOGIN_POLICY_RESTRICTION_METHOD_UNSPECIFIED
+}
+
+func (x *BaseLoginPolicyRule) GetRestrictionValue() string {
+	if x != nil {
+		return x.RestrictionValue
 	}
 	return ""
 }
 
-func (x *BaseLoginPolicyRule) GetTargetValue() string {
+func (x *BaseLoginPolicyRule) GetReason() string {
 	if x != nil {
-		return x.TargetValue
+		return x.Reason
 	}
 	return ""
 }
 
-func (x *BaseLoginPolicyRule) GetEnabled() bool {
+func (x *BaseLoginPolicyRule) GetStatus() v1.Status {
 	if x != nil {
-		return x.Enabled
+		return x.Status
 	}
-	return false
-}
-
-func (x *BaseLoginPolicyRule) GetIpBlacklist() []string {
-	if x != nil {
-		return x.IpBlacklist
-	}
-	return nil
-}
-
-func (x *BaseLoginPolicyRule) GetIpWhitelist() []string {
-	if x != nil {
-		return x.IpWhitelist
-	}
-	return nil
-}
-
-func (x *BaseLoginPolicyRule) GetTimeWindows() []string {
-	if x != nil {
-		return x.TimeWindows
-	}
-	return nil
-}
-
-func (x *BaseLoginPolicyRule) GetDeviceBlacklist() []string {
-	if x != nil {
-		return x.DeviceBlacklist
-	}
-	return nil
-}
-
-func (x *BaseLoginPolicyRule) GetDeviceWhitelist() []string {
-	if x != nil {
-		return x.DeviceWhitelist
-	}
-	return nil
+	return v1.Status(0)
 }
 
 var File_system_admin_v1_base_login_policy_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_login_policy_proto_rawDesc = "" +
 	"\n" +
-	"'system/admin/v1/base_login_policy.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\x1b\n" +
-	"\x19GetBaseLoginPolicyRequest\"x\n" +
-	"\x1cUpdateBaseLoginPolicyRequest\x12X\n" +
-	"\x06policy\x18\x01 \x01(\v2 .system.admin.v1.BaseLoginPolicyB\x1e\xbaG\x15\x92\x02\x12登录来源策略\xbaH\x03\xc8\x01\x01R\x06policy\"\x95\x04\n" +
-	"\x0fBaseLoginPolicy\x12,\n" +
-	"\aenabled\x18\x01 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否启用R\aenabled\x12F\n" +
-	"\fip_blacklist\x18\x02 \x03(\tB#\xbaG \x92\x02\x1dIP黑名单，支持IP和CIDRR\vipBlacklist\x12F\n" +
-	"\fip_whitelist\x18\x03 \x03(\tB#\xbaG \x92\x02\x1dIP白名单，支持IP和CIDRR\vipWhitelist\x12U\n" +
-	"\ftime_windows\x18\x04 \x03(\tB2\xbaG/\x92\x02,禁止登录时间窗口，格式HH:MM-HH:MMR\vtimeWindows\x12@\n" +
-	"\x10device_blacklist\x18\x05 \x03(\tB\x15\xbaG\x12\x92\x02\x0f设备黑名单R\x0fdeviceBlacklist\x12@\n" +
-	"\x10device_whitelist\x18\x06 \x03(\tB\x15\xbaG\x12\x92\x02\x0f设备白名单R\x0fdeviceWhitelist\x12i\n" +
-	"\x05rules\x18\a \x03(\v2$.system.admin.v1.BaseLoginPolicyRuleB-\xbaG*\x92\x02'按租户或用户匹配的定向规则R\x05rules\"\xdf\x06\n" +
-	"\x13BaseLoginPolicyRule\x12\xd0\x01\n" +
-	"\vtarget_type\x18\x01 \x01(\tB\xae\x01\xbaG\x1f\x92\x02\x1c目标类型：TENANT或USER\xbaH\x88\x01\xba\x01\x84\x01\n" +
-	"8system.admin.base.login_policy.rule.target_type.required\x12$定向规则目标类型不能为空\x1a\"this == 'TENANT' || this == 'USER'R\n" +
-	"targetType\x12\xdb\x01\n" +
-	"\ftarget_value\x18\x02 \x01(\tB\xb7\x01\xbaG'\x92\x02$目标值：租户编码或用户名\xbaH\x89\x01\xba\x01\x85\x01\n" +
-	"9system.admin.base.login_policy.rule.target_value.required\x12!定向规则目标值不能为空\x1a%this.size() > 0 && this.size() <= 128R\vtargetValue\x12,\n" +
-	"\aenabled\x18\x03 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否启用R\aenabled\x12F\n" +
-	"\fip_blacklist\x18\x04 \x03(\tB#\xbaG \x92\x02\x1dIP黑名单，支持IP和CIDRR\vipBlacklist\x12F\n" +
-	"\fip_whitelist\x18\x05 \x03(\tB#\xbaG \x92\x02\x1dIP白名单，支持IP和CIDRR\vipWhitelist\x12U\n" +
-	"\ftime_windows\x18\x06 \x03(\tB2\xbaG/\x92\x02,禁止登录时间窗口，格式HH:MM-HH:MMR\vtimeWindows\x12@\n" +
-	"\x10device_blacklist\x18\a \x03(\tB\x15\xbaG\x12\x92\x02\x0f设备黑名单R\x0fdeviceBlacklist\x12@\n" +
-	"\x10device_whitelist\x18\b \x03(\tB\x15\xbaG\x12\x92\x02\x0f设备白名单R\x0fdeviceWhitelist2\xc2\x02\n" +
-	"\x16BaseLoginPolicyService\x12\x8b\x01\n" +
-	"\x12GetBaseLoginPolicy\x12*.system.admin.v1.GetBaseLoginPolicyRequest\x1a .system.admin.v1.BaseLoginPolicy\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/base/login-policy\x12\x99\x01\n" +
-	"\x15UpdateBaseLoginPolicy\x12-.system.admin.v1.UpdateBaseLoginPolicyRequest\x1a .system.admin.v1.BaseLoginPolicy\"/\x82\xd3\xe4\x93\x02):\x06policy\x1a\x1f/api/v1/admin/base/login-policyB\xd6\x01\n" +
+	"'system/admin/v1/base_login_policy.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a\x15common/v1/types.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xd8\x02\n" +
+	"\x1aPageBaseLoginPolicyRequest\x12d\n" +
+	"\n" +
+	"scope_type\x18\x01 \x01(\x0e2).system.admin.v1.BaseLoginPolicyScopeTypeB\x15\xbaG\x12\x92\x02\x0f作用域类型H\x00R\tscopeType\x88\x01\x01\x12<\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x01R\x06status\x88\x01\x01\x129\n" +
+	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
+	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\r\n" +
+	"\v_scope_typeB\t\n" +
+	"\a_status\"\xad\x01\n" +
+	"\x1bPageBaseLoginPolicyResponse\x12j\n" +
+	"\x13base_login_policies\x18\x01 \x03(\v2 .system.admin.v1.BaseLoginPolicyB\x18\xbaG\x15\x92\x02\x12登录策略列表R\x11baseLoginPolicies\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"A\n" +
+	"\x19GetBaseLoginPolicyRequest\x12$\n" +
+	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e登录策略IDR\x02id\"\x90\x01\n" +
+	"\x1cCreateBaseLoginPolicyRequest\x12p\n" +
+	"\x11base_login_policy\x18\x01 \x01(\v2$.system.admin.v1.BaseLoginPolicyFormB\x1e\xbaG\x15\x92\x02\x12登录策略表单\xbaH\x03\xc8\x01\x01R\x0fbaseLoginPolicy\"\x90\x01\n" +
+	"\x1cUpdateBaseLoginPolicyRequest\x12p\n" +
+	"\x11base_login_policy\x18\x01 \x01(\v2$.system.admin.v1.BaseLoginPolicyFormB\x1e\xbaG\x15\x92\x02\x12登录策略表单\xbaH\x03\xc8\x01\x01R\x0fbaseLoginPolicy\"J\n" +
+	"\x1cDeleteBaseLoginPolicyRequest\x12*\n" +
+	"\x02id\x18\x01 \x01(\tB\x1a\xbaG\x17\x92\x02\x14登录策略ID列表R\x02id\"\x88\x01\n" +
+	"\x1fSetBaseLoginPolicyStatusRequest\x12$\n" +
+	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e登录策略IDR\x02id\x12?\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xe9\n" +
+	"\n" +
+	"\x13BaseLoginPolicyForm\x12$\n" +
+	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e登录策略IDR\x02id\x12\x82\x01\n" +
+	"\n" +
+	"scope_type\x18\x02 \x01(\x0e2).system.admin.v1.BaseLoginPolicyScopeTypeB8\xbaG-\x92\x02*作用域类型：全局、租户或用户\xbaH\x05\x82\x01\x02\x10\x01R\tscopeType\x12L\n" +
+	"\ttenant_id\x18\x03 \x01(\x03B/\xbaG,\x92\x02)租户ID，租户或用户作用域必填R\btenantId\x12?\n" +
+	"\auser_id\x18\x04 \x01(\x03B&\xbaG#\x92\x02 用户ID，用户作用域必填R\x06userId\x12N\n" +
+	"\x13max_failed_attempts\x18\x05 \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18最大登录失败次数R\x11maxFailedAttempts\x12R\n" +
+	"\x15lock_duration_minutes\x18\x06 \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18锁定时长（分钟）R\x13lockDurationMinutes\x12?\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12i\n" +
+	"\x15password_max_age_days\x18\a \x01(\x05B1\xbaG.\x92\x02+密码有效期（天），0表示不启用H\x00R\x12passwordMaxAgeDays\x88\x01\x01\x12T\n" +
+	"\x05rules\x18\b \x03(\v2$.system.admin.v1.BaseLoginPolicyRuleB\x18\xbaG\x15\x92\x02\x12限制规则列表R\x05rules\x12M\n" +
+	"\x13password_min_length\x18\v \x01(\x05B\x18\xbaG\x15\x92\x02\x12密码最小长度H\x01R\x11passwordMinLength\x88\x01\x01\x12{\n" +
+	"\x16password_history_count\x18\f \x01(\x05B@\xbaG=\x92\x02:禁止重复使用的历史密码数量，0表示不启用H\x02R\x14passwordHistoryCount\x88\x01\x01\x12\xaf\x01\n" +
+	"\x1fpassword_min_complexity_classes\x18\r \x01(\x05Bc\xbaG`\x92\x02]密码至少满足的字符类别数量，字符类别包括小写、大写、数字和符号H\x03R\x1cpasswordMinComplexityClasses\x88\x01\x01\x12\x82\x01\n" +
+	"\x10initial_password\x18\x0e \x01(\v2\x19.common.v1.PasswordCryptoB<\xbaG9\x92\x026初始化密码，新增用户未提交密码时使用R\x0finitialPasswordB\x18\n" +
+	"\x16_password_max_age_daysB\x16\n" +
+	"\x14_password_min_lengthB\x19\n" +
+	"\x17_password_history_countB\"\n" +
+	" _password_min_complexity_classes\"\xc4\t\n" +
+	"\x0fBaseLoginPolicy\x12$\n" +
+	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e登录策略IDR\x02id\x12_\n" +
+	"\n" +
+	"scope_type\x18\x02 \x01(\x0e2).system.admin.v1.BaseLoginPolicyScopeTypeB\x15\xbaG\x12\x92\x02\x0f作用域类型R\tscopeType\x12+\n" +
+	"\ttenant_id\x18\x03 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12'\n" +
+	"\auser_id\x18\x04 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x06userId\x123\n" +
+	"\vtenant_name\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户名称R\n" +
+	"tenantName\x12/\n" +
+	"\tuser_name\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x12N\n" +
+	"\x13max_failed_attempts\x18\a \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18最大登录失败次数R\x11maxFailedAttempts\x12R\n" +
+	"\x15lock_duration_minutes\x18\b \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18锁定时长（分钟）R\x13lockDurationMinutes\x127\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x122\n" +
+	"\n" +
+	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
+	"\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12d\n" +
+	"\x15password_max_age_days\x18\t \x01(\x05B1\xbaG.\x92\x02+密码有效期（天），0表示不启用R\x12passwordMaxAgeDays\x12T\n" +
+	"\x05rules\x18\n" +
+	" \x03(\v2$.system.admin.v1.BaseLoginPolicyRuleB\x18\xbaG\x15\x92\x02\x12限制规则列表R\x05rules\x12H\n" +
+	"\x13password_min_length\x18\v \x01(\x05B\x18\xbaG\x15\x92\x02\x12密码最小长度R\x11passwordMinLength\x12v\n" +
+	"\x16password_history_count\x18\f \x01(\x05B@\xbaG=\x92\x02:禁止重复使用的历史密码数量，0表示不启用R\x14passwordHistoryCount\x12\xaa\x01\n" +
+	"\x1fpassword_min_complexity_classes\x18\r \x01(\x05Bc\xbaG`\x92\x02]密码至少满足的字符类别数量，字符类别包括小写、大写、数字和符号R\x1cpasswordMinComplexityClasses\"\xd8\x06\n" +
+	"\x13BaseLoginPolicyRule\x12$\n" +
+	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e限制规则IDR\x02id\x121\n" +
+	"\tpolicy_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e登录策略IDR\bpolicyId\x12\x8e\x01\n" +
+	"\x10restriction_type\x18\x03 \x01(\x0e2/.system.admin.v1.BaseLoginPolicyRestrictionTypeB2\xbaG'\x92\x02$限制类型：黑名单或白名单\xbaH\x05\x82\x01\x02\x10\x01R\x0frestrictionType\x12\xa2\x01\n" +
+	"\x12restriction_method\x18\x04 \x01(\x0e21.system.admin.v1.BaseLoginPolicyRestrictionMethodB@\xbaG5\x92\x022限制方式：IP、MAC、地区、时间或设备\xbaH\x05\x82\x01\x02\x10\x01R\x11restrictionMethod\x12\xcf\x01\n" +
+	"\x11restriction_value\x18\x05 \x01(\tB\xa1\x01\xbaG\f\x92\x02\t限制值\xbaH\x8e\x01\xba\x01\x8a\x01\n" +
+	"2system.admin.base.login_policy.rule.value.required\x12-限制值不能为空且不超过512个字符\x1a%this.size() > 0 && this.size() <= 512R\x10restrictionValue\x12\x9e\x01\n" +
+	"\x06reason\x18\x06 \x01(\tB\x85\x01\xbaG\x0f\x92\x02\f限制原因\xbaHp\xba\x01m\n" +
+	"1system.admin.base.login_policy.rule.reason.length\x12$限制原因不能超过500个字符\x1a\x12this.size() <= 500R\x06reason\x12?\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status*\xc1\x01\n" +
+	"\x18BaseLoginPolicyScopeType\x12,\n" +
+	"(BASE_LOGIN_POLICY_SCOPE_TYPE_UNSPECIFIED\x10\x00\x12'\n" +
+	"#BASE_LOGIN_POLICY_SCOPE_TYPE_GLOBAL\x10\x01\x12'\n" +
+	"#BASE_LOGIN_POLICY_SCOPE_TYPE_TENANT\x10\x02\x12%\n" +
+	"!BASE_LOGIN_POLICY_SCOPE_TYPE_USER\x10\x03*\xb8\x01\n" +
+	"\x1eBaseLoginPolicyRestrictionType\x122\n" +
+	".BASE_LOGIN_POLICY_RESTRICTION_TYPE_UNSPECIFIED\x10\x00\x120\n" +
+	",BASE_LOGIN_POLICY_RESTRICTION_TYPE_BLACKLIST\x10\x01\x120\n" +
+	",BASE_LOGIN_POLICY_RESTRICTION_TYPE_WHITELIST\x10\x02*\xc4\x02\n" +
+	" BaseLoginPolicyRestrictionMethod\x124\n" +
+	"0BASE_LOGIN_POLICY_RESTRICTION_METHOD_UNSPECIFIED\x10\x00\x12+\n" +
+	"'BASE_LOGIN_POLICY_RESTRICTION_METHOD_IP\x10\x01\x12,\n" +
+	"(BASE_LOGIN_POLICY_RESTRICTION_METHOD_MAC\x10\x02\x12/\n" +
+	"+BASE_LOGIN_POLICY_RESTRICTION_METHOD_REGION\x10\x03\x12-\n" +
+	")BASE_LOGIN_POLICY_RESTRICTION_METHOD_TIME\x10\x04\x12/\n" +
+	"+BASE_LOGIN_POLICY_RESTRICTION_METHOD_DEVICE\x10\x052\xca\a\n" +
+	"\x16BaseLoginPolicyService\x12\x99\x01\n" +
+	"\x13PageBaseLoginPolicy\x12+.system.admin.v1.PageBaseLoginPolicyRequest\x1a,.system.admin.v1.PageBaseLoginPolicyResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/base/login-policy\x12\x94\x01\n" +
+	"\x12GetBaseLoginPolicy\x12*.system.admin.v1.GetBaseLoginPolicyRequest\x1a$.system.admin.v1.BaseLoginPolicyForm\",\x82\xd3\xe4\x93\x02&\x12$/api/v1/admin/base/login-policy/{id}\x12\x9a\x01\n" +
+	"\x15CreateBaseLoginPolicy\x12-.system.admin.v1.CreateBaseLoginPolicyRequest\x1a\x16.google.protobuf.Empty\":\x82\xd3\xe4\x93\x024:\x11base_login_policy\"\x1f/api/v1/admin/base/login-policy\x12\xb1\x01\n" +
+	"\x15UpdateBaseLoginPolicy\x12-.system.admin.v1.UpdateBaseLoginPolicyRequest\x1a\x16.google.protobuf.Empty\"Q\x82\xd3\xe4\x93\x02K:\x11base_login_policy\x1a6/api/v1/admin/base/login-policy/{base_login_policy.id}\x12\x8c\x01\n" +
+	"\x15DeleteBaseLoginPolicy\x12-.system.admin.v1.DeleteBaseLoginPolicyRequest\x1a\x16.google.protobuf.Empty\",\x82\xd3\xe4\x93\x02&*$/api/v1/admin/base/login-policy/{id}\x12\x9c\x01\n" +
+	"\x18SetBaseLoginPolicyStatus\x120.system.admin.v1.SetBaseLoginPolicyStatusRequest\x1a\x16.google.protobuf.Empty\"6\x82\xd3\xe4\x93\x020:\x01*\x1a+/api/v1/admin/base/login-policy/{id}/statusB\xd6\x01\n" +
 	"\x13com.system.admin.v1B\x14BaseLoginPolicyProtoP\x01ZKgithub.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1;adminv1\xa2\x02\x03SAX\xaa\x02\x0fSystem.Admin.V1\xca\x02\x0fSystem\\Admin\\V1\xe2\x02\x1bSystem\\Admin\\V1\\GPBMetadata\xea\x02\x11System::Admin::V1b\x06proto3"
 
 var (
@@ -346,25 +1072,60 @@ func file_system_admin_v1_base_login_policy_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_base_login_policy_proto_rawDescData
 }
 
-var file_system_admin_v1_base_login_policy_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_system_admin_v1_base_login_policy_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_system_admin_v1_base_login_policy_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_system_admin_v1_base_login_policy_proto_goTypes = []any{
-	(*GetBaseLoginPolicyRequest)(nil),    // 0: system.admin.v1.GetBaseLoginPolicyRequest
-	(*UpdateBaseLoginPolicyRequest)(nil), // 1: system.admin.v1.UpdateBaseLoginPolicyRequest
-	(*BaseLoginPolicy)(nil),              // 2: system.admin.v1.BaseLoginPolicy
-	(*BaseLoginPolicyRule)(nil),          // 3: system.admin.v1.BaseLoginPolicyRule
+	(BaseLoginPolicyScopeType)(0),           // 0: system.admin.v1.BaseLoginPolicyScopeType
+	(BaseLoginPolicyRestrictionType)(0),     // 1: system.admin.v1.BaseLoginPolicyRestrictionType
+	(BaseLoginPolicyRestrictionMethod)(0),   // 2: system.admin.v1.BaseLoginPolicyRestrictionMethod
+	(*PageBaseLoginPolicyRequest)(nil),      // 3: system.admin.v1.PageBaseLoginPolicyRequest
+	(*PageBaseLoginPolicyResponse)(nil),     // 4: system.admin.v1.PageBaseLoginPolicyResponse
+	(*GetBaseLoginPolicyRequest)(nil),       // 5: system.admin.v1.GetBaseLoginPolicyRequest
+	(*CreateBaseLoginPolicyRequest)(nil),    // 6: system.admin.v1.CreateBaseLoginPolicyRequest
+	(*UpdateBaseLoginPolicyRequest)(nil),    // 7: system.admin.v1.UpdateBaseLoginPolicyRequest
+	(*DeleteBaseLoginPolicyRequest)(nil),    // 8: system.admin.v1.DeleteBaseLoginPolicyRequest
+	(*SetBaseLoginPolicyStatusRequest)(nil), // 9: system.admin.v1.SetBaseLoginPolicyStatusRequest
+	(*BaseLoginPolicyForm)(nil),             // 10: system.admin.v1.BaseLoginPolicyForm
+	(*BaseLoginPolicy)(nil),                 // 11: system.admin.v1.BaseLoginPolicy
+	(*BaseLoginPolicyRule)(nil),             // 12: system.admin.v1.BaseLoginPolicyRule
+	(v1.Status)(0),                          // 13: common.v1.Status
+	(*v1.PasswordCrypto)(nil),               // 14: common.v1.PasswordCrypto
+	(*emptypb.Empty)(nil),                   // 15: google.protobuf.Empty
 }
 var file_system_admin_v1_base_login_policy_proto_depIdxs = []int32{
-	2, // 0: system.admin.v1.UpdateBaseLoginPolicyRequest.policy:type_name -> system.admin.v1.BaseLoginPolicy
-	3, // 1: system.admin.v1.BaseLoginPolicy.rules:type_name -> system.admin.v1.BaseLoginPolicyRule
-	0, // 2: system.admin.v1.BaseLoginPolicyService.GetBaseLoginPolicy:input_type -> system.admin.v1.GetBaseLoginPolicyRequest
-	1, // 3: system.admin.v1.BaseLoginPolicyService.UpdateBaseLoginPolicy:input_type -> system.admin.v1.UpdateBaseLoginPolicyRequest
-	2, // 4: system.admin.v1.BaseLoginPolicyService.GetBaseLoginPolicy:output_type -> system.admin.v1.BaseLoginPolicy
-	2, // 5: system.admin.v1.BaseLoginPolicyService.UpdateBaseLoginPolicy:output_type -> system.admin.v1.BaseLoginPolicy
-	4, // [4:6] is the sub-list for method output_type
-	2, // [2:4] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	0,  // 0: system.admin.v1.PageBaseLoginPolicyRequest.scope_type:type_name -> system.admin.v1.BaseLoginPolicyScopeType
+	13, // 1: system.admin.v1.PageBaseLoginPolicyRequest.status:type_name -> common.v1.Status
+	11, // 2: system.admin.v1.PageBaseLoginPolicyResponse.base_login_policies:type_name -> system.admin.v1.BaseLoginPolicy
+	10, // 3: system.admin.v1.CreateBaseLoginPolicyRequest.base_login_policy:type_name -> system.admin.v1.BaseLoginPolicyForm
+	10, // 4: system.admin.v1.UpdateBaseLoginPolicyRequest.base_login_policy:type_name -> system.admin.v1.BaseLoginPolicyForm
+	13, // 5: system.admin.v1.SetBaseLoginPolicyStatusRequest.status:type_name -> common.v1.Status
+	0,  // 6: system.admin.v1.BaseLoginPolicyForm.scope_type:type_name -> system.admin.v1.BaseLoginPolicyScopeType
+	13, // 7: system.admin.v1.BaseLoginPolicyForm.status:type_name -> common.v1.Status
+	12, // 8: system.admin.v1.BaseLoginPolicyForm.rules:type_name -> system.admin.v1.BaseLoginPolicyRule
+	14, // 9: system.admin.v1.BaseLoginPolicyForm.initial_password:type_name -> common.v1.PasswordCrypto
+	0,  // 10: system.admin.v1.BaseLoginPolicy.scope_type:type_name -> system.admin.v1.BaseLoginPolicyScopeType
+	13, // 11: system.admin.v1.BaseLoginPolicy.status:type_name -> common.v1.Status
+	12, // 12: system.admin.v1.BaseLoginPolicy.rules:type_name -> system.admin.v1.BaseLoginPolicyRule
+	1,  // 13: system.admin.v1.BaseLoginPolicyRule.restriction_type:type_name -> system.admin.v1.BaseLoginPolicyRestrictionType
+	2,  // 14: system.admin.v1.BaseLoginPolicyRule.restriction_method:type_name -> system.admin.v1.BaseLoginPolicyRestrictionMethod
+	13, // 15: system.admin.v1.BaseLoginPolicyRule.status:type_name -> common.v1.Status
+	3,  // 16: system.admin.v1.BaseLoginPolicyService.PageBaseLoginPolicy:input_type -> system.admin.v1.PageBaseLoginPolicyRequest
+	5,  // 17: system.admin.v1.BaseLoginPolicyService.GetBaseLoginPolicy:input_type -> system.admin.v1.GetBaseLoginPolicyRequest
+	6,  // 18: system.admin.v1.BaseLoginPolicyService.CreateBaseLoginPolicy:input_type -> system.admin.v1.CreateBaseLoginPolicyRequest
+	7,  // 19: system.admin.v1.BaseLoginPolicyService.UpdateBaseLoginPolicy:input_type -> system.admin.v1.UpdateBaseLoginPolicyRequest
+	8,  // 20: system.admin.v1.BaseLoginPolicyService.DeleteBaseLoginPolicy:input_type -> system.admin.v1.DeleteBaseLoginPolicyRequest
+	9,  // 21: system.admin.v1.BaseLoginPolicyService.SetBaseLoginPolicyStatus:input_type -> system.admin.v1.SetBaseLoginPolicyStatusRequest
+	4,  // 22: system.admin.v1.BaseLoginPolicyService.PageBaseLoginPolicy:output_type -> system.admin.v1.PageBaseLoginPolicyResponse
+	10, // 23: system.admin.v1.BaseLoginPolicyService.GetBaseLoginPolicy:output_type -> system.admin.v1.BaseLoginPolicyForm
+	15, // 24: system.admin.v1.BaseLoginPolicyService.CreateBaseLoginPolicy:output_type -> google.protobuf.Empty
+	15, // 25: system.admin.v1.BaseLoginPolicyService.UpdateBaseLoginPolicy:output_type -> google.protobuf.Empty
+	15, // 26: system.admin.v1.BaseLoginPolicyService.DeleteBaseLoginPolicy:output_type -> google.protobuf.Empty
+	15, // 27: system.admin.v1.BaseLoginPolicyService.SetBaseLoginPolicyStatus:output_type -> google.protobuf.Empty
+	22, // [22:28] is the sub-list for method output_type
+	16, // [16:22] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_login_policy_proto_init() }
@@ -372,18 +1133,21 @@ func file_system_admin_v1_base_login_policy_proto_init() {
 	if File_system_admin_v1_base_login_policy_proto != nil {
 		return
 	}
+	file_system_admin_v1_base_login_policy_proto_msgTypes[0].OneofWrappers = []any{}
+	file_system_admin_v1_base_login_policy_proto_msgTypes[7].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_base_login_policy_proto_rawDesc), len(file_system_admin_v1_base_login_policy_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   4,
+			NumEnums:      3,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_system_admin_v1_base_login_policy_proto_goTypes,
 		DependencyIndexes: file_system_admin_v1_base_login_policy_proto_depIdxs,
+		EnumInfos:         file_system_admin_v1_base_login_policy_proto_enumTypes,
 		MessageInfos:      file_system_admin_v1_base_login_policy_proto_msgTypes,
 	}.Build()
 	File_system_admin_v1_base_login_policy_proto = out.File

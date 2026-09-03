@@ -1,0 +1,25 @@
+oauth:
+    providers:
+        gitee:
+            client_id: a23f23168a3baef3f37b37d136400a7118278ba6ec3b8f18315727581ddeba4b
+            client_secret: ENC[fefLmuNSGQ6fQ_YDRbEU_HPnq6Klr9Gz47ch1yhMXerxks6X5tJc4OeOi2SLTu-yRRacP6qV8LzxThfMTNt9PzJb0GK1hIQVN4kYbxtkekEOKfWyIAxRx3GvAo4]
+            redirect_uri: http://127.0.0.1:7001/api/v1/base/oauth/gitee/callback
+            scopes:
+                - user_info
+        github:
+            client_id: Ov23litVBeilJRE8TgOk
+            client_secret: ENC[up84fj74GZ_0VpEsRLMvPNIKfS-MCO22_0nOvDE-K9k778tQ7az_mAyLgfj5XePPXc3iSsKwc-s3i8qJV6chBFF61bQ]
+            redirect_uri: http://127.0.0.1:7001/api/v1/base/oauth/github/callback
+            scopes:
+                - user:email
+        google:
+            client_id: 97409157491-jak87hoo8odjb5e0capltnklk5iqjqhq.apps.googleusercontent.com
+            client_secret: ENC[ezA7mfvqd6H35iVOunrF5bFICOxhTlOJXJuz_3Y3hSnRlfQhvGq8O2AylPnl6cdUt-pxzVb33VDcA8_lRRUn]
+            redirect_uri: http://127.0.0.1:7001/api/v1/base/oauth/google/callback
+            scopes:
+                - openid
+                - profile
+                - email
+        wechatmini:
+            client_id: wx3fe0d8a39051f39a
+            client_secret: ENC[dvAUrkTI3c30XAFLwpphJd9N9xKW4G11Lef9-ddHiGdOMCtY-rxYUc_7Ck32tViWaXjOTaloL_OW4Rj8]

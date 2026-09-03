@@ -93,10 +93,10 @@ import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
-import { defBaseRoleService } from "@liujitcn/kratos-admin-system/api/system/base_role";
+import { defBaseRoleService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_role";
 import type { BaseRole, BaseRoleForm, PageBaseRoleRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_role";
-import { defBaseMenuService } from "@liujitcn/kratos-admin-system/api/system/base_menu";
-import { defBaseTenantService } from "@liujitcn/kratos-admin-system/api/system/base_tenant";
+import { defBaseMenuService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_menu";
+import { defBaseTenantService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_tenant";
 import type { SelectOptionResponse_Option, TreeOptionResponse_Option } from "@liujitcn/kratos-admin-system/rpc/common/v1/common";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
@@ -686,7 +686,7 @@ function handelParentChildLinkedChange(val: CheckboxValueType) {
   padding: 14px;
   background: linear-gradient(180deg, #f8fafc 0%, #f3f6fb 100%);
   border: 1px solid #e4eaf3;
-  border-radius: 12px;
+  border-radius: var(--admin-page-radius);
 }
 .perm-search {
   width: 100%;
@@ -706,7 +706,7 @@ function handelParentChildLinkedChange(val: CheckboxValueType) {
   padding: 6px 10px;
   background: rgb(255 255 255 / 94%);
   border: 1px solid #e4eaf3;
-  border-radius: 10px;
+  border-radius: var(--admin-page-radius);
 }
 .perm-toolbar__group--linkage {
   margin-left: auto;

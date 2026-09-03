@@ -1,16 +1,19 @@
 server:
   http:
     addr: :7001
-    # 流式 AI 与 SSE 请求不应被普通 HTTP 请求超时截断。
-    timeout: 0s
-    enable_swagger: false
+    # 普通 HTTP 请求处理超时；公共 HTTP 服务会跳过流式请求。
+    timeout: 30s
+    max_body_bytes: 67108864
+    enable_swagger: true
     enable_pprof: false
     cors:
+      allow_credentials: true
       headers:
         - "X-Requested-With"
         - "X-Request-ID"
         - "Content-Type"
         - "Authorization"
+        - "X-Refresh-Token-Transport"
       methods:
         - "GET"
         - "POST"
@@ -52,7 +55,6 @@ server:
     transport: IN_PROCESS
     path: /events
     codec: json
-    timeout: 10s
     event_ttl: 300s
     auto_stream: true
     auto_reply: true

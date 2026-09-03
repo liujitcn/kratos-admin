@@ -1,4 +1,3 @@
-// Package client 提供 Backend 生成的 gRPC 客户端集合。
 package client
 
 import (
@@ -109,6 +108,8 @@ type SystemAdminClient struct {
 	CodeGenTable adminv1.CodeGenTableServiceClient
 	// OpsMonitoring 是运维监控服务客户端。
 	OpsMonitoring adminv1.OpsMonitoringServiceClient
+	// Cache 是运行时缓存查询服务客户端。
+	Cache adminv1.CacheServiceClient
 	// OauthClient 是开放授权客户端管理服务客户端。
 	OauthClient adminv1.OauthClientServiceClient
 	// ProjectDocument 是项目文档服务客户端。
@@ -173,6 +174,7 @@ func NewClient(ctx context.Context, clientConfig *configv1.Client, options ...Op
 			CodeGenProto:     adminv1.NewCodeGenProtoServiceClient(connection),
 			CodeGenTable:     adminv1.NewCodeGenTableServiceClient(connection),
 			OpsMonitoring:    adminv1.NewOpsMonitoringServiceClient(connection),
+			Cache:            adminv1.NewCacheServiceClient(connection),
 			OauthClient:      adminv1.NewOauthClientServiceClient(connection),
 			ProjectDocument:  adminv1.NewProjectDocumentServiceClient(connection),
 		},

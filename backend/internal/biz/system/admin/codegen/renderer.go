@@ -107,18 +107,12 @@ func (c *renderer) repoFileExists(path string) (bool, error) {
 }
 
 // protoMethodExists 判断当前渲染上下文中的指定 Proto service 是否已定义目标方法。
-func (c *renderer) protoMethodExists(protoPath string, targetEntity string, methodName string) (bool, string) {
+func (c *renderer) protoMethodExists(protoPath string, targetEntity string, methodName string) bool {
 	content, err := c.readRepoFile(protoPath)
 	if err != nil {
-		if os.IsNotExist(err) {
-			return false, Message(c.localeState, "proto.file_missing", nil)
-		}
-		return false, err.Error()
+		return false
 	}
-	if protoServiceMethodExists(string(content), targetEntity+"Service", methodName) {
-		return true, Message(c.localeState, "common.exists", nil)
-	}
-	return false, Message(c.localeState, "proto.missing_select_generate", nil)
+	return protoServiceMethodExists(string(content), targetEntity+"Service", methodName)
 }
 
 // readRepoFile 读取当前渲染上下文中的仓库文件。

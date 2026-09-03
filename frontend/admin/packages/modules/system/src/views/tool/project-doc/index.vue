@@ -75,7 +75,7 @@ import type { TreeNodeData } from "element-plus";
 import { getCurrentLocale, t, useLocaleStore } from "@liujitcn/kratos-admin-core";
 import MarkdownPreview from "@liujitcn/kratos-admin-core/components/MarkdownPreview/index.vue";
 import { useGlobalStore } from "@liujitcn/kratos-admin-core/stores/runtime";
-import { defProjectDocumentService } from "@liujitcn/kratos-admin-system/api/system/project_document";
+import { defProjectDocumentService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/project_document";
 import type {
   ProjectDocument,
   ProjectDocumentDirectory,
@@ -420,7 +420,7 @@ onMounted(() => {
 .document-tree :deep(.el-tree-node__content) {
   height: 34px;
   padding-right: 8px;
-  border-radius: 4px;
+  border-radius: var(--admin-page-radius);
 }
 .document-tree :deep(.el-tree-node.is-current > .el-tree-node__content) {
   color: var(--el-color-primary);

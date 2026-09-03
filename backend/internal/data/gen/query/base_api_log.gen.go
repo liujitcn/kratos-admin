@@ -72,7 +72,7 @@ type baseAPILog struct {
 	Method       field.String // 请求方法
 	Path         field.String // 请求路径
 	StatusCode   field.Int32  // 状态码
-	Result       field.Int32  // 结果
+	Result       field.Int32  // 结果：枚举【BaseLogResult】
 	ReasonCode   field.String // 原因编码
 	Reason       field.String // 原因说明
 	LatencyMs    field.Int32  // 耗时毫秒

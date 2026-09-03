@@ -9,26 +9,22 @@ import (
 
 	"github.com/liujitcn/gorm-kit/repository"
 	_const "github.com/liujitcn/kratos-core/const"
-	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 // BaseRoleCase 处理基础角色业务。
 type BaseRoleCase struct {
 	*biz.BaseCase
 	*data.BaseRoleRepository
-	baseTenantRepo *data.BaseTenantRepository
 }
 
 // NewBaseRoleCase 创建基础角色业务实例。
 func NewBaseRoleCase(
 	baseCase *biz.BaseCase,
 	baseRoleRepo *data.BaseRoleRepository,
-	baseTenantRepo *data.BaseTenantRepository,
 ) *BaseRoleCase {
 	return &BaseRoleCase{
 		BaseCase:           baseCase,
 		BaseRoleRepository: baseRoleRepo,
-		baseTenantRepo:     baseTenantRepo,
 	}
 }
 
@@ -39,16 +35,6 @@ func (c *BaseRoleCase) FindDefaultUser(ctx context.Context) (*models.BaseRole, e
 
 // FindDefaultByCode 按编码查询默认租户的基础角色。
 func (c *BaseRoleCase) FindDefaultByCode(ctx context.Context, roleCode string) (*models.BaseRole, error) {
-	tenantQuery := c.baseTenantRepo.Query(ctx).BaseTenant
-	tenantOpts := make([]repository.QueryOption, 0, 1)
-	tenantOpts = append(tenantOpts, repository.Where(tenantQuery.Code.Eq(gorm.DefaultTenantCode)))
-	defaultTenant, err := c.baseTenantRepo.Find(ctx, tenantOpts...)
-	if err != nil {
-		return nil, err
-	}
 	roleQuery := c.Query(ctx).BaseRole
-	roleOpts := make([]repository.QueryOption, 0, 2)
-	roleOpts = append(roleOpts, repository.Where(roleQuery.TenantID.Eq(defaultTenant.ID)))
-	roleOpts = append(roleOpts, repository.Where(roleQuery.Code.Eq(roleCode)))
-	return c.Find(ctx, roleOpts...)
+	return c.Find(ctx, repository.Where(roleQuery.Code.Eq(roleCode)))
 }

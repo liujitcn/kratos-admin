@@ -11,6 +11,7 @@ import (
 
 	tool "github.com/cloudwego/eino/components/tool"
 	utils "github.com/cloudwego/eino/components/tool/utils"
+	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -18,30 +19,24 @@ import (
 func NewBaseJobServiceAgentTools(baseJobServiceServer BaseJobServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
+	var optionBaseJobTool tool.InvokableTool
+	optionBaseJobTool, err = NewBaseJobServiceOptionBaseJobAgentTool(baseJobServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, optionBaseJobTool)
 	var pageBaseJobTool tool.InvokableTool
 	pageBaseJobTool, err = NewBaseJobServicePageBaseJobAgentTool(baseJobServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageBaseJobTool)
-	var pageBaseJobLogTool tool.InvokableTool
-	pageBaseJobLogTool, err = NewBaseJobServicePageBaseJobLogAgentTool(baseJobServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, pageBaseJobLogTool)
 	var getBaseJobTool tool.InvokableTool
 	getBaseJobTool, err = NewBaseJobServiceGetBaseJobAgentTool(baseJobServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getBaseJobTool)
-	var getBaseJobLogTool tool.InvokableTool
-	getBaseJobLogTool, err = NewBaseJobServiceGetBaseJobLogAgentTool(baseJobServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, getBaseJobLogTool)
 	var createBaseJobTool tool.InvokableTool
 	createBaseJobTool, err = NewBaseJobServiceCreateBaseJobAgentTool(baseJobServiceServer)
 	if err != nil {
@@ -87,6 +82,20 @@ func NewBaseJobServiceAgentTools(baseJobServiceServer BaseJobServiceServer) ([]t
 	return ts, nil
 }
 
+// NewBaseJobServiceOptionBaseJobAgentTool 创建查询定时任务下拉选择的 Agent Tool。
+func NewBaseJobServiceOptionBaseJobAgentTool(baseJobServiceServer BaseJobServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*OptionBaseJobRequest, *v1.SelectOptionResponse](
+		"system_admin_v1_base_job_service_option_base_job",
+		"查询定时任务下拉选择",
+		func(ctx context.Context, req *OptionBaseJobRequest) (*v1.SelectOptionResponse, error) {
+			if req == nil {
+				req = &OptionBaseJobRequest{}
+			}
+			return baseJobServiceServer.OptionBaseJob(ctx, req)
+		},
+	)
+}
+
 // NewBaseJobServicePageBaseJobAgentTool 创建查询定时任务分页列表的 Agent Tool。
 func NewBaseJobServicePageBaseJobAgentTool(baseJobServiceServer BaseJobServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*PageBaseJobRequest, *PageBaseJobResponse](
@@ -101,20 +110,6 @@ func NewBaseJobServicePageBaseJobAgentTool(baseJobServiceServer BaseJobServiceSe
 	)
 }
 
-// NewBaseJobServicePageBaseJobLogAgentTool 创建查询定时任务日志分页列表的 Agent Tool。
-func NewBaseJobServicePageBaseJobLogAgentTool(baseJobServiceServer BaseJobServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*PageBaseJobLogRequest, *PageBaseJobLogResponse](
-		"system_admin_v1_base_job_service_page_base_job_log",
-		"查询定时任务日志分页列表",
-		func(ctx context.Context, req *PageBaseJobLogRequest) (*PageBaseJobLogResponse, error) {
-			if req == nil {
-				req = &PageBaseJobLogRequest{}
-			}
-			return baseJobServiceServer.PageBaseJobLog(ctx, req)
-		},
-	)
-}
-
 // NewBaseJobServiceGetBaseJobAgentTool 创建查询定时任务的 Agent Tool。
 func NewBaseJobServiceGetBaseJobAgentTool(baseJobServiceServer BaseJobServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*GetBaseJobRequest, *BaseJobForm](
@@ -125,20 +120,6 @@ func NewBaseJobServiceGetBaseJobAgentTool(baseJobServiceServer BaseJobServiceSer
 				req = &GetBaseJobRequest{}
 			}
 			return baseJobServiceServer.GetBaseJob(ctx, req)
-		},
-	)
-}
-
-// NewBaseJobServiceGetBaseJobLogAgentTool 创建查询定时任务日志的 Agent Tool。
-func NewBaseJobServiceGetBaseJobLogAgentTool(baseJobServiceServer BaseJobServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*GetBaseJobLogRequest, *BaseJobLog](
-		"system_admin_v1_base_job_service_get_base_job_log",
-		"查询定时任务日志",
-		func(ctx context.Context, req *GetBaseJobLogRequest) (*BaseJobLog, error) {
-			if req == nil {
-				req = &GetBaseJobLogRequest{}
-			}
-			return baseJobServiceServer.GetBaseJobLog(ctx, req)
 		},
 	)
 }

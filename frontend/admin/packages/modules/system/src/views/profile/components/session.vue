@@ -54,7 +54,7 @@ import { useRouter } from "vue-router";
 import { t } from "@liujitcn/kratos-admin-core";
 import { LOGIN_URL } from "@liujitcn/kratos-admin-core/config";
 import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
-import { defBaseSessionService } from "@liujitcn/kratos-admin-system/api/system/base_session";
+import { defBaseSessionService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_session";
 import type { BaseSession } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_session";
 
 const loading = ref(false);
@@ -99,6 +99,14 @@ onMounted(loadSession);
 <style scoped lang="scss">
 .session-card {
   border: 1px solid var(--el-border-color-light);
+  border-radius: var(--admin-page-radius);
+}
+:deep(.session-card .el-card__header) {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--el-border-color-light);
+}
+:deep(.session-card .el-card__body) {
+  padding: 20px;
 }
 .session-header,
 .session-status,
@@ -127,7 +135,7 @@ onMounted(loadSession);
 .session-grid div {
   padding: 14px;
   background: var(--el-fill-color-light);
-  border-radius: 6px;
+  border-radius: var(--admin-page-radius);
 }
 .session-grid dt {
   color: var(--el-text-color-secondary);

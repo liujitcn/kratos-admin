@@ -333,8 +333,25 @@ func (c *BaseMenuCase) allocateBaseMenuID(ctx context.Context, parentID int64, m
 	for _, child := range children {
 		usedIDs[child.ID] = struct{}{}
 	}
+	parentLevel := baseMenuIDLevel(parentID)
 	for sequence := int64(1); sequence <= baseMenuChildSequenceMax; sequence++ {
-		menuID := parentID*100 + sequence
+		var menuID int64
+		switch parentLevel {
+		case 1:
+			menuID = parentID + sequence*10000
+		case 2:
+			menuID = parentID + sequence*100
+		case 3:
+			menuID = parentID + sequence
+		case 4:
+			suffix := parentID%100*10 + sequence
+			if suffix > 99 {
+				continue
+			}
+			menuID = parentID/100*100 + suffix
+		default:
+			continue
+		}
 		if _, exists := usedIDs[menuID]; !exists {
 			return menuID, nil
 		}
@@ -396,8 +413,7 @@ func (c *BaseMenuCase) listAssignableMenuIDs(ctx context.Context, targetRoleID i
 	// 默认租户为普通租户维护角色时，以角色真实所属租户的内置管理员角色作为权限上限。
 	if targetRole != nil && authInfo.TenantCode == gorm.DefaultTenantCode && targetRole.TenantID != authInfo.TenantId {
 		query := c.baseRoleRepo.Query(ctx).BaseRole
-		opts := make([]repository.QueryOption, 0, 2)
-		opts = append(opts, repository.Where(query.TenantID.Eq(targetRole.TenantID)))
+		opts := make([]repository.QueryOption, 0, 1)
 		opts = append(opts, repository.Where(query.Code.Eq(coreconst.BASE_ROLE_CODE_TENANT)))
 		var tenantBaseRole *models.BaseRole
 		tenantBaseRole, err = c.baseRoleRepo.Find(ctx, opts...)
@@ -623,7 +639,7 @@ func validateBaseMenuChild(parentMenu *models.BaseMenu, menuType int32) error {
 		return errorsx.InvalidArgument("按钮或外链不能作为父级菜单")
 	}
 	parentLevel := baseMenuIDLevel(parentMenu.ID)
-	if parentLevel == 0 || parentLevel >= baseMenuMaxLevel {
+	if parentLevel == 0 || parentLevel > baseMenuMaxLevel {
 		return errorsx.InvalidArgument("父级菜单ID不符合菜单编号层级规则")
 	}
 	if menuType != _const.BASE_MENU_TYPE_FOLDER && menuType != _const.BASE_MENU_TYPE_MENU && menuType != _const.BASE_MENU_TYPE_BUTTON && menuType != _const.BASE_MENU_TYPE_EXT_LINK {
@@ -636,12 +652,18 @@ func validateBaseMenuChild(parentMenu *models.BaseMenu, menuType int32) error {
 		return errorsx.InvalidArgument("一级目录下只能创建目录、菜单或外链")
 	}
 	if parentMenu.Type == _const.BASE_MENU_TYPE_FOLDER && parentLevel == 2 {
+		if menuType == _const.BASE_MENU_TYPE_FOLDER || menuType == _const.BASE_MENU_TYPE_MENU || menuType == _const.BASE_MENU_TYPE_EXT_LINK {
+			return nil
+		}
+		return errorsx.InvalidArgument("二级目录下只能创建目录、菜单或外链")
+	}
+	if parentMenu.Type == _const.BASE_MENU_TYPE_FOLDER && parentLevel == 3 {
 		if menuType == _const.BASE_MENU_TYPE_MENU || menuType == _const.BASE_MENU_TYPE_EXT_LINK {
 			return nil
 		}
-		return errorsx.InvalidArgument("二级目录下只能创建三级菜单或外链")
+		return errorsx.InvalidArgument("三级目录下只能创建菜单或外链")
 	}
-	if parentMenu.Type == _const.BASE_MENU_TYPE_MENU && (parentLevel == 2 || parentLevel == 3) {
+	if parentMenu.Type == _const.BASE_MENU_TYPE_MENU && (parentLevel == 2 || parentLevel == 3 || parentLevel == 4) {
 		if menuType == _const.BASE_MENU_TYPE_BUTTON {
 			return nil
 		}
@@ -650,26 +672,24 @@ func validateBaseMenuChild(parentMenu *models.BaseMenu, menuType int32) error {
 	return errorsx.InvalidArgument("父级菜单类型与层级不匹配")
 }
 
-// baseMenuIDLevel 根据三、五、七、九位编号识别菜单层级。
+// baseMenuIDLevel 根据固定八位编号中的非零层级槽位识别菜单层级。
 func baseMenuIDLevel(menuID int64) int {
-	switch {
-	case menuID >= 100 && menuID <= 999:
-		return 1
-	case menuID >= 10000 && menuID <= 99999:
-		return 2
-	case menuID >= 1000000 && menuID <= 9999999:
-		return 3
-	case menuID >= 100000000 && menuID <= 999999999:
-		return 4
-	default:
+	if menuID < 10000000 || menuID > 99999999 {
 		return 0
+	}
+	switch {
+	case menuID%1000000 == 0:
+		return 1
+	case menuID%10000 == 0:
+		return 2
+	case menuID%100 == 0:
+		return 3
+	default:
+		return 4
 	}
 }
 
 // isAppMenuID 判断菜单编号是否属于固定移动端菜单树。
 func isAppMenuID(menuID int64) bool {
-	for menuID > _const.BASE_MENU_APP_ROOT_ID {
-		menuID /= 100
-	}
-	return menuID == _const.BASE_MENU_APP_ROOT_ID
+	return menuID >= _const.BASE_MENU_APP_ROOT_ID && menuID < _const.BASE_MENU_APP_ROOT_ID+1000000
 }

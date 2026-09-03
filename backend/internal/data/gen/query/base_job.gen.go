@@ -32,8 +32,8 @@ func newBaseJob(db *gorm.DB, opts ...gen.DOOption) baseJob {
 	_baseJob.InvokeTarget = field.NewString(tableName, "invoke_target")
 	_baseJob.Args = field.NewString(tableName, "args")
 	_baseJob.CronExpression = field.NewString(tableName, "cron_expression")
-	_baseJob.Status = field.NewInt32(tableName, "status")
 	_baseJob.EntryID = field.NewInt32(tableName, "entry_id")
+	_baseJob.Status = field.NewInt32(tableName, "status")
 	_baseJob.CreatedBy = field.NewInt64(tableName, "created_by")
 	_baseJob.UpdatedBy = field.NewInt64(tableName, "updated_by")
 	_baseJob.CreatedAt = field.NewTime(tableName, "created_at")
@@ -55,8 +55,8 @@ type baseJob struct {
 	InvokeTarget   field.String // 调用目标
 	Args           field.String // 目标参数
 	CronExpression field.String // cron表达式
-	Status         field.Int32  // 状态：枚举【Status】
 	EntryID        field.Int32  // job启动时返回的id
+	Status         field.Int32  // 状态：枚举【Status】
 	CreatedBy      field.Int64  // 创建人ID
 	UpdatedBy      field.Int64  // 更新人ID
 	CreatedAt      field.Time   // 创建时间
@@ -83,8 +83,8 @@ func (b *baseJob) updateTableName(table string) *baseJob {
 	b.InvokeTarget = field.NewString(table, "invoke_target")
 	b.Args = field.NewString(table, "args")
 	b.CronExpression = field.NewString(table, "cron_expression")
-	b.Status = field.NewInt32(table, "status")
 	b.EntryID = field.NewInt32(table, "entry_id")
+	b.Status = field.NewInt32(table, "status")
 	b.CreatedBy = field.NewInt64(table, "created_by")
 	b.UpdatedBy = field.NewInt64(table, "updated_by")
 	b.CreatedAt = field.NewTime(table, "created_at")
@@ -120,8 +120,8 @@ func (b *baseJob) fillFieldMap() {
 	b.fieldMap["invoke_target"] = b.InvokeTarget
 	b.fieldMap["args"] = b.Args
 	b.fieldMap["cron_expression"] = b.CronExpression
-	b.fieldMap["status"] = b.Status
 	b.fieldMap["entry_id"] = b.EntryID
+	b.fieldMap["status"] = b.Status
 	b.fieldMap["created_by"] = b.CreatedBy
 	b.fieldMap["updated_by"] = b.UpdatedBy
 	b.fieldMap["created_at"] = b.CreatedAt

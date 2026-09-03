@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"errors"
 	"net"
 	"strings"
 	"time"
@@ -9,6 +10,7 @@ import (
 	"github.com/go-kratos/kratos/v3/transport"
 	httpTransport "github.com/go-kratos/kratos/v3/transport/http"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/sessionstate"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
@@ -39,6 +41,27 @@ func (c *BaseSessionCase) GetCurrentBaseSession(ctx context.Context) (*adminv1.B
 		return nil, errorsx.Unauthenticated("当前会话已失效")
 	}
 	clientIP, userAgent := sessionRequestMeta(ctx)
+	var state sessionstate.State
+	state, err = sessionstate.Read(c.Cache, authInfo.UserId)
+	if err != nil {
+		if !errors.Is(err, sessionstate.ErrStateNotFound) {
+			return nil, errorsx.Internal("读取会话状态失败").WithCause(err)
+		}
+		state, err = sessionstate.Start(c.Cache, authInfo.UserId, clientIP, userAgent, time.Now())
+		if err != nil {
+			return nil, errorsx.Internal("创建会话状态失败").WithCause(err)
+		}
+	}
+	if state.ClientIP != "" {
+		clientIP = state.ClientIP
+	}
+	if state.Device != "" {
+		userAgent = state.Device
+	}
+	issuedAt := ""
+	if !state.TokenIssuedAt.IsZero() {
+		issuedAt = state.TokenIssuedAt.Format(time.RFC3339)
+	}
 	return &adminv1.BaseSession{
 		UserId:     authInfo.UserId,
 		UserName:   authInfo.UserName,
@@ -46,7 +69,7 @@ func (c *BaseSessionCase) GetCurrentBaseSession(ctx context.Context) (*adminv1.B
 		ClientIp:   clientIP,
 		Device:     userAgent,
 		UserAgent:  userAgent,
-		IssuedAt:   time.Now().Format(time.RFC3339),
+		IssuedAt:   issuedAt,
 		ExpiresIn:  c.userToken.GetAccessTokenExpires(),
 	}, nil
 }
@@ -62,6 +85,9 @@ func (c *BaseSessionCase) RevokeAllBaseSessions(ctx context.Context) error {
 	}
 	if err = c.userToken.RemoveToken(authInfo.UserId); err != nil {
 		return errorsx.Internal("撤销全部会话失败").WithCause(err)
+	}
+	if err = sessionstate.Clear(c.Cache, authInfo.UserId); err != nil {
+		return errorsx.Internal("清理会话状态失败").WithCause(err)
 	}
 	return nil
 }

@@ -1,21 +1,11 @@
 package main
 
 import (
-	"github.com/google/wire"
 	"github.com/liujitcn/kratos-admin/backend"
 	"github.com/liujitcn/kratos-core/job"
 	"github.com/liujitcn/kratos-core/module"
 	"github.com/liujitcn/kratos-core/queue"
 	"github.com/liujitcn/kratos-core/sse"
-)
-
-// hostProviderSet 将 Admin 的具名贡献收口为 Core 最终集合。
-var hostProviderSet = wire.NewSet(
-	provideResources,
-	provideModules,
-	provideTasks,
-	provideStreams,
-	provideConsumers,
 )
 
 // provideResources 将 Admin 静态资源转换为 Core 静态资源集合。

@@ -90,6 +90,16 @@ func (*BaseLoginLog) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*BaseLoginPolicy) TableComment() string {
+	return "登录策略"
+}
+
+// TableComment 返回表注释。
+func (*BaseLoginPolicyRule) TableComment() string {
+	return "登录策略规则"
+}
+
+// TableComment 返回表注释。
 func (*BaseMenu) TableComment() string {
 	return "菜单信息"
 }
@@ -142,6 +152,36 @@ func (*BasePost) TableComment() string {
 // TableComment 返回表注释。
 func (*BaseRole) TableComment() string {
 	return "角色信息"
+}
+
+// TableComment 返回表注释。
+func (*BaseTableArchive) TableComment() string {
+	return "表归档配置"
+}
+
+// TableComment 返回表注释。
+func (*BaseTableArchiveRecord) TableComment() string {
+	return "表归档执行记录"
+}
+
+// TableComment 返回表注释。
+func (*BaseTableArchiveRestore) TableComment() string {
+	return "表归档恢复记录"
+}
+
+// TableComment 返回表注释。
+func (*BaseTableBackup) TableComment() string {
+	return "数据库备份配置"
+}
+
+// TableComment 返回表注释。
+func (*BaseTableBackupRecord) TableComment() string {
+	return "数据库备份执行记录"
+}
+
+// TableComment 返回表注释。
+func (*BaseTableBackupRestore) TableComment() string {
+	return "数据库备份恢复记录"
 }
 
 // TableComment 返回表注释。

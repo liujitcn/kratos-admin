@@ -57,19 +57,10 @@
         />
       </template>
       <template #nameI18ns>
-        <DynamicI18nEditor
-          v-model="nameI18nValues"
-          :source="formData.name"
-          :maxlength="100"
-        />
+        <DynamicI18nEditor v-model="nameI18nValues" :source="formData.name" :maxlength="100" />
       </template>
       <template #valueI18ns>
-        <DynamicI18nEditor
-          v-model="valueI18nValues"
-          :source="formData.value"
-          :maxlength="10000"
-          multiline
-        />
+        <DynamicI18nEditor v-model="valueI18nValues" :source="formData.value" :maxlength="10000" multiline />
       </template>
     </FormDialog>
   </div>
@@ -83,11 +74,12 @@ import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import DictLabel from "@liujitcn/kratos-admin-core/components/Dict/DictLabel.vue";
+import RichTextPreview from "@liujitcn/kratos-admin-core/components/RichTextPreview/index.vue";
 import UploadImg from "@liujitcn/kratos-admin-core/components/Upload/Img.vue";
 import WangEditor from "@liujitcn/kratos-admin-core/components/WangEditor/index.vue";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
-import { defBaseConfigService } from "@liujitcn/kratos-admin-system/api/system/base_config";
-import { loadEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/base_language";
+import { defBaseConfigService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_config";
+import { loadEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_language";
 import type {
   BaseConfig,
   BaseConfigForm,
@@ -96,16 +88,13 @@ import type {
 import type { BaseI18n } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { BaseConfigSite } from "@liujitcn/kratos-admin-system/rpc/base/v1/config";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
-import { BaseConfigType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_config";
+import { BaseConfigHiddenStatus, BaseConfigType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_config";
 import { I18nTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
 import DynamicI18nEditor from "@liujitcn/kratos-admin-system/components/DynamicI18nEditor.vue";
 import DynamicI18nCell from "@liujitcn/kratos-admin-system/components/DynamicI18nCell.vue";
-import {
-  getEditableLanguageOptions,
-  type DynamicI18nValue
-} from "@liujitcn/kratos-admin-system/components/dynamicI18n";
+import { getEditableLanguageOptions, type DynamicI18nValue } from "@liujitcn/kratos-admin-system/components/dynamicI18n";
 
 /** 系统配置编辑表单状态，新增时枚举字段保持为空，避免把未知值 0 显示为下拉文本。 */
 type BaseConfigFormState = Omit<BaseConfigForm, "site" | "type"> & {
@@ -142,6 +131,8 @@ const formData = reactive<BaseConfigFormState>({
   key: "",
   /** 配置value */
   value: "",
+  /** 隐藏状态。 */
+  hidden_status: BaseConfigHiddenStatus.BASE_CONFIG_HIDDEN_STATUS_VISIBLE,
   /** 状态 */
   status: Status.STATUS_ENABLE,
   /** 配置名称非主语言翻译。 */
@@ -152,9 +143,7 @@ const formData = reactive<BaseConfigFormState>({
 
 /** 将配置值翻译记录转换为编辑器值，缺少记录时保留可编辑的空行。 */
 function normalizeConfigI18ns(targetType: I18nTargetType): DynamicI18nValue[] {
-  const records = targetType === I18nTargetType.I18N_TARGET_TYPE_BASE_CONFIG_NAME
-    ? formData.name_i18ns
-    : formData.value_i18ns;
+  const records = targetType === I18nTargetType.I18N_TARGET_TYPE_BASE_CONFIG_NAME ? formData.name_i18ns : formData.value_i18ns;
   return getEditableLanguageOptions()
     .map(item => item.value)
     .map(locale => {
@@ -435,7 +424,8 @@ function renderConfigNameCell(row: BaseConfig) {
     source: row.name,
     targetType: I18nTargetType.I18N_TARGET_TYPE_BASE_CONFIG_NAME,
     targetId: row.id,
-    i18ns: row.i18ns
+    i18ns: row.i18ns,
+    editable: !!BUTTONS.value["base:config:update"]
   });
 }
 
@@ -470,7 +460,7 @@ function renderConfigValuePreview(row: BaseConfig) {
           previewSrcList: [row.value],
           previewTeleported: true,
           fit: "contain",
-          style: { width: "180px", height: "120px", borderRadius: "4px" }
+          style: { width: "180px", height: "120px", borderRadius: "var(--admin-page-radius)" }
         })
       : h("span", { class: "config-value-preview" }, t("system.base.config.message.image_missing"));
   }
@@ -490,7 +480,7 @@ function renderConfigValuePreview(row: BaseConfig) {
 
   if (row.type === BaseConfigType.BASE_CONFIG_TYPE_RICH_TEXT) {
     return row.value
-      ? h("div", { class: "config-rich-text-preview", innerHTML: row.value })
+      ? h(RichTextPreview, { class: "config-rich-text-preview", modelValue: row.value })
       : h("span", { class: "config-value-preview" }, t("system.base.config.message.rich_text_missing"));
   }
 
@@ -573,6 +563,7 @@ function resetForm() {
   formData.type = undefined;
   formData.key = "";
   formData.value = "";
+  formData.hidden_status = BaseConfigHiddenStatus.BASE_CONFIG_HIDDEN_STATUS_VISIBLE;
   formData.name_i18ns = [];
   formData.value_i18ns = [];
   formData.status = Status.STATUS_ENABLE;

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useI18n } from '@liujitcn/kratos-taro-app-core'
 import MfaRecoveryCodesDialog from '@liujitcn/kratos-taro-app-core/components/MfaRecoveryCodesDialog'
 import MfaSetupPanel from '@liujitcn/kratos-taro-app-core/components/MfaSetupPanel'
-import { defMfaService } from '@liujitcn/kratos-taro-app-core/api/base/mfa'
+import { defMfaService } from '@liujitcn/kratos-taro-app-core/api/base/v1/mfa'
 import {
   createWebAuthnCredential,
   getWebAuthnAssertion,

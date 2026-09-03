@@ -50,10 +50,15 @@ ENTRY_PATTERN = re.compile(
 TOKEN_PATTERN = re.compile(
     r"(?:__\s*)?KRATOS[_ ]?TOKEN[_ ]?(\d{4})(?:\s*__)?", re.IGNORECASE
 )
+MARKDOWN_LINK_PATTERN = re.compile(r"\[([^\]\r\n]*)\]\(([^)\r\n]+)\)")
+TRANSLATION_MARKER_ARTIFACT_PATTERN = re.compile(
+    r"(?<![A-Za-z])(?:KRATOSENTRY|ZZZMARKER)\s*(?:\s*(?:0*\d{1,4}|[:：.\-])){1,6}\s*[.。]?\s*",
+    re.IGNORECASE,
+)
 TRANSLATION_RATE_LIMITED = False
 LAST_I18N_REQUEST_AT = 0.0
 PROTECTED_PATTERN = re.compile(
-    r"(?s)```.*?```|`[^`]+`|\{\{[^{}]+\}\}|\$\{[^{}]+\}|"
+    r"(?s)```.*?```|`[^`]+`|\]\([^)]+\)|\{\{[^{}]+\}\}|\$\{[^{}]+\}|"
     r"\{[A-Za-z_][A-Za-z0-9_.-]*\}|%[sdv]|</?[^>]+>|"
     r"https?://[^\s<>()]+|(?<=\]\()[^)]+(?=\))|"
     r"/(?:api|events|mcp|v[0-9]+)/[A-Za-z0-9_./:{}-]+"
@@ -279,10 +284,73 @@ def restore_text(value: str, protected: dict[str, str]) -> str:
         match = TOKEN_PATTERN.fullmatch(token)
         if match:
             loose_token = re.compile(
-                rf"__\s*KRATOS[_ ]TOKEN[_ ]{match.group(1)}\s*__", re.IGNORECASE
+                rf"(?:__)?\s*KRATOS[_ ]?TOKEN\s*{match.group(1)}\s*(?:__)?", re.IGNORECASE
             )
             value = loose_token.sub(original, value)
     return re.sub(r"\]\s+\(", "](", value)
+
+
+def remove_translation_marker_artifacts(value: str) -> str:
+    """移除翻译服务意外保留的内部批次行标记。"""
+    return TRANSLATION_MARKER_ARTIFACT_PATTERN.sub("", value)
+
+
+def repair_markdown_links(source: str, translated: str) -> str:
+    """恢复翻译服务改写的 Markdown 链接结构并保留稳定目标路径。"""
+    source_links = MARKDOWN_LINK_PATTERN.findall(source)
+    if not source_links:
+        return translated
+
+    repaired = translated
+    search_start = 0
+    for source_label, destination in source_links:
+        destination_start = repaired.find(destination, search_start)
+        if destination_start < 0:
+            continue
+        suffix_start = repaired.rfind("](", search_start, destination_start)
+        line_start = repaired.rfind("\n", 0, destination_start) + 1
+        link_start = repaired.rfind("[", line_start, suffix_start)
+        destination_end = destination_start + len(destination)
+        while destination_end < len(repaired) and repaired[destination_end] in ")]":
+            destination_end += 1
+        if suffix_start >= line_start and link_start >= line_start:
+            label = repaired[link_start + 1 : suffix_start]
+            replacement = f"[{label}]({destination})"
+            repaired = repaired[:link_start] + replacement + repaired[destination_end:]
+            search_start = link_start + len(replacement)
+            continue
+        if suffix_start >= line_start:
+            replacement = f"[{source_label}]({destination})"
+            repaired = repaired[:suffix_start] + replacement + repaired[destination_end:]
+            search_start = suffix_start + len(replacement)
+            continue
+        replacement = f"[{source_label}]({destination})"
+        repaired = repaired[:destination_start] + replacement + repaired[destination_end:]
+        search_start = destination_start + len(replacement)
+    for source_label, destination in source_links:
+        if destination in repaired:
+            continue
+        line_ending = ""
+        if repaired.endswith("\r\n"):
+            line_ending = "\r\n"
+            repaired = repaired[:-2]
+        elif repaired.endswith("\n"):
+            line_ending = "\n"
+            repaired = repaired[:-1]
+        repaired += f" [{source_label}]({destination})" + line_ending
+    return re.sub(r"\]\(([^)\r\n]+)\)\]", r"](\1)", repaired)
+
+
+def repair_markdown_document(source: str, translated: str) -> str:
+    """按源文档逐行恢复链接结构，避免跨段误匹配。"""
+    source_lines = source.splitlines(keepends=True)
+    translated_lines = translated.splitlines(keepends=True)
+    if len(source_lines) != len(translated_lines):
+        return repair_markdown_links(source, translated)
+    return "".join(
+        repair_markdown_links(source_line, translated_line)
+        for source_line, translated_line in zip(source_lines, translated_lines)
+    )
 
 
 def i18n_request_delay() -> float:
@@ -424,7 +492,8 @@ def i18n_markdown_with_status(
     if normalize_locale(target) == "zh-tw":
         converter = load_opencc()
         if converter is not None:
-            return converter.convert(value), True
+            protected, protected_values = protect_text(value)
+            return restore_text(converter.convert(protected), protected_values), True
     if offline:
         return value, True
 
@@ -504,7 +573,10 @@ def i18n_markdown_with_status(
         for marker_index, (line_index, original, ending, _, protected_values) in enumerate(pending):
             translated_line = translated_by_index.get(marker_index, "")
             translated_parts.setdefault(line_index, []).append(
-                restore_text(translated_line, protected_values) if translated_line else original
+                repair_markdown_links(
+                    original,
+                    restore_text(translated_line, protected_values) if translated_line else original,
+                )
             )
             line_endings[line_index] = ending
         pending = []
@@ -741,8 +813,11 @@ def i18n_catalog(
                 previous_content = existing_document.get("content")
                 if isinstance(previous_content, str) and previous_content:
                     translated_content = previous_content
-        output_document["content"] = localize_content_literals(
-            translated_content or source_content, target_locale
+        output_document["content"] = repair_markdown_document(
+            source_content,
+            remove_translation_marker_artifacts(
+                localize_content_literals(translated_content or source_content, target_locale)
+            ),
         )
         output_document.pop("locale", None)
 

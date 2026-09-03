@@ -90,6 +90,7 @@ type PageCodeGenTableRequest struct {
 	BusinessModule *string                `protobuf:"bytes,2,opt,name=business_module,json=businessModule,proto3,oneof" json:"business_module,omitempty"`    // 业务模块
 	PageType       *string                `protobuf:"bytes,3,opt,name=page_type,json=pageType,proto3,oneof" json:"page_type,omitempty"`                      // 页面类型
 	Status         *CodeGenTableStatus    `protobuf:"varint,4,opt,name=status,proto3,enum=system.admin.v1.CodeGenTableStatus,oneof" json:"status,omitempty"` // 状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用
+	SourceName     string                 `protobuf:"bytes,5,opt,name=source_name,json=sourceName,proto3" json:"source_name,omitempty"`                      // 数据源名称
 	PageNum        int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                            // 当前页码
 	PageSize       int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                         // 每一页的行数
 	unknownFields  protoimpl.UnknownFields
@@ -152,6 +153,13 @@ func (x *PageCodeGenTableRequest) GetStatus() CodeGenTableStatus {
 		return *x.Status
 	}
 	return CodeGenTableStatus_CODE_GEN_TABLE_STATUS_UNSPECIFIED
+}
+
+func (x *PageCodeGenTableRequest) GetSourceName() string {
+	if x != nil {
+		return x.SourceName
+	}
+	return ""
 }
 
 func (x *PageCodeGenTableRequest) GetPageNum() int64 {
@@ -224,6 +232,7 @@ func (x *PageCodeGenTableResponse) GetTotal() int32 {
 // 数据库表列表查询条件
 type ListCodeGenDatabaseTableRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	SourceName    string                 `protobuf:"bytes,1,opt,name=source_name,json=sourceName,proto3" json:"source_name,omitempty"` // 数据源名称
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -256,6 +265,13 @@ func (x *ListCodeGenDatabaseTableRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use ListCodeGenDatabaseTableRequest.ProtoReflect.Descriptor instead.
 func (*ListCodeGenDatabaseTableRequest) Descriptor() ([]byte, []int) {
 	return file_system_admin_v1_code_gen_table_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ListCodeGenDatabaseTableRequest) GetSourceName() string {
+	if x != nil {
+		return x.SourceName
+	}
+	return ""
 }
 
 // 数据库表列表响应
@@ -366,6 +382,7 @@ type CodeGenTableForm struct {
 	Status          CodeGenTableStatus              `protobuf:"varint,13,opt,name=status,proto3,enum=system.admin.v1.CodeGenTableStatus" json:"status,omitempty"`                                                            // 状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用
 	Remark          string                          `protobuf:"bytes,14,opt,name=remark,proto3" json:"remark,omitempty"`                                                                                                     // 备注
 	I18NConfig      map[string]*CodeGenLocaleConfig `protobuf:"bytes,15,rep,name=i18n_config,json=i18nConfig,proto3" json:"i18n_config,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // 按语言区域索引的表级国际化配置
+	SourceName      string                          `protobuf:"bytes,16,opt,name=source_name,json=sourceName,proto3" json:"source_name,omitempty"`                                                                           // 数据源名称
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -503,6 +520,13 @@ func (x *CodeGenTableForm) GetI18NConfig() map[string]*CodeGenLocaleConfig {
 		return x.I18NConfig
 	}
 	return nil
+}
+
+func (x *CodeGenTableForm) GetSourceName() string {
+	if x != nil {
+		return x.SourceName
+	}
+	return ""
 }
 
 // 代码生成表配置创建条件
@@ -723,6 +747,7 @@ type CodeGenTable struct {
 	UpdatedAt        string                          `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                                                               // 更新时间
 	RestoreAvailable bool                            `protobuf:"varint,10,opt,name=restore_available,json=restoreAvailable,proto3" json:"restore_available,omitempty"`                                                        // 是否可以还原生成结果
 	I18NConfig       map[string]*CodeGenLocaleConfig `protobuf:"bytes,11,rep,name=i18n_config,json=i18nConfig,proto3" json:"i18n_config,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // 按语言区域索引的表级国际化配置
+	SourceName       string                          `protobuf:"bytes,12,opt,name=source_name,json=sourceName,proto3" json:"source_name,omitempty"`                                                                           // 数据源名称
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -834,6 +859,13 @@ func (x *CodeGenTable) GetI18NConfig() map[string]*CodeGenLocaleConfig {
 	return nil
 }
 
+func (x *CodeGenTable) GetSourceName() string {
+	if x != nil {
+		return x.SourceName
+	}
+	return ""
+}
+
 // 左树右表页面配置
 type CodeGenLeftTreeConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -931,12 +963,14 @@ var File_system_admin_v1_code_gen_table_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\n" +
-	"$system/admin/v1/code_gen_table.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fsystem/admin/v1/base_i18n.proto\"\x81\x04\n" +
+	"$system/admin/v1/code_gen_table.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fsystem/admin/v1/base_i18n.proto\"\xb9\x04\n" +
 	"\x17PageCodeGenTableRequest\x12+\n" +
 	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f业务表名H\x00R\x04name\x88\x01\x01\x12@\n" +
 	"\x0fbusiness_module\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f业务模块H\x01R\x0ebusinessModule\x88\x01\x01\x124\n" +
 	"\tpage_type\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f页面类型H\x02R\bpageType\x88\x01\x01\x12\x8c\x01\n" +
-	"\x06status\x18\x04 \x01(\x0e2#.system.admin.v1.CodeGenTableStatusBJ\xbaGG\x92\x02D状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用H\x03R\x06status\x88\x01\x01\x129\n" +
+	"\x06status\x18\x04 \x01(\x0e2#.system.admin.v1.CodeGenTableStatusBJ\xbaGG\x92\x02D状态：枚举【CodeGenTableStatus】，1草稿 2已生成 3停用H\x03R\x06status\x88\x01\x01\x126\n" +
+	"\vsource_name\x18\x05 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据源名称R\n" +
+	"sourceName\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
 	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\a\n" +
 	"\x05_nameB\x12\n" +
@@ -946,13 +980,15 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\a_status\"\xa8\x01\n" +
 	"\x18PageCodeGenTableResponse\x12h\n" +
 	"\x0fcode_gen_tables\x18\x01 \x03(\v2\x1d.system.admin.v1.CodeGenTableB!\xbaG\x1e\x92\x02\x1b代码生成表配置列表R\rcodeGenTables\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"!\n" +
-	"\x1fListCodeGenDatabaseTableRequest\"{\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"Y\n" +
+	"\x1fListCodeGenDatabaseTableRequest\x126\n" +
+	"\vsource_name\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据源名称R\n" +
+	"sourceName\"{\n" +
 	" ListCodeGenDatabaseTableResponse\x12W\n" +
 	"\x06tables\x18\x01 \x03(\v2%.system.admin.v1.CodeGenDatabaseTableB\x18\xbaG\x15\x92\x02\x12数据库表列表R\x06tables\"\x8b\x01\n" +
 	"\x16GetCodeGenTableRequest\x12q\n" +
 	"\x02id\x18\x01 \x01(\x03Ba\xbaG\v\x92\x02\b主键ID\xbaHP\xba\x01M\n" +
-	"+system.admin.code.gen.table.get.id.required\x12\x14主键ID不能为空\x1a\bthis > 0R\x02id\"\xad\x16\n" +
+	"+system.admin.code.gen.table.get.id.required\x12\x14主键ID不能为空\x1a\bthis > 0R\x02id\"\xe8\x17\n" +
 	"\x10CodeGenTableForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12\xeb\x02\n" +
 	"\x04name\x18\x02 \x01(\tB\xd6\x02\xbaG\x0f\x92\x02\f业务表名\xbaH\xc0\x02\xba\x01\\\n" +
@@ -985,7 +1021,10 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\x06remark\x18\x0e \x01(\tBy\xbaG\t\x92\x02\x06备注\xbaHj\xba\x01g\n" +
 	"/system.admin.code.gen.table.field.remark.length\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remark\x12\x87\x01\n" +
 	"\vi18n_config\x18\x0f \x03(\v21.system.admin.v1.CodeGenTableForm.I18nConfigEntryB3\xbaG0\x92\x02-按语言区域索引的表级国际化配置R\n" +
-	"i18nConfig\x1ac\n" +
+	"i18nConfig\x12\xb8\x01\n" +
+	"\vsource_name\x18\x10 \x01(\tB\x96\x01\xbaG\x12\x92\x02\x0f数据源名称\xbaH~\xba\x01{\n" +
+	"6system.admin.code.gen.table.field.source_name.required\x12\x1b数据源名称不能为空\x1a$this.size() > 0 && this.size() <= 64R\n" +
+	"sourceName\x1ac\n" +
 	"\x0fI18nConfigEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12:\n" +
 	"\x05value\x18\x02 \x01(\v2$.system.admin.v1.CodeGenLocaleConfigR\x05value:\x028\x01\"\x8d\x01\n" +
@@ -1000,7 +1039,7 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\x14CodeGenDatabaseTable\x12)\n" +
 	"\x04name\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据库表名R\x04name\x12/\n" +
 	"\acomment\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f业务表描述R\acomment\x124\n" +
-	"\bdisabled\x18\x03 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否已被选择R\bdisabled\"\xc9\x06\n" +
+	"\bdisabled\x18\x03 \x01(\bB\x18\xbaG\x15\x92\x02\x12是否已被选择R\bdisabled\"\x81\a\n" +
 	"\fCodeGenTable\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f业务表名R\x04name\x12/\n" +
@@ -1016,7 +1055,9 @@ const file_system_admin_v1_code_gen_table_proto_rawDesc = "" +
 	"\x11restore_available\x18\n" +
 	" \x01(\bB$\xbaG!\x92\x02\x1e是否可以还原生成结果R\x10restoreAvailable\x12\x83\x01\n" +
 	"\vi18n_config\x18\v \x03(\v2-.system.admin.v1.CodeGenTable.I18nConfigEntryB3\xbaG0\x92\x02-按语言区域索引的表级国际化配置R\n" +
-	"i18nConfig\x1ac\n" +
+	"i18nConfig\x126\n" +
+	"\vsource_name\x18\f \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据源名称R\n" +
+	"sourceName\x1ac\n" +
 	"\x0fI18nConfigEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12:\n" +
 	"\x05value\x18\x02 \x01(\v2$.system.admin.v1.CodeGenLocaleConfigR\x05value:\x028\x01\"\xb0\x03\n" +

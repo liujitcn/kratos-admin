@@ -4,6 +4,7 @@ package system.admin.v1;
 
 import "common/v1/types.proto";
 import "system/admin/v1/common.proto";
+import "system/common/v1/common.proto";
 import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
@@ -95,6 +96,12 @@ message UserInfoForm {
 
   string phone = 3 [(gnostic.openapi.v3.property) = {description: "手机号"}]; // 手机号
 
+  string email = 6 [(gnostic.openapi.v3.property) = {description: "邮箱"}, (buf.validate.field).string.email = true, (buf.validate.field).cel = {id: "system.admin.auth.user.email.max_length" message: "邮箱不能超过 128 个字符" expression: "this.size() <= 128"}]; // 邮箱
+
+  .system.common.v1.BaseUserIDType id_type = 7 [(gnostic.openapi.v3.property) = {description: "证件类型：枚举【BaseUserIDType】"}, (buf.validate.field).enum = {defined_only: true}]; // 证件类型：枚举【BaseUserIDType】
+
+  string id_code = 8 [(gnostic.openapi.v3.property) = {description: "证件号"}, (buf.validate.field).cel = {id: "system.admin.auth.user.id_code.format" message: "请输入正确的证件号" expression: "this.size() == 0 || this.matches('^[A-Za-z0-9][A-Za-z0-9-]{0,63}$')"}]; // 证件号
+
   string avatar = 4 [(gnostic.openapi.v3.property) = {description: "头像"}]; // 头像
 
   string role_code = 100 [(gnostic.openapi.v3.property) = {description: "角色编号"}]; // 角色编号
@@ -122,6 +129,12 @@ message UserProfileForm {
   int32 gender = 4 [(gnostic.openapi.v3.property) = {description: "性别"}]; // 性别
 
   string phone = 5 [(gnostic.openapi.v3.property) = {description: "手机号"}]; // 手机号
+
+  string email = 6 [(gnostic.openapi.v3.property) = {description: "邮箱"}, (buf.validate.field).string.email = true, (buf.validate.field).cel = {id: "system.admin.auth.profile.email.max_length" message: "邮箱不能超过 128 个字符" expression: "this.size() <= 128"}]; // 邮箱
+
+  .system.common.v1.BaseUserIDType id_type = 7 [(gnostic.openapi.v3.property) = {description: "证件类型：枚举【BaseUserIDType】"}, (buf.validate.field).enum = {defined_only: true}]; // 证件类型：枚举【BaseUserIDType】
+
+  string id_code = 8 [(gnostic.openapi.v3.property) = {description: "证件号"}, (buf.validate.field).cel = {id: "system.admin.auth.profile.id_code.format" message: "请输入正确的证件号" expression: "this.size() == 0 || this.matches('^[A-Za-z0-9][A-Za-z0-9-]{0,63}$')"}]; // 证件号
 
   string role_name = 10 [(gnostic.openapi.v3.property) = {description: "角色名"}]; // 角色名
 

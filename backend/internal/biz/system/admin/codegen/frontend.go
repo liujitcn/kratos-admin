@@ -17,13 +17,13 @@ import (
 // --- 管理端 API 与页面模板渲染 ---
 
 // renderFrontendAPIFile 渲染前端 API 文件占位内容。
-func (c *renderer) renderFrontendAPIFile(table *Table, columns []*CodeGenColumn, methods []*Proto) string {
+func (c *renderer) renderFrontendAPIFile(table *Table, methods []*Proto) string {
 	entity := table.EntityName
 	target := ProtoTargetForTable(table)
 	snakeEntity := stringcase.ToSnakeCase(entity)
 	urlConst := stringcase.UpperSnakeCase(entity) + "_URL"
 	statusMethods := methodsByKinds(methods, APIKindStatus)
-	hasTree := firstMethodByKind(methods, APIKindTree, TriggerPageTree) != nil
+	hasTree := firstTreeMethodByTrigger(methods, TriggerPageTree) != nil
 	optionMethod := currentEntityOptionMethod(table, methods)
 	methodNames := protoMethodNameSet(methods)
 	_, hasPage := methodNames["Page"+entity]
@@ -90,7 +90,7 @@ func (c *renderer) renderFrontendAPIFile(table *Table, columns []*CodeGenColumn,
 		}
 		methodsBuilder.WriteString(fmt.Sprintf(`
   /** %s */
-  %s(request?: %sRequest): Promise<%s> {
+  %s(request: %sRequest): Promise<%s> {
     return service<%sRequest, %s>({
       url: %s + "/option",
       method: "get",
@@ -241,7 +241,7 @@ func (c *renderer) renderExternalTargetFrontendAPIMethods(table *Table, methods 
 		}
 		builder.WriteString(fmt.Sprintf(`
   /** %s */
-  %s(request?: %sRequest): Promise<%s> {
+  %s(request: %sRequest): Promise<%s> {
     return service<%sRequest, %s>({
       url: %s + "/option",
       method: "get",
@@ -793,7 +793,7 @@ func (c *renderer) applyFrontendPageType(content string, table *Table, methods [
 
 // applyFrontendTreePage 将普通分页模板调整为树形表格模板。
 func (c *renderer) applyFrontendTreePage(content string, table *Table, methods []*Proto) string {
-	treeMethod := firstMethodByKind(methods, APIKindTree, TriggerPageTree)
+	treeMethod := firstTreeMethodByTrigger(methods, TriggerPageTree)
 	if treeMethod == nil {
 		return content
 	}
@@ -871,7 +871,7 @@ func (c *renderer) applyFrontendLeftTreePage(content string, table *Table, metho
 	content = strings.Replace(content, `import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";`, `import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
 import TreeFilter from "@liujitcn/kratos-admin-core/components/TreeFilter/index.vue";`, 1)
 
-	treeMethod := firstMethodByKind(methods, APIKindTree, TriggerLeftTree)
+	treeMethod := firstTreeMethodByTrigger(methods, TriggerLeftTree)
 	serviceName := ""
 	requestCall := "return { data: [] };"
 	requestSignature := "()"

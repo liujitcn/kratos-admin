@@ -17,7 +17,7 @@
 import { nextTick, computed, inject, shallowRef, onBeforeUnmount } from "vue";
 import { IToolbarConfig, IEditorConfig } from "@wangeditor/editor";
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
-import { defFileService } from "@/api/base/file";
+import { defFileService } from "@/api/base/v1/file";
 import "@wangeditor/editor/dist/css/style.css";
 import { formContextKey, formItemContextKey } from "element-plus";
 import { useLocaleStore } from "@/locales";

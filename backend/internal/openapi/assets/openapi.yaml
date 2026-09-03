@@ -269,10 +269,10 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - BASE_AUDIT_RESULT_UNSPECIFIED
-                        - BASE_AUDIT_RESULT_SUCCESS
-                        - BASE_AUDIT_RESULT_FAILURE
-                        - BASE_AUDIT_RESULT_ERROR
+                        - BASE_LOG_RESULT_UNSPECIFIED
+                        - BASE_LOG_RESULT_SUCCESS
+                        - BASE_LOG_RESULT_FAILURE
+                        - BASE_LOG_RESULT_ERROR
                     type: string
                     format: enum
                 - name: occurred_at
@@ -665,6 +665,46 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/config/key/{key}:
+        get:
+            tags:
+                - BaseConfigService
+            description: 按配置键查询隐藏系统配置。
+            operationId: BaseConfigService_GetBaseConfigByKey
+            parameters:
+                - name: key
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseConfigValue'
+        put:
+            tags:
+                - BaseConfigService
+            description: 按配置键更新隐藏系统配置。
+            operationId: BaseConfigService_UpdateBaseConfigByKey
+            parameters:
+                - name: key
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.UpdateBaseConfigByKeyRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/config/{base_config.id}:
         put:
             tags:
@@ -837,10 +877,10 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - BASE_AUDIT_RESULT_UNSPECIFIED
-                        - BASE_AUDIT_RESULT_SUCCESS
-                        - BASE_AUDIT_RESULT_FAILURE
-                        - BASE_AUDIT_RESULT_ERROR
+                        - BASE_LOG_RESULT_UNSPECIFIED
+                        - BASE_LOG_RESULT_SUCCESS
+                        - BASE_LOG_RESULT_FAILURE
+                        - BASE_LOG_RESULT_ERROR
                     type: string
                     format: enum
                 - name: occurred_at
@@ -1094,9 +1134,9 @@ paths:
     /api/v1/admin/base/dict-item:
         get:
             tags:
-                - BaseDictService
+                - BaseDictItemService
             description: 查询字典属性分页列表
-            operationId: BaseDictService_PageBaseDictItem
+            operationId: BaseDictItemService_PageBaseDictItem
             parameters:
                 - name: dict_id
                   in: query
@@ -1132,9 +1172,9 @@ paths:
                                 $ref: '#/components/schemas/system.admin.v1.PageBaseDictItemResponse'
         post:
             tags:
-                - BaseDictService
+                - BaseDictItemService
             description: 创建字典属性
-            operationId: BaseDictService_CreateBaseDictItem
+            operationId: BaseDictItemService_CreateBaseDictItem
             requestBody:
                 content:
                     application/json:
@@ -1148,9 +1188,9 @@ paths:
     /api/v1/admin/base/dict-item/{base_dict_item.id}:
         put:
             tags:
-                - BaseDictService
+                - BaseDictItemService
             description: 更新字典属性
-            operationId: BaseDictService_UpdateBaseDictItem
+            operationId: BaseDictItemService_UpdateBaseDictItem
             parameters:
                 - name: base_dict_item.id
                   in: path
@@ -1170,9 +1210,9 @@ paths:
     /api/v1/admin/base/dict-item/{id}:
         get:
             tags:
-                - BaseDictService
+                - BaseDictItemService
             description: 查询字典属性
-            operationId: BaseDictService_GetBaseDictItem
+            operationId: BaseDictItemService_GetBaseDictItem
             parameters:
                 - name: id
                   in: path
@@ -1188,9 +1228,9 @@ paths:
                                 $ref: '#/components/schemas/system.admin.v1.BaseDictItemForm'
         delete:
             tags:
-                - BaseDictService
+                - BaseDictItemService
             description: 删除字典属性
-            operationId: BaseDictService_DeleteBaseDictItem
+            operationId: BaseDictItemService_DeleteBaseDictItem
             parameters:
                 - name: id
                   in: path
@@ -1204,9 +1244,9 @@ paths:
     /api/v1/admin/base/dict-item/{id}/status:
         put:
             tags:
-                - BaseDictService
+                - BaseDictItemService
             description: 设置状态
-            operationId: BaseDictService_SetBaseDictItemStatus
+            operationId: BaseDictItemService_SetBaseDictItemStatus
             parameters:
                 - name: id
                   in: path
@@ -1474,9 +1514,9 @@ paths:
     /api/v1/admin/base/job-log:
         get:
             tags:
-                - BaseJobService
+                - BaseJobLogService
             description: 查询定时任务日志分页列表
-            operationId: BaseJobService_PageBaseJobLog
+            operationId: BaseJobLogService_PageBaseJobLog
             parameters:
                 - name: job_id
                   in: query
@@ -1515,9 +1555,9 @@ paths:
     /api/v1/admin/base/job-log/{id}:
         get:
             tags:
-                - BaseJobService
+                - BaseJobLogService
             description: 查询定时任务日志
-            operationId: BaseJobService_GetBaseJobLog
+            operationId: BaseJobLogService_GetBaseJobLog
             parameters:
                 - name: id
                   in: path
@@ -1531,6 +1571,19 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.BaseJobLog'
+    /api/v1/admin/base/job/option:
+        get:
+            tags:
+                - BaseJobService
+            description: 查询定时任务下拉选择
+            operationId: BaseJobService_OptionBaseJob
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/common.v1.SelectOptionResponse'
     /api/v1/admin/base/job/{base_job.id}:
         put:
             tags:
@@ -1840,6 +1893,28 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/log-trace:
+        get:
+            tags:
+                - BaseLogService
+            description: 查询同一请求或链路关联的六类审计记录。
+            operationId: BaseLogService_GetBaseLogTrace
+            parameters:
+                - name: request_id
+                  in: query
+                  schema:
+                    type: string
+                - name: trace_id
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.GetBaseLogTraceResponse'
     /api/v1/admin/base/login-log:
         get:
             tags:
@@ -1871,10 +1946,10 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - BASE_AUDIT_RESULT_UNSPECIFIED
-                        - BASE_AUDIT_RESULT_SUCCESS
-                        - BASE_AUDIT_RESULT_FAILURE
-                        - BASE_AUDIT_RESULT_ERROR
+                        - BASE_LOG_RESULT_UNSPECIFIED
+                        - BASE_LOG_RESULT_SUCCESS
+                        - BASE_LOG_RESULT_FAILURE
+                        - BASE_LOG_RESULT_ERROR
                     type: string
                     format: enum
                 - name: occurred_at
@@ -1925,33 +2000,136 @@ paths:
         get:
             tags:
                 - BaseLoginPolicyService
-            description: 查询登录来源策略。
-            operationId: BaseLoginPolicyService_GetBaseLoginPolicy
+            description: 分页查询登录策略。
+            operationId: BaseLoginPolicyService_PageBaseLoginPolicy
+            parameters:
+                - name: scope_type
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_LOGIN_POLICY_SCOPE_TYPE_UNSPECIFIED
+                        - BASE_LOGIN_POLICY_SCOPE_TYPE_GLOBAL
+                        - BASE_LOGIN_POLICY_SCOPE_TYPE_TENANT
+                        - BASE_LOGIN_POLICY_SCOPE_TYPE_USER
+                    type: string
+                    format: enum
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/system.admin.v1.BaseLoginPolicy'
-        put:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseLoginPolicyResponse'
+        post:
             tags:
                 - BaseLoginPolicyService
-            description: 更新登录来源策略。
-            operationId: BaseLoginPolicyService_UpdateBaseLoginPolicy
+            description: 创建登录策略。
+            operationId: BaseLoginPolicyService_CreateBaseLoginPolicy
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/system.admin.v1.BaseLoginPolicy'
+                            $ref: '#/components/schemas/system.admin.v1.BaseLoginPolicyForm'
                 required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/login-policy/{base_login_policy.id}:
+        put:
+            tags:
+                - BaseLoginPolicyService
+            description: 更新登录策略。
+            operationId: BaseLoginPolicyService_UpdateBaseLoginPolicy
+            parameters:
+                - name: base_login_policy.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseLoginPolicyForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/login-policy/{id}:
+        get:
+            tags:
+                - BaseLoginPolicyService
+            description: 查询登录策略详情。
+            operationId: BaseLoginPolicyService_GetBaseLoginPolicy
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/system.admin.v1.BaseLoginPolicy'
+                                $ref: '#/components/schemas/system.admin.v1.BaseLoginPolicyForm'
+        delete:
+            tags:
+                - BaseLoginPolicyService
+            description: 删除登录策略。
+            operationId: BaseLoginPolicyService_DeleteBaseLoginPolicy
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/login-policy/{id}/status:
+        put:
+            tags:
+                - BaseLoginPolicyService
+            description: 设置登录策略状态。
+            operationId: BaseLoginPolicyService_SetBaseLoginPolicyStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseLoginPolicyStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/menu:
         post:
             tags:
@@ -2665,10 +2843,10 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - BASE_AUDIT_RESULT_UNSPECIFIED
-                        - BASE_AUDIT_RESULT_SUCCESS
-                        - BASE_AUDIT_RESULT_FAILURE
-                        - BASE_AUDIT_RESULT_ERROR
+                        - BASE_LOG_RESULT_UNSPECIFIED
+                        - BASE_LOG_RESULT_SUCCESS
+                        - BASE_LOG_RESULT_FAILURE
+                        - BASE_LOG_RESULT_ERROR
                     type: string
                     format: enum
                 - name: occurred_at
@@ -2763,10 +2941,10 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - BASE_AUDIT_RESULT_UNSPECIFIED
-                        - BASE_AUDIT_RESULT_SUCCESS
-                        - BASE_AUDIT_RESULT_FAILURE
-                        - BASE_AUDIT_RESULT_ERROR
+                        - BASE_LOG_RESULT_UNSPECIFIED
+                        - BASE_LOG_RESULT_SUCCESS
+                        - BASE_LOG_RESULT_FAILURE
+                        - BASE_LOG_RESULT_ERROR
                     type: string
                     format: enum
                 - name: occurred_at
@@ -3255,6 +3433,557 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/table-archive:
+        get:
+            tags:
+                - BaseTableArchiveService
+            description: 查询表归档配置分页列表。
+            operationId: BaseTableArchiveService_PageBaseTableArchive
+            parameters:
+                - name: table_name
+                  in: query
+                  schema:
+                    type: string
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseTableArchiveResponse'
+        post:
+            tags:
+                - BaseTableArchiveService
+            description: 创建表归档配置。
+            operationId: BaseTableArchiveService_CreateBaseTableArchive
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseTableArchiveForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/table-archive-record:
+        get:
+            tags:
+                - BaseTableArchiveRecordService
+            description: 查询表归档记录分页列表。
+            operationId: BaseTableArchiveRecordService_PageBaseTableArchiveRecord
+            parameters:
+                - name: archive_id
+                  in: query
+                  schema:
+                    type: string
+                - name: table_name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_TABLE_ARCHIVE_RECORD_STATUS_UNSPECIFIED
+                        - BASE_TABLE_ARCHIVE_RECORD_STATUS_PENDING
+                        - BASE_TABLE_ARCHIVE_RECORD_STATUS_RUNNING
+                        - BASE_TABLE_ARCHIVE_RECORD_STATUS_VERIFYING
+                        - BASE_TABLE_ARCHIVE_RECORD_STATUS_SUCCESS
+                        - BASE_TABLE_ARCHIVE_RECORD_STATUS_FAILED
+                        - BASE_TABLE_ARCHIVE_RECORD_STATUS_DELETED
+                    type: string
+                    format: enum
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseTableArchiveRecordResponse'
+    /api/v1/admin/base/table-archive-record/{id}:
+        get:
+            tags:
+                - BaseTableArchiveRecordService
+            description: 查询表归档记录。
+            operationId: BaseTableArchiveRecordService_GetBaseTableArchiveRecord
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseTableArchiveRecord'
+    /api/v1/admin/base/table-archive-restore:
+        get:
+            tags:
+                - BaseTableArchiveRestoreService
+            description: 查询归档恢复记录分页列表。
+            operationId: BaseTableArchiveRestoreService_PageBaseTableArchiveRestore
+            parameters:
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_TABLE_ARCHIVE_RESTORE_STATUS_UNSPECIFIED
+                        - BASE_TABLE_ARCHIVE_RESTORE_STATUS_PENDING
+                        - BASE_TABLE_ARCHIVE_RESTORE_STATUS_RUNNING
+                        - BASE_TABLE_ARCHIVE_RESTORE_STATUS_SUCCESS
+                        - BASE_TABLE_ARCHIVE_RESTORE_STATUS_FAILED
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseTableArchiveRestoreResponse'
+        post:
+            tags:
+                - BaseTableArchiveRestoreService
+            description: 手工执行归档恢复。
+            operationId: BaseTableArchiveRestoreService_ExecuteBaseTableArchiveRestore
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseTableArchiveRestore'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/table-archive-restore/{id}:
+        get:
+            tags:
+                - BaseTableArchiveRestoreService
+            description: 查询归档恢复记录。
+            operationId: BaseTableArchiveRestoreService_GetBaseTableArchiveRestore
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseTableArchiveRestore'
+    /api/v1/admin/base/table-archive/{base_table_archive.id}:
+        put:
+            tags:
+                - BaseTableArchiveService
+            description: 更新表归档配置。
+            operationId: BaseTableArchiveService_UpdateBaseTableArchive
+            parameters:
+                - name: base_table_archive.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseTableArchiveForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/table-archive/{id}:
+        get:
+            tags:
+                - BaseTableArchiveService
+            description: 查询表归档配置。
+            operationId: BaseTableArchiveService_GetBaseTableArchive
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseTableArchiveForm'
+        delete:
+            tags:
+                - BaseTableArchiveService
+            description: 删除表归档配置。
+            operationId: BaseTableArchiveService_DeleteBaseTableArchive
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/table-archive/{id}/status:
+        put:
+            tags:
+                - BaseTableArchiveService
+            description: 设置表归档配置状态。
+            operationId: BaseTableArchiveService_SetBaseTableArchiveStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseTableArchiveStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/table-backup:
+        get:
+            tags:
+                - BaseTableBackupService
+            description: 查询数据库备份配置分页列表。
+            operationId: BaseTableBackupService_PageBaseTableBackup
+            parameters:
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseTableBackupResponse'
+        post:
+            tags:
+                - BaseTableBackupService
+            description: 创建数据库备份配置。
+            operationId: BaseTableBackupService_CreateBaseTableBackup
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseTableBackupForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/table-backup-record:
+        get:
+            tags:
+                - BaseTableBackupRecordService
+            description: 查询数据库备份记录分页列表。
+            operationId: BaseTableBackupRecordService_PageBaseTableBackupRecord
+            parameters:
+                - name: backup_id
+                  in: query
+                  schema:
+                    type: string
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_TABLE_BACKUP_RECORD_STATUS_UNSPECIFIED
+                        - BASE_TABLE_BACKUP_RECORD_STATUS_RUNNING
+                        - BASE_TABLE_BACKUP_RECORD_STATUS_SUCCESS
+                        - BASE_TABLE_BACKUP_RECORD_STATUS_FAILED
+                        - BASE_TABLE_BACKUP_RECORD_STATUS_DELETED
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseTableBackupRecordResponse'
+    /api/v1/admin/base/table-backup-record/{id}:
+        get:
+            tags:
+                - BaseTableBackupRecordService
+            description: 查询数据库备份记录。
+            operationId: BaseTableBackupRecordService_GetBaseTableBackupRecord
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseTableBackupRecord'
+    /api/v1/admin/base/table-backup-restore:
+        get:
+            tags:
+                - BaseTableBackupRestoreService
+            description: 查询备份恢复记录分页列表。
+            operationId: BaseTableBackupRestoreService_PageBaseTableBackupRestore
+            parameters:
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_TABLE_BACKUP_RESTORE_STATUS_UNSPECIFIED
+                        - BASE_TABLE_BACKUP_RESTORE_STATUS_PENDING
+                        - BASE_TABLE_BACKUP_RESTORE_STATUS_RUNNING
+                        - BASE_TABLE_BACKUP_RESTORE_STATUS_SUCCESS
+                        - BASE_TABLE_BACKUP_RESTORE_STATUS_FAILED
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseTableBackupRestoreResponse'
+        post:
+            tags:
+                - BaseTableBackupRestoreService
+            description: 手工执行数据库备份恢复。
+            operationId: BaseTableBackupRestoreService_ExecuteBaseTableBackupRestore
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseTableBackupRestore'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/table-backup-restore/{id}:
+        get:
+            tags:
+                - BaseTableBackupRestoreService
+            description: 查询备份恢复记录。
+            operationId: BaseTableBackupRestoreService_GetBaseTableBackupRestore
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseTableBackupRestore'
+    /api/v1/admin/base/table-backup/{base_table_backup.id}:
+        put:
+            tags:
+                - BaseTableBackupService
+            description: 更新数据库备份配置。
+            operationId: BaseTableBackupService_UpdateBaseTableBackup
+            parameters:
+                - name: base_table_backup.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseTableBackupForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/table-backup/{id}:
+        get:
+            tags:
+                - BaseTableBackupService
+            description: 查询数据库备份配置。
+            operationId: BaseTableBackupService_GetBaseTableBackup
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseTableBackupForm'
+        delete:
+            tags:
+                - BaseTableBackupService
+            description: 删除数据库备份配置。
+            operationId: BaseTableBackupService_DeleteBaseTableBackup
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/table-backup/{id}/status:
+        put:
+            tags:
+                - BaseTableBackupService
+            description: 设置数据库备份配置状态。
+            operationId: BaseTableBackupService_SetBaseTableBackupStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseTableBackupStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/table-source/option:
+        get:
+            tags:
+                - BaseTableSourceService
+            description: 查询已初始化的数据源名称。
+            operationId: BaseTableSourceService_OptionBaseTableSource
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/common.v1.StringValues'
+    /api/v1/admin/base/table-source/table/option:
+        get:
+            tags:
+                - BaseTableSourceService
+            description: 查询指定数据源中的数据库表名称。
+            operationId: BaseTableSourceService_OptionBaseTable
+            parameters:
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/common.v1.StringValues'
     /api/v1/admin/base/tenant:
         get:
             tags:
@@ -3665,12 +4394,43 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/cache:
+        get:
+            tags:
+                - CacheService
+            description: 分页查询当前进程已观测到的缓存条目。
+            operationId: CacheService_PageCache
+            parameters:
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageCacheResponse'
     /api/v1/admin/code-gen/database/table:
         get:
             tags:
                 - CodeGenTableService
             description: 查询数据库表列表
             operationId: CodeGenTableService_ListCodeGenDatabaseTable
+            parameters:
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -3688,6 +4448,10 @@ paths:
                 - name: table_name
                   in: path
                   required: true
+                  schema:
+                    type: string
+                - name: source_name
+                  in: query
                   schema:
                     type: string
             responses:
@@ -3742,6 +4506,10 @@ paths:
                         - CODE_GEN_TABLE_STATUS_DISABLED
                     type: string
                     format: enum
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
                 - name: page_num
                   in: query
                   schema:
@@ -5307,6 +6075,7 @@ paths:
                         - PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD
                         - PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD
                         - PASSWORD_CRYPTO_SCENE_MFA
+                        - PASSWORD_CRYPTO_SCENE_CONFIGURE_PASSWORD_POLICY
                     type: string
                     format: enum
             responses:
@@ -6217,7 +6986,7 @@ components:
                     description: 访问令牌，必选项。授权服务器颁发的访问令牌字符串。
                 refresh_token:
                     type: string
-                    description: 更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。
+                    description: 更新令牌；管理端 Cookie-only 请求不在响应体返回，应用端请求可返回。
                 token_type:
                     type: string
                     default: Bearer
@@ -6500,7 +7269,7 @@ components:
                     description: 访问令牌，必选项。授权服务器颁发的访问令牌字符串。
                 refresh_token:
                     type: string
-                    description: 更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。
+                    description: 更新令牌；管理端 Cookie-only 请求不在响应体返回，应用端请求可返回。
                 token_type:
                     type: string
                     default: Bearer
@@ -6935,10 +7704,10 @@ components:
                     format: int32
                 result:
                     enum:
-                        - BASE_AUDIT_RESULT_UNSPECIFIED
-                        - BASE_AUDIT_RESULT_SUCCESS
-                        - BASE_AUDIT_RESULT_FAILURE
-                        - BASE_AUDIT_RESULT_ERROR
+                        - BASE_LOG_RESULT_UNSPECIFIED
+                        - BASE_LOG_RESULT_SUCCESS
+                        - BASE_LOG_RESULT_FAILURE
+                        - BASE_LOG_RESULT_ERROR
                     type: string
                     description: 结果
                     format: enum
@@ -6971,7 +7740,7 @@ components:
                     description: 事件发生时间
                 created_at:
                     type: string
-                    description: 日志创建时间
+                    description: 日志落库时间
             description: API 访问日志。
         system.admin.v1.BaseArea:
             type: object
@@ -7042,6 +7811,14 @@ components:
                 value:
                     type: string
                     description: 配置value
+                hidden_status:
+                    enum:
+                        - BASE_CONFIG_HIDDEN_STATUS_UNSPECIFIED
+                        - BASE_CONFIG_HIDDEN_STATUS_VISIBLE
+                        - BASE_CONFIG_HIDDEN_STATUS_HIDDEN
+                    type: string
+                    description: 隐藏状态：枚举【BaseConfigHiddenStatus】
+                    format: enum
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -7097,6 +7874,14 @@ components:
                 value:
                     type: string
                     description: 配置value
+                hidden_status:
+                    enum:
+                        - BASE_CONFIG_HIDDEN_STATUS_UNSPECIFIED
+                        - BASE_CONFIG_HIDDEN_STATUS_VISIBLE
+                        - BASE_CONFIG_HIDDEN_STATUS_HIDDEN
+                    type: string
+                    description: 隐藏状态：枚举【BaseConfigHiddenStatus】
+                    format: enum
                 name_i18ns:
                     type: array
                     items:
@@ -7116,6 +7901,19 @@ components:
                     description: 状态
                     format: enum
             description: 系统配置表单
+        system.admin.v1.BaseConfigValue:
+            type: object
+            properties:
+                key:
+                    type: string
+                    description: 配置key
+                value_json:
+                    type: string
+                    description: JSON格式配置值
+                updated_at:
+                    type: string
+                    description: 更新时间
+            description: 按配置键返回系统配置值。
         system.admin.v1.BaseDashboardDistributionItem:
             type: object
             properties:
@@ -7239,10 +8037,10 @@ components:
                     description: SQL指纹
                 result:
                     enum:
-                        - BASE_AUDIT_RESULT_UNSPECIFIED
-                        - BASE_AUDIT_RESULT_SUCCESS
-                        - BASE_AUDIT_RESULT_FAILURE
-                        - BASE_AUDIT_RESULT_ERROR
+                        - BASE_LOG_RESULT_UNSPECIFIED
+                        - BASE_LOG_RESULT_SUCCESS
+                        - BASE_LOG_RESULT_FAILURE
+                        - BASE_LOG_RESULT_ERROR
                     type: string
                     description: 结果
                     format: enum
@@ -7251,14 +8049,14 @@ components:
                     description: 原因编码
                 latency_ms:
                     type: integer
-                    description: 耗时毫秒
+                    description: 数据层耗时毫秒，未采集时为0
                     format: int32
                 occurred_at:
                     type: string
                     description: 事件发生时间
                 created_at:
                     type: string
-                    description: 日志创建时间
+                    description: 日志落库时间
             description: 数据访问日志。
         system.admin.v1.BaseDept:
             type: object
@@ -7738,6 +8536,65 @@ components:
                     description: 启用状态
                     format: enum
             description: 语言表单
+        system.admin.v1.BaseLogTraceItem:
+            type: object
+            properties:
+                log_type:
+                    enum:
+                        - BASE_LOG_TYPE_UNSPECIFIED
+                        - BASE_LOG_TYPE_LOGIN
+                        - BASE_LOG_TYPE_API
+                        - BASE_LOG_TYPE_OPERATION
+                        - BASE_LOG_TYPE_DATA_ACCESS
+                        - BASE_LOG_TYPE_PERMISSION
+                        - BASE_LOG_TYPE_POLICY_EVALUATION
+                    type: string
+                    description: 日志类型
+                    format: enum
+                id:
+                    type: string
+                    description: 日志ID
+                tenant_id:
+                    type: string
+                    description: 租户ID
+                user_id:
+                    type: string
+                    description: 用户ID
+                user_name:
+                    type: string
+                    description: 用户名称
+                request_id:
+                    type: string
+                    description: 请求ID
+                trace_id:
+                    type: string
+                    description: 链路追踪ID
+                resource:
+                    type: string
+                    description: 资源或接口
+                result:
+                    enum:
+                        - BASE_LOG_RESULT_UNSPECIFIED
+                        - BASE_LOG_RESULT_SUCCESS
+                        - BASE_LOG_RESULT_FAILURE
+                        - BASE_LOG_RESULT_ERROR
+                    type: string
+                    description: 结果
+                    format: enum
+                reason:
+                    type: string
+                    description: 原因说明
+                duration_ms:
+                    type: integer
+                    description: 本层耗时毫秒
+                    format: int32
+                occurred_at:
+                    type: string
+                    description: 事件发生时间
+                created_at:
+                    type: string
+                    description: 日志落库时间
+            description: 关联审计时间线项目。
         system.admin.v1.BaseLoginLog:
             type: object
             properties:
@@ -7769,10 +8626,10 @@ components:
                     format: enum
                 result:
                     enum:
-                        - BASE_AUDIT_RESULT_UNSPECIFIED
-                        - BASE_AUDIT_RESULT_SUCCESS
-                        - BASE_AUDIT_RESULT_FAILURE
-                        - BASE_AUDIT_RESULT_ERROR
+                        - BASE_LOG_RESULT_UNSPECIFIED
+                        - BASE_LOG_RESULT_SUCCESS
+                        - BASE_LOG_RESULT_FAILURE
+                        - BASE_LOG_RESULT_ERROR
                     type: string
                     description: 结果
                     format: enum
@@ -7802,83 +8659,183 @@ components:
                     description: 事件发生时间
                 created_at:
                     type: string
-                    description: 日志创建时间
+                    description: 日志落库时间
             description: 登录日志。
         system.admin.v1.BaseLoginPolicy:
             type: object
             properties:
-                enabled:
-                    type: boolean
-                    description: 是否启用
-                ip_blacklist:
-                    type: array
-                    items:
-                        type: string
-                    description: IP黑名单，支持IP和CIDR
-                ip_whitelist:
-                    type: array
-                    items:
-                        type: string
-                    description: IP白名单，支持IP和CIDR
-                time_windows:
-                    type: array
-                    items:
-                        type: string
-                    description: 禁止登录时间窗口，格式HH:MM-HH:MM
-                device_blacklist:
-                    type: array
-                    items:
-                        type: string
-                    description: 设备黑名单
-                device_whitelist:
-                    type: array
-                    items:
-                        type: string
-                    description: 设备白名单
+                id:
+                    type: string
+                    description: 登录策略ID
+                scope_type:
+                    enum:
+                        - BASE_LOGIN_POLICY_SCOPE_TYPE_UNSPECIFIED
+                        - BASE_LOGIN_POLICY_SCOPE_TYPE_GLOBAL
+                        - BASE_LOGIN_POLICY_SCOPE_TYPE_TENANT
+                        - BASE_LOGIN_POLICY_SCOPE_TYPE_USER
+                    type: string
+                    description: 作用域类型
+                    format: enum
+                tenant_id:
+                    type: string
+                    description: 租户ID
+                user_id:
+                    type: string
+                    description: 用户ID
+                tenant_name:
+                    type: string
+                    description: 租户名称
+                user_name:
+                    type: string
+                    description: 用户账号
+                max_failed_attempts:
+                    type: integer
+                    description: 最大登录失败次数
+                    format: int32
+                lock_duration_minutes:
+                    type: integer
+                    description: 锁定时长（分钟）
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+                created_at:
+                    type: string
+                    description: 创建时间
+                updated_at:
+                    type: string
+                    description: 更新时间
+                password_max_age_days:
+                    type: integer
+                    description: 密码有效期（天），0表示不启用
+                    format: int32
                 rules:
                     type: array
                     items:
                         $ref: '#/components/schemas/system.admin.v1.BaseLoginPolicyRule'
-                    description: 按租户或用户匹配的定向规则
-            description: 登录来源策略。
+                    description: 限制规则列表
+                password_min_length:
+                    type: integer
+                    description: 密码最小长度
+                    format: int32
+                password_history_count:
+                    type: integer
+                    description: 禁止重复使用的历史密码数量，0表示不启用
+                    format: int32
+                password_min_complexity_classes:
+                    type: integer
+                    description: 密码至少满足的字符类别数量，字符类别包括小写、大写、数字和符号
+                    format: int32
+            description: 登录策略列表项。
+        system.admin.v1.BaseLoginPolicyForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 登录策略ID
+                scope_type:
+                    enum:
+                        - BASE_LOGIN_POLICY_SCOPE_TYPE_UNSPECIFIED
+                        - BASE_LOGIN_POLICY_SCOPE_TYPE_GLOBAL
+                        - BASE_LOGIN_POLICY_SCOPE_TYPE_TENANT
+                        - BASE_LOGIN_POLICY_SCOPE_TYPE_USER
+                    type: string
+                    description: 作用域类型：全局、租户或用户
+                    format: enum
+                tenant_id:
+                    type: string
+                    description: 租户ID，租户或用户作用域必填
+                user_id:
+                    type: string
+                    description: 用户ID，用户作用域必填
+                max_failed_attempts:
+                    type: integer
+                    description: 最大登录失败次数
+                    format: int32
+                lock_duration_minutes:
+                    type: integer
+                    description: 锁定时长（分钟）
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+                password_max_age_days:
+                    type: integer
+                    description: 密码有效期（天），0表示不启用
+                    format: int32
+                rules:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseLoginPolicyRule'
+                    description: 限制规则列表
+                password_min_length:
+                    type: integer
+                    description: 密码最小长度
+                    format: int32
+                password_history_count:
+                    type: integer
+                    description: 禁止重复使用的历史密码数量，0表示不启用
+                    format: int32
+                password_min_complexity_classes:
+                    type: integer
+                    description: 密码至少满足的字符类别数量，字符类别包括小写、大写、数字和符号
+                    format: int32
+                initial_password:
+                    $ref: '#/components/schemas/common.v1.PasswordCrypto'
+            description: 登录策略表单。
         system.admin.v1.BaseLoginPolicyRule:
             type: object
             properties:
-                target_type:
+                id:
                     type: string
-                    description: 目标类型：TENANT或USER
-                target_value:
+                    description: 限制规则ID
+                policy_id:
                     type: string
-                    description: 目标值：租户编码或用户名
-                enabled:
-                    type: boolean
-                    description: 是否启用
-                ip_blacklist:
-                    type: array
-                    items:
-                        type: string
-                    description: IP黑名单，支持IP和CIDR
-                ip_whitelist:
-                    type: array
-                    items:
-                        type: string
-                    description: IP白名单，支持IP和CIDR
-                time_windows:
-                    type: array
-                    items:
-                        type: string
-                    description: 禁止登录时间窗口，格式HH:MM-HH:MM
-                device_blacklist:
-                    type: array
-                    items:
-                        type: string
-                    description: 设备黑名单
-                device_whitelist:
-                    type: array
-                    items:
-                        type: string
-                    description: 设备白名单
-            description: 登录来源定向规则。
+                    description: 登录策略ID
+                restriction_type:
+                    enum:
+                        - BASE_LOGIN_POLICY_RESTRICTION_TYPE_UNSPECIFIED
+                        - BASE_LOGIN_POLICY_RESTRICTION_TYPE_BLACKLIST
+                        - BASE_LOGIN_POLICY_RESTRICTION_TYPE_WHITELIST
+                    type: string
+                    description: 限制类型：黑名单或白名单
+                    format: enum
+                restriction_method:
+                    enum:
+                        - BASE_LOGIN_POLICY_RESTRICTION_METHOD_UNSPECIFIED
+                        - BASE_LOGIN_POLICY_RESTRICTION_METHOD_IP
+                        - BASE_LOGIN_POLICY_RESTRICTION_METHOD_MAC
+                        - BASE_LOGIN_POLICY_RESTRICTION_METHOD_REGION
+                        - BASE_LOGIN_POLICY_RESTRICTION_METHOD_TIME
+                        - BASE_LOGIN_POLICY_RESTRICTION_METHOD_DEVICE
+                    type: string
+                    description: 限制方式：IP、MAC、地区、时间或设备
+                    format: enum
+                restriction_value:
+                    type: string
+                    description: 限制值
+                reason:
+                    type: string
+                    description: 限制原因
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+            description: 登录策略限制规则。
         system.admin.v1.BaseMenu:
             type: object
             properties:
@@ -8480,10 +9437,10 @@ components:
                     description: 变更后数据
                 result:
                     enum:
-                        - BASE_AUDIT_RESULT_UNSPECIFIED
-                        - BASE_AUDIT_RESULT_SUCCESS
-                        - BASE_AUDIT_RESULT_FAILURE
-                        - BASE_AUDIT_RESULT_ERROR
+                        - BASE_LOG_RESULT_UNSPECIFIED
+                        - BASE_LOG_RESULT_SUCCESS
+                        - BASE_LOG_RESULT_FAILURE
+                        - BASE_LOG_RESULT_ERROR
                     type: string
                     description: 结果
                     format: enum
@@ -8498,7 +9455,7 @@ components:
                     description: 事件发生时间
                 created_at:
                     type: string
-                    description: 日志创建时间
+                    description: 日志落库时间
             description: 业务操作日志。
         system.admin.v1.BasePermissionLog:
             type: object
@@ -8561,10 +9518,10 @@ components:
                     description: 变更后权限
                 result:
                     enum:
-                        - BASE_AUDIT_RESULT_UNSPECIFIED
-                        - BASE_AUDIT_RESULT_SUCCESS
-                        - BASE_AUDIT_RESULT_FAILURE
-                        - BASE_AUDIT_RESULT_ERROR
+                        - BASE_LOG_RESULT_UNSPECIFIED
+                        - BASE_LOG_RESULT_SUCCESS
+                        - BASE_LOG_RESULT_FAILURE
+                        - BASE_LOG_RESULT_ERROR
                     type: string
                     description: 结果
                     format: enum
@@ -8579,7 +9536,7 @@ components:
                     description: 事件发生时间
                 created_at:
                     type: string
-                    description: 日志创建时间
+                    description: 日志落库时间
             description: 权限日志。
         system.admin.v1.BasePolicyEvaluationLog:
             type: object
@@ -8670,7 +9627,7 @@ components:
                     description: 事件发生时间
                 created_at:
                     type: string
-                    description: 日志创建时间
+                    description: 日志落库时间
             description: 策略评估日志。
         system.admin.v1.BasePost:
             type: object
@@ -8861,6 +9818,314 @@ components:
                     type: string
                     description: 令牌有效期（秒）
             description: 当前会话信息。
+        system.admin.v1.BaseTableArchiveForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 归档配置ID
+                table_name:
+                    type: string
+                    description: 数据表名称
+                archive_mode:
+                    enum:
+                        - BASE_TABLE_ARCHIVE_MODE_UNSPECIFIED
+                        - BASE_TABLE_ARCHIVE_MODE_INTERNAL_DATABASE
+                        - BASE_TABLE_ARCHIVE_MODE_OSS
+                    type: string
+                    description: 归档模式
+                    format: enum
+                online_retention_days:
+                    type: integer
+                    description: 在线保留天数
+                    format: int32
+                archive_retention_days:
+                    type: integer
+                    description: 归档保留天数
+                    format: int32
+                batch_size:
+                    type: integer
+                    description: 批处理数量
+                    format: int32
+                delete_after_verify:
+                    type: boolean
+                    description: 校验后删除在线数据
+                oss_prefix:
+                    type: string
+                    description: OSS对象前缀
+                source_name:
+                    type: string
+                    description: 数据源名称
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+            description: BaseTableArchiveForm 表归档配置表单。
+        system.admin.v1.BaseTableArchiveRecord:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 归档记录ID
+                archive_id:
+                    type: string
+                    description: 归档配置ID
+                table_name:
+                    type: string
+                    description: 数据表名称
+                archive_mode:
+                    enum:
+                        - BASE_TABLE_ARCHIVE_MODE_UNSPECIFIED
+                        - BASE_TABLE_ARCHIVE_MODE_INTERNAL_DATABASE
+                        - BASE_TABLE_ARCHIVE_MODE_OSS
+                    type: string
+                    description: 归档模式
+                    format: enum
+                cutoff_at:
+                    type: string
+                    description: 归档截止时间
+                cursor:
+                    type: string
+                    description: 断点游标
+                scanned_rows:
+                    type: string
+                    description: 扫描条数
+                archived_rows:
+                    type: string
+                    description: 归档条数
+                deleted_rows:
+                    type: string
+                    description: 删除条数
+                archive_table_name:
+                    type: string
+                    description: 内部归档表名
+                object_key:
+                    type: string
+                    description: OSS对象Key
+                size_bytes:
+                    type: string
+                    description: 对象大小
+                sha256:
+                    type: string
+                    description: SHA-256
+                status:
+                    enum:
+                        - BASE_TABLE_ARCHIVE_RECORD_STATUS_UNSPECIFIED
+                        - BASE_TABLE_ARCHIVE_RECORD_STATUS_PENDING
+                        - BASE_TABLE_ARCHIVE_RECORD_STATUS_RUNNING
+                        - BASE_TABLE_ARCHIVE_RECORD_STATUS_VERIFYING
+                        - BASE_TABLE_ARCHIVE_RECORD_STATUS_SUCCESS
+                        - BASE_TABLE_ARCHIVE_RECORD_STATUS_FAILED
+                        - BASE_TABLE_ARCHIVE_RECORD_STATUS_DELETED
+                    type: string
+                    description: 归档状态
+                    format: enum
+                error:
+                    type: string
+                    description: 错误信息
+                started_at:
+                    type: string
+                    description: 开始时间
+                finished_at:
+                    type: string
+                    description: 完成时间
+                source_name:
+                    type: string
+                    description: 数据源名称
+            description: BaseTableArchiveRecord 表归档执行记录。
+        system.admin.v1.BaseTableArchiveRestore:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 恢复记录ID
+                archive_record_id:
+                    type: string
+                    description: 归档记录ID
+                table_name:
+                    type: string
+                    description: 数据表名称
+                restore_mode:
+                    enum:
+                        - BASE_TABLE_ARCHIVE_RESTORE_MODE_UNSPECIFIED
+                        - BASE_TABLE_ARCHIVE_RESTORE_MODE_ALL
+                        - BASE_TABLE_ARCHIVE_RESTORE_MODE_SELECTED
+                    type: string
+                    description: 恢复模式
+                    format: enum
+                restore_range:
+                    type: string
+                    description: 恢复范围
+                restored_rows:
+                    type: string
+                    description: 恢复条数
+                operator_id:
+                    type: string
+                    description: 操作人ID
+                status:
+                    enum:
+                        - BASE_TABLE_ARCHIVE_RESTORE_STATUS_UNSPECIFIED
+                        - BASE_TABLE_ARCHIVE_RESTORE_STATUS_PENDING
+                        - BASE_TABLE_ARCHIVE_RESTORE_STATUS_RUNNING
+                        - BASE_TABLE_ARCHIVE_RESTORE_STATUS_SUCCESS
+                        - BASE_TABLE_ARCHIVE_RESTORE_STATUS_FAILED
+                    type: string
+                    description: 恢复状态
+                    format: enum
+                error:
+                    type: string
+                    description: 错误信息
+                started_at:
+                    type: string
+                    description: 开始时间
+                finished_at:
+                    type: string
+                    description: 完成时间
+            description: BaseTableArchiveRestore 归档恢复记录。
+        system.admin.v1.BaseTableBackupForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 备份配置ID
+                source_name:
+                    type: string
+                    description: 数据源名称
+                backup_type:
+                    enum:
+                        - BASE_TABLE_BACKUP_TYPE_UNSPECIFIED
+                        - BASE_TABLE_BACKUP_TYPE_FULL
+                        - BASE_TABLE_BACKUP_TYPE_INCREMENTAL
+                    type: string
+                    description: 备份类型
+                    format: enum
+                oss_prefix:
+                    type: string
+                    description: OSS对象前缀
+                retention_count:
+                    type: integer
+                    description: 保留数量
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+            description: BaseTableBackupForm 数据库备份配置表单。
+        system.admin.v1.BaseTableBackupRecord:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 备份记录ID
+                backup_id:
+                    type: string
+                    description: 备份配置ID
+                source_name:
+                    type: string
+                    description: 数据源名称
+                database_name:
+                    type: string
+                    description: 数据库名称
+                backup_type:
+                    enum:
+                        - BASE_TABLE_BACKUP_TYPE_UNSPECIFIED
+                        - BASE_TABLE_BACKUP_TYPE_FULL
+                        - BASE_TABLE_BACKUP_TYPE_INCREMENTAL
+                    type: string
+                    description: 备份类型
+                    format: enum
+                object_key:
+                    type: string
+                    description: OSS对象Key
+                size_bytes:
+                    type: string
+                    description: 对象大小
+                sha256:
+                    type: string
+                    description: SHA-256
+                hmac:
+                    type: string
+                    description: HMAC
+                status:
+                    enum:
+                        - BASE_TABLE_BACKUP_RECORD_STATUS_UNSPECIFIED
+                        - BASE_TABLE_BACKUP_RECORD_STATUS_RUNNING
+                        - BASE_TABLE_BACKUP_RECORD_STATUS_SUCCESS
+                        - BASE_TABLE_BACKUP_RECORD_STATUS_FAILED
+                        - BASE_TABLE_BACKUP_RECORD_STATUS_DELETED
+                    type: string
+                    description: 备份状态
+                    format: enum
+                error:
+                    type: string
+                    description: 错误信息
+                started_at:
+                    type: string
+                    description: 开始时间
+                finished_at:
+                    type: string
+                    description: 完成时间
+                verified_at:
+                    type: string
+                    description: 校验时间
+            description: BaseTableBackupRecord 数据库备份执行记录。
+        system.admin.v1.BaseTableBackupRestore:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 恢复记录ID
+                backup_record_id:
+                    type: string
+                    description: 备份记录ID
+                source_name:
+                    type: string
+                    description: 源数据源
+                target_source_name:
+                    type: string
+                    description: 目标数据源
+                target_database:
+                    type: string
+                    description: 目标数据库
+                restore_mode:
+                    enum:
+                        - BASE_TABLE_BACKUP_RESTORE_MODE_UNSPECIFIED
+                        - BASE_TABLE_BACKUP_RESTORE_MODE_VERIFY_ONLY
+                        - BASE_TABLE_BACKUP_RESTORE_MODE_FULL
+                    type: string
+                    description: 恢复模式
+                    format: enum
+                operator_id:
+                    type: string
+                    description: 操作人ID
+                status:
+                    enum:
+                        - BASE_TABLE_BACKUP_RESTORE_STATUS_UNSPECIFIED
+                        - BASE_TABLE_BACKUP_RESTORE_STATUS_PENDING
+                        - BASE_TABLE_BACKUP_RESTORE_STATUS_RUNNING
+                        - BASE_TABLE_BACKUP_RESTORE_STATUS_SUCCESS
+                        - BASE_TABLE_BACKUP_RESTORE_STATUS_FAILED
+                    type: string
+                    description: 恢复状态
+                    format: enum
+                error:
+                    type: string
+                    description: 错误信息
+                started_at:
+                    type: string
+                    description: 开始时间
+                finished_at:
+                    type: string
+                    description: 完成时间
+            description: BaseTableBackupRestore 数据库备份恢复记录。
         system.admin.v1.BaseTenant:
             type: object
             properties:
@@ -8960,6 +10225,24 @@ components:
                 phone:
                     type: string
                     description: 手机号
+                email:
+                    type: string
+                    description: 邮箱
+                id_type:
+                    enum:
+                        - BASE_USER_ID_TYPE_UNSPECIFIED
+                        - BASE_USER_ID_TYPE_ID_CARD
+                        - BASE_USER_ID_TYPE_PASSPORT
+                        - BASE_USER_ID_TYPE_HK_MACAO_PERMIT
+                        - BASE_USER_ID_TYPE_TAIWAN_PERMIT
+                        - BASE_USER_ID_TYPE_FOREIGN_PERMANENT_RESIDENCE
+                        - BASE_USER_ID_TYPE_OTHER
+                    type: string
+                    description: 证件类型：枚举【BaseUserIDType】
+                    format: enum
+                id_code:
+                    type: string
+                    description: 证件号
                 gender:
                     enum:
                         - BASE_USER_GENDER_UNSPECIFIED
@@ -8983,6 +10266,14 @@ components:
                 remark:
                     type: string
                     description: 备注名
+                must_change_password:
+                    enum:
+                        - BASE_USER_PASSWORD_CHANGE_STATUS_UNSPECIFIED
+                        - BASE_USER_PASSWORD_CHANGE_STATUS_REQUIRED
+                        - BASE_USER_PASSWORD_CHANGE_STATUS_NOT_REQUIRED
+                    type: string
+                    description: 密码修改状态：枚举【BaseUserPasswordChangeStatus】
+                    format: enum
                 created_at:
                     type: string
                     description: 创建时间
@@ -9023,6 +10314,24 @@ components:
                 phone:
                     type: string
                     description: 手机号
+                email:
+                    type: string
+                    description: 邮箱
+                id_type:
+                    enum:
+                        - BASE_USER_ID_TYPE_UNSPECIFIED
+                        - BASE_USER_ID_TYPE_ID_CARD
+                        - BASE_USER_ID_TYPE_PASSPORT
+                        - BASE_USER_ID_TYPE_HK_MACAO_PERMIT
+                        - BASE_USER_ID_TYPE_TAIWAN_PERMIT
+                        - BASE_USER_ID_TYPE_FOREIGN_PERMANENT_RESIDENCE
+                        - BASE_USER_ID_TYPE_OTHER
+                    type: string
+                    description: 证件类型：枚举【BaseUserIDType】
+                    format: enum
+                id_code:
+                    type: string
+                    description: 证件号
                 avatar:
                     type: string
                     description: 头像
@@ -9059,6 +10368,46 @@ components:
                     type: string
                     description: 用户数
             description: 用户注册时间维度汇总项
+        system.admin.v1.CacheEntry:
+            type: object
+            properties:
+                key:
+                    type: string
+                    description: 缓存键
+                type:
+                    type: string
+                    description: 缓存类型：string或hash
+                value:
+                    type: string
+                    description: 字符串缓存值
+                fields:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.CacheField'
+                    description: Hash缓存字段
+                ttl_seconds:
+                    type: string
+                    description: 剩余有效期，-1表示永不过期
+                expires_at:
+                    type: string
+                    description: 过期时间，RFC3339格式；永不过期时为空
+                created_at:
+                    type: string
+                    description: 首次写入或首次观测时间，RFC3339格式
+                updated_at:
+                    type: string
+                    description: 最近写入或过期时间变更时间，RFC3339格式
+            description: 缓存查询结果。
+        system.admin.v1.CacheField:
+            type: object
+            properties:
+                key:
+                    type: string
+                    description: 字段名
+                value:
+                    type: string
+                    description: 字段值
+            description: Hash缓存字段。
         system.admin.v1.CancelBaseMessageScheduleRequest:
             type: object
             properties:
@@ -9444,6 +10793,9 @@ components:
                     additionalProperties:
                         $ref: '#/components/schemas/system.admin.v1.CodeGenLocaleConfig'
                     description: 按语言区域索引的表级国际化配置
+                source_name:
+                    type: string
+                    description: 数据源名称
             description: 代码生成表配置
         system.admin.v1.CodeGenTableForm:
             type: object
@@ -9500,6 +10852,9 @@ components:
                     additionalProperties:
                         $ref: '#/components/schemas/system.admin.v1.CodeGenLocaleConfig'
                     description: 按语言区域索引的表级国际化配置
+                source_name:
+                    type: string
+                    description: 数据源名称
             description: 代码生成表配置表单
         system.admin.v1.CodeGenTask:
             type: object
@@ -9655,6 +11010,15 @@ components:
                     type: string
                     description: 任务ID
             description: 执行任务请求参数
+        system.admin.v1.GetBaseLogTraceResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseLogTraceItem'
+                    description: 关联日志时间线
+            description: 关联审计查询响应。
         system.admin.v1.ListBaseUserResponse:
             type: object
             properties:
@@ -10375,6 +11739,19 @@ components:
                     description: 总数
                     format: int32
             description: 登录日志分页响应。
+        system.admin.v1.PageBaseLoginPolicyResponse:
+            type: object
+            properties:
+                base_login_policies:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseLoginPolicy'
+                    description: 登录策略列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 登录策略分页响应。
         system.admin.v1.PageBaseMessageCategoryResponse:
             type: object
             properties:
@@ -10479,6 +11856,84 @@ components:
                     description: 总数
                     format: int32
             description: 角色分页响应
+        system.admin.v1.PageBaseTableArchiveRecordResponse:
+            type: object
+            properties:
+                base_table_archive_records:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseTableArchiveRecord'
+                    description: 归档记录列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: PageBaseTableArchiveRecordResponse 表归档记录分页响应。
+        system.admin.v1.PageBaseTableArchiveResponse:
+            type: object
+            properties:
+                base_table_archives:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseTableArchiveForm'
+                    description: 归档配置列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: PageBaseTableArchiveResponse 表归档配置分页响应。
+        system.admin.v1.PageBaseTableArchiveRestoreResponse:
+            type: object
+            properties:
+                base_table_archive_restores:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseTableArchiveRestore'
+                    description: 恢复记录列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: PageBaseTableArchiveRestoreResponse 归档恢复记录分页响应。
+        system.admin.v1.PageBaseTableBackupRecordResponse:
+            type: object
+            properties:
+                base_table_backup_records:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseTableBackupRecord'
+                    description: 备份记录列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: PageBaseTableBackupRecordResponse 数据库备份记录分页响应。
+        system.admin.v1.PageBaseTableBackupResponse:
+            type: object
+            properties:
+                base_table_backups:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseTableBackupForm'
+                    description: 备份配置列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: PageBaseTableBackupResponse 数据库备份配置分页响应。
+        system.admin.v1.PageBaseTableBackupRestoreResponse:
+            type: object
+            properties:
+                base_table_backup_restores:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseTableBackupRestore'
+                    description: 恢复记录列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: PageBaseTableBackupRestoreResponse 数据库备份恢复记录分页响应。
         system.admin.v1.PageBaseTenantResponse:
             type: object
             properties:
@@ -10505,6 +11960,19 @@ components:
                     description: 总数
                     format: int32
             description: 用户分页响应
+        system.admin.v1.PageCacheResponse:
+            type: object
+            properties:
+                cache_entries:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.CacheEntry'
+                    description: 缓存条目列表
+                total:
+                    type: integer
+                    description: 匹配条目总数
+                    format: int32
+            description: 缓存分页响应。
         system.admin.v1.PageCodeGenTableResponse:
             type: object
             properties:
@@ -10960,6 +12428,21 @@ components:
                     description: 启用状态
                     format: enum
             description: 设置语言状态请求参数
+        system.admin.v1.SetBaseLoginPolicyStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 登录策略ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+            description: 设置登录策略状态请求参数。
         system.admin.v1.SetBaseMenuStatusRequest:
             type: object
             properties:
@@ -11020,6 +12503,28 @@ components:
                     description: 状态
                     format: int32
             description: 设置角色状态请求参数
+        system.admin.v1.SetBaseTableArchiveStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 归档配置ID
+                status:
+                    type: integer
+                    description: 状态
+                    format: int32
+            description: SetBaseTableArchiveStatusRequest 设置表归档配置状态请求。
+        system.admin.v1.SetBaseTableBackupStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 备份配置ID
+                status:
+                    type: integer
+                    description: 状态
+                    format: int32
+            description: SetBaseTableBackupStatusRequest 设置数据库备份配置状态请求。
         system.admin.v1.SetBaseTenantStatusRequest:
             type: object
             properties:
@@ -11165,6 +12670,16 @@ components:
                     description: Agent工具状态：枚举【Status】
                     format: enum
             description: API更新条件
+        system.admin.v1.UpdateBaseConfigByKeyRequest:
+            type: object
+            properties:
+                key:
+                    type: string
+                    description: 配置key
+                value_json:
+                    type: string
+                    description: JSON格式配置值
+            description: 按配置键更新系统配置请求参数。
         system.admin.v1.UpdateBaseI18nRequest:
             type: object
             properties:
@@ -11206,6 +12721,24 @@ components:
                 phone:
                     type: string
                     description: 手机号
+                email:
+                    type: string
+                    description: 邮箱
+                id_type:
+                    enum:
+                        - BASE_USER_ID_TYPE_UNSPECIFIED
+                        - BASE_USER_ID_TYPE_ID_CARD
+                        - BASE_USER_ID_TYPE_PASSPORT
+                        - BASE_USER_ID_TYPE_HK_MACAO_PERMIT
+                        - BASE_USER_ID_TYPE_TAIWAN_PERMIT
+                        - BASE_USER_ID_TYPE_FOREIGN_PERMANENT_RESIDENCE
+                        - BASE_USER_ID_TYPE_OTHER
+                    type: string
+                    description: 证件类型：枚举【BaseUserIDType】
+                    format: enum
+                id_code:
+                    type: string
+                    description: 证件号
                 avatar:
                     type: string
                     description: 头像
@@ -11262,6 +12795,24 @@ components:
                 phone:
                     type: string
                     description: 手机号
+                email:
+                    type: string
+                    description: 邮箱
+                id_type:
+                    enum:
+                        - BASE_USER_ID_TYPE_UNSPECIFIED
+                        - BASE_USER_ID_TYPE_ID_CARD
+                        - BASE_USER_ID_TYPE_PASSPORT
+                        - BASE_USER_ID_TYPE_HK_MACAO_PERMIT
+                        - BASE_USER_ID_TYPE_TAIWAN_PERMIT
+                        - BASE_USER_ID_TYPE_FOREIGN_PERMANENT_RESIDENCE
+                        - BASE_USER_ID_TYPE_OTHER
+                    type: string
+                    description: 证件类型：枚举【BaseUserIDType】
+                    format: enum
+                id_code:
+                    type: string
+                    description: 证件号
                 role_name:
                     type: string
                     description: 角色名
@@ -11391,6 +12942,24 @@ components:
                 phone:
                     type: string
                     description: 手机号
+                email:
+                    type: string
+                    description: 邮箱
+                id_type:
+                    enum:
+                        - BASE_USER_ID_TYPE_UNSPECIFIED
+                        - BASE_USER_ID_TYPE_ID_CARD
+                        - BASE_USER_ID_TYPE_PASSPORT
+                        - BASE_USER_ID_TYPE_HK_MACAO_PERMIT
+                        - BASE_USER_ID_TYPE_TAIWAN_PERMIT
+                        - BASE_USER_ID_TYPE_FOREIGN_PERMANENT_RESIDENCE
+                        - BASE_USER_ID_TYPE_OTHER
+                    type: string
+                    description: 证件类型：枚举【BaseUserIDType】
+                    format: enum
+                id_code:
+                    type: string
+                    description: 证件号
                 avatar:
                     type: string
                     description: 头像
@@ -11403,9 +12972,9 @@ tags:
     - name: AiToolService
       description: Base AI 助手工具服务
     - name: AuthService
-      description: App用户认证服务
-    - name: AuthService
       description: Admin用户登录认证服务
+    - name: AuthService
+      description: App用户认证服务
     - name: BaseApiLogService
       description: API 访问日志服务。
     - name: BaseApiService
@@ -11422,6 +12991,8 @@ tags:
       description: 数据访问日志服务。
     - name: BaseDeptService
       description: Admin部门服务
+    - name: BaseDictItemService
+      description: Admin字典项服务
     - name: BaseDictService
       description: Admin字典服务
     - name: BaseDictService
@@ -11430,14 +13001,18 @@ tags:
       description: Admin文件资产管理服务。
     - name: BaseI18nService
       description: 国际化翻译信息服务。
+    - name: BaseJobLogService
+      description: Admin定时任务日志服务
     - name: BaseJobService
       description: Admin定时任务服务
     - name: BaseLanguageService
       description: Admin语言管理服务
+    - name: BaseLogService
+      description: 公共日志聚合查询服务。
     - name: BaseLoginLogService
       description: 登录日志服务。
     - name: BaseLoginPolicyService
-      description: Admin登录来源策略服务。
+      description: Admin登录策略管理服务。
     - name: BaseMenuService
       description: App菜单服务
     - name: BaseMenuService
@@ -11460,10 +13035,26 @@ tags:
       description: Admin角色管理服务
     - name: BaseSessionService
       description: Admin会话管理服务。
+    - name: BaseTableArchiveRecordService
+      description: BaseTableArchiveRecordService 查询表归档执行记录。
+    - name: BaseTableArchiveRestoreService
+      description: BaseTableArchiveRestoreService 手工恢复归档数据。
+    - name: BaseTableArchiveService
+      description: BaseTableArchiveService 管理数据库表归档配置。
+    - name: BaseTableBackupRecordService
+      description: BaseTableBackupRecordService 查询数据库备份执行记录。
+    - name: BaseTableBackupRestoreService
+      description: BaseTableBackupRestoreService 手工恢复数据库备份。
+    - name: BaseTableBackupService
+      description: BaseTableBackupService 管理数据库备份配置。
+    - name: BaseTableSourceService
+      description: BaseTableSourceService 提供数据备份、数据归档和代码生成共用的数据源元数据。
     - name: BaseTenantService
       description: Admin租户管理服务
     - name: BaseUserService
       description: Admin用户管理服务
+    - name: CacheService
+      description: 运行时缓存查询服务。
     - name: CodeGenColumnService
       description: Admin代码生成字段服务
     - name: CodeGenProtoService

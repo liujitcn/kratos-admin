@@ -17,8 +17,10 @@ import (
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	basebiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
 	passwordPolicy "github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
+	adminconst "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
@@ -78,15 +80,17 @@ func NewBaseUserCase(
 // OptionBaseUser 查询用户选项
 func (c *BaseUserCase) OptionBaseUser(ctx context.Context, req *adminv1.OptionBaseUserRequest) (*commonv1.SelectOptionResponse, error) {
 	keyword := req.GetKeyword()
-	// 未传关键字时，直接返回空选项集。
-	if keyword == "" {
+	// 未传关键字且未限定租户时，直接返回空选项集。
+	if keyword == "" && req.GetTenantId() <= 0 {
 		return &commonv1.SelectOptionResponse{List: []*commonv1.SelectOptionResponse_Option{}}, nil
 	}
 
 	query := c.Query(ctx).BaseUser
-	opts := make([]repository.QueryOption, 0, 7)
+	opts := make([]repository.QueryOption, 0, 6)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
-	opts = append(opts, repository.Where(query.NickName.Like("%"+keyword+"%")))
+	if keyword != "" {
+		opts = append(opts, repository.Where(query.NickName.Like("%"+keyword+"%")))
+	}
 	if req.GetTenantId() > 0 {
 		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
 	}
@@ -143,24 +147,12 @@ func (c *BaseUserCase) SummaryBaseUser(ctx context.Context, req *adminv1.Summary
 		return nil, errorsx.InvalidArgument("统计开始时间必须早于结束时间")
 	}
 
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return nil, err
-	}
-	tenantID := req.GetTenantId()
-	if authInfo.TenantCode != gorm.DefaultTenantCode {
-		if tenantID > 0 && tenantID != authInfo.TenantId {
-			return nil, errorsx.PermissionDenied("不能统计其他租户的用户")
-		}
-		tenantID = authInfo.TenantId
-	}
-
 	ctx = baseUserGRPCContext(ctx)
 	query := c.Query(ctx).BaseUser
 	conditions := make([]gen.Condition, 0, 3)
 	conditions = append(conditions, query.CreatedAt.Gte(startAt), query.CreatedAt.Lt(endAt))
-	if tenantID > 0 {
-		conditions = append(conditions, query.TenantID.Eq(tenantID))
+	if req.GetTenantId() > 0 {
+		conditions = append(conditions, query.TenantID.Eq(req.GetTenantId()))
 	}
 	var total int64
 	total, err = query.WithContext(ctx).Where(conditions...).Count()
@@ -212,9 +204,8 @@ func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *adminv1.PageBaseUs
 		}
 
 		deptQuery := c.baseDeptRepo.Query(ctx).BaseDept
-		deptOpts := make([]repository.QueryOption, 0, 2)
+		deptOpts := make([]repository.QueryOption, 0, 1)
 		deptOpts = append(deptOpts, repository.Where(deptQuery.Path.Like(dept.Path+"%")))
-		deptOpts = append(deptOpts, repository.Where(deptQuery.TenantID.Eq(dept.TenantID)))
 		var deptList []*models.BaseDept
 		deptList, err = c.baseDeptRepo.List(ctx, deptOpts...)
 		if err != nil {
@@ -297,6 +288,7 @@ func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *adminv1.PageBaseUs
 	resList := make([]*adminv1.BaseUser, 0, len(list))
 	for _, item := range list {
 		baseUser := c.mapper.ToDTO(item)
+		baseUser.Phone = maskPhone(baseUser.Phone)
 		_, baseUser.IsProtected = protectedRoleIDs[item.RoleID]
 		resList = append(resList, baseUser)
 	}
@@ -336,33 +328,43 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *adminv1.BaseUser
 	if req.GetTenantId() > 0 && req.GetTenantId() != baseDept.TenantID {
 		return errorsx.InvalidArgument("用户所属租户与部门不一致")
 	}
-	_, err = c.validateBasePost(ctx, req.GetPostId(), baseDept.TenantID, 0)
+	err = c.validateBasePost(ctx, req.GetPostId(), baseDept.TenantID, 0)
 	if err != nil {
 		return err
-	}
-
-	var passwordStr string
-	// 管理端必须显式提交符合策略的初始密码，禁止回退到可预测默认密码。
-	if req.GetPwd() == nil {
-		return errorsx.InvalidArgument("必须设置符合安全策略的初始密码")
-	}
-	passwordStr, err = utils.DecryptPassword(c.Cache, req.GetPwd(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER)
-	if err != nil {
-		return err
-	}
-	if err = passwordPolicy.ValidateComplexity(passwordStr); err != nil {
-		return errorsx.InvalidArgument("密码长度或复杂度不符合安全策略").WithCause(err)
 	}
 
 	var password string
-	password, err = crypto.Encrypt(passwordStr)
+	var passwordConfig loginpolicy.PasswordConfig
+	passwordConfig, err = loginpolicy.LoadPasswordConfig(c.Cache, baseDept.TenantID, 0)
 	if err != nil {
-		return err
+		return errorsx.Internal("读取密码策略失败").WithCause(err)
+	}
+	mustChangePassword := adminconst.BASE_USER_PASSWORD_CHANGE_STATUS_NOT_REQUIRED
+	if req.GetPwd() == nil {
+		if passwordConfig.InitialPasswordHash == "" {
+			return errorsx.InvalidArgument("未配置初始化密码，请显式设置用户密码")
+		}
+		password = passwordConfig.InitialPasswordHash
+		mustChangePassword = adminconst.BASE_USER_PASSWORD_CHANGE_STATUS_REQUIRED
+	} else {
+		var passwordStr string
+		passwordStr, err = utils.DecryptPassword(c.Cache, req.GetPwd(), basev1.PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER)
+		if err != nil {
+			return err
+		}
+		if err = passwordPolicy.ValidateComplexity(passwordStr, passwordConfig); err != nil {
+			return errorsx.InvalidArgument("密码长度或复杂度不符合安全策略").WithCause(err)
+		}
+		password, err = crypto.Encrypt(passwordStr)
+		if err != nil {
+			return err
+		}
 	}
 	baseUser := c.formMapper.ToEntity(req)
 	baseUser.Password = password
 	baseUser.PasswordChangedAt = time.Now()
 	baseUser.PasswordHistory = "[]"
+	baseUser.MustChangePassword = mustChangePassword
 	baseUser.TenantID = baseDept.TenantID
 	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		err = c.Create(ctx, baseUser)
@@ -418,7 +420,7 @@ func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *adminv1.BaseUser
 	if newBaseDept.TenantID != oldBaseUser.TenantID {
 		return errorsx.InvalidArgument("用户部门与所属租户不一致")
 	}
-	_, err = c.validateBasePost(ctx, req.GetPostId(), oldBaseUser.TenantID, oldBaseUser.PostID)
+	err = c.validateBasePost(ctx, req.GetPostId(), oldBaseUser.TenantID, oldBaseUser.PostID)
 	if err != nil {
 		return err
 	}
@@ -516,6 +518,11 @@ func (c *BaseUserCase) ResetBaseUserPassword(ctx context.Context, req *adminv1.R
 	if err != nil {
 		return err
 	}
+	var passwordConfig loginpolicy.PasswordConfig
+	passwordConfig, err = loginpolicy.LoadPasswordConfig(c.Cache, baseUser.TenantID, baseUser.ID)
+	if err != nil {
+		return errorsx.Internal("读取密码策略失败").WithCause(err)
+	}
 
 	var passwordStr string
 	// 管理端重置密码必须显式提交新密码，禁止回退到可预测默认密码。
@@ -529,10 +536,10 @@ func (c *BaseUserCase) ResetBaseUserPassword(ctx context.Context, req *adminv1.R
 	if err = crypto.Verify(passwordStr, baseUser.Password); err == nil {
 		return errorsx.InvalidArgument("新密码不能与当前密码相同")
 	}
-	if err = passwordPolicy.CheckHistoryJSON(baseUser.PasswordHistory, passwordStr); err != nil {
+	if err = passwordPolicy.CheckHistoryJSON(baseUser.PasswordHistory, passwordStr, passwordConfig.HistoryCount); err != nil {
 		return errorsx.InvalidArgument("新密码不能重复使用近期历史密码").WithCause(err)
 	}
-	if err = passwordPolicy.ValidateComplexity(passwordStr); err != nil {
+	if err = passwordPolicy.ValidateComplexity(passwordStr, passwordConfig); err != nil {
 		return errorsx.InvalidArgument("密码长度或复杂度不符合安全策略").WithCause(err)
 	}
 
@@ -545,7 +552,7 @@ func (c *BaseUserCase) ResetBaseUserPassword(ctx context.Context, req *adminv1.R
 		return err
 	}
 	var history string
-	history, err = passwordPolicy.AppendHistoryJSON(baseUser.PasswordHistory, baseUser.Password)
+	history, err = passwordPolicy.AppendHistoryJSON(baseUser.PasswordHistory, baseUser.Password, passwordConfig.HistoryCount)
 	if err != nil {
 		return errorsx.Internal("记录历史密码失败").WithCause(err)
 	}
@@ -554,7 +561,7 @@ func (c *BaseUserCase) ResetBaseUserPassword(ctx context.Context, req *adminv1.R
 		Password:           password,
 		PasswordChangedAt:  time.Now(),
 		PasswordHistory:    history,
-		MustChangePassword: 1,
+		MustChangePassword: adminconst.BASE_USER_PASSWORD_CHANGE_STATUS_REQUIRED,
 	})
 	if err != nil {
 		return err
@@ -616,21 +623,21 @@ func (c *BaseUserCase) roleProtectionQueryContext(ctx context.Context) (context.
 }
 
 // validateBasePost 校验用户岗位属于用户租户，且新选择的岗位处于启用状态。
-func (c *BaseUserCase) validateBasePost(ctx context.Context, postID int64, tenantID int64, oldPostID int64) (*models.BasePost, error) {
+func (c *BaseUserCase) validateBasePost(ctx context.Context, postID int64, tenantID int64, oldPostID int64) error {
 	if postID == 0 {
-		return nil, nil
+		return nil
 	}
 	basePost, err := c.basePostRepo.FindByID(ctx, postID)
 	if err != nil {
-		return nil, errorsx.ResourceNotFound("用户岗位不存在").WithCause(err)
+		return errorsx.ResourceNotFound("用户岗位不存在").WithCause(err)
 	}
 	if basePost.TenantID != tenantID {
-		return nil, errorsx.InvalidArgument("用户岗位与所属租户不一致")
+		return errorsx.InvalidArgument("用户岗位与所属租户不一致")
 	}
 	if basePost.Status != _const.STATUS_STATUS_ENABLE && basePost.ID != oldPostID {
-		return nil, errorsx.PermissionDenied("岗位已被禁用，不能选择")
+		return errorsx.PermissionDenied("岗位已被禁用，不能选择")
 	}
-	return basePost, nil
+	return nil
 }
 
 // updateBaseUserPostID 保存用户岗位，未选择岗位时将字段清空为 NULL。
@@ -675,4 +682,16 @@ func baseUserGRPCContext(ctx context.Context) context.Context {
 func baseUserLocalCall(ctx context.Context) bool {
 	serverTransport, ok := transport.FromServerContext(ctx)
 	return !ok || !strings.HasPrefix(serverTransport.Operation(), "/system.admin.v1.BaseUserService/")
+}
+
+// maskPhone 对管理列表中的手机号保留前三位和后四位。
+func maskPhone(phone string) string {
+	values := []rune(phone)
+	if len(values) < 8 {
+		if phone == "" {
+			return ""
+		}
+		return "***"
+	}
+	return string(values[:3]) + "****" + string(values[len(values)-4:])
 }

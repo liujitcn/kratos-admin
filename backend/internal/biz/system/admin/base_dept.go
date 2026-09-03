@@ -54,7 +54,7 @@ func (c *BaseDeptCase) OptionBaseDept(ctx context.Context, req *adminv1.OptionBa
 		return nil, err
 	}
 	var hasChildren map[int64]struct{}
-	hasChildren, err = c.listBaseDeptParentIDsWithChildren(ctx, list, req.GetTenantId())
+	hasChildren, err = c.listBaseDeptParentIDsWithChildren(ctx, list)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (c *BaseDeptCase) TreeBaseDept(ctx context.Context, req *adminv1.TreeBaseDe
 		return nil, err
 	}
 	var hasChildren map[int64]struct{}
-	hasChildren, err = c.listBaseDeptParentIDsWithChildren(ctx, list, req.GetTenantId())
+	hasChildren, err = c.listBaseDeptParentIDsWithChildren(ctx, list)
 	if err != nil {
 		return nil, err
 	}
@@ -252,7 +252,6 @@ func (c *BaseDeptCase) buildBaseDeptOption(
 func (c *BaseDeptCase) listBaseDeptParentIDsWithChildren(
 	ctx context.Context,
 	list []*models.BaseDept,
-	tenantID int64,
 ) (map[int64]struct{}, error) {
 	parentIDs := make([]int64, 0, len(list))
 	for _, item := range list {
@@ -264,11 +263,8 @@ func (c *BaseDeptCase) listBaseDeptParentIDsWithChildren(
 	}
 
 	query := c.Query(ctx).BaseDept
-	opts := make([]repository.QueryOption, 0, 2)
+	opts := make([]repository.QueryOption, 0, 1)
 	opts = append(opts, repository.Where(query.ParentID.In(parentIDs...)))
-	if tenantID > 0 {
-		opts = append(opts, repository.Where(query.TenantID.Eq(tenantID)))
-	}
 	children, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err

@@ -22,10 +22,12 @@ const _ = http.SupportPackageIsVersion3
 const OperationBaseConfigServiceCreateBaseConfig = "/system.admin.v1.BaseConfigService/CreateBaseConfig"
 const OperationBaseConfigServiceDeleteBaseConfig = "/system.admin.v1.BaseConfigService/DeleteBaseConfig"
 const OperationBaseConfigServiceGetBaseConfig = "/system.admin.v1.BaseConfigService/GetBaseConfig"
+const OperationBaseConfigServiceGetBaseConfigByKey = "/system.admin.v1.BaseConfigService/GetBaseConfigByKey"
 const OperationBaseConfigServicePageBaseConfig = "/system.admin.v1.BaseConfigService/PageBaseConfig"
 const OperationBaseConfigServiceRefreshBaseConfigCache = "/system.admin.v1.BaseConfigService/RefreshBaseConfigCache"
 const OperationBaseConfigServiceSetBaseConfigStatus = "/system.admin.v1.BaseConfigService/SetBaseConfigStatus"
 const OperationBaseConfigServiceUpdateBaseConfig = "/system.admin.v1.BaseConfigService/UpdateBaseConfig"
+const OperationBaseConfigServiceUpdateBaseConfigByKey = "/system.admin.v1.BaseConfigService/UpdateBaseConfigByKey"
 
 type BaseConfigServiceHTTPServer interface {
 	// CreateBaseConfig 创建系统配置
@@ -34,6 +36,8 @@ type BaseConfigServiceHTTPServer interface {
 	DeleteBaseConfig(context.Context, *DeleteBaseConfigRequest) (*emptypb.Empty, error)
 	// GetBaseConfig 查询系统配置
 	GetBaseConfig(context.Context, *GetBaseConfigRequest) (*BaseConfigForm, error)
+	// GetBaseConfigByKey 按配置键查询隐藏系统配置。
+	GetBaseConfigByKey(context.Context, *GetBaseConfigByKeyRequest) (*BaseConfigValue, error)
 	// PageBaseConfig 查询系统配置分页列表
 	PageBaseConfig(context.Context, *PageBaseConfigRequest) (*PageBaseConfigResponse, error)
 	// RefreshBaseConfigCache 刷新缓存
@@ -42,6 +46,8 @@ type BaseConfigServiceHTTPServer interface {
 	SetBaseConfigStatus(context.Context, *SetBaseConfigStatusRequest) (*emptypb.Empty, error)
 	// UpdateBaseConfig 更新系统配置
 	UpdateBaseConfig(context.Context, *UpdateBaseConfigRequest) (*emptypb.Empty, error)
+	// UpdateBaseConfigByKey 按配置键更新隐藏系统配置。
+	UpdateBaseConfigByKey(context.Context, *UpdateBaseConfigByKeyRequest) (*emptypb.Empty, error)
 }
 
 func RegisterBaseConfigServiceHTTPServer(s *http.Server, srv BaseConfigServiceHTTPServer) {
@@ -49,8 +55,10 @@ func RegisterBaseConfigServiceHTTPServer(s *http.Server, srv BaseConfigServiceHT
 	r.Handle("PUT", "/api/v1/admin/base/config/cache", _BaseConfigService_RefreshBaseConfigCache0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/config", _BaseConfigService_PageBaseConfig0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/config/{id}", _BaseConfigService_GetBaseConfig0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/config/key/{key}", _BaseConfigService_GetBaseConfigByKey0_HTTP_Handler(srv))
 	r.Handle("POST", "/api/v1/admin/base/config", _BaseConfigService_CreateBaseConfig0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/config/{base_config.id}", _BaseConfigService_UpdateBaseConfig0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/admin/base/config/key/{key}", _BaseConfigService_UpdateBaseConfigByKey0_HTTP_Handler(srv))
 	r.Handle("DELETE", "/api/v1/admin/base/config/{id}", _BaseConfigService_DeleteBaseConfig0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/config/{id}/status", _BaseConfigService_SetBaseConfigStatus0_HTTP_Handler(srv))
 }
@@ -115,6 +123,28 @@ func _BaseConfigService_GetBaseConfig0_HTTP_Handler(srv BaseConfigServiceHTTPSer
 	}
 }
 
+func _BaseConfigService_GetBaseConfigByKey0_HTTP_Handler(srv BaseConfigServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetBaseConfigByKeyRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseConfigServiceGetBaseConfigByKey)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetBaseConfigByKey(ctx, req.(*GetBaseConfigByKeyRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*BaseConfigValue)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _BaseConfigService_CreateBaseConfig0_HTTP_Handler(srv BaseConfigServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in CreateBaseConfigRequest
@@ -152,6 +182,28 @@ func _BaseConfigService_UpdateBaseConfig0_HTTP_Handler(srv BaseConfigServiceHTTP
 		http.SetOperation(ctx, OperationBaseConfigServiceUpdateBaseConfig)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.UpdateBaseConfig(ctx, req.(*UpdateBaseConfigRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _BaseConfigService_UpdateBaseConfigByKey0_HTTP_Handler(srv BaseConfigServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in UpdateBaseConfigByKeyRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseConfigServiceUpdateBaseConfigByKey)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.UpdateBaseConfigByKey(ctx, req.(*UpdateBaseConfigByKeyRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -213,6 +265,8 @@ type BaseConfigServiceHTTPClient interface {
 	DeleteBaseConfig(ctx context.Context, req *DeleteBaseConfigRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetBaseConfig 查询系统配置
 	GetBaseConfig(ctx context.Context, req *GetBaseConfigRequest, opts ...http.CallOption) (rsp *BaseConfigForm, err error)
+	// GetBaseConfigByKey 按配置键查询隐藏系统配置。
+	GetBaseConfigByKey(ctx context.Context, req *GetBaseConfigByKeyRequest, opts ...http.CallOption) (rsp *BaseConfigValue, err error)
 	// PageBaseConfig 查询系统配置分页列表
 	PageBaseConfig(ctx context.Context, req *PageBaseConfigRequest, opts ...http.CallOption) (rsp *PageBaseConfigResponse, err error)
 	// RefreshBaseConfigCache 刷新缓存
@@ -221,6 +275,8 @@ type BaseConfigServiceHTTPClient interface {
 	SetBaseConfigStatus(ctx context.Context, req *SetBaseConfigStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// UpdateBaseConfig 更新系统配置
 	UpdateBaseConfig(ctx context.Context, req *UpdateBaseConfigRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// UpdateBaseConfigByKey 按配置键更新隐藏系统配置。
+	UpdateBaseConfigByKey(ctx context.Context, req *UpdateBaseConfigByKeyRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type BaseConfigServiceHTTPClientImpl struct {
@@ -274,6 +330,23 @@ func (c *BaseConfigServiceHTTPClientImpl) GetBaseConfig(ctx context.Context, in 
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
 		http.Operation(OperationBaseConfigServiceGetBaseConfig),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// GetBaseConfigByKey 按配置键查询隐藏系统配置。
+func (c *BaseConfigServiceHTTPClientImpl) GetBaseConfigByKey(ctx context.Context, in *GetBaseConfigByKeyRequest, opts ...http.CallOption) (*BaseConfigValue, error) {
+	var out BaseConfigValue
+	pattern := "/api/v1/admin/base/config/key/{key}"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationBaseConfigServiceGetBaseConfigByKey),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
@@ -348,6 +421,24 @@ func (c *BaseConfigServiceHTTPClientImpl) UpdateBaseConfig(ctx context.Context, 
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "PUT", path, in.BaseConfig, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// UpdateBaseConfigByKey 按配置键更新隐藏系统配置。
+func (c *BaseConfigServiceHTTPClientImpl) UpdateBaseConfigByKey(ctx context.Context, in *UpdateBaseConfigByKeyRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/api/v1/admin/base/config/key/{key}"
+	path := http.BuildPath(pattern, in)
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.ContentType("application/protojson"),
+		http.Operation(OperationBaseConfigServiceUpdateBaseConfigByKey),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

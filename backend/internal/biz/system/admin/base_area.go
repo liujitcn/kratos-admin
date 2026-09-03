@@ -171,14 +171,14 @@ func (c *BaseAreaCase) buildOptionBaseAreaOption(
 ) []*commonv1.TreeOptionResponse_Option {
 	res := make([]*commonv1.TreeOptionResponse_Option, 0)
 	for _, item := range list {
-		if int64(item.ParentID) != parentID {
+		if item.ParentID != parentID {
 			continue
 		}
-		option := &commonv1.TreeOptionResponse_Option{Label: item.Name, Value: int64(item.ID)}
+		option := &commonv1.TreeOptionResponse_Option{Label: item.Name, Value: item.ID}
 		if lazy {
 			_, option.HasChildren = hasChildren[item.ID]
 		} else {
-			option.Children = c.buildOptionBaseAreaOption(list, int64(item.ID), false, hasChildren)
+			option.Children = c.buildOptionBaseAreaOption(list, item.ID, false, hasChildren)
 		}
 		res = append(res, option)
 	}
@@ -194,13 +194,13 @@ func (c *BaseAreaCase) buildBaseAreaTree(
 ) []*adminv1.BaseArea {
 	res := make([]*adminv1.BaseArea, 0)
 	for _, item := range list {
-		if int64(item.ParentID) != parentID {
+		if item.ParentID != parentID {
 			continue
 		}
 		baseArea := c.mapper.ToDTO(item)
 		_, baseArea.HasChildren = hasChildren[item.ID]
 		if !lazy {
-			baseArea.Children = c.buildBaseAreaTree(list, int64(item.ID), false, hasChildren)
+			baseArea.Children = c.buildBaseAreaTree(list, item.ID, false, hasChildren)
 		}
 		res = append(res, baseArea)
 	}

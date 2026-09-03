@@ -12,6 +12,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -20,20 +21,32 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BaseLoginPolicyService_GetBaseLoginPolicy_FullMethodName    = "/system.admin.v1.BaseLoginPolicyService/GetBaseLoginPolicy"
-	BaseLoginPolicyService_UpdateBaseLoginPolicy_FullMethodName = "/system.admin.v1.BaseLoginPolicyService/UpdateBaseLoginPolicy"
+	BaseLoginPolicyService_PageBaseLoginPolicy_FullMethodName      = "/system.admin.v1.BaseLoginPolicyService/PageBaseLoginPolicy"
+	BaseLoginPolicyService_GetBaseLoginPolicy_FullMethodName       = "/system.admin.v1.BaseLoginPolicyService/GetBaseLoginPolicy"
+	BaseLoginPolicyService_CreateBaseLoginPolicy_FullMethodName    = "/system.admin.v1.BaseLoginPolicyService/CreateBaseLoginPolicy"
+	BaseLoginPolicyService_UpdateBaseLoginPolicy_FullMethodName    = "/system.admin.v1.BaseLoginPolicyService/UpdateBaseLoginPolicy"
+	BaseLoginPolicyService_DeleteBaseLoginPolicy_FullMethodName    = "/system.admin.v1.BaseLoginPolicyService/DeleteBaseLoginPolicy"
+	BaseLoginPolicyService_SetBaseLoginPolicyStatus_FullMethodName = "/system.admin.v1.BaseLoginPolicyService/SetBaseLoginPolicyStatus"
 )
 
 // BaseLoginPolicyServiceClient is the client API for BaseLoginPolicyService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// Admin登录来源策略服务。
+// Admin登录策略管理服务。
 type BaseLoginPolicyServiceClient interface {
-	// 查询登录来源策略。
-	GetBaseLoginPolicy(ctx context.Context, in *GetBaseLoginPolicyRequest, opts ...grpc.CallOption) (*BaseLoginPolicy, error)
-	// 更新登录来源策略。
-	UpdateBaseLoginPolicy(ctx context.Context, in *UpdateBaseLoginPolicyRequest, opts ...grpc.CallOption) (*BaseLoginPolicy, error)
+	// 分页查询登录策略。
+	PageBaseLoginPolicy(ctx context.Context, in *PageBaseLoginPolicyRequest, opts ...grpc.CallOption) (*PageBaseLoginPolicyResponse, error)
+	// 查询登录策略详情。
+	GetBaseLoginPolicy(ctx context.Context, in *GetBaseLoginPolicyRequest, opts ...grpc.CallOption) (*BaseLoginPolicyForm, error)
+	// 创建登录策略。
+	CreateBaseLoginPolicy(ctx context.Context, in *CreateBaseLoginPolicyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 更新登录策略。
+	UpdateBaseLoginPolicy(ctx context.Context, in *UpdateBaseLoginPolicyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 删除登录策略。
+	DeleteBaseLoginPolicy(ctx context.Context, in *DeleteBaseLoginPolicyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 设置登录策略状态。
+	SetBaseLoginPolicyStatus(ctx context.Context, in *SetBaseLoginPolicyStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type baseLoginPolicyServiceClient struct {
@@ -44,9 +57,19 @@ func NewBaseLoginPolicyServiceClient(cc grpc.ClientConnInterface) BaseLoginPolic
 	return &baseLoginPolicyServiceClient{cc}
 }
 
-func (c *baseLoginPolicyServiceClient) GetBaseLoginPolicy(ctx context.Context, in *GetBaseLoginPolicyRequest, opts ...grpc.CallOption) (*BaseLoginPolicy, error) {
+func (c *baseLoginPolicyServiceClient) PageBaseLoginPolicy(ctx context.Context, in *PageBaseLoginPolicyRequest, opts ...grpc.CallOption) (*PageBaseLoginPolicyResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(BaseLoginPolicy)
+	out := new(PageBaseLoginPolicyResponse)
+	err := c.cc.Invoke(ctx, BaseLoginPolicyService_PageBaseLoginPolicy_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *baseLoginPolicyServiceClient) GetBaseLoginPolicy(ctx context.Context, in *GetBaseLoginPolicyRequest, opts ...grpc.CallOption) (*BaseLoginPolicyForm, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BaseLoginPolicyForm)
 	err := c.cc.Invoke(ctx, BaseLoginPolicyService_GetBaseLoginPolicy_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -54,10 +77,40 @@ func (c *baseLoginPolicyServiceClient) GetBaseLoginPolicy(ctx context.Context, i
 	return out, nil
 }
 
-func (c *baseLoginPolicyServiceClient) UpdateBaseLoginPolicy(ctx context.Context, in *UpdateBaseLoginPolicyRequest, opts ...grpc.CallOption) (*BaseLoginPolicy, error) {
+func (c *baseLoginPolicyServiceClient) CreateBaseLoginPolicy(ctx context.Context, in *CreateBaseLoginPolicyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(BaseLoginPolicy)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, BaseLoginPolicyService_CreateBaseLoginPolicy_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *baseLoginPolicyServiceClient) UpdateBaseLoginPolicy(ctx context.Context, in *UpdateBaseLoginPolicyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, BaseLoginPolicyService_UpdateBaseLoginPolicy_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *baseLoginPolicyServiceClient) DeleteBaseLoginPolicy(ctx context.Context, in *DeleteBaseLoginPolicyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, BaseLoginPolicyService_DeleteBaseLoginPolicy_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *baseLoginPolicyServiceClient) SetBaseLoginPolicyStatus(ctx context.Context, in *SetBaseLoginPolicyStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, BaseLoginPolicyService_SetBaseLoginPolicyStatus_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -68,12 +121,20 @@ func (c *baseLoginPolicyServiceClient) UpdateBaseLoginPolicy(ctx context.Context
 // All implementations must embed UnimplementedBaseLoginPolicyServiceServer
 // for forward compatibility.
 //
-// Admin登录来源策略服务。
+// Admin登录策略管理服务。
 type BaseLoginPolicyServiceServer interface {
-	// 查询登录来源策略。
-	GetBaseLoginPolicy(context.Context, *GetBaseLoginPolicyRequest) (*BaseLoginPolicy, error)
-	// 更新登录来源策略。
-	UpdateBaseLoginPolicy(context.Context, *UpdateBaseLoginPolicyRequest) (*BaseLoginPolicy, error)
+	// 分页查询登录策略。
+	PageBaseLoginPolicy(context.Context, *PageBaseLoginPolicyRequest) (*PageBaseLoginPolicyResponse, error)
+	// 查询登录策略详情。
+	GetBaseLoginPolicy(context.Context, *GetBaseLoginPolicyRequest) (*BaseLoginPolicyForm, error)
+	// 创建登录策略。
+	CreateBaseLoginPolicy(context.Context, *CreateBaseLoginPolicyRequest) (*emptypb.Empty, error)
+	// 更新登录策略。
+	UpdateBaseLoginPolicy(context.Context, *UpdateBaseLoginPolicyRequest) (*emptypb.Empty, error)
+	// 删除登录策略。
+	DeleteBaseLoginPolicy(context.Context, *DeleteBaseLoginPolicyRequest) (*emptypb.Empty, error)
+	// 设置登录策略状态。
+	SetBaseLoginPolicyStatus(context.Context, *SetBaseLoginPolicyStatusRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBaseLoginPolicyServiceServer()
 }
 
@@ -84,11 +145,23 @@ type BaseLoginPolicyServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseLoginPolicyServiceServer struct{}
 
-func (UnimplementedBaseLoginPolicyServiceServer) GetBaseLoginPolicy(context.Context, *GetBaseLoginPolicyRequest) (*BaseLoginPolicy, error) {
+func (UnimplementedBaseLoginPolicyServiceServer) PageBaseLoginPolicy(context.Context, *PageBaseLoginPolicyRequest) (*PageBaseLoginPolicyResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageBaseLoginPolicy not implemented")
+}
+func (UnimplementedBaseLoginPolicyServiceServer) GetBaseLoginPolicy(context.Context, *GetBaseLoginPolicyRequest) (*BaseLoginPolicyForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetBaseLoginPolicy not implemented")
 }
-func (UnimplementedBaseLoginPolicyServiceServer) UpdateBaseLoginPolicy(context.Context, *UpdateBaseLoginPolicyRequest) (*BaseLoginPolicy, error) {
+func (UnimplementedBaseLoginPolicyServiceServer) CreateBaseLoginPolicy(context.Context, *CreateBaseLoginPolicyRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateBaseLoginPolicy not implemented")
+}
+func (UnimplementedBaseLoginPolicyServiceServer) UpdateBaseLoginPolicy(context.Context, *UpdateBaseLoginPolicyRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateBaseLoginPolicy not implemented")
+}
+func (UnimplementedBaseLoginPolicyServiceServer) DeleteBaseLoginPolicy(context.Context, *DeleteBaseLoginPolicyRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteBaseLoginPolicy not implemented")
+}
+func (UnimplementedBaseLoginPolicyServiceServer) SetBaseLoginPolicyStatus(context.Context, *SetBaseLoginPolicyStatusRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetBaseLoginPolicyStatus not implemented")
 }
 func (UnimplementedBaseLoginPolicyServiceServer) mustEmbedUnimplementedBaseLoginPolicyServiceServer() {
 }
@@ -112,6 +185,24 @@ func RegisterBaseLoginPolicyServiceServer(s grpc.ServiceRegistrar, srv BaseLogin
 	s.RegisterService(&BaseLoginPolicyService_ServiceDesc, srv)
 }
 
+func _BaseLoginPolicyService_PageBaseLoginPolicy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageBaseLoginPolicyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BaseLoginPolicyServiceServer).PageBaseLoginPolicy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BaseLoginPolicyService_PageBaseLoginPolicy_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BaseLoginPolicyServiceServer).PageBaseLoginPolicy(ctx, req.(*PageBaseLoginPolicyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _BaseLoginPolicyService_GetBaseLoginPolicy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetBaseLoginPolicyRequest)
 	if err := dec(in); err != nil {
@@ -126,6 +217,24 @@ func _BaseLoginPolicyService_GetBaseLoginPolicy_Handler(srv interface{}, ctx con
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BaseLoginPolicyServiceServer).GetBaseLoginPolicy(ctx, req.(*GetBaseLoginPolicyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BaseLoginPolicyService_CreateBaseLoginPolicy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateBaseLoginPolicyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BaseLoginPolicyServiceServer).CreateBaseLoginPolicy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BaseLoginPolicyService_CreateBaseLoginPolicy_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BaseLoginPolicyServiceServer).CreateBaseLoginPolicy(ctx, req.(*CreateBaseLoginPolicyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -148,6 +257,42 @@ func _BaseLoginPolicyService_UpdateBaseLoginPolicy_Handler(srv interface{}, ctx 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BaseLoginPolicyService_DeleteBaseLoginPolicy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteBaseLoginPolicyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BaseLoginPolicyServiceServer).DeleteBaseLoginPolicy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BaseLoginPolicyService_DeleteBaseLoginPolicy_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BaseLoginPolicyServiceServer).DeleteBaseLoginPolicy(ctx, req.(*DeleteBaseLoginPolicyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BaseLoginPolicyService_SetBaseLoginPolicyStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetBaseLoginPolicyStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BaseLoginPolicyServiceServer).SetBaseLoginPolicyStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BaseLoginPolicyService_SetBaseLoginPolicyStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BaseLoginPolicyServiceServer).SetBaseLoginPolicyStatus(ctx, req.(*SetBaseLoginPolicyStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BaseLoginPolicyService_ServiceDesc is the grpc.ServiceDesc for BaseLoginPolicyService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -156,12 +301,28 @@ var BaseLoginPolicyService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*BaseLoginPolicyServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "PageBaseLoginPolicy",
+			Handler:    _BaseLoginPolicyService_PageBaseLoginPolicy_Handler,
+		},
+		{
 			MethodName: "GetBaseLoginPolicy",
 			Handler:    _BaseLoginPolicyService_GetBaseLoginPolicy_Handler,
 		},
 		{
+			MethodName: "CreateBaseLoginPolicy",
+			Handler:    _BaseLoginPolicyService_CreateBaseLoginPolicy_Handler,
+		},
+		{
 			MethodName: "UpdateBaseLoginPolicy",
 			Handler:    _BaseLoginPolicyService_UpdateBaseLoginPolicy_Handler,
+		},
+		{
+			MethodName: "DeleteBaseLoginPolicy",
+			Handler:    _BaseLoginPolicyService_DeleteBaseLoginPolicy_Handler,
+		},
+		{
+			MethodName: "SetBaseLoginPolicyStatus",
+			Handler:    _BaseLoginPolicyService_SetBaseLoginPolicyStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -54,14 +54,13 @@ Thumbs.db
 # Delve debugger
 __debug_bin
 
-# Local config
-*.dev.yaml
 .codex-output/
 certs/
 web/
 service_tmp/
 /backend/data/
 /backend/runtime/
+/backend/configs/root.key
 /gorse/data/
 
 .pnpm-store/

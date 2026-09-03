@@ -1,0 +1,96 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "common/v1/enum.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "buf/validate/validate.proto";
+
+// BaseTableArchiveService 管理数据库表归档配置。
+service BaseTableArchiveService {
+  // 查询表归档配置分页列表。
+  rpc PageBaseTableArchive(PageBaseTableArchiveRequest) returns (PageBaseTableArchiveResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/table-archive"};
+  }
+
+  // 查询表归档配置。
+  rpc GetBaseTableArchive(GetBaseTableArchiveRequest) returns (BaseTableArchiveForm) {
+    option (google.api.http) = {get: "/api/v1/admin/base/table-archive/{id}"};
+  }
+
+  // 创建表归档配置。
+  rpc CreateBaseTableArchive(CreateBaseTableArchiveRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {post: "/api/v1/admin/base/table-archive", body: "base_table_archive"};
+  }
+
+  // 更新表归档配置。
+  rpc UpdateBaseTableArchive(UpdateBaseTableArchiveRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {put: "/api/v1/admin/base/table-archive/{base_table_archive.id}", body: "base_table_archive"};
+  }
+
+  // 删除表归档配置。
+  rpc DeleteBaseTableArchive(DeleteBaseTableArchiveRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/api/v1/admin/base/table-archive/{id}"};
+  }
+
+  // 设置表归档配置状态。
+  rpc SetBaseTableArchiveStatus(SetBaseTableArchiveStatusRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {put: "/api/v1/admin/base/table-archive/{id}/status", body: "*"};
+  }
+}
+
+// BaseTableArchiveMode 表示表归档目标模式。
+enum BaseTableArchiveMode {
+  // 未指定归档目标模式。
+  BASE_TABLE_ARCHIVE_MODE_UNSPECIFIED = 0;
+  // 保存到当前数据源的归档表。
+  BASE_TABLE_ARCHIVE_MODE_INTERNAL_DATABASE = 1;
+  // 保存到对象存储。
+  BASE_TABLE_ARCHIVE_MODE_OSS = 2;
+}
+
+// BaseTableArchiveForm 表归档配置表单。
+message BaseTableArchiveForm {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "归档配置ID"}]; // 归档配置ID
+  string table_name = 3 [(gnostic.openapi.v3.property) = {description: "数据表名称"}, (buf.validate.field).cel = {id: "system.admin.base.table_archive.table_name.required" message: "数据表名称不能为空" expression: "this.size() > 0 && this.size() <= 128"}]; // 数据表名称
+  BaseTableArchiveMode archive_mode = 4 [(gnostic.openapi.v3.property) = {description: "归档模式"}, (buf.validate.field).enum = {defined_only: true}]; // 归档模式
+  int32 online_retention_days = 5 [(gnostic.openapi.v3.property) = {description: "在线保留天数"}, (buf.validate.field).cel = {id: "system.admin.base.table_archive.online_retention_days.non_negative" message: "在线保留天数不能小于零" expression: "this >= 0"}]; // 在线保留天数
+  int32 archive_retention_days = 6 [(gnostic.openapi.v3.property) = {description: "归档保留天数"}, (buf.validate.field).cel = {id: "system.admin.base.table_archive.archive_retention_days.non_negative" message: "归档保留天数不能小于零" expression: "this >= 0"}]; // 归档保留天数
+  int32 batch_size = 7 [(gnostic.openapi.v3.property) = {description: "批处理数量"}, (buf.validate.field).cel = {id: "system.admin.base.table_archive.batch_size.positive" message: "批处理数量必须大于零" expression: "this > 0"}]; // 批处理数量
+  bool delete_after_verify = 8 [(gnostic.openapi.v3.property) = {description: "校验后删除在线数据"}]; // 校验后删除在线数据
+  string oss_prefix = 9 [(gnostic.openapi.v3.property) = {description: "OSS对象前缀"}, (buf.validate.field).cel = {id: "system.admin.base.table_archive.oss_prefix.max_len" message: "OSS对象前缀不能超过255个字符" expression: "this.size() <= 255"}]; // OSS对象前缀
+  string source_name = 10 [(gnostic.openapi.v3.property) = {description: "数据源名称"}, (buf.validate.field).cel = {id: "system.admin.base.table_archive.source_name.required" message: "数据源名称不能为空" expression: "this.size() > 0 && this.size() <= 64"}]; // 数据源名称
+  .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+}
+
+// PageBaseTableArchiveRequest 表归档配置分页请求。
+message PageBaseTableArchiveRequest {
+  string table_name = 2 [(gnostic.openapi.v3.property) = {description: "数据表名称"}]; // 数据表名称
+  string source_name = 3 [(gnostic.openapi.v3.property) = {description: "数据源名称"}]; // 数据源名称
+  optional .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数", default: {number: 10}}]; // 每页行数
+}
+
+// PageBaseTableArchiveResponse 表归档配置分页响应。
+message PageBaseTableArchiveResponse {
+  repeated BaseTableArchiveForm base_table_archives = 1 [(gnostic.openapi.v3.property) = {description: "归档配置列表"}]; // 归档配置列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// GetBaseTableArchiveRequest 查询表归档配置请求。
+message GetBaseTableArchiveRequest { int64 id = 1 [(gnostic.openapi.v3.property) = {description: "归档配置ID"}]; } // 归档配置ID
+
+// CreateBaseTableArchiveRequest 创建表归档配置请求。
+message CreateBaseTableArchiveRequest { BaseTableArchiveForm base_table_archive = 1 [(gnostic.openapi.v3.property) = {description: "归档配置"}, (buf.validate.field).required = true]; } // 归档配置
+
+// UpdateBaseTableArchiveRequest 更新表归档配置请求。
+message UpdateBaseTableArchiveRequest { BaseTableArchiveForm base_table_archive = 1 [(gnostic.openapi.v3.property) = {description: "归档配置"}, (buf.validate.field).required = true]; } // 归档配置
+
+// DeleteBaseTableArchiveRequest 删除表归档配置请求。
+message DeleteBaseTableArchiveRequest { string id = 1 [(gnostic.openapi.v3.property) = {description: "归档配置ID列表"}]; } // 归档配置ID列表
+
+// SetBaseTableArchiveStatusRequest 设置表归档配置状态请求。
+message SetBaseTableArchiveStatusRequest { int64 id = 1 [(gnostic.openapi.v3.property) = {description: "归档配置ID"}]; int32 status = 2 [(gnostic.openapi.v3.property) = {description: "状态"}]; } // 状态

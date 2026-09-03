@@ -15,7 +15,7 @@
     height: 94%;
     padding: 0 50px;
     background-color: rgb(255 255 255 / 80%);
-    border-radius: 10px;
+    border-radius: var(--admin-page-radius);
     .dark {
       position: absolute;
       top: 13px;
@@ -41,7 +41,7 @@
       max-width: 100%;
       padding: 50px 40px 45px;
       background-color: var(--el-bg-color);
-      border-radius: 10px;
+      border-radius: var(--admin-page-radius);
       box-shadow: rgb(0 0 0 / 10%) 0 2px 10px 2px;
       .login-logo {
         display: flex;

@@ -1,49 +1,46 @@
-// Package oauthsecret 提供开放授权客户端敏感凭据的服务端加密存储。
 package oauthsecret
 
 import (
+	"context"
 	"crypto/aes"
 	"crypto/cipher"
 	cryptorand "crypto/rand"
-	"crypto/sha256"
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"os"
 	"strings"
 
 	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	"github.com/liujitcn/kratos-kit/sdk"
 )
 
-const protectedPrefix = "enc:v1:"
+const (
+	protectedPrefix        = "enc:v1:"
+	oauthCredentialKeyName = "kratos-admin:oauth/credential-protection"
+	oauthCredentialKeyID   = "oauth-credential-protection"
+)
 
 // Protector 使用独立的服务端密钥保护 OAuth 客户端凭据。
-// keyID 写入密文头部用于识别密钥版本；密钥材料只从 Secret Manager 注入的环境变量读取。
+// keyID 写入密文头部用于识别密钥版本；密钥材料由运行时密钥服务按固定用途派生。
 type Protector struct {
-	key   []byte // 由独立环境密钥派生的 AES-256 密钥。
+	key   []byte // 由运行时密钥服务派生的 AES-256 密钥。
 	keyID string // 当前密钥版本标识，写入 enc:v1 密文前缀。
 }
 
-// NewProtector 根据独立环境密钥创建凭据保护器。
+// NewProtector 根据运行时密钥服务创建 OAuth 凭据保护器。
 func NewProtector(config *configv1.Bootstrap) (*Protector, error) {
 	if config == nil {
 		return nil, errors.New("应用配置未初始化")
 	}
-	secret := os.Getenv("OAUTH_CREDENTIAL_ENCRYPTION_KEY")
-	if len(secret) < 16 {
-		// OAuth 客户端属于可选能力；未配置独立密钥时保留主服务启动，具体操作返回未初始化错误。
-		_, _ = fmt.Fprintln(os.Stderr, "OAUTH_CREDENTIAL_ENCRYPTION_KEY 未配置，OAuth 客户端功能已禁用")
-		return nil, nil
+	keyValue := sdk.Runtime.GetKey()
+	if keyValue == nil {
+		return nil, errors.New("OAuth 凭据密钥为空且运行时密钥未初始化")
 	}
-	keyID := os.Getenv("OAUTH_CREDENTIAL_ENCRYPTION_KEY_ID")
-	if keyID == "" {
-		keyID = "primary"
+	derived, err := keyValue.Derive(context.Background(), oauthCredentialKeyName)
+	if err != nil {
+		return nil, fmt.Errorf("派生 OAuth 凭据密钥失败: %w", err)
 	}
-	if strings.ContainsAny(keyID, ":\r\n") {
-		return nil, errors.New("OAUTH_CREDENTIAL_ENCRYPTION_KEY_ID 格式无效")
-	}
-	digest := sha256.Sum256([]byte("kratos-admin/oauth-client-credentials/" + keyID + "/" + secret))
-	return &Protector{key: digest[:], keyID: keyID}, nil
+	return &Protector{key: append([]byte(nil), derived...), keyID: oauthCredentialKeyID}, nil
 }
 
 // Protect 使用 AES-GCM 加密单个 OAuth 凭据。

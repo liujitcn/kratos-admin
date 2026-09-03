@@ -33,8 +33,8 @@ func newBaseDept(db *gorm.DB, opts ...gen.DOOption) baseDept {
 	_baseDept.Path = field.NewString(tableName, "path")
 	_baseDept.Name = field.NewString(tableName, "name")
 	_baseDept.Sort = field.NewInt32(tableName, "sort")
-	_baseDept.Status = field.NewInt32(tableName, "status")
 	_baseDept.Remark = field.NewString(tableName, "remark")
+	_baseDept.Status = field.NewInt32(tableName, "status")
 	_baseDept.CreatedBy = field.NewInt64(tableName, "created_by")
 	_baseDept.UpdatedBy = field.NewInt64(tableName, "updated_by")
 	_baseDept.CreatedAt = field.NewTime(tableName, "created_at")
@@ -57,8 +57,8 @@ type baseDept struct {
 	Path      field.String // 部门路径
 	Name      field.String // 名字
 	Sort      field.Int32  // 排序
-	Status    field.Int32  // 状态：枚举【Status】
 	Remark    field.String // 备注
+	Status    field.Int32  // 状态：枚举【Status】
 	CreatedBy field.Int64  // 创建者ID
 	UpdatedBy field.Int64  // 更新者ID
 	CreatedAt field.Time   // 创建时间
@@ -86,8 +86,8 @@ func (b *baseDept) updateTableName(table string) *baseDept {
 	b.Path = field.NewString(table, "path")
 	b.Name = field.NewString(table, "name")
 	b.Sort = field.NewInt32(table, "sort")
-	b.Status = field.NewInt32(table, "status")
 	b.Remark = field.NewString(table, "remark")
+	b.Status = field.NewInt32(table, "status")
 	b.CreatedBy = field.NewInt64(table, "created_by")
 	b.UpdatedBy = field.NewInt64(table, "updated_by")
 	b.CreatedAt = field.NewTime(table, "created_at")
@@ -124,8 +124,8 @@ func (b *baseDept) fillFieldMap() {
 	b.fieldMap["path"] = b.Path
 	b.fieldMap["name"] = b.Name
 	b.fieldMap["sort"] = b.Sort
-	b.fieldMap["status"] = b.Status
 	b.fieldMap["remark"] = b.Remark
+	b.fieldMap["status"] = b.Status
 	b.fieldMap["created_by"] = b.CreatedBy
 	b.fieldMap["updated_by"] = b.UpdatedBy
 	b.fieldMap["created_at"] = b.CreatedAt

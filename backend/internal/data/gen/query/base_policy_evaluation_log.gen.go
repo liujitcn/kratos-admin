@@ -73,11 +73,11 @@ type basePolicyEvaluationLog struct {
 	TraceID        field.String // 链路追踪ID
 	ClientIP       field.String // 客户端IP
 	Engine         field.String // 鉴权引擎
-	EvaluationType field.Int32  // 评估类型
+	EvaluationType field.Int32  // 评估类型：枚举【BasePolicyEvaluationType】
 	Resource       field.String // 资源
 	Action         field.String // 动作
 	Project        field.String // 项目范围
-	Decision       field.Int32  // 决策结果
+	Decision       field.Int32  // 决策结果：枚举【BasePolicyDecision】
 	ReasonCode     field.String // 原因编码
 	Reason         field.String // 原因说明
 	DurationMs     field.Int32  // 评估耗时毫秒

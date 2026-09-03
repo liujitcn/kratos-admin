@@ -59,7 +59,7 @@ func (c *NotificationCase) PageNotification(ctx context.Context, req *basev1.Pag
 		return nil, err
 	}
 	var messageIDs []int64
-	messageIDs, err = c.filterMessageIDs(ctx, authInfo.TenantId, req)
+	messageIDs, err = c.filterMessageIDs(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (c *NotificationCase) PageNotification(ctx context.Context, req *basev1.Pag
 		return &basev1.PageNotificationResponse{Notifications: []*basev1.Notification{}}, nil
 	}
 	query := c.Query(ctx).BaseMessageDelivery
-	opts := c.inboxOptions(ctx, authInfo.TenantId, authInfo.UserId, req.GetView())
+	opts := c.inboxOptions(ctx, authInfo.UserId, req.GetView())
 	if messageIDs != nil {
 		opts = append(opts, repository.Where(query.MessageID.In(messageIDs...)))
 	}
@@ -115,7 +115,7 @@ func (c *NotificationCase) GetNotification(ctx context.Context, id int64) (*base
 		return nil, err
 	}
 	var delivery *models.BaseMessageDelivery
-	delivery, err = c.findOwnedDelivery(ctx, authInfo.TenantId, authInfo.UserId, id)
+	delivery, err = c.findOwnedDelivery(ctx, authInfo.UserId, id)
 	if err != nil {
 		return nil, err
 	}
@@ -137,14 +137,14 @@ func (c *NotificationCase) GetNotificationSummary(ctx context.Context) (*basev1.
 		return nil, err
 	}
 	query := c.Query(ctx).BaseMessageDelivery
-	opts := c.visibleOptions(ctx, authInfo.TenantId, authInfo.UserId)
+	opts := c.visibleOptions(ctx, authInfo.UserId)
 	opts = append(opts, repository.Where(query.ReadAt.Eq(0)), repository.Where(query.ArchivedAt.Eq(0)))
 	var count int64
 	count, err = c.Count(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
-	latestOpts := c.visibleOptions(ctx, authInfo.TenantId, authInfo.UserId)
+	latestOpts := c.visibleOptions(ctx, authInfo.UserId)
 	latestOpts = append(latestOpts, repository.Order(query.ID.Desc()), repository.Limit(1))
 	var list []*models.BaseMessageDelivery
 	list, err = c.List(ctx, latestOpts...)
@@ -180,7 +180,7 @@ func (c *NotificationCase) MarkAllNotificationRead(ctx context.Context, beforeDe
 		return err
 	}
 	now := time.Now()
-	err = c.deliveryWriter.SetAllReadAt(ctx, authInfo.TenantId, authInfo.UserId, beforeDeliveryID, now)
+	err = c.deliveryWriter.SetAllReadAt(ctx, authInfo.UserId, beforeDeliveryID, now)
 	if err == nil {
 		c.publishChanged(ctx, authInfo.TenantId, authInfo.UserId, 0, "read_all")
 	}
@@ -205,7 +205,7 @@ func (c *NotificationCase) DeleteNotification(ctx context.Context, id int64) err
 	}
 	var delivery *models.BaseMessageDelivery
 	var category *models.BaseMessageCategory
-	delivery, category, err = c.deliveryCategory(ctx, authInfo.TenantId, authInfo.UserId, id)
+	delivery, category, err = c.deliveryCategory(ctx, authInfo.UserId, id)
 	if err != nil {
 		return err
 	}
@@ -225,7 +225,7 @@ func (c *NotificationCase) setReadAt(ctx context.Context, ids []int64, read bool
 	if err != nil {
 		return err
 	}
-	if err = c.ensureOwnedDeliveries(ctx, authInfo.TenantId, authInfo.UserId, ids); err != nil {
+	if err = c.ensureOwnedDeliveries(ctx, authInfo.UserId, ids); err != nil {
 		return err
 	}
 	var readAt *time.Time
@@ -233,7 +233,7 @@ func (c *NotificationCase) setReadAt(ctx context.Context, ids []int64, read bool
 		now := time.Now()
 		readAt = &now
 	}
-	err = c.deliveryWriter.SetReadAt(ctx, authInfo.TenantId, authInfo.UserId, ids, readAt)
+	err = c.deliveryWriter.SetReadAt(ctx, authInfo.UserId, ids, readAt)
 	if err == nil {
 		c.publishChanged(ctx, authInfo.TenantId, authInfo.UserId, 0, "read")
 	}
@@ -248,7 +248,7 @@ func (c *NotificationCase) setArchivedAt(ctx context.Context, id int64, archived
 	}
 	var delivery *models.BaseMessageDelivery
 	var category *models.BaseMessageCategory
-	delivery, category, err = c.deliveryCategory(ctx, authInfo.TenantId, authInfo.UserId, id)
+	delivery, category, err = c.deliveryCategory(ctx, authInfo.UserId, id)
 	if err != nil {
 		return err
 	}
@@ -260,7 +260,7 @@ func (c *NotificationCase) setArchivedAt(ctx context.Context, id int64, archived
 		now := time.Now()
 		archivedAt = &now
 	}
-	err = c.deliveryWriter.SetArchivedAt(ctx, authInfo.TenantId, authInfo.UserId, delivery.ID, archivedAt)
+	err = c.deliveryWriter.SetArchivedAt(ctx, authInfo.UserId, delivery.ID, archivedAt)
 	if err == nil {
 		c.publishChanged(ctx, authInfo.TenantId, authInfo.UserId, delivery.ID, "archived")
 	}
@@ -268,9 +268,9 @@ func (c *NotificationCase) setArchivedAt(ctx context.Context, id int64, archived
 }
 
 // inboxOptions 构造收件箱视图查询条件。
-func (c *NotificationCase) inboxOptions(ctx context.Context, tenantID, userID int64, view basev1.NotificationView) []repository.QueryOption {
+func (c *NotificationCase) inboxOptions(ctx context.Context, userID int64, view basev1.NotificationView) []repository.QueryOption {
 	query := c.Query(ctx).BaseMessageDelivery
-	opts := c.visibleOptions(ctx, tenantID, userID)
+	opts := c.visibleOptions(ctx, userID)
 	switch view {
 	case basev1.NotificationView_NOTIFICATION_VIEW_UNREAD:
 		opts = append(opts, repository.Where(query.ArchivedAt.Eq(0)), repository.Where(query.ReadAt.Eq(0)))
@@ -283,11 +283,10 @@ func (c *NotificationCase) inboxOptions(ctx context.Context, tenantID, userID in
 }
 
 // visibleOptions 构造当前用户可见投递查询条件。
-func (c *NotificationCase) visibleOptions(ctx context.Context, tenantID, userID int64) []repository.QueryOption {
+func (c *NotificationCase) visibleOptions(ctx context.Context, userID int64) []repository.QueryOption {
 	query := c.Query(ctx).BaseMessageDelivery
 	expiresCondition := field.Or(query.ExpiresAt.Eq(0), query.ExpiresAt.Gt(time.Now().UnixMilli()))
 	return []repository.QueryOption{
-		repository.Where(query.TenantID.Eq(tenantID)),
 		repository.Where(query.UserID.Eq(userID)),
 		repository.Where(query.RevokedAt.Eq(0)),
 		repository.Where(expiresCondition),
@@ -295,13 +294,12 @@ func (c *NotificationCase) visibleOptions(ctx context.Context, tenantID, userID 
 }
 
 // filterMessageIDs 查询分类或优先级过滤对应的消息ID。
-func (c *NotificationCase) filterMessageIDs(ctx context.Context, tenantID int64, req *basev1.PageNotificationRequest) ([]int64, error) {
+func (c *NotificationCase) filterMessageIDs(ctx context.Context, req *basev1.PageNotificationRequest) ([]int64, error) {
 	if req.CategoryId == nil && req.Priority == nil {
 		return nil, nil
 	}
 	query := c.messageRepo.Query(ctx).BaseMessage
-	opts := make([]repository.QueryOption, 0, 3)
-	opts = append(opts, repository.Where(query.TenantID.Eq(tenantID)))
+	opts := make([]repository.QueryOption, 0, 2)
 	if req.CategoryId != nil {
 		opts = append(opts, repository.Where(query.CategoryID.Eq(req.GetCategoryId())))
 	}
@@ -376,18 +374,17 @@ func (c *NotificationCase) buildNotifications(ctx context.Context, deliveries []
 }
 
 // findOwnedDelivery 查询当前用户拥有且可见的投递记录。
-func (c *NotificationCase) findOwnedDelivery(ctx context.Context, tenantID, userID, id int64) (*models.BaseMessageDelivery, error) {
+func (c *NotificationCase) findOwnedDelivery(ctx context.Context, userID, id int64) (*models.BaseMessageDelivery, error) {
 	query := c.Query(ctx).BaseMessageDelivery
-	opts := c.visibleOptions(ctx, tenantID, userID)
+	opts := c.visibleOptions(ctx, userID)
 	opts = append(opts, repository.Where(query.ID.Eq(id)))
 	return c.Find(ctx, opts...)
 }
 
 // ensureOwnedDeliveries 校验批量投递记录均属于当前用户。
-func (c *NotificationCase) ensureOwnedDeliveries(ctx context.Context, tenantID, userID int64, ids []int64) error {
+func (c *NotificationCase) ensureOwnedDeliveries(ctx context.Context, userID int64, ids []int64) error {
 	query := c.Query(ctx).BaseMessageDelivery
 	count, err := c.Count(ctx,
-		repository.Where(query.TenantID.Eq(tenantID)),
 		repository.Where(query.UserID.Eq(userID)),
 		repository.Where(query.ID.In(ids...)),
 		repository.Where(query.RevokedAt.Eq(0)),
@@ -403,8 +400,8 @@ func (c *NotificationCase) ensureOwnedDeliveries(ctx context.Context, tenantID, 
 }
 
 // deliveryCategory 查询当前用户投递记录及其分类策略。
-func (c *NotificationCase) deliveryCategory(ctx context.Context, tenantID, userID, id int64) (*models.BaseMessageDelivery, *models.BaseMessageCategory, error) {
-	delivery, err := c.findOwnedDelivery(ctx, tenantID, userID, id)
+func (c *NotificationCase) deliveryCategory(ctx context.Context, userID, id int64) (*models.BaseMessageDelivery, *models.BaseMessageCategory, error) {
+	delivery, err := c.findOwnedDelivery(ctx, userID, id)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -11,7 +11,7 @@ import (
 	configProvider "github.com/liujitcn/kratos-admin/backend/internal/config"
 	"github.com/liujitcn/kratos-admin/backend/internal/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/server"
-	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/auditlog"
+	logmiddleware "github.com/liujitcn/kratos-admin/backend/internal/server/middleware/log"
 	"github.com/liujitcn/kratos-admin/backend/internal/service"
 	"github.com/liujitcn/kratos-admin/backend/internal/task"
 	coreBiz "github.com/liujitcn/kratos-core/biz"
@@ -91,7 +91,7 @@ func BuildQueueConsumers(
 	panic(wire.Build(
 		data.ProviderSet,
 		biz.MessageProviderSet,
-		auditlog.NewConsumer,
+		logmiddleware.NewConsumer,
 		NewQueueConsumers,
 	))
 }

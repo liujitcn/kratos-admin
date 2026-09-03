@@ -1,3 +1,9 @@
+/* 统一 Element Plus 矩形控件与后台页面的圆角。 */
+html:root {
+  --el-border-radius-base: var(--admin-page-radius);
+  --el-border-radius-small: 2px;
+}
+
 /* el-alert */
 .el-alert {
   border: 1px solid;
@@ -27,7 +33,18 @@
   overflow-x: hidden;
   background-color: var(--el-bg-color);
   border: 1px solid var(--el-border-color-light);
-  border-radius: 6px;
+  border-radius: var(--admin-page-radius);
+  box-shadow: 0 0 12px rgb(0 0 0 / 5%);
+}
+
+/* 非列表业务页沿用 ProTable 卡片外观 */
+.el-card.admin-page-card {
+  background-color: var(--el-bg-color);
+  border: 1px solid var(--el-border-color-light);
+  border-radius: var(--admin-page-radius);
+  box-shadow: 0 0 12px rgb(0 0 0 / 5%);
+}
+.el-card.admin-page-card.is-always-shadow {
   box-shadow: 0 0 12px rgb(0 0 0 / 5%);
 }
 
@@ -165,10 +182,9 @@
       }
     }
 
-    // 设置 el-table 中 header 文字不换行，并省略
+    // 设置 el-table 表头文字单行省略，完整内容由列标题悬浮提示展示。
     .el-table__header .el-table__cell > .cell {
-      // white-space: nowrap;
-      white-space: wrap;
+      white-space: nowrap;
     }
 
     // 空表时去掉底部那条默认分隔线，和菜单管理页保持一致。
@@ -325,6 +341,21 @@
   .el-dialog__body,
   .el-dialog__footer {
     padding: 15px 20px;
+  }
+}
+
+// ProDialog 需要去掉 Element Plus 默认的外层内边距，避免异步样式重复加载后覆盖紧凑布局。
+.el-dialog.pro-dialog {
+  padding: 0;
+
+  // 对齐原生 MessageBox 的紧凑上下间距，避免标题和操作区留白过大。
+  .el-dialog__header,
+  .el-dialog__body {
+    padding: 12px 20px;
+  }
+
+  .el-dialog__footer {
+    padding: 0 20px 12px;
   }
 }
 

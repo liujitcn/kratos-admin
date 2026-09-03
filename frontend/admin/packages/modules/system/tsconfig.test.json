@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": false,
+    "noEmit": false,
+    "outDir": "dist/test",
+    "rootDir": ".",
+    "types": ["node"]
+  },
+  "include": ["src/utils/notification-response.ts", "src/views/base/login-policy/format.ts", "tests/**/*.ts"]
+}

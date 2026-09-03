@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "google/api/annotations.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "system/admin/v1/base_table_backup.proto";
+
+// BaseTableBackupRecordService 查询数据库备份执行记录。
+service BaseTableBackupRecordService {
+  // 查询数据库备份记录分页列表。
+  rpc PageBaseTableBackupRecord(PageBaseTableBackupRecordRequest) returns (PageBaseTableBackupRecordResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/table-backup-record"};
+  }
+
+  // 查询数据库备份记录。
+  rpc GetBaseTableBackupRecord(GetBaseTableBackupRecordRequest) returns (BaseTableBackupRecord) {
+    option (google.api.http) = {get: "/api/v1/admin/base/table-backup-record/{id}"};
+  }
+}
+
+// BaseTableBackupRecordStatus 表示备份记录执行状态。
+enum BaseTableBackupRecordStatus {
+  // 未指定备份记录状态。
+  BASE_TABLE_BACKUP_RECORD_STATUS_UNSPECIFIED = 0;
+  // 执行中。
+  BASE_TABLE_BACKUP_RECORD_STATUS_RUNNING = 1;
+  // 执行成功。
+  BASE_TABLE_BACKUP_RECORD_STATUS_SUCCESS = 2;
+  // 执行失败。
+  BASE_TABLE_BACKUP_RECORD_STATUS_FAILED = 3;
+  // 对象已删除。
+  BASE_TABLE_BACKUP_RECORD_STATUS_DELETED = 4;
+}
+
+// BaseTableBackupRecord 数据库备份执行记录。
+message BaseTableBackupRecord {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "备份记录ID"}]; // 备份记录ID
+  int64 backup_id = 2 [(gnostic.openapi.v3.property) = {description: "备份配置ID"}]; // 备份配置ID
+  string source_name = 3 [(gnostic.openapi.v3.property) = {description: "数据源名称"}]; // 数据源名称
+  string database_name = 4 [(gnostic.openapi.v3.property) = {description: "数据库名称"}]; // 数据库名称
+  BaseTableBackupType backup_type = 5 [(gnostic.openapi.v3.property) = {description: "备份类型"}]; // 备份类型
+  string object_key = 6 [(gnostic.openapi.v3.property) = {description: "OSS对象Key"}]; // OSS对象Key
+  int64 size_bytes = 7 [(gnostic.openapi.v3.property) = {description: "对象大小"}]; // 对象大小
+  string sha256 = 8 [(gnostic.openapi.v3.property) = {description: "SHA-256"}]; // SHA-256
+  string hmac = 9 [(gnostic.openapi.v3.property) = {description: "HMAC"}]; // HMAC
+  BaseTableBackupRecordStatus status = 10 [(gnostic.openapi.v3.property) = {description: "备份状态"}]; // 备份状态
+  string error = 11 [(gnostic.openapi.v3.property) = {description: "错误信息"}]; // 错误信息
+  string started_at = 12 [(gnostic.openapi.v3.property) = {description: "开始时间"}]; // 开始时间
+  string finished_at = 13 [(gnostic.openapi.v3.property) = {description: "完成时间"}]; // 完成时间
+  string verified_at = 14 [(gnostic.openapi.v3.property) = {description: "校验时间"}]; // 校验时间
+}
+
+// PageBaseTableBackupRecordRequest 数据库备份记录分页请求。
+message PageBaseTableBackupRecordRequest { int64 backup_id = 1 [(gnostic.openapi.v3.property) = {description: "备份配置ID"}]; string source_name = 2 [(gnostic.openapi.v3.property) = {description: "数据源名称"}]; optional BaseTableBackupRecordStatus status = 3 [(gnostic.openapi.v3.property) = {description: "备份状态"}]; int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}]; int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数", default: {number: 10}}]; } // 数据库备份记录分页请求
+
+// PageBaseTableBackupRecordResponse 数据库备份记录分页响应。
+message PageBaseTableBackupRecordResponse { repeated BaseTableBackupRecord base_table_backup_records = 1 [(gnostic.openapi.v3.property) = {description: "备份记录列表"}]; int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; } // 数据库备份记录分页响应
+
+// GetBaseTableBackupRecordRequest 查询数据库备份记录请求。
+message GetBaseTableBackupRecordRequest { int64 id = 1 [(gnostic.openapi.v3.property) = {description: "备份记录ID"}]; } // 备份记录ID

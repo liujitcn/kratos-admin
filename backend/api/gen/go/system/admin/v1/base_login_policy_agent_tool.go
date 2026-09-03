@@ -11,33 +11,72 @@ import (
 
 	tool "github.com/cloudwego/eino/components/tool"
 	utils "github.com/cloudwego/eino/components/tool/utils"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-// NewBaseLoginPolicyServiceAgentTools 创建Admin登录来源策略服务的 Agent Tool。
+// NewBaseLoginPolicyServiceAgentTools 创建Admin登录策略管理服务的 Agent Tool。
 func NewBaseLoginPolicyServiceAgentTools(baseLoginPolicyServiceServer BaseLoginPolicyServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
+	var pageBaseLoginPolicyTool tool.InvokableTool
+	pageBaseLoginPolicyTool, err = NewBaseLoginPolicyServicePageBaseLoginPolicyAgentTool(baseLoginPolicyServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, pageBaseLoginPolicyTool)
 	var getBaseLoginPolicyTool tool.InvokableTool
 	getBaseLoginPolicyTool, err = NewBaseLoginPolicyServiceGetBaseLoginPolicyAgentTool(baseLoginPolicyServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getBaseLoginPolicyTool)
+	var createBaseLoginPolicyTool tool.InvokableTool
+	createBaseLoginPolicyTool, err = NewBaseLoginPolicyServiceCreateBaseLoginPolicyAgentTool(baseLoginPolicyServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, createBaseLoginPolicyTool)
 	var updateBaseLoginPolicyTool tool.InvokableTool
 	updateBaseLoginPolicyTool, err = NewBaseLoginPolicyServiceUpdateBaseLoginPolicyAgentTool(baseLoginPolicyServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, updateBaseLoginPolicyTool)
+	var deleteBaseLoginPolicyTool tool.InvokableTool
+	deleteBaseLoginPolicyTool, err = NewBaseLoginPolicyServiceDeleteBaseLoginPolicyAgentTool(baseLoginPolicyServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, deleteBaseLoginPolicyTool)
+	var setBaseLoginPolicyStatusTool tool.InvokableTool
+	setBaseLoginPolicyStatusTool, err = NewBaseLoginPolicyServiceSetBaseLoginPolicyStatusAgentTool(baseLoginPolicyServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, setBaseLoginPolicyStatusTool)
 	return ts, nil
 }
 
-// NewBaseLoginPolicyServiceGetBaseLoginPolicyAgentTool 创建查询登录来源策略的 Agent Tool。
+// NewBaseLoginPolicyServicePageBaseLoginPolicyAgentTool 创建分页查询登录策略的 Agent Tool。
+func NewBaseLoginPolicyServicePageBaseLoginPolicyAgentTool(baseLoginPolicyServiceServer BaseLoginPolicyServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageBaseLoginPolicyRequest, *PageBaseLoginPolicyResponse](
+		"system_admin_v1_base_login_policy_service_page_base_login_policy",
+		"分页查询登录策略。",
+		func(ctx context.Context, req *PageBaseLoginPolicyRequest) (*PageBaseLoginPolicyResponse, error) {
+			if req == nil {
+				req = &PageBaseLoginPolicyRequest{}
+			}
+			return baseLoginPolicyServiceServer.PageBaseLoginPolicy(ctx, req)
+		},
+	)
+}
+
+// NewBaseLoginPolicyServiceGetBaseLoginPolicyAgentTool 创建查询登录策略详情的 Agent Tool。
 func NewBaseLoginPolicyServiceGetBaseLoginPolicyAgentTool(baseLoginPolicyServiceServer BaseLoginPolicyServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*GetBaseLoginPolicyRequest, *BaseLoginPolicy](
+	return utils.InferTool[*GetBaseLoginPolicyRequest, *BaseLoginPolicyForm](
 		"system_admin_v1_base_login_policy_service_get_base_login_policy",
-		"查询登录来源策略。",
-		func(ctx context.Context, req *GetBaseLoginPolicyRequest) (*BaseLoginPolicy, error) {
+		"查询登录策略详情。",
+		func(ctx context.Context, req *GetBaseLoginPolicyRequest) (*BaseLoginPolicyForm, error) {
 			if req == nil {
 				req = &GetBaseLoginPolicyRequest{}
 			}
@@ -46,16 +85,58 @@ func NewBaseLoginPolicyServiceGetBaseLoginPolicyAgentTool(baseLoginPolicyService
 	)
 }
 
-// NewBaseLoginPolicyServiceUpdateBaseLoginPolicyAgentTool 创建更新登录来源策略的 Agent Tool。
+// NewBaseLoginPolicyServiceCreateBaseLoginPolicyAgentTool 创建创建登录策略的 Agent Tool。
+func NewBaseLoginPolicyServiceCreateBaseLoginPolicyAgentTool(baseLoginPolicyServiceServer BaseLoginPolicyServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateBaseLoginPolicyRequest, *emptypb.Empty](
+		"system_admin_v1_base_login_policy_service_create_base_login_policy",
+		"创建登录策略。",
+		func(ctx context.Context, req *CreateBaseLoginPolicyRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &CreateBaseLoginPolicyRequest{}
+			}
+			return baseLoginPolicyServiceServer.CreateBaseLoginPolicy(ctx, req)
+		},
+	)
+}
+
+// NewBaseLoginPolicyServiceUpdateBaseLoginPolicyAgentTool 创建更新登录策略的 Agent Tool。
 func NewBaseLoginPolicyServiceUpdateBaseLoginPolicyAgentTool(baseLoginPolicyServiceServer BaseLoginPolicyServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*UpdateBaseLoginPolicyRequest, *BaseLoginPolicy](
+	return utils.InferTool[*UpdateBaseLoginPolicyRequest, *emptypb.Empty](
 		"system_admin_v1_base_login_policy_service_update_base_login_policy",
-		"更新登录来源策略。",
-		func(ctx context.Context, req *UpdateBaseLoginPolicyRequest) (*BaseLoginPolicy, error) {
+		"更新登录策略。",
+		func(ctx context.Context, req *UpdateBaseLoginPolicyRequest) (*emptypb.Empty, error) {
 			if req == nil {
 				req = &UpdateBaseLoginPolicyRequest{}
 			}
 			return baseLoginPolicyServiceServer.UpdateBaseLoginPolicy(ctx, req)
+		},
+	)
+}
+
+// NewBaseLoginPolicyServiceDeleteBaseLoginPolicyAgentTool 创建删除登录策略的 Agent Tool。
+func NewBaseLoginPolicyServiceDeleteBaseLoginPolicyAgentTool(baseLoginPolicyServiceServer BaseLoginPolicyServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DeleteBaseLoginPolicyRequest, *emptypb.Empty](
+		"system_admin_v1_base_login_policy_service_delete_base_login_policy",
+		"删除登录策略。",
+		func(ctx context.Context, req *DeleteBaseLoginPolicyRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &DeleteBaseLoginPolicyRequest{}
+			}
+			return baseLoginPolicyServiceServer.DeleteBaseLoginPolicy(ctx, req)
+		},
+	)
+}
+
+// NewBaseLoginPolicyServiceSetBaseLoginPolicyStatusAgentTool 创建设置登录策略状态的 Agent Tool。
+func NewBaseLoginPolicyServiceSetBaseLoginPolicyStatusAgentTool(baseLoginPolicyServiceServer BaseLoginPolicyServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetBaseLoginPolicyStatusRequest, *emptypb.Empty](
+		"system_admin_v1_base_login_policy_service_set_base_login_policy_status",
+		"设置登录策略状态。",
+		func(ctx context.Context, req *SetBaseLoginPolicyStatusRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &SetBaseLoginPolicyStatusRequest{}
+			}
+			return baseLoginPolicyServiceServer.SetBaseLoginPolicyStatus(ctx, req)
 		},
 	)
 }

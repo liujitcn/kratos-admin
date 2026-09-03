@@ -119,7 +119,8 @@ func (x *ListCodeGenColumnResponse) GetCodeGenColumns() []*CodeGenColumn {
 // 数据库表字段列表查询条件
 type ListCodeGenDatabaseColumnRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	TableName     string                 `protobuf:"bytes,1,opt,name=table_name,json=tableName,proto3" json:"table_name,omitempty"` // 数据库表名
+	TableName     string                 `protobuf:"bytes,1,opt,name=table_name,json=tableName,proto3" json:"table_name,omitempty"`    // 数据库表名
+	SourceName    string                 `protobuf:"bytes,2,opt,name=source_name,json=sourceName,proto3" json:"source_name,omitempty"` // 数据源名称
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -157,6 +158,13 @@ func (*ListCodeGenDatabaseColumnRequest) Descriptor() ([]byte, []int) {
 func (x *ListCodeGenDatabaseColumnRequest) GetTableName() string {
 	if x != nil {
 		return x.TableName
+	}
+	return ""
+}
+
+func (x *ListCodeGenDatabaseColumnRequest) GetSourceName() string {
+	if x != nil {
+		return x.SourceName
 	}
 	return ""
 }
@@ -850,12 +858,15 @@ const file_system_admin_v1_code_gen_column_proto_rawDesc = "" +
 	"\btable_id\x18\x01 \x01(\x03B\x87\x01\xbaG\x1a\x92\x02\x17代码生成表配置ID\xbaHg\xba\x01d\n" +
 	"3system.admin.code.gen.column.list.table_id.required\x12#代码生成表配置ID不能为空\x1a\bthis > 0R\atableId\"\x8b\x01\n" +
 	"\x19ListCodeGenColumnResponse\x12n\n" +
-	"\x10code_gen_columns\x18\x01 \x03(\v2\x1e.system.admin.v1.CodeGenColumnB$\xbaG!\x92\x02\x1e代码生成字段配置列表R\x0ecodeGenColumns\"\xeb\x02\n" +
+	"\x10code_gen_columns\x18\x01 \x03(\v2\x1e.system.admin.v1.CodeGenColumnB$\xbaG!\x92\x02\x1e代码生成字段配置列表R\x0ecodeGenColumns\"\xa5\x04\n" +
 	" ListCodeGenDatabaseColumnRequest\x12\xc6\x02\n" +
 	"\n" +
 	"table_name\x18\x01 \x01(\tB\xa6\x02\xbaG\x12\x92\x02\x0f数据库表名\xbaH\x8d\x02\xba\x01y\n" +
 	"Isystem.admin.code.gen.column.list_gen_database_column.table_name.required\x12\x1b数据库表名不能为空\x1a\x0fthis.size() > 0\xba\x01\x8d\x01\n" +
-	"Hsystem.admin.code.gen.column.list_gen_database_column.table_name.pattern\x12\x1e数据库表名格式不正确\x1a!this.matches('^[a-z][a-z0-9_]*$')R\ttableName\"\x82\x01\n" +
+	"Hsystem.admin.code.gen.column.list_gen_database_column.table_name.pattern\x12\x1e数据库表名格式不正确\x1a!this.matches('^[a-z][a-z0-9_]*$')R\ttableName\x12\xb7\x01\n" +
+	"\vsource_name\x18\x02 \x01(\tB\x95\x01\xbaG\x12\x92\x02\x0f数据源名称\xbaH}\xba\x01z\n" +
+	"Jsystem.admin.code.gen.column.list_gen_database_column.source_name.required\x12\x1b数据源名称不能为空\x1a\x0fthis.size() > 0R\n" +
+	"sourceName\"\x82\x01\n" +
 	"!ListCodeGenDatabaseColumnResponse\x12]\n" +
 	"\acolumns\x18\x01 \x03(\v2&.system.admin.v1.CodeGenDatabaseColumnB\x1b\xbaG\x18\x92\x02\x15数据库字段列表R\acolumns\"\xb0\x02\n" +
 	"\x18SaveCodeGenColumnRequest\x12\xa3\x01\n" +

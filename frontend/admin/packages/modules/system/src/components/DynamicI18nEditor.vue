@@ -49,7 +49,7 @@ import { computed, ref, watch } from "vue";
 import { ElMessage } from "element-plus";
 import { Promotion } from "@element-plus/icons-vue";
 import { t, useLocaleStore } from "@liujitcn/kratos-admin-core";
-import { defBaseI18nService } from "@liujitcn/kratos-admin-system/api/system/base_i18n";
+import { defBaseI18nService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_i18n";
 import { getLanguageLabel, type DynamicI18nValue } from "./dynamicI18n";
 
 /** DynamicI18nEditorProps 动态翻译编辑器属性。 */

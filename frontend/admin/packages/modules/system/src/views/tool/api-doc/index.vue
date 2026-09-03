@@ -29,7 +29,7 @@ import SwaggerUIBundle from "swagger-ui-dist/swagger-ui-bundle.js";
 import "swagger-ui-dist/swagger-ui.css";
 import { DEFAULT_LOCALE, t, useLocaleStore } from "@liujitcn/kratos-admin-core";
 import { getLocaleRequestHeaders, getRequestAccessToken } from "@liujitcn/kratos-admin-core/request";
-import { defBaseApiService } from "@liujitcn/kratos-admin-system/api/system/base_api";
+import { defBaseApiService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_api";
 import type { OpenApiServiceOption } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_api";
 
 const swaggerRootRef = ref<HTMLElement>();
@@ -134,7 +134,7 @@ onBeforeUnmount(() => {
   display: grid;
   flex: 1;
   grid-template-columns: 240px minmax(0, 1fr);
-  gap: 12px;
+  gap: 10px;
   min-height: 0;
   overflow: hidden;
 }
@@ -163,7 +163,7 @@ onBeforeUnmount(() => {
   cursor: pointer;
   background: transparent;
   border: 0;
-  border-radius: 4px;
+  border-radius: var(--admin-page-radius);
   transition: background-color 0.2s ease;
 }
 .api-doc-page__document:hover {

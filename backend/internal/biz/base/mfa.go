@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	kratosErrors "github.com/go-kratos/kratos/v3/errors"
@@ -33,6 +34,7 @@ import (
 	"github.com/liujitcn/kratos-core/errorsx"
 	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
+	"github.com/liujitcn/kratos-kit/sdk"
 	"gorm.io/gen"
 	"gorm.io/gorm"
 )
@@ -56,6 +58,7 @@ const (
 	defaultMfaTotpPeriod           = 30
 	defaultMfaTotpSkew             = 1
 	defaultMfaTotpSecretSize       = 20
+	mfaEncryptionKeyName           = "kratos-kit:mfa/encryption"
 	mfaDisableChallengePrefix      = "mfa:disable:"
 )
 
@@ -75,6 +78,9 @@ type MfaCase struct {
 	runtimeConfig           mfaRuntimeConfig
 	webAuthn                *webauthn.WebAuthn
 	webAuthnErr             error
+	mfaKeyOnce              sync.Once
+	mfaKey                  []byte
+	mfaKeyErr               error
 }
 
 // mfaRuntimeConfig 汇总 MFA 运行时安全参数和 WebAuthn 依赖方配置。
@@ -586,7 +592,7 @@ func (c *MfaCase) BeginMfaSetup(ctx context.Context, req *basev1.BeginMfaSetupRe
 		return nil, errorsx.Internal("查询多因素认证状态失败").WithCause(err)
 	}
 	if method == mfaMethodWebAuthn {
-		return c.beginWebAuthnSetup(ctx, user, req.GetSetupTicket())
+		return c.beginWebAuthnSetup(user, req.GetSetupTicket())
 	}
 	var key *otp.Key
 	key, err = totp.Generate(totp.GenerateOpts{
@@ -704,7 +710,7 @@ func (c *MfaCase) ConfirmMfaSetup(ctx context.Context, req *basev1.ConfirmMfaSet
 }
 
 // beginWebAuthnSetup 创建 WebAuthn 注册选项并保存服务端会话数据。
-func (c *MfaCase) beginWebAuthnSetup(ctx context.Context, user *models.BaseUser, setupTicket string) (*basev1.BeginMfaSetupResponse, error) {
+func (c *MfaCase) beginWebAuthnSetup(user *models.BaseUser, setupTicket string) (*basev1.BeginMfaSetupResponse, error) {
 	if c.webAuthnErr != nil || c.webAuthn == nil {
 		return nil, errorsx.Internal("WebAuthn 配置无效").WithCause(c.webAuthnErr)
 	}
@@ -1482,20 +1488,36 @@ func (c *MfaCase) unprotectMFASecret(value string, userID int64) (string, error)
 	return string(plaintext), nil
 }
 
-// loadMFAEncryptionKey 读取配置文件中的 MFA 加密密钥。
+// loadMFAEncryptionKey 读取配置文件或运行时密钥服务中的 MFA 加密密钥。
 func (c *MfaCase) loadMFAEncryptionKey() ([]byte, error) {
-	encoded := c.runtimeConfig.encryptionKey
-	if encoded == "" {
-		return nil, fmt.Errorf("mfa.encryption_key is not configured")
+	c.mfaKeyOnce.Do(func() {
+		encoded := c.runtimeConfig.encryptionKey
+		if encoded == "" {
+			keyValue := sdk.Runtime.GetKey()
+			if keyValue == nil {
+				c.mfaKeyErr = fmt.Errorf("MFA 密钥为空且运行时密钥未初始化")
+				return
+			}
+			c.mfaKey, c.mfaKeyErr = keyValue.Derive(context.Background(), mfaEncryptionKeyName)
+			if c.mfaKeyErr != nil {
+				c.mfaKeyErr = fmt.Errorf("派生 MFA 密钥失败: %w", c.mfaKeyErr)
+			}
+			return
+		}
+
+		var err error
+		c.mfaKey, err = base64.RawStdEncoding.DecodeString(encoded)
+		if err != nil {
+			c.mfaKey, err = base64.StdEncoding.DecodeString(encoded)
+		}
+		if err != nil || len(c.mfaKey) != 32 {
+			c.mfaKeyErr = fmt.Errorf("mfa.encryption_key must be a base64 encoded 32-byte key")
+		}
+	})
+	if c.mfaKeyErr != nil {
+		return nil, c.mfaKeyErr
 	}
-	key, err := base64.RawStdEncoding.DecodeString(encoded)
-	if err != nil {
-		key, err = base64.StdEncoding.DecodeString(encoded)
-	}
-	if err != nil || len(key) != 32 {
-		return nil, fmt.Errorf("mfa.encryption_key must be a base64 encoded 32-byte key")
-	}
-	return key, nil
+	return append([]byte(nil), c.mfaKey...), nil
 }
 
 // mfaRequestSource 读取当前 HTTP 请求携带的平台来源标识。

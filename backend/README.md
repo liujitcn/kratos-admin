@@ -1,6 +1,6 @@
 # backend
 
-Backend 同时提供消息分类、站内信管理、用户收件箱、Redis 投递恢复、后台工作台统计、文件资产元数据、登录来源策略、会话撤销、审计事件异步落库、日志归档和受控数据库备份任务。安全、消息和开放授权默认数据统一由 `v0.0.1` 初始化迁移提供。
+Backend 同时提供消息分类、站内信管理、用户收件箱、Redis 投递恢复、后台工作台统计、文件资产元数据、登录来源策略、会话撤销、审计事件异步落库、日志保留清理和受控数据库备份任务。安全、消息和开放授权默认数据统一由 `v0.0.1` 初始化迁移提供。
 
 `backend` 保留 API 契约、Go 生成接口、Service 实现、Biz 业务层，以及任务调度、HTTP/gRPC/MCP/AI 注册和必要的数据访问闭包；进程入口位于 `internal/cmd/server`。根包通过 `ProviderSet`、`NewModuleResources`、`NewModules`、`NewTasks`、`NewStreams` 和 `NewQueueConsumers` 提供可被外部 Core 宿主复用的公共边界，`internal/module` 仅承载内部实现。AI Runtime 实现在 `internal/biz`，对外复用入口为 `pkg/agent`；业务模块通过 `pkg/notification.Publish` 发布站内信，由内部事务和 Dispatch 恢复链路负责最终投递。开放授权客户端使用单表 JSON operation 白名单并绑定租户，公开端点签发客户端 Bearer Token；HTTP middleware 分别校验租户、状态、IP 白名单和 API 范围，HTTP 加解密 Filter 在请求绑定前解密客户端数据并在成功响应后加密。登录认证支持 TOTP 多因素认证、一次性恢复码，以及全局和租户/用户定向登录来源策略。
 
@@ -20,6 +20,7 @@ backend
 │   ├── init.go                        # Admin 模块 ProviderSet
 │   └── wire.go / wire_gen.go          # 公共入口使用的内部依赖装配
 ├── pkg/agent                         # 对外复用的 AI Runtime、模型和工具 API
+├── pkg/runtimeconfig                  # 对外复用的运行配置 Proto 注册、校验和缓存 API
 ├── pkg/notification                  # 对外复用的站内信发布 API
 ├── internal/task                     # 异步任务与定时任务执行器
 ├── internal/server                   # 服务拦截器和 API 模块注册适配
@@ -59,7 +60,9 @@ make run-only
 
 默认配置目录为 `./configs`，默认运行环境为 `dev`。基础配置使用 `<name>.yaml`，环境差异使用 `<name>.<env>.yaml`；环境文件存在时在基础配置之后加载，不存在时回退基础配置。可以覆盖配置目录、运行环境或追加启动参数：
 
-多因素认证方式由系统配置 `securityMfaMethod` 选择，当前支持 `totp` 和 `webauthn`。运行时 MFA 参数通过 `mfa.yaml` 或环境覆盖文件 `mfa.dev.yaml` 的 `mfa` 节点加载；启用 TOTP 绑定前，需要配置 `mfa.encryption_key`（base64 编码的 32 字节密钥）。管理端和应用端禁用 TOTP 需要当前密码和动态口令或恢复码，禁用 WebAuthn 需要当前密码和一次 Passkey 或恢复码验证。生产环境应从 KMS、Vault 或 Secret Manager 注入配置文件或其挂载内容，不要把真实密钥写入仓库或数据库。完整字段以 `kratos-kit/api/proto/config/v1/mfa.proto` 为准。
+会话生命周期和上传安全扫描使用 `authn.session`、`oss.upload_security` 启动配置；审计日志保留在“系统管理 → 备份管理 → 数据归档”按表维护，数据库备份在“系统管理 → 备份管理 → 数据备份”按数据源维护。日志入库回退配置单独使用隐藏配置 `auditLogSpool`；备份完整性密钥和加密密钥在具体任务执行时分别按 `kratos-admin:backup/integrity`、`kratos-admin:backup/encryption` 从运行时密钥服务派生。普通系统配置仍由“系统配置”页面维护。HTTP 普通请求只使用 `server.http.timeout` 和 `server.http.max_body_bytes`，`/events`、`/mcp` 及 AI 消息流自动跳过普通请求超时。
+
+多因素认证方式由系统配置 `securityMfaMethod` 选择，当前支持 `totp` 和 `webauthn`。运行时 MFA 参数通过 `mfa.yaml` 或环境覆盖文件 `mfa.dev.yaml` 的 `mfa` 节点加载；`mfa.encryption_key` 有显式值时优先使用，留空时在 TOTP 密钥真正加解密时按 `kratos-kit:mfa/encryption` 从运行时密钥服务派生。管理端和应用端禁用 TOTP 需要当前密码和动态口令或恢复码，禁用 WebAuthn 需要当前密码和一次 Passkey 或恢复码验证。生产环境不要把真实密钥写入仓库或数据库。完整字段以 `kratos-kit/api/proto/config/v1/mfa.proto` 为准。
 
 ```bash
 make run-only CONF=/path/to/configs
@@ -70,6 +73,8 @@ make run-only RUN_ARGS='--help'
 例如 `APP_ENV=dev` 会加载 `data.yaml` 后再加载 `data.dev.yaml`，同时忽略 `data.prod.yaml`。本地开发配置统一保存在 `*.dev.yaml`，这类文件默认不纳入 Git。
 
 独立入口注入 `kratoscore.ProviderSet` 与内部模块 ProviderSet；Core 负责统一创建和管理 HTTP、gRPC、MCP、SSE、队列与定时任务运行时。Admin 注册六张完整审计日志模型并负责自动迁移；Core 异步写入 API/策略日志，Admin 异步写入登录、操作、数据访问和权限日志。
+
+定时任务每次执行前按任务编号取得 Redis 分布式锁，定时触发在锁被其他实例持有时跳过，手工执行则返回锁竞争错误。Redis 锁初始化失败时会记录警告并降级为进程内内存锁；该模式只适用于单实例运行，多实例部署必须确保各实例连接同一 Redis 并处于 Redis 锁模式。
 
 ## 修改后执行
 
@@ -165,6 +170,10 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 
 `backend.NewModules` 初始化的是宿主进程级运行日志采集器；外部项目按上述方式接入 Backend 后，其自身以及其他已注册模块写入 stdout/stderr 的日志也会进入运行日志实时控制台，历史日志文件则按宿主的日志配置读取。
 
-`configs/auth.yaml` 中的 JWT 密钥仅用于本地开发示例；生产环境必须通过对应的 `auth.<env>.yaml` 覆盖为密钥管理服务提供的随机密钥。
+`configs/auth.yaml` 中的 JWT 密钥有显式值时优先使用；留空时服务端和客户端共同按 `kratos-kit:authn/jwt` 从运行时密钥服务派生。配置文件中的敏感值应使用 `ENC[...]` 保存，不要提交明文密钥。
+
+管理端浏览器使用 Cookie-only 刷新令牌模式：刷新令牌只保存在 Path 收窄的 HttpOnly Cookie，访问令牌只保存在页面内存；uni-app 和 Taro 不发送该模式标识，继续使用各自现有的令牌传输方式。
 
 外部模块接入 AI 时使用 `pkg/agent.NewRuntime` 创建运行时，通过 `RuntimeConfig.AdminTools/AppTools` 或 `Runtime.RegisterTool` 注册 Eino `InvokableTool`；简单结构化工具优先使用 `pkg/agent.InferTool` 自动生成参数 schema。评论审核、内容提取等固定流程可以组合 `NewChatClient`、`NewStructuredRunner`、`SchemaFor` 和多模态 Part 构造函数，不需要引用 `internal` 包。需要权限控制时实现 `ToolAccessChecker`，不接入权限系统则保持 `Checker` 为 `nil`。
+
+外部模块接入运行配置时，在自己的 Proto 中定义配置消息并通过 `pkg/runtimeconfig.Register` 注册 key、默认值和敏感字段；Admin 启动时会统一初始化 `base_config` 隐藏配置并刷新 Redis。配置 JSON 使用 ProtoJSON 编解码和 Protovalidate 校验，校验规则 ID 可直接作为国际化消息键。通用启动配置优先复用 `kratos-kit/api` 的 `config.v1.Bootstrap`，例如 `authn.session`、`oss.upload_security`、`logger` 和 `data`。

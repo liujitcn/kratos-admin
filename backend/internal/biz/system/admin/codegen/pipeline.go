@@ -266,8 +266,8 @@ func (c *renderer) buildPreviewFiles(table *Table, columns []*CodeGenColumn, met
 			c.newPatchedPreviewFile(paths.GetBackendBizFilePath(), c.renderBackendBizFile(table, columns, generatedMethods), func(content string) string {
 				return c.appendMainBizMethods(content, table, columns, generatedMethods)
 			}),
-			c.newPatchedPreviewFile(paths.GetBackendServiceFilePath(), c.renderBackendServiceFile(table, columns, generatedMethods), func(content string) string {
-				return c.appendMainServiceMethods(content, table, columns, generatedMethods)
+			c.newPatchedPreviewFile(paths.GetBackendServiceFilePath(), c.renderBackendServiceFile(table, generatedMethods), func(content string) string {
+				return c.appendMainServiceMethods(content, table, generatedMethods)
 			}),
 		)
 		files = append(files, c.newExternalTargetBackendPreviewFiles(table, generatedMethods)...)
@@ -275,8 +275,8 @@ func (c *renderer) buildPreviewFiles(table *Table, columns []*CodeGenColumn, met
 	}
 	if table.GenFrontend == 1 {
 		// 主实体前端 API 替换固定生成方法，页面则按稳定功能键增量合并。
-		files = append(files, c.newPatchedPreviewFile(paths.GetFrontendApiFilePath(), c.renderFrontendAPIFile(table, columns, frontendMethods), func(content string) string {
-			return c.appendMainFrontendAPIMethods(content, table, columns, frontendMethods)
+		files = append(files, c.newPatchedPreviewFile(paths.GetFrontendApiFilePath(), c.renderFrontendAPIFile(table, frontendMethods), func(content string) string {
+			return c.appendMainFrontendAPIMethods(content, table, frontendMethods)
 		}))
 		pagePath := paths.GetFrontendPageFilePath()
 		if frontendPageMethodsComplete(table, frontendMethods) {
@@ -348,9 +348,9 @@ func (c *renderer) appendMainBizMethods(content string, table *Table, columns []
 }
 
 // appendMainServiceMethods 根据最新配置替换已有服务文件的固定生成方法。
-func (c *renderer) appendMainServiceMethods(content string, table *Table, columns []*CodeGenColumn, methods []*Proto) string {
+func (c *renderer) appendMainServiceMethods(content string, table *Table, methods []*Proto) string {
 	// 服务层从完整候选文件中提取固定生成方法，已有同名实现必须整体替换。
-	candidate := c.renderBackendServiceFile(table, columns, methods)
+	candidate := c.renderBackendServiceFile(table, methods)
 	generatedReceiver := table.EntityName + "Service"
 	existingReceiver := goReceiverType(content, "Service")
 	if existingReceiver == "" {
@@ -374,8 +374,8 @@ func (c *renderer) appendMainServiceMethods(content string, table *Table, column
 }
 
 // appendMainFrontendAPIMethods 根据最新配置替换前端服务类的固定生成方法。
-func (c *renderer) appendMainFrontendAPIMethods(content string, table *Table, columns []*CodeGenColumn, methods []*Proto) string {
-	candidate := c.renderFrontendAPIFile(table, columns, methods)
+func (c *renderer) appendMainFrontendAPIMethods(content string, table *Table, methods []*Proto) string {
+	candidate := c.renderFrontendAPIFile(table, methods)
 	className := table.EntityName + "ServiceImpl"
 	if findTSClassEndIndex(content, className) < 0 {
 		return content

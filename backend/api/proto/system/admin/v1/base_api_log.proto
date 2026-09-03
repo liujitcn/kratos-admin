@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "system/admin/v1/base_log.proto";
+
+// API 访问日志服务。
+service BaseApiLogService {
+  // 分页查询 API 访问日志。
+  rpc PageBaseApiLog(PageBaseApiLogRequest) returns (PageBaseApiLogResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/api-log"};
+  }
+
+  // 查询 API 访问日志详情。
+  rpc GetBaseApiLog(GetBaseApiLogRequest) returns (BaseApiLog) {
+    option (google.api.http) = {get: "/api/v1/admin/base/api-log/{id}"};
+  }
+}
+
+// API 访问日志分页查询条件。
+message PageBaseApiLogRequest {
+  optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  optional int64 user_id = 2 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  optional BaseLogResult result = 3 [(gnostic.openapi.v3.property) = {description: "结果"}]; // 结果
+  repeated string occurred_at = 4 [(gnostic.openapi.v3.property) = {description: "事件时间"}]; // 事件时间
+  string keyword = 5 [(gnostic.openapi.v3.property) = {description: "操作、路径或请求ID关键字"}]; // 关键字
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码"}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数"}]; // 每页行数
+}
+
+// API 访问日志分页响应。
+message PageBaseApiLogResponse {
+  repeated BaseApiLog base_api_logs = 1 [(gnostic.openapi.v3.property) = {description: "API访问日志列表"}]; // API访问日志列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 查询 API 访问日志详情请求。
+message GetBaseApiLogRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "API日志ID"}]; // API日志ID
+}
+
+// API 访问日志。
+message BaseApiLog {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "API日志ID"}]; // API日志ID
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  string tenant_code = 3 [(gnostic.openapi.v3.property) = {description: "租户编码"}]; // 租户编码
+  int64 user_id = 4 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  string user_name = 5 [(gnostic.openapi.v3.property) = {description: "用户名称"}]; // 用户名称
+  string request_id = 6 [(gnostic.openapi.v3.property) = {description: "请求ID"}]; // 请求ID
+  string trace_id = 7 [(gnostic.openapi.v3.property) = {description: "链路追踪ID"}]; // 链路追踪ID
+  string service_name = 8 [(gnostic.openapi.v3.property) = {description: "服务名"}]; // 服务名
+  string operation = 9 [(gnostic.openapi.v3.property) = {description: "操作方法"}]; // 操作方法
+  string method = 10 [(gnostic.openapi.v3.property) = {description: "请求方法"}]; // 请求方法
+  string path = 11 [(gnostic.openapi.v3.property) = {description: "请求路径"}]; // 请求路径
+  int32 status_code = 12 [(gnostic.openapi.v3.property) = {description: "状态码"}]; // 状态码
+  BaseLogResult result = 13 [(gnostic.openapi.v3.property) = {description: "结果"}]; // 结果
+  string reason_code = 14 [(gnostic.openapi.v3.property) = {description: "原因编码"}]; // 原因编码
+  string reason = 15 [(gnostic.openapi.v3.property) = {description: "原因说明"}]; // 原因说明
+  int32 latency_ms = 16 [(gnostic.openapi.v3.property) = {description: "耗时毫秒"}]; // 耗时毫秒
+  int32 request_size = 17 [(gnostic.openapi.v3.property) = {description: "请求大小"}]; // 请求大小
+  int32 response_size = 18 [(gnostic.openapi.v3.property) = {description: "响应大小"}]; // 响应大小
+  string client_ip = 19 [(gnostic.openapi.v3.property) = {description: "客户端IP"}]; // 客户端IP
+  string user_agent = 20 [(gnostic.openapi.v3.property) = {description: "用户代理"}]; // 用户代理
+  string occurred_at = 21 [(gnostic.openapi.v3.property) = {description: "事件发生时间"}]; // 事件发生时间
+  string created_at = 22 [(gnostic.openapi.v3.property) = {description: "日志落库时间"}]; // 日志落库时间
+}

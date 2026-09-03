@@ -12,14 +12,14 @@ Core 布局在头像菜单中提供锁定屏幕能力，锁屏密码摘要仅在
 frontend/admin
 ├── apps/admin                        # 装配当前全部 module 的默认宿主
 ├── packages/core                     # @liujitcn/kratos-admin-core 底座
-│   ├── src/api/{base,system}         # 按 Proto 领域组织的底座请求
+│   ├── src/api/{base/v1,system/admin/v1} # 按 Proto 完整路径组织的底座请求
 │   ├── src/components                # 公共组件
 │   ├── src/layouts                   # 布局
 │   ├── src/modules                   # 模块注册 interface
 │   ├── src/rpc                       # 登录、菜单和底座能力 Proto 类型
 │   └── src/views                     # 登录与静态错误页面
 ├── packages/modules/system           # @liujitcn/kratos-admin-system
-│   └── src/{api,rpc,views}           # API 与 RPC 按 Proto 领域层级维护
+│   └── src/{api,config,rpc,utils,views} # API 与 RPC 按 Proto 层级维护
 ├── packages/cli                      # @liujitcn/kratos-admin-cli
 │   └── templates/business-workspace  # 完整 pnpm workspace 模板
 ├── internal/vite-config              # 当前仓库宿主构建配置
@@ -90,13 +90,15 @@ make -C .. package-admin
 
 默认宿主地址为 `http://localhost:8848`。环境变量位于 `apps/admin/.env*`，开发模式的 API 代理和生产构建输出目录由宿主 Vite 配置统一管理；当前生产构建写入 `backend/data/admin`。
 
+管理端认证状态采用浏览器 Cookie-only 模式：刷新令牌由后端写入 Path 收窄的 HttpOnly Cookie，访问令牌只保存在页面内存，不写入 `localStorage` 或 `sessionStorage`。应用启动会主动清理旧版本遗留的持久化访问令牌，并通过非敏感的过期时间 Cookie 判断是否需要静默恢复会话。
+
 ## 国际化
 
 管理端支持的语言由 core 与 System JSON 语言包自动发现，模块注册时校验语言键和占位符集合；登录页和顶部工具栏共用 locale store，切换语言不刷新页面，并保留当前路由、查询参数和未提交表单。
 
 语言偏好保存为 `kratos-admin:locale`。Axios、刷新令牌、原生 fetch、SSE 和 Swagger 请求统一发送 `Accept-Language`；动态菜单和字典由后端按 locale 返回，缺少当前语言译文时回退主语言。新增语言需要同步后端国际化目录、三个 workspace 的六个前端语言包目录，再执行仓库根目录的 `make i18n-sync`；注册文件和 Day.js 映射由脚本生成。具体流程见 [国际化语言扩展指南](../../docs/国际化语言扩展指南.md)。
 
-API 按 Proto 一级领域组织为 `api/base`、`api/system` 等目录；RPC 保留 `rpc/base/v1`、`rpc/system/admin/v1` 等完整 Proto 层级。RPC 类型按真实消费者归属放置：core 保留登录、菜单、用户信息和启动期能力所需服务类型；System 自包含系统管理、个人中心、AI 及其依赖类型。修改 Proto 后在仓库根目录执行 `make -C frontend ts-admin`，命令会按两份 Buf 配置分别清理并生成 core 与 System 的 RPC；需要一次生成三个前端的 RPC 时执行 `make -C frontend ts`。服务端契约尚未完成细粒度拆分时，同一生成文件可能暂时包含当前包未调用的方法，不手写生成文件。
+API 按 Proto 完整路径组织为 `api/base/v1`、`api/system/admin/v1` 等目录，`src/api` 只保留与服务文件同名的请求封装；运行配置和内部辅助实现分别放在 `src/config`、`src/utils`。RPC 保留 `rpc/base/v1`、`rpc/system/admin/v1` 等完整 Proto 层级。RPC 类型按真实消费者归属放置：core 保留登录、菜单、用户信息和启动期能力所需服务类型；System 自包含系统管理、个人中心、AI 及其依赖类型。修改 Proto 后在仓库根目录执行 `make -C frontend ts-admin`，命令会按两份 Buf 配置分别清理并生成 core 与 System 的 RPC；需要一次生成三个前端的 RPC 时执行 `make -C frontend ts`。服务端契约尚未完成细粒度拆分时，同一生成文件可能暂时包含当前包未调用的方法，不手写生成文件。
 
 core 内部源码使用 `@/*`；业务模块使用 `@liujitcn/kratos-admin-core/*` 和自身包名。模块间页面跳转使用 Vue Router，代码复用禁止跨目录相对引用。
 
@@ -104,7 +106,7 @@ core 内部源码使用 `@/*`；业务模块使用 `@liujitcn/kratos-admin-core/
 
 ## 模块 interface
 
-core 导出 `bootstrapAdminApp`、`defineAdminModule`、视图注册表以及顶部工具、用户菜单和路由行为扩展。业务模块入口声明名称和页面加载器即可接入动态页面：
+core 导出 `bootstrapAdminApp`、`defineAdminModule`、`setAdminDocumentTitle`、视图注册表以及顶部工具、用户菜单和路由行为扩展。浏览器标题优先使用公共配置接口返回的 `sysName`，宿主环境变量作为加载失败时的兜底。业务模块入口声明名称和页面加载器即可接入动态页面：
 
 ```ts
 import type { Component } from "vue";

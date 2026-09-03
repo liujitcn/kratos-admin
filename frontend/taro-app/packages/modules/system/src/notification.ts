@@ -1,6 +1,6 @@
 import { setAppMenuBadge } from '@liujitcn/kratos-taro-app-core/navigation'
 import { getRequestAccessToken } from '@liujitcn/kratos-taro-app-core/utils/http'
-import { defNotificationService } from './api/base/notification'
+import { defNotificationService } from './api/base/v1/notification'
 
 /** System 模块共享的站内信未读数。 */
 let unreadTotal = 0

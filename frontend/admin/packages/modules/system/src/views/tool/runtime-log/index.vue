@@ -179,8 +179,8 @@
 import { Document, Download, Operation, Refresh, Search, VideoPause, VideoPlay } from "@element-plus/icons-vue";
 import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
 import { getCurrentLocale, t } from "@liujitcn/kratos-admin-core";
-import { defRuntimeLogService } from "@liujitcn/kratos-admin-system/api/system/runtime_log";
-import { subscribeRuntimeLog } from "@liujitcn/kratos-admin-system/api/system/runtime_log_sse";
+import { defRuntimeLogService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/runtime_log";
+import { subscribeRuntimeLog } from "../../../utils/runtime_log_sse";
 import type {
   RuntimeLogEntry,
   RuntimeLogFile
@@ -500,7 +500,7 @@ onBeforeUnmount(() => {
   color: var(--admin-page-text-primary);
   background: var(--admin-page-card-bg);
   border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: 6px;
+  border-radius: var(--admin-page-radius);
 }
 
 .runtime-log-sources {
@@ -553,7 +553,7 @@ onBeforeUnmount(() => {
   cursor: pointer;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 5px;
+  border-radius: var(--admin-page-radius);
 }
 
 .source-item:hover {
@@ -573,7 +573,7 @@ onBeforeUnmount(() => {
   place-items: center;
   color: var(--el-color-primary);
   background: var(--el-color-primary-light-9);
-  border-radius: 5px;
+  border-radius: var(--admin-page-radius);
 }
 
 .source-item__body {
@@ -785,7 +785,7 @@ onBeforeUnmount(() => {
   line-height: 16px;
   text-align: center;
   background: var(--el-fill-color);
-  border-radius: 3px;
+  border-radius: var(--admin-page-radius);
 }
 
 .log-line.is-debug .log-line__level {

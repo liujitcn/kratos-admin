@@ -239,136 +239,6 @@ func (x *PageBaseDictResponse) GetTotal() int32 {
 	return 0
 }
 
-// 字典属性分页查询条件
-type PageBaseDictItemRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	DictId        int64                  `protobuf:"varint,1,opt,name=dict_id,json=dictId,proto3" json:"dict_id,omitempty"`                 // 字典ID
-	Label         string                 `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`                                  // 字典属性名称
-	Status        *v1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态
-	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`            // 当前页码
-	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`         // 每一页的行数
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PageBaseDictItemRequest) Reset() {
-	*x = PageBaseDictItemRequest{}
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PageBaseDictItemRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PageBaseDictItemRequest) ProtoMessage() {}
-
-func (x *PageBaseDictItemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PageBaseDictItemRequest.ProtoReflect.Descriptor instead.
-func (*PageBaseDictItemRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *PageBaseDictItemRequest) GetDictId() int64 {
-	if x != nil {
-		return x.DictId
-	}
-	return 0
-}
-
-func (x *PageBaseDictItemRequest) GetLabel() string {
-	if x != nil {
-		return x.Label
-	}
-	return ""
-}
-
-func (x *PageBaseDictItemRequest) GetStatus() v1.Status {
-	if x != nil && x.Status != nil {
-		return *x.Status
-	}
-	return v1.Status(0)
-}
-
-func (x *PageBaseDictItemRequest) GetPageNum() int64 {
-	if x != nil {
-		return x.PageNum
-	}
-	return 0
-}
-
-func (x *PageBaseDictItemRequest) GetPageSize() int64 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-// 字典属性分页响应
-type PageBaseDictItemResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	BaseDictItems []*BaseDictItem        `protobuf:"bytes,1,rep,name=base_dict_items,json=baseDictItems,proto3" json:"base_dict_items,omitempty"` // 分页数据
-	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                                       // 总数
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PageBaseDictItemResponse) Reset() {
-	*x = PageBaseDictItemResponse{}
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PageBaseDictItemResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PageBaseDictItemResponse) ProtoMessage() {}
-
-func (x *PageBaseDictItemResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PageBaseDictItemResponse.ProtoReflect.Descriptor instead.
-func (*PageBaseDictItemResponse) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *PageBaseDictItemResponse) GetBaseDictItems() []*BaseDictItem {
-	if x != nil {
-		return x.BaseDictItems
-	}
-	return nil
-}
-
-func (x *PageBaseDictItemResponse) GetTotal() int32 {
-	if x != nil {
-		return x.Total
-	}
-	return 0
-}
-
 // 查询字典请求参数
 type GetBaseDictRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -379,7 +249,7 @@ type GetBaseDictRequest struct {
 
 func (x *GetBaseDictRequest) Reset() {
 	*x = GetBaseDictRequest{}
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[6]
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -391,7 +261,7 @@ func (x *GetBaseDictRequest) String() string {
 func (*GetBaseDictRequest) ProtoMessage() {}
 
 func (x *GetBaseDictRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[6]
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -404,7 +274,7 @@ func (x *GetBaseDictRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBaseDictRequest.ProtoReflect.Descriptor instead.
 func (*GetBaseDictRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{6}
+	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *GetBaseDictRequest) GetId() int64 {
@@ -428,7 +298,7 @@ type BaseDictForm struct {
 
 func (x *BaseDictForm) Reset() {
 	*x = BaseDictForm{}
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[7]
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -440,7 +310,7 @@ func (x *BaseDictForm) String() string {
 func (*BaseDictForm) ProtoMessage() {}
 
 func (x *BaseDictForm) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[7]
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -453,7 +323,7 @@ func (x *BaseDictForm) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseDictForm.ProtoReflect.Descriptor instead.
 func (*BaseDictForm) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{7}
+	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *BaseDictForm) GetId() int64 {
@@ -491,152 +361,6 @@ func (x *BaseDictForm) GetStatus() v1.Status {
 	return v1.Status(0)
 }
 
-// 查询字典属性请求参数
-type GetBaseDictItemRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 字典属性ID
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetBaseDictItemRequest) Reset() {
-	*x = GetBaseDictItemRequest{}
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetBaseDictItemRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetBaseDictItemRequest) ProtoMessage() {}
-
-func (x *GetBaseDictItemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetBaseDictItemRequest.ProtoReflect.Descriptor instead.
-func (*GetBaseDictItemRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *GetBaseDictItemRequest) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-// 字典属性表单
-type BaseDictItemForm struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                 // 字典项ID
-	DictId        int64                  `protobuf:"varint,2,opt,name=dict_id,json=dictId,proto3" json:"dict_id,omitempty"`           // 字典ID
-	Value         string                 `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`                            // 字典项值
-	Label         string                 `protobuf:"bytes,4,opt,name=label,proto3" json:"label,omitempty"`                            // 字典项标签
-	TagType       string                 `protobuf:"bytes,5,opt,name=tag_type,json=tagType,proto3" json:"tag_type,omitempty"`         // 标签类型，用于前端样式展示（如success、warning等）
-	Sort          int32                  `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                             // 排序
-	I18ns         []*BaseI18n            `protobuf:"bytes,7,rep,name=i18ns,proto3" json:"i18ns,omitempty"`                            // 非主语言翻译
-	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *BaseDictItemForm) Reset() {
-	*x = BaseDictItemForm{}
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BaseDictItemForm) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BaseDictItemForm) ProtoMessage() {}
-
-func (x *BaseDictItemForm) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use BaseDictItemForm.ProtoReflect.Descriptor instead.
-func (*BaseDictItemForm) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *BaseDictItemForm) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *BaseDictItemForm) GetDictId() int64 {
-	if x != nil {
-		return x.DictId
-	}
-	return 0
-}
-
-func (x *BaseDictItemForm) GetValue() string {
-	if x != nil {
-		return x.Value
-	}
-	return ""
-}
-
-func (x *BaseDictItemForm) GetLabel() string {
-	if x != nil {
-		return x.Label
-	}
-	return ""
-}
-
-func (x *BaseDictItemForm) GetTagType() string {
-	if x != nil {
-		return x.TagType
-	}
-	return ""
-}
-
-func (x *BaseDictItemForm) GetSort() int32 {
-	if x != nil {
-		return x.Sort
-	}
-	return 0
-}
-
-func (x *BaseDictItemForm) GetI18ns() []*BaseI18n {
-	if x != nil {
-		return x.I18ns
-	}
-	return nil
-}
-
-func (x *BaseDictItemForm) GetStatus() v1.Status {
-	if x != nil {
-		return x.Status
-	}
-	return v1.Status(0)
-}
-
 // 创建字典请求参数
 type CreateBaseDictRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -647,7 +371,7 @@ type CreateBaseDictRequest struct {
 
 func (x *CreateBaseDictRequest) Reset() {
 	*x = CreateBaseDictRequest{}
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[10]
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -659,7 +383,7 @@ func (x *CreateBaseDictRequest) String() string {
 func (*CreateBaseDictRequest) ProtoMessage() {}
 
 func (x *CreateBaseDictRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[10]
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -672,57 +396,12 @@ func (x *CreateBaseDictRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateBaseDictRequest.ProtoReflect.Descriptor instead.
 func (*CreateBaseDictRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{10}
+	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *CreateBaseDictRequest) GetBaseDict() *BaseDictForm {
 	if x != nil {
 		return x.BaseDict
-	}
-	return nil
-}
-
-// 创建字典属性请求参数
-type CreateBaseDictItemRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	BaseDictItem  *BaseDictItemForm      `protobuf:"bytes,1,opt,name=base_dict_item,json=baseDictItem,proto3" json:"base_dict_item,omitempty"` // 字典属性表单
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CreateBaseDictItemRequest) Reset() {
-	*x = CreateBaseDictItemRequest{}
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateBaseDictItemRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateBaseDictItemRequest) ProtoMessage() {}
-
-func (x *CreateBaseDictItemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateBaseDictItemRequest.ProtoReflect.Descriptor instead.
-func (*CreateBaseDictItemRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *CreateBaseDictItemRequest) GetBaseDictItem() *BaseDictItemForm {
-	if x != nil {
-		return x.BaseDictItem
 	}
 	return nil
 }
@@ -737,7 +416,7 @@ type UpdateBaseDictRequest struct {
 
 func (x *UpdateBaseDictRequest) Reset() {
 	*x = UpdateBaseDictRequest{}
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[12]
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -749,7 +428,7 @@ func (x *UpdateBaseDictRequest) String() string {
 func (*UpdateBaseDictRequest) ProtoMessage() {}
 
 func (x *UpdateBaseDictRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[12]
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -762,57 +441,12 @@ func (x *UpdateBaseDictRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateBaseDictRequest.ProtoReflect.Descriptor instead.
 func (*UpdateBaseDictRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{12}
+	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *UpdateBaseDictRequest) GetBaseDict() *BaseDictForm {
 	if x != nil {
 		return x.BaseDict
-	}
-	return nil
-}
-
-// 更新字典属性请求参数
-type UpdateBaseDictItemRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	BaseDictItem  *BaseDictItemForm      `protobuf:"bytes,1,opt,name=base_dict_item,json=baseDictItem,proto3" json:"base_dict_item,omitempty"` // 字典属性表单
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateBaseDictItemRequest) Reset() {
-	*x = UpdateBaseDictItemRequest{}
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[13]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateBaseDictItemRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateBaseDictItemRequest) ProtoMessage() {}
-
-func (x *UpdateBaseDictItemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[13]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateBaseDictItemRequest.ProtoReflect.Descriptor instead.
-func (*UpdateBaseDictItemRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{13}
-}
-
-func (x *UpdateBaseDictItemRequest) GetBaseDictItem() *BaseDictItemForm {
-	if x != nil {
-		return x.BaseDictItem
 	}
 	return nil
 }
@@ -827,7 +461,7 @@ type DeleteBaseDictRequest struct {
 
 func (x *DeleteBaseDictRequest) Reset() {
 	*x = DeleteBaseDictRequest{}
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[14]
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -839,7 +473,7 @@ func (x *DeleteBaseDictRequest) String() string {
 func (*DeleteBaseDictRequest) ProtoMessage() {}
 
 func (x *DeleteBaseDictRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[14]
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -852,7 +486,7 @@ func (x *DeleteBaseDictRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteBaseDictRequest.ProtoReflect.Descriptor instead.
 func (*DeleteBaseDictRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{14}
+	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *DeleteBaseDictRequest) GetId() string {
@@ -860,104 +494,6 @@ func (x *DeleteBaseDictRequest) GetId() string {
 		return x.Id
 	}
 	return ""
-}
-
-// 删除字典属性请求参数
-type DeleteBaseDictItemRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"` // 字典属性ID列表
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteBaseDictItemRequest) Reset() {
-	*x = DeleteBaseDictItemRequest{}
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[15]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteBaseDictItemRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteBaseDictItemRequest) ProtoMessage() {}
-
-func (x *DeleteBaseDictItemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[15]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteBaseDictItemRequest.ProtoReflect.Descriptor instead.
-func (*DeleteBaseDictItemRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{15}
-}
-
-func (x *DeleteBaseDictItemRequest) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-// 设置字典属性状态请求参数
-type SetBaseDictItemStatusRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`         // 字典属性ID
-	Status        int32                  `protobuf:"varint,2,opt,name=status,proto3" json:"status,omitempty"` // 状态
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SetBaseDictItemStatusRequest) Reset() {
-	*x = SetBaseDictItemStatusRequest{}
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[16]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SetBaseDictItemStatusRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SetBaseDictItemStatusRequest) ProtoMessage() {}
-
-func (x *SetBaseDictItemStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[16]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SetBaseDictItemStatusRequest.ProtoReflect.Descriptor instead.
-func (*SetBaseDictItemStatusRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{16}
-}
-
-func (x *SetBaseDictItemStatusRequest) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *SetBaseDictItemStatusRequest) GetStatus() int32 {
-	if x != nil {
-		return x.Status
-	}
-	return 0
 }
 
 // 设置字典状态请求参数
@@ -971,7 +507,7 @@ type SetBaseDictStatusRequest struct {
 
 func (x *SetBaseDictStatusRequest) Reset() {
 	*x = SetBaseDictStatusRequest{}
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[17]
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -983,7 +519,7 @@ func (x *SetBaseDictStatusRequest) String() string {
 func (*SetBaseDictStatusRequest) ProtoMessage() {}
 
 func (x *SetBaseDictStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[17]
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -996,7 +532,7 @@ func (x *SetBaseDictStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetBaseDictStatusRequest.ProtoReflect.Descriptor instead.
 func (*SetBaseDictStatusRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{17}
+	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *SetBaseDictStatusRequest) GetId() int64 {
@@ -1029,7 +565,7 @@ type BaseDict struct {
 
 func (x *BaseDict) Reset() {
 	*x = BaseDict{}
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[18]
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1041,7 +577,7 @@ func (x *BaseDict) String() string {
 func (*BaseDict) ProtoMessage() {}
 
 func (x *BaseDict) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[18]
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1054,7 +590,7 @@ func (x *BaseDict) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseDict.ProtoReflect.Descriptor instead.
 func (*BaseDict) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{18}
+	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *BaseDict) GetId() int64 {
@@ -1107,123 +643,6 @@ func (x *BaseDict) GetI18ns() []*BaseI18n {
 }
 
 // 字典项
-type BaseDictItem struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                 // 字典项ID
-	DictId        int64                  `protobuf:"varint,2,opt,name=dict_id,json=dictId,proto3" json:"dict_id,omitempty"`           // 字典ID
-	Value         string                 `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`                            // 字典项值
-	Label         string                 `protobuf:"bytes,4,opt,name=label,proto3" json:"label,omitempty"`                            // 字典项标签
-	TagType       string                 `protobuf:"bytes,5,opt,name=tag_type,json=tagType,proto3" json:"tag_type,omitempty"`         // 标签类型，用于前端样式展示（如success、warning等）
-	Sort          int32                  `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                             // 排序
-	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
-	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // 创建时间
-	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"` // 更新时间
-	I18ns         []*BaseI18n            `protobuf:"bytes,202,rep,name=i18ns,proto3" json:"i18ns,omitempty"`                          // 非主语言翻译
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *BaseDictItem) Reset() {
-	*x = BaseDictItem{}
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[19]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *BaseDictItem) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*BaseDictItem) ProtoMessage() {}
-
-func (x *BaseDictItem) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[19]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use BaseDictItem.ProtoReflect.Descriptor instead.
-func (*BaseDictItem) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_dict_proto_rawDescGZIP(), []int{19}
-}
-
-func (x *BaseDictItem) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *BaseDictItem) GetDictId() int64 {
-	if x != nil {
-		return x.DictId
-	}
-	return 0
-}
-
-func (x *BaseDictItem) GetValue() string {
-	if x != nil {
-		return x.Value
-	}
-	return ""
-}
-
-func (x *BaseDictItem) GetLabel() string {
-	if x != nil {
-		return x.Label
-	}
-	return ""
-}
-
-func (x *BaseDictItem) GetTagType() string {
-	if x != nil {
-		return x.TagType
-	}
-	return ""
-}
-
-func (x *BaseDictItem) GetSort() int32 {
-	if x != nil {
-		return x.Sort
-	}
-	return 0
-}
-
-func (x *BaseDictItem) GetStatus() v1.Status {
-	if x != nil {
-		return x.Status
-	}
-	return v1.Status(0)
-}
-
-func (x *BaseDictItem) GetCreatedAt() string {
-	if x != nil {
-		return x.CreatedAt
-	}
-	return ""
-}
-
-func (x *BaseDictItem) GetUpdatedAt() string {
-	if x != nil {
-		return x.UpdatedAt
-	}
-	return ""
-}
-
-func (x *BaseDictItem) GetI18ns() []*BaseI18n {
-	if x != nil {
-		return x.I18ns
-	}
-	return nil
-}
-
-// 字典项
 type OptionBaseDictResponse_BaseDictItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Value         string                 `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`                    // 字典项值
@@ -1235,7 +654,7 @@ type OptionBaseDictResponse_BaseDictItem struct {
 
 func (x *OptionBaseDictResponse_BaseDictItem) Reset() {
 	*x = OptionBaseDictResponse_BaseDictItem{}
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[20]
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1247,7 +666,7 @@ func (x *OptionBaseDictResponse_BaseDictItem) String() string {
 func (*OptionBaseDictResponse_BaseDictItem) ProtoMessage() {}
 
 func (x *OptionBaseDictResponse_BaseDictItem) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[20]
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1296,7 +715,7 @@ type OptionBaseDictResponse_BaseDict struct {
 
 func (x *OptionBaseDictResponse_BaseDict) Reset() {
 	*x = OptionBaseDictResponse_BaseDict{}
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[21]
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1308,7 +727,7 @@ func (x *OptionBaseDictResponse_BaseDict) String() string {
 func (*OptionBaseDictResponse_BaseDict) ProtoMessage() {}
 
 func (x *OptionBaseDictResponse_BaseDict) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_dict_proto_msgTypes[21]
+	mi := &file_system_admin_v1_base_dict_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1372,16 +791,6 @@ const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"\x14PageBaseDictResponse\x12L\n" +
 	"\n" +
 	"base_dicts\x18\x01 \x03(\v2\x19.system.admin.v1.BaseDictB\x12\xbaG\x0f\x92\x02\f分页数据R\tbaseDicts\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xb9\x02\n" +
-	"\x17PageBaseDictItemRequest\x12'\n" +
-	"\adict_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b字典IDR\x06dictId\x12.\n" +
-	"\x05label\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12字典属性名称R\x05label\x12<\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x129\n" +
-	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
-	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
-	"\a_status\"\x99\x01\n" +
-	"\x18PageBaseDictItemResponse\x12Y\n" +
-	"\x0fbase_dict_items\x18\x01 \x03(\v2\x1d.system.admin.v1.BaseDictItemB\x12\xbaG\x0f\x92\x02\f分页数据R\rbaseDictItems\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x82\x01\n" +
 	"\x12GetBaseDictRequest\x12l\n" +
 	"\x02id\x18\x01 \x01(\x03B\\\xbaG\v\x92\x02\b字典ID\xbaHK\xba\x01H\n" +
@@ -1395,45 +804,15 @@ const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"+system.admin.base.dict.entity.name.required\x12\x15请输入字典名称\x1a\x0fthis.size() > 0\xba\x01i\n" +
 	"-system.admin.base.dict.entity.name.max_length\x12%字典名称不能超过 50 个字符\x1a\x11this.size() <= 50R\x04name\x12I\n" +
 	"\x05i18ns\x18\a \x03(\v2\x19.system.admin.v1.BaseI18nB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\x05i18ns\x12?\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\x97\x01\n" +
-	"\x16GetBaseDictItemRequest\x12}\n" +
-	"\x02id\x18\x01 \x01(\x03Bm\xbaG\x11\x92\x02\x0e字典属性ID\xbaHV\xba\x01S\n" +
-	"+system.admin.base.dict.get_item.id.required\x12\x1a字典属性ID不能为空\x1a\bthis > 0R\x02id\"\x8d\t\n" +
-	"\x10BaseDictItemForm\x12!\n" +
-	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v字典项IDR\x02id\x12'\n" +
-	"\adict_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b字典IDR\x06dictId\x12\x9b\x02\n" +
-	"\x05value\x18\x03 \x01(\tB\x84\x02\xbaG\x0f\x92\x02\f字典项值\xbaH\xee\x01\xba\x01r\n" +
-	"1system.admin.base.dict.entity.item.value.required\x12,请输入字典值（不超过50个字符）\x1a\x0fthis.size() > 0\xba\x01v\n" +
-	"3system.admin.base.dict.entity.item.value.max_length\x12,请输入字典值（不超过50个字符）\x1a\x11this.size() <= 50R\x05value\x12\xa7\x02\n" +
-	"\x05label\x18\x04 \x01(\tB\x90\x02\xbaG\x12\x92\x02\x0f字典项标签\xbaH\xf7\x01\xba\x01v\n" +
-	"1system.admin.base.dict.entity.item.label.required\x120请输入字典标签（不超过100个字符）\x1a\x0fthis.size() > 0\xba\x01{\n" +
-	"3system.admin.base.dict.entity.item.label.max_length\x120请输入字典标签（不超过100个字符）\x1a\x12this.size() <= 100R\x05label\x12\xde\x01\n" +
-	"\btag_type\x18\x05 \x01(\tB\xc2\x01\xbaGG\x92\x02D标签类型，用于前端样式展示（如success、warning等）\xbaHu\xba\x01r\n" +
-	"6system.admin.base.dict.entity.item.tag_type.max_length\x12%标签类型不能超过 50 个字符\x1a\x11this.size() <= 50R\atagType\x12x\n" +
-	"\x04sort\x18\x06 \x01(\x05Bd\xbaG\t\x92\x02\x06排序\xbaHU\xba\x01R\n" +
-	"0system.admin.base.dict.entity.item.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x12I\n" +
-	"\x05i18ns\x18\a \x03(\v2\x19.system.admin.v1.BaseI18nB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\x05i18ns\x12?\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"m\n" +
 	"\x15CreateBaseDictRequest\x12T\n" +
-	"\tbase_dict\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseDictFormB\x18\xbaG\x0f\x92\x02\f字典表单\xbaH\x03\xc8\x01\x01R\bbaseDict\"\x84\x01\n" +
-	"\x19CreateBaseDictItemRequest\x12g\n" +
-	"\x0ebase_dict_item\x18\x01 \x01(\v2!.system.admin.v1.BaseDictItemFormB\x1e\xbaG\x15\x92\x02\x12字典属性表单\xbaH\x03\xc8\x01\x01R\fbaseDictItem\"\xcc\x01\n" +
+	"\tbase_dict\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseDictFormB\x18\xbaG\x0f\x92\x02\f字典表单\xbaH\x03\xc8\x01\x01R\bbaseDict\"\xcc\x01\n" +
 	"\x15UpdateBaseDictRequest\x12T\n" +
 	"\tbase_dict\x18\x01 \x01(\v2\x1d.system.admin.v1.BaseDictFormB\x18\xbaG\x0f\x92\x02\f字典表单\xbaH\x03\xc8\x01\x01R\bbaseDict:]\xbaHZ\x1aX\n" +
-	")system.admin.base.dict.update.id.required\x12\x14字典ID不能为空\x1a\x15this.base_dict.id > 0\"\xf3\x01\n" +
-	"\x19UpdateBaseDictItemRequest\x12g\n" +
-	"\x0ebase_dict_item\x18\x01 \x01(\v2!.system.admin.v1.BaseDictItemFormB\x1e\xbaG\x15\x92\x02\x12字典属性表单\xbaH\x03\xc8\x01\x01R\fbaseDictItem:m\xbaHj\x1ah\n" +
-	".system.admin.base.dict.update_item.id.required\x12\x1a字典属性ID不能为空\x1a\x1athis.base_dict_item.id > 0\"\x9c\x01\n" +
+	")system.admin.base.dict.update.id.required\x12\x14字典ID不能为空\x1a\x15this.base_dict.id > 0\"\x9c\x01\n" +
 	"\x15DeleteBaseDictRequest\x12\x82\x01\n" +
 	"\x02id\x18\x01 \x01(\tBr\xbaG\x11\x92\x02\x0e字典ID列表\xbaH[\xba\x01X\n" +
-	")system.admin.base.dict.delete.id.required\x12\x1a字典ID列表不能为空\x1a\x0fthis.size() > 0R\x02id\"\xb2\x01\n" +
-	"\x19DeleteBaseDictItemRequest\x12\x94\x01\n" +
-	"\x02id\x18\x01 \x01(\tB\x83\x01\xbaG\x17\x92\x02\x14字典属性ID列表\xbaHf\xba\x01c\n" +
-	".system.admin.base.dict.delete_item.id.required\x12 字典属性ID列表不能为空\x1a\x0fthis.size() > 0R\x02id\"\xcb\x01\n" +
-	"\x1cSetBaseDictItemStatusRequest\x12\x84\x01\n" +
-	"\x02id\x18\x01 \x01(\x03Bt\xbaG\x11\x92\x02\x0e字典属性ID\xbaH]\xba\x01Z\n" +
-	"2system.admin.base.dict.set_item_status.id.required\x12\x1a字典属性ID不能为空\x1a\bthis > 0R\x02id\x12$\n" +
-	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xb5\x01\n" +
+	")system.admin.base.dict.delete.id.required\x12\x1a字典ID列表不能为空\x1a\x0fthis.size() > 0R\x02id\"\xb5\x01\n" +
 	"\x18SetBaseDictStatusRequest\x12s\n" +
 	"\x02id\x18\x01 \x01(\x03Bc\xbaG\v\x92\x02\b字典ID\xbaHR\xba\x01O\n" +
 	"-system.admin.base.dict.set_status.id.required\x12\x14字典ID不能为空\x1a\bthis > 0R\x02id\x12$\n" +
@@ -1449,38 +828,14 @@ const file_system_admin_v1_base_dict_proto_rawDesc = "" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12J\n" +
-	"\x05i18ns\x18\xca\x01 \x03(\v2\x19.system.admin.v1.BaseI18nB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\x05i18ns\"\x80\t\n" +
-	"\fBaseDictItem\x12!\n" +
-	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v字典项IDR\x02id\x12\x80\x01\n" +
-	"\adict_id\x18\x02 \x01(\x03Bg\xbaG\v\x92\x02\b字典ID\xbaHV\xba\x01S\n" +
-	"3system.admin.base.dict.entity.item.dict_id.required\x12\x12字典不能为空\x1a\bthis > 0R\x06dictId\x12\xbb\x01\n" +
-	"\x05value\x18\x03 \x01(\tB\xa4\x01\xbaG\x0f\x92\x02\f字典项值\xbaH\x8e\x01\xba\x01\x8a\x01\n" +
-	"/system.admin.base.dict.entity.item.value.length\x121字典项值不能为空且不超过 50 个字符\x1a$this.size() > 0 && this.size() <= 50R\x05value\x12\xc3\x01\n" +
-	"\x05label\x18\x04 \x01(\tB\xac\x01\xbaG\x12\x92\x02\x0f字典项标签\xbaH\x93\x01\xba\x01\x8f\x01\n" +
-	"/system.admin.base.dict.entity.item.label.length\x125字典项标签不能为空且不超过 100 个字符\x1a%this.size() > 0 && this.size() <= 100R\x05label\x12\xde\x01\n" +
-	"\btag_type\x18\x05 \x01(\tB\xc2\x01\xbaGG\x92\x02D标签类型，用于前端样式展示（如success、warning等）\xbaHu\xba\x01r\n" +
-	"6system.admin.base.dict.entity.item.tag_type.max_length\x12%标签类型不能超过 50 个字符\x1a\x11this.size() <= 50R\atagType\x12x\n" +
-	"\x04sort\x18\x06 \x01(\x05Bd\xbaG\t\x92\x02\x06排序\xbaHU\xba\x01R\n" +
-	"0system.admin.base.dict.entity.item.sort.required\x12\x14排序必须大于 0\x1a\bthis > 0R\x04sort\x127\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x122\n" +
-	"\n" +
-	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
-	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12J\n" +
-	"\x05i18ns\x18\xca\x01 \x03(\v2\x19.system.admin.v1.BaseI18nB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\x05i18ns2\x8e\x0e\n" +
+	"\x05i18ns\x18\xca\x01 \x03(\v2\x19.system.admin.v1.BaseI18nB\x18\xbaG\x15\x92\x02\x12非主语言翻译R\x05i18ns2\xa1\a\n" +
 	"\x0fBaseDictService\x12\x89\x01\n" +
 	"\x0eOptionBaseDict\x12&.system.admin.v1.OptionBaseDictRequest\x1a'.system.admin.v1.OptionBaseDictResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/dict/option\x12|\n" +
-	"\fPageBaseDict\x12$.system.admin.v1.PageBaseDictRequest\x1a%.system.admin.v1.PageBaseDictResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/base/dict\x12\x8d\x01\n" +
-	"\x10PageBaseDictItem\x12(.system.admin.v1.PageBaseDictItemRequest\x1a).system.admin.v1.PageBaseDictItemResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/dict-item\x12w\n" +
-	"\vGetBaseDict\x12#.system.admin.v1.GetBaseDictRequest\x1a\x1d.system.admin.v1.BaseDictForm\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/dict/{id}\x12\x88\x01\n" +
-	"\x0fGetBaseDictItem\x12'.system.admin.v1.GetBaseDictItemRequest\x1a!.system.admin.v1.BaseDictItemForm\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/admin/base/dict-item/{id}\x12|\n" +
-	"\x0eCreateBaseDict\x12&.system.admin.v1.CreateBaseDictRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\tbase_dict\"\x17/api/v1/admin/base/dict\x12\x8e\x01\n" +
-	"\x12CreateBaseDictItem\x12*.system.admin.v1.CreateBaseDictItemRequest\x1a\x16.google.protobuf.Empty\"4\x82\xd3\xe4\x93\x02.:\x0ebase_dict_item\"\x1c/api/v1/admin/base/dict-item\x12\x8b\x01\n" +
-	"\x0eUpdateBaseDict\x12&.system.admin.v1.UpdateBaseDictRequest\x1a\x16.google.protobuf.Empty\"9\x82\xd3\xe4\x93\x023:\tbase_dict\x1a&/api/v1/admin/base/dict/{base_dict.id}\x12\xa2\x01\n" +
-	"\x12UpdateBaseDictItem\x12*.system.admin.v1.UpdateBaseDictItemRequest\x1a\x16.google.protobuf.Empty\"H\x82\xd3\xe4\x93\x02B:\x0ebase_dict_item\x1a0/api/v1/admin/base/dict-item/{base_dict_item.id}\x12v\n" +
-	"\x0eDeleteBaseDict\x12&.system.admin.v1.DeleteBaseDictRequest\x1a\x16.google.protobuf.Empty\"$\x82\xd3\xe4\x93\x02\x1e*\x1c/api/v1/admin/base/dict/{id}\x12\x83\x01\n" +
-	"\x12DeleteBaseDictItem\x12*.system.admin.v1.DeleteBaseDictItemRequest\x1a\x16.google.protobuf.Empty\")\x82\xd3\xe4\x93\x02#*!/api/v1/admin/base/dict-item/{id}\x12\x93\x01\n" +
-	"\x15SetBaseDictItemStatus\x12-.system.admin.v1.SetBaseDictItemStatusRequest\x1a\x16.google.protobuf.Empty\"3\x82\xd3\xe4\x93\x02-:\x01*\x1a(/api/v1/admin/base/dict-item/{id}/status\x12\x86\x01\n" +
+	"\fPageBaseDict\x12$.system.admin.v1.PageBaseDictRequest\x1a%.system.admin.v1.PageBaseDictResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/v1/admin/base/dict\x12w\n" +
+	"\vGetBaseDict\x12#.system.admin.v1.GetBaseDictRequest\x1a\x1d.system.admin.v1.BaseDictForm\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/dict/{id}\x12|\n" +
+	"\x0eCreateBaseDict\x12&.system.admin.v1.CreateBaseDictRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\tbase_dict\"\x17/api/v1/admin/base/dict\x12\x8b\x01\n" +
+	"\x0eUpdateBaseDict\x12&.system.admin.v1.UpdateBaseDictRequest\x1a\x16.google.protobuf.Empty\"9\x82\xd3\xe4\x93\x023:\tbase_dict\x1a&/api/v1/admin/base/dict/{base_dict.id}\x12v\n" +
+	"\x0eDeleteBaseDict\x12&.system.admin.v1.DeleteBaseDictRequest\x1a\x16.google.protobuf.Empty\"$\x82\xd3\xe4\x93\x02\x1e*\x1c/api/v1/admin/base/dict/{id}\x12\x86\x01\n" +
 	"\x11SetBaseDictStatus\x12).system.admin.v1.SetBaseDictStatusRequest\x1a\x16.google.protobuf.Empty\".\x82\xd3\xe4\x93\x02(:\x01*\x1a#/api/v1/admin/base/dict/{id}/statusB\xcf\x01\n" +
 	"\x13com.system.admin.v1B\rBaseDictProtoP\x01ZKgithub.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1;adminv1\xa2\x02\x03SAX\xaa\x02\x0fSystem.Admin.V1\xca\x02\x0fSystem\\Admin\\V1\xe2\x02\x1bSystem\\Admin\\V1\\GPBMetadata\xea\x02\x11System::Admin::V1b\x06proto3"
 
@@ -1496,84 +851,55 @@ func file_system_admin_v1_base_dict_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_base_dict_proto_rawDescData
 }
 
-var file_system_admin_v1_base_dict_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
+var file_system_admin_v1_base_dict_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_system_admin_v1_base_dict_proto_goTypes = []any{
 	(*OptionBaseDictRequest)(nil),               // 0: system.admin.v1.OptionBaseDictRequest
 	(*OptionBaseDictResponse)(nil),              // 1: system.admin.v1.OptionBaseDictResponse
 	(*PageBaseDictRequest)(nil),                 // 2: system.admin.v1.PageBaseDictRequest
 	(*PageBaseDictResponse)(nil),                // 3: system.admin.v1.PageBaseDictResponse
-	(*PageBaseDictItemRequest)(nil),             // 4: system.admin.v1.PageBaseDictItemRequest
-	(*PageBaseDictItemResponse)(nil),            // 5: system.admin.v1.PageBaseDictItemResponse
-	(*GetBaseDictRequest)(nil),                  // 6: system.admin.v1.GetBaseDictRequest
-	(*BaseDictForm)(nil),                        // 7: system.admin.v1.BaseDictForm
-	(*GetBaseDictItemRequest)(nil),              // 8: system.admin.v1.GetBaseDictItemRequest
-	(*BaseDictItemForm)(nil),                    // 9: system.admin.v1.BaseDictItemForm
-	(*CreateBaseDictRequest)(nil),               // 10: system.admin.v1.CreateBaseDictRequest
-	(*CreateBaseDictItemRequest)(nil),           // 11: system.admin.v1.CreateBaseDictItemRequest
-	(*UpdateBaseDictRequest)(nil),               // 12: system.admin.v1.UpdateBaseDictRequest
-	(*UpdateBaseDictItemRequest)(nil),           // 13: system.admin.v1.UpdateBaseDictItemRequest
-	(*DeleteBaseDictRequest)(nil),               // 14: system.admin.v1.DeleteBaseDictRequest
-	(*DeleteBaseDictItemRequest)(nil),           // 15: system.admin.v1.DeleteBaseDictItemRequest
-	(*SetBaseDictItemStatusRequest)(nil),        // 16: system.admin.v1.SetBaseDictItemStatusRequest
-	(*SetBaseDictStatusRequest)(nil),            // 17: system.admin.v1.SetBaseDictStatusRequest
-	(*BaseDict)(nil),                            // 18: system.admin.v1.BaseDict
-	(*BaseDictItem)(nil),                        // 19: system.admin.v1.BaseDictItem
-	(*OptionBaseDictResponse_BaseDictItem)(nil), // 20: system.admin.v1.OptionBaseDictResponse.BaseDictItem
-	(*OptionBaseDictResponse_BaseDict)(nil),     // 21: system.admin.v1.OptionBaseDictResponse.BaseDict
-	(v1.Status)(0),                              // 22: common.v1.Status
-	(*BaseI18n)(nil),                            // 23: system.admin.v1.BaseI18n
-	(*emptypb.Empty)(nil),                       // 24: google.protobuf.Empty
+	(*GetBaseDictRequest)(nil),                  // 4: system.admin.v1.GetBaseDictRequest
+	(*BaseDictForm)(nil),                        // 5: system.admin.v1.BaseDictForm
+	(*CreateBaseDictRequest)(nil),               // 6: system.admin.v1.CreateBaseDictRequest
+	(*UpdateBaseDictRequest)(nil),               // 7: system.admin.v1.UpdateBaseDictRequest
+	(*DeleteBaseDictRequest)(nil),               // 8: system.admin.v1.DeleteBaseDictRequest
+	(*SetBaseDictStatusRequest)(nil),            // 9: system.admin.v1.SetBaseDictStatusRequest
+	(*BaseDict)(nil),                            // 10: system.admin.v1.BaseDict
+	(*OptionBaseDictResponse_BaseDictItem)(nil), // 11: system.admin.v1.OptionBaseDictResponse.BaseDictItem
+	(*OptionBaseDictResponse_BaseDict)(nil),     // 12: system.admin.v1.OptionBaseDictResponse.BaseDict
+	(v1.Status)(0),                              // 13: common.v1.Status
+	(*BaseI18n)(nil),                            // 14: system.admin.v1.BaseI18n
+	(*emptypb.Empty)(nil),                       // 15: google.protobuf.Empty
 }
 var file_system_admin_v1_base_dict_proto_depIdxs = []int32{
-	21, // 0: system.admin.v1.OptionBaseDictResponse.base_dicts:type_name -> system.admin.v1.OptionBaseDictResponse.BaseDict
-	22, // 1: system.admin.v1.PageBaseDictRequest.status:type_name -> common.v1.Status
-	18, // 2: system.admin.v1.PageBaseDictResponse.base_dicts:type_name -> system.admin.v1.BaseDict
-	22, // 3: system.admin.v1.PageBaseDictItemRequest.status:type_name -> common.v1.Status
-	19, // 4: system.admin.v1.PageBaseDictItemResponse.base_dict_items:type_name -> system.admin.v1.BaseDictItem
-	23, // 5: system.admin.v1.BaseDictForm.i18ns:type_name -> system.admin.v1.BaseI18n
-	22, // 6: system.admin.v1.BaseDictForm.status:type_name -> common.v1.Status
-	23, // 7: system.admin.v1.BaseDictItemForm.i18ns:type_name -> system.admin.v1.BaseI18n
-	22, // 8: system.admin.v1.BaseDictItemForm.status:type_name -> common.v1.Status
-	7,  // 9: system.admin.v1.CreateBaseDictRequest.base_dict:type_name -> system.admin.v1.BaseDictForm
-	9,  // 10: system.admin.v1.CreateBaseDictItemRequest.base_dict_item:type_name -> system.admin.v1.BaseDictItemForm
-	7,  // 11: system.admin.v1.UpdateBaseDictRequest.base_dict:type_name -> system.admin.v1.BaseDictForm
-	9,  // 12: system.admin.v1.UpdateBaseDictItemRequest.base_dict_item:type_name -> system.admin.v1.BaseDictItemForm
-	22, // 13: system.admin.v1.BaseDict.status:type_name -> common.v1.Status
-	23, // 14: system.admin.v1.BaseDict.i18ns:type_name -> system.admin.v1.BaseI18n
-	22, // 15: system.admin.v1.BaseDictItem.status:type_name -> common.v1.Status
-	23, // 16: system.admin.v1.BaseDictItem.i18ns:type_name -> system.admin.v1.BaseI18n
-	20, // 17: system.admin.v1.OptionBaseDictResponse.BaseDict.items:type_name -> system.admin.v1.OptionBaseDictResponse.BaseDictItem
-	0,  // 18: system.admin.v1.BaseDictService.OptionBaseDict:input_type -> system.admin.v1.OptionBaseDictRequest
-	2,  // 19: system.admin.v1.BaseDictService.PageBaseDict:input_type -> system.admin.v1.PageBaseDictRequest
-	4,  // 20: system.admin.v1.BaseDictService.PageBaseDictItem:input_type -> system.admin.v1.PageBaseDictItemRequest
-	6,  // 21: system.admin.v1.BaseDictService.GetBaseDict:input_type -> system.admin.v1.GetBaseDictRequest
-	8,  // 22: system.admin.v1.BaseDictService.GetBaseDictItem:input_type -> system.admin.v1.GetBaseDictItemRequest
-	10, // 23: system.admin.v1.BaseDictService.CreateBaseDict:input_type -> system.admin.v1.CreateBaseDictRequest
-	11, // 24: system.admin.v1.BaseDictService.CreateBaseDictItem:input_type -> system.admin.v1.CreateBaseDictItemRequest
-	12, // 25: system.admin.v1.BaseDictService.UpdateBaseDict:input_type -> system.admin.v1.UpdateBaseDictRequest
-	13, // 26: system.admin.v1.BaseDictService.UpdateBaseDictItem:input_type -> system.admin.v1.UpdateBaseDictItemRequest
-	14, // 27: system.admin.v1.BaseDictService.DeleteBaseDict:input_type -> system.admin.v1.DeleteBaseDictRequest
-	15, // 28: system.admin.v1.BaseDictService.DeleteBaseDictItem:input_type -> system.admin.v1.DeleteBaseDictItemRequest
-	16, // 29: system.admin.v1.BaseDictService.SetBaseDictItemStatus:input_type -> system.admin.v1.SetBaseDictItemStatusRequest
-	17, // 30: system.admin.v1.BaseDictService.SetBaseDictStatus:input_type -> system.admin.v1.SetBaseDictStatusRequest
-	1,  // 31: system.admin.v1.BaseDictService.OptionBaseDict:output_type -> system.admin.v1.OptionBaseDictResponse
-	3,  // 32: system.admin.v1.BaseDictService.PageBaseDict:output_type -> system.admin.v1.PageBaseDictResponse
-	5,  // 33: system.admin.v1.BaseDictService.PageBaseDictItem:output_type -> system.admin.v1.PageBaseDictItemResponse
-	7,  // 34: system.admin.v1.BaseDictService.GetBaseDict:output_type -> system.admin.v1.BaseDictForm
-	9,  // 35: system.admin.v1.BaseDictService.GetBaseDictItem:output_type -> system.admin.v1.BaseDictItemForm
-	24, // 36: system.admin.v1.BaseDictService.CreateBaseDict:output_type -> google.protobuf.Empty
-	24, // 37: system.admin.v1.BaseDictService.CreateBaseDictItem:output_type -> google.protobuf.Empty
-	24, // 38: system.admin.v1.BaseDictService.UpdateBaseDict:output_type -> google.protobuf.Empty
-	24, // 39: system.admin.v1.BaseDictService.UpdateBaseDictItem:output_type -> google.protobuf.Empty
-	24, // 40: system.admin.v1.BaseDictService.DeleteBaseDict:output_type -> google.protobuf.Empty
-	24, // 41: system.admin.v1.BaseDictService.DeleteBaseDictItem:output_type -> google.protobuf.Empty
-	24, // 42: system.admin.v1.BaseDictService.SetBaseDictItemStatus:output_type -> google.protobuf.Empty
-	24, // 43: system.admin.v1.BaseDictService.SetBaseDictStatus:output_type -> google.protobuf.Empty
-	31, // [31:44] is the sub-list for method output_type
-	18, // [18:31] is the sub-list for method input_type
-	18, // [18:18] is the sub-list for extension type_name
-	18, // [18:18] is the sub-list for extension extendee
-	0,  // [0:18] is the sub-list for field type_name
+	12, // 0: system.admin.v1.OptionBaseDictResponse.base_dicts:type_name -> system.admin.v1.OptionBaseDictResponse.BaseDict
+	13, // 1: system.admin.v1.PageBaseDictRequest.status:type_name -> common.v1.Status
+	10, // 2: system.admin.v1.PageBaseDictResponse.base_dicts:type_name -> system.admin.v1.BaseDict
+	14, // 3: system.admin.v1.BaseDictForm.i18ns:type_name -> system.admin.v1.BaseI18n
+	13, // 4: system.admin.v1.BaseDictForm.status:type_name -> common.v1.Status
+	5,  // 5: system.admin.v1.CreateBaseDictRequest.base_dict:type_name -> system.admin.v1.BaseDictForm
+	5,  // 6: system.admin.v1.UpdateBaseDictRequest.base_dict:type_name -> system.admin.v1.BaseDictForm
+	13, // 7: system.admin.v1.BaseDict.status:type_name -> common.v1.Status
+	14, // 8: system.admin.v1.BaseDict.i18ns:type_name -> system.admin.v1.BaseI18n
+	11, // 9: system.admin.v1.OptionBaseDictResponse.BaseDict.items:type_name -> system.admin.v1.OptionBaseDictResponse.BaseDictItem
+	0,  // 10: system.admin.v1.BaseDictService.OptionBaseDict:input_type -> system.admin.v1.OptionBaseDictRequest
+	2,  // 11: system.admin.v1.BaseDictService.PageBaseDict:input_type -> system.admin.v1.PageBaseDictRequest
+	4,  // 12: system.admin.v1.BaseDictService.GetBaseDict:input_type -> system.admin.v1.GetBaseDictRequest
+	6,  // 13: system.admin.v1.BaseDictService.CreateBaseDict:input_type -> system.admin.v1.CreateBaseDictRequest
+	7,  // 14: system.admin.v1.BaseDictService.UpdateBaseDict:input_type -> system.admin.v1.UpdateBaseDictRequest
+	8,  // 15: system.admin.v1.BaseDictService.DeleteBaseDict:input_type -> system.admin.v1.DeleteBaseDictRequest
+	9,  // 16: system.admin.v1.BaseDictService.SetBaseDictStatus:input_type -> system.admin.v1.SetBaseDictStatusRequest
+	1,  // 17: system.admin.v1.BaseDictService.OptionBaseDict:output_type -> system.admin.v1.OptionBaseDictResponse
+	3,  // 18: system.admin.v1.BaseDictService.PageBaseDict:output_type -> system.admin.v1.PageBaseDictResponse
+	5,  // 19: system.admin.v1.BaseDictService.GetBaseDict:output_type -> system.admin.v1.BaseDictForm
+	15, // 20: system.admin.v1.BaseDictService.CreateBaseDict:output_type -> google.protobuf.Empty
+	15, // 21: system.admin.v1.BaseDictService.UpdateBaseDict:output_type -> google.protobuf.Empty
+	15, // 22: system.admin.v1.BaseDictService.DeleteBaseDict:output_type -> google.protobuf.Empty
+	15, // 23: system.admin.v1.BaseDictService.SetBaseDictStatus:output_type -> google.protobuf.Empty
+	17, // [17:24] is the sub-list for method output_type
+	10, // [10:17] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_dict_proto_init() }
@@ -1583,14 +909,13 @@ func file_system_admin_v1_base_dict_proto_init() {
 	}
 	file_system_admin_v1_base_i18n_proto_init()
 	file_system_admin_v1_base_dict_proto_msgTypes[2].OneofWrappers = []any{}
-	file_system_admin_v1_base_dict_proto_msgTypes[4].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_base_dict_proto_rawDesc), len(file_system_admin_v1_base_dict_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   22,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -1,32 +1,27 @@
 logger:
-  type: zap # Options: std, file, fluent, zap, logrus, aliyun, tencent
-
-  fluent:
-    endpoint: "tcp://localhost:24224"
-
-  zap:
-    level: "debug"
-    filepath: "./logs"
-    max_size: 1
-    max_age: 30
-    max_backups: 5
-    enable_console: true
-
-  logrus:
-    level: "debug"
-    formatter: "text"
-    timestamp_format: "2006-01-02 15:04:05"
-    disable_colors: false
-    disable_timestamp: false
-
-  aliyun:
-    endpoint: ""
-    project: ""
-    access_key: "<access_key>"
-    access_secret: "<access_secret>"
-
-  tencent:
-    endpoint: ""
-    topic_id:
-    access_key: "<access_key>"
-    access_secret: "<access_secret>"
+    type: zap
+    zap:
+        enable_console: true
+        filepath: ./logs
+        level: debug
+        max_age: 30
+        max_backups: 5
+        max_size: 1
+    aliyun:
+        access_key: ENC[-9cZHBzDXBzf7Hs1wFjWaVeXlBiH7PlNnh3WJzIxjal4nm08Q5JFOg]
+        access_secret: ENC[S-LTzw1xHx4TLL41Jy1soPqWafM2QrjirG7r2BxsIquBQbWgQEUtrExrpQ]
+        endpoint: ""
+        project: ""
+    fluent:
+        endpoint: tcp://localhost:24224
+    logrus:
+        disable_colors: false
+        disable_timestamp: false
+        formatter: text
+        level: debug
+        timestamp_format: "2006-01-02 15:04:05"
+    tencent:
+        access_key: ENC[sJZE7rYsl8XTXGIcjpN9f7_E-uY3rPh0PZVxIF1zG7hbYyMaCx3mNg]
+        access_secret: ENC[n-TzMlrSgodSu097hPCue2Vdhh2zO1gS6Se-UCqMsT98Hnqq8h9BpKtGiQ]
+        endpoint: ""
+        topic_id: null

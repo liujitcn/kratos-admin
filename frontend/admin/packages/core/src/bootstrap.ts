@@ -28,7 +28,8 @@ import { useDictStore } from "@/stores/modules/dict";
 import { useTabsStore } from "@/stores/modules/tabs";
 import { useUserStore } from "@/stores/modules/user";
 import { getRouteMetaTitle } from "@/utils";
-import { defLanguageService } from "./api/base/language";
+import { defLanguageService } from "./api/base/v1/language";
+import { setAdminDocumentTitle } from "./documentTitle";
 
 /**
  * 管理端启动参数。
@@ -44,6 +45,8 @@ export interface AdminBootstrapOptions {
  * 创建并启动管理端应用，业务项目可通过 modules 注册自己的页面。
  */
 export async function bootstrapAdminApp(options: AdminBootstrapOptions = {}) {
+  // 旧版本曾持久化访问令牌，启动时主动删除遗留认证状态。
+  window.localStorage.removeItem("admin-user");
   const modules = [kratosAdminModule, ...(options.modules ?? [])];
   registerAdminModules(modules);
   registerLocaleMessages(modules);
@@ -79,6 +82,7 @@ export async function bootstrapAdminApp(options: AdminBootstrapOptions = {}) {
   } catch {
     // 配置接口失败时继续使用本地默认配置，避免阻断应用启动。
   }
+  updateDocumentTitle();
 
   app.mount(options.mount ?? "#app");
   return app;
@@ -91,7 +95,7 @@ async function refreshLocalizedRuntimeData() {
   const dictStore = useDictStore(pinia);
   const configStore = useConfigStore(pinia);
   await Promise.allSettled([configStore.loadDisplayConfig()]);
-  if (userStore.token || userStore.refreshToken) {
+  if (userStore.token) {
     await Promise.allSettled([authStore.getAuthMenuList(), dictStore.updateDictionaryCache()]);
     syncLocalizedRouteState();
   }
@@ -119,6 +123,5 @@ function updateDocumentTitle() {
   const route = router.currentRoute.value;
   const titleKey = typeof route.meta.titleKey === "string" ? route.meta.titleKey : "";
   const routeTitle = titleKey ? t(titleKey) : String(route.meta.title ?? "");
-  const appTitle = import.meta.env.VITE_GLOB_APP_TITLE;
-  document.title = routeTitle ? `${routeTitle} - ${appTitle}` : appTitle;
+  setAdminDocumentTitle(routeTitle);
 }

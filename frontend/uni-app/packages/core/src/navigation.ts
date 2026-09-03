@@ -1,5 +1,5 @@
 import { computed, readonly, ref } from 'vue'
-import { defBaseMenuService } from './api/base/menu'
+import { defBaseMenuService } from './api/system/app/v1/base_menu'
 import { hasValidToken } from './utils/auth'
 import { navigateToLogin } from './utils/navigation'
 import { resolveStaticView } from './module'
@@ -45,10 +45,10 @@ export interface ResolvedAppRoute {
 const ANONYMOUS_CACHE_KEY = 'kratos-uni-app:navigation:anonymous'
 const AUTHENTICATED_CACHE_KEY = 'kratos-uni-app:navigation:authenticated'
 /** 固定移动端菜单根目录编号。 */
-export const APP_MENU_ROOT_ID = 999
+export const APP_MENU_ROOT_ID = 99000000
 const createDefaultMenus = (): AppMenu[] => [
   {
-    id: 99901,
+    id: 99010000,
     parentId: APP_MENU_ROOT_ID,
     name: 'AppHome',
     path: 'app/home',
@@ -60,7 +60,7 @@ const createDefaultMenus = (): AppMenu[] => [
     selectedIcon: 'HOME_SELECTED',
   },
   {
-    id: 9990904,
+    id: 99040000,
     parentId: APP_MENU_ROOT_ID,
     name: 'AppMessage',
     path: 'app/message',
@@ -72,7 +72,7 @@ const createDefaultMenus = (): AppMenu[] => [
     selectedIcon: 'MESSAGE_SELECTED',
   },
   {
-    id: 99909,
+    id: 99090000,
     parentId: APP_MENU_ROOT_ID,
     name: 'AppMy',
     path: 'app/my',
@@ -84,8 +84,8 @@ const createDefaultMenus = (): AppMenu[] => [
     selectedIcon: 'USER_SELECTED',
   },
   {
-    id: 9990101,
-    parentId: 99901,
+    id: 99010100,
+    parentId: 99010000,
     name: 'AppLogin',
     path: 'app/login',
     viewKey: 'LOGIN',
@@ -94,8 +94,8 @@ const createDefaultMenus = (): AppMenu[] => [
     inTabBar: false,
   },
   {
-    id: 999010101,
-    parentId: 9990101,
+    id: 99010101,
+    parentId: 99010100,
     name: 'AppProtocol',
     path: 'app/protocol/:type',
     viewKey: 'PROTOCOL',
@@ -104,8 +104,8 @@ const createDefaultMenus = (): AppMenu[] => [
     inTabBar: false,
   },
   {
-    id: 9990901,
-    parentId: 99909,
+    id: 99090100,
+    parentId: 99090000,
     name: 'AppProfile',
     path: 'app/profile',
     viewKey: 'PROFILE',
@@ -114,8 +114,8 @@ const createDefaultMenus = (): AppMenu[] => [
     inTabBar: false,
   },
   {
-    id: 9990902,
-    parentId: 99909,
+    id: 99090200,
+    parentId: 99090000,
     name: 'AppSettings',
     path: 'app/settings',
     viewKey: 'SETTINGS',
@@ -124,8 +124,8 @@ const createDefaultMenus = (): AppMenu[] => [
     inTabBar: false,
   },
   {
-    id: 9990903,
-    parentId: 99909,
+    id: 99090300,
+    parentId: 99090000,
     name: 'AppAi',
     path: 'app/ai',
     viewKey: 'AI',
@@ -134,8 +134,8 @@ const createDefaultMenus = (): AppMenu[] => [
     inTabBar: false,
   },
   {
-    id: 9990102,
-    parentId: 99901,
+    id: 99010200,
+    parentId: 99010000,
     name: 'AppWebView',
     path: 'app/webview',
     viewKey: 'WEBVIEW',

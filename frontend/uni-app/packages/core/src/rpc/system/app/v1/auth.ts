@@ -6,6 +6,7 @@
 
 /* eslint-disable */
 import type { Empty } from "../../../google/protobuf/empty";
+import type { BaseUserIDType } from "../../common/v1/common";
 
 /** 获取用户资料请求参数 */
 export interface GetUserProfileRequest {
@@ -21,6 +22,12 @@ export interface UserProfileForm {
   gender: number;
   /** 手机号 */
   phone: string;
+  /** 邮箱 */
+  email: string;
+  /** 证件类型：枚举【BaseUserIDType】 */
+  id_type: BaseUserIDType;
+  /** 证件号 */
+  id_code: string;
   /** 头像 */
   avatar: string;
 }

@@ -9,12 +9,10 @@ export interface PasswordStrengthResult {
   strengthScore: number;
   /** 强度等级。 */
   level: PasswordStrengthLevel;
-  /** 是否达到允许提交的最高强度。 */
-  isValid: boolean;
 }
 
 /**
- * 计算密码强度结果，供表单展示和校验统一复用。
+ * 计算密码强度结果，供表单展示使用；最终规则由服务端密码策略校验。
  *
  * @param password 当前密码
  * @returns 密码强度分析结果
@@ -24,14 +22,13 @@ export function getPasswordStrength(password?: string): PasswordStrengthResult {
     return {
       ruleScore: 0,
       strengthScore: 0,
-      level: "empty",
-      isValid: false
+      level: "empty"
     };
   }
 
   let ruleScore = 0;
-  if (password.length >= 8) ruleScore += 1;
-  if (/[a-z]/.test(password) && /[A-Z]/.test(password)) ruleScore += 1;
+  if (/[a-z]/.test(password)) ruleScore += 1;
+  if (/[A-Z]/.test(password)) ruleScore += 1;
   if (/\d/.test(password)) ruleScore += 1;
   if (/[^A-Za-z0-9]/.test(password)) ruleScore += 1;
 
@@ -39,33 +36,19 @@ export function getPasswordStrength(password?: string): PasswordStrengthResult {
     return {
       ruleScore,
       strengthScore: 3,
-      level: "high",
-      isValid: true
+      level: "high"
     };
   }
   if (ruleScore === 3) {
     return {
       ruleScore,
       strengthScore: 2,
-      level: "medium",
-      isValid: false
+      level: "medium"
     };
   }
   return {
     ruleScore,
     strengthScore: 1,
-    level: "low",
-    isValid: false
+    level: "low"
   };
-}
-
-/**
- * 校验密码是否达到最高强度，便于表单规则直接复用。
- *
- * @param password 当前密码
- * @returns 校验结果
- */
-export function validatePasswordStrengthValue(password?: string) {
-  const result = getPasswordStrength(password);
-  return { valid: result.isValid };
 }

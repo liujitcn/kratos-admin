@@ -126,7 +126,7 @@
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { Document, Setting } from "@element-plus/icons-vue";
 import { useRoute, useRouter } from "vue-router";
-import { t } from "@liujitcn/kratos-admin-core";
+import { setAdminDocumentTitle, t } from "@liujitcn/kratos-admin-core";
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import ProForm from "@liujitcn/kratos-admin-core/components/ProForm/index.vue";
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
@@ -134,9 +134,9 @@ import type { ColumnProps } from "@liujitcn/kratos-admin-core/components/ProTabl
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { useTabsStore } from "@liujitcn/kratos-admin-core/stores/runtime";
-import { defCodeGenColumnService } from "@liujitcn/kratos-admin-system/api/system/code_gen_column";
-import { defCodeGenProtoService } from "@liujitcn/kratos-admin-system/api/system/code_gen_proto";
-import { defCodeGenTableService } from "@liujitcn/kratos-admin-system/api/system/code_gen_table";
+import { defCodeGenColumnService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen_column";
+import { defCodeGenProtoService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen_proto";
+import { defCodeGenTableService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen_table";
 import type {
   CodeGenProto,
   CodeGenProtoCheck,
@@ -328,13 +328,11 @@ async function handleQuery() {
     databaseTables.value = [];
     Object.keys(targetColumnOptions).forEach(key => delete targetColumnOptions[key]);
     if (!tableId.value) return;
-    const [table, tableResponse] = await Promise.all([
-      defCodeGenTableService.GetCodeGenTable({ id: tableId.value }),
-      defCodeGenTableService.ListCodeGenDatabaseTable({})
-    ]);
+    const table = await defCodeGenTableService.GetCodeGenTable({ id: tableId.value });
+    const tableResponse = await defCodeGenTableService.ListCodeGenDatabaseTable({ source_name: table.source_name });
     Object.assign(formData, table);
     databaseTables.value = tableResponse.tables ?? [];
-    const columnResponse = await defCodeGenColumnService.ListCodeGenDatabaseColumn({ table_name: formData.name });
+    const columnResponse = await defCodeGenColumnService.ListCodeGenDatabaseColumn({ source_name: formData.source_name, table_name: formData.name });
     targetColumnOptions[formData.name] = createColumnOptions(columnResponse.columns ?? []);
     await loadProtoChecks();
     syncWorkspaceTitle();
@@ -352,7 +350,7 @@ function syncWorkspaceTitle() {
     ? t("system.code.gen.proto.title.workspace_with_table", { table: tableTitle })
     : t("system.code.gen.proto.title.workspace");
   tabsStore.setTabsTitle(title);
-  document.title = `${title} - ${import.meta.env.VITE_GLOB_APP_TITLE}`;
+  setAdminDocumentTitle(title);
 }
 
 /**
@@ -533,7 +531,7 @@ async function loadTargetColumnOptions(tableName: string) {
   if (!tableName || targetColumnOptions[tableName] || loadingTargetColumns.has(tableName)) return;
   loadingTargetColumns.add(tableName);
   try {
-    const data = await defCodeGenColumnService.ListCodeGenDatabaseColumn({ table_name: tableName });
+    const data = await defCodeGenColumnService.ListCodeGenDatabaseColumn({ source_name: formData.source_name, table_name: tableName });
     targetColumnOptions[tableName] = createColumnOptions(data.columns ?? []);
   } finally {
     loadingTargetColumns.delete(tableName);
@@ -717,7 +715,7 @@ onMounted(() => {
   white-space: pre;
   background: var(--admin-page-card-bg-soft);
   border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: 4px;
+  border-radius: var(--admin-page-radius);
 }
 .code-gen-proto-capability-popover__item {
   display: grid;

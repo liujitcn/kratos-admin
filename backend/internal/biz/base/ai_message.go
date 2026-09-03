@@ -258,7 +258,7 @@ func (c *AiMessageCase) prepareNewAiMessage(ctx context.Context, req *basev1.Sen
 		return nil, nil, "", nil, nil, nil, "", err
 	}
 	var aiAttachments []ai.Attachment
-	aiAttachments, err = c.buildAiAttachments(ctx, attachments)
+	aiAttachments, err = c.buildAiAttachments(attachments)
 	if err != nil {
 		return nil, nil, "", nil, nil, nil, "", err
 	}
@@ -329,7 +329,7 @@ func (c *AiMessageCase) regenerateAiMessageWithContent(ctx context.Context, sess
 
 	var err error
 	var aiAttachments []ai.Attachment
-	aiAttachments, err = c.buildAiAttachments(ctx, attachments)
+	aiAttachments, err = c.buildAiAttachments(attachments)
 	if err != nil {
 		return nil, err
 	}
@@ -370,7 +370,7 @@ func (c *AiMessageCase) regenerateAiMessageWithContent(ctx context.Context, sess
 }
 
 // buildAiAttachments 读取附件内容，构造 AI 助手输入附件。
-func (c *AiMessageCase) buildAiAttachments(ctx context.Context, attachments []*basev1.AiAttachment) ([]ai.Attachment, error) {
+func (c *AiMessageCase) buildAiAttachments(attachments []*basev1.AiAttachment) ([]ai.Attachment, error) {
 	if len(attachments) == 0 {
 		return []ai.Attachment{}, nil
 	}

@@ -89,7 +89,7 @@ export const moduleManifest = [coreModule, systemModule]
 GET /api/v1/app/base/menu
 ```
 
-请求 service path 为 `/v1/app/base/menu`，由统一 `/api` base 拼接。`base_menu.id = 999` 是隐藏的移动端固定根目录，后端逐层查询它下面的启用页面并保持扁平响应，core 再按 `parent_id` 构建菜单树；也可以通过 `setAppNavigationAdapter()` 接入兼容契约。根目录只关联移动菜单查询，每个页面菜单分别关联该页面实际调用的受保护 API。
+请求 service path 为 `/v1/app/base/menu`，由统一 `/api` base 拼接。`base_menu.id = 99000000` 是隐藏的移动端固定根目录，后端逐层查询它下面的启用页面并保持扁平响应，core 再按 `parent_id` 构建菜单树；也可以通过 `setAppNavigationAdapter()` 接入兼容契约。根目录只关联移动菜单查询，每个页面菜单分别关联该页面实际调用的受保护 API。
 
 菜单配置约束：
 
@@ -99,10 +99,10 @@ GET /api/v1/app/base/menu
 - 移动端配置统一放在 `meta.app`，不增加独立表字段。
 - `meta.app.view_key` 必须已由模块注册，接口不能直接下发任意组件路径。
 - `meta.app.access` 支持 `PUBLIC`、`GUEST_ONLY`、`AUTHENTICATED`，与管理端登录权限语义一致。
-- 根目录的二级页面固定作为 tab，首页使用 `99901`、我的使用 `99909`，`99902` 至 `99908` 预留给业务 tab。
+- 根目录的二级页面固定作为 tab，首页使用 `99010000`、我的使用 `99090000`，`99020000` 至 `99080000` 预留给业务 tab。
 - 二级 tab 的 `meta.app.in_tab_bar` 固定为真，数量只能为 0 或 2–5 项；选中图标使用 `meta.app.selected_icon`，下级页面固定为非 tab。
 
-管理端菜单表单递归识别 `999` 的整棵移动端子树，显示逻辑路径、逻辑名称、视图键、访问模式、移动端图标及该页面 API 权限；提交时根据层级自动设置 tab，并把移动端配置统一包装到现有 `meta.app`。
+管理端菜单表单递归识别 `99000000` 的整棵移动端子树，显示逻辑路径、逻辑名称、视图键、访问模式、移动端图标及该页面 API 权限；提交时根据层级自动设置 tab，并把移动端配置统一包装到现有 `meta.app`。
 
 导航配置按匿名态和登录态分别缓存。新配置会整份校验后原子切换；远端失败时使用当前身份最后一次成功缓存，没有缓存时使用本地默认菜单。
 

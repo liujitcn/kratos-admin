@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+
+// BaseTableBackupRestoreService 手工恢复数据库备份。
+service BaseTableBackupRestoreService {
+  // 查询备份恢复记录分页列表。
+  rpc PageBaseTableBackupRestore(PageBaseTableBackupRestoreRequest) returns (PageBaseTableBackupRestoreResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/table-backup-restore"};
+  }
+
+  // 查询备份恢复记录。
+  rpc GetBaseTableBackupRestore(GetBaseTableBackupRestoreRequest) returns (BaseTableBackupRestore) {
+    option (google.api.http) = {get: "/api/v1/admin/base/table-backup-restore/{id}"};
+  }
+
+  // 手工执行数据库备份恢复。
+  rpc ExecuteBaseTableBackupRestore(ExecuteBaseTableBackupRestoreRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {post: "/api/v1/admin/base/table-backup-restore", body: "base_table_backup_restore"};
+  }
+}
+
+// BaseTableBackupRestoreMode 表示备份恢复模式。
+enum BaseTableBackupRestoreMode {
+  // 未指定备份恢复模式。
+  BASE_TABLE_BACKUP_RESTORE_MODE_UNSPECIFIED = 0;
+  // 只校验备份，不写入数据库。
+  BASE_TABLE_BACKUP_RESTORE_MODE_VERIFY_ONLY = 1;
+  // 完整恢复数据库。
+  BASE_TABLE_BACKUP_RESTORE_MODE_FULL = 2;
+}
+
+// BaseTableBackupRestoreStatus 表示备份恢复状态。
+enum BaseTableBackupRestoreStatus {
+  // 未指定备份恢复状态。
+  BASE_TABLE_BACKUP_RESTORE_STATUS_UNSPECIFIED = 0;
+  // 等待人工确认。
+  BASE_TABLE_BACKUP_RESTORE_STATUS_PENDING = 1;
+  // 执行中。
+  BASE_TABLE_BACKUP_RESTORE_STATUS_RUNNING = 2;
+  // 执行成功。
+  BASE_TABLE_BACKUP_RESTORE_STATUS_SUCCESS = 3;
+  // 执行失败。
+  BASE_TABLE_BACKUP_RESTORE_STATUS_FAILED = 4;
+}
+
+// BaseTableBackupRestore 数据库备份恢复记录。
+message BaseTableBackupRestore {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "恢复记录ID"}]; // 恢复记录ID
+  int64 backup_record_id = 2 [(gnostic.openapi.v3.property) = {description: "备份记录ID"}]; // 备份记录ID
+  string source_name = 3 [(gnostic.openapi.v3.property) = {description: "源数据源"}]; // 源数据源
+  string target_source_name = 4 [(gnostic.openapi.v3.property) = {description: "目标数据源"}]; // 目标数据源
+  string target_database = 5 [(gnostic.openapi.v3.property) = {description: "目标数据库"}]; // 目标数据库
+  BaseTableBackupRestoreMode restore_mode = 6 [(gnostic.openapi.v3.property) = {description: "恢复模式"}]; // 恢复模式
+  int64 operator_id = 7 [(gnostic.openapi.v3.property) = {description: "操作人ID"}]; // 操作人ID
+  BaseTableBackupRestoreStatus status = 8 [(gnostic.openapi.v3.property) = {description: "恢复状态"}]; // 恢复状态
+  string error = 9 [(gnostic.openapi.v3.property) = {description: "错误信息"}]; // 错误信息
+  string started_at = 10 [(gnostic.openapi.v3.property) = {description: "开始时间"}]; // 开始时间
+  string finished_at = 11 [(gnostic.openapi.v3.property) = {description: "完成时间"}]; // 完成时间
+}
+
+// PageBaseTableBackupRestoreRequest 数据库备份恢复记录分页请求。
+message PageBaseTableBackupRestoreRequest { optional BaseTableBackupRestoreStatus status = 1 [(gnostic.openapi.v3.property) = {description: "恢复状态"}]; int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}]; int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数", default: {number: 10}}]; } // 数据库备份恢复记录分页请求
+
+// PageBaseTableBackupRestoreResponse 数据库备份恢复记录分页响应。
+message PageBaseTableBackupRestoreResponse { repeated BaseTableBackupRestore base_table_backup_restores = 1 [(gnostic.openapi.v3.property) = {description: "恢复记录列表"}]; int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; } // 数据库备份恢复记录分页响应
+
+// GetBaseTableBackupRestoreRequest 查询数据库备份恢复记录请求。
+message GetBaseTableBackupRestoreRequest { int64 id = 1 [(gnostic.openapi.v3.property) = {description: "恢复记录ID"}]; } // 恢复记录ID
+
+// ExecuteBaseTableBackupRestoreRequest 执行数据库备份恢复请求。
+message ExecuteBaseTableBackupRestoreRequest { BaseTableBackupRestore base_table_backup_restore = 1 [(gnostic.openapi.v3.property) = {description: "恢复请求"}, (buf.validate.field).required = true]; } // 恢复请求

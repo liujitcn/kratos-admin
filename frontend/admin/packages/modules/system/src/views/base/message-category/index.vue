@@ -26,7 +26,7 @@ import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-c
 import { DEFAULT_TENANT_CODE } from "@liujitcn/kratos-admin-core/tenant";
 import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { t } from "@liujitcn/kratos-admin-core";
-import { defBaseMessageCategoryService } from "@liujitcn/kratos-admin-system/api/system/base_message_category";
+import { defBaseMessageCategoryService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_message_category";
 import type {
   BaseMessageCategory,
   BaseMessageCategoryForm,
@@ -207,7 +207,7 @@ const columns = computed<ColumnProps[]>(() => [
           display: "inline-block",
           width: "18px",
           height: "18px",
-          borderRadius: "4px",
+          borderRadius: "var(--admin-page-radius)",
           backgroundColor: (scope.row as BaseMessageCategory).color || "var(--el-fill-color-light)"
         }
       })
@@ -270,7 +270,7 @@ const headerActions = computed<HeaderActionProps[]>(() => [
     onClick: () => openDialog()
   },
   {
-    label: t("common.action.batch_delete"),
+    label: t("common.action.delete"),
     type: "danger",
     icon: Delete,
     hidden: !isDefaultTenant.value || !BUTTONS.value["base:message-category:delete"],
@@ -324,18 +324,49 @@ async function handleSubmit() {
 
 /** 删除消息分类。 */
 async function handleDelete(value: BaseMessageCategory | BaseMessageCategory[] | number | number[]) {
-  const ids = normalizeSelectedIds(value as Parameters<typeof normalizeSelectedIds>[0]);
-  await ElMessageBox.confirm(t("common.confirm.delete"), t("common.tips"), { type: "warning" });
-  await defBaseMessageCategoryService.DeleteBaseMessageCategory({ id: ids.join(",") });
+  const idList = Array.isArray(value)
+    ? value.map(item => (typeof item === "object" ? item.id : item))
+    : typeof value === "object"
+      ? [value.id]
+      : normalizeSelectedIds(value);
+  const ids = idList.join(",");
+  if (!ids) {
+    ElMessage.warning(t("common.message.select_delete_item"));
+    return;
+  }
+  await ElMessageBox.confirm(t("common.confirm.delete"), t("common.title.warning"), { type: "warning" });
+  await defBaseMessageCategoryService.DeleteBaseMessageCategory({ id: ids });
+  await proTable.value?.getTableList();
   ElMessage.success(t("common.message.operation_success"));
-  proTable.value?.getTableList();
 }
 
 /** 设置消息分类状态。 */
 async function handleSetStatus(row: BaseMessageCategory) {
   const status = row.status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE;
-  await defBaseMessageCategoryService.SetBaseMessageCategoryStatus({ id: row.id, status });
-  return true;
+  const action = t(status === Status.STATUS_ENABLE ? "common.status.enabled" : "common.status.disabled");
+  const name = row.name || row.code || `ID:${row.id}`;
+  try {
+    await ElMessageBox.confirm(
+      t("common.dialog.status_change", {
+        action,
+        resource: t("system.base.message_category.resource"),
+        field: t("system.base.message_category.field.name"),
+        value: name
+      }),
+      t("common.title.notice"),
+      {
+        confirmButtonText: t("common.action.confirm"),
+        cancelButtonText: t("common.action.cancel"),
+        type: "warning"
+      }
+    );
+    await defBaseMessageCategoryService.SetBaseMessageCategoryStatus({ id: row.id, status });
+    ElMessage.success(t("common.message.status_success", { action }));
+    await proTable.value?.getTableList();
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /** 关闭消息分类表单。 */

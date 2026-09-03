@@ -19,8 +19,8 @@ type BaseTenant struct {
 	Name         string                `gorm:"column:name;type:varchar(100);not null;comment:租户名称" json:"name"`                                                                           // 租户名称
 	ContactName  string                `gorm:"column:contact_name;type:varchar(50);comment:联系人" json:"contact_name"`                                                                      // 联系人
 	ContactPhone string                `gorm:"column:contact_phone;type:varchar(20);comment:联系电话" json:"contact_phone"`                                                                   // 联系电话
-	Status       int32                 `gorm:"column:status;type:tinyint;not null;index:idx_base_tenant_status,priority:1;comment:状态：枚举【Status】" json:"status"`                           // 状态：枚举【Status】
 	Remark       string                `gorm:"column:remark;type:varchar(500);comment:备注" json:"remark"`                                                                                  // 备注
+	Status       int32                 `gorm:"column:status;type:tinyint;not null;index:idx_base_tenant_status,priority:1;comment:状态：枚举【Status】" json:"status"`                           // 状态：枚举【Status】
 	CreatedBy    int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建者ID" json:"created_by"`                                                                    // 创建者ID
 	UpdatedBy    int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新者ID" json:"updated_by"`                                                                    // 更新者ID
 	CreatedAt    time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                                   // 创建时间

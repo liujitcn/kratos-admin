@@ -43,6 +43,18 @@
           <span class="detail-value">{{ profile.phone || t("system.profile.value.unbound") }}</span>
         </div>
         <div class="detail-item">
+          <span class="detail-label">{{ t("system.profile.account.field.email") }}</span>
+          <span class="detail-value">{{ profile.email || t("system.profile.value.unbound") }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">{{ t("system.profile.account.field.id_type") }}</span>
+          <span class="detail-value">{{ idTypeText }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">{{ t("system.profile.account.field.id_code") }}</span>
+          <span class="detail-value">{{ profile.id_code || t("system.profile.value.unbound") }}</span>
+        </div>
+        <div class="detail-item">
           <span class="detail-label">{{ t("system.profile.account.field.role") }}</span>
           <span class="detail-value">{{ profile.role_name || "--" }}</span>
         </div>
@@ -63,7 +75,7 @@
       :width="520"
       @closed="handleDialogClosed"
     >
-      <ProForm ref="accountFormRef" :model="accountForm" :fields="accountFormFields" />
+      <ProForm ref="accountFormRef" :model="accountForm" :fields="accountFormFields" :rules="accountFormRules" />
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="accountDialogVisible = false">{{ t("common.action.cancel") }}</el-button>
@@ -79,9 +91,10 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from "vue";
 import { t } from "@liujitcn/kratos-admin-core";
-import { defProfileAuthService } from "@liujitcn/kratos-admin-system/api/system/auth";
+import { defProfileAuthService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/auth";
 import type { UserProfileForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/auth";
-import { defFileService } from "@liujitcn/kratos-admin-core/api/base/file";
+import { BaseUserIDType } from "@liujitcn/kratos-admin-system/rpc/system/common/v1/common";
+import { defFileService } from "@liujitcn/kratos-admin-core/api/base/v1/file";
 import defaultAvatar from "@liujitcn/kratos-admin-core/assets/images/avatar.png";
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import ProForm from "@liujitcn/kratos-admin-core/components/ProForm/index.vue";
@@ -104,9 +117,12 @@ const accountFormRef = ref<ProFormInstance>();
 const accountDialogVisible = ref(false);
 const submitLoading = ref(false);
 const avatarSrc = ref(defaultAvatar);
-const accountForm = reactive<Pick<UserProfileForm, "nick_name" | "gender">>({
+const accountForm = reactive<Pick<UserProfileForm, "nick_name" | "gender" | "email" | "id_type" | "id_code">>({
   nick_name: "",
-  gender: 3
+  gender: 3,
+  email: "",
+  id_type: BaseUserIDType.BASE_USER_ID_TYPE_UNSPECIFIED,
+  id_code: ""
 });
 
 const accountFormFields = computed<ProFormField[]>(() => [
@@ -121,14 +137,62 @@ const accountFormFields = computed<ProFormField[]>(() => [
     label: t("system.profile.account.field.gender"),
     component: "dict",
     props: { code: "base_user_gender" }
+  },
+  {
+    prop: "email",
+    label: t("system.profile.account.field.email"),
+    component: "input",
+    props: { placeholder: t("system.base.user.placeholder.email") }
+  },
+  {
+    prop: "id_type",
+    label: t("system.profile.account.field.id_type"),
+    component: "select",
+    options: idTypeOptions.value,
+    props: { placeholder: t("common.placeholder.select") }
+  },
+  {
+    prop: "id_code",
+    label: t("system.profile.account.field.id_code"),
+    component: "input",
+    props: { placeholder: t("system.base.user.placeholder.id_code") }
   }
 ]);
+
+const idTypeOptions = computed(() => [
+  { label: t("system.base.user.id_type.unspecified"), value: BaseUserIDType.BASE_USER_ID_TYPE_UNSPECIFIED },
+  { label: t("system.base.user.id_type.id_card"), value: BaseUserIDType.BASE_USER_ID_TYPE_ID_CARD },
+  { label: t("system.base.user.id_type.passport"), value: BaseUserIDType.BASE_USER_ID_TYPE_PASSPORT },
+  { label: t("system.base.user.id_type.hk_macao_permit"), value: BaseUserIDType.BASE_USER_ID_TYPE_HK_MACAO_PERMIT },
+  { label: t("system.base.user.id_type.taiwan_permit"), value: BaseUserIDType.BASE_USER_ID_TYPE_TAIWAN_PERMIT },
+  {
+    label: t("system.base.user.id_type.foreign_permanent_residence"),
+    value: BaseUserIDType.BASE_USER_ID_TYPE_FOREIGN_PERMANENT_RESIDENCE
+  },
+  { label: t("system.base.user.id_type.other"), value: BaseUserIDType.BASE_USER_ID_TYPE_OTHER }
+]);
+
+const accountFormRules = computed(() => ({
+  email: [{ type: "email", message: t("system.base.user.validation.email_invalid"), trigger: "blur" }],
+  id_code: [
+    {
+      pattern: /^[A-Za-z0-9][A-Za-z0-9-]{0,63}$/,
+      message: t("system.base.user.validation.id_code_invalid"),
+      trigger: "blur"
+    }
+  ]
+}));
 
 /** 根据资料中的性别值输出展示文案。 */
 const genderText = computed(() => {
   if (props.profile.gender === 1) return t("common.value.male");
   if (props.profile.gender === 2) return t("common.value.female");
   return t("system.profile.value.private");
+});
+
+/** 根据证件类型输出展示文案。 */
+const idTypeText = computed(() => {
+  return idTypeOptions.value.find(item => item.value === props.profile.id_type)?.label ?? t("system.profile.value.unbound");
 });
 
 /**
@@ -146,6 +210,9 @@ watch(
   profile => {
     accountForm.nick_name = profile.nick_name;
     accountForm.gender = profile.gender;
+    accountForm.email = profile.email;
+    accountForm.id_type = profile.id_type;
+    accountForm.id_code = profile.id_code;
     syncAvatarSrc(profile.avatar);
   },
   { immediate: true, deep: true }
@@ -166,6 +233,9 @@ function triggerFileUpload() {
 function openAccountDialog() {
   accountForm.nick_name = props.profile.nick_name;
   accountForm.gender = props.profile.gender;
+  accountForm.email = props.profile.email;
+  accountForm.id_type = props.profile.id_type;
+  accountForm.id_code = props.profile.id_code;
   accountDialogVisible.value = true;
 }
 
@@ -202,7 +272,10 @@ async function handleSubmitAccount() {
       user_profile: {
         ...props.profile,
         nick_name: accountForm.nick_name,
-        gender: accountForm.gender
+        gender: accountForm.gender,
+        email: accountForm.email,
+        id_type: accountForm.id_type,
+        id_code: accountForm.id_code
       }
     });
     ElMessage.success(t("system.profile.account.message.updated"));
@@ -218,6 +291,9 @@ function handleDialogClosed() {
   accountFormRef.value?.clearValidate();
   accountForm.nick_name = props.profile.nick_name;
   accountForm.gender = props.profile.gender;
+  accountForm.email = props.profile.email;
+  accountForm.id_type = props.profile.id_type;
+  accountForm.id_code = props.profile.id_code;
 }
 </script>
 

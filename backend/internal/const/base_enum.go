@@ -3,6 +3,7 @@ package _const
 import (
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	systemcommonv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/common/v1"
 )
 
 const (
@@ -16,7 +17,7 @@ const (
 
 const (
 	// BASE_MENU_APP_ROOT_ID 表示固定移动端菜单根节点。
-	BASE_MENU_APP_ROOT_ID = int64(999)
+	BASE_MENU_APP_ROOT_ID = int64(99000000)
 	// BASE_MENU_TYPE_FOLDER 表示目录菜单节点。
 	BASE_MENU_TYPE_FOLDER = int32(adminv1.BaseMenuType_BASE_MENU_TYPE_FOLDER)
 	// BASE_MENU_TYPE_MENU 表示页面菜单节点。
@@ -30,6 +31,16 @@ const (
 const (
 	// BASE_USER_GENDER_SECRET 表示用户性别保密。
 	BASE_USER_GENDER_SECRET = int32(adminv1.BaseUserGender_BASE_USER_GENDER_SECRET)
+)
+
+// BaseUserPasswordChangeStatus 表示用户密码修改状态。
+type BaseUserPasswordChangeStatus = systemcommonv1.BaseUserPasswordChangeStatus
+
+const (
+	// BASE_USER_PASSWORD_CHANGE_STATUS_NOT_REQUIRED 表示当前无需修改密码。
+	BASE_USER_PASSWORD_CHANGE_STATUS_NOT_REQUIRED = int32(systemcommonv1.BaseUserPasswordChangeStatus_BASE_USER_PASSWORD_CHANGE_STATUS_NOT_REQUIRED)
+	// BASE_USER_PASSWORD_CHANGE_STATUS_REQUIRED 表示当前必须修改密码。
+	BASE_USER_PASSWORD_CHANGE_STATUS_REQUIRED = int32(systemcommonv1.BaseUserPasswordChangeStatus_BASE_USER_PASSWORD_CHANGE_STATUS_REQUIRED)
 )
 
 const (

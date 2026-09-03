@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package system.common.v1;
+
+// 系统公共用户相关枚举。
+enum BaseUserIDType {
+  // 未指定证件类型。
+  BASE_USER_ID_TYPE_UNSPECIFIED = 0;
+  // 居民身份证。
+  BASE_USER_ID_TYPE_ID_CARD = 1;
+  // 护照。
+  BASE_USER_ID_TYPE_PASSPORT = 2;
+  // 港澳居民来往内地通行证。
+  BASE_USER_ID_TYPE_HK_MACAO_PERMIT = 3;
+  // 台湾居民来往大陆通行证。
+  BASE_USER_ID_TYPE_TAIWAN_PERMIT = 4;
+  // 外国人永久居留身份证。
+  BASE_USER_ID_TYPE_FOREIGN_PERMANENT_RESIDENCE = 5;
+  // 其他证件。
+  BASE_USER_ID_TYPE_OTHER = 6;
+}
+
+// 用户密码修改状态。
+enum BaseUserPasswordChangeStatus {
+  // 未指定密码修改状态。
+  BASE_USER_PASSWORD_CHANGE_STATUS_UNSPECIFIED = 0;
+  // 当前必须修改密码。
+  BASE_USER_PASSWORD_CHANGE_STATUS_REQUIRED = 1;
+  // 当前无需修改密码。
+  BASE_USER_PASSWORD_CHANGE_STATUS_NOT_REQUIRED = 2;
+}

@@ -91,6 +91,9 @@ func (c *CodeGenTableCase) PageCodeGenTable(ctx context.Context, req *adminv1.Pa
 	if req.Name != nil {
 		opts = append(opts, repository.Where(query.Name.Like("%"+req.GetName()+"%")))
 	}
+	if req.GetSourceName() != "" {
+		opts = append(opts, repository.Where(query.SourceName.Eq(req.GetSourceName())))
+	}
 	if req.BusinessModule != nil {
 		opts = append(opts, repository.Where(query.BusinessModule.Eq(req.GetBusinessModule())))
 	}
@@ -114,7 +117,10 @@ func (c *CodeGenTableCase) PageCodeGenTable(ctx context.Context, req *adminv1.Pa
 }
 
 // ListCodeGenDatabaseTable 查询当前数据库表元数据。
-func (c *CodeGenTableCase) ListCodeGenDatabaseTable(ctx context.Context) (*adminv1.ListCodeGenDatabaseTableResponse, error) {
+func (c *CodeGenTableCase) ListCodeGenDatabaseTable(ctx context.Context, sourceName string) (*adminv1.ListCodeGenDatabaseTableResponse, error) {
+	if sourceName == "" {
+		return nil, errorsx.InvalidArgument("数据源名称不能为空")
+	}
 	query := c.Query(ctx).CodeGenTable
 	opts := make([]repository.QueryOption, 0, 1)
 	opts = append(opts, repository.Order(query.Name.Asc()))
@@ -124,10 +130,10 @@ func (c *CodeGenTableCase) ListCodeGenDatabaseTable(ctx context.Context) (*admin
 	}
 	usedTableNames := make(map[string]bool, len(list))
 	for _, item := range list {
-		usedTableNames[item.Name] = true
+		usedTableNames[sourceTableKey(item.SourceName, item.Name)] = true
 	}
 	var tableInfos []dto.CodeGenDatabaseTable
-	tableInfos, err = c.listDatabaseTables(ctx, nil)
+	tableInfos, err = c.listDatabaseTables(ctx, sourceName, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +142,7 @@ func (c *CodeGenTableCase) ListCodeGenDatabaseTable(ctx context.Context) (*admin
 		tables = append(tables, &adminv1.CodeGenDatabaseTable{
 			Name:     tableInfo.TableName,
 			Comment:  tableInfo.TableComment,
-			Disabled: usedTableNames[tableInfo.TableName],
+			Disabled: usedTableNames[sourceTableKey(sourceName, tableInfo.TableName)],
 		})
 	}
 	return &adminv1.ListCodeGenDatabaseTableResponse{Tables: tables}, nil
@@ -201,6 +207,7 @@ func (c *CodeGenTableCase) UpdateCodeGenTable(ctx context.Context, id int64, req
 	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(query.ID.Eq(id)))
 	opts = append(opts, repository.Select(
+		query.SourceName,
 		query.Name,
 		query.Comment,
 		query.BusinessModule,
@@ -246,8 +253,16 @@ func (c *CodeGenTableCase) DeleteCodeGenTable(ctx context.Context, ids string) e
 }
 
 // listDatabaseTables 查询当前数据库的表名与表描述，可按表名缩小范围。
-func (c *CodeGenTableCase) listDatabaseTables(ctx context.Context, tableNames []string) ([]dto.CodeGenDatabaseTable, error) {
-	database := c.GormClients[gorm.DefaultClientName]
+func (c *CodeGenTableCase) listDatabaseTables(ctx context.Context, sourceName string, tableNames []string) ([]dto.CodeGenDatabaseTable, error) {
+	database, err := GormClientBySourceName(c.BaseCase, sourceName)
+	if err != nil {
+		return nil, err
+	}
+	return listDatabaseTableMetadata(ctx, database, tableNames)
+}
+
+// listDatabaseTableMetadata 查询指定客户端的数据表名和表描述。
+func listDatabaseTableMetadata(ctx context.Context, database *gorm.Client, tableNames []string) ([]dto.CodeGenDatabaseTable, error) {
 	query := database.DB.WithContext(ctx).
 		Table("information_schema.tables").
 		Select("table_name, table_comment").
@@ -263,8 +278,18 @@ func (c *CodeGenTableCase) listDatabaseTables(ctx context.Context, tableNames []
 
 // codeGenTableFormToModel 转换代码生成表配置保存模型，并校验生成所需的关联配置。
 func (c *CodeGenTableCase) codeGenTableFormToModel(ctx context.Context, req *adminv1.CodeGenTableForm) (*models.CodeGenTable, error) {
+	client, err := GormClientBySourceName(c.BaseCase, req.GetSourceName())
+	if err != nil {
+		return nil, errorsx.InvalidArgument("请选择已初始化的数据源").WithCause(err)
+	}
+	if req.GetName() == "" || !codeGenDatabaseTableNamePattern.MatchString(req.GetName()) {
+		return nil, errorsx.InvalidArgument("业务表名只能包含小写字母、数字和下划线，且必须以字母开头")
+	}
+	if !client.Migrator().HasTable(req.GetName()) {
+		return nil, errorsx.InvalidArgument("所选数据源中不存在该数据表")
+	}
 	module := req.GetBusinessModule()
-	err := c.ValidateBusinessModule(ctx, module)
+	err = c.ValidateBusinessModule(ctx, module)
 	if err != nil {
 		return nil, err
 	}

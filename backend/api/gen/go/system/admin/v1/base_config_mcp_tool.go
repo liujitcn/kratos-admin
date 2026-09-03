@@ -18,8 +18,10 @@ func RegisterBaseConfigServiceMCPTools(mcpServer *mcp.Server, baseConfigServiceS
 	RegisterBaseConfigServiceRefreshBaseConfigCacheMCPTool(mcpServer, baseConfigServiceServer)
 	RegisterBaseConfigServicePageBaseConfigMCPTool(mcpServer, baseConfigServiceServer)
 	RegisterBaseConfigServiceGetBaseConfigMCPTool(mcpServer, baseConfigServiceServer)
+	RegisterBaseConfigServiceGetBaseConfigByKeyMCPTool(mcpServer, baseConfigServiceServer)
 	RegisterBaseConfigServiceCreateBaseConfigMCPTool(mcpServer, baseConfigServiceServer)
 	RegisterBaseConfigServiceUpdateBaseConfigMCPTool(mcpServer, baseConfigServiceServer)
+	RegisterBaseConfigServiceUpdateBaseConfigByKeyMCPTool(mcpServer, baseConfigServiceServer)
 	RegisterBaseConfigServiceDeleteBaseConfigMCPTool(mcpServer, baseConfigServiceServer)
 	RegisterBaseConfigServiceSetBaseConfigStatusMCPTool(mcpServer, baseConfigServiceServer)
 }
@@ -87,6 +89,27 @@ func RegisterBaseConfigServiceGetBaseConfigMCPTool(mcpServer *mcp.Server, baseCo
 	)
 }
 
+// RegisterBaseConfigServiceGetBaseConfigByKeyMCPTool 注册按配置键查询隐藏系统配置的 MCP Tool。
+func RegisterBaseConfigServiceGetBaseConfigByKeyMCPTool(mcpServer *mcp.Server, baseConfigServiceServer BaseConfigServiceServer) {
+	mcp.AddTool[*GetBaseConfigByKeyRequest, *BaseConfigValue](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_base_config_service_get_base_config_by_key",
+			Description: "按配置键查询隐藏系统配置。",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *GetBaseConfigByKeyRequest) (*mcp.CallToolResult, *BaseConfigValue, error) {
+			if input == nil {
+				input = &GetBaseConfigByKeyRequest{}
+			}
+			reply, err := baseConfigServiceServer.GetBaseConfigByKey(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
 // RegisterBaseConfigServiceCreateBaseConfigMCPTool 注册创建系统配置的 MCP Tool。
 func RegisterBaseConfigServiceCreateBaseConfigMCPTool(mcpServer *mcp.Server, baseConfigServiceServer BaseConfigServiceServer) {
 	mcp.AddTool[*CreateBaseConfigRequest, *emptypb.Empty](
@@ -121,6 +144,27 @@ func RegisterBaseConfigServiceUpdateBaseConfigMCPTool(mcpServer *mcp.Server, bas
 				input = &UpdateBaseConfigRequest{}
 			}
 			reply, err := baseConfigServiceServer.UpdateBaseConfig(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterBaseConfigServiceUpdateBaseConfigByKeyMCPTool 注册按配置键更新隐藏系统配置的 MCP Tool。
+func RegisterBaseConfigServiceUpdateBaseConfigByKeyMCPTool(mcpServer *mcp.Server, baseConfigServiceServer BaseConfigServiceServer) {
+	mcp.AddTool[*UpdateBaseConfigByKeyRequest, *emptypb.Empty](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_base_config_service_update_base_config_by_key",
+			Description: "按配置键更新隐藏系统配置。",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseConfigByKeyRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
+			if input == nil {
+				input = &UpdateBaseConfigByKeyRequest{}
+			}
+			reply, err := baseConfigServiceServer.UpdateBaseConfigByKey(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

@@ -1,0 +1,97 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// 策略评估日志服务。
+service BasePolicyEvaluationLogService {
+  // 分页查询策略评估日志。
+  rpc PageBasePolicyEvaluationLog(PageBasePolicyEvaluationLogRequest) returns (PageBasePolicyEvaluationLogResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/policy-evaluation-log"};
+  }
+
+  // 查询策略评估日志详情。
+  rpc GetBasePolicyEvaluationLog(GetBasePolicyEvaluationLogRequest) returns (BasePolicyEvaluationLog) {
+    option (google.api.http) = {get: "/api/v1/admin/base/policy-evaluation-log/{id}"};
+  }
+}
+
+// BasePolicyEvaluationType 定义授权引擎执行的评估模式。
+// 评估可以针对单个资源，也可以批量过滤资源对或项目集合。
+enum BasePolicyEvaluationType {
+  // 未指定策略评估类型。
+  BASE_POLICY_EVALUATION_TYPE_UNSPECIFIED = 0;
+  // 单主体单资源鉴权。
+  BASE_POLICY_EVALUATION_TYPE_IS_AUTHORIZED = 1;
+  // 批量资源动作过滤。
+  BASE_POLICY_EVALUATION_TYPE_FILTER_PAIRS = 2;
+  // 批量项目过滤。
+  BASE_POLICY_EVALUATION_TYPE_FILTER_PROJECTS = 3;
+}
+
+// BasePolicyDecision 定义授权策略评估的决策结果。
+// ERROR 表示策略引擎未能完成可靠判断，不能按允许访问处理。
+enum BasePolicyDecision {
+  // 未指定策略决策结果。
+  BASE_POLICY_DECISION_UNSPECIFIED = 0;
+  // 允许访问。
+  BASE_POLICY_DECISION_ALLOW = 1;
+  // 拒绝访问。
+  BASE_POLICY_DECISION_DENY = 2;
+  // 策略引擎异常。
+  BASE_POLICY_DECISION_ERROR = 3;
+}
+
+// 策略评估日志分页查询条件。
+message PageBasePolicyEvaluationLogRequest {
+  optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  optional int64 user_id = 2 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  optional BasePolicyEvaluationType evaluation_type = 3 [(gnostic.openapi.v3.property) = {description: "评估类型"}]; // 评估类型
+  optional BasePolicyDecision decision = 4 [(gnostic.openapi.v3.property) = {description: "决策结果"}]; // 决策结果
+  repeated string occurred_at = 5 [(gnostic.openapi.v3.property) = {description: "事件时间"}]; // 事件时间
+  string resource = 6 [(gnostic.openapi.v3.property) = {description: "资源"}]; // 资源
+  string keyword = 7 [(gnostic.openapi.v3.property) = {description: "资源、动作或请求ID关键字"}]; // 关键字
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码"}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数"}]; // 每页行数
+}
+
+// 策略评估日志分页响应。
+message PageBasePolicyEvaluationLogResponse {
+  repeated BasePolicyEvaluationLog base_policy_evaluation_logs = 1 [(gnostic.openapi.v3.property) = {description: "策略评估日志列表"}]; // 策略评估日志列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 查询策略评估日志详情请求。
+message GetBasePolicyEvaluationLogRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "策略评估日志ID"}]; // 策略评估日志ID
+}
+
+// 策略评估日志。
+message BasePolicyEvaluationLog {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "策略评估日志ID"}]; // 策略评估日志ID
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+  string tenant_code = 3 [(gnostic.openapi.v3.property) = {description: "租户编码"}]; // 租户编码
+  int64 user_id = 4 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
+  string user_name = 5 [(gnostic.openapi.v3.property) = {description: "用户名称"}]; // 用户名称
+  int64 role_id = 6 [(gnostic.openapi.v3.property) = {description: "角色ID"}]; // 角色ID
+  string role_code = 7 [(gnostic.openapi.v3.property) = {description: "角色编码"}]; // 角色编码
+  string request_id = 8 [(gnostic.openapi.v3.property) = {description: "请求ID"}]; // 请求ID
+  string trace_id = 9 [(gnostic.openapi.v3.property) = {description: "链路追踪ID"}]; // 链路追踪ID
+  string client_ip = 10 [(gnostic.openapi.v3.property) = {description: "客户端IP"}]; // 客户端IP
+  string engine = 11 [(gnostic.openapi.v3.property) = {description: "鉴权引擎"}]; // 鉴权引擎
+  BasePolicyEvaluationType evaluation_type = 12 [(gnostic.openapi.v3.property) = {description: "评估类型"}]; // 评估类型
+  string resource = 13 [(gnostic.openapi.v3.property) = {description: "资源"}]; // 资源
+  string action = 14 [(gnostic.openapi.v3.property) = {description: "动作"}]; // 动作
+  string project = 15 [(gnostic.openapi.v3.property) = {description: "项目范围"}]; // 项目范围
+  BasePolicyDecision decision = 16 [(gnostic.openapi.v3.property) = {description: "决策结果"}]; // 决策结果
+  string reason_code = 17 [(gnostic.openapi.v3.property) = {description: "原因编码"}]; // 原因编码
+  string reason = 18 [(gnostic.openapi.v3.property) = {description: "原因说明"}]; // 原因说明
+  int32 duration_ms = 19 [(gnostic.openapi.v3.property) = {description: "评估耗时毫秒"}]; // 评估耗时毫秒
+  int32 candidate_count = 20 [(gnostic.openapi.v3.property) = {description: "候选数量"}]; // 候选数量
+  int32 matched_count = 21 [(gnostic.openapi.v3.property) = {description: "命中数量"}]; // 命中数量
+  string input_hash = 22 [(gnostic.openapi.v3.property) = {description: "输入摘要"}]; // 输入摘要
+  string occurred_at = 23 [(gnostic.openapi.v3.property) = {description: "事件发生时间"}]; // 事件发生时间
+  string created_at = 24 [(gnostic.openapi.v3.property) = {description: "日志落库时间"}]; // 日志落库时间
+}

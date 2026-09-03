@@ -7,6 +7,7 @@
 /* eslint-disable */
 import type { PasswordCrypto, StringValues } from "../../../common/v1/types";
 import type { Empty } from "../../../google/protobuf/empty";
+import type { BaseUserIDType } from "../../common/v1/common";
 import type { BaseMenuType } from "./common";
 
 /** 登录用户菜单树查询参数 */
@@ -35,6 +36,12 @@ export interface UserInfoForm {
   nick_name: string;
   /** 手机号 */
   phone: string;
+  /** 邮箱 */
+  email: string;
+  /** 证件类型：枚举【BaseUserIDType】 */
+  id_type: BaseUserIDType;
+  /** 证件号 */
+  id_code: string;
   /** 头像 */
   avatar: string;
   /** 角色编号 */
@@ -65,6 +72,12 @@ export interface UserProfileForm {
   gender: number;
   /** 手机号 */
   phone: string;
+  /** 邮箱 */
+  email: string;
+  /** 证件类型：枚举【BaseUserIDType】 */
+  id_type: BaseUserIDType;
+  /** 证件号 */
+  id_code: string;
   /** 角色名 */
   role_name: string;
   /** 部门名 */

@@ -10,6 +10,7 @@ import (
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	baseBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
 	passwordPolicy "github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
@@ -296,6 +297,11 @@ func (c *AuthCase) UpdateUserPassword(ctx context.Context, req *adminv1.UserPass
 	if err != nil {
 		return errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
+	var passwordConfig loginpolicy.PasswordConfig
+	passwordConfig, err = loginpolicy.LoadPasswordConfig(c.Cache, baseUser.TenantID, baseUser.ID)
+	if err != nil {
+		return errorsx.Internal("读取密码策略失败").WithCause(err)
+	}
 
 	err = crypto.Verify(oldPwd, baseUser.Password)
 	if err != nil {
@@ -304,10 +310,10 @@ func (c *AuthCase) UpdateUserPassword(ctx context.Context, req *adminv1.UserPass
 	if err = crypto.Verify(newPwd, baseUser.Password); err == nil {
 		return errorsx.InvalidArgument("新密码不能与当前密码相同")
 	}
-	if err = passwordPolicy.CheckHistoryJSON(baseUser.PasswordHistory, newPwd); err != nil {
+	if err = passwordPolicy.CheckHistoryJSON(baseUser.PasswordHistory, newPwd, passwordConfig.HistoryCount); err != nil {
 		return errorsx.InvalidArgument("新密码不能重复使用近期历史密码").WithCause(err)
 	}
-	if err = passwordPolicy.ValidateComplexity(newPwd); err != nil {
+	if err = passwordPolicy.ValidateComplexity(newPwd, passwordConfig); err != nil {
 		return errorsx.InvalidArgument("密码长度或复杂度不符合安全策略").WithCause(err)
 	}
 
@@ -320,17 +326,21 @@ func (c *AuthCase) UpdateUserPassword(ctx context.Context, req *adminv1.UserPass
 		return err
 	}
 	var history string
-	history, err = passwordPolicy.AppendHistoryJSON(baseUser.PasswordHistory, baseUser.Password)
+	history, err = passwordPolicy.AppendHistoryJSON(baseUser.PasswordHistory, baseUser.Password, passwordConfig.HistoryCount)
 	if err != nil {
 		return errorsx.Internal("记录历史密码失败").WithCause(err)
 	}
-	err = c.baseUserCase.UpdateByID(ctx, &models.BaseUser{
-		ID:                 authInfo.UserId,
-		Password:           encrypted,
-		PasswordChangedAt:  time.Now(),
-		PasswordHistory:    history,
-		MustChangePassword: 0,
-	})
+	now := time.Now()
+	query := c.baseUserCase.Query(ctx).BaseUser
+	_, err = query.WithContext(ctx).
+		Where(query.ID.Eq(authInfo.UserId)).
+		UpdateSimple(
+			query.Password.Value(encrypted),
+			query.PasswordChangedAt.Value(now),
+			query.PasswordHistory.Value(history),
+			query.MustChangePassword.Value(_const.BASE_USER_PASSWORD_CHANGE_STATUS_NOT_REQUIRED),
+			query.UpdatedAt.Value(now),
+		)
 	if err != nil {
 		return err
 	}
@@ -404,6 +414,9 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *adminv1.UserProfi
 		NickName: req.GetNickName(),
 		Avatar:   req.GetAvatar(),
 		Gender:   req.GetGender(),
+		Email:    req.GetEmail(),
+		IDType:   int32(req.GetIdType()),
+		IDCode:   req.GetIdCode(),
 	}
 	err = c.baseUserCase.UpdateByID(ctx, &baseUser)
 	if err != nil {

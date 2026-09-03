@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { defAuthService } from '@liujitcn/kratos-uni-app-core/api/system/auth'
+import { defAuthService } from '@liujitcn/kratos-uni-app-core/api/system/app/v1/auth'
 import { useUserStore } from '@liujitcn/kratos-uni-app-core/stores'
 import type { UserProfileForm } from '@liujitcn/kratos-uni-app-core/rpc/system/app/v1/auth'
 import { onLoad } from '@dcloudio/uni-app'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { BaseDictForm_DictItem } from '@liujitcn/kratos-uni-app-core/rpc/system/app/v1/base_dict'
-import { defBaseDictService } from '@liujitcn/kratos-uni-app-core/api/system/base_dict'
+import { BaseUserIDType } from '@liujitcn/kratos-uni-app-core/rpc/system/common/v1/common'
+import { defBaseDictService } from '@liujitcn/kratos-uni-app-core/api/system/app/v1/base_dict'
 import { formatSrc } from '@liujitcn/kratos-uni-app-core/utils/index'
 import { uploadFile } from '@liujitcn/kratos-uni-app-core/utils/file'
 import { navigateToLogin } from '@liujitcn/kratos-uni-app-core/utils/navigation'
@@ -23,6 +24,36 @@ const imgMaxSize = ref(1024 * 1024)
 
 // 获取个人信息，修改个人信息需提供初始值
 const userInfo = ref({} as UserProfileForm)
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const idCodePattern = /^[A-Za-z0-9][A-Za-z0-9-]{0,63}$/
+const idTypeOptions = computed(() => [
+  {
+    label: t('system.profile.id_type.unspecified'),
+    value: BaseUserIDType.BASE_USER_ID_TYPE_UNSPECIFIED,
+  },
+  { label: t('system.profile.id_type.id_card'), value: BaseUserIDType.BASE_USER_ID_TYPE_ID_CARD },
+  { label: t('system.profile.id_type.passport'), value: BaseUserIDType.BASE_USER_ID_TYPE_PASSPORT },
+  {
+    label: t('system.profile.id_type.hk_macao_permit'),
+    value: BaseUserIDType.BASE_USER_ID_TYPE_HK_MACAO_PERMIT,
+  },
+  {
+    label: t('system.profile.id_type.taiwan_permit'),
+    value: BaseUserIDType.BASE_USER_ID_TYPE_TAIWAN_PERMIT,
+  },
+  {
+    label: t('system.profile.id_type.foreign_permanent_residence'),
+    value: BaseUserIDType.BASE_USER_ID_TYPE_FOREIGN_PERMANENT_RESIDENCE,
+  },
+  { label: t('system.profile.id_type.other'), value: BaseUserIDType.BASE_USER_ID_TYPE_OTHER },
+])
+const idTypeIndex = computed(() => {
+  const index = idTypeOptions.value.findIndex((item) => item.value === userInfo.value.id_type)
+  return index >= 0 ? index : 0
+})
+const idTypeLabel = computed(
+  () => idTypeOptions.value[idTypeIndex.value]?.label || idTypeOptions.value[0].label,
+)
 const syncUserStoreProfile = (profile: UserProfileForm) => {
   if (!userStore.userInfo) {
     return
@@ -33,6 +64,9 @@ const syncUserStoreProfile = (profile: UserProfileForm) => {
   userStore.userInfo.gender = profile.gender
   userStore.userInfo.phone = profile.phone
   userStore.userInfo.avatar = profile.avatar
+  userStore.userInfo.email = profile.email
+  userStore.userInfo.id_type = profile.id_type
+  userStore.userInfo.id_code = profile.id_code
 }
 
 const getUserData = async () => {
@@ -136,6 +170,13 @@ const onGenderChange: UniHelper.RadioGroupOnChange = (ev) => {
   userInfo.value.gender = Number(ev.detail.value)
 }
 
+// 选择证件类型。
+const onIdTypeChange: UniHelper.SelectorPickerOnChange = (ev) => {
+  userInfo.value.id_type =
+    idTypeOptions.value[Number(ev.detail.value)]?.value ??
+    BaseUserIDType.BASE_USER_ID_TYPE_UNSPECIFIED
+}
+
 // #ifdef MP-WEIXIN
 // 新增授权手机号处理
 const onGetPhoneNumber: UniHelper.ButtonOnGetphonenumber = async (e) => {
@@ -160,13 +201,25 @@ const onSubmit = async () => {
     return
   }
 
-  const { nick_name, gender } = userInfo.value
+  if (userInfo.value.email && !emailPattern.test(userInfo.value.email)) {
+    await uni.showToast({ icon: 'none', title: t('system.profile.email_invalid') })
+    return
+  }
+  if (userInfo.value.id_code && !idCodePattern.test(userInfo.value.id_code)) {
+    await uni.showToast({ icon: 'none', title: t('system.profile.id_code_invalid') })
+    return
+  }
+
+  const { nick_name, gender, email, id_type, id_code } = userInfo.value
   await defAuthService.UpdateUserProfile({
     nick_name: nick_name,
     gender: gender,
     avatar: userInfo.value.avatar,
     phone: userInfo.value.phone,
     user_name: userInfo.value.user_name,
+    email,
+    id_type,
+    id_code,
   })
   // 更新Store昵称
   syncUserStoreProfile(userInfo.value)
@@ -228,6 +281,37 @@ const onSubmit = async () => {
             type="text"
             :placeholder="t('system.profile.nick_name_placeholder')"
             v-model="userInfo.nick_name"
+          />
+        </view>
+        <view class="form-item">
+          <text class="label">{{ t('system.profile.email') }}</text>
+          <input
+            class="input"
+            type="text"
+            :placeholder="t('system.profile.email_placeholder')"
+            v-model="userInfo.email"
+          />
+        </view>
+        <view class="form-item">
+          <text class="label">{{ t('system.profile.id_type') }}</text>
+          <picker
+            class="picker"
+            mode="selector"
+            :range="idTypeOptions"
+            range-key="label"
+            :value="idTypeIndex"
+            @change="onIdTypeChange"
+          >
+            <view class="input">{{ idTypeLabel }}</view>
+          </picker>
+        </view>
+        <view class="form-item">
+          <text class="label">{{ t('system.profile.id_code') }}</text>
+          <input
+            class="input"
+            type="text"
+            :placeholder="t('system.profile.id_code_placeholder')"
+            v-model="userInfo.id_code"
           />
         </view>
         <view class="form-item">

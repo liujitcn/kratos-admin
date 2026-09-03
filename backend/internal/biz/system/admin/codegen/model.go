@@ -108,6 +108,7 @@ func (t ProtoTarget) BackendBizImportPath() string {
 // Table 描述一次代码生成所需的表配置快照。
 type Table struct {
 	ID               int64                   // 代码生成表配置 ID
+	SourceName       string                  // 数据源名称
 	TableName_       string                  // 业务表名
 	TableComment     string                  // 业务表描述
 	BusinessModule   string                  // 业务模块

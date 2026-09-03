@@ -50,7 +50,7 @@
 <script setup lang="ts" name="UploadImg">
 import { ref, computed, inject } from "vue";
 import { generateUUID } from "@/utils";
-import { defFileService } from "@/api/base/file";
+import { defFileService } from "@/api/base/v1/file";
 import { ElNotification, formContextKey, formItemContextKey } from "element-plus";
 import type { UploadProps, UploadRequestOptions } from "element-plus";
 import type { FileInfo } from "@/rpc/base/v1/file";
@@ -69,7 +69,7 @@ interface UploadFileProps {
   fileType?: File.ImageMimeType[]; // 图片类型限制 ==> 非必传（默认为 ["image/jpeg", "image/png", "image/gif"]）
   height?: string; // 组件高度 ==> 非必传（默认为 150px）
   width?: string; // 组件宽度 ==> 非必传（默认为 150px）
-  borderRadius?: string; // 组件边框圆角 ==> 非必传（默认为 8px）
+  borderRadius?: string; // 组件边框圆角 ==> 非必传（默认为全局圆角）
 }
 
 // 接受父组件参数
@@ -82,7 +82,7 @@ const props = withDefaults(defineProps<UploadFileProps>(), {
   fileType: () => ["image/jpeg", "image/png", "image/gif"],
   height: "150px",
   width: "150px",
-  borderRadius: "8px"
+  borderRadius: "var(--admin-page-radius)"
 });
 
 // 生成组件唯一id

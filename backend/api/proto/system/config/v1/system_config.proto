@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package system.config.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+
+// BaseLogFallbackConfig 日志入库回退配置。
+// 审计日志队列异常或无法入库时，写入回退文件，后续由定时任务重新写入日志表。
+message BaseLogFallbackConfig {
+  string file_path = 1 [
+    (gnostic.openapi.v3.property) = {description: "日志入库回退目录路径"},
+    (buf.validate.field).cel = {
+      id: "system.admin.runtime.audit_log_spool.file_path.required"
+      message: "日志入库回退目录路径不能为空"
+      expression: "this.size() > 0"
+    }
+  ]; // 日志入库回退目录路径
+}

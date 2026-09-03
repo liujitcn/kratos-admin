@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package system.admin.v1;
 
+import "common/v1/common.proto";
 import "common/v1/enum.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
@@ -11,6 +12,13 @@ import "system/admin/v1/base_i18n.proto";
 
 // Admin定时任务服务
 service BaseJobService {
+  // 查询定时任务下拉选择
+  rpc OptionBaseJob(OptionBaseJobRequest) returns (.common.v1.SelectOptionResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/job/option"
+    };
+  }
+
   // 查询定时任务分页列表
   rpc PageBaseJob(PageBaseJobRequest) returns (PageBaseJobResponse) {
     option (google.api.http) = {
@@ -18,24 +26,10 @@ service BaseJobService {
     };
   }
 
-  // 查询定时任务日志分页列表
-  rpc PageBaseJobLog(PageBaseJobLogRequest) returns (PageBaseJobLogResponse) {
-    option (google.api.http) = {
-      get: "/api/v1/admin/base/job-log"
-    };
-  }
-
   // 查询定时任务
   rpc GetBaseJob(GetBaseJobRequest) returns (BaseJobForm) {
     option (google.api.http) = {
       get: "/api/v1/admin/base/job/{id}"
-    };
-  }
-
-  // 查询定时任务日志
-  rpc GetBaseJobLog(GetBaseJobLogRequest) returns (BaseJobLog) {
-    option (google.api.http) = {
-      get: "/api/v1/admin/base/job-log/{id}"
     };
   }
 
@@ -94,14 +88,8 @@ service BaseJobService {
   }
 }
 
-// 定时任务日志状态。
-enum BaseJobLogStatus {
-  // 未指定定时任务日志状态。
-  BASE_JOB_LOG_STATUS_UNSPECIFIED = 0;
-  // 成功。
-  BASE_JOB_LOG_STATUS_SUCCESS = 1;
-  // 失败。
-  BASE_JOB_LOG_STATUS_FAIL = 2;
+// 定时任务选项查询条件
+message OptionBaseJobRequest {
 }
 
 // 定时任务分页查询条件
@@ -130,32 +118,6 @@ message PageBaseJobResponse {
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
 }
 
-// 定时任务日志分页查询条件
-message PageBaseJobLogRequest {
-  int64 job_id = 2 [(gnostic.openapi.v3.property) = {description: "任务ID"}]; // 任务ID
-
-  optional BaseJobLogStatus status = 6 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
-
-  repeated string execute_time = 8 [(gnostic.openapi.v3.property) = {description: "执行时间"}]; // 执行时间
-
-  int64 page_num = 101 [(gnostic.openapi.v3.property) = {
-    description: "当前页码"
-    default: {number: 1}
-  }]; // 当前页码
-
-  int64 page_size = 102 [(gnostic.openapi.v3.property) = {
-    description: "每一页的行数"
-    default: {number: 10}
-  }]; // 每一页的行数
-}
-
-// 定时任务日志分页响应
-message PageBaseJobLogResponse {
-  repeated BaseJobLog base_job_logs = 1 [(gnostic.openapi.v3.property) = {description: "分页数据"}]; // 分页数据
-
-  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
-}
-
 // 查询定时任务请求参数
 message GetBaseJobRequest {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "任务ID"}]; // 任务ID
@@ -176,33 +138,6 @@ message BaseJobForm {
   .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
 
   repeated BaseI18n i18ns = 7 [(gnostic.openapi.v3.property) = {description: "定时任务名称多语言翻译"}]; // 定时任务名称多语言翻译
-}
-
-// 查询定时任务日志请求参数
-message GetBaseJobLogRequest {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "任务日志ID"}]; // 任务日志ID
-}
-
-// 定时任务日志
-message BaseJobLog {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "任务日志ID"}]; // 任务日志ID
-
-  int64 job_id = 2 [(gnostic.openapi.v3.property) = {description: "任务ID"}]; // 任务ID
-
-  string input = 3 [(gnostic.openapi.v3.property) = {
-    description: "执行参数"
-    max_length: 255
-  }]; // 执行参数
-
-  string output = 4 [(gnostic.openapi.v3.property) = {description: "输出结果"}]; // 输出结果
-
-  string error = 5 [(gnostic.openapi.v3.property) = {description: "错误信息"}]; // 错误信息
-
-  BaseJobLogStatus status = 6 [(gnostic.openapi.v3.property) = {description: "状态：1、成功。2、失败。"}]; // 状态：1、成功。2、失败。
-
-  string process_time = 7 [(gnostic.openapi.v3.property) = {description: "消耗时间/毫秒"}]; // 消耗时间/毫秒
-
-  string execute_time = 8 [(gnostic.openapi.v3.property) = {description: "执行时间"}]; // 执行时间
 }
 
 // 创建定时任务请求参数

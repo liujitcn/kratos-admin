@@ -24,8 +24,10 @@ const (
 	BaseConfigService_RefreshBaseConfigCache_FullMethodName = "/system.admin.v1.BaseConfigService/RefreshBaseConfigCache"
 	BaseConfigService_PageBaseConfig_FullMethodName         = "/system.admin.v1.BaseConfigService/PageBaseConfig"
 	BaseConfigService_GetBaseConfig_FullMethodName          = "/system.admin.v1.BaseConfigService/GetBaseConfig"
+	BaseConfigService_GetBaseConfigByKey_FullMethodName     = "/system.admin.v1.BaseConfigService/GetBaseConfigByKey"
 	BaseConfigService_CreateBaseConfig_FullMethodName       = "/system.admin.v1.BaseConfigService/CreateBaseConfig"
 	BaseConfigService_UpdateBaseConfig_FullMethodName       = "/system.admin.v1.BaseConfigService/UpdateBaseConfig"
+	BaseConfigService_UpdateBaseConfigByKey_FullMethodName  = "/system.admin.v1.BaseConfigService/UpdateBaseConfigByKey"
 	BaseConfigService_DeleteBaseConfig_FullMethodName       = "/system.admin.v1.BaseConfigService/DeleteBaseConfig"
 	BaseConfigService_SetBaseConfigStatus_FullMethodName    = "/system.admin.v1.BaseConfigService/SetBaseConfigStatus"
 )
@@ -42,10 +44,14 @@ type BaseConfigServiceClient interface {
 	PageBaseConfig(ctx context.Context, in *PageBaseConfigRequest, opts ...grpc.CallOption) (*PageBaseConfigResponse, error)
 	// 查询系统配置
 	GetBaseConfig(ctx context.Context, in *GetBaseConfigRequest, opts ...grpc.CallOption) (*BaseConfigForm, error)
+	// 按配置键查询隐藏系统配置。
+	GetBaseConfigByKey(ctx context.Context, in *GetBaseConfigByKeyRequest, opts ...grpc.CallOption) (*BaseConfigValue, error)
 	// 创建系统配置
 	CreateBaseConfig(ctx context.Context, in *CreateBaseConfigRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 更新系统配置
 	UpdateBaseConfig(ctx context.Context, in *UpdateBaseConfigRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 按配置键更新隐藏系统配置。
+	UpdateBaseConfigByKey(ctx context.Context, in *UpdateBaseConfigByKeyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 删除系统配置
 	DeleteBaseConfig(ctx context.Context, in *DeleteBaseConfigRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 设置状态
@@ -90,6 +96,16 @@ func (c *baseConfigServiceClient) GetBaseConfig(ctx context.Context, in *GetBase
 	return out, nil
 }
 
+func (c *baseConfigServiceClient) GetBaseConfigByKey(ctx context.Context, in *GetBaseConfigByKeyRequest, opts ...grpc.CallOption) (*BaseConfigValue, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BaseConfigValue)
+	err := c.cc.Invoke(ctx, BaseConfigService_GetBaseConfigByKey_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *baseConfigServiceClient) CreateBaseConfig(ctx context.Context, in *CreateBaseConfigRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
@@ -104,6 +120,16 @@ func (c *baseConfigServiceClient) UpdateBaseConfig(ctx context.Context, in *Upda
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, BaseConfigService_UpdateBaseConfig_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *baseConfigServiceClient) UpdateBaseConfigByKey(ctx context.Context, in *UpdateBaseConfigByKeyRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, BaseConfigService_UpdateBaseConfigByKey_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -142,10 +168,14 @@ type BaseConfigServiceServer interface {
 	PageBaseConfig(context.Context, *PageBaseConfigRequest) (*PageBaseConfigResponse, error)
 	// 查询系统配置
 	GetBaseConfig(context.Context, *GetBaseConfigRequest) (*BaseConfigForm, error)
+	// 按配置键查询隐藏系统配置。
+	GetBaseConfigByKey(context.Context, *GetBaseConfigByKeyRequest) (*BaseConfigValue, error)
 	// 创建系统配置
 	CreateBaseConfig(context.Context, *CreateBaseConfigRequest) (*emptypb.Empty, error)
 	// 更新系统配置
 	UpdateBaseConfig(context.Context, *UpdateBaseConfigRequest) (*emptypb.Empty, error)
+	// 按配置键更新隐藏系统配置。
+	UpdateBaseConfigByKey(context.Context, *UpdateBaseConfigByKeyRequest) (*emptypb.Empty, error)
 	// 删除系统配置
 	DeleteBaseConfig(context.Context, *DeleteBaseConfigRequest) (*emptypb.Empty, error)
 	// 设置状态
@@ -169,11 +199,17 @@ func (UnimplementedBaseConfigServiceServer) PageBaseConfig(context.Context, *Pag
 func (UnimplementedBaseConfigServiceServer) GetBaseConfig(context.Context, *GetBaseConfigRequest) (*BaseConfigForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetBaseConfig not implemented")
 }
+func (UnimplementedBaseConfigServiceServer) GetBaseConfigByKey(context.Context, *GetBaseConfigByKeyRequest) (*BaseConfigValue, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetBaseConfigByKey not implemented")
+}
 func (UnimplementedBaseConfigServiceServer) CreateBaseConfig(context.Context, *CreateBaseConfigRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateBaseConfig not implemented")
 }
 func (UnimplementedBaseConfigServiceServer) UpdateBaseConfig(context.Context, *UpdateBaseConfigRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateBaseConfig not implemented")
+}
+func (UnimplementedBaseConfigServiceServer) UpdateBaseConfigByKey(context.Context, *UpdateBaseConfigByKeyRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateBaseConfigByKey not implemented")
 }
 func (UnimplementedBaseConfigServiceServer) DeleteBaseConfig(context.Context, *DeleteBaseConfigRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteBaseConfig not implemented")
@@ -256,6 +292,24 @@ func _BaseConfigService_GetBaseConfig_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BaseConfigService_GetBaseConfigByKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBaseConfigByKeyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BaseConfigServiceServer).GetBaseConfigByKey(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BaseConfigService_GetBaseConfigByKey_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BaseConfigServiceServer).GetBaseConfigByKey(ctx, req.(*GetBaseConfigByKeyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _BaseConfigService_CreateBaseConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateBaseConfigRequest)
 	if err := dec(in); err != nil {
@@ -288,6 +342,24 @@ func _BaseConfigService_UpdateBaseConfig_Handler(srv interface{}, ctx context.Co
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(BaseConfigServiceServer).UpdateBaseConfig(ctx, req.(*UpdateBaseConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BaseConfigService_UpdateBaseConfigByKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateBaseConfigByKeyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BaseConfigServiceServer).UpdateBaseConfigByKey(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BaseConfigService_UpdateBaseConfigByKey_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BaseConfigServiceServer).UpdateBaseConfigByKey(ctx, req.(*UpdateBaseConfigByKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -348,12 +420,20 @@ var BaseConfigService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _BaseConfigService_GetBaseConfig_Handler,
 		},
 		{
+			MethodName: "GetBaseConfigByKey",
+			Handler:    _BaseConfigService_GetBaseConfigByKey_Handler,
+		},
+		{
 			MethodName: "CreateBaseConfig",
 			Handler:    _BaseConfigService_CreateBaseConfig_Handler,
 		},
 		{
 			MethodName: "UpdateBaseConfig",
 			Handler:    _BaseConfigService_UpdateBaseConfig_Handler,
+		},
+		{
+			MethodName: "UpdateBaseConfigByKey",
+			Handler:    _BaseConfigService_UpdateBaseConfigByKey_Handler,
 		},
 		{
 			MethodName: "DeleteBaseConfig",

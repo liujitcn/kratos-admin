@@ -43,6 +43,8 @@ const (
 	PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD PasswordCryptoScene = 4
 	// 多因素认证敏感操作场景。
 	PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_MFA PasswordCryptoScene = 5
+	// 密码策略初始化密码配置场景。
+	PasswordCryptoScene_PASSWORD_CRYPTO_SCENE_CONFIGURE_PASSWORD_POLICY PasswordCryptoScene = 6
 )
 
 // Enum value maps for PasswordCryptoScene.
@@ -54,14 +56,16 @@ var (
 		3: "PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD",
 		4: "PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD",
 		5: "PASSWORD_CRYPTO_SCENE_MFA",
+		6: "PASSWORD_CRYPTO_SCENE_CONFIGURE_PASSWORD_POLICY",
 	}
 	PasswordCryptoScene_value = map[string]int32{
-		"PASSWORD_CRYPTO_SCENE_UNSPECIFIED":              0,
-		"PASSWORD_CRYPTO_SCENE_LOGIN":                    1,
-		"PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER":         2,
-		"PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD": 3,
-		"PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD":     4,
-		"PASSWORD_CRYPTO_SCENE_MFA":                      5,
+		"PASSWORD_CRYPTO_SCENE_UNSPECIFIED":               0,
+		"PASSWORD_CRYPTO_SCENE_LOGIN":                     1,
+		"PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER":          2,
+		"PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD":  3,
+		"PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD":      4,
+		"PASSWORD_CRYPTO_SCENE_MFA":                       5,
+		"PASSWORD_CRYPTO_SCENE_CONFIGURE_PASSWORD_POLICY": 6,
 	}
 )
 
@@ -574,7 +578,7 @@ func (x *RefreshTokenRequest) GetRefreshToken() string {
 type RefreshTokenResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	AccessToken   string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`    // 访问令牌，必选项。
-	RefreshToken  string                 `protobuf:"bytes,2,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"` // 更新令牌，用来获取下一次的访问令牌，可选项。
+	RefreshToken  string                 `protobuf:"bytes,2,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"` // 更新令牌；管理端 Cookie-only 请求不在响应体返回，应用端请求可返回。
 	TokenType     string                 `protobuf:"bytes,3,opt,name=token_type,json=tokenType,proto3" json:"token_type,omitempty"`          // 令牌类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型。
 	ExpiresIn     int64                  `protobuf:"varint,4,opt,name=expires_in,json=expiresIn,proto3" json:"expires_in,omitempty"`         // 令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。
 	unknownFields protoimpl.UnknownFields
@@ -720,7 +724,7 @@ func (x *LoginRequest) GetCaptchaId() string {
 type LoginResponse struct {
 	state                  protoimpl.MessageState `protogen:"open.v1"`
 	AccessToken            string                 `protobuf:"bytes,1,opt,name=access_token,json=accessToken,proto3" json:"access_token,omitempty"`                                       // 访问令牌，必选项。
-	RefreshToken           string                 `protobuf:"bytes,2,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`                                    // 更新令牌，用来获取下一次的访问令牌，可选项。
+	RefreshToken           string                 `protobuf:"bytes,2,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`                                    // 更新令牌；管理端 Cookie-only 请求不在响应体返回，应用端请求可返回。
 	TokenType              string                 `protobuf:"bytes,3,opt,name=token_type,json=tokenType,proto3" json:"token_type,omitempty"`                                             // 令牌类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型。
 	ExpiresIn              int64                  `protobuf:"varint,4,opt,name=expires_in,json=expiresIn,proto3" json:"expires_in,omitempty"`                                            // 令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。
 	Status                 LoginStatus            `protobuf:"varint,5,opt,name=status,proto3,enum=base.v1.LoginStatus" json:"status,omitempty"`                                          // 登录认证状态
@@ -868,10 +872,10 @@ const file_base_v1_login_proto_rawDesc = "" +
 	"expires_in\x18\x05 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18有效时间，单位秒R\texpiresIn\"\x98\x01\n" +
 	"\x13RefreshTokenRequest\x12o\n" +
 	"\rrefresh_token\x18\x01 \x01(\tBE\xbaGB\x92\x02?更新令牌；未填写时由服务端从HttpOnly Cookie读取H\x00R\frefreshToken\x88\x01\x01B\x10\n" +
-	"\x0e_refresh_token\"\xe1\x06\n" +
+	"\x0e_refresh_token\"\xae\x05\n" +
 	"\x14RefreshTokenResponse\x12t\n" +
-	"\faccess_token\x18\x01 \x01(\tBQ\xbaGN\x92\x02K访问令牌，必选项。授权服务器颁发的访问令牌字符串。R\vaccessToken\x12\xbc\x02\n" +
-	"\rrefresh_token\x18\x02 \x01(\tB\x96\x02\xbaG\x92\x02\x92\x02\x8e\x02更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。R\frefreshToken\x12\xb4\x01\n" +
+	"\faccess_token\x18\x01 \x01(\tBQ\xbaGN\x92\x02K访问令牌，必选项。授权服务器颁发的访问令牌字符串。R\vaccessToken\x12\x89\x01\n" +
+	"\rrefresh_token\x18\x02 \x01(\tBd\xbaGa\x92\x02^更新令牌；管理端 Cookie-only 请求不在响应体返回，应用端请求可返回。R\frefreshToken\x12\xb4\x01\n" +
 	"\n" +
 	"token_type\x18\x03 \x01(\tB\x94\x01\xbaG\x90\x01\x8a\x02\b\x1a\x06Bearer\x92\x02\x81\x01令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。R\ttokenType\x12\xdc\x01\n" +
 	"\n" +
@@ -887,11 +891,10 @@ const file_base_v1_login_proto_rawDesc = "" +
 	"\n" +
 	"captcha_id\x18\x05 \x01(\tBe\xbaG\x0e\x92\x02\v验证码Id\xbaHQ\xba\x01N\n" +
 	"$base.login.login.captcha_id.required\x12\x15验证码不能为空\x1a\x0fthis.size() > 0R\tcaptchaId:Q\xbaHN\x1aL\n" +
-	"\"base.login.login.password.required\x12\x12密码不能为空\x1a\x12has(this.password)\"\xd1\n" +
-	"\n" +
+	"\"base.login.login.password.required\x12\x12密码不能为空\x1a\x12has(this.password)\"\x9e\t\n" +
 	"\rLoginResponse\x12t\n" +
-	"\faccess_token\x18\x01 \x01(\tBQ\xbaGN\x92\x02K访问令牌，必选项。授权服务器颁发的访问令牌字符串。R\vaccessToken\x12\xbc\x02\n" +
-	"\rrefresh_token\x18\x02 \x01(\tB\x96\x02\xbaG\x92\x02\x92\x02\x8e\x02更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。R\frefreshToken\x12\xb4\x01\n" +
+	"\faccess_token\x18\x01 \x01(\tBQ\xbaGN\x92\x02K访问令牌，必选项。授权服务器颁发的访问令牌字符串。R\vaccessToken\x12\x89\x01\n" +
+	"\rrefresh_token\x18\x02 \x01(\tBd\xbaGa\x92\x02^更新令牌；管理端 Cookie-only 请求不在响应体返回，应用端请求可返回。R\frefreshToken\x12\xb4\x01\n" +
 	"\n" +
 	"token_type\x18\x03 \x01(\tB\x94\x01\xbaG\x90\x01\x8a\x02\b\x1a\x06Bearer\x92\x02\x81\x01令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。R\ttokenType\x12\xdc\x01\n" +
 	"\n" +
@@ -903,14 +906,15 @@ const file_base_v1_login_proto_rawDesc = "" +
 	"\n" +
 	"mfa_method\x18\t \x01(\tB-\xbaG*\x92\x02'多因素认证方式：totp、webauthnR\tmfaMethod\x12Y\n" +
 	"\x19mfa_webauthn_options_json\x18\n" +
-	" \x01(\tB\x1e\xbaG\x1b\x92\x02\x18WebAuthn认证选项JSONR\x16mfaWebauthnOptionsJson*\x8c\x02\n" +
+	" \x01(\tB\x1e\xbaG\x1b\x92\x02\x18WebAuthn认证选项JSONR\x16mfaWebauthnOptionsJson*\xc1\x02\n" +
 	"\x13PasswordCryptoScene\x12%\n" +
 	"!PASSWORD_CRYPTO_SCENE_UNSPECIFIED\x10\x00\x12\x1f\n" +
 	"\x1bPASSWORD_CRYPTO_SCENE_LOGIN\x10\x01\x12*\n" +
 	"&PASSWORD_CRYPTO_SCENE_CREATE_BASE_USER\x10\x02\x122\n" +
 	".PASSWORD_CRYPTO_SCENE_RESET_BASE_USER_PASSWORD\x10\x03\x12.\n" +
 	"*PASSWORD_CRYPTO_SCENE_UPDATE_USER_PASSWORD\x10\x04\x12\x1d\n" +
-	"\x19PASSWORD_CRYPTO_SCENE_MFA\x10\x05*\xbf\x01\n" +
+	"\x19PASSWORD_CRYPTO_SCENE_MFA\x10\x05\x123\n" +
+	"/PASSWORD_CRYPTO_SCENE_CONFIGURE_PASSWORD_POLICY\x10\x06*\xbf\x01\n" +
 	"\vLoginStatus\x12\x1c\n" +
 	"\x18LOGIN_STATUS_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aLOGIN_STATUS_AUTHENTICATED\x10\x01\x12\x1d\n" +

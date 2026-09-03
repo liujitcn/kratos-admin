@@ -344,15 +344,8 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 		return errorsx.Internal("初始化租户默认部门失败").WithCause(err)
 	}
 
-	var defaultTenant *models.BaseTenant
-	defaultTenant, err = c.FindDefault(ctx)
-	if err != nil {
-		return errorsx.Internal("初始化租户管理员角色失败").WithCause(err)
-	}
-
 	roleQuery := c.baseRoleRepo.Query(ctx).BaseRole
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(roleQuery.TenantID.Eq(defaultTenant.ID)))
+	opts := make([]repository.QueryOption, 0, 1)
 	opts = append(opts, repository.Where(roleQuery.Code.Eq(coreconst.BASE_ROLE_CODE_TENANT)))
 	var defaultRole *models.BaseRole
 	defaultRole, err = c.baseRoleRepo.Find(ctx, opts...)
@@ -390,19 +383,20 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 	}
 
 	baseUser := &models.BaseUser{
-		TenantID:          baseTenant.ID,
-		UserName:          baseTenantAdminUserName,
-		UserCode:          baseTenantAdminUserName,
-		NickName:          baseTenantAdminNickName,
-		RoleID:            baseRole.ID,
-		DeptID:            baseDept.ID,
-		Phone:             baseTenant.ContactPhone,
-		Password:          password,
-		Gender:            _const.BASE_USER_GENDER_SECRET,
-		Status:            coreconst.STATUS_STATUS_DISABLE,
-		Remark:            "租户默认管理员，须由平台管理员设置密码后启用",
-		PasswordChangedAt: time.Now(),
-		PasswordHistory:   "[]",
+		TenantID:           baseTenant.ID,
+		UserName:           baseTenantAdminUserName,
+		UserCode:           baseTenantAdminUserName,
+		NickName:           baseTenantAdminNickName,
+		RoleID:             baseRole.ID,
+		DeptID:             baseDept.ID,
+		Phone:              baseTenant.ContactPhone,
+		Password:           password,
+		Gender:             _const.BASE_USER_GENDER_SECRET,
+		Status:             coreconst.STATUS_STATUS_DISABLE,
+		Remark:             "租户默认管理员，须由平台管理员设置密码后启用",
+		PasswordChangedAt:  time.Now(),
+		PasswordHistory:    "[]",
+		MustChangePassword: _const.BASE_USER_PASSWORD_CHANGE_STATUS_REQUIRED,
 	}
 	err = c.baseUserRepo.Create(ctx, baseUser)
 	if err != nil {

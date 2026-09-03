@@ -25,7 +25,7 @@
 import { onBeforeMount, ref, watchEffect } from "vue";
 import { useVModel } from "@vueuse/core";
 import { ElTree } from "element-plus";
-import { defBaseDeptService } from "@liujitcn/kratos-admin-system/api/system/base_dept";
+import { defBaseDeptService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_dept";
 import { TreeOptionResponse_Option } from "@liujitcn/kratos-admin-system/rpc/common/v1/common";
 import { t } from "@liujitcn/kratos-admin-core";
 const props = defineProps({

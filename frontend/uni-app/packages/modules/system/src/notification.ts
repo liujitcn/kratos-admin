@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { setAppMenuBadge } from '@liujitcn/kratos-uni-app-core/navigation'
 import { getRequestAccessToken } from '@liujitcn/kratos-uni-app-core/utils/http'
-import { defNotificationService } from './api/base/notification'
+import { defNotificationService } from './api/base/v1/notification'
 
 /** System 模块共享的站内信未读数。 */
 export const notificationUnreadTotal = ref(0)

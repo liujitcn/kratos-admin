@@ -178,9 +178,9 @@
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { t } from "@liujitcn/kratos-admin-core";
-import { defProfileAuthService } from "@liujitcn/kratos-admin-system/api/system/auth";
-import { defMfaService } from "@liujitcn/kratos-admin-core/api/base/mfa";
-import { defProfileOauthService } from "@liujitcn/kratos-admin-system/api/base/oauth";
+import { defProfileAuthService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/auth";
+import { defMfaService } from "@liujitcn/kratos-admin-core/api/base/v1/mfa";
+import { defProfileOauthService } from "@liujitcn/kratos-admin-system/api/base/v1/oauth";
 import type { OauthBinding } from "@liujitcn/kratos-admin-system/rpc/base/v1/oauth";
 import type {
   SendPhoneCodeRequest,

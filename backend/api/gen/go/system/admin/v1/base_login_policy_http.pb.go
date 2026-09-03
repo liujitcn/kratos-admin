@@ -10,6 +10,7 @@ import (
 	context "context"
 
 	http "github.com/go-kratos/kratos/v3/transport/http"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -18,26 +19,64 @@ var _ = new(context.Context)
 
 const _ = http.SupportPackageIsVersion3
 
+const OperationBaseLoginPolicyServiceCreateBaseLoginPolicy = "/system.admin.v1.BaseLoginPolicyService/CreateBaseLoginPolicy"
+const OperationBaseLoginPolicyServiceDeleteBaseLoginPolicy = "/system.admin.v1.BaseLoginPolicyService/DeleteBaseLoginPolicy"
 const OperationBaseLoginPolicyServiceGetBaseLoginPolicy = "/system.admin.v1.BaseLoginPolicyService/GetBaseLoginPolicy"
+const OperationBaseLoginPolicyServicePageBaseLoginPolicy = "/system.admin.v1.BaseLoginPolicyService/PageBaseLoginPolicy"
+const OperationBaseLoginPolicyServiceSetBaseLoginPolicyStatus = "/system.admin.v1.BaseLoginPolicyService/SetBaseLoginPolicyStatus"
 const OperationBaseLoginPolicyServiceUpdateBaseLoginPolicy = "/system.admin.v1.BaseLoginPolicyService/UpdateBaseLoginPolicy"
 
 type BaseLoginPolicyServiceHTTPServer interface {
-	// GetBaseLoginPolicy 查询登录来源策略。
-	GetBaseLoginPolicy(context.Context, *GetBaseLoginPolicyRequest) (*BaseLoginPolicy, error)
-	// UpdateBaseLoginPolicy 更新登录来源策略。
-	UpdateBaseLoginPolicy(context.Context, *UpdateBaseLoginPolicyRequest) (*BaseLoginPolicy, error)
+	// CreateBaseLoginPolicy 创建登录策略。
+	CreateBaseLoginPolicy(context.Context, *CreateBaseLoginPolicyRequest) (*emptypb.Empty, error)
+	// DeleteBaseLoginPolicy 删除登录策略。
+	DeleteBaseLoginPolicy(context.Context, *DeleteBaseLoginPolicyRequest) (*emptypb.Empty, error)
+	// GetBaseLoginPolicy 查询登录策略详情。
+	GetBaseLoginPolicy(context.Context, *GetBaseLoginPolicyRequest) (*BaseLoginPolicyForm, error)
+	// PageBaseLoginPolicy 分页查询登录策略。
+	PageBaseLoginPolicy(context.Context, *PageBaseLoginPolicyRequest) (*PageBaseLoginPolicyResponse, error)
+	// SetBaseLoginPolicyStatus 设置登录策略状态。
+	SetBaseLoginPolicyStatus(context.Context, *SetBaseLoginPolicyStatusRequest) (*emptypb.Empty, error)
+	// UpdateBaseLoginPolicy 更新登录策略。
+	UpdateBaseLoginPolicy(context.Context, *UpdateBaseLoginPolicyRequest) (*emptypb.Empty, error)
 }
 
 func RegisterBaseLoginPolicyServiceHTTPServer(s *http.Server, srv BaseLoginPolicyServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("GET", "/api/v1/admin/base/login-policy", _BaseLoginPolicyService_GetBaseLoginPolicy0_HTTP_Handler(srv))
-	r.Handle("PUT", "/api/v1/admin/base/login-policy", _BaseLoginPolicyService_UpdateBaseLoginPolicy0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/login-policy", _BaseLoginPolicyService_PageBaseLoginPolicy0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/login-policy/{id}", _BaseLoginPolicyService_GetBaseLoginPolicy0_HTTP_Handler(srv))
+	r.Handle("POST", "/api/v1/admin/base/login-policy", _BaseLoginPolicyService_CreateBaseLoginPolicy0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/admin/base/login-policy/{base_login_policy.id}", _BaseLoginPolicyService_UpdateBaseLoginPolicy0_HTTP_Handler(srv))
+	r.Handle("DELETE", "/api/v1/admin/base/login-policy/{id}", _BaseLoginPolicyService_DeleteBaseLoginPolicy0_HTTP_Handler(srv))
+	r.Handle("PUT", "/api/v1/admin/base/login-policy/{id}/status", _BaseLoginPolicyService_SetBaseLoginPolicyStatus0_HTTP_Handler(srv))
+}
+
+func _BaseLoginPolicyService_PageBaseLoginPolicy0_HTTP_Handler(srv BaseLoginPolicyServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PageBaseLoginPolicyRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseLoginPolicyServicePageBaseLoginPolicy)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PageBaseLoginPolicy(ctx, req.(*PageBaseLoginPolicyRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PageBaseLoginPolicyResponse)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _BaseLoginPolicyService_GetBaseLoginPolicy0_HTTP_Handler(srv BaseLoginPolicyServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in GetBaseLoginPolicyRequest
 		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationBaseLoginPolicyServiceGetBaseLoginPolicy)
@@ -48,7 +87,29 @@ func _BaseLoginPolicyService_GetBaseLoginPolicy0_HTTP_Handler(srv BaseLoginPolic
 		if err != nil {
 			return err
 		}
-		reply := out.(*BaseLoginPolicy)
+		reply := out.(*BaseLoginPolicyForm)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _BaseLoginPolicyService_CreateBaseLoginPolicy0_HTTP_Handler(srv BaseLoginPolicyServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in CreateBaseLoginPolicyRequest
+		if err := ctx.Bind(&in.BaseLoginPolicy); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseLoginPolicyServiceCreateBaseLoginPolicy)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CreateBaseLoginPolicy(ctx, req.(*CreateBaseLoginPolicyRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
 		return ctx.Result(200, reply)
 	}
 }
@@ -56,10 +117,13 @@ func _BaseLoginPolicyService_GetBaseLoginPolicy0_HTTP_Handler(srv BaseLoginPolic
 func _BaseLoginPolicyService_UpdateBaseLoginPolicy0_HTTP_Handler(srv BaseLoginPolicyServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in UpdateBaseLoginPolicyRequest
-		if err := ctx.Bind(&in.Policy); err != nil {
+		if err := ctx.Bind(&in.BaseLoginPolicy); err != nil {
 			return err
 		}
 		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationBaseLoginPolicyServiceUpdateBaseLoginPolicy)
@@ -70,16 +134,68 @@ func _BaseLoginPolicyService_UpdateBaseLoginPolicy0_HTTP_Handler(srv BaseLoginPo
 		if err != nil {
 			return err
 		}
-		reply := out.(*BaseLoginPolicy)
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _BaseLoginPolicyService_DeleteBaseLoginPolicy0_HTTP_Handler(srv BaseLoginPolicyServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in DeleteBaseLoginPolicyRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseLoginPolicyServiceDeleteBaseLoginPolicy)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeleteBaseLoginPolicy(ctx, req.(*DeleteBaseLoginPolicyRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _BaseLoginPolicyService_SetBaseLoginPolicyStatus0_HTTP_Handler(srv BaseLoginPolicyServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetBaseLoginPolicyStatusRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseLoginPolicyServiceSetBaseLoginPolicyStatus)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetBaseLoginPolicyStatus(ctx, req.(*SetBaseLoginPolicyStatusRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
 		return ctx.Result(200, reply)
 	}
 }
 
 type BaseLoginPolicyServiceHTTPClient interface {
-	// GetBaseLoginPolicy 查询登录来源策略。
-	GetBaseLoginPolicy(ctx context.Context, req *GetBaseLoginPolicyRequest, opts ...http.CallOption) (rsp *BaseLoginPolicy, err error)
-	// UpdateBaseLoginPolicy 更新登录来源策略。
-	UpdateBaseLoginPolicy(ctx context.Context, req *UpdateBaseLoginPolicyRequest, opts ...http.CallOption) (rsp *BaseLoginPolicy, err error)
+	// CreateBaseLoginPolicy 创建登录策略。
+	CreateBaseLoginPolicy(ctx context.Context, req *CreateBaseLoginPolicyRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// DeleteBaseLoginPolicy 删除登录策略。
+	DeleteBaseLoginPolicy(ctx context.Context, req *DeleteBaseLoginPolicyRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// GetBaseLoginPolicy 查询登录策略详情。
+	GetBaseLoginPolicy(ctx context.Context, req *GetBaseLoginPolicyRequest, opts ...http.CallOption) (rsp *BaseLoginPolicyForm, err error)
+	// PageBaseLoginPolicy 分页查询登录策略。
+	PageBaseLoginPolicy(ctx context.Context, req *PageBaseLoginPolicyRequest, opts ...http.CallOption) (rsp *PageBaseLoginPolicyResponse, err error)
+	// SetBaseLoginPolicyStatus 设置登录策略状态。
+	SetBaseLoginPolicyStatus(ctx context.Context, req *SetBaseLoginPolicyStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// UpdateBaseLoginPolicy 更新登录策略。
+	UpdateBaseLoginPolicy(ctx context.Context, req *UpdateBaseLoginPolicyRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type BaseLoginPolicyServiceHTTPClientImpl struct {
@@ -90,10 +206,45 @@ func NewBaseLoginPolicyServiceHTTPClient(client *http.Client) BaseLoginPolicySer
 	return &BaseLoginPolicyServiceHTTPClientImpl{client}
 }
 
-// GetBaseLoginPolicy 查询登录来源策略。
-func (c *BaseLoginPolicyServiceHTTPClientImpl) GetBaseLoginPolicy(ctx context.Context, in *GetBaseLoginPolicyRequest, opts ...http.CallOption) (*BaseLoginPolicy, error) {
-	var out BaseLoginPolicy
+// CreateBaseLoginPolicy 创建登录策略。
+func (c *BaseLoginPolicyServiceHTTPClientImpl) CreateBaseLoginPolicy(ctx context.Context, in *CreateBaseLoginPolicyRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
 	pattern := "/api/v1/admin/base/login-policy"
+	path := http.BuildPath(pattern, in, http.WithQueryParams(), http.WithOmitFields("baseLoginPolicy"))
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.ContentType("application/protojson"),
+		http.Operation(OperationBaseLoginPolicyServiceCreateBaseLoginPolicy),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in.BaseLoginPolicy, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// DeleteBaseLoginPolicy 删除登录策略。
+func (c *BaseLoginPolicyServiceHTTPClientImpl) DeleteBaseLoginPolicy(ctx context.Context, in *DeleteBaseLoginPolicyRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/api/v1/admin/base/login-policy/{id}"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationBaseLoginPolicyServiceDeleteBaseLoginPolicy),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// GetBaseLoginPolicy 查询登录策略详情。
+func (c *BaseLoginPolicyServiceHTTPClientImpl) GetBaseLoginPolicy(ctx context.Context, in *GetBaseLoginPolicyRequest, opts ...http.CallOption) (*BaseLoginPolicyForm, error) {
+	var out BaseLoginPolicyForm
+	pattern := "/api/v1/admin/base/login-policy/{id}"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
@@ -107,18 +258,53 @@ func (c *BaseLoginPolicyServiceHTTPClientImpl) GetBaseLoginPolicy(ctx context.Co
 	return &out, nil
 }
 
-// UpdateBaseLoginPolicy 更新登录来源策略。
-func (c *BaseLoginPolicyServiceHTTPClientImpl) UpdateBaseLoginPolicy(ctx context.Context, in *UpdateBaseLoginPolicyRequest, opts ...http.CallOption) (*BaseLoginPolicy, error) {
-	var out BaseLoginPolicy
+// PageBaseLoginPolicy 分页查询登录策略。
+func (c *BaseLoginPolicyServiceHTTPClientImpl) PageBaseLoginPolicy(ctx context.Context, in *PageBaseLoginPolicyRequest, opts ...http.CallOption) (*PageBaseLoginPolicyResponse, error) {
+	var out PageBaseLoginPolicyResponse
 	pattern := "/api/v1/admin/base/login-policy"
-	path := http.BuildPath(pattern, in, http.WithQueryParams(), http.WithOmitFields("policy"))
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationBaseLoginPolicyServicePageBaseLoginPolicy),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// SetBaseLoginPolicyStatus 设置登录策略状态。
+func (c *BaseLoginPolicyServiceHTTPClientImpl) SetBaseLoginPolicyStatus(ctx context.Context, in *SetBaseLoginPolicyStatusRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/api/v1/admin/base/login-policy/{id}/status"
+	path := http.BuildPath(pattern, in)
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.ContentType("application/protojson"),
+		http.Operation(OperationBaseLoginPolicyServiceSetBaseLoginPolicyStatus),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// UpdateBaseLoginPolicy 更新登录策略。
+func (c *BaseLoginPolicyServiceHTTPClientImpl) UpdateBaseLoginPolicy(ctx context.Context, in *UpdateBaseLoginPolicyRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/api/v1/admin/base/login-policy/{base_login_policy.id}"
+	path := http.BuildPath(pattern, in, http.WithQueryParams(), http.WithOmitFields("baseLoginPolicy"))
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
 		http.ContentType("application/protojson"),
 		http.Operation(OperationBaseLoginPolicyServiceUpdateBaseLoginPolicy),
 		http.PathTemplate(pattern),
 	}, opts...)
-	err := c.cc.Invoke(ctx, "PUT", path, in.Policy, &out, opts...)
+	err := c.cc.Invoke(ctx, "PUT", path, in.BaseLoginPolicy, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

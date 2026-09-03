@@ -14,6 +14,16 @@ import { dirname, resolve } from 'node:path'
 import test from 'node:test'
 import { loadConfigFromFile } from 'vite'
 
+test('H5 开发服务器默认打开浏览器', async () => {
+  const fixture = await createViteFixture({ configure: false })
+
+  try {
+    assert.equal(fixture.serverOpen, true)
+  } finally {
+    fixture.dispose()
+  }
+})
+
 test('扫描模块页面、合并静态资源并在结束时恢复宿主文件', async () => {
   const fixture = await createViteFixture()
   const {
@@ -45,7 +55,7 @@ test('扫描模块页面、合并静态资源并在结束时恢复宿主文件',
       '@liujitcn/kratos-uni-app-core/utils/http',
       `${resolve(
         hostRoot,
-        'node_modules/@liujitcn/kratos-uni-app-system/src/api/base/ai_session.ts',
+        'node_modules/@liujitcn/kratos-uni-app-system/src/api/base/v1/ai_session.ts',
       )}?v=dependency-version`,
     )
     assert.match(
@@ -234,7 +244,7 @@ test('不同开发服务使用独立模块版本避免复用旧源码缓存', as
   try {
     const importer = `${resolve(
       firstFixture.hostRoot,
-      'node_modules/@liujitcn/kratos-uni-app-system/src/api/base/ai_session.ts',
+      'node_modules/@liujitcn/kratos-uni-app-system/src/api/base/v1/ai_session.ts',
     )}?v=dependency-version`
     const firstResolved = new URL(
       `file://${firstFixture.plugin.resolveId('@liujitcn/kratos-uni-app-core/navigation', importer)}`,
@@ -311,6 +321,7 @@ async function createViteFixture(options = {}) {
     original,
     pagesFile,
     plugin,
+    serverOpen: loaded.config.server?.open,
     transactionFile,
     workspaceRoot,
     dispose() {

@@ -70,7 +70,7 @@ type baseDataAccessLog struct {
 	TraceID      field.String // 链路追踪ID
 	ResourceType field.String // 资源类型
 	ResourceID   field.String // 资源ID
-	AccessType   field.Int32  // 访问类型
+	AccessType   field.Int32  // 访问类型：枚举【BaseDataAccessType】
 	DataSource   field.String // 数据源
 	TableName_   field.String // 数据表名
 	FieldScope   field.String // 访问字段范围
@@ -79,7 +79,7 @@ type baseDataAccessLog struct {
 	Sensitive    field.Int32  // 是否敏感数据
 	SqlText      field.String // 脱敏SQL
 	SqlDigest    field.String // SQL指纹
-	Result       field.Int32  // 结果
+	Result       field.Int32  // 结果：枚举【BaseLogResult】
 	ReasonCode   field.String // 原因编码
 	LatencyMs    field.Int32  // 耗时毫秒
 	OccurredAt   field.Time   // 事件发生时间

@@ -201,7 +201,7 @@ func (b *BatchGeneration) GenerationForTable(tableID int64) *Generation {
 func (c *renderer) validateGeneratedProtoHTTPRoutes(table *Table, methods []*Proto) error {
 	for _, method := range methods {
 		targetEntity := DefaultString(method.TargetEntityName, table.EntityName)
-		exists, _ := c.protoMethodExists(method.ProtoFilePath, targetEntity, method.MethodName)
+		exists := c.protoMethodExists(method.ProtoFilePath, targetEntity, method.MethodName)
 		// 已有同名 RPC 会在完整渲染或增量补丁中复用，无需重复判定路由。
 		if exists {
 			continue
@@ -303,7 +303,7 @@ func validateBatchMethodConflicts(inputs []BatchGenerationInput, generations []*
 		renderer := &renderer{tableComment: input.TableComment}
 		for _, method := range generation.GeneratedMethods {
 			targetEntity := DefaultString(method.TargetEntityName, generation.Table.EntityName)
-			exists, _ := renderer.protoMethodExists(method.ProtoFilePath, targetEntity, method.MethodName)
+			exists := renderer.protoMethodExists(method.ProtoFilePath, targetEntity, method.MethodName)
 			if exists {
 				continue
 			}

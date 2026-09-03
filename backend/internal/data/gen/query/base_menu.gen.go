@@ -56,7 +56,7 @@ type baseMenu struct {
 	ALL       field.Asterisk
 	ID        field.Int64  // 菜单ID
 	ParentID  field.Int64  // 父级菜单ID
-	Type      field.Int32  // 菜单类型 1: 目录 2: 菜单 3: 按钮 4：外部链接
+	Type      field.Int32  // 菜单类型：枚举【BaseMenuType】
 	Path      field.String // 路径,当其类型为'按钮'的时候对应的按钮权限base:user:create
 	Name      field.String // 路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。如果需要开启缓存，需保证页面 defineOptions 中的 name 与此处一致，建议使用驼峰。
 	Component field.String // 前端页面组件

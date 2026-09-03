@@ -5,59 +5,208 @@
 // source: system/admin/v1/base_login_policy.proto
 
 /* eslint-disable */
+import type { Status } from "../../../common/v1/enum";
+import type { PasswordCrypto } from "../../../common/v1/types";
+import type { Empty } from "../../../google/protobuf/empty";
 
-/** 查询登录来源策略请求参数。 */
+/** 登录策略作用域类型。 */
+export enum BaseLoginPolicyScopeType {
+  /** BASE_LOGIN_POLICY_SCOPE_TYPE_UNSPECIFIED - 未指定作用域。 */
+  BASE_LOGIN_POLICY_SCOPE_TYPE_UNSPECIFIED = 0,
+  /** BASE_LOGIN_POLICY_SCOPE_TYPE_GLOBAL - 全局作用域。 */
+  BASE_LOGIN_POLICY_SCOPE_TYPE_GLOBAL = 1,
+  /** BASE_LOGIN_POLICY_SCOPE_TYPE_TENANT - 租户作用域。 */
+  BASE_LOGIN_POLICY_SCOPE_TYPE_TENANT = 2,
+  /** BASE_LOGIN_POLICY_SCOPE_TYPE_USER - 用户作用域。 */
+  BASE_LOGIN_POLICY_SCOPE_TYPE_USER = 3,
+}
+
+/** 登录策略限制类型。 */
+export enum BaseLoginPolicyRestrictionType {
+  /** BASE_LOGIN_POLICY_RESTRICTION_TYPE_UNSPECIFIED - 未指定限制类型。 */
+  BASE_LOGIN_POLICY_RESTRICTION_TYPE_UNSPECIFIED = 0,
+  /** BASE_LOGIN_POLICY_RESTRICTION_TYPE_BLACKLIST - 黑名单，命中后拒绝登录。 */
+  BASE_LOGIN_POLICY_RESTRICTION_TYPE_BLACKLIST = 1,
+  /** BASE_LOGIN_POLICY_RESTRICTION_TYPE_WHITELIST - 白名单，未命中时拒绝登录。 */
+  BASE_LOGIN_POLICY_RESTRICTION_TYPE_WHITELIST = 2,
+}
+
+/** 登录策略限制方式。 */
+export enum BaseLoginPolicyRestrictionMethod {
+  /** BASE_LOGIN_POLICY_RESTRICTION_METHOD_UNSPECIFIED - 未指定限制方式。 */
+  BASE_LOGIN_POLICY_RESTRICTION_METHOD_UNSPECIFIED = 0,
+  /** BASE_LOGIN_POLICY_RESTRICTION_METHOD_IP - IP地址限制。 */
+  BASE_LOGIN_POLICY_RESTRICTION_METHOD_IP = 1,
+  /** BASE_LOGIN_POLICY_RESTRICTION_METHOD_MAC - MAC地址限制。 */
+  BASE_LOGIN_POLICY_RESTRICTION_METHOD_MAC = 2,
+  /** BASE_LOGIN_POLICY_RESTRICTION_METHOD_REGION - 地区限制。 */
+  BASE_LOGIN_POLICY_RESTRICTION_METHOD_REGION = 3,
+  /** BASE_LOGIN_POLICY_RESTRICTION_METHOD_TIME - 时间限制。 */
+  BASE_LOGIN_POLICY_RESTRICTION_METHOD_TIME = 4,
+  /** BASE_LOGIN_POLICY_RESTRICTION_METHOD_DEVICE - 设备限制。 */
+  BASE_LOGIN_POLICY_RESTRICTION_METHOD_DEVICE = 5,
+}
+
+/** 登录策略分页查询条件。 */
+export interface PageBaseLoginPolicyRequest {
+  /** 作用域类型 */
+  scope_type?:
+    | BaseLoginPolicyScopeType
+    | undefined;
+  /** 状态 */
+  status?:
+    | Status
+    | undefined;
+  /** 当前页码 */
+  page_num: number;
+  /** 每一页的行数 */
+  page_size: number;
+}
+
+/** 登录策略分页响应。 */
+export interface PageBaseLoginPolicyResponse {
+  /** 登录策略列表 */
+  base_login_policies: BaseLoginPolicy[];
+  /** 总数 */
+  total: number;
+}
+
+/** 查询登录策略详情请求参数。 */
 export interface GetBaseLoginPolicyRequest {
+  /** 登录策略ID */
+  id: number;
 }
 
-/** 更新登录来源策略请求参数。 */
+/** 创建登录策略请求参数。 */
+export interface CreateBaseLoginPolicyRequest {
+  /** 登录策略表单 */
+  base_login_policy: BaseLoginPolicyForm | undefined;
+}
+
+/** 更新登录策略请求参数。 */
 export interface UpdateBaseLoginPolicyRequest {
-  /** 登录来源策略 */
-  policy: BaseLoginPolicy | undefined;
+  /** 登录策略表单 */
+  base_login_policy: BaseLoginPolicyForm | undefined;
 }
 
-/** 登录来源策略。 */
-export interface BaseLoginPolicy {
-  /** 是否启用 */
-  enabled: boolean;
-  /** IP黑名单 */
-  ip_blacklist: string[];
-  /** IP白名单 */
-  ip_whitelist: string[];
-  /** 禁止登录时间窗口 */
-  time_windows: string[];
-  /** 设备黑名单 */
-  device_blacklist: string[];
-  /** 设备白名单 */
-  device_whitelist: string[];
-  /** 按租户或用户匹配的定向规则 */
+/** 删除登录策略请求参数。 */
+export interface DeleteBaseLoginPolicyRequest {
+  /** 登录策略ID列表 */
+  id: string;
+}
+
+/** 设置登录策略状态请求参数。 */
+export interface SetBaseLoginPolicyStatusRequest {
+  /** 登录策略ID */
+  id: number;
+  /** 状态 */
+  status: Status;
+}
+
+/** 登录策略表单。 */
+export interface BaseLoginPolicyForm {
+  /** 登录策略ID */
+  id: number;
+  /** 作用域类型 */
+  scope_type: BaseLoginPolicyScopeType;
+  /** 租户ID */
+  tenant_id: number;
+  /** 用户ID */
+  user_id: number;
+  /** 最大登录失败次数 */
+  max_failed_attempts: number;
+  /** 锁定时长（分钟） */
+  lock_duration_minutes: number;
+  /** 状态 */
+  status: Status;
+  /** 密码有效期（天） */
+  password_max_age_days?:
+    | number
+    | undefined;
+  /** 限制规则列表 */
   rules: BaseLoginPolicyRule[];
+  /** 密码最小长度 */
+  password_min_length?:
+    | number
+    | undefined;
+  /** 禁止重复使用的历史密码数量，0表示不启用 */
+  password_history_count?:
+    | number
+    | undefined;
+  /** 密码至少满足的字符类别数量，字符类别包括小写、大写、数字和符号 */
+  password_min_complexity_classes?:
+    | number
+    | undefined;
+  /** 初始化密码，新增用户未提交密码时使用 */
+  initial_password: PasswordCrypto | undefined;
 }
 
-/** 登录来源定向规则。 */
+/** 登录策略列表项。 */
+export interface BaseLoginPolicy {
+  /** 登录策略ID */
+  id: number;
+  /** 作用域类型 */
+  scope_type: BaseLoginPolicyScopeType;
+  /** 租户ID */
+  tenant_id: number;
+  /** 用户ID */
+  user_id: number;
+  /** 租户名称 */
+  tenant_name: string;
+  /** 用户账号 */
+  user_name: string;
+  /** 最大登录失败次数 */
+  max_failed_attempts: number;
+  /** 锁定时长（分钟） */
+  lock_duration_minutes: number;
+  /** 状态 */
+  status: Status;
+  /** 创建时间 */
+  created_at: string;
+  /** 更新时间 */
+  updated_at: string;
+  /** 密码有效期（天） */
+  password_max_age_days: number;
+  /** 限制规则列表 */
+  rules: BaseLoginPolicyRule[];
+  /** 密码最小长度 */
+  password_min_length: number;
+  /** 禁止重复使用的历史密码数量，0表示不启用 */
+  password_history_count: number;
+  /** 密码至少满足的字符类别数量，字符类别包括小写、大写、数字和符号 */
+  password_min_complexity_classes: number;
+}
+
+/** 登录策略限制规则。 */
 export interface BaseLoginPolicyRule {
-  /** 目标类型：TENANT或USER */
-  target_type: string;
-  /** 目标值：租户编码或用户名 */
-  target_value: string;
-  /** 是否启用 */
-  enabled: boolean;
-  /** IP黑名单 */
-  ip_blacklist: string[];
-  /** IP白名单 */
-  ip_whitelist: string[];
-  /** 禁止登录时间窗口 */
-  time_windows: string[];
-  /** 设备黑名单 */
-  device_blacklist: string[];
-  /** 设备白名单 */
-  device_whitelist: string[];
+  /** 限制规则ID */
+  id: number;
+  /** 登录策略ID */
+  policy_id: number;
+  /** 限制类型 */
+  restriction_type: BaseLoginPolicyRestrictionType;
+  /** 限制方式 */
+  restriction_method: BaseLoginPolicyRestrictionMethod;
+  /** 限制值 */
+  restriction_value: string;
+  /** 限制原因 */
+  reason: string;
+  /** 状态 */
+  status: Status;
 }
 
-/** Admin登录来源策略服务。 */
+/** Admin登录策略管理服务。 */
 export interface BaseLoginPolicyService {
-  /** 查询登录来源策略。 */
-  GetBaseLoginPolicy(request: GetBaseLoginPolicyRequest): Promise<BaseLoginPolicy>;
-  /** 更新登录来源策略。 */
-  UpdateBaseLoginPolicy(request: UpdateBaseLoginPolicyRequest): Promise<BaseLoginPolicy>;
+  /** 分页查询登录策略。 */
+  PageBaseLoginPolicy(request: PageBaseLoginPolicyRequest): Promise<PageBaseLoginPolicyResponse>;
+  /** 查询登录策略详情。 */
+  GetBaseLoginPolicy(request: GetBaseLoginPolicyRequest): Promise<BaseLoginPolicyForm>;
+  /** 创建登录策略。 */
+  CreateBaseLoginPolicy(request: CreateBaseLoginPolicyRequest): Promise<Empty>;
+  /** 更新登录策略。 */
+  UpdateBaseLoginPolicy(request: UpdateBaseLoginPolicyRequest): Promise<Empty>;
+  /** 删除登录策略。 */
+  DeleteBaseLoginPolicy(request: DeleteBaseLoginPolicyRequest): Promise<Empty>;
+  /** 设置登录策略状态。 */
+  SetBaseLoginPolicyStatus(request: SetBaseLoginPolicyStatusRequest): Promise<Empty>;
 }

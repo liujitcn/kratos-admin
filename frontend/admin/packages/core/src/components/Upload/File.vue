@@ -38,7 +38,7 @@ import { computed, inject } from "vue";
 import { Delete, Document, Download } from "@element-plus/icons-vue";
 import { ElNotification, formContextKey, formItemContextKey } from "element-plus";
 import type { UploadProps, UploadRequestOptions, UploadUserFile } from "element-plus";
-import { defFileService } from "@/api/base/file";
+import { defFileService } from "@/api/base/v1/file";
 import type { FileInfo } from "@/rpc/base/v1/file";
 import { useLocaleStore } from "@/locales";
 
@@ -171,7 +171,7 @@ async function handleDownload() {
   margin-top: 12px;
   background: var(--el-fill-color-light);
   border: 1px solid var(--el-border-color-light);
-  border-radius: 8px;
+  border-radius: var(--admin-page-radius);
 }
 .file-card__main {
   display: flex;

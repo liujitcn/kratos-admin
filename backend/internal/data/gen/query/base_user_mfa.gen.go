@@ -31,8 +31,8 @@ func newBaseUserMFA(db *gorm.DB, opts ...gen.DOOption) baseUserMFA {
 	_baseUserMFA.TenantID = field.NewInt64(tableName, "tenant_id")
 	_baseUserMFA.UserID = field.NewInt64(tableName, "user_id")
 	_baseUserMFA.Method = field.NewString(tableName, "method")
-	_baseUserMFA.Status = field.NewInt32(tableName, "status")
 	_baseUserMFA.ConfirmedAt = field.NewTime(tableName, "confirmed_at")
+	_baseUserMFA.Status = field.NewInt32(tableName, "status")
 	_baseUserMFA.CreatedBy = field.NewInt64(tableName, "created_by")
 	_baseUserMFA.UpdatedBy = field.NewInt64(tableName, "updated_by")
 	_baseUserMFA.CreatedAt = field.NewTime(tableName, "created_at")
@@ -53,8 +53,8 @@ type baseUserMFA struct {
 	TenantID    field.Int64  // 租户ID
 	UserID      field.Int64  // 用户ID
 	Method      field.String // 认证方式：totp、webauthn
-	Status      field.Int32  // 状态：1启用，2禁用
 	ConfirmedAt field.Time   // 确认启用时间
+	Status      field.Int32  // 状态：枚举【Status】
 	CreatedBy   field.Int64  // 创建者ID
 	UpdatedBy   field.Int64  // 更新者ID
 	CreatedAt   field.Time   // 创建时间
@@ -80,8 +80,8 @@ func (b *baseUserMFA) updateTableName(table string) *baseUserMFA {
 	b.TenantID = field.NewInt64(table, "tenant_id")
 	b.UserID = field.NewInt64(table, "user_id")
 	b.Method = field.NewString(table, "method")
-	b.Status = field.NewInt32(table, "status")
 	b.ConfirmedAt = field.NewTime(table, "confirmed_at")
+	b.Status = field.NewInt32(table, "status")
 	b.CreatedBy = field.NewInt64(table, "created_by")
 	b.UpdatedBy = field.NewInt64(table, "updated_by")
 	b.CreatedAt = field.NewTime(table, "created_at")
@@ -118,8 +118,8 @@ func (b *baseUserMFA) fillFieldMap() {
 	b.fieldMap["tenant_id"] = b.TenantID
 	b.fieldMap["user_id"] = b.UserID
 	b.fieldMap["method"] = b.Method
-	b.fieldMap["status"] = b.Status
 	b.fieldMap["confirmed_at"] = b.ConfirmedAt
+	b.fieldMap["status"] = b.Status
 	b.fieldMap["created_by"] = b.CreatedBy
 	b.fieldMap["updated_by"] = b.UpdatedBy
 	b.fieldMap["created_at"] = b.CreatedAt

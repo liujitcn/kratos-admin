@@ -1,6 +1,7 @@
 import type { Component } from "vue";
 import { defineAdminModule } from "@liujitcn/kratos-admin-core";
 import Ai from "./components/Ai.vue";
+import ForcedPasswordDialog from "./components/ForcedPasswordDialog.vue";
 import Notification from "./components/Notification.vue";
 
 // 语言包由同步脚本生成并注册，供 System 页面、组件和代码生成页面使用。
@@ -14,7 +15,8 @@ export const systemAdminModule = defineAdminModule({
   views: viewModules,
   headerTools: [
     { name: "notification", component: Notification },
-    { name: "ai", component: Ai }
+    { name: "ai", component: Ai },
+    { name: "forced-password-dialog", component: ForcedPasswordDialog }
   ],
   userMenuActions: [{ name: "profile", labelKey: "system.profile.title", menuName: "Profile", icon: User }],
   routeOptions: {

@@ -33,8 +33,8 @@ import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
 import { copyText } from "@liujitcn/kratos-admin-core/security";
-import { defOauthClientService } from "@liujitcn/kratos-admin-system/api/system/oauth_client";
-import { defBaseTenantService } from "@liujitcn/kratos-admin-system/api/system/base_tenant";
+import { defOauthClientService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/oauth_client";
+import { defBaseTenantService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_tenant";
 import type { BaseApi } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_api";
 import {
   OauthClientCryptoType,

@@ -38,7 +38,7 @@ import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
-import { defBaseAreaService } from "@liujitcn/kratos-admin-system/api/system/base_area";
+import { defBaseAreaService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_area";
 
 import type { TreeBaseAreaRequest, BaseArea, BaseAreaForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_area";
 

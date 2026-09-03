@@ -7,6 +7,8 @@ import NProgress from "@/config/nprogress";
 import { isUnmatchedRoute } from "@/utils/router";
 import { ensureAccessToken } from "@/utils/request";
 import { t } from "@/locales";
+import { useUserStore } from "@/stores/modules/user";
+import { setAdminDocumentTitle } from "@/documentTitle";
 
 const mode = import.meta.env.VITE_ROUTER_MODE;
 
@@ -42,20 +44,15 @@ const router = createRouter({
  * */
 router.beforeEach(async to => {
   const authStore = useAuthStore();
+  const userStore = useUserStore();
   const redirectQuery = typeof to.query.redirect === "string" ? to.query.redirect : "";
 
   // 1.NProgress 开始
   NProgress.start();
 
-  // 2.动态设置标题
-  const title = import.meta.env.VITE_GLOB_APP_TITLE;
-  const titleKey = typeof to.meta.titleKey === "string" ? to.meta.titleKey : "";
-  const routeTitle = titleKey ? t(titleKey) : String(to.meta.title ?? "");
-  document.title = routeTitle ? `${routeTitle} - ${title}` : title;
-
   const hasAccessToken = await ensureAccessToken();
 
-  // 3.判断是访问登陆页，有 Token 就在当前页面，没有 Token 重置路由到登陆页
+  // 2.判断是访问登陆页，有 Token 就在当前页面，没有 Token 重置路由到登陆页
   if (to.path.toLocaleLowerCase() === LOGIN_URL) {
     const hasOauthCallback = typeof to.query.oauth_ticket === "string" || typeof to.query.oauth_error === "string";
     if (hasOauthCallback) {
@@ -71,10 +68,10 @@ router.beforeEach(async to => {
     return true;
   }
 
-  // 4.判断访问页面是否在路由白名单地址(静态路由)中，如果存在直接放行
+  // 3.判断访问页面是否在路由白名单地址(静态路由)中，如果存在直接放行
   if (ROUTER_WHITE_LIST.includes(to.path)) return true;
 
-  // 5.判断是否有可用 Token，没有重定向到 login 页面
+  // 4.判断是否有可用 Token，没有重定向到 login 页面
   if (!hasAccessToken) {
     const redirect = to.path === LOGIN_URL ? undefined : to.fullPath;
     return {
@@ -84,24 +81,25 @@ router.beforeEach(async to => {
     };
   }
 
-  // 6.如果没有菜单列表，就重新请求菜单列表并添加动态路由
+  // 5.如果没有菜单列表，就重新请求菜单列表并添加动态路由
   if (!authStore.authMenuListGet.length) {
+    await userStore.getUserInfo();
     await initDynamicRouter();
     if (isUnmatchedRoute(router, to.path)) return getFirstAccessibleRoutePath();
     return { ...to, replace: true };
   }
 
-  // 6.1 菜单已恢复但路由实例尚未重新挂载时，补跑一次动态路由注册，避免刷新或登录首跳直接命中 404。
+  // 5.1 菜单已恢复但路由实例尚未重新挂载时，补跑一次动态路由注册，避免刷新或登录首跳直接命中 404。
   if (isUnmatchedRoute(router, to.path)) {
     await initDynamicRouter();
     if (isUnmatchedRoute(router, to.path)) return getFirstAccessibleRoutePath();
     return { ...to, replace: true };
   }
 
-  // 7.存储 routerName 做按钮权限筛选
+  // 6.存储 routerName 做按钮权限筛选
   authStore.setRouteName(to.name as string);
 
-  // 8.正常访问页面
+  // 7.正常访问页面
   return true;
 });
 
@@ -139,8 +137,11 @@ router.onError(error => {
 /**
  * @description 路由跳转结束
  * */
-router.afterEach(() => {
+router.afterEach(to => {
   NProgress.done();
+  const titleKey = typeof to.meta.titleKey === "string" ? to.meta.titleKey : "";
+  const routeTitle = titleKey ? t(titleKey) : String(to.meta.title ?? "");
+  setAdminDocumentTitle(routeTitle);
 });
 
 export default router;

@@ -8,9 +8,9 @@ package main
 
 import (
 	"github.com/go-kratos/kratos/v3"
+	"github.com/google/wire"
 	"github.com/liujitcn/kratos-admin/backend"
 	kratoscore "github.com/liujitcn/kratos-core"
-	"github.com/liujitcn/kratos-core/audit"
 	biz2 "github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/config"
 	"github.com/liujitcn/kratos-core/data"
@@ -233,7 +233,8 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	scheduler := job.NewScheduler(baseJobRepository, jobRegistry)
+	executionLocker := job.NewExecutionLocker(data_Redis)
+	scheduler := job.NewSchedulerWithLocker(baseJobRepository, jobRegistry, executionLocker)
 	jobJob := job.NewJob(scheduler)
 	moduleDocs := module.NewDocsFromResources(resources)
 	docsRegistry, err := docs.NewRegistry(moduleDocs)
@@ -308,7 +309,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	baseJobLogRepository := data.NewBaseJobLogRepository(dataData)
 	baseAPILogRepository := data.NewBaseAPILogRepository(dataData)
 	basePolicyEvaluationLogRepository := data.NewBasePolicyEvaluationLogRepository(dataData)
-	pipeline, cleanup11 := audit.NewPipeline(queueQueue, baseAPILogRepository, basePolicyEvaluationLogRepository)
+	logPipeline, cleanup11 := biz2.NewLogPipeline(queueQueue, baseAPILogRepository, basePolicyEvaluationLogRepository)
 	adminConsumers, cleanup12, err := backend.NewQueueConsumers(v2, baseCase, sseSSE)
 	if err != nil {
 		cleanup11()
@@ -325,7 +326,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	consumers := provideConsumers(adminConsumers)
-	queueServer, err := queue2.NewServer(queueQueue, baseJobLogRepository, pipeline, consumers)
+	queueServer, err := queue2.NewServer(queueQueue, baseJobLogRepository, logPipeline, consumers)
 	if err != nil {
 		cleanup12()
 		cleanup11()
@@ -358,3 +359,14 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 	}, nil
 }
+
+// wire.go:
+
+// hostProviderSet 将 Admin 的具名贡献收口为 Core 最终集合。
+var hostProviderSet = wire.NewSet(
+	provideResources,
+	provideModules,
+	provideTasks,
+	provideStreams,
+	provideConsumers,
+)

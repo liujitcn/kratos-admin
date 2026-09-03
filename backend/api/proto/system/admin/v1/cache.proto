@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// 运行时缓存查询服务。
+service CacheService {
+  // 分页查询当前进程已观测到的缓存条目。
+  rpc PageCache(PageCacheRequest) returns (PageCacheResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/cache"};
+  }
+}
+
+// 缓存分页查询条件。
+message PageCacheRequest {
+  string keyword = 1 [
+    (gnostic.openapi.v3.property) = {description: "缓存键关键字"},
+    (buf.validate.field).string = {max_len: 128}
+  ]; // 缓存键关键字
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {
+    description: "当前页码"
+    default: {number: 1}
+  }, (buf.validate.field).int64 = {gte: 1, lte: 1000000}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {
+    description: "每页行数"
+    default: {number: 20}
+  }, (buf.validate.field).int64 = {gte: 1, lte: 100}]; // 每页行数
+}
+
+// 缓存分页响应。
+message PageCacheResponse {
+  repeated CacheEntry cache_entries = 1 [(gnostic.openapi.v3.property) = {description: "缓存条目列表"}]; // 缓存条目列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "匹配条目总数"}]; // 匹配条目总数
+}
+
+// 缓存查询结果。
+message CacheEntry {
+  string key = 1 [(gnostic.openapi.v3.property) = {description: "缓存键"}]; // 缓存键
+  string type = 2 [(gnostic.openapi.v3.property) = {description: "缓存类型：string或hash"}]; // 缓存类型：string或hash
+  string value = 3 [(gnostic.openapi.v3.property) = {description: "字符串缓存值"}]; // 字符串缓存值
+  repeated CacheField fields = 4 [(gnostic.openapi.v3.property) = {description: "Hash缓存字段"}]; // Hash缓存字段
+  int64 ttl_seconds = 5 [(gnostic.openapi.v3.property) = {description: "剩余有效期，-1表示永不过期"}]; // 剩余有效期，-1表示永不过期
+  string expires_at = 6 [(gnostic.openapi.v3.property) = {description: "过期时间，RFC3339格式；永不过期时为空"}]; // 过期时间，RFC3339格式；永不过期时为空
+  string created_at = 7 [(gnostic.openapi.v3.property) = {description: "首次写入或首次观测时间，RFC3339格式"}]; // 首次写入或首次观测时间，RFC3339格式
+  string updated_at = 8 [(gnostic.openapi.v3.property) = {description: "最近写入或过期时间变更时间，RFC3339格式"}]; // 最近写入或过期时间变更时间，RFC3339格式
+}
+
+// Hash缓存字段。
+message CacheField {
+  string key = 1 [(gnostic.openapi.v3.property) = {description: "字段名"}]; // 字段名
+  string value = 2 [(gnostic.openapi.v3.property) = {description: "字段值"}]; // 字段值
+}

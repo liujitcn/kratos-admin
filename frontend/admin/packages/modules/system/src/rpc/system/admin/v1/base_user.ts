@@ -11,6 +11,7 @@ import type { Status } from "../../../common/v1/enum";
 import type { PasswordCrypto } from "../../../common/v1/types";
 import type { Empty } from "../../../google/protobuf/empty";
 import type { Timestamp } from "../../../google/protobuf/timestamp";
+import type { BaseUserIDType, BaseUserPasswordChangeStatus } from "../../common/v1/common";
 
 /** 用户性别。 */
 export enum BaseUserGender {
@@ -136,6 +137,12 @@ export interface BaseUser {
   post_id: number;
   /** 手机号 */
   phone: string;
+  /** 邮箱 */
+  email: string;
+  /** 证件类型：枚举【BaseUserIDType】 */
+  id_type: BaseUserIDType;
+  /** 证件号 */
+  id_code: string;
   /** 性别 */
   gender: BaseUserGender;
   /** 头像 */
@@ -144,6 +151,8 @@ export interface BaseUser {
   status: Status;
   /** 备注名 */
   remark: string;
+  /** 密码修改状态：枚举【BaseUserPasswordChangeStatus】 */
+  must_change_password: BaseUserPasswordChangeStatus;
   /** 创建时间 */
   created_at: string;
   /** 更新时间 */
@@ -172,6 +181,12 @@ export interface BaseUserForm {
   post_id: number;
   /** 手机号 */
   phone: string;
+  /** 邮箱 */
+  email: string;
+  /** 证件类型：枚举【BaseUserIDType】 */
+  id_type: BaseUserIDType;
+  /** 证件号 */
+  id_code: string;
   /** 头像 */
   avatar: string;
   /** 性别 */

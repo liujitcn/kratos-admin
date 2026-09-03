@@ -137,7 +137,7 @@ import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
 import type { ProFormField } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
-import { defBaseApiService } from "@liujitcn/kratos-admin-system/api/system/base_api";
+import { defBaseApiService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_api";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import type {
   BaseApi,

@@ -104,7 +104,7 @@ func oauthCryptoClient(ctx context.Context, clientRepo *data.OauthClientReposito
 		}
 		return nil, true, err
 	}
-	if client.Status != int32(_const.STATUS_STATUS_ENABLE) {
+	if client.Status != _const.STATUS_STATUS_ENABLE {
 		return nil, true, errors.New("oauth client disabled")
 	}
 	if protector == nil {
