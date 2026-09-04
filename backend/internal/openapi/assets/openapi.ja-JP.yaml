@@ -343,6 +343,11 @@ paths:
                 - BaseApiService
             description: 查询菜单分配API选项列表
             operationId: BaseApiService_OptionBaseApi
+            parameters:
+                - name: include_public
+                  in: query
+                  schema:
+                    type: boolean
             responses:
                 "200":
                     description: OK
@@ -3223,6 +3228,475 @@ paths:
                     application/json:
                         schema:
                             $ref: '#/components/schemas/system.admin.v1.SetBasePostStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/redact-field:
+        get:
+            tags:
+                - BaseRedactFieldService
+            description: 查询脱敏字段分页列表。
+            operationId: BaseRedactFieldService_PageBaseRedactField
+            parameters:
+                - name: message_ref
+                  in: query
+                  schema:
+                    type: string
+                - name: field_path
+                  in: query
+                  schema:
+                    type: string
+                - name: sensitivity_type
+                  in: query
+                  schema:
+                    type: string
+                - name: source
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseRedactFieldResponse'
+    /api/v1/admin/base/redact-field/option:
+        get:
+            tags:
+                - BaseRedactFieldService
+            description: 查询脱敏字段选项。
+            operationId: BaseRedactFieldService_OptionBaseRedactField
+            parameters:
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: operation
+                  in: query
+                  schema:
+                    type: string
+                - name: direction
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_REDACT_DIRECTION_UNSPECIFIED
+                        - BASE_REDACT_DIRECTION_REQUEST
+                        - BASE_REDACT_DIRECTION_RESPONSE
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/common.v1.SelectOptionResponse'
+    /api/v1/admin/base/redact-field/{base_redact_field.id}:
+        put:
+            tags:
+                - BaseRedactFieldService
+            description: 更新脱敏字段。
+            operationId: BaseRedactFieldService_UpdateBaseRedactField
+            parameters:
+                - name: base_redact_field.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseRedactFieldForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/redact-field/{id}:
+        get:
+            tags:
+                - BaseRedactFieldService
+            description: 查询脱敏字段详情。
+            operationId: BaseRedactFieldService_GetBaseRedactField
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseRedactFieldForm'
+        delete:
+            tags:
+                - BaseRedactFieldService
+            description: 删除脱敏字段。
+            operationId: BaseRedactFieldService_DeleteBaseRedactField
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/redact-field/{id}/status:
+        put:
+            tags:
+                - BaseRedactFieldService
+            description: 设置脱敏字段状态。
+            operationId: BaseRedactFieldService_SetBaseRedactFieldStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseRedactFieldStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/redact-policy:
+        get:
+            tags:
+                - BaseRedactPolicyService
+            description: 查询脱敏策略分页列表。
+            operationId: BaseRedactPolicyService_PageBaseRedactPolicy
+            parameters:
+                - name: message_ref
+                  in: query
+                  schema:
+                    type: string
+                - name: field_path
+                  in: query
+                  schema:
+                    type: string
+                - name: scene_code
+                  in: query
+                  schema:
+                    type: string
+                - name: operation
+                  in: query
+                  schema:
+                    type: string
+                - name: direction
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_REDACT_DIRECTION_UNSPECIFIED
+                        - BASE_REDACT_DIRECTION_REQUEST
+                        - BASE_REDACT_DIRECTION_RESPONSE
+                    type: string
+                    format: enum
+                - name: mode
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_REDACT_POLICY_MODE_UNSPECIFIED
+                        - BASE_REDACT_POLICY_MODE_RULE
+                        - BASE_REDACT_POLICY_MODE_HIDE
+                        - BASE_REDACT_POLICY_MODE_FULL
+                    type: string
+                    format: enum
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseRedactPolicyResponse'
+        post:
+            tags:
+                - BaseRedactPolicyService
+            description: 创建脱敏策略。
+            operationId: BaseRedactPolicyService_CreateBaseRedactPolicy
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseRedactPolicyForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/redact-policy/{base_redact_policy.id}:
+        put:
+            tags:
+                - BaseRedactPolicyService
+            description: 更新脱敏策略。
+            operationId: BaseRedactPolicyService_UpdateBaseRedactPolicy
+            parameters:
+                - name: base_redact_policy.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseRedactPolicyForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/redact-policy/{id}:
+        get:
+            tags:
+                - BaseRedactPolicyService
+            description: 查询脱敏策略详情。
+            operationId: BaseRedactPolicyService_GetBaseRedactPolicy
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseRedactPolicyForm'
+        delete:
+            tags:
+                - BaseRedactPolicyService
+            description: 删除脱敏策略。
+            operationId: BaseRedactPolicyService_DeleteBaseRedactPolicy
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/redact-policy/{id}/status:
+        put:
+            tags:
+                - BaseRedactPolicyService
+            description: 设置脱敏策略状态。
+            operationId: BaseRedactPolicyService_SetBaseRedactPolicyStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseRedactPolicyStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/redact-rule:
+        get:
+            tags:
+                - BaseRedactRuleService
+            description: 查询脱敏规则分页列表。
+            operationId: BaseRedactRuleService_PageBaseRedactRule
+            parameters:
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: rule_type
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseRedactRuleResponse'
+        post:
+            tags:
+                - BaseRedactRuleService
+            description: 创建脱敏规则。
+            operationId: BaseRedactRuleService_CreateBaseRedactRule
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseRedactRuleForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/redact-rule/option:
+        get:
+            tags:
+                - BaseRedactRuleService
+            description: 查询脱敏规则选项。
+            operationId: BaseRedactRuleService_OptionBaseRedactRule
+            parameters:
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/common.v1.SelectOptionResponse'
+    /api/v1/admin/base/redact-rule/{base_redact_rule.id}:
+        put:
+            tags:
+                - BaseRedactRuleService
+            description: 更新脱敏规则。
+            operationId: BaseRedactRuleService_UpdateBaseRedactRule
+            parameters:
+                - name: base_redact_rule.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseRedactRuleForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/redact-rule/{id}:
+        get:
+            tags:
+                - BaseRedactRuleService
+            description: 查询脱敏规则详情。
+            operationId: BaseRedactRuleService_GetBaseRedactRule
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseRedactRuleForm'
+        delete:
+            tags:
+                - BaseRedactRuleService
+            description: 删除脱敏规则。
+            operationId: BaseRedactRuleService_DeleteBaseRedactRule
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/redact-rule/{id}/status:
+        put:
+            tags:
+                - BaseRedactRuleService
+            description: 设置脱敏规则状态。
+            operationId: BaseRedactRuleService_SetBaseRedactRuleStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseRedactRuleStatusRequest'
                 required: true
             responses:
                 "200":
@@ -9742,6 +10216,365 @@ components:
                     type: string
                     description: 備考
             description: 岗位表单
+        system.admin.v1.BaseRedactField:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 字段目录ID
+                message_ref:
+                    type: string
+                    description: Proto消息完整名称
+                field_path:
+                    type: string
+                    description: 字段路径
+                field_kind:
+                    type: string
+                    description: Proto字段类型
+                sensitivity_type:
+                    type: string
+                    description: 敏感字段类型
+                source:
+                    type: string
+                    description: 字段来源
+                entity_ref:
+                    type: string
+                    description: 数据实体标识
+                table_name:
+                    type: string
+                    description: 数据库表名
+                column_name:
+                    type: string
+                    description: 数据库字段名
+                record_key_field:
+                    type: string
+                    description: 业务主键字段
+                storage_mode:
+                    enum:
+                        - BASE_REDACT_STORAGE_MODE_UNSPECIFIED
+                        - BASE_REDACT_STORAGE_MODE_PLAIN
+                        - BASE_REDACT_STORAGE_MODE_MASK
+                        - BASE_REDACT_STORAGE_MODE_HASH
+                    type: string
+                    description: 数据库存储方式
+                    format: enum
+                storage_rule_id:
+                    type: string
+                    description: 存储脱敏规则ID
+                search_mode:
+                    enum:
+                        - BASE_REDACT_SEARCH_MODE_UNSPECIFIED
+                        - BASE_REDACT_SEARCH_MODE_NONE
+                        - BASE_REDACT_SEARCH_MODE_DIGEST
+                    type: string
+                    description: 敏感字段查询方式
+                    format: enum
+                field_name:
+                    type: string
+                    description: 字段中文名称
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+                remark:
+                    type: string
+                    description: 備考
+                created_at:
+                    type: string
+                    description: 作成時刻
+                updated_at:
+                    type: string
+                    description: 更新時間
+            description: 脱敏字段目录。
+        system.admin.v1.BaseRedactFieldForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 字段目录ID
+                message_ref:
+                    type: string
+                    description: Proto消息完整名称
+                field_path:
+                    type: string
+                    description: 字段路径
+                field_kind:
+                    type: string
+                    description: Proto字段类型
+                sensitivity_type:
+                    type: string
+                    description: 敏感字段类型
+                source:
+                    type: string
+                    description: 字段来源
+                entity_ref:
+                    type: string
+                    description: 数据实体标识
+                table_name:
+                    type: string
+                    description: 数据库表名
+                column_name:
+                    type: string
+                    description: 数据库字段名
+                record_key_field:
+                    type: string
+                    description: 业务主键字段
+                storage_mode:
+                    enum:
+                        - BASE_REDACT_STORAGE_MODE_UNSPECIFIED
+                        - BASE_REDACT_STORAGE_MODE_PLAIN
+                        - BASE_REDACT_STORAGE_MODE_MASK
+                        - BASE_REDACT_STORAGE_MODE_HASH
+                    type: string
+                    description: 数据库存储方式
+                    format: enum
+                storage_rule_id:
+                    type: string
+                    description: 存储脱敏规则ID
+                search_mode:
+                    enum:
+                        - BASE_REDACT_SEARCH_MODE_UNSPECIFIED
+                        - BASE_REDACT_SEARCH_MODE_NONE
+                        - BASE_REDACT_SEARCH_MODE_DIGEST
+                    type: string
+                    description: 敏感字段查询方式
+                    format: enum
+                field_name:
+                    type: string
+                    description: 字段中文名称
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+                remark:
+                    type: string
+                    description: 備考
+            description: 脱敏字段表单。
+        system.admin.v1.BaseRedactPolicy:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 策略绑定ID
+                field_id:
+                    type: string
+                    description: 字段目录ID
+                message_ref:
+                    type: string
+                    description: Proto消息完整名称
+                field_path:
+                    type: string
+                    description: 字段路径
+                field_kind:
+                    type: string
+                    description: Proto字段类型
+                sensitivity_type:
+                    type: string
+                    description: 敏感字段类型
+                rule_id:
+                    type: string
+                    description: 规则模板ID
+                rule_code:
+                    type: string
+                    description: 规则编码
+                rule_name:
+                    type: string
+                    description: 规则名称
+                rule_type:
+                    type: string
+                    description: 规则类型
+                rule:
+                    type: string
+                    description: 规则参数
+                scene_code:
+                    type: string
+                    description: 场景编码
+                operation:
+                    type: string
+                    description: 接口操作
+                direction:
+                    enum:
+                        - BASE_REDACT_DIRECTION_UNSPECIFIED
+                        - BASE_REDACT_DIRECTION_REQUEST
+                        - BASE_REDACT_DIRECTION_RESPONSE
+                    type: string
+                    description: 脱敏方向
+                    format: enum
+                field_name:
+                    type: string
+                    description: 字段中文名称
+                mode:
+                    enum:
+                        - BASE_REDACT_POLICY_MODE_UNSPECIFIED
+                        - BASE_REDACT_POLICY_MODE_RULE
+                        - BASE_REDACT_POLICY_MODE_HIDE
+                        - BASE_REDACT_POLICY_MODE_FULL
+                    type: string
+                    description: 策略模式
+                    format: enum
+                priority:
+                    type: integer
+                    description: 优先级
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+                version:
+                    type: integer
+                    description: 策略版本
+                    format: int32
+                remark:
+                    type: string
+                    description: 備考
+                created_at:
+                    type: string
+                    description: 作成時刻
+                updated_at:
+                    type: string
+                    description: 更新時間
+            description: 脱敏策略。
+        system.admin.v1.BaseRedactPolicyForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 策略绑定ID
+                field_id:
+                    type: string
+                    description: 字段目录ID
+                rule_id:
+                    type: string
+                    description: 规则模板ID
+                scene_code:
+                    type: string
+                    description: 场景编码
+                operation:
+                    type: string
+                    description: 接口操作
+                direction:
+                    enum:
+                        - BASE_REDACT_DIRECTION_UNSPECIFIED
+                        - BASE_REDACT_DIRECTION_REQUEST
+                        - BASE_REDACT_DIRECTION_RESPONSE
+                    type: string
+                    description: 脱敏方向
+                    format: enum
+                mode:
+                    enum:
+                        - BASE_REDACT_POLICY_MODE_UNSPECIFIED
+                        - BASE_REDACT_POLICY_MODE_RULE
+                        - BASE_REDACT_POLICY_MODE_HIDE
+                        - BASE_REDACT_POLICY_MODE_FULL
+                    type: string
+                    description: 策略模式
+                    format: enum
+                priority:
+                    type: integer
+                    description: 优先级
+                    format: int32
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+                version:
+                    type: integer
+                    description: 策略版本
+                    format: int32
+                remark:
+                    type: string
+                    description: 備考
+            description: 脱敏策略表单。
+        system.admin.v1.BaseRedactRule:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 规则ID
+                code:
+                    type: string
+                    description: 规则编码
+                name:
+                    type: string
+                    description: 规则名称
+                rule_type:
+                    type: string
+                    description: 规则类型
+                rule:
+                    type: string
+                    description: 规则参数
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+                version:
+                    type: integer
+                    description: 规则版本
+                    format: int32
+                remark:
+                    type: string
+                    description: 備考
+                created_at:
+                    type: string
+                    description: 作成時刻
+                updated_at:
+                    type: string
+                    description: 更新時間
+            description: 脱敏规则模板。
+        system.admin.v1.BaseRedactRuleForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 规则ID
+                code:
+                    type: string
+                    description: 规则编码
+                name:
+                    type: string
+                    description: 规则名称
+                rule_type:
+                    type: string
+                    description: 规则类型
+                rule:
+                    type: string
+                    description: 规则参数
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+                version:
+                    type: integer
+                    description: 规则版本
+                    format: int32
+                remark:
+                    type: string
+                    description: 備考
+            description: 脱敏规则表单。
         system.admin.v1.BaseRole:
             type: object
             properties:
@@ -11888,6 +12721,45 @@ components:
                     description: 总数
                     format: int32
             description: 岗位分页响应
+        system.admin.v1.PageBaseRedactFieldResponse:
+            type: object
+            properties:
+                base_redact_fields:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactField'
+                    description: 字段列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 脱敏字段分页响应。
+        system.admin.v1.PageBaseRedactPolicyResponse:
+            type: object
+            properties:
+                base_redact_policies:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactPolicy'
+                    description: 脱敏策略列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 脱敏策略分页响应。
+        system.admin.v1.PageBaseRedactRuleResponse:
+            type: object
+            properties:
+                base_redact_rules:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactRule'
+                    description: 规则列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 脱敏规则分页响应。
         system.admin.v1.PageBaseRoleResponse:
             type: object
             properties:
@@ -12525,6 +13397,51 @@ components:
                     description: ステータス
                     format: int32
             description: 设置岗位状态请求参数
+        system.admin.v1.SetBaseRedactFieldStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 字段目录ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+            description: 设置脱敏字段状态请求参数。
+        system.admin.v1.SetBaseRedactPolicyStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 策略绑定ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+            description: 设置脱敏策略状态请求参数。
+        system.admin.v1.SetBaseRedactRuleStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 规则ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+            description: 设置脱敏规则状态请求参数。
         system.admin.v1.SetBaseRoleMenuRequest:
             type: object
             properties:
@@ -13017,17 +13934,17 @@ tags:
     - name: AiToolService
       description: Base AI アシスタントツールサービス
     - name: AuthService
-      description: Admin ユーザーログイン認証サービス
-    - name: AuthService
       description: App ユーザー認証サービス
+    - name: AuthService
+      description: Admin ユーザーログイン認証サービス
     - name: BaseApiLogService
       description: API 访问日志服务。
     - name: BaseApiService
       description: Admin API サービス
     - name: BaseAreaService
-      description: Admin 行政区域サービス
-    - name: BaseAreaService
       description: App 行政区域サービス
+    - name: BaseAreaService
+      description: Admin 行政区域サービス
     - name: BaseConfigService
       description: Admin システム設定サービス
     - name: BaseDashboardService
@@ -13059,9 +13976,9 @@ tags:
     - name: BaseLoginPolicyService
       description: Admin登录策略管理服务。
     - name: BaseMenuService
-      description: App メニューサービス
-    - name: BaseMenuService
       description: Admin メニュー管理サービス
+    - name: BaseMenuService
+      description: App メニューサービス
     - name: BaseMessageCategoryService
       description: BaseMessageCategoryService 提供消息分类管理能力。
     - name: BaseMessageService
@@ -13076,6 +13993,12 @@ tags:
       description: 策略评估日志服务。
     - name: BasePostService
       description: Admin 役職管理サービス
+    - name: BaseRedactFieldService
+      description: Admin脱敏字段目录服务。
+    - name: BaseRedactPolicyService
+      description: Admin脱敏策略绑定服务。
+    - name: BaseRedactRuleService
+      description: Admin脱敏规则模板服务。
     - name: BaseRoleService
       description: Admin ロール管理サービス
     - name: BaseSessionService
