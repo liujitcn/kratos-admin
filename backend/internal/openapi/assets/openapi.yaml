@@ -10269,9 +10269,6 @@ components:
                     type: string
                     description: 敏感字段查询方式
                     format: enum
-                field_name:
-                    type: string
-                    description: 字段中文名称
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -10343,9 +10340,6 @@ components:
                     type: string
                     description: 敏感字段查询方式
                     format: enum
-                field_name:
-                    type: string
-                    description: 字段中文名称
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -10408,9 +10402,6 @@ components:
                     type: string
                     description: 脱敏方向
                     format: enum
-                field_name:
-                    type: string
-                    description: 字段中文名称
                 mode:
                     enum:
                         - BASE_REDACT_POLICY_MODE_UNSPECIFIED

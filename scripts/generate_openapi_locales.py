@@ -17,6 +17,7 @@ from generate_locale_drafts import (
     restore_text,
     i18n_batch,
 )
+from local_openapi_i18n import contains_simplified, local_translate
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -219,8 +220,17 @@ def build_i18ns(
             register_i18n(i18ns, source, target)
     for source in sorted(source_values):
         target = target_messages.get(source)
-        if target:
+        local = local_translate(source, target_locale) if target_locale in {"en-US", "ja-JP"} else source
+        local_is_complete = local != source and (
+            (target_locale == "en-US" and not contains_cjk(local))
+            or (target_locale != "en-US" and not contains_simplified(local))
+        )
+        if local_is_complete:
+            i18ns[source] = local
+        elif target and not contains_simplified(target):
             register_i18n(i18ns, source, target)
+        elif local != source:
+            register_i18n(i18ns, source, local)
     return i18ns
 
 
@@ -239,12 +249,21 @@ def automatic_i18ns(
         converter = load_opencc()
         translated = [converter.convert(value) for value in pending]
     else:
-        translated = i18n_batch(
-            pending,
-            source_locale.split("-", 1)[0],
-            target_locale.split("-", 1)[0],
-            offline,
-        )
+        translated = [local_translate(value, target_locale) for value in pending]
+        unresolved = [
+            source
+            for source, target in zip(pending, translated)
+            if (not target or source == target) and contains_cjk(source)
+        ]
+        if unresolved and not offline:
+            remote_translated = i18n_batch(
+                unresolved,
+                source_locale.split("-", 1)[0],
+                target_locale.split("-", 1)[0],
+                offline,
+            )
+            remote_by_source = dict(zip(unresolved, remote_translated))
+            translated = [remote_by_source.get(source, target) for source, target in zip(pending, translated)]
         if not offline:
             retry_sources = [
                 source

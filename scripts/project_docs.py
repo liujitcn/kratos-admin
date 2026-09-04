@@ -304,29 +304,22 @@ def repair_markdown_links(source: str, translated: str) -> str:
     repaired = translated
     search_start = 0
     for source_label, destination in source_links:
-        destination_start = repaired.find(destination, search_start)
-        if destination_start < 0:
-            continue
-        suffix_start = repaired.rfind("](", search_start, destination_start)
-        line_start = repaired.rfind("\n", 0, destination_start) + 1
-        link_start = repaired.rfind("[", line_start, suffix_start)
-        destination_end = destination_start + len(destination)
-        while destination_end < len(repaired) and repaired[destination_end] in ")]":
-            destination_end += 1
-        if suffix_start >= line_start and link_start >= line_start:
-            label = repaired[link_start + 1 : suffix_start]
+        link_pattern = re.compile(
+            rf"(?P<open>\[+)(?P<label>[^\]\r\n]*)\]\({re.escape(destination)}\)"
+            rf"(?:\({re.escape(destination)}\))*\]*"
+        )
+        match = link_pattern.search(repaired, search_start)
+        if match is not None:
+            label = match.group("label") or source_label
             replacement = f"[{label}]({destination})"
-            repaired = repaired[:link_start] + replacement + repaired[destination_end:]
-            search_start = link_start + len(replacement)
+            repaired = repaired[: match.start()] + replacement + repaired[match.end() :]
+            search_start = match.start() + len(replacement)
             continue
-        if suffix_start >= line_start:
+        destination_start = repaired.find(destination, search_start)
+        if destination_start >= 0:
             replacement = f"[{source_label}]({destination})"
-            repaired = repaired[:suffix_start] + replacement + repaired[destination_end:]
-            search_start = suffix_start + len(replacement)
-            continue
-        replacement = f"[{source_label}]({destination})"
-        repaired = repaired[:destination_start] + replacement + repaired[destination_end:]
-        search_start = destination_start + len(replacement)
+            repaired = repaired[:destination_start] + replacement + repaired[destination_start + len(destination) :]
+            search_start = destination_start + len(replacement)
     for source_label, destination in source_links:
         if destination in repaired:
             continue
