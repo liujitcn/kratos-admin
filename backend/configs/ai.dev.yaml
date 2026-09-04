@@ -1,7 +1,7 @@
 ai:
     model:
         cloud:
-            api_key: ENC[WGq6Ri6UWanjeoYmcgrWLt5UsWq-hR0NDBWa33Dm9rfBVqC6rSZkBrm5rWVLYnt2KE9dTR3KXjqIUU_DaQBUVu8rDHDAy_oh31CBwUaDako4o8FpJ4Lt17gNDfiM6rI]
+            api_key: ENC[RVnCafkm9lOJ4wO3aD6ieQOo8uB14bP3Uelbt9UzPF8WZzSfT5ISdYPLstaGuOUKO0Pu7sq86aUOuQZBEPJh_-4JJOXiK5jUscUofhB4jSuIHAnsS2rlWfkW2sn9v34]
             base_url: http://subapi.openclawrouter.site/v1
         max_retries: 2
         max_tokens: 1024

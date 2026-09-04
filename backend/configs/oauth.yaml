@@ -2,30 +2,30 @@ oauth:
     providers:
         dingtalk:
             client_id: mock-dingtalk-client-id
-            client_secret: ENC[1AAzxaVuGxAx0E7JSup-YscE4E95hcdOxa0MXK4z9vKf6pukTj3SutnA4UJgoTqZn4GFkil6iA]
+            client_secret: mock-dingtalk-client-secret
             redirect_uri: http://localhost:7001/api/v1/base/oauth/dingtalk/callback
             scopes:
                 - openid
         feishu:
             client_id: mock-feishu-client-id
-            client_secret: ENC[0qGET3yDMgPHTfp__PUeEFceFBdBW4b_giKUy_a1ekNsC6Sl2n2SrbLzs5JCD2ZRvlOi5NA]
+            client_secret: mock-feishu-client-secret
             redirect_uri: http://localhost:7001/api/v1/base/oauth/feishu/callback
             scopes: []
         gitee:
             client_id: mock-gitee-client-id
-            client_secret: ENC[s3ZLfXowCKiOQqK0IRNn78DICU9I7POjmEFcdY6m7IMBmLYKuQrwpHMBbzTzRMqN7rDh2A]
+            client_secret: mock-gitee-client-secret
             redirect_uri: http://localhost:7001/api/v1/base/oauth/gitee/callback
             scopes:
                 - user_info
         github:
             client_id: mock-github-client-id
-            client_secret: ENC[AP2seaAghcVho-BsmjYeQ5uFAbtQ1paMcmxFbjxcH736cj0dBw9uEHjTsWS5rowabDzvZLU]
+            client_secret: mock-github-client-secret
             redirect_uri: http://localhost:7001/api/v1/base/oauth/github/callback
             scopes:
                 - user:email
         google:
             client_id: mock-google-client-id
-            client_secret: ENC[7q_1v3uy6GIggFwyUIaMzT8ebZGsuRu1WO7WxLz7aFpdUV4DUamPs_G85l0LNCzdiU-F2ko]
+            client_secret: mock-google-client-secret
             redirect_uri: http://localhost:7001/api/v1/base/oauth/google/callback
             scopes:
                 - openid
@@ -33,22 +33,19 @@ oauth:
                 - email
         wechat:
             client_id: mock-wechat-client-id
-            client_secret: ENC[sqVI09TcysKtuVPws4rgR-DuyIKGL1vQ3NowSUgJMJZKqQJUv5mCOwZu6PYfpeXZGwoyrvA]
-            redirect_uri: http://localhost:7001/api/v1/base/oauth/wechat/callback
-            scopes:
-                - snsapi_login
+            client_secret: mock-wechat-client-secret
         wechatmini:
             client_id: mock-wechatmini-client-id
-            client_secret: ENC[Mn23KTr2NR2ha-O9xhOsulVPaxNhONHDSRhfSid_HzkBGVOoH1qzCaGi3t0CBqX_IQJECdcy4Rc6]
+            client_secret: mock-wechatmini-client-secret
             scopes: []
         wechatmp:
             client_id: mock-wechatmp-client-id
-            client_secret: ENC[O82lZRWqC7bBp5IDxQiqHXn3eywiXuZcdCrakqXAyYH3A_srIvl42h5G3agv77s_P9yM4wqDOw]
+            client_secret: mock-wechatmp-client-secret
             redirect_uri: http://localhost:7001/api/v1/base/oauth/wechatmp/callback
             scopes:
                 - snsapi_userinfo
         wechatwork:
             client_id: mock-wechatwork-client-id
-            client_secret: ENC[jwl97LS32TOBfSzM-GL2ZFZm69QHn_39fRA2WvkXUMxj9zedNySYxVW5SrJRVdLw6IrCJaWFXWoe]
+            client_secret: mock-wechatwork-client-secret
             redirect_uri: http://localhost:7001/api/v1/base/oauth/wechatwork/callback
             scopes: []

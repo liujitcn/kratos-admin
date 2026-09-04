@@ -1,0 +1,14 @@
+registry:
+  type: consul
+  consul:
+    address: "192.168.60.52:8500"
+    scheme: "http"
+    # 本地 Consul ACL Token，仅用于开发机验证，不提交到仓库。
+    token: ENC[g7gJLjMcEUeTqdMbmboP8SRV85oPFKViZW7NAfH6mTMbNXuaZ89f9OI0O6uU-g1CK9kZv2yfrlTc--IK5NckiQ]
+    # Admin 包含 scheduler 等非 TCP Endpoint，由注册器 TTL 心跳统一维护服务状态。
+    health_check: false
+
+  zookeeper:
+    endpoints:
+      - "localhost:8500"
+    timeout: 10s

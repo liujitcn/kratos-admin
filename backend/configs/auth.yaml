@@ -10,7 +10,6 @@ authn:
             prefix: null
             regex: null
         refresh_token_expires: 2592000s
-        secret: ENC[jBltcOsX3yrppMyeB7vJIpr_KErB3Z_sS_MBdW0Rmvyvx2tg3MhIQZiAHZ8K0iUXM8Na4FY_]
         white_list:
             match:
                 - /base.v1.ConfigService/GetConfig

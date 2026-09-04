@@ -8,8 +8,8 @@ logger:
         max_backups: 5
         max_size: 1
     aliyun:
-        access_key: ENC[-9cZHBzDXBzf7Hs1wFjWaVeXlBiH7PlNnh3WJzIxjal4nm08Q5JFOg]
-        access_secret: ENC[S-LTzw1xHx4TLL41Jy1soPqWafM2QrjirG7r2BxsIquBQbWgQEUtrExrpQ]
+        access_key: "<access_key>"
+        access_secret: "<access_secret>"
         endpoint: ""
         project: ""
     fluent:
@@ -21,7 +21,7 @@ logger:
         level: debug
         timestamp_format: "2006-01-02 15:04:05"
     tencent:
-        access_key: ENC[sJZE7rYsl8XTXGIcjpN9f7_E-uY3rPh0PZVxIF1zG7hbYyMaCx3mNg]
-        access_secret: ENC[n-TzMlrSgodSu097hPCue2Vdhh2zO1gS6Se-UCqMsT98Hnqq8h9BpKtGiQ]
+        access_key: "<access_key>"
+        access_secret: "<access_secret>"
         endpoint: ""
         topic_id: null

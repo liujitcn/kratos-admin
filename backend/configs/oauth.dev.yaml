@@ -1,25 +1,25 @@
 oauth:
-    providers:
-        gitee:
-            client_id: a23f23168a3baef3f37b37d136400a7118278ba6ec3b8f18315727581ddeba4b
-            client_secret: ENC[fefLmuNSGQ6fQ_YDRbEU_HPnq6Klr9Gz47ch1yhMXerxks6X5tJc4OeOi2SLTu-yRRacP6qV8LzxThfMTNt9PzJb0GK1hIQVN4kYbxtkekEOKfWyIAxRx3GvAo4]
-            redirect_uri: http://127.0.0.1:7001/api/v1/base/oauth/gitee/callback
-            scopes:
-                - user_info
-        github:
-            client_id: Ov23litVBeilJRE8TgOk
-            client_secret: ENC[up84fj74GZ_0VpEsRLMvPNIKfS-MCO22_0nOvDE-K9k778tQ7az_mAyLgfj5XePPXc3iSsKwc-s3i8qJV6chBFF61bQ]
-            redirect_uri: http://127.0.0.1:7001/api/v1/base/oauth/github/callback
-            scopes:
-                - user:email
-        google:
-            client_id: 97409157491-jak87hoo8odjb5e0capltnklk5iqjqhq.apps.googleusercontent.com
-            client_secret: ENC[ezA7mfvqd6H35iVOunrF5bFICOxhTlOJXJuz_3Y3hSnRlfQhvGq8O2AylPnl6cdUt-pxzVb33VDcA8_lRRUn]
-            redirect_uri: http://127.0.0.1:7001/api/v1/base/oauth/google/callback
-            scopes:
-                - openid
-                - profile
-                - email
-        wechatmini:
-            client_id: wx3fe0d8a39051f39a
-            client_secret: ENC[dvAUrkTI3c30XAFLwpphJd9N9xKW4G11Lef9-ddHiGdOMCtY-rxYUc_7Ck32tViWaXjOTaloL_OW4Rj8]
+  providers:
+    github:
+      client_id: Ov23litVBeilJRE8TgOk
+      client_secret: ENC[U7NucmD6NXOrkDcxvN0deykqaXeLPAblhiZVfZhI8m-KnoUsa-T_eHoWoqDBgrT6n4TuQ8NokCk7cHpDhO2-oiq3O3Y]
+      redirect_uri: http://127.0.0.1:7001/api/v1/base/oauth/github/callback
+      scopes:
+        - user:email
+    gitee:
+      client_id: a23f23168a3baef3f37b37d136400a7118278ba6ec3b8f18315727581ddeba4b
+      client_secret: ENC[uMVWJiu5W8gXmW68cThHQgfpU-9-Gzpt7UfSMbjHFGUr-PiOMCV6sey3NEf7bFuuZ2LAeUmUPFaMJ1vMvkVAA-BVI88YFkf4Y3rnhztR3AXEU1PYMcfRFlnrr-k]
+      redirect_uri: http://127.0.0.1:7001/api/v1/base/oauth/gitee/callback
+      scopes:
+        - user_info
+    google:
+      client_id: 97409157491-jak87hoo8odjb5e0capltnklk5iqjqhq.apps.googleusercontent.com
+      client_secret: ENC[Fjx41vAfRRoz0qbHEcM_a3Xyfh1VuM0uZKqL85qgKC6Ra6zObabhy2T7Q1hqx3tIGUxAb14BiL1tcXyKRcmq]
+      redirect_uri: http://127.0.0.1:7001/api/v1/base/oauth/google/callback
+      scopes:
+        - openid
+        - profile
+        - email
+    wechatmini:
+      client_id: wx3fe0d8a39051f39a
+      client_secret: ENC[MXAEbNWfXTyQZbozLcilG4OzWn_BPiYcKQgQ_vDH_uydu6PeP9ibFF3Qd8Sr4CT4l23idZ7KY1stjhUu]

@@ -2,23 +2,23 @@ oss:
     type: local
     root_directory: ./data
     aliyun:
-        access_key_id: ENC[CEzgVkacpxzQSKTAKdoChmgHlQwTEM0WnYcTWUWNRQ]
-        access_key_secret: ENC[3MEOf7YE6UPpM4LGI4Fuu1Rddo9setR2Fy6YvXjyFQ]
+        access_key_id: xxx
+        access_key_secret: xxx
         bucket_name: xxx
         endpoint: https://oss-cn-beijing.aliyuncs.com
     minio:
-        access_key: ENC[nf0v5USmxcupr1kEv72CwrEu_X5d8sV7vs8Igwwf305U_N1Oc34]
+        access_key: minioadmin
         bucket_name: kratos-admin
         endpoint: http://127.0.0.1:9000
-        secret_key: ENC[HODItqPln_C5mIwQM8Sxb1rn6VsLPQtY6HdvQ05DYKttTu6YI5o]
+        secret_key: minioadmin
         use_ssl: false
     s3:
-        access_key: ENC[DuXDOo9u6PuBESu1M4YFPjdixBVQ8y7bo52YQBhxPULqFLpZ--E]
+        access_key: minioadmin
         bucket_name: kratos-admin
         endpoint: http://127.0.0.1:9000
         force_path_style: true
         region: us-east-1
-        secret_key: ENC[IM3K8bf655xvrABAhJxHf-nMjydEYwIaetSzPWEg5A0dJxDkY1g]
+        secret_key: minioadmin
         use_ssl: false
     upload_security:
         command: clamdscan

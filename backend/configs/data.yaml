@@ -8,12 +8,12 @@ data:
         enable_trace: false
         max_idle_connections: 25
         max_open_connections: 25
-        source: root:ENC[HL8cVvVyAhFQfJrIHsD7ro_fxlkglVYjkw_1vZmduVMllQ]@tcp(127.0.0.1:3306)/kratos_admin?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms
+        source: root:ENC[eJSCcaMP4dqEOcAw9ypsscpJCNmgOoarfw9aaCRQx42H7w]@tcp(127.0.0.1:3306)/kratos_admin?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms
     redis:
         addr:
             - 127.0.0.1:6379
         db: 1
-        password: ENC[XiFyeR_scEKK-hT1LDb3DrNv4xA2YhPve9K3yfi3c6pzjw]
+        password: ENC[P6j15_wtwTe6Jegsi5lvr76-8iY-aspgg_vgXP79Im_IQA]
     queue:
         memory:
             pool_size: 1000

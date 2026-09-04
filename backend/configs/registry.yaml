@@ -1,7 +1,7 @@
 registry:
+    type: consul
     consul:
         address: 127.0.0.1:8500
         health_check: false
         scheme: http
-        token: ENC[GqZBpVJe4l-H50Qo8dUMQmfh7qGLFYiv0qwpGh8l1t-tIKZqpyCTqBVjRCxvk9ajMjPTQ8BkXVRZtxzozGjO-Q]
-    type: consul
+        token: ENC[EFWFihapTf4nRtz3DFYliocgUIl9vdGrUGsThiKPbhCwaDmSCg-2GYjA9PeH-RnpP6KhYDqVFgEd5p4ANWTfiA]
