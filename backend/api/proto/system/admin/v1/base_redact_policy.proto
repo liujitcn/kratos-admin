@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "common/v1/enum.proto";
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "system/admin/v1/base_redact_common.proto";
+
+// Admin脱敏策略绑定服务。
+service BaseRedactPolicyService {
+  // 查询脱敏策略分页列表。
+  rpc PageBaseRedactPolicy(PageBaseRedactPolicyRequest) returns (PageBaseRedactPolicyResponse) { option (google.api.http) = {get: "/api/v1/admin/base/redact-policy"}; }
+  // 查询脱敏策略详情。
+  rpc GetBaseRedactPolicy(GetBaseRedactPolicyRequest) returns (BaseRedactPolicyForm) { option (google.api.http) = {get: "/api/v1/admin/base/redact-policy/{id}"}; }
+  // 创建脱敏策略。
+  rpc CreateBaseRedactPolicy(CreateBaseRedactPolicyRequest) returns (google.protobuf.Empty) { option (google.api.http) = {post: "/api/v1/admin/base/redact-policy", body: "base_redact_policy"}; }
+  // 更新脱敏策略。
+  rpc UpdateBaseRedactPolicy(UpdateBaseRedactPolicyRequest) returns (google.protobuf.Empty) { option (google.api.http) = {put: "/api/v1/admin/base/redact-policy/{base_redact_policy.id}", body: "base_redact_policy"}; }
+  // 删除脱敏策略。
+  rpc DeleteBaseRedactPolicy(DeleteBaseRedactPolicyRequest) returns (google.protobuf.Empty) { option (google.api.http) = {delete: "/api/v1/admin/base/redact-policy/{id}"}; }
+  // 设置脱敏策略状态。
+  rpc SetBaseRedactPolicyStatus(SetBaseRedactPolicyStatusRequest) returns (google.protobuf.Empty) { option (google.api.http) = {put: "/api/v1/admin/base/redact-policy/{id}/status", body: "*"}; }
+}
+
+// 脱敏策略模式。
+enum BaseRedactPolicyMode {
+  // 未指定模式。
+  BASE_REDACT_POLICY_MODE_UNSPECIFIED = 0;
+  // 使用规则模板处理。
+  BASE_REDACT_POLICY_MODE_RULE = 1;
+  // 替换为字段零值。
+  BASE_REDACT_POLICY_MODE_HIDE = 2;
+  // 保留字段原值。
+  BASE_REDACT_POLICY_MODE_FULL = 3;
+}
+// 脱敏策略分页查询条件。
+message PageBaseRedactPolicyRequest {
+  string message_ref = 1 [(gnostic.openapi.v3.property) = {description: "Proto消息完整名称"}]; // Proto消息完整名称
+  string field_path = 2 [(gnostic.openapi.v3.property) = {description: "字段路径"}]; // 字段路径
+  string scene_code = 3 [(gnostic.openapi.v3.property) = {description: "场景编码"}]; // 场景编码
+  string operation = 4 [(gnostic.openapi.v3.property) = {description: "接口操作"}]; // 接口操作
+  optional BaseRedactDirection direction = 5 [(gnostic.openapi.v3.property) = {description: "脱敏方向"}]; // 脱敏方向
+  optional BaseRedactPolicyMode mode = 100 [(gnostic.openapi.v3.property) = {description: "策略模式"}]; // 策略模式
+  optional .common.v1.Status status = 101 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+  int64 page_num = 102 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}]; // 当前页码
+  int64 page_size = 103 [(gnostic.openapi.v3.property) = {description: "每页数量", default: {number: 10}}]; // 每页数量
+}
+// 脱敏策略分页响应。
+message PageBaseRedactPolicyResponse {
+  repeated BaseRedactPolicy base_redact_policies = 1 [(gnostic.openapi.v3.property) = {description: "脱敏策略列表"}]; // 脱敏策略列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+// 脱敏策略详情查询条件。
+message GetBaseRedactPolicyRequest { int64 id = 1 [(gnostic.openapi.v3.property) = {description: "策略绑定ID"}, (buf.validate.field).cel = {id: "system.admin.base.redact.policy.get.id.required" message: "策略绑定ID不能为空" expression: "this > 0"}]; } // 策略绑定ID
+// 脱敏策略表单。
+message BaseRedactPolicyForm {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "策略绑定ID"}]; // 策略绑定ID
+  int64 field_id = 2 [(gnostic.openapi.v3.property) = {description: "字段目录ID"}, (buf.validate.field).cel = {id: "system.admin.base.redact.policy.field_id.required" message: "字段目录ID不能为空" expression: "this > 0"}]; // 字段目录ID
+  int64 rule_id = 3 [(gnostic.openapi.v3.property) = {description: "规则模板ID"}]; // 规则模板ID
+  string scene_code = 4 [(gnostic.openapi.v3.property) = {description: "场景编码"}, (buf.validate.field).cel = {id: "system.admin.base.redact.policy.scene_code.length" message: "场景编码不能为空且不超过64个字符" expression: "this.size() > 0 && this.size() <= 64"}]; // 场景编码
+  string operation = 5 [(gnostic.openapi.v3.property) = {description: "接口操作"}, (buf.validate.field).cel = {id: "system.admin.base.redact.policy.operation.required" message: "接口操作不能为空且不超过255个字符" expression: "this.size() > 0 && this.size() <= 255"}]; // 接口操作
+  BaseRedactDirection direction = 6 [(gnostic.openapi.v3.property) = {description: "脱敏方向"}, (buf.validate.field).enum = {defined_only: true}]; // 脱敏方向
+  BaseRedactPolicyMode mode = 100 [(gnostic.openapi.v3.property) = {description: "策略模式"}, (buf.validate.field).enum = {defined_only: true}]; // 策略模式
+  int32 priority = 101 [(gnostic.openapi.v3.property) = {description: "优先级"}, (buf.validate.field).cel = {id: "system.admin.base.redact.policy.priority.non_negative" message: "优先级不能小于0" expression: "this >= 0"}]; // 优先级
+  .common.v1.Status status = 102 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+  int32 version = 103 [(gnostic.openapi.v3.property) = {description: "策略版本"}, (buf.validate.field).cel = {id: "system.admin.base.redact.policy.version.positive" message: "策略版本必须大于0" expression: "this > 0"}]; // 策略版本
+  string remark = 104 [(gnostic.openapi.v3.property) = {description: "备注"}, (buf.validate.field).cel = {id: "system.admin.base.redact.policy.remark.length" message: "备注不能超过500个字符" expression: "this.size() <= 500"}]; // 备注
+}
+// 创建脱敏策略请求参数。
+message CreateBaseRedactPolicyRequest { BaseRedactPolicyForm base_redact_policy = 1 [(gnostic.openapi.v3.property) = {description: "脱敏策略表单"}, (buf.validate.field).required = true]; }
+// 更新脱敏策略请求参数。
+message UpdateBaseRedactPolicyRequest { BaseRedactPolicyForm base_redact_policy = 1 [(gnostic.openapi.v3.property) = {description: "脱敏策略表单"}, (buf.validate.field).required = true]; }
+// 删除脱敏策略请求参数。
+message DeleteBaseRedactPolicyRequest { string id = 1 [(gnostic.openapi.v3.property) = {description: "策略绑定ID列表"}, (buf.validate.field).cel = {id: "system.admin.base.redact.policy.delete.id.required" message: "策略绑定ID列表不能为空" expression: "this.size() > 0"}]; }
+// 设置脱敏策略状态请求参数。
+message SetBaseRedactPolicyStatusRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "策略绑定ID"}, (buf.validate.field).cel = {id: "system.admin.base.redact.policy.status.id.required" message: "策略绑定ID不能为空" expression: "this > 0"}]; // 策略绑定ID
+  .common.v1.Status status = 2 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+}
+// 脱敏策略。
+message BaseRedactPolicy {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "策略绑定ID"}]; // 策略绑定ID
+  int64 field_id = 2 [(gnostic.openapi.v3.property) = {description: "字段目录ID"}]; // 字段目录ID
+  string message_ref = 3 [(gnostic.openapi.v3.property) = {description: "Proto消息完整名称"}]; // Proto消息完整名称
+  string field_path = 4 [(gnostic.openapi.v3.property) = {description: "字段路径"}]; // 字段路径
+  string field_kind = 5 [(gnostic.openapi.v3.property) = {description: "Proto字段类型"}]; // Proto字段类型
+  string sensitivity_type = 6 [(gnostic.openapi.v3.property) = {description: "敏感字段类型"}]; // 敏感字段类型
+  int64 rule_id = 7 [(gnostic.openapi.v3.property) = {description: "规则模板ID"}]; // 规则模板ID
+  string rule_code = 8 [(gnostic.openapi.v3.property) = {description: "规则编码"}]; // 规则编码
+  string rule_name = 9 [(gnostic.openapi.v3.property) = {description: "规则名称"}]; // 规则名称
+  string rule_type = 10 [(gnostic.openapi.v3.property) = {description: "规则类型"}]; // 规则类型
+  string rule = 11 [(gnostic.openapi.v3.property) = {description: "规则参数"}]; // 规则参数
+  string scene_code = 12 [(gnostic.openapi.v3.property) = {description: "场景编码"}]; // 场景编码
+  string operation = 13 [(gnostic.openapi.v3.property) = {description: "接口操作"}]; // 接口操作
+  BaseRedactDirection direction = 14 [(gnostic.openapi.v3.property) = {description: "脱敏方向"}]; // 脱敏方向
+  BaseRedactPolicyMode mode = 100 [(gnostic.openapi.v3.property) = {description: "策略模式"}]; // 策略模式
+  int32 priority = 101 [(gnostic.openapi.v3.property) = {description: "优先级"}]; // 优先级
+  .common.v1.Status status = 102 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+  int32 version = 103 [(gnostic.openapi.v3.property) = {description: "策略版本"}]; // 策略版本
+  string remark = 104 [(gnostic.openapi.v3.property) = {description: "备注"}]; // 备注
+  string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+  string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+}

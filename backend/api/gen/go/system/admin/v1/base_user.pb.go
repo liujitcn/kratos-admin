@@ -1361,7 +1361,7 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12N\n" +
-	"\fis_protected\x18\xac\x02 \x01(\bB*\xbaG'\x92\x02$是否禁止通过用户管理操作R\visProtected\"\xd2\x12\n" +
+	"\fis_protected\x18\xac\x02 \x01(\bB*\xbaG'\x92\x02$是否禁止通过用户管理操作R\visProtected\"\xd5\x12\n" +
 	"\fBaseUserForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x12\x87\x01\n" +
 	"\ttenant_id\x18\x02 \x01(\x03Bj\xbaG\v\x92\x02\b租户ID\xbaHY\xba\x01V\n" +
@@ -1378,10 +1378,10 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\adept_id\x18\x06 \x01(\x03Bb\xbaG\v\x92\x02\b部门ID\xbaHQ\xba\x01N\n" +
 	".system.admin.base.user.entity.dept_id.required\x12\x12部门不能为空\x1a\bthis > 0R\x06deptId\x12'\n" +
 	"\apost_id\x18\n" +
-	" \x01(\x03B\x0e\xbaG\v\x92\x02\b岗位IDR\x06postId\x12\x98\x02\n" +
-	"\x05phone\x18\a \x01(\tB\x81\x02\xbaG\f\x92\x02\t手机号\xbaH\xee\x01\xba\x01g\n" +
-	".system.admin.base.user.entity.phone.max_length\x12\"手机号不能超过 20 个字符\x1a\x11this.size() <= 20\xba\x01\x80\x01\n" +
-	"*system.admin.base.user.entity.phone.format\x12\x1e请输入正确的手机号码\x1a2this.size() == 0 || this.matches('^1[3-9]\\\\d{9}$')R\x05phone\x12\x92\x01\n" +
+	" \x01(\x03B\x0e\xbaG\v\x92\x02\b岗位IDR\x06postId\x12\x9b\x02\n" +
+	"\x05phone\x18\a \x01(\tB\x84\x02\xbaG\f\x92\x02\t手机号\xbaH\xf1\x01\xba\x01g\n" +
+	".system.admin.base.user.entity.phone.max_length\x12\"手机号不能超过 20 个字符\x1a\x11this.size() <= 20\xba\x01\x83\x01\n" +
+	"*system.admin.base.user.entity.phone.format\x12\x1e请输入正确的手机号码\x1a5this.size() == 0 || this.matches('^1[3-9][0-9*]{9}$')R\x05phone\x12\x92\x01\n" +
 	"\x05email\x18\r \x01(\tB|\xbaG\t\x92\x02\x06邮箱\xbaHm\xba\x01f\n" +
 	".system.admin.base.user.entity.email.max_length\x12 邮箱不能超过 128 个字符\x1a\x12this.size() <= 128r\x02`\x01R\x05email\x12r\n" +
 	"\aid_type\x18\x0e \x01(\x0e2 .system.common.v1.BaseUserIDTypeB7\xbaG,\x92\x02)证件类型：枚举【BaseUserIDType】\xbaH\x05\x82\x01\x02\x10\x01R\x06idType\x12\xc1\x01\n" +

@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+// 脱敏策略方向。
+enum BaseRedactDirection {
+  // 未指定方向。
+  BASE_REDACT_DIRECTION_UNSPECIFIED = 0;
+  // 请求参数方向。
+  BASE_REDACT_DIRECTION_REQUEST = 1;
+  // 响应数据方向。
+  BASE_REDACT_DIRECTION_RESPONSE = 2;
+}

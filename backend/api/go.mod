@@ -8,6 +8,7 @@ require (
 	github.com/go-kratos/kratos/v3 v3.0.0
 	github.com/google/gnostic v0.7.1
 	github.com/liujitcn/kratos-core/api v0.0.4
+	github.com/liujitcn/kratos-kit/redact v0.0.2
 	github.com/modelcontextprotocol/go-sdk v1.7.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20260819154853-08b0e4226688
 	google.golang.org/grpc v1.83.1

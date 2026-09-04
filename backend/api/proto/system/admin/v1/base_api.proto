@@ -61,7 +61,9 @@ service BaseApiService {
 }
 
 // API选项查询条件
-message OptionBaseApiRequest {}
+message OptionBaseApiRequest {
+  optional bool include_public = 1 [(gnostic.openapi.v3.property) = {description: "是否包含免鉴权和可选鉴权接口"}]; // 是否包含免鉴权和可选鉴权接口
+}
 
 // API选项响应
 message OptionBaseApiResponse {

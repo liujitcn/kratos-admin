@@ -61,3 +61,10 @@ plugins:
     strategy: all
     opt:
       - paths=source_relative
+
+  # 使用 Proto 生成响应脱敏包装代码
+  - local: protoc-gen-go-redact
+    out: gen/go
+    strategy: all
+    opt:
+      - paths=source_relative

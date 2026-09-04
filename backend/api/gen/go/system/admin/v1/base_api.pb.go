@@ -30,6 +30,7 @@ const (
 // API选项查询条件
 type OptionBaseApiRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	IncludePublic *bool                  `protobuf:"varint,1,opt,name=include_public,json=includePublic,proto3,oneof" json:"include_public,omitempty"` // 是否包含免鉴权和可选鉴权接口
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -62,6 +63,13 @@ func (x *OptionBaseApiRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use OptionBaseApiRequest.ProtoReflect.Descriptor instead.
 func (*OptionBaseApiRequest) Descriptor() ([]byte, []int) {
 	return file_system_admin_v1_base_api_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *OptionBaseApiRequest) GetIncludePublic() bool {
+	if x != nil && x.IncludePublic != nil {
+		return *x.IncludePublic
+	}
+	return false
 }
 
 // API选项响应
@@ -1180,8 +1188,10 @@ var File_system_admin_v1_base_api_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_api_proto_rawDesc = "" +
 	"\n" +
-	"\x1esystem/admin/v1/base_api.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x16\n" +
-	"\x14OptionBaseApiRequest\"_\n" +
+	"\x1esystem/admin/v1/base_api.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x87\x01\n" +
+	"\x14OptionBaseApiRequest\x12\\\n" +
+	"\x0einclude_public\x18\x01 \x01(\bB0\xbaG-\x92\x02*是否包含免鉴权和可选鉴权接口H\x00R\rincludePublic\x88\x01\x01B\x11\n" +
+	"\x0f_include_public\"_\n" +
 	"\x15OptionBaseApiResponse\x12F\n" +
 	"\tbase_apis\x18\x01 \x03(\v2\x18.system.admin.v1.BaseApiB\x0f\xbaG\f\x92\x02\tAPI列表R\bbaseApis\"\xe6\a\n" +
 	"\x12PageBaseApiRequest\x121\n" +
@@ -1383,6 +1393,7 @@ func file_system_admin_v1_base_api_proto_init() {
 	if File_system_admin_v1_base_api_proto != nil {
 		return
 	}
+	file_system_admin_v1_base_api_proto_msgTypes[0].OneofWrappers = []any{}
 	file_system_admin_v1_base_api_proto_msgTypes[2].OneofWrappers = []any{}
 	file_system_admin_v1_base_api_proto_msgTypes[13].OneofWrappers = []any{}
 	type x struct{}
