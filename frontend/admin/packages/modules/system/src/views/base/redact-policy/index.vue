@@ -16,7 +16,7 @@ import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/co
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
-import { defBaseApiService } from "@liujitcn/kratos-admin-system/api/system/base_api";
+import { defBaseApiService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_api";
 import { defBaseRedactFieldService } from "@liujitcn/kratos-admin-system/api/system/base_redact_field";
 import { defBaseRedactPolicyService } from "@liujitcn/kratos-admin-system/api/system/base_redact_policy";
 import { defBaseRedactRuleService } from "@liujitcn/kratos-admin-system/api/system/base_redact_rule";
