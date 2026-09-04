@@ -380,7 +380,7 @@ service.interceptors.response.use(
 
 /** 以请求体、响应体顺序提供带类型约束的 HTTP 请求函数。 */
 function request<Request = unknown, Response = unknown>(config: AxiosRequestConfig<Request>): Promise<Response> {
-  return service<Response, Response, Request>(config);
+  return service<Response, Response, Request>(config) as Promise<Response>;
 }
 
 export default request;

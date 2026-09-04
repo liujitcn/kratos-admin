@@ -47,7 +47,7 @@ import type {
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_dashboard";
 import { t } from "@liujitcn/kratos-admin-core";
 
-const loading = ref(false);
+const loading = ref(true);
 const overview = ref<BaseDashboardOverview>();
 const trend = ref<BaseDashboardTrendPoint[]>([]);
 const loginDistribution = ref<BaseDashboardDistributionItem[]>([]);

@@ -27,6 +27,24 @@ test("登录策略提交前执行表单校验", async () => {
   assert.ok(submitBlock.indexOf("validate()") < submitBlock.indexOf("const baseLoginPolicy"));
 });
 
+test("管理端共享同一套 Vue 运行时并延后初始化页签拖拽", async () => {
+  const [workspaceSource, tabsSource, dashboardSource] = await Promise.all([
+    readSource("../../../package.json"),
+    readSource("../../core/src/layouts/components/Tabs/index.vue"),
+    readSource("src/views/base/dashboard/index.vue")
+  ]);
+  const workspace = JSON.parse(workspaceSource) as {
+    pnpm?: { overrides?: Record<string, string> };
+  };
+
+  assert.equal(workspace.pnpm?.overrides?.vue, "3.5.42");
+  assert.equal(workspace.pnpm?.overrides?.["element-plus"], "2.14.5");
+  assert.match(tabsSource, /void nextTick\(tabsDrop\)/);
+  assert.match(tabsSource, /const tabsNav = document\.querySelector<HTMLElement>\("\.el-tabs__nav"\);\s*if \(!tabsNav\) return;/);
+  assert.match(tabsSource, /onBeforeUnmount\(\(\) => \{\s*tabsSortable\?\.destroy\(\)/);
+  assert.match(dashboardSource, /const loading = ref\(true\);/);
+});
+
 test("归档和备份恢复拒绝零值记录ID", async () => {
   const [archiveRestore, backupRestore] = await Promise.all([
     readSource("src/views/base/backup-management/archive-restore/index.vue"),

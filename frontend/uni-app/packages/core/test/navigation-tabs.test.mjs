@@ -9,6 +9,9 @@ import { build } from 'esbuild'
 async function loadNavigationRuntime(state) {
   const root = mkdtempSync(resolve(tmpdir(), 'kratos-uni-tabs-'))
   const output = resolve(root, 'navigation.mjs')
+  const originalWindow = globalThis.window
+  if (state.isH5) globalThis.window = {}
+  else Reflect.deleteProperty(globalThis, 'window')
   globalThis.uni = {
     getStorageSync() {
       return undefined
@@ -27,6 +30,8 @@ async function loadNavigationRuntime(state) {
     },
     reLaunch(options) {
       state.reLaunchCalls.push(options)
+      options.success?.({ errMsg: 'reLaunch:ok' })
+      options.complete?.({ errMsg: 'reLaunch:ok' })
     },
   }
   globalThis.getCurrentPages = () => state.pages
@@ -105,11 +110,15 @@ async function loadNavigationRuntime(state) {
       },
     ],
   })
+  let runtime
   try {
-    return await import(`${pathToFileURL(output).href}?test=${Date.now()}`)
+    runtime = await import(`${pathToFileURL(output).href}?test=${Date.now()}`)
   } finally {
+    if (originalWindow === undefined) Reflect.deleteProperty(globalThis, 'window')
+    else globalThis.window = originalWindow
     rmSync(root, { recursive: true, force: true })
   }
+  return runtime
 }
 
 function createState(pages) {
@@ -121,6 +130,19 @@ function createState(pages) {
     reLaunchCalls: [],
   }
 }
+
+test('H5 切换自绘 tab 使用 reLaunch，避免原生 tabBar 状态不一致', async () => {
+  const state = { ...createState([{ route: 'pages/index/index' }]), isH5: true }
+  const runtime = await loadNavigationRuntime(state)
+  runtime.installAppNavigation(menus)
+
+  runtime.navigateAppRoute('app/my')
+
+  assert.equal(state.reLaunchCalls.length, 1)
+  assert.equal(state.reLaunchCalls[0].url, '/pages/my/my')
+  assert.equal(state.switchTabCalls.length, 0)
+  assert.equal(state.navigateCalls.length, 0)
+})
 
 const menus = [
   {

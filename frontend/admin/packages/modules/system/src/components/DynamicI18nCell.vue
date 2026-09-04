@@ -32,14 +32,26 @@
       </el-table-column>
       <el-table-column v-if="editable" :label="t('common.field.operation')" width="200" fixed="right">
         <template #default="{ row }">
-          <el-button v-if="editable && !row.editing" link type="primary" :icon="EditPen" @click="startEdit(row)">
+          <el-button
+            v-if="editable && !row.editing"
+            link
+            type="primary"
+            :icon="EditPen"
+            @click="startEdit(row as DynamicI18nRow)"
+          >
             {{ t("common.action.edit") }}
           </el-button>
           <template v-else>
-            <el-button link type="primary" :icon="Check" :loading="row.saving" @click="saveI18n(row)">
+            <el-button
+              link
+              type="primary"
+              :icon="Check"
+              :loading="row.saving"
+              @click="saveI18n(row as DynamicI18nRow)"
+            >
               {{ t("common.action.save") }}
             </el-button>
-            <el-button link :icon="Close" :disabled="row.saving" @click="cancelEdit(row)">
+            <el-button link :icon="Close" :disabled="row.saving" @click="cancelEdit(row as DynamicI18nRow)">
               {{ t("common.action.cancel") }}
             </el-button>
           </template>

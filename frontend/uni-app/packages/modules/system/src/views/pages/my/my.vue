@@ -16,7 +16,6 @@ const profile = computed(() => userStore.userInfo)
 
 /** 打开移动端 AI 助手静态页，未登录时先进入登录流程。 */
 const navigateToAi = () => {
-  console.log('[DEBUG-login-click] ai')
   if (!userStore.ensureAuthenticated()) {
     navigateToLogin()
     return
@@ -26,7 +25,6 @@ const navigateToAi = () => {
 
 /** 打开设置页，未登录时先进入登录流程。 */
 const navigateToSettings = () => {
-  console.log('[DEBUG-login-click] settings')
   if (!userStore.ensureAuthenticated()) {
     navigateToLogin()
     return

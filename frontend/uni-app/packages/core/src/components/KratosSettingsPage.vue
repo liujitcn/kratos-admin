@@ -240,12 +240,24 @@ const onLogout = () => {
 
 .locale-item {
   display: flex;
+  min-width: 0;
   justify-content: space-between;
   padding-right: 42rpx;
+
+  > text:first-child {
+    flex-shrink: 0;
+  }
 }
 
 .locale-value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  margin-left: 24rpx;
   color: #888;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .mfa-item {

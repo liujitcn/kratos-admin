@@ -149,6 +149,7 @@ const createDefaultMenus = (): AppMenu[] => [
 const menus = ref<AppMenu[]>([])
 const ready = ref(false)
 const appMenuBadges = ref<Record<string, number>>({})
+const isH5Runtime = typeof window !== 'undefined'
 let tabNavigationTarget: string | undefined
 let adapter: AppNavigationAdapter = {
   list: () => defBaseMenuService.ListBaseMenu(),
@@ -254,17 +255,22 @@ function navigateTabRoute(url: string): void {
   const pages = getCurrentPages()
   const currentIndex = pages.length - 1
   const currentRoute = pages[currentIndex]?.route?.replace(/^\/+/, '')
-  if (currentRoute === targetRoute || tabNavigationTarget) return
+  if (currentRoute === targetRoute || tabNavigationTarget === targetRoute) return
 
   tabNavigationTarget = targetRoute
   const release = () => {
     if (tabNavigationTarget === targetRoute) tabNavigationTarget = undefined
+  }
+  if (isH5Runtime) {
+    uni.reLaunch({ url, success: release, fail: release, complete: release })
+    return
   }
   if (nativeTabViewKeys.some((viewKey) => resolveStaticView(viewKey) === targetRoute)) {
     uni.switchTab({
       url,
       success: release,
       fail: () => navigateTabRouteInStack(url, targetRoute, pages, currentIndex, release),
+      complete: release,
     })
     return
   }

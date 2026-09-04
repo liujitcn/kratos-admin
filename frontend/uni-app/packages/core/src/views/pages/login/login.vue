@@ -1087,12 +1087,17 @@ onLoad(() => {
   top: calc(24rpx + env(safe-area-inset-top));
   right: 28rpx;
   z-index: 2;
+  max-width: calc(100% - 56rpx);
 }
 
 .login-locale__value {
+  max-width: 240rpx;
+  overflow: hidden;
   padding: 12rpx 16rpx;
   color: #16806d;
   font-size: 24rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .login-hero {

@@ -8,7 +8,11 @@ const navigation = readFileSync(resolve(import.meta.dirname, '../src/navigation.
 test('tab 导航复用页面栈并忽略当前页和未完成的重复跳转', () => {
   assert.match(navigation, /if \(options\.replace\) \{\s+uni\.reLaunch\(\{ url \}\)/)
   assert.match(navigation, /if \(resolved\.menu\.inTabBar\) \{\s+navigateTabRoute\(url\)/)
-  assert.match(navigation, /if \(currentRoute === targetRoute \|\| tabNavigationTarget\) return/)
+  assert.match(
+    navigation,
+    /if \(currentRoute === targetRoute \|\| tabNavigationTarget === targetRoute\) return/,
+  )
+  assert.match(navigation, /if \(isH5Runtime\) \{\s+uni\.reLaunch\(\{ url,/)
   assert.match(navigation, /uni\.switchTab\(\{\s+url,/)
   assert.match(navigation, /uni\.navigateBack\(\{\s+delta: currentIndex - targetIndex,/)
   assert.match(navigation, /uni\.navigateTo\(\{\s+url,/)

@@ -72,7 +72,7 @@
     >
       <!-- 默认插槽 -->
       <slot />
-      <template v-for="item in tableColumns" :key="item">
+      <template v-for="(item, index) in tableColumns" :key="item.prop ?? item.type ?? index">
         <!-- selection || radio || index || expand || sort -->
         <el-table-column
           v-if="item.type && columnTypes.includes(item.type)"
@@ -133,7 +133,7 @@
 
 <script setup lang="ts" name="ProTable">
 import { ref, watch, provide, onMounted, unref, computed, nextTick, useAttrs, useSlots, isProxy, markRaw, toRaw } from "vue";
-import { ElTable } from "element-plus";
+import { ElTable, type TableInstance } from "element-plus";
 import { useTable } from "@/hooks/useTable";
 import { useSelection } from "@/hooks/useSelection";
 import {
@@ -171,7 +171,7 @@ const props = withDefaults(defineProps<ProTableProps>(), {
 });
 
 // table 实例
-const tableRef = ref<InstanceType<typeof ElTable>>();
+const tableRef = ref<TableInstance>();
 const attrs = useAttrs();
 const slots = useSlots();
 

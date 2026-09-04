@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import Sortable from "sortablejs";
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, watch, onBeforeUnmount, onMounted, nextTick } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useGlobalStore } from "@/stores/modules/global";
 import { useTabsStore } from "@/stores/modules/tabs";
@@ -39,6 +39,7 @@ const { locale, t } = useLocaleStore();
 const tabsMenuValue = ref(getAdminTabPath(route));
 const tabsMenuList = computed(() => tabStore.tabsMenuList);
 const tabsIcon = computed(() => globalStore.tabsIcon);
+let tabsSortable: Sortable | undefined;
 
 /** 获取当前路由标签标题，兼容静态路由的多语言标题键。 */
 const getCurrentRouteTitle = () => {
@@ -47,8 +48,13 @@ const getCurrentRouteTitle = () => {
 };
 
 onMounted(() => {
-  tabsDrop();
   initTabs();
+  void nextTick(tabsDrop);
+});
+
+onBeforeUnmount(() => {
+  tabsSortable?.destroy();
+  tabsSortable = undefined;
 });
 
 // 监听路由的变化（防止浏览器后退/前进不变化 tabsMenuValue）
@@ -96,7 +102,10 @@ const initTabs = () => {
 
 // tabs 拖拽排序
 const tabsDrop = () => {
-  Sortable.create(document.querySelector(".el-tabs__nav") as HTMLElement, {
+  const tabsNav = document.querySelector<HTMLElement>(".el-tabs__nav");
+  if (!tabsNav) return;
+  tabsSortable?.destroy();
+  tabsSortable = Sortable.create(tabsNav, {
     draggable: ".el-tabs__item",
     animation: 300,
     onEnd({ newIndex, oldIndex }) {

@@ -41,7 +41,7 @@
             <el-table-column prop="path" :label="t('system.base.api.doc.field.name')" min-width="220" />
             <el-table-column prop="in" :label="t('system.base.api.doc.field.location')" width="90" />
             <el-table-column :label="t('system.base.api.doc.field.type')" min-width="180">
-              <template #default="{ row }">{{ formatSchemaType(row) }}</template>
+              <template #default="{ row }">{{ formatSchemaType(row as BaseApiDocSchema) }}</template>
             </el-table-column>
             <el-table-column :label="t('system.base.api.doc.field.required')" width="80" align="center">
               <template #default="{ row }">{{ t(row.required ? "common.value.yes" : "common.value.no") }}</template>
@@ -67,7 +67,7 @@
           >
             <el-table-column prop="path" :label="t('system.base.api.doc.field.name')" min-width="220" />
             <el-table-column :label="t('system.base.api.doc.field.type')" min-width="180">
-              <template #default="{ row }">{{ formatSchemaType(row) }}</template>
+              <template #default="{ row }">{{ formatSchemaType(row as BaseApiDocSchema) }}</template>
             </el-table-column>
             <el-table-column :label="t('system.base.api.doc.field.required')" width="80" align="center">
               <template #default="{ row }">{{ t(row.required ? "common.value.yes" : "common.value.no") }}</template>
@@ -98,7 +98,7 @@
               >
                 <el-table-column prop="path" :label="t('system.base.api.doc.field.name')" min-width="220" />
                 <el-table-column :label="t('system.base.api.doc.field.type')" min-width="180">
-                  <template #default="{ row }">{{ formatSchemaType(row) }}</template>
+                  <template #default="{ row }">{{ formatSchemaType(row as BaseApiDocSchema) }}</template>
                 </el-table-column>
                 <el-table-column
                   prop="description"

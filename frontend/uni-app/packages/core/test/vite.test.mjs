@@ -14,6 +14,16 @@ import { dirname, resolve } from 'node:path'
 import test from 'node:test'
 import { loadConfigFromFile } from 'vite'
 
+test('H5 宿主使用静态移动端 viewport 配置', () => {
+  const html = readFileSync(
+    resolve(import.meta.dirname, '../../../apps/uni-app/index.html'),
+    'utf8',
+  )
+
+  assert.match(html, /<meta\s+name="viewport"[\s\S]*width=device-width[\s\S]*viewport-fit=cover/)
+  assert.doesNotMatch(html, /document\.write\([\s\S]*name="viewport"/)
+})
+
 test('H5 开发服务器默认打开浏览器', async () => {
   const fixture = await createViteFixture({ configure: false })
 

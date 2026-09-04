@@ -108,7 +108,7 @@
                       <el-button
                         :icon="ChatLineSquare"
                         circle
-                        :type="hasMissingColumnLocales(row) ? 'warning' : 'success'"
+                        :type="hasMissingColumnLocales(row as CodeGenColumnView) ? 'warning' : 'success'"
                         :aria-label="t('system.code.gen.i18n.action.edit_column')"
                       />
                     </template>
@@ -148,7 +148,7 @@
                     v-model="row.query_config.component"
                     :disabled="!canEdit || !row.query_config.enabled"
                     :placeholder="t('system.code.gen.column.placeholder.query_component')"
-                    @change="handleComponentChange(row, 'query')"
+                    @change="handleComponentChange(row as CodeGenColumnView, 'query')"
                   >
                     <el-option
                       v-for="item in queryComponentOptions"
@@ -167,7 +167,7 @@
                       :type="hasOptionConfig(row.query_config.option) ? 'primary' : 'default'"
                       :icon="Setting"
                       :disabled="!canEdit"
-                      @click="openOptionDialog(row, 'query')"
+                      @click="openOptionDialog(row as CodeGenColumnView, 'query')"
                     >
                       {{ t("system.code.gen.column.action.options") }}
                     </el-button>
@@ -190,7 +190,7 @@
                     v-model="row.list_config.component"
                     :disabled="!canEdit || !row.list_config.enabled"
                     :placeholder="t('system.code.gen.column.placeholder.list_component')"
-                    @change="handleComponentChange(row, 'list')"
+                    @change="handleComponentChange(row as CodeGenColumnView, 'list')"
                   >
                     <el-option
                       v-for="item in listComponentOptions"
@@ -209,7 +209,7 @@
                       :type="hasOptionConfig(row.list_config.option) ? 'primary' : 'default'"
                       :icon="Setting"
                       :disabled="!canEdit"
-                      @click="openOptionDialog(row, 'list')"
+                      @click="openOptionDialog(row as CodeGenColumnView, 'list')"
                     >
                       {{ t("system.code.gen.column.action.options") }}
                     </el-button>
@@ -227,13 +227,13 @@
                     inline-prompt
                     :active-text="t('system.code.gen.value.on')"
                     :inactive-text="t('system.code.gen.value.off')"
-                    @change="handleFormEnabledChange(row)"
+                    @change="handleFormEnabledChange(row as CodeGenColumnView)"
                   />
                   <el-select
                     v-model="row.form_config.component"
                     :disabled="!canEdit || !row.form_config.enabled"
                     :placeholder="t('system.code.gen.column.placeholder.form_component')"
-                    @change="handleComponentChange(row, 'form')"
+                    @change="handleComponentChange(row as CodeGenColumnView, 'form')"
                   >
                     <el-option
                       v-for="item in formComponentOptions"
@@ -255,7 +255,7 @@
                       :type="hasOptionConfig(row.form_config.option) ? 'primary' : 'default'"
                       :icon="Setting"
                       :disabled="!canEdit"
-                      @click="openOptionDialog(row, 'form')"
+                      @click="openOptionDialog(row as CodeGenColumnView, 'form')"
                     >
                       {{ t("system.code.gen.column.action.options") }}
                     </el-button>
