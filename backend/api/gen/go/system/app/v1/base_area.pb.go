@@ -12,7 +12,7 @@ import (
 	unsafe "unsafe"
 
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -64,8 +64,8 @@ func (*TreeBaseAreaRequest) Descriptor() ([]byte, []int) {
 
 // 行政区域树形响应
 type TreeBaseAreaResponse struct {
-	state         protoimpl.MessageState             `protogen:"open.v1"`
-	Areas         []*v1.AppTreeOptionResponse_Option `protobuf:"bytes,1,rep,name=areas,proto3" json:"areas,omitempty"` // 行政区域树形选项
+	state         protoimpl.MessageState                   `protogen:"open.v1"`
+	Areas         []*commonv1.AppTreeOptionResponse_Option `protobuf:"bytes,1,rep,name=areas,proto3" json:"areas,omitempty"` // 行政区域树形选项
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -100,7 +100,7 @@ func (*TreeBaseAreaResponse) Descriptor() ([]byte, []int) {
 	return file_system_app_v1_base_area_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *TreeBaseAreaResponse) GetAreas() []*v1.AppTreeOptionResponse_Option {
+func (x *TreeBaseAreaResponse) GetAreas() []*commonv1.AppTreeOptionResponse_Option {
 	if x != nil {
 		return x.Areas
 	}
@@ -133,9 +133,9 @@ func file_system_app_v1_base_area_proto_rawDescGZIP() []byte {
 
 var file_system_app_v1_base_area_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_system_app_v1_base_area_proto_goTypes = []any{
-	(*TreeBaseAreaRequest)(nil),             // 0: system.app.v1.TreeBaseAreaRequest
-	(*TreeBaseAreaResponse)(nil),            // 1: system.app.v1.TreeBaseAreaResponse
-	(*v1.AppTreeOptionResponse_Option)(nil), // 2: common.v1.AppTreeOptionResponse.Option
+	(*TreeBaseAreaRequest)(nil),                   // 0: system.app.v1.TreeBaseAreaRequest
+	(*TreeBaseAreaResponse)(nil),                  // 1: system.app.v1.TreeBaseAreaResponse
+	(*commonv1.AppTreeOptionResponse_Option)(nil), // 2: common.v1.AppTreeOptionResponse.Option
 }
 var file_system_app_v1_base_area_proto_depIdxs = []int32{
 	2, // 0: system.app.v1.TreeBaseAreaResponse.areas:type_name -> common.v1.AppTreeOptionResponse.Option

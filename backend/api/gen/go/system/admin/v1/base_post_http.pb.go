@@ -10,7 +10,7 @@ import (
 	context "context"
 
 	http "github.com/go-kratos/kratos/v3/transport/http"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -36,7 +36,7 @@ type BasePostServiceHTTPServer interface {
 	// GetBasePost 查询岗位
 	GetBasePost(context.Context, *GetBasePostRequest) (*BasePostForm, error)
 	// OptionBasePost 查询岗位下拉选择
-	OptionBasePost(context.Context, *OptionBasePostRequest) (*v1.SelectOptionResponse, error)
+	OptionBasePost(context.Context, *OptionBasePostRequest) (*commonv1.SelectOptionResponse, error)
 	// PageBasePost 查询岗位分页列表
 	PageBasePost(context.Context, *PageBasePostRequest) (*PageBasePostResponse, error)
 	// SetBasePostStatus 设置岗位状态
@@ -70,7 +70,7 @@ func _BasePostService_OptionBasePost0_HTTP_Handler(srv BasePostServiceHTTPServer
 		if err != nil {
 			return err
 		}
-		reply := out.(*v1.SelectOptionResponse)
+		reply := out.(*commonv1.SelectOptionResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -215,7 +215,7 @@ type BasePostServiceHTTPClient interface {
 	// GetBasePost 查询岗位
 	GetBasePost(ctx context.Context, req *GetBasePostRequest, opts ...http.CallOption) (rsp *BasePostForm, err error)
 	// OptionBasePost 查询岗位下拉选择
-	OptionBasePost(ctx context.Context, req *OptionBasePostRequest, opts ...http.CallOption) (rsp *v1.SelectOptionResponse, err error)
+	OptionBasePost(ctx context.Context, req *OptionBasePostRequest, opts ...http.CallOption) (rsp *commonv1.SelectOptionResponse, err error)
 	// PageBasePost 查询岗位分页列表
 	PageBasePost(ctx context.Context, req *PageBasePostRequest, opts ...http.CallOption) (rsp *PageBasePostResponse, err error)
 	// SetBasePostStatus 设置岗位状态
@@ -285,8 +285,8 @@ func (c *BasePostServiceHTTPClientImpl) GetBasePost(ctx context.Context, in *Get
 }
 
 // OptionBasePost 查询岗位下拉选择
-func (c *BasePostServiceHTTPClientImpl) OptionBasePost(ctx context.Context, in *OptionBasePostRequest, opts ...http.CallOption) (*v1.SelectOptionResponse, error) {
-	var out v1.SelectOptionResponse
+func (c *BasePostServiceHTTPClientImpl) OptionBasePost(ctx context.Context, in *OptionBasePostRequest, opts ...http.CallOption) (*commonv1.SelectOptionResponse, error) {
+	var out commonv1.SelectOptionResponse
 	pattern := "/api/v1/admin/base/post/option"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{

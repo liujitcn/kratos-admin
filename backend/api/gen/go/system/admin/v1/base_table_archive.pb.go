@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -92,7 +92,7 @@ type BaseTableArchiveForm struct {
 	DeleteAfterVerify    bool                   `protobuf:"varint,8,opt,name=delete_after_verify,json=deleteAfterVerify,proto3" json:"delete_after_verify,omitempty"`                       // 校验后删除在线数据
 	OssPrefix            string                 `protobuf:"bytes,9,opt,name=oss_prefix,json=ossPrefix,proto3" json:"oss_prefix,omitempty"`                                                  // OSS对象前缀
 	SourceName           string                 `protobuf:"bytes,10,opt,name=source_name,json=sourceName,proto3" json:"source_name,omitempty"`                                              // 数据源名称
-	Status               v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                // 状态
+	Status               commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                // 状态
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -190,11 +190,11 @@ func (x *BaseTableArchiveForm) GetSourceName() string {
 	return ""
 }
 
-func (x *BaseTableArchiveForm) GetStatus() v1.Status {
+func (x *BaseTableArchiveForm) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 // PageBaseTableArchiveRequest 表归档配置分页请求。
@@ -202,7 +202,7 @@ type PageBaseTableArchiveRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TableName     string                 `protobuf:"bytes,2,opt,name=table_name,json=tableName,proto3" json:"table_name,omitempty"`         // 数据表名称
 	SourceName    string                 `protobuf:"bytes,3,opt,name=source_name,json=sourceName,proto3" json:"source_name,omitempty"`      // 数据源名称
-	Status        *v1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态
+	Status        *commonv1.Status       `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态
 	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`            // 当前页码
 	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`         // 每页行数
 	unknownFields protoimpl.UnknownFields
@@ -253,11 +253,11 @@ func (x *PageBaseTableArchiveRequest) GetSourceName() string {
 	return ""
 }
 
-func (x *PageBaseTableArchiveRequest) GetStatus() v1.Status {
+func (x *PageBaseTableArchiveRequest) GetStatus() commonv1.Status {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *PageBaseTableArchiveRequest) GetPageNum() int64 {
@@ -647,7 +647,7 @@ var file_system_admin_v1_base_table_archive_proto_goTypes = []any{
 	(*UpdateBaseTableArchiveRequest)(nil),    // 6: system.admin.v1.UpdateBaseTableArchiveRequest
 	(*DeleteBaseTableArchiveRequest)(nil),    // 7: system.admin.v1.DeleteBaseTableArchiveRequest
 	(*SetBaseTableArchiveStatusRequest)(nil), // 8: system.admin.v1.SetBaseTableArchiveStatusRequest
-	(v1.Status)(0),                           // 9: common.v1.Status
+	(commonv1.Status)(0),                     // 9: common.v1.Status
 	(*emptypb.Empty)(nil),                    // 10: google.protobuf.Empty
 }
 var file_system_admin_v1_base_table_archive_proto_depIdxs = []int32{

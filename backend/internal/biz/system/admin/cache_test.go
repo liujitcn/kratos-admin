@@ -6,7 +6,7 @@ import (
 	"time"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	coreBiz "github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-kit/cache/memory"
 )
 
@@ -25,7 +25,7 @@ func TestPageCachePaginatesAndReturnsMetadata(t *testing.T) {
 	if err = store.Set("cache:c", "c", time.Minute); err != nil {
 		t.Fatal(err)
 	}
-	cacheCase := NewCacheCase(&coreBiz.BaseCase{Cache: store})
+	cacheCase := NewCacheCase(&biz.BaseCase{Cache: store})
 	response, err := cacheCase.PageCache(nil, &adminv1.PageCacheRequest{PageNum: 2, PageSize: 2})
 	if err != nil {
 		t.Fatal(err)

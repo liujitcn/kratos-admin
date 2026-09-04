@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/common/v1"
+	commonv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -66,15 +66,15 @@ func (*GetUserProfileRequest) Descriptor() ([]byte, []int) {
 
 // 用户资料表单
 type UserProfileForm struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserName      string                 `protobuf:"bytes,1,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                                 // 用户账号
-	NickName      string                 `protobuf:"bytes,2,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                                 // 用户昵称
-	Gender        int32                  `protobuf:"varint,3,opt,name=gender,proto3" json:"gender,omitempty"`                                                    // 性别
-	Phone         string                 `protobuf:"bytes,4,opt,name=phone,proto3" json:"phone,omitempty"`                                                       // 手机号
-	Email         string                 `protobuf:"bytes,6,opt,name=email,proto3" json:"email,omitempty"`                                                       // 邮箱
-	IdType        v1.BaseUserIDType      `protobuf:"varint,7,opt,name=id_type,json=idType,proto3,enum=system.common.v1.BaseUserIDType" json:"id_type,omitempty"` // 证件类型：枚举【BaseUserIDType】
-	IdCode        string                 `protobuf:"bytes,8,opt,name=id_code,json=idCode,proto3" json:"id_code,omitempty"`                                       // 证件号
-	Avatar        string                 `protobuf:"bytes,5,opt,name=avatar,proto3" json:"avatar,omitempty"`                                                     // 头像
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	UserName      string                  `protobuf:"bytes,1,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                                 // 用户账号
+	NickName      string                  `protobuf:"bytes,2,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                                 // 用户昵称
+	Gender        int32                   `protobuf:"varint,3,opt,name=gender,proto3" json:"gender,omitempty"`                                                    // 性别
+	Phone         string                  `protobuf:"bytes,4,opt,name=phone,proto3" json:"phone,omitempty"`                                                       // 手机号
+	Email         string                  `protobuf:"bytes,6,opt,name=email,proto3" json:"email,omitempty"`                                                       // 邮箱
+	IdType        commonv1.BaseUserIDType `protobuf:"varint,7,opt,name=id_type,json=idType,proto3,enum=system.common.v1.BaseUserIDType" json:"id_type,omitempty"` // 证件类型：枚举【BaseUserIDType】
+	IdCode        string                  `protobuf:"bytes,8,opt,name=id_code,json=idCode,proto3" json:"id_code,omitempty"`                                       // 证件号
+	Avatar        string                  `protobuf:"bytes,5,opt,name=avatar,proto3" json:"avatar,omitempty"`                                                     // 头像
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -144,11 +144,11 @@ func (x *UserProfileForm) GetEmail() string {
 	return ""
 }
 
-func (x *UserProfileForm) GetIdType() v1.BaseUserIDType {
+func (x *UserProfileForm) GetIdType() commonv1.BaseUserIDType {
 	if x != nil {
 		return x.IdType
 	}
-	return v1.BaseUserIDType(0)
+	return commonv1.BaseUserIDType(0)
 }
 
 func (x *UserProfileForm) GetIdCode() string {
@@ -348,7 +348,7 @@ var file_system_app_v1_auth_proto_goTypes = []any{
 	(*UpdateUserProfileRequest)(nil), // 2: system.app.v1.UpdateUserProfileRequest
 	(*BindUserPhoneRequest)(nil),     // 3: system.app.v1.BindUserPhoneRequest
 	(*BindUserPhoneResponse)(nil),    // 4: system.app.v1.BindUserPhoneResponse
-	(v1.BaseUserIDType)(0),           // 5: system.common.v1.BaseUserIDType
+	(commonv1.BaseUserIDType)(0),     // 5: system.common.v1.BaseUserIDType
 	(*emptypb.Empty)(nil),            // 6: google.protobuf.Empty
 }
 var file_system_app_v1_auth_proto_depIdxs = []int32{

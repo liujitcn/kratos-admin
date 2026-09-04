@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -645,12 +645,12 @@ func (x *RefreshTokenResponse) GetExpiresIn() int64 {
 
 // 登录请求参数
 type LoginRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	TenantCode    string                 `protobuf:"bytes,1,opt,name=tenant_code,json=tenantCode,proto3" json:"tenant_code,omitempty"`    // 租户编码
-	UserName      string                 `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`          // 用户名，必选项。
-	Password      *v1.PasswordCrypto     `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`                          // 用户的密码，必选项。
-	CaptchaCode   string                 `protobuf:"bytes,4,opt,name=captcha_code,json=captchaCode,proto3" json:"captcha_code,omitempty"` // 验证码
-	CaptchaId     string                 `protobuf:"bytes,5,opt,name=captcha_id,json=captchaId,proto3" json:"captcha_id,omitempty"`       // 验证码Id
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	TenantCode    string                   `protobuf:"bytes,1,opt,name=tenant_code,json=tenantCode,proto3" json:"tenant_code,omitempty"`    // 租户编码
+	UserName      string                   `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`          // 用户名，必选项。
+	Password      *commonv1.PasswordCrypto `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`                          // 用户的密码，必选项。
+	CaptchaCode   string                   `protobuf:"bytes,4,opt,name=captcha_code,json=captchaCode,proto3" json:"captcha_code,omitempty"` // 验证码
+	CaptchaId     string                   `protobuf:"bytes,5,opt,name=captcha_id,json=captchaId,proto3" json:"captcha_id,omitempty"`       // 验证码Id
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -699,7 +699,7 @@ func (x *LoginRequest) GetUserName() string {
 	return ""
 }
 
-func (x *LoginRequest) GetPassword() *v1.PasswordCrypto {
+func (x *LoginRequest) GetPassword() *commonv1.PasswordCrypto {
 	if x != nil {
 		return x.Password
 	}
@@ -959,7 +959,7 @@ var file_base_v1_login_proto_goTypes = []any{
 	(*RefreshTokenResponse)(nil),      // 10: base.v1.RefreshTokenResponse
 	(*LoginRequest)(nil),              // 11: base.v1.LoginRequest
 	(*LoginResponse)(nil),             // 12: base.v1.LoginResponse
-	(*v1.PasswordCrypto)(nil),         // 13: common.v1.PasswordCrypto
+	(*commonv1.PasswordCrypto)(nil),   // 13: common.v1.PasswordCrypto
 	(*emptypb.Empty)(nil),             // 14: google.protobuf.Empty
 }
 var file_base_v1_login_proto_depIdxs = []int32{

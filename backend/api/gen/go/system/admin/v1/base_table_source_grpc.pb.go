@@ -9,7 +9,7 @@ package adminv1
 import (
 	context "context"
 
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -32,9 +32,9 @@ const (
 // BaseTableSourceService 提供数据备份、数据归档和代码生成共用的数据源元数据。
 type BaseTableSourceServiceClient interface {
 	// 查询已初始化的数据源名称。
-	OptionBaseTableSource(ctx context.Context, in *OptionBaseTableSourceRequest, opts ...grpc.CallOption) (*v1.StringValues, error)
+	OptionBaseTableSource(ctx context.Context, in *OptionBaseTableSourceRequest, opts ...grpc.CallOption) (*commonv1.StringValues, error)
 	// 查询指定数据源中的数据库表名称。
-	OptionBaseTable(ctx context.Context, in *OptionBaseTableRequest, opts ...grpc.CallOption) (*v1.StringValues, error)
+	OptionBaseTable(ctx context.Context, in *OptionBaseTableRequest, opts ...grpc.CallOption) (*commonv1.StringValues, error)
 }
 
 type baseTableSourceServiceClient struct {
@@ -45,9 +45,9 @@ func NewBaseTableSourceServiceClient(cc grpc.ClientConnInterface) BaseTableSourc
 	return &baseTableSourceServiceClient{cc}
 }
 
-func (c *baseTableSourceServiceClient) OptionBaseTableSource(ctx context.Context, in *OptionBaseTableSourceRequest, opts ...grpc.CallOption) (*v1.StringValues, error) {
+func (c *baseTableSourceServiceClient) OptionBaseTableSource(ctx context.Context, in *OptionBaseTableSourceRequest, opts ...grpc.CallOption) (*commonv1.StringValues, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v1.StringValues)
+	out := new(commonv1.StringValues)
 	err := c.cc.Invoke(ctx, BaseTableSourceService_OptionBaseTableSource_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -55,9 +55,9 @@ func (c *baseTableSourceServiceClient) OptionBaseTableSource(ctx context.Context
 	return out, nil
 }
 
-func (c *baseTableSourceServiceClient) OptionBaseTable(ctx context.Context, in *OptionBaseTableRequest, opts ...grpc.CallOption) (*v1.StringValues, error) {
+func (c *baseTableSourceServiceClient) OptionBaseTable(ctx context.Context, in *OptionBaseTableRequest, opts ...grpc.CallOption) (*commonv1.StringValues, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v1.StringValues)
+	out := new(commonv1.StringValues)
 	err := c.cc.Invoke(ctx, BaseTableSourceService_OptionBaseTable_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -72,9 +72,9 @@ func (c *baseTableSourceServiceClient) OptionBaseTable(ctx context.Context, in *
 // BaseTableSourceService 提供数据备份、数据归档和代码生成共用的数据源元数据。
 type BaseTableSourceServiceServer interface {
 	// 查询已初始化的数据源名称。
-	OptionBaseTableSource(context.Context, *OptionBaseTableSourceRequest) (*v1.StringValues, error)
+	OptionBaseTableSource(context.Context, *OptionBaseTableSourceRequest) (*commonv1.StringValues, error)
 	// 查询指定数据源中的数据库表名称。
-	OptionBaseTable(context.Context, *OptionBaseTableRequest) (*v1.StringValues, error)
+	OptionBaseTable(context.Context, *OptionBaseTableRequest) (*commonv1.StringValues, error)
 	mustEmbedUnimplementedBaseTableSourceServiceServer()
 }
 
@@ -85,10 +85,10 @@ type BaseTableSourceServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseTableSourceServiceServer struct{}
 
-func (UnimplementedBaseTableSourceServiceServer) OptionBaseTableSource(context.Context, *OptionBaseTableSourceRequest) (*v1.StringValues, error) {
+func (UnimplementedBaseTableSourceServiceServer) OptionBaseTableSource(context.Context, *OptionBaseTableSourceRequest) (*commonv1.StringValues, error) {
 	return nil, status.Error(codes.Unimplemented, "method OptionBaseTableSource not implemented")
 }
-func (UnimplementedBaseTableSourceServiceServer) OptionBaseTable(context.Context, *OptionBaseTableRequest) (*v1.StringValues, error) {
+func (UnimplementedBaseTableSourceServiceServer) OptionBaseTable(context.Context, *OptionBaseTableRequest) (*commonv1.StringValues, error) {
 	return nil, status.Error(codes.Unimplemented, "method OptionBaseTable not implemented")
 }
 func (UnimplementedBaseTableSourceServiceServer) mustEmbedUnimplementedBaseTableSourceServiceServer() {

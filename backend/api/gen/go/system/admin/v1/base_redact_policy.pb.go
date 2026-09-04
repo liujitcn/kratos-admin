@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -93,7 +93,7 @@ type PageBaseRedactPolicyRequest struct {
 	Operation     string                 `protobuf:"bytes,4,opt,name=operation,proto3" json:"operation,omitempty"`                                                 // 接口操作
 	Direction     *BaseRedactDirection   `protobuf:"varint,5,opt,name=direction,proto3,enum=system.admin.v1.BaseRedactDirection,oneof" json:"direction,omitempty"` // 脱敏方向
 	Mode          *BaseRedactPolicyMode  `protobuf:"varint,100,opt,name=mode,proto3,enum=system.admin.v1.BaseRedactPolicyMode,oneof" json:"mode,omitempty"`        // 策略模式
-	Status        *v1.Status             `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`                        // 状态
+	Status        *commonv1.Status       `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`                        // 状态
 	PageNum       int64                  `protobuf:"varint,102,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                                   // 当前页码
 	PageSize      int64                  `protobuf:"varint,103,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                                // 每页数量
 	unknownFields protoimpl.UnknownFields
@@ -172,11 +172,11 @@ func (x *PageBaseRedactPolicyRequest) GetMode() BaseRedactPolicyMode {
 	return BaseRedactPolicyMode_BASE_REDACT_POLICY_MODE_UNSPECIFIED
 }
 
-func (x *PageBaseRedactPolicyRequest) GetStatus() v1.Status {
+func (x *PageBaseRedactPolicyRequest) GetStatus() commonv1.Status {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *PageBaseRedactPolicyRequest) GetPageNum() int64 {
@@ -302,7 +302,7 @@ type BaseRedactPolicyForm struct {
 	Direction     BaseRedactDirection    `protobuf:"varint,6,opt,name=direction,proto3,enum=system.admin.v1.BaseRedactDirection" json:"direction,omitempty"` // 脱敏方向
 	Mode          BaseRedactPolicyMode   `protobuf:"varint,100,opt,name=mode,proto3,enum=system.admin.v1.BaseRedactPolicyMode" json:"mode,omitempty"`        // 策略模式
 	Priority      int32                  `protobuf:"varint,101,opt,name=priority,proto3" json:"priority,omitempty"`                                          // 优先级
-	Status        v1.Status              `protobuf:"varint,102,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                        // 状态
+	Status        commonv1.Status        `protobuf:"varint,102,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                        // 状态
 	Version       int32                  `protobuf:"varint,103,opt,name=version,proto3" json:"version,omitempty"`                                            // 策略版本
 	Remark        string                 `protobuf:"bytes,104,opt,name=remark,proto3" json:"remark,omitempty"`                                               // 备注
 	unknownFields protoimpl.UnknownFields
@@ -395,11 +395,11 @@ func (x *BaseRedactPolicyForm) GetPriority() int32 {
 	return 0
 }
 
-func (x *BaseRedactPolicyForm) GetStatus() v1.Status {
+func (x *BaseRedactPolicyForm) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *BaseRedactPolicyForm) GetVersion() int32 {
@@ -555,7 +555,7 @@ func (x *DeleteBaseRedactPolicyRequest) GetId() string {
 type SetBaseRedactPolicyStatusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                               // 策略绑定ID
-	Status        v1.Status              `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
+	Status        commonv1.Status        `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -597,11 +597,11 @@ func (x *SetBaseRedactPolicyStatusRequest) GetId() int64 {
 	return 0
 }
 
-func (x *SetBaseRedactPolicyStatusRequest) GetStatus() v1.Status {
+func (x *SetBaseRedactPolicyStatusRequest) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 // 脱敏策略。
@@ -623,7 +623,7 @@ type BaseRedactPolicy struct {
 	Direction       BaseRedactDirection    `protobuf:"varint,14,opt,name=direction,proto3,enum=system.admin.v1.BaseRedactDirection" json:"direction,omitempty"` // 脱敏方向
 	Mode            BaseRedactPolicyMode   `protobuf:"varint,100,opt,name=mode,proto3,enum=system.admin.v1.BaseRedactPolicyMode" json:"mode,omitempty"`         // 策略模式
 	Priority        int32                  `protobuf:"varint,101,opt,name=priority,proto3" json:"priority,omitempty"`                                           // 优先级
-	Status          v1.Status              `protobuf:"varint,102,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                         // 状态
+	Status          commonv1.Status        `protobuf:"varint,102,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                         // 状态
 	Version         int32                  `protobuf:"varint,103,opt,name=version,proto3" json:"version,omitempty"`                                             // 策略版本
 	Remark          string                 `protobuf:"bytes,104,opt,name=remark,proto3" json:"remark,omitempty"`                                                // 备注
 	CreatedAt       string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                         // 创建时间
@@ -774,11 +774,11 @@ func (x *BaseRedactPolicy) GetPriority() int32 {
 	return 0
 }
 
-func (x *BaseRedactPolicy) GetStatus() v1.Status {
+func (x *BaseRedactPolicy) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *BaseRedactPolicy) GetVersion() int32 {
@@ -937,7 +937,7 @@ var file_system_admin_v1_base_redact_policy_proto_goTypes = []any{
 	(*SetBaseRedactPolicyStatusRequest)(nil), // 8: system.admin.v1.SetBaseRedactPolicyStatusRequest
 	(*BaseRedactPolicy)(nil),                 // 9: system.admin.v1.BaseRedactPolicy
 	(BaseRedactDirection)(0),                 // 10: system.admin.v1.BaseRedactDirection
-	(v1.Status)(0),                           // 11: common.v1.Status
+	(commonv1.Status)(0),                     // 11: common.v1.Status
 	(*emptypb.Empty)(nil),                    // 12: google.protobuf.Empty
 }
 var file_system_admin_v1_base_redact_policy_proto_depIdxs = []int32{

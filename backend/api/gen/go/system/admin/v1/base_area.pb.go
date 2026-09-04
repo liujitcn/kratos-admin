@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -577,17 +577,17 @@ func file_system_admin_v1_base_area_proto_rawDescGZIP() []byte {
 
 var file_system_admin_v1_base_area_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_system_admin_v1_base_area_proto_goTypes = []any{
-	(*OptionBaseAreaRequest)(nil), // 0: system.admin.v1.OptionBaseAreaRequest
-	(*TreeBaseAreaRequest)(nil),   // 1: system.admin.v1.TreeBaseAreaRequest
-	(*TreeBaseAreaResponse)(nil),  // 2: system.admin.v1.TreeBaseAreaResponse
-	(*BaseArea)(nil),              // 3: system.admin.v1.BaseArea
-	(*GetBaseAreaRequest)(nil),    // 4: system.admin.v1.GetBaseAreaRequest
-	(*BaseAreaForm)(nil),          // 5: system.admin.v1.BaseAreaForm
-	(*CreateBaseAreaRequest)(nil), // 6: system.admin.v1.CreateBaseAreaRequest
-	(*UpdateBaseAreaRequest)(nil), // 7: system.admin.v1.UpdateBaseAreaRequest
-	(*DeleteBaseAreaRequest)(nil), // 8: system.admin.v1.DeleteBaseAreaRequest
-	(*v1.TreeOptionResponse)(nil), // 9: common.v1.TreeOptionResponse
-	(*emptypb.Empty)(nil),         // 10: google.protobuf.Empty
+	(*OptionBaseAreaRequest)(nil),       // 0: system.admin.v1.OptionBaseAreaRequest
+	(*TreeBaseAreaRequest)(nil),         // 1: system.admin.v1.TreeBaseAreaRequest
+	(*TreeBaseAreaResponse)(nil),        // 2: system.admin.v1.TreeBaseAreaResponse
+	(*BaseArea)(nil),                    // 3: system.admin.v1.BaseArea
+	(*GetBaseAreaRequest)(nil),          // 4: system.admin.v1.GetBaseAreaRequest
+	(*BaseAreaForm)(nil),                // 5: system.admin.v1.BaseAreaForm
+	(*CreateBaseAreaRequest)(nil),       // 6: system.admin.v1.CreateBaseAreaRequest
+	(*UpdateBaseAreaRequest)(nil),       // 7: system.admin.v1.UpdateBaseAreaRequest
+	(*DeleteBaseAreaRequest)(nil),       // 8: system.admin.v1.DeleteBaseAreaRequest
+	(*commonv1.TreeOptionResponse)(nil), // 9: common.v1.TreeOptionResponse
+	(*emptypb.Empty)(nil),               // 10: google.protobuf.Empty
 }
 var file_system_admin_v1_base_area_proto_depIdxs = []int32{
 	3,  // 0: system.admin.v1.TreeBaseAreaResponse.base_areas:type_name -> system.admin.v1.BaseArea

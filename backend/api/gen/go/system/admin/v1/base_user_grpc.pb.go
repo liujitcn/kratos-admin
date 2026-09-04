@@ -9,7 +9,7 @@ package adminv1
 import (
 	context "context"
 
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -42,7 +42,7 @@ const (
 // Admin用户管理服务
 type BaseUserServiceClient interface {
 	// 查询用户下拉选择
-	OptionBaseUser(ctx context.Context, in *OptionBaseUserRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error)
+	OptionBaseUser(ctx context.Context, in *OptionBaseUserRequest, opts ...grpc.CallOption) (*commonv1.SelectOptionResponse, error)
 	// 查询用户列表
 	ListBaseUser(ctx context.Context, in *ListBaseUserRequest, opts ...grpc.CallOption) (*ListBaseUserResponse, error)
 	// 查询用户分页列表
@@ -73,9 +73,9 @@ func NewBaseUserServiceClient(cc grpc.ClientConnInterface) BaseUserServiceClient
 	return &baseUserServiceClient{cc}
 }
 
-func (c *baseUserServiceClient) OptionBaseUser(ctx context.Context, in *OptionBaseUserRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error) {
+func (c *baseUserServiceClient) OptionBaseUser(ctx context.Context, in *OptionBaseUserRequest, opts ...grpc.CallOption) (*commonv1.SelectOptionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v1.SelectOptionResponse)
+	out := new(commonv1.SelectOptionResponse)
 	err := c.cc.Invoke(ctx, BaseUserService_OptionBaseUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -190,7 +190,7 @@ func (c *baseUserServiceClient) SummaryBaseUser(ctx context.Context, in *Summary
 // Admin用户管理服务
 type BaseUserServiceServer interface {
 	// 查询用户下拉选择
-	OptionBaseUser(context.Context, *OptionBaseUserRequest) (*v1.SelectOptionResponse, error)
+	OptionBaseUser(context.Context, *OptionBaseUserRequest) (*commonv1.SelectOptionResponse, error)
 	// 查询用户列表
 	ListBaseUser(context.Context, *ListBaseUserRequest) (*ListBaseUserResponse, error)
 	// 查询用户分页列表
@@ -221,7 +221,7 @@ type BaseUserServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseUserServiceServer struct{}
 
-func (UnimplementedBaseUserServiceServer) OptionBaseUser(context.Context, *OptionBaseUserRequest) (*v1.SelectOptionResponse, error) {
+func (UnimplementedBaseUserServiceServer) OptionBaseUser(context.Context, *OptionBaseUserRequest) (*commonv1.SelectOptionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method OptionBaseUser not implemented")
 }
 func (UnimplementedBaseUserServiceServer) ListBaseUser(context.Context, *ListBaseUserRequest) (*ListBaseUserResponse, error) {

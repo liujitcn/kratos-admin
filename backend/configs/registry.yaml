@@ -4,4 +4,4 @@ registry:
         address: 127.0.0.1:8500
         health_check: false
         scheme: http
-        token: ENC[EFWFihapTf4nRtz3DFYliocgUIl9vdGrUGsThiKPbhCwaDmSCg-2GYjA9PeH-RnpP6KhYDqVFgEd5p4ANWTfiA]
+        token: 03e92c67-5da7-3f4f-6659-8fb2d137aaa5

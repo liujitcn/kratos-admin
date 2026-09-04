@@ -10,7 +10,7 @@ import (
 	context "context"
 
 	http "github.com/go-kratos/kratos/v3/transport/http"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -36,7 +36,7 @@ type BaseDeptServiceHTTPServer interface {
 	// GetBaseDept 查询部门
 	GetBaseDept(context.Context, *GetBaseDeptRequest) (*BaseDeptForm, error)
 	// OptionBaseDept 查询部门树形选择
-	OptionBaseDept(context.Context, *OptionBaseDeptRequest) (*v1.TreeOptionResponse, error)
+	OptionBaseDept(context.Context, *OptionBaseDeptRequest) (*commonv1.TreeOptionResponse, error)
 	// SetBaseDeptStatus 设置状态
 	SetBaseDeptStatus(context.Context, *SetBaseDeptStatusRequest) (*emptypb.Empty, error)
 	// TreeBaseDept 查询部门树形列表
@@ -70,7 +70,7 @@ func _BaseDeptService_OptionBaseDept0_HTTP_Handler(srv BaseDeptServiceHTTPServer
 		if err != nil {
 			return err
 		}
-		reply := out.(*v1.TreeOptionResponse)
+		reply := out.(*commonv1.TreeOptionResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -215,7 +215,7 @@ type BaseDeptServiceHTTPClient interface {
 	// GetBaseDept 查询部门
 	GetBaseDept(ctx context.Context, req *GetBaseDeptRequest, opts ...http.CallOption) (rsp *BaseDeptForm, err error)
 	// OptionBaseDept 查询部门树形选择
-	OptionBaseDept(ctx context.Context, req *OptionBaseDeptRequest, opts ...http.CallOption) (rsp *v1.TreeOptionResponse, err error)
+	OptionBaseDept(ctx context.Context, req *OptionBaseDeptRequest, opts ...http.CallOption) (rsp *commonv1.TreeOptionResponse, err error)
 	// SetBaseDeptStatus 设置状态
 	SetBaseDeptStatus(ctx context.Context, req *SetBaseDeptStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// TreeBaseDept 查询部门树形列表
@@ -285,8 +285,8 @@ func (c *BaseDeptServiceHTTPClientImpl) GetBaseDept(ctx context.Context, in *Get
 }
 
 // OptionBaseDept 查询部门树形选择
-func (c *BaseDeptServiceHTTPClientImpl) OptionBaseDept(ctx context.Context, in *OptionBaseDeptRequest, opts ...http.CallOption) (*v1.TreeOptionResponse, error) {
-	var out v1.TreeOptionResponse
+func (c *BaseDeptServiceHTTPClientImpl) OptionBaseDept(ctx context.Context, in *OptionBaseDeptRequest, opts ...http.CallOption) (*commonv1.TreeOptionResponse, error) {
+	var out commonv1.TreeOptionResponse
 	pattern := "/api/v1/admin/base/dept/option"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{

@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -88,7 +88,7 @@ type BaseTableBackupForm struct {
 	BackupType     BaseTableBackupType    `protobuf:"varint,4,opt,name=backup_type,json=backupType,proto3,enum=system.admin.v1.BaseTableBackupType" json:"backup_type,omitempty"` // 备份类型
 	OssPrefix      string                 `protobuf:"bytes,5,opt,name=oss_prefix,json=ossPrefix,proto3" json:"oss_prefix,omitempty"`                                              // OSS对象前缀
 	RetentionCount int32                  `protobuf:"varint,6,opt,name=retention_count,json=retentionCount,proto3" json:"retention_count,omitempty"`                              // 保留数量
-	Status         v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                            // 状态
+	Status         commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                            // 状态
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -158,18 +158,18 @@ func (x *BaseTableBackupForm) GetRetentionCount() int32 {
 	return 0
 }
 
-func (x *BaseTableBackupForm) GetStatus() v1.Status {
+func (x *BaseTableBackupForm) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 // PageBaseTableBackupRequest 数据库备份配置分页请求。
 type PageBaseTableBackupRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SourceName    string                 `protobuf:"bytes,2,opt,name=source_name,json=sourceName,proto3" json:"source_name,omitempty"`
-	Status        *v1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`
+	Status        *commonv1.Status       `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`
 	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`
 	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -213,11 +213,11 @@ func (x *PageBaseTableBackupRequest) GetSourceName() string {
 	return ""
 }
 
-func (x *PageBaseTableBackupRequest) GetStatus() v1.Status {
+func (x *PageBaseTableBackupRequest) GetStatus() commonv1.Status {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *PageBaseTableBackupRequest) GetPageNum() int64 {
@@ -596,7 +596,7 @@ var file_system_admin_v1_base_table_backup_proto_goTypes = []any{
 	(*UpdateBaseTableBackupRequest)(nil),    // 6: system.admin.v1.UpdateBaseTableBackupRequest
 	(*DeleteBaseTableBackupRequest)(nil),    // 7: system.admin.v1.DeleteBaseTableBackupRequest
 	(*SetBaseTableBackupStatusRequest)(nil), // 8: system.admin.v1.SetBaseTableBackupStatusRequest
-	(v1.Status)(0),                          // 9: common.v1.Status
+	(commonv1.Status)(0),                    // 9: common.v1.Status
 	(*emptypb.Empty)(nil),                   // 10: google.protobuf.Empty
 }
 var file_system_admin_v1_base_table_backup_proto_depIdxs = []int32{

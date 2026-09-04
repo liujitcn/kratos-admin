@@ -10,7 +10,7 @@ import (
 	context "context"
 
 	http "github.com/go-kratos/kratos/v3/transport/http"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -36,7 +36,7 @@ type BaseTenantServiceHTTPServer interface {
 	// GetBaseTenant 查询租户
 	GetBaseTenant(context.Context, *GetBaseTenantRequest) (*BaseTenantForm, error)
 	// OptionBaseTenant 查询租户下拉选择
-	OptionBaseTenant(context.Context, *OptionBaseTenantRequest) (*v1.SelectOptionResponse, error)
+	OptionBaseTenant(context.Context, *OptionBaseTenantRequest) (*commonv1.SelectOptionResponse, error)
 	// PageBaseTenant 查询租户分页列表
 	PageBaseTenant(context.Context, *PageBaseTenantRequest) (*PageBaseTenantResponse, error)
 	// SetBaseTenantStatus 设置状态
@@ -70,7 +70,7 @@ func _BaseTenantService_OptionBaseTenant0_HTTP_Handler(srv BaseTenantServiceHTTP
 		if err != nil {
 			return err
 		}
-		reply := out.(*v1.SelectOptionResponse)
+		reply := out.(*commonv1.SelectOptionResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -215,7 +215,7 @@ type BaseTenantServiceHTTPClient interface {
 	// GetBaseTenant 查询租户
 	GetBaseTenant(ctx context.Context, req *GetBaseTenantRequest, opts ...http.CallOption) (rsp *BaseTenantForm, err error)
 	// OptionBaseTenant 查询租户下拉选择
-	OptionBaseTenant(ctx context.Context, req *OptionBaseTenantRequest, opts ...http.CallOption) (rsp *v1.SelectOptionResponse, err error)
+	OptionBaseTenant(ctx context.Context, req *OptionBaseTenantRequest, opts ...http.CallOption) (rsp *commonv1.SelectOptionResponse, err error)
 	// PageBaseTenant 查询租户分页列表
 	PageBaseTenant(ctx context.Context, req *PageBaseTenantRequest, opts ...http.CallOption) (rsp *PageBaseTenantResponse, err error)
 	// SetBaseTenantStatus 设置状态
@@ -285,8 +285,8 @@ func (c *BaseTenantServiceHTTPClientImpl) GetBaseTenant(ctx context.Context, in 
 }
 
 // OptionBaseTenant 查询租户下拉选择
-func (c *BaseTenantServiceHTTPClientImpl) OptionBaseTenant(ctx context.Context, in *OptionBaseTenantRequest, opts ...http.CallOption) (*v1.SelectOptionResponse, error) {
-	var out v1.SelectOptionResponse
+func (c *BaseTenantServiceHTTPClientImpl) OptionBaseTenant(ctx context.Context, in *OptionBaseTenantRequest, opts ...http.CallOption) (*commonv1.SelectOptionResponse, error) {
+	var out commonv1.SelectOptionResponse
 	pattern := "/api/v1/admin/base/tenant/option"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{

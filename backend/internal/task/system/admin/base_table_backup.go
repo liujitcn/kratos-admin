@@ -24,8 +24,8 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/backup"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	coreBiz "github.com/liujitcn/kratos-core/biz"
-	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/biz"
+	_const "github.com/liujitcn/kratos-core/const"
 	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	"github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/liujitcn/kratos-kit/transport/cron"
@@ -37,17 +37,20 @@ const (
 	backupFilePrefix    = "kratos-admin"
 )
 
+// pendingBackupVerificationAt 表示备份尚未完成对象校验时的数据库占位时间。
+var pendingBackupVerificationAt = time.Unix(0, 0).UTC()
+
 var _ cron.TaskExec = (*TableBackupTask)(nil)
 
 // TableBackupTask 按备份配置对命名数据源执行加密全量备份并上传 OSS。
 type TableBackupTask struct {
-	baseCase   *coreBiz.BaseCase
+	baseCase   *biz.BaseCase
 	backupRepo *data.BaseTableBackupRepository
 	recordRepo *data.BaseTableBackupRecordRepository
 }
 
 // NewTableBackupTask 创建数据库表备份任务。
-func NewTableBackupTask(baseCase *coreBiz.BaseCase, backupRepo *data.BaseTableBackupRepository, recordRepo *data.BaseTableBackupRecordRepository) *TableBackupTask {
+func NewTableBackupTask(baseCase *biz.BaseCase, backupRepo *data.BaseTableBackupRepository, recordRepo *data.BaseTableBackupRecordRepository) *TableBackupTask {
 	return &TableBackupTask{baseCase: baseCase, backupRepo: backupRepo, recordRepo: recordRepo}
 }
 
@@ -59,7 +62,7 @@ func (t *TableBackupTask) Task() cron.Task {
 // Exec 执行所有启用的数据库备份配置。
 func (t *TableBackupTask) Exec(ctx context.Context, _ map[string]string) ([]string, error) {
 	query := t.backupRepo.Query(ctx).BaseTableBackup
-	configs, err := t.backupRepo.List(ctx, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)), repository.Order(query.ID.Asc()))
+	configs, err := t.backupRepo.List(ctx, repository.Where(query.Status.Eq(_const.STATUS_STATUS_ENABLE)), repository.Order(query.ID.Asc()))
 	if err != nil {
 		return nil, fmt.Errorf("查询数据库备份配置失败: %w", err)
 	}
@@ -109,11 +112,12 @@ func (t *TableBackupTask) backupOne(ctx context.Context, config *models.BaseTabl
 	if strings.TrimSpace(runtime.IntegrityKey) == "" || strings.TrimSpace(runtime.EncryptionKey) == "" {
 		return fmt.Errorf("数据库备份完整性密钥和加密密钥必须配置")
 	}
+	now := time.Now()
 	record := &models.BaseTableBackupRecord{
 		BackupID: config.ID, SourceName: config.SourceName, DatabaseName: dsn.DBName, BackupType: config.BackupType,
 		ObjectKey: "", SizeBytes: 0, Sha256: "", Hmac: "",
 		Status: int32(adminv1.BaseTableBackupRecordStatus_BASE_TABLE_BACKUP_RECORD_STATUS_RUNNING), Error: "",
-		StartedAt: time.Now(), FinishedAt: time.Now(), VerifiedAt: time.Time{},
+		StartedAt: now, FinishedAt: now, VerifiedAt: pendingBackupVerificationAt,
 	}
 	err = t.recordRepo.Create(ctx, record)
 	if err != nil {
@@ -145,11 +149,13 @@ func (t *TableBackupTask) backupOne(ctx context.Context, config *models.BaseTabl
 	macValue := hmac.New(sha256.New, []byte(runtime.IntegrityKey))
 	_, _ = macValue.Write(dataValue)
 	prefix := strings.Trim(config.OSSPrefix, "/")
-	objectKey := fmt.Sprintf("%s/%s/%s/%s.sql.gz.enc", prefix, config.SourceName, dsn.DBName, time.Now().UTC().Format("20060102-150405"))
+	objectDirectory := buildObjectPath(prefix, config.SourceName, dsn.DBName)
+	objectName := time.Now().UTC().Format("20060102-150405") + ".sql.gz.enc"
+	objectKey := buildObjectPath(objectDirectory, objectName)
 	if t.baseCase.OSS == nil {
 		return t.failBackupRecord(ctx, record, fmt.Errorf("OSS 未配置"))
 	}
-	_, err = t.baseCase.OSS.UploadByByte(filepath.Base(encryptedPath), objectKey, dataValue)
+	_, err = t.baseCase.OSS.UploadByByte(objectName, objectDirectory, dataValue)
 	if err != nil {
 		return t.failBackupRecord(ctx, record, fmt.Errorf("上传数据库备份失败: %w", err))
 	}
@@ -226,7 +232,7 @@ func (t *TableBackupTask) rotateBackupRecords(ctx context.Context, config *model
 	return nil
 }
 
-func databaseConfigByName(baseCase *coreBiz.BaseCase, sourceName string) (*configv1.Data_Database, error) {
+func databaseConfigByName(baseCase *biz.BaseCase, sourceName string) (*configv1.Data_Database, error) {
 	dataConfig := baseCase.GetConfig().GetData()
 	if dataConfig == nil {
 		return nil, fmt.Errorf("数据源配置为空")
@@ -239,6 +245,16 @@ func databaseConfigByName(baseCase *coreBiz.BaseCase, sourceName string) (*confi
 		return nil, fmt.Errorf("数据源 %s 未配置", sourceName)
 	}
 	return databaseConfig, nil
+}
+
+// buildObjectPath 按对象存储目录和文件名拼接规范化对象路径。
+func buildObjectPath(prefix string, segments ...string) string {
+	parts := make([]string, 0, len(segments)+1)
+	if prefix = strings.Trim(prefix, "/"); prefix != "" {
+		parts = append(parts, prefix)
+	}
+	parts = append(parts, segments...)
+	return path.Join(parts...)
 }
 
 func dumpDatabase(ctx context.Context, sqlDB *sql.DB, dsn *mysql.Config, output string) error {

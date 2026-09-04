@@ -18,7 +18,7 @@ import (
 	"sync"
 	"time"
 
-	kratosErrors "github.com/go-kratos/kratos/v3/errors"
+	"github.com/go-kratos/kratos/v3/errors"
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/go-kratos/kratos/v3/middleware"
 	"github.com/go-kratos/kratos/v3/transport"
@@ -28,12 +28,12 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/runtimeconfig"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	dataQuery "github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
-	coreBiz "github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
+	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/server/requestmeta"
 	"github.com/liujitcn/kratos-kit/auth"
 	"github.com/liujitcn/kratos-kit/cache"
-	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 	kitQueue "github.com/liujitcn/kratos-kit/queue"
 	queueData "github.com/liujitcn/kratos-kit/queue/data"
 	"github.com/liujitcn/kratos-kit/sdk"
@@ -79,14 +79,16 @@ type resourceSnapshot struct {
 // Middleware 记录 Admin 请求对应的登录、操作、数据访问和权限审计事实。
 // Core 产生的 API/策略事件走 Core Sink；本中间件只处理 Admin 自身业务事件。
 type Middleware struct {
-	queue       kitQueue.Queue
-	configCache cache.Cache
-	logQuery    *dataQuery.Query
-	tasks       chan adminTask
-	worker      sync.WaitGroup
-	stateMu     sync.RWMutex
-	fileMu      sync.Mutex
-	closed      bool
+	queue            kitQueue.Queue
+	configCache      cache.Cache
+	fallbackConfig   runtimeconfig.BaseLogFallbackConfig
+	fallbackConfigMu sync.RWMutex
+	logQuery         *query.Query
+	tasks            chan adminTask
+	worker           sync.WaitGroup
+	stateMu          sync.RWMutex
+	fileMu           sync.Mutex
+	closed           bool
 }
 
 // baseLogFallbackContent 是日志入库回退文件中参与完整性签名的稳定内容。
@@ -105,7 +107,7 @@ type baseLogFallbackRecord struct {
 }
 
 // NewMiddleware 创建审计日志中间件。
-func NewMiddleware(baseCase *coreBiz.BaseCase) (middleware.Middleware, func()) {
+func NewMiddleware(baseCase *biz.BaseCase) (middleware.Middleware, func()) {
 	logMiddleware := newMiddleware(nil, baseCase.Cache, baseCase)
 	return logMiddleware.Handle, logMiddleware.close
 }
@@ -148,7 +150,7 @@ func ReplayAdminEvent(
 	if envelope.EventID != "" {
 		eventID = envelope.EventID
 	}
-	recordID := coreBiz.LogMessagePrimaryKey(eventID)
+	recordID := biz.LogMessagePrimaryKey(eventID)
 	switch envelope.Kind {
 	case "login":
 		item := &models.BaseLoginLog{}
@@ -348,7 +350,7 @@ func (m *Middleware) buildEvent(task adminTask) (adminEvent, bool, error) {
 		resourceTypeValue := resourceType(info.Operation)
 		item = &models.BaseDataAccessLog{
 			TenantID: info.TenantID, TenantCode: info.TenantCode, UserID: info.UserID, UserName: info.UserName, RequestID: info.RequestID, TraceID: info.TraceID,
-			ResourceType: resourceTypeValue, ResourceID: resourceID, AccessType: int32(accessType(info)), DataSource: databaseGorm.DefaultClientName,
+			ResourceType: resourceTypeValue, ResourceID: resourceID, AccessType: int32(accessType(info)), DataSource: gorm.DefaultClientName,
 			TableName_: logTableName(resourceTypeValue), FieldScope: fieldScope, AffectedRows: affectedRows, Sensitive: boolToInt32(sensitive), Result: info.Result,
 			ReasonCode: info.ReasonCode, OccurredAt: info.OccurredAt,
 		}
@@ -404,7 +406,7 @@ type request struct {
 
 // requestInfo 从服务端传输和认证上下文提取通用审计字段。
 func requestInfo(ctx context.Context) request {
-	info := request{RequestID: requestmeta.RequestID(ctx), TraceID: requestmeta.TraceID(ctx), TenantCode: databaseGorm.DefaultTenantCode, Method: "RPC"}
+	info := request{RequestID: requestmeta.RequestID(ctx), TraceID: requestmeta.TraceID(ctx), TenantCode: gorm.DefaultTenantCode, Method: "RPC"}
 	if info.RequestID == "" {
 		info.RequestID = id.NewGUIDv4NoHyphen()
 	}
@@ -435,7 +437,7 @@ func resultInfo(err error) (int32, string, string) {
 	statusCode := int32(http.StatusInternalServerError)
 	reasonCode := "INTERNAL_ERROR"
 	reason := err.Error()
-	if structuredErr := kratosErrors.FromError(err); structuredErr != nil {
+	if structuredErr := errors.FromError(err); structuredErr != nil {
 		statusCode = structuredErr.Code
 		reasonCode = structuredErr.Reason
 		reason = structuredErr.Message
@@ -835,12 +837,7 @@ func (m *Middleware) writeBaseLogFallback(stage, kind, operation string, payload
 	if err != nil {
 		return fmt.Errorf("序列化日志入库回退内容失败: %w", err)
 	}
-	config := runtimeconfig.DefaultBaseLogFallbackConfig()
-	if m.configCache != nil {
-		if err = runtimeconfig.LoadJSON(m.configCache, runtimeconfig.BaseLogFallbackKey, &config); err != nil {
-			return fmt.Errorf("读取日志入库回退配置失败: %w", err)
-		}
-	}
+	config := m.loadBaseLogFallbackConfig()
 	var key string
 	key, err = runtimeconfig.ResolveBaseLogFallbackIntegrityKey()
 	if err != nil {
@@ -875,6 +872,29 @@ func (m *Middleware) writeBaseLogFallback(stage, kind, operation string, payload
 		return fmt.Errorf("同步日志入库回退文件失败: %w", err)
 	}
 	return nil
+}
+
+// loadBaseLogFallbackConfig 读取最新回退配置，缓存不可用时使用最近一次有效配置。
+func (m *Middleware) loadBaseLogFallbackConfig() runtimeconfig.BaseLogFallbackConfig {
+	m.fallbackConfigMu.RLock()
+	config := m.fallbackConfig
+	m.fallbackConfigMu.RUnlock()
+	if config.FilePath == "" {
+		config = runtimeconfig.DefaultBaseLogFallbackConfig()
+	}
+	if m.configCache == nil {
+		return config
+	}
+	latest := config
+	err := runtimeconfig.LoadJSON(m.configCache, runtimeconfig.BaseLogFallbackKey, &latest)
+	if err != nil {
+		log.Warn("读取日志入库回退配置失败，使用最近一次有效配置", "error", err)
+		return config
+	}
+	m.fallbackConfigMu.Lock()
+	m.fallbackConfig = latest
+	m.fallbackConfigMu.Unlock()
+	return latest
 }
 
 // loginType 判断认证操作类型。
@@ -1074,12 +1094,12 @@ func clientIP(req *http.Request) string {
 }
 
 // newMiddleware 创建并启动 Admin 审计后台工作协程。
-func newMiddleware(queue kitQueue.Queue, configCache cache.Cache, baseCases ...*coreBiz.BaseCase) *Middleware {
-	logMiddleware := &Middleware{queue: queue, configCache: configCache, tasks: make(chan adminTask, adminBufferSize)}
+func newMiddleware(queue kitQueue.Queue, configCache cache.Cache, baseCases ...*biz.BaseCase) *Middleware {
+	logMiddleware := &Middleware{queue: queue, configCache: configCache, fallbackConfig: runtimeconfig.DefaultBaseLogFallbackConfig(), tasks: make(chan adminTask, adminBufferSize)}
 	if len(baseCases) > 0 && baseCases[0] != nil {
 		baseCase := baseCases[0]
-		if client := baseCase.GormClients[databaseGorm.DefaultClientName]; client != nil && client.DB != nil {
-			logMiddleware.logQuery = dataQuery.Use(client.DB)
+		if client := baseCase.GormClients[gorm.DefaultClientName]; client != nil && client.DB != nil {
+			logMiddleware.logQuery = query.Use(client.DB)
 		}
 	}
 	logMiddleware.worker.Add(1)

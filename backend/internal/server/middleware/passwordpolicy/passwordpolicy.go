@@ -8,7 +8,7 @@ import (
 	"github.com/go-kratos/kratos/v3/transport"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
-	adminconst "github.com/liujitcn/kratos-admin/backend/internal/const"
+	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	coreconst "github.com/liujitcn/kratos-core/const"
@@ -46,7 +46,7 @@ func NewMiddleware(baseUserRepo *data.BaseUserRepository, policyCache cache.Cach
 			if err != nil {
 				return nil, errorsx.Internal("读取密码策略配置失败").WithCause(err)
 			}
-			if user.MustChangePassword != adminconst.BASE_USER_PASSWORD_CHANGE_STATUS_REQUIRED && !password.IsExpiredAtWithMaxAge(user.PasswordChangedAt, time.Now(), policySet.PasswordMaxAgeDaysFor(user.TenantID, user.ID)) {
+			if user.MustChangePassword != _const.BASE_USER_PASSWORD_CHANGE_STATUS_REQUIRED && !password.IsExpiredAtWithMaxAge(user.PasswordChangedAt, time.Now(), policySet.PasswordMaxAgeDaysFor(user.TenantID, user.ID)) {
 				return handler(ctx, req)
 			}
 			if passwordChangeOperation(operation) {

@@ -11,7 +11,7 @@ import (
 
 	tool "github.com/cloudwego/eino/components/tool"
 	utils "github.com/cloudwego/eino/components/tool/utils"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -60,10 +60,10 @@ func NewBaseRedactFieldServiceAgentTools(baseRedactFieldServiceServer BaseRedact
 
 // NewBaseRedactFieldServiceOptionBaseRedactFieldAgentTool 创建查询脱敏字段选项的 Agent Tool。
 func NewBaseRedactFieldServiceOptionBaseRedactFieldAgentTool(baseRedactFieldServiceServer BaseRedactFieldServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*OptionBaseRedactFieldRequest, *v1.SelectOptionResponse](
+	return utils.InferTool[*OptionBaseRedactFieldRequest, *commonv1.SelectOptionResponse](
 		"system_admin_v1_base_redact_field_service_option_base_redact_field",
 		"查询脱敏字段选项。",
-		func(ctx context.Context, req *OptionBaseRedactFieldRequest) (*v1.SelectOptionResponse, error) {
+		func(ctx context.Context, req *OptionBaseRedactFieldRequest) (*commonv1.SelectOptionResponse, error) {
 			if req == nil {
 				req = &OptionBaseRedactFieldRequest{}
 			}

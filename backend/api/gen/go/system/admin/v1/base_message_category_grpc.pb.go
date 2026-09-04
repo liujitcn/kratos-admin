@@ -9,7 +9,7 @@ package adminv1
 import (
 	context "context"
 
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -38,7 +38,7 @@ const (
 // BaseMessageCategoryService 提供消息分类管理能力。
 type BaseMessageCategoryServiceClient interface {
 	// 查询消息分类选项。
-	OptionBaseMessageCategory(ctx context.Context, in *OptionBaseMessageCategoryRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error)
+	OptionBaseMessageCategory(ctx context.Context, in *OptionBaseMessageCategoryRequest, opts ...grpc.CallOption) (*commonv1.SelectOptionResponse, error)
 	// 分页查询消息分类。
 	PageBaseMessageCategory(ctx context.Context, in *PageBaseMessageCategoryRequest, opts ...grpc.CallOption) (*PageBaseMessageCategoryResponse, error)
 	// 查询消息分类详情。
@@ -61,9 +61,9 @@ func NewBaseMessageCategoryServiceClient(cc grpc.ClientConnInterface) BaseMessag
 	return &baseMessageCategoryServiceClient{cc}
 }
 
-func (c *baseMessageCategoryServiceClient) OptionBaseMessageCategory(ctx context.Context, in *OptionBaseMessageCategoryRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error) {
+func (c *baseMessageCategoryServiceClient) OptionBaseMessageCategory(ctx context.Context, in *OptionBaseMessageCategoryRequest, opts ...grpc.CallOption) (*commonv1.SelectOptionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v1.SelectOptionResponse)
+	out := new(commonv1.SelectOptionResponse)
 	err := c.cc.Invoke(ctx, BaseMessageCategoryService_OptionBaseMessageCategory_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -138,7 +138,7 @@ func (c *baseMessageCategoryServiceClient) SetBaseMessageCategoryStatus(ctx cont
 // BaseMessageCategoryService 提供消息分类管理能力。
 type BaseMessageCategoryServiceServer interface {
 	// 查询消息分类选项。
-	OptionBaseMessageCategory(context.Context, *OptionBaseMessageCategoryRequest) (*v1.SelectOptionResponse, error)
+	OptionBaseMessageCategory(context.Context, *OptionBaseMessageCategoryRequest) (*commonv1.SelectOptionResponse, error)
 	// 分页查询消息分类。
 	PageBaseMessageCategory(context.Context, *PageBaseMessageCategoryRequest) (*PageBaseMessageCategoryResponse, error)
 	// 查询消息分类详情。
@@ -161,7 +161,7 @@ type BaseMessageCategoryServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseMessageCategoryServiceServer struct{}
 
-func (UnimplementedBaseMessageCategoryServiceServer) OptionBaseMessageCategory(context.Context, *OptionBaseMessageCategoryRequest) (*v1.SelectOptionResponse, error) {
+func (UnimplementedBaseMessageCategoryServiceServer) OptionBaseMessageCategory(context.Context, *OptionBaseMessageCategoryRequest) (*commonv1.SelectOptionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method OptionBaseMessageCategory not implemented")
 }
 func (UnimplementedBaseMessageCategoryServiceServer) PageBaseMessageCategory(context.Context, *PageBaseMessageCategoryRequest) (*PageBaseMessageCategoryResponse, error) {

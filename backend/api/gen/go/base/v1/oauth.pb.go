@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -442,14 +442,14 @@ func (x *CreateOauthSessionRequest) GetCode() string {
 
 // 绑定已有账号的三方登录会话创建条件
 type BindOauthSessionRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Provider      string                 `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider,omitempty"`                          // 登录方式标识
-	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                  // 三方授权码
-	TenantCode    string                 `protobuf:"bytes,3,opt,name=tenant_code,json=tenantCode,proto3" json:"tenant_code,omitempty"`    // 租户编码
-	UserName      string                 `protobuf:"bytes,4,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`          // 用户名
-	Password      *v1.PasswordCrypto     `protobuf:"bytes,5,opt,name=password,proto3" json:"password,omitempty"`                          // 用户密码
-	CaptchaCode   string                 `protobuf:"bytes,6,opt,name=captcha_code,json=captchaCode,proto3" json:"captcha_code,omitempty"` // 验证码
-	CaptchaId     string                 `protobuf:"bytes,7,opt,name=captcha_id,json=captchaId,proto3" json:"captcha_id,omitempty"`       // 验证码Id
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	Provider      string                   `protobuf:"bytes,1,opt,name=provider,proto3" json:"provider,omitempty"`                          // 登录方式标识
+	Code          string                   `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                  // 三方授权码
+	TenantCode    string                   `protobuf:"bytes,3,opt,name=tenant_code,json=tenantCode,proto3" json:"tenant_code,omitempty"`    // 租户编码
+	UserName      string                   `protobuf:"bytes,4,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`          // 用户名
+	Password      *commonv1.PasswordCrypto `protobuf:"bytes,5,opt,name=password,proto3" json:"password,omitempty"`                          // 用户密码
+	CaptchaCode   string                   `protobuf:"bytes,6,opt,name=captcha_code,json=captchaCode,proto3" json:"captcha_code,omitempty"` // 验证码
+	CaptchaId     string                   `protobuf:"bytes,7,opt,name=captcha_id,json=captchaId,proto3" json:"captcha_id,omitempty"`       // 验证码Id
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -512,7 +512,7 @@ func (x *BindOauthSessionRequest) GetUserName() string {
 	return ""
 }
 
-func (x *BindOauthSessionRequest) GetPassword() *v1.PasswordCrypto {
+func (x *BindOauthSessionRequest) GetPassword() *commonv1.PasswordCrypto {
 	if x != nil {
 		return x.Password
 	}
@@ -1349,7 +1349,7 @@ var file_base_v1_oauth_proto_goTypes = []any{
 	(*UnbindOauthAccountRequest)(nil),               // 17: base.v1.UnbindOauthAccountRequest
 	(*OauthProvider)(nil),                           // 18: base.v1.OauthProvider
 	(*OauthBinding)(nil),                            // 19: base.v1.OauthBinding
-	(*v1.PasswordCrypto)(nil),                       // 20: common.v1.PasswordCrypto
+	(*commonv1.PasswordCrypto)(nil),                 // 20: common.v1.PasswordCrypto
 	(LoginStatus)(0),                                // 21: base.v1.LoginStatus
 	(*emptypb.Empty)(nil),                           // 22: google.protobuf.Empty
 }

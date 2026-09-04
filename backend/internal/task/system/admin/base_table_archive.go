@@ -19,11 +19,11 @@ import (
 	"github.com/liujitcn/gorm-kit/repository"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/backup"
-	adminbiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
+	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	coreBiz "github.com/liujitcn/kratos-core/biz"
-	coreconst "github.com/liujitcn/kratos-core/const"
+	_const "github.com/liujitcn/kratos-core/const"
 	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	"github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/liujitcn/kratos-kit/oss"
@@ -62,7 +62,7 @@ func (t *TableArchiveTask) Task() cron.Task {
 // Exec 执行所有启用的表归档配置。
 func (t *TableArchiveTask) Exec(ctx context.Context, _ map[string]string) ([]string, error) {
 	query := t.archiveRepo.Query(ctx).BaseTableArchive
-	configs, err := t.archiveRepo.List(ctx, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)), repository.Order(query.ID.Asc()))
+	configs, err := t.archiveRepo.List(ctx, repository.Where(query.Status.Eq(_const.STATUS_STATUS_ENABLE)), repository.Order(query.ID.Asc()))
 	if err != nil {
 		return nil, fmt.Errorf("查询表归档配置失败: %w", err)
 	}
@@ -94,7 +94,7 @@ func (t *TableArchiveTask) archiveOne(ctx context.Context, config *models.BaseTa
 		return 0, 0, err
 	}
 	var client *gorm.Client
-	client, err = adminbiz.GormClientBySourceName(t.baseCase, config.SourceName)
+	client, err = biz.GormClientBySourceName(t.baseCase, config.SourceName)
 	if err != nil {
 		return 0, 0, err
 	}
@@ -324,8 +324,10 @@ func archiveIntoOSS(ctx context.Context, storage oss.OSS, client *gorm.Client, d
 	}
 	digest := sha256.Sum256(dataValue)
 	prefix := strings.Trim(config.OSSPrefix, "/")
-	objectKey := fmt.Sprintf("%s/%s/%s/%s.sql", prefix, config.SourceName, resource.tableName, time.Now().UTC().Format("20060102-150405"))
-	_, err = storage.UploadByByte(resource.tableName+".sql", objectKey, dataValue)
+	objectDirectory := buildObjectPath(prefix, config.SourceName, resource.tableName)
+	objectName := time.Now().UTC().Format("20060102-150405") + ".sql"
+	objectKey := buildObjectPath(objectDirectory, objectName)
+	_, err = storage.UploadByByte(objectName, objectDirectory, dataValue)
 	if err != nil {
 		return 0, 0, "", 0, "", fmt.Errorf("上传表归档对象失败: %w", err)
 	}
@@ -432,7 +434,7 @@ func (t *TableArchiveTask) cleanupArchiveRetention(ctx context.Context, config *
 		}
 		if record.ArchiveTableName != "" && config.ArchiveMode == int32(adminv1.BaseTableArchiveMode_BASE_TABLE_ARCHIVE_MODE_INTERNAL_DATABASE) {
 			var client *gorm.Client
-			client, err = adminbiz.GormClientBySourceName(t.baseCase, record.SourceName)
+			client, err = biz.GormClientBySourceName(t.baseCase, record.SourceName)
 			if err != nil {
 				return fmt.Errorf("清理内部归档表失败: %w", err)
 			}

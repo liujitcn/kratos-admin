@@ -11,7 +11,7 @@ import (
 
 	tool "github.com/cloudwego/eino/components/tool"
 	utils "github.com/cloudwego/eino/components/tool/utils"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -66,10 +66,10 @@ func NewBaseTenantServiceAgentTools(baseTenantServiceServer BaseTenantServiceSer
 
 // NewBaseTenantServiceOptionBaseTenantAgentTool 创建查询租户下拉选择的 Agent Tool。
 func NewBaseTenantServiceOptionBaseTenantAgentTool(baseTenantServiceServer BaseTenantServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*OptionBaseTenantRequest, *v1.SelectOptionResponse](
+	return utils.InferTool[*OptionBaseTenantRequest, *commonv1.SelectOptionResponse](
 		"system_admin_v1_base_tenant_service_option_base_tenant",
 		"查询租户下拉选择",
-		func(ctx context.Context, req *OptionBaseTenantRequest) (*v1.SelectOptionResponse, error) {
+		func(ctx context.Context, req *OptionBaseTenantRequest) (*commonv1.SelectOptionResponse, error) {
 			if req == nil {
 				req = &OptionBaseTenantRequest{}
 			}

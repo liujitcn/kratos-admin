@@ -45,3 +45,14 @@ func TestWriteBackupChecksum(t *testing.T) {
 		t.Fatalf("expected HMAC sidecar: %v", err)
 	}
 }
+
+// TestBuildObjectPath 验证对象存储上传使用目录与文件名分离的路径。
+func TestBuildObjectPath(t *testing.T) {
+	directory := buildObjectPath("/backup/database/", "default", "kratos_admin")
+	if directory != "backup/database/default/kratos_admin" {
+		t.Fatalf("unexpected object directory %q", directory)
+	}
+	if objectKey := buildObjectPath(directory, "20260904-120000.sql.gz.enc"); objectKey != "backup/database/default/kratos_admin/20260904-120000.sql.gz.enc" {
+		t.Fatalf("unexpected object key %q", objectKey)
+	}
+}

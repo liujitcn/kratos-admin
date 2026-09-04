@@ -9,7 +9,7 @@ package adminv1
 import (
 	context "context"
 
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -41,7 +41,7 @@ type AuthServiceClient interface {
 	// 查询已经登录的用户菜单树
 	TreeUserMenu(ctx context.Context, in *TreeUserMenuRequest, opts ...grpc.CallOption) (*TreeRouteResponse, error)
 	// 查询已经登录的用户按钮列表
-	ListUserButton(ctx context.Context, in *ListUserButtonRequest, opts ...grpc.CallOption) (*v1.StringValues, error)
+	ListUserButton(ctx context.Context, in *ListUserButtonRequest, opts ...grpc.CallOption) (*commonv1.StringValues, error)
 	// 获取已经登录的用户的数据
 	GetUserInfo(ctx context.Context, in *GetUserInfoRequest, opts ...grpc.CallOption) (*UserInfoForm, error)
 	// 获取个人中心用户信息
@@ -74,9 +74,9 @@ func (c *authServiceClient) TreeUserMenu(ctx context.Context, in *TreeUserMenuRe
 	return out, nil
 }
 
-func (c *authServiceClient) ListUserButton(ctx context.Context, in *ListUserButtonRequest, opts ...grpc.CallOption) (*v1.StringValues, error) {
+func (c *authServiceClient) ListUserButton(ctx context.Context, in *ListUserButtonRequest, opts ...grpc.CallOption) (*commonv1.StringValues, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v1.StringValues)
+	out := new(commonv1.StringValues)
 	err := c.cc.Invoke(ctx, AuthService_ListUserButton_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -153,7 +153,7 @@ type AuthServiceServer interface {
 	// 查询已经登录的用户菜单树
 	TreeUserMenu(context.Context, *TreeUserMenuRequest) (*TreeRouteResponse, error)
 	// 查询已经登录的用户按钮列表
-	ListUserButton(context.Context, *ListUserButtonRequest) (*v1.StringValues, error)
+	ListUserButton(context.Context, *ListUserButtonRequest) (*commonv1.StringValues, error)
 	// 获取已经登录的用户的数据
 	GetUserInfo(context.Context, *GetUserInfoRequest) (*UserInfoForm, error)
 	// 获取个人中心用户信息
@@ -179,7 +179,7 @@ type UnimplementedAuthServiceServer struct{}
 func (UnimplementedAuthServiceServer) TreeUserMenu(context.Context, *TreeUserMenuRequest) (*TreeRouteResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method TreeUserMenu not implemented")
 }
-func (UnimplementedAuthServiceServer) ListUserButton(context.Context, *ListUserButtonRequest) (*v1.StringValues, error) {
+func (UnimplementedAuthServiceServer) ListUserButton(context.Context, *ListUserButtonRequest) (*commonv1.StringValues, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListUserButton not implemented")
 }
 func (UnimplementedAuthServiceServer) GetUserInfo(context.Context, *GetUserInfoRequest) (*UserInfoForm, error) {

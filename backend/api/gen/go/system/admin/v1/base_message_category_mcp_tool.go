@@ -9,7 +9,7 @@ package adminv1
 import (
 	context "context"
 
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
@@ -27,13 +27,13 @@ func RegisterBaseMessageCategoryServiceMCPTools(mcpServer *mcp.Server, baseMessa
 
 // RegisterBaseMessageCategoryServiceOptionBaseMessageCategoryMCPTool 注册查询消息分类选项的 MCP Tool。
 func RegisterBaseMessageCategoryServiceOptionBaseMessageCategoryMCPTool(mcpServer *mcp.Server, baseMessageCategoryServiceServer BaseMessageCategoryServiceServer) {
-	mcp.AddTool[*OptionBaseMessageCategoryRequest, *v1.SelectOptionResponse](
+	mcp.AddTool[*OptionBaseMessageCategoryRequest, *commonv1.SelectOptionResponse](
 		mcpServer,
 		&mcp.Tool{
 			Name:        "system_admin_v1_base_message_category_service_option_base_message_category",
 			Description: "查询消息分类选项。",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseMessageCategoryRequest) (*mcp.CallToolResult, *v1.SelectOptionResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseMessageCategoryRequest) (*mcp.CallToolResult, *commonv1.SelectOptionResponse, error) {
 			if input == nil {
 				input = &OptionBaseMessageCategoryRequest{}
 			}

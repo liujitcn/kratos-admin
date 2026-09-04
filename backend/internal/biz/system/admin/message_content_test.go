@@ -7,7 +7,7 @@ import (
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	messagepublisher "github.com/liujitcn/kratos-admin/backend/pkg/notification"
+	"github.com/liujitcn/kratos-admin/backend/pkg/notification"
 )
 
 func TestSanitizeMessageContent(t *testing.T) {
@@ -54,7 +54,7 @@ func TestNormalizeMessageActionParams(t *testing.T) {
 }
 
 func TestValidatePublishedMessage(t *testing.T) {
-	valid := messagepublisher.Message{CategoryCode: "SYSTEM", Title: "title", Content: "content", Source: "source", IdempotencyKey: "key", SenderName: "system"}
+	valid := notification.Message{CategoryCode: "SYSTEM", Title: "title", Content: "content", Source: "source", IdempotencyKey: "key", SenderName: "system"}
 	if err := validatePublishedMessage(valid); err != nil {
 		t.Fatalf("valid message rejected: %v", err)
 	}

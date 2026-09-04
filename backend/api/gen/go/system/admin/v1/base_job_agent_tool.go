@@ -11,7 +11,7 @@ import (
 
 	tool "github.com/cloudwego/eino/components/tool"
 	utils "github.com/cloudwego/eino/components/tool/utils"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -84,10 +84,10 @@ func NewBaseJobServiceAgentTools(baseJobServiceServer BaseJobServiceServer) ([]t
 
 // NewBaseJobServiceOptionBaseJobAgentTool 创建查询定时任务下拉选择的 Agent Tool。
 func NewBaseJobServiceOptionBaseJobAgentTool(baseJobServiceServer BaseJobServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*OptionBaseJobRequest, *v1.SelectOptionResponse](
+	return utils.InferTool[*OptionBaseJobRequest, *commonv1.SelectOptionResponse](
 		"system_admin_v1_base_job_service_option_base_job",
 		"查询定时任务下拉选择",
-		func(ctx context.Context, req *OptionBaseJobRequest) (*v1.SelectOptionResponse, error) {
+		func(ctx context.Context, req *OptionBaseJobRequest) (*commonv1.SelectOptionResponse, error) {
 			if req == nil {
 				req = &OptionBaseJobRequest{}
 			}

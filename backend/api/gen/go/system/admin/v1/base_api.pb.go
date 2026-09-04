@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -128,8 +128,8 @@ type PageBaseApiRequest struct {
 	Operation          *string                `protobuf:"bytes,6,opt,name=operation,proto3,oneof" json:"operation,omitempty"`                                                // 操作方法
 	Method             *string                `protobuf:"bytes,7,opt,name=method,proto3,oneof" json:"method,omitempty"`                                                      // 请求方式
 	Path               *string                `protobuf:"bytes,8,opt,name=path,proto3,oneof" json:"path,omitempty"`                                                          // 请求地址
-	McpStatus          *v1.Status             `protobuf:"varint,9,opt,name=mcp_status,json=mcpStatus,proto3,enum=common.v1.Status,oneof" json:"mcp_status,omitempty"`        // MCP工具状态：枚举【Status】
-	AgentStatus        *v1.Status             `protobuf:"varint,10,opt,name=agent_status,json=agentStatus,proto3,enum=common.v1.Status,oneof" json:"agent_status,omitempty"` // Agent工具状态：枚举【Status】
+	McpStatus          *commonv1.Status       `protobuf:"varint,9,opt,name=mcp_status,json=mcpStatus,proto3,enum=common.v1.Status,oneof" json:"mcp_status,omitempty"`        // MCP工具状态：枚举【Status】
+	AgentStatus        *commonv1.Status       `protobuf:"varint,10,opt,name=agent_status,json=agentStatus,proto3,enum=common.v1.Status,oneof" json:"agent_status,omitempty"` // Agent工具状态：枚举【Status】
 	OpenapiServiceCode *string                `protobuf:"bytes,11,opt,name=openapi_service_code,json=openapiServiceCode,proto3,oneof" json:"openapi_service_code,omitempty"` // OpenAPI文档key
 	PageNum            int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                                        // 页码
 	PageSize           int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                                     // 每页数量
@@ -223,18 +223,18 @@ func (x *PageBaseApiRequest) GetPath() string {
 	return ""
 }
 
-func (x *PageBaseApiRequest) GetMcpStatus() v1.Status {
+func (x *PageBaseApiRequest) GetMcpStatus() commonv1.Status {
 	if x != nil && x.McpStatus != nil {
 		return *x.McpStatus
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
-func (x *PageBaseApiRequest) GetAgentStatus() v1.Status {
+func (x *PageBaseApiRequest) GetAgentStatus() commonv1.Status {
 	if x != nil && x.AgentStatus != nil {
 		return *x.AgentStatus
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *PageBaseApiRequest) GetOpenapiServiceCode() string {
@@ -368,8 +368,8 @@ type BaseApi struct {
 	Operation          string                 `protobuf:"bytes,7,opt,name=operation,proto3" json:"operation,omitempty"`                                                // 操作方法
 	Method             string                 `protobuf:"bytes,8,opt,name=method,proto3" json:"method,omitempty"`                                                      // 请求方法
 	Path               string                 `protobuf:"bytes,9,opt,name=path,proto3" json:"path,omitempty"`                                                          // 请求地址
-	McpStatus          v1.Status              `protobuf:"varint,10,opt,name=mcp_status,json=mcpStatus,proto3,enum=common.v1.Status" json:"mcp_status,omitempty"`       // MCP工具状态：枚举【Status】
-	AgentStatus        v1.Status              `protobuf:"varint,11,opt,name=agent_status,json=agentStatus,proto3,enum=common.v1.Status" json:"agent_status,omitempty"` // Agent工具状态：枚举【Status】
+	McpStatus          commonv1.Status        `protobuf:"varint,10,opt,name=mcp_status,json=mcpStatus,proto3,enum=common.v1.Status" json:"mcp_status,omitempty"`       // MCP工具状态：枚举【Status】
+	AgentStatus        commonv1.Status        `protobuf:"varint,11,opt,name=agent_status,json=agentStatus,proto3,enum=common.v1.Status" json:"agent_status,omitempty"` // Agent工具状态：枚举【Status】
 	OpenapiServiceCode string                 `protobuf:"bytes,12,opt,name=openapi_service_code,json=openapiServiceCode,proto3" json:"openapi_service_code,omitempty"` // OpenAPI文档key
 	OpenapiServiceName string                 `protobuf:"bytes,13,opt,name=openapi_service_name,json=openapiServiceName,proto3" json:"openapi_service_name,omitempty"` // OpenAPI文档名称
 	unknownFields      protoimpl.UnknownFields
@@ -469,18 +469,18 @@ func (x *BaseApi) GetPath() string {
 	return ""
 }
 
-func (x *BaseApi) GetMcpStatus() v1.Status {
+func (x *BaseApi) GetMcpStatus() commonv1.Status {
 	if x != nil {
 		return x.McpStatus
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
-func (x *BaseApi) GetAgentStatus() v1.Status {
+func (x *BaseApi) GetAgentStatus() commonv1.Status {
 	if x != nil {
 		return x.AgentStatus
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *BaseApi) GetOpenapiServiceCode() string {
@@ -632,8 +632,8 @@ type UpdateBaseApiRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                            // API ID
 	ToolPrompts   []string               `protobuf:"bytes,2,rep,name=tool_prompts,json=toolPrompts,proto3" json:"tool_prompts,omitempty"`                        // Agent/MCP工具提示词
-	McpStatus     v1.Status              `protobuf:"varint,3,opt,name=mcp_status,json=mcpStatus,proto3,enum=common.v1.Status" json:"mcp_status,omitempty"`       // MCP工具状态：枚举【Status】
-	AgentStatus   v1.Status              `protobuf:"varint,4,opt,name=agent_status,json=agentStatus,proto3,enum=common.v1.Status" json:"agent_status,omitempty"` // Agent工具状态：枚举【Status】
+	McpStatus     commonv1.Status        `protobuf:"varint,3,opt,name=mcp_status,json=mcpStatus,proto3,enum=common.v1.Status" json:"mcp_status,omitempty"`       // MCP工具状态：枚举【Status】
+	AgentStatus   commonv1.Status        `protobuf:"varint,4,opt,name=agent_status,json=agentStatus,proto3,enum=common.v1.Status" json:"agent_status,omitempty"` // Agent工具状态：枚举【Status】
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -682,25 +682,25 @@ func (x *UpdateBaseApiRequest) GetToolPrompts() []string {
 	return nil
 }
 
-func (x *UpdateBaseApiRequest) GetMcpStatus() v1.Status {
+func (x *UpdateBaseApiRequest) GetMcpStatus() commonv1.Status {
 	if x != nil {
 		return x.McpStatus
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
-func (x *UpdateBaseApiRequest) GetAgentStatus() v1.Status {
+func (x *UpdateBaseApiRequest) GetAgentStatus() commonv1.Status {
 	if x != nil {
 		return x.AgentStatus
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 // API Agent工具状态设置条件
 type SetBaseApiAgentStatusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                            // API ID
-	AgentStatus   v1.Status              `protobuf:"varint,2,opt,name=agent_status,json=agentStatus,proto3,enum=common.v1.Status" json:"agent_status,omitempty"` // Agent工具状态：枚举【Status】
+	AgentStatus   commonv1.Status        `protobuf:"varint,2,opt,name=agent_status,json=agentStatus,proto3,enum=common.v1.Status" json:"agent_status,omitempty"` // Agent工具状态：枚举【Status】
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -742,18 +742,18 @@ func (x *SetBaseApiAgentStatusRequest) GetId() int64 {
 	return 0
 }
 
-func (x *SetBaseApiAgentStatusRequest) GetAgentStatus() v1.Status {
+func (x *SetBaseApiAgentStatusRequest) GetAgentStatus() commonv1.Status {
 	if x != nil {
 		return x.AgentStatus
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 // API MCP工具状态设置条件
 type SetBaseApiMcpStatusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                      // API ID
-	McpStatus     v1.Status              `protobuf:"varint,2,opt,name=mcp_status,json=mcpStatus,proto3,enum=common.v1.Status" json:"mcp_status,omitempty"` // MCP工具状态：枚举【Status】
+	McpStatus     commonv1.Status        `protobuf:"varint,2,opt,name=mcp_status,json=mcpStatus,proto3,enum=common.v1.Status" json:"mcp_status,omitempty"` // MCP工具状态：枚举【Status】
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -795,11 +795,11 @@ func (x *SetBaseApiMcpStatusRequest) GetId() int64 {
 	return 0
 }
 
-func (x *SetBaseApiMcpStatusRequest) GetMcpStatus() v1.Status {
+func (x *SetBaseApiMcpStatusRequest) GetMcpStatus() commonv1.Status {
 	if x != nil {
 		return x.McpStatus
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 // API文档Schema
@@ -1344,7 +1344,7 @@ var file_system_admin_v1_base_api_proto_goTypes = []any{
 	(*OptionOpenApiServiceResponse)(nil), // 14: system.admin.v1.OptionOpenApiServiceResponse
 	(*OpenApiServiceOption)(nil),         // 15: system.admin.v1.OpenApiServiceOption
 	(*OpenApiServiceOperation)(nil),      // 16: system.admin.v1.OpenApiServiceOperation
-	(v1.Status)(0),                       // 17: common.v1.Status
+	(commonv1.Status)(0),                 // 17: common.v1.Status
 	(*emptypb.Empty)(nil),                // 18: google.protobuf.Empty
 }
 var file_system_admin_v1_base_api_proto_depIdxs = []int32{

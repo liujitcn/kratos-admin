@@ -9,7 +9,7 @@ package adminv1
 import (
 	context "context"
 
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -39,7 +39,7 @@ const (
 // Admin角色管理服务
 type BaseRoleServiceClient interface {
 	// 查询角色下拉选择
-	OptionBaseRole(ctx context.Context, in *OptionBaseRoleRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error)
+	OptionBaseRole(ctx context.Context, in *OptionBaseRoleRequest, opts ...grpc.CallOption) (*commonv1.SelectOptionResponse, error)
 	// 查询角色分页列表
 	PageBaseRole(ctx context.Context, in *PageBaseRoleRequest, opts ...grpc.CallOption) (*PageBaseRoleResponse, error)
 	// 查询角色
@@ -64,9 +64,9 @@ func NewBaseRoleServiceClient(cc grpc.ClientConnInterface) BaseRoleServiceClient
 	return &baseRoleServiceClient{cc}
 }
 
-func (c *baseRoleServiceClient) OptionBaseRole(ctx context.Context, in *OptionBaseRoleRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error) {
+func (c *baseRoleServiceClient) OptionBaseRole(ctx context.Context, in *OptionBaseRoleRequest, opts ...grpc.CallOption) (*commonv1.SelectOptionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v1.SelectOptionResponse)
+	out := new(commonv1.SelectOptionResponse)
 	err := c.cc.Invoke(ctx, BaseRoleService_OptionBaseRole_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -151,7 +151,7 @@ func (c *baseRoleServiceClient) SetBaseRoleMenu(ctx context.Context, in *SetBase
 // Admin角色管理服务
 type BaseRoleServiceServer interface {
 	// 查询角色下拉选择
-	OptionBaseRole(context.Context, *OptionBaseRoleRequest) (*v1.SelectOptionResponse, error)
+	OptionBaseRole(context.Context, *OptionBaseRoleRequest) (*commonv1.SelectOptionResponse, error)
 	// 查询角色分页列表
 	PageBaseRole(context.Context, *PageBaseRoleRequest) (*PageBaseRoleResponse, error)
 	// 查询角色
@@ -176,7 +176,7 @@ type BaseRoleServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseRoleServiceServer struct{}
 
-func (UnimplementedBaseRoleServiceServer) OptionBaseRole(context.Context, *OptionBaseRoleRequest) (*v1.SelectOptionResponse, error) {
+func (UnimplementedBaseRoleServiceServer) OptionBaseRole(context.Context, *OptionBaseRoleRequest) (*commonv1.SelectOptionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method OptionBaseRole not implemented")
 }
 func (UnimplementedBaseRoleServiceServer) PageBaseRole(context.Context, *PageBaseRoleRequest) (*PageBaseRoleResponse, error) {

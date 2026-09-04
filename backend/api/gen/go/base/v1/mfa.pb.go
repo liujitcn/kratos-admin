@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -432,9 +432,9 @@ func (x *MfaStatusResponse) GetMethod() string {
 
 // 开始绑定多因素认证请求。
 type BeginMfaSetupRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Password      *v1.PasswordCrypto     `protobuf:"bytes,1,opt,name=password,proto3" json:"password,omitempty"`                          // 当前登录密码
-	SetupTicket   string                 `protobuf:"bytes,2,opt,name=setup_ticket,json=setupTicket,proto3" json:"setup_ticket,omitempty"` // 强制绑定场景下的临时票据
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	Password      *commonv1.PasswordCrypto `protobuf:"bytes,1,opt,name=password,proto3" json:"password,omitempty"`                          // 当前登录密码
+	SetupTicket   string                   `protobuf:"bytes,2,opt,name=setup_ticket,json=setupTicket,proto3" json:"setup_ticket,omitempty"` // 强制绑定场景下的临时票据
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -469,7 +469,7 @@ func (*BeginMfaSetupRequest) Descriptor() ([]byte, []int) {
 	return file_base_v1_mfa_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *BeginMfaSetupRequest) GetPassword() *v1.PasswordCrypto {
+func (x *BeginMfaSetupRequest) GetPassword() *commonv1.PasswordCrypto {
 	if x != nil {
 		return x.Password
 	}
@@ -774,12 +774,12 @@ func (x *BeginMfaDisableResponse) GetWebauthnOptionsJson() string {
 
 // 禁用多因素认证请求。
 type DisableMfaRequest struct {
-	state                protoimpl.MessageState `protogen:"open.v1"`
-	Password             *v1.PasswordCrypto     `protobuf:"bytes,1,opt,name=password,proto3" json:"password,omitempty"`                                                       // 当前登录密码
-	Code                 string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                                               // TOTP 动态口令
-	WebauthnChallengeId  string                 `protobuf:"bytes,3,opt,name=webauthn_challenge_id,json=webauthnChallengeId,proto3" json:"webauthn_challenge_id,omitempty"`    // WebAuthn 禁用挑战 ID
-	WebauthnResponseJson string                 `protobuf:"bytes,4,opt,name=webauthn_response_json,json=webauthnResponseJson,proto3" json:"webauthn_response_json,omitempty"` // WebAuthn 验证响应 JSON
-	RecoveryCode         string                 `protobuf:"bytes,5,opt,name=recovery_code,json=recoveryCode,proto3" json:"recovery_code,omitempty"`                           // 一次性恢复码
+	state                protoimpl.MessageState   `protogen:"open.v1"`
+	Password             *commonv1.PasswordCrypto `protobuf:"bytes,1,opt,name=password,proto3" json:"password,omitempty"`                                                       // 当前登录密码
+	Code                 string                   `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                                               // TOTP 动态口令
+	WebauthnChallengeId  string                   `protobuf:"bytes,3,opt,name=webauthn_challenge_id,json=webauthnChallengeId,proto3" json:"webauthn_challenge_id,omitempty"`    // WebAuthn 禁用挑战 ID
+	WebauthnResponseJson string                   `protobuf:"bytes,4,opt,name=webauthn_response_json,json=webauthnResponseJson,proto3" json:"webauthn_response_json,omitempty"` // WebAuthn 验证响应 JSON
+	RecoveryCode         string                   `protobuf:"bytes,5,opt,name=recovery_code,json=recoveryCode,proto3" json:"recovery_code,omitempty"`                           // 一次性恢复码
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -814,7 +814,7 @@ func (*DisableMfaRequest) Descriptor() ([]byte, []int) {
 	return file_base_v1_mfa_proto_rawDescGZIP(), []int{13}
 }
 
-func (x *DisableMfaRequest) GetPassword() *v1.PasswordCrypto {
+func (x *DisableMfaRequest) GetPassword() *commonv1.PasswordCrypto {
 	if x != nil {
 		return x.Password
 	}
@@ -1055,7 +1055,7 @@ var file_base_v1_mfa_proto_goTypes = []any{
 	(*DisableMfaRequest)(nil),                 // 13: base.v1.DisableMfaRequest
 	(*RegenerateMfaRecoveryCodesRequest)(nil), // 14: base.v1.RegenerateMfaRecoveryCodesRequest
 	(*RecoveryCodesResponse)(nil),             // 15: base.v1.RecoveryCodesResponse
-	(*v1.PasswordCrypto)(nil),                 // 16: common.v1.PasswordCrypto
+	(*commonv1.PasswordCrypto)(nil),           // 16: common.v1.PasswordCrypto
 	(*LoginResponse)(nil),                     // 17: base.v1.LoginResponse
 	(*emptypb.Empty)(nil),                     // 18: google.protobuf.Empty
 }

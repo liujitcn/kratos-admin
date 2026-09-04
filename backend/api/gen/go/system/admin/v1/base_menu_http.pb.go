@@ -10,7 +10,7 @@ import (
 	context "context"
 
 	http "github.com/go-kratos/kratos/v3/transport/http"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -36,7 +36,7 @@ type BaseMenuServiceHTTPServer interface {
 	// GetBaseMenu 查询菜单
 	GetBaseMenu(context.Context, *GetBaseMenuRequest) (*BaseMenuForm, error)
 	// OptionBaseMenu 查询菜单树形选择
-	OptionBaseMenu(context.Context, *OptionBaseMenuRequest) (*v1.TreeOptionResponse, error)
+	OptionBaseMenu(context.Context, *OptionBaseMenuRequest) (*commonv1.TreeOptionResponse, error)
 	// SetBaseMenuStatus 设置状态
 	SetBaseMenuStatus(context.Context, *SetBaseMenuStatusRequest) (*emptypb.Empty, error)
 	// TreeBaseMenu 查询菜单树形列表
@@ -70,7 +70,7 @@ func _BaseMenuService_OptionBaseMenu0_HTTP_Handler(srv BaseMenuServiceHTTPServer
 		if err != nil {
 			return err
 		}
-		reply := out.(*v1.TreeOptionResponse)
+		reply := out.(*commonv1.TreeOptionResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -215,7 +215,7 @@ type BaseMenuServiceHTTPClient interface {
 	// GetBaseMenu 查询菜单
 	GetBaseMenu(ctx context.Context, req *GetBaseMenuRequest, opts ...http.CallOption) (rsp *BaseMenuForm, err error)
 	// OptionBaseMenu 查询菜单树形选择
-	OptionBaseMenu(ctx context.Context, req *OptionBaseMenuRequest, opts ...http.CallOption) (rsp *v1.TreeOptionResponse, err error)
+	OptionBaseMenu(ctx context.Context, req *OptionBaseMenuRequest, opts ...http.CallOption) (rsp *commonv1.TreeOptionResponse, err error)
 	// SetBaseMenuStatus 设置状态
 	SetBaseMenuStatus(ctx context.Context, req *SetBaseMenuStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// TreeBaseMenu 查询菜单树形列表
@@ -285,8 +285,8 @@ func (c *BaseMenuServiceHTTPClientImpl) GetBaseMenu(ctx context.Context, in *Get
 }
 
 // OptionBaseMenu 查询菜单树形选择
-func (c *BaseMenuServiceHTTPClientImpl) OptionBaseMenu(ctx context.Context, in *OptionBaseMenuRequest, opts ...http.CallOption) (*v1.TreeOptionResponse, error) {
-	var out v1.TreeOptionResponse
+func (c *BaseMenuServiceHTTPClientImpl) OptionBaseMenu(ctx context.Context, in *OptionBaseMenuRequest, opts ...http.CallOption) (*commonv1.TreeOptionResponse, error) {
+	var out commonv1.TreeOptionResponse
 	pattern := "/api/v1/admin/base/menu/option"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{

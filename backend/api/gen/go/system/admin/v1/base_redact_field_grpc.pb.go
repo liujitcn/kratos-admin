@@ -9,7 +9,7 @@ package adminv1
 import (
 	context "context"
 
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -37,7 +37,7 @@ const (
 // Admin脱敏字段目录服务。
 type BaseRedactFieldServiceClient interface {
 	// 查询脱敏字段选项。
-	OptionBaseRedactField(ctx context.Context, in *OptionBaseRedactFieldRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error)
+	OptionBaseRedactField(ctx context.Context, in *OptionBaseRedactFieldRequest, opts ...grpc.CallOption) (*commonv1.SelectOptionResponse, error)
 	// 查询脱敏字段分页列表。
 	PageBaseRedactField(ctx context.Context, in *PageBaseRedactFieldRequest, opts ...grpc.CallOption) (*PageBaseRedactFieldResponse, error)
 	// 查询脱敏字段详情。
@@ -58,9 +58,9 @@ func NewBaseRedactFieldServiceClient(cc grpc.ClientConnInterface) BaseRedactFiel
 	return &baseRedactFieldServiceClient{cc}
 }
 
-func (c *baseRedactFieldServiceClient) OptionBaseRedactField(ctx context.Context, in *OptionBaseRedactFieldRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error) {
+func (c *baseRedactFieldServiceClient) OptionBaseRedactField(ctx context.Context, in *OptionBaseRedactFieldRequest, opts ...grpc.CallOption) (*commonv1.SelectOptionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v1.SelectOptionResponse)
+	out := new(commonv1.SelectOptionResponse)
 	err := c.cc.Invoke(ctx, BaseRedactFieldService_OptionBaseRedactField_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -125,7 +125,7 @@ func (c *baseRedactFieldServiceClient) SetBaseRedactFieldStatus(ctx context.Cont
 // Admin脱敏字段目录服务。
 type BaseRedactFieldServiceServer interface {
 	// 查询脱敏字段选项。
-	OptionBaseRedactField(context.Context, *OptionBaseRedactFieldRequest) (*v1.SelectOptionResponse, error)
+	OptionBaseRedactField(context.Context, *OptionBaseRedactFieldRequest) (*commonv1.SelectOptionResponse, error)
 	// 查询脱敏字段分页列表。
 	PageBaseRedactField(context.Context, *PageBaseRedactFieldRequest) (*PageBaseRedactFieldResponse, error)
 	// 查询脱敏字段详情。
@@ -146,7 +146,7 @@ type BaseRedactFieldServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseRedactFieldServiceServer struct{}
 
-func (UnimplementedBaseRedactFieldServiceServer) OptionBaseRedactField(context.Context, *OptionBaseRedactFieldRequest) (*v1.SelectOptionResponse, error) {
+func (UnimplementedBaseRedactFieldServiceServer) OptionBaseRedactField(context.Context, *OptionBaseRedactFieldRequest) (*commonv1.SelectOptionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method OptionBaseRedactField not implemented")
 }
 func (UnimplementedBaseRedactFieldServiceServer) PageBaseRedactField(context.Context, *PageBaseRedactFieldRequest) (*PageBaseRedactFieldResponse, error) {

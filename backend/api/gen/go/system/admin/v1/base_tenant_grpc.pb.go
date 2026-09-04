@@ -9,7 +9,7 @@ package adminv1
 import (
 	context "context"
 
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -38,7 +38,7 @@ const (
 // Admin租户管理服务
 type BaseTenantServiceClient interface {
 	// 查询租户下拉选择
-	OptionBaseTenant(ctx context.Context, in *OptionBaseTenantRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error)
+	OptionBaseTenant(ctx context.Context, in *OptionBaseTenantRequest, opts ...grpc.CallOption) (*commonv1.SelectOptionResponse, error)
 	// 查询租户分页列表
 	PageBaseTenant(ctx context.Context, in *PageBaseTenantRequest, opts ...grpc.CallOption) (*PageBaseTenantResponse, error)
 	// 查询租户
@@ -61,9 +61,9 @@ func NewBaseTenantServiceClient(cc grpc.ClientConnInterface) BaseTenantServiceCl
 	return &baseTenantServiceClient{cc}
 }
 
-func (c *baseTenantServiceClient) OptionBaseTenant(ctx context.Context, in *OptionBaseTenantRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error) {
+func (c *baseTenantServiceClient) OptionBaseTenant(ctx context.Context, in *OptionBaseTenantRequest, opts ...grpc.CallOption) (*commonv1.SelectOptionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v1.SelectOptionResponse)
+	out := new(commonv1.SelectOptionResponse)
 	err := c.cc.Invoke(ctx, BaseTenantService_OptionBaseTenant_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -138,7 +138,7 @@ func (c *baseTenantServiceClient) SetBaseTenantStatus(ctx context.Context, in *S
 // Admin租户管理服务
 type BaseTenantServiceServer interface {
 	// 查询租户下拉选择
-	OptionBaseTenant(context.Context, *OptionBaseTenantRequest) (*v1.SelectOptionResponse, error)
+	OptionBaseTenant(context.Context, *OptionBaseTenantRequest) (*commonv1.SelectOptionResponse, error)
 	// 查询租户分页列表
 	PageBaseTenant(context.Context, *PageBaseTenantRequest) (*PageBaseTenantResponse, error)
 	// 查询租户
@@ -161,7 +161,7 @@ type BaseTenantServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseTenantServiceServer struct{}
 
-func (UnimplementedBaseTenantServiceServer) OptionBaseTenant(context.Context, *OptionBaseTenantRequest) (*v1.SelectOptionResponse, error) {
+func (UnimplementedBaseTenantServiceServer) OptionBaseTenant(context.Context, *OptionBaseTenantRequest) (*commonv1.SelectOptionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method OptionBaseTenant not implemented")
 }
 func (UnimplementedBaseTenantServiceServer) PageBaseTenant(context.Context, *PageBaseTenantRequest) (*PageBaseTenantResponse, error) {

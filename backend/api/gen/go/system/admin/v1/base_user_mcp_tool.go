@@ -9,7 +9,7 @@ package adminv1
 import (
 	context "context"
 
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
@@ -31,13 +31,13 @@ func RegisterBaseUserServiceMCPTools(mcpServer *mcp.Server, baseUserServiceServe
 
 // RegisterBaseUserServiceOptionBaseUserMCPTool 注册查询用户下拉选择的 MCP Tool。
 func RegisterBaseUserServiceOptionBaseUserMCPTool(mcpServer *mcp.Server, baseUserServiceServer BaseUserServiceServer) {
-	mcp.AddTool[*OptionBaseUserRequest, *v1.SelectOptionResponse](
+	mcp.AddTool[*OptionBaseUserRequest, *commonv1.SelectOptionResponse](
 		mcpServer,
 		&mcp.Tool{
 			Name:        "system_admin_v1_base_user_service_option_base_user",
 			Description: "查询用户下拉选择",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseUserRequest) (*mcp.CallToolResult, *v1.SelectOptionResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseUserRequest) (*mcp.CallToolResult, *commonv1.SelectOptionResponse, error) {
 			if input == nil {
 				input = &OptionBaseUserRequest{}
 			}

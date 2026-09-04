@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/common/v1"
+	commonv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/common/v1"
 	v11 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -186,19 +186,19 @@ func (*GetUserInfoRequest) Descriptor() ([]byte, []int) {
 
 // 用户信息表单
 type UserInfoForm struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserName      string                 `protobuf:"bytes,1,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                                 // 用户账号
-	NickName      string                 `protobuf:"bytes,2,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                                 // 用户昵称
-	Phone         string                 `protobuf:"bytes,3,opt,name=phone,proto3" json:"phone,omitempty"`                                                       // 手机号
-	Email         string                 `protobuf:"bytes,6,opt,name=email,proto3" json:"email,omitempty"`                                                       // 邮箱
-	IdType        v1.BaseUserIDType      `protobuf:"varint,7,opt,name=id_type,json=idType,proto3,enum=system.common.v1.BaseUserIDType" json:"id_type,omitempty"` // 证件类型：枚举【BaseUserIDType】
-	IdCode        string                 `protobuf:"bytes,8,opt,name=id_code,json=idCode,proto3" json:"id_code,omitempty"`                                       // 证件号
-	Avatar        string                 `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`                                                     // 头像
-	RoleCode      string                 `protobuf:"bytes,100,opt,name=role_code,json=roleCode,proto3" json:"role_code,omitempty"`                               // 角色编号
-	RoleName      string                 `protobuf:"bytes,101,opt,name=role_name,json=roleName,proto3" json:"role_name,omitempty"`                               // 角色名称
-	DeptName      string                 `protobuf:"bytes,102,opt,name=dept_name,json=deptName,proto3" json:"dept_name,omitempty"`                               // 部门名称
-	TenantCode    string                 `protobuf:"bytes,104,opt,name=tenant_code,json=tenantCode,proto3" json:"tenant_code,omitempty"`                         // 租户编码
-	TenantName    string                 `protobuf:"bytes,105,opt,name=tenant_name,json=tenantName,proto3" json:"tenant_name,omitempty"`                         // 租户名称
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	UserName      string                  `protobuf:"bytes,1,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                                 // 用户账号
+	NickName      string                  `protobuf:"bytes,2,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                                 // 用户昵称
+	Phone         string                  `protobuf:"bytes,3,opt,name=phone,proto3" json:"phone,omitempty"`                                                       // 手机号
+	Email         string                  `protobuf:"bytes,6,opt,name=email,proto3" json:"email,omitempty"`                                                       // 邮箱
+	IdType        commonv1.BaseUserIDType `protobuf:"varint,7,opt,name=id_type,json=idType,proto3,enum=system.common.v1.BaseUserIDType" json:"id_type,omitempty"` // 证件类型：枚举【BaseUserIDType】
+	IdCode        string                  `protobuf:"bytes,8,opt,name=id_code,json=idCode,proto3" json:"id_code,omitempty"`                                       // 证件号
+	Avatar        string                  `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`                                                     // 头像
+	RoleCode      string                  `protobuf:"bytes,100,opt,name=role_code,json=roleCode,proto3" json:"role_code,omitempty"`                               // 角色编号
+	RoleName      string                  `protobuf:"bytes,101,opt,name=role_name,json=roleName,proto3" json:"role_name,omitempty"`                               // 角色名称
+	DeptName      string                  `protobuf:"bytes,102,opt,name=dept_name,json=deptName,proto3" json:"dept_name,omitempty"`                               // 部门名称
+	TenantCode    string                  `protobuf:"bytes,104,opt,name=tenant_code,json=tenantCode,proto3" json:"tenant_code,omitempty"`                         // 租户编码
+	TenantName    string                  `protobuf:"bytes,105,opt,name=tenant_name,json=tenantName,proto3" json:"tenant_name,omitempty"`                         // 租户名称
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -261,11 +261,11 @@ func (x *UserInfoForm) GetEmail() string {
 	return ""
 }
 
-func (x *UserInfoForm) GetIdType() v1.BaseUserIDType {
+func (x *UserInfoForm) GetIdType() commonv1.BaseUserIDType {
 	if x != nil {
 		return x.IdType
 	}
-	return v1.BaseUserIDType(0)
+	return commonv1.BaseUserIDType(0)
 }
 
 func (x *UserInfoForm) GetIdCode() string {
@@ -356,18 +356,18 @@ func (*GetUserProfileRequest) Descriptor() ([]byte, []int) {
 
 // 用户资料表单
 type UserProfileForm struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserName      string                 `protobuf:"bytes,1,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                                 // 用户名
-	NickName      string                 `protobuf:"bytes,2,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                                 // 昵称
-	Avatar        string                 `protobuf:"bytes,3,opt,name=avatar,proto3" json:"avatar,omitempty"`                                                     // 头像URL
-	Gender        int32                  `protobuf:"varint,4,opt,name=gender,proto3" json:"gender,omitempty"`                                                    // 性别
-	Phone         string                 `protobuf:"bytes,5,opt,name=phone,proto3" json:"phone,omitempty"`                                                       // 手机号
-	Email         string                 `protobuf:"bytes,6,opt,name=email,proto3" json:"email,omitempty"`                                                       // 邮箱
-	IdType        v1.BaseUserIDType      `protobuf:"varint,7,opt,name=id_type,json=idType,proto3,enum=system.common.v1.BaseUserIDType" json:"id_type,omitempty"` // 证件类型：枚举【BaseUserIDType】
-	IdCode        string                 `protobuf:"bytes,8,opt,name=id_code,json=idCode,proto3" json:"id_code,omitempty"`                                       // 证件号
-	RoleName      string                 `protobuf:"bytes,10,opt,name=role_name,json=roleName,proto3" json:"role_name,omitempty"`                                // 角色名
-	DeptName      string                 `protobuf:"bytes,11,opt,name=dept_name,json=deptName,proto3" json:"dept_name,omitempty"`                                // 部门名
-	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                            // 创建时间
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	UserName      string                  `protobuf:"bytes,1,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                                 // 用户名
+	NickName      string                  `protobuf:"bytes,2,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                                 // 昵称
+	Avatar        string                  `protobuf:"bytes,3,opt,name=avatar,proto3" json:"avatar,omitempty"`                                                     // 头像URL
+	Gender        int32                   `protobuf:"varint,4,opt,name=gender,proto3" json:"gender,omitempty"`                                                    // 性别
+	Phone         string                  `protobuf:"bytes,5,opt,name=phone,proto3" json:"phone,omitempty"`                                                       // 手机号
+	Email         string                  `protobuf:"bytes,6,opt,name=email,proto3" json:"email,omitempty"`                                                       // 邮箱
+	IdType        commonv1.BaseUserIDType `protobuf:"varint,7,opt,name=id_type,json=idType,proto3,enum=system.common.v1.BaseUserIDType" json:"id_type,omitempty"` // 证件类型：枚举【BaseUserIDType】
+	IdCode        string                  `protobuf:"bytes,8,opt,name=id_code,json=idCode,proto3" json:"id_code,omitempty"`                                       // 证件号
+	RoleName      string                  `protobuf:"bytes,10,opt,name=role_name,json=roleName,proto3" json:"role_name,omitempty"`                                // 角色名
+	DeptName      string                  `protobuf:"bytes,11,opt,name=dept_name,json=deptName,proto3" json:"dept_name,omitempty"`                                // 部门名
+	CreatedAt     string                  `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                            // 创建时间
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -444,11 +444,11 @@ func (x *UserProfileForm) GetEmail() string {
 	return ""
 }
 
-func (x *UserProfileForm) GetIdType() v1.BaseUserIDType {
+func (x *UserProfileForm) GetIdType() commonv1.BaseUserIDType {
 	if x != nil {
 		return x.IdType
 	}
-	return v1.BaseUserIDType(0)
+	return commonv1.BaseUserIDType(0)
 }
 
 func (x *UserProfileForm) GetIdCode() string {
@@ -1158,7 +1158,7 @@ var file_system_admin_v1_auth_proto_goTypes = []any{
 	(*RouteParams)(nil),               // 13: system.admin.v1.RouteParams
 	(*UserPasswordForm)(nil),          // 14: system.admin.v1.UserPasswordForm
 	(*UserPhoneForm)(nil),             // 15: system.admin.v1.UserPhoneForm
-	(v1.BaseUserIDType)(0),            // 16: system.common.v1.BaseUserIDType
+	(commonv1.BaseUserIDType)(0),      // 16: system.common.v1.BaseUserIDType
 	(BaseMenuType)(0),                 // 17: system.admin.v1.BaseMenuType
 	(*v11.PasswordCrypto)(nil),        // 18: common.v1.PasswordCrypto
 	(*v11.StringValues)(nil),          // 19: common.v1.StringValues

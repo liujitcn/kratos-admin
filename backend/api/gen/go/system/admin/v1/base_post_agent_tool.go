@@ -11,7 +11,7 @@ import (
 
 	tool "github.com/cloudwego/eino/components/tool"
 	utils "github.com/cloudwego/eino/components/tool/utils"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -66,10 +66,10 @@ func NewBasePostServiceAgentTools(basePostServiceServer BasePostServiceServer) (
 
 // NewBasePostServiceOptionBasePostAgentTool 创建查询岗位下拉选择的 Agent Tool。
 func NewBasePostServiceOptionBasePostAgentTool(basePostServiceServer BasePostServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*OptionBasePostRequest, *v1.SelectOptionResponse](
+	return utils.InferTool[*OptionBasePostRequest, *commonv1.SelectOptionResponse](
 		"system_admin_v1_base_post_service_option_base_post",
 		"查询岗位下拉选择",
-		func(ctx context.Context, req *OptionBasePostRequest) (*v1.SelectOptionResponse, error) {
+		func(ctx context.Context, req *OptionBasePostRequest) (*commonv1.SelectOptionResponse, error) {
 			if req == nil {
 				req = &OptionBasePostRequest{}
 			}

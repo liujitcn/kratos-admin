@@ -10,7 +10,7 @@ import (
 	context "context"
 
 	http "github.com/go-kratos/kratos/v3/transport/http"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -36,7 +36,7 @@ type BaseMessageCategoryServiceHTTPServer interface {
 	// GetBaseMessageCategory 查询消息分类详情。
 	GetBaseMessageCategory(context.Context, *GetBaseMessageCategoryRequest) (*BaseMessageCategoryForm, error)
 	// OptionBaseMessageCategory 查询消息分类选项。
-	OptionBaseMessageCategory(context.Context, *OptionBaseMessageCategoryRequest) (*v1.SelectOptionResponse, error)
+	OptionBaseMessageCategory(context.Context, *OptionBaseMessageCategoryRequest) (*commonv1.SelectOptionResponse, error)
 	// PageBaseMessageCategory 分页查询消息分类。
 	PageBaseMessageCategory(context.Context, *PageBaseMessageCategoryRequest) (*PageBaseMessageCategoryResponse, error)
 	// SetBaseMessageCategoryStatus 设置消息分类状态。
@@ -70,7 +70,7 @@ func _BaseMessageCategoryService_OptionBaseMessageCategory0_HTTP_Handler(srv Bas
 		if err != nil {
 			return err
 		}
-		reply := out.(*v1.SelectOptionResponse)
+		reply := out.(*commonv1.SelectOptionResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -215,7 +215,7 @@ type BaseMessageCategoryServiceHTTPClient interface {
 	// GetBaseMessageCategory 查询消息分类详情。
 	GetBaseMessageCategory(ctx context.Context, req *GetBaseMessageCategoryRequest, opts ...http.CallOption) (rsp *BaseMessageCategoryForm, err error)
 	// OptionBaseMessageCategory 查询消息分类选项。
-	OptionBaseMessageCategory(ctx context.Context, req *OptionBaseMessageCategoryRequest, opts ...http.CallOption) (rsp *v1.SelectOptionResponse, err error)
+	OptionBaseMessageCategory(ctx context.Context, req *OptionBaseMessageCategoryRequest, opts ...http.CallOption) (rsp *commonv1.SelectOptionResponse, err error)
 	// PageBaseMessageCategory 分页查询消息分类。
 	PageBaseMessageCategory(ctx context.Context, req *PageBaseMessageCategoryRequest, opts ...http.CallOption) (rsp *PageBaseMessageCategoryResponse, err error)
 	// SetBaseMessageCategoryStatus 设置消息分类状态。
@@ -285,8 +285,8 @@ func (c *BaseMessageCategoryServiceHTTPClientImpl) GetBaseMessageCategory(ctx co
 }
 
 // OptionBaseMessageCategory 查询消息分类选项。
-func (c *BaseMessageCategoryServiceHTTPClientImpl) OptionBaseMessageCategory(ctx context.Context, in *OptionBaseMessageCategoryRequest, opts ...http.CallOption) (*v1.SelectOptionResponse, error) {
-	var out v1.SelectOptionResponse
+func (c *BaseMessageCategoryServiceHTTPClientImpl) OptionBaseMessageCategory(ctx context.Context, in *OptionBaseMessageCategoryRequest, opts ...http.CallOption) (*commonv1.SelectOptionResponse, error) {
+	var out commonv1.SelectOptionResponse
 	pattern := "/api/v1/admin/base/message-category/option"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{

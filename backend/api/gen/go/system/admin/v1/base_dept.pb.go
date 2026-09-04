@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -247,7 +247,7 @@ type BaseDeptForm struct {
 	ParentId      *int64                 `protobuf:"varint,3,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"` // 父级部门ID
 	Name          string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`                                // 部门名称
 	Sort          int32                  `protobuf:"varint,5,opt,name=sort,proto3" json:"sort,omitempty"`                               // 排序
-	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`   // 状态
+	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`   // 状态
 	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                          // 备注
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -318,11 +318,11 @@ func (x *BaseDeptForm) GetSort() int32 {
 	return 0
 }
 
-func (x *BaseDeptForm) GetStatus() v1.Status {
+func (x *BaseDeptForm) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *BaseDeptForm) GetRemark() string {
@@ -528,7 +528,7 @@ type BaseDept struct {
 	ParentId      int64                  `protobuf:"varint,3,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`            // 父级部门ID
 	Name          string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`                                     // 部门名称
 	Sort          int32                  `protobuf:"varint,5,opt,name=sort,proto3" json:"sort,omitempty"`                                    // 排序
-	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`        // 状态
+	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`        // 状态
 	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                               // 备注
 	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`        // 创建时间
 	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`        // 更新时间
@@ -603,11 +603,11 @@ func (x *BaseDept) GetSort() int32 {
 	return 0
 }
 
-func (x *BaseDept) GetStatus() v1.Status {
+func (x *BaseDept) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *BaseDept) GetRemark() string {
@@ -743,19 +743,19 @@ func file_system_admin_v1_base_dept_proto_rawDescGZIP() []byte {
 
 var file_system_admin_v1_base_dept_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_system_admin_v1_base_dept_proto_goTypes = []any{
-	(*OptionBaseDeptRequest)(nil),    // 0: system.admin.v1.OptionBaseDeptRequest
-	(*TreeBaseDeptRequest)(nil),      // 1: system.admin.v1.TreeBaseDeptRequest
-	(*TreeBaseDeptResponse)(nil),     // 2: system.admin.v1.TreeBaseDeptResponse
-	(*GetBaseDeptRequest)(nil),       // 3: system.admin.v1.GetBaseDeptRequest
-	(*BaseDeptForm)(nil),             // 4: system.admin.v1.BaseDeptForm
-	(*CreateBaseDeptRequest)(nil),    // 5: system.admin.v1.CreateBaseDeptRequest
-	(*UpdateBaseDeptRequest)(nil),    // 6: system.admin.v1.UpdateBaseDeptRequest
-	(*DeleteBaseDeptRequest)(nil),    // 7: system.admin.v1.DeleteBaseDeptRequest
-	(*SetBaseDeptStatusRequest)(nil), // 8: system.admin.v1.SetBaseDeptStatusRequest
-	(*BaseDept)(nil),                 // 9: system.admin.v1.BaseDept
-	(v1.Status)(0),                   // 10: common.v1.Status
-	(*v1.TreeOptionResponse)(nil),    // 11: common.v1.TreeOptionResponse
-	(*emptypb.Empty)(nil),            // 12: google.protobuf.Empty
+	(*OptionBaseDeptRequest)(nil),       // 0: system.admin.v1.OptionBaseDeptRequest
+	(*TreeBaseDeptRequest)(nil),         // 1: system.admin.v1.TreeBaseDeptRequest
+	(*TreeBaseDeptResponse)(nil),        // 2: system.admin.v1.TreeBaseDeptResponse
+	(*GetBaseDeptRequest)(nil),          // 3: system.admin.v1.GetBaseDeptRequest
+	(*BaseDeptForm)(nil),                // 4: system.admin.v1.BaseDeptForm
+	(*CreateBaseDeptRequest)(nil),       // 5: system.admin.v1.CreateBaseDeptRequest
+	(*UpdateBaseDeptRequest)(nil),       // 6: system.admin.v1.UpdateBaseDeptRequest
+	(*DeleteBaseDeptRequest)(nil),       // 7: system.admin.v1.DeleteBaseDeptRequest
+	(*SetBaseDeptStatusRequest)(nil),    // 8: system.admin.v1.SetBaseDeptStatusRequest
+	(*BaseDept)(nil),                    // 9: system.admin.v1.BaseDept
+	(commonv1.Status)(0),                // 10: common.v1.Status
+	(*commonv1.TreeOptionResponse)(nil), // 11: common.v1.TreeOptionResponse
+	(*emptypb.Empty)(nil),               // 12: google.protobuf.Empty
 }
 var file_system_admin_v1_base_dept_proto_depIdxs = []int32{
 	9,  // 0: system.admin.v1.TreeBaseDeptResponse.base_depts:type_name -> system.admin.v1.BaseDept

@@ -18,7 +18,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/runtimeconfig"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	logmiddleware "github.com/liujitcn/kratos-admin/backend/internal/server/middleware/log"
-	coreBiz "github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-kit/cache"
 	"github.com/liujitcn/kratos-kit/transport/cron"
 )
@@ -42,7 +42,7 @@ type BaseLogFallbackTask struct {
 
 // NewBaseLogFallbackTask 创建日志入库回退任务。
 func NewBaseLogFallbackTask(
-	baseCase *coreBiz.BaseCase,
+	baseCase *biz.BaseCase,
 	loginRepo *data.BaseLoginLogRepository,
 	operationRepo *data.BaseOperationLogRepository,
 	dataAccessRepo *data.BaseDataAccessLogRepository,

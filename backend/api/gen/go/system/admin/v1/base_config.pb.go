@@ -13,8 +13,8 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	v11 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -149,11 +149,11 @@ func (BaseConfigHiddenStatus) EnumDescriptor() ([]byte, []int) {
 // 系统配置分页查询条件
 type PageBaseConfigRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Site          *v1.BaseConfigSite     `protobuf:"varint,2,opt,name=site,proto3,enum=base.v1.BaseConfigSite,oneof" json:"site,omitempty"`         // 位置：枚举【BaseConfigSite】
+	Site          *basev1.BaseConfigSite `protobuf:"varint,2,opt,name=site,proto3,enum=base.v1.BaseConfigSite,oneof" json:"site,omitempty"`         // 位置：枚举【BaseConfigSite】
 	Name          *string                `protobuf:"bytes,3,opt,name=name,proto3,oneof" json:"name,omitempty"`                                      // 配置名称
 	Type          *BaseConfigType        `protobuf:"varint,4,opt,name=type,proto3,enum=system.admin.v1.BaseConfigType,oneof" json:"type,omitempty"` // 配置类型：枚举【BaseConfigType】
 	Key           *string                `protobuf:"bytes,5,opt,name=key,proto3,oneof" json:"key,omitempty"`                                        // 配置key
-	Status        *v11.Status            `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`         // 状态：枚举【Status】
+	Status        *commonv1.Status       `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`         // 状态：枚举【Status】
 	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                    // 当前页码
 	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                 // 每一页的行数
 	unknownFields protoimpl.UnknownFields
@@ -190,11 +190,11 @@ func (*PageBaseConfigRequest) Descriptor() ([]byte, []int) {
 	return file_system_admin_v1_base_config_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *PageBaseConfigRequest) GetSite() v1.BaseConfigSite {
+func (x *PageBaseConfigRequest) GetSite() basev1.BaseConfigSite {
 	if x != nil && x.Site != nil {
 		return *x.Site
 	}
-	return v1.BaseConfigSite(0)
+	return basev1.BaseConfigSite(0)
 }
 
 func (x *PageBaseConfigRequest) GetName() string {
@@ -218,11 +218,11 @@ func (x *PageBaseConfigRequest) GetKey() string {
 	return ""
 }
 
-func (x *PageBaseConfigRequest) GetStatus() v11.Status {
+func (x *PageBaseConfigRequest) GetStatus() commonv1.Status {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
-	return v11.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *PageBaseConfigRequest) GetPageNum() int64 {
@@ -341,7 +341,7 @@ func (x *GetBaseConfigRequest) GetId() int64 {
 type BaseConfigForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                                     // 配置ID
-	Site          v1.BaseConfigSite      `protobuf:"varint,2,opt,name=site,proto3,enum=base.v1.BaseConfigSite" json:"site,omitempty"`                                                     // 位置：枚举【BaseConfigSite】
+	Site          basev1.BaseConfigSite  `protobuf:"varint,2,opt,name=site,proto3,enum=base.v1.BaseConfigSite" json:"site,omitempty"`                                                     // 位置：枚举【BaseConfigSite】
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                                                                  // 配置名称
 	Type          BaseConfigType         `protobuf:"varint,4,opt,name=type,proto3,enum=system.admin.v1.BaseConfigType" json:"type,omitempty"`                                             // 配置类型：1、文本，2、图片，3、富文本，4、字典，5、布尔
 	Key           string                 `protobuf:"bytes,5,opt,name=key,proto3" json:"key,omitempty"`                                                                                    // 配置key
@@ -349,7 +349,7 @@ type BaseConfigForm struct {
 	HiddenStatus  BaseConfigHiddenStatus `protobuf:"varint,9,opt,name=hidden_status,json=hiddenStatus,proto3,enum=system.admin.v1.BaseConfigHiddenStatus" json:"hidden_status,omitempty"` // 隐藏状态
 	NameI18ns     []*BaseI18n            `protobuf:"bytes,7,rep,name=name_i18ns,json=nameI18ns,proto3" json:"name_i18ns,omitempty"`                                                       // 配置名称多语言翻
 	ValueI18ns    []*BaseI18n            `protobuf:"bytes,8,rep,name=value_i18ns,json=valueI18ns,proto3" json:"value_i18ns,omitempty"`                                                    // 配置value文本/富文本配置值的多语言翻译
-	Status        v11.Status             `protobuf:"varint,51,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                      // 状态
+	Status        commonv1.Status        `protobuf:"varint,51,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                      // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -391,11 +391,11 @@ func (x *BaseConfigForm) GetId() int64 {
 	return 0
 }
 
-func (x *BaseConfigForm) GetSite() v1.BaseConfigSite {
+func (x *BaseConfigForm) GetSite() basev1.BaseConfigSite {
 	if x != nil {
 		return x.Site
 	}
-	return v1.BaseConfigSite(0)
+	return basev1.BaseConfigSite(0)
 }
 
 func (x *BaseConfigForm) GetName() string {
@@ -447,11 +447,11 @@ func (x *BaseConfigForm) GetValueI18ns() []*BaseI18n {
 	return nil
 }
 
-func (x *BaseConfigForm) GetStatus() v11.Status {
+func (x *BaseConfigForm) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v11.Status(0)
+	return commonv1.Status(0)
 }
 
 // 创建系统配置请求参数
@@ -683,13 +683,13 @@ func (*RefreshBaseConfigCacheRequest) Descriptor() ([]byte, []int) {
 type BaseConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                                     // 配置ID
-	Site          v1.BaseConfigSite      `protobuf:"varint,2,opt,name=site,proto3,enum=base.v1.BaseConfigSite" json:"site,omitempty"`                                                     // 位置：枚举【BaseConfigSite】
+	Site          basev1.BaseConfigSite  `protobuf:"varint,2,opt,name=site,proto3,enum=base.v1.BaseConfigSite" json:"site,omitempty"`                                                     // 位置：枚举【BaseConfigSite】
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                                                                  // 配置名称
 	Type          BaseConfigType         `protobuf:"varint,4,opt,name=type,proto3,enum=system.admin.v1.BaseConfigType" json:"type,omitempty"`                                             // 配置类型：枚举【BaseConfigType】
 	Key           string                 `protobuf:"bytes,5,opt,name=key,proto3" json:"key,omitempty"`                                                                                    // 配置key
 	Value         string                 `protobuf:"bytes,6,opt,name=value,proto3" json:"value,omitempty"`                                                                                // 配置value
 	HiddenStatus  BaseConfigHiddenStatus `protobuf:"varint,9,opt,name=hidden_status,json=hiddenStatus,proto3,enum=system.admin.v1.BaseConfigHiddenStatus" json:"hidden_status,omitempty"` // 隐藏状态
-	Status        v11.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                     // 状态：枚举【Status】
+	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                     // 状态：枚举【Status】
 	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                                     // 创建时间
 	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                                     // 更新时间
 	I18ns         []*BaseI18n            `protobuf:"bytes,202,rep,name=i18ns,proto3" json:"i18ns,omitempty"`                                                                              // 配置名称及文本/富文本配置值的多语言翻译
@@ -734,11 +734,11 @@ func (x *BaseConfig) GetId() int64 {
 	return 0
 }
 
-func (x *BaseConfig) GetSite() v1.BaseConfigSite {
+func (x *BaseConfig) GetSite() basev1.BaseConfigSite {
 	if x != nil {
 		return x.Site
 	}
-	return v1.BaseConfigSite(0)
+	return basev1.BaseConfigSite(0)
 }
 
 func (x *BaseConfig) GetName() string {
@@ -776,11 +776,11 @@ func (x *BaseConfig) GetHiddenStatus() BaseConfigHiddenStatus {
 	return BaseConfigHiddenStatus_BASE_CONFIG_HIDDEN_STATUS_UNSPECIFIED
 }
 
-func (x *BaseConfig) GetStatus() v11.Status {
+func (x *BaseConfig) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v11.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *BaseConfig) GetCreatedAt() string {
@@ -1105,8 +1105,8 @@ var file_system_admin_v1_base_config_proto_goTypes = []any{
 	(*GetBaseConfigByKeyRequest)(nil),     // 12: system.admin.v1.GetBaseConfigByKeyRequest
 	(*BaseConfigValue)(nil),               // 13: system.admin.v1.BaseConfigValue
 	(*UpdateBaseConfigByKeyRequest)(nil),  // 14: system.admin.v1.UpdateBaseConfigByKeyRequest
-	(v1.BaseConfigSite)(0),                // 15: base.v1.BaseConfigSite
-	(v11.Status)(0),                       // 16: common.v1.Status
+	(basev1.BaseConfigSite)(0),            // 15: base.v1.BaseConfigSite
+	(commonv1.Status)(0),                  // 16: common.v1.Status
 	(*BaseI18n)(nil),                      // 17: system.admin.v1.BaseI18n
 	(*emptypb.Empty)(nil),                 // 18: google.protobuf.Empty
 }

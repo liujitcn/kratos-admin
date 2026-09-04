@@ -9,7 +9,7 @@ package adminv1
 import (
 	context "context"
 
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
@@ -26,13 +26,13 @@ func RegisterBaseRedactFieldServiceMCPTools(mcpServer *mcp.Server, baseRedactFie
 
 // RegisterBaseRedactFieldServiceOptionBaseRedactFieldMCPTool 注册查询脱敏字段选项的 MCP Tool。
 func RegisterBaseRedactFieldServiceOptionBaseRedactFieldMCPTool(mcpServer *mcp.Server, baseRedactFieldServiceServer BaseRedactFieldServiceServer) {
-	mcp.AddTool[*OptionBaseRedactFieldRequest, *v1.SelectOptionResponse](
+	mcp.AddTool[*OptionBaseRedactFieldRequest, *commonv1.SelectOptionResponse](
 		mcpServer,
 		&mcp.Tool{
 			Name:        "system_admin_v1_base_redact_field_service_option_base_redact_field",
 			Description: "查询脱敏字段选项。",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseRedactFieldRequest) (*mcp.CallToolResult, *v1.SelectOptionResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseRedactFieldRequest) (*mcp.CallToolResult, *commonv1.SelectOptionResponse, error) {
 			if input == nil {
 				input = &OptionBaseRedactFieldRequest{}
 			}

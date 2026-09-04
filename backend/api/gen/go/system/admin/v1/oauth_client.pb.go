@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -164,7 +164,7 @@ func (x *OptionOauthClientApiResponse) GetBaseApis() []*BaseApi {
 type PageOauthClientRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ClientName    *string                `protobuf:"bytes,1,opt,name=client_name,json=clientName,proto3,oneof" json:"client_name,omitempty"` // 客户端名称
-	Status        *v1.Status             `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`    // 客户端状态
+	Status        *commonv1.Status       `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`    // 客户端状态
 	TenantId      *int64                 `protobuf:"varint,3,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`      // 绑定租户ID
 	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`             // 页码
 	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`          // 每页数量
@@ -209,11 +209,11 @@ func (x *PageOauthClientRequest) GetClientName() string {
 	return ""
 }
 
-func (x *PageOauthClientRequest) GetStatus() v1.Status {
+func (x *PageOauthClientRequest) GetStatus() commonv1.Status {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *PageOauthClientRequest) GetTenantId() int64 {
@@ -564,7 +564,7 @@ func (x *DeleteOauthClientRequest) GetId() string {
 type SetOauthClientStatusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                               // 客户端ID
-	Status        v1.Status              `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
+	Status        commonv1.Status        `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -606,11 +606,11 @@ func (x *SetOauthClientStatusRequest) GetId() int64 {
 	return 0
 }
 
-func (x *SetOauthClientStatusRequest) GetStatus() v1.Status {
+func (x *SetOauthClientStatusRequest) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 // 开放授权客户端表单。
@@ -622,7 +622,7 @@ type OauthClientForm struct {
 	CryptoType    OauthClientCryptoType  `protobuf:"varint,4,opt,name=crypto_type,json=cryptoType,proto3,enum=system.admin.v1.OauthClientCryptoType" json:"crypto_type,omitempty"` // 协议加密类型
 	IpWhitelist   string                 `protobuf:"bytes,5,opt,name=ip_whitelist,json=ipWhitelist,proto3" json:"ip_whitelist,omitempty"`                                          // IP白名单
 	Api           []string               `protobuf:"bytes,6,rep,name=api,proto3" json:"api,omitempty"`                                                                             // 允许访问的 API operation 列表
-	Status        v1.Status              `protobuf:"varint,7,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                // 状态
+	Status        commonv1.Status        `protobuf:"varint,7,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -699,11 +699,11 @@ func (x *OauthClientForm) GetApi() []string {
 	return nil
 }
 
-func (x *OauthClientForm) GetStatus() v1.Status {
+func (x *OauthClientForm) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 // 开放授权客户端非敏感信息。
@@ -716,7 +716,7 @@ type OauthClient struct {
 	CryptoType    OauthClientCryptoType  `protobuf:"varint,5,opt,name=crypto_type,json=cryptoType,proto3,enum=system.admin.v1.OauthClientCryptoType" json:"crypto_type,omitempty"` // 协议加密类型
 	IpWhitelist   string                 `protobuf:"bytes,6,opt,name=ip_whitelist,json=ipWhitelist,proto3" json:"ip_whitelist,omitempty"`                                          // IP白名单
 	Api           []string               `protobuf:"bytes,7,rep,name=api,proto3" json:"api,omitempty"`                                                                             // 允许访问的 API operation 列表
-	Status        v1.Status              `protobuf:"varint,8,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                // 状态
+	Status        commonv1.Status        `protobuf:"varint,8,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -800,11 +800,11 @@ func (x *OauthClient) GetApi() []string {
 	return nil
 }
 
-func (x *OauthClient) GetStatus() v1.Status {
+func (x *OauthClient) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 // 开放授权客户端凭据元数据；敏感密钥字段始终为空，仅保留协议类型和客户端标识。
@@ -992,7 +992,7 @@ var file_system_admin_v1_oauth_client_proto_goTypes = []any{
 	(*OauthClient)(nil),                         // 13: system.admin.v1.OauthClient
 	(*OauthClientCredentials)(nil),              // 14: system.admin.v1.OauthClientCredentials
 	(*BaseApi)(nil),                             // 15: system.admin.v1.BaseApi
-	(v1.Status)(0),                              // 16: common.v1.Status
+	(commonv1.Status)(0),                        // 16: common.v1.Status
 	(*emptypb.Empty)(nil),                       // 17: google.protobuf.Empty
 }
 var file_system_admin_v1_oauth_client_proto_depIdxs = []int32{

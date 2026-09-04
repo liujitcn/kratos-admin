@@ -10,7 +10,7 @@ import (
 	context "context"
 
 	http "github.com/go-kratos/kratos/v3/transport/http"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -35,7 +35,7 @@ type BaseAreaServiceHTTPServer interface {
 	// GetBaseArea 查询行政区域详情
 	GetBaseArea(context.Context, *GetBaseAreaRequest) (*BaseAreaForm, error)
 	// OptionBaseArea 查询行政区域树形选择
-	OptionBaseArea(context.Context, *OptionBaseAreaRequest) (*v1.TreeOptionResponse, error)
+	OptionBaseArea(context.Context, *OptionBaseAreaRequest) (*commonv1.TreeOptionResponse, error)
 	// TreeBaseArea 查询行政区域树形列表
 	TreeBaseArea(context.Context, *TreeBaseAreaRequest) (*TreeBaseAreaResponse, error)
 	// UpdateBaseArea 更新行政区域
@@ -66,7 +66,7 @@ func _BaseAreaService_OptionBaseArea0_HTTP_Handler(srv BaseAreaServiceHTTPServer
 		if err != nil {
 			return err
 		}
-		reply := out.(*v1.TreeOptionResponse)
+		reply := out.(*commonv1.TreeOptionResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -189,7 +189,7 @@ type BaseAreaServiceHTTPClient interface {
 	// GetBaseArea 查询行政区域详情
 	GetBaseArea(ctx context.Context, req *GetBaseAreaRequest, opts ...http.CallOption) (rsp *BaseAreaForm, err error)
 	// OptionBaseArea 查询行政区域树形选择
-	OptionBaseArea(ctx context.Context, req *OptionBaseAreaRequest, opts ...http.CallOption) (rsp *v1.TreeOptionResponse, err error)
+	OptionBaseArea(ctx context.Context, req *OptionBaseAreaRequest, opts ...http.CallOption) (rsp *commonv1.TreeOptionResponse, err error)
 	// TreeBaseArea 查询行政区域树形列表
 	TreeBaseArea(ctx context.Context, req *TreeBaseAreaRequest, opts ...http.CallOption) (rsp *TreeBaseAreaResponse, err error)
 	// UpdateBaseArea 更新行政区域
@@ -257,8 +257,8 @@ func (c *BaseAreaServiceHTTPClientImpl) GetBaseArea(ctx context.Context, in *Get
 }
 
 // OptionBaseArea 查询行政区域树形选择
-func (c *BaseAreaServiceHTTPClientImpl) OptionBaseArea(ctx context.Context, in *OptionBaseAreaRequest, opts ...http.CallOption) (*v1.TreeOptionResponse, error) {
-	var out v1.TreeOptionResponse
+func (c *BaseAreaServiceHTTPClientImpl) OptionBaseArea(ctx context.Context, in *OptionBaseAreaRequest, opts ...http.CallOption) (*commonv1.TreeOptionResponse, error) {
+	var out commonv1.TreeOptionResponse
 	pattern := "/api/v1/admin/base/area/option"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{

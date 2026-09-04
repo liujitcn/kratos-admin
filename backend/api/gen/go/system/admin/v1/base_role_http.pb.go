@@ -10,7 +10,7 @@ import (
 	context "context"
 
 	http "github.com/go-kratos/kratos/v3/transport/http"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -37,7 +37,7 @@ type BaseRoleServiceHTTPServer interface {
 	// GetBaseRole 查询角色
 	GetBaseRole(context.Context, *GetBaseRoleRequest) (*BaseRoleForm, error)
 	// OptionBaseRole 查询角色下拉选择
-	OptionBaseRole(context.Context, *OptionBaseRoleRequest) (*v1.SelectOptionResponse, error)
+	OptionBaseRole(context.Context, *OptionBaseRoleRequest) (*commonv1.SelectOptionResponse, error)
 	// PageBaseRole 查询角色分页列表
 	PageBaseRole(context.Context, *PageBaseRoleRequest) (*PageBaseRoleResponse, error)
 	// SetBaseRoleMenu 设置角色菜单权限
@@ -74,7 +74,7 @@ func _BaseRoleService_OptionBaseRole0_HTTP_Handler(srv BaseRoleServiceHTTPServer
 		if err != nil {
 			return err
 		}
-		reply := out.(*v1.SelectOptionResponse)
+		reply := out.(*commonv1.SelectOptionResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -241,7 +241,7 @@ type BaseRoleServiceHTTPClient interface {
 	// GetBaseRole 查询角色
 	GetBaseRole(ctx context.Context, req *GetBaseRoleRequest, opts ...http.CallOption) (rsp *BaseRoleForm, err error)
 	// OptionBaseRole 查询角色下拉选择
-	OptionBaseRole(ctx context.Context, req *OptionBaseRoleRequest, opts ...http.CallOption) (rsp *v1.SelectOptionResponse, err error)
+	OptionBaseRole(ctx context.Context, req *OptionBaseRoleRequest, opts ...http.CallOption) (rsp *commonv1.SelectOptionResponse, err error)
 	// PageBaseRole 查询角色分页列表
 	PageBaseRole(ctx context.Context, req *PageBaseRoleRequest, opts ...http.CallOption) (rsp *PageBaseRoleResponse, err error)
 	// SetBaseRoleMenu 设置角色菜单权限
@@ -313,8 +313,8 @@ func (c *BaseRoleServiceHTTPClientImpl) GetBaseRole(ctx context.Context, in *Get
 }
 
 // OptionBaseRole 查询角色下拉选择
-func (c *BaseRoleServiceHTTPClientImpl) OptionBaseRole(ctx context.Context, in *OptionBaseRoleRequest, opts ...http.CallOption) (*v1.SelectOptionResponse, error) {
-	var out v1.SelectOptionResponse
+func (c *BaseRoleServiceHTTPClientImpl) OptionBaseRole(ctx context.Context, in *OptionBaseRoleRequest, opts ...http.CallOption) (*commonv1.SelectOptionResponse, error) {
+	var out commonv1.SelectOptionResponse
 	pattern := "/api/v1/admin/base/role/option"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{

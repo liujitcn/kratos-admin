@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -78,7 +78,7 @@ type PageBasePostRequest struct {
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                    // 岗位名称
 	Code          string                 `protobuf:"bytes,3,opt,name=code,proto3" json:"code,omitempty"`                                    // 岗位编号
 	TenantId      *int64                 `protobuf:"varint,4,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`     // 租户ID
-	Status        *v1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态
+	Status        *commonv1.Status       `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态
 	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`            // 当前页码
 	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`         // 每一页的行数
 	unknownFields protoimpl.UnknownFields
@@ -136,11 +136,11 @@ func (x *PageBasePostRequest) GetTenantId() int64 {
 	return 0
 }
 
-func (x *PageBasePostRequest) GetStatus() v1.Status {
+func (x *PageBasePostRequest) GetStatus() commonv1.Status {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *PageBasePostRequest) GetPageNum() int64 {
@@ -263,7 +263,7 @@ type BasePostForm struct {
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                              // 岗位名称
 	Code          string                 `protobuf:"bytes,4,opt,name=code,proto3" json:"code,omitempty"`                              // 岗位编号
 	Sort          int32                  `protobuf:"varint,5,opt,name=sort,proto3" json:"sort,omitempty"`                             // 显示顺序
-	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
+	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                        // 备注
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -334,11 +334,11 @@ func (x *BasePostForm) GetSort() int32 {
 	return 0
 }
 
-func (x *BasePostForm) GetStatus() v1.Status {
+func (x *BasePostForm) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *BasePostForm) GetRemark() string {
@@ -544,7 +544,7 @@ type BasePost struct {
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                              // 岗位名称
 	Code          string                 `protobuf:"bytes,4,opt,name=code,proto3" json:"code,omitempty"`                              // 岗位编号
 	Sort          int32                  `protobuf:"varint,5,opt,name=sort,proto3" json:"sort,omitempty"`                             // 显示顺序
-	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
+	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                        // 备注
 	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // 创建时间
 	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"` // 更新时间
@@ -617,11 +617,11 @@ func (x *BasePost) GetSort() int32 {
 	return 0
 }
 
-func (x *BasePost) GetStatus() v1.Status {
+func (x *BasePost) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *BasePost) GetRemark() string {
@@ -734,19 +734,19 @@ func file_system_admin_v1_base_post_proto_rawDescGZIP() []byte {
 
 var file_system_admin_v1_base_post_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_system_admin_v1_base_post_proto_goTypes = []any{
-	(*OptionBasePostRequest)(nil),    // 0: system.admin.v1.OptionBasePostRequest
-	(*PageBasePostRequest)(nil),      // 1: system.admin.v1.PageBasePostRequest
-	(*PageBasePostResponse)(nil),     // 2: system.admin.v1.PageBasePostResponse
-	(*GetBasePostRequest)(nil),       // 3: system.admin.v1.GetBasePostRequest
-	(*BasePostForm)(nil),             // 4: system.admin.v1.BasePostForm
-	(*CreateBasePostRequest)(nil),    // 5: system.admin.v1.CreateBasePostRequest
-	(*UpdateBasePostRequest)(nil),    // 6: system.admin.v1.UpdateBasePostRequest
-	(*DeleteBasePostRequest)(nil),    // 7: system.admin.v1.DeleteBasePostRequest
-	(*SetBasePostStatusRequest)(nil), // 8: system.admin.v1.SetBasePostStatusRequest
-	(*BasePost)(nil),                 // 9: system.admin.v1.BasePost
-	(v1.Status)(0),                   // 10: common.v1.Status
-	(*v1.SelectOptionResponse)(nil),  // 11: common.v1.SelectOptionResponse
-	(*emptypb.Empty)(nil),            // 12: google.protobuf.Empty
+	(*OptionBasePostRequest)(nil),         // 0: system.admin.v1.OptionBasePostRequest
+	(*PageBasePostRequest)(nil),           // 1: system.admin.v1.PageBasePostRequest
+	(*PageBasePostResponse)(nil),          // 2: system.admin.v1.PageBasePostResponse
+	(*GetBasePostRequest)(nil),            // 3: system.admin.v1.GetBasePostRequest
+	(*BasePostForm)(nil),                  // 4: system.admin.v1.BasePostForm
+	(*CreateBasePostRequest)(nil),         // 5: system.admin.v1.CreateBasePostRequest
+	(*UpdateBasePostRequest)(nil),         // 6: system.admin.v1.UpdateBasePostRequest
+	(*DeleteBasePostRequest)(nil),         // 7: system.admin.v1.DeleteBasePostRequest
+	(*SetBasePostStatusRequest)(nil),      // 8: system.admin.v1.SetBasePostStatusRequest
+	(*BasePost)(nil),                      // 9: system.admin.v1.BasePost
+	(commonv1.Status)(0),                  // 10: common.v1.Status
+	(*commonv1.SelectOptionResponse)(nil), // 11: common.v1.SelectOptionResponse
+	(*emptypb.Empty)(nil),                 // 12: google.protobuf.Empty
 }
 var file_system_admin_v1_base_post_proto_depIdxs = []int32{
 	10, // 0: system.admin.v1.PageBasePostRequest.status:type_name -> common.v1.Status

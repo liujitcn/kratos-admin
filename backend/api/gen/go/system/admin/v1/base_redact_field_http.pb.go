@@ -10,7 +10,7 @@ import (
 	context "context"
 
 	http "github.com/go-kratos/kratos/v3/transport/http"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -33,7 +33,7 @@ type BaseRedactFieldServiceHTTPServer interface {
 	// GetBaseRedactField 查询脱敏字段详情。
 	GetBaseRedactField(context.Context, *GetBaseRedactFieldRequest) (*BaseRedactFieldForm, error)
 	// OptionBaseRedactField 查询脱敏字段选项。
-	OptionBaseRedactField(context.Context, *OptionBaseRedactFieldRequest) (*v1.SelectOptionResponse, error)
+	OptionBaseRedactField(context.Context, *OptionBaseRedactFieldRequest) (*commonv1.SelectOptionResponse, error)
 	// PageBaseRedactField 查询脱敏字段分页列表。
 	PageBaseRedactField(context.Context, *PageBaseRedactFieldRequest) (*PageBaseRedactFieldResponse, error)
 	// SetBaseRedactFieldStatus 设置脱敏字段状态。
@@ -66,7 +66,7 @@ func _BaseRedactFieldService_OptionBaseRedactField0_HTTP_Handler(srv BaseRedactF
 		if err != nil {
 			return err
 		}
-		reply := out.(*v1.SelectOptionResponse)
+		reply := out.(*commonv1.SelectOptionResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -187,7 +187,7 @@ type BaseRedactFieldServiceHTTPClient interface {
 	// GetBaseRedactField 查询脱敏字段详情。
 	GetBaseRedactField(ctx context.Context, req *GetBaseRedactFieldRequest, opts ...http.CallOption) (rsp *BaseRedactFieldForm, err error)
 	// OptionBaseRedactField 查询脱敏字段选项。
-	OptionBaseRedactField(ctx context.Context, req *OptionBaseRedactFieldRequest, opts ...http.CallOption) (rsp *v1.SelectOptionResponse, err error)
+	OptionBaseRedactField(ctx context.Context, req *OptionBaseRedactFieldRequest, opts ...http.CallOption) (rsp *commonv1.SelectOptionResponse, err error)
 	// PageBaseRedactField 查询脱敏字段分页列表。
 	PageBaseRedactField(ctx context.Context, req *PageBaseRedactFieldRequest, opts ...http.CallOption) (rsp *PageBaseRedactFieldResponse, err error)
 	// SetBaseRedactFieldStatus 设置脱敏字段状态。
@@ -239,8 +239,8 @@ func (c *BaseRedactFieldServiceHTTPClientImpl) GetBaseRedactField(ctx context.Co
 }
 
 // OptionBaseRedactField 查询脱敏字段选项。
-func (c *BaseRedactFieldServiceHTTPClientImpl) OptionBaseRedactField(ctx context.Context, in *OptionBaseRedactFieldRequest, opts ...http.CallOption) (*v1.SelectOptionResponse, error) {
-	var out v1.SelectOptionResponse
+func (c *BaseRedactFieldServiceHTTPClientImpl) OptionBaseRedactField(ctx context.Context, in *OptionBaseRedactFieldRequest, opts ...http.CallOption) (*commonv1.SelectOptionResponse, error) {
+	var out commonv1.SelectOptionResponse
 	pattern := "/api/v1/admin/base/redact-field/option"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{

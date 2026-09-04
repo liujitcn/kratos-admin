@@ -11,7 +11,7 @@ import (
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/base/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/log"
+	logmiddleware "github.com/liujitcn/kratos-admin/backend/internal/server/middleware/log"
 	serverlogstream "github.com/liujitcn/kratos-admin/backend/internal/server/middleware/logstream"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/oauth"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/middleware/passwordpolicy"
@@ -21,7 +21,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/server/system/app/v1"
 	"github.com/liujitcn/kratos-core/module"
 	"github.com/liujitcn/kratos-core/queue"
-	queueData "github.com/liujitcn/kratos-kit/queue/data"
+	"github.com/liujitcn/kratos-kit/queue/data"
 	"github.com/liujitcn/kratos-kit/transport/mcp"
 	"google.golang.org/grpc"
 )
@@ -71,7 +71,7 @@ func NewModules(
 }
 
 // NewQueueConsumers 提供 Admin 自身投递事件的队列消费者集合。
-func NewQueueConsumers(baseMessageCase *biz.BaseMessageCase, logConsumer queueData.ConsumerFunc) queue.Consumers {
+func NewQueueConsumers(baseMessageCase *biz.BaseMessageCase, logConsumer data.ConsumerFunc) queue.Consumers {
 	return queue.Consumers{
 		{Stream: "base.message.dispatch", Handler: baseMessageCase.HandleDispatchMessage},
 		{Stream: logmiddleware.AdminEventStream(), Handler: logConsumer},

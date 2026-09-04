@@ -9,7 +9,7 @@ package adminv1
 import (
 	context "context"
 
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
@@ -21,13 +21,13 @@ func RegisterBaseTableSourceServiceMCPTools(mcpServer *mcp.Server, baseTableSour
 
 // RegisterBaseTableSourceServiceOptionBaseTableSourceMCPTool 注册查询已初始化的数据源名称的 MCP Tool。
 func RegisterBaseTableSourceServiceOptionBaseTableSourceMCPTool(mcpServer *mcp.Server, baseTableSourceServiceServer BaseTableSourceServiceServer) {
-	mcp.AddTool[*OptionBaseTableSourceRequest, *v1.StringValues](
+	mcp.AddTool[*OptionBaseTableSourceRequest, *commonv1.StringValues](
 		mcpServer,
 		&mcp.Tool{
 			Name:        "system_admin_v1_base_table_source_service_option_base_table_source",
 			Description: "查询已初始化的数据源名称。",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseTableSourceRequest) (*mcp.CallToolResult, *v1.StringValues, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseTableSourceRequest) (*mcp.CallToolResult, *commonv1.StringValues, error) {
 			if input == nil {
 				input = &OptionBaseTableSourceRequest{}
 			}
@@ -42,13 +42,13 @@ func RegisterBaseTableSourceServiceOptionBaseTableSourceMCPTool(mcpServer *mcp.S
 
 // RegisterBaseTableSourceServiceOptionBaseTableMCPTool 注册查询指定数据源中的数据库表名称的 MCP Tool。
 func RegisterBaseTableSourceServiceOptionBaseTableMCPTool(mcpServer *mcp.Server, baseTableSourceServiceServer BaseTableSourceServiceServer) {
-	mcp.AddTool[*OptionBaseTableRequest, *v1.StringValues](
+	mcp.AddTool[*OptionBaseTableRequest, *commonv1.StringValues](
 		mcpServer,
 		&mcp.Tool{
 			Name:        "system_admin_v1_base_table_source_service_option_base_table",
 			Description: "查询指定数据源中的数据库表名称。",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseTableRequest) (*mcp.CallToolResult, *v1.StringValues, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseTableRequest) (*mcp.CallToolResult, *commonv1.StringValues, error) {
 			if input == nil {
 				input = &OptionBaseTableRequest{}
 			}

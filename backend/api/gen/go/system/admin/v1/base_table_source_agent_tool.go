@@ -11,7 +11,7 @@ import (
 
 	tool "github.com/cloudwego/eino/components/tool"
 	utils "github.com/cloudwego/eino/components/tool/utils"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 )
 
 // NewBaseTableSourceServiceAgentTools 创建BaseTableSourceService 提供数据备份、数据归档和代码生成共用的数据源元数据的 Agent Tool。
@@ -35,10 +35,10 @@ func NewBaseTableSourceServiceAgentTools(baseTableSourceServiceServer BaseTableS
 
 // NewBaseTableSourceServiceOptionBaseTableSourceAgentTool 创建查询已初始化的数据源名称的 Agent Tool。
 func NewBaseTableSourceServiceOptionBaseTableSourceAgentTool(baseTableSourceServiceServer BaseTableSourceServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*OptionBaseTableSourceRequest, *v1.StringValues](
+	return utils.InferTool[*OptionBaseTableSourceRequest, *commonv1.StringValues](
 		"system_admin_v1_base_table_source_service_option_base_table_source",
 		"查询已初始化的数据源名称。",
-		func(ctx context.Context, req *OptionBaseTableSourceRequest) (*v1.StringValues, error) {
+		func(ctx context.Context, req *OptionBaseTableSourceRequest) (*commonv1.StringValues, error) {
 			if req == nil {
 				req = &OptionBaseTableSourceRequest{}
 			}
@@ -49,10 +49,10 @@ func NewBaseTableSourceServiceOptionBaseTableSourceAgentTool(baseTableSourceServ
 
 // NewBaseTableSourceServiceOptionBaseTableAgentTool 创建查询指定数据源中的数据库表名称的 Agent Tool。
 func NewBaseTableSourceServiceOptionBaseTableAgentTool(baseTableSourceServiceServer BaseTableSourceServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*OptionBaseTableRequest, *v1.StringValues](
+	return utils.InferTool[*OptionBaseTableRequest, *commonv1.StringValues](
 		"system_admin_v1_base_table_source_service_option_base_table",
 		"查询指定数据源中的数据库表名称。",
-		func(ctx context.Context, req *OptionBaseTableRequest) (*v1.StringValues, error) {
+		func(ctx context.Context, req *OptionBaseTableRequest) (*commonv1.StringValues, error) {
 			if req == nil {
 				req = &OptionBaseTableRequest{}
 			}

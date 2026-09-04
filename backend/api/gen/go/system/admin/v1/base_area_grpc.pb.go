@@ -9,7 +9,7 @@ package adminv1
 import (
 	context "context"
 
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -37,7 +37,7 @@ const (
 // Admin行政区域服务
 type BaseAreaServiceClient interface {
 	// 查询行政区域树形选择
-	OptionBaseArea(ctx context.Context, in *OptionBaseAreaRequest, opts ...grpc.CallOption) (*v1.TreeOptionResponse, error)
+	OptionBaseArea(ctx context.Context, in *OptionBaseAreaRequest, opts ...grpc.CallOption) (*commonv1.TreeOptionResponse, error)
 	// 查询行政区域树形列表
 	TreeBaseArea(ctx context.Context, in *TreeBaseAreaRequest, opts ...grpc.CallOption) (*TreeBaseAreaResponse, error)
 	// 查询行政区域详情
@@ -58,9 +58,9 @@ func NewBaseAreaServiceClient(cc grpc.ClientConnInterface) BaseAreaServiceClient
 	return &baseAreaServiceClient{cc}
 }
 
-func (c *baseAreaServiceClient) OptionBaseArea(ctx context.Context, in *OptionBaseAreaRequest, opts ...grpc.CallOption) (*v1.TreeOptionResponse, error) {
+func (c *baseAreaServiceClient) OptionBaseArea(ctx context.Context, in *OptionBaseAreaRequest, opts ...grpc.CallOption) (*commonv1.TreeOptionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v1.TreeOptionResponse)
+	out := new(commonv1.TreeOptionResponse)
 	err := c.cc.Invoke(ctx, BaseAreaService_OptionBaseArea_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -125,7 +125,7 @@ func (c *baseAreaServiceClient) DeleteBaseArea(ctx context.Context, in *DeleteBa
 // Admin行政区域服务
 type BaseAreaServiceServer interface {
 	// 查询行政区域树形选择
-	OptionBaseArea(context.Context, *OptionBaseAreaRequest) (*v1.TreeOptionResponse, error)
+	OptionBaseArea(context.Context, *OptionBaseAreaRequest) (*commonv1.TreeOptionResponse, error)
 	// 查询行政区域树形列表
 	TreeBaseArea(context.Context, *TreeBaseAreaRequest) (*TreeBaseAreaResponse, error)
 	// 查询行政区域详情
@@ -146,7 +146,7 @@ type BaseAreaServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseAreaServiceServer struct{}
 
-func (UnimplementedBaseAreaServiceServer) OptionBaseArea(context.Context, *OptionBaseAreaRequest) (*v1.TreeOptionResponse, error) {
+func (UnimplementedBaseAreaServiceServer) OptionBaseArea(context.Context, *OptionBaseAreaRequest) (*commonv1.TreeOptionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method OptionBaseArea not implemented")
 }
 func (UnimplementedBaseAreaServiceServer) TreeBaseArea(context.Context, *TreeBaseAreaRequest) (*TreeBaseAreaResponse, error) {

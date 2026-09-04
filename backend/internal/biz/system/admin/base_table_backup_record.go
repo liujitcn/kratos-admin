@@ -55,6 +55,11 @@ func (c *BaseTableBackupRecordCase) GetBaseTableBackupRecord(ctx context.Context
 	return toBaseTableBackupRecord(item), nil
 }
 
+// toBaseTableBackupRecord 将数据库备份记录转换为接口响应。
 func toBaseTableBackupRecord(item *models.BaseTableBackupRecord) *adminv1.BaseTableBackupRecord {
-	return &adminv1.BaseTableBackupRecord{Id: item.ID, BackupId: item.BackupID, SourceName: item.SourceName, DatabaseName: item.DatabaseName, BackupType: adminv1.BaseTableBackupType(item.BackupType), ObjectKey: item.ObjectKey, SizeBytes: item.SizeBytes, Sha256: item.Sha256, Hmac: item.Hmac, Status: adminv1.BaseTableBackupRecordStatus(item.Status), Error: item.Error, StartedAt: item.StartedAt.Format(time.RFC3339), FinishedAt: item.FinishedAt.Format(time.RFC3339), VerifiedAt: item.VerifiedAt.Format(time.RFC3339)}
+	verifiedAt := ""
+	if item.Status == int32(adminv1.BaseTableBackupRecordStatus_BASE_TABLE_BACKUP_RECORD_STATUS_SUCCESS) {
+		verifiedAt = item.VerifiedAt.Format(time.RFC3339)
+	}
+	return &adminv1.BaseTableBackupRecord{Id: item.ID, BackupId: item.BackupID, SourceName: item.SourceName, DatabaseName: item.DatabaseName, BackupType: adminv1.BaseTableBackupType(item.BackupType), ObjectKey: item.ObjectKey, SizeBytes: item.SizeBytes, Sha256: item.Sha256, Hmac: item.Hmac, Status: adminv1.BaseTableBackupRecordStatus(item.Status), Error: item.Error, StartedAt: item.StartedAt.Format(time.RFC3339), FinishedAt: item.FinishedAt.Format(time.RFC3339), VerifiedAt: verifiedAt}
 }

@@ -10,7 +10,7 @@ import (
 	context "context"
 
 	http "github.com/go-kratos/kratos/v3/transport/http"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -41,7 +41,7 @@ type BaseJobServiceHTTPServer interface {
 	// GetBaseJob 查询定时任务
 	GetBaseJob(context.Context, *GetBaseJobRequest) (*BaseJobForm, error)
 	// OptionBaseJob 查询定时任务下拉选择
-	OptionBaseJob(context.Context, *OptionBaseJobRequest) (*v1.SelectOptionResponse, error)
+	OptionBaseJob(context.Context, *OptionBaseJobRequest) (*commonv1.SelectOptionResponse, error)
 	// PageBaseJob 查询定时任务分页列表
 	PageBaseJob(context.Context, *PageBaseJobRequest) (*PageBaseJobResponse, error)
 	// SetBaseJobStatus 设置状态
@@ -82,7 +82,7 @@ func _BaseJobService_OptionBaseJob0_HTTP_Handler(srv BaseJobServiceHTTPServer) f
 		if err != nil {
 			return err
 		}
-		reply := out.(*v1.SelectOptionResponse)
+		reply := out.(*commonv1.SelectOptionResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -295,7 +295,7 @@ type BaseJobServiceHTTPClient interface {
 	// GetBaseJob 查询定时任务
 	GetBaseJob(ctx context.Context, req *GetBaseJobRequest, opts ...http.CallOption) (rsp *BaseJobForm, err error)
 	// OptionBaseJob 查询定时任务下拉选择
-	OptionBaseJob(ctx context.Context, req *OptionBaseJobRequest, opts ...http.CallOption) (rsp *v1.SelectOptionResponse, err error)
+	OptionBaseJob(ctx context.Context, req *OptionBaseJobRequest, opts ...http.CallOption) (rsp *commonv1.SelectOptionResponse, err error)
 	// PageBaseJob 查询定时任务分页列表
 	PageBaseJob(ctx context.Context, req *PageBaseJobRequest, opts ...http.CallOption) (rsp *PageBaseJobResponse, err error)
 	// SetBaseJobStatus 设置状态
@@ -387,8 +387,8 @@ func (c *BaseJobServiceHTTPClientImpl) GetBaseJob(ctx context.Context, in *GetBa
 }
 
 // OptionBaseJob 查询定时任务下拉选择
-func (c *BaseJobServiceHTTPClientImpl) OptionBaseJob(ctx context.Context, in *OptionBaseJobRequest, opts ...http.CallOption) (*v1.SelectOptionResponse, error) {
-	var out v1.SelectOptionResponse
+func (c *BaseJobServiceHTTPClientImpl) OptionBaseJob(ctx context.Context, in *OptionBaseJobRequest, opts ...http.CallOption) (*commonv1.SelectOptionResponse, error) {
+	var out commonv1.SelectOptionResponse
 	pattern := "/api/v1/admin/base/job/option"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{

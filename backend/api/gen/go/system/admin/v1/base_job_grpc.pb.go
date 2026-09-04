@@ -9,7 +9,7 @@ package adminv1
 import (
 	context "context"
 
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -41,7 +41,7 @@ const (
 // Admin定时任务服务
 type BaseJobServiceClient interface {
 	// 查询定时任务下拉选择
-	OptionBaseJob(ctx context.Context, in *OptionBaseJobRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error)
+	OptionBaseJob(ctx context.Context, in *OptionBaseJobRequest, opts ...grpc.CallOption) (*commonv1.SelectOptionResponse, error)
 	// 查询定时任务分页列表
 	PageBaseJob(ctx context.Context, in *PageBaseJobRequest, opts ...grpc.CallOption) (*PageBaseJobResponse, error)
 	// 查询定时任务
@@ -70,9 +70,9 @@ func NewBaseJobServiceClient(cc grpc.ClientConnInterface) BaseJobServiceClient {
 	return &baseJobServiceClient{cc}
 }
 
-func (c *baseJobServiceClient) OptionBaseJob(ctx context.Context, in *OptionBaseJobRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error) {
+func (c *baseJobServiceClient) OptionBaseJob(ctx context.Context, in *OptionBaseJobRequest, opts ...grpc.CallOption) (*commonv1.SelectOptionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v1.SelectOptionResponse)
+	out := new(commonv1.SelectOptionResponse)
 	err := c.cc.Invoke(ctx, BaseJobService_OptionBaseJob_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -177,7 +177,7 @@ func (c *baseJobServiceClient) ExecuteBaseJob(ctx context.Context, in *ExecuteBa
 // Admin定时任务服务
 type BaseJobServiceServer interface {
 	// 查询定时任务下拉选择
-	OptionBaseJob(context.Context, *OptionBaseJobRequest) (*v1.SelectOptionResponse, error)
+	OptionBaseJob(context.Context, *OptionBaseJobRequest) (*commonv1.SelectOptionResponse, error)
 	// 查询定时任务分页列表
 	PageBaseJob(context.Context, *PageBaseJobRequest) (*PageBaseJobResponse, error)
 	// 查询定时任务
@@ -206,7 +206,7 @@ type BaseJobServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseJobServiceServer struct{}
 
-func (UnimplementedBaseJobServiceServer) OptionBaseJob(context.Context, *OptionBaseJobRequest) (*v1.SelectOptionResponse, error) {
+func (UnimplementedBaseJobServiceServer) OptionBaseJob(context.Context, *OptionBaseJobRequest) (*commonv1.SelectOptionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method OptionBaseJob not implemented")
 }
 func (UnimplementedBaseJobServiceServer) PageBaseJob(context.Context, *PageBaseJobRequest) (*PageBaseJobResponse, error) {

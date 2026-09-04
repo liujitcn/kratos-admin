@@ -11,7 +11,7 @@ import (
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	baseBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
-	passwordPolicy "github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -310,10 +310,10 @@ func (c *AuthCase) UpdateUserPassword(ctx context.Context, req *adminv1.UserPass
 	if err = crypto.Verify(newPwd, baseUser.Password); err == nil {
 		return errorsx.InvalidArgument("新密码不能与当前密码相同")
 	}
-	if err = passwordPolicy.CheckHistoryJSON(baseUser.PasswordHistory, newPwd, passwordConfig.HistoryCount); err != nil {
+	if err = password.CheckHistoryJSON(baseUser.PasswordHistory, newPwd, passwordConfig.HistoryCount); err != nil {
 		return errorsx.InvalidArgument("新密码不能重复使用近期历史密码").WithCause(err)
 	}
-	if err = passwordPolicy.ValidateComplexity(newPwd, passwordConfig); err != nil {
+	if err = password.ValidateComplexity(newPwd, passwordConfig); err != nil {
 		return errorsx.InvalidArgument("密码长度或复杂度不符合安全策略").WithCause(err)
 	}
 
@@ -326,7 +326,7 @@ func (c *AuthCase) UpdateUserPassword(ctx context.Context, req *adminv1.UserPass
 		return err
 	}
 	var history string
-	history, err = passwordPolicy.AppendHistoryJSON(baseUser.PasswordHistory, baseUser.Password, passwordConfig.HistoryCount)
+	history, err = password.AppendHistoryJSON(baseUser.PasswordHistory, baseUser.Password, passwordConfig.HistoryCount)
 	if err != nil {
 		return errorsx.Internal("记录历史密码失败").WithCause(err)
 	}

@@ -4,13 +4,13 @@ import (
 	"reflect"
 	"testing"
 
-	generateddata "github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"gorm.io/gorm/schema"
 )
 
 // TestModelsAvoidDatabaseDefaults 验证自动迁移模型的默认值全部由程序显式填写。
 func TestModelsAvoidDatabaseDefaults(t *testing.T) {
-	for _, model := range generateddata.Models() {
+	for _, model := range data.Models() {
 		modelType := reflect.TypeOf(model)
 		if modelType.Kind() == reflect.Ptr {
 			modelType = modelType.Elem()

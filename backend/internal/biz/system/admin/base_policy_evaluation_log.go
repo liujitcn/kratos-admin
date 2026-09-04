@@ -7,18 +7,18 @@ import (
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	corebiz "github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/biz"
 	"gorm.io/gen/field"
 )
 
 // BasePolicyEvaluationLogCase 提供策略评估日志表的查询业务。
 type BasePolicyEvaluationLogCase struct {
-	*corebiz.BaseCase
+	*biz.BaseCase
 	*data.BasePolicyEvaluationLogRepository
 }
 
 // NewBasePolicyEvaluationLogCase 创建策略评估日志查询业务实例。
-func NewBasePolicyEvaluationLogCase(baseCase *corebiz.BaseCase, basePolicyEvaluationLogRepo *data.BasePolicyEvaluationLogRepository) *BasePolicyEvaluationLogCase {
+func NewBasePolicyEvaluationLogCase(baseCase *biz.BaseCase, basePolicyEvaluationLogRepo *data.BasePolicyEvaluationLogRepository) *BasePolicyEvaluationLogCase {
 	return &BasePolicyEvaluationLogCase{BaseCase: baseCase, BasePolicyEvaluationLogRepository: basePolicyEvaluationLogRepo}
 }
 

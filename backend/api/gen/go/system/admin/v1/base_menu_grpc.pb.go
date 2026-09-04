@@ -9,7 +9,7 @@ package adminv1
 import (
 	context "context"
 
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -38,7 +38,7 @@ const (
 // Admin菜单管理服务
 type BaseMenuServiceClient interface {
 	// 查询菜单树形选择
-	OptionBaseMenu(ctx context.Context, in *OptionBaseMenuRequest, opts ...grpc.CallOption) (*v1.TreeOptionResponse, error)
+	OptionBaseMenu(ctx context.Context, in *OptionBaseMenuRequest, opts ...grpc.CallOption) (*commonv1.TreeOptionResponse, error)
 	// 查询菜单树形列表
 	TreeBaseMenu(ctx context.Context, in *TreeBaseMenuRequest, opts ...grpc.CallOption) (*TreeBaseMenuResponse, error)
 	// 查询菜单
@@ -61,9 +61,9 @@ func NewBaseMenuServiceClient(cc grpc.ClientConnInterface) BaseMenuServiceClient
 	return &baseMenuServiceClient{cc}
 }
 
-func (c *baseMenuServiceClient) OptionBaseMenu(ctx context.Context, in *OptionBaseMenuRequest, opts ...grpc.CallOption) (*v1.TreeOptionResponse, error) {
+func (c *baseMenuServiceClient) OptionBaseMenu(ctx context.Context, in *OptionBaseMenuRequest, opts ...grpc.CallOption) (*commonv1.TreeOptionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v1.TreeOptionResponse)
+	out := new(commonv1.TreeOptionResponse)
 	err := c.cc.Invoke(ctx, BaseMenuService_OptionBaseMenu_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -138,7 +138,7 @@ func (c *baseMenuServiceClient) SetBaseMenuStatus(ctx context.Context, in *SetBa
 // Admin菜单管理服务
 type BaseMenuServiceServer interface {
 	// 查询菜单树形选择
-	OptionBaseMenu(context.Context, *OptionBaseMenuRequest) (*v1.TreeOptionResponse, error)
+	OptionBaseMenu(context.Context, *OptionBaseMenuRequest) (*commonv1.TreeOptionResponse, error)
 	// 查询菜单树形列表
 	TreeBaseMenu(context.Context, *TreeBaseMenuRequest) (*TreeBaseMenuResponse, error)
 	// 查询菜单
@@ -161,7 +161,7 @@ type BaseMenuServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseMenuServiceServer struct{}
 
-func (UnimplementedBaseMenuServiceServer) OptionBaseMenu(context.Context, *OptionBaseMenuRequest) (*v1.TreeOptionResponse, error) {
+func (UnimplementedBaseMenuServiceServer) OptionBaseMenu(context.Context, *OptionBaseMenuRequest) (*commonv1.TreeOptionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method OptionBaseMenu not implemented")
 }
 func (UnimplementedBaseMenuServiceServer) TreeBaseMenu(context.Context, *TreeBaseMenuRequest) (*TreeBaseMenuResponse, error) {

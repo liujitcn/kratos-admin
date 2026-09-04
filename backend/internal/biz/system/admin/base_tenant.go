@@ -2,7 +2,7 @@ package biz
 
 import (
 	"context"
-	cryptorand "crypto/rand"
+	"crypto/rand"
 	"encoding/base64"
 	"fmt"
 	"strconv"
@@ -373,7 +373,7 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 
 	// 生成不可预测的随机口令并禁用账号，由平台管理员重置后再启用。
 	randomPassword := make([]byte, 32)
-	if _, err = cryptorand.Read(randomPassword); err != nil {
+	if _, err = rand.Read(randomPassword); err != nil {
 		return errorsx.Internal("初始化租户管理员账号失败").WithCause(err)
 	}
 	var password string

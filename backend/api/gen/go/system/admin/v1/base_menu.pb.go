@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -245,7 +245,7 @@ type BaseMenuForm struct {
 	Api           []string               `protobuf:"bytes,9,rep,name=api,proto3" json:"api,omitempty"`                                      // 分配的API列表
 	I18ns         []*BaseI18n            `protobuf:"bytes,10,rep,name=i18ns,proto3" json:"i18ns,omitempty"`                                 // 非主语言翻译
 	Sort          int32                  `protobuf:"varint,50,opt,name=sort,proto3" json:"sort,omitempty"`                                  // 排序
-	Status        v1.Status              `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`       // 状态
+	Status        commonv1.Status        `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`       // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -357,11 +357,11 @@ func (x *BaseMenuForm) GetSort() int32 {
 	return 0
 }
 
-func (x *BaseMenuForm) GetStatus() v1.Status {
+func (x *BaseMenuForm) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 // 创建菜单请求参数
@@ -564,7 +564,7 @@ type BaseMenu struct {
 	Redirect      string                 `protobuf:"bytes,7,opt,name=redirect,proto3" json:"redirect,omitempty"`                             // 重定向地址
 	Meta          *BaseMenuMeta          `protobuf:"bytes,8,opt,name=meta,proto3" json:"meta,omitempty"`                                     // 路由元信息
 	Sort          int32                  `protobuf:"varint,9,opt,name=sort,proto3" json:"sort,omitempty"`                                    // 排序
-	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`        // 状态
+	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`        // 状态
 	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`        // 创建时间
 	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`        // 更新时间
 	Children      []*BaseMenu            `protobuf:"bytes,300,rep,name=children,proto3" json:"children,omitempty"`                           // 子菜单
@@ -667,11 +667,11 @@ func (x *BaseMenu) GetSort() int32 {
 	return 0
 }
 
-func (x *BaseMenu) GetStatus() v1.Status {
+func (x *BaseMenu) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *BaseMenu) GetCreatedAt() string {
@@ -1077,24 +1077,24 @@ func file_system_admin_v1_base_menu_proto_rawDescGZIP() []byte {
 
 var file_system_admin_v1_base_menu_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_system_admin_v1_base_menu_proto_goTypes = []any{
-	(*OptionBaseMenuRequest)(nil),    // 0: system.admin.v1.OptionBaseMenuRequest
-	(*TreeBaseMenuRequest)(nil),      // 1: system.admin.v1.TreeBaseMenuRequest
-	(*TreeBaseMenuResponse)(nil),     // 2: system.admin.v1.TreeBaseMenuResponse
-	(*GetBaseMenuRequest)(nil),       // 3: system.admin.v1.GetBaseMenuRequest
-	(*BaseMenuForm)(nil),             // 4: system.admin.v1.BaseMenuForm
-	(*CreateBaseMenuRequest)(nil),    // 5: system.admin.v1.CreateBaseMenuRequest
-	(*UpdateBaseMenuRequest)(nil),    // 6: system.admin.v1.UpdateBaseMenuRequest
-	(*DeleteBaseMenuRequest)(nil),    // 7: system.admin.v1.DeleteBaseMenuRequest
-	(*SetBaseMenuStatusRequest)(nil), // 8: system.admin.v1.SetBaseMenuStatusRequest
-	(*BaseMenu)(nil),                 // 9: system.admin.v1.BaseMenu
-	(*BaseMenuMeta)(nil),             // 10: system.admin.v1.BaseMenuMeta
-	(*BaseMenuAppMeta)(nil),          // 11: system.admin.v1.BaseMenuAppMeta
-	(*BaseMenuParams)(nil),           // 12: system.admin.v1.BaseMenuParams
-	(BaseMenuType)(0),                // 13: system.admin.v1.BaseMenuType
-	(*BaseI18n)(nil),                 // 14: system.admin.v1.BaseI18n
-	(v1.Status)(0),                   // 15: common.v1.Status
-	(*v1.TreeOptionResponse)(nil),    // 16: common.v1.TreeOptionResponse
-	(*emptypb.Empty)(nil),            // 17: google.protobuf.Empty
+	(*OptionBaseMenuRequest)(nil),       // 0: system.admin.v1.OptionBaseMenuRequest
+	(*TreeBaseMenuRequest)(nil),         // 1: system.admin.v1.TreeBaseMenuRequest
+	(*TreeBaseMenuResponse)(nil),        // 2: system.admin.v1.TreeBaseMenuResponse
+	(*GetBaseMenuRequest)(nil),          // 3: system.admin.v1.GetBaseMenuRequest
+	(*BaseMenuForm)(nil),                // 4: system.admin.v1.BaseMenuForm
+	(*CreateBaseMenuRequest)(nil),       // 5: system.admin.v1.CreateBaseMenuRequest
+	(*UpdateBaseMenuRequest)(nil),       // 6: system.admin.v1.UpdateBaseMenuRequest
+	(*DeleteBaseMenuRequest)(nil),       // 7: system.admin.v1.DeleteBaseMenuRequest
+	(*SetBaseMenuStatusRequest)(nil),    // 8: system.admin.v1.SetBaseMenuStatusRequest
+	(*BaseMenu)(nil),                    // 9: system.admin.v1.BaseMenu
+	(*BaseMenuMeta)(nil),                // 10: system.admin.v1.BaseMenuMeta
+	(*BaseMenuAppMeta)(nil),             // 11: system.admin.v1.BaseMenuAppMeta
+	(*BaseMenuParams)(nil),              // 12: system.admin.v1.BaseMenuParams
+	(BaseMenuType)(0),                   // 13: system.admin.v1.BaseMenuType
+	(*BaseI18n)(nil),                    // 14: system.admin.v1.BaseI18n
+	(commonv1.Status)(0),                // 15: common.v1.Status
+	(*commonv1.TreeOptionResponse)(nil), // 16: common.v1.TreeOptionResponse
+	(*emptypb.Empty)(nil),               // 17: google.protobuf.Empty
 }
 var file_system_admin_v1_base_menu_proto_depIdxs = []int32{
 	9,  // 0: system.admin.v1.TreeBaseMenuResponse.base_menus:type_name -> system.admin.v1.BaseMenu

@@ -10,7 +10,7 @@ import (
 	context "context"
 
 	http "github.com/go-kratos/kratos/v3/transport/http"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -36,7 +36,7 @@ type BaseRedactRuleServiceHTTPServer interface {
 	// GetBaseRedactRule 查询脱敏规则详情。
 	GetBaseRedactRule(context.Context, *GetBaseRedactRuleRequest) (*BaseRedactRuleForm, error)
 	// OptionBaseRedactRule 查询脱敏规则选项。
-	OptionBaseRedactRule(context.Context, *OptionBaseRedactRuleRequest) (*v1.SelectOptionResponse, error)
+	OptionBaseRedactRule(context.Context, *OptionBaseRedactRuleRequest) (*commonv1.SelectOptionResponse, error)
 	// PageBaseRedactRule 查询脱敏规则分页列表。
 	PageBaseRedactRule(context.Context, *PageBaseRedactRuleRequest) (*PageBaseRedactRuleResponse, error)
 	// SetBaseRedactRuleStatus 设置脱敏规则状态。
@@ -70,7 +70,7 @@ func _BaseRedactRuleService_OptionBaseRedactRule0_HTTP_Handler(srv BaseRedactRul
 		if err != nil {
 			return err
 		}
-		reply := out.(*v1.SelectOptionResponse)
+		reply := out.(*commonv1.SelectOptionResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -215,7 +215,7 @@ type BaseRedactRuleServiceHTTPClient interface {
 	// GetBaseRedactRule 查询脱敏规则详情。
 	GetBaseRedactRule(ctx context.Context, req *GetBaseRedactRuleRequest, opts ...http.CallOption) (rsp *BaseRedactRuleForm, err error)
 	// OptionBaseRedactRule 查询脱敏规则选项。
-	OptionBaseRedactRule(ctx context.Context, req *OptionBaseRedactRuleRequest, opts ...http.CallOption) (rsp *v1.SelectOptionResponse, err error)
+	OptionBaseRedactRule(ctx context.Context, req *OptionBaseRedactRuleRequest, opts ...http.CallOption) (rsp *commonv1.SelectOptionResponse, err error)
 	// PageBaseRedactRule 查询脱敏规则分页列表。
 	PageBaseRedactRule(ctx context.Context, req *PageBaseRedactRuleRequest, opts ...http.CallOption) (rsp *PageBaseRedactRuleResponse, err error)
 	// SetBaseRedactRuleStatus 设置脱敏规则状态。
@@ -285,8 +285,8 @@ func (c *BaseRedactRuleServiceHTTPClientImpl) GetBaseRedactRule(ctx context.Cont
 }
 
 // OptionBaseRedactRule 查询脱敏规则选项。
-func (c *BaseRedactRuleServiceHTTPClientImpl) OptionBaseRedactRule(ctx context.Context, in *OptionBaseRedactRuleRequest, opts ...http.CallOption) (*v1.SelectOptionResponse, error) {
-	var out v1.SelectOptionResponse
+func (c *BaseRedactRuleServiceHTTPClientImpl) OptionBaseRedactRule(ctx context.Context, in *OptionBaseRedactRuleRequest, opts ...http.CallOption) (*commonv1.SelectOptionResponse, error) {
+	var out commonv1.SelectOptionResponse
 	pattern := "/api/v1/admin/base/redact-rule/option"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{

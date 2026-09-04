@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -139,7 +139,7 @@ var file_system_admin_v1_base_table_source_proto_msgTypes = make([]protoimpl.Mes
 var file_system_admin_v1_base_table_source_proto_goTypes = []any{
 	(*OptionBaseTableSourceRequest)(nil), // 0: system.admin.v1.OptionBaseTableSourceRequest
 	(*OptionBaseTableRequest)(nil),       // 1: system.admin.v1.OptionBaseTableRequest
-	(*v1.StringValues)(nil),              // 2: common.v1.StringValues
+	(*commonv1.StringValues)(nil),        // 2: common.v1.StringValues
 }
 var file_system_admin_v1_base_table_source_proto_depIdxs = []int32{
 	0, // 0: system.admin.v1.BaseTableSourceService.OptionBaseTableSource:input_type -> system.admin.v1.OptionBaseTableSourceRequest

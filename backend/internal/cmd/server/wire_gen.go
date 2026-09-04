@@ -10,6 +10,8 @@ import (
 	"github.com/go-kratos/kratos/v3"
 	"github.com/google/wire"
 	"github.com/liujitcn/kratos-admin/backend"
+	"github.com/liujitcn/kratos-admin/backend/internal/adapter/core"
+	data2 "github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	kratoscore "github.com/liujitcn/kratos-core"
 	biz2 "github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/config"
@@ -71,25 +73,27 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	dataData, err := data.NewData(v2)
+	dataData, err := data2.NewData(v2)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	baseAPIRepository := data.NewBaseAPIRepository(dataData)
-	baseAPII18NRepository := data.NewBaseAPII18NRepository(dataData)
-	baseAPICase := biz.NewBaseAPICase(baseAPIRepository, baseAPII18NRepository)
-	baseRoleRepository := data.NewBaseRoleRepository(dataData)
-	baseTenantRepository := data.NewBaseTenantRepository(dataData)
-	baseTenantCase := biz.NewBaseTenantCase(dataData, baseRoleRepository, baseTenantRepository)
-	casbinRuleRepository := data.NewCasbinRuleRepository(dataData)
-	baseMenuRepository := data.NewBaseMenuRepository(dataData)
+	baseAPIRepository := data2.NewBaseAPIRepository(dataData)
+	baseAPII18NRepository := data2.NewBaseAPII18NRepository(dataData)
+	apiStoreAdapter := core.NewAPIStoreAdapter(baseAPIRepository, baseAPII18NRepository)
+	baseAPICase := biz.NewBaseAPICase(apiStoreAdapter)
+	baseMenuRepository := data2.NewBaseMenuRepository(dataData)
+	baseRoleRepository := data2.NewBaseRoleRepository(dataData)
+	baseTenantRepository := data2.NewBaseTenantRepository(dataData)
+	casbinRuleRepository := data2.NewCasbinRuleRepository(dataData)
+	permissionStoreAdapter := core.NewPermissionStoreAdapter(baseMenuRepository, baseRoleRepository, baseTenantRepository, casbinRuleRepository)
+	baseTenantCase := biz.NewBaseTenantCase(dataData, permissionStoreAdapter)
 	engine, err := biz2.NewAuthzEngine()
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	casbinRuleCase, err := biz.NewCasbinRuleCase(casbinRuleRepository, baseMenuRepository, baseRoleRepository, baseTenantRepository, baseAPICase, engine)
+	casbinRuleCase, err := biz.NewCasbinRuleCase(permissionStoreAdapter, baseAPICase, engine)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
@@ -114,7 +118,6 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	baseUserRepository := data.NewBaseUserRepository(dataData)
 	data_Redis, err := config.ParseRedis(configv1Bootstrap)
 	if err != nil {
 		cleanup()
@@ -133,7 +136,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	httpMiddlewares := server.NewHTTPMiddleware(ctx, authenticator, baseUserRepository, engine, userToken, authentication_Jwt, cacheCache, i18nI18n)
+	httpMiddlewares := server.NewHTTPMiddleware(ctx, authenticator, engine, userToken, authentication_Jwt, cacheCache, i18nI18n)
 	configv1Pprof, err := config.ParsePprof(configv1Bootstrap)
 	if err != nil {
 		cleanup2()
@@ -187,7 +190,9 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	baseCase, cleanup4 := biz2.NewBaseCase(ctx, pprofPprof, cacheCache, queueQueue, ossOSS, translatorTranslator, v2)
-	baseJobRepository := data.NewBaseJobRepository(dataData)
+	baseJobRepository := data2.NewBaseJobRepository(dataData)
+	baseJobLogRepository := data2.NewBaseJobLogRepository(dataData)
+	jobStoreAdapter := core.NewJobStoreAdapter(baseJobRepository, baseJobLogRepository)
 	sseRegistry := sse.NewRegistry()
 	streamIDResolver := sse.NewStreamResolver(sseRegistry, authenticator, userToken)
 	adminStreams, cleanup5, err := backend.NewStreams(v2, baseCase, i18nI18n)
@@ -234,7 +239,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	executionLocker := job.NewExecutionLocker(data_Redis)
-	scheduler := job.NewSchedulerWithLocker(baseJobRepository, jobRegistry, executionLocker)
+	scheduler := job.NewSchedulerWithLocker(jobStoreAdapter, jobRegistry, executionLocker)
 	jobJob := job.NewJob(scheduler)
 	moduleDocs := module.NewDocsFromResources(resources)
 	docsRegistry, err := docs.NewRegistry(moduleDocs)
@@ -291,7 +296,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	grpcMiddlewares := server.NewGRPCMiddleware(ctx, authenticator, baseUserRepository, engine, userToken, authentication_Jwt, cacheCache, i18nI18n)
+	grpcMiddlewares := server.NewGRPCMiddleware(ctx, authenticator, engine, userToken, authentication_Jwt, cacheCache, i18nI18n)
 	grpcServer, err := server.NewGRPCServer(ctx, grpcMiddlewares, modules)
 	if err != nil {
 		cleanup10()
@@ -306,10 +311,10 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	baseJobLogRepository := data.NewBaseJobLogRepository(dataData)
-	baseAPILogRepository := data.NewBaseAPILogRepository(dataData)
-	basePolicyEvaluationLogRepository := data.NewBasePolicyEvaluationLogRepository(dataData)
-	logPipeline, cleanup11 := biz2.NewLogPipeline(queueQueue, baseAPILogRepository, basePolicyEvaluationLogRepository)
+	baseAPILogRepository := data2.NewBaseAPILogRepository(dataData)
+	basePolicyEvaluationLogRepository := data2.NewBasePolicyEvaluationLogRepository(dataData)
+	logStoreAdapter := core.NewLogStoreAdapter(baseAPILogRepository, basePolicyEvaluationLogRepository)
+	logPipeline, cleanup11 := biz2.NewLogPipeline(queueQueue, logStoreAdapter)
 	adminConsumers, cleanup12, err := backend.NewQueueConsumers(v2, baseCase, sseSSE)
 	if err != nil {
 		cleanup11()
@@ -326,7 +331,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	consumers := provideConsumers(adminConsumers)
-	queueServer, err := queue2.NewServer(queueQueue, baseJobLogRepository, logPipeline, consumers)
+	queueServer, err := queue2.NewServer(queueQueue, jobStoreAdapter, logPipeline, consumers)
 	if err != nil {
 		cleanup12()
 		cleanup11()

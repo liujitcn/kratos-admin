@@ -3,7 +3,7 @@ package _const
 import (
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	systemcommonv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/common/v1"
+	commonv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/common/v1"
 )
 
 const (
@@ -34,13 +34,13 @@ const (
 )
 
 // BaseUserPasswordChangeStatus 表示用户密码修改状态。
-type BaseUserPasswordChangeStatus = systemcommonv1.BaseUserPasswordChangeStatus
+type BaseUserPasswordChangeStatus = commonv1.BaseUserPasswordChangeStatus
 
 const (
 	// BASE_USER_PASSWORD_CHANGE_STATUS_NOT_REQUIRED 表示当前无需修改密码。
-	BASE_USER_PASSWORD_CHANGE_STATUS_NOT_REQUIRED = int32(systemcommonv1.BaseUserPasswordChangeStatus_BASE_USER_PASSWORD_CHANGE_STATUS_NOT_REQUIRED)
+	BASE_USER_PASSWORD_CHANGE_STATUS_NOT_REQUIRED = int32(commonv1.BaseUserPasswordChangeStatus_BASE_USER_PASSWORD_CHANGE_STATUS_NOT_REQUIRED)
 	// BASE_USER_PASSWORD_CHANGE_STATUS_REQUIRED 表示当前必须修改密码。
-	BASE_USER_PASSWORD_CHANGE_STATUS_REQUIRED = int32(systemcommonv1.BaseUserPasswordChangeStatus_BASE_USER_PASSWORD_CHANGE_STATUS_REQUIRED)
+	BASE_USER_PASSWORD_CHANGE_STATUS_REQUIRED = int32(commonv1.BaseUserPasswordChangeStatus_BASE_USER_PASSWORD_CHANGE_STATUS_REQUIRED)
 )
 
 const (

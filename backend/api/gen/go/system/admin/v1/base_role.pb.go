@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -139,7 +139,7 @@ type PageBaseRoleRequest struct {
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                    // 角色名称
 	Code          string                 `protobuf:"bytes,3,opt,name=code,proto3" json:"code,omitempty"`                                    // 角色编号
 	TenantId      *int64                 `protobuf:"varint,4,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`     // 租户ID
-	Status        *v1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态
+	Status        *commonv1.Status       `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态
 	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`            // 当前页码
 	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`         // 每一页的行数
 	unknownFields protoimpl.UnknownFields
@@ -197,11 +197,11 @@ func (x *PageBaseRoleRequest) GetTenantId() int64 {
 	return 0
 }
 
-func (x *PageBaseRoleRequest) GetStatus() v1.Status {
+func (x *PageBaseRoleRequest) GetStatus() commonv1.Status {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *PageBaseRoleRequest) GetPageNum() int64 {
@@ -325,7 +325,7 @@ type BaseRoleForm struct {
 	Code          string                 `protobuf:"bytes,4,opt,name=code,proto3" json:"code,omitempty"`                                                                    // 角色编号
 	DataScope     BaseRoleDataScope      `protobuf:"varint,5,opt,name=data_scope,json=dataScope,proto3,enum=system.admin.v1.BaseRoleDataScope" json:"data_scope,omitempty"` // 数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据
 	Menus         []int64                `protobuf:"varint,6,rep,packed,name=menus,proto3" json:"menus,omitempty"`                                                          // 分配的菜单列表
-	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                       // 状态
+	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                       // 状态
 	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                                                              // 备注
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -403,11 +403,11 @@ func (x *BaseRoleForm) GetMenus() []int64 {
 	return nil
 }
 
-func (x *BaseRoleForm) GetStatus() v1.Status {
+func (x *BaseRoleForm) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *BaseRoleForm) GetRemark() string {
@@ -667,7 +667,7 @@ type BaseRole struct {
 	Code          string                 `protobuf:"bytes,4,opt,name=code,proto3" json:"code,omitempty"`                                                                    // 角色编号
 	DataScope     BaseRoleDataScope      `protobuf:"varint,5,opt,name=data_scope,json=dataScope,proto3,enum=system.admin.v1.BaseRoleDataScope" json:"data_scope,omitempty"` // 数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据
 	Menus         []int64                `protobuf:"varint,6,rep,packed,name=menus,proto3" json:"menus,omitempty"`                                                          // 分配的菜单列表
-	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                       // 状态
+	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                       // 状态
 	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                                                              // 备注
 	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                       // 创建时间
 	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                       // 更新时间
@@ -748,11 +748,11 @@ func (x *BaseRole) GetMenus() []int64 {
 	return nil
 }
 
-func (x *BaseRole) GetStatus() v1.Status {
+func (x *BaseRole) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *BaseRole) GetRemark() string {
@@ -895,21 +895,21 @@ func file_system_admin_v1_base_role_proto_rawDescGZIP() []byte {
 var file_system_admin_v1_base_role_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_system_admin_v1_base_role_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_system_admin_v1_base_role_proto_goTypes = []any{
-	(BaseRoleDataScope)(0),           // 0: system.admin.v1.BaseRoleDataScope
-	(*OptionBaseRoleRequest)(nil),    // 1: system.admin.v1.OptionBaseRoleRequest
-	(*PageBaseRoleRequest)(nil),      // 2: system.admin.v1.PageBaseRoleRequest
-	(*PageBaseRoleResponse)(nil),     // 3: system.admin.v1.PageBaseRoleResponse
-	(*GetBaseRoleRequest)(nil),       // 4: system.admin.v1.GetBaseRoleRequest
-	(*BaseRoleForm)(nil),             // 5: system.admin.v1.BaseRoleForm
-	(*CreateBaseRoleRequest)(nil),    // 6: system.admin.v1.CreateBaseRoleRequest
-	(*UpdateBaseRoleRequest)(nil),    // 7: system.admin.v1.UpdateBaseRoleRequest
-	(*DeleteBaseRoleRequest)(nil),    // 8: system.admin.v1.DeleteBaseRoleRequest
-	(*SetBaseRoleMenuRequest)(nil),   // 9: system.admin.v1.SetBaseRoleMenuRequest
-	(*SetBaseRoleStatusRequest)(nil), // 10: system.admin.v1.SetBaseRoleStatusRequest
-	(*BaseRole)(nil),                 // 11: system.admin.v1.BaseRole
-	(v1.Status)(0),                   // 12: common.v1.Status
-	(*v1.SelectOptionResponse)(nil),  // 13: common.v1.SelectOptionResponse
-	(*emptypb.Empty)(nil),            // 14: google.protobuf.Empty
+	(BaseRoleDataScope)(0),                // 0: system.admin.v1.BaseRoleDataScope
+	(*OptionBaseRoleRequest)(nil),         // 1: system.admin.v1.OptionBaseRoleRequest
+	(*PageBaseRoleRequest)(nil),           // 2: system.admin.v1.PageBaseRoleRequest
+	(*PageBaseRoleResponse)(nil),          // 3: system.admin.v1.PageBaseRoleResponse
+	(*GetBaseRoleRequest)(nil),            // 4: system.admin.v1.GetBaseRoleRequest
+	(*BaseRoleForm)(nil),                  // 5: system.admin.v1.BaseRoleForm
+	(*CreateBaseRoleRequest)(nil),         // 6: system.admin.v1.CreateBaseRoleRequest
+	(*UpdateBaseRoleRequest)(nil),         // 7: system.admin.v1.UpdateBaseRoleRequest
+	(*DeleteBaseRoleRequest)(nil),         // 8: system.admin.v1.DeleteBaseRoleRequest
+	(*SetBaseRoleMenuRequest)(nil),        // 9: system.admin.v1.SetBaseRoleMenuRequest
+	(*SetBaseRoleStatusRequest)(nil),      // 10: system.admin.v1.SetBaseRoleStatusRequest
+	(*BaseRole)(nil),                      // 11: system.admin.v1.BaseRole
+	(commonv1.Status)(0),                  // 12: common.v1.Status
+	(*commonv1.SelectOptionResponse)(nil), // 13: common.v1.SelectOptionResponse
+	(*emptypb.Empty)(nil),                 // 14: google.protobuf.Empty
 }
 var file_system_admin_v1_base_role_proto_depIdxs = []int32{
 	12, // 0: system.admin.v1.PageBaseRoleRequest.status:type_name -> common.v1.Status

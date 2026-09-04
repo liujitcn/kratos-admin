@@ -9,7 +9,7 @@ package adminv1
 import (
 	context "context"
 
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
@@ -49,13 +49,13 @@ func RegisterAuthServiceTreeUserMenuMCPTool(mcpServer *mcp.Server, authServiceSe
 
 // RegisterAuthServiceListUserButtonMCPTool 注册查询已经登录的用户按钮列表的 MCP Tool。
 func RegisterAuthServiceListUserButtonMCPTool(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
-	mcp.AddTool[*ListUserButtonRequest, *v1.StringValues](
+	mcp.AddTool[*ListUserButtonRequest, *commonv1.StringValues](
 		mcpServer,
 		&mcp.Tool{
 			Name:        "system_admin_v1_auth_service_list_user_button",
 			Description: "查询已经登录的用户按钮列表",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListUserButtonRequest) (*mcp.CallToolResult, *v1.StringValues, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListUserButtonRequest) (*mcp.CallToolResult, *commonv1.StringValues, error) {
 			if input == nil {
 				input = &ListUserButtonRequest{}
 			}

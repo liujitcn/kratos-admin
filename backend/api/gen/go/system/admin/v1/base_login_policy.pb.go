@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -206,7 +206,7 @@ func (BaseLoginPolicyRestrictionMethod) EnumDescriptor() ([]byte, []int) {
 type PageBaseLoginPolicyRequest struct {
 	state         protoimpl.MessageState    `protogen:"open.v1"`
 	ScopeType     *BaseLoginPolicyScopeType `protobuf:"varint,1,opt,name=scope_type,json=scopeType,proto3,enum=system.admin.v1.BaseLoginPolicyScopeType,oneof" json:"scope_type,omitempty"` // 作用域类型
-	Status        *v1.Status                `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`                                                // 状态
+	Status        *commonv1.Status          `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`                                                // 状态
 	PageNum       int64                     `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                                                         // 当前页码
 	PageSize      int64                     `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                                                      // 每一页的行数
 	unknownFields protoimpl.UnknownFields
@@ -250,11 +250,11 @@ func (x *PageBaseLoginPolicyRequest) GetScopeType() BaseLoginPolicyScopeType {
 	return BaseLoginPolicyScopeType_BASE_LOGIN_POLICY_SCOPE_TYPE_UNSPECIFIED
 }
 
-func (x *PageBaseLoginPolicyRequest) GetStatus() v1.Status {
+func (x *PageBaseLoginPolicyRequest) GetStatus() commonv1.Status {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *PageBaseLoginPolicyRequest) GetPageNum() int64 {
@@ -508,7 +508,7 @@ func (x *DeleteBaseLoginPolicyRequest) GetId() string {
 type SetBaseLoginPolicyStatusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                               // 登录策略ID
-	Status        v1.Status              `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
+	Status        commonv1.Status        `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -550,11 +550,11 @@ func (x *SetBaseLoginPolicyStatusRequest) GetId() int64 {
 	return 0
 }
 
-func (x *SetBaseLoginPolicyStatusRequest) GetStatus() v1.Status {
+func (x *SetBaseLoginPolicyStatusRequest) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 // 登录策略表单。
@@ -566,13 +566,13 @@ type BaseLoginPolicyForm struct {
 	UserId                       int64                    `protobuf:"varint,4,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                                                                              // 用户ID
 	MaxFailedAttempts            int32                    `protobuf:"varint,5,opt,name=max_failed_attempts,json=maxFailedAttempts,proto3" json:"max_failed_attempts,omitempty"`                                           // 最大登录失败次数
 	LockDurationMinutes          int32                    `protobuf:"varint,6,opt,name=lock_duration_minutes,json=lockDurationMinutes,proto3" json:"lock_duration_minutes,omitempty"`                                     // 锁定时长（分钟）
-	Status                       v1.Status                `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                                    // 状态
+	Status                       commonv1.Status          `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                                    // 状态
 	PasswordMaxAgeDays           *int32                   `protobuf:"varint,7,opt,name=password_max_age_days,json=passwordMaxAgeDays,proto3,oneof" json:"password_max_age_days,omitempty"`                                // 密码有效期（天）
 	Rules                        []*BaseLoginPolicyRule   `protobuf:"bytes,8,rep,name=rules,proto3" json:"rules,omitempty"`                                                                                               // 限制规则列表
 	PasswordMinLength            *int32                   `protobuf:"varint,11,opt,name=password_min_length,json=passwordMinLength,proto3,oneof" json:"password_min_length,omitempty"`                                    // 密码最小长度
 	PasswordHistoryCount         *int32                   `protobuf:"varint,12,opt,name=password_history_count,json=passwordHistoryCount,proto3,oneof" json:"password_history_count,omitempty"`                           // 禁止重复使用的历史密码数量，0表示不启用
 	PasswordMinComplexityClasses *int32                   `protobuf:"varint,13,opt,name=password_min_complexity_classes,json=passwordMinComplexityClasses,proto3,oneof" json:"password_min_complexity_classes,omitempty"` // 密码至少满足的字符类别数量，字符类别包括小写、大写、数字和符号
-	InitialPassword              *v1.PasswordCrypto       `protobuf:"bytes,14,opt,name=initial_password,json=initialPassword,proto3" json:"initial_password,omitempty"`                                                   // 初始化密码，新增用户未提交密码时使用
+	InitialPassword              *commonv1.PasswordCrypto `protobuf:"bytes,14,opt,name=initial_password,json=initialPassword,proto3" json:"initial_password,omitempty"`                                                   // 初始化密码，新增用户未提交密码时使用
 	unknownFields                protoimpl.UnknownFields
 	sizeCache                    protoimpl.SizeCache
 }
@@ -649,11 +649,11 @@ func (x *BaseLoginPolicyForm) GetLockDurationMinutes() int32 {
 	return 0
 }
 
-func (x *BaseLoginPolicyForm) GetStatus() v1.Status {
+func (x *BaseLoginPolicyForm) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *BaseLoginPolicyForm) GetPasswordMaxAgeDays() int32 {
@@ -691,7 +691,7 @@ func (x *BaseLoginPolicyForm) GetPasswordMinComplexityClasses() int32 {
 	return 0
 }
 
-func (x *BaseLoginPolicyForm) GetInitialPassword() *v1.PasswordCrypto {
+func (x *BaseLoginPolicyForm) GetInitialPassword() *commonv1.PasswordCrypto {
 	if x != nil {
 		return x.InitialPassword
 	}
@@ -709,7 +709,7 @@ type BaseLoginPolicy struct {
 	UserName                     string                   `protobuf:"bytes,6,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                                                                   // 用户账号
 	MaxFailedAttempts            int32                    `protobuf:"varint,7,opt,name=max_failed_attempts,json=maxFailedAttempts,proto3" json:"max_failed_attempts,omitempty"`                                     // 最大登录失败次数
 	LockDurationMinutes          int32                    `protobuf:"varint,8,opt,name=lock_duration_minutes,json=lockDurationMinutes,proto3" json:"lock_duration_minutes,omitempty"`                               // 锁定时长（分钟）
-	Status                       v1.Status                `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                              // 状态
+	Status                       commonv1.Status          `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                              // 状态
 	CreatedAt                    string                   `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                                              // 创建时间
 	UpdatedAt                    string                   `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                                              // 更新时间
 	PasswordMaxAgeDays           int32                    `protobuf:"varint,9,opt,name=password_max_age_days,json=passwordMaxAgeDays,proto3" json:"password_max_age_days,omitempty"`                                // 密码有效期（天）
@@ -807,11 +807,11 @@ func (x *BaseLoginPolicy) GetLockDurationMinutes() int32 {
 	return 0
 }
 
-func (x *BaseLoginPolicy) GetStatus() v1.Status {
+func (x *BaseLoginPolicy) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *BaseLoginPolicy) GetCreatedAt() string {
@@ -872,7 +872,7 @@ type BaseLoginPolicyRule struct {
 	RestrictionMethod BaseLoginPolicyRestrictionMethod `protobuf:"varint,4,opt,name=restriction_method,json=restrictionMethod,proto3,enum=system.admin.v1.BaseLoginPolicyRestrictionMethod" json:"restriction_method,omitempty"` // 限制方式
 	RestrictionValue  string                           `protobuf:"bytes,5,opt,name=restriction_value,json=restrictionValue,proto3" json:"restriction_value,omitempty"`                                                           // 限制值
 	Reason            string                           `protobuf:"bytes,6,opt,name=reason,proto3" json:"reason,omitempty"`                                                                                                       // 限制原因
-	Status            v1.Status                        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                                              // 状态
+	Status            commonv1.Status                  `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                                              // 状态
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -949,11 +949,11 @@ func (x *BaseLoginPolicyRule) GetReason() string {
 	return ""
 }
 
-func (x *BaseLoginPolicyRule) GetStatus() v1.Status {
+func (x *BaseLoginPolicyRule) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 var File_system_admin_v1_base_login_policy_proto protoreflect.FileDescriptor
@@ -1088,8 +1088,8 @@ var file_system_admin_v1_base_login_policy_proto_goTypes = []any{
 	(*BaseLoginPolicyForm)(nil),             // 10: system.admin.v1.BaseLoginPolicyForm
 	(*BaseLoginPolicy)(nil),                 // 11: system.admin.v1.BaseLoginPolicy
 	(*BaseLoginPolicyRule)(nil),             // 12: system.admin.v1.BaseLoginPolicyRule
-	(v1.Status)(0),                          // 13: common.v1.Status
-	(*v1.PasswordCrypto)(nil),               // 14: common.v1.PasswordCrypto
+	(commonv1.Status)(0),                    // 13: common.v1.Status
+	(*commonv1.PasswordCrypto)(nil),         // 14: common.v1.PasswordCrypto
 	(*emptypb.Empty)(nil),                   // 15: google.protobuf.Empty
 }
 var file_system_admin_v1_base_login_policy_proto_depIdxs = []int32{

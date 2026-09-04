@@ -9,7 +9,7 @@ package adminv1
 import (
 	context "context"
 
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -38,7 +38,7 @@ const (
 // Admin部门服务
 type BaseDeptServiceClient interface {
 	// 查询部门树形选择
-	OptionBaseDept(ctx context.Context, in *OptionBaseDeptRequest, opts ...grpc.CallOption) (*v1.TreeOptionResponse, error)
+	OptionBaseDept(ctx context.Context, in *OptionBaseDeptRequest, opts ...grpc.CallOption) (*commonv1.TreeOptionResponse, error)
 	// 查询部门树形列表
 	TreeBaseDept(ctx context.Context, in *TreeBaseDeptRequest, opts ...grpc.CallOption) (*TreeBaseDeptResponse, error)
 	// 查询部门
@@ -61,9 +61,9 @@ func NewBaseDeptServiceClient(cc grpc.ClientConnInterface) BaseDeptServiceClient
 	return &baseDeptServiceClient{cc}
 }
 
-func (c *baseDeptServiceClient) OptionBaseDept(ctx context.Context, in *OptionBaseDeptRequest, opts ...grpc.CallOption) (*v1.TreeOptionResponse, error) {
+func (c *baseDeptServiceClient) OptionBaseDept(ctx context.Context, in *OptionBaseDeptRequest, opts ...grpc.CallOption) (*commonv1.TreeOptionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v1.TreeOptionResponse)
+	out := new(commonv1.TreeOptionResponse)
 	err := c.cc.Invoke(ctx, BaseDeptService_OptionBaseDept_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -138,7 +138,7 @@ func (c *baseDeptServiceClient) SetBaseDeptStatus(ctx context.Context, in *SetBa
 // Admin部门服务
 type BaseDeptServiceServer interface {
 	// 查询部门树形选择
-	OptionBaseDept(context.Context, *OptionBaseDeptRequest) (*v1.TreeOptionResponse, error)
+	OptionBaseDept(context.Context, *OptionBaseDeptRequest) (*commonv1.TreeOptionResponse, error)
 	// 查询部门树形列表
 	TreeBaseDept(context.Context, *TreeBaseDeptRequest) (*TreeBaseDeptResponse, error)
 	// 查询部门
@@ -161,7 +161,7 @@ type BaseDeptServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseDeptServiceServer struct{}
 
-func (UnimplementedBaseDeptServiceServer) OptionBaseDept(context.Context, *OptionBaseDeptRequest) (*v1.TreeOptionResponse, error) {
+func (UnimplementedBaseDeptServiceServer) OptionBaseDept(context.Context, *OptionBaseDeptRequest) (*commonv1.TreeOptionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method OptionBaseDept not implemented")
 }
 func (UnimplementedBaseDeptServiceServer) TreeBaseDept(context.Context, *TreeBaseDeptRequest) (*TreeBaseDeptResponse, error) {

@@ -21,13 +21,13 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-kit/cache"
 	"github.com/liujitcn/kratos-kit/cache/memory"
-	queueData "github.com/liujitcn/kratos-kit/queue/data"
+	"github.com/liujitcn/kratos-kit/queue/data"
 	"github.com/liujitcn/kratos-kit/sdk"
 )
 
 type testQueue struct {
 	stream  string
-	message queueData.Message
+	message data.Message
 	started chan struct{}
 	release chan struct{}
 }
@@ -145,7 +145,7 @@ func TestLogSnapshotRedactsRuntimeConfigValue(t *testing.T) {
 }
 
 // Append 记录测试期间投递的队列消息。
-func (q *testQueue) Append(stream string, message queueData.Message) error {
+func (q *testQueue) Append(stream string, message data.Message) error {
 	q.stream = stream
 	q.message = message
 	if q.started != nil {
@@ -156,7 +156,7 @@ func (q *testQueue) Append(stream string, message queueData.Message) error {
 }
 
 // Register 忽略测试不需要的消费者注册。
-func (*testQueue) Register(string, queueData.ConsumerFunc) {}
+func (*testQueue) Register(string, data.ConsumerFunc) {}
 
 // Run 忽略测试不需要的队列启动。
 func (*testQueue) Run() {}
@@ -309,6 +309,49 @@ func TestBaseLogFallbackFileHasValidHMAC(t *testing.T) {
 	expected := hex.EncodeToString(mac.Sum(nil))
 	if !hmac.Equal([]byte(expected), []byte(record.HMAC)) {
 		t.Fatal("日志入库回退 HMAC 校验失败")
+	}
+}
+
+// TestBaseLogFallbackUsesLastConfigWhenCacheUnavailable 验证缓存不可用时仍使用最近一次有效回退配置写文件。
+func TestBaseLogFallbackUsesLastConfigWhenCacheUnavailable(t *testing.T) {
+	directory := t.TempDir()
+	key := "base-log-fallback-integrity-key-32-bytes"
+	previousKey := sdk.Runtime.GetKey()
+	sdk.Runtime.SetKey(logTestKey{value: []byte(key)})
+	t.Cleanup(func() { sdk.Runtime.SetKey(previousKey) })
+	configCache := newLogStorageTestCache(t, directory)
+	logMiddleware := newMiddleware(nil, configCache)
+	err := logMiddleware.writeBaseLogFallback("queue_unavailable", "login", "/base.v1.LoginService/Login", map[string]string{"user_name": "admin"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = configCache.Del(runtimeconfig.CacheKey(runtimeconfig.BaseLogFallbackKey))
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = logMiddleware.writeBaseLogFallback("queue_append_failed", "login", "/base.v1.LoginService/Login", map[string]string{"user_name": "admin"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	logMiddleware.close()
+
+	path := filepath.Join(directory, runtimeconfig.BaseLogFallbackFileName)
+	var file *os.File
+	file, err = os.Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	lines := 0
+	for scanner.Scan() {
+		lines++
+	}
+	if err = scanner.Err(); err != nil {
+		t.Fatal(err)
+	}
+	if lines != 2 {
+		t.Fatalf("expected two fallback records, got %d", lines)
 	}
 }
 

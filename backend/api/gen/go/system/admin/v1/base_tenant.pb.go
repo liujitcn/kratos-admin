@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -77,7 +77,7 @@ type PageBaseTenantRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                    // 租户编号
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                    // 租户名称
-	Status        *v1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态
+	Status        *commonv1.Status       `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态
 	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`            // 当前页码
 	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`         // 每一页的行数
 	unknownFields protoimpl.UnknownFields
@@ -128,11 +128,11 @@ func (x *PageBaseTenantRequest) GetName() string {
 	return ""
 }
 
-func (x *PageBaseTenantRequest) GetStatus() v1.Status {
+func (x *PageBaseTenantRequest) GetStatus() commonv1.Status {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *PageBaseTenantRequest) GetPageNum() int64 {
@@ -443,7 +443,7 @@ type BaseTenant struct {
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                     // 租户名称
 	ContactName   string                 `protobuf:"bytes,4,opt,name=contact_name,json=contactName,proto3" json:"contact_name,omitempty"`    // 联系人
 	ContactPhone  string                 `protobuf:"bytes,5,opt,name=contact_phone,json=contactPhone,proto3" json:"contact_phone,omitempty"` // 联系电话
-	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`        // 状态
+	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`        // 状态
 	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                               // 备注
 	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`        // 创建时间
 	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`        // 更新时间
@@ -517,11 +517,11 @@ func (x *BaseTenant) GetContactPhone() string {
 	return ""
 }
 
-func (x *BaseTenant) GetStatus() v1.Status {
+func (x *BaseTenant) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *BaseTenant) GetRemark() string {
@@ -560,7 +560,7 @@ type BaseTenantForm struct {
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                     // 租户名称
 	ContactName   string                 `protobuf:"bytes,4,opt,name=contact_name,json=contactName,proto3" json:"contact_name,omitempty"`    // 联系人
 	ContactPhone  string                 `protobuf:"bytes,5,opt,name=contact_phone,json=contactPhone,proto3" json:"contact_phone,omitempty"` // 联系电话
-	Status        *v1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`  // 状态
+	Status        *commonv1.Status       `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`  // 状态
 	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                               // 备注
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -631,11 +631,11 @@ func (x *BaseTenantForm) GetContactPhone() string {
 	return ""
 }
 
-func (x *BaseTenantForm) GetStatus() v1.Status {
+func (x *BaseTenantForm) GetStatus() commonv1.Status {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *BaseTenantForm) GetRemark() string {
@@ -736,19 +736,19 @@ func file_system_admin_v1_base_tenant_proto_rawDescGZIP() []byte {
 
 var file_system_admin_v1_base_tenant_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_system_admin_v1_base_tenant_proto_goTypes = []any{
-	(*OptionBaseTenantRequest)(nil),    // 0: system.admin.v1.OptionBaseTenantRequest
-	(*PageBaseTenantRequest)(nil),      // 1: system.admin.v1.PageBaseTenantRequest
-	(*PageBaseTenantResponse)(nil),     // 2: system.admin.v1.PageBaseTenantResponse
-	(*GetBaseTenantRequest)(nil),       // 3: system.admin.v1.GetBaseTenantRequest
-	(*CreateBaseTenantRequest)(nil),    // 4: system.admin.v1.CreateBaseTenantRequest
-	(*UpdateBaseTenantRequest)(nil),    // 5: system.admin.v1.UpdateBaseTenantRequest
-	(*DeleteBaseTenantRequest)(nil),    // 6: system.admin.v1.DeleteBaseTenantRequest
-	(*SetBaseTenantStatusRequest)(nil), // 7: system.admin.v1.SetBaseTenantStatusRequest
-	(*BaseTenant)(nil),                 // 8: system.admin.v1.BaseTenant
-	(*BaseTenantForm)(nil),             // 9: system.admin.v1.BaseTenantForm
-	(v1.Status)(0),                     // 10: common.v1.Status
-	(*v1.SelectOptionResponse)(nil),    // 11: common.v1.SelectOptionResponse
-	(*emptypb.Empty)(nil),              // 12: google.protobuf.Empty
+	(*OptionBaseTenantRequest)(nil),       // 0: system.admin.v1.OptionBaseTenantRequest
+	(*PageBaseTenantRequest)(nil),         // 1: system.admin.v1.PageBaseTenantRequest
+	(*PageBaseTenantResponse)(nil),        // 2: system.admin.v1.PageBaseTenantResponse
+	(*GetBaseTenantRequest)(nil),          // 3: system.admin.v1.GetBaseTenantRequest
+	(*CreateBaseTenantRequest)(nil),       // 4: system.admin.v1.CreateBaseTenantRequest
+	(*UpdateBaseTenantRequest)(nil),       // 5: system.admin.v1.UpdateBaseTenantRequest
+	(*DeleteBaseTenantRequest)(nil),       // 6: system.admin.v1.DeleteBaseTenantRequest
+	(*SetBaseTenantStatusRequest)(nil),    // 7: system.admin.v1.SetBaseTenantStatusRequest
+	(*BaseTenant)(nil),                    // 8: system.admin.v1.BaseTenant
+	(*BaseTenantForm)(nil),                // 9: system.admin.v1.BaseTenantForm
+	(commonv1.Status)(0),                  // 10: common.v1.Status
+	(*commonv1.SelectOptionResponse)(nil), // 11: common.v1.SelectOptionResponse
+	(*emptypb.Empty)(nil),                 // 12: google.protobuf.Empty
 }
 var file_system_admin_v1_base_tenant_proto_depIdxs = []int32{
 	10, // 0: system.admin.v1.PageBaseTenantRequest.status:type_name -> common.v1.Status

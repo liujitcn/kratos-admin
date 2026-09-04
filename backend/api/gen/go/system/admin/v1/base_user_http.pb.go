@@ -10,7 +10,7 @@ import (
 	context "context"
 
 	http "github.com/go-kratos/kratos/v3/transport/http"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -41,7 +41,7 @@ type BaseUserServiceHTTPServer interface {
 	// ListBaseUser 查询用户列表
 	ListBaseUser(context.Context, *ListBaseUserRequest) (*ListBaseUserResponse, error)
 	// OptionBaseUser 查询用户下拉选择
-	OptionBaseUser(context.Context, *OptionBaseUserRequest) (*v1.SelectOptionResponse, error)
+	OptionBaseUser(context.Context, *OptionBaseUserRequest) (*commonv1.SelectOptionResponse, error)
 	// PageBaseUser 查询用户分页列表
 	PageBaseUser(context.Context, *PageBaseUserRequest) (*PageBaseUserResponse, error)
 	// ResetBaseUserPassword 重置密码
@@ -82,7 +82,7 @@ func _BaseUserService_OptionBaseUser0_HTTP_Handler(srv BaseUserServiceHTTPServer
 		if err != nil {
 			return err
 		}
-		reply := out.(*v1.SelectOptionResponse)
+		reply := out.(*commonv1.SelectOptionResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -289,7 +289,7 @@ type BaseUserServiceHTTPClient interface {
 	// ListBaseUser 查询用户列表
 	ListBaseUser(ctx context.Context, req *ListBaseUserRequest, opts ...http.CallOption) (rsp *ListBaseUserResponse, err error)
 	// OptionBaseUser 查询用户下拉选择
-	OptionBaseUser(ctx context.Context, req *OptionBaseUserRequest, opts ...http.CallOption) (rsp *v1.SelectOptionResponse, err error)
+	OptionBaseUser(ctx context.Context, req *OptionBaseUserRequest, opts ...http.CallOption) (rsp *commonv1.SelectOptionResponse, err error)
 	// PageBaseUser 查询用户分页列表
 	PageBaseUser(ctx context.Context, req *PageBaseUserRequest, opts ...http.CallOption) (rsp *PageBaseUserResponse, err error)
 	// ResetBaseUserPassword 重置密码
@@ -380,8 +380,8 @@ func (c *BaseUserServiceHTTPClientImpl) ListBaseUser(ctx context.Context, in *Li
 }
 
 // OptionBaseUser 查询用户下拉选择
-func (c *BaseUserServiceHTTPClientImpl) OptionBaseUser(ctx context.Context, in *OptionBaseUserRequest, opts ...http.CallOption) (*v1.SelectOptionResponse, error) {
-	var out v1.SelectOptionResponse
+func (c *BaseUserServiceHTTPClientImpl) OptionBaseUser(ctx context.Context, in *OptionBaseUserRequest, opts ...http.CallOption) (*commonv1.SelectOptionResponse, error) {
+	var out commonv1.SelectOptionResponse
 	pattern := "/api/v1/admin/base/user/option"
 	path := http.BuildPath(pattern, in, http.WithQueryParams())
 	opts = append([]http.CallOption{

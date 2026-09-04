@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	gendata "github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
+	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 
 	"gorm.io/gen/field"
@@ -13,11 +13,11 @@ import (
 
 // MessageDeliveryWriter 封装消息投递需要的幂等批量写入和可空时间更新。
 type MessageDeliveryWriter struct {
-	queryProvider gendata.QueryProvider
+	queryProvider data.QueryProvider
 }
 
 // NewMessageDeliveryWriter 创建消息投递写入器。
-func NewMessageDeliveryWriter(queryProvider gendata.QueryProvider) *MessageDeliveryWriter {
+func NewMessageDeliveryWriter(queryProvider data.QueryProvider) *MessageDeliveryWriter {
 	return &MessageDeliveryWriter{queryProvider: queryProvider}
 }
 

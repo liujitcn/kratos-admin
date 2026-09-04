@@ -9,7 +9,7 @@ package adminv1
 import (
 	context "context"
 
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
@@ -27,13 +27,13 @@ func RegisterBaseTenantServiceMCPTools(mcpServer *mcp.Server, baseTenantServiceS
 
 // RegisterBaseTenantServiceOptionBaseTenantMCPTool 注册查询租户下拉选择的 MCP Tool。
 func RegisterBaseTenantServiceOptionBaseTenantMCPTool(mcpServer *mcp.Server, baseTenantServiceServer BaseTenantServiceServer) {
-	mcp.AddTool[*OptionBaseTenantRequest, *v1.SelectOptionResponse](
+	mcp.AddTool[*OptionBaseTenantRequest, *commonv1.SelectOptionResponse](
 		mcpServer,
 		&mcp.Tool{
 			Name:        "system_admin_v1_base_tenant_service_option_base_tenant",
 			Description: "查询租户下拉选择",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseTenantRequest) (*mcp.CallToolResult, *v1.SelectOptionResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseTenantRequest) (*mcp.CallToolResult, *commonv1.SelectOptionResponse, error) {
 			if input == nil {
 				input = &OptionBaseTenantRequest{}
 			}

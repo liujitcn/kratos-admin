@@ -11,7 +11,7 @@ import (
 
 	tool "github.com/cloudwego/eino/components/tool"
 	utils "github.com/cloudwego/eino/components/tool/utils"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -72,10 +72,10 @@ func NewBaseRoleServiceAgentTools(baseRoleServiceServer BaseRoleServiceServer) (
 
 // NewBaseRoleServiceOptionBaseRoleAgentTool 创建查询角色下拉选择的 Agent Tool。
 func NewBaseRoleServiceOptionBaseRoleAgentTool(baseRoleServiceServer BaseRoleServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*OptionBaseRoleRequest, *v1.SelectOptionResponse](
+	return utils.InferTool[*OptionBaseRoleRequest, *commonv1.SelectOptionResponse](
 		"system_admin_v1_base_role_service_option_base_role",
 		"查询角色下拉选择",
-		func(ctx context.Context, req *OptionBaseRoleRequest) (*v1.SelectOptionResponse, error) {
+		func(ctx context.Context, req *OptionBaseRoleRequest) (*commonv1.SelectOptionResponse, error) {
 			if req == nil {
 				req = &OptionBaseRoleRequest{}
 			}

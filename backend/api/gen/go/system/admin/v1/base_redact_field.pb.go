@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -205,7 +205,7 @@ type PageBaseRedactFieldRequest struct {
 	FieldPath       string                 `protobuf:"bytes,2,opt,name=field_path,json=fieldPath,proto3" json:"field_path,omitempty"`                   // 字段路径
 	SensitivityType string                 `protobuf:"bytes,3,opt,name=sensitivity_type,json=sensitivityType,proto3" json:"sensitivity_type,omitempty"` // 敏感字段类型
 	Source          string                 `protobuf:"bytes,4,opt,name=source,proto3" json:"source,omitempty"`                                          // 字段来源
-	Status          *v1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`           // 状态
+	Status          *commonv1.Status       `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`           // 状态
 	PageNum         int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                      // 当前页码
 	PageSize        int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                   // 每页数量
 	unknownFields   protoimpl.UnknownFields
@@ -270,11 +270,11 @@ func (x *PageBaseRedactFieldRequest) GetSource() string {
 	return ""
 }
 
-func (x *PageBaseRedactFieldRequest) GetStatus() v1.Status {
+func (x *PageBaseRedactFieldRequest) GetStatus() commonv1.Status {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *PageBaseRedactFieldRequest) GetPageNum() int64 {
@@ -405,7 +405,7 @@ type BaseRedactFieldForm struct {
 	StorageMode     BaseRedactStorageMode  `protobuf:"varint,11,opt,name=storage_mode,json=storageMode,proto3,enum=system.admin.v1.BaseRedactStorageMode" json:"storage_mode,omitempty"` // 数据库存储方式
 	StorageRuleId   int64                  `protobuf:"varint,12,opt,name=storage_rule_id,json=storageRuleId,proto3" json:"storage_rule_id,omitempty"`                                    // 存储脱敏规则ID
 	SearchMode      BaseRedactSearchMode   `protobuf:"varint,13,opt,name=search_mode,json=searchMode,proto3,enum=system.admin.v1.BaseRedactSearchMode" json:"search_mode,omitempty"`     // 敏感字段查询方式
-	Status          v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                  // 状态
+	Status          commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                  // 状态
 	Remark          string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                                                                         // 备注
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
@@ -532,11 +532,11 @@ func (x *BaseRedactFieldForm) GetSearchMode() BaseRedactSearchMode {
 	return BaseRedactSearchMode_BASE_REDACT_SEARCH_MODE_UNSPECIFIED
 }
 
-func (x *BaseRedactFieldForm) GetStatus() v1.Status {
+func (x *BaseRedactFieldForm) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *BaseRedactFieldForm) GetRemark() string {
@@ -640,7 +640,7 @@ func (x *DeleteBaseRedactFieldRequest) GetId() string {
 type SetBaseRedactFieldStatusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                               // 字段目录ID
-	Status        v1.Status              `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
+	Status        commonv1.Status        `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -682,11 +682,11 @@ func (x *SetBaseRedactFieldStatusRequest) GetId() int64 {
 	return 0
 }
 
-func (x *SetBaseRedactFieldStatusRequest) GetStatus() v1.Status {
+func (x *SetBaseRedactFieldStatusRequest) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 // 脱敏字段目录。
@@ -705,7 +705,7 @@ type BaseRedactField struct {
 	StorageMode     BaseRedactStorageMode  `protobuf:"varint,11,opt,name=storage_mode,json=storageMode,proto3,enum=system.admin.v1.BaseRedactStorageMode" json:"storage_mode,omitempty"` // 数据库存储方式
 	StorageRuleId   int64                  `protobuf:"varint,12,opt,name=storage_rule_id,json=storageRuleId,proto3" json:"storage_rule_id,omitempty"`                                    // 存储脱敏规则ID
 	SearchMode      BaseRedactSearchMode   `protobuf:"varint,13,opt,name=search_mode,json=searchMode,proto3,enum=system.admin.v1.BaseRedactSearchMode" json:"search_mode,omitempty"`     // 敏感字段查询方式
-	Status          v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                  // 状态
+	Status          commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                  // 状态
 	Remark          string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                                                                         // 备注
 	CreatedAt       string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                                  // 创建时间
 	UpdatedAt       string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                                  // 更新时间
@@ -834,11 +834,11 @@ func (x *BaseRedactField) GetSearchMode() BaseRedactSearchMode {
 	return BaseRedactSearchMode_BASE_REDACT_SEARCH_MODE_UNSPECIFIED
 }
 
-func (x *BaseRedactField) GetStatus() v1.Status {
+func (x *BaseRedactField) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return v1.Status(0)
+	return commonv1.Status(0)
 }
 
 func (x *BaseRedactField) GetRemark() string {
@@ -1006,8 +1006,8 @@ var file_system_admin_v1_base_redact_field_proto_goTypes = []any{
 	(*SetBaseRedactFieldStatusRequest)(nil), // 9: system.admin.v1.SetBaseRedactFieldStatusRequest
 	(*BaseRedactField)(nil),                 // 10: system.admin.v1.BaseRedactField
 	(BaseRedactDirection)(0),                // 11: system.admin.v1.BaseRedactDirection
-	(v1.Status)(0),                          // 12: common.v1.Status
-	(*v1.SelectOptionResponse)(nil),         // 13: common.v1.SelectOptionResponse
+	(commonv1.Status)(0),                    // 12: common.v1.Status
+	(*commonv1.SelectOptionResponse)(nil),   // 13: common.v1.SelectOptionResponse
 	(*emptypb.Empty)(nil),                   // 14: google.protobuf.Empty
 }
 var file_system_admin_v1_base_redact_field_proto_depIdxs = []int32{
