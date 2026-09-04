@@ -244,7 +244,7 @@ const rules = computed(() => ({
   phone: [
     { max: 20, message: t("common.validation.max_length", { field: t("common.field.phone"), max: 20 }), trigger: "blur" },
     {
-      pattern: /^1[3-9]\d{9}$/,
+      pattern: /^(?:1[3-9][0-9*]{9})?$/,
       message: t("common.validation.phone_invalid"),
       trigger: "blur"
     }

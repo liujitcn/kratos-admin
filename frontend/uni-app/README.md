@@ -182,6 +182,8 @@ pnpm dlx @liujitcn/kratos-uni-app-cli create my-app --with @acme/pay
 
 生成的宿主包含 Vue 3 `createSSRApp` 入口、模块清单、bootstrap 页面、manifest、Vite 配置、TypeScript 配置和 H5 HTML。
 
+CLI 生成的 `.env.production` 不包含本机 API 地址，发布前需要填写实际 API 和静态资源地址。
+
 ## 包与验证
 
 三个公开包版本必须保持一致：

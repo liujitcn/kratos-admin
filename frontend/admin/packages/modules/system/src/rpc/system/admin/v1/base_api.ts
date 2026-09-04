@@ -10,6 +10,8 @@ import type { Empty } from "../../../google/protobuf/empty";
 
 /** API选项查询条件 */
 export interface OptionBaseApiRequest {
+  /** 是否包含免鉴权和可选鉴权接口 */
+  include_public?: boolean | undefined;
 }
 
 /** API选项响应 */

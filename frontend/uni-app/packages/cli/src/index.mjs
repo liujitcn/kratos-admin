@@ -29,22 +29,37 @@ export function scaffoldKratosApp(targetPath, options = {}) {
       name: projectName,
       description: `Independent pnpm workspace for ${projectName}.`,
       private: true,
+      packageManager: 'pnpm@10.13.1',
       scripts: {
+        prepare: 'pnpm run prepare:modules',
+        'prepare:modules': 'node -e "process.exit(0)"',
         'dev:h5': 'pnpm --filter @liujitcn/kratos-uni-app dev:h5',
         'dev:mp-weixin': 'pnpm --filter @liujitcn/kratos-uni-app dev:mp-weixin',
         'build:h5': 'pnpm --filter @liujitcn/kratos-uni-app build:h5',
         'build:mp-weixin': 'pnpm --filter @liujitcn/kratos-uni-app build:mp-weixin',
+        tsc: 'pnpm --recursive --if-present run tsc',
       },
       devDependencies: {
-        '@dcloudio/types': 'latest',
-        '@vue/compiler-sfc': '^3.4.21',
-        '@vue/tsconfig': 'latest',
-        'miniprogram-api-typings': 'latest',
-        typescript: 'latest',
-        'vue-tsc': 'latest',
+        '@dcloudio/types': '^3.4.8',
+        '@rushstack/eslint-patch': '^1.1.4',
+        '@uni-helper/uni-app-types': '1.0.0-alpha.6',
+        '@uni-helper/uni-ui-types': '1.0.0-alpha.6',
+        '@vue/compiler-sfc': '3.4.21',
+        '@vue/eslint-config-prettier': '10.2.0',
+        '@vue/eslint-config-typescript': '14.7.0',
+        '@vue/tsconfig': '^0.7.0',
+        eslint: '9.39.1',
+        'miniprogram-api-typings': '^4.0.5',
+        prettier: '3.6.2',
+        typescript: '5.4.5',
+        'vue-tsc': '^1.8.8',
+      },
+      pnpm: {
+        onlyBuiltDependencies: ['esbuild', 'core-js', 'core-js-pure', 'vue-demi'],
       },
     }),
   )
+  writeEnvironmentFiles(target)
   write(
     target,
     'README.md',
@@ -76,20 +91,26 @@ pnpm build:mp-weixin
 \`\`\`
 
 模块装配入口是 \`apps/uni-app/src/module-manifest.ts\`。新增、删除或调整模块时同步维护该清单，并在模块自己的 README 中记录页面和接口职责。
+
+生产构建前请在 \`.env.production\` 中填写实际 API 和静态资源地址；该文件默认留空，不应使用本机地址。
 `,
   )
   const dependencies = {
     '@liujitcn/kratos-uni-app-core': `^${publicPackageVersion}`,
     '@liujitcn/kratos-uni-app-system': `^${publicPackageVersion}`,
-    '@dcloudio/uni-app': 'latest',
-    '@dcloudio/uni-components': 'latest',
-    '@dcloudio/uni-h5': 'latest',
-    '@dcloudio/uni-mp-weixin': 'latest',
-    '@dcloudio/uni-ui': 'latest',
-    '@dcloudio/vite-plugin-uni': 'latest',
+    '@dcloudio/uni-app': '3.0.0-5010520260709002',
+    '@dcloudio/uni-components': '3.0.0-5010520260709002',
+    '@dcloudio/uni-h5': '3.0.0-5010520260709002',
+    '@dcloudio/uni-mp-weixin': '3.0.0-5010520260709002',
+    '@dcloudio/uni-ui': '^1.4.28',
+    '@dcloudio/vite-plugin-uni': '3.0.0-5010520260709002',
+    'asmcrypto.js': '^2.3.2',
+    'go-captcha-uni': '1.0.6',
     pinia: '^2.0.27',
-    sass: '^1.77.8',
-    vite: '^5.2.8',
+    'pinia-plugin-persistedstate': '^3.2.3',
+    'qrcode-generator': '^2.0.4',
+    sass: '1.77.8',
+    vite: '5.2.8',
     vue: '^3.4.21',
     ...Object.fromEntries(modules.map((name) => [`@local/${name}`, 'workspace:*'])),
     ...Object.fromEntries(packages.map((name) => [name, 'latest'])),
@@ -104,11 +125,14 @@ pnpm build:mp-weixin
       private: true,
       type: 'module',
       scripts: {
-        'dev:h5': 'uni --mode development',
-        'dev:mp-weixin': 'uni -p mp-weixin',
-        'build:h5': 'uni build --mode production',
-        'build:mp-weixin': 'uni build -p mp-weixin --mode production',
-        tsc: 'vue-tsc --noEmit',
+        'recover:pages':
+          'node -e "import(\'@liujitcn/kratos-uni-app-core/vite\').then(({ recoverStalePageTransaction }) => recoverStalePageTransaction())"',
+        'dev:h5': 'pnpm run recover:pages && uni --mode development-h5',
+        'dev:mp-weixin': 'pnpm run recover:pages && uni -p mp-weixin --mode development',
+        'build:h5':
+          'pnpm run recover:pages && UNI_OUTPUT_DIR=../../../../backend/data/uni-app uni build --mode production-h5',
+        'build:mp-weixin': 'pnpm run recover:pages && uni build -p mp-weixin --mode production',
+        tsc: 'vue-tsc --noEmit -p tsconfig.json',
       },
       dependencies,
     }),
@@ -154,7 +178,7 @@ pnpm build:mp-weixin
   )
   const imports = [
     "import { coreModule } from '@liujitcn/kratos-uni-app-core/module'",
-    "import systemModule from '@liujitcn/kratos-uni-app-system'",
+    "import { systemModule } from '@liujitcn/kratos-uni-app-system/module'",
     ...modules.map((name, index) => `import localModule${index} from '@local/${name}'`),
     ...packages.map((name, index) => `import packageModule${index} from '${name}'`),
   ]
@@ -254,12 +278,66 @@ export function createApp() {
   write(
     target,
     'apps/uni-app/vite.config.ts',
-    `import { createKratosUniPlugin, defineConfig, kratosApp } from '@liujitcn/kratos-uni-app-core/vite'
+    `import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import {
+  createKratosUniPlugin,
+  defineConfig,
+  kratosApp,
+  loadEnv,
+  type ConfigEnv,
+  type UserConfig,
+} from '@liujitcn/kratos-uni-app-core/vite'
 import { moduleManifest } from './src/module-manifest'
-export default defineConfig({
-  resolve: { preserveSymlinks: true },
-  server: { open: true },
-  plugins: [kratosApp({ modules: moduleManifest }), createKratosUniPlugin()],
+const workspaceRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
+const coreRoot = resolve(workspaceRoot, 'node_modules/@liujitcn/kratos-uni-app-core')
+const systemRoot = resolve(workspaceRoot, 'node_modules/@liujitcn/kratos-uni-app-system')
+
+function resolveEnv(mode) {
+  const modeEnv = loadEnv(mode, workspaceRoot, '')
+  if (mode === 'development-h5') return { ...loadEnv('development', workspaceRoot, ''), ...modeEnv }
+  if (mode === 'production-h5') return { ...loadEnv('production', workspaceRoot, ''), ...modeEnv }
+  return modeEnv
+}
+
+export default defineConfig(({ mode }) => {
+  const env = resolveEnv(mode)
+  const devEnv = mode === 'development-h5' ? loadEnv('development', workspaceRoot, '') : env
+  const base = env.VITE_APP_BASE_PATH || (mode === 'production-h5' ? '/app/' : '/')
+  return {
+    base,
+    envDir: workspaceRoot,
+    resolve: {
+      preserveSymlinks: true,
+      alias: [
+        { find: '@', replacement: resolve(coreRoot, 'src') },
+        { find: '@system', replacement: resolve(systemRoot, 'src') },
+      ],
+    },
+    define: {
+      process: JSON.stringify({ env: {} }),
+      global: 'globalThis',
+      'import.meta.env.VITE_APP_PORT': JSON.stringify(env.VITE_APP_PORT || ''),
+      'import.meta.env.VITE_APP_BASE_PATH': JSON.stringify(base),
+      'import.meta.env.VITE_APP_BASE_API': JSON.stringify(env.VITE_APP_BASE_API || ''),
+      'import.meta.env.VITE_APP_API_URL': JSON.stringify(env.VITE_APP_API_URL || ''),
+      'import.meta.env.VITE_APP_STATIC_API': JSON.stringify(env.VITE_APP_STATIC_API || ''),
+      'import.meta.env.VITE_APP_STATIC_URL': JSON.stringify(env.VITE_APP_STATIC_URL || ''),
+    },
+    server: {
+      host: '0.0.0.0',
+      port: Number(env.VITE_APP_PORT || 5004),
+      proxy: {
+        [env.VITE_APP_BASE_API || '/api']: { changeOrigin: true, target: devEnv.VITE_APP_API_URL },
+        '/events': { changeOrigin: true, target: devEnv.VITE_APP_API_URL },
+      },
+    },
+    build: {
+      ...(process.env.UNI_OUTPUT_DIR ? { outDir: process.env.UNI_OUTPUT_DIR, emptyOutDir: true } : {}),
+      sourcemap: process.env.NODE_ENV === 'development',
+    },
+    plugins: [kratosApp({ modules: moduleManifest }), createKratosUniPlugin()],
+  }
 })
 `,
   )
@@ -341,6 +419,29 @@ export default module
     )
   })
   return target
+}
+
+function writeEnvironmentFiles(target) {
+  write(
+    target,
+    '.env.development',
+    'VITE_APP_BASE_API=/api\nVITE_APP_API_URL=http://localhost:7001\nVITE_APP_STATIC_API=\nVITE_APP_STATIC_URL=http://localhost:7001\n',
+  )
+  write(
+    target,
+    '.env.development-h5',
+    'VITE_APP_PORT=5004\nVITE_APP_BASE_PATH=/\nVITE_APP_BASE_API=/api\nVITE_APP_API_URL=http://localhost:7001\nVITE_APP_STATIC_API=\nVITE_APP_STATIC_URL=http://localhost:7001\n',
+  )
+  write(
+    target,
+    '.env.production',
+    'VITE_APP_BASE_API=/api\nVITE_APP_API_URL=\nVITE_APP_STATIC_API=\nVITE_APP_STATIC_URL=\n',
+  )
+  write(
+    target,
+    '.env.production-h5',
+    'VITE_APP_BASE_PATH=/app/\nVITE_APP_BASE_API=/api\nVITE_APP_API_URL=\nVITE_APP_STATIC_API=\nVITE_APP_STATIC_URL=\n',
+  )
 }
 
 function validateModuleName(name) {

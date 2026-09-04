@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
-import { defAiMessageService, StreamAiMessageByChunkedRequest } from '../../../api/base/v1/ai_message'
+import {
+  defAiMessageService,
+  StreamAiMessageByChunkedRequest,
+} from '../../../api/base/v1/ai_message'
 import { defAiSessionService } from '../../../api/base/v1/ai_session'
 import { defAiToolService } from '../../../api/base/v1/ai_tool'
 import type { AiMessage } from '../../../rpc/base/v1/ai_session'

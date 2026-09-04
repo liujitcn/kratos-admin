@@ -1,0 +1,59 @@
+<template>
+  <div class="table-box page-box">
+    <ProTable ref="table" row-key="id" :columns="columns" :header-actions="headerActions" :request-api="requestTable" />
+    <FormDialog v-model="dialog.visible" ref="dialogRef" :title="t(dialog.titleKey)" width="620px" :model="form" :fields="fields" :rules="rules" @confirm="submit" @close="resetForm" />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed, reactive, ref } from "vue";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { Delete, EditPen } from "@element-plus/icons-vue";
+import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
+import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
+import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
+import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
+import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
+import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
+import { t } from "@liujitcn/kratos-admin-core";
+import { defBaseRedactFieldService } from "@liujitcn/kratos-admin-system/api/system/base_redact_field";
+import { defBaseRedactRuleService } from "@liujitcn/kratos-admin-system/api/system/base_redact_rule";
+import type { BaseRedactField, BaseRedactFieldForm, PageBaseRedactFieldRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_redact_field";
+import { BaseRedactSearchMode, BaseRedactStorageMode } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_redact_field";
+import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
+
+defineOptions({ name: "BaseRedactField", inheritAttrs: false });
+const { BUTTONS } = useAuthButtons();
+const table = ref<ProTableInstance>();
+const dialogRef = ref<InstanceType<typeof FormDialog>>();
+const ruleOptions = ref<ProFormOption[]>([]);
+const dialog = reactive({ visible: false, titleKey: "common.action.edit_resource" });
+const form = reactive<BaseRedactFieldForm>({ id: 0, message_ref: "", field_path: "", field_kind: "string", sensitivity_type: "", source: "PROTO", entity_ref: "", table_name: "", column_name: "", record_key_field: "", storage_mode: BaseRedactStorageMode.BASE_REDACT_STORAGE_MODE_UNSPECIFIED, storage_rule_id: 0, search_mode: BaseRedactSearchMode.BASE_REDACT_SEARCH_MODE_UNSPECIFIED, status: Status.STATUS_ENABLE, remark: "" });
+const statusOptions = computed<ProFormOption[]>(() => [{ label: t("common.status.enabled"), value: Status.STATUS_ENABLE }, { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }]);
+const storageSupported = computed(() => form.message_ref === "system.admin.v1.BaseUser" && form.field_path === "phone");
+const storageModeOptions = computed<ProFormOption[]>(() => { const options: ProFormOption[] = [{ label: t("system.base.redact_policy.storage_mode.unspecified"), value: BaseRedactStorageMode.BASE_REDACT_STORAGE_MODE_UNSPECIFIED }]; if (storageSupported.value) options.push({ label: t("system.base.redact_policy.storage_mode.plain"), value: BaseRedactStorageMode.BASE_REDACT_STORAGE_MODE_PLAIN }, { label: t("system.base.redact_policy.storage_mode.mask"), value: BaseRedactStorageMode.BASE_REDACT_STORAGE_MODE_MASK }); return options; });
+const searchModeOptions = computed<ProFormOption[]>(() => { const options: ProFormOption[] = [{ label: t("system.base.redact_policy.search_mode.unspecified"), value: BaseRedactSearchMode.BASE_REDACT_SEARCH_MODE_UNSPECIFIED }]; if (storageSupported.value) options.push({ label: t("system.base.redact_policy.search_mode.none"), value: BaseRedactSearchMode.BASE_REDACT_SEARCH_MODE_NONE }, { label: t("system.base.redact_policy.search_mode.digest"), value: BaseRedactSearchMode.BASE_REDACT_SEARCH_MODE_DIGEST }); return options; });
+const fields = computed<ProFormField[]>(() => [{ prop: "message_ref", label: t("system.base.redact_policy.field.message_ref"), component: "input", props: { disabled: true } }, { prop: "field_path", label: t("system.base.redact_policy.field.field_path"), component: "input", props: { disabled: true } }, { prop: "field_kind", label: t("system.base.redact_policy.field.field_kind"), component: "input", props: { disabled: true } }, { prop: "sensitivity_type", label: t("system.base.redact_policy.field.sensitivity_type"), component: "input" }, { prop: "entity_ref", label: t("system.base.redact_policy.field.entity_ref"), component: "input" }, { prop: "table_name", label: t("system.base.redact_policy.field.table_name"), component: "input" }, { prop: "column_name", label: t("system.base.redact_policy.field.column_name"), component: "input" }, { prop: "record_key_field", label: t("system.base.redact_policy.field.record_key_field"), component: "input" }, { prop: "storage_mode", label: t("system.base.redact_policy.field.storage_mode"), component: "select", options: storageModeOptions.value }, { prop: "storage_rule_id", label: t("system.base.redact_policy.field.storage_rule"), component: "select", props: { filterable: true, clearable: true }, options: ruleOptions.value, visible: () => form.storage_mode === BaseRedactStorageMode.BASE_REDACT_STORAGE_MODE_MASK }, { prop: "search_mode", label: t("system.base.redact_policy.field.search_mode"), component: "select", options: searchModeOptions.value }, { prop: "status", label: t("common.field.status"), component: "radio-group", options: statusOptions.value }, { prop: "remark", label: t("common.field.remark"), component: "textarea" }]);
+const rules = computed(() => ({ message_ref: [{ required: true, message: t("system.base.redact_policy.validation.message_ref"), trigger: "blur" }], field_path: [{ required: true, message: t("system.base.redact_policy.validation.field_path"), trigger: "blur" }] }));
+const columns = computed<ColumnProps[]>(() => [{ type: "selection", width: 55 }, { prop: "message_ref", label: t("system.base.redact_policy.field.message_ref"), minWidth: 220, search: { el: "input" } }, { prop: "field_path", label: t("system.base.redact_policy.field.field_path"), minWidth: 140, search: { el: "input" } }, { prop: "field_kind", label: t("system.base.redact_policy.field.field_kind"), width: 110 }, { prop: "sensitivity_type", label: t("system.base.redact_policy.field.sensitivity_type"), width: 140 }, { prop: "source", label: t("system.base.redact_policy.field.source"), width: 110, search: { el: "select", enum: [{ label: "PROTO", value: "PROTO" }, { label: "DATABASE", value: "DATABASE" }] } }, { prop: "storage_mode", label: t("system.base.redact_policy.field.storage_mode"), width: 120, enum: storageModeOptions.value, isFilterEnum: true }, { prop: "search_mode", label: t("system.base.redact_policy.field.search_mode"), width: 120, enum: searchModeOptions.value, isFilterEnum: true }, { prop: "status", label: t("common.field.status"), width: 100, cellType: "status", statusProps: { activeValue: Status.STATUS_ENABLE, inactiveValue: Status.STATUS_DISABLE, activeText: t("common.status.enabled"), inactiveText: t("common.status.disabled"), disabled: () => !BUTTONS.value["base:redact-field:status"], beforeChange: scope => changeStatus(scope.row as BaseRedactField) } }, { prop: "operation", label: t("common.field.operation"), width: 140, fixed: "right", cellType: "actions", actions: [{ label: t("common.action.edit"), type: "primary", link: true, icon: EditPen, hidden: () => !BUTTONS.value["base:redact-field:update"], onClick: scope => openDialog((scope.row as BaseRedactField).id) }, { label: t("common.action.delete"), type: "danger", link: true, icon: Delete, hidden: () => !BUTTONS.value["base:redact-field:delete"], onClick: scope => deleteItems(scope.row as BaseRedactField) }] }]);
+const headerActions = computed<HeaderActionProps[]>(() => [{ label: t("common.action.delete"), type: "danger", icon: Delete, hidden: () => !BUTTONS.value["base:redact-field:delete"], disabled: scope => !scope.selectedList.length, onClick: scope => deleteItems(scope.selectedList as BaseRedactField[]) }]);
+
+/** 请求字段分页列表。 */
+async function requestTable(params: PageBaseRedactFieldRequest) { const data = await defBaseRedactFieldService.PageBaseRedactField(buildPageRequest(params)); return { data: { list: data.base_redact_fields ?? [], total: data.total } }; }
+/** 加载存储脱敏规则选项。 */
+async function loadRuleOptions() { const result = await defBaseRedactRuleService.OptionBaseRedactRule({ keyword: "" }); ruleOptions.value = result.list ?? []; }
+/** 打开字段编辑弹窗。 */
+async function openDialog(id: number) { resetForm(); await loadRuleOptions(); dialog.titleKey = "common.action.edit_resource"; dialog.visible = true; Object.assign(form, await defBaseRedactFieldService.GetBaseRedactField({ id })); }
+/** 重置字段表单。 */
+function resetForm() { dialog.visible = false; dialogRef.value?.resetFields(); Object.assign(form, { id: 0, message_ref: "", field_path: "", field_kind: "string", sensitivity_type: "", source: "PROTO", entity_ref: "", table_name: "", column_name: "", record_key_field: "", storage_mode: BaseRedactStorageMode.BASE_REDACT_STORAGE_MODE_UNSPECIFIED, storage_rule_id: 0, search_mode: BaseRedactSearchMode.BASE_REDACT_SEARCH_MODE_UNSPECIFIED, status: Status.STATUS_ENABLE, remark: "" }); }
+/** 提交字段表单。 */
+function submit() { dialogRef.value?.validate()?.then(async valid => { if (!valid) return; const payload = JSON.parse(JSON.stringify(form)) as BaseRedactFieldForm; if (payload.storage_mode !== BaseRedactStorageMode.BASE_REDACT_STORAGE_MODE_MASK) payload.storage_rule_id = 0; await defBaseRedactFieldService.UpdateBaseRedactField({ base_redact_field: payload }); ElMessage.success(t("common.message.update_success", { resource: t("system.base.redact_policy.tabs.field") })); resetForm(); table.value?.getTableList(); }); }
+/** 切换字段状态。 */
+async function changeStatus(row: BaseRedactField) { const next = row.status === Status.STATUS_ENABLE ? Status.STATUS_DISABLE : Status.STATUS_ENABLE; try { await ElMessageBox.confirm(t("common.dialog.status_change", { action: t(next === Status.STATUS_ENABLE ? "common.status.enabled" : "common.status.disabled"), resource: t("system.base.redact_policy.tabs.field"), field: t("system.base.redact_policy.field.message_ref"), value: row.message_ref })); await defBaseRedactFieldService.SetBaseRedactFieldStatus({ id: row.id, status: next }); table.value?.getTableList(); return true; } catch { return false; } }
+/** 删除字段目录。 */
+function deleteItems(selected?: BaseRedactField | BaseRedactField[] | number | string | Array<number | string>) { const items = Array.isArray(selected) ? selected.filter((item): item is BaseRedactField => typeof item === "object") : selected && typeof selected === "object" ? [selected] : []; const ids = items.length ? items.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>); if (!ids.length) { ElMessage.warning(t("common.message.select_delete_item")); return; } ElMessageBox.confirm(t("common.dialog.delete_selected", { resource: t("system.base.redact_policy.tabs.field") }), t("common.title.warning"), { type: "warning" }).then(async () => { await defBaseRedactFieldService.DeleteBaseRedactField({ id: ids.join(",") }); ElMessage.success(t("common.message.delete_success", { resource: t("system.base.redact_policy.tabs.field") })); table.value?.getTableList(); }); }
+</script>
+
+<style scoped lang="scss">
+.page-box { padding: 20px; }
+</style>

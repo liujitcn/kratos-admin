@@ -1,5 +1,9 @@
 import { http } from '../../../utils/http'
-import type { ConfigService, GetConfigRequest, GetConfigResponse } from '../../../rpc/base/v1/config'
+import type {
+  ConfigService,
+  GetConfigRequest,
+  GetConfigResponse,
+} from '../../../rpc/base/v1/config'
 
 const CONFIG_URL = '/v1/base/config'
 

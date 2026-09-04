@@ -1,5 +1,9 @@
 import { http } from '../../../utils/http'
-import type { DownloadFileRequest, MultiUploadFileResponse, FileInfo } from '../../../rpc/base/v1/file'
+import type {
+  DownloadFileRequest,
+  MultiUploadFileResponse,
+  FileInfo,
+} from '../../../rpc/base/v1/file'
 
 const FILE_URL = '/v1/base/file'
 
