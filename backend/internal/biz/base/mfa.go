@@ -86,7 +86,6 @@ type MfaCase struct {
 // mfaRuntimeConfig 汇总 MFA 运行时安全参数和 WebAuthn 依赖方配置。
 // 该配置由 Bootstrap 解析并在构造 Case 时固定，避免请求期间被客户端输入覆盖。
 type mfaRuntimeConfig struct {
-	encryptionKey        string        // TOTP secret 的服务端加密密钥。
 	loginChallengeExpire time.Duration // 登录 MFA 挑战的最大有效期。
 	setupTicketExpire    time.Duration // MFA 绑定票据的最大有效期。
 	loginMaxAttempts     int           // 单个登录挑战允许的最大失败次数。
@@ -1326,7 +1325,6 @@ func newMfaRuntimeConfig(config *configv1.Mfa) mfaRuntimeConfig {
 		return runtimeConfig
 	}
 
-	runtimeConfig.encryptionKey = config.GetEncryptionKey()
 	if value := config.GetLoginChallengeExpire(); value != nil && value.AsDuration() > 0 {
 		runtimeConfig.loginChallengeExpire = value.AsDuration()
 	}
@@ -1488,30 +1486,17 @@ func (c *MfaCase) unprotectMFASecret(value string, userID int64) (string, error)
 	return string(plaintext), nil
 }
 
-// loadMFAEncryptionKey 读取配置文件或运行时密钥服务中的 MFA 加密密钥。
+// loadMFAEncryptionKey 从运行时密钥服务读取 MFA 加密密钥。
 func (c *MfaCase) loadMFAEncryptionKey() ([]byte, error) {
 	c.mfaKeyOnce.Do(func() {
-		encoded := c.runtimeConfig.encryptionKey
-		if encoded == "" {
-			keyValue := sdk.Runtime.GetKey()
-			if keyValue == nil {
-				c.mfaKeyErr = fmt.Errorf("MFA 密钥为空且运行时密钥未初始化")
-				return
-			}
-			c.mfaKey, c.mfaKeyErr = keyValue.Derive(context.Background(), mfaEncryptionKeyName)
-			if c.mfaKeyErr != nil {
-				c.mfaKeyErr = fmt.Errorf("派生 MFA 密钥失败: %w", c.mfaKeyErr)
-			}
+		keyValue := sdk.Runtime.GetKey()
+		if keyValue == nil {
+			c.mfaKeyErr = fmt.Errorf("MFA 密钥为空且运行时密钥未初始化")
 			return
 		}
-
-		var err error
-		c.mfaKey, err = base64.RawStdEncoding.DecodeString(encoded)
-		if err != nil {
-			c.mfaKey, err = base64.StdEncoding.DecodeString(encoded)
-		}
-		if err != nil || len(c.mfaKey) != 32 {
-			c.mfaKeyErr = fmt.Errorf("mfa.encryption_key must be a base64 encoded 32-byte key")
+		c.mfaKey, c.mfaKeyErr = keyValue.Derive(context.Background(), mfaEncryptionKeyName)
+		if c.mfaKeyErr != nil {
+			c.mfaKeyErr = fmt.Errorf("派生 MFA 密钥失败: %w", c.mfaKeyErr)
 		}
 	})
 	if c.mfaKeyErr != nil {

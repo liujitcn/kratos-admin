@@ -7,18 +7,18 @@ import (
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	corebiz "github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/biz"
 	"gorm.io/gen/field"
 )
 
 // BaseAPILogCase 提供 API 访问日志表的查询业务。
 type BaseAPILogCase struct {
-	*corebiz.BaseCase
+	*biz.BaseCase
 	*data.BaseAPILogRepository
 }
 
 // NewBaseAPILogCase 创建 API 访问日志查询业务实例。
-func NewBaseAPILogCase(baseCase *corebiz.BaseCase, baseAPILogRepo *data.BaseAPILogRepository) *BaseAPILogCase {
+func NewBaseAPILogCase(baseCase *biz.BaseCase, baseAPILogRepo *data.BaseAPILogRepository) *BaseAPILogCase {
 	return &BaseAPILogCase{BaseCase: baseCase, BaseAPILogRepository: baseAPILogRepo}
 }
 

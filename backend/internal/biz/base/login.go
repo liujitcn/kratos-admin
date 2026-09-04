@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v3/transport"
-	httpTransport "github.com/go-kratos/kratos/v3/transport/http"
+	"github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
@@ -794,7 +794,7 @@ func loginClientIP(ctx context.Context) string {
 	if !ok {
 		return ""
 	}
-	httpValue, ok := transportValue.(*httpTransport.Transport)
+	httpValue, ok := transportValue.(*http.Transport)
 	if !ok || httpValue.Request() == nil {
 		return ""
 	}
@@ -811,7 +811,7 @@ func loginDevice(ctx context.Context) string {
 	if !ok {
 		return ""
 	}
-	httpValue, ok := transportValue.(*httpTransport.Transport)
+	httpValue, ok := transportValue.(*http.Transport)
 	if !ok || httpValue.Request() == nil {
 		return ""
 	}
@@ -827,7 +827,7 @@ func loginMAC(ctx context.Context) string {
 	if !ok {
 		return ""
 	}
-	httpValue, ok := transportValue.(*httpTransport.Transport)
+	httpValue, ok := transportValue.(*http.Transport)
 	if !ok || httpValue.Request() == nil {
 		return ""
 	}
@@ -840,7 +840,7 @@ func loginRegion(ctx context.Context) string {
 	if !ok {
 		return ""
 	}
-	httpValue, ok := transportValue.(*httpTransport.Transport)
+	httpValue, ok := transportValue.(*http.Transport)
 	if !ok || httpValue.Request() == nil {
 		return ""
 	}

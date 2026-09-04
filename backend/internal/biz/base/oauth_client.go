@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v3/transport"
-	httpTransport "github.com/go-kratos/kratos/v3/transport/http"
+	"github.com/go-kratos/kratos/v3/transport/http"
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/oauthsecret"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
@@ -186,7 +186,7 @@ func oauthClientRequestIP(ctx context.Context) string {
 	if !ok {
 		return ""
 	}
-	httpValue, ok := value.(*httpTransport.Transport)
+	httpValue, ok := value.(*http.Transport)
 	if !ok || httpValue.Request() == nil {
 		return ""
 	}

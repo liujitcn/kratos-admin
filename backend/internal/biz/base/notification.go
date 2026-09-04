@@ -11,9 +11,9 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
-	coreconst "github.com/liujitcn/kratos-core/const"
+	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
-	coresse "github.com/liujitcn/kratos-core/sse"
+	"github.com/liujitcn/kratos-core/sse"
 
 	_time "github.com/liujitcn/go-utils/time"
 	"github.com/liujitcn/gorm-kit/repository"
@@ -31,7 +31,7 @@ type NotificationCase struct {
 	deliveryWriter *admindata.MessageDeliveryWriter
 	messageRepo    *data.BaseMessageRepository
 	categoryRepo   *data.BaseMessageCategoryRepository
-	sse            *coresse.SSE
+	sse            *sse.SSE
 }
 
 // NewNotificationCase 创建当前用户站内信业务实例。
@@ -41,7 +41,7 @@ func NewNotificationCase(
 	deliveryWriter *admindata.MessageDeliveryWriter,
 	messageRepo *data.BaseMessageRepository,
 	categoryRepo *data.BaseMessageCategoryRepository,
-	sseRuntime *coresse.SSE,
+	sseRuntime *sse.SSE,
 ) *NotificationCase {
 	return &NotificationCase{
 		BaseCase:                      baseCase,
@@ -117,7 +117,7 @@ func (c *NotificationCase) ListNotificationCategories(ctx context.Context, _ *ba
 	}
 	query := c.Query(ctx).BaseMessageCategory
 	opts := []repository.QueryOption{
-		repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)),
+		repository.Where(query.Status.Eq(_const.STATUS_STATUS_ENABLE)),
 		repository.Order(query.Sort.Asc()),
 		repository.Order(query.ID.Asc()),
 	}

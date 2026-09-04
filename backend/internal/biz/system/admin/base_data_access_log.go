@@ -7,18 +7,18 @@ import (
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	corebiz "github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/biz"
 	"gorm.io/gen/field"
 )
 
 // BaseDataAccessLogCase 提供数据访问日志表的查询业务。
 type BaseDataAccessLogCase struct {
-	*corebiz.BaseCase
+	*biz.BaseCase
 	*data.BaseDataAccessLogRepository
 }
 
 // NewBaseDataAccessLogCase 创建数据访问日志查询业务实例。
-func NewBaseDataAccessLogCase(baseCase *corebiz.BaseCase, baseDataAccessLogRepo *data.BaseDataAccessLogRepository) *BaseDataAccessLogCase {
+func NewBaseDataAccessLogCase(baseCase *biz.BaseCase, baseDataAccessLogRepo *data.BaseDataAccessLogRepository) *BaseDataAccessLogCase {
 	return &BaseDataAccessLogCase{BaseCase: baseCase, BaseDataAccessLogRepository: baseDataAccessLogRepo}
 }
 

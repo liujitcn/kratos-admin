@@ -4,20 +4,20 @@ import (
 	"context"
 	"sort"
 	"strconv"
-	stdtime "time"
+	"time"
 
 	utiltime "github.com/liujitcn/go-utils/time"
 	"github.com/liujitcn/gorm-kit/repository"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	corebiz "github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
 	"gorm.io/gen/field"
 )
 
 // BaseLogCase 提供跨审计表的关联时间线查询能力。
 type BaseLogCase struct {
-	*corebiz.BaseCase
+	*biz.BaseCase
 	baseLoginLogCase            *BaseLoginLogCase
 	baseAPILogCase              *BaseAPILogCase
 	baseOperationLogCase        *BaseOperationLogCase
@@ -28,7 +28,7 @@ type BaseLogCase struct {
 
 // NewBaseLogCase 创建公共审计时间线查询业务实例。
 func NewBaseLogCase(
-	baseCase *corebiz.BaseCase,
+	baseCase *biz.BaseCase,
 	baseLoginLogCase *BaseLoginLogCase,
 	baseAPILogCase *BaseAPILogCase,
 	baseOperationLogCase *BaseOperationLogCase,
@@ -197,11 +197,11 @@ func appendTraceIdentityOptions(opts []repository.QueryOption, requestID, traceI
 }
 
 // formatLogTime 格式化审计时间，保持毫秒精度。
-func formatLogTime(value stdtime.Time) string {
+func formatLogTime(value time.Time) string {
 	if value.IsZero() {
 		return ""
 	}
-	return value.Format(stdtime.RFC3339Nano)
+	return value.Format(time.RFC3339Nano)
 }
 
 // parseLogRecordID 将管理端传入的日志主键解析为数据库整数。

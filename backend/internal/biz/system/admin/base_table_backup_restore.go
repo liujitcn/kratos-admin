@@ -19,19 +19,19 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/backup"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	corebiz "github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
 )
 
 // BaseTableBackupRestoreCase 管理数据库备份恢复记录。
 type BaseTableBackupRestoreCase struct {
-	*corebiz.BaseCase
+	*biz.BaseCase
 	*data.BaseTableBackupRestoreRepository
 	backupRecordRepo *data.BaseTableBackupRecordRepository
 }
 
 // NewBaseTableBackupRestoreCase 创建数据库备份恢复业务实例。
-func NewBaseTableBackupRestoreCase(baseCase *corebiz.BaseCase, repo *data.BaseTableBackupRestoreRepository, backupRecordRepo *data.BaseTableBackupRecordRepository) *BaseTableBackupRestoreCase {
+func NewBaseTableBackupRestoreCase(baseCase *biz.BaseCase, repo *data.BaseTableBackupRestoreRepository, backupRecordRepo *data.BaseTableBackupRecordRepository) *BaseTableBackupRestoreCase {
 	return &BaseTableBackupRestoreCase{BaseCase: baseCase, BaseTableBackupRestoreRepository: repo, backupRecordRepo: backupRecordRepo}
 }
 
@@ -104,7 +104,7 @@ func toBaseTableBackupRestore(item *models.BaseTableBackupRestore) *adminv1.Base
 }
 
 // restoreBackupRecord 校验并恢复指定数据库备份记录。
-func restoreBackupRecord(ctx context.Context, baseCase *corebiz.BaseCase, backupRecord *models.BaseTableBackupRecord, targetSourceName, targetDatabase string, mode adminv1.BaseTableBackupRestoreMode) (int64, error) {
+func restoreBackupRecord(ctx context.Context, baseCase *biz.BaseCase, backupRecord *models.BaseTableBackupRecord, targetSourceName, targetDatabase string, mode adminv1.BaseTableBackupRestoreMode) (int64, error) {
 	if backupRecord.Status != int32(adminv1.BaseTableBackupRecordStatus_BASE_TABLE_BACKUP_RECORD_STATUS_SUCCESS) {
 		return 0, fmt.Errorf("只能恢复已校验成功的数据库备份")
 	}

@@ -17,12 +17,12 @@ import (
 	admindata "github.com/liujitcn/kratos-admin/backend/internal/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	messagepublisher "github.com/liujitcn/kratos-admin/backend/pkg/notification"
+	"github.com/liujitcn/kratos-admin/backend/pkg/notification"
 	"github.com/liujitcn/kratos-core/biz"
 	coreconst "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
-	corequeue "github.com/liujitcn/kratos-core/queue"
-	coresse "github.com/liujitcn/kratos-core/sse"
+	"github.com/liujitcn/kratos-core/queue"
+	"github.com/liujitcn/kratos-core/sse"
 
 	"github.com/liujitcn/go-utils/id"
 	_string "github.com/liujitcn/go-utils/string"
@@ -69,10 +69,10 @@ type BaseMessageCase struct {
 	baseDeptRepo   *data.BaseDeptRepository
 	basePostRepo   *data.BasePostRepository
 	baseMenuRepo   *data.BaseMenuRepository
-	sse            *coresse.SSE
+	sse            *sse.SSE
 }
 
-var _ messagepublisher.Publisher = (*BaseMessageCase)(nil)
+var _ notification.Publisher = (*BaseMessageCase)(nil)
 
 // NewBaseMessageCase 创建站内信业务实例。
 func NewBaseMessageCase(
@@ -88,7 +88,7 @@ func NewBaseMessageCase(
 	baseDeptRepo *data.BaseDeptRepository,
 	basePostRepo *data.BasePostRepository,
 	baseMenuRepo *data.BaseMenuRepository,
-	sseRuntime *coresse.SSE,
+	sseRuntime *sse.SSE,
 ) *BaseMessageCase {
 	caseValue := &BaseMessageCase{
 		BaseCase:              baseCase,
@@ -105,7 +105,7 @@ func NewBaseMessageCase(
 		baseMenuRepo:          baseMenuRepo,
 		sse:                   sseRuntime,
 	}
-	messagepublisher.SetDefaultPublisher(caseValue)
+	notification.SetDefaultPublisher(caseValue)
 	return caseValue
 }
 
@@ -245,7 +245,7 @@ func (c *BaseMessageCase) CreateBaseMessage(ctx context.Context, req *adminv1.Ba
 }
 
 // Publish 发布业务站内信并返回消息ID，数据库提交成功后由恢复任务保证最终投递。
-func (c *BaseMessageCase) Publish(ctx context.Context, request messagepublisher.Message) (int64, error) {
+func (c *BaseMessageCase) Publish(ctx context.Context, request notification.Message) (int64, error) {
 	var err error
 	if request.TenantID <= 0 {
 		return 0, errorsx.InvalidArgument("消息租户不能为空")
@@ -753,7 +753,7 @@ func (c *BaseMessageCase) enqueuePendingDispatches(ctx context.Context, messageI
 
 // HandleDispatchMessage 处理 Redis Streams 消息投递任务。
 func (c *BaseMessageCase) HandleDispatchMessage(message queueData.Message) error {
-	task, err := corequeue.Decode[dto.MessageDispatchTask](message)
+	task, err := queue.Decode[dto.MessageDispatchTask](message)
 	if err != nil {
 		return err
 	}
@@ -1265,7 +1265,7 @@ func normalizeMessageActionParams(raw string) string {
 }
 
 // validatePublishedMessage 校验绕过 Proto 的业务发布请求边界。
-func validatePublishedMessage(request messagepublisher.Message) error {
+func validatePublishedMessage(request notification.Message) error {
 	if request.CategoryCode == "" {
 		return errorsx.InvalidArgument("消息分类编码不能为空")
 	}

@@ -9,20 +9,20 @@ import (
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
-	passwordPolicy "github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	corebiz "github.com/liujitcn/kratos-core/biz"
-	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/biz"
+	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // BaseLoginPolicyCase 提供平台管理员登录策略的逐条管理能力。
 type BaseLoginPolicyCase struct {
-	*corebiz.BaseCase
+	*biz.BaseCase
 	tx                      data.Transaction
 	baseLoginPolicyRepo     *data.BaseLoginPolicyRepository
 	baseLoginPolicyRuleRepo *data.BaseLoginPolicyRuleRepository
@@ -32,7 +32,7 @@ type BaseLoginPolicyCase struct {
 
 // NewBaseLoginPolicyCase 创建登录策略业务实例。
 func NewBaseLoginPolicyCase(
-	baseCase *corebiz.BaseCase,
+	baseCase *biz.BaseCase,
 	tx data.Transaction,
 	baseLoginPolicyRepo *data.BaseLoginPolicyRepository,
 	baseLoginPolicyRuleRepo *data.BaseLoginPolicyRuleRepository,
@@ -255,7 +255,7 @@ func (c *BaseLoginPolicyCase) setBaseLoginPolicyStatus(ctx context.Context, req 
 		return err
 	}
 	status := int32(req.GetStatus())
-	if status != coreconst.STATUS_STATUS_ENABLE && status != coreconst.STATUS_STATUS_DISABLE {
+	if status != _const.STATUS_STATUS_ENABLE && status != _const.STATUS_STATUS_DISABLE {
 		return errorsx.InvalidArgument("登录策略状态无效")
 	}
 	entity, err := c.baseLoginPolicyRepo.FindByID(ctx, req.GetId())
@@ -350,7 +350,7 @@ func (c *BaseLoginPolicyCase) policyFromForm(ctx context.Context, input *adminv1
 	policy := loginpolicy.Policy{ID: input.GetId(), ScopeType: int32(input.GetScopeType()), TenantID: input.GetTenantId(), UserID: input.GetUserId(), Status: int32(input.GetStatus()), MaxFailedAttempts: input.GetMaxFailedAttempts(), LockDurationMinutes: input.GetLockDurationMinutes(), PasswordMinLength: input.GetPasswordMinLength(), PasswordHistoryCount: input.GetPasswordHistoryCount(), PasswordMinComplexityClasses: input.GetPasswordMinComplexityClasses(), PasswordMaxAgeDays: input.GetPasswordMaxAgeDays(), Rules: make([]loginpolicy.Rule, 0, len(input.GetRules()))}
 	var err error
 	if policy.Status == 0 {
-		policy.Status = coreconst.STATUS_STATUS_ENABLE
+		policy.Status = _const.STATUS_STATUS_ENABLE
 	}
 	if policy.MaxFailedAttempts == 0 {
 		policy.MaxFailedAttempts = loginpolicy.DefaultMaxFailedAttempts
@@ -383,7 +383,7 @@ func (c *BaseLoginPolicyCase) policyFromForm(ctx context.Context, input *adminv1
 			return loginpolicy.Policy{}, err
 		}
 		config := loginpolicy.PasswordConfig{MinLength: policy.PasswordMinLength, MinComplexityClasses: policy.PasswordMinComplexityClasses}
-		if err = passwordPolicy.ValidateComplexity(initialPassword, config); err != nil {
+		if err = password.ValidateComplexity(initialPassword, config); err != nil {
 			return loginpolicy.Policy{}, errorsx.InvalidArgument("初始化密码长度或复杂度不符合安全策略").WithCause(err)
 		}
 		policy.InitialPasswordHash, err = crypto.Encrypt(initialPassword)
@@ -394,7 +394,7 @@ func (c *BaseLoginPolicyCase) policyFromForm(ctx context.Context, input *adminv1
 	for _, inputRule := range input.GetRules() {
 		status := int32(inputRule.GetStatus())
 		if status == 0 {
-			status = coreconst.STATUS_STATUS_ENABLE
+			status = _const.STATUS_STATUS_ENABLE
 		}
 		policy.Rules = append(policy.Rules, loginpolicy.Rule{ID: inputRule.GetId(), PolicyID: inputRule.GetPolicyId(), RestrictionType: int32(inputRule.GetRestrictionType()), RestrictionMethod: int32(inputRule.GetRestrictionMethod()), RestrictionValue: inputRule.GetRestrictionValue(), Reason: inputRule.GetReason(), Status: status})
 	}
@@ -461,7 +461,7 @@ func (c *BaseLoginPolicyCase) ensurePlatformOperator(ctx context.Context) error 
 	if err != nil {
 		return err
 	}
-	if authInfo.RoleCode != coreconst.BASE_ROLE_CODE_SUPER {
+	if authInfo.RoleCode != _const.BASE_ROLE_CODE_SUPER {
 		return errorsx.PermissionDenied("只有平台管理员可以管理登录策略")
 	}
 	return nil

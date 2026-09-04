@@ -46,7 +46,7 @@ func ProtoTargetForBusinessModule(module string) (ProtoTarget, bool) {
 		BackendBizDirectory:     "backend/internal/biz/" + module + "/admin",
 		BackendModuleDirectory:  "backend/internal/service/" + module + "/admin/v1",
 		ModuleRegisterPath:      "backend/internal/server/" + module + "/admin/v1/register.go",
-		FrontendPackageName:     "@liujitcn/kratos-admin-" + module,
+		FrontendPackageName:     frontendPackageNameForBusinessModule(module),
 		FrontendAPIDirectory:    "frontend/admin/packages/modules/" + module + "/src/api/" + module,
 		FrontendPageDirectory:   "frontend/admin/packages/modules/" + module + "/src/views",
 		FrontendLocaleDirectory: "frontend/admin/packages/modules/" + module + "/src/locales",
@@ -472,4 +472,12 @@ type CodeGenLeftTreeConfig struct {
 	ValueColumn string `json:"value_column"`
 	// Lazy 是否按节点懒加载子节点。
 	Lazy bool `json:"lazy"`
+}
+
+// frontendPackageNameForBusinessModule 根据业务模块名返回管理端模块包名。
+func frontendPackageNameForBusinessModule(module string) string {
+	if module == "system" {
+		return "@liujitcn/kratos-admin-system"
+	}
+	return "@" + module + "/admin-module"
 }

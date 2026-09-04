@@ -52,7 +52,7 @@ func NewBaseAPICase(
 }
 
 // OptionBaseAPI 查询菜单分配接口选项列表
-func (c *BaseAPICase) OptionBaseAPI(ctx context.Context, _ *adminv1.OptionBaseApiRequest) (*adminv1.OptionBaseApiResponse, error) {
+func (c *BaseAPICase) OptionBaseAPI(ctx context.Context, req *adminv1.OptionBaseApiRequest) (*adminv1.OptionBaseApiResponse, error) {
 	query := c.Query(ctx).BaseAPI
 	opts := make([]repository.QueryOption, 0, 1)
 	opts = append(opts, repository.Order(query.ServiceName.Asc(), query.Operation.Asc()))
@@ -70,7 +70,7 @@ func (c *BaseAPICase) OptionBaseAPI(ctx context.Context, _ *adminv1.OptionBaseAp
 	jwtCfg := c.GetConfig().GetAuthn().GetJwt()
 	for _, item := range list {
 		// 命中免 token 或可选鉴权规则的接口，不再返回给菜单管理页面。
-		if jwtCfg != nil {
+		if !req.GetIncludePublic() && jwtCfg != nil {
 			isNoTokenOperation := matchAuthWhiteList(jwtCfg.GetWhiteList(), item.Operation) ||
 				matchAuthWhiteList(jwtCfg.GetOptionalAuth(), item.Operation)
 			if isNoTokenOperation {

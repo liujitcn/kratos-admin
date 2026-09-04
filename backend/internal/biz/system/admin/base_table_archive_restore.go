@@ -20,7 +20,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/backup"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	corebiz "github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
 	"github.com/liujitcn/kratos-kit/database/gorm"
 )
@@ -32,13 +32,13 @@ type restoreIDRange struct {
 
 // BaseTableArchiveRestoreCase 管理归档恢复记录。
 type BaseTableArchiveRestoreCase struct {
-	*corebiz.BaseCase
+	*biz.BaseCase
 	*data.BaseTableArchiveRestoreRepository
 	archiveRecordRepo *data.BaseTableArchiveRecordRepository
 }
 
 // NewBaseTableArchiveRestoreCase 创建归档恢复业务实例。
-func NewBaseTableArchiveRestoreCase(baseCase *corebiz.BaseCase, repo *data.BaseTableArchiveRestoreRepository, archiveRecordRepo *data.BaseTableArchiveRecordRepository) *BaseTableArchiveRestoreCase {
+func NewBaseTableArchiveRestoreCase(baseCase *biz.BaseCase, repo *data.BaseTableArchiveRestoreRepository, archiveRecordRepo *data.BaseTableArchiveRecordRepository) *BaseTableArchiveRestoreCase {
 	return &BaseTableArchiveRestoreCase{BaseCase: baseCase, BaseTableArchiveRestoreRepository: repo, archiveRecordRepo: archiveRecordRepo}
 }
 
@@ -113,7 +113,7 @@ func toBaseTableArchiveRestore(item *models.BaseTableArchiveRestore) *adminv1.Ba
 }
 
 // restoreArchiveRecord 将指定归档记录恢复到当前数据源。
-func restoreArchiveRecord(ctx context.Context, baseCase *corebiz.BaseCase, archiveRecord *models.BaseTableArchiveRecord, mode adminv1.BaseTableArchiveRestoreMode, restoreRange string) (int64, error) {
+func restoreArchiveRecord(ctx context.Context, baseCase *biz.BaseCase, archiveRecord *models.BaseTableArchiveRecord, mode adminv1.BaseTableArchiveRestoreMode, restoreRange string) (int64, error) {
 	if archiveRecord.ArchiveMode == int32(adminv1.BaseTableArchiveMode_BASE_TABLE_ARCHIVE_MODE_INTERNAL_DATABASE) {
 		return restoreInternalArchive(ctx, baseCase, archiveRecord, mode, restoreRange)
 	}
@@ -127,7 +127,7 @@ func restoreArchiveRecord(ctx context.Context, baseCase *corebiz.BaseCase, archi
 }
 
 // restoreInternalArchive 将当前数据源内部归档表中的记录幂等恢复到在线表。
-func restoreInternalArchive(ctx context.Context, baseCase *corebiz.BaseCase, archiveRecord *models.BaseTableArchiveRecord, mode adminv1.BaseTableArchiveRestoreMode, restoreRange string) (int64, error) {
+func restoreInternalArchive(ctx context.Context, baseCase *biz.BaseCase, archiveRecord *models.BaseTableArchiveRecord, mode adminv1.BaseTableArchiveRestoreMode, restoreRange string) (int64, error) {
 	if !tableNamePattern.MatchString(archiveRecord.TableName_) || !tableNamePattern.MatchString(archiveRecord.ArchiveTableName) {
 		return 0, fmt.Errorf("归档表名不合法")
 	}
@@ -155,7 +155,7 @@ func restoreInternalArchive(ctx context.Context, baseCase *corebiz.BaseCase, arc
 }
 
 // restoreOSSArchive 下载 OSS 归档 SQL 并恢复到当前数据源。
-func restoreOSSArchive(ctx context.Context, baseCase *corebiz.BaseCase, archiveRecord *models.BaseTableArchiveRecord) (int64, error) {
+func restoreOSSArchive(ctx context.Context, baseCase *biz.BaseCase, archiveRecord *models.BaseTableArchiveRecord) (int64, error) {
 	if baseCase.OSS == nil || archiveRecord.ObjectKey == "" {
 		return 0, fmt.Errorf("OSS 归档对象未配置")
 	}
@@ -188,7 +188,7 @@ func restoreRangeSQL(mode adminv1.BaseTableArchiveRestoreMode, restoreRange stri
 	return " WHERE `id` BETWEEN ? AND ?", []interface{}{value.StartID, value.EndID}, nil
 }
 
-func databaseConfigBySourceName(baseCase *corebiz.BaseCase, sourceName string) (*mysql.Config, error) {
+func databaseConfigBySourceName(baseCase *biz.BaseCase, sourceName string) (*mysql.Config, error) {
 	dataConfig := baseCase.GetConfig().GetData()
 	if dataConfig == nil {
 		return nil, fmt.Errorf("数据源配置为空")

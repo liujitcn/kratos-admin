@@ -9,7 +9,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	"github.com/liujitcn/kratos-core/biz"
-	coreconst "github.com/liujitcn/kratos-core/const"
+	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
 
 	"github.com/liujitcn/go-utils/mapper"
@@ -73,7 +73,7 @@ func (c *BaseMessageCategoryCase) OptionBaseMessageCategory(ctx context.Context,
 		options = append(options, &commonv1.SelectOptionResponse_Option{
 			Label:    item.Name,
 			Value:    item.ID,
-			Disabled: item.Status != coreconst.STATUS_STATUS_ENABLE,
+			Disabled: item.Status != _const.STATUS_STATUS_ENABLE,
 		})
 	}
 	return &commonv1.SelectOptionResponse{List: options}, nil
@@ -131,7 +131,7 @@ func (c *BaseMessageCategoryCase) CreateBaseMessageCategory(ctx context.Context,
 		entity.RetentionDays = defaultMessageRetentionDays
 	}
 	if entity.Status == 0 {
-		entity.Status = coreconst.STATUS_STATUS_ENABLE
+		entity.Status = _const.STATUS_STATUS_ENABLE
 	}
 	return c.tx.Transaction(ctx, func(txCtx context.Context) error {
 		err = c.Create(txCtx, entity)
@@ -220,7 +220,7 @@ func (c *BaseMessageCategoryCase) SetBaseMessageCategoryStatus(ctx context.Conte
 	if err != nil {
 		return err
 	}
-	if int32(req.GetStatus()) != coreconst.STATUS_STATUS_ENABLE && int32(req.GetStatus()) != coreconst.STATUS_STATUS_DISABLE {
+	if int32(req.GetStatus()) != _const.STATUS_STATUS_ENABLE && int32(req.GetStatus()) != _const.STATUS_STATUS_DISABLE {
 		return errorsx.InvalidArgument("消息分类状态无效")
 	}
 	if entity.Status == int32(req.GetStatus()) {

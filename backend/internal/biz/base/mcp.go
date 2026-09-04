@@ -16,7 +16,7 @@ import (
 	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
 	"github.com/liujitcn/kratos-kit/auth"
-	authzEngine "github.com/liujitcn/kratos-kit/auth/authz/engine"
+	"github.com/liujitcn/kratos-kit/auth/authz/engine"
 
 	"github.com/go-kratos/kratos/v3/log"
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
@@ -41,12 +41,12 @@ type McpCase struct {
 	http.Handler
 
 	baseAPIRepo *data.BaseAPIRepository
-	authorizer  authzEngine.Engine
+	authorizer  engine.Engine
 	handlerPath string
 }
 
 // NewMcpCase 创建 MCP 业务实例。
-func NewMcpCase(baseCase *biz.BaseCase, baseAPIRepo *data.BaseAPIRepository, authorizer authzEngine.Engine) (*McpCase, error) {
+func NewMcpCase(baseCase *biz.BaseCase, baseAPIRepo *data.BaseAPIRepository, authorizer engine.Engine) (*McpCase, error) {
 	h := &McpCase{
 		BaseCase:    baseCase,
 		baseAPIRepo: baseAPIRepo,
@@ -263,10 +263,10 @@ func (h *McpCase) authorizeToolCall(ctx context.Context, api *models.BaseAPI) er
 	if err != nil || authInfo == nil || authInfo.RoleCode == "" || authInfo.TenantCode == "" {
 		return errorsx.Unauthenticated("MCP用户认证失败")
 	}
-	tenant := authzEngine.Tenant(authInfo.TenantCode)
-	authzCtx := authzEngine.ContextWithAuthClaims(ctx, &authzEngine.AuthClaims{Tenant: &tenant})
+	tenant := engine.Tenant(authInfo.TenantCode)
+	authzCtx := engine.ContextWithAuthClaims(ctx, &engine.AuthClaims{Tenant: &tenant})
 	var allowed bool
-	allowed, err = h.authorizer.IsAuthorized(authzCtx, authzEngine.Subject(authInfo.RoleCode), authzEngine.Action(strings.ToUpper(api.Method)), authzEngine.Resource(api.Operation), "")
+	allowed, err = h.authorizer.IsAuthorized(authzCtx, engine.Subject(authInfo.RoleCode), engine.Action(strings.ToUpper(api.Method)), engine.Resource(api.Operation), "")
 	if err != nil {
 		return errorsx.Internal("MCP工具权限校验失败").WithCause(err)
 	}

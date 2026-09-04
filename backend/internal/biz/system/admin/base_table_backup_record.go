@@ -8,17 +8,17 @@ import (
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	corebiz "github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/biz"
 )
 
 // BaseTableBackupRecordCase 查询数据库备份记录。
 type BaseTableBackupRecordCase struct {
-	*corebiz.BaseCase
+	*biz.BaseCase
 	*data.BaseTableBackupRecordRepository
 }
 
 // NewBaseTableBackupRecordCase 创建数据库备份记录业务实例。
-func NewBaseTableBackupRecordCase(baseCase *corebiz.BaseCase, repo *data.BaseTableBackupRecordRepository) *BaseTableBackupRecordCase {
+func NewBaseTableBackupRecordCase(baseCase *biz.BaseCase, repo *data.BaseTableBackupRecordRepository) *BaseTableBackupRecordCase {
 	return &BaseTableBackupRecordCase{BaseCase: baseCase, BaseTableBackupRecordRepository: repo}
 }
 

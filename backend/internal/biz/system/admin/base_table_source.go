@@ -7,18 +7,18 @@ import (
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	corebiz "github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
 	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 // BaseTableSourceCase 提供数据备份、数据归档和代码生成共用的数据源元数据。
 type BaseTableSourceCase struct {
-	*corebiz.BaseCase
+	*biz.BaseCase
 }
 
 // NewBaseTableSourceCase 创建数据源元数据业务实例。
-func NewBaseTableSourceCase(baseCase *corebiz.BaseCase) *BaseTableSourceCase {
+func NewBaseTableSourceCase(baseCase *biz.BaseCase) *BaseTableSourceCase {
 	return &BaseTableSourceCase{BaseCase: baseCase}
 }
 
@@ -51,7 +51,7 @@ func (c *BaseTableSourceCase) OptionBaseTable(ctx context.Context, req *adminv1.
 }
 
 // GormClientBySourceName 按数据源名称获取已初始化的 GORM 客户端。
-func GormClientBySourceName(baseCase *corebiz.BaseCase, sourceName string) (*gorm.Client, error) {
+func GormClientBySourceName(baseCase *biz.BaseCase, sourceName string) (*gorm.Client, error) {
 	if sourceName == "" {
 		return nil, fmt.Errorf("数据源名称不能为空")
 	}

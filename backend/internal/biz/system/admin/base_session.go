@@ -8,23 +8,23 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v3/transport"
-	httpTransport "github.com/go-kratos/kratos/v3/transport/http"
+	"github.com/go-kratos/kratos/v3/transport/http"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/sessionstate"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
-	authData "github.com/liujitcn/kratos-kit/auth/data"
+	"github.com/liujitcn/kratos-kit/auth/data"
 )
 
 // BaseSessionCase 提供当前登录会话查询和批量撤销能力。
 // 当前实现以 UserToken 的用户级令牌槽为边界，查询时校验请求令牌，撤销时同时清理访问和刷新令牌。
 type BaseSessionCase struct {
 	*biz.BaseCase
-	userToken *authData.UserToken
+	userToken *data.UserToken
 }
 
 // NewBaseSessionCase 创建会话管理业务实例。
-func NewBaseSessionCase(baseCase *biz.BaseCase, userToken *authData.UserToken) *BaseSessionCase {
+func NewBaseSessionCase(baseCase *biz.BaseCase, userToken *data.UserToken) *BaseSessionCase {
 	return &BaseSessionCase{BaseCase: baseCase, userToken: userToken}
 }
 
@@ -98,7 +98,7 @@ func sessionRequestMeta(ctx context.Context) (string, string) {
 	if !ok {
 		return "", ""
 	}
-	httpInfo, ok := info.(*httpTransport.Transport)
+	httpInfo, ok := info.(*http.Transport)
 	if !ok || httpInfo.Request() == nil {
 		return "", ""
 	}
@@ -116,7 +116,7 @@ func sessionAccessToken(ctx context.Context) string {
 	if !ok {
 		return ""
 	}
-	httpInfo, ok := info.(*httpTransport.Transport)
+	httpInfo, ok := info.(*http.Transport)
 	if !ok || httpInfo.Request() == nil {
 		return ""
 	}

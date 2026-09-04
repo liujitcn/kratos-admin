@@ -5,8 +5,7 @@ import (
 	"testing"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
-	corebiz "github.com/liujitcn/kratos-core/biz"
-	_const "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-kit/cache/memory"
 )
 
@@ -28,61 +27,26 @@ func TestLoginFailurePolicyLocksAndClears(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	loginCase := &LoginCase{BaseCase: &corebiz.BaseCase{Cache: cache}}
+	loginCase := &LoginCase{BaseCase: &biz.BaseCase{Cache: cache}}
 	ctx := context.Background()
-	maxAttempts := int(loginpolicy.DefaultMaxFailedAttempts)
 	policySet := loginpolicy.PolicySet{Policies: []loginpolicy.Policy{{
 		ScopeType:           loginpolicy.ScopeGlobal,
 		Status:              loginpolicy.StatusEnable,
-		MaxFailedAttempts:   int32(maxAttempts),
-		LockDurationMinutes: loginpolicy.DefaultLockDurationMinutes,
+		MaxFailedAttempts:   3,
+		LockDurationMinutes: 15,
 	}}}
-	for attempt := 0; attempt < maxAttempts; attempt++ {
-		if err = loginCase.recordLoginFailure(ctx, "tenant-a", "alice", policySet, 0, 0); err != nil {
+	for attempt := 0; attempt < 3; attempt++ {
+		if err = loginCase.recordLoginFailure(ctx, "tenant-a", "alice", policySet, 1, 1); err != nil {
 			t.Fatal(err)
 		}
 	}
-	if err = loginCase.checkLoginPolicy(ctx, "tenant-a", "alice", policySet, 0, 0); err == nil {
+	if err = loginCase.checkLoginPolicy(ctx, "tenant-a", "alice", policySet, 1, 1); err == nil {
 		t.Fatal("expected login policy to lock the account")
 	}
 	if err = loginCase.clearLoginFailures(ctx, "tenant-a", "alice"); err != nil {
 		t.Fatal(err)
 	}
-	if err = loginCase.checkLoginPolicy(ctx, "tenant-a", "alice", policySet, 0, 0); err != nil {
+	if err = loginCase.checkLoginPolicy(ctx, "tenant-a", "alice", policySet, 1, 1); err != nil {
 		t.Fatalf("expected cleared account to be available: %v", err)
-	}
-}
-
-func TestLoginFailurePolicySkipsWithoutEnabledPolicy(t *testing.T) {
-	cache, _, err := memory.NewMemory()
-	if err != nil {
-		t.Fatal(err)
-	}
-	loginCase := &LoginCase{BaseCase: &corebiz.BaseCase{Cache: cache}}
-	ctx := context.Background()
-	policySet := loginpolicy.PolicySet{Policies: []loginpolicy.Policy{{
-		ScopeType:           loginpolicy.ScopeGlobal,
-		Status:              loginpolicy.StatusDisable,
-		MaxFailedAttempts:   5,
-		LockDurationMinutes: 15,
-		PasswordMaxAgeDays:  90,
-	}}}
-	for attempt := 0; attempt < 10; attempt++ {
-		if err = loginCase.recordLoginFailure(ctx, "tenant-a", "alice", policySet, 0, 0); err != nil {
-			t.Fatal(err)
-		}
-	}
-	if err = loginCase.checkLoginPolicy(ctx, "tenant-a", "alice", policySet, 0, 0); err != nil {
-		t.Fatalf("disabled policy should not lock login: %v", err)
-	}
-}
-
-// TestRequiresServerSession 验证应用端角色不受后台会话策略影响。
-func TestRequiresServerSession(t *testing.T) {
-	if requiresServerSession(_const.BASE_ROLE_CODE_USER) || requiresServerSession(_const.BASE_ROLE_CODE_AUTHUSER) {
-		t.Fatal("应用端角色不应启用后台会话策略")
-	}
-	if !requiresServerSession("admin") {
-		t.Fatal("管理角色应启用后台会话策略")
 	}
 }

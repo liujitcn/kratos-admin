@@ -269,13 +269,23 @@ var codegenStaticMessageKeys = map[string]string{
 // localizeCodegen 从统一后端目录读取代码生成器文案并执行占位符替换。
 func localizeCodegen(localeValue string, primaryLocale string, key string, values map[string]string, fallback string) string {
 	if codegenCatalogValue == nil {
-		return fallback
+		return replaceCodegenMessagePlaceholders(fallback, values)
 	}
 	args := make(map[string]any, len(values))
 	for name, value := range values {
 		args[name] = value
 	}
-	return codegenCatalogValue.Localize(localeValue, primaryLocale, fullCodegenMessageKey(key), args, fallback)
+	localized := codegenCatalogValue.Localize(localeValue, primaryLocale, fullCodegenMessageKey(key), args, fallback)
+	return replaceCodegenMessagePlaceholders(localized, values)
+}
+
+// replaceCodegenMessagePlaceholders 替换代码生成器文案中的兼容占位符。
+func replaceCodegenMessagePlaceholders(message string, values map[string]string) string {
+	for name, value := range values {
+		message = strings.ReplaceAll(message, "{"+name+"}", value)
+		message = strings.ReplaceAll(message, "{{."+name+"}}", value)
+	}
+	return message
 }
 
 func fullCodegenMessageKey(key string) string {

@@ -1,10 +1,11 @@
+// Package oauthsecret 提供开放授权客户端敏感凭据的服务端加密存储。
 package oauthsecret
 
 import (
 	"context"
 	"crypto/aes"
 	"crypto/cipher"
-	cryptorand "crypto/rand"
+	"crypto/rand"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -63,7 +64,7 @@ func (p *Protector) Protect(value string) (string, error) {
 		return "", fmt.Errorf("创建凭据 AEAD 失败: %w", err)
 	}
 	nonce := make([]byte, aead.NonceSize())
-	if _, err = cryptorand.Read(nonce); err != nil {
+	if _, err = rand.Read(nonce); err != nil {
 		return "", fmt.Errorf("生成凭据随机数失败: %w", err)
 	}
 	ciphertext := aead.Seal(nil, nonce, []byte(value), nil)

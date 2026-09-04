@@ -2,6 +2,7 @@ package biz
 
 import (
 	"bufio"
+	"bytes"
 	"compress/gzip"
 	"context"
 	"crypto/hmac"
@@ -201,13 +202,13 @@ func (c *RuntimeLogCase) OpenRuntimeConsole(ctx context.Context, req *adminv1.Op
 	}, nil
 }
 
-// DownloadRuntimeLogFile 读取历史日志原文件用于直接下载。
+// DownloadRuntimeLogFile 下载脱敏后的历史日志文件。
 func (c *RuntimeLogCase) DownloadRuntimeLogFile(fileID string) (*dto.RuntimeLogDownload, error) {
 	path, _, err := c.resolveRuntimeLogFile(fileID)
 	if err != nil {
 		return nil, err
 	}
-	data, err := os.ReadFile(path)
+	data, err := sanitizeRuntimeLogFile(path)
 	if err != nil {
 		return nil, errorsx.Internal("读取日志下载文件失败").WithCause(err)
 	}
@@ -217,6 +218,67 @@ func (c *RuntimeLogCase) DownloadRuntimeLogFile(fileID string) (*dto.RuntimeLogD
 		contentType = "application/gzip"
 	}
 	return &dto.RuntimeLogDownload{Name: name, ContentType: contentType, Data: data}, nil
+}
+
+// sanitizeRuntimeLogFile 读取日志文件并按行输出脱敏后的内容。
+func sanitizeRuntimeLogFile(path string) (data []byte, err error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		closeErr := file.Close()
+		if err == nil && closeErr != nil {
+			err = closeErr
+		}
+	}()
+
+	var reader io.Reader = file
+	var gzipReader *gzip.Reader
+	if strings.HasSuffix(strings.ToLower(path), ".gz") {
+		gzipReader, err = gzip.NewReader(file)
+		if err != nil {
+			return nil, err
+		}
+		defer func() {
+			closeErr := gzipReader.Close()
+			if err == nil && closeErr != nil {
+				err = closeErr
+			}
+		}()
+		reader = gzipReader
+	}
+
+	var output bytes.Buffer
+	var writer io.Writer = &output
+	var gzipWriter *gzip.Writer
+	if gzipReader != nil {
+		gzipWriter = gzip.NewWriter(&output)
+		writer = gzipWriter
+	}
+	buffered := bufio.NewReaderSize(reader, maxRuntimeLogLineBytes)
+	for {
+		var line string
+		var truncated bool
+		line, truncated, err = readRuntimeLogLine(buffered)
+		if errors.Is(err, io.EOF) {
+			err = nil
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+		entry := logstream.ParseLine(line, truncated)
+		if _, err = fmt.Fprintln(writer, entry.GetLine()); err != nil {
+			return nil, err
+		}
+	}
+	if gzipWriter != nil {
+		if err = gzipWriter.Close(); err != nil {
+			return nil, err
+		}
+	}
+	return output.Bytes(), nil
 }
 
 // resolveRuntimeLogFile 校验签名文件标识并解析安全的第一层普通文件。

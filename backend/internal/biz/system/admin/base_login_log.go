@@ -7,18 +7,18 @@ import (
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	corebiz "github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/biz"
 	"gorm.io/gen/field"
 )
 
 // BaseLoginLogCase 提供登录日志表的查询业务。
 type BaseLoginLogCase struct {
-	*corebiz.BaseCase
+	*biz.BaseCase
 	*data.BaseLoginLogRepository
 }
 
 // NewBaseLoginLogCase 创建登录日志查询业务实例。
-func NewBaseLoginLogCase(baseCase *corebiz.BaseCase, baseLoginLogRepo *data.BaseLoginLogRepository) *BaseLoginLogCase {
+func NewBaseLoginLogCase(baseCase *biz.BaseCase, baseLoginLogRepo *data.BaseLoginLogRepository) *BaseLoginLogCase {
 	return &BaseLoginLogCase{BaseCase: baseCase, BaseLoginLogRepository: baseLoginLogRepo}
 }
 

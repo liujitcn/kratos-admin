@@ -6,14 +6,14 @@ import (
 	"strings"
 	"time"
 
-	stringutil "github.com/liujitcn/go-utils/string"
+	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
-	corebiz "github.com/liujitcn/kratos-core/biz"
-	coreconst "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-core/biz"
+	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"
 )
 
@@ -21,12 +21,12 @@ var tableNamePattern = regexp.MustCompile(`^[A-Za-z0-9_]+$`)
 
 // BaseTableArchiveCase 管理表归档配置。
 type BaseTableArchiveCase struct {
-	*corebiz.BaseCase
+	*biz.BaseCase
 	*data.BaseTableArchiveRepository
 }
 
 // NewBaseTableArchiveCase 创建表归档配置业务实例。
-func NewBaseTableArchiveCase(baseCase *corebiz.BaseCase, repo *data.BaseTableArchiveRepository) *BaseTableArchiveCase {
+func NewBaseTableArchiveCase(baseCase *biz.BaseCase, repo *data.BaseTableArchiveRepository) *BaseTableArchiveCase {
 	return &BaseTableArchiveCase{BaseCase: baseCase, BaseTableArchiveRepository: repo}
 }
 
@@ -74,7 +74,7 @@ func (c *BaseTableArchiveCase) CreateBaseTableArchive(ctx context.Context, req *
 	}
 	status := int32(req.GetStatus())
 	if status == 0 {
-		status = coreconst.STATUS_STATUS_DISABLE
+		status = _const.STATUS_STATUS_DISABLE
 	}
 	entity := &models.BaseTableArchive{
 		SourceName: req.GetSourceName(), TableName_: req.GetTableName(), ArchiveMode: int32(req.GetArchiveMode()),
@@ -113,19 +113,19 @@ func (c *BaseTableArchiveCase) UpdateBaseTableArchive(ctx context.Context, req *
 
 // DeleteBaseTableArchive 删除表归档配置。
 func (c *BaseTableArchiveCase) DeleteBaseTableArchive(ctx context.Context, ids string) error {
-	return c.DeleteByIDs(ctx, stringutil.ConvertStringToInt64Array(ids))
+	return c.DeleteByIDs(ctx, _string.ConvertStringToInt64Array(ids))
 }
 
 // SetBaseTableArchiveStatus 设置表归档配置状态。
 func (c *BaseTableArchiveCase) SetBaseTableArchiveStatus(ctx context.Context, req *adminv1.SetBaseTableArchiveStatusRequest) error {
-	if req.GetStatus() != coreconst.STATUS_STATUS_ENABLE && req.GetStatus() != coreconst.STATUS_STATUS_DISABLE {
+	if req.GetStatus() != _const.STATUS_STATUS_ENABLE && req.GetStatus() != _const.STATUS_STATUS_DISABLE {
 		return errorsx.InvalidArgument("归档配置状态无效")
 	}
 	return c.UpdateByID(ctx, &models.BaseTableArchive{ID: req.GetId(), Status: req.GetStatus()})
 }
 
 // validateTableArchiveForm 校验归档配置的数据源、数据表和归档参数。
-func validateTableArchiveForm(baseCase *corebiz.BaseCase, req *adminv1.BaseTableArchiveForm) error {
+func validateTableArchiveForm(baseCase *biz.BaseCase, req *adminv1.BaseTableArchiveForm) error {
 	if req.GetArchiveMode() != adminv1.BaseTableArchiveMode_BASE_TABLE_ARCHIVE_MODE_INTERNAL_DATABASE && req.GetArchiveMode() != adminv1.BaseTableArchiveMode_BASE_TABLE_ARCHIVE_MODE_OSS {
 		return errorsx.InvalidArgument("归档模式无效")
 	}

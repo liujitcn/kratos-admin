@@ -7,18 +7,18 @@ import (
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	corebiz "github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/biz"
 	"gorm.io/gen/field"
 )
 
 // BaseOperationLogCase 提供业务操作日志表的查询业务。
 type BaseOperationLogCase struct {
-	*corebiz.BaseCase
+	*biz.BaseCase
 	*data.BaseOperationLogRepository
 }
 
 // NewBaseOperationLogCase 创建业务操作日志查询业务实例。
-func NewBaseOperationLogCase(baseCase *corebiz.BaseCase, baseOperationLogRepo *data.BaseOperationLogRepository) *BaseOperationLogCase {
+func NewBaseOperationLogCase(baseCase *biz.BaseCase, baseOperationLogRepo *data.BaseOperationLogRepository) *BaseOperationLogCase {
 	return &BaseOperationLogCase{BaseCase: baseCase, BaseOperationLogRepository: baseOperationLogRepo}
 }
 

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	corebiz "github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
 	coreDocs "github.com/liujitcn/kratos-core/resource/docs"
 	"github.com/liujitcn/kratos-core/resource/docs/dto"
@@ -13,13 +13,13 @@ import (
 
 // ProjectDocumentCase 提供项目文档查询业务。
 type ProjectDocumentCase struct {
-	*corebiz.BaseCase
+	*biz.BaseCase
 	docs    *coreDocs.Docs
 	catalog *i18n.I18n
 }
 
 // NewProjectDocumentCase 创建项目文档查询业务实例。
-func NewProjectDocumentCase(baseCase *corebiz.BaseCase, docs *coreDocs.Docs, catalog *i18n.I18n) *ProjectDocumentCase {
+func NewProjectDocumentCase(baseCase *biz.BaseCase, docs *coreDocs.Docs, catalog *i18n.I18n) *ProjectDocumentCase {
 	return &ProjectDocumentCase{BaseCase: baseCase, docs: docs, catalog: catalog}
 }
 
@@ -74,7 +74,7 @@ func (c *ProjectDocumentCase) localizeProjectName(ctx context.Context, name stri
 	if !found {
 		return name
 	}
-	return c.catalog.Localize(corebiz.LocaleFromContext(ctx), "", messageKey, nil, name)
+	return c.catalog.Localize(biz.LocaleFromContext(ctx), "", messageKey, nil, name)
 }
 
 // mapProjectDocumentDirectory 递归转换 Core 文档目录。

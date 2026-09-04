@@ -7,7 +7,7 @@ import (
 	"os"
 	"os/exec"
 
-	utilscrypto "github.com/liujitcn/go-utils/crypto"
+	"github.com/liujitcn/go-utils/crypto"
 )
 
 // EncryptFile 使用 OpenSSL 命令优先、Go 实现兜底的方式加密文件。
@@ -24,7 +24,7 @@ func EncryptFile(ctx context.Context, encryptionKey, source, target string) erro
 	if err != nil {
 		return fmt.Errorf("创建加密备份文件失败: %w", err)
 	}
-	fileCrypto := utilscrypto.NewOpenSSLFileCrypto()
+	fileCrypto := crypto.NewOpenSSLFileCrypto()
 	if err = fileCrypto.EncryptReader(encryptionKey, input, output); err != nil {
 		_ = output.Close()
 		return fmt.Errorf("Go 加密备份失败: %w", err)
@@ -53,7 +53,7 @@ func DecryptFile(ctx context.Context, encryptionKey, source, target string) erro
 	if err != nil {
 		return fmt.Errorf("创建解密备份文件失败: %w", err)
 	}
-	fileCrypto := utilscrypto.NewOpenSSLFileCrypto()
+	fileCrypto := crypto.NewOpenSSLFileCrypto()
 	if err = fileCrypto.DecryptReader(encryptionKey, input, output); err != nil {
 		_ = output.Close()
 		return fmt.Errorf("Go 解密备份失败: %w", err)

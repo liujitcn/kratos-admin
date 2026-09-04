@@ -9,7 +9,7 @@ import (
 
 	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	"github.com/liujitcn/kratos-kit/cache"
-	kitconfig "github.com/liujitcn/kratos-kit/config"
+	"github.com/liujitcn/kratos-kit/config"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -45,7 +45,7 @@ type State struct {
 
 // PolicyFromConfig 从引导配置读取会话超时策略。
 func PolicyFromConfig() Policy {
-	bootstrapConfig := kitconfig.GetBootstrapConfig()
+	bootstrapConfig := config.GetBootstrapConfig()
 	if bootstrapConfig == nil || bootstrapConfig.GetAuthn() == nil {
 		return policyFromSessionConfig(nil)
 	}

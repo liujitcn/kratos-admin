@@ -7,18 +7,18 @@ import (
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	corebiz "github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/biz"
 	"gorm.io/gen/field"
 )
 
 // BasePermissionLogCase 提供权限日志表的查询业务。
 type BasePermissionLogCase struct {
-	*corebiz.BaseCase
+	*biz.BaseCase
 	*data.BasePermissionLogRepository
 }
 
 // NewBasePermissionLogCase 创建权限日志查询业务实例。
-func NewBasePermissionLogCase(baseCase *corebiz.BaseCase, basePermissionLogRepo *data.BasePermissionLogRepository) *BasePermissionLogCase {
+func NewBasePermissionLogCase(baseCase *biz.BaseCase, basePermissionLogRepo *data.BasePermissionLogRepository) *BasePermissionLogCase {
 	return &BasePermissionLogCase{BaseCase: baseCase, BasePermissionLogRepository: basePermissionLogRepo}
 }
 

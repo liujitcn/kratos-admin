@@ -8,17 +8,17 @@ import (
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
-	corebiz "github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/biz"
 )
 
 // BaseTableArchiveRecordCase 查询表归档执行记录。
 type BaseTableArchiveRecordCase struct {
-	*corebiz.BaseCase
+	*biz.BaseCase
 	*data.BaseTableArchiveRecordRepository
 }
 
 // NewBaseTableArchiveRecordCase 创建表归档记录业务实例。
-func NewBaseTableArchiveRecordCase(baseCase *corebiz.BaseCase, repo *data.BaseTableArchiveRecordRepository) *BaseTableArchiveRecordCase {
+func NewBaseTableArchiveRecordCase(baseCase *biz.BaseCase, repo *data.BaseTableArchiveRecordRepository) *BaseTableArchiveRecordCase {
 	return &BaseTableArchiveRecordCase{BaseCase: baseCase, BaseTableArchiveRecordRepository: repo}
 }
 
