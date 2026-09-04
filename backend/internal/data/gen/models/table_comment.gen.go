@@ -150,6 +150,26 @@ func (*BasePost) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*BaseRedactBinding) TableComment() string {
+	return "脱敏字段策略绑定"
+}
+
+// TableComment 返回表注释。
+func (*BaseRedactField) TableComment() string {
+	return "脱敏字段目录"
+}
+
+// TableComment 返回表注释。
+func (*BaseRedactRule) TableComment() string {
+	return "脱敏规则模板"
+}
+
+// TableComment 返回表注释。
+func (*BaseRedactValue) TableComment() string {
+	return "敏感字段加密原文"
+}
+
+// TableComment 返回表注释。
 func (*BaseRole) TableComment() string {
 	return "角色信息"
 }

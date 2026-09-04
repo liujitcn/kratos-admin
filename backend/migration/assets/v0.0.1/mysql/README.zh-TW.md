@@ -6,7 +6,7 @@
 
 | 檔案 | 內容 |
 | --- | --- |
-| `default_data.up.sql` | 預設語言、設定、部門、字典、字典項目、任務、租戶、訊息分類、選單、角色和開發帳號。 |
+| `default_data.up.sql` | 預設語言、設定、部門、字典、字典項目、任務、租戶、訊息分類、選單、角色、脫敏規則、脫敏欄位、脫敏策略和開發帳號。 |
 | `base_area.up.sql` | 行政區劃基礎資料，作為獨立腳本參與預設資料源遷移。 |
 | `i18n.en-US.up.sql` | `en-US` 的 `base_i18n` 翻譯資料。 |
 | `i18n.ja-JP.up.sql` | `ja-JP` 的 `base_i18n` 翻譯資料。 |
@@ -23,18 +23,18 @@
 
 ## 預設資料
 
-`default_data.up.sql` 目前寫入以下 11 張資料表：
+`default_data.up.sql` 目前寫入以下預設資料表：
 
-`base_language`、`base_config`、`base_dept`、`base_dict`、`base_dict_item`、`base_job`、`base_tenant`、`base_message_category`、`base_menu`、`base_role`、`base_user`。
+`base_language`、`base_config`、`base_dept`、`base_dict`、`base_dict_item`、`base_job`、`base_tenant`、`base_message_category`、`base_menu`、`base_role`、`base_user`、`base_redact_rule`、`base_redact_field`、`base_redact_binding`。
 
 - 語言：預設 `zh-CN`、`zh-TW`、`en-US`、`ja-JP`，其中 `zh-CN` 為主要語言。
 - 基礎身分：預設租戶、系統部門、5 個角色範本，以及本機開發帳號 `super`、`admin`。初始密碼為 `112233`，僅供本機環境使用。
 - 設定與字典：包含管理端與應用端設定、驗證碼、OAuth 自動註冊、租戶編號顯示、多因素認證策略與方式；日誌入庫回退使用隱藏設定 `baseLogFallback`，保留策略寫入 `base_table_archive`，資料庫備份策略寫入 `base_table_backup`，工作階段生命週期和上傳掃描由 `authn.session`、`oss.upload_security` 設定。持久化字典涵蓋選單、稽核、登入策略、訊息、權限與程式碼生成等列舉值。
 - 任務與訊息：任務編號 `1000-1004` 分別用於資源翻譯、訊息投遞恢復、資料表歸檔、資料表備份和日誌入庫回退；訊息投遞恢復與日誌入庫回退預設啟用，歸檔和備份預設關閉。歸檔設定儲存在 `base_table_archive`，備份設定儲存在 `base_table_backup`。訊息分類預設系統、安全、任務、業務四類。
 - 選單與權限：管理端根選單包含首頁、使用者管理、系統管理、開發工具；系統管理下包含備份管理（資料歸檔、資料備份及各自的配置/記錄/恢復記錄）和配置管理。行動端根選單固定為 `99000000`，首頁為 `99010000`，我的頁面為 `99090000`。開發工具包含運維監控、執行日誌、快取查詢、專案文件與程式碼生成。每個選單的 `api` 僅記錄該頁面實際呼叫的受保護服務方法，角色透過選單編號取得權限。
-- 安全能力：登入策略選單及其服務、按鈕權限只授予平台超級管理員，預設不建立登入策略記錄。OAuth 客戶端管理選單、MFA 設定和認證方式字典直接寫入初始化資料，相關業務資料表由資料層建立。
+- 安全能力：登入策略選單及其服務、按鈕權限只授予平台超級管理員，預設不建立登入策略記錄。脫敏策略選單及預設的手機號碼回應遮罩授予系統管理員。OAuth 客戶端管理選單、MFA 設定和認證方式字典直接寫入初始化資料，相關業務資料表由資料層建立。
 
-`base_area.up.sql` 獨立寫入行政區劃資料，並與 `default_data.up.sql` 一起依檔名順序參與版本遷移。訊息、MFA、OAuth 客戶端、語言和翻譯相關資料表由資料層自動遷移建立，SQL 檔案不負責建表。
+`base_area.up.sql` 獨立寫入行政區劃資料，並與 `default_data.up.sql` 一起依檔名順序參與版本遷移。訊息、MFA、OAuth 客戶端、語言、翻譯和脫敏相關資料表由資料層自動遷移建立，SQL 檔案不負責建表。
 
 ## 多語言資料
 

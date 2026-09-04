@@ -10,7 +10,7 @@ import (
 
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
-	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 // Models 返回当前数据源生成的全部迁移模型。
@@ -45,6 +45,10 @@ func Models() []interface{} {
 		new(models.BasePermissionLog),
 		new(models.BasePolicyEvaluationLog),
 		new(models.BasePost),
+		new(models.BaseRedactBinding),
+		new(models.BaseRedactField),
+		new(models.BaseRedactRule),
+		new(models.BaseRedactValue),
 		new(models.BaseRole),
 		new(models.BaseTableArchive),
 		new(models.BaseTableArchiveRecord),
@@ -82,11 +86,11 @@ type Data struct {
 }
 
 // NewData 初始化数据访问对象，并构建默认查询入口。
-func NewData(databases map[string]*databaseGorm.Client) (*Data, error) {
+func NewData(databases map[string]*gorm.Client) (*Data, error) {
 	if len(databases) == 0 {
 		return nil, errors.New("数据库客户端映射不能为空")
 	}
-	defaultClient, ok := databases[databaseGorm.DefaultClientName]
+	defaultClient, ok := databases[gorm.DefaultClientName]
 	if !ok || defaultClient == nil || defaultClient.DB == nil {
 		return nil, errors.New("默认数据库客户端不存在")
 	}

@@ -6,7 +6,7 @@ This directory contains the MySQL initialization resources for `v0.0.1`. The scr
 
 | File | Contents |
 | --- | --- |
-| `default_data.up.sql` | Default languages, configuration, departments, dictionaries, dictionary items, jobs, tenant, message categories, menus, roles, and development accounts. |
+| `default_data.up.sql` | Default languages, configuration, departments, dictionaries, dictionary items, jobs, tenant, message categories, menus, roles, redaction rules, redaction fields, redaction policies, and development accounts. |
 | `base_area.up.sql` | Administrative-division data in a separate script that participates in the default data-source migration. |
 | `i18n.en-US.up.sql` | `en-US` `base_i18n` translations. |
 | `i18n.ja-JP.up.sql` | `ja-JP` `base_i18n` translations. |
@@ -23,18 +23,18 @@ A database that has already recorded `v0.0.1` will not replay the migration beca
 
 ## Default Data
 
-`default_data.up.sql` currently writes 11 tables:
+`default_data.up.sql` currently writes the following default-data tables:
 
-`base_language`, `base_config`, `base_dept`, `base_dict`, `base_dict_item`, `base_job`, `base_tenant`, `base_message_category`, `base_menu`, `base_role`, and `base_user`.
+`base_language`, `base_config`, `base_dept`, `base_dict`, `base_dict_item`, `base_job`, `base_tenant`, `base_message_category`, `base_menu`, `base_role`, `base_user`, `base_redact_rule`, `base_redact_field`, and `base_redact_binding`.
 
 - Languages: `zh-CN`, `zh-TW`, `en-US`, and `ja-JP` are provided; `zh-CN` is the primary language.
 - Identity data: a default tenant, system departments, five role templates, and the local development accounts `super` and `admin` are provided. The initial password is `112233` and is for local use only.
 - Configuration and dictionaries: the data covers Admin and app settings, CAPTCHA, OAuth auto-registration, tenant-code display, MFA policy and methods; log ingestion fallback uses hidden configuration `baseLogFallback`, retention policies use `base_table_archive`, and backup policies use `base_table_backup`, while session lifetime and upload scanning use `authn.session` and `oss.upload_security`. Persistent dictionaries cover menu, audit, login-policy, message, permission, and code-generation enums.
 - Jobs and messages: job IDs `1000-1004` are resource translation, message-delivery recovery, table archiving, table backup, and log ingestion fallback. Message-delivery recovery and log ingestion fallback are enabled by default; archiving and backup are disabled. Archive settings are stored in `base_table_archive`; backup settings are stored in `base_table_backup`. Four message categories are provided: system, security, task, and business.
 - Menus and permissions: the Admin roots are Home, User Management, System Management, and Development Tools. The mobile root is `99000000`, with Home at `99010000` and My Account at `99090000`. System Management contains Backup Management (data archiving, data backup, and their configuration/record/restore pages) and Configuration Management. Development Tools includes operations monitoring, runtime logs, cache query, project documents, and code generation. Each menu's `api` field lists the protected service methods it actually calls, and roles receive permissions through menu IDs.
-- Security capabilities: the login-policy menu and its service/button permissions are granted only to the platform super administrator, and no login-policy record is created by default. OAuth client management menus, MFA configuration, and authentication-method dictionaries are initialized directly; the related business tables are created by the data layer.
+- Security capabilities: the login-policy menu and its service/button permissions are granted only to the platform super administrator, and no login-policy record is created by default. Redaction menus and the default phone-response mask are granted to the system administrator. OAuth client management menus, MFA configuration, and authentication-method dictionaries are initialized directly; the related business tables are created by the data layer.
 
-`base_area.up.sql` writes administrative-division data in a separate script and is applied with `default_data.up.sql` in filename order. Message, MFA, OAuth-client, language, and translation tables are created by the data layer; these SQL files do not create tables.
+`base_area.up.sql` writes administrative-division data in a separate script and is applied with `default_data.up.sql` in filename order. Message, MFA, OAuth-client, language, translation, and redaction tables are created by the data layer; these SQL files do not create tables.
 
 ## Localized Data
 
