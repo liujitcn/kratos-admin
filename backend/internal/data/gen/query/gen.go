@@ -47,10 +47,10 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		BasePermissionLog:       newBasePermissionLog(db, opts...),
 		BasePolicyEvaluationLog: newBasePolicyEvaluationLog(db, opts...),
 		BasePost:                newBasePost(db, opts...),
-		BaseRedactBinding:       newBaseRedactBinding(db, opts...),
-		BaseRedactField:         newBaseRedactField(db, opts...),
+		BaseRedactOutputPolicy:  newBaseRedactOutputPolicy(db, opts...),
 		BaseRedactRule:          newBaseRedactRule(db, opts...),
-		BaseRedactValue:         newBaseRedactValue(db, opts...),
+		BaseRedactStoragePolicy: newBaseRedactStoragePolicy(db, opts...),
+		BaseRedactStorageValue:  newBaseRedactStorageValue(db, opts...),
 		BaseRole:                newBaseRole(db, opts...),
 		BaseTableArchive:        newBaseTableArchive(db, opts...),
 		BaseTableArchiveRecord:  newBaseTableArchiveRecord(db, opts...),
@@ -74,7 +74,8 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 }
 
 type Query struct {
-	db                      *gorm.DB
+	db *gorm.DB
+
 	AiMessage               aiMessage
 	AiSession               aiSession
 	BaseAPI                 baseAPI
@@ -104,10 +105,10 @@ type Query struct {
 	BasePermissionLog       basePermissionLog
 	BasePolicyEvaluationLog basePolicyEvaluationLog
 	BasePost                basePost
-	BaseRedactBinding       baseRedactBinding
-	BaseRedactField         baseRedactField
+	BaseRedactOutputPolicy  baseRedactOutputPolicy
 	BaseRedactRule          baseRedactRule
-	BaseRedactValue         baseRedactValue
+	BaseRedactStoragePolicy baseRedactStoragePolicy
+	BaseRedactStorageValue  baseRedactStorageValue
 	BaseRole                baseRole
 	BaseTableArchive        baseTableArchive
 	BaseTableArchiveRecord  baseTableArchiveRecord
@@ -163,10 +164,10 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		BasePermissionLog:       q.BasePermissionLog.clone(db),
 		BasePolicyEvaluationLog: q.BasePolicyEvaluationLog.clone(db),
 		BasePost:                q.BasePost.clone(db),
-		BaseRedactBinding:       q.BaseRedactBinding.clone(db),
-		BaseRedactField:         q.BaseRedactField.clone(db),
+		BaseRedactOutputPolicy:  q.BaseRedactOutputPolicy.clone(db),
 		BaseRedactRule:          q.BaseRedactRule.clone(db),
-		BaseRedactValue:         q.BaseRedactValue.clone(db),
+		BaseRedactStoragePolicy: q.BaseRedactStoragePolicy.clone(db),
+		BaseRedactStorageValue:  q.BaseRedactStorageValue.clone(db),
 		BaseRole:                q.BaseRole.clone(db),
 		BaseTableArchive:        q.BaseTableArchive.clone(db),
 		BaseTableArchiveRecord:  q.BaseTableArchiveRecord.clone(db),
@@ -229,10 +230,10 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		BasePermissionLog:       q.BasePermissionLog.replaceDB(db),
 		BasePolicyEvaluationLog: q.BasePolicyEvaluationLog.replaceDB(db),
 		BasePost:                q.BasePost.replaceDB(db),
-		BaseRedactBinding:       q.BaseRedactBinding.replaceDB(db),
-		BaseRedactField:         q.BaseRedactField.replaceDB(db),
+		BaseRedactOutputPolicy:  q.BaseRedactOutputPolicy.replaceDB(db),
 		BaseRedactRule:          q.BaseRedactRule.replaceDB(db),
-		BaseRedactValue:         q.BaseRedactValue.replaceDB(db),
+		BaseRedactStoragePolicy: q.BaseRedactStoragePolicy.replaceDB(db),
+		BaseRedactStorageValue:  q.BaseRedactStorageValue.replaceDB(db),
 		BaseRole:                q.BaseRole.replaceDB(db),
 		BaseTableArchive:        q.BaseTableArchive.replaceDB(db),
 		BaseTableArchiveRecord:  q.BaseTableArchiveRecord.replaceDB(db),
@@ -285,10 +286,10 @@ type queryCtx struct {
 	BasePermissionLog       *basePermissionLogDo
 	BasePolicyEvaluationLog *basePolicyEvaluationLogDo
 	BasePost                *basePostDo
-	BaseRedactBinding       *baseRedactBindingDo
-	BaseRedactField         *baseRedactFieldDo
+	BaseRedactOutputPolicy  *baseRedactOutputPolicyDo
 	BaseRedactRule          *baseRedactRuleDo
-	BaseRedactValue         *baseRedactValueDo
+	BaseRedactStoragePolicy *baseRedactStoragePolicyDo
+	BaseRedactStorageValue  *baseRedactStorageValueDo
 	BaseRole                *baseRoleDo
 	BaseTableArchive        *baseTableArchiveDo
 	BaseTableArchiveRecord  *baseTableArchiveRecordDo
@@ -341,10 +342,10 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		BasePermissionLog:       q.BasePermissionLog.WithContext(ctx),
 		BasePolicyEvaluationLog: q.BasePolicyEvaluationLog.WithContext(ctx),
 		BasePost:                q.BasePost.WithContext(ctx),
-		BaseRedactBinding:       q.BaseRedactBinding.WithContext(ctx),
-		BaseRedactField:         q.BaseRedactField.WithContext(ctx),
+		BaseRedactOutputPolicy:  q.BaseRedactOutputPolicy.WithContext(ctx),
 		BaseRedactRule:          q.BaseRedactRule.WithContext(ctx),
-		BaseRedactValue:         q.BaseRedactValue.WithContext(ctx),
+		BaseRedactStoragePolicy: q.BaseRedactStoragePolicy.WithContext(ctx),
+		BaseRedactStorageValue:  q.BaseRedactStorageValue.WithContext(ctx),
 		BaseRole:                q.BaseRole.WithContext(ctx),
 		BaseTableArchive:        q.BaseTableArchive.WithContext(ctx),
 		BaseTableArchiveRecord:  q.BaseTableArchiveRecord.WithContext(ctx),

@@ -150,13 +150,8 @@ func (*BasePost) TableComment() string {
 }
 
 // TableComment 返回表注释。
-func (*BaseRedactBinding) TableComment() string {
-	return "脱敏字段策略绑定"
-}
-
-// TableComment 返回表注释。
-func (*BaseRedactField) TableComment() string {
-	return "脱敏字段目录"
+func (*BaseRedactOutputPolicy) TableComment() string {
+	return "Proto字段出库策略"
 }
 
 // TableComment 返回表注释。
@@ -165,7 +160,12 @@ func (*BaseRedactRule) TableComment() string {
 }
 
 // TableComment 返回表注释。
-func (*BaseRedactValue) TableComment() string {
+func (*BaseRedactStoragePolicy) TableComment() string {
+	return "敏感字段入库策略"
+}
+
+// TableComment 返回表注释。
+func (*BaseRedactStorageValue) TableComment() string {
 	return "敏感字段加密原文"
 }
 

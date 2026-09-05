@@ -52,11 +52,11 @@ type baseLoginPolicyRule struct {
 	ALL               field.Asterisk
 	ID                field.Int64  // 登录策略规则ID
 	PolicyID          field.Int64  // 登录策略ID
-	RestrictionType   field.Int32  // 限制类型：1黑名单，2白名单
-	RestrictionMethod field.Int32  // 限制方式：1 IP，2 MAC，3 地区，4 时间，5 设备
+	RestrictionType   field.Int32  // 限制类型：枚举【BaseLoginPolicyRestrictionType】
+	RestrictionMethod field.Int32  // 限制方式：枚举【BaseLoginPolicyRestrictionMethod】
 	RestrictionValue  field.String // 限制值
 	Reason            field.String // 限制原因
-	Status            field.Int32  // 状态：1启用，2禁用
+	Status            field.Int32  // 状态：枚举【Status】
 	CreatedBy         field.Int64  // 创建人ID
 	UpdatedBy         field.Int64  // 更新人ID
 	CreatedAt         field.Time   // 创建时间

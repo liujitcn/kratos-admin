@@ -31,9 +31,8 @@ func newBaseRedactRule(db *gorm.DB, opts ...gen.DOOption) baseRedactRule {
 	_baseRedactRule.Code = field.NewString(tableName, "code")
 	_baseRedactRule.Name = field.NewString(tableName, "name")
 	_baseRedactRule.RuleType = field.NewString(tableName, "rule_type")
-	_baseRedactRule.Rule = field.NewString(tableName, "rule")
+	_baseRedactRule.DefaultParams = field.NewString(tableName, "default_params")
 	_baseRedactRule.Status = field.NewInt32(tableName, "status")
-	_baseRedactRule.Version = field.NewInt32(tableName, "version")
 	_baseRedactRule.Remark = field.NewString(tableName, "remark")
 	_baseRedactRule.CreatedBy = field.NewInt64(tableName, "created_by")
 	_baseRedactRule.UpdatedBy = field.NewInt64(tableName, "updated_by")
@@ -50,20 +49,19 @@ func newBaseRedactRule(db *gorm.DB, opts ...gen.DOOption) baseRedactRule {
 type baseRedactRule struct {
 	baseRedactRuleDo baseRedactRuleDo
 
-	ALL       field.Asterisk
-	ID        field.Int64  // 脱敏规则ID
-	Code      field.String // 规则编码
-	Name      field.String // 规则名称
-	RuleType  field.String // 规则类型
-	Rule      field.String // 规则参数
-	Status    field.Int32  // 状态：1启用、2禁用
-	Version   field.Int32  // 规则版本
-	Remark    field.String // 备注
-	CreatedBy field.Int64  // 创建者ID
-	UpdatedBy field.Int64  // 更新者ID
-	CreatedAt field.Time   // 创建时间
-	UpdatedAt field.Time   // 更新时间
-	DeletedAt field.Field  // 删除时间
+	ALL           field.Asterisk
+	ID            field.Int64  // 脱敏规则ID
+	Code          field.String // 规则编码
+	Name          field.String // 规则名称
+	RuleType      field.String // 规则类型
+	DefaultParams field.String // 默认规则参数
+	Status        field.Int32  // 状态：枚举【Status】
+	Remark        field.String // 备注
+	CreatedBy     field.Int64  // 创建者ID
+	UpdatedBy     field.Int64  // 更新者ID
+	CreatedAt     field.Time   // 创建时间
+	UpdatedAt     field.Time   // 更新时间
+	DeletedAt     field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -84,9 +82,8 @@ func (b *baseRedactRule) updateTableName(table string) *baseRedactRule {
 	b.Code = field.NewString(table, "code")
 	b.Name = field.NewString(table, "name")
 	b.RuleType = field.NewString(table, "rule_type")
-	b.Rule = field.NewString(table, "rule")
+	b.DefaultParams = field.NewString(table, "default_params")
 	b.Status = field.NewInt32(table, "status")
-	b.Version = field.NewInt32(table, "version")
 	b.Remark = field.NewString(table, "remark")
 	b.CreatedBy = field.NewInt64(table, "created_by")
 	b.UpdatedBy = field.NewInt64(table, "updated_by")
@@ -121,14 +118,13 @@ func (b *baseRedactRule) GetFieldByName(fieldName string) (field.OrderExpr, bool
 }
 
 func (b *baseRedactRule) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 13)
+	b.fieldMap = make(map[string]field.Expr, 12)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["code"] = b.Code
 	b.fieldMap["name"] = b.Name
 	b.fieldMap["rule_type"] = b.RuleType
-	b.fieldMap["rule"] = b.Rule
+	b.fieldMap["default_params"] = b.DefaultParams
 	b.fieldMap["status"] = b.Status
-	b.fieldMap["version"] = b.Version
 	b.fieldMap["remark"] = b.Remark
 	b.fieldMap["created_by"] = b.CreatedBy
 	b.fieldMap["updated_by"] = b.UpdatedBy

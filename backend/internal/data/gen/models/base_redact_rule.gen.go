@@ -14,19 +14,18 @@ const TableNameBaseRedactRule = "base_redact_rule"
 
 // BaseRedactRule 脱敏规则模板
 type BaseRedactRule struct {
-	ID        int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:脱敏规则ID" json:"id"`                                                                   // 脱敏规则ID
-	Code      string                `gorm:"column:code;type:varchar(64);not null;uniqueIndex:unique_base_redact_rule,priority:1;comment:规则编码" json:"code"`                                  // 规则编码
-	Name      string                `gorm:"column:name;type:varchar(100);not null;comment:规则名称" json:"name"`                                                                                // 规则名称
-	RuleType  string                `gorm:"column:rule_type;type:varchar(32);not null;comment:规则类型" json:"rule_type"`                                                                       // 规则类型
-	Rule      string                `gorm:"column:rule;type:json;not null;comment:规则参数" json:"rule"`                                                                                        // 规则参数
-	Status    int32                 `gorm:"column:status;type:tinyint;not null;index:idx_base_redact_rule_status,priority:1;comment:状态：1启用、2禁用" json:"status"`                              // 状态：1启用、2禁用
-	Version   int32                 `gorm:"column:version;type:int;not null;comment:规则版本" json:"version"`                                                                                   // 规则版本
-	Remark    string                `gorm:"column:remark;type:varchar(500);not null;comment:备注" json:"remark"`                                                                              // 备注
-	CreatedBy int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建者ID" json:"created_by"`                                                                         // 创建者ID
-	UpdatedBy int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新者ID" json:"updated_by"`                                                                         // 更新者ID
-	CreatedAt time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                                        // 创建时间
-	UpdatedAt time.Time             `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                                                        // 更新时间
-	DeletedAt soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;uniqueIndex:unique_base_redact_rule,priority:2;comment:删除时间;softDelete:milli" json:"deleted_at"` // 删除时间
+	ID            int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:脱敏规则ID" json:"id"`                                                                   // 脱敏规则ID
+	Code          string                `gorm:"column:code;type:varchar(64);not null;uniqueIndex:unique_base_redact_rule,priority:1;comment:规则编码" json:"code"`                                  // 规则编码
+	Name          string                `gorm:"column:name;type:varchar(100);not null;comment:规则名称" json:"name"`                                                                                // 规则名称
+	RuleType      string                `gorm:"column:rule_type;type:varchar(32);not null;comment:规则类型" json:"rule_type"`                                                                       // 规则类型
+	DefaultParams string                `gorm:"column:default_params;type:json;not null;comment:默认规则参数" json:"default_params"`                                                                  // 默认规则参数
+	Status        int32                 `gorm:"column:status;type:tinyint;not null;index:idx_base_redact_rule_status,priority:1;comment:状态：枚举【Status】" json:"status"`                           // 状态：枚举【Status】
+	Remark        string                `gorm:"column:remark;type:varchar(500);not null;comment:备注" json:"remark"`                                                                              // 备注
+	CreatedBy     int64                 `gorm:"column:created_by;type:bigint;not null;comment:创建者ID" json:"created_by"`                                                                         // 创建者ID
+	UpdatedBy     int64                 `gorm:"column:updated_by;type:bigint;not null;comment:更新者ID" json:"updated_by"`                                                                         // 更新者ID
+	CreatedAt     time.Time             `gorm:"column:created_at;type:datetime;not null;comment:创建时间" json:"created_at"`                                                                        // 创建时间
+	UpdatedAt     time.Time             `gorm:"column:updated_at;type:datetime;not null;comment:更新时间" json:"updated_at"`                                                                        // 更新时间
+	DeletedAt     soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint unsigned;not null;uniqueIndex:unique_base_redact_rule,priority:2;comment:删除时间;softDelete:milli" json:"deleted_at"` // 删除时间
 }
 
 // TableName BaseRedactRule's table name
