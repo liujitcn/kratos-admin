@@ -1,3 +1,4 @@
+import { existsSync, readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
@@ -11,6 +12,18 @@ import {
 import { moduleManifest } from './src/module-manifest'
 
 const workspaceRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
+
+function resolveHttpsOptions(env: Record<string, string>, root: string) {
+  if (env.VITE_APP_HTTPS !== 'true') return undefined
+  const keyPath = resolve(root, env.VITE_APP_HTTPS_KEY || '../../certs/dev-key.pem')
+  const certPath = resolve(root, env.VITE_APP_HTTPS_CERT || '../../certs/dev-cert.pem')
+  if (!existsSync(keyPath) || !existsSync(certPath)) {
+    throw new Error(
+      `VITE_APP_HTTPS 已开启，但未找到证书文件，请先在仓库根目录运行 scripts/generate-dev-cert.sh；期望路径：${keyPath} 和 ${certPath}`,
+    )
+  }
+  return { key: readFileSync(keyPath), cert: readFileSync(certPath) }
+}
 
 function resolveEnv(mode: string) {
   const modeEnv = loadEnv(mode, workspaceRoot, '')
@@ -27,6 +40,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
   const env = resolveEnv(mode)
   const devEnv = mode === 'development-h5' ? loadEnv('development', workspaceRoot, '') : env
   const base = env.VITE_APP_BASE_PATH || (mode === 'production-h5' ? '/app/' : '/')
+  const httpsOptions = resolveHttpsOptions(env, workspaceRoot)
   return {
     base,
     envDir: workspaceRoot,
@@ -51,14 +65,17 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       host: '0.0.0.0',
       open: true,
       port: Number(env.VITE_APP_PORT || 5002),
+      https: httpsOptions,
       proxy: {
         [env.VITE_APP_BASE_API || '/api']: {
           changeOrigin: true,
           target: devEnv.VITE_APP_API_URL,
+          ...(devEnv.VITE_APP_API_URL?.startsWith('https://') ? { secure: false } : {}),
         },
         '/events': {
           changeOrigin: true,
           target: devEnv.VITE_APP_API_URL,
+          ...(devEnv.VITE_APP_API_URL?.startsWith('https://') ? { secure: false } : {}),
         },
       },
     },

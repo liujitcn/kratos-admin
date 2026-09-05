@@ -6,6 +6,10 @@ server:
     max_body_bytes: 67108864
     enable_swagger: true
     enable_pprof: false
+  #  tls:
+      #file:
+      #  cert_path: ../certs/dev-cert.pem
+      #  key_path: ../certs/dev-key.pem
     cors:
       allow_credentials: true
       headers:

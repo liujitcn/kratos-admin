@@ -15,6 +15,7 @@ apps/admin
 ├── .env
 ├── .env.development
 ├── .env.production
+├── favicon.svg
 ├── index.html
 ├── package.json
 ├── README.md
@@ -31,6 +32,7 @@ apps/admin
 | `.env`                   | 所有模式共享的应用标题、端口等环境变量。          |
 | `.env.development`       | 开发模式 API 地址和代理配置。                     |
 | `.env.production`        | 生产模式 API 地址和构建配置。                     |
+| `favicon.svg`            | 管理端浏览器标签页图标。                          |
 | `index.html`             | Vite HTML 入口和应用挂载节点。                    |
 | `package.json`           | 声明宿主命令、core、当前模块和额外模块依赖。      |
 | `README.md`              | 当前宿主的目录和文件说明。                        |
@@ -52,3 +54,5 @@ pnpm --filter __APP_PACKAGE__ dev
 pnpm --filter __APP_PACKAGE__ type:check
 pnpm --filter __APP_PACKAGE__ build
 ```
+
+通过局域网 IP 访问时，可将共享证书放在 workspace 根 `certs` 目录，并在 `.env.development.local` 中设置 `VITE_HTTPS=true`；也可以通过 `VITE_HTTPS_KEY` 和 `VITE_HTTPS_CERT` 指定证书路径。

@@ -766,7 +766,10 @@ const submitLogin = async (captchaToken: string) => {
     // 1.执行登录接口，挑战态不保存令牌，等待 MFA 完成。
     const result = await userStore.login(loginRequest);
     await handleLoginResponse(result);
-  } catch (_error) {
+  } catch (error) {
+    if (error instanceof Error && error.message === t("core.password.crypto_secure_context")) {
+      ElMessage.error(error.message);
+    }
     await loadPageCaptcha();
   } finally {
     loading.value = false;

@@ -90,6 +90,17 @@ make -C .. package-admin
 
 默认宿主地址为 `http://localhost:8848`。环境变量位于 `apps/admin/.env*`，开发模式的 API 代理和生产构建输出目录由宿主 Vite 配置统一管理；当前生产构建写入 `backend/data/admin`。
 
+管理端登录密码在安全上下文中通过 Web Crypto 加密；通过局域网 HTTP 地址访问且浏览器没有 Web Crypto 时，会回退到纯 JavaScript 实现并保持后端密码密文协议不变。该回退只解决运行兼容性，HTTP 仍可能暴露 Token 或遭受主动篡改，生产环境请使用 HTTPS。
+
+本机通过局域网 IP 启用 HTTPS 开发服务：
+
+```bash
+cd ../..
+bash scripts/generate-dev-cert.sh 192.168.1.100
+```
+
+将上面的 IP 替换为本机实际局域网 IP。脚本会在仓库根 `certs` 生成共享证书；然后在 `apps/admin/.env.development.local` 中加入 `VITE_HTTPS=true`。重启 `pnpm dev` 后访问 `https://192.168.1.100:8848`，首次访问需在浏览器中接受本地自签名证书；其他设备访问时也需要分别信任该证书。后端、Taro 和 uni-app 可复用同一目录下的证书。
+
 管理端认证状态采用浏览器 Cookie-only 模式：刷新令牌由后端写入 Path 收窄的 HttpOnly Cookie，访问令牌只保存在页面内存，不写入 `localStorage` 或 `sessionStorage`。应用启动会主动清理旧版本遗留的持久化访问令牌，并通过非敏感的过期时间 Cookie 判断是否需要静默恢复会话。
 
 ## 国际化

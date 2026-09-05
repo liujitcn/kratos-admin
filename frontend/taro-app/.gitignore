@@ -5,7 +5,9 @@ apps/taro-app/dist
 apps/taro-app/.swc
 apps/taro-app/.kratos-taro-app-pages-state.json
 apps/taro-app/.kratos-taro-app-pages-state.json.*
-apps/taro-app/src/static
+apps/taro-app/src/static/*
+!apps/taro-app/src/static/favicon.ico
+!apps/taro-app/src/static/h5-root-font.js
 apps/taro-app/src/pages/*
 !apps/taro-app/src/pages/bootstrap/
 !apps/taro-app/src/pages/bootstrap/**

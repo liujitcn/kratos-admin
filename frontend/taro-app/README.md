@@ -70,6 +70,7 @@ make -C .. package-taro-app
 ```
 
 - H5 开发地址默认是 `http://localhost:5002`，`/api` 和 `/events` 代理到 `http://localhost:7001`。
+- H5 通过局域网 IP 访问时，先在仓库根目录运行 `bash scripts/generate-dev-cert.sh 192.168.1.100` 生成共享证书，再在 `.env.development-h5.local` 中设置 `VITE_APP_HTTPS=true`；若后端使用 `APP_ENV=https`，同时将 `VITE_APP_API_URL` 改为 `https://localhost:7001`。证书默认读取仓库根 `certs/dev-key.pem` 和 `certs/dev-cert.pem`。
 - H5 生产产物写入 `backend/data/taro-app`，访问地址是 `/taro-app/`。
 - 微信小程序开发和生产产物统一写入 `apps/taro-app/dist/mp-weixin`，微信开发者工具可直接导入该目录。
 - 环境文件位于 workspace 根目录，变量名与 uni-app 保持一致：`VITE_APP_PORT`、`VITE_APP_BASE_PATH`、`VITE_APP_BASE_API`、`VITE_APP_API_URL`、`VITE_APP_STATIC_API`、`VITE_APP_STATIC_URL`。H5 会在基础模式文件上叠加 `.env.development-h5` 或 `.env.production-h5`。

@@ -26,8 +26,11 @@ test("生成包含宿主和业务模块的 pnpm workspace", async () => {
     await stat(join(target, "apps/admin/src/main.ts"));
     await stat(join(target, "apps/admin/src/modules.ts"));
     await stat(join(target, "apps/admin/src/module-manifest.ts"));
+    await stat(join(target, "apps/admin/favicon.svg"));
     await stat(join(target, "apps/admin/vite.config.ts"));
     await stat(join(target, "apps/admin/README.md"));
+    const adminEnvironment = await readFile(join(target, "apps/admin/.env.development"), "utf8");
+    assert.match(adminEnvironment, /VITE_HTTPS_KEY = \.\.\/\.\.\/certs\/dev-key\.pem/);
     await stat(join(target, "packages/modules/shop/src/module.ts"));
     await stat(join(target, "packages/modules/shop/src/rpc/README.md"));
     await stat(join(target, "packages/modules/shop/README.md"));

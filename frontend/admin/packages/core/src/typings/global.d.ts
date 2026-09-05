@@ -55,6 +55,12 @@ declare interface ViteEnv {
   VITE_PUBLIC_PATH: string;
   VITE_API_URL: string;
   VITE_PROXY: [string, string][];
+  /** 是否启用 Vite HTTPS 开发服务。 */
+  VITE_HTTPS: boolean;
+  /** HTTPS 私钥路径，相对于宿主 apps/admin 目录。 */
+  VITE_HTTPS_KEY: string;
+  /** HTTPS 证书路径，相对于宿主 apps/admin 目录。 */
+  VITE_HTTPS_CERT: string;
   VITE_CODEINSPECTOR: boolean;
 }
 

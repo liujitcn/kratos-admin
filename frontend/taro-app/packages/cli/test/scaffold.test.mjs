@@ -21,18 +21,29 @@ test('生成可扩展的 Taro workspace、本地模块和发布模块清单', ()
     const gitignore = readFileSync(resolve(target, '.gitignore'), 'utf8')
     const manifest = readFileSync(resolve(target, 'apps/taro-app/src/module-manifest.ts'), 'utf8')
     const config = readFileSync(resolve(target, 'apps/taro-app/config/index.ts'), 'utf8')
+    const indexHtml = readFileSync(resolve(target, 'apps/taro-app/src/index.html'), 'utf8')
+    const h5Env = readFileSync(resolve(target, '.env.development-h5'), 'utf8')
 
     assert.equal(rootPackage.packageManager, 'pnpm@10.13.1')
     assert.match(rootPackage.scripts['dev:h5'], /prepare:modules/)
     assert.equal(hostPackage.type, undefined)
-    assert.equal(hostPackage.dependencies['@liujitcn/kratos-taro-app-core'], `^${cliPackage.version}`)
+    assert.equal(
+      hostPackage.dependencies['@liujitcn/kratos-taro-app-core'],
+      `^${cliPackage.version}`,
+    )
     assert.equal(hostPackage.dependencies['@liujitcn/kratos-taro-app-ui'], `^${cliPackage.version}`)
-    assert.equal(hostPackage.dependencies['@liujitcn/kratos-taro-app-system'], `^${cliPackage.version}`)
+    assert.equal(
+      hostPackage.dependencies['@liujitcn/kratos-taro-app-system'],
+      `^${cliPackage.version}`,
+    )
     assert.equal(hostPackage.dependencies['@local/shop'], 'workspace:*')
     assert.equal(hostPackage.dependencies['@acme/customer-module'], 'latest')
     assert.equal(hostPackage.devDependencies['@pmmmwh/react-refresh-webpack-plugin'], '0.5.17')
     assert.equal(hostPackage.devDependencies['react-refresh'], '0.14.2')
-    assert.equal(modulePackage.dependencies['@liujitcn/kratos-taro-app-core'], `^${cliPackage.version}`)
+    assert.equal(
+      modulePackage.dependencies['@liujitcn/kratos-taro-app-core'],
+      `^${cliPackage.version}`,
+    )
     assert.equal(modulePackage.exports['./build'].import, './dist/build.mjs')
     assert.match(gitignore, /apps\/taro-app\/src\/pages\/\*/)
     assert.match(gitignore, /!apps\/taro-app\/src\/pages\/bootstrap\/\*\*/)
@@ -42,16 +53,33 @@ test('生成可扩展的 Taro workspace、本地模块和发布模块清单', ()
     assert.match(config, /hostRequire\.resolve\(`\$\{name\}\/package\.json`\)/)
     assert.match(config, /sourceRoots\.forEach/)
     assert.match(config, /prebundle: \{ enable: false \}/)
+    assert.match(config, /resolveHttpsOptions/)
+    assert.match(config, /https: httpsOptions/)
+    assert.match(config, /apiProxyOptions/)
+    assert.match(config, /\.\.\/\.\.\/certs\/dev-key\.pem/)
     assert.match(config, /from: resolve\(__dirname, '\.\.\/src\/static'\)/)
     assert.match(config, /to: resolve\(__dirname, '\.\.', outputRoot, 'static'\)/)
     assert.match(config, /options: \{\}/)
     assert.match(config, /VITE_APP_BASE_API/)
-    assert.doesNotMatch(config, /KRATOS_TARO_API_BASE|KRATOS_TARO_API_URL|KRATOS_TARO_PUBLIC_PATH|KRATOS_TARO_STATIC_URL/)
+    assert.doesNotMatch(
+      config,
+      /KRATOS_TARO_API_BASE|KRATOS_TARO_API_URL|KRATOS_TARO_PUBLIC_PATH|KRATOS_TARO_STATIC_URL/,
+    )
     assert.ok(existsSync(resolve(target, '.env.development')))
     assert.ok(existsSync(resolve(target, '.env.development-h5')))
+    assert.match(h5Env, /VITE_APP_HTTPS=false/)
+    assert.match(h5Env, /VITE_APP_HTTPS_KEY=\.\.\/\.\.\/certs\/dev-key\.pem/)
     assert.ok(existsSync(resolve(target, '.env.production')))
     assert.ok(existsSync(resolve(target, '.env.production-h5')))
     assert.ok(existsSync(resolve(target, 'apps/taro-app/src/pages/bootstrap/index.tsx')))
+    assert.ok(existsSync(resolve(target, 'apps/taro-app/src/static/favicon.ico')))
+    assert.ok(existsSync(resolve(target, 'apps/taro-app/src/static/h5-root-font.js')))
+    assert.match(
+      indexHtml,
+      /<link rel="icon" type="image\/x-icon" href="\.\/static\/favicon\.ico" \/>/,
+    )
+    assert.match(indexHtml, /<script src="\.\/static\/h5-root-font\.js" defer><\/script>/)
+    assert.doesNotMatch(indexHtml, /htmlWebpackPlugin\.options\.script/)
     assert.ok(existsSync(resolve(target, 'apps/taro-app/scripts/run-taro.mjs')))
     assert.ok(existsSync(resolve(target, 'packages/modules/shop/src/build.ts')))
     assert.ok(existsSync(resolve(target, 'packages/modules/shop/src/pages.ts')))

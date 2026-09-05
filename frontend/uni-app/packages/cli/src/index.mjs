@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { basename, resolve } from 'node:path'
 
 const cliPackage = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
@@ -60,6 +60,10 @@ export function scaffoldKratosApp(targetPath, options = {}) {
     }),
   )
   writeEnvironmentFiles(target)
+  copyFileSync(
+    new URL('../assets/favicon.ico', import.meta.url),
+    resolve(target, 'apps/uni-app/favicon.ico'),
+  )
   write(
     target,
     'README.md',
@@ -89,6 +93,8 @@ pnpm dev:mp-weixin
 pnpm build:h5
 pnpm build:mp-weixin
 \`\`\`
+
+H5 通过局域网 IP 访问时，先在仓库根目录运行 bash scripts/generate-dev-cert.sh 192.168.1.100 生成证书，再在 .env.development-h5.local 中设置 VITE_APP_HTTPS=true；后端使用 HTTPS 时同时设置 VITE_APP_API_URL=https://localhost:7001。
 
 模块装配入口是 \`apps/uni-app/src/module-manifest.ts\`。新增、删除或调整模块时同步维护该清单，并在模块自己的 README 中记录页面和接口职责。
 
@@ -271,7 +277,7 @@ export function createApp() {
     target,
     'apps/uni-app/index.html',
     `<!doctype html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>${projectName}</title></head>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="icon" href="./favicon.ico"><title>${projectName}</title></head>
 <body><div id="app"><!--app-html--></div><script type="module" src="/src/main.ts"></script></body></html>
 `,
   )
@@ -279,6 +285,7 @@ export function createApp() {
     target,
     'apps/uni-app/vite.config.ts',
     `import { dirname, resolve } from 'node:path'
+import { existsSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import {
   createKratosUniPlugin,
@@ -293,6 +300,16 @@ const workspaceRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 const coreRoot = resolve(workspaceRoot, 'node_modules/@liujitcn/kratos-uni-app-core')
 const systemRoot = resolve(workspaceRoot, 'node_modules/@liujitcn/kratos-uni-app-system')
 
+function resolveHttpsOptions(env, root) {
+  if (env.VITE_APP_HTTPS !== 'true') return undefined
+  const keyPath = resolve(root, env.VITE_APP_HTTPS_KEY || '../../certs/dev-key.pem')
+  const certPath = resolve(root, env.VITE_APP_HTTPS_CERT || '../../certs/dev-cert.pem')
+  if (!existsSync(keyPath) || !existsSync(certPath)) {
+    throw new Error('VITE_APP_HTTPS 已开启，但未找到证书文件，请先在仓库根目录运行 scripts/generate-dev-cert.sh；期望路径：' + keyPath + ' 和 ' + certPath)
+  }
+  return { key: readFileSync(keyPath), cert: readFileSync(certPath) }
+}
+
 function resolveEnv(mode) {
   const modeEnv = loadEnv(mode, workspaceRoot, '')
   if (mode === 'development-h5') return { ...loadEnv('development', workspaceRoot, ''), ...modeEnv }
@@ -304,6 +321,8 @@ export default defineConfig(({ mode }) => {
   const env = resolveEnv(mode)
   const devEnv = mode === 'development-h5' ? loadEnv('development', workspaceRoot, '') : env
   const base = env.VITE_APP_BASE_PATH || (mode === 'production-h5' ? '/app/' : '/')
+  const httpsOptions = resolveHttpsOptions(env, workspaceRoot)
+  const apiProxyOptions = devEnv.VITE_APP_API_URL?.startsWith('https://') ? { secure: false } : {}
   return {
     base,
     envDir: workspaceRoot,
@@ -327,9 +346,10 @@ export default defineConfig(({ mode }) => {
     server: {
       host: '0.0.0.0',
       port: Number(env.VITE_APP_PORT || 5004),
+      https: httpsOptions,
       proxy: {
-        [env.VITE_APP_BASE_API || '/api']: { changeOrigin: true, target: devEnv.VITE_APP_API_URL },
-        '/events': { changeOrigin: true, target: devEnv.VITE_APP_API_URL },
+        [env.VITE_APP_BASE_API || '/api']: { changeOrigin: true, target: devEnv.VITE_APP_API_URL, ...apiProxyOptions },
+        '/events': { changeOrigin: true, target: devEnv.VITE_APP_API_URL, ...apiProxyOptions },
       },
     },
     build: {
@@ -430,7 +450,7 @@ function writeEnvironmentFiles(target) {
   write(
     target,
     '.env.development-h5',
-    'VITE_APP_PORT=5004\nVITE_APP_BASE_PATH=/\nVITE_APP_BASE_API=/api\nVITE_APP_API_URL=http://localhost:7001\nVITE_APP_STATIC_API=\nVITE_APP_STATIC_URL=http://localhost:7001\n',
+    'VITE_APP_PORT=5004\nVITE_APP_HTTPS=false\n# VITE_APP_HTTPS_KEY=../../certs/dev-key.pem\n# VITE_APP_HTTPS_CERT=../../certs/dev-cert.pem\n# 后端使用 HTTPS 时，在 .env.development-h5.local 覆盖 VITE_APP_API_URL=https://localhost:7001\nVITE_APP_BASE_PATH=/\nVITE_APP_BASE_API=/api\nVITE_APP_API_URL=http://localhost:7001\nVITE_APP_STATIC_API=\nVITE_APP_STATIC_URL=http://localhost:7001\n',
   )
   write(
     target,

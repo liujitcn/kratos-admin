@@ -14,6 +14,7 @@ apps/admin
 ├── .env
 ├── .env.development
 ├── .env.production
+├── favicon.svg
 ├── index.html
 ├── package.json
 ├── README.md
@@ -30,6 +31,7 @@ apps/admin
 | `.env`                   | 所有模式共享的应用标题、端口等环境变量。            |
 | `.env.development`       | 开发模式 API 地址和代理配置。                       |
 | `.env.production`        | 生产模式 API 地址和构建配置。                       |
+| `favicon.svg`            | 管理端浏览器标签页图标。                            |
 | `index.html`             | Vite HTML 入口和应用挂载节点。                      |
 | `package.json`           | 声明宿主命令以及 core、System、Vite 配置包依赖。    |
 | `README.md`              | 当前宿主的职责和文件说明。                          |

@@ -124,6 +124,8 @@ pnpm dev:h5
 pnpm dev:mp-weixin
 ```
 
+H5 通过局域网 IP 访问时，先在仓库根目录运行 `bash scripts/generate-dev-cert.sh 192.168.1.100` 生成共享证书，再在 `.env.development-h5.local` 中设置 `VITE_APP_HTTPS=true`；后端使用 `APP_ENV=https` 时同时将 `VITE_APP_API_URL` 改为 `https://localhost:7001`。证书默认读取仓库根 `certs/dev-key.pem` 和 `certs/dev-cert.pem`。
+
 上一级 Frontend Makefile 提供对应的聚合入口：
 
 ```bash

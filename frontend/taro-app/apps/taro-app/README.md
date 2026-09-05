@@ -13,6 +13,8 @@ apps/taro-app
 │   ├── app.config.ts            # 构建期间临时改写并恢复
 │   ├── app.scss                 # 全局主题和基础样式
 │   ├── app.tsx                  # 模块注册与启动
+│   ├── static/favicon.ico       # H5 宿主浏览器图标
+│   ├── static/h5-root-font.js   # H5 根字号脚本
 │   └── module-manifest.ts       # 唯一模块清单
 ├── babel.config.cjs
 ├── package.json
@@ -25,3 +27,5 @@ apps/taro-app
 H5 构建默认输出到 `backend/data/taro-app` 并使用 `/taro-app/` 公共路径。微信小程序开发和生产产物统一输出到 `apps/taro-app/dist/mp-weixin`，微信开发者工具导入该目录即可。开发时 H5 和微信小程序可以同时运行，页面装配由 runner 共享，构建产物分别写入 `dist/h5` 和 `dist/mp-weixin`。
 
 环境文件位于 workspace 根目录，变量名与 uni-app 保持一致：`VITE_APP_PORT`、`VITE_APP_BASE_PATH`、`VITE_APP_BASE_API`、`VITE_APP_API_URL`、`VITE_APP_STATIC_API`、`VITE_APP_STATIC_URL`。H5 会在基础模式文件上叠加对应的 `*-h5` 文件。
+
+通过局域网 IP 访问 H5 时，可复用仓库根 `certs` 下的共享证书，并在 `.env.development-h5.local` 中设置 `VITE_APP_HTTPS=true`；后端使用 HTTPS 时同步设置 `VITE_APP_API_URL=https://localhost:7001`。

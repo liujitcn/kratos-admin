@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { basename, resolve } from 'node:path'
 
 const cliPackage = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
@@ -9,6 +9,8 @@ if (typeof publicPackageVersion !== 'string' || !publicPackageVersion) {
 
 const taroVersion = '4.2.1'
 const reactVersion = '18.3.1'
+const h5RootFontSource =
+  '!function(n){function f(){var e=n.document.documentElement,w=e.clientWidth||n.innerWidth||375,x=w>960?375:w;e.style.fontSize=20*x/375+"px"}n.addEventListener("resize",function(){f();setTimeout(f,500)}),f()}(window);'
 
 /** 创建独立 Kratos Taro React workspace。 */
 export function scaffoldKratosTaroApp(targetPath, options = {}) {
@@ -30,11 +32,7 @@ export function scaffoldKratosTaroApp(targetPath, options = {}) {
     '.gitignore',
     'node_modules\ndist\n.kratos-taro-app-pages-state.json\n.kratos-taro-app-pages-state.json.*\napps/taro-app/src/pages/*\n!apps/taro-app/src/pages/bootstrap/\n!apps/taro-app/src/pages/bootstrap/**\napps/taro-app/src/pages?*/\n',
   )
-  write(
-    target,
-    'pnpm-workspace.yaml',
-    'packages:\n  - apps/*\n  - packages/modules/*\n',
-  )
+  write(target, 'pnpm-workspace.yaml', 'packages:\n  - apps/*\n  - packages/modules/*\n')
   write(
     target,
     'package.json',
@@ -95,6 +93,11 @@ export function scaffoldKratosTaroApp(targetPath, options = {}) {
   writeWorkspaceReadme(target, projectName)
   writeEnvironmentFiles(target)
   writeHost(target, projectName, modules, packages)
+  write(target, 'apps/taro-app/src/static/h5-root-font.js', `${h5RootFontSource}\n`)
+  copyFileSync(
+    new URL('../assets/favicon.ico', import.meta.url),
+    resolve(target, 'apps/taro-app/src/static/favicon.ico'),
+  )
   modules.forEach((name) => writeLocalModule(target, projectName, name))
   return target
 }
@@ -151,6 +154,8 @@ pnpm tsc
 模块装配入口是 \`apps/taro-app/src/module-manifest.ts\`。模块顺序决定静态视图覆盖优先级；新增页面时同步维护模块自己的 \`src/pages.ts\` 和视图映射。
 
 环境文件位于 workspace 根目录，变量名与 uni-app 保持一致：\`VITE_APP_PORT\`、\`VITE_APP_BASE_PATH\`、\`VITE_APP_BASE_API\`、\`VITE_APP_API_URL\`、\`VITE_APP_STATIC_API\`、\`VITE_APP_STATIC_URL\`。H5 会在基础模式文件上叠加对应的 \`*-h5\` 文件。
+
+H5 通过局域网 IP 访问时，先在仓库根目录运行 \`bash scripts/generate-dev-cert.sh 192.168.1.100\` 生成证书，再在 \`.env.development-h5.local\` 中设置 \`VITE_APP_HTTPS=true\`；后端使用 HTTPS 时同时设置 \`VITE_APP_API_URL=https://localhost:7001\`。
 `,
   )
 }
@@ -164,7 +169,7 @@ function writeEnvironmentFiles(target) {
   write(
     target,
     '.env.development-h5',
-    'VITE_APP_PORT=5002\nVITE_APP_BASE_PATH=/\nVITE_APP_BASE_API=/api\nVITE_APP_API_URL=http://localhost:7001\nVITE_APP_STATIC_API=\nVITE_APP_STATIC_URL=http://localhost:7001\n',
+    'VITE_APP_PORT=5002\nVITE_APP_HTTPS=false\n# VITE_APP_HTTPS_KEY=../../certs/dev-key.pem\n# VITE_APP_HTTPS_CERT=../../certs/dev-cert.pem\n# 后端使用 HTTPS 时，在 .env.development-h5.local 覆盖 VITE_APP_API_URL=https://localhost:7001\nVITE_APP_BASE_PATH=/\nVITE_APP_BASE_API=/api\nVITE_APP_API_URL=http://localhost:7001\nVITE_APP_STATIC_API=\nVITE_APP_STATIC_URL=http://localhost:7001\n',
   )
   write(
     target,
@@ -179,7 +184,9 @@ function writeEnvironmentFiles(target) {
 }
 
 function writeHost(target, projectName, modules, packages) {
-  const localDependencies = Object.fromEntries(modules.map((name) => [`@local/${name}`, 'workspace:*']))
+  const localDependencies = Object.fromEntries(
+    modules.map((name) => [`@local/${name}`, 'workspace:*']),
+  )
   const publishedDependencies = Object.fromEntries(packages.map((name) => [name, 'latest']))
   write(
     target,
@@ -236,9 +243,15 @@ function writeHost(target, projectName, modules, packages) {
 \`apps/taro-app\` 是 \`${projectName}\` 的私有 Taro React 宿主，负责装配模块并提供 H5、微信小程序构建入口，不承载可复用业务实现。
 
 固定启动页位于 \`src/pages/bootstrap\`。其他模块页面由 core runner 在构建期间临时生成包装器、页面配置与静态资源，构建结束后会自动恢复宿主目录。
+
+通过局域网 IP 访问 H5 时，可复用仓库根 certs 下的共享证书，并在 .env.development-h5.local 中设置 VITE_APP_HTTPS=true；后端使用 HTTPS 时同步设置 VITE_APP_API_URL=https://localhost:7001。
 `,
   )
-  write(target, 'apps/taro-app/scripts/run-taro.mjs', "import '@liujitcn/kratos-taro-app-core/runner'\n")
+  write(
+    target,
+    'apps/taro-app/scripts/run-taro.mjs',
+    "import '@liujitcn/kratos-taro-app-core/runner'\n",
+  )
   write(
     target,
     'apps/taro-app/babel.config.cjs',
@@ -298,8 +311,9 @@ function writeHost(target, projectName, modules, packages) {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover" />
     <meta name="format-detection" content="telephone=no,address=no" />
+    <link rel="icon" type="image/x-icon" href="./static/favicon.ico" />
     <title>${projectName}</title>
-    <script><%= htmlWebpackPlugin.options.script %></script>
+    <script src="./static/h5-root-font.js" defer></script>
   </head>
   <body><div id="app"></div></body>
 </html>
@@ -476,9 +490,7 @@ function moduleManifest(modules, packages) {
   const imports = [
     "import { coreModule } from '@liujitcn/kratos-taro-app-core'",
     "import { systemModule } from '@liujitcn/kratos-taro-app-system'",
-    ...modules.map(
-      (name) => `import { ${toCamelCase(name)}Module } from '@local/${name}'`,
-    ),
+    ...modules.map((name) => `import { ${toCamelCase(name)}Module } from '@local/${name}'`),
     ...packages.map((name, index) => `import packageModule${index} from '${name}'`),
   ]
   const members = [
@@ -492,6 +504,7 @@ function moduleManifest(modules, packages) {
 
 function hostConfig(projectName, packageNames) {
   return `import { createRequire } from 'node:module'
+import { existsSync, readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { defineConfig, type UserConfigExport } from '@tarojs/cli'
 import { dotenvParse } from '@tarojs/helper'
@@ -502,6 +515,16 @@ import prodConfig from './prod'
 const packageNames = ${JSON.stringify(packageNames, null, 2)}
 const hostRequire = createRequire(resolve(__dirname, '../package.json'))
 const workspaceRoot = resolve(__dirname, '../../..')
+
+function resolveHttpsOptions(env: Record<string, string>, root: string) {
+  if (env.VITE_APP_HTTPS !== 'true') return undefined
+  const keyPath = resolve(root, env.VITE_APP_HTTPS_KEY || '../../certs/dev-key.pem')
+  const certPath = resolve(root, env.VITE_APP_HTTPS_CERT || '../../certs/dev-cert.pem')
+  if (!existsSync(keyPath) || !existsSync(certPath)) {
+    throw new Error('VITE_APP_HTTPS 已开启，但未找到证书文件，请先在仓库根目录运行 scripts/generate-dev-cert.sh；期望路径：' + keyPath + ' 和 ' + certPath)
+  }
+  return { key: readFileSync(keyPath), cert: readFileSync(certPath) }
+}
 
 function resolveEnv(mode: string, platform: string): Record<string, string> {
   const baseEnv = dotenvParse(workspaceRoot, 'VITE_APP_', mode)
@@ -527,8 +550,10 @@ export default defineConfig<'webpack5'>(async (merge) => {
   const publicPath = env.VITE_APP_BASE_PATH ?? '/'
   const apiBasePath = env.VITE_APP_BASE_API ?? '/api'
   const apiTargetUrl = env.VITE_APP_API_URL ?? 'http://localhost:7001'
+  const apiProxyOptions = apiTargetUrl.startsWith('https://') ? { secure: false } : {}
   const staticApi = env.VITE_APP_STATIC_API ?? ''
   const staticUrl = env.VITE_APP_STATIC_URL ?? apiTargetUrl
+  const httpsOptions = resolveHttpsOptions(env, workspaceRoot)
   const packageRoots = Object.fromEntries(
     packageNames.map((name) => [name, dirname(hostRequire.resolve(\`\${name}/package.json\`))]),
   )
@@ -585,9 +610,10 @@ export default defineConfig<'webpack5'>(async (merge) => {
       devServer: {
         port: Number(env.VITE_APP_PORT || 5002),
         host: '0.0.0.0',
+        https: httpsOptions,
         proxy: {
-          [apiBasePath || '/api']: { target: apiTargetUrl || 'http://localhost:7001', changeOrigin: true },
-          '/events': { target: apiTargetUrl || 'http://localhost:7001', changeOrigin: true },
+          [apiBasePath || '/api']: { target: apiTargetUrl || 'http://localhost:7001', changeOrigin: true, ...apiProxyOptions },
+          '/events': { target: apiTargetUrl || 'http://localhost:7001', changeOrigin: true, ...apiProxyOptions },
         },
       },
       output: {
@@ -614,7 +640,9 @@ function platformConfig(development) {
   return `import type { UserConfigExport } from '@tarojs/cli'
 
 export default ${JSON.stringify(
-    development ? { logger: { quiet: false, stats: true }, mini: {}, h5: {} } : { mini: {}, h5: {} },
+    development
+      ? { logger: { quiet: false, stats: true }, mini: {}, h5: {} }
+      : { mini: {}, h5: {} },
     null,
     2,
   )} satisfies UserConfigExport<'webpack5'>
@@ -631,7 +659,12 @@ function readOptions(args, option) {
     const value = args[++index]
     if (!value || value.startsWith('--')) throw new Error(`选项 ${argument} 缺少值`)
     if (argument === option) {
-      values.push(...value.split(',').map((item) => item.trim()).filter(Boolean))
+      values.push(
+        ...value
+          .split(',')
+          .map((item) => item.trim())
+          .filter(Boolean),
+      )
     }
   }
   return [...new Set(values)]

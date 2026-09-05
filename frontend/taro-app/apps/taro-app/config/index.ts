@@ -1,3 +1,4 @@
+import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { defineConfig, type UserConfigExport } from '@tarojs/cli'
 import { dotenvParse } from '@tarojs/helper'
@@ -6,7 +7,18 @@ import devConfig from './dev'
 import prodConfig from './prod'
 
 const workspaceRoot = resolve(__dirname, '../../..')
-const h5RootFontScript = `!function(n){function f(){var e=n.document.documentElement,w=e.clientWidth||n.innerWidth||375,x=w>960?375:w;e.style.fontSize=20*x/375+"px"}n.addEventListener("resize",function(){f();setTimeout(f,500)}),f()}(window);`
+
+function resolveHttpsOptions(env: Record<string, string>, root: string) {
+  if (env.VITE_APP_HTTPS !== 'true') return undefined
+  const keyPath = resolve(root, env.VITE_APP_HTTPS_KEY || '../../certs/dev-key.pem')
+  const certPath = resolve(root, env.VITE_APP_HTTPS_CERT || '../../certs/dev-cert.pem')
+  if (!existsSync(keyPath) || !existsSync(certPath)) {
+    throw new Error(
+      `VITE_APP_HTTPS 已开启，但未找到证书文件，请先在仓库根目录运行 scripts/generate-dev-cert.sh；期望路径：${keyPath} 和 ${certPath}`,
+    )
+  }
+  return { key: readFileSync(keyPath), cert: readFileSync(certPath) }
+}
 
 function resolveEnv(mode: string, platform: string): Record<string, string> {
   const baseEnv = dotenvParse(workspaceRoot, 'VITE_APP_', mode)
@@ -24,16 +36,14 @@ export default defineConfig<'webpack5'>(async (merge) => {
   const env = resolveEnv(mode, platform)
   const outputRoot =
     process.env.KRATOS_TARO_OUTPUT_ROOT ||
-    (platform === 'h5'
-      ? 'dist/h5'
-      : platform === 'weapp'
-        ? 'dist/mp-weixin'
-        : 'dist')
+    (platform === 'h5' ? 'dist/h5' : platform === 'weapp' ? 'dist/mp-weixin' : 'dist')
   const publicPath = env.VITE_APP_BASE_PATH ?? '/'
   const apiBasePath = env.VITE_APP_BASE_API ?? '/api'
   const apiTargetUrl = env.VITE_APP_API_URL ?? 'http://127.0.0.1:7001'
+  const apiProxyOptions = apiTargetUrl.startsWith('https://') ? { secure: false } : {}
   const staticApi = env.VITE_APP_STATIC_API ?? ''
   const staticUrl = env.VITE_APP_STATIC_URL ?? apiTargetUrl
+  const httpsOptions = resolveHttpsOptions(env, workspaceRoot)
   const packageRoots = [
     resolve(__dirname, '../../../packages/core/src'),
     resolve(__dirname, '../../../packages/ui/src'),
@@ -111,23 +121,23 @@ export default defineConfig<'webpack5'>(async (merge) => {
       publicPath,
       staticDirectory: 'static',
       // 与 uni-app H5 的 rpx 规则一致：宽屏使用 375px 基准，移动端随页面宽度缩放。
-      htmlPluginOption: {
-        script: h5RootFontScript,
-      },
       router: {
         mode: 'hash',
       },
       devServer: {
         port: Number(env.VITE_APP_PORT || 5002),
         host: '0.0.0.0',
+        https: httpsOptions,
         proxy: {
           [apiBasePath || '/api']: {
             target: apiTargetUrl || 'http://localhost:7001',
             changeOrigin: true,
+            ...apiProxyOptions,
           },
           '/events': {
             target: apiTargetUrl || 'http://localhost:7001',
             changeOrigin: true,
+            ...apiProxyOptions,
           },
         },
       },

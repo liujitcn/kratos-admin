@@ -1,5 +1,6 @@
 import { createRequire } from "node:module";
 import { existsSync, readFileSync } from "node:fs";
+import type { ServerOptions } from "node:https";
 import { createLogger, defineConfig, loadEnv, type ConfigEnv, type Logger, type UserConfig } from "vite";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -64,6 +65,7 @@ export function defineAdminViteConfig(options: AdminViteConfigOptions = {}) {
       lastBuildTime: dayjs().format("YYYY-MM-DD HH:mm:ss")
     };
     const coreVariablesPath = resolve(coreSourceRoot, "styles/var.scss").replaceAll("\\", "/");
+    const httpsOptions = resolveHttpsOptions(viteEnv, root);
 
     return {
       base: viteEnv.VITE_PUBLIC_PATH,
@@ -108,6 +110,7 @@ export function defineAdminViteConfig(options: AdminViteConfigOptions = {}) {
         port: viteEnv.VITE_PORT,
         open: viteEnv.VITE_OPEN,
         cors: true,
+        https: httpsOptions,
         proxy: createProxy(viteEnv.VITE_PROXY)
       },
       plugins: createVitePlugins(viteEnv, {
@@ -187,6 +190,24 @@ function readDayjsLocaleDependencies(sourceRoot: string): string[] {
   return [...generatedSource.matchAll(/import "dayjs\/locale\/([^"]+)"/g)].map(
     match => `@liujitcn/kratos-admin-core > dayjs/locale/${match[1]}`
   );
+}
+
+/** 根据宿主环境变量加载 Vite HTTPS 证书。 */
+function resolveHttpsOptions(viteEnv: ViteEnv, root: string): ServerOptions | undefined {
+  if (!viteEnv.VITE_HTTPS) return undefined;
+
+  const keyPath = resolve(root, viteEnv.VITE_HTTPS_KEY || "../../../../certs/dev-key.pem");
+  const certPath = resolve(root, viteEnv.VITE_HTTPS_CERT || "../../../../certs/dev-cert.pem");
+  if (!existsSync(keyPath) || !existsSync(certPath)) {
+    throw new Error(
+      `VITE_HTTPS 已开启，但未找到证书文件，请先在仓库根目录运行 scripts/generate-dev-cert.sh；期望路径：${keyPath} 和 ${certPath}`
+    );
+  }
+
+  return {
+    key: readFileSync(keyPath),
+    cert: readFileSync(certPath)
+  };
 }
 
 /** 解析业务模块在当前宿主中的源码目录。 */

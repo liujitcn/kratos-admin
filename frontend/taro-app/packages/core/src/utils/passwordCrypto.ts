@@ -223,8 +223,8 @@ export async function encryptPassword(
   const publicKeyResponse = await defLoginService.PasswordPublicKey({ scene })
 
   const cryptoApi = globalThis.crypto
-  // 微信小程序和局域网 HTTP 页面没有 WebCrypto，使用纯 JavaScript 实现保持协议一致。
-  if (process.env.TARO_ENV === 'weapp' || !cryptoApi?.subtle) {
+  const isSecureContext = typeof window === 'undefined' || window.isSecureContext
+  if (process.env.TARO_ENV === 'weapp' || !cryptoApi?.subtle || !isSecureContext) {
     return encryptPortablePassword(miniCrypto, plainPassword, publicKeyResponse)
   }
 

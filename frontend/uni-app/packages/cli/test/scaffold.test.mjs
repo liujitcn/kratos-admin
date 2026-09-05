@@ -11,7 +11,9 @@ test('生成默认 system、本地模块和发布模块', () => {
   scaffoldKratosApp(target, { modules: ['orders'], packages: ['@acme/pay'] })
   const manifest = readFileSync(resolve(target, 'apps/uni-app/src/module-manifest.ts'), 'utf8')
   const main = readFileSync(resolve(target, 'apps/uni-app/src/main.ts'), 'utf8')
+  const indexHtml = readFileSync(resolve(target, 'apps/uni-app/index.html'), 'utf8')
   const viteConfig = readFileSync(resolve(target, 'apps/uni-app/vite.config.ts'), 'utf8')
+  const h5Env = readFileSync(resolve(target, '.env.development-h5'), 'utf8')
   const cliPackage = JSON.parse(
     readFileSync(resolve(import.meta.dirname, '../package.json'), 'utf8'),
   )
@@ -29,6 +31,10 @@ test('生成默认 system、本地模块和发布模块', () => {
   assert.match(main, /registerUserStoreExtension\(\{[\s\S]+onLogin: initializeAppNavigation/)
   assert.match(main, /bootstrapKratosApp\(\{ app: App, createSSRApp,/)
   assert.match(viteConfig, /server: \{[\s\S]+port: Number\(env\.VITE_APP_PORT \|\| 5004\)/)
+  assert.match(viteConfig, /resolveHttpsOptions/)
+  assert.match(viteConfig, /https: httpsOptions/)
+  assert.match(viteConfig, /apiProxyOptions/)
+  assert.match(viteConfig, /\.\.\/\.\.\/certs\/dev-key\.pem/)
   assert.equal(hostPackage.dependencies['@liujitcn/kratos-uni-app-core'], `^${cliPackage.version}`)
   assert.equal(
     hostPackage.dependencies['@liujitcn/kratos-uni-app-system'],
@@ -45,9 +51,13 @@ test('生成默认 system、本地模块和发布模块', () => {
   assert.match(viteConfig, /kratosApp\(\{ modules: moduleManifest \}\)/)
   assert.ok(existsSync(resolve(target, 'packages/modules/orders/src/index.mjs')))
   assert.ok(existsSync(resolve(target, 'apps/uni-app/vite.config.ts')))
+  assert.ok(existsSync(resolve(target, 'apps/uni-app/favicon.ico')))
+  assert.match(indexHtml, /<link rel="icon" href="\.\/favicon\.ico">/)
   assert.ok(existsSync(resolve(target, 'apps/uni-app/src/main.ts')))
   assert.ok(existsSync(resolve(target, 'apps/uni-app/src/manifest.json')))
   assert.ok(existsSync(resolve(target, '.env.development-h5')))
+  assert.match(h5Env, /VITE_APP_HTTPS=false/)
+  assert.match(h5Env, /VITE_APP_HTTPS_KEY=\.\.\/\.\.\/certs\/dev-key\.pem/)
   assert.ok(existsSync(resolve(target, '.env.production-h5')))
   assert.doesNotMatch(productionEnv, /localhost/)
   const packageDirectories = ['', 'apps/uni-app', 'packages/modules/orders']

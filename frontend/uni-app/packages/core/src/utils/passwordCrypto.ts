@@ -2,10 +2,7 @@ import { defLoginService } from '../api/base/v1/login'
 import { t } from '../locales'
 import { PasswordCryptoScene } from '../rpc/base/v1/login'
 import type { PasswordCrypto } from '../rpc/common/v1/types'
-
-// #ifdef MP-WEIXIN
 import * as miniCrypto from 'asmcrypto.js'
-// #endif
 
 type MiniCrypto = typeof import('asmcrypto.js')
 
@@ -53,8 +50,12 @@ function getSubtleCrypto() {
   return cryptoApi
 }
 
-/** 生成小程序端密码加密所需的随机字节。 */
-function getMiniRandomBytes(length: number) {
+/** 生成纯 JavaScript 密码加密所需的随机字节。 */
+function getPortableRandomBytes(length: number) {
+  const cryptoApi = globalThis.crypto
+  if (cryptoApi?.getRandomValues) {
+    return Promise.resolve(cryptoApi.getRandomValues(new Uint8Array(length)).buffer)
+  }
   return new Promise<ArrayBuffer>((resolve, reject) => {
     if (typeof wx === 'undefined' || typeof wx.getRandomValues !== 'function') {
       reject(new Error(t('core.crypto.unsupported')))
@@ -119,12 +120,16 @@ function trimDerInteger(value: Uint8Array) {
 }
 
 /** 从 PEM SubjectPublicKeyInfo 中提取 RSA 模数和指数。 */
-function parseMiniRsaPublicKey(publicKey: string): [Uint8Array, Uint8Array] {
+function parsePortableRsaPublicKey(publicKey: string): [Uint8Array, Uint8Array] {
   const base64 = publicKey
     .replace(/-----BEGIN PUBLIC KEY-----/g, '')
     .replace(/-----END PUBLIC KEY-----/g, '')
     .replace(/\s/g, '')
-  const der = new Uint8Array(wx.base64ToArrayBuffer(base64))
+  const der = new Uint8Array(
+    typeof wx !== 'undefined' && typeof wx.base64ToArrayBuffer === 'function'
+      ? wx.base64ToArrayBuffer(base64)
+      : pemToArrayBuffer(publicKey),
+  )
   const subjectPublicKeyInfo = readDerNode(der, 0)
   const algorithm = readDerNode(subjectPublicKeyInfo.value, 0)
   const bitString = readDerNode(subjectPublicKeyInfo.value, algorithm.next)
@@ -164,13 +169,17 @@ function generateMgf1Mask(crypto: MiniCrypto, seed: Uint8Array, length: number) 
   return mask
 }
 
-/** 将字节数组编码为小程序可提交的 Base64。 */
-function miniBytesToBase64(value: Uint8Array) {
-  return wx.arrayBufferToBase64(value.slice().buffer)
+/** 将字节数组编码为当前运行端可提交的 Base64。 */
+function portableBytesToBase64(value: Uint8Array) {
+  const buffer = value.slice().buffer
+  if (typeof wx !== 'undefined' && typeof wx.arrayBufferToBase64 === 'function') {
+    return wx.arrayBufferToBase64(buffer)
+  }
+  return arrayBufferToBase64(buffer)
 }
 
-/** 使用纯 JavaScript 加密实现兼容微信小程序运行时的密码加密协议。 */
-async function encryptMiniProgramPassword(
+/** 使用纯 JavaScript 实现兼容缺少 WebCrypto 的密码加密协议。 */
+async function encryptPortablePassword(
   crypto: MiniCrypto,
   password: string,
   publicKeyResponse: {
@@ -180,13 +189,13 @@ async function encryptMiniProgramPassword(
     nonce: string
   },
 ): Promise<PasswordCrypto> {
-  const aesKey = new Uint8Array(await getMiniRandomBytes(32))
-  const iv = new Uint8Array(await getMiniRandomBytes(12))
+  const aesKey = new Uint8Array(await getPortableRandomBytes(32))
+  const iv = new Uint8Array(await getPortableRandomBytes(12))
   const plaintext = crypto.string_to_bytes(password, true)
-  const [modulus, exponent] = parseMiniRsaPublicKey(publicKeyResponse.public_key)
+  const [modulus, exponent] = parsePortableRsaPublicKey(publicKeyResponse.public_key)
   const hash = new crypto.Sha256()
   const keySize = Math.ceil(new crypto.BigNumber(modulus).bitLength / 8)
-  const seed = new Uint8Array(await getMiniRandomBytes(hash.HASH_SIZE))
+  const seed = new Uint8Array(await getPortableRandomBytes(hash.HASH_SIZE))
   const dataBlockLength = keySize - hash.HASH_SIZE - 1
   const paddingLength = dataBlockLength - aesKey.length - hash.HASH_SIZE - 1
   if (paddingLength < 0) {
@@ -222,9 +231,9 @@ async function encryptMiniProgramPassword(
     key_id: publicKeyResponse.key_id,
     nonce: publicKeyResponse.nonce,
     algorithm: publicKeyResponse.algorithm,
-    encrypted_key: miniBytesToBase64(encryptedKey),
-    iv: miniBytesToBase64(iv),
-    ciphertext: miniBytesToBase64(ciphertext),
+    encrypted_key: portableBytesToBase64(encryptedKey),
+    iv: portableBytesToBase64(iv),
+    ciphertext: portableBytesToBase64(ciphertext),
   }
 }
 
@@ -240,30 +249,31 @@ export async function encryptPassword(
 
   const publicKeyResponse = await defLoginService.PasswordPublicKey({ scene })
 
-  // 微信小程序没有 window 和 WebCrypto，使用纯 JavaScript 实现保持与后端协议一致。
-  // #ifdef MP-WEIXIN
-  return encryptMiniProgramPassword(miniCrypto, plainPassword, publicKeyResponse)
-  // #endif
+  const cryptoApi = globalThis.crypto
+  const isSecureContext = typeof window === 'undefined' || window.isSecureContext
+  if (!cryptoApi?.subtle || !isSecureContext) {
+    return encryptPortablePassword(miniCrypto, plainPassword, publicKeyResponse)
+  }
 
-  const cryptoApi = getSubtleCrypto()
-  const publicKey = await cryptoApi.subtle.importKey(
+  const subtleCrypto = getSubtleCrypto()
+  const publicKey = await subtleCrypto.subtle.importKey(
     'spki',
     pemToArrayBuffer(publicKeyResponse.public_key),
     { name: 'RSA-OAEP', hash: 'SHA-256' },
     false,
     ['encrypt'],
   )
-  const aesKey = await cryptoApi.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, [
+  const aesKey = await subtleCrypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, [
     'encrypt',
   ])
-  const rawAesKey = await cryptoApi.subtle.exportKey('raw', aesKey)
-  const iv = cryptoApi.getRandomValues(new Uint8Array(12))
-  const ciphertext = await cryptoApi.subtle.encrypt(
+  const rawAesKey = await subtleCrypto.subtle.exportKey('raw', aesKey)
+  const iv = subtleCrypto.getRandomValues(new Uint8Array(12))
+  const ciphertext = await subtleCrypto.subtle.encrypt(
     { name: 'AES-GCM', iv },
     aesKey,
     new TextEncoder().encode(plainPassword),
   )
-  const encryptedKey = await cryptoApi.subtle.encrypt({ name: 'RSA-OAEP' }, publicKey, rawAesKey)
+  const encryptedKey = await subtleCrypto.subtle.encrypt({ name: 'RSA-OAEP' }, publicKey, rawAesKey)
 
   return {
     key_id: publicKeyResponse.key_id,
