@@ -23,35 +23,59 @@ const NOTIFICATION_URL = '/v1/base/notification'
 /** uni-app 当前用户站内信服务。 */
 export class NotificationServiceImpl implements NotificationService {
   /** 分页查询收件箱。 */
-  PageNotification(request: PageNotificationRequest): Promise<PageNotificationResponse> {
+  async PageNotification(request: PageNotificationRequest): Promise<PageNotificationResponse> {
     const data = Object.fromEntries(
       Object.entries(request).filter(([, value]) => value !== undefined),
     )
-    return http({ url: NOTIFICATION_URL, method: 'GET', authMode: 'required', data })
+    const response = await http<Partial<PageNotificationResponse>>({
+      url: NOTIFICATION_URL,
+      method: 'GET',
+      authMode: 'required',
+      data,
+    })
+    return {
+      ...response,
+      notifications: Array.isArray(response.notifications) ? response.notifications : [],
+      total: response.total ?? 0,
+      next_cursor_id: response.next_cursor_id ?? 0,
+      has_more: response.has_more ?? false,
+    }
   }
   /** 查询当前可用的消息分类。 */
-  ListNotificationCategories(
+  async ListNotificationCategories(
     request: ListNotificationCategoriesRequest,
   ): Promise<ListNotificationCategoriesResponse> {
-    return http({
+    const response = await http<Partial<ListNotificationCategoriesResponse>>({
       url: `${NOTIFICATION_URL}/categories`,
       method: 'GET',
       authMode: 'required',
       data: request,
     })
+    return {
+      ...response,
+      categories: Array.isArray(response.categories) ? response.categories : [],
+    }
   }
   /** 查询消息详情。 */
   GetNotification(request: GetNotificationRequest): Promise<Notification> {
     return http({ url: `${NOTIFICATION_URL}/${request.id}`, method: 'GET', authMode: 'required' })
   }
   /** 查询未读汇总。 */
-  GetNotificationSummary(request: GetNotificationSummaryRequest): Promise<NotificationSummary> {
-    return http({
+  async GetNotificationSummary(
+    request: GetNotificationSummaryRequest,
+  ): Promise<NotificationSummary> {
+    const response = await http<Partial<NotificationSummary>>({
       url: `${NOTIFICATION_URL}/summary`,
       method: 'GET',
       authMode: 'required',
       data: request,
     })
+    return {
+      ...response,
+      unread_total: response.unread_total ?? 0,
+      latest_delivery_id: response.latest_delivery_id ?? 0,
+      category_unread: Array.isArray(response.category_unread) ? response.category_unread : [],
+    }
   }
   /** 标记消息已读。 */
   MarkNotificationRead(request: MarkNotificationReadRequest): Promise<Empty> {

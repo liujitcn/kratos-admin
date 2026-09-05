@@ -47,6 +47,9 @@ export default function MessageInboxPage() {
 
   /** 刷新站内信列表。 */
   async function refresh(view = selectedView, category = categoryId) {
+    setItems([])
+    setCursorId(0)
+    setFinished(false)
     setLoading(true)
     try {
       const result = await defNotificationService.PageNotification({
@@ -133,8 +136,18 @@ export default function MessageInboxPage() {
   return (
     <View className='message-page'>
       <View className='message-header'>
-        <Text className='message-title'>{t('system.notification.title')}</Text>
-        {unreadTotal > 0 && <View className='message-unread-dot' aria-hidden='true' />}
+        <View className='message-header__title'>
+          <Text className='message-title'>{t('system.notification.title')}</Text>
+          {unreadTotal > 0 && <View className='message-unread-dot' aria-hidden='true' />}
+        </View>
+        {selectedView !== NotificationView.NOTIFICATION_VIEW_ARCHIVED && unreadTotal > 0 && (
+          <Button
+            className='message-action message-action--read message-header__action'
+            onClick={() => void markAllRead().catch(() => undefined)}
+          >
+            {t('system.notification.mark_all_read')}
+          </Button>
+        )}
       </View>
       <View className='message-controls'>
         <ScrollView className='message-category-scroll' scrollX showScrollbar={false}>
@@ -174,16 +187,6 @@ export default function MessageInboxPage() {
               {t(option.key)}
             </Button>
           ))}
-        </View>
-        <View className='message-actions'>
-          {selectedView !== NotificationView.NOTIFICATION_VIEW_ARCHIVED && unreadTotal > 0 && (
-            <Button
-              className='message-action message-action--read'
-              onClick={() => void markAllRead().catch(() => undefined)}
-            >
-              {t('system.notification.mark_all_read')}
-            </Button>
-          )}
         </View>
       </View>
       {items.map((item) => (

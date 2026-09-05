@@ -109,8 +109,20 @@ async function openDetail(item: Notification) {
 <template>
   <view class="message-page">
     <view class="message-header">
-      <text class="message-title">{{ t('system.notification.title') }}</text>
-      <view v-if="notificationUnreadTotal > 0" class="message-unread-dot" aria-hidden="true" />
+      <view class="message-header__title">
+        <text class="message-title">{{ t('system.notification.title') }}</text>
+        <view v-if="notificationUnreadTotal > 0" class="message-unread-dot" aria-hidden="true" />
+      </view>
+      <button
+        v-if="
+          selectedView !== NotificationView.NOTIFICATION_VIEW_ARCHIVED &&
+          notificationUnreadTotal > 0
+        "
+        class="message-action message-action--read message-header__action"
+        @tap="markAllRead"
+      >
+        {{ t('system.notification.mark_all_read') }}
+      </button>
     </view>
     <view class="message-controls">
       <scroll-view class="message-category-scroll" scroll-x :show-scrollbar="false">
@@ -148,18 +160,6 @@ async function openDetail(item: Notification) {
           @tap="changeView(option.value)"
         >
           {{ t(option.key) }}
-        </button>
-      </view>
-      <view class="message-actions">
-        <button
-          v-if="
-            selectedView !== NotificationView.NOTIFICATION_VIEW_ARCHIVED &&
-            notificationUnreadTotal > 0
-          "
-          class="message-action message-action--read"
-          @tap="markAllRead"
-        >
-          {{ t('system.notification.mark_all_read') }}
         </button>
       </view>
     </view>
@@ -217,7 +217,13 @@ async function openDetail(item: Notification) {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 20rpx;
   padding: 20rpx 4rpx 24rpx;
+}
+.message-header__title {
+  display: flex;
+  align-items: center;
+  min-width: 0;
 }
 .message-title {
   display: block;
@@ -248,7 +254,6 @@ async function openDetail(item: Notification) {
 }
 .message-category,
 .message-tabs,
-.message-actions,
 .message-item__actions {
   display: flex;
   align-items: center;
@@ -277,10 +282,6 @@ async function openDetail(item: Notification) {
   padding: 6rpx;
   border-radius: 12rpx;
   background: #eef1f3;
-}
-.message-actions {
-  justify-content: flex-end;
-  margin-top: 16rpx;
 }
 .message-item__actions {
   gap: 12rpx;
@@ -317,6 +318,7 @@ async function openDetail(item: Notification) {
 .message-item__actions button {
   box-sizing: border-box;
   flex-shrink: 0;
+  width: auto;
   height: 68rpx;
   margin: 0;
   padding: 0 20rpx;
@@ -331,6 +333,11 @@ async function openDetail(item: Notification) {
 .message-action--read {
   background: #e8f8f4;
   color: var(--kratos-color-primary, #16806d);
+}
+.message-header__action {
+  height: 56rpx;
+  padding: 0 18rpx;
+  line-height: 56rpx;
 }
 .message-item__actions button {
   height: 56rpx;

@@ -1,4 +1,5 @@
 import { setAppMenuBadge } from '@liujitcn/kratos-taro-app-core/navigation'
+import { getToken } from '@liujitcn/kratos-taro-app-core/utils/auth'
 import { getRequestAccessToken } from '@liujitcn/kratos-taro-app-core/utils/http'
 import { defNotificationService } from './api/base/v1/notification'
 
@@ -10,6 +11,7 @@ let notificationPaused = false
 
 /** 从服务端刷新未读汇总并同步消息入口 badge。 */
 export async function refreshNotificationSummary(): Promise<number> {
+  if (!getToken()) return unreadTotal
   try {
     const summary = await defNotificationService.GetNotificationSummary({})
     unreadTotal = summary.unread_total
@@ -23,6 +25,7 @@ export async function refreshNotificationSummary(): Promise<number> {
 /** 启动应用端站内信定时回源。 */
 export function startNotificationPolling(): void {
   stopNotificationPolling()
+  if (!getToken()) return
   notificationPaused = false
   void refreshNotificationSummary()
   notificationTimer = setInterval(() => void refreshNotificationSummary(), 30_000)

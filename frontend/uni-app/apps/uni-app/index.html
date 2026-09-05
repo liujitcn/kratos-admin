@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
@@ -17,21 +17,5 @@
       <!--app-html-->
     </div>
     <script type="module" src="/src/main.ts"></script>
-    <script>
-      // HTTP 开发服务（包括通过局域网 IP 访问）不加载外部统计脚本，避免第三方请求干扰调试。
-      var isDevelopmentServer = Boolean(document.querySelector('script[src*="/@vite/client"]'))
-      if (
-        !isDevelopmentServer &&
-        !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname)
-      ) {
-        var _hmt = _hmt || []
-        ;(function () {
-          var hm = document.createElement('script')
-          hm.src = 'https://hm.baidu.com/hm.js?47837f06b6f8cf08ba80165ca9a80711'
-          var s = document.getElementsByTagName('script')[0]
-          s.parentNode.insertBefore(hm, s)
-        })()
-      }
-    </script>
   </body>
 </html>

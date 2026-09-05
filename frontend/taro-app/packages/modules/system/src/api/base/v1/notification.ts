@@ -27,18 +27,32 @@ export class NotificationServiceImpl implements NotificationService {
     const data = Object.fromEntries(
       Object.entries(request).filter(([, value]) => value !== undefined),
     )
-    return http({ url: NOTIFICATION_URL, method: 'GET', authMode: 'required', data })
+    return http<Partial<PageNotificationResponse>>({
+      url: NOTIFICATION_URL,
+      method: 'GET',
+      authMode: 'required',
+      data,
+    }).then((response) => ({
+      ...response,
+      notifications: Array.isArray(response.notifications) ? response.notifications : [],
+      total: response.total ?? 0,
+      next_cursor_id: response.next_cursor_id ?? 0,
+      has_more: response.has_more ?? false,
+    }))
   }
   /** 查询当前可用的消息分类。 */
   ListNotificationCategories(
     request: ListNotificationCategoriesRequest,
   ): Promise<ListNotificationCategoriesResponse> {
-    return http({
+    return http<Partial<ListNotificationCategoriesResponse>>({
       url: `${NOTIFICATION_URL}/categories`,
       method: 'GET',
       authMode: 'required',
       data: request,
-    })
+    }).then((response) => ({
+      ...response,
+      categories: Array.isArray(response.categories) ? response.categories : [],
+    }))
   }
   /** 查询消息详情。 */
   GetNotification(request: GetNotificationRequest): Promise<Notification> {
@@ -46,7 +60,17 @@ export class NotificationServiceImpl implements NotificationService {
   }
   /** 查询未读汇总。 */
   GetNotificationSummary(request: GetNotificationSummaryRequest): Promise<NotificationSummary> {
-    return http({ url: `${NOTIFICATION_URL}/summary`, method: 'GET', authMode: 'required', data: request })
+    return http<Partial<NotificationSummary>>({
+      url: `${NOTIFICATION_URL}/summary`,
+      method: 'GET',
+      authMode: 'required',
+      data: request,
+    }).then((response) => ({
+      ...response,
+      unread_total: response.unread_total ?? 0,
+      latest_delivery_id: response.latest_delivery_id ?? 0,
+      category_unread: Array.isArray(response.category_unread) ? response.category_unread : [],
+    }))
   }
   /** 标记消息已读。 */
   MarkNotificationRead(request: MarkNotificationReadRequest): Promise<Empty> {
