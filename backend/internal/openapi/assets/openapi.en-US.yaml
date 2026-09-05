@@ -3425,10 +3425,10 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - BASE_REDACT_POLICY_MODE_UNSPECIFIED
-                        - BASE_REDACT_POLICY_MODE_RULE
-                        - BASE_REDACT_POLICY_MODE_HIDE
-                        - BASE_REDACT_POLICY_MODE_FULL
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_RULE
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_HIDE
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_FULL
                     type: string
                     format: enum
                 - name: status
@@ -10404,12 +10404,12 @@ components:
                     format: enum
                 mode:
                     enum:
-                        - BASE_REDACT_POLICY_MODE_UNSPECIFIED
-                        - BASE_REDACT_POLICY_MODE_RULE
-                        - BASE_REDACT_POLICY_MODE_HIDE
-                        - BASE_REDACT_POLICY_MODE_FULL
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_RULE
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_HIDE
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_FULL
                     type: string
-                    description: policy mode
+                    description: "Handle mode: enum【Base Redact Output Policy Mode】"
                     format: enum
                 priority:
                     type: integer
@@ -10421,12 +10421,8 @@ components:
                         - STATUS_ENABLE
                         - STATUS_DISABLE
                     type: string
-                    description: status
+                    description: "status: enum【Status】"
                     format: enum
-                version:
-                    type: integer
-                    description: policy version
-                    format: int32
                 remark:
                     type: string
                     description: Remarks
@@ -10465,12 +10461,12 @@ components:
                     format: enum
                 mode:
                     enum:
-                        - BASE_REDACT_POLICY_MODE_UNSPECIFIED
-                        - BASE_REDACT_POLICY_MODE_RULE
-                        - BASE_REDACT_POLICY_MODE_HIDE
-                        - BASE_REDACT_POLICY_MODE_FULL
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_RULE
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_HIDE
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_FULL
                     type: string
-                    description: policy mode
+                    description: "Handle mode: enum【Base Redact Output Policy Mode】"
                     format: enum
                 priority:
                     type: integer
@@ -10482,12 +10478,8 @@ components:
                         - STATUS_ENABLE
                         - STATUS_DISABLE
                     type: string
-                    description: status
+                    description: "status: enum【Status】"
                     format: enum
-                version:
-                    type: integer
-                    description: policy version
-                    format: int32
                 remark:
                     type: string
                     description: Remarks
@@ -10518,10 +10510,6 @@ components:
                     type: string
                     description: status
                     format: enum
-                version:
-                    type: integer
-                    description: rule version
-                    format: int32
                 remark:
                     type: string
                     description: Remarks
@@ -10558,10 +10546,6 @@ components:
                     type: string
                     description: status
                     format: enum
-                version:
-                    type: integer
-                    description: rule version
-                    format: int32
                 remark:
                     type: string
                     description: Remarks
@@ -13415,7 +13399,7 @@ components:
                         - STATUS_ENABLE
                         - STATUS_DISABLE
                     type: string
-                    description: status
+                    description: "status: enum【Status】"
                     format: enum
             description: Set redaction policy status request parameters.
         system.admin.v1.SetBaseRedactRuleStatusRequest:

@@ -1135,5 +1135,89 @@
   },
   "system.admin.runtime.base_log_fallback.file_path.required": {
     "other": "The log ingestion fallback directory path cannot be empty"
+  },
+  "system.admin.base.redact.rule.permission_denied": {
+    "other": "Only platform administrators can manage redaction rules"
+  },
+  "system.admin.base.redact.rule.template.not_found": {
+    "other": "The rule template does not exist"
+  },
+  "system.admin.base.redact.rule.template.unsupported": {
+    "other": "The rule template is not supported"
+  },
+  "system.admin.base.redact.rule.create.unsupported": {
+    "other": "Redaction rule templates are built in and cannot be created"
+  },
+  "system.admin.base.redact.rule.delete.unsupported": {
+    "other": "Redaction rule templates are built in and cannot be deleted"
+  },
+  "system.admin.base.redact.rule.update.id.required": {
+    "other": "The rule template ID is required"
+  },
+  "system.admin.base.redact.rule.code.immutable": {
+    "other": "The rule template code cannot be changed"
+  },
+  "system.admin.base.redact.rule.rule_type.immutable": {
+    "other": "The rule template type cannot be changed"
+  },
+  "system.admin.base.redact.rule.rule.invalid": {
+    "other": "The rule template parameters are invalid"
+  },
+  "system.admin.base.redact.rule.status.invalid": {
+    "other": "The rule template status is invalid"
+  },
+  "system.admin.base.redact.rule.template.phone_mask": {
+    "other": "Phone number mask"
+  },
+  "system.admin.base.redact.rule.template.email_mask": {
+    "other": "Email mask"
+  },
+  "system.admin.base.redact.rule.template.regex_replace": {
+    "other": "Regular expression replacement"
+  },
+  "system.admin.base.redact.rule.template.truncate_text": {
+    "other": "Text truncation"
+  },
+  "system.admin.base.redact.rule.template.hash_digest": {
+    "other": "Hash digest"
+  },
+  "system.admin.base.redact.rule.template.stable_uuid": {
+    "other": "Stable UUID"
+  },
+  "system.admin.base.redact.rule.template.ip_mask": {
+    "other": "IP address mask"
+  },
+  "system.admin.base.redact.rule.template.url_mask": {
+    "other": "URL parameter mask"
+  },
+  "system.admin.base.redact.rule.template.fixed_length_mask": {
+    "other": "Fixed-length mask"
+  },
+  "system.admin.base.redact.rule.description.phone_mask": {
+    "other": "Keep the first three and last four digits of a phone number"
+  },
+  "system.admin.base.redact.rule.description.email_mask": {
+    "other": "Mask the email local part and optionally its domain"
+  },
+  "system.admin.base.redact.rule.description.regex_replace": {
+    "other": "Replace matching content with a regular expression"
+  },
+  "system.admin.base.redact.rule.description.truncate_text": {
+    "other": "Keep a text prefix and append a suffix"
+  },
+  "system.admin.base.redact.rule.description.hash_digest": {
+    "other": "Generate an irreversible result with a digest algorithm"
+  },
+  "system.admin.base.redact.rule.description.stable_uuid": {
+    "other": "Convert text to a stable UUID"
+  },
+  "system.admin.base.redact.rule.description.ip_mask": {
+    "other": "Keep the IP prefix octets and mask the rest"
+  },
+  "system.admin.base.redact.rule.description.url_mask": {
+    "other": "Mask URL query parameter values"
+  },
+  "system.admin.base.redact.rule.description.fixed_length_mask": {
+    "other": "Replace content with a fixed character while preserving its length"
   }
 }

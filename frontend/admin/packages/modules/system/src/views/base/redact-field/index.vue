@@ -1,5 +1,5 @@
 <template>
-  <div class="table-box page-box">
+  <div class="table-box">
     <ProTable ref="table" row-key="id" :columns="columns" :header-actions="headerActions" :request-api="requestTable" />
     <FormDialog v-model="dialog.visible" ref="dialogRef" :title="t(dialog.titleKey)" width="620px" :model="form" :fields="fields" :rules="rules" @confirm="submit" @close="resetForm" />
   </div>
@@ -53,7 +53,3 @@ async function changeStatus(row: BaseRedactField) { const next = row.status === 
 /** 删除字段目录。 */
 function deleteItems(selected?: BaseRedactField | BaseRedactField[] | number | string | Array<number | string>) { const items = Array.isArray(selected) ? selected.filter((item): item is BaseRedactField => typeof item === "object") : selected && typeof selected === "object" ? [selected] : []; const ids = items.length ? items.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>); if (!ids.length) { ElMessage.warning(t("common.message.select_delete_item")); return; } ElMessageBox.confirm(t("common.dialog.delete_selected", { resource: t("system.base.redact_policy.tabs.field") }), t("common.title.warning"), { type: "warning" }).then(async () => { await defBaseRedactFieldService.DeleteBaseRedactField({ id: ids.join(",") }); ElMessage.success(t("common.message.delete_success", { resource: t("system.base.redact_policy.tabs.field") })); table.value?.getTableList(); }); }
 </script>
-
-<style scoped lang="scss">
-.page-box { padding: 20px; }
-</style>

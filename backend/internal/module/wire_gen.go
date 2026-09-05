@@ -7,6 +7,7 @@
 package module
 
 import (
+	"github.com/liujitcn/kratos-admin/backend/internal/adapter/kit"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/agent/model"
 	biz2 "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
@@ -415,7 +416,22 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 		BaseDict: appBaseDictService,
 		BaseMenu: appBaseMenuService,
 	}
-	modules, err := NewModules(baseServices, adminServices, services2, baseConfigCase, baseLoginPolicyCase)
+	baseRedactStoragePolicyRepository := data2.NewBaseRedactStoragePolicyRepository(dataData)
+	baseRedactOutputPolicyRepository := data2.NewBaseRedactOutputPolicyRepository(dataData)
+	baseRedactRuleRepository := data2.NewBaseRedactRuleRepository(dataData)
+	baseRedactStorageValueRepository := data2.NewBaseRedactStorageValueRepository(dataData)
+	storageValueStore := kit.NewStorageValueStore(baseRedactStorageValueRepository)
+	storageProtector, err := config.NewRedactStorageProtector()
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	redactPolicyResolver, err := kit.NewRedactRuntime(baseRedactStoragePolicyRepository, baseRedactOutputPolicyRepository, baseRedactRuleRepository, storageValueStore, storageProtector)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	modules, err := NewModules(baseServices, adminServices, services2, baseConfigCase, baseLoginPolicyCase, redactPolicyResolver)
 	if err != nil {
 		cleanup()
 		return nil, nil, err

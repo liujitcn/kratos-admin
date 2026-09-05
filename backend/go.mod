@@ -15,7 +15,7 @@ require (
 	github.com/liujitcn/go-utils/crypto v0.0.17
 	github.com/liujitcn/go-utils/http v0.0.7
 	github.com/liujitcn/gorm-kit v0.0.34
-	github.com/liujitcn/kratos-admin/backend/api v0.0.5
+	github.com/liujitcn/kratos-admin/backend/api v0.0.6
 	github.com/liujitcn/kratos-core v0.0.26
 	github.com/liujitcn/kratos-core/api v0.0.4
 	github.com/liujitcn/kratos-kit v0.0.84
@@ -28,7 +28,7 @@ require (
 	github.com/liujitcn/kratos-kit/cache v0.0.22
 	github.com/liujitcn/kratos-kit/captcha v0.0.23
 	github.com/liujitcn/kratos-kit/config v0.0.32
-	github.com/liujitcn/kratos-kit/database/gorm v0.0.43
+	github.com/liujitcn/kratos-kit/database/gorm v0.0.44
 	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.19
 	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.15
 	github.com/liujitcn/kratos-kit/logger/zap v0.0.19
@@ -36,6 +36,7 @@ require (
 	github.com/liujitcn/kratos-kit/oss v0.0.19
 	github.com/liujitcn/kratos-kit/pprof v0.0.16
 	github.com/liujitcn/kratos-kit/queue v0.0.29
+	github.com/liujitcn/kratos-kit/redact v0.0.5
 	github.com/liujitcn/kratos-kit/registry/consul v0.0.7
 	github.com/liujitcn/kratos-kit/translator v0.0.7
 	github.com/liujitcn/kratos-kit/transport/cron v0.0.18
@@ -55,6 +56,7 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20260819154853-08b0e4226688
 	google.golang.org/grpc v1.83.1
 	google.golang.org/protobuf v1.36.12
+	gorm.io/driver/mysql v1.6.0
 	gorm.io/gen v0.3.29
 	gorm.io/gorm v1.31.2
 	gorm.io/plugin/dbresolver v1.6.2
@@ -132,7 +134,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/clbanning/mxj/v2 v2.7.0 // indirect
 	github.com/clipperhouse/displaywidth v0.10.0 // indirect
-	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
+	github.com/clipperhouse/uax29/v2 v2.6.0 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
 	github.com/cloudwego/eino-ext/libs/acl/openai v0.1.18-0.20260527084435-846f52bd97c6 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
@@ -225,7 +227,6 @@ require (
 	github.com/liujitcn/kratos-kit/logger v0.0.33 // indirect
 	github.com/liujitcn/kratos-kit/oss/s3 v0.0.4 // indirect
 	github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.16 // indirect
-	github.com/liujitcn/kratos-kit/redact v0.0.4 // indirect
 	github.com/liujitcn/kratos-kit/registry v0.0.24 // indirect
 	github.com/liujitcn/kratos-kit/server/grpc v0.0.4 // indirect
 	github.com/liujitcn/kratos-kit/server/http v0.0.6 // indirect
@@ -240,7 +241,7 @@ require (
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.22 // indirect
-	github.com/mattn/go-runewidth v0.0.23 // indirect
+	github.com/mattn/go-runewidth v0.0.19 // indirect
 	github.com/meguminnnnnnnnn/go-openai v0.1.2 // indirect
 	github.com/minio/crc64nvme v1.1.1 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
@@ -341,7 +342,6 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/datatypes v1.2.4 // indirect
 	gorm.io/driver/clickhouse v0.7.0 // indirect
-	gorm.io/driver/mysql v1.6.0 // indirect
 	gorm.io/driver/postgres v1.6.0 // indirect
 	gorm.io/hints v1.1.0 // indirect
 	gorm.io/plugin/opentelemetry v0.1.16 // indirect

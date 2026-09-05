@@ -1135,5 +1135,89 @@
   },
   "system.admin.runtime.base_log_fallback.file_path.required": {
     "other": "監査ログ登録フォールバックディレクトリのパスは空にできません"
+  },
+  "system.admin.base.redact.rule.permission_denied": {
+    "other": "脱敏ルールを管理できるのはプラットフォーム管理者のみです"
+  },
+  "system.admin.base.redact.rule.template.not_found": {
+    "other": "ルールテンプレートが存在しません"
+  },
+  "system.admin.base.redact.rule.template.unsupported": {
+    "other": "サポートされていないルールテンプレートです"
+  },
+  "system.admin.base.redact.rule.create.unsupported": {
+    "other": "脱敏ルールテンプレートは組み込みのため、新規作成できません"
+  },
+  "system.admin.base.redact.rule.delete.unsupported": {
+    "other": "脱敏ルールテンプレートは組み込みのため、削除できません"
+  },
+  "system.admin.base.redact.rule.update.id.required": {
+    "other": "ルールテンプレート ID は必須です"
+  },
+  "system.admin.base.redact.rule.code.immutable": {
+    "other": "ルールテンプレートコードは変更できません"
+  },
+  "system.admin.base.redact.rule.rule_type.immutable": {
+    "other": "ルールテンプレートの種類は変更できません"
+  },
+  "system.admin.base.redact.rule.rule.invalid": {
+    "other": "ルールテンプレートのパラメーターが無効です"
+  },
+  "system.admin.base.redact.rule.status.invalid": {
+    "other": "ルールテンプレートの状態が無効です"
+  },
+  "system.admin.base.redact.rule.template.phone_mask": {
+    "other": "電話番号マスク"
+  },
+  "system.admin.base.redact.rule.template.email_mask": {
+    "other": "メールアドレスマスク"
+  },
+  "system.admin.base.redact.rule.template.regex_replace": {
+    "other": "正規表現置換"
+  },
+  "system.admin.base.redact.rule.template.truncate_text": {
+    "other": "テキスト切り詰め"
+  },
+  "system.admin.base.redact.rule.template.hash_digest": {
+    "other": "ハッシュダイジェスト"
+  },
+  "system.admin.base.redact.rule.template.stable_uuid": {
+    "other": "安定 UUID"
+  },
+  "system.admin.base.redact.rule.template.ip_mask": {
+    "other": "IP アドレスマスク"
+  },
+  "system.admin.base.redact.rule.template.url_mask": {
+    "other": "URL パラメーターマスク"
+  },
+  "system.admin.base.redact.rule.template.fixed_length_mask": {
+    "other": "固定長マスク"
+  },
+  "system.admin.base.redact.rule.description.phone_mask": {
+    "other": "電話番号の先頭 3 桁と末尾 4 桁を保持します"
+  },
+  "system.admin.base.redact.rule.description.email_mask": {
+    "other": "メールアドレスのローカル部とドメインをマスクします"
+  },
+  "system.admin.base.redact.rule.description.regex_replace": {
+    "other": "正規表現で一致した内容を置換します"
+  },
+  "system.admin.base.redact.rule.description.truncate_text": {
+    "other": "テキストの先頭を保持して末尾に接尾辞を追加します"
+  },
+  "system.admin.base.redact.rule.description.hash_digest": {
+    "other": "ダイジェストアルゴリズムで不可逆な結果を生成します"
+  },
+  "system.admin.base.redact.rule.description.stable_uuid": {
+    "other": "テキストを安定 UUID に変換します"
+  },
+  "system.admin.base.redact.rule.description.ip_mask": {
+    "other": "IP の先頭オクテットを保持し、残りをマスクします"
+  },
+  "system.admin.base.redact.rule.description.url_mask": {
+    "other": "URL クエリーパラメーターの値をマスクします"
+  },
+  "system.admin.base.redact.rule.description.fixed_length_mask": {
+    "other": "固定文字で置換し、元の長さを保持します"
   }
 }

@@ -1135,5 +1135,89 @@
   },
   "system.admin.runtime.base_log_fallback.file_path.required": {
     "other": "稽核日誌入庫回退目錄路徑不得為空"
+  },
+  "system.admin.base.redact.rule.permission_denied": {
+    "other": "只有平台管理員可以管理脫敏規則"
+  },
+  "system.admin.base.redact.rule.template.not_found": {
+    "other": "規則模板不存在"
+  },
+  "system.admin.base.redact.rule.template.unsupported": {
+    "other": "不支援此規則模板"
+  },
+  "system.admin.base.redact.rule.create.unsupported": {
+    "other": "脫敏規則模板由系統內建，不支援新增"
+  },
+  "system.admin.base.redact.rule.delete.unsupported": {
+    "other": "脫敏規則模板由系統內建，不支援刪除"
+  },
+  "system.admin.base.redact.rule.update.id.required": {
+    "other": "規則模板 ID 不得為空"
+  },
+  "system.admin.base.redact.rule.code.immutable": {
+    "other": "規則模板編碼不可修改"
+  },
+  "system.admin.base.redact.rule.rule_type.immutable": {
+    "other": "規則模板類型不可修改"
+  },
+  "system.admin.base.redact.rule.rule.invalid": {
+    "other": "規則模板參數無效"
+  },
+  "system.admin.base.redact.rule.status.invalid": {
+    "other": "規則模板狀態無效"
+  },
+  "system.admin.base.redact.rule.template.phone_mask": {
+    "other": "手機號碼遮罩"
+  },
+  "system.admin.base.redact.rule.template.email_mask": {
+    "other": "電子郵件遮罩"
+  },
+  "system.admin.base.redact.rule.template.regex_replace": {
+    "other": "正規表示式取代"
+  },
+  "system.admin.base.redact.rule.template.truncate_text": {
+    "other": "文字截斷"
+  },
+  "system.admin.base.redact.rule.template.hash_digest": {
+    "other": "雜湊摘要"
+  },
+  "system.admin.base.redact.rule.template.stable_uuid": {
+    "other": "穩定 UUID"
+  },
+  "system.admin.base.redact.rule.template.ip_mask": {
+    "other": "IP 位址遮罩"
+  },
+  "system.admin.base.redact.rule.template.url_mask": {
+    "other": "URL 參數遮罩"
+  },
+  "system.admin.base.redact.rule.template.fixed_length_mask": {
+    "other": "等長遮罩"
+  },
+  "system.admin.base.redact.rule.description.phone_mask": {
+    "other": "保留手機號碼前三碼和後四碼"
+  },
+  "system.admin.base.redact.rule.description.email_mask": {
+    "other": "依電子郵件本機部分和網域執行遮罩"
+  },
+  "system.admin.base.redact.rule.description.regex_replace": {
+    "other": "使用正規表示式取代符合的內容"
+  },
+  "system.admin.base.redact.rule.description.truncate_text": {
+    "other": "保留文字前綴並追加後綴"
+  },
+  "system.admin.base.redact.rule.description.hash_digest": {
+    "other": "使用摘要演算法產生不可逆結果"
+  },
+  "system.admin.base.redact.rule.description.stable_uuid": {
+    "other": "將文字轉換為穩定 UUID"
+  },
+  "system.admin.base.redact.rule.description.ip_mask": {
+    "other": "保留 IP 前綴網段並隱藏其餘部分"
+  },
+  "system.admin.base.redact.rule.description.url_mask": {
+    "other": "隱藏 URL 查詢參數值"
+  },
+  "system.admin.base.redact.rule.description.fixed_length_mask": {
+    "other": "使用固定字元取代為等長文字"
   }
 }

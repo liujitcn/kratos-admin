@@ -10,5 +10,6 @@ var ProviderSet = wire.NewSet(
 	ParseAIModel,
 	ParseMfaConfig,
 	ParseOAuthManager,
+	NewRedactStorageProtector,
 	oauthsecret.NewProtector,
 )

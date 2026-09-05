@@ -278,8 +278,8 @@ github.com/clbanning/mxj/v2 v2.7.0/go.mod h1:hNiWqW14h+kc+MdF9C6/YoRfjEJoR3ou6tn
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
 github.com/clipperhouse/displaywidth v0.10.0 h1:GhBG8WuerxjFQQYeuZAeVTuyxuX+UraiZGD4HJQ3Y8g=
 github.com/clipperhouse/displaywidth v0.10.0/go.mod h1:XqJajYsaiEwkxOj4bowCTMcT1SgvHo9flfF3jQasdbs=
-github.com/clipperhouse/uax29/v2 v2.7.0 h1:+gs4oBZ2gPfVrKPthwbMzWZDaAFPGYK72F0NJv2v7Vk=
-github.com/clipperhouse/uax29/v2 v2.7.0/go.mod h1:EFJ2TJMRUaplDxHKj1qAEhCtQPW2tJSwu5BF98AuoVM=
+github.com/clipperhouse/uax29/v2 v2.6.0 h1:z0cDbUV+aPASdFb2/ndFnS9ts/WNXgTNNGFoKXuhpos=
+github.com/clipperhouse/uax29/v2 v2.6.0/go.mod h1:Wn1g7MK6OoeDT0vL+Q0SQLDz/KpfsVRgg6W7ihQeh4g=
 github.com/cloudwego/base64x v0.1.6 h1:t11wG9AECkCDk5fMSoxmufanudBtJ+/HemLstXDLI2M=
 github.com/cloudwego/base64x v0.1.6/go.mod h1:OFcloc187FXDaYHvrNIjxSe8ncn0OOM8gEHfghB2IPU=
 github.com/cloudwego/eino v0.9.15 h1:F+7uXeZYbJm30a/kaC93Mj6H9K2zx4thQaQP695NggE=
@@ -706,8 +706,8 @@ github.com/liujitcn/go-utils/translator/volc v0.0.4 h1:2HOmyC67bKRcGXNXHCi3vco/L
 github.com/liujitcn/go-utils/translator/volc v0.0.4/go.mod h1:drNm2jfUCXfFB089DthBcR727wTHAKbxi7sF/cwOnd0=
 github.com/liujitcn/gorm-kit v0.0.34 h1:VRGMuAmTE5QvPlojwbv6XqgiBezFBV0QcW9s0xLs+Fg=
 github.com/liujitcn/gorm-kit v0.0.34/go.mod h1:9ZJbYSydcprWdTG7wf+kW8qqxdF0Aw6fAC2tY2Ogdcs=
-github.com/liujitcn/kratos-admin/backend/api v0.0.5 h1:FHh6ZUeEo+Pv4fKO3V3HsPZflJKxm9pM1vO/1kr+PiY=
-github.com/liujitcn/kratos-admin/backend/api v0.0.5/go.mod h1:EJ1N8IksLNO5ZM36krl0ymXLp+/zxEtoLq/lKvERzZo=
+github.com/liujitcn/kratos-admin/backend/api v0.0.6 h1:OlWmRkfl5Mb4WufHXHB1Lm3l/Fb0tvQ2nQbxHPahz/k=
+github.com/liujitcn/kratos-admin/backend/api v0.0.6/go.mod h1:JrREJwDjiZF1z1aPky8df+TbY3rhtlYyHzmkQp7Tqrs=
 github.com/liujitcn/kratos-core v0.0.26 h1:M3ri5bWFHT3NUKQGasPAfCHaWVcZ3KxhjfhP5SXXWbA=
 github.com/liujitcn/kratos-core v0.0.26/go.mod h1:+y6drrYj2crkgGdRKErubK544Qu5+qNPUuO23B4wONA=
 github.com/liujitcn/kratos-core/api v0.0.4 h1:Tw1+FSk8/anqr+vr6yZb+Bv1Kpf/c5/oEJg6V1BQSgM=
@@ -740,8 +740,8 @@ github.com/liujitcn/kratos-kit/captcha v0.0.23 h1:FSUeR1nR5dN+NJge2HrY39TAxhnUAh
 github.com/liujitcn/kratos-kit/captcha v0.0.23/go.mod h1:KRZOL/meEtpn2adDYIAtPsOLctpXxRbm9Be/0+KG6ZE=
 github.com/liujitcn/kratos-kit/config v0.0.32 h1:XOVZZjmOgxoY2BDtWAodTSB0PIcIKSn6sST23Y2F5WE=
 github.com/liujitcn/kratos-kit/config v0.0.32/go.mod h1:BZVaprSB8XoHbJbPsk219DjTPuKrVWQ4w8CF0+wK+EU=
-github.com/liujitcn/kratos-kit/database/gorm v0.0.43 h1:XLA6pw0+N4QBLwGlZcyeVblR6hcj11C9M2sK5O7WzWQ=
-github.com/liujitcn/kratos-kit/database/gorm v0.0.43/go.mod h1:vXskgdI9piNvIu+2QYZkH510AukpK8930Uq9wcCDINs=
+github.com/liujitcn/kratos-kit/database/gorm v0.0.44 h1:7YfXtuQW7FoKRJ1iKJhzfkXZotiaLrOfJeU6/Ib5Sx4=
+github.com/liujitcn/kratos-kit/database/gorm v0.0.44/go.mod h1:vXskgdI9piNvIu+2QYZkH510AukpK8930Uq9wcCDINs=
 github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.19 h1:XS2yM+ymXSvvtOx22jaWAMSvURga1YZWYLp/VDTqjBw=
 github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.19/go.mod h1:o8yW8lcmcz2evAQaCjeXjX2WMOFwmElz5S74bngDlb8=
 github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.19 h1:EzLgiglLygfiOb4Q+drE3/+VZ80J6u5NfQSe0ssmW4E=
@@ -768,8 +768,8 @@ github.com/liujitcn/kratos-kit/queue v0.0.29 h1:Kv2/CfE+p5pZOuUZzuV+RULBLPmIJRZS
 github.com/liujitcn/kratos-kit/queue v0.0.29/go.mod h1:cUIQp9ZOcnBQXKP9yW0xeU9Dezkf9sOQuR4F6oVs8Ig=
 github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.16 h1:bedifEZn+0HUHfKQ4p7QXMlEBoDu4786r39M1UZwuPU=
 github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.16/go.mod h1:iz4f5nO2ZyLqc+jVCHSHQvK1o/Ex1UsJvagqB5KTE74=
-github.com/liujitcn/kratos-kit/redact v0.0.4 h1:HGOFVhret0trjQCqpg5cKOtee7YFJx49gSkZiE9CQYw=
-github.com/liujitcn/kratos-kit/redact v0.0.4/go.mod h1:FnSLS81bA/4zWRq08JNsblrVyo7Bpcd1bS3Lvrqx8Co=
+github.com/liujitcn/kratos-kit/redact v0.0.5 h1:VDwWQwIlgaVcG6i2jFQsBRa9TiitXIS9Nca3KSzuFOM=
+github.com/liujitcn/kratos-kit/redact v0.0.5/go.mod h1:FnSLS81bA/4zWRq08JNsblrVyo7Bpcd1bS3Lvrqx8Co=
 github.com/liujitcn/kratos-kit/registry v0.0.24 h1:px7iqSFmnpTWxr7NtAl+9d85NSY3EQnzLy84fr1QglY=
 github.com/liujitcn/kratos-kit/registry v0.0.24/go.mod h1:oIKZLEnJ1RH3hDMpsKErQ4kKShlqDgK0i5gtvBMF8kQ=
 github.com/liujitcn/kratos-kit/registry/consul v0.0.7 h1:OrdczmVF2lWd6ZfmL7DgPT4+rQanvWVahuT4aB7muP4=
@@ -824,8 +824,8 @@ github.com/mattn/go-isatty v0.0.12/go.mod h1:cbi8OIDigv2wuxKPP5vlRcQ1OAZbq2CE4Ky
 github.com/mattn/go-isatty v0.0.14/go.mod h1:7GGIvUiUoEMVVmxf/4nioHXj79iQHKdU27kJ6hsGG94=
 github.com/mattn/go-isatty v0.0.22 h1:j8l17JJ9i6VGPUFUYoTUKPSgKe/83EYU2zBC7YNKMw4=
 github.com/mattn/go-isatty v0.0.22/go.mod h1:ZXfXG4SQHsB/w3ZeOYbR0PrPwLy+n6xiMrJlRFqopa4=
-github.com/mattn/go-runewidth v0.0.23 h1:7ykA0T0jkPpzSvMS5i9uoNn2Xy3R383f9HDx3RybWcw=
-github.com/mattn/go-runewidth v0.0.23/go.mod h1:XBkDxAl56ILZc9knddidhrOlY5R/pDhgLpndooCuJAs=
+github.com/mattn/go-runewidth v0.0.19 h1:v++JhqYnZuu5jSKrk9RbgF5v4CGUjqRfBm05byFGLdw=
+github.com/mattn/go-runewidth v0.0.19/go.mod h1:XBkDxAl56ILZc9knddidhrOlY5R/pDhgLpndooCuJAs=
 github.com/mattn/go-sqlite3 v1.14.3/go.mod h1:WVKg1VTActs4Qso6iwGbiFih2UIHo0ENGwNd0Lj+XmI=
 github.com/mattn/go-sqlite3 v1.14.8/go.mod h1:NyWgC/yNuGj7Q9rpYnZvas74GogHl5/Z4A/KQRfk6bU=
 github.com/mattn/go-sqlite3 v1.14.34 h1:3NtcvcUnFBPsuRcno8pUtupspG/GM+9nZ88zgJcp6Zk=

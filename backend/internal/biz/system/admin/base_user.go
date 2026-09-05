@@ -239,9 +239,9 @@ func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *adminv1.PageBaseUs
 	if req.GetNickName() != "" {
 		opts = append(opts, repository.Where(query.NickName.Like("%"+req.GetNickName()+"%")))
 	}
-	// 传入手机号关键字时，按手机号模糊匹配。
+	// 入库保护字段只支持通过旁表摘要执行精确查询。
 	if req.GetPhone() != "" {
-		opts = append(opts, repository.Where(query.Phone.Like("%"+req.GetPhone()+"%")))
+		opts = append(opts, repository.Where(query.Phone.Eq(req.GetPhone())))
 	}
 
 	var list []*models.BaseUser
@@ -288,7 +288,6 @@ func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *adminv1.PageBaseUs
 	resList := make([]*adminv1.BaseUser, 0, len(list))
 	for _, item := range list {
 		baseUser := c.mapper.ToDTO(item)
-		baseUser.Phone = maskPhone(baseUser.Phone)
 		_, baseUser.IsProtected = protectedRoleIDs[item.RoleID]
 		resList = append(resList, baseUser)
 	}
@@ -682,16 +681,4 @@ func baseUserGRPCContext(ctx context.Context) context.Context {
 func baseUserLocalCall(ctx context.Context) bool {
 	serverTransport, ok := transport.FromServerContext(ctx)
 	return !ok || !strings.HasPrefix(serverTransport.Operation(), "/system.admin.v1.BaseUserService/")
-}
-
-// maskPhone 对管理列表中的手机号保留前三位和后四位。
-func maskPhone(phone string) string {
-	values := []rune(phone)
-	if len(values) < 8 {
-		if phone == "" {
-			return ""
-		}
-		return "***"
-	}
-	return string(values[:3]) + "****" + string(values[len(values)-4:])
 }

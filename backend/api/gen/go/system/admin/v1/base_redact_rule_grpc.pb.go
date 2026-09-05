@@ -9,7 +9,7 @@ package adminv1
 import (
 	context "context"
 
-	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -38,7 +38,7 @@ const (
 // Admin脱敏规则模板服务。
 type BaseRedactRuleServiceClient interface {
 	// 查询脱敏规则选项。
-	OptionBaseRedactRule(ctx context.Context, in *OptionBaseRedactRuleRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error)
+	OptionBaseRedactRule(ctx context.Context, in *OptionBaseRedactRuleRequest, opts ...grpc.CallOption) (*commonv1.SelectOptionResponse, error)
 	// 查询脱敏规则分页列表。
 	PageBaseRedactRule(ctx context.Context, in *PageBaseRedactRuleRequest, opts ...grpc.CallOption) (*PageBaseRedactRuleResponse, error)
 	// 查询脱敏规则详情。
@@ -61,9 +61,9 @@ func NewBaseRedactRuleServiceClient(cc grpc.ClientConnInterface) BaseRedactRuleS
 	return &baseRedactRuleServiceClient{cc}
 }
 
-func (c *baseRedactRuleServiceClient) OptionBaseRedactRule(ctx context.Context, in *OptionBaseRedactRuleRequest, opts ...grpc.CallOption) (*v1.SelectOptionResponse, error) {
+func (c *baseRedactRuleServiceClient) OptionBaseRedactRule(ctx context.Context, in *OptionBaseRedactRuleRequest, opts ...grpc.CallOption) (*commonv1.SelectOptionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(v1.SelectOptionResponse)
+	out := new(commonv1.SelectOptionResponse)
 	err := c.cc.Invoke(ctx, BaseRedactRuleService_OptionBaseRedactRule_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -138,7 +138,7 @@ func (c *baseRedactRuleServiceClient) SetBaseRedactRuleStatus(ctx context.Contex
 // Admin脱敏规则模板服务。
 type BaseRedactRuleServiceServer interface {
 	// 查询脱敏规则选项。
-	OptionBaseRedactRule(context.Context, *OptionBaseRedactRuleRequest) (*v1.SelectOptionResponse, error)
+	OptionBaseRedactRule(context.Context, *OptionBaseRedactRuleRequest) (*commonv1.SelectOptionResponse, error)
 	// 查询脱敏规则分页列表。
 	PageBaseRedactRule(context.Context, *PageBaseRedactRuleRequest) (*PageBaseRedactRuleResponse, error)
 	// 查询脱敏规则详情。
@@ -161,7 +161,7 @@ type BaseRedactRuleServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseRedactRuleServiceServer struct{}
 
-func (UnimplementedBaseRedactRuleServiceServer) OptionBaseRedactRule(context.Context, *OptionBaseRedactRuleRequest) (*v1.SelectOptionResponse, error) {
+func (UnimplementedBaseRedactRuleServiceServer) OptionBaseRedactRule(context.Context, *OptionBaseRedactRuleRequest) (*commonv1.SelectOptionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method OptionBaseRedactRule not implemented")
 }
 func (UnimplementedBaseRedactRuleServiceServer) PageBaseRedactRule(context.Context, *PageBaseRedactRuleRequest) (*PageBaseRedactRuleResponse, error) {

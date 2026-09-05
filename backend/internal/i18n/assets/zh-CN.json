@@ -1135,5 +1135,89 @@
   },
   "system.admin.runtime.base_log_fallback.file_path.required": {
     "other": "日志入库回退目录路径不能为空"
+  },
+  "system.admin.base.redact.rule.permission_denied": {
+    "other": "只有平台管理员可以管理脱敏规则"
+  },
+  "system.admin.base.redact.rule.template.not_found": {
+    "other": "规则模板不存在"
+  },
+  "system.admin.base.redact.rule.template.unsupported": {
+    "other": "规则模板不受支持"
+  },
+  "system.admin.base.redact.rule.create.unsupported": {
+    "other": "脱敏规则模板由系统内置，不支持新增"
+  },
+  "system.admin.base.redact.rule.delete.unsupported": {
+    "other": "脱敏规则模板由系统内置，不支持删除"
+  },
+  "system.admin.base.redact.rule.update.id.required": {
+    "other": "规则模板 ID 不能为空"
+  },
+  "system.admin.base.redact.rule.code.immutable": {
+    "other": "规则模板编码不允许修改"
+  },
+  "system.admin.base.redact.rule.rule_type.immutable": {
+    "other": "规则模板类型不允许修改"
+  },
+  "system.admin.base.redact.rule.rule.invalid": {
+    "other": "规则模板参数无效"
+  },
+  "system.admin.base.redact.rule.status.invalid": {
+    "other": "规则模板状态无效"
+  },
+  "system.admin.base.redact.rule.template.phone_mask": {
+    "other": "手机号掩码"
+  },
+  "system.admin.base.redact.rule.template.email_mask": {
+    "other": "邮箱掩码"
+  },
+  "system.admin.base.redact.rule.template.regex_replace": {
+    "other": "正则替换"
+  },
+  "system.admin.base.redact.rule.template.truncate_text": {
+    "other": "文本截断"
+  },
+  "system.admin.base.redact.rule.template.hash_digest": {
+    "other": "哈希摘要"
+  },
+  "system.admin.base.redact.rule.template.stable_uuid": {
+    "other": "稳定 UUID"
+  },
+  "system.admin.base.redact.rule.template.ip_mask": {
+    "other": "IP 地址掩码"
+  },
+  "system.admin.base.redact.rule.template.url_mask": {
+    "other": "URL 参数掩码"
+  },
+  "system.admin.base.redact.rule.template.fixed_length_mask": {
+    "other": "等长掩码"
+  },
+  "system.admin.base.redact.rule.description.phone_mask": {
+    "other": "保留手机号前三位和后四位"
+  },
+  "system.admin.base.redact.rule.description.email_mask": {
+    "other": "按邮箱本地部分和域名执行掩码"
+  },
+  "system.admin.base.redact.rule.description.regex_replace": {
+    "other": "使用正则表达式替换匹配内容"
+  },
+  "system.admin.base.redact.rule.description.truncate_text": {
+    "other": "保留文本前缀并追加后缀"
+  },
+  "system.admin.base.redact.rule.description.hash_digest": {
+    "other": "使用摘要算法生成不可逆结果"
+  },
+  "system.admin.base.redact.rule.description.stable_uuid": {
+    "other": "将文本转换为稳定 UUID"
+  },
+  "system.admin.base.redact.rule.description.ip_mask": {
+    "other": "保留 IP 前缀网段并隐藏其余部分"
+  },
+  "system.admin.base.redact.rule.description.url_mask": {
+    "other": "隐藏 URL 查询参数值"
+  },
+  "system.admin.base.redact.rule.description.fixed_length_mask": {
+    "other": "使用固定字符替换为等长文本"
   }
 }

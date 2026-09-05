@@ -56,7 +56,7 @@ type baseRedactOutputPolicy struct {
 	Operation  field.String // RPC完整操作名
 	MessageRef field.String // Proto消息完整名称
 	FieldPath  field.String // Proto字段路径
-	Mode       field.Int32  // 处理模式：枚举【BaseRedactStoragePolicyMode】
+	Mode       field.Int32  // 处理模式：枚举【BaseRedactOutputPolicyMode】
 	RuleID     field.Int64  // 规则模板ID，非规则模式为0
 	RuleParams field.String // 策略规则参数
 	Status     field.Int32  // 状态：枚举【Status】

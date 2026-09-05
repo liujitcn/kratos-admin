@@ -25,7 +25,7 @@
 
 `default_data.up.sql` 目前寫入以下預設資料表：
 
-`base_language`、`base_config`、`base_dept`、`base_dict`、`base_dict_item`、`base_job`、`base_tenant`、`base_message_category`、`base_menu`、`base_role`、`base_user`、`base_redact_rule`、`base_redact_field`、`base_redact_binding`。
+`base_language`、`base_config`、`base_dept`、`base_dict`、`base_dict_item`、`base_job`、`base_tenant`、`base_message_category`、`base_menu`、`base_role`、`base_user`、`base_redact_rule`、`base_redact_storage_policy`、`base_redact_output_policy`。
 
 - 語言：預設 `zh-CN`、`zh-TW`、`en-US`、`ja-JP`，其中 `zh-CN` 為主要語言。
 - 基礎身分：預設租戶、系統部門、5 個角色範本，以及本機開發帳號 `super`、`admin`。初始密碼為 `112233`，僅供本機環境使用。
@@ -33,6 +33,7 @@
 - 任務與訊息：任務編號 `1000-1004` 分別用於資源翻譯、訊息投遞恢復、資料表歸檔、資料表備份和日誌入庫回退；訊息投遞恢復與日誌入庫回退預設啟用，歸檔和備份預設關閉。歸檔設定儲存在 `base_table_archive`，備份設定儲存在 `base_table_backup`。訊息分類預設系統、安全、任務、業務四類。
 - 選單與權限：管理端根選單包含首頁、使用者管理、系統管理、開發工具；系統管理下包含備份管理（資料歸檔、資料備份及各自的配置/記錄/恢復記錄）和配置管理。行動端根選單固定為 `99000000`，首頁為 `99010000`，我的頁面為 `99090000`。開發工具包含運維監控、執行日誌、快取查詢、專案文件與程式碼生成。每個選單的 `api` 僅記錄該頁面實際呼叫的受保護服務方法，角色透過選單編號取得權限。
 - 安全能力：登入策略選單及其服務、按鈕權限只授予平台超級管理員，預設不建立登入策略記錄。脫敏策略選單及預設的手機號碼回應遮罩授予系統管理員。OAuth 客戶端管理選單、MFA 設定和認證方式字典直接寫入初始化資料，相關業務資料表由資料層建立。
+- 脫敏規則：`base_redact_rule.up.sql` 初始化程式碼固定支援的全部模板、使用者手機號碼、電子郵件與證件號的入庫策略，以及使用者列表、分頁與詳情操作的出庫策略；本階段不提供管理功能。
 
 `base_area.up.sql` 獨立寫入行政區劃資料，並與 `default_data.up.sql` 一起依檔名順序參與版本遷移。訊息、MFA、OAuth 客戶端、語言、翻譯和脫敏相關資料表由資料層自動遷移建立，SQL 檔案不負責建表。
 

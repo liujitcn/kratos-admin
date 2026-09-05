@@ -3425,10 +3425,10 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - BASE_REDACT_POLICY_MODE_UNSPECIFIED
-                        - BASE_REDACT_POLICY_MODE_RULE
-                        - BASE_REDACT_POLICY_MODE_HIDE
-                        - BASE_REDACT_POLICY_MODE_FULL
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_RULE
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_HIDE
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_FULL
                     type: string
                     format: enum
                 - name: status
@@ -10404,12 +10404,12 @@ components:
                     format: enum
                 mode:
                     enum:
-                        - BASE_REDACT_POLICY_MODE_UNSPECIFIED
-                        - BASE_REDACT_POLICY_MODE_RULE
-                        - BASE_REDACT_POLICY_MODE_HIDE
-                        - BASE_REDACT_POLICY_MODE_FULL
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_RULE
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_HIDE
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_FULL
                     type: string
-                    description: ポリシーモード
+                    description: 処理モード：enum【BaseRedactOutputPolicyMode】
                     format: enum
                 priority:
                     type: integer
@@ -10421,12 +10421,8 @@ components:
                         - STATUS_ENABLE
                         - STATUS_DISABLE
                     type: string
-                    description: ステータス
+                    description: ステータス：enum【Status】
                     format: enum
-                version:
-                    type: integer
-                    description: ポリシーバージョン
-                    format: int32
                 remark:
                     type: string
                     description: 備考
@@ -10465,12 +10461,12 @@ components:
                     format: enum
                 mode:
                     enum:
-                        - BASE_REDACT_POLICY_MODE_UNSPECIFIED
-                        - BASE_REDACT_POLICY_MODE_RULE
-                        - BASE_REDACT_POLICY_MODE_HIDE
-                        - BASE_REDACT_POLICY_MODE_FULL
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_RULE
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_HIDE
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_FULL
                     type: string
-                    description: ポリシーモード
+                    description: 処理モード：enum【BaseRedactOutputPolicyMode】
                     format: enum
                 priority:
                     type: integer
@@ -10482,12 +10478,8 @@ components:
                         - STATUS_ENABLE
                         - STATUS_DISABLE
                     type: string
-                    description: ステータス
+                    description: ステータス：enum【Status】
                     format: enum
-                version:
-                    type: integer
-                    description: ポリシーバージョン
-                    format: int32
                 remark:
                     type: string
                     description: 備考
@@ -10518,10 +10510,6 @@ components:
                     type: string
                     description: ステータス
                     format: enum
-                version:
-                    type: integer
-                    description: ルールバージョン
-                    format: int32
                 remark:
                     type: string
                     description: 備考
@@ -10558,10 +10546,6 @@ components:
                     type: string
                     description: ステータス
                     format: enum
-                version:
-                    type: integer
-                    description: ルールバージョン
-                    format: int32
                 remark:
                     type: string
                     description: 備考
@@ -13415,7 +13399,7 @@ components:
                         - STATUS_ENABLE
                         - STATUS_DISABLE
                     type: string
-                    description: ステータス
+                    description: ステータス：enum【Status】
                     format: enum
             description: 設定マスキングポリシーステータスリクエストパラメータ。
         system.admin.v1.SetBaseRedactRuleStatusRequest:

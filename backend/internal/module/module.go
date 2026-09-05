@@ -8,6 +8,7 @@ import (
 	"github.com/go-kratos/kratos/v3/middleware"
 	kratosGRPC "github.com/go-kratos/kratos/v3/transport/grpc"
 	"github.com/go-kratos/kratos/v3/transport/http"
+	"github.com/liujitcn/kratos-admin/backend/internal/adapter/kit"
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/base/v1"
@@ -42,6 +43,7 @@ func NewModules(
 	appServices *app.Services,
 	baseConfigCase *biz.BaseConfigCase,
 	baseLoginPolicyCase *biz.BaseLoginPolicyCase,
+	_ *kit.RedactPolicyResolver,
 ) (module.Modules, error) {
 	// 迁移可能新增系统配置，模块启动前刷新缓存，避免认证策略沿用旧快照。
 	var err error

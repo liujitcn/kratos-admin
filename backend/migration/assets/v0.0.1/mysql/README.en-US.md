@@ -25,7 +25,7 @@ A database that has already recorded `v0.0.1` will not replay the migration beca
 
 `default_data.up.sql` currently writes the following default-data tables:
 
-`base_language`, `base_config`, `base_dept`, `base_dict`, `base_dict_item`, `base_job`, `base_tenant`, `base_message_category`, `base_menu`, `base_role`, `base_user`, `base_redact_rule`, `base_redact_field`, and `base_redact_binding`.
+`base_language`, `base_config`, `base_dept`, `base_dict`, `base_dict_item`, `base_job`, `base_tenant`, `base_message_category`, `base_menu`, `base_role`, `base_user`, `base_redact_rule`, `base_redact_storage_policy`, and `base_redact_output_policy`.
 
 - Languages: `zh-CN`, `zh-TW`, `en-US`, and `ja-JP` are provided; `zh-CN` is the primary language.
 - Identity data: a default tenant, system departments, five role templates, and the local development accounts `super` and `admin` are provided. The initial password is `112233` and is for local use only.
@@ -33,6 +33,7 @@ A database that has already recorded `v0.0.1` will not replay the migration beca
 - Jobs and messages: job IDs `1000-1004` are resource translation, message-delivery recovery, table archiving, table backup, and log ingestion fallback. Message-delivery recovery and log ingestion fallback are enabled by default; archiving and backup are disabled. Archive settings are stored in `base_table_archive`; backup settings are stored in `base_table_backup`. Four message categories are provided: system, security, task, and business.
 - Menus and permissions: the Admin roots are Home, User Management, System Management, and Development Tools. The mobile root is `99000000`, with Home at `99010000` and My Account at `99090000`. System Management contains Backup Management (data archiving, data backup, and their configuration/record/restore pages) and Configuration Management. Development Tools includes operations monitoring, runtime logs, cache query, project documents, and code generation. Each menu's `api` field lists the protected service methods it actually calls, and roles receive permissions through menu IDs.
 - Security capabilities: the login-policy menu and its service/button permissions are granted only to the platform super administrator, and no login-policy record is created by default. Redaction menus and the default phone-response mask are granted to the system administrator. OAuth client management menus, MFA configuration, and authentication-method dictionaries are initialized directly; the related business tables are created by the data layer.
+- Redaction rules: `base_redact_rule.up.sql` initializes every fixed template supported by code, storage policies for user phone, email, and ID number, and output policies for user list, page, and detail operations. Management functionality is not provided in this phase.
 
 `base_area.up.sql` writes administrative-division data in a separate script and is applied with `default_data.up.sql` in filename order. Message, MFA, OAuth-client, language, translation, and redaction tables are created by the data layer; these SQL files do not create tables.
 

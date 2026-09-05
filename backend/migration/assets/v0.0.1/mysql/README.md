@@ -25,7 +25,7 @@
 
 `default_data.up.sql` 当前写入以下默认数据表：
 
-`base_language`、`base_config`、`base_dept`、`base_dict`、`base_dict_item`、`base_job`、`base_tenant`、`base_message_category`、`base_menu`、`base_role`、`base_user`、`base_redact_rule`、`base_redact_field`、`base_redact_binding`。
+`base_language`、`base_config`、`base_dept`、`base_dict`、`base_dict_item`、`base_job`、`base_tenant`、`base_message_category`、`base_menu`、`base_role`、`base_user`、`base_redact_rule`、`base_redact_storage_policy`、`base_redact_output_policy`。
 
 - 语言：预置 `zh-CN`、`zh-TW`、`en-US`、`ja-JP`，其中 `zh-CN` 为主语言。
 - 基础身份：预置默认租户、系统管理部门、5 个角色模板，以及 `super`、`admin` 两个本地开发账号。账号初始密码为 `112233`，仅用于本地环境。
@@ -33,6 +33,7 @@
 - 任务与消息：任务编号 `1000-1004` 分别用于资源翻译、消息投递恢复、数据表归档、数据表备份和日志入库回退；消息投递恢复与日志入库回退默认启用，归档和备份默认关闭。归档配置保存在 `base_table_archive`，备份配置保存在 `base_table_backup`。消息分类预置系统、安全、任务、业务四类。
 - 菜单与权限：预置首页、用户管理、系统管理、开发工具四个管理端根菜单，以及移动端根菜单 `99000000`。系统管理下包含备份管理（数据归档、数据备份及各自的配置/记录/恢复记录）和配置管理；移动端首页为 `99010000`，我的页面为 `99090000`；开发工具包含运维监控、运行日志、缓存查询、项目文档和代码生成。菜单的 `api` 字段记录页面实际调用的受保护服务方法，角色通过菜单编号获得权限。
 - 安全能力：登录策略菜单及其服务、按钮权限只授予平台超级管理员，默认不创建登录策略记录；脱敏策略菜单及默认手机号响应掩码授予系统管理员；OAuth 客户端管理菜单、多因素认证配置和认证方式字典直接写入初始化数据。相关业务表由数据层自动迁移创建。
+- 脱敏规则：`base_redact_rule.up.sql` 初始化代码固定支持的全部模板，以及用户手机号、邮箱、证件号的入库策略和用户列表、分页、详情接口的出库策略；本阶段不提供管理功能。
 
 `base_area.up.sql` 独立写入行政区划数据，并与 `default_data.up.sql` 一起按文件名参与版本迁移。消息、MFA、OAuth 客户端、语言、翻译和脱敏相关表均由数据层自动迁移创建，SQL 文件不负责建表。
 

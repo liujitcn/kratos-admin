@@ -27,6 +27,7 @@ import (
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
 	"github.com/liujitcn/kratos-core/sse"
+	"github.com/liujitcn/kratos-kit/redact"
 )
 
 const (
@@ -268,6 +269,7 @@ func sanitizeRuntimeLogFile(path string) (data []byte, err error) {
 		if err != nil {
 			return nil, err
 		}
+		line = redact.SanitizeText(line)
 		entry := logstream.ParseLine(line, truncated)
 		if _, err = fmt.Fprintln(writer, entry.GetLine()); err != nil {
 			return nil, err

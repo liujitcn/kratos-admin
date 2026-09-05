@@ -9,16 +9,16 @@ import type { Status } from "../../../common/v1/enum";
 import type { Empty } from "../../../google/protobuf/empty";
 import type { BaseRedactDirection } from "./base_redact_common";
 
-/** 脱敏策略模式。 */
-export enum BaseRedactPolicyMode {
-  /** BASE_REDACT_POLICY_MODE_UNSPECIFIED - 未指定模式。 */
-  BASE_REDACT_POLICY_MODE_UNSPECIFIED = 0,
-  /** BASE_REDACT_POLICY_MODE_RULE - 使用规则模板处理。 */
-  BASE_REDACT_POLICY_MODE_RULE = 1,
-  /** BASE_REDACT_POLICY_MODE_HIDE - 替换为字段零值。 */
-  BASE_REDACT_POLICY_MODE_HIDE = 2,
-  /** BASE_REDACT_POLICY_MODE_FULL - 保留字段原值。 */
-  BASE_REDACT_POLICY_MODE_FULL = 3,
+/** 出库脱敏策略模式。 */
+export enum BaseRedactOutputPolicyMode {
+  /** BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED - 未指定模式。 */
+  BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED = 0,
+  /** BASE_REDACT_OUTPUT_POLICY_MODE_RULE - 使用规则模板处理。 */
+  BASE_REDACT_OUTPUT_POLICY_MODE_RULE = 1,
+  /** BASE_REDACT_OUTPUT_POLICY_MODE_HIDE - 替换为字段零值。 */
+  BASE_REDACT_OUTPUT_POLICY_MODE_HIDE = 2,
+  /** BASE_REDACT_OUTPUT_POLICY_MODE_FULL - 保留字段原值。 */
+  BASE_REDACT_OUTPUT_POLICY_MODE_FULL = 3,
 }
 
 /** 脱敏策略分页查询条件。 */
@@ -35,11 +35,11 @@ export interface PageBaseRedactPolicyRequest {
   direction?:
     | BaseRedactDirection
     | undefined;
-  /** 策略模式 */
+  /** 处理模式：枚举【BaseRedactOutputPolicyMode】 */
   mode?:
-    | BaseRedactPolicyMode
+    | BaseRedactOutputPolicyMode
     | undefined;
-  /** 状态 */
+  /** 状态：枚举【Status】 */
   status?:
     | Status
     | undefined;
@@ -76,14 +76,12 @@ export interface BaseRedactPolicyForm {
   operation: string;
   /** 脱敏方向 */
   direction: BaseRedactDirection;
-  /** 策略模式 */
-  mode: BaseRedactPolicyMode;
+  /** 处理模式：枚举【BaseRedactOutputPolicyMode】 */
+  mode: BaseRedactOutputPolicyMode;
   /** 优先级 */
   priority: number;
-  /** 状态 */
+  /** 状态：枚举【Status】 */
   status: Status;
-  /** 策略版本 */
-  version: number;
   /** 备注 */
   remark: string;
 }
@@ -107,7 +105,7 @@ export interface DeleteBaseRedactPolicyRequest {
 export interface SetBaseRedactPolicyStatusRequest {
   /** 策略绑定ID */
   id: number;
-  /** 状态 */
+  /** 状态：枚举【Status】 */
   status: Status;
 }
 
@@ -141,14 +139,12 @@ export interface BaseRedactPolicy {
   operation: string;
   /** 脱敏方向 */
   direction: BaseRedactDirection;
-  /** 策略模式 */
-  mode: BaseRedactPolicyMode;
+  /** 处理模式：枚举【BaseRedactOutputPolicyMode】 */
+  mode: BaseRedactOutputPolicyMode;
   /** 优先级 */
   priority: number;
-  /** 状态 */
+  /** 状态：枚举【Status】 */
   status: Status;
-  /** 策略版本 */
-  version: number;
   /** 备注 */
   remark: string;
   /** 创建时间 */

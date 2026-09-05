@@ -5,6 +5,7 @@ package module
 
 import (
 	"github.com/google/wire"
+	"github.com/liujitcn/kratos-admin/backend/internal/adapter/kit"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/sse"
@@ -48,6 +49,7 @@ func BuildModules(
 		ParseAppAgentTools,
 		configProvider.ProviderSet,
 		logstream.DefaultHub,
+		kit.ProviderSet,
 		NewModules,
 		biz.ProviderSet,
 		biz.MessageProviderSet,

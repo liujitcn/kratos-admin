@@ -3425,10 +3425,10 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - BASE_REDACT_POLICY_MODE_UNSPECIFIED
-                        - BASE_REDACT_POLICY_MODE_RULE
-                        - BASE_REDACT_POLICY_MODE_HIDE
-                        - BASE_REDACT_POLICY_MODE_FULL
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_RULE
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_HIDE
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_FULL
                     type: string
                     format: enum
                 - name: status
@@ -10404,12 +10404,12 @@ components:
                     format: enum
                 mode:
                     enum:
-                        - BASE_REDACT_POLICY_MODE_UNSPECIFIED
-                        - BASE_REDACT_POLICY_MODE_RULE
-                        - BASE_REDACT_POLICY_MODE_HIDE
-                        - BASE_REDACT_POLICY_MODE_FULL
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_RULE
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_HIDE
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_FULL
                     type: string
-                    description: 策略模式
+                    description: 處理模式：列舉【BaseRedactOutputPolicyMode】
                     format: enum
                 priority:
                     type: integer
@@ -10421,12 +10421,8 @@ components:
                         - STATUS_ENABLE
                         - STATUS_DISABLE
                     type: string
-                    description: 狀態
+                    description: 狀態：列舉【Status】
                     format: enum
-                version:
-                    type: integer
-                    description: 策略版本
-                    format: int32
                 remark:
                     type: string
                     description: 備註
@@ -10465,12 +10461,12 @@ components:
                     format: enum
                 mode:
                     enum:
-                        - BASE_REDACT_POLICY_MODE_UNSPECIFIED
-                        - BASE_REDACT_POLICY_MODE_RULE
-                        - BASE_REDACT_POLICY_MODE_HIDE
-                        - BASE_REDACT_POLICY_MODE_FULL
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_RULE
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_HIDE
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_FULL
                     type: string
-                    description: 策略模式
+                    description: 處理模式：列舉【BaseRedactOutputPolicyMode】
                     format: enum
                 priority:
                     type: integer
@@ -10482,12 +10478,8 @@ components:
                         - STATUS_ENABLE
                         - STATUS_DISABLE
                     type: string
-                    description: 狀態
+                    description: 狀態：列舉【Status】
                     format: enum
-                version:
-                    type: integer
-                    description: 策略版本
-                    format: int32
                 remark:
                     type: string
                     description: 備註
@@ -10518,10 +10510,6 @@ components:
                     type: string
                     description: 狀態
                     format: enum
-                version:
-                    type: integer
-                    description: 規則版本
-                    format: int32
                 remark:
                     type: string
                     description: 備註
@@ -10558,10 +10546,6 @@ components:
                     type: string
                     description: 狀態
                     format: enum
-                version:
-                    type: integer
-                    description: 規則版本
-                    format: int32
                 remark:
                     type: string
                     description: 備註
@@ -13415,7 +13399,7 @@ components:
                         - STATUS_ENABLE
                         - STATUS_DISABLE
                     type: string
-                    description: 狀態
+                    description: 狀態：列舉【Status】
                     format: enum
             description: 設定脫敏策略狀態請求引數。
         system.admin.v1.SetBaseRedactRuleStatusRequest:

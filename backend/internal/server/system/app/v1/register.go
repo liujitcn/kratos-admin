@@ -19,18 +19,18 @@ type Services struct {
 
 // RegisterGRPC 注册 system.app.v1 的 gRPC 服务。
 func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
-	appv1.RegisterAuthServiceServer(srv, s.Auth)
-	appv1.RegisterBaseAreaServiceServer(srv, s.BaseArea)
-	appv1.RegisterBaseDictServiceServer(srv, s.BaseDict)
-	appv1.RegisterBaseMenuServiceServer(srv, s.BaseMenu)
+	appv1.RegisterAuthServiceServer(srv, appv1.RedactedAuthServiceServer(s.Auth))
+	appv1.RegisterBaseAreaServiceServer(srv, appv1.RedactedBaseAreaServiceServer(s.BaseArea))
+	appv1.RegisterBaseDictServiceServer(srv, appv1.RedactedBaseDictServiceServer(s.BaseDict))
+	appv1.RegisterBaseMenuServiceServer(srv, appv1.RedactedBaseMenuServiceServer(s.BaseMenu))
 }
 
 // RegisterHTTP 注册 system.app.v1 的 HTTP 服务。
 func (s Services) RegisterHTTP(srv *http.Server) {
-	appv1.RegisterAuthServiceHTTPServer(srv, s.Auth)
-	appv1.RegisterBaseAreaServiceHTTPServer(srv, s.BaseArea)
-	appv1.RegisterBaseDictServiceHTTPServer(srv, s.BaseDict)
-	appv1.RegisterBaseMenuServiceHTTPServer(srv, s.BaseMenu)
+	appv1.RegisterAuthServiceHTTPServer(srv, appv1.RedactedAuthServiceServer(s.Auth))
+	appv1.RegisterBaseAreaServiceHTTPServer(srv, appv1.RedactedBaseAreaServiceServer(s.BaseArea))
+	appv1.RegisterBaseDictServiceHTTPServer(srv, appv1.RedactedBaseDictServiceServer(s.BaseDict))
+	appv1.RegisterBaseMenuServiceHTTPServer(srv, appv1.RedactedBaseMenuServiceServer(s.BaseMenu))
 }
 
 // RegisterMCP 注册 system.app.v1 的 MCP 工具。

@@ -59,8 +59,6 @@ export interface BaseRedactRuleForm {
   rule: string;
   /** 状态 */
   status: Status;
-  /** 规则版本 */
-  version: number;
   /** 备注 */
   remark: string;
 }
@@ -102,8 +100,6 @@ export interface BaseRedactRule {
   rule: string;
   /** 状态 */
   status: Status;
-  /** 规则版本 */
-  version: number;
   /** 备注 */
   remark: string;
   /** 创建时间 */
