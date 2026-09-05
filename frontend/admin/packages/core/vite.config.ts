@@ -63,6 +63,7 @@ export function defineAdminViteConfig(options: AdminViteConfigOptions = {}) {
       pkg: packageInfo,
       lastBuildTime: dayjs().format("YYYY-MM-DD HH:mm:ss")
     };
+    const coreVariablesPath = resolve(coreSourceRoot, "styles/var.scss").replaceAll("\\", "/");
 
     return {
       base: viteEnv.VITE_PUBLIC_PATH,
@@ -75,7 +76,7 @@ export function defineAdminViteConfig(options: AdminViteConfigOptions = {}) {
       css: {
         preprocessorOptions: {
           scss: {
-            additionalData: `@use "${resolve(coreSourceRoot, "styles/var.scss")}" as *;`
+            additionalData: `@use "${coreVariablesPath}" as *;`
           }
         }
       },
