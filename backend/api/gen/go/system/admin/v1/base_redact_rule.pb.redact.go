@@ -214,8 +214,6 @@ func (x *BaseRedactRuleForm) Redact() {
 
 	// Safe field: Status
 
-	// Safe field: Version
-
 	// Safe field: Remark
 }
 
@@ -289,8 +287,6 @@ func (x *BaseRedactRule) Redact() {
 	// Safe field: Rule
 
 	// Safe field: Status
-
-	// Safe field: Version
 
 	// Safe field: Remark
 

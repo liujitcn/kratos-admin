@@ -11,7 +11,7 @@ import (
 
 	tool "github.com/cloudwego/eino/components/tool"
 	utils "github.com/cloudwego/eino/components/tool/utils"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -66,10 +66,10 @@ func NewBaseRedactRuleServiceAgentTools(baseRedactRuleServiceServer BaseRedactRu
 
 // NewBaseRedactRuleServiceOptionBaseRedactRuleAgentTool 创建查询脱敏规则选项的 Agent Tool。
 func NewBaseRedactRuleServiceOptionBaseRedactRuleAgentTool(baseRedactRuleServiceServer BaseRedactRuleServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*OptionBaseRedactRuleRequest, *commonv1.SelectOptionResponse](
+	return utils.InferTool[*OptionBaseRedactRuleRequest, *v1.SelectOptionResponse](
 		"system_admin_v1_base_redact_rule_service_option_base_redact_rule",
 		"查询脱敏规则选项。",
-		func(ctx context.Context, req *OptionBaseRedactRuleRequest) (*commonv1.SelectOptionResponse, error) {
+		func(ctx context.Context, req *OptionBaseRedactRuleRequest) (*v1.SelectOptionResponse, error) {
 			if req == nil {
 				req = &OptionBaseRedactRuleRequest{}
 			}

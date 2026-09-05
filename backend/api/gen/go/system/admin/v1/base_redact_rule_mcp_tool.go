@@ -9,7 +9,7 @@ package adminv1
 import (
 	context "context"
 
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
@@ -27,13 +27,13 @@ func RegisterBaseRedactRuleServiceMCPTools(mcpServer *mcp.Server, baseRedactRule
 
 // RegisterBaseRedactRuleServiceOptionBaseRedactRuleMCPTool 注册查询脱敏规则选项的 MCP Tool。
 func RegisterBaseRedactRuleServiceOptionBaseRedactRuleMCPTool(mcpServer *mcp.Server, baseRedactRuleServiceServer BaseRedactRuleServiceServer) {
-	mcp.AddTool[*OptionBaseRedactRuleRequest, *commonv1.SelectOptionResponse](
+	mcp.AddTool[*OptionBaseRedactRuleRequest, *v1.SelectOptionResponse](
 		mcpServer,
 		&mcp.Tool{
 			Name:        "system_admin_v1_base_redact_rule_service_option_base_redact_rule",
 			Description: "查询脱敏规则选项。",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseRedactRuleRequest) (*mcp.CallToolResult, *commonv1.SelectOptionResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *OptionBaseRedactRuleRequest) (*mcp.CallToolResult, *v1.SelectOptionResponse, error) {
 			if input == nil {
 				input = &OptionBaseRedactRuleRequest{}
 			}

@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -27,75 +27,75 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 脱敏策略模式。
-type BaseRedactPolicyMode int32
+// 出库脱敏策略模式。
+type BaseRedactOutputPolicyMode int32
 
 const (
 	// 未指定模式。
-	BaseRedactPolicyMode_BASE_REDACT_POLICY_MODE_UNSPECIFIED BaseRedactPolicyMode = 0
+	BaseRedactOutputPolicyMode_BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED BaseRedactOutputPolicyMode = 0
 	// 使用规则模板处理。
-	BaseRedactPolicyMode_BASE_REDACT_POLICY_MODE_RULE BaseRedactPolicyMode = 1
+	BaseRedactOutputPolicyMode_BASE_REDACT_OUTPUT_POLICY_MODE_RULE BaseRedactOutputPolicyMode = 1
 	// 替换为字段零值。
-	BaseRedactPolicyMode_BASE_REDACT_POLICY_MODE_HIDE BaseRedactPolicyMode = 2
+	BaseRedactOutputPolicyMode_BASE_REDACT_OUTPUT_POLICY_MODE_HIDE BaseRedactOutputPolicyMode = 2
 	// 保留字段原值。
-	BaseRedactPolicyMode_BASE_REDACT_POLICY_MODE_FULL BaseRedactPolicyMode = 3
+	BaseRedactOutputPolicyMode_BASE_REDACT_OUTPUT_POLICY_MODE_FULL BaseRedactOutputPolicyMode = 3
 )
 
-// Enum value maps for BaseRedactPolicyMode.
+// Enum value maps for BaseRedactOutputPolicyMode.
 var (
-	BaseRedactPolicyMode_name = map[int32]string{
-		0: "BASE_REDACT_POLICY_MODE_UNSPECIFIED",
-		1: "BASE_REDACT_POLICY_MODE_RULE",
-		2: "BASE_REDACT_POLICY_MODE_HIDE",
-		3: "BASE_REDACT_POLICY_MODE_FULL",
+	BaseRedactOutputPolicyMode_name = map[int32]string{
+		0: "BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED",
+		1: "BASE_REDACT_OUTPUT_POLICY_MODE_RULE",
+		2: "BASE_REDACT_OUTPUT_POLICY_MODE_HIDE",
+		3: "BASE_REDACT_OUTPUT_POLICY_MODE_FULL",
 	}
-	BaseRedactPolicyMode_value = map[string]int32{
-		"BASE_REDACT_POLICY_MODE_UNSPECIFIED": 0,
-		"BASE_REDACT_POLICY_MODE_RULE":        1,
-		"BASE_REDACT_POLICY_MODE_HIDE":        2,
-		"BASE_REDACT_POLICY_MODE_FULL":        3,
+	BaseRedactOutputPolicyMode_value = map[string]int32{
+		"BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED": 0,
+		"BASE_REDACT_OUTPUT_POLICY_MODE_RULE":        1,
+		"BASE_REDACT_OUTPUT_POLICY_MODE_HIDE":        2,
+		"BASE_REDACT_OUTPUT_POLICY_MODE_FULL":        3,
 	}
 )
 
-func (x BaseRedactPolicyMode) Enum() *BaseRedactPolicyMode {
-	p := new(BaseRedactPolicyMode)
+func (x BaseRedactOutputPolicyMode) Enum() *BaseRedactOutputPolicyMode {
+	p := new(BaseRedactOutputPolicyMode)
 	*p = x
 	return p
 }
 
-func (x BaseRedactPolicyMode) String() string {
+func (x BaseRedactOutputPolicyMode) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (BaseRedactPolicyMode) Descriptor() protoreflect.EnumDescriptor {
+func (BaseRedactOutputPolicyMode) Descriptor() protoreflect.EnumDescriptor {
 	return file_system_admin_v1_base_redact_policy_proto_enumTypes[0].Descriptor()
 }
 
-func (BaseRedactPolicyMode) Type() protoreflect.EnumType {
+func (BaseRedactOutputPolicyMode) Type() protoreflect.EnumType {
 	return &file_system_admin_v1_base_redact_policy_proto_enumTypes[0]
 }
 
-func (x BaseRedactPolicyMode) Number() protoreflect.EnumNumber {
+func (x BaseRedactOutputPolicyMode) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use BaseRedactPolicyMode.Descriptor instead.
-func (BaseRedactPolicyMode) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use BaseRedactOutputPolicyMode.Descriptor instead.
+func (BaseRedactOutputPolicyMode) EnumDescriptor() ([]byte, []int) {
 	return file_system_admin_v1_base_redact_policy_proto_rawDescGZIP(), []int{0}
 }
 
 // 脱敏策略分页查询条件。
 type PageBaseRedactPolicyRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	MessageRef    string                 `protobuf:"bytes,1,opt,name=message_ref,json=messageRef,proto3" json:"message_ref,omitempty"`                             // Proto消息完整名称
-	FieldPath     string                 `protobuf:"bytes,2,opt,name=field_path,json=fieldPath,proto3" json:"field_path,omitempty"`                                // 字段路径
-	SceneCode     string                 `protobuf:"bytes,3,opt,name=scene_code,json=sceneCode,proto3" json:"scene_code,omitempty"`                                // 场景编码
-	Operation     string                 `protobuf:"bytes,4,opt,name=operation,proto3" json:"operation,omitempty"`                                                 // 接口操作
-	Direction     *BaseRedactDirection   `protobuf:"varint,5,opt,name=direction,proto3,enum=system.admin.v1.BaseRedactDirection,oneof" json:"direction,omitempty"` // 脱敏方向
-	Mode          *BaseRedactPolicyMode  `protobuf:"varint,100,opt,name=mode,proto3,enum=system.admin.v1.BaseRedactPolicyMode,oneof" json:"mode,omitempty"`        // 策略模式
-	Status        *commonv1.Status       `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`                        // 状态
-	PageNum       int64                  `protobuf:"varint,102,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                                   // 当前页码
-	PageSize      int64                  `protobuf:"varint,103,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                                // 每页数量
+	state         protoimpl.MessageState      `protogen:"open.v1"`
+	MessageRef    string                      `protobuf:"bytes,1,opt,name=message_ref,json=messageRef,proto3" json:"message_ref,omitempty"`                             // Proto消息完整名称
+	FieldPath     string                      `protobuf:"bytes,2,opt,name=field_path,json=fieldPath,proto3" json:"field_path,omitempty"`                                // 字段路径
+	SceneCode     string                      `protobuf:"bytes,3,opt,name=scene_code,json=sceneCode,proto3" json:"scene_code,omitempty"`                                // 场景编码
+	Operation     string                      `protobuf:"bytes,4,opt,name=operation,proto3" json:"operation,omitempty"`                                                 // 接口操作
+	Direction     *BaseRedactDirection        `protobuf:"varint,5,opt,name=direction,proto3,enum=system.admin.v1.BaseRedactDirection,oneof" json:"direction,omitempty"` // 脱敏方向
+	Mode          *BaseRedactOutputPolicyMode `protobuf:"varint,100,opt,name=mode,proto3,enum=system.admin.v1.BaseRedactOutputPolicyMode,oneof" json:"mode,omitempty"`  // 处理模式：枚举【BaseRedactOutputPolicyMode】
+	Status        *v1.Status                  `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`                        // 状态：枚举【Status】
+	PageNum       int64                       `protobuf:"varint,102,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                                   // 当前页码
+	PageSize      int64                       `protobuf:"varint,103,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                                // 每页数量
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -165,18 +165,18 @@ func (x *PageBaseRedactPolicyRequest) GetDirection() BaseRedactDirection {
 	return BaseRedactDirection_BASE_REDACT_DIRECTION_UNSPECIFIED
 }
 
-func (x *PageBaseRedactPolicyRequest) GetMode() BaseRedactPolicyMode {
+func (x *PageBaseRedactPolicyRequest) GetMode() BaseRedactOutputPolicyMode {
 	if x != nil && x.Mode != nil {
 		return *x.Mode
 	}
-	return BaseRedactPolicyMode_BASE_REDACT_POLICY_MODE_UNSPECIFIED
+	return BaseRedactOutputPolicyMode_BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
 }
 
-func (x *PageBaseRedactPolicyRequest) GetStatus() commonv1.Status {
+func (x *PageBaseRedactPolicyRequest) GetStatus() v1.Status {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
-	return commonv1.Status(0)
+	return v1.Status(0)
 }
 
 func (x *PageBaseRedactPolicyRequest) GetPageNum() int64 {
@@ -293,18 +293,17 @@ func (x *GetBaseRedactPolicyRequest) GetId() int64 {
 
 // 脱敏策略表单。
 type BaseRedactPolicyForm struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                        // 策略绑定ID
-	FieldId       int64                  `protobuf:"varint,2,opt,name=field_id,json=fieldId,proto3" json:"field_id,omitempty"`                               // 字段目录ID
-	RuleId        int64                  `protobuf:"varint,3,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`                                  // 规则模板ID
-	SceneCode     string                 `protobuf:"bytes,4,opt,name=scene_code,json=sceneCode,proto3" json:"scene_code,omitempty"`                          // 场景编码
-	Operation     string                 `protobuf:"bytes,5,opt,name=operation,proto3" json:"operation,omitempty"`                                           // 接口操作
-	Direction     BaseRedactDirection    `protobuf:"varint,6,opt,name=direction,proto3,enum=system.admin.v1.BaseRedactDirection" json:"direction,omitempty"` // 脱敏方向
-	Mode          BaseRedactPolicyMode   `protobuf:"varint,100,opt,name=mode,proto3,enum=system.admin.v1.BaseRedactPolicyMode" json:"mode,omitempty"`        // 策略模式
-	Priority      int32                  `protobuf:"varint,101,opt,name=priority,proto3" json:"priority,omitempty"`                                          // 优先级
-	Status        commonv1.Status        `protobuf:"varint,102,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                        // 状态
-	Version       int32                  `protobuf:"varint,103,opt,name=version,proto3" json:"version,omitempty"`                                            // 策略版本
-	Remark        string                 `protobuf:"bytes,104,opt,name=remark,proto3" json:"remark,omitempty"`                                               // 备注
+	state         protoimpl.MessageState     `protogen:"open.v1"`
+	Id            int64                      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                        // 策略绑定ID
+	FieldId       int64                      `protobuf:"varint,2,opt,name=field_id,json=fieldId,proto3" json:"field_id,omitempty"`                               // 字段目录ID
+	RuleId        int64                      `protobuf:"varint,3,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`                                  // 规则模板ID
+	SceneCode     string                     `protobuf:"bytes,4,opt,name=scene_code,json=sceneCode,proto3" json:"scene_code,omitempty"`                          // 场景编码
+	Operation     string                     `protobuf:"bytes,5,opt,name=operation,proto3" json:"operation,omitempty"`                                           // 接口操作
+	Direction     BaseRedactDirection        `protobuf:"varint,6,opt,name=direction,proto3,enum=system.admin.v1.BaseRedactDirection" json:"direction,omitempty"` // 脱敏方向
+	Mode          BaseRedactOutputPolicyMode `protobuf:"varint,100,opt,name=mode,proto3,enum=system.admin.v1.BaseRedactOutputPolicyMode" json:"mode,omitempty"`  // 处理模式：枚举【BaseRedactOutputPolicyMode】
+	Priority      int32                      `protobuf:"varint,101,opt,name=priority,proto3" json:"priority,omitempty"`                                          // 优先级
+	Status        v1.Status                  `protobuf:"varint,102,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                        // 状态：枚举【Status】
+	Remark        string                     `protobuf:"bytes,104,opt,name=remark,proto3" json:"remark,omitempty"`                                               // 备注
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -381,11 +380,11 @@ func (x *BaseRedactPolicyForm) GetDirection() BaseRedactDirection {
 	return BaseRedactDirection_BASE_REDACT_DIRECTION_UNSPECIFIED
 }
 
-func (x *BaseRedactPolicyForm) GetMode() BaseRedactPolicyMode {
+func (x *BaseRedactPolicyForm) GetMode() BaseRedactOutputPolicyMode {
 	if x != nil {
 		return x.Mode
 	}
-	return BaseRedactPolicyMode_BASE_REDACT_POLICY_MODE_UNSPECIFIED
+	return BaseRedactOutputPolicyMode_BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
 }
 
 func (x *BaseRedactPolicyForm) GetPriority() int32 {
@@ -395,18 +394,11 @@ func (x *BaseRedactPolicyForm) GetPriority() int32 {
 	return 0
 }
 
-func (x *BaseRedactPolicyForm) GetStatus() commonv1.Status {
+func (x *BaseRedactPolicyForm) GetStatus() v1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return commonv1.Status(0)
-}
-
-func (x *BaseRedactPolicyForm) GetVersion() int32 {
-	if x != nil {
-		return x.Version
-	}
-	return 0
+	return v1.Status(0)
 }
 
 func (x *BaseRedactPolicyForm) GetRemark() string {
@@ -555,7 +547,7 @@ func (x *DeleteBaseRedactPolicyRequest) GetId() string {
 type SetBaseRedactPolicyStatusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                               // 策略绑定ID
-	Status        commonv1.Status        `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
+	Status        v1.Status              `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态：枚举【Status】
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -597,37 +589,36 @@ func (x *SetBaseRedactPolicyStatusRequest) GetId() int64 {
 	return 0
 }
 
-func (x *SetBaseRedactPolicyStatusRequest) GetStatus() commonv1.Status {
+func (x *SetBaseRedactPolicyStatusRequest) GetStatus() v1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return commonv1.Status(0)
+	return v1.Status(0)
 }
 
 // 脱敏策略。
 type BaseRedactPolicy struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	Id              int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                         // 策略绑定ID
-	FieldId         int64                  `protobuf:"varint,2,opt,name=field_id,json=fieldId,proto3" json:"field_id,omitempty"`                                // 字段目录ID
-	MessageRef      string                 `protobuf:"bytes,3,opt,name=message_ref,json=messageRef,proto3" json:"message_ref,omitempty"`                        // Proto消息完整名称
-	FieldPath       string                 `protobuf:"bytes,4,opt,name=field_path,json=fieldPath,proto3" json:"field_path,omitempty"`                           // 字段路径
-	FieldKind       string                 `protobuf:"bytes,5,opt,name=field_kind,json=fieldKind,proto3" json:"field_kind,omitempty"`                           // Proto字段类型
-	SensitivityType string                 `protobuf:"bytes,6,opt,name=sensitivity_type,json=sensitivityType,proto3" json:"sensitivity_type,omitempty"`         // 敏感字段类型
-	RuleId          int64                  `protobuf:"varint,7,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`                                   // 规则模板ID
-	RuleCode        string                 `protobuf:"bytes,8,opt,name=rule_code,json=ruleCode,proto3" json:"rule_code,omitempty"`                              // 规则编码
-	RuleName        string                 `protobuf:"bytes,9,opt,name=rule_name,json=ruleName,proto3" json:"rule_name,omitempty"`                              // 规则名称
-	RuleType        string                 `protobuf:"bytes,10,opt,name=rule_type,json=ruleType,proto3" json:"rule_type,omitempty"`                             // 规则类型
-	Rule            string                 `protobuf:"bytes,11,opt,name=rule,proto3" json:"rule,omitempty"`                                                     // 规则参数
-	SceneCode       string                 `protobuf:"bytes,12,opt,name=scene_code,json=sceneCode,proto3" json:"scene_code,omitempty"`                          // 场景编码
-	Operation       string                 `protobuf:"bytes,13,opt,name=operation,proto3" json:"operation,omitempty"`                                           // 接口操作
-	Direction       BaseRedactDirection    `protobuf:"varint,14,opt,name=direction,proto3,enum=system.admin.v1.BaseRedactDirection" json:"direction,omitempty"` // 脱敏方向
-	Mode            BaseRedactPolicyMode   `protobuf:"varint,100,opt,name=mode,proto3,enum=system.admin.v1.BaseRedactPolicyMode" json:"mode,omitempty"`         // 策略模式
-	Priority        int32                  `protobuf:"varint,101,opt,name=priority,proto3" json:"priority,omitempty"`                                           // 优先级
-	Status          commonv1.Status        `protobuf:"varint,102,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                         // 状态
-	Version         int32                  `protobuf:"varint,103,opt,name=version,proto3" json:"version,omitempty"`                                             // 策略版本
-	Remark          string                 `protobuf:"bytes,104,opt,name=remark,proto3" json:"remark,omitempty"`                                                // 备注
-	CreatedAt       string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                         // 创建时间
-	UpdatedAt       string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                         // 更新时间
+	state           protoimpl.MessageState     `protogen:"open.v1"`
+	Id              int64                      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                         // 策略绑定ID
+	FieldId         int64                      `protobuf:"varint,2,opt,name=field_id,json=fieldId,proto3" json:"field_id,omitempty"`                                // 字段目录ID
+	MessageRef      string                     `protobuf:"bytes,3,opt,name=message_ref,json=messageRef,proto3" json:"message_ref,omitempty"`                        // Proto消息完整名称
+	FieldPath       string                     `protobuf:"bytes,4,opt,name=field_path,json=fieldPath,proto3" json:"field_path,omitempty"`                           // 字段路径
+	FieldKind       string                     `protobuf:"bytes,5,opt,name=field_kind,json=fieldKind,proto3" json:"field_kind,omitempty"`                           // Proto字段类型
+	SensitivityType string                     `protobuf:"bytes,6,opt,name=sensitivity_type,json=sensitivityType,proto3" json:"sensitivity_type,omitempty"`         // 敏感字段类型
+	RuleId          int64                      `protobuf:"varint,7,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`                                   // 规则模板ID
+	RuleCode        string                     `protobuf:"bytes,8,opt,name=rule_code,json=ruleCode,proto3" json:"rule_code,omitempty"`                              // 规则编码
+	RuleName        string                     `protobuf:"bytes,9,opt,name=rule_name,json=ruleName,proto3" json:"rule_name,omitempty"`                              // 规则名称
+	RuleType        string                     `protobuf:"bytes,10,opt,name=rule_type,json=ruleType,proto3" json:"rule_type,omitempty"`                             // 规则类型
+	Rule            string                     `protobuf:"bytes,11,opt,name=rule,proto3" json:"rule,omitempty"`                                                     // 规则参数
+	SceneCode       string                     `protobuf:"bytes,12,opt,name=scene_code,json=sceneCode,proto3" json:"scene_code,omitempty"`                          // 场景编码
+	Operation       string                     `protobuf:"bytes,13,opt,name=operation,proto3" json:"operation,omitempty"`                                           // 接口操作
+	Direction       BaseRedactDirection        `protobuf:"varint,14,opt,name=direction,proto3,enum=system.admin.v1.BaseRedactDirection" json:"direction,omitempty"` // 脱敏方向
+	Mode            BaseRedactOutputPolicyMode `protobuf:"varint,100,opt,name=mode,proto3,enum=system.admin.v1.BaseRedactOutputPolicyMode" json:"mode,omitempty"`   // 处理模式：枚举【BaseRedactOutputPolicyMode】
+	Priority        int32                      `protobuf:"varint,101,opt,name=priority,proto3" json:"priority,omitempty"`                                           // 优先级
+	Status          v1.Status                  `protobuf:"varint,102,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                         // 状态：枚举【Status】
+	Remark          string                     `protobuf:"bytes,104,opt,name=remark,proto3" json:"remark,omitempty"`                                                // 备注
+	CreatedAt       string                     `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                         // 创建时间
+	UpdatedAt       string                     `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                         // 更新时间
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -760,11 +751,11 @@ func (x *BaseRedactPolicy) GetDirection() BaseRedactDirection {
 	return BaseRedactDirection_BASE_REDACT_DIRECTION_UNSPECIFIED
 }
 
-func (x *BaseRedactPolicy) GetMode() BaseRedactPolicyMode {
+func (x *BaseRedactPolicy) GetMode() BaseRedactOutputPolicyMode {
 	if x != nil {
 		return x.Mode
 	}
-	return BaseRedactPolicyMode_BASE_REDACT_POLICY_MODE_UNSPECIFIED
+	return BaseRedactOutputPolicyMode_BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
 }
 
 func (x *BaseRedactPolicy) GetPriority() int32 {
@@ -774,18 +765,11 @@ func (x *BaseRedactPolicy) GetPriority() int32 {
 	return 0
 }
 
-func (x *BaseRedactPolicy) GetStatus() commonv1.Status {
+func (x *BaseRedactPolicy) GetStatus() v1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return commonv1.Status(0)
-}
-
-func (x *BaseRedactPolicy) GetVersion() int32 {
-	if x != nil {
-		return x.Version
-	}
-	return 0
+	return v1.Status(0)
 }
 
 func (x *BaseRedactPolicy) GetRemark() string {
@@ -813,7 +797,7 @@ var File_system_admin_v1_base_redact_policy_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_redact_policy_proto_rawDesc = "" +
 	"\n" +
-	"(system/admin/v1/base_redact_policy.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a(system/admin/v1/base_redact_common.proto\"\xfe\x04\n" +
+	"(system/admin/v1/base_redact_policy.proto\x12\x0fsystem.admin.v1\x1a\x14common/v1/enum.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a(system/admin/v1/base_redact_common.proto\"\xc3\x05\n" +
 	"\x1bPageBaseRedactPolicyRequest\x12>\n" +
 	"\vmessage_ref\x18\x01 \x01(\tB\x1d\xbaG\x1a\x92\x02\x17Proto消息完整名称R\n" +
 	"messageRef\x121\n" +
@@ -822,9 +806,9 @@ const file_system_admin_v1_base_redact_policy_proto_rawDesc = "" +
 	"\n" +
 	"scene_code\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f场景编码R\tsceneCode\x120\n" +
 	"\toperation\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f接口操作R\toperation\x12[\n" +
-	"\tdirection\x18\x05 \x01(\x0e2$.system.admin.v1.BaseRedactDirectionB\x12\xbaG\x0f\x92\x02\f脱敏方向H\x00R\tdirection\x88\x01\x01\x12R\n" +
-	"\x04mode\x18d \x01(\x0e2%.system.admin.v1.BaseRedactPolicyModeB\x12\xbaG\x0f\x92\x02\f策略模式H\x01R\x04mode\x88\x01\x01\x12<\n" +
-	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x02R\x06status\x88\x01\x01\x129\n" +
+	"\tdirection\x18\x05 \x01(\x0e2$.system.admin.v1.BaseRedactDirectionB\x12\xbaG\x0f\x92\x02\f脱敏方向H\x00R\tdirection\x88\x01\x01\x12\x81\x01\n" +
+	"\x04mode\x18d \x01(\x0e2+.system.admin.v1.BaseRedactOutputPolicyModeB;\xbaG8\x92\x025处理模式：枚举【BaseRedactOutputPolicyMode】H\x01R\x04mode\x88\x01\x01\x12Q\n" +
+	"\x06status\x18e \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】H\x02R\x06status\x88\x01\x01\x129\n" +
 	"\bpage_num\x18f \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12;\n" +
 	"\tpage_size\x18g \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页数量R\bpageSizeB\f\n" +
 	"\n" +
@@ -836,8 +820,7 @@ const file_system_admin_v1_base_redact_policy_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xa0\x01\n" +
 	"\x1aGetBaseRedactPolicyRequest\x12\x81\x01\n" +
 	"\x02id\x18\x01 \x01(\x03Bq\xbaG\x11\x92\x02\x0e策略绑定ID\xbaHZ\xba\x01W\n" +
-	"/system.admin.base.redact.policy.get.id.required\x12\x1a策略绑定ID不能为空\x1a\bthis > 0R\x02id\"\xae\n" +
-	"\n" +
+	"/system.admin.base.redact.policy.get.id.required\x12\x1a策略绑定ID不能为空\x1a\bthis > 0R\x02id\"\xe7\t\n" +
 	"\x14BaseRedactPolicyForm\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e策略绑定IDR\x02id\x12\x8e\x01\n" +
 	"\bfield_id\x18\x02 \x01(\x03Bs\xbaG\x11\x92\x02\x0e字段目录ID\xbaH\\\xba\x01Y\n" +
@@ -848,13 +831,11 @@ const file_system_admin_v1_base_redact_policy_proto_rawDesc = "" +
 	"1system.admin.base.redact.policy.scene_code.length\x12/场景编码不能为空且不超过64个字符\x1a$this.size() > 0 && this.size() <= 64R\tsceneCode\x12\xc6\x01\n" +
 	"\toperation\x18\x05 \x01(\tB\xa7\x01\xbaG\x0f\x92\x02\f接口操作\xbaH\x91\x01\xba\x01\x8d\x01\n" +
 	"2system.admin.base.redact.policy.operation.required\x120接口操作不能为空且不超过255个字符\x1a%this.size() > 0 && this.size() <= 255R\toperation\x12^\n" +
-	"\tdirection\x18\x06 \x01(\x0e2$.system.admin.v1.BaseRedactDirectionB\x1a\xbaG\x0f\x92\x02\f脱敏方向\xbaH\x05\x82\x01\x02\x10\x01R\tdirection\x12U\n" +
-	"\x04mode\x18d \x01(\x0e2%.system.admin.v1.BaseRedactPolicyModeB\x1a\xbaG\x0f\x92\x02\f策略模式\xbaH\x05\x82\x01\x02\x10\x01R\x04mode\x12\x8b\x01\n" +
+	"\tdirection\x18\x06 \x01(\x0e2$.system.admin.v1.BaseRedactDirectionB\x1a\xbaG\x0f\x92\x02\f脱敏方向\xbaH\x05\x82\x01\x02\x10\x01R\tdirection\x12\x84\x01\n" +
+	"\x04mode\x18d \x01(\x0e2+.system.admin.v1.BaseRedactOutputPolicyModeBC\xbaG8\x92\x025处理模式：枚举【BaseRedactOutputPolicyMode】\xbaH\x05\x82\x01\x02\x10\x01R\x04mode\x12\x8b\x01\n" +
 	"\bpriority\x18e \x01(\x05Bo\xbaG\f\x92\x02\t优先级\xbaH]\xba\x01Z\n" +
-	"5system.admin.base.redact.policy.priority.non_negative\x12\x16优先级不能小于0\x1a\tthis >= 0R\bpriority\x12?\n" +
-	"\x06status\x18f \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12\x89\x01\n" +
-	"\aversion\x18g \x01(\x05Bo\xbaG\x0f\x92\x02\f策略版本\xbaHZ\xba\x01W\n" +
-	"0system.admin.base.redact.policy.version.positive\x12\x19策略版本必须大于0\x1a\bthis > 0R\aversion\x12\x8d\x01\n" +
+	"5system.admin.base.redact.policy.priority.non_negative\x12\x16优先级不能小于0\x1a\tthis >= 0R\bpriority\x12T\n" +
+	"\x06status\x18f \x01(\x0e2\x11.common.v1.StatusB)\xbaG\x1e\x92\x02\x1b状态：枚举【Status】\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12\x8d\x01\n" +
 	"\x06remark\x18h \x01(\tBu\xbaG\t\x92\x02\x06备注\xbaHf\xba\x01c\n" +
 	"-system.admin.base.redact.policy.remark.length\x12\x1e备注不能超过500个字符\x1a\x12this.size() <= 500R\x06remark\"\x94\x01\n" +
 	"\x1dCreateBaseRedactPolicyRequest\x12s\n" +
@@ -863,11 +844,11 @@ const file_system_admin_v1_base_redact_policy_proto_rawDesc = "" +
 	"\x12base_redact_policy\x18\x01 \x01(\v2%.system.admin.v1.BaseRedactPolicyFormB\x1e\xbaG\x15\x92\x02\x12脱敏策略表单\xbaH\x03\xc8\x01\x01R\x10baseRedactPolicy\"\xba\x01\n" +
 	"\x1dDeleteBaseRedactPolicyRequest\x12\x98\x01\n" +
 	"\x02id\x18\x01 \x01(\tB\x87\x01\xbaG\x17\x92\x02\x14策略绑定ID列表\xbaHj\xba\x01g\n" +
-	"2system.admin.base.redact.policy.delete.id.required\x12 策略绑定ID列表不能为空\x1a\x0fthis.size() > 0R\x02id\"\xea\x01\n" +
+	"2system.admin.base.redact.policy.delete.id.required\x12 策略绑定ID列表不能为空\x1a\x0fthis.size() > 0R\x02id\"\xff\x01\n" +
 	" SetBaseRedactPolicyStatusRequest\x12\x84\x01\n" +
 	"\x02id\x18\x01 \x01(\x03Bt\xbaG\x11\x92\x02\x0e策略绑定ID\xbaH]\xba\x01Z\n" +
-	"2system.admin.base.redact.policy.status.id.required\x12\x1a策略绑定ID不能为空\x1a\bthis > 0R\x02id\x12?\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xf1\b\n" +
+	"2system.admin.base.redact.policy.status.id.required\x12\x1a策略绑定ID不能为空\x1a\bthis > 0R\x02id\x12T\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB)\xbaG\x1e\x92\x02\x1b状态：枚举【Status】\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\x87\t\n" +
 	"\x10BaseRedactPolicy\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e策略绑定IDR\x02id\x12/\n" +
 	"\bfield_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e字段目录IDR\afieldId\x12>\n" +
@@ -887,21 +868,20 @@ const file_system_admin_v1_base_redact_policy_proto_rawDesc = "" +
 	"\n" +
 	"scene_code\x18\f \x01(\tB\x12\xbaG\x0f\x92\x02\f场景编码R\tsceneCode\x120\n" +
 	"\toperation\x18\r \x01(\tB\x12\xbaG\x0f\x92\x02\f接口操作R\toperation\x12V\n" +
-	"\tdirection\x18\x0e \x01(\x0e2$.system.admin.v1.BaseRedactDirectionB\x12\xbaG\x0f\x92\x02\f脱敏方向R\tdirection\x12M\n" +
-	"\x04mode\x18d \x01(\x0e2%.system.admin.v1.BaseRedactPolicyModeB\x12\xbaG\x0f\x92\x02\f策略模式R\x04mode\x12+\n" +
-	"\bpriority\x18e \x01(\x05B\x0f\xbaG\f\x92\x02\t优先级R\bpriority\x127\n" +
-	"\x06status\x18f \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x12,\n" +
-	"\aversion\x18g \x01(\x05B\x12\xbaG\x0f\x92\x02\f策略版本R\aversion\x12$\n" +
+	"\tdirection\x18\x0e \x01(\x0e2$.system.admin.v1.BaseRedactDirectionB\x12\xbaG\x0f\x92\x02\f脱敏方向R\tdirection\x12|\n" +
+	"\x04mode\x18d \x01(\x0e2+.system.admin.v1.BaseRedactOutputPolicyModeB;\xbaG8\x92\x025处理模式：枚举【BaseRedactOutputPolicyMode】R\x04mode\x12+\n" +
+	"\bpriority\x18e \x01(\x05B\x0f\xbaG\f\x92\x02\t优先级R\bpriority\x12L\n" +
+	"\x06status\x18f \x01(\x0e2\x11.common.v1.StatusB!\xbaG\x1e\x92\x02\x1b状态：枚举【Status】R\x06status\x12$\n" +
 	"\x06remark\x18h \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remark\x122\n" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt*\xa5\x01\n" +
-	"\x14BaseRedactPolicyMode\x12'\n" +
-	"#BASE_REDACT_POLICY_MODE_UNSPECIFIED\x10\x00\x12 \n" +
-	"\x1cBASE_REDACT_POLICY_MODE_RULE\x10\x01\x12 \n" +
-	"\x1cBASE_REDACT_POLICY_MODE_HIDE\x10\x02\x12 \n" +
-	"\x1cBASE_REDACT_POLICY_MODE_FULL\x10\x032\xe2\a\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt*\xc7\x01\n" +
+	"\x1aBaseRedactOutputPolicyMode\x12.\n" +
+	"*BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED\x10\x00\x12'\n" +
+	"#BASE_REDACT_OUTPUT_POLICY_MODE_RULE\x10\x01\x12'\n" +
+	"#BASE_REDACT_OUTPUT_POLICY_MODE_HIDE\x10\x02\x12'\n" +
+	"#BASE_REDACT_OUTPUT_POLICY_MODE_FULL\x10\x032\xe2\a\n" +
 	"\x17BaseRedactPolicyService\x12\x9d\x01\n" +
 	"\x14PageBaseRedactPolicy\x12,.system.admin.v1.PageBaseRedactPolicyRequest\x1a-.system.admin.v1.PageBaseRedactPolicyResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /api/v1/admin/base/redact-policy\x12\x98\x01\n" +
 	"\x13GetBaseRedactPolicy\x12+.system.admin.v1.GetBaseRedactPolicyRequest\x1a%.system.admin.v1.BaseRedactPolicyForm\"-\x82\xd3\xe4\x93\x02'\x12%/api/v1/admin/base/redact-policy/{id}\x12\x9e\x01\n" +
@@ -926,7 +906,7 @@ func file_system_admin_v1_base_redact_policy_proto_rawDescGZIP() []byte {
 var file_system_admin_v1_base_redact_policy_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_system_admin_v1_base_redact_policy_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_system_admin_v1_base_redact_policy_proto_goTypes = []any{
-	(BaseRedactPolicyMode)(0),                // 0: system.admin.v1.BaseRedactPolicyMode
+	(BaseRedactOutputPolicyMode)(0),          // 0: system.admin.v1.BaseRedactOutputPolicyMode
 	(*PageBaseRedactPolicyRequest)(nil),      // 1: system.admin.v1.PageBaseRedactPolicyRequest
 	(*PageBaseRedactPolicyResponse)(nil),     // 2: system.admin.v1.PageBaseRedactPolicyResponse
 	(*GetBaseRedactPolicyRequest)(nil),       // 3: system.admin.v1.GetBaseRedactPolicyRequest
@@ -937,22 +917,22 @@ var file_system_admin_v1_base_redact_policy_proto_goTypes = []any{
 	(*SetBaseRedactPolicyStatusRequest)(nil), // 8: system.admin.v1.SetBaseRedactPolicyStatusRequest
 	(*BaseRedactPolicy)(nil),                 // 9: system.admin.v1.BaseRedactPolicy
 	(BaseRedactDirection)(0),                 // 10: system.admin.v1.BaseRedactDirection
-	(commonv1.Status)(0),                     // 11: common.v1.Status
+	(v1.Status)(0),                           // 11: common.v1.Status
 	(*emptypb.Empty)(nil),                    // 12: google.protobuf.Empty
 }
 var file_system_admin_v1_base_redact_policy_proto_depIdxs = []int32{
 	10, // 0: system.admin.v1.PageBaseRedactPolicyRequest.direction:type_name -> system.admin.v1.BaseRedactDirection
-	0,  // 1: system.admin.v1.PageBaseRedactPolicyRequest.mode:type_name -> system.admin.v1.BaseRedactPolicyMode
+	0,  // 1: system.admin.v1.PageBaseRedactPolicyRequest.mode:type_name -> system.admin.v1.BaseRedactOutputPolicyMode
 	11, // 2: system.admin.v1.PageBaseRedactPolicyRequest.status:type_name -> common.v1.Status
 	9,  // 3: system.admin.v1.PageBaseRedactPolicyResponse.base_redact_policies:type_name -> system.admin.v1.BaseRedactPolicy
 	10, // 4: system.admin.v1.BaseRedactPolicyForm.direction:type_name -> system.admin.v1.BaseRedactDirection
-	0,  // 5: system.admin.v1.BaseRedactPolicyForm.mode:type_name -> system.admin.v1.BaseRedactPolicyMode
+	0,  // 5: system.admin.v1.BaseRedactPolicyForm.mode:type_name -> system.admin.v1.BaseRedactOutputPolicyMode
 	11, // 6: system.admin.v1.BaseRedactPolicyForm.status:type_name -> common.v1.Status
 	4,  // 7: system.admin.v1.CreateBaseRedactPolicyRequest.base_redact_policy:type_name -> system.admin.v1.BaseRedactPolicyForm
 	4,  // 8: system.admin.v1.UpdateBaseRedactPolicyRequest.base_redact_policy:type_name -> system.admin.v1.BaseRedactPolicyForm
 	11, // 9: system.admin.v1.SetBaseRedactPolicyStatusRequest.status:type_name -> common.v1.Status
 	10, // 10: system.admin.v1.BaseRedactPolicy.direction:type_name -> system.admin.v1.BaseRedactDirection
-	0,  // 11: system.admin.v1.BaseRedactPolicy.mode:type_name -> system.admin.v1.BaseRedactPolicyMode
+	0,  // 11: system.admin.v1.BaseRedactPolicy.mode:type_name -> system.admin.v1.BaseRedactOutputPolicyMode
 	11, // 12: system.admin.v1.BaseRedactPolicy.status:type_name -> common.v1.Status
 	1,  // 13: system.admin.v1.BaseRedactPolicyService.PageBaseRedactPolicy:input_type -> system.admin.v1.PageBaseRedactPolicyRequest
 	3,  // 14: system.admin.v1.BaseRedactPolicyService.GetBaseRedactPolicy:input_type -> system.admin.v1.GetBaseRedactPolicyRequest

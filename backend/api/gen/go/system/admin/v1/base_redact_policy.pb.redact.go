@@ -202,8 +202,6 @@ func (x *BaseRedactPolicyForm) Redact() {
 
 	// Safe field: Status
 
-	// Safe field: Version
-
 	// Safe field: Remark
 }
 
@@ -299,8 +297,6 @@ func (x *BaseRedactPolicy) Redact() {
 	// Safe field: Priority
 
 	// Safe field: Status
-
-	// Safe field: Version
 
 	// Safe field: Remark
 

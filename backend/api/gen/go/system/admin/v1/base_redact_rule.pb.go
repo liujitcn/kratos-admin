@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	v1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -78,7 +78,7 @@ type PageBaseRedactRuleRequest struct {
 	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`                                    // 规则编码
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                    // 规则名称
 	RuleType      string                 `protobuf:"bytes,3,opt,name=rule_type,json=ruleType,proto3" json:"rule_type,omitempty"`            // 规则类型
-	Status        *commonv1.Status       `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态
+	Status        *v1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态
 	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`            // 当前页码
 	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`         // 每页数量
 	unknownFields protoimpl.UnknownFields
@@ -136,11 +136,11 @@ func (x *PageBaseRedactRuleRequest) GetRuleType() string {
 	return ""
 }
 
-func (x *PageBaseRedactRuleRequest) GetStatus() commonv1.Status {
+func (x *PageBaseRedactRuleRequest) GetStatus() v1.Status {
 	if x != nil && x.Status != nil {
 		return *x.Status
 	}
-	return commonv1.Status(0)
+	return v1.Status(0)
 }
 
 func (x *PageBaseRedactRuleRequest) GetPageNum() int64 {
@@ -263,8 +263,7 @@ type BaseRedactRuleForm struct {
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                              // 规则名称
 	RuleType      string                 `protobuf:"bytes,4,opt,name=rule_type,json=ruleType,proto3" json:"rule_type,omitempty"`      // 规则类型
 	Rule          string                 `protobuf:"bytes,5,opt,name=rule,proto3" json:"rule,omitempty"`                              // 规则参数
-	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
-	Version       int32                  `protobuf:"varint,101,opt,name=version,proto3" json:"version,omitempty"`                     // 规则版本
+	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	Remark        string                 `protobuf:"bytes,102,opt,name=remark,proto3" json:"remark,omitempty"`                        // 备注
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -335,18 +334,11 @@ func (x *BaseRedactRuleForm) GetRule() string {
 	return ""
 }
 
-func (x *BaseRedactRuleForm) GetStatus() commonv1.Status {
+func (x *BaseRedactRuleForm) GetStatus() v1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return commonv1.Status(0)
-}
-
-func (x *BaseRedactRuleForm) GetVersion() int32 {
-	if x != nil {
-		return x.Version
-	}
-	return 0
+	return v1.Status(0)
 }
 
 func (x *BaseRedactRuleForm) GetRemark() string {
@@ -495,7 +487,7 @@ func (x *DeleteBaseRedactRuleRequest) GetId() string {
 type SetBaseRedactRuleStatusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                               // 规则ID
-	Status        commonv1.Status        `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
+	Status        v1.Status              `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -537,11 +529,11 @@ func (x *SetBaseRedactRuleStatusRequest) GetId() int64 {
 	return 0
 }
 
-func (x *SetBaseRedactRuleStatusRequest) GetStatus() commonv1.Status {
+func (x *SetBaseRedactRuleStatusRequest) GetStatus() v1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return commonv1.Status(0)
+	return v1.Status(0)
 }
 
 // 脱敏规则模板。
@@ -552,8 +544,7 @@ type BaseRedactRule struct {
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                              // 规则名称
 	RuleType      string                 `protobuf:"bytes,4,opt,name=rule_type,json=ruleType,proto3" json:"rule_type,omitempty"`      // 规则类型
 	Rule          string                 `protobuf:"bytes,5,opt,name=rule,proto3" json:"rule,omitempty"`                              // 规则参数
-	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
-	Version       int32                  `protobuf:"varint,101,opt,name=version,proto3" json:"version,omitempty"`                     // 规则版本
+	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	Remark        string                 `protobuf:"bytes,102,opt,name=remark,proto3" json:"remark,omitempty"`                        // 备注
 	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // 创建时间
 	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"` // 更新时间
@@ -626,18 +617,11 @@ func (x *BaseRedactRule) GetRule() string {
 	return ""
 }
 
-func (x *BaseRedactRule) GetStatus() commonv1.Status {
+func (x *BaseRedactRule) GetStatus() v1.Status {
 	if x != nil {
 		return x.Status
 	}
-	return commonv1.Status(0)
-}
-
-func (x *BaseRedactRule) GetVersion() int32 {
-	if x != nil {
-		return x.Version
-	}
-	return 0
+	return v1.Status(0)
 }
 
 func (x *BaseRedactRule) GetRemark() string {
@@ -681,7 +665,7 @@ const file_system_admin_v1_base_redact_rule_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x8f\x01\n" +
 	"\x18GetBaseRedactRuleRequest\x12s\n" +
 	"\x02id\x18\x01 \x01(\x03Bc\xbaG\v\x92\x02\b规则ID\xbaHR\xba\x01O\n" +
-	"-system.admin.base.redact.rule.get.id.required\x12\x14规则ID不能为空\x1a\bthis > 0R\x02id\"\xc6\b\n" +
+	"-system.admin.base.redact.rule.get.id.required\x12\x14规则ID不能为空\x1a\bthis > 0R\x02id\"\xbc\a\n" +
 	"\x12BaseRedactRuleForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b规则IDR\x02id\x12\xb3\x01\n" +
 	"\x04code\x18\x02 \x01(\tB\x9e\x01\xbaG\x0f\x92\x02\f规则编码\xbaH\x88\x01\xba\x01\x84\x01\n" +
@@ -692,9 +676,7 @@ const file_system_admin_v1_base_redact_rule_proto_rawDesc = "" +
 	"0system.admin.base.redact.rule.rule_type.required\x12/规则类型不能为空且不超过32个字符\x1a$this.size() > 0 && this.size() <= 32R\bruleType\x12\x84\x01\n" +
 	"\x04rule\x18\x05 \x01(\tBp\xbaG\x0f\x92\x02\f规则参数\xbaH[\xba\x01X\n" +
 	"+system.admin.base.redact.rule.rule.required\x12\x18规则参数不能为空\x1a\x0fthis.size() > 0R\x04rule\x12?\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12\x87\x01\n" +
-	"\aversion\x18e \x01(\x05Bm\xbaG\x0f\x92\x02\f规则版本\xbaHX\xba\x01U\n" +
-	".system.admin.base.redact.rule.version.positive\x12\x19规则版本必须大于0\x1a\bthis > 0R\aversion\x12\x8b\x01\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12\x8b\x01\n" +
 	"\x06remark\x18f \x01(\tBs\xbaG\t\x92\x02\x06备注\xbaHd\xba\x01a\n" +
 	"+system.admin.base.redact.rule.remark.length\x12\x1e备注不能超过500个字符\x1a\x12this.size() <= 500R\x06remark\"\x8c\x01\n" +
 	"\x1bCreateBaseRedactRuleRequest\x12m\n" +
@@ -707,15 +689,14 @@ const file_system_admin_v1_base_redact_rule_proto_rawDesc = "" +
 	"\x1eSetBaseRedactRuleStatusRequest\x12v\n" +
 	"\x02id\x18\x01 \x01(\x03Bf\xbaG\v\x92\x02\b规则ID\xbaHU\xba\x01R\n" +
 	"0system.admin.base.redact.rule.status.id.required\x12\x14规则ID不能为空\x1a\bthis > 0R\x02id\x12?\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xce\x03\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xa0\x03\n" +
 	"\x0eBaseRedactRule\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b规则IDR\x02id\x12&\n" +
 	"\x04code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f规则编码R\x04code\x12&\n" +
 	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f规则名称R\x04name\x12/\n" +
 	"\trule_type\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f规则类型R\bruleType\x12&\n" +
 	"\x04rule\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f规则参数R\x04rule\x127\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x12,\n" +
-	"\aversion\x18e \x01(\x05B\x12\xbaG\x0f\x92\x02\f规则版本R\aversion\x12$\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x12$\n" +
 	"\x06remark\x18f \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remark\x122\n" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
@@ -755,8 +736,8 @@ var file_system_admin_v1_base_redact_rule_proto_goTypes = []any{
 	(*DeleteBaseRedactRuleRequest)(nil),    // 7: system.admin.v1.DeleteBaseRedactRuleRequest
 	(*SetBaseRedactRuleStatusRequest)(nil), // 8: system.admin.v1.SetBaseRedactRuleStatusRequest
 	(*BaseRedactRule)(nil),                 // 9: system.admin.v1.BaseRedactRule
-	(commonv1.Status)(0),                   // 10: common.v1.Status
-	(*commonv1.SelectOptionResponse)(nil),  // 11: common.v1.SelectOptionResponse
+	(v1.Status)(0),                         // 10: common.v1.Status
+	(*v1.SelectOptionResponse)(nil),        // 11: common.v1.SelectOptionResponse
 	(*emptypb.Empty)(nil),                  // 12: google.protobuf.Empty
 }
 var file_system_admin_v1_base_redact_rule_proto_depIdxs = []int32{
