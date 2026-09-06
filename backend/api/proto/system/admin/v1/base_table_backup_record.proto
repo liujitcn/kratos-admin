@@ -6,7 +6,7 @@ import "google/api/annotations.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "system/admin/v1/base_table_backup.proto";
 
-// BaseTableBackupRecordService 查询数据库备份执行记录。
+// Admin数据库备份执行记录服务。
 service BaseTableBackupRecordService {
   // 查询数据库备份记录分页列表。
   rpc PageBaseTableBackupRecord(PageBaseTableBackupRecordRequest) returns (PageBaseTableBackupRecordResponse) {

@@ -12,7 +12,7 @@ import (
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-// RegisterBaseTableBackupRecordServiceMCPTools 注册BaseTableBackupRecordService 查询数据库备份执行记录的 MCP Tool。
+// RegisterBaseTableBackupRecordServiceMCPTools 注册Admin数据库备份执行记录服务的 MCP Tool。
 func RegisterBaseTableBackupRecordServiceMCPTools(mcpServer *mcp.Server, baseTableBackupRecordServiceServer BaseTableBackupRecordServiceServer) {
 	RegisterBaseTableBackupRecordServicePageBaseTableBackupRecordMCPTool(mcpServer, baseTableBackupRecordServiceServer)
 	RegisterBaseTableBackupRecordServiceGetBaseTableBackupRecordMCPTool(mcpServer, baseTableBackupRecordServiceServer)

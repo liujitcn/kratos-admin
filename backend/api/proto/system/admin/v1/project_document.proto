@@ -6,7 +6,7 @@ import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 
-// 项目文档服务
+// Admin项目文档服务。
 service ProjectDocumentService {
   // 查询项目文档树
   rpc TreeProjectDocument(TreeProjectDocumentRequest) returns (TreeProjectDocumentResponse) {

@@ -28,7 +28,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// 数据库迁移服务
+// Admin数据库迁移服务。
 type BaseMigrationServiceClient interface {
 	// 分页查询数据库升级历史
 	PageBaseMigration(ctx context.Context, in *PageBaseMigrationRequest, opts ...grpc.CallOption) (*PageBaseMigrationResponse, error)
@@ -68,7 +68,7 @@ func (c *baseMigrationServiceClient) GetBaseMigration(ctx context.Context, in *G
 // All implementations must embed UnimplementedBaseMigrationServiceServer
 // for forward compatibility.
 //
-// 数据库迁移服务
+// Admin数据库迁移服务。
 type BaseMigrationServiceServer interface {
 	// 分页查询数据库升级历史
 	PageBaseMigration(context.Context, *PageBaseMigrationRequest) (*PageBaseMigrationResponse, error)

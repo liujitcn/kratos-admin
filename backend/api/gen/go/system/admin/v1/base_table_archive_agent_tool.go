@@ -14,7 +14,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-// NewBaseTableArchiveServiceAgentTools 创建BaseTableArchiveService 管理数据库表归档配置的 Agent Tool。
+// NewBaseTableArchiveServiceAgentTools 创建Admin数据库表归档配置服务的 Agent Tool。
 func NewBaseTableArchiveServiceAgentTools(baseTableArchiveServiceServer BaseTableArchiveServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error

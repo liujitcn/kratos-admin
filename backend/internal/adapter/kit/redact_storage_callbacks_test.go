@@ -111,7 +111,7 @@ func TestQueryForDBResetsMainStatement(t *testing.T) {
 		t.Fatal(err)
 	}
 	db.Statement.Table = "base_user"
-	storageDB := queryForDB(db).BaseRedactStorageValue.WithContext(context.Background()).UnderlyingDB()
+	storageDB := queryForDB(db).BaseRedactStorageValue.WithContext(context.Background()).UnderlyingDB() //nolint:forbidigo // 测试需要检查 gorm/gen 绑定的旁表模型。
 	tableName := ""
 	if storageDB.Statement != nil && storageDB.Statement.Schema != nil {
 		tableName = storageDB.Statement.Schema.Table

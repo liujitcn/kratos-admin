@@ -28,6 +28,7 @@ func newBaseRedactStoragePolicy(db *gorm.DB, opts ...gen.DOOption) baseRedactSto
 	tableName := _baseRedactStoragePolicy.baseRedactStoragePolicyDo.TableName()
 	_baseRedactStoragePolicy.ALL = field.NewAsterisk(tableName)
 	_baseRedactStoragePolicy.ID = field.NewInt64(tableName, "id")
+	_baseRedactStoragePolicy.SourceName = field.NewString(tableName, "source_name")
 	_baseRedactStoragePolicy.TableName_ = field.NewString(tableName, "table_name")
 	_baseRedactStoragePolicy.ColumnName = field.NewString(tableName, "column_name")
 	_baseRedactStoragePolicy.RuleID = field.NewInt64(tableName, "rule_id")
@@ -51,6 +52,7 @@ type baseRedactStoragePolicy struct {
 
 	ALL        field.Asterisk
 	ID         field.Int64  // 入库策略ID
+	SourceName field.String // 数据源名称
 	TableName_ field.String // 数据库表名
 	ColumnName field.String // 数据库字段名
 	RuleID     field.Int64  // 规则模板ID
@@ -79,6 +81,7 @@ func (b baseRedactStoragePolicy) As(alias string) *baseRedactStoragePolicy {
 func (b *baseRedactStoragePolicy) updateTableName(table string) *baseRedactStoragePolicy {
 	b.ALL = field.NewAsterisk(table)
 	b.ID = field.NewInt64(table, "id")
+	b.SourceName = field.NewString(table, "source_name")
 	b.TableName_ = field.NewString(table, "table_name")
 	b.ColumnName = field.NewString(table, "column_name")
 	b.RuleID = field.NewInt64(table, "rule_id")
@@ -118,8 +121,9 @@ func (b *baseRedactStoragePolicy) GetFieldByName(fieldName string) (field.OrderE
 }
 
 func (b *baseRedactStoragePolicy) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 12)
+	b.fieldMap = make(map[string]field.Expr, 13)
 	b.fieldMap["id"] = b.ID
+	b.fieldMap["source_name"] = b.SourceName
 	b.fieldMap["table_name"] = b.TableName_
 	b.fieldMap["column_name"] = b.ColumnName
 	b.fieldMap["rule_id"] = b.RuleID

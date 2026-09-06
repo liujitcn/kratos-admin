@@ -49,6 +49,9 @@ var ProviderSet = wire.NewSet(
 	NewBaseTableBackupRecordCase,
 	NewBaseTableBackupRestoreCase,
 	NewBaseTableSourceCase,
+	NewBaseRedactOutputPolicyCase,
+	NewBaseRedactRuleCase,
+	NewBaseRedactStoragePolicyCase,
 )
 
 // MessageProviderSet 汇总站内信管理和投递业务依赖。

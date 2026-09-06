@@ -29,7 +29,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// 国际化翻译信息服务。
+// Admin国际化翻译信息服务。
 type BaseI18nServiceClient interface {
 	// 翻译单个文本。
 	DraftBaseI18n(ctx context.Context, in *DraftBaseI18nRequest, opts ...grpc.CallOption) (*DraftBaseI18nResponse, error)
@@ -69,7 +69,7 @@ func (c *baseI18nServiceClient) UpdateBaseI18n(ctx context.Context, in *UpdateBa
 // All implementations must embed UnimplementedBaseI18nServiceServer
 // for forward compatibility.
 //
-// 国际化翻译信息服务。
+// Admin国际化翻译信息服务。
 type BaseI18nServiceServer interface {
 	// 翻译单个文本。
 	DraftBaseI18n(context.Context, *DraftBaseI18nRequest) (*DraftBaseI18nResponse, error)

@@ -11,6 +11,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	_const "github.com/liujitcn/kratos-core/const"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/liujitcn/kratos-kit/redact"
 )
 
@@ -121,20 +122,20 @@ func (r *RedactPolicyResolver) Resolve(ctx context.Context, fieldRef string) (re
 	return policy, ok
 }
 
-// ListStoragePolicies 按物理表返回入库脱敏策略。
+// ListStoragePolicies 按默认数据源和物理表返回入库脱敏策略。
 func (r *RedactPolicyResolver) ListStoragePolicies(ctx context.Context, tableName string) []redact.StorageFieldPolicy {
 	if r == nil {
 		return nil
 	}
 	r.mu.RLock()
 	loadedAt := r.loadedAt
-	policies := append([]redact.StorageFieldPolicy(nil), r.storagePolicies[tableName]...)
+	policies := append([]redact.StorageFieldPolicy(nil), r.storagePolicies[storagePolicyKey(gorm.DefaultClientName, tableName)]...)
 	r.mu.RUnlock()
 	if time.Since(loadedAt) >= policyCacheTTL {
 		err := r.Refresh(ctx)
 		if err == nil {
 			r.mu.RLock()
-			policies = append([]redact.StorageFieldPolicy(nil), r.storagePolicies[tableName]...)
+			policies = append([]redact.StorageFieldPolicy(nil), r.storagePolicies[storagePolicyKey(gorm.DefaultClientName, tableName)]...)
 			r.mu.RUnlock()
 		}
 	}
@@ -162,7 +163,7 @@ func buildStoragePolicies(rows []*models.BaseRedactStoragePolicy, rules map[int6
 	result := make(map[string][]redact.StorageFieldPolicy)
 	var err error
 	for _, row := range rows {
-		if row.TableName_ == "" || row.ColumnName == "" {
+		if row.SourceName == "" || row.TableName_ == "" || row.ColumnName == "" {
 			return nil, fmt.Errorf("入库脱敏策略 %d 缺少数据库字段映射", row.ID)
 		}
 		rule, ok := rules[row.RuleID]
@@ -177,7 +178,8 @@ func buildStoragePolicies(rows []*models.BaseRedactStoragePolicy, rules map[int6
 		}
 		fieldPolicy.RuleID = rule.ID
 		fieldPolicy.Fingerprint = redact.RuleFingerprint(rule.RuleType, params)
-		result[row.TableName_] = append(result[row.TableName_], redact.StorageFieldPolicy{
+		key := storagePolicyKey(row.SourceName, row.TableName_)
+		result[key] = append(result[key], redact.StorageFieldPolicy{
 			ID:         row.ID,
 			TableName:  row.TableName_,
 			ColumnName: row.ColumnName,
@@ -192,7 +194,7 @@ func buildOutputPolicies(rows []*models.BaseRedactOutputPolicy, rules map[int64]
 	result := make(map[string]redact.FieldPolicy, len(rows))
 	var err error
 	for _, row := range rows {
-		if row.Operation == "" || row.MessageRef == "" || row.FieldPath == "" {
+		if row.ServiceName == "" || row.Operation == "" || row.MessageRef == "" || row.FieldPath == "" {
 			return nil, fmt.Errorf("出库脱敏策略 %d 缺少接口或Proto字段", row.ID)
 		}
 		mode := redact.PolicyMode(row.Mode)
@@ -216,6 +218,11 @@ func buildOutputPolicies(rows []*models.BaseRedactOutputPolicy, rules map[int64]
 		result[outputPolicyKey(row.Operation, row.MessageRef+"."+row.FieldPath)] = policy
 	}
 	return result, nil
+}
+
+// storagePolicyKey 返回数据源和物理表组成的策略键。
+func storagePolicyKey(sourceName, tableName string) string {
+	return sourceName + "\x00" + tableName
 }
 
 // effectiveRuleParams 返回策略实际使用的完整规则参数。

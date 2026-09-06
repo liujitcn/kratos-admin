@@ -13,7 +13,7 @@ import (
 	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
-// NewCacheServiceAgentTools 创建运行时缓存查询服务的 Agent Tool。
+// NewCacheServiceAgentTools 创建Admin运行时缓存查询服务的 Agent Tool。
 func NewCacheServiceAgentTools(cacheServiceServer CacheServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error

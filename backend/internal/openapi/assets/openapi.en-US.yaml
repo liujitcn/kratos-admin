@@ -3233,13 +3233,17 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/v1/admin/base/redact-field:
+    /api/v1/admin/base/redact-output-policy:
         get:
             tags:
-                - BaseRedactFieldService
-            description: Query redaction field pagination list.
-            operationId: BaseRedactFieldService_PageBaseRedactField
+                - BaseRedactOutputPolicyService
+            description: Query outbound redaction policy pagination list.
+            operationId: BaseRedactOutputPolicyService_PageBaseRedactOutputPolicy
             parameters:
+                - name: operation
+                  in: query
+                  schema:
+                    type: string
                 - name: message_ref
                   in: query
                   schema:
@@ -3248,179 +3252,10 @@ paths:
                   in: query
                   schema:
                     type: string
-                - name: sensitivity_type
+                - name: service_name
                   in: query
                   schema:
                     type: string
-                - name: source
-                  in: query
-                  schema:
-                    type: string
-                - name: status
-                  in: query
-                  schema:
-                    enum:
-                        - STATUS_UNSPECIFIED
-                        - STATUS_ENABLE
-                        - STATUS_DISABLE
-                    type: string
-                    format: enum
-                - name: page_num
-                  in: query
-                  schema:
-                    type: string
-                - name: page_size
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.PageBaseRedactFieldResponse'
-    /api/v1/admin/base/redact-field/option:
-        get:
-            tags:
-                - BaseRedactFieldService
-            description: Query redaction field option.
-            operationId: BaseRedactFieldService_OptionBaseRedactField
-            parameters:
-                - name: keyword
-                  in: query
-                  schema:
-                    type: string
-                - name: operation
-                  in: query
-                  schema:
-                    type: string
-                - name: direction
-                  in: query
-                  schema:
-                    enum:
-                        - BASE_REDACT_DIRECTION_UNSPECIFIED
-                        - BASE_REDACT_DIRECTION_REQUEST
-                        - BASE_REDACT_DIRECTION_RESPONSE
-                    type: string
-                    format: enum
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/common.v1.SelectOptionResponse'
-    /api/v1/admin/base/redact-field/{base_redact_field.id}:
-        put:
-            tags:
-                - BaseRedactFieldService
-            description: Update redaction field.
-            operationId: BaseRedactFieldService_UpdateBaseRedactField
-            parameters:
-                - name: base_redact_field.id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/system.admin.v1.BaseRedactFieldForm'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-    /api/v1/admin/base/redact-field/{id}:
-        get:
-            tags:
-                - BaseRedactFieldService
-            description: Query redaction field details.
-            operationId: BaseRedactFieldService_GetBaseRedactField
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.BaseRedactFieldForm'
-        delete:
-            tags:
-                - BaseRedactFieldService
-            description: Delete redaction field.
-            operationId: BaseRedactFieldService_DeleteBaseRedactField
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-    /api/v1/admin/base/redact-field/{id}/status:
-        put:
-            tags:
-                - BaseRedactFieldService
-            description: Set redaction field status.
-            operationId: BaseRedactFieldService_SetBaseRedactFieldStatus
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/system.admin.v1.SetBaseRedactFieldStatusRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-    /api/v1/admin/base/redact-policy:
-        get:
-            tags:
-                - BaseRedactPolicyService
-            description: Query redaction policy pagination list.
-            operationId: BaseRedactPolicyService_PageBaseRedactPolicy
-            parameters:
-                - name: message_ref
-                  in: query
-                  schema:
-                    type: string
-                - name: field_path
-                  in: query
-                  schema:
-                    type: string
-                - name: scene_code
-                  in: query
-                  schema:
-                    type: string
-                - name: operation
-                  in: query
-                  schema:
-                    type: string
-                - name: direction
-                  in: query
-                  schema:
-                    enum:
-                        - BASE_REDACT_DIRECTION_UNSPECIFIED
-                        - BASE_REDACT_DIRECTION_REQUEST
-                        - BASE_REDACT_DIRECTION_RESPONSE
-                    type: string
-                    format: enum
                 - name: mode
                   in: query
                   schema:
@@ -3454,50 +3289,43 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/system.admin.v1.PageBaseRedactPolicyResponse'
-        post:
-            tags:
-                - BaseRedactPolicyService
-            description: Create redaction policy.
-            operationId: BaseRedactPolicyService_CreateBaseRedactPolicy
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/system.admin.v1.BaseRedactPolicyForm'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-    /api/v1/admin/base/redact-policy/{base_redact_policy.id}:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseRedactOutputPolicyResponse'
         put:
             tags:
-                - BaseRedactPolicyService
-            description: Update redaction policy.
-            operationId: BaseRedactPolicyService_UpdateBaseRedactPolicy
-            parameters:
-                - name: base_redact_policy.id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
+                - BaseRedactOutputPolicyService
+            description: batch Update outbound redaction policy.
+            operationId: BaseRedactOutputPolicyService_UpdateBaseRedactOutputPolicy
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/system.admin.v1.BaseRedactPolicyForm'
+                            $ref: '#/components/schemas/system.admin.v1.UpdateBaseRedactOutputPolicyRequest'
                 required: true
             responses:
                 "200":
                     description: OK
                     content: {}
-    /api/v1/admin/base/redact-policy/{id}:
+        post:
+            tags:
+                - BaseRedactOutputPolicyService
+            description: batch Create outbound redaction policy.
+            operationId: BaseRedactOutputPolicyService_CreateBaseRedactOutputPolicy
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.CreateBaseRedactOutputPolicyRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/redact-output-policy/{id}:
         get:
             tags:
-                - BaseRedactPolicyService
-            description: Query redaction policy details.
-            operationId: BaseRedactPolicyService_GetBaseRedactPolicy
+                - BaseRedactOutputPolicyService
+            description: Query outbound redaction policy details.
+            operationId: BaseRedactOutputPolicyService_GetBaseRedactOutputPolicy
             parameters:
                 - name: id
                   in: path
@@ -3510,12 +3338,12 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/system.admin.v1.BaseRedactPolicyForm'
+                                $ref: '#/components/schemas/system.admin.v1.BaseRedactOutputPolicyForm'
         delete:
             tags:
-                - BaseRedactPolicyService
-            description: Delete redaction policy.
-            operationId: BaseRedactPolicyService_DeleteBaseRedactPolicy
+                - BaseRedactOutputPolicyService
+            description: Delete outbound redaction policy.
+            operationId: BaseRedactOutputPolicyService_DeleteBaseRedactOutputPolicy
             parameters:
                 - name: id
                   in: path
@@ -3526,12 +3354,12 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/v1/admin/base/redact-policy/{id}/status:
+    /api/v1/admin/base/redact-output-policy/{id}/status:
         put:
             tags:
-                - BaseRedactPolicyService
-            description: Set redaction policy status.
-            operationId: BaseRedactPolicyService_SetBaseRedactPolicyStatus
+                - BaseRedactOutputPolicyService
+            description: Set outbound redaction policy status.
+            operationId: BaseRedactOutputPolicyService_SetBaseRedactOutputPolicyStatus
             parameters:
                 - name: id
                   in: path
@@ -3542,7 +3370,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/system.admin.v1.SetBaseRedactPolicyStatusRequest'
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseRedactOutputPolicyStatusRequest'
                 required: true
             responses:
                 "200":
@@ -3697,6 +3525,139 @@ paths:
                     application/json:
                         schema:
                             $ref: '#/components/schemas/system.admin.v1.SetBaseRedactRuleStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/redact-storage-policy:
+        get:
+            tags:
+                - BaseRedactStoragePolicyService
+            description: Query inbound redaction policy pagination list.
+            operationId: BaseRedactStoragePolicyService_PageBaseRedactStoragePolicy
+            parameters:
+                - name: table_name
+                  in: query
+                  schema:
+                    type: string
+                - name: column_name
+                  in: query
+                  schema:
+                    type: string
+                - name: rule_id
+                  in: query
+                  schema:
+                    type: string
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseRedactStoragePolicyResponse'
+        put:
+            tags:
+                - BaseRedactStoragePolicyService
+            description: batch Update inbound redaction policy.
+            operationId: BaseRedactStoragePolicyService_UpdateBaseRedactStoragePolicy
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.UpdateBaseRedactStoragePolicyRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+        post:
+            tags:
+                - BaseRedactStoragePolicyService
+            description: batch Create inbound redaction policy.
+            operationId: BaseRedactStoragePolicyService_CreateBaseRedactStoragePolicy
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.CreateBaseRedactStoragePolicyRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/redact-storage-policy/{id}:
+        get:
+            tags:
+                - BaseRedactStoragePolicyService
+            description: Query inbound redaction policy details.
+            operationId: BaseRedactStoragePolicyService_GetBaseRedactStoragePolicy
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseRedactStoragePolicyForm'
+        delete:
+            tags:
+                - BaseRedactStoragePolicyService
+            description: Delete inbound redaction policy.
+            operationId: BaseRedactStoragePolicyService_DeleteBaseRedactStoragePolicy
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/redact-storage-policy/{id}/status:
+        put:
+            tags:
+                - BaseRedactStoragePolicyService
+            description: Set inbound redaction policy status.
+            operationId: BaseRedactStoragePolicyService_SetBaseRedactStoragePolicyStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseRedactStoragePolicyStatusRequest'
                 required: true
             responses:
                 "200":
@@ -10216,166 +10177,33 @@ components:
                     type: string
                     description: Remarks
             description: position form
-        system.admin.v1.BaseRedactField:
+        system.admin.v1.BaseRedactOutputPolicy:
             type: object
             properties:
                 id:
                     type: string
-                    description: field catalog ID
+                    description: outbound policy ID
+                operation:
+                    type: string
+                    description: API operation
                 message_ref:
                     type: string
                     description: proto message complete name
                 field_path:
                     type: string
-                    description: field path
-                field_kind:
-                    type: string
-                    description: Proto field type
-                sensitivity_type:
-                    type: string
-                    description: sensitive-field type
-                source:
-                    type: string
-                    description: field source
-                entity_ref:
-                    type: string
-                    description: data-entity identifier
-                table_name:
-                    type: string
-                    description: database table name
-                column_name:
-                    type: string
-                    description: database field name
-                record_key_field:
-                    type: string
-                    description: business primary-key field
-                storage_mode:
+                    description: return field path
+                mode:
                     enum:
-                        - BASE_REDACT_STORAGE_MODE_UNSPECIFIED
-                        - BASE_REDACT_STORAGE_MODE_PLAIN
-                        - BASE_REDACT_STORAGE_MODE_MASK
-                        - BASE_REDACT_STORAGE_MODE_HASH
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_RULE
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_HIDE
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_FULL
                     type: string
-                    description: database storage method
+                    description: Handle mode
                     format: enum
-                storage_rule_id:
-                    type: string
-                    description: storage redaction rule ID
-                search_mode:
-                    enum:
-                        - BASE_REDACT_SEARCH_MODE_UNSPECIFIED
-                        - BASE_REDACT_SEARCH_MODE_NONE
-                        - BASE_REDACT_SEARCH_MODE_DIGEST
-                    type: string
-                    description: sensitive-field query method
-                    format: enum
-                status:
-                    enum:
-                        - STATUS_UNSPECIFIED
-                        - STATUS_ENABLE
-                        - STATUS_DISABLE
-                    type: string
-                    description: status
-                    format: enum
-                remark:
-                    type: string
-                    description: Remarks
-                created_at:
-                    type: string
-                    description: Create time
-                updated_at:
-                    type: string
-                    description: Update time
-            description: redaction field directory.
-        system.admin.v1.BaseRedactFieldForm:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: field catalog ID
-                message_ref:
-                    type: string
-                    description: proto message complete name
-                field_path:
-                    type: string
-                    description: field path
-                field_kind:
-                    type: string
-                    description: Proto field type
-                sensitivity_type:
-                    type: string
-                    description: sensitive-field type
-                source:
-                    type: string
-                    description: field source
-                entity_ref:
-                    type: string
-                    description: data-entity identifier
-                table_name:
-                    type: string
-                    description: database table name
-                column_name:
-                    type: string
-                    description: database field name
-                record_key_field:
-                    type: string
-                    description: business primary-key field
-                storage_mode:
-                    enum:
-                        - BASE_REDACT_STORAGE_MODE_UNSPECIFIED
-                        - BASE_REDACT_STORAGE_MODE_PLAIN
-                        - BASE_REDACT_STORAGE_MODE_MASK
-                        - BASE_REDACT_STORAGE_MODE_HASH
-                    type: string
-                    description: database storage method
-                    format: enum
-                storage_rule_id:
-                    type: string
-                    description: storage redaction rule ID
-                search_mode:
-                    enum:
-                        - BASE_REDACT_SEARCH_MODE_UNSPECIFIED
-                        - BASE_REDACT_SEARCH_MODE_NONE
-                        - BASE_REDACT_SEARCH_MODE_DIGEST
-                    type: string
-                    description: sensitive-field query method
-                    format: enum
-                status:
-                    enum:
-                        - STATUS_UNSPECIFIED
-                        - STATUS_ENABLE
-                        - STATUS_DISABLE
-                    type: string
-                    description: status
-                    format: enum
-                remark:
-                    type: string
-                    description: Remarks
-            description: redaction field form.
-        system.admin.v1.BaseRedactPolicy:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: policy Bind ID
-                field_id:
-                    type: string
-                    description: field catalog ID
-                message_ref:
-                    type: string
-                    description: proto message complete name
-                field_path:
-                    type: string
-                    description: field path
-                field_kind:
-                    type: string
-                    description: Proto field type
-                sensitivity_type:
-                    type: string
-                    description: sensitive-field type
                 rule_id:
                     type: string
-                    description: rule template ID
+                    description: rule ID
                 rule_code:
                     type: string
                     description: rule code
@@ -10385,43 +10213,19 @@ components:
                 rule_type:
                     type: string
                     description: rule type
-                rule:
+                rule_params:
                     type: string
                     description: rule parameters
-                scene_code:
+                service_name:
                     type: string
-                    description: scenario code
-                operation:
-                    type: string
-                    description: API operation
-                direction:
-                    enum:
-                        - BASE_REDACT_DIRECTION_UNSPECIFIED
-                        - BASE_REDACT_DIRECTION_REQUEST
-                        - BASE_REDACT_DIRECTION_RESPONSE
-                    type: string
-                    description: redaction direction
-                    format: enum
-                mode:
-                    enum:
-                        - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
-                        - BASE_REDACT_OUTPUT_POLICY_MODE_RULE
-                        - BASE_REDACT_OUTPUT_POLICY_MODE_HIDE
-                        - BASE_REDACT_OUTPUT_POLICY_MODE_FULL
-                    type: string
-                    description: "Handle mode: enum【Base Redact Output Policy Mode】"
-                    format: enum
-                priority:
-                    type: integer
-                    description: priority
-                    format: int32
+                    description: service name
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
                         - STATUS_ENABLE
                         - STATUS_DISABLE
                     type: string
-                    description: "status: enum【Status】"
+                    description: status
                     format: enum
                 remark:
                     type: string
@@ -10432,33 +10236,25 @@ components:
                 updated_at:
                     type: string
                     description: Update time
-            description: redaction policy.
-        system.admin.v1.BaseRedactPolicyForm:
+            description: outbound redaction policy.
+        system.admin.v1.BaseRedactOutputPolicyForm:
             type: object
             properties:
                 id:
                     type: string
-                    description: policy Bind ID
-                field_id:
-                    type: string
-                    description: field catalog ID
-                rule_id:
-                    type: string
-                    description: rule template ID
-                scene_code:
-                    type: string
-                    description: scenario code
+                    description: outbound policy ID
                 operation:
                     type: string
                     description: API operation
-                direction:
-                    enum:
-                        - BASE_REDACT_DIRECTION_UNSPECIFIED
-                        - BASE_REDACT_DIRECTION_REQUEST
-                        - BASE_REDACT_DIRECTION_RESPONSE
+                message_ref:
                     type: string
-                    description: redaction direction
-                    format: enum
+                    description: proto message complete name
+                field_path:
+                    type: string
+                    description: return field path
+                service_name:
+                    type: string
+                    description: service name
                 mode:
                     enum:
                         - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
@@ -10466,24 +10262,26 @@ components:
                         - BASE_REDACT_OUTPUT_POLICY_MODE_HIDE
                         - BASE_REDACT_OUTPUT_POLICY_MODE_FULL
                     type: string
-                    description: "Handle mode: enum【Base Redact Output Policy Mode】"
+                    description: Handle mode
                     format: enum
-                priority:
-                    type: integer
-                    description: priority
-                    format: int32
+                rule_id:
+                    type: string
+                    description: rule ID
+                rule_params:
+                    type: string
+                    description: rule parameters
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
                         - STATUS_ENABLE
                         - STATUS_DISABLE
                     type: string
-                    description: "status: enum【Status】"
+                    description: status
                     format: enum
                 remark:
                     type: string
                     description: Remarks
-            description: redaction policy form.
+            description: outbound redaction policy form.
         system.admin.v1.BaseRedactRule:
             type: object
             properties:
@@ -10550,6 +10348,87 @@ components:
                     type: string
                     description: Remarks
             description: redaction rule form.
+        system.admin.v1.BaseRedactStoragePolicy:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: inbound policy ID
+                table_name:
+                    type: string
+                    description: database table name
+                column_name:
+                    type: string
+                    description: database field name
+                rule_id:
+                    type: string
+                    description: rule ID
+                rule_code:
+                    type: string
+                    description: rule code
+                rule_name:
+                    type: string
+                    description: rule name
+                rule_type:
+                    type: string
+                    description: rule type
+                rule_params:
+                    type: string
+                    description: rule parameters
+                source_name:
+                    type: string
+                    description: data source name
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+                remark:
+                    type: string
+                    description: Remarks
+                created_at:
+                    type: string
+                    description: Create time
+                updated_at:
+                    type: string
+                    description: Update time
+            description: inbound redaction policy.
+        system.admin.v1.BaseRedactStoragePolicyForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: inbound policy ID
+                table_name:
+                    type: string
+                    description: database table name
+                column_name:
+                    type: string
+                    description: database field name
+                rule_id:
+                    type: string
+                    description: rule ID
+                rule_params:
+                    type: string
+                    description: rule parameters
+                source_name:
+                    type: string
+                    description: data source name
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+                remark:
+                    type: string
+                    description: Remarks
+            description: inbound redaction policy form.
         system.admin.v1.BaseRole:
             type: object
             properties:
@@ -11827,6 +11706,24 @@ components:
                     type: string
                     description: message ID
             description: Create message response.
+        system.admin.v1.CreateBaseRedactOutputPolicyRequest:
+            type: object
+            properties:
+                base_redact_output_policy:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactOutputPolicyForm'
+                    description: outbound redaction policy list
+            description: Create outbound redaction policy request parameters.
+        system.admin.v1.CreateBaseRedactStoragePolicyRequest:
+            type: object
+            properties:
+                base_redact_storage_policy:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactStoragePolicyForm'
+                    description: inbound redaction policy list
+            description: Create inbound redaction policy request parameters.
         system.admin.v1.DraftBaseI18nItem:
             type: object
             properties:
@@ -12696,32 +12593,19 @@ components:
                     description: total count
                     format: int32
             description: position paginated response
-        system.admin.v1.PageBaseRedactFieldResponse:
+        system.admin.v1.PageBaseRedactOutputPolicyResponse:
             type: object
             properties:
-                base_redact_fields:
+                base_redact_output_policies:
                     type: array
                     items:
-                        $ref: '#/components/schemas/system.admin.v1.BaseRedactField'
-                    description: field list
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactOutputPolicy'
+                    description: outbound redaction policy list
                 total:
                     type: integer
                     description: total count
                     format: int32
-            description: redaction field paginated response.
-        system.admin.v1.PageBaseRedactPolicyResponse:
-            type: object
-            properties:
-                base_redact_policies:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.BaseRedactPolicy'
-                    description: redaction policy list
-                total:
-                    type: integer
-                    description: total count
-                    format: int32
-            description: redaction policy paginated response.
+            description: outbound redaction policy paginated response.
         system.admin.v1.PageBaseRedactRuleResponse:
             type: object
             properties:
@@ -12735,6 +12619,19 @@ components:
                     description: total count
                     format: int32
             description: redaction rule paginated response.
+        system.admin.v1.PageBaseRedactStoragePolicyResponse:
+            type: object
+            properties:
+                base_redact_storage_policies:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactStoragePolicy'
+                    description: inbound redaction policy list
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: inbound redaction policy paginated response.
         system.admin.v1.PageBaseRoleResponse:
             type: object
             properties:
@@ -13372,12 +13269,12 @@ components:
                     description: status
                     format: int32
             description: Set position status request parameters
-        system.admin.v1.SetBaseRedactFieldStatusRequest:
+        system.admin.v1.SetBaseRedactOutputPolicyStatusRequest:
             type: object
             properties:
                 id:
                     type: string
-                    description: field catalog ID
+                    description: outbound policy ID
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -13386,22 +13283,7 @@ components:
                     type: string
                     description: status
                     format: enum
-            description: Set redaction field status request parameters.
-        system.admin.v1.SetBaseRedactPolicyStatusRequest:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: policy Bind ID
-                status:
-                    enum:
-                        - STATUS_UNSPECIFIED
-                        - STATUS_ENABLE
-                        - STATUS_DISABLE
-                    type: string
-                    description: "status: enum【Status】"
-                    format: enum
-            description: Set redaction policy status request parameters.
+            description: Set outbound redaction policy status request parameters.
         system.admin.v1.SetBaseRedactRuleStatusRequest:
             type: object
             properties:
@@ -13417,6 +13299,21 @@ components:
                     description: status
                     format: enum
             description: Set redaction rule status request parameters.
+        system.admin.v1.SetBaseRedactStoragePolicyStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: inbound policy ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+            description: Set inbound redaction policy status request parameters.
         system.admin.v1.SetBaseRoleMenuRequest:
             type: object
             properties:
@@ -13646,6 +13543,24 @@ components:
                     type: string
                     description: translated text
             description: Update single translation information request.
+        system.admin.v1.UpdateBaseRedactOutputPolicyRequest:
+            type: object
+            properties:
+                base_redact_output_policy:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactOutputPolicyForm'
+                    description: outbound redaction policy list
+            description: Update outbound redaction policy request parameters.
+        system.admin.v1.UpdateBaseRedactStoragePolicyRequest:
+            type: object
+            properties:
+                base_redact_storage_policy:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactStoragePolicyForm'
+                    description: inbound redaction policy list
+            description: Update inbound redaction policy request parameters.
         system.admin.v1.UserInfoForm:
             type: object
             properties:
@@ -13913,7 +13828,7 @@ tags:
     - name: AuthService
       description: admin user login authentication service
     - name: BaseApiLogService
-      description: API access-log service.
+      description: Admin API access log service.
     - name: BaseApiService
       description: Admin api service
     - name: BaseAreaService
@@ -13925,7 +13840,7 @@ tags:
     - name: BaseDashboardService
       description: Admin dashboard statistics service.
     - name: BaseDataAccessLogService
-      description: data access log service.
+      description: Admin data access log service.
     - name: BaseDeptService
       description: admin department service
     - name: BaseDictItemService
@@ -13937,7 +13852,7 @@ tags:
     - name: BaseFileService
       description: admin file asset management service.
     - name: BaseI18nService
-      description: internationalization translation information service.
+      description: Admin internationalization service.
     - name: BaseJobLogService
       description: admin scheduled-task log service
     - name: BaseJobService
@@ -13945,9 +13860,9 @@ tags:
     - name: BaseLanguageService
       description: admin language management service
     - name: BaseLogService
-      description: shared log aggregation query service.
+      description: Admin shared log aggregation service.
     - name: BaseLoginLogService
-      description: login log service.
+      description: Admin login log service.
     - name: BaseLoginPolicyService
       description: admin login policy management service.
     - name: BaseMenuService
@@ -13955,49 +13870,49 @@ tags:
     - name: BaseMenuService
       description: app menu service
     - name: BaseMessageCategoryService
-      description: Base Message Category Service provide message category management capabilities.
+      description: Admin message category management service.
     - name: BaseMessageService
-      description: BaseMessageService provides in-app message management.
+      description: Admin in-app messaging management service.
     - name: BaseMigrationService
-      description: database migration service
+      description: Admin database migration service.
     - name: BaseOperationLogService
-      description: business operation log service.
+      description: Admin business operation log service.
     - name: BasePermissionLogService
-      description: permission log service.
+      description: Admin permission log service.
     - name: BasePolicyEvaluationLogService
-      description: policy evaluation log service.
+      description: Admin policy evaluation log service.
     - name: BasePostService
       description: admin position management service
-    - name: BaseRedactFieldService
-      description: admin redaction field directory service.
-    - name: BaseRedactPolicyService
-      description: admin redaction policy Bind service.
+    - name: BaseRedactOutputPolicyService
+      description: Admin outbound redaction policy service.
     - name: BaseRedactRuleService
       description: admin redaction rule template service.
+    - name: BaseRedactStoragePolicyService
+      description: Admin inbound redaction policy service.
     - name: BaseRoleService
       description: admin role management service
     - name: BaseSessionService
       description: admin session management service.
     - name: BaseTableArchiveRecordService
-      description: Base Table Archive Record Service Query table archiving Execute record.
+      description: Admin table archiving execution record service.
     - name: BaseTableArchiveRestoreService
-      description: BaseTableArchiveRestoreService manually restores archived data.
+      description: Admin archived data recovery service.
     - name: BaseTableArchiveService
-      description: Base Table Archive Service management database table archive configuration.
+      description: Admin database table archiving configuration service.
     - name: BaseTableBackupRecordService
-      description: Base Table Backup Record Service Query database backup Execute record.
+      description: Admin database backup execution record service.
     - name: BaseTableBackupRestoreService
-      description: Base Table Backup Restore Service manual restore database backup.
+      description: Admin database backup recovery service.
     - name: BaseTableBackupService
-      description: Base Table Backup Service management database backup configuration.
+      description: Admin database backup configuration service.
     - name: BaseTableSourceService
-      description: BaseTableSourceService provides shared data-source metadata for database backup, data archiving, and code generation.
+      description: Admin data-source metadata service for database backup, data archiving, and code generation.
     - name: BaseTenantService
       description: admin tenant management service
     - name: BaseUserService
       description: admin user management service
     - name: CacheService
-      description: runtime when cache Query service.
+      description: Admin runtime cache query service.
     - name: CodeGenColumnService
       description: admin code-generation field service
     - name: CodeGenProtoService
@@ -14011,7 +13926,7 @@ tags:
     - name: FileService
       description: base file service
     - name: LanguageService
-      description: language shared service.
+      description: Base language service.
     - name: LoginService
       description: base login shared service
     - name: McpService
@@ -14019,18 +13934,18 @@ tags:
     - name: MfaService
       description: Base multi-factor authentication service.
     - name: NotificationService
-      description: Notification Service provides the current user's in-app message inbox.
+      description: Base notification service for the current user's inbox.
     - name: OauthClientService
-      description: OAuth client management service.
+      description: Admin OAuth client management service.
     - name: OauthClientService
-      description: OAuth client token service.
+      description: Base OAuth client token service.
     - name: OauthService
       description: base third-party login shared service
     - name: OpsMonitoringService
-      description: Operations monitoring service.
+      description: Admin operations monitoring service.
     - name: ProjectDocumentService
-      description: project document service
+      description: Admin project documentation service.
     - name: RuntimeLogService
-      description: runtime log service.
+      description: Admin runtime log service.
     - name: SseService
       description: Base sse service

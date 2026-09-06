@@ -29,7 +29,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// BaseTableSourceService 提供数据备份、数据归档和代码生成共用的数据源元数据。
+// Admin数据源元数据服务，提供数据备份、数据归档和代码生成共用的数据源信息。
 type BaseTableSourceServiceClient interface {
 	// 查询已初始化的数据源名称。
 	OptionBaseTableSource(ctx context.Context, in *OptionBaseTableSourceRequest, opts ...grpc.CallOption) (*commonv1.StringValues, error)
@@ -69,7 +69,7 @@ func (c *baseTableSourceServiceClient) OptionBaseTable(ctx context.Context, in *
 // All implementations must embed UnimplementedBaseTableSourceServiceServer
 // for forward compatibility.
 //
-// BaseTableSourceService 提供数据备份、数据归档和代码生成共用的数据源元数据。
+// Admin数据源元数据服务，提供数据备份、数据归档和代码生成共用的数据源信息。
 type BaseTableSourceServiceServer interface {
 	// 查询已初始化的数据源名称。
 	OptionBaseTableSource(context.Context, *OptionBaseTableSourceRequest) (*commonv1.StringValues, error)

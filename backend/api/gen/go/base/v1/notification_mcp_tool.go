@@ -13,7 +13,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-// RegisterNotificationServiceMCPTools 注册NotificationService 提供当前用户的站内信收件箱能力的 MCP Tool。
+// RegisterNotificationServiceMCPTools 注册Base站内信通知服务，提供当前用户的收件箱能力的 MCP Tool。
 func RegisterNotificationServiceMCPTools(mcpServer *mcp.Server, notificationServiceServer NotificationServiceServer) {
 	RegisterNotificationServicePageNotificationMCPTool(mcpServer, notificationServiceServer)
 	RegisterNotificationServiceListNotificationCategoriesMCPTool(mcpServer, notificationServiceServer)

@@ -5,7 +5,7 @@ import type { Empty } from "@liujitcn/kratos-admin-system/rpc/google/protobuf/em
 
 const BASE_REDACT_RULE_URL = "/v1/admin/base/redact-rule";
 
-/** Admin脱敏规则模板服务。 */
+/** 管理端脱敏规则模板服务。 */
 export class BaseRedactRuleServiceImpl implements BaseRedactRuleService {
   /** 查询脱敏规则选项。 */
   OptionBaseRedactRule(request: OptionBaseRedactRuleRequest = { keyword: "" }): Promise<SelectOptionResponse> { return service<OptionBaseRedactRuleRequest, SelectOptionResponse>({ url: `${BASE_REDACT_RULE_URL}/option`, method: "get", params: request }); }

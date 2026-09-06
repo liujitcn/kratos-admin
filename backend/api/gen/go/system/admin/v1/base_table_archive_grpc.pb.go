@@ -33,7 +33,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// BaseTableArchiveService 管理数据库表归档配置。
+// Admin数据库表归档配置服务。
 type BaseTableArchiveServiceClient interface {
 	// 查询表归档配置分页列表。
 	PageBaseTableArchive(ctx context.Context, in *PageBaseTableArchiveRequest, opts ...grpc.CallOption) (*PageBaseTableArchiveResponse, error)
@@ -121,7 +121,7 @@ func (c *baseTableArchiveServiceClient) SetBaseTableArchiveStatus(ctx context.Co
 // All implementations must embed UnimplementedBaseTableArchiveServiceServer
 // for forward compatibility.
 //
-// BaseTableArchiveService 管理数据库表归档配置。
+// Admin数据库表归档配置服务。
 type BaseTableArchiveServiceServer interface {
 	// 查询表归档配置分页列表。
 	PageBaseTableArchive(context.Context, *PageBaseTableArchiveRequest) (*PageBaseTableArchiveResponse, error)

@@ -12,7 +12,7 @@ import (
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-// RegisterBaseLogServiceMCPTools 注册公共日志聚合查询服务的 MCP Tool。
+// RegisterBaseLogServiceMCPTools 注册Admin公共日志聚合查询服务的 MCP Tool。
 func RegisterBaseLogServiceMCPTools(mcpServer *mcp.Server, baseLogServiceServer BaseLogServiceServer) {
 	RegisterBaseLogServiceGetBaseLogTraceMCPTool(mcpServer, baseLogServiceServer)
 }

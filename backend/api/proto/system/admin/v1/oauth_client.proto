@@ -9,7 +9,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "system/admin/v1/base_api.proto";
 
-// 开放授权客户端管理服务。
+// Admin开放授权客户端管理服务。
 service OauthClientService {
   // 查询可授权的开发接口选项。
   rpc OptionOauthClientApi(OptionOauthClientApiRequest) returns (OptionOauthClientApiResponse) {

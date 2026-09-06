@@ -27,7 +27,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// 开放授权客户端令牌服务。
+// Base开放授权客户端令牌服务。
 type OauthClientServiceClient interface {
 	// 使用客户端凭据换取访问令牌。
 	IssueOauthClientToken(ctx context.Context, in *IssueOauthClientTokenRequest, opts ...grpc.CallOption) (*IssueOauthClientTokenResponse, error)
@@ -55,7 +55,7 @@ func (c *oauthClientServiceClient) IssueOauthClientToken(ctx context.Context, in
 // All implementations must embed UnimplementedOauthClientServiceServer
 // for forward compatibility.
 //
-// 开放授权客户端令牌服务。
+// Base开放授权客户端令牌服务。
 type OauthClientServiceServer interface {
 	// 使用客户端凭据换取访问令牌。
 	IssueOauthClientToken(context.Context, *IssueOauthClientTokenRequest) (*IssueOauthClientTokenResponse, error)

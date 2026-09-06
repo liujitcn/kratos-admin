@@ -31,7 +31,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// 运行日志服务。
+// Admin运行日志服务。
 type RuntimeLogServiceClient interface {
 	// 查询可访问的历史日志文件。
 	ListRuntimeLogFiles(ctx context.Context, in *ListRuntimeLogFilesRequest, opts ...grpc.CallOption) (*ListRuntimeLogFilesResponse, error)
@@ -95,7 +95,7 @@ func (c *runtimeLogServiceClient) DownloadRuntimeLogFile(ctx context.Context, in
 // All implementations must embed UnimplementedRuntimeLogServiceServer
 // for forward compatibility.
 //
-// 运行日志服务。
+// Admin运行日志服务。
 type RuntimeLogServiceServer interface {
 	// 查询可访问的历史日志文件。
 	ListRuntimeLogFiles(context.Context, *ListRuntimeLogFilesRequest) (*ListRuntimeLogFilesResponse, error)

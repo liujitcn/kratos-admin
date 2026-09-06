@@ -36,7 +36,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// BaseMessageService 提供站内信管理能力。
+// Admin站内信管理服务。
 type BaseMessageServiceClient interface {
 	// 分页查询消息。
 	PageBaseMessage(ctx context.Context, in *PageBaseMessageRequest, opts ...grpc.CallOption) (*PageBaseMessageResponse, error)
@@ -160,7 +160,7 @@ func (c *baseMessageServiceClient) RetryBaseMessageDispatch(ctx context.Context,
 // All implementations must embed UnimplementedBaseMessageServiceServer
 // for forward compatibility.
 //
-// BaseMessageService 提供站内信管理能力。
+// Admin站内信管理服务。
 type BaseMessageServiceServer interface {
 	// 分页查询消息。
 	PageBaseMessage(context.Context, *PageBaseMessageRequest) (*PageBaseMessageResponse, error)

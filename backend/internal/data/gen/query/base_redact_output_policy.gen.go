@@ -29,6 +29,7 @@ func newBaseRedactOutputPolicy(db *gorm.DB, opts ...gen.DOOption) baseRedactOutp
 	_baseRedactOutputPolicy.ALL = field.NewAsterisk(tableName)
 	_baseRedactOutputPolicy.ID = field.NewInt64(tableName, "id")
 	_baseRedactOutputPolicy.Operation = field.NewString(tableName, "operation")
+	_baseRedactOutputPolicy.ServiceName = field.NewString(tableName, "service_name")
 	_baseRedactOutputPolicy.MessageRef = field.NewString(tableName, "message_ref")
 	_baseRedactOutputPolicy.FieldPath = field.NewString(tableName, "field_path")
 	_baseRedactOutputPolicy.Mode = field.NewInt32(tableName, "mode")
@@ -51,21 +52,22 @@ func newBaseRedactOutputPolicy(db *gorm.DB, opts ...gen.DOOption) baseRedactOutp
 type baseRedactOutputPolicy struct {
 	baseRedactOutputPolicyDo baseRedactOutputPolicyDo
 
-	ALL        field.Asterisk
-	ID         field.Int64  // 出库策略ID
-	Operation  field.String // RPC完整操作名
-	MessageRef field.String // Proto消息完整名称
-	FieldPath  field.String // Proto字段路径
-	Mode       field.Int32  // 处理模式：枚举【BaseRedactOutputPolicyMode】
-	RuleID     field.Int64  // 规则模板ID，非规则模式为0
-	RuleParams field.String // 策略规则参数
-	Status     field.Int32  // 状态：枚举【Status】
-	Remark     field.String // 备注
-	CreatedBy  field.Int64  // 创建者ID
-	UpdatedBy  field.Int64  // 更新者ID
-	CreatedAt  field.Time   // 创建时间
-	UpdatedAt  field.Time   // 更新时间
-	DeletedAt  field.Field  // 删除时间
+	ALL         field.Asterisk
+	ID          field.Int64  // 出库策略ID
+	Operation   field.String // RPC完整操作名
+	ServiceName field.String // 服务名
+	MessageRef  field.String // Proto消息完整名称
+	FieldPath   field.String // Proto字段路径
+	Mode        field.Int32  // 处理模式：枚举【BaseRedactOutputPolicyMode】
+	RuleID      field.Int64  // 规则模板ID，非规则模式为0
+	RuleParams  field.String // 策略规则参数
+	Status      field.Int32  // 状态：枚举【Status】
+	Remark      field.String // 备注
+	CreatedBy   field.Int64  // 创建者ID
+	UpdatedBy   field.Int64  // 更新者ID
+	CreatedAt   field.Time   // 创建时间
+	UpdatedAt   field.Time   // 更新时间
+	DeletedAt   field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -84,6 +86,7 @@ func (b *baseRedactOutputPolicy) updateTableName(table string) *baseRedactOutput
 	b.ALL = field.NewAsterisk(table)
 	b.ID = field.NewInt64(table, "id")
 	b.Operation = field.NewString(table, "operation")
+	b.ServiceName = field.NewString(table, "service_name")
 	b.MessageRef = field.NewString(table, "message_ref")
 	b.FieldPath = field.NewString(table, "field_path")
 	b.Mode = field.NewInt32(table, "mode")
@@ -124,9 +127,10 @@ func (b *baseRedactOutputPolicy) GetFieldByName(fieldName string) (field.OrderEx
 }
 
 func (b *baseRedactOutputPolicy) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 14)
+	b.fieldMap = make(map[string]field.Expr, 15)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["operation"] = b.Operation
+	b.fieldMap["service_name"] = b.ServiceName
 	b.fieldMap["message_ref"] = b.MessageRef
 	b.fieldMap["field_path"] = b.FieldPath
 	b.fieldMap["mode"] = b.Mode

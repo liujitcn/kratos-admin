@@ -14,7 +14,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-// NewNotificationServiceAgentTools 创建NotificationService 提供当前用户的站内信收件箱能力的 Agent Tool。
+// NewNotificationServiceAgentTools 创建Base站内信通知服务，提供当前用户的收件箱能力的 Agent Tool。
 func NewNotificationServiceAgentTools(notificationServiceServer NotificationServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error

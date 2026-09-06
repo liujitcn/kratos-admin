@@ -12,7 +12,7 @@ import (
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-// RegisterOpsMonitoringServiceMCPTools 注册运维监控服务的 MCP Tool。
+// RegisterOpsMonitoringServiceMCPTools 注册Admin运维监控服务的 MCP Tool。
 func RegisterOpsMonitoringServiceMCPTools(mcpServer *mcp.Server, opsMonitoringServiceServer OpsMonitoringServiceServer) {
 	RegisterOpsMonitoringServiceGetOpsRuntimeMCPTool(mcpServer, opsMonitoringServiceServer)
 	RegisterOpsMonitoringServiceGetOpsTrafficMCPTool(mcpServer, opsMonitoringServiceServer)

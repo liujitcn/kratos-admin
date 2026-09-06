@@ -7,7 +7,7 @@ import "common/v1/types.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 
-// BaseTableSourceService 提供数据备份、数据归档和代码生成共用的数据源元数据。
+// Admin数据源元数据服务，提供数据备份、数据归档和代码生成共用的数据源信息。
 service BaseTableSourceService {
   // 查询已初始化的数据源名称。
   rpc OptionBaseTableSource(OptionBaseTableSourceRequest) returns (.common.v1.StringValues) {

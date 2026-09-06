@@ -6,7 +6,7 @@ import "google/api/annotations.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "system/admin/v1/base_table_archive.proto";
 
-// BaseTableArchiveRecordService 查询表归档执行记录。
+// Admin表归档执行记录服务。
 service BaseTableArchiveRecordService {
   // 查询表归档记录分页列表。
   rpc PageBaseTableArchiveRecord(PageBaseTableArchiveRecordRequest) returns (PageBaseTableArchiveRecordResponse) {

@@ -13,7 +13,7 @@ import (
 	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
-// NewBasePolicyEvaluationLogServiceAgentTools 创建策略评估日志服务的 Agent Tool。
+// NewBasePolicyEvaluationLogServiceAgentTools 创建Admin策略评估日志服务的 Agent Tool。
 func NewBasePolicyEvaluationLogServiceAgentTools(basePolicyEvaluationLogServiceServer BasePolicyEvaluationLogServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error

@@ -27,7 +27,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// 语言公共服务。
+// Base语言公共服务。
 type LanguageServiceClient interface {
 	// 查询当前支持的语言选项。
 	OptionLanguage(ctx context.Context, in *OptionLanguageRequest, opts ...grpc.CallOption) (*OptionLanguageResponse, error)
@@ -55,7 +55,7 @@ func (c *languageServiceClient) OptionLanguage(ctx context.Context, in *OptionLa
 // All implementations must embed UnimplementedLanguageServiceServer
 // for forward compatibility.
 //
-// 语言公共服务。
+// Base语言公共服务。
 type LanguageServiceServer interface {
 	// 查询当前支持的语言选项。
 	OptionLanguage(context.Context, *OptionLanguageRequest) (*OptionLanguageResponse, error)

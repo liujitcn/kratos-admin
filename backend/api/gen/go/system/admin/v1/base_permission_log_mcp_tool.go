@@ -12,7 +12,7 @@ import (
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-// RegisterBasePermissionLogServiceMCPTools 注册权限日志服务的 MCP Tool。
+// RegisterBasePermissionLogServiceMCPTools 注册Admin权限日志服务的 MCP Tool。
 func RegisterBasePermissionLogServiceMCPTools(mcpServer *mcp.Server, basePermissionLogServiceServer BasePermissionLogServiceServer) {
 	RegisterBasePermissionLogServicePageBasePermissionLogMCPTool(mcpServer, basePermissionLogServiceServer)
 	RegisterBasePermissionLogServiceGetBasePermissionLogMCPTool(mcpServer, basePermissionLogServiceServer)

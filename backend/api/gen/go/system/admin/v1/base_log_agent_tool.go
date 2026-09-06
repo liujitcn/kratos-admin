@@ -13,7 +13,7 @@ import (
 	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
-// NewBaseLogServiceAgentTools 创建公共日志聚合查询服务的 Agent Tool。
+// NewBaseLogServiceAgentTools 创建Admin公共日志聚合查询服务的 Agent Tool。
 func NewBaseLogServiceAgentTools(baseLogServiceServer BaseLogServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error

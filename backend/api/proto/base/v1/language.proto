@@ -5,7 +5,7 @@ package base.v1;
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 
-// 语言公共服务。
+// Base语言公共服务。
 service LanguageService {
   // 查询当前支持的语言选项。
   rpc OptionLanguage(OptionLanguageRequest) returns (OptionLanguageResponse) {

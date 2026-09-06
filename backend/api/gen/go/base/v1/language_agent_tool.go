@@ -13,7 +13,7 @@ import (
 	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
-// NewLanguageServiceAgentTools 创建语言公共服务的 Agent Tool。
+// NewLanguageServiceAgentTools 创建Base语言公共服务的 Agent Tool。
 func NewLanguageServiceAgentTools(languageServiceServer LanguageServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error

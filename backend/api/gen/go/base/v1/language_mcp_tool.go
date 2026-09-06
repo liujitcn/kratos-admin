@@ -12,7 +12,7 @@ import (
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-// RegisterLanguageServiceMCPTools 注册语言公共服务的 MCP Tool。
+// RegisterLanguageServiceMCPTools 注册Base语言公共服务的 MCP Tool。
 func RegisterLanguageServiceMCPTools(mcpServer *mcp.Server, languageServiceServer LanguageServiceServer) {
 	RegisterLanguageServiceOptionLanguageMCPTool(mcpServer, languageServiceServer)
 }

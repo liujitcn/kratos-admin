@@ -6,7 +6,7 @@ import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 
-// 开放授权客户端令牌服务。
+// Base开放授权客户端令牌服务。
 service OauthClientService {
   // 使用客户端凭据换取访问令牌。
   rpc IssueOauthClientToken(IssueOauthClientTokenRequest) returns (IssueOauthClientTokenResponse) {

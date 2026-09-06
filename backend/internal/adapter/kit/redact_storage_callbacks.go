@@ -23,9 +23,10 @@ const (
 var storageRuntimeValue atomic.Pointer[storageRuntime]
 
 type storageRuntime struct {
-	storage  *redact.RedactStorage
-	resolver *RedactPolicyResolver
-	store    *storageValueStore
+	defaultDialector gorm.Dialector
+	storage          *redact.RedactStorage
+	resolver         *RedactPolicyResolver
+	store            *storageValueStore
 }
 
 type storageDigestResolver interface {
@@ -59,14 +60,19 @@ func init() {
 }
 
 // NewStorageRuntime 创建并注册当前 Admin 的敏感字段存储运行时。
-func NewStorageRuntime(store *storageValueStore, resolver *RedactPolicyResolver, protector *redact.StorageProtector) *redact.RedactStorage {
+func NewStorageRuntime(defaultDB *gorm.DB, store *storageValueStore, resolver *RedactPolicyResolver, protector *redact.StorageProtector) *redact.RedactStorage {
 	storage := redact.NewRedactStorage(store, resolver, protector, gormEntityFieldAccessor{})
-	storageRuntimeValue.Store(&storageRuntime{storage: storage, resolver: resolver, store: store})
+	var defaultDialector gorm.Dialector
+	if defaultDB != nil {
+		defaultDialector = defaultDB.Dialector
+	}
+	storageRuntimeValue.Store(&storageRuntime{defaultDialector: defaultDialector, storage: storage, resolver: resolver, store: store})
 	return storage
 }
 
 // NewRedactRuntime 创建 Admin 脱敏策略运行时并注册存储回调。
 func NewRedactRuntime(
+	defaultDB *gorm.DB,
 	storagePolicyRepository *data.BaseRedactStoragePolicyRepository,
 	outputPolicyRepository *data.BaseRedactOutputPolicyRepository,
 	ruleRepository *data.BaseRedactRuleRepository,
@@ -78,7 +84,7 @@ func NewRedactRuntime(
 	if err != nil {
 		return nil, err
 	}
-	NewStorageRuntime(store, resolver, protector)
+	NewStorageRuntime(defaultDB, store, resolver, protector)
 	redact.SetDefaultPolicyResolver(resolver)
 	return resolver, nil
 }
@@ -87,6 +93,9 @@ func NewRedactRuntime(
 func rewriteStorageQuery(db *gorm.DB) {
 	runtime := storageRuntimeValue.Load()
 	if runtime == nil || runtime.storage == nil || runtime.resolver == nil || db == nil || db.Statement == nil || db.Error != nil {
+		return
+	}
+	if !runtime.isDefaultDatabase(db) {
 		return
 	}
 	if isRedactMetadataTable(db.Statement.Table) || db.Statement.Schema == nil || db.Statement.Schema.PrioritizedPrimaryField == nil {
@@ -256,6 +265,9 @@ func prepareStorageEntities(db *gorm.DB, creating bool) {
 	if runtime == nil || runtime.storage == nil || runtime.resolver == nil || db == nil || db.Statement == nil || db.Error != nil {
 		return
 	}
+	if !runtime.isDefaultDatabase(db) {
+		return
+	}
 	policies := runtime.resolver.ListStoragePolicies(db.Statement.Context, db.Statement.Table)
 	if len(policies) == 0 {
 		return
@@ -392,6 +404,9 @@ func saveStorageValues(db *gorm.DB) {
 	if runtime == nil || runtime.store == nil || db == nil || db.Statement == nil || db.Error != nil {
 		return
 	}
+	if !runtime.isDefaultDatabase(db) {
+		return
+	}
 	value, ok := db.InstanceGet(storagePreparedStateKey)
 	if !ok {
 		return
@@ -437,6 +452,9 @@ func captureStorageDelete(db *gorm.DB) {
 	if runtime == nil || runtime.resolver == nil || db == nil || db.Statement == nil || db.Error != nil {
 		return
 	}
+	if !runtime.isDefaultDatabase(db) {
+		return
+	}
 	policies := runtime.resolver.ListStoragePolicies(db.Statement.Context, db.Statement.Table)
 	if len(policies) == 0 {
 		return
@@ -471,6 +489,9 @@ func deleteStorageValues(db *gorm.DB) {
 	if runtime == nil || runtime.store == nil || db == nil || db.Statement == nil || db.Error != nil {
 		return
 	}
+	if !runtime.isDefaultDatabase(db) {
+		return
+	}
 	value, ok := db.InstanceGet(storageDeleteStateKey)
 	if !ok {
 		return
@@ -498,6 +519,9 @@ func materializeStorageResponse(db *gorm.DB) {
 	if runtime == nil || runtime.storage == nil || runtime.resolver == nil || db == nil || db.Statement == nil || db.Error != nil {
 		return
 	}
+	if !runtime.isDefaultDatabase(db) {
+		return
+	}
 	if isRedactMetadataTable(db.Statement.Table) {
 		return
 	}
@@ -523,6 +547,30 @@ func materializeStorageResponse(db *gorm.DB) {
 	if err != nil {
 		db.AddError(err)
 	}
+}
+
+// isDefaultDatabase 判断当前 GORM 会话是否来自默认数据源。
+func (r *storageRuntime) isDefaultDatabase(db *gorm.DB) bool {
+	if r == nil || r.defaultDialector == nil || db == nil || db.Dialector == nil {
+		return false
+	}
+	return sameDialector(r.defaultDialector, db.Dialector)
+}
+
+// sameDialector 比较 GORM 会话复用的底层数据库方言实例。
+func sameDialector(left, right gorm.Dialector) bool {
+	if left == nil || right == nil {
+		return false
+	}
+	leftValue := reflect.ValueOf(left)
+	rightValue := reflect.ValueOf(right)
+	if leftValue.Type() != rightValue.Type() {
+		return false
+	}
+	if leftValue.Kind() == reflect.Pointer {
+		return leftValue.Pointer() == rightValue.Pointer()
+	}
+	return reflect.DeepEqual(left, right)
 }
 
 // isRedactMetadataTable 判断查询是否来自脱敏配置和旁表元数据。

@@ -16,7 +16,7 @@ require (
 	github.com/liujitcn/go-utils/http v0.0.7
 	github.com/liujitcn/gorm-kit v0.0.34
 	github.com/liujitcn/kratos-admin/backend/api v0.0.6
-	github.com/liujitcn/kratos-core v0.0.26
+	github.com/liujitcn/kratos-core v0.0.27
 	github.com/liujitcn/kratos-core/api v0.0.4
 	github.com/liujitcn/kratos-kit v0.0.84
 	github.com/liujitcn/kratos-kit/api v0.0.36

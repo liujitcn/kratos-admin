@@ -12,7 +12,7 @@ import (
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-// RegisterBaseOperationLogServiceMCPTools 注册业务操作日志服务的 MCP Tool。
+// RegisterBaseOperationLogServiceMCPTools 注册Admin业务操作日志服务的 MCP Tool。
 func RegisterBaseOperationLogServiceMCPTools(mcpServer *mcp.Server, baseOperationLogServiceServer BaseOperationLogServiceServer) {
 	RegisterBaseOperationLogServicePageBaseOperationLogMCPTool(mcpServer, baseOperationLogServiceServer)
 	RegisterBaseOperationLogServiceGetBaseOperationLogMCPTool(mcpServer, baseOperationLogServiceServer)

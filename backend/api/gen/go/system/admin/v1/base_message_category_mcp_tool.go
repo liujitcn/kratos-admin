@@ -14,7 +14,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-// RegisterBaseMessageCategoryServiceMCPTools 注册BaseMessageCategoryService 提供消息分类管理能力的 MCP Tool。
+// RegisterBaseMessageCategoryServiceMCPTools 注册Admin消息分类管理服务的 MCP Tool。
 func RegisterBaseMessageCategoryServiceMCPTools(mcpServer *mcp.Server, baseMessageCategoryServiceServer BaseMessageCategoryServiceServer) {
 	RegisterBaseMessageCategoryServiceOptionBaseMessageCategoryMCPTool(mcpServer, baseMessageCategoryServiceServer)
 	RegisterBaseMessageCategoryServicePageBaseMessageCategoryMCPTool(mcpServer, baseMessageCategoryServiceServer)

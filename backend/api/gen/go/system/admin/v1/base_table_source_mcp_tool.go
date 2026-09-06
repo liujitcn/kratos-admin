@@ -13,7 +13,7 @@ import (
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-// RegisterBaseTableSourceServiceMCPTools 注册BaseTableSourceService 提供数据备份、数据归档和代码生成共用的数据源元数据的 MCP Tool。
+// RegisterBaseTableSourceServiceMCPTools 注册Admin数据源元数据服务，提供数据备份、数据归档和代码生成共用的数据源信息的 MCP Tool。
 func RegisterBaseTableSourceServiceMCPTools(mcpServer *mcp.Server, baseTableSourceServiceServer BaseTableSourceServiceServer) {
 	RegisterBaseTableSourceServiceOptionBaseTableSourceMCPTool(mcpServer, baseTableSourceServiceServer)
 	RegisterBaseTableSourceServiceOptionBaseTableMCPTool(mcpServer, baseTableSourceServiceServer)

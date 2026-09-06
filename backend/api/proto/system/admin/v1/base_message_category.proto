@@ -10,7 +10,7 @@ import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
-// BaseMessageCategoryService 提供消息分类管理能力。
+// Admin消息分类管理服务。
 service BaseMessageCategoryService {
   // 查询消息分类选项。
   rpc OptionBaseMessageCategory(OptionBaseMessageCategoryRequest) returns (.common.v1.SelectOptionResponse) { option (google.api.http) = {get: "/api/v1/admin/base/message-category/option"}; }

@@ -12,7 +12,7 @@ import (
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-// RegisterBaseDataAccessLogServiceMCPTools 注册数据访问日志服务的 MCP Tool。
+// RegisterBaseDataAccessLogServiceMCPTools 注册Admin数据访问日志服务的 MCP Tool。
 func RegisterBaseDataAccessLogServiceMCPTools(mcpServer *mcp.Server, baseDataAccessLogServiceServer BaseDataAccessLogServiceServer) {
 	RegisterBaseDataAccessLogServicePageBaseDataAccessLogMCPTool(mcpServer, baseDataAccessLogServiceServer)
 	RegisterBaseDataAccessLogServiceGetBaseDataAccessLogMCPTool(mcpServer, baseDataAccessLogServiceServer)

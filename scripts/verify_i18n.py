@@ -41,6 +41,8 @@ OPENAPI_LOCALIZED_FIELD_PATTERN = re.compile(
     r"^(?P<indent>\s*)(?P<field>description|summary|title):(?:\s.*)?$"
 )
 OPENAPI_REQUIRED_MARKERS = ("openapi:", "info:", "paths:", "components:", "tags:")
+OPENAPI_CJK_PATTERN = re.compile(r"[一-龥]")
+OPENAPI_JA_UNTRANSLATED_TERMS = ("出库", "入库")
 SQL_SOURCE_LOCALE = "en-US"
 SOURCE_LOCALE = DEFAULT_LOCALE
 
@@ -240,6 +242,27 @@ def verify_openapi(target_locales: list[str]) -> None:
             raise VerificationError(
                 f"OpenAPI {locale} 文档与源文档结构不一致，请执行 make i18n-openapi: {path}"
             )
+        localized_fields = [
+            line
+            for line in text.splitlines()
+            if OPENAPI_LOCALIZED_FIELD_PATTERN.fullmatch(line)
+        ]
+        if locale == "en-US":
+            residual = [line.strip() for line in localized_fields if OPENAPI_CJK_PATTERN.search(line)]
+            if residual:
+                raise VerificationError(
+                    f"OpenAPI {locale} 文案仍包含中文，请补充本地化术语: {path}: {residual[:3]}"
+                )
+        if locale == "ja-JP":
+            residual = [
+                line.strip()
+                for line in localized_fields
+                if any(term in line for term in OPENAPI_JA_UNTRANSLATED_TERMS)
+            ]
+            if residual:
+                raise VerificationError(
+                    f"OpenAPI {locale} 文案仍包含简体中文术语，请补充本地化术语: {path}: {residual[:3]}"
+                )
 
 
 def comparable_catalog(
@@ -305,6 +328,10 @@ def verify_docs(target_locales: list[str]) -> None:
                 raise VerificationError(f"项目文档 {locale} 的更新时间未同步: {path}")
             if not isinstance(localized_document.get("content"), str):
                 raise VerificationError(f"项目文档 {locale} 的内容不是字符串: {path}")
+            if localized_document["content"] == source_document["content"] and source_document["content"].strip():
+                raise VerificationError(
+                    f"项目文档 {locale} 未翻译: {document_path}，请重新执行 make i18n-docs"
+                )
 
 
 def main() -> int:

@@ -28,7 +28,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// BaseTableArchiveRecordService 查询表归档执行记录。
+// Admin表归档执行记录服务。
 type BaseTableArchiveRecordServiceClient interface {
 	// 查询表归档记录分页列表。
 	PageBaseTableArchiveRecord(ctx context.Context, in *PageBaseTableArchiveRecordRequest, opts ...grpc.CallOption) (*PageBaseTableArchiveRecordResponse, error)
@@ -68,7 +68,7 @@ func (c *baseTableArchiveRecordServiceClient) GetBaseTableArchiveRecord(ctx cont
 // All implementations must embed UnimplementedBaseTableArchiveRecordServiceServer
 // for forward compatibility.
 //
-// BaseTableArchiveRecordService 查询表归档执行记录。
+// Admin表归档执行记录服务。
 type BaseTableArchiveRecordServiceServer interface {
 	// 查询表归档记录分页列表。
 	PageBaseTableArchiveRecord(context.Context, *PageBaseTableArchiveRecordRequest) (*PageBaseTableArchiveRecordResponse, error)

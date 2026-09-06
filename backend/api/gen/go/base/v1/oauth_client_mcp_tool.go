@@ -12,7 +12,7 @@ import (
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-// RegisterOauthClientServiceMCPTools 注册开放授权客户端令牌服务的 MCP Tool。
+// RegisterOauthClientServiceMCPTools 注册Base开放授权客户端令牌服务的 MCP Tool。
 func RegisterOauthClientServiceMCPTools(mcpServer *mcp.Server, oauthClientServiceServer OauthClientServiceServer) {
 	RegisterOauthClientServiceIssueOauthClientTokenMCPTool(mcpServer, oauthClientServiceServer)
 }

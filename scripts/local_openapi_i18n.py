@@ -6,6 +6,35 @@ import re
 
 
 EN_EXACT = {
+    "Admin API访问日志服务。": "Admin API access log service.",
+    "Admin数据访问日志服务。": "Admin data access log service.",
+    "Admin国际化翻译信息服务。": "Admin internationalization service.",
+    "Admin公共日志聚合查询服务。": "Admin shared log aggregation service.",
+    "Admin登录日志服务。": "Admin login log service.",
+    "Admin数据库迁移服务。": "Admin database migration service.",
+    "Admin业务操作日志服务。": "Admin business operation log service.",
+    "Admin权限日志服务。": "Admin permission log service.",
+    "Admin策略评估日志服务。": "Admin policy evaluation log service.",
+    "Admin站内信管理服务。": "Admin in-app messaging management service.",
+    "Admin消息分类管理服务。": "Admin message category management service.",
+    "Admin出库脱敏策略服务。": "Admin outbound redaction policy service.",
+    "Admin入库脱敏策略服务。": "Admin inbound redaction policy service.",
+    "Admin数据库表归档配置服务。": "Admin database table archiving configuration service.",
+    "Admin表归档执行记录服务。": "Admin table archiving execution record service.",
+    "Admin归档数据恢复服务。": "Admin archived data recovery service.",
+    "Admin数据库备份配置服务。": "Admin database backup configuration service.",
+    "Admin数据库备份执行记录服务。": "Admin database backup execution record service.",
+    "Admin数据库备份恢复服务。": "Admin database backup recovery service.",
+    "Admin数据源元数据服务，提供数据备份、数据归档和代码生成共用的数据源信息。":
+        "Admin data-source metadata service for database backup, data archiving, and code generation.",
+    "Admin运行时缓存查询服务。": "Admin runtime cache query service.",
+    "Admin开放授权客户端管理服务。": "Admin OAuth client management service.",
+    "Admin运维监控服务。": "Admin operations monitoring service.",
+    "Admin项目文档服务。": "Admin project documentation service.",
+    "Admin运行日志服务。": "Admin runtime log service.",
+    "Base语言公共服务。": "Base language service.",
+    "Base站内信通知服务，提供当前用户的收件箱能力。": "Base notification service for the current user's inbox.",
+    "Base开放授权客户端令牌服务。": "Base OAuth client token service.",
     "撤销当前用户全部会话。": "Revoke all sessions for the current user.",
     "汇总用户注册数据": "Aggregate user registration data",
     "查询当前进程运行信息。": "Query current process runtime information.",
@@ -126,6 +155,38 @@ EN_EXACT = {
 
 
 JA_EXACT = {
+    "Base AI 助手工具服务": "Base AI アシスタントツールサービス",
+    "Admin首页业务统计服务。": "Adminダッシュボード統計サービス。",
+    "Admin脱敏规则模板服务。": "Adminマスキングルールテンプレートサービス。",
+    "Admin API访问日志服务。": "Admin APIアクセスログサービス。",
+    "Admin数据访问日志服务。": "Adminデータアクセスログサービス。",
+    "Admin国际化翻译信息服务。": "Admin国際化サービス。",
+    "Admin公共日志聚合查询服务。": "Admin共通ログ集約サービス。",
+    "Admin登录日志服务。": "Adminログインログサービス。",
+    "Admin数据库迁移服务。": "Adminデータベース移行サービス。",
+    "Admin业务操作日志服务。": "Admin業務操作ログサービス。",
+    "Admin权限日志服务。": "Admin権限ログサービス。",
+    "Admin策略评估日志服务。": "Adminポリシー評価ログサービス。",
+    "Admin站内信管理服务。": "Adminアプリ内メッセージ管理サービス。",
+    "Admin消息分类管理服务。": "Adminメッセージカテゴリ管理サービス。",
+    "Admin出库脱敏策略服务。": "Admin出力マスキングポリシーサービス。",
+    "Admin入库脱敏策略服务。": "Admin保存時マスキングポリシーサービス。",
+    "Admin数据库表归档配置服务。": "Adminデータベーステーブルアーカイブ設定サービス。",
+    "Admin表归档执行记录服务。": "Adminテーブルアーカイブ実行記録サービス。",
+    "Admin归档数据恢复服务。": "Adminアーカイブデータ復元サービス。",
+    "Admin数据库备份配置服务。": "Adminデータベースバックアップ設定サービス。",
+    "Admin数据库备份执行记录服务。": "Adminデータベースバックアップ実行記録サービス。",
+    "Admin数据库备份恢复服务。": "Adminデータベースバックアップ復元サービス。",
+    "Admin数据源元数据服务，提供数据备份、数据归档和代码生成共用的数据源信息。":
+        "Adminデータソースメタデータサービス。データベースバックアップ、データアーカイブ、コード生成で共有するデータソース情報を提供します。",
+    "Admin运行时缓存查询服务。": "Adminランタイムキャッシュ検索サービス。",
+    "Admin开放授权客户端管理服务。": "Admin OAuthクライアント管理サービス。",
+    "Admin运维监控服务。": "Admin運用監視サービス。",
+    "Admin项目文档服务。": "Adminプロジェクトドキュメントサービス。",
+    "Admin运行日志服务。": "Adminランタイムログサービス。",
+    "Base语言公共服务。": "Base言語サービス。",
+    "Base站内信通知服务，提供当前用户的收件箱能力。": "Base通知サービス。現在のユーザーの受信トレイを提供します。",
+    "Base开放授权客户端令牌服务。": "Base OAuthクライアントトークンサービス。",
     "消息生成状态：枚举【AiMessageStatus】": "メッセージ生成ステータス: enum [AiMessageStatus]",
     "单文件上传请求参数": "単一ファイルアップロードのリクエストパラメータ",
     "操作方法": "操作メソッド",
@@ -248,6 +309,8 @@ JA_EXACT = {
 
 
 EN_TERMS = {
+    "出库": "outbound",
+    "入库": "inbound",
     "已经登录的用户": "authenticated user",
     "个人中心": "profile",
     "数据库升级历史": "database upgrade history",
@@ -1291,6 +1354,8 @@ EN_TERMS.update(
 
 
 JA_TERMS = {
+    "出库": "出力",
+    "入库": "保存",
     "树": "ツリー",
     "信息": "情報",
     "数据": "データ",

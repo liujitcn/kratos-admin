@@ -13,7 +13,7 @@ import (
 	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
-// NewOpsMonitoringServiceAgentTools 创建运维监控服务的 Agent Tool。
+// NewOpsMonitoringServiceAgentTools 创建Admin运维监控服务的 Agent Tool。
 func NewOpsMonitoringServiceAgentTools(opsMonitoringServiceServer OpsMonitoringServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error

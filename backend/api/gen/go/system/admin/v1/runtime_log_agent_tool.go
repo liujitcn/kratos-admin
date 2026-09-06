@@ -14,7 +14,7 @@ import (
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 )
 
-// NewRuntimeLogServiceAgentTools 创建运行日志服务的 Agent Tool。
+// NewRuntimeLogServiceAgentTools 创建Admin运行日志服务的 Agent Tool。
 func NewRuntimeLogServiceAgentTools(runtimeLogServiceServer RuntimeLogServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error

@@ -13,7 +13,7 @@ import (
 	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
-// NewBaseApiLogServiceAgentTools 创建API 访问日志服务的 Agent Tool。
+// NewBaseApiLogServiceAgentTools 创建Admin API访问日志服务的 Agent Tool。
 func NewBaseApiLogServiceAgentTools(baseApiLogServiceServer BaseApiLogServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error

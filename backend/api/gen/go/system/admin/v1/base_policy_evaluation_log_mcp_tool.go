@@ -12,7 +12,7 @@ import (
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-// RegisterBasePolicyEvaluationLogServiceMCPTools 注册策略评估日志服务的 MCP Tool。
+// RegisterBasePolicyEvaluationLogServiceMCPTools 注册Admin策略评估日志服务的 MCP Tool。
 func RegisterBasePolicyEvaluationLogServiceMCPTools(mcpServer *mcp.Server, basePolicyEvaluationLogServiceServer BasePolicyEvaluationLogServiceServer) {
 	RegisterBasePolicyEvaluationLogServicePageBasePolicyEvaluationLogMCPTool(mcpServer, basePolicyEvaluationLogServiceServer)
 	RegisterBasePolicyEvaluationLogServiceGetBasePolicyEvaluationLogMCPTool(mcpServer, basePolicyEvaluationLogServiceServer)

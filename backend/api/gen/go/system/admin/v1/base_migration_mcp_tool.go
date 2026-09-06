@@ -12,7 +12,7 @@ import (
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-// RegisterBaseMigrationServiceMCPTools 注册数据库迁移服务的 MCP Tool。
+// RegisterBaseMigrationServiceMCPTools 注册Admin数据库迁移服务的 MCP Tool。
 func RegisterBaseMigrationServiceMCPTools(mcpServer *mcp.Server, baseMigrationServiceServer BaseMigrationServiceServer) {
 	RegisterBaseMigrationServicePageBaseMigrationMCPTool(mcpServer, baseMigrationServiceServer)
 	RegisterBaseMigrationServiceGetBaseMigrationMCPTool(mcpServer, baseMigrationServiceServer)

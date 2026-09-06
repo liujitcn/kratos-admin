@@ -13,7 +13,7 @@ import (
 	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
-// NewBaseMigrationServiceAgentTools 创建数据库迁移服务的 Agent Tool。
+// NewBaseMigrationServiceAgentTools 创建Admin数据库迁移服务的 Agent Tool。
 func NewBaseMigrationServiceAgentTools(baseMigrationServiceServer BaseMigrationServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error

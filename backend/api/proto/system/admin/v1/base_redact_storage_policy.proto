@@ -1,0 +1,96 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "common/v1/enum.proto";
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// Admin入库脱敏策略服务。
+service BaseRedactStoragePolicyService {
+  // 查询入库脱敏策略分页列表。
+  rpc PageBaseRedactStoragePolicy(PageBaseRedactStoragePolicyRequest) returns (PageBaseRedactStoragePolicyResponse) { option (google.api.http) = {get: "/api/v1/admin/base/redact-storage-policy"}; }
+  // 查询入库脱敏策略详情。
+  rpc GetBaseRedactStoragePolicy(GetBaseRedactStoragePolicyRequest) returns (BaseRedactStoragePolicyForm) { option (google.api.http) = {get: "/api/v1/admin/base/redact-storage-policy/{id}"}; }
+  // 批量创建入库脱敏策略。
+  rpc CreateBaseRedactStoragePolicy(CreateBaseRedactStoragePolicyRequest) returns (google.protobuf.Empty) { option (google.api.http) = {post: "/api/v1/admin/base/redact-storage-policy", body: "*"}; }
+  // 批量更新入库脱敏策略。
+  rpc UpdateBaseRedactStoragePolicy(UpdateBaseRedactStoragePolicyRequest) returns (google.protobuf.Empty) { option (google.api.http) = {put: "/api/v1/admin/base/redact-storage-policy", body: "*"}; }
+  // 删除入库脱敏策略。
+  rpc DeleteBaseRedactStoragePolicy(DeleteBaseRedactStoragePolicyRequest) returns (google.protobuf.Empty) { option (google.api.http) = {delete: "/api/v1/admin/base/redact-storage-policy/{id}"}; }
+  // 设置入库脱敏策略状态。
+  rpc SetBaseRedactStoragePolicyStatus(SetBaseRedactStoragePolicyStatusRequest) returns (google.protobuf.Empty) { option (google.api.http) = {put: "/api/v1/admin/base/redact-storage-policy/{id}/status", body: "*"}; }
+}
+
+// 入库脱敏策略分页查询条件。
+message PageBaseRedactStoragePolicyRequest {
+  string table_name = 1 [(gnostic.openapi.v3.property) = {description: "数据库表名"}]; // 数据库表名
+  string column_name = 2 [(gnostic.openapi.v3.property) = {description: "数据库字段名"}]; // 数据库字段名
+  optional int64 rule_id = 3 [(gnostic.openapi.v3.property) = {description: "规则ID"}]; // 规则ID
+  string source_name = 4 [(gnostic.openapi.v3.property) = {description: "数据源名称"}]; // 数据源名称
+  optional .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页数量", default: {number: 10}}]; // 每页数量
+}
+
+// 入库脱敏策略分页响应。
+message PageBaseRedactStoragePolicyResponse {
+  repeated BaseRedactStoragePolicy base_redact_storage_policies = 1 [(gnostic.openapi.v3.property) = {description: "入库脱敏策略列表"}]; // 入库脱敏策略列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 入库脱敏策略详情查询条件。
+message GetBaseRedactStoragePolicyRequest { int64 id = 1 [(gnostic.openapi.v3.property) = {description: "入库策略ID"}, (buf.validate.field).cel = {id: "system.admin.base.redact.storage_policy.get.id.required" message: "入库策略ID不能为空" expression: "this > 0"}]; } // 入库策略ID
+
+// 入库脱敏策略表单。
+message BaseRedactStoragePolicyForm {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "入库策略ID"}]; // 入库策略ID
+  string table_name = 2 [(gnostic.openapi.v3.property) = {description: "数据库表名"}, (buf.validate.field).cel = {id: "system.admin.base.redact.storage_policy.table_name.required" message: "数据库表名不能为空且格式不正确" expression: "this.size() > 0 && this.size() <= 128 && this.matches('^[a-z][a-z0-9_]*$')"}]; // 数据库表名
+  string column_name = 3 [(gnostic.openapi.v3.property) = {description: "数据库字段名"}, (buf.validate.field).cel = {id: "system.admin.base.redact.storage_policy.column_name.required" message: "数据库字段名不能为空且格式不正确" expression: "this.size() > 0 && this.size() <= 128 && this.matches('^[a-z][a-z0-9_]*$')"}]; // 数据库字段名
+  int64 rule_id = 4 [(gnostic.openapi.v3.property) = {description: "规则ID"}, (buf.validate.field).cel = {id: "system.admin.base.redact.storage_policy.rule_id.required" message: "请选择脱敏规则" expression: "this > 0"}]; // 规则ID
+  string rule_params = 5 [(gnostic.openapi.v3.property) = {description: "规则参数"}, (buf.validate.field).cel = {id: "system.admin.base.redact.storage_policy.rule_params.required" message: "规则参数不能为空" expression: "this.size() > 0"}]; // 规则参数
+  string source_name = 6 [(gnostic.openapi.v3.property) = {description: "数据源名称"}, (buf.validate.field).cel = {id: "system.admin.base.redact.storage_policy.source_name.required" message: "数据源名称不能为空且不能超过64个字符" expression: "this.size() > 0 && this.size() <= 64"}]; // 数据源名称
+  .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+  string remark = 101 [(gnostic.openapi.v3.property) = {description: "备注"}, (buf.validate.field).cel = {id: "system.admin.base.redact.storage_policy.remark.length" message: "备注不能超过500个字符" expression: "this.size() <= 500"}]; // 备注
+}
+
+// 创建入库脱敏策略请求参数。
+message CreateBaseRedactStoragePolicyRequest {
+  repeated BaseRedactStoragePolicyForm base_redact_storage_policy = 1 [
+    (gnostic.openapi.v3.property) = {description: "入库脱敏策略列表"},
+    (buf.validate.field).cel = {id: "system.admin.base.redact.storage_policy.create.list.required" message: "入库脱敏策略列表不能为空" expression: "this.size() > 0"}
+  ]; // 入库脱敏策略列表
+}
+// 更新入库脱敏策略请求参数。
+message UpdateBaseRedactStoragePolicyRequest {
+  repeated BaseRedactStoragePolicyForm base_redact_storage_policy = 1 [
+    (gnostic.openapi.v3.property) = {description: "入库脱敏策略列表"},
+    (buf.validate.field).cel = {id: "system.admin.base.redact.storage_policy.update.list.required" message: "入库脱敏策略列表不能为空" expression: "this.size() > 0"}
+  ]; // 入库脱敏策略列表
+}
+// 删除入库脱敏策略请求参数。
+message DeleteBaseRedactStoragePolicyRequest { string id = 1 [(gnostic.openapi.v3.property) = {description: "入库策略ID列表"}, (buf.validate.field).cel = {id: "system.admin.base.redact.storage_policy.delete.id.required" message: "入库策略ID列表不能为空" expression: "this.size() > 0"}]; } // 入库策略ID列表
+// 设置入库脱敏策略状态请求参数。
+message SetBaseRedactStoragePolicyStatusRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "入库策略ID"}, (buf.validate.field).cel = {id: "system.admin.base.redact.storage_policy.status.id.required" message: "入库策略ID不能为空" expression: "this > 0"}]; // 入库策略ID
+  .common.v1.Status status = 2 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+}
+
+// 入库脱敏策略。
+message BaseRedactStoragePolicy {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "入库策略ID"}]; // 入库策略ID
+  string table_name = 2 [(gnostic.openapi.v3.property) = {description: "数据库表名"}]; // 数据库表名
+  string column_name = 3 [(gnostic.openapi.v3.property) = {description: "数据库字段名"}]; // 数据库字段名
+  int64 rule_id = 4 [(gnostic.openapi.v3.property) = {description: "规则ID"}]; // 规则ID
+  string rule_code = 5 [(gnostic.openapi.v3.property) = {description: "规则编码"}]; // 规则编码
+  string rule_name = 6 [(gnostic.openapi.v3.property) = {description: "规则名称"}]; // 规则名称
+  string rule_type = 7 [(gnostic.openapi.v3.property) = {description: "规则类型"}]; // 规则类型
+  string rule_params = 8 [(gnostic.openapi.v3.property) = {description: "规则参数"}]; // 规则参数
+  string source_name = 9 [(gnostic.openapi.v3.property) = {description: "数据源名称"}]; // 数据源名称
+  .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+  string remark = 101 [(gnostic.openapi.v3.property) = {description: "备注"}]; // 备注
+  string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+  string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+}

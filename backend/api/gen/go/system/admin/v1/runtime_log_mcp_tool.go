@@ -13,7 +13,7 @@ import (
 	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 )
 
-// RegisterRuntimeLogServiceMCPTools 注册运行日志服务的 MCP Tool。
+// RegisterRuntimeLogServiceMCPTools 注册Admin运行日志服务的 MCP Tool。
 func RegisterRuntimeLogServiceMCPTools(mcpServer *mcp.Server, runtimeLogServiceServer RuntimeLogServiceServer) {
 	RegisterRuntimeLogServiceListRuntimeLogFilesMCPTool(mcpServer, runtimeLogServiceServer)
 	RegisterRuntimeLogServiceReadRuntimeLogFileMCPTool(mcpServer, runtimeLogServiceServer)

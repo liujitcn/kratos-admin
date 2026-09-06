@@ -6,7 +6,7 @@ import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 
-// 运行时缓存查询服务。
+// Admin运行时缓存查询服务。
 service CacheService {
   // 分页查询当前进程已观测到的缓存条目。
   rpc PageCache(PageCacheRequest) returns (PageCacheResponse) {

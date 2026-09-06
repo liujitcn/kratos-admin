@@ -14,7 +14,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-// NewBaseTableBackupServiceAgentTools 创建BaseTableBackupService 管理数据库备份配置的 Agent Tool。
+// NewBaseTableBackupServiceAgentTools 创建Admin数据库备份配置服务的 Agent Tool。
 func NewBaseTableBackupServiceAgentTools(baseTableBackupServiceServer BaseTableBackupServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error

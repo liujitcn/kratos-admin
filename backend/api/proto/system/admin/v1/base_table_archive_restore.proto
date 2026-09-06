@@ -7,7 +7,7 @@ import "google/protobuf/empty.proto";
 import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 
-// BaseTableArchiveRestoreService 手工恢复归档数据。
+// Admin归档数据恢复服务。
 service BaseTableArchiveRestoreService {
   // 查询归档恢复记录分页列表。
   rpc PageBaseTableArchiveRestore(PageBaseTableArchiveRestoreRequest) returns (PageBaseTableArchiveRestoreResponse) {

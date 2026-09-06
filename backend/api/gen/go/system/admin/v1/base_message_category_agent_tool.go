@@ -15,7 +15,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-// NewBaseMessageCategoryServiceAgentTools 创建BaseMessageCategoryService 提供消息分类管理能力的 Agent Tool。
+// NewBaseMessageCategoryServiceAgentTools 创建Admin消息分类管理服务的 Agent Tool。
 func NewBaseMessageCategoryServiceAgentTools(baseMessageCategoryServiceServer BaseMessageCategoryServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error

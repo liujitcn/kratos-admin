@@ -8,7 +8,7 @@ import "common/v1/enum.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "buf/validate/validate.proto";
 
-// BaseTableArchiveService 管理数据库表归档配置。
+// Admin数据库表归档配置服务。
 service BaseTableArchiveService {
   // 查询表归档配置分页列表。
   rpc PageBaseTableArchive(PageBaseTableArchiveRequest) returns (PageBaseTableArchiveResponse) {

@@ -13,7 +13,7 @@ import (
 	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
-// NewBaseLoginLogServiceAgentTools 创建登录日志服务的 Agent Tool。
+// NewBaseLoginLogServiceAgentTools 创建Admin登录日志服务的 Agent Tool。
 func NewBaseLoginLogServiceAgentTools(baseLoginLogServiceServer BaseLoginLogServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error

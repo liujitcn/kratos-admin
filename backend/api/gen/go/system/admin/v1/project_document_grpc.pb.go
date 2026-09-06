@@ -28,7 +28,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// 项目文档服务
+// Admin项目文档服务。
 type ProjectDocumentServiceClient interface {
 	// 查询项目文档树
 	TreeProjectDocument(ctx context.Context, in *TreeProjectDocumentRequest, opts ...grpc.CallOption) (*TreeProjectDocumentResponse, error)
@@ -68,7 +68,7 @@ func (c *projectDocumentServiceClient) GetProjectDocument(ctx context.Context, i
 // All implementations must embed UnimplementedProjectDocumentServiceServer
 // for forward compatibility.
 //
-// 项目文档服务
+// Admin项目文档服务。
 type ProjectDocumentServiceServer interface {
 	// 查询项目文档树
 	TreeProjectDocument(context.Context, *TreeProjectDocumentRequest) (*TreeProjectDocumentResponse, error)

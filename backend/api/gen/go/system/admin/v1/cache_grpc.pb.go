@@ -27,7 +27,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// 运行时缓存查询服务。
+// Admin运行时缓存查询服务。
 type CacheServiceClient interface {
 	// 分页查询当前进程已观测到的缓存条目。
 	PageCache(ctx context.Context, in *PageCacheRequest, opts ...grpc.CallOption) (*PageCacheResponse, error)
@@ -55,7 +55,7 @@ func (c *cacheServiceClient) PageCache(ctx context.Context, in *PageCacheRequest
 // All implementations must embed UnimplementedCacheServiceServer
 // for forward compatibility.
 //
-// 运行时缓存查询服务。
+// Admin运行时缓存查询服务。
 type CacheServiceServer interface {
 	// 分页查询当前进程已观测到的缓存条目。
 	PageCache(context.Context, *PageCacheRequest) (*PageCacheResponse, error)

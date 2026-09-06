@@ -13,7 +13,7 @@ import (
 	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
-// NewOauthClientServiceAgentTools 创建开放授权客户端令牌服务的 Agent Tool。
+// NewOauthClientServiceAgentTools 创建Base开放授权客户端令牌服务的 Agent Tool。
 func NewOauthClientServiceAgentTools(oauthClientServiceServer OauthClientServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error

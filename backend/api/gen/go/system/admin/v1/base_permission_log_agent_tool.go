@@ -13,7 +13,7 @@ import (
 	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
-// NewBasePermissionLogServiceAgentTools 创建权限日志服务的 Agent Tool。
+// NewBasePermissionLogServiceAgentTools 创建Admin权限日志服务的 Agent Tool。
 func NewBasePermissionLogServiceAgentTools(basePermissionLogServiceServer BasePermissionLogServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error

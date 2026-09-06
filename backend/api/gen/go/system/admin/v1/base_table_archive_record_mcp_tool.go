@@ -12,7 +12,7 @@ import (
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-// RegisterBaseTableArchiveRecordServiceMCPTools 注册BaseTableArchiveRecordService 查询表归档执行记录的 MCP Tool。
+// RegisterBaseTableArchiveRecordServiceMCPTools 注册Admin表归档执行记录服务的 MCP Tool。
 func RegisterBaseTableArchiveRecordServiceMCPTools(mcpServer *mcp.Server, baseTableArchiveRecordServiceServer BaseTableArchiveRecordServiceServer) {
 	RegisterBaseTableArchiveRecordServicePageBaseTableArchiveRecordMCPTool(mcpServer, baseTableArchiveRecordServiceServer)
 	RegisterBaseTableArchiveRecordServiceGetBaseTableArchiveRecordMCPTool(mcpServer, baseTableArchiveRecordServiceServer)

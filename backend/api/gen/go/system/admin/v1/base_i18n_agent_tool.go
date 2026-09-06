@@ -14,7 +14,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-// NewBaseI18nServiceAgentTools 创建国际化翻译信息服务的 Agent Tool。
+// NewBaseI18nServiceAgentTools 创建Admin国际化翻译信息服务的 Agent Tool。
 func NewBaseI18nServiceAgentTools(baseI18nServiceServer BaseI18nServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error

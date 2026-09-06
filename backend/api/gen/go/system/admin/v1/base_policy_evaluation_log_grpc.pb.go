@@ -28,7 +28,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// 策略评估日志服务。
+// Admin策略评估日志服务。
 type BasePolicyEvaluationLogServiceClient interface {
 	// 分页查询策略评估日志。
 	PageBasePolicyEvaluationLog(ctx context.Context, in *PageBasePolicyEvaluationLogRequest, opts ...grpc.CallOption) (*PageBasePolicyEvaluationLogResponse, error)
@@ -68,7 +68,7 @@ func (c *basePolicyEvaluationLogServiceClient) GetBasePolicyEvaluationLog(ctx co
 // All implementations must embed UnimplementedBasePolicyEvaluationLogServiceServer
 // for forward compatibility.
 //
-// 策略评估日志服务。
+// Admin策略评估日志服务。
 type BasePolicyEvaluationLogServiceServer interface {
 	// 分页查询策略评估日志。
 	PageBasePolicyEvaluationLog(context.Context, *PageBasePolicyEvaluationLogRequest) (*PageBasePolicyEvaluationLogResponse, error)

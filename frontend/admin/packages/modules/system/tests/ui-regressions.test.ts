@@ -95,6 +95,31 @@ test("文件资产详情使用可关闭的内容预览弹窗", async () => {
   assert.doesNotMatch(source, /ElMessageBox\.alert/);
 });
 
+test("出库脱敏响应字段缺失 ref 时使用空引用", async () => {
+  const source = await readSource("src/views/base/redact-output-policy/index.vue");
+
+  assert.match(source, /function normalizeRef\(ref\?: string\)/);
+  assert.match(source, /\(ref \?\? ""\)\.split\("\/"\)/);
+});
+
+test("脱敏列表和下拉使用中文名称并保持简洁选择器", async () => {
+  const [storageSource, outputSource] = await Promise.all([
+    readSource("src/views/base/redact-storage-policy/index.vue"),
+    readSource("src/views/base/redact-output-policy/index.vue")
+  ]);
+
+  assert.match(storageSource, /defCodeGenTableService\.ListCodeGenDatabaseTable/);
+  assert.match(storageSource, /item\.comment/);
+  assert.match(storageSource, /tableCommentMap/);
+  assert.match(outputSource, /item\.service_desc/);
+  assert.match(outputSource, /api\.desc/);
+  assert.match(outputSource, /apiLabel/);
+  assert.match(outputSource, /isGetApi/);
+  assert.match(outputSource, /api\.method\.toUpperCase\(\) === "GET"/);
+  assert.match(outputSource, /mode: BaseRedactOutputPolicyMode\.BASE_REDACT_OUTPUT_POLICY_MODE_FULL/);
+  assert.doesNotMatch(outputSource, /apiOptionTooltip|<el-tooltip/);
+});
+
 test("消息标题单独打开正文，发送详情只展示投递信息", async () => {
   const source = await readSource("src/views/base/message/index.vue");
   const sendDetailDialog = source.match(/<ProDialog\s+v-model="detail\.visible"[\s\S]*?<\/ProDialog>/)?.[0];

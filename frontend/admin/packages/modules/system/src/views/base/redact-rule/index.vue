@@ -117,7 +117,7 @@ import type { ProFormField } from "@liujitcn/kratos-admin-core/components/ProFor
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
-import { defBaseRedactRuleService } from "@liujitcn/kratos-admin-system/api/system/base_redact_rule";
+import { defBaseRedactRuleService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_redact_rule";
 import type { BaseRedactRule, BaseRedactRuleForm, PageBaseRedactRuleRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_redact_rule";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 

@@ -13,7 +13,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-// RegisterBaseI18nServiceMCPTools 注册国际化翻译信息服务的 MCP Tool。
+// RegisterBaseI18nServiceMCPTools 注册Admin国际化翻译信息服务的 MCP Tool。
 func RegisterBaseI18nServiceMCPTools(mcpServer *mcp.Server, baseI18nServiceServer BaseI18nServiceServer) {
 	RegisterBaseI18nServiceDraftBaseI18nMCPTool(mcpServer, baseI18nServiceServer)
 	RegisterBaseI18nServiceUpdateBaseI18nMCPTool(mcpServer, baseI18nServiceServer)

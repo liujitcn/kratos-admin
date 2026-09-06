@@ -30,7 +30,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// BaseTableArchiveRestoreService 手工恢复归档数据。
+// Admin归档数据恢复服务。
 type BaseTableArchiveRestoreServiceClient interface {
 	// 查询归档恢复记录分页列表。
 	PageBaseTableArchiveRestore(ctx context.Context, in *PageBaseTableArchiveRestoreRequest, opts ...grpc.CallOption) (*PageBaseTableArchiveRestoreResponse, error)
@@ -82,7 +82,7 @@ func (c *baseTableArchiveRestoreServiceClient) ExecuteBaseTableArchiveRestore(ct
 // All implementations must embed UnimplementedBaseTableArchiveRestoreServiceServer
 // for forward compatibility.
 //
-// BaseTableArchiveRestoreService 手工恢复归档数据。
+// Admin归档数据恢复服务。
 type BaseTableArchiveRestoreServiceServer interface {
 	// 查询归档恢复记录分页列表。
 	PageBaseTableArchiveRestore(context.Context, *PageBaseTableArchiveRestoreRequest) (*PageBaseTableArchiveRestoreResponse, error)

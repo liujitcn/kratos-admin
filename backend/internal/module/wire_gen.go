@@ -42,6 +42,7 @@ import (
 	"github.com/liujitcn/kratos-kit/auth/authz/engine"
 	"github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/database/gorm"
+	gorm2 "gorm.io/gorm"
 )
 
 // Injectors from wire.go:
@@ -224,6 +225,28 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 	baseTableBackupRestoreService := admin.NewBaseTableBackupRestoreService(baseTableBackupRestoreCase)
 	baseTableSourceCase := biz3.NewBaseTableSourceCase(baseCase)
 	baseTableSourceService := admin.NewBaseTableSourceService(baseTableSourceCase)
+	baseRedactOutputPolicyRepository := data2.NewBaseRedactOutputPolicyRepository(dataData)
+	baseRedactRuleRepository := data2.NewBaseRedactRuleRepository(dataData)
+	db := defaultDatabase(baseCase)
+	baseRedactStoragePolicyRepository := data2.NewBaseRedactStoragePolicyRepository(dataData)
+	baseRedactStorageValueRepository := data2.NewBaseRedactStorageValueRepository(dataData)
+	storageValueStore := kit.NewStorageValueStore(baseRedactStorageValueRepository)
+	storageProtector, err := config.NewRedactStorageProtector()
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	redactPolicyResolver, err := kit.NewRedactRuntime(db, baseRedactStoragePolicyRepository, baseRedactOutputPolicyRepository, baseRedactRuleRepository, storageValueStore, storageProtector)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	baseRedactOutputPolicyCase := biz3.NewBaseRedactOutputPolicyCase(baseCase, transaction, baseRedactOutputPolicyRepository, baseAPIRepository, baseRedactRuleRepository, redactPolicyResolver)
+	baseRedactOutputPolicyService := admin.NewBaseRedactOutputPolicyService(baseRedactOutputPolicyCase)
+	baseRedactRuleCase := biz3.NewBaseRedactRuleCase(baseCase, baseRedactRuleRepository, baseRedactStoragePolicyRepository, baseRedactOutputPolicyRepository, redactPolicyResolver)
+	baseRedactRuleService := admin.NewBaseRedactRuleService(baseRedactRuleCase)
+	baseRedactStoragePolicyCase := biz3.NewBaseRedactStoragePolicyCase(baseCase, transaction, baseRedactStoragePolicyRepository, baseRedactStorageValueRepository, baseRedactRuleRepository, redactPolicyResolver)
+	baseRedactStoragePolicyService := admin.NewBaseRedactStoragePolicyService(baseRedactStoragePolicyCase)
 	services := admin2.Services{
 		Auth:                     authService,
 		BaseAPI:                  baseApiService,
@@ -280,6 +303,9 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 		BaseTableBackupRecord:    baseTableBackupRecordService,
 		BaseTableBackupRestore:   baseTableBackupRestoreService,
 		BaseTableSource:          baseTableSourceService,
+		BaseRedactOutputPolicy:   baseRedactOutputPolicyService,
+		BaseRedactRule:           baseRedactRuleService,
+		BaseRedactStoragePolicy:  baseRedactStoragePolicyService,
 	}
 	adminTools, err := ParseAdminAgentTools(services)
 	if err != nil {
@@ -409,27 +435,15 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 		BaseTableBackupRecord:    baseTableBackupRecordService,
 		BaseTableBackupRestore:   baseTableBackupRestoreService,
 		BaseTableSource:          baseTableSourceService,
+		BaseRedactOutputPolicy:   baseRedactOutputPolicyService,
+		BaseRedactRule:           baseRedactRuleService,
+		BaseRedactStoragePolicy:  baseRedactStoragePolicyService,
 	}
 	services2 := &app2.Services{
 		Auth:     appAuthService,
 		BaseArea: appBaseAreaService,
 		BaseDict: appBaseDictService,
 		BaseMenu: appBaseMenuService,
-	}
-	baseRedactStoragePolicyRepository := data2.NewBaseRedactStoragePolicyRepository(dataData)
-	baseRedactOutputPolicyRepository := data2.NewBaseRedactOutputPolicyRepository(dataData)
-	baseRedactRuleRepository := data2.NewBaseRedactRuleRepository(dataData)
-	baseRedactStorageValueRepository := data2.NewBaseRedactStorageValueRepository(dataData)
-	storageValueStore := kit.NewStorageValueStore(baseRedactStorageValueRepository)
-	storageProtector, err := config.NewRedactStorageProtector()
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	redactPolicyResolver, err := kit.NewRedactRuntime(baseRedactStoragePolicyRepository, baseRedactOutputPolicyRepository, baseRedactRuleRepository, storageValueStore, storageProtector)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
 	}
 	modules, err := NewModules(baseServices, adminServices, services2, baseConfigCase, baseLoginPolicyCase, redactPolicyResolver)
 	if err != nil {
@@ -534,4 +548,15 @@ func BuildQueueConsumers(databases map[string]*gorm.Client, baseCase *biz.BaseCa
 	consumers := NewQueueConsumers(baseMessageCase, consumerFunc)
 	return consumers, func() {
 	}, nil
+}
+
+// wire.go:
+
+// defaultDatabase 返回 Admin 脱敏运行时使用的默认数据源连接。
+func defaultDatabase(baseCase *biz.BaseCase) *gorm2.DB {
+	client := baseCase.GormClients[gorm.DefaultClientName]
+	if client == nil {
+		return nil
+	}
+	return client.DB
 }

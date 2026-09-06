@@ -35,7 +35,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// BaseMessageCategoryService 提供消息分类管理能力。
+// Admin消息分类管理服务。
 type BaseMessageCategoryServiceClient interface {
 	// 查询消息分类选项。
 	OptionBaseMessageCategory(ctx context.Context, in *OptionBaseMessageCategoryRequest, opts ...grpc.CallOption) (*commonv1.SelectOptionResponse, error)
@@ -135,7 +135,7 @@ func (c *baseMessageCategoryServiceClient) SetBaseMessageCategoryStatus(ctx cont
 // All implementations must embed UnimplementedBaseMessageCategoryServiceServer
 // for forward compatibility.
 //
-// BaseMessageCategoryService 提供消息分类管理能力。
+// Admin消息分类管理服务。
 type BaseMessageCategoryServiceServer interface {
 	// 查询消息分类选项。
 	OptionBaseMessageCategory(context.Context, *OptionBaseMessageCategoryRequest) (*commonv1.SelectOptionResponse, error)

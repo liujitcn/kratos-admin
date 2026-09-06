@@ -37,7 +37,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// NotificationService 提供当前用户的站内信收件箱能力。
+// Base站内信通知服务，提供当前用户的收件箱能力。
 type NotificationServiceClient interface {
 	// 分页查询当前用户收件箱。
 	PageNotification(ctx context.Context, in *PageNotificationRequest, opts ...grpc.CallOption) (*PageNotificationResponse, error)
@@ -173,7 +173,7 @@ func (c *notificationServiceClient) DeleteNotification(ctx context.Context, in *
 // All implementations must embed UnimplementedNotificationServiceServer
 // for forward compatibility.
 //
-// NotificationService 提供当前用户的站内信收件箱能力。
+// Base站内信通知服务，提供当前用户的收件箱能力。
 type NotificationServiceServer interface {
 	// 分页查询当前用户收件箱。
 	PageNotification(context.Context, *PageNotificationRequest) (*PageNotificationResponse, error)

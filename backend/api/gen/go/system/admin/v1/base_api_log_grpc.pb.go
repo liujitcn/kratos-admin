@@ -28,7 +28,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// API 访问日志服务。
+// Admin API访问日志服务。
 type BaseApiLogServiceClient interface {
 	// 分页查询 API 访问日志。
 	PageBaseApiLog(ctx context.Context, in *PageBaseApiLogRequest, opts ...grpc.CallOption) (*PageBaseApiLogResponse, error)
@@ -68,7 +68,7 @@ func (c *baseApiLogServiceClient) GetBaseApiLog(ctx context.Context, in *GetBase
 // All implementations must embed UnimplementedBaseApiLogServiceServer
 // for forward compatibility.
 //
-// API 访问日志服务。
+// Admin API访问日志服务。
 type BaseApiLogServiceServer interface {
 	// 分页查询 API 访问日志。
 	PageBaseApiLog(context.Context, *PageBaseApiLogRequest) (*PageBaseApiLogResponse, error)

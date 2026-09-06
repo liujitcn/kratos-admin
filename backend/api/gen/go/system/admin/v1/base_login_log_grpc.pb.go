@@ -28,7 +28,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// 登录日志服务。
+// Admin登录日志服务。
 type BaseLoginLogServiceClient interface {
 	// 分页查询登录日志。
 	PageBaseLoginLog(ctx context.Context, in *PageBaseLoginLogRequest, opts ...grpc.CallOption) (*PageBaseLoginLogResponse, error)
@@ -68,7 +68,7 @@ func (c *baseLoginLogServiceClient) GetBaseLoginLog(ctx context.Context, in *Get
 // All implementations must embed UnimplementedBaseLoginLogServiceServer
 // for forward compatibility.
 //
-// 登录日志服务。
+// Admin登录日志服务。
 type BaseLoginLogServiceServer interface {
 	// 分页查询登录日志。
 	PageBaseLoginLog(context.Context, *PageBaseLoginLogRequest) (*PageBaseLoginLogResponse, error)

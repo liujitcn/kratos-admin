@@ -13,7 +13,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-// RegisterOauthClientServiceMCPTools 注册开放授权客户端管理服务的 MCP Tool。
+// RegisterOauthClientServiceMCPTools 注册Admin开放授权客户端管理服务的 MCP Tool。
 func RegisterOauthClientServiceMCPTools(mcpServer *mcp.Server, oauthClientServiceServer OauthClientServiceServer) {
 	RegisterOauthClientServiceOptionOauthClientApiMCPTool(mcpServer, oauthClientServiceServer)
 	RegisterOauthClientServicePageOauthClientMCPTool(mcpServer, oauthClientServiceServer)

@@ -33,7 +33,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// 运维监控服务。
+// Admin运维监控服务。
 type OpsMonitoringServiceClient interface {
 	// 查询当前进程运行信息。
 	GetOpsRuntime(ctx context.Context, in *GetOpsRuntimeRequest, opts ...grpc.CallOption) (*OpsRuntime, error)
@@ -133,7 +133,7 @@ func (c *opsMonitoringServiceClient) GetOpsAlerts(ctx context.Context, in *GetOp
 // All implementations must embed UnimplementedOpsMonitoringServiceServer
 // for forward compatibility.
 //
-// 运维监控服务。
+// Admin运维监控服务。
 type OpsMonitoringServiceServer interface {
 	// 查询当前进程运行信息。
 	GetOpsRuntime(context.Context, *GetOpsRuntimeRequest) (*OpsRuntime, error)

@@ -5,7 +5,7 @@ package system.admin.v1;
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 
-// 策略评估日志服务。
+// Admin策略评估日志服务。
 service BasePolicyEvaluationLogService {
   // 分页查询策略评估日志。
   rpc PageBasePolicyEvaluationLog(PageBasePolicyEvaluationLogRequest) returns (PageBasePolicyEvaluationLogResponse) {

@@ -13,7 +13,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-// RegisterBaseMessageServiceMCPTools 注册BaseMessageService 提供站内信管理能力的 MCP Tool。
+// RegisterBaseMessageServiceMCPTools 注册Admin站内信管理服务的 MCP Tool。
 func RegisterBaseMessageServiceMCPTools(mcpServer *mcp.Server, baseMessageServiceServer BaseMessageServiceServer) {
 	RegisterBaseMessageServicePageBaseMessageMCPTool(mcpServer, baseMessageServiceServer)
 	RegisterBaseMessageServiceGetBaseMessageMCPTool(mcpServer, baseMessageServiceServer)

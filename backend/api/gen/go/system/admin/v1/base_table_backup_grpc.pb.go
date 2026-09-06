@@ -33,7 +33,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// BaseTableBackupService 管理数据库备份配置。
+// Admin数据库备份配置服务。
 type BaseTableBackupServiceClient interface {
 	// 查询数据库备份配置分页列表。
 	PageBaseTableBackup(ctx context.Context, in *PageBaseTableBackupRequest, opts ...grpc.CallOption) (*PageBaseTableBackupResponse, error)
@@ -121,7 +121,7 @@ func (c *baseTableBackupServiceClient) SetBaseTableBackupStatus(ctx context.Cont
 // All implementations must embed UnimplementedBaseTableBackupServiceServer
 // for forward compatibility.
 //
-// BaseTableBackupService 管理数据库备份配置。
+// Admin数据库备份配置服务。
 type BaseTableBackupServiceServer interface {
 	// 查询数据库备份配置分页列表。
 	PageBaseTableBackup(context.Context, *PageBaseTableBackupRequest) (*PageBaseTableBackupResponse, error)

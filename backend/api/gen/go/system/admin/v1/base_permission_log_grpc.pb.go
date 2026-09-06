@@ -28,7 +28,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// 权限日志服务。
+// Admin权限日志服务。
 type BasePermissionLogServiceClient interface {
 	// 分页查询权限日志。
 	PageBasePermissionLog(ctx context.Context, in *PageBasePermissionLogRequest, opts ...grpc.CallOption) (*PageBasePermissionLogResponse, error)
@@ -68,7 +68,7 @@ func (c *basePermissionLogServiceClient) GetBasePermissionLog(ctx context.Contex
 // All implementations must embed UnimplementedBasePermissionLogServiceServer
 // for forward compatibility.
 //
-// 权限日志服务。
+// Admin权限日志服务。
 type BasePermissionLogServiceServer interface {
 	// 分页查询权限日志。
 	PageBasePermissionLog(context.Context, *PageBasePermissionLogRequest) (*PageBasePermissionLogResponse, error)

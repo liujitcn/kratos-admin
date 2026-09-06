@@ -3233,13 +3233,17 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/v1/admin/base/redact-field:
+    /api/v1/admin/base/redact-output-policy:
         get:
             tags:
-                - BaseRedactFieldService
-            description: 検索マスキングフィールドページネーション一覧。
-            operationId: BaseRedactFieldService_PageBaseRedactField
+                - BaseRedactOutputPolicyService
+            description: 検索出力マスキングポリシーページネーション一覧。
+            operationId: BaseRedactOutputPolicyService_PageBaseRedactOutputPolicy
             parameters:
+                - name: operation
+                  in: query
+                  schema:
+                    type: string
                 - name: message_ref
                   in: query
                   schema:
@@ -3248,179 +3252,10 @@ paths:
                   in: query
                   schema:
                     type: string
-                - name: sensitivity_type
+                - name: service_name
                   in: query
                   schema:
                     type: string
-                - name: source
-                  in: query
-                  schema:
-                    type: string
-                - name: status
-                  in: query
-                  schema:
-                    enum:
-                        - STATUS_UNSPECIFIED
-                        - STATUS_ENABLE
-                        - STATUS_DISABLE
-                    type: string
-                    format: enum
-                - name: page_num
-                  in: query
-                  schema:
-                    type: string
-                - name: page_size
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.PageBaseRedactFieldResponse'
-    /api/v1/admin/base/redact-field/option:
-        get:
-            tags:
-                - BaseRedactFieldService
-            description: 検索マスキングフィールドオプション。
-            operationId: BaseRedactFieldService_OptionBaseRedactField
-            parameters:
-                - name: keyword
-                  in: query
-                  schema:
-                    type: string
-                - name: operation
-                  in: query
-                  schema:
-                    type: string
-                - name: direction
-                  in: query
-                  schema:
-                    enum:
-                        - BASE_REDACT_DIRECTION_UNSPECIFIED
-                        - BASE_REDACT_DIRECTION_REQUEST
-                        - BASE_REDACT_DIRECTION_RESPONSE
-                    type: string
-                    format: enum
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/common.v1.SelectOptionResponse'
-    /api/v1/admin/base/redact-field/{base_redact_field.id}:
-        put:
-            tags:
-                - BaseRedactFieldService
-            description: 更新マスキングフィールド。
-            operationId: BaseRedactFieldService_UpdateBaseRedactField
-            parameters:
-                - name: base_redact_field.id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/system.admin.v1.BaseRedactFieldForm'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-    /api/v1/admin/base/redact-field/{id}:
-        get:
-            tags:
-                - BaseRedactFieldService
-            description: 検索マスキングフィールド詳細。
-            operationId: BaseRedactFieldService_GetBaseRedactField
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.BaseRedactFieldForm'
-        delete:
-            tags:
-                - BaseRedactFieldService
-            description: 削除マスキングフィールド。
-            operationId: BaseRedactFieldService_DeleteBaseRedactField
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-    /api/v1/admin/base/redact-field/{id}/status:
-        put:
-            tags:
-                - BaseRedactFieldService
-            description: 設定マスキングフィールドステータス。
-            operationId: BaseRedactFieldService_SetBaseRedactFieldStatus
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/system.admin.v1.SetBaseRedactFieldStatusRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-    /api/v1/admin/base/redact-policy:
-        get:
-            tags:
-                - BaseRedactPolicyService
-            description: 検索マスキングポリシーページネーション一覧。
-            operationId: BaseRedactPolicyService_PageBaseRedactPolicy
-            parameters:
-                - name: message_ref
-                  in: query
-                  schema:
-                    type: string
-                - name: field_path
-                  in: query
-                  schema:
-                    type: string
-                - name: scene_code
-                  in: query
-                  schema:
-                    type: string
-                - name: operation
-                  in: query
-                  schema:
-                    type: string
-                - name: direction
-                  in: query
-                  schema:
-                    enum:
-                        - BASE_REDACT_DIRECTION_UNSPECIFIED
-                        - BASE_REDACT_DIRECTION_REQUEST
-                        - BASE_REDACT_DIRECTION_RESPONSE
-                    type: string
-                    format: enum
                 - name: mode
                   in: query
                   schema:
@@ -3454,50 +3289,43 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/system.admin.v1.PageBaseRedactPolicyResponse'
-        post:
-            tags:
-                - BaseRedactPolicyService
-            description: 作成マスキングポリシー。
-            operationId: BaseRedactPolicyService_CreateBaseRedactPolicy
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/system.admin.v1.BaseRedactPolicyForm'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-    /api/v1/admin/base/redact-policy/{base_redact_policy.id}:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseRedactOutputPolicyResponse'
         put:
             tags:
-                - BaseRedactPolicyService
-            description: 更新マスキングポリシー。
-            operationId: BaseRedactPolicyService_UpdateBaseRedactPolicy
-            parameters:
-                - name: base_redact_policy.id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
+                - BaseRedactOutputPolicyService
+            description: 一括更新出力マスキングポリシー。
+            operationId: BaseRedactOutputPolicyService_UpdateBaseRedactOutputPolicy
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/system.admin.v1.BaseRedactPolicyForm'
+                            $ref: '#/components/schemas/system.admin.v1.UpdateBaseRedactOutputPolicyRequest'
                 required: true
             responses:
                 "200":
                     description: OK
                     content: {}
-    /api/v1/admin/base/redact-policy/{id}:
+        post:
+            tags:
+                - BaseRedactOutputPolicyService
+            description: 一括作成出力マスキングポリシー。
+            operationId: BaseRedactOutputPolicyService_CreateBaseRedactOutputPolicy
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.CreateBaseRedactOutputPolicyRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/redact-output-policy/{id}:
         get:
             tags:
-                - BaseRedactPolicyService
-            description: 検索マスキングポリシー詳細。
-            operationId: BaseRedactPolicyService_GetBaseRedactPolicy
+                - BaseRedactOutputPolicyService
+            description: 検索出力マスキングポリシー詳細。
+            operationId: BaseRedactOutputPolicyService_GetBaseRedactOutputPolicy
             parameters:
                 - name: id
                   in: path
@@ -3510,12 +3338,12 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/system.admin.v1.BaseRedactPolicyForm'
+                                $ref: '#/components/schemas/system.admin.v1.BaseRedactOutputPolicyForm'
         delete:
             tags:
-                - BaseRedactPolicyService
-            description: 削除マスキングポリシー。
-            operationId: BaseRedactPolicyService_DeleteBaseRedactPolicy
+                - BaseRedactOutputPolicyService
+            description: 削除出力マスキングポリシー。
+            operationId: BaseRedactOutputPolicyService_DeleteBaseRedactOutputPolicy
             parameters:
                 - name: id
                   in: path
@@ -3526,12 +3354,12 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/v1/admin/base/redact-policy/{id}/status:
+    /api/v1/admin/base/redact-output-policy/{id}/status:
         put:
             tags:
-                - BaseRedactPolicyService
-            description: 設定マスキングポリシーステータス。
-            operationId: BaseRedactPolicyService_SetBaseRedactPolicyStatus
+                - BaseRedactOutputPolicyService
+            description: 設定出力マスキングポリシーステータス。
+            operationId: BaseRedactOutputPolicyService_SetBaseRedactOutputPolicyStatus
             parameters:
                 - name: id
                   in: path
@@ -3542,7 +3370,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/system.admin.v1.SetBaseRedactPolicyStatusRequest'
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseRedactOutputPolicyStatusRequest'
                 required: true
             responses:
                 "200":
@@ -3697,6 +3525,139 @@ paths:
                     application/json:
                         schema:
                             $ref: '#/components/schemas/system.admin.v1.SetBaseRedactRuleStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/redact-storage-policy:
+        get:
+            tags:
+                - BaseRedactStoragePolicyService
+            description: 検索保存マスキングポリシーページネーション一覧。
+            operationId: BaseRedactStoragePolicyService_PageBaseRedactStoragePolicy
+            parameters:
+                - name: table_name
+                  in: query
+                  schema:
+                    type: string
+                - name: column_name
+                  in: query
+                  schema:
+                    type: string
+                - name: rule_id
+                  in: query
+                  schema:
+                    type: string
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseRedactStoragePolicyResponse'
+        put:
+            tags:
+                - BaseRedactStoragePolicyService
+            description: 一括更新保存マスキングポリシー。
+            operationId: BaseRedactStoragePolicyService_UpdateBaseRedactStoragePolicy
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.UpdateBaseRedactStoragePolicyRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+        post:
+            tags:
+                - BaseRedactStoragePolicyService
+            description: 一括作成保存マスキングポリシー。
+            operationId: BaseRedactStoragePolicyService_CreateBaseRedactStoragePolicy
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.CreateBaseRedactStoragePolicyRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/redact-storage-policy/{id}:
+        get:
+            tags:
+                - BaseRedactStoragePolicyService
+            description: 検索保存マスキングポリシー詳細。
+            operationId: BaseRedactStoragePolicyService_GetBaseRedactStoragePolicy
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseRedactStoragePolicyForm'
+        delete:
+            tags:
+                - BaseRedactStoragePolicyService
+            description: 削除保存マスキングポリシー。
+            operationId: BaseRedactStoragePolicyService_DeleteBaseRedactStoragePolicy
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/redact-storage-policy/{id}/status:
+        put:
+            tags:
+                - BaseRedactStoragePolicyService
+            description: 設定保存マスキングポリシーステータス。
+            operationId: BaseRedactStoragePolicyService_SetBaseRedactStoragePolicyStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseRedactStoragePolicyStatusRequest'
                 required: true
             responses:
                 "200":
@@ -10216,166 +10177,33 @@ components:
                     type: string
                     description: 備考
             description: 役職フォーム
-        system.admin.v1.BaseRedactField:
+        system.admin.v1.BaseRedactOutputPolicy:
             type: object
             properties:
                 id:
                     type: string
-                    description: フィールドカタログID
+                    description: 出力ポリシーID
+                operation:
+                    type: string
+                    description: API 操作
                 message_ref:
                     type: string
                     description: Protoメッセージ完全な名称
                 field_path:
                     type: string
-                    description: フィールドパス
-                field_kind:
-                    type: string
-                    description: Proto フィールド種類
-                sensitivity_type:
-                    type: string
-                    description: 機密フィールド種別
-                source:
-                    type: string
-                    description: フィールドソース
-                entity_ref:
-                    type: string
-                    description: データエンティティ識別子
-                table_name:
-                    type: string
-                    description: データベーステーブル名
-                column_name:
-                    type: string
-                    description: データベースフィールド名
-                record_key_field:
-                    type: string
-                    description: 業務主キーフィールド
-                storage_mode:
+                    description: 返却フィールドパス
+                mode:
                     enum:
-                        - BASE_REDACT_STORAGE_MODE_UNSPECIFIED
-                        - BASE_REDACT_STORAGE_MODE_PLAIN
-                        - BASE_REDACT_STORAGE_MODE_MASK
-                        - BASE_REDACT_STORAGE_MODE_HASH
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_RULE
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_HIDE
+                        - BASE_REDACT_OUTPUT_POLICY_MODE_FULL
                     type: string
-                    description: データベースストレージ方式
+                    description: 処理モード
                     format: enum
-                storage_rule_id:
-                    type: string
-                    description: ストレージマスキングルールID
-                search_mode:
-                    enum:
-                        - BASE_REDACT_SEARCH_MODE_UNSPECIFIED
-                        - BASE_REDACT_SEARCH_MODE_NONE
-                        - BASE_REDACT_SEARCH_MODE_DIGEST
-                    type: string
-                    description: 機密フィールド検索方式
-                    format: enum
-                status:
-                    enum:
-                        - STATUS_UNSPECIFIED
-                        - STATUS_ENABLE
-                        - STATUS_DISABLE
-                    type: string
-                    description: ステータス
-                    format: enum
-                remark:
-                    type: string
-                    description: 備考
-                created_at:
-                    type: string
-                    description: 作成時刻
-                updated_at:
-                    type: string
-                    description: 更新時刻
-            description: マスキングフィールドディレクトリ。
-        system.admin.v1.BaseRedactFieldForm:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: フィールドカタログID
-                message_ref:
-                    type: string
-                    description: Protoメッセージ完全な名称
-                field_path:
-                    type: string
-                    description: フィールドパス
-                field_kind:
-                    type: string
-                    description: Proto フィールド種類
-                sensitivity_type:
-                    type: string
-                    description: 機密フィールド種別
-                source:
-                    type: string
-                    description: フィールドソース
-                entity_ref:
-                    type: string
-                    description: データエンティティ識別子
-                table_name:
-                    type: string
-                    description: データベーステーブル名
-                column_name:
-                    type: string
-                    description: データベースフィールド名
-                record_key_field:
-                    type: string
-                    description: 業務主キーフィールド
-                storage_mode:
-                    enum:
-                        - BASE_REDACT_STORAGE_MODE_UNSPECIFIED
-                        - BASE_REDACT_STORAGE_MODE_PLAIN
-                        - BASE_REDACT_STORAGE_MODE_MASK
-                        - BASE_REDACT_STORAGE_MODE_HASH
-                    type: string
-                    description: データベースストレージ方式
-                    format: enum
-                storage_rule_id:
-                    type: string
-                    description: ストレージマスキングルールID
-                search_mode:
-                    enum:
-                        - BASE_REDACT_SEARCH_MODE_UNSPECIFIED
-                        - BASE_REDACT_SEARCH_MODE_NONE
-                        - BASE_REDACT_SEARCH_MODE_DIGEST
-                    type: string
-                    description: 機密フィールド検索方式
-                    format: enum
-                status:
-                    enum:
-                        - STATUS_UNSPECIFIED
-                        - STATUS_ENABLE
-                        - STATUS_DISABLE
-                    type: string
-                    description: ステータス
-                    format: enum
-                remark:
-                    type: string
-                    description: 備考
-            description: マスキングフィールドフォーム。
-        system.admin.v1.BaseRedactPolicy:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: ポリシーバインドID
-                field_id:
-                    type: string
-                    description: フィールドカタログID
-                message_ref:
-                    type: string
-                    description: Protoメッセージ完全な名称
-                field_path:
-                    type: string
-                    description: フィールドパス
-                field_kind:
-                    type: string
-                    description: Proto フィールド種類
-                sensitivity_type:
-                    type: string
-                    description: 機密フィールド種別
                 rule_id:
                     type: string
-                    description: ルールテンプレートID
+                    description: ルールID
                 rule_code:
                     type: string
                     description: ルールコード
@@ -10385,43 +10213,19 @@ components:
                 rule_type:
                     type: string
                     description: ルール種別
-                rule:
+                rule_params:
                     type: string
                     description: ルールパラメータ
-                scene_code:
+                service_name:
                     type: string
-                    description: シナリオコード
-                operation:
-                    type: string
-                    description: API 操作
-                direction:
-                    enum:
-                        - BASE_REDACT_DIRECTION_UNSPECIFIED
-                        - BASE_REDACT_DIRECTION_REQUEST
-                        - BASE_REDACT_DIRECTION_RESPONSE
-                    type: string
-                    description: マスキング方向
-                    format: enum
-                mode:
-                    enum:
-                        - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
-                        - BASE_REDACT_OUTPUT_POLICY_MODE_RULE
-                        - BASE_REDACT_OUTPUT_POLICY_MODE_HIDE
-                        - BASE_REDACT_OUTPUT_POLICY_MODE_FULL
-                    type: string
-                    description: 処理モード：enum【BaseRedactOutputPolicyMode】
-                    format: enum
-                priority:
-                    type: integer
-                    description: 優先度
-                    format: int32
+                    description: サービス名
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
                         - STATUS_ENABLE
                         - STATUS_DISABLE
                     type: string
-                    description: ステータス：enum【Status】
+                    description: ステータス
                     format: enum
                 remark:
                     type: string
@@ -10432,33 +10236,25 @@ components:
                 updated_at:
                     type: string
                     description: 更新時刻
-            description: マスキングポリシー。
-        system.admin.v1.BaseRedactPolicyForm:
+            description: 出力マスキングポリシー。
+        system.admin.v1.BaseRedactOutputPolicyForm:
             type: object
             properties:
                 id:
                     type: string
-                    description: ポリシーバインドID
-                field_id:
-                    type: string
-                    description: フィールドカタログID
-                rule_id:
-                    type: string
-                    description: ルールテンプレートID
-                scene_code:
-                    type: string
-                    description: シナリオコード
+                    description: 出力ポリシーID
                 operation:
                     type: string
                     description: API 操作
-                direction:
-                    enum:
-                        - BASE_REDACT_DIRECTION_UNSPECIFIED
-                        - BASE_REDACT_DIRECTION_REQUEST
-                        - BASE_REDACT_DIRECTION_RESPONSE
+                message_ref:
                     type: string
-                    description: マスキング方向
-                    format: enum
+                    description: Protoメッセージ完全な名称
+                field_path:
+                    type: string
+                    description: 返却フィールドパス
+                service_name:
+                    type: string
+                    description: サービス名
                 mode:
                     enum:
                         - BASE_REDACT_OUTPUT_POLICY_MODE_UNSPECIFIED
@@ -10466,24 +10262,26 @@ components:
                         - BASE_REDACT_OUTPUT_POLICY_MODE_HIDE
                         - BASE_REDACT_OUTPUT_POLICY_MODE_FULL
                     type: string
-                    description: 処理モード：enum【BaseRedactOutputPolicyMode】
+                    description: 処理モード
                     format: enum
-                priority:
-                    type: integer
-                    description: 優先度
-                    format: int32
+                rule_id:
+                    type: string
+                    description: ルールID
+                rule_params:
+                    type: string
+                    description: ルールパラメータ
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
                         - STATUS_ENABLE
                         - STATUS_DISABLE
                     type: string
-                    description: ステータス：enum【Status】
+                    description: ステータス
                     format: enum
                 remark:
                     type: string
                     description: 備考
-            description: マスキングポリシーフォーム。
+            description: 出力マスキングポリシーフォーム。
         system.admin.v1.BaseRedactRule:
             type: object
             properties:
@@ -10550,6 +10348,87 @@ components:
                     type: string
                     description: 備考
             description: マスキングルールフォーム。
+        system.admin.v1.BaseRedactStoragePolicy:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 保存ポリシーID
+                table_name:
+                    type: string
+                    description: データベーステーブル名
+                column_name:
+                    type: string
+                    description: データベースフィールド名
+                rule_id:
+                    type: string
+                    description: ルールID
+                rule_code:
+                    type: string
+                    description: ルールコード
+                rule_name:
+                    type: string
+                    description: ルール名
+                rule_type:
+                    type: string
+                    description: ルール種別
+                rule_params:
+                    type: string
+                    description: ルールパラメータ
+                source_name:
+                    type: string
+                    description: データソース名称
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+                remark:
+                    type: string
+                    description: 備考
+                created_at:
+                    type: string
+                    description: 作成時刻
+                updated_at:
+                    type: string
+                    description: 更新時刻
+            description: 保存マスキングポリシー。
+        system.admin.v1.BaseRedactStoragePolicyForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 保存ポリシーID
+                table_name:
+                    type: string
+                    description: データベーステーブル名
+                column_name:
+                    type: string
+                    description: データベースフィールド名
+                rule_id:
+                    type: string
+                    description: ルールID
+                rule_params:
+                    type: string
+                    description: ルールパラメータ
+                source_name:
+                    type: string
+                    description: データソース名称
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+                remark:
+                    type: string
+                    description: 備考
+            description: 保存マスキングポリシーフォーム。
         system.admin.v1.BaseRole:
             type: object
             properties:
@@ -11827,6 +11706,24 @@ components:
                     type: string
                     description: メッセージ ID
             description: 作成メッセージレスポンス。
+        system.admin.v1.CreateBaseRedactOutputPolicyRequest:
+            type: object
+            properties:
+                base_redact_output_policy:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactOutputPolicyForm'
+                    description: 出力マスキングポリシー一覧
+            description: 作成出力マスキングポリシーリクエストパラメータ。
+        system.admin.v1.CreateBaseRedactStoragePolicyRequest:
+            type: object
+            properties:
+                base_redact_storage_policy:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactStoragePolicyForm'
+                    description: 保存マスキングポリシー一覧
+            description: 作成保存マスキングポリシーリクエストパラメータ。
         system.admin.v1.DraftBaseI18nItem:
             type: object
             properties:
@@ -12696,32 +12593,19 @@ components:
                     description: 合計件数
                     format: int32
             description: 役職ページネーションレスポンス
-        system.admin.v1.PageBaseRedactFieldResponse:
+        system.admin.v1.PageBaseRedactOutputPolicyResponse:
             type: object
             properties:
-                base_redact_fields:
+                base_redact_output_policies:
                     type: array
                     items:
-                        $ref: '#/components/schemas/system.admin.v1.BaseRedactField'
-                    description: フィールド一覧
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactOutputPolicy'
+                    description: 出力マスキングポリシー一覧
                 total:
                     type: integer
                     description: 合計件数
                     format: int32
-            description: マスキングフィールドページネーションレスポンス。
-        system.admin.v1.PageBaseRedactPolicyResponse:
-            type: object
-            properties:
-                base_redact_policies:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.BaseRedactPolicy'
-                    description: マスキングポリシー一覧
-                total:
-                    type: integer
-                    description: 合計件数
-                    format: int32
-            description: マスキングポリシーページネーションレスポンス。
+            description: 出力マスキングポリシーページネーションレスポンス。
         system.admin.v1.PageBaseRedactRuleResponse:
             type: object
             properties:
@@ -12735,6 +12619,19 @@ components:
                     description: 合計件数
                     format: int32
             description: マスキングルールページネーションレスポンス。
+        system.admin.v1.PageBaseRedactStoragePolicyResponse:
+            type: object
+            properties:
+                base_redact_storage_policies:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactStoragePolicy'
+                    description: 保存マスキングポリシー一覧
+                total:
+                    type: integer
+                    description: 合計件数
+                    format: int32
+            description: 保存マスキングポリシーページネーションレスポンス。
         system.admin.v1.PageBaseRoleResponse:
             type: object
             properties:
@@ -13372,12 +13269,12 @@ components:
                     description: ステータス
                     format: int32
             description: 設定役職ステータスリクエストパラメータ
-        system.admin.v1.SetBaseRedactFieldStatusRequest:
+        system.admin.v1.SetBaseRedactOutputPolicyStatusRequest:
             type: object
             properties:
                 id:
                     type: string
-                    description: フィールドカタログID
+                    description: 出力ポリシーID
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -13386,22 +13283,7 @@ components:
                     type: string
                     description: ステータス
                     format: enum
-            description: 設定マスキングフィールドステータスリクエストパラメータ。
-        system.admin.v1.SetBaseRedactPolicyStatusRequest:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: ポリシーバインドID
-                status:
-                    enum:
-                        - STATUS_UNSPECIFIED
-                        - STATUS_ENABLE
-                        - STATUS_DISABLE
-                    type: string
-                    description: ステータス：enum【Status】
-                    format: enum
-            description: 設定マスキングポリシーステータスリクエストパラメータ。
+            description: 設定出力マスキングポリシーステータスリクエストパラメータ。
         system.admin.v1.SetBaseRedactRuleStatusRequest:
             type: object
             properties:
@@ -13417,6 +13299,21 @@ components:
                     description: ステータス
                     format: enum
             description: 設定マスキングルールステータスリクエストパラメータ。
+        system.admin.v1.SetBaseRedactStoragePolicyStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 保存ポリシーID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+            description: 設定保存マスキングポリシーステータスリクエストパラメータ。
         system.admin.v1.SetBaseRoleMenuRequest:
             type: object
             properties:
@@ -13646,6 +13543,24 @@ components:
                     type: string
                     description: 翻訳テキスト
             description: 更新单个翻訳情報リクエスト。
+        system.admin.v1.UpdateBaseRedactOutputPolicyRequest:
+            type: object
+            properties:
+                base_redact_output_policy:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactOutputPolicyForm'
+                    description: 出力マスキングポリシー一覧
+            description: 更新出力マスキングポリシーリクエストパラメータ。
+        system.admin.v1.UpdateBaseRedactStoragePolicyRequest:
+            type: object
+            properties:
+                base_redact_storage_policy:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactStoragePolicyForm'
+                    description: 保存マスキングポリシー一覧
+            description: 更新保存マスキングポリシーリクエストパラメータ。
         system.admin.v1.UserInfoForm:
             type: object
             properties:
@@ -13907,13 +13822,13 @@ tags:
     - name: AiSessionService
       description: Base AI アシスタントセッションサービス
     - name: AiToolService
-      description: Base AI アシスタント工具サービス
+      description: Base AI アシスタントツールサービス
     - name: AuthService
       description: Appユーザー認証サービス
     - name: AuthService
       description: Adminユーザーログイン認証サービス
     - name: BaseApiLogService
-      description: API アクセスログサービス。
+      description: Admin APIアクセスログサービス。
     - name: BaseApiService
       description: AdminAPIサービス
     - name: BaseAreaService
@@ -13923,9 +13838,9 @@ tags:
     - name: BaseConfigService
       description: Adminシステム設定サービス
     - name: BaseDashboardService
-      description: Admin最初の页业务統計サービス。
+      description: Adminダッシュボード統計サービス。
     - name: BaseDataAccessLogService
-      description: データアクセスログサービス。
+      description: Adminデータアクセスログサービス。
     - name: BaseDeptService
       description: Admin部門サービス
     - name: BaseDictItemService
@@ -13937,7 +13852,7 @@ tags:
     - name: BaseFileService
       description: Adminファイル資産管理サービス。
     - name: BaseI18nService
-      description: 国際化翻訳情報サービス。
+      description: Admin国際化サービス。
     - name: BaseJobLogService
       description: Adminスケジュールタスクログサービス
     - name: BaseJobService
@@ -13945,9 +13860,9 @@ tags:
     - name: BaseLanguageService
       description: Admin言語管理サービス
     - name: BaseLogService
-      description: 共通ログ集約検索サービス。
+      description: Admin共通ログ集約サービス。
     - name: BaseLoginLogService
-      description: ログインログサービス。
+      description: Adminログインログサービス。
     - name: BaseLoginPolicyService
       description: Adminログインポリシー管理サービス。
     - name: BaseMenuService
@@ -13955,49 +13870,49 @@ tags:
     - name: BaseMenuService
       description: Appメニューサービス
     - name: BaseMessageCategoryService
-      description: BaseMessageCategoryService 提供メッセージカテゴリ管理機能。
+      description: Adminメッセージカテゴリ管理サービス。
     - name: BaseMessageService
-      description: BaseMessageService はアプリ内メッセージ管理機能を提供します。
+      description: Adminアプリ内メッセージ管理サービス。
     - name: BaseMigrationService
-      description: データベースマイグレーションサービス
+      description: Adminデータベース移行サービス。
     - name: BaseOperationLogService
-      description: 業務操作ログサービス。
+      description: Admin業務操作ログサービス。
     - name: BasePermissionLogService
-      description: 権限ログサービス。
+      description: Admin権限ログサービス。
     - name: BasePolicyEvaluationLogService
-      description: ポリシー評価ログサービス。
+      description: Adminポリシー評価ログサービス。
     - name: BasePostService
       description: Admin役職管理サービス
-    - name: BaseRedactFieldService
-      description: Adminマスキングフィールドディレクトリサービス。
-    - name: BaseRedactPolicyService
-      description: Adminマスキングポリシーバインドサービス。
+    - name: BaseRedactOutputPolicyService
+      description: Admin出力マスキングポリシーサービス。
     - name: BaseRedactRuleService
-      description: Adminマスキングルール模板サービス。
+      description: Adminマスキングルールテンプレートサービス。
+    - name: BaseRedactStoragePolicyService
+      description: Admin保存時マスキングポリシーサービス。
     - name: BaseRoleService
       description: Adminロール管理サービス
     - name: BaseSessionService
       description: Adminセッション管理サービス。
     - name: BaseTableArchiveRecordService
-      description: BaseTableArchiveRecordService 検索テーブルアーカイブ実行記録。
+      description: Adminテーブルアーカイブ実行記録サービス。
     - name: BaseTableArchiveRestoreService
-      description: BaseTableArchiveRestoreService はアーカイブデータを手動で復元します。
+      description: Adminアーカイブデータ復元サービス。
     - name: BaseTableArchiveService
-      description: BaseTableArchiveService 管理データベーステーブルアーカイブ設定。
+      description: Adminデータベーステーブルアーカイブ設定サービス。
     - name: BaseTableBackupRecordService
-      description: BaseTableBackupRecordService 検索データベースバックアップ実行記録。
+      description: Adminデータベースバックアップ実行記録サービス。
     - name: BaseTableBackupRestoreService
-      description: BaseTableBackupRestoreService 手工復元データベースバックアップ。
+      description: Adminデータベースバックアップ復元サービス。
     - name: BaseTableBackupService
-      description: BaseTableBackupService 管理データベースバックアップ設定。
+      description: Adminデータベースバックアップ設定サービス。
     - name: BaseTableSourceService
-      description: BaseTableSourceService はデータベースバックアップ、データアーカイブ、コード生成で共有するデータソースメタデータを提供します。
+      description: Adminデータソースメタデータサービス。データベースバックアップ、データアーカイブ、コード生成で共有するデータソース情報を提供します。
     - name: BaseTenantService
       description: Adminテナント管理サービス
     - name: BaseUserService
       description: Adminユーザー管理サービス
     - name: CacheService
-      description: 実行时キャッシュ検索サービス。
+      description: Adminランタイムキャッシュ検索サービス。
     - name: CodeGenColumnService
       description: Adminコード生成フィールドサービス
     - name: CodeGenProtoService
@@ -14011,7 +13926,7 @@ tags:
     - name: FileService
       description: Baseファイルサービス
     - name: LanguageService
-      description: 言語共通サービス。
+      description: Base言語サービス。
     - name: LoginService
       description: Baseログイン共通サービス
     - name: McpService
@@ -14019,18 +13934,18 @@ tags:
     - name: MfaService
       description: Base 多要素認証共通サービス。
     - name: NotificationService
-      description: NotificationService 提供現在のユーザーのアプリ内メッセージ受信トレイ機能。
+      description: Base通知サービス。現在のユーザーの受信トレイを提供します。
     - name: OauthClientService
-      description: オープン認可クライアント管理サービス。
+      description: Admin OAuthクライアント管理サービス。
     - name: OauthClientService
-      description: オープン認可クライアントトークンサービス。
+      description: Base OAuthクライアントトークンサービス。
     - name: OauthService
       description: Baseサードパーティーログイン共通サービス
     - name: OpsMonitoringService
-      description: 运维监控サービス。
+      description: Admin運用監視サービス。
     - name: ProjectDocumentService
-      description: プロジェクトドキュメントサービス
+      description: Adminプロジェクトドキュメントサービス。
     - name: RuntimeLogService
-      description: 実行ログサービス。
+      description: Adminランタイムログサービス。
     - name: SseService
       description: Base SSEサービス

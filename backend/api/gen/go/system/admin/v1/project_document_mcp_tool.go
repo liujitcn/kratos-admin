@@ -12,7 +12,7 @@ import (
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-// RegisterProjectDocumentServiceMCPTools 注册项目文档服务的 MCP Tool。
+// RegisterProjectDocumentServiceMCPTools 注册Admin项目文档服务的 MCP Tool。
 func RegisterProjectDocumentServiceMCPTools(mcpServer *mcp.Server, projectDocumentServiceServer ProjectDocumentServiceServer) {
 	RegisterProjectDocumentServiceTreeProjectDocumentMCPTool(mcpServer, projectDocumentServiceServer)
 	RegisterProjectDocumentServiceGetProjectDocumentMCPTool(mcpServer, projectDocumentServiceServer)

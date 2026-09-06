@@ -13,7 +13,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-// RegisterBaseTableArchiveRestoreServiceMCPTools 注册BaseTableArchiveRestoreService 手工恢复归档数据的 MCP Tool。
+// RegisterBaseTableArchiveRestoreServiceMCPTools 注册Admin归档数据恢复服务的 MCP Tool。
 func RegisterBaseTableArchiveRestoreServiceMCPTools(mcpServer *mcp.Server, baseTableArchiveRestoreServiceServer BaseTableArchiveRestoreServiceServer) {
 	RegisterBaseTableArchiveRestoreServicePageBaseTableArchiveRestoreMCPTool(mcpServer, baseTableArchiveRestoreServiceServer)
 	RegisterBaseTableArchiveRestoreServiceGetBaseTableArchiveRestoreMCPTool(mcpServer, baseTableArchiveRestoreServiceServer)

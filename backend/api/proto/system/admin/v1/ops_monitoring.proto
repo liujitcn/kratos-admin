@@ -6,7 +6,7 @@ import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 
-// 运维监控服务。
+// Admin运维监控服务。
 service OpsMonitoringService {
   // 查询当前进程运行信息。
   rpc GetOpsRuntime(GetOpsRuntimeRequest) returns (OpsRuntime) {

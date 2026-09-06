@@ -13,7 +13,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-// RegisterBaseTableBackupServiceMCPTools 注册BaseTableBackupService 管理数据库备份配置的 MCP Tool。
+// RegisterBaseTableBackupServiceMCPTools 注册Admin数据库备份配置服务的 MCP Tool。
 func RegisterBaseTableBackupServiceMCPTools(mcpServer *mcp.Server, baseTableBackupServiceServer BaseTableBackupServiceServer) {
 	RegisterBaseTableBackupServicePageBaseTableBackupMCPTool(mcpServer, baseTableBackupServiceServer)
 	RegisterBaseTableBackupServiceGetBaseTableBackupMCPTool(mcpServer, baseTableBackupServiceServer)

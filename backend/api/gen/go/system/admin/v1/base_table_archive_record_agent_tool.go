@@ -13,7 +13,7 @@ import (
 	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
-// NewBaseTableArchiveRecordServiceAgentTools 创建BaseTableArchiveRecordService 查询表归档执行记录的 Agent Tool。
+// NewBaseTableArchiveRecordServiceAgentTools 创建Admin表归档执行记录服务的 Agent Tool。
 func NewBaseTableArchiveRecordServiceAgentTools(baseTableArchiveRecordServiceServer BaseTableArchiveRecordServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error

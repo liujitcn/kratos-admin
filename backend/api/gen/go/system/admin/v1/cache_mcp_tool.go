@@ -12,7 +12,7 @@ import (
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
-// RegisterCacheServiceMCPTools 注册运行时缓存查询服务的 MCP Tool。
+// RegisterCacheServiceMCPTools 注册Admin运行时缓存查询服务的 MCP Tool。
 func RegisterCacheServiceMCPTools(mcpServer *mcp.Server, cacheServiceServer CacheServiceServer) {
 	RegisterCacheServicePageCacheMCPTool(mcpServer, cacheServiceServer)
 }

@@ -1219,5 +1219,59 @@
   },
   "system.admin.base.redact.rule.description.fixed_length_mask": {
     "other": "Replace content with a fixed character while preserving its length"
+  },
+  "system.admin.base.redact.storage_policy.get.id.required": {
+    "other": "The inbound policy ID is required"
+  },
+  "system.admin.base.redact.storage_policy.source_name.required": {
+    "other": "The data source name is required and must be 64 characters or fewer"
+  },
+  "system.admin.base.redact.storage_policy.table_name.required": {
+    "other": "The database table name is required and has an invalid format"
+  },
+  "system.admin.base.redact.storage_policy.column_name.required": {
+    "other": "The database field name is required and has an invalid format"
+  },
+  "system.admin.base.redact.storage_policy.rule_id.required": {
+    "other": "Select a redaction rule"
+  },
+  "system.admin.base.redact.storage_policy.rule_params.required": {
+    "other": "Rule parameters are required"
+  },
+  "system.admin.base.redact.storage_policy.remark.length": {
+    "other": "The remark must not exceed 500 characters"
+  },
+  "system.admin.base.redact.storage_policy.delete.id.required": {
+    "other": "The inbound policy ID list is required"
+  },
+  "system.admin.base.redact.storage_policy.status.id.required": {
+    "other": "The inbound policy ID is required"
+  },
+  "system.admin.base.redact.output_policy.get.id.required": {
+    "other": "The outbound policy ID is required"
+  },
+  "system.admin.base.redact.output_policy.operation.required": {
+    "other": "The API operation is required and must not exceed 255 characters"
+  },
+  "system.admin.base.redact.output_policy.service_name.required": {
+    "other": "The service name is required and must not exceed 50 characters"
+  },
+  "system.admin.base.redact.output_policy.message_ref.required": {
+    "other": "The full Proto message name is required and must not exceed 255 characters"
+  },
+  "system.admin.base.redact.output_policy.field_path.required": {
+    "other": "The response field path is required and must not exceed 255 characters"
+  },
+  "system.admin.base.redact.output_policy.rule_params.required": {
+    "other": "Rule parameters are required"
+  },
+  "system.admin.base.redact.output_policy.remark.length": {
+    "other": "The remark must not exceed 500 characters"
+  },
+  "system.admin.base.redact.output_policy.delete.id.required": {
+    "other": "The outbound policy ID list is required"
+  },
+  "system.admin.base.redact.output_policy.status.id.required": {
+    "other": "The outbound policy ID is required"
   }
 }

@@ -27,7 +27,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// 公共日志聚合查询服务。
+// Admin公共日志聚合查询服务。
 type BaseLogServiceClient interface {
 	// 查询同一请求或链路关联的六类审计记录。
 	GetBaseLogTrace(ctx context.Context, in *GetBaseLogTraceRequest, opts ...grpc.CallOption) (*GetBaseLogTraceResponse, error)
@@ -55,7 +55,7 @@ func (c *baseLogServiceClient) GetBaseLogTrace(ctx context.Context, in *GetBaseL
 // All implementations must embed UnimplementedBaseLogServiceServer
 // for forward compatibility.
 //
-// 公共日志聚合查询服务。
+// Admin公共日志聚合查询服务。
 type BaseLogServiceServer interface {
 	// 查询同一请求或链路关联的六类审计记录。
 	GetBaseLogTrace(context.Context, *GetBaseLogTraceRequest) (*GetBaseLogTraceResponse, error)

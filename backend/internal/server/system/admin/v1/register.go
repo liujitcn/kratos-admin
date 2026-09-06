@@ -79,6 +79,9 @@ type Services struct {
 	BaseTableBackupRecord   *admin.BaseTableBackupRecordService
 	BaseTableBackupRestore  *admin.BaseTableBackupRestoreService
 	BaseTableSource         *admin.BaseTableSourceService
+	BaseRedactOutputPolicy  *admin.BaseRedactOutputPolicyService
+	BaseRedactRule          *admin.BaseRedactRuleService
+	BaseRedactStoragePolicy *admin.BaseRedactStoragePolicyService
 }
 
 // RegisterGRPC 注册 system.admin.v1 的 gRPC 服务。
@@ -131,6 +134,9 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	adminv1.RegisterBaseTableBackupRecordServiceServer(srv, adminv1.RedactedBaseTableBackupRecordServiceServer(s.BaseTableBackupRecord))
 	adminv1.RegisterBaseTableBackupRestoreServiceServer(srv, adminv1.RedactedBaseTableBackupRestoreServiceServer(s.BaseTableBackupRestore))
 	adminv1.RegisterBaseTableSourceServiceServer(srv, adminv1.RedactedBaseTableSourceServiceServer(s.BaseTableSource))
+	adminv1.RegisterBaseRedactOutputPolicyServiceServer(srv, adminv1.RedactedBaseRedactOutputPolicyServiceServer(s.BaseRedactOutputPolicy))
+	adminv1.RegisterBaseRedactRuleServiceServer(srv, adminv1.RedactedBaseRedactRuleServiceServer(s.BaseRedactRule))
+	adminv1.RegisterBaseRedactStoragePolicyServiceServer(srv, adminv1.RedactedBaseRedactStoragePolicyServiceServer(s.BaseRedactStoragePolicy))
 }
 
 // RegisterHTTP 注册 system.admin.v1 的 HTTP 服务。
@@ -186,6 +192,9 @@ func (s Services) RegisterHTTP(srv *http.Server) {
 	adminv1.RegisterBaseTableBackupRecordServiceHTTPServer(srv, adminv1.RedactedBaseTableBackupRecordServiceServer(s.BaseTableBackupRecord))
 	adminv1.RegisterBaseTableBackupRestoreServiceHTTPServer(srv, adminv1.RedactedBaseTableBackupRestoreServiceServer(s.BaseTableBackupRestore))
 	adminv1.RegisterBaseTableSourceServiceHTTPServer(srv, adminv1.RedactedBaseTableSourceServiceServer(s.BaseTableSource))
+	adminv1.RegisterBaseRedactOutputPolicyServiceHTTPServer(srv, adminv1.RedactedBaseRedactOutputPolicyServiceServer(s.BaseRedactOutputPolicy))
+	adminv1.RegisterBaseRedactRuleServiceHTTPServer(srv, adminv1.RedactedBaseRedactRuleServiceServer(s.BaseRedactRule))
+	adminv1.RegisterBaseRedactStoragePolicyServiceHTTPServer(srv, adminv1.RedactedBaseRedactStoragePolicyServiceServer(s.BaseRedactStoragePolicy))
 }
 
 // RegisterMCP 注册 system.admin.v1 的 MCP 工具。

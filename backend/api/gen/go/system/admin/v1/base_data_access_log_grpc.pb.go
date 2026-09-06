@@ -28,7 +28,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// 数据访问日志服务。
+// Admin数据访问日志服务。
 type BaseDataAccessLogServiceClient interface {
 	// 分页查询数据访问日志。
 	PageBaseDataAccessLog(ctx context.Context, in *PageBaseDataAccessLogRequest, opts ...grpc.CallOption) (*PageBaseDataAccessLogResponse, error)
@@ -68,7 +68,7 @@ func (c *baseDataAccessLogServiceClient) GetBaseDataAccessLog(ctx context.Contex
 // All implementations must embed UnimplementedBaseDataAccessLogServiceServer
 // for forward compatibility.
 //
-// 数据访问日志服务。
+// Admin数据访问日志服务。
 type BaseDataAccessLogServiceServer interface {
 	// 分页查询数据访问日志。
 	PageBaseDataAccessLog(context.Context, *PageBaseDataAccessLogRequest) (*PageBaseDataAccessLogResponse, error)

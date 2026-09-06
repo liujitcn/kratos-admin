@@ -28,7 +28,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// 业务操作日志服务。
+// Admin业务操作日志服务。
 type BaseOperationLogServiceClient interface {
 	// 分页查询业务操作日志。
 	PageBaseOperationLog(ctx context.Context, in *PageBaseOperationLogRequest, opts ...grpc.CallOption) (*PageBaseOperationLogResponse, error)
@@ -68,7 +68,7 @@ func (c *baseOperationLogServiceClient) GetBaseOperationLog(ctx context.Context,
 // All implementations must embed UnimplementedBaseOperationLogServiceServer
 // for forward compatibility.
 //
-// 业务操作日志服务。
+// Admin业务操作日志服务。
 type BaseOperationLogServiceServer interface {
 	// 分页查询业务操作日志。
 	PageBaseOperationLog(context.Context, *PageBaseOperationLogRequest) (*PageBaseOperationLogResponse, error)

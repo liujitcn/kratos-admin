@@ -13,7 +13,7 @@ import (
 	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
-// NewBaseTableBackupRecordServiceAgentTools 创建BaseTableBackupRecordService 查询数据库备份执行记录的 Agent Tool。
+// NewBaseTableBackupRecordServiceAgentTools 创建Admin数据库备份执行记录服务的 Agent Tool。
 func NewBaseTableBackupRecordServiceAgentTools(baseTableBackupRecordServiceServer BaseTableBackupRecordServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error

@@ -6,7 +6,7 @@ import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 
-// 公共日志聚合查询服务。
+// Admin公共日志聚合查询服务。
 service BaseLogService {
   // 查询同一请求或链路关联的六类审计记录。
   rpc GetBaseLogTrace(GetBaseLogTraceRequest) returns (GetBaseLogTraceResponse) {

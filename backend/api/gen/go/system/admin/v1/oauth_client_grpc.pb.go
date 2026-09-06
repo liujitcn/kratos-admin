@@ -36,7 +36,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// 开放授权客户端管理服务。
+// Admin开放授权客户端管理服务。
 type OauthClientServiceClient interface {
 	// 查询可授权的开发接口选项。
 	OptionOauthClientApi(ctx context.Context, in *OptionOauthClientApiRequest, opts ...grpc.CallOption) (*OptionOauthClientApiResponse, error)
@@ -160,7 +160,7 @@ func (c *oauthClientServiceClient) SetOauthClientStatus(ctx context.Context, in 
 // All implementations must embed UnimplementedOauthClientServiceServer
 // for forward compatibility.
 //
-// 开放授权客户端管理服务。
+// Admin开放授权客户端管理服务。
 type OauthClientServiceServer interface {
 	// 查询可授权的开发接口选项。
 	OptionOauthClientApi(context.Context, *OptionOauthClientApiRequest) (*OptionOauthClientApiResponse, error)

@@ -14,7 +14,7 @@ import (
 	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 )
 
-// NewBaseTableSourceServiceAgentTools 创建BaseTableSourceService 提供数据备份、数据归档和代码生成共用的数据源元数据的 Agent Tool。
+// NewBaseTableSourceServiceAgentTools 创建Admin数据源元数据服务，提供数据备份、数据归档和代码生成共用的数据源信息的 Agent Tool。
 func NewBaseTableSourceServiceAgentTools(baseTableSourceServiceServer BaseTableSourceServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error

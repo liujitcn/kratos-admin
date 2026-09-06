@@ -14,7 +14,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-// NewBaseTableArchiveRestoreServiceAgentTools 创建BaseTableArchiveRestoreService 手工恢复归档数据的 Agent Tool。
+// NewBaseTableArchiveRestoreServiceAgentTools 创建Admin归档数据恢复服务的 Agent Tool。
 func NewBaseTableArchiveRestoreServiceAgentTools(baseTableArchiveRestoreServiceServer BaseTableArchiveRestoreServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error

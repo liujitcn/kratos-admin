@@ -8,7 +8,7 @@ import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
-// BaseMessageService 提供站内信管理能力。
+// Admin站内信管理服务。
 service BaseMessageService {
   // 分页查询消息。
   rpc PageBaseMessage(PageBaseMessageRequest) returns (PageBaseMessageResponse) { option (google.api.http) = {get: "/api/v1/admin/base/message"}; }

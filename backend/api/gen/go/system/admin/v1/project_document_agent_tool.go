@@ -13,7 +13,7 @@ import (
 	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
-// NewProjectDocumentServiceAgentTools 创建项目文档服务的 Agent Tool。
+// NewProjectDocumentServiceAgentTools 创建Admin项目文档服务的 Agent Tool。
 func NewProjectDocumentServiceAgentTools(projectDocumentServiceServer ProjectDocumentServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error

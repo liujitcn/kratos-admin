@@ -8,7 +8,7 @@ import "common/v1/enum.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "buf/validate/validate.proto";
 
-// BaseTableBackupService 管理数据库备份配置。
+// Admin数据库备份配置服务。
 service BaseTableBackupService {
   // 查询数据库备份配置分页列表。
   rpc PageBaseTableBackup(PageBaseTableBackupRequest) returns (PageBaseTableBackupResponse) {

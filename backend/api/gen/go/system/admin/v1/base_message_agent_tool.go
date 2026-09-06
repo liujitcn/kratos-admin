@@ -14,7 +14,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-// NewBaseMessageServiceAgentTools 创建BaseMessageService 提供站内信管理能力的 Agent Tool。
+// NewBaseMessageServiceAgentTools 创建Admin站内信管理服务的 Agent Tool。
 func NewBaseMessageServiceAgentTools(baseMessageServiceServer BaseMessageServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error

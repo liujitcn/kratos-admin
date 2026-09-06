@@ -6,7 +6,7 @@ import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "system/admin/v1/base_log.proto";
 
-// API 访问日志服务。
+// Admin API访问日志服务。
 service BaseApiLogService {
   // 分页查询 API 访问日志。
   rpc PageBaseApiLog(PageBaseApiLogRequest) returns (PageBaseApiLogResponse) {
