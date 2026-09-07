@@ -142,6 +142,8 @@ core 内部源码使用 `@/*`，不得引用任何 System 包或 System 源码�
 
 core 的 API 目录只保留底座运行时实际调用的请求封装。RPC 生成文件以服务为生成粒度；服务端契约尚未拆分完成时，core 所需的登录、菜单或用户服务文件可能暂含个人中心相关方法，这属于当前生成结果，不代表个人中心页面归属 core，也不在前端手工裁剪。
 
+登录页的租户输入框读取公共配置 `showTenantCode`，配置值为 `false` 或 `0` 时隐藏，并在登录请求中使用默认租户编码。语言切换入口由 `base/language` 返回的可用语言数量控制，仅返回一种语言时不显示；其他登录方式由 `base/oauth/provider` 返回的 `providers` 数组控制，空数组不显示登录入口。
+
 core 通过 `ADMIN_STATIC_VIEWS` 注册全部默认静态页面，后注册业务模块通过 `AdminModule.staticViews` 显式替换默认实现。固定视图键为 `login/index`、`error/403`、`error/404`、`error/500` 和 `error/pending`。普通业务页面只按 `<module>/<view>` 路径解析，不提供无前缀别名。个人中心与 AI 助手不在 core 中注册，使用这些能力的宿主必须安装并注册 System 模块。
 
 ## 公共 Interface

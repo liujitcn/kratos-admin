@@ -118,6 +118,8 @@ export interface SiteConfigState {
   display: SiteDisplayConfig;
   /** 当前登录验证码配置 */
   captcha: LoginCaptchaConfig;
+  /** 是否在登录页显示租户编码输入框。 */
+  showTenantCode: boolean;
   /** 是否允许显式生成机器翻译草稿。 */
   i18nDraftEnabled: boolean;
 }

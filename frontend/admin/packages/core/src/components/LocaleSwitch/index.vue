@@ -1,5 +1,5 @@
 <template>
-  <el-dropdown trigger="click" placement="bottom-end" @command="handleLocaleChange">
+  <el-dropdown v-if="localeOptions.length > 1" trigger="click" placement="bottom-end" @command="handleLocaleChange">
     <Languages class="toolBar-icon" :size="20" :title="t('core.header.language')" />
     <template #dropdown>
       <el-dropdown-menu>

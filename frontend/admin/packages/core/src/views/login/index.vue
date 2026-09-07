@@ -2,7 +2,7 @@
   <div class="login-container flx-center">
     <div class="login-box">
       <SwitchDark class="dark" />
-      <LocaleSwitch class="locale" />
+      <LocaleSwitch v-if="languageOptions.length > 1" class="locale" />
       <div class="login-left">
         <img class="login-left-img" :src="backgroundUrl" :alt="t('core.login.background_alt')" />
       </div>
@@ -26,7 +26,7 @@ import { useConfigStore } from "@/stores/modules/config";
 import { useLocaleStore } from "@/locales";
 
 const configStore = useConfigStore();
-const { t } = useLocaleStore();
+const { t, languageOptions } = useLocaleStore();
 const projectName = computed(() => configStore.display.sysName || import.meta.env.VITE_GLOB_APP_TITLE);
 const logoUrl = computed(() => configStore.display.adminLogo);
 const backgroundUrl = computed(() => configStore.display.background);

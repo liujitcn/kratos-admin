@@ -6,6 +6,7 @@ import defaultLogoUrl from "@/assets/images/logo.svg";
 import defaultBackgroundUrl from "@/assets/images/login_left.png";
 
 const CAPTCHA_TYPE_KEY = "captchaType";
+const SHOW_TENANT_CODE_KEY = "showTenantCode";
 const I18N_DRAFT_ENABLED_KEY = "i18n.draft.enabled";
 
 const DEFAULT_SITE_DISPLAY_CONFIG: SiteDisplayConfig = {
@@ -78,6 +79,7 @@ export const useConfigStore = defineStore("admin-config", {
   state: (): SiteConfigState => ({
     display: { ...DEFAULT_SITE_DISPLAY_CONFIG },
     captcha: { ...DEFAULT_LOGIN_CAPTCHA_CONFIG },
+    showTenantCode: true,
     i18nDraftEnabled: false
   }),
   getters: {},
@@ -116,6 +118,7 @@ export const useConfigStore = defineStore("admin-config", {
 
       this.setDisplayConfig(normalizeSiteDisplayConfig(configMap));
       this.setLoginCaptchaConfig(normalizeLoginCaptchaConfig(configMap));
+      this.showTenantCode = !["false", "0"].includes((configMap[SHOW_TENANT_CODE_KEY] ?? "true").toLowerCase());
       this.i18nDraftEnabled = configMap[I18N_DRAFT_ENABLED_KEY] === "true";
       return this.display;
     }

@@ -1,6 +1,6 @@
 <template>
   <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" size="large">
-    <el-form-item prop="tenant_code">
+    <el-form-item v-if="configStore.showTenantCode" prop="tenant_code">
       <el-input v-model="loginForm.tenant_code" :placeholder="t('core.login.tenant_code')">
         <template #prefix>
           <el-icon class="el-input__icon">
@@ -225,7 +225,9 @@ const captchaImageWidth = ref(`${defaultCaptchaImageWidth}px`);
 const behaviorDialogVisible = ref(false);
 const behaviorLoading = ref(false);
 const loginRules = computed(() => ({
-  tenant_code: [{ required: true, message: t("core.login.tenant_code"), trigger: "blur" }],
+  ...(configStore.showTenantCode
+    ? { tenant_code: [{ required: true, message: t("core.login.tenant_code"), trigger: "blur" }] }
+    : {}),
   user_name: [{ required: true, message: t("core.login.user_name"), trigger: "blur" }],
   password: [{ required: true, message: t("core.login.password"), trigger: "blur" }],
   captcha_code: [{ required: true, message: t("core.login.captcha"), trigger: "blur" }]
@@ -757,7 +759,7 @@ const submitLogin = async (captchaToken: string) => {
   try {
     const password = await encryptPassword(loginForm.password, PASSWORD_CRYPTO_SCENE.PASSWORD_CRYPTO_SCENE_LOGIN);
     const loginRequest: LoginRequest = {
-      tenant_code: loginForm.tenant_code,
+      tenant_code: configStore.showTenantCode ? loginForm.tenant_code : "0000",
       user_name: loginForm.user_name,
       password,
       captcha_code: captchaToken,
