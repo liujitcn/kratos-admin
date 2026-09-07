@@ -28,6 +28,7 @@
 `base_language`、`base_config`、`base_dept`、`base_dict`、`base_dict_item`、`base_job`、`base_tenant`、`base_message_category`、`base_menu`、`base_role`、`base_user`、`base_redact_rule`、`base_redact_storage_policy`、`base_redact_output_policy`。
 
 - 言語: `zh-CN`、`zh-TW`、`en-US`、`ja-JP` を用意し、`zh-CN` を主言語にします。
+- ログイン時のテナント番号: Admin（`site=2`）とアプリ（`site=3`）の両方でブール設定 `showTenantCode=true` を初期登録し、テナント番号の入力欄を既定で表示します。設定名には英語、繁体字中国語、日本語の翻訳を用意します。
 - 基本 ID: 既定テナント、システム部門、5 つのロールテンプレート、ローカル開発用の `super` と `admin` を用意します。初期パスワードは `112233` で、ローカル環境専用です。
 - 設定と辞書: Admin とアプリの設定、CAPTCHA、OAuth 自動登録、テナント番号表示、多要素認証のポリシーと方式を含みます。監査ログ登録のフォールバックは非表示設定 `baseLogFallback`、保持ポリシーは `base_table_archive`、バックアップポリシーは `base_table_backup` に保存し、セッションのライフサイクルとアップロードスキャンは `authn.session`、`oss.upload_security` で設定します。永続辞書にはメニュー、監査、ログインポリシー、メッセージ、権限、コード生成の列挙値を収録します。
 - ジョブとメッセージ: ジョブ ID `1000-1004` は、リソース翻訳、メッセージ配信復旧、テーブルアーカイブ、テーブルバックアップ、監査ログ登録フォールバックに対応します。メッセージ配信復旧と監査ログ登録フォールバックは既定で有効、アーカイブとバックアップは無効です。アーカイブ設定は `base_table_archive`、バックアップ設定は `base_table_backup` に保存されます。メッセージカテゴリはシステム、セキュリティ、タスク、業務の 4 種類です。

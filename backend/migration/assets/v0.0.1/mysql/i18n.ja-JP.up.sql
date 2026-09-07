@@ -21,6 +21,7 @@ INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VA
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (2, 2060, 'ja-JP', 'ロゴ');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (2, 2080, 'ja-JP', 'ウォーターマーク');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (2, 2100, 'ja-JP', '背景画像');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (2, 2110, 'ja-JP', 'ログイン時にテナント番号を表示');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (2, 2120, 'ja-JP', 'ログイン認証コードの種類');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (2, 2140, 'ja-JP', '多要素認証戦略');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (2, 2160, 'ja-JP', '多要素認証方式');

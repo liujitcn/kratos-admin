@@ -28,6 +28,7 @@
 `base_language`、`base_config`、`base_dept`、`base_dict`、`base_dict_item`、`base_job`、`base_tenant`、`base_message_category`、`base_menu`、`base_role`、`base_user`、`base_redact_rule`、`base_redact_storage_policy`、`base_redact_output_policy`。
 
 - 语言：预置 `zh-CN`、`zh-TW`、`en-US`、`ja-JP`，其中 `zh-CN` 为主语言。
+- 登录租户编号：管理端（`site=2`）和应用端（`site=3`）均预置布尔配置 `showTenantCode=true`，默认显示租户编号输入框；配置名称包含英文、繁体中文和日文翻译。
 - 基础身份：预置默认租户、系统管理部门、5 个角色模板，以及 `super`、`admin` 两个本地开发账号。账号初始密码为 `112233`，仅用于本地环境。
 - 配置与字典：包含管理端和应用端配置、验证码、OAuth 自动注册、租户编号显示、多因素认证策略和认证方式；日志入库回退使用隐藏系统配置 `baseLogFallback`，日志保留策略写入 `base_table_archive`，数据库备份策略写入 `base_table_backup`，会话生命周期和上传扫描由 `authn.session`、`oss.upload_security` 配置；持久化字典覆盖菜单、审计、登录策略、消息、权限和代码生成等枚举。
 - 任务与消息：任务编号 `1000-1004` 分别用于资源翻译、消息投递恢复、数据表归档、数据表备份和日志入库回退；消息投递恢复与日志入库回退默认启用，归档和备份默认关闭。归档配置保存在 `base_table_archive`，备份配置保存在 `base_table_backup`。消息分类预置系统、安全、任务、业务四类。

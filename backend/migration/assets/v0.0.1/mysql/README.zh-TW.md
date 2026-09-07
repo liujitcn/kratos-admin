@@ -28,6 +28,7 @@
 `base_language`、`base_config`、`base_dept`、`base_dict`、`base_dict_item`、`base_job`、`base_tenant`、`base_message_category`、`base_menu`、`base_role`、`base_user`、`base_redact_rule`、`base_redact_storage_policy`、`base_redact_output_policy`。
 
 - 語言：預設 `zh-CN`、`zh-TW`、`en-US`、`ja-JP`，其中 `zh-CN` 為主要語言。
+- 登入租戶編號：管理端（`site=2`）與應用端（`site=3`）均預設布林設定 `showTenantCode=true`，預設顯示租戶編號輸入框；設定名稱包含英文、繁體中文和日文翻譯。
 - 基礎身分：預設租戶、系統部門、5 個角色範本，以及本機開發帳號 `super`、`admin`。初始密碼為 `112233`，僅供本機環境使用。
 - 設定與字典：包含管理端與應用端設定、驗證碼、OAuth 自動註冊、租戶編號顯示、多因素認證策略與方式；日誌入庫回退使用隱藏設定 `baseLogFallback`，保留策略寫入 `base_table_archive`，資料庫備份策略寫入 `base_table_backup`，工作階段生命週期和上傳掃描由 `authn.session`、`oss.upload_security` 設定。持久化字典涵蓋選單、稽核、登入策略、訊息、權限與程式碼生成等列舉值。
 - 任務與訊息：任務編號 `1000-1004` 分別用於資源翻譯、訊息投遞恢復、資料表歸檔、資料表備份和日誌入庫回退；訊息投遞恢復與日誌入庫回退預設啟用，歸檔和備份預設關閉。歸檔設定儲存在 `base_table_archive`，備份設定儲存在 `base_table_backup`。訊息分類預設系統、安全、任務、業務四類。

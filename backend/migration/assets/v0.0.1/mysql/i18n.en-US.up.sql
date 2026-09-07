@@ -21,6 +21,7 @@ INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VA
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (2, 2060, 'en-US', 'Logo');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (2, 2080, 'en-US', 'Watermark');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (2, 2100, 'en-US', 'Background Image');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (2, 2110, 'en-US', 'Show Tenant Code on Login');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (2, 2120, 'en-US', 'Login CAPTCHA Type');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (2, 2140, 'en-US', 'Multi-factor Authentication Policy');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (2, 2160, 'en-US', 'Multi-factor Authentication Method');
