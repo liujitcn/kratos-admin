@@ -14,24 +14,34 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_LOCALE = "zh-CN"
 LANGUAGE_LABEL_PREFIX = "common.language."
 
-LOCALE_DIRECTORIES = {
-    "backend": ROOT / "backend/internal/i18n/assets",
-    "admin-core": ROOT / "frontend/admin/packages/core/src/locales",
-    "admin-system": ROOT / "frontend/admin/packages/modules/system/src/locales",
-    "uni-core": ROOT / "frontend/uni-app/packages/core/src/locales",
-    "uni-system": ROOT / "frontend/uni-app/packages/modules/system/src/locales",
-    "taro-core": ROOT / "frontend/taro-app/packages/core/src/locales",
-    "taro-system": ROOT / "frontend/taro-app/packages/modules/system/src/locales",
-}
+def discover_locale_directories() -> dict[str, Path]:
+    """发现后端、Core 以及所有前端业务模块的语言目录。"""
+    directories = {
+        "backend": ROOT / "backend/internal/i18n/assets",
+        "admin-core": ROOT / "frontend/admin/packages/core/src/locales",
+        "uni-core": ROOT / "frontend/uni-app/packages/core/src/locales",
+        "taro-core": ROOT / "frontend/taro-app/packages/core/src/locales",
+    }
+    for terminal in ("admin", "uni", "taro"):
+        modules_root = ROOT / f"frontend/{terminal}/packages/modules"
+        for path in sorted(modules_root.glob("*/src/locales")):
+            if path.is_dir():
+                module_name = path.parent.parent.name
+                directories[f"{terminal}-{module_name}"] = path
+    return directories
 
-FRONTEND_GENERATED_FILES = {
-    "admin-core": ROOT / "frontend/admin/packages/core/src/locales/generated.ts",
-    "admin-system": ROOT / "frontend/admin/packages/modules/system/src/locales/generated.ts",
-    "uni-core": ROOT / "frontend/uni-app/packages/core/src/locales/generated.ts",
-    "uni-system": ROOT / "frontend/uni-app/packages/modules/system/src/locales/generated.ts",
-    "taro-core": ROOT / "frontend/taro-app/packages/core/src/locales/generated.ts",
-    "taro-system": ROOT / "frontend/taro-app/packages/modules/system/src/locales/generated.ts",
-}
+
+def discover_frontend_generated_files(locale_directories: dict[str, Path]) -> dict[str, Path]:
+    """根据已发现的前端语言目录定位生成的注册文件。"""
+    return {
+        name: directory / "generated.ts"
+        for name, directory in locale_directories.items()
+        if name != "backend"
+    }
+
+
+LOCALE_DIRECTORIES = discover_locale_directories()
+FRONTEND_GENERATED_FILES = discover_frontend_generated_files(LOCALE_DIRECTORIES)
 
 CODEGEN_MESSAGE_PREFIX = "system.code.gen."
 COMMON_MESSAGE_PREFIX = "common."
@@ -92,6 +102,14 @@ def validate_locale_sets(file_sets: dict[str, dict[str, Path]]) -> list[str]:
             messages = json.loads(path.read_text(encoding="utf-8"))
             if required_message_keys(messages) != reference_keys:
                 raise ValueError(f"{name}/{locale} 与 {DEFAULT_LOCALE} 的语言键集合不一致")
+            for key in reference_keys:
+                expected_placeholders = message_placeholders(reference[key])
+                actual_placeholders = message_placeholders(messages[key])
+                if actual_placeholders != expected_placeholders:
+                    raise ValueError(
+                        f"{name}/{locale} 文案占位符不一致: {key}，"
+                        f"期望 {expected_placeholders}，实际 {actual_placeholders}"
+                    )
     backend_messages = {
         locale: json.loads(path.read_text(encoding="utf-8"))
         for locale, path in file_sets["backend"].items()

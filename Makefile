@@ -85,6 +85,7 @@ hooks:
 gen:
 	@$(MAKE) -C "$(BACKEND_DIR)" gen
 	@$(MAKE) -C "$(FRONTEND_DIR)" ts
+	@$(MAKE) i18n-sync
 	@$(MAKE) i18n-docs
 	@$(MAKE) i18n-openapi
 	@echo "==> 全仓代码与文档产物生成完成"
@@ -94,6 +95,7 @@ check:
 	@$(MAKE) -C "$(BACKEND_DIR)" check
 	@$(MAKE) -C "$(FRONTEND_DIR)" check
 	@$(MAKE) i18n-check
+	@$(MAKE) i18n-verify
 	@echo "==> 全仓检查完成"
 
 # ===== 统一构建与打包 =====
@@ -149,6 +151,7 @@ i18n-locale:
 	@$(PYTHON) scripts/generate_locale_drafts.py \
 		--write \
 		--machine \
+		--merge \
 		--locale "$(I18N_LOCALE)" \
 		$(if $(strip $(I18N_MIGRATION_VERSION)),--migration-version "$(I18N_MIGRATION_VERSION)",) \
 		$(if $(filter 1 true,$(I18N_OFFLINE)),--offline,)

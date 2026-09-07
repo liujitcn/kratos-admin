@@ -21,16 +21,26 @@ ROOT = Path(__file__).resolve().parents[1]
 GOOGLE_CLIENTS = ("gtx", "dict-chrome-ex", "chrome", "at")
 DEFAULT_REQUEST_TIMEOUT = 8.0
 SQL_DIR = ROOT / "backend/migration/assets/v0.0.1/mysql"
-JSON_SOURCES = [
-    ROOT / "backend/internal/i18n/assets/zh-CN.json",
-    ROOT / "frontend/admin/packages/core/src/locales/zh-CN.json",
-    ROOT / "frontend/admin/packages/modules/system/src/locales/zh-CN.json",
-    ROOT / "frontend/uni-app/packages/core/src/locales/zh-CN.json",
-    ROOT / "frontend/uni-app/packages/modules/system/src/locales/zh-CN.json",
-    ROOT / "frontend/taro-app/packages/core/src/locales/zh-CN.json",
-    ROOT / "frontend/taro-app/packages/modules/system/src/locales/zh-CN.json",
-]
+LOCALE_CODE_PATTERN = re.compile(r"^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$")
 DEFAULT_TARGET_LOCALES = ("zh-TW",)
+
+
+def json_sources() -> list[Path]:
+    """发现后端 Core 与所有前端业务模块的简体中文语言包。"""
+    roots = [
+        ROOT / "backend/internal/i18n/assets",
+        ROOT / "frontend/admin/packages/core/src/locales",
+        ROOT / "frontend/uni-app/packages/core/src/locales",
+        ROOT / "frontend/taro-app/packages/core/src/locales",
+    ]
+    for terminal in ("admin", "uni", "taro"):
+        roots.extend(sorted((ROOT / f"frontend/{terminal}/packages/modules").glob("*/src/locales")))
+    return [root / "zh-CN.json" for root in roots if (root / "zh-CN.json").is_file()]
+
+
+JSON_SOURCES = json_sources()
+
+
 FALLBACK_I18NS = {
     "ja": {
         "Language Management": "言語管理",
@@ -767,8 +777,65 @@ def replace_strings(value: Any, replacement: Callable[[], str]) -> Any:
     return value
 
 
-def generate_json(source: Path, locale: str, converter, machine: bool, offline: bool, write: bool) -> None:
+def collect_missing_strings(source: Any, target: Any, values: list[str]) -> None:
+    """收集目标语言包中尚未填写的源文案。"""
+    if isinstance(source, str):
+        if not isinstance(target, str) or not target.strip():
+            values.append(source)
+        return
+    if isinstance(source, list):
+        target_list = target if isinstance(target, list) else []
+        for index, item in enumerate(source):
+            collect_missing_strings(item, target_list[index] if index < len(target_list) else None, values)
+        return
+    if isinstance(source, dict):
+        target_dict = target if isinstance(target, dict) else {}
+        for key, item in source.items():
+            collect_missing_strings(item, target_dict.get(key), values)
+
+
+def merge_missing_strings(source: Any, target: Any, replacement: Callable[[], str]) -> Any:
+    """按源语言包结构补齐缺失文案，并保留已有译文。"""
+    if isinstance(source, str):
+        return target if isinstance(target, str) and target.strip() else replacement()
+    if isinstance(source, list):
+        target_list = target if isinstance(target, list) else []
+        return [
+            merge_missing_strings(item, target_list[index] if index < len(target_list) else None, replacement)
+            for index, item in enumerate(source)
+        ]
+    if isinstance(source, dict):
+        target_dict = target if isinstance(target, dict) else {}
+        return {key: merge_missing_strings(item, target_dict.get(key), replacement) for key, item in source.items()}
+    return target if target is not None else source
+
+
+def generate_json(
+    source: Path,
+    locale: str,
+    converter,
+    machine: bool,
+    offline: bool,
+    write: bool,
+    merge: bool,
+) -> None:
     source_data = json.loads(source.read_text(encoding="utf-8"))
+    target = source.with_name(f"{locale}.json")
+    if merge and target.exists():
+        target_data = json.loads(target.read_text(encoding="utf-8"))
+        missing_values: list[str] = []
+        collect_missing_strings(source_data, target_data, missing_values)
+        if locale == "zh-TW":
+            translated = [converter.convert(value) for value in missing_values]
+        elif missing_values:
+            translated = i18n_batch(missing_values, "zh-CN", locale.split("-")[0], offline)
+        else:
+            translated = []
+        iterator = iter(translated)
+        target_data = merge_missing_strings(source_data, target_data, lambda: next(iterator))
+        if write:
+            target.write_text(json.dumps(target_data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        return
     if locale == "zh-TW":
         target_data = convert_value(source_data, converter)
     else:
@@ -782,21 +849,23 @@ def generate_json(source: Path, locale: str, converter, machine: bool, offline: 
         translated = [value or source_values[index] for index, value in enumerate(translated)]
         iterator = iter(translated)
         target_data = replace_strings(source_data, lambda: next(iterator))
-    target = source.with_name(f"{locale}.json")
     if write:
         target.write_text(json.dumps(target_data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 def parse_sql_values(line: str) -> list[str | None] | None:
-    """解析 INSERT 语句中的值，兼容文本中的逗号、单引号和反斜杠。"""
-    values_match = re.search(r"VALUES \((.*)\);$", line)
+    """解析 INSERT 语句中的值，兼容逗号、SQL 双单引号和反斜杠。"""
+    values_match = re.search(r"VALUES\s*\((.*)\)\s*;\s*$", line)
     if not values_match:
         return None
     values: list[str | None] = []
     current: list[str] = []
     quoted = False
     escaped = False
-    for char in values_match.group(1):
+    value_text = values_match.group(1)
+    index = 0
+    while index < len(value_text):
+        char = value_text[index]
         if quoted:
             if escaped:
                 current.append(char)
@@ -804,11 +873,14 @@ def parse_sql_values(line: str) -> list[str | None] | None:
             elif char == "\\":
                 escaped = True
             elif char == "'":
-                quoted = False
+                if index + 1 < len(value_text) and value_text[index + 1] == "'":
+                    current.append("'")
+                    index += 1
+                else:
+                    quoted = False
             else:
                 current.append(char)
-            continue
-        if char == "'":
+        elif char == "'":
             quoted = True
         elif char == ",":
             value = "".join(current).strip()
@@ -816,6 +888,9 @@ def parse_sql_values(line: str) -> list[str | None] | None:
             current = []
         else:
             current.append(char)
+        index += 1
+    if quoted or escaped:
+        return None
     value = "".join(current).strip()
     values.append(None if value.upper() == "NULL" else value)
     return values
@@ -884,33 +959,62 @@ def replace_i18n(line: str, locale: str, translated: str) -> str:
     )
 
 
-def generate_sql(locale: str, converter, machine: bool, offline: bool, write: bool, sql_directory: Path) -> None:
+def load_existing_i18n(path: Path) -> dict[tuple[int, int], str]:
+    """读取已有语言 SQL，供增量生成时保留人工译文。"""
+    if not path.exists():
+        return {}
+    records: dict[tuple[int, int], str] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        record = i18n_record(line)
+        if record and record[3].strip():
+            records[(record[0], record[1])] = record[3]
+    return records
+
+
+def generate_sql(
+    locale: str,
+    converter,
+    machine: bool,
+    offline: bool,
+    write: bool,
+    sql_directory: Path,
+    merge: bool,
+) -> None:
     source = SQL_DIR / "i18n.en-US.up.sql"
     target = sql_directory / f"i18n.{locale}.up.sql"
     primary_sources = parse_primary_i18n_sources(SQL_DIR / "default_data.up.sql")
+    existing_i18n = load_existing_i18n(target) if merge else {}
     lines = source.read_text(encoding="utf-8").splitlines()
-    values = []
-    for line in lines:
+    translated_by_index: dict[int, str] = {}
+    pending_indices: list[int] = []
+    pending_values: list[str] = []
+    for index, line in enumerate(lines):
         record = i18n_record(line)
-        if record:
-            values.append(primary_sources.get((record[0], record[1]), ""))
+        if not record:
+            continue
+        key = (record[0], record[1])
+        if key not in primary_sources:
+            raise ValueError(f"默认数据缺少翻译源文本: {SQL_DIR / 'default_data.up.sql'} {key}")
+        if merge and key in existing_i18n:
+            translated_by_index[index] = existing_i18n[key]
+            continue
+        pending_indices.append(index)
+        pending_values.append(primary_sources[key])
+    if locale == "zh-TW":
+        translated = [converter.convert(value) for value in pending_values]
+    elif offline:
+        translated = [fallback_sql_translate(value, locale.split("-")[0]) for value in pending_values]
+    elif machine:
+        translated = i18n_batch(pending_values, "zh-CN", locale.split("-")[0], False)
+    else:
+        translated = pending_values
+    translated_by_index.update(dict(zip(pending_indices, translated)))
+    generated = []
+    for index, line in enumerate(lines):
+        if "INSERT IGNORE INTO" in line and i18n_record(line):
+            generated.append(replace_i18n(line, locale, translated_by_index[index]))
         else:
-            values.append("")
-    translated = (
-        values
-        if locale == "zh-TW"
-        else [fallback_sql_translate(value, locale.split("-")[0]) for value in values]
-        if offline
-        else i18n_batch(values, "zh-CN", locale.split("-")[0], False)
-        if machine or offline
-        else values
-    )
-    generated = [
-        replace_i18n(line, locale, converter.convert(translated[index]) if locale == "zh-TW" else translated[index])
-        if "INSERT IGNORE INTO" in line
-        else line.replace("en-US", locale)
-        for index, line in enumerate(lines)
-    ]
+            generated.append(line.replace("en-US", locale))
     if write:
         target.write_text("\n".join(generated) + "\n", encoding="utf-8")
 
@@ -931,7 +1035,13 @@ def parse_locales(values: list[str] | None) -> tuple[str, ...]:
     for value in values:
         for locale in value.split(","):
             locale = locale.strip()
-            if locale and locale not in locales:
+            if not locale:
+                continue
+            if not LOCALE_CODE_PATTERN.fullmatch(locale):
+                raise SystemExit(f"语言代码不是有效的 BCP 47 代码: {locale}")
+            if locale == "zh-CN":
+                raise SystemExit("不能把默认语言 zh-CN 作为生成目标")
+            if locale not in locales:
                 locales.append(locale)
     return tuple(locales)
 
@@ -941,6 +1051,7 @@ def main() -> int:
     parser.add_argument("--write", action="store_true", help="写入所有新增语言文件")
     parser.add_argument("--machine", action="store_true", help="使用 Google V1 生成指定语言草稿")
     parser.add_argument("--offline", action="store_true", help="使用内置术语表离线生成机器翻译草稿")
+    parser.add_argument("--merge", action="store_true", help="增量补齐已有语言包和翻译 SQL，不覆盖已有译文")
     parser.add_argument("--sql-only", action="store_true", help="只生成动态翻译迁移，不改写固定语言包")
     parser.add_argument("--locale", dest="locales", action="append", help="只生成指定语言，使用逗号分隔，可重复传入")
     parser.add_argument("--migration-version", help="将按语言拆分的翻译 SQL 写入指定版本目录，例如 vX.Y.Z")
@@ -959,8 +1070,8 @@ def main() -> int:
             raise SystemExit("生成指定的非繁体语言需要显式传入 --machine 或 --offline")
         if not args.sql_only:
             for source in JSON_SOURCES:
-                generate_json(source, locale, converter, args.machine, args.offline, args.write)
-        generate_sql(locale, converter, args.machine, args.offline, args.write, sql_directory)
+                generate_json(source, locale, converter, args.machine, args.offline, args.write, args.merge)
+        generate_sql(locale, converter, args.machine, args.offline, args.write, sql_directory, args.merge)
     if args.migration_version and args.write:
         readme = sql_directory / "README.md"
         if not readme.exists():
