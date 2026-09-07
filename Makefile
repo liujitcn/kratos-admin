@@ -207,7 +207,7 @@ docker-config:
 	@if [ ! -d "$(DOCKER_CONFIG_DIR)" ]; then \
 		mkdir -p "$(DOCKER_CONFIG_DIR)"; \
 		cp "$(DOCKER_CONFIG_SOURCE_DIR)"/*.yaml "$(DOCKER_CONFIG_DIR)/"; \
-		for config_file in data.yaml data.dev.yaml logger.yaml pprof.yaml registry.yaml; do \
+		for config_file in data.yaml data.dev.yaml logger.yaml pprof.yaml registry.yaml key.yaml; do \
 			if [ -f "$(DOCKER_CONFIG_DIR)/$$config_file" ]; then \
 				perl -pi -e 's/127\.0\.0\.1/host.docker.internal/g; s/localhost/host.docker.internal/g' "$(DOCKER_CONFIG_DIR)/$$config_file"; \
 			fi; \
@@ -246,6 +246,7 @@ docker-run: docker-check docker-config
 		--network "$(DOCKER_NETWORK)" \
 		--add-host "host.docker.internal:host-gateway" \
 		-e APP_ENV="$(APP_ENV)" \
+		-e VAULT_TOKEN \
 		-p "$(DOCKER_HTTP_PORT):7001" \
 		-p "$(DOCKER_GRPC_PORT):6001" \
 		-v "$(abspath $(DOCKER_DATA_DIR)):/app/data" \

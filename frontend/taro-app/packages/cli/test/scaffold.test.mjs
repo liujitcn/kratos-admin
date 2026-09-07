@@ -122,6 +122,42 @@ test('CLI 解析重复选项并拒绝未知参数', () => {
   }
 })
 
+// 验证实际发布包可独立创建项目，避免源码测试掩盖资源漏发。
+test('打包后的 CLI 创建项目并完整复制静态资源', () => {
+  const root = mkdtempSync(resolve(tmpdir(), 'kratos-taro-app-packed-'))
+  const target = resolve(root, 'customer-app')
+  try {
+    const packed = spawnSync('pnpm', ['pack', '--json', '--pack-destination', root], {
+      cwd: resolve(import.meta.dirname, '..'),
+      encoding: 'utf8',
+      timeout: 30000,
+    })
+    assert.equal(packed.status, 0, packed.error?.message ?? packed.stderr)
+    const archive = JSON.parse(packed.stdout)
+    const extracted = spawnSync('tar', ['-xzf', archive.filename, '-C', root], {
+      encoding: 'utf8',
+      timeout: 30000,
+    })
+    assert.equal(extracted.status, 0, extracted.error?.message ?? extracted.stderr)
+
+    const created = spawnSync(
+      process.execPath,
+      [resolve(root, 'package/bin/kratos-taro-app.mjs'), 'create', target, '--module', 'app'],
+      { cwd: root, encoding: 'utf8', timeout: 30000 },
+    )
+    assert.equal(created.status, 0, created.error?.message ?? created.stderr)
+    assert.match(created.stdout, /已创建 Taro workspace/)
+    assert.deepEqual(
+      readFileSync(resolve(target, 'apps/taro-app/src/static/favicon.ico')),
+      readFileSync(resolve(import.meta.dirname, '../assets/favicon.ico')),
+    )
+    assert.ok(existsSync(resolve(target, 'apps/taro-app/src/static/h5-root-font.js')))
+    assert.ok(existsSync(resolve(target, 'packages/modules/app/src/index.ts')))
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
 test('脚手架校验项目、模块和包名', () => {
   const root = mkdtempSync(resolve(tmpdir(), 'kratos-taro-app-validation-'))
   try {

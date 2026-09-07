@@ -65,7 +65,7 @@ make -C frontend init
 make -C frontend reinstall
 ```
 
-启动后端：
+确认 Vault 已启动并解封，在终端或 IDE 中自行配置有效的 `VAULT_TOKEN` 后启动后端：
 
 ```bash
 make -C backend run APP_ENV=dev
@@ -136,14 +136,28 @@ make docker-stop IMAGE=kratos-admin TAG=latest
 
 构建命令先检查 Docker，再构建管理后台、uni-app H5、Taro H5 和 Linux 后端程序。运行命令发布宿主机 `7001/6001` 端口，将 `backend/data`、`backend/logs`、`backend/backups` 分别映射到容器的 `/app/data`、`/app/logs`、`/app/backups`，并首次初始化可在宿主机修改的 `backend/runtime/configs` 后映射到 `/app/configs`。三端静态站点随镜像发布，启动时合并到 `/app/data`，已有上传文件不会被清空；Core 根据 `oss.root_directory` 将本地对象统一映射到 `/data/`。完整构建参数和运行示例见本节。
 
-本地只启动依赖服务可使用：
+本地依赖统一由仓库外的 `$HOME/Documents/docker-compose/liujitcn/docker-compose.yml` 管理，包含 MySQL、Redis、保留 ACL 的 Consul 和持久化 Vault；仓库内不再维护依赖 Compose，也不再部署 etcd/etcdkeeper。
 
 ```bash
-docker compose -f docker-compose.libs.yml up -d
-docker compose -f docker-compose.libs.yml --profile object-storage up -d
+docker compose -f "$HOME/Documents/docker-compose/liujitcn/docker-compose.yml" up -d
 ```
 
-该 Compose 只负责 MySQL、Redis 和可选 MinIO，不改变现有单镜像应用部署方式。
+Compose 只启动依赖服务，不执行初始化、密钥同步或凭据注入。Vault 将 `8200` 发布到宿主机全部 IPv4 接口，不绑定固定机器 IP；本机可使用 `http://127.0.0.1:8200`，其他节点使用部署机实际 IP 或域名。对外通告地址通过部署环境变量 `VAULT_API_ADDR` 指定，不写死在配置文件中；默认值 `http://127.0.0.1:8200` 用于本机部署，多机访问时应在部署环境中设置为可达地址。数据保存在 `liujitcn_vault_data` 命名卷，不使用 dev mode。初始化和应用根密钥导入只执行一次，后续启动不重复导入。Vault 重启后仍需管理员通过 UI 或 `docker exec -it vault vault operator unseal` 手动解封，不要重新初始化或生成新的根密钥。
+
+多个应用节点统一连接部署机内网地址或可达的固定域名，各自提供有效的只读 token；同一应用各节点保持相同的 `root_name` 和 `scope`，不需要复制本地根密钥。各环境在 `key.<env>.yaml` 中配置实际访问地址，基础 `key.yaml` 仍可用于本机访问。当前为单节点 Vault 文件存储，不是 Vault 高可用集群。Vault 和 Consul 当前均使用 HTTP，仅适用于受控内网开发；生产环境应为两者统一配置 HTTPS 和覆盖实际访问域名/IP 的证书，通过防火墙限制允许访问的节点，不能直接开放公网。
+
+管理凭据、解封材料及应用 token 保存在 Compose 同级的 `$HOME/Documents/docker-compose/liujitcn/vault`，目录权限为 `0700`，凭据文件为 `0600`，不得提交 Git。`initialization.json` 保存管理 root token 和解封材料，`application-token.json` 保存应用只读 token。应用 token 有有效期，需要管理员自行续期或重新签发，项目不会自动处理。
+
+`backend/configs/key.yaml` 使用 Vault KV v2 的 `secret/data/kratos/default/root`，字段名为 `value`，保持原来的 `scope: default`。当前密钥已从 `$HOME/Documents/cert/root.key` 的原始 32 字节以 Base64 编码导入，原文件仅保留为恢复备份。项目运行时只读取 Vault，不读取本地根密钥、不自动启动或解封 Vault，也不自动导入密钥。Vault 不可用、未解封、密钥不存在或 token 缺失/无效时，项目启动失败，不回退本地文件。
+
+在终端中明确提供应用 token 后启动项目；下面的读取命令由使用者执行，不属于 Makefile 的启动逻辑：
+
+```bash
+export VAULT_TOKEN="$(jq -er '.client_token' "$HOME/Documents/docker-compose/liujitcn/vault/application-token.json")"
+make -C backend run-only APP_ENV=dev
+```
+
+`make run/run-only` 和直接 `go run` 只继承调用方的进程环境，IDE 中也需要自行设置 `VAULT_TOKEN`。`make docker-run` 只把调用方已有的 `VAULT_TOKEN` 传入应用容器，不读取本地凭据文件或调用运维脚本。首次 `make docker-config` 会将 `key.yaml` 的本机地址改为 `host.docker.internal`；已有 `backend/runtime/configs` 不会自动覆盖，需要同步其中的 `key.yaml`。本地方案采用 HTTP、单份解封材料及同机凭据管理，仅适用于开发环境，不能直接用于生产。
 
 `I18N_LOCALES` 使用逗号分隔的 BCP 47 语言代码列表（默认 `en-US,zh-TW,ja-JP`），统一控制项目文档和 OpenAPI 的目标语言。`make i18n-docs` 由仓库内 `scripts/project_docs.py` 按三段路径范围收集 README 与 docs Markdown，再将正文按 `I18N_BATCH_CHARS`（默认 400）分片翻译并按原顺序合并，生成 `docs.json` 和 `docs.<locale>.json`；对应的 `README.en-US.md`、`guide.ja-JP.md` 等语言源文件存在时直接使用，否则才执行机器翻译。Google V1 会按多个 client 顺序切换，全部不可用时再使用 MyMemory，并保留 Markdown 代码、链接和占位符。语言目录只本地化文档正文和显示文件名，`README.md` 显示名、目录名称及稳定路径保持不变。如需使用外部实现，可通过 `PROJECT_DOCS_SCRIPT` 覆盖脚本路径。`make i18n-openapi` 生成 OpenAPI 多语言 YAML。离线生成使用 `I18N_OFFLINE=1 make i18n`。
 

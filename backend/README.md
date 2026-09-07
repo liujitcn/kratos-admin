@@ -63,6 +63,8 @@ make run
 make run-only
 ```
 
+当前 `configs/key.yaml` 使用本地 Vault，保留原 `scope: default` 和应用根密钥内容。启动前需要自行启动、解封 Vault，并在终端或 IDE 中设置有效的 `VAULT_TOKEN`；`make run/run-only` 和直接 `go run` 只继承调用方的进程环境，不调用 Compose、py/sh 脚本，不读取本地凭据文件，也不初始化或同步密钥。Vault 不可用、未解封、密钥不存在或 token 缺失/无效时，启动失败，不回退本地文件。当前根密钥已经一次性导入，后续启动无需再次同步；token 续期或重新签发由管理员处理。完整部署、备份与迁移说明见根 README 的 Docker 部分。
+
 默认配置目录为 `./configs`，默认运行环境为 `dev`。基础配置使用 `<name>.yaml`，环境差异使用 `<name>.<env>.yaml`；环境文件存在时在基础配置之后加载，不存在时回退基础配置。可以覆盖配置目录、运行环境或追加启动参数：
 
 会话生命周期和上传安全扫描使用 `authn.session`、`oss.upload_security` 启动配置；审计日志保留在“系统管理 → 备份管理 → 数据归档”按表维护，数据库备份在“系统管理 → 备份管理 → 数据备份”按数据源维护。日志入库回退配置单独使用隐藏配置 `baseLogFallback`；备份完整性密钥和加密密钥在具体任务执行时分别按 `kratos-admin:backup/integrity`、`kratos-admin:backup/encryption` 从运行时密钥服务派生。普通系统配置仍由“系统配置”页面维护。HTTP 普通请求只使用 `server.http.timeout` 和 `server.http.max_body_bytes`，`/events`、`/mcp` 及 AI 消息流自动跳过普通请求超时。

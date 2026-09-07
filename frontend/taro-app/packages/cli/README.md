@@ -18,3 +18,10 @@ pnpm dlx @liujitcn/kratos-taro-app-cli create customer-app --with @acme/customer
 脚手架会在 workspace 根目录生成四套环境文件，使用与 uni-app 一致的 `VITE_APP_PORT`、`VITE_APP_BASE_PATH`、`VITE_APP_BASE_API`、`VITE_APP_API_URL`、`VITE_APP_STATIC_API`、`VITE_APP_STATIC_URL` 变量。
 
 JavaScript 调用方也可以直接使用 `scaffoldKratosTaroApp(target, options)`。
+
+## 发布验证
+
+发布包必须包含 `assets/favicon.ico`，供生成项目的 H5 静态资源使用。
+在 Taro workspace 根目录执行 `pnpm test` 会实际打包、解压并运行包内 CLI，核对生成的
+图标内容和本地业务模块，避免只测试源码而遗漏 npm 发布资源。打包产物和生成项目均位于
+临时目录，测试结束后自动清理。
