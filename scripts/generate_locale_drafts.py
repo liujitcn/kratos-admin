@@ -424,7 +424,7 @@ SQL_MENU_CATEGORIES = {
         "移动端": "モバイルアプリ", "我的": "マイアカウント", "设置": "設定", "AI 助手": "AIアシスタント",
         "运维监控": "運用監視", "代码生成字段配置": "コード生成フィールド設定", "代码生成Proto配置": "コード生成Proto設定",
         "代码生成页面预览": "コード生成ページプレビュー", "代码生成代码预览": "生成コードプレビュー", "API文档": "APIドキュメント",
-        "项目文档": "プロジェクトドキュメント", "登录": "ログイン", "协议详情": "規約の詳細",
+        "登录": "ログイン", "协议详情": "規約の詳細",
     },
     "ko": {
         "首页": "홈", "AI助手": "AI 어시스턴트", "个人信息": "개인 정보", "系统管理": "시스템 관리",
@@ -436,7 +436,7 @@ SQL_MENU_CATEGORIES = {
         "我的": "내 계정", "设置": "설정", "AI 助手": "AI 어시스턴트",
         "运维监控": "운영 모니터링", "代码生成字段配置": "코드 생성 필드 설정", "代码生成Proto配置": "코드 생성 Proto 설정",
         "代码生成页面预览": "코드 생성 페이지 미리 보기", "代码生成代码预览": "생성 코드 미리 보기", "API文档": "API 문서",
-        "项目文档": "프로젝트 문서", "登录": "로그인", "协议详情": "약관 상세",
+        "登录": "로그인", "协议详情": "약관 상세",
     },
     "fr": {
         "首页": "Accueil", "AI助手": "Assistant IA", "个人信息": "Profil", "系统管理": "Gestion du système",
@@ -450,7 +450,7 @@ SQL_MENU_CATEGORIES = {
         "AI 助手": "Assistant IA",
         "运维监控": "Surveillance des opérations", "代码生成字段配置": "Configuration des champs de génération de code",
         "代码生成Proto配置": "Configuration Proto de génération de code", "代码生成页面预览": "Aperçu de la page générée",
-        "代码生成代码预览": "Aperçu du code généré", "API文档": "Documentation API", "项目文档": "Documentation du projet",
+        "代码生成代码预览": "Aperçu du code généré", "API文档": "Documentation API",
         "登录": "Connexion", "协议详情": "Détails des conditions",
     },
     "es": {
@@ -465,7 +465,7 @@ SQL_MENU_CATEGORIES = {
         "AI 助手": "Asistente de IA",
         "运维监控": "Supervisión operativa", "代码生成字段配置": "Configuración de campos de generación de código",
         "代码生成Proto配置": "Configuración Proto de generación de código", "代码生成页面预览": "Vista previa de la página generada",
-        "代码生成代码预览": "Vista previa del código generado", "API文档": "Documentación de API", "项目文档": "Documentación del proyecto",
+        "代码生成代码预览": "Vista previa del código generado", "API文档": "Documentación de API",
         "登录": "Iniciar sesión", "协议详情": "Detalles de los términos",
     },
 }
@@ -476,14 +476,14 @@ SQL_MENU_NOUNS = {
         "区域": "地域", "日志": "ログ", "定时任务日志": "スケジュールジョブログ", "API": "API", "租户": "テナント", "用户": "ユーザー", "角色": "ロール",
         "部门": "部門", "岗位": "役職", "语言": "言語", "代码生成表配置": "コード生成テーブル設定",
         "代码生成字段配置": "コード生成フィールド設定", "代码生成Proto配置": "コード生成Proto設定", "代码生成页面": "コード生成ページ",
-        "代码生成文件": "コード生成ファイル", "代码生成结果": "コード生成結果", "API文档": "APIドキュメント", "项目文档": "プロジェクトドキュメント",
+        "代码生成文件": "コード生成ファイル", "代码生成结果": "コード生成結果", "API文档": "APIドキュメント",
     },
     "ko": {
         "菜单": "메뉴", "字典": "사전", "字典数据": "사전 데이터", "配置": "설정", "定时任务": "예약 작업", "区域": "지역",
         "日志": "로그", "定时任务日志": "예약 작업 로그", "API": "API", "租户": "테넌트", "用户": "사용자", "角色": "역할", "部门": "부서", "岗位": "직위",
         "语言": "언어", "代码生成表配置": "코드 생성 테이블 설정", "代码生成字段配置": "코드 생성 필드 설정",
         "代码生成Proto配置": "코드 생성 Proto 설정", "代码生成页面": "코드 생성 페이지", "代码生成文件": "코드 생성 파일",
-        "代码生成结果": "코드 생성 결과", "API文档": "API 문서", "项目文档": "프로젝트 문서",
+        "代码生成结果": "코드 생성 결과", "API文档": "API 문서",
     },
     "fr": {
         "菜单": "menu", "字典": "dictionnaire", "字典数据": "données du dictionnaire", "配置": "configuration",
@@ -492,7 +492,6 @@ SQL_MENU_NOUNS = {
         "代码生成表配置": "configuration de table de génération de code", "代码生成字段配置": "configuration de champ de génération de code",
         "代码生成Proto配置": "configuration Proto de génération de code", "代码生成页面": "page de génération de code",
         "代码生成文件": "fichiers générés", "代码生成结果": "résultats de génération de code", "API文档": "documentation API",
-        "项目文档": "documentation du projet",
     },
     "es": {
         "菜单": "menú", "字典": "diccionario", "字典数据": "datos del diccionario", "配置": "configuración",
@@ -501,7 +500,7 @@ SQL_MENU_NOUNS = {
         "代码生成表配置": "configuración de tabla de generación de código", "代码生成字段配置": "configuración de campo de generación de código",
         "代码生成Proto配置": "configuración Proto de generación de código", "代码生成页面": "página de generación de código",
         "代码生成文件": "archivos generados", "代码生成结果": "resultados de generación de código", "API文档": "documentación de API",
-        "项目文档": "documentación del proyecto",
+
     },
 }
 

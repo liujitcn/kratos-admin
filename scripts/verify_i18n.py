@@ -4,25 +4,15 @@
 from __future__ import annotations
 
 import argparse
-import copy
 import json
 import re
 import sys
 from pathlib import Path
-from typing import Any
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 ROOT = SCRIPT_DIR.parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
-from project_docs import (  # noqa: E402
-    build_catalog,
-    generate_go_source,
-    index_documents,
-    load_catalog,
-    prepare_catalog,
-    scan_source,
-)
 from generate_locale_drafts import parse_primary_i18n_sources  # noqa: E402
 from sync_locales import (  # noqa: E402
     DEFAULT_LOCALE,
@@ -265,80 +255,11 @@ def verify_openapi(target_locales: list[str]) -> None:
                 )
 
 
-def comparable_catalog(
-    catalog: dict[str, Any], *, include_content: bool, include_names: bool = True
-) -> dict[str, Any]:
-    """生成忽略动态字段的项目文档目录比较结构。"""
-    result = copy.deepcopy(catalog)
-
-    def normalize(value: Any) -> Any:
-        if isinstance(value, dict):
-            normalized = {
-                key: normalize(item)
-                for key, item in value.items()
-                if key != "updated_at"
-                and (include_content or key != "content")
-                and (include_names or key != "name")
-            }
-            return normalized
-        if isinstance(value, list):
-            return [normalize(item) for item in value]
-        return value
-
-    return normalize(result)
-
-
-def verify_docs(target_locales: list[str]) -> None:
-    """校验项目文档源目录、语言目录和 Go embed 生成文件。"""
-    output_dir = ROOT / "backend/internal/docs"
-    catalog_path = output_dir / "assets/docs.json"
-    source_documents, _ = scan_source(ROOT)
-    expected_catalog = build_catalog(source_documents)
-    actual_catalog = load_catalog(catalog_path)
-    prepare_catalog(copy.deepcopy(actual_catalog))
-    if comparable_catalog(actual_catalog, include_content=True) != comparable_catalog(
-        expected_catalog, include_content=True
-    ):
-        raise VerificationError(f"项目文档源目录过期，请执行 make i18n-docs: {catalog_path}")
-
-    generated_go = output_dir / "docs.go"
-    expected_go = generate_go_source(output_dir, catalog_path)
-    if not generated_go.exists() or generated_go.read_text(encoding="utf-8") != expected_go:
-        raise VerificationError(f"项目文档 Go 生成文件过期，请执行 make i18n-docs: {generated_go}")
-
-    source_structure = comparable_catalog(actual_catalog, include_content=False, include_names=False)
-    source_documents_by_path = index_documents(actual_catalog)
-    expected_files = {f"docs.{locale}.json" for locale in target_locales}
-    actual_files = {path.name for path in (output_dir / "assets").glob("docs.*.json")}
-    if actual_files != expected_files:
-        missing = sorted(expected_files - actual_files)
-        extra = sorted(actual_files - expected_files)
-        raise VerificationError(f"项目文档语言文件集合不一致，缺少: {missing}，多出: {extra}")
-
-    for locale in target_locales:
-        path = output_dir / "assets" / f"docs.{locale}.json"
-        localized = load_catalog(path)
-        prepare_catalog(copy.deepcopy(localized))
-        if comparable_catalog(localized, include_content=False, include_names=False) != source_structure:
-            raise VerificationError(f"项目文档 {locale} 的目录结构过期，请执行 make i18n-docs: {path}")
-        localized_documents = index_documents(localized)
-        for document_path, source_document in source_documents_by_path.items():
-            localized_document = localized_documents[document_path]
-            if localized_document.get("updated_at") != source_document.get("updated_at"):
-                raise VerificationError(f"项目文档 {locale} 的更新时间未同步: {path}")
-            if not isinstance(localized_document.get("content"), str):
-                raise VerificationError(f"项目文档 {locale} 的内容不是字符串: {path}")
-            if localized_document["content"] == source_document["content"] and source_document["content"].strip():
-                raise VerificationError(
-                    f"项目文档 {locale} 未翻译: {document_path}，请重新执行 make i18n-docs"
-                )
-
-
 def main() -> int:
     """执行全部国际化发布前校验。"""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-locale", default=SOURCE_LOCALE, help="语言包主语言")
-    parser.add_argument("--locales", default="en-US,zh-TW,ja-JP", help="项目文档和 OpenAPI 目标语言")
+    parser.add_argument("--locales", default="en-US,zh-TW,ja-JP", help="OpenAPI 目标语言")
     args = parser.parse_args()
 
     try:
@@ -368,11 +289,6 @@ def main() -> int:
     except (OSError, json.JSONDecodeError, VerificationError, ValueError) as error:
         errors.append(f"OpenAPI: {error}")
 
-    try:
-        verify_docs(target_locales)
-    except (OSError, json.JSONDecodeError, KeyError, TypeError, VerificationError, ValueError) as error:
-        errors.append(f"docs: {error}")
-
     if errors:
         print("国际化发布校验失败:", file=sys.stderr)
         for error in errors:
@@ -384,7 +300,7 @@ def main() -> int:
     print(
         "国际化发布校验通过："
         f"语言包({len(locales)})、SQL({len(set(locales) - {SOURCE_LOCALE})}种目标语言)、"
-        f"OpenAPI({len(target_locales)}种目标语言)、docs({len(target_locales)}种目标语言)"
+        f"OpenAPI({len(target_locales)}种目标语言)"
     )
     return 0
 

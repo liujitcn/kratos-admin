@@ -40,7 +40,6 @@ var ProviderSet = wire.NewSet(
 	NewOpsMonitoringService,
 	NewCacheService,
 	NewRuntimeLogService,
-	NewProjectDocumentService,
 	NewOauthClientService,
 	NewBaseSessionService,
 	NewBaseLoginPolicyService,

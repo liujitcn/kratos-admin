@@ -5283,38 +5283,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.OpsTrafficResponse'
-    /api/v1/admin/project-document/tree:
-        get:
-            tags:
-                - ProjectDocumentService
-            description: Query project document tree
-            operationId: ProjectDocumentService_TreeProjectDocument
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.TreeProjectDocumentResponse'
-    /api/v1/admin/project-document/{id}:
-        get:
-            tags:
-                - ProjectDocumentService
-            description: Query project document details
-            operationId: ProjectDocumentService_GetProjectDocument
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.ProjectDocument'
     /api/v1/admin/runtime-log/console:
         post:
             tags:
@@ -12813,87 +12781,6 @@ components:
                         type: string
                     description: translation configuration that must be completed before official generation
             description: Preview code generation response
-        system.admin.v1.ProjectDocument:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: project document ID
-                project_key:
-                    type: string
-                    description: project identifier consistent with the Open API document
-                project_name:
-                    type: string
-                    description: project name consistent with the Open API document
-                path:
-                    type: string
-                    description: item project-relative path
-                name:
-                    type: string
-                    description: document display filename in the current language
-                content:
-                    type: string
-                    description: Markdown document content
-                updated_at:
-                    type: string
-                    description: markdown file Update time, RFC3339format
-            description: project document
-        system.admin.v1.ProjectDocumentDirectory:
-            type: object
-            properties:
-                name:
-                    type: string
-                    description: Directory name
-                path:
-                    type: string
-                    description: project-relative directory path
-                documents:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.ProjectDocumentListItem'
-                    description: current documents under the directory
-                directories:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.ProjectDocumentDirectory'
-                    description: subdirectories under the current directory
-            description: project document directory node
-        system.admin.v1.ProjectDocumentListItem:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: project document ID
-                path:
-                    type: string
-                    description: item project-relative path
-                name:
-                    type: string
-                    description: document display filename in the current language
-                updated_at:
-                    type: string
-                    description: markdown file Update time, RFC3339format
-            description: project document directory item
-        system.admin.v1.ProjectDocumentProject:
-            type: object
-            properties:
-                key:
-                    type: string
-                    description: project identifier consistent with the Open API document
-                name:
-                    type: string
-                    description: project name consistent with the Open API document
-                documents:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.ProjectDocumentListItem'
-                    description: item documents under the project root
-                directories:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.ProjectDocumentDirectory'
-                    description: subdirectories under the project root
-            description: project document tree
         system.admin.v1.PublishBaseMessageRequest:
             type: object
             properties:
@@ -13458,15 +13345,6 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseMenu'
                     description: menu tree
             description: menu tree response
-        system.admin.v1.TreeProjectDocumentResponse:
-            type: object
-            properties:
-                projects:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.ProjectDocumentProject'
-                    description: project document tree
-            description: project document tree response
         system.admin.v1.TreeRouteResponse:
             type: object
             properties:
@@ -13943,8 +13821,6 @@ tags:
       description: base third-party login shared service
     - name: OpsMonitoringService
       description: Admin operations monitoring service.
-    - name: ProjectDocumentService
-      description: Admin project documentation service.
     - name: RuntimeLogService
       description: Admin runtime log service.
     - name: SseService

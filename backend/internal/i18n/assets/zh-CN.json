@@ -806,9 +806,6 @@
   "openapi.admin.service.ops_monitoring": {
     "other": "运维监控服务。"
   },
-  "openapi.admin.service.project_document": {
-    "other": "项目文档服务"
-  },
   "openapi.admin.service.runtime_log": {
     "other": "运行日志服务。"
   },

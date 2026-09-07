@@ -5283,38 +5283,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.OpsTrafficResponse'
-    /api/v1/admin/project-document/tree:
-        get:
-            tags:
-                - ProjectDocumentService
-            description: 検索プロジェクトドキュメントツリー
-            operationId: ProjectDocumentService_TreeProjectDocument
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.TreeProjectDocumentResponse'
-    /api/v1/admin/project-document/{id}:
-        get:
-            tags:
-                - ProjectDocumentService
-            description: 検索プロジェクトドキュメント詳細
-            operationId: ProjectDocumentService_GetProjectDocument
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.ProjectDocument'
     /api/v1/admin/runtime-log/console:
         post:
             tags:
@@ -12813,87 +12781,6 @@ components:
                         type: string
                     description: 正式生成前必须补齐の翻訳設定
             description: プレビューコード生成レスポンス
-        system.admin.v1.ProjectDocument:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: プロジェクトドキュメントID
-                project_key:
-                    type: string
-                    description: とOpenAPI ドキュメント一致のプロジェクト識別子
-                project_name:
-                    type: string
-                    description: とOpenAPI ドキュメント一致のプロジェクト名称
-                path:
-                    type: string
-                    description: プロジェクト内相对パス
-                name:
-                    type: string
-                    description: 現在の言語下の文档显示ファイル名
-                content:
-                    type: string
-                    description: Markdown ドキュメント内容
-                updated_at:
-                    type: string
-                    description: Markdownファイル更新時刻，RFC3339形式
-            description: プロジェクトドキュメント
-        system.admin.v1.ProjectDocumentDirectory:
-            type: object
-            properties:
-                name:
-                    type: string
-                    description: ディレクトリ名
-                path:
-                    type: string
-                    description: プロジェクト内相对ディレクトリパス
-                documents:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.ProjectDocumentListItem'
-                    description: 現在のディレクトリ下の文档
-                directories:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.ProjectDocumentDirectory'
-                    description: 現在のディレクトリ下の子ディレクトリ
-            description: プロジェクトドキュメントディレクトリ节点
-        system.admin.v1.ProjectDocumentListItem:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: プロジェクトドキュメントID
-                path:
-                    type: string
-                    description: プロジェクト内相对パス
-                name:
-                    type: string
-                    description: 現在の言語下の文档显示ファイル名
-                updated_at:
-                    type: string
-                    description: Markdownファイル更新時刻，RFC3339形式
-            description: プロジェクトドキュメントディレクトリ項目
-        system.admin.v1.ProjectDocumentProject:
-            type: object
-            properties:
-                key:
-                    type: string
-                    description: とOpenAPI ドキュメント一致のプロジェクト識別子
-                name:
-                    type: string
-                    description: とOpenAPI ドキュメント一致のプロジェクト名称
-                documents:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.ProjectDocumentListItem'
-                    description: プロジェクト根ディレクトリ下の文档
-                directories:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.ProjectDocumentDirectory'
-                    description: プロジェクト根ディレクトリ下の子ディレクトリ
-            description: プロジェクトドキュメントツリー
         system.admin.v1.PublishBaseMessageRequest:
             type: object
             properties:
@@ -13458,15 +13345,6 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseMenu'
                     description: メニューツリー
             description: メニューツリーレスポンス
-        system.admin.v1.TreeProjectDocumentResponse:
-            type: object
-            properties:
-                projects:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.ProjectDocumentProject'
-                    description: プロジェクトドキュメントツリー
-            description: プロジェクトドキュメントツリーレスポンス
         system.admin.v1.TreeRouteResponse:
             type: object
             properties:
@@ -13943,8 +13821,6 @@ tags:
       description: Baseサードパーティーログイン共通サービス
     - name: OpsMonitoringService
       description: Admin運用監視サービス。
-    - name: ProjectDocumentService
-      description: Adminプロジェクトドキュメントサービス。
     - name: RuntimeLogService
       description: Adminランタイムログサービス。
     - name: SseService

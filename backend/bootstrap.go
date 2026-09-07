@@ -12,7 +12,6 @@ import (
 	"github.com/liujitcn/kratos-core/job"
 	"github.com/liujitcn/kratos-core/module"
 	"github.com/liujitcn/kratos-core/queue"
-	"github.com/liujitcn/kratos-core/resource/docs"
 	"github.com/liujitcn/kratos-core/resource/i18n"
 	"github.com/liujitcn/kratos-core/resource/migration"
 	"github.com/liujitcn/kratos-core/resource/openapi"
@@ -72,7 +71,6 @@ func NewModules(
 	userToken *data.UserToken,
 	jobRuntime *job.Job,
 	sseRuntime *sse.SSE,
-	docsRuntime *docs.Docs,
 	catalog *i18n.I18n,
 	openAPIRuntime *openapi.OpenAPI,
 ) (AdminModules, func(), error) {
@@ -83,7 +81,7 @@ func NewModules(
 	}
 	var modules module.Modules
 	var cleanup func()
-	modules, cleanup, err = adminModule.BuildModules(config, databases, baseCase, authorizer, authenticator, userToken, jobRuntime, sseRuntime, docsRuntime, catalog, openAPIRuntime)
+	modules, cleanup, err = adminModule.BuildModules(config, databases, baseCase, authorizer, authenticator, userToken, jobRuntime, sseRuntime, catalog, openAPIRuntime)
 	return AdminModules(modules), cleanup, err
 }
 

@@ -64,7 +64,6 @@ packages/modules/system
 | `src/api/system/admin/v1/code_gen*.ts`       | 代码生成服务请求。                        |
 | `src/api/system/admin/v1/oauth_client.ts`    | 开放授权客户端服务请求。                  |
 | `src/api/system/admin/v1/ops_monitoring.ts`  | 运维监控服务请求。                        |
-| `src/api/system/admin/v1/project_document.ts` | 项目文档服务请求。                         |
 | `src/api/system/admin/v1/runtime_log.ts`     | 运行日志服务请求。                        |
 | `src/api/system/admin/v1/cache.ts`           | 运行时缓存服务请求。                      |
 | `@liujitcn/kratos-admin-core/api/base/v1/mfa` | 当前用户 MFA 服务请求。                   |
@@ -101,7 +100,6 @@ packages/modules/system
 | `src/views/base/user/components/dept-tree.vue`                 | 用户页的部门树筛选组件。           |
 | `src/views/profile/`                                           | 个人中心与安全设置页面。           |
 | `src/views/tool/api-doc/index.vue`                             | OpenAPI/Swagger 文档页。           |
-| `src/views/tool/project-doc/index.vue`                         | 多项目 Markdown 树形导航与阅读页。 |
 | `src/views/tool/code-gen/table/index.vue`                      | 代码生成数据表列表页。             |
 | `src/views/tool/code-gen/columns/index.vue`                    | 代码生成字段配置页。               |
 | `src/views/tool/code-gen/columns/option-copy.ts`               | 字段选项复制规则。                 |
@@ -137,7 +135,6 @@ export const adminModules = [systemAdminModule];
 | 个人中心 | `system/profile/index`          |
 | AI 助手  | `system/ai/chat/index`          |
 | API 文档 | `system/tool/api-doc/index`     |
-| 项目文档 | `system/tool/project-doc/index` |
 
 不再兼容 `base/user/index`、`profile/index` 等无模块前缀路径。不同业务模块可以拥有同名 `views`，core 会按 `<module>/<view>` 解析，不发生覆盖。
 

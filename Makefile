@@ -9,7 +9,7 @@
 
 .PHONY: help init hooks check gen \
 	build build-backend build-frontend package package-backend package-frontend \
-	project-docs i18n i18n-check i18n-verify i18n-sync i18n-locale i18n-docs i18n-openapi \
+	i18n i18n-check i18n-verify i18n-sync i18n-locale i18n-openapi \
 	docker-check docker-config docker-build docker-run docker-stop \
 	tag
 
@@ -29,9 +29,6 @@ I18N_OFFLINE ?= 0
 I18N_AUTO_TRANSLATE ?= 1
 I18N_AUTO_LOCALIZE ?= $(I18N_AUTO_TRANSLATE)
 I18N_MIGRATION_VERSION ?=
-I18N_BATCH_CHARS ?= 400
-PROJECT_DOCS_SCRIPT ?= scripts/project_docs.py
-PROJECT_DOCS_OUTPUT ?= backend/internal/docs
 OPENAPI_INPUT ?= backend/internal/openapi/assets/openapi.yaml
 OPENAPI_OUTPUT_DIR ?= backend/internal/openapi/assets
 OPENAPI_I18N_CONTENT ?= backend/internal/i18n/assets frontend/admin/packages/core/src/locales
@@ -81,12 +78,11 @@ hooks:
 
 # ===== 全仓生成与检查 =====
 
-# 按后端、前端、文档和 OpenAPI 的顺序生成全仓产物。
+# 按后端、前端、语言包和 OpenAPI 的顺序生成全仓产物。
 gen:
 	@$(MAKE) -C "$(BACKEND_DIR)" gen
 	@$(MAKE) -C "$(FRONTEND_DIR)" ts
 	@$(MAKE) i18n-sync
-	@$(MAKE) i18n-docs
 	@$(MAKE) i18n-openapi
 	@echo "==> 全仓代码与文档产物生成完成"
 
@@ -135,7 +131,7 @@ package: package-backend package-frontend
 i18n-check:
 	@$(PYTHON) scripts/sync_locales.py
 
-# 发布前只读校验语言包、SQL、OpenAPI 和项目文档产物。
+# 发布前只读校验语言包、SQL 和 OpenAPI 产物。
 i18n-verify:
 	@$(PYTHON) scripts/verify_i18n.py \
 		--source-locale "$(I18N_SOURCE_LOCALE)" \
@@ -156,22 +152,6 @@ i18n-locale:
 		$(if $(strip $(I18N_MIGRATION_VERSION)),--migration-version "$(I18N_MIGRATION_VERSION)",) \
 		$(if $(filter 1 true,$(I18N_OFFLINE)),--offline,)
 
-# 收集并本地化项目 Markdown 文档。
-i18n-docs:
-	@echo "==> 收集并本地化项目文档"
-	@test -f "$(PROJECT_DOCS_SCRIPT)" || (echo "未找到项目文档脚本: $(PROJECT_DOCS_SCRIPT)" && exit 1)
-	@$(PYTHON) "$(PROJECT_DOCS_SCRIPT)" \
-		--root "$(CURDIR)" \
-		--output "$(PROJECT_DOCS_OUTPUT)" \
-		--source-locale "$(I18N_SOURCE_LOCALE)" \
-		--locales "$(I18N_LOCALES)" \
-		--batch-chars "$(I18N_BATCH_CHARS)" \
-		$(if $(filter 1 true,$(I18N_OFFLINE)),--offline,)
-	@echo "==> 项目文档收集与本地化完成"
-
-# 项目文档生成的通用别名。
-project-docs: i18n-docs
-
 # 生成 OpenAPI 源文档和多语言 YAML。
 i18n-openapi:
 	@$(MAKE) -C "$(BACKEND_DIR)" openapi
@@ -186,10 +166,9 @@ i18n-openapi:
 	@find "$(OPENAPI_OUTPUT_DIR)" -type f -name '*.yaml' -exec perl -pi -e 's/BaseI18N/BaseI18n/g; s/baseI18N/baseI18n/g' {} +
 	@echo "==> OpenAPI v3 多语言文档生成完成"
 
-# 按语言包、项目文档、OpenAPI 的顺序执行常规国际化生成。
+# 按语言包、OpenAPI 的顺序执行常规国际化生成。
 i18n:
 	@$(MAKE) i18n-sync
-	@$(MAKE) i18n-docs
 	@$(MAKE) i18n-openapi
 	@echo "==> 全仓国际化产物生成完成"
 

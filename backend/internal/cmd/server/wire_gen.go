@@ -22,7 +22,6 @@ import (
 	queue2 "github.com/liujitcn/kratos-core/queue"
 	"github.com/liujitcn/kratos-core/resource"
 	"github.com/liujitcn/kratos-core/resource/biz"
-	"github.com/liujitcn/kratos-core/resource/docs"
 	"github.com/liujitcn/kratos-core/resource/i18n"
 	"github.com/liujitcn/kratos-core/resource/migration"
 	"github.com/liujitcn/kratos-core/resource/openapi"
@@ -241,22 +240,8 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	executionLocker := job.NewExecutionLocker(data_Redis)
 	scheduler := job.NewSchedulerWithLocker(jobStoreAdapter, jobRegistry, executionLocker)
 	jobJob := job.NewJob(scheduler)
-	moduleDocs := module.NewDocsFromResources(resources)
-	docsRegistry, err := docs.NewRegistry(moduleDocs)
-	if err != nil {
-		cleanup8()
-		cleanup7()
-		cleanup6()
-		cleanup5()
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	docsDocs := docs.NewDocs(docsRegistry)
 	openapiOpenAPI := openapi.NewOpenAPI(registry)
-	adminModules, cleanup9, err := backend.NewModules(migrationMigration, configv1Bootstrap, v2, baseCase, engine, authenticator, userToken, jobJob, sseSSE, docsDocs, i18nI18n, openapiOpenAPI)
+	adminModules, cleanup9, err := backend.NewModules(migrationMigration, configv1Bootstrap, v2, baseCase, engine, authenticator, userToken, jobJob, sseSSE, i18nI18n, openapiOpenAPI)
 	if err != nil {
 		cleanup8()
 		cleanup7()

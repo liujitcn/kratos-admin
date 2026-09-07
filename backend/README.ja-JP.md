@@ -101,7 +101,6 @@ make -C backend run-only APP_ENV=https
 | Proto 契約 | `make api openapi` | Backend の protobuf Go と OpenAPI ソースを生成します。フロントエンド TypeScript RPC はリポジトリルートの `make -C ../frontend ts` を使用し、`ts-admin`、`ts-uni-app`、`ts-taro-app` も個別に実行できます。 |
 | データベース構造 | `make gorm-gen` | 開発データベースを更新してから、`GORM_GEN_CONFIG`、`GORM_GEN_DATABASE`、`GORM_TABLE` に従って生成します。 |
 | ProviderSet またはコンストラクタ引数 | `make public-wire wire` | 公開入口の内部組み立てと独立サービス入口をそれぞれ更新します。 |
-| README または docs | `make -C .. project-docs` | リポジトリルートから Markdown を収集し、各言語のドキュメントディレクトリを生成します。 |
 | 言語パックまたは国際化リソース | `make -C .. i18n` | 国際化はリポジトリルートの共通コマンドで管理します。 |
 | Go import エイリアス | `make cli fmt` | `cli` で `kratos-kit/cmd/normalize-go-imports` をインストールし、`fmt` で実行して `goimports` により整形します。 |
 | 複数のバックエンド生成元を同時に変更 | `make gen` | GORM、インターフェース、OpenAPI、Wire、整形を順に実行します。開発データベースへ接続できる必要があります。 |

@@ -69,7 +69,6 @@ type Services struct {
 	OpsMonitoring           *admin.OpsMonitoringService
 	Cache                   *admin.CacheService
 	RuntimeLog              *admin.RuntimeLogService
-	ProjectDocument         *admin.ProjectDocumentService
 	BaseSession             *admin.BaseSessionService
 	BaseLoginPolicy         *admin.BaseLoginPolicyService
 	BaseTableArchive        *admin.BaseTableArchiveService
@@ -124,7 +123,6 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	adminv1.RegisterOpsMonitoringServiceServer(srv, adminv1.RedactedOpsMonitoringServiceServer(s.OpsMonitoring))
 	adminv1.RegisterCacheServiceServer(srv, adminv1.RedactedCacheServiceServer(s.Cache))
 	adminv1.RegisterRuntimeLogServiceServer(srv, adminv1.RedactedRuntimeLogServiceServer(s.RuntimeLog))
-	adminv1.RegisterProjectDocumentServiceServer(srv, adminv1.RedactedProjectDocumentServiceServer(s.ProjectDocument))
 	adminv1.RegisterBaseSessionServiceServer(srv, adminv1.RedactedBaseSessionServiceServer(s.BaseSession))
 	adminv1.RegisterBaseLoginPolicyServiceServer(srv, adminv1.RedactedBaseLoginPolicyServiceServer(s.BaseLoginPolicy))
 	adminv1.RegisterBaseTableArchiveServiceServer(srv, adminv1.RedactedBaseTableArchiveServiceServer(s.BaseTableArchive))
@@ -182,7 +180,6 @@ func (s Services) RegisterHTTP(srv *http.Server) {
 	adminv1.RegisterOpsMonitoringServiceHTTPServer(srv, adminv1.RedactedOpsMonitoringServiceServer(s.OpsMonitoring))
 	adminv1.RegisterCacheServiceHTTPServer(srv, adminv1.RedactedCacheServiceServer(s.Cache))
 	adminv1.RegisterRuntimeLogServiceHTTPServer(srv, adminv1.RedactedRuntimeLogServiceServer(s.RuntimeLog))
-	adminv1.RegisterProjectDocumentServiceHTTPServer(srv, adminv1.RedactedProjectDocumentServiceServer(s.ProjectDocument))
 	adminv1.RegisterBaseSessionServiceHTTPServer(srv, adminv1.RedactedBaseSessionServiceServer(s.BaseSession))
 	adminv1.RegisterBaseLoginPolicyServiceHTTPServer(srv, adminv1.RedactedBaseLoginPolicyServiceServer(s.BaseLoginPolicy))
 	adminv1.RegisterBaseTableArchiveServiceHTTPServer(srv, adminv1.RedactedBaseTableArchiveServiceServer(s.BaseTableArchive))
@@ -232,7 +229,6 @@ func (s Services) RegisterMCP(server *mcp.Server) {
 	adminv1.RegisterBaseMigrationServiceMCPTools(mcpSrv, s.BaseMigration)
 	adminv1.RegisterOpsMonitoringServiceMCPTools(mcpSrv, s.OpsMonitoring)
 	adminv1.RegisterCacheServiceMCPTools(mcpSrv, s.Cache)
-	adminv1.RegisterProjectDocumentServiceMCPTools(mcpSrv, s.ProjectDocument)
 	adminv1.RegisterBaseSessionServiceMCPTools(mcpSrv, s.BaseSession)
 	adminv1.RegisterBaseLoginPolicyServiceMCPTools(mcpSrv, s.BaseLoginPolicy)
 	adminv1.RegisterBaseDashboardServiceMCPTools(mcpSrv, s.BaseDashboard)
@@ -321,9 +317,6 @@ func (s Services) AgentTools() ([]tool.Invokable, error) {
 		},
 		func() ([]tool.Invokable, error) {
 			return adminv1.NewCacheServiceAgentTools(s.Cache)
-		},
-		func() ([]tool.Invokable, error) {
-			return adminv1.NewProjectDocumentServiceAgentTools(s.ProjectDocument)
 		},
 	}
 	tools := make([]tool.Invokable, 0)

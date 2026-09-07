@@ -19,7 +19,6 @@ import (
 	"github.com/liujitcn/kratos-core/job"
 	"github.com/liujitcn/kratos-core/module"
 	"github.com/liujitcn/kratos-core/queue"
-	"github.com/liujitcn/kratos-core/resource/docs"
 	"github.com/liujitcn/kratos-core/resource/i18n"
 	"github.com/liujitcn/kratos-core/resource/openapi"
 	coreSSE "github.com/liujitcn/kratos-core/sse"
@@ -50,7 +49,6 @@ func BuildModules(
 	userToken *authData.UserToken,
 	jobRuntime *job.Job,
 	sseRuntime *coreSSE.SSE,
-	docsRuntime *docs.Docs,
 	catalog *i18n.I18n,
 	openAPIRuntime *openapi.OpenAPI,
 ) (module.Modules, func(), error) {

@@ -5283,38 +5283,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.OpsTrafficResponse'
-    /api/v1/admin/project-document/tree:
-        get:
-            tags:
-                - ProjectDocumentService
-            description: 查詢專案文件樹
-            operationId: ProjectDocumentService_TreeProjectDocument
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.TreeProjectDocumentResponse'
-    /api/v1/admin/project-document/{id}:
-        get:
-            tags:
-                - ProjectDocumentService
-            description: 查詢專案文件詳情
-            operationId: ProjectDocumentService_GetProjectDocument
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.ProjectDocument'
     /api/v1/admin/runtime-log/console:
         post:
             tags:
@@ -12813,87 +12781,6 @@ components:
                         type: string
                     description: 正式生成前必須補齊的翻譯配置
             description: 預覽程式碼生成響應
-        system.admin.v1.ProjectDocument:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: 專案文件ID
-                project_key:
-                    type: string
-                    description: 與OpenAPI文件一致的專案標識
-                project_name:
-                    type: string
-                    description: 與OpenAPI文件一致的專案名稱
-                path:
-                    type: string
-                    description: 專案內相對路徑
-                name:
-                    type: string
-                    description: 當前語言下的文件顯示檔名
-                content:
-                    type: string
-                    description: Markdown文件內容
-                updated_at:
-                    type: string
-                    description: Markdown檔案更新時間，RFC3339格式
-            description: 專案文件
-        system.admin.v1.ProjectDocumentDirectory:
-            type: object
-            properties:
-                name:
-                    type: string
-                    description: 目錄名稱
-                path:
-                    type: string
-                    description: 專案內相對目錄路徑
-                documents:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.ProjectDocumentListItem'
-                    description: 當前目錄下的文件
-                directories:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.ProjectDocumentDirectory'
-                    description: 當前目錄下的子目錄
-            description: 專案文件目錄節點
-        system.admin.v1.ProjectDocumentListItem:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: 專案文件ID
-                path:
-                    type: string
-                    description: 專案內相對路徑
-                name:
-                    type: string
-                    description: 當前語言下的文件顯示檔名
-                updated_at:
-                    type: string
-                    description: Markdown檔案更新時間，RFC3339格式
-            description: 專案文件目錄項
-        system.admin.v1.ProjectDocumentProject:
-            type: object
-            properties:
-                key:
-                    type: string
-                    description: 與OpenAPI文件一致的專案標識
-                name:
-                    type: string
-                    description: 與OpenAPI文件一致的專案名稱
-                documents:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.ProjectDocumentListItem'
-                    description: 專案根目錄下的文件
-                directories:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.ProjectDocumentDirectory'
-                    description: 專案根目錄下的子目錄
-            description: 專案文件樹
         system.admin.v1.PublishBaseMessageRequest:
             type: object
             properties:
@@ -13458,15 +13345,6 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseMenu'
                     description: 選單樹
             description: 選單樹響應
-        system.admin.v1.TreeProjectDocumentResponse:
-            type: object
-            properties:
-                projects:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/system.admin.v1.ProjectDocumentProject'
-                    description: 專案文件樹
-            description: 專案文件樹響應
         system.admin.v1.TreeRouteResponse:
             type: object
             properties:
@@ -13943,8 +13821,6 @@ tags:
       description: Base 第三方登入公共服務
     - name: OpsMonitoringService
       description: Admin運維監控服務。
-    - name: ProjectDocumentService
-      description: Admin專案文件服務。
     - name: RuntimeLogService
       description: Admin執行日誌服務。
     - name: SseService

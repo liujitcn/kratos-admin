@@ -112,8 +112,6 @@ type SystemAdminClient struct {
 	Cache adminv1.CacheServiceClient
 	// OauthClient 是开放授权客户端管理服务客户端。
 	OauthClient adminv1.OauthClientServiceClient
-	// ProjectDocument 是项目文档服务客户端。
-	ProjectDocument adminv1.ProjectDocumentServiceClient
 }
 
 // SystemAppClient 汇总 system.app.v1 服务客户端。
@@ -176,7 +174,6 @@ func NewClient(ctx context.Context, clientConfig *configv1.Client, options ...Op
 			OpsMonitoring:    adminv1.NewOpsMonitoringServiceClient(connection),
 			Cache:            adminv1.NewCacheServiceClient(connection),
 			OauthClient:      adminv1.NewOauthClientServiceClient(connection),
-			ProjectDocument:  adminv1.NewProjectDocumentServiceClient(connection),
 		},
 		SystemApp: SystemAppClient{
 			Auth:     appv1.NewAuthServiceClient(connection),

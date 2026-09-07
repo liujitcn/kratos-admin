@@ -893,9 +893,6 @@
   "system.admin.ops_monitoring.unnamed_service": {
     "other": "Unnamed service"
   },
-  "openapi.admin.service.project_document": {
-    "other": "Project documentation service"
-  },
   "openapi.admin.service.runtime_log": {
     "other": "Runtime log service."
   },

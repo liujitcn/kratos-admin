@@ -33,7 +33,6 @@ import (
 	"github.com/liujitcn/kratos-core/job"
 	"github.com/liujitcn/kratos-core/module"
 	"github.com/liujitcn/kratos-core/queue"
-	"github.com/liujitcn/kratos-core/resource/docs"
 	"github.com/liujitcn/kratos-core/resource/i18n"
 	"github.com/liujitcn/kratos-core/resource/openapi"
 	"github.com/liujitcn/kratos-core/sse"
@@ -48,7 +47,7 @@ import (
 // Injectors from wire.go:
 
 // BuildModules 通过 Admin 内部依赖装配协议服务。
-func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client, baseCase *biz.BaseCase, authorizer engine.Engine, authenticator engine2.Authenticator, userToken *data.UserToken, jobRuntime *job.Job, sseRuntime *sse.SSE, docsRuntime *docs.Docs, catalog *i18n.I18n, openAPIRuntime *openapi.OpenAPI) (module.Modules, func(), error) {
+func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client, baseCase *biz.BaseCase, authorizer engine.Engine, authenticator engine2.Authenticator, userToken *data.UserToken, jobRuntime *job.Job, sseRuntime *sse.SSE, catalog *i18n.I18n, openAPIRuntime *openapi.OpenAPI) (module.Modules, func(), error) {
 	dataData, err := data2.NewData(databases)
 	if err != nil {
 		return nil, nil, err
@@ -197,8 +196,6 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 		return nil, nil, err
 	}
 	runtimeLogService := admin.NewRuntimeLogService(runtimeLogCase)
-	projectDocumentCase := biz3.NewProjectDocumentCase(baseCase, docsRuntime, catalog)
-	projectDocumentService := admin.NewProjectDocumentService(projectDocumentCase)
 	baseSessionCase := biz3.NewBaseSessionCase(baseCase, userToken)
 	baseSessionService := admin.NewBaseSessionService(baseSessionCase)
 	baseLoginPolicyRepository := data2.NewBaseLoginPolicyRepository(dataData)
@@ -293,7 +290,6 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 		OpsMonitoring:            opsMonitoringService,
 		Cache:                    cacheService,
 		RuntimeLog:               runtimeLogService,
-		ProjectDocument:          projectDocumentService,
 		BaseSession:              baseSessionService,
 		BaseLoginPolicy:          baseLoginPolicyService,
 		BaseTableArchive:         baseTableArchiveService,
@@ -425,7 +421,6 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 		OpsMonitoring:            opsMonitoringService,
 		Cache:                    cacheService,
 		RuntimeLog:               runtimeLogService,
-		ProjectDocument:          projectDocumentService,
 		BaseSession:              baseSessionService,
 		BaseLoginPolicy:          baseLoginPolicyService,
 		BaseTableArchive:         baseTableArchiveService,

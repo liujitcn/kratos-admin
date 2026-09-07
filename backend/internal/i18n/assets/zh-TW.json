@@ -893,9 +893,6 @@
   "system.admin.ops_monitoring.unnamed_service": {
     "other": "未命名服務"
   },
-  "openapi.admin.service.project_document": {
-    "other": "專案文件服務"
-  },
   "openapi.admin.service.runtime_log": {
     "other": "執行日誌服務。"
   },
