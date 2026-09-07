@@ -10,6 +10,7 @@
   "version": "0.0.34",
   "type": "module",
   "files": [
+    "assets",
     "bin",
     "src",
     "README.md"

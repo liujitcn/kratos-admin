@@ -204,6 +204,10 @@ pnpm build:packages
 
 `check:exports` 会检查 export target、跨包源码导入和相对路径越界。`build:packages` 在 `dist/npm` 生成三个 tarball，发布入口位于各包的 `dist`，TypeScript 源码和类型通过 exports 白名单公开。
 
+CLI 包通过 `bin`、`src` 和 `assets` 发布可执行入口、生成逻辑和宿主图标。`pnpm test`
+会额外使用 `pnpm pack` 打包 CLI，在临时目录解压并执行创建命令，验证图标内容和模块生成，
+防止源码测试通过但 npm 包缺少运行时资源。
+
 仓库级 `make -C frontend package-uni-app` 会依次执行 lint、类型检查、测试、exports
 检查和三个包的构建；`make -C frontend publish-uni-app` 发布 core、system 和 CLI，默认
 宿主 `@liujitcn/kratos-uni-app` 保持私有。

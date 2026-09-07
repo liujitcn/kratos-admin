@@ -6,14 +6,19 @@
 
 ```text
 packages/cli
-├── bin/kratos-uni-app.mjs         # 命令行参数解析与可执行入口
-├── src/index.mjs              # workspace 文件生成逻辑
-├── test/scaffold.test.mjs     # 脚手架结构和参数测试
-├── README.md                  # CLI 包职责、参数和生成约束
+├── assets/favicon.ico          # 随 npm 包发布的宿主图标
+├── bin/kratos-uni-app.mjs       # 命令行参数解析与可执行入口
+├── src/index.mjs               # workspace 文件生成逻辑
+├── test
+│   ├── scaffold.test.mjs       # 脚手架结构和参数测试
+│   └── packed-scaffold.test.mjs # tarball 内 CLI 与图标复制回归测试
+├── README.md                   # CLI 包职责、参数和生成约束
 └── package.json
 ```
 
 CLI 直接由 `src/index.mjs` 生成文件，不依赖外部模板目录。
+宿主图标从包内 `assets/favicon.ico` 复制，`assets` 必须包含在 `package.json` 的 `files`
+发布白名单中。
 
 ## 功能
 
@@ -37,5 +42,9 @@ pnpm dlx @liujitcn/kratos-uni-app-cli create my-app
 pnpm dlx @liujitcn/kratos-uni-app-cli create my-app --module orders
 pnpm dlx @liujitcn/kratos-uni-app-cli create my-app --with @acme/pay
 ```
+
+`pnpm test` 包含发布包回归测试：使用 `pnpm pack` 生成 tarball，在临时目录解压后执行
+`create --module app`，检查生成的宿主图标内容、HTML 图标引用和本地模块。测试使用本机
+`pnpm` 与 `tar`，不安装生成项目的依赖，并在结束后清理临时目录。
 
 包构建和脚手架验证命令见 [workspace 文档](../../README.md)。
