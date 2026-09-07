@@ -2,7 +2,7 @@
 
 Backend は、メッセージ分類、アプリ内メッセージ管理、ユーザー受信トレイ、Redis 配信復旧、管理画面ワークベンチ統計、ファイル資産メタデータ、ログイン元ポリシー、セッション失効、監査イベントの非同期保存、ログ保管期間の整理、制御されたデータベースバックアップを提供します。セキュリティ、メッセージ、オープン認可の初期データは、すべて `v0.0.1` の初期化マイグレーションで提供します。
 
-`backend` は API 契約、Go 生成インターフェース、Service 実装、Biz ビジネス層、タスクスケジューリング、HTTP/gRPC/MCP/AI の登録、必要なデータアクセス処理を保持します。プロセスのエントリーポイントは `internal/cmd/server` です。ルートパッケージは `ProviderSet`、`NewModuleResources`、`NewModules`、`NewTasks`、`NewStreams`、`NewQueueConsumers` を通じて、外部 Core ホストから再利用できる公開境界を提供します。`internal/adapter/core` は Admin が生成したデータベースアクセス機能を `kratos-core/data` の Store/Writer 契約へ適合させ、`internal/module` はモジュール実装だけを保持します。AI Runtime は `internal/biz` に実装され、外部公開の再利用入口は `pkg/agent` です。業務モジュールは `pkg/notification.Publish` でアプリ内メッセージを発行し、内部トランザクションと Dispatch 復旧処理が最終配信を担当します。オープン認可クライアントは単一テーブルの JSON operation ホワイトリストを使用してテナントに紐付けられ、公開エンドポイントはクライアント用 Bearer Token を発行します。HTTP middleware はテナント、状態、IP ホワイトリスト、API 範囲を検証し、HTTP 暗号化 Filter はリクエストのバインド前にクライアントデータを復号し、成功レスポンス後に暗号化します。ログイン認証は TOTP 多要素認証、ワンタイム復旧コード、グローバルおよびテナント/ユーザー単位のログイン元ポリシーに対応します。
+`backend` は API 契約、Go 生成インターフェース、Service 実装、Biz ビジネス層、タスクスケジューリング、HTTP/gRPC/MCP/AI の登録、必要なデータアクセス処理を保持します。プロセスのエントリーポイントは `internal/cmd/server` です。ルートパッケージは `ProviderSet`、`NewModuleResources`、`NewModules`、`NewTasks`、`NewStreams`、`NewQueueConsumers` を通じて、外部 Core ホストから再利用できる公開境界を提供します。`adapter/core` は Admin が生成したデータベースアクセス機能を `kratos-core/data` の Store/Writer 契約へ適合させ、`internal/module` はモジュール実装だけを保持します。AI Runtime は `internal/biz` に実装され、外部公開の再利用入口は `pkg/agent` です。業務モジュールは `pkg/notification.Publish` でアプリ内メッセージを発行し、内部トランザクションと Dispatch 復旧処理が最終配信を担当します。オープン認可クライアントは単一テーブルの JSON operation ホワイトリストを使用してテナントに紐付けられ、公開エンドポイントはクライアント用 Bearer Token を発行します。HTTP middleware はテナント、状態、IP ホワイトリスト、API 範囲を検証し、HTTP 暗号化 Filter はリクエストのバインド前にクライアントデータを復号し、成功レスポンス後に暗号化します。ログイン認証は TOTP 多要素認証、ワンタイム復旧コード、グローバルおよびテナント/ユーザー単位のログイン元ポリシーに対応します。
 
 ## ディレクトリ
 
@@ -13,7 +13,7 @@ backend
 │   ├── proto                         # Proto 契約
 │   └── gen/go                        # Buf が生成する Go、HTTP、gRPC、ツールコード
 ├── internal/biz                      # 業務 Case、DTO、コード生成、補助ドメインコード
-├── internal/adapter/core             # Core Store/Writer 契約への Admin 永続化アダプター
+├── adapter/core             # Core Store/Writer 契約への Admin 永続化アダプター
 ├── bootstrap.go                      # ProviderSet、モジュール、タスク、SSE、キュー、リソース入口
 ├── internal/module                   # Admin と kratos-core の内部モジュール適合とリソース実装
 │   ├── module.go                     # Core Module プロトコル登録

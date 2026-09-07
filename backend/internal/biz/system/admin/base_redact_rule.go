@@ -4,7 +4,7 @@ import (
 	"context"
 
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
-	"github.com/liujitcn/kratos-admin/backend/internal/adapter/kit"
+	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/redact"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"

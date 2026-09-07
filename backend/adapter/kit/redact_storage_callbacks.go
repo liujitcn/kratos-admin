@@ -6,10 +6,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-	"sync/atomic"
 
-	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
-	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/liujitcn/kratos-kit/redact"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -19,15 +16,6 @@ const (
 	storagePreparedStateKey = "kratos-admin:redact/storage-prepared"
 	storageDeleteStateKey   = "kratos-admin:redact/storage-delete"
 )
-
-var storageRuntimeValue atomic.Pointer[storageRuntime]
-
-type storageRuntime struct {
-	defaultDialector gorm.Dialector
-	storage          *redact.RedactStorage
-	resolver         *RedactPolicyResolver
-	store            *storageValueStore
-}
 
 type storageDigestResolver interface {
 	FindRecordIDsByDigest(context.Context, redact.StorageFieldPolicy, string) ([]int64, error)
@@ -48,54 +36,9 @@ type deletedState struct {
 	policies  []redact.StorageFieldPolicy
 }
 
-func init() {
-	kitgorm.RegisterCallbackQuery(rewriteStorageQuery)
-	kitgorm.RegisterCallbackQueryAfter(materializeStorageResponse)
-	kitgorm.RegisterCallbackCreate(prepareStorageCreate)
-	kitgorm.RegisterCallbackCreateAfter(saveStorageValues)
-	kitgorm.RegisterCallbackUpdateBefore("gorm:update", prepareStorageUpdate)
-	kitgorm.RegisterCallbackUpdateAfter(saveStorageValues)
-	kitgorm.RegisterCallbackDelete(captureStorageDelete)
-	kitgorm.RegisterCallbackDeleteAfter(deleteStorageValues)
-}
-
-// NewStorageRuntime 创建并注册当前 Admin 的敏感字段存储运行时。
-func NewStorageRuntime(defaultDB *gorm.DB, store *storageValueStore, resolver *RedactPolicyResolver, protector *redact.StorageProtector) *redact.RedactStorage {
-	storage := redact.NewRedactStorage(store, resolver, protector, gormEntityFieldAccessor{})
-	var defaultDialector gorm.Dialector
-	if defaultDB != nil {
-		defaultDialector = defaultDB.Dialector
-	}
-	storageRuntimeValue.Store(&storageRuntime{defaultDialector: defaultDialector, storage: storage, resolver: resolver, store: store})
-	return storage
-}
-
-// NewRedactRuntime 创建 Admin 脱敏策略运行时并注册存储回调。
-func NewRedactRuntime(
-	defaultDB *gorm.DB,
-	storagePolicyRepository *data.BaseRedactStoragePolicyRepository,
-	outputPolicyRepository *data.BaseRedactOutputPolicyRepository,
-	ruleRepository *data.BaseRedactRuleRepository,
-	store *storageValueStore,
-	protector *redact.StorageProtector,
-) (*RedactPolicyResolver, error) {
-	resolver := NewRedactPolicyResolver(storagePolicyRepository, outputPolicyRepository, ruleRepository)
-	err := resolver.Refresh(context.Background())
-	if err != nil {
-		return nil, err
-	}
-	NewStorageRuntime(defaultDB, store, resolver, protector)
-	redact.SetDefaultPolicyResolver(resolver)
-	return resolver, nil
-}
-
 // rewriteStorageQuery 将敏感字段明文等值条件改写为旁表摘要对应的主键条件。
-func rewriteStorageQuery(db *gorm.DB) {
-	runtime := storageRuntimeValue.Load()
-	if runtime == nil || runtime.storage == nil || runtime.resolver == nil || db == nil || db.Statement == nil || db.Error != nil {
-		return
-	}
-	if !runtime.isDefaultDatabase(db) {
+func (runtime *storageRuntime) rewriteStorageQuery(db *gorm.DB) {
+	if db.Error != nil {
 		return
 	}
 	if isRedactMetadataTable(db.Statement.Table) || db.Statement.Schema == nil || db.Statement.Schema.PrioritizedPrimaryField == nil {
@@ -122,6 +65,234 @@ func rewriteStorageQuery(db *gorm.DB) {
 	if changed {
 		where.Expression = expression
 		db.Statement.Clauses["WHERE"] = where
+	}
+}
+
+// prepareStorageCreate 在 GORM 创建前将敏感字段转换为存储值。
+func (runtime *storageRuntime) prepareStorageCreate(db *gorm.DB) {
+	runtime.prepareStorageEntities(db, true)
+}
+
+// prepareStorageUpdate 在 GORM 更新前将敏感字段转换为存储值。
+func (runtime *storageRuntime) prepareStorageUpdate(db *gorm.DB) {
+	runtime.prepareStorageEntities(db, false)
+}
+
+// prepareStorageEntities 按当前物理表处理待持久化实体。
+func (runtime *storageRuntime) prepareStorageEntities(db *gorm.DB, creating bool) {
+	if db.Error != nil {
+		return
+	}
+	if isRedactMetadataTable(db.Statement.Table) {
+		return
+	}
+	policies := runtime.resolver.ListStoragePolicies(db.Statement.Context, db.Statement.Table)
+	if len(policies) == 0 {
+		return
+	}
+	entities := destinationEntities(db.Statement.Dest)
+	if len(entities) == 0 {
+		if destinationContainsProtectedColumn(db.Statement.Dest, policies) {
+			db.AddError(fmt.Errorf("受保护表 %s 的敏感字段更新必须使用实体模型", db.Statement.Table))
+		}
+		return
+	}
+	state := &preparedState{entities: make([]preparedEntity, 0, len(entities))}
+	var err error
+	for _, entity := range entities {
+		var prepared preparedEntity
+		prepared, err = runtime.prepareStorageEntity(db.Statement.Context, policies, entity, db, creating)
+		if err != nil {
+			db.AddError(err)
+			return
+		}
+		if len(prepared.values) == 0 && len(prepared.deletePolicyIDs) == 0 {
+			continue
+		}
+		state.entities = append(state.entities, prepared)
+	}
+	if len(state.entities) > 0 {
+		db.InstanceSet(storagePreparedStateKey, state)
+	}
+}
+
+// prepareStorageEntity 处理单个实体并记录待保存或删除的旁表值。
+func (runtime *storageRuntime) prepareStorageEntity(ctx context.Context, policies []redact.StorageFieldPolicy, entity any, db *gorm.DB, creating bool) (preparedEntity, error) {
+	selectedPolicies := make([]redact.StorageFieldPolicy, 0, len(policies))
+	deletePolicyIDs := make([]int64, 0)
+	accessor := gormEntityFieldAccessor{}
+	var err error
+	for _, policy := range policies {
+		var selected bool
+		selected, err = storageFieldSelected(ctx, db, entity, policy)
+		if err != nil {
+			return preparedEntity{}, err
+		}
+		if !selected || !storageFieldSupportsAtRestProtection(db, policy) {
+			continue
+		}
+		var value any
+		var zero bool
+		value, zero, err = accessor.ValueOf(ctx, entity, policy.ColumnName)
+		if err != nil {
+			return preparedEntity{}, err
+		}
+		if zero || value == nil || value == "" {
+			if !creating {
+				deletePolicyIDs = append(deletePolicyIDs, policy.ID)
+			}
+			continue
+		}
+		if _, ok := value.(string); !ok {
+			return preparedEntity{}, fmt.Errorf("实体 %s 字段 %s 不是字符串", policy.TableName, policy.ColumnName)
+		}
+		selectedPolicies = append(selectedPolicies, policy)
+	}
+	var values map[int64]*redact.StorageValue
+	values, err = runtime.storage.PrepareEntityWithPolicies(ctx, entity, selectedPolicies)
+	if err != nil {
+		return preparedEntity{}, err
+	}
+	return preparedEntity{entity: entity, deletePolicyIDs: deletePolicyIDs, values: values}, nil
+}
+
+// saveStorageValues 在主表写入完成后保存旁表敏感值。
+func (runtime *storageRuntime) saveStorageValues(db *gorm.DB) {
+	if db.Error != nil {
+		return
+	}
+	value, ok := db.InstanceGet(storagePreparedStateKey)
+	if !ok {
+		return
+	}
+	var state *preparedState
+	state, ok = value.(*preparedState)
+	if !ok {
+		db.AddError(errors.New("敏感字段存储状态类型无效"))
+		return
+	}
+	var err error
+	for _, prepared := range state.entities {
+		var recordID int64
+		recordID, err = entityPrimaryID(db.Statement.Context, db, prepared.entity)
+		if err != nil {
+			db.AddError(err)
+			return
+		}
+		if recordID <= 0 {
+			db.AddError(fmt.Errorf("表 %s 的业务主键不能为空", db.Statement.Table))
+			return
+		}
+		for _, item := range prepared.values {
+			item.RecordID = recordID
+			err = runtime.store.SaveWithDB(db.Statement.Context, db, item)
+			if err != nil {
+				db.AddError(err)
+				return
+			}
+		}
+		for _, storagePolicyID := range prepared.deletePolicyIDs {
+			err = runtime.store.DeleteWithDB(db.Statement.Context, db, storagePolicyID, recordID)
+			if err != nil {
+				db.AddError(err)
+				return
+			}
+		}
+	}
+}
+
+// captureStorageDelete 在删除前捕获受保护实体的业务主键。
+func (runtime *storageRuntime) captureStorageDelete(db *gorm.DB) {
+	if db.Error != nil {
+		return
+	}
+	if isRedactMetadataTable(db.Statement.Table) {
+		return
+	}
+	policies := runtime.resolver.ListStoragePolicies(db.Statement.Context, db.Statement.Table)
+	if len(policies) == 0 {
+		return
+	}
+	recordIDs := make([]int64, 0)
+	entities := destinationEntities(db.Statement.Dest)
+	var err error
+	for _, entity := range entities {
+		var recordID int64
+		recordID, err = entityPrimaryID(db.Statement.Context, db, entity)
+		if err != nil {
+			db.AddError(err)
+			return
+		}
+		if recordID > 0 {
+			recordIDs = append(recordIDs, recordID)
+		}
+	}
+	if len(recordIDs) == 0 && db.Statement.Schema != nil && db.Statement.Schema.PrioritizedPrimaryField != nil {
+		recordIDs = recordIDsFromWhere(db.Statement.Clauses["WHERE"].Expression, db.Statement.Schema.PrioritizedPrimaryField.DBName)
+	}
+	if len(recordIDs) == 0 {
+		db.AddError(fmt.Errorf("受保护表 %s 的删除必须包含主键条件", db.Statement.Table))
+		return
+	}
+	db.InstanceSet(storageDeleteStateKey, &deletedState{recordIDs: recordIDs, policies: policies})
+}
+
+// deleteStorageValues 在主表删除完成后物理删除旁表敏感值。
+func (runtime *storageRuntime) deleteStorageValues(db *gorm.DB) {
+	if db.Error != nil {
+		return
+	}
+	value, ok := db.InstanceGet(storageDeleteStateKey)
+	if !ok {
+		return
+	}
+	var state *deletedState
+	state, ok = value.(*deletedState)
+	if !ok {
+		db.AddError(errors.New("敏感字段删除状态类型无效"))
+		return
+	}
+	var err error
+	for _, recordID := range state.recordIDs {
+		for _, policy := range state.policies {
+			err = runtime.store.DeleteWithDB(db.Statement.Context, db, policy.ID, recordID)
+			if err != nil {
+				db.AddError(err)
+				return
+			}
+		}
+	}
+}
+
+// materializeStorageResponse 在业务查询完成后恢复主表敏感字段原文。
+func (runtime *storageRuntime) materializeStorageResponse(db *gorm.DB) {
+	if db.Error != nil {
+		return
+	}
+	if isRedactMetadataTable(db.Statement.Table) {
+		return
+	}
+	policies := runtime.resolver.ListStoragePolicies(db.Statement.Context, db.Statement.Table)
+	if len(policies) == 0 {
+		return
+	}
+	entities := destinationEntities(db.Statement.Dest)
+	responseEntities := make([]redact.ResponseEntity, 0, len(entities))
+	var err error
+	for _, entity := range entities {
+		var recordID int64
+		recordID, err = entityPrimaryID(db.Statement.Context, db, entity)
+		if err != nil {
+			db.AddError(err)
+			return
+		}
+		if recordID > 0 {
+			responseEntities = append(responseEntities, redact.ResponseEntity{RecordID: recordID, Entity: entity})
+		}
+	}
+	err = runtime.storage.RestoreEntities(db.Statement.Context, policies, responseEntities)
+	if err != nil {
+		db.AddError(err)
 	}
 }
 
@@ -249,95 +420,6 @@ func recordIDCondition(primaryColumn clause.Column, recordIDs []int64) clause.Ex
 	return clause.IN{Column: primaryColumn, Values: values}
 }
 
-// prepareStorageCreate 在 GORM 创建前将敏感字段转换为存储值。
-func prepareStorageCreate(db *gorm.DB) {
-	prepareStorageEntities(db, true)
-}
-
-// prepareStorageUpdate 在 GORM 更新前将敏感字段转换为存储值。
-func prepareStorageUpdate(db *gorm.DB) {
-	prepareStorageEntities(db, false)
-}
-
-// prepareStorageEntities 按当前物理表处理待持久化实体。
-func prepareStorageEntities(db *gorm.DB, creating bool) {
-	runtime := storageRuntimeValue.Load()
-	if runtime == nil || runtime.storage == nil || runtime.resolver == nil || db == nil || db.Statement == nil || db.Error != nil {
-		return
-	}
-	if !runtime.isDefaultDatabase(db) {
-		return
-	}
-	policies := runtime.resolver.ListStoragePolicies(db.Statement.Context, db.Statement.Table)
-	if len(policies) == 0 {
-		return
-	}
-	entities := destinationEntities(db.Statement.Dest)
-	if len(entities) == 0 {
-		if destinationContainsProtectedColumn(db.Statement.Dest, policies) {
-			db.AddError(fmt.Errorf("受保护表 %s 的敏感字段更新必须使用实体模型", db.Statement.Table))
-		}
-		return
-	}
-	state := &preparedState{entities: make([]preparedEntity, 0, len(entities))}
-	var err error
-	for _, entity := range entities {
-		var prepared preparedEntity
-		prepared, err = prepareStorageEntity(db.Statement.Context, runtime, policies, entity, db, creating)
-		if err != nil {
-			db.AddError(err)
-			return
-		}
-		if len(prepared.values) == 0 && len(prepared.deletePolicyIDs) == 0 {
-			continue
-		}
-		state.entities = append(state.entities, prepared)
-	}
-	if len(state.entities) > 0 {
-		db.InstanceSet(storagePreparedStateKey, state)
-	}
-}
-
-// prepareStorageEntity 处理单个实体并记录待保存或删除的旁表值。
-func prepareStorageEntity(ctx context.Context, runtime *storageRuntime, policies []redact.StorageFieldPolicy, entity any, db *gorm.DB, creating bool) (preparedEntity, error) {
-	selectedPolicies := make([]redact.StorageFieldPolicy, 0, len(policies))
-	deletePolicyIDs := make([]int64, 0)
-	accessor := gormEntityFieldAccessor{}
-	var err error
-	for _, policy := range policies {
-		var selected bool
-		selected, err = storageFieldSelected(ctx, db, entity, policy)
-		if err != nil {
-			return preparedEntity{}, err
-		}
-		if !selected || !storageFieldSupportsAtRestProtection(db, policy) {
-			continue
-		}
-		var value any
-		var zero bool
-		value, zero, err = accessor.ValueOf(ctx, entity, policy.ColumnName)
-		if err != nil {
-			return preparedEntity{}, err
-		}
-		if zero || value == nil || value == "" {
-			if !creating {
-				deletePolicyIDs = append(deletePolicyIDs, policy.ID)
-			}
-			continue
-		}
-		if _, ok := value.(string); !ok {
-			return preparedEntity{}, fmt.Errorf("实体 %s 字段 %s 不是字符串", policy.TableName, policy.ColumnName)
-		}
-		selectedPolicies = append(selectedPolicies, policy)
-	}
-	var values map[int64]*redact.StorageValue
-	values, err = runtime.storage.PrepareEntityWithPolicies(ctx, entity, selectedPolicies)
-	if err != nil {
-		return preparedEntity{}, err
-	}
-	return preparedEntity{entity: entity, deletePolicyIDs: deletePolicyIDs, values: values}, nil
-}
-
 // storageFieldSupportsAtRestProtection 判断字段是否适合保存脱敏值。
 func storageFieldSupportsAtRestProtection(db *gorm.DB, policy redact.StorageFieldPolicy) bool {
 	if db == nil || db.Statement == nil || db.Statement.Schema == nil {
@@ -396,181 +478,6 @@ func sameStorageFieldName(left, right string) bool {
 		left = left[index+1:]
 	}
 	return strings.EqualFold(left, right)
-}
-
-// saveStorageValues 在主表写入完成后保存旁表敏感值。
-func saveStorageValues(db *gorm.DB) {
-	runtime := storageRuntimeValue.Load()
-	if runtime == nil || runtime.store == nil || db == nil || db.Statement == nil || db.Error != nil {
-		return
-	}
-	if !runtime.isDefaultDatabase(db) {
-		return
-	}
-	value, ok := db.InstanceGet(storagePreparedStateKey)
-	if !ok {
-		return
-	}
-	state, ok := value.(*preparedState)
-	if !ok {
-		db.AddError(errors.New("敏感字段存储状态类型无效"))
-		return
-	}
-	var err error
-	for _, prepared := range state.entities {
-		var recordID int64
-		recordID, err = entityPrimaryID(db.Statement.Context, db, prepared.entity)
-		if err != nil {
-			db.AddError(err)
-			return
-		}
-		if recordID <= 0 {
-			db.AddError(fmt.Errorf("表 %s 的业务主键不能为空", db.Statement.Table))
-			return
-		}
-		for _, item := range prepared.values {
-			item.RecordID = recordID
-			err = runtime.store.SaveWithDB(db.Statement.Context, db, item)
-			if err != nil {
-				db.AddError(err)
-				return
-			}
-		}
-		for _, storagePolicyID := range prepared.deletePolicyIDs {
-			err = runtime.store.DeleteWithDB(db.Statement.Context, db, storagePolicyID, recordID)
-			if err != nil {
-				db.AddError(err)
-				return
-			}
-		}
-	}
-}
-
-// captureStorageDelete 在删除前捕获受保护实体的业务主键。
-func captureStorageDelete(db *gorm.DB) {
-	runtime := storageRuntimeValue.Load()
-	if runtime == nil || runtime.resolver == nil || db == nil || db.Statement == nil || db.Error != nil {
-		return
-	}
-	if !runtime.isDefaultDatabase(db) {
-		return
-	}
-	policies := runtime.resolver.ListStoragePolicies(db.Statement.Context, db.Statement.Table)
-	if len(policies) == 0 {
-		return
-	}
-	recordIDs := make([]int64, 0)
-	entities := destinationEntities(db.Statement.Dest)
-	var err error
-	for _, entity := range entities {
-		var recordID int64
-		recordID, err = entityPrimaryID(db.Statement.Context, db, entity)
-		if err != nil {
-			db.AddError(err)
-			return
-		}
-		if recordID > 0 {
-			recordIDs = append(recordIDs, recordID)
-		}
-	}
-	if len(recordIDs) == 0 && db.Statement.Schema != nil && db.Statement.Schema.PrioritizedPrimaryField != nil {
-		recordIDs = recordIDsFromWhere(db.Statement.Clauses["WHERE"].Expression, db.Statement.Schema.PrioritizedPrimaryField.DBName)
-	}
-	if len(recordIDs) == 0 {
-		db.AddError(fmt.Errorf("受保护表 %s 的删除必须包含主键条件", db.Statement.Table))
-		return
-	}
-	db.InstanceSet(storageDeleteStateKey, &deletedState{recordIDs: recordIDs, policies: policies})
-}
-
-// deleteStorageValues 在主表删除完成后物理删除旁表敏感值。
-func deleteStorageValues(db *gorm.DB) {
-	runtime := storageRuntimeValue.Load()
-	if runtime == nil || runtime.store == nil || db == nil || db.Statement == nil || db.Error != nil {
-		return
-	}
-	if !runtime.isDefaultDatabase(db) {
-		return
-	}
-	value, ok := db.InstanceGet(storageDeleteStateKey)
-	if !ok {
-		return
-	}
-	state, ok := value.(*deletedState)
-	if !ok {
-		db.AddError(errors.New("敏感字段删除状态类型无效"))
-		return
-	}
-	var err error
-	for _, recordID := range state.recordIDs {
-		for _, policy := range state.policies {
-			err = runtime.store.DeleteWithDB(db.Statement.Context, db, policy.ID, recordID)
-			if err != nil {
-				db.AddError(err)
-				return
-			}
-		}
-	}
-}
-
-// materializeStorageResponse 在业务查询完成后恢复主表敏感字段原文。
-func materializeStorageResponse(db *gorm.DB) {
-	runtime := storageRuntimeValue.Load()
-	if runtime == nil || runtime.storage == nil || runtime.resolver == nil || db == nil || db.Statement == nil || db.Error != nil {
-		return
-	}
-	if !runtime.isDefaultDatabase(db) {
-		return
-	}
-	if isRedactMetadataTable(db.Statement.Table) {
-		return
-	}
-	policies := runtime.resolver.ListStoragePolicies(db.Statement.Context, db.Statement.Table)
-	if len(policies) == 0 {
-		return
-	}
-	entities := destinationEntities(db.Statement.Dest)
-	responseEntities := make([]redact.ResponseEntity, 0, len(entities))
-	var err error
-	for _, entity := range entities {
-		var recordID int64
-		recordID, err = entityPrimaryID(db.Statement.Context, db, entity)
-		if err != nil {
-			db.AddError(err)
-			return
-		}
-		if recordID > 0 {
-			responseEntities = append(responseEntities, redact.ResponseEntity{RecordID: recordID, Entity: entity})
-		}
-	}
-	err = runtime.storage.RestoreEntities(db.Statement.Context, policies, responseEntities)
-	if err != nil {
-		db.AddError(err)
-	}
-}
-
-// isDefaultDatabase 判断当前 GORM 会话是否来自默认数据源。
-func (r *storageRuntime) isDefaultDatabase(db *gorm.DB) bool {
-	if r == nil || r.defaultDialector == nil || db == nil || db.Dialector == nil {
-		return false
-	}
-	return sameDialector(r.defaultDialector, db.Dialector)
-}
-
-// sameDialector 比较 GORM 会话复用的底层数据库方言实例。
-func sameDialector(left, right gorm.Dialector) bool {
-	if left == nil || right == nil {
-		return false
-	}
-	leftValue := reflect.ValueOf(left)
-	rightValue := reflect.ValueOf(right)
-	if leftValue.Type() != rightValue.Type() {
-		return false
-	}
-	if leftValue.Kind() == reflect.Pointer {
-		return leftValue.Pointer() == rightValue.Pointer()
-	}
-	return reflect.DeepEqual(left, right)
 }
 
 // isRedactMetadataTable 判断查询是否来自脱敏配置和旁表元数据。

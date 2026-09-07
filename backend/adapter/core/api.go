@@ -7,6 +7,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	coredata "github.com/liujitcn/kratos-core/data"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 // APIStoreAdapter 将 Admin 的 API 生成仓储适配为 Core 资源接口。
@@ -15,15 +16,16 @@ type APIStoreAdapter struct {
 	translationRepository *data.BaseAPII18NRepository
 }
 
-// NewAPIStoreAdapter 创建 Core API 资源存储适配器。
-func NewAPIStoreAdapter(
-	apiRepository *data.BaseAPIRepository,
-	translationRepository *data.BaseAPII18NRepository,
-) *APIStoreAdapter {
-	return &APIStoreAdapter{
-		apiRepository:         apiRepository,
-		translationRepository: translationRepository,
+// NewAPIStoreAdapter 使用数据库客户端创建一次内部仓储，供 Core 复用 API 资源存储。
+func NewAPIStoreAdapter(databases map[string]*gorm.Client) (*APIStoreAdapter, error) {
+	provider, err := data.NewData(databases)
+	if err != nil {
+		return nil, err
 	}
+	return &APIStoreAdapter{
+		apiRepository:         data.NewBaseAPIRepository(provider),
+		translationRepository: data.NewBaseAPII18NRepository(provider),
+	}, nil
 }
 
 // ReplaceAll 替换 API 快照并保留已有工具运行时配置。

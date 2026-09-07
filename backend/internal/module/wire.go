@@ -5,7 +5,7 @@ package module
 
 import (
 	"github.com/google/wire"
-	"github.com/liujitcn/kratos-admin/backend/internal/adapter/kit"
+	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/sse"
@@ -27,17 +27,7 @@ import (
 	"github.com/liujitcn/kratos-kit/auth/authz/engine"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/database/gorm"
-	gormdb "gorm.io/gorm"
 )
-
-// defaultDatabase 返回 Admin 脱敏运行时使用的默认数据源连接。
-func defaultDatabase(baseCase *coreBiz.BaseCase) *gormdb.DB {
-	client := baseCase.GormClients[gorm.DefaultClientName]
-	if client == nil {
-		return nil
-	}
-	return client.DB
-}
 
 // BuildModules 通过 Admin 内部依赖装配协议服务。
 func BuildModules(
@@ -51,14 +41,13 @@ func BuildModules(
 	sseRuntime *coreSSE.SSE,
 	catalog *i18n.I18n,
 	openAPIRuntime *openapi.OpenAPI,
+	redactResolver *kit.RedactPolicyResolver,
 ) (module.Modules, func(), error) {
 	panic(wire.Build(
 		ParseAdminAgentTools,
 		ParseAppAgentTools,
 		configProvider.ProviderSet,
 		logstream.DefaultHub,
-		defaultDatabase,
-		kit.ProviderSet,
 		NewModules,
 		biz.ProviderSet,
 		biz.MessageProviderSet,

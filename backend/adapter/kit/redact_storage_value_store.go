@@ -8,24 +8,29 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	query "github.com/liujitcn/kratos-admin/backend/internal/data/gen/query"
+	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/liujitcn/kratos-kit/redact"
 	"gorm.io/gorm"
 )
 
-var _ redact.StorageValueStore = (*storageValueStore)(nil)
+var _ redact.StorageValueStore = (*StorageValueStore)(nil)
 
-// storageValueStore 将敏感值旁表仓储适配为运行时存储接口。
-type storageValueStore struct {
+// StorageValueStore 将敏感值旁表仓储适配为运行时存储接口。
+type StorageValueStore struct {
 	repository *data.BaseRedactStorageValueRepository
 }
 
-// NewStorageValueStore 创建敏感值旁表存储适配器。
-func NewStorageValueStore(repository *data.BaseRedactStorageValueRepository) *storageValueStore {
-	return &storageValueStore{repository: repository}
+// NewStorageValueStore 使用默认数据库构造旁表仓储，不执行数据库查询。
+func NewStorageValueStore(databases map[string]*kitgorm.Client) (*StorageValueStore, error) {
+	d, err := data.NewData(databases)
+	if err != nil {
+		return nil, err
+	}
+	return &StorageValueStore{repository: data.NewBaseRedactStorageValueRepository(d)}, nil
 }
 
 // Find 查询指定入库策略和业务记录的旁表敏感值。
-func (s *storageValueStore) Find(ctx context.Context, storagePolicyID, recordID int64) (*redact.StorageValue, error) {
+func (s *StorageValueStore) Find(ctx context.Context, storagePolicyID, recordID int64) (*redact.StorageValue, error) {
 	if s == nil || s.repository == nil {
 		return nil, errors.New("敏感字段旁表仓储未初始化")
 	}
@@ -44,7 +49,7 @@ func (s *storageValueStore) Find(ctx context.Context, storagePolicyID, recordID 
 }
 
 // ListByRecords 批量查询指定入库策略和业务记录的旁表敏感值。
-func (s *storageValueStore) ListByRecords(ctx context.Context, storagePolicyID int64, recordIDs []int64) ([]*redact.StorageValue, error) {
+func (s *StorageValueStore) ListByRecords(ctx context.Context, storagePolicyID int64, recordIDs []int64) ([]*redact.StorageValue, error) {
 	if s == nil || s.repository == nil {
 		return nil, errors.New("敏感字段旁表仓储未初始化")
 	}
@@ -63,7 +68,7 @@ func (s *storageValueStore) ListByRecords(ctx context.Context, storagePolicyID i
 }
 
 // ListByDigest 按入库策略和查询摘要查找业务记录。
-func (s *storageValueStore) ListByDigest(ctx context.Context, storagePolicyID int64, digest []byte) ([]*redact.StorageValue, error) {
+func (s *StorageValueStore) ListByDigest(ctx context.Context, storagePolicyID int64, digest []byte) ([]*redact.StorageValue, error) {
 	if s == nil || s.repository == nil {
 		return nil, errors.New("敏感字段旁表仓储未初始化")
 	}
@@ -79,7 +84,7 @@ func (s *storageValueStore) ListByDigest(ctx context.Context, storagePolicyID in
 }
 
 // Save 保存或更新旁表敏感值。
-func (s *storageValueStore) Save(ctx context.Context, value *redact.StorageValue) error {
+func (s *StorageValueStore) Save(ctx context.Context, value *redact.StorageValue) error {
 	if s == nil || s.repository == nil {
 		return errors.New("敏感字段旁表仓储未初始化")
 	}
@@ -103,7 +108,7 @@ func (s *storageValueStore) Save(ctx context.Context, value *redact.StorageValue
 }
 
 // Delete 物理删除旁表敏感值。
-func (s *storageValueStore) Delete(ctx context.Context, value *redact.StorageValue) error {
+func (s *StorageValueStore) Delete(ctx context.Context, value *redact.StorageValue) error {
 	if s == nil || s.repository == nil {
 		return errors.New("敏感字段旁表仓储未初始化")
 	}
@@ -118,7 +123,7 @@ func (s *storageValueStore) Delete(ctx context.Context, value *redact.StorageVal
 }
 
 // SaveWithDB 使用当前 GORM 事务保存旁表敏感值。
-func (s *storageValueStore) SaveWithDB(ctx context.Context, db *gorm.DB, value *redact.StorageValue) error {
+func (s *StorageValueStore) SaveWithDB(ctx context.Context, db *gorm.DB, value *redact.StorageValue) error {
 	if s == nil || s.repository == nil {
 		return errors.New("敏感字段旁表仓储未初始化")
 	}
@@ -142,7 +147,7 @@ func (s *storageValueStore) SaveWithDB(ctx context.Context, db *gorm.DB, value *
 }
 
 // DeleteWithDB 使用当前 GORM 事务物理删除旁表敏感值。
-func (s *storageValueStore) DeleteWithDB(ctx context.Context, db *gorm.DB, storagePolicyID, recordID int64) error {
+func (s *StorageValueStore) DeleteWithDB(ctx context.Context, db *gorm.DB, storagePolicyID, recordID int64) error {
 	if s == nil || s.repository == nil {
 		return errors.New("敏感字段旁表仓储未初始化")
 	}

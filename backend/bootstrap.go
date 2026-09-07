@@ -1,11 +1,13 @@
 package backend
 
 import (
+	"context"
 	"fmt"
 	"os"
 
 	"github.com/google/wire"
-	"github.com/liujitcn/kratos-admin/backend/internal/adapter"
+	coreadapter "github.com/liujitcn/kratos-admin/backend/adapter/core"
+	kitadapter "github.com/liujitcn/kratos-admin/backend/adapter/kit"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	adminModule "github.com/liujitcn/kratos-admin/backend/internal/module"
 	"github.com/liujitcn/kratos-core/biz"
@@ -43,7 +45,8 @@ type AdminConsumers queue.Consumers
 // 外部项目将本集合与其他业务模块的具名贡献合并后，再交给 kratos-core.ProviderSet
 // 统一创建 HTTP、gRPC、MCP、SSE、队列和定时任务运行时。
 var ProviderSet = wire.NewSet(
-	adapter.ProviderSet,
+	coreadapter.ProviderSet,
+	kitadapter.ProviderSet,
 	NewModuleResources,
 	NewModules,
 	NewTasks,
@@ -58,8 +61,8 @@ func NewModuleResources() AdminResources {
 
 // NewModules 创建 Backend 注册到 Core 的协议模块集合。
 //
-// 参数均来自 kratos-core.ProviderSet：迁移就绪对象保证版本记录已创建，数据库客户端由模块资源驱动创建，
-// BaseCase、Job、SSE、文档和 OpenAPI 运行时由 Core 统一提供。Admin 业务依赖
+// Core 提供迁移就绪对象、数据库客户端、BaseCase、Job、SSE、国际化和 OpenAPI 运行时，
+// Admin 提供脱敏策略解析器，并在迁移完成后初始化。Admin 业务依赖
 // 在 Backend 内部完成装配，避免外部项目的生成代码引用 backend/internal 包。
 func NewModules(
 	_ *migration.Migration,
@@ -73,15 +76,21 @@ func NewModules(
 	sseRuntime *sse.SSE,
 	catalog *i18n.I18n,
 	openAPIRuntime *openapi.OpenAPI,
+	redactResolver *kitadapter.RedactPolicyResolver,
 ) (AdminModules, func(), error) {
 	var err error
+	// 迁移完成后再加载策略和绑定存储回调，构造适配器时不查询尚未创建的表。
+	err = redactResolver.Initialize(context.Background())
+	if err != nil {
+		return nil, nil, err
+	}
 	err = logstream.InitializeRuntimeLogging()
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "启动运行日志采集失败: %v\n", err)
 	}
 	var modules module.Modules
 	var cleanup func()
-	modules, cleanup, err = adminModule.BuildModules(config, databases, baseCase, authorizer, authenticator, userToken, jobRuntime, sseRuntime, catalog, openAPIRuntime)
+	modules, cleanup, err = adminModule.BuildModules(config, databases, baseCase, authorizer, authenticator, userToken, jobRuntime, sseRuntime, catalog, openAPIRuntime, redactResolver)
 	return AdminModules(modules), cleanup, err
 }
 

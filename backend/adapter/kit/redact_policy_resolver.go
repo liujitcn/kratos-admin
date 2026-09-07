@@ -8,11 +8,13 @@ import (
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/gorm-kit/repository"
+	"github.com/liujitcn/kratos-admin/backend/internal/config"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	_const "github.com/liujitcn/kratos-core/const"
-	"github.com/liujitcn/kratos-kit/database/gorm"
+	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/liujitcn/kratos-kit/redact"
+	"gorm.io/gorm"
 )
 
 const policyCacheTTL = time.Minute
@@ -24,6 +26,10 @@ var (
 
 // RedactPolicyResolver 将 Admin 入库和出库策略转换为运行时策略。
 type RedactPolicyResolver struct {
+	defaultDB               *gorm.DB
+	store                   *StorageValueStore
+	initializeMu            sync.Mutex
+	runtime                 *storageRuntime
 	storagePolicyRepository *data.BaseRedactStoragePolicyRepository
 	outputPolicyRepository  *data.BaseRedactOutputPolicyRepository
 	ruleRepository          *data.BaseRedactRuleRepository
@@ -33,19 +39,54 @@ type RedactPolicyResolver struct {
 	loadedAt                time.Time
 }
 
-// NewRedactPolicyResolver 创建 Admin 脱敏策略解析器。
-func NewRedactPolicyResolver(
-	storagePolicyRepository *data.BaseRedactStoragePolicyRepository,
-	outputPolicyRepository *data.BaseRedactOutputPolicyRepository,
-	ruleRepository *data.BaseRedactRuleRepository,
-) *RedactPolicyResolver {
+// NewRedactPolicyResolver 构造默认数据库仓储和空缓存，迁移完成后须调用 Initialize。
+func NewRedactPolicyResolver(databases map[string]*kitgorm.Client) (*RedactPolicyResolver, error) {
+	d, err := data.NewData(databases)
+	if err != nil {
+		return nil, err
+	}
+	var store *StorageValueStore
+	store, err = NewStorageValueStore(databases)
+	if err != nil {
+		return nil, err
+	}
 	return &RedactPolicyResolver{
-		storagePolicyRepository: storagePolicyRepository,
-		outputPolicyRepository:  outputPolicyRepository,
-		ruleRepository:          ruleRepository,
+		defaultDB:               databases[kitgorm.DefaultClientName].DB,
+		store:                   store,
+		storagePolicyRepository: data.NewBaseRedactStoragePolicyRepository(d),
+		outputPolicyRepository:  data.NewBaseRedactOutputPolicyRepository(d),
+		ruleRepository:          data.NewBaseRedactRuleRepository(d),
 		outputPolicies:          make(map[string]redact.FieldPolicy),
 		storagePolicies:         make(map[string][]redact.StorageFieldPolicy),
+	}, nil
+}
+
+// Initialize 在迁移和密钥初始化完成后、数据库开始处理业务请求前加载策略并绑定回调。
+// 同一实例成功后重复调用无副作用；失败可重试，同一数据库的初始化必须串行执行。
+func (r *RedactPolicyResolver) Initialize(ctx context.Context) error {
+	r.initializeMu.Lock()
+	defer r.initializeMu.Unlock()
+	if r.runtime != nil {
+		return nil
 	}
+	err := r.Refresh(ctx)
+	if err != nil {
+		return err
+	}
+	var protector *redact.StorageProtector
+	protector, err = config.NewRedactStorageProtector()
+	if err != nil {
+		return fmt.Errorf("创建脱敏存储保护器失败: %w", err)
+	}
+	runtime := newStorageRuntime(r.store, r, protector)
+	err = runtime.registerCallbacks(r.defaultDB)
+	if err != nil {
+		return err
+	}
+	r.mu.Lock()
+	r.runtime = runtime
+	r.mu.Unlock()
+	return nil
 }
 
 // Refresh 从数据库刷新启用的入库和出库策略。
@@ -100,16 +141,17 @@ func (r *RedactPolicyResolver) Refresh(ctx context.Context) error {
 	return nil
 }
 
-// Resolve 按接口和Proto字段解析出库策略。
+// Resolve 按接口和 Proto 字段解析出库策略，仅在初始化成功后自动刷新缓存。
 func (r *RedactPolicyResolver) Resolve(ctx context.Context, fieldRef string) (redact.FieldPolicy, bool) {
 	if r == nil || redact.DirectionFromContext(ctx) != redact.DirectionResponse {
 		return redact.FieldPolicy{}, false
 	}
 	r.mu.RLock()
 	loadedAt := r.loadedAt
+	initialized := r.runtime != nil
 	policy, ok := r.lookupOutputPolicy(ctx, fieldRef)
 	r.mu.RUnlock()
-	if time.Since(loadedAt) >= policyCacheTTL {
+	if initialized && time.Since(loadedAt) >= policyCacheTTL {
 		err := r.Refresh(ctx)
 		if err != nil {
 			log.Error(fmt.Sprintf("刷新脱敏策略失败: %v", err))
@@ -122,20 +164,21 @@ func (r *RedactPolicyResolver) Resolve(ctx context.Context, fieldRef string) (re
 	return policy, ok
 }
 
-// ListStoragePolicies 按默认数据源和物理表返回入库脱敏策略。
+// ListStoragePolicies 返回默认数据源的入库策略，仅在初始化成功后自动刷新缓存。
 func (r *RedactPolicyResolver) ListStoragePolicies(ctx context.Context, tableName string) []redact.StorageFieldPolicy {
 	if r == nil {
 		return nil
 	}
 	r.mu.RLock()
 	loadedAt := r.loadedAt
-	policies := append([]redact.StorageFieldPolicy(nil), r.storagePolicies[storagePolicyKey(gorm.DefaultClientName, tableName)]...)
+	initialized := r.runtime != nil
+	policies := append([]redact.StorageFieldPolicy(nil), r.storagePolicies[storagePolicyKey(kitgorm.DefaultClientName, tableName)]...)
 	r.mu.RUnlock()
-	if time.Since(loadedAt) >= policyCacheTTL {
+	if initialized && time.Since(loadedAt) >= policyCacheTTL {
 		err := r.Refresh(ctx)
 		if err == nil {
 			r.mu.RLock()
-			policies = append([]redact.StorageFieldPolicy(nil), r.storagePolicies[storagePolicyKey(gorm.DefaultClientName, tableName)]...)
+			policies = append([]redact.StorageFieldPolicy(nil), r.storagePolicies[storagePolicyKey(kitgorm.DefaultClientName, tableName)]...)
 			r.mu.RUnlock()
 		}
 	}

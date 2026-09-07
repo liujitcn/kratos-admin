@@ -2,7 +2,7 @@
 
 Backend 同时提供消息分类、站内信管理、用户收件箱、Redis 投递恢复、后台工作台统计、文件资产元数据、登录来源策略、会话撤销、审计事件异步落库、日志保留清理和受控数据库备份任务。安全、消息和开放授权默认数据统一由 `v0.0.1` 初始化迁移提供。
 
-`backend` 保留 API 契约、Go 生成接口、Service 实现、Biz 业务层，以及任务调度、HTTP/gRPC/MCP/AI 注册和必要的数据访问闭包；进程入口位于 `internal/cmd/server`。根包通过 `ProviderSet`、`NewModuleResources`、`NewModules`、`NewTasks`、`NewStreams` 和 `NewQueueConsumers` 提供可被外部 Core 宿主复用的公共边界，`internal/adapter/core` 负责将 Admin 生成的数据库访问能力适配为 `kratos-core/data` 的 Store/Writer 契约，`internal/module` 仅承载模块实现。AI Runtime 实现在 `internal/biz`，对外复用入口为 `pkg/agent`；业务模块通过 `pkg/notification.Publish` 发布站内信，由内部事务和 Dispatch 恢复链路负责最终投递。开放授权客户端使用单表 JSON operation 白名单并绑定租户，公开端点签发客户端 Bearer Token；HTTP middleware 分别校验租户、状态、IP 白名单和 API 范围，HTTP 加解密 Filter 在请求绑定前解密客户端数据并在成功响应后加密。登录认证支持 TOTP 多因素认证、一次性恢复码，以及全局和租户/用户定向登录来源策略。
+`backend` 保留 API 契约、Go 生成接口、Service 实现、Biz 业务层，以及任务调度、HTTP/gRPC/MCP/AI 注册和必要的数据访问闭包；进程入口位于 `internal/cmd/server`。根包通过 `ProviderSet`、`NewModuleResources`、`NewModules`、`NewTasks`、`NewStreams` 和 `NewQueueConsumers` 提供可被外部 Core 宿主复用的公共边界，`adapter/core` 负责将 Admin 生成的数据库访问能力适配为 `kratos-core/data` 的 Store/Writer 契约，`internal/module` 仅承载模块实现。AI Runtime 实现在 `internal/biz`，对外复用入口为 `pkg/agent`；业务模块通过 `pkg/notification.Publish` 发布站内信，由内部事务和 Dispatch 恢复链路负责最终投递。开放授权客户端使用单表 JSON operation 白名单并绑定租户，公开端点签发客户端 Bearer Token；HTTP middleware 分别校验租户、状态、IP 白名单和 API 范围，HTTP 加解密 Filter 在请求绑定前解密客户端数据并在成功响应后加密。登录认证支持 TOTP 多因素认证、一次性恢复码，以及全局和租户/用户定向登录来源策略。
 
 ## 目录
 
@@ -13,7 +13,8 @@ backend
 │   ├── proto                         # Proto 契约
 │   └── gen/go                        # Buf 生成的 Go 接口、HTTP、gRPC 和工具代码
 ├── internal/biz                      # 业务 Case、DTO、代码生成和辅助领域代码
-├── internal/adapter/core             # Core Store/Writer 契约的 Admin 持久化适配
+├── adapter/core                      # 公开的 Core 存储与事务适配器，内部创建仓储
+├── adapter/kit                       # 公开的 Kit 脱敏适配器，实例级策略和存储回调
 ├── bootstrap.go                      # 对外 ProviderSet 和模块/任务/SSE/队列/资源入口
 ├── internal/module                   # Admin 到 kratos-core 的内部模块适配和资源实现
 │   ├── module.go                     # Core Module 协议注册
@@ -100,7 +101,7 @@ make -C backend run-only APP_ENV=https
 | --- | --- | --- |
 | Proto 契约 | `make api openapi` | 生成 Backend protobuf Go 和 OpenAPI 源文档；前端 TypeScript RPC 使用仓库根目录的 `make -C ../frontend ts`，也可按端执行 `ts-admin`、`ts-uni-app` 或 `ts-taro-app`。 |
 | 数据库表结构 | `make gorm-gen` | 先更新开发库，再按 `GORM_GEN_CONFIG`、`GORM_GEN_DATABASE` 和 `GORM_TABLE` 生成。 |
-| ProviderSet 或构造参数 | `make public-wire wire` | 分别刷新公共入口内部装配和独立服务入口。 |
+| ProviderSet 或构造参数 | `make public-wire wire` | 刷新业务模块内部装配和独立服务入口。 |
 | 语言包或国际化资源 | `make -C .. i18n` | 国际化属于仓库根目录公共命令。 |
 | Go import 别名 | `make cli fmt` | `cli` 安装 `kratos-kit/cmd/normalize-go-imports`，`fmt` 运行它并使用 `goimports` 格式化。 |
 | 多类后端生成源同时变化 | `make gen` | 依次执行 GORM、接口、OpenAPI、Wire 和格式化；需要可访问开发数据库。 |
@@ -184,6 +185,12 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 ```
 
 根包通过 `AdminResources`、`AdminModules`、`AdminTasks`、`AdminStreams` 和 `AdminConsumers` 输出具名贡献，宿主的合并 ProviderSet 将它们与其他业务模块的贡献显式追加为 Core 最终集合。公开构造器只使用 Core 公共类型，外部生成的 `wire_gen.go` 不会依赖 `backend/internal`。
+
+`adapter/core` 和 `adapter/kit` 与 `internal` 平级，构造函数统一接收 `databases map[string]*gorm.Client`，在内部创建并保存所需 Data、Repository，不把内部仓储类型放入公开签名。Core 适配器通过公共存储与事务接口参与 Wire，事务查询通过生成数据包的上下文传递，数据库客户端仍由 Core 创建和清理。
+
+Kit 的策略解析器同样由 Wire 创建并注入 Core 协议入口和 Admin 模块，不使用进程级默认解析器或存储运行时。解析器构造时不查表；`NewModules` 在迁移就绪后初始化策略并绑定默认数据库的实例级 GORM 回调，HTTP、gRPC 和 MCP 请求通过自身上下文携带解析器。
+
+外部项目保持自己的 Go module 和普通服务入口，不需要将 module 改为 Admin 路径，也不需要额外的宿主 `go.mod` 或 `go.work`。本地联调可以临时替换依赖，正式使用须按 Kit redact 和 server/grpc、Core、Backend 的顺序发布修复版本并重新运行宿主 Wire。
 
 `backend.NewModules` 初始化的是宿主进程级运行日志采集器；外部项目按上述方式接入 Backend 后，其自身以及其他已注册模块写入 stdout/stderr 的日志也会进入运行日志实时控制台，历史日志文件则按宿主的日志配置读取。
 

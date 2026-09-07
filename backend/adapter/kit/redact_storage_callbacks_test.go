@@ -94,11 +94,13 @@ func TestRewriteStorageExpression(t *testing.T) {
 	if !ok || len(where.Exprs) != 2 {
 		t.Fatalf("改写结果类型错误: %#v", rewritten)
 	}
-	first, ok := where.Exprs[0].(clause.IN)
+	var first clause.IN
+	first, ok = where.Exprs[0].(clause.IN)
 	if !ok || !reflect.DeepEqual(first.Values, []any{int64(42)}) {
 		t.Fatalf("等值条件改写错误: %#v", where.Exprs[0])
 	}
-	second, ok := where.Exprs[1].(clause.IN)
+	var second clause.IN
+	second, ok = where.Exprs[1].(clause.IN)
 	if !ok || !reflect.DeepEqual(second.Values, []any{int64(43), int64(44)}) {
 		t.Fatalf("集合条件改写错误: %#v", where.Exprs[1])
 	}

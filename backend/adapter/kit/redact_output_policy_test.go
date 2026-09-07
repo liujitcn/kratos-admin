@@ -25,9 +25,7 @@ func TestBaseUserOutputPolicies(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	resolver := NewRedactPolicyResolver(nil, nil, nil)
-	resolver.loadedAt = time.Now()
-	resolver.outputPolicies = make(map[string]redact.FieldPolicy)
+	resolver := &RedactPolicyResolver{loadedAt: time.Now(), outputPolicies: make(map[string]redact.FieldPolicy)}
 	for _, operation := range []string{
 		"/system.admin.v1.BaseUserService/ListBaseUser",
 		"/system.admin.v1.BaseUserService/PageBaseUser",
@@ -58,8 +56,7 @@ func TestBaseUserOutputPolicies(t *testing.T) {
 
 // TestUnconfiguredBaseUserOperationKeepsOriginalValue 验证未配置接口不会命中隐式字段策略。
 func TestUnconfiguredBaseUserOperationKeepsOriginalValue(t *testing.T) {
-	resolver := NewRedactPolicyResolver(nil, nil, nil)
-	resolver.loadedAt = time.Now()
+	resolver := &RedactPolicyResolver{loadedAt: time.Now()}
 	user := &adminv1.BaseUser{Phone: "13800138000", Email: "alice@example.com", IdCode: "411381199401282014"}
 	applyOutputPolicy(resolver, "/system.admin.v1.BaseUserService/OptionBaseUser", user)
 	if user.Phone != "13800138000" || user.Email != "alice@example.com" || user.IdCode != "411381199401282014" {

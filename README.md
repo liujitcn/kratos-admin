@@ -150,9 +150,11 @@ make docker-stop IMAGE=kratos-admin TAG=latest
 
 `backend/api/gen`、`backend/internal/data/gen`、各前端包的 `src/rpc`、OpenAPI 及 `wire_gen.go` 都是生成产物，不得手工修改。所有前端 RPC 的 Buf 配置统一位于 `backend/api`，管理端通过 `make -C frontend ts-admin` 生成，应用端分别通过 `make -C frontend ts-uni-app` 和 `make -C frontend ts-taro-app` 生成；需要一次生成三端时执行 `make -C frontend ts`，全仓生成使用根目录 `make gen`。
 
-`make -C backend gen` 会同时生成 `backend/internal/module` 的公共入口内部 Wire 产物和 `backend/internal/cmd/server` 的独立启动 Wire 产物；单独刷新前者使用 `make -C backend public-wire`，单独刷新自定义组合根可通过 `WIRE_DIR` 指定包含 `wire.go` 的目录。
+`make -C backend gen` 会生成 `backend/internal/module` 的业务模块装配和 `backend/internal/cmd/server` 的独立启动 Wire 产物；单独刷新前者使用 `make -C backend public-wire`，单独刷新自定义组合根可通过 `WIRE_DIR` 指定包含 `wire.go` 的目录。
 
 外部 Go 项目将 `github.com/liujitcn/kratos-admin/backend` 的具名模块、资源、定时任务、SSE 流和队列消费者贡献与自身贡献合并后，再交给 `github.com/liujitcn/kratos-core` 创建协议服务及应用生命周期；外部生成代码不会引用 `backend/internal`。
+
+Admin 的公开 `backend/adapter/core` 和 `backend/adapter/kit` 构造函数只接收数据库客户端，在内部创建所需仓储，分别通过 Core 存储接口和 Kit 脱敏接口参与 Wire。脱敏解析器按应用实例注入并随请求上下文传递，存储回调绑定对应数据库，不使用全局默认实例。外部项目保持普通单模块结构，无需额外的接口集合或特殊宿主模块；跨仓库发布顺序为 Kit redact 和 server/grpc、Core、Admin Backend。
 
 `make i18n-openapi` 会在生成 `openapi.yaml` 后同步生成 `openapi.en-US.yaml`、`openapi.zh-TW.yaml` 和 `openapi.ja-JP.yaml`。默认资源来自后端错误目录和管理端 Core 语言包；外部资源可通过 `OPENAPI_I18N_CONTENT="语言=路径"` 传入。未命中的文案默认自动翻译：英文和日语使用 Google V1，繁体中文使用 OpenCC；设置 `I18N_AUTO_LOCALIZE=0` 可关闭自动翻译。无网络环境使用 `I18N_OFFLINE=1 make i18n-openapi`。
 

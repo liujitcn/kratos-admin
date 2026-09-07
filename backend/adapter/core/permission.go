@@ -7,6 +7,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	coredata "github.com/liujitcn/kratos-core/data"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 // PermissionStoreAdapter 将 Admin 的权限生成仓储适配为 Core 权限资源接口。
@@ -17,19 +18,18 @@ type PermissionStoreAdapter struct {
 	policyRepository *data.CasbinRuleRepository
 }
 
-// NewPermissionStoreAdapter 创建 Core 权限资源存储适配器。
-func NewPermissionStoreAdapter(
-	menuRepository *data.BaseMenuRepository,
-	roleRepository *data.BaseRoleRepository,
-	tenantRepository *data.BaseTenantRepository,
-	policyRepository *data.CasbinRuleRepository,
-) *PermissionStoreAdapter {
-	return &PermissionStoreAdapter{
-		menuRepository:   menuRepository,
-		roleRepository:   roleRepository,
-		tenantRepository: tenantRepository,
-		policyRepository: policyRepository,
+// NewPermissionStoreAdapter 使用数据库客户端创建一次内部仓储，供 Core 复用权限资源存储。
+func NewPermissionStoreAdapter(databases map[string]*gorm.Client) (*PermissionStoreAdapter, error) {
+	provider, err := data.NewData(databases)
+	if err != nil {
+		return nil, err
 	}
+	return &PermissionStoreAdapter{
+		menuRepository:   data.NewBaseMenuRepository(provider),
+		roleRepository:   data.NewBaseRoleRepository(provider),
+		tenantRepository: data.NewBaseTenantRepository(provider),
+		policyRepository: data.NewCasbinRuleRepository(provider),
+	}, nil
 }
 
 // FindTenantByCode 按编码查询租户权限字段。

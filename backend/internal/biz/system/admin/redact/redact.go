@@ -3,7 +3,7 @@ package redact
 import (
 	"context"
 
-	"github.com/liujitcn/kratos-admin/backend/internal/adapter/kit"
+	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
 	"github.com/liujitcn/kratos-core/biz"
 	_const "github.com/liujitcn/kratos-core/const"
 	"github.com/liujitcn/kratos-core/errorsx"

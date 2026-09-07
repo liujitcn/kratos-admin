@@ -10,8 +10,8 @@ import (
 	"github.com/go-kratos/kratos/v3"
 	"github.com/google/wire"
 	"github.com/liujitcn/kratos-admin/backend"
-	"github.com/liujitcn/kratos-admin/backend/internal/adapter/core"
-	data2 "github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
+	"github.com/liujitcn/kratos-admin/backend/adapter/core"
+	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
 	kratoscore "github.com/liujitcn/kratos-core"
 	biz2 "github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/config"
@@ -72,21 +72,23 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	dataData, err := data2.NewData(v2)
+	transaction, err := core.NewTransaction(v2)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	baseAPIRepository := data2.NewBaseAPIRepository(dataData)
-	baseAPII18NRepository := data2.NewBaseAPII18NRepository(dataData)
-	apiStoreAdapter := core.NewAPIStoreAdapter(baseAPIRepository, baseAPII18NRepository)
+	apiStoreAdapter, err := core.NewAPIStoreAdapter(v2)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
 	baseAPICase := biz.NewBaseAPICase(apiStoreAdapter)
-	baseMenuRepository := data2.NewBaseMenuRepository(dataData)
-	baseRoleRepository := data2.NewBaseRoleRepository(dataData)
-	baseTenantRepository := data2.NewBaseTenantRepository(dataData)
-	casbinRuleRepository := data2.NewCasbinRuleRepository(dataData)
-	permissionStoreAdapter := core.NewPermissionStoreAdapter(baseMenuRepository, baseRoleRepository, baseTenantRepository, casbinRuleRepository)
-	baseTenantCase := biz.NewBaseTenantCase(dataData, permissionStoreAdapter)
+	permissionStoreAdapter, err := core.NewPermissionStoreAdapter(v2)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	baseTenantCase := biz.NewBaseTenantCase(transaction, permissionStoreAdapter)
 	engine, err := biz2.NewAuthzEngine()
 	if err != nil {
 		cleanup()
@@ -97,7 +99,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	syncResult, err := resource.NewSyncResult(ctx, migrationMigration, registry, dataData, baseAPICase, baseTenantCase, casbinRuleCase)
+	syncResult, err := resource.NewSyncResult(ctx, migrationMigration, registry, transaction, baseAPICase, baseTenantCase, casbinRuleCase)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
@@ -189,9 +191,14 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	baseCase, cleanup4 := biz2.NewBaseCase(ctx, pprofPprof, cacheCache, queueQueue, ossOSS, translatorTranslator, v2)
-	baseJobRepository := data2.NewBaseJobRepository(dataData)
-	baseJobLogRepository := data2.NewBaseJobLogRepository(dataData)
-	jobStoreAdapter := core.NewJobStoreAdapter(baseJobRepository, baseJobLogRepository)
+	jobStoreAdapter, err := core.NewJobStoreAdapter(v2)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	sseRegistry := sse.NewRegistry()
 	streamIDResolver := sse.NewStreamResolver(sseRegistry, authenticator, userToken)
 	adminStreams, cleanup5, err := backend.NewStreams(v2, baseCase, i18nI18n)
@@ -241,7 +248,19 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	scheduler := job.NewSchedulerWithLocker(jobStoreAdapter, jobRegistry, executionLocker)
 	jobJob := job.NewJob(scheduler)
 	openapiOpenAPI := openapi.NewOpenAPI(registry)
-	adminModules, cleanup9, err := backend.NewModules(migrationMigration, configv1Bootstrap, v2, baseCase, engine, authenticator, userToken, jobJob, sseSSE, i18nI18n, openapiOpenAPI)
+	redactPolicyResolver, err := kit.NewRedactPolicyResolver(v2)
+	if err != nil {
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	adminModules, cleanup9, err := backend.NewModules(migrationMigration, configv1Bootstrap, v2, baseCase, engine, authenticator, userToken, jobJob, sseSSE, i18nI18n, openapiOpenAPI, redactPolicyResolver)
 	if err != nil {
 		cleanup8()
 		cleanup7()
@@ -254,7 +273,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	modules := provideModules(adminModules)
-	mcpServer, cleanup10, err := mcp.NewServer(ctx, modules)
+	mcpServer, cleanup10, err := mcp.NewServer(ctx, modules, redactPolicyResolver)
 	if err != nil {
 		cleanup9()
 		cleanup8()
@@ -267,7 +286,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	transportServer, err := server.NewHTTPServer(ctx, appInfo, httpMiddlewares, modules, authenticator, userToken, registry, mcpServer, sseServer)
+	transportServer, err := server.NewHTTPServer(ctx, appInfo, httpMiddlewares, modules, authenticator, userToken, registry, mcpServer, sseServer, redactPolicyResolver)
 	if err != nil {
 		cleanup10()
 		cleanup9()
@@ -282,7 +301,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	grpcMiddlewares := server.NewGRPCMiddleware(ctx, authenticator, engine, userToken, authentication_Jwt, cacheCache, i18nI18n)
-	grpcServer, err := server.NewGRPCServer(ctx, grpcMiddlewares, modules)
+	grpcServer, err := server.NewGRPCServer(ctx, grpcMiddlewares, modules, redactPolicyResolver)
 	if err != nil {
 		cleanup10()
 		cleanup9()
@@ -296,9 +315,20 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	baseAPILogRepository := data2.NewBaseAPILogRepository(dataData)
-	basePolicyEvaluationLogRepository := data2.NewBasePolicyEvaluationLogRepository(dataData)
-	logStoreAdapter := core.NewLogStoreAdapter(baseAPILogRepository, basePolicyEvaluationLogRepository)
+	logStoreAdapter, err := core.NewLogStoreAdapter(v2)
+	if err != nil {
+		cleanup10()
+		cleanup9()
+		cleanup8()
+		cleanup7()
+		cleanup6()
+		cleanup5()
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	logPipeline, cleanup11 := biz2.NewLogPipeline(queueQueue, logStoreAdapter)
 	adminConsumers, cleanup12, err := backend.NewQueueConsumers(v2, baseCase, sseSSE)
 	if err != nil {

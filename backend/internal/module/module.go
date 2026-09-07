@@ -8,7 +8,7 @@ import (
 	"github.com/go-kratos/kratos/v3/middleware"
 	kratosGRPC "github.com/go-kratos/kratos/v3/transport/grpc"
 	"github.com/go-kratos/kratos/v3/transport/http"
-	"github.com/liujitcn/kratos-admin/backend/internal/adapter/kit"
+	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	"github.com/liujitcn/kratos-admin/backend/internal/server/base/v1"

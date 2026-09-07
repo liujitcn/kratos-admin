@@ -11,8 +11,7 @@ import (
 
 // TestAuthenticationResponsesKeepClientCredentials 验证登录响应中的客户端凭据不会被动态响应脱敏清空。
 func TestAuthenticationResponsesKeepClientCredentials(t *testing.T) {
-	resolver := NewRedactPolicyResolver(nil, nil, nil)
-	resolver.loadedAt = time.Now()
+	resolver := &RedactPolicyResolver{loadedAt: time.Now()}
 	loginResponse := &basev1.LoginResponse{AccessToken: "access-token", RefreshToken: "refresh-token", TokenType: "Bearer", ExpiresIn: 3600}
 	refreshResponse := &basev1.RefreshTokenResponse{AccessToken: "refreshed-access-token", RefreshToken: "refreshed-refresh-token", TokenType: "Bearer", ExpiresIn: 3600}
 	captchaResponse := &basev1.VerifyCaptchaResponse{CaptchaToken: "captcha-token", ExpiresIn: 120}

@@ -6,6 +6,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	coredata "github.com/liujitcn/kratos-core/data"
+	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 // JobStoreAdapter 将 Admin 的任务生成仓储适配为 Core 任务接口。
@@ -14,12 +15,16 @@ type JobStoreAdapter struct {
 	jobLogRepository *data.BaseJobLogRepository
 }
 
-// NewJobStoreAdapter 创建 Core 任务存储适配器。
-func NewJobStoreAdapter(
-	jobRepository *data.BaseJobRepository,
-	jobLogRepository *data.BaseJobLogRepository,
-) *JobStoreAdapter {
-	return &JobStoreAdapter{jobRepository: jobRepository, jobLogRepository: jobLogRepository}
+// NewJobStoreAdapter 使用数据库客户端创建一次内部仓储，供 Core 复用任务存储。
+func NewJobStoreAdapter(databases map[string]*gorm.Client) (*JobStoreAdapter, error) {
+	provider, err := data.NewData(databases)
+	if err != nil {
+		return nil, err
+	}
+	return &JobStoreAdapter{
+		jobRepository:    data.NewBaseJobRepository(provider),
+		jobLogRepository: data.NewBaseJobLogRepository(provider),
+	}, nil
 }
 
 // List 查询 Core 调度所需的任务字段。

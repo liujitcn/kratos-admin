@@ -7,6 +7,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	coredata "github.com/liujitcn/kratos-core/data"
+	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"gorm.io/gorm"
 )
 
@@ -16,12 +17,16 @@ type LogStoreAdapter struct {
 	policyRepository *data.BasePolicyEvaluationLogRepository
 }
 
-// NewLogStoreAdapter 创建 Core 审计日志存储适配器。
-func NewLogStoreAdapter(
-	apiRepository *data.BaseAPILogRepository,
-	policyRepository *data.BasePolicyEvaluationLogRepository,
-) *LogStoreAdapter {
-	return &LogStoreAdapter{apiRepository: apiRepository, policyRepository: policyRepository}
+// NewLogStoreAdapter 使用数据库客户端创建一次内部仓储，供 Core 复用审计日志存储。
+func NewLogStoreAdapter(databases map[string]*kitgorm.Client) (*LogStoreAdapter, error) {
+	provider, err := data.NewData(databases)
+	if err != nil {
+		return nil, err
+	}
+	return &LogStoreAdapter{
+		apiRepository:    data.NewBaseAPILogRepository(provider),
+		policyRepository: data.NewBasePolicyEvaluationLogRepository(provider),
+	}, nil
 }
 
 // CreateAPI 写入 API 访问日志。
