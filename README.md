@@ -38,12 +38,23 @@
 - Go `1.27.0`。
 - Node.js `^20.19.0` 或 `>=22.12.0`。
 - pnpm 版本以各 workspace 的 `packageManager` 为准：管理端 `10.33.4`，uni-app 与 Taro 应用端 `10.13.1`。
-- MySQL 和 Redis；默认连接见 `backend/configs/data.yaml`。
+- MySQL、Redis、Consul 和 Vault；用途与配置入口见下方说明。
 - Docker 部署需要可用的 Docker CLI 与 Docker daemon。
 - 启用 TOTP 绑定时，`mfa.encryption_key` 有显式值则使用该值，留空时在实际保护 TOTP 密钥时按 `kratos-kit:mfa/encryption` 从运行时密钥服务派生；启用 WebAuthn 时还要配置 `mfa.webauthn.rp_id` 与 `mfa.webauthn.rp_origins`。配置文件中的敏感值应使用 `ENC[...]` 保存。
 - Buf、protoc 插件、Wire 和 gorm-gen 只在重新生成代码时需要，可通过 `make -C backend init` 安装。
 
 直接执行 `make` 或 `make help` 查看仓库级命令；Backend 和 Frontend 的完整目标分别使用 `make -C backend help`、`make -C frontend help` 查看。
+
+### 依赖中间件
+
+| 中间件 | 用途 | 配置入口 |
+| --- | --- | --- |
+| MySQL | 业务数据持久化与数据库迁移。 | `backend/configs/data.yaml` |
+| Redis | 缓存、分布式锁、队列和消息投递。 | `backend/configs/data.yaml` |
+| Consul | 服务注册与发现。 | `backend/configs/registry.yaml` |
+| Vault | 应用根密钥管理、配置解密及业务密钥派生。 | `backend/configs/key.yaml` |
+
+各环境通过对应的 `<name>.<env>.yaml` 配置连接地址和访问参数。启动前应保证中间件可访问，Vault 已初始化、已解封，且 `VAULT_TOKEN` 具有读取所需根密钥的权限；部署、初始化和凭据维护由运行环境负责，不与项目启动联动。生产环境应使用安全连接和最小权限凭据。
 
 ## 本地启动
 
@@ -135,29 +146,6 @@ make docker-stop IMAGE=kratos-admin TAG=latest
 ```
 
 构建命令先检查 Docker，再构建管理后台、uni-app H5、Taro H5 和 Linux 后端程序。运行命令发布宿主机 `7001/6001` 端口，将 `backend/data`、`backend/logs`、`backend/backups` 分别映射到容器的 `/app/data`、`/app/logs`、`/app/backups`，并首次初始化可在宿主机修改的 `backend/runtime/configs` 后映射到 `/app/configs`。三端静态站点随镜像发布，启动时合并到 `/app/data`，已有上传文件不会被清空；Core 根据 `oss.root_directory` 将本地对象统一映射到 `/data/`。完整构建参数和运行示例见本节。
-
-本地依赖统一由仓库外的 `$HOME/Documents/docker-compose/liujitcn/docker-compose.yml` 管理，包含 MySQL、Redis、保留 ACL 的 Consul 和持久化 Vault；仓库内不再维护依赖 Compose，也不再部署 etcd/etcdkeeper。
-
-```bash
-docker compose -f "$HOME/Documents/docker-compose/liujitcn/docker-compose.yml" up -d
-```
-
-Compose 只启动依赖服务，不执行初始化、密钥同步或凭据注入。Vault 将 `8200` 发布到宿主机全部 IPv4 接口，不绑定固定机器 IP；本机可使用 `http://127.0.0.1:8200`，其他节点使用部署机实际 IP 或域名。对外通告地址通过部署环境变量 `VAULT_API_ADDR` 指定，不写死在配置文件中；默认值 `http://127.0.0.1:8200` 用于本机部署，多机访问时应在部署环境中设置为可达地址。数据保存在 `liujitcn_vault_data` 命名卷，不使用 dev mode。初始化和应用根密钥导入只执行一次，后续启动不重复导入。Vault 重启后仍需管理员通过 UI 或 `docker exec -it vault vault operator unseal` 手动解封，不要重新初始化或生成新的根密钥。
-
-多个应用节点统一连接部署机内网地址或可达的固定域名，各自提供有效的只读 token；同一应用各节点保持相同的 `root_name` 和 `scope`，不需要复制本地根密钥。各环境在 `key.<env>.yaml` 中配置实际访问地址，基础 `key.yaml` 仍可用于本机访问。当前为单节点 Vault 文件存储，不是 Vault 高可用集群。Vault 和 Consul 当前均使用 HTTP，仅适用于受控内网开发；生产环境应为两者统一配置 HTTPS 和覆盖实际访问域名/IP 的证书，通过防火墙限制允许访问的节点，不能直接开放公网。
-
-管理凭据、解封材料及应用 token 保存在 Compose 同级的 `$HOME/Documents/docker-compose/liujitcn/vault`，目录权限为 `0700`，凭据文件为 `0600`，不得提交 Git。`initialization.json` 保存管理 root token 和解封材料，`application-token.json` 保存应用只读 token。应用 token 有有效期，需要管理员自行续期或重新签发，项目不会自动处理。
-
-`backend/configs/key.yaml` 使用 Vault KV v2 的 `secret/data/kratos/default/root`，字段名为 `value`，保持原来的 `scope: default`。当前密钥已从 `$HOME/Documents/cert/root.key` 的原始 32 字节以 Base64 编码导入，原文件仅保留为恢复备份。项目运行时只读取 Vault，不读取本地根密钥、不自动启动或解封 Vault，也不自动导入密钥。Vault 不可用、未解封、密钥不存在或 token 缺失/无效时，项目启动失败，不回退本地文件。
-
-在终端中明确提供应用 token 后启动项目；下面的读取命令由使用者执行，不属于 Makefile 的启动逻辑：
-
-```bash
-export VAULT_TOKEN="$(jq -er '.client_token' "$HOME/Documents/docker-compose/liujitcn/vault/application-token.json")"
-make -C backend run-only APP_ENV=dev
-```
-
-`make run/run-only` 和直接 `go run` 只继承调用方的进程环境，IDE 中也需要自行设置 `VAULT_TOKEN`。`make docker-run` 只把调用方已有的 `VAULT_TOKEN` 传入应用容器，不读取本地凭据文件或调用运维脚本。首次 `make docker-config` 会将 `key.yaml` 的本机地址改为 `host.docker.internal`；已有 `backend/runtime/configs` 不会自动覆盖，需要同步其中的 `key.yaml`。本地方案采用 HTTP、单份解封材料及同机凭据管理，仅适用于开发环境，不能直接用于生产。
 
 `I18N_LOCALES` 使用逗号分隔的 BCP 47 语言代码列表（默认 `en-US,zh-TW,ja-JP`），统一控制项目文档和 OpenAPI 的目标语言。`make i18n-docs` 由仓库内 `scripts/project_docs.py` 按三段路径范围收集 README 与 docs Markdown，再将正文按 `I18N_BATCH_CHARS`（默认 400）分片翻译并按原顺序合并，生成 `docs.json` 和 `docs.<locale>.json`；对应的 `README.en-US.md`、`guide.ja-JP.md` 等语言源文件存在时直接使用，否则才执行机器翻译。Google V1 会按多个 client 顺序切换，全部不可用时再使用 MyMemory，并保留 Markdown 代码、链接和占位符。语言目录只本地化文档正文和显示文件名，`README.md` 显示名、目录名称及稳定路径保持不变。如需使用外部实现，可通过 `PROJECT_DOCS_SCRIPT` 覆盖脚本路径。`make i18n-openapi` 生成 OpenAPI 多语言 YAML。离线生成使用 `I18N_OFFLINE=1 make i18n`。
 

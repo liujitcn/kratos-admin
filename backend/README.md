@@ -63,7 +63,7 @@ make run
 make run-only
 ```
 
-当前 `configs/key.yaml` 使用本地 Vault，保留原 `scope: default` 和应用根密钥内容。启动前需要自行启动、解封 Vault，并在终端或 IDE 中设置有效的 `VAULT_TOKEN`；`make run/run-only` 和直接 `go run` 只继承调用方的进程环境，不调用 Compose、py/sh 脚本，不读取本地凭据文件，也不初始化或同步密钥。Vault 不可用、未解封、密钥不存在或 token 缺失/无效时，启动失败，不回退本地文件。当前根密钥已经一次性导入，后续启动无需再次同步；token 续期或重新签发由管理员处理。完整部署、备份与迁移说明见根 README 的 Docker 部分。
+后端依赖 MySQL、Redis、Consul 和 Vault，连接参数分别在 `configs/data.yaml`、`configs/registry.yaml`、`configs/key.yaml` 及对应环境文件中配置。启动前需保证中间件可访问、Vault 已解封，并在终端或 IDE 中提供具有根密钥读取权限的 `VAULT_TOKEN`。同一应用的各节点应使用一致的根密钥引用和 `scope`；Vault 不可用、未解封、密钥不存在或 token 无效时，启动失败，不回退本地文件。中间件的部署、初始化和凭据维护由运行环境负责，不与项目启动联动。
 
 默认配置目录为 `./configs`，默认运行环境为 `dev`。基础配置使用 `<name>.yaml`，环境差异使用 `<name>.<env>.yaml`；环境文件存在时在基础配置之后加载，不存在时回退基础配置。可以覆盖配置目录、运行环境或追加启动参数：
 
