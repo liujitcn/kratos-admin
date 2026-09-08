@@ -142,3 +142,5 @@ CLI 直接生成完整宿主、本地业务模块、四种语言源文件与注�
 通过 `--kratos-project` 生成与 Go 后端配套的前端：H5 输出到 `backend/data/<terminal>`，
 管理端 CLI 同时在 workspace 父目录创建共享 `Makefile` 与 `scripts`。Go 调用方仅传参执行 CLI。
 新增语言或修改语言文件后运行 `pnpm i18n:sync`；`pnpm i18n:check` 校验注册文件是否同步。
+
+H5 宿主通过 `esnextModules` 将已装配 npm 源码包加入 Taro 样式处理，确保 px 按 750 设计稿转换为 rem；仅设置脚本的 `compile.include` 无法覆盖样式转换。第三方组件仍遵循 Taro 默认处理规则。

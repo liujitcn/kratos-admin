@@ -1,10 +1,15 @@
 import assert from 'node:assert/strict'
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { resolve } from 'node:path'
+import { dirname, resolve } from 'node:path'
+import { createRequire } from 'node:module'
+import vm from 'node:vm'
+import ts from 'typescript'
 import { spawnSync } from 'node:child_process'
 import test from 'node:test'
 import { scaffoldKratosTaroApp } from '../src/index.mjs'
+
+const require = createRequire(import.meta.url)
 
 test('生成可扩展的 Taro workspace、本地模块和发布模块清单', () => {
   const root = mkdtempSync(resolve(tmpdir(), 'kratos-taro-app-cli-'))
@@ -203,6 +208,50 @@ test('CLI 独立生成 system 多模块、完整语言入口与项目构建配�
     assert.ok(existsSync(resolve(target, 'scripts/check-package-exports.mjs')))
     const checked = spawnSync(process.execPath, ['scripts/sync-locales.mjs'], { cwd: target, encoding: 'utf8' })
     assert.equal(checked.status, 0, checked.stderr)
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+// 通过真实 Taro PostCSS 规则验证发布包源码，避免只检查构建是否成功。
+test('H5 转换 npm 业务包尺寸，保留第三方组件的原始样式', async () => {
+  const root = mkdtempSync(resolve(tmpdir(), 'kratos-taro-styles-'))
+  try {
+    const target = scaffoldKratosTaroApp(resolve(root, 'app'), { modules: ['system'] })
+    const configFile = resolve(target, 'apps/taro-app/config/index.ts')
+    const code = ts.transpileModule(readFileSync(configFile, 'utf8'), {
+      compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: true },
+    }).outputText
+    const exports = {}
+    vm.runInNewContext(code, {
+      exports,
+      __dirname: resolve(target, 'apps/taro-app/config'),
+      process: { env: { NODE_ENV: 'production', TARO_ENV: 'h5' } },
+      require(name) {
+        if (name === 'node:module') return { createRequire: () => ({ resolve: specifier => resolve(target, 'node_modules', specifier) }) }
+        if (name === 'node:path') return { resolve, dirname }
+        if (name === 'node:fs') return { existsSync: () => false }
+        if (name === '@tarojs/helper') return { dotenvParse: () => ({}) }
+        if (name === '@tarojs/cli') return { defineConfig: value => value }
+        return {}
+      },
+    })
+    const config = await exports.default((...values) => Object.assign({}, ...values))
+    const platformRequire = createRequire(require.resolve('@tarojs/plugin-platform-h5/package.json'))
+    const runnerRoot = dirname(platformRequire.resolve('@tarojs/webpack5-runner/package.json'))
+    const runnerRequire = createRequire(resolve(runnerRoot, 'package.json'))
+    const { H5WebpackModule } = runnerRequire('./dist/webpack/H5WebpackModule.js')
+    const module = new H5WebpackModule({ appPath: target, config: { ...config, ...config.h5 } })
+    const rule = module.getPostCSSRule(config.h5.postcss)
+    for (const name of ['@liujitcn/kratos-taro-app-core', '@liujitcn/kratos-taro-app-ui', '@liujitcn/kratos-taro-app-system', '@local/system']) {
+      const file = resolve(target, 'node_modules', name, 'src/login.scss')
+      assert.equal(rule.exclude.some(exclude => exclude(file)), false, `${name} 被排除在 H5 单位转换之外`)
+      const result = await runnerRequire('postcss')(rule.use[0].options.postcssOptions.plugins).process('.login-logo { width: 180px; font-size: 44px; border-width: 1PX; }', { from: file })
+      assert.match(result.css, /width: 4.5rem/)
+      assert.match(result.css, /font-size: 1.1rem/)
+      assert.match(result.css, /border-width: 1px/i)
+    }
+    assert.equal(rule.exclude.some(exclude => exclude(resolve(target, 'node_modules/third-party/style.css'))), true)
   } finally {
     rmSync(root, { recursive: true, force: true })
   }

@@ -445,6 +445,7 @@ function moduleManifest(modules, packages) {
   return `${imports.join('\n')}\n\n/** 宿主唯一模块清单，顺序决定静态视图覆盖优先级。 */\nexport const moduleManifest = [${members.join(', ')}]\n`
 }
 
+/** 生成宿主构建配置，让已装配 npm 源码包参与脚本和样式编译。 */
 function hostConfig(projectName, packageNames) {
   return `import { createRequire } from 'node:module'
 import { existsSync, readFileSync } from 'node:fs'
@@ -547,6 +548,8 @@ export default defineConfig<'webpack5'>(async (merge) => {
       webpackChain: configureWebpack,
     },
     h5: {
+      // Taro 默认跳过 node_modules 样式，已装配源码包需要进行 px 到 rem 转换。
+      esnextModules: sourceRoots,
       publicPath,
       staticDirectory: 'static',
       router: { mode: 'hash' },

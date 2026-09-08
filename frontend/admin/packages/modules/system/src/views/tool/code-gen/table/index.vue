@@ -263,6 +263,7 @@ const formFields = computed<ProFormField[]>(() => [
     prop: "page_type",
     label: t("system.code.gen.table.field.page_type"),
     component: "segmented",
+    colSpan: 24,
     options: pageTypeOptions.value,
     labelTooltip: t("system.code.gen.table.tooltip.page_type"),
     props: { onChange: handlePageTypeChange }
@@ -387,9 +388,10 @@ const formFields = computed<ProFormField[]>(() => [
     label: t("system.code.gen.table.field.gen_backend"),
     component: "switch",
     labelTooltip: t("system.code.gen.table.tooltip.gen_backend"),
-    // 三个生成开关始终从新行开始并排展示。
+    // 三个生成开关从新行开始，标签置顶，避免固定标签宽度挤压开关内容。
     rowBreakBefore: true,
     colSpan: 8,
+    itemProps: { labelPosition: "top" },
     props: { activeText: t("system.code.gen.value.generate"), inactiveText: t("system.code.gen.value.skip") }
   },
   {
@@ -398,6 +400,7 @@ const formFields = computed<ProFormField[]>(() => [
     component: "switch",
     labelTooltip: t("system.code.gen.table.tooltip.gen_frontend"),
     colSpan: 8,
+    itemProps: { labelPosition: "top" },
     props: { activeText: t("system.code.gen.value.generate"), inactiveText: t("system.code.gen.value.skip") }
   },
   {
@@ -405,6 +408,7 @@ const formFields = computed<ProFormField[]>(() => [
     label: t("system.code.gen.table.field.gen_sql"),
     component: "switch",
     colSpan: 8,
+    itemProps: { labelPosition: "top" },
     labelTooltip: t("system.code.gen.table.tooltip.gen_sql"),
     props: { activeText: t("system.code.gen.value.generate"), inactiveText: t("system.code.gen.value.skip") }
   },
@@ -970,14 +974,14 @@ function resolveDefaultColumn(columns: CodeGenDatabaseColumn[], columnName: stri
   return columns.some(item => item.name === columnName) ? columnName : "";
 }
 
-/** 转换菜单树为 ProForm 树形选择项。 */
+/** 转换菜单树为 ProForm 树形选择项，仅允许八位编号的一至三级目录承载生成页面。 */
 function convertMenuOptions(options: BaseMenu[]): ProFormOption[] {
   return options
     .filter(item => item.type === BaseMenuType.BASE_MENU_TYPE_FOLDER)
     .map(item => ({
       label: item.meta?.title || item.name || item.path,
       value: item.id,
-      disabled: item.id < 100 || item.id > 99999,
+      disabled: item.id < 10000000 || item.id > 99999999 || item.id % 100 !== 0,
       children: convertMenuOptions(item.children ?? [])
     }));
 }
