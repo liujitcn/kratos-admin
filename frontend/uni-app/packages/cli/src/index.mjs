@@ -1,4 +1,12 @@
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from 'node:fs'
 import { basename, resolve } from 'node:path'
 
 const cliPackage = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
@@ -22,43 +30,9 @@ export function scaffoldKratosApp(targetPath, options = {}) {
   )
 
   write(target, 'pnpm-workspace.yaml', 'packages:\n  - apps/*\n  - packages/modules/*\n')
-  write(
-    target,
-    'package.json',
-    json({
-      name: projectName,
-      description: `Independent pnpm workspace for ${projectName}.`,
-      private: true,
-      packageManager: 'pnpm@10.13.1',
-      scripts: {
-        prepare: 'pnpm run prepare:modules',
-        'prepare:modules': 'node -e "process.exit(0)"',
-        'dev:h5': 'pnpm --filter @liujitcn/kratos-uni-app dev:h5',
-        'dev:mp-weixin': 'pnpm --filter @liujitcn/kratos-uni-app dev:mp-weixin',
-        'build:h5': 'pnpm --filter @liujitcn/kratos-uni-app build:h5',
-        'build:mp-weixin': 'pnpm --filter @liujitcn/kratos-uni-app build:mp-weixin',
-        tsc: 'pnpm --recursive --if-present run tsc',
-      },
-      devDependencies: {
-        '@dcloudio/types': '^3.4.8',
-        '@rushstack/eslint-patch': '^1.1.4',
-        '@uni-helper/uni-app-types': '1.0.0-alpha.6',
-        '@uni-helper/uni-ui-types': '1.0.0-alpha.6',
-        '@vue/compiler-sfc': '3.4.21',
-        '@vue/eslint-config-prettier': '10.2.0',
-        '@vue/eslint-config-typescript': '14.7.0',
-        '@vue/tsconfig': '^0.7.0',
-        eslint: '9.39.1',
-        'miniprogram-api-typings': '^4.0.5',
-        prettier: '3.6.2',
-        typescript: '5.4.5',
-        'vue-tsc': '^1.8.8',
-      },
-      pnpm: {
-        onlyBuiltDependencies: ['esbuild', 'core-js', 'core-js-pure', 'vue-demi'],
-      },
-    }),
-  )
+  renderWorkspaceTemplates(new URL('../templates/workspace/', import.meta.url), target, {
+    __PROJECT_NAME__: projectName,
+  })
   writeEnvironmentFiles(target)
   copyFileSync(
     new URL('../assets/favicon.ico', import.meta.url),
@@ -135,8 +109,7 @@ H5 通过局域网 IP 访问时，先在仓库根目录运行 bash scripts/gener
           'node -e "import(\'@liujitcn/kratos-uni-app-core/vite\').then(({ recoverStalePageTransaction }) => recoverStalePageTransaction())"',
         'dev:h5': 'pnpm run recover:pages && uni --mode development-h5',
         'dev:mp-weixin': 'pnpm run recover:pages && uni -p mp-weixin --mode development',
-        'build:h5':
-          'pnpm run recover:pages && UNI_OUTPUT_DIR=../../../../backend/data/uni-app uni build --mode production-h5',
+        'build:h5': `pnpm run recover:pages && UNI_OUTPUT_DIR=${options.kratosProject ? '../../../../backend/data/uni-app' : 'dist/build/h5'} uni build --mode production-h5`,
         'build:mp-weixin': 'pnpm run recover:pages && uni build -p mp-weixin --mode production',
         tsc: 'vue-tsc --noEmit -p tsconfig.json',
       },
@@ -224,39 +197,6 @@ onLoad((options) => {
 })
 </script>
 <template><view /></template>
-`,
-  )
-  write(
-    target,
-    'apps/uni-app/src/main.ts',
-    `import {
-  bootstrapKratosApp,
-  initializeAppNavigation,
-  pinia,
-  registerKratosAppModules,
-  registerUserStoreExtension,
-} from '@liujitcn/kratos-uni-app-core'
-import { createSSRApp } from 'vue'
-import App from './App.vue'
-import { moduleManifest } from './module-manifest'
-
-registerKratosAppModules(moduleManifest)
-registerUserStoreExtension({
-  onLogin: initializeAppNavigation,
-  onLogout: initializeAppNavigation,
-  onSilentLogout: initializeAppNavigation,
-})
-
-export function createApp() {
-  return bootstrapKratosApp({ app: App, createSSRApp, pinia, modules: moduleManifest })
-}
-`,
-  )
-  write(
-    target,
-    'apps/uni-app/src/App.vue',
-    `<script setup lang="ts"></script>
-<style lang="scss">@use '@liujitcn/kratos-uni-app-core/styles/base.scss';</style>
 `,
   )
   write(target, 'apps/uni-app/src/uni.scss', "@forward '@liujitcn/kratos-uni-app-core/uni.scss';\n")
@@ -393,6 +333,7 @@ export default defineConfig(({ mode }) => {
           './views/*': './src/views/*',
           './package.json': './package.json',
         },
+        scripts: { build: 'pnpm pack --pack-destination ../../../dist/npm' },
         dependencies: { '@liujitcn/kratos-uni-app-core': `^${publicPackageVersion}` },
       }),
     )
@@ -427,7 +368,10 @@ packages/modules/${name}
       target,
       `packages/modules/${name}/src/index.mjs`,
       `import { defineKratosAppModule } from '@liujitcn/kratos-uni-app-core/module'
-export default defineKratosAppModule({ name: '@local/${name}', pages: {}, views: {} })
+import { LOCALE_MESSAGES } from './locales/generated.mjs'
+
+/** ${name} 业务模块，注册本地页面与语言资源。 */
+export default defineKratosAppModule({ name: '@local/${name}', pages: {}, views: {}, messages: LOCALE_MESSAGES })
 `,
     )
     write(
@@ -437,6 +381,10 @@ export default defineKratosAppModule({ name: '@local/${name}', pages: {}, views:
 export default module
 `,
     )
+  })
+  modules.forEach((name) => writeModuleLocales(target, name))
+  execFileSync(process.execPath, [resolve(target, 'scripts/sync-locales.mjs'), '--write'], {
+    stdio: 'inherit',
   })
   return target
 }
@@ -464,6 +412,7 @@ function writeEnvironmentFiles(target) {
   )
 }
 
+/** 校验本地业务模块名称。 */
 function validateModuleName(name) {
   if (!/^[a-z][a-z0-9-]*$/.test(name)) throw new Error(`模块名无效：${name}`)
 }
@@ -480,4 +429,32 @@ function write(root, file, content) {
 
 function json(value) {
   return `${JSON.stringify(value, null, 2)}\n`
+}
+
+/** 渲染随 CLI 发布的宿主与工具链模板。 */
+function renderWorkspaceTemplates(source, target, tokens) {
+  for (const entry of readdirSync(source, { withFileTypes: true })) {
+    const input = new URL(entry.name + (entry.isDirectory() ? '/' : ''), source)
+    const output = resolve(target, entry.name)
+    if (entry.isDirectory()) {
+      mkdirSync(output, { recursive: true })
+      renderWorkspaceTemplates(input, output, tokens)
+    } else {
+      const content = Object.entries(tokens).reduce(
+        (value, [key, replacement]) => value.replaceAll(key, replacement),
+        readFileSync(input, 'utf8'),
+      )
+      writeFileSync(output, content)
+    }
+  }
+}
+
+/** 创建业务模块语言源文件及 API、RPC、测试目录，注册产物由同步命令生成。 */
+function writeModuleLocales(target, name) {
+  for (const directory of ['src/api', 'src/rpc', 'test']) {
+    write(target, `packages/modules/${name}/${directory}/.gitkeep`, '')
+  }
+  for (const locale of ['zh-CN', 'en-US', 'zh-TW', 'ja-JP']) {
+    write(target, `packages/modules/${name}/src/locales/${locale}.json`, '{}\n')
+  }
 }

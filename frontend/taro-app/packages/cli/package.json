@@ -20,7 +20,8 @@
     "assets",
     "bin",
     "src",
-    "README.md"
+    "README.md",
+    "templates"
   ],
   "scripts": {
     "build": "pnpm pack --pack-destination ../../dist/npm",

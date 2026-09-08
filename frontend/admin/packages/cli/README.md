@@ -52,7 +52,7 @@ pnpm module:create ../shop-admin --module shop,order --with log
 pnpm --filter @liujitcn/kratos-admin-cli test
 ```
 
-CLI 始终先引入 `@liujitcn/kratos-admin-system`。`--module` 可重复使用，也接受逗号分隔名称，并为每个名称创建独立 module 包；`--with` 接收逗号分隔的额外已发布 module 名称，只装配依赖而不生成源码。CLI 拒绝覆盖已有目录；渲染失败时会清理本次创建的不完整目标目录。
+CLI 默认引入内置 System；指定本地 `system` 时由本地模块继承并替代运行时注册，构建仍扫描内置包。`--module` 可重复使用，也接受逗号分隔名称，并为每个名称创建独立 module 包；`--with` 接收逗号分隔的额外已发布 module 名称，只装配依赖而不生成源码。CLI 拒绝覆盖已有目录；渲染失败时会清理本次创建的不完整目标目录。
 
 生成结果遵守以下约束：
 
@@ -96,3 +96,14 @@ pnpm --filter @liujitcn/kratos-admin-cli test
 发布包包含编译后的 `dist/index.js`、类型声明、workspace 模板和本 README。仓库级
 `make -C frontend package-admin` 会先执行测试和构建，再生成
 `@liujitcn/kratos-admin-cli` tarball。
+
+
+### CLI 生成边界
+
+CLI 直接生成完整宿主、本地业务模块、四种语言源文件与注册入口、类型检查、lint 和打包配置。
+支持本地 `system` 与其他模块一起创建；管理端本地 System 继承内置能力，运行时只注册一次，
+构建仍扫描内置源码。应用端本地模块使用独立导入别名，保留内置 System。
+
+通过 `--kratos-project` 生成与 Go 后端配套的前端：H5 输出到 `backend/data/<terminal>`，
+管理端 CLI 同时在 workspace 父目录创建共享 `Makefile` 与 `scripts`。Go 调用方仅传参执行 CLI。
+新增语言或修改语言文件后运行 `pnpm i18n:sync`；`pnpm i18n:check` 校验注册文件是否同步。

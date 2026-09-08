@@ -205,3 +205,14 @@ shop-admin
 ```
 
 CLI 默认先引入 `@liujitcn/kratos-admin-system`，再按 `--module` 参数顺序引入并创建自有 module。`--module` 可重复使用，也接受逗号分隔名称；`--with` 只把额外的已发布 module 加入宿主组合，不会创建其源码，也不会制造业务 module 间的隐式依赖。CLI 拒绝覆盖已存在目录。
+
+
+### CLI 生成边界
+
+CLI 直接生成完整宿主、本地业务模块、四种语言源文件与注册入口、类型检查、lint 和打包配置。
+支持本地 `system` 与其他模块一起创建；管理端本地 System 继承内置能力，运行时只注册一次，
+构建仍扫描内置源码。应用端本地模块使用独立导入别名，保留内置 System。
+
+通过 `--kratos-project` 生成与 Go 后端配套的前端：H5 输出到 `backend/data/<terminal>`，
+管理端 CLI 同时在 workspace 父目录创建共享 `Makefile` 与 `scripts`。Go 调用方仅传参执行 CLI。
+新增语言或修改语言文件后运行 `pnpm i18n:sync`；`pnpm i18n:check` 校验注册文件是否同步。

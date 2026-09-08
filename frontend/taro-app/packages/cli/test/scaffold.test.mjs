@@ -48,7 +48,7 @@ test('生成可扩展的 Taro workspace、本地模块和发布模块清单', ()
     assert.match(gitignore, /apps\/taro-app\/src\/pages\/\*/)
     assert.match(gitignore, /!apps\/taro-app\/src\/pages\/bootstrap\/\*\*/)
     assert.match(gitignore, /apps\/taro-app\/src\/pages\?\*\//)
-    assert.match(manifest, /import \{ shopModule \} from '@local\/shop'/)
+    assert.match(manifest, /import \{ shopModule as localModule0 \} from '@local\/shop'/)
     assert.match(manifest, /import packageModule0 from '@acme\/customer-module'/)
     assert.match(config, /hostRequire\.resolve\(`\$\{name\}\/package\.json`\)/)
     assert.match(config, /sourceRoots\.forEach/)
@@ -163,8 +163,8 @@ test('脚手架校验项目、模块和包名', () => {
   try {
     assert.throws(() => scaffoldKratosTaroApp(resolve(root, 'BadName')), /kebab-case/)
     assert.throws(
-      () => scaffoldKratosTaroApp(resolve(root, 'valid-name'), { modules: ['system'] }),
-      /保留名称/,
+      () => scaffoldKratosTaroApp(resolve(root, 'valid-name'), { modules: ['../system'] }),
+      /模块名无效/,
     )
     assert.throws(
       () => scaffoldKratosTaroApp(resolve(root, 'valid-name'), { packages: ['Bad Package'] }),
@@ -178,3 +178,32 @@ test('脚手架校验项目、模块和包名', () => {
 function readJson(file) {
   return JSON.parse(readFileSync(file, 'utf8'))
 }
+
+test('CLI 独立生成 system 多模块、完整语言入口与项目构建配置', () => {
+  const root = mkdtempSync(resolve(tmpdir(), 'kratos-frontend-locales-'))
+  const target = resolve(root, 'app')
+  try {
+    scaffoldKratosTaroApp(target, { modules: ['system', 'order'], kratosProject: true })
+    for (const name of ['system', 'order']) {
+      const moduleRoot = resolve(target, `packages/modules/${name}`)
+      const entry = readFileSync(resolve(moduleRoot, 'src/index.ts'), 'utf8')
+      assert.match(entry, /messages: LOCALE_MESSAGES/)
+      const locales = readFileSync(resolve(moduleRoot, 'src/locales/generated.ts'), 'utf8')
+      for (const locale of ['zh-CN', 'en-US', 'zh-TW', 'ja-JP']) {
+        assert.match(locales, new RegExp(locale))
+        assert.deepEqual(JSON.parse(readFileSync(resolve(moduleRoot, `src/locales/${locale}.json`))), {})
+      }
+      assert.ok(existsSync(resolve(moduleRoot, 'src/api/.gitkeep')))
+      assert.ok(existsSync(resolve(moduleRoot, 'src/rpc/.gitkeep')))
+      assert.ok(JSON.parse(readFileSync(resolve(moduleRoot, 'package.json'))).scripts.build)
+    }
+    const host = JSON.parse(readFileSync(resolve(target, 'apps/taro-app/package.json')))
+    assert.match(host.scripts['build:h5'], /backend\/data\/taro-app/)
+    assert.ok(existsSync(resolve(target, 'apps/taro-app/tsconfig.json')))
+    assert.ok(existsSync(resolve(target, 'scripts/check-package-exports.mjs')))
+    const checked = spawnSync(process.execPath, ['scripts/sync-locales.mjs'], { cwd: target, encoding: 'utf8' })
+    assert.equal(checked.status, 0, checked.stderr)
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})

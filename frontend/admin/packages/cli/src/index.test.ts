@@ -161,3 +161,29 @@ test("命令行支持逗号分隔创建多个业务模块", async () => {
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test("CLI 直接生成本地 system 并保留内置源码扫描与语言资源", async () => {
+  const root = await mkdtemp(join(tmpdir(), "kratos-admin-system-"));
+  try {
+    const target = await createBusinessWorkspace({
+      cwd: root,
+      projectName: "admin",
+      moduleNames: ["system", "order"],
+      kratosProject: true
+    });
+    const manifest = await readFile(join(target, "apps/admin/src/module-manifest.ts"), "utf8");
+    assert.doesNotMatch(manifest, /import\("@liujitcn\/kratos-admin-system"\)/);
+    assert.match(manifest, /adminBuildModules[\s\S]*@liujitcn\/kratos-admin-system/);
+    const module = await readFile(join(target, "packages/modules/system/src/module.ts"), "utf8");
+    assert.match(module, /baseSystemAdminModule.messages/);
+    for (const name of ["system", "order"]) {
+      const locales = await readFile(join(target, `packages/modules/${name}/src/locales/generated.ts`), "utf8");
+      for (const locale of ["zh-CN", "en-US", "zh-TW", "ja-JP"]) assert.ok(locales.includes(locale));
+    }
+    await execFileAsync(process.execPath, [join(target, "scripts/sync-locales.mjs")]);
+    assert.match(await readFile(join(root, "Makefile"), "utf8"), /BUSINESS_MODULES := system order/);
+    assert.match(await readFile(join(target, "apps/admin/vite.config.ts"), "utf8"), /backend\/data\/admin/);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

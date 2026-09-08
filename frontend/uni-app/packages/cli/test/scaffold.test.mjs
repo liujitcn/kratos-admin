@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process'
 import assert from 'node:assert/strict'
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -29,7 +30,7 @@ test('生成默认 system、本地模块和发布模块', () => {
   assert.match(main, /import \{ createSSRApp \} from 'vue'/)
   assert.match(main, /registerKratosAppModules\(moduleManifest\)[\s\S]+export function createApp/)
   assert.match(main, /registerUserStoreExtension\(\{[\s\S]+onLogin: initializeAppNavigation/)
-  assert.match(main, /bootstrapKratosApp\(\{ app: App, createSSRApp,/)
+  assert.match(main, /bootstrapKratosApp\(\{\s*app: App,\s*createSSRApp,/)
   assert.match(viteConfig, /server: \{[\s\S]+port: Number\(env\.VITE_APP_PORT \|\| 5004\)/)
   assert.match(viteConfig, /resolveHttpsOptions/)
   assert.match(viteConfig, /https: httpsOptions/)
@@ -82,4 +83,49 @@ test('生成默认 system、本地模块和发布模块', () => {
   )
   assert.throws(() => scaffoldKratosApp(target), /已存在/)
   rmSync(root, { recursive: true, force: true })
+})
+
+test('CLI 独立生成 system 多模块、完整语言入口与项目构建配置', () => {
+  const root = mkdtempSync(resolve(tmpdir(), 'kratos-frontend-locales-'))
+  const target = resolve(root, 'app')
+  try {
+    scaffoldKratosApp(target, { modules: ['system', 'order'], kratosProject: true })
+    for (const name of ['system', 'order']) {
+      const moduleRoot = resolve(target, `packages/modules/${name}`)
+      const entry = readFileSync(resolve(moduleRoot, 'src/index.mjs'), 'utf8')
+      assert.match(entry, /messages: LOCALE_MESSAGES/)
+      const locales = readFileSync(resolve(moduleRoot, 'src/locales/generated.mjs'), 'utf8')
+      for (const locale of ['zh-CN', 'en-US', 'zh-TW', 'ja-JP']) {
+        assert.match(locales, new RegExp(locale))
+        assert.deepEqual(
+          JSON.parse(readFileSync(resolve(moduleRoot, `src/locales/${locale}.json`))),
+          {},
+        )
+      }
+      assert.ok(existsSync(resolve(moduleRoot, 'src/api/.gitkeep')))
+      assert.ok(existsSync(resolve(moduleRoot, 'src/rpc/.gitkeep')))
+      assert.ok(JSON.parse(readFileSync(resolve(moduleRoot, 'package.json'))).scripts.build)
+    }
+    const host = JSON.parse(readFileSync(resolve(target, 'apps/uni-app/package.json')))
+    assert.match(host.scripts['build:h5'], /backend\/data\/uni-app/)
+    assert.ok(existsSync(resolve(target, 'apps/uni-app/tsconfig.json')))
+    assert.ok(existsSync(resolve(target, 'scripts/check-package-exports.mjs')))
+    const imported = spawnSync(
+      process.execPath,
+      [
+        '--input-type=module',
+        '-e',
+        "import { LOCALE_MESSAGES } from './packages/modules/system/src/locales/generated.mjs'; if (!LOCALE_MESSAGES['zh-CN']) throw new Error('zh-CN');",
+      ],
+      { cwd: target, encoding: 'utf8' },
+    )
+    assert.equal(imported.status, 0, imported.stderr)
+    const checked = spawnSync(process.execPath, ['scripts/sync-locales.mjs'], {
+      cwd: target,
+      encoding: 'utf8',
+    })
+    assert.equal(checked.status, 0, checked.stderr)
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
 })

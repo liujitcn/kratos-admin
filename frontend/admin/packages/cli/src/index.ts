@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { execFileSync } from "node:child_process";
 import { mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -22,6 +23,8 @@ export interface CreateWorkspaceOptions {
   additionalModules?: string[];
   /** 生成命令的工作目录。 */
   cwd?: string;
+  /** 生成与 Kratos 后端配套的公共前端工具和静态输出配置。 */
+  kratosProject?: boolean;
 }
 
 /** 创建包含宿主和业务模块包的 pnpm workspace。 */
@@ -39,11 +42,15 @@ export async function createBusinessWorkspace(options: CreateWorkspaceOptions): 
   const packageVersion = await readCliPackageVersion();
   const primaryModuleTokens = createModuleTokens(primaryModuleName, packageVersion);
   const moduleManifestEntries = [
-    {
-      packageName: "@liujitcn/kratos-admin-system",
-      moduleIdentifier: "systemAdminModule",
-      optimizeDependencies: officialModuleOptimizeDependencies.system
-    },
+    ...(!moduleNames.includes("system")
+      ? [
+          {
+            packageName: "@liujitcn/kratos-admin-system",
+            moduleIdentifier: "systemAdminModule",
+            optimizeDependencies: officialModuleOptimizeDependencies.system
+          }
+        ]
+      : []),
     ...moduleNames.map(name => ({
       packageName: `@${name}/admin-module`,
       moduleIdentifier: `${toCamelCase(name)}AdminModule`,
@@ -92,6 +99,10 @@ export async function createBusinessWorkspace(options: CreateWorkspaceOptions): 
   const tokens: Record<string, string> = {
     ...primaryModuleTokens,
     __PROJECT_NAME__: projectName,
+    __FRONTEND_MODULE__: primaryModuleName,
+    __MODULES_SPACE__: moduleNames.join(" "),
+    __HOST_BUILD_CACHE__: String(!options.kratosProject),
+    __H5_OUTPUT__: options.kratosProject ? ',\n  outputDirectory: "../../../../backend/data/admin"' : "",
     __APP_PACKAGE__: `@${primaryModuleName}/admin-app`,
     __APP_DEPENDENCIES__: formatJsonValue(appDependencies, "  "),
     __MODULE_FILTERS__: modulePackages.map(packageName => `--filter=${packageName}`).join(" "),
@@ -112,6 +123,10 @@ export async function createBusinessWorkspace(options: CreateWorkspaceOptions): 
         ...createModuleTokens(moduleName, packageVersion),
         __PROJECT_NAME__: projectName
       });
+    }
+    execFileSync(process.execPath, [resolve(target, "scripts/sync-locales.mjs"), "--write"], { stdio: "inherit" });
+    if (options.kratosProject) {
+      await renderDirectory(resolve(packageRoot, "templates/project-frontend"), dirname(target), tokens);
     }
   } catch (error) {
     await rm(target, { recursive: true, force: true });
@@ -135,7 +150,12 @@ export async function runCli(args = process.argv.slice(2)): Promise<void> {
     throw new Error("用法: kratos-admin create <project> --module <module[,module...]>");
   }
 
-  const target = await createBusinessWorkspace({ projectName, moduleNames, additionalModules: withModules });
+  const target = await createBusinessWorkspace({
+    projectName,
+    moduleNames,
+    additionalModules: withModules,
+    kratosProject: args.includes("--kratos-project")
+  });
   process.stdout.write(`已创建业务 workspace: ${target}\n`);
 }
 
@@ -144,7 +164,7 @@ async function renderDirectory(source: string, target: string, tokens: Record<st
   await mkdir(target, { recursive: true });
   const entries = await readdir(source, { withFileTypes: true });
   for (const entry of entries) {
-    const renderedName = entry.name === gitignoreTemplateName ? ".gitignore" : replaceTokens(entry.name, tokens);
+    const renderedName = entry.name === gitignoreTemplateName ? ".gitignore" : replaceTokens(entry.name, tokens).replace(/\.tmpl$/, "");
     const sourcePath = join(source, entry.name);
     const targetPath = join(target, renderedName);
     if (entry.isDirectory()) {
@@ -188,7 +208,7 @@ function normalizeModuleNames(moduleNames: string[]): [string, ...string[]] {
   const primaryModuleName = normalized[0];
   if (!primaryModuleName) throw new Error("至少需要一个业务模块名称");
   normalized.forEach(name => validateName(name, "模块名称"));
-  const reservedName = normalized.find(name => name === "system" || name === "kratos-admin");
+  const reservedName = normalized.find(name => name === "kratos-admin");
   if (reservedName) throw new Error(`自有模块名称不能使用保留名称: ${reservedName}`);
   return [primaryModuleName, ...normalized.slice(1)];
 }
@@ -207,7 +227,22 @@ function createModuleTokens(moduleName: string, packageVersion: string): Record<
     __MODULE_PASCAL__: toPascalCase(moduleName),
     __MODULE_PACKAGE__: `@${moduleName}/admin-module`,
     __MODULE_IDENTIFIER__: `${toCamelCase(moduleName)}AdminModule`,
-    __CORE_VERSION__: `^${packageVersion}`
+    __CORE_VERSION__: `^${packageVersion}`,
+    __SYSTEM_IMPORT__:
+      moduleName === "system"
+        ? 'import { systemAdminModule as baseSystemAdminModule } from "@liujitcn/kratos-admin-system";\n'
+        : "",
+    __MODULE_FIELDS__:
+      moduleName === "system"
+        ? `...baseSystemAdminModule,
+  views: { ...baseSystemAdminModule.views, ...viewModules },
+  messages: Object.fromEntries(Object.entries(LOCALE_MESSAGES).map(([locale, messages]) => [
+    locale, { ...baseSystemAdminModule.messages?.[locale], ...messages }
+  ]))`
+        : `name: "${moduleName}",\n  views: viewModules,\n  messages: LOCALE_MESSAGES`,
+    __MODULE_DEPENDENCIES__: JSON.stringify(
+      moduleName === "system" ? { "@liujitcn/kratos-admin-system": `^${packageVersion}` } : {}
+    )
   };
 }
 
@@ -259,7 +294,7 @@ async function pathExists(path: string): Promise<boolean> {
 function printHelp(): void {
   process.stdout.write(
     [
-      "kratos-admin create <project> --module <module[,module...]> [--module <module>] [--with other]",
+      "kratos-admin create <project> --module <module[,module...]> [--module <module>] [--with other] [--kratos-project]",
       "",
       "示例:",
       "  kratos-admin create shop-admin --module shop",

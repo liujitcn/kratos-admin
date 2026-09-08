@@ -8,10 +8,12 @@ if (args[0] !== 'create' || !args[1]) {
 } else {
   const modules = []
   const packages = []
+  let kratosProject = false
   for (let index = 2; index < args.length; index += 1) {
     if (args[index] === '--module' && args[index + 1]) modules.push(args[++index])
     else if (args[index] === '--with' && args[index + 1]) packages.push(args[++index])
+    else if (args[index] === '--kratos-project') kratosProject = true
     else throw new Error(`未知参数：${args[index]}`)
   }
-  scaffoldKratosApp(args[1], { modules, packages })
+  scaffoldKratosApp(args[1], { modules, packages, kratosProject })
 }

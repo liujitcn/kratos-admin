@@ -13,11 +13,17 @@ export interface AdminModuleManifestItem {
 /** 当前宿主启用的管理端业务模块清单。 */
 export const adminModuleManifest = [__MODULE_MANIFEST__] satisfies AdminModuleManifestItem[];
 
+/** 编译清单保留内置 System 源码，供继承它的本地模块完成自动导入。 */
+const adminBuildModules: Pick<AdminModuleManifestItem, "packageName" | "optimizeDependencies">[] = [
+  { packageName: "@liujitcn/kratos-admin-system", optimizeDependencies: ["swagger-ui-dist/swagger-ui-bundle.js"] },
+  ...adminModuleManifest.filter(item => item.packageName !== "@liujitcn/kratos-admin-system")
+];
+
 /** 当前宿主需要扫描的业务模块包。 */
-export const adminModulePackages = adminModuleManifest.map(item => item.packageName);
+export const adminModulePackages = adminBuildModules.map(item => item.packageName);
 
 /** 当前宿主需要预构建的业务模块依赖。 */
-export const adminModuleOptimizeDependencies = adminModuleManifest.flatMap(item => {
+export const adminModuleOptimizeDependencies = adminBuildModules.flatMap(item => {
   return item.optimizeDependencies?.map(dependency => `${item.packageName} > ${dependency}`) ?? [];
 });
 

@@ -13,7 +13,8 @@
     "assets",
     "bin",
     "src",
-    "README.md"
+    "README.md",
+    "templates"
   ],
   "bin": {
     "kratos-uni-app": "./bin/kratos-uni-app.mjs"

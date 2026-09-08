@@ -1,4 +1,5 @@
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { basename, resolve } from 'node:path'
 
 const cliPackage = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
@@ -35,44 +36,6 @@ export function scaffoldKratosTaroApp(targetPath, options = {}) {
   write(target, 'pnpm-workspace.yaml', 'packages:\n  - apps/*\n  - packages/modules/*\n')
   write(
     target,
-    'package.json',
-    json({
-      name: projectName,
-      description: `Independent pnpm workspace for ${projectName}.`,
-      private: true,
-      packageManager: 'pnpm@10.13.1',
-      scripts: {
-        'prepare:modules':
-          "pnpm --recursive --filter './packages/modules/**' --if-present run build:entries",
-        'dev:h5': 'pnpm prepare:modules && pnpm --filter @local/kratos-taro-app dev:h5',
-        'dev:mp-weixin':
-          'pnpm prepare:modules && pnpm --filter @local/kratos-taro-app dev:mp-weixin',
-        'build:h5': 'pnpm prepare:modules && pnpm --filter @local/kratos-taro-app build:h5',
-        'build:mp-weixin':
-          'pnpm prepare:modules && pnpm --filter @local/kratos-taro-app build:mp-weixin',
-        tsc: 'pnpm --recursive --if-present run tsc',
-      },
-      devDependencies: {
-        '@babel/core': '7.28.4',
-        '@babel/preset-react': '7.28.5',
-        '@types/node': '20.19.9',
-        '@types/react': '18.3.23',
-        '@types/react-dom': '18.3.7',
-        'babel-preset-taro': taroVersion,
-        'cross-env': '7.0.3',
-        esbuild: '0.25.8',
-        sass: '1.89.2',
-        'tsconfig-paths-webpack-plugin': '4.2.0',
-        typescript: '5.8.3',
-        webpack: '5.91.0',
-      },
-      pnpm: {
-        onlyBuiltDependencies: ['@swc/core', '@tarojs/binding', 'esbuild'],
-      },
-    }),
-  )
-  write(
-    target,
     'tsconfig.json',
     json({
       compilerOptions: {
@@ -91,14 +54,17 @@ export function scaffoldKratosTaroApp(targetPath, options = {}) {
     }),
   )
   writeWorkspaceReadme(target, projectName)
+  renderWorkspaceTemplates(new URL('../templates/workspace/', import.meta.url), target, { __PROJECT_NAME__: projectName })
   writeEnvironmentFiles(target)
-  writeHost(target, projectName, modules, packages)
+  writeHost(target, projectName, modules, packages, options)
   write(target, 'apps/taro-app/src/static/h5-root-font.js', `${h5RootFontSource}\n`)
   copyFileSync(
     new URL('../assets/favicon.ico', import.meta.url),
     resolve(target, 'apps/taro-app/src/static/favicon.ico'),
   )
   modules.forEach((name) => writeLocalModule(target, projectName, name))
+  modules.forEach((name) => writeModuleLocales(target, name))
+  execFileSync(process.execPath, [resolve(target, 'scripts/sync-locales.mjs'), '--write'], { stdio: 'inherit' })
   return target
 }
 
@@ -115,7 +81,7 @@ export async function run(args = process.argv.slice(2)) {
   }
   const modules = readOptions(args.slice(2), '--module')
   const packages = readOptions(args.slice(2), '--with')
-  const target = scaffoldKratosTaroApp(targetPath, { modules, packages })
+  const target = scaffoldKratosTaroApp(targetPath, { modules, packages, kratosProject: args.includes('--kratos-project') })
   process.stdout.write(`已创建 Taro workspace：${target}\n`)
 }
 
@@ -183,7 +149,8 @@ function writeEnvironmentFiles(target) {
   )
 }
 
-function writeHost(target, projectName, modules, packages) {
+/** 生成 Taro 宿主与平台构建配置。 */
+function writeHost(target, projectName, modules, packages, options) {
   const localDependencies = Object.fromEntries(
     modules.map((name) => [`@local/${name}`, 'workspace:*']),
   )
@@ -202,7 +169,7 @@ function writeHost(target, projectName, modules, packages) {
         'dev:mp-weixin':
           'cross-env NODE_ENV=development node scripts/run-taro.mjs --type weapp --watch --mode development',
         'build:h5':
-          'cross-env KRATOS_TARO_OUTPUT_ROOT=dist/build/h5 node scripts/run-taro.mjs --type h5 --mode production',
+          `cross-env KRATOS_TARO_OUTPUT_ROOT=${options.kratosProject ? '../../../../backend/data/taro-app' : 'dist/build/h5'} node scripts/run-taro.mjs --type h5 --mode production`,
         'build:mp-weixin':
           'cross-env KRATOS_TARO_OUTPUT_ROOT=dist/build/mp-weixin node scripts/run-taro.mjs --type weapp --mode production',
         tsc: 'tsc --noEmit -p tsconfig.json',
@@ -259,19 +226,6 @@ function writeHost(target, projectName, modules, packages) {
   presets: [['taro', { framework: 'react', ts: true, compiler: 'webpack5' }]],
 }
 `,
-  )
-  write(
-    target,
-    'apps/taro-app/tsconfig.json',
-    json({
-      extends: '../../tsconfig.json',
-      compilerOptions: {
-        baseUrl: '.',
-        paths: { '@/*': ['src/*'] },
-        types: ['node', '@tarojs/taro', '@tarojs/components'],
-      },
-      include: ['src', 'config', 'types'],
-    }),
   )
   write(target, 'apps/taro-app/config/dev.ts', platformConfig(true))
   write(target, 'apps/taro-app/config/prod.ts', platformConfig(false))
@@ -343,22 +297,6 @@ function writeHost(target, projectName, modules, packages) {
     'apps/taro-app/src/app.scss',
     "@use '@liujitcn/kratos-taro-app-ui/styles/theme.scss';\n@use '@liujitcn/kratos-taro-app-core/styles/base.scss';\n",
   )
-  write(
-    target,
-    'apps/taro-app/src/app.tsx',
-    `import type { PropsWithChildren } from 'react'
-import { useLaunch } from '@tarojs/taro'
-import { bootstrapKratosTaroApp } from '@liujitcn/kratos-taro-app-core'
-import { moduleManifest } from './module-manifest'
-import './app.scss'
-
-/** Taro 宿主根组件。 */
-export default function App({ children }: PropsWithChildren) {
-  useLaunch(() => bootstrapKratosTaroApp({ modules: moduleManifest }))
-  return children
-}
-`,
-  )
   write(target, 'apps/taro-app/src/module-manifest.ts', moduleManifest(modules, packages))
   write(
     target,
@@ -387,6 +325,7 @@ export default function BootstrapPage() {
   )
 }
 
+/** 生成本地 Taro 模块与独立构建入口。 */
 function writeLocalModule(target, projectName, name) {
   const identifier = `${toCamelCase(name)}Module`
   write(
@@ -409,6 +348,7 @@ function writeLocalModule(target, projectName, name) {
         './package.json': './package.json',
       },
       scripts: {
+        build: 'pnpm build:entries && pnpm pack --pack-destination ../../../dist/npm',
         'build:entries':
           'esbuild src/build.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/build.mjs',
         tsc: 'tsc --noEmit -p tsconfig.json',
@@ -457,12 +397,14 @@ export const ${toCamelCase(name)}Pages: Record<string, KratosTaroPageConfig> = {
     `packages/modules/${name}/src/index.ts`,
     `import { defineKratosTaroModule } from '@liujitcn/kratos-taro-app-core'
 import { ${toCamelCase(name)}Pages } from './pages'
+import { LOCALE_MESSAGES } from './locales/generated'
 
 /** ${name} 业务模块。 */
 export const ${identifier} = defineKratosTaroModule({
   name: '@local/${name}',
   pages: ${toCamelCase(name)}Pages,
   views: {},
+  messages: LOCALE_MESSAGES,
 })
 `,
   )
@@ -486,17 +428,18 @@ export const buildModule = defineKratosTaroBuildModule({
   )
 }
 
+/** 生成模块清单，导入别名避免本地 system 与内置模块重名。 */
 function moduleManifest(modules, packages) {
   const imports = [
     "import { coreModule } from '@liujitcn/kratos-taro-app-core'",
     "import { systemModule } from '@liujitcn/kratos-taro-app-system'",
-    ...modules.map((name) => `import { ${toCamelCase(name)}Module } from '@local/${name}'`),
+    ...modules.map((name, index) => `import { ${toCamelCase(name)}Module as localModule${index} } from '@local/${name}'`),
     ...packages.map((name, index) => `import packageModule${index} from '${name}'`),
   ]
   const members = [
     'coreModule',
     'systemModule',
-    ...modules.map((name) => `${toCamelCase(name)}Module`),
+    ...modules.map((_, index) => `localModule${index}`),
     ...packages.map((_, index) => `packageModule${index}`),
   ]
   return `${imports.join('\n')}\n\n/** 宿主唯一模块清单，顺序决定静态视图覆盖优先级。 */\nexport const moduleManifest = [${members.join(', ')}]\n`
@@ -649,10 +592,12 @@ export default ${JSON.stringify(
 `
 }
 
+/** 读取重复模块参数并识别项目集成开关。 */
 function readOptions(args, option) {
   const values = []
   for (let index = 0; index < args.length; index += 1) {
     const argument = args[index]
+    if (argument === '--kratos-project') continue
     if (argument !== '--module' && argument !== '--with') {
       throw new Error(`未知参数：${argument}`)
     }
@@ -674,9 +619,9 @@ function validateProjectName(name) {
   if (!/^[a-z][a-z0-9-]*$/.test(name)) throw new Error(`项目名必须使用 kebab-case：${name}`)
 }
 
+/** 校验本地业务模块名称。 */
 function validateModuleName(name) {
   if (!/^[a-z][a-z0-9-]*$/.test(name)) throw new Error(`模块名无效：${name}`)
-  if (name === 'system') throw new Error('模块名不能使用保留名称：system')
 }
 
 function validatePackageName(name) {
@@ -709,4 +654,29 @@ function printHelp() {
       '',
     ].join('\n'),
   )
+}
+
+/** 渲染随 CLI 发布的宿主与工具链模板。 */
+function renderWorkspaceTemplates(source, target, tokens) {
+  for (const entry of readdirSync(source, { withFileTypes: true })) {
+    const input = new URL(entry.name + (entry.isDirectory() ? '/' : ''), source)
+    const output = resolve(target, entry.name)
+    if (entry.isDirectory()) {
+      mkdirSync(output, { recursive: true })
+      renderWorkspaceTemplates(input, output, tokens)
+    } else {
+      const content = Object.entries(tokens).reduce((value, [key, replacement]) => value.replaceAll(key, replacement), readFileSync(input, 'utf8'))
+      writeFileSync(output, content)
+    }
+  }
+}
+
+/** 创建业务模块语言源文件及 API、RPC、测试目录，注册产物由同步命令生成。 */
+function writeModuleLocales(target, name) {
+  for (const directory of ['src/api', 'src/rpc', 'test']) {
+    write(target, `packages/modules/${name}/${directory}/.gitkeep`, '')
+  }
+  for (const locale of ['zh-CN', 'en-US', 'zh-TW', 'ja-JP']) {
+    write(target, `packages/modules/${name}/src/locales/${locale}.json`, '{}\n')
+  }
 }

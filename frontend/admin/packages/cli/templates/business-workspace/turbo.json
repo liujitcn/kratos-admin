@@ -5,6 +5,11 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
+    "@__FRONTEND_MODULE__/admin-app#build": {
+      "dependsOn": ["^build"],
+      "cache": __HOST_BUILD_CACHE__,
+      "outputs": []
+    },
     "build:package": {
       "dependsOn": ["^build:package"],
       "outputs": ["dist/package/**"]
