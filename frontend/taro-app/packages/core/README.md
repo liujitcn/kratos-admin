@@ -1,5 +1,7 @@
 # @liujitcn/kratos-taro-app-core
 
+账号密码、OAuth 票据兑换和微信登录统一返回 `mfa_remember_days`，表示当前登录策略允许的 MFA 设备免验证天数；为 `0` 时不提供记住设备选项。
+
 `@liujitcn/kratos-taro-app-core` 是 Taro 应用底座，负责模块协议、启动流程、认证请求、共享状态、动态导航、基础页面、公共静态资源和构建期页面装配。core 不依赖 UI 或业务模块。
 
 ## 主要能力

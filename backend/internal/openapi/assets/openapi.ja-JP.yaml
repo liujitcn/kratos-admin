@@ -7261,6 +7261,10 @@ components:
                 mfa_webauthn_options_json:
                     type: string
                     description: WebAuthn認証オプションJSON
+                mfa_remember_days:
+                    type: integer
+                    description: 現在のログインポリシーで許可される端末のMFA認証省略日数
+                    format: int32
             description: サードパーティーログインセッション作成レスポンス
         base.v1.DeleteAiMessageResponse:
             type: object
@@ -7336,6 +7340,10 @@ components:
                 mfa_webauthn_options_json:
                     type: string
                     description: WebAuthn認証オプションJSON
+                mfa_remember_days:
+                    type: integer
+                    description: 現在のログインポリシーで許可される端末のMFA認証省略日数
+                    format: int32
             description: サードパーティーログインチケット交換結果
         base.v1.FileInfo:
             type: object

@@ -7261,6 +7261,10 @@ components:
                 mfa_webauthn_options_json:
                     type: string
                     description: WebAuthn認證選項JSON
+                mfa_remember_days:
+                    type: integer
+                    description: 當前登入策略允許的MFA裝置免驗證天數
+                    format: int32
             description: 三方登入會話建立響應
         base.v1.DeleteAiMessageResponse:
             type: object
@@ -7336,6 +7340,10 @@ components:
                 mfa_webauthn_options_json:
                     type: string
                     description: WebAuthn認證選項JSON
+                mfa_remember_days:
+                    type: integer
+                    description: 當前登入策略允許的MFA裝置免驗證天數
+                    format: int32
             description: 三方登入票據兌換結果
         base.v1.FileInfo:
             type: object

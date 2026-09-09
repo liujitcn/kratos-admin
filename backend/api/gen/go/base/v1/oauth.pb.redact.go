@@ -329,6 +329,8 @@ func (x *CreateOauthSessionResponse) Redact() {
 	// Safe field: MfaMethod
 
 	// Safe field: MfaWebauthnOptionsJson
+
+	// Safe field: MfaRememberDays
 }
 
 // Ensure HandleOauthCallbackRequest implements the Redactor interface at compile time.
@@ -401,6 +403,8 @@ func (x *ExchangeOauthTicketResponse) Redact() {
 	// Safe field: MfaMethod
 
 	// Safe field: MfaWebauthnOptionsJson
+
+	// Safe field: MfaRememberDays
 }
 
 // Ensure HandleOauthBindingCallbackRequest implements the Redactor interface at compile time.

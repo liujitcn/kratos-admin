@@ -1,5 +1,7 @@
 # frontend/taro-app
 
+账号密码、OAuth 票据兑换和微信登录统一返回 `mfa_remember_days`，表示当前登录策略允许的 MFA 设备免验证天数；为 `0` 时不提供记住设备选项。
+
 `frontend/taro-app` 是独立的 pnpm workspace，以 React 18 和 Taro 4 实现与 `frontend/uni-app` 相同的应用功能和视觉。当前支持 H5 与微信小程序，包含首页、登录（含 TOTP/WebAuthn MFA）、协议、WebView、个人中心、设置、个人资料、AI 助手和站内信收件箱，不包含商城、订单、支付或推荐业务。
 
 ## Workspace

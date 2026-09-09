@@ -547,6 +547,7 @@ type CreateOauthSessionResponse struct {
 	MfaExpiresIn           int64                  `protobuf:"varint,9,opt,name=mfa_expires_in,json=mfaExpiresIn,proto3" json:"mfa_expires_in,omitempty"`                                 // 多因素认证挑战或绑定票据有效时间，单位秒
 	MfaMethod              string                 `protobuf:"bytes,10,opt,name=mfa_method,json=mfaMethod,proto3" json:"mfa_method,omitempty"`                                            // 多因素认证方式：totp、webauthn
 	MfaWebauthnOptionsJson string                 `protobuf:"bytes,11,opt,name=mfa_webauthn_options_json,json=mfaWebauthnOptionsJson,proto3" json:"mfa_webauthn_options_json,omitempty"` // WebAuthn认证选项JSON
+	MfaRememberDays        int32                  `protobuf:"varint,12,opt,name=mfa_remember_days,json=mfaRememberDays,proto3" json:"mfa_remember_days,omitempty"`                       // 当前登录策略允许的MFA设备免验证天数
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -656,6 +657,13 @@ func (x *CreateOauthSessionResponse) GetMfaWebauthnOptionsJson() string {
 		return x.MfaWebauthnOptionsJson
 	}
 	return ""
+}
+
+func (x *CreateOauthSessionResponse) GetMfaRememberDays() int32 {
+	if x != nil {
+		return x.MfaRememberDays
+	}
+	return 0
 }
 
 // 三方登录回调请求
@@ -830,6 +838,7 @@ type ExchangeOauthTicketResponse struct {
 	MfaExpiresIn           int64                  `protobuf:"varint,8,opt,name=mfa_expires_in,json=mfaExpiresIn,proto3" json:"mfa_expires_in,omitempty"`                                 // 多因素认证挑战或绑定票据有效时间，单位秒
 	MfaMethod              string                 `protobuf:"bytes,9,opt,name=mfa_method,json=mfaMethod,proto3" json:"mfa_method,omitempty"`                                             // 多因素认证方式：totp、webauthn
 	MfaWebauthnOptionsJson string                 `protobuf:"bytes,10,opt,name=mfa_webauthn_options_json,json=mfaWebauthnOptionsJson,proto3" json:"mfa_webauthn_options_json,omitempty"` // WebAuthn认证选项JSON
+	MfaRememberDays        int32                  `protobuf:"varint,11,opt,name=mfa_remember_days,json=mfaRememberDays,proto3" json:"mfa_remember_days,omitempty"`                       // 当前登录策略允许的MFA设备免验证天数
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -932,6 +941,13 @@ func (x *ExchangeOauthTicketResponse) GetMfaWebauthnOptionsJson() string {
 		return x.MfaWebauthnOptionsJson
 	}
 	return ""
+}
+
+func (x *ExchangeOauthTicketResponse) GetMfaRememberDays() int32 {
+	if x != nil {
+		return x.MfaRememberDays
+	}
+	return 0
 }
 
 // 个人中心三方账号绑定回调请求
@@ -1237,7 +1253,7 @@ const file_base_v1_oauth_proto_rawDesc = "" +
 	"\n" +
 	"captcha_id\x18\a \x01(\tBn\xbaG\x0e\x92\x02\v验证码Id\xbaHZ\xba\x01W\n" +
 	"+base.oauth.bind_session.captcha_id.required\x12\x17验证码Id不能为空\x1a\x0fthis.size() > 0R\tcaptchaId:X\xbaHU\x1aS\n" +
-	")base.oauth.bind_session.password.required\x12\x12密码不能为空\x1a\x12has(this.password)\"\xaf\v\n" +
+	")base.oauth.bind_session.password.required\x12\x12密码不能为空\x1a\x12has(this.password)\"\x96\f\n" +
 	"\x1aCreateOauthSessionResponse\x12t\n" +
 	"\faccess_token\x18\x01 \x01(\tBQ\xbaGN\x92\x02K访问令牌，必选项。授权服务器颁发的访问令牌字符串。R\vaccessToken\x12\xbc\x02\n" +
 	"\rrefresh_token\x18\x02 \x01(\tB\x96\x02\xbaG\x92\x02\x92\x02\x8e\x02更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。R\frefreshToken\x12\xb4\x01\n" +
@@ -1253,7 +1269,8 @@ const file_base_v1_oauth_proto_rawDesc = "" +
 	"\n" +
 	"mfa_method\x18\n" +
 	" \x01(\tB-\xbaG*\x92\x02'多因素认证方式：totp、webauthnR\tmfaMethod\x12Y\n" +
-	"\x19mfa_webauthn_options_json\x18\v \x01(\tB\x1e\xbaG\x1b\x92\x02\x18WebAuthn认证选项JSONR\x16mfaWebauthnOptionsJson\"\xef\x04\n" +
+	"\x19mfa_webauthn_options_json\x18\v \x01(\tB\x1e\xbaG\x1b\x92\x02\x18WebAuthn认证选项JSONR\x16mfaWebauthnOptionsJson\x12e\n" +
+	"\x11mfa_remember_days\x18\f \x01(\x05B9\xbaG6\x92\x023当前登录策略允许的MFA设备免验证天数R\x0fmfaRememberDays\"\xef\x04\n" +
 	"\x1aHandleOauthCallbackRequest\x12\x99\x01\n" +
 	"\bprovider\x18\x01 \x01(\tB}\xbaG\x15\x92\x02\x12登录方式标识\xbaHb\xba\x01_\n" +
 	",base.oauth.handle_callback.provider.required\x12\x1e登录方式标识不能为空\x1a\x0fthis.size() > 0R\bprovider\x12)\n" +
@@ -1266,8 +1283,7 @@ const file_base_v1_oauth_proto_rawDesc = "" +
 	"\x1bHandleOauthCallbackResponse\"\xb2\x01\n" +
 	"\x1aExchangeOauthTicketRequest\x12\x93\x01\n" +
 	"\x06ticket\x18\x01 \x01(\tB{\xbaG\x15\x92\x02\x12三方登录票据\xbaH`\xba\x01]\n" +
-	"*base.oauth.exchange_ticket.ticket.required\x12\x1e三方登录票据不能为空\x1a\x0fthis.size() > 0R\x06ticket\"\xdf\n" +
-	"\n" +
+	"*base.oauth.exchange_ticket.ticket.required\x12\x1e三方登录票据不能为空\x1a\x0fthis.size() > 0R\x06ticket\"\xc6\v\n" +
 	"\x1bExchangeOauthTicketResponse\x12t\n" +
 	"\faccess_token\x18\x01 \x01(\tBQ\xbaGN\x92\x02K访问令牌，必选项。授权服务器颁发的访问令牌字符串。R\vaccessToken\x12\xbc\x02\n" +
 	"\rrefresh_token\x18\x02 \x01(\tB\x96\x02\xbaG\x92\x02\x92\x02\x8e\x02更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。R\frefreshToken\x12\xb4\x01\n" +
@@ -1282,7 +1298,8 @@ const file_base_v1_oauth_proto_rawDesc = "" +
 	"\n" +
 	"mfa_method\x18\t \x01(\tB-\xbaG*\x92\x02'多因素认证方式：totp、webauthnR\tmfaMethod\x12Y\n" +
 	"\x19mfa_webauthn_options_json\x18\n" +
-	" \x01(\tB\x1e\xbaG\x1b\x92\x02\x18WebAuthn认证选项JSONR\x16mfaWebauthnOptionsJson\"\x8f\x05\n" +
+	" \x01(\tB\x1e\xbaG\x1b\x92\x02\x18WebAuthn认证选项JSONR\x16mfaWebauthnOptionsJson\x12e\n" +
+	"\x11mfa_remember_days\x18\v \x01(\x05B9\xbaG6\x92\x023当前登录策略允许的MFA设备免验证天数R\x0fmfaRememberDays\"\x8f\x05\n" +
 	"!HandleOauthBindingCallbackRequest\x12\xa2\x01\n" +
 	"\bprovider\x18\x01 \x01(\tB\x85\x01\xbaG\x15\x92\x02\x12登录方式标识\xbaHj\xba\x01g\n" +
 	"4base.oauth.handle_binding_callback.provider.required\x12\x1e登录方式标识不能为空\x1a\x0fthis.size() > 0R\bprovider\x12)\n" +

@@ -1,5 +1,7 @@
 # @liujitcn/kratos-admin-core
 
+账号密码、OAuth 票据兑换和微信登录统一返回 `mfa_remember_days`，表示当前登录策略允许的 MFA 设备免验证天数；为 `0` 时不提供记住设备选项。
+
 kratos-admin 前端底座包。它不包含具体业务模块，提供登录、MFA 校验、菜单、用户信息、应用启动、动态路由、布局、运行状态、公共组件和静态状态页；MFA 绑定面板与恢复码弹窗由登录页和 System 模块共用。宿主可以只安装 core；个人中心、AI 助手和系统管理能力必须由 System 模块提供。
 
 浏览器认证使用 Cookie-only 刷新令牌与内存访问令牌。Core 不持久化任何访问令牌或刷新令牌，刷新请求统一携带 `X-Refresh-Token-Transport: cookie` 并启用凭据 Cookie。

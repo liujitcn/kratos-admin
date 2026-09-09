@@ -109,6 +109,8 @@ export interface CreateOauthSessionResponse {
   mfa_method: string;
   /** WebAuthn认证选项JSON */
   mfa_webauthn_options_json: string;
+  /** 当前登录策略允许的MFA设备免验证天数 */
+  mfa_remember_days: number;
 }
 
 /** 三方登录回调请求 */
@@ -157,6 +159,8 @@ export interface ExchangeOauthTicketResponse {
   mfa_method: string;
   /** WebAuthn认证选项JSON */
   mfa_webauthn_options_json: string;
+  /** 当前登录策略允许的MFA设备免验证天数 */
+  mfa_remember_days: number;
 }
 
 /** 个人中心三方账号绑定回调请求 */

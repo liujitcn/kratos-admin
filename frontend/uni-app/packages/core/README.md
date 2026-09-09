@@ -1,5 +1,7 @@
 # @liujitcn/kratos-uni-app-core
 
+账号密码、OAuth 票据兑换和微信登录统一返回 `mfa_remember_days`，表示当前登录策略允许的 MFA 设备免验证天数；为 `0` 时不提供记住设备选项。
+
 `@liujitcn/kratos-uni-app-core` 是应用底座包，提供模块协议、启动流程、动态导航、认证与请求、MFA 校验、共享状态、基础页面和构建期页面装配能力。业务模块只能通过本包公开 exports 使用这些能力。
 
 ## 目录结构

@@ -7261,6 +7261,10 @@ components:
                 mfa_webauthn_options_json:
                     type: string
                     description: Web Authnauthenticationoption JSON
+                mfa_remember_days:
+                    type: integer
+                    description: Number of days the current login policy allows a device to skip MFA verification
+                    format: int32
             description: third-party login session Create response
         base.v1.DeleteAiMessageResponse:
             type: object
@@ -7336,6 +7340,10 @@ components:
                 mfa_webauthn_options_json:
                     type: string
                     description: Web Authnauthenticationoption JSON
+                mfa_remember_days:
+                    type: integer
+                    description: Number of days the current login policy allows a device to skip MFA verification
+                    format: int32
             description: third-party login ticket exchange result
         base.v1.FileInfo:
             type: object

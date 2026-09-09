@@ -15,4 +15,5 @@ type OauthLoginTicketPayload struct {
 	MfaExpiresIn    int64              `json:"mfa_expires_in"`            // MFA 挑战剩余有效期，单位秒。
 	MfaMethod       string             `json:"mfa_method"`                // 待校验的 MFA 方式。
 	MfaWebAuthnJSON string             `json:"mfa_webauthn_options_json"` // WebAuthn 前端断言选项 JSON。
+	MfaRememberDays int32              `json:"mfa_remember_days"`         // 当前登录策略允许的 MFA 设备免验证天数。
 }

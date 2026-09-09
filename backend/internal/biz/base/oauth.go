@@ -247,6 +247,7 @@ func (c *OauthCase) CreateOauthSession(ctx context.Context, req *basev1.CreateOa
 		MfaExpiresIn:           loginRes.GetMfaExpiresIn(),
 		MfaMethod:              loginRes.GetMfaMethod(),
 		MfaWebauthnOptionsJson: loginRes.GetMfaWebauthnOptionsJson(),
+		MfaRememberDays:        loginRes.GetMfaRememberDays(),
 	}, nil
 }
 
@@ -318,6 +319,7 @@ func (c *OauthCase) BindOauthSession(ctx context.Context, req *basev1.BindOauthS
 		Status: loginRes.GetStatus(), MfaChallengeId: loginRes.GetMfaChallengeId(),
 		MfaSetupTicket: loginRes.GetMfaSetupTicket(), MfaExpiresIn: loginRes.GetMfaExpiresIn(),
 		MfaMethod: loginRes.GetMfaMethod(), MfaWebauthnOptionsJson: loginRes.GetMfaWebauthnOptionsJson(),
+		MfaRememberDays: loginRes.GetMfaRememberDays(),
 	}, nil
 }
 
@@ -410,6 +412,7 @@ func (c *OauthCase) ExchangeOauthTicket(ctx context.Context, req *basev1.Exchang
 		MfaExpiresIn:           payload.MfaExpiresIn,
 		MfaMethod:              payload.MfaMethod,
 		MfaWebauthnOptionsJson: payload.MfaWebAuthnJSON,
+		MfaRememberDays:        payload.MfaRememberDays,
 	}, nil
 }
 
@@ -622,6 +625,7 @@ func (c *OauthCase) createOauthLoginTicket(loginRes *basev1.LoginResponse) (stri
 		MfaExpiresIn:    loginRes.GetMfaExpiresIn(),
 		MfaMethod:       loginRes.GetMfaMethod(),
 		MfaWebAuthnJSON: loginRes.GetMfaWebauthnOptionsJson(),
+		MfaRememberDays: loginRes.GetMfaRememberDays(),
 	}
 	body, err := json.Marshal(payload)
 	if err != nil {
