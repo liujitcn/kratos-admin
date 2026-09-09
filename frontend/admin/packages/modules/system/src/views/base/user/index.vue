@@ -27,7 +27,9 @@
       v-model="dialog.visible"
       ref="formDialogRef"
       :title="t(dialog.editing ? 'system.base.user.action.edit' : 'system.base.user.action.create')"
-      width="800px"
+      width="960px"
+      label-width="120px"
+      :col-span="12"
       :model="formData"
       :fields="formFields"
       :rules="rules"
@@ -401,12 +403,6 @@ const formFields = computed<ProFormField[]>(() => [
     props: { placeholder: t("common.validation.phone_required") }
   },
   {
-    prop: "email",
-    label: t("system.base.user.field.email"),
-    component: "input",
-    props: { placeholder: t("system.base.user.placeholder.email") }
-  },
-  {
     prop: "id_type",
     label: t("system.base.user.field.id_type"),
     component: "select",
@@ -420,9 +416,18 @@ const formFields = computed<ProFormField[]>(() => [
     props: { placeholder: t("system.base.user.placeholder.id_code") }
   },
   {
+    prop: "email",
+    label: t("system.base.user.field.email"),
+    component: "input",
+    colSpan: 24,
+    props: { placeholder: t("system.base.user.placeholder.email") }
+  },
+  {
     prop: "pwd",
     label: t("system.base.user.field.password"),
     component: "password",
+    rowBreakBefore: true,
+    colSpan: 24,
     props: { placeholder: t("system.base.user.placeholder.password_optional"), showPassword: true },
     visible: model => !model.id
   },
@@ -431,9 +436,15 @@ const formFields = computed<ProFormField[]>(() => [
     label: t("system.base.user.field.password_strength"),
     component: "slot",
     slotName: "passwordStrength",
+    colSpan: 24,
     visible: model => !model.id
   },
-  { prop: "gender", label: t("system.base.user.field.gender"), component: "dict", props: { code: "base_user_gender" } },
+  {
+    prop: "gender",
+    label: t("system.base.user.field.gender"),
+    component: "dict",
+    props: { code: "base_user_gender", style: { width: "100%" } }
+  },
   {
     prop: "status",
     label: t("common.field.status"),
@@ -445,6 +456,7 @@ const formFields = computed<ProFormField[]>(() => [
     prop: "remark",
     label: t("common.field.remark"),
     component: "textarea",
+    colSpan: 24,
     props: { placeholder: t("common.placeholder.remark") }
   }
 ]);

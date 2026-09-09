@@ -15,8 +15,8 @@
       v-model="dialog.visible"
       ref="formDialogRef"
       :title="dialogTitle"
-      width="920px"
-      label-width="240px"
+      width="min(1440px, calc(100vw - 32px))"
+      label-width="180px"
       top="4vh"
       :model="formData"
       :fields="formFields"
@@ -24,11 +24,13 @@
       :confirm-loading="saving"
       :gutter="16"
       :col-span="12"
+      :form-props="{ class: 'code-gen-table-form' }"
       @confirm="handleSubmit"
       @close="handleCloseDialog"
     >
       <template #tableI18nConfig>
         <CodeGenLocaleEditor
+          class="code-gen-table-locales"
           :model-value="formData.i18n_config"
           :source-comment="formData.comment"
           :show-left-tree-comment="formData.page_type === 'left_tree'"
@@ -263,7 +265,7 @@ const formFields = computed<ProFormField[]>(() => [
     prop: "page_type",
     label: t("system.code.gen.table.field.page_type"),
     component: "segmented",
-    colSpan: 24,
+    colSpan: 16,
     options: pageTypeOptions.value,
     labelTooltip: t("system.code.gen.table.tooltip.page_type"),
     props: { onChange: handlePageTypeChange }
@@ -388,10 +390,9 @@ const formFields = computed<ProFormField[]>(() => [
     label: t("system.code.gen.table.field.gen_backend"),
     component: "switch",
     labelTooltip: t("system.code.gen.table.tooltip.gen_backend"),
-    // 三个生成开关从新行开始，标签置顶，避免固定标签宽度挤压开关内容。
+    // 生成开关按两列排列，减少表单横向空置并保持开关内容紧凑。
     rowBreakBefore: true,
-    colSpan: 8,
-    itemProps: { labelPosition: "top" },
+    colSpan: 12,
     props: { activeText: t("system.code.gen.value.generate"), inactiveText: t("system.code.gen.value.skip") }
   },
   {
@@ -399,16 +400,15 @@ const formFields = computed<ProFormField[]>(() => [
     label: t("system.code.gen.table.field.gen_frontend"),
     component: "switch",
     labelTooltip: t("system.code.gen.table.tooltip.gen_frontend"),
-    colSpan: 8,
-    itemProps: { labelPosition: "top" },
+    colSpan: 12,
     props: { activeText: t("system.code.gen.value.generate"), inactiveText: t("system.code.gen.value.skip") }
   },
   {
     prop: "gen_sql",
     label: t("system.code.gen.table.field.gen_sql"),
     component: "switch",
-    colSpan: 8,
-    itemProps: { labelPosition: "top" },
+    colSpan: 12,
+    rowBreakBefore: false,
     labelTooltip: t("system.code.gen.table.tooltip.gen_sql"),
     props: { activeText: t("system.code.gen.value.generate"), inactiveText: t("system.code.gen.value.skip") }
   },
@@ -416,7 +416,7 @@ const formFields = computed<ProFormField[]>(() => [
     prop: "status",
     label: t("system.code.gen.table.field.status"),
     component: "dict",
-    colSpan: 24,
+    colSpan: 12,
     props: { code: "code_gen_table_status", codeType: "number", type: "radio" },
     labelTooltip: t("system.code.gen.table.tooltip.status")
   },
@@ -1016,6 +1016,38 @@ function ensureLeftTreeConfig() {
 </script>
 
 <style scoped lang="scss">
+.code-gen-table-locales {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  width: 100%;
+  min-width: 0;
+  :deep(.el-alert) {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 767px) {
+  .code-gen-table-locales {
+    grid-template-columns: 1fr;
+  }
+  :deep(.code-gen-table-form) {
+    .el-col {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+    .el-form-item {
+      flex-direction: column;
+    }
+    .el-form-item__label {
+      justify-content: flex-start;
+      width: auto !important;
+    }
+    .el-form-item__content {
+      margin-left: 0 !important;
+    }
+  }
+}
+
 /* 固定操作列表头与普通表头使用同一主题背景，并保持行内操作单行展示。 */
 :deep(.code-gen-table) {
   --el-table-header-bg-color: var(--el-fill-color-light);
