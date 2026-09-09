@@ -13,43 +13,20 @@
       </div>
     </template>
 
-    <el-skeleton v-if="loading && !session" :rows="5" animated />
-    <el-empty v-else-if="!session" :description="t('system.profile.session.empty')" />
-    <div v-else class="session-details">
-      <div class="session-status">
-        <el-tag type="success" effect="plain">{{ t("system.profile.session.status.active") }}</el-tag>
-        <span>{{ session.user_name }} · {{ session.tenant_code }}</span>
-      </div>
-      <dl class="session-grid">
-        <div>
-          <dt>{{ t("system.profile.session.field.client_ip") }}</dt>
-          <dd>{{ session.client_ip || "-" }}</dd>
-        </div>
-        <div>
-          <dt>{{ t("system.profile.session.field.device") }}</dt>
-          <dd>{{ session.device || "-" }}</dd>
-        </div>
-        <div>
-          <dt>{{ t("system.profile.session.field.issued_at") }}</dt>
-          <dd>{{ session.issued_at || "-" }}</dd>
-        </div>
-        <div>
-          <dt>{{ t("system.profile.session.field.expires_in") }}</dt>
-          <dd>{{ formatExpires(session.expires_in) }}</dd>
-        </div>
-      </dl>
-      <div class="session-actions">
-        <el-button type="danger" plain @click="revokeAll">
-          <el-icon><SwitchButton /></el-icon>
-          {{ t("system.profile.session.action.revoke_all") }}
-        </el-button>
-      </div>
+    <ProTable ref="proTable" row-key="session_id" :columns="columns" :request-api="requestSessionTable" :pagination="false" />
+    <div class="session-actions">
+      <el-button type="danger" plain :disabled="!hasSessions" @click="revokeAll">
+        <el-icon><SwitchButton /></el-icon>
+        {{ t("system.profile.session.action.revoke_all") }}
+      </el-button>
     </div>
   </el-card>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, ref } from "vue";
+import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
+import type { ColumnProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import { useRouter } from "vue-router";
 import { t } from "@liujitcn/kratos-admin-core";
 import { LOGIN_URL } from "@liujitcn/kratos-admin-core/config";
@@ -58,15 +35,47 @@ import { defBaseSessionService } from "@liujitcn/kratos-admin-system/api/system/
 import type { BaseSession } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_session";
 
 const loading = ref(false);
-const session = ref<BaseSession>();
+const proTable = ref<ProTableInstance>();
+const hasSessions = ref(false);
+const columns = computed<ColumnProps[]>(() => [
+  {
+    prop: "current",
+    label: t("system.profile.session.field.current"),
+    cellType: "status",
+    minWidth: 130,
+    statusProps: {
+      activeValue: true,
+      inactiveValue: false,
+      activeText: t("system.profile.session.status.current"),
+      inactiveText: t("system.profile.session.status.other")
+    }
+  },
+  { prop: "client_ip", label: t("system.profile.session.field.client_ip"), minWidth: 140 },
+  { prop: "device", label: t("system.profile.session.field.device"), minWidth: 200 },
+  { prop: "issued_at", label: t("system.profile.session.field.issued_at"), minWidth: 180 },
+  {
+    prop: "expires_in",
+    label: t("system.profile.session.field.expires_in"),
+    minWidth: 140,
+    render: scope => formatExpires((scope.row as BaseSession).expires_in)
+  }
+]);
+
+/** 查询本人全部有效会话。 */
+async function requestSessionTable() {
+  const response = await defBaseSessionService.ListCurrentBaseSessions({});
+  const sessions = response.sessions ?? [];
+  hasSessions.value = sessions.length > 0;
+  return { data: sessions };
+}
 const router = useRouter();
 const userStore = useUserStore();
 
-/** 拉取当前会话信息。 */
+/** 刷新本人会话列表。 */
 async function loadSession() {
   loading.value = true;
   try {
-    session.value = await defBaseSessionService.GetCurrentBaseSession({});
+    await proTable.value?.getTableList();
   } finally {
     loading.value = false;
   }
@@ -80,7 +89,7 @@ async function revokeAll() {
   await defBaseSessionService.RevokeAllBaseSessions({});
   userStore.clearAuthData();
   ElMessage.success(t("system.profile.session.message.revoked"));
-  session.value = undefined;
+  hasSessions.value = false;
   await router.replace(LOGIN_URL);
 }
 
@@ -92,8 +101,6 @@ function formatExpires(seconds: number) {
   if (hours > 0) return t("system.profile.session.value.hours_minutes", { hours, minutes });
   return t("system.profile.session.value.minutes", { minutes });
 }
-
-onMounted(loadSession);
 </script>
 
 <style scoped lang="scss">
@@ -126,36 +133,14 @@ onMounted(loadSession);
   color: var(--el-text-color-secondary);
   font-size: 13px;
 }
-.session-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  margin: 24px 0;
-}
-.session-grid div {
-  padding: 14px;
-  background: var(--el-fill-color-light);
-  border-radius: var(--admin-page-radius);
-}
-.session-grid dt {
-  color: var(--el-text-color-secondary);
-  font-size: 12px;
-}
-.session-grid dd {
-  margin: 6px 0 0;
-  color: var(--el-text-color-primary);
-  overflow-wrap: anywhere;
-}
 .session-actions {
   justify-content: flex-end;
+  margin-top: 20px;
 }
 @media screen and (width <= 640px) {
   .session-header {
     align-items: flex-start;
     flex-direction: column;
-  }
-  .session-grid {
-    grid-template-columns: 1fr;
   }
 }
 </style>

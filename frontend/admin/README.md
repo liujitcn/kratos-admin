@@ -1,7 +1,7 @@
 # frontend/admin
 
 管理后台采用 pnpm workspace，按“薄宿主 + core 底座 + 可选业务模块 + 工程工具”组织。宿主只负责组合和启动；页面、请求、RPC 类型和业务依赖归属对应模块包。
-System 模块包含消息管理、消息分类和个人收件箱，并通过顶部工具显示未读数。
+System 模块包含消息管理、消息分类和个人收件箱，并通过顶部工具显示未读数。个人中心展示本人的全部有效登录会话并标记当前设备，登录记录通过专用接口仅查询本人数据；登录管理下的在线用户页面仅供平台超级管理员查询和下线会话，租户名称显示在第一列，只有默认租户显示可搜索的租户下拉筛选，选项展示租户名称并按 `tenant_code` 精确匹配；账号搜索使用接口的 `keyword` 参数。
 代码生成工具的父级菜单仅展示目录，按后端八位菜单编号规则允许选择一至三级目录；页面、按钮和外链不作为候选父级。
 代码生成表配置弹窗中，页面类型独占一行，三个生成开关使用顶部标签，避免并排展示时内容溢出。
 Core 布局在头像菜单中提供锁定屏幕能力，锁屏密码摘要仅在当前锁屏会话期间持久化。
@@ -111,7 +111,7 @@ bash scripts/generate-dev-cert.sh 192.168.1.100
 
 登录页租户输入框由 `base_config.showTenantCode` 控制，值为 `false` 或 `0` 时隐藏；语言切换入口在后端只返回一种 `language_pack` 时自动隐藏；其他登录方式只有在 `base/oauth/provider` 返回非空 `providers` 时显示。
 
-语言偏好保存为 `kratos-admin:locale`。Axios、刷新令牌、原生 fetch、SSE 和 Swagger 请求统一发送 `Accept-Language`；动态菜单和字典由后端按 locale 返回，缺少当前语言译文时回退主语言。新增语言需要同步后端国际化目录、三个 workspace 的六个前端语言包目录，再执行仓库根目录的 `make i18n-sync`；注册文件和 Day.js 映射由脚本生成。具体流程见 [国际化语言扩展指南](../../docs/国际化语言扩展指南.md)。
+语言偏好保存为 `kratos-admin:locale`。Axios、刷新令牌、原生 fetch、SSE 和 Swagger 请求统一发送 `Accept-Language`；动态菜单和字典由后端按 locale 返回，缺少当前语言译文时回退主语言。新增语言需要同步后端国际化目录、三个 workspace 的六个前端语言包目录，再执行仓库根目录的 `make i18n`；注册文件和 Day.js 映射由脚本生成。具体流程见 [国际化语言扩展指南](../../docs/国际化语言扩展指南.md)。
 
 API 按 Proto 完整路径组织为 `api/base/v1`、`api/system/admin/v1` 等目录，`src/api` 只保留与服务文件同名的请求封装；运行配置和内部辅助实现分别放在 `src/config`、`src/utils`。RPC 保留 `rpc/base/v1`、`rpc/system/admin/v1` 等完整 Proto 层级。RPC 类型按真实消费者归属放置：core 保留登录、菜单、用户信息和启动期能力所需服务类型；System 自包含系统管理、个人中心、AI 及其依赖类型。修改 Proto 后在仓库根目录执行 `make -C frontend ts-admin`，命令会按两份 Buf 配置分别清理并生成 core 与 System 的 RPC；需要一次生成三个前端的 RPC 时执行 `make -C frontend ts`。服务端契约尚未完成细粒度拆分时，同一生成文件可能暂时包含当前包未调用的方法，不手写生成文件。
 
@@ -129,19 +129,19 @@ import { defineAdminModule } from "@liujitcn/kratos-admin-core";
 
 const views = import.meta.glob<{ default: Component }>("./views/**/*.vue");
 
-export const orderAdminModule = defineAdminModule({
-  name: "order",
+export const businessAdminModule = defineAdminModule({
+  name: "business",
   views
 });
 ```
 
-业务页面只登记 module 前缀路径，因此 `views/list/index.vue` 统一由 `order/list/index` 解析，不提供 `list/index` 无前缀别名。后端菜单的 `component` 必须写完整 module 路径；不同 module 即使包含同名 `views` 页面也不会互相覆盖。宿主在 `src/module-manifest.ts` 中声明 module，`src/modules.ts` 加载并默认导出全部 module，Vite 构建配置从 manifest 派生：
+业务页面只登记 module 前缀路径，因此 `views/list/index.vue` 统一由 `business/list/index` 解析，不提供 `list/index` 无前缀别名。后端菜单的 `component` 必须写完整 module 路径；不同 module 即使包含同名 `views` 页面也不会互相覆盖。宿主在 `src/module-manifest.ts` 中声明 module，`src/modules.ts` 加载并默认导出全部 module，Vite 构建配置从 manifest 派生：
 
 ```ts
 export const adminModuleManifest = [
   {
-    packageName: "@order/admin-module",
-    load: async () => (await import("@order/admin-module")).orderAdminModule
+    packageName: "@business/admin-module",
+    load: async () => (await import("@business/admin-module")).businessAdminModule
   }
 ];
 ```
@@ -163,8 +163,8 @@ core 通过 `ADMIN_STATIC_VIEWS` 公开全部静态页面的固定视图键：
 ```ts
 import { ADMIN_STATIC_VIEWS, defineAdminModule } from "@liujitcn/kratos-admin-core";
 
-export const orderAdminModule = defineAdminModule({
-  name: "order",
+export const businessAdminModule = defineAdminModule({
+  name: "business",
   staticViews: {
     [ADMIN_STATIC_VIEWS.NOT_FOUND]: () => import("./components/NotFound.vue"),
     [ADMIN_STATIC_VIEWS.PENDING]: () => import("./components/Pending.vue")
@@ -179,24 +179,24 @@ export const orderAdminModule = defineAdminModule({
 CLI 生成的业务项目本身也是 pnpm workspace，包含独立宿主和可发布业务模块包：
 
 ```bash
-pnpm dlx @liujitcn/kratos-admin-cli create shop-admin --module shop
-pnpm dlx @liujitcn/kratos-admin-cli create shop-admin --module shop,order
+pnpm dlx @liujitcn/kratos-admin-cli create business-admin --module business
+pnpm dlx @liujitcn/kratos-admin-cli create business-admin --module business,report
 
 # 当前仓库开发
-pnpm module:create ../shop-admin --module shop
-pnpm module:create ../shop-admin --module shop,order
-pnpm module:create ../shop-admin --module shop --module order
+pnpm module:create ../business-admin --module business
+pnpm module:create ../business-admin --module business,report
+pnpm module:create ../business-admin --module business --module report
 ```
 
 生成结果：
 
 ```text
-shop-admin
+business-admin
 ├── apps/admin
 │   └── README.md
-├── packages/modules/shop
+├── packages/modules/business
 │   └── README.md
-├── packages/modules/order
+├── packages/modules/report
 │   └── README.md
 ├── scripts/build-package.mjs
 ├── package.json

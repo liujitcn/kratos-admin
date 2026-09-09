@@ -63,13 +63,7 @@
       <el-icon><CircleClose /></el-icon>
       {{ t("common.action.reset") }}
     </el-button>
-    <el-button
-      round
-      size="large"
-      type="primary"
-      :loading="loading || oauthTicketLoading"
-      @click="handleLogin(loginFormRef)"
-    >
+    <el-button round size="large" type="primary" :loading="loading || oauthTicketLoading" @click="handleLogin(loginFormRef)">
       <el-icon><UserFilled /></el-icon>
       {{ t("common.action.login") }}
     </el-button>
@@ -142,6 +136,9 @@
       label-width="auto"
       @keyup.enter.prevent="verifyMfaLogin"
     />
+    <el-checkbox v-if="mfaRememberDays > 0" v-model="rememberMfaDevice">
+      {{ t("core.login.mfa_remember_device", { days: mfaRememberDays }) }}
+    </el-checkbox>
     <template #footer>
       <el-button @click="mfaDialogVisible = false">{{ t("common.action.cancel") }}</el-button>
       <el-button type="primary" :loading="mfaLoading" @click="verifyMfaLogin">
@@ -169,11 +166,7 @@
       </el-button>
     </template>
   </ProDialog>
-  <MfaRecoveryCodesDialog
-    v-model="recoveryCodesDialogVisible"
-    :codes="recoveryCodes"
-    @confirm="finishMfaEnrollment"
-  />
+  <MfaRecoveryCodesDialog v-model="recoveryCodesDialogVisible" :codes="recoveryCodes" @confirm="finishMfaEnrollment" />
 </template>
 
 <script setup lang="ts">
@@ -242,6 +235,8 @@ const mfaChallengeId = ref("");
 const mfaLoginFormRef = ref<ProFormInstance>();
 const mfaLoginForm = reactive({ code: "", recoveryCode: "" });
 const mfaMethod = ref("totp");
+const mfaRememberDays = ref(0);
+const rememberMfaDevice = ref(false);
 const mfaWebAuthnOptionsJson = ref("");
 const mfaSetupDialogVisible = ref(false);
 const mfaSetupTicket = ref("");
@@ -576,6 +571,8 @@ const handleLoginResponse = async (result: LoginResponse) => {
   if (result.status === LoginStatus.LOGIN_STATUS_MFA_REQUIRED) {
     mfaChallengeId.value = result.mfa_challenge_id;
     mfaMethod.value = result.mfa_method || "totp";
+    mfaRememberDays.value = result.mfa_remember_days || 0;
+    rememberMfaDevice.value = false;
     mfaWebAuthnOptionsJson.value = result.mfa_webauthn_options_json || "";
     mfaLoginForm.code = "";
     mfaLoginForm.recoveryCode = "";
@@ -612,7 +609,8 @@ const verifyMfaLogin = async () => {
       challenge_id: mfaChallengeId.value,
       code: useRecoveryCode ? "" : mfaLoginForm.code,
       recovery_code: mfaLoginForm.recoveryCode,
-      webauthn_response_json: webauthnResponseJson
+      webauthn_response_json: webauthnResponseJson,
+      remember_device: rememberMfaDevice.value
     });
     mfaDialogVisible.value = false;
     await handleLoginResponse(result);

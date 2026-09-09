@@ -133,7 +133,7 @@ def verify_language_bundles() -> list[str]:
     for name, path in FRONTEND_GENERATED_FILES.items():
         expected = render_frontend_generated(locales, name == "admin-core", name == "admin-core")
         if not path.exists() or path.read_text(encoding="utf-8") != expected:
-            raise VerificationError(f"前端语言注册生成物过期，请执行 make i18n-sync: {path}")
+            raise VerificationError(f"前端语言注册生成物过期，请执行 make i18n: {path}")
     return locales
 
 
@@ -230,7 +230,7 @@ def verify_openapi(target_locales: list[str]) -> None:
             raise VerificationError(f"OpenAPI {locale} 文档缺少必要结构: {path}")
         if normalized_openapi(text) != source_shape:
             raise VerificationError(
-                f"OpenAPI {locale} 文档与源文档结构不一致，请执行 make i18n-openapi: {path}"
+                f"OpenAPI {locale} 文档与源文档结构不一致，请执行 make i18n: {path}"
             )
         localized_fields = [
             line

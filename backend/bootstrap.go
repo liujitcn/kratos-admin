@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/google/wire"
-	coreadapter "github.com/liujitcn/kratos-admin/backend/adapter/core"
-	kitadapter "github.com/liujitcn/kratos-admin/backend/adapter/kit"
+	"github.com/liujitcn/kratos-admin/backend/adapter/core"
+	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	adminModule "github.com/liujitcn/kratos-admin/backend/internal/module"
 	"github.com/liujitcn/kratos-core/biz"
@@ -45,8 +45,8 @@ type AdminConsumers queue.Consumers
 // 外部项目将本集合与其他业务模块的具名贡献合并后，再交给 kratos-core.ProviderSet
 // 统一创建 HTTP、gRPC、MCP、SSE、队列和定时任务运行时。
 var ProviderSet = wire.NewSet(
-	coreadapter.ProviderSet,
-	kitadapter.ProviderSet,
+	core.ProviderSet,
+	kit.ProviderSet,
 	NewModuleResources,
 	NewModules,
 	NewTasks,
@@ -76,7 +76,7 @@ func NewModules(
 	sseRuntime *sse.SSE,
 	catalog *i18n.I18n,
 	openAPIRuntime *openapi.OpenAPI,
-	redactResolver *kitadapter.RedactPolicyResolver,
+	redactResolver *kit.RedactPolicyResolver,
 ) (AdminModules, func(), error) {
 	var err error
 	// 迁移完成后再加载策略和绑定存储回调，构造适配器时不查询尚未创建的表。

@@ -9,7 +9,7 @@
 
 .PHONY: help init hooks check gen \
 	build build-backend build-frontend package package-backend package-frontend \
-	i18n i18n-check i18n-verify i18n-sync i18n-locale i18n-openapi \
+	i18n i18n-check i18n-add _i18n-sync _i18n-openapi \
 	docker-check docker-config docker-build docker-run docker-stop \
 	tag
 
@@ -24,7 +24,7 @@ VERSION ?=
 
 I18N_LOCALE ?=
 I18N_SOURCE_LOCALE ?= zh-CN
-I18N_LOCALES ?= en-US,zh-TW,ja-JP
+I18N_LOCALES ?= $(shell $(PYTHON) -c 'from pathlib import Path; print(",".join(p.stem for p in sorted(Path("$(BACKEND_DIR)/internal/i18n/assets").glob("*.json")) if p.stem != "$(I18N_SOURCE_LOCALE)"))')
 I18N_OFFLINE ?= 0
 I18N_AUTO_TRANSLATE ?= 1
 I18N_AUTO_LOCALIZE ?= $(I18N_AUTO_TRANSLATE)
@@ -82,8 +82,7 @@ hooks:
 gen:
 	@$(MAKE) -C "$(BACKEND_DIR)" gen
 	@$(MAKE) -C "$(FRONTEND_DIR)" ts
-	@$(MAKE) i18n-sync
-	@$(MAKE) i18n-openapi
+	@$(MAKE) i18n
 	@echo "==> 全仓代码与文档产物生成完成"
 
 # 按 Backend、Frontend 和国际化一致性的顺序执行全仓检查。
@@ -91,7 +90,6 @@ check:
 	@$(MAKE) -C "$(BACKEND_DIR)" check
 	@$(MAKE) -C "$(FRONTEND_DIR)" check
 	@$(MAKE) i18n-check
-	@$(MAKE) i18n-verify
 	@echo "==> 全仓检查完成"
 
 # ===== 统一构建与打包 =====
@@ -127,23 +125,19 @@ package: package-backend package-frontend
 
 # ===== 国际化 =====
 
-# 只检查语言包、语言集合和已提交的注册生成物。
+# 只读检查全部语言包、注册文件、SQL 翻译和 OpenAPI。
 i18n-check:
-	@$(PYTHON) scripts/sync_locales.py
-
-# 发布前只读校验语言包、SQL 和 OpenAPI 产物。
-i18n-verify:
 	@$(PYTHON) scripts/verify_i18n.py \
 		--source-locale "$(I18N_SOURCE_LOCALE)" \
 		--locales "$(I18N_LOCALES)"
 
 # 同步语言包集合、前端注册文件和代码生成语言目录。
-i18n-sync:
+_i18n-sync:
 	@$(PYTHON) scripts/sync_locales.py --write $(if $(strip $(I18N_MIGRATION_VERSION)),--migration-version "$(I18N_MIGRATION_VERSION)",)
 
-# 生成指定语言的固定语言包和动态翻译 SQL。
-i18n-locale:
-	@test -n "$(I18N_LOCALE)" || (echo "请指定 I18N_LOCALE，例如 make i18n-locale I18N_LOCALE=ja-JP" && exit 1)
+# 新增指定语言的翻译草稿和初始化译文（需人工复核）。
+i18n-add:
+	@test -n "$(I18N_LOCALE)" || (echo "请指定 I18N_LOCALE，例如 make i18n-add I18N_LOCALE=de-DE" && exit 1)
 	@$(PYTHON) scripts/generate_locale_drafts.py \
 		--write \
 		--machine \
@@ -153,7 +147,7 @@ i18n-locale:
 		$(if $(filter 1 true,$(I18N_OFFLINE)),--offline,)
 
 # 生成 OpenAPI 源文档和多语言 YAML。
-i18n-openapi:
+_i18n-openapi:
 	@$(MAKE) -C "$(BACKEND_DIR)" openapi
 	@$(PYTHON) scripts/generate_openapi_locales.py \
 		--input "$(OPENAPI_INPUT)" \
@@ -166,11 +160,12 @@ i18n-openapi:
 	@find "$(OPENAPI_OUTPUT_DIR)" -type f -name '*.yaml' -exec perl -pi -e 's/BaseI18N/BaseI18n/g; s/baseI18N/baseI18n/g' {} +
 	@echo "==> OpenAPI v3 多语言文档生成完成"
 
-# 按语言包、OpenAPI 的顺序执行常规国际化生成。
+# 一键同步语言包、生成 OpenAPI 并执行完整校验；缺失译文会明确报错。
 i18n:
-	@$(MAKE) i18n-sync
-	@$(MAKE) i18n-openapi
-	@echo "==> 全仓国际化产物生成完成"
+	@$(MAKE) _i18n-sync
+	@$(MAKE) _i18n-openapi
+	@$(MAKE) i18n-check
+	@echo "==> 国际化生成与校验完成"
 
 # ===== Docker =====
 
@@ -254,7 +249,7 @@ docker-stop: docker-check
 
 # 统一升级、提交、打包并发布 Backend 与前端 npm 包。
 tag:
-	@$(MAKE) i18n-verify
+	@$(MAKE) i18n-check
 	@$(PYTHON) scripts/tag_release.py $(if $(strip $(VERSION)),--version "$(VERSION)",)
 
 # ===== 帮助 =====
@@ -266,6 +261,9 @@ help:
 	@echo "  make init                         初始化 Git hooks"
 	@echo "  make gen                          生成后端、前端和文档产物"
 	@echo "  make check                        执行 Backend、Frontend 和国际化检查"
+	@echo "  make i18n                         同步国际化产物并校验"
+	@echo "  make i18n-check                   只读检查国际化完整性"
+	@echo "  make i18n-add I18N_LOCALE=de-DE    新增语言翻译草稿（需人工复核）"
 	@echo "  make build                        构建后端和三个前端宿主"
 	@echo "  make package                      生成后端压缩包和全部 npm 包"
 	@echo "  make docker-build                 构建 Docker 镜像"
@@ -274,7 +272,7 @@ help:
 	@echo "可用目标:"
 	@awk '/^[a-zA-Z\-_0-9]+:/ { \
 	helpMessage = match(lastLine, /^# (.*)/); \
-		if (helpMessage) { \
+		if (helpMessage && $$1 !~ /^_/) { \
 			helpCommand = substr($$1, 0, index($$1, ":")-1); \
 			helpMessage = substr(lastLine, RSTART + 2, RLENGTH); \
 			printf "\033[36m  %-20s\033[0m %s\n", helpCommand, helpMessage; \

@@ -14,8 +14,30 @@ import (
 
 // RegisterBaseLoginLogServiceMCPTools 注册Admin登录日志服务的 MCP Tool。
 func RegisterBaseLoginLogServiceMCPTools(mcpServer *mcp.Server, baseLoginLogServiceServer BaseLoginLogServiceServer) {
+	RegisterBaseLoginLogServicePageCurrentUserLoginLogMCPTool(mcpServer, baseLoginLogServiceServer)
 	RegisterBaseLoginLogServicePageBaseLoginLogMCPTool(mcpServer, baseLoginLogServiceServer)
 	RegisterBaseLoginLogServiceGetBaseLoginLogMCPTool(mcpServer, baseLoginLogServiceServer)
+}
+
+// RegisterBaseLoginLogServicePageCurrentUserLoginLogMCPTool 注册分页查询当前登录用户本人的登录记录的 MCP Tool。
+func RegisterBaseLoginLogServicePageCurrentUserLoginLogMCPTool(mcpServer *mcp.Server, baseLoginLogServiceServer BaseLoginLogServiceServer) {
+	mcp.AddTool[*PageCurrentUserLoginLogRequest, *PageBaseLoginLogResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_base_login_log_service_page_current_user_login_log",
+			Description: "分页查询当前登录用户本人的登录记录。",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageCurrentUserLoginLogRequest) (*mcp.CallToolResult, *PageBaseLoginLogResponse, error) {
+			if input == nil {
+				input = &PageCurrentUserLoginLogRequest{}
+			}
+			reply, err := baseLoginLogServiceServer.PageCurrentUserLoginLog(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
 }
 
 // RegisterBaseLoginLogServicePageBaseLoginLogMCPTool 注册分页查询登录日志的 MCP Tool。

@@ -54,6 +54,8 @@ const mfaChallengeId = ref('')
 const mfaCode = ref('')
 const mfaRecoveryCode = ref('')
 const mfaMethod = ref('totp')
+const mfaRememberDays = ref(0)
+const rememberMfaDevice = ref(false)
 const mfaWebAuthnOptionsJson = ref('')
 const mfaSetupVisible = ref(false)
 const mfaSetupTicket = ref('')
@@ -290,6 +292,8 @@ const handleLoginResponse = async (response: LoginResponse) => {
     mfaCode.value = ''
     mfaRecoveryCode.value = ''
     mfaMethod.value = response.mfa_method || 'totp'
+    mfaRememberDays.value = response.mfa_remember_days || 0
+    rememberMfaDevice.value = false
     mfaWebAuthnOptionsJson.value = response.mfa_webauthn_options_json || ''
     mfaVisible.value = true
     return false
@@ -322,6 +326,7 @@ const verifyMfaLogin = async () => {
       code: mfaRecoveryCode.value ? '' : mfaCode.value,
       recovery_code: mfaRecoveryCode.value,
       webauthn_response_json: webauthnResponseJson,
+      remember_device: rememberMfaDevice.value,
     })
     mfaVisible.value = false
     if (await handleLoginResponse(response)) await loginSuccess()

@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -122,7 +122,7 @@ type PageBaseLanguageRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	LanguageName  string                 `protobuf:"bytes,1,opt,name=language_name,json=languageName,proto3" json:"language_name,omitempty"` // 语言名称
 	LanguageCode  string                 `protobuf:"bytes,2,opt,name=language_code,json=languageCode,proto3" json:"language_code,omitempty"` // 语言代码
-	Status        *commonv1.Status       `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`  // 启用状态
+	Status        *commonv1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`  // 启用状态
 	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`             // 当前页码
 	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`          // 每页数量
 	unknownFields protoimpl.UnknownFields
@@ -300,7 +300,7 @@ type BaseLanguageForm struct {
 	LanguageName  string                 `protobuf:"bytes,3,opt,name=language_name,json=languageName,proto3" json:"language_name,omitempty"` // 语言名称
 	NativeName    string                 `protobuf:"bytes,4,opt,name=native_name,json=nativeName,proto3" json:"native_name,omitempty"`       // 本地语言名称
 	Sort          int32                  `protobuf:"varint,5,opt,name=sort,proto3" json:"sort,omitempty"`                                    // 排序，值越小越靠前
-	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`        // 启用状态
+	Status        commonv1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`        // 启用状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -386,7 +386,7 @@ type BaseLanguage struct {
 	NativeName    string                 `protobuf:"bytes,4,opt,name=native_name,json=nativeName,proto3" json:"native_name,omitempty"`       // 本地语言名称
 	Sort          int32                  `protobuf:"varint,5,opt,name=sort,proto3" json:"sort,omitempty"`                                    // 排序
 	IsPrimary     bool                   `protobuf:"varint,6,opt,name=is_primary,json=isPrimary,proto3" json:"is_primary,omitempty"`         // 是否主语言
-	Status        commonv1.Status        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`        // 启用状态
+	Status        commonv1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`        // 启用状态
 	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`        // 创建时间
 	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`        // 更新时间
 	unknownFields protoimpl.UnknownFields
@@ -625,7 +625,7 @@ func (x *DeleteBaseLanguageRequest) GetId() string {
 type SetBaseLanguageStatusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                               // 语言ID
-	Status        commonv1.Status        `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 启用状态
+	Status        commonv1.Status              `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 启用状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -819,7 +819,7 @@ var file_system_admin_v1_base_language_proto_goTypes = []any{
 	(*DeleteBaseLanguageRequest)(nil),     // 9: system.admin.v1.DeleteBaseLanguageRequest
 	(*SetBaseLanguageStatusRequest)(nil),  // 10: system.admin.v1.SetBaseLanguageStatusRequest
 	(*SetBaseLanguagePrimaryRequest)(nil), // 11: system.admin.v1.SetBaseLanguagePrimaryRequest
-	(commonv1.Status)(0),                  // 12: common.v1.Status
+	(commonv1.Status)(0),                        // 12: common.v1.Status
 	(*emptypb.Empty)(nil),                 // 13: google.protobuf.Empty
 }
 var file_system_admin_v1_base_language_proto_depIdxs = []int32{

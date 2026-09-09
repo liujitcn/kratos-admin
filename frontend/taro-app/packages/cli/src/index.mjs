@@ -652,7 +652,7 @@ function printHelp() {
       '',
       '示例:',
       '  kratos-taro-app create customer-app',
-      '  kratos-taro-app create shop-app --module shop,order',
+      '  kratos-taro-app create business-app --module business,report',
       '  kratos-taro-app create customer-app --with @acme/customer-module',
       '',
     ].join('\n'),

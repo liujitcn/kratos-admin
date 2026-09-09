@@ -17,6 +17,12 @@ import (
 func NewBaseLoginLogServiceAgentTools(baseLoginLogServiceServer BaseLoginLogServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
+	var pageCurrentUserLoginLogTool tool.InvokableTool
+	pageCurrentUserLoginLogTool, err = NewBaseLoginLogServicePageCurrentUserLoginLogAgentTool(baseLoginLogServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, pageCurrentUserLoginLogTool)
 	var pageBaseLoginLogTool tool.InvokableTool
 	pageBaseLoginLogTool, err = NewBaseLoginLogServicePageBaseLoginLogAgentTool(baseLoginLogServiceServer)
 	if err != nil {
@@ -30,6 +36,20 @@ func NewBaseLoginLogServiceAgentTools(baseLoginLogServiceServer BaseLoginLogServ
 	}
 	ts = append(ts, getBaseLoginLogTool)
 	return ts, nil
+}
+
+// NewBaseLoginLogServicePageCurrentUserLoginLogAgentTool 创建分页查询当前登录用户本人的登录记录的 Agent Tool。
+func NewBaseLoginLogServicePageCurrentUserLoginLogAgentTool(baseLoginLogServiceServer BaseLoginLogServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageCurrentUserLoginLogRequest, *PageBaseLoginLogResponse](
+		"system_admin_v1_base_login_log_service_page_current_user_login_log",
+		"分页查询当前登录用户本人的登录记录。",
+		func(ctx context.Context, req *PageCurrentUserLoginLogRequest) (*PageBaseLoginLogResponse, error) {
+			if req == nil {
+				req = &PageCurrentUserLoginLogRequest{}
+			}
+			return baseLoginLogServiceServer.PageCurrentUserLoginLog(ctx, req)
+		},
+	)
 }
 
 // NewBaseLoginLogServicePageBaseLoginLogAgentTool 创建分页查询登录日志的 Agent Tool。

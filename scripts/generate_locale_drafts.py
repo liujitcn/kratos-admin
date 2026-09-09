@@ -149,7 +149,7 @@ SQL_FIXED_I18NS = {
     "ja": {
         "Copyright © 2025 - 2030 Admin All Rights Reserved.": "著作権 © 2025 - 2030 Admin All Rights Reserved.",
         "Admin 管理系统": "Admin 管理システム",
-        "应用框架示例": "アプリケーションフレームワークの例",
+        "应用首页": "アプリケーションフレームワークの例",
         "保留通用导航与个人中心体验": "共通ナビゲーションと個人センターの体験を維持",
         "<h2>隐私政策</h2><p>感谢您使用本应用。我们重视并保护您的个人信息，仅在提供账号登录、应用功能和客户服务所必需的范围内处理相关信息。</p><h3>一、信息使用</h3><p>我们会按照法律法规和本协议约定使用您的信息，不会将其用于无关目的。</p><h3>二、您的权利</h3><p>您可以依法查询、更正、删除个人信息，或通过应用内公布的渠道联系我们。</p>": "<h2>プライバシーポリシー</h2><p>本アプリをご利用いただきありがとうございます。お客様の個人情報を尊重して保護し、アカウントへのログイン、アプリ機能、カスタマーサービスの提供に必要な範囲でのみ取り扱います。</p><h3>1. 情報の利用</h3><p>適用される法令および本ポリシーに従って情報を利用し、関係のない目的には使用しません。</p><h3>2. お客様の権利</h3><p>法令に従って個人情報の確認、訂正、削除を行うか、アプリに掲載された窓口からお問い合わせいただけます。</p>",
         "<h2>服务条款</h2><p>欢迎使用本应用。使用本应用前，请您阅读并理解本协议。您开始使用应用服务，即表示同意遵守本协议及相关规则。</p><h3>一、服务使用</h3><p>请您依法、合规并按照页面提示使用各项功能，不得利用本应用从事违法或损害他人权益的活动。</p><h3>二、协议变更</h3><p>我们会根据业务和法律法规变化更新本协议，并在应用内向您展示更新后的内容。</p>": "<h2>利用規約</h2><p>本アプリへようこそ。ご利用前に本規約と関連ルールをお読みいただき、内容をご理解ください。アプリサービスを利用することで、本規約に同意したものとみなされます。</p><h3>1. サービスの利用</h3><p>各機能を法令に従い、ページの案内に沿って適切にご利用ください。本アプリを違法行為や他者の権利を侵害する行為に利用してはなりません。</p><h3>2. 規約の変更</h3><p>事業や法令の変更に応じて本規約を更新し、更新内容をアプリ内に表示します。</p>",
@@ -216,7 +216,7 @@ SQL_FIXED_I18NS = {
     "ko": {
         "Copyright © 2025 - 2030 Admin All Rights Reserved.": "저작권 © 2025 - 2030 Admin 판권 소유.",
         "Admin 管理系统": "Admin 관리 시스템",
-        "应用框架示例": "애플리케이션 프레임워크 예제",
+        "应用首页": "애플리케이션 프레임워크 예제",
         "保留通用导航与个人中心体验": "공통 탐색과 개인 센터 경험 유지",
         "<h2>隐私政策</h2><p>感谢您使用本应用。我们重视并保护您的个人信息，仅在提供账号登录、应用功能和客户服务所必需的范围内处理相关信息。</p><h3>一、信息使用</h3><p>我们会按照法律法规和本协议约定使用您的信息，不会将其用于无关目的。</p><h3>二、您的权利</h3><p>您可以依法查询、更正、删除个人信息，或通过应用内公布的渠道联系我们。</p>": "<h2>개인정보 보호정책</h2><p>애플리케이션을 이용해 주셔서 감사합니다. 개인정보를 소중히 보호하며 계정 로그인, 애플리케이션 기능과 고객 지원에 필요한 범위에서만 처리합니다.</p><h3>1. 정보 이용</h3><p>관련 법령과 본 정책에 따라 정보를 이용하며 관련 없는 목적으로 사용하지 않습니다.</p><h3>2. 이용자의 권리</h3><p>법률에 따라 개인정보를 조회, 정정 또는 삭제하거나 애플리케이션에 공개된 채널로 문의할 수 있습니다.</p>",
         "<h2>服务条款</h2><p>欢迎使用本应用。使用本应用前，请您阅读并理解本协议。您开始使用应用服务，即表示同意遵守本协议及相关规则。</p><h3>一、服务使用</h3><p>请您依法、合规并按照页面提示使用各项功能，不得利用本应用从事违法或损害他人权益的活动。</p><h3>二、协议变更</h3><p>我们会根据业务和法律法规变化更新本协议，并在应用内向您展示更新后的内容。</p>": "<h2>서비스 약관</h2><p>애플리케이션에 오신 것을 환영합니다. 사용하기 전에 본 약관과 관련 규칙을 읽고 이해해 주세요. 애플리케이션 서비스를 이용하면 본 약관에 동의한 것으로 봅니다.</p><h3>1. 서비스 이용</h3><p>각 기능을 법령과 페이지 안내에 따라 적법하게 이용해야 하며, 불법 행위나 타인의 권리를 침해하는 활동에 사용할 수 없습니다.</p><h3>2. 약관 변경</h3><p>사업 및 법령의 변경에 따라 약관을 업데이트하고 변경된 내용을 애플리케이션에 표시합니다.</p>",
@@ -282,7 +282,7 @@ SQL_FIXED_I18NS = {
     "fr": {
         "Copyright © 2025 - 2030 Admin All Rights Reserved.": "Droits d’auteur © 2025 - 2030 Admin. Tous droits réservés.",
         "Admin 管理系统": "Système d’administration Admin",
-        "应用框架示例": "Exemple de framework applicatif",
+        "应用首页": "Exemple de framework applicatif",
         "保留通用导航与个人中心体验": "Conserver l’expérience de navigation commune et du centre personnel",
         "<h2>隐私政策</h2><p>感谢您使用本应用。我们重视并保护您的个人信息，仅在提供账号登录、应用功能和客户服务所必需的范围内处理相关信息。</p><h3>一、信息使用</h3><p>我们会按照法律法规和本协议约定使用您的信息，不会将其用于无关目的。</p><h3>二、您的权利</h3><p>您可以依法查询、更正、删除个人信息，或通过应用内公布的渠道联系我们。</p>": "<h2>Politique de confidentialité</h2><p>Merci d’utiliser cette application. Nous respectons et protégeons vos données personnelles et ne les traitons que dans la mesure nécessaire à la connexion au compte, aux fonctionnalités de l’application et au service client.</p><h3>I. Utilisation des informations</h3><p>Nous utilisons vos informations conformément aux lois applicables et à cette politique, et ne les utilisons pas à des fins étrangères.</p><h3>II. Vos droits</h3><p>Vous pouvez consulter, rectifier ou supprimer vos données personnelles conformément à la loi, ou nous contacter via les canaux publiés dans l’application.</p>",
         "<h2>服务条款</h2><p>欢迎使用本应用。使用本应用前，请您阅读并理解本协议。您开始使用应用服务，即表示同意遵守本协议及相关规则。</p><h3>一、服务使用</h3><p>请您依法、合规并按照页面提示使用各项功能，不得利用本应用从事违法或损害他人权益的活动。</p><h3>二、协议变更</h3><p>我们会根据业务和法律法规变化更新本协议，并在应用内向您展示更新后的内容。</p>": "<h2>Conditions d’utilisation</h2><p>Bienvenue dans cette application. Veuillez lire et comprendre le présent accord et les règles associées avant de l’utiliser. L’utilisation des services de l’application vaut acceptation de ces conditions.</p><h3>I. Utilisation du service</h3><p>Utilisez chaque fonctionnalité légalement et conformément aux indications de la page. Il est interdit d’utiliser cette application pour des activités illégales ou portant atteinte aux droits d’autrui.</p><h3>II. Modification de l’accord</h3><p>Nous pouvons mettre à jour cet accord selon l’évolution de l’activité et de la réglementation, puis afficher la version mise à jour dans l’application.</p>",
@@ -348,7 +348,7 @@ SQL_FIXED_I18NS = {
     "es": {
         "Copyright © 2025 - 2030 Admin All Rights Reserved.": "Copyright © 2025 - 2030 Admin. Todos los derechos reservados.",
         "Admin 管理系统": "Sistema de administración Admin",
-        "应用框架示例": "Ejemplo de framework de aplicación",
+        "应用首页": "Ejemplo de framework de aplicación",
         "保留通用导航与个人中心体验": "Mantener la experiencia de navegación común y centro personal",
         "<h2>隐私政策</h2><p>感谢您使用本应用。我们重视并保护您的个人信息，仅在提供账号登录、应用功能和客户服务所必需的范围内处理相关信息。</p><h3>一、信息使用</h3><p>我们会按照法律法规和本协议约定使用您的信息，不会将其用于无关目的。</p><h3>二、您的权利</h3><p>您可以依法查询、更正、删除个人信息，或通过应用内公布的渠道联系我们。</p>": "<h2>Política de privacidad</h2><p>Gracias por utilizar esta aplicación. Valoramos y protegemos tus datos personales y solo los tratamos cuando es necesario para el inicio de sesión, las funciones de la aplicación y la atención al cliente.</p><h3>I. Uso de la información</h3><p>Utilizamos tus datos conforme a la legislación aplicable y a esta política, y no los destinamos a fines ajenos.</p><h3>II. Tus derechos</h3><p>Puedes consultar, corregir o eliminar tus datos personales conforme a la ley, o contactarnos mediante los canales publicados en la aplicación.</p>",
         "<h2>服务条款</h2><p>欢迎使用本应用。使用本应用前，请您阅读并理解本协议。您开始使用应用服务，即表示同意遵守本协议及相关规则。</p><h3>一、服务使用</h3><p>请您依法、合规并按照页面提示使用各项功能，不得利用本应用从事违法或损害他人权益的活动。</p><h3>二、协议变更</h3><p>我们会根据业务和法律法规变化更新本协议，并在应用内向您展示更新后的内容。</p>": "<h2>Términos del servicio</h2><p>Te damos la bienvenida a esta aplicación. Lee y comprende este acuerdo y sus reglas antes de utilizarla. Al usar los servicios de la aplicación aceptas cumplirlos.</p><h3>I. Uso del servicio</h3><p>Utiliza cada función de forma legal y conforme a las indicaciones de la página. No uses esta aplicación para actividades ilegales o que infrinjan los derechos de otras personas.</p><h3>II. Cambios del acuerdo</h3><p>Podemos actualizar este acuerdo según los cambios del negocio y de la legislación, y mostraremos la versión actualizada en la aplicación.</p>",

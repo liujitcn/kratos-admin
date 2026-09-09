@@ -99,29 +99,29 @@ func FrontendLocaleKeyPrefix(table *Table) string {
 }
 
 // FrontendLocaleMessages 构建单个生成页面在指定语言下拥有的全部固定文案。
-func FrontendLocaleMessages(table *Table, columns []*CodeGenColumn, localeValue string, primaryLocale string) map[string]string {
+func FrontendLocaleMessages(table *Table, columns []*CodeGenColumn, localeValue string, currentLocale string, primaryLocale string) map[string]string {
 	prefix := FrontendLocaleKeyPrefix(table)
-	resource := localizedTableComment(table, localeValue, primaryLocale)
+	resource := localizedTableComment(table, localeValue, currentLocale, primaryLocale)
 	messages := localizedResourceMessages(prefix, resource)
 	for _, column := range columns {
 		if column == nil {
 			continue
 		}
-		messages[prefix+".field."+stringcase.ToSnakeCase(column.Name)] = localizedColumnComment(column, localeValue, primaryLocale)
+		messages[prefix+".field."+stringcase.ToSnakeCase(column.Name)] = localizedColumnComment(column, localeValue, currentLocale, primaryLocale)
 		if column.FormComponent == "password" {
-			messages[prefix+".field.password_strength"] = localizedPasswordStrength(localeValue, primaryLocale)
+			messages[prefix+".field.password_strength"] = localizedPasswordStrength(localeValue, currentLocale)
 		}
 		for _, option := range enabledCodeGenColumnOptions(column) {
 			if option.SourceType != OptionSourceStatic {
 				continue
 			}
 			for _, item := range parseCodeGenStaticOptions(option) {
-				messages[frontendStaticOptionLocaleKey(table, column, item.Value)] = localizedGeneratedStaticLabel(item.Label, localeValue, primaryLocale)
+				messages[frontendStaticOptionLocaleKey(table, column, item.Value)] = localizedGeneratedStaticLabel(item.Label, localeValue, currentLocale)
 			}
 		}
 	}
 	if LeftTreeConfigFromTable(table).Enabled {
-		messages[prefix+".title.left_tree"] = localizedLeftTreeComment(table, localeValue, primaryLocale)
+		messages[prefix+".title.left_tree"] = localizedLeftTreeComment(table, localeValue, currentLocale, primaryLocale)
 	}
 	return messages
 }
@@ -132,7 +132,7 @@ func (c *renderer) newFrontendLocalePreviewFiles(table *Table, columns []*CodeGe
 	files := make([]*adminv1.CodeGenPreviewFile, 0, len(GeneratedFrontendLocales(state)))
 	for _, localeValue := range GeneratedFrontendLocales(state) {
 		path := target.FrontendLocaleFilePath(localeValue)
-		messages := FrontendLocaleMessages(table, columns, localeValue, state.Primary)
+		messages := FrontendLocaleMessages(table, columns, localeValue, state.Current, state.Primary)
 		files = append(files, c.newMergedFrontendLocalePreviewFile(path, FrontendLocaleKeyPrefix(table), messages))
 	}
 	return files
@@ -170,10 +170,10 @@ func mergeFrontendLocaleMessages(content string, prefix string, owned map[string
 func GeneratedMenuI18ns(table *Table, column *CodeGenColumn, action string, state LocaleState) map[string]string {
 	i18ns := make(map[string]string, len(RequiredI18nLocales(state)))
 	for _, localeValue := range RequiredI18nLocales(state) {
-		resource := localizedTableComment(table, localeValue, state.Primary)
+		resource := localizedTableComment(table, localeValue, state.Current, state.Primary)
 		values := map[string]string{"resource": resource}
 		if action == "status" {
-			values["field"] = localizedColumnComment(column, localeValue, state.Primary)
+			values["field"] = localizedColumnComment(column, localeValue, state.Current, state.Primary)
 		}
 		messageKey := map[string]string{
 			"default": "common.resource.default",
@@ -185,7 +185,7 @@ func GeneratedMenuI18ns(table *Table, column *CodeGenColumn, action string, stat
 		if messageKey == "" {
 			messageKey = "common.resource.default"
 		}
-		i18ns[localeValue] = localizeCodegen(localeValue, state.Primary, messageKey, values, messageKey)
+		i18ns[localeValue] = localizeCodegen(localeValue, state.Current, messageKey, values, messageKey)
 	}
 	return i18ns
 }
@@ -194,36 +194,45 @@ func localizedResourceMessages(prefix string, resource string) map[string]string
 	return map[string]string{prefix + ".resource": resource}
 }
 
-func localizedTableComment(table *Table, localeValue string, primaryLocale string) string {
+func localizedTableComment(table *Table, localeValue string, currentLocale string, primaryLocale string) string {
 	if table == nil {
 		return ""
 	}
 	if localeValue == primaryLocale {
 		return DefaultString(table.TableComment, table.BusinessName)
 	}
-	return DefaultString(table.I18NConfig[localeValue].Comment, DefaultString(table.TableComment, table.BusinessName))
+	if comment := table.I18NConfig[localeValue].Comment; comment != "" {
+		return comment
+	}
+	return DefaultString(table.I18NConfig[currentLocale].Comment, DefaultString(table.TableComment, table.BusinessName))
 }
 
-func localizedLeftTreeComment(table *Table, localeValue string, primaryLocale string) string {
+func localizedLeftTreeComment(table *Table, localeValue string, currentLocale string, primaryLocale string) string {
 	config := LeftTreeConfigFromTable(table)
 	if localeValue == primaryLocale {
-		return DefaultString(config.Comment, localizedTableComment(table, localeValue, primaryLocale))
+		return DefaultString(config.Comment, localizedTableComment(table, localeValue, currentLocale, primaryLocale))
 	}
-	return DefaultString(table.I18NConfig[localeValue].LeftTreeComment, DefaultString(config.Comment, localizedTableComment(table, localeValue, primaryLocale)))
+	if comment := table.I18NConfig[localeValue].LeftTreeComment; comment != "" {
+		return comment
+	}
+	return DefaultString(table.I18NConfig[currentLocale].LeftTreeComment, DefaultString(config.Comment, localizedTableComment(table, localeValue, currentLocale, primaryLocale)))
 }
 
-func localizedColumnComment(column *CodeGenColumn, localeValue string, primaryLocale string) string {
+func localizedColumnComment(column *CodeGenColumn, localeValue string, currentLocale string, primaryLocale string) string {
 	if column == nil {
 		return ""
 	}
 	if localeValue == primaryLocale {
 		return DefaultString(column.Comment, column.Name)
 	}
-	return DefaultString(column.I18NConfig[localeValue].Comment, DefaultString(column.Comment, column.Name))
+	if comment := column.I18NConfig[localeValue].Comment; comment != "" {
+		return comment
+	}
+	return DefaultString(column.I18NConfig[currentLocale].Comment, DefaultString(column.Comment, column.Name))
 }
 
-func localizedPasswordStrength(localeValue string, primaryLocale string) string {
-	return localizeCodegen(localeValue, primaryLocale, "password_strength", nil, "password_strength")
+func localizedPasswordStrength(localeValue string, currentLocale string) string {
+	return localizeCodegen(localeValue, currentLocale, "password_strength", nil, "password_strength")
 }
 
 // frontendStaticOptionLocaleKey 返回静态选项值对应的稳定语言键。
@@ -248,12 +257,12 @@ func parseCodeGenStaticOptions(option CodeGenColumnOptionConfig) []CodeGenStatic
 	return options
 }
 
-func localizedGeneratedStaticLabel(label string, localeValue string, primaryLocale string) string {
+func localizedGeneratedStaticLabel(label string, localeValue string, currentLocale string) string {
 	messageKey, ok := codegenStaticMessageKeys[label]
 	if !ok {
 		return label
 	}
-	return localizeCodegen(localeValue, primaryLocale, messageKey, nil, label)
+	return localizeCodegen(localeValue, currentLocale, messageKey, nil, label)
 }
 
 var codegenStaticMessageKeys = map[string]string{

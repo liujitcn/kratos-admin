@@ -135,21 +135,11 @@ async function handleGenerate() {
     return;
   }
   if (missingI18ns.value.length) {
-    try {
-      await ElMessageBox.alert(
-        t("system.code.gen.preview.message.missing_i18ns", {
-          items: missingI18ns.value.join(t("system.code.gen.preview.value.list_separator"))
-        }),
-        t("common.title.warning"),
-        {
-          confirmButtonText: t("common.action.close"),
-          type: "warning"
-        }
-      );
-    } catch {
-      // 关闭提示框与点击关闭按钮语义一致。
-    }
-    return;
+    ElMessage.warning(
+      t("system.code.gen.preview.message.missing_i18ns", {
+        items: missingI18ns.value.join(t("system.code.gen.preview.value.list_separator"))
+      })
+    );
   }
   try {
     await ElMessageBox.confirm(

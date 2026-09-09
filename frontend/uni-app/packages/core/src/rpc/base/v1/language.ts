@@ -24,7 +24,7 @@ export interface OptionLanguageResponse {
   languages: LanguageItem[];
 }
 
-/** 语言公共服务。 */
+/** Base语言公共服务。 */
 export interface LanguageService {
   /** 查询当前支持的语言选项。 */
   OptionLanguage(request: OptionLanguageRequest): Promise<OptionLanguageResponse>;

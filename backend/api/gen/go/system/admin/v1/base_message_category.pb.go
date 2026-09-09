@@ -13,8 +13,8 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -70,7 +70,7 @@ type PageBaseMessageCategoryRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          *string                `protobuf:"bytes,1,opt,name=name,proto3,oneof" json:"name,omitempty"`                            // 分类名称
 	Code          *string                `protobuf:"bytes,2,opt,name=code,proto3,oneof" json:"code,omitempty"`                            // 分类编码
-	Status        *commonv1.Status       `protobuf:"varint,3,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态
+	Status        *commonv1.Status             `protobuf:"varint,3,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态
 	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`          // 当前页码
 	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`       // 每页数量
 	unknownFields protoimpl.UnknownFields
@@ -379,7 +379,7 @@ func (x *DeleteBaseMessageCategoryRequest) GetId() string {
 type SetBaseMessageCategoryStatusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                               // 消息分类ID
-	Status        commonv1.Status        `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
+	Status        commonv1.Status              `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -437,11 +437,11 @@ type BaseMessageCategoryForm struct {
 	Icon            string                 `protobuf:"bytes,4,opt,name=icon,proto3" json:"icon,omitempty"`                                                                            // 分类图标
 	Color           string                 `protobuf:"bytes,5,opt,name=color,proto3" json:"color,omitempty"`                                                                          // 分类颜色
 	Sort            int32                  `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                                                                           // 排序
-	DefaultPriority basev1.MessagePriority `protobuf:"varint,7,opt,name=default_priority,json=defaultPriority,proto3,enum=base.v1.MessagePriority" json:"default_priority,omitempty"` // 默认优先级
+	DefaultPriority basev1.MessagePriority    `protobuf:"varint,7,opt,name=default_priority,json=defaultPriority,proto3,enum=base.v1.MessagePriority" json:"default_priority,omitempty"` // 默认优先级
 	RetentionDays   int32                  `protobuf:"varint,8,opt,name=retention_days,json=retentionDays,proto3" json:"retention_days,omitempty"`                                    // 保留天数
 	AllowArchive    bool                   `protobuf:"varint,9,opt,name=allow_archive,json=allowArchive,proto3" json:"allow_archive,omitempty"`                                       // 是否允许归档
 	AllowDelete     bool                   `protobuf:"varint,10,opt,name=allow_delete,json=allowDelete,proto3" json:"allow_delete,omitempty"`                                         // 是否允许删除
-	Status          commonv1.Status        `protobuf:"varint,11,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                // 状态
+	Status          commonv1.Status              `protobuf:"varint,11,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                // 状态
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -562,11 +562,11 @@ type BaseMessageCategory struct {
 	Icon            string                 `protobuf:"bytes,4,opt,name=icon,proto3" json:"icon,omitempty"`                                                                            // 分类图标
 	Color           string                 `protobuf:"bytes,5,opt,name=color,proto3" json:"color,omitempty"`                                                                          // 分类颜色
 	Sort            int32                  `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                                                                           // 排序
-	DefaultPriority basev1.MessagePriority `protobuf:"varint,7,opt,name=default_priority,json=defaultPriority,proto3,enum=base.v1.MessagePriority" json:"default_priority,omitempty"` // 默认优先级
+	DefaultPriority basev1.MessagePriority    `protobuf:"varint,7,opt,name=default_priority,json=defaultPriority,proto3,enum=base.v1.MessagePriority" json:"default_priority,omitempty"` // 默认优先级
 	RetentionDays   int32                  `protobuf:"varint,8,opt,name=retention_days,json=retentionDays,proto3" json:"retention_days,omitempty"`                                    // 保留天数
 	AllowArchive    bool                   `protobuf:"varint,9,opt,name=allow_archive,json=allowArchive,proto3" json:"allow_archive,omitempty"`                                       // 是否允许归档
 	AllowDelete     bool                   `protobuf:"varint,10,opt,name=allow_delete,json=allowDelete,proto3" json:"allow_delete,omitempty"`                                         // 是否允许删除
-	Status          commonv1.Status        `protobuf:"varint,11,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                // 状态
+	Status          commonv1.Status              `protobuf:"varint,11,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                // 状态
 	CreatedAt       string                 `protobuf:"bytes,100,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                               // 创建时间
 	UpdatedAt       string                 `protobuf:"bytes,101,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                               // 更新时间
 	unknownFields   protoimpl.UnknownFields
@@ -792,9 +792,9 @@ var file_system_admin_v1_base_message_category_proto_goTypes = []any{
 	(*SetBaseMessageCategoryStatusRequest)(nil), // 7: system.admin.v1.SetBaseMessageCategoryStatusRequest
 	(*BaseMessageCategoryForm)(nil),             // 8: system.admin.v1.BaseMessageCategoryForm
 	(*BaseMessageCategory)(nil),                 // 9: system.admin.v1.BaseMessageCategory
-	(commonv1.Status)(0),                        // 10: common.v1.Status
-	(basev1.MessagePriority)(0),                 // 11: base.v1.MessagePriority
-	(*commonv1.SelectOptionResponse)(nil),       // 12: common.v1.SelectOptionResponse
+	(commonv1.Status)(0),                              // 10: common.v1.Status
+	(basev1.MessagePriority)(0),                    // 11: base.v1.MessagePriority
+	(*commonv1.SelectOptionResponse)(nil),             // 12: common.v1.SelectOptionResponse
 	(*emptypb.Empty)(nil),                       // 13: google.protobuf.Empty
 }
 var file_system_admin_v1_base_message_category_proto_depIdxs = []int32{

@@ -6,6 +6,14 @@ import re
 
 
 EN_EXACT = {
+    "当前登录策略允许的MFA设备免验证天数": "Number of days the current login policy allows a device to skip MFA verification",
+    "是否记住当前设备": "Whether to remember the current device",
+    "MFA设备免验证天数，0表示每次登录都验证": "Number of days a device can skip MFA verification; 0 requires verification at every login",
+    "本人有效会话列表。": "Current user active sessions.",
+    "查询当前用户全部有效会话。": "List all active sessions for the current user.",
+    "本人有效会话列表": "Current user active sessions",
+    "下线指定用户会话。": "Revoke the specified user session.",
+    "是否允许同一账号同时登录": "Whether concurrent logins are allowed for the same account",
     "Admin API访问日志服务。": "Admin API access log service.",
     "Admin数据访问日志服务。": "Admin data access log service.",
     "Admin国际化翻译信息服务。": "Admin internationalization service.",
@@ -154,6 +162,14 @@ EN_EXACT = {
 
 
 JA_EXACT = {
+    "当前登录策略允许的MFA设备免验证天数": "現在のログインポリシーで許可される端末のMFA認証省略日数",
+    "是否记住当前设备": "現在の端末を記憶するかどうか",
+    "MFA设备免验证天数，0表示每次登录都验证": "端末のMFA認証を省略する日数。0の場合はログインのたびに認証します",
+    "本人有效会话列表。": "自分の有効なセッション一覧。",
+    "查询当前用户全部有效会话。": "現在のユーザーの有効なセッションを一覧表示します。",
+    "本人有效会话列表": "自分の有効なセッション一覧",
+    "下线指定用户会话。": "指定したユーザーのセッションを終了します。",
+    "是否允许同一账号同时登录": "同一アカウントでの同時ログインを許可するかどうか",
     "Base AI 助手工具服务": "Base AI アシスタントツールサービス",
     "Admin首页业务统计服务。": "Adminダッシュボード統計サービス。",
     "Admin脱敏规则模板服务。": "Adminマスキングルールテンプレートサービス。",

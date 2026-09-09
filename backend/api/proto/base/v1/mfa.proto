@@ -92,6 +92,8 @@ message VerifyMfaRequest {
   string recovery_code = 3 [(gnostic.openapi.v3.property) = {description: "一次性恢复码"}]; // 一次性恢复码
 
   string webauthn_response_json = 4 [(gnostic.openapi.v3.property) = {description: "WebAuthn认证响应JSON"}]; // WebAuthn认证响应JSON
+
+  bool remember_device = 5 [(gnostic.openapi.v3.property) = {description: "是否记住当前设备"}]; // 是否记住当前设备
 }
 
 // 登录强制绑定多因素认证请求。

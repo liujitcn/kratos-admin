@@ -6,7 +6,7 @@
 
 ```bash
 pnpm dlx @liujitcn/kratos-taro-app-cli create customer-app
-pnpm dlx @liujitcn/kratos-taro-app-cli create shop-app --module shop,order
+pnpm dlx @liujitcn/kratos-taro-app-cli create business-app --module business,report
 pnpm dlx @liujitcn/kratos-taro-app-cli create customer-app --with @acme/customer-module
 ```
 

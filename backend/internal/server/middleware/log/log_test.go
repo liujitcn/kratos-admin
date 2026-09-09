@@ -17,8 +17,10 @@ import (
 
 	"github.com/go-kratos/kratos/v3/transport"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginaudit"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/runtimeconfig"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
+	authdata "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/cache"
 	"github.com/liujitcn/kratos-kit/cache/memory"
 	"github.com/liujitcn/kratos-kit/queue/data"
@@ -403,5 +405,42 @@ func TestCreateLogTreatsDuplicateDeliveryAsSuccess(t *testing.T) {
 	err = createLogRecord(context.Background(), record.ID, record, create, find)
 	if err != nil {
 		t.Fatalf("duplicate delivery must be idempotent: %v", err)
+	}
+}
+
+// loginAuditTransport 模拟登录接口的传输上下文。
+type loginAuditTransport struct{ *testTransport }
+
+// Operation 返回匿名登录操作。
+func (*loginAuditTransport) Operation() string { return "/base.v1.LoginService/Login" }
+
+// TestSuccessfulLoginAuditCapturesIdentity 验证匿名请求成功登录后按可信身份记录本人历史。
+func TestSuccessfulLoginAuditCapturesIdentity(t *testing.T) {
+	queue := &testQueue{}
+	logMiddleware := newMiddleware(queue, nil)
+	ctx := transport.NewServerContext(context.Background(), &loginAuditTransport{testTransport: &testTransport{}})
+	handler := logMiddleware.Handle(func(ctx context.Context, req interface{}) (interface{}, error) {
+		loginaudit.Record(ctx, &authdata.UserTokenPayload{UserId: 42, TenantId: 7, UserName: "alice", TenantCode: "tenant-seven"})
+		return nil, nil
+	})
+	_, err := handler(ctx, nil)
+	logMiddleware.close()
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, ok := queue.message.Values["data"].(string)
+	if !ok {
+		t.Fatal("缺少登录审计事件")
+	}
+	var event adminEvent
+	if err = json.Unmarshal([]byte(raw), &event); err != nil {
+		t.Fatal(err)
+	}
+	var record models.BaseLoginLog
+	if err = json.Unmarshal(event.Payload, &record); err != nil {
+		t.Fatal(err)
+	}
+	if record.UserID != 42 || record.TenantID != 7 || record.UserName != "alice" {
+		t.Fatalf("登录成功后没有补齐身份: %+v", record)
 	}
 }

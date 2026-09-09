@@ -34,7 +34,7 @@ type Policy struct {
 	MaxLifetime time.Duration
 }
 
-// State 保存用户级服务端会话事实。
+// State 保存会话级服务端会话事实。
 type State struct {
 	CreatedAt     time.Time `json:"created_at"`
 	LastActiveAt  time.Time `json:"last_active_at"`
@@ -66,18 +66,18 @@ func policyFromSessionConfig(sessionConfig *configv1.Authentication_Session) Pol
 	return policy
 }
 
-// Start 创建或覆盖用户的服务端会话状态。
-func Start(store cache.Cache, userID int64, clientIP, device string, now time.Time) (State, error) {
+// Start 创建或覆盖指定登录会话的服务端会话状态。
+func Start(store cache.Cache, sessionID string, clientIP, device string, now time.Time) (State, error) {
 	state := State{CreatedAt: now, LastActiveAt: now, TokenIssuedAt: now, ClientIP: clientIP, Device: device}
-	return state, save(store, userID, state, PolicyFromConfig())
+	return state, save(store, sessionID, state, PolicyFromConfig())
 }
 
-// Read 读取用户的服务端会话状态。
-func Read(store cache.Cache, userID int64) (State, error) {
-	if store == nil || userID <= 0 {
+// Read 读取指定登录会话的服务端会话状态。
+func Read(store cache.Cache, sessionID string) (State, error) {
+	if store == nil || sessionID == "" {
 		return State{}, ErrStateNotFound
 	}
-	raw, err := store.Get(key(userID))
+	raw, err := store.Get(key(sessionID))
 	if err != nil {
 		if isCacheMiss(err) {
 			return State{}, ErrStateNotFound
@@ -91,9 +91,9 @@ func Read(store cache.Cache, userID int64) (State, error) {
 	return state, nil
 }
 
-// Validate 校验用户会话是否仍在空闲和绝对生命周期内。
-func Validate(store cache.Cache, userID int64, now time.Time) (State, error) {
-	state, err := Read(store, userID)
+// Validate 校验登录会话是否仍在空闲和绝对生命周期内。
+func Validate(store cache.Cache, sessionID string, now time.Time) (State, error) {
+	state, err := Read(store, sessionID)
 	if err != nil {
 		return State{}, err
 	}
@@ -103,32 +103,32 @@ func Validate(store cache.Cache, userID int64, now time.Time) (State, error) {
 	return state, nil
 }
 
-// Touch 校验并更新用户会话的最后活动时间。
-func Touch(store cache.Cache, userID int64, now time.Time) (State, error) {
-	state, err := Validate(store, userID, now)
+// Touch 校验并更新登录会话的最后活动时间。
+func Touch(store cache.Cache, sessionID string, now time.Time) (State, error) {
+	state, err := Validate(store, sessionID, now)
 	if err != nil {
 		return State{}, err
 	}
 	state.LastActiveAt = now
-	return state, save(store, userID, state, PolicyFromConfig())
+	return state, save(store, sessionID, state, PolicyFromConfig())
 }
 
 // MarkTokenIssued 更新最近一次访问令牌签发时间，不延长会话活动时间。
-func MarkTokenIssued(store cache.Cache, userID int64, now time.Time) error {
-	state, err := Validate(store, userID, now)
+func MarkTokenIssued(store cache.Cache, sessionID string, now time.Time) error {
+	state, err := Validate(store, sessionID, now)
 	if err != nil {
 		return err
 	}
 	state.TokenIssuedAt = now
-	return save(store, userID, state, PolicyFromConfig())
+	return save(store, sessionID, state, PolicyFromConfig())
 }
 
-// Clear 删除用户服务端会话状态。
-func Clear(store cache.Cache, userID int64) error {
-	if store == nil || userID <= 0 {
+// Clear 删除指定登录会话的服务端状态。
+func Clear(store cache.Cache, sessionID string) error {
+	if store == nil || sessionID == "" {
 		return nil
 	}
-	return store.Del(key(userID))
+	return store.Del(key(sessionID))
 }
 
 // Evaluate 仅根据给定状态和策略判断会话是否过期。
@@ -146,8 +146,8 @@ func Evaluate(state State, now time.Time, policy Policy) error {
 }
 
 // save 持久化服务端会话状态。
-func save(store cache.Cache, userID int64, state State, policy Policy) error {
-	if store == nil || userID <= 0 {
+func save(store cache.Cache, sessionID string, state State, policy Policy) error {
+	if store == nil || sessionID == "" {
 		return errors.New("会话缓存未配置")
 	}
 	payload, err := json.Marshal(state)
@@ -158,12 +158,12 @@ func save(store cache.Cache, userID int64, state State, policy Policy) error {
 	if ttl <= stateTTLGrace {
 		ttl = defaultMaxLifetime + stateTTLGrace
 	}
-	return store.Set(key(userID), string(payload), ttl)
+	return store.Set(key(sessionID), string(payload), ttl)
 }
 
-// key 返回用户级会话状态缓存键。
-func key(userID int64) string {
-	return fmt.Sprintf("admin_session_state:%d", userID)
+// key 返回指定登录会话的状态缓存键。
+func key(sessionID string) string {
+	return fmt.Sprintf("admin_session_state:%s", sessionID)
 }
 
 // isCacheMiss 判断缓存键不存在，而不是缓存服务故障。

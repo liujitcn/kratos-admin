@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -206,7 +206,7 @@ func (BaseLoginPolicyRestrictionMethod) EnumDescriptor() ([]byte, []int) {
 type PageBaseLoginPolicyRequest struct {
 	state         protoimpl.MessageState    `protogen:"open.v1"`
 	ScopeType     *BaseLoginPolicyScopeType `protobuf:"varint,1,opt,name=scope_type,json=scopeType,proto3,enum=system.admin.v1.BaseLoginPolicyScopeType,oneof" json:"scope_type,omitempty"` // 作用域类型
-	Status        *commonv1.Status          `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`                                                // 状态
+	Status        *commonv1.Status                `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`                                                // 状态
 	PageNum       int64                     `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                                                         // 当前页码
 	PageSize      int64                     `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                                                      // 每一页的行数
 	unknownFields protoimpl.UnknownFields
@@ -508,7 +508,7 @@ func (x *DeleteBaseLoginPolicyRequest) GetId() string {
 type SetBaseLoginPolicyStatusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                               // 登录策略ID
-	Status        commonv1.Status        `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
+	Status        commonv1.Status              `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -566,13 +566,15 @@ type BaseLoginPolicyForm struct {
 	UserId                       int64                    `protobuf:"varint,4,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                                                                              // 用户ID
 	MaxFailedAttempts            int32                    `protobuf:"varint,5,opt,name=max_failed_attempts,json=maxFailedAttempts,proto3" json:"max_failed_attempts,omitempty"`                                           // 最大登录失败次数
 	LockDurationMinutes          int32                    `protobuf:"varint,6,opt,name=lock_duration_minutes,json=lockDurationMinutes,proto3" json:"lock_duration_minutes,omitempty"`                                     // 锁定时长（分钟）
-	Status                       commonv1.Status          `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                                    // 状态
+	AllowConcurrentLogin         bool                     `protobuf:"varint,15,opt,name=allow_concurrent_login,json=allowConcurrentLogin,proto3" json:"allow_concurrent_login,omitempty"`                                 // 是否允许同一账号同时登录
+	Status                       commonv1.Status                `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                                    // 状态
 	PasswordMaxAgeDays           *int32                   `protobuf:"varint,7,opt,name=password_max_age_days,json=passwordMaxAgeDays,proto3,oneof" json:"password_max_age_days,omitempty"`                                // 密码有效期（天）
+	MfaRememberDays              *int32                   `protobuf:"varint,16,opt,name=mfa_remember_days,json=mfaRememberDays,proto3,oneof" json:"mfa_remember_days,omitempty"`                                          // MFA设备免验证天数，0表示每次登录都验证
 	Rules                        []*BaseLoginPolicyRule   `protobuf:"bytes,8,rep,name=rules,proto3" json:"rules,omitempty"`                                                                                               // 限制规则列表
 	PasswordMinLength            *int32                   `protobuf:"varint,11,opt,name=password_min_length,json=passwordMinLength,proto3,oneof" json:"password_min_length,omitempty"`                                    // 密码最小长度
 	PasswordHistoryCount         *int32                   `protobuf:"varint,12,opt,name=password_history_count,json=passwordHistoryCount,proto3,oneof" json:"password_history_count,omitempty"`                           // 禁止重复使用的历史密码数量，0表示不启用
 	PasswordMinComplexityClasses *int32                   `protobuf:"varint,13,opt,name=password_min_complexity_classes,json=passwordMinComplexityClasses,proto3,oneof" json:"password_min_complexity_classes,omitempty"` // 密码至少满足的字符类别数量，字符类别包括小写、大写、数字和符号
-	InitialPassword              *commonv1.PasswordCrypto `protobuf:"bytes,14,opt,name=initial_password,json=initialPassword,proto3" json:"initial_password,omitempty"`                                                   // 初始化密码，新增用户未提交密码时使用
+	InitialPassword              *commonv1.PasswordCrypto       `protobuf:"bytes,14,opt,name=initial_password,json=initialPassword,proto3" json:"initial_password,omitempty"`                                                   // 初始化密码，新增用户未提交密码时使用
 	unknownFields                protoimpl.UnknownFields
 	sizeCache                    protoimpl.SizeCache
 }
@@ -649,6 +651,13 @@ func (x *BaseLoginPolicyForm) GetLockDurationMinutes() int32 {
 	return 0
 }
 
+func (x *BaseLoginPolicyForm) GetAllowConcurrentLogin() bool {
+	if x != nil {
+		return x.AllowConcurrentLogin
+	}
+	return false
+}
+
 func (x *BaseLoginPolicyForm) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
@@ -659,6 +668,13 @@ func (x *BaseLoginPolicyForm) GetStatus() commonv1.Status {
 func (x *BaseLoginPolicyForm) GetPasswordMaxAgeDays() int32 {
 	if x != nil && x.PasswordMaxAgeDays != nil {
 		return *x.PasswordMaxAgeDays
+	}
+	return 0
+}
+
+func (x *BaseLoginPolicyForm) GetMfaRememberDays() int32 {
+	if x != nil && x.MfaRememberDays != nil {
+		return *x.MfaRememberDays
 	}
 	return 0
 }
@@ -709,10 +725,12 @@ type BaseLoginPolicy struct {
 	UserName                     string                   `protobuf:"bytes,6,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                                                                   // 用户账号
 	MaxFailedAttempts            int32                    `protobuf:"varint,7,opt,name=max_failed_attempts,json=maxFailedAttempts,proto3" json:"max_failed_attempts,omitempty"`                                     // 最大登录失败次数
 	LockDurationMinutes          int32                    `protobuf:"varint,8,opt,name=lock_duration_minutes,json=lockDurationMinutes,proto3" json:"lock_duration_minutes,omitempty"`                               // 锁定时长（分钟）
-	Status                       commonv1.Status          `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                              // 状态
+	AllowConcurrentLogin         bool                     `protobuf:"varint,14,opt,name=allow_concurrent_login,json=allowConcurrentLogin,proto3" json:"allow_concurrent_login,omitempty"`                           // 是否允许同一账号同时登录
+	Status                       commonv1.Status                `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                              // 状态
 	CreatedAt                    string                   `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                                              // 创建时间
 	UpdatedAt                    string                   `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                                              // 更新时间
 	PasswordMaxAgeDays           int32                    `protobuf:"varint,9,opt,name=password_max_age_days,json=passwordMaxAgeDays,proto3" json:"password_max_age_days,omitempty"`                                // 密码有效期（天）
+	MfaRememberDays              int32                    `protobuf:"varint,15,opt,name=mfa_remember_days,json=mfaRememberDays,proto3" json:"mfa_remember_days,omitempty"`                                          // MFA设备免验证天数，0表示每次登录都验证
 	Rules                        []*BaseLoginPolicyRule   `protobuf:"bytes,10,rep,name=rules,proto3" json:"rules,omitempty"`                                                                                        // 限制规则列表
 	PasswordMinLength            int32                    `protobuf:"varint,11,opt,name=password_min_length,json=passwordMinLength,proto3" json:"password_min_length,omitempty"`                                    // 密码最小长度
 	PasswordHistoryCount         int32                    `protobuf:"varint,12,opt,name=password_history_count,json=passwordHistoryCount,proto3" json:"password_history_count,omitempty"`                           // 禁止重复使用的历史密码数量，0表示不启用
@@ -807,6 +825,13 @@ func (x *BaseLoginPolicy) GetLockDurationMinutes() int32 {
 	return 0
 }
 
+func (x *BaseLoginPolicy) GetAllowConcurrentLogin() bool {
+	if x != nil {
+		return x.AllowConcurrentLogin
+	}
+	return false
+}
+
 func (x *BaseLoginPolicy) GetStatus() commonv1.Status {
 	if x != nil {
 		return x.Status
@@ -831,6 +856,13 @@ func (x *BaseLoginPolicy) GetUpdatedAt() string {
 func (x *BaseLoginPolicy) GetPasswordMaxAgeDays() int32 {
 	if x != nil {
 		return x.PasswordMaxAgeDays
+	}
+	return 0
+}
+
+func (x *BaseLoginPolicy) GetMfaRememberDays() int32 {
+	if x != nil {
+		return x.MfaRememberDays
 	}
 	return 0
 }
@@ -872,7 +904,7 @@ type BaseLoginPolicyRule struct {
 	RestrictionMethod BaseLoginPolicyRestrictionMethod `protobuf:"varint,4,opt,name=restriction_method,json=restrictionMethod,proto3,enum=system.admin.v1.BaseLoginPolicyRestrictionMethod" json:"restriction_method,omitempty"` // 限制方式
 	RestrictionValue  string                           `protobuf:"bytes,5,opt,name=restriction_value,json=restrictionValue,proto3" json:"restriction_value,omitempty"`                                                           // 限制值
 	Reason            string                           `protobuf:"bytes,6,opt,name=reason,proto3" json:"reason,omitempty"`                                                                                                       // 限制原因
-	Status            commonv1.Status                  `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                                              // 状态
+	Status            commonv1.Status                        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                                                              // 状态
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -982,8 +1014,7 @@ const file_system_admin_v1_base_login_policy_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tB\x1a\xbaG\x17\x92\x02\x14登录策略ID列表R\x02id\"\x88\x01\n" +
 	"\x1fSetBaseLoginPolicyStatusRequest\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e登录策略IDR\x02id\x12?\n" +
-	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xe9\n" +
-	"\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\"\xda\f\n" +
 	"\x13BaseLoginPolicyForm\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e登录策略IDR\x02id\x12\x82\x01\n" +
 	"\n" +
@@ -991,18 +1022,21 @@ const file_system_admin_v1_base_login_policy_proto_rawDesc = "" +
 	"\ttenant_id\x18\x03 \x01(\x03B/\xbaG,\x92\x02)租户ID，租户或用户作用域必填R\btenantId\x12?\n" +
 	"\auser_id\x18\x04 \x01(\x03B&\xbaG#\x92\x02 用户ID，用户作用域必填R\x06userId\x12N\n" +
 	"\x13max_failed_attempts\x18\x05 \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18最大登录失败次数R\x11maxFailedAttempts\x12R\n" +
-	"\x15lock_duration_minutes\x18\x06 \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18锁定时长（分钟）R\x13lockDurationMinutes\x12?\n" +
+	"\x15lock_duration_minutes\x18\x06 \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18锁定时长（分钟）R\x13lockDurationMinutes\x12`\n" +
+	"\x16allow_concurrent_login\x18\x0f \x01(\bB*\xbaG'\x92\x02$是否允许同一账号同时登录R\x14allowConcurrentLogin\x12?\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\x14\xbaG\t\x92\x02\x06状态\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12i\n" +
-	"\x15password_max_age_days\x18\a \x01(\x05B1\xbaG.\x92\x02+密码有效期（天），0表示不启用H\x00R\x12passwordMaxAgeDays\x88\x01\x01\x12T\n" +
+	"\x15password_max_age_days\x18\a \x01(\x05B1\xbaG.\x92\x02+密码有效期（天），0表示不启用H\x00R\x12passwordMaxAgeDays\x88\x01\x01\x12w\n" +
+	"\x11mfa_remember_days\x18\x10 \x01(\x05BF\xbaG:\x92\x027MFA设备免验证天数，0表示每次登录都验证\xbaH\x06\x1a\x04\x18Z(\x00H\x01R\x0fmfaRememberDays\x88\x01\x01\x12T\n" +
 	"\x05rules\x18\b \x03(\v2$.system.admin.v1.BaseLoginPolicyRuleB\x18\xbaG\x15\x92\x02\x12限制规则列表R\x05rules\x12M\n" +
-	"\x13password_min_length\x18\v \x01(\x05B\x18\xbaG\x15\x92\x02\x12密码最小长度H\x01R\x11passwordMinLength\x88\x01\x01\x12{\n" +
-	"\x16password_history_count\x18\f \x01(\x05B@\xbaG=\x92\x02:禁止重复使用的历史密码数量，0表示不启用H\x02R\x14passwordHistoryCount\x88\x01\x01\x12\xaf\x01\n" +
-	"\x1fpassword_min_complexity_classes\x18\r \x01(\x05Bc\xbaG`\x92\x02]密码至少满足的字符类别数量，字符类别包括小写、大写、数字和符号H\x03R\x1cpasswordMinComplexityClasses\x88\x01\x01\x12\x82\x01\n" +
+	"\x13password_min_length\x18\v \x01(\x05B\x18\xbaG\x15\x92\x02\x12密码最小长度H\x02R\x11passwordMinLength\x88\x01\x01\x12{\n" +
+	"\x16password_history_count\x18\f \x01(\x05B@\xbaG=\x92\x02:禁止重复使用的历史密码数量，0表示不启用H\x03R\x14passwordHistoryCount\x88\x01\x01\x12\xaf\x01\n" +
+	"\x1fpassword_min_complexity_classes\x18\r \x01(\x05Bc\xbaG`\x92\x02]密码至少满足的字符类别数量，字符类别包括小写、大写、数字和符号H\x04R\x1cpasswordMinComplexityClasses\x88\x01\x01\x12\x82\x01\n" +
 	"\x10initial_password\x18\x0e \x01(\v2\x19.common.v1.PasswordCryptoB<\xbaG9\x92\x026初始化密码，新增用户未提交密码时使用R\x0finitialPasswordB\x18\n" +
-	"\x16_password_max_age_daysB\x16\n" +
+	"\x16_password_max_age_daysB\x14\n" +
+	"\x12_mfa_remember_daysB\x16\n" +
 	"\x14_password_min_lengthB\x19\n" +
 	"\x17_password_history_countB\"\n" +
-	" _password_min_complexity_classes\"\xc4\t\n" +
+	" _password_min_complexity_classes\"\x91\v\n" +
 	"\x0fBaseLoginPolicy\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e登录策略IDR\x02id\x12_\n" +
 	"\n" +
@@ -1013,13 +1047,15 @@ const file_system_admin_v1_base_login_policy_proto_rawDesc = "" +
 	"tenantName\x12/\n" +
 	"\tuser_name\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x12N\n" +
 	"\x13max_failed_attempts\x18\a \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18最大登录失败次数R\x11maxFailedAttempts\x12R\n" +
-	"\x15lock_duration_minutes\x18\b \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18锁定时长（分钟）R\x13lockDurationMinutes\x127\n" +
+	"\x15lock_duration_minutes\x18\b \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18锁定时长（分钟）R\x13lockDurationMinutes\x12`\n" +
+	"\x16allow_concurrent_login\x18\x0e \x01(\bB*\xbaG'\x92\x02$是否允许同一账号同时登录R\x14allowConcurrentLogin\x127\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x122\n" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12d\n" +
-	"\x15password_max_age_days\x18\t \x01(\x05B1\xbaG.\x92\x02+密码有效期（天），0表示不启用R\x12passwordMaxAgeDays\x12T\n" +
+	"\x15password_max_age_days\x18\t \x01(\x05B1\xbaG.\x92\x02+密码有效期（天），0表示不启用R\x12passwordMaxAgeDays\x12i\n" +
+	"\x11mfa_remember_days\x18\x0f \x01(\x05B=\xbaG:\x92\x027MFA设备免验证天数，0表示每次登录都验证R\x0fmfaRememberDays\x12T\n" +
 	"\x05rules\x18\n" +
 	" \x03(\v2$.system.admin.v1.BaseLoginPolicyRuleB\x18\xbaG\x15\x92\x02\x12限制规则列表R\x05rules\x12H\n" +
 	"\x13password_min_length\x18\v \x01(\x05B\x18\xbaG\x15\x92\x02\x12密码最小长度R\x11passwordMinLength\x12v\n" +
@@ -1088,8 +1124,8 @@ var file_system_admin_v1_base_login_policy_proto_goTypes = []any{
 	(*BaseLoginPolicyForm)(nil),             // 10: system.admin.v1.BaseLoginPolicyForm
 	(*BaseLoginPolicy)(nil),                 // 11: system.admin.v1.BaseLoginPolicy
 	(*BaseLoginPolicyRule)(nil),             // 12: system.admin.v1.BaseLoginPolicyRule
-	(commonv1.Status)(0),                    // 13: common.v1.Status
-	(*commonv1.PasswordCrypto)(nil),         // 14: common.v1.PasswordCrypto
+	(commonv1.Status)(0),                          // 13: common.v1.Status
+	(*commonv1.PasswordCrypto)(nil),               // 14: common.v1.PasswordCrypto
 	(*emptypb.Empty)(nil),                   // 15: google.protobuf.Empty
 }
 var file_system_admin_v1_base_login_policy_proto_depIdxs = []int32{

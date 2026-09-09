@@ -200,4 +200,6 @@ message LoginResponse {
   string mfa_method = 9 [(gnostic.openapi.v3.property) = {description: "多因素认证方式：totp、webauthn"}]; // 多因素认证方式：totp、webauthn
 
   string mfa_webauthn_options_json = 10 [(gnostic.openapi.v3.property) = {description: "WebAuthn认证选项JSON"}]; // WebAuthn认证选项JSON
+
+  int32 mfa_remember_days = 11 [(gnostic.openapi.v3.property) = {description: "当前登录策略允许的MFA设备免验证天数"}]; // 当前登录策略允许的MFA设备免验证天数
 }

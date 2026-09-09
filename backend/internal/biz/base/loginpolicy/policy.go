@@ -33,7 +33,11 @@ const (
 	DefaultPasswordMinComplexityClasses = int32(3)
 	// DefaultPasswordMaxAgeDays 是兼容环境变量和新建策略表单的初始值。
 	DefaultPasswordMaxAgeDays = int32(90)
-	policyCacheTTL            = 10 * 365 * 24 * time.Hour
+	// DefaultMfaRememberDays 是 MFA 设备免验证天数的默认值。
+	DefaultMfaRememberDays = int32(0)
+	// MaxMfaRememberDays 是 MFA 设备免验证天数允许的上限。
+	MaxMfaRememberDays = int32(90)
+	policyCacheTTL     = 10 * 365 * 24 * time.Hour
 )
 
 // 作用域类型常量。
@@ -85,12 +89,33 @@ type Policy struct {
 	Status                       int32  `json:"status"`                          // 状态。
 	MaxFailedAttempts            int32  `json:"max_failed_attempts"`             // 最大登录失败次数。
 	LockDurationMinutes          int32  `json:"lock_duration_minutes"`           // 锁定时长（分钟）。
+	AllowConcurrentLogin         bool   `json:"allow_concurrent_login"`          // 是否允许同一账号同时登录。
 	PasswordMinLength            int32  `json:"password_min_length"`             // 密码最小长度。
 	PasswordHistoryCount         int32  `json:"password_history_count"`          // 禁止重复使用的历史密码数量，零表示不启用。
 	PasswordMinComplexityClasses int32  `json:"password_min_complexity_classes"` // 密码至少满足的字符类别数量。
 	PasswordMaxAgeDays           int32  `json:"password_max_age_days"`           // 密码有效期天数，零表示不启用。
+	MfaRememberDays              int32  `json:"mfa_remember_days"`               // MFA设备免验证天数，零表示每次登录都验证。
 	InitialPasswordHash          string `json:"initial_password_hash,omitempty"` // 初始化密码哈希，不向接口返回。
 	Rules                        []Rule `json:"rules"`                           // 该作用域下的限制规则。
+}
+
+// AllowConcurrentLoginFor 返回当前账号是否允许保留多个登录会话。
+func (p PolicySet) AllowConcurrentLoginFor(tenantID, userID int64) bool {
+	for _, scope := range []int32{ScopeUser, ScopeTenant, ScopeGlobal} {
+		for _, policy := range p.Policies {
+			if policy.Status != StatusEnable || policy.ScopeType != scope {
+				continue
+			}
+			if scope == ScopeUser && (policy.UserID == 0 || policy.UserID != userID) {
+				continue
+			}
+			if scope == ScopeTenant && (policy.TenantID == 0 || policy.TenantID != tenantID) {
+				continue
+			}
+			return policy.AllowConcurrentLogin
+		}
+	}
+	return false
 }
 
 // PasswordConfig 表示当前账号生效的密码策略。
@@ -223,6 +248,9 @@ func (p PolicySet) Validate() error {
 		if policy.PasswordMaxAgeDays < 0 {
 			return fmt.Errorf("密码有效期不能小于零")
 		}
+		if policy.MfaRememberDays < 0 || policy.MfaRememberDays > MaxMfaRememberDays {
+			return fmt.Errorf("MFA设备免验证天数必须在零到%d之间", MaxMfaRememberDays)
+		}
 		seenRules := make(map[string]struct{}, len(policy.Rules))
 		for _, rule := range policy.Rules {
 			if rule.RestrictionType != RestrictionBlacklist && rule.RestrictionType != RestrictionWhitelist {
@@ -324,6 +352,25 @@ func (p PolicySet) PasswordMaxAgeDaysFor(tenantID, userID int64) int32 {
 	return p.PasswordConfigFor(tenantID, userID).MaxAgeDays
 }
 
+// MfaRememberDaysFor 返回当前账号使用的 MFA 设备免验证天数。
+func (p PolicySet) MfaRememberDaysFor(tenantID, userID int64) int32 {
+	for _, scope := range []int32{ScopeUser, ScopeTenant, ScopeGlobal} {
+		for _, policy := range p.Policies {
+			if policy.Status != StatusEnable || policy.ScopeType != scope {
+				continue
+			}
+			if scope == ScopeUser && (policy.UserID == 0 || policy.UserID != userID) {
+				continue
+			}
+			if scope == ScopeTenant && (policy.TenantID == 0 || policy.TenantID != tenantID) {
+				continue
+			}
+			return normalizedMfaRememberDays(policy.MfaRememberDays)
+		}
+	}
+	return DefaultMfaRememberDays
+}
+
 // normalizedPasswordMinLength 为旧策略记录补充密码最小长度默认值。
 func normalizedPasswordMinLength(value int32) int32 {
 	if value <= 0 {
@@ -344,6 +391,14 @@ func normalizedPasswordHistoryCount(value int32) int32 {
 func normalizedPasswordMinComplexityClasses(value int32) int32 {
 	if value <= 0 || value > 4 {
 		return DefaultPasswordMinComplexityClasses
+	}
+	return value
+}
+
+// normalizedMfaRememberDays 为旧策略记录补充 MFA 设备免验证天数默认值。
+func normalizedMfaRememberDays(value int32) int32 {
+	if value < 0 || value > MaxMfaRememberDays {
+		return DefaultMfaRememberDays
 	}
 	return value
 }

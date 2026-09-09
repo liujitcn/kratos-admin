@@ -8,6 +8,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
+	"github.com/liujitcn/kratos-core/errorsx"
 	"gorm.io/gen/field"
 )
 
@@ -20,6 +21,18 @@ type BaseLoginLogCase struct {
 // NewBaseLoginLogCase 创建登录日志查询业务实例。
 func NewBaseLoginLogCase(baseCase *biz.BaseCase, baseLoginLogRepo *data.BaseLoginLogRepository) *BaseLoginLogCase {
 	return &BaseLoginLogCase{BaseCase: baseCase, BaseLoginLogRepository: baseLoginLogRepo}
+}
+
+// PageCurrentUserLoginLog 按认证身份限定用户和租户，查询本人登录记录。
+func (c *BaseLoginLogCase) PageCurrentUserLoginLog(ctx context.Context, req *adminv1.PageCurrentUserLoginLogRequest) (*adminv1.PageBaseLoginLogResponse, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if authInfo.UserId <= 0 || authInfo.TenantId <= 0 {
+		return nil, errorsx.Unauthenticated("请先登录")
+	}
+	return c.PageBaseLoginLog(ctx, &adminv1.PageBaseLoginLogRequest{UserId: &authInfo.UserId, TenantId: &authInfo.TenantId, PageNum: req.GetPageNum(), PageSize: req.GetPageSize()})
 }
 
 // PageBaseLoginLog 分页查询登录日志。

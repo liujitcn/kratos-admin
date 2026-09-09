@@ -51,6 +51,17 @@ type redactedBaseSessionServiceServer struct {
 	bypass redact.Bypass
 }
 
+// ListCurrentBaseSessions is the redacted wrapper for the actual BaseSessionServiceServer.ListCurrentBaseSessions method
+// Unary RPC
+func (s *redactedBaseSessionServiceServer) ListCurrentBaseSessions(ctx context.Context, in *ListCurrentBaseSessionsRequest) (*ListCurrentBaseSessionsResponse, error) {
+	res, err := s.srv.ListCurrentBaseSessions(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/system.admin.v1.BaseSessionService/ListCurrentBaseSessions"), redact.DirectionResponse), nil, res)
+	}
+	return res, err
+}
+
 // GetCurrentBaseSession is the redacted wrapper for the actual BaseSessionServiceServer.GetCurrentBaseSession method
 // Unary RPC
 func (s *redactedBaseSessionServiceServer) GetCurrentBaseSession(ctx context.Context, in *GetCurrentBaseSessionRequest) (*BaseSession, error) {
@@ -73,6 +84,50 @@ func (s *redactedBaseSessionServiceServer) RevokeAllBaseSessions(ctx context.Con
 	return res, err
 }
 
+// PageOnlineBaseSessions is the redacted wrapper for the actual BaseSessionServiceServer.PageOnlineBaseSessions method
+// Unary RPC
+func (s *redactedBaseSessionServiceServer) PageOnlineBaseSessions(ctx context.Context, in *PageOnlineBaseSessionsRequest) (*PageOnlineBaseSessionsResponse, error) {
+	res, err := s.srv.PageOnlineBaseSessions(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/system.admin.v1.BaseSessionService/PageOnlineBaseSessions"), redact.DirectionResponse), nil, res)
+	}
+	return res, err
+}
+
+// RevokeBaseSession is the redacted wrapper for the actual BaseSessionServiceServer.RevokeBaseSession method
+// Unary RPC
+func (s *redactedBaseSessionServiceServer) RevokeBaseSession(ctx context.Context, in *RevokeBaseSessionRequest) (*emptypb.Empty, error) {
+	res, err := s.srv.RevokeBaseSession(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/system.admin.v1.BaseSessionService/RevokeBaseSession"), redact.DirectionResponse), nil, res)
+	}
+	return res, err
+}
+
+// Ensure ListCurrentBaseSessionsRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ListCurrentBaseSessionsRequest)(nil)
+
+// Redact method implementation for ListCurrentBaseSessionsRequest
+func (x *ListCurrentBaseSessionsRequest) Redact() {
+	if x == nil {
+		return
+	}
+}
+
+// Ensure ListCurrentBaseSessionsResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*ListCurrentBaseSessionsResponse)(nil)
+
+// Redact method implementation for ListCurrentBaseSessionsResponse
+func (x *ListCurrentBaseSessionsResponse) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Sessions
+}
+
 // Ensure GetCurrentBaseSessionRequest implements the Redactor interface at compile time.
 var _ redact.Redactor = (*GetCurrentBaseSessionRequest)(nil)
 
@@ -93,6 +148,50 @@ func (x *RevokeAllBaseSessionsRequest) Redact() {
 	}
 }
 
+// Ensure PageOnlineBaseSessionsRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*PageOnlineBaseSessionsRequest)(nil)
+
+// Redact method implementation for PageOnlineBaseSessionsRequest
+func (x *PageOnlineBaseSessionsRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Keyword
+
+	// Safe field: TenantCode
+
+	// Safe field: PageNum
+
+	// Safe field: PageSize
+}
+
+// Ensure PageOnlineBaseSessionsResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*PageOnlineBaseSessionsResponse)(nil)
+
+// Redact method implementation for PageOnlineBaseSessionsResponse
+func (x *PageOnlineBaseSessionsResponse) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Sessions
+
+	// Safe field: Total
+}
+
+// Ensure RevokeBaseSessionRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*RevokeBaseSessionRequest)(nil)
+
+// Redact method implementation for RevokeBaseSessionRequest
+func (x *RevokeBaseSessionRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: SessionId
+}
+
 // Ensure BaseSession implements the Redactor interface at compile time.
 var _ redact.Redactor = (*BaseSession)(nil)
 
@@ -101,6 +200,8 @@ func (x *BaseSession) Redact() {
 	if x == nil {
 		return
 	}
+
+	// Safe field: SessionId
 
 	// Safe field: UserId
 
@@ -117,4 +218,6 @@ func (x *BaseSession) Redact() {
 	// Safe field: IssuedAt
 
 	// Safe field: ExpiresIn
+
+	// Safe field: Current
 }

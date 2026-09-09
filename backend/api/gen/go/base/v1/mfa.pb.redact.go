@@ -170,6 +170,8 @@ func (x *VerifyMfaRequest) Redact() {
 	// Safe field: RecoveryCode
 
 	// Safe field: WebauthnResponseJson
+
+	// Safe field: RememberDevice
 }
 
 // Ensure BeginMfaEnrollmentRequest implements the Redactor interface at compile time.

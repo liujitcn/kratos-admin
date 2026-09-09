@@ -27,6 +27,7 @@
           @switch-tab="handleTabChange"
         />
         <ProfileSession v-else-if="activeTab === 'session'" />
+        <ProfileLoginLog v-else-if="activeTab === 'login-log'" />
         <ProfilePassword v-else />
       </main>
     </section>
@@ -49,9 +50,10 @@ import ProfileBase from "./components/base.vue";
 import ProfileSecurity from "./components/security.vue";
 import ProfilePassword from "./components/password.vue";
 import ProfileSession from "./components/session.vue";
+import ProfileLoginLog from "./components/login-log.vue";
 
 /** 个人中心标签页。 */
-type ProfileTab = "account" | "security" | "password" | "session";
+type ProfileTab = "account" | "security" | "password" | "session" | "login-log";
 
 /** 左侧导航项结构。 */
 interface ProfileTabOption {
@@ -84,13 +86,16 @@ const profileTabs = computed<ProfileTabOption[]>(() => {
       description: t("system.profile.password.nav_description")
     }
   ];
-  if (userStore.userInfo.role_code === "super") {
-    tabs.push({
-      value: "session",
-      label: t("system.profile.session.title"),
-      description: t("system.profile.session.nav_description")
-    });
-  }
+  tabs.push({
+    value: "session",
+    label: t("system.profile.session.title"),
+    description: t("system.profile.session.nav_description")
+  });
+  tabs.push({
+    value: "login-log",
+    label: t("system.profile.login_log.title"),
+    description: t("system.profile.login_log.nav_description")
+  });
   return tabs;
 });
 const userProfileForm = reactive<UserProfileForm>({
@@ -210,5 +215,4 @@ onMounted(async () => {
     position: static;
   }
 }
-
 </style>

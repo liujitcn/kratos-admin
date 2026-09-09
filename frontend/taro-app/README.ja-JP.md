@@ -78,7 +78,7 @@ RPC は生成物であり、手作業で変更しません。
 
 ```bash
 pnpm dlx @liujitcn/kratos-taro-app-cli create my-app
-pnpm dlx @liujitcn/kratos-taro-app-cli create shop-app --module shop,order
+pnpm dlx @liujitcn/kratos-taro-app-cli create business-app --module business,report
 pnpm dlx @liujitcn/kratos-taro-app-cli create my-app --with @acme/customer-module
 ```
 

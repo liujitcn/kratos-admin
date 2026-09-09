@@ -33,10 +33,12 @@ func newBaseLoginPolicy(db *gorm.DB, opts ...gen.DOOption) baseLoginPolicy {
 	_baseLoginPolicy.UserID = field.NewInt64(tableName, "user_id")
 	_baseLoginPolicy.MaxFailedAttempts = field.NewInt32(tableName, "max_failed_attempts")
 	_baseLoginPolicy.LockDurationMinutes = field.NewInt32(tableName, "lock_duration_minutes")
+	_baseLoginPolicy.AllowConcurrentLogin = field.NewInt32(tableName, "allow_concurrent_login")
 	_baseLoginPolicy.PasswordMinLength = field.NewInt32(tableName, "password_min_length")
 	_baseLoginPolicy.PasswordHistoryCount = field.NewInt32(tableName, "password_history_count")
 	_baseLoginPolicy.PasswordMinComplexityClasses = field.NewInt32(tableName, "password_min_complexity_classes")
 	_baseLoginPolicy.PasswordMaxAgeDays = field.NewInt32(tableName, "password_max_age_days")
+	_baseLoginPolicy.MFARememberDays = field.NewInt32(tableName, "mfa_remember_days")
 	_baseLoginPolicy.InitialPasswordHash = field.NewString(tableName, "initial_password_hash")
 	_baseLoginPolicy.Status = field.NewInt32(tableName, "status")
 	_baseLoginPolicy.CreatedBy = field.NewInt64(tableName, "created_by")
@@ -61,10 +63,12 @@ type baseLoginPolicy struct {
 	UserID                       field.Int64  // 用户ID
 	MaxFailedAttempts            field.Int32  // 最大登录失败次数
 	LockDurationMinutes          field.Int32  // 锁定时长（分钟）
+	AllowConcurrentLogin         field.Int32  // 是否允许同时登录
 	PasswordMinLength            field.Int32  // 密码最小长度
 	PasswordHistoryCount         field.Int32  // 禁止重复使用的历史密码数量，0表示不启用
 	PasswordMinComplexityClasses field.Int32  // 密码至少满足的字符类别数量
 	PasswordMaxAgeDays           field.Int32  // 密码有效期（天），0表示不启用
+	MFARememberDays              field.Int32  // MFA设备免验证天数，0表示每次登录都验证
 	InitialPasswordHash          field.String // 初始化密码哈希，不保存明文
 	Status                       field.Int32  // 状态：枚举【Status】
 	CreatedBy                    field.Int64  // 创建人ID
@@ -94,10 +98,12 @@ func (b *baseLoginPolicy) updateTableName(table string) *baseLoginPolicy {
 	b.UserID = field.NewInt64(table, "user_id")
 	b.MaxFailedAttempts = field.NewInt32(table, "max_failed_attempts")
 	b.LockDurationMinutes = field.NewInt32(table, "lock_duration_minutes")
+	b.AllowConcurrentLogin = field.NewInt32(table, "allow_concurrent_login")
 	b.PasswordMinLength = field.NewInt32(table, "password_min_length")
 	b.PasswordHistoryCount = field.NewInt32(table, "password_history_count")
 	b.PasswordMinComplexityClasses = field.NewInt32(table, "password_min_complexity_classes")
 	b.PasswordMaxAgeDays = field.NewInt32(table, "password_max_age_days")
+	b.MFARememberDays = field.NewInt32(table, "mfa_remember_days")
 	b.InitialPasswordHash = field.NewString(table, "initial_password_hash")
 	b.Status = field.NewInt32(table, "status")
 	b.CreatedBy = field.NewInt64(table, "created_by")
@@ -133,17 +139,19 @@ func (b *baseLoginPolicy) GetFieldByName(fieldName string) (field.OrderExpr, boo
 }
 
 func (b *baseLoginPolicy) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 17)
+	b.fieldMap = make(map[string]field.Expr, 19)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["scope_type"] = b.ScopeType
 	b.fieldMap["tenant_id"] = b.TenantID
 	b.fieldMap["user_id"] = b.UserID
 	b.fieldMap["max_failed_attempts"] = b.MaxFailedAttempts
 	b.fieldMap["lock_duration_minutes"] = b.LockDurationMinutes
+	b.fieldMap["allow_concurrent_login"] = b.AllowConcurrentLogin
 	b.fieldMap["password_min_length"] = b.PasswordMinLength
 	b.fieldMap["password_history_count"] = b.PasswordHistoryCount
 	b.fieldMap["password_min_complexity_classes"] = b.PasswordMinComplexityClasses
 	b.fieldMap["password_max_age_days"] = b.PasswordMaxAgeDays
+	b.fieldMap["mfa_remember_days"] = b.MFARememberDays
 	b.fieldMap["initial_password_hash"] = b.InitialPasswordHash
 	b.fieldMap["status"] = b.Status
 	b.fieldMap["created_by"] = b.CreatedBy

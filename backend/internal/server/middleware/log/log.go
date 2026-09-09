@@ -25,6 +25,7 @@ import (
 	httpTransport "github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/liujitcn/go-utils/id"
 	adminv1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginaudit"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/runtimeconfig"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
@@ -202,6 +203,7 @@ func (m *Middleware) Handle(next middleware.Handler) middleware.Handler {
 		if isOperation(request) {
 			snapshot = m.captureResourceSnapshot(ctx, request, req)
 		}
+		ctx = loginaudit.WithCapture(ctx)
 		reply, err = next(ctx, req)
 		result, reasonCode, reason := resultInfo(err)
 		request.Result = result
@@ -209,6 +211,12 @@ func (m *Middleware) Handle(next middleware.Handler) middleware.Handler {
 		request.Reason = reason
 		request.OccurredAt = startedAt
 		if _, ok := loginType(request.Operation); ok {
+			if identity := loginaudit.FromContext(ctx); err == nil && identity != nil {
+				request.UserID = identity.UserId
+				request.UserName = identity.UserName
+				request.TenantID = identity.TenantId
+				request.TenantCode = identity.TenantCode
+			}
 			m.enqueue(adminTask{Kind: "login", Request: request, Payload: req})
 		}
 		permissionOperation := isPermissionOperation(request)

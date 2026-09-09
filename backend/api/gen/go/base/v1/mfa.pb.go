@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -34,6 +34,7 @@ type VerifyMfaRequest struct {
 	Code                 string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                                               // TOTP动态口令
 	RecoveryCode         string                 `protobuf:"bytes,3,opt,name=recovery_code,json=recoveryCode,proto3" json:"recovery_code,omitempty"`                           // 一次性恢复码
 	WebauthnResponseJson string                 `protobuf:"bytes,4,opt,name=webauthn_response_json,json=webauthnResponseJson,proto3" json:"webauthn_response_json,omitempty"` // WebAuthn认证响应JSON
+	RememberDevice       bool                   `protobuf:"varint,5,opt,name=remember_device,json=rememberDevice,proto3" json:"remember_device,omitempty"`                    // 是否记住当前设备
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -94,6 +95,13 @@ func (x *VerifyMfaRequest) GetWebauthnResponseJson() string {
 		return x.WebauthnResponseJson
 	}
 	return ""
+}
+
+func (x *VerifyMfaRequest) GetRememberDevice() bool {
+	if x != nil {
+		return x.RememberDevice
+	}
+	return false
 }
 
 // 登录强制绑定多因素认证请求。
@@ -432,9 +440,9 @@ func (x *MfaStatusResponse) GetMethod() string {
 
 // 开始绑定多因素认证请求。
 type BeginMfaSetupRequest struct {
-	state         protoimpl.MessageState   `protogen:"open.v1"`
-	Password      *commonv1.PasswordCrypto `protobuf:"bytes,1,opt,name=password,proto3" json:"password,omitempty"`                          // 当前登录密码
-	SetupTicket   string                   `protobuf:"bytes,2,opt,name=setup_ticket,json=setupTicket,proto3" json:"setup_ticket,omitempty"` // 强制绑定场景下的临时票据
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Password      *commonv1.PasswordCrypto     `protobuf:"bytes,1,opt,name=password,proto3" json:"password,omitempty"`                          // 当前登录密码
+	SetupTicket   string                 `protobuf:"bytes,2,opt,name=setup_ticket,json=setupTicket,proto3" json:"setup_ticket,omitempty"` // 强制绑定场景下的临时票据
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -774,12 +782,12 @@ func (x *BeginMfaDisableResponse) GetWebauthnOptionsJson() string {
 
 // 禁用多因素认证请求。
 type DisableMfaRequest struct {
-	state                protoimpl.MessageState   `protogen:"open.v1"`
-	Password             *commonv1.PasswordCrypto `protobuf:"bytes,1,opt,name=password,proto3" json:"password,omitempty"`                                                       // 当前登录密码
-	Code                 string                   `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                                               // TOTP 动态口令
-	WebauthnChallengeId  string                   `protobuf:"bytes,3,opt,name=webauthn_challenge_id,json=webauthnChallengeId,proto3" json:"webauthn_challenge_id,omitempty"`    // WebAuthn 禁用挑战 ID
-	WebauthnResponseJson string                   `protobuf:"bytes,4,opt,name=webauthn_response_json,json=webauthnResponseJson,proto3" json:"webauthn_response_json,omitempty"` // WebAuthn 验证响应 JSON
-	RecoveryCode         string                   `protobuf:"bytes,5,opt,name=recovery_code,json=recoveryCode,proto3" json:"recovery_code,omitempty"`                           // 一次性恢复码
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	Password             *commonv1.PasswordCrypto     `protobuf:"bytes,1,opt,name=password,proto3" json:"password,omitempty"`                                                       // 当前登录密码
+	Code                 string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                                               // TOTP 动态口令
+	WebauthnChallengeId  string                 `protobuf:"bytes,3,opt,name=webauthn_challenge_id,json=webauthnChallengeId,proto3" json:"webauthn_challenge_id,omitempty"`    // WebAuthn 禁用挑战 ID
+	WebauthnResponseJson string                 `protobuf:"bytes,4,opt,name=webauthn_response_json,json=webauthnResponseJson,proto3" json:"webauthn_response_json,omitempty"` // WebAuthn 验证响应 JSON
+	RecoveryCode         string                 `protobuf:"bytes,5,opt,name=recovery_code,json=recoveryCode,proto3" json:"recovery_code,omitempty"`                           // 一次性恢复码
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -943,13 +951,14 @@ var File_base_v1_mfa_proto protoreflect.FileDescriptor
 
 const file_base_v1_mfa_proto_rawDesc = "" +
 	"\n" +
-	"\x11base/v1/mfa.proto\x12\abase.v1\x1a\x13base/v1/login.proto\x1a\x15common/v1/types.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xf7\x02\n" +
+	"\x11base/v1/mfa.proto\x12\abase.v1\x1a\x13base/v1/login.proto\x1a\x15common/v1/types.proto\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xc0\x03\n" +
 	"\x10VerifyMfaRequest\x12\xa1\x01\n" +
 	"\fchallenge_id\x18\x01 \x01(\tB~\xbaG\x1a\x92\x02\x17多因素认证挑战ID\xbaH^\xba\x01[\n" +
 	"%base.mfa.verify.challenge_id.required\x12!多因素认证挑战不能为空\x1a\x0fthis.size() > 0R\vchallengeId\x12*\n" +
 	"\x04code\x18\x02 \x01(\tB\x16\xbaG\x13\x92\x02\x10TOTP动态口令R\x04code\x12=\n" +
 	"\rrecovery_code\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12一次性恢复码R\frecoveryCode\x12T\n" +
-	"\x16webauthn_response_json\x18\x04 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18WebAuthn认证响应JSONR\x14webauthnResponseJson\"\xc8\x01\n" +
+	"\x16webauthn_response_json\x18\x04 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18WebAuthn认证响应JSONR\x14webauthnResponseJson\x12G\n" +
+	"\x0fremember_device\x18\x05 \x01(\bB\x1e\xbaG\x1b\x92\x02\x18是否记住当前设备R\x0erememberDevice\"\xc8\x01\n" +
 	"\x19BeginMfaEnrollmentRequest\x12\xaa\x01\n" +
 	"\fsetup_ticket\x18\x01 \x01(\tB\x86\x01\xbaG\x1b\x92\x02\x18强制绑定临时票据\xbaHe\xba\x01b\n" +
 	"/base.mfa.begin_enrollment.setup_ticket.required\x12\x1e绑定临时票据不能为空\x1a\x0fthis.size() > 0R\vsetupTicket\"\x97\x03\n" +
@@ -1055,7 +1064,7 @@ var file_base_v1_mfa_proto_goTypes = []any{
 	(*DisableMfaRequest)(nil),                 // 13: base.v1.DisableMfaRequest
 	(*RegenerateMfaRecoveryCodesRequest)(nil), // 14: base.v1.RegenerateMfaRecoveryCodesRequest
 	(*RecoveryCodesResponse)(nil),             // 15: base.v1.RecoveryCodesResponse
-	(*commonv1.PasswordCrypto)(nil),           // 16: common.v1.PasswordCrypto
+	(*commonv1.PasswordCrypto)(nil),                 // 16: common.v1.PasswordCrypto
 	(*LoginResponse)(nil),                     // 17: base.v1.LoginResponse
 	(*emptypb.Empty)(nil),                     // 18: google.protobuf.Empty
 }

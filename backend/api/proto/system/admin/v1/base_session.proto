@@ -8,6 +8,11 @@ import "google/protobuf/empty.proto";
 
 // Admin会话管理服务。
 service BaseSessionService {
+  // 查询当前用户全部有效会话。
+  rpc ListCurrentBaseSessions(ListCurrentBaseSessionsRequest) returns (ListCurrentBaseSessionsResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/session/current-user"};
+  }
+
   // 查询当前用户会话。
   rpc GetCurrentBaseSession(GetCurrentBaseSessionRequest) returns (BaseSession) {
     option (google.api.http) = {get: "/api/v1/admin/base/session/current"};
@@ -20,6 +25,24 @@ service BaseSessionService {
       body: "*"
     };
   }
+
+  // 分页查询当前在线用户会话。
+  rpc PageOnlineBaseSessions(PageOnlineBaseSessionsRequest) returns (PageOnlineBaseSessionsResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/session/online"};
+  }
+
+  // 下线指定用户会话。
+  rpc RevokeBaseSession(RevokeBaseSessionRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/api/v1/admin/base/session/{session_id}"};
+  }
+}
+
+// 查询本人全部会话请求。
+message ListCurrentBaseSessionsRequest {}
+
+// 本人有效会话列表。
+message ListCurrentBaseSessionsResponse {
+  repeated BaseSession sessions = 1 [(gnostic.openapi.v3.property) = {description: "本人有效会话列表"}]; // 本人有效会话列表
 }
 
 // 查询当前会话请求参数。
@@ -28,8 +51,28 @@ message GetCurrentBaseSessionRequest {}
 // 撤销全部会话请求参数。
 message RevokeAllBaseSessionsRequest {}
 
+// 在线会话分页查询请求。
+message PageOnlineBaseSessionsRequest {
+  string keyword = 1 [(gnostic.openapi.v3.property) = {description: "账号、租户、IP或设备关键字"}]; // 关键字
+  string tenant_code = 2 [(gnostic.openapi.v3.property) = {description: "租户编码"}]; // 租户编码
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页行数", default: {number: 10}}]; // 每页行数
+}
+
+// 在线会话分页响应。
+message PageOnlineBaseSessionsResponse {
+  repeated BaseSession sessions = 1 [(gnostic.openapi.v3.property) = {description: "在线会话列表"}]; // 在线会话列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 下线指定会话请求。
+message RevokeBaseSessionRequest {
+  string session_id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}]; // 会话ID
+}
+
 // 当前会话信息。
 message BaseSession {
+  string session_id = 9 [(gnostic.openapi.v3.property) = {description: "会话ID"}]; // 会话ID
   int64 user_id = 1 [(gnostic.openapi.v3.property) = {description: "用户ID"}]; // 用户ID
   string user_name = 2 [(gnostic.openapi.v3.property) = {description: "用户账号"}]; // 用户账号
   string tenant_code = 3 [(gnostic.openapi.v3.property) = {description: "租户编码"}]; // 租户编码
@@ -38,4 +81,5 @@ message BaseSession {
   string user_agent = 6 [(gnostic.openapi.v3.property) = {description: "用户代理"}]; // 用户代理
   string issued_at = 7 [(gnostic.openapi.v3.property) = {description: "签发时间"}]; // 签发时间
   int64 expires_in = 8 [(gnostic.openapi.v3.property) = {description: "令牌有效期（秒）"}]; // 令牌有效期（秒）
+  bool current = 10 [(gnostic.openapi.v3.property) = {description: "是否为当前请求会话"}]; // 是否为当前请求会话
 }

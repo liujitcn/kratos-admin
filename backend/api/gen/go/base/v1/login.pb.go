@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -645,12 +645,12 @@ func (x *RefreshTokenResponse) GetExpiresIn() int64 {
 
 // 登录请求参数
 type LoginRequest struct {
-	state         protoimpl.MessageState   `protogen:"open.v1"`
-	TenantCode    string                   `protobuf:"bytes,1,opt,name=tenant_code,json=tenantCode,proto3" json:"tenant_code,omitempty"`    // 租户编码
-	UserName      string                   `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`          // 用户名，必选项。
-	Password      *commonv1.PasswordCrypto `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`                          // 用户的密码，必选项。
-	CaptchaCode   string                   `protobuf:"bytes,4,opt,name=captcha_code,json=captchaCode,proto3" json:"captcha_code,omitempty"` // 验证码
-	CaptchaId     string                   `protobuf:"bytes,5,opt,name=captcha_id,json=captchaId,proto3" json:"captcha_id,omitempty"`       // 验证码Id
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TenantCode    string                 `protobuf:"bytes,1,opt,name=tenant_code,json=tenantCode,proto3" json:"tenant_code,omitempty"`    // 租户编码
+	UserName      string                 `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`          // 用户名，必选项。
+	Password      *commonv1.PasswordCrypto     `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`                          // 用户的密码，必选项。
+	CaptchaCode   string                 `protobuf:"bytes,4,opt,name=captcha_code,json=captchaCode,proto3" json:"captcha_code,omitempty"` // 验证码
+	CaptchaId     string                 `protobuf:"bytes,5,opt,name=captcha_id,json=captchaId,proto3" json:"captcha_id,omitempty"`       // 验证码Id
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -733,6 +733,7 @@ type LoginResponse struct {
 	MfaExpiresIn           int64                  `protobuf:"varint,8,opt,name=mfa_expires_in,json=mfaExpiresIn,proto3" json:"mfa_expires_in,omitempty"`                                 // 多因素认证挑战或绑定票据有效时间，单位秒
 	MfaMethod              string                 `protobuf:"bytes,9,opt,name=mfa_method,json=mfaMethod,proto3" json:"mfa_method,omitempty"`                                             // 多因素认证方式：totp、webauthn
 	MfaWebauthnOptionsJson string                 `protobuf:"bytes,10,opt,name=mfa_webauthn_options_json,json=mfaWebauthnOptionsJson,proto3" json:"mfa_webauthn_options_json,omitempty"` // WebAuthn认证选项JSON
+	MfaRememberDays        int32                  `protobuf:"varint,11,opt,name=mfa_remember_days,json=mfaRememberDays,proto3" json:"mfa_remember_days,omitempty"`                       // 当前登录策略允许的MFA设备免验证天数
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
 }
@@ -837,6 +838,13 @@ func (x *LoginResponse) GetMfaWebauthnOptionsJson() string {
 	return ""
 }
 
+func (x *LoginResponse) GetMfaRememberDays() int32 {
+	if x != nil {
+		return x.MfaRememberDays
+	}
+	return 0
+}
+
 var File_base_v1_login_proto protoreflect.FileDescriptor
 
 const file_base_v1_login_proto_rawDesc = "" +
@@ -891,7 +899,8 @@ const file_base_v1_login_proto_rawDesc = "" +
 	"\n" +
 	"captcha_id\x18\x05 \x01(\tBe\xbaG\x0e\x92\x02\v验证码Id\xbaHQ\xba\x01N\n" +
 	"$base.login.login.captcha_id.required\x12\x15验证码不能为空\x1a\x0fthis.size() > 0R\tcaptchaId:Q\xbaHN\x1aL\n" +
-	"\"base.login.login.password.required\x12\x12密码不能为空\x1a\x12has(this.password)\"\x9e\t\n" +
+	"\"base.login.login.password.required\x12\x12密码不能为空\x1a\x12has(this.password)\"\x85\n" +
+	"\n" +
 	"\rLoginResponse\x12t\n" +
 	"\faccess_token\x18\x01 \x01(\tBQ\xbaGN\x92\x02K访问令牌，必选项。授权服务器颁发的访问令牌字符串。R\vaccessToken\x12\x89\x01\n" +
 	"\rrefresh_token\x18\x02 \x01(\tBd\xbaGa\x92\x02^更新令牌；管理端 Cookie-only 请求不在响应体返回，应用端请求可返回。R\frefreshToken\x12\xb4\x01\n" +
@@ -906,7 +915,8 @@ const file_base_v1_login_proto_rawDesc = "" +
 	"\n" +
 	"mfa_method\x18\t \x01(\tB-\xbaG*\x92\x02'多因素认证方式：totp、webauthnR\tmfaMethod\x12Y\n" +
 	"\x19mfa_webauthn_options_json\x18\n" +
-	" \x01(\tB\x1e\xbaG\x1b\x92\x02\x18WebAuthn认证选项JSONR\x16mfaWebauthnOptionsJson*\xc1\x02\n" +
+	" \x01(\tB\x1e\xbaG\x1b\x92\x02\x18WebAuthn认证选项JSONR\x16mfaWebauthnOptionsJson\x12e\n" +
+	"\x11mfa_remember_days\x18\v \x01(\x05B9\xbaG6\x92\x023当前登录策略允许的MFA设备免验证天数R\x0fmfaRememberDays*\xc1\x02\n" +
 	"\x13PasswordCryptoScene\x12%\n" +
 	"!PASSWORD_CRYPTO_SCENE_UNSPECIFIED\x10\x00\x12\x1f\n" +
 	"\x1bPASSWORD_CRYPTO_SCENE_LOGIN\x10\x01\x12*\n" +
@@ -959,7 +969,7 @@ var file_base_v1_login_proto_goTypes = []any{
 	(*RefreshTokenResponse)(nil),      // 10: base.v1.RefreshTokenResponse
 	(*LoginRequest)(nil),              // 11: base.v1.LoginRequest
 	(*LoginResponse)(nil),             // 12: base.v1.LoginResponse
-	(*commonv1.PasswordCrypto)(nil),   // 13: common.v1.PasswordCrypto
+	(*commonv1.PasswordCrypto)(nil),         // 13: common.v1.PasswordCrypto
 	(*emptypb.Empty)(nil),             // 14: google.protobuf.Empty
 }
 var file_base_v1_login_proto_depIdxs = []int32{

@@ -347,7 +347,7 @@ func (c *BaseLoginPolicyCase) listRulesByPolicyIDs(ctx context.Context, policyID
 
 // policyFromForm 将接口表单转换为策略领域记录并校验作用域。
 func (c *BaseLoginPolicyCase) policyFromForm(ctx context.Context, input *adminv1.BaseLoginPolicyForm) (loginpolicy.Policy, error) {
-	policy := loginpolicy.Policy{ID: input.GetId(), ScopeType: int32(input.GetScopeType()), TenantID: input.GetTenantId(), UserID: input.GetUserId(), Status: int32(input.GetStatus()), MaxFailedAttempts: input.GetMaxFailedAttempts(), LockDurationMinutes: input.GetLockDurationMinutes(), PasswordMinLength: input.GetPasswordMinLength(), PasswordHistoryCount: input.GetPasswordHistoryCount(), PasswordMinComplexityClasses: input.GetPasswordMinComplexityClasses(), PasswordMaxAgeDays: input.GetPasswordMaxAgeDays(), Rules: make([]loginpolicy.Rule, 0, len(input.GetRules()))}
+	policy := loginpolicy.Policy{ID: input.GetId(), ScopeType: int32(input.GetScopeType()), TenantID: input.GetTenantId(), UserID: input.GetUserId(), Status: int32(input.GetStatus()), MaxFailedAttempts: input.GetMaxFailedAttempts(), LockDurationMinutes: input.GetLockDurationMinutes(), AllowConcurrentLogin: input.GetAllowConcurrentLogin(), PasswordMinLength: input.GetPasswordMinLength(), PasswordHistoryCount: input.GetPasswordHistoryCount(), PasswordMinComplexityClasses: input.GetPasswordMinComplexityClasses(), PasswordMaxAgeDays: input.GetPasswordMaxAgeDays(), MfaRememberDays: input.GetMfaRememberDays(), Rules: make([]loginpolicy.Rule, 0, len(input.GetRules()))}
 	var err error
 	if policy.Status == 0 {
 		policy.Status = _const.STATUS_STATUS_ENABLE
@@ -375,6 +375,9 @@ func (c *BaseLoginPolicyCase) policyFromForm(ctx context.Context, input *adminv1
 	}
 	if input.PasswordMaxAgeDays == nil {
 		policy.PasswordMaxAgeDays = loginpolicy.DefaultPasswordMaxAgeDays
+	}
+	if input.MfaRememberDays != nil && (policy.MfaRememberDays < 0 || policy.MfaRememberDays > loginpolicy.MaxMfaRememberDays) {
+		return loginpolicy.Policy{}, errorsx.InvalidArgument("MFA设备免验证天数必须在零到90之间")
 	}
 	if input.GetInitialPassword() != nil {
 		var initialPassword string
@@ -416,7 +419,7 @@ func (c *BaseLoginPolicyCase) toBaseLoginPolicy(ctx context.Context, entity *mod
 		return nil, err
 	}
 	policy := entityToPolicy(entity, rules)
-	result := &adminv1.BaseLoginPolicy{Id: policy.ID, ScopeType: adminv1.BaseLoginPolicyScopeType(policy.ScopeType), TenantId: policy.TenantID, UserId: policy.UserID, MaxFailedAttempts: policy.MaxFailedAttempts, LockDurationMinutes: policy.LockDurationMinutes, PasswordMinLength: policy.PasswordMinLength, PasswordHistoryCount: policy.PasswordHistoryCount, PasswordMinComplexityClasses: policy.PasswordMinComplexityClasses, PasswordMaxAgeDays: policy.PasswordMaxAgeDays, Status: commonv1.Status(policy.Status), CreatedAt: entity.CreatedAt.Format("2006-01-02 15:04:05"), UpdatedAt: entity.UpdatedAt.Format("2006-01-02 15:04:05")}
+	result := &adminv1.BaseLoginPolicy{Id: policy.ID, ScopeType: adminv1.BaseLoginPolicyScopeType(policy.ScopeType), TenantId: policy.TenantID, UserId: policy.UserID, MaxFailedAttempts: policy.MaxFailedAttempts, LockDurationMinutes: policy.LockDurationMinutes, AllowConcurrentLogin: policy.AllowConcurrentLogin, PasswordMinLength: policy.PasswordMinLength, PasswordHistoryCount: policy.PasswordHistoryCount, PasswordMinComplexityClasses: policy.PasswordMinComplexityClasses, PasswordMaxAgeDays: policy.PasswordMaxAgeDays, MfaRememberDays: policy.MfaRememberDays, Status: commonv1.Status(policy.Status), CreatedAt: entity.CreatedAt.Format("2006-01-02 15:04:05"), UpdatedAt: entity.UpdatedAt.Format("2006-01-02 15:04:05")}
 	result.Rules = make([]*adminv1.BaseLoginPolicyRule, 0, len(policy.Rules))
 	for _, rule := range policy.Rules {
 		result.Rules = append(result.Rules, toBaseLoginPolicyRule(rule))
@@ -444,10 +447,11 @@ func (c *BaseLoginPolicyCase) toBaseLoginPolicy(ctx context.Context, entity *mod
 func (c *BaseLoginPolicyCase) toBaseLoginPolicyForm(entity *models.BaseLoginPolicy, rules []*models.BaseLoginPolicyRule) (*adminv1.BaseLoginPolicyForm, error) {
 	policy := entityToPolicy(entity, rules)
 	passwordMaxAgeDays := policy.PasswordMaxAgeDays
+	mfaRememberDays := policy.MfaRememberDays
 	passwordMinLength := policy.PasswordMinLength
 	passwordHistoryCount := policy.PasswordHistoryCount
 	passwordMinComplexityClasses := policy.PasswordMinComplexityClasses
-	result := &adminv1.BaseLoginPolicyForm{Id: policy.ID, ScopeType: adminv1.BaseLoginPolicyScopeType(policy.ScopeType), TenantId: policy.TenantID, UserId: policy.UserID, MaxFailedAttempts: policy.MaxFailedAttempts, LockDurationMinutes: policy.LockDurationMinutes, Status: commonv1.Status(policy.Status), PasswordMinLength: &passwordMinLength, PasswordHistoryCount: &passwordHistoryCount, PasswordMinComplexityClasses: &passwordMinComplexityClasses, PasswordMaxAgeDays: &passwordMaxAgeDays}
+	result := &adminv1.BaseLoginPolicyForm{Id: policy.ID, ScopeType: adminv1.BaseLoginPolicyScopeType(policy.ScopeType), TenantId: policy.TenantID, UserId: policy.UserID, MaxFailedAttempts: policy.MaxFailedAttempts, LockDurationMinutes: policy.LockDurationMinutes, AllowConcurrentLogin: policy.AllowConcurrentLogin, Status: commonv1.Status(policy.Status), PasswordMinLength: &passwordMinLength, PasswordHistoryCount: &passwordHistoryCount, PasswordMinComplexityClasses: &passwordMinComplexityClasses, PasswordMaxAgeDays: &passwordMaxAgeDays, MfaRememberDays: &mfaRememberDays}
 	result.Rules = make([]*adminv1.BaseLoginPolicyRule, 0, len(policy.Rules))
 	for _, rule := range policy.Rules {
 		result.Rules = append(result.Rules, toBaseLoginPolicyRule(rule))
@@ -503,7 +507,11 @@ func validatePolicyTarget(ctx context.Context, policy loginpolicy.Policy, tenant
 
 // policyToEntity 将策略领域记录转换为数据库模型。
 func policyToEntity(policy loginpolicy.Policy) *models.BaseLoginPolicy {
-	return &models.BaseLoginPolicy{ID: policy.ID, ScopeType: policy.ScopeType, TenantID: policy.TenantID, UserID: policy.UserID, Status: policy.Status, MaxFailedAttempts: policy.MaxFailedAttempts, LockDurationMinutes: policy.LockDurationMinutes, PasswordMinLength: policy.PasswordMinLength, PasswordHistoryCount: policy.PasswordHistoryCount, PasswordMinComplexityClasses: policy.PasswordMinComplexityClasses, PasswordMaxAgeDays: policy.PasswordMaxAgeDays, InitialPasswordHash: policy.InitialPasswordHash}
+	allowConcurrentLogin := int32(0)
+	if policy.AllowConcurrentLogin {
+		allowConcurrentLogin = 1
+	}
+	return &models.BaseLoginPolicy{ID: policy.ID, ScopeType: policy.ScopeType, TenantID: policy.TenantID, UserID: policy.UserID, Status: policy.Status, MaxFailedAttempts: policy.MaxFailedAttempts, LockDurationMinutes: policy.LockDurationMinutes, AllowConcurrentLogin: allowConcurrentLogin, PasswordMinLength: policy.PasswordMinLength, PasswordHistoryCount: policy.PasswordHistoryCount, PasswordMinComplexityClasses: policy.PasswordMinComplexityClasses, PasswordMaxAgeDays: policy.PasswordMaxAgeDays, MFARememberDays: policy.MfaRememberDays, InitialPasswordHash: policy.InitialPasswordHash}
 }
 
 // ruleToEntity 将策略规则转换为数据库模型。
@@ -513,7 +521,7 @@ func ruleToEntity(rule loginpolicy.Rule) *models.BaseLoginPolicyRule {
 
 // entityToPolicy 将数据库模型转换为策略领域记录。
 func entityToPolicy(entity *models.BaseLoginPolicy, rules []*models.BaseLoginPolicyRule) loginpolicy.Policy {
-	policy := loginpolicy.Policy{ID: entity.ID, ScopeType: entity.ScopeType, TenantID: entity.TenantID, UserID: entity.UserID, Status: entity.Status, MaxFailedAttempts: entity.MaxFailedAttempts, LockDurationMinutes: entity.LockDurationMinutes, PasswordMinLength: entity.PasswordMinLength, PasswordHistoryCount: entity.PasswordHistoryCount, PasswordMinComplexityClasses: entity.PasswordMinComplexityClasses, PasswordMaxAgeDays: entity.PasswordMaxAgeDays, InitialPasswordHash: entity.InitialPasswordHash, Rules: make([]loginpolicy.Rule, 0, len(rules))}
+	policy := loginpolicy.Policy{ID: entity.ID, ScopeType: entity.ScopeType, TenantID: entity.TenantID, UserID: entity.UserID, Status: entity.Status, AllowConcurrentLogin: entity.AllowConcurrentLogin != 0, MaxFailedAttempts: entity.MaxFailedAttempts, LockDurationMinutes: entity.LockDurationMinutes, PasswordMinLength: entity.PasswordMinLength, PasswordHistoryCount: entity.PasswordHistoryCount, PasswordMinComplexityClasses: entity.PasswordMinComplexityClasses, PasswordMaxAgeDays: entity.PasswordMaxAgeDays, MfaRememberDays: entity.MFARememberDays, InitialPasswordHash: entity.InitialPasswordHash, Rules: make([]loginpolicy.Rule, 0, len(rules))}
 	if policy.PasswordMinLength == 0 {
 		policy.PasswordMinLength = loginpolicy.DefaultPasswordMinLength
 	}

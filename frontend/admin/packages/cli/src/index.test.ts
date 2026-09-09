@@ -16,8 +16,8 @@ test("生成包含宿主和业务模块的 pnpm workspace", async () => {
   try {
     const target = await createBusinessWorkspace({
       cwd: root,
-      projectName: "shop-admin",
-      moduleNames: ["shop", "order"],
+      projectName: "business-admin",
+      moduleNames: ["business", "report"],
       additionalModules: ["log"]
     });
     await stat(join(target, "pnpm-workspace.yaml"));
@@ -31,41 +31,41 @@ test("生成包含宿主和业务模块的 pnpm workspace", async () => {
     await stat(join(target, "apps/admin/README.md"));
     const adminEnvironment = await readFile(join(target, "apps/admin/.env.development"), "utf8");
     assert.match(adminEnvironment, /VITE_HTTPS_KEY = \.\.\/\.\.\/certs\/dev-key\.pem/);
-    await stat(join(target, "packages/modules/shop/src/module.ts"));
-    await stat(join(target, "packages/modules/shop/src/rpc/README.md"));
-    await stat(join(target, "packages/modules/shop/README.md"));
-    await stat(join(target, "packages/modules/order/src/module.ts"));
-    await stat(join(target, "packages/modules/order/README.md"));
+    await stat(join(target, "packages/modules/business/src/module.ts"));
+    await stat(join(target, "packages/modules/business/src/rpc/README.md"));
+    await stat(join(target, "packages/modules/business/README.md"));
+    await stat(join(target, "packages/modules/report/src/module.ts"));
+    await stat(join(target, "packages/modules/report/README.md"));
 
     const workspaceReadme = await readFile(join(target, "README.md"), "utf8");
-    assert.match(workspaceReadme, /# shop-admin/);
-    assert.match(workspaceReadme, /packages\/modules\/shop/);
-    assert.match(workspaceReadme, /packages\/modules\/order/);
+    assert.match(workspaceReadme, /# business-admin/);
+    assert.match(workspaceReadme, /packages\/modules\/business/);
+    assert.match(workspaceReadme, /packages\/modules\/report/);
     assert.doesNotMatch(workspaceReadme, /__[A-Z_]+__/);
 
     const appReadme = await readFile(join(target, "apps/admin/README.md"), "utf8");
-    assert.match(appReadme, /# @shop\/admin-app/);
+    assert.match(appReadme, /# @business\/admin-app/);
     assert.doesNotMatch(appReadme, /__[A-Z_]+__/);
 
-    const moduleReadme = await readFile(join(target, "packages/modules/shop/README.md"), "utf8");
-    assert.match(moduleReadme, /# @shop\/admin-module/);
+    const moduleReadme = await readFile(join(target, "packages/modules/business/README.md"), "utf8");
+    assert.match(moduleReadme, /# @business\/admin-module/);
     assert.doesNotMatch(moduleReadme, /__[A-Z_]+__/);
 
-    const orderModuleReadme = await readFile(join(target, "packages/modules/order/README.md"), "utf8");
-    assert.match(orderModuleReadme, /# @order\/admin-module/);
+    const orderModuleReadme = await readFile(join(target, "packages/modules/report/README.md"), "utf8");
+    assert.match(orderModuleReadme, /# @report\/admin-module/);
     assert.doesNotMatch(orderModuleReadme, /__[A-Z_]+__/);
 
     const manifest = await readFile(join(target, "apps/admin/src/module-manifest.ts"), "utf8");
     assert.match(manifest, /adminModuleManifest/);
-    assert.match(manifest, /packageName: "@shop\/admin-module"/);
-    assert.match(manifest, /import\("@shop\/admin-module"\)\)\.shopAdminModule/);
-    assert.match(manifest, /packageName: "@order\/admin-module"/);
-    assert.match(manifest, /import\("@order\/admin-module"\)\)\.orderAdminModule/);
+    assert.match(manifest, /packageName: "@business\/admin-module"/);
+    assert.match(manifest, /import\("@business\/admin-module"\)\)\.businessAdminModule/);
+    assert.match(manifest, /packageName: "@report\/admin-module"/);
+    assert.match(manifest, /import\("@report\/admin-module"\)\)\.reportAdminModule/);
     assert.match(manifest, /packageName: "@liujitcn\/kratos-admin-system"/);
     assert.match(manifest, /import\("@liujitcn\/kratos-admin-system"\)\)\.systemAdminModule/);
     assert.match(manifest, /packageName: "@liujitcn\/kratos-admin-log"/);
     assert.match(manifest, /swagger-ui-dist\/swagger-ui-bundle\.js/);
-    assert.ok(manifest.indexOf("@liujitcn/kratos-admin-system") < manifest.indexOf("@shop/admin-module"));
+    assert.ok(manifest.indexOf("@liujitcn/kratos-admin-system") < manifest.indexOf("@business/admin-module"));
 
     const modules = await readFile(join(target, "apps/admin/src/modules.ts"), "utf8");
     assert.match(modules, /const adminModules = await loadAdminModules\(\)/);
@@ -85,11 +85,11 @@ test("生成包含宿主和业务模块的 pnpm workspace", async () => {
     assert.equal(packageJson.dependencies["@liujitcn/kratos-admin-core"], `^${cliPackageJson.version}`);
     assert.equal(packageJson.dependencies["@liujitcn/kratos-admin-system"], `^${cliPackageJson.version}`);
     assert.equal(packageJson.dependencies["@liujitcn/kratos-admin-log"], `^${cliPackageJson.version}`);
-    assert.equal(packageJson.dependencies["@shop/admin-module"], "workspace:*");
-    assert.equal(packageJson.dependencies["@order/admin-module"], "workspace:*");
+    assert.equal(packageJson.dependencies["@business/admin-module"], "workspace:*");
+    assert.equal(packageJson.dependencies["@report/admin-module"], "workspace:*");
     assert.equal(packageJson.dependencies["@liujitcn/kratos-admin"], undefined);
 
-    const modulePackageJson = JSON.parse(await readFile(join(target, "packages/modules/shop/package.json"), "utf8"));
+    const modulePackageJson = JSON.parse(await readFile(join(target, "packages/modules/business/package.json"), "utf8"));
     assert.match(modulePackageJson.devDependencies["@liujitcn/kratos-admin-core"], /^\^\d+\.\d+\.\d+$/);
     assert.match(modulePackageJson.peerDependencies["@liujitcn/kratos-admin-core"], /^\^\d+\.\d+\.\d+$/);
     assert.equal(modulePackageJson.exports["./rpc/*"].default, "./dist/package/src/rpc/*.ts");
@@ -97,14 +97,14 @@ test("生成包含宿主和业务模块的 pnpm workspace", async () => {
     assert.equal(modulePackageJson.exports["./views/*.vue"], undefined);
 
     const tsconfig = JSON.parse(await readFile(join(target, "tsconfig.json"), "utf8"));
-    assert.equal(tsconfig.compilerOptions.paths["@shop/admin-module/*"], undefined);
-    assert.deepEqual(tsconfig.compilerOptions.paths["@shop/admin-module/api/*"], ["packages/modules/shop/src/api/*"]);
-    assert.deepEqual(tsconfig.compilerOptions.paths["@order/admin-module/api/*"], ["packages/modules/order/src/api/*"]);
+    assert.equal(tsconfig.compilerOptions.paths["@business/admin-module/*"], undefined);
+    assert.deepEqual(tsconfig.compilerOptions.paths["@business/admin-module/api/*"], ["packages/modules/business/src/api/*"]);
+    assert.deepEqual(tsconfig.compilerOptions.paths["@report/admin-module/api/*"], ["packages/modules/report/src/api/*"]);
 
     const workspacePackageJson = JSON.parse(await readFile(join(target, "package.json"), "utf8"));
     assert.match(workspacePackageJson.devDependencies.sass, /^\^\d+\.\d+\.\d+$/);
-    assert.match(workspacePackageJson.scripts["build:package"], /--filter=@shop\/admin-module/);
-    assert.match(workspacePackageJson.scripts["build:package"], /--filter=@order\/admin-module/);
+    assert.match(workspacePackageJson.scripts["build:package"], /--filter=@business\/admin-module/);
+    assert.match(workspacePackageJson.scripts["build:package"], /--filter=@report\/admin-module/);
   } finally {
     await rm(root, { recursive: true, force: true });
   }
@@ -143,8 +143,8 @@ test("发布目录中的 CLI 不依赖仓库兄弟 core 包", async () => {
 test("拒绝覆盖已存在的目标目录", async () => {
   const root = await mkdtemp(join(tmpdir(), "kratos-admin-cli-"));
   try {
-    await createBusinessWorkspace({ cwd: root, projectName: "order-admin", moduleNames: ["order"] });
-    await assert.rejects(createBusinessWorkspace({ cwd: root, projectName: "order-admin", moduleNames: ["order"] }), /拒绝覆盖/);
+    await createBusinessWorkspace({ cwd: root, projectName: "business-admin", moduleNames: ["business"] });
+    await assert.rejects(createBusinessWorkspace({ cwd: root, projectName: "business-admin", moduleNames: ["business"] }), /拒绝覆盖/);
   } finally {
     await rm(root, { recursive: true, force: true });
   }
@@ -154,9 +154,9 @@ test("命令行支持逗号分隔创建多个业务模块", async () => {
   const root = await mkdtemp(join(tmpdir(), "kratos-admin-cli-"));
   try {
     const target = join(root, "multi-admin");
-    await runCli(["create", target, "--module", "shop,order"]);
-    await stat(join(target, "packages/modules/shop/src/module.ts"));
-    await stat(join(target, "packages/modules/order/src/module.ts"));
+    await runCli(["create", target, "--module", "business,report"]);
+    await stat(join(target, "packages/modules/business/src/module.ts"));
+    await stat(join(target, "packages/modules/report/src/module.ts"));
   } finally {
     await rm(root, { recursive: true, force: true });
   }
@@ -168,7 +168,7 @@ test("CLI 直接生成本地 system 并保留内置源码扫描与语言资源",
     const target = await createBusinessWorkspace({
       cwd: root,
       projectName: "admin",
-      moduleNames: ["system", "order"],
+      moduleNames: ["system", "report"],
       kratosProject: true
     });
     const manifest = await readFile(join(target, "apps/admin/src/module-manifest.ts"), "utf8");
@@ -176,12 +176,12 @@ test("CLI 直接生成本地 system 并保留内置源码扫描与语言资源",
     assert.match(manifest, /adminBuildModules[\s\S]*@liujitcn\/kratos-admin-system/);
     const module = await readFile(join(target, "packages/modules/system/src/module.ts"), "utf8");
     assert.match(module, /baseSystemAdminModule.messages/);
-    for (const name of ["system", "order"]) {
+    for (const name of ["system", "report"]) {
       const locales = await readFile(join(target, `packages/modules/${name}/src/locales/generated.ts`), "utf8");
       for (const locale of ["zh-CN", "en-US", "zh-TW", "ja-JP"]) assert.ok(locales.includes(locale));
     }
     await execFileAsync(process.execPath, [join(target, "scripts/sync-locales.mjs")]);
-    assert.match(await readFile(join(root, "Makefile"), "utf8"), /BUSINESS_MODULES := system order/);
+    assert.match(await readFile(join(root, "Makefile"), "utf8"), /BUSINESS_MODULES := system report/);
     assert.match(await readFile(join(target, "apps/admin/vite.config.ts"), "utf8"), /backend\/data\/admin/);
   } finally {
     await rm(root, { recursive: true, force: true });

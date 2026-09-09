@@ -137,6 +137,12 @@ const formFields = computed<ProFormField[]>(() => [
     props: { min: 1, max: 1440, precision: 0 }
   },
   {
+    prop: "allow_concurrent_login",
+    label: t("system.base.login_policy.field.allow_concurrent_login"),
+    component: "switch",
+    props: { activeText: t("common.status.enabled"), inactiveText: t("common.status.disabled") }
+  },
+  {
     prop: "password_min_length",
     label: t("system.base.login_policy.field.password_min_length"),
     component: "input-number",
@@ -161,6 +167,12 @@ const formFields = computed<ProFormField[]>(() => [
     props: { min: 0, max: 3650, precision: 0 }
   },
   {
+    prop: "mfa_remember_days",
+    label: t("system.base.login_policy.field.mfa_remember_days"),
+    component: "input-number",
+    props: { min: 0, max: 90, precision: 0 }
+  },
+  {
     prop: "initial_password",
     label: t("system.base.login_policy.field.initial_password"),
     component: "password",
@@ -182,6 +194,7 @@ const formRules = computed(() => ({
     { required: true, message: t("system.base.login_policy.validation.password_min_complexity_classes"), trigger: "change" }
   ],
   password_max_age_days: [{ required: true, message: t("system.base.login_policy.validation.password_max_age_days"), trigger: "change" }]
+  ,mfa_remember_days: [{ required: true, message: t("system.base.login_policy.validation.mfa_remember_days"), trigger: "change" }]
 }));
 
 const columns = computed<ColumnProps[]>(() => [
@@ -207,6 +220,18 @@ const columns = computed<ColumnProps[]>(() => [
   },
   { prop: "max_failed_attempts", label: t("system.base.login_policy.field.max_failed_attempts"), width: 110, align: "right" },
   { prop: "lock_duration_minutes", label: t("system.base.login_policy.field.lock_duration_minutes"), width: 110, align: "right" },
+  {
+    prop: "allow_concurrent_login",
+    label: t("system.base.login_policy.field.allow_concurrent_login"),
+    width: 130,
+    cellType: "status",
+    statusProps: {
+      activeValue: true,
+      inactiveValue: false,
+      activeText: t("common.status.enabled"),
+      inactiveText: t("common.status.disabled")
+    }
+  },
   { prop: "password_min_length", label: t("system.base.login_policy.field.password_min_length"), width: 110, align: "right" },
   { prop: "password_history_count", label: t("system.base.login_policy.field.password_history_count"), width: 110, align: "right" },
   {
@@ -216,6 +241,7 @@ const columns = computed<ColumnProps[]>(() => [
     align: "right"
   },
   { prop: "password_max_age_days", label: t("system.base.login_policy.field.password_max_age_days"), width: 110, align: "right" },
+  { prop: "mfa_remember_days", label: t("system.base.login_policy.field.mfa_remember_days"), width: 130, align: "right" },
   {
     prop: "status",
     label: t("common.field.status"),
@@ -312,10 +338,12 @@ function defaultForm(): BaseLoginPolicyFormState {
     user_id: 0,
     max_failed_attempts: 5,
     lock_duration_minutes: 15,
+    allow_concurrent_login: false,
     password_min_length: 8,
     password_history_count: 3,
     password_min_complexity_classes: 3,
     password_max_age_days: 90,
+    mfa_remember_days: 0,
     initial_password: "",
     status: Status.STATUS_ENABLE,
     rules: []

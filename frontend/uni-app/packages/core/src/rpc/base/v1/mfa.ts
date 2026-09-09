@@ -19,6 +19,8 @@ export interface VerifyMfaRequest {
   recovery_code: string;
   /** WebAuthn认证响应JSON */
   webauthn_response_json: string;
+  /** 是否记住当前设备 */
+  remember_device: boolean;
 }
 
 /** 登录强制绑定多因素认证请求。 */

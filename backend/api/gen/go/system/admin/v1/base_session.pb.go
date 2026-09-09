@@ -25,6 +25,88 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 查询本人全部会话请求。
+type ListCurrentBaseSessionsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListCurrentBaseSessionsRequest) Reset() {
+	*x = ListCurrentBaseSessionsRequest{}
+	mi := &file_system_admin_v1_base_session_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListCurrentBaseSessionsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListCurrentBaseSessionsRequest) ProtoMessage() {}
+
+func (x *ListCurrentBaseSessionsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_session_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListCurrentBaseSessionsRequest.ProtoReflect.Descriptor instead.
+func (*ListCurrentBaseSessionsRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_session_proto_rawDescGZIP(), []int{0}
+}
+
+// 本人有效会话列表。
+type ListCurrentBaseSessionsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Sessions      []*BaseSession         `protobuf:"bytes,1,rep,name=sessions,proto3" json:"sessions,omitempty"` // 本人有效会话列表
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListCurrentBaseSessionsResponse) Reset() {
+	*x = ListCurrentBaseSessionsResponse{}
+	mi := &file_system_admin_v1_base_session_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListCurrentBaseSessionsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListCurrentBaseSessionsResponse) ProtoMessage() {}
+
+func (x *ListCurrentBaseSessionsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_session_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListCurrentBaseSessionsResponse.ProtoReflect.Descriptor instead.
+func (*ListCurrentBaseSessionsResponse) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_session_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ListCurrentBaseSessionsResponse) GetSessions() []*BaseSession {
+	if x != nil {
+		return x.Sessions
+	}
+	return nil
+}
+
 // 查询当前会话请求参数。
 type GetCurrentBaseSessionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -34,7 +116,7 @@ type GetCurrentBaseSessionRequest struct {
 
 func (x *GetCurrentBaseSessionRequest) Reset() {
 	*x = GetCurrentBaseSessionRequest{}
-	mi := &file_system_admin_v1_base_session_proto_msgTypes[0]
+	mi := &file_system_admin_v1_base_session_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -46,7 +128,7 @@ func (x *GetCurrentBaseSessionRequest) String() string {
 func (*GetCurrentBaseSessionRequest) ProtoMessage() {}
 
 func (x *GetCurrentBaseSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_session_proto_msgTypes[0]
+	mi := &file_system_admin_v1_base_session_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -59,7 +141,7 @@ func (x *GetCurrentBaseSessionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCurrentBaseSessionRequest.ProtoReflect.Descriptor instead.
 func (*GetCurrentBaseSessionRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_session_proto_rawDescGZIP(), []int{0}
+	return file_system_admin_v1_base_session_proto_rawDescGZIP(), []int{2}
 }
 
 // 撤销全部会话请求参数。
@@ -71,7 +153,7 @@ type RevokeAllBaseSessionsRequest struct {
 
 func (x *RevokeAllBaseSessionsRequest) Reset() {
 	*x = RevokeAllBaseSessionsRequest{}
-	mi := &file_system_admin_v1_base_session_proto_msgTypes[1]
+	mi := &file_system_admin_v1_base_session_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -83,7 +165,7 @@ func (x *RevokeAllBaseSessionsRequest) String() string {
 func (*RevokeAllBaseSessionsRequest) ProtoMessage() {}
 
 func (x *RevokeAllBaseSessionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_session_proto_msgTypes[1]
+	mi := &file_system_admin_v1_base_session_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -96,12 +178,180 @@ func (x *RevokeAllBaseSessionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RevokeAllBaseSessionsRequest.ProtoReflect.Descriptor instead.
 func (*RevokeAllBaseSessionsRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_session_proto_rawDescGZIP(), []int{1}
+	return file_system_admin_v1_base_session_proto_rawDescGZIP(), []int{3}
+}
+
+// 在线会话分页查询请求。
+type PageOnlineBaseSessionsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Keyword       string                 `protobuf:"bytes,1,opt,name=keyword,proto3" json:"keyword,omitempty"`                         // 关键字
+	TenantCode    string                 `protobuf:"bytes,2,opt,name=tenant_code,json=tenantCode,proto3" json:"tenant_code,omitempty"` // 租户编码
+	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`       // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`    // 每页行数
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PageOnlineBaseSessionsRequest) Reset() {
+	*x = PageOnlineBaseSessionsRequest{}
+	mi := &file_system_admin_v1_base_session_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PageOnlineBaseSessionsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PageOnlineBaseSessionsRequest) ProtoMessage() {}
+
+func (x *PageOnlineBaseSessionsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_session_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PageOnlineBaseSessionsRequest.ProtoReflect.Descriptor instead.
+func (*PageOnlineBaseSessionsRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_session_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *PageOnlineBaseSessionsRequest) GetKeyword() string {
+	if x != nil {
+		return x.Keyword
+	}
+	return ""
+}
+
+func (x *PageOnlineBaseSessionsRequest) GetTenantCode() string {
+	if x != nil {
+		return x.TenantCode
+	}
+	return ""
+}
+
+func (x *PageOnlineBaseSessionsRequest) GetPageNum() int64 {
+	if x != nil {
+		return x.PageNum
+	}
+	return 0
+}
+
+func (x *PageOnlineBaseSessionsRequest) GetPageSize() int64 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
+// 在线会话分页响应。
+type PageOnlineBaseSessionsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Sessions      []*BaseSession         `protobuf:"bytes,1,rep,name=sessions,proto3" json:"sessions,omitempty"` // 在线会话列表
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`      // 总数
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PageOnlineBaseSessionsResponse) Reset() {
+	*x = PageOnlineBaseSessionsResponse{}
+	mi := &file_system_admin_v1_base_session_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PageOnlineBaseSessionsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PageOnlineBaseSessionsResponse) ProtoMessage() {}
+
+func (x *PageOnlineBaseSessionsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_session_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PageOnlineBaseSessionsResponse.ProtoReflect.Descriptor instead.
+func (*PageOnlineBaseSessionsResponse) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_session_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *PageOnlineBaseSessionsResponse) GetSessions() []*BaseSession {
+	if x != nil {
+		return x.Sessions
+	}
+	return nil
+}
+
+func (x *PageOnlineBaseSessionsResponse) GetTotal() int32 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+// 下线指定会话请求。
+type RevokeBaseSessionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"` // 会话ID
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RevokeBaseSessionRequest) Reset() {
+	*x = RevokeBaseSessionRequest{}
+	mi := &file_system_admin_v1_base_session_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RevokeBaseSessionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RevokeBaseSessionRequest) ProtoMessage() {}
+
+func (x *RevokeBaseSessionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_session_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RevokeBaseSessionRequest.ProtoReflect.Descriptor instead.
+func (*RevokeBaseSessionRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_session_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *RevokeBaseSessionRequest) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
 }
 
 // 当前会话信息。
 type BaseSession struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	SessionId     string                 `protobuf:"bytes,9,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`    // 会话ID
 	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`            // 用户ID
 	UserName      string                 `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`       // 用户账号
 	TenantCode    string                 `protobuf:"bytes,3,opt,name=tenant_code,json=tenantCode,proto3" json:"tenant_code,omitempty"` // 租户编码
@@ -110,13 +360,14 @@ type BaseSession struct {
 	UserAgent     string                 `protobuf:"bytes,6,opt,name=user_agent,json=userAgent,proto3" json:"user_agent,omitempty"`    // 用户代理
 	IssuedAt      string                 `protobuf:"bytes,7,opt,name=issued_at,json=issuedAt,proto3" json:"issued_at,omitempty"`       // 签发时间
 	ExpiresIn     int64                  `protobuf:"varint,8,opt,name=expires_in,json=expiresIn,proto3" json:"expires_in,omitempty"`   // 令牌有效期（秒）
+	Current       bool                   `protobuf:"varint,10,opt,name=current,proto3" json:"current,omitempty"`                       // 是否为当前请求会话
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *BaseSession) Reset() {
 	*x = BaseSession{}
-	mi := &file_system_admin_v1_base_session_proto_msgTypes[2]
+	mi := &file_system_admin_v1_base_session_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -128,7 +379,7 @@ func (x *BaseSession) String() string {
 func (*BaseSession) ProtoMessage() {}
 
 func (x *BaseSession) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_session_proto_msgTypes[2]
+	mi := &file_system_admin_v1_base_session_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -141,7 +392,14 @@ func (x *BaseSession) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseSession.ProtoReflect.Descriptor instead.
 func (*BaseSession) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_session_proto_rawDescGZIP(), []int{2}
+	return file_system_admin_v1_base_session_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *BaseSession) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
 }
 
 func (x *BaseSession) GetUserId() int64 {
@@ -200,14 +458,38 @@ func (x *BaseSession) GetExpiresIn() int64 {
 	return 0
 }
 
+func (x *BaseSession) GetCurrent() bool {
+	if x != nil {
+		return x.Current
+	}
+	return false
+}
+
 var File_system_admin_v1_base_session_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_session_proto_rawDesc = "" +
 	"\n" +
-	"\"system/admin/v1/base_session.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x1e\n" +
+	"\"system/admin/v1/base_session.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\" \n" +
+	"\x1eListCurrentBaseSessionsRequest\"{\n" +
+	"\x1fListCurrentBaseSessionsResponse\x12X\n" +
+	"\bsessions\x18\x01 \x03(\v2\x1c.system.admin.v1.BaseSessionB\x1e\xbaG\x1b\x92\x02\x18本人有效会话列表R\bsessions\"\x1e\n" +
 	"\x1cGetCurrentBaseSessionRequest\"\x1e\n" +
-	"\x1cRevokeAllBaseSessionsRequest\"\x9b\x03\n" +
-	"\vBaseSession\x12'\n" +
+	"\x1cRevokeAllBaseSessionsRequest\"\x94\x02\n" +
+	"\x1dPageOnlineBaseSessionsRequest\x12F\n" +
+	"\akeyword\x18\x01 \x01(\tB,\xbaG)\x92\x02&账号、租户、IP或设备关键字R\akeyword\x123\n" +
+	"\vtenant_code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户编码R\n" +
+	"tenantCode\x129\n" +
+	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12;\n" +
+	"\tpage_size\x18f \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页行数R\bpageSize\"\x98\x01\n" +
+	"\x1ePageOnlineBaseSessionsResponse\x12R\n" +
+	"\bsessions\x18\x01 \x03(\v2\x1c.system.admin.v1.BaseSessionB\x18\xbaG\x15\x92\x02\x12在线会话列表R\bsessions\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"I\n" +
+	"\x18RevokeBaseSessionRequest\x12-\n" +
+	"\n" +
+	"session_id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\tsessionId\"\x87\x04\n" +
+	"\vBaseSession\x12-\n" +
+	"\n" +
+	"session_id\x18\t \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\tsessionId\x12'\n" +
 	"\auser_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x06userId\x12/\n" +
 	"\tuser_name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x123\n" +
 	"\vtenant_code\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户编码R\n" +
@@ -218,10 +500,15 @@ const file_system_admin_v1_base_session_proto_rawDesc = "" +
 	"user_agent\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户代理R\tuserAgent\x12/\n" +
 	"\tissued_at\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f签发时间R\bissuedAt\x12=\n" +
 	"\n" +
-	"expires_in\x18\b \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18令牌有效期（秒）R\texpiresIn2\xba\x02\n" +
-	"\x12BaseSessionService\x12\x90\x01\n" +
+	"expires_in\x18\b \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18令牌有效期（秒）R\texpiresIn\x12;\n" +
+	"\acurrent\x18\n" +
+	" \x01(\bB!\xbaG\x1e\x92\x02\x1b是否为当前请求会话R\acurrent2\x9b\x06\n" +
+	"\x12BaseSessionService\x12\xad\x01\n" +
+	"\x17ListCurrentBaseSessions\x12/.system.admin.v1.ListCurrentBaseSessionsRequest\x1a0.system.admin.v1.ListCurrentBaseSessionsResponse\"/\x82\xd3\xe4\x93\x02)\x12'/api/v1/admin/base/session/current-user\x12\x90\x01\n" +
 	"\x15GetCurrentBaseSession\x12-.system.admin.v1.GetCurrentBaseSessionRequest\x1a\x1c.system.admin.v1.BaseSession\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1/admin/base/session/current\x12\x90\x01\n" +
-	"\x15RevokeAllBaseSessions\x12-.system.admin.v1.RevokeAllBaseSessionsRequest\x1a\x16.google.protobuf.Empty\"0\x82\xd3\xe4\x93\x02*:\x01*\x1a%/api/v1/admin/base/session/revoke-allB\xd2\x01\n" +
+	"\x15RevokeAllBaseSessions\x12-.system.admin.v1.RevokeAllBaseSessionsRequest\x1a\x16.google.protobuf.Empty\"0\x82\xd3\xe4\x93\x02*:\x01*\x1a%/api/v1/admin/base/session/revoke-all\x12\xa4\x01\n" +
+	"\x16PageOnlineBaseSessions\x12..system.admin.v1.PageOnlineBaseSessionsRequest\x1a/.system.admin.v1.PageOnlineBaseSessionsResponse\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/admin/base/session/online\x12\x87\x01\n" +
+	"\x11RevokeBaseSession\x12).system.admin.v1.RevokeBaseSessionRequest\x1a\x16.google.protobuf.Empty\"/\x82\xd3\xe4\x93\x02)*'/api/v1/admin/base/session/{session_id}B\xd2\x01\n" +
 	"\x13com.system.admin.v1B\x10BaseSessionProtoP\x01ZKgithub.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1;adminv1\xa2\x02\x03SAX\xaa\x02\x0fSystem.Admin.V1\xca\x02\x0fSystem\\Admin\\V1\xe2\x02\x1bSystem\\Admin\\V1\\GPBMetadata\xea\x02\x11System::Admin::V1b\x06proto3"
 
 var (
@@ -236,23 +523,36 @@ func file_system_admin_v1_base_session_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_base_session_proto_rawDescData
 }
 
-var file_system_admin_v1_base_session_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_system_admin_v1_base_session_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_system_admin_v1_base_session_proto_goTypes = []any{
-	(*GetCurrentBaseSessionRequest)(nil), // 0: system.admin.v1.GetCurrentBaseSessionRequest
-	(*RevokeAllBaseSessionsRequest)(nil), // 1: system.admin.v1.RevokeAllBaseSessionsRequest
-	(*BaseSession)(nil),                  // 2: system.admin.v1.BaseSession
-	(*emptypb.Empty)(nil),                // 3: google.protobuf.Empty
+	(*ListCurrentBaseSessionsRequest)(nil),  // 0: system.admin.v1.ListCurrentBaseSessionsRequest
+	(*ListCurrentBaseSessionsResponse)(nil), // 1: system.admin.v1.ListCurrentBaseSessionsResponse
+	(*GetCurrentBaseSessionRequest)(nil),    // 2: system.admin.v1.GetCurrentBaseSessionRequest
+	(*RevokeAllBaseSessionsRequest)(nil),    // 3: system.admin.v1.RevokeAllBaseSessionsRequest
+	(*PageOnlineBaseSessionsRequest)(nil),   // 4: system.admin.v1.PageOnlineBaseSessionsRequest
+	(*PageOnlineBaseSessionsResponse)(nil),  // 5: system.admin.v1.PageOnlineBaseSessionsResponse
+	(*RevokeBaseSessionRequest)(nil),        // 6: system.admin.v1.RevokeBaseSessionRequest
+	(*BaseSession)(nil),                     // 7: system.admin.v1.BaseSession
+	(*emptypb.Empty)(nil),                   // 8: google.protobuf.Empty
 }
 var file_system_admin_v1_base_session_proto_depIdxs = []int32{
-	0, // 0: system.admin.v1.BaseSessionService.GetCurrentBaseSession:input_type -> system.admin.v1.GetCurrentBaseSessionRequest
-	1, // 1: system.admin.v1.BaseSessionService.RevokeAllBaseSessions:input_type -> system.admin.v1.RevokeAllBaseSessionsRequest
-	2, // 2: system.admin.v1.BaseSessionService.GetCurrentBaseSession:output_type -> system.admin.v1.BaseSession
-	3, // 3: system.admin.v1.BaseSessionService.RevokeAllBaseSessions:output_type -> google.protobuf.Empty
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	7, // 0: system.admin.v1.ListCurrentBaseSessionsResponse.sessions:type_name -> system.admin.v1.BaseSession
+	7, // 1: system.admin.v1.PageOnlineBaseSessionsResponse.sessions:type_name -> system.admin.v1.BaseSession
+	0, // 2: system.admin.v1.BaseSessionService.ListCurrentBaseSessions:input_type -> system.admin.v1.ListCurrentBaseSessionsRequest
+	2, // 3: system.admin.v1.BaseSessionService.GetCurrentBaseSession:input_type -> system.admin.v1.GetCurrentBaseSessionRequest
+	3, // 4: system.admin.v1.BaseSessionService.RevokeAllBaseSessions:input_type -> system.admin.v1.RevokeAllBaseSessionsRequest
+	4, // 5: system.admin.v1.BaseSessionService.PageOnlineBaseSessions:input_type -> system.admin.v1.PageOnlineBaseSessionsRequest
+	6, // 6: system.admin.v1.BaseSessionService.RevokeBaseSession:input_type -> system.admin.v1.RevokeBaseSessionRequest
+	1, // 7: system.admin.v1.BaseSessionService.ListCurrentBaseSessions:output_type -> system.admin.v1.ListCurrentBaseSessionsResponse
+	7, // 8: system.admin.v1.BaseSessionService.GetCurrentBaseSession:output_type -> system.admin.v1.BaseSession
+	8, // 9: system.admin.v1.BaseSessionService.RevokeAllBaseSessions:output_type -> google.protobuf.Empty
+	5, // 10: system.admin.v1.BaseSessionService.PageOnlineBaseSessions:output_type -> system.admin.v1.PageOnlineBaseSessionsResponse
+	8, // 11: system.admin.v1.BaseSessionService.RevokeBaseSession:output_type -> google.protobuf.Empty
+	7, // [7:12] is the sub-list for method output_type
+	2, // [2:7] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_system_admin_v1_base_session_proto_init() }
@@ -266,7 +566,7 @@ func file_system_admin_v1_base_session_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_base_session_proto_rawDesc), len(file_system_admin_v1_base_session_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

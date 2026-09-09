@@ -5,6 +5,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -26,6 +27,7 @@ import (
 	"github.com/liujitcn/gorm-kit/repository"
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/dto"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
 	_const "github.com/liujitcn/kratos-admin/backend/internal/const"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
@@ -34,7 +36,9 @@ import (
 	"github.com/liujitcn/kratos-core/errorsx"
 	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
+	"github.com/liujitcn/kratos-kit/cache/store"
 	"github.com/liujitcn/kratos-kit/sdk"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gen"
 	"gorm.io/gorm"
 )
@@ -60,6 +64,7 @@ const (
 	defaultMfaTotpSecretSize       = 20
 	mfaEncryptionKeyName           = "kratos-kit:mfa/encryption"
 	mfaDisableChallengePrefix      = "mfa:disable:"
+	mfaTrustedDevicePrefix         = "mfa:trusted-device:"
 )
 
 var mfaRecoveryAlphabet = []byte("ABCDEFGHJKLMNPQRSTUVWXYZ23456789")
@@ -193,6 +198,20 @@ func (c *MfaCase) PrepareLogin(ctx context.Context, user *models.BaseUser) (*bas
 	if policy == mfaPolicyOptional && !enabled {
 		return nil, nil
 	}
+	policySet, err := loginpolicy.LoadFromCacheStrict(c.Cache)
+	if err != nil {
+		return nil, errorsx.Internal("读取登录策略失败").WithCause(err)
+	}
+	rememberDays := policySet.MfaRememberDaysFor(user.TenantID, user.ID)
+	if enabled {
+		trusted, err := c.isTrustedDevice(user.ID, rememberDays, loginDevice(ctx))
+		if err != nil {
+			return nil, errorsx.Internal("读取 MFA 信任设备失败").WithCause(err)
+		}
+		if trusted {
+			return nil, nil
+		}
+	}
 	if enabled {
 		if method == mfaMethodWebAuthn {
 			if !mfaWebAuthnAvailable(ctx) {
@@ -201,11 +220,11 @@ func (c *MfaCase) PrepareLogin(ctx context.Context, user *models.BaseUser) (*bas
 				if err != nil {
 					return nil, errorsx.Internal("查询 WebAuthn 多因素认证配置失败").WithCause(err)
 				}
-				return c.beginMfaLoginChallenge(user, method, mfa.ID)
+				return c.beginMfaLoginChallenge(user, method, mfa.ID, rememberDays)
 			}
-			return c.beginWebAuthnLogin(ctx, user)
+			return c.beginWebAuthnLogin(ctx, user, rememberDays)
 		}
-		return c.beginMfaLoginChallenge(user, method, 0)
+		return c.beginMfaLoginChallenge(user, method, 0, rememberDays)
 	}
 	if policy == mfaPolicyAllRequired {
 		setupTicket := id.NewGUIDv4NoHyphen()
@@ -224,7 +243,7 @@ func (c *MfaCase) PrepareLogin(ctx context.Context, user *models.BaseUser) (*bas
 }
 
 // beginMfaLoginChallenge 创建 TOTP 或恢复码登录挑战。
-func (c *MfaCase) beginMfaLoginChallenge(user *models.BaseUser, method string, mfaID int64) (*basev1.LoginResponse, error) {
+func (c *MfaCase) beginMfaLoginChallenge(user *models.BaseUser, method string, mfaID int64, rememberDays int32) (*basev1.LoginResponse, error) {
 	challengeID := id.NewGUIDv4NoHyphen()
 	payload := dto.MfaLoginChallenge{
 		UserID:    user.ID,
@@ -237,10 +256,11 @@ func (c *MfaCase) beginMfaLoginChallenge(user *models.BaseUser, method string, m
 		return nil, errorsx.Internal("创建多因素认证挑战失败").WithCause(err)
 	}
 	return &basev1.LoginResponse{
-		Status:         basev1.LoginStatus_LOGIN_STATUS_MFA_REQUIRED,
-		MfaChallengeId: challengeID,
-		MfaExpiresIn:   int64(c.runtimeConfig.loginChallengeExpire / time.Second),
-		MfaMethod:      method,
+		Status:          basev1.LoginStatus_LOGIN_STATUS_MFA_REQUIRED,
+		MfaChallengeId:  challengeID,
+		MfaExpiresIn:    int64(c.runtimeConfig.loginChallengeExpire / time.Second),
+		MfaMethod:       method,
+		MfaRememberDays: rememberDays,
 	}, nil
 }
 
@@ -295,7 +315,7 @@ func (c *MfaCase) resolveEnabledMethod(ctx context.Context, userID int64, config
 }
 
 // beginWebAuthnLogin 创建 WebAuthn 登录挑战并保存服务端会话数据。
-func (c *MfaCase) beginWebAuthnLogin(ctx context.Context, user *models.BaseUser) (*basev1.LoginResponse, error) {
+func (c *MfaCase) beginWebAuthnLogin(ctx context.Context, user *models.BaseUser, rememberDays int32) (*basev1.LoginResponse, error) {
 	if c.webAuthnErr != nil || c.webAuthn == nil {
 		return nil, errorsx.Internal("WebAuthn 配置无效").WithCause(c.webAuthnErr)
 	}
@@ -339,6 +359,7 @@ func (c *MfaCase) beginWebAuthnLogin(ctx context.Context, user *models.BaseUser)
 		MfaExpiresIn:           int64(c.runtimeConfig.loginChallengeExpire / time.Second),
 		MfaMethod:              mfaMethodWebAuthn,
 		MfaWebauthnOptionsJson: string(options),
+		MfaRememberDays:        rememberDays,
 	}, nil
 }
 
@@ -376,9 +397,20 @@ func (c *MfaCase) VerifyLoginChallenge(ctx context.Context, req *basev1.VerifyMf
 			if err = c.Cache.Del(mfaLoginChallengeAttemptsKeyFromKey(challengeKey)); err != nil {
 				return nil, errorsx.Internal("消费多因素认证挑战失败").WithCause(err)
 			}
+			if err = c.rememberDevice(ctx, user, req.GetRememberDevice()); err != nil {
+				return nil, err
+			}
 			return user, nil
 		}
-		return c.verifyWebAuthnLogin(ctx, req.GetWebauthnResponseJson(), challengeKey, challenge)
+		var user *models.BaseUser
+		user, err = c.verifyWebAuthnLogin(ctx, req.GetWebauthnResponseJson(), challengeKey, challenge)
+		if err != nil {
+			return nil, err
+		}
+		if err = c.rememberDevice(ctx, user, req.GetRememberDevice()); err != nil {
+			return nil, err
+		}
+		return user, nil
 	}
 	var user *models.BaseUser
 	user, err = c.baseUserCase.FindByID(ctx, challenge.UserID)
@@ -407,7 +439,45 @@ func (c *MfaCase) VerifyLoginChallenge(ctx context.Context, req *basev1.VerifyMf
 	if err = c.Cache.Del(mfaLoginChallengeAttemptsKey(req.GetChallengeId())); err != nil {
 		return nil, errorsx.Internal("消费多因素认证挑战失败").WithCause(err)
 	}
+	if err = c.rememberDevice(ctx, user, req.GetRememberDevice()); err != nil {
+		return nil, err
+	}
 	return user, nil
+}
+
+// isTrustedDevice 判断当前请求设备是否仍在 MFA 免验证有效期内。
+func (c *MfaCase) isTrustedDevice(userID int64, rememberDays int32, device string) (bool, error) {
+	if rememberDays <= 0 {
+		return false, nil
+	}
+	if device == "" {
+		return false, nil
+	}
+	_, err := c.Cache.Get(mfaTrustedDeviceKey(userID, device))
+	if err != nil {
+		if errors.Is(err, store.ErrNotFound) || errors.Is(err, redis.Nil) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
+// rememberDevice 在 MFA 校验成功后记录当前设备的信任状态。
+func (c *MfaCase) rememberDevice(ctx context.Context, user *models.BaseUser, remember bool) error {
+	if !remember {
+		return nil
+	}
+	policySet, err := loginpolicy.LoadFromCacheStrict(c.Cache)
+	if err != nil {
+		return errorsx.Internal("读取登录策略失败").WithCause(err)
+	}
+	rememberDays := policySet.MfaRememberDaysFor(user.TenantID, user.ID)
+	device := loginDevice(ctx)
+	if rememberDays <= 0 || device == "" {
+		return nil
+	}
+	return c.Cache.Set(mfaTrustedDeviceKey(user.ID, device), "1", time.Duration(rememberDays)*24*time.Hour)
 }
 
 // recordLoginChallengeFailure 记录 MFA 登录失败次数并在达到上限时消费挑战。
@@ -1543,6 +1613,12 @@ func mfaLoginChallengeAttemptsKeyFromKey(challengeKey string) string {
 // mfaLoginChallengeAttemptsKey 生成指定登录挑战的失败计数缓存键。
 func mfaLoginChallengeAttemptsKey(challengeID string) string {
 	return mfaLoginChallengeAttemptsKeyFromKey(mfaLoginChallengeKey(challengeID))
+}
+
+// mfaTrustedDeviceKey 生成用户设备信任状态缓存键。
+func mfaTrustedDeviceKey(userID int64, device string) string {
+	deviceHash := sha256.Sum256([]byte(device))
+	return fmt.Sprintf("%s%d:%x", mfaTrustedDevicePrefix, userID, deviceHash[:])
 }
 
 // mfaDisableChallengeKey 生成禁用挑战缓存键。

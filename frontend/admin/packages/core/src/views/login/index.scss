@@ -1,4 +1,8 @@
 .login-container {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
   height: 100%;
   min-height: 550px;
   background-color: #eeeeee;
@@ -9,6 +13,8 @@
     position: relative;
     box-sizing: border-box;
     display: flex;
+    min-width: 0;
+    max-width: calc(100% - 32px);
     align-items: center;
     justify-content: space-around;
     width: 96.5%;
@@ -28,6 +34,9 @@
       right: 72px;
     }
     .login-left {
+      min-width: 0;
+      max-width: 800px;
+      flex: 1 1 800px;
       width: 800px;
       margin-right: 10px;
       .login-left-img {
@@ -36,7 +45,10 @@
       }
     }
     .login-form {
+      position: relative;
       box-sizing: border-box;
+      min-width: 0;
+      flex: 0 1 420px;
       width: 420px;
       max-width: 100%;
       padding: 50px 40px 45px;
@@ -82,7 +94,8 @@
         margin-top: 40px;
         white-space: nowrap;
         .el-button {
-          width: 185px;
+          width: calc(50% - 6px);
+          min-width: 0;
         }
       }
     }
@@ -93,11 +106,20 @@
   .login-left {
     display: none;
   }
+
+  .login-container .login-box {
+    justify-content: center;
+  }
 }
 
 @media screen and (width <= 600px) {
+  .login-container .login-box {
+    max-width: calc(100% - 16px);
+    padding: 0 8px;
+  }
+
   .login-form {
-    width: 97% !important;
+    width: 100% !important;
     padding: 40px 24px 32px !important;
     .login-logo {
       margin-bottom: 32px !important;

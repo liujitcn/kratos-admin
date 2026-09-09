@@ -6,6 +6,7 @@ package adminv1
 import (
 	context "context"
 
+	validate "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	redact "github.com/liujitcn/kratos-kit/redact"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -19,6 +20,7 @@ var (
 	_ redact.Redactor
 	_ codes.Code
 	_ status.Status
+	_ validate.Rule
 )
 
 // RegisterRedactedBaseLoginLogServiceServer wraps the BaseLoginLogServiceServer with the redacted server and registers the service in GRPC
@@ -49,6 +51,17 @@ type redactedBaseLoginLogServiceServer struct {
 	bypass redact.Bypass
 }
 
+// PageCurrentUserLoginLog is the redacted wrapper for the actual BaseLoginLogServiceServer.PageCurrentUserLoginLog method
+// Unary RPC
+func (s *redactedBaseLoginLogServiceServer) PageCurrentUserLoginLog(ctx context.Context, in *PageCurrentUserLoginLogRequest) (*PageBaseLoginLogResponse, error) {
+	res, err := s.srv.PageCurrentUserLoginLog(ctx, in)
+	if !s.bypass.CheckInternal(ctx) {
+		// Apply redaction to the response
+		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/system.admin.v1.BaseLoginLogService/PageCurrentUserLoginLog"), redact.DirectionResponse), nil, res)
+	}
+	return res, err
+}
+
 // PageBaseLoginLog is the redacted wrapper for the actual BaseLoginLogServiceServer.PageBaseLoginLog method
 // Unary RPC
 func (s *redactedBaseLoginLogServiceServer) PageBaseLoginLog(ctx context.Context, in *PageBaseLoginLogRequest) (*PageBaseLoginLogResponse, error) {
@@ -69,6 +82,20 @@ func (s *redactedBaseLoginLogServiceServer) GetBaseLoginLog(ctx context.Context,
 		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/system.admin.v1.BaseLoginLogService/GetBaseLoginLog"), redact.DirectionResponse), nil, res)
 	}
 	return res, err
+}
+
+// Ensure PageCurrentUserLoginLogRequest implements the Redactor interface at compile time.
+var _ redact.Redactor = (*PageCurrentUserLoginLogRequest)(nil)
+
+// Redact method implementation for PageCurrentUserLoginLogRequest
+func (x *PageCurrentUserLoginLogRequest) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: PageNum
+
+	// Safe field: PageSize
 }
 
 // Ensure PageBaseLoginLogRequest implements the Redactor interface at compile time.

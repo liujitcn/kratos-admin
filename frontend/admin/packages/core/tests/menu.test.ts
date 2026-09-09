@@ -12,7 +12,7 @@ test("无路径目录使用自身标题生成唯一菜单索引", () => {
   };
   const productCenter: RouteItem = {
     path: "",
-    meta: { title: "商品中心", params: [] },
+    meta: { title: "业务中心", params: [] },
     type: 1,
     children: [supplierManagement]
   };

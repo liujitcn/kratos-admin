@@ -12,6 +12,7 @@ import (
 	biz2 "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/oauthsecret"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/sessionregistry"
 	biz3 "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
@@ -335,7 +336,12 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 	bizBaseDeptCase := biz2.NewBaseDeptCase(baseCase, baseDeptRepository)
 	mfa := config.ParseMfaConfig(config2)
 	mfaCase := biz2.NewMfaCase(baseCase, transaction, baseUserMFARepository, baseUserMFARecoveryRepository, baseUserMFATotpRepository, baseUserMFAWebauthnRepository, baseUserCase, configCase, userToken, mfa)
-	loginCase := biz2.NewLoginCase(baseCase, bizBaseDeptCase, bizBaseRoleCase, baseUserCase, baseTenantRepository, baseDictRepository, baseDictItemRepository, mfaCase, userToken)
+	loginLocker, cleanup2, err := sessionregistry.NewLoginLocker(config2)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	loginCase := biz2.NewLoginCase(baseCase, bizBaseDeptCase, bizBaseRoleCase, baseUserCase, baseTenantRepository, baseDictRepository, baseDictItemRepository, mfaCase, userToken, loginLocker)
 	loginService := base.NewLoginService(loginCase)
 	mfaService := base.NewMfaService(loginCase, mfaCase)
 	oauthCase := biz2.NewOauthCase(baseCase, transaction, baseThirdAccountCase, baseUserCase, bizBaseRoleCase, bizBaseDeptCase, loginCase, configCase, oauthManager)
@@ -429,10 +435,12 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 	}
 	modules, err := NewModules(baseServices, adminServices, services2, baseConfigCase, baseLoginPolicyCase, redactResolver)
 	if err != nil {
+		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
 	return modules, func() {
+		cleanup2()
 		cleanup()
 	}, nil
 }

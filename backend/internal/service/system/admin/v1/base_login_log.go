@@ -21,6 +21,16 @@ func NewBaseLoginLogService(baseLoginLogCase *biz.BaseLoginLogCase) *BaseLoginLo
 	return &BaseLoginLogService{baseLoginLogCase: baseLoginLogCase}
 }
 
+// PageCurrentUserLoginLog 查询当前用户本人的登录记录。
+func (s *BaseLoginLogService) PageCurrentUserLoginLog(ctx context.Context, req *adminv1.PageCurrentUserLoginLogRequest) (*adminv1.PageBaseLoginLogResponse, error) {
+	page, err := s.baseLoginLogCase.PageCurrentUserLoginLog(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("PageCurrentUserLoginLog %v", err))
+		return nil, errorsx.WrapInternal(err, "查询本人登录记录失败")
+	}
+	return page, nil
+}
+
 // PageBaseLoginLog 查询登录日志分页列表。
 func (s *BaseLoginLogService) PageBaseLoginLog(ctx context.Context, req *adminv1.PageBaseLoginLogRequest) (*adminv1.PageBaseLoginLogResponse, error) {
 	page, err := s.baseLoginLogCase.PageBaseLoginLog(ctx, req)

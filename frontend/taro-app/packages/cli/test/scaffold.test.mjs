@@ -104,7 +104,7 @@ test('生成可扩展的 Taro workspace、本地模块和发布模块清单', ()
 
 test('CLI 解析重复选项并拒绝未知参数', () => {
   const root = mkdtempSync(resolve(tmpdir(), 'kratos-taro-app-bin-'))
-  const target = resolve(root, 'shop-app')
+  const target = resolve(root, 'business-app')
   const bin = resolve(import.meta.dirname, '../bin/kratos-taro-app.mjs')
   try {
     const created = spawnSync(

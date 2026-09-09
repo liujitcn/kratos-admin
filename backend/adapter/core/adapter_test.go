@@ -8,7 +8,7 @@ import (
 	"io"
 	"testing"
 
-	coredata "github.com/liujitcn/kratos-core/data"
+	"github.com/liujitcn/kratos-core/data"
 	kitgorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -49,7 +49,7 @@ func TestAdaptersShareTransactionContext(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	var transaction coredata.Transaction
+	var transaction data.Transaction
 	transaction, err = NewTransaction(databases)
 	if err != nil {
 		t.Fatal(err)
@@ -108,7 +108,7 @@ func TestAdaptersRejectInvalidDatabases(t *testing.T) {
 			if err == nil || log != nil {
 				t.Fatal("日志适配器应拒绝无效数据源")
 			}
-			var transaction coredata.Transaction
+			var transaction data.Transaction
 			transaction, err = NewTransaction(databases)
 			if err == nil || transaction != nil {
 				t.Fatal("事务接口应拒绝无效数据源")

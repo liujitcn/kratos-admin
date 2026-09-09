@@ -55,6 +55,7 @@
   "core.layout.avatar": "ユーザーアバター",
   "core.layout.logo_alt": "システムロゴ",
   "core.login.background_alt": "ログイン画面の背景",
+  "core.login.mfa_remember_device": "この端末では{days}日間、追加認証を省略する",
   "core.login.mfa_title": "多要素認証",
   "core.login.mfa_code": "認証コードを入力",
   "core.login.mfa_recovery_code": "リカバリーコード（任意）",
@@ -331,5 +332,7 @@
   "common.value.top_level": "トップレベル",
   "common.resource.default": "{resource}",
   "common.action.delete_resource": "{resource}を削除",
-  "common.action.set_field_status": "{field}を設定"
+  "common.action.set_field_status": "{field}を設定",
+  "core.home.demo_scope": "機能概要",
+  "core.home.main_title": "管理アプリケーション"
 }

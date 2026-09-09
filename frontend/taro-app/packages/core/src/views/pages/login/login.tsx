@@ -108,6 +108,8 @@ export default function LoginPage() {
   const [mfaCode, setMfaCode] = useState('')
   const [mfaRecoveryCode, setMfaRecoveryCode] = useState('')
   const [mfaMethod, setMfaMethod] = useState('totp')
+  const [mfaRememberDays, setMfaRememberDays] = useState(0)
+  const [rememberMfaDevice, setRememberMfaDevice] = useState(false)
   const [mfaWebAuthnOptionsJson, setMfaWebAuthnOptionsJson] = useState('')
   const [mfaSetupVisible, setMfaSetupVisible] = useState(false)
   const [mfaSetupTicket, setMfaSetupTicket] = useState('')
@@ -326,6 +328,8 @@ export default function LoginPage() {
       setMfaCode('')
       setMfaRecoveryCode('')
       setMfaMethod(response.mfa_method || 'totp')
+      setMfaRememberDays(response.mfa_remember_days || 0)
+      setRememberMfaDevice(false)
       setMfaWebAuthnOptionsJson(response.mfa_webauthn_options_json || '')
       setMfaVisible(true)
       return false
@@ -352,6 +356,7 @@ export default function LoginPage() {
         code: mfaRecoveryCode ? '' : mfaCode,
         recovery_code: mfaRecoveryCode,
         webauthn_response_json: webauthnResponseJson,
+        remember_device: rememberMfaDevice,
       })
       setMfaVisible(false)
       if (await handleLoginResponse(response)) await loginSuccess()

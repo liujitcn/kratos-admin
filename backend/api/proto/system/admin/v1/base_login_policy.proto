@@ -166,12 +166,16 @@ message BaseLoginPolicyForm {
 
   int32 lock_duration_minutes = 6 [(gnostic.openapi.v3.property) = {description: "锁定时长（分钟）"}]; // 锁定时长（分钟）
 
+  bool allow_concurrent_login = 15 [(gnostic.openapi.v3.property) = {description: "是否允许同一账号同时登录"}]; // 是否允许同一账号同时登录
+
   .common.v1.Status status = 100 [
     (gnostic.openapi.v3.property) = {description: "状态"},
     (buf.validate.field).enum = {defined_only: true}
   ]; // 状态
 
   optional int32 password_max_age_days = 7 [(gnostic.openapi.v3.property) = {description: "密码有效期（天），0表示不启用"}]; // 密码有效期（天）
+
+  optional int32 mfa_remember_days = 16 [(gnostic.openapi.v3.property) = {description: "MFA设备免验证天数，0表示每次登录都验证"}, (buf.validate.field).int32 = {gte: 0, lte: 90}]; // MFA设备免验证天数，0表示每次登录都验证
 
   repeated BaseLoginPolicyRule rules = 8 [(gnostic.openapi.v3.property) = {description: "限制规则列表"}]; // 限制规则列表
 
@@ -202,6 +206,8 @@ message BaseLoginPolicy {
 
   int32 lock_duration_minutes = 8 [(gnostic.openapi.v3.property) = {description: "锁定时长（分钟）"}]; // 锁定时长（分钟）
 
+  bool allow_concurrent_login = 14 [(gnostic.openapi.v3.property) = {description: "是否允许同一账号同时登录"}]; // 是否允许同一账号同时登录
+
   .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
 
   string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
@@ -209,6 +215,8 @@ message BaseLoginPolicy {
   string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
 
   int32 password_max_age_days = 9 [(gnostic.openapi.v3.property) = {description: "密码有效期（天），0表示不启用"}]; // 密码有效期（天）
+
+  int32 mfa_remember_days = 15 [(gnostic.openapi.v3.property) = {description: "MFA设备免验证天数，0表示每次登录都验证"}]; // MFA设备免验证天数，0表示每次登录都验证
 
   repeated BaseLoginPolicyRule rules = 10 [(gnostic.openapi.v3.property) = {description: "限制规则列表"}]; // 限制规则列表
 

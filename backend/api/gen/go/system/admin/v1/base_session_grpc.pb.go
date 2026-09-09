@@ -21,8 +21,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BaseSessionService_GetCurrentBaseSession_FullMethodName = "/system.admin.v1.BaseSessionService/GetCurrentBaseSession"
-	BaseSessionService_RevokeAllBaseSessions_FullMethodName = "/system.admin.v1.BaseSessionService/RevokeAllBaseSessions"
+	BaseSessionService_ListCurrentBaseSessions_FullMethodName = "/system.admin.v1.BaseSessionService/ListCurrentBaseSessions"
+	BaseSessionService_GetCurrentBaseSession_FullMethodName   = "/system.admin.v1.BaseSessionService/GetCurrentBaseSession"
+	BaseSessionService_RevokeAllBaseSessions_FullMethodName   = "/system.admin.v1.BaseSessionService/RevokeAllBaseSessions"
+	BaseSessionService_PageOnlineBaseSessions_FullMethodName  = "/system.admin.v1.BaseSessionService/PageOnlineBaseSessions"
+	BaseSessionService_RevokeBaseSession_FullMethodName       = "/system.admin.v1.BaseSessionService/RevokeBaseSession"
 )
 
 // BaseSessionServiceClient is the client API for BaseSessionService service.
@@ -31,10 +34,16 @@ const (
 //
 // Admin会话管理服务。
 type BaseSessionServiceClient interface {
+	// 查询当前用户全部有效会话。
+	ListCurrentBaseSessions(ctx context.Context, in *ListCurrentBaseSessionsRequest, opts ...grpc.CallOption) (*ListCurrentBaseSessionsResponse, error)
 	// 查询当前用户会话。
 	GetCurrentBaseSession(ctx context.Context, in *GetCurrentBaseSessionRequest, opts ...grpc.CallOption) (*BaseSession, error)
 	// 撤销当前用户全部会话。
 	RevokeAllBaseSessions(ctx context.Context, in *RevokeAllBaseSessionsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 分页查询当前在线用户会话。
+	PageOnlineBaseSessions(ctx context.Context, in *PageOnlineBaseSessionsRequest, opts ...grpc.CallOption) (*PageOnlineBaseSessionsResponse, error)
+	// 下线指定用户会话。
+	RevokeBaseSession(ctx context.Context, in *RevokeBaseSessionRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type baseSessionServiceClient struct {
@@ -43,6 +52,16 @@ type baseSessionServiceClient struct {
 
 func NewBaseSessionServiceClient(cc grpc.ClientConnInterface) BaseSessionServiceClient {
 	return &baseSessionServiceClient{cc}
+}
+
+func (c *baseSessionServiceClient) ListCurrentBaseSessions(ctx context.Context, in *ListCurrentBaseSessionsRequest, opts ...grpc.CallOption) (*ListCurrentBaseSessionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListCurrentBaseSessionsResponse)
+	err := c.cc.Invoke(ctx, BaseSessionService_ListCurrentBaseSessions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *baseSessionServiceClient) GetCurrentBaseSession(ctx context.Context, in *GetCurrentBaseSessionRequest, opts ...grpc.CallOption) (*BaseSession, error) {
@@ -65,16 +84,42 @@ func (c *baseSessionServiceClient) RevokeAllBaseSessions(ctx context.Context, in
 	return out, nil
 }
 
+func (c *baseSessionServiceClient) PageOnlineBaseSessions(ctx context.Context, in *PageOnlineBaseSessionsRequest, opts ...grpc.CallOption) (*PageOnlineBaseSessionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PageOnlineBaseSessionsResponse)
+	err := c.cc.Invoke(ctx, BaseSessionService_PageOnlineBaseSessions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *baseSessionServiceClient) RevokeBaseSession(ctx context.Context, in *RevokeBaseSessionRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, BaseSessionService_RevokeBaseSession_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BaseSessionServiceServer is the server API for BaseSessionService service.
 // All implementations must embed UnimplementedBaseSessionServiceServer
 // for forward compatibility.
 //
 // Admin会话管理服务。
 type BaseSessionServiceServer interface {
+	// 查询当前用户全部有效会话。
+	ListCurrentBaseSessions(context.Context, *ListCurrentBaseSessionsRequest) (*ListCurrentBaseSessionsResponse, error)
 	// 查询当前用户会话。
 	GetCurrentBaseSession(context.Context, *GetCurrentBaseSessionRequest) (*BaseSession, error)
 	// 撤销当前用户全部会话。
 	RevokeAllBaseSessions(context.Context, *RevokeAllBaseSessionsRequest) (*emptypb.Empty, error)
+	// 分页查询当前在线用户会话。
+	PageOnlineBaseSessions(context.Context, *PageOnlineBaseSessionsRequest) (*PageOnlineBaseSessionsResponse, error)
+	// 下线指定用户会话。
+	RevokeBaseSession(context.Context, *RevokeBaseSessionRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBaseSessionServiceServer()
 }
 
@@ -85,11 +130,20 @@ type BaseSessionServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseSessionServiceServer struct{}
 
+func (UnimplementedBaseSessionServiceServer) ListCurrentBaseSessions(context.Context, *ListCurrentBaseSessionsRequest) (*ListCurrentBaseSessionsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListCurrentBaseSessions not implemented")
+}
 func (UnimplementedBaseSessionServiceServer) GetCurrentBaseSession(context.Context, *GetCurrentBaseSessionRequest) (*BaseSession, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetCurrentBaseSession not implemented")
 }
 func (UnimplementedBaseSessionServiceServer) RevokeAllBaseSessions(context.Context, *RevokeAllBaseSessionsRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method RevokeAllBaseSessions not implemented")
+}
+func (UnimplementedBaseSessionServiceServer) PageOnlineBaseSessions(context.Context, *PageOnlineBaseSessionsRequest) (*PageOnlineBaseSessionsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageOnlineBaseSessions not implemented")
+}
+func (UnimplementedBaseSessionServiceServer) RevokeBaseSession(context.Context, *RevokeBaseSessionRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method RevokeBaseSession not implemented")
 }
 func (UnimplementedBaseSessionServiceServer) mustEmbedUnimplementedBaseSessionServiceServer() {}
 func (UnimplementedBaseSessionServiceServer) testEmbeddedByValue()                            {}
@@ -110,6 +164,24 @@ func RegisterBaseSessionServiceServer(s grpc.ServiceRegistrar, srv BaseSessionSe
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&BaseSessionService_ServiceDesc, srv)
+}
+
+func _BaseSessionService_ListCurrentBaseSessions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListCurrentBaseSessionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BaseSessionServiceServer).ListCurrentBaseSessions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BaseSessionService_ListCurrentBaseSessions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BaseSessionServiceServer).ListCurrentBaseSessions(ctx, req.(*ListCurrentBaseSessionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _BaseSessionService_GetCurrentBaseSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -148,6 +220,42 @@ func _BaseSessionService_RevokeAllBaseSessions_Handler(srv interface{}, ctx cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BaseSessionService_PageOnlineBaseSessions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageOnlineBaseSessionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BaseSessionServiceServer).PageOnlineBaseSessions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BaseSessionService_PageOnlineBaseSessions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BaseSessionServiceServer).PageOnlineBaseSessions(ctx, req.(*PageOnlineBaseSessionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _BaseSessionService_RevokeBaseSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RevokeBaseSessionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BaseSessionServiceServer).RevokeBaseSession(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BaseSessionService_RevokeBaseSession_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BaseSessionServiceServer).RevokeBaseSession(ctx, req.(*RevokeBaseSessionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BaseSessionService_ServiceDesc is the grpc.ServiceDesc for BaseSessionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -156,12 +264,24 @@ var BaseSessionService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*BaseSessionServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "ListCurrentBaseSessions",
+			Handler:    _BaseSessionService_ListCurrentBaseSessions_Handler,
+		},
+		{
 			MethodName: "GetCurrentBaseSession",
 			Handler:    _BaseSessionService_GetCurrentBaseSession_Handler,
 		},
 		{
 			MethodName: "RevokeAllBaseSessions",
 			Handler:    _BaseSessionService_RevokeAllBaseSessions_Handler,
+		},
+		{
+			MethodName: "PageOnlineBaseSessions",
+			Handler:    _BaseSessionService_PageOnlineBaseSessions_Handler,
+		},
+		{
+			MethodName: "RevokeBaseSession",
+			Handler:    _BaseSessionService_RevokeBaseSession_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

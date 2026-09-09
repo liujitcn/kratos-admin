@@ -40,15 +40,15 @@ packages/cli
 ## 使用
 
 ```bash
-pnpm dlx @liujitcn/kratos-admin-cli create shop-admin --module shop
-pnpm dlx @liujitcn/kratos-admin-cli create shop-admin --module shop,order
-pnpm dlx @liujitcn/kratos-admin-cli create shop-admin --module shop --with log
+pnpm dlx @liujitcn/kratos-admin-cli create business-admin --module business
+pnpm dlx @liujitcn/kratos-admin-cli create business-admin --module business,report
+pnpm dlx @liujitcn/kratos-admin-cli create business-admin --module business --with log
 
 # 当前仓库开发
-pnpm module:create ../shop-admin --module shop
-pnpm module:create ../shop-admin --module shop,order
-pnpm module:create ../shop-admin --module shop --module order
-pnpm module:create ../shop-admin --module shop,order --with log
+pnpm module:create ../business-admin --module business
+pnpm module:create ../business-admin --module business,report
+pnpm module:create ../business-admin --module business --module report
+pnpm module:create ../business-admin --module business,report --with log
 pnpm --filter @liujitcn/kratos-admin-cli test
 ```
 
@@ -66,7 +66,7 @@ CLI 默认引入内置 System；指定本地 `system` 时由本地模块继承�
 
 | 占位符                  | 生成内容                                  |
 | ----------------------- | ----------------------------------------- |
-| `__PROJECT_NAME__`      | 项目目录名称，例如 `shop-admin`。         |
+| `__PROJECT_NAME__`      | 项目目录名称，例如 `business-admin`。         |
 | `__APP_PACKAGE__`       | 宿主包名，例如 `@shop/admin-app`。        |
 | `__APP_DEPENDENCIES__`  | System、自有 module 和额外 module 依赖。  |
 | `__MODULE_NAME__`       | kebab-case 模块名，例如 `shop`。          |

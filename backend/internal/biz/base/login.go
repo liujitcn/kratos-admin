@@ -17,10 +17,13 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/errorsx"
+	"github.com/liujitcn/kratos-core/job"
 
 	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginaudit"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/loginpolicy"
 	passwordPolicy "github.com/liujitcn/kratos-admin/backend/internal/biz/base/password"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/sessionregistry"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/sessionstate"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/utils"
 	adminconst "github.com/liujitcn/kratos-admin/backend/internal/const"
@@ -70,6 +73,7 @@ type LoginCase struct {
 	mfaCase          *MfaCase
 	userToken        *authData.UserToken
 	loginPolicyMu    sync.Mutex
+	loginLocker      *sessionregistry.LoginLocker
 }
 
 // NewLoginCase 创建登录业务实例。
@@ -83,6 +87,7 @@ func NewLoginCase(
 	baseDictItemRepo *data.BaseDictItemRepository,
 	mfaCase *MfaCase,
 	userToken *authData.UserToken,
+	loginLocker *sessionregistry.LoginLocker,
 ) *LoginCase {
 	return &LoginCase{
 		BaseCase:         baseCase,
@@ -94,6 +99,7 @@ func NewLoginCase(
 		baseDictItemRepo: baseDictItemRepo,
 		mfaCase:          mfaCase,
 		userToken:        userToken,
+		loginLocker:      loginLocker,
 	}
 }
 
@@ -168,19 +174,13 @@ func (c *LoginCase) Logout(ctx context.Context, _ *basev1.LogoutRequest) error {
 	if err != nil {
 		return err
 	}
-	refreshToken := c.userToken.GetRefreshToken(authInfo.UserId)
-	err = c.userToken.RemoveToken(authInfo.UserId)
+	var record sessionregistry.Record
+	record, err = sessionregistry.FindByAccessToken(c.Cache, c.userToken, authInfo.UserId, sessionregistry.AccessToken(ctx))
 	if err != nil {
+		return errorsx.Unauthenticated("当前会话已失效").WithCause(err)
+	}
+	if err = sessionregistry.Remove(c.Cache, c.userToken, record); err != nil {
 		return errorsx.Internal("退出登录失败").WithCause(err)
-	}
-	if refreshToken != "" {
-		err = c.Cache.Del(refreshTokenAuthKey(refreshToken))
-		if err != nil {
-			return errorsx.Internal("退出登录失败").WithCause(err)
-		}
-	}
-	if err = sessionstate.Clear(c.Cache, authInfo.UserId); err != nil {
-		return errorsx.Internal("清理会话状态失败").WithCause(err)
 	}
 	return nil
 }
@@ -192,15 +192,18 @@ func (c *LoginCase) RefreshToken(ctx context.Context, req *basev1.RefreshTokenRe
 	if err != nil {
 		return nil, err
 	}
+	var record sessionregistry.Record
+	record, err = sessionregistry.FindByRefreshToken(c.Cache, c.userToken, authInfo.UserId, refreshToken)
+	if err != nil {
+		return nil, errorsx.Unauthenticated("当前会话已失效").WithCause(err)
+	}
 	if requiresServerSession(authInfo.RoleCode) {
-		_, err = sessionstate.Validate(c.Cache, authInfo.UserId, time.Now())
-		if errors.Is(err, sessionstate.ErrStateNotFound) {
-			_, err = sessionstate.Start(c.Cache, authInfo.UserId, loginClientIP(ctx), loginDevice(ctx), time.Now())
-		}
+		_, err = sessionstate.Validate(c.Cache, record.SessionID, time.Now())
 		if err != nil {
-			if errors.Is(err, sessionstate.ErrIdleExpired) || errors.Is(err, sessionstate.ErrMaxLifetimeExpired) {
-				_ = c.userToken.RemoveToken(authInfo.UserId)
-				_ = sessionstate.Clear(c.Cache, authInfo.UserId)
+			if errors.Is(err, sessionstate.ErrStateNotFound) || errors.Is(err, sessionstate.ErrIdleExpired) || errors.Is(err, sessionstate.ErrMaxLifetimeExpired) {
+				if err = sessionregistry.Remove(c.Cache, c.userToken, record); err != nil {
+					return nil, errorsx.Internal("撤销过期会话失败").WithCause(err)
+				}
 				return nil, errorsx.Unauthenticated("会话已超时，请重新登录")
 			}
 			return nil, errorsx.Internal("校验会话状态失败").WithCause(err)
@@ -231,24 +234,30 @@ func (c *LoginCase) RefreshToken(ctx context.Context, req *basev1.RefreshTokenRe
 
 	// 每次刷新同时轮换 Refresh Token，旧令牌立即失效，避免被重放。
 	var accessToken string
-	accessToken, err = c.userToken.GenerateAccessToken(authInfo)
+	accessToken, err = c.userToken.GenerateAccessTokenForSession(authInfo, record.SessionID)
 	if err != nil {
 		return nil, errorsx.Internal("刷新认证令牌失败").WithCause(err)
 	}
 	var nextRefreshToken string
-	nextRefreshToken, err = c.userToken.GenerateRefreshToken(authInfo)
+	nextRefreshToken, err = c.userToken.GenerateRefreshTokenForSession(authInfo, record.SessionID)
 	if err != nil {
 		return nil, errorsx.Internal("刷新认证令牌失败").WithCause(err)
 	}
 	if err = c.setRefreshTokenAuth(nextRefreshToken, authInfo, c.userToken.GetRefreshTokenExpires()); err != nil {
 		return nil, errorsx.Internal("刷新认证令牌失败").WithCause(err)
 	}
+	if err = c.Cache.Del(refreshTokenAuthKey(refreshToken)); err != nil {
+		return nil, errorsx.Internal("刷新认证令牌失败").WithCause(err)
+	}
+	if err = sessionregistry.UpdateTokens(c.Cache, record.SessionID, accessToken, nextRefreshToken); err != nil {
+		return nil, errorsx.Internal("更新登录会话失败").WithCause(err)
+	}
 	if requiresServerSession(authInfo.RoleCode) {
-		if err = sessionstate.MarkTokenIssued(c.Cache, authInfo.UserId, time.Now()); err != nil {
-			_ = c.userToken.RemoveToken(authInfo.UserId)
-			return nil, errorsx.Internal("更新会话状态失败").WithCause(err)
+		if err = sessionstate.MarkTokenIssued(c.Cache, record.SessionID, time.Now()); err != nil {
+			return nil, errorsx.Unauthenticated("会话已超时，请重新登录").WithCause(err)
 		}
 	}
+	loginaudit.Record(ctx, authInfo)
 	return &basev1.RefreshTokenResponse{
 		TokenType:    engine.BearerWord,
 		AccessToken:  accessToken,
@@ -447,29 +456,68 @@ func (c *LoginCase) FindUserByPassword(ctx context.Context, tenantCode string, u
 }
 
 // IssueUserToken 校验用户关联状态并签发后台访问令牌。
-func (c *LoginCase) IssueUserToken(ctx context.Context, user *models.BaseUser) (*basev1.LoginResponse, error) {
-	authInfo, err := c.buildAuthInfo(ctx, user)
+func (c *LoginCase) IssueUserToken(ctx context.Context, user *models.BaseUser) (response *basev1.LoginResponse, err error) {
+	var lease *job.ExecutionLease
+	lease, err = c.loginLocker.Acquire(ctx, fmt.Sprintf("security:login-lock:%d", user.ID))
+	if err != nil {
+		return nil, errorsx.Conflict("账号正在登录，请稍后重试").WithCause(err)
+	}
+	ctx = lease.Context()
+	defer func() {
+		if releaseErr := lease.Release(); releaseErr != nil {
+			err = errorsx.Internal("释放登录锁失败").WithCause(errors.Join(err, releaseErr))
+			response = nil
+		}
+	}()
+	var authInfo *authData.UserTokenPayload
+	authInfo, err = c.buildAuthInfo(ctx, user)
 	if err != nil {
 		return nil, err
 	}
+	allowConcurrentLogin := false
+	if authInfo.RoleCode != _const.BASE_ROLE_CODE_USER && authInfo.RoleCode != _const.BASE_ROLE_CODE_AUTHUSER {
+		var policySet loginpolicy.PolicySet
+		policySet, err = loginpolicy.LoadFromCacheStrict(c.Cache)
+		if err != nil {
+			return nil, errorsx.Internal("读取登录策略失败").WithCause(err)
+		}
+		allowConcurrentLogin = policySet.AllowConcurrentLoginFor(user.TenantID, user.ID)
+	}
+	if !allowConcurrentLogin {
+		if err = sessionregistry.RemoveAll(c.Cache, c.userToken, authInfo.UserId); err != nil {
+			return nil, errorsx.Internal("清理旧登录会话失败").WithCause(err)
+		}
+	}
+	sessionID := id.NewGUIDv4NoHyphen()
 
 	// 生成访问令牌
 	var accessToken string
 	var refreshToken string
-	accessToken, refreshToken, err = c.userToken.GenerateToken(authInfo)
+	accessToken, refreshToken, err = c.userToken.GenerateTokenForSession(authInfo, sessionID)
 	if err != nil {
 		return nil, errorsx.Internal("登录失败").WithCause(err)
 	}
+	record := sessionregistry.NewRecord(authInfo.UserId, authInfo.UserName, authInfo.TenantCode, loginClientIP(ctx), loginDevice(ctx), loginUserAgent(ctx), accessToken, refreshToken, time.Now())
+	record.SessionID = sessionID
 	err = c.setRefreshTokenAuth(refreshToken, authInfo, c.userToken.GetRefreshTokenExpires())
 	if err != nil {
-		return nil, errorsx.Internal("登录失败").WithCause(err)
+		cleanupErr := sessionregistry.Remove(c.Cache, c.userToken, record)
+		return nil, errorsx.Internal("登录失败").WithCause(errors.Join(err, cleanupErr))
 	}
 	if requiresServerSession(authInfo.RoleCode) {
-		_, err = sessionstate.Start(c.Cache, authInfo.UserId, loginClientIP(ctx), loginDevice(ctx), time.Now())
+		_, err = sessionstate.Start(c.Cache, sessionID, loginClientIP(ctx), loginDevice(ctx), time.Now())
 		if err != nil {
-			_ = c.userToken.RemoveToken(authInfo.UserId)
-			return nil, errorsx.Internal("创建会话状态失败").WithCause(err)
+			cleanupErr := sessionregistry.Remove(c.Cache, c.userToken, record)
+			return nil, errorsx.Internal("创建会话状态失败").WithCause(errors.Join(err, cleanupErr))
 		}
+	}
+	if err = sessionregistry.Register(c.Cache, record); err != nil {
+		cleanupErr := sessionregistry.Remove(c.Cache, c.userToken, record)
+		return nil, errorsx.Internal("保存登录会话失败").WithCause(errors.Join(err, cleanupErr))
+	}
+	if err = ctx.Err(); err != nil {
+		cleanupErr := sessionregistry.Remove(c.Cache, c.userToken, record)
+		return nil, errorsx.Internal("登录租约已失效").WithCause(errors.Join(err, cleanupErr))
 	}
 	status := basev1.LoginStatus_LOGIN_STATUS_AUTHENTICATED
 	passwordExpired := false
@@ -485,6 +533,7 @@ func (c *LoginCase) IssueUserToken(ctx context.Context, user *models.BaseUser) (
 		(user.MustChangePassword == adminconst.BASE_USER_PASSWORD_CHANGE_STATUS_REQUIRED || passwordExpired) {
 		status = basev1.LoginStatus_LOGIN_STATUS_PASSWORD_CHANGE_REQUIRED
 	}
+	loginaudit.Record(ctx, authInfo)
 	return &basev1.LoginResponse{
 		TokenType:    engine.BearerWord,
 		AccessToken:  accessToken,
@@ -601,7 +650,7 @@ func (c *LoginCase) getAuthInfoByRefreshToken(refreshToken string) (*authData.Us
 		return nil, errorsx.Unauthenticated("刷新认证令牌失败").WithCause(err)
 	}
 
-	if c.userToken.GetRefreshToken(authInfo.UserId) != refreshToken {
+	if !c.userToken.IsRefreshTokenValid(authInfo.UserId, refreshToken) {
 		return nil, errorsx.Unauthenticated("刷新认证令牌失败")
 	}
 	return authInfo, nil
@@ -817,6 +866,19 @@ func loginDevice(ctx context.Context) string {
 	}
 	if deviceID := httpValue.RequestHeader().Get("X-Device-ID"); deviceID != "" {
 		return deviceID
+	}
+	return httpValue.RequestHeader().Get("User-Agent")
+}
+
+// loginUserAgent 从请求头提取客户端用户代理信息。
+func loginUserAgent(ctx context.Context) string {
+	transportValue, ok := transport.FromServerContext(ctx)
+	if !ok {
+		return ""
+	}
+	httpValue, ok := transportValue.(*http.Transport)
+	if !ok || httpValue.Request() == nil {
+		return ""
 	}
 	return httpValue.RequestHeader().Get("User-Agent")
 }

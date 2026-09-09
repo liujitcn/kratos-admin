@@ -174,6 +174,7 @@
   "core.login.tenant_code": "Enter tenant code",
   "core.login.user_name": "Enter username",
   "core.login.welcome": "Welcome to the admin console",
+  "core.login.mfa_remember_device": "Skip verification on this device for {days} days",
   "core.login.mfa_title": "Multi-factor authentication",
   "core.login.mfa_code": "Enter the authenticator code",
   "core.login.mfa_recovery_code": "Recovery code (optional)",
@@ -331,5 +332,7 @@
   "common.value.top_level": "Top level",
   "common.resource.default": "{resource}",
   "common.action.delete_resource": "Delete {resource}",
-  "common.action.set_field_status": "Set {field}"
+  "common.action.set_field_status": "Set {field}",
+  "core.home.demo_scope": "Overview",
+  "core.home.main_title": "Admin Application"
 }

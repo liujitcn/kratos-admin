@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	basev1 "github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
+	"github.com/liujitcn/kratos-admin/backend/api/gen/go/base/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -33,7 +33,7 @@ type PageBaseMessageRequest struct {
 	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`        // 租户ID
 	CategoryId    *int64                 `protobuf:"varint,2,opt,name=category_id,json=categoryId,proto3,oneof" json:"category_id,omitempty"`  // 消息分类ID
 	Title         *string                `protobuf:"bytes,3,opt,name=title,proto3,oneof" json:"title,omitempty"`                               // 消息标题
-	Status        *basev1.MessageStatus  `protobuf:"varint,4,opt,name=status,proto3,enum=base.v1.MessageStatus,oneof" json:"status,omitempty"` // 消息状态
+	Status        *basev1.MessageStatus      `protobuf:"varint,4,opt,name=status,proto3,enum=base.v1.MessageStatus,oneof" json:"status,omitempty"` // 消息状态
 	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`               // 当前页码
 	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`            // 每页数量
 	unknownFields protoimpl.UnknownFields
@@ -572,10 +572,10 @@ func (x *RetryBaseMessageDispatchRequest) GetId() int64 {
 
 // 消息受众表单。
 type BaseMessageAudienceForm struct {
-	state           protoimpl.MessageState     `protogen:"open.v1"`
+	state           protoimpl.MessageState `protogen:"open.v1"`
 	Type            basev1.MessageAudienceType `protobuf:"varint,1,opt,name=type,proto3,enum=base.v1.MessageAudienceType" json:"type,omitempty"`             // 受众类型
-	Id              int64                      `protobuf:"varint,2,opt,name=id,proto3" json:"id,omitempty"`                                                  // 受众ID
-	IncludeChildren bool                       `protobuf:"varint,3,opt,name=include_children,json=includeChildren,proto3" json:"include_children,omitempty"` // 是否包含子部门
+	Id              int64                  `protobuf:"varint,2,opt,name=id,proto3" json:"id,omitempty"`                                                  // 受众ID
+	IncludeChildren bool                   `protobuf:"varint,3,opt,name=include_children,json=includeChildren,proto3" json:"include_children,omitempty"` // 是否包含子部门
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -633,21 +633,21 @@ func (x *BaseMessageAudienceForm) GetIncludeChildren() bool {
 
 // 消息表单。
 type BaseMessageForm struct {
-	state         protoimpl.MessageState      `protogen:"open.v1"`
-	Id            int64                       `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                              // 消息ID
-	TenantId      int64                       `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                                                  // 租户ID
-	CategoryId    int64                       `protobuf:"varint,3,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`                                            // 消息分类ID
-	Title         string                      `protobuf:"bytes,4,opt,name=title,proto3" json:"title,omitempty"`                                                                         // 消息标题
-	Content       string                      `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"`                                                                     // 消息正文
-	ContentFormat basev1.MessageContentFormat `protobuf:"varint,6,opt,name=content_format,json=contentFormat,proto3,enum=base.v1.MessageContentFormat" json:"content_format,omitempty"` // 正文格式
-	Priority      basev1.MessagePriority      `protobuf:"varint,7,opt,name=priority,proto3,enum=base.v1.MessagePriority" json:"priority,omitempty"`                                     // 消息优先级
-	ActionType    basev1.MessageActionType    `protobuf:"varint,8,opt,name=action_type,json=actionType,proto3,enum=base.v1.MessageActionType" json:"action_type,omitempty"`             // 动作类型
-	ActionTarget  string                      `protobuf:"bytes,9,opt,name=action_target,json=actionTarget,proto3" json:"action_target,omitempty"`                                       // 动作目标
-	ActionParams  string                      `protobuf:"bytes,10,opt,name=action_params,json=actionParams,proto3" json:"action_params,omitempty"`                                      // 动作参数JSON
-	ScheduledAt   string                      `protobuf:"bytes,11,opt,name=scheduled_at,json=scheduledAt,proto3" json:"scheduled_at,omitempty"`                                         // 计划发布时间
-	ExpiresAt     string                      `protobuf:"bytes,12,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`                                               // 过期时间
-	Audiences     []*BaseMessageAudienceForm  `protobuf:"bytes,13,rep,name=audiences,proto3" json:"audiences,omitempty"`                                                                // 消息受众
-	Version       int64                       `protobuf:"varint,14,opt,name=version,proto3" json:"version,omitempty"`                                                                   // 乐观锁版本
+	state         protoimpl.MessageState     `protogen:"open.v1"`
+	Id            int64                      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                              // 消息ID
+	TenantId      int64                      `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                                                  // 租户ID
+	CategoryId    int64                      `protobuf:"varint,3,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`                                            // 消息分类ID
+	Title         string                     `protobuf:"bytes,4,opt,name=title,proto3" json:"title,omitempty"`                                                                         // 消息标题
+	Content       string                     `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"`                                                                     // 消息正文
+	ContentFormat basev1.MessageContentFormat    `protobuf:"varint,6,opt,name=content_format,json=contentFormat,proto3,enum=base.v1.MessageContentFormat" json:"content_format,omitempty"` // 正文格式
+	Priority      basev1.MessagePriority         `protobuf:"varint,7,opt,name=priority,proto3,enum=base.v1.MessagePriority" json:"priority,omitempty"`                                     // 消息优先级
+	ActionType    basev1.MessageActionType       `protobuf:"varint,8,opt,name=action_type,json=actionType,proto3,enum=base.v1.MessageActionType" json:"action_type,omitempty"`             // 动作类型
+	ActionTarget  string                     `protobuf:"bytes,9,opt,name=action_target,json=actionTarget,proto3" json:"action_target,omitempty"`                                       // 动作目标
+	ActionParams  string                     `protobuf:"bytes,10,opt,name=action_params,json=actionParams,proto3" json:"action_params,omitempty"`                                      // 动作参数JSON
+	ScheduledAt   string                     `protobuf:"bytes,11,opt,name=scheduled_at,json=scheduledAt,proto3" json:"scheduled_at,omitempty"`                                         // 计划发布时间
+	ExpiresAt     string                     `protobuf:"bytes,12,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`                                               // 过期时间
+	Audiences     []*BaseMessageAudienceForm `protobuf:"bytes,13,rep,name=audiences,proto3" json:"audiences,omitempty"`                                                                // 消息受众
+	Version       int64                      `protobuf:"varint,14,opt,name=version,proto3" json:"version,omitempty"`                                                                   // 乐观锁版本
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -788,8 +788,8 @@ type BaseMessage struct {
 	CategoryId     int64                  `protobuf:"varint,3,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`              // 消息分类ID
 	CategoryName   string                 `protobuf:"bytes,4,opt,name=category_name,json=categoryName,proto3" json:"category_name,omitempty"`         // 消息分类名称
 	Title          string                 `protobuf:"bytes,5,opt,name=title,proto3" json:"title,omitempty"`                                           // 消息标题
-	Priority       basev1.MessagePriority `protobuf:"varint,6,opt,name=priority,proto3,enum=base.v1.MessagePriority" json:"priority,omitempty"`       // 消息优先级
-	Status         basev1.MessageStatus   `protobuf:"varint,7,opt,name=status,proto3,enum=base.v1.MessageStatus" json:"status,omitempty"`             // 消息状态
+	Priority       basev1.MessagePriority     `protobuf:"varint,6,opt,name=priority,proto3,enum=base.v1.MessagePriority" json:"priority,omitempty"`       // 消息优先级
+	Status         basev1.MessageStatus       `protobuf:"varint,7,opt,name=status,proto3,enum=base.v1.MessageStatus" json:"status,omitempty"`             // 消息状态
 	SenderName     string                 `protobuf:"bytes,8,opt,name=sender_name,json=senderName,proto3" json:"sender_name,omitempty"`               // 发送者名称
 	RecipientTotal int64                  `protobuf:"varint,9,opt,name=recipient_total,json=recipientTotal,proto3" json:"recipient_total,omitempty"`  // 目标人数
 	DeliveredTotal int64                  `protobuf:"varint,10,opt,name=delivered_total,json=deliveredTotal,proto3" json:"delivered_total,omitempty"` // 已投递人数
@@ -939,16 +939,16 @@ func (x *BaseMessage) GetUpdatedAt() string {
 
 // 消息投递任务。
 type BaseMessageDispatch struct {
-	state           protoimpl.MessageState       `protogen:"open.v1"`
-	Id              int64                        `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                          // 投递任务ID
+	state           protoimpl.MessageState   `protogen:"open.v1"`
+	Id              int64                    `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                          // 投递任务ID
 	AudienceType    basev1.MessageAudienceType   `protobuf:"varint,2,opt,name=audience_type,json=audienceType,proto3,enum=base.v1.MessageAudienceType" json:"audience_type,omitempty"` // 受众类型
-	AudienceId      int64                        `protobuf:"varint,3,opt,name=audience_id,json=audienceId,proto3" json:"audience_id,omitempty"`                                        // 受众ID
-	IncludeChildren bool                         `protobuf:"varint,4,opt,name=include_children,json=includeChildren,proto3" json:"include_children,omitempty"`                         // 是否包含子部门
+	AudienceId      int64                    `protobuf:"varint,3,opt,name=audience_id,json=audienceId,proto3" json:"audience_id,omitempty"`                                        // 受众ID
+	IncludeChildren bool                     `protobuf:"varint,4,opt,name=include_children,json=includeChildren,proto3" json:"include_children,omitempty"`                         // 是否包含子部门
 	Status          basev1.MessageDispatchStatus `protobuf:"varint,5,opt,name=status,proto3,enum=base.v1.MessageDispatchStatus" json:"status,omitempty"`                               // 投递状态
-	MatchedTotal    int64                        `protobuf:"varint,6,opt,name=matched_total,json=matchedTotal,proto3" json:"matched_total,omitempty"`                                  // 匹配人数
-	InsertedTotal   int64                        `protobuf:"varint,7,opt,name=inserted_total,json=insertedTotal,proto3" json:"inserted_total,omitempty"`                               // 新增投递人数
-	AttemptCount    int32                        `protobuf:"varint,8,opt,name=attempt_count,json=attemptCount,proto3" json:"attempt_count,omitempty"`                                  // 尝试次数
-	LastError       string                       `protobuf:"bytes,9,opt,name=last_error,json=lastError,proto3" json:"last_error,omitempty"`                                            // 最近错误
+	MatchedTotal    int64                    `protobuf:"varint,6,opt,name=matched_total,json=matchedTotal,proto3" json:"matched_total,omitempty"`                                  // 匹配人数
+	InsertedTotal   int64                    `protobuf:"varint,7,opt,name=inserted_total,json=insertedTotal,proto3" json:"inserted_total,omitempty"`                               // 新增投递人数
+	AttemptCount    int32                    `protobuf:"varint,8,opt,name=attempt_count,json=attemptCount,proto3" json:"attempt_count,omitempty"`                                  // 尝试次数
+	LastError       string                   `protobuf:"bytes,9,opt,name=last_error,json=lastError,proto3" json:"last_error,omitempty"`                                            // 最近错误
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -1262,12 +1262,12 @@ var file_system_admin_v1_base_message_proto_goTypes = []any{
 	(*BaseMessage)(nil),                      // 13: system.admin.v1.BaseMessage
 	(*BaseMessageDispatch)(nil),              // 14: system.admin.v1.BaseMessageDispatch
 	(*BaseMessageDetail)(nil),                // 15: system.admin.v1.BaseMessageDetail
-	(basev1.MessageStatus)(0),                // 16: base.v1.MessageStatus
-	(basev1.MessageAudienceType)(0),          // 17: base.v1.MessageAudienceType
-	(basev1.MessageContentFormat)(0),         // 18: base.v1.MessageContentFormat
-	(basev1.MessagePriority)(0),              // 19: base.v1.MessagePriority
-	(basev1.MessageActionType)(0),            // 20: base.v1.MessageActionType
-	(basev1.MessageDispatchStatus)(0),        // 21: base.v1.MessageDispatchStatus
+	(basev1.MessageStatus)(0),                    // 16: base.v1.MessageStatus
+	(basev1.MessageAudienceType)(0),              // 17: base.v1.MessageAudienceType
+	(basev1.MessageContentFormat)(0),             // 18: base.v1.MessageContentFormat
+	(basev1.MessagePriority)(0),                  // 19: base.v1.MessagePriority
+	(basev1.MessageActionType)(0),                // 20: base.v1.MessageActionType
+	(basev1.MessageDispatchStatus)(0),            // 21: base.v1.MessageDispatchStatus
 	(*emptypb.Empty)(nil),                    // 22: google.protobuf.Empty
 }
 var file_system_admin_v1_base_message_proto_depIdxs = []int32{

@@ -20,19 +20,50 @@ var _ = new(context.Context)
 const _ = http.SupportPackageIsVersion3
 
 const OperationBaseSessionServiceGetCurrentBaseSession = "/system.admin.v1.BaseSessionService/GetCurrentBaseSession"
+const OperationBaseSessionServiceListCurrentBaseSessions = "/system.admin.v1.BaseSessionService/ListCurrentBaseSessions"
+const OperationBaseSessionServicePageOnlineBaseSessions = "/system.admin.v1.BaseSessionService/PageOnlineBaseSessions"
 const OperationBaseSessionServiceRevokeAllBaseSessions = "/system.admin.v1.BaseSessionService/RevokeAllBaseSessions"
+const OperationBaseSessionServiceRevokeBaseSession = "/system.admin.v1.BaseSessionService/RevokeBaseSession"
 
 type BaseSessionServiceHTTPServer interface {
 	// GetCurrentBaseSession 查询当前用户会话。
 	GetCurrentBaseSession(context.Context, *GetCurrentBaseSessionRequest) (*BaseSession, error)
+	// ListCurrentBaseSessions 查询当前用户全部有效会话。
+	ListCurrentBaseSessions(context.Context, *ListCurrentBaseSessionsRequest) (*ListCurrentBaseSessionsResponse, error)
+	// PageOnlineBaseSessions 分页查询当前在线用户会话。
+	PageOnlineBaseSessions(context.Context, *PageOnlineBaseSessionsRequest) (*PageOnlineBaseSessionsResponse, error)
 	// RevokeAllBaseSessions 撤销当前用户全部会话。
 	RevokeAllBaseSessions(context.Context, *RevokeAllBaseSessionsRequest) (*emptypb.Empty, error)
+	// RevokeBaseSession 下线指定用户会话。
+	RevokeBaseSession(context.Context, *RevokeBaseSessionRequest) (*emptypb.Empty, error)
 }
 
 func RegisterBaseSessionServiceHTTPServer(s *http.Server, srv BaseSessionServiceHTTPServer) {
 	r := s.Route("/")
+	r.Handle("GET", "/api/v1/admin/base/session/current-user", _BaseSessionService_ListCurrentBaseSessions0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/session/current", _BaseSessionService_GetCurrentBaseSession0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/admin/base/session/revoke-all", _BaseSessionService_RevokeAllBaseSessions0_HTTP_Handler(srv))
+	r.Handle("GET", "/api/v1/admin/base/session/online", _BaseSessionService_PageOnlineBaseSessions0_HTTP_Handler(srv))
+	r.Handle("DELETE", "/api/v1/admin/base/session/{session_id}", _BaseSessionService_RevokeBaseSession0_HTTP_Handler(srv))
+}
+
+func _BaseSessionService_ListCurrentBaseSessions0_HTTP_Handler(srv BaseSessionServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ListCurrentBaseSessionsRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseSessionServiceListCurrentBaseSessions)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListCurrentBaseSessions(ctx, req.(*ListCurrentBaseSessionsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListCurrentBaseSessionsResponse)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _BaseSessionService_GetCurrentBaseSession0_HTTP_Handler(srv BaseSessionServiceHTTPServer) func(ctx http.Context) error {
@@ -73,11 +104,58 @@ func _BaseSessionService_RevokeAllBaseSessions0_HTTP_Handler(srv BaseSessionServ
 	}
 }
 
+func _BaseSessionService_PageOnlineBaseSessions0_HTTP_Handler(srv BaseSessionServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PageOnlineBaseSessionsRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseSessionServicePageOnlineBaseSessions)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PageOnlineBaseSessions(ctx, req.(*PageOnlineBaseSessionsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PageOnlineBaseSessionsResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _BaseSessionService_RevokeBaseSession0_HTTP_Handler(srv BaseSessionServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in RevokeBaseSessionRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseSessionServiceRevokeBaseSession)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.RevokeBaseSession(ctx, req.(*RevokeBaseSessionRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BaseSessionServiceHTTPClient interface {
 	// GetCurrentBaseSession 查询当前用户会话。
 	GetCurrentBaseSession(ctx context.Context, req *GetCurrentBaseSessionRequest, opts ...http.CallOption) (rsp *BaseSession, err error)
+	// ListCurrentBaseSessions 查询当前用户全部有效会话。
+	ListCurrentBaseSessions(ctx context.Context, req *ListCurrentBaseSessionsRequest, opts ...http.CallOption) (rsp *ListCurrentBaseSessionsResponse, err error)
+	// PageOnlineBaseSessions 分页查询当前在线用户会话。
+	PageOnlineBaseSessions(ctx context.Context, req *PageOnlineBaseSessionsRequest, opts ...http.CallOption) (rsp *PageOnlineBaseSessionsResponse, err error)
 	// RevokeAllBaseSessions 撤销当前用户全部会话。
 	RevokeAllBaseSessions(ctx context.Context, req *RevokeAllBaseSessionsRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// RevokeBaseSession 下线指定用户会话。
+	RevokeBaseSession(ctx context.Context, req *RevokeBaseSessionRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type BaseSessionServiceHTTPClientImpl struct {
@@ -105,6 +183,40 @@ func (c *BaseSessionServiceHTTPClientImpl) GetCurrentBaseSession(ctx context.Con
 	return &out, nil
 }
 
+// ListCurrentBaseSessions 查询当前用户全部有效会话。
+func (c *BaseSessionServiceHTTPClientImpl) ListCurrentBaseSessions(ctx context.Context, in *ListCurrentBaseSessionsRequest, opts ...http.CallOption) (*ListCurrentBaseSessionsResponse, error) {
+	var out ListCurrentBaseSessionsResponse
+	pattern := "/api/v1/admin/base/session/current-user"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationBaseSessionServiceListCurrentBaseSessions),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// PageOnlineBaseSessions 分页查询当前在线用户会话。
+func (c *BaseSessionServiceHTTPClientImpl) PageOnlineBaseSessions(ctx context.Context, in *PageOnlineBaseSessionsRequest, opts ...http.CallOption) (*PageOnlineBaseSessionsResponse, error) {
+	var out PageOnlineBaseSessionsResponse
+	pattern := "/api/v1/admin/base/session/online"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationBaseSessionServicePageOnlineBaseSessions),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 // RevokeAllBaseSessions 撤销当前用户全部会话。
 func (c *BaseSessionServiceHTTPClientImpl) RevokeAllBaseSessions(ctx context.Context, in *RevokeAllBaseSessionsRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
@@ -117,6 +229,23 @@ func (c *BaseSessionServiceHTTPClientImpl) RevokeAllBaseSessions(ctx context.Con
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// RevokeBaseSession 下线指定用户会话。
+func (c *BaseSessionServiceHTTPClientImpl) RevokeBaseSession(ctx context.Context, in *RevokeBaseSessionRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/api/v1/admin/base/session/{session_id}"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationBaseSessionServiceRevokeBaseSession),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

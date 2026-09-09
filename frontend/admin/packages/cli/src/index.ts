@@ -297,10 +297,10 @@ function printHelp(): void {
       "kratos-admin create <project> --module <module[,module...]> [--module <module>] [--with other] [--kratos-project]",
       "",
       "示例:",
-      "  kratos-admin create shop-admin --module shop",
-      "  kratos-admin create shop-admin --module shop,order",
-      "  kratos-admin create shop-admin --module shop --module order",
-      "  kratos-admin create shop-admin --module shop,order --with other",
+      "  kratos-admin create business-admin --module business",
+      "  kratos-admin create business-admin --module business,report",
+      "  kratos-admin create business-admin --module business --module report",
+      "  kratos-admin create business-admin --module business,report --with other",
       ""
     ].join("\n")
   );

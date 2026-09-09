@@ -318,7 +318,7 @@ export interface Notification {
   allow_delete: boolean;
 }
 
-/** NotificationService 提供当前用户的站内信收件箱能力。 */
+/** Base站内信通知服务，提供当前用户的收件箱能力。 */
 export interface NotificationService {
   /** 分页查询当前用户收件箱。 */
   PageNotification(request: PageNotificationRequest): Promise<PageNotificationResponse>;

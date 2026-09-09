@@ -73,7 +73,7 @@ type HttpRequestOptions = UniApp.RequestOptions & {
 const httpInterceptor = {
   // 拦截前触发
   invoke(options: UniApp.RequestOptions) {
-    const authMode = (options as HttpRequestOptions).authMode
+    const authMode = resolveAuthMode(options as HttpRequestOptions, options.url)
     // 1. 相对接口地址只拼接一次基础路径，兼容 HMR 等场景下拦截器重复注册。
     if (
       !options.url.startsWith('http') &&
@@ -165,9 +165,10 @@ export const http = <T>(options: HttpRequestOptions) => {
   return new Promise<T>((resolve, reject) => {
     const sendRequest = async (retriedAsAnonymous = false) => {
       try {
-        const requestOptions = { ...options, header: { ...options.header } }
+        const requestOptions: HttpRequestOptions = { ...options, header: { ...options.header } }
         const requestUrl = String(requestOptions.url)
         const authMode = resolveAuthMode(requestOptions, requestUrl)
+        requestOptions.authMode = retriedAsAnonymous && authMode === 'optional' ? 'none' : authMode
         let accessToken = ''
         try {
           accessToken = await getAccessTokenByMode(
@@ -327,6 +328,7 @@ async function refreshAccessToken() {
       method: 'POST',
       data: { refresh_token: refreshToken },
       header: {
+        Authorization: 'no-auth',
         'source-client': sourceClient,
         ...getLocaleRequestHeaders(),
       },
@@ -373,7 +375,15 @@ async function refreshAccessToken() {
   setTokenExpiresIn(expires_in)
 }
 
+/** 业务页提示重新登录；登录页只清理残留登录态，避免后台请求触发循环弹窗。 */
 async function promptRelogin() {
+  const pages = getCurrentPages()
+  if (pages[pages.length - 1]?.route === 'pages/login/login') {
+    if (getToken() || getRefreshToken() || uni.getStorageSync('user')) {
+      silentClearAuthData()
+    }
+    return
+  }
   if (isPromptingRelogin) {
     return
   }

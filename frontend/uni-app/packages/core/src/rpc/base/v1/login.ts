@@ -155,6 +155,8 @@ export interface LoginResponse {
   mfa_method: string;
   /** WebAuthn认证选项JSON */
   mfa_webauthn_options_json: string;
+  /** 当前登录策略允许的MFA设备免验证天数 */
+  mfa_remember_days: number;
 }
 
 /** Base登录公共服务 */

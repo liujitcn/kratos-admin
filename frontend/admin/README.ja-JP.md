@@ -110,13 +110,13 @@ import { defineAdminModule } from "@liujitcn/kratos-admin-core";
 
 const views = import.meta.glob<{ default: Component }>("./views/**/*.vue");
 
-export const orderAdminModule = defineAdminModule({
-  name: "order",
+export const businessAdminModule = defineAdminModule({
+  name: "business",
   views
 });
 ```
 
-業務ページは module 接頭辞付きパスだけを登録します。`views/list/index.vue` は `order/list/index` として解決され、接頭辞のない別名は提供しません。バックエンドメニューの `component` は完全な module パスを指定します。異なる module に同名の `views` があっても相互に上書きしません。ホストは `src/module-manifest.ts` で module を宣言し、`src/modules.ts` で読み込んで全 module を既定エクスポートします。
+業務ページは module 接頭辞付きパスだけを登録します。`views/list/index.vue` は `business/list/index` として解決され、接頭辞のない別名は提供しません。バックエンドメニューの `component` は完全な module パスを指定します。異なる module に同名の `views` があっても相互に上書きしません。ホストは `src/module-manifest.ts` で module を宣言し、`src/modules.ts` で読み込んで全 module を既定エクスポートします。
 
 ### 静的ページの置換
 
@@ -137,24 +137,24 @@ core は `ADMIN_STATIC_VIEWS` で固定ビューキーを公開します。
 CLI が生成する業務プロジェクトも pnpm workspace で、独立ホストと公開可能な業務モジュールパッケージを含みます。
 
 ```bash
-pnpm dlx @liujitcn/kratos-admin-cli create shop-admin --module shop
-pnpm dlx @liujitcn/kratos-admin-cli create shop-admin --module shop,order
+pnpm dlx @liujitcn/kratos-admin-cli create business-admin --module business
+pnpm dlx @liujitcn/kratos-admin-cli create business-admin --module business,report
 
 # 現在のリポジトリで開発
-pnpm module:create ../shop-admin --module shop
-pnpm module:create ../shop-admin --module shop,order
-pnpm module:create ../shop-admin --module shop --module order
+pnpm module:create ../business-admin --module business
+pnpm module:create ../business-admin --module business,report
+pnpm module:create ../business-admin --module business --module report
 ```
 
 生成結果は次の構成です。
 
 ```text
-shop-admin
+business-admin
 ├── apps/admin
 │   └── README.md
-├── packages/modules/shop
+├── packages/modules/business
 │   └── README.md
-├── packages/modules/order
+├── packages/modules/report
 │   └── README.md
 ├── scripts/build-package.mjs
 ├── package.json

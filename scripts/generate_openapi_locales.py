@@ -293,6 +293,9 @@ def automatic_i18ns(
     generated: dict[str, str] = {}
     untranslated = 0
     for source, target in zip(pending, translated):
+        # 技术标识和简繁同形文案无需改写，不能按机器翻译失败统计。
+        if target == source and (target_locale == "zh-TW" or not contains_cjk(source)):
+            continue
         if not target or target == source:
             untranslated += 1
             continue

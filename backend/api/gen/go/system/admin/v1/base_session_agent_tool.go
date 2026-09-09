@@ -18,6 +18,12 @@ import (
 func NewBaseSessionServiceAgentTools(baseSessionServiceServer BaseSessionServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
+	var listCurrentBaseSessionsTool tool.InvokableTool
+	listCurrentBaseSessionsTool, err = NewBaseSessionServiceListCurrentBaseSessionsAgentTool(baseSessionServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, listCurrentBaseSessionsTool)
 	var getCurrentBaseSessionTool tool.InvokableTool
 	getCurrentBaseSessionTool, err = NewBaseSessionServiceGetCurrentBaseSessionAgentTool(baseSessionServiceServer)
 	if err != nil {
@@ -30,7 +36,33 @@ func NewBaseSessionServiceAgentTools(baseSessionServiceServer BaseSessionService
 		return nil, err
 	}
 	ts = append(ts, revokeAllBaseSessionsTool)
+	var pageOnlineBaseSessionsTool tool.InvokableTool
+	pageOnlineBaseSessionsTool, err = NewBaseSessionServicePageOnlineBaseSessionsAgentTool(baseSessionServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, pageOnlineBaseSessionsTool)
+	var revokeBaseSessionTool tool.InvokableTool
+	revokeBaseSessionTool, err = NewBaseSessionServiceRevokeBaseSessionAgentTool(baseSessionServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, revokeBaseSessionTool)
 	return ts, nil
+}
+
+// NewBaseSessionServiceListCurrentBaseSessionsAgentTool 创建查询当前用户全部有效会话的 Agent Tool。
+func NewBaseSessionServiceListCurrentBaseSessionsAgentTool(baseSessionServiceServer BaseSessionServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListCurrentBaseSessionsRequest, *ListCurrentBaseSessionsResponse](
+		"system_admin_v1_base_session_service_list_current_base_sessions",
+		"查询当前用户全部有效会话。",
+		func(ctx context.Context, req *ListCurrentBaseSessionsRequest) (*ListCurrentBaseSessionsResponse, error) {
+			if req == nil {
+				req = &ListCurrentBaseSessionsRequest{}
+			}
+			return baseSessionServiceServer.ListCurrentBaseSessions(ctx, req)
+		},
+	)
 }
 
 // NewBaseSessionServiceGetCurrentBaseSessionAgentTool 创建查询当前用户会话的 Agent Tool。
@@ -57,6 +89,34 @@ func NewBaseSessionServiceRevokeAllBaseSessionsAgentTool(baseSessionServiceServe
 				req = &RevokeAllBaseSessionsRequest{}
 			}
 			return baseSessionServiceServer.RevokeAllBaseSessions(ctx, req)
+		},
+	)
+}
+
+// NewBaseSessionServicePageOnlineBaseSessionsAgentTool 创建分页查询当前在线用户会话的 Agent Tool。
+func NewBaseSessionServicePageOnlineBaseSessionsAgentTool(baseSessionServiceServer BaseSessionServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageOnlineBaseSessionsRequest, *PageOnlineBaseSessionsResponse](
+		"system_admin_v1_base_session_service_page_online_base_sessions",
+		"分页查询当前在线用户会话。",
+		func(ctx context.Context, req *PageOnlineBaseSessionsRequest) (*PageOnlineBaseSessionsResponse, error) {
+			if req == nil {
+				req = &PageOnlineBaseSessionsRequest{}
+			}
+			return baseSessionServiceServer.PageOnlineBaseSessions(ctx, req)
+		},
+	)
+}
+
+// NewBaseSessionServiceRevokeBaseSessionAgentTool 创建下线指定用户会话的 Agent Tool。
+func NewBaseSessionServiceRevokeBaseSessionAgentTool(baseSessionServiceServer BaseSessionServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*RevokeBaseSessionRequest, *emptypb.Empty](
+		"system_admin_v1_base_session_service_revoke_base_session",
+		"下线指定用户会话。",
+		func(ctx context.Context, req *RevokeBaseSessionRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &RevokeBaseSessionRequest{}
+			}
+			return baseSessionServiceServer.RevokeBaseSession(ctx, req)
 		},
 	)
 }

@@ -44,9 +44,3 @@ watch(isDark, () => (font.color = isDark.value ? "rgba(255, 255, 255, .15)" : "r
   immediate: true
 });
 </script>
-
-<style scoped lang="scss">
-.layout {
-  min-width: 600px;
-}
-</style>

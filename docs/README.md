@@ -40,4 +40,4 @@
 
 - 文档只描述仓库当前已经存在的能力；规划中的能力必须明确标记为“未实现”，不能写成现状。
 - 命令、路径、包名和接口以代码、Makefile、Proto 和 package `exports` 为准。
-- `I18N_LOCALES` 控制 OpenAPI 目标语言；执行 `make i18n-openapi` 生成多语言 YAML，无网络环境可设置 `I18N_OFFLINE=1`。
+- `I18N_LOCALES` 控制 OpenAPI 目标语言；执行 `make i18n` 生成多语言 YAML，无网络环境可设置 `I18N_OFFLINE=1`。

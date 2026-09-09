@@ -20,18 +20,41 @@ const _ = http.SupportPackageIsVersion3
 
 const OperationBaseLoginLogServiceGetBaseLoginLog = "/system.admin.v1.BaseLoginLogService/GetBaseLoginLog"
 const OperationBaseLoginLogServicePageBaseLoginLog = "/system.admin.v1.BaseLoginLogService/PageBaseLoginLog"
+const OperationBaseLoginLogServicePageCurrentUserLoginLog = "/system.admin.v1.BaseLoginLogService/PageCurrentUserLoginLog"
 
 type BaseLoginLogServiceHTTPServer interface {
 	// GetBaseLoginLog 查询登录日志详情。
 	GetBaseLoginLog(context.Context, *GetBaseLoginLogRequest) (*BaseLoginLog, error)
 	// PageBaseLoginLog 分页查询登录日志。
 	PageBaseLoginLog(context.Context, *PageBaseLoginLogRequest) (*PageBaseLoginLogResponse, error)
+	// PageCurrentUserLoginLog 分页查询当前登录用户本人的登录记录。
+	PageCurrentUserLoginLog(context.Context, *PageCurrentUserLoginLogRequest) (*PageBaseLoginLogResponse, error)
 }
 
 func RegisterBaseLoginLogServiceHTTPServer(s *http.Server, srv BaseLoginLogServiceHTTPServer) {
 	r := s.Route("/")
+	r.Handle("GET", "/api/v1/admin/base/login-log/current-user", _BaseLoginLogService_PageCurrentUserLoginLog0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/login-log", _BaseLoginLogService_PageBaseLoginLog0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/admin/base/login-log/{id}", _BaseLoginLogService_GetBaseLoginLog0_HTTP_Handler(srv))
+}
+
+func _BaseLoginLogService_PageCurrentUserLoginLog0_HTTP_Handler(srv BaseLoginLogServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PageCurrentUserLoginLogRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseLoginLogServicePageCurrentUserLoginLog)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PageCurrentUserLoginLog(ctx, req.(*PageCurrentUserLoginLogRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PageBaseLoginLogResponse)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _BaseLoginLogService_PageBaseLoginLog0_HTTP_Handler(srv BaseLoginLogServiceHTTPServer) func(ctx http.Context) error {
@@ -80,6 +103,8 @@ type BaseLoginLogServiceHTTPClient interface {
 	GetBaseLoginLog(ctx context.Context, req *GetBaseLoginLogRequest, opts ...http.CallOption) (rsp *BaseLoginLog, err error)
 	// PageBaseLoginLog 分页查询登录日志。
 	PageBaseLoginLog(ctx context.Context, req *PageBaseLoginLogRequest, opts ...http.CallOption) (rsp *PageBaseLoginLogResponse, err error)
+	// PageCurrentUserLoginLog 分页查询当前登录用户本人的登录记录。
+	PageCurrentUserLoginLog(ctx context.Context, req *PageCurrentUserLoginLogRequest, opts ...http.CallOption) (rsp *PageBaseLoginLogResponse, err error)
 }
 
 type BaseLoginLogServiceHTTPClientImpl struct {
@@ -115,6 +140,23 @@ func (c *BaseLoginLogServiceHTTPClientImpl) PageBaseLoginLog(ctx context.Context
 	opts = append([]http.CallOption{
 		http.Accept("application/protojson"),
 		http.Operation(OperationBaseLoginLogServicePageBaseLoginLog),
+		http.PathTemplate(pattern),
+	}, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// PageCurrentUserLoginLog 分页查询当前登录用户本人的登录记录。
+func (c *BaseLoginLogServiceHTTPClientImpl) PageCurrentUserLoginLog(ctx context.Context, in *PageCurrentUserLoginLogRequest, opts ...http.CallOption) (*PageBaseLoginLogResponse, error) {
+	var out PageBaseLoginLogResponse
+	pattern := "/api/v1/admin/base/login-log/current-user"
+	path := http.BuildPath(pattern, in, http.WithQueryParams())
+	opts = append([]http.CallOption{
+		http.Accept("application/protojson"),
+		http.Operation(OperationBaseLoginLogServicePageCurrentUserLoginLog),
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)

@@ -297,4 +297,6 @@ func (x *LoginResponse) Redact() {
 	// Safe field: MfaMethod
 
 	// Safe field: MfaWebauthnOptionsJson
+
+	// Safe field: MfaRememberDays
 }

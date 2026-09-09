@@ -55,6 +55,7 @@
   "core.layout.avatar": "使用者頭像",
   "core.layout.logo_alt": "系統標誌",
   "core.login.background_alt": "登入頁背景",
+  "core.login.mfa_remember_device": "{days}天內免驗證此裝置",
   "core.login.mfa_title": "多因素認證",
   "core.login.mfa_code": "請輸入動態密碼",
   "core.login.mfa_recovery_code": "恢復碼（可選）",
@@ -331,5 +332,7 @@
   "common.value.top_level": "頂級節點",
   "common.resource.default": "{resource}",
   "common.action.delete_resource": "刪除{resource}",
-  "common.action.set_field_status": "設定{field}"
+  "common.action.set_field_status": "設定{field}",
+  "core.home.demo_scope": "功能概覽",
+  "core.home.main_title": "管理應用程式"
 }

@@ -20,8 +20,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BaseLoginLogService_PageBaseLoginLog_FullMethodName = "/system.admin.v1.BaseLoginLogService/PageBaseLoginLog"
-	BaseLoginLogService_GetBaseLoginLog_FullMethodName  = "/system.admin.v1.BaseLoginLogService/GetBaseLoginLog"
+	BaseLoginLogService_PageCurrentUserLoginLog_FullMethodName = "/system.admin.v1.BaseLoginLogService/PageCurrentUserLoginLog"
+	BaseLoginLogService_PageBaseLoginLog_FullMethodName        = "/system.admin.v1.BaseLoginLogService/PageBaseLoginLog"
+	BaseLoginLogService_GetBaseLoginLog_FullMethodName         = "/system.admin.v1.BaseLoginLogService/GetBaseLoginLog"
 )
 
 // BaseLoginLogServiceClient is the client API for BaseLoginLogService service.
@@ -30,6 +31,8 @@ const (
 //
 // Admin登录日志服务。
 type BaseLoginLogServiceClient interface {
+	// 分页查询当前登录用户本人的登录记录。
+	PageCurrentUserLoginLog(ctx context.Context, in *PageCurrentUserLoginLogRequest, opts ...grpc.CallOption) (*PageBaseLoginLogResponse, error)
 	// 分页查询登录日志。
 	PageBaseLoginLog(ctx context.Context, in *PageBaseLoginLogRequest, opts ...grpc.CallOption) (*PageBaseLoginLogResponse, error)
 	// 查询登录日志详情。
@@ -42,6 +45,16 @@ type baseLoginLogServiceClient struct {
 
 func NewBaseLoginLogServiceClient(cc grpc.ClientConnInterface) BaseLoginLogServiceClient {
 	return &baseLoginLogServiceClient{cc}
+}
+
+func (c *baseLoginLogServiceClient) PageCurrentUserLoginLog(ctx context.Context, in *PageCurrentUserLoginLogRequest, opts ...grpc.CallOption) (*PageBaseLoginLogResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PageBaseLoginLogResponse)
+	err := c.cc.Invoke(ctx, BaseLoginLogService_PageCurrentUserLoginLog_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *baseLoginLogServiceClient) PageBaseLoginLog(ctx context.Context, in *PageBaseLoginLogRequest, opts ...grpc.CallOption) (*PageBaseLoginLogResponse, error) {
@@ -70,6 +83,8 @@ func (c *baseLoginLogServiceClient) GetBaseLoginLog(ctx context.Context, in *Get
 //
 // Admin登录日志服务。
 type BaseLoginLogServiceServer interface {
+	// 分页查询当前登录用户本人的登录记录。
+	PageCurrentUserLoginLog(context.Context, *PageCurrentUserLoginLogRequest) (*PageBaseLoginLogResponse, error)
 	// 分页查询登录日志。
 	PageBaseLoginLog(context.Context, *PageBaseLoginLogRequest) (*PageBaseLoginLogResponse, error)
 	// 查询登录日志详情。
@@ -84,6 +99,9 @@ type BaseLoginLogServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseLoginLogServiceServer struct{}
 
+func (UnimplementedBaseLoginLogServiceServer) PageCurrentUserLoginLog(context.Context, *PageCurrentUserLoginLogRequest) (*PageBaseLoginLogResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageCurrentUserLoginLog not implemented")
+}
 func (UnimplementedBaseLoginLogServiceServer) PageBaseLoginLog(context.Context, *PageBaseLoginLogRequest) (*PageBaseLoginLogResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PageBaseLoginLog not implemented")
 }
@@ -109,6 +127,24 @@ func RegisterBaseLoginLogServiceServer(s grpc.ServiceRegistrar, srv BaseLoginLog
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&BaseLoginLogService_ServiceDesc, srv)
+}
+
+func _BaseLoginLogService_PageCurrentUserLoginLog_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageCurrentUserLoginLogRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BaseLoginLogServiceServer).PageCurrentUserLoginLog(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BaseLoginLogService_PageCurrentUserLoginLog_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BaseLoginLogServiceServer).PageCurrentUserLoginLog(ctx, req.(*PageCurrentUserLoginLogRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _BaseLoginLogService_PageBaseLoginLog_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -154,6 +190,10 @@ var BaseLoginLogService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "system.admin.v1.BaseLoginLogService",
 	HandlerType: (*BaseLoginLogServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "PageCurrentUserLoginLog",
+			Handler:    _BaseLoginLogService_PageCurrentUserLoginLog_Handler,
+		},
 		{
 			MethodName: "PageBaseLoginLog",
 			Handler:    _BaseLoginLogService_PageBaseLoginLog_Handler,

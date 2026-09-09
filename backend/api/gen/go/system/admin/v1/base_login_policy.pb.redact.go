@@ -237,9 +237,13 @@ func (x *BaseLoginPolicyForm) Redact() {
 
 	// Safe field: LockDurationMinutes
 
+	// Safe field: AllowConcurrentLogin
+
 	// Safe field: Status
 
 	// Safe field: PasswordMaxAgeDays
+
+	// Safe field: MfaRememberDays
 
 	// Safe field: Rules
 
@@ -277,6 +281,8 @@ func (x *BaseLoginPolicy) Redact() {
 
 	// Safe field: LockDurationMinutes
 
+	// Safe field: AllowConcurrentLogin
+
 	// Safe field: Status
 
 	// Safe field: CreatedAt
@@ -284,6 +290,8 @@ func (x *BaseLoginPolicy) Redact() {
 	// Safe field: UpdatedAt
 
 	// Safe field: PasswordMaxAgeDays
+
+	// Safe field: MfaRememberDays
 
 	// Safe field: Rules
 

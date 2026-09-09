@@ -11,6 +11,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -90,6 +91,59 @@ func (BaseLoginLogType) EnumDescriptor() ([]byte, []int) {
 	return file_system_admin_v1_base_login_log_proto_rawDescGZIP(), []int{0}
 }
 
+// 本人登录记录分页条件，用户和租户由服务端认证身份确定。
+type PageCurrentUserLoginLogRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`    // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"` // 每页行数
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PageCurrentUserLoginLogRequest) Reset() {
+	*x = PageCurrentUserLoginLogRequest{}
+	mi := &file_system_admin_v1_base_login_log_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PageCurrentUserLoginLogRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PageCurrentUserLoginLogRequest) ProtoMessage() {}
+
+func (x *PageCurrentUserLoginLogRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_login_log_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PageCurrentUserLoginLogRequest.ProtoReflect.Descriptor instead.
+func (*PageCurrentUserLoginLogRequest) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_login_log_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *PageCurrentUserLoginLogRequest) GetPageNum() int64 {
+	if x != nil {
+		return x.PageNum
+	}
+	return 0
+}
+
+func (x *PageCurrentUserLoginLogRequest) GetPageSize() int64 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
+}
+
 // 登录日志分页查询条件。
 type PageBaseLoginLogRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -107,7 +161,7 @@ type PageBaseLoginLogRequest struct {
 
 func (x *PageBaseLoginLogRequest) Reset() {
 	*x = PageBaseLoginLogRequest{}
-	mi := &file_system_admin_v1_base_login_log_proto_msgTypes[0]
+	mi := &file_system_admin_v1_base_login_log_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -119,7 +173,7 @@ func (x *PageBaseLoginLogRequest) String() string {
 func (*PageBaseLoginLogRequest) ProtoMessage() {}
 
 func (x *PageBaseLoginLogRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_login_log_proto_msgTypes[0]
+	mi := &file_system_admin_v1_base_login_log_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -132,7 +186,7 @@ func (x *PageBaseLoginLogRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageBaseLoginLogRequest.ProtoReflect.Descriptor instead.
 func (*PageBaseLoginLogRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_login_log_proto_rawDescGZIP(), []int{0}
+	return file_system_admin_v1_base_login_log_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *PageBaseLoginLogRequest) GetTenantId() int64 {
@@ -202,7 +256,7 @@ type PageBaseLoginLogResponse struct {
 
 func (x *PageBaseLoginLogResponse) Reset() {
 	*x = PageBaseLoginLogResponse{}
-	mi := &file_system_admin_v1_base_login_log_proto_msgTypes[1]
+	mi := &file_system_admin_v1_base_login_log_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -214,7 +268,7 @@ func (x *PageBaseLoginLogResponse) String() string {
 func (*PageBaseLoginLogResponse) ProtoMessage() {}
 
 func (x *PageBaseLoginLogResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_login_log_proto_msgTypes[1]
+	mi := &file_system_admin_v1_base_login_log_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -227,7 +281,7 @@ func (x *PageBaseLoginLogResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageBaseLoginLogResponse.ProtoReflect.Descriptor instead.
 func (*PageBaseLoginLogResponse) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_login_log_proto_rawDescGZIP(), []int{1}
+	return file_system_admin_v1_base_login_log_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *PageBaseLoginLogResponse) GetBaseLoginLogs() []*BaseLoginLog {
@@ -254,7 +308,7 @@ type GetBaseLoginLogRequest struct {
 
 func (x *GetBaseLoginLogRequest) Reset() {
 	*x = GetBaseLoginLogRequest{}
-	mi := &file_system_admin_v1_base_login_log_proto_msgTypes[2]
+	mi := &file_system_admin_v1_base_login_log_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -266,7 +320,7 @@ func (x *GetBaseLoginLogRequest) String() string {
 func (*GetBaseLoginLogRequest) ProtoMessage() {}
 
 func (x *GetBaseLoginLogRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_login_log_proto_msgTypes[2]
+	mi := &file_system_admin_v1_base_login_log_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -279,7 +333,7 @@ func (x *GetBaseLoginLogRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetBaseLoginLogRequest.ProtoReflect.Descriptor instead.
 func (*GetBaseLoginLogRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_login_log_proto_rawDescGZIP(), []int{2}
+	return file_system_admin_v1_base_login_log_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetBaseLoginLogRequest) GetId() string {
@@ -314,7 +368,7 @@ type BaseLoginLog struct {
 
 func (x *BaseLoginLog) Reset() {
 	*x = BaseLoginLog{}
-	mi := &file_system_admin_v1_base_login_log_proto_msgTypes[3]
+	mi := &file_system_admin_v1_base_login_log_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -326,7 +380,7 @@ func (x *BaseLoginLog) String() string {
 func (*BaseLoginLog) ProtoMessage() {}
 
 func (x *BaseLoginLog) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_login_log_proto_msgTypes[3]
+	mi := &file_system_admin_v1_base_login_log_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -339,7 +393,7 @@ func (x *BaseLoginLog) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseLoginLog.ProtoReflect.Descriptor instead.
 func (*BaseLoginLog) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_login_log_proto_rawDescGZIP(), []int{3}
+	return file_system_admin_v1_base_login_log_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *BaseLoginLog) GetId() string {
@@ -458,7 +512,12 @@ var File_system_admin_v1_base_login_log_proto protoreflect.FileDescriptor
 
 const file_system_admin_v1_base_login_log_proto_rawDesc = "" +
 	"\n" +
-	"$system/admin/v1/base_login_log.proto\x12\x0fsystem.admin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1esystem/admin/v1/base_log.proto\"\xa7\x04\n" +
+	"$system/admin/v1/base_login_log.proto\x12\x0fsystem.admin.v1\x1a\x1bbuf/validate/validate.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1esystem/admin/v1/base_log.proto\"\xfd\x02\n" +
+	"\x1ePageCurrentUserLoginLogRequest\x12\xab\x01\n" +
+	"\bpage_num\x18e \x01(\x03B\x8f\x01\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码\xbaHn\xba\x01k\n" +
+	"%current_user_login_log.page_num.range\x12$页码必须在 1 到 1000000 之间\x1a\x1cthis >= 1 && this <= 1000000R\apageNum\x12\xac\x01\n" +
+	"\tpage_size\x18f \x01(\x03B\x8e\x01\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页行数\xbaHm\xba\x01j\n" +
+	"&current_user_login_log.page_size.range\x12&每页行数必须在 1 到 100 之间\x1a\x18this >= 1 && this <= 100R\bpageSize\"\xa7\x04\n" +
 	"\x17PageBaseLoginLogRequest\x120\n" +
 	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12,\n" +
 	"\auser_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDH\x01R\x06userId\x88\x01\x01\x12Y\n" +
@@ -512,8 +571,9 @@ const file_system_admin_v1_base_login_log_proto_rawDesc = "" +
 	"\x19BASE_LOGIN_LOG_TYPE_OAUTH\x10\x02\x12\x1b\n" +
 	"\x17BASE_LOGIN_LOG_TYPE_MFA\x10\x03\x12%\n" +
 	"!BASE_LOGIN_LOG_TYPE_TOKEN_REFRESH\x10\x04\x12\x1e\n" +
-	"\x1aBASE_LOGIN_LOG_TYPE_LOGOUT\x10\x052\xac\x02\n" +
-	"\x13BaseLoginLogService\x12\x8d\x01\n" +
+	"\x1aBASE_LOGIN_LOG_TYPE_LOGOUT\x10\x052\xd7\x03\n" +
+	"\x13BaseLoginLogService\x12\xa8\x01\n" +
+	"\x17PageCurrentUserLoginLog\x12/.system.admin.v1.PageCurrentUserLoginLogRequest\x1a).system.admin.v1.PageBaseLoginLogResponse\"1\x82\xd3\xe4\x93\x02+\x12)/api/v1/admin/base/login-log/current-user\x12\x8d\x01\n" +
 	"\x10PageBaseLoginLog\x12(.system.admin.v1.PageBaseLoginLogRequest\x1a).system.admin.v1.PageBaseLoginLogResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/v1/admin/base/login-log\x12\x84\x01\n" +
 	"\x0fGetBaseLoginLog\x12'.system.admin.v1.GetBaseLoginLogRequest\x1a\x1d.system.admin.v1.BaseLoginLog\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/admin/base/login-log/{id}B\xd3\x01\n" +
 	"\x13com.system.admin.v1B\x11BaseLoginLogProtoP\x01ZKgithub.com/liujitcn/kratos-admin/backend/api/gen/go/system/admin/v1;adminv1\xa2\x02\x03SAX\xaa\x02\x0fSystem.Admin.V1\xca\x02\x0fSystem\\Admin\\V1\xe2\x02\x1bSystem\\Admin\\V1\\GPBMetadata\xea\x02\x11System::Admin::V1b\x06proto3"
@@ -531,27 +591,30 @@ func file_system_admin_v1_base_login_log_proto_rawDescGZIP() []byte {
 }
 
 var file_system_admin_v1_base_login_log_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_system_admin_v1_base_login_log_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_system_admin_v1_base_login_log_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_system_admin_v1_base_login_log_proto_goTypes = []any{
-	(BaseLoginLogType)(0),            // 0: system.admin.v1.BaseLoginLogType
-	(*PageBaseLoginLogRequest)(nil),  // 1: system.admin.v1.PageBaseLoginLogRequest
-	(*PageBaseLoginLogResponse)(nil), // 2: system.admin.v1.PageBaseLoginLogResponse
-	(*GetBaseLoginLogRequest)(nil),   // 3: system.admin.v1.GetBaseLoginLogRequest
-	(*BaseLoginLog)(nil),             // 4: system.admin.v1.BaseLoginLog
-	(BaseLogResult)(0),               // 5: system.admin.v1.BaseLogResult
+	(BaseLoginLogType)(0),                  // 0: system.admin.v1.BaseLoginLogType
+	(*PageCurrentUserLoginLogRequest)(nil), // 1: system.admin.v1.PageCurrentUserLoginLogRequest
+	(*PageBaseLoginLogRequest)(nil),        // 2: system.admin.v1.PageBaseLoginLogRequest
+	(*PageBaseLoginLogResponse)(nil),       // 3: system.admin.v1.PageBaseLoginLogResponse
+	(*GetBaseLoginLogRequest)(nil),         // 4: system.admin.v1.GetBaseLoginLogRequest
+	(*BaseLoginLog)(nil),                   // 5: system.admin.v1.BaseLoginLog
+	(BaseLogResult)(0),                     // 6: system.admin.v1.BaseLogResult
 }
 var file_system_admin_v1_base_login_log_proto_depIdxs = []int32{
 	0, // 0: system.admin.v1.PageBaseLoginLogRequest.login_type:type_name -> system.admin.v1.BaseLoginLogType
-	5, // 1: system.admin.v1.PageBaseLoginLogRequest.result:type_name -> system.admin.v1.BaseLogResult
-	4, // 2: system.admin.v1.PageBaseLoginLogResponse.base_login_logs:type_name -> system.admin.v1.BaseLoginLog
+	6, // 1: system.admin.v1.PageBaseLoginLogRequest.result:type_name -> system.admin.v1.BaseLogResult
+	5, // 2: system.admin.v1.PageBaseLoginLogResponse.base_login_logs:type_name -> system.admin.v1.BaseLoginLog
 	0, // 3: system.admin.v1.BaseLoginLog.login_type:type_name -> system.admin.v1.BaseLoginLogType
-	5, // 4: system.admin.v1.BaseLoginLog.result:type_name -> system.admin.v1.BaseLogResult
-	1, // 5: system.admin.v1.BaseLoginLogService.PageBaseLoginLog:input_type -> system.admin.v1.PageBaseLoginLogRequest
-	3, // 6: system.admin.v1.BaseLoginLogService.GetBaseLoginLog:input_type -> system.admin.v1.GetBaseLoginLogRequest
-	2, // 7: system.admin.v1.BaseLoginLogService.PageBaseLoginLog:output_type -> system.admin.v1.PageBaseLoginLogResponse
-	4, // 8: system.admin.v1.BaseLoginLogService.GetBaseLoginLog:output_type -> system.admin.v1.BaseLoginLog
-	7, // [7:9] is the sub-list for method output_type
-	5, // [5:7] is the sub-list for method input_type
+	6, // 4: system.admin.v1.BaseLoginLog.result:type_name -> system.admin.v1.BaseLogResult
+	1, // 5: system.admin.v1.BaseLoginLogService.PageCurrentUserLoginLog:input_type -> system.admin.v1.PageCurrentUserLoginLogRequest
+	2, // 6: system.admin.v1.BaseLoginLogService.PageBaseLoginLog:input_type -> system.admin.v1.PageBaseLoginLogRequest
+	4, // 7: system.admin.v1.BaseLoginLogService.GetBaseLoginLog:input_type -> system.admin.v1.GetBaseLoginLogRequest
+	3, // 8: system.admin.v1.BaseLoginLogService.PageCurrentUserLoginLog:output_type -> system.admin.v1.PageBaseLoginLogResponse
+	3, // 9: system.admin.v1.BaseLoginLogService.PageBaseLoginLog:output_type -> system.admin.v1.PageBaseLoginLogResponse
+	5, // 10: system.admin.v1.BaseLoginLogService.GetBaseLoginLog:output_type -> system.admin.v1.BaseLoginLog
+	8, // [8:11] is the sub-list for method output_type
+	5, // [5:8] is the sub-list for method input_type
 	5, // [5:5] is the sub-list for extension type_name
 	5, // [5:5] is the sub-list for extension extendee
 	0, // [0:5] is the sub-list for field type_name
@@ -563,14 +626,14 @@ func file_system_admin_v1_base_login_log_proto_init() {
 		return
 	}
 	file_system_admin_v1_base_log_proto_init()
-	file_system_admin_v1_base_login_log_proto_msgTypes[0].OneofWrappers = []any{}
+	file_system_admin_v1_base_login_log_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_base_login_log_proto_rawDesc), len(file_system_admin_v1_base_login_log_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   4,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

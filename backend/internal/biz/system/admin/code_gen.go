@@ -526,10 +526,6 @@ func (c *CodeGenCase) prepareCodeGenBatch(ctx context.Context, tableIDs []int64)
 		if err != nil {
 			return nil, err
 		}
-		missingI18ns := codegen.MissingI18nFields(table, columns, localeState)
-		if len(missingI18ns) > 0 {
-			return nil, errorsx.InvalidArgument("正式生成前请补齐翻译配置：" + strings.Join(missingI18ns, "、"))
-		}
 		// 停用配置只允许查看，不能写入生成文件。
 		if table.Status == codegen.StatusDisabled {
 			return nil, errorsx.StateConflict("停用的代码生成表配置不能生成", "code_gen_table", "disabled", "draft_or_generated")

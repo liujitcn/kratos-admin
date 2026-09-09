@@ -15,8 +15,32 @@ import (
 
 // RegisterBaseSessionServiceMCPTools 注册Admin会话管理服务的 MCP Tool。
 func RegisterBaseSessionServiceMCPTools(mcpServer *mcp.Server, baseSessionServiceServer BaseSessionServiceServer) {
+	RegisterBaseSessionServiceListCurrentBaseSessionsMCPTool(mcpServer, baseSessionServiceServer)
 	RegisterBaseSessionServiceGetCurrentBaseSessionMCPTool(mcpServer, baseSessionServiceServer)
 	RegisterBaseSessionServiceRevokeAllBaseSessionsMCPTool(mcpServer, baseSessionServiceServer)
+	RegisterBaseSessionServicePageOnlineBaseSessionsMCPTool(mcpServer, baseSessionServiceServer)
+	RegisterBaseSessionServiceRevokeBaseSessionMCPTool(mcpServer, baseSessionServiceServer)
+}
+
+// RegisterBaseSessionServiceListCurrentBaseSessionsMCPTool 注册查询当前用户全部有效会话的 MCP Tool。
+func RegisterBaseSessionServiceListCurrentBaseSessionsMCPTool(mcpServer *mcp.Server, baseSessionServiceServer BaseSessionServiceServer) {
+	mcp.AddTool[*ListCurrentBaseSessionsRequest, *ListCurrentBaseSessionsResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_base_session_service_list_current_base_sessions",
+			Description: "查询当前用户全部有效会话。",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListCurrentBaseSessionsRequest) (*mcp.CallToolResult, *ListCurrentBaseSessionsResponse, error) {
+			if input == nil {
+				input = &ListCurrentBaseSessionsRequest{}
+			}
+			reply, err := baseSessionServiceServer.ListCurrentBaseSessions(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
 }
 
 // RegisterBaseSessionServiceGetCurrentBaseSessionMCPTool 注册查询当前用户会话的 MCP Tool。
@@ -53,6 +77,48 @@ func RegisterBaseSessionServiceRevokeAllBaseSessionsMCPTool(mcpServer *mcp.Serve
 				input = &RevokeAllBaseSessionsRequest{}
 			}
 			reply, err := baseSessionServiceServer.RevokeAllBaseSessions(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterBaseSessionServicePageOnlineBaseSessionsMCPTool 注册分页查询当前在线用户会话的 MCP Tool。
+func RegisterBaseSessionServicePageOnlineBaseSessionsMCPTool(mcpServer *mcp.Server, baseSessionServiceServer BaseSessionServiceServer) {
+	mcp.AddTool[*PageOnlineBaseSessionsRequest, *PageOnlineBaseSessionsResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_base_session_service_page_online_base_sessions",
+			Description: "分页查询当前在线用户会话。",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageOnlineBaseSessionsRequest) (*mcp.CallToolResult, *PageOnlineBaseSessionsResponse, error) {
+			if input == nil {
+				input = &PageOnlineBaseSessionsRequest{}
+			}
+			reply, err := baseSessionServiceServer.PageOnlineBaseSessions(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterBaseSessionServiceRevokeBaseSessionMCPTool 注册下线指定用户会话的 MCP Tool。
+func RegisterBaseSessionServiceRevokeBaseSessionMCPTool(mcpServer *mcp.Server, baseSessionServiceServer BaseSessionServiceServer) {
+	mcp.AddTool[*RevokeBaseSessionRequest, *emptypb.Empty](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "system_admin_v1_base_session_service_revoke_base_session",
+			Description: "下线指定用户会话。",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *RevokeBaseSessionRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
+			if input == nil {
+				input = &RevokeBaseSessionRequest{}
+			}
+			reply, err := baseSessionServiceServer.RevokeBaseSession(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

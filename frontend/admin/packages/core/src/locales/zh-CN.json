@@ -176,6 +176,7 @@
   "core.login.welcome": "欢迎登录管理后台",
   "core.login.mfa_title": "多因素认证",
   "core.login.mfa_code": "请输入动态口令",
+  "core.login.mfa_remember_device": "{days}天内免验证此设备",
   "core.login.mfa_recovery_code": "恢复码（可选）",
   "core.login.mfa_setup_title": "绑定多因素认证",
   "core.login.mfa_setup_qr_alt": "多因素认证绑定二维码",
@@ -331,5 +332,7 @@
   "common.value.top_level": "顶级节点",
   "common.resource.default": "{resource}",
   "common.action.delete_resource": "删除{resource}",
-  "common.action.set_field_status": "设置{field}"
+  "common.action.set_field_status": "设置{field}",
+  "core.home.demo_scope": "功能概览",
+  "core.home.main_title": "管理应用"
 }

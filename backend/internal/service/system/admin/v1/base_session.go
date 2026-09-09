@@ -22,6 +22,16 @@ func NewBaseSessionService(baseSessionCase *biz.BaseSessionCase) *BaseSessionSer
 	return &BaseSessionService{baseSessionCase: baseSessionCase}
 }
 
+// ListCurrentBaseSessions 查询当前用户全部有效会话。
+func (s *BaseSessionService) ListCurrentBaseSessions(ctx context.Context, req *adminv1.ListCurrentBaseSessionsRequest) (*adminv1.ListCurrentBaseSessionsResponse, error) {
+	res, err := s.baseSessionCase.ListCurrentBaseSessions(ctx)
+	if err != nil {
+		log.Error(fmt.Sprintf("ListCurrentBaseSessions %v", err))
+		return nil, errorsx.WrapInternal(err, "查询本人会话失败")
+	}
+	return res, nil
+}
+
 // GetCurrentBaseSession 查询当前用户会话。
 func (s *BaseSessionService) GetCurrentBaseSession(ctx context.Context, req *adminv1.GetCurrentBaseSessionRequest) (*adminv1.BaseSession, error) {
 	res, err := s.baseSessionCase.GetCurrentBaseSession(ctx)
@@ -38,6 +48,26 @@ func (s *BaseSessionService) RevokeAllBaseSessions(ctx context.Context, req *adm
 	if err != nil {
 		log.Error(fmt.Sprintf("RevokeAllBaseSessions %v", err))
 		return nil, errorsx.WrapInternal(err, "撤销全部会话失败")
+	}
+	return new(emptypb.Empty), nil
+}
+
+// PageOnlineBaseSessions 分页查询当前在线用户会话。
+func (s *BaseSessionService) PageOnlineBaseSessions(ctx context.Context, req *adminv1.PageOnlineBaseSessionsRequest) (*adminv1.PageOnlineBaseSessionsResponse, error) {
+	res, err := s.baseSessionCase.PageOnlineBaseSessions(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("PageOnlineBaseSessions %v", err))
+		return nil, errorsx.WrapInternal(err, "查询在线用户失败")
+	}
+	return res, nil
+}
+
+// RevokeBaseSession 下线指定用户会话。
+func (s *BaseSessionService) RevokeBaseSession(ctx context.Context, req *adminv1.RevokeBaseSessionRequest) (*emptypb.Empty, error) {
+	err := s.baseSessionCase.RevokeBaseSession(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("RevokeBaseSession %v", err))
+		return nil, errorsx.WrapInternal(err, "下线在线用户失败")
 	}
 	return new(emptypb.Empty), nil
 }

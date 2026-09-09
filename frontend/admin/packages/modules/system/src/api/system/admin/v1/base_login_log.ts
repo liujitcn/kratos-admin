@@ -4,6 +4,7 @@ import type {
   BaseLoginLogService,
   GetBaseLoginLogRequest,
   PageBaseLoginLogRequest,
+  PageCurrentUserLoginLogRequest,
   PageBaseLoginLogResponse
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_login_log";
 
@@ -11,6 +12,15 @@ const BASE_LOGIN_LOG_URL = "/v1/admin/base/login-log";
 
 /** Admin 登录日志服务。 */
 export class BaseLoginLogServiceImpl implements BaseLoginLogService {
+  /** 查询当前用户本人的登录记录。 */
+  PageCurrentUserLoginLog(request: PageCurrentUserLoginLogRequest): Promise<PageBaseLoginLogResponse> {
+    return service<PageCurrentUserLoginLogRequest, PageBaseLoginLogResponse>({
+      url: `${BASE_LOGIN_LOG_URL}/current-user`,
+      method: "get",
+      params: request
+    });
+  }
+
   /** 查询登录日志分页列表。 */
   PageBaseLoginLog(request: PageBaseLoginLogRequest): Promise<PageBaseLoginLogResponse> {
     return service<PageBaseLoginLogRequest, PageBaseLoginLogResponse>({

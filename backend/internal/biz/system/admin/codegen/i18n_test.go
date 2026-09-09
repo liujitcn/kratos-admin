@@ -77,3 +77,32 @@ func TestRenderGeneratedMenuSQLUsesLocalizedResourceName(t *testing.T) {
 		t.Fatalf("生成菜单 SQL 仍包含未替换资源占位符: %s", sql)
 	}
 }
+
+func TestFrontendLocaleMessagesFallsBackToCurrentLocale(t *testing.T) {
+	table := &Table{
+		TableComment:     "项目管理",
+		BusinessName:     "project",
+		BusinessModule:   "system",
+		PermissionPrefix: "system:project",
+		I18NConfig: map[string]LocaleConfig{
+			"en-US": {Comment: "Project Management"},
+		},
+	}
+	columns := []*CodeGenColumn{
+		{
+			Name:    "project_code",
+			Comment: "项目编码",
+			I18NConfig: map[string]LocaleConfig{
+				"en-US": {Comment: "Project Code"},
+			},
+		},
+	}
+
+	messages := FrontendLocaleMessages(table, columns, "ja-JP", "en-US", "zh-CN")
+	if got := messages["system.project.resource"]; got != "Project Management" {
+		t.Fatalf("缺失日文表描述 = %q, want %q", got, "Project Management")
+	}
+	if got := messages["system.project.field.project_code"]; got != "Project Code" {
+		t.Fatalf("缺失日文字段描述 = %q, want %q", got, "Project Code")
+	}
+}

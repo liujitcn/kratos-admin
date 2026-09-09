@@ -1982,6 +1982,28 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.PageBaseLoginLogResponse'
+    /api/v1/admin/base/login-log/current-user:
+        get:
+            tags:
+                - BaseLoginLogService
+            description: 分页查询当前登录用户本人的登录记录。
+            operationId: BaseLoginLogService_PageCurrentUserLoginLog
+            parameters:
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseLoginLogResponse'
     /api/v1/admin/base/login-log/{id}:
         get:
             tags:
@@ -3852,6 +3874,49 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/system.admin.v1.BaseSession'
+    /api/v1/admin/base/session/current-user:
+        get:
+            tags:
+                - BaseSessionService
+            description: 查询当前用户全部有效会话。
+            operationId: BaseSessionService_ListCurrentBaseSessions
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.ListCurrentBaseSessionsResponse'
+    /api/v1/admin/base/session/online:
+        get:
+            tags:
+                - BaseSessionService
+            description: 分页查询当前在线用户会话。
+            operationId: BaseSessionService_PageOnlineBaseSessions
+            parameters:
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_code
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageOnlineBaseSessionsResponse'
     /api/v1/admin/base/session/revoke-all:
         put:
             tags:
@@ -3864,6 +3929,22 @@ paths:
                         schema:
                             $ref: '#/components/schemas/system.admin.v1.RevokeAllBaseSessionsRequest'
                 required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/session/{session_id}:
+        delete:
+            tags:
+                - BaseSessionService
+            description: 下线指定用户会话。
+            operationId: BaseSessionService_RevokeBaseSession
+            parameters:
+                - name: session_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -7444,6 +7525,10 @@ components:
                 mfa_webauthn_options_json:
                     type: string
                     description: WebAuthn认证选项JSON
+                mfa_remember_days:
+                    type: integer
+                    description: 当前登录策略允许的MFA设备免验证天数
+                    format: int32
             description: 登录响应
         base.v1.MarkAllNotificationReadRequest:
             type: object
@@ -7875,6 +7960,9 @@ components:
                 webauthn_response_json:
                     type: string
                     description: WebAuthn认证响应JSON
+                remember_device:
+                    type: boolean
+                    description: 是否记住当前设备
             description: 多因素认证校验请求。
         common.v1.AppTreeOptionResponse_Option:
             type: object
@@ -9144,6 +9232,9 @@ components:
                     type: integer
                     description: 锁定时长（分钟）
                     format: int32
+                allow_concurrent_login:
+                    type: boolean
+                    description: 是否允许同一账号同时登录
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -9161,6 +9252,10 @@ components:
                 password_max_age_days:
                     type: integer
                     description: 密码有效期（天），0表示不启用
+                    format: int32
+                mfa_remember_days:
+                    type: integer
+                    description: MFA设备免验证天数，0表示每次登录都验证
                     format: int32
                 rules:
                     type: array
@@ -9209,6 +9304,9 @@ components:
                     type: integer
                     description: 锁定时长（分钟）
                     format: int32
+                allow_concurrent_login:
+                    type: boolean
+                    description: 是否允许同一账号同时登录
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -9220,6 +9318,10 @@ components:
                 password_max_age_days:
                     type: integer
                     description: 密码有效期（天），0表示不启用
+                    format: int32
+                mfa_remember_days:
+                    type: integer
+                    description: MFA设备免验证天数，0表示每次登录都验证
                     format: int32
                 rules:
                     type: array
@@ -10493,6 +10595,9 @@ components:
         system.admin.v1.BaseSession:
             type: object
             properties:
+                session_id:
+                    type: string
+                    description: 会话ID
                 user_id:
                     type: string
                     description: 用户ID
@@ -10517,6 +10622,9 @@ components:
                 expires_in:
                     type: string
                     description: 令牌有效期（秒）
+                current:
+                    type: boolean
+                    description: 是否为当前请求会话
             description: 当前会话信息。
         system.admin.v1.BaseTableArchiveForm:
             type: object
@@ -11782,6 +11890,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.CodeGenProtoCheck'
                     description: 代码生成Proto接口检查列表
             description: 代码生成Proto接口配置查询响应
+        system.admin.v1.ListCurrentBaseSessionsResponse:
+            type: object
+            properties:
+                sessions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseSession'
+                    description: 本人有效会话列表
+            description: 本人有效会话列表。
         system.admin.v1.ListRuntimeLogFilesResponse:
             type: object
             properties:
@@ -12756,6 +12873,19 @@ components:
                     description: 总数
                     format: int32
             description: 开放授权客户端分页响应。
+        system.admin.v1.PageOnlineBaseSessionsResponse:
+            type: object
+            properties:
+                sessions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseSession'
+                    description: 在线会话列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 在线会话分页响应。
         system.admin.v1.PreviewCodeGenRequest:
             type: object
             properties:

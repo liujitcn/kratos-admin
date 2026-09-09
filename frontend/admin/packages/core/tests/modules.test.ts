@@ -15,14 +15,14 @@ import {
 const component = {} as Component;
 
 test("普通页面必须使用模块前缀且跨模块同名页面互不冲突", () => {
-  const orderLoader = createViewLoader();
+  const businessLoader = createViewLoader();
   const systemLoader = createViewLoader();
   const registry = createAdminViewRegistry([
-    { name: "order", views: { "./views/list/index.vue": orderLoader } },
+    { name: "business", views: { "./views/list/index.vue": businessLoader } },
     { name: "system", views: { "./views/list/index.vue": systemLoader } }
   ]);
 
-  assert.equal(registry.resolve("order/list/index"), orderLoader);
+  assert.equal(registry.resolve("business/list/index"), businessLoader);
   assert.equal(registry.resolve("system/list/index"), systemLoader);
   assert.equal(registry.resolve("list/index"), undefined);
 });
@@ -40,10 +40,10 @@ test("静态页面以后注册模块的实现为准", () => {
 
 test("视图路径兼容省略和保留 index 的写法", () => {
   const loader = createViewLoader();
-  const registry = createAdminViewRegistry([{ name: "order", views: { "./views/list/index.vue": loader } }]);
+  const registry = createAdminViewRegistry([{ name: "business", views: { "./views/list/index.vue": loader } }]);
 
-  assert.equal(registry.resolve("order/list"), loader);
-  assert.equal(registry.resolve("/order/list/index.vue"), loader);
+  assert.equal(registry.resolve("business/list"), loader);
+  assert.equal(registry.resolve("/business/list/index.vue"), loader);
 });
 
 test("配置查询参数复用时页签使用路由路径", () => {

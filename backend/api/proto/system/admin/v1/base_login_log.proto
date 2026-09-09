@@ -2,12 +2,18 @@ syntax = "proto3";
 
 package system.admin.v1;
 
+import "buf/validate/validate.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "system/admin/v1/base_log.proto";
 
 // Admin登录日志服务。
 service BaseLoginLogService {
+  // 分页查询当前登录用户本人的登录记录。
+  rpc PageCurrentUserLoginLog(PageCurrentUserLoginLogRequest) returns (PageBaseLoginLogResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/login-log/current-user"};
+  }
+
   // 分页查询登录日志。
   rpc PageBaseLoginLog(PageBaseLoginLogRequest) returns (PageBaseLoginLogResponse) {
     option (google.api.http) = {get: "/api/v1/admin/base/login-log"};
@@ -34,6 +40,18 @@ enum BaseLoginLogType {
   BASE_LOGIN_LOG_TYPE_TOKEN_REFRESH = 4;
   // 退出登录。
   BASE_LOGIN_LOG_TYPE_LOGOUT = 5;
+}
+
+// 本人登录记录分页条件，用户和租户由服务端认证身份确定。
+message PageCurrentUserLoginLogRequest {
+  int64 page_num = 101 [
+    (gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}},
+    (buf.validate.field).cel = {id: "current_user_login_log.page_num.range", message: "页码必须在 1 到 1000000 之间", expression: "this >= 1 && this <= 1000000"}
+  ]; // 当前页码
+  int64 page_size = 102 [
+    (gnostic.openapi.v3.property) = {description: "每页行数", default: {number: 10}},
+    (buf.validate.field).cel = {id: "current_user_login_log.page_size.range", message: "每页行数必须在 1 到 100 之间", expression: "this >= 1 && this <= 100"}
+  ]; // 每页行数
 }
 
 // 登录日志分页查询条件。
