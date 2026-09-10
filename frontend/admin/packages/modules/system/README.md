@@ -185,3 +185,4 @@ registerRuntimeConfig(notificationConfig);
 字段国际化默认入口使用 Element Plus 标准按钮搭配 Languages 翻译图标（与顶部语言切换一致），保留悬停说明和无障碍名称；ProForm 单行输入框通过 el-input 的 append 插槽展示，多行及独立场景使用普通按钮，不使用自定义拼接样式。自定义 trigger 插槽（如列表文字入口）保持原有展示。
 
 国际化编辑弹窗使用 Element Plus 横向表单，语言标签在左侧统一占 100px，输入框及翻译操作位于右侧；单行和多行编辑均保持左右布局。
+代码生成进度弹窗统一补齐 HTTP 和 SSE 快照中被 ProtoJSON 省略的零值计数，任务及表级进度在生成初期显示 0，避免出现 NaN。

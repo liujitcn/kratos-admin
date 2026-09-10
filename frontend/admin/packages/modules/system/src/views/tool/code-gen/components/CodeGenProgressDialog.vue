@@ -111,6 +111,7 @@ import { getCurrentLocale, t } from "@liujitcn/kratos-admin-core";
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import { defCodeGenService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen";
 import { subscribeCodeGenProgress, type SseStop } from "../../../../utils/code_gen_sse";
+import { normalizeCodeGenTask } from "../../../../utils/code-gen-progress";
 import type { CodeGenTask } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen";
 import { CodeGenTaskStatus, CodeGenTaskStepStatus } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen";
 
@@ -174,6 +175,7 @@ async function loadTask(silent = false, taskId = props.taskId) {
 
 /** 应用实时或轮询返回的任务快照。 */
 function applyTask(latest: CodeGenTask) {
+  latest = normalizeCodeGenTask(latest);
   task.value = latest;
   const runningTable = latest.tables.find(table => table.status === CodeGenTaskStatus.CODE_GEN_TASK_STATUS_RUNNING);
   if (runningTable && !expandedTables.value.includes(runningTable.table_id)) {
