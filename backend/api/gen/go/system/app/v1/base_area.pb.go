@@ -12,7 +12,7 @@ import (
 	unsafe "unsafe"
 
 	_ "github.com/google/gnostic/openapiv3"
-	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -64,7 +64,7 @@ func (*TreeBaseAreaRequest) Descriptor() ([]byte, []int) {
 
 // 行政区域树形响应
 type TreeBaseAreaResponse struct {
-	state         protoimpl.MessageState             `protogen:"open.v1"`
+	state         protoimpl.MessageState                   `protogen:"open.v1"`
 	Areas         []*commonv1.AppTreeOptionResponse_Option `protobuf:"bytes,1,rep,name=areas,proto3" json:"areas,omitempty"` // 行政区域树形选项
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -133,8 +133,8 @@ func file_system_app_v1_base_area_proto_rawDescGZIP() []byte {
 
 var file_system_app_v1_base_area_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_system_app_v1_base_area_proto_goTypes = []any{
-	(*TreeBaseAreaRequest)(nil),             // 0: system.app.v1.TreeBaseAreaRequest
-	(*TreeBaseAreaResponse)(nil),            // 1: system.app.v1.TreeBaseAreaResponse
+	(*TreeBaseAreaRequest)(nil),                   // 0: system.app.v1.TreeBaseAreaRequest
+	(*TreeBaseAreaResponse)(nil),                  // 1: system.app.v1.TreeBaseAreaResponse
 	(*commonv1.AppTreeOptionResponse_Option)(nil), // 2: common.v1.AppTreeOptionResponse.Option
 }
 var file_system_app_v1_base_area_proto_depIdxs = []int32{

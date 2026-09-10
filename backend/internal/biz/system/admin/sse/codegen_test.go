@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
-	coresse "github.com/liujitcn/kratos-core/sse"
+	"github.com/liujitcn/kratos-core/sse"
 )
 
 // TestCodegenSharedManagerOwnership 验证共享任务管理器可解析本人的任务，且仍拒绝其他用户。
@@ -14,7 +14,7 @@ func TestCodegenSharedManagerOwnership(t *testing.T) {
 	if !created {
 		t.Fatal("创建任务失败")
 	}
-	registry := coresse.NewRegistry()
+	registry := sse.NewRegistry()
 	err := registry.Register(NewCodegen(manager))
 	if err != nil {
 		t.Fatal(err)

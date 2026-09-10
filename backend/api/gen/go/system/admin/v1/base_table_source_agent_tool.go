@@ -11,7 +11,7 @@ import (
 
 	tool "github.com/cloudwego/eino/components/tool"
 	utils "github.com/cloudwego/eino/components/tool/utils"
-	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 )
 
 // NewBaseTableSourceServiceAgentTools 创建Admin数据源元数据服务，提供数据备份、数据归档和代码生成共用的数据源信息的 Agent Tool。

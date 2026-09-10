@@ -11,7 +11,7 @@ import (
 
 	tool "github.com/cloudwego/eino/components/tool"
 	utils "github.com/cloudwego/eino/components/tool/utils"
-	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 

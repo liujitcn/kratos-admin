@@ -13,7 +13,7 @@ import (
 
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "github.com/google/gnostic/openapiv3"
-	"github.com/liujitcn/kratos-core/api/gen/go/common/v1"
+	commonv1 "github.com/liujitcn/kratos-core/api/gen/go/common/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -92,7 +92,7 @@ type PageBaseRedactOutputPolicyRequest struct {
 	FieldPath     string                      `protobuf:"bytes,3,opt,name=field_path,json=fieldPath,proto3" json:"field_path,omitempty"`                               // 返回字段路径
 	ServiceName   string                      `protobuf:"bytes,4,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`                         // 服务名
 	Mode          *BaseRedactOutputPolicyMode `protobuf:"varint,100,opt,name=mode,proto3,enum=system.admin.v1.BaseRedactOutputPolicyMode,oneof" json:"mode,omitempty"` // 处理模式
-	Status        *commonv1.Status                  `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`                       // 状态
+	Status        *commonv1.Status            `protobuf:"varint,101,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`                       // 状态
 	PageNum       int64                       `protobuf:"varint,102,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                                  // 当前页码
 	PageSize      int64                       `protobuf:"varint,103,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                               // 每页数量
 	unknownFields protoimpl.UnknownFields
@@ -294,7 +294,7 @@ type BaseRedactOutputPolicyForm struct {
 	Mode          BaseRedactOutputPolicyMode `protobuf:"varint,100,opt,name=mode,proto3,enum=system.admin.v1.BaseRedactOutputPolicyMode" json:"mode,omitempty"` // 处理模式
 	RuleId        int64                      `protobuf:"varint,101,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`                               // 规则ID
 	RuleParams    string                     `protobuf:"bytes,102,opt,name=rule_params,json=ruleParams,proto3" json:"rule_params,omitempty"`                    // 规则参数
-	Status        commonv1.Status                  `protobuf:"varint,103,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                       // 状态
+	Status        commonv1.Status            `protobuf:"varint,103,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                       // 状态
 	Remark        string                     `protobuf:"bytes,104,opt,name=remark,proto3" json:"remark,omitempty"`                                              // 备注
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -539,7 +539,7 @@ func (x *DeleteBaseRedactOutputPolicyRequest) GetId() string {
 type SetBaseRedactOutputPolicyStatusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                               // 出库策略ID
-	Status        commonv1.Status              `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
+	Status        commonv1.Status        `protobuf:"varint,2,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -602,7 +602,7 @@ type BaseRedactOutputPolicy struct {
 	RuleType      string                     `protobuf:"bytes,104,opt,name=rule_type,json=ruleType,proto3" json:"rule_type,omitempty"`                          // 规则类型
 	RuleParams    string                     `protobuf:"bytes,105,opt,name=rule_params,json=ruleParams,proto3" json:"rule_params,omitempty"`                    // 规则参数
 	ServiceName   string                     `protobuf:"bytes,108,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`                 // 服务名
-	Status        commonv1.Status                  `protobuf:"varint,106,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                       // 状态
+	Status        commonv1.Status            `protobuf:"varint,106,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                       // 状态
 	Remark        string                     `protobuf:"bytes,107,opt,name=remark,proto3" json:"remark,omitempty"`                                              // 备注
 	CreatedAt     string                     `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                       // 创建时间
 	UpdatedAt     string                     `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                       // 更新时间
@@ -862,7 +862,7 @@ var file_system_admin_v1_base_redact_output_policy_proto_goTypes = []any{
 	(*DeleteBaseRedactOutputPolicyRequest)(nil),    // 7: system.admin.v1.DeleteBaseRedactOutputPolicyRequest
 	(*SetBaseRedactOutputPolicyStatusRequest)(nil), // 8: system.admin.v1.SetBaseRedactOutputPolicyStatusRequest
 	(*BaseRedactOutputPolicy)(nil),                 // 9: system.admin.v1.BaseRedactOutputPolicy
-	(commonv1.Status)(0),                                 // 10: common.v1.Status
+	(commonv1.Status)(0),                           // 10: common.v1.Status
 	(*emptypb.Empty)(nil),                          // 11: google.protobuf.Empty
 }
 var file_system_admin_v1_base_redact_output_policy_proto_depIdxs = []int32{
