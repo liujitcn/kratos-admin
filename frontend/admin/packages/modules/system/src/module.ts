@@ -1,5 +1,4 @@
 import type { Component } from "vue";
-import { User } from "@element-plus/icons-vue";
 import { defineAdminModule } from "@liujitcn/kratos-admin-core";
 import Ai from "./components/Ai.vue";
 import ForcedPasswordDialog from "./components/ForcedPasswordDialog.vue";

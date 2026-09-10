@@ -8,6 +8,7 @@ import dayjs from "dayjs";
 import { wrapperEnv } from "./build/getEnv";
 import { createProxy } from "./build/proxy";
 import { createVitePlugins } from "./build/plugins";
+import { createSourcePatterns } from "./build/source-patterns";
 
 const coreRoot = dirname(fileURLToPath(import.meta.url));
 const viteLogger = createLogger();
@@ -52,9 +53,7 @@ export function defineAdminViteConfig(options: AdminViteConfigOptions = {}) {
       ...resolvePackageSource(root, packageName)
     }));
     const sourceRoots = [resolve(root, "src"), coreSourceRoot, ...modulePackages.map(item => item.sourceRoot)];
-    const sourcePatterns = [...new Set(sourceRoots)].map(
-      sourceRoot => new RegExp(`${escapeRegExp(sourceRoot)}[\\/\\\\].*\\.(?:vue|[jt]sx?)(?:\\?.*)?$`)
-    );
+    const sourcePatterns = createSourcePatterns(sourceRoots);
     const aliases = [
       { find: "@", replacement: coreSourceRoot },
       ...createPackageAliases(corePackage),
