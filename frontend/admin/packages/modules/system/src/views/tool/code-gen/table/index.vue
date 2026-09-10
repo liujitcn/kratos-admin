@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, reactive, ref } from "vue";
+import { computed, h, onBeforeUnmount, nextTick, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import {
   CirclePlus,
@@ -599,6 +599,37 @@ async function handleOpenCodePreview(tableId: number) {
   await router.push(`/code/gen/code/preview/${tableId}`);
 }
 
+let releaseGenerationHotUpdates: (() => void) | undefined;
+
+/** 等待开发服务器暂停热更新，避免生成文件的中间状态反复刷新页面。 */
+async function holdGenerationHotUpdates() {
+  const hot = import.meta.hot;
+  if (!hot || releaseGenerationHotUpdates) return;
+  await new Promise<void>(resolve => {
+    const held = () => {
+      clearTimeout(timeout);
+      hot.off("admin:codegen-held", held);
+      releaseGenerationHotUpdates = () => hot.send("admin:codegen-release", {});
+      resolve();
+    };
+    const timeout = setTimeout(() => {
+      hot.off("admin:codegen-held", held);
+      hot.send("admin:codegen-release", {});
+      resolve();
+    }, 2000);
+    hot.on("admin:codegen-held", held);
+    hot.send("admin:codegen-hold", {});
+  });
+}
+
+/** 任务结束且结果弹窗关闭后恢复开发热更新。 */
+function releaseGenerationUpdates() {
+  releaseGenerationHotUpdates?.();
+  releaseGenerationHotUpdates = undefined;
+}
+
+onBeforeUnmount(releaseGenerationUpdates);
+
 /** 创建单项或批量代码生成任务。 */
 async function handleGenerate(selected: CodeGenGenerateTarget) {
   const tables = Array.isArray(selected) ? selected : [selected];
@@ -626,19 +657,24 @@ async function handleGenerate(selected: CodeGenGenerateTarget) {
   } finally {
     generating.value = false;
   }
-  if (missingI18ns.length) {
-    ElMessage.warning(
-      t("system.code.gen.preview.message.missing_i18ns", {
-        items: missingI18ns.join(t("system.code.gen.preview.value.list_separator"))
-      })
-    );
-  }
   const message =
     tables.length === 1
       ? t("system.code.gen.table.dialog.generate_one", { name: tables[0].name })
       : t("system.code.gen.table.dialog.generate_batch", { count: tables.length });
   try {
-    await ElMessageBox.confirm(message, t("common.title.notice"), {
+    const content = missingI18ns.length
+      ? h("div", [
+          h("p", { style: { margin: "0" } }, message),
+          h(
+            "p",
+            { style: { margin: "12px 0 0", maxHeight: "40vh", overflow: "auto", overflowWrap: "anywhere", color: "var(--el-color-warning)" } },
+            t("system.code.gen.preview.message.missing_i18ns", {
+              items: missingI18ns.join(t("system.code.gen.preview.value.list_separator"))
+            })
+          )
+        ])
+      : message;
+    await ElMessageBox.confirm(content, t("common.title.notice"), {
       confirmButtonText: t("common.action.confirm"),
       cancelButtonText: t("common.action.cancel"),
       type: "warning"
@@ -648,6 +684,7 @@ async function handleGenerate(selected: CodeGenGenerateTarget) {
   }
   generating.value = true;
   try {
+    await holdGenerationHotUpdates();
     const data = await defCodeGenService.StartCodeGenTask({
       table_ids: tables.map(table => table.id)
     });
@@ -659,6 +696,7 @@ async function handleGenerate(selected: CodeGenGenerateTarget) {
     handleProgressDialogVisibleChange(true);
   } catch (error) {
     generating.value = false;
+    releaseGenerationUpdates();
     throw error;
   }
 }
@@ -704,11 +742,13 @@ function handleProgressDialogVisibleChange(visible: boolean) {
     return;
   }
   window.sessionStorage.removeItem(codeGenProgressDialogVisibleStorageKey);
+  if (!generating.value) releaseGenerationUpdates();
 }
 
 /** 生成任务结束后刷新列表。 */
 function handleProgressCompleted() {
   generating.value = false;
+  if (!progressDialogVisible.value) releaseGenerationUpdates();
   window.sessionStorage.removeItem(codeGenProgressDialogVisibleStorageKey);
   progressSelectedTableIds.value = [];
   proTable.value?.clearSelection();

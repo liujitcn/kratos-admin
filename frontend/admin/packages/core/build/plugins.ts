@@ -1,3 +1,4 @@
+import { codegenHmrPlugin } from "./codegen-hmr";
 import { resolve } from "path";
 import { PluginOption } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
@@ -37,6 +38,7 @@ export const createVitePlugins = (viteEnv: ViteEnv, options: VitePluginOptions =
   const { VITE_GLOB_APP_TITLE, VITE_REPORT, VITE_DEVTOOLS, VITE_PWA, VITE_CODEINSPECTOR } = viteEnv;
   const sourcePatterns = options.sourcePatterns;
   return [
+    codegenHmrPlugin(),
     vue(),
     // vue 可以使用 jsx/tsx 语法
     vueJsx(),
