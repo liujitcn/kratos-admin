@@ -230,3 +230,5 @@ make -C frontend publish
 创建外部项目时，三端 `packages/cli` 独立生成完整前端，包含语言注册、宿主生命周期及检查构建工具。
 Go 脚手架只调用 npm CLI；`--kratos-project` 适配后端静态输出，管理端 CLI 生成共享前端 Makefile 和脚本。
 三端支持本地 `system`，无需临时模块名或生成后的文件补写。CLI 更新需先发布到 npm，Go 的精确版本调用才能使用新能力。
+
+Backend 的 `NewModules` 与 `NewStreams` 共享宿主注入的 `*backend.CodeGenManager`；通过 `backend.ProviderSet` 自动装配，手动调用这两个入口时也需传入同一实例。修改内部依赖装配后执行 `make -C backend public-wire wire`。

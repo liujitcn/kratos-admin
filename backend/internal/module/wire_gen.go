@@ -46,8 +46,8 @@ import (
 
 // Injectors from wire.go:
 
-// BuildModules 通过 Admin 内部依赖装配协议服务。
-func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client, baseCase *biz.BaseCase, authorizer engine.Engine, authenticator engine2.Authenticator, userToken *data.UserToken, jobRuntime *job.Job, sseRuntime *sse.SSE, catalog *i18n.I18n, openAPIRuntime *openapi.OpenAPI, redactResolver *kit.RedactPolicyResolver) (module.Modules, func(), error) {
+// BuildModules 使用宿主共享的任务管理器装配 Admin 协议服务。
+func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client, baseCase *biz.BaseCase, authorizer engine.Engine, authenticator engine2.Authenticator, userToken *data.UserToken, jobRuntime *job.Job, sseRuntime *sse.SSE, catalog *i18n.I18n, openAPIRuntime *openapi.OpenAPI, redactResolver *kit.RedactPolicyResolver, progressManager *codegen.Manager) (module.Modules, func(), error) {
 	dataData, err := data2.NewData(databases)
 	if err != nil {
 		return nil, nil, err
@@ -178,8 +178,7 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 	codeGenTableCase := biz3.NewCodeGenTableCase(baseCase, codeGenTableRepository, transaction, baseDictRepository, baseDictItemRepository, baseMenuCase, codeGenColumnCase, codeGenProtoCase)
 	baseMigrationRepository := data2.NewBaseMigrationRepository(dataData)
 	baseMigrationCase := biz3.NewBaseMigrationCase(baseCase, baseMigrationRepository, baseI18nCase)
-	manager := codegen.NewManager()
-	codeGenCase := biz3.NewCodeGenCase(baseCase, transaction, baseAPICase, codeGenTableCase, codeGenColumnCase, codeGenProtoCase, baseMenuCase, baseMigrationCase, baseLanguageCase, catalog, manager)
+	codeGenCase := biz3.NewCodeGenCase(baseCase, transaction, baseAPICase, codeGenTableCase, codeGenColumnCase, codeGenProtoCase, baseMenuCase, baseMigrationCase, baseLanguageCase, catalog, progressManager)
 	codeGenService := admin.NewCodeGenService(codeGenCase)
 	codeGenColumnService := admin.NewCodeGenColumnService(codeGenColumnCase)
 	codeGenProtoService := admin.NewCodeGenProtoService(codeGenProtoCase)
@@ -297,12 +296,12 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 		return nil, nil, err
 	}
 	baseUserCase2 := biz4.NewBaseUserCase(baseCase, baseUserRepository)
-	oauthManager, err := config.ParseOAuthManager(config2)
+	manager, err := config.ParseOAuthManager(config2)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	bizAuthCase := biz4.NewAuthCase(baseCase, baseUserCase2, oauthManager)
+	bizAuthCase := biz4.NewAuthCase(baseCase, baseUserCase2, manager)
 	appAuthService := app.NewAuthService(bizAuthCase)
 	bizBaseAreaCase := biz4.NewBaseAreaCase(baseCase, baseAreaRepository)
 	appBaseAreaService := app.NewBaseAreaService(bizBaseAreaCase)
@@ -344,7 +343,7 @@ func BuildModules(config2 *configv1.Bootstrap, databases map[string]*gorm.Client
 	loginCase := biz2.NewLoginCase(baseCase, bizBaseDeptCase, bizBaseRoleCase, baseUserCase, baseTenantRepository, baseDictRepository, baseDictItemRepository, mfaCase, userToken, loginLocker)
 	loginService := base.NewLoginService(loginCase)
 	mfaService := base.NewMfaService(loginCase, mfaCase)
-	oauthCase := biz2.NewOauthCase(baseCase, transaction, baseThirdAccountCase, baseUserCase, bizBaseRoleCase, bizBaseDeptCase, loginCase, configCase, oauthManager)
+	oauthCase := biz2.NewOauthCase(baseCase, transaction, baseThirdAccountCase, baseUserCase, bizBaseRoleCase, bizBaseDeptCase, loginCase, configCase, manager)
 	oauthService := base.NewOauthService(oauthCase)
 	oauthClientTokenCase := biz2.NewOauthClientTokenCase(baseCase, oauthClientRepository, baseTenantRepository, userToken, protector)
 	baseOauthClientService := base.NewOauthClientService(oauthClientTokenCase)
@@ -490,10 +489,9 @@ func BuildTasks(databases map[string]*gorm.Client, baseCase *biz.BaseCase, sseRu
 	}, nil
 }
 
-// BuildStreams 通过最小依赖集合装配 Admin SSE 流。
-func BuildStreams(databases map[string]*gorm.Client, baseCase *biz.BaseCase, catalog *i18n.I18n) (sse.Streams, func(), error) {
-	manager := codegen.NewManager()
-	sseCodegen := sse2.NewCodegen(manager)
+// BuildStreams 使用与协议服务相同的任务管理器装配 Admin SSE 流。
+func BuildStreams(progressManager *codegen.Manager, databases map[string]*gorm.Client, baseCase *biz.BaseCase, catalog *i18n.I18n) (sse.Streams, func(), error) {
+	sseCodegen := sse2.NewCodegen(progressManager)
 	notification := sse2.NewNotification()
 	dataData, err := data2.NewData(databases)
 	if err != nil {

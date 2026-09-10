@@ -6,7 +6,6 @@ import (
 	biz "github.com/liujitcn/kratos-admin/backend/internal/biz/base"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/base/ai"
 	adminBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
 	appBiz "github.com/liujitcn/kratos-admin/backend/internal/biz/system/app"
 )
 
@@ -15,7 +14,6 @@ var ProviderSet = wire.NewSet(
 	model.ProviderSet,
 	ai.ProviderSet,
 	biz.ProviderSet,
-	codegen.ProviderSet,
 	adminBiz.ProviderSet,
 	appBiz.ProviderSet,
 )

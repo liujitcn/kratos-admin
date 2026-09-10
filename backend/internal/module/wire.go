@@ -7,6 +7,7 @@ import (
 	"github.com/google/wire"
 	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/logstream"
 	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/sse"
 	configProvider "github.com/liujitcn/kratos-admin/backend/internal/config"
@@ -29,7 +30,7 @@ import (
 	"github.com/liujitcn/kratos-kit/database/gorm"
 )
 
-// BuildModules 通过 Admin 内部依赖装配协议服务。
+// BuildModules 使用宿主共享的任务管理器装配 Admin 协议服务。
 func BuildModules(
 	config *configv1.Bootstrap,
 	databases map[string]*gorm.Client,
@@ -42,6 +43,7 @@ func BuildModules(
 	catalog *i18n.I18n,
 	openAPIRuntime *openapi.OpenAPI,
 	redactResolver *kit.RedactPolicyResolver,
+	progressManager *codegen.Manager,
 ) (module.Modules, func(), error) {
 	panic(wire.Build(
 		ParseAdminAgentTools,
@@ -70,8 +72,9 @@ func BuildTasks(
 	))
 }
 
-// BuildStreams 通过最小依赖集合装配 Admin SSE 流。
+// BuildStreams 使用与协议服务相同的任务管理器装配 Admin SSE 流。
 func BuildStreams(
+	progressManager *codegen.Manager,
 	databases map[string]*gorm.Client,
 	baseCase *coreBiz.BaseCase,
 	catalog *i18n.I18n,

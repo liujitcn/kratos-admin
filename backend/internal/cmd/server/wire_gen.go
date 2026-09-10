@@ -12,6 +12,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend"
 	"github.com/liujitcn/kratos-admin/backend/adapter/core"
 	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
+	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
 	kratoscore "github.com/liujitcn/kratos-core"
 	biz2 "github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/config"
@@ -201,7 +202,8 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	sseRegistry := sse.NewRegistry()
 	streamIDResolver := sse.NewStreamResolver(sseRegistry, authenticator, userToken)
-	adminStreams, cleanup5, err := backend.NewStreams(v2, baseCase, i18nI18n)
+	v3 := codegen.NewManager()
+	adminStreams, cleanup5, err := backend.NewStreams(v3, v2, baseCase, i18nI18n)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -260,7 +262,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	adminModules, cleanup9, err := backend.NewModules(migrationMigration, configv1Bootstrap, v2, baseCase, engine, authenticator, userToken, jobJob, sseSSE, i18nI18n, openapiOpenAPI, redactPolicyResolver)
+	adminModules, cleanup9, err := backend.NewModules(migrationMigration, configv1Bootstrap, v2, baseCase, engine, authenticator, userToken, jobJob, sseSSE, i18nI18n, openapiOpenAPI, redactPolicyResolver, v3)
 	if err != nil {
 		cleanup8()
 		cleanup7()
