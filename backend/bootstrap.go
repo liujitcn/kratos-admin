@@ -51,13 +51,18 @@ type AdminConsumers queue.Consumers
 var ProviderSet = wire.NewSet(
 	core.ProviderSet,
 	kit.ProviderSet,
-	codegen.ProviderSet,
+	NewCodeGenManager,
 	NewModuleResources,
 	NewModules,
 	NewTasks,
 	NewStreams,
 	NewQueueConsumers,
 )
+
+// NewCodeGenManager 在公开边界创建共享任务管理器，避免宿主 Wire 导入内部实现包。
+func NewCodeGenManager() *CodeGenManager {
+	return codegen.NewManager()
+}
 
 // NewModuleResources 返回 Backend 提供给 Core 的模型、迁移、文档、OpenAPI 和语言资源。
 func NewModuleResources() AdminResources {

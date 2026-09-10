@@ -186,6 +186,8 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 }
 ```
 
+`backend.NewCodeGenManager` 是共享代码生成任务管理器的公开构造入口，已加入 `backend.ProviderSet`。Service 与 SSE 由同一个 Wire 图注入同一实例；外部生成代码只调用该公开构造器。新增内部依赖时，应在根包提供公开构造边界，不直接向公开 ProviderSet 展开 internal ProviderSet。
+
 根包通过 `AdminResources`、`AdminModules`、`AdminTasks`、`AdminStreams` 和 `AdminConsumers` 输出具名贡献，宿主的合并 ProviderSet 将它们与其他业务模块的贡献显式追加为 Core 最终集合。公开构造器只使用 Core 公共类型，外部生成的 `wire_gen.go` 不会依赖 `backend/internal`。
 
 `adapter/core` 和 `adapter/kit` 与 `internal` 平级，构造函数统一接收 `databases map[string]*gorm.Client`，在内部创建并保存所需 Data、Repository，不把内部仓储类型放入公开签名。Core 适配器通过公共存储与事务接口参与 Wire，事务查询通过生成数据包的上下文传递，数据库客户端仍由 Core 创建和清理。

@@ -12,7 +12,6 @@ import (
 	"github.com/liujitcn/kratos-admin/backend"
 	"github.com/liujitcn/kratos-admin/backend/adapter/core"
 	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
-	"github.com/liujitcn/kratos-admin/backend/internal/biz/system/admin/codegen"
 	kratoscore "github.com/liujitcn/kratos-core"
 	biz2 "github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/config"
@@ -202,7 +201,7 @@ func NewApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	sseRegistry := sse.NewRegistry()
 	streamIDResolver := sse.NewStreamResolver(sseRegistry, authenticator, userToken)
-	v3 := codegen.NewManager()
+	v3 := backend.NewCodeGenManager()
 	adminStreams, cleanup5, err := backend.NewStreams(v3, v2, baseCase, i18nI18n)
 	if err != nil {
 		cleanup4()
