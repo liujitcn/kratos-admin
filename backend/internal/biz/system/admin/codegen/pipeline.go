@@ -323,6 +323,7 @@ func (c *renderer) appendMainBizMethods(content string, table *Table, columns []
 		return content
 	}
 	target := ProtoTargetForTable(table)
+	content = mergeBizMapperDeclarations(content, candidate, generatedReceiver)
 	content = mergeGeneratedGoReceiverMethods(content, methodContent, generatedReceiver, target.GoAlias+" \""+target.GoImportPath+"\"")
 	if !strings.Contains(content, "_time.") {
 		content = strings.Replace(content, "\t_time \"github.com/liujitcn/go-utils/time\"\n", "", 1)
