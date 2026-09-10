@@ -94,11 +94,21 @@ cli:
 
 # ===== 格式化与检查 =====
 
-# 使用 goimports 和共享工具统一整理 Go 代码。
+# 使用 goimports 和共享工具整理 Go 代码；代码生成可传入本次变更文件清单。
+FMT_FILE_LIST ?=
 fmt:
 	@echo "==> 格式化 Go 代码"
-	@PATH="$(GO_BIN_DIR):$$PATH" find . -type f -name '*.go' -exec goimports -w {} +
-	@"$(GO_BIN_DIR)/normalize-go-imports" -root . -write
+	@if [ -n "$(FMT_FILE_LIST)" ]; then \
+		set --; \
+		while IFS= read -r file; do set -- "$$@" "$$file"; done < "$(FMT_FILE_LIST)"; \
+		if [ "$$#" -gt 0 ]; then PATH="$(GO_BIN_DIR):$$PATH" goimports -w "$$@" || exit $$?; fi; \
+		set --; \
+		while IFS= read -r file; do set -- "$$@" -file "$$file"; done < "$(FMT_FILE_LIST)"; \
+		if [ "$$#" -gt 0 ]; then "$(GO_BIN_DIR)/normalize-go-imports" -root . -write "$$@"; fi; \
+	else \
+		PATH="$(GO_BIN_DIR):$$PATH" find . -type f -name '*.go' -exec goimports -w {} + && \
+		"$(GO_BIN_DIR)/normalize-go-imports" -root . -write; \
+	fi
 	@echo "==> Go 代码格式化完成"
 
 # 运行 golangci-lint 静态检查（含禁止手写 SQL 检查）。

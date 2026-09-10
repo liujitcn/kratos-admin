@@ -48,3 +48,5 @@ When adding or changing configuration, dictionaries, menus, or jobs, update all 
 The profile menu grants access to the current user’s login history; the server fixes both user and tenant from the authenticated identity. Online session listing and revocation are available only to the platform super administrator.
 
 Tenant Management uses root `20000000` (sort 20), page `20010000`, and actions `20010100`–`20010400`. User Management remains root `30000000` (sort 30).
+
+Code generation merges per-table menu permission blocks into `default_data.up.sql` without creating a new version. Restore recovers the script and previous menus, translations and permissions; business table data is unaffected.

@@ -2,6 +2,7 @@ package codegen
 
 import (
 	"regexp"
+	"slices"
 	"strings"
 )
 
@@ -601,6 +602,8 @@ func mergeFrontendObject(candidate string, existing string) (string, bool) {
 			replacements = append(replacements, frontendReplacement{start: candidateProperty.valueStart, end: candidateProperty.valueEnd, content: merged})
 		}
 	}
+	// 属性在旧页中的顺序可能不同，必须按候选源码偏移从后往前替换。
+	slices.SortFunc(replacements, func(left, right frontendReplacement) int { return left.start - right.start })
 	for index := len(replacements) - 1; index >= 0; index-- {
 		replacement := replacements[index]
 		candidate = candidate[:replacement.start] + replacement.content + candidate[replacement.end:]

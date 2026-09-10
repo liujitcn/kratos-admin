@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -13,24 +12,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 )
 
-const (
-	generatedMenuSQLFileName      = "default_data.up.sql"
-	initialMigrationVersionName   = "v0.0.1"
-	migrationVersionFormatSemVer  = "semver"
-	migrationVersionFormatNumeric = "numeric"
-)
-
-var generatedMigrationVersionPattern = regexp.MustCompile(`^v([0-9]+)\.([0-9]+)\.([0-9]+)(?:[-.]([0-9]{14}))?$`)
-
-type generatedMigrationVersion struct {
-	name      string
-	format    string
-	major     uint64
-	minor     uint64
-	patch     uint64
-	timestamp uint64
-	width     int
-}
+const generatedMenuSQLFileName = "default_data.up.sql"
 
 // RenderGeneratedMenuSQL 渲染当前代码生成对象的菜单和按钮权限脚本。
 func RenderGeneratedMenuSQL(table *Table, columns []*CodeGenColumn, methods []*Proto, resourcePath string, tableComment string, localeState LocaleState) string {
@@ -100,7 +82,7 @@ func writeMenuI18nSQL(builder *strings.Builder, menuIDExpression string, spec Co
 	}
 }
 
-// newGeneratedMenuSQLPreviewFile 创建新版本迁移 SQL 的菜单权限预览文件。
+// newGeneratedMenuSQLPreviewFile 创建固定初始化版本 SQL 的菜单权限预览文件。
 func (c *renderer) newGeneratedMenuSQLPreviewFile(table *Table, content string) *adminv1.CodeGenPreviewFile {
 	path, err := nextGeneratedMenuSQLPath(c.migrationVersion)
 	if err != nil {
@@ -194,272 +176,22 @@ func generatedMenuSQLBlock(table *Table, content string) string {
 	return beginMarker + "\n" + strings.TrimRight(content, "\r\n") + "\n" + endMarker
 }
 
-// nextGeneratedMenuSQLPath 返回可复用或下一版本的菜单 SQL 路径。
-func nextGeneratedMenuSQLPath(appliedVersion string) (string, error) {
-	relativeDir, directory, err := findMigrationAssetsDirectory()
+// nextGeneratedMenuSQLPath 返回项目固定初始化版本的菜单脚本路径。
+func nextGeneratedMenuSQLPath(_ string) (string, error) {
+	path := "backend/migration/assets/v0.0.1/mysql/" + generatedMenuSQLFileName
+	info, err := os.Stat(filepath.Join(repoRoot(), filepath.Dir(path)))
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("读取初始化迁移目录失败: %w", err)
 	}
-	var entries []os.DirEntry
-	entries, err = os.ReadDir(directory)
-	if err != nil {
-		return "", fmt.Errorf("读取迁移资源目录%s失败: %w", relativeDir, err)
+	if !info.IsDir() {
+		return "", fmt.Errorf("初始化迁移路径不是目录: %s", filepath.Dir(path))
 	}
-	var pendingPath string
-	var found bool
-	pendingPath, found, err = findPendingGeneratedMenuSQLPath(directory, relativeDir, entries, appliedVersion)
-	if err != nil {
-		return "", err
-	}
-	if found {
-		return pendingPath, nil
-	}
-	var versionName string
-	versionName, err = nextGeneratedMigrationVersion(entries)
-	if err != nil {
-		return "", err
-	}
-	if appliedVersion != "" {
-		var databaseVersionName string
-		var ok bool
-		databaseVersionName, ok, err = nextMigrationVersionAfter(appliedVersion)
-		if err != nil {
-			return "", err
-		}
-		if ok && generatedMigrationVersionGreater(databaseVersionName, versionName) {
-			versionName = databaseVersionName
-		}
-	}
-	return filepath.ToSlash(filepath.Join(relativeDir, versionName, generatedMenuSQLFileName)), nil
+	return path, nil
 }
 
-// findPendingGeneratedMenuSQLPath 查找尚未成功执行且已有代码生成标记的迁移脚本。
-func findPendingGeneratedMenuSQLPath(
-	directory string,
-	relativeDir string,
-	entries []os.DirEntry,
-	appliedVersion string,
-) (string, bool, error) {
-	var latest generatedMigrationVersion
-	found := false
-	for _, entry := range entries {
-		if !entry.IsDir() {
-			continue
-		}
-		version, ok := parseGeneratedMigrationVersion(entry.Name())
-		if !ok || isGeneratedMigrationVersionApplied(entry.Name(), appliedVersion) {
-			continue
-		}
-		path := filepath.Join(directory, entry.Name(), generatedMenuSQLFileName)
-		content, err := os.ReadFile(path)
-		if err != nil {
-			if os.IsNotExist(err) {
-				continue
-			}
-			return "", false, err
-		}
-		if !strings.Contains(string(content), "-- CODEGEN_MENU_BEGIN table=") ||
-			!strings.Contains(string(content), "-- CODEGEN_MENU_END table=") {
-			continue
-		}
-		if !found || compareGeneratedMigrationVersion(version, latest) < 0 {
-			latest = version
-			found = true
-		}
-	}
-	if !found {
-		return "", false, nil
-	}
-	return filepath.ToSlash(filepath.Join(relativeDir, latest.name, generatedMenuSQLFileName)), true, nil
-}
-
-// generatedMigrationVersionGreater 判断左侧迁移版本是否大于右侧版本。
-func generatedMigrationVersionGreater(leftName string, rightName string) bool {
-	left, leftOK := parseGeneratedMigrationVersion(leftName)
-	right, rightOK := parseGeneratedMigrationVersion(rightName)
-	return leftOK && rightOK && compareGeneratedMigrationVersion(left, right) > 0
-}
-
-// isGeneratedMigrationVersionApplied 判断迁移版本是否已经成功执行。
-func isGeneratedMigrationVersionApplied(versionName string, appliedVersion string) bool {
-	if appliedVersion == "" {
-		return false
-	}
-	version, versionOK := parseGeneratedMigrationVersion(versionName)
-	applied, appliedOK := parseGeneratedMigrationVersion(appliedVersion)
-	if !versionOK || !appliedOK {
-		return versionName == appliedVersion
-	}
-	return compareGeneratedMigrationVersion(version, applied) <= 0
-}
-
-// findMigrationAssetsDirectory 查找当前仓库中的迁移资源目录。
-func findMigrationAssetsDirectory() (string, string, error) {
-	root, err := filepath.Abs(repoRoot())
-	if err != nil {
-		return "", "", err
-	}
-	candidates := []string{filepath.Join(root, "migration", "assets", "mysql")}
-	var entries []os.DirEntry
-	entries, err = os.ReadDir(root)
-	if err != nil {
-		return "", "", fmt.Errorf("读取仓库目录失败: %w", err)
-	}
-	for _, entry := range entries {
-		if entry.IsDir() {
-			candidates = append(candidates, filepath.Join(root, entry.Name(), "migration", "assets", "mysql"))
-		}
-	}
-	for _, candidate := range candidates {
-		var info os.FileInfo
-		info, err = os.Stat(candidate)
-		if err != nil {
-			if os.IsNotExist(err) {
-				continue
-			}
-			return "", "", err
-		}
-		if !info.IsDir() {
-			continue
-		}
-		var relativeDir string
-		relativeDir, err = filepath.Rel(root, candidate)
-		if err != nil {
-			return "", "", err
-		}
-		return filepath.ToSlash(relativeDir), candidate, nil
-	}
-	return "", "", fmt.Errorf("未找到 migration/assets/mysql 迁移资源目录")
-}
-
-// nextGeneratedMigrationVersion 返回迁移资源目录下的下一版本名称。
-func nextGeneratedMigrationVersion(entries []os.DirEntry) (string, error) {
-	var latest generatedMigrationVersion
-	hasLatest := false
-	for _, entry := range entries {
-		if !entry.IsDir() {
-			continue
-		}
-		version, ok := parseGeneratedMigrationVersion(entry.Name())
-		if !ok {
-			continue
-		}
-		if !hasLatest || compareGeneratedMigrationVersion(version, latest) > 0 {
-			latest = version
-			hasLatest = true
-		}
-	}
-	if !hasLatest {
-		return initialMigrationVersionName, nil
-	}
-	return incrementGeneratedMigrationVersion(latest)
-}
-
-// nextMigrationVersionAfter 返回指定迁移版本的下一版本名称。
-func nextMigrationVersionAfter(versionName string) (string, bool, error) {
-	version, ok := parseGeneratedMigrationVersion(versionName)
-	if !ok {
-		return "", false, nil
-	}
-	nextVersion, err := incrementGeneratedMigrationVersion(version)
-	if err != nil {
-		return "", false, err
-	}
-	return nextVersion, true, nil
-}
-
-// incrementGeneratedMigrationVersion 将迁移版本的补丁号递增。
-func incrementGeneratedMigrationVersion(latest generatedMigrationVersion) (string, error) {
-	if latest.patch == ^uint64(0) {
-		return "", fmt.Errorf("迁移版本%s无法继续递增", latest.name)
-	}
-	latest.patch++
-	if latest.format == migrationVersionFormatNumeric {
-		versionName := strconv.FormatUint(latest.patch, 10)
-		if len(versionName) < latest.width {
-			versionName = strings.Repeat("0", latest.width-len(versionName)) + versionName
-		}
-		return versionName, nil
-	}
-	return fmt.Sprintf("v%d.%d.%d", latest.major, latest.minor, latest.patch), nil
-}
-
-// parseGeneratedMigrationVersion 解析代码生成器支持的迁移版本目录名。
-func parseGeneratedMigrationVersion(name string) (generatedMigrationVersion, bool) {
-	matches := generatedMigrationVersionPattern.FindStringSubmatch(name)
-	if len(matches) == 5 {
-		version := generatedMigrationVersion{name: name, format: migrationVersionFormatSemVer}
-		var err error
-		version.major, err = strconv.ParseUint(matches[1], 10, 64)
-		if err != nil {
-			return generatedMigrationVersion{}, false
-		}
-		version.minor, err = strconv.ParseUint(matches[2], 10, 64)
-		if err != nil {
-			return generatedMigrationVersion{}, false
-		}
-		version.patch, err = strconv.ParseUint(matches[3], 10, 64)
-		if err != nil {
-			return generatedMigrationVersion{}, false
-		}
-		if matches[4] != "" {
-			version.timestamp, err = strconv.ParseUint(matches[4], 10, 64)
-			if err != nil {
-				return generatedMigrationVersion{}, false
-			}
-		}
-		return version, true
-	}
-	patch, err := strconv.ParseUint(name, 10, 64)
-	if err != nil {
-		return generatedMigrationVersion{}, false
-	}
-	return generatedMigrationVersion{name: name, format: migrationVersionFormatNumeric, patch: patch, width: len(name)}, true
-}
-
-// compareGeneratedMigrationVersion 按主、次、补丁版本号比较迁移版本。
-func compareGeneratedMigrationVersion(left generatedMigrationVersion, right generatedMigrationVersion) int {
-	if left.major != right.major {
-		if left.major < right.major {
-			return -1
-		}
-		return 1
-	}
-	if left.minor != right.minor {
-		if left.minor < right.minor {
-			return -1
-		}
-		return 1
-	}
-	if left.patch < right.patch {
-		return -1
-	}
-	if left.patch > right.patch {
-		return 1
-	}
-	if left.timestamp < right.timestamp {
-		return -1
-	}
-	if left.timestamp > right.timestamp {
-		return 1
-	}
-	return 0
-}
-
-// isGeneratedMenuSQLPath 判断路径是否是代码生成器使用的迁移菜单 SQL 文件。
+// isGeneratedMenuSQLPath 判断是否为项目初始化版本的菜单脚本。
 func isGeneratedMenuSQLPath(path string) bool {
-	normalizedPath := filepath.ToSlash(filepath.Clean(path))
-	if filepath.Base(normalizedPath) != generatedMenuSQLFileName {
-		return false
-	}
-	versionDirectory := filepath.Dir(normalizedPath)
-	if _, ok := parseGeneratedMigrationVersion(filepath.Base(versionDirectory)); !ok {
-		return false
-	}
-	assetsDirectory := filepath.Dir(versionDirectory)
-	return filepath.Base(assetsDirectory) == "mysql" &&
-		filepath.Base(filepath.Dir(assetsDirectory)) == "assets" &&
-		filepath.Base(filepath.Dir(filepath.Dir(assetsDirectory))) == "migration"
+	return filepath.ToSlash(filepath.Clean(path)) == "backend/migration/assets/v0.0.1/mysql/"+generatedMenuSQLFileName
 }
 
 // writeMenuUpsertSQL 写入单个菜单的幂等插入和更新语句。
@@ -470,8 +202,22 @@ func writeMenuUpsertSQL(builder *strings.Builder, label string, menu *models.Bas
 	builder.WriteString("-- ")
 	builder.WriteString(label)
 	builder.WriteString("\n")
-	builder.WriteString("INSERT INTO `base_menu` (`parent_id`, `type`, `path`, `name`, `component`, `redirect`, `meta`, `api`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`)\n")
-	builder.WriteString("SELECT ")
+	// 与在线菜单分配规则一致，使用父级下第一个未占用的层级编号。
+	builder.WriteString("SET @codegen_new_menu_id = (SELECT MIN(candidate.id) FROM (SELECT CASE\n")
+	fmt.Fprintf(builder, "WHEN %s %% 1000000 = 0 THEN %s + seq.n * 10000\n", parentExpression, parentExpression)
+	fmt.Fprintf(builder, "WHEN %s %% 10000 = 0 THEN %s + seq.n * 100\n", parentExpression, parentExpression)
+	fmt.Fprintf(builder, "WHEN %s %% 100 = 0 THEN %s + seq.n\n", parentExpression, parentExpression)
+	fmt.Fprintf(builder, "WHEN (%s %% 100) * 10 + seq.n <= 99 THEN FLOOR(%s / 100) * 100 + (%s %% 100) * 10 + seq.n\n", parentExpression, parentExpression, parentExpression)
+	builder.WriteString("END AS id FROM (")
+	for sequence := 1; sequence <= 99; sequence++ {
+		if sequence > 1 {
+			builder.WriteString(" UNION ALL ")
+		}
+		fmt.Fprintf(builder, "SELECT %d AS n", sequence)
+	}
+	builder.WriteString(") AS seq) AS candidate LEFT JOIN base_menu AS used ON used.id = candidate.id WHERE used.id IS NULL);\n")
+	builder.WriteString("INSERT INTO `base_menu` (`id`, `parent_id`, `type`, `path`, `name`, `component`, `redirect`, `meta`, `api`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`)\n")
+	builder.WriteString("SELECT @codegen_new_menu_id, ")
 	builder.WriteString(parentExpression)
 	builder.WriteString(", ")
 	builder.WriteString(strconv.FormatInt(int64(menu.Type), 10))
@@ -492,7 +238,7 @@ func writeMenuUpsertSQL(builder *strings.Builder, label string, menu *models.Bas
 	builder.WriteString(", ")
 	builder.WriteString(strconv.FormatInt(int64(menu.Status), 10))
 	builder.WriteString(", 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0\n")
-	builder.WriteString("WHERE NOT EXISTS (SELECT 1 FROM `base_menu` WHERE ")
+	builder.WriteString("WHERE @codegen_new_menu_id IS NOT NULL AND NOT EXISTS (SELECT 1 FROM `base_menu` WHERE ")
 	builder.WriteString(typeCondition)
 	if menu.Type == 2 {
 		builder.WriteString(" AND (`path` = ")
