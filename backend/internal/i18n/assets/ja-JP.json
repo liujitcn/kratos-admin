@@ -1270,5 +1270,17 @@
   },
   "system.admin.base.redact.output_policy.status.id.required": {
     "other": "出庫脱敏ポリシー ID は必須です"
+  },
+  "system.admin.base.config.form.protected": {
+    "other": "フォーム設定は削除または無効化できません"
+  },
+  "system.admin.base.config.form.identity": {
+    "other": "フォーム設定の対象、種類、キーは変更できません"
+  },
+  "system.admin.base.config.form.required": {
+    "other": "この設定キーにはフォーム形式が必要です"
+  },
+  "system.admin.base.config.form.unsupported": {
+    "other": "登録済みのシステム設定フォームを選択してください"
   }
 }

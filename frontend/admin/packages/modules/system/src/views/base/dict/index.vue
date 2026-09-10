@@ -21,11 +21,7 @@
       @close="handleCloseDialog"
     >
       <template #i18ns>
-        <DynamicI18nEditor
-          v-model="i18nValues"
-          :source="formData.name"
-          :maxlength="50"
-        />
+        <DynamicI18nEditor v-model="i18nValues" :source="formData.name" :maxlength="50" />
       </template>
     </FormDialog>
   </div>
@@ -124,6 +120,7 @@ const statusOptions = computed<ProFormOption[]>(() => [
 const formFields = computed<ProFormField[]>(() => [
   {
     prop: "name",
+    suffixSlotName: "i18ns",
     label: t("system.base.dict.field.name"),
     component: "input",
     props: { placeholder: t("system.base.dict.placeholder.name") }
@@ -134,7 +131,6 @@ const formFields = computed<ProFormField[]>(() => [
     component: "input",
     props: { placeholder: t("system.base.dict.placeholder.code") }
   },
-  { prop: "i18ns", label: t("system.base.i18n.field.i18ns"), component: "slot", slotName: "i18ns" },
   { prop: "status", label: t("common.field.status"), component: "radio-group", options: statusOptions.value }
 ]);
 
@@ -261,7 +257,7 @@ async function handleOpenDialog(dictId?: number) {
 
   const data = await defBaseDictService.GetBaseDict({ id: dictId });
   Object.assign(formData, data);
-	i18nValues.value = normalizeDynamicI18ns(data.i18ns as DynamicI18nRecord[]);
+  i18nValues.value = normalizeDynamicI18ns(data.i18ns as DynamicI18nRecord[]);
 }
 
 /**
@@ -283,7 +279,7 @@ function resetForm() {
   formData.name = "";
   formData.i18ns = [];
   formData.status = Status.STATUS_ENABLE;
-	i18nValues.value = normalizeDynamicI18ns(undefined);
+  i18nValues.value = normalizeDynamicI18ns(undefined);
 }
 
 /**
@@ -297,7 +293,8 @@ function handleSubmit() {
     submitData.i18ns = serializeDynamicI18ns(
       i18nValues.value,
       I18nTargetType.I18N_TARGET_TYPE_BASE_DICT_NAME,
-      submitData.id
+      submitData.id,
+      submitData.name
     );
     const request = submitData.id
       ? defBaseDictService.UpdateBaseDict({ base_dict: submitData })

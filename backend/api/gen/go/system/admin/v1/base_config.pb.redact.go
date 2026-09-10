@@ -90,17 +90,6 @@ func (s *redactedBaseConfigServiceServer) GetBaseConfig(ctx context.Context, in 
 	return res, err
 }
 
-// GetBaseConfigByKey is the redacted wrapper for the actual BaseConfigServiceServer.GetBaseConfigByKey method
-// Unary RPC
-func (s *redactedBaseConfigServiceServer) GetBaseConfigByKey(ctx context.Context, in *GetBaseConfigByKeyRequest) (*BaseConfigValue, error) {
-	res, err := s.srv.GetBaseConfigByKey(ctx, in)
-	if !s.bypass.CheckInternal(ctx) {
-		// Apply redaction to the response
-		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/system.admin.v1.BaseConfigService/GetBaseConfigByKey"), redact.DirectionResponse), nil, res)
-	}
-	return res, err
-}
-
 // CreateBaseConfig is the redacted wrapper for the actual BaseConfigServiceServer.CreateBaseConfig method
 // Unary RPC
 func (s *redactedBaseConfigServiceServer) CreateBaseConfig(ctx context.Context, in *CreateBaseConfigRequest) (*emptypb.Empty, error) {
@@ -119,17 +108,6 @@ func (s *redactedBaseConfigServiceServer) UpdateBaseConfig(ctx context.Context, 
 	if !s.bypass.CheckInternal(ctx) {
 		// Apply redaction to the response
 		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/system.admin.v1.BaseConfigService/UpdateBaseConfig"), redact.DirectionResponse), nil, res)
-	}
-	return res, err
-}
-
-// UpdateBaseConfigByKey is the redacted wrapper for the actual BaseConfigServiceServer.UpdateBaseConfigByKey method
-// Unary RPC
-func (s *redactedBaseConfigServiceServer) UpdateBaseConfigByKey(ctx context.Context, in *UpdateBaseConfigByKeyRequest) (*emptypb.Empty, error) {
-	res, err := s.srv.UpdateBaseConfigByKey(ctx, in)
-	if !s.bypass.CheckInternal(ctx) {
-		// Apply redaction to the response
-		redact.ApplyWith(redact.WithDirection(redact.WithOperation(ctx, "/system.admin.v1.BaseConfigService/UpdateBaseConfigByKey"), redact.DirectionResponse), nil, res)
 	}
 	return res, err
 }
@@ -227,8 +205,6 @@ func (x *BaseConfigForm) Redact() {
 
 	// Safe field: Value
 
-	// Safe field: HiddenStatus
-
 	// Safe field: NameI18ns
 
 	// Safe field: ValueI18ns
@@ -317,8 +293,6 @@ func (x *BaseConfig) Redact() {
 
 	// Safe field: Value
 
-	// Safe field: HiddenStatus
-
 	// Safe field: Status
 
 	// Safe field: CreatedAt
@@ -326,46 +300,4 @@ func (x *BaseConfig) Redact() {
 	// Safe field: UpdatedAt
 
 	// Safe field: I18ns
-}
-
-// Ensure GetBaseConfigByKeyRequest implements the Redactor interface at compile time.
-var _ redact.Redactor = (*GetBaseConfigByKeyRequest)(nil)
-
-// Redact method implementation for GetBaseConfigByKeyRequest
-func (x *GetBaseConfigByKeyRequest) Redact() {
-	if x == nil {
-		return
-	}
-
-	// Safe field: Key
-}
-
-// Ensure BaseConfigValue implements the Redactor interface at compile time.
-var _ redact.Redactor = (*BaseConfigValue)(nil)
-
-// Redact method implementation for BaseConfigValue
-func (x *BaseConfigValue) Redact() {
-	if x == nil {
-		return
-	}
-
-	// Safe field: Key
-
-	// Safe field: ValueJson
-
-	// Safe field: UpdatedAt
-}
-
-// Ensure UpdateBaseConfigByKeyRequest implements the Redactor interface at compile time.
-var _ redact.Redactor = (*UpdateBaseConfigByKeyRequest)(nil)
-
-// Redact method implementation for UpdateBaseConfigByKeyRequest
-func (x *UpdateBaseConfigByKeyRequest) Redact() {
-	if x == nil {
-		return
-	}
-
-	// Safe field: Key
-
-	// Safe field: ValueJson
 }

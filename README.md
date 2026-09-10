@@ -232,3 +232,5 @@ Go 脚手架只调用 npm CLI；`--kratos-project` 适配后端静态输出，�
 三端支持本地 `system`，无需临时模块名或生成后的文件补写。CLI 更新需先发布到 npm，Go 的精确版本调用才能使用新能力。
 
 Backend 的 `NewModules` 与 `NewStreams` 共享宿主注入的 `*backend.CodeGenManager`；通过 `backend.ProviderSet` 自动装配，手动调用这两个入口时也需传入同一实例。修改内部依赖装配后执行 `make -C backend public-wire wire`。
+
+系统管理的基础管理统一使用“系统配置”入口维护普通配置和表单配置；表单类型按配置 key 加载模块注册的表单，复用统一查询与更新接口。

@@ -12,8 +12,13 @@
     <FormDialog
       v-model="dialog.visible"
       ref="formDialogRef"
+      class="system-config-dialog"
       :title="t(dialog.titleKey, { resource: t('system.base.config.resource') })"
-      width="1200px"
+      width="min(1440px, calc(100vw - 32px))"
+      top="4vh"
+      :col-span="12"
+      :gutter="24"
+      :confirm-loading="saving"
       :model="formData"
       :fields="formFields"
       :rules="rules"
@@ -56,6 +61,25 @@
           inline-prompt
         />
       </template>
+      <template #formValue>
+        <div class="config-form-value">
+          <template v-if="formDefinition">
+            <p>
+              <el-icon><component :is="formDefinition.icon" /></el-icon> {{ t(formDefinition.descriptionKey) }}
+            </p>
+            <ProForm
+              :key="formDefinition.key"
+              ref="valueFormRef"
+              :model="formValue"
+              :fields="localizedFormFields"
+              :col-span="12"
+              :gutter="24"
+              label-width="180px"
+            />
+          </template>
+          <el-alert v-else :title="t('system.base.config.message.form_unavailable')" type="warning" :closable="false" />
+        </div>
+      </template>
       <template #nameI18ns>
         <DynamicI18nEditor v-model="nameI18nValues" :source="formData.name" :maxlength="100" />
       </template>
@@ -67,12 +91,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, reactive, ref } from "vue";
+import { computed, h, reactive, ref, watch } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
+import ProForm from "@liujitcn/kratos-admin-core/components/ProForm/index.vue";
+import { runtimeConfigDefinitions, type RuntimeConfigModel } from "@liujitcn/kratos-admin-system/config";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
-import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
+import type { ProFormField, ProFormOption, ProFormInstance } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import DictLabel from "@liujitcn/kratos-admin-core/components/Dict/DictLabel.vue";
 import RichTextPreview from "@liujitcn/kratos-admin-core/components/RichTextPreview/index.vue";
 import UploadImg from "@liujitcn/kratos-admin-core/components/Upload/Img.vue";
@@ -88,13 +114,17 @@ import type {
 import type { BaseI18n } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { BaseConfigSite } from "@liujitcn/kratos-admin-system/rpc/base/v1/config";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
-import { BaseConfigHiddenStatus, BaseConfigType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_config";
+import { BaseConfigType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_config";
 import { I18nTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
 import DynamicI18nEditor from "@liujitcn/kratos-admin-system/components/DynamicI18nEditor.vue";
 import DynamicI18nCell from "@liujitcn/kratos-admin-system/components/DynamicI18nCell.vue";
-import { getEditableLanguageOptions, type DynamicI18nValue } from "@liujitcn/kratos-admin-system/components/dynamicI18n";
+import {
+  getEditableLanguageOptions,
+  serializeDynamicI18ns,
+  type DynamicI18nValue
+} from "@liujitcn/kratos-admin-system/components/dynamicI18n";
 
 /** 系统配置编辑表单状态，新增时枚举字段保持为空，避免把未知值 0 显示为下拉文本。 */
 type BaseConfigFormState = Omit<BaseConfigForm, "site" | "type"> & {
@@ -112,6 +142,37 @@ defineOptions({
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
+
+const saving = ref(false);
+const valueFormRef = ref<ProFormInstance>();
+const formValue = ref<RuntimeConfigModel>({});
+const formDefinition = computed(() => runtimeConfigDefinitions.find(item => item.key === formData.key));
+const localizedFormFields = computed<ProFormField[]>(() =>
+  (formDefinition.value?.fields ?? []).map(field => ({
+    prop: field.prop,
+    label: t(field.labelKey),
+    component: field.component,
+    props: field.props,
+    itemProps: field.itemProps,
+    options: field.options,
+    visible: field.visible,
+    labelTooltip: field.labelTooltipKey ? t(field.labelTooltipKey) : undefined,
+    rules: field.rules?.map(rule => ({
+      ...rule,
+      message: t(
+        rule.messageKey,
+        rule.messageArgs
+          ? Object.fromEntries(
+              Object.entries(rule.messageArgs).map(([key, value]) => [
+                key,
+                typeof value === "object" ? t(value.key) : typeof value === "boolean" ? String(value) : value
+              ])
+            )
+          : undefined
+      )
+    }))
+  }))
+);
 
 const dialog = reactive({
   titleKey: "common.action.create_resource",
@@ -131,8 +192,6 @@ const formData = reactive<BaseConfigFormState>({
   key: "",
   /** 配置value */
   value: "",
-  /** 隐藏状态。 */
-  hidden_status: BaseConfigHiddenStatus.BASE_CONFIG_HIDDEN_STATUS_VISIBLE,
   /** 状态 */
   status: Status.STATUS_ENABLE,
   /** 配置名称非主语言翻译。 */
@@ -140,6 +199,16 @@ const formData = reactive<BaseConfigFormState>({
   /** 配置文本或富文本值的非主语言翻译。 */
   value_i18ns: []
 });
+
+/** 切换表单类型或编码时加载对应默认内容。 */
+watch(
+  () => [formData.type, formData.key],
+  () => {
+    loadFormValue();
+    if (formData.type === BaseConfigType.BASE_CONFIG_TYPE_FORM) formData.site = BaseConfigSite.BASE_CONFIG_SITE_SYSTEM;
+  },
+  { flush: "sync" }
+);
 
 /** 将配置值翻译记录转换为编辑器值，缺少记录时保留可编辑的空行。 */
 function normalizeConfigI18ns(targetType: I18nTargetType): DynamicI18nValue[] {
@@ -258,6 +327,7 @@ const dictValueCode = computed(() => BASE_CONFIG_DICT_CODE_MAP[formData.key] ?? 
 const formFields = computed<ProFormField[]>(() => [
   {
     prop: "name",
+    suffixSlotName: "nameI18ns",
     label: t("system.base.config.field.name"),
     component: "input",
     props: {
@@ -269,12 +339,13 @@ const formFields = computed<ProFormField[]>(() => [
     prop: "site",
     label: t("system.base.config.field.site"),
     component: "dict",
-    props: { code: "base_config_site", disabled: formData.id > 0 }
+    props: { code: "base_config_site", disabled: formData.id > 0 || formData.type === BaseConfigType.BASE_CONFIG_TYPE_FORM }
   },
   {
     prop: "key",
     label: t("system.base.config.field.key"),
-    component: "input",
+    component: formData.type === BaseConfigType.BASE_CONFIG_TYPE_FORM ? "select" : "input",
+    options: runtimeConfigDefinitions.map(item => ({ label: `${t(item.titleKey)}（${item.key}）`, value: item.key })),
     props: {
       placeholder: t("common.validation.required_input", { field: t("system.base.config.field.key") }),
       disabled: formData.id > 0
@@ -287,10 +358,19 @@ const formFields = computed<ProFormField[]>(() => [
     props: { code: "base_config_type", disabled: formData.id > 0 }
   },
   {
+    prop: "formValue",
+    label: t("system.base.config.field.value"),
+    component: "slot",
+    slotName: "formValue",
+    visible: model => model.type === BaseConfigType.BASE_CONFIG_TYPE_FORM,
+    colSpan: 24
+  },
+  {
     prop: "value",
     label: t("system.base.config.field.value"),
     component: "slot",
     slotName: "textValue",
+    suffixSlotName: "valueI18ns",
     visible: model => model.type == BaseConfigType.BASE_CONFIG_TYPE_TEXT
   },
   {
@@ -305,6 +385,7 @@ const formFields = computed<ProFormField[]>(() => [
     label: t("system.base.config.field.value"),
     component: "slot",
     slotName: "richTextValue",
+    suffixSlotName: "valueI18ns",
     visible: model => model.type == BaseConfigType.BASE_CONFIG_TYPE_RICH_TEXT,
     colSpan: 24
   },
@@ -323,22 +404,12 @@ const formFields = computed<ProFormField[]>(() => [
     visible: model => model.type == BaseConfigType.BASE_CONFIG_TYPE_BOOLEAN
   },
   {
-    prop: "i18ns",
-    label: t("system.base.i18n.field.name_i18ns"),
-    component: "slot",
-    slotName: "nameI18ns",
-    colSpan: 24
-  },
-  {
-    prop: "i18ns",
-    label: t("system.base.i18n.field.value_i18ns"),
-    component: "slot",
-    slotName: "valueI18ns",
-    visible: model =>
-      model.type == BaseConfigType.BASE_CONFIG_TYPE_TEXT || model.type == BaseConfigType.BASE_CONFIG_TYPE_RICH_TEXT,
-    colSpan: 24
-  },
-  { prop: "status", label: t("common.field.status"), component: "radio-group", options: statusOptions.value }
+    prop: "status",
+    label: t("common.field.status"),
+    component: "radio-group",
+    options: statusOptions.value,
+    props: { disabled: formData.type === BaseConfigType.BASE_CONFIG_TYPE_FORM }
+  }
 ]);
 
 /** 系统配置表格列配置。 */
@@ -384,7 +455,8 @@ const columns = computed<ColumnProps[]>(() => [
       inactiveValue: Status.STATUS_DISABLE,
       activeText: t("common.status.enabled"),
       inactiveText: t("common.status.disabled"),
-      disabled: () => !BUTTONS.value["base:config:status"],
+      disabled: scope =>
+        !BUTTONS.value["base:config:status"] || (scope.row as BaseConfig).type === BaseConfigType.BASE_CONFIG_TYPE_FORM,
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseConfig)
     }
   },
@@ -411,7 +483,8 @@ const columns = computed<ColumnProps[]>(() => [
         type: "danger",
         link: true,
         icon: Delete,
-        hidden: () => !BUTTONS.value["base:config:delete"],
+        hidden: scope =>
+          !BUTTONS.value["base:config:delete"] || (scope.row as BaseConfig).type === BaseConfigType.BASE_CONFIG_TYPE_FORM,
         onClick: scope => handleDelete(scope.row as BaseConfig)
       }
     ]
@@ -433,6 +506,7 @@ function renderConfigNameCell(row: BaseConfig) {
  * 将配置键渲染为可悬停查看配置值的单元格。
  */
 function renderConfigKeyCell(row: BaseConfig) {
+  if (row.type === BaseConfigType.BASE_CONFIG_TYPE_FORM) return h("span", row.key);
   return h(
     ElTooltip,
     {
@@ -537,10 +611,23 @@ async function handleOpenDialog(configId?: number) {
   await loadEnabledBaseLanguages();
   resetForm();
   dialog.titleKey = configId ? "common.action.edit_resource" : "common.action.create_resource";
+  if (configId) {
+    Object.assign(formData, await defBaseConfigService.GetBaseConfig({ id: configId }));
+    if (formData.type === BaseConfigType.BASE_CONFIG_TYPE_FORM) {
+      loadFormValue(formData.value);
+    }
+  }
   dialog.visible = true;
-  if (!configId) return;
+}
 
-  Object.assign(formData, await defBaseConfigService.GetBaseConfig({ id: configId }));
+/** 按注册定义创建独立模型，并用已保存的配置值覆盖默认值。 */
+function loadFormValue(value?: string) {
+  const definition = formDefinition.value;
+  formValue.value =
+    formData.type === BaseConfigType.BASE_CONFIG_TYPE_FORM && definition
+      ? Object.assign(definition.createModel(), value ? JSON.parse(value) : {})
+      : {};
+  valueFormRef.value?.clearValidate();
 }
 
 /**
@@ -563,36 +650,62 @@ function resetForm() {
   formData.type = undefined;
   formData.key = "";
   formData.value = "";
-  formData.hidden_status = BaseConfigHiddenStatus.BASE_CONFIG_HIDDEN_STATUS_VISIBLE;
   formData.name_i18ns = [];
   formData.value_i18ns = [];
+  formValue.value = {};
+  valueFormRef.value?.clearValidate();
   formData.status = Status.STATUS_ENABLE;
 }
 
 /**
  * 提交系统配置表单。
  */
-function handleSubmit() {
-  if (formData.type === BaseConfigType.BASE_CONFIG_TYPE_BOOLEAN) {
+async function handleSubmit() {
+  if (formData.type === BaseConfigType.BASE_CONFIG_TYPE_FORM) {
+    if (!formDefinition.value) {
+      ElMessage.warning(t("system.base.config.message.form_unavailable"));
+      return;
+    }
+    if ((await valueFormRef.value?.validate()) !== true) return;
+    formData.value = JSON.stringify(formValue.value);
+  } else if (formData.type === BaseConfigType.BASE_CONFIG_TYPE_BOOLEAN) {
     formData.value = formData.value === "true" ? "true" : "false";
   }
-  formDialogRef.value?.validate()?.then(valid => {
-    if (!valid) return;
-
+  if ((await formDialogRef.value?.validate()) !== true) return;
+  saving.value = true;
+  try {
     const submitData = JSON.parse(JSON.stringify(formData)) as BaseConfigForm;
-    const request = submitData.id
-      ? defBaseConfigService.UpdateBaseConfig({ base_config: submitData })
-      : defBaseConfigService.CreateBaseConfig({ base_config: submitData });
-    request.then(() => {
-      ElMessage.success(
-        t(submitData.id ? "common.message.update_success" : "common.message.create_success", {
-          resource: t("system.base.config.resource")
-        })
-      );
-      handleCloseDialog();
-      refreshTable();
-    });
-  });
+    submitData.name_i18ns = serializeDynamicI18ns(
+      nameI18nValues.value,
+      I18nTargetType.I18N_TARGET_TYPE_BASE_CONFIG_NAME,
+      submitData.id,
+      submitData.name
+    );
+    submitData.value_i18ns =
+      submitData.type === BaseConfigType.BASE_CONFIG_TYPE_TEXT || submitData.type === BaseConfigType.BASE_CONFIG_TYPE_RICH_TEXT
+        ? serializeDynamicI18ns(
+            valueI18nValues.value,
+            I18nTargetType.I18N_TARGET_TYPE_BASE_CONFIG_VALUE,
+            submitData.id,
+            submitData.value
+          )
+        : [];
+
+    if (submitData.id) {
+      await defBaseConfigService.UpdateBaseConfig({ base_config: submitData });
+    } else {
+      await defBaseConfigService.CreateBaseConfig({ base_config: submitData });
+    }
+    ElMessage.success(
+      t(submitData.id ? "common.message.update_success" : "common.message.create_success", {
+        resource: t("system.base.config.resource")
+      })
+    );
+    handleCloseDialog();
+    refreshTable();
+  } finally {
+    saving.value = false;
+  }
 }
 
 /**
@@ -679,6 +792,15 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
 </script>
 
 <style scoped lang="scss">
+.config-form-value {
+  width: 100%;
+  min-width: 0;
+  > p {
+    margin: 0 0 16px;
+    color: var(--el-text-color-secondary);
+  }
+}
+
 .config-key-cell {
   cursor: pointer;
   border-bottom: 1px dashed var(--el-color-info);
@@ -722,5 +844,18 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
 .config-rich-text-preview :deep(img) {
   max-width: 100%;
   height: auto;
+}
+@media (max-width: 767px) {
+  :global(.system-config-dialog .el-col) {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  :global(.system-config-dialog .el-form-item) {
+    flex-direction: column;
+  }
+  :global(.system-config-dialog .el-form-item__label) {
+    justify-content: flex-start;
+    width: auto !important;
+  }
 }
 </style>

@@ -4,14 +4,11 @@ import {
   type BaseConfigService,
   type CreateBaseConfigRequest,
   type DeleteBaseConfigRequest,
-  type GetBaseConfigByKeyRequest,
-  type BaseConfigValue,
   type GetBaseConfigRequest,
   type PageBaseConfigRequest,
   type PageBaseConfigResponse,
   type RefreshBaseConfigCacheRequest,
   type SetBaseConfigStatusRequest,
-  type UpdateBaseConfigByKeyRequest,
   type UpdateBaseConfigRequest
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_config";
 import type { Empty } from "@liujitcn/kratos-admin-system/rpc/google/protobuf/empty";
@@ -46,14 +43,6 @@ export class BaseConfigServiceImpl implements BaseConfigService {
     });
   }
 
-  /** 按配置键查询隐藏系统配置。 */
-  GetBaseConfigByKey(request: GetBaseConfigByKeyRequest): Promise<BaseConfigValue> {
-    return service<GetBaseConfigByKeyRequest, BaseConfigValue>({
-      url: `${BASE_CONFIG_URL}/key/${request.key}`,
-      method: "get"
-    });
-  }
-
   /** 创建系统配置 */
   CreateBaseConfig(request: CreateBaseConfigRequest): Promise<Empty> {
     return service<BaseConfigForm | undefined, Empty>({
@@ -69,15 +58,6 @@ export class BaseConfigServiceImpl implements BaseConfigService {
       url: `${BASE_CONFIG_URL}/${request.base_config?.id ?? ""}`,
       method: "put",
       data: request.base_config
-    });
-  }
-
-  /** 按配置键更新隐藏系统配置。 */
-  UpdateBaseConfigByKey(request: UpdateBaseConfigByKeyRequest): Promise<Empty> {
-    return service<Pick<UpdateBaseConfigByKeyRequest, "value_json">, Empty>({
-      url: `${BASE_CONFIG_URL}/key/${request.key}`,
-      method: "put",
-      data: { value_json: request.value_json }
     });
   }
 

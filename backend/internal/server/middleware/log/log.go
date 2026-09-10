@@ -569,7 +569,7 @@ func redactLogValue(value interface{}) interface{} {
 	switch item := value.(type) {
 	case map[string]interface{}:
 		for key, child := range item {
-			if isSensitiveLogField(key) {
+			if isSensitiveLogField(key) || (key == "value" && item["key"] != nil && item["type"] != nil) {
 				item[key] = "[REDACTED]"
 				continue
 			}
@@ -586,7 +586,7 @@ func redactLogValue(value interface{}) interface{} {
 // isSensitiveLogField 判断字段名是否包含不应进入审计快照的敏感值。
 func isSensitiveLogField(key string) bool {
 	normalized := strings.ToLower(strings.ReplaceAll(key, "-", "_"))
-	for _, marker := range []string{"password", "old_pwd", "new_pwd", "pwd", "client_secret", "crypto_key", "encrypted_key", "ciphertext", "nonce", "access_token", "refresh_token", "authorization", "captcha_code", "verification_code", "private_key", "content", "action_params", "value_json", "phone", "mobile", "email", "id_card", "identity_number"} {
+	for _, marker := range []string{"password", "old_pwd", "new_pwd", "pwd", "client_secret", "crypto_key", "encrypted_key", "ciphertext", "nonce", "access_token", "refresh_token", "authorization", "captcha_code", "verification_code", "private_key", "content", "action_params", "phone", "mobile", "email", "id_card", "identity_number"} {
 		if strings.Contains(normalized, marker) {
 			return true
 		}

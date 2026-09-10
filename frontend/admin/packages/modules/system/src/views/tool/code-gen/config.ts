@@ -1,3 +1,5 @@
+import { getEditableLanguageOptions } from "@liujitcn/kratos-admin-system/components/dynamicI18n";
+import type { CodeGenLocaleConfig } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import type { FormRules } from "element-plus";
 import { t } from "@liujitcn/kratos-admin-core";
 import type { ProFormComponentType, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
@@ -122,7 +124,9 @@ export function codeGenTableRules(): FormRules {
       { required: true, type: "number", min: 1, message: t("system.code.gen.validation.parent_menu_required"), trigger: "change" }
     ],
     page_type: [{ required: true, max: 32, message: t("system.code.gen.validation.page_type_required"), trigger: "change" }],
-    parent_column: [{ required: true, max: 64, message: t("system.code.gen.validation.parent_column_required"), trigger: "change" }],
+    parent_column: [
+      { required: true, max: 64, message: t("system.code.gen.validation.parent_column_required"), trigger: "change" }
+    ],
     tree_label_column: [
       { required: true, max: 64, message: t("system.code.gen.validation.tree_label_required"), trigger: "change" }
     ],
@@ -212,4 +216,14 @@ export function createDefaultCodeGenOptionConfig(): CodeGenColumnOptionConfig {
     inactive_value: "",
     lazy: false
   };
+}
+
+/** 保存代码生成配置时，以原值补齐尚未填写的启用语言描述。 */
+export function withCodeGenLocaleDefaults(values: Map<string, CodeGenLocaleConfig>, comment: string, leftTreeComment = "") {
+  const result = new Map(values);
+  for (const { value } of getEditableLanguageOptions()) {
+    const current = values.get(value);
+    result.set(value, { comment: current?.comment || comment, left_tree_comment: current?.left_tree_comment || leftTreeComment });
+  }
+  return result;
 }

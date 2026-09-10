@@ -1270,5 +1270,17 @@
   },
   "system.admin.base.redact.output_policy.status.id.required": {
     "other": "出库策略 ID 不能为空"
+  },
+  "system.admin.base.config.form.protected": {
+    "other": "表单配置不允许删除或停用"
+  },
+  "system.admin.base.config.form.identity": {
+    "other": "表单配置的位置、类型和编码不可修改"
+  },
+  "system.admin.base.config.form.required": {
+    "other": "该配置编码必须使用表单类型"
+  },
+  "system.admin.base.config.form.unsupported": {
+    "other": "请选择已注册的系统配置表单"
   }
 }

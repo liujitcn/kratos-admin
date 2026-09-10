@@ -60,6 +60,8 @@ export interface ProFormField {
   rowBreakBefore?: boolean;
   /** 自定义插槽名称。 */
   slotName?: string;
+  /** 输入控件旁的附加操作插槽。 */
+  suffixSlotName?: string;
   /** 标题提示文案。 */
   labelTooltip?: string;
   /** 字段校验规则。 */

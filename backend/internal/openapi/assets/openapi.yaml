@@ -609,6 +609,7 @@ paths:
                         - BASE_CONFIG_TYPE_RICH_TEXT
                         - BASE_CONFIG_TYPE_DICT
                         - BASE_CONFIG_TYPE_BOOLEAN
+                        - BASE_CONFIG_TYPE_FORM
                     type: string
                     format: enum
                 - name: key
@@ -665,46 +666,6 @@ paths:
                     application/json:
                         schema:
                             $ref: '#/components/schemas/system.admin.v1.RefreshBaseConfigCacheRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-    /api/v1/admin/base/config/key/{key}:
-        get:
-            tags:
-                - BaseConfigService
-            description: 按配置键查询隐藏系统配置。
-            operationId: BaseConfigService_GetBaseConfigByKey
-            parameters:
-                - name: key
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/system.admin.v1.BaseConfigValue'
-        put:
-            tags:
-                - BaseConfigService
-            description: 按配置键更新隐藏系统配置。
-            operationId: BaseConfigService_UpdateBaseConfigByKey
-            parameters:
-                - name: key
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/system.admin.v1.UpdateBaseConfigByKeyRequest'
                 required: true
             responses:
                 "200":
@@ -8346,6 +8307,7 @@ components:
                         - BASE_CONFIG_TYPE_RICH_TEXT
                         - BASE_CONFIG_TYPE_DICT
                         - BASE_CONFIG_TYPE_BOOLEAN
+                        - BASE_CONFIG_TYPE_FORM
                     type: string
                     description: 配置类型：枚举【BaseConfigType】
                     format: enum
@@ -8355,14 +8317,6 @@ components:
                 value:
                     type: string
                     description: 配置value
-                hidden_status:
-                    enum:
-                        - BASE_CONFIG_HIDDEN_STATUS_UNSPECIFIED
-                        - BASE_CONFIG_HIDDEN_STATUS_VISIBLE
-                        - BASE_CONFIG_HIDDEN_STATUS_HIDDEN
-                    type: string
-                    description: 隐藏状态：枚举【BaseConfigHiddenStatus】
-                    format: enum
                 status:
                     enum:
                         - STATUS_UNSPECIFIED
@@ -8409,8 +8363,9 @@ components:
                         - BASE_CONFIG_TYPE_RICH_TEXT
                         - BASE_CONFIG_TYPE_DICT
                         - BASE_CONFIG_TYPE_BOOLEAN
+                        - BASE_CONFIG_TYPE_FORM
                     type: string
-                    description: 配置类型：1、文本，2、图片，3、富文本，4、字典，5、布尔
+                    description: 配置类型：1、文本，2、图片，3、富文本，4、字典，5、布尔，6、表单
                     format: enum
                 key:
                     type: string
@@ -8418,14 +8373,6 @@ components:
                 value:
                     type: string
                     description: 配置value
-                hidden_status:
-                    enum:
-                        - BASE_CONFIG_HIDDEN_STATUS_UNSPECIFIED
-                        - BASE_CONFIG_HIDDEN_STATUS_VISIBLE
-                        - BASE_CONFIG_HIDDEN_STATUS_HIDDEN
-                    type: string
-                    description: 隐藏状态：枚举【BaseConfigHiddenStatus】
-                    format: enum
                 name_i18ns:
                     type: array
                     items:
@@ -8445,19 +8392,6 @@ components:
                     description: 状态
                     format: enum
             description: 系统配置表单
-        system.admin.v1.BaseConfigValue:
-            type: object
-            properties:
-                key:
-                    type: string
-                    description: 配置key
-                value_json:
-                    type: string
-                    description: JSON格式配置值
-                updated_at:
-                    type: string
-                    description: 更新时间
-            description: 按配置键返回系统配置值。
         system.admin.v1.BaseDashboardDistributionItem:
             type: object
             properties:
@@ -13520,16 +13454,6 @@ components:
                     description: Agent工具状态：枚举【Status】
                     format: enum
             description: API更新条件
-        system.admin.v1.UpdateBaseConfigByKeyRequest:
-            type: object
-            properties:
-                key:
-                    type: string
-                    description: 配置key
-                value_json:
-                    type: string
-                    description: JSON格式配置值
-            description: 按配置键更新系统配置请求参数。
         system.admin.v1.UpdateBaseI18nRequest:
             type: object
             properties:

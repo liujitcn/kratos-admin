@@ -58,16 +58,6 @@ func (s *BaseConfigService) GetBaseConfig(ctx context.Context, req *adminv1.GetB
 	return config, nil
 }
 
-// GetBaseConfigByKey 按配置键查询隐藏系统配置。
-func (s *BaseConfigService) GetBaseConfigByKey(ctx context.Context, req *adminv1.GetBaseConfigByKeyRequest) (*adminv1.BaseConfigValue, error) {
-	config, err := s.baseConfigCase.GetBaseConfigByKey(ctx, req.GetKey())
-	if err != nil {
-		log.Error(fmt.Sprintf("GetBaseConfigByKey %v", err))
-		return nil, errorsx.WrapInternal(err, "查询隐藏系统配置失败")
-	}
-	return config, nil
-}
-
 // CreateBaseConfig 创建系统配置
 func (s *BaseConfigService) CreateBaseConfig(ctx context.Context, req *adminv1.CreateBaseConfigRequest) (*emptypb.Empty, error) {
 	err := s.baseConfigCase.CreateBaseConfig(ctx, req.GetBaseConfig())
@@ -84,16 +74,6 @@ func (s *BaseConfigService) UpdateBaseConfig(ctx context.Context, req *adminv1.U
 	if err != nil {
 		log.Error(fmt.Sprintf("UpdateBaseConfig %v", err))
 		return nil, errorsx.WrapInternal(err, "更新系统配置失败")
-	}
-	return new(emptypb.Empty), nil
-}
-
-// UpdateBaseConfigByKey 按配置键更新隐藏系统配置。
-func (s *BaseConfigService) UpdateBaseConfigByKey(ctx context.Context, req *adminv1.UpdateBaseConfigByKeyRequest) (*emptypb.Empty, error) {
-	err := s.baseConfigCase.UpdateBaseConfigByKey(ctx, req.GetKey(), req.GetValueJson())
-	if err != nil {
-		log.Error(fmt.Sprintf("UpdateBaseConfigByKey %v", err))
-		return nil, errorsx.WrapInternal(err, "更新隐藏系统配置失败")
 	}
 	return new(emptypb.Empty), nil
 }

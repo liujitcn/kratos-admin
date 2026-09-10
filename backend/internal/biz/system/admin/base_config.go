@@ -64,68 +64,19 @@ func (c *BaseConfigCase) RefreshBaseConfig(ctx context.Context) error {
 	return nil
 }
 
-// RefreshHiddenBaseConfig 初始化并刷新隐藏系统配置缓存。
-func (c *BaseConfigCase) RefreshHiddenBaseConfig(ctx context.Context) error {
-	query := c.Query(ctx).BaseConfig
-	for _, key := range runtimeconfig.Keys() {
-		list, err := c.List(ctx,
-			repository.Where(query.Site.Eq(_const.BASE_CONFIG_SITE_SYSTEM)),
-			repository.Where(query.Key.Eq(key)),
-		)
-		if err != nil {
-			return fmt.Errorf("查询隐藏系统配置失败: %w", err)
-		}
-		var entity *models.BaseConfig
-		if len(list) == 0 {
-			var value string
-			value, err = runtimeconfig.DefaultJSON(key)
-			if err != nil {
-				return err
-			}
-			entity = &models.BaseConfig{
-				Site:         _const.BASE_CONFIG_SITE_SYSTEM,
-				Name:         key,
-				Type:         int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_TEXT),
-				Key:          key,
-				Value:        value,
-				HiddenStatus: int32(adminv1.BaseConfigHiddenStatus_BASE_CONFIG_HIDDEN_STATUS_HIDDEN),
-				Status:       coreconst.STATUS_STATUS_ENABLE,
-			}
-			err = c.Create(ctx, entity)
-			if err != nil {
-				return fmt.Errorf("初始化隐藏系统配置失败: %w", err)
-			}
-		} else {
-			entity = list[0]
-		}
-		if entity.HiddenStatus != int32(adminv1.BaseConfigHiddenStatus_BASE_CONFIG_HIDDEN_STATUS_HIDDEN) {
-			return fmt.Errorf("系统配置 %s 未标记为隐藏配置", key)
-		}
-		if entity.Status != coreconst.STATUS_STATUS_ENABLE {
-			return fmt.Errorf("系统配置 %s 未启用", key)
-		}
-		if err = runtimeconfig.SaveJSON(c.Cache, key, entity.Value); err != nil {
-			return fmt.Errorf("刷新隐藏系统配置缓存失败: %w", err)
-		}
-	}
-	return nil
-}
-
 // PageBaseConfig 分页查询配置
 func (c *BaseConfigCase) PageBaseConfig(ctx context.Context, req *adminv1.PageBaseConfigRequest) (*adminv1.PageBaseConfigResponse, error) {
 	query := c.Query(ctx).BaseConfig
 	opts := make([]repository.QueryOption, 0, 6)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
-	opts = append(opts, repository.Where(field.Or(
-		query.HiddenStatus.Eq(int32(adminv1.BaseConfigHiddenStatus_BASE_CONFIG_HIDDEN_STATUS_UNSPECIFIED)),
-		query.HiddenStatus.Eq(int32(adminv1.BaseConfigHiddenStatus_BASE_CONFIG_HIDDEN_STATUS_VISIBLE)),
-	)))
 	if req.Site != nil {
 		opts = append(opts, repository.Where(query.Site.Eq(int32(req.GetSite()))))
 	}
+	var err error
 	// 传入名称关键字时，按配置名称模糊匹配。
 	if req.GetName() != "" {
-		targetIds, err := c.baseI18nCase.GetTargetIdsByName(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_NAME, req.GetName())
+		var targetIds []int64
+		targetIds, err = c.baseI18nCase.GetTargetIdsByName(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_NAME, req.GetName())
 		if err != nil {
 			return nil, err
 		}
@@ -147,7 +98,9 @@ func (c *BaseConfigCase) PageBaseConfig(ctx context.Context, req *adminv1.PageBa
 		opts = append(opts, repository.Where(query.Status.Eq(int32(req.GetStatus()))))
 	}
 
-	list, total, err := c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
+	var list []*models.BaseConfig
+	var total int64
+	list, total, err = c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +117,9 @@ func (c *BaseConfigCase) PageBaseConfig(ctx context.Context, req *adminv1.PageBa
 	}
 	for _, item := range list {
 		baseConfig := c.mapper.ToDTO(item)
-		baseConfig.HiddenStatus = adminv1.BaseConfigHiddenStatus(item.HiddenStatus)
+		if item.Type == int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FORM) {
+			baseConfig.Value = ""
+		}
 		baseConfig.I18ns = i18ns[item.ID]
 		resList = append(resList, baseConfig)
 	}
@@ -181,11 +136,13 @@ func (c *BaseConfigCase) GetBaseConfig(ctx context.Context, id int64) (*adminv1.
 	if err != nil {
 		return nil, err
 	}
-	if baseConfig.HiddenStatus != int32(adminv1.BaseConfigHiddenStatus_BASE_CONFIG_HIDDEN_STATUS_UNSPECIFIED) && baseConfig.HiddenStatus != int32(adminv1.BaseConfigHiddenStatus_BASE_CONFIG_HIDDEN_STATUS_VISIBLE) {
-		return nil, errorsx.ResourceNotFound("系统配置不存在")
-	}
 	res := c.formMapper.ToDTO(baseConfig)
-	res.HiddenStatus = adminv1.BaseConfigHiddenStatus(baseConfig.HiddenStatus)
+	if baseConfig.Type == int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FORM) {
+		res.Value, err = runtimeconfig.RedactJSON(baseConfig.Key, baseConfig.Value)
+		if err != nil {
+			return nil, errorsx.Internal("脱敏系统配置失败").WithCause(err)
+		}
+	}
 	var nameI18ns, valueI18ns map[int64][]*adminv1.BaseI18n
 	nameI18ns, err = c.baseI18nCase.GetBaseI18nMapByTargetType(ctx, adminv1.I18nTargetType_I18N_TARGET_TYPE_BASE_CONFIG_NAME, []int64{id})
 	if err != nil {
@@ -202,11 +159,15 @@ func (c *BaseConfigCase) GetBaseConfig(ctx context.Context, id int64) (*adminv1.
 	return res, nil
 }
 
-// CreateBaseConfig 创建配置
+// CreateBaseConfig 创建配置并校验表单类型的结构和值域。
 func (c *BaseConfigCase) CreateBaseConfig(ctx context.Context, req *adminv1.BaseConfigForm) error {
 	entity := c.formMapper.ToEntity(req)
-	entity.HiddenStatus = int32(adminv1.BaseConfigHiddenStatus_BASE_CONFIG_HIDDEN_STATUS_VISIBLE)
-	err := c.Create(ctx, entity)
+	var err error
+	err = validateFormConfig(entity, nil)
+	if err != nil {
+		return err
+	}
+	err = c.Create(ctx, entity)
 	if err != nil {
 		// 命中配置键唯一索引冲突时，返回稳定的业务冲突错误。
 		if errorsx.IsDuplicateKey(err) {
@@ -225,18 +186,18 @@ func (c *BaseConfigCase) CreateBaseConfig(ctx context.Context, req *adminv1.Base
 	return nil
 }
 
-// UpdateBaseConfig 更新配置
+// UpdateBaseConfig 更新配置，合并表单敏感值并刷新运行缓存。
 func (c *BaseConfigCase) UpdateBaseConfig(ctx context.Context, req *adminv1.BaseConfigForm) error {
 	oldConfig, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err
 	}
-	if oldConfig.HiddenStatus != int32(adminv1.BaseConfigHiddenStatus_BASE_CONFIG_HIDDEN_STATUS_UNSPECIFIED) && oldConfig.HiddenStatus != int32(adminv1.BaseConfigHiddenStatus_BASE_CONFIG_HIDDEN_STATUS_VISIBLE) {
-		return errorsx.ResourceNotFound("系统配置不存在")
-	}
 
 	entity := c.formMapper.ToEntity(req)
-	entity.HiddenStatus = int32(adminv1.BaseConfigHiddenStatus_BASE_CONFIG_HIDDEN_STATUS_VISIBLE)
+	err = validateFormConfig(entity, oldConfig)
+	if err != nil {
+		return err
+	}
 	err = c.UpdateByID(ctx, entity)
 	if err != nil {
 		// 命中配置键唯一索引冲突时，返回稳定的业务冲突错误。
@@ -269,12 +230,12 @@ func (c *BaseConfigCase) DeleteBaseConfig(ctx context.Context, id string) error 
 	if err != nil {
 		return err
 	}
+
 	for _, item := range list {
-		if item.HiddenStatus != int32(adminv1.BaseConfigHiddenStatus_BASE_CONFIG_HIDDEN_STATUS_UNSPECIFIED) && item.HiddenStatus != int32(adminv1.BaseConfigHiddenStatus_BASE_CONFIG_HIDDEN_STATUS_VISIBLE) {
-			return errorsx.ResourceNotFound("系统配置不存在")
+		if item.Type == int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FORM) {
+			return errorsx.WithMessageKey(errorsx.InvalidArgument("表单配置不允许删除或停用"), "system.admin.base.config.form.protected", nil)
 		}
 	}
-
 	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		err = c.DeleteByIDs(ctx, ids)
 		if err != nil {
@@ -305,8 +266,8 @@ func (c *BaseConfigCase) SetBaseConfigStatus(ctx context.Context, req *adminv1.S
 	if err != nil {
 		return err
 	}
-	if baseConfig.HiddenStatus != int32(adminv1.BaseConfigHiddenStatus_BASE_CONFIG_HIDDEN_STATUS_UNSPECIFIED) && baseConfig.HiddenStatus != int32(adminv1.BaseConfigHiddenStatus_BASE_CONFIG_HIDDEN_STATUS_VISIBLE) {
-		return errorsx.ResourceNotFound("系统配置不存在")
+	if baseConfig.Type == int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FORM) && req.GetStatus() != coreconst.STATUS_STATUS_ENABLE {
+		return errorsx.WithMessageKey(errorsx.InvalidArgument("表单配置不允许删除或停用"), "system.admin.base.config.form.protected", nil)
 	}
 	err = c.UpdateByID(ctx, &models.BaseConfig{
 		ID:     req.GetId(),
@@ -365,10 +326,7 @@ func (c *BaseConfigCase) refreshBaseConfigSite(ctx context.Context, site int32) 
 	query := c.Query(ctx).BaseConfig
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Where(query.Site.Eq(site)))
-	opts = append(opts, repository.Where(field.Or(
-		query.HiddenStatus.Eq(int32(adminv1.BaseConfigHiddenStatus_BASE_CONFIG_HIDDEN_STATUS_UNSPECIFIED)),
-		query.HiddenStatus.Eq(int32(adminv1.BaseConfigHiddenStatus_BASE_CONFIG_HIDDEN_STATUS_VISIBLE)),
-	)))
+	opts = append(opts, repository.Where(query.Type.Neq(int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FORM))))
 	opts = append(opts, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
 	opts = append(opts, repository.Order(query.ID.Asc()))
 	list, err := c.List(ctx, opts...)
@@ -389,74 +347,62 @@ func (c *BaseConfigCase) refreshBaseConfigSite(ctx context.Context, site int32) 
 	if err != nil {
 		return err
 	}
-	return c.Cache.Set(_const.BaseConfigCacheKey(site), string(payload), _const.BASE_CONFIG_CACHE_EXPIRE)
-}
-
-// GetBaseConfigByKey 按配置键读取隐藏系统配置。
-func (c *BaseConfigCase) GetBaseConfigByKey(ctx context.Context, key string) (*adminv1.BaseConfigValue, error) {
-	if !runtimeconfig.IsSupportedKey(key) {
-		return nil, errorsx.InvalidArgument("不支持的系统配置键")
-	}
-	entity, err := c.findHiddenConfig(ctx, key)
-	if err != nil {
-		return nil, err
-	}
-	if err = runtimeconfig.ValidateJSON(key, entity.Value); err != nil {
-		return nil, errorsx.Internal("系统配置内容无效").WithCause(err)
-	}
-	var value string
-	value, err = runtimeconfig.RedactJSON(key, entity.Value)
-	if err != nil {
-		return nil, errorsx.Internal("脱敏系统配置失败").WithCause(err)
-	}
-	return &adminv1.BaseConfigValue{Key: key, ValueJson: value, UpdatedAt: entity.UpdatedAt.Format("2006-01-02 15:04:05")}, nil
-}
-
-// UpdateBaseConfigByKey 更新隐藏系统配置并刷新对应缓存。
-func (c *BaseConfigCase) UpdateBaseConfigByKey(ctx context.Context, key, value string) error {
-	if !runtimeconfig.IsSupportedKey(key) {
-		return errorsx.InvalidArgument("不支持的系统配置键")
-	}
-	var entity *models.BaseConfig
-	var err error
-	entity, err = c.findHiddenConfig(ctx, key)
+	err = c.Cache.Set(_const.BaseConfigCacheKey(site), string(payload), _const.BASE_CONFIG_CACHE_EXPIRE)
 	if err != nil {
 		return err
 	}
-	value, err = runtimeconfig.MergeSensitiveJSON(key, entity.Value, value)
-	if err != nil {
-		return wrapRuntimeConfigValidationError(err)
-	}
-	err = runtimeconfig.ValidateJSON(key, value)
-	if err != nil {
-		return wrapRuntimeConfigValidationError(err)
-	}
-	err = c.UpdateByID(ctx, &models.BaseConfig{ID: entity.ID, Value: value})
-	if err != nil {
-		return fmt.Errorf("保存系统配置失败: %w", err)
-	}
-	if err = runtimeconfig.SaveJSON(c.Cache, key, value); err != nil {
-		return fmt.Errorf("刷新系统配置缓存失败: %w", err)
+	if site == _const.BASE_CONFIG_SITE_SYSTEM {
+		return c.refreshFormBaseConfig(ctx)
 	}
 	return nil
 }
 
-// findHiddenConfig 查询指定键对应的启用隐藏配置。
-func (c *BaseConfigCase) findHiddenConfig(ctx context.Context, key string) (*models.BaseConfig, error) {
+// refreshFormBaseConfig 初始化并刷新表单系统配置缓存。
+func (c *BaseConfigCase) refreshFormBaseConfig(ctx context.Context) error {
 	query := c.Query(ctx).BaseConfig
-	list, err := c.List(ctx,
-		repository.Where(query.Site.Eq(_const.BASE_CONFIG_SITE_SYSTEM)),
-		repository.Where(query.Key.Eq(key)),
-		repository.Where(query.HiddenStatus.Eq(int32(adminv1.BaseConfigHiddenStatus_BASE_CONFIG_HIDDEN_STATUS_HIDDEN))),
-		repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("查询系统配置失败: %w", err)
+	var err error
+	for _, key := range runtimeconfig.Keys() {
+		var list []*models.BaseConfig
+		list, err = c.List(ctx,
+			repository.Where(query.Site.Eq(_const.BASE_CONFIG_SITE_SYSTEM)),
+			repository.Where(query.Key.Eq(key)),
+		)
+		if err != nil {
+			return fmt.Errorf("查询表单系统配置失败: %w", err)
+		}
+		var entity *models.BaseConfig
+		if len(list) == 0 {
+			var value string
+			value, err = runtimeconfig.DefaultJSON(key)
+			if err != nil {
+				return err
+			}
+			entity = &models.BaseConfig{
+				Site:   _const.BASE_CONFIG_SITE_SYSTEM,
+				Name:   key,
+				Type:   int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FORM),
+				Key:    key,
+				Value:  value,
+				Status: coreconst.STATUS_STATUS_ENABLE,
+			}
+			err = c.Create(ctx, entity)
+			if err != nil {
+				return fmt.Errorf("初始化表单系统配置失败: %w", err)
+			}
+		} else {
+			entity = list[0]
+		}
+		if entity.Type != int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FORM) {
+			return fmt.Errorf("系统配置 %s 未标记为表单配置", key)
+		}
+		if entity.Status != coreconst.STATUS_STATUS_ENABLE {
+			return fmt.Errorf("系统配置 %s 未启用", key)
+		}
+		if err = runtimeconfig.SaveJSON(c.Cache, key, entity.Value); err != nil {
+			return fmt.Errorf("刷新表单系统配置缓存失败: %w", err)
+		}
 	}
-	if len(list) == 0 {
-		return nil, errorsx.ResourceNotFound("系统配置不存在")
-	}
-	return list[0], nil
+	return nil
 }
 
 // wrapRuntimeConfigValidationError 将运行配置 Proto 校验错误转换为可国际化的业务错误。
@@ -471,7 +417,7 @@ func wrapRuntimeConfigValidationError(err error) error {
 		if messageKey == "" {
 			messageKey = "system.admin.runtime_config.invalid_json"
 		}
-		field := "value_json"
+		field := "value"
 		fields := make([]string, 0, len(violation.GetField().GetElements()))
 		for _, element := range violation.GetField().GetElements() {
 			if element.GetFieldName() != "" {
@@ -489,4 +435,37 @@ func wrapRuntimeConfigValidationError(err error) error {
 // isTranslatableConfigType 判断配置值是否支持机器翻译和动态译文。
 func isTranslatableConfigType(configType int32) bool {
 	return configType == int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_TEXT) || configType == int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_RICH_TEXT)
+}
+
+// validateFormConfig 校验表单配置归属、不可变标识和 JSON，并保留未修改的敏感值。
+func validateFormConfig(entity, previous *models.BaseConfig) error {
+	if previous != nil && previous.Type == int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FORM) {
+		if entity.Type != previous.Type || entity.Site != previous.Site || entity.Key != previous.Key {
+			return errorsx.WithMessageKey(errorsx.InvalidArgument("表单配置的位置、类型和编码不可修改"), "system.admin.base.config.form.identity", nil)
+		}
+	}
+	if entity.Type != int32(adminv1.BaseConfigType_BASE_CONFIG_TYPE_FORM) {
+		if entity.Site == _const.BASE_CONFIG_SITE_SYSTEM && runtimeconfig.IsSupportedKey(entity.Key) {
+			return errorsx.WithMessageKey(errorsx.InvalidArgument("该配置编码必须使用表单类型"), "system.admin.base.config.form.required", nil)
+		}
+		return nil
+	}
+	if entity.Site != _const.BASE_CONFIG_SITE_SYSTEM || !runtimeconfig.IsSupportedKey(entity.Key) {
+		return errorsx.WithMessageKey(errorsx.InvalidArgument("请选择已注册的系统配置表单"), "system.admin.base.config.form.unsupported", nil)
+	}
+	if entity.Status != coreconst.STATUS_STATUS_ENABLE {
+		return errorsx.WithMessageKey(errorsx.InvalidArgument("表单配置不允许删除或停用"), "system.admin.base.config.form.protected", nil)
+	}
+	var err error
+	if previous != nil {
+		entity.Value, err = runtimeconfig.MergeSensitiveJSON(entity.Key, previous.Value, entity.Value)
+		if err != nil {
+			return wrapRuntimeConfigValidationError(err)
+		}
+	}
+	err = runtimeconfig.ValidateJSON(entity.Key, entity.Value)
+	if err != nil {
+		return wrapRuntimeConfigValidationError(err)
+	}
+	return nil
 }

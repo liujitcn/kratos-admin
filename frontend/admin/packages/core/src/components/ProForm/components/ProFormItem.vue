@@ -1,5 +1,9 @@
 <template>
-  <el-input v-if="field.component === 'input'" v-model.trim="fieldValue" v-bind="fieldProps" />
+  <el-input v-if="field.component === 'input'" v-model.trim="fieldValue" v-bind="fieldProps">
+    <template v-if="field.suffixSlotName" #append>
+      <slot :name="field.suffixSlotName" :field="field" :model="model" />
+    </template>
+  </el-input>
 
   <el-input
     v-else-if="field.component === 'password'"

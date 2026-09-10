@@ -1270,5 +1270,17 @@
   },
   "system.admin.base.redact.output_policy.status.id.required": {
     "other": "The outbound policy ID is required"
+  },
+  "system.admin.base.config.form.protected": {
+    "other": "Form configurations cannot be deleted or disabled"
+  },
+  "system.admin.base.config.form.identity": {
+    "other": "The site, type and key of a form configuration cannot be changed"
+  },
+  "system.admin.base.config.form.required": {
+    "other": "This configuration key requires the form type"
+  },
+  "system.admin.base.config.form.unsupported": {
+    "other": "Select a registered system configuration form"
   }
 }

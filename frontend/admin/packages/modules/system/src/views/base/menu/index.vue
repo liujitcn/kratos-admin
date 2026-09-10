@@ -449,6 +449,7 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "meta.title",
+    suffixSlotName: "i18ns",
     label: t(
       formData.type === BaseMenuType.BASE_MENU_TYPE_BUTTON ? "system.base.menu.field.button_name" : "system.base.menu.field.title"
     ),
@@ -463,13 +464,6 @@ const formFields = computed<ProFormField[]>(() => [
           : "system.base.menu.placeholder.title"
       )
     })
-  },
-  {
-    prop: "i18ns",
-    label: t("system.base.i18n.field.i18ns"),
-    component: "slot",
-    slotName: "i18ns",
-    colSpan: 24
   },
   {
     prop: "path",
@@ -997,7 +991,12 @@ function buildMenuOptions(menuList: BaseMenu[] = []) {
 /** 根据菜单类型清理无效字段，避免提交脏数据。 */
 function buildSubmitPayload(): BaseMenuForm {
   const payload = normalizeMenuForm(formData);
-  payload.i18ns = serializeDynamicI18ns(i18nValues.value, I18nTargetType.I18N_TARGET_TYPE_BASE_MENU_META_TITLE, payload.id);
+  payload.i18ns = serializeDynamicI18ns(
+    i18nValues.value,
+    I18nTargetType.I18N_TARGET_TYPE_BASE_MENU_META_TITLE,
+    payload.id,
+    payload.meta?.title ?? ""
+  );
   // 一级菜单在表单中保持空白，提交时仍按接口约定传回根节点标识。
   if (payload.id > 0 && payload.parent_id === undefined) payload.parent_id = 0;
   payload.meta.params = (payload.meta.params ?? []).filter(item => item.key || item.value);

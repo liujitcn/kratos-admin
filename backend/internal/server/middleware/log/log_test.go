@@ -138,9 +138,9 @@ func TestBuildPermissionEventUsesRoleSnapshot(t *testing.T) {
 	}
 }
 
-// TestLogSnapshotRedactsRuntimeConfigValue 验证隐藏配置更新的 JSON 字符串不会进入审计快照。
+// TestLogSnapshotRedactsRuntimeConfigValue 验证表单配置更新的 JSON 字符串不会进入审计快照。
 func TestLogSnapshotRedactsRuntimeConfigValue(t *testing.T) {
-	snapshot, _ := logSnapshot(map[string]string{"key": "baseLogFallback", "value_json": `{"file_path":"./logs/base-log-fallback","password":"secret"}`})
+	snapshot, _ := logSnapshot(map[string]interface{}{"base_config": map[string]interface{}{"type": 6, "key": "baseLogFallback", "value": `{"file_path":"./logs/base-log-fallback","password":"secret"}`}})
 	if strings.Contains(snapshot, "secret") || !strings.Contains(snapshot, "[REDACTED]") {
 		t.Fatalf("runtime config value was not redacted: %s", snapshot)
 	}

@@ -15,11 +15,7 @@
       @close="handleCloseDialog"
     >
       <template #i18ns>
-        <DynamicI18nEditor
-          v-model="i18nValues"
-          :source="formData.name"
-          :maxlength="50"
-        />
+        <DynamicI18nEditor v-model="i18nValues" :source="formData.name" :maxlength="50" />
       </template>
     </FormDialog>
   </div>
@@ -215,7 +211,11 @@ function renderOperationCell(scope: RenderScope<BaseJob>) {
     );
   }
 
-  if (row.status === Status.STATUS_ENABLE && (row.entry_id === undefined || row.entry_id === 0) && BUTTONS.value["base:job:start"]) {
+  if (
+    row.status === Status.STATUS_ENABLE &&
+    (row.entry_id === undefined || row.entry_id === 0) &&
+    BUTTONS.value["base:job:start"]
+  ) {
     actionNodes.push(
       h(
         ElButton,
@@ -249,7 +249,11 @@ function renderOperationCell(scope: RenderScope<BaseJob>) {
     );
   }
 
-  if (row.status === Status.STATUS_ENABLE && (row.entry_id === undefined || row.entry_id === 0) && BUTTONS.value["base:job:exec"]) {
+  if (
+    row.status === Status.STATUS_ENABLE &&
+    (row.entry_id === undefined || row.entry_id === 0) &&
+    BUTTONS.value["base:job:exec"]
+  ) {
     actionNodes.push(
       h(
         ElButton,
@@ -298,16 +302,10 @@ function renderOperationCell(scope: RenderScope<BaseJob>) {
 const formFields = computed<ProFormField[]>(() => [
   {
     prop: "name",
+    suffixSlotName: "i18ns",
     label: t("system.base.job.field.name"),
     component: "input",
     props: { placeholder: t("system.base.job.placeholder.name") }
-  },
-  {
-    prop: "i18ns",
-    label: t("system.base.i18n.field.i18ns"),
-    component: "slot",
-    slotName: "i18ns",
-    colSpan: 24
   },
   {
     prop: "invoke_target",
@@ -427,7 +425,7 @@ async function handleOpenDialog(jobId?: number) {
 
   const data = await defBaseJobService.GetBaseJob({ id: jobId });
   Object.assign(formData, data);
-	i18nValues.value = normalizeDynamicI18ns(data.i18ns as DynamicI18nRecord[]);
+  i18nValues.value = normalizeDynamicI18ns(data.i18ns as DynamicI18nRecord[]);
 }
 
 /**
@@ -451,7 +449,7 @@ function resetForm() {
   formData.cron_expression = "";
   formData.status = Status.STATUS_ENABLE;
   formData.i18ns = [];
-	i18nValues.value = normalizeDynamicI18ns(undefined);
+  i18nValues.value = normalizeDynamicI18ns(undefined);
 }
 
 /**
@@ -465,7 +463,8 @@ function handleSubmit() {
     submitData.i18ns = serializeDynamicI18ns(
       i18nValues.value,
       I18nTargetType.I18N_TARGET_TYPE_BASE_JOB_NAME,
-      submitData.id
+      submitData.id,
+      submitData.name
     );
     const request = submitData.id
       ? defBaseJobService.UpdateBaseJob({ base_job: submitData })

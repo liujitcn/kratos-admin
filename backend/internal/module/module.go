@@ -51,10 +51,6 @@ func NewModules(
 	if err != nil {
 		return nil, err
 	}
-	err = baseConfigCase.RefreshHiddenBaseConfig(context.Background())
-	if err != nil {
-		return nil, err
-	}
 	err = baseLoginPolicyCase.RefreshBaseLoginPolicy(context.Background())
 	if err != nil {
 		return nil, err

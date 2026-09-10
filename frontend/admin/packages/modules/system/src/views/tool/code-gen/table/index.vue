@@ -30,11 +30,16 @@
     >
       <template #tableI18nConfig>
         <CodeGenLocaleEditor
-          class="code-gen-table-locales"
           :model-value="formData.i18n_config"
           :source-comment="formData.comment"
-          :show-left-tree-comment="formData.page_type === 'left_tree'"
-          :source-left-tree-comment="formData.left_tree_config?.comment"
+          @update:model-value="value => (formData.i18n_config = value)"
+        />
+      </template>
+      <template #leftTreeI18nConfig>
+        <CodeGenLocaleEditor
+          :model-value="formData.i18n_config"
+          :source-comment="formData.left_tree_config?.comment"
+          field="left_tree_comment"
           @update:model-value="value => (formData.i18n_config = value)"
         />
       </template>
@@ -90,9 +95,11 @@ import { CodeGenTableStatus } from "@liujitcn/kratos-admin-system/rpc/system/adm
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
 import CodeGenProgressDialog from "../components/CodeGenProgressDialog.vue";
+import { loadEnabledBaseLanguages } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_language";
 import CodeGenLocaleEditor from "../components/CodeGenLocaleEditor.vue";
 import CodeGenGenerateConfirm from "../components/CodeGenGenerateConfirm.vue";
 import {
+  withCodeGenLocaleDefaults,
   codeGenPageTypeOptions,
   codeGenTableRules,
   createDefaultCodeGenLeftTreeConfig,
@@ -225,19 +232,12 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "comment",
+    suffixSlotName: "tableI18nConfig",
     label: t("system.code.gen.table.field.comment"),
     component: "input",
     colSpan: 24,
     labelTooltip: t("system.code.gen.table.tooltip.comment"),
     props: { placeholder: t("system.code.gen.table.placeholder.comment") }
-  },
-  {
-    prop: "i18n_config",
-    label: t("system.code.gen.i18n.field.i18ns"),
-    component: "slot",
-    slotName: "tableI18nConfig",
-    colSpan: 24,
-    labelTooltip: t("system.code.gen.i18n.tooltip.table")
   },
   {
     prop: "business_module",
@@ -316,6 +316,7 @@ const formFields = computed<ProFormField[]>(() => [
   },
   {
     prop: "left_tree_config.comment",
+    suffixSlotName: "leftTreeI18nConfig",
     label: t("system.code.gen.table.field.left_tree_comment"),
     component: "input",
     labelTooltip: t("system.code.gen.table.tooltip.left_tree_comment"),
@@ -778,6 +779,7 @@ function removeProgressSelectedTableIds() {
 
 /** 请求代码生成表配置列表。 */
 async function requestCodeGenTable(params: PageCodeGenTableRequest) {
+  await loadEnabledBaseLanguages();
   const data = await defCodeGenTableService.PageCodeGenTable(buildPageRequest(params));
   return { data: { ...data, list: data.code_gen_tables ?? [] } };
 }
@@ -888,7 +890,15 @@ async function handleSubmit() {
   if (!valid) return;
   if (!formData.parent_menu_id) return;
 
-  const payload: CodeGenTableForm = { ...formData, parent_menu_id: formData.parent_menu_id };
+  const payload: CodeGenTableForm = {
+    ...formData,
+    parent_menu_id: formData.parent_menu_id,
+    i18n_config: withCodeGenLocaleDefaults(
+      formData.i18n_config,
+      formData.comment,
+      formData.page_type === "left_tree" ? formData.left_tree_config?.comment : ""
+    )
+  };
   saving.value = true;
   try {
     if (formData.id) {
@@ -1048,20 +1058,7 @@ function ensureLeftTreeConfig() {
 </script>
 
 <style scoped lang="scss">
-.code-gen-table-locales {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
-  width: 100%;
-  min-width: 0;
-  :deep(.el-alert) {
-    grid-column: 1 / -1;
-  }
-}
-
 @media (max-width: 767px) {
-  .code-gen-table-locales {
-    grid-template-columns: 1fr;
-  }
   :deep(.code-gen-table-form) {
     .el-col {
       flex: 0 0 100%;

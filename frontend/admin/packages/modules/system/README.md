@@ -164,3 +164,24 @@ pnpm --filter @liujitcn/kratos-admin-system type:check
 pnpm --filter @liujitcn/kratos-admin-system build:package
 pnpm --filter @liujitcn/kratos-admin-system pack
 ```
+
+### 扩展系统配置表单
+
+系统配置类型选择“表单”后，按配置 Key 从 `runtimeConfigDefinitions` 查找定义，使用 `createModel()` 创建默认模型，再用后台 `value` 中的 JSON 对象覆盖默认字段，最终由 `ProForm` 渲染。切换 Key 会重新创建模型和表单控件；保存前执行字段校验，再将模型序列化为 JSON。未注册的 Key 显示不可用提示，不能提交表单值。
+
+新增表单时，在业务模块中定义 `RuntimeConfigDefinition`，并在模块初始化时调用 `registerRuntimeConfig(definition)` 注册一次，无需修改系统配置页面。System 内置定义放在 `src/config` 并加入 `runtimeConfigDefinitions`。注册必须在打开配置页面之前完成，Key 必须唯一，并与后端消费配置时使用的 Key 一致。
+
+```ts
+import { registerRuntimeConfig } from "@liujitcn/kratos-admin-system/config";
+import { notificationConfig } from "./config/notification";
+
+registerRuntimeConfig(notificationConfig);
+```
+
+每个定义维护 `key`、`titleKey`、`descriptionKey`、`icon`、`createModel` 和 `fields`，可参考 `src/config/base-log-fallback.ts`。字段通过 `prop` 绑定模型，`component` 指定控件，`props` 传递参数，`options` 提供选项；单选用 `radio-group` 或 `select`，多选用 `checkbox-group` 或 `select` 配合 `props.multiple: true`，数组字段默认值应为 `[]`。服务器目录路径目前使用 `input`，保存的路径由后端解释。
+
+标题、提示和校验分别通过 `labelKey`、`labelTooltipKey`、`rules.messageKey` 翻译，相关 Key 需加入模块语言包。选项文案通过 `options: () => [...]` 在函数中调用 `t()`，不要在模块初始化时固定翻译结果。新增定义需要构建发布前端；后端仍需实现对应配置的读取和业务处理。
+
+字段国际化默认入口使用 Element Plus 标准按钮搭配 Languages 翻译图标（与顶部语言切换一致），保留悬停说明和无障碍名称；ProForm 单行输入框通过 el-input 的 append 插槽展示，多行及独立场景使用普通按钮，不使用自定义拼接样式。自定义 trigger 插槽（如列表文字入口）保持原有展示。
+
+国际化编辑弹窗使用 Element Plus 横向表单，语言标签在左侧统一占 100px，输入框及翻译操作位于右侧；单行和多行编辑均保持左右布局。

@@ -36,11 +36,7 @@
         </div>
       </template>
       <template #i18ns>
-        <DynamicI18nEditor
-          v-model="i18nValues"
-          :source="formData.label"
-          :maxlength="100"
-        />
+        <DynamicI18nEditor v-model="i18nValues" :source="formData.label" :maxlength="100" />
       </template>
     </FormDialog>
   </div>
@@ -147,6 +143,7 @@ const statusOptions = computed<ProFormOption[]>(() => [
 const formFields = computed<ProFormField[]>(() => [
   {
     prop: "label",
+    suffixSlotName: "i18ns",
     label: t("system.base.dict.item.field.label"),
     component: "input",
     props: { placeholder: t("system.base.dict.item.placeholder.label") }
@@ -156,13 +153,6 @@ const formFields = computed<ProFormField[]>(() => [
     label: t("system.base.dict.item.field.value"),
     component: "input",
     props: { placeholder: t("system.base.dict.item.placeholder.value") }
-  },
-  {
-    prop: "i18ns",
-    label: t("system.base.i18n.field.i18ns"),
-    component: "slot",
-    slotName: "i18ns",
-    colSpan: 24
   },
   {
     prop: "sort",
@@ -330,7 +320,7 @@ async function handleOpenDialog(dictItemId?: number) {
 
   const data = await defBaseDictItemService.GetBaseDictItem({ id: dictItemId });
   Object.assign(formData, data);
-	i18nValues.value = normalizeDynamicI18ns(data.i18ns as DynamicI18nRecord[]);
+  i18nValues.value = normalizeDynamicI18ns(data.i18ns as DynamicI18nRecord[]);
 }
 
 /**
@@ -355,7 +345,7 @@ function resetForm() {
   formData.tag_type = "";
   formData.sort = 1;
   formData.status = Status.STATUS_ENABLE;
-	i18nValues.value = normalizeDynamicI18ns(undefined);
+  i18nValues.value = normalizeDynamicI18ns(undefined);
 }
 
 /**
@@ -370,7 +360,8 @@ function handleSubmit() {
     submitData.i18ns = serializeDynamicI18ns(
       i18nValues.value,
       I18nTargetType.I18N_TARGET_TYPE_BASE_DICT_ITEM_LABEL,
-      submitData.id
+      submitData.id,
+      submitData.label
     );
     const request = submitData.id
       ? defBaseDictItemService.UpdateBaseDictItem({ base_dict_item: submitData })

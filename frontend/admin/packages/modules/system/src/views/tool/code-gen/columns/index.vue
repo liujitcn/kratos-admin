@@ -103,21 +103,12 @@
                     maxlength="255"
                     :placeholder="t('system.code.gen.column.placeholder.comment')"
                   />
-                  <el-popover placement="right-start" :width="400" trigger="click">
-                    <template #reference>
-                      <el-button
-                        :icon="ChatLineSquare"
-                        circle
-                        :type="hasMissingColumnLocales(row as CodeGenColumnView) ? 'warning' : 'success'"
-                        :aria-label="t('system.code.gen.i18n.action.edit_column')"
-                      />
-                    </template>
-                    <CodeGenLocaleEditor
-                      :model-value="row.i18n_config"
-                      :source-comment="row.comment"
-                      @update:model-value="value => (row.i18n_config = value)"
-                    />
-                  </el-popover>
+                  <CodeGenLocaleEditor
+                    :model-value="row.i18n_config"
+                    :source-comment="row.comment"
+                    :disabled="!canEdit"
+                    @update:model-value="value => (row.i18n_config = value)"
+                  />
                 </div>
               </template>
             </el-table-column>
@@ -536,7 +527,7 @@
 <script setup lang="ts">
 import Sortable from "sortablejs";
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
-import { ChatLineSquare, Delete, Document, List, Plus, Setting } from "@element-plus/icons-vue";
+import { Delete, Document, List, Plus, Setting } from "@element-plus/icons-vue";
 import { useRoute, useRouter } from "vue-router";
 import { setAdminDocumentTitle, t } from "@liujitcn/kratos-admin-core";
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
@@ -557,7 +548,6 @@ import type {
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_column";
 import type { CodeGenDatabaseTable, CodeGenTableForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/code_gen_table";
 import CodeGenLocaleEditor from "../components/CodeGenLocaleEditor.vue";
-import { getEditableLanguageOptions } from "@liujitcn/kratos-admin-system/components/dynamicI18n";
 import {
   copyCodeGenOptionToEmptyMatches,
   copyFirstMatchingCodeGenOption,
@@ -576,7 +566,8 @@ import {
   createDefaultCodeGenListConfig,
   createDefaultCodeGenOptionConfig,
   createDefaultCodeGenQueryConfig,
-  createDefaultCodeGenTableForm
+  createDefaultCodeGenTableForm,
+  withCodeGenLocaleDefaults
 } from "../config";
 
 defineOptions({
@@ -784,6 +775,7 @@ async function handleSaveColumns(showMessage = true) {
     code_gen_columns: columns.value.map((item, index) => ({
       ...item,
       table_id: formData.id,
+      i18n_config: withCodeGenLocaleDefaults(item.i18n_config, item.comment),
       sort: index + 1
     }))
   });
@@ -999,7 +991,10 @@ async function loadDatabaseColumns(tableName: string) {
   if (!tableName || databaseColumns[tableName] || loadingDatabaseColumns.has(tableName)) return;
   loadingDatabaseColumns.add(tableName);
   try {
-    const data = await defCodeGenColumnService.ListCodeGenDatabaseColumn({ source_name: formData.source_name, table_name: tableName });
+    const data = await defCodeGenColumnService.ListCodeGenDatabaseColumn({
+      source_name: formData.source_name,
+      table_name: tableName
+    });
     databaseColumns[tableName] = data.columns ?? [];
   } finally {
     loadingDatabaseColumns.delete(tableName);
@@ -1197,18 +1192,15 @@ function hasOptionConfig(option: CodeGenColumnOptionConfig) {
 /** 返回选项入口的当前状态提示。 */
 function optionEntryTip(option: CodeGenColumnOptionConfig) {
   return t(
-    hasOptionConfig(option) ? "system.code.gen.column.tooltip.option_configured" : "system.code.gen.column.tooltip.configure_option"
+    hasOptionConfig(option)
+      ? "system.code.gen.column.tooltip.option_configured"
+      : "system.code.gen.column.tooltip.configure_option"
   );
 }
 
 /** 返回配置范围的当前语言名称。 */
 function codeGenScopeLabel(scope: CodeGenOptionScope) {
   return t(`system.code.gen.column.scope.${scope}`);
-}
-
-/** 判断字段是否缺少任一非主语言描述。 */
-function hasMissingColumnLocales(column: CodeGenColumnView) {
-  return getEditableLanguageOptions().some(item => !column.i18n_config?.get(item.value)?.comment);
 }
 
 /** 判断组件是否依赖选择数据源。 */

@@ -16,11 +16,21 @@
                 </el-tooltip>
               </div>
             </template>
-            <ProFormItem :field="field" :model="model">
-              <template v-for="slotName in slotNames" #[slotName]="slotScope">
-                <slot :name="slotName" v-bind="slotScope" />
-              </template>
-            </ProFormItem>
+            <div class="pro-form__control">
+              <div class="pro-form__input">
+                <ProFormItem :field="field" :model="model">
+                  <template v-for="slotName in slotNames" #[slotName]="slotScope">
+                    <slot :name="slotName" v-bind="slotScope" />
+                  </template>
+                </ProFormItem>
+              </div>
+              <slot
+                v-if="field.suffixSlotName && field.component !== 'input'"
+                :name="field.suffixSlotName"
+                :model="model"
+                :field="field"
+              />
+            </div>
           </el-form-item>
         </el-col>
       </template>
@@ -104,6 +114,18 @@ defineExpose({
 </script>
 
 <style scoped lang="scss">
+.pro-form__control {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+.pro-form__input {
+  flex: 1;
+  min-width: 0;
+}
+
 .pro-form__row-break {
   flex: 0 0 100%;
   height: 0;

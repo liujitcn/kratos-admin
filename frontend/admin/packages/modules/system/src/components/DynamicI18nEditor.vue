@@ -1,197 +1,201 @@
 <template>
-  <div class="i18n-editor">
-    <div class="i18n-editor__toolbar">
-      <el-button
-        type="primary"
-        size="small"
-        :icon="Promotion"
-        :loading="translating"
-        :disabled="!canTranslate"
-        @click="handleBatchTranslate"
-      >
-        {{ t("system.base.i18n.action.batch_translate") }}
-      </el-button>
-    </div>
-    <div v-for="item in localValues" :key="item.locale" class="i18n-editor__row">
-      <div class="i18n-editor__heading">
-        <span>{{ getLanguageLabel(item.locale) }}</span>
-      </div>
-      <div class="i18n-editor__control" :class="{ 'i18n-editor__control--multiline': multiline }">
-        <el-input
-          :model-value="item.text"
-          :maxlength="maxlength"
-          :type="multiline ? 'textarea' : 'text'"
-          :rows="multiline ? 6 : undefined"
-          :disabled="translating || translatingLocale === item.locale"
-          show-word-limit
-          :placeholder="t('system.base.i18n.placeholder.text', { language: getLanguageLabel(item.locale) })"
-          @update:model-value="value => updateText(item.locale, value)"
-        />
+  <template v-if="enabled">
+    <slot name="trigger" :open="openDialog">
+      <el-tooltip :content="t('system.base.i18n.field.i18ns')" placement="top" :show-after="250">
         <el-button
-          class="i18n-editor__translate"
-          link
-          type="primary"
-          size="small"
-          :icon="Promotion"
-          :loading="translatingLocale === item.locale"
-          :disabled="!props.source || Boolean(item.text) || translating || Boolean(translatingLocale)"
-          @click="handleTranslate(item.locale)"
-        >
-          {{ t("system.base.i18n.action.translate") }}
-        </el-button>
+          :icon="Languages"
+          :disabled="disabled"
+          :aria-label="t('system.base.i18n.field.i18ns')"
+          aria-haspopup="dialog"
+          :aria-expanded="visible"
+          @click="openDialog"
+        />
+      </el-tooltip>
+    </slot>
+    <ProDialog
+      v-model="visible"
+      :title="t('system.base.i18n.field.i18ns')"
+      width="min(800px, calc(100vw - 32px))"
+      append-to-body
+      destroy-on-close
+      :confirm-loading="translating"
+      :show-footer="!readonly"
+      @confirm="confirmChanges"
+      @close="closeDialog"
+    >
+      <div class="i18n-editor">
+        <div v-if="!readonly" class="i18n-editor__toolbar">
+          <el-button
+            type="primary"
+            :loading="translating && !translatingLocale"
+            :disabled="!source || translating"
+            @click="translate()"
+          >
+            {{ t("system.base.i18n.action.batch_translate") }}
+          </el-button>
+        </div>
+        <el-form label-position="right" label-width="100px" @submit.prevent>
+          <el-form-item
+            v-for="item in draftValues"
+            :key="item.locale"
+            :label="getLanguageLabel(item.locale)"
+            :for="`${inputId}-${item.locale}`"
+          >
+            <div class="i18n-editor__control">
+              <el-input
+                :id="`${inputId}-${item.locale}`"
+                :model-value="item.text || source"
+                :maxlength="maxlength"
+                :type="multiline ? 'textarea' : 'text'"
+                :rows="multiline ? 5 : undefined"
+                :disabled="translating || readonly"
+                show-word-limit
+                @update:model-value="value => (item.text = value)"
+              />
+              <el-button
+                v-if="!readonly"
+                link
+                type="primary"
+                :loading="translatingLocale === item.locale"
+                :disabled="!source || translating"
+                @click="translate(item.locale)"
+              >
+                {{ t("system.base.i18n.action.translate") }}
+              </el-button>
+            </div>
+          </el-form-item>
+        </el-form>
       </div>
-    </div>
-  </div>
+    </ProDialog>
+  </template>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
-import { ElMessage } from "element-plus";
-import { Promotion } from "@element-plus/icons-vue";
-import { t, useLocaleStore } from "@liujitcn/kratos-admin-core";
+import { computed, ref, useId, watch } from "vue";
+import { Languages } from "@lucide/vue";
+import { t } from "@liujitcn/kratos-admin-core";
+import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import { defBaseI18nService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_i18n";
-import { getLanguageLabel, type DynamicI18nValue } from "./dynamicI18n";
+import { getEditableLanguageOptions, getLanguageLabel, type DynamicI18nValue } from "./dynamicI18n";
 
-/** DynamicI18nEditorProps 动态翻译编辑器属性。 */
+/** 字段旁国际化入口及本地草稿编辑弹窗。 */
 interface DynamicI18nEditorProps {
   modelValue: DynamicI18nValue[];
-  /** 当前语言源文本。 */
   source?: string;
   maxlength?: number;
   multiline?: boolean;
+  disabled?: boolean;
+  readonly?: boolean;
 }
-
 const props = withDefaults(defineProps<DynamicI18nEditorProps>(), {
   source: "",
   maxlength: 100,
-  multiline: false
+  multiline: false,
+  disabled: false,
+  readonly: false
 });
-
-const { locale: currentLocale } = useLocaleStore();
 const emit = defineEmits<{ "update:modelValue": [value: DynamicI18nValue[]] }>();
-const localValues = ref<DynamicI18nValue[]>([]);
+const enabled = computed(() => getEditableLanguageOptions().length > 0);
+const inputId = useId();
+const visible = ref(false);
+const draftValues = ref<DynamicI18nValue[]>([]);
 const translating = ref(false);
 const translatingLocale = ref("");
-const canTranslate = computed(() => Boolean(props.source) && localValues.value.some(item => !item.text && item.locale !== currentLocale.value));
+let requestVersion = 0;
 
-watch(
-  () => props.modelValue,
-  value => {
-    localValues.value = value.map(item => ({ ...item }));
-  },
-  { immediate: true, deep: true }
-);
-
-/** updateText 更新指定语言的人工译文。 */
-function updateText(locale: DynamicI18nValue["locale"], text: string) {
-  const values = localValues.value.map(item => (item.locale === locale ? { ...item, text } : item));
-  localValues.value = values;
-  emit("update:modelValue", values);
+/** 打开编辑窗口，未填写译文使用原值展示，不提前写入主表单。 */
+function openDialog() {
+  draftValues.value = getEditableLanguageOptions().map(({ value }) => ({
+    locale: value,
+    id: props.modelValue.find(item => item.locale === value)?.id ?? 0,
+    text: props.modelValue.find(item => item.locale === value)?.text ?? ""
+  }));
+  visible.value = true;
 }
 
-/** handleBatchTranslate 批量翻译当前仍为空的语言输入框。 */
-async function handleBatchTranslate() {
-  if (!canTranslate.value || translating.value) return;
+/** 将用户确认的译文交给主表单，实际保存由主表单负责。 */
+function confirmChanges() {
+  if (translating.value) return;
+  const editable = new Set(draftValues.value.map(item => item.locale));
+  emit("update:modelValue", [
+    ...props.modelValue.filter(item => !editable.has(item.locale)),
+    ...draftValues.value.map(item => ({ ...item }))
+  ]);
+  visible.value = false;
+}
+
+/** 关闭时丢弃草稿并使尚未返回的翻译结果失效。 */
+function closeDialog() {
+  requestVersion++;
+  translating.value = false;
+  translatingLocale.value = "";
+  draftValues.value = [];
+}
+
+/** 用当前原文翻译指定语言或全部目标语言，成功结果直接替换草稿。 */
+async function translate(locale?: string) {
+  if (!props.source || translating.value) return;
+  const version = ++requestVersion;
+  const source = props.source;
   translating.value = true;
+  translatingLocale.value = locale ?? "";
   try {
-    const pending = localValues.value.filter(item => !item.text && item.locale !== currentLocale.value);
-    const response = await defBaseI18nService.DraftBaseI18n({ source: props.source });
-    const i18ns = new Map(response.i18ns.map(item => [item.locale, item.i18n]));
-    const failed = pending.filter(item => !i18ns.has(item.locale)).length;
-    if (i18ns.size) {
-      const values = localValues.value.map(item => {
-        const i18n = i18ns.get(item.locale);
-        return i18n === undefined ? item : { ...item, text: i18n };
-      });
-      localValues.value = values;
-      emit("update:modelValue", values);
+    const response = await defBaseI18nService.DraftBaseI18n({ source, locale });
+    if (version !== requestVersion || source !== props.source || !visible.value) return;
+    const targets = draftValues.value.filter(item => !locale || item.locale === locale);
+    const results = new Map(response.i18ns.filter(item => item.i18n).map(item => [item.locale, item.i18n]));
+    let success = 0;
+    for (const item of targets) {
+      const text = results.get(item.locale);
+      if (text === undefined) continue;
+      item.text = text;
+      success++;
     }
-    if (failed) {
-      ElMessage.warning(
-        t("system.base.i18n.message.batch_translate_partial", {
-          success: i18ns.size,
-          failed
-        })
-      );
-    } else {
-      ElMessage.success(t("system.base.i18n.message.batch_translate_success", { count: i18ns.size }));
-    }
+    const failed = targets.length - success;
+    if (failed) ElMessage.warning(t("system.base.i18n.message.batch_translate_partial", { success, failed }));
+    else ElMessage.success(t("system.base.i18n.message.batch_translate_success", { count: success }));
   } catch {
-    ElMessage.error(t("system.base.i18n.message.batch_translate_failed"));
+    if (version === requestVersion) ElMessage.error(t("system.base.i18n.message.batch_translate_failed"));
   } finally {
-    translating.value = false;
+    if (version === requestVersion) {
+      translating.value = false;
+      translatingLocale.value = "";
+    }
   }
 }
 
-/** handleTranslate 翻译指定语言的单个输入框。 */
-async function handleTranslate(locale: string) {
-  const item = localValues.value.find(value => value.locale === locale);
-  if (!item || item.text || item.locale === currentLocale.value || !props.source || translating.value || translatingLocale.value) return;
-  translatingLocale.value = locale;
-  try {
-    const response = await defBaseI18nService.DraftBaseI18n({ source: props.source, locale });
-    const i18n = response.i18ns.find(item => item.locale === locale)?.i18n;
-    if (!i18n) throw new Error("i18n not found");
-    const values = localValues.value.map(value => (value.locale === locale ? { ...value, text: i18n } : value));
-    localValues.value = values;
-    emit("update:modelValue", values);
-    ElMessage.success(t("system.base.i18n.message.translate_success", { language: getLanguageLabel(locale) }));
-  } catch {
-    ElMessage.error(t("system.base.i18n.message.translate_failed", { language: getLanguageLabel(locale) }));
-  } finally {
+watch(enabled, value => {
+  if (!value) visible.value = false;
+});
+watch(
+  () => props.source,
+  () => {
+    requestVersion++;
+    translating.value = false;
     translatingLocale.value = "";
   }
-}
-
+);
 </script>
 
 <style scoped>
 .i18n-editor {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  width: 100%;
+  display: grid;
+  gap: 16px;
 }
 .i18n-editor__toolbar {
   display: flex;
   justify-content: flex-end;
 }
-.i18n-editor__row {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.i18n-editor__heading,
 .i18n-editor__control {
   display: flex;
-  gap: 8px;
-  align-items: center;
-}
-.i18n-editor__heading {
-  color: var(--el-text-color-regular);
-}
-.i18n-editor__control {
-  position: relative;
   width: 100%;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 12px;
 }
-.i18n-editor__control :deep(.el-input) {
+.i18n-editor__control :deep(.el-input),
+.i18n-editor__control :deep(.el-textarea) {
   flex: 1;
-}
-.i18n-editor__control--multiline :deep(.el-textarea__inner) {
-  padding-right: 78px;
-}
-.i18n-editor__control:not(.i18n-editor__control--multiline) :deep(.el-input__suffix) {
-  padding-right: 78px;
-}
-.i18n-editor__translate {
-  position: absolute;
-  z-index: 1;
-  top: 50%;
-  right: 8px;
-  transform: translateY(-50%);
-}
-.i18n-editor__control--multiline .i18n-editor__translate {
-  top: 8px;
-  transform: none;
+  min-width: 0;
 }
 </style>

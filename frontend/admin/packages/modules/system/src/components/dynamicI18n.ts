@@ -11,9 +11,9 @@ export interface DynamicI18nValue {
 
 /** DynamicI18nRecord 描述三类动态资源翻译共有字段。 */
 export interface DynamicI18nRecord extends Omit<DynamicI18nValue, "text"> {
-	target_type: I18nTargetType;
-	target_id: number;
-	name: string;
+  target_type: I18nTargetType;
+  target_id: number;
+  name: string;
 }
 
 /** DynamicLanguageOption 动态翻译编辑器显示的语言选项。 */
@@ -52,11 +52,15 @@ export function normalizeDynamicI18ns(
   });
 }
 
-/** serializeDynamicI18ns 将编辑状态转换回后端资源翻译结构。 */
+/** serializeDynamicI18ns 按启用语言序列化译文，未填写时保存原值。 */
 export function serializeDynamicI18ns(
   values: DynamicI18nValue[],
   targetType: I18nTargetType,
-  targetId: number
+  targetId: number,
+  source: string
 ): Array<{ id: number; target_type: I18nTargetType; target_id: number; locale: string; name: string }> {
-  return values.map(({ id, locale, text }) => ({ id, target_type: targetType, target_id: targetId, locale, name: text }));
+  return getEditableLanguageOptions().map(({ value: locale }) => {
+    const item = values.find(value => value.locale === locale);
+    return { id: item?.id ?? 0, target_type: targetType, target_id: targetId, locale, name: item?.text || source };
+  });
 }
