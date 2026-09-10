@@ -1,8 +1,8 @@
-/// <reference path="./vite-env.d.ts" />
-/// <reference path="./typings/global.d.ts" />
-/// <reference path="./typings/utils.d.ts" />
-/// <reference path="../types/generated/auto-imports.d.ts" />
-/// <reference path="../types/generated/components.d.ts" />
+import "./vite-env.d.ts";
+import "./typings/global.d.ts";
+import "./typings/utils.d.ts";
+import "../types/generated/auto-imports.d.ts";
+import "../types/generated/components.d.ts";
 
 export * from "./modules";
 export * from "./locales";

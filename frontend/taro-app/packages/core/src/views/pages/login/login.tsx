@@ -1,4 +1,4 @@
-import { Button, Image, Input, Picker, Text, View } from '@tarojs/components'
+import { Button, Checkbox, Image, Input, Picker, Text, View } from '@tarojs/components'
 import Taro, { useLoad } from '@tarojs/taro'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import defaultLogo from '@liujitcn/kratos-taro-app-core/static/images/logo_icon.png'
@@ -749,6 +749,16 @@ export default function LoginPage() {
                 placeholder={t('core.login.mfa_recovery_code')}
                 onInput={(event) => setMfaRecoveryCode(event.detail.value)}
               />
+              {mfaRememberDays > 0 ? (
+                <View className='mfa-remember-device'>
+                  <Checkbox
+                    value='remember'
+                    checked={rememberMfaDevice}
+                    onChange={(event) => setRememberMfaDevice(event.detail.value.includes('remember'))}
+                  />
+                  <Text>{t('core.login.mfa_remember_device', { days: mfaRememberDays })}</Text>
+                </View>
+              ) : null}
               <Button
                 className='login-button login-button-primary'
                 loading={mfaLoading}

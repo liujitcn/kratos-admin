@@ -295,6 +295,16 @@
   font-weight: 700;
 }
 
+.mfa-remember-device {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0 20px;
+  color: #53636d;
+  font-size: 24px;
+  line-height: 1.4;
+}
+
 .login-agreement {
   display: flex;
   align-items: center;
