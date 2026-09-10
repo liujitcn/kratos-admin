@@ -21,6 +21,9 @@ interface SharedSseConnection {
 /** SSE 不可恢复异常。 */
 class SseFatalError extends Error {}
 
+/** SSE 权限不足异常，不代表登录失效。 */
+class SsePermissionError extends Error {}
+
 /** SSE 可重试异常。 */
 class SseRetriableError extends Error {}
 
@@ -115,8 +118,12 @@ export class SseServiceImpl {
           if (response.ok && contentType.startsWith(EventStreamContentType)) {
             return;
           }
-          if (response.status === 401 || response.status === 403) {
+          if (response.status === 401) {
             throw new SseFatalError(t("system.sse.error.auth_expired"));
+          }
+          if (response.status === 403) {
+            const data = await response.json().catch(() => null);
+            throw new SsePermissionError(data?.message || t("system.sse.error.connection_failed", { status: response.status }));
           }
           throw new SseRetriableError(t("system.sse.error.connection_failed", { status: response.status }));
         },
@@ -138,7 +145,7 @@ export class SseServiceImpl {
           if (controller.signal.aborted) {
             return;
           }
-          if (error instanceof SseFatalError) {
+          if (error instanceof SseFatalError || error instanceof SsePermissionError) {
             throw error;
           }
           return 1000;
@@ -151,6 +158,8 @@ export class SseServiceImpl {
       // SSE 与常规请求复用同一套登录失效处理，避免页面静默断流后用户无感知。
       if (error instanceof SseFatalError) {
         handleAuthExpired();
+      } else if (error instanceof SsePermissionError) {
+        ElMessage.error(error.message);
       }
       this.sharedConnections.delete(connectionKey);
     }

@@ -2120,6 +2120,11 @@ func codeGenWorkspacePaths() (map[string]struct{}, error) {
 		filepath.Join(rootPath, "backend"),
 		filepath.Join(rootPath, "frontend/admin/packages/core/src/rpc"),
 		filepath.Join(rootPath, "frontend/admin/packages/modules"),
+		filepath.Join(rootPath, "frontend/admin/packages/core/types/generated"),
+		filepath.Join(rootPath, "frontend/uni-app/packages/core/src/rpc"),
+		filepath.Join(rootPath, "frontend/uni-app/packages/modules"),
+		filepath.Join(rootPath, "frontend/taro-app/packages/core/src/rpc"),
+		filepath.Join(rootPath, "frontend/taro-app/packages/modules"),
 	}
 	for _, root := range roots {
 		if _, err = os.Stat(root); os.IsNotExist(err) {
@@ -2164,6 +2169,8 @@ func isCodeGenWorkspaceFile(path string) bool {
 		return true
 	case ".json":
 		return strings.Contains(normalizedPath, "/frontend/admin/packages/modules/") && strings.Contains(normalizedPath, "/src/locales/")
+	case ".yaml", ".yml":
+		return strings.Contains(normalizedPath, "/backend/internal/openapi/assets/")
 	default:
 		return false
 	}
