@@ -91,6 +91,7 @@ import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-c
 import { t } from "@liujitcn/kratos-admin-core";
 import CodeGenProgressDialog from "../components/CodeGenProgressDialog.vue";
 import CodeGenLocaleEditor from "../components/CodeGenLocaleEditor.vue";
+import CodeGenGenerateConfirm from "../components/CodeGenGenerateConfirm.vue";
 import {
   codeGenPageTypeOptions,
   codeGenTableRules,
@@ -643,7 +644,7 @@ async function handleGenerate(selected: CodeGenGenerateTarget) {
     return;
   }
   generating.value = true;
-  let missingI18ns: string[] = [];
+  let missingI18ns: Array<{ name: string; items: string[] }> = [];
   try {
     const previewEntries = await Promise.all(
       tables.map(async table => ({
@@ -651,9 +652,9 @@ async function handleGenerate(selected: CodeGenGenerateTarget) {
         preview: await defCodeGenService.PreviewCodeGen({ table_id: table.id, output_paths: undefined })
       }))
     );
-    missingI18ns = previewEntries.flatMap(({ table, preview }) =>
-      (preview.missing_i18ns ?? []).map(item => (tables.length === 1 ? item : `${table.name}: ${item}`))
-    );
+    missingI18ns = previewEntries
+      .map(({ table, preview }) => ({ name: table.name, items: preview.missing_i18ns ?? [] }))
+      .filter(group => group.items.length);
   } finally {
     generating.value = false;
   }
@@ -662,22 +663,13 @@ async function handleGenerate(selected: CodeGenGenerateTarget) {
       ? t("system.code.gen.table.dialog.generate_one", { name: tables[0].name })
       : t("system.code.gen.table.dialog.generate_batch", { count: tables.length });
   try {
-    const content = missingI18ns.length
-      ? h("div", [
-          h("p", { style: { margin: "0" } }, message),
-          h(
-            "p",
-            { style: { margin: "12px 0 0", maxHeight: "40vh", overflow: "auto", overflowWrap: "anywhere", color: "var(--el-color-warning)" } },
-            t("system.code.gen.preview.message.missing_i18ns", {
-              items: missingI18ns.join(t("system.code.gen.preview.value.list_separator"))
-            })
-          )
-        ])
-      : message;
-    await ElMessageBox.confirm(content, t("common.title.notice"), {
-      confirmButtonText: t("common.action.confirm"),
+    const content = h(CodeGenGenerateConfirm, { message, groups: missingI18ns });
+    await ElMessageBox.confirm(content, t("system.code.gen.table.dialog.generate_title"), {
+      confirmButtonText: t("system.code.gen.action.generate"),
       cancelButtonText: t("common.action.cancel"),
-      type: "warning"
+      customClass: "code-gen-generate-confirm",
+      showClose: true,
+      closeOnClickModal: false
     });
   } catch {
     return;

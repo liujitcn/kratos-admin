@@ -18,7 +18,8 @@
       ref="formDialogRef"
       class="menu-form-dialog"
       :title="t(dialog.editing ? 'system.base.menu.action.edit' : 'system.base.menu.action.create')"
-      width="1180px"
+      width="min(1440px, calc(100vw - 32px))"
+      top="4vh"
       label-width="180px"
       :model="formData"
       :fields="formFields"
@@ -32,11 +33,7 @@
       </template>
 
       <template #i18ns>
-        <DynamicI18nEditor
-          v-model="i18nValues"
-          :source="formData.meta.title"
-          :maxlength="100"
-        />
+        <DynamicI18nEditor v-model="i18nValues" :source="formData.meta.title" :maxlength="100" />
       </template>
 
       <template #apiTransferItem="slotScope">
@@ -666,6 +663,7 @@ const formFields = computed<ProFormField[]>(() => [
     slotName: "apiTransferItem",
     options: transferData.value,
     props: {
+      class: "menu-api-transfer",
       filterable: true,
       titles: [t("system.base.menu.value.available_api"), t("system.base.menu.value.selected_api")]
     },
@@ -999,11 +997,7 @@ function buildMenuOptions(menuList: BaseMenu[] = []) {
 /** 根据菜单类型清理无效字段，避免提交脏数据。 */
 function buildSubmitPayload(): BaseMenuForm {
   const payload = normalizeMenuForm(formData);
-  payload.i18ns = serializeDynamicI18ns(
-    i18nValues.value,
-    I18nTargetType.I18N_TARGET_TYPE_BASE_MENU_META_TITLE,
-    payload.id
-  );
+  payload.i18ns = serializeDynamicI18ns(i18nValues.value, I18nTargetType.I18N_TARGET_TYPE_BASE_MENU_META_TITLE, payload.id);
   // 一级菜单在表单中保持空白，提交时仍按接口约定传回根节点标识。
   if (payload.id > 0 && payload.parent_id === undefined) payload.parent_id = 0;
   payload.meta.params = (payload.meta.params ?? []).filter(item => item.key || item.value);
@@ -1145,7 +1139,7 @@ function resetForm(data?: Partial<BaseMenuForm>) {
   formDialogRef.value?.resetFields();
   formDialogRef.value?.clearValidate();
   Object.assign(formData, normalizeMenuForm(data));
-	i18nValues.value = normalizeDynamicI18ns(data?.i18ns as DynamicI18nRecord[] | undefined);
+  i18nValues.value = normalizeDynamicI18ns(data?.i18ns as DynamicI18nRecord[] | undefined);
 }
 
 /** 提交菜单表单，并在成功后关闭弹窗、刷新表格。 */
@@ -1247,5 +1241,75 @@ function handleDeleteMenu(selected?: number | string | Array<number | string> | 
 }
 :deep(.menu-form__params .el-form-item__content) {
   align-items: flex-start;
+}
+</style>
+
+<style lang="scss">
+.menu-form-dialog {
+  .menu-api-transfer {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    .el-transfer-panel {
+      width: 100%;
+      min-width: 0;
+    }
+    .el-transfer__buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 0;
+      .el-button {
+        margin: 0;
+      }
+    }
+    .el-transfer-panel__body {
+      height: 360px;
+    }
+    .el-transfer-panel__list.is-filterable {
+      height: 300px;
+    }
+    .el-transfer-panel__item.el-checkbox {
+      align-items: flex-start;
+      height: auto;
+      min-height: 36px;
+      padding-top: 8px;
+      padding-bottom: 8px;
+      .el-checkbox__input {
+        top: 3px;
+      }
+      .el-checkbox__label {
+        display: block;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        line-height: 20px;
+      }
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .menu-form-dialog {
+    .el-col {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+    .el-form-item {
+      flex-direction: column;
+    }
+    .el-form-item__label {
+      justify-content: flex-start;
+      width: auto !important;
+    }
+    .menu-api-transfer {
+      grid-template-columns: minmax(0, 1fr);
+      .el-transfer__buttons {
+        flex-direction: row;
+        justify-content: center;
+      }
+    }
+  }
 }
 </style>
