@@ -687,7 +687,7 @@ func (c *CodeGenCase) runCodeGenCommands(ctx context.Context, targets []codeGenC
 	backendDir := codegen.BackendDir()
 	var err error
 	states := make(map[int64]*commandState, len(targets))
-	sharedTargets := []string{"api", "openapi", "ts", "wire"}
+	sharedTargets := []string{"api", "openapi", "ts", "public-wire", "wire"}
 	eligibleTargets := make([]codeGenCommandTarget, 0, len(targets))
 	for _, target := range targets {
 		state := new(commandState)

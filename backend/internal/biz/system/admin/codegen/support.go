@@ -117,7 +117,7 @@ func BuildProgressSteps(files []*adminv1.CodeGenPreviewFile, syncMenus bool, run
 		stepCount++
 	}
 	if runCommands {
-		stepCount += 6
+		stepCount += 7
 	}
 	steps := make([]*adminv1.CodeGenTaskStep, 0, stepCount)
 	for i, file := range files {
@@ -146,7 +146,7 @@ func BuildProgressSteps(files []*adminv1.CodeGenPreviewFile, syncMenus bool, run
 		})
 	}
 	if runCommands {
-		for _, command := range []string{"gorm-gen", "api", "openapi", "ts", "wire", "fmt"} {
+		for _, command := range []string{"gorm-gen", "api", "openapi", "ts", "public-wire", "wire", "fmt"} {
 			steps = append(steps, &adminv1.CodeGenTaskStep{
 				Id:      CommandStepPrefix + command,
 				Label:   "make " + command,

@@ -204,7 +204,7 @@ Kit 的策略解析器同样由 Wire 创建并注入 Core 协议入口和 Admin 
 
 外部模块接入运行配置时，在自己的 Proto 中定义配置消息并通过 `pkg/runtimeconfig.Register` 注册 key、默认值和敏感字段；Admin 启动时会统一初始化 `base_config` 表单类型配置并刷新 Redis。配置 JSON 使用 ProtoJSON 编解码和 Protovalidate 校验，校验规则 ID 可直接作为国际化消息键。通用启动配置优先复用 `kratos-kit/api` 的 `config.v1.Bootstrap`，例如 `authn.session`、`oss.upload_security`、`logger` 和 `data`。
 
-代码生成任务执行 `ts` 步骤时使用同级 `frontend` 目录的 Makefile，生成三端 RPC；`gorm-gen`、`api`、`openapi`、`wire`、`fmt` 仍在 `backend` 目录执行。
+代码生成任务执行 `ts` 步骤时使用同级 `frontend` 目录的 Makefile，生成三端 RPC；`gorm-gen`、`api`、`openapi`、`public-wire`、`wire`、`fmt` 仍在 `backend` 目录执行。
 还原快照包含 OpenAPI YAML、三端 RPC 与管理端自动导入声明；任务快照保存后额外手动执行生成命令产生的变化不属于该快照。
 
 代码生成 Biz 模板统一引用 `kratos-core/biz.BaseCase`。任务进度管理器由 Backend 宿主创建并注入协议服务和 SSE 入口，保证生成任务归属校验与实时事件使用同一实例。
@@ -212,3 +212,7 @@ Kit 的策略解析器同样由 Wire 创建并注入 Core 协议入口和 Admin 
 向已有业务 Case 合并 CRUD 时，同步补齐标准 mapper、formMapper 字段及构造初始化，保留已有依赖和构造逻辑。
 
 系统配置统一通过列表与编辑弹窗维护。类型 `6` 为表单，按注册的 key 加载字段定义；表单 JSON 沿用 ProtoJSON 校验、敏感值合并及运行缓存刷新。公共配置接口不返回表单内容，表单配置不允许删除、停用或修改位置、类型和编码。
+
+代码生成向已有服务注册文件追加字段和 HTTP/gRPC/MCP 注册时，按导入路径复用协议包及服务包的现有别名；未显式命名的导入使用实际包名，避免新增服务引用不存在的别名。
+
+代码生成追加业务和服务构造函数到 `ProviderSet` 后，先执行 `public-wire` 刷新模块装配，再执行 `wire` 刷新独立入口；前一步失败时跳过后续生成步骤，避免使用缺失新服务的旧装配代码。

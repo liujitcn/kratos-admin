@@ -700,6 +700,9 @@ func appendProtoServiceRegistration(content string, target ProtoTarget, entity s
 	if grpcReceiver == "" || httpReceiver == "" || mcpReceiver == "" {
 		return content
 	}
+	content, target.GoAlias = ensureRegistrationImport(content, target.GoImportPath, target.GoAlias, "adminv1")
+	servicePath := strings.Replace(target.GoImportPath, "/api/gen/go/", "/internal/service/", 1)
+	content, target.ServiceImportAlias = ensureRegistrationImport(content, servicePath, target.ServiceImportAlias, "admin")
 	fieldName := goStructSelectorFieldName(content, "Services", target.ServiceImportAlias, entity+"Service")
 	if fieldName == "" {
 		fieldName = entity
@@ -719,6 +722,24 @@ func appendProtoServiceRegistration(content string, target ProtoTarget, entity s
 		content = insertGoPackageCall(content, "RegisterMCP", target.GoAlias, mcpRegisterName, "\t"+target.GoAlias+"."+mcpRegisterName+"(mcpSrv, "+mcpReceiver+"."+fieldName+")")
 	}
 	return content
+}
+
+// ensureRegistrationImport 按导入路径复用显式或默认包名，缺少导入时补齐别名。
+func ensureRegistrationImport(content, importPath, alias, packageName string) (string, string) {
+	file, _, err := parseGoSource(content)
+	if err != nil {
+		return content, alias
+	}
+	for _, spec := range file.Imports {
+		if strings.Trim(spec.Path.Value, "\"") != importPath {
+			continue
+		}
+		if spec.Name != nil {
+			return content, spec.Name.Name
+		}
+		return content, packageName
+	}
+	return ensureGoImport(content, alias+" \""+importPath+"\""), alias
 }
 
 // insertGoProviderSetItem 在相同 ProviderSet 分组内按名称插入依赖提供者。
@@ -767,7 +788,6 @@ func insertGoProviderSetItem(content string, providerName string) string {
 			offset = fileSet.Position(argument.Pos()).Offset
 			break
 		}
-		offset = fileSet.Position(argument.End()).Offset
 	}
 	return validGoPatch(content, insertGoLines(content, offset, "\t"+providerName+","))
 }
