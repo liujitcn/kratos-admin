@@ -306,7 +306,7 @@ export function navigateAppView(viewKey: string, params: Record<string, string> 
   navigateAppRoute(`${path}${query ? `?${query}` : ''}`)
 }
 
-/** 切换 tab 页面，优先复用已有页面，避免重建页面栈产生空白帧。 */
+/** 自绘 tab 在 H5 直接切换，微信端优先复用原生 tab 或页面栈。 */
 function navigateTabRoute(url: string): void {
   const targetRoute = url.slice(1).split('?', 1)[0].replace(/^\/+/, '')
   const pages = getCurrentPages()
@@ -317,6 +317,10 @@ function navigateTabRoute(url: string): void {
   tabNavigationTarget = targetRoute
   const release = () => {
     if (tabNavigationTarget === targetRoute) tabNavigationTarget = undefined
+  }
+  if (process.env.TARO_ENV === 'h5') {
+    void Taro.reLaunch({ url }).then(release, release)
+    return
   }
   if (nativeTabViewKeys.some((viewKey) => resolveStaticView(viewKey) === targetRoute)) {
     void Taro.switchTab({ url })

@@ -6,12 +6,12 @@
       <div class="login-left">
         <img class="login-left-img" :src="backgroundUrl" :alt="t('core.login.background_alt')" />
       </div>
-      <div class="login-form">
+      <div ref="loginFormRef" class="login-form">
         <div ref="loginLogoRef" class="login-logo">
           <img v-show="showLogoIcon" ref="logoIconRef" class="login-icon" :src="logoUrl" alt="" />
           <h2 ref="logoTextRef" class="logo-text" :style="{ fontSize: `${logoFontSize}px` }">{{ projectName }}</h2>
         </div>
-        <LoginForm />
+        <LoginForm :dialog-anchor="loginFormRef" />
       </div>
     </div>
   </div>
@@ -36,6 +36,7 @@ const PREFERRED_MIN_LOGO_FONT_SIZE = 30;
 const MIN_LOGO_FONT_SIZE = 8;
 const LOGO_TEXT_GAP = 16;
 
+const loginFormRef = ref<HTMLElement>();
 const loginLogoRef = ref<HTMLElement>();
 const logoIconRef = ref<HTMLImageElement>();
 const logoTextRef = ref<HTMLElement>();

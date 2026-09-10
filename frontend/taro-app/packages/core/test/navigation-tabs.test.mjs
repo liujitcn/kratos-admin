@@ -6,7 +6,7 @@ import { pathToFileURL } from 'node:url'
 import test from 'node:test'
 import { build } from 'esbuild'
 
-async function loadNavigationRuntime(state) {
+async function loadNavigationRuntime(state, environment = 'weapp') {
   const root = mkdtempSync(resolve(tmpdir(), 'kratos-taro-tabs-'))
   const output = resolve(root, 'navigation.mjs')
   process.__KRATOS_TARO_TABS_TEST_STATE__ = state
@@ -14,6 +14,7 @@ async function loadNavigationRuntime(state) {
     entryPoints: [resolve(import.meta.dirname, '../src/navigation.ts')],
     bundle: true,
     platform: 'node',
+    define: { 'process.env.TARO_ENV': JSON.stringify(environment) },
     format: 'esm',
     outfile: output,
     plugins: [
@@ -176,3 +177,15 @@ test('切换已存在的固定 tab 仍使用原生 switchTab', async () => {
   assert.equal(state.navigateCalls.length, 0)
   assert.equal(state.reLaunchCalls.length, 0)
 })
+
+ test('H5 自绘 tab 直接切换，不使用带滑动动画的页面栈导航', async () => {
+  const state = createState([{ route: 'pages/index/index' }])
+  const navigation = await loadNavigationRuntime(state, 'h5')
+  navigation.installAppNavigation(menus)
+  navigation.navigateAppRoute('app/my')
+  await new Promise((done) => setTimeout(done, 0))
+  assert.equal(state.reLaunchCalls.length, 1)
+  assert.equal(state.switchTabCalls.length, 0)
+  assert.equal(state.navigateCalls.length, 0)
+  assert.equal(state.navigateBackCalls.length, 0)
+ })

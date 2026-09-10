@@ -113,6 +113,8 @@ bash scripts/generate-dev-cert.sh 192.168.1.100
 
 管理端支持的语言由 core 与 System JSON 语言包自动发现，模块注册时校验语言键和占位符集合；登录页和顶部工具栏共用 locale store，切换语言不刷新页面，并保留当前路由、查询参数和未提交表单。
 
+登录流程中的行为验证码、MFA 验证、首次绑定与恢复码弹窗统一在当前登录表单卡片区域内水平、垂直居中，中心跟随卡片位置变化；验证码与 MFA 验证使用相同宽度，窄屏限制宽度，矮屏允许弹窗内部滚动。
+
 登录页租户输入框由 `base_config.showTenantCode` 控制，值为 `false` 或 `0` 时隐藏；语言切换入口在后端只返回一种 `language_pack` 时自动隐藏；其他登录方式只有在 `base/oauth/provider` 返回非空 `providers` 时显示。
 
 语言偏好保存为 `kratos-admin:locale`。Axios、刷新令牌、原生 fetch、SSE 和 Swagger 请求统一发送 `Accept-Language`；动态菜单和字典由后端按 locale 返回，缺少当前语言译文时回退主语言。新增语言需要同步后端国际化目录、三个 workspace 的六个前端语言包目录，再执行仓库根目录的 `make i18n`；注册文件和 Day.js 映射由脚本生成。具体流程见 [国际化语言扩展指南](../../docs/国际化语言扩展指南.md)。

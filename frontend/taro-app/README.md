@@ -146,3 +146,5 @@ CLI 直接生成完整宿主、本地业务模块、四种语言源文件与注�
 新增语言或修改语言文件后运行 `pnpm i18n:sync`；`pnpm i18n:check` 校验注册文件是否同步。
 
 H5 宿主通过 `esnextModules` 将已装配 npm 源码包加入 Taro 样式处理，确保 px 按 750 设计稿转换为 rem；仅设置脚本的 `compile.include` 无法覆盖样式转换。第三方组件仍遵循 Taro 默认处理规则。
+
+H5 自绘底部 tab 使用 reLaunch 直接切换，避免消息中心与“我的”之间出现普通页面栈的左右滑动；详情页保留 navigateTo，微信端保持原有导航策略。

@@ -96,11 +96,11 @@
   <ProDialog
     v-model="behaviorDialogVisible"
     width="364px"
-    top="16vh"
+    :style="loginDialogStyle"
     :show-close="false"
     :show-footer="false"
     append-to-body
-    class="behavior-captcha-dialog"
+    class="login-verification-dialog behavior-captcha-dialog"
   >
     <div v-loading="behaviorLoading" class="behavior-captcha-body">
       <GoCaptchaSlide
@@ -126,7 +126,15 @@
       />
     </div>
   </ProDialog>
-  <ProDialog v-model="mfaDialogVisible" :title="t('core.login.mfa_title')" width="360px" :close-on-click-modal="false">
+  <ProDialog
+    v-model="mfaDialogVisible"
+    :title="t('core.login.mfa_title')"
+    width="364px"
+    :style="loginDialogStyle"
+    class="login-verification-dialog"
+    append-to-body
+    :close-on-click-modal="false"
+  >
     <ProForm
       ref="mfaLoginFormRef"
       :model="mfaLoginForm"
@@ -146,7 +154,15 @@
       </el-button>
     </template>
   </ProDialog>
-  <ProDialog v-model="mfaSetupDialogVisible" :title="t('core.login.mfa_setup_title')" width="520px" :close-on-click-modal="false">
+  <ProDialog
+    v-model="mfaSetupDialogVisible"
+    :title="t('core.login.mfa_setup_title')"
+    width="520px"
+    :style="loginDialogStyle"
+    class="login-verification-dialog"
+    append-to-body
+    :close-on-click-modal="false"
+  >
     <template v-if="mfaSetupMethod !== 'webauthn'">
       <MfaSetupPanel :uri="mfaSetupUri" />
       <ProForm
@@ -166,12 +182,20 @@
       </el-button>
     </template>
   </ProDialog>
-  <MfaRecoveryCodesDialog v-model="recoveryCodesDialogVisible" :codes="recoveryCodes" @confirm="finishMfaEnrollment" />
+  <MfaRecoveryCodesDialog
+    v-model="recoveryCodesDialogVisible"
+    :codes="recoveryCodes"
+    :style="loginDialogStyle"
+    class="login-verification-dialog"
+    append-to-body
+    @confirm="finishMfaEnrollment"
+  />
 </template>
 
 <script setup lang="ts">
 import { computed, ref, reactive, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useElementBounding } from "@vueuse/core";
 import { HOME_URL } from "@/config";
 import { getTimeState } from "@/utils";
 import { defLoginService } from "@/api/base/v1/login";
@@ -199,6 +223,19 @@ import { Click as GoCaptchaClick, Rotate as GoCaptchaRotate, Slide as GoCaptchaS
 import "go-captcha-vue/dist/style.css";
 import { useLocaleStore } from "@/locales";
 import { clearPasswordChangeRequired, handlePasswordChangeRequired } from "@/utils/request";
+
+/** 登录表单属性，验证弹窗以外层登录卡片的中心定位。 */
+interface LoginFormProps {
+  dialogAnchor?: HTMLElement;
+}
+
+const props = defineProps<LoginFormProps>();
+const dialogAnchorBounds = useElementBounding(() => props.dialogAnchor);
+const loginDialogStyle = computed(() => ({
+  "--login-dialog-center-x": `${dialogAnchorBounds.left.value + dialogAnchorBounds.width.value / 2}px`,
+  "--login-dialog-center-y": `${dialogAnchorBounds.top.value + dialogAnchorBounds.height.value / 2}px`,
+  "--login-dialog-anchor-width": `${dialogAnchorBounds.width.value}px`
+}));
 
 const router = useRouter();
 const route = useRoute();
@@ -956,6 +993,25 @@ watch(
   font-weight: 700;
   line-height: 1;
   color: var(--el-color-primary);
+}
+
+/* 各验证步骤共用登录卡片中心；靠近视口边缘时限制尺寸，内容在弹窗内滚动。 */
+:global(.login-verification-dialog.el-dialog) {
+  --login-dialog-width: min(var(--el-dialog-width), var(--login-dialog-anchor-width), calc(100vw - 32px));
+  --login-dialog-y: clamp(25dvh, var(--login-dialog-center-y), 75dvh);
+
+  position: fixed;
+  top: var(--login-dialog-y);
+  left: clamp(
+    calc(var(--login-dialog-width) / 2 + 16px),
+    var(--login-dialog-center-x),
+    calc(100vw - var(--login-dialog-width) / 2 - 16px)
+  );
+  width: var(--login-dialog-width);
+  max-height: calc(min(var(--login-dialog-y), 100dvh - var(--login-dialog-y)) * 2 - 32px);
+  margin: 0;
+  overflow: auto;
+  translate: -50% -50%;
 }
 
 :global(.behavior-captcha-dialog) {
