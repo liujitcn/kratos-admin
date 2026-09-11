@@ -149,15 +149,20 @@ test('并行 runner 共享页面装配并在最后一个进程退出后恢复', 
   }
 })
 
-test('runner 为 H5 和微信小程序设置独立默认产物目录', () => {
+test('runner 按模式和平台隔离产物目录，并保留自定义目录', () => {
   const fixture = createRunnerFixture()
-  const h5Snapshot = resolve(fixture.root, 'h5-snapshot.json')
-  const weappSnapshot = resolve(fixture.root, 'weapp-snapshot.json')
   try {
-    assert.equal(runFixture(fixture, { snapshotFile: h5Snapshot }).status, 0)
-    assert.equal(runFixture(fixture, { snapshotFile: weappSnapshot, type: 'weapp' }).status, 0)
-    assert.equal(JSON.parse(readFileSync(h5Snapshot, 'utf8')).outputRoot, 'dist/h5')
-    assert.equal(JSON.parse(readFileSync(weappSnapshot, 'utf8')).outputRoot, 'dist/mp-weixin')
+    for (const mode of ['development', 'production']) {
+      for (const type of ['h5', 'weapp']) {
+        const result = runFixture(fixture, { mode, type })
+        assert.equal(result.status, 0, result.stderr)
+        const expected = `dist/${mode === 'development' ? 'dev' : 'build'}/${type === 'h5' ? 'h5' : 'mp-weixin'}`
+        assert.equal(JSON.parse(readFileSync(fixture.snapshotFile, 'utf8')).outputRoot, expected)
+      }
+    }
+    const outputRoot = '../../../../backend/data/taro-app'
+    assert.equal(runFixture(fixture, { outputRoot }).status, 0)
+    assert.equal(JSON.parse(readFileSync(fixture.snapshotFile, 'utf8')).outputRoot, outputRoot)
   } finally {
     fixture.dispose()
   }
@@ -265,7 +270,7 @@ function createFixtureModule(hostRoot, packageName, directory, pages) {
 }
 
 function runFixture(fixture, options = {}) {
-  const args = [runner, '--type', options.type ?? 'h5', '--mode', 'production']
+  const args = [runner, '--type', options.type ?? 'h5', '--mode', options.mode ?? 'production']
   if (options.prepareOnly) args.push('--prepare-only')
   if (options.cleanupOnly) args.push('--cleanup-only')
   return spawnSync(process.execPath, args, {
@@ -273,6 +278,7 @@ function runFixture(fixture, options = {}) {
     encoding: 'utf8',
     env: {
       ...process.env,
+      KRATOS_TARO_OUTPUT_ROOT: options.outputRoot ?? '',
       KRATOS_RUNNER_SNAPSHOT: options.snapshotFile ?? fixture.snapshotFile,
       PATH: `${fixture.binRoot}:${process.env.PATH ?? ''}`,
     },

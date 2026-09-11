@@ -16,10 +16,21 @@
 	package package-admin package-uni-app package-taro-app \
 	publish publish-only publish-admin publish-uni-app publish-taro-app
 
+# 统一递归 Make 输出，避免显示目录进入提示和终端控制符。
+MAKEFLAGS += --no-print-directory
+NO_COLOR := 1
+FORCE_COLOR := 0
+export NO_COLOR FORCE_COLOR
+
 # ===== 执行参数 =====
 
 PNPM ?= pnpm
 CI ?= 1
+PNPM_ENV = env -u FORCE_COLOR NO_COLOR=1 CI="$(CI)"
+PNPM_RUN = $(PNPM_ENV) $(PNPM) --silent run
+PNPM_EXEC = $(PNPM_ENV) $(PNPM) --silent exec
+PNPM_INSTALL = $(PNPM_ENV) $(PNPM) --silent install
+PNPM_PACK = $(PNPM_ENV) $(PNPM) --silent pack
 GO_BIN_DIR ?= $(or $(shell go env GOBIN),$(shell go env GOPATH)/bin)
 API_DIR ?= ../backend/api
 
@@ -40,7 +51,7 @@ NPM_TAG ?= latest
 NPM_PACK_DEST ?= dist/npm
 NPM_SKIP_GIT_CHECKS ?= true
 
-NPM_PUBLISH_ENV := NPM_REGISTRY="$(NPM_REGISTRY)" NPM_ACCESS="$(NPM_ACCESS)" NPM_TAG="$(NPM_TAG)" NPM_SKIP_GIT_CHECKS="$(NPM_SKIP_GIT_CHECKS)"
+NPM_PUBLISH_ENV := NO_COLOR=1 FORCE_COLOR=0 NPM_REGISTRY="$(NPM_REGISTRY)" NPM_ACCESS="$(NPM_ACCESS)" NPM_TAG="$(NPM_TAG)" NPM_SKIP_GIT_CHECKS="$(NPM_SKIP_GIT_CHECKS)"
 
 # ===== 依赖安装 =====
 
@@ -56,15 +67,21 @@ reinstall:
 
 # 安装管理后台依赖
 pnpm-admin:
-	@cd admin && CI="$(CI)" $(PNPM) install
+	@echo "==> 安装管理后台依赖"
+	@cd admin && $(PNPM_INSTALL)
+	@echo "==> 管理后台依赖安装完成"
 
 # 安装 uni-app 应用端依赖
 pnpm-uni-app:
-	@cd uni-app && CI="$(CI)" $(PNPM) install
+	@echo "==> 安装 uni-app 依赖"
+	@cd uni-app && $(PNPM_INSTALL)
+	@echo "==> uni-app 依赖安装完成"
 
 # 安装 Taro React 应用端依赖
 pnpm-taro-app:
-	@cd taro-app && CI="$(CI)" $(PNPM) install
+	@echo "==> 安装 Taro 依赖"
+	@cd taro-app && $(PNPM_INSTALL)
+	@echo "==> Taro 依赖安装完成"
 
 # ===== TypeScript RPC 生成 =====
 
@@ -82,10 +99,10 @@ ts-admin: types-admin
 		PATH="$(TS_PROTO_BIN_DIR):$(GO_BIN_DIR):$$PATH" buf generate --template buf.admin.core.typescript.gen.yaml --exclude-path proto/system/app
 	@echo "==> 管理端 TypeScript RPC 代码生成完成"
 
-# 生成管理端自动导入声明。
+# 统一生成管理端 API 与组件自动导入声明。
 types-admin:
 	@echo "==> 生成管理端自动导入声明"
-	@cd admin && CI="$(CI)" $(PNPM) run generate:auto-import-types
+	@cd admin && $(PNPM_RUN) generate:auto-import-types
 	@echo "==> 管理端自动导入声明生成完成"
 
 # 生成 uni-app 端 TypeScript RPC 代码。
@@ -137,7 +154,7 @@ run-mp-weixin:
 
 # 启动管理后台开发服务
 run-admin:
-	@cd admin && CI="$(CI)" $(PNPM) run dev
+	@cd admin && $(PNPM_RUN) dev
 
 # 启动 uni-app 微信小程序开发服务
 run-uni-app:
@@ -145,11 +162,11 @@ run-uni-app:
 
 # 启动 uni-app H5 开发服务
 run-uni-app-h5:
-	@cd uni-app && CI="$(CI)" $(PNPM) run dev:h5
+	@cd uni-app && $(PNPM_RUN) dev:h5
 
 # 启动 uni-app 微信小程序开发服务
 run-uni-app-mp-weixin:
-	@cd uni-app && CI="$(CI)" $(PNPM) run dev:mp-weixin
+	@cd uni-app && $(PNPM_RUN) dev:mp-weixin
 
 # 启动 Taro 微信小程序开发服务
 run-taro-app:
@@ -157,36 +174,42 @@ run-taro-app:
 
 # 启动 Taro H5 开发服务
 run-taro-app-h5:
-	@cd taro-app && CI="$(CI)" $(PNPM) run dev:h5
+	@cd taro-app && $(PNPM_RUN) dev:h5
 
 # 启动 Taro 微信小程序开发服务
 run-taro-app-mp-weixin:
-	@cd taro-app && CI="$(CI)" $(PNPM) run dev:mp-weixin
+	@cd taro-app && $(PNPM_RUN) dev:mp-weixin
 
 # ===== 代码检查 =====
 
 # 检查管理后台的静态规则、类型和测试
 check-admin:
+	@echo "==> 开始检查管理后台"
 	@cd admin && \
-		CI="$(CI)" $(PNPM) exec oxlint --vue-plugin --config ./internal/lint-config/oxlint.json --ignore-path .oxlintignore ./apps ./packages ./internal ./scripts && \
-		CI="$(CI)" $(PNPM) run type:check && \
-		CI="$(CI)" $(PNPM) run test
+		$(PNPM_EXEC) oxlint --vue-plugin --config ./internal/lint-config/oxlint.json --ignore-path .oxlintignore ./apps ./packages ./internal ./scripts && \
+		$(PNPM_RUN) type:check && \
+		$(PNPM_RUN) test
+	@echo "==> 管理后台检查完成"
 
 # 检查 uni-app 的静态规则、类型、测试和包边界
 check-uni-app:
+	@echo "==> 开始检查 uni-app"
 	@cd uni-app && \
-		CI="$(CI)" $(PNPM) exec eslint . && \
-		CI="$(CI)" $(PNPM) run tsc && \
-		CI="$(CI)" $(PNPM) run test && \
-		CI="$(CI)" $(PNPM) run check:exports
+		$(PNPM_EXEC) eslint . && \
+		$(PNPM_RUN) tsc && \
+		$(PNPM_RUN) test && \
+		$(PNPM_RUN) check:exports
+	@echo "==> uni-app 检查完成"
 
 # 检查 Taro 的静态规则、类型、测试和包边界
 check-taro-app:
+	@echo "==> 开始检查 Taro"
 	@cd taro-app && \
-		CI="$(CI)" $(PNPM) exec eslint . --ext .js,.mjs,.ts,.tsx && \
-		CI="$(CI)" $(PNPM) run tsc && \
-		CI="$(CI)" $(PNPM) run test && \
-		CI="$(CI)" $(PNPM) run check:exports
+		$(PNPM_EXEC) eslint . --ext .js,.mjs,.ts,.tsx && \
+		$(PNPM_RUN) tsc && \
+		$(PNPM_RUN) test && \
+		$(PNPM_RUN) check:exports
+	@echo "==> Taro 检查完成"
 
 # 按管理后台、uni-app、Taro 的顺序检查全部前端
 check:
@@ -203,7 +226,9 @@ build:
 
 # 构建管理后台静态资源
 build-admin:
-	@cd admin && CI="$(CI)" $(PNPM) run build
+	@echo "==> 开始构建：管理后台 · Web"
+	@cd admin && $(PNPM_RUN) build
+	@echo "==> 构建完成：管理后台 · Web"
 
 # 构建 uni-app H5 静态资源
 build-uni-app:
@@ -211,11 +236,15 @@ build-uni-app:
 
 # 构建 uni-app H5 静态资源
 build-uni-app-h5:
-	@cd uni-app && CI="$(CI)" $(PNPM) run build:h5
+	@echo "==> 开始构建：uni-app · H5"
+	@cd uni-app && $(PNPM_RUN) build:h5
+	@echo "==> 构建完成：uni-app · H5"
 
 # 构建 uni-app 微信小程序产物
 build-uni-app-mp-weixin:
-	@cd uni-app && CI="$(CI)" $(PNPM) run build:mp-weixin
+	@echo "==> 开始构建：uni-app · 微信小程序"
+	@cd uni-app && $(PNPM_RUN) build:mp-weixin
+	@echo "==> 构建完成：uni-app · 微信小程序"
 
 # 构建 Taro H5 静态资源
 build-taro-app:
@@ -223,11 +252,15 @@ build-taro-app:
 
 # 构建 Taro H5 静态资源
 build-taro-app-h5:
-	@cd taro-app && CI="$(CI)" $(PNPM) run build:h5
+	@echo "==> 开始构建：Taro · H5"
+	@cd taro-app && $(PNPM_RUN) build:h5
+	@echo "==> 构建完成：Taro · H5"
 
 # 构建 Taro 微信小程序产物
 build-taro-app-mp-weixin:
-	@cd taro-app && CI="$(CI)" $(PNPM) run build:mp-weixin
+	@echo "==> 开始构建：Taro · 微信小程序"
+	@cd taro-app && $(PNPM_RUN) build:mp-weixin
+	@echo "==> 构建完成：Taro · 微信小程序"
 
 # 构建管理后台、uni-app 和 Taro 的全部 H5 产物
 build-h5:
@@ -248,27 +281,35 @@ build-all:
 
 # 构建可供业务后台组合使用的管理端模块包
 build-package:
-	@cd admin && CI="$(CI)" $(PNPM) run build:package
+	@echo "==> 开始构建管理端 npm 包"
+	@cd admin && $(PNPM_RUN) build:package
+	@echo "==> 管理端 npm 包构建完成"
 
 # ===== npm 打包 =====
 
 # 检查并生成管理后台 npm 包
 package-admin:
+	@echo "==> 开始打包管理端 npm 包"
 	@$(MAKE) check-admin
 	@$(MAKE) build-package
 	@for package_dir in admin/packages/core admin/packages/modules/system admin/packages/cli; do \
-		(cd "$$package_dir" && CI="$(CI)" $(PNPM) pack --pack-destination "$(NPM_PACK_DEST)") || exit 1; \
-	done
+		(cd "$$package_dir" && $(PNPM_PACK) --pack-destination "$(NPM_PACK_DEST)") || exit 1; \
+		done
+	@echo "==> 管理端 npm 包打包完成"
 
 # 检查并生成 uni-app npm 包
 package-uni-app:
+	@echo "==> 开始打包 uni-app npm 包"
 	@$(MAKE) check-uni-app
-	@cd uni-app && CI="$(CI)" $(PNPM) run build:packages
+	@cd uni-app && $(PNPM_RUN) build:packages
+	@echo "==> uni-app npm 包打包完成"
 
 # 检查并生成 Taro npm 包
 package-taro-app:
+	@echo "==> 开始打包 Taro npm 包"
 	@$(MAKE) check-taro-app
-	@cd taro-app && CI="$(CI)" $(PNPM) run build:packages
+	@cd taro-app && $(PNPM_RUN) build:packages
+	@echo "==> Taro npm 包打包完成"
 
 # 按管理后台、uni-app、Taro 的顺序检查并生成全部 npm 包
 package:
@@ -323,7 +364,7 @@ help:
 		if (helpMessage) { \
 			helpCommand = substr($$1, 0, index($$1, ":")-1); \
 			helpMessage = substr(lastLine, RSTART + 2, RLENGTH); \
-			printf "\033[36m  %-20s\033[0m %s\n", helpCommand, helpMessage; \
+			printf "  %-20s %s\n", helpCommand, helpMessage; \
 		} \
 	} \
 	{ lastLine = $$0 }' $(MAKEFILE_LIST)

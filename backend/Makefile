@@ -12,6 +12,12 @@
 	gorm-gen api openapi public-wire wire gen \
 	run run-only build package-binary
 
+# 统一递归 Make 输出，避免显示目录进入提示和终端控制符。
+MAKEFLAGS += --no-print-directory
+NO_COLOR := 1
+FORCE_COLOR := 0
+export NO_COLOR FORCE_COLOR
+
 # ===== 运行与构建参数 =====
 
 # 服务入口、配置目录、运行环境和附加运行参数。
@@ -53,11 +59,13 @@ GORM_GEN_DATABASE ?=
 
 # 按顺序安装 protoc 插件和开发命令行工具。
 init:
+	@echo "==> 开始初始化 Backend 工具链"
 	@$(MAKE) plugin
 	@$(MAKE) cli
 
 # 安装 protoc 及项目自定义生成插件。
 plugin:
+	@echo "==> 安装 Backend 代码生成插件"
 	@go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 	@go install github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v3@latest
@@ -74,9 +82,11 @@ plugin:
 	else \
 		go install github.com/liujitcn/kratos-kit/cmd/protoc-gen-go-mcp-tool@latest; \
 	fi
+	@echo "==> Backend 代码生成插件安装完成"
 
 # 安装日常开发、检查和代码生成命令行工具。
 cli:
+	@echo "==> 安装 Backend 开发工具"
 	@go install github.com/go-kratos/kratos/cmd/kratos/v3@latest
 	@go install github.com/google/gnostic@latest
 	@go install github.com/bufbuild/buf/cmd/buf@latest
@@ -91,6 +101,7 @@ cli:
 	else \
 		go install github.com/liujitcn/gorm-kit/gen/cmd/gorm-gen@latest; \
 	fi
+	@echo "==> Backend 开发工具安装完成"
 
 # ===== 格式化与检查 =====
 
@@ -211,6 +222,7 @@ run:
 
 # 刷新 Wire 后构建目标平台可执行文件。
 build:
+	@echo "==> 开始构建 Backend 二进制"
 	@$(MAKE) wire
 	@mkdir -p "$(dir $(BINARY))"
 	@CGO_ENABLED="$(CGO_ENABLED)" GOOS="$(GOOS)" GOARCH="$(GOARCH)" go build $(BUILD_FLAGS) -o "$(BINARY)" "$(SERVER_PACKAGE)"
@@ -218,6 +230,7 @@ build:
 
 # 构建并打包后端二进制与运行配置，供仓库根目录的 package 调用。
 package-binary:
+	@echo "==> 开始打包 Backend 二进制"
 	@$(MAKE) build
 	@mkdir -p "$(dir $(ARCHIVE))"
 	@tar -czf "$(ARCHIVE)" "$(BINARY)" configs migration/assets
@@ -242,7 +255,7 @@ help:
 		if (helpMessage) { \
 			helpCommand = substr($$1, 0, index($$1, ":")-1); \
 			helpMessage = substr(lastLine, RSTART + 2, RLENGTH); \
-			printf "\033[36m  %-20s\033[0m %s\n", helpCommand, helpMessage; \
+			printf "  %-20s %s\n", helpCommand, helpMessage; \
 		} \
 	} \
 	{ lastLine = $$0 }' $(MAKEFILE_LIST)

@@ -49,7 +49,7 @@ make -C .. build-taro-app
 make -C .. package-taro-app
 ```
 
-H5 の既定アドレスは `http://localhost:5002` で、`/api` と `/events` は `http://localhost:7001` へプロキシします。LAN の HTTPS 開発ではルートで `bash scripts/generate-dev-cert.sh 192.168.1.100` を実行し、`.env.development-h5.local` に `VITE_APP_HTTPS=true` を設定します。Backend が `APP_ENV=https` の場合は `VITE_APP_API_URL=https://localhost:7001` に変更します。H5 の本番生成物は `backend/data/taro-app`、WeChat 生成物は `apps/taro-app/dist/mp-weixin` に出力します。
+H5 の既定アドレスは `http://localhost:5002` で、`/api` と `/events` は `http://localhost:7001` へプロキシします。LAN の HTTPS 開発ではルートで `bash scripts/generate-dev-cert.sh 192.168.1.100` を実行し、`.env.development-h5.local` に `VITE_APP_HTTPS=true` を設定します。Backend が `APP_ENV=https` の場合は `VITE_APP_API_URL=https://localhost:7001` に変更します。H5 の本番生成物は `backend/data/taro-app`、WeChat の開発生成物は `apps/taro-app/dist/dev/mp-weixin`、本番生成物は `apps/taro-app/dist/build/mp-weixin` に出力します。開発者ツールは既定で開発ディレクトリを使用します。
 
 設計稿幅は 750 です。uni-app から移行する `rpx` は Taro の設計稿 `px` として記述し、物理ピクセルを維持する元の `px` は Taro に変換させません。固定パスの静的資産は `src/static` に配置し、画面で直接表示する画像は所属パッケージの `static/*` export から静的 import します。
 

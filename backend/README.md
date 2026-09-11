@@ -232,3 +232,5 @@ Kit 的策略解析器同样由 Wire 创建并注入 Core 协议入口和 Admin 
 `base_migration` 的 `up_files`、`down_files`、`description_files` 均为可空 JSON，保存有序的 `{ "path": "v0.0.1/mysql/default_data.up.sql", "sha256": "..." }` 文件引用数组。升级、回退和说明内容由 Core 在详情请求时读取校验，详情接口返回 `files` 数组，每项包含 `path`、`content`，依次列出说明、升级、回退文件，不合并正文。多语言说明在 `base_i18n` 中也只保存文件引用。
 
 历史文件必须保留且不可覆盖，否则详情会明确报错。旧库的三个 longtext 列不会由 AutoMigrate 自动删除或转换；部署新代码前需要备份并转换历史记录，开发环境可使用全新数据库验证。Core 与迁移模块使用正式 tag 依赖，不依赖本地目录。
+
+Backend Makefile 统一关闭递归目录提示和终端颜色，代码生成、检查、构建和打包按阶段输出摘要；失败命令保留原始错误输出。

@@ -21,12 +21,28 @@ function resolveHttpsOptions(env: Record<string, string>, root: string) {
 }
 
 function resolveEnv(mode: string, platform: string): Record<string, string> {
-  const baseEnv = dotenvParse(workspaceRoot, 'VITE_APP_', mode)
-  const platformEnv =
-    platform === 'h5' ? dotenvParse(workspaceRoot, 'VITE_APP_', `${mode}-${platform}`) : {}
   const shellEnv = Object.fromEntries(
     Object.entries(process.env).filter(([key]) => key.startsWith('VITE_APP_')),
   ) as Record<string, string>
+  const parseEnv = (envMode: string) => {
+    const savedEnv = Object.fromEntries(
+      Object.entries(process.env).filter(([key]) => key.startsWith('VITE_APP_')),
+    ) as Record<string, string>
+    try {
+      Object.keys(process.env)
+        .filter((key) => key.startsWith('VITE_APP_'))
+        .forEach((key) => delete process.env[key])
+      return dotenvParse(workspaceRoot, 'VITE_APP_', envMode)
+    } finally {
+      Object.keys(process.env)
+        .filter((key) => key.startsWith('VITE_APP_'))
+        .forEach((key) => delete process.env[key])
+      Object.assign(process.env, savedEnv)
+    }
+  }
+  const baseEnv = parseEnv(mode)
+  const platformEnv =
+    platform === 'h5' ? parseEnv(`${mode}-${platform}`) : {}
   return { ...baseEnv, ...platformEnv, ...shellEnv }
 }
 
@@ -34,9 +50,10 @@ export default defineConfig<'webpack5'>(async (merge) => {
   const mode = process.env.NODE_ENV || 'production'
   const platform = process.env.TARO_ENV || ''
   const env = resolveEnv(mode, platform)
+  const outputMode = mode === 'development' ? 'dev' : 'build'
   const outputRoot =
     process.env.KRATOS_TARO_OUTPUT_ROOT ||
-    (platform === 'h5' ? 'dist/h5' : platform === 'weapp' ? 'dist/mp-weixin' : 'dist')
+    `dist/${outputMode}/${platform === 'weapp' ? 'mp-weixin' : platform || 'h5'}`
   const publicPath = env.VITE_APP_BASE_PATH ?? '/'
   const apiBasePath = env.VITE_APP_BASE_API ?? '/api'
   const apiTargetUrl = env.VITE_APP_API_URL ?? 'http://127.0.0.1:7001'

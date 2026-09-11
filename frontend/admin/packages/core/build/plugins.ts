@@ -46,7 +46,7 @@ export const createVitePlugins = (viteEnv: ViteEnv, options: VitePluginOptions =
     vueJsx(),
     // 自动导入 Vue、Element Plus API 与图标，减少页面重复 import
     AutoImport({
-      dts: options.autoImportDts ?? "types/generated/auto-imports.d.ts",
+      dts: options.autoImportDts ?? false,
       include: sourcePatterns,
       exclude: sourcePatterns ? [/[/\\]\.git[/\\]/] : undefined,
       resolvers: [ElementPlusResolver()],
@@ -54,7 +54,7 @@ export const createVitePlugins = (viteEnv: ViteEnv, options: VitePluginOptions =
     }),
     // 按需解析 Element Plus 组件，避免主入口全量安装 ElementPlus。
     Components({
-      dts: options.componentDts ?? "types/generated/components.d.ts",
+      dts: options.componentDts ?? false,
       dirs: [],
       include: sourcePatterns,
       exclude: sourcePatterns ? [/[/\\]\.git[/\\]/] : undefined,

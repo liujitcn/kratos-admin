@@ -11,7 +11,6 @@ export type AdminAppViteConfigOptions = Pick<AdminViteConfigOptions, "modulePack
 export function defineAdminAppViteConfig(options: AdminAppViteConfigOptions) {
   return defineAdminViteConfig({
     ...options,
-    componentDts: resolve(currentDirectory, "../../../packages/core/types/generated/components.d.ts"),
     outputDirectory: resolve(currentDirectory, "../../../../../backend/data/admin")
   });
 }

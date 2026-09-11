@@ -13,6 +13,12 @@
 	docker-check docker-config docker-build docker-run docker-stop \
 	tag
 
+# 统一递归 Make 输出，避免显示目录进入提示和终端控制符。
+MAKEFLAGS += --no-print-directory
+NO_COLOR := 1
+FORCE_COLOR := 0
+export NO_COLOR FORCE_COLOR
+
 # ===== 公共路径与参数 =====
 
 BACKEND_DIR ?= backend
@@ -80,6 +86,7 @@ hooks:
 
 # 按后端、前端、语言包和 OpenAPI 的顺序生成全仓产物。
 gen:
+	@echo "==> 开始生成全仓代码与文档产物"
 	@$(MAKE) -C "$(BACKEND_DIR)" gen
 	@$(MAKE) -C "$(FRONTEND_DIR)" ts
 	@$(MAKE) i18n
@@ -87,6 +94,7 @@ gen:
 
 # 按 Backend、Frontend 和国际化一致性的顺序执行全仓检查。
 check:
+	@echo "==> 开始检查全仓代码与文档"
 	@$(MAKE) -C "$(BACKEND_DIR)" check
 	@$(MAKE) -C "$(FRONTEND_DIR)" check
 	@$(MAKE) i18n-check
@@ -96,12 +104,14 @@ check:
 
 # 只构建后端二进制。
 build-backend:
+	@echo "==> 开始构建 Backend"
 	@$(MAKE) -C "$(BACKEND_DIR)" build \
 		CGO_ENABLED="$(CGO_ENABLED)" GOOS="$(GOOS)" GOARCH="$(GOARCH)" \
 		BUILD_FLAGS="$(BUILD_FLAGS)" BINARY="$(BINARY)"
 
 # 只构建三个前端 H5 宿主；微信小程序产物由 frontend/build-mp-weixin 单独构建。
 build-frontend:
+	@echo "==> 开始构建 Frontend H5"
 	@$(MAKE) -C "$(FRONTEND_DIR)" build-h5
 
 # 构建后端二进制和三个前端 H5 宿主。
@@ -110,6 +120,7 @@ build: build-backend build-frontend
 
 # 打包后端二进制与运行配置。
 package-backend:
+	@echo "==> 开始打包 Backend"
 	@$(MAKE) -C "$(BACKEND_DIR)" package-binary \
 		CGO_ENABLED="$(CGO_ENABLED)" GOOS="$(GOOS)" GOARCH="$(GOARCH)" \
 		BUILD_FLAGS="$(BUILD_FLAGS)" BINARY="$(BINARY)" \
@@ -117,6 +128,7 @@ package-backend:
 
 # 打包全部前端 npm 包。
 package-frontend:
+	@echo "==> 开始打包 Frontend npm 包"
 	@$(MAKE) -C "$(FRONTEND_DIR)" package
 
 # 按后端压缩包、前端 npm 包的顺序完成统一打包。
@@ -127,13 +139,17 @@ package: package-backend package-frontend
 
 # 只读检查全部语言包、注册文件、SQL 翻译和 OpenAPI。
 i18n-check:
+	@echo "==> 检查国际化资源"
 	@$(PYTHON) scripts/verify_i18n.py \
 		--source-locale "$(I18N_SOURCE_LOCALE)" \
 		--locales "$(I18N_LOCALES)"
+	@echo "==> 国际化资源检查完成"
 
 # 同步语言包集合、前端注册文件和代码生成语言目录。
 _i18n-sync:
+	@echo "==> 同步国际化资源"
 	@$(PYTHON) scripts/sync_locales.py --write $(if $(strip $(I18N_MIGRATION_VERSION)),--migration-version "$(I18N_MIGRATION_VERSION)",)
+	@echo "==> 国际化资源同步完成"
 
 # 新增指定语言的翻译草稿和初始化译文（需人工复核）。
 i18n-add:
@@ -148,6 +164,7 @@ i18n-add:
 
 # 生成 OpenAPI 源文档和多语言 YAML。
 _i18n-openapi:
+	@echo "==> 生成多语言 OpenAPI 文档"
 	@$(MAKE) -C "$(BACKEND_DIR)" openapi
 	@$(PYTHON) scripts/generate_openapi_locales.py \
 		--input "$(OPENAPI_INPUT)" \
@@ -196,7 +213,7 @@ docker-build: docker-check
 	@$(MAKE) -C "$(BACKEND_DIR)" build \
 		CGO_ENABLED="$(CGO_ENABLED)" GOOS=linux GOARCH="$(GOARCH)" \
 		BUILD_FLAGS="$(BUILD_FLAGS)" BINARY="$(BINARY)"
-	@"$(DOCKER)" build $(DOCKER_BUILD_ARGS) --platform "$(DOCKER_PLATFORM)" -f "$(DOCKERFILE)" -t "$(IMAGE):$(TAG)" "$(DOCKER_CONTEXT)"
+	@BUILDKIT_PROGRESS=plain "$(DOCKER)" build $(DOCKER_BUILD_ARGS) --platform "$(DOCKER_PLATFORM)" -f "$(DOCKERFILE)" -t "$(IMAGE):$(TAG)" "$(DOCKER_CONTEXT)"
 	@echo "==> Docker 镜像已生成: $(IMAGE):$(TAG)"
 
 # 使用宿主机数据和配置目录启动容器。
@@ -275,7 +292,7 @@ help:
 		if (helpMessage && $$1 !~ /^_/) { \
 			helpCommand = substr($$1, 0, index($$1, ":")-1); \
 			helpMessage = substr(lastLine, RSTART + 2, RLENGTH); \
-			printf "\033[36m  %-20s\033[0m %s\n", helpCommand, helpMessage; \
+			printf "  %-20s %s\n", helpCommand, helpMessage; \
 		} \
 	} \
 	{ lastLine = $$0 }' $(MAKEFILE_LIST)

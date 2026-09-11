@@ -4,17 +4,17 @@
   "private": true,
   "packageManager": "pnpm@10.13.1",
   "scripts": {
-    "prepare:modules": "turbo run build:entries --filter=@liujitcn/kratos-uni-app-system",
-    "dev:h5": "turbo run dev:h5 --filter=@liujitcn/kratos-uni-app",
-    "dev:mp-weixin": "turbo run dev:mp-weixin --filter=@liujitcn/kratos-uni-app",
-    "build:h5": "turbo run build:h5 --filter=@liujitcn/kratos-uni-app",
-    "build:mp-weixin": "turbo run build:mp-weixin --filter=@liujitcn/kratos-uni-app",
-    "build:packages": "turbo run build --concurrency=1 --filter=@liujitcn/kratos-uni-app-core --filter=@liujitcn/kratos-uni-app-system --filter=@liujitcn/kratos-uni-app-cli",
+    "prepare:modules": "turbo run build:entries --filter=@liujitcn/kratos-uni-app-system --ui=stream --log-order=grouped --log-prefix=none --no-color --output-logs=errors-only",
+    "dev:h5": "turbo run dev:h5 --filter=@liujitcn/kratos-uni-app --ui=stream --log-order=stream --log-prefix=task --no-color",
+    "dev:mp-weixin": "turbo run dev:mp-weixin --filter=@liujitcn/kratos-uni-app --ui=stream --log-order=stream --log-prefix=task --no-color",
+    "build:h5": "turbo run build:h5 --filter=@liujitcn/kratos-uni-app --ui=stream --log-order=grouped --log-prefix=none --no-color --output-logs=errors-only",
+    "build:mp-weixin": "turbo run build:mp-weixin --filter=@liujitcn/kratos-uni-app --ui=stream --log-order=grouped --log-prefix=none --no-color --output-logs=errors-only",
+    "build:packages": "turbo run build --concurrency=1 --filter=@liujitcn/kratos-uni-app-core --filter=@liujitcn/kratos-uni-app-system --filter=@liujitcn/kratos-uni-app-cli --ui=stream --log-order=grouped --log-prefix=none --no-color --output-logs=errors-only",
     "generate:rpc": "make -C .. ts-uni-app",
     "check:exports": "pnpm run prepare:modules && node scripts/check-package-exports.mjs",
     "test": "pnpm run prepare:modules && node --test packages/core/test/*.test.mjs packages/cli/test/*.test.mjs",
     "lint": "eslint . --fix",
-    "tsc": "turbo run tsc --filter=@liujitcn/kratos-uni-app"
+    "tsc": "turbo run tsc --filter=@liujitcn/kratos-uni-app --ui=stream --log-order=grouped --log-prefix=none --no-color --output-logs=errors-only"
   },
   "devDependencies": {
     "@dcloudio/types": "^3.4.8",

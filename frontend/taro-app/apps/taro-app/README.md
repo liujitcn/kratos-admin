@@ -24,7 +24,7 @@ apps/taro-app
 
 模块清单顺序决定页面、`viewKey` 和图标的覆盖优先级。新增业务模块时把依赖加入宿主并在 `module-manifest.ts` 静态导入；不要把模块页面复制到宿主，也不要提交 runner 生成的 wrapper、config 或 static 文件。
 
-H5 构建默认输出到 `backend/data/taro-app` 并使用 `/taro-app/` 公共路径。微信小程序开发和生产产物统一输出到 `apps/taro-app/dist/mp-weixin`，微信开发者工具导入该目录即可。开发时 H5 和微信小程序可以同时运行，页面装配由 runner 共享，构建产物分别写入 `dist/h5` 和 `dist/mp-weixin`。
+H5 生产构建默认输出到 `backend/data/taro-app` 并使用 `/taro-app/` 公共路径。开发产物分别写入 `dist/dev/h5` 和 `dist/dev/mp-weixin`；微信小程序生产产物写入 `dist/build/mp-weixin`。微信开发者工具导入宿主时默认使用开发目录，发布时导入 `dist/build/mp-weixin`。H5 和微信小程序可以同时开发，页面装配由 runner 共享。自定义 `KRATOS_TARO_OUTPUT_ROOT` 优先于默认目录。
 
 环境文件位于 workspace 根目录，变量名与 uni-app 保持一致：`VITE_APP_PORT`、`VITE_APP_BASE_PATH`、`VITE_APP_BASE_API`、`VITE_APP_API_URL`、`VITE_APP_STATIC_API`、`VITE_APP_STATIC_URL`。H5 会在基础模式文件上叠加对应的 `*-h5` 文件。
 

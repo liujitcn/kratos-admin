@@ -223,20 +223,39 @@ test('H5 转换 npm 业务包尺寸，保留第三方组件的原始样式', asy
       compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: true },
     }).outputText
     const exports = {}
+    const runtimeProcess = { env: { NODE_ENV: 'production', TARO_ENV: 'h5' } }
     vm.runInNewContext(code, {
       exports,
       __dirname: resolve(target, 'apps/taro-app/config'),
-      process: { env: { NODE_ENV: 'production', TARO_ENV: 'h5' } },
+      process: runtimeProcess,
       require(name) {
         if (name === 'node:module') return { createRequire: () => ({ resolve: specifier => resolve(target, 'node_modules', specifier) }) }
         if (name === 'node:path') return { resolve, dirname }
         if (name === 'node:fs') return { existsSync: () => false }
-        if (name === '@tarojs/helper') return { dotenvParse: () => ({}) }
+        if (name === '@tarojs/helper') {
+          return {
+            dotenvParse: (_root, _prefix, mode) => {
+              if (mode === 'production') {
+                runtimeProcess.env.VITE_APP_API_URL = 'http://192.168.60.52:7001'
+                return { VITE_APP_API_URL: runtimeProcess.env.VITE_APP_API_URL }
+              }
+              return {
+                VITE_APP_BASE_PATH: '/taro-app/',
+                VITE_APP_BASE_API: '/api',
+                VITE_APP_API_URL: '',
+                VITE_APP_STATIC_API: '',
+                VITE_APP_STATIC_URL: '',
+              }
+            },
+          }
+        }
         if (name === '@tarojs/cli') return { defineConfig: value => value }
         return {}
       },
     })
     const config = await exports.default((...values) => Object.assign({}, ...values))
+    assert.equal(config.defineConstants['process.env.VITE_APP_API_URL'], '""')
+    assert.equal(config.defineConstants['process.env.VITE_APP_STATIC_URL'], '""')
     const platformRequire = createRequire(require.resolve('@tarojs/plugin-platform-h5/package.json'))
     const runnerRoot = dirname(platformRequire.resolve('@tarojs/webpack5-runner/package.json'))
     const runnerRequire = createRequire(resolve(runnerRoot, 'package.json'))

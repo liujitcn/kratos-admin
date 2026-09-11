@@ -49,7 +49,7 @@ core 不依赖 UI 或业务模块；system 只通过 core 和 UI 的公开 expor
 
 页面 wrapper 统一挂载自绘 `KratosTabBar`；固定首页和我的页同时注册为隐藏的原生 tab 路由，切换时使用 `switchTab` 保持微信原生效果，动态扩展 tab 再复用页面栈。普通页面优先使用 `navigateTo`，下级页面会沿父级关系归属并高亮对应 tab。
 
-异常退出后，下次命令会根据 `.kratos-taro-app-pages-state.json` 自动恢复。H5 和微信小程序开发进程可以同时持有同一份页面装配事务；所有进程退出后，runner 才恢复宿主文件。两个目标的默认产物目录分别是 `dist/h5` 和 `dist/mp-weixin`。
+异常退出后，下次命令会根据 `.kratos-taro-app-pages-state.json` 自动恢复。H5 和微信小程序开发进程可以同时持有同一份页面装配事务；所有进程退出后，runner 才恢复宿主文件。开发产物分别写入 `dist/dev/h5` 和 `dist/dev/mp-weixin`，生产默认写入 `dist/build/h5` 和 `dist/build/mp-weixin`；显式设置 `KRATOS_TARO_OUTPUT_ROOT` 时优先使用该目录。
 
 ## 开发与构建
 
@@ -74,7 +74,7 @@ make -C .. package-taro-app
 - H5 开发地址默认是 `http://localhost:5002`，`/api` 和 `/events` 代理到 `http://localhost:7001`。
 - H5 通过局域网 IP 访问时，先在仓库根目录运行 `bash scripts/generate-dev-cert.sh 192.168.1.100` 生成共享证书，再在 `.env.development-h5.local` 中设置 `VITE_APP_HTTPS=true`；若后端使用 `APP_ENV=https`，同时将 `VITE_APP_API_URL` 改为 `https://localhost:7001`。证书默认读取仓库根 `certs/dev-key.pem` 和 `certs/dev-cert.pem`。
 - H5 生产产物写入 `backend/data/taro-app`，访问地址是 `/taro-app/`。
-- 微信小程序开发和生产产物统一写入 `apps/taro-app/dist/mp-weixin`，微信开发者工具可直接导入该目录。
+- 微信小程序开发产物写入 `apps/taro-app/dist/dev/mp-weixin`，生产产物写入 `apps/taro-app/dist/build/mp-weixin`。微信开发者工具导入宿主时默认使用开发目录；发布时导入生产目录。
 - 环境文件位于 workspace 根目录，变量名与 uni-app 保持一致：`VITE_APP_PORT`、`VITE_APP_BASE_PATH`、`VITE_APP_BASE_API`、`VITE_APP_API_URL`、`VITE_APP_STATIC_API`、`VITE_APP_STATIC_URL`。H5 会在基础模式文件上叠加 `.env.development-h5` 或 `.env.production-h5`。
 - `KRATOS_TARO_OUTPUT_ROOT` 仅用于覆盖构建输出目录，不属于 API 环境变量。
 
@@ -148,3 +148,5 @@ CLI 直接生成完整宿主、本地业务模块、四种语言源文件与注�
 H5 宿主通过 `esnextModules` 将已装配 npm 源码包加入 Taro 样式处理，确保 px 按 750 设计稿转换为 rem；仅设置脚本的 `compile.include` 无法覆盖样式转换。第三方组件仍遵循 Taro 默认处理规则。
 
 H5 自绘底部 tab 使用 reLaunch 直接切换，避免消息中心与“我的”之间出现普通页面栈的左右滑动；详情页保留 navigateTo，微信端保持原有导航策略。
+
+构建日志使用 Turbo 普通文本界面，按任务分组输出并关闭颜色，适用于终端和 IDE 控制台。仓库统一构建入口会显示各平台的开始与完成阶段。

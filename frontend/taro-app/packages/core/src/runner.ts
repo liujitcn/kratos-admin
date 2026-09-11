@@ -128,7 +128,7 @@ async function main(): Promise<void> {
         NODE_ENV: options.mode === 'development' ? 'development' : 'production',
         KRATOS_TARO_OUTPUT_ROOT:
           process.env.KRATOS_TARO_OUTPUT_ROOT ||
-          (options.type === 'h5' ? 'dist/h5' : 'dist/mp-weixin'),
+          `dist/${options.mode === 'development' ? 'dev' : 'build'}/${options.type === 'h5' ? 'h5' : 'mp-weixin'}`,
       },
       stdio: 'inherit',
     })

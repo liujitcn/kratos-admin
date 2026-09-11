@@ -117,6 +117,8 @@ pnpm build:mp-weixin
 pnpm tsc
 \`\`\`
 
+开发产物位于 apps/taro-app/dist/dev/<平台>，生产产物位于 apps/taro-app/dist/build/<平台>（平台为 h5 或 mp-weixin）；Kratos 配套项目的 H5 生产产物输出到 backend/data/taro-app。微信开发者工具默认使用 dist/dev/mp-weixin，发布时导入 dist/build/mp-weixin。
+
 模块装配入口是 \`apps/taro-app/src/module-manifest.ts\`。模块顺序决定静态视图覆盖优先级；新增页面时同步维护模块自己的 \`src/pages.ts\` 和视图映射。
 
 环境文件位于 workspace 根目录，变量名与 uni-app 保持一致：\`VITE_APP_PORT\`、\`VITE_APP_BASE_PATH\`、\`VITE_APP_BASE_API\`、\`VITE_APP_API_URL\`、\`VITE_APP_STATIC_API\`、\`VITE_APP_STATIC_URL\`。H5 会在基础模式文件上叠加对应的 \`*-h5\` 文件。
@@ -209,6 +211,8 @@ function writeHost(target, projectName, modules, packages, options) {
 
 \`apps/taro-app\` 是 \`${projectName}\` 的私有 Taro React 宿主，负责装配模块并提供 H5、微信小程序构建入口，不承载可复用业务实现。
 
+开发产物位于 apps/taro-app/dist/dev/<平台>，生产产物位于 apps/taro-app/dist/build/<平台>（平台为 h5 或 mp-weixin）；Kratos 配套项目的 H5 生产产物输出到 backend/data/taro-app。微信开发者工具默认使用 dist/dev/mp-weixin，发布时导入 dist/build/mp-weixin。
+
 固定启动页位于 \`src/pages/bootstrap\`。其他模块页面由 core runner 在构建期间临时生成包装器、页面配置与静态资源，构建结束后会自动恢复宿主目录。
 
 通过局域网 IP 访问 H5 时，可复用仓库根 certs 下的共享证书，并在 .env.development-h5.local 中设置 VITE_APP_HTTPS=true；后端使用 HTTPS 时同步设置 VITE_APP_API_URL=https://localhost:7001。
@@ -241,7 +245,7 @@ function writeHost(target, projectName, modules, packages, options) {
     target,
     'apps/taro-app/project.config.json',
     json({
-      miniprogramRoot: './dist/build/mp-weixin',
+      miniprogramRoot: './dist/dev/mp-weixin',
       projectname: projectName,
       description: `${projectName} Taro React application`,
       appid: '',
@@ -471,12 +475,28 @@ function resolveHttpsOptions(env: Record<string, string>, root: string) {
 }
 
 function resolveEnv(mode: string, platform: string): Record<string, string> {
-  const baseEnv = dotenvParse(workspaceRoot, 'VITE_APP_', mode)
-  const platformEnv =
-    platform === 'h5' ? dotenvParse(workspaceRoot, 'VITE_APP_', \`\${mode}-\${platform}\`) : {}
   const shellEnv = Object.fromEntries(
     Object.entries(process.env).filter(([key]) => key.startsWith('VITE_APP_')),
   ) as Record<string, string>
+  const parseEnv = (envMode: string) => {
+    const savedEnv = Object.fromEntries(
+      Object.entries(process.env).filter(([key]) => key.startsWith('VITE_APP_')),
+    ) as Record<string, string>
+    try {
+      Object.keys(process.env)
+        .filter((key) => key.startsWith('VITE_APP_'))
+        .forEach((key) => delete process.env[key])
+      return dotenvParse(workspaceRoot, 'VITE_APP_', envMode)
+    } finally {
+      Object.keys(process.env)
+        .filter((key) => key.startsWith('VITE_APP_'))
+        .forEach((key) => delete process.env[key])
+      Object.assign(process.env, savedEnv)
+    }
+  }
+  const baseEnv = parseEnv(mode)
+  const platformEnv =
+    platform === 'h5' ? parseEnv(\`\${mode}-\${platform}\`) : {}
   return { ...baseEnv, ...platformEnv, ...shellEnv }
 }
 
@@ -484,13 +504,10 @@ export default defineConfig<'webpack5'>(async (merge) => {
   const mode = process.env.NODE_ENV || 'production'
   const platform = process.env.TARO_ENV || ''
   const env = resolveEnv(mode, platform)
+  const outputMode = mode === 'development' ? 'dev' : 'build'
   const outputRoot =
     process.env.KRATOS_TARO_OUTPUT_ROOT ||
-    (platform === 'h5'
-      ? 'dist/h5'
-      : platform === 'weapp'
-        ? 'dist/mp-weixin'
-        : 'dist')
+    'dist/' + outputMode + '/' + (platform === 'weapp' ? 'mp-weixin' : platform || 'h5')
   const publicPath = env.VITE_APP_BASE_PATH ?? '/'
   const apiBasePath = env.VITE_APP_BASE_API ?? '/api'
   const apiTargetUrl = env.VITE_APP_API_URL ?? 'http://localhost:7001'

@@ -38,3 +38,5 @@ CLI 直接生成完整宿主、本地业务模块、四种语言源文件与注�
 新增语言或修改语言文件后运行 `pnpm i18n:sync`；`pnpm i18n:check` 校验注册文件是否同步。
 
 H5 宿主通过 `esnextModules` 将已装配 npm 源码包加入 Taro 样式处理，确保 px 按 750 设计稿转换为 rem；仅设置脚本的 `compile.include` 无法覆盖样式转换。第三方组件仍遵循 Taro 默认处理规则。
+
+构建产物按模式与平台隔离：开发使用 `dist/dev/h5`、`dist/dev/mp-weixin`，生产默认使用 `dist/build/h5`、`dist/build/mp-weixin`。`KRATOS_TARO_OUTPUT_ROOT` 可覆盖默认目录；仓库宿主及 Kratos 配套项目的 H5 生产构建输出到 `backend/data/taro-app`。微信开发者工具默认指向开发目录，发布时导入生产目录。
