@@ -154,11 +154,21 @@ func (x *BaseMigration) Redact() {
 
 	// Safe field: Version
 
-	// Safe field: UpSql
-
-	// Safe field: DownSql
-
-	// Safe field: Description
+	// Safe field: Files
 
 	// Safe field: CreatedAt
+}
+
+// Ensure BaseMigrationFile implements the Redactor interface at compile time.
+var _ redact.Redactor = (*BaseMigrationFile)(nil)
+
+// Redact method implementation for BaseMigrationFile
+func (x *BaseMigrationFile) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Path
+
+	// Safe field: Content
 }

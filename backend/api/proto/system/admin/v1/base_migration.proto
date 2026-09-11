@@ -74,12 +74,14 @@ message BaseMigration {
 
   string version = 4 [(gnostic.openapi.v3.property) = {description: "迁移版本"}]; // 迁移版本
 
-  string up_sql = 5 [(gnostic.openapi.v3.property) = {description: "升级脚本"}]; // 升级脚本
+  repeated BaseMigrationFile files = 5 [(gnostic.openapi.v3.property) = {description: "迁移文件列表"}]; // 迁移文件列表
 
-  string down_sql = 6 [(gnostic.openapi.v3.property) = {description: "回退脚本"}]; // 回退脚本
+  string created_at = 6 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+}
 
-  string description = 7 [(gnostic.openapi.v3.property) = {description: "升级描述"}]; // 升级描述
+// 数据库迁移文件内容
+message BaseMigrationFile {
+  string path = 1 [(gnostic.openapi.v3.property) = {description: "文件相对路径"}]; // 文件相对路径
 
-  string created_at = 8 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
-
+  string content = 2 [(gnostic.openapi.v3.property) = {description: "文件内容"}]; // 文件内容
 }
