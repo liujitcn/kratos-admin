@@ -21,6 +21,7 @@ import (
 	"github.com/liujitcn/kratos-core/module"
 	"github.com/liujitcn/kratos-core/queue"
 	"github.com/liujitcn/kratos-core/resource/i18n"
+	"github.com/liujitcn/kratos-core/resource/migration"
 	"github.com/liujitcn/kratos-core/resource/openapi"
 	coreSSE "github.com/liujitcn/kratos-core/sse"
 	configv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
@@ -32,6 +33,7 @@ import (
 
 // BuildModules 使用宿主共享的任务管理器装配 Admin 协议服务。
 func BuildModules(
+	migrations *migration.Migration,
 	config *configv1.Bootstrap,
 	databases map[string]*gorm.Client,
 	baseCase *coreBiz.BaseCase,

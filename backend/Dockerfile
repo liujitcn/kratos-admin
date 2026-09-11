@@ -8,6 +8,7 @@ WORKDIR /app
 
 COPY bin/server ./server
 COPY configs ./configs
+COPY migration/assets ./migration/assets
 COPY data/admin /opt/kratos-admin/static/admin
 COPY data/uni-app /opt/kratos-admin/static/uni-app
 COPY data/taro-app /opt/kratos-admin/static/taro-app

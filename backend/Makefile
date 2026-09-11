@@ -220,7 +220,7 @@ build:
 package-binary:
 	@$(MAKE) build
 	@mkdir -p "$(dir $(ARCHIVE))"
-	@tar -czf "$(ARCHIVE)" "$(BINARY)" configs
+	@tar -czf "$(ARCHIVE)" "$(BINARY)" configs migration/assets
 	@echo "==> 后端发布压缩包已生成: $(ARCHIVE)"
 
 # ===== 帮助 =====

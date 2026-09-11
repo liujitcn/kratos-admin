@@ -1,21 +1,18 @@
 package migration
 
 import (
-	"embed"
 	"io/fs"
+	"os"
 )
 
 // ModuleName 是 Admin 迁移在 Core 资源注册表中的稳定模块名。
 const ModuleName = "admin"
 
-//go:embed assets/*
-var baseMigrationFS embed.FS
-
-// Assets 返回 Admin 迁移脚本文件系统，交由 Core 统一注册和执行。
+// Assets 返回部署目录中的迁移文件系统，可通过 ADMIN_MIGRATION_DIR 指定绝对路径。
 func Assets() fs.FS {
-	value, err := fs.Sub(baseMigrationFS, "assets")
-	if err != nil {
-		panic(err)
+	directory := os.Getenv("ADMIN_MIGRATION_DIR")
+	if directory == "" {
+		directory = "migration/assets"
 	}
-	return value
+	return os.DirFS(directory)
 }

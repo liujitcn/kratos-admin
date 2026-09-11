@@ -568,12 +568,13 @@ github.com/lithammer/shortuuid/v4 v4.2.0/go.mod h1:D5noHZ2oFw/YaKCfGy0YxyE7M0wMb
 github.com/liujitcn/go-utils v0.0.36/go.mod h1:7QojK9b2R4p0wrBPYTkkK7372mGVUhO8QseAZpHuhOs=
 github.com/liujitcn/go-utils/crypto v0.0.14/go.mod h1:v4O28b9gkAJFRLvQf2CkwcMKr3lWFJc+kIJ12B5njQw=
 github.com/liujitcn/go-utils/http v0.0.5/go.mod h1:0OZD9Mc75BOE3thAPJgICwS9ADUkFq7zsbbVAwrAx3o=
+github.com/liujitcn/kratos-admin/backend/api v0.0.9/go.mod h1:JrREJwDjiZF1z1aPky8df+TbY3rhtlYyHzmkQp7Tqrs=
 github.com/liujitcn/kratos-core v0.0.11/go.mod h1:H2DSh3v3HihsI9uBNWYRCNoO8eO1QSLIdyvLypNRRUc=
 github.com/liujitcn/kratos-core v0.0.18 h1:7Dnm4C4Q9zQ9IYAmSQd/zXkMM3n6YAGgU0v5EM1Iz1Y=
 github.com/liujitcn/kratos-core v0.0.20/go.mod h1:d3LceIHoag4c0OyrFc1W4+zFKw8XUDADALbgymzrIEg=
 github.com/liujitcn/kratos-core v0.0.27 h1:sJ6SCxj6+u7xlVn8aughyKD9DMYtaraVJG1JEsYwZXY=
 github.com/liujitcn/kratos-core v0.0.27/go.mod h1:+y6drrYj2crkgGdRKErubK544Qu5+qNPUuO23B4wONA=
-github.com/liujitcn/kratos-core v0.0.30/go.mod h1:QAVSYzdSESczf8lv3uxe+hwoUvzpzQyDfwL/m3khFGo=
+github.com/liujitcn/kratos-core v0.0.31/go.mod h1:ynZoLYRF1a2gCJC1AKQeVDe7ZWh63M+jD7frjqob51Q=
 github.com/liujitcn/kratos-kit v0.0.77 h1:ackZEFBpGlFdjtFUViFNqCPFRsqkz89l4zngrq+1WOk=
 github.com/liujitcn/kratos-kit v0.0.77/go.mod h1:Ro3Mxzd/PeoYxT6U2ymbCkHuh/5BfwwXZfhbiLuypbQ=
 github.com/liujitcn/kratos-kit v0.0.78/go.mod h1:6ZBD560uuHr6pnAIfESCSPnAEBPIjHbFYG4RbSupFgM=
@@ -592,6 +593,7 @@ github.com/liujitcn/kratos-kit/cache v0.0.21/go.mod h1:2kXaQantBLp8NIgrtz74gCqYU
 github.com/liujitcn/kratos-kit/config v0.0.26/go.mod h1:ryrnByqp/2fiyctxjYxf91oWQlOe0b0kbzDEJcBf8xM=
 github.com/liujitcn/kratos-kit/database/gorm v0.0.42/go.mod h1:vXskgdI9piNvIu+2QYZkH510AukpK8930Uq9wcCDINs=
 github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.18/go.mod h1:G67HTt/Ggz7VzZEihT2XIgRcS9PeERu5cExOsjj2cZo=
+github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.16/go.mod h1:KeOMS4kacpLKNtOPyivu/r1ZJAlqT+8aYPAxe+keYng=
 github.com/liujitcn/kratos-kit/locker v0.0.17/go.mod h1:ZOJzJPJS8uOf1UO1s+LP2UaKq+SplTccYFm666pz7uM=
 github.com/liujitcn/kratos-kit/oss v0.0.18/go.mod h1:MdraQGOcPGRmCSha+xQNLTCHg5eqfTJLKRGgEe5S/CM=
 github.com/liujitcn/kratos-kit/oss/s3 v0.0.3/go.mod h1:e+hEw0zxG4td5jBL9SHhj35m1wc60FXK2mh6sFgkmDE=

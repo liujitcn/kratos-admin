@@ -28,8 +28,12 @@
           />
         </el-form-item>
         <el-form-item class="migration-filters__actions">
-          <el-button type="primary" :icon="Search" native-type="submit">{{ t("common.action.search") }}</el-button>
-          <el-button :icon="Refresh" @click="handleReset">{{ t("common.action.reset") }}</el-button>
+          <el-button type="primary" native-type="submit"
+            ><template #icon><Search /></template>{{ t("common.action.search") }}</el-button
+          >
+          <el-button @click="handleReset"
+            ><template #icon><Refresh /></template>{{ t("common.action.reset") }}</el-button
+          >
         </el-form-item>
       </el-form>
 
@@ -58,7 +62,9 @@
           </div>
 
           <div v-if="pageable.total > pageable.page_size" class="migration-pagination">
-            <span class="migration-pagination__total">{{ t("system.base.migration.message.total", { total: pageable.total }) }}</span>
+            <span class="migration-pagination__total">{{
+              t("system.base.migration.message.total", { total: pageable.total })
+            }}</span>
             <el-pagination
               background
               small
@@ -77,88 +83,56 @@
             <el-skeleton :rows="8" animated />
           </div>
           <template v-else-if="selectedMigration">
-            <header class="detail-header">
-              <div class="detail-header__title">
-                <span class="detail-header__data-source">
-                  {{ selectedMigration.module || t("system.base.migration.value.default_module") }} ·
-                  {{ selectedMigration.data_source || "default" }}
-                </span>
-                <div class="detail-header__version">
-                  <h2>{{ selectedMigration.version }}</h2>
-                </div>
-              </div>
-              <div class="detail-header__meta">
-                <time :datetime="selectedMigration.created_at">{{ selectedMigration.created_at }}</time>
-              </div>
-            </header>
-
             <div v-loading="detailLoading" class="detail-scroll">
               <template v-if="!detailLoading">
-                <section v-if="selectedMigration.description" class="detail-section">
-                  <div class="detail-section__title">
-                    <el-icon><Document /></el-icon>
-                    <span>{{ t("system.base.migration.section.description") }}</span>
-                  </div>
-                  <MarkdownPreview
-                    class="migration-markdown"
-                    :model-value="selectedMigration.description"
-                    :is-dark="globalStore.isDark"
-                    max-code-height="360px"
-                  />
-                </section>
-
-                <section v-if="selectedMigration.up_sql || selectedMigration.down_sql" class="detail-section">
-                  <div class="detail-section__title">
-                    <el-icon><Files /></el-icon>
-                    <span>{{ t("system.base.migration.section.sql") }}</span>
-                  </div>
-                  <el-collapse class="release-sql">
-                    <el-collapse-item v-if="selectedMigration.up_sql" name="up">
-                      <template #title>
-                        <span class="sql-title">
-                          <el-icon><DocumentAdd /></el-icon>
-                          <span>{{ t("system.base.migration.field.up_script") }}</span>
-                          <code>up.sql</code>
-                        </span>
-                      </template>
-                      <div class="sql-panel">
-                        <pre class="sql-code"><code>{{ selectedMigration.up_sql }}</code></pre>
-                        <el-tooltip :content="t('system.base.migration.action.copy_up_script')" placement="top">
+                <el-tabs v-if="hasDetailContent" v-model="activeFilePath" class="migration-file-tabs">
+                  <el-tab-pane
+                    v-for="file in selectedMigration.files"
+                    :key="file.path"
+                    :name="file.path"
+                    :label="file.path.split('/').pop()"
+                    lazy
+                  >
+                    <template v-if="activeFilePath === file.path">
+                      <div class="migration-file-path">{{ file.path }}</div>
+                      <MarkdownPreview
+                        v-if="file.path.endsWith('.md')"
+                        class="migration-markdown"
+                        :model-value="file.content"
+                        :is-dark="globalStore.isDark"
+                        max-code-height="360px"
+                      />
+                      <div v-else class="sql-panel">
+                        <pre class="sql-code"><code>{{ file.content }}</code></pre>
+                        <el-tooltip
+                          :content="
+                            t(
+                              file.path.endsWith('.down.sql')
+                                ? 'system.base.migration.action.copy_down_script'
+                                : 'system.base.migration.action.copy_up_script'
+                            )
+                          "
+                          placement="top"
+                        >
                           <el-button
                             class="sql-copy"
                             text
                             circle
-                            :icon="CopyDocument"
-                            :aria-label="t('system.base.migration.action.copy_up_script')"
-                            @click.stop="copySql(selectedMigration.up_sql)"
-                          />
+                            :aria-label="
+                              t(
+                                file.path.endsWith('.down.sql')
+                                  ? 'system.base.migration.action.copy_down_script'
+                                  : 'system.base.migration.action.copy_up_script'
+                              )
+                            "
+                            @click="copySql(file.content)"
+                            ><template #icon><CopyDocument /></template
+                          ></el-button>
                         </el-tooltip>
                       </div>
-                    </el-collapse-item>
-                    <el-collapse-item v-if="selectedMigration.down_sql" name="down">
-                      <template #title>
-                        <span class="sql-title">
-                          <el-icon><DocumentRemove /></el-icon>
-                          <span>{{ t("system.base.migration.field.down_script") }}</span>
-                          <code>down.sql</code>
-                        </span>
-                      </template>
-                      <div class="sql-panel">
-                        <pre class="sql-code"><code>{{ selectedMigration.down_sql }}</code></pre>
-                        <el-tooltip :content="t('system.base.migration.action.copy_down_script')" placement="top">
-                          <el-button
-                            class="sql-copy"
-                            text
-                            circle
-                            :icon="CopyDocument"
-                            :aria-label="t('system.base.migration.action.copy_down_script')"
-                            @click.stop="copySql(selectedMigration.down_sql)"
-                          />
-                        </el-tooltip>
-                      </div>
-                    </el-collapse-item>
-                  </el-collapse>
-                </section>
+                    </template>
+                  </el-tab-pane>
+                </el-tabs>
 
                 <div v-if="!hasDetailContent" class="detail-empty">
                   <el-icon><Document /></el-icon>
@@ -176,7 +150,6 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from "vue";
-import { CopyDocument, Document, DocumentAdd, DocumentRemove, Files, Refresh, Search } from "@element-plus/icons-vue";
 import MarkdownPreview from "@liujitcn/kratos-admin-core/components/MarkdownPreview/index.vue";
 import { useGlobalStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
@@ -220,6 +193,7 @@ const histories = ref<BaseMigrationListItem[]>([]);
 const selectedMigrationId = ref<number | null>(null);
 const selectedMigration = ref<BaseMigration | null>(null);
 const detailRequestToken = ref(0);
+const activeFilePath = ref("");
 const filters = reactive<MigrationFilters>({
   version: undefined,
   module: undefined,
@@ -230,9 +204,7 @@ const pageable = reactive<MigrationPageable>({
   page_size: 10,
   total: 0
 });
-const hasDetailContent = computed(() =>
-  Boolean(selectedMigration.value?.description || selectedMigration.value?.up_sql || selectedMigration.value?.down_sql)
-);
+const hasDetailContent = computed(() => Boolean(selectedMigration.value?.files.length));
 
 /**
  * 加载数据库升级历史列表。
@@ -269,6 +241,7 @@ async function loadMigrationHistory() {
 async function selectMigration(id: number) {
   selectedMigrationId.value = id;
   selectedMigration.value = null;
+  activeFilePath.value = "";
   detailLoading.value = true;
   const requestToken = detailRequestToken.value + 1;
   detailRequestToken.value = requestToken;
@@ -276,6 +249,7 @@ async function selectMigration(id: number) {
     const detail = await defBaseMigrationService.GetBaseMigration({ id });
     if (detailRequestToken.value === requestToken && selectedMigrationId.value === id) {
       selectedMigration.value = detail;
+      activeFilePath.value = detail.files[0]?.path ?? "";
     }
   } finally {
     if (detailRequestToken.value === requestToken) {
@@ -512,147 +486,69 @@ onMounted(() => {
   white-space: nowrap;
 }
 
-.detail-header {
-  display: flex;
-  flex: 0 0 auto;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 22px 24px 20px;
-  border-bottom: 1px solid var(--admin-page-divider);
-}
-
-.detail-header__title {
-  min-width: 0;
-}
-
-.detail-header__data-source {
-  display: block;
-  overflow: hidden;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--admin-page-text-secondary);
-  letter-spacing: 0.04em;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.detail-header__version {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  margin-top: 8px;
-}
-
-.detail-header h2 {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 650;
-  line-height: 1.35;
-  overflow-wrap: anywhere;
-}
-
-.detail-header__meta {
-  display: flex;
-  flex: 0 0 auto;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-  padding-top: 3px;
-  font-size: 12px;
-  color: var(--admin-page-text-secondary);
-  text-align: right;
-}
-
 .detail-scroll {
+  display: flex;
   flex: 1;
+  flex-direction: column;
   min-height: 0;
-  overflow-y: auto;
+  overflow: hidden;
   padding: 24px;
 }
 
-.detail-section + .detail-section {
-  margin-top: 26px;
-}
-
-.detail-section__title {
-  display: flex;
-  gap: 7px;
-  align-items: center;
-  padding-bottom: 10px;
-  margin-bottom: 16px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--admin-page-text-primary);
-  border-bottom: 1px solid var(--admin-page-divider);
-}
-
-.detail-section__title :deep(.el-icon) {
-  color: var(--el-color-primary);
-}
-
 .migration-markdown {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   width: 100%;
   max-width: 100%;
   overflow-wrap: anywhere;
 }
 
-.release-sql {
-  border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: var(--admin-page-radius);
-}
-
-.release-sql :deep(.el-collapse) {
-  border: 0;
-}
-
-.release-sql :deep(.el-collapse-item__header) {
-  height: 46px;
-  padding: 0 14px;
-  color: var(--admin-page-text-primary);
-  background: var(--admin-page-card-bg-soft);
-  border-bottom-color: var(--admin-page-card-border-soft);
-}
-
-.release-sql :deep(.el-collapse-item__wrap) {
-  background: var(--admin-page-card-bg);
-  border-bottom-color: var(--admin-page-card-border-soft);
-}
-
-.release-sql :deep(.el-collapse-item__content) {
-  padding: 14px;
-}
-
-.sql-title {
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
+.migration-file-tabs {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   min-width: 0;
-  font-size: 13px;
-  font-weight: 600;
+  min-height: 0;
 }
 
-.sql-title :deep(.el-icon) {
-  color: var(--el-color-primary);
+.migration-file-tabs :deep(.el-tabs__header) {
+  flex-shrink: 0;
 }
 
-.sql-title code {
-  padding: 2px 6px;
-  font-size: 11px;
-  font-weight: 500;
+.migration-file-tabs :deep(.el-tabs__content) {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.migration-file-tabs :deep(.el-tab-pane) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.migration-file-path {
+  flex-shrink: 0;
+  margin-bottom: 16px;
+  font-size: 12px;
   color: var(--admin-page-text-secondary);
-  background: var(--admin-page-card-bg-muted);
-  border-radius: var(--admin-page-radius);
+  overflow-wrap: anywhere;
 }
 
 .sql-panel {
   position: relative;
+  display: flex;
+  flex: 1;
   min-width: 0;
+  min-height: 0;
 }
 
 .sql-code {
-  max-height: 360px;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
   padding: 14px 48px 14px 16px;
   margin: 0;
   overflow: auto;
@@ -733,6 +629,7 @@ onMounted(() => {
   }
 
   .migration-detail-panel {
+    flex: 0 0 480px;
     min-height: 480px;
     border-left: 0;
   }
@@ -744,20 +641,9 @@ onMounted(() => {
     overflow-x: auto;
   }
 
-  .detail-header,
   .detail-scroll {
     padding-right: 16px;
     padding-left: 16px;
-  }
-
-  .detail-header {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .detail-header__meta {
-    align-items: flex-start;
-    text-align: left;
   }
 }
 </style>

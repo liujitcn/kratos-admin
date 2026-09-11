@@ -62,14 +62,18 @@ export interface BaseMigration {
   data_source: string;
   /** 迁移版本 */
   version: string;
-  /** 升级脚本 */
-  up_sql: string;
-  /** 回退脚本 */
-  down_sql: string;
-  /** 升级描述 */
-  description: string;
+  /** 迁移文件列表 */
+  files: BaseMigrationFile[];
   /** 创建时间 */
   created_at: string;
+}
+
+/** 数据库迁移文件内容 */
+export interface BaseMigrationFile {
+  /** 文件相对路径 */
+  path: string;
+  /** 文件内容 */
+  content: string;
 }
 
 /** Admin数据库迁移服务。 */

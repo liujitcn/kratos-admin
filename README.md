@@ -234,3 +234,5 @@ Go 脚手架只调用 npm CLI；`--kratos-project` 适配后端静态输出，�
 Backend 的 `NewModules` 与 `NewStreams` 共享宿主注入的 `*backend.CodeGenManager`；通过 `backend.ProviderSet` 自动装配，手动调用这两个入口时也需传入同一实例。修改内部依赖装配后执行 `make -C backend public-wire wire`。
 
 系统管理的基础管理统一使用“系统配置”入口维护普通配置和表单配置；表单类型按配置 key 加载模块注册的表单，复用统一查询与更新接口。
+
+数据库迁移文件随 `backend/migration/assets` 部署，不再嵌入后端二进制；Docker 和后端压缩包已包含该目录。默认从 backend 工作目录启动，其他工作目录通过 `ADMIN_MIGRATION_DIR` 指定绝对路径。数据库只保存迁移文件引用及校验值，历史文件需要保留；存量正文记录需在升级前备份转换。详见 [后端迁移文件与记录](backend/README.md#迁移文件与记录)。

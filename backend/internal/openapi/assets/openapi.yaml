@@ -9839,19 +9839,25 @@ components:
                 version:
                     type: string
                     description: 迁移版本
-                up_sql:
-                    type: string
-                    description: 升级脚本
-                down_sql:
-                    type: string
-                    description: 回退脚本
-                description:
-                    type: string
-                    description: 升级描述
+                files:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseMigrationFile'
+                    description: 迁移文件列表
                 created_at:
                     type: string
                     description: 创建时间
             description: 数据库迁移记录详情
+        system.admin.v1.BaseMigrationFile:
+            type: object
+            properties:
+                path:
+                    type: string
+                    description: 文件相对路径
+                content:
+                    type: string
+                    description: 文件内容
+            description: 数据库迁移文件内容
         system.admin.v1.BaseMigrationListItem:
             type: object
             properties:

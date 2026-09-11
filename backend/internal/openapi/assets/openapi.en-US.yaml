@@ -9839,19 +9839,25 @@ components:
                 version:
                     type: string
                     description: migration version
-                up_sql:
-                    type: string
-                    description: upgrade script
-                down_sql:
-                    type: string
-                    description: rollback script
-                description:
-                    type: string
-                    description: upgrade description
+                files:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseMigrationFile'
+                    description: migration files
                 created_at:
                     type: string
                     description: Create time
             description: database migration record details
+        system.admin.v1.BaseMigrationFile:
+            type: object
+            properties:
+                path:
+                    type: string
+                    description: relative file path
+                content:
+                    type: string
+                    description: file content
+            description: database migration file content
         system.admin.v1.BaseMigrationListItem:
             type: object
             properties:

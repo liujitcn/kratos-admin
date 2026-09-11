@@ -9839,19 +9839,25 @@ components:
                 version:
                     type: string
                     description: マイグレーションバージョン
-                up_sql:
-                    type: string
-                    description: アップグレードスクリプト
-                down_sql:
-                    type: string
-                    description: ロールバックスクリプト
-                description:
-                    type: string
-                    description: アップグレード説明
+                files:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseMigrationFile'
+                    description: 移行ファイル一覧
                 created_at:
                     type: string
                     description: 作成時刻
             description: データベースマイグレーション記録詳細
+        system.admin.v1.BaseMigrationFile:
+            type: object
+            properties:
+                path:
+                    type: string
+                    description: ファイルの相対パス
+                content:
+                    type: string
+                    description: ファイル内容
+            description: データベースマイグレーションファイル内容
         system.admin.v1.BaseMigrationListItem:
             type: object
             properties:

@@ -11,7 +11,7 @@
 | `i18n.en-US.up.sql` | `en-US` 的 `base_i18n` 翻译数据。 |
 | `i18n.ja-JP.up.sql` | `ja-JP` 的 `base_i18n` 翻译数据。 |
 | `i18n.zh-TW.up.sql` | `zh-TW` 的 `base_i18n` 翻译数据。 |
-| `README.<locale>.md` | 迁移说明的对应语言版本，由迁移框架同步到统一翻译表。 |
+| `README.<locale>.md` | 迁移说明的对应语言版本，由迁移框架将文件引用同步到统一翻译表，详情按需读取文件。 |
 
 ## 执行与幂等
 
@@ -54,3 +54,5 @@
 首页入口 `/dashboard` 的页面菜单（`10010000`）统一使用“首页”名称和 `HomeFilled` 图标；对应菜单译文同步维护。
 
 管理端菜单图标统一使用图标选择器提供的 Element Plus 图标；配置、备份/归档、审计日志和运行监控按页面用途区分，移动端图标约定保持独立。
+
+迁移记录使用 `up_files`、`down_files`、`description_files` 三个 JSON 字段保存文件路径和 SHA-256，正文按需读取。部署时须保留历史文件。

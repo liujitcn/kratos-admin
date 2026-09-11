@@ -8,6 +8,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/data"
 	"github.com/liujitcn/kratos-admin/backend/internal/data/gen/models"
 	"github.com/liujitcn/kratos-core/biz"
+	coreMigration "github.com/liujitcn/kratos-core/resource/migration"
 
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-kit/database/gorm/migration"
@@ -21,6 +22,7 @@ type BaseMigrationCase struct {
 	listMapper   *mapper.CopierMapper[adminv1.BaseMigrationListItem, models.BaseMigration]
 	mapper       *mapper.CopierMapper[adminv1.BaseMigration, models.BaseMigration]
 	baseI18nCase *BaseI18nCase
+	migrations   *coreMigration.Migration
 }
 
 // NewBaseMigrationCase 创建数据库升级历史查询业务实例。
@@ -28,6 +30,7 @@ func NewBaseMigrationCase(
 	baseCase *biz.BaseCase,
 	baseMigrationRepository *data.BaseMigrationRepository,
 	baseI18nCase *BaseI18nCase,
+	migrations *coreMigration.Migration,
 ) *BaseMigrationCase {
 	return &BaseMigrationCase{
 		BaseCase:                baseCase,
@@ -35,6 +38,7 @@ func NewBaseMigrationCase(
 		listMapper:              mapper.NewCopierMapper[adminv1.BaseMigrationListItem, models.BaseMigration](),
 		mapper:                  mapper.NewCopierMapper[adminv1.BaseMigration, models.BaseMigration](),
 		baseI18nCase:            baseI18nCase,
+		migrations:              migrations,
 	}
 }
 
@@ -93,7 +97,18 @@ func (c *BaseMigrationCase) GetBaseMigration(ctx context.Context, id int64) (*ad
 		return nil, err
 	}
 	if description := descriptions[id]; description != "" {
-		res.Description = description
+		item.DescriptionFiles = description
+	}
+	fileMapper := mapper.NewCopierMapper[adminv1.BaseMigrationFile, coreMigration.FileContent]()
+	for _, references := range []string{item.DescriptionFiles, item.UpFiles, item.DownFiles} {
+		var files []*coreMigration.FileContent
+		files, err = c.migrations.ReadFiles(item.Module, item.Version, item.DataSource, references)
+		if err != nil {
+			return nil, err
+		}
+		for _, file := range files {
+			res.Files = append(res.Files, fileMapper.ToDTO(file))
+		}
 	}
 	return res, nil
 }

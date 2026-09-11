@@ -75,7 +75,7 @@ func NewModuleResources() AdminResources {
 // Admin 提供脱敏策略解析器，并在迁移完成后初始化。Admin 业务依赖
 // 在 Backend 内部完成装配，避免外部项目的生成代码引用 backend/internal 包。
 func NewModules(
-	_ *migration.Migration,
+	migrations *migration.Migration,
 	config *configv1.Bootstrap,
 	databases map[string]*gorm.Client,
 	baseCase *biz.BaseCase,
@@ -101,7 +101,7 @@ func NewModules(
 	}
 	var modules module.Modules
 	var cleanup func()
-	modules, cleanup, err = adminModule.BuildModules(config, databases, baseCase, authorizer, authenticator, userToken, jobRuntime, sseRuntime, catalog, openAPIRuntime, redactResolver, progressManager)
+	modules, cleanup, err = adminModule.BuildModules(migrations, config, databases, baseCase, authorizer, authenticator, userToken, jobRuntime, sseRuntime, catalog, openAPIRuntime, redactResolver, progressManager)
 	return AdminModules(modules), cleanup, err
 }
 

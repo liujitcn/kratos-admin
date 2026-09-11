@@ -11,7 +11,7 @@
 | `i18n.en-US.up.sql` | `en-US` 的 `base_i18n` 翻譯資料。 |
 | `i18n.ja-JP.up.sql` | `ja-JP` 的 `base_i18n` 翻譯資料。 |
 | `i18n.zh-TW.up.sql` | `zh-TW` 的 `base_i18n` 翻譯資料。 |
-| `README.<locale>.md` | 遷移說明的各語言版本，由遷移框架同步至共用翻譯表。 |
+| `README.<locale>.md` | 遷移說明的各語言版本，框架僅將檔案引用同步至共用翻譯表，內容按需讀取。 |
 
 ## 執行與冪等
 
@@ -52,3 +52,5 @@
 程式碼生成將選單權限片段依資料表標記合併到本目錄的 `default_data.up.sql`，不建立新版本。還原操作恢復腳本及生成前的選單、譯文和權限；業務資料不受影響。
 
 首頁入口 `/dashboard` 使用「首頁」與 `HomeFilled`。管理端選單圖示統一使用 Element Plus 圖示選擇器提供的選項，區分設定、備份／歸檔、稽核日誌與執行監控；行動端維持獨立圖示規約。
+
+遷移記錄的 `up_files`、`down_files`、`description_files` 使用 JSON 儲存檔案路徑和 SHA-256；多語言說明也只儲存檔案引用。內容按需讀取，部署時須保留歷史檔案。
