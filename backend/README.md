@@ -227,7 +227,7 @@ Kit 的策略解析器同样由 Wire 创建并注入 Core 协议入口和 Admin 
 
 ## 迁移文件与记录
 
-迁移 SQL 和说明从 `migration/assets` 部署目录读取，不再编译进二进制。从 backend 目录启动可使用默认路径；其他工作目录或外部宿主应设置 `ADMIN_MIGRATION_DIR` 为绝对路径。Docker 镜像和 `make package-binary` 均携带该目录，独立复制二进制时也必须复制迁移文件。
+迁移 SQL 和说明固定从二进制内置资源读取，不支持外部目录覆盖。Docker 镜像和 `make package-binary` 仍携带迁移目录，独立复制二进制时无需额外复制迁移文件。
 
 `base_migration` 的 `up_files`、`down_files`、`description_files` 均为可空 JSON，保存有序的 `{ "path": "v0.0.1/mysql/default_data.up.sql", "sha256": "..." }` 文件引用数组。升级、回退和说明内容由 Core 在详情请求时读取校验，详情接口返回 `files` 数组，每项包含 `path`、`content`，依次列出说明、升级、回退文件，不合并正文。多语言说明在 `base_i18n` 中也只保存文件引用。
 
