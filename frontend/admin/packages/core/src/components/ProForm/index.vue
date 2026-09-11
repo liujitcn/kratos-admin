@@ -1,5 +1,13 @@
 <template>
-  <el-form class="pro-form" ref="formRef" :model="model" :rules="formRules" :label-width="labelWidth" v-bind="$attrs">
+  <el-form
+    class="pro-form"
+    ref="formRef"
+    :model="model"
+    :rules="formRules"
+    :label-width="labelWidth"
+    :label-position="labelPosition"
+    v-bind="$attrs"
+  >
     <el-row :gutter="gutter">
       <template v-for="field in visibleFields" :key="field.prop">
         <span v-if="field.rowBreakBefore" class="pro-form__row-break" aria-hidden="true" />
@@ -42,7 +50,7 @@
 import { computed, ref, useSlots } from "vue";
 import { QuestionFilled } from "@element-plus/icons-vue";
 import type { FormInstance, FormRules } from "element-plus";
-import type { ProFormField } from "@/components/ProForm/interface";
+import type { ProFormField, ProFormLabelPosition } from "@/components/ProForm/interface";
 import ProFormItem from "./components/ProFormItem.vue";
 
 /** ProForm 组件属性。 */
@@ -51,6 +59,7 @@ interface ProFormProps {
   fields: ProFormField[];
   rules?: FormRules;
   labelWidth?: string;
+  labelPosition?: ProFormLabelPosition;
   gutter?: number;
   colSpan?: number;
 }
@@ -58,6 +67,7 @@ interface ProFormProps {
 const props = withDefaults(defineProps<ProFormProps>(), {
   rules: () => ({}),
   labelWidth: "180px",
+  labelPosition: "top",
   gutter: 20,
   colSpan: 24
 });

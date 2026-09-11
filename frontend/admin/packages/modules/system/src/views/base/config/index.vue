@@ -32,7 +32,7 @@
             :rules="rules"
             :col-span="12"
             :gutter="24"
-            label-position="top"
+            label-position="right"
             scroll-to-error
           >
             <template #textValue>
@@ -96,7 +96,7 @@
                 :fields="localizedFormFields"
                 :col-span="12"
                 :gutter="24"
-                label-position="top"
+                label-position="right"
                 scroll-to-error
               />
             </template>
@@ -178,6 +178,7 @@ const localizedFormFields = computed<ProFormField[]>(() =>
     rowBreakBefore: field.rowBreakBefore,
     visible: field.visible,
     labelTooltip: field.labelTooltipKey ? t(field.labelTooltipKey) : undefined,
+    valueType: field.valueType,
     rules: field.rules?.map(rule => ({
       ...rule,
       message: t(
@@ -653,6 +654,33 @@ function loadFormValue(value?: string) {
   valueFormRef.value?.clearValidate();
 }
 
+/** 按字段声明恢复运行配置提交值的 JSON 类型。 */
+function normalizeRuntimeConfigValue() {
+  if (!formDefinition.value) return;
+  for (const field of formDefinition.value.fields) {
+    const value = field.prop.split(".").reduce<any>((current, key) => current?.[key], formValue.value);
+    if (field.valueType === "number" && typeof value === "string" && value !== "") {
+      setRuntimeConfigFieldValue(field.prop, Number(value));
+    } else if (field.valueType === "boolean" && typeof value === "string") {
+      setRuntimeConfigFieldValue(field.prop, value === "true");
+    } else if (field.valueType === "json" && typeof value === "string" && value !== "") {
+      setRuntimeConfigFieldValue(field.prop, JSON.parse(value));
+    }
+  }
+}
+
+/** 按点路径写入运行配置字段值。 */
+function setRuntimeConfigFieldValue(prop: string, value: unknown) {
+  const path = prop.split(".");
+  const lastKey = path.pop();
+  if (!lastKey) return;
+  const target = path.reduce<Record<string, any>>((current, key) => {
+    if (!current[key] || typeof current[key] !== "object") current[key] = {};
+    return current[key];
+  }, formValue.value);
+  target[lastKey] = value;
+}
+
 /**
  * 关闭系统配置弹窗并恢复默认表单值。
  */
@@ -699,6 +727,7 @@ async function handleSubmit() {
       return;
     }
     if ((await valueFormRef.value?.validate()) !== true) return;
+    normalizeRuntimeConfigValue();
     formData.value = JSON.stringify(formValue.value);
   }
   saving.value = true;

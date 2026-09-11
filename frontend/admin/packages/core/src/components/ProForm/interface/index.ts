@@ -28,6 +28,9 @@ export type ProFormComponentType =
   | "kv-list"
   | "slot";
 
+/** ProForm 标签布局方向。 */
+export type ProFormLabelPosition = "left" | "right" | "top";
+
 /** ProForm 选择型字段选项。 */
 export interface ProFormOption {
   label: string;

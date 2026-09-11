@@ -44,6 +44,8 @@ export interface RuntimeConfigField {
   visible?: ProFormField["visible"];
   /** 字段校验规则。 */
   rules?: RuntimeConfigRule[];
+  /** 提交前将控件值转换为 JSON 中的目标类型。 */
+  valueType?: "string" | "number" | "boolean" | "json";
 }
 
 /** 管理端运行配置定义。 */
