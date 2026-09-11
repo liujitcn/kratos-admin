@@ -104,10 +104,14 @@ fmt:
 		if [ "$$#" -gt 0 ]; then PATH="$(GO_BIN_DIR):$$PATH" goimports -w "$$@" || exit $$?; fi; \
 		set --; \
 		while IFS= read -r file; do set -- "$$@" -file "$$file"; done < "$(FMT_FILE_LIST)"; \
-		if [ "$$#" -gt 0 ]; then "$(GO_BIN_DIR)/normalize-go-imports" -root . -write "$$@"; fi; \
+		if [ "$$#" -gt 0 ]; then "$(GO_BIN_DIR)/normalize-go-imports" -root . -write "$$@" || exit $$?; fi; \
+		set --; \
+		while IFS= read -r file; do set -- "$$@" "$$file"; done < "$(FMT_FILE_LIST)"; \
+		if [ "$$#" -gt 0 ]; then PATH="$(GO_BIN_DIR):$$PATH" goimports -w "$$@"; fi; \
 	else \
 		PATH="$(GO_BIN_DIR):$$PATH" find . -type f -name '*.go' -exec goimports -w {} + && \
-		"$(GO_BIN_DIR)/normalize-go-imports" -root . -write; \
+		"$(GO_BIN_DIR)/normalize-go-imports" -root . -write && \
+		PATH="$(GO_BIN_DIR):$$PATH" find . -type f -name '*.go' -exec goimports -w {} +; \
 	fi
 	@echo "==> Go 代码格式化完成"
 
@@ -147,6 +151,12 @@ api:
 		PATH="$(GO_BIN_DIR):$$PATH" buf generate --template buf.gen.yaml
 	@PATH="$(GO_BIN_DIR):$$PATH" find api/gen/go -type f -name '*.go' -exec goimports -w {} +
 	@find api/gen/go -type f -name '*.go' -exec perl -pi -e 's/BaseI18N/BaseI18n/g; s/baseI18N/baseI18n/g; s/I18NTargetType/I18nTargetType/g; s/I18Ns/I18ns/g; s/\bI18N\b/I18n/g' {} +
+	@find api/gen/go -type f -name '*.go' | { \
+		set --; \
+		while IFS= read -r file; do set -- "$$@" -file "$$file"; done; \
+		if [ "$$#" -gt 0 ]; then "$(GO_BIN_DIR)/normalize-go-imports" -root . -write "$$@"; fi; \
+	}
+	@PATH="$(GO_BIN_DIR):$$PATH" find api/gen/go -type f -name '*.go' -exec goimports -w {} +
 	@echo "==> protobuf Go 代码生成完成"
 
 # 根据 Proto 契约生成 OpenAPI v3 源文档；多语言文档由仓库根目录生成。

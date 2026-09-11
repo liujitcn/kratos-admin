@@ -47,7 +47,7 @@ func ProtoTargetForBusinessModule(module string) (ProtoTarget, bool) {
 		BackendModuleDirectory:  "backend/internal/service/" + module + "/admin/v1",
 		ModuleRegisterPath:      "backend/internal/server/" + module + "/admin/v1/register.go",
 		FrontendPackageName:     frontendPackageNameForBusinessModule(module),
-		FrontendAPIDirectory:    "frontend/admin/packages/modules/" + module + "/src/api/" + module,
+		FrontendAPIDirectory:    "frontend/admin/packages/modules/" + module + "/src/api/" + module + "/admin/v1",
 		FrontendPageDirectory:   "frontend/admin/packages/modules/" + module + "/src/views",
 		FrontendLocaleDirectory: "frontend/admin/packages/modules/" + module + "/src/locales",
 	}, true

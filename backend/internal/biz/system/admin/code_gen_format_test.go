@@ -48,7 +48,7 @@ func TestFormatCodeGenChangesScope(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for path, expected := range map[string]string{"changed file.go": "package changed\n// formatted\n", "untouched.go": "package untouched\n"} {
+	for path, expected := range map[string]string{"changed file.go": "package changed\n// formatted\n// formatted\n", "untouched.go": "package untouched\n"} {
 		var content []byte
 		content, err = os.ReadFile(filepath.Join(backend, path))
 		if err != nil {

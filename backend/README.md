@@ -110,6 +110,8 @@ make -C backend run-only APP_ENV=https
 
 所有生成产物都必须通过上述命令刷新，不能手工修改。
 
+`make api` 在生成完成前对协议产物执行同一套别名规范化，重复生成不会因 `commonv1` 等别名变化改写无关接口。
+
 Go import 别名规范化命令由 `kratos-kit/cmd/normalize-go-imports` 提供，Admin 不保留本地副本；先安装命令，再执行格式化：
 
 ```bash

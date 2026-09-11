@@ -80,7 +80,13 @@ func TestFrontendPageActionTypes(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if paths.GetFrontendApiFilePath() != "frontend/admin/packages/modules/system/src/api/system/admin/v1/tenant_project.ts" {
+		t.Fatal(paths.GetFrontendApiFilePath())
+	}
 	page := c.renderFrontendPageFile(table, nil, nil, paths)
+	if !strings.Contains(page, "@liujitcn/kratos-admin-system/api/system/admin/v1/tenant_project") {
+		t.Fatal("页面 API 导入未保留完整协议目录")
+	}
 	for _, expected := range []string{"handleDelete(scope.row as TenantProject)", "handleDelete(scope.selectedList as TenantProject[])", `BUTTONS.value["` + PermissionPrefix(table) + `:delete"]`, `BUTTONS.value["` + PermissionPrefix(table) + `:create"]`} {
 		if !strings.Contains(page, expected) {
 			t.Fatalf("生成页面缺少 %s", expected)

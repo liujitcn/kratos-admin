@@ -39,6 +39,7 @@ func TestProtoTargetForBusinessModuleUsesFrontendPackageName(t *testing.T) {
 	}
 }
 
+// TestFrontendImportPathsUseGeneratedModulePackage 验证 API 和 RPC 保留完整协议目录。
 func TestFrontendImportPathsUseGeneratedModulePackage(t *testing.T) {
 	protoPath := "backend/api/proto/app/admin/v1/test_item.proto"
 	if got := frontendRPCImportPath(protoPath); got != "@app/admin-module/rpc/app/admin/v1/test_item" {
@@ -46,7 +47,7 @@ func TestFrontendImportPathsUseGeneratedModulePackage(t *testing.T) {
 	}
 
 	method := &Proto{ProtoFilePath: protoPath, TargetEntityName: "TestItem"}
-	if got := frontendAPIImportPathForMethod(method); got != "@app/admin-module/api/app/test_item" {
-		t.Fatalf("frontend API import = %q, want %q", got, "@app/admin-module/api/app/test_item")
+	if got := frontendAPIImportPathForMethod(method); got != "@app/admin-module/api/app/admin/v1/test_item" {
+		t.Fatalf("frontend API import = %q, want %q", got, "@app/admin-module/api/app/admin/v1/test_item")
 	}
 }

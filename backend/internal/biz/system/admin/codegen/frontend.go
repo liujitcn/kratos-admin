@@ -270,7 +270,7 @@ func (c *renderer) renderFrontendPageFile(table *Table, columns []*CodeGenColumn
 	target := ProtoTargetForTable(table)
 	pluralEntity := pluralize(entity)
 	snakeEntity := stringcase.ToSnakeCase(entity)
-	frontendAPIImport := target.FrontendPackageName + "/api/" + table.BusinessModule + "/" + snakeEntity
+	frontendAPIImport := target.FrontendPackageName + "/api/" + target.Directory + "/" + snakeEntity
 	frontendRPCImport := frontendRPCImportPath(paths.GetProtoFilePath())
 	listField := stringcase.ToSnakeCase(pluralEntity)
 	hasTenantOption := hasTenantQueryOption(columns) || hasTenantListColumn(columns)
@@ -1562,7 +1562,7 @@ func frontendAPIImportPathForMethod(method *Proto) string {
 	protoDirectory := strings.TrimPrefix(filepath.ToSlash(filepath.Dir(method.ProtoFilePath)), ProtoRootPath+"/")
 	module := strings.TrimSuffix(strings.TrimSuffix(protoDirectory, "/v1"), "/admin")
 	target, _ := ProtoTargetForBusinessModule(module)
-	return target.FrontendPackageName + "/api/" + module + "/" + stringcase.ToSnakeCase(method.TargetEntityName)
+	return target.FrontendPackageName + "/api/" + target.Directory + "/" + stringcase.ToSnakeCase(method.TargetEntityName)
 }
 
 // repoRoot 返回仓库根目录。

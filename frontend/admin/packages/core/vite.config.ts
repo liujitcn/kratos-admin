@@ -113,6 +113,7 @@ export function defineAdminViteConfig(options: AdminViteConfigOptions = {}) {
         proxy: createProxy(viteEnv.VITE_PROXY)
       },
       plugins: createVitePlugins(viteEnv, {
+        sourceRoots,
         sourcePatterns,
         autoImportDts: false,
         componentDts: options.componentDts ?? false,

@@ -1,11 +1,13 @@
 import type { HotPayload, Plugin, WebSocketClient } from "vite";
 
 /** 暂缓生成期间的开发热更新，释放后统一刷新以加载完整产物。 */
-export function codegenHmrPlugin(): Plugin {
+export function codegenHmrPlugin(sourceRoots: string[] = []): Plugin {
   return {
     name: "admin-codegen-hmr",
     apply: "serve",
     configureServer(server) {
+      // 模块源码位于宿主 root 外，监听目录才能发现新生成的页面。
+      server.watcher.add(sourceRoots);
       const clients = new Set<WebSocketClient>();
       const send = server.ws.send.bind(server.ws);
       let pending = false;
