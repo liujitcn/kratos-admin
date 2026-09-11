@@ -181,6 +181,7 @@ const localizedFormFields = computed<ProFormField[]>(() =>
     valueType: field.valueType,
     rules: field.rules?.map(rule => ({
       ...rule,
+      required: Boolean(rule.required),
       message: t(
         rule.messageKey,
         rule.messageArgs
