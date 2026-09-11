@@ -58,11 +58,16 @@ func prepareGenerationWithRenderer(
 	if err = renderer.validateGeneratedProtoHTTPRoutes(generationTable, generatedMethods); err != nil {
 		return nil, err
 	}
+	var files []*adminv1.CodeGenPreviewFile
+	files, err = renderer.buildPreviewFiles(generationTable, columns, generationMethods, outputPaths, localeState)
+	if err != nil {
+		return nil, err
+	}
 	return &Generation{
 		Table:            generationTable,
 		GeneratedMethods: generatedMethods,
 		OutputPaths:      outputPaths,
-		Files:            renderer.buildPreviewFiles(generationTable, columns, generationMethods, outputPaths, localeState),
+		Files:            files,
 	}, nil
 }
 

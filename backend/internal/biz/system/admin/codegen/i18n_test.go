@@ -44,6 +44,7 @@ func TestGeneratedMenuI18nsReplacesMessagePlaceholders(t *testing.T) {
 	}
 }
 
+// TestRenderGeneratedMenuSQLUsesLocalizedResourceName 验证菜单脚本使用配置的语言资源名称。
 func TestRenderGeneratedMenuSQLUsesLocalizedResourceName(t *testing.T) {
 	catalog, err := i18n.NewI18n("codegen-sql-test", fstest.MapFS{
 		"en-US.json": &fstest.MapFile{Data: []byte(`{
@@ -64,12 +65,16 @@ func TestRenderGeneratedMenuSQLUsesLocalizedResourceName(t *testing.T) {
 		TableComment:     "测试项目",
 		BusinessName:     "test_item",
 		PermissionPrefix: "app:test:item",
-		ParentMenuID:     950,
+		ParentMenuID:     95000000,
 		I18NConfig:       map[string]LocaleConfig{"en-US": {Comment: "Test Item"}},
 	}
 	state := LocaleState{Current: "zh-CN", Primary: "zh-CN", Enabled: []string{"zh-CN", "en-US"}}
 
-	sql := RenderGeneratedMenuSQL(table, nil, nil, "app/test/item", "测试项目", state)
+	var sql string
+	sql, err = RenderGeneratedMenuSQL(table, nil, nil, "app/test/item", "测试项目", state)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if !strings.Contains(sql, "'Test Item'") {
 		t.Fatalf("生成菜单 SQL 未包含英文资源名: %s", sql)
 	}

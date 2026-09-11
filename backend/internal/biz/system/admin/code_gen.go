@@ -180,9 +180,16 @@ func (c *CodeGenCase) PreviewCodeGen(ctx context.Context, tableID int64, request
 	if err != nil {
 		return nil, err
 	}
-	localeState, err := c.baseLanguageCase.LocaleState(ctx)
+	var localeState codegen.LocaleState
+	localeState, err = c.codeGenLocaleState(ctx)
 	if err != nil {
 		return nil, err
+	}
+	if table.GenSql == 1 && table.GenFrontend == 1 {
+		table.MenuSQLState, err = c.loadCodeGenMenuSQLState(ctx)
+		if err != nil {
+			return nil, err
+		}
 	}
 	var migrationVersion string
 	migrationVersion, err = c.latestMigrationVersion(ctx, table.SourceName)
@@ -360,6 +367,8 @@ func (c *CodeGenCase) runCodeGenTask(
 		c.failCodeGenTask(ctx, taskID, tableIDs, err)
 		return
 	}
+	tableIDs = slices.Clone(tableIDs)
+	slices.Sort(tableIDs)
 	beforeMenusByTable := make(map[int64][]*models.BaseMenu, len(tableIDs))
 	beforeMenuI18nsByTable := make(map[int64][]*models.BaseI18N, len(tableIDs))
 	for _, tableID := range tableIDs {
@@ -520,6 +529,7 @@ func (c *CodeGenCase) prepareCodeGenBatch(ctx context.Context, tableIDs []int64)
 	inputs := make([]codegen.BatchGenerationInput, 0, len(tableIDs))
 	columnsByTable := make(map[int64][]*codegen.CodeGenColumn, len(tableIDs))
 	tableIDSet := make(map[int64]struct{}, len(tableIDs))
+	var menuSQLState *codegen.MenuSQLState
 	var err error
 	var localeState codegen.LocaleState
 	localeState, err = c.codeGenLocaleState(ctx)
@@ -540,6 +550,15 @@ func (c *CodeGenCase) prepareCodeGenBatch(ctx context.Context, tableIDs []int64)
 		table, columns, protos, err = c.loadCodeGenContext(ctx, tableID)
 		if err != nil {
 			return nil, err
+		}
+		if table.GenSql == 1 && table.GenFrontend == 1 {
+			if menuSQLState == nil {
+				menuSQLState, err = c.loadCodeGenMenuSQLState(ctx)
+				if err != nil {
+					return nil, err
+				}
+			}
+			table.MenuSQLState = menuSQLState
 		}
 		var migrationVersion string
 		migrationVersion, err = c.latestMigrationVersion(ctx, table.SourceName)
@@ -590,6 +609,20 @@ func (c *CodeGenCase) prepareCodeGenBatch(ctx context.Context, tableIDs []int64)
 		}
 	}
 	return &codeGenBatchContext{plan: plan, columnsByTable: columnsByTable, localeState: localeState}, nil
+}
+
+// loadCodeGenMenuSQLState 读取全部占用菜单编号和当前角色，供预览及批次生成预留编号。
+func (c *CodeGenCase) loadCodeGenMenuSQLState(ctx context.Context) (*codegen.MenuSQLState, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var menus []*models.BaseMenu
+	menus, err = c.baseMenuCase.List(ctx, repository.Unscoped())
+	if err != nil {
+		return nil, err
+	}
+	return &codegen.MenuSQLState{Menus: menus, RoleID: authInfo.RoleId}, nil
 }
 
 // validateGeneratedBaseAPIs 按 base_api 中的 HTTP 路由校验生成接口冲突。
@@ -1057,6 +1090,13 @@ func (c *CodeGenCase) syncGeneratedMenus(ctx context.Context, table *codegen.Tab
 	if err != nil {
 		return err
 	}
+	if table.MenuSQLState != nil {
+		for _, planned := range table.MenuSQLState.Menus {
+			if planned.Type == pageMenu.Type && planned.Path == pageMenu.Path && planned.ID != pageMenu.ID {
+				return errorsx.InvalidArgument("菜单编号已变化，请重新生成")
+			}
+		}
+	}
 	if err = c.baseMenuCase.SaveGeneratedMenuI18ns(ctx, pageMenu.ID, pageSpec.SourceTitle, pageSpec.I18ns); err != nil {
 		return err
 	}
@@ -1066,6 +1106,13 @@ func (c *CodeGenCase) syncGeneratedMenus(ctx context.Context, table *codegen.Tab
 		buttonMenu, err = c.upsertGeneratedButtonMenu(ctx, buttonSpec)
 		if err != nil {
 			return err
+		}
+		if table.MenuSQLState != nil {
+			for _, planned := range table.MenuSQLState.Menus {
+				if planned.Type == buttonMenu.Type && planned.ParentID == buttonMenu.ParentID && planned.Path == buttonMenu.Path && planned.ID != buttonMenu.ID {
+					return errorsx.InvalidArgument("菜单编号已变化，请重新生成")
+				}
+			}
 		}
 		if err = c.baseMenuCase.SaveGeneratedMenuI18ns(ctx, buttonMenu.ID, buttonSpec.SourceTitle, buttonSpec.I18ns); err != nil {
 			return err

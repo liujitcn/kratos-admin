@@ -243,7 +243,7 @@ func (c *renderer) applyCodeGenOutputPaths(table *Table, methods []*Proto, paths
 }
 
 // buildPreviewFiles 按后端、前端顺序构建本轮全部预览文件。
-func (c *renderer) buildPreviewFiles(table *Table, columns []*CodeGenColumn, methods []*Proto, paths *adminv1.CodeGenOutputPaths, localeState LocaleState) []*adminv1.CodeGenPreviewFile {
+func (c *renderer) buildPreviewFiles(table *Table, columns []*CodeGenColumn, methods []*Proto, paths *adminv1.CodeGenOutputPaths, localeState LocaleState) ([]*adminv1.CodeGenPreviewFile, error) {
 	generatedMethods := c.generatedProtoMethods(table, columns, methods)
 	frontendMethods := c.frontendProtoMethods(table, columns, methods)
 	files := make([]*adminv1.CodeGenPreviewFile, 0, 9)
@@ -291,17 +291,20 @@ func (c *renderer) buildPreviewFiles(table *Table, columns []*CodeGenColumn, met
 		files = append(files, c.newFrontendLocalePreviewFiles(table, columns, localeState)...)
 	}
 	if ShouldSyncMenus(table, generatedMethods) {
-		sqlFile := c.newGeneratedMenuSQLPreviewFile(table, RenderGeneratedMenuSQL(
+		content, err := RenderGeneratedMenuSQL(
 			table,
 			columns,
 			generatedMethods,
 			FrontendPageComponentPath(paths.GetFrontendPageFilePath()),
 			table.TableComment,
 			localeState,
-		))
-		files = append(files, sqlFile)
+		)
+		if err != nil {
+			return nil, err
+		}
+		files = append(files, c.newGeneratedMenuSQLPreviewFile(table, content))
 	}
-	return files
+	return files, nil
 }
 
 // appendMainBizMethods 根据最新配置替换业务文件的固定生成方法并保留扩展方法。

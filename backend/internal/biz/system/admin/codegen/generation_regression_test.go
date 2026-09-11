@@ -48,7 +48,11 @@ func TestMenuRouteMatchesPage(t *testing.T) {
 	if page.Menu.Component != "system/tenant/project/index" || page.Menu.Path != "/system/tenant/project" {
 		t.Fatalf("菜单与页面不一致: %#v, %s", page.Menu, paths.GetFrontendPageFilePath())
 	}
-	sql := RenderGeneratedMenuSQL(table, nil, nil, component, "租户项目", LocaleState{})
+	var sql string
+	sql, err = RenderGeneratedMenuSQL(table, nil, nil, component, "租户项目", LocaleState{})
+	if err != nil {
+		t.Fatal(err)
+	}
 	if !strings.Contains(sql, sqlString(page.Menu.Component)) || !strings.Contains(sql, sqlString(page.Menu.Path)) || !strings.Contains(sql, "INSERT INTO `base_menu` (`id`, `parent_id`") {
 		t.Fatal("SQL 与在线菜单契约不一致")
 	}
