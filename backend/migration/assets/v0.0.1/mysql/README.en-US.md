@@ -50,3 +50,5 @@ The profile menu grants access to the current user’s login history; the server
 Tenant Management uses root `20000000` (sort 20), page `20010000`, and actions `20010100`–`20010400`. User Management remains root `30000000` (sort 30).
 
 Code generation merges per-table menu permission blocks into `default_data.up.sql` without creating a new version. Restore recovers the script and previous menus, translations and permissions; business table data is unaffected.
+
+The /dashboard menu uses Home and HomeFilled. Admin menu icons come from the Element Plus icon selector and distinguish configuration, backup/archive, audit logs, and monitoring; mobile icons follow their own convention.

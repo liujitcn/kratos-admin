@@ -258,7 +258,7 @@ INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VA
 -- Message categories, scheduled task, and menus.
 -- 表归档与备份菜单翻译。
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 10000000, 'zh-TW', '首頁');
-INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 10010000, 'zh-TW', '工作臺');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 10010000, 'zh-TW', '首頁');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 10040000, 'zh-TW', 'AI助手');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 10050000, 'zh-TW', '個人資訊');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 10060000, 'zh-TW', '訊息中心');
