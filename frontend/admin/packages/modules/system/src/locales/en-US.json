@@ -1,4 +1,6 @@
 {
+  "system.base.config.tab.basic": "Basic information",
+  "system.base.config.tab.form": "Configuration form",
   "system.ai.chat.action.collapse_sessions": "Collapse conversations",
   "system.ai.chat.action.confirm_delete_conversation": "Delete",
   "system.ai.chat.action.continue": "Continue",

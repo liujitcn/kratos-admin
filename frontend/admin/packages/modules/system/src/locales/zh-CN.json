@@ -1,4 +1,6 @@
 {
+  "system.base.config.tab.basic": "基础信息",
+  "system.base.config.tab.form": "配置表单",
   "system.ai.chat.action.collapse_sessions": "收起会话栏",
   "system.ai.chat.action.confirm_delete_conversation": "确认删除",
   "system.ai.chat.action.continue": "继续",

@@ -1,4 +1,6 @@
 {
+  "system.base.config.tab.basic": "基本情報",
+  "system.base.config.tab.form": "設定フォーム",
   "system.ai.chat.action.collapse_sessions": "会話バーを閉じる",
   "system.ai.chat.action.confirm_delete_conversation": "削除の確認",
   "system.ai.chat.action.continue": "続行",

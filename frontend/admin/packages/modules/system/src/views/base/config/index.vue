@@ -9,95 +9,113 @@
       :request-api="requestBaseConfigTable"
     />
 
-    <FormDialog
+    <ProDialog
       v-model="dialog.visible"
-      ref="formDialogRef"
       class="system-config-dialog"
       :title="t(dialog.titleKey, { resource: t('system.base.config.resource') })"
-      width="min(1440px, calc(100vw - 32px))"
+      width="min(1040px, calc(100vw - 32px))"
       top="4vh"
-      :col-span="12"
-      :gutter="24"
       :confirm-loading="saving"
-      :model="formData"
-      :fields="formFields"
-      :rules="rules"
       @confirm="handleSubmit"
       @close="handleCloseDialog"
     >
-      <template #textValue>
-        <el-input
-          v-model="formData.value"
-          :placeholder="t('common.validation.required_input', { field: t('system.base.config.field.value') })"
-        />
-      </template>
-      <template #imageValue>
-        <UploadImg v-model:image-url="formData.value" upload-type="config" />
-      </template>
-      <template #richTextValue>
-        <WangEditor v-model:value="formData.value" upload-type="config" />
-      </template>
-      <template #dictValue>
-        <Dict
-          v-if="dictValueCode"
-          v-model="formData.value"
-          :code="dictValueCode"
-          code-type="string"
-          :placeholder="t('common.validation.required_select', { field: t('system.base.config.field.value') })"
-        />
-        <el-input
-          v-else
-          v-model="formData.value"
-          :placeholder="t('common.validation.required_input', { field: t('system.base.config.field.value') })"
-        />
-      </template>
-      <template #booleanValue>
-        <el-switch
-          v-model="formData.value"
-          active-value="true"
-          inactive-value="false"
-          active-text="true"
-          inactive-text="false"
-          inline-prompt
-        />
-      </template>
-      <template #formValue>
-        <div class="config-form-value">
-          <template v-if="formDefinition">
-            <p>
-              <el-icon><component :is="formDefinition.icon" /></el-icon> {{ t(formDefinition.descriptionKey) }}
-            </p>
-            <ProForm
-              :key="formDefinition.key"
-              ref="valueFormRef"
-              :model="formValue"
-              :fields="localizedFormFields"
-              :col-span="12"
-              :gutter="24"
-              label-width="180px"
-            />
-          </template>
-          <el-alert v-else :title="t('system.base.config.message.form_unavailable')" type="warning" :closable="false" />
-        </div>
-      </template>
-      <template #nameI18ns>
-        <DynamicI18nEditor v-model="nameI18nValues" :source="formData.name" :maxlength="100" />
-      </template>
-      <template #valueI18ns>
-        <DynamicI18nEditor v-model="valueI18nValues" :source="formData.value" :maxlength="10000" multiline />
-      </template>
-    </FormDialog>
+      <el-tabs
+        v-model="activeTab"
+        class="config-editor-tabs"
+        :class="{ 'config-editor-tabs--plain': formData.type !== BaseConfigType.BASE_CONFIG_TYPE_FORM }"
+      >
+        <el-tab-pane :label="t('system.base.config.tab.basic')" name="basic">
+          <ProForm
+            ref="basicFormRef"
+            :model="formData"
+            :fields="formFields"
+            :rules="rules"
+            :col-span="12"
+            :gutter="24"
+            label-position="top"
+            scroll-to-error
+          >
+            <template #textValue>
+              <el-input
+                v-model="formData.value"
+                :placeholder="t('common.validation.required_input', { field: t('system.base.config.field.value') })"
+              />
+            </template>
+            <template #imageValue>
+              <UploadImg v-model:image-url="formData.value" upload-type="config" />
+            </template>
+            <template #richTextValue>
+              <WangEditor v-model:value="formData.value" upload-type="config" />
+            </template>
+            <template #dictValue>
+              <Dict
+                v-if="dictValueCode"
+                v-model="formData.value"
+                :code="dictValueCode"
+                code-type="string"
+                :placeholder="t('common.validation.required_select', { field: t('system.base.config.field.value') })"
+              />
+              <el-input
+                v-else
+                v-model="formData.value"
+                :placeholder="t('common.validation.required_input', { field: t('system.base.config.field.value') })"
+              />
+            </template>
+            <template #booleanValue>
+              <el-switch
+                v-model="formData.value"
+                active-value="true"
+                inactive-value="false"
+                active-text="true"
+                inactive-text="false"
+                inline-prompt
+              />
+            </template>
+            <template #nameI18ns>
+              <DynamicI18nEditor v-model="nameI18nValues" :source="formData.name" :maxlength="100" />
+            </template>
+            <template #valueI18ns>
+              <DynamicI18nEditor v-model="valueI18nValues" :source="formData.value" :maxlength="10000" multiline />
+            </template>
+          </ProForm>
+        </el-tab-pane>
+        <el-tab-pane
+          v-if="formData.type === BaseConfigType.BASE_CONFIG_TYPE_FORM"
+          :label="t('system.base.config.tab.form')"
+          name="form"
+        >
+          <div class="config-form-value">
+            <template v-if="formDefinition">
+              <p>
+                <el-icon><component :is="formDefinition.icon" /></el-icon> {{ t(formDefinition.descriptionKey) }}
+              </p>
+              <ProForm
+                :key="formDefinition.key"
+                ref="valueFormRef"
+                :model="formValue"
+                :fields="localizedFormFields"
+                :col-span="12"
+                :gutter="24"
+                label-position="top"
+                scroll-to-error
+              />
+            </template>
+            <el-alert v-else :title="t('system.base.config.message.form_unavailable')" type="warning" :closable="false" />
+          </div>
+        </el-tab-pane>
+      </el-tabs>
+    </ProDialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, h, reactive, ref, watch } from "vue";
+import { computed, h, nextTick, reactive, ref, watch } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import ProForm from "@liujitcn/kratos-admin-core/components/ProForm/index.vue";
 import { runtimeConfigDefinitions, type RuntimeConfigModel } from "@liujitcn/kratos-admin-system/config";
-import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
+import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import type { ProFormField, ProFormOption, ProFormInstance } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import DictLabel from "@liujitcn/kratos-admin-core/components/Dict/DictLabel.vue";
 import RichTextPreview from "@liujitcn/kratos-admin-core/components/RichTextPreview/index.vue";
@@ -141,7 +159,8 @@ defineOptions({
 
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
-const formDialogRef = ref<InstanceType<typeof FormDialog>>();
+const basicFormRef = ref<ProFormInstance>();
+const activeTab = ref("basic");
 
 const saving = ref(false);
 const valueFormRef = ref<ProFormInstance>();
@@ -155,6 +174,8 @@ const localizedFormFields = computed<ProFormField[]>(() =>
     props: field.props,
     itemProps: field.itemProps,
     options: field.options,
+    colSpan: field.colSpan,
+    rowBreakBefore: field.rowBreakBefore,
     visible: field.visible,
     labelTooltip: field.labelTooltipKey ? t(field.labelTooltipKey) : undefined,
     rules: field.rules?.map(rule => ({
@@ -199,6 +220,15 @@ const formData = reactive<BaseConfigFormState>({
   /** 配置文本或富文本值的非主语言翻译。 */
   value_i18ns: []
 });
+
+/** 配置类型切换后回到基础信息，避免停留在已移除的表单页签。 */
+watch(
+  () => formData.type,
+  () => {
+    activeTab.value = "basic";
+  },
+  { flush: "sync" }
+);
 
 /** 切换表单类型或编码时加载对应默认内容。 */
 watch(
@@ -356,14 +386,6 @@ const formFields = computed<ProFormField[]>(() => [
     label: t("system.base.config.field.type"),
     component: "dict",
     props: { code: "base_config_type", disabled: formData.id > 0 }
-  },
-  {
-    prop: "formValue",
-    label: t("system.base.config.field.value"),
-    component: "slot",
-    slotName: "formValue",
-    visible: model => model.type === BaseConfigType.BASE_CONFIG_TYPE_FORM,
-    colSpan: 24
   },
   {
     prop: "value",
@@ -617,6 +639,7 @@ async function handleOpenDialog(configId?: number) {
       loadFormValue(formData.value);
     }
   }
+  activeTab.value = configId && formData.type === BaseConfigType.BASE_CONFIG_TYPE_FORM ? "form" : "basic";
   dialog.visible = true;
 }
 
@@ -642,8 +665,9 @@ function handleCloseDialog() {
  * 重置系统配置表单，避免新增时保留旧值。
  */
 function resetForm() {
-  formDialogRef.value?.resetFields();
-  formDialogRef.value?.clearValidate();
+  basicFormRef.value?.resetFields();
+  basicFormRef.value?.clearValidate();
+  activeTab.value = "basic";
   formData.id = 0;
   formData.site = undefined;
   formData.name = "";
@@ -661,17 +685,22 @@ function resetForm() {
  * 提交系统配置表单。
  */
 async function handleSubmit() {
+  if (formData.type === BaseConfigType.BASE_CONFIG_TYPE_BOOLEAN) {
+    formData.value = formData.value === "true" ? "true" : "false";
+  }
+  activeTab.value = "basic";
+  await nextTick();
+  if ((await basicFormRef.value?.validate()) !== true) return;
   if (formData.type === BaseConfigType.BASE_CONFIG_TYPE_FORM) {
+    activeTab.value = "form";
+    await nextTick();
     if (!formDefinition.value) {
       ElMessage.warning(t("system.base.config.message.form_unavailable"));
       return;
     }
     if ((await valueFormRef.value?.validate()) !== true) return;
     formData.value = JSON.stringify(formValue.value);
-  } else if (formData.type === BaseConfigType.BASE_CONFIG_TYPE_BOOLEAN) {
-    formData.value = formData.value === "true" ? "true" : "false";
   }
-  if ((await formDialogRef.value?.validate()) !== true) return;
   saving.value = true;
   try {
     const submitData = JSON.parse(JSON.stringify(formData)) as BaseConfigForm;
@@ -857,5 +886,27 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
     justify-content: flex-start;
     width: auto !important;
   }
+}
+.config-editor-tabs :deep(.el-tabs__content) {
+  max-height: calc(92dvh - 180px);
+  overflow: auto;
+  padding: 8px 12px 0 0;
+}
+.config-editor-tabs--plain :deep(.el-tabs__header) {
+  display: none;
+}
+.config-editor-tabs--plain :deep(.el-tabs__content) {
+  max-height: calc(92dvh - 132px);
+}
+.config-editor-tabs :deep(.el-form-item) {
+  margin-bottom: 24px;
+}
+.config-editor-tabs :deep(.el-form-item__label) {
+  height: auto;
+  line-height: 1.6;
+  white-space: normal;
+}
+.config-form-value :deep(.el-input-number) {
+  width: 100%;
 }
 </style>

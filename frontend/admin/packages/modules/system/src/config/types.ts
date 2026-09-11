@@ -28,6 +28,10 @@ export interface RuntimeConfigField {
   labelKey: string;
   /** ProForm 控件类型。 */
   component: ProFormComponentType;
+  /** 栅格占位列数，默认双列；长路径等字段可设为 24 独占整行。 */
+  colSpan?: ProFormField["colSpan"];
+  /** 是否在当前字段前换行。 */
+  rowBreakBefore?: ProFormField["rowBreakBefore"];
   /** 控件参数。 */
   props?: ProFormField["props"];
   /** 表单项参数。 */
