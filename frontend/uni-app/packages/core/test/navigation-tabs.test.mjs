@@ -65,6 +65,10 @@ async function loadNavigationRuntime(state) {
             path: 'locales-test-runtime',
             namespace: 'test',
           }))
+          buildApi.onResolve({ filter: /\/stores(?:\/index)?(?:\.ts)?$/ }, () => ({
+            path: 'stores-test-runtime',
+            namespace: 'test',
+          }))
           buildApi.onResolve({ filter: /^vue$/ }, () => ({
             path: 'vue-test-runtime',
             namespace: 'test',
@@ -78,6 +82,12 @@ async function loadNavigationRuntime(state) {
                   export function readonly(value) { return value }
                   export function computed(getter) { return { get value() { return getter() } } }
                 `,
+              }
+            }
+            if (args.path === 'stores-test-runtime') {
+              return {
+                loader: 'js',
+                contents: 'export function useSettingStore() { return { aiEnabled: true } }',
               }
             }
             if (args.path === 'menu-test-runtime') {

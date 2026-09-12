@@ -10,5 +10,8 @@ const statusPage = readFileSync(
 
 test('启动状态页不阻塞 uni-app 页面生命周期等待导航请求', () => {
   assert.doesNotMatch(statusPage, /onLoad\(async\s*\(/)
-  assert.match(statusPage, /void initializeAppNavigation\(\)/)
+  assert.match(
+    statusPage,
+    /void useSettingStore\(\)[\s\S]*?\.loadData\(\)[\s\S]*?initializeAppNavigation\(\)/,
+  )
 })
