@@ -23,6 +23,7 @@
       :fields="fields"
       :rules="rules"
       :label-width="labelWidth"
+      :label-position="labelPosition"
       :gutter="gutter"
       :col-span="colSpan"
       v-bind="formProps"
@@ -50,7 +51,7 @@ import { computed, nextTick, ref, useSlots, watch } from "vue";
 import type { FormRules } from "element-plus";
 import ProDialog from "@/components/Dialog/ProDialog.vue";
 import ProForm from "@/components/ProForm/index.vue";
-import type { ProFormField, ProFormInstance } from "@/components/ProForm/interface";
+import type { ProFormField, ProFormInstance, ProFormLabelPosition } from "@/components/ProForm/interface";
 import { useLocaleStore } from "@/locales";
 
 const { t } = useLocaleStore();
@@ -65,6 +66,7 @@ interface FormDialogProps {
   fields: ProFormField[];
   rules?: FormRules;
   labelWidth?: string;
+  labelPosition?: ProFormLabelPosition;
   gutter?: number;
   colSpan?: number;
   confirmText?: string;
@@ -81,7 +83,8 @@ const props = withDefaults(defineProps<FormDialogProps>(), {
   width: "500px",
   top: "8vh",
   rules: () => ({}),
-  labelWidth: "180px",
+  labelWidth: "6em",
+  labelPosition: "right",
   gutter: 20,
   colSpan: 24,
   confirmText: "",

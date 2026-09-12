@@ -72,23 +72,30 @@ export function registerLocaleMessages(modules: AdminModule[]): void {
 
   modules.forEach(module => {
     if (!module.messages) return;
-    const expectedKeys = requiredLocaleKeys(module.messages[DEFAULT_LOCALE] ?? {});
+    const defaultMessages = module.messages[DEFAULT_LOCALE] ?? {};
+    const expectedKeys = requiredLocaleKeys(defaultMessages);
     SUPPORTED_LOCALES.forEach(locale => {
       const messages = module.messages?.[locale];
-      if (!messages) throw new Error(`${module.name} 缺少 ${locale} 语言包`);
-      const keys = requiredLocaleKeys(messages);
+      if (!messages) {
+        warnLocaleIssue(`${module.name} 缺少 ${locale} 语言包，已回退到 ${DEFAULT_LOCALE}`);
+      }
+      const targetMessages = messages ?? {};
+      const keys = requiredLocaleKeys(targetMessages);
       if (keys.join("\u0000") !== expectedKeys.join("\u0000")) {
-        throw new Error(`${module.name} 的 ${locale} 语言包键集合不一致`);
+        warnLocaleIssue(`${module.name} 的 ${locale} 语言包键集合不一致，缺失文案已回退到 ${DEFAULT_LOCALE}`);
       }
 
       const target = merged.get(locale) as LocaleMessages;
-      Object.keys(messages).forEach(key => {
+      expectedKeys.forEach(key => {
+        let message = targetMessages[key] ?? defaultMessages[key];
         assertLocaleKeyNamespace(module.name, key);
         if (Object.prototype.hasOwnProperty.call(target, key)) {
           throw new Error(`${locale} 语言键重复: ${key}`);
         }
-        assertLocalePlaceholders(module.name, key, messages[key], module.messages?.[DEFAULT_LOCALE]?.[key] ?? "");
-        target[key] = messages[key];
+        if (!hasMatchingLocalePlaceholders(module.name, key, message, defaultMessages[key] ?? "")) {
+          message = defaultMessages[key] ?? "";
+        }
+        target[key] = message;
       });
     });
   });
@@ -215,9 +222,16 @@ function requiredLocaleKeys(messages: LocaleMessages): string[] {
     .sort();
 }
 
-function assertLocalePlaceholders(moduleName: string, key: string, message: string, sourceMessage: string): void {
+function hasMatchingLocalePlaceholders(moduleName: string, key: string, message: string, sourceMessage: string): boolean {
   const placeholders = (value: string) => [...value.matchAll(/\{([A-Za-z0-9_]+)\}/g)].map(match => match[1]).sort();
   if (placeholders(message).join("\u0000") !== placeholders(sourceMessage).join("\u0000")) {
-    throw new Error(`${moduleName} 的 ${key} 占位符集合不一致`);
+    warnLocaleIssue(`${moduleName} 的 ${key} 占位符集合不一致，已回退到 ${DEFAULT_LOCALE}`);
+    return false;
   }
+  return true;
+}
+
+/** 记录语言包问题但不阻断应用启动。 */
+function warnLocaleIssue(message: string): void {
+  console.warn(`[i18n] ${message}`);
 }

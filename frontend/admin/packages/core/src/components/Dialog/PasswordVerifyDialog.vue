@@ -23,6 +23,7 @@
       :fields="fields"
       :rules="rules"
       :label-width="labelWidth"
+      :label-position="labelPosition"
       @keyup.enter.prevent="handleConfirm"
     />
   </ProDialog>
@@ -33,7 +34,7 @@ import { computed, reactive, ref } from "vue";
 import type { FormRules } from "element-plus";
 import ProDialog from "@/components/Dialog/ProDialog.vue";
 import ProForm from "@/components/ProForm/index.vue";
-import type { ProFormField, ProFormInstance } from "@/components/ProForm/interface";
+import type { ProFormField, ProFormInstance, ProFormLabelPosition } from "@/components/ProForm/interface";
 import { useLocaleStore } from "@/locales";
 import { PASSWORD_CRYPTO_SCENE, encryptPassword } from "@/utils/passwordCrypto";
 import type { PasswordCryptoScene } from "@/utils/passwordCrypto";
@@ -73,6 +74,8 @@ interface PasswordVerifyDialogProps {
   closeOnPressEscape?: boolean;
   /** 表单标签宽度。 */
   labelWidth?: string;
+  /** 表单标签布局方向。 */
+  labelPosition?: ProFormLabelPosition;
 }
 
 const props = withDefaults(defineProps<PasswordVerifyDialogProps>(), {
@@ -89,7 +92,8 @@ const props = withDefaults(defineProps<PasswordVerifyDialogProps>(), {
   destroyOnClose: false,
   closeOnClickModal: false,
   closeOnPressEscape: true,
-  labelWidth: "auto"
+  labelWidth: "6em",
+  labelPosition: "right"
 });
 
 const emit = defineEmits<{

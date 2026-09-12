@@ -66,8 +66,8 @@ interface ProFormProps {
 
 const props = withDefaults(defineProps<ProFormProps>(), {
   rules: () => ({}),
-  labelWidth: "180px",
-  labelPosition: "top",
+  labelWidth: "6em",
+  labelPosition: "right",
   gutter: 20,
   colSpan: 24
 });
