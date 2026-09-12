@@ -45,4 +45,6 @@ message ConfigItem {
 // 系统配置查询结果
 message GetConfigResponse {
   repeated ConfigItem configs = 1 [(gnostic.openapi.v3.property) = {description: "系统配置列表"}]; // 系统配置列表
+
+  bool ai_enabled = 2 [(gnostic.openapi.v3.property) = {description: "AI assistant availability"}]; // AI 助手是否可用
 }

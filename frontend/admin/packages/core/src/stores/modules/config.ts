@@ -80,7 +80,8 @@ export const useConfigStore = defineStore("admin-config", {
     display: { ...DEFAULT_SITE_DISPLAY_CONFIG },
     captcha: { ...DEFAULT_LOGIN_CAPTCHA_CONFIG },
     showTenantCode: true,
-    i18nDraftEnabled: false
+    i18nDraftEnabled: false,
+    aiEnabled: false
   }),
   getters: {},
   actions: {
@@ -120,6 +121,7 @@ export const useConfigStore = defineStore("admin-config", {
       this.setLoginCaptchaConfig(normalizeLoginCaptchaConfig(configMap));
       this.showTenantCode = !["false", "0"].includes((configMap[SHOW_TENANT_CODE_KEY] ?? "true").toLowerCase());
       this.i18nDraftEnabled = configMap[I18N_DRAFT_ENABLED_KEY] === "true";
+      this.aiEnabled = configResponse.ai_enabled === true;
       return this.display;
     }
   }

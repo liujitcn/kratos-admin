@@ -9,6 +9,7 @@ import { ensureAccessToken } from "@/utils/request";
 import { t } from "@/locales";
 import { useUserStore } from "@/stores/modules/user";
 import { setAdminDocumentTitle } from "@/documentTitle";
+import { useConfigStore } from "@/stores/modules/config";
 
 const mode = import.meta.env.VITE_ROUTER_MODE;
 
@@ -45,6 +46,7 @@ const router = createRouter({
 router.beforeEach(async to => {
   const authStore = useAuthStore();
   const userStore = useUserStore();
+  const configStore = useConfigStore();
   const redirectQuery = typeof to.query.redirect === "string" ? to.query.redirect : "";
 
   // 1.NProgress 开始
@@ -80,6 +82,8 @@ router.beforeEach(async to => {
       replace: true
     };
   }
+
+  if (to.name === "AiChat" && !configStore.aiEnabled) return { path: "/404", replace: true };
 
   // 5.如果没有菜单列表，就重新请求菜单列表并添加动态路由
   if (!authStore.authMenuListGet.length) {

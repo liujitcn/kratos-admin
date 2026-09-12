@@ -7327,6 +7327,9 @@ components:
                     items:
                         $ref: '#/components/schemas/base.v1.ConfigItem'
                     description: 系统配置列表
+                ai_enabled:
+                    type: boolean
+                    description: AI assistant availability
             description: 系统配置查询结果
         base.v1.HandleMcpRequest:
             type: object

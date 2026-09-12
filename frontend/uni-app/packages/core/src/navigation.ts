@@ -7,6 +7,7 @@ import { resolveStaticView } from './module'
 import { matchLogicalPath, parseLogicalQuery } from './navigation-pattern.mjs'
 import { buildMenuTree } from './navigation-tree.mjs'
 import { getCurrentLocale, t } from './locales'
+import { useSettingStore } from './stores'
 
 /** 移动菜单访问模式。 */
 export type AppMenuAccess = 'PUBLIC' | 'GUEST_ONLY' | 'AUTHENTICATED'
@@ -178,9 +179,9 @@ export function setAppNavigationAdapter(nextAdapter: AppNavigationAdapter): void
 export async function initializeAppNavigation(): Promise<void> {
   const cacheKey = resolveCacheKey()
   const cached = readCachedMenus(cacheKey)
-  menus.value = cached ?? createDefaultMenus()
+  menus.value = filterUnavailableMenus(cached ?? createDefaultMenus())
   try {
-    const nextMenus = normalizeMenuResponse(await adapter.list())
+    const nextMenus = filterUnavailableMenus(normalizeMenuResponse(await adapter.list()))
     validateMenus(nextMenus)
     uni.setStorageSync(cacheKey, nextMenus)
     menus.value = nextMenus
@@ -191,6 +192,12 @@ export async function initializeAppNavigation(): Promise<void> {
   } finally {
     ready.value = true
   }
+}
+
+/** 根据运行时能力过滤不可用的移动端入口。 */
+function filterUnavailableMenus(nextMenus: AppMenu[]): AppMenu[] {
+  if (useSettingStore().aiEnabled) return nextMenus
+  return nextMenus.filter((menu) => menu.viewKey !== 'AI')
 }
 
 /** 使用已经校验的整份配置进行原子切换。 */
@@ -210,6 +217,7 @@ export function resolveAppRoute(rawRoute: string): ResolvedAppRoute | undefined 
     if (!params) continue
     const physicalRoute = resolveStaticView(menu.viewKey)
     if (!physicalRoute) return
+    if (menu.viewKey === 'AI' && !useSettingStore().aiEnabled) return
     return {
       menu,
       physicalRoute,

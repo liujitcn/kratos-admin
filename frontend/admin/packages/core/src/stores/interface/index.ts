@@ -122,4 +122,6 @@ export interface SiteConfigState {
   showTenantCode: boolean;
   /** 是否允许显式生成机器翻译草稿。 */
   i18nDraftEnabled: boolean;
+  /** AI 助手是否可用。 */
+  aiEnabled: boolean;
 }

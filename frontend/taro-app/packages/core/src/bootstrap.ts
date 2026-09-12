@@ -58,7 +58,10 @@ export function bootstrapKratosTaroApp(options: KratosTaroBootstrapOptions): voi
   bootstrapped = true
   syncH5DocumentTitle()
   registerLocaleChangeHandler(initializeAppNavigation)
-  registerLocaleChangeHandler(() => useSettingStore.getState().loadData())
+  registerLocaleChangeHandler(async () => {
+    await useSettingStore.getState().loadData()
+    await initializeAppNavigation()
+  })
   registerLocaleChangeHandler(syncH5DocumentTitle)
   startUserStoreEventBridge()
   registerUserStoreExtension({
@@ -67,4 +70,7 @@ export function bootstrapKratosTaroApp(options: KratosTaroBootstrapOptions): voi
     onSilentLogout: initializeAppNavigation,
   })
   useUserStore.getState().hydrate()
+  void useSettingStore.getState().loadData().then(() => initializeAppNavigation()).catch((error) => {
+    console.warn('application configuration unavailable', error)
+  })
 }

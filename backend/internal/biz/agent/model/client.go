@@ -54,7 +54,7 @@ func NewResponsesClient(modelCfg *configv1.AI_Model) *ResponsesClient {
 	}
 	agenticModel, err := newResponsesModel(context.Background(), modelCfg)
 	if err != nil {
-		panic(fmt.Errorf("创建 AI 助手 Responses 模型失败: %w", err))
+		return client
 	}
 	client.name = modelCfg.GetModelName()
 	client.AgenticModel = agenticModel

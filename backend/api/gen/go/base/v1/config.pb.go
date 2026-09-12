@@ -191,7 +191,8 @@ func (x *ConfigItem) GetValue() string {
 // 系统配置查询结果
 type GetConfigResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Configs       []*ConfigItem          `protobuf:"bytes,1,rep,name=configs,proto3" json:"configs,omitempty"` // 系统配置列表
+	Configs       []*ConfigItem          `protobuf:"bytes,1,rep,name=configs,proto3" json:"configs,omitempty"`                       // 系统配置列表
+	AiEnabled     bool                   `protobuf:"varint,2,opt,name=ai_enabled,json=aiEnabled,proto3" json:"ai_enabled,omitempty"` // AI 助手是否可用
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -233,6 +234,13 @@ func (x *GetConfigResponse) GetConfigs() []*ConfigItem {
 	return nil
 }
 
+func (x *GetConfigResponse) GetAiEnabled() bool {
+	if x != nil {
+		return x.AiEnabled
+	}
+	return false
+}
+
 var File_base_v1_config_proto protoreflect.FileDescriptor
 
 const file_base_v1_config_proto_rawDesc = "" +
@@ -245,9 +253,11 @@ const file_base_v1_config_proto_rawDesc = "" +
 	"ConfigItem\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12!\n" +
 	"\x03key\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t配置keyR\x03key\x12'\n" +
-	"\x05value\x18\x03 \x01(\tB\x11\xbaG\x0e\x92\x02\v配置valueR\x05value\"\\\n" +
+	"\x05value\x18\x03 \x01(\tB\x11\xbaG\x0e\x92\x02\v配置valueR\x05value\"\x9c\x01\n" +
 	"\x11GetConfigResponse\x12G\n" +
-	"\aconfigs\x18\x01 \x03(\v2\x13.base.v1.ConfigItemB\x18\xbaG\x15\x92\x02\x12系统配置列表R\aconfigs*\x85\x01\n" +
+	"\aconfigs\x18\x01 \x03(\v2\x13.base.v1.ConfigItemB\x18\xbaG\x15\x92\x02\x12系统配置列表R\aconfigs\x12>\n" +
+	"\n" +
+	"ai_enabled\x18\x02 \x01(\bB\x1f\xbaG\x1c\x92\x02\x19AI assistant availabilityR\taiEnabled*\x85\x01\n" +
 	"\x0eBaseConfigSite\x12 \n" +
 	"\x1cBASE_CONFIG_SITE_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17BASE_CONFIG_SITE_SYSTEM\x10\x01\x12\x1a\n" +

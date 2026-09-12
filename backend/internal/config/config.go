@@ -16,7 +16,7 @@ const redactStorageKeyName = "kratos-admin:redact/storage"
 // ParseAIModel 提取本地 AI 模型配置。
 func ParseAIModel(cfg *configv1.Bootstrap) (*configv1.AI_Model, error) {
 	if cfg == nil || cfg.GetAi() == nil {
-		return nil, errors.New("ai相关配置为空")
+		return nil, nil
 	}
 	return cfg.GetAi().GetModel(), nil
 }

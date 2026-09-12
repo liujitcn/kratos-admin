@@ -36,8 +36,17 @@ export function bootstrapKratosApp(options: KratosAppBootstrapOptions) {
     .catch(() => {
       // 语言公共接口失败时继续使用静态语言包和系统语言。
     })
-  registerLocaleChangeHandler(initializeAppNavigation)
-  registerLocaleChangeHandler(() => useSettingStore(options.pinia).loadData())
+  registerLocaleChangeHandler(async () => {
+    const settingStore = useSettingStore(options.pinia)
+    await settingStore.loadData()
+    await initializeAppNavigation()
+  })
+  void useSettingStore(options.pinia)
+    .loadData()
+    .then(() => initializeAppNavigation())
+    .catch((error) => {
+      console.warn('application configuration unavailable', error)
+    })
   const app = options.createSSRApp(options.app)
   app.use(options.pinia)
   return { app }

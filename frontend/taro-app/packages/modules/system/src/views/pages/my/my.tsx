@@ -6,6 +6,7 @@ import {
   navigateAppRoute,
   navigateToLogin,
   useI18n,
+  useSettingStore,
   useUserStore,
 } from '@liujitcn/kratos-taro-app-core'
 import Taro from '@tarojs/taro'
@@ -18,6 +19,7 @@ export default function MyPage() {
   const profile = useUserStore((state) => state.userInfo)
   const isLoggedIn = useUserStore((state) => state.isAuthenticated())
   const ensureAuthenticated = useUserStore((state) => state.ensureAuthenticated)
+  const aiEnabled = useSettingStore((state) => state.aiEnabled)
 
   useEffect(() => {
     void Taro.setNavigationBarTitle({ title: t('core.navigation.my') })
@@ -75,14 +77,14 @@ export default function MyPage() {
         </View>
       </View>
 
-      <View className='my-ai-entry' onClick={() => openAuthenticatedPage('app/ai')}>
+      {aiEnabled ? <View className='my-ai-entry' onClick={() => openAuthenticatedPage('app/ai')}>
         <View className='my-ai-entry__icon'>AI</View>
         <View className='my-ai-entry__content'>
           <View className='my-ai-entry__title'>{t('system.settings.ai_title')}</View>
           <View className='my-ai-entry__desc'>{t('system.settings.ai_description')}</View>
         </View>
         <View className='my-ai-entry__action'>{t('system.settings.go_ask')}</View>
-      </View>
+      </View> : null}
     </ScrollView>
   )
 }

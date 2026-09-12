@@ -18,11 +18,14 @@ import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { t } from "@liujitcn/kratos-admin-core";
 import { useAuthStore } from "@liujitcn/kratos-admin-core/stores/runtime";
+import { useConfigStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { navigateTo } from "@liujitcn/kratos-admin-core/navigation";
 
 const router = useRouter();
 const authStore = useAuthStore();
+const configStore = useConfigStore();
 const aiRoute = computed(() => {
+  if (!configStore.aiEnabled) return undefined;
   return authStore.flatMenuListGet.find(item => item.name === "AiChat" && item.path);
 });
 

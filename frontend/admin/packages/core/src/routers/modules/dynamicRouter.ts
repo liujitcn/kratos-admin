@@ -9,6 +9,7 @@ import type { RouteItem } from "@/rpc/system/admin/v1/auth";
 import { BaseMenuType } from "@/rpc/system/admin/v1/common";
 import { getRouteMetaFull } from "@/utils";
 import { ADMIN_STATIC_VIEWS, getAdminViewRegistry } from "../../modules";
+import { useConfigStore } from "@/stores/modules/config";
 
 /** 解析后的后端路由项，补齐完整路径和重定向。 */
 type ResolvedRouteItem = {
@@ -113,6 +114,7 @@ function createRouteRecord(item: RouteItem, path: string, redirect?: string) {
 export const initDynamicRouter = async () => {
   const userStore = useUserStore();
   const authStore = useAuthStore();
+  const configStore = useConfigStore();
 
   try {
     // 1.获取菜单列表 && 按钮权限列表
@@ -135,6 +137,7 @@ export const initDynamicRouter = async () => {
     // 3.添加动态路由
     const resolvedRouteItems = buildResolvedRouteItems(authStore.authMenuListGet);
     resolvedRouteItems.forEach(({ item, path, redirect }) => {
+      if (item.name === "AiChat" && !configStore.aiEnabled) return;
       if (item.type === BaseMenuType.BASE_MENU_TYPE_EXT_LINK) return;
       const routeRecord = createRouteRecord(item, path, redirect);
 

@@ -8,6 +8,7 @@ import { buildMenuTree } from './navigation-tree.mjs'
 import { hasValidToken } from './utils/auth'
 import { navigateToLogin } from './utils/navigation'
 import { getCurrentLocale, t } from './locales'
+import { useSettingStore } from './stores'
 
 /** 移动菜单访问模式。 */
 export type AppMenuAccess = 'PUBLIC' | 'GUEST_ONLY' | 'AUTHENTICATED'
@@ -219,9 +220,9 @@ export function setAppNavigationAdapter(nextAdapter: AppNavigationAdapter): void
 export async function initializeAppNavigation(): Promise<void> {
   const cacheKey = resolveCacheKey()
   const cached = readCachedMenus(cacheKey)
-  useAppNavigation.setState(createNavigationState(cached ?? localizedDefaultAppMenus(), false))
+  useAppNavigation.setState(createNavigationState(filterUnavailableMenus(cached ?? localizedDefaultAppMenus()), false))
   try {
-    const nextMenus = normalizeMenuResponse(await adapter.list())
+    const nextMenus = filterUnavailableMenus(normalizeMenuResponse(await adapter.list()))
     validateMenus(nextMenus)
     Taro.setStorageSync(cacheKey, nextMenus)
     useAppNavigation.setState(createNavigationState(nextMenus, true))
@@ -229,6 +230,12 @@ export async function initializeAppNavigation(): Promise<void> {
     if (!cached) console.warn('navigation fallback to local defaults', error)
     useAppNavigation.setState((state) => ({ ...state, ready: true }))
   }
+}
+
+/** 根据运行时能力过滤不可用的移动端入口。 */
+function filterUnavailableMenus(nextMenus: AppMenu[]): AppMenu[] {
+  if (useSettingStore.getState().aiEnabled) return nextMenus
+  return nextMenus.filter((menu) => menu.viewKey !== 'AI')
 }
 
 /** 使用已经校验的整份配置进行原子切换。 */
@@ -247,6 +254,7 @@ export function resolveAppRoute(rawRoute: string): ResolvedAppRoute | undefined 
     if (!params) continue
     const physicalRoute = resolveStaticView(menu.viewKey)
     if (!physicalRoute) return
+    if (menu.viewKey === 'AI' && !useSettingStore.getState().aiEnabled) return
     return {
       menu,
       physicalRoute,

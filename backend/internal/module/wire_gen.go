@@ -329,7 +329,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	aiToolService := base.NewAiToolService(aiToolCase)
 	aiMessageService := base.NewAiMessageService(aiMessageCase)
 	configCase := biz2.NewConfigCase(baseCase, baseConfigRepository, baseI18NRepository, baseLanguageRepository)
-	configService := base.NewConfigService(configCase)
+	configService := base.NewConfigService(configCase, responsesClient)
 	languageCase := biz2.NewLanguageCase(baseCase, baseLanguageRepository)
 	languageService := base.NewLanguageService(languageCase)
 	fileService := base.NewFileService(fileCase)

@@ -12,6 +12,7 @@ const REQUIRED_APP_CONFIGS = [
 
 export const useSettingStore = defineStore('setting', () => {
   const data = ref<Map<string, string>>()
+  const aiEnabled = ref(false)
   let loading: Promise<void> | undefined
 
   /** 读取移动端配置项。 */
@@ -26,9 +27,15 @@ export const useSettingStore = defineStore('setting', () => {
     }
 
     const request = (async () => {
-      const res = await defConfigService.GetConfig({
-        site: BaseConfigSite.BASE_CONFIG_SITE_APP,
-      })
+      let res
+      try {
+        res = await defConfigService.GetConfig({
+          site: BaseConfigSite.BASE_CONFIG_SITE_APP,
+        })
+      } catch {
+        aiEnabled.value = false
+        return
+      }
       const nextData = new Map<string, string>()
       res.configs.forEach((item) => {
         nextData.set(item.key, item.value)
@@ -44,6 +51,7 @@ export const useSettingStore = defineStore('setting', () => {
       }
 
       data.value = nextData
+      aiEnabled.value = res.ai_enabled === true
     })()
     loading = request
 
@@ -56,6 +64,7 @@ export const useSettingStore = defineStore('setting', () => {
 
   return {
     getData,
+    aiEnabled,
     loadData,
   }
 })

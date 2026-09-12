@@ -100,4 +100,6 @@ func (x *GetConfigResponse) Redact() {
 	}
 
 	// Safe field: Configs
+
+	// Safe field: AiEnabled
 }

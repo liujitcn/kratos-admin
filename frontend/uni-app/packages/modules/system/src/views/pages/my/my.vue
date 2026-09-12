@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useUserStore } from '@liujitcn/kratos-uni-app-core/stores'
+import { useSettingStore, useUserStore } from '@liujitcn/kratos-uni-app-core/stores'
 import { computed } from 'vue'
 import { formatSrc } from '@liujitcn/kratos-uni-app-core/utils/index'
 import { navigateToLogin } from '@liujitcn/kratos-uni-app-core/utils/navigation'
@@ -10,6 +10,7 @@ import { useI18n } from '@liujitcn/kratos-uni-app-core'
 
 // 获取会员信息
 const userStore = useUserStore()
+const settingStore = useSettingStore()
 const { t } = useI18n()
 const isLoggedIn = computed(() => userStore.isAuthenticated())
 const profile = computed(() => userStore.userInfo)
@@ -82,7 +83,7 @@ const navigateToProfile = () => navigateAppRoute('app/profile')
       <view class="settings" @tap="navigateToSettings">{{ t('core.settings.title') }}</view>
     </view>
     <!-- AI 助手入口 -->
-    <view class="ai-entry" @tap="navigateToAi">
+    <view v-if="settingStore.aiEnabled" class="ai-entry" @tap="navigateToAi">
       <view class="ai-entry__icon">AI</view>
       <view class="ai-entry__content">
         <view class="ai-entry__title">{{ t('system.settings.ai_title') }}</view>

@@ -38,6 +38,8 @@ export interface ConfigItem {
 export interface GetConfigResponse {
   /** 系统配置列表 */
   configs: ConfigItem[];
+  /** AI 助手是否可用 */
+  ai_enabled: boolean;
 }
 
 /** Base系统配置公共服务 */
