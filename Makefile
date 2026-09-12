@@ -66,8 +66,7 @@ DOCKER_GRPC_PORT ?= 6001
 DOCKER_DATA_DIR ?= backend/data
 DOCKER_LOG_DIR ?= backend/logs
 DOCKER_BACKUP_DIR ?= backend/backups
-DOCKER_CONFIG_SOURCE_DIR ?= backend/configs
-DOCKER_CONFIG_DIR ?= backend/runtime/configs
+DOCKER_CONFIG_DIR ?= backend/configs
 DOCKER_RUN_ARGS ?=
 
 # ===== 环境初始化 =====
@@ -192,19 +191,9 @@ docker-check:
 	@"$(DOCKER)" info >/dev/null 2>&1 || (echo "Docker 服务不可用，请确认 Docker Desktop 或 Docker daemon 已启动" && exit 1)
 	@echo "==> Docker 可用: $$($(DOCKER) version --format 'client={{.Client.Version}} server={{.Server.Version}}')"
 
-# 初始化可由宿主机修改的容器运行配置。
+# 检查可由宿主机修改的容器运行配置。
 docker-config:
-	@test -d "$(DOCKER_CONFIG_SOURCE_DIR)" || (echo "未找到源配置目录: $(DOCKER_CONFIG_SOURCE_DIR)" && exit 1)
-	@if [ ! -d "$(DOCKER_CONFIG_DIR)" ]; then \
-		mkdir -p "$(DOCKER_CONFIG_DIR)"; \
-		cp "$(DOCKER_CONFIG_SOURCE_DIR)"/*.yaml "$(DOCKER_CONFIG_DIR)/"; \
-		for config_file in data.yaml data.dev.yaml logger.yaml pprof.yaml registry.yaml key.yaml; do \
-			if [ -f "$(DOCKER_CONFIG_DIR)/$$config_file" ]; then \
-				perl -pi -e 's/127\.0\.0\.1/host.docker.internal/g; s/localhost/host.docker.internal/g' "$(DOCKER_CONFIG_DIR)/$$config_file"; \
-			fi; \
-		done; \
-		echo "==> Docker 运行配置已初始化: $(DOCKER_CONFIG_DIR)"; \
-	fi
+	@test -d "$(DOCKER_CONFIG_DIR)" || (echo "未找到 Docker 配置目录: $(DOCKER_CONFIG_DIR)" && exit 1)
 
 # 构建三端静态资源、后端程序和 Docker 镜像。
 docker-build: docker-check
@@ -318,7 +307,6 @@ help:
 	@printf "  %-24s %s\n" "DOCKER_DATA_DIR" "宿主机数据目录，当前: $(DOCKER_DATA_DIR)"
 	@printf "  %-24s %s\n" "DOCKER_LOG_DIR" "宿主机日志目录，当前: $(DOCKER_LOG_DIR)"
 	@printf "  %-24s %s\n" "DOCKER_BACKUP_DIR" "宿主机备份目录，当前: $(DOCKER_BACKUP_DIR)"
-	@printf "  %-24s %s\n" "DOCKER_CONFIG_SOURCE_DIR" "Docker 配置源目录，当前: $(DOCKER_CONFIG_SOURCE_DIR)"
 	@printf "  %-24s %s\n" "DOCKER_CONFIG_DIR" "宿主机配置目录，当前: $(DOCKER_CONFIG_DIR)"
 	@echo ""
 	@echo "更多命令:"
