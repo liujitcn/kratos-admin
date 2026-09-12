@@ -36,7 +36,7 @@ require (
 	github.com/liujitcn/kratos-kit/oss v0.0.19
 	github.com/liujitcn/kratos-kit/pprof v0.0.16
 	github.com/liujitcn/kratos-kit/queue v0.0.29
-	github.com/liujitcn/kratos-kit/redact v0.0.7
+	github.com/liujitcn/kratos-kit/redact v0.0.6
 	github.com/liujitcn/kratos-kit/registry/consul v0.0.7
 	github.com/liujitcn/kratos-kit/translator v0.0.7
 	github.com/liujitcn/kratos-kit/transport/cron v0.0.18
@@ -222,7 +222,7 @@ require (
 	github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.20 // indirect
 	github.com/liujitcn/kratos-kit/broker v0.0.11 // indirect
 	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.19 // indirect
-	github.com/liujitcn/kratos-kit/key v0.0.4 // indirect
+	github.com/liujitcn/kratos-kit/key v0.0.5 // indirect
 	github.com/liujitcn/kratos-kit/locker v0.0.18 // indirect
 	github.com/liujitcn/kratos-kit/logger v0.0.32 // indirect
 	github.com/liujitcn/kratos-kit/oss/s3 v0.0.4 // indirect

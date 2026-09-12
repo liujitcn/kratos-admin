@@ -748,8 +748,8 @@ github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.20 h1:5RmRcABOCjy
 github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.20/go.mod h1:DvkazLVJsWLOxXvOoBcCMJwLdGVywzN/i89srUE/gUg=
 github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.16 h1:+xz7Qz5spDT3AiUS4Xg35R/bx7140mMbtut97b4V5gY=
 github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.16/go.mod h1:KeOMS4kacpLKNtOPyivu/r1ZJAlqT+8aYPAxe+keYng=
-github.com/liujitcn/kratos-kit/key v0.0.4 h1:HM7ehJmrW8J6wOaj+XdXuJOCOKNqH4TMiVCPy2t5l8E=
-github.com/liujitcn/kratos-kit/key v0.0.4/go.mod h1:T88LRuZRS9syG7mAm5pXg9/Y1t2LuQgN7+djNcJ3JOw=
+github.com/liujitcn/kratos-kit/key v0.0.5 h1:brKlbehc6u1XFze1Dd+U3FqKOS5G/ycQuZrOrSPUpdw=
+github.com/liujitcn/kratos-kit/key v0.0.5/go.mod h1:T88LRuZRS9syG7mAm5pXg9/Y1t2LuQgN7+djNcJ3JOw=
 github.com/liujitcn/kratos-kit/locker v0.0.18 h1:ogBrdK3zLPSu8znTkaPQKyG5Aq5YFUt83fEtdX+DFx8=
 github.com/liujitcn/kratos-kit/locker v0.0.18/go.mod h1:ZOJzJPJS8uOf1UO1s+LP2UaKq+SplTccYFm666pz7uM=
 github.com/liujitcn/kratos-kit/logger v0.0.32 h1:X/C8SObAxR72L79Bz1w0gEq2TXTNS4WgGvGeuxkJ/b8=
@@ -768,8 +768,8 @@ github.com/liujitcn/kratos-kit/queue v0.0.29 h1:Kv2/CfE+p5pZOuUZzuV+RULBLPmIJRZS
 github.com/liujitcn/kratos-kit/queue v0.0.29/go.mod h1:cUIQp9ZOcnBQXKP9yW0xeU9Dezkf9sOQuR4F6oVs8Ig=
 github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.16 h1:bedifEZn+0HUHfKQ4p7QXMlEBoDu4786r39M1UZwuPU=
 github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.16/go.mod h1:iz4f5nO2ZyLqc+jVCHSHQvK1o/Ex1UsJvagqB5KTE74=
-github.com/liujitcn/kratos-kit/redact v0.0.7 h1:jjaZAnnbvkZfvAecF8Pm8EGOi0EB37APUzWavBBpnkI=
-github.com/liujitcn/kratos-kit/redact v0.0.7/go.mod h1:FnSLS81bA/4zWRq08JNsblrVyo7Bpcd1bS3Lvrqx8Co=
+github.com/liujitcn/kratos-kit/redact v0.0.6 h1:NV4NZeyapUiyrHHFHru3OAiAbPNS+sLNYWnuR5w+8iI=
+github.com/liujitcn/kratos-kit/redact v0.0.6/go.mod h1:FnSLS81bA/4zWRq08JNsblrVyo7Bpcd1bS3Lvrqx8Co=
 github.com/liujitcn/kratos-kit/registry v0.0.23 h1:pRvYmAGYNCBu0Ds662A+Q7+RMLYkUrshvrq/XzHIQ/A=
 github.com/liujitcn/kratos-kit/registry v0.0.23/go.mod h1:oIKZLEnJ1RH3hDMpsKErQ4kKShlqDgK0i5gtvBMF8kQ=
 github.com/liujitcn/kratos-kit/registry/consul v0.0.7 h1:OrdczmVF2lWd6ZfmL7DgPT4+rQanvWVahuT4aB7muP4=
