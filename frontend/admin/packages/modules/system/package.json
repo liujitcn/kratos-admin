@@ -22,7 +22,7 @@
     "@lucide/vue": "^1.39.0",
     "@microsoft/fetch-event-source": "^2.0.1",
     "sortablejs": "^1.15.2",
-    "swagger-ui-dist": "^5.32.9",
+    "swagger-ui-dist": "^5.32.15",
     "vue-element-plus-x": "^2.0.3"
   },
   "peerDependencies": {
