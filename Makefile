@@ -243,7 +243,7 @@ docker-run: docker-check docker-config
 		-v "$(abspath $(DOCKER_DATA_DIR)):/app/data" \
 		-v "$(abspath $(DOCKER_LOG_DIR)):/app/logs" \
 		-v "$(abspath $(DOCKER_BACKUP_DIR)):/app/backups" \
-		-v "$(abspath $(DOCKER_CONFIG_DIR)):/app/configs:ro" \
+		-v "$(abspath $(DOCKER_CONFIG_DIR)):/app/configs" \
 		$(DOCKER_RUN_ARGS) \
 		"$(IMAGE):$(TAG)" \
 		./server -c ./configs -e "$(APP_ENV)"
