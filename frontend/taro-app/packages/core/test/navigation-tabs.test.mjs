@@ -45,6 +45,10 @@ async function loadNavigationRuntime(state, environment = 'weapp') {
             path: 'locales-test-runtime',
             namespace: 'test',
           }))
+          buildApi.onResolve({ filter: /\/stores(?:\/index)?(?:\.ts)?$/ }, () => ({
+            path: 'stores-test-runtime',
+            namespace: 'test',
+          }))
           buildApi.onLoad({ filter: /.*/, namespace: 'test' }, (args) => {
             const stateExpression = 'process.__KRATOS_TARO_TABS_TEST_STATE__'
             if (args.path === 'taro-tabs-test-runtime') {
@@ -78,8 +82,19 @@ async function loadNavigationRuntime(state, environment = 'weapp') {
                 `,
               }
             }
+            if (args.path === 'stores-test-runtime') {
+              return {
+                loader: 'js',
+                contents: `export const useSettingStore = {
+                  getState() { return { aiEnabled: true } }
+                }`,
+              }
+            }
             if (args.path === 'menu-test-runtime') {
-              return { loader: 'js', contents: 'export const defBaseMenuService = { list: async () => [] }' }
+              return {
+                loader: 'js',
+                contents: 'export const defBaseMenuService = { list: async () => [] }',
+              }
             }
             if (args.path === 'auth-test-runtime') {
               return { loader: 'js', contents: 'export function hasValidToken() { return false }' }
@@ -178,7 +193,7 @@ test('切换已存在的固定 tab 仍使用原生 switchTab', async () => {
   assert.equal(state.reLaunchCalls.length, 0)
 })
 
- test('H5 自绘 tab 直接切换，不使用带滑动动画的页面栈导航', async () => {
+test('H5 自绘 tab 直接切换，不使用带滑动动画的页面栈导航', async () => {
   const state = createState([{ route: 'pages/index/index' }])
   const navigation = await loadNavigationRuntime(state, 'h5')
   navigation.installAppNavigation(menus)
@@ -188,4 +203,4 @@ test('切换已存在的固定 tab 仍使用原生 switchTab', async () => {
   assert.equal(state.switchTabCalls.length, 0)
   assert.equal(state.navigateCalls.length, 0)
   assert.equal(state.navigateBackCalls.length, 0)
- })
+})
