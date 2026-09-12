@@ -7,7 +7,7 @@ require (
 	github.com/cloudwego/eino v0.9.15
 	github.com/cloudwego/eino-ext/components/model/agenticopenai v0.2.2
 	github.com/go-kratos/kratos/v3 v3.0.0
-	github.com/go-sql-driver/mysql v1.10.0
+	github.com/go-sql-driver/mysql v1.10.1
 	github.com/go-webauthn/webauthn v0.17.4
 	github.com/google/jsonschema-go v0.4.3
 	github.com/google/wire v0.7.0
