@@ -10,7 +10,7 @@
 .PHONY: help init hooks check gen \
 	build build-backend build-frontend package package-backend package-frontend \
 	i18n i18n-check i18n-add _i18n-sync _i18n-openapi \
-	docker-check docker-config docker-build docker-run docker-stop \
+	docker-check docker-buildx-check docker-config docker-build docker-build-multiarch docker-run docker-stop \
 	tag
 
 # 统一递归 Make 输出，避免显示目录进入提示和终端控制符。
@@ -56,6 +56,8 @@ DOCKER ?= docker
 DOCKER_CONTEXT ?= backend
 DOCKERFILE ?= backend/Dockerfile
 DOCKER_PLATFORM ?= linux/$(GOARCH)
+DOCKER_PLATFORMS ?= linux/amd64,linux/arm64
+DOCKER_OUTPUT ?= --push
 IMAGE ?= backend
 TAG ?= latest
 DOCKER_BUILD_ARGS ?=
@@ -191,19 +193,33 @@ docker-check:
 	@"$(DOCKER)" info >/dev/null 2>&1 || (echo "Docker 服务不可用，请确认 Docker Desktop 或 Docker daemon 已启动" && exit 1)
 	@echo "==> Docker 可用: $$($(DOCKER) version --format 'client={{.Client.Version}} server={{.Server.Version}}')"
 
+# 检查 Docker Buildx 是否可用。
+docker-buildx-check: docker-check
+	@"$(DOCKER)" buildx version >/dev/null 2>&1 || (echo "Docker Buildx 不可用，请安装或启用 buildx 插件" && exit 1)
+
 # 检查可由宿主机修改的容器运行配置。
 docker-config:
 	@test -d "$(DOCKER_CONFIG_DIR)" || (echo "未找到 Docker 配置目录: $(DOCKER_CONFIG_DIR)" && exit 1)
 
-# 构建三端静态资源、后端程序和 Docker 镜像。
+# 构建三端静态资源和当前指定平台的 Docker 镜像。
 docker-build: docker-check
 	@test -f "$(DOCKERFILE)" || (echo "未找到 Dockerfile: $(DOCKERFILE)，请通过 DOCKERFILE 指定有效文件" && exit 1)
 	@$(MAKE) build-frontend
-	@$(MAKE) -C "$(BACKEND_DIR)" build \
-		CGO_ENABLED="$(CGO_ENABLED)" GOOS=linux GOARCH="$(GOARCH)" \
-		BUILD_FLAGS="$(BUILD_FLAGS)" BINARY="$(BINARY)"
-	@BUILDKIT_PROGRESS=plain "$(DOCKER)" build $(DOCKER_BUILD_ARGS) --platform "$(DOCKER_PLATFORM)" -f "$(DOCKERFILE)" -t "$(IMAGE):$(TAG)" "$(DOCKER_CONTEXT)"
-	@echo "==> Docker 镜像已生成: $(IMAGE):$(TAG)"
+	@BUILDKIT_PROGRESS=plain "$(DOCKER)" build $(DOCKER_BUILD_ARGS) \
+		--build-arg BUILD_FLAGS="$(BUILD_FLAGS)" \
+		--platform "$(DOCKER_PLATFORM)" \
+		-f "$(DOCKERFILE)" -t "$(IMAGE):$(TAG)" "$(DOCKER_CONTEXT)"
+	@echo "==> Docker 镜像已生成: $(IMAGE):$(TAG) ($(DOCKER_PLATFORM))"
+
+# 构建并输出 Linux AMD64、ARM64 多架构 Docker 镜像。
+docker-build-multiarch: docker-buildx-check
+	@test -f "$(DOCKERFILE)" || (echo "未找到 Dockerfile: $(DOCKERFILE)，请通过 DOCKERFILE 指定有效文件" && exit 1)
+	@$(MAKE) build-frontend
+	@BUILDKIT_PROGRESS=plain "$(DOCKER)" buildx build $(DOCKER_BUILD_ARGS) \
+		--build-arg BUILD_FLAGS="$(BUILD_FLAGS)" \
+		--platform "$(DOCKER_PLATFORMS)" \
+		-f "$(DOCKERFILE)" -t "$(IMAGE):$(TAG)" $(DOCKER_OUTPUT) "$(DOCKER_CONTEXT)"
+	@echo "==> Docker 多架构镜像已生成: $(IMAGE):$(TAG) ($(DOCKER_PLATFORMS))"
 
 # 使用宿主机数据和配置目录启动容器。
 docker-run: docker-check docker-config
@@ -272,7 +288,8 @@ help:
 	@echo "  make i18n-add I18N_LOCALE=de-DE    新增语言翻译草稿（需人工复核）"
 	@echo "  make build                        构建后端和三个前端宿主"
 	@echo "  make package                      生成后端压缩包和全部 npm 包"
-	@echo "  make docker-build                 构建 Docker 镜像"
+	@echo "  make docker-build                 构建单平台 Docker 镜像"
+	@echo "  make docker-build-multiarch       构建并推送 AMD64、ARM64 镜像"
 	@echo "  make tag VERSION=0.0.1            统一发布（会提交并推送）"
 	@echo ""
 	@echo "可用目标:"
@@ -299,7 +316,9 @@ help:
 	@printf "  %-24s %s\n" "IMAGE / TAG" "Docker 镜像，当前: $(IMAGE):$(TAG)"
 	@printf "  %-24s %s\n" "DOCKER_CONTEXT" "Docker 构建上下文，当前: $(DOCKER_CONTEXT)"
 	@printf "  %-24s %s\n" "DOCKERFILE" "Dockerfile 路径，当前: $(DOCKERFILE)"
-	@printf "  %-24s %s\n" "DOCKER_PLATFORM" "Docker 平台，当前: $(DOCKER_PLATFORM)"
+	@printf "  %-24s %s\n" "DOCKER_PLATFORM" "单平台 Docker 构建平台，当前: $(DOCKER_PLATFORM)"
+	@printf "  %-24s %s\n" "DOCKER_PLATFORMS" "多架构 Docker 平台，当前: $(DOCKER_PLATFORMS)"
+	@printf "  %-24s %s\n" "DOCKER_OUTPUT" "多架构输出方式，当前: $(DOCKER_OUTPUT)"
 	@printf "  %-24s %s\n" "CONTAINER_NAME" "Docker 容器名，当前: $(CONTAINER_NAME)"
 	@printf "  %-24s %s\n" "DOCKER_NETWORK" "Docker 网络，当前: $(DOCKER_NETWORK)"
 	@printf "  %-24s %s\n" "DOCKER_HTTP_PORT" "宿主机 HTTP 端口，当前: $(DOCKER_HTTP_PORT)"
