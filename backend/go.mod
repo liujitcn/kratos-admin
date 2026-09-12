@@ -8,7 +8,7 @@ require (
 	github.com/cloudwego/eino-ext/components/model/agenticopenai v0.2.2
 	github.com/go-kratos/kratos/v3 v3.0.0
 	github.com/go-sql-driver/mysql v1.10.0
-	github.com/go-webauthn/webauthn v0.17.4
+	github.com/go-webauthn/webauthn v0.18.0
 	github.com/google/jsonschema-go v0.4.3
 	github.com/google/wire v0.7.0
 	github.com/liujitcn/go-utils v0.0.41
@@ -146,7 +146,7 @@ require (
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
-	github.com/fxamacker/cbor/v2 v2.9.2 // indirect
+	github.com/fxamacker/cbor/v2 v2.9.3 // indirect
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.7.1 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
@@ -159,7 +159,7 @@ require (
 	github.com/go-openapi/swag v0.23.0 // indirect
 	github.com/go-playground/form/v4 v4.3.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
-	github.com/go-webauthn/x v0.2.6 // indirect
+	github.com/go-webauthn/x v0.3.0 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/google/cel-go v0.30.0 // indirect
@@ -222,7 +222,7 @@ require (
 	github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.20 // indirect
 	github.com/liujitcn/kratos-kit/broker v0.0.11 // indirect
 	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.19 // indirect
-	github.com/liujitcn/kratos-kit/key v0.0.4 // indirect
+	github.com/liujitcn/kratos-kit/key v0.0.5 // indirect
 	github.com/liujitcn/kratos-kit/locker v0.0.18 // indirect
 	github.com/liujitcn/kratos-kit/logger v0.0.32 // indirect
 	github.com/liujitcn/kratos-kit/oss/s3 v0.0.4 // indirect
@@ -319,9 +319,9 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.28.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
-	go.yaml.in/yaml/v3 v3.0.4 // indirect
+	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/arch v0.11.0 // indirect
-	golang.org/x/crypto v0.54.0 // indirect
+	golang.org/x/crypto v0.55.0 // indirect
 	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f // indirect
 	golang.org/x/image v0.41.0 // indirect
 	golang.org/x/mod v0.38.0 // indirect

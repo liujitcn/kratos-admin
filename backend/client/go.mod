@@ -64,7 +64,7 @@ require (
 	github.com/eino-contrib/jsonschema v1.0.3 // indirect
 	github.com/emicklei/go-restful/v3 v3.13.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
-	github.com/fxamacker/cbor/v2 v2.9.2 // indirect
+	github.com/fxamacker/cbor/v2 v2.9.3 // indirect
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.7.1 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
@@ -116,15 +116,15 @@ require (
 	github.com/liujitcn/go-utils v0.0.41 // indirect
 	github.com/liujitcn/go-utils/translator v0.0.4 // indirect
 	github.com/liujitcn/kratos-core/api v0.0.4 // indirect
-	github.com/liujitcn/kratos-kit v0.0.84 // indirect
-	github.com/liujitcn/kratos-kit/auth v0.0.27 // indirect
+	github.com/liujitcn/kratos-kit v0.0.85 // indirect
+	github.com/liujitcn/kratos-kit/auth v0.0.28 // indirect
 	github.com/liujitcn/kratos-kit/auth/authn v0.0.24 // indirect
 	github.com/liujitcn/kratos-kit/auth/authn/engine/jwt v0.0.20 // indirect
 	github.com/liujitcn/kratos-kit/auth/authn/middleware v0.0.21 // indirect
 	github.com/liujitcn/kratos-kit/auth/authz v0.0.23 // indirect
 	github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.20 // indirect
 	github.com/liujitcn/kratos-kit/cache v0.0.22 // indirect
-	github.com/liujitcn/kratos-kit/database/gorm v0.0.43 // indirect
+	github.com/liujitcn/kratos-kit/database/gorm v0.0.44 // indirect
 	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.19 // indirect
 	github.com/liujitcn/kratos-kit/key v0.0.5 // indirect
 	github.com/liujitcn/kratos-kit/locker v0.0.18 // indirect
@@ -136,7 +136,7 @@ require (
 	github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.16 // indirect
 	github.com/liujitcn/kratos-kit/ratelimit v0.0.2 // indirect
 	github.com/liujitcn/kratos-kit/ratelimit/tokenbucket v0.0.3 // indirect
-	github.com/liujitcn/kratos-kit/redact v0.0.4 // indirect
+	github.com/liujitcn/kratos-kit/redact v0.0.7 // indirect
 	github.com/liujitcn/kratos-kit/retry v0.0.3 // indirect
 	github.com/liujitcn/kratos-kit/tracing v0.0.12 // indirect
 	github.com/liujitcn/kratos-kit/utils v0.0.23 // indirect
@@ -172,6 +172,7 @@ require (
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/slongfield/pyfmt v0.0.0-20220222012616-ea85ff4c361f // indirect
+	github.com/stretchr/testify v1.12.1 // indirect
 	github.com/tinylib/msgp v1.6.4 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
@@ -194,9 +195,9 @@ require (
 	go.opentelemetry.io/proto/otlp v1.10.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
-	go.yaml.in/yaml/v3 v3.0.4 // indirect
+	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/arch v0.11.0 // indirect
-	golang.org/x/crypto v0.54.0 // indirect
+	golang.org/x/crypto v0.55.0 // indirect
 	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f // indirect
 	golang.org/x/net v0.57.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
