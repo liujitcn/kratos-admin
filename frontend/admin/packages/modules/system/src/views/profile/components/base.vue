@@ -64,7 +64,7 @@
         </div>
         <div class="detail-item detail-item--wide">
           <span class="detail-label">{{ t("common.field.created_at") }}</span>
-          <span class="detail-value">{{ profile.created_at || "--" }}</span>
+          <span class="detail-value">{{ formatDateTime(profile.created_at) }}</span>
         </div>
       </div>
     </div>
@@ -91,6 +91,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from "vue";
 import { t } from "@liujitcn/kratos-admin-core";
+import { formatDateTime } from "@liujitcn/kratos-admin-core/format";
 import { defProfileAuthService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/auth";
 import type { UserProfileForm } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/auth";
 import { BaseUserIDType } from "@liujitcn/kratos-admin-system/rpc/system/common/v1/common";

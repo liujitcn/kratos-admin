@@ -178,7 +178,8 @@
 <script setup lang="ts">
 import { Document, Download, Operation, Refresh, Search, VideoPause, VideoPlay } from "@element-plus/icons-vue";
 import { computed, nextTick, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from "vue";
-import { getCurrentLocale, t } from "@liujitcn/kratos-admin-core";
+import { t } from "@liujitcn/kratos-admin-core";
+import { formatDateTime } from "@liujitcn/kratos-admin-core/format";
 import { defRuntimeLogService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/runtime_log";
 import { subscribeRuntimeLog } from "../../../utils/runtime_log_sse";
 import type {
@@ -450,18 +451,6 @@ function formatFileSize(rawBytes: number) {
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
-/** 格式化日志文件时间。 */
-function formatDateTime(value: string) {
-  if (!value) return "-";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat(getCurrentLocale(), {
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit"
-  }).format(date);
-}
 
 watch([keyword, selectedLevels], () => {
   if (!activeFile.value) return;

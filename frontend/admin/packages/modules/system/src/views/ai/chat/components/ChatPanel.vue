@@ -334,6 +334,7 @@ import type { FilesCardProps } from "vue-element-plus-x/types/FilesCard";
 import { Check, CopyDocument, DataAnalysis, Delete, EditPen, Link, Memo, PieChart, Refresh, User } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import { getCurrentLocale, t } from "@liujitcn/kratos-admin-core";
+import { formatDateTime } from "@liujitcn/kratos-admin-core/format";
 import type { AiAction } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_message";
 import { type AiAttachment, type AiSession } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_session";
 import type { AiShortcut, AiToolCall } from "@liujitcn/kratos-admin-system/rpc/base/v1/ai_tool";
@@ -737,15 +738,7 @@ function formatDurationMs(value?: number) {
 function resolveMessageReplyTime(item: ChatMessageItem) {
   const timestamp = resolveMessageCreatedAt(item);
   if (!timestamp) return "";
-  return new Intl.DateTimeFormat(getCurrentLocale(), {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false
-  }).format(new Date(timestamp));
+  return formatDateTime(timestamp);
 }
 
 /** 解析消息创建时间戳，兼容 protobuf Timestamp 结构。 */

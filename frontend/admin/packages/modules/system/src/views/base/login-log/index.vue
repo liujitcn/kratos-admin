@@ -6,6 +6,7 @@
 import { computed, ref } from "vue";
 import type { ColumnProps } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import { t } from "@liujitcn/kratos-admin-core";
+import { formatLogDateTime } from "@liujitcn/kratos-admin-system/components/log";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
 import LogTable, { type LogTableConfig } from "@liujitcn/kratos-admin-system/components/LogTable.vue";
 import { logDateSearch, logDetailColumn, logEnumLabel, createLogEnumOptions, requestLogTrace } from "@liujitcn/kratos-admin-system/components/log";
@@ -54,7 +55,7 @@ const columns = computed<ColumnProps[]>(() => [
     render: scope => logEnumLabel(resultOptions.value, (scope.row as BaseLoginLog).result)
   },
   { prop: "client_ip", label: t("system.base.log.field.client_ip"), minWidth: 140 },
-  { prop: "occurred_at", label: t("system.base.log.field.occurred_at"), minWidth: 190, search: logDateSearch(t) },
+  { prop: "occurred_at", label: t("system.base.log.field.occurred_at"), minWidth: 190, align: "center", search: logDateSearch(t) },
   logDetailColumn(t("common.action.view"), id => page.value?.handleOpenDialog(id))
 ]);
 
@@ -78,8 +79,8 @@ const config = computed<LogTableConfig>(() => ({
     { key: "user_agent", label: t("system.base.log.field.user_agent"), span: 2 },
     { key: "request_id", label: t("system.base.log.field.request_id") },
     { key: "trace_id", label: t("system.base.log.field.trace_id") },
-    { key: "occurred_at", label: t("system.base.log.field.occurred_at") },
-    { key: "created_at", label: t("system.base.log.field.created_at") }
+    { key: "occurred_at", format: formatLogDateTime, label: t("system.base.log.field.occurred_at") },
+    { key: "created_at", format: formatLogDateTime, label: t("system.base.log.field.created_at") }
   ],
   request: requestTable,
   get: getDetail

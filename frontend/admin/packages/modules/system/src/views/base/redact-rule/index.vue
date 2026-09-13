@@ -189,8 +189,6 @@ const columns = computed<ColumnProps[]>(() => [
   {
     prop: "actions",
     label: t("common.field.operation"),
-    width: 100,
-    fixed: "right",
     cellType: "actions",
     actions: [{ label: t("common.action.edit"), type: "primary", link: true, icon: EditPen, hidden: () => !BUTTONS.value["base:redact-rule:update"], onClick: scope => openDialog((scope.row as BaseRedactRule).id) }]
   }

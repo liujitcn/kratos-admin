@@ -177,3 +177,9 @@ pnpm --filter @liujitcn/kratos-admin-core type:check
 pnpm --filter @liujitcn/kratos-admin-core build:package
 pnpm --filter @liujitcn/kratos-admin-core pack
 ```
+
+时间列的对齐方式由页面通过 `align` 显式配置，ProTable 不按时间字段名称判断；修改时间列使用 `align: "center"` 居中显示。
+
+ProTable 的 `cellType: "actions"` 操作列按当前行的 `hidden` 过滤按钮，优先展示使用 `common.action.edit`、`common.action.delete` 文案的编辑、删除操作；可见按钮超过三项时，其余操作收入“更多”菜单。未配置或无权限的编辑、删除不会补充显示，菜单保留图标、禁用状态和点击参数；自定义 render 或插槽不参与折叠。
+
+操作列默认固定在右侧。配置式操作列（`cellType: "actions"`）根据当前页实际展示按钮和表头的最大宽度自适应，计入翻译文案、图标和间距，随语言、字体和行权限变化重新测量，最小宽度为 `80px`；折叠菜单内的按钮不参与测量。自定义 render 或插槽操作列仍默认 `160px`。页面可通过 `width` 或 `minWidth` 覆盖自动宽度，通过 `fixed: "left"` 调整固定位置，或通过 `fixed: false` 取消固定。

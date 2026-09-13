@@ -44,7 +44,7 @@ const resultOptions = computed<Array<[number, string]>>(() => [
   [BaseLogResult.BASE_LOG_RESULT_ERROR, t("system.base.log.result.error")]
 ]);
 const columns = computed<ColumnProps[]>(() => [
-  { prop: "occurred_at", label: t("system.profile.login_log.field.occurred_at"), minWidth: 180 },
+  { prop: "occurred_at", label: t("system.profile.login_log.field.occurred_at"), minWidth: 180, align: "center" },
   {
     prop: "login_type",
     label: t("system.profile.login_log.field.login_type"),
@@ -58,7 +58,7 @@ const columns = computed<ColumnProps[]>(() => [
     render: scope => enumLabel(resultOptions.value, (scope.row as BaseLoginLog).result)
   },
   { prop: "client_ip", label: t("system.profile.login_log.field.client_ip"), minWidth: 140 },
-  { prop: "device_id", label: t("system.profile.login_log.field.device_id"), minWidth: 160 },
+  { prop: "device_id", label: t("system.profile.login_log.field.device_id"), minWidth: 160, align: "right" },
   { prop: "reason", label: t("system.profile.login_log.field.reason"), minWidth: 180 }
 ]);
 

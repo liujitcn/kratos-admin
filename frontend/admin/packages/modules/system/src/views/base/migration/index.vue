@@ -57,7 +57,7 @@
               <div class="migration-list-item__data-source">
                 {{ history.module || t("system.base.migration.value.default_module") }} · {{ history.data_source || "default" }}
               </div>
-              <time :datetime="history.created_at">{{ formatDate(history.created_at) }}</time>
+              <time :datetime="history.created_at">{{ formatDateTime(history.created_at) }}</time>
             </button>
           </div>
 
@@ -160,6 +160,7 @@ import type {
   PageBaseMigrationRequest
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_migration";
 import { getCurrentLocale, t } from "@liujitcn/kratos-admin-core";
+import { formatDateTime } from "@liujitcn/kratos-admin-core/format";
 
 defineOptions({
   name: "BaseMigration",
@@ -296,19 +297,6 @@ async function copySql(sql: string) {
   }
 }
 
-/**
- * 格式化列表日期。
- */
-function formatDate(value: string) {
-  if (!value) return "--";
-  const date = new Date(value.replace(" ", "T"));
-  if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat(getCurrentLocale(), {
-    year: "numeric",
-    month: "short",
-    day: "numeric"
-  }).format(date);
-}
 
 onMounted(() => {
   loadMigrationHistory();

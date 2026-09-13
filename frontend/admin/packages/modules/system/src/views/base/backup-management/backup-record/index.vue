@@ -10,6 +10,7 @@ import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import type { ColumnProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
+import { formatDateTime } from "@liujitcn/kratos-admin-core/format";
 import { defBaseTableBackupRecordService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_table_backup_record";
 import { BaseTableBackupRecordStatus, type PageBaseTableBackupRecordRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_table_backup_record";
 
@@ -22,14 +23,14 @@ const statusOptions = computed(() => [
   { label: t("system.backup.status.deleted"), value: BaseTableBackupRecordStatus.BASE_TABLE_BACKUP_RECORD_STATUS_DELETED }
 ]);
 const columns = computed<ColumnProps[]>(() => [
-  { prop: "id", label: t("system.backup.field.id"), width: 90 },
+  { prop: "id", label: t("system.backup.field.id"), width: 90, align: "right" },
   { prop: "source_name", label: t("system.backup.field.source_name"), minWidth: 140 },
   { prop: "database_name", label: t("system.backup.field.database_name"), minWidth: 160 },
   { prop: "object_key", label: t("system.backup.field.object_key"), minWidth: 260 },
   { prop: "size_bytes", label: t("system.backup.field.size_bytes"), width: 110 },
   { prop: "status", label: t("common.field.status"), width: 110, search: { el: "select", enum: statusOptions.value }, render: scope => statusOptions.value.find(item => item.value === scope.row.status)?.label ?? String(scope.row.status) },
-  { prop: "started_at", label: t("system.backup.field.started_at"), minWidth: 170 },
-  { prop: "finished_at", label: t("system.backup.field.finished_at"), minWidth: 170 },
+  { prop: "started_at", align: "center", label: t("system.backup.field.started_at"), minWidth: 170, render: scope => formatDateTime(scope.row.started_at) },
+  { prop: "finished_at", align: "center", label: t("system.backup.field.finished_at"), minWidth: 170, render: scope => formatDateTime(scope.row.finished_at) },
   { prop: "verified_at", label: t("system.backup.field.verified_at"), minWidth: 170 }
 ]);
 

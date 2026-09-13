@@ -128,7 +128,8 @@ test("消息标题单独打开正文，发送详情只展示投递信息", async
   assert.match(source, /system\.base\.message\.content\.title/);
   assert.match(source, /system\.base\.message\.send_detail\.title/);
   assert.match(source, /function openContent\(id: number\)/);
-  assert.match(source, /prop: "operation"[\s\S]*?width: 380[\s\S]*?message-operation-column/);
+  assert.match(source, /prop: "operation"[\s\S]*?message-operation-column/);
+  assert.doesNotMatch(source, /prop: "operation"[\s\S]*?width: 380/);
   assert.match(source, /whiteSpace: "nowrap"[\s\S]*?\n\s*\},\n\s*row\.title/);
   assert.ok(sendDetailDialog, "缺少发送详情弹窗");
   assert.doesNotMatch(sendDetailDialog, /message-detail-content|detail\.data\.form\?\.content/);

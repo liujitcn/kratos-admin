@@ -104,25 +104,25 @@
           }}</el-descriptions-item>
         </el-descriptions>
         <el-table :data="detail.data.dispatches" style="margin-top: 16px" size="small">
-          <el-table-column prop="id" label="ID" width="90" />
+          <el-table-column prop="id" label="ID" width="90" align="right" />
           <el-table-column prop="audience_type" :label="t('system.base.message.field.audience_type')" width="120">
             <template #default="scope">{{ optionLabel(audienceOptions, scope.row.audience_type) }}</template>
           </el-table-column>
-          <el-table-column prop="audience_id" :label="t('system.base.message.field.audience_id')" width="110" />
+          <el-table-column prop="audience_id" :label="t('system.base.message.field.audience_id')" width="110" align="right" />
           <el-table-column prop="include_children" :label="t('system.base.message.field.include_children')" width="120">
             <template #default="scope">{{ scope.row.include_children ? t("common.value.yes") : t("common.value.no") }}</template>
           </el-table-column>
           <el-table-column prop="status" :label="t('common.field.status')" width="120" />
-          <el-table-column prop="matched_total" :label="t('system.base.message.field.matched_total')" width="110" />
-          <el-table-column prop="inserted_total" :label="t('system.base.message.field.inserted_total')" width="110" />
-          <el-table-column prop="attempt_count" :label="t('system.base.message.field.attempt_count')" width="90" />
+          <el-table-column prop="matched_total" :label="t('system.base.message.field.matched_total')" width="110" align="right" />
+          <el-table-column prop="inserted_total" :label="t('system.base.message.field.inserted_total')" width="110" align="right" />
+          <el-table-column prop="attempt_count" :label="t('system.base.message.field.attempt_count')" width="90" align="right" />
           <el-table-column
             prop="last_error"
             :label="t('system.base.message.field.last_error')"
             min-width="220"
             show-overflow-tooltip
           />
-          <el-table-column :label="t('common.field.operation')" width="90">
+          <el-table-column :label="t('common.field.operation')">
             <template #default="scope">
               <el-button
                 v-if="scope.row.status === MessageDispatchStatus.MESSAGE_DISPATCH_STATUS_FAILED && BUTTONS['base:message:retry']"
@@ -419,13 +419,11 @@ const columns = computed<ColumnProps[]>(() => [
     render: scope => optionLabel(statusOptions.value, (scope.row as BaseMessage).status)
   },
   { prop: "delivered_total", label: t("system.base.message.field.delivered_total"), width: 100, align: "right" },
-  { prop: "created_at", label: t("common.field.created_at"), minWidth: 180 },
+  { prop: "created_at", align: "center", label: t("common.field.created_at"), minWidth: 180 },
   {
     prop: "operation",
     label: t("common.field.operation"),
-    width: 380,
     className: "message-operation-column",
-    fixed: "right",
     cellType: "actions",
     actions: [
       {

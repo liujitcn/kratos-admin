@@ -9,7 +9,7 @@
             <DictLabel v-model="detail.status" code="base_job_log_status" />
           </el-descriptions-item>
           <el-descriptions-item :label="t('system.base.job.log.field.process_time')">{{ detail.process_time }}</el-descriptions-item>
-          <el-descriptions-item :label="t('system.base.job.log.field.execute_time')">{{ detail.execute_time }}</el-descriptions-item>
+          <el-descriptions-item :label="t('system.base.job.log.field.execute_time')">{{ formatDateTime(detail.execute_time) }}</el-descriptions-item>
         </el-descriptions>
 
         <el-descriptions :title="t('system.base.job.log.section.execution')" border :column="1" class="mt-4">
@@ -48,7 +48,7 @@ import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.v
 import { defBaseJobService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_job";
 import { defBaseJobLogService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_job_log";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
-import { formatJson } from "@liujitcn/kratos-admin-core/format";
+import { formatDateTime, formatJson } from "@liujitcn/kratos-admin-core/format";
 import type { BaseJobLog, PageBaseJobLogRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_job_log";
 import { BaseJobLogStatus } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_job_log";
 import { t } from "@liujitcn/kratos-admin-core";
@@ -115,6 +115,7 @@ const columns = computed<ColumnProps[]>(() => [
     prop: "execute_time",
     label: t("system.base.job.log.field.execute_time"),
     minWidth: 180,
+    align: "center",
     search: {
       el: "date-picker",
       props: {
@@ -132,8 +133,6 @@ const columns = computed<ColumnProps[]>(() => [
   {
     prop: "detailAction",
     label: t("common.field.action"),
-    width: 100,
-    fixed: "right",
     cellType: "actions",
     actions: [
       {

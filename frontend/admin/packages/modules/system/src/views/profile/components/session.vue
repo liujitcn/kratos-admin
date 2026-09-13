@@ -30,6 +30,7 @@ import type { ColumnProps, ProTableInstance } from "@liujitcn/kratos-admin-core/
 import { useRouter } from "vue-router";
 import { t } from "@liujitcn/kratos-admin-core";
 import { LOGIN_URL } from "@liujitcn/kratos-admin-core/config";
+import { formatDateTime } from "@liujitcn/kratos-admin-core/format";
 import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { defBaseSessionService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_session";
 import type { BaseSession } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_session";
@@ -52,7 +53,13 @@ const columns = computed<ColumnProps[]>(() => [
   },
   { prop: "client_ip", label: t("system.profile.session.field.client_ip"), minWidth: 140 },
   { prop: "device", label: t("system.profile.session.field.device"), minWidth: 200 },
-  { prop: "issued_at", label: t("system.profile.session.field.issued_at"), minWidth: 180 },
+  {
+    prop: "issued_at",
+    label: t("system.profile.session.field.issued_at"),
+    minWidth: 180,
+    align: "center",
+    render: scope => formatDateTime((scope.row as BaseSession).issued_at)
+  },
   {
     prop: "expires_in",
     label: t("system.profile.session.field.expires_in"),

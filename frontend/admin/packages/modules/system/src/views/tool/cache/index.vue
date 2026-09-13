@@ -46,6 +46,7 @@ import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import type { ColumnProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
+import { formatDateTime } from "@liujitcn/kratos-admin-core/format";
 import { t } from "@liujitcn/kratos-admin-core";
 import RichTextPreview from "@liujitcn/kratos-admin-core/components/RichTextPreview/index.vue";
 import { defCacheService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/cache";
@@ -114,31 +115,33 @@ const columns = computed<ColumnProps[]>(() => [
     prop: "ttl_seconds",
     label: t("system.cache.field.ttl"),
     width: 130,
+    align: "right",
     render: scope => formatTtl((scope.row as CacheEntry).ttl_seconds)
   },
   {
     prop: "expires_at",
     label: t("system.cache.field.expires_at"),
     minWidth: 185,
-    render: scope => formatDate(scope.row.expires_at)
+    align: "center",
+    render: scope => formatDateTime(scope.row.expires_at)
   },
   {
     prop: "created_at",
     label: t("system.cache.field.created_at"),
     minWidth: 185,
-    render: scope => formatDate(scope.row.created_at)
+    align: "center",
+    render: scope => formatDateTime(scope.row.created_at)
   },
   {
     prop: "updated_at",
+    align: "center",
     label: t("system.cache.field.updated_at"),
     minWidth: 185,
-    render: scope => formatDate(scope.row.updated_at)
+    render: scope => formatDateTime(scope.row.updated_at)
   },
   {
     prop: "operation",
     label: t("common.field.operation"),
-    width: 90,
-    fixed: "right",
     cellType: "actions",
     actions: [
       {
@@ -237,12 +240,6 @@ function formatTtl(ttl: number) {
   return `${Math.floor(ttl / 3600)}h ${Math.floor((ttl % 3600) / 60)}m`;
 }
 
-/** 格式化时间字段。 */
-function formatDate(value: string) {
-  if (!value) return "-";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
-}
 </script>
 
 <style lang="scss" scoped>

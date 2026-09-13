@@ -10,6 +10,7 @@ import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import type { ColumnProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
+import { formatDateTime } from "@liujitcn/kratos-admin-core/format";
 import { defBaseTableArchiveRecordService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_table_archive_record";
 import { BaseTableArchiveMode } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_table_archive";
 import { BaseTableArchiveRecordStatus, type PageBaseTableArchiveRecordRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_table_archive_record";
@@ -23,17 +24,17 @@ const statusOptions = computed(() => [
   { label: t("system.backup.status.deleted"), value: BaseTableArchiveRecordStatus.BASE_TABLE_ARCHIVE_RECORD_STATUS_DELETED }
 ]);
 const columns = computed<ColumnProps[]>(() => [
-  { prop: "id", label: t("system.backup.field.id"), width: 90 },
+  { prop: "id", label: t("system.backup.field.id"), width: 90, align: "right" },
   { prop: "source_name", label: t("system.backup.field.source_name"), minWidth: 140 },
   { prop: "table_name", label: t("system.backup.field.table_name"), minWidth: 180 },
   { prop: "archive_mode", label: t("system.backup.field.archive_mode"), width: 130, render: scope => scope.row.archive_mode === BaseTableArchiveMode.BASE_TABLE_ARCHIVE_MODE_INTERNAL_DATABASE ? t("system.backup.archive.mode.internal") : t("system.backup.archive.mode.oss") },
-  { prop: "cutoff_at", label: t("system.backup.field.cutoff_at"), minWidth: 170 },
-  { prop: "archived_rows", label: t("system.backup.field.archived_rows"), width: 110 },
-  { prop: "deleted_rows", label: t("system.backup.field.deleted_rows"), width: 110 },
+  { prop: "cutoff_at", align: "center", label: t("system.backup.field.cutoff_at"), minWidth: 170, render: scope => formatDateTime(scope.row.cutoff_at) },
+  { prop: "archived_rows", label: t("system.backup.field.archived_rows"), width: 110, align: "right" },
+  { prop: "deleted_rows", label: t("system.backup.field.deleted_rows"), width: 110, align: "right" },
   { prop: "object_key", label: t("system.backup.field.object_key"), minWidth: 220 },
   { prop: "status", label: t("common.field.status"), width: 110, search: { el: "select", enum: statusOptions.value }, render: scope => statusOptions.value.find(item => item.value === scope.row.status)?.label ?? String(scope.row.status) },
-  { prop: "started_at", label: t("system.backup.field.started_at"), minWidth: 170 },
-  { prop: "finished_at", label: t("system.backup.field.finished_at"), minWidth: 170 }
+  { prop: "started_at", align: "center", label: t("system.backup.field.started_at"), minWidth: 170, render: scope => formatDateTime(scope.row.started_at) },
+  { prop: "finished_at", align: "center", label: t("system.backup.field.finished_at"), minWidth: 170, render: scope => formatDateTime(scope.row.finished_at) }
 ]);
 
 /** 请求归档记录分页列表。 */

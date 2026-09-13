@@ -461,12 +461,10 @@ const columns = computed<ColumnProps[]>(() => [
     search: { el: "select" }
   },
   { prop: "remark", label: t("system.code.gen.table.field.remark"), minWidth: 180, showOverflowTooltip: true },
-  { prop: "created_at", label: t("system.code.gen.table.field.created_at"), minWidth: 180 },
+  { prop: "created_at", label: t("system.code.gen.table.field.created_at"), minWidth: 180, align: "center" },
   {
     prop: "operation",
     label: t("common.field.operation"),
-    width: 660,
-    fixed: "right",
     cellType: "actions",
     actions: [
       {

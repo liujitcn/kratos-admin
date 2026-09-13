@@ -277,8 +277,6 @@ const columns = computed<ColumnProps[]>(() => [
   {
     prop: "operation",
     label: t("common.field.action"),
-    width: 210,
-    fixed: "right",
     cellType: "actions",
     actions: [
       {

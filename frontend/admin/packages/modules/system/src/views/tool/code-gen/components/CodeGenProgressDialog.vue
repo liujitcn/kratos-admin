@@ -107,7 +107,8 @@
 <script setup lang="ts">
 import { onBeforeUnmount, ref, watch } from "vue";
 import { Check, CircleClose, Clock, CopyDocument, Document, Loading, Minus } from "@element-plus/icons-vue";
-import { getCurrentLocale, t } from "@liujitcn/kratos-admin-core";
+import { t } from "@liujitcn/kratos-admin-core";
+import { formatDateTime } from "@liujitcn/kratos-admin-core/format";
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import { defCodeGenService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/code_gen";
 import { subscribeCodeGenProgress, type SseStop } from "../../../../utils/code_gen_sse";
@@ -236,8 +237,7 @@ function isFinished(status: CodeGenTaskStatus) {
 
 /** 格式化任务时间。 */
 function formatTime(value: string) {
-  const date = new Date(value);
-  return !value || Number.isNaN(date.getTime()) ? "-" : date.toLocaleString(getCurrentLocale());
+  return formatDateTime(value);
 }
 
 /** 弹出展示命令输出。 */

@@ -19,6 +19,7 @@ import type { ProFormField, ProFormInstance, ProFormOption } from "@liujitcn/kra
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { t } from "@liujitcn/kratos-admin-core";
+import { formatDateTime } from "@liujitcn/kratos-admin-core/format";
 import { defBaseTableArchiveRestoreService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_table_archive_restore";
 import { BaseTableArchiveRestoreMode, BaseTableArchiveRestoreStatus, type BaseTableArchiveRestore } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_table_archive_restore";
 
@@ -36,7 +37,7 @@ const formRules = computed(() => ({
     { type: "number", min: 1, message: t("system.backup.validation.archive_record_id_positive"), trigger: "change" }
   ]
 }));
-const columns = computed<ColumnProps[]>(() => [{ prop: "id", label: t("system.backup.field.id"), width: 90 }, { prop: "archive_record_id", label: t("system.backup.field.archive_record_id"), width: 130 }, { prop: "table_name", label: t("system.backup.field.table_name"), minWidth: 180 }, { prop: "restore_mode", label: t("system.backup.field.restore_mode"), width: 120, render: scope => modeOptions.value.find(item => item.value === scope.row.restore_mode)?.label ?? String(scope.row.restore_mode) }, { prop: "restored_rows", label: t("system.backup.field.restored_rows"), width: 110 }, { prop: "status", label: t("common.field.status"), width: 110 }, { prop: "error", label: t("system.backup.field.error"), minWidth: 220 }, { prop: "started_at", label: t("system.backup.field.started_at"), minWidth: 170 }, { prop: "finished_at", label: t("system.backup.field.finished_at"), minWidth: 170 }]);
+const columns = computed<ColumnProps[]>(() => [{ prop: "id", label: t("system.backup.field.id"), width: 90 }, { prop: "archive_record_id", label: t("system.backup.field.archive_record_id"), width: 130 }, { prop: "table_name", label: t("system.backup.field.table_name"), minWidth: 180 }, { prop: "restore_mode", label: t("system.backup.field.restore_mode"), width: 120, render: scope => modeOptions.value.find(item => item.value === scope.row.restore_mode)?.label ?? String(scope.row.restore_mode) }, { prop: "restored_rows", label: t("system.backup.field.restored_rows"), width: 110 }, { prop: "status", label: t("common.field.status"), width: 110 }, { prop: "error", label: t("system.backup.field.error"), minWidth: 220 }, { prop: "started_at", align: "center", label: t("system.backup.field.started_at"), minWidth: 170, render: scope => formatDateTime(scope.row.started_at) }, { prop: "finished_at", align: "center", label: t("system.backup.field.finished_at"), minWidth: 170, render: scope => formatDateTime(scope.row.finished_at) }]);
 
 /** 请求归档恢复记录分页列表。 */
 async function requestTable(params: Record<string, unknown>) { const data = await defBaseTableArchiveRestoreService.PageBaseTableArchiveRestore(buildPageRequest(params)); return { data: { list: data.base_table_archive_restores ?? [], total: data.total } }; }

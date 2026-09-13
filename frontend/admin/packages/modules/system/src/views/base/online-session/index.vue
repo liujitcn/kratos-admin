@@ -20,6 +20,7 @@ import { DEFAULT_TENANT_CODE } from "@liujitcn/kratos-admin-core/tenant";
 import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
+import { formatDateTime } from "@liujitcn/kratos-admin-core/format";
 import { t } from "@liujitcn/kratos-admin-core";
 import { defBaseTenantService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_tenant";
 import { defBaseSessionService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_session";
@@ -49,12 +50,16 @@ const columns = computed<ColumnProps[]>(() => [
   { prop: "client_ip", label: t("system.base.online_session.field.client_ip"), minWidth: 140 },
   { prop: "device", label: t("system.base.online_session.field.device"), minWidth: 180 },
   { prop: "user_agent", label: t("system.base.online_session.field.user_agent"), minWidth: 220 },
-  { prop: "issued_at", label: t("system.base.online_session.field.issued_at"), minWidth: 180 },
+  {
+    prop: "issued_at",
+    label: t("system.base.online_session.field.issued_at"),
+    minWidth: 180,
+    align: "center",
+    render: scope => formatDateTime((scope.row as BaseSession).issued_at)
+  },
   {
     prop: "operation",
     label: t("common.field.operation"),
-    width: 100,
-    fixed: "right",
     cellType: "actions",
     actions: [
       {

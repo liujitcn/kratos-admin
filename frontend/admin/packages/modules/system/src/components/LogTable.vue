@@ -24,7 +24,9 @@
           <el-table-column :label="t('system.base.log.trace.duration')" width="110" align="right">
             <template #default="scope">{{ formatDuration(scope.row.duration_ms) }}</template>
           </el-table-column>
-          <el-table-column prop="occurred_at" :label="t('system.base.log.field.occurred_at')" width="190" />
+          <el-table-column :label="t('system.base.log.field.occurred_at')" width="190" align="center">
+            <template #default="scope">{{ formatLogDateTime(scope.row.occurred_at) }}</template>
+          </el-table-column>
         </el-table>
       </section>
 
@@ -45,7 +47,7 @@ import { formatJson } from "@liujitcn/kratos-admin-core/format";
 import { t } from "@liujitcn/kratos-admin-core";
 import { BaseLogType, BaseLogResult } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_log";
 import type { BaseLogTraceItem } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_log";
-import { logEnumLabel } from "./log";
+import { formatLogDateTime, logEnumLabel } from "./log";
 
 /** 审计详情字段配置。 */
 export interface LogDetailField {
@@ -130,6 +132,7 @@ function formatField(field: LogDetailField) {
   if (field.enum) return logEnumLabel(field.enum, value, t("common.value.unknown"));
   if (field.format) return field.format(value);
   if (field.code) return formatJson(String(value));
+  if (field.key.endsWith("_at") || field.key.endsWith("_time")) return formatLogDateTime(value);
   return String(value);
 }
 

@@ -17,6 +17,15 @@ export function formatPrice(price?: number) {
   return (price / 100).toFixed(2);
 }
 
+/** 将时间值格式化为统一的本地日期时间文本。 */
+export function formatDateTime(value?: string | number | Date) {
+  if (value === undefined || value === null || value === "") return "-";
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  const pad = (part: number) => String(part).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+}
+
 /**
  * 按静态资源域名补齐图片地址。
  */

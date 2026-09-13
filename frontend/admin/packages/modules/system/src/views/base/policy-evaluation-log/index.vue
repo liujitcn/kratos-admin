@@ -6,6 +6,7 @@
 import { computed, ref } from "vue";
 import type { ColumnProps } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import { t } from "@liujitcn/kratos-admin-core";
+import { formatLogDateTime } from "@liujitcn/kratos-admin-system/components/log";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
 import LogTable, { type LogTableConfig } from "@liujitcn/kratos-admin-system/components/LogTable.vue";
 import {
@@ -42,8 +43,8 @@ const columns = computed<ColumnProps[]>(() => [
   { prop: "engine", label: t("system.base.log.field.engine"), minWidth: 100 },
   { prop: "evaluation_type", label: t("system.base.log.field.evaluation_type"), minWidth: 160, search: { el: "select", enum: evaluationTypeOptions.value }, render: scope => logEnumLabel(evaluationTypeOptions.value, (scope.row as BasePolicyEvaluationLog).evaluation_type) },
   { prop: "decision", label: t("system.base.log.field.decision"), minWidth: 110, search: { el: "select", enum: decisionOptions.value }, render: scope => logEnumLabel(decisionOptions.value, (scope.row as BasePolicyEvaluationLog).decision) },
-  { prop: "duration_ms", label: t("system.base.log.field.duration_ms"), minWidth: 110 },
-  { prop: "occurred_at", label: t("system.base.log.field.occurred_at"), minWidth: 190, search: logDateSearch(t) },
+  { prop: "duration_ms", label: t("system.base.log.field.duration_ms"), minWidth: 110, align: "right" },
+  { prop: "occurred_at", label: t("system.base.log.field.occurred_at"), minWidth: 190, align: "center", search: logDateSearch(t) },
   logDetailColumn(t("common.action.view"), id => page.value?.handleOpenDialog(id))
 ]);
 
@@ -75,8 +76,8 @@ const config = computed<LogTableConfig>(() => ({
     { key: "client_ip", label: t("system.base.log.field.client_ip") },
     { key: "request_id", label: t("system.base.log.field.request_id") },
     { key: "trace_id", label: t("system.base.log.field.trace_id") },
-    { key: "occurred_at", label: t("system.base.log.field.occurred_at") },
-    { key: "created_at", label: t("system.base.log.field.created_at") }
+    { key: "occurred_at", format: formatLogDateTime, label: t("system.base.log.field.occurred_at") },
+    { key: "created_at", format: formatLogDateTime, label: t("system.base.log.field.created_at") }
   ],
   request: requestTable,
   get: getDetail

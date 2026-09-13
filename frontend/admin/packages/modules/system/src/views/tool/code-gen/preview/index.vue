@@ -262,8 +262,6 @@ const tableColumns = computed<ColumnProps[]>(() => {
     result.push({
       prop: "operation",
       label: t("common.field.operation"),
-      width: actions.length === 1 ? 100 : 180,
-      fixed: "right",
       cellType: "actions",
       actions
     });

@@ -6,6 +6,7 @@
 import { computed, ref } from "vue";
 import type { ColumnProps } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import { t } from "@liujitcn/kratos-admin-core";
+import { formatLogDateTime } from "@liujitcn/kratos-admin-system/components/log";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
 import LogTable, { type LogTableConfig } from "@liujitcn/kratos-admin-system/components/LogTable.vue";
 import {
@@ -36,7 +37,7 @@ const resultOptions = computed(() =>
 const columns = computed<ColumnProps[]>(() => [
   { prop: "operation", label: t("system.base.log.field.operation"), minWidth: 320, search: { el: "input" } },
   { prop: "method", label: t("system.base.log.field.method"), minWidth: 90 },
-  { prop: "status_code", label: t("system.base.log.field.status_code"), minWidth: 100 },
+  { prop: "status_code", label: t("system.base.log.field.status_code"), minWidth: 100, align: "right" },
   {
     prop: "result",
     label: t("system.base.log.field.result"),
@@ -44,9 +45,9 @@ const columns = computed<ColumnProps[]>(() => [
     search: { el: "select", enum: resultOptions.value },
     render: scope => logEnumLabel(resultOptions.value, (scope.row as BaseApiLog).result)
   },
-  { prop: "latency_ms", label: t("system.base.log.field.latency_ms"), minWidth: 110 },
+  { prop: "latency_ms", label: t("system.base.log.field.latency_ms"), minWidth: 110, align: "right" },
   { prop: "user_name", label: t("system.base.log.field.user_name"), minWidth: 130 },
-  { prop: "occurred_at", label: t("system.base.log.field.occurred_at"), minWidth: 190, search: logDateSearch(t) },
+  { prop: "occurred_at", label: t("system.base.log.field.occurred_at"), minWidth: 190, align: "center", search: logDateSearch(t) },
   logDetailColumn(t("common.action.view"), id => page.value?.handleOpenDialog(id))
 ]);
 
@@ -76,8 +77,8 @@ const config = computed<LogTableConfig>(() => ({
     { key: "user_agent", label: t("system.base.log.field.user_agent"), span: 2 },
     { key: "request_id", label: t("system.base.log.field.request_id") },
     { key: "trace_id", label: t("system.base.log.field.trace_id") },
-    { key: "occurred_at", label: t("system.base.log.field.occurred_at") },
-    { key: "created_at", label: t("system.base.log.field.created_at") }
+    { key: "occurred_at", format: formatLogDateTime, label: t("system.base.log.field.occurred_at") },
+    { key: "created_at", format: formatLogDateTime, label: t("system.base.log.field.created_at") }
   ],
   request: requestTable,
   get: getDetail

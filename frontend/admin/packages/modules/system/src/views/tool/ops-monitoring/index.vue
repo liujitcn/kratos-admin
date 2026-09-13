@@ -151,10 +151,10 @@
               ><code class="ops-route">{{ row.route }}</code></template
             >
           </el-table-column>
-          <el-table-column prop="qps" label="QPS" width="75" />
-          <el-table-column prop="latency" label="P95" width="85" />
-          <el-table-column prop="errorRate" :label="t('system.ops_monitoring.error_rate')" width="85" />
-          <el-table-column :label="t('system.ops_monitoring.status.label')" width="85" align="right">
+          <el-table-column prop="qps" label="QPS" width="75" align="right" />
+          <el-table-column prop="latency" label="P95" width="85" align="right" />
+          <el-table-column prop="errorRate" :label="t('system.ops_monitoring.error_rate')" width="85" align="right" />
+          <el-table-column :label="t('system.ops_monitoring.status.label')" width="85" align="center">
             <template #default="{ row }"
               ><el-tag :type="row.healthy ? 'success' : 'warning'" size="small" effect="plain">{{ row.status }}</el-tag></template
             >

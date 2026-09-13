@@ -1,4 +1,5 @@
 import type { ColumnProps, EnumProps, SearchProps } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
+import { formatDateTime } from "@liujitcn/kratos-admin-core/format";
 import { defBaseLogService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_log";
 import type { BaseLogTraceItem } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_log";
 
@@ -10,6 +11,11 @@ export function createLogEnumOptions(items: Array<[number, string]>): EnumProps[
 /** 根据枚举值查找展示文案。 */
 export function logEnumLabel(options: EnumProps[], value: unknown, fallback = ""): string {
   return options.find(item => item.value === value)?.label ?? (fallback || String(value ?? ""));
+}
+
+/** 格式化审计日志时间，统一输出本地日期时间文本。 */
+export function formatLogDateTime(value: unknown): string {
+  return formatDateTime(typeof value === "string" || typeof value === "number" ? value : undefined);
 }
 
 /** 格式化日志 HTTP 状态码并补充状态语义。 */
@@ -66,8 +72,6 @@ export function logDetailColumn(label: string, onClick: (id: string) => void): C
   return {
     prop: "detailAction",
     label,
-    width: 100,
-    fixed: "right",
     cellType: "actions",
     actions: [
       {

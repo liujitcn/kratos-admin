@@ -313,7 +313,7 @@ const columns = computed<ColumnProps[]>(() => [
     prop: "meta.title",
     label: t("system.base.menu.field.name"),
     minWidth: 220,
-    align: "left",
+    align: "right",
     search: { el: "input", key: "title" },
     showOverflowTooltip: false,
     render: scope => renderMenuTitleCell(scope as unknown as RenderScope<BaseMenu>)
@@ -352,13 +352,11 @@ const columns = computed<ColumnProps[]>(() => [
     width: 100,
     render: scope => renderHiddenCell(scope as unknown as RenderScope<BaseMenu>)
   },
-  { prop: "created_at", label: t("common.field.created_at"), minWidth: 180 },
-  { prop: "updated_at", label: t("common.field.updated_at"), minWidth: 180 },
+  { prop: "created_at", align: "center", label: t("common.field.created_at"), minWidth: 180 },
+  { prop: "updated_at", label: t("common.field.updated_at"), minWidth: 180, align: "center" },
   {
     prop: "operation",
     label: t("common.field.action"),
-    width: 220,
-    fixed: "right",
     cellType: "actions",
     actions: [
       {

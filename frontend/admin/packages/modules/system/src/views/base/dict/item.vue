@@ -234,13 +234,11 @@ const columns = computed<ColumnProps[]>(() => [
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseDictItem)
     }
   },
-  { prop: "created_at", label: t("common.field.created_at"), minWidth: 180 },
-  { prop: "updated_at", label: t("common.field.updated_at"), minWidth: 180 },
+  { prop: "created_at", align: "center", label: t("common.field.created_at"), minWidth: 180 },
+  { prop: "updated_at", label: t("common.field.updated_at"), minWidth: 180, align: "center" },
   {
     prop: "operation",
     label: t("common.field.action"),
-    width: 180,
-    fixed: "right",
     cellType: "actions",
     actions: [
       {

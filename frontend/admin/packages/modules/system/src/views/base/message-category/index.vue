@@ -234,12 +234,10 @@ const columns = computed<ColumnProps[]>(() => [
       beforeChange: scope => handleSetStatus(scope.row as BaseMessageCategory)
     }
   },
-  { prop: "created_at", label: t("common.field.created_at"), minWidth: 180 },
+  { prop: "created_at", align: "center", label: t("common.field.created_at"), minWidth: 180 },
   {
     prop: "operation",
     label: t("common.field.operation"),
-    width: 180,
-    fixed: "right",
     cellType: "actions",
     actions: [
       {

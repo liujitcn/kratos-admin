@@ -121,8 +121,6 @@ const columns = computed<ColumnProps[]>(() => [
   {
     prop: "operation",
     label: t("common.field.operation"),
-    width: 250,
-    fixed: "right",
     cellType: "actions",
     actions: [
       { label: t("common.action.view"), link: true, icon: View, onClick: scope => openDetail(scope.row as Notification) },

@@ -85,7 +85,7 @@ const formFields = computed<ProFormField[]>(() => [
 const columns = computed<ColumnProps[]>(() => [
   { prop: "native_name", label: t("system.base.language.field.native_name"), minWidth: 130 },
   { prop: "language_name", label: t("system.base.language.field.name"), minWidth: 130, search: { el: "input" } },
-  { prop: "language_code", label: t("system.base.language.field.code"), minWidth: 120, search: { el: "input" } },
+  { prop: "language_code", align: "center", label: t("system.base.language.field.code"), minWidth: 120, search: { el: "input" } },
   {
     prop: "is_primary",
     label: t("system.base.language.field.primary"),
@@ -115,13 +115,11 @@ const columns = computed<ColumnProps[]>(() => [
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseLanguage)
     }
   },
-  { prop: "sort", label: t("system.base.language.field.sort"), width: 80 },
-  { prop: "created_at", label: t("common.field.created_at"), minWidth: 180 },
+  { prop: "sort", label: t("system.base.language.field.sort"), width: 80, align: "right" },
+  { prop: "created_at", align: "center", label: t("common.field.created_at"), minWidth: 180 },
   {
     prop: "operation",
     label: t("common.field.operation"),
-    width: 150,
-    fixed: "right",
     cellType: "actions",
     actions: [
       { label: t("common.action.edit"), type: "primary", link: true, icon: EditPen, hidden: () => !BUTTONS.value["base:language:update"], onClick: scope => handleOpenDialog((scope.row as BaseLanguage).id) },

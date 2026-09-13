@@ -1,7 +1,6 @@
 import type { ColumnProps, EnumProps, TypeProps } from "@/components/ProTable/interface";
 import type { OptionBaseDictResponse_BaseDictItem } from "@/rpc/system/admin/v1/base_dict";
 import { useDictStoreHook } from "@/stores/modules/dict";
-import { isRef } from "vue";
 
 /** 字典值输出给表格枚举时的目标类型。 */
 type DictValueType = "number" | "string";
@@ -41,17 +40,22 @@ function isPureNumber(value: unknown) {
   return typeof value === "number" && Number.isFinite(value);
 }
 
-/**
- * 判断枚举是否来自数据表映射，远程函数和响应式选项都属于动态数据映射。
- */
-function isDataTableEnum(enumValue: ColumnProps["enum"]) {
-  return typeof enumValue === "function" || isRef(enumValue);
+/** 判断列字段名是否表示时间值。 */
+function isTimeColumn(column: ColumnProps) {
+  const prop = column.prop?.toLowerCase();
+  return !!prop && /(^|[._])(created|updated|deleted|expires|scheduled|execute|start|end|login|logout|last)[._]?at?$/.test(prop);
+}
+
+/** 判断列字段名是否表示数值。 */
+function isNumericColumn(column: ColumnProps) {
+  const prop = column.prop?.toLowerCase();
+  return !!prop && /(^|[._])(id|sort|size|count|total|rows|priority|status_code|latency|duration|process_time|ttl|retention|attempt|qps|rate|number|num|amount|days|minutes|seconds|ms)$/.test(prop);
 }
 
 /**
  * 根据列语义和当前表格数据解析单元格对齐方式。
  *
- * 显式 align 始终优先；数据表映射按文本左对齐，字典、静态枚举及预置状态列居中，
+ * 显式 align 始终优先；字典、枚举及预置状态列居中，
  * 金额列和纯数字列右对齐，其余内容左对齐。空表时会先按列语义返回默认值，
  * 数据加载后由响应式表格重新解析。
  */
@@ -63,7 +67,9 @@ export function resolveTableColumnAlign(column: ColumnProps, rows: Record<string
   if (column.cellType === "actions" || column.cellType === "status" || column.cellType === "image") return "center";
   if (column.cellType === "money") return "right";
   if (column.dictCode || column.tag) return "center";
-  if (column.enum) return isDataTableEnum(column.enum) ? "left" : "center";
+  if (column.enum) return "center";
+  if (isTimeColumn(column)) return "center";
+  if (isNumericColumn(column)) return "right";
 
   if (column.prop) {
     const values = rows

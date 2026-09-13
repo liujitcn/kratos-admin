@@ -182,13 +182,11 @@ const columns = computed<ColumnProps[]>(() => [
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseTenant)
     }
   },
-  { prop: "created_at", label: t("common.field.created_at"), minWidth: 180 },
-  { prop: "updated_at", label: t("common.field.updated_at"), minWidth: 180 },
+  { prop: "created_at", align: "center", label: t("common.field.created_at"), minWidth: 180 },
+  { prop: "updated_at", label: t("common.field.updated_at"), minWidth: 180, align: "center" },
   {
     prop: "operation",
     label: t("common.field.operation"),
-    width: 150,
-    fixed: "right",
     cellType: "actions",
     actions: [
       {

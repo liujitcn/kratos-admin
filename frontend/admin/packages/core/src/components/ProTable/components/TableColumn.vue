@@ -3,8 +3,19 @@
 </template>
 
 <script setup lang="ts" name="TableColumn">
-import { h, inject, isProxy, markRaw, ref, toRaw, useSlots } from "vue";
-import { ElButton, ElImage, ElSwitch, ElTableColumn, ElTag, ElText } from "element-plus";
+import { h, inject, isProxy, markRaw, onUnmounted, ref, toRaw, useSlots, withDirectives } from "vue";
+import type { ObjectDirective } from "vue";
+import {
+  ElButton,
+  ElDropdown,
+  ElDropdownItem,
+  ElDropdownMenu,
+  ElImage,
+  ElSwitch,
+  ElTableColumn,
+  ElTag,
+  ElText
+} from "element-plus";
 import DictLabel from "@/components/Dict/DictLabel.vue";
 import { ColumnProps, HeaderRenderScope, RenderScope, TableActionProps } from "@/components/ProTable/interface";
 import type { TableAlign } from "@/utils/proTable";
@@ -20,6 +31,57 @@ const props = defineProps<{
 const slots = useSlots();
 
 const enumMap = inject("enumMap", ref(new Map()));
+
+const actionWidths = ref(new Map<string, number>());
+const measuredCells = new Map<HTMLElement, string>();
+let resizeObserver: ResizeObserver | undefined;
+let measureFrame = 0;
+
+/** 合并当前列所有可见行和表头的实际宽度，支持语言、字体和权限变化。 */
+const scheduleActionMeasurement = () => {
+  cancelAnimationFrame(measureFrame);
+  measureFrame = requestAnimationFrame(() => {
+    const widths = new Map<string, number>();
+    measuredCells.forEach((key, element) => {
+      if (!element.isConnected || !element.getClientRects().length) return;
+      const cell = element.closest(".cell");
+      if (!cell) return;
+      const style = getComputedStyle(cell);
+      const width = Math.ceil(
+        element.getBoundingClientRect().width + parseFloat(style.paddingLeft) + parseFloat(style.paddingRight) + 2
+      );
+      widths.set(key, Math.max(widths.get(key) ?? 80, width));
+    });
+    if (widths.size !== actionWidths.value.size || [...widths].some(([key, width]) => actionWidths.value.get(key) !== width)) {
+      actionWidths.value = widths;
+    }
+  });
+};
+
+/** 观察渲染后的操作内容，避免按字符个数估算不同语言的文本宽度。 */
+const measureActionContent: ObjectDirective<HTMLElement, string> = {
+  mounted(element, binding) {
+    measuredCells.set(element, binding.value);
+    resizeObserver ??= new ResizeObserver(scheduleActionMeasurement);
+    resizeObserver.observe(element);
+    scheduleActionMeasurement();
+  },
+  updated(element, binding) {
+    measuredCells.set(element, binding.value);
+    scheduleActionMeasurement();
+  },
+  unmounted(element) {
+    measuredCells.delete(element);
+    resizeObserver?.unobserve(element);
+    scheduleActionMeasurement();
+  }
+};
+
+onUnmounted(() => {
+  resizeObserver?.disconnect();
+  cancelAnimationFrame(measureFrame);
+  measuredCells.clear();
+});
 
 /**
  * 透传给 Element Plus 前移除图标组件上的响应式代理，避免 Vue 对组件对象发出性能告警。
@@ -166,18 +228,23 @@ const renderMoneyCell = (item: ColumnProps, scope: RenderScope<any>) => {
 };
 
 /**
- * 渲染操作按钮列，统一处理显隐、禁用与透传参数。
+ * 渲染操作按钮列，优先展示编辑、删除，超过三项时将其他操作折叠。
  */
 const renderActionsCell = (item: ColumnProps, scope: RenderScope<any>) => {
   if (!item.actions?.length) return "--";
   const visibleActions = item.actions.filter(action => !getBooleanValue(action.hidden, scope));
   if (!visibleActions.length) return "--";
-  return visibleActions.map((action: TableActionProps) => {
+  const primaryLabels = [t("common.action.edit"), t("common.action.delete")];
+  const primaryActions = primaryLabels.flatMap(label => visibleActions.filter(action => action.label === label));
+  const otherActions = visibleActions.filter(action => !primaryLabels.includes(action.label));
+  const inlineActions = visibleActions.length > 3 ? primaryActions : [...primaryActions, ...otherActions];
+  const buttons = inlineActions.map((action: TableActionProps) => {
     const params = resolveColumnParams(action.params, scope);
     return h(
       ElButton,
       {
         key: action.label,
+        size: "small",
         type: action.type ?? "primary",
         link: action.link ?? true,
         icon: normalizeActionIcon(action.icon),
@@ -187,6 +254,41 @@ const renderActionsCell = (item: ColumnProps, scope: RenderScope<any>) => {
       { default: () => action.label }
     );
   });
+  if (visibleActions.length > 3 && otherActions.length)
+    buttons.push(
+      h(
+        ElDropdown,
+        { trigger: "click", placement: "bottom-end", size: "small" },
+        {
+          default: () =>
+            h(ElButton, { type: "primary", link: true, size: "small", icon: ArrowDown }, () => t("common.action.more")),
+          dropdown: () =>
+            h(ElDropdownMenu, null, () =>
+              otherActions.map(action => {
+                const disabled = getBooleanValue(action.disabled, scope);
+                const params = resolveColumnParams(action.params, scope);
+                return h(
+                  ElDropdownItem,
+                  {
+                    key: action.label,
+                    icon: normalizeActionIcon(action.icon),
+                    disabled,
+                    style: disabled ? undefined : { color: `var(--el-color-${action.type ?? "primary"})` },
+                    onClick: () => {
+                      if (!disabled) action.onClick(scope, params);
+                    }
+                  },
+                  () => action.label
+                );
+              })
+            )
+        }
+      )
+    );
+  const content = h("span", { class: "pro-table-actions" }, buttons);
+  return item.width == null && item.minWidth == null
+    ? withDirectives(content, [[measureActionContent, item.prop ?? item.label ?? ""]])
+    : content;
 };
 
 /** 渲染默认表头标题，避免窄列换行并保留完整标题提示。 */
@@ -213,12 +315,23 @@ const renderPresetCell = (item: ColumnProps, scope: RenderScope<any>) => {
   }
 };
 
+/** 渲染表格列，为操作列提供自适应宽度和右侧固定默认值。 */
 const RenderTableColumn = (item: ColumnProps) => {
   if (!item.isShow) return null;
+  const isActionColumn = item.cellType === "actions" || item.prop === "operation";
+  const autoActionWidth = item.cellType === "actions" && !item.render && !(item.prop && slots[handleProp(item.prop)]);
   return h(
     ElTableColumn,
     {
       ...item,
+      width:
+        item.width ??
+        (isActionColumn && item.minWidth == null
+          ? autoActionWidth
+            ? (actionWidths.value.get(item.prop ?? item.label ?? "") ?? 80)
+            : 160
+          : undefined),
+      fixed: item.fixed ?? (isActionColumn ? "right" : undefined),
       align: item.align ?? props.resolveAlign?.(item) ?? "left",
       showOverflowTooltip: item.showOverflowTooltip ?? item.prop !== "operation"
     },
@@ -235,9 +348,39 @@ const RenderTableColumn = (item: ColumnProps) => {
       header: (scope: HeaderRenderScope<any>) => {
         if (item.headerRender) return item.headerRender(scope);
         if (item.prop && slots[`${handleProp(item.prop)}Header`]) return slots[`${handleProp(item.prop)}Header`]!(scope);
+        if (autoActionWidth && item.width == null && item.minWidth == null) {
+          return withDirectives(h("span", { class: "pro-table-action-header" }, item.label), [
+            [measureActionContent, item.prop ?? item.label ?? ""]
+          ]);
+        }
         return renderHeaderLabel(item);
       }
     }
   );
 };
 </script>
+
+<style lang="scss">
+// 操作容器在函数式列的插槽中生成，不带本组件的 scopeId，使用专属类名限定样式。
+.pro-table-actions {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+  align-items: center;
+  width: max-content;
+  vertical-align: middle;
+  white-space: nowrap;
+  .el-button {
+    margin-left: 0;
+  }
+  .el-dropdown {
+    display: inline-flex;
+    align-items: center;
+  }
+}
+.pro-table-action-header {
+  display: inline-block;
+  width: max-content;
+  white-space: nowrap;
+}
+</style>
