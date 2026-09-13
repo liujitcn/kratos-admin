@@ -367,7 +367,7 @@ func newLogStorageTestCache(t *testing.T, directory string) cache.Cache {
 	t.Cleanup(cleanup)
 	config := runtimeconfig.DefaultBaseLogFallbackConfig()
 	config.FilePath = directory
-	value, err := json.Marshal(config)
+	value, err := json.Marshal(&config)
 	if err != nil {
 		t.Fatal(err)
 	}

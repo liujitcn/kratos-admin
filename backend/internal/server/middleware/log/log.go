@@ -82,7 +82,7 @@ type resourceSnapshot struct {
 type Middleware struct {
 	queue            kitQueue.Queue
 	configCache      cache.Cache
-	fallbackConfig   runtimeconfig.BaseLogFallbackConfig
+	fallbackFilePath string
 	fallbackConfigMu sync.RWMutex
 	logQuery         *query.Query
 	tasks            chan adminTask
@@ -845,7 +845,7 @@ func (m *Middleware) writeBaseLogFallback(stage, kind, operation string, payload
 	if err != nil {
 		return fmt.Errorf("序列化日志入库回退内容失败: %w", err)
 	}
-	config := m.loadBaseLogFallbackConfig()
+	filePath := m.loadBaseLogFallbackConfig()
 	var key string
 	key, err = runtimeconfig.ResolveBaseLogFallbackIntegrityKey()
 	if err != nil {
@@ -861,7 +861,7 @@ func (m *Middleware) writeBaseLogFallback(stage, kind, operation string, payload
 	if err != nil {
 		return fmt.Errorf("序列化日志入库回退记录失败: %w", err)
 	}
-	path := runtimeconfig.BaseLogFallbackFilePath(config.FilePath)
+	path := runtimeconfig.BaseLogFallbackFilePath(filePath)
 	m.fileMu.Lock()
 	defer m.fileMu.Unlock()
 	if err = os.MkdirAll(filepath.Dir(path), 0o750); err != nil {
@@ -882,27 +882,28 @@ func (m *Middleware) writeBaseLogFallback(stage, kind, operation string, payload
 	return nil
 }
 
-// loadBaseLogFallbackConfig 读取最新回退配置，缓存不可用时使用最近一次有效配置。
-func (m *Middleware) loadBaseLogFallbackConfig() runtimeconfig.BaseLogFallbackConfig {
+// loadBaseLogFallbackConfig 读取最新回退配置目录，缓存不可用时使用最近一次有效目录。
+func (m *Middleware) loadBaseLogFallbackConfig() string {
 	m.fallbackConfigMu.RLock()
-	config := m.fallbackConfig
+	filePath := m.fallbackFilePath
 	m.fallbackConfigMu.RUnlock()
-	if config.FilePath == "" {
-		config = runtimeconfig.DefaultBaseLogFallbackConfig()
+	if filePath == "" {
+		filePath = runtimeconfig.DefaultBaseLogFallbackConfig().FilePath
 	}
 	if m.configCache == nil {
-		return config
+		return filePath
 	}
-	latest := config
+	latest := runtimeconfig.DefaultBaseLogFallbackConfig()
+	latest.FilePath = filePath
 	err := runtimeconfig.LoadJSON(m.configCache, runtimeconfig.BaseLogFallbackKey, &latest)
 	if err != nil {
 		log.Warn("读取日志入库回退配置失败，使用最近一次有效配置", "error", err)
-		return config
+		return filePath
 	}
 	m.fallbackConfigMu.Lock()
-	m.fallbackConfig = latest
+	m.fallbackFilePath = latest.FilePath
 	m.fallbackConfigMu.Unlock()
-	return latest
+	return latest.FilePath
 }
 
 // loginType 判断认证操作类型。
@@ -1103,7 +1104,7 @@ func clientIP(req *http.Request) string {
 
 // newMiddleware 创建并启动 Admin 审计后台工作协程。
 func newMiddleware(queue kitQueue.Queue, configCache cache.Cache, baseCases ...*biz.BaseCase) *Middleware {
-	logMiddleware := &Middleware{queue: queue, configCache: configCache, fallbackConfig: runtimeconfig.DefaultBaseLogFallbackConfig(), tasks: make(chan adminTask, adminBufferSize)}
+	logMiddleware := &Middleware{queue: queue, configCache: configCache, fallbackFilePath: runtimeconfig.DefaultBaseLogFallbackConfig().FilePath, tasks: make(chan adminTask, adminBufferSize)}
 	if len(baseCases) > 0 && baseCases[0] != nil {
 		baseCase := baseCases[0]
 		if client := baseCase.GormClients[gorm.DefaultClientName]; client != nil && client.DB != nil {

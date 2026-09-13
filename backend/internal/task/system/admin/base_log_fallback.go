@@ -70,7 +70,7 @@ func (t *BaseLogFallbackTask) Exec(ctx context.Context, _ map[string]string) ([]
 		return nil, fmt.Errorf("读取日志入库回退配置失败: %w", err)
 	}
 	var replayed int
-	replayed, err = t.replayBaseLogFallback(ctx, config)
+	replayed, err = t.replayBaseLogFallback(ctx, config.FilePath)
 	if err != nil {
 		return nil, err
 	}
@@ -97,8 +97,8 @@ type baseLogFallbackAdminEvent struct {
 }
 
 // replayBaseLogFallback 读取日志入库回退文件并将完整事件重新写入日志表。
-func (t *BaseLogFallbackTask) replayBaseLogFallback(ctx context.Context, config runtimeconfig.BaseLogFallbackConfig) (int, error) {
-	path := runtimeconfig.BaseLogFallbackFilePath(config.FilePath)
+func (t *BaseLogFallbackTask) replayBaseLogFallback(ctx context.Context, filePath string) (int, error) {
+	path := runtimeconfig.BaseLogFallbackFilePath(filePath)
 	_, err := os.Stat(path)
 	if err != nil {
 		if os.IsNotExist(err) {

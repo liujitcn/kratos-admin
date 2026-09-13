@@ -9,7 +9,7 @@ import (
 // TestValidateProtoRuntimeConfig 验证日志入库回退配置由 Proto 规则统一校验。
 func TestValidateProtoRuntimeConfig(t *testing.T) {
 	valid := DefaultBaseLogFallbackConfig()
-	if err := ValidateJSON(BaseLogFallbackKey, mustJSON(t, valid)); err != nil {
+	if err := ValidateJSON(BaseLogFallbackKey, mustJSON(t, &valid)); err != nil {
 		t.Fatalf("valid base log fallback config rejected: %v", err)
 	}
 }
