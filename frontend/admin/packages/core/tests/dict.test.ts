@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { normalizeDictValue, normalizeDictValues } from "../src/components/Dict/value.js";
-import { resolveTableColumnAlign } from "../src/utils/proTable.js";
+import { resolveTableColumnAlign } from "../src/utils/tableColumn.js";
 
 test("字典下拉在重置后不会保留不属于选项的未知值", () => {
   const options = [1, 2, 3] as const;

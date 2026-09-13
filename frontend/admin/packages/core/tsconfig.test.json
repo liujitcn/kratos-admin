@@ -5,7 +5,15 @@
     "noEmit": false,
     "outDir": "dist/test",
     "rootDir": ".",
-    "types": ["node"]
+    "types": ["vite/client", "element-plus/global", "node"]
   },
-  "include": ["src/modules/index.ts", "tests/**/*.ts"]
+  "include": [
+    "types/generated/auto-imports.d.ts",
+    "types/generated/components.d.ts",
+    "src/vite-env.d.ts",
+    "src/typings/global.d.ts",
+    "src/typings/utils.d.ts",
+    "src/modules/index.ts",
+    "tests/**/*.ts"
+  ]
 }
