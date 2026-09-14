@@ -266,8 +266,8 @@ const processTableData = computed(() => {
   );
 });
 
-/** 解析 ProTable 列对齐方式，随当前页数据类型变化。 */
-const resolveColumnAlign = (column: ColumnProps) => resolveTableColumnAlign(column, processTableData.value);
+/** 解析 ProTable 列对齐方式，普通字段不根据字段名或行数据推断。 */
+const resolveColumnAlign = (column: ColumnProps) => resolveTableColumnAlign(column);
 
 /** 数据加载完成后按传入行 Key 恢复多选状态，用于页面重建后的选择态续接。 */
 function restoreSelectedRows() {

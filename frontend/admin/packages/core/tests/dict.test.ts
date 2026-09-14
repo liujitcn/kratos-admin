@@ -16,8 +16,15 @@ test("字典多选只保留当前选项中的值", () => {
   assert.deepEqual(normalizeDictValues(["admin", "missing"], options), ["admin"]);
 });
 
-test("数字字段右对齐，数字字典和枚举文字居中", () => {
-  assert.equal(resolveTableColumnAlign({ prop: "count" }), "right");
-  assert.equal(resolveTableColumnAlign({ prop: "status", dictCode: "status" }), "center");
-  assert.equal(resolveTableColumnAlign({ prop: "status", enum: [{ label: "启用", value: 1 }] }), "center");
+test("普通字段不根据字段名或数据推断对齐方式", () => {
+  assert.equal(resolveTableColumnAlign({ prop: "created_at" }), "left");
+  assert.equal(resolveTableColumnAlign({ prop: "count" }), "left");
+  assert.equal(resolveTableColumnAlign({ prop: "created_at", align: "center" }), "center");
+  assert.equal(resolveTableColumnAlign({ prop: "count", align: "right" }), "right");
+});
+
+test("预置列组件保留默认对齐方式", () => {
+  assert.equal(resolveTableColumnAlign({ cellType: "status" }), "center");
+  assert.equal(resolveTableColumnAlign({ cellType: "money" }), "right");
+  assert.equal(resolveTableColumnAlign({ type: "selection" }), "center");
 });
