@@ -1,0 +1,31 @@
+# 链路追踪完整配置模板。
+# exporter 决定 Span 的导出方式；endpoint、采样率和批处理参数需与观测平台匹配。
+trace:
+  # 导出器地址；stdout 导出器通常不需要地址，OTLP/Zipkin 等需要填写服务地址。
+  endpoint: ""
+  # 导出器名称；可选 otlp-grpc、otlp-http、zipkin、stdout 等。
+  exporter: "stdout"
+  # 采样率，范围通常为 0~1；1.0 表示采样全部请求。
+  sampler: 1.0
+  # 运行环境标识，例如 dev、debug、product。
+  env: "local"
+  # 是否使用非安全连接；仅在链路平台允许明文传输时开启。
+  insecure: true
+
+  # BatchSpanProcessor 批处理参数。
+  batcher_options:
+    # 是否启用批处理 Span Processor。
+    enabled: true
+    # 待导出 Span 最大队列长度。
+    max_queue_size: 2048
+    # 单次导出的最大 Span 数量。
+    max_export_batch_size: 512
+    # 批处理调度延迟，单位毫秒。
+    schedule_delay_millis: 5000
+    # 单次导出超时时间，单位毫秒。
+    export_timeout_millis: 30000
+
+  # 是否注入和解析 W3C TraceContext。
+  enable_trace_context: true
+  # 是否注入和解析 W3C Baggage。
+  enable_baggage: true

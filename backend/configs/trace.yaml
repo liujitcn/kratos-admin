@@ -1,6 +1,0 @@
-trace:
-  endpoint: ""
-  batcher: "jaeger"
-  sampler: 1.0
-  env: "dev"
-  insecure: true

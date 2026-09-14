@@ -52,7 +52,7 @@
 | --- | --- | --- |
 | MySQL | 業務資料持久化與資料庫遷移。 | `backend/configs/data.yaml` |
 | Redis | 快取、分散式鎖、佇列與訊息投遞。 | `backend/configs/data.yaml` |
-| Consul | 服務註冊與發現。 | `backend/configs/registry.yaml` |
+| Consul | 服務註冊與發現。 | `backend/configs/full/registry.yaml` |
 | Vault | 應用根金鑰管理、設定解密與業務金鑰派生。 | `backend/configs/key.yaml` |
 
 各環境透過對應的 `<name>.<env>.yaml` 設定連線位址與存取參數。啟動前應確保中介軟體可存取，Vault 已初始化並解封，且 `VAULT_TOKEN` 具有讀取所需根金鑰的權限；部署、初始化與憑據維護由執行環境負責，不與專案啟動聯動。生產環境應使用安全連線與最小權限憑據。
@@ -80,10 +80,10 @@ make -C frontend reinstall
 確認 Vault 已啟動並解封，在終端機或 IDE 中自行設定有效的 `VAULT_TOKEN` 後啟動後端：
 
 ```bash
-make -C backend run APP_ENV=dev
+make -C backend run-minimal
 ```
 
-`run` 會先更新啟動所需的介面、OpenAPI 與 Wire 產物；確認產物未變更時可使用 `make -C backend run-only APP_ENV=dev` 直接啟動。基本設定使用 `<name>.yaml`，環境差異使用 `<name>.<env>.yaml`，缺少目前環境檔案時自動回退基本設定。完整目標、執行順序與參數請參閱 [Backend 常用流程](backend/README.md#常用流程)。
+`run-minimal` 使用 `backend/configs`。需要完整欄位時使用 `make -C backend run-full`；確認產物未變更時可使用 `make -C backend run-only` 直接啟動最小設定。完整目標、執行順序與參數請參閱 [Backend 常用流程](backend/README.md#常用流程)。
 
 啟動全部前端開發環境（管理後台、uni-app/Taro H5 與微信小程式）：
 
@@ -145,7 +145,7 @@ Docker 映像檔透過儲存庫根目錄命令建置：
 ```bash
 make docker-build IMAGE=kratos-admin TAG=latest
 make docker-build-multiarch IMAGE=registry.example.com/kratos-admin TAG=latest
-make docker-run IMAGE=kratos-admin TAG=latest APP_ENV=dev
+make docker-run IMAGE=kratos-admin TAG=latest
 make docker-stop IMAGE=kratos-admin TAG=latest
 ```
 

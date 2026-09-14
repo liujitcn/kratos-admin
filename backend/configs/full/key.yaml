@@ -1,0 +1,36 @@
+# 根密钥 Provider 完整配置模板。
+# type 可切换本地文件、Vault、AWS、Google、Azure 或 Kubernetes Secret。
+# root_name 是根密钥名称或路径，file/vault 等子节点提供对应 Provider 的连接参数。
+
+# Provider 类型；可选 file、vault、aws、google、azure、kubernetes。
+type: file
+# 密钥派生隔离范围；例如 prod/order-service。
+scope: default
+# 根密钥名称或路径；file Provider 通常与 file.path 保持一致。
+root_name: ./configs/full/root.key
+file:
+  # 本地根密钥文件路径；文件缺失时本地 Provider 会创建 32 字节根密钥。
+  path: ./configs/full/root.key
+vault:
+  # Vault 服务地址；为空时可使用 VAULT_ADDR 或 SDK 默认值。
+  address: ''
+  # Vault Enterprise 命名空间。
+  namespace: ''
+  # KV Secret 中保存密钥值的字段名。
+  value_key: ''
+aws:
+  # AWS Secrets Manager 区域；为空时使用 SDK 默认配置。
+  region: ''
+  # AWS Secret 版本阶段，例如 AWSCURRENT。
+  version_stage: ''
+google:
+  # Google Secret Manager 项目 ID。
+  project: ''
+azure:
+  # Azure Key Vault 地址。
+  vault_url: ''
+kubernetes:
+  # Kubernetes Secret 所在命名空间。
+  namespace: ''
+  # Secret.Data 中保存密钥值的字段名。
+  value_key: ''

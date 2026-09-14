@@ -1,0 +1,285 @@
+# 服务端完整配置模板。
+# HTTP、gRPC、MCP、SSE 可分别独立监听，也可以将 MCP/SSE 设置为 IN_PROCESS 挂载到 HTTP 服务。
+server:
+  http:
+    # 监听网络类型，通常为 tcp。
+    network: tcp
+    # HTTP 服务监听地址；:7001 表示监听所有网卡的 7001 端口。
+    addr: :7001
+    # 普通 HTTP 请求处理超时时间；流式请求由服务实现决定是否跳过。
+    timeout: 30s
+    # 单次 HTTP 请求体最大字节数；67108864 等于 64 MiB。
+    max_body_bytes: 67108864
+    # 是否启用 Swagger UI。
+    enable_swagger: true
+    # 是否启用 HTTP pprof 路由。
+    enable_pprof: false
+
+    # 跨域资源共享配置。
+    cors:
+      # 是否允许浏览器跨域请求携带 Cookie 或认证信息。
+      allow_credentials: true
+      # 允许的请求 Header 列表。
+      headers:
+        - "X-Requested-With"
+        - "X-Request-ID"
+        - "Content-Type"
+        - "Authorization"
+        - "X-Refresh-Token-Transport"
+      # 允许的 HTTP 方法列表。
+      methods:
+        - "GET"
+        - "POST"
+        - "PUT"
+        - "DELETE"
+        - "HEAD"
+        - "OPTIONS"
+      # 允许跨域请求的来源列表；生产环境应限制为实际前端域名。
+      origins:
+        - "http://localhost:8848"
+        - "http://127.0.0.1:8848"
+        - "http://localhost:5002"
+        - "http://127.0.0.1:5002"
+        - "http://localhost:5004"
+        - "http://127.0.0.1:5004"
+      # 允许浏览器读取的响应 Header 列表。
+      exposed_headers: []
+      # 浏览器缓存预检响应的秒数；0 表示不缓存。
+      max_age_seconds: 0
+
+    # HTTP 服务端中间件开关。
+    middleware:
+      # 是否记录请求方法、路径、状态码和耗时。
+      enable_logging: true
+      # 是否捕获 panic 并转换为 HTTP 错误。
+      enable_recovery: true
+      # 是否接入链路追踪。
+      enable_tracing: true
+      # 是否执行 Proto 参数校验。
+      enable_validate: true
+      # 是否处理和透传请求元数据。
+      enable_metadata: true
+      limiter:
+        # 限流器名称，例如 bbr；为空表示不启用指定限流器。
+        name: ''
+      metrics:
+        # 是否采集直方图指标。
+        histogram: false
+        # 是否采集计数器指标。
+        counter: false
+        # 是否采集仪表盘指标。
+        gauge: false
+        # 是否采集摘要指标。
+        summary: false
+
+    # HTTP 服务端 TLS 配置；file 和 config 分别支持文件或 PEM 内容。
+    tls:
+      file:
+        # 证书文件路径。
+        cert_path: ''
+        # 私钥文件路径。
+        key_path: ''
+        # CA 证书文件路径。
+        ca_path: ''
+      config:
+        # PEM 格式证书内容。
+        cert_pem: ''
+        # PEM 格式私钥内容。
+        key_pem: ''
+        # PEM 格式 CA 证书内容。
+        ca_pem: ''
+      # 是否跳过客户端或上游证书校验；生产环境不建议开启。
+      insecure_skip_verify: false
+      # HTTPS 对应域名，用于证书校验和 SNI。
+      domain: ''
+
+  grpc:
+    # 监听网络类型，通常为 tcp。
+    network: tcp
+    # gRPC 服务监听地址；0.0.0.0:6001 表示监听所有网卡的 6001 端口。
+    addr: 0.0.0.0:6001
+    # 单个 gRPC 请求超时时间。
+    timeout: 10s
+
+    # gRPC 服务端中间件配置。
+    middleware:
+      # 是否捕获 panic 并转换为 gRPC 错误。
+      enable_recovery: true
+      # 是否记录 gRPC 方法、状态和耗时。
+      enable_logging: true
+      # 是否接入链路追踪。
+      enable_tracing: true
+      # 是否执行 Proto 参数校验。
+      enable_validate: true
+      # 是否处理和透传请求元数据。
+      enable_metadata: true
+      limiter:
+        # 限流器名称，例如 bbr；为空表示不启用指定限流器。
+        name: ''
+      metrics:
+        # 是否采集直方图指标。
+        histogram: false
+        # 是否采集计数器指标。
+        counter: false
+        # 是否采集仪表盘指标。
+        gauge: false
+        # 是否采集摘要指标。
+        summary: false
+
+    # gRPC 服务端 TLS 配置。
+    tls:
+      file:
+        # 证书文件路径。
+        cert_path: ''
+        # 私钥文件路径。
+        key_path: ''
+        # CA 证书文件路径。
+        ca_path: ''
+      config:
+        # PEM 格式证书内容。
+        cert_pem: ''
+        # PEM 格式私钥内容。
+        key_pem: ''
+        # PEM 格式 CA 证书内容。
+        ca_pem: ''
+      # 是否跳过证书校验。
+      insecure_skip_verify: false
+      # TLS 域名。
+      domain: ''
+    # 是否启用自定义健康检查接口。
+    custom_health: false
+
+  mcp:
+    # MCP 服务运行形态；可选 UNSPECIFIED、HTTP、SSE、STDIO、IN_PROCESS。
+    transport: IN_PROCESS
+    # 独立 HTTP/SSE MCP 服务监听网络类型。
+    network: tcp
+    # 独立 HTTP/SSE MCP 服务监听地址；IN_PROCESS 模式下不直接监听该地址。
+    addr: :7002
+    # MCP Handler 挂载路径。
+    path: /mcp
+
+    # 独立 MCP 服务的 TLS 配置。
+    tls:
+      file:
+        # 证书文件路径。
+        cert_path: ''
+        # 私钥文件路径。
+        key_path: ''
+        # CA 证书文件路径。
+        ca_path: ''
+      config:
+        # PEM 格式证书内容。
+        cert_pem: ''
+        # PEM 格式私钥内容。
+        key_pem: ''
+        # PEM 格式 CA 证书内容。
+        ca_pem: ''
+      # 是否跳过证书校验。
+      insecure_skip_verify: false
+      # TLS 域名。
+      domain: ''
+    # MCP 服务优雅关闭等待时间。
+    shutdown_timeout: 5s
+    # 是否启用 MCP 配套 keepalive 服务。
+    enable_keepalive: true
+
+    # Streamable HTTP MCP Handler 配置。
+    streamable_http:
+      # 是否使用无状态模式；false 表示保留会话状态。
+      stateless: false
+      # 是否使用 JSON 响应格式，而不是事件流格式。
+      json_response: false
+      # MCP 会话超时时间。
+      session_timeout: 300s
+      # 是否关闭 localhost 请求保护；生产环境不建议关闭。
+      disable_localhost_protection: false
+
+    # Legacy SSE MCP Handler 配置。
+    legacy_sse:
+      # 是否关闭 localhost 请求保护。
+      disable_localhost_protection: false
+
+    # 通过配置将普通 HTTP 接口暴露为 MCP Tool。
+    http_tools:
+      - name: example
+        # MCP Tool 对外展示的说明。
+        description: ''
+        # HTTP 请求方法，例如 GET、POST、PUT、DELETE。
+        method: GET
+        # HTTP 服务基础地址。
+        base_url: http://127.0.0.1:8080
+        # 请求路径或完整 URL；可使用 path 参数替换路径变量。
+        url: /health
+        # 固定附加到 HTTP 请求的 Header。
+        headers: {}
+        # MCP Tool 参数到 HTTP 请求的映射规则。
+        parameters:
+          - name: id
+            # 参数说明，会展示给 MCP 调用方。
+            description: ''
+            # 参数位置；可选 HTTP_PARAM_LOCATION_UNSPECIFIED、HTTP_PARAM_LOCATION_PATH、
+            # HTTP_PARAM_LOCATION_QUERY、HTTP_PARAM_LOCATION_HEADER、HTTP_PARAM_LOCATION_BODY。
+            location: HTTP_PARAM_LOCATION_QUERY
+            # 是否必须由调用方提供。
+            required: false
+            # JSON Schema 类型，例如 string、integer、number、boolean、object、array。
+            type: string
+            # 实际写入 HTTP 请求时使用的名称；为空时使用 name。
+            target: id
+            # 缺省值，按字符串形式写入请求。
+            default_value: ''
+        # Body 编码方式；可选 HTTP_BODY_MODE_UNSPECIFIED、HTTP_BODY_MODE_NONE、
+        # HTTP_BODY_MODE_JSON、HTTP_BODY_MODE_FORM、HTTP_BODY_MODE_RAW。
+        body_mode: HTTP_BODY_MODE_NONE
+        # Body 模板；RAW 或复杂 JSON 请求时使用。
+        body_template: ''
+        # MCP Tool 输入 JSON Schema；为空时可根据 parameters 推导。
+        input_schema: {}
+        # 单次 HTTP Tool 调用超时时间。
+        timeout: 10s
+
+  sse:
+    # SSE 服务运行形态；可选 UNSPECIFIED、HTTP、IN_PROCESS。
+    transport: IN_PROCESS
+    # 独立 SSE 服务监听网络类型。
+    network: tcp
+    # 独立 SSE 服务监听地址；IN_PROCESS 模式下不直接监听该地址。
+    addr: :7003
+    # SSE Handler 挂载路径。
+    path: /events
+    # 事件编解码器；当前使用 JSON。
+    codec: json
+
+    # SSE 服务端 TLS 配置。
+    tls:
+      file:
+        # 证书文件路径。
+        cert_path: ''
+        # 私钥文件路径。
+        key_path: ''
+        # CA 证书文件路径。
+        ca_path: ''
+      config:
+        # PEM 格式证书内容。
+        cert_pem: ''
+        # PEM 格式私钥内容。
+        key_pem: ''
+        # PEM 格式 CA 证书内容。
+        ca_pem: ''
+      # 是否跳过证书校验。
+      insecure_skip_verify: false
+      # TLS 域名。
+      domain: ''
+    # SSE 请求处理超时时间；0s 表示不限制。
+    timeout: 0s
+    # 事件在服务端保留的最长时间。
+    event_ttl: 300s
+    # 是否自动创建、维护和清理 SSE 流。
+    auto_stream: true
+    # 是否自动回复事件。
+    auto_reply: true
+    # 是否将数据拆分成多个事件片段。
+    split_data: false
+    # 是否对事件数据进行 Base64 编码。
+    encode_base64: false

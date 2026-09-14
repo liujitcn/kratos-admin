@@ -63,15 +63,15 @@ make run
 make run-only
 ```
 
-バックエンドは MySQL、Redis、Consul、Vault に依存し、接続パラメーターは `configs/data.yaml`、`configs/registry.yaml`、`configs/key.yaml` とそれぞれの環境別ファイルで設定します。起動前に各ミドルウェアへ接続でき、Vault がアンシール済みであることを確認し、ルートキーの読み取り権限を持つ `VAULT_TOKEN` を端末または IDE に設定してください。同じアプリケーションの各ノードは共通のルートキー参照と `scope` を使用します。Vault に接続できない、シールされている、キーが存在しない、または token が無効な場合は起動に失敗し、ローカルファイルへはフォールバックしません。ミドルウェアのデプロイ、初期化、認証情報の管理は実行環境の責務であり、アプリケーション起動とは連動しません。
+バックエンドは MySQL、Redis、Consul、Vault に依存し、最小設定では `configs/data.yaml` と `configs/key.yaml`、完全設定では `configs/full` 配下で接続パラメーターを設定します。既定では選択した設定ディレクトリの基本 YAML だけを読み込み、`APP_ENV` を明示した場合だけ `<name>.<env>.yaml` を追加で読み込みます。`configs` は最小設定、`configs/full` は現在の `kratos-kit/api` がサポートする全フィールドを保持します。
 
-既定の設定ディレクトリは `./configs`、既定の実行環境は `dev` です。基本設定は `<name>.yaml`、環境差分は `<name>.<env>.yaml` を使用します。環境ファイルが存在する場合は基本設定の後に読み込み、存在しない場合は基本設定へフォールバックします。
+既定の設定ディレクトリは `./configs`、既定の実行環境は空です。基本設定は `<name>.yaml`、環境差分は明示した `APP_ENV` に対応する `<name>.<env>.yaml` を使用します。
 
 セッションのライフサイクルとアップロードのセキュリティスキャンは `authn.session`、`oss.upload_security` を使用します。監査ログの保管は「システム管理 → バックアップ管理 → データアーカイブ」でテーブル単位に管理し、データベースバックアップは「システム管理 → バックアップ管理 → データバックアップ」でデータソース単位に管理します。ログ保存フォールバック設定は非表示設定 `baseLogFallback` を使用します。バックアップ整合性キーと暗号化キーは、タスク実行時にそれぞれ `kratos-admin:backup/integrity`、`kratos-admin:backup/encryption` から実行時キーサービス経由で派生します。通常のシステム設定は「システム設定」ページで管理します。通常の HTTP リクエストは `server.http.timeout` と `server.http.max_body_bytes` のみを使用し、`/events`、`/mcp`、AI メッセージストリームは通常のリクエストタイムアウトを自動的にスキップします。
 
 ローカルファイルストレージのディスクルートは `configs/oss.yaml` の `oss.root_directory` だけで設定し、Core はそのディレクトリを `/data/` にマッピングします。アップロード対象は `業務種別/ファイル分類/年/月/日/ファイル名` で階層化し、データベースには OSS オブジェクトパスを保存します。`backend/data` には三端の H5 生成物とアップロード対象だけを保持し、ログ、バックアップ、コード生成復元スナップショットはそれぞれ `backend/logs`、`backend/backups`、`backend/codegen/restore` に保存します。
 
-多要素認証方式はシステム設定 `securityMfaMethod` で選択し、現在は `totp` と `webauthn` に対応しています。実行時 MFA パラメータは `mfa.yaml` または環境上書きファイル `mfa.dev.yaml` の `mfa` ノードから読み込みます。`mfa.encryption_key` に明示値がある場合はそれを優先し、空の場合は TOTP キーを実際に暗号化・復号する時点で `kratos-kit:mfa/encryption` により実行時キーサービスから派生します。管理端末とアプリ端末で TOTP を無効化するには現在のパスワードと動的パスワードまたは復旧コードが必要です。WebAuthn を無効化するには現在のパスワードと Passkey または復旧コードの検証が必要です。本番環境の実キーをリポジトリやデータベースに保存しないでください。完全なフィールド定義は `kratos-kit/api/proto/config/v1/mfa.proto` に従います。
+多要素認証方式はシステム設定 `securityMfaMethod` で選択し、現在は `totp` と `webauthn` に対応しています。実行時 MFA パラメータは `mfa.yaml` の `mfa` ノードから読み込みます。`mfa.encryption_key` に明示値がある場合はそれを優先し、空の場合は TOTP キーを実際に暗号化・復号する時点で `kratos-kit:mfa/encryption` により実行時キーサービスから派生します。管理端末とアプリ端末で TOTP を無効化するには現在のパスワードと動的パスワードまたは復旧コードが必要です。WebAuthn を無効化するには現在のパスワードと Passkey または復旧コードの検証が必要です。本番環境の実キーをリポジトリやデータベースに保存しないでください。完全なフィールド定義は `kratos-kit/api/proto/config/v1/mfa.proto` に従います。
 
 ```bash
 make run-only CONF=/path/to/configs
@@ -79,7 +79,7 @@ make run-only APP_ENV=prod
 make run-only RUN_ARGS='--help'
 ```
 
-たとえば `APP_ENV=dev` は `data.yaml` の後に `data.dev.yaml` を読み込み、`data.prod.yaml` は無視します。ローカル開発設定は `*.dev.yaml` に統一して保存し、これらのファイルは既定では Git に含めません。
+たとえば `APP_ENV=prod` は `data.yaml` の後に `data.prod.yaml` を読み込みます。`APP_ENV` を指定しない場合は基本 YAML だけを読み込みます。
 
 ローカルで HTTPS により HTTP サービスを起動する場合は、リポジトリルートでフロントエンドとバックエンドが共有する開発証明書を生成してから、`https` 実行環境を使用します。
 
@@ -156,7 +156,7 @@ make build GOOS=darwin GOARCH=arm64 BINARY=bin/server-darwin-arm64
 | パラメータ | 既定値 | 用途 |
 | --- | --- | --- |
 | `CONF` | `./configs` | サービス実行設定ディレクトリ。 |
-| `APP_ENV` | `dev` | `<name>.<env>.yaml` の環境上書きを選択。 |
+| `APP_ENV` | 空 | `<name>.<env>.yaml` の環境上書きを選択。 |
 | `RUN_ARGS` | 空 | サービスコマンドへ追加する引数。 |
 | `CGO_ENABLED` | `0` | Go ビルド時に CGO を有効にするか。 |
 | `GOOS` / `GOARCH` | `linux` / `amd64` | ビルド対象プラットフォーム。 |
@@ -164,7 +164,7 @@ make build GOOS=darwin GOARCH=arm64 BINARY=bin/server-darwin-arm64
 | `ARCHIVE` | `dist/backend-<os>-<arch>.tar.gz` | Backend バイナリの圧縮パス。ルート `make package` から使用します。 |
 | `PUBLIC_WIRE_DIR` | `internal/module` | 公開入口で使用する内部 `wire.go` のディレクトリ。 |
 | `WIRE_DIR` | `internal/cmd/server` | 独立入口の `wire.go` ディレクトリ。 |
-| `GORM_GEN_CONFIG` | `configs/data.dev.yaml` | GORM 生成に使用するデータソース設定。 |
+| `GORM_GEN_CONFIG` | `configs/data.yaml` | GORM 生成に使用するデータソース設定。 |
 | `GORM_GEN_DATABASE` | 空 | 任意のデータベース名。既定では設定ファイルから読み込みます。 |
 | `GORM_TABLE` | 内蔵テーブル一覧 | GORM 生成対象テーブルをカンマ区切りで指定。 |
 

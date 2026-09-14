@@ -1,0 +1,14 @@
+# 通知组件完整配置模板。
+# notify.type 选择实际通知实现；当前保留短信 Provider 的连接字段。
+notify:
+  # 通知组件类型；具体可选值由已接入的通知 Provider 决定。
+  type: ''
+  sms:
+    # 短信服务公网接入地址。
+    endpoint: ''
+    # 云服务地域 ID。
+    region_id: ''
+    # 云服务访问密钥 ID。
+    access_key_id: ''
+    # 云服务访问密钥。
+    access_key_secret: ''

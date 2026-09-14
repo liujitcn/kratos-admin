@@ -1,0 +1,79 @@
+# 远程配置中心完整配置模板。
+# config.type 选择实际使用的配置中心，其他 Provider 配置保留为可切换模板。
+config:
+  # 配置中心类型；可选 etcd、consul、nacos、apollo、kubernetes、polaris。
+  type: ''
+  etcd:
+    # Etcd 服务端地址列表。
+    endpoints: []
+    # Etcd 请求超时时间。
+    timeout: 5s
+    # 配置键或路径。
+    key: ''
+  consul:
+    # Consul 访问协议，例如 http 或 https。
+    scheme: http
+    # Consul 服务地址。
+    address: 127.0.0.1:8500
+    # 配置键或路径。
+    key: ''
+  nacos:
+    # Nacos 服务端地址，不包含端口时配合 port 使用。
+    address: ''
+    # Nacos 服务端端口，默认 8848。
+    port: 8848
+    # Nacos 登录用户名。
+    username: ''
+    # Nacos 登录密码。
+    password: ''
+    # Nacos 命名空间 ID。
+    namespace_id: ''
+    # Nacos 配置分组，默认 DEFAULT_GROUP。
+    group: DEFAULT_GROUP
+    # Nacos 配置数据 ID。
+    data_id: ''
+    # Nacos 客户端日志级别，例如 info、debug。
+    log_level: info
+    # Nacos 本地缓存目录。
+    cache_dir: ./data
+    # Nacos 客户端日志目录。
+    log_dir: ./logs
+    # 启动时是否不读取本地缓存。
+    not_load_cache_at_start: false
+    # 配置为空时是否更新本地缓存。
+    update_cache_when_empty: false
+    # 配置更新线程数。
+    update_thread_num: 1
+    # Nacos HTTP 请求超时时间，单位毫秒。
+    timeout_ms: 3000
+    # Nacos 心跳间隔，单位毫秒。
+    beat_interval: 5000
+  apollo:
+    # Apollo 服务端地址。
+    endpoint: ''
+    # Apollo 应用 ID。
+    app_id: ''
+    # Apollo 集群名称。
+    cluster: default
+    # Apollo 命名空间。
+    namespace: application
+    # Apollo 访问密钥。
+    secret: ''
+  kubernetes:
+    # Kubernetes 命名空间。
+    namespace: default
+    # Kubernetes 标签选择器。
+    label_selector: ''
+    # Kubernetes 字段选择器。
+    field_selector: ''
+    # kubeconfig 文件路径；为空时使用集群内或默认配置。
+    kube_config: ''
+    # Kubernetes API Server 地址。
+    master: ''
+  polaris:
+    # Polaris 命名空间。
+    namespace: ''
+    # Polaris 配置文件组。
+    file_group: ''
+    # Polaris 配置文件名。
+    file_name: ''

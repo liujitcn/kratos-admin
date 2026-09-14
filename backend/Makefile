@@ -10,7 +10,7 @@
 
 .PHONY: help init plugin cli fmt lint test check \
 	gorm-gen api openapi public-wire wire gen \
-	run run-only build package-binary
+	run run-only run-minimal run-full build package-binary
 
 # 统一递归 Make 输出，避免显示目录进入提示和终端控制符。
 MAKEFLAGS += --no-print-directory
@@ -23,7 +23,8 @@ export NO_COLOR FORCE_COLOR
 # 服务入口、配置目录、运行环境和附加运行参数。
 SERVER_PACKAGE ?= ./internal/cmd/server
 CONF ?= ./configs
-APP_ENV ?= dev
+FULL_CONF ?= ./configs/full
+APP_ENV ?=
 RUN_ARGS ?=
 
 # 二进制目标平台与输出路径，默认构建 Linux amd64 静态程序。
@@ -50,7 +51,7 @@ GORM_GEN_BIN ?= $(or \
 	$(shell command -v gorm-gen 2>/dev/null), \
 	$(GO_BIN_DIR)/gorm-gen \
 )
-GORM_GEN_CONFIG ?= configs/data.dev.yaml
+GORM_GEN_CONFIG ?= configs/data.yaml
 GORM_GEN_DATABASE ?=
 # 仅生成本仓库使用的表；新增业务表时同步补充此列表。
 	GORM_TABLE ?= ai_message,ai_session,base_api,base_api_i18n,base_area,base_api_log,base_config,base_data_access_log,base_dept,base_dict,base_dict_item,base_file,base_i18n,base_job,base_job_log,base_language,base_login_log,base_login_policy,base_login_policy_rule,base_menu,base_message,base_message_category,base_message_delivery,base_message_dispatch,base_migration,base_operation_log,base_permission_log,base_policy_evaluation_log,base_post,base_redact_output_policy,base_redact_rule,base_redact_storage_policy,base_redact_storage_value,base_role,base_table_archive,base_table_archive_record,base_table_archive_restore,base_table_backup,base_table_backup_record,base_table_backup_restore,base_tenant,base_third_account,base_user,base_user_mfa,base_user_mfa_recovery,base_user_mfa_totp,base_user_mfa_webauthn,casbin_rule,code_gen_column,code_gen_proto,code_gen_table,oauth_client
@@ -213,6 +214,14 @@ gen:
 run-only:
 	@go run "$(SERVER_PACKAGE)" -c "$(CONF)" -e "$(APP_ENV)" $(RUN_ARGS)
 
+# 使用当前目录的最小启动配置直接启动服务。
+run-minimal:
+	@$(MAKE) run-only CONF="$(CONF)" APP_ENV="$(APP_ENV)"
+
+# 使用 full 目录的完整配置直接启动服务。
+run-full:
+	@$(MAKE) run-only CONF="$(FULL_CONF)" APP_ENV="$(APP_ENV)"
+
 # 刷新接口、OpenAPI 和 Wire 后运行服务。
 run:
 	@$(MAKE) api
@@ -245,6 +254,8 @@ help:
 	@echo "  make init                         首次安装生成与检查工具"
 	@echo "  make run                          刷新接口、OpenAPI 和 Wire 后启动服务"
 	@echo "  make run-only                     已有生成产物时直接启动服务"
+	@echo "  make run-minimal                  使用 configs 的最小配置启动服务"
+	@echo "  make run-full                     使用 configs/full 的完整配置启动服务"
 	@echo "  make gen                          生成后端代码产物"
 	@echo "  make check                        提交前执行 lint 和测试"
 	@echo "  make build                        构建 Linux amd64 二进制"
@@ -273,7 +284,8 @@ help:
 	@printf "  %-24s %s\n" "GORM_TABLE" "可选逗号分隔表清单"
 	@echo ""
 	@echo "示例:"
-	@echo "  make run-only CONF=./configs APP_ENV=dev"
+	@echo "  make run-minimal"
+	@echo "  make run-full"
 	@echo "  make run-only RUN_ARGS='--help'"
 	@echo "  make build GOOS=darwin GOARCH=arm64 BINARY=bin/server-darwin-arm64"
 	@echo "  make package-binary GOOS=linux GOARCH=arm64"

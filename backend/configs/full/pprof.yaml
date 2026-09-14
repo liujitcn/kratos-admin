@@ -1,0 +1,26 @@
+# 性能分析上报完整配置模板。
+# type=pyroscope 时启动 Pyroscope 采样器并向 server_address 上报；type 为空则不启用。
+pprof:
+  # 性能分析组件类型；当前模板使用 pyroscope。
+  type: pyroscope
+  pyroscope:
+    # 在 Pyroscope 中区分应用的名称。
+    application_name: admin-server
+    # Pyroscope 服务端地址。
+    server_address: http://localhost:4040
+    # HTTP Basic 认证用户名。
+    basic_auth_user: ''
+    # HTTP Basic 认证密码。
+    basic_auth_password: ''
+    # 多租户 Pyroscope 的租户 ID。
+    tenant_id: ''
+    # 性能数据上传频率；15s 表示每 15 秒上传一次。
+    upload_rate: 15s
+    # 附加标签，用于在 Pyroscope 中过滤和聚合。
+    tags: {}
+    # 要采集的性能数据类型列表；空列表使用采样器默认值。
+    profile_types: []
+    # 是否禁用自动 runtime.GC。
+    disable_gc_runs: false
+    # 上报请求附加的 HTTP Header。
+    http_headers: {}

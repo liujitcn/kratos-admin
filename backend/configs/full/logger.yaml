@@ -1,0 +1,82 @@
+# 日志组件完整配置模板。
+# logger.type 选择实际使用的日志实现，当前示例使用 zap；其他实现配置保留供切换。
+logger:
+    type: zap
+    zap:
+        # 是否同时输出到控制台。
+        enable_console: true
+        # 日志文件目录。
+        filepath: ./logs
+        # 最低日志级别，例如 debug、info、warn、error。
+        level: debug
+        # 单个日志文件最大大小，具体单位由日志实现约定，通常为 MB。
+        max_age: 30
+        # 日志文件保留天数。
+        max_backups: 5
+        # 最大保留日志文件数量。
+        max_size: 1
+    aliyun:
+        # 阿里云日志服务访问密钥 ID。
+        access_key: "<access_key>"
+        # 阿里云日志服务访问密钥。
+        access_secret: "<access_secret>"
+        # 阿里云日志服务接入地址。
+        endpoint: ""
+        # 日志项目名称。
+        project: ""
+    fluent:
+        # Fluent 公网或内网接入地址。
+        endpoint: tcp://localhost:24224
+    logrus:
+        # 是否禁用彩色输出。
+        disable_colors: false
+        # 是否禁用时间戳。
+        disable_timestamp: false
+        # 输出格式，例如 text、json。
+        formatter: text
+        # 最低日志级别。
+        level: debug
+        # 时间戳格式，使用 Go time layout。
+        timestamp_format: "2006-01-02 15:04:05"
+        # 日志文件目录；为空时通常只输出到控制台。
+        filepath: ./logs
+        # 单个日志文件最大大小，单位 MB。
+        max_size: 1
+        # 日志文件保留天数。
+        max_age: 30
+        # 最大保留日志文件数量。
+        max_backups: 5
+        # 文件输出时是否同时输出到控制台。
+        enable_console: true
+    tencent:
+        # 腾讯云日志服务访问密钥 ID。
+        access_key: "<access_key>"
+        # 腾讯云日志服务访问密钥。
+        access_secret: "<access_secret>"
+        # 腾讯云日志服务接入地址。
+        endpoint: ""
+        # 日志主题 ID。
+        topic_id: ''
+    zerolog:
+        # 最低日志级别。
+        level: debug
+        # 时间戳格式，使用 Go time layout。
+        time_field_format: "2006-01-02 15:04:05"
+        # JSON 时间戳字段名。
+        timestamp_field_name: time
+        # JSON 日志级别字段名。
+        level_field_name: level
+        # JSON 日志消息字段名。
+        message_field_name: message
+        # 输出目标；可选 stdout、stderr、console、file、lumberjack。
+        writer: stdout
+        # writer=file 或 lumberjack 时使用的日志文件目录。
+        filepath: ./logs
+        # 单个日志文件最大大小，单位 MB。
+        max_size: 1
+        # 日志文件保留天数。
+        max_age: 30
+        # 最大保留日志文件数量。
+        max_backups: 5
+        # 文件输出时是否同时输出到控制台。
+        enable_console: true

@@ -52,7 +52,7 @@ Run `make` or `make help` to view repository-level commands. Run `make -C backen
 | --- | --- | --- |
 | MySQL | Business-data persistence and database migrations. | `backend/configs/data.yaml` |
 | Redis | Caching, distributed locks, queues, and message delivery. | `backend/configs/data.yaml` |
-| Consul | Service registration and discovery. | `backend/configs/registry.yaml` |
+| Consul | Service registration and discovery. | `backend/configs/full/registry.yaml` |
 | Vault | Application root-key management, configuration decryption, and business-key derivation. | `backend/configs/key.yaml` |
 
 Each environment configures connection addresses and access parameters through the corresponding `<name>.<env>.yaml` file. Before startup, ensure that the middleware is reachable, Vault is initialized and unsealed, and `VAULT_TOKEN` has permission to read the required root keys. Deployment, initialization, and credential management belong to the runtime environment and are not coupled to application startup. Production environments should use secure connections and least-privilege credentials.
@@ -80,10 +80,10 @@ make -C frontend reinstall
 After confirming that Vault is running and unsealed, configure a valid `VAULT_TOKEN` in your terminal or IDE and start the backend:
 
 ```bash
-make -C backend run APP_ENV=dev
+make -C backend run-minimal
 ```
 
-`run` refreshes the API, OpenAPI, and Wire artifacts required for startup first. When generated artifacts are known to be unchanged, use `make -C backend run-only APP_ENV=dev` to start directly. Base configuration uses `<name>.yaml`; environment differences use `<name>.<env>.yaml`; if the current environment file is missing, the base configuration is used as a fallback. See [Backend Common Procedures](backend/README.md#常用流程) for complete targets, order, and parameters.
+`run-minimal` uses `backend/configs`. Use `make -C backend run-full` when all configuration fields are needed; use `make -C backend run-only` to start the minimal configuration without regenerating artifacts. See [Backend Common Procedures](backend/README.md#常用流程) for complete targets, order, and parameters.
 
 Start all frontend development environments (administration console, uni-app/Taro H5, and WeChat Mini Program):
 
@@ -145,7 +145,7 @@ Build Docker images from the repository root:
 ```bash
 make docker-build IMAGE=kratos-admin TAG=latest
 make docker-build-multiarch IMAGE=registry.example.com/kratos-admin TAG=latest
-make docker-run IMAGE=kratos-admin TAG=latest APP_ENV=dev
+make docker-run IMAGE=kratos-admin TAG=latest
 make docker-stop IMAGE=kratos-admin TAG=latest
 ```
 

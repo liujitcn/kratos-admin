@@ -1,0 +1,119 @@
+# 数据层完整配置模板，包含数据库、Redis、队列和多数据库实例。
+data:
+  database:
+    # 连接可复用的最大生命周期；300s 表示 5 分钟。
+    connection_max_lifetime: 300s
+    # 启动时校验数据库连接的超时时间。
+    connection_timeout: 5s
+    # 是否启用数据库调试模式；true 会打印 GORM SQL。
+    debug: true
+    # 数据库驱动；常见值为 mysql、postgres、sqlite。
+    driver: mysql
+    # 是否启用数据库性能指标。
+    enable_metrics: false
+    # 是否启用数据库迁移。
+    enable_migrate: true
+    # 是否启用数据库链路追踪。
+    enable_trace: false
+    # 最大空闲连接数。
+    max_idle_connections: 25
+    # 最大打开连接数。
+    max_open_connections: 25
+    # Prometheus Pushgateway 地址；为空表示不推送。
+    prometheus_push_addr: ''
+    # Prometheus 中展示的数据库名称。
+    prometheus_db_name: ''
+    # Prometheus 指标 HTTP 端口；0 表示不单独监听。
+    prometheus_http_port: 0
+    # 数据库 DSN，按所选驱动的连接字符串格式填写。
+    source: root:112233@tcp(127.0.0.1:3306)/kratos_admin?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms
+
+  # 按名称区分的多数据库配置；名称由业务或数据访问层引用。
+  databases:
+    example:
+      # 数据库驱动名称。
+      driver: mysql
+      # 数据库 DSN。
+      source: user:password@tcp(127.0.0.1:3306)/database
+      # 是否打印 SQL 调试日志。
+      debug: false
+      # 是否执行该数据库迁移。
+      enable_migrate: false
+      # 是否启用链路追踪。
+      enable_trace: false
+      # 是否启用性能指标。
+      enable_metrics: false
+      # 最大空闲连接数。
+      max_idle_connections: 10
+      # 最大打开连接数。
+      max_open_connections: 50
+      # 连接可复用的最大生命周期。
+      connection_max_lifetime: 300s
+      # 启动连接校验超时时间。
+      connection_timeout: 5s
+      # Prometheus Pushgateway 地址。
+      prometheus_push_addr: ''
+      # Prometheus 展示的数据库名称。
+      prometheus_db_name: ''
+      # Prometheus 指标 HTTP 端口；0 表示不单独监听。
+      prometheus_http_port: 0
+
+  redis:
+    # Redis 服务端地址列表。
+    addr:
+      - 127.0.0.1:6379
+    # Redis 逻辑数据库编号。
+    db: 1
+    # Redis 密码。
+    password: '112233'
+    # 建立 Redis 连接的超时时间。
+    dial_timeout: 5s
+    # Redis 读取超时时间。
+    read_timeout: 3s
+    # Redis 写入超时时间。
+    write_timeout: 3s
+    tls:
+      file:
+        # Redis TLS 证书文件路径。
+        cert_path: ''
+        # Redis TLS 私钥文件路径。
+        key_path: ''
+        # Redis TLS CA 证书文件路径。
+        ca_path: ''
+      config:
+        # Redis TLS PEM 证书内容。
+        cert_pem: ''
+        # Redis TLS PEM 私钥内容。
+        key_pem: ''
+        # Redis TLS PEM CA 证书内容。
+        ca_pem: ''
+      # 是否跳过 Redis 服务端证书校验；生产环境不建议开启。
+      insecure_skip_verify: false
+      # Redis TLS 域名。
+      domain: ''
+    # 是否为 Redis 操作启用链路追踪。
+    enable_tracing: false
+    # 是否为 Redis 操作启用性能指标。
+    enable_metrics: false
+
+  queue:
+    memory:
+      # 内存队列工作池大小。
+      pool_size: 1000
+    redis:
+      producer:
+        # Redis Stream 最大长度；0 表示使用组件默认策略。
+        stream_max_length: 0
+        # 裁剪 Stream 时是否使用近似最大长度。
+        approximate_max_length: true
+      consumer:
+        # 消息重新可见前的超时时间。
+        visibility_timeout: 0s
+        # 阻塞读取超时时间。
+        blocking_timeout: 0s
+        # 回收未确认消息的时间间隔。
+        reclaim_interval: 0s
+        # 消费缓冲区大小。
+        buffer_size: 0
+        # 消费者并发数；0 表示使用组件默认值。
+        concurrency: 0

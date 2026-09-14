@@ -1,0 +1,58 @@
+# 对象存储完整配置模板。
+# oss.type 选择实际使用的存储 Provider；其他 Provider 字段保留供切换时填写。
+oss:
+    # 存储类型；可选 local、ftp、aliyun、minio、s3。
+    type: local
+    # 对象存储根目录；本地模式为文件系统目录，云存储模式通常作为对象前缀。
+    root_directory: ./data
+    aliyun:
+        # 阿里云 OSS 访问密钥 ID。
+        access_key_id: xxx
+        # 阿里云 OSS 访问密钥。
+        access_key_secret: xxx
+        # OSS Bucket 名称。
+        bucket_name: xxx
+        # OSS 服务端点，例如 https://oss-cn-beijing.aliyuncs.com。
+        endpoint: https://oss-cn-beijing.aliyuncs.com
+    minio:
+        # MinIO 访问密钥。
+        access_key: minioadmin
+        # MinIO Bucket 名称。
+        bucket_name: kratos-admin
+        # MinIO 服务地址。
+        endpoint: http://127.0.0.1:9000
+        # MinIO 秘密密钥。
+        secret_key: minioadmin
+        # 临时访问令牌；无临时令牌时留空。
+        token: ''
+        # 是否通过 HTTPS 访问 MinIO。
+        use_ssl: false
+    ftp:
+        # FTP 服务地址，例如 127.0.0.1:21。
+        endpoint: 127.0.0.1:21
+        # FTP 登录账号。
+        user_name: ''
+        # FTP 登录密码。
+        user_pwd: ''
+    s3:
+        # S3 或兼容服务地址；AWS 官方服务可留空。
+        access_key: minioadmin
+        # S3 Bucket 名称。
+        bucket_name: kratos-admin
+        # 自定义 S3 服务地址。
+        endpoint: http://127.0.0.1:9000
+        # 是否使用路径风格 URL，兼容部分自建 S3 服务。
+        force_path_style: true
+        # AWS 或兼容服务地域。
+        region: us-east-1
+        # S3 秘密密钥。
+        secret_key: minioadmin
+        # 临时访问令牌。
+        token: ''
+        # 是否使用 HTTPS。
+        use_ssl: false
+    upload_security:
+        # 上传前安全扫描命令；参数由上传模块追加。
+        command: clamdscan
+        # 是否启用上传内容安全扫描。
+        enabled: false

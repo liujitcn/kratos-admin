@@ -1,0 +1,242 @@
+# 外部服务客户端完整配置模板。
+# http、grpc、sse、mcp 分别对应不同传输方式；未使用的 endpoint 可以保持为空。
+client:
+  http:
+    # HTTP 服务地址，可填写完整 URL，例如 http://127.0.0.1:7001。
+    endpoint: ''
+    # HTTP 请求超时时间；30s 表示 30 秒。
+    timeout: 30s
+
+    # HTTP 客户端中间件开关。
+    middleware:
+      # 是否记录客户端请求日志。
+      enable_logging: false
+      # 是否将 panic 转换为客户端错误。
+      enable_recovery: true
+      # 是否接入链路追踪。
+      enable_tracing: false
+      # 是否透传请求元数据。
+      enable_metadata: true
+      # 是否启用客户端熔断器。
+      enable_circuit_breaker: false
+
+      auth:
+        # JWT 签名算法，例如 HS256。
+        method: HS256
+        # JWT 签名密钥；为空表示不附加 JWT 认证。
+        secret: ''
+
+      selector_filter:
+        # 负载均衡过滤器版本号；为空使用默认版本。
+        filter_version: ''
+        # 负载均衡选择器名称；为空使用默认选择器。
+        balancer: ''
+
+      retry:
+        # 最大尝试次数，包含首次请求；3 表示最多请求 3 次。
+        max_attempts: 3
+        # 首次重试前的等待时间。
+        initial_backoff: 0.2s
+        # 单次退避等待时间上限。
+        max_backoff: 10s
+        # 指数退避倍数。
+        backoff_factor: 2
+        # 全部尝试和等待的总时长上限；0s 表示不限制。
+        max_total_wait: 0s
+        # 允许重试的方法名前缀；为空时通常使用 Get、List、Search。
+        idempotent_prefixes: []
+        # 触发重试的 gRPC 状态码名称；为空时通常只重试 UNAVAILABLE。
+        retry_codes: []
+        # 不参与重试的完整 gRPC 方法名列表。
+        skip_methods: []
+
+      rate_limiter:
+        # 令牌桶每秒补充的令牌数量；大于 0 时启用限流。
+        tokens_per_second: 0
+        # 令牌桶突发容量；大于 0 时启用限流。
+        burst: 0
+        # 无可用令牌时是否等待，而不是立即拒绝请求。
+        wait: false
+        # 不参与限流的完整 gRPC 方法名列表。
+        skip_methods: []
+
+      metrics:
+        # Prometheus 指标命名空间。
+        namespace: ''
+        # Prometheus 指标子系统；当前模板使用 grpc_client。
+        subsystem: grpc_client
+        # 请求计数器名称。
+        request_counter_name: grpc_requests_total
+        # 请求耗时直方图名称。
+        latency_histogram_name: grpc_request_duration_seconds
+        # 进行中请求数量指标名称。
+        in_flight_gauge_name: grpc_requests_in_flight
+        # 不记录指标的完整 gRPC 方法名列表。
+        skip_methods: []
+
+    tls:
+      file:
+        # 证书文件路径；为空表示不从文件加载证书。
+        cert_path: ''
+        # 私钥文件路径。
+        key_path: ''
+        # CA 证书文件路径。
+        ca_path: ''
+      config:
+        # PEM 格式服务端证书内容；与 file 二选一或按组件规则使用。
+        cert_pem: ''
+        # PEM 格式私钥内容。
+        key_pem: ''
+        # PEM 格式 CA 证书内容。
+        ca_pem: ''
+      # 是否跳过服务端证书校验；生产环境不建议开启。
+      insecure_skip_verify: false
+      # HTTPS 对应域名，用于证书校验和 SNI。
+      domain: ''
+
+    # 请求附加的固定元数据键值。
+    metadata: {}
+
+  grpc:
+    # gRPC 服务地址，例如 grpc://127.0.0.1:6001 或 host:port。
+    endpoint: ''
+    # gRPC 请求超时时间。
+    timeout: 30s
+
+    middleware:
+      # 是否记录客户端请求日志。
+      enable_logging: false
+      # 是否启用异常恢复。
+      enable_recovery: true
+      # 是否接入链路追踪。
+      enable_tracing: false
+      # 是否透传请求元数据。
+      enable_metadata: true
+      # 是否启用客户端熔断器。
+      enable_circuit_breaker: false
+      auth:
+        # JWT 签名算法。
+        method: HS256
+        # JWT 签名密钥。
+        secret: ''
+      selector_filter:
+        # 负载均衡过滤器版本号。
+        filter_version: ''
+        # 负载均衡选择器名称。
+        balancer: ''
+      retry:
+        # 最大尝试次数，包含首次请求。
+        max_attempts: 3
+        # 首次重试等待时间。
+        initial_backoff: 0.2s
+        # 单次退避等待上限。
+        max_backoff: 10s
+        # 指数退避倍数。
+        backoff_factor: 2
+        # 全部尝试和等待的总时长上限；0s 表示不限制。
+        max_total_wait: 0s
+        # 可重试的方法名前缀。
+        idempotent_prefixes: []
+        # 触发重试的 gRPC 状态码名称。
+        retry_codes: []
+        # 跳过重试的完整 gRPC 方法名。
+        skip_methods: []
+      rate_limiter:
+        # 每秒补充令牌数量；大于 0 时启用限流。
+        tokens_per_second: 0
+        # 令牌桶突发容量；大于 0 时启用限流。
+        burst: 0
+        # 无令牌时是否等待放行。
+        wait: false
+        # 跳过限流的完整 gRPC 方法名。
+        skip_methods: []
+      metrics:
+        # Prometheus 指标命名空间。
+        namespace: ''
+        # Prometheus 指标子系统。
+        subsystem: grpc_client
+        # 请求计数器名称。
+        request_counter_name: grpc_requests_total
+        # 请求耗时直方图名称。
+        latency_histogram_name: grpc_request_duration_seconds
+        # 进行中请求数量指标名称。
+        in_flight_gauge_name: grpc_requests_in_flight
+        # 跳过指标记录的完整 gRPC 方法名。
+        skip_methods: []
+    tls:
+      file:
+        # 证书文件路径。
+        cert_path: ''
+        # 私钥文件路径。
+        key_path: ''
+        # CA 证书文件路径。
+        ca_path: ''
+      config:
+        # PEM 格式证书内容。
+        cert_pem: ''
+        # PEM 格式私钥内容。
+        key_pem: ''
+        # PEM 格式 CA 证书内容。
+        ca_pem: ''
+      # 是否跳过服务端证书校验。
+      insecure_skip_verify: false
+      # HTTPS/TLS 域名。
+      domain: ''
+    # 请求附加的固定元数据。
+    metadata: {}
+
+  sse:
+    # SSE 服务地址。
+    endpoint: ''
+    # SSE 请求超时时间。
+    timeout: 30s
+    tls:
+      file:
+        # 证书文件路径。
+        cert_path: ''
+        # 私钥文件路径。
+        key_path: ''
+        # CA 证书文件路径。
+        ca_path: ''
+      config:
+        # PEM 格式证书内容。
+        cert_pem: ''
+        # PEM 格式私钥内容。
+        key_pem: ''
+        # PEM 格式 CA 证书内容。
+        ca_pem: ''
+      # 是否跳过服务端证书校验。
+      insecure_skip_verify: false
+      # HTTPS/TLS 域名。
+      domain: ''
+    # 请求附加的固定元数据。
+    metadata: {}
+    # 是否按 Base64 数据格式解码事件内容。
+    encode_base64: false
+
+  mcp:
+    # MCP 客户端传输方式；可选 UNSPECIFIED、HTTP、SSE、STDIO。
+    transport: UNSPECIFIED
+    stdio:
+      # stdio 子进程命令，例如 python、node、npx。
+      command: ''
+      # 子进程命令参数。
+      args: []
+      # 子进程环境变量。
+      env: {}
+      # 子进程工作目录。
+      work_dir: ''
+    http:
+      # Streamable HTTP MCP 服务地址。
+      endpoint: ''
+      # MCP 请求附加的固定 HTTP Header。
+      headers: {}
+      # MCP HTTP 请求超时时间。
+      timeout: 30s
+    sse:
+      # Legacy SSE MCP 服务地址。
+      endpoint: ''
+      # MCP SSE 请求附加的固定 HTTP Header。
+      headers: {}
+      # MCP SSE 请求超时时间。
+      timeout: 30s

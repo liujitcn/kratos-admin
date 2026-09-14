@@ -39,7 +39,7 @@
 - Go `1.27.0`。
 - Node.js `^20.19.0` 或 `>=22.12.0`。
 - pnpm 版本以各 workspace 的 `packageManager` 为准：管理端 `10.33.4`，uni-app 与 Taro 应用端 `10.13.1`。
-- MySQL、Redis、Consul 和 Vault；用途与配置入口见下方说明。
+- MySQL、Redis、Consul 和 Vault；用途与最小/完整配置入口见下方说明。
 - Docker 部署需要可用的 Docker CLI 与 Docker daemon。
 - 启用 TOTP 绑定时，`mfa.encryption_key` 有显式值则使用该值，留空时在实际保护 TOTP 密钥时按 `kratos-kit:mfa/encryption` 从运行时密钥服务派生；启用 WebAuthn 时还要配置 `mfa.webauthn.rp_id` 与 `mfa.webauthn.rp_origins`。配置文件中的敏感值应使用 `ENC[...]` 保存。
 - Buf、protoc 插件、Wire 和 gorm-gen 只在重新生成代码时需要，可通过 `make -C backend init` 安装。
@@ -50,12 +50,12 @@
 
 | 中间件 | 用途 | 配置入口 |
 | --- | --- | --- |
-| MySQL | 业务数据持久化与数据库迁移。 | `backend/configs/data.yaml` |
-| Redis | 缓存、分布式锁、队列和消息投递。 | `backend/configs/data.yaml` |
-| Consul | 服务注册与发现。 | `backend/configs/registry.yaml` |
-| Vault | 应用根密钥管理、配置解密及业务密钥派生。 | `backend/configs/key.yaml` |
+| MySQL | 业务数据持久化与数据库迁移。 | `backend/configs/data.yaml`、`backend/configs/full/data.yaml` |
+| Redis | 缓存、分布式锁、队列和消息投递。 | `backend/configs/data.yaml`、`backend/configs/full/data.yaml` |
+| Consul | 服务注册与发现。 | `backend/configs/full/registry.yaml` |
+| Vault | 应用根密钥管理、配置解密及业务密钥派生。 | `backend/configs/key.yaml`、`backend/configs/full/key.yaml` |
 
-各环境通过对应的 `<name>.<env>.yaml` 配置连接地址和访问参数。启动前应保证中间件可访问，Vault 已初始化、已解封，且 `VAULT_TOKEN` 具有读取所需根密钥的权限；部署、初始化和凭据维护由运行环境负责，不与项目启动联动。生产环境应使用安全连接和最小权限凭据。
+默认启动只读取配置目录顶层的基础 YAML 文件；需要环境覆盖时显式传入 `APP_ENV`，再加载对应的 `<name>.<env>.yaml`。`backend/configs` 是最小启动配置，`backend/configs/full` 是按当前 `kratos-kit/api` 保留全部配置字段的完整配置。启动前应保证已启用的中间件可访问，Vault 已初始化、已解封，且 `VAULT_TOKEN` 具有读取所需根密钥的权限；部署、初始化和凭据维护由运行环境负责，不与项目启动联动。生产环境应使用安全连接和最小权限凭据。
 
 ## 本地启动
 
@@ -80,10 +80,10 @@ make -C frontend reinstall
 确认 Vault 已启动并解封，在终端或 IDE 中自行配置有效的 `VAULT_TOKEN` 后启动后端：
 
 ```bash
-make -C backend run APP_ENV=dev
+make -C backend run-minimal
 ```
 
-`run` 会先刷新启动所需的接口、OpenAPI 和 Wire 产物；确认生成产物未变化时可使用 `make -C backend run-only APP_ENV=dev` 直接启动。基础配置使用 `<name>.yaml`，环境差异使用 `<name>.<env>.yaml`，缺少当前环境文件时自动回退基础配置。完整目标、执行顺序和参数见 [Backend 常用流程](backend/README.md#常用流程)。
+`run-minimal` 使用 `backend/configs` 的最小配置。需要全部配置字段时使用 `make -C backend run-full`；确认生成产物未变化时可使用 `make -C backend run-only` 直接启动最小配置。完整目标、执行顺序和参数见 [Backend 常用流程](backend/README.md#常用流程)。
 
 启动全部前端开发环境（管理后台、uni-app/Taro H5 和微信小程序）：
 
@@ -145,7 +145,7 @@ Docker 镜像通过仓库根目录命令构建：
 ```bash
 make docker-build IMAGE=kratos-admin TAG=latest
 make docker-build-multiarch IMAGE=registry.example.com/kratos-admin TAG=latest
-make docker-run IMAGE=kratos-admin TAG=latest APP_ENV=dev
+make docker-run IMAGE=kratos-admin TAG=latest
 make docker-stop IMAGE=kratos-admin TAG=latest
 ```
 

@@ -1,0 +1,32 @@
+# AI 大模型配置模板。
+# model.type 决定使用云端模型还是本地 Ollama；两类连接参数都保留，实际只使用与 type 对应的配置。
+ai:
+  model:
+    # 模型类型；可选值为 CLOUD_MODEL（云端 API）和 LOCAL_MODEL（本地 Ollama）。
+    type: CLOUD_MODEL
+    # 具体模型名称，例如 gpt-4o、qwen-turbo、llama3。
+    model_name: ''
+    # 生成温度，通常取 0~1；数值越高，输出随机性越强。
+    temperature: 0.2
+    # 单次生成允许的最大 token 数。
+    max_tokens: 1024
+    # 请求超时时间，单位秒。
+    timeout_seconds: 60
+    # 请求失败后的最大重试次数。
+    max_retries: 2
+
+    cloud:
+      # 云端模型 API 基础地址，通常填写到 /v1 层级。
+      base_url: https://api.openai.com/v1
+      # 云端模型 API Key；生产环境建议通过安全配置中心或环境变量注入。
+      api_key: ''
+      # 可选的组织或租户标识。
+      organization: ''
+
+    local:
+      # Ollama 服务主机名或 IP 地址。
+      host: localhost
+      # Ollama 默认监听端口。
+      port: 11434
+      # 是否启用本地 GPU 推理。
+      use_gpu: false

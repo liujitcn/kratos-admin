@@ -1,0 +1,96 @@
+# 注册与服务发现完整配置模板。
+# registry.type 选择实际使用的注册中心，其余 Provider 节点保留为可切换配置。
+registry:
+    # 注册中心类型；可选 consul、etcd、zookeeper、nacos、kubernetes、eureka、polaris、servicecomb。
+    type: consul
+    consul:
+        # Consul 服务地址。
+        address: 127.0.0.1:8500
+        # 是否启用 Consul 健康检查。
+        health_check: false
+        # Consul 访问协议，例如 http 或 https。
+        scheme: http
+        # Consul ACL 访问令牌。
+        token: 03e92c67-5da7-3f4f-6659-8fb2d137aaa5
+    etcd:
+        # Etcd 服务端地址列表。
+        endpoints: []
+        # Etcd 认证用户名。
+        username: ''
+        # Etcd 认证密码。
+        password: ''
+    zookeeper:
+        # ZooKeeper 服务端地址列表。
+        endpoints: []
+        # ZooKeeper 请求超时时间。
+        timeout: 5s
+    nacos:
+        # Nacos 服务端地址。
+        address: ''
+        # Nacos 服务端端口，默认 8848。
+        port: 8848
+        # Nacos 命名空间 ID。
+        namespace_id: ''
+        # Nacos 区域 ID。
+        region_id: ''
+        # Nacos 应用名称。
+        app_name: ''
+        # Nacos 应用密钥。
+        app_key: ''
+        # Nacos 访问密钥。
+        access_key: ''
+        # Nacos 秘密密钥。
+        secret_key: ''
+        # Nacos 登录用户名。
+        username: ''
+        # Nacos 登录密码。
+        password: ''
+        # Nacos HTTP 请求超时时间。
+        timeout: 5s
+        # Nacos 心跳间隔。
+        beat_interval: 5s
+        # 服务列表监听间隔。
+        listen_interval: 5s
+        # 服务列表更新线程数。
+        update_thread_num: 1
+        # 启动时是否不读取本地缓存。
+        not_load_cache_at_start: false
+        # 服务列表为空时是否更新本地缓存。
+        update_cache_when_empty: false
+        # 是否启用 KMS 加密。
+        open_kms: false
+        # Nacos 客户端日志等级。
+        log_level: info
+        # Nacos 客户端日志目录。
+        log_dir: ./logs
+        # Nacos 客户端缓存目录。
+        cache_dir: ./data
+        # Nacos 上下文路径，通常为 /nacos。
+        context_path: /nacos
+    # Kubernetes 注册发现配置；当前 Proto 没有额外字段，使用集群默认配置。
+    kubernetes: {}
+    eureka:
+        # Eureka 服务端地址列表。
+        endpoints: []
+        # Eureka 心跳间隔。
+        heartbeat_interval: 5s
+        # Eureka 服务列表刷新间隔。
+        refresh_interval: 5s
+        # Eureka 注册路径。
+        path: ''
+    polaris:
+        # Polaris 服务地址。
+        address: ''
+        # Polaris 服务端口。
+        port: 8091
+        # 注册实例数量。
+        instance_count: 1
+        # Polaris 命名空间。
+        namespace: ''
+        # Polaris 服务名称。
+        service: ''
+        # Polaris 访问令牌。
+        token: ''
+    servicecomb:
+        # ServiceComb 服务端地址列表。
+        endpoints: []

@@ -1,45 +1,12 @@
 server:
   http:
     addr: :7001
-    # 普通 HTTP 请求处理超时；公共 HTTP 服务会跳过流式请求。
-    timeout: 30s
     max_body_bytes: 67108864
-    enable_swagger: true
-    enable_pprof: false
-#    tls:
-#      file:
-#        cert_path: ../certs/dev-cert.pem
-#        key_path: ../certs/dev-key.pem
-    cors:
-      allow_credentials: true
-      headers:
-        - "X-Requested-With"
-        - "X-Request-ID"
-        - "Content-Type"
-        - "Authorization"
-        - "X-Refresh-Token-Transport"
-      methods:
-        - "GET"
-        - "POST"
-        - "PUT"
-        - "DELETE"
-        - "HEAD"
-        - "OPTIONS"
-      origins:
-        - "http://localhost:8848"
-        - "http://127.0.0.1:8848"
-        - "http://localhost:5002"
-        - "http://127.0.0.1:5002"
-        - "http://localhost:5004"
-        - "http://127.0.0.1:5004"
     middleware:
       enable_logging: true
       enable_recovery: true
-      enable_tracing: true
       enable_validate: true
-      enable_circuit_breaker: true
       enable_metadata: true
-
   grpc:
     addr: 0.0.0.0:6001
     timeout: 10s
@@ -49,12 +16,9 @@ server:
       enable_tracing: true
       enable_validate: true
       enable_metadata: true
-      enable_circuit_breaker: false
-
   mcp:
     transport: IN_PROCESS
     path: /mcp
-
   sse:
     transport: IN_PROCESS
     path: /events

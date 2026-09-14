@@ -52,7 +52,7 @@
 | --- | --- | --- |
 | MySQL | 業務データの永続化とデータベースマイグレーション。 | `backend/configs/data.yaml` |
 | Redis | キャッシュ、分散ロック、キュー、メッセージ配信。 | `backend/configs/data.yaml` |
-| Consul | サービス登録と検出。 | `backend/configs/registry.yaml` |
+| Consul | サービス登録と検出。 | `backend/configs/full/registry.yaml` |
 | Vault | アプリケーションのルートキー管理、設定復号、業務キー派生。 | `backend/configs/key.yaml` |
 
 各環境の接続先とアクセスパラメータは、対応する `<name>.<env>.yaml` で設定します。起動前にミドルウェアへ接続でき、Vault が初期化・アンシール済みで、`VAULT_TOKEN` が必要なルートキーを読み取れることを確認してください。デプロイ、初期化、認証情報の管理は実行環境の責務であり、プロジェクトの起動とは連動しません。本番環境では安全な接続と最小権限の認証情報を使用してください。
@@ -80,10 +80,10 @@ make -C frontend reinstall
 Vault が起動してアンシール済みであることを確認し、端末または IDE で有効な `VAULT_TOKEN` を設定してからバックエンドを起動します。
 
 ```bash
-make -C backend run APP_ENV=dev
+make -C backend run-minimal
 ```
 
-`run` は起動に必要な API、OpenAPI、Wire の生成物を先に更新します。生成物に変更がないことを確認できた場合は `make -C backend run-only APP_ENV=dev` で直接起動できます。基本設定は `<name>.yaml`、環境差分は `<name>.<env>.yaml` を使用し、現在の環境ファイルがない場合は基本設定へフォールバックします。完全なターゲット、実行順序、パラメータは [Backend Common Procedures](backend/README.md#常用流程) を参照してください。
+`run-minimal` は `backend/configs` を使用します。すべての設定フィールドが必要な場合は `make -C backend run-full`、生成物を更新せず最小設定を起動する場合は `make -C backend run-only` を使用します。完全なターゲット、実行順序、パラメータは [Backend Common Procedures](backend/README.md#常用流程) を参照してください。
 
 すべてのフロントエンド開発環境（管理画面、uni-app/Taro H5、WeChat ミニプログラム）を起動します。
 
@@ -145,7 +145,7 @@ Docker イメージはリポジトリルートのコマンドでビルドしま�
 ```bash
 make docker-build IMAGE=kratos-admin TAG=latest
 make docker-build-multiarch IMAGE=registry.example.com/kratos-admin TAG=latest
-make docker-run IMAGE=kratos-admin TAG=latest APP_ENV=dev
+make docker-run IMAGE=kratos-admin TAG=latest
 make docker-stop IMAGE=kratos-admin TAG=latest
 ```
 

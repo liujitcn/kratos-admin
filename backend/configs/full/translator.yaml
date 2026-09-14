@@ -1,0 +1,41 @@
+# 机器翻译完整配置模板。
+# translator.type 选择实际使用的 Provider，其余 Provider 配置保留为切换模板。
+translator:
+  # 是否启用机器翻译客户端。
+  enabled: true
+  # 翻译厂商类型；可选 google、baidu、alibaba、volc。
+  type: google
+  # 单次翻译请求超时时间；8s 表示 8 秒。
+  timeout: 8s
+  # 自定义 Provider 扩展参数。
+  options: {}
+  google:
+    # Google Translation API 版本；可选 v1、v2、v3。
+    version: v1
+    # Google Cloud API Key。
+    api_key: ''
+    # Google Cloud 项目 ID。
+    project_id: ''
+    # Google Cloud V3 区域。
+    location: ''
+    # Google Cloud V3 完整资源路径。
+    parent: ''
+  baidu:
+    # 百度翻译应用 ID。
+    app_id: ''
+    # 百度翻译密钥。
+    secret_key: ''
+  alibaba:
+    # 阿里云机器翻译访问密钥 ID。
+    access_key_id: ''
+    # 阿里云机器翻译访问密钥。
+    access_key_secret: ''
+    # 阿里云区域，默认 cn-hangzhou。
+    region_id: cn-hangzhou
+  volc:
+    # 火山引擎访问密钥。
+    access_key: ''
+    # 火山引擎秘密密钥。
+    secret_key: ''
+    # 火山引擎区域，默认 cn-north-1。
+    region: cn-north-1
