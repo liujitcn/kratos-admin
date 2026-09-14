@@ -37,7 +37,7 @@ const actionOptions = computed(() => createLogEnumOptions([
 ]));
 const columns = computed<ColumnProps[]>(() => [
   { prop: "resource_type", label: t("system.base.log.field.resource_type"), minWidth: 150, search: { el: "input" } },
-  { prop: "resource_id", label: t("system.base.log.field.resource_id"), minWidth: 120, align: "right" },
+  { prop: "resource_id", label: t("system.base.log.field.resource_id"), minWidth: 120, align: "left" },
   { prop: "resource_name", label: t("system.base.log.field.resource_name"), minWidth: 160 },
   { prop: "action", label: t("system.base.log.field.action"), minWidth: 110, search: { el: "select", enum: actionOptions.value }, render: scope => logEnumLabel(actionOptions.value, (scope.row as BaseOperationLog).action) },
   { prop: "result", label: t("system.base.log.field.result"), minWidth: 110, search: { el: "select", enum: resultOptions.value }, render: scope => logEnumLabel(resultOptions.value, (scope.row as BaseOperationLog).result) },
@@ -58,7 +58,7 @@ const config = computed<LogTableConfig>(() => ({
     { key: "user_id", label: t("system.base.log.field.user_id") },
     { key: "user_name", label: t("system.base.log.field.user_name") },
     { key: "resource_type", label: t("system.base.log.field.resource_type") },
-    { key: "resource_id", label: t("system.base.log.field.resource_id") },
+    { key: "resource_id", label: t("system.base.log.field.resource_id"), align: "left" },
     { key: "resource_name", label: t("system.base.log.field.resource_name") },
     { key: "action", label: t("system.base.log.field.action"), enum: actionOptions.value },
     { key: "result", label: t("system.base.log.field.result"), enum: resultOptions.value },

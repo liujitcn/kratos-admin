@@ -64,7 +64,7 @@ const config = computed<LogTableConfig>(() => ({
     { key: "user_id", label: t("system.base.log.field.user_id") },
     { key: "user_name", label: t("system.base.log.field.user_name") },
     { key: "resource_type", label: t("system.base.log.field.resource_type") },
-    { key: "resource_id", label: t("system.base.log.field.resource_id") },
+    { key: "resource_id", label: t("system.base.log.field.resource_id"), align: "left" },
     { key: "access_type", label: t("system.base.log.field.access_type"), enum: accessTypeOptions.value },
     { key: "data_source", label: t("system.base.log.field.data_source") },
     { key: "table_name", label: t("system.base.log.field.table_name") },

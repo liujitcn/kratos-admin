@@ -4,7 +4,13 @@
 
     <ProDialog v-model="dialog.visible" :title="config.detailTitle" width="1280px" @close="handleCloseDialog">
       <el-descriptions border :column="2" class="detail-container">
-        <el-descriptions-item v-for="field in config.detailFields" :key="field.key" :label="field.label" :span="field.span ?? 1">
+        <el-descriptions-item
+          v-for="field in config.detailFields"
+          :key="field.key"
+          :label="field.label"
+          :span="field.span ?? 1"
+          :align="field.align"
+        >
           <pre v-if="field.code" class="code-block">{{ formatField(field) }}</pre>
           <span v-else>{{ formatField(field) }}</span>
         </el-descriptions-item>
@@ -55,6 +61,8 @@ export interface LogDetailField {
   key: string;
   /** 字段在详情弹窗中的显示名称。 */
   label: string;
+  /** 字段内容在详情弹窗中的对齐方式。 */
+  align?: "left" | "center" | "right";
   /** 字段占用的描述列数，未设置时使用一列。 */
   span?: number;
   /** 是否按格式化 JSON 的代码块展示。 */

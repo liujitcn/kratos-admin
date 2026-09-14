@@ -39,7 +39,7 @@ const loginTypeOptions = computed(() =>
 
 const columns = computed<ColumnProps[]>(() => [
   { prop: "user_name", label: t("system.base.log.field.user_name"), minWidth: 130 },
-  { prop: "tenant_code", label: t("system.base.log.field.tenant_code"), minWidth: 120 },
+  { prop: "tenant_code", label: t("system.base.log.field.tenant_code"), minWidth: 120, align: "left" },
   {
     prop: "login_type",
     label: t("system.base.log.field.login_type"),

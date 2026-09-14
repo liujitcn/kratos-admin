@@ -38,6 +38,7 @@ const columns = computed<ColumnProps[]>(() => [
     prop: "tenant_code",
     label: t("common.field.tenant"),
     minWidth: 130,
+    align: "left",
     search: isDefaultTenant.value ? { el: "select", props: { filterable: true }, order: 1 } : undefined,
     enum: requestSessionTenantOptions
   },

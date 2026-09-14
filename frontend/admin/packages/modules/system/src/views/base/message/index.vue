@@ -364,6 +364,7 @@ const columns = computed<ColumnProps[]>(() => [
           prop: "tenant_id",
           label: t("common.field.tenant"),
           minWidth: 120,
+          align: "left",
           search: { el: "select" },
           enum: requestTenantOptions
         }
