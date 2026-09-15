@@ -551,10 +551,10 @@ const getOauthLoginRedirectURL = () => {
   return resolveFrontendRouteURL(router, { path: route.path, query });
 };
 
-/** 查询配置启用的三方登录方式。 */
+/** 查询配置启用的三方登录方式，空列表字段省略时不展示三方登录。 */
 const loadOauthProviders = async () => {
   const result = await defOauthService.ListOauthProvider({});
-  oauthProviders.value = result.providers.map(withOauthProviderDisplay);
+  oauthProviders.value = (result.providers ?? []).map(withOauthProviderDisplay);
 };
 
 /** 发起三方登录授权跳转。 */

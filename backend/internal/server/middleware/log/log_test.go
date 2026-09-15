@@ -444,3 +444,25 @@ func TestSuccessfulLoginAuditCapturesIdentity(t *testing.T) {
 		t.Fatalf("登录成功后没有补齐身份: %+v", record)
 	}
 }
+
+// TestLoginEventPreservesDeviceAndReason 验证登录设备与错误说明完整写入审计事件。
+func TestLoginEventPreservesDeviceAndReason(t *testing.T) {
+	logMiddleware := newMiddleware(nil, nil)
+	defer logMiddleware.close()
+	for _, reason := range []string{"", "登录失败"} {
+		event, ok, err := logMiddleware.buildEvent(adminTask{
+			Kind:    "login",
+			Request: request{Operation: "/base.v1.LoginService/Login", DeviceID: "browser-device", UserAgent: "browser-agent", Reason: reason},
+		})
+		if err != nil || !ok {
+			t.Fatalf("build login event failed: ok=%v err=%v", ok, err)
+		}
+		var item models.BaseLoginLog
+		if err = json.Unmarshal(event.Payload, &item); err != nil {
+			t.Fatal(err)
+		}
+		if item.DeviceID != "browser-device" || item.UserAgent != "browser-agent" || item.Reason != reason {
+			t.Fatalf("login fields were not preserved: %+v", item)
+		}
+	}
+}

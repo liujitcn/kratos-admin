@@ -1387,7 +1387,7 @@
   "system.profile.login_log.field.client_ip": "用戶端 IP",
   "system.profile.login_log.field.device_id": "裝置識別碼",
   "system.profile.login_log.field.login_type": "事件類型",
-  "system.profile.login_log.field.occurred_at": "發生時間",
+  "system.profile.login_log.field.occurred_at": "登入時間",
   "system.profile.login_log.field.reason": "說明",
   "system.profile.login_log.field.result": "結果",
   "system.profile.login_log.nav_description": "查看帳號登入與登出記錄",

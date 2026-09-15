@@ -20,6 +20,7 @@
 import { computed, ref } from "vue";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import type { ColumnProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
+import { formatDateTime } from "@liujitcn/kratos-admin-core/format";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
 import { defBaseLoginLogService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_login_log";
@@ -44,7 +45,13 @@ const resultOptions = computed<Array<[number, string]>>(() => [
   [BaseLogResult.BASE_LOG_RESULT_ERROR, t("system.base.log.result.error")]
 ]);
 const columns = computed<ColumnProps[]>(() => [
-  { prop: "occurred_at", label: t("system.profile.login_log.field.occurred_at"), minWidth: 180, align: "center" },
+  {
+    prop: "occurred_at",
+    label: t("system.profile.login_log.field.occurred_at"),
+    minWidth: 180,
+    align: "center",
+    render: scope => formatDateTime((scope.row as BaseLoginLog).occurred_at)
+  },
   {
     prop: "login_type",
     label: t("system.profile.login_log.field.login_type"),
@@ -58,7 +65,13 @@ const columns = computed<ColumnProps[]>(() => [
     render: scope => enumLabel(resultOptions.value, (scope.row as BaseLoginLog).result)
   },
   { prop: "client_ip", label: t("system.profile.login_log.field.client_ip"), minWidth: 140 },
-  { prop: "device_id", label: t("system.profile.login_log.field.device_id"), minWidth: 160, align: "right" },
+  {
+    prop: "device_id",
+    label: t("system.profile.login_log.field.device_id"),
+    minWidth: 160,
+    align: "left",
+    render: scope => (scope.row as BaseLoginLog).device_id || (scope.row as BaseLoginLog).user_agent || "--"
+  },
   { prop: "reason", label: t("system.profile.login_log.field.reason"), minWidth: 180 }
 ]);
 

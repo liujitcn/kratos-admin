@@ -1387,7 +1387,7 @@
   "system.profile.login_log.field.client_ip": "クライアントIP",
   "system.profile.login_log.field.device_id": "デバイス識別子",
   "system.profile.login_log.field.login_type": "イベント種別",
-  "system.profile.login_log.field.occurred_at": "発生日時",
+  "system.profile.login_log.field.occurred_at": "ログイン日時",
   "system.profile.login_log.field.reason": "説明",
   "system.profile.login_log.field.result": "結果",
   "system.profile.login_log.nav_description": "アカウントのログインとログアウト記録を確認",

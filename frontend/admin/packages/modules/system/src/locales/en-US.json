@@ -1387,7 +1387,7 @@
   "system.profile.login_log.field.client_ip": "Client IP",
   "system.profile.login_log.field.device_id": "Device ID",
   "system.profile.login_log.field.login_type": "Event type",
-  "system.profile.login_log.field.occurred_at": "Occurred at",
+  "system.profile.login_log.field.occurred_at": "Login time",
   "system.profile.login_log.field.reason": "Description",
   "system.profile.login_log.field.result": "Result",
   "system.profile.login_log.nav_description": "View account login and logout records",

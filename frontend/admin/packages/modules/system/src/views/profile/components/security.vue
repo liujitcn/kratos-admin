@@ -413,10 +413,10 @@ function getCurrentSecurityPath() {
   return resolveFrontendRouteURL(router, { path: route.path, query });
 }
 
-/** 拉取当前用户三方账号绑定状态。 */
+/** 拉取当前用户三方账号绑定状态，空列表字段省略时不展示绑定项。 */
 async function loadOauthBindings() {
   const result = await defProfileOauthService.ListOauthBinding({});
-  oauthBindings.value = result.bindings.map(withOauthProviderDisplay);
+  oauthBindings.value = (result.bindings ?? []).map(withOauthProviderDisplay);
 }
 
 /** 拉取当前用户 MFA 状态。 */

@@ -300,7 +300,7 @@ func (m *Middleware) close() {
 	m.worker.Wait()
 }
 
-// buildEvent 构造一条脱敏后的 Admin 审计事件。
+// buildEvent 构造包含登录设备标识的脱敏 Admin 审计事件。
 func (m *Middleware) buildEvent(task adminTask) (adminEvent, bool, error) {
 	info := task.Request
 	var item interface{}
@@ -329,7 +329,7 @@ func (m *Middleware) buildEvent(task adminTask) (adminEvent, bool, error) {
 		item = &models.BaseLoginLog{
 			TenantID: info.TenantID, TenantCode: tenantCode, UserID: info.UserID, UserName: userName,
 			LoginType: int32(loginTypeValue), Result: info.Result, ReasonCode: info.ReasonCode, Reason: info.Reason,
-			ClientIP: info.ClientIP, UserAgent: info.UserAgent, RequestID: info.RequestID, TraceID: info.TraceID,
+			ClientIP: info.ClientIP, UserAgent: info.UserAgent, DeviceID: info.DeviceID, RequestID: info.RequestID, TraceID: info.TraceID,
 			OccurredAt: info.OccurredAt,
 		}
 	case "operation":
@@ -406,13 +406,14 @@ type request struct {
 	UserName   string    // 当前用户账号。
 	ClientIP   string    // 对端 IP 地址。
 	UserAgent  string    // 客户端 User-Agent。
+	DeviceID   string    // 客户端设备标识，未提供时使用 User-Agent。
 	Result     int32     // 审计结果枚举值。
 	ReasonCode string    // 稳定错误原因码。
 	Reason     string    // 脱敏后的错误描述。
 	OccurredAt time.Time // 请求开始时间。
 }
 
-// requestInfo 从服务端传输和认证上下文提取通用审计字段。
+// requestInfo 从服务端传输和认证上下文提取审计字段及登录设备标识。
 func requestInfo(ctx context.Context) request {
 	info := request{RequestID: requestmeta.RequestID(ctx), TraceID: requestmeta.TraceID(ctx), TenantCode: gorm.DefaultTenantCode, Method: "RPC"}
 	if info.RequestID == "" {
@@ -426,6 +427,14 @@ func requestInfo(ctx context.Context) request {
 			info.Path = htr.PathTemplate()
 			info.ClientIP = clientIP(httpRequest)
 			info.UserAgent = httpRequest.UserAgent()
+			info.DeviceID = httpRequest.Header.Get("X-Device-ID")
+			if info.DeviceID == "" {
+				info.DeviceID = info.UserAgent
+			}
+			// 设备标识列最多保存 128 个字符，完整 User-Agent 仍单独保留。
+			if deviceRunes := []rune(info.DeviceID); len(deviceRunes) > 128 {
+				info.DeviceID = string(deviceRunes[:128])
+			}
 		}
 	}
 	if authInfo, err := auth.FromContext(ctx); err == nil && authInfo != nil {

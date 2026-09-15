@@ -1387,7 +1387,7 @@
   "system.profile.login_log.field.client_ip": "客户端IP",
   "system.profile.login_log.field.device_id": "设备标识",
   "system.profile.login_log.field.login_type": "事件类型",
-  "system.profile.login_log.field.occurred_at": "发生时间",
+  "system.profile.login_log.field.occurred_at": "登录时间",
   "system.profile.login_log.field.reason": "说明",
   "system.profile.login_log.field.result": "结果",
   "system.profile.login_log.nav_description": "查看账号登录和退出记录",
