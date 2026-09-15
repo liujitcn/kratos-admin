@@ -45,7 +45,7 @@ func newBaseTenant(db *gorm.DB, opts ...gen.DOOption) baseTenant {
 	return _baseTenant
 }
 
-// baseTenant 租户信息表
+// baseTenant 租户信息
 type baseTenant struct {
 	baseTenantDo baseTenantDo
 

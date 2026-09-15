@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// CodeGenColumnRepository 定义 代码生成字段配置表 的基础仓储能力。
+// CodeGenColumnRepository 定义 代码生成字段配置 的基础仓储能力。
 type CodeGenColumnRepository struct {
 	repository.BaseRepository[models.CodeGenColumn]
 	queryProvider QueryProvider

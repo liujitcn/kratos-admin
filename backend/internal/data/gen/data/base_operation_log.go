@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// BaseOperationLogRepository 定义 业务操作日志表 的基础仓储能力。
+// BaseOperationLogRepository 定义 业务操作日志 的基础仓储能力。
 type BaseOperationLogRepository struct {
 	repository.BaseRepository[models.BaseOperationLog]
 	queryProvider QueryProvider

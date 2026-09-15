@@ -10,7 +10,7 @@ import (
 
 const TableNameBasePermissionLog = "base_permission_log"
 
-// BasePermissionLog 权限日志表
+// BasePermissionLog 权限日志
 type BasePermissionLog struct {
 	ID         int64     `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:权限日志ID" json:"id"`                                                                                                                                                                                                                                     // 权限日志ID
 	TenantID   int64     `gorm:"column:tenant_id;type:bigint;not null;index:idx_base_permission_log_action_occurred_at,priority:1;index:idx_base_permission_log_target,priority:1;index:idx_base_permission_log_tenant_occurred_at,priority:1;index:idx_base_permission_log_user_occurred_at,priority:1;comment:租户ID" json:"tenant_id"`            // 租户ID

@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// CodeGenProtoRepository 定义 代码生成Proto接口配置表 的基础仓储能力。
+// CodeGenProtoRepository 定义 代码生成Proto接口配置 的基础仓储能力。
 type CodeGenProtoRepository struct {
 	repository.BaseRepository[models.CodeGenProto]
 	queryProvider QueryProvider

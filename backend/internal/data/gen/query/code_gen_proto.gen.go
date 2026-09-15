@@ -45,7 +45,7 @@ func newCodeGenProto(db *gorm.DB, opts ...gen.DOOption) codeGenProto {
 	return _codeGenProto
 }
 
-// codeGenProto 代码生成Proto接口配置表
+// codeGenProto 代码生成Proto接口配置
 type codeGenProto struct {
 	codeGenProtoDo codeGenProtoDo
 

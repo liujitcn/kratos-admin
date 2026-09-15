@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// BaseJobLogRepository 定义 定时任务日志信息 的基础仓储能力。
+// BaseJobLogRepository 定义 定时任务日志 的基础仓储能力。
 type BaseJobLogRepository struct {
 	repository.BaseRepository[models.BaseJobLog]
 	queryProvider QueryProvider

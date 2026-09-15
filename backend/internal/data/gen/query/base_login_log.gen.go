@@ -49,7 +49,7 @@ func newBaseLoginLog(db *gorm.DB, opts ...gen.DOOption) baseLoginLog {
 	return _baseLoginLog
 }
 
-// baseLoginLog 登录日志表
+// baseLoginLog 登录日志
 type baseLoginLog struct {
 	baseLoginLogDo baseLoginLogDo
 

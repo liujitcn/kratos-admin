@@ -40,7 +40,7 @@ func newBaseThirdAccount(db *gorm.DB, opts ...gen.DOOption) baseThirdAccount {
 	return _baseThirdAccount
 }
 
-// baseThirdAccount 用户三方登录账号
+// baseThirdAccount 用户三方登录账号信息
 type baseThirdAccount struct {
 	baseThirdAccountDo baseThirdAccountDo
 

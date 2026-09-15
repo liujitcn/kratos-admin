@@ -47,7 +47,7 @@ func newAiMessage(db *gorm.DB, opts ...gen.DOOption) aiMessage {
 	return _aiMessage
 }
 
-// aiMessage AI助手消息表
+// aiMessage AI助手消息
 type aiMessage struct {
 	aiMessageDo aiMessageDo
 

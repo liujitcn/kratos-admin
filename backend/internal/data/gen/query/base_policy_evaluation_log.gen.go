@@ -57,7 +57,7 @@ func newBasePolicyEvaluationLog(db *gorm.DB, opts ...gen.DOOption) basePolicyEva
 	return _basePolicyEvaluationLog
 }
 
-// basePolicyEvaluationLog 策略评估日志表
+// basePolicyEvaluationLog 策略评估日志
 type basePolicyEvaluationLog struct {
 	basePolicyEvaluationLogDo basePolicyEvaluationLogDo
 

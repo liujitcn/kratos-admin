@@ -6,12 +6,12 @@ package models
 
 // TableComment 返回表注释。
 func (*AiMessage) TableComment() string {
-	return "AI助手消息表"
+	return "AI助手消息"
 }
 
 // TableComment 返回表注释。
 func (*AiSession) TableComment() string {
-	return "AI助手会话表"
+	return "AI助手会话"
 }
 
 // TableComment 返回表注释。
@@ -26,7 +26,7 @@ func (*BaseAPII18N) TableComment() string {
 
 // TableComment 返回表注释。
 func (*BaseAPILog) TableComment() string {
-	return "API访问日志表"
+	return "API访问日志"
 }
 
 // TableComment 返回表注释。
@@ -41,7 +41,7 @@ func (*BaseConfig) TableComment() string {
 
 // TableComment 返回表注释。
 func (*BaseDataAccessLog) TableComment() string {
-	return "数据访问日志表"
+	return "数据访问日志"
 }
 
 // TableComment 返回表注释。
@@ -61,7 +61,7 @@ func (*BaseDictItem) TableComment() string {
 
 // TableComment 返回表注释。
 func (*BaseFile) TableComment() string {
-	return "文件元数据表"
+	return "文件元数据"
 }
 
 // TableComment 返回表注释。
@@ -76,7 +76,7 @@ func (*BaseJob) TableComment() string {
 
 // TableComment 返回表注释。
 func (*BaseJobLog) TableComment() string {
-	return "定时任务日志信息"
+	return "定时任务日志"
 }
 
 // TableComment 返回表注释。
@@ -86,7 +86,7 @@ func (*BaseLanguage) TableComment() string {
 
 // TableComment 返回表注释。
 func (*BaseLoginLog) TableComment() string {
-	return "登录日志表"
+	return "登录日志"
 }
 
 // TableComment 返回表注释。
@@ -131,17 +131,17 @@ func (*BaseMigration) TableComment() string {
 
 // TableComment 返回表注释。
 func (*BaseOperationLog) TableComment() string {
-	return "业务操作日志表"
+	return "业务操作日志"
 }
 
 // TableComment 返回表注释。
 func (*BasePermissionLog) TableComment() string {
-	return "权限日志表"
+	return "权限日志"
 }
 
 // TableComment 返回表注释。
 func (*BasePolicyEvaluationLog) TableComment() string {
-	return "策略评估日志表"
+	return "策略评估日志"
 }
 
 // TableComment 返回表注释。
@@ -206,12 +206,22 @@ func (*BaseTableBackupRestore) TableComment() string {
 
 // TableComment 返回表注释。
 func (*BaseTenant) TableComment() string {
-	return "租户信息表"
+	return "租户信息"
+}
+
+// TableComment 返回表注释。
+func (*BaseTenantProject) TableComment() string {
+	return "租户项目信息"
+}
+
+// TableComment 返回表注释。
+func (*BaseTenantProjectGrant) TableComment() string {
+	return "项目授权关系"
 }
 
 // TableComment 返回表注释。
 func (*BaseThirdAccount) TableComment() string {
-	return "用户三方登录账号"
+	return "用户三方登录账号信息"
 }
 
 // TableComment 返回表注释。
@@ -246,17 +256,17 @@ func (*CasbinRule) TableComment() string {
 
 // TableComment 返回表注释。
 func (*CodeGenColumn) TableComment() string {
-	return "代码生成字段配置表"
+	return "代码生成字段配置"
 }
 
 // TableComment 返回表注释。
 func (*CodeGenProto) TableComment() string {
-	return "代码生成Proto接口配置表"
+	return "代码生成Proto接口配置"
 }
 
 // TableComment 返回表注释。
 func (*CodeGenTable) TableComment() string {
-	return "代码生成对象表"
+	return "代码生成对象配置"
 }
 
 // TableComment 返回表注释。

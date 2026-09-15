@@ -12,7 +12,7 @@ import (
 
 const TableNameCodeGenTable = "code_gen_table"
 
-// CodeGenTable 代码生成对象表
+// CodeGenTable 代码生成对象配置
 type CodeGenTable struct {
 	ID              int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:主键ID" json:"id"`                                                                   // 主键ID
 	SourceName      string                `gorm:"column:source_name;type:varchar(64);not null;uniqueIndex:unique_code_gen_table,priority:1;comment:数据源名称" json:"source_name"`                   // 数据源名称

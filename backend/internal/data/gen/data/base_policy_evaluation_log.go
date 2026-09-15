@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// BasePolicyEvaluationLogRepository 定义 策略评估日志表 的基础仓储能力。
+// BasePolicyEvaluationLogRepository 定义 策略评估日志 的基础仓储能力。
 type BasePolicyEvaluationLogRepository struct {
 	repository.BaseRepository[models.BasePolicyEvaluationLog]
 	queryProvider QueryProvider

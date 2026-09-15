@@ -10,7 +10,7 @@ import (
 
 const TableNameBasePolicyEvaluationLog = "base_policy_evaluation_log"
 
-// BasePolicyEvaluationLog 策略评估日志表
+// BasePolicyEvaluationLog 策略评估日志
 type BasePolicyEvaluationLog struct {
 	ID             int64     `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:策略评估日志ID" json:"id"`                                                                                                                                                                                                                                                     // 策略评估日志ID
 	TenantID       int64     `gorm:"column:tenant_id;type:bigint;index:idx_base_policy_evaluation_log_resource,priority:1;index:idx_base_policy_evaluation_log_subject,priority:1;index:idx_base_policy_evaluation_log_tenant_decision,priority:1;index:idx_base_policy_evaluation_log_tenant_occurred_at,priority:1;comment:租户ID" json:"tenant_id"`                     // 租户ID

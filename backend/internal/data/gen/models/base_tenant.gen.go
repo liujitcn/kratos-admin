@@ -12,7 +12,7 @@ import (
 
 const TableNameBaseTenant = "base_tenant"
 
-// BaseTenant 租户信息表
+// BaseTenant 租户信息
 type BaseTenant struct {
 	ID           int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:租户ID" json:"id"`                                                                // 租户ID
 	Code         string                `gorm:"column:code;type:varchar(50);not null;uniqueIndex:unique_base_tenant,priority:1;comment:租户编码" json:"code"`                                  // 租户编码

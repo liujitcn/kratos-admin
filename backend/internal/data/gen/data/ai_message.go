@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// AiMessageRepository 定义 AI助手消息表 的基础仓储能力。
+// AiMessageRepository 定义 AI助手消息 的基础仓储能力。
 type AiMessageRepository struct {
 	repository.BaseRepository[models.AiMessage]
 	queryProvider QueryProvider

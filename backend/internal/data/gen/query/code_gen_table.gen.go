@@ -54,7 +54,7 @@ func newCodeGenTable(db *gorm.DB, opts ...gen.DOOption) codeGenTable {
 	return _codeGenTable
 }
 
-// codeGenTable 代码生成对象表
+// codeGenTable 代码生成对象配置
 type codeGenTable struct {
 	codeGenTableDo codeGenTableDo
 

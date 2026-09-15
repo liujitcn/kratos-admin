@@ -10,7 +10,7 @@ import (
 
 const TableNameBaseAPILog = "base_api_log"
 
-// BaseAPILog API访问日志表
+// BaseAPILog API访问日志
 type BaseAPILog struct {
 	ID           int64     `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:API日志ID" json:"id"`                                                                                                                                                                                                                       // API日志ID
 	TenantID     int64     `gorm:"column:tenant_id;type:bigint;index:idx_base_api_log_result_occurred_at,priority:1;index:idx_base_api_log_tenant_occurred_at,priority:1;index:idx_base_api_log_user_occurred_at,priority:1;comment:租户ID" json:"tenant_id"`                                                                             // 租户ID

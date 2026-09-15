@@ -10,7 +10,7 @@ import (
 
 const TableNameBaseJobLog = "base_job_log"
 
-// BaseJobLog 定时任务日志信息
+// BaseJobLog 定时任务日志
 type BaseJobLog struct {
 	ID          int64     `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:任务日志ID" json:"id"`                           // 任务日志ID
 	JobID       int64     `gorm:"column:job_id;type:bigint;not null;index:idx_base_job_log_job_id,priority:1;comment:任务ID" json:"job_id"` // 任务ID

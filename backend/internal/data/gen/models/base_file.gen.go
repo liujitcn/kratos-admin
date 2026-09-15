@@ -12,7 +12,7 @@ import (
 
 const TableNameBaseFile = "base_file"
 
-// BaseFile 文件元数据表
+// BaseFile 文件元数据
 type BaseFile struct {
 	ID            int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:文件ID" json:"id"`                                                                                                                                                  // 文件ID
 	TenantID      int64                 `gorm:"column:tenant_id;type:bigint;not null;uniqueIndex:unique_base_file_tenant_guid,priority:1;index:idx_base_file_tenant_content_hash,priority:1;index:idx_base_file_tenant_created_at,priority:1;comment:租户ID" json:"tenant_id"` // 租户ID

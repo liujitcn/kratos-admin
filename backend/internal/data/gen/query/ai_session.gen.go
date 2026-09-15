@@ -41,7 +41,7 @@ func newAiSession(db *gorm.DB, opts ...gen.DOOption) aiSession {
 	return _aiSession
 }
 
-// aiSession AI助手会话表
+// aiSession AI助手会话
 type aiSession struct {
 	aiSessionDo aiSessionDo
 

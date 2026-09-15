@@ -52,7 +52,7 @@ func newBaseFile(db *gorm.DB, opts ...gen.DOOption) baseFile {
 	return _baseFile
 }
 
-// baseFile 文件元数据表
+// baseFile 文件元数据
 type baseFile struct {
 	baseFileDo baseFileDo
 

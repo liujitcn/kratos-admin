@@ -10,7 +10,7 @@ import (
 
 const TableNameBaseDataAccessLog = "base_data_access_log"
 
-// BaseDataAccessLog 数据访问日志表
+// BaseDataAccessLog 数据访问日志
 type BaseDataAccessLog struct {
 	ID           int64     `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:数据访问日志ID" json:"id"`                                                                                                                                                                                                                           // 数据访问日志ID
 	TenantID     int64     `gorm:"column:tenant_id;type:bigint;not null;index:idx_base_data_access_log_access_type,priority:1;index:idx_base_data_access_log_resource,priority:1;index:idx_base_data_access_log_sensitive,priority:1;index:idx_base_data_access_log_tenant_occurred_at,priority:1;comment:租户ID" json:"tenant_id"`            // 租户ID

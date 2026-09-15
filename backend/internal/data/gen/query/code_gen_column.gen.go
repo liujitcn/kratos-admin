@@ -47,7 +47,7 @@ func newCodeGenColumn(db *gorm.DB, opts ...gen.DOOption) codeGenColumn {
 	return _codeGenColumn
 }
 
-// codeGenColumn 代码生成字段配置表
+// codeGenColumn 代码生成字段配置
 type codeGenColumn struct {
 	codeGenColumnDo codeGenColumnDo
 

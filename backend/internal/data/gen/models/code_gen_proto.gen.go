@@ -12,7 +12,7 @@ import (
 
 const TableNameCodeGenProto = "code_gen_proto"
 
-// CodeGenProto 代码生成Proto接口配置表
+// CodeGenProto 代码生成Proto接口配置
 type CodeGenProto struct {
 	ID                  int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:主键ID" json:"id"`                                                        // 主键ID
 	TableID             int64                 `gorm:"column:table_id;type:bigint;not null;index:idx_code_gen_proto_table_id,priority:1;comment:生成对象ID" json:"table_id"`                  // 生成对象ID

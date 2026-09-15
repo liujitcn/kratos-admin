@@ -12,7 +12,7 @@ import (
 
 const TableNameAiSession = "ai_session"
 
-// AiSession AI助手会话表
+// AiSession AI助手会话
 type AiSession struct {
 	ID        int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:会话ID" json:"id"`                                                                  // 会话ID
 	UserID    int64                 `gorm:"column:user_id;type:bigint;not null;index:idx_ai_session_user_id_terminal_updated_at,priority:1;comment:所属用户ID" json:"user_id"`               // 所属用户ID

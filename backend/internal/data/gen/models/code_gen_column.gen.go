@@ -12,7 +12,7 @@ import (
 
 const TableNameCodeGenColumn = "code_gen_column"
 
-// CodeGenColumn 代码生成字段配置表
+// CodeGenColumn 代码生成字段配置
 type CodeGenColumn struct {
 	ID          int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:主键ID" json:"id"`                                                                                                                                         // 主键ID
 	TableID     int64                 `gorm:"column:table_id;type:bigint;not null;uniqueIndex:unique_code_gen_column,priority:1;index:idx_code_gen_column_table_id,priority:1;index:idx_code_gen_column_table_id_name,priority:1;comment:生成对象ID" json:"table_id"` // 生成对象ID

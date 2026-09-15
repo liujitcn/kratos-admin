@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// AiSessionRepository 定义 AI助手会话表 的基础仓储能力。
+// AiSessionRepository 定义 AI助手会话 的基础仓储能力。
 type AiSessionRepository struct {
 	repository.BaseRepository[models.AiSession]
 	queryProvider QueryProvider

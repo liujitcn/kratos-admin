@@ -52,7 +52,7 @@ func newBaseOperationLog(db *gorm.DB, opts ...gen.DOOption) baseOperationLog {
 	return _baseOperationLog
 }
 
-// baseOperationLog 业务操作日志表
+// baseOperationLog 业务操作日志
 type baseOperationLog struct {
 	baseOperationLogDo baseOperationLogDo
 

@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// BaseAPILogRepository 定义 API访问日志表 的基础仓储能力。
+// BaseAPILogRepository 定义 API访问日志 的基础仓储能力。
 type BaseAPILogRepository struct {
 	repository.BaseRepository[models.BaseAPILog]
 	queryProvider QueryProvider

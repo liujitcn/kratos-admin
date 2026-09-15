@@ -41,7 +41,7 @@ func newBaseJobLog(db *gorm.DB, opts ...gen.DOOption) baseJobLog {
 	return _baseJobLog
 }
 
-// baseJobLog 定时任务日志信息
+// baseJobLog 定时任务日志
 type baseJobLog struct {
 	baseJobLogDo baseJobLogDo
 

@@ -10,7 +10,7 @@ import (
 
 const TableNameBaseOperationLog = "base_operation_log"
 
-// BaseOperationLog 业务操作日志表
+// BaseOperationLog 业务操作日志
 type BaseOperationLog struct {
 	ID            int64     `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:操作日志ID" json:"id"`                                                                                                                                                                                                                                   // 操作日志ID
 	TenantID      int64     `gorm:"column:tenant_id;type:bigint;not null;index:idx_base_operation_log_action_occurred_at,priority:1;index:idx_base_operation_log_resource,priority:1;index:idx_base_operation_log_tenant_occurred_at,priority:1;index:idx_base_operation_log_user_occurred_at,priority:1;comment:租户ID" json:"tenant_id"`            // 租户ID

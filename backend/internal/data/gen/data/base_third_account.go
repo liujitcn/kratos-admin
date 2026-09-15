@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// BaseThirdAccountRepository 定义 用户三方登录账号 的基础仓储能力。
+// BaseThirdAccountRepository 定义 用户三方登录账号信息 的基础仓储能力。
 type BaseThirdAccountRepository struct {
 	repository.BaseRepository[models.BaseThirdAccount]
 	queryProvider QueryProvider

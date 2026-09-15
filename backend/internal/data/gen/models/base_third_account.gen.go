@@ -12,7 +12,7 @@ import (
 
 const TableNameBaseThirdAccount = "base_third_account"
 
-// BaseThirdAccount 用户三方登录账号
+// BaseThirdAccount 用户三方登录账号信息
 type BaseThirdAccount struct {
 	ID         int64                 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:三方账号ID" json:"id"`                                                                                                                           // 三方账号ID
 	UserID     int64                 `gorm:"column:user_id;type:bigint;not null;uniqueIndex:unique_base_third_account_user,priority:1;index:idx_base_third_account_user_id,priority:1;comment:用户ID" json:"user_id"`                                  // 用户ID

@@ -10,7 +10,7 @@ import (
 
 const TableNameBaseLoginLog = "base_login_log"
 
-// BaseLoginLog 登录日志表
+// BaseLoginLog 登录日志
 type BaseLoginLog struct {
 	ID         int64     `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:登录日志ID" json:"id"`                                                                                                                                                                                                                         // 登录日志ID
 	TenantID   int64     `gorm:"column:tenant_id;type:bigint;index:idx_base_login_log_result_occurred_at,priority:1;index:idx_base_login_log_tenant_occurred_at,priority:1;index:idx_base_login_log_user_occurred_at,priority:1;comment:租户ID" json:"tenant_id"`                                                                        // 租户ID

@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// BaseDataAccessLogRepository 定义 数据访问日志表 的基础仓储能力。
+// BaseDataAccessLogRepository 定义 数据访问日志 的基础仓储能力。
 type BaseDataAccessLogRepository struct {
 	repository.BaseRepository[models.BaseDataAccessLog]
 	queryProvider QueryProvider

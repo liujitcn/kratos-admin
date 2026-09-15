@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// BasePermissionLogRepository 定义 权限日志表 的基础仓储能力。
+// BasePermissionLogRepository 定义 权限日志 的基础仓储能力。
 type BasePermissionLogRepository struct {
 	repository.BaseRepository[models.BasePermissionLog]
 	queryProvider QueryProvider

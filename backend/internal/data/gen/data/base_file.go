@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// BaseFileRepository 定义 文件元数据表 的基础仓储能力。
+// BaseFileRepository 定义 文件元数据 的基础仓储能力。
 type BaseFileRepository struct {
 	repository.BaseRepository[models.BaseFile]
 	queryProvider QueryProvider

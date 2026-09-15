@@ -14,7 +14,7 @@ import (
 	"gorm.io/gen/field"
 )
 
-// CodeGenTableRepository 定义 代码生成对象表 的基础仓储能力。
+// CodeGenTableRepository 定义 代码生成对象配置 的基础仓储能力。
 type CodeGenTableRepository struct {
 	repository.BaseRepository[models.CodeGenTable]
 	queryProvider QueryProvider
