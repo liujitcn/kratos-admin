@@ -292,6 +292,67 @@ func (x *CreateBaseTenantRequest) GetBaseTenant() *BaseTenantForm {
 	return nil
 }
 
+// 创建租户响应参数
+type CreateBaseTenantResponse struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	TenantCode      string                 `protobuf:"bytes,1,opt,name=tenant_code,json=tenantCode,proto3" json:"tenant_code,omitempty"`                // 租户编号
+	AdminUserName   string                 `protobuf:"bytes,2,opt,name=admin_user_name,json=adminUserName,proto3" json:"admin_user_name,omitempty"`     // 租户管理员账号
+	InitialPassword string                 `protobuf:"bytes,3,opt,name=initial_password,json=initialPassword,proto3" json:"initial_password,omitempty"` // 租户管理员初始密码，仅在随机生成时返回
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *CreateBaseTenantResponse) Reset() {
+	*x = CreateBaseTenantResponse{}
+	mi := &file_system_admin_v1_base_tenant_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateBaseTenantResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateBaseTenantResponse) ProtoMessage() {}
+
+func (x *CreateBaseTenantResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_system_admin_v1_base_tenant_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateBaseTenantResponse.ProtoReflect.Descriptor instead.
+func (*CreateBaseTenantResponse) Descriptor() ([]byte, []int) {
+	return file_system_admin_v1_base_tenant_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *CreateBaseTenantResponse) GetTenantCode() string {
+	if x != nil {
+		return x.TenantCode
+	}
+	return ""
+}
+
+func (x *CreateBaseTenantResponse) GetAdminUserName() string {
+	if x != nil {
+		return x.AdminUserName
+	}
+	return ""
+}
+
+func (x *CreateBaseTenantResponse) GetInitialPassword() string {
+	if x != nil {
+		return x.InitialPassword
+	}
+	return ""
+}
+
 // 更新租户请求参数
 type UpdateBaseTenantRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -302,7 +363,7 @@ type UpdateBaseTenantRequest struct {
 
 func (x *UpdateBaseTenantRequest) Reset() {
 	*x = UpdateBaseTenantRequest{}
-	mi := &file_system_admin_v1_base_tenant_proto_msgTypes[5]
+	mi := &file_system_admin_v1_base_tenant_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -314,7 +375,7 @@ func (x *UpdateBaseTenantRequest) String() string {
 func (*UpdateBaseTenantRequest) ProtoMessage() {}
 
 func (x *UpdateBaseTenantRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_tenant_proto_msgTypes[5]
+	mi := &file_system_admin_v1_base_tenant_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -327,7 +388,7 @@ func (x *UpdateBaseTenantRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateBaseTenantRequest.ProtoReflect.Descriptor instead.
 func (*UpdateBaseTenantRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_tenant_proto_rawDescGZIP(), []int{5}
+	return file_system_admin_v1_base_tenant_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *UpdateBaseTenantRequest) GetBaseTenant() *BaseTenantForm {
@@ -347,7 +408,7 @@ type DeleteBaseTenantRequest struct {
 
 func (x *DeleteBaseTenantRequest) Reset() {
 	*x = DeleteBaseTenantRequest{}
-	mi := &file_system_admin_v1_base_tenant_proto_msgTypes[6]
+	mi := &file_system_admin_v1_base_tenant_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -359,7 +420,7 @@ func (x *DeleteBaseTenantRequest) String() string {
 func (*DeleteBaseTenantRequest) ProtoMessage() {}
 
 func (x *DeleteBaseTenantRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_tenant_proto_msgTypes[6]
+	mi := &file_system_admin_v1_base_tenant_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -372,7 +433,7 @@ func (x *DeleteBaseTenantRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteBaseTenantRequest.ProtoReflect.Descriptor instead.
 func (*DeleteBaseTenantRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_tenant_proto_rawDescGZIP(), []int{6}
+	return file_system_admin_v1_base_tenant_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *DeleteBaseTenantRequest) GetId() string {
@@ -393,7 +454,7 @@ type SetBaseTenantStatusRequest struct {
 
 func (x *SetBaseTenantStatusRequest) Reset() {
 	*x = SetBaseTenantStatusRequest{}
-	mi := &file_system_admin_v1_base_tenant_proto_msgTypes[7]
+	mi := &file_system_admin_v1_base_tenant_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -405,7 +466,7 @@ func (x *SetBaseTenantStatusRequest) String() string {
 func (*SetBaseTenantStatusRequest) ProtoMessage() {}
 
 func (x *SetBaseTenantStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_tenant_proto_msgTypes[7]
+	mi := &file_system_admin_v1_base_tenant_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -418,7 +479,7 @@ func (x *SetBaseTenantStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetBaseTenantStatusRequest.ProtoReflect.Descriptor instead.
 func (*SetBaseTenantStatusRequest) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_tenant_proto_rawDescGZIP(), []int{7}
+	return file_system_admin_v1_base_tenant_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *SetBaseTenantStatusRequest) GetId() int64 {
@@ -454,7 +515,7 @@ type BaseTenant struct {
 
 func (x *BaseTenant) Reset() {
 	*x = BaseTenant{}
-	mi := &file_system_admin_v1_base_tenant_proto_msgTypes[8]
+	mi := &file_system_admin_v1_base_tenant_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -466,7 +527,7 @@ func (x *BaseTenant) String() string {
 func (*BaseTenant) ProtoMessage() {}
 
 func (x *BaseTenant) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_tenant_proto_msgTypes[8]
+	mi := &file_system_admin_v1_base_tenant_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -479,7 +540,7 @@ func (x *BaseTenant) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseTenant.ProtoReflect.Descriptor instead.
 func (*BaseTenant) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_tenant_proto_rawDescGZIP(), []int{8}
+	return file_system_admin_v1_base_tenant_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *BaseTenant) GetId() int64 {
@@ -568,7 +629,7 @@ type BaseTenantForm struct {
 
 func (x *BaseTenantForm) Reset() {
 	*x = BaseTenantForm{}
-	mi := &file_system_admin_v1_base_tenant_proto_msgTypes[9]
+	mi := &file_system_admin_v1_base_tenant_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -580,7 +641,7 @@ func (x *BaseTenantForm) String() string {
 func (*BaseTenantForm) ProtoMessage() {}
 
 func (x *BaseTenantForm) ProtoReflect() protoreflect.Message {
-	mi := &file_system_admin_v1_base_tenant_proto_msgTypes[9]
+	mi := &file_system_admin_v1_base_tenant_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -593,7 +654,7 @@ func (x *BaseTenantForm) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseTenantForm.ProtoReflect.Descriptor instead.
 func (*BaseTenantForm) Descriptor() ([]byte, []int) {
-	return file_system_admin_v1_base_tenant_proto_rawDescGZIP(), []int{9}
+	return file_system_admin_v1_base_tenant_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *BaseTenantForm) GetId() int64 {
@@ -667,7 +728,12 @@ const file_system_admin_v1_base_tenant_proto_rawDesc = "" +
 	"(system.admin.base.tenant.get.id.required\x12\x14租户ID不能为空\x1a\bthis > 0R\x02id\"u\n" +
 	"\x17CreateBaseTenantRequest\x12Z\n" +
 	"\vbase_tenant\x18\x01 \x01(\v2\x1f.system.admin.v1.BaseTenantFormB\x18\xbaG\x0f\x92\x02\f租户表单\xbaH\x03\xc8\x01\x01R\n" +
-	"baseTenant\"\xd8\x01\n" +
+	"baseTenant\"\x80\x02\n" +
+	"\x18CreateBaseTenantResponse\x123\n" +
+	"\vtenant_code\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户编号R\n" +
+	"tenantCode\x12C\n" +
+	"\x0fadmin_user_name\x18\x02 \x01(\tB\x1b\xbaG\x18\x92\x02\x15租户管理员账号R\radminUserName\x12j\n" +
+	"\x10initial_password\x18\x03 \x01(\tB?\xbaG<\x92\x029租户管理员初始密码，仅在随机生成时返回R\x0finitialPassword\"\xd8\x01\n" +
 	"\x17UpdateBaseTenantRequest\x12Z\n" +
 	"\vbase_tenant\x18\x01 \x01(\v2\x1f.system.admin.v1.BaseTenantFormB\x18\xbaG\x0f\x92\x02\f租户表单\xbaH\x03\xc8\x01\x01R\n" +
 	"baseTenant:a\xbaH^\x1a\\\n" +
@@ -711,12 +777,12 @@ const file_system_admin_v1_base_tenant_proto_rawDesc = "" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x12\x93\x01\n" +
 	"\x06remark\x18e \x01(\tB{\xbaG\t\x92\x02\x06备注\xbaHl\xba\x01i\n" +
 	"1system.admin.base.tenant.entity.remark.max_length\x12 备注不能超过 500 个字符\x1a\x12this.size() <= 500R\x06remarkB\t\n" +
-	"\a_status2\xd1\a\n" +
+	"\a_status2\xe4\a\n" +
 	"\x11BaseTenantService\x12\x87\x01\n" +
 	"\x10OptionBaseTenant\x12(.system.admin.v1.OptionBaseTenantRequest\x1a\x1f.common.v1.SelectOptionResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /api/v1/admin/base/tenant/option\x12\x84\x01\n" +
 	"\x0ePageBaseTenant\x12&.system.admin.v1.PageBaseTenantRequest\x1a'.system.admin.v1.PageBaseTenantResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/v1/admin/base/tenant\x12\x7f\n" +
-	"\rGetBaseTenant\x12%.system.admin.v1.GetBaseTenantRequest\x1a\x1f.system.admin.v1.BaseTenantForm\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/tenant/{id}\x12\x84\x01\n" +
-	"\x10CreateBaseTenant\x12(.system.admin.v1.CreateBaseTenantRequest\x1a\x16.google.protobuf.Empty\".\x82\xd3\xe4\x93\x02(:\vbase_tenant\"\x19/api/v1/admin/base/tenant\x12\x95\x01\n" +
+	"\rGetBaseTenant\x12%.system.admin.v1.GetBaseTenantRequest\x1a\x1f.system.admin.v1.BaseTenantForm\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/v1/admin/base/tenant/{id}\x12\x97\x01\n" +
+	"\x10CreateBaseTenant\x12(.system.admin.v1.CreateBaseTenantRequest\x1a).system.admin.v1.CreateBaseTenantResponse\".\x82\xd3\xe4\x93\x02(:\vbase_tenant\"\x19/api/v1/admin/base/tenant\x12\x95\x01\n" +
 	"\x10UpdateBaseTenant\x12(.system.admin.v1.UpdateBaseTenantRequest\x1a\x16.google.protobuf.Empty\"?\x82\xd3\xe4\x93\x029:\vbase_tenant\x1a*/api/v1/admin/base/tenant/{base_tenant.id}\x12|\n" +
 	"\x10DeleteBaseTenant\x12(.system.admin.v1.DeleteBaseTenantRequest\x1a\x16.google.protobuf.Empty\"&\x82\xd3\xe4\x93\x02 *\x1e/api/v1/admin/base/tenant/{id}\x12\x8c\x01\n" +
 	"\x13SetBaseTenantStatus\x12+.system.admin.v1.SetBaseTenantStatusRequest\x1a\x16.google.protobuf.Empty\"0\x82\xd3\xe4\x93\x02*:\x01*\x1a%/api/v1/admin/base/tenant/{id}/statusB\xd1\x01\n" +
@@ -734,43 +800,44 @@ func file_system_admin_v1_base_tenant_proto_rawDescGZIP() []byte {
 	return file_system_admin_v1_base_tenant_proto_rawDescData
 }
 
-var file_system_admin_v1_base_tenant_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_system_admin_v1_base_tenant_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_system_admin_v1_base_tenant_proto_goTypes = []any{
 	(*OptionBaseTenantRequest)(nil),       // 0: system.admin.v1.OptionBaseTenantRequest
 	(*PageBaseTenantRequest)(nil),         // 1: system.admin.v1.PageBaseTenantRequest
 	(*PageBaseTenantResponse)(nil),        // 2: system.admin.v1.PageBaseTenantResponse
 	(*GetBaseTenantRequest)(nil),          // 3: system.admin.v1.GetBaseTenantRequest
 	(*CreateBaseTenantRequest)(nil),       // 4: system.admin.v1.CreateBaseTenantRequest
-	(*UpdateBaseTenantRequest)(nil),       // 5: system.admin.v1.UpdateBaseTenantRequest
-	(*DeleteBaseTenantRequest)(nil),       // 6: system.admin.v1.DeleteBaseTenantRequest
-	(*SetBaseTenantStatusRequest)(nil),    // 7: system.admin.v1.SetBaseTenantStatusRequest
-	(*BaseTenant)(nil),                    // 8: system.admin.v1.BaseTenant
-	(*BaseTenantForm)(nil),                // 9: system.admin.v1.BaseTenantForm
-	(commonv1.Status)(0),                  // 10: common.v1.Status
-	(*commonv1.SelectOptionResponse)(nil), // 11: common.v1.SelectOptionResponse
-	(*emptypb.Empty)(nil),                 // 12: google.protobuf.Empty
+	(*CreateBaseTenantResponse)(nil),      // 5: system.admin.v1.CreateBaseTenantResponse
+	(*UpdateBaseTenantRequest)(nil),       // 6: system.admin.v1.UpdateBaseTenantRequest
+	(*DeleteBaseTenantRequest)(nil),       // 7: system.admin.v1.DeleteBaseTenantRequest
+	(*SetBaseTenantStatusRequest)(nil),    // 8: system.admin.v1.SetBaseTenantStatusRequest
+	(*BaseTenant)(nil),                    // 9: system.admin.v1.BaseTenant
+	(*BaseTenantForm)(nil),                // 10: system.admin.v1.BaseTenantForm
+	(commonv1.Status)(0),                  // 11: common.v1.Status
+	(*commonv1.SelectOptionResponse)(nil), // 12: common.v1.SelectOptionResponse
+	(*emptypb.Empty)(nil),                 // 13: google.protobuf.Empty
 }
 var file_system_admin_v1_base_tenant_proto_depIdxs = []int32{
-	10, // 0: system.admin.v1.PageBaseTenantRequest.status:type_name -> common.v1.Status
-	8,  // 1: system.admin.v1.PageBaseTenantResponse.base_tenants:type_name -> system.admin.v1.BaseTenant
-	9,  // 2: system.admin.v1.CreateBaseTenantRequest.base_tenant:type_name -> system.admin.v1.BaseTenantForm
-	9,  // 3: system.admin.v1.UpdateBaseTenantRequest.base_tenant:type_name -> system.admin.v1.BaseTenantForm
-	10, // 4: system.admin.v1.BaseTenant.status:type_name -> common.v1.Status
-	10, // 5: system.admin.v1.BaseTenantForm.status:type_name -> common.v1.Status
+	11, // 0: system.admin.v1.PageBaseTenantRequest.status:type_name -> common.v1.Status
+	9,  // 1: system.admin.v1.PageBaseTenantResponse.base_tenants:type_name -> system.admin.v1.BaseTenant
+	10, // 2: system.admin.v1.CreateBaseTenantRequest.base_tenant:type_name -> system.admin.v1.BaseTenantForm
+	10, // 3: system.admin.v1.UpdateBaseTenantRequest.base_tenant:type_name -> system.admin.v1.BaseTenantForm
+	11, // 4: system.admin.v1.BaseTenant.status:type_name -> common.v1.Status
+	11, // 5: system.admin.v1.BaseTenantForm.status:type_name -> common.v1.Status
 	0,  // 6: system.admin.v1.BaseTenantService.OptionBaseTenant:input_type -> system.admin.v1.OptionBaseTenantRequest
 	1,  // 7: system.admin.v1.BaseTenantService.PageBaseTenant:input_type -> system.admin.v1.PageBaseTenantRequest
 	3,  // 8: system.admin.v1.BaseTenantService.GetBaseTenant:input_type -> system.admin.v1.GetBaseTenantRequest
 	4,  // 9: system.admin.v1.BaseTenantService.CreateBaseTenant:input_type -> system.admin.v1.CreateBaseTenantRequest
-	5,  // 10: system.admin.v1.BaseTenantService.UpdateBaseTenant:input_type -> system.admin.v1.UpdateBaseTenantRequest
-	6,  // 11: system.admin.v1.BaseTenantService.DeleteBaseTenant:input_type -> system.admin.v1.DeleteBaseTenantRequest
-	7,  // 12: system.admin.v1.BaseTenantService.SetBaseTenantStatus:input_type -> system.admin.v1.SetBaseTenantStatusRequest
-	11, // 13: system.admin.v1.BaseTenantService.OptionBaseTenant:output_type -> common.v1.SelectOptionResponse
+	6,  // 10: system.admin.v1.BaseTenantService.UpdateBaseTenant:input_type -> system.admin.v1.UpdateBaseTenantRequest
+	7,  // 11: system.admin.v1.BaseTenantService.DeleteBaseTenant:input_type -> system.admin.v1.DeleteBaseTenantRequest
+	8,  // 12: system.admin.v1.BaseTenantService.SetBaseTenantStatus:input_type -> system.admin.v1.SetBaseTenantStatusRequest
+	12, // 13: system.admin.v1.BaseTenantService.OptionBaseTenant:output_type -> common.v1.SelectOptionResponse
 	2,  // 14: system.admin.v1.BaseTenantService.PageBaseTenant:output_type -> system.admin.v1.PageBaseTenantResponse
-	9,  // 15: system.admin.v1.BaseTenantService.GetBaseTenant:output_type -> system.admin.v1.BaseTenantForm
-	12, // 16: system.admin.v1.BaseTenantService.CreateBaseTenant:output_type -> google.protobuf.Empty
-	12, // 17: system.admin.v1.BaseTenantService.UpdateBaseTenant:output_type -> google.protobuf.Empty
-	12, // 18: system.admin.v1.BaseTenantService.DeleteBaseTenant:output_type -> google.protobuf.Empty
-	12, // 19: system.admin.v1.BaseTenantService.SetBaseTenantStatus:output_type -> google.protobuf.Empty
+	10, // 15: system.admin.v1.BaseTenantService.GetBaseTenant:output_type -> system.admin.v1.BaseTenantForm
+	5,  // 16: system.admin.v1.BaseTenantService.CreateBaseTenant:output_type -> system.admin.v1.CreateBaseTenantResponse
+	13, // 17: system.admin.v1.BaseTenantService.UpdateBaseTenant:output_type -> google.protobuf.Empty
+	13, // 18: system.admin.v1.BaseTenantService.DeleteBaseTenant:output_type -> google.protobuf.Empty
+	13, // 19: system.admin.v1.BaseTenantService.SetBaseTenantStatus:output_type -> google.protobuf.Empty
 	13, // [13:20] is the sub-list for method output_type
 	6,  // [6:13] is the sub-list for method input_type
 	6,  // [6:6] is the sub-list for extension type_name
@@ -784,14 +851,14 @@ func file_system_admin_v1_base_tenant_proto_init() {
 		return
 	}
 	file_system_admin_v1_base_tenant_proto_msgTypes[1].OneofWrappers = []any{}
-	file_system_admin_v1_base_tenant_proto_msgTypes[9].OneofWrappers = []any{}
+	file_system_admin_v1_base_tenant_proto_msgTypes[10].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_system_admin_v1_base_tenant_proto_rawDesc), len(file_system_admin_v1_base_tenant_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   10,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

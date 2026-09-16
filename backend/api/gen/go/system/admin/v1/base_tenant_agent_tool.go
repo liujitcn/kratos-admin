@@ -108,10 +108,10 @@ func NewBaseTenantServiceGetBaseTenantAgentTool(baseTenantServiceServer BaseTena
 
 // NewBaseTenantServiceCreateBaseTenantAgentTool 创建创建租户的 Agent Tool。
 func NewBaseTenantServiceCreateBaseTenantAgentTool(baseTenantServiceServer BaseTenantServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*CreateBaseTenantRequest, *emptypb.Empty](
+	return utils.InferTool[*CreateBaseTenantRequest, *CreateBaseTenantResponse](
 		"system_admin_v1_base_tenant_service_create_base_tenant",
 		"创建租户",
-		func(ctx context.Context, req *CreateBaseTenantRequest) (*emptypb.Empty, error) {
+		func(ctx context.Context, req *CreateBaseTenantRequest) (*CreateBaseTenantResponse, error) {
 			if req == nil {
 				req = &CreateBaseTenantRequest{}
 			}

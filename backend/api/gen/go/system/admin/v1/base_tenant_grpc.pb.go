@@ -44,7 +44,7 @@ type BaseTenantServiceClient interface {
 	// 查询租户
 	GetBaseTenant(ctx context.Context, in *GetBaseTenantRequest, opts ...grpc.CallOption) (*BaseTenantForm, error)
 	// 创建租户
-	CreateBaseTenant(ctx context.Context, in *CreateBaseTenantRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CreateBaseTenant(ctx context.Context, in *CreateBaseTenantRequest, opts ...grpc.CallOption) (*CreateBaseTenantResponse, error)
 	// 更新租户
 	UpdateBaseTenant(ctx context.Context, in *UpdateBaseTenantRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 删除租户
@@ -91,9 +91,9 @@ func (c *baseTenantServiceClient) GetBaseTenant(ctx context.Context, in *GetBase
 	return out, nil
 }
 
-func (c *baseTenantServiceClient) CreateBaseTenant(ctx context.Context, in *CreateBaseTenantRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *baseTenantServiceClient) CreateBaseTenant(ctx context.Context, in *CreateBaseTenantRequest, opts ...grpc.CallOption) (*CreateBaseTenantResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
+	out := new(CreateBaseTenantResponse)
 	err := c.cc.Invoke(ctx, BaseTenantService_CreateBaseTenant_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -144,7 +144,7 @@ type BaseTenantServiceServer interface {
 	// 查询租户
 	GetBaseTenant(context.Context, *GetBaseTenantRequest) (*BaseTenantForm, error)
 	// 创建租户
-	CreateBaseTenant(context.Context, *CreateBaseTenantRequest) (*emptypb.Empty, error)
+	CreateBaseTenant(context.Context, *CreateBaseTenantRequest) (*CreateBaseTenantResponse, error)
 	// 更新租户
 	UpdateBaseTenant(context.Context, *UpdateBaseTenantRequest) (*emptypb.Empty, error)
 	// 删除租户
@@ -170,7 +170,7 @@ func (UnimplementedBaseTenantServiceServer) PageBaseTenant(context.Context, *Pag
 func (UnimplementedBaseTenantServiceServer) GetBaseTenant(context.Context, *GetBaseTenantRequest) (*BaseTenantForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetBaseTenant not implemented")
 }
-func (UnimplementedBaseTenantServiceServer) CreateBaseTenant(context.Context, *CreateBaseTenantRequest) (*emptypb.Empty, error) {
+func (UnimplementedBaseTenantServiceServer) CreateBaseTenant(context.Context, *CreateBaseTenantRequest) (*CreateBaseTenantResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateBaseTenant not implemented")
 }
 func (UnimplementedBaseTenantServiceServer) UpdateBaseTenant(context.Context, *UpdateBaseTenantRequest) (*emptypb.Empty, error) {

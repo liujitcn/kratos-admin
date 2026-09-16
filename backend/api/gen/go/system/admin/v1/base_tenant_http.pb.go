@@ -30,7 +30,7 @@ const OperationBaseTenantServiceUpdateBaseTenant = "/system.admin.v1.BaseTenantS
 
 type BaseTenantServiceHTTPServer interface {
 	// CreateBaseTenant 创建租户
-	CreateBaseTenant(context.Context, *CreateBaseTenantRequest) (*emptypb.Empty, error)
+	CreateBaseTenant(context.Context, *CreateBaseTenantRequest) (*CreateBaseTenantResponse, error)
 	// DeleteBaseTenant 删除租户
 	DeleteBaseTenant(context.Context, *DeleteBaseTenantRequest) (*emptypb.Empty, error)
 	// GetBaseTenant 查询租户
@@ -133,7 +133,7 @@ func _BaseTenantService_CreateBaseTenant0_HTTP_Handler(srv BaseTenantServiceHTTP
 		if err != nil {
 			return err
 		}
-		reply := out.(*emptypb.Empty)
+		reply := out.(*CreateBaseTenantResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -209,7 +209,7 @@ func _BaseTenantService_SetBaseTenantStatus0_HTTP_Handler(srv BaseTenantServiceH
 
 type BaseTenantServiceHTTPClient interface {
 	// CreateBaseTenant 创建租户
-	CreateBaseTenant(ctx context.Context, req *CreateBaseTenantRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	CreateBaseTenant(ctx context.Context, req *CreateBaseTenantRequest, opts ...http.CallOption) (rsp *CreateBaseTenantResponse, err error)
 	// DeleteBaseTenant 删除租户
 	DeleteBaseTenant(ctx context.Context, req *DeleteBaseTenantRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetBaseTenant 查询租户
@@ -233,8 +233,8 @@ func NewBaseTenantServiceHTTPClient(client *http.Client) BaseTenantServiceHTTPCl
 }
 
 // CreateBaseTenant 创建租户
-func (c *BaseTenantServiceHTTPClientImpl) CreateBaseTenant(ctx context.Context, in *CreateBaseTenantRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
-	var out emptypb.Empty
+func (c *BaseTenantServiceHTTPClientImpl) CreateBaseTenant(ctx context.Context, in *CreateBaseTenantRequest, opts ...http.CallOption) (*CreateBaseTenantResponse, error) {
+	var out CreateBaseTenantResponse
 	pattern := "/api/v1/admin/base/tenant"
 	path := http.BuildPath(pattern, in, http.WithQueryParams(), http.WithOmitFields("baseTenant"))
 	opts = append([]http.CallOption{
