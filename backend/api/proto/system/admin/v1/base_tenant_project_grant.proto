@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// BaseTenantProjectGrantService 管理岗位、角色、部门和用户在目标租户下的项目授权。
+service BaseTenantProjectGrantService {
+  // 查询项目授权分页列表。
+  rpc PageBaseTenantProjectGrant(PageBaseTenantProjectGrantRequest) returns (PageBaseTenantProjectGrantResponse) {
+    option (google.api.http) = {get: "/api/v1/admin/base/tenant/project/grant"};
+  }
+  // 查询项目授权详情。
+  rpc GetBaseTenantProjectGrant(GetBaseTenantProjectGrantRequest) returns (BaseTenantProjectGrant) {
+    option (google.api.http) = {get: "/api/v1/admin/base/tenant/project/grant/{tenant_id}/{subject_type}/{subject_id}"};
+  }
+  // 新增项目授权。
+  rpc CreateBaseTenantProjectGrant(CreateBaseTenantProjectGrantRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {post: "/api/v1/admin/base/tenant/project/grant" body: "base_tenant_project_grant"};
+  }
+  // 更新项目授权，只修改项目范围，授权主体联合键不可变更。
+  rpc UpdateBaseTenantProjectGrant(UpdateBaseTenantProjectGrantRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {put: "/api/v1/admin/base/tenant/project/grant/{base_tenant_project_grant.tenant_id}/{base_tenant_project_grant.subject_type}/{base_tenant_project_grant.subject_id}" body: "base_tenant_project_grant"};
+  }
+  // 删除项目授权。
+  rpc DeleteBaseTenantProjectGrant(DeleteBaseTenantProjectGrantRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/api/v1/admin/base/tenant/project/grant/{tenant_id}/{subject_type}/{subject_id}"};
+  }
+}
+
+// BaseTenantProjectGrantSubjectType 项目授权主体类型。
+enum BaseTenantProjectGrantSubjectType {
+  BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_UNSPECIFIED = 0; // 未指定
+  BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_POST = 1; // 岗位
+  BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_ROLE = 2; // 角色
+  BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_DEPT = 3; // 部门
+  BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_USER = 4; // 用户
+}
+
+// 项目授权主体和目标租户查询条件。
+message BaseTenantProjectGrantKey {
+  int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "授权目标租户ID"}, (buf.validate.field).int64.gt = 0]; // 授权目标租户ID
+  BaseTenantProjectGrantSubjectType subject_type = 2 [(gnostic.openapi.v3.property) = {description: "授权主体类型"}, (buf.validate.field).enum = {defined_only: true not_in: [0]}]; // 授权主体类型
+  int64 subject_id = 3 [(gnostic.openapi.v3.property) = {description: "岗位、角色、部门或用户ID"}, (buf.validate.field).int64.gt = 0]; // 授权主体ID
+}
+
+// 项目授权记录，project_id 为 [0] 时表示目标租户全部项目，空数组表示无权限。
+message BaseTenantProjectGrant {
+  option (buf.validate.message).cel = {
+    id: "system.admin.base.tenant.project.grant.project_id.valid"
+    message: "项目ID必须为安全非负整数，全部授权只能单独使用0"
+    expression: "this.project_id.all(id, id >= 0 && id <= 9007199254740991) && (!this.project_id.exists(id, id == 0) || this.project_id.size() == 1)"
+  };
+  int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "授权目标租户ID"}, (buf.validate.field).int64.gt = 0]; // 授权目标租户ID
+  BaseTenantProjectGrantSubjectType subject_type = 2 [(gnostic.openapi.v3.property) = {description: "授权主体类型"}, (buf.validate.field).enum = {defined_only: true not_in: [0]}]; // 授权主体类型
+  int64 subject_id = 3 [(gnostic.openapi.v3.property) = {description: "岗位、角色、部门或用户ID"}, (buf.validate.field).int64.gt = 0]; // 授权主体ID
+  repeated int64 project_id = 4 [(gnostic.openapi.v3.property) = {description: "项目主键ID数字数组，[0]全部，[]无权限"}]; // 项目主键ID数字数组，[0]全部，[]无权限
+  string tenant_name = 5 [(gnostic.openapi.v3.property) = {description: "租户名称"}]; // 租户名称
+  string subject_name = 6 [(gnostic.openapi.v3.property) = {description: "授权主体名称"}]; // 授权主体名称
+  string subject_code = 7 [(gnostic.openapi.v3.property) = {description: "授权主体编码"}]; // 授权主体编码
+  repeated string project_names = 8 [(gnostic.openapi.v3.property) = {description: "授权项目名称列表"}]; // 授权项目名称列表
+  string grant_key = 9 [(gnostic.openapi.v3.property) = {description: "项目授权联合主键展示值"}]; // 项目授权联合主键展示值
+}
+
+// 项目授权分页查询条件。
+message PageBaseTenantProjectGrantRequest {
+  optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "授权目标租户ID"}, (buf.validate.field).int64.gt = 0]; // 授权目标租户ID
+  optional BaseTenantProjectGrantSubjectType subject_type = 2 [(gnostic.openapi.v3.property) = {description: "授权主体类型"}, (buf.validate.field).enum = {defined_only: true not_in: [0]}]; // 授权主体类型
+  optional int64 subject_id = 3 [(gnostic.openapi.v3.property) = {description: "授权主体ID"}, (buf.validate.field).int64.gt = 0]; // 授权主体ID
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每一页的行数", default: {number: 10}}]; // 每一页的行数
+}
+
+// 项目授权分页响应。
+message PageBaseTenantProjectGrantResponse {
+  repeated BaseTenantProjectGrant grants = 1 [(gnostic.openapi.v3.property) = {description: "项目授权列表"}]; // 项目授权列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 查询项目授权请求参数。
+message GetBaseTenantProjectGrantRequest {
+  int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "授权目标租户ID"}, (buf.validate.field).int64.gt = 0]; // 授权目标租户ID
+  BaseTenantProjectGrantSubjectType subject_type = 2 [(gnostic.openapi.v3.property) = {description: "授权主体类型"}, (buf.validate.field).enum = {defined_only: true not_in: [0]}]; // 授权主体类型
+  int64 subject_id = 3 [(gnostic.openapi.v3.property) = {description: "岗位、角色、部门或用户ID"}, (buf.validate.field).int64.gt = 0]; // 授权主体ID
+}
+
+// 创建项目授权请求参数。
+message CreateBaseTenantProjectGrantRequest {
+  BaseTenantProjectGrant base_tenant_project_grant = 1 [(gnostic.openapi.v3.property) = {description: "项目授权表单"}, (buf.validate.field).required = true]; // 项目授权表单
+}
+
+// 更新项目授权请求参数。
+message UpdateBaseTenantProjectGrantRequest {
+  BaseTenantProjectGrant base_tenant_project_grant = 1 [(gnostic.openapi.v3.property) = {description: "项目授权表单"}, (buf.validate.field).required = true]; // 项目授权表单
+}
+
+// 删除项目授权请求参数。
+message DeleteBaseTenantProjectGrantRequest {
+  int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "授权目标租户ID"}, (buf.validate.field).int64.gt = 0]; // 授权目标租户ID
+  BaseTenantProjectGrantSubjectType subject_type = 2 [(gnostic.openapi.v3.property) = {description: "授权主体类型"}, (buf.validate.field).enum = {defined_only: true not_in: [0]}]; // 授权主体类型
+  int64 subject_id = 3 [(gnostic.openapi.v3.property) = {description: "岗位、角色、部门或用户ID"}, (buf.validate.field).int64.gt = 0]; // 授权主体ID
+}

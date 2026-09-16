@@ -1,0 +1,167 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "base/v1/config.proto";
+import "common/v1/enum.proto";
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// Admin国际化自定义翻译信息服务。
+service BaseI18nCustomService {
+  // 查询国际化自定义翻译分页列表。
+  rpc PageBaseI18nCustom(PageBaseI18nCustomRequest) returns (PageBaseI18nCustomResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/i18n-custom"
+    };
+  }
+
+  // 查询国际化自定义翻译详情。
+  rpc GetBaseI18nCustom(GetBaseI18nCustomRequest) returns (BaseI18nCustomForm) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/i18n-custom/{id}"
+    };
+  }
+
+  // 创建国际化自定义翻译。
+  rpc CreateBaseI18nCustom(CreateBaseI18nCustomRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/base/i18n-custom"
+      body: "i18n_custom"
+    };
+  }
+
+  // 更新国际化自定义翻译。
+  rpc UpdateBaseI18nCustom(UpdateBaseI18nCustomRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/i18n-custom/{i18n_custom.id}"
+      body: "i18n_custom"
+    };
+  }
+
+  // 删除国际化自定义翻译。
+  rpc DeleteBaseI18nCustom(DeleteBaseI18nCustomRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/admin/base/i18n-custom/{id}"
+    };
+  }
+
+  // 设置国际化自定义翻译状态。
+  rpc SetBaseI18nCustomStatus(SetBaseI18nCustomStatusRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/i18n-custom/{id}/status"
+      body: "*"
+    };
+  }
+}
+
+// 国际化自定义翻译分页查询条件。
+message PageBaseI18nCustomRequest {
+  optional .base.v1.BaseConfigSite site = 1 [(gnostic.openapi.v3.property) = {description: "位置：枚举【BaseConfigSite】"}]; // 位置：枚举【BaseConfigSite】
+
+  string key = 2 [(gnostic.openapi.v3.property) = {description: "国际化语言键"}]; // 国际化语言键
+
+  string locale = 3 [(gnostic.openapi.v3.property) = {description: "语言区域"}]; // 语言区域
+
+  optional .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态：枚举【Status】"}]; // 状态：枚举【Status】
+
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "当前页码", default: {number: 1}}]; // 当前页码
+
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页数量", default: {number: 10}}]; // 每页数量
+}
+
+// 国际化自定义翻译分页响应。
+message PageBaseI18nCustomResponse {
+  repeated BaseI18nCustom items = 1 [(gnostic.openapi.v3.property) = {description: "国际化自定义翻译列表"}]; // 国际化自定义翻译列表
+
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 国际化自定义翻译详情查询条件。
+message GetBaseI18nCustomRequest {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "国际化自定义翻译ID"},
+    (buf.validate.field).cel = {id: "system.admin.base.i18n_custom.get.id.required" message: "国际化自定义翻译ID不能为空" expression: "this > 0"}
+  ]; // 国际化自定义翻译ID
+}
+
+// 国际化自定义翻译表单。
+message BaseI18nCustomForm {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "国际化自定义翻译ID"}]; // 国际化自定义翻译ID
+
+  .base.v1.BaseConfigSite site = 2 [
+    (gnostic.openapi.v3.property) = {description: "位置：枚举【BaseConfigSite】"},
+    (buf.validate.field).enum = {defined_only: true},
+    (buf.validate.field).cel = {id: "system.admin.base.i18n_custom.entity.site.required" message: "请选择位置" expression: "this != 0"}
+  ]; // 位置：枚举【BaseConfigSite】
+
+  string key = 3 [
+    (gnostic.openapi.v3.property) = {description: "国际化语言键"},
+    (buf.validate.field).cel = {id: "system.admin.base.i18n_custom.entity.key.length" message: "语言键不能为空且不超过 255 个字符" expression: "this.size() > 0 && this.size() <= 255"}
+  ]; // 国际化语言键
+
+  string locale = 4 [
+    (gnostic.openapi.v3.property) = {description: "语言区域"},
+    (buf.validate.field).cel = {id: "system.admin.base.i18n_custom.entity.locale.length" message: "语言区域不能为空且不超过 16 个字符" expression: "this.size() > 0 && this.size() <= 16"}
+  ]; // 语言区域
+
+  string value = 5 [
+    (gnostic.openapi.v3.property) = {description: "自定义翻译内容"},
+    (buf.validate.field).cel = {id: "system.admin.base.i18n_custom.entity.value.required" message: "自定义翻译内容不能为空" expression: "this.size() > 0"}
+  ]; // 自定义翻译内容
+
+  .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+
+  string remark = 101 [(gnostic.openapi.v3.property) = {description: "备注"}]; // 备注
+}
+
+// 创建国际化自定义翻译请求。
+message CreateBaseI18nCustomRequest {
+  BaseI18nCustomForm i18n_custom = 1 [(gnostic.openapi.v3.property) = {description: "国际化自定义翻译表单"}, (buf.validate.field).required = true]; // 国际化自定义翻译表单
+}
+
+// 更新国际化自定义翻译请求。
+message UpdateBaseI18nCustomRequest {
+  BaseI18nCustomForm i18n_custom = 1 [(gnostic.openapi.v3.property) = {description: "国际化自定义翻译表单"}, (buf.validate.field).required = true]; // 国际化自定义翻译表单
+}
+
+// 删除国际化自定义翻译请求。
+message DeleteBaseI18nCustomRequest {
+  string id = 1 [
+    (gnostic.openapi.v3.property) = {description: "国际化自定义翻译ID列表"},
+    (buf.validate.field).cel = {id: "system.admin.base.i18n_custom.delete.id.required" message: "国际化自定义翻译ID列表不能为空" expression: "this.size() > 0"}
+  ]; // 国际化自定义翻译ID列表
+}
+
+// 设置国际化自定义翻译状态请求。
+message SetBaseI18nCustomStatusRequest {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "国际化自定义翻译ID"},
+    (buf.validate.field).cel = {id: "system.admin.base.i18n_custom.set_status.id.required" message: "国际化自定义翻译ID不能为空" expression: "this > 0"}
+  ]; // 国际化自定义翻译ID
+
+  .common.v1.Status status = 2 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+}
+
+// 国际化自定义翻译信息。
+message BaseI18nCustom {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "国际化自定义翻译ID"}]; // 国际化自定义翻译ID
+
+  .base.v1.BaseConfigSite site = 2 [(gnostic.openapi.v3.property) = {description: "位置：枚举【BaseConfigSite】"}]; // 位置：枚举【BaseConfigSite】
+
+  string key = 3 [(gnostic.openapi.v3.property) = {description: "国际化语言键"}]; // 国际化语言键
+
+  string locale = 4 [(gnostic.openapi.v3.property) = {description: "语言区域"}]; // 语言区域
+
+  string value = 5 [(gnostic.openapi.v3.property) = {description: "自定义翻译内容"}]; // 自定义翻译内容
+
+  .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态：枚举【Status】"}]; // 状态
+
+  string remark = 101 [(gnostic.openapi.v3.property) = {description: "备注"}]; // 备注
+
+  string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+
+  string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+}

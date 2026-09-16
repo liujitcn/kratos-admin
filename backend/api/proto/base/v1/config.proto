@@ -47,4 +47,15 @@ message GetConfigResponse {
   repeated ConfigItem configs = 1 [(gnostic.openapi.v3.property) = {description: "系统配置列表"}]; // 系统配置列表
 
   bool ai_enabled = 2 [(gnostic.openapi.v3.property) = {description: "AI assistant availability"}]; // AI 助手是否可用
+
+  repeated I18nCustomItem i18n_customs = 3 [(gnostic.openapi.v3.property) = {description: "全部语言的自定义国际化覆盖项"}]; // 全部语言的自定义国际化覆盖项
+}
+
+// 全部语言的自定义国际化覆盖项。
+message I18nCustomItem {
+  string locale = 1 [(gnostic.openapi.v3.property) = {description: "语言区域"}]; // 语言区域
+
+  string key = 2 [(gnostic.openapi.v3.property) = {description: "国际化语言键"}]; // 国际化语言键
+
+  string value = 3 [(gnostic.openapi.v3.property) = {description: "自定义翻译内容"}]; // 自定义翻译内容
 }

@@ -1,0 +1,194 @@
+syntax = "proto3";
+
+package system.admin.v1;
+
+import "common/v1/common.proto";
+import "common/v1/enum.proto";
+import "buf/validate/validate.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// Admin项目管理服务
+service BaseTenantProjectService {
+  // 查询项目下拉选择
+  rpc OptionBaseTenantProject(OptionBaseTenantProjectRequest) returns (.common.v1.SelectOptionResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/tenant/project/option"
+    };
+  }
+
+  // 查询当前账号可用的租户项目树
+  rpc TreeBaseTenantProject(TreeBaseTenantProjectRequest) returns (TreeBaseTenantProjectResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/tenant/project/tree"
+    };
+  }
+
+  // 查询项目分页列表
+  rpc PageBaseTenantProject(PageBaseTenantProjectRequest) returns (PageBaseTenantProjectResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/tenant/project"
+    };
+  }
+
+  // 查询项目
+  rpc GetBaseTenantProject(GetBaseTenantProjectRequest) returns (BaseTenantProjectForm) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/tenant/project/{id}"
+    };
+  }
+
+  // 创建项目
+  rpc CreateBaseTenantProject(CreateBaseTenantProjectRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/base/tenant/project"
+      body: "base_tenant_project"
+    };
+  }
+
+  // 更新项目
+  rpc UpdateBaseTenantProject(UpdateBaseTenantProjectRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/tenant/project/{base_tenant_project.id}"
+      body: "base_tenant_project"
+    };
+  }
+
+  // 删除项目
+  rpc DeleteBaseTenantProject(DeleteBaseTenantProjectRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/admin/base/tenant/project/{id}"
+    };
+  }
+
+  // 设置项目状态
+  rpc SetBaseTenantProjectStatus(SetBaseTenantProjectStatusRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/tenant/project/{id}/status"
+      body: "*"
+    };
+  }
+}
+
+// 项目选项查询条件
+message OptionBaseTenantProjectRequest {
+  optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+}
+
+// 项目树查询条件
+message TreeBaseTenantProjectRequest {
+  string keyword = 1 [(gnostic.openapi.v3.property) = {description: "项目编号或名称关键字"}, (buf.validate.field).string.max_len = 100]; // 项目编号或名称关键字
+}
+
+// 项目树响应
+message TreeBaseTenantProjectResponse {
+  // 项目树节点
+  message Option {
+    string value = 1 [(gnostic.openapi.v3.property) = {description: "节点值"}]; // 节点值
+    string label = 2 [(gnostic.openapi.v3.property) = {description: "节点名称"}]; // 节点名称
+    string type = 3 [(gnostic.openapi.v3.property) = {description: "节点类型：tenant 或 project"}]; // 节点类型
+    int64 tenant_id = 4 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+    int64 project_id = 5 [(gnostic.openapi.v3.property) = {description: "项目ID"}]; // 项目ID
+    bool disabled = 6 [(gnostic.openapi.v3.property) = {description: "是否禁用"}]; // 是否禁用
+    repeated Option children = 101 [(gnostic.openapi.v3.property) = {description: "子节点"}]; // 子节点
+  }
+
+  repeated Option list = 1 [(gnostic.openapi.v3.property) = {description: "租户项目树"}]; // 租户项目树
+}
+
+// 项目分页查询条件
+message PageBaseTenantProjectRequest {
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "项目名称"}]; // 项目名称
+
+  string code = 3 [(gnostic.openapi.v3.property) = {description: "项目编号"}]; // 项目编号
+
+  optional int64 tenant_id = 4 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+
+  optional .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {
+    description: "当前页码"
+    default: {number: 1}
+  }]; // 当前页码
+
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {
+    description: "每一页的行数"
+    default: {number: 10}
+  }]; // 每一页的行数
+}
+
+// 项目分页响应
+message PageBaseTenantProjectResponse {
+  repeated BaseTenantProject base_tenant_projects = 1 [(gnostic.openapi.v3.property) = {description: "分页数据"}]; // 分页数据
+
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 查询项目请求参数
+message GetBaseTenantProjectRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "项目ID"}, (buf.validate.field).cel = {id: "system.admin.base.tenant.project.get.id.required" message: "项目ID不能为空" expression: "this > 0"}]; // 项目ID
+}
+
+// 项目表单
+message BaseTenantProjectForm {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "项目ID"}]; // 项目ID
+
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}, (buf.validate.field).cel = {id: "system.admin.base.tenant.project.entity.tenant_id.required" message: "请选择所属租户" expression: "this > 0"}]; // 租户ID
+
+  string code = 3 [(gnostic.openapi.v3.property) = {description: "项目编号"}, (buf.validate.field).cel = {id: "system.admin.base.tenant.project.entity.code.required" message: "请输入项目编号" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "system.admin.base.tenant.project.entity.code.max_length" message: "项目编号不能超过 50 个字符" expression: "this.size() <= 50"}]; // 项目编号
+
+  string name = 4 [(gnostic.openapi.v3.property) = {description: "项目名称"}, (buf.validate.field).cel = {id: "system.admin.base.tenant.project.entity.name.required" message: "请输入项目名称" expression: "this.size() > 0"}, (buf.validate.field).cel = {id: "system.admin.base.tenant.project.entity.name.max_length" message: "项目名称不能超过 100 个字符" expression: "this.size() <= 100"}]; // 项目名称
+
+  .common.v1.Status status = 5 [(gnostic.openapi.v3.property) = {description: "状态"}, (buf.validate.field).enum = {defined_only: true}]; // 状态
+
+  int32 sort = 6 [(gnostic.openapi.v3.property) = {description: "显示顺序"}, (buf.validate.field).cel = {id: "system.admin.base.tenant.project.entity.sort.required" message: "排序不能小于 0" expression: "this >= 0"}]; // 显示顺序
+
+  string remark = 7 [(gnostic.openapi.v3.property) = {description: "备注"}, (buf.validate.field).cel = {id: "system.admin.base.tenant.project.entity.remark.max_length" message: "备注不能超过 500 个字符" expression: "this.size() <= 500"}]; // 备注
+}
+
+// 创建项目请求参数
+message CreateBaseTenantProjectRequest {
+  option (buf.validate.message).cel = {id: "system.admin.base.tenant.project.create.id" message: "新增项目不能指定ID" expression: "this.base_tenant_project.id == 0"};
+  BaseTenantProjectForm base_tenant_project = 1 [(gnostic.openapi.v3.property) = {description: "项目表单"}, (buf.validate.field).required = true]; // 项目表单
+}
+
+// 更新项目请求参数
+message UpdateBaseTenantProjectRequest {
+  option (buf.validate.message).cel = {id: "system.admin.base.tenant.project.update.id.required" message: "项目ID不能为空" expression: "this.base_tenant_project.id > 0"};
+
+  BaseTenantProjectForm base_tenant_project = 1 [(gnostic.openapi.v3.property) = {description: "项目表单"}, (buf.validate.field).required = true]; // 项目表单
+}
+
+// 删除项目请求参数
+message DeleteBaseTenantProjectRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "项目ID列表"}, (buf.validate.field).cel = {id: "system.admin.base.tenant.project.delete.id.required" message: "项目ID列表不能为空" expression: "this.size() > 0"}]; // 项目ID列表
+}
+
+// 设置项目状态请求参数
+message SetBaseTenantProjectStatusRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "项目ID"}, (buf.validate.field).cel = {id: "system.admin.base.tenant.project.set_status.id.required" message: "项目ID不能为空" expression: "this > 0"}]; // 项目ID
+
+  int32 status = 2 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+}
+
+// 项目
+message BaseTenantProject {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "项目ID"}]; // 项目ID
+
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+
+  string code = 3 [(gnostic.openapi.v3.property) = {description: "项目编号"}]; // 项目编号
+
+  string name = 4 [(gnostic.openapi.v3.property) = {description: "项目名称"}]; // 项目名称
+
+  .common.v1.Status status = 5 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+
+  int32 sort = 6 [(gnostic.openapi.v3.property) = {description: "显示顺序"}]; // 显示顺序
+
+  string remark = 7 [(gnostic.openapi.v3.property) = {description: "备注"}]; // 备注
+
+  string created_at = 8 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+
+  string updated_at = 9 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+}

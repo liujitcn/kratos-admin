@@ -102,4 +102,22 @@ func (x *GetConfigResponse) Redact() {
 	// Safe field: Configs
 
 	// Safe field: AiEnabled
+
+	// Safe field: I18nCustoms
+}
+
+// Ensure I18nCustomItem implements the Redactor interface at compile time.
+var _ redact.Redactor = (*I18nCustomItem)(nil)
+
+// Redact method implementation for I18nCustomItem
+func (x *I18nCustomItem) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: Locale
+
+	// Safe field: Key
+
+	// Safe field: Value
 }
