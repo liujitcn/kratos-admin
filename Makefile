@@ -59,8 +59,8 @@ DOCKER_PLATFORM ?= linux/$(GOARCH)
 DOCKER_PLATFORMS ?= linux/amd64,linux/arm64
 # SWR 基础版使用 Docker media types，不使用 OCI index/manifest。
 DOCKER_OUTPUT ?= --output type=registry,oci-mediatypes=false
-IMAGE ?= backend
-TAG ?= latest
+IMAGE ?= kratos-admin
+TAG ?= 0.0.1
 DOCKER_BUILD_ARGS ?=
 CONTAINER_NAME ?= kratos-admin
 DOCKER_NETWORK ?= bridge

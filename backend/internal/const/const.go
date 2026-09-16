@@ -1,5 +1,7 @@
 package _const
 
+import databasegorm "github.com/liujitcn/kratos-kit/database/gorm"
+
 const (
 	// BASE_DEPT_ID_APP_USER 表示移动端注册用户固定所属部门 ID。
 	BASE_DEPT_ID_APP_USER int64 = 4
@@ -8,7 +10,7 @@ const (
 // OAuthClientTenantCode 返回开放授权客户端使用的数据权限租户编码。
 // 默认租户编码拥有跨租户能力，客户端绑定默认租户时使用独立编码避免绕过租户隔离。
 func OAuthClientTenantCode(tenantCode string, clientID string) string {
-	if tenantCode == "0000" {
+	if tenantCode == databasegorm.DefaultTenantCode {
 		return "oauth:" + clientID
 	}
 	return tenantCode
