@@ -90,13 +90,13 @@ func RegisterBaseTenantServiceGetBaseTenantMCPTool(mcpServer *mcp.Server, baseTe
 
 // RegisterBaseTenantServiceCreateBaseTenantMCPTool 注册创建租户的 MCP Tool。
 func RegisterBaseTenantServiceCreateBaseTenantMCPTool(mcpServer *mcp.Server, baseTenantServiceServer BaseTenantServiceServer) {
-	mcp.AddTool[*CreateBaseTenantRequest, *emptypb.Empty](
+	mcp.AddTool[*CreateBaseTenantRequest, *CreateBaseTenantResponse](
 		mcpServer,
 		&mcp.Tool{
 			Name:        "system_admin_v1_base_tenant_service_create_base_tenant",
 			Description: "创建租户",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBaseTenantRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateBaseTenantRequest) (*mcp.CallToolResult, *CreateBaseTenantResponse, error) {
 			if input == nil {
 				input = &CreateBaseTenantRequest{}
 			}

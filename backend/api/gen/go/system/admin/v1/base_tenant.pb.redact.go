@@ -91,7 +91,7 @@ func (s *redactedBaseTenantServiceServer) GetBaseTenant(ctx context.Context, in 
 
 // CreateBaseTenant is the redacted wrapper for the actual BaseTenantServiceServer.CreateBaseTenant method
 // Unary RPC
-func (s *redactedBaseTenantServiceServer) CreateBaseTenant(ctx context.Context, in *CreateBaseTenantRequest) (*emptypb.Empty, error) {
+func (s *redactedBaseTenantServiceServer) CreateBaseTenant(ctx context.Context, in *CreateBaseTenantRequest) (*CreateBaseTenantResponse, error) {
 	res, err := s.srv.CreateBaseTenant(ctx, in)
 	if !s.bypass.CheckInternal(ctx) {
 		// Apply redaction to the response
@@ -201,6 +201,22 @@ func (x *CreateBaseTenantRequest) Redact() {
 	}
 
 	// Safe field: BaseTenant
+}
+
+// Ensure CreateBaseTenantResponse implements the Redactor interface at compile time.
+var _ redact.Redactor = (*CreateBaseTenantResponse)(nil)
+
+// Redact method implementation for CreateBaseTenantResponse
+func (x *CreateBaseTenantResponse) Redact() {
+	if x == nil {
+		return
+	}
+
+	// Safe field: TenantCode
+
+	// Safe field: AdminUserName
+
+	// Safe field: InitialPassword
 }
 
 // Ensure UpdateBaseTenantRequest implements the Redactor interface at compile time.

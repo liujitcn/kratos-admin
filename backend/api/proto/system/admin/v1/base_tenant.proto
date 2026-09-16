@@ -33,7 +33,7 @@ service BaseTenantService {
   }
 
   // 创建租户
-  rpc CreateBaseTenant(CreateBaseTenantRequest) returns (google.protobuf.Empty) {
+  rpc CreateBaseTenant(CreateBaseTenantRequest) returns (CreateBaseTenantResponse) {
     option (google.api.http) = {
       post: "/api/v1/admin/base/tenant"
       body: "base_tenant"
@@ -103,6 +103,15 @@ message GetBaseTenantRequest {
 // 创建租户请求参数
 message CreateBaseTenantRequest {
   BaseTenantForm base_tenant = 1 [(gnostic.openapi.v3.property) = {description: "租户表单"}, (buf.validate.field).required = true]; // 租户表单
+}
+
+// 创建租户响应参数
+message CreateBaseTenantResponse {
+  string tenant_code = 1 [(gnostic.openapi.v3.property) = {description: "租户编号"}]; // 租户编号
+
+  string admin_user_name = 2 [(gnostic.openapi.v3.property) = {description: "租户管理员账号"}]; // 租户管理员账号
+
+  string initial_password = 3 [(gnostic.openapi.v3.property) = {description: "租户管理员初始密码，仅在随机生成时返回"}]; // 租户管理员初始密码，仅在随机生成时返回
 }
 
 // 更新租户请求参数
