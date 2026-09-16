@@ -30,6 +30,7 @@ export type SearchType =
   | "date-picker"
   | "time-picker"
   | "time-select"
+  | "radio"
   | "switch"
   | "slider";
 

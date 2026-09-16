@@ -16,6 +16,22 @@
   >
     <el-option v-for="(col, index) in columnEnum" :key="index" :label="col[fieldNames.label]" :value="col[fieldNames.value]" />
   </ElSelect>
+  <ElRadioGroup
+    v-else-if="column.search?.el === 'radio' && !column.search?.render"
+    v-bind="handleRadioProps"
+    v-model="_searchParam[column.search?.key ?? handleProp(column.prop!)]"
+    :style="handleSearchStyle"
+  >
+    <component
+      :is="radioOptionType === 'button' ? ElRadioButton : ElRadio"
+      v-for="(col, index) in columnEnum"
+      :key="index"
+      :value="col[fieldNames.value]"
+      :disabled="col.disabled"
+    >
+      {{ col[fieldNames.label] }}
+    </component>
+  </ElRadioGroup>
   <component
     v-else
     :is="searchComponent"
@@ -38,6 +54,9 @@ import {
   ElDatePicker,
   ElInput,
   ElInputNumber,
+  ElRadio,
+  ElRadioButton,
+  ElRadioGroup,
   ElSelect,
   ElSelectV2,
   ElSlider,
@@ -73,6 +92,7 @@ const searchComponentMap: Record<SearchType, Component> = {
   "date-picker": ElDatePicker,
   "time-picker": ElTimePicker,
   "time-select": ElTimeSelect,
+  radio: ElRadioGroup,
   switch: ElSwitch,
   slider: ElSlider
 };
@@ -149,6 +169,15 @@ const handleSearchProps = computed(() => {
   return searchProps;
 });
 
+/** 处理 radio 选项类型，避免将渲染辅助参数透传给 Element Plus。 */
+const radioOptionType = computed(() => (props.column.search?.props?.optionType === "button" ? "button" : "default"));
+
+/** 过滤 radio 专用渲染参数后透传给 radio-group。 */
+const handleRadioProps = computed(() => {
+  const { optionType: _optionType, ...searchProps } = props.column.search?.props ?? {};
+  return searchProps;
+});
+
 // 处理默认 placeholder
 const placeholder = computed(() => {
   const search = props.column.search;
@@ -168,6 +197,6 @@ const placeholder = computed(() => {
 // 是否有清除按钮 (当搜索项有默认值时，清除按钮不显示)
 const clearable = computed(() => {
   const search = props.column.search;
-  return search?.props?.clearable ?? (search?.defaultValue == null || search?.defaultValue == undefined);
+  return search?.props?.clearable ?? (search?.defaultValue == null || false);
 });
 </script>

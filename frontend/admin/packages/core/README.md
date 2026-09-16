@@ -164,6 +164,7 @@ core 通过 `ADMIN_STATIC_VIEWS` 注册全部默认静态页面，后注册业�
 | 运行时 Store     | `@liujitcn/kratos-admin-core/stores/runtime`                |
 | ProTable Adapter | `@liujitcn/kratos-admin-core/components/ProTable`           |
 | ProTable 类型    | `@liujitcn/kratos-admin-core/components/ProTable/interface` |
+| SearchForm       | `@liujitcn/kratos-admin-core/components/SearchForm/index.vue` |
 
 其他 Vue 组件以 `package.json#exports` 中的明确白名单为准。禁止使用 `components/ProTable/index.vue`、`utils/*`、`hooks/*`、`stores/modules/*` 等实现路径。发布构建会把内部 `@/` 别名转换成包内相对路径，内部实现不占用公共子路径。
 

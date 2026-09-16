@@ -39,6 +39,9 @@
       "@liujitcn/kratos-admin-core/components/ProForm/interface": ["packages/core/src/components/ProForm/interface/index.ts"],
       "@liujitcn/kratos-admin-core/components/ProTable": ["packages/core/src/components/ProTable.ts"],
       "@liujitcn/kratos-admin-core/components/ProTable/interface": ["packages/core/src/components/ProTable/interface/index.ts"],
+      "@liujitcn/kratos-admin-core/components/SearchForm/index.vue": [
+        "packages/core/src/components/SearchForm/index.vue"
+      ],
       "@liujitcn/kratos-admin-core/components/SelectIcon/index.vue": ["packages/core/src/components/SelectIcon/index.vue"],
       "@liujitcn/kratos-admin-core/components/TreeFilter/index.vue": ["packages/core/src/components/TreeFilter/index.vue"],
       "@liujitcn/kratos-admin-core/components/Upload/Img.vue": ["packages/core/src/components/Upload/Img.vue"],

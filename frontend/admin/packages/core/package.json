@@ -160,6 +160,10 @@
       "types": "./dist/package/declarations/src/components/ProTable/interface/index.d.ts",
       "default": "./dist/package/src/components/ProTable/interface/index.ts"
     },
+    "./components/SearchForm/index.vue": {
+      "types": "./dist/package/declarations/src/components/SearchForm/index.vue.d.ts",
+      "default": "./dist/package/src/components/SearchForm/index.vue"
+    },
     "./components/SelectIcon/index.vue": {
       "types": "./dist/package/declarations/src/components/SelectIcon/index.vue.d.ts",
       "default": "./dist/package/src/components/SelectIcon/index.vue"
