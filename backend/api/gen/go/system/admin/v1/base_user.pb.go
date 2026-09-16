@@ -1334,7 +1334,7 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\x18SetBaseUserStatusRequest\x12s\n" +
 	"\x02id\x18\x01 \x01(\x03Bc\xbaG\v\x92\x02\b用户ID\xbaHR\xba\x01O\n" +
 	"-system.admin.base.user.set_status.id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x02id\x12$\n" +
-	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xef\v\n" +
+	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xf2\v\n" +
 	"\bBaseUser\x12w\n" +
 	"\x02id\x18\x01 \x01(\x03Bg\xbaG\v\x92\x02\b用户ID\xbaHV\xba\x01S\n" +
 	"1system.admin.base.user.reset_password.id.required\x12\x14用户ID不能为空\x1a\bthis > 0R\x02id\x12+\n" +
@@ -1345,9 +1345,9 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"\arole_id\x18\x05 \x01(\x03B\x0e\xbaG\v\x92\x02\b角色IDR\x06roleId\x12'\n" +
 	"\adept_id\x18\x06 \x01(\x03B\x0e\xbaG\v\x92\x02\b部门IDR\x06deptId\x12'\n" +
 	"\apost_id\x18\a \x01(\x03B\x0e\xbaG\v\x92\x02\b岗位IDR\x06postId\x12%\n" +
-	"\x05phone\x18\b \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12\x92\x01\n" +
-	"\x05email\x18\f \x01(\tB|\xbaG\t\x92\x02\x06邮箱\xbaHm\xba\x01f\n" +
-	".system.admin.base.user.entity.email.max_length\x12 邮箱不能超过 128 个字符\x1a\x12this.size() <= 128r\x02`\x01R\x05email\x12r\n" +
+	"\x05phone\x18\b \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12\x95\x01\n" +
+	"\x05email\x18\f \x01(\tB\x7f\xbaG\t\x92\x02\x06邮箱\xbaHp\xba\x01f\n" +
+	".system.admin.base.user.entity.email.max_length\x12 邮箱不能超过 128 个字符\x1a\x12this.size() <= 128\xd8\x01\x01r\x02`\x01R\x05email\x12r\n" +
 	"\aid_type\x18\r \x01(\x0e2 .system.common.v1.BaseUserIDTypeB7\xbaG,\x92\x02)证件类型：枚举【BaseUserIDType】\xbaH\x05\x82\x01\x02\x10\x01R\x06idType\x12\xc1\x01\n" +
 	"\aid_code\x18\x0e \x01(\tB\xa7\x01\xbaG\f\x92\x02\t证件号\xbaH\x94\x01\xba\x01\x90\x01\n" +
 	",system.admin.base.user.entity.id_code.format\x12\x1b请输入正确的证件号\x1aCthis.size() == 0 || this.matches('^[A-Za-z0-9][A-Za-z0-9-]{0,63}$')R\x06idCode\x12E\n" +
@@ -1361,7 +1361,7 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12N\n" +
-	"\fis_protected\x18\xac\x02 \x01(\bB*\xbaG'\x92\x02$是否禁止通过用户管理操作R\visProtected\"\xd5\x12\n" +
+	"\fis_protected\x18\xac\x02 \x01(\bB*\xbaG'\x92\x02$是否禁止通过用户管理操作R\visProtected\"\xd8\x12\n" +
 	"\fBaseUserForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x12\x87\x01\n" +
 	"\ttenant_id\x18\x02 \x01(\x03Bj\xbaG\v\x92\x02\b租户ID\xbaHY\xba\x01V\n" +
@@ -1381,9 +1381,9 @@ const file_system_admin_v1_base_user_proto_rawDesc = "" +
 	" \x01(\x03B\x0e\xbaG\v\x92\x02\b岗位IDR\x06postId\x12\x9b\x02\n" +
 	"\x05phone\x18\a \x01(\tB\x84\x02\xbaG\f\x92\x02\t手机号\xbaH\xf1\x01\xba\x01g\n" +
 	".system.admin.base.user.entity.phone.max_length\x12\"手机号不能超过 20 个字符\x1a\x11this.size() <= 20\xba\x01\x83\x01\n" +
-	"*system.admin.base.user.entity.phone.format\x12\x1e请输入正确的手机号码\x1a5this.size() == 0 || this.matches('^1[3-9][0-9*]{9}$')R\x05phone\x12\x92\x01\n" +
-	"\x05email\x18\r \x01(\tB|\xbaG\t\x92\x02\x06邮箱\xbaHm\xba\x01f\n" +
-	".system.admin.base.user.entity.email.max_length\x12 邮箱不能超过 128 个字符\x1a\x12this.size() <= 128r\x02`\x01R\x05email\x12r\n" +
+	"*system.admin.base.user.entity.phone.format\x12\x1e请输入正确的手机号码\x1a5this.size() == 0 || this.matches('^1[3-9][0-9*]{9}$')R\x05phone\x12\x95\x01\n" +
+	"\x05email\x18\r \x01(\tB\x7f\xbaG\t\x92\x02\x06邮箱\xbaHp\xba\x01f\n" +
+	".system.admin.base.user.entity.email.max_length\x12 邮箱不能超过 128 个字符\x1a\x12this.size() <= 128\xd8\x01\x01r\x02`\x01R\x05email\x12r\n" +
 	"\aid_type\x18\x0e \x01(\x0e2 .system.common.v1.BaseUserIDTypeB7\xbaG,\x92\x02)证件类型：枚举【BaseUserIDType】\xbaH\x05\x82\x01\x02\x10\x01R\x06idType\x12\xc1\x01\n" +
 	"\aid_code\x18\x0f \x01(\tB\xa7\x01\xbaG\f\x92\x02\t证件号\xbaH\x94\x01\xba\x01\x90\x01\n" +
 	",system.admin.base.user.entity.id_code.format\x12\x1b请输入正确的证件号\x1aCthis.size() == 0 || this.matches('^[A-Za-z0-9][A-Za-z0-9-]{0,63}$')R\x06idCode\x12\x93\x01\n" +

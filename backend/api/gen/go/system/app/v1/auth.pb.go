@@ -305,14 +305,14 @@ var File_system_app_v1_auth_proto protoreflect.FileDescriptor
 const file_system_app_v1_auth_proto_rawDesc = "" +
 	"\n" +
 	"\x18system/app/v1/auth.proto\x12\rsystem.app.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1dsystem/common/v1/common.proto\x1a\x1bbuf/validate/validate.proto\"\x17\n" +
-	"\x15GetUserProfileRequest\"\xa7\x05\n" +
+	"\x15GetUserProfileRequest\"\xaa\x05\n" +
 	"\x0fUserProfileForm\x12/\n" +
 	"\tuser_name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x12/\n" +
 	"\tnick_name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户昵称R\bnickName\x12$\n" +
 	"\x06gender\x18\x03 \x01(\x05B\f\xbaG\t\x92\x02\x06性别R\x06gender\x12%\n" +
-	"\x05phone\x18\x04 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12\x8c\x01\n" +
-	"\x05email\x18\x06 \x01(\tBv\xbaG\t\x92\x02\x06邮箱\xbaHg\xba\x01`\n" +
-	"(system.app.auth.profile.email.max_length\x12 邮箱不能超过 128 个字符\x1a\x12this.size() <= 128r\x02`\x01R\x05email\x12r\n" +
+	"\x05phone\x18\x04 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12\x8f\x01\n" +
+	"\x05email\x18\x06 \x01(\tBy\xbaG\t\x92\x02\x06邮箱\xbaHj\xba\x01`\n" +
+	"(system.app.auth.profile.email.max_length\x12 邮箱不能超过 128 个字符\x1a\x12this.size() <= 128\xd8\x01\x01r\x02`\x01R\x05email\x12r\n" +
 	"\aid_type\x18\a \x01(\x0e2 .system.common.v1.BaseUserIDTypeB7\xbaG,\x92\x02)证件类型：枚举【BaseUserIDType】\xbaH\x05\x82\x01\x02\x10\x01R\x06idType\x12\xbb\x01\n" +
 	"\aid_code\x18\b \x01(\tB\xa1\x01\xbaG\f\x92\x02\t证件号\xbaH\x8e\x01\xba\x01\x8a\x01\n" +
 	"&system.app.auth.profile.id_code.format\x12\x1b请输入正确的证件号\x1aCthis.size() == 0 || this.matches('^[A-Za-z0-9][A-Za-z0-9-]{0,63}$')R\x06idCode\x12$\n" +

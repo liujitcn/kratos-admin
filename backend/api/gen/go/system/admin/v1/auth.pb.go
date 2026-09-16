@@ -1021,13 +1021,13 @@ const file_system_admin_v1_auth_proto_rawDesc = "" +
 	"\x11TreeRouteResponse\x12F\n" +
 	"\x06routes\x18\x01 \x03(\v2\x1a.system.admin.v1.RouteItemB\x12\xbaG\x0f\x92\x02\f路由列表R\x06routes\"\x17\n" +
 	"\x15ListUserButtonRequest\"\x14\n" +
-	"\x12GetUserInfoRequest\"\xf9\x06\n" +
+	"\x12GetUserInfoRequest\"\xfc\x06\n" +
 	"\fUserInfoForm\x12/\n" +
 	"\tuser_name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x12/\n" +
 	"\tnick_name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户昵称R\bnickName\x12%\n" +
-	"\x05phone\x18\x03 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12\x8b\x01\n" +
-	"\x05email\x18\x06 \x01(\tBu\xbaG\t\x92\x02\x06邮箱\xbaHf\xba\x01_\n" +
-	"'system.admin.auth.user.email.max_length\x12 邮箱不能超过 128 个字符\x1a\x12this.size() <= 128r\x02`\x01R\x05email\x12r\n" +
+	"\x05phone\x18\x03 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12\x8e\x01\n" +
+	"\x05email\x18\x06 \x01(\tBx\xbaG\t\x92\x02\x06邮箱\xbaHi\xba\x01_\n" +
+	"'system.admin.auth.user.email.max_length\x12 邮箱不能超过 128 个字符\x1a\x12this.size() <= 128\xd8\x01\x01r\x02`\x01R\x05email\x12r\n" +
 	"\aid_type\x18\a \x01(\x0e2 .system.common.v1.BaseUserIDTypeB7\xbaG,\x92\x02)证件类型：枚举【BaseUserIDType】\xbaH\x05\x82\x01\x02\x10\x01R\x06idType\x12\xba\x01\n" +
 	"\aid_code\x18\b \x01(\tB\xa0\x01\xbaG\f\x92\x02\t证件号\xbaH\x8d\x01\xba\x01\x89\x01\n" +
 	"%system.admin.auth.user.id_code.format\x12\x1b请输入正确的证件号\x1aCthis.size() == 0 || this.matches('^[A-Za-z0-9][A-Za-z0-9-]{0,63}$')R\x06idCode\x12$\n" +
@@ -1039,15 +1039,15 @@ const file_system_admin_v1_auth_proto_rawDesc = "" +
 	"tenantCode\x123\n" +
 	"\vtenant_name\x18i \x01(\tB\x12\xbaG\x0f\x92\x02\f租户名称R\n" +
 	"tenantName\"\x17\n" +
-	"\x15GetUserProfileRequest\"\xb5\x06\n" +
+	"\x15GetUserProfileRequest\"\xb8\x06\n" +
 	"\x0fUserProfileForm\x12,\n" +
 	"\tuser_name\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t用户名R\buserName\x12)\n" +
 	"\tnick_name\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06昵称R\bnickName\x12'\n" +
 	"\x06avatar\x18\x03 \x01(\tB\x0f\xbaG\f\x92\x02\t头像URLR\x06avatar\x12$\n" +
 	"\x06gender\x18\x04 \x01(\x05B\f\xbaG\t\x92\x02\x06性别R\x06gender\x12%\n" +
-	"\x05phone\x18\x05 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12\x8e\x01\n" +
-	"\x05email\x18\x06 \x01(\tBx\xbaG\t\x92\x02\x06邮箱\xbaHi\xba\x01b\n" +
-	"*system.admin.auth.profile.email.max_length\x12 邮箱不能超过 128 个字符\x1a\x12this.size() <= 128r\x02`\x01R\x05email\x12r\n" +
+	"\x05phone\x18\x05 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12\x91\x01\n" +
+	"\x05email\x18\x06 \x01(\tB{\xbaG\t\x92\x02\x06邮箱\xbaHl\xba\x01b\n" +
+	"*system.admin.auth.profile.email.max_length\x12 邮箱不能超过 128 个字符\x1a\x12this.size() <= 128\xd8\x01\x01r\x02`\x01R\x05email\x12r\n" +
 	"\aid_type\x18\a \x01(\x0e2 .system.common.v1.BaseUserIDTypeB7\xbaG,\x92\x02)证件类型：枚举【BaseUserIDType】\xbaH\x05\x82\x01\x02\x10\x01R\x06idType\x12\xbd\x01\n" +
 	"\aid_code\x18\b \x01(\tB\xa3\x01\xbaG\f\x92\x02\t证件号\xbaH\x90\x01\xba\x01\x8c\x01\n" +
 	"(system.admin.auth.profile.id_code.format\x12\x1b请输入正确的证件号\x1aCthis.size() == 0 || this.matches('^[A-Za-z0-9][A-Za-z0-9-]{0,63}$')R\x06idCode\x12,\n" +
