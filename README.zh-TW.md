@@ -149,6 +149,8 @@ make docker-run IMAGE=kratos-admin TAG=latest
 make docker-stop IMAGE=kratos-admin TAG=latest
 ```
 
+多平台推送仍然保留，預設使用 Docker media types 並停用 provenance 附件，以相容 SWR 基礎版。如需離線歸檔，請按單一平台使用 `--output type=docker,dest=kratos-admin-amd64.tar` 輸出 Docker tar；多平台映像檔無法輸出成單一 Docker tar。
+
 `docker-build` 建置 `DOCKER_PLATFORM` 指定的單一平台，預設為 `linux/amd64`。`docker-build-multiarch` 使用 Docker Buildx 同時建置 `linux/amd64` 與 `linux/arm64`，預設透過 `--push` 推送到映像檔倉庫；可使用 `DOCKER_PLATFORMS` 與 `DOCKER_OUTPUT` 覆蓋平台及輸出方式。建置命令先檢查 Docker，再建置管理後台、uni-app H5、Taro H5，後端程式由 Docker 多階段建置按目標架構編譯。執行命令發佈主機 `7001/6001` 埠，將 `backend/data`、`backend/logs`、`backend/backups` 與 `backend/configs` 分別對映到容器的 `/app/data`、`/app/logs`、`/app/backups` 與 `/app/configs`。映像檔內包含預設 `configs` 與三端靜態資源；容器啟動時僅將映像檔中的缺少設定補充到主機的 `backend/configs`，不會覆蓋主機已修改的設定，再使用該目錄啟動服務。靜態站點啟動時補充到 `backend/data`，既有上傳檔案不會被清除；Core 根據 `oss.root_directory` 將本機物件統一對映到 `/data/`。完整建置參數與執行範例見本節。
 
 `I18N_LOCALES` 使用逗號分隔的 BCP 47 語言代碼清單（預設從後端語言包自動發現，排除主語言），控制 OpenAPI 的目標語言。`make i18n` 產生 OpenAPI 多語言 YAML。離線產生使用 `I18N_OFFLINE=1 make i18n`。
