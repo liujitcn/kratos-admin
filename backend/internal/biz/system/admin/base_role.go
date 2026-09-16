@@ -221,8 +221,8 @@ func (c *BaseRoleCase) DeleteBaseRole(ctx context.Context, id string) error {
 		if !exists {
 			return errorsx.ResourceNotFound("删除角色失败，角色不存在")
 		}
-		// admin、authuser、user 固定角色与状态保护使用同一保护集合，不允许删除。
-		if _const.IsBaseRoleStatusProtected(baseRole.Code) {
+		// super、tenant、admin、authuser、user 固定角色由系统维护，不允许删除。
+		if isBaseRoleDeletionProtected(baseRole) {
 			return errorsx.ProtectedResourceConflict("删除角色失败，不能删除默认角色", "base_role")
 		}
 		err = c.validateBaseRoleManagementTarget(ctx, baseRole)
@@ -414,5 +414,12 @@ func isBaseRoleProtected(authInfo *authData.UserTokenPayload, baseRole *models.B
 		return true
 	}
 	return baseRole.Code == _const.BASE_ROLE_CODE_TENANT &&
-		(authInfo == nil || authInfo.TenantCode != gorm.DefaultTenantCode || baseRole.TenantID != authInfo.TenantId)
+		(authInfo == nil || authInfo.TenantCode != gorm.DefaultTenantCode)
+}
+
+// isBaseRoleDeletionProtected 判断角色是否禁止通过角色管理删除。
+func isBaseRoleDeletionProtected(baseRole *models.BaseRole) bool {
+	return baseRole.Code == _const.BASE_ROLE_CODE_SUPER ||
+		baseRole.Code == _const.BASE_ROLE_CODE_TENANT ||
+		_const.IsBaseRoleStatusProtected(baseRole.Code)
 }

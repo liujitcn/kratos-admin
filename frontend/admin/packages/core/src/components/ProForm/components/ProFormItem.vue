@@ -42,6 +42,8 @@
     </el-option>
   </el-select>
 
+  <TenantSelect v-else-if="field.component === 'tenant-select'" v-model="fieldValue" v-bind="fieldProps" />
+
   <el-radio-group v-else-if="field.component === 'radio-group'" v-model="fieldValue" v-bind="fieldProps">
     <el-radio v-for="option in fieldOptions" :key="String(option.value)" :value="option.value" :disabled="option.disabled">
       {{ option.label }}
@@ -96,6 +98,7 @@ import { computed, defineAsyncComponent } from "vue";
 import type { UploadUserFile } from "element-plus";
 import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import Dict from "@/components/Dict/index.vue";
+import TenantSelect from "@/components/TenantSelect/index.vue";
 
 // 非基础表单控件按需加载，避免 ProForm 基础包携带上传、富文本、Cron 等重组件。
 const CronExpression = defineAsyncComponent(() => import("@/components/CronExpression/index.vue"));

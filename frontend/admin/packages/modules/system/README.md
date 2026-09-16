@@ -33,15 +33,23 @@ packages/modules/system
 
 | 路径                    | 作用                                                    |
 | ----------------------- | ------------------------------------------------------- |
-| `src/index.ts`          | npm 主入口，导出 System 模块和 AI 扩展契约。            |
+| `src/index.ts`          | npm 主入口，导出 System 模块、AI 扩展契约和租户项目管理组件。 |
 | `src/module.ts`         | 注册 System 页面、AI 顶部入口、个人中心菜单和路由行为。 |
 | `src/ai.ts`             | 定义 AI 流程卡片扩展名称、类型和读取入口。              |
-| `src/components/Ai.vue`                   | System 提供的 AI 顶部工具入口。                              |
-| `src/components/ChangePasswordForm.vue`   | 个人中心与强制改密弹窗共用的修改密码表单。                    |
-| `src/components/ForcedPasswordDialog.vue` | 登录成功后在当前业务页面展示的强制改密弹窗。                  |
-| `src/components/DynamicI18nCell.vue` | 翻译资源列表单元格，悬停预览当前语言之外的内容。              |
-| `src/components/DynamicI18nEditor.vue` | 动态资源多语言编辑器。                                      |
-| `src/components/dynamicI18n.ts` | 动态资源翻译状态和表单辅助类型。                            |
+| `src/components/ai/Ai.vue` | System 提供的 AI 顶部工具入口。 |
+| `src/components/account/ChangePasswordForm.vue` | 个人中心与强制改密弹窗共用的修改密码表单。 |
+| `src/components/account/ForcedPasswordDialog.vue` | 登录成功后在当前业务页面展示的强制改密弹窗。 |
+| `src/components/i18n/DynamicI18nCell.vue` | 翻译资源列表单元格，悬停预览当前语言之外的内容。 |
+| `src/components/i18n/DynamicI18nEditor.vue` | 动态资源多语言编辑器。 |
+| `src/components/i18n/dynamicI18n.ts` | 动态资源翻译状态和表单辅助类型。 |
+| `src/components/log/LogTable.vue` | 日志列表的通用表格组件。 |
+| `src/components/log/log.ts` | 日志列表列和查询辅助函数。 |
+| `src/components/notification/Notification.vue` | System 提供的站内信顶部工具入口。 |
+| `src/components/tenant-project/TenantProjectSelect.vue` | 租户项目树选择器，默认租户显示“租户 / 项目”，普通租户显示当前租户项目。 |
+| `src/components/tenant-project/TenantProjectText.vue` | 租户项目列表展示组件，按当前租户身份自动组合名称。 |
+| `src/components/tenant-project/TenantProjectManager.vue` | 可复用的租户项目管理组件，支持追加列、业务数据加载、操作和作用域插槽。 |
+| `src/components/tenant-project/tenant-project-manager.ts` | 租户项目管理组件的扩展类型、双键上下文和数据合并辅助函数。 |
+| `src/components/tenant-project/ProjectGrantDialog.vue` | 岗位、角色、部门和用户的项目授权弹窗。 |
 | `src/rpc/**/*.ts`       | System 页面与 API 自包含的 RPC 类型。                   |
 | `src/typings/*.d.ts`    | 声明 System 页面使用的 Markdown 和 Swagger 模块。       |
 | `package.json`          | 声明依赖以及公开的模块入口、API 和 RPC 子路径。         |
@@ -61,6 +69,7 @@ packages/modules/system
 | `src/api/base/v1/sse.ts`                     | SSE 服务请求。                            |
 | `src/api/system/admin/v1/auth.ts`            | 个人中心认证服务请求。                    |
 | `src/api/system/admin/v1/base_*.ts`          | System 基础服务请求。                     |
+| `src/api/system/admin/v1/base_i18n_custom.ts` | 管理端固定文案自定义翻译请求。             |
 | `src/api/system/admin/v1/code_gen*.ts`       | 代码生成服务请求。                        |
 | `src/api/system/admin/v1/oauth_client.ts`    | 开放授权客户端服务请求。                  |
 | `src/api/system/admin/v1/ops_monitoring.ts`  | 运维监控服务请求。                        |
@@ -78,6 +87,7 @@ packages/modules/system
 | `src/views/base/api/index.vue`                                 | API 资源管理页。                   |
 | `src/views/base/area/index.vue`                                | 行政区域管理页。                   |
 | `src/views/base/config/index.vue`                              | 系统配置管理页。                   |
+| `src/views/base/i18n-custom/index.vue`                         | 国际化自定义翻译管理页。           |
 | `src/views/base/runtime-config/index.vue`                      | 日志入库回退配置页。               |
 | `src/views/base/backup-management/archive-config/index.vue`    | 数据归档配置页。                   |
 | `src/views/base/backup-management/archive-record/index.vue`    | 数据归档执行记录页。               |
@@ -96,6 +106,7 @@ packages/modules/system
 | `src/views/base/post/index.vue`                                | 岗位管理页。                       |
 | `src/views/base/role/index.vue`                                | 角色管理页。                       |
 | `src/views/base/tenant/index.vue`                              | 租户管理页。                       |
+| `src/views/base/project-grant/index.vue`                         | 项目授权管理页。                   |
 | `src/views/base/user/index.vue`                                | 用户管理页。                       |
 | `src/views/base/user/components/dept-tree.vue`                 | 用户页的部门树筛选组件。           |
 | `src/views/profile/`                                           | 个人中心与安全设置页面。           |
@@ -116,6 +127,8 @@ packages/modules/system
 | `src/views/base/oauth-client/index.vue` | 开放授权客户端管理页。 |
 | `src/views/tool/runtime-log/index.vue` | 运行日志控制台、历史文件和下载页。 |
 | `src/views/tool/cache/index.vue` | 运行时缓存查询页，展示键、值、TTL 和时间元数据。 |
+
+租户管理页创建租户时会自动初始化并启用 `admin` 管理员账号；有全局初始化密码时复用该密码，没有配置时通过创建响应一次性展示随机初始密码。
 
 ## 接入
 
@@ -140,7 +153,29 @@ export const adminModules = [systemAdminModule];
 
 跨模块跳转使用 Vue Router；复用 System 代码时只引用 `package.json#exports` 公开的 npm 子路径。
 
-System 页面只通过 `systemAdminModule.views` 注册，不作为 npm 子路径公开。模块内组件当前也不对外开放；出现真实跨模块复用需求时，按具体组件文件增加显式导出，不提供 `components/*` 通配入口。
+租户项目管理组件通过 `TenantProjectManager` 公开。外部业务模块可以传入 `extraColumns`、`extraActions` 和 `loadExtraData`：追加列继续使用 `ColumnProps`，数据加载器接收当前页的 `tenant_id + project_id` 集合，单条操作回调接收同一组双键以及项目基础数据。组件也会透传表格具名插槽，并向行插槽增加 `tenantProject` 上下文；保存业务配置后可通过组件实例的 `refresh()` 刷新列表。按外部业务字段搜索或排序时，应由外部接口参与分页查询，不能只在当前页加载后过滤。
+
+外部项目可以在自己的页面中包装该组件，并通过菜单将项目管理页面的 `component` 指向包装页面：
+
+```vue
+<template>
+  <TenantProjectManager
+    ref="manager"
+    :extra-columns="columns"
+    :extra-actions="actions"
+    :load-extra-data="loadExtraData"
+  />
+  <ProjectConfigDialog v-model="configVisible" :project="selectedProject" @saved="manager?.refresh()" />
+</template>
+
+<script setup lang="ts">
+import { TenantProjectManager, type TenantProjectAction, type TenantProjectExtraDataLoader } from "@liujitcn/kratos-admin-system";
+</script>
+```
+
+包装页面、业务 API 和弹窗仍属于外部模块；`apps/admin` 只在模块清单中加载该模块。
+
+System 页面只通过 `systemAdminModule.views` 注册，不作为 npm 子路径公开。模块内组件默认不对外开放；`TenantProjectManager` 是显式公开的跨业务复用组件，其他组件仍保持内部使用。
 
 登录、菜单和用户信息等运行底座属于 core；个人中心、AI 助手及其顶部入口属于 System。System 可以引用 core 的公共导出，core 不得反向依赖 System；其他业务模块只能通过 `AdminModule.staticViews` 显式替换默认登录页或状态页。
 
@@ -150,6 +185,7 @@ System 的 API 与 RPC 都按 Proto 完整层级维护，API 文件名与对应 
 
 - `system/base/dashboard/index`：后台工作台概览和趋势统计。
 - `system/base/file/index`：文件资产元数据查询和删除。
+- `system/base/i18n-custom/index`：按位置、语言和语言键维护管理端固定文案覆盖。
 
 ## AI 扩展
 

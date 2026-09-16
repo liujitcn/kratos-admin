@@ -84,7 +84,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, reactive, ref, watch } from "vue";
+import { computed, nextTick, onMounted, reactive, ref, watch } from "vue";
 import { ElMessage, ElMessageBox, ElTree } from "element-plus";
 import type { CheckboxValueType } from "element-plus";
 import { CirclePlus, Delete, EditPen, Position, QuestionFilled, Search, Switch } from "@element-plus/icons-vue";
@@ -96,12 +96,10 @@ import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBaseRoleService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_role";
 import type { BaseRole, BaseRoleForm, PageBaseRoleRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_role";
 import { defBaseMenuService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_menu";
-import { defBaseTenantService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_tenant";
-import type { SelectOptionResponse_Option, TreeOptionResponse_Option } from "@liujitcn/kratos-admin-system/rpc/common/v1/common";
+import type { TreeOptionResponse_Option } from "@liujitcn/kratos-admin-system/rpc/common/v1/common";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
-import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
-import { DEFAULT_TENANT_CODE, requestTenantOptions } from "@liujitcn/kratos-admin-core/tenant";
+import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { t } from "@liujitcn/kratos-admin-core";
 
 defineOptions({
@@ -122,7 +120,6 @@ type BaseRoleFormState = Omit<BaseRoleForm, "tenant_id"> & {
 };
 
 const { BUTTONS } = useAuthButtons();
-const userStore = useUserStore();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const permTreeRef = ref<InstanceType<typeof ElTree>>();
@@ -133,12 +130,12 @@ const dialog = reactive({
 });
 
 const menuPermOptions = ref<TreeOptionResponse_Option[]>([]);
-const tenantOptions = ref<SelectOptionResponse_Option[]>([]);
 const statusOptions = computed<ProFormOption[]>(() => [
   { label: t("common.status.enabled"), value: Status.STATUS_ENABLE },
   { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }
 ]);
 const protectedRoleCodes = new Set(["admin", "authuser", "user"]);
+const undeletableRoleCodes = new Set(["super", "tenant", "admin", "authuser", "user"]);
 
 const formData = reactive<BaseRoleFormState>({
   /** 角色ID */
@@ -238,24 +235,14 @@ const permKeywords = ref("");
 const isExpanded = ref(true);
 const parentChildLinked = ref(true);
 
-/** 当前登录账号是否默认租户。 */
-const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAULT_TENANT_CODE);
+const { isDefaultTenant, tenantColumns, tenantFormField, toRequestTenantId, loadTenantOptions } = useTenantScope();
+onMounted(() => {
+  if (isDefaultTenant.value) void loadTenantOptions();
+});
 
 /** 角色表单字段配置。 */
 const formFields = computed<ProFormField[]>(() => [
-  {
-    prop: "tenant_id",
-    label: t("common.field.tenant"),
-    component: "select",
-    props: {
-      placeholder: t("common.placeholder.select"),
-      filterable: true,
-      disabled: Boolean(formData.id),
-      onChange: handleFormTenantChange
-    },
-    visible: () => isDefaultTenant.value,
-    options: tenantOptions.value
-  },
+  tenantFormField({ label: t("common.field.tenant"), disabledOnEdit: true, props: { onChange: handleFormTenantChange } }),
   {
     prop: "name",
     label: t("system.base.role.field.name"),
@@ -302,19 +289,7 @@ const formFields = computed<ProFormField[]>(() => [
 /** 角色表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55, selectable: row => canDeleteRole(row as BaseRole) },
-  ...(isDefaultTenant.value
-    ? ([
-        {
-          prop: "tenant_id",
-          label: t("common.field.tenant"),
-          minWidth: 140,
-          align: "left",
-          showOverflowTooltip: true,
-          search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 1 },
-          enum: requestTenantOptions
-        }
-      ] satisfies ColumnProps[])
-    : []),
+  ...tenantColumns({ label: t("common.field.tenant"), order: 1 }),
   { prop: "name", label: t("system.base.role.field.name"), minWidth: 140, search: { el: "input" } },
   { prop: "code", label: t("system.base.role.field.code"), minWidth: 160, search: { el: "input" } },
   {
@@ -401,7 +376,7 @@ const headerActions = computed<HeaderActionProps[]>(() => [
 async function requestBaseRoleTable(params: PageBaseRoleRequest) {
   const data = await defBaseRoleService.PageBaseRole({
     ...buildPageRequest(params),
-    tenant_id: isDefaultTenant.value ? params.tenant_id : undefined
+    tenant_id: toRequestTenantId(params.tenant_id)
   });
   return { data: { list: data.base_roles ?? [], total: data.total } };
 }
@@ -411,15 +386,6 @@ async function requestBaseRoleTable(params: PageBaseRoleRequest) {
  */
 function refreshTable() {
   proTable.value?.getTableList();
-}
-
-/**
- * 加载租户下拉选项。
- */
-async function loadTenantOptions() {
-  if (!isDefaultTenant.value || tenantOptions.value.length) return;
-  const response = await defBaseTenantService.OptionBaseTenant({ keyword: "" });
-  tenantOptions.value = response.list ?? [];
 }
 
 /**
@@ -516,7 +482,7 @@ function canManageRole(row?: BaseRole) {
   return Boolean(row?.code && !row.is_protected);
 }
 
-/** 判断角色是否禁止切换状态和删除。 */
+/** 判断角色是否禁止切换状态。 */
 function isRoleProtected(code?: string) {
   return Boolean(code && protectedRoleCodes.has(code));
 }
@@ -528,7 +494,7 @@ function canChangeRoleStatus(row?: BaseRole) {
 
 /** 判断当前账号是否允许删除目标角色。 */
 function canDeleteRole(row?: BaseRole) {
-  return canManageRole(row) && !isRoleProtected(row?.code);
+  return canManageRole(row) && !undeletableRoleCodes.has(row?.code ?? "");
 }
 
 /**

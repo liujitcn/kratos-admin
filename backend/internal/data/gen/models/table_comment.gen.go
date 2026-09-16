@@ -70,6 +70,11 @@ func (*BaseI18N) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*BaseI18NCustom) TableComment() string {
+	return "国际化自定义翻译信息"
+}
+
+// TableComment 返回表注释。
 func (*BaseJob) TableComment() string {
 	return "定时任务信息"
 }

@@ -233,6 +233,18 @@
   "system.admin.base.tenant.entity.remark.max_length": {
     "other": "備註不能超過 500 個字元"
   },
+  "system.admin.base.tenant.response.admin_user_name": {
+    "other": "租戶管理員賬號"
+  },
+  "system.admin.base.tenant.response.initial_password": {
+    "other": "租戶管理員初始密碼，僅在隨機產生時返回"
+  },
+  "system.admin.base.tenant.response.description": {
+    "other": "建立租戶回應參數"
+  },
+  "system.admin.base.tenant.response.tenant_code": {
+    "other": "租戶編號"
+  },
   "system.admin.base.i18n.update.target.required": {
     "other": "ID為零時必須提供完整目標資訊"
   },
@@ -1282,5 +1294,17 @@
   },
   "system.admin.base.config.form.unsupported": {
     "other": "請選擇已註冊的系統配置表單"
+  },
+  "system.admin.auth.profile.email.max_length": {
+    "other": "電子郵件不能超過 128 個字元"
+  },
+  "system.admin.auth.user.email.max_length": {
+    "other": "電子郵件不能超過 128 個字元"
+  },
+  "system.admin.base.user.entity.email.max_length": {
+    "other": "電子郵件不能超過 128 個字元"
+  },
+  "system.app.auth.profile.email.max_length": {
+    "other": "電子郵件不能超過 128 個字元"
   }
 }

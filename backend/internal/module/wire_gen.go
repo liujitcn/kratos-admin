@@ -30,6 +30,7 @@ import (
 	"github.com/liujitcn/kratos-admin/backend/internal/service/system/app/v1"
 	"github.com/liujitcn/kratos-admin/backend/internal/task"
 	admin3 "github.com/liujitcn/kratos-admin/backend/internal/task/system/admin"
+	"github.com/liujitcn/kratos-admin/backend/pkg/projectaccess"
 	"github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/job"
 	"github.com/liujitcn/kratos-core/module"
@@ -165,11 +166,21 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	baseMessageCategoryService := admin.NewBaseMessageCategoryService(baseMessageCategoryCase)
 	basePostCase := biz3.NewBasePostCase(baseCase, transaction, basePostRepository, baseUserRepository)
 	basePostService := admin.NewBasePostService(basePostCase)
+	lifecycle := projectaccess.NewLifecycle()
+	baseTenantProjectGrantRepository := data2.NewBaseTenantProjectGrantRepository(dataData)
+	baseTenantProjectGrantCase := biz3.NewBaseTenantProjectGrantCase(baseCase, transaction, baseTenantProjectGrantRepository)
+	baseTenantProjectRepository := data2.NewBaseTenantProjectRepository(dataData)
+	baseTenantProjectCase := biz3.NewBaseTenantProjectCase(lifecycle, baseCase, baseTenantProjectGrantCase, transaction, baseTenantProjectRepository)
+	baseTenantProjectService := admin.NewBaseTenantProjectService(baseTenantProjectCase)
+	baseTenantProjectGrantService := admin.NewBaseTenantProjectGrantService(baseTenantProjectGrantCase)
 	baseRoleService := admin.NewBaseRoleService(baseRoleCase)
 	baseTenantService := admin.NewBaseTenantService(baseTenantCase)
 	baseThirdAccountCase := biz2.NewBaseThirdAccountCase(baseCase, baseThirdAccountRepository)
 	baseThirdAccountService := admin.NewBaseThirdAccountService(baseThirdAccountCase)
 	baseI18nService := admin.NewBaseI18nService(baseI18nCase)
+	baseI18NCustomRepository := data2.NewBaseI18NCustomRepository(dataData)
+	baseI18nCustomCase := biz3.NewBaseI18nCustomCase(baseCase, transaction, baseI18NCustomRepository, baseLanguageCase)
+	baseI18nCustomService := admin.NewBaseI18nCustomService(baseI18nCustomCase)
 	baseUserService := admin.NewBaseUserService(bizBaseUserCase)
 	codeGenTableRepository := data2.NewCodeGenTableRepository(dataData)
 	codeGenColumnRepository := data2.NewCodeGenColumnRepository(dataData)
@@ -265,10 +276,13 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseMessage:              baseMessageService,
 		BaseMessageCategory:      baseMessageCategoryService,
 		BasePost:                 basePostService,
+		BaseTenantProject:        baseTenantProjectService,
+		BaseTenantProjectGrant:   baseTenantProjectGrantService,
 		BaseRole:                 baseRoleService,
 		BaseTenant:               baseTenantService,
 		BaseThirdAccount:         baseThirdAccountService,
 		BaseI18n:                 baseI18nService,
+		BaseI18nCustom:           baseI18nCustomService,
 		BaseUser:                 baseUserService,
 		CodeGen:                  codeGenService,
 		CodeGenColumn:            codeGenColumnService,
@@ -328,7 +342,7 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 	aiToolCase := biz2.NewAiToolCase(baseCase, runtime)
 	aiToolService := base.NewAiToolService(aiToolCase)
 	aiMessageService := base.NewAiMessageService(aiMessageCase)
-	configCase := biz2.NewConfigCase(baseCase, baseConfigRepository, baseI18NRepository, baseLanguageRepository)
+	configCase := biz2.NewConfigCase(baseCase, baseConfigRepository, baseI18NRepository, baseI18NCustomRepository, baseLanguageRepository)
 	configService := base.NewConfigService(configCase, responsesClient)
 	languageCase := biz2.NewLanguageCase(baseCase, baseLanguageRepository)
 	languageService := base.NewLanguageService(languageCase)
@@ -401,10 +415,13 @@ func BuildModules(migrations *migration.Migration, config2 *configv1.Bootstrap, 
 		BaseMessage:              baseMessageService,
 		BaseMessageCategory:      baseMessageCategoryService,
 		BasePost:                 basePostService,
+		BaseTenantProject:        baseTenantProjectService,
+		BaseTenantProjectGrant:   baseTenantProjectGrantService,
 		BaseRole:                 baseRoleService,
 		BaseTenant:               baseTenantService,
 		BaseThirdAccount:         baseThirdAccountService,
 		BaseI18n:                 baseI18nService,
+		BaseI18nCustom:           baseI18nCustomService,
 		BaseUser:                 baseUserService,
 		CodeGen:                  codeGenService,
 		CodeGenColumn:            codeGenColumnService,

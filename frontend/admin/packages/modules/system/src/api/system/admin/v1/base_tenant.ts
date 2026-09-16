@@ -3,6 +3,7 @@ import {
   type BaseTenantForm,
   type BaseTenantService,
   type CreateBaseTenantRequest,
+  type CreateBaseTenantResponse,
   type DeleteBaseTenantRequest,
   type GetBaseTenantRequest,
   type OptionBaseTenantRequest,
@@ -45,8 +46,8 @@ export class BaseTenantServiceImpl implements BaseTenantService {
   }
 
   /** 创建租户 */
-  CreateBaseTenant(request: CreateBaseTenantRequest): Promise<Empty> {
-    return service<BaseTenantForm | undefined, Empty>({
+  CreateBaseTenant(request: CreateBaseTenantRequest): Promise<CreateBaseTenantResponse> {
+    return service<BaseTenantForm | undefined, CreateBaseTenantResponse>({
       url: `${BASE_TENANT_URL}`,
       method: "post",
       data: request.base_tenant

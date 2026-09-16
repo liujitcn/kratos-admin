@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
@@ -34,12 +34,9 @@ import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/co
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBasePostService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_post";
 import type { BasePost, BasePostForm, PageBasePostRequest } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_post";
-import { defBaseTenantService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_tenant";
-import type { SelectOptionResponse_Option } from "@liujitcn/kratos-admin-system/rpc/common/v1/common";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
-import { DEFAULT_TENANT_CODE, requestTenantOptions } from "@liujitcn/kratos-admin-core/tenant";
-import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
+import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { t } from "@liujitcn/kratos-admin-core";
 
 defineOptions({
@@ -54,7 +51,6 @@ type BasePostFormState = Omit<BasePostForm, "tenant_id"> & {
 };
 
 const { BUTTONS } = useAuthButtons();
-const userStore = useUserStore();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
@@ -62,7 +58,6 @@ const dialog = reactive({
   titleKey: "common.action.create_resource",
   visible: false
 });
-const tenantOptions = ref<SelectOptionResponse_Option[]>([]);
 const statusOptions = computed<ProFormOption[]>(() => [
   { label: t("common.status.enabled"), value: Status.STATUS_ENABLE },
   { label: t("common.status.disabled"), value: Status.STATUS_DISABLE }
@@ -132,23 +127,14 @@ const rules = computed(() => ({
   ]
 }));
 
-/** 当前登录账号是否默认租户。 */
-const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAULT_TENANT_CODE);
+const { isDefaultTenant, tenantColumns, tenantFormField, toRequestTenantId, loadTenantOptions } = useTenantScope();
+onMounted(() => {
+  if (isDefaultTenant.value) void loadTenantOptions();
+});
 
 /** 岗位表单字段配置。 */
 const formFields = computed<ProFormField[]>(() => [
-  {
-    prop: "tenant_id",
-    label: t("common.field.tenant"),
-    component: "select",
-    props: {
-      placeholder: t("common.placeholder.select"),
-      filterable: true,
-      disabled: Boolean(formData.id)
-    },
-    visible: () => isDefaultTenant.value,
-    options: tenantOptions.value
-  },
+  tenantFormField({ label: t("common.field.tenant"), disabledOnEdit: true }),
   {
     prop: "name",
     label: t("system.base.post.field.name"),
@@ -179,19 +165,7 @@ const formFields = computed<ProFormField[]>(() => [
 /** 岗位表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
-  ...(isDefaultTenant.value
-    ? ([
-        {
-          prop: "tenant_id",
-          label: t("common.field.tenant"),
-          minWidth: 140,
-          align: "left",
-          showOverflowTooltip: true,
-          search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 1 },
-          enum: requestTenantOptions
-        }
-      ] satisfies ColumnProps[])
-    : []),
+  ...tenantColumns({ label: t("common.field.tenant"), order: 1 }),
   { prop: "name", label: t("system.base.post.field.name"), minWidth: 140, search: { el: "input" } },
   { prop: "code", label: t("system.base.post.field.code"), minWidth: 140, search: { el: "input" } },
   { prop: "sort", label: t("common.field.sort"), minWidth: 90, align: "right" },
@@ -262,7 +236,7 @@ const headerActions = computed<HeaderActionProps[]>(() => [
 async function requestBasePostTable(params: PageBasePostRequest) {
   const data = await defBasePostService.PageBasePost({
     ...buildPageRequest(params),
-    tenant_id: isDefaultTenant.value ? params.tenant_id : undefined
+    tenant_id: toRequestTenantId(params.tenant_id)
   });
   return { data: { list: data.base_posts ?? [], total: data.total } };
 }
@@ -270,13 +244,6 @@ async function requestBasePostTable(params: PageBasePostRequest) {
 /** 刷新岗位表格。 */
 function refreshTable() {
   proTable.value?.getTableList();
-}
-
-/** 加载租户选项。 */
-async function loadTenantOptions() {
-  if (!isDefaultTenant.value || tenantOptions.value.length) return;
-  const response = await defBaseTenantService.OptionBaseTenant({ keyword: "" });
-  tenantOptions.value = response.list ?? [];
 }
 
 /** 打开岗位编辑弹窗。 */

@@ -172,6 +172,14 @@
       "types": "./dist/package/declarations/src/components/TreeFilter/index.vue.d.ts",
       "default": "./dist/package/src/components/TreeFilter/index.vue"
     },
+    "./components/TenantSelect/index.vue": {
+      "types": "./dist/package/declarations/src/components/TenantSelect/index.vue.d.ts",
+      "default": "./dist/package/src/components/TenantSelect/index.vue"
+    },
+    "./components/TenantText/index.vue": {
+      "types": "./dist/package/declarations/src/components/TenantText/index.vue.d.ts",
+      "default": "./dist/package/src/components/TenantText/index.vue"
+    },
     "./components/Upload/Img.vue": {
       "types": "./dist/package/declarations/src/components/Upload/Img.vue.d.ts",
       "default": "./dist/package/src/components/Upload/Img.vue"

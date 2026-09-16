@@ -38,6 +38,8 @@ func TestExternalHostWire(t *testing.T) {
 		t.Fatal(err)
 	}
 	hostModule := strings.Replace(string(moduleFile), "module github.com/liujitcn/kratos-admin/backend", "module example.com/admin-host", 1)
+	// 临时宿主通过工作区复用 backend 模块的 Core 替换，不能再解析一份相对替换路径。
+	hostModule = strings.Replace(hostModule, "\nreplace github.com/liujitcn/kratos-core => ../../kratos-core\n", "\n", 1)
 	hostModule += "\nrequire github.com/liujitcn/kratos-admin/backend v0.0.40\n"
 	err = os.WriteFile(filepath.Join(hostDir, "go.mod"), []byte(hostModule), 0600)
 	if err != nil {

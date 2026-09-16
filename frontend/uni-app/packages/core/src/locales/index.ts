@@ -2,8 +2,9 @@
  * uni-app 国际化运行时：合并 core 和业务模块语言包，并向 Vue 页面、请求工具暴露统一翻译入口。
  * 各语言 JSON 由模块定义文件导入，不能在 JSON 文件内添加注释。
  */
-import { readonly, ref } from 'vue'
+import { reactive, readonly, ref } from 'vue'
 import type { KratosAppModule } from '../module'
+import type { I18nCustomItem } from '../rpc/base/v1/config'
 import type { OptionLanguageResponse } from '../rpc/base/v1/language'
 import {
   DEFAULT_LOCALE as GENERATED_DEFAULT_LOCALE,
@@ -30,7 +31,8 @@ export interface LocaleOption {
 
 const DEFAULT_LOCALE: SupportedLocale = GENERATED_DEFAULT_LOCALE
 const LOCALE_STORAGE_KEY = 'kratos-app:locale'
-const localeMessages = new Map<SupportedLocale, LocaleMessages>()
+const defaultLocaleMessages = new Map<SupportedLocale, LocaleMessages>()
+const localeMessages = reactive(new Map<SupportedLocale, LocaleMessages>())
 const localeChangeHandlers = new Set<() => void | Promise<void>>()
 const mutableLocaleState = ref<SupportedLocale>(DEFAULT_LOCALE)
 const mutableLanguageOptions = ref<LocaleOption[]>([])
@@ -100,8 +102,8 @@ export function getSupportedLocales(): SupportedLocale[] {
 
 /** 注册所有模块贡献的语言包并校验语言键集合。 */
 export function registerLocaleMessages(modules: KratosAppModule[]): void {
-  localeMessages.clear()
-  SUPPORTED_LOCALES.forEach((locale) => localeMessages.set(locale, {}))
+  defaultLocaleMessages.clear()
+  SUPPORTED_LOCALES.forEach((locale) => defaultLocaleMessages.set(locale, {}))
   modules.forEach((module) => {
     const expectedKeys = requiredLocaleKeys(module.messages?.[DEFAULT_LOCALE] || {})
     SUPPORTED_LOCALES.forEach((locale) => {
@@ -111,7 +113,7 @@ export function registerLocaleMessages(modules: KratosAppModule[]): void {
       if (keys.join('\u0000') !== expectedKeys.join('\u0000')) {
         throw new Error(`${module.name} 的 ${locale} 语言包键集合不一致`)
       }
-      const target = localeMessages.get(locale) as LocaleMessages
+      const target = defaultLocaleMessages.get(locale) as LocaleMessages
       Object.keys(messages).forEach((key) => {
         if (!isAllowedLocaleKey(module.name, key)) {
           throw new Error(`${module.name} 的语言键命名空间无效: ${key}`)
@@ -128,6 +130,20 @@ export function registerLocaleMessages(modules: KratosAppModule[]): void {
         target[key] = messages[key]
       })
     })
+  })
+  applyCustomLocaleMessages([])
+}
+
+/** 按语言和已有 key 覆盖本地文案，每次重新应用以清除已删除的自定义配置。 */
+export function applyCustomLocaleMessages(customs: I18nCustomItem[]): void {
+  SUPPORTED_LOCALES.forEach((locale) => {
+    const messages = { ...(defaultLocaleMessages.get(locale) ?? {}) }
+    customs.forEach((item) => {
+      if (parseSupportedLocale(item.locale) !== locale || !item.key || !item.value) return
+      if (!Object.prototype.hasOwnProperty.call(messages, item.key)) return
+      messages[item.key] = item.value
+    })
+    localeMessages.set(locale, messages)
   })
 }
 

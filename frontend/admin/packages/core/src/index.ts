@@ -10,3 +10,4 @@ export { defLanguageService } from "./api/base/v1/language";
 export { setAdminDocumentTitle } from "./documentTitle";
 export { kratosAdminModule } from "./modules/kratosAdmin";
 export { bootstrapAdminApp } from "./bootstrap";
+export { refreshAdminRuntimeConfig } from "./stores/modules/config";

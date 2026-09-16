@@ -27,6 +27,36 @@ test("登录策略提交前执行表单校验", async () => {
   assert.ok(submitBlock.indexOf("validate()") < submitBlock.indexOf("const baseLoginPolicy"));
 });
 
+test("登录策略弹窗自适应标签并展示初始化密码强度", async () => {
+  const source = await readSource("src/views/base/login-policy/index.vue");
+
+  assert.match(source, /<FormDialog[\s\S]*label-width="auto"/);
+  assert.match(source, /import PasswordStrength from "@liujitcn\/kratos-admin-core\/components\/PasswordStrength\/index\.vue"/);
+  assert.match(source, /<template #initialPasswordStrength>[\s\S]*<PasswordStrength :password="formData\.initial_password" \/>/);
+  assert.match(source, /prop: "initialPasswordStrength"[\s\S]*component: "slot"[\s\S]*slotName: "initialPasswordStrength"/);
+});
+
+test("新增租户成功后三行文本展示一次性随机管理员凭据", async () => {
+  const [pageSource, apiSource] = await Promise.all([
+    readSource("src/views/base/tenant/index.vue"),
+    readSource("src/api/system/admin/v1/base_tenant.ts")
+  ]);
+
+  assert.match(apiSource, /CreateBaseTenant\(request: CreateBaseTenantRequest\): Promise<CreateBaseTenantResponse>/);
+  assert.match(pageSource, /const response = await defBaseTenantService\.CreateBaseTenant/);
+  assert.match(pageSource, /if \(response\.initial_password\)/);
+  assert.match(pageSource, /response\.tenant_code/);
+  assert.match(pageSource, /tenant-credentials-row[\s\S]*credentialsDialog\.tenant_code[\s\S]*credentialsDialog\.admin_user_name[\s\S]*credentialsDialog\.initial_password/);
+  assert.doesNotMatch(pageSource, /<el-form[\s\S]*credentialsDialog\.tenant_code/);
+  assert.doesNotMatch(pageSource, /tenant-credentials-toolbar/);
+  assert.match(pageSource, /credentialsDialog\.tenant_code[\s\S]*tooltip\.copy_credentials[\s\S]*CopyDocument/);
+  assert.match(pageSource, /credentialsDialog\.passwordVisible/);
+  assert.match(pageSource, /<View v-if="!credentialsDialog\.passwordVisible" \/>[\s\S]*<Hide v-else \/>/);
+  assert.match(pageSource, /CopyDocument/);
+  assert.match(pageSource, /copyText\(content\)/);
+  assert.match(pageSource, /system\.base\.tenant\.message\.initial_credentials_warning/);
+});
+
 test("管理端共享同一套 Vue 运行时并延后初始化页签拖拽", async () => {
   const [workspaceSource, tabsSource, dashboardSource] = await Promise.all([
     readSource("../../../package.json"),
@@ -80,7 +110,7 @@ test("状态切换先确认再调用接口", async () => {
 });
 
 test("通知组件显式接管并透传顶部工具属性", async () => {
-  const source = await readSource("src/components/Notification.vue");
+  const source = await readSource("src/components/notification/Notification.vue");
 
   assert.match(source, /defineOptions\(\{ name: "Notification", inheritAttrs: false \}\)/);
   assert.match(source, /<el-popover[\s\S]*v-bind="\$attrs"/);
@@ -147,4 +177,80 @@ test("新增回归校验使用的国际化键在四种语言中均存在", async
     const messages = JSON.parse(source) as Record<string, string>;
     for (const key of requiredKeys) assert.ok(messages[key], `缺少国际化键: ${key}`);
   }
+});
+
+test("项目授权新增弹窗默认使用有效授权类型", async () => {
+  const source = await readSource("src/views/base/project-grant/index.vue");
+
+  assert.match(
+    source,
+    /const DEFAULT_SUBJECT_TYPE = BaseTenantProjectGrantSubjectType\.BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_POST;/
+  );
+  assert.match(source, /subject_type: DEFAULT_SUBJECT_TYPE/);
+  assert.match(source, /formData\.subject_type = DEFAULT_SUBJECT_TYPE;/);
+  assert.match(source, /await Promise\.all\(\[loadProjectOptions\(\), loadSubjectOptions\(\)\]\)/);
+});
+
+test("项目授权范围提供开关含义说明", async () => {
+  const source = await readSource("src/views/base/project-grant/index.vue");
+  assert.match(source, /labelTooltip: t\("system\.base\.tenant_project_grant\.tooltip\.scope"\)/);
+
+  for (const locale of ["zh-CN", "en-US", "ja-JP", "zh-TW"]) {
+    const messages = JSON.parse(await readSource(`src/locales/${locale}.json`)) as Record<string, string>;
+    assert.ok(messages["system.base.tenant_project_grant.tooltip.scope"], `缺少 ${locale} 授权范围说明`);
+  }
+});
+
+test("项目授权列表沿用统一租户列展示规则", async () => {
+  const source = await readSource("src/views/base/project-grant/index.vue");
+  const tenantColumn = source.match(/\.\.\.tenantColumns\(\{[^}]+\}\)/)?.[0];
+
+  assert.ok(tenantColumn, "项目授权列表缺少租户列配置");
+  assert.doesNotMatch(tenantColumn, /isShow:\s*false/);
+  assert.doesNotMatch(tenantColumn, /isSetting:\s*false/);
+});
+
+test("项目授权列表不展示主体编码列且不保留无用翻译", async () => {
+  const source = await readSource("src/views/base/project-grant/index.vue");
+  assert.doesNotMatch(source, /prop: "subject_code"[\s\S]*?field\.subject_code/);
+
+  for (const locale of ["zh-CN", "en-US", "ja-JP", "zh-TW"]) {
+    const messages = JSON.parse(await readSource(`src/locales/${locale}.json`)) as Record<string, string>;
+    assert.equal(messages["system.base.tenant_project_grant.field.subject_code"], undefined, `仍保留 ${locale} 主体编码翻译`);
+  }
+});
+
+test("国际化自定义翻译使用响应式语言选项并锁定编辑键和区域", async () => {
+  const source = await readSource("src/views/base/i18n-custom/index.vue");
+
+  assert.match(source, /search: \{ el: "select", enum: localeOptions \}/);
+  assert.match(source, /async function requestBaseI18nCustomTable[\s\S]*?await loadLanguages\(\);/);
+  assert.match(source, /async function handleOpenDialog\(id\?: number\) \{\s*await loadLanguages\(\);/);
+  assert.match(source, /field: "key"|prop: "key"[\s\S]*?disabled: dialog\.editing/);
+  assert.match(source, /prop: "locale"[\s\S]*?disabled: dialog\.editing/);
+});
+
+test("租户项目列表分开展示租户、项目名称和项目编号", async () => {
+  const source = await readSource("src/components/tenant-project/TenantProjectManager.vue");
+
+  assert.match(source, /\.\.\.tenantColumns\(\{ label: t\("common\.field\.tenant"\), order: 1 \}\)/);
+  assert.match(source, /prop: "name", label: t\("system\.base\.tenant_project\.field\.name"\),[\s\S]*?search: \{ el: "input" \}/);
+  assert.match(source, /prop: "code", label: t\("system\.base\.tenant_project\.field\.code"\),[\s\S]*?search: \{ el: "input" \}/);
+  assert.doesNotMatch(source, /TenantProjectText|common\.field\.tenant\} \/ \$\{t\("common\.field\.project"\)\}/);
+});
+
+test("普通租户管理员在用户列表中不可删除但仍可重置密码", async () => {
+  const source = await readSource("src/views/base/user/index.vue");
+
+  assert.match(source, /selectable: row => !isDeleteProtectedManagementUser\(row as BaseUser\)/);
+  assert.match(
+    source,
+    /hidden: scope => isDeleteProtectedManagementUser\(scope\.row as BaseUser\) \|\| !BUTTONS\.value\["base:user:delete"\]/
+  );
+  assert.match(
+    source,
+    /hidden: scope => isProtectedManagementUser\(scope\.row as BaseUser\) \|\| !BUTTONS\.value\["base:user:pwd"\]/
+  );
+  assert.match(source, /updateUndeletableRoleIds\(options\)/);
+  assert.match(source, /option\.disabled/);
 });

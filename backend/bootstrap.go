@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/liujitcn/kratos-admin/backend/pkg/projectaccess"
+
 	"github.com/google/wire"
 	"github.com/liujitcn/kratos-admin/backend/adapter/core"
 	"github.com/liujitcn/kratos-admin/backend/adapter/kit"
@@ -49,6 +51,7 @@ type AdminConsumers queue.Consumers
 // 外部项目将本集合与其他业务模块的具名贡献合并后，再交给 kratos-core.ProviderSet
 // 统一创建 HTTP、gRPC、MCP、SSE、队列和定时任务运行时。
 var ProviderSet = wire.NewSet(
+	projectaccess.NewLifecycle,
 	core.ProviderSet,
 	kit.ProviderSet,
 	NewCodeGenManager,

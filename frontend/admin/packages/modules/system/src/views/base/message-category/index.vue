@@ -23,8 +23,7 @@ import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
-import { DEFAULT_TENANT_CODE } from "@liujitcn/kratos-admin-core/tenant";
-import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
+import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { t } from "@liujitcn/kratos-admin-core";
 import { defBaseMessageCategoryService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_message_category";
 import type {
@@ -39,8 +38,7 @@ defineOptions({ name: "BaseMessageCategory", inheritAttrs: false });
 
 /** 消息分类页面表单状态。 */
 const { BUTTONS } = useAuthButtons();
-const userStore = useUserStore();
-const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAULT_TENANT_CODE);
+const { isDefaultTenant } = useTenantScope();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const dialog = reactive({ visible: false, titleKey: "common.action.create" });

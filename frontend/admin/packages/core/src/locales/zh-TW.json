@@ -335,6 +335,7 @@
   "common.field.sort": "排序",
   "common.field.status": "狀態",
   "common.field.tenant": "租戶",
+  "common.field.project": "專案",
   "common.field.updated_at": "更新時間",
   "common.field.user": "使用者",
   "common.message.create_success": "新增{resource}成功",

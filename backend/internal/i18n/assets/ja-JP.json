@@ -233,6 +233,18 @@
   "system.admin.base.tenant.entity.remark.max_length": {
     "other": "注は 500 文字を超えることはできません"
   },
+  "system.admin.base.tenant.response.admin_user_name": {
+    "other": "テナント管理者アカウント"
+  },
+  "system.admin.base.tenant.response.initial_password": {
+    "other": "テナント管理者の初期パスワード。ランダム生成時のみ返却"
+  },
+  "system.admin.base.tenant.response.description": {
+    "other": "テナント作成レスポンスパラメータ"
+  },
+  "system.admin.base.tenant.response.tenant_code": {
+    "other": "テナントコード"
+  },
   "system.admin.base.i18n.update.target.required": {
     "other": "ID がゼロの場合は、完全なターゲット情報を提供する必要があります"
   },
@@ -1282,5 +1294,17 @@
   },
   "system.admin.base.config.form.unsupported": {
     "other": "登録済みのシステム設定フォームを選択してください"
+  },
+  "system.admin.auth.profile.email.max_length": {
+    "other": "メールアドレスは128文字を超えることはできません"
+  },
+  "system.admin.auth.user.email.max_length": {
+    "other": "メールアドレスは128文字を超えることはできません"
+  },
+  "system.admin.base.user.entity.email.max_length": {
+    "other": "メールアドレスは128文字を超えることはできません"
+  },
+  "system.app.auth.profile.email.max_length": {
+    "other": "メールアドレスは128文字を超えることはできません"
   }
 }

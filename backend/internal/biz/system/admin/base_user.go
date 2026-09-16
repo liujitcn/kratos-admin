@@ -250,6 +250,15 @@ func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *adminv1.PageBaseUs
 	if err != nil {
 		return nil, err
 	}
+	var authInfo *authData.UserTokenPayload
+	authInfo, err = c.GetAuthInfo(ctx)
+	if err != nil {
+		if !baseUserLocalCall(ctx) {
+			return nil, err
+		}
+		authInfo = nil
+		err = nil
+	}
 	roleIDSet := make(map[int64]struct{}, len(list))
 	roleIDs := make([]int64, 0, len(list))
 	for _, item := range list {
@@ -280,7 +289,7 @@ func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *adminv1.PageBaseUs
 			return nil, errorsx.Internal("查询用户角色失败").WithCause(err)
 		}
 		for _, baseRole := range baseRoles {
-			if _const.IsDefaultBaseRole(baseRole.Code) {
+			if isBaseUserManagementRoleProtected(authInfo, baseRole) {
 				protectedRoleIDs[baseRole.ID] = struct{}{}
 			}
 		}
@@ -309,7 +318,10 @@ func (c *BaseUserCase) GetBaseUser(ctx context.Context, id int64) (*adminv1.Base
 
 // CreateBaseUser 创建用户
 func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *adminv1.BaseUserForm) error {
-	baseRole, err := c.baseRoleCase.FindByID(ctx, req.GetRoleId())
+	var err error
+	targetTenantID := req.GetTenantId()
+	var baseRole *models.BaseRole
+	baseRole, err = c.baseRoleCase.FindByID(ctx, req.GetRoleId())
 	if err != nil {
 		return errorsx.ResourceNotFound("用户角色不存在").WithCause(err)
 	}
@@ -321,20 +333,20 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *adminv1.BaseUser
 	if err != nil {
 		return errorsx.ResourceNotFound("用户部门不存在").WithCause(err)
 	}
-	if baseRole.TenantID != baseDept.TenantID {
+	if baseRole.TenantID != targetTenantID {
 		return errorsx.InvalidArgument("用户角色与部门所属租户不一致")
 	}
-	if req.GetTenantId() > 0 && req.GetTenantId() != baseDept.TenantID {
-		return errorsx.InvalidArgument("用户所属租户与部门不一致")
+	if baseDept.TenantID != targetTenantID {
+		return errorsx.InvalidArgument("用户部门与所属租户不一致")
 	}
-	err = c.validateBasePost(ctx, req.GetPostId(), baseDept.TenantID, 0)
+	err = c.validateBasePost(ctx, req.GetPostId(), targetTenantID, 0)
 	if err != nil {
 		return err
 	}
 
 	var password string
 	var passwordConfig loginpolicy.PasswordConfig
-	passwordConfig, err = loginpolicy.LoadPasswordConfig(c.Cache, baseDept.TenantID, 0)
+	passwordConfig, err = loginpolicy.LoadPasswordConfig(c.Cache, targetTenantID, 0)
 	if err != nil {
 		return errorsx.Internal("读取密码策略失败").WithCause(err)
 	}
@@ -364,7 +376,7 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *adminv1.BaseUser
 	baseUser.PasswordChangedAt = time.Now()
 	baseUser.PasswordHistory = "[]"
 	baseUser.MustChangePassword = mustChangePassword
-	baseUser.TenantID = baseDept.TenantID
+	baseUser.TenantID = targetTenantID
 	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		err = c.Create(ctx, baseUser)
 		if err != nil {
@@ -466,9 +478,13 @@ func (c *BaseUserCase) DeleteBaseUser(ctx context.Context, id string) error {
 		if !exists {
 			return errorsx.ResourceNotFound("删除用户失败，用户不存在")
 		}
-		err = c.validateUserManagementTarget(ctx, baseUser)
+		var baseRole *models.BaseRole
+		baseRole, err = c.findBaseRoleForManagement(ctx, baseUser.RoleID)
 		if err != nil {
 			return err
+		}
+		if isBaseUserDeletionProtected(baseRole) {
+			return errorsx.ProtectedResourceConflict("删除用户失败，不能删除内置管理员账号", "base_user")
 		}
 		visibleIDs = append(visibleIDs, baseUser.ID)
 	}
@@ -590,24 +606,54 @@ func (c *BaseUserCase) SetBaseUserAppRole(ctx context.Context, userID int64, rol
 
 // validateUserManagementTarget 校验目标用户是否允许通过用户管理接口操作。
 func (c *BaseUserCase) validateUserManagementTarget(ctx context.Context, baseUser *models.BaseUser) error {
-	queryCtx, err := c.roleProtectionQueryContext(ctx)
+	baseRole, err := c.findBaseRoleForManagement(ctx, baseUser.RoleID)
 	if err != nil {
 		return err
+	}
+	var authInfo *authData.UserTokenPayload
+	authInfo, err = c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+	// 默认租户可以维护普通租户的 tenant 管理员账号，其他内置管理员账号仍只能通过个人中心维护。
+	if isBaseUserManagementRoleProtected(authInfo, baseRole) {
+		return errorsx.ProtectedResourceConflict("操作用户失败，内置管理员账号只能通过个人中心修改", "base_user")
+	}
+	return nil
+}
+
+// findBaseRoleForManagement 查询用户管理保护判定所需的角色，包含已软删除角色。
+func (c *BaseUserCase) findBaseRoleForManagement(ctx context.Context, roleID int64) (*models.BaseRole, error) {
+	queryCtx, err := c.roleProtectionQueryContext(ctx)
+	if err != nil {
+		return nil, err
 	}
 	query := c.baseRoleCase.Query(queryCtx).BaseRole
 	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Unscoped())
-	opts = append(opts, repository.Where(query.ID.Eq(baseUser.RoleID)))
+	opts = append(opts, repository.Where(query.ID.Eq(roleID)))
 	var baseRole *models.BaseRole
 	baseRole, err = c.baseRoleCase.Find(queryCtx, opts...)
 	if err != nil {
-		return errorsx.Internal("校验用户角色失败").WithCause(err)
+		return nil, errorsx.Internal("校验用户角色失败").WithCause(err)
 	}
-	// super 和 tenant 管理员只能通过个人中心维护自身资料与密码。
-	if _const.IsDefaultBaseRole(baseRole.Code) {
-		return errorsx.ProtectedResourceConflict("操作用户失败，内置管理员账号只能通过个人中心修改", "base_user")
+	return baseRole, nil
+}
+
+// isBaseUserManagementRoleProtected 判断用户管理是否需要保护目标用户的内置角色。
+func isBaseUserManagementRoleProtected(authInfo *authData.UserTokenPayload, baseRole *models.BaseRole) bool {
+	if !_const.IsDefaultBaseRole(baseRole.Code) {
+		return false
 	}
-	return nil
+	return authInfo == nil ||
+		authInfo.TenantCode != gorm.DefaultTenantCode ||
+		baseRole.Code != _const.BASE_ROLE_CODE_TENANT ||
+		baseRole.TenantID == authInfo.TenantId
+}
+
+// isBaseUserDeletionProtected 判断用户管理是否禁止删除内置管理员账号。
+func isBaseUserDeletionProtected(baseRole *models.BaseRole) bool {
+	return _const.IsDefaultBaseRole(baseRole.Code)
 }
 
 // roleProtectionQueryContext 构造仅用于内置角色保护判定的全部数据范围查询上下文。

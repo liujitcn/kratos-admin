@@ -15,12 +15,12 @@ require (
 	github.com/liujitcn/go-utils/crypto v0.0.17
 	github.com/liujitcn/go-utils/http v0.0.7
 	github.com/liujitcn/gorm-kit v0.0.34
-	github.com/liujitcn/kratos-admin/backend/api v0.0.10
-	github.com/liujitcn/kratos-core v0.0.31
+	github.com/liujitcn/kratos-admin/backend/api v0.0.13
+	github.com/liujitcn/kratos-core v0.0.32
 	github.com/liujitcn/kratos-core/api v0.0.4
 	github.com/liujitcn/kratos-kit v0.0.85
 	github.com/liujitcn/kratos-kit/api v0.0.36
-	github.com/liujitcn/kratos-kit/auth v0.0.28
+	github.com/liujitcn/kratos-kit/auth v0.0.29
 	github.com/liujitcn/kratos-kit/auth/authn v0.0.24
 	github.com/liujitcn/kratos-kit/auth/authz v0.0.23
 	github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.22
@@ -28,7 +28,7 @@ require (
 	github.com/liujitcn/kratos-kit/cache v0.0.22
 	github.com/liujitcn/kratos-kit/captcha v0.0.23
 	github.com/liujitcn/kratos-kit/config v0.0.32
-	github.com/liujitcn/kratos-kit/database/gorm v0.0.45
+	github.com/liujitcn/kratos-kit/database/gorm v0.0.47
 	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.20
 	github.com/liujitcn/kratos-kit/database/gorm/migration v0.0.16
 	github.com/liujitcn/kratos-kit/logger/zap v0.0.19
@@ -57,6 +57,7 @@ require (
 	google.golang.org/grpc v1.83.2
 	google.golang.org/protobuf v1.36.12
 	gorm.io/driver/mysql v1.6.0
+	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gen v0.3.29
 	gorm.io/gorm v1.31.2
 	gorm.io/plugin/dbresolver v1.6.2
@@ -222,7 +223,7 @@ require (
 	github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.20 // indirect
 	github.com/liujitcn/kratos-kit/broker v0.0.11 // indirect
 	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.19 // indirect
-	github.com/liujitcn/kratos-kit/key v0.0.5 // indirect
+	github.com/liujitcn/kratos-kit/key v0.0.4 // indirect
 	github.com/liujitcn/kratos-kit/locker v0.0.18 // indirect
 	github.com/liujitcn/kratos-kit/logger v0.0.32 // indirect
 	github.com/liujitcn/kratos-kit/oss/s3 v0.0.4 // indirect
@@ -242,6 +243,7 @@ require (
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.22 // indirect
 	github.com/mattn/go-runewidth v0.0.19 // indirect
+	github.com/mattn/go-sqlite3 v1.14.34 // indirect
 	github.com/meguminnnnnnnnn/go-openai v0.1.2 // indirect
 	github.com/minio/crc64nvme v1.1.1 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect

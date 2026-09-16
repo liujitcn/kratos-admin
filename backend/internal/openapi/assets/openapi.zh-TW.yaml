@@ -1404,6 +1404,148 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/i18n-custom:
+        get:
+            tags:
+                - BaseI18nCustomService
+            description: 查詢國際化自定義翻譯分頁列表。
+            operationId: BaseI18nCustomService_PageBaseI18nCustom
+            parameters:
+                - name: site
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_CONFIG_SITE_UNSPECIFIED
+                        - BASE_CONFIG_SITE_SYSTEM
+                        - BASE_CONFIG_SITE_ADMIN
+                        - BASE_CONFIG_SITE_APP
+                    type: string
+                    format: enum
+                - name: key
+                  in: query
+                  schema:
+                    type: string
+                - name: locale
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseI18nCustomResponse'
+        post:
+            tags:
+                - BaseI18nCustomService
+            description: 建立國際化自定義翻譯。
+            operationId: BaseI18nCustomService_CreateBaseI18nCustom
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseI18nCustomForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/i18n-custom/{i18n_custom.id}:
+        put:
+            tags:
+                - BaseI18nCustomService
+            description: 更新國際化自定義翻譯。
+            operationId: BaseI18nCustomService_UpdateBaseI18nCustom
+            parameters:
+                - name: i18n_custom.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseI18nCustomForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/i18n-custom/{id}:
+        get:
+            tags:
+                - BaseI18nCustomService
+            description: 查詢國際化自定義翻譯詳情。
+            operationId: BaseI18nCustomService_GetBaseI18nCustom
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseI18nCustomForm'
+        delete:
+            tags:
+                - BaseI18nCustomService
+            description: 刪除國際化自定義翻譯。
+            operationId: BaseI18nCustomService_DeleteBaseI18nCustom
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/i18n-custom/{id}/status:
+        put:
+            tags:
+                - BaseI18nCustomService
+            description: 設定國際化自定義翻譯狀態。
+            operationId: BaseI18nCustomService_SetBaseI18nCustomStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseI18nCustomStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/i18n/draft:
         post:
             tags:
@@ -4514,7 +4656,10 @@ paths:
             responses:
                 "200":
                     description: OK
-                    content: {}
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.CreateBaseTenantResponse'
     /api/v1/admin/base/tenant/option:
         get:
             tags:
@@ -4533,6 +4678,334 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/common.v1.SelectOptionResponse'
+    /api/v1/admin/base/tenant/project:
+        get:
+            tags:
+                - BaseTenantProjectService
+            description: 查詢專案分頁列表
+            operationId: BaseTenantProjectService_PageBaseTenantProject
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseTenantProjectResponse'
+        post:
+            tags:
+                - BaseTenantProjectService
+            description: 建立專案
+            operationId: BaseTenantProjectService_CreateBaseTenantProject
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseTenantProjectForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/tenant/project/grant:
+        get:
+            tags:
+                - BaseTenantProjectGrantService
+            description: 查詢專案授權分頁列表。
+            operationId: BaseTenantProjectGrantService_PageBaseTenantProjectGrant
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: subject_type
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_UNSPECIFIED
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_POST
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_ROLE
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_DEPT
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_USER
+                    type: string
+                    format: enum
+                - name: subject_id
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseTenantProjectGrantResponse'
+        post:
+            tags:
+                - BaseTenantProjectGrantService
+            description: 新增專案授權。
+            operationId: BaseTenantProjectGrantService_CreateBaseTenantProjectGrant
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseTenantProjectGrant'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    ? /api/v1/admin/base/tenant/project/grant/{base_tenant_project_grant.tenant_id}/{base_tenant_project_grant.subject_type}/{base_tenant_project_grant.subject_id}
+    :   put:
+            tags:
+                - BaseTenantProjectGrantService
+            description: 更新專案授權，只修改專案範圍，授權主體聯合鍵不可變更。
+            operationId: BaseTenantProjectGrantService_UpdateBaseTenantProjectGrant
+            parameters:
+                - name: base_tenant_project_grant.tenant_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: base_tenant_project_grant.subject_type
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: base_tenant_project_grant.subject_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseTenantProjectGrant'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/tenant/project/grant/{tenant_id}/{subject_type}/{subject_id}:
+        get:
+            tags:
+                - BaseTenantProjectGrantService
+            description: 查詢專案授權詳情。
+            operationId: BaseTenantProjectGrantService_GetBaseTenantProjectGrant
+            parameters:
+                - name: tenant_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: subject_type
+                  in: path
+                  required: true
+                  schema:
+                    enum:
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_UNSPECIFIED
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_POST
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_ROLE
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_DEPT
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_USER
+                    type: string
+                    format: enum
+                - name: subject_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseTenantProjectGrant'
+        delete:
+            tags:
+                - BaseTenantProjectGrantService
+            description: 刪除專案授權。
+            operationId: BaseTenantProjectGrantService_DeleteBaseTenantProjectGrant
+            parameters:
+                - name: tenant_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: subject_type
+                  in: path
+                  required: true
+                  schema:
+                    enum:
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_UNSPECIFIED
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_POST
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_ROLE
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_DEPT
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_USER
+                    type: string
+                    format: enum
+                - name: subject_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/tenant/project/option:
+        get:
+            tags:
+                - BaseTenantProjectService
+            description: 查詢專案下拉選擇
+            operationId: BaseTenantProjectService_OptionBaseTenantProject
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/common.v1.SelectOptionResponse'
+    /api/v1/admin/base/tenant/project/tree:
+        get:
+            tags:
+                - BaseTenantProjectService
+            description: 查詢當前賬號可用的租戶專案樹
+            operationId: BaseTenantProjectService_TreeBaseTenantProject
+            parameters:
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.TreeBaseTenantProjectResponse'
+    /api/v1/admin/base/tenant/project/{base_tenant_project.id}:
+        put:
+            tags:
+                - BaseTenantProjectService
+            description: 更新專案
+            operationId: BaseTenantProjectService_UpdateBaseTenantProject
+            parameters:
+                - name: base_tenant_project.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseTenantProjectForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/tenant/project/{id}:
+        get:
+            tags:
+                - BaseTenantProjectService
+            description: 查詢專案
+            operationId: BaseTenantProjectService_GetBaseTenantProject
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseTenantProjectForm'
+        delete:
+            tags:
+                - BaseTenantProjectService
+            description: 刪除專案
+            operationId: BaseTenantProjectService_DeleteBaseTenantProject
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/tenant/project/{id}/status:
+        put:
+            tags:
+                - BaseTenantProjectService
+            description: 設定專案狀態
+            operationId: BaseTenantProjectService_SetBaseTenantProjectStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseTenantProjectStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/tenant/{base_tenant.id}:
         put:
             tags:
@@ -7329,7 +7802,12 @@ components:
                     description: 系統配置列表
                 ai_enabled:
                     type: boolean
-                    description: AI 助手是否可用
+                    description: AI assistant availability
+                i18n_customs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.I18nCustomItem'
+                    description: 全部語言的自定義國際化覆蓋項
             description: 系統配置查詢結果
         base.v1.HandleMcpRequest:
             type: object
@@ -7346,6 +7824,19 @@ components:
             type: object
             properties: {}
             description: 三方登入回撥結果
+        base.v1.I18nCustomItem:
+            type: object
+            properties:
+                locale:
+                    type: string
+                    description: 語言區域
+                key:
+                    type: string
+                    description: 國際化語言鍵
+                value:
+                    type: string
+                    description: 自定義翻譯內容
+            description: 全部語言的自定義國際化覆蓋項。
         base.v1.IssueOauthClientTokenRequest:
             type: object
             properties:
@@ -8830,6 +9321,84 @@ components:
                     type: string
                     description: 翻譯文字
             description: 國際化翻譯資訊
+        system.admin.v1.BaseI18nCustom:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 國際化自定義翻譯ID
+                site:
+                    enum:
+                        - BASE_CONFIG_SITE_UNSPECIFIED
+                        - BASE_CONFIG_SITE_SYSTEM
+                        - BASE_CONFIG_SITE_ADMIN
+                        - BASE_CONFIG_SITE_APP
+                    type: string
+                    description: 位置：列舉【BaseConfigSite】
+                    format: enum
+                key:
+                    type: string
+                    description: 國際化語言鍵
+                locale:
+                    type: string
+                    description: 語言區域
+                value:
+                    type: string
+                    description: 自定義翻譯內容
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 狀態：列舉【Status】
+                    format: enum
+                remark:
+                    type: string
+                    description: 備註
+                created_at:
+                    type: string
+                    description: 建立時間
+                updated_at:
+                    type: string
+                    description: 更新時間
+            description: 國際化自定義翻譯資訊。
+        system.admin.v1.BaseI18nCustomForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 國際化自定義翻譯ID
+                site:
+                    enum:
+                        - BASE_CONFIG_SITE_UNSPECIFIED
+                        - BASE_CONFIG_SITE_SYSTEM
+                        - BASE_CONFIG_SITE_ADMIN
+                        - BASE_CONFIG_SITE_APP
+                    type: string
+                    description: 位置：列舉【BaseConfigSite】
+                    format: enum
+                key:
+                    type: string
+                    description: 國際化語言鍵
+                locale:
+                    type: string
+                    description: 語言區域
+                value:
+                    type: string
+                    description: 自定義翻譯內容
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 狀態
+                    format: enum
+                remark:
+                    type: string
+                    description: 備註
+            description: 國際化自定義翻譯表單。
         system.admin.v1.BaseJob:
             type: object
             properties:
@@ -10954,6 +11523,116 @@ components:
                     type: string
                     description: 備註
             description: 租戶表單
+        system.admin.v1.BaseTenantProject:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 專案ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                code:
+                    type: string
+                    description: 專案編號
+                name:
+                    type: string
+                    description: 專案名稱
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 狀態
+                    format: enum
+                sort:
+                    type: integer
+                    description: 顯示順序
+                    format: int32
+                remark:
+                    type: string
+                    description: 備註
+                created_at:
+                    type: string
+                    description: 建立時間
+                updated_at:
+                    type: string
+                    description: 更新時間
+            description: 專案
+        system.admin.v1.BaseTenantProjectForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 專案ID
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                code:
+                    type: string
+                    description: 專案編號
+                name:
+                    type: string
+                    description: 專案名稱
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 狀態
+                    format: enum
+                sort:
+                    type: integer
+                    description: 顯示順序
+                    format: int32
+                remark:
+                    type: string
+                    description: 備註
+            description: 專案表單
+        system.admin.v1.BaseTenantProjectGrant:
+            type: object
+            properties:
+                tenant_id:
+                    type: string
+                    description: 授權目標租戶ID
+                subject_type:
+                    enum:
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_UNSPECIFIED
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_POST
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_ROLE
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_DEPT
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_USER
+                    type: string
+                    description: 授權主體型別
+                    format: enum
+                subject_id:
+                    type: string
+                    description: 崗位、角色、部門或使用者ID
+                project_id:
+                    type: array
+                    items:
+                        type: string
+                    description: 專案主鍵ID數字陣列，[0]全部，[]無許可權
+                tenant_name:
+                    type: string
+                    description: 租戶名稱
+                subject_name:
+                    type: string
+                    description: 授權主體名稱
+                subject_code:
+                    type: string
+                    description: 授權主體編碼
+                project_names:
+                    type: array
+                    items:
+                        type: string
+                    description: 授權專案名稱列表
+                grant_key:
+                    type: string
+                    description: 專案授權聯合主鍵展示值
+            description: 專案授權記錄，project_id 為 [0] 時表示目標租戶全部專案，空陣列表示無許可權。
         system.admin.v1.BaseUser:
             type: object
             properties:
@@ -11751,6 +12430,19 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseRedactStoragePolicyForm'
                     description: 入庫脫敏策略列表
             description: 建立入庫脫敏策略請求引數。
+        system.admin.v1.CreateBaseTenantResponse:
+            type: object
+            properties:
+                tenant_code:
+                    type: string
+                    description: 租戶編號
+                admin_user_name:
+                    type: string
+                    description: 租戶管理員賬號
+                initial_password:
+                    type: string
+                    description: 租戶管理員初始密碼，僅在隨機產生時返回
+            description: 建立租戶回應參數
         system.admin.v1.DraftBaseI18nItem:
             type: object
             properties:
@@ -12473,6 +13165,19 @@ components:
                     type: string
                     description: 總數
             description: 檔案資產分頁響應。
+        system.admin.v1.PageBaseI18nCustomResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseI18nCustom'
+                    description: 國際化自定義翻譯列表
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: 國際化自定義翻譯分頁響應。
         system.admin.v1.PageBaseJobLogResponse:
             type: object
             properties:
@@ -12759,6 +13464,32 @@ components:
                     description: 總數
                     format: int32
             description: PageBaseTableBackupRestoreResponse 資料庫備份恢復記錄分頁響應。
+        system.admin.v1.PageBaseTenantProjectGrantResponse:
+            type: object
+            properties:
+                grants:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseTenantProjectGrant'
+                    description: 專案授權列表
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: 專案授權分頁響應。
+        system.admin.v1.PageBaseTenantProjectResponse:
+            type: object
+            properties:
+                base_tenant_projects:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseTenantProject'
+                    description: 分頁資料
+                total:
+                    type: integer
+                    description: 總數
+                    format: int32
+            description: 專案分頁響應
         system.admin.v1.PageBaseTenantResponse:
             type: object
             properties:
@@ -13152,6 +13883,21 @@ components:
                     description: 狀態
                     format: int32
             description: 設定字典狀態請求引數
+        system.admin.v1.SetBaseI18nCustomStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 國際化自定義翻譯ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: 狀態
+                    format: enum
+            description: 設定國際化自定義翻譯狀態請求。
         system.admin.v1.SetBaseJobStatusRequest:
             type: object
             properties:
@@ -13327,6 +14073,17 @@ components:
                     description: 狀態
                     format: int32
             description: SetBaseTableBackupStatusRequest 設定資料庫備份配置狀態請求。
+        system.admin.v1.SetBaseTenantProjectStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 專案ID
+                status:
+                    type: integer
+                    description: 狀態
+                    format: int32
+            description: 設定專案狀態請求引數
         system.admin.v1.SetBaseTenantStatusRequest:
             type: object
             properties:
@@ -13426,6 +14183,42 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseMenu'
                     description: 選單樹
             description: 選單樹響應
+        system.admin.v1.TreeBaseTenantProjectResponse:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.TreeBaseTenantProjectResponse_Option'
+                    description: 租戶專案樹
+            description: 專案樹響應
+        system.admin.v1.TreeBaseTenantProjectResponse_Option:
+            type: object
+            properties:
+                value:
+                    type: string
+                    description: 節點值
+                label:
+                    type: string
+                    description: 節點名稱
+                type:
+                    type: string
+                    description: 節點型別：tenant 或 project
+                tenant_id:
+                    type: string
+                    description: 租戶ID
+                project_id:
+                    type: string
+                    description: 專案ID
+                disabled:
+                    type: boolean
+                    description: 是否禁用
+                children:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.TreeBaseTenantProjectResponse_Option'
+                    description: 子節點
+            description: 專案樹節點
         system.admin.v1.TreeRouteResponse:
             type: object
             properties:
@@ -13773,9 +14566,9 @@ tags:
     - name: AiToolService
       description: Base AI 助手工具服務
     - name: AuthService
-      description: App 使用者認證服務
-    - name: AuthService
       description: Admin 使用者登入認證服務
+    - name: AuthService
+      description: App 使用者認證服務
     - name: BaseApiLogService
       description: Admin API訪問日誌服務。
     - name: BaseApiService
@@ -13795,11 +14588,13 @@ tags:
     - name: BaseDictItemService
       description: Admin字典項服務
     - name: BaseDictService
-      description: Admin 字典服務
-    - name: BaseDictService
       description: App 字典服務
+    - name: BaseDictService
+      description: Admin 字典服務
     - name: BaseFileService
       description: Admin檔案資產管理服務。
+    - name: BaseI18nCustomService
+      description: Admin國際化自定義翻譯資訊服務。
     - name: BaseI18nService
       description: Admin國際化翻譯資訊服務。
     - name: BaseJobLogService
@@ -13856,6 +14651,10 @@ tags:
       description: Admin資料庫備份配置服務。
     - name: BaseTableSourceService
       description: Admin資料來源後設資料服務，提供資料備份、資料歸檔和程式碼生成共用的資料來源資訊。
+    - name: BaseTenantProjectGrantService
+      description: BaseTenantProjectGrantService 管理崗位、角色、部門和使用者在目標租戶下的專案授權。
+    - name: BaseTenantProjectService
+      description: Admin專案管理服務
     - name: BaseTenantService
       description: Admin 租戶管理服務
     - name: BaseUserService

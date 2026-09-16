@@ -5,6 +5,7 @@
 import Taro from '@tarojs/taro'
 import { create } from 'zustand'
 import type { KratosTaroModule } from '../module'
+import type { I18nCustomItem } from '../rpc/base/v1/config'
 import type { OptionLanguageResponse } from '../rpc/base/v1/language'
 import {
   DEFAULT_LOCALE as GENERATED_DEFAULT_LOCALE,
@@ -38,7 +39,9 @@ export interface LocaleStoreState {
 
 const DEFAULT_LOCALE: SupportedLocale = GENERATED_DEFAULT_LOCALE
 const LOCALE_STORAGE_KEY = 'kratos-app:locale'
+const defaultLocaleMessages = new Map<SupportedLocale, LocaleMessages>()
 const localeMessages = new Map<SupportedLocale, LocaleMessages>()
+const useLocaleMessagesRevision = create<number>(() => 0)
 const localeChangeHandlers = new Set<() => void | Promise<void>>()
 
 /** 响应式语言 Zustand Store。 */
@@ -106,8 +109,8 @@ export function getSupportedLocales(): SupportedLocale[] {
 
 /** 注册所有模块贡献的语言包并校验语言键集合。 */
 export function registerLocaleMessages(modules: KratosTaroModule[]): void {
-  localeMessages.clear()
-  SUPPORTED_LOCALES.forEach((locale) => localeMessages.set(locale, {}))
+  defaultLocaleMessages.clear()
+  SUPPORTED_LOCALES.forEach((locale) => defaultLocaleMessages.set(locale, {}))
   modules.forEach((module) => {
     const expectedKeys = requiredLocaleKeys(module.messages?.[DEFAULT_LOCALE] || {})
     SUPPORTED_LOCALES.forEach((locale) => {
@@ -117,7 +120,7 @@ export function registerLocaleMessages(modules: KratosTaroModule[]): void {
       if (keys.join('\u0000') !== expectedKeys.join('\u0000')) {
         throw new Error(`${module.name} 的 ${locale} 语言包键集合不一致`)
       }
-      const target = localeMessages.get(locale) as LocaleMessages
+      const target = defaultLocaleMessages.get(locale) as LocaleMessages
       Object.keys(messages).forEach((key) => {
         if (!isAllowedLocaleKey(module.name, key)) {
           throw new Error(`${module.name} 的语言键命名空间无效: ${key}`)
@@ -130,6 +133,21 @@ export function registerLocaleMessages(modules: KratosTaroModule[]): void {
       })
     })
   })
+  applyCustomLocaleMessages([])
+}
+
+/** 按语言和已有 key 覆盖本地文案，每次重新应用以清除已删除的自定义配置。 */
+export function applyCustomLocaleMessages(customs: I18nCustomItem[]): void {
+  SUPPORTED_LOCALES.forEach((locale) => {
+    const messages = { ...(defaultLocaleMessages.get(locale) ?? {}) }
+    customs.forEach((item) => {
+      if (parseSupportedLocale(item.locale) !== locale || !item.key || !item.value) return
+      if (!Object.prototype.hasOwnProperty.call(messages, item.key)) return
+      messages[item.key] = item.value
+    })
+    localeMessages.set(locale, messages)
+  })
+  useLocaleMessagesRevision.setState((revision) => revision + 1)
 }
 
 /** 校验公共键和当前业务模块专属的语言键命名空间。 */
@@ -176,6 +194,7 @@ export function t(key: string, params: LocaleParams = {}, locale = getCurrentLoc
 
 /** 在 React 页面中使用响应式国际化能力。 */
 export function useI18n() {
+  useLocaleMessagesRevision()
   const locale = useLocaleStore((state) => state.locale)
   return {
     locale,

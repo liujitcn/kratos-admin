@@ -69,3 +69,5 @@ import KratosSettingsPage from '@liujitcn/kratos-uni-app-core/components/KratosS
 扩展内容由产品模块自行组织完整卡片。页面顺序固定为业务扩展、MFA 与语言、微信设置、退出登录；产品模块可以注册自己的物理页面，并通过后注册的 `SETTINGS` viewKey 覆盖 system 默认包装页。
 
 构建与验证命令见 [workspace 文档](../../README.md)。
+
+应用配置加载成功后，core 会将 `i18n_customs` 按 `locale + key` 覆盖已注册的本地文案，并刷新页面翻译。仅覆盖已有 key 的非空文案；未配置或已删除的覆盖项恢复本地默认值，未知语言和未知 key 忽略。切换语言时沿用配置重载流程。

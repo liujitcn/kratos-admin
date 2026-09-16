@@ -10,8 +10,8 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import DynamicI18nEditor from "@liujitcn/kratos-admin-system/components/DynamicI18nEditor.vue";
-import { getEditableLanguageOptions, type DynamicI18nValue } from "@liujitcn/kratos-admin-system/components/dynamicI18n";
+import DynamicI18nEditor from "@liujitcn/kratos-admin-system/components/i18n/DynamicI18nEditor.vue";
+import { getEditableLanguageOptions, type DynamicI18nValue } from "@liujitcn/kratos-admin-system/components/i18n/dynamicI18n";
 import type { CodeGenLocaleConfig } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 
 /** 代码生成描述使用统一国际化入口，按字段保存回语言配置。 */

@@ -10,7 +10,7 @@
   />
   <ElSelect
     v-else-if="column.search?.el === 'select' && !column.search?.render"
-    v-bind="{ ...handleSearchProps, ...placeholder, searchParam: _searchParam, clearable }"
+    v-bind="{ ...handleSearchProps, ...placeholder, clearable }"
     v-model="_searchParam[column.search?.key ?? handleProp(column.prop!)]"
     :style="handleSearchStyle"
   >
@@ -32,6 +32,12 @@
       {{ col[fieldNames.label] }}
     </component>
   </ElRadioGroup>
+  <TenantSelect
+    v-else-if="column.search?.el === 'tenant-select' && !column.search?.render"
+    v-bind="{ ...handleSearchProps, ...placeholder, clearable }"
+    v-model="_searchParam[column.search?.key ?? handleProp(column.prop!)]"
+    :style="handleSearchStyle"
+  />
   <component
     v-else
     :is="searchComponent"
@@ -66,6 +72,7 @@ import {
   ElTreeSelect
 } from "element-plus";
 import Dict from "@/components/Dict/index.vue";
+import TenantSelect from "@/components/TenantSelect/index.vue";
 import { handleProp } from "@/utils";
 import { ColumnProps, SearchType } from "@/components/ProTable/interface";
 import { useLocaleStore } from "@/locales";
@@ -86,6 +93,7 @@ const searchComponentMap: Record<SearchType, Component> = {
   input: ElInput,
   "input-number": ElInputNumber,
   select: ElSelect,
+  "tenant-select": TenantSelect,
   "select-v2": ElSelectV2,
   "tree-select": ElTreeSelect,
   cascader: ElCascader,

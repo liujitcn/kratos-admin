@@ -23,6 +23,7 @@ var ProviderSet = wire.NewSet(
 	NewBaseDictItemRepository,
 	NewBaseFileRepository,
 	NewBaseI18NRepository,
+	NewBaseI18NCustomRepository,
 	NewBaseJobRepository,
 	NewBaseJobLogRepository,
 	NewBaseLanguageRepository,

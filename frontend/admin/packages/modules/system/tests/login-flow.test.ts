@@ -8,7 +8,7 @@ function readSource(path: string) {
 }
 
 test("强制改密弹窗挂载到 body，遮罩覆盖完整布局", async () => {
-  const source = await readSource("src/components/ForcedPasswordDialog.vue");
+  const source = await readSource("src/components/account/ForcedPasswordDialog.vue");
 
   assert.match(source, /<ProDialog[\s\S]*append-to-body/);
   assert.match(source, /:show-footer="false"/);

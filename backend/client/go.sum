@@ -416,8 +416,8 @@ github.com/liujitcn/go-utils v0.0.41 h1:nwf99uH7LJFNrPjmLFhmFJpydNZrzrnHIi1+hYIA
 github.com/liujitcn/go-utils v0.0.41/go.mod h1:7QojK9b2R4p0wrBPYTkkK7372mGVUhO8QseAZpHuhOs=
 github.com/liujitcn/go-utils/translator v0.0.4 h1:P2cGkwf/TXb5GBz/SYnahijBZSMw/o1fYkV138DyCvI=
 github.com/liujitcn/go-utils/translator v0.0.4/go.mod h1:c7K/fvl1m/YcSTI33929VoesSTD1Lx5olMsMIXaJnUA=
-github.com/liujitcn/kratos-admin/backend/api v0.0.12 h1:2pX+JDaSjxb4p7U9I0i0i70TNXg2nyvy0Tqx+NPVrgQ=
-github.com/liujitcn/kratos-admin/backend/api v0.0.12/go.mod h1:177i/5EvbxDC/LXSYpk+jLSTTlJUMC1W6h00jv5VKYA=
+github.com/liujitcn/kratos-admin/backend/api v0.0.13 h1:PS/qzY1tss6Dmqx24wOwJMkAHAdvbj01uxfeMRXSUeI=
+github.com/liujitcn/kratos-admin/backend/api v0.0.13/go.mod h1:177i/5EvbxDC/LXSYpk+jLSTTlJUMC1W6h00jv5VKYA=
 github.com/liujitcn/kratos-core/api v0.0.4 h1:Tw1+FSk8/anqr+vr6yZb+Bv1Kpf/c5/oEJg6V1BQSgM=
 github.com/liujitcn/kratos-core/api v0.0.4/go.mod h1:VqXAXmqT6uPL1nvzgl0Exh458iDrYO0mr3VGH1Kg1lQ=
 github.com/liujitcn/kratos-core/client v0.0.9 h1:OKZGjxGAWD3BLf1Ddomdh+PPz4VNdQRgM5Qru/sYT9g=

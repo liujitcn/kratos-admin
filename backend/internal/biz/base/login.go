@@ -303,7 +303,7 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 	var user *models.BaseUser
 	userQuery := c.baseUserCase.Query(ctx).BaseUser
 	userOpts := make([]repository.QueryOption, 0, 1)
-	userOpts = append(userOpts, repository.Where(userQuery.UserName.Eq(req.GetUserName())))
+	userOpts = append(userOpts, repository.Where(userQuery.TenantID.Eq(baseTenant.ID), userQuery.UserName.Eq(req.GetUserName())))
 	user, err = c.baseUserCase.Find(ctx, userOpts...)
 	if err != nil {
 		if err = c.recordLoginFailure(ctx, tenantCode, req.GetUserName(), loginSourcePolicy, baseTenant.ID, 0); err != nil {
@@ -419,7 +419,7 @@ func (c *LoginCase) FindUserByPassword(ctx context.Context, tenantCode string, u
 
 	userQuery := c.baseUserCase.Query(ctx).BaseUser
 	userOpts := make([]repository.QueryOption, 0, 1)
-	userOpts = append(userOpts, repository.Where(userQuery.UserName.Eq(userName)))
+	userOpts = append(userOpts, repository.Where(userQuery.TenantID.Eq(baseTenant.ID), userQuery.UserName.Eq(userName)))
 	var user *models.BaseUser
 	user, err = c.baseUserCase.Find(ctx, userOpts...)
 	if err != nil {

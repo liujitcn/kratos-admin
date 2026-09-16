@@ -51,6 +51,16 @@ export interface CreateBaseTenantRequest {
   base_tenant: BaseTenantForm | undefined;
 }
 
+/** 创建租户响应参数 */
+export interface CreateBaseTenantResponse {
+  /** 租户编号 */
+  tenant_code: string;
+  /** 租户管理员账号 */
+  admin_user_name: string;
+  /** 租户管理员初始密码，仅在随机生成时返回 */
+  initial_password: string;
+}
+
 /** 更新租户请求参数 */
 export interface UpdateBaseTenantRequest {
   /** 租户表单 */
@@ -124,7 +134,7 @@ export interface BaseTenantService {
   /** 查询租户 */
   GetBaseTenant(request: GetBaseTenantRequest): Promise<BaseTenantForm>;
   /** 创建租户 */
-  CreateBaseTenant(request: CreateBaseTenantRequest): Promise<Empty>;
+  CreateBaseTenant(request: CreateBaseTenantRequest): Promise<CreateBaseTenantResponse>;
   /** 更新租户 */
   UpdateBaseTenant(request: UpdateBaseTenantRequest): Promise<Empty>;
   /** 删除租户 */

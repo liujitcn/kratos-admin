@@ -20,16 +20,80 @@
       @confirm="handleSubmit"
       @close="handleCloseDialog"
     />
+
+    <ProDialog
+      v-model="credentialsDialog.visible"
+      :title="t('system.base.tenant.title.initial_credentials')"
+      width="min(620px, calc(100vw - 32px))"
+      class="tenant-credentials-dialog"
+      append-to-body
+      destroy-on-close
+      :close-on-click-modal="false"
+      @close="handleCloseCredentialsDialog"
+    >
+      <div class="tenant-credentials-list">
+        <div class="tenant-credentials-row">
+          <span class="tenant-credentials-label">{{ t("system.base.tenant.field.code") }}</span>
+          <span class="tenant-credentials-value">{{ credentialsDialog.tenant_code }}</span>
+          <el-tooltip :content="t('system.base.tenant.tooltip.copy_credentials')" placement="top">
+            <el-button
+              text
+              circle
+              :aria-label="t('system.base.tenant.tooltip.copy_credentials')"
+              @click="handleCopyCredentials"
+            >
+              <el-icon><CopyDocument /></el-icon>
+            </el-button>
+          </el-tooltip>
+        </div>
+        <div class="tenant-credentials-row">
+          <span class="tenant-credentials-label">{{ t("system.base.user.field.user_name") }}</span>
+          <span class="tenant-credentials-value">{{ credentialsDialog.admin_user_name }}</span>
+        </div>
+        <div class="tenant-credentials-row">
+          <span class="tenant-credentials-label">{{ t("system.base.user.field.password") }}</span>
+          <span class="tenant-credentials-value">
+            {{ credentialsDialog.passwordVisible ? credentialsDialog.initial_password : "********" }}
+          </span>
+          <el-tooltip
+            :content="
+              credentialsDialog.passwordVisible
+                ? t('system.base.tenant.tooltip.hide_password')
+                : t('system.base.tenant.tooltip.show_password')
+            "
+            placement="top"
+          >
+            <el-button
+              text
+              circle
+              :aria-label="
+                credentialsDialog.passwordVisible
+                  ? t('system.base.tenant.tooltip.hide_password')
+                  : t('system.base.tenant.tooltip.show_password')
+              "
+              @click="credentialsDialog.passwordVisible = !credentialsDialog.passwordVisible"
+            >
+              <el-icon><View v-if="!credentialsDialog.passwordVisible" /><Hide v-else /></el-icon>
+            </el-button>
+          </el-tooltip>
+        </div>
+      </div>
+      <p class="tenant-credentials-warning">{{ t("system.base.tenant.message.initial_credentials_warning") }}</p>
+      <template #footer>
+        <el-button type="primary" @click="credentialsDialog.visible = false">{{ t("common.action.confirm") }}</el-button>
+      </template>
+    </ProDialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
+import { CirclePlus, CopyDocument, Delete, EditPen, Hide, View } from "@element-plus/icons-vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
+import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { defBaseTenantService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_tenant";
@@ -40,6 +104,7 @@ import type {
 } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_tenant";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
+import { copyText } from "@liujitcn/kratos-admin-core/security";
 import { t } from "@liujitcn/kratos-admin-core";
 
 defineOptions({
@@ -54,6 +119,13 @@ const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const dialog = reactive({
   titleKey: "common.action.create_resource",
   visible: false
+});
+const credentialsDialog = reactive({
+  visible: false,
+  tenant_code: "",
+  admin_user_name: "",
+  initial_password: "",
+  passwordVisible: false
 });
 
 const formData = reactive<BaseTenantForm>({
@@ -290,24 +362,50 @@ function resetForm() {
 /**
  * 提交租户表单。
  */
-function handleSubmit() {
-  formDialogRef.value?.validate()?.then(valid => {
-    if (!valid) return;
+async function handleSubmit() {
+  const valid = await formDialogRef.value?.validate();
+  if (!valid) return;
 
-    const submitData = JSON.parse(JSON.stringify(formData)) as BaseTenantForm;
-    const request = submitData.id
-      ? defBaseTenantService.UpdateBaseTenant({ base_tenant: submitData })
-      : defBaseTenantService.CreateBaseTenant({ base_tenant: submitData });
-    request.then(() => {
-      ElMessage.success(
-        t(submitData.id ? "common.message.update_success" : "common.message.create_success", {
-          resource: t("common.field.tenant")
-        })
-      );
-      handleCloseDialog();
-      refreshTable();
-    });
-  });
+  const submitData = JSON.parse(JSON.stringify(formData)) as BaseTenantForm;
+  if (submitData.id) {
+    await defBaseTenantService.UpdateBaseTenant({ base_tenant: submitData });
+    ElMessage.success(t("common.message.update_success", { resource: t("common.field.tenant") }));
+  } else {
+    const response = await defBaseTenantService.CreateBaseTenant({ base_tenant: submitData });
+    ElMessage.success(t("common.message.create_success", { resource: t("common.field.tenant") }));
+    handleCloseDialog();
+    refreshTable();
+    if (response.initial_password) {
+      credentialsDialog.tenant_code = response.tenant_code;
+      credentialsDialog.admin_user_name = response.admin_user_name;
+      credentialsDialog.initial_password = response.initial_password;
+      credentialsDialog.passwordVisible = false;
+      credentialsDialog.visible = true;
+    }
+    return;
+  }
+  handleCloseDialog();
+  refreshTable();
+}
+
+/** 关闭凭据弹窗并清除一次性凭据。 */
+function handleCloseCredentialsDialog() {
+  credentialsDialog.visible = false;
+  credentialsDialog.tenant_code = "";
+  credentialsDialog.admin_user_name = "";
+  credentialsDialog.initial_password = "";
+  credentialsDialog.passwordVisible = false;
+}
+
+/** 复制租户编号、管理员账号和初始密码。 */
+async function handleCopyCredentials() {
+  const content = [
+    `${t("system.base.tenant.field.code")}：${credentialsDialog.tenant_code}`,
+    `${t("system.base.user.field.user_name")}：${credentialsDialog.admin_user_name}`,
+    `${t("system.base.user.field.password")}：${credentialsDialog.initial_password}`
+  ].join("\n");
+  await copyText(content);
+  ElMessage.success(t("core.clipboard.success"));
 }
 
 /**
@@ -392,3 +490,49 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   );
 }
 </script>
+
+<style scoped lang="scss">
+.tenant-credentials-row :deep(.el-icon) {
+  color: var(--el-color-primary);
+  font-size: 18px;
+}
+
+.tenant-credentials-list {
+  display: grid;
+  gap: 14px;
+}
+
+.tenant-credentials-row {
+  display: grid;
+  grid-template-columns: minmax(96px, auto) minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  min-height: 32px;
+}
+
+.tenant-credentials-label {
+  color: var(--el-text-color-secondary);
+  white-space: nowrap;
+}
+
+.tenant-credentials-value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--el-text-color-primary);
+  font-family: var(--el-font-family-monospace);
+}
+
+.tenant-credentials-warning {
+  margin: 0;
+  color: var(--el-color-warning);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+@media (max-width: 560px) {
+  .tenant-credentials-row {
+    grid-template-columns: minmax(82px, auto) minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+}
+</style>

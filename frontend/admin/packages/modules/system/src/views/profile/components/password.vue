@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import { t } from "@liujitcn/kratos-admin-core";
-import ChangePasswordForm from "../../../components/ChangePasswordForm.vue";
+import ChangePasswordForm from "../../../components/account/ChangePasswordForm.vue";
 </script>
 
 <style scoped lang="scss">

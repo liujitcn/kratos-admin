@@ -40,6 +40,18 @@ export interface GetConfigResponse {
   configs: ConfigItem[];
   /** AI 助手是否可用 */
   ai_enabled: boolean;
+  /** 全部语言的自定义国际化覆盖项 */
+  i18n_customs: I18nCustomItem[];
+}
+
+/** 全部语言的自定义国际化覆盖项。 */
+export interface I18nCustomItem {
+  /** 语言区域 */
+  locale: string;
+  /** 国际化语言键 */
+  key: string;
+  /** 自定义翻译内容 */
+  value: string;
 }
 
 /** Base系统配置公共服务 */

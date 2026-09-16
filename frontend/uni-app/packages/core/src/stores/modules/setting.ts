@@ -2,7 +2,7 @@ import { defConfigService } from '../../api/base/v1/config'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { BaseConfigSite } from '../../rpc/base/v1/config'
-import { t } from '../../locales'
+import { applyCustomLocaleMessages, t } from '../../locales'
 
 const REQUIRED_APP_CONFIGS = [
   { key: 'serviceProtocol', nameKey: 'core.protocol.service' },
@@ -36,6 +36,7 @@ export const useSettingStore = defineStore('setting', () => {
         aiEnabled.value = false
         return
       }
+      applyCustomLocaleMessages(res.i18n_customs ?? [])
       const nextData = new Map<string, string>()
       res.configs.forEach((item) => {
         nextData.set(item.key, item.value)

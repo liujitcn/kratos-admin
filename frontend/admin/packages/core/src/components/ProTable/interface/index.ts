@@ -24,6 +24,7 @@ export type SearchType =
   | "input"
   | "input-number"
   | "select"
+  | "tenant-select"
   | "select-v2"
   | "tree-select"
   | "cascader"

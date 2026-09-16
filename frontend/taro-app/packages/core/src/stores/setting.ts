@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { defConfigService } from '../api/base/v1/config'
-import { t } from '../locales'
+import { applyCustomLocaleMessages, t } from '../locales'
 import { BaseConfigSite } from '../rpc/base/v1/config'
 
 const REQUIRED_APP_CONFIGS = [
@@ -36,6 +36,7 @@ export const useSettingStore = create<SettingStoreState>((set, get) => ({
         set({ aiEnabled: false })
         return
       }
+      applyCustomLocaleMessages(response.i18n_customs ?? [])
       const nextData = new Map(response.configs.map((item) => [item.key, item.value]))
       const missing = REQUIRED_APP_CONFIGS.filter(({ key }) => !nextData.get(key))
       if (missing.length) {

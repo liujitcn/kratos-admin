@@ -6,10 +6,10 @@
 import { computed, ref } from "vue";
 import type { ColumnProps } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import { t } from "@liujitcn/kratos-admin-core";
-import { formatLogDateTime } from "@liujitcn/kratos-admin-system/components/log";
+import { formatLogDateTime } from "@liujitcn/kratos-admin-system/components/log/log";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
-import LogTable, { type LogTableConfig } from "@liujitcn/kratos-admin-system/components/LogTable.vue";
-import { logDateSearch, logDetailColumn, logEnumLabel, createLogEnumOptions, requestLogTrace } from "@liujitcn/kratos-admin-system/components/log";
+import LogTable, { type LogTableConfig } from "@liujitcn/kratos-admin-system/components/log/LogTable.vue";
+import { logDateSearch, logDetailColumn, logEnumLabel, createLogEnumOptions, requestLogTrace } from "@liujitcn/kratos-admin-system/components/log/log";
 import { defBaseOperationLogService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_operation_log";
 import { BaseLogResult } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_log";
 import { BaseOperationAction } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_operation_log";

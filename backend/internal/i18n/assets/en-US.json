@@ -233,6 +233,18 @@
   "system.admin.base.tenant.entity.remark.max_length": {
     "other": "Comments cannot exceed 500 characters"
   },
+  "system.admin.base.tenant.response.admin_user_name": {
+    "other": "Tenant administrator username"
+  },
+  "system.admin.base.tenant.response.initial_password": {
+    "other": "Tenant administrator initial password, returned only when generated randomly"
+  },
+  "system.admin.base.tenant.response.description": {
+    "other": "Create tenant response parameters"
+  },
+  "system.admin.base.tenant.response.tenant_code": {
+    "other": "Tenant code"
+  },
   "system.admin.base.i18n.update.target.required": {
     "other": "Complete target information is required when the ID is zero"
   },
@@ -1282,5 +1294,17 @@
   },
   "system.admin.base.config.form.unsupported": {
     "other": "Select a registered system configuration form"
+  },
+  "system.admin.auth.profile.email.max_length": {
+    "other": "Email cannot exceed 128 characters"
+  },
+  "system.admin.auth.user.email.max_length": {
+    "other": "Email cannot exceed 128 characters"
+  },
+  "system.admin.base.user.entity.email.max_length": {
+    "other": "Email cannot exceed 128 characters"
+  },
+  "system.app.auth.profile.email.max_length": {
+    "other": "Email cannot exceed 128 characters"
   }
 }

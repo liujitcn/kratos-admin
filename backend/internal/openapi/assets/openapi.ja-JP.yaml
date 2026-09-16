@@ -1404,6 +1404,148 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/i18n-custom:
+        get:
+            tags:
+                - BaseI18nCustomService
+            description: カスタム翻訳をページ単位で取得します。
+            operationId: BaseI18nCustomService_PageBaseI18nCustom
+            parameters:
+                - name: site
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_CONFIG_SITE_UNSPECIFIED
+                        - BASE_CONFIG_SITE_SYSTEM
+                        - BASE_CONFIG_SITE_ADMIN
+                        - BASE_CONFIG_SITE_APP
+                    type: string
+                    format: enum
+                - name: key
+                  in: query
+                  schema:
+                    type: string
+                - name: locale
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseI18nCustomResponse'
+        post:
+            tags:
+                - BaseI18nCustomService
+            description: カスタム翻訳を作成します。
+            operationId: BaseI18nCustomService_CreateBaseI18nCustom
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseI18nCustomForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/i18n-custom/{i18n_custom.id}:
+        put:
+            tags:
+                - BaseI18nCustomService
+            description: カスタム翻訳を更新します。
+            operationId: BaseI18nCustomService_UpdateBaseI18nCustom
+            parameters:
+                - name: i18n_custom.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseI18nCustomForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/i18n-custom/{id}:
+        get:
+            tags:
+                - BaseI18nCustomService
+            description: カスタム翻訳の詳細を取得します。
+            operationId: BaseI18nCustomService_GetBaseI18nCustom
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseI18nCustomForm'
+        delete:
+            tags:
+                - BaseI18nCustomService
+            description: カスタム翻訳を削除します。
+            operationId: BaseI18nCustomService_DeleteBaseI18nCustom
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/i18n-custom/{id}/status:
+        put:
+            tags:
+                - BaseI18nCustomService
+            description: カスタム翻訳の状態を設定します。
+            operationId: BaseI18nCustomService_SetBaseI18nCustomStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseI18nCustomStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/i18n/draft:
         post:
             tags:
@@ -4514,7 +4656,10 @@ paths:
             responses:
                 "200":
                     description: OK
-                    content: {}
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.CreateBaseTenantResponse'
     /api/v1/admin/base/tenant/option:
         get:
             tags:
@@ -4533,6 +4678,334 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/common.v1.SelectOptionResponse'
+    /api/v1/admin/base/tenant/project:
+        get:
+            tags:
+                - BaseTenantProjectService
+            description: プロジェクトをページ単位で取得
+            operationId: BaseTenantProjectService_PageBaseTenantProject
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseTenantProjectResponse'
+        post:
+            tags:
+                - BaseTenantProjectService
+            description: プロジェクトを作成
+            operationId: BaseTenantProjectService_CreateBaseTenantProject
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseTenantProjectForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/tenant/project/grant:
+        get:
+            tags:
+                - BaseTenantProjectGrantService
+            description: 検索プロジェクト認可ページネーション一覧。
+            operationId: BaseTenantProjectGrantService_PageBaseTenantProjectGrant
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: subject_type
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_UNSPECIFIED
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_POST
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_ROLE
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_DEPT
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_USER
+                    type: string
+                    format: enum
+                - name: subject_id
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseTenantProjectGrantResponse'
+        post:
+            tags:
+                - BaseTenantProjectGrantService
+            description: 追加プロジェクト認可。
+            operationId: BaseTenantProjectGrantService_CreateBaseTenantProjectGrant
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseTenantProjectGrant'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    ? /api/v1/admin/base/tenant/project/grant/{base_tenant_project_grant.tenant_id}/{base_tenant_project_grant.subject_type}/{base_tenant_project_grant.subject_id}
+    :   put:
+            tags:
+                - BaseTenantProjectGrantService
+            description: プロジェクト権限を更新します。変更できるのはプロジェクト範囲だけで、権限対象の複合キーは変更できません。
+            operationId: BaseTenantProjectGrantService_UpdateBaseTenantProjectGrant
+            parameters:
+                - name: base_tenant_project_grant.tenant_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: base_tenant_project_grant.subject_type
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: base_tenant_project_grant.subject_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseTenantProjectGrant'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/tenant/project/grant/{tenant_id}/{subject_type}/{subject_id}:
+        get:
+            tags:
+                - BaseTenantProjectGrantService
+            description: 検索プロジェクト認可詳細。
+            operationId: BaseTenantProjectGrantService_GetBaseTenantProjectGrant
+            parameters:
+                - name: tenant_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: subject_type
+                  in: path
+                  required: true
+                  schema:
+                    enum:
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_UNSPECIFIED
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_POST
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_ROLE
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_DEPT
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_USER
+                    type: string
+                    format: enum
+                - name: subject_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseTenantProjectGrant'
+        delete:
+            tags:
+                - BaseTenantProjectGrantService
+            description: 削除プロジェクト認可。
+            operationId: BaseTenantProjectGrantService_DeleteBaseTenantProjectGrant
+            parameters:
+                - name: tenant_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: subject_type
+                  in: path
+                  required: true
+                  schema:
+                    enum:
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_UNSPECIFIED
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_POST
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_ROLE
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_DEPT
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_USER
+                    type: string
+                    format: enum
+                - name: subject_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/tenant/project/option:
+        get:
+            tags:
+                - BaseTenantProjectService
+            description: プロジェクト選択肢を取得
+            operationId: BaseTenantProjectService_OptionBaseTenantProject
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/common.v1.SelectOptionResponse'
+    /api/v1/admin/base/tenant/project/tree:
+        get:
+            tags:
+                - BaseTenantProjectService
+            description: 検索現在の账号可能な用のテナントプロジェクトツリー
+            operationId: BaseTenantProjectService_TreeBaseTenantProject
+            parameters:
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.TreeBaseTenantProjectResponse'
+    /api/v1/admin/base/tenant/project/{base_tenant_project.id}:
+        put:
+            tags:
+                - BaseTenantProjectService
+            description: プロジェクトを更新
+            operationId: BaseTenantProjectService_UpdateBaseTenantProject
+            parameters:
+                - name: base_tenant_project.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseTenantProjectForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/tenant/project/{id}:
+        get:
+            tags:
+                - BaseTenantProjectService
+            description: プロジェクトを取得
+            operationId: BaseTenantProjectService_GetBaseTenantProject
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseTenantProjectForm'
+        delete:
+            tags:
+                - BaseTenantProjectService
+            description: プロジェクトを削除
+            operationId: BaseTenantProjectService_DeleteBaseTenantProject
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/tenant/project/{id}/status:
+        put:
+            tags:
+                - BaseTenantProjectService
+            description: プロジェクト状態を設定
+            operationId: BaseTenantProjectService_SetBaseTenantProjectStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseTenantProjectStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/tenant/{base_tenant.id}:
         put:
             tags:
@@ -7329,7 +7802,12 @@ components:
                     description: システム設定一覧
                 ai_enabled:
                     type: boolean
-                    description: AI アシスタントの利用可否
+                    description: AI assistant availability
+                i18n_customs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.I18nCustomItem'
+                    description: 全言語のカスタム国際化上書き
             description: システム設定検索結果
         base.v1.HandleMcpRequest:
             type: object
@@ -7346,6 +7824,19 @@ components:
             type: object
             properties: {}
             description: サードパーティーログインコールバック結果
+        base.v1.I18nCustomItem:
+            type: object
+            properties:
+                locale:
+                    type: string
+                    description: ロケール
+                key:
+                    type: string
+                    description: 言語キー
+                value:
+                    type: string
+                    description: カスタム翻訳内容
+            description: 全言語のカスタム国際化上書き。
         base.v1.IssueOauthClientTokenRequest:
             type: object
             properties:
@@ -8830,6 +9321,84 @@ components:
                     type: string
                     description: 翻訳テキスト
             description: 国際化翻訳情報
+        system.admin.v1.BaseI18nCustom:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: カスタム翻訳ID
+                site:
+                    enum:
+                        - BASE_CONFIG_SITE_UNSPECIFIED
+                        - BASE_CONFIG_SITE_SYSTEM
+                        - BASE_CONFIG_SITE_ADMIN
+                        - BASE_CONFIG_SITE_APP
+                    type: string
+                    description: "位置: enum [BaseConfigSite]"
+                    format: enum
+                key:
+                    type: string
+                    description: 言語キー
+                locale:
+                    type: string
+                    description: ロケール
+                value:
+                    type: string
+                    description: カスタム翻訳内容
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス：enum【Status】
+                    format: enum
+                remark:
+                    type: string
+                    description: 備考
+                created_at:
+                    type: string
+                    description: 作成時刻
+                updated_at:
+                    type: string
+                    description: 更新時刻
+            description: カスタム翻訳情報。
+        system.admin.v1.BaseI18nCustomForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: カスタム翻訳ID
+                site:
+                    enum:
+                        - BASE_CONFIG_SITE_UNSPECIFIED
+                        - BASE_CONFIG_SITE_SYSTEM
+                        - BASE_CONFIG_SITE_ADMIN
+                        - BASE_CONFIG_SITE_APP
+                    type: string
+                    description: "位置: enum [BaseConfigSite]"
+                    format: enum
+                key:
+                    type: string
+                    description: 言語キー
+                locale:
+                    type: string
+                    description: ロケール
+                value:
+                    type: string
+                    description: カスタム翻訳内容
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+                remark:
+                    type: string
+                    description: 備考
+            description: カスタム翻訳フォーム。
         system.admin.v1.BaseJob:
             type: object
             properties:
@@ -10954,6 +11523,116 @@ components:
                     type: string
                     description: 備考
             description: テナントフォーム
+        system.admin.v1.BaseTenantProject:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: プロジェクトID
+                tenant_id:
+                    type: string
+                    description: テナント ID
+                code:
+                    type: string
+                    description: プロジェクト编号
+                name:
+                    type: string
+                    description: プロジェクト名称
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+                sort:
+                    type: integer
+                    description: 表示順序
+                    format: int32
+                remark:
+                    type: string
+                    description: 備考
+                created_at:
+                    type: string
+                    description: 作成時刻
+                updated_at:
+                    type: string
+                    description: 更新時刻
+            description: プロジェクト
+        system.admin.v1.BaseTenantProjectForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: プロジェクトID
+                tenant_id:
+                    type: string
+                    description: テナント ID
+                code:
+                    type: string
+                    description: プロジェクト编号
+                name:
+                    type: string
+                    description: プロジェクト名称
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+                sort:
+                    type: integer
+                    description: 表示順序
+                    format: int32
+                remark:
+                    type: string
+                    description: 備考
+            description: プロジェクトフォーム
+        system.admin.v1.BaseTenantProjectGrant:
+            type: object
+            properties:
+                tenant_id:
+                    type: string
+                    description: 認可対象テナント ID
+                subject_type:
+                    enum:
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_UNSPECIFIED
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_POST
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_ROLE
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_DEPT
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_USER
+                    type: string
+                    description: 権限付与対象の種類
+                    format: enum
+                subject_id:
+                    type: string
+                    description: 職位、ロール、部署、ユーザーのID
+                project_id:
+                    type: array
+                    items:
+                        type: string
+                    description: プロジェクト主キーの数値配列。[0]は全件、[]は権限なし
+                tenant_name:
+                    type: string
+                    description: テナント名称
+                subject_name:
+                    type: string
+                    description: 権限対象名
+                subject_code:
+                    type: string
+                    description: 権限対象コード
+                project_names:
+                    type: array
+                    items:
+                        type: string
+                    description: 認可プロジェクト名称一覧
+                grant_key:
+                    type: string
+                    description: プロジェクト権限の複合キー表示値
+            description: プロジェクト権限レコード。project_id [0] は対象テナントの全プロジェクト、空配列は権限なしを表します。
         system.admin.v1.BaseUser:
             type: object
             properties:
@@ -11751,6 +12430,19 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseRedactStoragePolicyForm'
                     description: 保存マスキングポリシー一覧
             description: 作成保存マスキングポリシーリクエストパラメータ。
+        system.admin.v1.CreateBaseTenantResponse:
+            type: object
+            properties:
+                tenant_code:
+                    type: string
+                    description: テナント番号
+                admin_user_name:
+                    type: string
+                    description: テナント管理者アカウント
+                initial_password:
+                    type: string
+                    description: テナント管理者の初期パスワード。ランダム生成時のみ返却
+            description: テナント作成レスポンスパラメータ
         system.admin.v1.DraftBaseI18nItem:
             type: object
             properties:
@@ -12473,6 +13165,19 @@ components:
                     type: string
                     description: 合計件数
             description: ファイル資産ページネーションレスポンス。
+        system.admin.v1.PageBaseI18nCustomResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseI18nCustom'
+                    description: カスタム翻訳一覧
+                total:
+                    type: integer
+                    description: 合計件数
+                    format: int32
+            description: カスタム翻訳ページネーションレスポンス。
         system.admin.v1.PageBaseJobLogResponse:
             type: object
             properties:
@@ -12759,6 +13464,32 @@ components:
                     description: 合計件数
                     format: int32
             description: PageBaseTableBackupRestoreResponse データベースバックアップ復元記録ページネーションレスポンス。
+        system.admin.v1.PageBaseTenantProjectGrantResponse:
+            type: object
+            properties:
+                grants:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseTenantProjectGrant'
+                    description: プロジェクト認可一覧
+                total:
+                    type: integer
+                    description: 合計件数
+                    format: int32
+            description: プロジェクト認可ページネーションレスポンス。
+        system.admin.v1.PageBaseTenantProjectResponse:
+            type: object
+            properties:
+                base_tenant_projects:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseTenantProject'
+                    description: ページネーションデータ
+                total:
+                    type: integer
+                    description: 合計件数
+                    format: int32
+            description: プロジェクトページネーションレスポンス
         system.admin.v1.PageBaseTenantResponse:
             type: object
             properties:
@@ -13152,6 +13883,21 @@ components:
                     description: ステータス
                     format: int32
             description: 設定辞書ステータスリクエストパラメータ
+        system.admin.v1.SetBaseI18nCustomStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: カスタム翻訳ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: ステータス
+                    format: enum
+            description: カスタム翻訳状態設定リクエスト。
         system.admin.v1.SetBaseJobStatusRequest:
             type: object
             properties:
@@ -13327,6 +14073,17 @@ components:
                     description: ステータス
                     format: int32
             description: SetBaseTableBackupStatusRequest 設定データベースバックアップ設定ステータスリクエスト。
+        system.admin.v1.SetBaseTenantProjectStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: プロジェクトID
+                status:
+                    type: integer
+                    description: ステータス
+                    format: int32
+            description: 設定プロジェクトステータスリクエストパラメータ
         system.admin.v1.SetBaseTenantStatusRequest:
             type: object
             properties:
@@ -13426,6 +14183,42 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseMenu'
                     description: メニューツリー
             description: メニューツリーレスポンス
+        system.admin.v1.TreeBaseTenantProjectResponse:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.TreeBaseTenantProjectResponse_Option'
+                    description: テナントプロジェクトツリー
+            description: プロジェクトツリーレスポンス
+        system.admin.v1.TreeBaseTenantProjectResponse_Option:
+            type: object
+            properties:
+                value:
+                    type: string
+                    description: ノード値
+                label:
+                    type: string
+                    description: ノード名
+                type:
+                    type: string
+                    description: "ノード種別: tenant または project"
+                tenant_id:
+                    type: string
+                    description: テナント ID
+                project_id:
+                    type: string
+                    description: プロジェクトID
+                disabled:
+                    type: boolean
+                    description: 無効化するかどうか
+                children:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.TreeBaseTenantProjectResponse_Option'
+                    description: 子ノード
+            description: プロジェクトツリーノード
         system.admin.v1.TreeRouteResponse:
             type: object
             properties:
@@ -13773,9 +14566,9 @@ tags:
     - name: AiToolService
       description: Base AI アシスタントツールサービス
     - name: AuthService
-      description: Appユーザー認証サービス
-    - name: AuthService
       description: Adminユーザーログイン認証サービス
+    - name: AuthService
+      description: Appユーザー認証サービス
     - name: BaseApiLogService
       description: Admin APIアクセスログサービス。
     - name: BaseApiService
@@ -13795,11 +14588,13 @@ tags:
     - name: BaseDictItemService
       description: Admin辞書項目サービス
     - name: BaseDictService
-      description: Admin辞書サービス
-    - name: BaseDictService
       description: App辞書サービス
+    - name: BaseDictService
+      description: Admin辞書サービス
     - name: BaseFileService
       description: Adminファイル資産管理サービス。
+    - name: BaseI18nCustomService
+      description: Adminカスタム翻訳サービス。
     - name: BaseI18nService
       description: Admin国際化サービス。
     - name: BaseJobLogService
@@ -13856,6 +14651,10 @@ tags:
       description: Adminデータベースバックアップ設定サービス。
     - name: BaseTableSourceService
       description: Adminデータソースメタデータサービス。データベースバックアップ、データアーカイブ、コード生成で共有するデータソース情報を提供します。
+    - name: BaseTenantProjectGrantService
+      description: BaseTenantProjectGrantService は対象テナントの職位、ロール、部署、ユーザーのプロジェクト権限を管理します。
+    - name: BaseTenantProjectService
+      description: 管理用プロジェクトサービス
     - name: BaseTenantService
       description: Adminテナント管理サービス
     - name: BaseUserService

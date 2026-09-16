@@ -9,6 +9,7 @@
       v-model="dialog.visible"
       :title="t(dialog.titleKey)"
       width="980px"
+      label-width="auto"
       :model="formData"
       :fields="formFields"
       :rules="formRules"
@@ -19,15 +20,34 @@
         <div class="rules-editor">
           <div v-for="(rule, index) in formData.rules" :key="rule.id || index" class="rule-row">
             <el-select v-model="rule.restriction_type" class="rule-type">
-              <el-option v-for="option in restrictionTypeOptions" :key="String(option.value)" :label="option.label" :value="option.value" />
+              <el-option
+                v-for="option in restrictionTypeOptions"
+                :key="String(option.value)"
+                :label="option.label"
+                :value="option.value"
+              />
             </el-select>
             <el-select v-model="rule.restriction_method" class="rule-method">
-              <el-option v-for="option in restrictionMethodOptions" :key="String(option.value)" :label="option.label" :value="option.value" />
+              <el-option
+                v-for="option in restrictionMethodOptions"
+                :key="String(option.value)"
+                :label="option.label"
+                :value="option.value"
+              />
             </el-select>
-            <el-input v-model="rule.restriction_value" class="rule-value" :placeholder="rulePlaceholder(rule.restriction_method)" />
+            <el-input
+              v-model="rule.restriction_value"
+              class="rule-value"
+              :placeholder="rulePlaceholder(rule.restriction_method)"
+            />
             <el-input v-model="rule.reason" class="rule-reason" :placeholder="t('system.base.login_policy.placeholder.reason')" />
             <el-select v-model="rule.status" class="rule-status">
-              <el-option v-for="option in statusOptions" :key="String(option.value)" :label="option.label" :value="option.value" />
+              <el-option
+                v-for="option in statusOptions"
+                :key="String(option.value)"
+                :label="option.label"
+                :value="option.value"
+              />
             </el-select>
             <el-button link type="danger" :icon="Delete" @click="removeRule(index)" />
           </div>
@@ -35,6 +55,9 @@
             {{ t("system.base.login_policy.rules.add") }}
           </el-button>
         </div>
+      </template>
+      <template #initialPasswordStrength>
+        <PasswordStrength :password="formData.initial_password" />
       </template>
     </FormDialog>
   </div>
@@ -46,14 +69,15 @@ import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
 import { ElButton, ElMessage, ElMessageBox, ElTag } from "element-plus";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import FormDialog from "@liujitcn/kratos-admin-core/components/Dialog/FormDialog.vue";
+import PasswordStrength from "@liujitcn/kratos-admin-core/components/PasswordStrength/index.vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { PASSWORD_CRYPTO_SCENE, encryptPassword } from "@liujitcn/kratos-admin-core/security";
+import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { t } from "@liujitcn/kratos-admin-core";
 import { defBaseLoginPolicyService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_login_policy";
-import { defBaseTenantService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_tenant";
 import { defBaseUserService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_user";
 import type { SelectOptionResponse_Option } from "@liujitcn/kratos-admin-system/rpc/common/v1/common";
 import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
@@ -81,9 +105,9 @@ const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const dialog = reactive({ visible: false, titleKey: "common.action.create" });
-const tenantOptions = ref<SelectOptionResponse_Option[]>([]);
 const userOptions = ref<SelectOptionResponse_Option[]>([]);
 const formData = reactive<BaseLoginPolicyFormState>(defaultForm());
+const { isDefaultTenant, tenantFormField, loadTenantOptions } = useTenantScope();
 
 const scopeTypeOptions = computed<ProFormOption[]>(() => [
   { label: t("system.base.login_policy.scope.global"), value: BaseLoginPolicyScopeType.BASE_LOGIN_POLICY_SCOPE_TYPE_GLOBAL },
@@ -91,15 +115,36 @@ const scopeTypeOptions = computed<ProFormOption[]>(() => [
   { label: t("common.field.user"), value: BaseLoginPolicyScopeType.BASE_LOGIN_POLICY_SCOPE_TYPE_USER }
 ]);
 const restrictionTypeOptions = computed<ProFormOption[]>(() => [
-  { label: t("system.base.login_policy.restriction.blacklist"), value: BaseLoginPolicyRestrictionType.BASE_LOGIN_POLICY_RESTRICTION_TYPE_BLACKLIST },
-  { label: t("system.base.login_policy.restriction.whitelist"), value: BaseLoginPolicyRestrictionType.BASE_LOGIN_POLICY_RESTRICTION_TYPE_WHITELIST }
+  {
+    label: t("system.base.login_policy.restriction.blacklist"),
+    value: BaseLoginPolicyRestrictionType.BASE_LOGIN_POLICY_RESTRICTION_TYPE_BLACKLIST
+  },
+  {
+    label: t("system.base.login_policy.restriction.whitelist"),
+    value: BaseLoginPolicyRestrictionType.BASE_LOGIN_POLICY_RESTRICTION_TYPE_WHITELIST
+  }
 ]);
 const restrictionMethodOptions = computed<ProFormOption[]>(() => [
-  { label: t("system.base.login_policy.method.ip"), value: BaseLoginPolicyRestrictionMethod.BASE_LOGIN_POLICY_RESTRICTION_METHOD_IP },
-  { label: t("system.base.login_policy.method.mac"), value: BaseLoginPolicyRestrictionMethod.BASE_LOGIN_POLICY_RESTRICTION_METHOD_MAC },
-  { label: t("system.base.login_policy.method.region"), value: BaseLoginPolicyRestrictionMethod.BASE_LOGIN_POLICY_RESTRICTION_METHOD_REGION },
-  { label: t("system.base.login_policy.method.time"), value: BaseLoginPolicyRestrictionMethod.BASE_LOGIN_POLICY_RESTRICTION_METHOD_TIME },
-  { label: t("system.base.login_policy.method.device"), value: BaseLoginPolicyRestrictionMethod.BASE_LOGIN_POLICY_RESTRICTION_METHOD_DEVICE }
+  {
+    label: t("system.base.login_policy.method.ip"),
+    value: BaseLoginPolicyRestrictionMethod.BASE_LOGIN_POLICY_RESTRICTION_METHOD_IP
+  },
+  {
+    label: t("system.base.login_policy.method.mac"),
+    value: BaseLoginPolicyRestrictionMethod.BASE_LOGIN_POLICY_RESTRICTION_METHOD_MAC
+  },
+  {
+    label: t("system.base.login_policy.method.region"),
+    value: BaseLoginPolicyRestrictionMethod.BASE_LOGIN_POLICY_RESTRICTION_METHOD_REGION
+  },
+  {
+    label: t("system.base.login_policy.method.time"),
+    value: BaseLoginPolicyRestrictionMethod.BASE_LOGIN_POLICY_RESTRICTION_METHOD_TIME
+  },
+  {
+    label: t("system.base.login_policy.method.device"),
+    value: BaseLoginPolicyRestrictionMethod.BASE_LOGIN_POLICY_RESTRICTION_METHOD_DEVICE
+  }
 ]);
 const statusOptions = computed<ProFormOption[]>(() => [
   { label: t("common.status.enabled"), value: Status.STATUS_ENABLE },
@@ -107,14 +152,15 @@ const statusOptions = computed<ProFormOption[]>(() => [
 ]);
 
 const formFields = computed<ProFormField[]>(() => [
-  { prop: "scope_type", label: t("system.base.login_policy.field.scope_type"), component: "select", options: scopeTypeOptions.value },
   {
-    prop: "tenant_id",
-    label: t("common.field.tenant"),
+    prop: "scope_type",
+    label: t("system.base.login_policy.field.scope_type"),
     component: "select",
-    options: tenantOptions.value,
-    visible: model => model.scope_type !== BaseLoginPolicyScopeType.BASE_LOGIN_POLICY_SCOPE_TYPE_GLOBAL,
-    props: { filterable: true, clearable: true }
+    options: scopeTypeOptions.value
+  },
+  {
+    ...tenantFormField({ label: t("common.field.tenant"), props: { clearable: true } }),
+    visible: model => isDefaultTenant.value && model.scope_type !== BaseLoginPolicyScopeType.BASE_LOGIN_POLICY_SCOPE_TYPE_GLOBAL
   },
   {
     prop: "user_id",
@@ -178,6 +224,12 @@ const formFields = computed<ProFormField[]>(() => [
     component: "password",
     props: { placeholder: t("system.base.login_policy.placeholder.initial_password"), showPassword: true }
   },
+  {
+    prop: "initialPasswordStrength",
+    label: t("system.base.login_policy.field.password_strength"),
+    component: "slot",
+    slotName: "initialPasswordStrength"
+  },
   { prop: "status", label: t("common.field.status"), component: "radio-group", options: statusOptions.value },
   { prop: "rules", label: t("system.base.login_policy.field.rules"), component: "slot", slotName: "rules", colSpan: 24 }
 ]);
@@ -186,15 +238,25 @@ const formRules = computed(() => ({
   scope_type: [{ required: true, message: t("system.base.login_policy.validation.scope_type"), trigger: "change" }],
   tenant_id: [{ validator: validateTenant, trigger: "change" }],
   user_id: [{ validator: validateUser, trigger: "change" }],
-  max_failed_attempts: [{ required: true, message: t("system.base.login_policy.validation.max_failed_attempts"), trigger: "change" }],
-  lock_duration_minutes: [{ required: true, message: t("system.base.login_policy.validation.lock_duration_minutes"), trigger: "change" }],
-  password_min_length: [{ required: true, message: t("system.base.login_policy.validation.password_min_length"), trigger: "change" }],
-  password_history_count: [{ required: true, message: t("system.base.login_policy.validation.password_history_count"), trigger: "change" }],
+  max_failed_attempts: [
+    { required: true, message: t("system.base.login_policy.validation.max_failed_attempts"), trigger: "change" }
+  ],
+  lock_duration_minutes: [
+    { required: true, message: t("system.base.login_policy.validation.lock_duration_minutes"), trigger: "change" }
+  ],
+  password_min_length: [
+    { required: true, message: t("system.base.login_policy.validation.password_min_length"), trigger: "change" }
+  ],
+  password_history_count: [
+    { required: true, message: t("system.base.login_policy.validation.password_history_count"), trigger: "change" }
+  ],
   password_min_complexity_classes: [
     { required: true, message: t("system.base.login_policy.validation.password_min_complexity_classes"), trigger: "change" }
   ],
-  password_max_age_days: [{ required: true, message: t("system.base.login_policy.validation.password_max_age_days"), trigger: "change" }]
-  ,mfa_remember_days: [{ required: true, message: t("system.base.login_policy.validation.mfa_remember_days"), trigger: "change" }]
+  password_max_age_days: [
+    { required: true, message: t("system.base.login_policy.validation.password_max_age_days"), trigger: "change" }
+  ],
+  mfa_remember_days: [{ required: true, message: t("system.base.login_policy.validation.mfa_remember_days"), trigger: "change" }]
 }));
 
 const columns = computed<ColumnProps[]>(() => [
@@ -233,7 +295,12 @@ const columns = computed<ColumnProps[]>(() => [
     }
   },
   { prop: "password_min_length", label: t("system.base.login_policy.field.password_min_length"), width: 110, align: "right" },
-  { prop: "password_history_count", label: t("system.base.login_policy.field.password_history_count"), width: 110, align: "right" },
+  {
+    prop: "password_history_count",
+    label: t("system.base.login_policy.field.password_history_count"),
+    width: 110,
+    align: "right"
+  },
   {
     prop: "password_min_complexity_classes",
     label: t("system.base.login_policy.field.password_min_complexity_classes"),
@@ -384,12 +451,6 @@ async function openDialog(id?: number) {
   dialog.visible = true;
 }
 
-/** 加载租户选项。 */
-async function loadTenantOptions() {
-  const response = await defBaseTenantService.OptionBaseTenant({ keyword: "" });
-  tenantOptions.value = response.list ?? [];
-}
-
 /** 加载指定租户的用户选项。 */
 async function loadUserOptions(tenantId: number) {
   const response = await defBaseUserService.OptionBaseUser({ keyword: "", tenant_id: tenantId });
@@ -472,7 +533,8 @@ function scopeTypeLabel(value: BaseLoginPolicyScopeType) {
 
 /** 输出策略目标名称。 */
 function targetLabel(row: BaseLoginPolicy) {
-  if (row.scope_type === BaseLoginPolicyScopeType.BASE_LOGIN_POLICY_SCOPE_TYPE_GLOBAL) return t("system.base.login_policy.scope.global");
+  if (row.scope_type === BaseLoginPolicyScopeType.BASE_LOGIN_POLICY_SCOPE_TYPE_GLOBAL)
+    return t("system.base.login_policy.scope.global");
   if (row.scope_type === BaseLoginPolicyScopeType.BASE_LOGIN_POLICY_SCOPE_TYPE_USER) return row.user_name || String(row.user_id);
   return row.tenant_name || String(row.tenant_id);
 }
@@ -488,7 +550,8 @@ function renderRules(row: BaseLoginPolicy) {
       h(
         ElTag,
         { key: `${rule.id || index}`, size: "small", class: "rule-tag" },
-        () => `${restrictionTypeLabel(rule.restriction_type)}/${restrictionMethodLabel(rule.restriction_method)}: ${rule.restriction_value}`
+        () =>
+          `${restrictionTypeLabel(rule.restriction_type)}/${restrictionMethodLabel(rule.restriction_method)}: ${rule.restriction_value}`
       )
     )
   );

@@ -1,6 +1,6 @@
 import service from "@/utils/request";
 import type { SelectOptionResponse } from "@/rpc/common/v1/common";
-import type { OptionBaseTenantRequest } from "@/rpc/system/admin/v1/base_tenant";
+import type { OptionBaseTenantRequest, PageBaseTenantRequest, PageBaseTenantResponse } from "@/rpc/system/admin/v1/base_tenant";
 
 const BASE_TENANT_URL = "/v1/admin/base/tenant";
 
@@ -10,6 +10,15 @@ export class BaseTenantServiceImpl {
   OptionBaseTenant(request: OptionBaseTenantRequest): Promise<SelectOptionResponse> {
     return service<OptionBaseTenantRequest, SelectOptionResponse>({
       url: `${BASE_TENANT_URL}/option`,
+      method: "get",
+      params: request
+    });
+  }
+
+  /** 查询租户分页列表，供编码筛选和名称解析使用。 */
+  PageBaseTenant(request: PageBaseTenantRequest): Promise<PageBaseTenantResponse> {
+    return service<PageBaseTenantRequest, PageBaseTenantResponse>({
+      url: BASE_TENANT_URL,
       method: "get",
       params: request
     });

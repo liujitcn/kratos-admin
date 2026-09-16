@@ -41,3 +41,5 @@ pnpm check:exports
 ```
 
 构建产物按模式与平台隔离：开发使用 `dist/dev/h5`、`dist/dev/mp-weixin`，生产默认使用 `dist/build/h5`、`dist/build/mp-weixin`。`KRATOS_TARO_OUTPUT_ROOT` 可覆盖默认目录；仓库宿主及 Kratos 配套项目的 H5 生产构建输出到 `backend/data/taro-app`。微信开发者工具默认指向开发目录，发布时导入生产目录。
+
+应用配置加载成功后，core 会将 `i18n_customs` 按 `locale + key` 覆盖已注册的本地文案，并刷新页面翻译。仅覆盖已有 key 的非空文案；未配置或已删除的覆盖项恢复本地默认值，未知语言和未知 key 忽略。切换语言时沿用配置重载流程。

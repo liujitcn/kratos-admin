@@ -31,6 +31,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		BaseDictItem:            newBaseDictItem(db, opts...),
 		BaseFile:                newBaseFile(db, opts...),
 		BaseI18N:                newBaseI18N(db, opts...),
+		BaseI18NCustom:          newBaseI18NCustom(db, opts...),
 		BaseJob:                 newBaseJob(db, opts...),
 		BaseJobLog:              newBaseJobLog(db, opts...),
 		BaseLanguage:            newBaseLanguage(db, opts...),
@@ -90,6 +91,7 @@ type Query struct {
 	BaseDictItem            baseDictItem
 	BaseFile                baseFile
 	BaseI18N                baseI18N
+	BaseI18NCustom          baseI18NCustom
 	BaseJob                 baseJob
 	BaseJobLog              baseJobLog
 	BaseLanguage            baseLanguage
@@ -151,6 +153,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		BaseDictItem:            q.BaseDictItem.clone(db),
 		BaseFile:                q.BaseFile.clone(db),
 		BaseI18N:                q.BaseI18N.clone(db),
+		BaseI18NCustom:          q.BaseI18NCustom.clone(db),
 		BaseJob:                 q.BaseJob.clone(db),
 		BaseJobLog:              q.BaseJobLog.clone(db),
 		BaseLanguage:            q.BaseLanguage.clone(db),
@@ -219,6 +222,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		BaseDictItem:            q.BaseDictItem.replaceDB(db),
 		BaseFile:                q.BaseFile.replaceDB(db),
 		BaseI18N:                q.BaseI18N.replaceDB(db),
+		BaseI18NCustom:          q.BaseI18NCustom.replaceDB(db),
 		BaseJob:                 q.BaseJob.replaceDB(db),
 		BaseJobLog:              q.BaseJobLog.replaceDB(db),
 		BaseLanguage:            q.BaseLanguage.replaceDB(db),
@@ -277,6 +281,7 @@ type queryCtx struct {
 	BaseDictItem            *baseDictItemDo
 	BaseFile                *baseFileDo
 	BaseI18N                *baseI18NDo
+	BaseI18NCustom          *baseI18NCustomDo
 	BaseJob                 *baseJobDo
 	BaseJobLog              *baseJobLogDo
 	BaseLanguage            *baseLanguageDo
@@ -335,6 +340,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		BaseDictItem:            q.BaseDictItem.WithContext(ctx),
 		BaseFile:                q.BaseFile.WithContext(ctx),
 		BaseI18N:                q.BaseI18N.WithContext(ctx),
+		BaseI18NCustom:          q.BaseI18NCustom.WithContext(ctx),
 		BaseJob:                 q.BaseJob.WithContext(ctx),
 		BaseJobLog:              q.BaseJobLog.WithContext(ctx),
 		BaseLanguage:            q.BaseLanguage.WithContext(ctx),

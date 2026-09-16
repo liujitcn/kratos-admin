@@ -37,6 +37,8 @@ export const LOCALE_STORAGE_KEY = "kratos-admin:locale";
 const mutableLocale = ref<SupportedLocale>(DEFAULT_LOCALE);
 const mutableLanguageOptions = ref<LocaleOption[]>([]);
 const localeChangeHandlers = new Set<() => void | Promise<void>>();
+const defaultLocaleMessages = new Map<SupportedLocale, LocaleMessages>();
+const customLocaleMessages = new Map<SupportedLocale, LocaleMessages>();
 
 /** 管理端 Vue I18n 实例。 */
 export const adminI18n = createI18n({
@@ -100,7 +102,25 @@ export function registerLocaleMessages(modules: AdminModule[]): void {
     });
   });
 
-  SUPPORTED_LOCALES.forEach(locale => adminI18n.global.setLocaleMessage(locale, merged.get(locale) ?? {}));
+  SUPPORTED_LOCALES.forEach(locale => {
+    const messages = { ...(merged.get(locale) ?? {}) };
+    defaultLocaleMessages.set(locale, messages);
+    customLocaleMessages.set(locale, messages);
+    adminI18n.global.setLocaleMessage(locale, messages);
+  });
+}
+
+/** 应用全部语言的数据库自定义翻译覆盖项。 */
+export function applyCustomLocaleMessages(customs: Array<{ locale?: string; key?: string; value?: string }>): void {
+  SUPPORTED_LOCALES.forEach(locale => {
+    const messages = { ...(defaultLocaleMessages.get(locale) ?? {}) };
+    customs.forEach(item => {
+      if (!item.locale || normalizeLocale(item.locale) !== locale || !item.key || !item.value || !Object.prototype.hasOwnProperty.call(messages, item.key)) return;
+      messages[item.key] = item.value;
+    });
+    customLocaleMessages.set(locale, messages);
+    adminI18n.global.setLocaleMessage(locale, messages);
+  });
 }
 
 /** 初始化持久化语言偏好并同步日期库。 */
@@ -177,6 +197,11 @@ export function getLocaleText(locale: SupportedLocale, key: string): string {
   return messages[key] ?? fallbackMessages[key] ?? "";
 }
 
+/** 从代码语言包读取未应用数据库覆盖的默认文案。 */
+export function getDefaultLocaleText(locale: SupportedLocale, key: string): string {
+  return defaultLocaleMessages.get(locale)?.[key] ?? defaultLocaleMessages.get(DEFAULT_LOCALE)?.[key] ?? "";
+}
+
 /** 管理端响应式语言状态。 */
 export function useLocaleStore() {
   return {
@@ -203,6 +228,7 @@ function fallbackNativeLanguageName(languageCode: SupportedLocale): string {
 }
 
 function applyLocale(locale: SupportedLocale): void {
+  adminI18n.global.setLocaleMessage(locale, { ...(customLocaleMessages.get(locale) ?? defaultLocaleMessages.get(locale) ?? {}) });
   mutableLocale.value = locale;
   adminI18n.global.locale.value = locale;
   const dayjsLocale = DAYJS_LOCALE_MAP[locale];

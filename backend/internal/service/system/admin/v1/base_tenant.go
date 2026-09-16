@@ -57,13 +57,13 @@ func (s *BaseTenantService) GetBaseTenant(ctx context.Context, req *adminv1.GetB
 }
 
 // CreateBaseTenant 创建租户。
-func (s *BaseTenantService) CreateBaseTenant(ctx context.Context, req *adminv1.CreateBaseTenantRequest) (*emptypb.Empty, error) {
-	err := s.baseTenantCase.CreateBaseTenant(ctx, req.GetBaseTenant())
+func (s *BaseTenantService) CreateBaseTenant(ctx context.Context, req *adminv1.CreateBaseTenantRequest) (*adminv1.CreateBaseTenantResponse, error) {
+	response, err := s.baseTenantCase.CreateBaseTenant(ctx, req.GetBaseTenant())
 	if err != nil {
 		log.Error(fmt.Sprintf("CreateBaseTenant %v", err))
 		return nil, errorsx.WrapInternal(err, "创建租户失败")
 	}
-	return new(emptypb.Empty), nil
+	return response, nil
 }
 
 // UpdateBaseTenant 更新租户。

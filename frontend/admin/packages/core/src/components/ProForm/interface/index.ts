@@ -12,6 +12,7 @@ export type ProFormComponentType =
   | "switch"
   | "checkbox"
   | "select"
+  | "tenant-select"
   | "dict"
   | "radio-group"
   | "checkbox-group"

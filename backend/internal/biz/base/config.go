@@ -24,16 +24,18 @@ import (
 type ConfigCase struct {
 	*biz.BaseCase
 	*data.BaseConfigRepository
-	i18nRepo     *data.BaseI18NRepository
-	languageRepo *data.BaseLanguageRepository
+	i18nRepo       *data.BaseI18NRepository
+	i18nCustomRepo *data.BaseI18NCustomRepository
+	languageRepo   *data.BaseLanguageRepository
 }
 
 // NewConfigCase 创建配置业务实例。
-func NewConfigCase(baseCase *biz.BaseCase, baseConfigRepo *data.BaseConfigRepository, i18nRepo *data.BaseI18NRepository, languageRepo *data.BaseLanguageRepository) *ConfigCase {
+func NewConfigCase(baseCase *biz.BaseCase, baseConfigRepo *data.BaseConfigRepository, i18nRepo *data.BaseI18NRepository, i18nCustomRepo *data.BaseI18NCustomRepository, languageRepo *data.BaseLanguageRepository) *ConfigCase {
 	return &ConfigCase{
 		BaseCase:             baseCase,
 		BaseConfigRepository: baseConfigRepo,
 		i18nRepo:             i18nRepo,
+		i18nCustomRepo:       i18nCustomRepo,
 		languageRepo:         languageRepo,
 	}
 }
@@ -53,7 +55,12 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 			if err != nil {
 				return nil, err
 			}
-			return &basev1.GetConfigResponse{Configs: appendI18nRuntimeConfig(localized, c.Translator != nil)}, nil
+			var customItems []*basev1.I18nCustomItem
+			customItems, err = c.loadI18nCustomItems(ctx, site)
+			if err != nil {
+				return nil, err
+			}
+			return &basev1.GetConfigResponse{Configs: appendI18nRuntimeConfig(localized, c.Translator != nil), I18nCustoms: customItems}, nil
 		}
 	}
 
@@ -81,8 +88,14 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 	if err != nil {
 		return nil, err
 	}
+	var customItems []*basev1.I18nCustomItem
+	customItems, err = c.loadI18nCustomItems(ctx, site)
+	if err != nil {
+		return nil, err
+	}
 	response := &basev1.GetConfigResponse{
-		Configs: appendI18nRuntimeConfig(localized, c.Translator != nil),
+		Configs:     appendI18nRuntimeConfig(localized, c.Translator != nil),
+		I18nCustoms: customItems,
 	}
 	var payload []byte
 	payload, err = json.Marshal(configs)
@@ -95,6 +108,24 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *basev1.GetConfigRequest
 		log.Error(fmt.Sprintf("SetBaseConfigCache %v", err))
 	}
 	return response, nil
+}
+
+// loadI18nCustomItems 查询当前站点全部语言的启用国际化覆盖项。
+func (c *ConfigCase) loadI18nCustomItems(ctx context.Context, site int32) ([]*basev1.I18nCustomItem, error) {
+	query := c.i18nCustomRepo.Query(ctx).BaseI18NCustom
+	opts := make([]repository.QueryOption, 0, 4)
+	opts = append(opts, repository.Where(query.Site.Eq(site)))
+	opts = append(opts, repository.Where(query.Status.Eq(coreconst.STATUS_STATUS_ENABLE)))
+	opts = append(opts, repository.Order(query.Locale.Asc()), repository.Order(query.ID.Asc()))
+	rows, err := c.i18nCustomRepo.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	items := make([]*basev1.I18nCustomItem, 0, len(rows))
+	for _, row := range rows {
+		items = append(items, &basev1.I18nCustomItem{Locale: row.Locale, Key: row.Key, Value: row.Value})
+	}
+	return items, nil
 }
 
 // localizeRuntimeConfigValues 将当前语言已有的文本配置值覆盖到运行时结果。

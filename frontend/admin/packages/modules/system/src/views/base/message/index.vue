@@ -150,12 +150,10 @@ import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@liujitcn
 import type { ProFormField, ProFormOption } from "@liujitcn/kratos-admin-core/components/ProForm/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
-import { DEFAULT_TENANT_CODE, requestTenantOptions } from "@liujitcn/kratos-admin-core/tenant";
-import { useUserStore } from "@liujitcn/kratos-admin-core/stores/runtime";
+import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { t } from "@liujitcn/kratos-admin-core";
 import { defBaseMessageService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_message";
 import { defBaseMessageCategoryService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_message_category";
-import { defBaseTenantService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_tenant";
 import type {
   BaseMessage,
   BaseMessageDetail,
@@ -189,12 +187,10 @@ type MessageFormState = Omit<BaseMessageForm, "tenant_id" | "category_id"> & {
 };
 
 const { BUTTONS } = useAuthButtons();
-const userStore = useUserStore();
-const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAULT_TENANT_CODE);
+const { isDefaultTenant, tenantColumns, tenantFormField, loadTenantOptions } = useTenantScope();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const categoryOptions = ref<ProFormOption[]>([]);
-const tenantOptions = ref<ProFormOption[]>([]);
 const dialog = reactive({ visible: false, titleKey: "common.action.create" });
 const content = reactive<{ visible: boolean; loading: boolean; data?: BaseMessageDetail }>({ visible: false, loading: false });
 const detail = reactive<{ visible: boolean; data?: BaseMessageDetail }>({ visible: false });
@@ -270,13 +266,12 @@ const rules = computed(() => ({
 
 const formFields = computed<ProFormField[]>(() => [
   {
-    prop: "tenant_id",
-    label: t("common.field.tenant"),
-    labelTooltip: t("system.base.message.tooltip.tenant"),
-    component: "select",
-    visible: () => isDefaultTenant.value,
-    options: tenantOptions.value,
-    props: { filterable: true, disabled: Boolean(formState.id), placeholder: t("system.base.message.placeholder.tenant") }
+    ...tenantFormField({
+      label: t("common.field.tenant"),
+      disabledOnEdit: true,
+      props: { placeholder: t("system.base.message.placeholder.tenant") }
+    }),
+    labelTooltip: t("system.base.message.tooltip.tenant")
   },
   {
     prop: "category_id",
@@ -358,18 +353,7 @@ const formFields = computed<ProFormField[]>(() => [
 
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
-  ...(isDefaultTenant.value
-    ? ([
-        {
-          prop: "tenant_id",
-          label: t("common.field.tenant"),
-          minWidth: 120,
-          align: "left",
-          search: { el: "select" },
-          enum: requestTenantOptions
-        }
-      ] satisfies ColumnProps[])
-    : []),
+  ...tenantColumns({ label: t("common.field.tenant"), minWidth: 120 }),
   {
     prop: "title",
     label: t("system.base.message.field.title"),
@@ -551,13 +535,6 @@ async function requestTable(params: Record<string, unknown>) {
     buildPageRequest<PageBaseMessageRequest>(params as unknown as PageBaseMessageRequest)
   );
   return { data: { list: data.base_messages ?? [], total: data.total } };
-}
-
-/** 加载租户选项。 */
-async function loadTenantOptions() {
-  if (!isDefaultTenant.value) return;
-  const result = await defBaseTenantService.OptionBaseTenant({ keyword: "" });
-  tenantOptions.value = result.list.map(item => ({ label: item.label, value: item.value }));
 }
 
 /** 加载消息分类选项。 */

@@ -133,7 +133,7 @@ func TestListCurrentSessionsIsolatesOwner(t *testing.T) {
 	}
 }
 
-// TestOnlineSessionTenantFilter 验证默认租户精确筛选，非默认租户不能指定其他租户。
+// TestOnlineSessionTenantFilter 验证平台管理员可筛选租户，租户管理员只能查看本租户。
 func TestOnlineSessionTenantFilter(t *testing.T) {
 	store, cleanup, err := memory.NewMemory()
 	if err != nil {
@@ -154,11 +154,12 @@ func TestOnlineSessionTenantFilter(t *testing.T) {
 		}
 	}
 	service := NewBaseSessionCase(&biz.BaseCase{Cache: store}, manager)
-	for _, test := range []struct{ viewer, filter, want string }{
-		{gorm.DefaultTenantCode, "tenant-a", "tenant-a"},
-		{"tenant-a", "tenant-ab", "tenant-a"},
+	for _, test := range []struct{ viewer, role, filter, want string }{
+		{gorm.DefaultTenantCode, "super", "tenant-a", "tenant-a"},
+		{"tenant-a", "super", "tenant-ab", "tenant-a"},
+		{"tenant-a", "tenant", "tenant-ab", "tenant-a"},
 	} {
-		user := &data.UserTokenPayload{UserId: 1, RoleCode: "super", TenantCode: test.viewer}
+		user := &data.UserTokenPayload{UserId: 1, RoleCode: test.role, TenantCode: test.viewer}
 		ctx := engine.ContextWithAuthClaims(context.Background(), user.MakeAuthClaims())
 		var result *adminv1.PageOnlineBaseSessionsResponse
 		result, err = service.PageOnlineBaseSessions(ctx, &adminv1.PageOnlineBaseSessionsRequest{TenantCode: test.filter, PageNum: 1, PageSize: 10})
@@ -168,5 +169,31 @@ func TestOnlineSessionTenantFilter(t *testing.T) {
 		if result.Total != 1 || result.Sessions[0].TenantCode != test.want {
 			t.Fatalf("租户筛选错误: %v", result)
 		}
+	}
+}
+
+// TestRevokeOnlineSessionTenantScope 验证租户管理员不能下线其他租户的会话。
+func TestRevokeOnlineSessionTenantScope(t *testing.T) {
+	store, cleanup, err := memory.NewMemory()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer cleanup()
+	manager := data.NewUserToken(store, sessionIdentityCreator{}, "access:", "refresh:", time.Hour, 24*time.Hour)
+	var access, refresh string
+	access, refresh, err = manager.GenerateTokenForSession(&data.UserTokenPayload{UserId: 2, TenantCode: "tenant-b"}, "tenant-b")
+	if err != nil {
+		t.Fatal(err)
+	}
+	record := sessionregistry.Record{SessionID: "tenant-b", TenantCode: "tenant-b", UserID: 2, AccessToken: access, RefreshToken: refresh}
+	if err = sessionregistry.Register(store, record); err != nil {
+		t.Fatal(err)
+	}
+
+	viewer := &data.UserTokenPayload{UserId: 1, RoleCode: "tenant", TenantCode: "tenant-a"}
+	ctx := engine.ContextWithAuthClaims(context.Background(), viewer.MakeAuthClaims())
+	service := NewBaseSessionCase(&biz.BaseCase{Cache: store}, manager)
+	if err = service.RevokeBaseSession(ctx, &adminv1.RevokeBaseSessionRequest{SessionId: record.SessionID}); err == nil {
+		t.Fatal("租户管理员不应下线其他租户的会话")
 	}
 }

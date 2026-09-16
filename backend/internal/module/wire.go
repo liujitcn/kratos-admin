@@ -16,6 +16,7 @@ import (
 	logmiddleware "github.com/liujitcn/kratos-admin/backend/internal/server/middleware/log"
 	"github.com/liujitcn/kratos-admin/backend/internal/service"
 	"github.com/liujitcn/kratos-admin/backend/internal/task"
+	"github.com/liujitcn/kratos-admin/backend/pkg/projectaccess"
 	coreBiz "github.com/liujitcn/kratos-core/biz"
 	"github.com/liujitcn/kratos-core/job"
 	"github.com/liujitcn/kratos-core/module"
@@ -48,6 +49,7 @@ func BuildModules(
 	progressManager *codegen.Manager,
 ) (module.Modules, func(), error) {
 	panic(wire.Build(
+		projectaccess.NewLifecycle,
 		ParseAdminAgentTools,
 		ParseAppAgentTools,
 		configProvider.ProviderSet,

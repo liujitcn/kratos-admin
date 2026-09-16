@@ -1,4 +1,4 @@
-import { getEditableLanguageOptions } from "@liujitcn/kratos-admin-system/components/dynamicI18n";
+import { getEditableLanguageOptions } from "@liujitcn/kratos-admin-system/components/i18n/dynamicI18n";
 import type { CodeGenLocaleConfig } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import type { FormRules } from "element-plus";
 import { t } from "@liujitcn/kratos-admin-core";
@@ -80,6 +80,7 @@ const codeGenFormComponentLabelKeys: Record<ProFormComponentType, string> = {
   switch: "system.code.gen.component.switch",
   checkbox: "system.code.gen.component.checkbox",
   select: "system.code.gen.component.select",
+  "tenant-select": "system.code.gen.component.select",
   dict: "system.code.gen.component.dict",
   "radio-group": "system.code.gen.component.radio_group",
   "checkbox-group": "system.code.gen.component.checkbox_group",

@@ -4,6 +4,7 @@ import { BaseConfigSite } from "@/rpc/base/v1/config";
 import type { LoginCaptchaConfig, SiteConfigState, SiteDisplayConfig } from "@/stores/interface";
 import defaultLogoUrl from "@/assets/images/logo.svg";
 import defaultBackgroundUrl from "@/assets/images/login_left.png";
+import { applyCustomLocaleMessages } from "@/locales";
 
 const CAPTCHA_TYPE_KEY = "captchaType";
 const SHOW_TENANT_CODE_KEY = "showTenantCode";
@@ -117,6 +118,7 @@ export const useConfigStore = defineStore("admin-config", {
       });
       const configMap = buildConfigMap(configResponse.configs ?? []);
 
+      applyCustomLocaleMessages(configResponse.i18n_customs ?? []);
       this.setDisplayConfig(normalizeSiteDisplayConfig(configMap));
       this.setLoginCaptchaConfig(normalizeLoginCaptchaConfig(configMap));
       this.showTenantCode = !["false", "0"].includes((configMap[SHOW_TENANT_CODE_KEY] ?? "true").toLowerCase());
@@ -126,3 +128,8 @@ export const useConfigStore = defineStore("admin-config", {
     }
   }
 });
+
+/** 刷新当前管理端语言和站点运行配置。 */
+export async function refreshAdminRuntimeConfig(): Promise<void> {
+  await useConfigStore().loadDisplayConfig();
+}

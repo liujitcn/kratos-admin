@@ -56,10 +56,13 @@ type Services struct {
 	BaseMessage             *admin.BaseMessageService
 	BaseMessageCategory     *admin.BaseMessageCategoryService
 	BasePost                *admin.BasePostService
+	BaseTenantProject       *admin.BaseTenantProjectService
+	BaseTenantProjectGrant  *admin.BaseTenantProjectGrantService
 	BaseRole                *admin.BaseRoleService
 	BaseTenant              *admin.BaseTenantService
 	BaseThirdAccount        *admin.BaseThirdAccountService
 	BaseI18n                *admin.BaseI18nService
+	BaseI18nCustom          *admin.BaseI18nCustomService
 	BaseUser                *admin.BaseUserService
 	CodeGen                 *admin.CodeGenService
 	CodeGenColumn           *admin.CodeGenColumnService
@@ -110,10 +113,13 @@ func (s Services) RegisterGRPC(srv grpc.ServiceRegistrar) {
 	adminv1.RegisterBaseMessageServiceServer(srv, adminv1.RedactedBaseMessageServiceServer(s.BaseMessage))
 	adminv1.RegisterBaseMessageCategoryServiceServer(srv, adminv1.RedactedBaseMessageCategoryServiceServer(s.BaseMessageCategory))
 	adminv1.RegisterBasePostServiceServer(srv, adminv1.RedactedBasePostServiceServer(s.BasePost))
+	adminv1.RegisterBaseTenantProjectServiceServer(srv, adminv1.RedactedBaseTenantProjectServiceServer(s.BaseTenantProject))
+	adminv1.RegisterBaseTenantProjectGrantServiceServer(srv, adminv1.RedactedBaseTenantProjectGrantServiceServer(s.BaseTenantProjectGrant))
 	adminv1.RegisterBaseRoleServiceServer(srv, adminv1.RedactedBaseRoleServiceServer(s.BaseRole))
 	adminv1.RegisterBaseTenantServiceServer(srv, adminv1.RedactedBaseTenantServiceServer(s.BaseTenant))
 	adminv1.RegisterBaseThirdAccountServiceServer(srv, adminv1.RedactedBaseThirdAccountServiceServer(s.BaseThirdAccount))
 	adminv1.RegisterBaseI18nServiceServer(srv, adminv1.RedactedBaseI18nServiceServer(s.BaseI18n))
+	adminv1.RegisterBaseI18nCustomServiceServer(srv, adminv1.RedactedBaseI18nCustomServiceServer(s.BaseI18nCustom))
 	adminv1.RegisterBaseUserServiceServer(srv, adminv1.RedactedBaseUserServiceServer(s.BaseUser))
 	adminv1.RegisterCodeGenServiceServer(srv, adminv1.RedactedCodeGenServiceServer(s.CodeGen))
 	adminv1.RegisterCodeGenColumnServiceServer(srv, adminv1.RedactedCodeGenColumnServiceServer(s.CodeGenColumn))
@@ -168,9 +174,15 @@ func (s Services) RegisterHTTP(srv *http.Server) {
 	adminv1.RegisterBaseMessageServiceHTTPServer(srv, adminv1.RedactedBaseMessageServiceServer(s.BaseMessage))
 	adminv1.RegisterBaseMessageCategoryServiceHTTPServer(srv, adminv1.RedactedBaseMessageCategoryServiceServer(s.BaseMessageCategory))
 	adminv1.RegisterBasePostServiceHTTPServer(srv, adminv1.RedactedBasePostServiceServer(s.BasePost))
+	registerTenantProjectHTTP(
+		srv,
+		adminv1.RedactedBaseTenantProjectServiceServer(s.BaseTenantProject),
+		adminv1.RedactedBaseTenantProjectGrantServiceServer(s.BaseTenantProjectGrant),
+	)
 	adminv1.RegisterBaseRoleServiceHTTPServer(srv, adminv1.RedactedBaseRoleServiceServer(s.BaseRole))
 	adminv1.RegisterBaseTenantServiceHTTPServer(srv, adminv1.RedactedBaseTenantServiceServer(s.BaseTenant))
 	adminv1.RegisterBaseI18nServiceHTTPServer(srv, adminv1.RedactedBaseI18nServiceServer(s.BaseI18n))
+	adminv1.RegisterBaseI18nCustomServiceHTTPServer(srv, adminv1.RedactedBaseI18nCustomServiceServer(s.BaseI18nCustom))
 	adminv1.RegisterBaseUserServiceHTTPServer(srv, adminv1.RedactedBaseUserServiceServer(s.BaseUser))
 	adminv1.RegisterCodeGenServiceHTTPServer(srv, adminv1.RedactedCodeGenServiceServer(s.CodeGen))
 	adminv1.RegisterCodeGenColumnServiceHTTPServer(srv, adminv1.RedactedCodeGenColumnServiceServer(s.CodeGenColumn))
@@ -210,8 +222,11 @@ func (s Services) RegisterMCP(server *mcp.Server) {
 	adminv1.RegisterBaseLanguageServiceMCPTools(mcpSrv, s.BaseLanguage)
 	adminv1.RegisterBaseMenuServiceMCPTools(mcpSrv, s.BaseMenu)
 	adminv1.RegisterBasePostServiceMCPTools(mcpSrv, s.BasePost)
+	adminv1.RegisterBaseTenantProjectServiceMCPTools(mcpSrv, s.BaseTenantProject)
+	adminv1.RegisterBaseTenantProjectGrantServiceMCPTools(mcpSrv, s.BaseTenantProjectGrant)
 	adminv1.RegisterBaseRoleServiceMCPTools(mcpSrv, s.BaseRole)
 	adminv1.RegisterBaseI18nServiceMCPTools(mcpSrv, s.BaseI18n)
+	adminv1.RegisterBaseI18nCustomServiceMCPTools(mcpSrv, s.BaseI18nCustom)
 	// 角色切换仅开放 gRPC，MCP 显式注册其余用户管理方法。
 	adminv1.RegisterBaseUserServiceOptionBaseUserMCPTool(mcpSrv, s.BaseUser)
 	adminv1.RegisterBaseUserServiceListBaseUserMCPTool(mcpSrv, s.BaseUser)
@@ -270,6 +285,12 @@ func (s Services) AgentTools() ([]tool.Invokable, error) {
 			return adminv1.NewBasePostServiceAgentTools(s.BasePost)
 		},
 		func() ([]tool.Invokable, error) {
+			return adminv1.NewBaseTenantProjectServiceAgentTools(s.BaseTenantProject)
+		},
+		func() ([]tool.Invokable, error) {
+			return adminv1.NewBaseTenantProjectGrantServiceAgentTools(s.BaseTenantProjectGrant)
+		},
+		func() ([]tool.Invokable, error) {
 			return adminv1.NewBaseRoleServiceAgentTools(s.BaseRole)
 		},
 		func() ([]tool.Invokable, error) {
@@ -280,6 +301,9 @@ func (s Services) AgentTools() ([]tool.Invokable, error) {
 		},
 		func() ([]tool.Invokable, error) {
 			return adminv1.NewBaseI18nServiceAgentTools(s.BaseI18n)
+		},
+		func() ([]tool.Invokable, error) {
+			return adminv1.NewBaseI18nCustomServiceAgentTools(s.BaseI18nCustom)
 		},
 		func() ([]tool.Invokable, error) {
 			return adminv1.NewBaseUserServiceAgentTools(s.BaseUser)
@@ -330,4 +354,14 @@ func (s Services) AgentTools() ([]tool.Invokable, error) {
 		tools = append(tools, values...)
 	}
 	return tools, nil
+}
+
+// registerTenantProjectHTTP 先注册项目授权静态路由，避免被项目详情的动态 {id} 路由截获。
+func registerTenantProjectHTTP(
+	srv *http.Server,
+	project adminv1.BaseTenantProjectServiceHTTPServer,
+	grant adminv1.BaseTenantProjectGrantServiceHTTPServer,
+) {
+	adminv1.RegisterBaseTenantProjectGrantServiceHTTPServer(srv, grant)
+	adminv1.RegisterBaseTenantProjectServiceHTTPServer(srv, project)
 }

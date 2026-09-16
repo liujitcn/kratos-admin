@@ -68,14 +68,14 @@ import { Status } from "@liujitcn/kratos-admin-system/rpc/common/v1/enum";
 import { I18nTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
-import DynamicI18nEditor from "@liujitcn/kratos-admin-system/components/DynamicI18nEditor.vue";
-import DynamicI18nCell from "@liujitcn/kratos-admin-system/components/DynamicI18nCell.vue";
+import DynamicI18nEditor from "@liujitcn/kratos-admin-system/components/i18n/DynamicI18nEditor.vue";
+import DynamicI18nCell from "@liujitcn/kratos-admin-system/components/i18n/DynamicI18nCell.vue";
 import {
   normalizeDynamicI18ns,
   serializeDynamicI18ns,
   type DynamicI18nRecord,
   type DynamicI18nValue
-} from "@liujitcn/kratos-admin-system/components/dynamicI18n";
+} from "@liujitcn/kratos-admin-system/components/i18n/dynamicI18n";
 
 defineOptions({
   name: "BaseDictItem",

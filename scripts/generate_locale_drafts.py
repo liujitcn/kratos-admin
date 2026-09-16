@@ -415,7 +415,7 @@ SQL_FIXED_I18NS = {
 
 SQL_MENU_CATEGORIES = {
     "ja": {
-        "首页": "ホーム", "AI助手": "AIアシスタント", "个人信息": "プロフィール", "系统管理": "システム管理",
+        "首页": "ホーム", "AI助手": "AIアシスタント", "个人信息": "プロフィール", "系统管理": "システム管理", "项目管理": "プロジェクト管理",
         "菜单管理": "メニュー管理", "字典管理": "辞書管理", "字典属性": "辞書項目", "字典数据": "辞書データ",
         "系统配置": "システム設定", "定时任务": "スケジュールタスク", "定时任务日志": "スケジュールジョブログ",
         "API管理": "API管理", "区域管理": "地域管理", "系统日志": "システムログ", "升级历史": "アップグレード履歴",
@@ -427,7 +427,7 @@ SQL_MENU_CATEGORIES = {
         "登录": "ログイン", "协议详情": "規約の詳細",
     },
     "ko": {
-        "首页": "홈", "AI助手": "AI 어시스턴트", "个人信息": "개인 정보", "系统管理": "시스템 관리",
+        "首页": "홈", "AI助手": "AI 어시스턴트", "个人信息": "개인 정보", "系统管理": "시스템 관리", "项目管理": "프로젝트 관리",
         "菜单管理": "메뉴 관리", "字典管理": "사전 관리", "字典属性": "사전 항목", "字典数据": "사전 데이터",
         "系统配置": "시스템 설정", "定时任务": "예약 작업", "定时任务日志": "예약 작업 로그", "API管理": "API 관리",
         "区域管理": "지역 관리", "系统日志": "시스템 로그", "升级历史": "업그레이드 기록", "语言管理": "언어 관리",
@@ -439,7 +439,7 @@ SQL_MENU_CATEGORIES = {
         "登录": "로그인", "协议详情": "약관 상세",
     },
     "fr": {
-        "首页": "Accueil", "AI助手": "Assistant IA", "个人信息": "Profil", "系统管理": "Gestion du système",
+        "首页": "Accueil", "AI助手": "Assistant IA", "个人信息": "Profil", "系统管理": "Gestion du système", "项目管理": "Gestion de projets",
         "菜单管理": "Gestion des menus", "字典管理": "Gestion des dictionnaires", "字典属性": "Éléments du dictionnaire",
         "字典数据": "Données du dictionnaire", "系统配置": "Configuration système", "定时任务": "Tâches planifiées",
         "定时任务日志": "Journaux des tâches planifiées", "API管理": "Gestion des API", "区域管理": "Gestion des régions",
@@ -454,7 +454,7 @@ SQL_MENU_CATEGORIES = {
         "登录": "Connexion", "协议详情": "Détails des conditions",
     },
     "es": {
-        "首页": "Inicio", "AI助手": "Asistente de IA", "个人信息": "Perfil", "系统管理": "Gestión del sistema",
+        "首页": "Inicio", "AI助手": "Asistente de IA", "个人信息": "Perfil", "系统管理": "Gestión del sistema", "项目管理": "Gestión de proyectos",
         "菜单管理": "Gestión de menús", "字典管理": "Gestión de diccionarios", "字典属性": "Elementos del diccionario",
         "字典数据": "Datos del diccionario", "系统配置": "Configuración del sistema", "定时任务": "Tareas programadas",
         "定时任务日志": "Registros de tareas programadas", "API管理": "Gestión de API", "区域管理": "Gestión de regiones",

@@ -1404,6 +1404,148 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/i18n-custom:
+        get:
+            tags:
+                - BaseI18nCustomService
+            description: List custom translations with pagination.
+            operationId: BaseI18nCustomService_PageBaseI18nCustom
+            parameters:
+                - name: site
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_CONFIG_SITE_UNSPECIFIED
+                        - BASE_CONFIG_SITE_SYSTEM
+                        - BASE_CONFIG_SITE_ADMIN
+                        - BASE_CONFIG_SITE_APP
+                    type: string
+                    format: enum
+                - name: key
+                  in: query
+                  schema:
+                    type: string
+                - name: locale
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseI18nCustomResponse'
+        post:
+            tags:
+                - BaseI18nCustomService
+            description: Create a custom translation.
+            operationId: BaseI18nCustomService_CreateBaseI18nCustom
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseI18nCustomForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/i18n-custom/{i18n_custom.id}:
+        put:
+            tags:
+                - BaseI18nCustomService
+            description: Update a custom translation.
+            operationId: BaseI18nCustomService_UpdateBaseI18nCustom
+            parameters:
+                - name: i18n_custom.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseI18nCustomForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/i18n-custom/{id}:
+        get:
+            tags:
+                - BaseI18nCustomService
+            description: Get custom translation details.
+            operationId: BaseI18nCustomService_GetBaseI18nCustom
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseI18nCustomForm'
+        delete:
+            tags:
+                - BaseI18nCustomService
+            description: Delete a custom translation.
+            operationId: BaseI18nCustomService_DeleteBaseI18nCustom
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/i18n-custom/{id}/status:
+        put:
+            tags:
+                - BaseI18nCustomService
+            description: Set custom translation status.
+            operationId: BaseI18nCustomService_SetBaseI18nCustomStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseI18nCustomStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/i18n/draft:
         post:
             tags:
@@ -4514,7 +4656,10 @@ paths:
             responses:
                 "200":
                     description: OK
-                    content: {}
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.CreateBaseTenantResponse'
     /api/v1/admin/base/tenant/option:
         get:
             tags:
@@ -4533,6 +4678,334 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/common.v1.SelectOptionResponse'
+    /api/v1/admin/base/tenant/project:
+        get:
+            tags:
+                - BaseTenantProjectService
+            description: List projects with pagination
+            operationId: BaseTenantProjectService_PageBaseTenantProject
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    format: enum
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseTenantProjectResponse'
+        post:
+            tags:
+                - BaseTenantProjectService
+            description: Create project
+            operationId: BaseTenantProjectService_CreateBaseTenantProject
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseTenantProjectForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/tenant/project/grant:
+        get:
+            tags:
+                - BaseTenantProjectGrantService
+            description: Query item item authorization pagination list.
+            operationId: BaseTenantProjectGrantService_PageBaseTenantProjectGrant
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+                - name: subject_type
+                  in: query
+                  schema:
+                    enum:
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_UNSPECIFIED
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_POST
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_ROLE
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_DEPT
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_USER
+                    type: string
+                    format: enum
+                - name: subject_id
+                  in: query
+                  schema:
+                    type: string
+                - name: page_num
+                  in: query
+                  schema:
+                    type: string
+                - name: page_size
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.PageBaseTenantProjectGrantResponse'
+        post:
+            tags:
+                - BaseTenantProjectGrantService
+            description: new item item authorization.
+            operationId: BaseTenantProjectGrantService_CreateBaseTenantProjectGrant
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseTenantProjectGrant'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    ? /api/v1/admin/base/tenant/project/grant/{base_tenant_project_grant.tenant_id}/{base_tenant_project_grant.subject_type}/{base_tenant_project_grant.subject_id}
+    :   put:
+            tags:
+                - BaseTenantProjectGrantService
+            description: Update project grants by changing only the project scope; the grant subject key cannot change.
+            operationId: BaseTenantProjectGrantService_UpdateBaseTenantProjectGrant
+            parameters:
+                - name: base_tenant_project_grant.tenant_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: base_tenant_project_grant.subject_type
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: base_tenant_project_grant.subject_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseTenantProjectGrant'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/tenant/project/grant/{tenant_id}/{subject_type}/{subject_id}:
+        get:
+            tags:
+                - BaseTenantProjectGrantService
+            description: Query item item authorization details.
+            operationId: BaseTenantProjectGrantService_GetBaseTenantProjectGrant
+            parameters:
+                - name: tenant_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: subject_type
+                  in: path
+                  required: true
+                  schema:
+                    enum:
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_UNSPECIFIED
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_POST
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_ROLE
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_DEPT
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_USER
+                    type: string
+                    format: enum
+                - name: subject_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseTenantProjectGrant'
+        delete:
+            tags:
+                - BaseTenantProjectGrantService
+            description: Delete item item authorization.
+            operationId: BaseTenantProjectGrantService_DeleteBaseTenantProjectGrant
+            parameters:
+                - name: tenant_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: subject_type
+                  in: path
+                  required: true
+                  schema:
+                    enum:
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_UNSPECIFIED
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_POST
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_ROLE
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_DEPT
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_USER
+                    type: string
+                    format: enum
+                - name: subject_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/tenant/project/option:
+        get:
+            tags:
+                - BaseTenantProjectService
+            description: List project options
+            operationId: BaseTenantProjectService_OptionBaseTenantProject
+            parameters:
+                - name: tenant_id
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/common.v1.SelectOptionResponse'
+    /api/v1/admin/base/tenant/project/tree:
+        get:
+            tags:
+                - BaseTenantProjectService
+            description: Query current account available tenant item item tree
+            operationId: BaseTenantProjectService_TreeBaseTenantProject
+            parameters:
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.TreeBaseTenantProjectResponse'
+    /api/v1/admin/base/tenant/project/{base_tenant_project.id}:
+        put:
+            tags:
+                - BaseTenantProjectService
+            description: Update project
+            operationId: BaseTenantProjectService_UpdateBaseTenantProject
+            parameters:
+                - name: base_tenant_project.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.BaseTenantProjectForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/tenant/project/{id}:
+        get:
+            tags:
+                - BaseTenantProjectService
+            description: Get project
+            operationId: BaseTenantProjectService_GetBaseTenantProject
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseTenantProjectForm'
+        delete:
+            tags:
+                - BaseTenantProjectService
+            description: Delete project
+            operationId: BaseTenantProjectService_DeleteBaseTenantProject
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/tenant/project/{id}/status:
+        put:
+            tags:
+                - BaseTenantProjectService
+            description: Set project status
+            operationId: BaseTenantProjectService_SetBaseTenantProjectStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/system.admin.v1.SetBaseTenantProjectStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/tenant/{base_tenant.id}:
         put:
             tags:
@@ -7330,6 +7803,11 @@ components:
                 ai_enabled:
                     type: boolean
                     description: AI assistant availability
+                i18n_customs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/base.v1.I18nCustomItem'
+                    description: Custom internationalization overrides for all locales
             description: system configuration query result
         base.v1.HandleMcpRequest:
             type: object
@@ -7346,6 +7824,19 @@ components:
             type: object
             properties: {}
             description: third-party login callback result
+        base.v1.I18nCustomItem:
+            type: object
+            properties:
+                locale:
+                    type: string
+                    description: locale
+                key:
+                    type: string
+                    description: Locale key
+                value:
+                    type: string
+                    description: Custom translation content
+            description: Custom internationalization overrides for all locales.
         base.v1.IssueOauthClientTokenRequest:
             type: object
             properties:
@@ -8830,6 +9321,84 @@ components:
                     type: string
                     description: translated text
             description: internationalization translation information
+        system.admin.v1.BaseI18nCustom:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Custom translation ID
+                site:
+                    enum:
+                        - BASE_CONFIG_SITE_UNSPECIFIED
+                        - BASE_CONFIG_SITE_SYSTEM
+                        - BASE_CONFIG_SITE_ADMIN
+                        - BASE_CONFIG_SITE_APP
+                    type: string
+                    description: "Position: enum [BaseConfigSite]"
+                    format: enum
+                key:
+                    type: string
+                    description: Locale key
+                locale:
+                    type: string
+                    description: locale
+                value:
+                    type: string
+                    description: Custom translation content
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: "status: enum【Status】"
+                    format: enum
+                remark:
+                    type: string
+                    description: Remarks
+                created_at:
+                    type: string
+                    description: Create time
+                updated_at:
+                    type: string
+                    description: Update time
+            description: Custom translation information.
+        system.admin.v1.BaseI18nCustomForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Custom translation ID
+                site:
+                    enum:
+                        - BASE_CONFIG_SITE_UNSPECIFIED
+                        - BASE_CONFIG_SITE_SYSTEM
+                        - BASE_CONFIG_SITE_ADMIN
+                        - BASE_CONFIG_SITE_APP
+                    type: string
+                    description: "Position: enum [BaseConfigSite]"
+                    format: enum
+                key:
+                    type: string
+                    description: Locale key
+                locale:
+                    type: string
+                    description: locale
+                value:
+                    type: string
+                    description: Custom translation content
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+                remark:
+                    type: string
+                    description: Remarks
+            description: Custom translation form.
         system.admin.v1.BaseJob:
             type: object
             properties:
@@ -10954,6 +11523,116 @@ components:
                     type: string
                     description: Remarks
             description: tenant form
+        system.admin.v1.BaseTenantProject:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: item item ID
+                tenant_id:
+                    type: string
+                    description: tenant ID
+                code:
+                    type: string
+                    description: item item number
+                name:
+                    type: string
+                    description: item item name
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+                sort:
+                    type: integer
+                    description: Display order
+                    format: int32
+                remark:
+                    type: string
+                    description: Remarks
+                created_at:
+                    type: string
+                    description: Create time
+                updated_at:
+                    type: string
+                    description: Update time
+            description: item item
+        system.admin.v1.BaseTenantProjectForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: item item ID
+                tenant_id:
+                    type: string
+                    description: tenant ID
+                code:
+                    type: string
+                    description: item item number
+                name:
+                    type: string
+                    description: item item name
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+                sort:
+                    type: integer
+                    description: Display order
+                    format: int32
+                remark:
+                    type: string
+                    description: Remarks
+            description: item item form
+        system.admin.v1.BaseTenantProjectGrant:
+            type: object
+            properties:
+                tenant_id:
+                    type: string
+                    description: authorization target tenant ID
+                subject_type:
+                    enum:
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_UNSPECIFIED
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_POST
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_ROLE
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_DEPT
+                        - BASE_TENANT_PROJECT_GRANT_SUBJECT_TYPE_USER
+                    type: string
+                    description: Grant subject type
+                    format: enum
+                subject_id:
+                    type: string
+                    description: Position, role, department or user ID
+                project_id:
+                    type: array
+                    items:
+                        type: string
+                    description: "Numeric project primary key array: [0] for all, [] for no access"
+                tenant_name:
+                    type: string
+                    description: tenant name
+                subject_name:
+                    type: string
+                    description: Grant subject name
+                subject_code:
+                    type: string
+                    description: Grant subject code
+                project_names:
+                    type: array
+                    items:
+                        type: string
+                    description: authorization item item name list
+                grant_key:
+                    type: string
+                    description: Project grant composite key display value
+            description: Project grant record; project_id [0] means all projects in the target tenant, and an empty array means no access.
         system.admin.v1.BaseUser:
             type: object
             properties:
@@ -11751,6 +12430,19 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseRedactStoragePolicyForm'
                     description: inbound redaction policy list
             description: Create inbound redaction policy request parameters.
+        system.admin.v1.CreateBaseTenantResponse:
+            type: object
+            properties:
+                tenant_code:
+                    type: string
+                    description: tenant number
+                admin_user_name:
+                    type: string
+                    description: Tenant administrator username
+                initial_password:
+                    type: string
+                    description: Tenant administrator initial password, returned only when generated randomly
+            description: Create tenant response parameters
         system.admin.v1.DraftBaseI18nItem:
             type: object
             properties:
@@ -12473,6 +13165,19 @@ components:
                     type: string
                     description: total count
             description: file asset paginated response.
+        system.admin.v1.PageBaseI18nCustomResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseI18nCustom'
+                    description: Custom translation list
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: Custom translation paginated response.
         system.admin.v1.PageBaseJobLogResponse:
             type: object
             properties:
@@ -12759,6 +13464,32 @@ components:
                     description: total count
                     format: int32
             description: Page Base Table Backup Restore Response database backup restore record paginated response.
+        system.admin.v1.PageBaseTenantProjectGrantResponse:
+            type: object
+            properties:
+                grants:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseTenantProjectGrant'
+                    description: item item authorization list
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: item item authorization paginated response.
+        system.admin.v1.PageBaseTenantProjectResponse:
+            type: object
+            properties:
+                base_tenant_projects:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseTenantProject'
+                    description: Paginated data
+                total:
+                    type: integer
+                    description: total count
+                    format: int32
+            description: item item paginated response
         system.admin.v1.PageBaseTenantResponse:
             type: object
             properties:
@@ -13152,6 +13883,21 @@ components:
                     description: status
                     format: int32
             description: Set dictionary status request parameters
+        system.admin.v1.SetBaseI18nCustomStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Custom translation ID
+                status:
+                    enum:
+                        - STATUS_UNSPECIFIED
+                        - STATUS_ENABLE
+                        - STATUS_DISABLE
+                    type: string
+                    description: status
+                    format: enum
+            description: Set custom translation status request.
         system.admin.v1.SetBaseJobStatusRequest:
             type: object
             properties:
@@ -13327,6 +14073,17 @@ components:
                     description: status
                     format: int32
             description: Set Base Table Backup Status Request Set database backup configuration status request.
+        system.admin.v1.SetBaseTenantProjectStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: item item ID
+                status:
+                    type: integer
+                    description: status
+                    format: int32
+            description: Set item item status request parameters
         system.admin.v1.SetBaseTenantStatusRequest:
             type: object
             properties:
@@ -13426,6 +14183,42 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseMenu'
                     description: menu tree
             description: menu tree response
+        system.admin.v1.TreeBaseTenantProjectResponse:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.TreeBaseTenantProjectResponse_Option'
+                    description: tenant item item tree
+            description: item item tree response
+        system.admin.v1.TreeBaseTenantProjectResponse_Option:
+            type: object
+            properties:
+                value:
+                    type: string
+                    description: Node value
+                label:
+                    type: string
+                    description: Node name
+                type:
+                    type: string
+                    description: "Node type: tenant or project"
+                tenant_id:
+                    type: string
+                    description: tenant ID
+                project_id:
+                    type: string
+                    description: item item ID
+                disabled:
+                    type: boolean
+                    description: whether disabled
+                children:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.TreeBaseTenantProjectResponse_Option'
+                    description: child node
+            description: item item tree node
         system.admin.v1.TreeRouteResponse:
             type: object
             properties:
@@ -13773,9 +14566,9 @@ tags:
     - name: AiToolService
       description: Base AI assistant tool service
     - name: AuthService
-      description: app user authentication service
-    - name: AuthService
       description: admin user login authentication service
+    - name: AuthService
+      description: app user authentication service
     - name: BaseApiLogService
       description: Admin API access log service.
     - name: BaseApiService
@@ -13795,11 +14588,13 @@ tags:
     - name: BaseDictItemService
       description: admin dictionary item service
     - name: BaseDictService
-      description: admin dictionary service
-    - name: BaseDictService
       description: app dictionary service
+    - name: BaseDictService
+      description: admin dictionary service
     - name: BaseFileService
       description: admin file asset management service.
+    - name: BaseI18nCustomService
+      description: Admin custom translation service.
     - name: BaseI18nService
       description: Admin internationalization service.
     - name: BaseJobLogService
@@ -13856,6 +14651,10 @@ tags:
       description: Admin database backup configuration service.
     - name: BaseTableSourceService
       description: Admin data-source metadata service for database backup, data archiving, and code generation.
+    - name: BaseTenantProjectGrantService
+      description: BaseTenantProjectGrantService manages project grants for positions, roles, departments and users in a target tenant.
+    - name: BaseTenantProjectService
+      description: Admin project management service
     - name: BaseTenantService
       description: admin tenant management service
     - name: BaseUserService

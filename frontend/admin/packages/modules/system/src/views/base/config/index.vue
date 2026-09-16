@@ -137,13 +137,13 @@ import { BaseConfigType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v
 import { I18nTargetType } from "@liujitcn/kratos-admin-system/rpc/system/admin/v1/base_i18n";
 import { buildPageRequest, normalizeSelectedIds } from "@liujitcn/kratos-admin-core/table";
 import { t } from "@liujitcn/kratos-admin-core";
-import DynamicI18nEditor from "@liujitcn/kratos-admin-system/components/DynamicI18nEditor.vue";
-import DynamicI18nCell from "@liujitcn/kratos-admin-system/components/DynamicI18nCell.vue";
+import DynamicI18nEditor from "@liujitcn/kratos-admin-system/components/i18n/DynamicI18nEditor.vue";
+import DynamicI18nCell from "@liujitcn/kratos-admin-system/components/i18n/DynamicI18nCell.vue";
 import {
   getEditableLanguageOptions,
   serializeDynamicI18ns,
   type DynamicI18nValue
-} from "@liujitcn/kratos-admin-system/components/dynamicI18n";
+} from "@liujitcn/kratos-admin-system/components/i18n/dynamicI18n";
 
 /** 系统配置编辑表单状态，新增时枚举字段保持为空，避免把未知值 0 显示为下拉文本。 */
 type BaseConfigFormState = Omit<BaseConfigForm, "site" | "type"> & {

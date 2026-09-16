@@ -406,14 +406,15 @@ watch(
 }
 .agent-sender {
   :deep(.elx-x-sender) {
+    background: var(--admin-page-card-bg);
     border-radius: var(--admin-page-radius);
     box-shadow: none;
   }
   :deep(.elx-x-sender__content) {
     padding: 8px 10px 10px;
-    background: var(--admin-page-card-bg);
-    border: 1px solid var(--admin-page-card-border);
-    border-radius: var(--admin-page-radius);
+    background: transparent;
+    border: 0;
+    border-radius: inherit;
   }
   :deep(.elx-x-sender__content--variant-updown) {
     gap: 10px;

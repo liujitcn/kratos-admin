@@ -77,13 +77,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { Download, Delete, View } from "@element-plus/icons-vue";
 import ProTable from "@liujitcn/kratos-admin-core/components/ProTable";
 import ProDialog from "@liujitcn/kratos-admin-core/components/Dialog/ProDialog.vue";
 import type { ColumnProps, ProTableInstance } from "@liujitcn/kratos-admin-core/components/ProTable/interface";
 import { useAuthButtons } from "@liujitcn/kratos-admin-core/auth";
 import { buildPageRequest } from "@liujitcn/kratos-admin-core/table";
+import { useTenantScope } from "@liujitcn/kratos-admin-core/tenant";
 import { t } from "@liujitcn/kratos-admin-core";
 import { defFileService } from "@liujitcn/kratos-admin-core/api/base/v1/file";
 import { defBaseFileService } from "@liujitcn/kratos-admin-system/api/system/admin/v1/base_file";
@@ -92,6 +93,7 @@ import type { BaseFile, PageBaseFileRequest } from "@liujitcn/kratos-admin-syste
 defineOptions({ name: "BaseFile", inheritAttrs: false });
 
 const { BUTTONS } = useAuthButtons();
+const { isDefaultTenant, tenantColumns, toRequestTenantId, loadTenantOptions } = useTenantScope();
 const proTable = ref<ProTableInstance>();
 const detailVisible = ref(false);
 const detail = ref<BaseFile>();
@@ -106,13 +108,17 @@ type PreviewKind = "image" | "video" | "audio" | "pdf" | "text" | "unsupported";
 
 const previewKind = computed<PreviewKind>(() => (detail.value ? getPreviewKind(detail.value) : "unsupported"));
 
+onMounted(() => {
+  if (isDefaultTenant.value) void loadTenantOptions();
+});
+
 const columns = computed<ColumnProps[]>(() => [
   { prop: "file_name", label: t("system.base.file.field.name"), minWidth: 220, search: { el: "input" } },
   { prop: "extension", label: t("system.base.file.field.extension"), width: 100, search: { el: "input" } },
   { prop: "mime_type", label: t("system.base.file.field.mime"), minWidth: 180 },
   { prop: "size", label: t("system.base.file.field.size"), width: 120, align: "right", render: scope => formatFileSize((scope.row as BaseFile).size) },
   { prop: "content_hash", label: t("system.base.file.field.hash"), minWidth: 220 },
-  { prop: "tenant_id", label: t("system.base.file.field.tenant"), width: 100, align: "left" },
+  ...tenantColumns({ label: t("system.base.file.field.tenant"), minWidth: 100 }),
   { prop: "created_at", align: "center", label: t("common.field.created_at"), minWidth: 180 },
   {
     prop: "operation",
@@ -141,7 +147,10 @@ const columns = computed<ColumnProps[]>(() => [
 
 /** 请求文件资产分页列表。 */
 async function requestBaseFileTable(params: PageBaseFileRequest) {
-  const data = await defBaseFileService.PageBaseFile(buildPageRequest(params));
+  const data = await defBaseFileService.PageBaseFile({
+    ...buildPageRequest(params),
+    tenant_id: toRequestTenantId(params.tenant_id)
+  });
   return { data: { list: data.base_files ?? [], total: data.total } };
 }
 

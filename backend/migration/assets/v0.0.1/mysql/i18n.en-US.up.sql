@@ -268,6 +268,16 @@ INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VA
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 20010200, 'en-US', 'Delete Tenant');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 20010300, 'en-US', 'Edit Tenant');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 20010400, 'en-US', 'Change Tenant Status');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 20040000, 'en-US', 'Project Management');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 20040100, 'en-US', 'Project Management');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 20040101, 'en-US', 'Create Project');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 20040102, 'en-US', 'Delete Project');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 20040103, 'en-US', 'Edit Project');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 20040104, 'en-US', 'Change Project Status');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 20040200, 'en-US', 'Project Access');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 20040201, 'en-US', 'Create Project Access');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 20040202, 'en-US', 'Edit Project Access');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 20040203, 'en-US', 'Delete Project Access');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 30000000, 'en-US', 'User Management');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 30020000, 'en-US', 'User Management');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 30020100, 'en-US', 'Create User');
@@ -323,6 +333,11 @@ INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VA
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91010602, 'en-US', 'Delete Dictionary Item');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91010603, 'en-US', 'Edit Dictionary Item');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91010604, 'en-US', 'Change Dictionary Item Status');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91010700, 'en-US', 'Custom translations');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91010701, 'en-US', 'Add custom translation');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91010702, 'en-US', 'Delete custom translation');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91010703, 'en-US', 'Edit custom translation');
+INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91010704, 'en-US', 'Change custom translation status');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91020000, 'en-US', 'Permission Management');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91020100, 'en-US', 'Menu Management');
 INSERT IGNORE INTO `base_i18n` (`target_type`, `target_id`, `locale`, `name`) VALUES (5, 91020101, 'en-US', 'Create Menu');
