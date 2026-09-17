@@ -3445,6 +3445,25 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/redact-output-policy/fields/{api_id}:
+        get:
+            tags:
+                - BaseRedactOutputPolicyService
+            description: 検索可能な出力マスキングのレスポンスフィールドドキュメント。
+            operationId: BaseRedactOutputPolicyService_GetBaseRedactOutputFieldDoc
+            parameters:
+                - name: api_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseApiDoc'
     /api/v1/admin/base/redact-output-policy/{id}:
         get:
             tags:
@@ -3732,6 +3751,28 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/redact-storage-policy/columns:
+        get:
+            tags:
+                - BaseRedactStoragePolicyService
+            description: 検索可能な保存マスキングの文字列フィールド一覧。
+            operationId: BaseRedactStoragePolicyService_ListBaseRedactStorageColumn
+            parameters:
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
+                - name: table_name
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.ListBaseRedactStorageColumnResponse'
     /api/v1/admin/base/redact-storage-policy/{id}:
         get:
             tags:
@@ -10938,6 +10979,22 @@ components:
                     type: string
                     description: 備考
             description: マスキングルールフォーム。
+        system.admin.v1.BaseRedactStorageColumn:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: フィールド名
+                comment:
+                    type: string
+                    description: フィールドコメント
+                db_type:
+                    type: string
+                    description: データベース種類
+                column_type:
+                    type: string
+                    description: データベース完全な種類
+            description: 可能な保存マスキングフィールド。
         system.admin.v1.BaseRedactStoragePolicy:
             type: object
             properties:
@@ -12488,6 +12545,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseLogTraceItem'
                     description: 关联ログ時刻线
             description: 关联审计検索レスポンス。
+        system.admin.v1.ListBaseRedactStorageColumnResponse:
+            type: object
+            properties:
+                columns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactStorageColumn'
+                    description: 可能なマスキングフィールド一覧
+            description: 可能な保存マスキングフィールド一覧レスポンス。
         system.admin.v1.ListBaseUserResponse:
             type: object
             properties:

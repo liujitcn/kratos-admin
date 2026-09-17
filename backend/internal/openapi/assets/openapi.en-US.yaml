@@ -3445,6 +3445,25 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/redact-output-policy/fields/{api_id}:
+        get:
+            tags:
+                - BaseRedactOutputPolicyService
+            description: Query availableoutboundredactionof response field document.
+            operationId: BaseRedactOutputPolicyService_GetBaseRedactOutputFieldDoc
+            parameters:
+                - name: api_id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.BaseApiDoc'
     /api/v1/admin/base/redact-output-policy/{id}:
         get:
             tags:
@@ -3732,6 +3751,28 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/redact-storage-policy/columns:
+        get:
+            tags:
+                - BaseRedactStoragePolicyService
+            description: Query availableinboundredactionof string field list.
+            operationId: BaseRedactStoragePolicyService_ListBaseRedactStorageColumn
+            parameters:
+                - name: source_name
+                  in: query
+                  schema:
+                    type: string
+                - name: table_name
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/system.admin.v1.ListBaseRedactStorageColumnResponse'
     /api/v1/admin/base/redact-storage-policy/{id}:
         get:
             tags:
@@ -10938,6 +10979,22 @@ components:
                     type: string
                     description: Remarks
             description: redaction rule form.
+        system.admin.v1.BaseRedactStorageColumn:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: field name
+                comment:
+                    type: string
+                    description: field comment
+                db_type:
+                    type: string
+                    description: database type
+                column_type:
+                    type: string
+                    description: database complete type
+            description: available inbound redaction field.
         system.admin.v1.BaseRedactStoragePolicy:
             type: object
             properties:
@@ -12488,6 +12545,15 @@ components:
                         $ref: '#/components/schemas/system.admin.v1.BaseLogTraceItem'
                     description: associated log time timeline
             description: associated audit query response.
+        system.admin.v1.ListBaseRedactStorageColumnResponse:
+            type: object
+            properties:
+                columns:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/system.admin.v1.BaseRedactStorageColumn'
+                    description: available redaction field list
+            description: available inbound redaction field list response.
         system.admin.v1.ListBaseUserResponse:
             type: object
             properties:
