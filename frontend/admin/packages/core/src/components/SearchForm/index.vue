@@ -1,8 +1,8 @@
 <template>
-  <div v-if="columns.length" class="card table-search" :class="{ 'table-search--no-operation': !showOperation }">
+  <div v-if="searchColumns.length" class="card table-search" :class="{ 'table-search--no-operation': !showOperation }">
     <el-form ref="formRef" :model="searchParam">
       <Grid ref="gridRef" :collapsed="collapsed" :gap="[20, 0]" :cols="searchCol">
-        <GridItem v-for="(item, index) in columns" :key="item.prop" v-bind="getResponsive(item)" :index="index">
+        <GridItem v-for="(item, index) in searchColumns" :key="item.prop" v-bind="getResponsive(item)" :index="index">
           <el-form-item>
             <template #label>
               <el-space :size="4">
@@ -13,7 +13,17 @@
               </el-space>
               <span>&nbsp;:</span>
             </template>
-            <SearchFormItem :column="item" :search-param="searchParam" />
+            <template v-if="resolveSearchSlotName(item)">
+              <slot
+                :name="resolveSearchSlotName(item)"
+                :field="item"
+                :model="searchParam"
+                :column="item"
+                :search-param="searchParam"
+                :prop="item.search?.key ?? item.prop"
+              />
+            </template>
+            <SearchFormItem v-else :column="item" :search-param="searchParam" />
           </el-form-item>
         </GridItem>
         <GridItem v-if="showOperation" suffix>
@@ -33,7 +43,7 @@
   </div>
 </template>
 <script setup lang="ts" name="SearchForm">
-import { computed, ref } from "vue";
+import { computed, ref, useSlots } from "vue";
 import { ColumnProps } from "@/components/ProTable/interface";
 import { BreakPoint } from "@/components/Grid/interface";
 import { Delete, Search, ArrowDown, ArrowUp } from "@element-plus/icons-vue";
@@ -44,9 +54,17 @@ import { useLocaleStore } from "@/locales";
 
 const { t } = useLocaleStore();
 
+/** 搜索列配置，补充 ProForm 风格的插槽名称和字段后置位置。 */
+type SearchColumn = ColumnProps & {
+  /** 自定义搜索项插槽名称，未配置时使用字段 prop。 */
+  slotName?: string;
+  /** 将当前搜索项插入到指定字段后面。 */
+  after?: string;
+};
+
 /** ProTable 搜索表单组件属性。 */
 interface ProTableProps {
-  columns?: ColumnProps[]; // 搜索配置列
+  columns?: SearchColumn[]; // 搜索配置列
   searchParam?: { [key: string]: any }; // 搜索参数
   searchCol: number | Record<BreakPoint, number>;
   search: (params: any) => void; // 搜索方法
@@ -60,6 +78,43 @@ const props = withDefaults(defineProps<ProTableProps>(), {
   searchParam: () => ({}),
   showOperation: true
 });
+
+const slots = useSlots();
+
+/** 按 after 配置排列搜索项，未配置或找不到目标字段时保持原有顺序。 */
+const searchColumns = computed<SearchColumn[]>(() => {
+  const sourceColumns = [...(props.columns ?? [])];
+  const positionedColumns = sourceColumns.filter(column => {
+    const after = column.after;
+    return Boolean(after && sourceColumns.some(item => item.prop === after));
+  });
+  const positionedSet = new Set(positionedColumns);
+  const columnsByAnchor = new Map<string, SearchColumn[]>();
+  for (const column of positionedColumns) {
+    const anchor = column.after!;
+    const columns = columnsByAnchor.get(anchor) ?? [];
+    columns.push(column);
+    columnsByAnchor.set(anchor, columns);
+  }
+
+  const result: SearchColumn[] = [];
+  for (const column of sourceColumns) {
+    if (positionedSet.has(column)) continue;
+    result.push(column);
+    const columns = column.prop ? columnsByAnchor.get(column.prop) : undefined;
+    if (!columns) continue;
+    result.push(...columns);
+    columnsByAnchor.delete(column.prop!);
+  }
+  for (const columns of columnsByAnchor.values()) result.push(...columns);
+  return result;
+});
+
+/** 按 ProForm 的 slotName 优先、字段 prop 回退规则解析搜索项插槽。 */
+function resolveSearchSlotName(item: SearchColumn): string | undefined {
+  const slotName = item.slotName ?? item.prop;
+  return slotName && slots[slotName] ? slotName : undefined;
+}
 
 // 获取响应式设置
 const getResponsive = (item: ColumnProps) => {
@@ -84,10 +139,10 @@ const breakPoint = computed<BreakPoint>(() => gridRef.value?.breakPoint);
 // 判断是否显示 展开/合并 按钮
 const showCollapse = computed(() => {
   let show = false;
-  props.columns.reduce((prev, current) => {
+  searchColumns.value.reduce((prev, current) => {
     prev +=
-      (current.search![breakPoint.value]?.span ?? current.search?.span ?? 1) +
-      (current.search![breakPoint.value]?.offset ?? current.search?.offset ?? 0);
+      (current.search?.[breakPoint.value]?.span ?? current.search?.span ?? 1) +
+      (current.search?.[breakPoint.value]?.offset ?? current.search?.offset ?? 0);
     if (typeof props.searchCol !== "number") {
       if (prev >= props.searchCol[breakPoint.value]) show = true;
     } else {
