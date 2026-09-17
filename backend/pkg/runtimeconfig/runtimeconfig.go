@@ -505,32 +505,34 @@ func mergeNestedJSONObjects(defaults, overrides json.RawMessage) (json.RawMessag
 	var err error
 	err = json.Unmarshal(defaults, &defaultObject)
 	if err != nil || defaultObject == nil {
-		return nil, false, nil
+		return []byte{}, false, nil
 	}
 	var overrideObject map[string]json.RawMessage
 	err = json.Unmarshal(overrides, &overrideObject)
 	if err != nil || overrideObject == nil {
-		return nil, false, nil
+		return []byte{}, false, nil
 	}
-	defaultJSON, err := json.Marshal(defaultObject)
+	var defaultJSON []byte
+	defaultJSON, err = json.Marshal(defaultObject)
 	if err != nil {
-		return nil, false, err
+		return []byte{}, false, err
 	}
-	overrideJSON, err := json.Marshal(overrideObject)
+	var overrideJSON []byte
+	overrideJSON, err = json.Marshal(overrideObject)
 	if err != nil {
-		return nil, false, err
+		return []byte{}, false, err
 	}
 	var merged []byte
 	merged, err = mergeJSONObjects(defaultJSON, overrideJSON)
 	if err != nil {
-		return nil, false, err
+		return []byte{}, false, err
 	}
 	return merged, true, nil
 }
 
 func getJSONField(object map[string]json.RawMessage, parts []string) (json.RawMessage, bool) {
 	if len(parts) == 0 {
-		return nil, false
+		return []byte{}, false
 	}
 	value, exists := object[parts[0]]
 	if !exists || len(parts) == 1 {
@@ -538,7 +540,7 @@ func getJSONField(object map[string]json.RawMessage, parts []string) (json.RawMe
 	}
 	var nested map[string]json.RawMessage
 	if err := json.Unmarshal(value, &nested); err != nil || nested == nil {
-		return nil, false
+		return []byte{}, false
 	}
 	return getJSONField(nested, parts[1:])
 }
